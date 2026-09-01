@@ -581,6 +581,25 @@ done
 #  ⚠ EACH ROW IS ANCHORED TO ITS OWN LABEL LINE (grep -A1), not to a count of
 #  matching bodies. Four of the five ADDROF lines carry the tag `ptSrc` and three
 #  carry body=#2, so an unanchored grep would pass on the wrong line.
+#  ⚠⚠ L6 -- IS `<-` CARRIER-STABLE? YES, AND THIS IS THE ONE PLACE THE FIELD
+#  COLUMN IS PINNED ON PURPOSE. Everywhere else in this block the field column is
+#  deliberately NOT pinned, because it reports the carrier and the carrier moves
+#  for reasons that say nothing about the laws (H3). HERE THE CARRIER IS THE
+#  SUBJECT, so the field number is the measurement and the body column is the one
+#  that would say nothing.
+#  ⚠ L6a AND L6b ARE THE CLAIM AND L6d IS WHAT KEEPS IT FROM BEING VACUOUS. A
+#  numbering scheme that simply never advanced would satisfy "the field repeats";
+#  L6d asks the define-block field again in the same run and gets a FRESH carrier
+#  (#11, after #1/#3/#8/#9), so the scheme demonstrably does advance and L6b's
+#  repeat is a real identity rather than a stalled counter.
+#  ⚠ WHY IT MATTERS BEYOND THIS FIXTURE: a bare mention of a defined field mints
+#  a fresh carrier on EVERY ask, and a `<-` capture does not -- so one road
+#  already reaches a stable field by name. That is a candidate for what step 4 is
+#  building by hand, and it is noted in incant/fixits/carrierNode as the first
+#  named read measured to reach a stable field.
+#  ⚠ L6c shows the property is not special to capturing a name: a capture of a
+#  SUBSCRIPT is stable too, reading #6 here and at L4d and L5b -- three asks, one
+#  field, across the whole run.
 #  ⚠ L5's NEGATIVE CONTROL, run the same way and recorded here with L4's: L5b was
 #  aimed at a NAMED field instead of the element, and it went RED (isCopy 0 -> 1)
 #  while L5a stayed green, which is exactly the split the two rows claim.
@@ -662,7 +681,11 @@ for _l4 in "L4a source asked once:|body=#2|source body, first ask" \
            "L4d the SUBSCRIPT RESULT|body=#7|the subscript STOPPED (law 2, certified)" \
            "L4e that capture STARRED|body=#2|the star REACHED the source (law 4)" \
            "L5a a NAMED field|isCopy=1|a NAMED read is a COPY (the carrier mints one)" \
-           "L5b the SUBSCRIPT ELEMENT|isCopy=0|the ELEMENT is nobody's copy"; do
+           "L5b the SUBSCRIPT ELEMENT|isCopy=0|the ELEMENT is nobody's copy" \
+           "L6a a <- capture OF A NAME, first ask|field=#10|a <- capture of a NAME" \
+           "L6b the SAME capture, second ask|field=#10|SAME FIELD -- <- is carrier-stable" \
+           "L6c a <- capture OF A SUBSCRIPT|field=#6|a <- capture of a SUBSCRIPT, also stable" \
+           "L6d the DEFINE-BLOCK field|field=#11|a FRESH carrier -- the control"; do
     _lbl=${_l4%%|*}; _rest=${_l4#*|}; _want=${_rest%%|*}; _why=${_rest##*|}
     if grep -A1 -F "$_lbl" "$T/ptr" | grep -qE "ADDROF .*[ ]$_want([ ]|\$)"; then
         echo "  ok    pointerT ${_lbl%% *}: $_why -- PINNED BY IDENTITY"; green=$((green+1))
@@ -709,6 +732,65 @@ for _arm in "ADDROF faSrc field=#1 body=#2" \
         echo "  FAIL  $_arm -- moved"; fail=1
     fi
 done
+
+#  ============================================================================
+#  ⚠⚠ roundTripT -- JOINS THE FLEET 2026-09-02 (SEQ 116), AND IT HAD NEVER BEEN
+#  IN IT. Born 2026-08-31, it carries the founding measurement of the mechanism
+#  table -- which twinning road SHARES a body and which COPIES one -- and nothing
+#  pinned it, so it could have gone silently wrong at any point since.
+#  ⚠ WHAT IT READS TODAY, and the pre-registration is CONFIRMED: a body flag
+#  crosses between two names EXACTLY WHEN THE BODY IS SHARED.
+#      ARM A   one node, write then read       1          round trip works
+#      ARM C   never written                   noPrinT    tag echo, NOT 1
+#      ARM B1  copyOf twin, write twin         noPrinT    does NOT cross
+#      ARM B2  addGroup twin, write twin       1          DOES cross
+#  ⚠ B1 IS NOT A COUNTEREXAMPLE, IT IS THE SAME RULE. copyOf makes its OWN body
+#  (which is why Tony's ruling says copyOf is not a "copy of a field" at all), so
+#  there is no shared body for the flag to cross through. B1 and B2 differ in the
+#  road, not in the law.
+#  ⚠ ARM C READS A TAG ECHO, NOT 0, and its own want-text still says "MUST be 0".
+#  An unset flag has no data and returns its own tag (bear-trap #26) -- that is
+#  the honest answer, the same one faceT's F0 gives. What the control actually
+#  asserts is that it is NOT 1, and the row below pins the echo by value.
+#  ⚠⚠ AND ARM 0 -- THE FIXTURE'S OWN VOIDING CONTROL -- IS FAILING, PINNED HERE
+#  AT THE DEFECT ON PURPOSE. It probes one field twice with nothing between and
+#  says "the two node= above MUST match, or every address below is void." THEY DO
+#  NOT MATCH. The cause is now measured rather than suspected: a bare mention of a
+#  defined field mints a FRESH CARRIER on every ask (pointerT L6d), so probeNode
+#  receives a different field each call.
+#  ⚠ THE VOIDING IS REAL BUT NARROW, AND SAYING WHICH IS THE POINT. It voids the
+#  probeNode ADDRESS lines. It does NOT void ARM A, B1 or B2, because those read
+#  the flag through a BARE MENTION and never through probeNode -- so the four rows
+#  above stand on their own evidence. Pinned MISMATCH: when the carrier lands,
+#  this row goes RED and gets re-pinned to MATCH, which is how the fix cannot land
+#  silently.
+run1 roundTripT "$T/rt"; check "roundTripT runs" 0 $?
+if grep -q "ROUNDTRIP SENTINEL" "$T/rt"; then
+    echo "  ok    roundTripT sentinel (no truncation)"; green=$((green+1))
+else
+    echo "  FAIL  roundTripT sentinel MISSING"; fail=1
+fi
+for _arm in "ARM A   r = 1" \
+            "ARM C   r = noPrinT" \
+            "ARM B1  original reads noPrinT" \
+            "ARM B2  original reads 1"; do
+    if grep -qF "$_arm" "$T/rt"; then
+        echo "  ok    roundTripT $_arm -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  roundTripT $_arm -- moved"; fail=1
+    fi
+done
+#  The two ARM 0 node addresses, compared by value rather than pinned by text --
+#  the raw %p moves every run (H3), so only their AGREEMENT is assertable.
+_rt0a=$(grep -m2 "^PN rtA node=" "$T/rt" | sed -n '1s/.*node=\([^ ]*\).*/\1/p')
+_rt0b=$(grep -m2 "^PN rtA node=" "$T/rt" | sed -n '2s/.*node=\([^ ]*\).*/\1/p')
+if [ -z "$_rt0a" ] || [ -z "$_rt0b" ]; then
+    echo "  FAIL  roundTripT ARM 0 -- could not read either node address (vacuity guard)"; fail=1
+elif [ "$_rt0a" != "$_rt0b" ]; then
+    echo "  ok    roundTripT ARM 0 MISMATCH -- pinned at the DEFECT (carrier mints fresh)"; green=$((green+1))
+else
+    echo "  FAIL  roundTripT ARM 0 now MATCHES -- the carrier landed; re-pin this row"; fail=1
+fi
 
 extract () { sed -n "/^extern [A-Za-z]* $1(/,/^}/p;/^extern [A-Za-z]* $2(/,/^}/p" "$T/gen"; }
 

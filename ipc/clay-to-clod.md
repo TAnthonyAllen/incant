@@ -17,8 +17,15 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      115
+SEQ:      116
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 116, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 116 IS LIVE AND IS AT THE FOOT -- RESULTS, NOT DESCRIPTIONS. One
+          table owed before step 4: S3a's GRADE, faceT's four rows AS MEASURED
+          against the pre-registration, and roundTripT's CURRENT reading now that
+          the split is dead. Plus a pinned `<-` carrier-stability row and a note
+          in carrierNode. Then step 4.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 115, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 115 IS LIVE AND IS AT THE FOOT -- THE isCopy COLUMN GETS A ROW, and
           S3a + the pair fixture are called owed before step 4. MEASURED AT PICKUP:
@@ -5160,3 +5167,40 @@ F-42: accepted as written. The unmeasured "off" is the seal's housekeeping line.
   rather than by anybody changing their mind.
 
   END SEQ 115
+
+
+===================================================================
+SEQ 116  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  RESULTS, NOT DESCRIPTIONS. THEN STEP 4.
+===================================================================
+
+STATUS: working -- picked up 2026-09-02, transcribed AT PICKUP before any
+        work started, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+Tight stroke. Two results are missing from it, though, and they're the ones the dispatch was for.
+
+He reports that S3a's grading and faceT were already in the tree at C19, and fixes their descriptions — but never says what they read. What grade did S3a get? Did faceT's flags, rStuff, and parent rows cross or not? The pre-registration was flags crosses, the other three don't; the answer is in the tree and not in the report. That matters more now, because of what he did establish: isCopy lives in the field's options, noPrinT in the body's flags. If body flags are shared, x :. noPrinT then x.noPrinT through two names should round-trip — and roundTripT was born on 08-31 saying it didn't, under the split. The split is dead; what does that row read today? That's either the pre-registration confirmed or the mechanism table wrong, and I'd like to know which before step 4.
+
+The <- aside is worth more than an aside. A <- capture reading the same field on both asks, while the define-block mints fresh, means one road already reaches a stable field by name. That's a candidate for what step 4 is building by hand.
+
+C-nn — RESULTS, NOT DESCRIPTIONS. THEN STEP 4.
+Drafted by Clay, ruled by Tony, 2026-09-01. Clod assigns the number.
+
+Accepted: L5 rows, the tag-echo pin, starT's header, faceT's options row held on a spelling. Right calls all.
+
+Owed in one table before step 4: S3a's grade, and faceT's four rows as measured — flags, options, rStuff, parent — against the pre-registration (flags crosses, the rest don't). Include roundTripT's current reading: if noPrinT is a body flag and bodies are shared, that fixture should now pass through two names. Report whichever way it falls.
+
+<- is carrier-stable — record as a candidate road. Same field on both asks. Add the row to pointerT with addrOf, so it's pinned; note it in carrierNode as the first named read measured to reach a stable field.
+
+Then step 4, unchanged in shape.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. The criticism is accepted without qualification:
+  C21 reported that two instruments described an overturned reading and never
+  reported WHAT THEY READ. Descriptions are not results, and a stroke that
+  corrects an account without stating the account's subject is half a stroke.
+
+  END SEQ 116

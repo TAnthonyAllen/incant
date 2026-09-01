@@ -252,3 +252,50 @@ WHAT WOULD GENERATE THE ANSWER, cheapest first:
   3. The generalisation is worth pricing either way: THREE MEASUREMENTS ON THREE
      DAYS SAY A NAMED READ DOES NOT REACH A WRITTEN NODE. A fix aimed only at
      the argument road leaves the other two standing.
+
+⚠⚠ ADDED 2026-09-02 (SEQ 116): `<-` IS CARRIER-STABLE, AND IT IS THE FIRST NAMED
+READ MEASURED TO REACH A STABLE FIELD.
+
+Everything above is a record of the argument road minting fresh nodes. This is
+the first measurement of a road that does NOT, and it is on the read side rather
+than the write side.
+
+MEASURED, one run, by addrOf's FIELD column -- which is the right column here
+precisely because it reports the carrier, and the carrier is the subject.
+Pinned as pointerT rows L6a-L6d:
+
+    a `<-` capture of a NAME, asked twice          field=#10, #10   SAME
+    a `<-` capture of a SUBSCRIPT, asked twice     field=#6,  #6    SAME
+    a DEFINE-BLOCK field, asked five times         #1 #3 #8 #9 #11  FRESH EVERY ASK
+
+⚠ THE CONTROL IS THE THIRD ROW AND IT IS NOT OPTIONAL. A numbering scheme that
+never advanced would satisfy "the field repeats" without meaning anything; the
+define-block field advancing five times in the same run is what makes the two
+repeats real identities rather than a stalled counter.
+
+⚠ WHY IT BELONGS IN THIS FILE: the whole citizen is about a named read not
+reaching a written node. `<-` is a named read that demonstrably reaches the SAME
+field twice running. It is therefore a candidate ROAD for what step 4 is about to
+build by hand -- offered as a candidate and NOT as a recommendation, because
+what is measured is that the capture is stable, and NOT that it is stable across
+the boundary the argument channel has to cross. Those are different claims and
+only the first one has been run.
+
+⚠ AND THE SAME MEASUREMENT EXPLAINS A CONTROL THAT HAS BEEN FAILING UNNOTICED.
+roundTripT's ARM 0 probes one field twice with nothing between and declares that
+the two node addresses MUST match or every address below is void. They do not
+match, and have not since the fixture was born on 2026-08-31 -- because
+probeNode takes its subject through the carrier, which mints a fresh field per
+ask. The fixture was not in the fleet, so nothing reported it. It is in the fleet
+now, with ARM 0 PINNED AT THE MISMATCH so that when this citizen discharges the
+row goes red and has to be re-pinned to MATCH.
+⚠ The voiding is narrow and the narrowness is the useful part: it voids the
+probeNode ADDRESS lines only. ARM A, B1 and B2 read their flag through a bare
+mention and never through probeNode, so the mechanism table those arms establish
+is untouched by it.
+
+⚠ VOCABULARY NOTE, NOT A REWRITE. The `NEXT: RULED` block above is written in
+"frame", which SEQ 114 retired in favour of FIELD and COPY. It is left exactly as
+ruled: it is a dated ruling and rewriting its words would falsify the record. Read
+its "frame" as the argument channel. New text in this file uses the current
+vocabulary.

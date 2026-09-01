@@ -83,6 +83,17 @@ define
         ptFlagRead = ptSrc.isCopY;
         print "pointerT L5c flag road   =" ptFlagRead "  want ptFlagRead -- UNREADABLE, see the note":;
 
+        cerr "pointerT L6 -- IS `<-` CARRIER-STABLE? Ask the SAME capture twice.":;
+        ptCapName <- ptSrc;
+        cerr "  L6a a <- capture OF A NAME, first ask:":;
+        addrOf(ptCapName);
+        cerr "  L6b the SAME capture, second ask -- field must REPEAT:":;
+        addrOf(ptCapName);
+        cerr "  L6c a <- capture OF A SUBSCRIPT, asked twice -- field must REPEAT:":;
+        addrOf(ptElem);
+        cerr "  L6d the DEFINE-BLOCK field, asked again -- a FRESH carrier each time:":;
+        addrOf(ptSrc);
+
         ptInner := ptOther;
         ptBagD +* ptInner;
         print "pointerT D  depth        =" ptBagD["ptInner"] "  want 0 flip-OFF, OTHER flip-ON -- a flip tripwire":;
