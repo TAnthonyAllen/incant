@@ -65,7 +65,7 @@ define
                     if noPrinT;     continue;
                     if binTypE;     continue;
                     cout `grup.taG:;
-                    if listLengtH;  walkRules(grup);
+                    if listLengtH;  compileRules(grup);
                     else compile(grup);
         };
     evictTerms argument code={
