@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      117
+SEQ:      118
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 118, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 118 IS LIVE AND IS AT THE FOOT -- STEP 4 SCOPED to ATTRIBUTES OF
+          DEFINITIONS THAT CARRY CODE; members stay copies; code-less definitions
+          sweep as today. F-43 fixed in passing with one pop.sh row. Revert
+          boundary C23. Pre-registration and stop clause UNCHANGED.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 117, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 117 IS LIVE AND IS AT THE FOOT -- STEP 4 IS A BUILD. Revert
           boundary C22 (938b4e4). THREE PRE-REGISTERED READS and a STOP CLAUSE:
@@ -5244,3 +5250,42 @@ Then step 5 and the asking.
   Revert boundary: C22 (938b4e4).
 
   END SEQ 117
+
+
+===================================================================
+SEQ 118  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  STEP 4 SCOPED: ACTIONS' ATTRIBUTES ONLY.
+             F-43 FIXED IN PASSING.
+===================================================================
+
+STATUS: working -- picked up 2026-09-02, transcribed AT PICKUP before any
+        work started, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+C-nn — STEP 4 SCOPED: ACTIONS' ATTRIBUTES ONLY. F-43 FIXED IN PASSING.
+Drafted by Clay, ruled by Tony, 2026-09-01. Clod assigns the number.
+
+Accepted: the stop, the restore verified at C22, the control banked in carrierNode. The flip-on/flip-off address pair is the campaign's founding measurement of the argument road; it goes in the seal by address.
+
+Scope ruling (Tony): at the sweep, a pointer is installed for an item only when the definition being made carries a code body, and only for its attributes. Members remain copies. Definitions without code — rules, registries, data — are swept exactly as today. If the predicate needs a name, it's the same one the actor gate reads.
+
+F-43: fix now, in passing. The refusal names the operand it was handed, not a field resolved after the guard. a +* *b with a null right side refuses by name, exit 0. One pop.sh row.
+
+Then re-aim the patch and take the three reads. Revert boundary is C23. Pre-registration unchanged: switch at 0 byte-identical; switch on, the callee's argument is the source — isCopy=0, same addrOf, the source's rStuff. Any of the three otherwise: stop and report.
+
+The scope line is the ruling; everything else follows. If you'd rather the sweep reach members too, say so and I'll widen it, but I'd start narrow.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. One mechanical wrinkle in the scope ruling, recorded
+  before building rather than discovered inside it: CodE is assigned DURING the
+  attribute sweep (`if tag eq "code"`), and `isCoded` -- the name the actor gate
+  reads -- is set AFTER the loop ends. So "the definition carries a code body"
+  is not answerable at the moment an attribute is swept, for any attribute
+  declared BEFORE the code. In `define f argument code={...}` that is `argument`
+  itself, which is the one the whole step is for.
+  The predicate therefore has to be established BEFORE the loop by looking ahead
+  for a code attribute. Same fact the gate reads, asked one pass earlier.
+
+  END SEQ 118

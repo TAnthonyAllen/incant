@@ -37,6 +37,7 @@ define
     ptBagL;
     ptBagD;
     ptBagT;
+    ptBagN;
     ptInner;
     ptRun code={
         ptBagP +* ptSrc;
@@ -102,6 +103,8 @@ define
 
         ptBagT +* nosuchFieldAtAll;
         print "pointerT F1 undeclared   =" ptBagT.listLengtH "  want 1 -- NOT a refusal, see the note":;
+        ptBagN +* *ptOther;
+        print "pointerT F2 null operand =" ptBagN.listLengtH "  want 0 -- REFUSED by name, F-43":;
         };
     ;
 ptRun();
@@ -131,6 +134,28 @@ P2 goes red and someone reads this note.
 measured both ways. Pinned at the flip-OFF value because that is the fleet's
 baseline; it goes RED at the flip and re-pins to OTHER, exactly like holderT
 row 3.
+
+⚠⚠ ROW F2 IS THE REFUSAL TEST F1 IS NOT, AND IT EXISTS BECAUSE THE ARM IT DRIVES
+CONTAINED A CRASH THAT NOTHING HAD EVER REACHED (F-43, fixed 2026-09-02).
+
+`opAddPointer` gained a null-operand guard under F-41 so a refused operand would
+be reported BY NAME instead of crashing. The guard printed `ptr->groupBody->tag`
+with `ptr` still null -- in the tok source it was spelled as a bare `tag`, which
+resolves to the LAST-MENTIONED field, and that was `ptr` rather than the operand.
+So the guard against a crash was itself a crash: exit 139, no message.
+
+⚠ IT SURVIVED BECAUSE F1 CANNOT REACH IT. `+*` on an undeclared name does not
+produce a null -- the name is minted as an action local (bear-trap #39) -- so the
+one row in the fleet that looked like a refusal test never was one. F2 uses
+`*ptOther`, a star on a bare leaf, which refuses and yields a real null.
+
+    before  exit 139, no `ERROR Operator +*` line, no sentinel
+    after   exit 0, `ERROR Operator +* failed on ptBagN and a refused operand`
+
+⚠ THE ERROR IS ASSERTED BY ITS TEXT AND THE ZERO IS NOT ENOUGH ON ITS OWN, same
+argument as rows X and L3: a listLengtH of 0 is what an operator that did nothing
+at all also produces. The text names WHICH operand was refused and is the only
+thing that would go red if the guard regressed to naming the wrong field again.
 
 ⚠ ROW F1 IS NOT A REFUSAL TEST, AND THAT IS WHY IT SAYS SO. It was written as
 one -- `+*` a field that does not exist -- but there is no such thing in that

@@ -9121,7 +9121,9 @@ GroupItem 	*ptr = 0;
 	`a +* *b` is now an ordinary thing to type.  */
 	if ( !argument )
 		{
-		::fprintf(stderr,"ERROR Operator +* failed on %s and a refused operand\n",ptr->groupBody->tag);
+		/*  F-43: name TARGET explicitly. Bare `tag` resolved to `ptr` -- declared
+		above and still null here -- so this guard crashed instead of refusing.   Instruct.opAddPointer.f43  */
+		::fprintf(stderr,"ERROR Operator +* failed on %s and a refused operand\n",target->groupBody->tag);
 		return target;
 		}
 	ptr = new GroupItem(argument->groupBody->tag);

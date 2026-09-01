@@ -632,7 +632,8 @@ for _arm in "pointerT P0 both added   = 1 1" \
             "pointerT L3 assign-then-star = 0" \
             "pointerT D  depth        = 0" \
             "pointerT X  star binds tightest = 0" \
-            "pointerT L5c flag road   = ptFlagRead"; do
+            "pointerT L5c flag road   = ptFlagRead" \
+            "pointerT F2 null operand = 0"; do
     if grep -qF "$_arm" "$T/ptr"; then
         echo "  ok    ${_arm} -- PINNED BY VALUE"; green=$((green+1))
     else
@@ -660,6 +661,18 @@ if grep -qF "ERROR unary * on ptSrc -- it holds no group" "$T/ptr"; then
     echo "  ok    pointerT L3 witness: the star refused, naming the SOURCE"; green=$((green+1))
 else
     echo "  FAIL  pointerT L3 witness MISSING -- the = -then-star refusal changed"; fail=1
+fi
+#  ⚠ F2's REFUSAL ASSERTED BY ITS TEXT (H4, and the same argument as X and L3): a
+#  listLengtH of 0 is also what an operator that did nothing at all produces, so
+#  the zero alone cannot tell a refusal from a no-op. This names WHICH operand was
+#  refused, and it is the row that goes red if F-43 ever regresses -- that guard
+#  printed a null field's tag and CRASHED at exit 139 until 2026-09-02, and it
+#  survived because nothing in the fleet could reach it (F1 mints a local rather
+#  than a null, bear-trap #39).
+if grep -qF "ERROR Operator +* failed on ptBagN and a refused operand" "$T/ptr"; then
+    echo "  ok    pointerT F2 witness: +* refused BY NAME (F-43 fixed)"; green=$((green+1))
+else
+    echo "  FAIL  pointerT F2 witness MISSING -- +* no longer names its refused operand"; fail=1
 fi
 #  ⚠⚠ L5 -- THE isCopy COLUMN, PROMOTED FROM C20's FOOTNOTE TO ROWS (SEQ 115).
 #  A NAMED read arrives through the argument carrier, which mints a COPY (isCopy

@@ -173,7 +173,9 @@ GroupItem   ptr;
         ⚠ AND IT REFUSES A NULL OPERAND BY NAME, F-41's shape, because
         `a +* *b` is now an ordinary thing to type.  */
     if !argument {
-        cerr "ERROR Operator +* failed on",tag,"and a refused operand":;
+        /*  F-43: name TARGET explicitly. Bare `tag` resolved to `ptr` -- declared
+            above and still null here -- so this guard crashed instead of refusing.   Instruct.opAddPointer.f43  */
+        cerr "ERROR Operator +* failed on",target.tag,"and a refused operand":;
         return target; }
     ptr                 = new(argument.tag);
     ptr.gGroup          = argument;

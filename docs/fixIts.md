@@ -63,6 +63,17 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### ✅ F-43 (the guard that crashes) — CLOSED 2026-09-02, fixed and certified
+**Fix:** `Instruct.rtn` `opAddPointer` — the refusal now names `target.tag` explicitly instead of
+a bare `tag`, which is what every other F-41 guard resolves to (`opMultiply` generates
+`target->groupBody->tag`). One identifier.
+**Certified by driving the arm, not by reading it:** `minionWork/probeAddPtrNull` went
+**exit 139 → exit 0**, and the refusal now prints
+`ERROR Operator +* failed on apBag and a refused operand`, with the sentinel reached.
+**Fleet:** `pointerT` row **F2** plus a text witness in `pop.sh` — the row F1 was never able to
+be, since `+*` on an undeclared name mints a local (bear-trap #39) and never yields a null.
+**Original entry follows, for the trail.**
+
 ### F-43 (the guard that crashes) — `opAddPointer`'s null refusal dereferences null
 **Where:** `Instruct.rtn:159` `opAddPointer`, the `if !argument` arm; generated as
 `GroupRules.mm:9123`.

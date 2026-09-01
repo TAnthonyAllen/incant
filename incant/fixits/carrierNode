@@ -364,3 +364,55 @@ test, not as the answer, per the standing split.
 RESTORED TO THE C22 BOUNDARY AND VERIFIED: ruleActions.rtn and jitContext.h back
 to their committed blobs, retok bare, rebuilt, fleet byte-identical to C22 at 169
 green / 3 red, canary 326, every other instrument green.
+
+⚠⚠ ADDED 2026-09-02 (SEQ 118): STEP 4 RE-AIMED TO TONY'S SCOPE, BUILT, FIRED --
+AND THE CALLEE'S READ DID NOT MOVE. STOP CLAUSE INVOKED A SECOND TIME.
+
+Scope ruling: a pointer is installed only for the ATTRIBUTES of a definition that
+CARRIES A CODE BODY; members stay copies; code-less definitions sweep as before.
+Built as `minionWork/step4Sweep-scoped.patch`. The predicate is established
+BEFORE the sweep, because CodE is not known until partway through it -- in
+`define f argument code={...}` the attribute the whole step is for is declared
+ahead of the code.
+
+    READ 1   switch at 0, fleet byte-identical      CONFIRMED -- 175 rows, exact
+    READ 2   switch on, argument is the source      NO
+    READ 3   switch on, argument has the source's   NOT DISCRIMINABLE
+             rStuff
+
+⚠⚠ THE GATE FIRED, AND PROVING THAT IS THE ONLY REASON READS 2 AND 3 ARE A RESULT
+RATHER THAN A VOID RUN. A temporary trace, since removed, filmed the predicate and
+the installs in one run:
+
+    STEPFOUR scan of s4Callee : [argument] [code]  coded=1
+    STEPFOUR POINTER installed for argument          x17 of 35 installs, 43 coded hits
+
+⚠ THE FIRST READING OF THE TRACE WAS WRONG AND THE CORRECTION IS THE LESSON. Its
+first twenty lines are all `coded=0` -- every early definition in the corpus is a
+command with no code body -- so a `head` said the gate never fired. A COUNT said
+43. Had the run been reported off the head, step 4 would have been recorded as
+never engaging, which is a different and false finding.
+
+AND WITH THE POINTER DEMONSTRABLY INSTALLED, THE CALLEE READS EXACTLY WHAT IT READ
+WITHOUT STEP 4 -- the two runs are identical line for line:
+
+    switch ON, no step 4   argument  tag argument  body #4  isCopy=1
+    switch ON, step 4 in   argument  tag argument  body #4  isCopy=1
+    the source, both       s4Src     tag s4Src     body #2  isCopy=1
+
+⚠ SO THE SWEEP IS NOT THE ROAD THE CALLEE'S ARGUMENT COMES DOWN. Changing what the
+definition holds does not change what the call hands over. THE CANDIDATE ACCOUNT
+-- and it is a candidate, not a diagnosis -- is that the call-time bind writes
+onto a node minted independently of the sweep, which is what this file's own
+MINT -> BIND -> READ ordering already says. Step 4 changed the MINT; the callee
+reads past it.
+
+⚠ WHICH MAKES THIS A RESULT ABOUT THE PLAN AND NOT ABOUT THE PATCH: the sweep was
+the wrong lever, and that is worth more than a working step 4 would have been at
+this point, because the next lever can be chosen against a measurement instead of
+against an assumption.
+
+RESTORED AND VERIFIED: ruleActions.rtn and jitContext.h back to their committed
+blobs, all traces removed, retok BARE, rebuilt, fleet BYTE-IDENTICAL to the
+no-step-4 baseline at 171 green / 3 red, canary 326, every other instrument green.
+F-43's fix is KEPT, as ordered.
