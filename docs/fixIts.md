@@ -63,6 +63,27 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-43 (the guard that crashes) — `opAddPointer`'s null refusal dereferences null
+**Where:** `Instruct.rtn:159` `opAddPointer`, the `if !argument` arm; generated as
+`GroupRules.mm:9123`.
+**What:** the arm F-41 added so a null operand would be refused BY NAME instead of crashing
+**contains the crash**. `GroupItem *ptr = 0;` at the top, and the refusal prints
+`ptr->groupBody->tag` — `ptr` is not assigned until two lines BELOW the guard. In the tok
+source the argument is spelled as a bare `tag`, which resolves to the last-mentioned field
+(`ptr`, declared first) rather than to the operand the message is about. Bear-trap
+"tok bare-field resolution: last-mentioned wins", landing in the one arm nobody drove.
+**Evidence:** MEASURED, not read — `minionWork/probeAddPtrNull` does `apBag +* *apLeaf`, where
+the star on a bare leaf refuses and yields null (the refusal `starT` S4 pins). Result:
+**exit 139**, the `ERROR unary *` line prints, **no `ERROR Operator +*` line, no sentinel**.
+⚠ **REACHABLE BY DESIGN, NOT BY CONTRIVANCE.** The operator's own comment says the guard exists
+*"because `a +* *b` is now an ordinary thing to type"* — which is exactly the expression that
+crashes it.
+**Done when:** the refusal names the OPERAND, not `ptr` — and a fixture drives the arm, since
+what hid this is that nothing ever did. `pointerT`'s F1 uses an undeclared name, which
+bear-trap #39 mints as a local, so it never produces a null.
+**Owner:** unassigned. **Size:** one identifier in one `cerr`, plus a row. **Good minion
+candidate.**
+
 ### F-42 (the second "off") — the next seal's housekeeping owes it, and only one of the two was measured
 **Where:** `docs/wakeup.md`, the next seal's housekeeping block. The 2026-09-01e seal's
 housekeeping already records one "off" — *"the iCloud `Documents` twin was scrubbed after a

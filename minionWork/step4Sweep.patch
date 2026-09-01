@@ -1,0 +1,24 @@
+--- /tmp/claude-501/-Users-anthony-Library-CloudStorage-Dropbox-data-InProcess-Groups/25bdbda3-a2b2-407a-abda-d221dbfbd3ba/scratchpad/ruleActions.rtn.C22	2026-09-01 17:16:04
++++ /tmp/claude-501/-Users-anthony-Library-CloudStorage-Dropbox-data-InProcess-Groups/25bdbda3-a2b2-407a-abda-d221dbfbd3ba/scratchpad/ruleActions.rtn.step4	2026-09-01 17:18:07
+@@ -456,7 +456,20 @@
+                                 item.parentStuff = grup.rStuff;
+                                 item.parentLabel = grup.parentLabel; }
+                             item.rStuff.rule    = item; }
+-                    grup    = NewGroup +% item; }
++                    /*  STEP 4: behind gNoUnwrap this sweep installs a POINTER, not a copy   ruleActions.stepFourSweep  */
++                    -%
++                    if ( gNoUnwrap && item != CodE )
++                        {
++                        GroupItem *stepFourPtr = new GroupItem(item->groupBody->tag);
++                        stepFourPtr->groupBody->gGroup           = item;
++                        stepFourPtr->groupBody->flags.data       = 6;
++                        stepFourPtr->groupBody->flags.isInitialized = 1;
++                        grup = NewGroup->addAttribute(stepFourPtr);
++                        }
++                    else
++                        grup = NewGroup->addAttribute(item);
++                    %-
++                    }
+         /***********************************************************************
+             If there is code NewGroup is flagged as coded. The code gets processed
+             by processCode() the first time NewGroup is included in an expression.

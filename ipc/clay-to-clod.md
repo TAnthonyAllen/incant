@@ -17,8 +17,16 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      116
+SEQ:      117
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 117, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 117 IS LIVE AND IS AT THE FOOT -- STEP 4 IS A BUILD. Revert
+          boundary C22 (938b4e4). THREE PRE-REGISTERED READS and a STOP CLAUSE:
+          switch 0 -> fleet byte-identical; switch on -> the callee's argument is
+          the FIELD (isCopy=0, same addrOf as the source, the source's rStuff).
+          Any of the three reading otherwise: STOP AND REPORT, it is the mechanism
+          disagreeing and not a build error.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 116, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 116 IS LIVE AND IS AT THE FOOT -- RESULTS, NOT DESCRIPTIONS. One
           table owed before step 4: S3a's GRADE, faceT's four rows AS MEASURED
@@ -5204,3 +5212,35 @@ Then step 4, unchanged in shape.
   corrects an account without stating the account's subject is half a stroke.
 
   END SEQ 116
+
+
+===================================================================
+SEQ 117  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  STEP 4: BUILD IT. THE ONE-STAR FINDING GOES
+             IN THE SEAL.
+===================================================================
+
+STATUS: working -- picked up 2026-09-02, transcribed AT PICKUP before any
+        work started, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+C-nn — STEP 4: BUILD IT. THE ONE-STAR FINDING GOES IN THE SEAL.
+Drafted by Clay, ruled by Tony, 2026-09-01. Clod assigns the number.
+
+Accepted, all of it. roundTripT in the fleet, ARM 0 pinned at MISMATCH, <- pinned with its control, carrierNode in its dated words with the note beside it.
+
+S3a / the second star. Report in the seal: N stars apply as one; the second never runs. Severity wrong, not blocking — the gate reads one star. Guess: tokenizer or the unary handler applying once. One probe, after the asking. Do not chase it inside step 4. S3a stays cited, not re-run.
+
+Step 4 — build. Revert boundary is C22. +* at the sweep behind gNoUnwrap for bare mentions of the action's own fields; the body reads *argument. Pre-registered: with the switch at 0 the fleet is byte-identical; with the switch on, the callee's argument is the field, not a copy — isCopy=0 by the L5 spelling, same addrOf as the source, and its rStuff is the source's, not a zeroed one. If any of the three reads otherwise, stop and report; that's the mechanism disagreeing, not a build error. Fleet run is its own step, read before the commit.
+
+Then step 5 and the asking.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. Three pre-registered reads, and the instruction on a
+  disagreement is STOP AND REPORT rather than adjust -- recorded here before any
+  code is touched so the stop clause cannot be re-read after the fact.
+  Revert boundary: C22 (938b4e4).
+
+  END SEQ 117

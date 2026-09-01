@@ -1,0 +1,52 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(Step4);
+define
+    s4Src="ORIG";
+    s4Callee argument code={
+        cerr "S4-C the CALLEE's argument, by addrOf:":;
+        addrOf(argument);
+        cerr "S4-D the CALLEE's argument, by probeNode (rStuff column):":;
+        probeNode(argument);
+        };
+    s4Run code={
+        cerr "S4-A the SOURCE before the call, by addrOf:":;
+        addrOf(s4Src);
+        cerr "S4-B the SOURCE before the call, by probeNode (rStuff column):":;
+        probeNode(s4Src);
+        s4Callee(s4Src);
+        };
+    ;
+s4Run();
+print "PROBESTEP4 SENTINEL -- reached the foot":;
+stop();
+
+THE THREE PRE-REGISTERED READS OF STEP 4 (SEQ 117), ASKED IN ONE RUN, AND RUN
+FIRST WITH THE SWITCH OFF SO THERE IS A BASELINE TO COMPARE AGAINST.
+
+    read 1   the callee's argument is the FIELD, not a copy   isCopy = 0
+    read 2   same addrOf as the source
+    read 3   its rStuff is THE SOURCE'S, not a zeroed one
+
+⚠ THE INSTRUMENT'S OWN LIMIT IS STATED BEFORE THE RUN, NOT AFTER IT. Both
+addrOf and probeNode take their subject through the argument carrier, which
+mints a fresh field per ask -- measured as pointerT L6d, and it is the reason
+roundTripT's ARM 0 control has been failing since birth. So the FIELD column and
+the node= column report the CARRIER and not necessarily the subject.
+
+⚠ WHICH MEANS READ 2 MAY BE UNASKABLE BY THIS PROBE, AND THAT IS A THIRD OUTCOME
+RATHER THAN A FAILURE. The BODY column is carrier-proof and is the one to read --
+but step 3 already measured that the sweep's copy SHARES the source's body, so a
+matching body does NOT separate copy from pointer. If both columns come back
+unable to discriminate, the honest report is VOID FOR READ 2, not a pass and not
+a fail. Do not grade a voided control.
+
+⚠ READS 1 AND 3 DO NOT HAVE THAT PROBLEM in the same way and are the load-bearing
+pair: isCopy is a per-FIELD bit and rStuff is a per-FIELD pointer, so if the
+callee is handed the source field itself rather than a copy of it, both should
+read the SOURCE's values. The switch-off baseline is what makes either number
+mean anything -- a 0 that was already 0, or an rStuff that was already shared,
+asserts nothing about step 4.

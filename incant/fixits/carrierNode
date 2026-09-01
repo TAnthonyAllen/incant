@@ -299,3 +299,68 @@ is untouched by it.
 ruled: it is a dated ruling and rewriting its words would falsify the record. Read
 its "frame" as the argument channel. New text in this file uses the current
 vocabulary.
+
+⚠⚠ ADDED 2026-09-02 (SEQ 117): THE ACCEPTANCE-LINE FAILURE, MEASURED BY addrOf
+FOR THE FIRST TIME -- AND IT IS WORSE UNDER THE FLIP THAN WITHOUT IT.
+
+This arrived as the CONTROL for step 4 rather than as its result, which is why it
+is here rather than in a step-4 write-up. `minionWork/probeStep4` asks one action
+to print its own `argument` beside the source the caller passed, by addrOf and by
+probeNode, in one run.
+
+    gNoUnwrap = 0        source   tag s4Src     field #1   body #2
+                         argument tag s4Src     field #3   body #2   SAME BODY
+    gNoUnwrap = 1        source   tag s4Src     field #1   body #2
+                         argument tag ARGUMENT  field #3   body #4   DIFFERENT BODY
+
+⚠ READ THE TAG COLUMN AND THE BODY COLUMN TOGETHER, because either alone
+understates it. Flip-OFF the callee at least ends up on the SOURCE'S BODY, so a
+read through it reaches the caller's data by accident of the auto-unwrap. FLIP-ON
+IT DOES NOT: the callee's argument is a different field carrying a DIFFERENT BODY
+and wearing the tag `argument` instead of the source's name.
+
+⚠ SO THE FLIP DOES NOT MERELY EXPOSE THIS DEFECT, IT DEEPENS IT, and that is a
+scheduling fact rather than a diagnosis. The acceptance line does not fail at the
+flip because the flip is wrong; it fails because the flip removes the accident
+that was covering for the argument road.
+⚠ Both instruments read through the carrier, so the FIELD and node columns report
+the carrier and are not evidence here. The BODY column is carrier-proof and is
+what carries the finding.
+
+⚠⚠ STEP 4 WAS BUILT, MEASURED, AND REVERTED THE SAME SESSION. STOP CLAUSE
+INVOKED, per SEQ 117's instruction to stop and report rather than adjust.
+
+The build is preserved as `minionWork/step4Sweep.patch` -- the sweep at
+ruleActions.rtn:459 gated on gNoUnwrap to install a POINTER (a fresh node with
+gGroup at the item) instead of a copy, for every swept item except the code body.
+
+    READ 1   switch at 0, fleet byte-identical      CONFIRMED -- 173 rows, exact
+    READ 2   switch on, argument is the field       NOT TAKEN
+    READ 3   switch on, argument carries the        NOT TAKEN
+             source's rStuff
+
+⚠ READS 2 AND 3 WERE NOT TAKEN BECAUSE THE RUN NEVER REACHED THEM. With the
+switch on and the patch in, the process prints four lines and stops:
+
+    RunRulE: expected a method not UnitTests
+    RunRulE: expected a method not Utilities
+    RunRulE: expected a method not list
+    RunRulE: expected a method not s4Run
+
+-- the include and search machinery itself, before any fixture code runs. Exit 0,
+which is bear-trap territory: a parse failure abandons the rest of the file and
+still exits 0.
+
+⚠ AND THE CONTROL SAYS IT IS THE PATCH AND NOT THE FLIP. Same flip, patch
+reverted, retok, rebuild: the probe runs to its sentinel and prints the table
+above. So `gNoUnwrap = 1` alone is sound and the sweep change is what breaks name
+resolution globally.
+⚠ THE OBVIOUS ACCOUNT IS THAT THE SWEEP IS NOT SCOPED TO "the action's own
+fields" -- it runs over EVERY definition in the system, grammar and registries
+included, so pointer-ising every bare mention breaks lookup everywhere. THAT IS
+A CANDIDATE AND IT IS NOT DIAGNOSED. It is written down as the first thing to
+test, not as the answer, per the standing split.
+
+RESTORED TO THE C22 BOUNDARY AND VERIFIED: ruleActions.rtn and jitContext.h back
+to their committed blobs, retok bare, rebuilt, fleet byte-identical to C22 at 169
+green / 3 red, canary 326, every other instrument green.

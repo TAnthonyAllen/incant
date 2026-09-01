@@ -1,0 +1,48 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(AddPtrNull);
+define
+    apLeaf="LEAF";
+    apBag;
+    apRun code={
+        cerr "APN before -- about to do  apBag +* *apLeaf":;
+        apBag +* *apLeaf;
+        cerr "APN after  -- survived, listLengtH =" apBag.listLengtH:;
+        };
+    ;
+apRun();
+print "PROBEADDPTRNULL SENTINEL -- reached the foot":;
+stop();
+
+DRIVES opAddPointer's OWN REFUSAL ARM, which is the arm F-41 added so that a null
+operand would be refused BY NAME instead of crashing.
+
+READ FROM THE SOURCE FIRST, THEN MEASURED, because a code-read is a hypothesis:
+
+    GroupItem *ptr = 0;
+    ...
+    if ( !argument ) {
+        ::fprintf(stderr,"ERROR Operator +* failed on %s ...", ptr->groupBody->tag);
+        return target; }
+
+`ptr` is null on that line and is not assigned until two lines below it. In the
+tok source the argument is spelled as a BARE `tag`, which resolves to the
+last-mentioned field -- `ptr`, declared at the top -- rather than to the operand
+the message is about. So the refusal arm dereferences null.
+
+`*apLeaf` is a star on a bare leaf, which refuses and yields null (starT's S4 row
+pins exactly that refusal), so this hands opAddPointer the null operand its guard
+is written for. The operator's own comment says `a +* *b` is now an ordinary
+thing to type, so the arm is reachable by design and not by contrivance.
+
+READING:
+  the ERROR line prints and the SENTINEL is reached  ->  the guard works and the
+      source read was wrong. Report that and move on.
+  no ERROR line, no SENTINEL, non-zero exit          ->  the guard CRASHES, and
+      the arm added to prevent a crash contains one.
+⚠ CAPTURE, DO NOT CHASE. Whatever this reads, it is banked as a fixIts row and
+step 4 does not stop for it -- step 4's sweep mints its pointer inline and never
+calls this operator.
