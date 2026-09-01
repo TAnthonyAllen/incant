@@ -17,8 +17,30 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      105
+SEQ:      112
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-01  -  Clay (SEQ 112, dictated via Tony; transcribed by Clod, WT-9)
+          ⚠ SEQ 112 IS LIVE AND IS AT THE FOOT -- SEAL FIRST, THEN STEP 3. It is
+          THE DISPATCH THAT NEVER ARRIVED: printed in chat after SEQ 111 and never
+          scribed before the usage wall, so it reached no disk and no Clod. Orders
+          (a) this backfill, (b) the C1-C17 seal + clean kitchen, (c) step 3. Two of
+          its items CORRECT C17: pointerT L and X re-pin to the follow-through laws,
+          and starT S3a is graded on a new addrOf witness instead of left ungraded.
+          PRIOR HEADER PRESERVED BELOW.
+WRITTEN:  2026-09-01  -  Clay (SEQ 111, dictated via Tony; transcribed by Clod, WT-9,
+          BACKFILLED 14:30)
+          ⚠ +* IS opAddPointer, ** IS NOT AN OPERATOR. Executed at C16 + C17.
+          ⚠⚠ ITS BODY SURVIVES BY THREE MINUTES -- transcribed from incant++ as
+          read at 14:26; Tony overwrote that section at 14:29 and the file is
+          untracked, so there was no other copy. SCRIBE AT PICKUP.
+          PRIOR HEADER PRESERVED BELOW.
+WRITTEN:  2026-09-01  -  Clay (SEQ 106-110, dictated via Tony; NEVER TRANSCRIBED)
+          ⚠⚠ A RECONSTRUCTION NOTICE SITS AT THE FOOT IN THEIR PLACE, NOT A TEXT.
+          All five were executed and landed (frameArg minted and stripped, the SEQ 108
+          recon, F-36, F-41, step 2) but the dictated words are gone. What is recorded
+          is what the COMMITS say was done -- evidence about the work, never about the
+          wording. None of it may be cited as Clay's.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-01  -  Clay (SEQ 105, dictated via Tony; transcribed by Clod, WT-9)
           ⚠ SEQ 105 IS LIVE AND IS AT THE FOOT -- GO ON PART 2, THE FRAME BIND.
           Accepts the cull. R1 CONFIRMED (parse road's channel), R4 (untrack
@@ -4803,3 +4825,175 @@ report tests touched / green / fleet before-after. Then the trample reorder as a
 kitchen commit, with argTrampleOrder row 1 re-pinned when it goes red.
 
   END SEQ 105
+
+===================================================================
+SEQ 106 - 110  --  2026-09-01, Clay (dictated via Tony).
+             ⚠⚠ NOT TRANSCRIBED AT THE TIME. THIS IS A RECONSTRUCTION
+             NOTICE, NOT THE DICTATED TEXT.
+===================================================================
+
+STATUS: cleared -- all five were executed and landed. Backfilled 2026-09-01
+        at 14:30 by Clod, on Tony's ruling in SEQ 112.
+
+⚠ READ THIS BLOCK AS A POINTER, NOT AS A RULING. Clay dictated SEQ 106
+through SEQ 110 in chat during the 09-01 session. Clod acted on them and
+never scribed them here, which is the WT rule broken by omission rather
+than by overwrite. THE DICTATED WORDS ARE GONE. What follows is what each
+carried, RECONSTRUCTED FROM THE COMMITS THAT CITE IT -- so it is evidence
+about what was DONE, and it is not evidence about what was SAID.
+
+The standing rule this is filed under: a relayed instruction whose parent
+is not confirmed-landed is one clause of a convention, not the convention.
+Reconstructing the parent would produce something plausible, unmarked and
+wrong. So nothing below is quoted, and none of it may be cited as Clay's
+wording.
+
+  SEQ 106  RuleStuff gains frameArg -- the action-argument channel.
+           Landed: support commit 9815333, Groups C-series.
+  SEQ 107  RuleStuff loses frameArg -- minted and stripped the same day.
+           Landed: support commit 747ee5f, Groups C7/C10.
+  SEQ 108  The recon. Items 1-2 executed at Groups C12, whose message
+           records that item 2 CORRECTED Clod's own C10 census.
+           ⚠ ITS FRAMING IS NOW KNOWN TO REST ON A FALSE PREMISE -- see
+           SEQ 111 Finding 1 (+% does not isolate). The re-read is Clay's;
+           nothing is owed from Clod. (SEQ 112.)
+  SEQ 109  Item 1 was the critical-path item: F-36. Landed at Groups C13,
+           which found the star was a red herring.
+  SEQ 110  F-41 (seven operator null guards) landed FIRST, as ruled, at
+           Groups C14. Step 2 -- the tokenizer stroke and the +* spacing
+           law -- landed at Groups C15, where `+*` turned out to already
+           exist, so the law was certified without minting anything.
+
+  END SEQ 106 - 110 RECONSTRUCTION NOTICE
+
+
+===================================================================
+SEQ 111  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod,
+             WT-9, LATE -- backfilled 2026-09-01 14:30).
+             +* IS opAddPointer. opCopyList RETIRES. STEP 3 GO.
+===================================================================
+
+STATUS: cleared -- executed at Groups C16 + C17. Two premises fell out and
+        one instrument was found blocked; see the answer below the body.
+
+⚠ PROVENANCE, AND IT IS THE REASON THIS ONE SURVIVES. This body is VERBATIM,
+transcribed from IncantForms/WorkingOn/incant++ as READ AT 14:26 on
+2026-09-01. Tony overwrote that section of incant++ at 14:29 with the next
+exchange. incant++ is untracked and gitignored, so there was no second copy
+anywhere on disk -- three minutes either way and the operator-table ruling
+would have been lost in full. THAT IS THE CASE FOR SCRIBING AT PICKUP RATHER
+THAN AT LEISURE, and it is why SEQ 106-110 above are a notice instead of a
+text.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+C-nn — +* IS opAddPointer. opCopyList RETIRES. STEP 3 GO.
+Drafted by Clay, ruled by Tony, 2026-09-01. Clod assigns the number.
+
+F-41 accepted. Seven guards, eight rows, the row-A dependency written into pop.sh — correct.
+
+Ruling: repurpose +*. opCopyList has zero users and is not needed in C++; if the jitter ever wants list copying it will reach copyListTo/copyListFrom on GroupItem directly. Retire opCopyList — registration in incant/setup:189, definition, and the character-set string in GUI/Groups.twk if it's the operator and not a coincidence. Bind +* to opAddPointer(), to be written: adds a pointer to the field named by its right operand. spacingT rows H and I now assert the pointer, not 3. copyListTo itself is frozen substrate and does not move.
+
+Step 3 — go now. The mint-site capture: is the copy under the Token made by the sweep at ruleActions.rtn:459, or already present from parse and copied again? One capture, report the address before any sweep edit.
+
+Before step 4 — one check. With gNoUnwrap on, run spacingT: row G2 (a + *b) should read 12, row G (a + **b) should still read 12. If G2 still refuses under the switch, a single * is not yet wired to the flip and that lands as its own stroke ahead of the asking — report, don't proceed to step 4. G2 going red at the flip is the expected event, like holderT row 3; it re-pins to 12 then.
+
+⚑ The star law, as Tony's words: under the flip, *x reads one level; **x reads to the leaf; a * past the leaf refuses. [Tony confirms or corrects.]
+
+Steps 4–5 unchanged, pending the check: +* at the sweep behind gNoUnwrap for bare mentions of the action's own fields; the body reads *argument; the asking with K2x row 1 / K6c / nestT pre-registered.
+
+Addendum — ** IS NOT AN OPERATOR.
+Ruled by Tony 2026-09-01, with uncertainty; the fixture carries the proof.
+
+The star law, Tony's words: *x reads one level. **x is * applied twice. A * past the leaf refuses. Fixpoint reads are a named call or nothing.
+
+Retire ** from the operator table. Longest-match no longer merges two stars; **x tokenizes as two unaries. opDerefAll stays as a GroupItem method if anything calls it; if the census says nothing does, it goes with opCopyList.
+
+New fixture, incant/starT or a sibling — the certificate. Rows, with the value expected under gNoUnwrap on:
+
+*x on a one-deep pointer reads the leaf.
+**x on a two-deep pointer reads the leaf; on a one-deep pointer refuses — composition, not fixpoint.
+***x on a three-deep pointer reads the leaf; on two-deep refuses.
+*x on a leaf refuses, by name — anti-vacuity control, re-read on every run.
+pop.sh rows for all of it.
+
+Re-pins. spacingT row B (**x was "the fixpoint leaf") re-asserts as two reads. derefAllT rows re-assert under composition or retire with the operator. derefT's R1 ≠ R2 tripwire re-pins to "differ only at depth two or more." Census that ** has no corpus users outside fixtures; report the count.
+
+Order. This lands with step 2 (the tokenizer stroke), since it's the same table. Steps 3–5 unchanged.
+
+The fixture is small and it's the whole argument: if **x on a one-deep pointer ever reads instead of refusing, the fixpoint has crept back in, and the row says so by name.
+
+Haps: +* will warrant a unitTest or two
+
+Clay: Agreed — spacingT only proves the tokenizer picks it. The operator itself needs its own fixture. Rows I'd want:
+
+Addendum — pointerT, the +* certificate.
+
+It's a pointer, not a copy. p +* x, then write to x directly; *p reads the new value. The anti-vacuity twin: q +% x, same write; *q still reads the old one. Both rows on adjacent lines — the pair is the proof.
+Rebind follows. p +* x, then rebind x to a different body (:=); *p reads the rebound body. This is certificate 1's mechanism in miniature, minted without the sweep.
+A list of pointers. Three +* into one list field; write to each source; read back through each; all three follow. This is the C++ ** use case done the kant way.
+Reading depth. p +* x where x itself holds a pointer: *p is x's contents, **p is the leaf — the star law applied to something +* built.
+Refusals by name. p +* nosuch refuses and names the field. +* of a literal refuses — there's no field to point at.
+tempField, user beware. p +* t where t is a temp; let t change underneath; *p shows the change. Pinned as documented behaviour, not a defect — the row is there so the law has a witness.
+pop.sh rows for all of it. Lands with step 2 alongside starT.
+
+The first pair is the one that matters. If +* ever quietly becomes a copy, that row goes red before anyone ships a body on it.
+
+-------------------------- END VERBATIM --------------------------
+
+ANSWERED at Groups C16 (the table) + C17 (the body). Full answer is in the
+commits; the three things Clay must carry forward:
+  - PRE-STEP-4 CHECK PASSES. gNoUnwrap ON: spacingT G2 reads 12, G reads 12.
+    A single * IS wired to the flip. Step 4 unblocked.
+  - FINDING 1: +% DOES NOT ISOLATE. It already shares the source's
+    GroupBody (Bytecode.twk:77), measured identically flip ON and OFF. The
+    copy-vs-pointer difference is THE LINK, not the contents.
+  - FINDING 2: starT S3a UNRESOLVED AND UNGRADED. Both witnesses void --
+    a printed pointer follows the chain, and a tag read through an
+    action-argument holder yields the HOLDER. ⚠ SEQ 112 SUPPLIES THE
+    MISSING WITNESS (addrOf) AND ORDERS S3a GRADED ON IT.
+
+  END SEQ 111
+
+
+===================================================================
+SEQ 112  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod,
+             WT-9).  SEAL FIRST, THEN STEP 3. THE MISSING DISPATCH.
+===================================================================
+
+STATUS: working -- picked up 2026-09-01 at 14:30, on restart after the
+        usage wall stopped the 09-01 session at 11:15.
+
+⚠ THIS IS THE DISPATCH THAT NEVER ARRIVED. Clay printed it in chat after
+SEQ 111 and it was never copied here before the wall, so Clod never received
+it and it existed on no disk anywhere. Four of its items are new; two of
+them contradict what Clod wrote in C17 and are corrections, not additions.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+C-nn — SEAL FIRST, THEN STEP 3. THE MISSING DISPATCH, TRANSCRIBED.
+Drafted by Clay, ruled by Tony, 2026-09-01. Clod assigns the number.
+
+Order: (a) transcribe SEQ 108–111 and this dispatch into ipc/clay-to-clod.md; (b) seal C1–C17 with the full clean-kitchen pass, numbers measured not remembered, date beside git log -1 --date=iso; (c) step 3.
+
+parser:68: commit as-is, message "WIP (Tony): compileRules recursion → compileRules, not walkRules." Not a revert under any reading.
+
+Vocabulary (Tony): "field" and "copy of a field." Not "node," not "frame." Write the seal in those words.
+
+Fixit: carrierNode is the gate; step 3 is its work. No separate step one.
+
+Step 3 — go, after the seal. Mint-site capture at ruleActions.rtn:459: sweep-made or parse-made? One capture, address reported before any sweep edit.
+
+Follow-through laws (Tony, 2026-09-01): print follows — a field holding a pointer prints its group. Subscript stops at the element. Unary binds tightest: *a[0] is (*a)[0] and refuses on a +* list. The read of a pointer out of a list is name it, then star it. pointerT L and X re-pin accordingly.
+
+Finding 2 witness: an addrOf extern — instrument, canary-declared. starT S3a separates one-level from to-the-leaf by identity, no holder, no print. Grade S3a on it.
+
+Finding 1: the SEQ 108 recon re-read is Clay's, not yours. Nothing owed from Clod.
+
+After step 5, the try-and-buy: flip gNoUnwrap on a branch, fleet + unitTests, incant/utilities first, classify reds by mechanism. That pass is the unitTests and pop.sh revision, done against the real red set.
+
+-------------------------- END VERBATIM --------------------------
+
+⚠ TONY'S ADDITION, same message: "add clean kitchen to that."
+
+  END SEQ 112
