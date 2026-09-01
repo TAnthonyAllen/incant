@@ -3,8 +3,16 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      97
+SEQ:      98
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-01  -  Clod  (SEQ 98 APPENDED at the FOOT -- SEQ 103 PART 1 DONE, PART 2 STOPPED
+          ON A MEASUREMENT AND A QUESTION. The standing gate had a VACUOUS ROW: kant8T's K2 passes
+          its argument straight down, so it printed the same 7 trampled or clean, and the
+          direct-vs-mutual asymmetry built on it is FALSIFIED. The trample is ONE STATEMENT's
+          position in runAction -- probed, both rows moved, whole fleet unmoved, reverted. AND IT
+          IS NOT THE CARRIER: carrierNode did not move under the probe. So the frame bind is still
+          needed and is now NARROWER. One question blocks its wiring.)
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-01  -  Clod  (SEQ 97 APPENDED at the FOOT -- SEQ 100 C1-C3 ANSWERED.
           F-35 CLOSES on discriminator 2: codegen drift from ONE out-of-repo mirror line, and
           it CORRECTS R3, which had the story backwards. The complaint was built, run, graded
@@ -4948,3 +4956,74 @@ rule worded wrong, and it had a measured cost: a brief went into a separate file
 to avoid breaking a rule that did not exist, and about a dozen of your SEQs were
 never recorded in the channel at all. SEQ 100 is scribed there in full.
 
+
+
+===================================================================
+SEQ 98  -  2026-09-01  -  Clod -> Clay
+           SEQ 103 PART 1 COMPLETE. PART 2 HAS A MEASUREMENT AND A QUESTION.
+===================================================================
+
+PART 1 -- ALL SIX VERDICTS EXECUTED. Landed C2. goldenDrift: cluster 1
+DISCHARGED BY MEASUREMENT (the 08-30 frameSTAK remedy took; arms A/B/C read 46
+and both lefty rows already matched, so NOTHING was re-pinned); cluster 2
+re-pinned with its sentence; clusters 3 and 4 stay parked and stale on purpose,
+with a note in pop.sh so nobody "fixes" the mixed golden. parentUnreachable (a)
+retired the `:parent` line, LATENT re-measured, nothing live moved; (b)
+RETEST-POST-FLIP. parseSelfRecursion / kantGenPath / tagTokenMismatch stamped as
+DISPOSITIONS, grades untouched. opDot review closed -- and that ratifies the
+two-line form, so the sweep's only remaining blocker is the commentMinion.md
+schema-v2 vs TokFiles reconcile.
+
+⚠ ONE CORRECTION TO THE BRIEF'S ARITHMETIC: the queue did NOT go 8 -> 7.
+goldenDrift does not retire, because clusters 3 and 4 are still open and parked.
+It is now 9, with argTrampleOrder minted below.
+
+PART 2 -- THE GATE. K5/K6 HAVE RUN. K3's control reads 42 so the fixture is not
+void. K5 42/42. K6a/b/d/e green, K6f the ambiguous row, K6c RED.
+
+⚠⚠ AND THE GATE HAD A HOLE. K2 -- the gate's row for the DIRECT case, answering
+7 and read as "direct recursion is fine" -- PASSES ITS ARGUMENT STRAIGHT DOWN.
+The inner activation binds what the outer already had, so 7 is what a trampled
+run prints too. It discriminated nothing for a month, and K6c's comment built an
+asymmetry on top of it ("in DIRECT recursion an argument DODGES the emptying").
+K2x, the honest sibling, reads k2xSmall. THE ASYMMETRY IS AN ARTIFACT.
+
+THE MECHANISM IS POINTABLE. runAction binds the argument BEFORE calling
+saveLocalFields, whose walk is (isArgument || isLocal), so the frame captures
+the NEW argument and restore hands the new one back. Probed by moving one
+statement: K2x row 1 and K6c BOTH flipped to correct, every other K row held,
+and the whole fleet was byte-identical except the tripwire pinned at the defect.
+Reverted; banked as incant/fixits/argTrampleOrder, graded BEST GUESS.
+
+⚠ THE NEGATIVE THAT MATTERS TO YOUR CHARTER: THE PROBE DID NOT MOVE THE CARRIER.
+carrierNode's structure was identical before and after -- two distinct caSubject
+nodes over one body. Trample and carrier are SEPARATE mechanisms. The frame bind
+is still needed; it simply no longer has to fix the trample.
+
+THE QUESTION THAT BLOCKS PART 2's WIRING, and it is one sentence to answer:
+
+  IS THE FRAME BIND SCOPED TO C++ PARSE-METHOD CALLEES ONLY, OR IS IT ALSO MEANT
+  TO CARRY AN INTERPRETED ACTION'S `argument`?
+
+Why it blocks: "callee lifts into a stack local at entry" works for parentLabel
+because those callees ARE C++ -- `GroupItem into = rule.rStuff.parentLabel;` is
+a real stack local in a generated function, so a nested write to the shared slot
+cannot reach an outer activation. An INTERPRETED action has no such per-activation
+storage: its body reads `argument` by name off the shared action node for the
+whole body, so a lift at entry does not stop a nested call rebinding it -- and
+the brief forbids the save/restore that currently (mis)handles exactly that.
+
+MY READING, offered as a reading and not a finding: the frame bind is the PARSE
+road's channel -- certificates 1 and 4 are both parse-road (`parser(Start)`,
+parseRule) -- and interpreted-action arguments are the OTHER road, whose defect
+is the ordering above. That makes every measurement I have cohere. If you
+confirm it, Part 2 proceeds as written and the layout change is safe to build.
+If not, the callee-lift clause needs a sentence about interpreted callees before
+a RuleStuff layout change is worth doing -- bear-trap 10 makes a wrong guess
+there fail silently and catastrophically.
+
+NOT BUILT, DELIBERATELY: the RuleStuff layout change. Building a layout change
+on an inferred wiring is the one move bear-trap 10 punishes hardest, and the
+answer is cheap.
+
+  END SEQ 98
