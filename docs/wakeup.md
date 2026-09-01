@@ -1,3 +1,138 @@
+# ⚠⚠⚠ SEALED 2026-09-01e — REBOOT SEAL. C18 AND C19, AND THE DAY'S BEST RESULT IS A
+# SUSPICION THAT DIED: THE STAR HAS NO FIXPOINT AND NO COMPOSITION EITHER — IT HAS ONE STAR.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-01 15:45, `git log -1 --date=iso`
+#   stamps 2026-09-01 15:31. They agree. This is the second seal of the day — the earlier one
+#   (2f0e0dc) covers C1–C17 and STANDS; this one covers only what landed after it.
+#
+#   ⚠ VOCABULARY: **field** and **copy of a field**, per Tony's SEQ 112 ruling, and now with
+#   his SEQ 113 definition — *a copy of a field is a field with `isCopy` true whose body is
+#   SHARED with the original. A copy knows it is a copy; the original does not know it has any.*
+#
+#   ## THE ONE-LINE STATE: **Two strokes. Step 3 answered (the sweep makes the copy, 317/317),
+#   and SEQ 113's first three items landed — the follow-through laws re-pinned, `addrOf` minted
+#   as an identity instrument, and `starT` S3a GRADED AGAINST ITSELF.** Fleet **149 green / 1
+#   parked**, expected-red **3** (unchanged all day). Canary **326**. Frontier **exit 0, nine
+#   stations, 10 PASS**. decodePop 22/82 · ddPop 6 · countPop 39/39 · formsPop 14. Both repos
+#   **0 dirty / 0 unpushed**. `gNoUnwrap` **verified back at 0**, bare binary verified live.
+#
+#   ## ⚠⚠ THE FOUR THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. STEP 3: THE COPY UNDER THE TOKEN IS SWEEP-MADE (C18).** `addGroup` copies only
+#   `if ( group->parent )` (`GroupItem.mm:239`), the parse-made field always arrives with a
+#   parent, and the camera read **`adopted=0` on 317 of 317 firings**. No sweep edit was made.
+#   ⚠ **AND THE COPY SHARES THE BODY** — `copyBody == itemBody` in every row, because the copy
+#   constructor is `groupBody = grup->groupBody` outright. **TWO FIELDS OVER ONE BODY**, and
+#   what crosses between them is enumerable: contents, flags, `groupList`, `gMethod`, `gGroup`
+#   are **shared**; `parent`, sibling links, `rStuff` (freshly allocated) and `jitData` are
+#   **not**.
+#
+#   **2. ⚠⚠ `starT` S3a IS GRADED AND ITS OWN SUSPICION IS FALSIFIED. THERE IS NO FIXPOINT AND
+#   NO COMPOSITION — ONLY ONE STAR IS EVER APPLIED. N stars behave as exactly one.** Measured
+#   under `gNoUnwrap=1`, identity by `addrOf`'s **body** column:
+#   ```
+#   baselines   s3Leaf #2    s3One #4    s3Two #6
+#   *s3One   -> #2 LEAF      **s3One  -> #2 LEAF
+#   *s3Two   -> #4 MIDDLE    **s3Two  -> #4 MIDDLE   <- THE DISCRIMINATOR
+#   * *s3Two -> #4 MIDDLE    ***s3Two -> #4 MIDDLE
+#   ```
+#   **R4 decides and R2 alone never could:** a fixpoint AND a working composition both predict
+#   `**s3Two` reaches the LEAF. It reaches the MIDDLE. Only *"the second star does nothing"*
+#   predicts that — and it also explains R2 with no fixpoint anywhere, because one star on a
+#   ONE-deep pointer reaches the leaf by itself. **THE READING THAT LOOKED LIKE A FIXPOINT WAS
+#   A ONE-DEEP COINCIDENCE.**
+#   ⚠ **THE ABSENCE IS EVIDENCE HERE:** not one `ERROR unary *` line in the flip-ON run. F-41
+#   made every operator refuse **by name**, so a second star that ran and refused would have
+#   said so. Nothing refused; nothing second ever ran.
+#   ⚠ **R5 KILLS THE OBVIOUS MECHANISM** — spaced `* *x` reads identically, so this is NOT
+#   longest-match merging two stars into one token. **WHERE they are dropped is NOT DIAGNOSED
+#   and is not guessed at**, per the standing split: reproduction proves the symptom, never the
+#   cause.
+#   ⚠⚠ **THIS CONTRADICTS C16/C17's "`**x` is now `*` twice"** — that claim was read from the
+#   operator table; this is measured. **And it relocates the row that matters to S2b**, which
+#   must go RED at the flip and stay red until composition works.
+#
+#   **3. `addrOf` EXISTS, AND WHY IT IS NOT `showBody`.** Canary 325 → 326. `showBody` already
+#   printed node and body addresses — the right question in the wrong currency, because a raw
+#   `%p` **moves every run** and rule H3 forbids pinning what moves for correctness-unrelated
+#   reasons. `addrOf` prints a **per-run sequence number** instead: first distinct pointer is
+#   `#1`, a pointer already seen reads back its own number. **Identity becomes a small stable
+#   integer a `pop.sh` row can pin.** Certified: identical across three consecutive runs while
+#   the raw addresses moved between them.
+#   ⚠ **ITS BODY COLUMN IS CARRIER-PROOF AND THAT IS THE USEFUL PROPERTY.** The argument carrier
+#   mints a fresh FIELD on every call — `apSrc` read `field=#1`, `#3`, `#8` across three asks —
+#   but the BODY survived at `#2` throughout. So a body-column comparison can ask an identity
+#   question **through** the carrier defect instead of being voided by it. **That is what
+#   unblocked S3a, and it is offered to the step-5 asking for the same reason.**
+#
+#   **4. THE FOLLOW-THROUGH LAWS ARE RULED, AND TWO ROWS WERE PINNED AGAINST THE WRONG
+#   MECHANISM.** Law 1 *print follows* · law 2 *subscript stops at the element* · law 3 *unary
+#   binds tightest, `*a[0]` is `(*a)[0]`* · law 4 *name it, then star it*. `pointerT`'s L1 was
+#   credited to the subscript and belongs to **print**; X was credited to *"one level too many"*
+#   and is really the star **binding to the bag**.
+#   ⚠ **THE VALUES NEVER MOVED — ONLY THE ACCOUNT OF THEM WAS WRONG, WHICH IS EXACTLY WHAT A
+#   VALUE-PINNED ROW CANNOT CATCH.** X's witness had been in the output all along, unread:
+#   `ERROR unary * on ptBagP -- it holds no group`. `pop.sh` now asserts that line **by its
+#   text** (H4), because a row pinned only at 0 goes green the day the star binds the other way.
+#   ⚠ **LAW 4's SPELLING IS `<-`, NOT `=`** — measured: rebind-then-star **follows**,
+#   assign-then-star **refuses**. Rows L2/L3 are that pair, and L3 exists so the next reader who
+#   writes the natural `=` does not conclude the law is broken.
+#   ⚠ **LAW 2 IS NOT CERTIFIED** and `pointerT` says so rather than implying it.
+#
+#   ## `faceT` — THE PAIR FIXTURE, AND THE QUESTION IT ANSWERED FOR CLAY
+#
+#   **`noPrinT` lives in `GroupBody`'s `flags` — THE SHARED COLUMN.** `GroupItem`'s `options`
+#   struct holds only `affiliation:2` and `isCopy:1`. So the charter's conditional resolves the
+#   **other** way: `roundTripT` ARM B2 was **already a body-half arm**, never the field-half arm.
+#   `faceT` adds the identity proof, the FORWARD direction (B2 only did reverse), and the column
+#   census. **Flags round-trip both ways, 1/1.**
+#   ⚠ **F1 IS LOAD-BEARING FOR EVERY OTHER ROW** — without it, *"the write round-tripped"* could
+#   simply mean both names were one field, and the fixture would be a confident tautology. It
+#   pins `field=#1` vs `#3` with `body=#2` both.
+#   ⚠ **F4 IS RECORDED AS UNREADABLE, NOT AS A VERDICT.** `parent` is per-field and the charter
+#   predicted it would not round-trip; **it cannot be read at all** — the capture yields a
+#   data-less field, which returns its own tag (#26). **A PREDICTION THAT CANNOT BE MEASURED IS
+#   NOT CONFIRMED BY FAILING TO MEASURE IT.**
+#   ⚠ **The `options` and `rStuff` columns are ABSENT DELIBERATELY**: `isCopy` is visible only
+#   through `addrOf`, which reports the **carrier** (every subject reads `isCopy=1`, originals
+#   included), and an `rStuff` counter has no readable spelling today. Two more tag-echo rows
+#   would have been green and asserted nothing.
+#
+#   ## THE CHANNEL RULE THIS DAY BOUGHT — WT-15, IN `docs/walkieTalkie.md`
+#
+#   **SCRIBE AT PICKUP, NOT AT LEISURE.** A dispatch is transcribed into `ipc/` **before** the
+#   work it orders begins. SEQ 106–111 were each dictated, each acted on, and **not one was
+#   scribed**; SEQ 106–110's words are gone and the channel carries a reconstruction NOTICE in
+#   their place. SEQ 111 survived **by three minutes** — read out of the untracked, gitignored
+#   `incant++` at 14:26, overwritten at 14:29.
+#   ⚠ **SEQ 113 WAS SCRIBED AT PICKUP**, before any work started. The practice is live.
+#
+#   ## WHAT IS NEXT — SEQ 113's REMAINING ITEMS
+#
+#   **STEP 4, NOT STARTED.** `+*` at the sweep behind `gNoUnwrap` for bare mentions of the
+#   action's own fields; the body reads `*argument`. **The step-3 finding is its argument** —
+#   `+*` hands the callee the field, not a copy of it.
+#   Then **step 5 and the asking** (`kant8T` K2x row 1 / K6c / `nestT`, pre-registered), then
+#   the **try-and-buy**: flip `gNoUnwrap` on a branch, fleet + unitTests, `incant/utilities`
+#   first, **classify reds by mechanism** — that pass IS the unitTests and `pop.sh` revision.
+#   ⚠ **CLAY'S GRADED CANDIDATE STANDS, UNDRIVEN:** the callee's fresh, zeroed `rStuff` as the
+#   account of `parser(Start)` not receiving Start — it received Start's body wearing a copy's
+#   rule state. **`addrOf`'s body column is the witness that candidate did not have.**
+#   ⚠ **OWED BY CLAY, NOT CLOD:** the Ruling A re-read against Tony's copy-of-a-field
+#   definition, before step 5 is graded; and the SEQ 108 recon re-read after Finding 1.
+#
+#   ## ⚠ HOUSEKEEPING A FRESH SESSION SHOULD KNOW
+#
+#   - **`gNoUnwrap` is 0** and the bare binary is verified live — it was flipped to 1 to grade
+#     S3a and flipped back, with a rebuild each way. **Never measure anything else on a flipped
+#     or directives build.**
+#   - **The fixit queue is 1** — `carrierNode`, since 2026-08-31. **It is the gate, and step 3
+#     was its work.** There is no separate step-one errand.
+#   - **Off-repo, this session only:** the iCloud `Documents` twin was scrubbed after a verified
+#     458 MB copy to `~/iCloudDocs-retired-2026-09-01`; three unique files were rescued into
+#     `~/Documents` first. CG's wiki draft lives in `~/Documents/Wiki` with a browsable HTML
+#     pair regenerated by `makeWikiHtml.py` beside it. **None of this is repo material.**
+#
 # ⚠⚠⚠ SEALED 2026-09-01 — SEVENTEEN STROKES, AND THE ONE THING THAT DID NOT LAND WAS A
 # MESSAGE. THE OPERATOR TABLE IS RE-RULED; THE CHANNEL LOST FIVE DISPATCHES AND NEARLY LOST
 # A SIXTH BY THREE MINUTES.
