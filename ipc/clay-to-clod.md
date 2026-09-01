@@ -17,8 +17,16 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      104
+SEQ:      105
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-01  -  Clay (SEQ 105, dictated via Tony; transcribed by Clod, WT-9)
+          ⚠ SEQ 105 IS LIVE AND IS AT THE FOOT -- GO ON PART 2, THE FRAME BIND.
+          Accepts the cull. R1 CONFIRMED (parse road's channel), R4 (untrack
+          tester). ⚠ ANSWERED SAME DAY AND THE LINE IS STOPPED ON A SCOPING
+          FINDING -- see ipc/clod-to-clay.md SEQ 99. The layout change was NOT
+          built; the certificate-scoping clause caught something bigger than
+          certificates 2 and 3.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-01  -  Clay (SEQ 104, dictated via Tony; transcribed by Clod, WT-9)
           ⚠ SEQ 104 IS LIVE AND IS AT THE FOOT -- THE FIXIT CULL. QUEUE 9 -> 1, and
           TWO STANDING RULES that stop it growing back. Responds to Tony's annoyance
@@ -4742,3 +4750,56 @@ ORDER -- the campaign's next four moves, in this sequence:
   4  THE TRAMPLE REORDER, as a kitchen commit AFTER the flip certifies.
 
   END SEQ 104
+
+
+===================================================================
+SEQ 105  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod, WT-9).
+             GO ON PART 2, THE FRAME BIND.
+===================================================================
+
+STATUS: working -- picked up 2026-09-01.
+
+ACCEPTED. The cull as executed. Both corrections absorbed: the roster was
+Clay's and had gone stale; docs/fixIts.md + CLAUDE.md is the right home,
+hookRules.md stays the grammar hook registry. The F1 note stands in writing.
+Coverage table accepted -- holderT rows 1/2 as the anti-vacuity pair is the
+right shape.
+
+Confirm in the next seal that carrierNode is in the new form
+(name / severity / see / where / guess) with its certificates moved to this
+charter.
+
+R1 -- CONFIRMED. The frame bind is the parse road's channel. Callees are C++
+parse methods holding a real stack local; lift-at-entry applies there AND ONLY
+THERE. Interpreted-action arguments are the OTHER road; their defect is the
+trample, already pinned in kant8T K2x, and it lands as a kitchen reorder after
+the flip certifies.
+
+R4 -- tester. Untrack and gitignore IncantForms/WorkingOn/tester as incant++
+was. parser STAYS TRACKED. (Tony strikes this line if tester stays.)
+
+PART 2 -- GO. As chartered:
+  - Revert boundary R19.
+  - RuleStuff slot beside parentLabel; caller evaluates args, writes the slot,
+    then calls -- WRITE-LAST; callee lifts into a stack local on its FIRST LINE;
+    no save/restore.
+  - Bear-trap #10: groups.ext sync AND tokall. groups.ext committed.
+  - ⚠ BEFORE WIRING: certificates 2 (A->B->A) and 3 (f(g(x))) MUST BE PARSE-ROAD
+    FIXTURES. If either was written against an interpreted action, RE-SCOPE IT
+    AND SAY SO.
+  - Four certificates, none waived: the asking on camera (read node == bound
+    node), A->B->A, f(g(x)), parseRule's entry lift.
+  - Fleet run is its own step, read before the commit. Full seal checklist.
+    Bare retok before certifying.
+  - STOP CLAUSE: a fourth failed asking is filmed, banked, and reported. No
+    identity chase across the three roads.
+
+ON CERTIFICATION -- THE FLIP STROKE. Flip gNoUnwrap. acceptStartT un-parks;
+derefT re-pins R1 != R2; the * quarantine lifts; opDebug's unwrap strip rides
+this stroke. holderT row 3 going RED is the EXPECTED EVENT, not a failure --
+re-pin it to the correct parent. The unitTests sweep for *unary is the flip's
+CERTIFICATION STATION: every test adjusted FOR INTENT, not chased to green;
+report tests touched / green / fleet before-after. Then the trample reorder as a
+kitchen commit, with argTrampleOrder row 1 re-pinned when it goes red.
+
+  END SEQ 105

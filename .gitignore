@@ -90,3 +90,16 @@ genLadder/smoke.fleet.base
 #  need one. The DEFAULT BUILD IS BARE and never names it.
 IncantForms/WorkingOn/incant++
 groupDirectives
+#  ⚠ tester UNTRACKED 2026-09-01 (SEQ 105, R4). Tony: "my testing incantation, and
+#  it will change randomly depending on what I am testing." That is incant++'s exact
+#  profile, and a file that churns by design is a standing exception in the
+#  cleanliness instrument -- which is the thing nobody re-examines. Untracking it is
+#  the same move that let the 09-02 seal drop its "but for Tony's two named files"
+#  clause: PREFER A STRUCTURE THAT MAKES THE FAILURE UNCONSTRUCTABLE OVER A
+#  DISCIPLINE THAT AVOIDS IT. A dirty tree is a FINDING again.
+#  ⚠ UNTRACKED IS NOT UNREAD (Tony, 2026-09-01): Clod looks in on this file when it
+#  changes, because it is the cheapest signal of what Tony is working on, and he
+#  answers questions about it. It never needs reconciling and is never a finding.
+#  ⚠ IncantForms/WorkingOn/parser STAYS TRACKED -- it is WIP with an end date (it
+#  waits on the flip), not a scratch pad. Do not add it here.
+IncantForms/WorkingOn/tester

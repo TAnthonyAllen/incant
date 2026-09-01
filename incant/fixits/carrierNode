@@ -1,42 +1,23 @@
-Start();
-include(unitTests);
-include(generate);
-include(utilities);
-search reset stack Grokking;
-search Generating UnitTests bcOPs Utilities list;
-
-register(CarrierNode);
-define
-    caSubject=41;
-    caTake argument code={
-        fixCarrierNodeHere = 0;
-        print "   the argument, as the callee sees it:":;
-        showBody(argument);
-        print "   ONE UNWRAP of it:":;
-        showBody(*argument);
-        print "   value bare      =" argument:;
-        print "   value unwrapped =" *argument:;
-        return argument; };
-    caRun code={
-        print "== THE CARRIER, ON CAMERA ==":;
-        print "   the caller's field:":;
-        showBody(caSubject);
-        caTake(caSubject);
-        };
-    ;
-caRun();
-print "CARRIERNODE SENTINEL -- reached the foot":;
-stop();
-
 LANE:  parser
 BLAST: OVERLAPS
 
-WHY THIS BLAST STAMP -- routing is auditable, not asserted.
-The fix is the frame bind: a slot on RuleStuff beside parentLabel, runAction's
-bind retiring, and every door that reads the slot lifting at entry. That is a
-LAYOUT change to RuleStuff plus the action-call boundary -- squarely inside the
-recon's surface, and it must land before or ride the migration ledger. It is
-also gated on the gNoUnwrap flip, which is the campaign's own stroke.
+NAME      carrierNode -- parser(Start) receives a carrier, not Start.
+SEVERITY  BLOCKER. It is the campaign gate. The flip cannot certify while the
+          acceptance line fails, and this is why it fails. Under F1 it is the
+          only citizen left standing.
+SEE       incant/acceptStartT (parked, un-parks at the flip) - incant/roundTripT
+          - incant/broadcastT - kant8T K6c - docs/wrapperPlan.md.
+WHERE     GroupActions.rtn, runAction's bind (`ruleArg->groupBody =
+          result->groupBody`) and whatever mints the node the callee reads.
+          RuleStuff layout, beside parentLabel.
+GUESS     NONE OUTSTANDING -- the mechanism is FILMED, not guessed, and the
+          ordering is MEASURED: MINT -> BIND -> READ (SEQ 102 Part 1, R19). Both
+          pre-registered candidates died on camera. The remaining work is a
+          BUILD, not a diagnosis, and its shape is ruled in the NEXT block.
+
+⚠ CERTIFICATES MOVED TO THE SEQ 105 CHARTER, 2026-09-01. The four listed in the
+NEXT block below are now that charter's to discharge, not this file's to hold.
+This citizen carries the EVIDENCE; the charter carries the acceptance.
 
 THE BIND WORKS. THE CALLEE READS A DIFFERENT NODE.
 

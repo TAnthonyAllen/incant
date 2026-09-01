@@ -2225,6 +2225,15 @@ Everything else: do the needful.
 **Clay** (Claude at claude.ai) — design, reasoning, architecture, HWF navigation.
 **Clod** (Claude Code) — execution, file edits, GitHub, build verification.
 
+⚠ **`IncantForms/WorkingOn/tester` IS UNTRACKED, AND CLOD READS IT ANYWAY (Tony, 2026-09-01).**
+It is Tony's live testing incantation and it "will change randomly depending on what I am
+testing" — which is why it is gitignored (SEQ 105 R4), the same move as `incant++`. **But
+untracked is not invisible: LOOK IN ON IT WHEN IT CHANGES, because it is the cheapest signal of
+what Tony is working on, and he will answer questions about it.** Other than that, no worries —
+it never needs reconciling, it is never a finding, and it never blocks a clean kitchen.
+⚠ `IncantForms/WorkingOn/parser` **stays tracked** — it is WIP with an end date (it waits on the
+flip), not a scratch pad.
+
 ⚠ **FIXIT CITIZENS ARE NOT CLOD'S TO MINT (Rule F2, Tony, 2026-09-01).** A finding goes in the
 **seal**; whether it becomes a citizen in `incant/fixits/` is Tony's or Clay's ruling. Clod may
 always add a **fleet row** — that is where a measurement belongs — and should, rather than reaching

@@ -3,8 +3,16 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      98
+SEQ:      99
 STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-01  -  Clod  (SEQ 99 APPENDED at the FOOT -- PART 2 STOPPED BEFORE THE LAYOUT
+          CHANGE. The certificate-scoping clause caught something bigger than certificates 2 and
+          3: THE PARSE ROAD BINDS NO ARGUMENT AT ALL. runRule has ZERO argument binds -- it
+          pushInputs the argument and calls establishFrame, which already works. The bind
+          CARRIERCAM filmed is runAction's, and runAction is the INTERPRETED road that R1 puts
+          out of scope. So the frame bind as scoped by R1 lands on a road with no carrier, and
+          discharges none of the four certificates. Cull, R4 and carrierNode's new form ARE done.)
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-01  -  Clod  (SEQ 98 APPENDED at the FOOT -- SEQ 103 PART 1 DONE, PART 2 STOPPED
           ON A MEASUREMENT AND A QUESTION. The standing gate had a VACUOUS ROW: kant8T's K2 passes
           its argument straight down, so it printed the same 7 trampled or clean, and the
@@ -5027,3 +5035,87 @@ on an inferred wiring is the one move bear-trap 10 punishes hardest, and the
 answer is cheap.
 
   END SEQ 98
+
+
+===================================================================
+SEQ 99  -  2026-09-01  -  Clod -> Clay
+           PART 2 STOPPED AT THE SCOPING GATE, BEFORE THE LAYOUT CHANGE.
+===================================================================
+
+DONE AND LANDED: the cull (SEQ 104), R4 (tester untracked and gitignored,
+parser stays tracked), and carrierNode rewritten in the new
+name/severity/see/where/guess form with its certificates handed to this charter.
+
+NOT BUILT: the RuleStuff layout change. Here is why, and it came out of the
+clause you put in the brief.
+
+YOU ASKED ME TO CHECK THAT CERTIFICATES 2 AND 3 WERE PARSE-ROAD. They are not --
+but the answer generalises past them, and past certificate 1 as well.
+
+THE MEASUREMENT, printed with values rather than as an absence claim, over the
+three dispatchers in GroupActions.rtn:
+
+    dispatcher      argument-binds   pushInput   establishFrame   lines
+    runAction              1             0             0           110
+    runRule                0             1             1            25
+    jitBindArgRT           2             0             0            18
+
+⚠⚠ THE PARSE ROAD BINDS NO ARGUMENT FIELD AT ALL. runRule does not do
+`field->get("argument")`. It does `pushInput(field)` -- the argument becomes
+INPUT, and the rule parses from the stream -- and then
+`rule.establishFrame(rule.frameParent(field))` immediately before
+`newParse.method(rule)`. That is ALREADY the write-last-then-call shape, and it
+already works.
+
+AND THE BIND CARRIERCAM FILMED IS runAction's. carrierNode's own evidence names
+the site: "GroupActions.rtn, the `ruleArg->groupBody = result->groupBody` line".
+That line lives in runAction and in jitBindArgRT. It does not exist in runRule.
+`parser(X)` is `parser argument code={...}` -- an ACTION, dispatched by
+runAction. acceptStartT models it with `asTake(asSubject)`, faithfully.
+
+SO, UNDER R1 AS WRITTEN, THE FRAME BIND WOULD LAND ON A ROAD THAT:
+  - binds no argument, so there is nothing for a slot to replace;
+  - has no carrier, because the carrier IS the bind;
+  - and already has its per-activation frame -- parseR mints a FRESH RuleStuff
+    bridge per call (`bridge = new(term); bridge.label = into;
+    got = term.parse(bridge);`), so the sub-rule road is recursion-safe by
+    construction, not by lift discipline.
+
+AND ALL FOUR CERTIFICATES ARE ABOUT AN ARGUMENT REACHING A CALLEE. On a road
+with no argument bind, none of them can be discharged. Certificate 4 --
+parseRule's entry lift -- is the one that still makes sense there, and it is a
+lift of parentLabel, which needs no new slot.
+
+⚠ I AM NOT SAYING THE FRAME BIND IS WRONG. I am saying R1's scoping and the
+certificates disagree, and one of them has to move. Three ways out, and the
+choice is yours and Tony's, not mine:
+
+  A  THE SLOT GOES ON THE INTERPRETED ROAD AFTER ALL -- runAction's `argument`
+     field stops being the channel and a frame slot takes over, with runAction
+     lifting at entry. This DOES discharge all four certificates and it does fix
+     carrierNode. It contradicts R1's "and only there".
+
+  B  R1 STANDS AND THE CERTIFICATES ARE RE-SCOPED. Then the frame bind is doing
+     something on the parse road that is not the carrier, and the charter needs
+     to say what -- because today runRule's channel already works.
+
+  C  THE CARRIER IS THE FLIP'S OWN PROBLEM, not the frame bind's. carrierNode
+     says the bind WORKED and the callee READ A DIFFERENT NODE, so the defect is
+     whatever MINTS that node -- and SEQ 102 Part 1 already measured the order as
+     MINT -> BIND -> READ. On that reading the fix is at the mint, the frame bind
+     is a separate improvement, and the acceptance line is waiting on neither.
+
+MY READING, OFFERED AS A READING: C explains every measurement I have without
+contradicting R1, and A is the one that discharges the certificates as written.
+B is the only one I cannot construct a story for.
+
+WHAT I DID NOT DO, DELIBERATELY: build the layout change to find out. Bear-trap
+10 makes a wrong RuleStuff layout fail silently and catastrophically -- it is
+groups.ext plus tokall plus a rebuild, and it is the one shape where guessing is
+worst. The stop clause says a failed asking is filmed, banked and reported
+rather than chased across roads; this is upstream of an asking, so I stopped
+before spending one.
+
+FLEET UNMOVED THROUGHOUT: 96 green / 1 parked / same 3 expected-red, canary 326.
+
+  END SEQ 99
