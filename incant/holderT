@@ -1,0 +1,53 @@
+Start();
+include(utilities);
+search reset stack Grokking Utilities list;
+
+/*  holderT -- .parenT THROUGH AN ACTION-ARGUMENT HOLDER. Minted 2026-09-01 as
+    incant/fixits/parentUnreachable's COVERAGE HANDOFF when that citizen retired
+    by ruling (SEQ 104, the fixit cull). The citizen is gone; this row is what
+    remains of it, and it is the whole of what remains.
+
+    THE DEFECT, measured 2026-08-29 and unchanged since: an action reaches its
+    argument's PROPERTIES correctly through the holder and its argument's PARENT
+    incorrectly. runAction binds by `ruleArg.group = argument`, so an action's
+    `argument` is a FIELD POINTING AT the subject, not the subject. Property
+    cases read through that; the node-returning case does not, and hands back
+    the HOLDER, whose tag is `argument`.
+
+    ⚠ ROW 3 IS PINNED AT THE WRONG ANSWER ON PURPOSE. It reads `argument` and
+    wants `htWindow`. The holder read is the implicit unwrap THE FLIP REMOVES,
+    so WHEN THE FLIP LANDS THIS ROW GOES RED -- that is the fix arriving, not a
+    regression. Re-pin to htWindow, with the sentence, and say so.
+
+    ROWS 1 AND 2 ARE THE ANTI-VACUITY PAIR AND MUST BE GREEN ALWAYS. Row 1 is
+    the same accessor read DIRECTLY, which is correct today and must stay
+    correct -- without it, row 3 cannot tell "the holder loses the parent" from
+    "the accessor is broken everywhere". Row 2 proves the node under test is the
+    one intended; a walk that reads the wrong node agrees with itself.  */
+
+register(HolderT);
+define
+    htWindow x=0 y=0 width=100 height=100
+        htInside x=10 y=10 width=20 height=20;
+
+    htDirect code={
+        htKid <- htWindow["htInside"];
+        print "holderT 2 identity  .taG    =" htKid.taG "  want htInside":;
+        htU <- htKid.parenT;
+        print "holderT 1 direct    .parenT =" htU.taG "  want htWindow":;
+        };
+
+    htProbe argument code={
+        htP <- argument.parenT;
+        print "holderT 3 holder    .parenT =" htP.taG "  want htWindow, PINNED argument":;
+        };
+
+    htRun code={
+        htDirect();
+        htChild <- htWindow["htInside"];
+        htProbe(htChild);
+        };
+    ;
+htRun();
+print "HOLDERT SENTINEL -- reached the foot":;
+stop();

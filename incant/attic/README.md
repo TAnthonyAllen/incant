@@ -16,3 +16,29 @@ last resort and must never be treated as one.
 **Population placed 2026-08-28** by trim census phase one (`docs/trimCensus.md`): 13 files, the
 CUT-CANDIDATE list less the `genCount`/`countScratch` pair, which was held back under the
 more-protective disposition because they are one decision and `countScratch` is only MAYBE.
+
+**Population placed 2026-09-01** by the FIXIT CULL (Tony's ruling, SEQ 104): 8 files, being
+every fixit citizen except `carrierNode`. Each was asked one question -- *what does it address
+that stops the flip?* -- and none answered. `carrierNode` is the blocker and stays; it is the
+charter.
+
+    argTrampleOrder      goldenDrift          jsonListNotAList     kantGenPath
+    litToMissing         parentUnreachable    parseSelfRecursion   tagTokenMismatch
+
+**Retired BY RULING, which is a different disposition from the 08-28 population above.** Those
+were placed by a trim census that found no runner and no citation. These were placed by a
+decision, while several were live, correct, and running. So the standing "unmissed across seal
+cycles gets deleted without ceremony" clause applies to them exactly as written -- there is
+nothing further owed on any of them, and no verdict prose, discharge evidence or problem record
+was written for any of them, deliberately.
+
+⚠ **TWO CARRIED THEIR ASSERTIONS OUT BEFORE THEY LEFT, and the mapping is named here because a
+retirement that drops coverage silently is the failure this project has a ledger for:**
+- `parentUnreachable` -> **`incant/holderT`**, three rows in `genLadder/pop.sh`. Row 3 pins
+  `.parenT` through a holder at the WRONG answer on purpose; it goes red at the flip.
+- `argTrampleOrder` -> **`kant8T`'s K2x**, three rows in `genLadder/pop.sh`. Row 1 pins the
+  argument trample at the WRONG answer on purpose; it goes red when the reorder lands.
+
+`goldenDrift`'s clusters 3 and 4 keep their warning in `genLadder/pop.sh` beside the
+`baselineTests` block -- the golden is a deliberately mixed artifact and re-pinning those two
+clusters is still prohibited. Nothing else was carried, and nothing else was owed.

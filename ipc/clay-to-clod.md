@@ -17,8 +17,13 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      103
+SEQ:      104
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-01  -  Clay (SEQ 104, dictated via Tony; transcribed by Clod, WT-9)
+          ⚠ SEQ 104 IS LIVE AND IS AT THE FOOT -- THE FIXIT CULL. QUEUE 9 -> 1, and
+          TWO STANDING RULES that stop it growing back. Responds to Tony's annoyance
+          with the register. Also fixes the ORDER of the campaign's next four moves.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-01  -  Clay (SEQ 103, dictated via Tony; transcribed by Clod, WT-9)
           ⚠ SEQ 103 IS LIVE AND IS AT THE FOOT -- TONY'S 09-01 FIXIT VERDICTS +
           THE FRAME BIND CHARTER. Executes the last seal's Option A; Option B
@@ -4676,3 +4681,64 @@ HOUSEKEEPING
     rule.
 
   END SEQ 103
+
+
+===================================================================
+SEQ 104  --  2026-09-01, Clay (dictated via Tony; transcribed by Clod, WT-9).
+             THE FIXIT CULL. QUEUE 9 -> 1.
+             Drafted by Clay, RULED BY TONY, in response to his annoyance with
+             the register. Clod assigns the number and executes.
+===================================================================
+
+STATUS: working -- picked up 2026-09-01.
+
+THE RULING. Every citizen was asked ONE question: what does it address that
+stops the flip? If nothing, it is gone.
+
+  citizen                stops the flip?                      disposition
+  carrierNode            YES -- it IS the blocker             KEEP. It is the charter.
+  trample (new, 09-01)   No -- carrier and trample are        RETIRE the citizen. The
+                         separate, measured                   one-statement reorder lands
+                                                              as a kitchen commit. No K2
+                                                              rewrite, no ceremony.
+  verifyParse139         No -- acceptance is Start            RETIRE. Its exit-139 stays
+                                                              visible as the expected-red
+                                                              row it already is.
+  parentUnreachable      No -- the holder read is the         RETIRE. ONE FLEET ROW pins
+                         implicit unwrap the flip removes     .parenT through a holder,
+                                                              expected to move at flip.
+  parseSelfRecursion     No                                   RETIRE.
+  kantGenPath            No                                   RETIRE.
+  tagTokenMismatch       No                                   RETIRE.
+  methodSlotFourReaders  No                                   RETIRE.
+  goldenDrift (cl 3/4)   No -- pop.sh already warns           RETIRE. Warning stays.
+
+⚠ IF THE ROSTER MIS-NAMES A CITIZEN, CORRECT THE NAME; the ruling applies to
+whatever is in incant/fixits/ that is NOT carrierNode.
+
+RETIRE MEANS: move to attic, one line in the seal naming it retired-by-ruling.
+NO verdict prose, NO discharge evidence, NO problem record. The attic keeps the
+text; the register keeps nothing.
+
+TWO STANDING RULES, EFFECTIVE NOW
+
+  1  A FIXIT CITIZEN EXISTS ONLY IF IT BLOCKS THE CURRENT CAMPAIGN GATE.
+     Anything else is a fleet row or it is nothing. A CITIZEN IS NOT A PLACE TO
+     STORE A MEASUREMENT; THE FLEET IS.
+
+  2  CLOD DOES NOT MINT CITIZENS. Clod reports a finding in the seal. Tony or
+     Clay decides whether it becomes a citizen. MINTING IS A RULING, NOT A
+     REFLEX. This SUPERSEDES the 08-19 "bank it with an incantation" rule,
+     which is RETIRED.
+
+Update CLAUDE.md's seat ledger and docs/hookRules.md with both. The "Tony's
+fixit incantations waiting" line in the seal STAYS, and it should read 1.
+
+ORDER -- the campaign's next four moves, in this sequence:
+  1  THE CULL (this dispatch) -- one kitchen pass, both repos.
+  2  PART 2 AS CHARTERED, on R1 CONFIRMED: the frame bind is THE PARSE ROAD'S
+     CHANNEL.
+  3  THE FLIP STROKE, with the unitTests sweep as its certification station.
+  4  THE TRAMPLE REORDER, as a kitchen commit AFTER the flip certifies.
+
+  END SEQ 104

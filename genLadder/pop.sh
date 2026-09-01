@@ -323,6 +323,40 @@ for _arm in "K2x row 0 control  = k2xBig" \
     fi
 done
 
+#  ============================================================================
+#  ⚠ holderT -- .parenT THROUGH AN ACTION-ARGUMENT HOLDER. Added 2026-09-01.
+#
+#  THIS IS ALL THAT REMAINS OF incant/fixits/parentUnreachable, which retired by
+#  ruling in the fixit cull (SEQ 104). The citizen's text is in incant/attic; its
+#  ASSERTION is here, and this comment is the mapping.
+#
+#  An action reaches its argument's PROPERTIES correctly through the holder and
+#  its argument's PARENT incorrectly -- runAction binds by `ruleArg.group =
+#  argument`, so the node-returning case hands back the HOLDER, tagged
+#  `argument`. Rows 1 and 2 are the anti-vacuity pair and must be green always:
+#  without the direct read, row 3 cannot tell "the holder loses the parent" from
+#  "the accessor is broken everywhere".
+#
+#  ⚠ ROW 3 IS PINNED AT THE WRONG ANSWER ON PURPOSE. The holder read is the
+#  implicit unwrap THE FLIP REMOVES, so WHEN THE FLIP LANDS THIS ROW GOES RED.
+#  That is the fix arriving, not a regression. Re-pin to htWindow with the
+#  sentence.
+run1 holderT "$T/hold"; check "holderT runs" 0 $?
+if grep -q "HOLDERT SENTINEL" "$T/hold"; then
+    echo "  ok    holderT sentinel (no truncation)"; green=$((green+1))
+else
+    echo "  FAIL  holderT sentinel MISSING -- the run truncated"; fail=1
+fi
+for _arm in "holderT 1 direct    .parenT = htWindow" \
+            "holderT 2 identity  .taG    = htInside" \
+            "holderT 3 holder    .parenT = argument"; do
+    if grep -qF "$_arm" "$T/hold"; then
+        echo "  ok    ${_arm%% =*} = ${_arm##*= } -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  $_arm -- got: $(grep -o "${_arm%% =*}[^ ]*.*" "$T/hold" | head -1)"; fail=1
+    fi
+done
+
 extract () { sed -n "/^extern [A-Za-z]* $1(/,/^}/p;/^extern [A-Za-z]* $2(/,/^}/p" "$T/gen"; }
 
 extract parseScaf   parseScaf2 > "$T/r12"; diffcheck "rung12.target" genLadder/rung12.target "$T/r12"

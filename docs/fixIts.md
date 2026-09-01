@@ -16,6 +16,42 @@ routinely turns up a defect belonging to another. Stopping to fix it derails the
 it; mentioning it in prose loses it. **It comes here, with enough evidence that nobody has to
 re-derive it, and the finder goes back to what they were doing.**
 
+## ⚠⚠⚠ THE CULL — TWO STANDING RULES, TONY, 2026-09-01 (SEQ 104). READ BEFORE ADDING ANYTHING.
+
+These govern `incant/fixits/`, the RUNNABLE register that grew out of this one. **The queue went
+9 → 1 in a single pass**, and the rules are what stop it growing back.
+
+**RULE F1 — A FIXIT CITIZEN EXISTS ONLY IF IT BLOCKS THE CURRENT CAMPAIGN GATE. ANYTHING ELSE IS A
+FLEET ROW OR IT IS NOTHING.** ⚠ **A CITIZEN IS NOT A PLACE TO STORE A MEASUREMENT; THE FLEET IS.**
+Every citizen was asked one question — *what does it address that stops the flip?* — and eight of
+nine could not answer. They sit in `incant/attic/`, retired by ruling: no verdict prose, no
+discharge evidence, no problem record. **The attic keeps the text; the register keeps nothing.**
+
+**RULE F2 — CLOD DOES NOT MINT CITIZENS.** Clod **reports a finding in the seal**; Tony or Clay
+rules on whether it becomes a citizen. **Minting is a ruling, not a reflex.** This **retires the
+2026-08-19 "banking an issue means writing its fixit incantation" rule**, which is struck in place
+in `CLAUDE.md`.
+
+⚠ **THE DIAGNOSIS, because the 08-19 rule was not wrong about the thing it was aimed at.** Prose
+capture does rot, and runnable capture does not. What the rule got wrong was **who decides**: it
+made minting the default response to any finding, so the register's entry condition became
+*"someone noticed something"* — which fills faster than anyone can rule on it. Nine citizens, one
+of which blocked the campaign. **The reflex cost more than the rot it was curing.**
+
+⚠ **AND THE HALF THAT SURVIVES, so the cull is not over-read.** A retiring citizen still **carries
+its assertions out by mapping**: `parentUnreachable` left as `incant/holderT` plus three `pop.sh`
+rows, `argTrampleOrder` as `kant8T`'s K2x plus three more, both pinned at the WRONG answer on
+purpose so the fix cannot land silently. **Retirement by ruling is not permission to drop coverage.**
+The seal line stays, generated and unskippable, and it reads **1**.
+
+⚠ **WHERE THESE RULES LIVE, and it is a correction:** SEQ 104 asked for them in
+`docs/hookRules.md`. That file is the **grammar hook-rule registry** — rules the reading machinery
+invokes — and has nothing to do with fixits. Putting them there would have been a second population
+for one subject, which is the duplicate-register failure `CLAUDE.md` warns about. **They live here
+and in `CLAUDE.md`.** Flagged to Tony rather than silently redirected.
+
+---
+
 **A ROW IS MINION-READY OR IT IS NOT A ROW.** Every entry carries: what is wrong, WHERE (file:line),
 the EVIDENCE that it is real, and what "done" means. If a row cannot be handed to someone with no
 context, it is not finished being written.

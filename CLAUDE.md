@@ -801,6 +801,32 @@ it. Three destinations, and they are not interchangeable:
 
 ### ⚠ AND A FOURTH REGISTER, ADOPTED 2026-08-19: `incant/fixits/` — RUNNABLE CAPTURE
 
+⚠⚠⚠ **READ THE CULL FIRST — TWO STANDING RULES, TONY, 2026-09-01 (SEQ 104), AND THEY NARROW THIS
+REGISTER TO ALMOST NOTHING. THE QUEUE WENT 9 → 1 IN ONE PASS.**
+
+**RULE F1 — A FIXIT CITIZEN EXISTS ONLY IF IT BLOCKS THE CURRENT CAMPAIGN GATE. ANYTHING ELSE IS
+A FLEET ROW OR IT IS NOTHING.** ⚠ **A CITIZEN IS NOT A PLACE TO STORE A MEASUREMENT; THE FLEET
+IS.** Every citizen was asked one question — *what does it address that stops the flip?* — and
+eight of nine could not answer. They are in `incant/attic/`, retired by ruling: no verdict prose,
+no discharge evidence, no problem record. **The attic keeps the text; the register keeps nothing.**
+
+**RULE F2 — CLOD DOES NOT MINT CITIZENS.** Clod **reports a finding in the seal**; Tony or Clay
+decides whether it becomes a citizen. **Minting is a ruling, not a reflex.**
+
+⚠ **F2 SUPERSEDES AND RETIRES THE 2026-08-19 "BANK IT WITH AN INCANTATION" RULE BELOW**, which is
+struck where it appears. That rule was right about *capture* and wrong about *who decides* — it
+made minting the default response to any finding, and a register whose entry condition is "someone
+noticed something" fills up faster than anyone can rule on it. **Nine citizens, one of which
+blocked the campaign.** The rot the register was built to prevent was real; the reflex that grew on
+top of it was the larger cost.
+
+⚠ **WHAT DOES NOT CHANGE, so the cull is not over-read:** the seal line stays, generated and
+unskippable, and it should read **1**. `carrierNode` stays, because it *is* the charter. And a
+retiring citizen still **carries its assertions out by mapping** — `parentUnreachable` left as
+`incant/holderT` plus three `pop.sh` rows, `argTrampleOrder` as `kant8T`'s K2x plus three more.
+**Retirement by ruling is not permission to drop coverage silently.**
+
+
 **PROSE CAPTURE ROTS; RUNNABLE CAPTURE DOES NOT.** An issue banked for Tony as a paragraph costs him
 a reconstruction before he can start — the exhibit that forced this was *"what are the iterT1m
 re-pins?"*, asked weeks after they were banked. So an issue owed to Tony is banked as an
@@ -1131,10 +1157,13 @@ promoted. The single coupling is the seal line, and that line is **generated, no
 `Tony's fixit incantations waiting: N (oldest: <name>, since <date>)`. Tony's words for the record:
 *forgetting is not an excuse once the seal reminds him to get off the pot.*
 
-⚠ **THE STANDING RULE (Tony ruled, 2026-08-19): BANKING AN ISSUE OWED TO TONY MEANS WRITING ITS
+⚠⚠ **RETIRED 2026-09-01 BY RULE F2 (the cull, at the head of this section). STRUCK, NOT DELETED,
+so the reasoning trail survives:**
+~~**THE STANDING RULE (Tony ruled, 2026-08-19): BANKING AN ISSUE OWED TO TONY MEANS WRITING ITS
 FIXIT INCANTATION AS PART OF THE BANKING.** Capture means runnable capture. **Applies from now, not
 retroactively** — existing docket items migrate as each becomes topical, and there is no bulk
-conversion owed.
+conversion owed.~~
+**The replacement: Clod reports the finding in the seal. Minting is Tony's or Clay's ruling.**
 
 ⚠ **THE EXPLANATION GOES BELOW `stop();`, NOT IN A HEADER COMMENT (Addendum 2, ratified by Tony
 2026-08-20).** The runnable region ends at `stop();`; everything after it is **parse-dead — the
@@ -2195,6 +2224,11 @@ Everything else: do the needful.
 **Anthony (Tony, Haps)** — architect, domain expert, final authority.
 **Clay** (Claude at claude.ai) — design, reasoning, architecture, HWF navigation.
 **Clod** (Claude Code) — execution, file edits, GitHub, build verification.
+
+⚠ **FIXIT CITIZENS ARE NOT CLOD'S TO MINT (Rule F2, Tony, 2026-09-01).** A finding goes in the
+**seal**; whether it becomes a citizen in `incant/fixits/` is Tony's or Clay's ruling. Clod may
+always add a **fleet row** — that is where a measurement belongs — and should, rather than reaching
+for a citizen.
 
 **Standing permissions**: Clod changes any code in source directories
 without asking. Trivial repo operations (commits, pushes for routine
