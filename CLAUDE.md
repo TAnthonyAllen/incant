@@ -1997,6 +1997,38 @@ Hard-won lessons. Each one has cost real debugging time.
     deref three frames away into a visible diff. The extern canary will not catch this: the file
     parses, tok exits clean, and the canary read **326, unchanged**, the whole time.
 
+43. **A PROBE MUST BE A MINIMAL *DELTA* FROM THE FIXTURE IT INVESTIGATES, NEVER A REWRITE OF IT —
+    A RETYPED FIXTURE ANSWERS A THIRD VALUE BELONGING TO NEITHER BUILD.** Gloss: retyped probe,
+    third answer. Measured 2026-09-02 investigating `anyOrNumT`'s moved `ANSWER` row.
+    The two builds under test answered `1` and `ANYorNum`. A probe written by retyping the
+    fixture's shape by hand answered **`maybe`** — a value neither build produces — because the
+    retype silently dropped the `compile(argument)` call and the `@CodE` dump. Copying the file and
+    patching two lines into it reproduced `1` and `ANYorNum` exactly.
+    ⚠ **THE DANGER IS THAT `maybe` LOOKED LIKE A FINDING.** It is a real token from the fixture's
+    own input string, so it reads as *"the parse returned the first token"* — a plausible,
+    reportable, entirely fictional result about a program nobody was running. Same family as
+    bear-trap #26: not a crash, a **plausible wrong answer wearing the shape of data**.
+    **The rule: `cp` the fixture, then patch it, and diff your probe against its parent before
+    reading anything out of it.** One `diff` and the dropped lines are visible. A probe that
+    reproduces the *subject* is worth nothing if it does not reproduce the *fixture*.
+
+44. **INSIDE A GENERATED PARSE BODY, RUN-TIME `taG` READS `BlocK` — NOT THE RULE'S NAME. BAKE
+    IDENTITY IN AT GENERATION TIME.** Gloss: the body does not know its own name. Measured
+    2026-09-02. A marker emitted as `cerr "BODY RAN " taG:;` into four different rules' generated
+    bodies printed `BODY RAN BlocK` from whichever one fired — so the instrument proved that **a**
+    body ran and could not say **which**, which was the entire question.
+    The fix is one character of scope: emit the name as a **literal**, resolved in the generator
+    where `taG` *is* the rule —
+    ```
+    print $"cerr \"BODY RAN " taG "\":;":;      ->   cerr "BODY RAN ANYorNum":;
+    ```
+    ⚠ **AND THE HALF THAT MATTERS MORE THAN THE SPELLING: THE INSTRUMENT MUST ASSERT ITS OWN
+    INSTALLATION BEFORE AN ABSENCE IS READ AS EVIDENCE.** The emitted marker is printed into every
+    generated body and all four were shown, named per rule, *before* any conclusion was drawn from
+    one of them not firing. **An absent marker means nothing until you have seen that marker be
+    present** — which is rule H4's logic and bear-trap #30's install-check, applied to code you
+    emit rather than to code you inject.
+
 ⚠⚠ **THE RULE-LADDER SELECTION CRITERION — TWO CLAUSES, AND THE SECOND WAS PAID FOR.** Tony,
 2026-08-24.
 
