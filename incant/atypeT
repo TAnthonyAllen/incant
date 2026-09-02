@@ -1,0 +1,126 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(UnitTests);
+define
+    atBare      = 0;
+    atCapt      = 0;
+    atTotal     = 0;
+    atDisagree  = 0;
+    atAbsurd    = 0;
+    atAfter     = 0;
+    atWalk argument code={
+        atBare      = 0;
+        atCapt      = 0;
+        atTotal     = 0;
+        atDisagree  = 0;
+        atAbsurd    = 0;
+        atAfter     = 0;
+        iterate atCur on argument members;
+        while ++atCur;
+            ++atTotal;
+            if actionTypE == 0;         ++atBare;
+            if actionTypE == 999;       ++atAbsurd;
+            atLocal := atCur.actionTypE;
+            if atLocal == 0;            ++atCapt;
+            if atLocal != 0;            ++atDisagree;
+            if actionTypE == 0;         ++atAfter;
+        };
+    atReport code={
+        atWalk(Grokking);
+        print "ATYPE population walked      " atTotal:;
+        print "ATYPE bare     if actionTypE == 0  " atBare:;
+        print "ATYPE captured atLocal      == 0   " atCapt:;
+        print "ATYPE captured NON-zero (anti-vacuity, must be > 0) " atDisagree:;
+        print "ATYPE CONTROL  bare if actionTypE == 999      " atAbsurd:;
+        print "ATYPE bare AGAIN, after a cursor mention          " atAfter:;
+        };
+    ;
+
+atReport();
+cerr "ATYPE SENTINEL -- both readings printed":;
+stop();
+
+    atypeT -- the actionTypE == 0 A/B. Carried from SEQ 121, REPORT ONLY.
+    Measured 2026-09-02. NOT a fleet citizen: it measures a disagreement whose
+    correct answer has not been ruled, and a row pinned to an unruled
+    expectation is a claim the mechanism cannot cash.
+
+    THE QUESTION. Bear-trap #35's condition-position family is measured broken
+    for `if listLengtH == 0;` and correct for capture-then-test. `actionTypE ==
+    0` is the same shape and is a house idiom -- IncantForms/WorkingOn/parser
+    lines 47 and 60, incant/anyOrNumT, incant/f31, incant/fixBisect,
+    incant/parseClass. If it is broken it is broken everywhere, so one fixture
+    settles the SHAPE for the corpus and no sweep is owed either way.
+
+    WHAT IT READ, one run, one population, all arms on the SAME member in the
+    SAME pass so neither ordering nor population can explain a difference:
+
+        population walked                                   65
+        bare      if actionTypE == 0                        65
+        captured  atLocal := atCur.actionTypE, == 0           1
+        captured  NON-zero  (anti-vacuity)                   64
+        CONTROL   bare if actionTypE == 999                   0
+        bare AGAIN, after a cursor mention                   65
+
+    THE READING, and its limits are stated because they are real. The two arms
+    disagree 65 against 1 over the same 65 members. The captured distribution --
+    64 with an action, 1 without -- is what a grammar registry should look like;
+    65 rules with no action is not. So the bare arm is the suspect one.
+
+    ⚠ THE CONTROL IS WHAT MAKES THIS A MECHANISM AND NOT JUST A DISAGREEMENT,
+    AND IT RULES OUT THE OBVIOUS STORY. `== 999` reads 0, not 65, so the bare
+    comparison is NOT blanket-truthy -- it does discriminate on the constant.
+    Both readings together fit one account: the bare name resolves to a node
+    whose data is 0, so `== 0` is true everywhere and `== 999` false everywhere.
+    That is consistent with it reaching the GroupField DEFINITION (incant/setup
+    registers actionTypE=406) rather than the cursor's property. CONSISTENT
+    WITH, not diagnosed -- per the standing split, reproduction proves the
+    symptom and never the cause.
+
+    ⚠ AND THE LAST-MENTIONED STORY IS KILLED BY THE LAST ROW. The obvious rival
+    account was that the bare read simply had no cursor in scope, since the
+    statement before it is `++atTotal;` on a local. So the bare test is asked a
+    SECOND time, after `atCur` has been mentioned by name. It still reads 65.
+    The position inside the body does not move it.
+
+    ⚠⚠ THE REMEDY HAS A SPELLING, AND THE NATURAL ONE CAPTURES NOTHING. The
+    captured arm was first written `atLocal = atCur.actionTypE;` -- ordinary
+    assignment, the obvious way to capture-then-test -- and it read 0 zeros and
+    65 non-zeros, agreeing with nothing and measuring nothing. `:=` reads 1 and
+    64. So "capture, then test" is not advice about an ordering, it is advice
+    about an OPERATOR, and the `=` spelling of it fails silently. Same pair as
+    bear-trap #35's L2/L3, one property over.
+
+    ⚠ WHAT IS NOT CLAIMED. This does not convict parser:47, f31:77 or any other
+    corpus site: those walk a rule's own children while this walks a registry's
+    members, and no fixture here has run against their populations. It says the
+    SHAPE disagrees with itself and names which arm looks wrong. The verdict is
+    Tony's.
+
+    ⚠ ANTI-VACUITY, TWO ROWS AND BOTH ARE LOAD-BEARING. The population must be
+    non-zero -- two arms that both walk nothing agree perfectly and assert
+    nothing. AND the captured non-zero count must be above zero: if every member
+    read actionTypE == 0, an always-truthy bare arm and a correct captured arm
+    would produce the SAME number and the fixture could not tell them apart. A
+    zero-expecting row needs a non-zero sibling, and that is it.
+
+    ⚠ AN EARLIER DRAFT MEASURED NOTHING AND SAID SO LOUDLY, which is the only
+    reason it was caught. It set per-row flags and tested them with `if atSawB;`
+    -- an EXISTENCE test on a minted field, always true -- so all counters read
+    the full population and the disagreement count read 65 out of 65 while both
+    arms ALSO read 65 out of 65. Arithmetically impossible, and that
+    impossibility is what exposed it. Bear-trap #26's family, and the same
+    defect incant/frontier's `frOk == 1` exists to avoid: compare a flag to a
+    value, never test it bare.
+
+    ⚠ AND PRINT IS NO ORACLE HERE. `cerr ... actionTypE` and `cerr ... atLocal`
+    both print the STRING `actionTypE` -- bear-trap #26's tag echo -- so the
+    values cannot be shown directly and every number above is a COUNT. That is
+    why the control and the anti-vacuity sibling carry the weight they do.
+
+    RUN IT:   <binary> incant/atypeT
