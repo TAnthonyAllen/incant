@@ -1309,7 +1309,8 @@ extern GroupItem opString(GroupItem target,Buffer buffer)
 extern GroupItem opDeref(GroupItem result)
 {
     if jitting {
-        -% ::jitDegrade("unary * under jit -- no emitter yet",result); %-
+        -% if (!::jitEmitDeref(result))
+               ::jitDegrade("unary * under jit -- emitter refused",result); %-
     }
     if result.isGROUP   return result.group;
     cerr "ERROR unary * on",result.tag,"-- it holds no group":;

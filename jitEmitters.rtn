@@ -1387,6 +1387,33 @@ extern int jitEmitReturn()
 }
 
 
+/* jitEmitDeref  THE PREFIX `*`, EMITTED. SEQ 132 item 3, Tony's ruling.
+   One level, no composition. The operand NODE is baked -- it is a parse-time
+   constant -- and the FOLLOW is deferred to jitDerefRT at run time, because what
+   a field points at is not knowable at emit time. Publishes on gJitResultNode,
+   the GroupItem channel opDot already uses; a star has no scalar to publish and
+   deliberately does not touch gJitResult.  */
+extern int jitEmitDeref(GroupItem operand)
+{
+    -%
+    if (!gJitBuilder || !operand) return 0;
+    llvm::IRBuilder<> *b = gJitBuilder;
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+    llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+    llvm::Value *argAddr = b->CreateIntToPtr(
+        llvm::ConstantInt::get(i64, (uint64_t)(void*)operand), ptr, "derefArg");
+    llvm::Value *derefFn = b->CreateIntToPtr(
+        llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitDerefRT), ptr, "derefFn");
+    llvm::FunctionType *derefTy = llvm::FunctionType::get(ptr, {ptr}, false);
+    llvm::Value *res = b->CreateCall(derefTy, derefFn, {argAddr}, "derefRes");
+    gJitResultNode = res;
+    gJitEmitted    = true;
+    return 1;
+    %-
+}
+
+
 /* jitEmitSelfCall  THE RECURSIVE CALL, emitted rather than inlined.
 
    Returns 1 when it emitted (the callee IS the action being compiled), 0 when it

@@ -4656,27 +4656,6 @@ finishXP:
 	return xpList;
 }
 
-/*******************************************************************************
-    jitBindArgRT -- BIND A CALL'S ARGUMENT, AT RUN TIME. 2026-08-05.
-
-    THE GAP: runAction's jitting gate returns on a self-call BEFORE the two lines
-    below it that bind the argument, so an emitted self-call bound NOTHING. The
-    callee's `argument` field kept whatever emit time left in it, and every fire
-    at every depth saw the same node. Recursion with an argument -- displayForm's
-    whole shape -- could not work.
-
-    ⚠ THESE ARE runAction's OWN BINDING LINES, lifted verbatim rather than
-    reimplemented, so the emitted call binds exactly as the interpreted call
-    does and the two cannot drift. Same shared-implementation move as
-    jitEmitIterStep's call to opPlusPlus and opDot's call to itself.
-
-    ⚠ THE UNWRAP IS NOT OPTIONAL. The caller's operand may be an ITERATOR or a
-    group node -- `displayForm(grup)` passes exactly that -- and what the callee
-    must receive is the node it currently POINTS AT, which is a run-time fact.
-    Baking the operand's emit-time target would pin the recursion to whatever
-    node the compile happened to see. `if arg.isGROUP && !arg.isArgument
-    arg = arg.group;` is the tree's existing unwrap idiom (ruleActions.rtn:419).
-*******************************************************************************/
 extern "C" GroupItem *jitBindArgRT(GroupItem *argument, GroupItem *field)
 {
 GroupItem 	*arg = argument;
@@ -5103,6 +5082,57 @@ extern "C" int jitDegrade(char *what, GroupItem *node)
 	
 }
 
+/*******************************************************************************
+    jitBindArgRT -- BIND A CALL'S ARGUMENT, AT RUN TIME. 2026-08-05.
+
+    THE GAP: runAction's jitting gate returns on a self-call BEFORE the two lines
+    below it that bind the argument, so an emitted self-call bound NOTHING. The
+    callee's `argument` field kept whatever emit time left in it, and every fire
+    at every depth saw the same node. Recursion with an argument -- displayForm's
+    whole shape -- could not work.
+
+    ⚠ THESE ARE runAction's OWN BINDING LINES, lifted verbatim rather than
+    reimplemented, so the emitted call binds exactly as the interpreted call
+    does and the two cannot drift. Same shared-implementation move as
+    jitEmitIterStep's call to opPlusPlus and opDot's call to itself.
+
+    ⚠ THE UNWRAP IS NOT OPTIONAL. The caller's operand may be an ITERATOR or a
+    group node -- `displayForm(grup)` passes exactly that -- and what the callee
+    must receive is the node it currently POINTS AT, which is a run-time fact.
+    Baking the operand's emit-time target would pin the recursion to whatever
+    node the compile happened to see. `if arg.isGROUP && !arg.isArgument
+    arg = arg.group;` is the tree's existing unwrap idiom (ruleActions.rtn:419).
+*******************************************************************************/
+/*******************************************************************************
+    jitDerefRT -- THE PREFIX `*`, AT RUN TIME. SEQ 132 item 3.
+
+    ⚠ opDeref's OWN LINES, LIFTED VERBATIM, for the same reason jitBindArgRT
+    lifts runAction's: the emitted star and the interpreted star must not drift.
+    ONE LEVEL, NO COMPOSITION -- it follows a field to the group it holds and
+    stops, exactly as the interpreter does.
+
+    ⚠ AND IT IS A RUN-TIME HELPER RATHER THAN AN EMIT-TIME FOLD BECAUSE WHAT A
+    FIELD POINTS AT IS A RUN-TIME FACT. Folding the star at emit time would pin
+    the deref to whatever node the compile happened to see -- the identical
+    hazard jitEmitSelfCall's own comment names for its argument, and the reason
+    the star degraded rather than folding silently until now.
+
+    REFUSES BY NAME on a non-group operand, F-41's form: named, null returned,
+    the run continues.   GroupActions.jitDerefRT
+*******************************************************************************/
+extern "C" GroupItem *jitDerefRT(GroupItem *operand)
+{
+	
+	if ( !operand ) {
+	::fprintf(stderr,"ERROR unary * under jit -- null operand\n");
+	return 0;
+	}
+	if ( isGROUP(operand->groupBody->flags.data) )   return operand->getGroup();
+	::fprintf(stderr,"ERROR unary * on %s -- it holds no group\n",operand->groupBody->tag);
+	return 0;
+	
+}
+
 /* jitDiscardPartial  ERASE THE FUNCTION UNDER CONSTRUCTION AND FLUSH BEHIND IT.
    (S3 rider R1.) The build just discovered that a callee it was inlining needs
    its own function, so what is in the module is wrong by construction. Erase it
@@ -5502,6 +5532,32 @@ GroupItem 	*result = 0;
 	::jitDoEnd();
 	 gJitResult = nullptr; 
 	return result;
+}
+
+/* jitEmitDeref  THE PREFIX `*`, EMITTED. SEQ 132 item 3, Tony's ruling.
+   One level, no composition. The operand NODE is baked -- it is a parse-time
+   constant -- and the FOLLOW is deferred to jitDerefRT at run time, because what
+   a field points at is not knowable at emit time. Publishes on gJitResultNode,
+   the GroupItem channel opDot already uses; a star has no scalar to publish and
+   deliberately does not touch gJitResult.  */
+extern "C" int jitEmitDeref(GroupItem *operand)
+{
+	
+	if (!gJitBuilder || !operand) return 0;
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::Value *argAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)operand), ptr, "derefArg");
+	llvm::Value *derefFn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitDerefRT), ptr, "derefFn");
+	llvm::FunctionType *derefTy = llvm::FunctionType::get(ptr, {ptr}, false);
+	llvm::Value *res = b->CreateCall(derefTy, derefFn, {argAddr}, "derefRes");
+	gJitResultNode = res;
+	gJitEmitted    = true;
+	return 1;
+	
 }
 
 extern "C" GroupItem *jitEmitDiv(GroupItem *argument, GroupItem *target)
@@ -9345,7 +9401,8 @@ extern "C" GroupItem *opDeref(GroupItem *result)
 {
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
-		 ::jitDegrade("unary * under jit -- no emitter yet",result); 
+		 if (!::jitEmitDeref(result))
+		::jitDegrade("unary * under jit -- emitter refused",result); 
 		}
 	if ( isGROUP(result->groupBody->flags.data) )
 		return result->getGroup();

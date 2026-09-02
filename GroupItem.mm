@@ -2384,9 +2384,15 @@ void GroupItem::setGroup(GroupItem *g)
 		groupBody->flags.data = 0;
 		}
 	else {
+		/*  ⚠ THE SELF-ADD GUARD STAYS HERE (Tony, SEQ 132) -- not moved to the
+		tripwire. Only its wording changes, so one grep finds every refusal in
+		the family. NO BEHAVIOUR CHANGE.
+		⚠ setGroup has callers well outside the argument channel, so the
+		ARGCHANNEL prefix names the FAMILY of refusals rather than the caller.
+		One word if Tony wants a neutral one.   GroupItem.setGroup.selfAdd  */
 		if ( groupBody == g->groupBody )
 			{
-			::fprintf(stderr,"setGroup: cannot add a group %s to itself\n",groupBody->tag);
+			::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the source body IS the target body; setGroup declines the self-add\n",groupBody->tag);
 			return;
 			}
 		// setGroup NEVER copies; embedRule() owns the one legitimate copy   GroupItem.setGroup

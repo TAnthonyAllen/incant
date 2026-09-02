@@ -63,6 +63,69 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### ⚠ SEQ 132 ITEM 1 — nestT AND A→B→A, BARE AND FLIPPED. THE ARGUMENT ROWS GO **VOID** UNDER THE FLIP
+**Bare, everything at its pinned value.** `nestT` ROW 0 `ntBig` · ROW 1 `ntSmall` · ROW 2 `ntSmall`
+— the nesting answer is correct, so **f(g(x)) does not clobber the inner bind.** `kant8T`'s A→B→A:
+K6a 3 · K6b 3 · K6c `k6big` · K6d 3 · K6e 1/1 · K6f 4.
+
+**Flipped, the cursor rows are unmoved and the ARGUMENT rows are void:**
+
+| row | bare | flipped | reading |
+|---|---|---|---|
+| K6a · K6b · K6d · K6e · K6f | 3 · 3 · 3 · 1,1 · 4 | **same** | **A→B→A carries its own locals on both** ✅ |
+| K6c (the argument row) | `k6big` | **`argument`** | **void** |
+| `nestT` ROW 0 / 1 / 2 | ntBig / ntSmall / ntSmall | **`argument` × 3** | **void** |
+
+⚠ **`nestT` IS VOID BY ITS OWN ANTI-VACUITY DESIGN, WHICH IS THE HONEST WAY TO FAIL.** Its ROW 0
+exists so a reader can tell "f reads its argument at all" from "f reads the right thing". Flipped,
+**ROW 0, ROW 1 and ROW 2 all read the same value**, so the fixture says in its own terms that it
+cannot discriminate. **Reported void, not graded.**
+**Mechanism, pointed at:** `ntF` is `return argument.taG;` — a **tag read through the argument
+holder**. Bare, auto-unwrap makes `argument` resolve to the subject; flipped there is no auto-unwrap,
+so `argument` IS the holder and `.taG` returns `argument`. Same defect `holderT` row 3 records, and
+**the star is the cure** — which is exactly why `parser`'s `*argument` respellings are in the branch
+queue. **Not applied here: neither fixture was in this dispatch's scope.**
+⚠ **THE RESULT THAT MATTERS IS STILL POSITIVE:** the pre-registered question was whether the inner
+bind clobbers the outer. **Bare it does not**, and flipped the cursor half of A→B→A is unmoved. What
+the flip voids is the READING, not the mechanism.
+
+### ⚠ SEQ 132 ITEM 3 — `jitEmitDeref` LANDS. DEGRADE ZERO, F-46 CURED ON THE JIT ROAD, BIND ROW SHORT
+**Built:** `jitEmitDeref` bakes the operand **node** and defers the follow to `jitDerefRT` at run
+time — **never a fold**, because what a field points at is a run-time fact, the identical hazard
+`jitEmitSelfCall`'s own comment names. Publishes on `gJitResultNode`, the GroupItem channel `opDot`
+already uses; a star has no scalar and deliberately does not touch `gJitResult`. The degrade survives
+as the **emitter's own refusal path**, so a star it cannot take still reports by name and countably.
+
+| certificate row | result |
+|---|---|
+| `jitDegrade` under the flip | **0** ✅ — was 2 |
+| self-add refusals | **1 → 0** ✅ — F-46 cured on the jit road |
+| bare fleet | **byte-identical**, 171 green ✅ |
+| frontier · canary | 10 PASS · **328**, the pre-registered +2 ✅ |
+| jitted binds 2 of 2 | **1 of 2** ❌ |
+
+**The matrix, one build, flip on:**
+```
+rb(argument)    binds 2   self-add 1   degrade 0
+rb(*argument)   binds 1   self-add 0   degrade 0
+```
+⚠ **THE RESPELL BUYS THE STAR AND COSTS A JITTED BIND**, and neither spelling gives all three.
+**`inlineSelfT` reverted** — the emitter is the deliverable and it is certified; the respell was only
+the certificate's vehicle, and it is a branch-queue item in its own right.
+**Graded guess, not a finding:** `jitEmitSelfCall` bakes the node `runAction` was handed, and with a
+star in the way that node differs, so the self-call may no longer be recognised as a self-call and
+inlines instead — no bind through `jitBindArgRT`. **What would settle it:** count
+`jitEmitSelfCall`'s return under both spellings. **Not run; it is one build and it belongs with the
+respell, on the branch.**
+
+### ✅ SEQ 132 ITEM 4 — the self-add guard STAYS IN `setGroup`; only its wording moved
+Message now reads `ARGCHANNEL REFUSED on <tag> -- the source body IS the target body; setGroup
+declines the self-add`, so one grep finds every refusal in the family. **No behaviour change**, and
+the bare fleet is byte-identical. ⚠ **Recorded because it slightly over-claims:** `setGroup` has
+callers well outside the argument channel, so the `ARGCHANNEL` prefix names the **family of
+refusals** rather than the caller. One word if Tony wants a neutral one.
+
+
 ### ⚠⚠ F-46 — DIAGNOSED AND ITS CURE MEASURED, BUT THE CURE IS **FLIP-ONLY**. NOT LANDED
 **The cure is the star.** `minionWork/f46Star` spells the recursive self-call `f46Rec(*argument)` —
 handing over what the holder POINTS AT rather than the holder itself. **Pre-registered before the

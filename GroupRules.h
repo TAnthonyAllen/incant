@@ -186,6 +186,7 @@ extern "C" GroupItem *interpretXP(GroupItem *xpList);
 extern "C" GroupItem *jitBindArgRT(GroupItem *argument, GroupItem *field);
 extern "C" int jitBuildFunction(GroupItem *action);
 extern "C" int jitDegrade(char *what, GroupItem *node);
+extern "C" GroupItem *jitDerefRT(GroupItem *operand);
 extern "C" void jitDiscardPartial();
 extern "C" void jitDoBegin();
 extern "C" void jitDoCond();
@@ -197,6 +198,7 @@ extern "C" GroupItem *jitEmitBinary(GroupItem *argument, GroupItem *target, int 
 extern "C" GroupItem *jitEmitCompare(GroupItem *argument, GroupItem *target, int op);
 extern "C" int jitEmitContinue();
 extern "C" GroupItem *jitEmitDO(GroupItem *input);
+extern "C" int jitEmitDeref(GroupItem *operand);
 extern "C" GroupItem *jitEmitDiv(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *jitEmitDot(GroupItem *argument, GroupItem *target, GroupItem *resultNode);
 extern "C" GroupItem *jitEmitEQ(GroupItem *argument, GroupItem *target);

@@ -1939,8 +1939,14 @@ void setGroup(GroupItem g)
         gGroup  = 0;
         data    = 0; }
     else {
+        /*  ⚠ THE SELF-ADD GUARD STAYS HERE (Tony, SEQ 132) -- not moved to the
+            tripwire. Only its wording changes, so one grep finds every refusal in
+            the family. NO BEHAVIOUR CHANGE.
+            ⚠ setGroup has callers well outside the argument channel, so the
+            ARGCHANNEL prefix names the FAMILY of refusals rather than the caller.
+            One word if Tony wants a neutral one.   GroupItem.setGroup.selfAdd  */
         if groupBody == g.groupBody {
-            cerr "setGroup: cannot add a group",tag,"to itself":;
+            cerr "ARGCHANNEL REFUSED on",tag,"-- the source body IS the target body; setGroup declines the self-add":;
             return; }
         // setGroup NEVER copies; embedRule() owns the one legitimate copy   GroupItem.setGroup
         gGroup          = g;

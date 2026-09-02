@@ -379,6 +379,37 @@ use input
     node the compile happened to see. `if arg.isGROUP && !arg.isArgument
     arg = arg.group;` is the tree's existing unwrap idiom (ruleActions.rtn:419).
 *******************************************************************************/
+/*******************************************************************************
+    jitDerefRT -- THE PREFIX `*`, AT RUN TIME. SEQ 132 item 3.
+
+    ⚠ opDeref's OWN LINES, LIFTED VERBATIM, for the same reason jitBindArgRT
+    lifts runAction's: the emitted star and the interpreted star must not drift.
+    ONE LEVEL, NO COMPOSITION -- it follows a field to the group it holds and
+    stops, exactly as the interpreter does.
+
+    ⚠ AND IT IS A RUN-TIME HELPER RATHER THAN AN EMIT-TIME FOLD BECAUSE WHAT A
+    FIELD POINTS AT IS A RUN-TIME FACT. Folding the star at emit time would pin
+    the deref to whatever node the compile happened to see -- the identical
+    hazard jitEmitSelfCall's own comment names for its argument, and the reason
+    the star degraded rather than folding silently until now.
+
+    REFUSES BY NAME on a non-group operand, F-41's form: named, null returned,
+    the run continues.   GroupActions.jitDerefRT
+*******************************************************************************/
+extern GroupItem jitDerefRT(GroupItem operand)
+{
+    -%
+    if ( !operand ) {
+        ::fprintf(stderr,"ERROR unary * under jit -- null operand\n");
+        return 0;
+        }
+    if ( isGROUP(operand->groupBody->flags.data) )   return operand->getGroup();
+    ::fprintf(stderr,"ERROR unary * on %s -- it holds no group\n",operand->groupBody->tag);
+    return 0;
+    %-
+}
+
+
 extern GroupItem jitBindArgRT(GroupItem argument,GroupItem field)
 {
 GroupItem   arg = argument,

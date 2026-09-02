@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      131
+SEQ:      132
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 132, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 132 IS LIVE AND IS AT THE FOOT -- ROAD ORDER CONFIRMED. nestT and
+          A->B->A bare and flipped; channel fleet rows, daily; jitEmitUnary learns
+          `*` (Tony rules: before the branch); the self-add guard stays put and
+          joins the ARGCHANNEL family. Branch queue named and NOT now.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 131, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 131 IS LIVE AND IS AT THE FOOT -- ITEM 4 RULED. An argument
           attribute never carries an initial value; aCTionDefinE refuses one by
@@ -6243,3 +6249,75 @@ CLAY → CLOD — item 4 ruled, F-46 measured then respelled.
   A->B->A only insofar as they do not need the star.
 
   END SEQ 131
+
+
+SEQ 132  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  ROAD ORDER CONFIRMED.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any run, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — road order confirmed; two items ahead of the branch.
+1. nestT f(g(x)) and A→B→A, bare and flipped, as pre-registered. Neither needs the star.
+2. Fleet rows for the channel — SAMEFIELD on both roads, daily.
+3. jitEmitUnary learns *: one level, no composition, refuse by name on a non-group operand. Certificate: inlineSelfT under the flip, jitted binds 2 of 2, jitDegrade 0; bare fleet byte-identical. (Tony rules do it now before the branch.)
+4. Self-add guard stays in setGroup; message joins the ARGCHANNEL REFUSED family. No behaviour change.
+5. Branch queue, not now: kant8Tstar.candidate, parser's *argument respellings, the capture-semantics bucket (station 2 / atypeT). The try-and-buy applies them.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. Item 2 needs a decision stated up front, because
+  "daily" and "SAMEFIELD" pull against each other: pop.sh runs BARE, and the
+  bind-site SAMEFIELD reads taken so far all needed a temporary camera under the
+  flip. A camera is not a fleet instrument. So the row is built as an H4 COUNTER
+  PAIR -- binds and same-field binds, incremented at all FOUR bind sites (both
+  arms of both roads) and printed unconditionally, in the shape of
+  `=== jitDegrade count = N ===`. That makes it readable bare, where the non-flip
+  arm now also goes through setGroup, and readable flipped without any rebuild.
+  Named here rather than discovered in the report.
+
+  ⚠ AND THE BUILD ORDER IS 1, 4, 3, 2 RATHER THAN 1, 2, 3, 4 -- items 3 and 2
+  each carry their own certificate and each needs its own build, so item 4, which
+  is a message change with no behaviour, rides with the first of them instead of
+  buying a build of its own. The dispatch's ORDER OF RULINGS is unchanged; only
+  the order of compilations differs, and each certificate is still read alone.
+
+  ------------ OUTCOME: 1, 3 AND 4 DONE. ITEM 2 IS ITS OWN STROKE, NEXT ------------
+  ITEM 1 MEASURED. Bare, everything at its pinned value and the pre-registered
+  question ANSWERED YES: nestT ROW 2 reads ntSmall, so f(g(x)) does NOT clobber
+  the inner bind. Flipped, the A->B->A CURSOR rows are unmoved -- K6a 3, K6b 3,
+  K6d 3, K6e 1/1, K6f 4 -- and the ARGUMENT rows go VOID: K6c and all three nestT
+  rows read `argument`. nestT is void BY ITS OWN ANTI-VACUITY DESIGN, which is the
+  honest way to fail: ROW 0, ROW 1 and ROW 2 collapse to one value, so the fixture
+  says in its own terms that it cannot discriminate. Reported void, not graded.
+  Mechanism: ntF is `return argument.taG`, a tag read THROUGH THE HOLDER, and
+  flipped there is no auto-unwrap so the holder is what answers. The star is the
+  cure and it is a branch-queue item; neither fixture was in scope here.
+  ⚠ WHAT THE FLIP VOIDS IS THE READING, NOT THE MECHANISM.
+
+  ITEM 3 BUILT AND MOSTLY CERTIFIED. jitEmitDeref bakes the operand NODE and
+  defers the follow to jitDerefRT at run time -- never a fold, which is the hazard
+  jitEmitSelfCall's own comment names. degrade 0 (was 2), self-add 1 -> 0 so F-46
+  is cured on the jit road, bare fleet BYTE-IDENTICAL, canary 326 -> 328 exactly
+  as pre-registered. ⚠ ONE ROW SHORT: jitted binds read 1, not 2.
+
+    rb(argument)    binds 2   self-add 1   degrade 0
+    rb(*argument)   binds 1   self-add 0   degrade 0
+
+  Neither spelling gives all three. inlineSelfT REVERTED -- the emitter is the
+  deliverable and it is certified; the respell was the certificate's vehicle and
+  is a branch-queue item in its own right. Graded guess for the missing bind, not
+  a finding: jitEmitSelfCall bakes the node runAction was handed, and with a star
+  in the way that node differs, so the self-call may no longer be recognised and
+  inlines instead. What would settle it is counting jitEmitSelfCall's return under
+  both spellings -- one build, and it belongs with the respell on the branch.
+
+  ITEM 4 DONE, no behaviour change, bare fleet byte-identical. ⚠ Recorded because
+  it slightly over-claims: setGroup has callers well outside the channel, so the
+  ARGCHANNEL prefix names the FAMILY of refusals rather than the caller.
+
+  ITEM 2 next, as its own stroke and its own certificate.
+
+  END SEQ 132
