@@ -7002,4 +7002,40 @@ CLAY → CLOD — road column closed on the star; pointerT pinned; the branch op
   certificate unmeetable for reasons outside its own subject, which is the same
   failure as pinning to a road instead of to the law.
 
+  ------ OUTCOME: THE BRANCH IS OPEN. 176 -> 116, TEN MECHANISMS, AND THE ASKING SAYS NO ------
+  Branch tryAndBuy-gNoUnwrap, gNoUnwrap = 1, MAIN UNTOUCHED AND GREEN AT 176.
+  incant/utilities first: exit 0, no output, no stderr -- instruments up.
+
+  ⚠ THE 61 RED ROWS ARE NOT 61 FINDINGS. Two cascades account for eleven:
+  kant8T HANGS (TIMED OUT 90s) and its K7/K6c/K2x rows are truncation artifacts
+  of that ONE hang -- 8 rows, bucket (d), and the most serious thing on the list.
+  countPop truncates -- 3 rows, (d).
+
+  BUCKET (a), holder reads: spacingT 14, pointerT 8 (one a by-design tripwire),
+  holderT 3, nestT 3, starT 2 (pre-registered), faceT+ADDROF 3, argWriteT 1.
+  UNCLASSIFIED, need a look: ~14 across census.target, connectiveT, iterT1,
+  iterT1m, altShadowT, pick-one, spell.target, displayForm, anyOrNum,
+  fires=NEVER, anti-vacuity, genParse odometer.
+
+  ⚠ spacingT MOVES THE OTHER WAY and it is worth its own line: its pins expected
+  the TAG (spA) and under the flip it prints the VALUE (LEAF). Every other (a)
+  row moved tag-ward; this one moved value-ward. A BUCKET IS NOT A DIRECTION, and
+  a re-pin sweep assuming one would have got these four backwards.
+
+  ⚠⚠⚠ THE ASKING ANSWERS NO. carrierNode IS NOT DISCHARGED.
+    PARSE  argument <- ruleText          the callee's tag is `argument`, not Start
+    setParse: ERROR field passed in argument has no rStuff
+  parser(Start) does not receive Start under the flip, and the failure has a NEW
+  SIGNATURE: previously the callee got a COPY SHARING Start's body; now, with the
+  auto-unwrap gone, it gets THE HOLDER ITSELF, named `argument`, carrying no
+  rStuff.
+
+  THE QUEUED BUCKET (a) CANDIDATE WAS APPLIED AND DID NOT FIX IT. `pArg <-
+  *argument` reports PARSE pArg -- the capture's own name. `<-` mints a node
+  (bear-trap #35's ruled copy-on-rebind), so law 4's name-it-then-star-it does not
+  reach Start here either. The parser file was RESTORED; nothing of the attempt
+  is kept.
+  ⚠ So carrierNode's discharge needs something neither the flip nor the star
+  spelling supplies. That is the campaign's live edge. Reported, not chased.
+
   END SEQ 143

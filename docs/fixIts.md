@@ -63,6 +63,49 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### ⚠⚠⚠ THE TRY-AND-BUY, FIRST PASS (SEQ 143 item 4) — **176 → 116 GREEN, 61 RED ROWS, 10 DISTINCT MECHANISMS**
+Branch `tryAndBuy-gNoUnwrap`, `gNoUnwrap = 1`. **Main is untouched, bare and green at 176.**
+`incant/utilities` ran first: **exit 0, no output, no stderr — the instruments are up.**
+
+⚠ **THE 61 ROWS ARE NOT 61 FINDINGS. Two cascades account for eleven of them**, and counting them
+as independent would triple the apparent damage:
+
+| # | mechanism | rows | bucket |
+|---|---|---|---|
+| 1 | **`kant8T` HANGS** — TIMED OUT at 90s. K7a/b/c, K6c, K2x×3 and the sentinel are **truncation artifacts of this one hang** | **8** | **(d)** ⚠ most serious |
+| 2 | `countPop` truncates — a row stopped parsing | **3** | (d) |
+| 3 | `spacingT` — A/B/C/D now print **`LEAF` where `spA..spD` were pinned**, and the 8 named-refusal rows report `Token` as the operand | **14** | **(a)** |
+| 4 | `pointerT` — L3/L4e/L5b/L6a-d shift because a print above them vanished; `D depth` is a **by-design flip tripwire** | **8** | (a) cascade + 1 expected |
+| 5 | `holderT` 1/2/3 — got `htU`, `htKid`, `htP`: **the capture's own tag** | **3** | **(a)** |
+| 6 | `nestT` ×3 — got the label with **nothing after it** | **3** | **(a)** |
+| 7 | `starT` S1/S3a — the star-law rows, **pinned flip-OFF** | **2** | (a), pre-registered |
+| 8 | `faceT` F2/F3 + `ADDROF faSrc` | **3** | (a) cascade |
+| 9 | `argWriteT` R2 | **1** | (a) candidate |
+| 10 | `census.target`, `connectiveT`×2, `iterT1`, `iterT1m`, `altShadowT`, `pick-one`, `spell.target`, `displayForm`, `anyOrNum`×2, `fires=NEVER`, `anti-vacuity`, `genParse odometer` | **~14** | **UNCLASSIFIED — need a look** |
+
+⚠ **`spacingT` MOVES THE OTHER WAY, and that is worth its own line.** Its pins expected the **tag**
+(`spA`) and under the flip it prints the **value** (`LEAF`). Every other (a) row moved tag-ward; this
+one moved value-ward. **A bucket is not a direction**, and a re-pin sweep that assumed one would
+have got these four backwards.
+
+### ⚠⚠⚠ ITEM 5 — THE ASKING ANSWERS **NO**. carrierNode IS **NOT** DISCHARGED
+```
+PARSE  argument <- ruleText              <- the callee's tag is `argument`, not Start
+setParse: ERROR field passed in argument has no rStuff
+WITNESS compiled 0
+```
+**`parser(Start)` does not receive Start under the flip**, and the failure has a **new signature**:
+previously the callee got a *copy sharing Start's body*; now, with the auto-unwrap gone, it gets
+**the holder itself — named `argument`, carrying no `rStuff`.**
+
+**THE QUEUED BUCKET (a) CANDIDATE WAS APPLIED AND DID NOT FIX IT.** `pArg <- *argument;` then reading
+through `pArg` reports `PARSE pArg <- ruleText` — **the capture's own name.** `<-` mints a node
+(bear-trap #35's ruled copy-on-rebind), so law 4's *name-it-then-star-it* does not reach Start here
+either. **The parser file was restored; nothing of the attempt is kept.**
+⚠ **So carrierNode's discharge needs something neither the flip nor the star spelling supplies**, and
+that is the campaign's live edge. **Reported, not chased.**
+
+
 ### F-51 (the Token print part) — a `Token`-shaped print part emits neither node nor scalar
 **Gloss:** Token part emits nothing. **Severity: LATENT.** **Interpreted road: CORRECT.**
 **Workaround: the interpreted road.** **Owner: Tony (jitter campaign).**
