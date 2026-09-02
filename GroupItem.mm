@@ -1565,10 +1565,17 @@ char 	*junkText = 0;
 					::sprintf(junkText,"%g",groupBody->gNumber);
 				if ( groupBody->flags.isPercent )
 					::strcat(junkText,"%");
+				/*  ⚠ PRINT DOES NOT FOLLOW (Tony, SEQ 136). LAW 1 IS RETIRED.
+				A holder prints as the TAG of the field it holds; a writer who
+				wants the value says `*`. Cyclic group chains are LEGAL DATA
+				under pointer semantics, and this line was the only walk that
+				followed gGroup transitively from print -- so F-49's overflow is
+				UNREACHABLE rather than guarded, and no guard is built.
+				GroupItem.getText.printDoesNotFollow  */
 				break;
 			case 6:
 				if ( groupBody->gGroup )
-					junkText = groupBody->gGroup->getText();
+					junkText = groupBody->gGroup->groupBody->tag;
 				break;
 			case 3:
 				junkText = groupBody->gCharacterSet->name;
@@ -2384,17 +2391,11 @@ void GroupItem::setGroup(GroupItem *g)
 		groupBody->flags.data = 0;
 		}
 	else {
-		/*  ⚠ THE SELF-ADD GUARD STAYS HERE (Tony, SEQ 132) -- not moved to the
-		tripwire. Only its wording changes, so one grep finds every refusal in
-		the family. NO BEHAVIOUR CHANGE.
-		⚠ setGroup has callers well outside the argument channel, so the
-		ARGCHANNEL prefix names the FAMILY of refusals rather than the caller.
-		One word if Tony wants a neutral one.   GroupItem.setGroup.selfAdd  */
-		if ( groupBody == g->groupBody )
-			{
-			::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the source body IS the target body; setGroup declines the self-add\n",groupBody->tag);
-			return;
-			}
+		/*  ⚠ THE SELF-ADD GUARD IS RETIRED (Tony, SEQ 136). A one-element cycle
+		is legal data like any other under pointer semantics, and NOTHING
+		FOLLOWS IT -- print stopped following at the same stroke, and no walk
+		in the machine chases gGroup transitively. setGroup is the assignment
+		again, with nothing to refuse.   GroupItem.setGroup.selfAdd  */
 		// setGroup NEVER copies; embedRule() owns the one legitimate copy   GroupItem.setGroup
 		groupBody->gGroup = g;
 		groupBody->flags.isInitialized = 1;

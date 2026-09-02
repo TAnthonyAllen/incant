@@ -63,6 +63,70 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### ✅ F-49 CLOSED (SEQ 136) — PRINT DOES NOT FOLLOW. LAW 1 RETIRED, NO GUARD BUILT
+`getText`'s `case isGROUP` now yields `group.tag` instead of `group.getText()`. **The cycle is
+unreachable rather than guarded**, which is the whole shape of the ruling. `starT`'s jitted arm:
+**exit 139 → exit 0.**
+
+**ITEM 1's MOVED-ROW LIST — EXACTLY ONE ROW, AND IT IS NOT THE PRE-REGISTERED ONE:**
+
+| row | before | after | verdict |
+|---|---|---|---|
+| `pointerT R rebind` | `OTHER` | **`ptOther`** | moved, re-pinned |
+| `pointerT L1` | `CHANGED OTHER` | **unchanged** | **the pre-registration expected this to move; it did not** |
+
+⚠ **L1's ELEMENTS HOLD DATA, NOT A GROUP** — law 1 never applied to them and nothing followed, so
+only its **label** was wrong (*"LAW 1, print follows"* on a row printing by value). The label is
+corrected; the pin is untouched. **A green row citing a retired law is exactly the failure the
+moved-row list exists to surface.**
+⚠ **ROW R's FORCE IS UNCHANGED BY THE RE-PIN.** It asks whether the rebind **repointed the body**; a
+wrong answer would name the pre-rebind target, so the **tag discriminates exactly as the value did.**
+It is a bucket (a) citizen — the `*` respelling rides the branch, and until then it asserts identity
+where it asserted value.
+**The seal's "bare argument also prints ORIG" is false from this stroke on.**
+
+### ⚠ ITEM 2's EXPECTATION IS FALSIFIED — **FIVE** OTHER WALKS FOLLOW `gGroup` TRANSITIVELY
+Expected none. Found five, all in `GroupItem.twk`, all the same shape as the one just fixed:
+
+| line | function | the line |
+|---|---|---|
+| `:466` | `getCount()` | `if isGROUP return group.getCount();` |
+| `:475` | `getDataType()` | `else return group.getDataType();` |
+| `:586` | `getItem()` | `if isGROUP return group.getItem();` |
+| `:596` | `getNumber()` | `if isGROUP return group.getNumber();` |
+| `:604` | `getObject()` | `if isGROUP return group.getObject();` |
+
+**Each is a live stack overflow on a cyclic chain, on the same terms `getText` was.** ⚠ `:1843`
+`remove(String)` calling `group.remove()` is **excluded** — a different overload, not transitive
+recursion on itself.
+⚠ **AND "one level, no follow" IS NOT A ONE-LINE ANSWER FOR ALL FIVE.** `getText`'s answer was the
+**tag**, because a tag is text. **There is no analogous one-level answer for a count, a number, an
+item or an object** — a holder has no count of its own. So the rule transfers but the *return value*
+does not, and that is why it is its own stroke. **Reported, not fixed.**
+
+### ⚠ ITEM 3 — THE OVERFLOW IS GONE, AND THE TWO ROADS DIVERGE
+`starT` with a jitted arm now exits **0**. Fact 2's diagnosis, which is what the run was for:
+```
+== ROAD: JITTED ==        all six rows read  0
+== ROAD: INTERPRETED ==   all six rows read  stLeaf
+solo interpreted (no jitted arm)             stA stB stC stD stE stF  -- own tags, nothing stored
+```
+**The jitted arm leaves state behind.** Bare, a solo interpreted run stores nothing and each target
+echoes its own tag; with the jitted arm ahead of it, the interpreted arm reads `stLeaf` — a group
+one level down. **That difference is the trigger's signature.**
+⚠ **THE CYCLE ITSELF IS NO LONGER OBSERVABLE BY PRINT, BY DESIGN.** Print stops at one level now, so
+the chain that used to overflow cannot be seen this way. Diagnosing the trigger needs identity
+(`addrOf`), not print. **Not chased — the dispatch says report it, don't fix the trigger here.**
+⚠ **AND STROKE 1's ROAD COLUMN CAN NOW RUN — and on this first bare look the roads DIVERGE (0 vs
+`stLeaf`).** That is not yet its certificate, which is under the flip.
+
+### ✅ ITEM 4 — `setGroup`'s SELF-ADD GUARD RETIRED
+A one-element cycle is legal data like any other and nothing follows it. `setGroup` is the
+assignment again. **Bare fleet byte-identical**, 176 green, frontier 10 PASS, canary 329.
+**Branch-queue note, as ordered:** `inlineSelfT`'s bare-argument spelling **no longer refuses at the
+bind** — its red moves from a refusal line to **a tag where a value was expected**.
+
+
 ### ✅ F-47 CLOSED (SEQ 134) — `jitEmitAssign` HAS `jitEmitUnary`'s SEED GATE
 **Certificate, both rows:**
 - **the crash site degrades by name** — six of them, `=== JIT DEGRADE #N: assign operand reached

@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      135
+SEQ:      136
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 136, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 136 IS LIVE AND IS AT THE FOOT -- F-49 RULED: PRINT DOES NOT
+          FOLLOW. Law 1 is RETIRED. getText takes one line and stops recursing,
+          so F-49's cycle is unreachable and NO GUARD IS BUILT; setGroup's
+          self-add guard retires with it. Cyclic group chains are LEGAL DATA.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 135, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 135 IS LIVE AND IS AT THE FOOT -- F-48 CLOSED as measured, no
           present defect; the `=`-receives-a-group question is DOCKETED as a
@@ -6537,3 +6543,42 @@ Stroke 1 resumes on F-49's close; then the branch.
   did not, which is the row's own thesis.
 
   END SEQ 135
+
+
+SEQ 136  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  F-49 RULED -- PRINT DOES NOT FOLLOW.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — F-49 ruled: print does not follow. Tony, 2026-09-02.
+
+THE RULING. Cyclic group chains are legal data under pointer semantics. No walk in the machine follows gGroup transitively; the star is the only unwrap. Law 1 (print follows) is retired — a holder prints as the tag of the field it holds, and the writer who wants the value says *.
+
+1. getText, one line:
+
+case isGROUP:   if group    junkText = group.tag
+
+No recursion remains, so F-49's cycle is unreachable and no guard is built. Certificate: bare fleet byte-identical except rows that print through a holder, pre-registered to move: pointerT L1 (printed ORIG by follow; now prints the source's tag — re-pin with the sentence law 1 retired, print does not follow) and any other such row, each re-pinned as a bucket (a) citizen spelled with *, not a defect. Report the list. The seal's "bare argument also prints ORIG" is false from this stroke on.
+
+2. Grep, report only: any other walk that recurses on gGroup. Expected: none. If found, same rule — one level, no follow — as its own stroke.
+
+3. Re-run starT's jitted arm. Expected: no overflow; whatever built the cycle now prints tags where it looped. That output is fact 2's diagnosis — report it, don't fix the trigger here.
+
+4. Retire setGroup's self-add guard. A one-element cycle is legal data like any other; nothing follows it. setGroup is the assignment again. Bare fleet byte-identical; inlineSelfT's bare-argument spelling no longer refuses at the bind — note in the branch queue that its red moves from a refusal line to a tag where a value was expected.
+
+NOTED: print through a holder shows the tag and may confuse a reader expecting the value. Warning policy docketed as Tony stated it — user-toggled, default off, never changes what the code does — not built. The try-and-buy's "printed a holder" bucket is the specimen set for the first warning.
+
+Stroke 1 (starT/pointerT jitted arm, road column) resumes on 3; then the branch.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. Items 1 and 4 are each one line and each carries its
+  own certificate, and they are built SEPARATELY rather than together: item 1 is
+  PRE-REGISTERED TO MOVE ROWS and item 4 demands BYTE-IDENTICAL. Built in one
+  stroke, a row moved by 4 would be indistinguishable from a row moved by 1, and
+  the moved-row list item 1 owes would be unattributable. Two builds, two reads.
+
+  END SEQ 136

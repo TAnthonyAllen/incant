@@ -50,13 +50,13 @@ define
 
         ptBagR +* ptSrc2;
         ptSrc2 := ptOther;
-        print "pointerT R  rebind       =" ptBagR["ptSrc2"] "  want OTHER -- reads the rebound body":;
+        print "pointerT R  rebind       =" ptBagR["ptSrc2"] "  want ptOther -- reads the rebound body BY TAG":;
 
         ptBagL +* ptSrc;
         ptBagL +* ptSrc2;
         ptBagL +* ptOther;
         print "pointerT L  three ptrs   =" ptBagL.listLengtH "  want 3":;
-        print "pointerT L1 print follows =" ptBagL["ptSrc"] ptBagL["ptOther"] "  want CHANGED OTHER -- LAW 1, print follows":;
+        print "pointerT L1 prints values =" ptBagL["ptSrc"] ptBagL["ptOther"] "  want CHANGED OTHER -- these elements HOLD DATA, no follow involved":;
         ptNamed <- ptBagL["ptSrc"];
         print "pointerT L2 name-then-star =" *ptNamed "  want CHANGED -- LAW 4, the lawful read":;
         ptAssigned = ptBagL["ptSrc"];
@@ -284,3 +284,21 @@ was MEASURED rather than read off the source, in `minionWork/probeL3name`, which
 isolates the `=`-then-star shape as the only star in its file: the refusal names
 `l3Src`. The wording is recorded and NOT explained, same split as the isCopy
 column above.
+
+    ⚠⚠ LAW 1 IS RETIRED (Tony, SEQ 136, 2026-09-02): PRINT DOES NOT FOLLOW.
+    A holder prints as the TAG of the field it holds; a writer who wants the
+    value says `*`. Cyclic group chains are legal data under pointer semantics
+    and nothing in the machine follows gGroup transitively any more.
+
+    ROW R MOVED AND WAS RE-PINNED: it read `OTHER` by following, and now reads
+    `ptOther`, the tag of the field the holder points at. ⚠ ITS FORCE IS
+    UNCHANGED -- the row asks whether the rebind REPOINTED the body, and a wrong
+    answer would name the pre-rebind target, so the tag discriminates exactly as
+    the value did. It is a bucket (a) citizen: the `*` respelling rides the
+    branch, and until then this asserts identity where it used to assert value.
+
+    ⚠ ROW L1 DID NOT MOVE, AND THE PRE-REGISTRATION EXPECTED IT TO. Its elements
+    HOLD DATA rather than a group, so law 1 never applied to them and nothing
+    followed. Only its LABEL was wrong -- it said "LAW 1, print follows" while
+    printing by value -- and the label is corrected here. A green row citing a
+    retired law is the failure this note exists to prevent.
