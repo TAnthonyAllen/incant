@@ -63,6 +63,57 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### ⚠ SEQ 137 STROKE 1 — THE ROAD COLUMN RUNS AT LAST, AND IT IS RED AS PRE-REGISTERED
+`starT` and `pointerT` both gained a jitted arm (jitted half first, #25) and both now **exit 0**.
+The certificate — *every row byte-identical jitted vs interpreted under the flip* — is **NOT met**,
+and the pre-registration said it would not be.
+
+**THE IDENTITY COLUMN, which is the report that was asked for — and it is CLEAN:**
+```
+JITTED arm        stA #1/#2  stB #3/#4  stC #5/#6  stD #7/#8  stE #9/#10  stF #11/#12
+INTERPRETED arm   stA #1/#2  stB #3/#4  stC #5/#6  stD #7/#8  stE #9/#10  stF #11/#12
+```
+⚠ **BOTH ROADS WRITE THE SAME SIX FIELDS AND THE SAME SIX BODIES. THE DIVERGENCE IS ENTIRELY IN THE
+CONTENTS**, not in which node is reached — which is exactly the discrimination print could not have
+made, and the reason identity was the instrument asked for.
+
+**THE CONTENTS, under the flip:**
+```
+JITTED        4   5560000   5560000   4   5558848   0
+INTERPRETED   LEAF  LEAF    LEAF    LEAF  stLeaf   stF
+```
+⚠ **`5560000` AND `5558848` ARE POINTER-SHAPED INTEGERS.** The jitted road is storing a raw address
+where the interpreted road stores text. That is the ledger's own named signature — *a stale read
+wearing the shape of data* — and it is the third time it has appeared in this campaign.
+
+⚠⚠ **AND THE DEGRADE COUNT FELL FROM 6 TO 1, WHICH IS THE PART THAT MATTERS.** Before C15's emitter
+and C18's gate, all six assignments **degraded honestly**. Now five of them **emit and store a
+pointer.** *The fix that improves the system is what arms the latent bug* — the ledger says so in
+those words, and this is a fresh instance: **the crash became a silent wrong value.**
+
+**`pointerT` diverges too**, in the other direction — the jitted arm prints **empty** where the
+interpreted arm prints values (`P1 pointer = ` vs `= CHANGED`). Thirteen rows.
+
+### ⚠ SEQ 137 STROKE 2 — PART OF IT IS ALREADY BUILT, AND THE REMAINDER IS A DIFFERENT CHANGE
+**Ordered:** *"jitDerefRT refuses by name on a non-group operand, F-41 form, stores nothing."*
+**The first half exists already** — `jitDerefRT` (C15, `GroupActions.rtn:434`) ends:
+```
+if ( isGROUP(operand->groupBody->flags.data) )   return operand->getGroup();
+::fprintf(stderr,"ERROR unary * on %s -- it holds no group\n",operand->groupBody->tag);
+return 0;
+```
+That is F-41's form, by name, already. ⚠ **Its message is BYTE-IDENTICAL to `opDeref`'s**, so a run
+cannot presently tell which road refused — the first thing stroke 2 should fix, and cheap.
+**What is NOT built is "stores nothing".** The refusal returns null and **the emitted assignment
+stores that null anyway**, which is how `stF` reads `0` on the jitted road. Making it store nothing
+means the star's emit must not seed the assignment — which puts the degrade back for that row.
+⚠ **SO "REFUSES" AND "STORES NOTHING" ARE TWO CHANGES, NOT ONE**, and the second re-opens the
+trade C15 measured: degrade honestly, or emit and risk a wrong value. **Reported before building,
+because the certificate's wording — "both roads print own tags on all six rows" — implies the
+INTERPRETED road changes too, and today four of its six rows hold real values from stars that
+SUCCEED.** Tony's confirmation wanted on which of the six are meant to end as own-tags.
+
+
 ### ✅ F-49 CLOSED (SEQ 136) — PRINT DOES NOT FOLLOW. LAW 1 RETIRED, NO GUARD BUILT
 `getText`'s `case isGROUP` now yields `group.tag` instead of `group.getText()`. **The cycle is
 unreachable rather than guarded**, which is the whole shape of the ruling. `starT`'s jitted arm:

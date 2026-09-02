@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      136
+SEQ:      137
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 137, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 137 IS LIVE AND IS AT THE FOOT -- three strokes in order. Stroke 1
+          resumes (road column under the flip, divergence reported by IDENTITY);
+          F-48 REOPENED on the jit road as stroke 2; the five transitive followers
+          ruled as stroke 3. Then the branch.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 136, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 136 IS LIVE AND IS AT THE FOOT -- F-49 RULED: PRINT DOES NOT
           FOLLOW. Law 1 is RETIRED. getText takes one line and stops recursing,
@@ -6582,3 +6588,67 @@ Stroke 1 (starT/pointerT jitted arm, road column) resumes on 3; then the branch.
   the moved-row list item 1 owes would be unattributable. Two builds, two reads.
 
   END SEQ 136
+
+
+SEQ 137  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  STROKE 1 RESUMES; F-48 REOPENED; FIVE RULED.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — stroke 1 resumes; F-48 reopened on the jit road; five followers ruled.
+1. Stroke 1, starT/pointerT jitted arm, road column under the flip. Pre-registered red: starT's six rows diverge because jitDerefRT does not refuse a non-group operand. Report the divergence with identity (addrOf), not print.
+2. F-48, jit road — its own stroke after 1: jitDerefRT refuses by name on a non-group operand, F-41 form, stores nothing. Certificate: both roads print own tags on all six rows; bare fleet byte-identical.
+3. Five followers — own stroke, after 2: getCount, getDataType, getItem, getNumber, getObject stop following gGroup; on a holder they refuse by name — ERROR <accessor> on <tag> -- holds a group; say * — and return the empty value. Bare fleet byte-identical except rows reaching them through a holder, each reported and re-pinned as bucket (a).
+Then the branch.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. Stroke 1's pre-registered red already has a measured
+  precursor and it is worth naming so the flipped run is not read as new: BARE,
+  C20 measured the jitted arm reading 0 on all six rows against the interpreted
+  arm's stLeaf. The flip is expected to sharpen that, not to create it -- so a
+  divergence under the flip is a CONTINUATION of a bare divergence, and only the
+  identity columns can say whether it is the same one.
+
+  ------- OUTCOME: STROKE 1 RUNS AND IS RED AS PRE-REGISTERED. STROKE 2 NEEDS A WORD -------
+  STROKE 1. Both fixtures gained a jitted arm, jitted half first, and both exit 0.
+  The certificate is NOT met and the pre-registration said it would not be.
+
+  THE IDENTITY COLUMN IS CLEAN: both roads write THE SAME SIX FIELDS and the SAME
+  SIX BODIES -- stA #1/#2 through stF #11/#12, identical on both arms. THE
+  DIVERGENCE IS ENTIRELY IN THE CONTENTS. That is exactly the discrimination
+  print could not have made, which is why identity was the instrument asked for.
+
+    JITTED        4   5560000   5560000   4   5558848   0
+    INTERPRETED   LEAF  LEAF    LEAF    LEAF  stLeaf   stF
+
+  ⚠ 5560000 and 5558848 are POINTER-SHAPED INTEGERS -- the jitted road stores a
+  raw address where the interpreted road stores text. The ledger's own named
+  signature, a stale read wearing the shape of data.
+
+  ⚠⚠ AND THE DEGRADE COUNT FELL FROM 6 TO 1, which is the part that matters.
+  Before C15's emitter and C18's gate all six assignments DEGRADED HONESTLY; now
+  five emit and store a pointer. The fix that improves the system is what arms the
+  latent bug -- the crash became a silent wrong value.
+
+  pointerT diverges too, the other way: the jitted arm prints EMPTY where the
+  interpreted arm prints values, thirteen rows.
+
+  STROKE 2 -- HALF OF IT IS ALREADY BUILT. jitDerefRT has refused by name since
+  C15, F-41 form, GroupActions.rtn:434. ⚠ Its message is BYTE-IDENTICAL to
+  opDeref's, so a run cannot tell which road refused -- cheap to fix and the first
+  thing stroke 2 should do. WHAT IS NOT BUILT IS "stores nothing": the refusal
+  returns null and the emitted assignment stores the null anyway, which is how stF
+  reads 0 on the jitted road. Making it store nothing means the star's emit must
+  not seed the assignment, which puts the DEGRADE back for that row.
+  ⚠ SO "REFUSES" AND "STORES NOTHING" ARE TWO CHANGES, and the second re-opens
+  the trade C15 measured. Reported before building because the certificate's
+  wording -- "both roads print own tags on all six rows" -- implies the
+  INTERPRETED road changes too, and today four of its six rows hold real values
+  from stars that SUCCEED. Which of the six are meant to end as own-tags is
+  Tony's word.
+
+  END SEQ 137
