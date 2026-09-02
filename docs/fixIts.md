@@ -63,6 +63,40 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-44 (the bootstrapper borrows a copy) — `GroupMain.twk` uses `setGroup`'s copy as its only copy primitive
+**Gloss:** bootstrap borrows setGroup's copy.
+**Where:** `GroupMain.twk` lines **159-161, 165-167, 218-220, 290-292, 353/358-359, 400-402,
+435-437** — seven sites, all the same shape:
+```
+    item.group = properties/delimiter;   <- setGroup COPIED here
+    item       = item.group;
+    modify(item,"}");                    <- the modify lands on the copy
+```
+**What:** the bootstrapper hand-builds the seed grammar in C++ and **never passes through
+`aCTionDefinE`**, so it owns no copy of its own. It relies on `setGroup` copying a parented source.
+Take that copy away and each `modify` mutates the **shared registry node** instead of a private
+copy — bear-trap #22's family, arriving through a different door.
+**Evidence, measured 2026-09-02 with a control, not reasoned:** Tony's SEQ 121 setGroup ruling was
+built twice (as dispatched and as amended) and its certificate failed identically both times —
+fleet **171 green → 4**, every fixture at exit 139. Bisect: with clause (a) alone reverted and
+clauses (b)(c)(d) standing, the fleet read **171 green, the baseline exactly**. The crash is
+`properties["stringBUFFER"]` reading **null** at `GroupMain.twk:466` — `properties` had been
+clobbered by line 292's `modify` — so the bootstrap dies before `incant/setup` finishes parsing,
+printing only `RunRulE: expected a method not include`.
+⚠ **Two pairs alias into each other, which is the sharpest form of it.** Lines **159 and 165** both
+do `item.group = grok/counter` and then modify one `"+"` and the other `"*"`; lines **353 and 357**
+both take `grok/TraiT`. With the copy, two nodes and two modifiers. Without it, **one node, and the
+second modifier overwrites the first** — two terms that must differ collapse into one.
+⚠ **THE GAP WAS ALREADY WRITTEN DOWN and nobody connected it:** `materialiseTerms`' own comment in
+`GroupActions.rtn` says *"The gap is the BOOTSTRAPPER, which hand-builds rules in C++."* It was
+written about `rStuff`; it is equally true of the copy.
+**Done-when:** the seven sites take an explicit copy of their own, so they say what they mean
+instead of borrowing a side effect — **and then** `setGroup`'s copy branch can go. Until then the
+SEQ 121 ruling is blocked on this and nothing of it is in the tree.
+⚠ **NOT BUILT AND NOT PROPOSED AS A SHAPE.** The fix touches `GroupMain.twk`, which is outside SEQ
+121's scope, and the shape is Tony's and Clay's to rule.
+**Owner:** Tony / Clay — a ruling, not an errand.
+
 ### ✅ F-43 (the guard that crashes) — CLOSED 2026-09-01, fixed and certified
 **Fix:** `Instruct.rtn` `opAddPointer` — the refusal now names `target.tag` explicitly instead of
 a bare `tag`, which is what every other F-41 guard resolves to (`opMultiply` generates
