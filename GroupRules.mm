@@ -4720,6 +4720,39 @@ finishXP:
 	return xpList;
 }
 
+/*******************************************************************************
+    jitAssignNodeRT -- `=` WITH A NODE ON THE RIGHT, AT RUN TIME. SEQ 138 item 2.
+
+    ⚠ F-48's RULING IN ONE PLACE, for both roads to share: `=` with a FIELD on
+    the right COPIES ITS VALUE; a HOLDER refuses by name (`holds a group; say *`);
+    NOTHING refuses by name. F-41's form throughout -- named, declined, stores
+    nothing, the run continues.
+
+    ⚠ IT EXISTS BECAUSE jitEmitAssign WAS STORING THE NODE'S ADDRESS. A star
+    publishes a NODE, not a scalar, and the emitted store put that pointer into
+    the target's slot -- which is how starT's jitted road read 5560000 where the
+    interpreted road read LEAF. A pointer wearing the shape of data.
+    GroupActions.jitAssignNodeRT
+*******************************************************************************/
+extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target)
+{
+	
+	if ( !target )  return 0;
+	if ( !source ) {
+	::fprintf(stderr,"ERROR = on %s -- nothing on the right; stores nothing\n",
+	target->groupBody->tag);
+	return 0;
+	}
+	if ( isGROUP(source->groupBody->flags.data) ) {
+	::fprintf(stderr,"ERROR = on %s -- holds a group; say *\n",
+	target->groupBody->tag);
+	return 0;
+	}
+	target->setContent(source);
+	
+	return target;
+}
+
 extern "C" GroupItem *jitBindArgRT(GroupItem *argument, GroupItem *field)
 {
 GroupItem 	*arg = argument;
@@ -5156,11 +5189,11 @@ extern "C" GroupItem *jitDerefRT(GroupItem *operand)
 {
 	
 	if ( !operand ) {
-	::fprintf(stderr,"ERROR unary * under jit -- null operand\n");
+	::fprintf(stderr,"ERROR unary * [jit road] -- null operand\n");
 	return 0;
 	}
 	if ( isGROUP(operand->groupBody->flags.data) )   return operand->getGroup();
-	::fprintf(stderr,"ERROR unary * on %s -- it holds no group\n",operand->groupBody->tag);
+	::fprintf(stderr,"ERROR unary * [jit road] on %s -- it holds no group\n",operand->groupBody->tag);
 	return 0;
 	
 }
@@ -5270,6 +5303,26 @@ extern "C" GroupItem *jitEmitAdd(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 {
 	
+	// ⚠ A NODE ON THE RIGHT GOES THROUGH THE RUN-TIME HELPER (SEQ 138). A star
+	// publishes a NODE, not a scalar, and storing its SSA value put the node's
+	// ADDRESS into the target's slot -- which is how starT's jitted road read
+	// 5560000 where the interpreted road read LEAF. jitAssignNodeRT carries
+	// F-48's ruling for BOTH roads: copy the value, or refuse by name and store
+	// nothing. The flag is cleared here because this is the consumer.
+	if (gJitLastIsNode && gJitResultNode && target) {
+	gJitLastIsNode = false;
+	llvm::IRBuilder<> *nb = gJitBuilder;
+	llvm::LLVMContext &nctx = nb->getContext();
+	llvm::Type *nptr = llvm::PointerType::getUnqual(nctx);
+	llvm::Type *ni64 = llvm::Type::getInt64Ty(nctx);
+	llvm::Value *tgtAddr = nb->CreateIntToPtr(
+	llvm::ConstantInt::get(ni64, (uint64_t)(void*)target), nptr, "assignTgt");
+	llvm::Value *fn = nb->CreateIntToPtr(
+	llvm::ConstantInt::get(ni64, (uint64_t)(void*)&jitAssignNodeRT), nptr, "assignNodeFn");
+	llvm::FunctionType *ty = llvm::FunctionType::get(nptr, {nptr, nptr}, false);
+	nb->CreateCall(ty, fn, {gJitResultNode, tgtAddr}, "assignNode");
+	return target;
+	}
 	// ⚠ THE SEED GATE (F-47, Tony SEQ 134) -- jitEmitUnary's own guard, copied.
 	// BOTH operands were dereferenced unguarded here, so an unseeded one was a
 	// bad pointer dereference at 0x28 rather than a named degrade. The sibling
@@ -5598,6 +5651,7 @@ extern "C" int jitEmitDeref(GroupItem *operand)
 	llvm::FunctionType *derefTy = llvm::FunctionType::get(ptr, {ptr}, false);
 	llvm::Value *res = b->CreateCall(derefTy, derefFn, {argAddr}, "derefRes");
 	gJitResultNode = res;
+	gJitLastIsNode = true;
 	gJitEmitted    = true;
 	return 1;
 	

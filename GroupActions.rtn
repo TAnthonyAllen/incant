@@ -423,15 +423,49 @@ extern GroupItem chanReport(GroupItem input)
 }
 
 
+/*******************************************************************************
+    jitAssignNodeRT -- `=` WITH A NODE ON THE RIGHT, AT RUN TIME. SEQ 138 item 2.
+
+    ⚠ F-48's RULING IN ONE PLACE, for both roads to share: `=` with a FIELD on
+    the right COPIES ITS VALUE; a HOLDER refuses by name (`holds a group; say *`);
+    NOTHING refuses by name. F-41's form throughout -- named, declined, stores
+    nothing, the run continues.
+
+    ⚠ IT EXISTS BECAUSE jitEmitAssign WAS STORING THE NODE'S ADDRESS. A star
+    publishes a NODE, not a scalar, and the emitted store put that pointer into
+    the target's slot -- which is how starT's jitted road read 5560000 where the
+    interpreted road read LEAF. A pointer wearing the shape of data.
+    GroupActions.jitAssignNodeRT
+*******************************************************************************/
+extern GroupItem jitAssignNodeRT(GroupItem source,GroupItem target)
+{
+    -%
+    if ( !target )  return 0;
+    if ( !source ) {
+        ::fprintf(stderr,"ERROR = on %s -- nothing on the right; stores nothing\n",
+            target->groupBody->tag);
+        return 0;
+        }
+    if ( isGROUP(source->groupBody->flags.data) ) {
+        ::fprintf(stderr,"ERROR = on %s -- holds a group; say *\n",
+            target->groupBody->tag);
+        return 0;
+        }
+    target->setContent(source);
+    %-
+    return target;
+}
+
+
 extern GroupItem jitDerefRT(GroupItem operand)
 {
     -%
     if ( !operand ) {
-        ::fprintf(stderr,"ERROR unary * under jit -- null operand\n");
+        ::fprintf(stderr,"ERROR unary * [jit road] -- null operand\n");
         return 0;
         }
     if ( isGROUP(operand->groupBody->flags.data) )   return operand->getGroup();
-    ::fprintf(stderr,"ERROR unary * on %s -- it holds no group\n",operand->groupBody->tag);
+    ::fprintf(stderr,"ERROR unary * [jit road] on %s -- it holds no group\n",operand->groupBody->tag);
     return 0;
     %-
 }

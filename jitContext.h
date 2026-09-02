@@ -231,6 +231,12 @@ inline llvm::Value *gJitPrintBuf = nullptr;
 // pointer safe in this one case: this node is FRESHLY COMPUTED by the emitted
 // call, not a field whose live value is sitting in an unflushed frame slot.
 inline llvm::Value *gJitResultNode = nullptr;
+// ⚠ A SECOND CHANNEL, NOT A CLEVERER TEST OF THE FIRST (SEQ 138). gJitResultNode
+// non-null means "a node value is in flight"; it does NOT mean "the thing being
+// assigned is a node", because the slot survives its consumer. This flag says the
+// latter and only the latter, is raised by jitEmitDeref, and is cleared by the
+// consumer that acts on it. One channel, one meaning.
+inline bool gJitLastIsNode = false;
 
 // Nodes seeded with JitData during the current compile. JitData is transient (one
 // compile, into a per-run LLVMContext that jitRunAction destroys), but the field/

@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      137
+SEQ:      138
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 138, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 138 IS LIVE AND IS AT THE FOOT -- stroke 2's certificate CORRECTED
+          (both roads match the INTERPRETED road's current output; it does not
+          change); F-48 ruled with the specimen; stroke 3, the five followers,
+          taken in parallel. Then the branch.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 137, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 137 IS LIVE AND IS AT THE FOOT -- three strokes in order. Stroke 1
           resumes (road column under the flip, divergence reported by IDENTITY);
@@ -6652,3 +6658,62 @@ Then the branch.
   Tony's word.
 
   END SEQ 137
+
+
+SEQ 138  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  CERTIFICATE CORRECTED; F-48 RULED; 3 IN PARALLEL.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — certificate corrected; F-48 ruled with the specimen; stroke 3 proceeds in parallel.
+Correction: stroke 2's certificate is both roads byte-identical to the interpreted road's current output — starT LEAF LEAF LEAF LEAF stLeaf stF, pointerT all thirteen rows. The interpreted road does not change.
+F-48 ruled (Tony to confirm): = with a field on the right copies its value; a holder refuses by name (holds a group; say *); nothing refuses by name (F-41, built). Both roads.
+Stroke 2: (i) jitDerefRT's message gets a road tag so a refusal names its road. (ii) Assignment from a node result goes through a runtime helper — copy the value, or refuse and store nothing — instead of jitEmitAssign storing the node's address. Certificate as corrected; bare fleet byte-identical; degrade count reported, expected 0.
+Stroke 3: the five followers, as dispatched — take it now, independent.
+Then the branch.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. The corrected certificate resolves the question raised
+  in C21 exactly: the interpreted road's four value-rows come from stars that
+  SUCCEED, and they stay. The jitted road is the only thing that moves. Recorded
+  because the earlier wording would have had me change a road that is right.
+
+  ---- OUTCOME: STROKE 2 BUILT, AND IT LOCATED THE DIVERGENCE IN THE INTERPRETER ----
+  BUILT: (i) jitDerefRT's refusals carry a road tag. (ii) A node on the right of
+  `=` goes through jitAssignNodeRT, which carries F-48's ruling in ONE place for
+  both roads to share; jitEmitAssign no longer stores the node's ADDRESS. New
+  channel gJitLastIsNode -- a second channel, not a cleverer test of
+  gJitResultNode, whose non-nullness means "a node is in flight" and not "this
+  assignment takes one".
+
+  Pointer-shaped values GONE (5560000, 5558848). Degrade count 0 as expected.
+  Bare fleet BYTE-IDENTICAL, 176 green, frontier 10 PASS, canary 330.
+  The both-roads-identical row is NOT met.
+
+  ⚠⚠ AND THAT IS THE FINDING: THE JIT ROAD IMPLEMENTS F-48'S RULING AND THE
+  INTERPRETER DOES NOT. The helper fires four times and every refusal is right --
+  "ERROR = on stB -- holds a group; say *" and three more. stB = *st2 hands the
+  assignment a field that ITSELF HOLDS A GROUP; the jit road refuses it by the
+  ruling, and the interpreted road FOLLOWS THROUGH THE HOLDER and stores LEAF.
+  Same statement, same operand, two different laws.
+
+  F-48 was ruled "both roads". Only one road has it. The interpreter half was
+  never built -- SEQ 135 closed F-48 as "no present defect" on a measurement where
+  the star REFUSED, so the holder-on-the-right case was never exercised. This
+  stroke exercised it.
+
+  ⚠ SO THE CORRECTED CERTIFICATE CANNOT BE MET BY CHANGING THE JIT ROAD: it pins
+  both roads to the interpreted road's CURRENT output, and that output is the
+  PRE-RULING behaviour. The jit road is the one obeying the law. By the dispatch's
+  own rule -- a divergent interpreted row is a finding on the interpreter -- this
+  is that finding, and it is a RULING rather than a repair: either the
+  interpreter's setContent takes the same refusal and starT's interpreted rows
+  re-pin, or F-48 applies to the jit road only and the certificate's target moves.
+
+  STROKE 3 not started -- it is independent and is next.
+
+  END SEQ 138

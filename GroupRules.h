@@ -184,6 +184,7 @@ extern "C" GroupItem *guard(GroupItem *item);
 extern "C" GroupItem *interpretBC(GroupItem *argument);
 extern "C" GroupItem *interpretMethod(GroupItem *input);
 extern "C" GroupItem *interpretXP(GroupItem *xpList);
+extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target);
 extern "C" GroupItem *jitBindArgRT(GroupItem *argument, GroupItem *field);
 extern "C" int jitBuildFunction(GroupItem *action);
 extern "C" int jitDegrade(char *what, GroupItem *node);

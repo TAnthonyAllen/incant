@@ -63,6 +63,44 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### ⚠⚠ SEQ 138 STROKE 2 — BUILT, AND IT FOUND THE DIVERGENCE'S REAL SEAT: **THE INTERPRETER, NOT THE JIT**
+**Built:** (i) `jitDerefRT`'s refusals carry a road tag — `ERROR unary * [jit road] on X` — so a run
+can finally say which road refused. (ii) A node result on the right of `=` goes through
+**`jitAssignNodeRT`**, which carries F-48's ruling in one place: copy the value, refuse by name on a
+holder (`holds a group; say *`), refuse by name on nothing. `jitEmitAssign` no longer stores the
+node's address. New channel `gJitLastIsNode` — a second channel rather than a cleverer test of
+`gJitResultNode`, whose non-nullness means *a node is in flight*, not *this assignment takes one*.
+
+| certificate row | result |
+|---|---|
+| pointer-shaped values gone | **`5560000`, `5558848` → gone** ✅ |
+| degrade count | **0**, as expected ✅ |
+| bare fleet byte-identical | ✅ 176 green, frontier 10 PASS, canary **330** |
+| both roads byte-identical to the interpreted road | **NOT MET** ❌ |
+
+**THE HELPER FIRES AND IS RIGHT.** Four refusals, each correct by the ruling:
+```
+ERROR = on stB -- holds a group; say *
+ERROR = on stC -- holds a group; say *
+ERROR = on stE -- holds a group; say *
+ERROR = on stF -- nothing on the right; stores nothing
+```
+
+⚠⚠ **AND THAT IS THE FINDING: THE JIT ROAD IMPLEMENTS F-48'S RULING AND THE INTERPRETER DOES NOT.**
+`stB = *st2` — the star yields a field that **itself holds a group**. The jit road refuses it, by the
+ruling. The interpreted road **follows through the holder and stores `LEAF`**. Same statement, same
+operand, two different laws.
+**F-48 was ruled "both roads". Only one road has it.** The interpreter half was never built — SEQ
+135 closed F-48 as *"no present defect"* on a measurement where the star **refused**, so the
+holder-on-the-right case was never exercised. **This stroke exercised it.**
+⚠ **SO THE CORRECTED CERTIFICATE CANNOT BE MET BY CHANGING THE JIT ROAD**: it pins both roads to the
+interpreted road's *current* output, and that output **is the pre-ruling behaviour.** The jit road is
+the one obeying the law. Per the dispatch's own rule — *a divergent interpreted row is a finding on
+the interpreter* — this is that finding, and it is a ruling, not a repair: **either the interpreter's
+`setContent` takes the same refusal, and starT's interpreted rows re-pin, or F-48 applies to the jit
+road only and the certificate's target changes.** Tony's word.
+
+
 ### ⚠ SEQ 137 STROKE 1 — THE ROAD COLUMN RUNS AT LAST, AND IT IS RED AS PRE-REGISTERED
 `starT` and `pointerT` both gained a jitted arm (jitted half first, #25) and both now **exit 0**.
 The certificate — *every row byte-identical jitted vs interpreted under the flip* — is **NOT met**,
