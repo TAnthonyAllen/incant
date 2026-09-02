@@ -63,6 +63,37 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-51 (the Token print part) — a `Token`-shaped print part emits neither node nor scalar
+**Gloss:** Token part emits nothing. **Severity: LATENT.** **Interpreted road: CORRECT.**
+**Workaround: the interpreted road.** **Owner: Tony (jitter campaign).**
+**Where:** `jitEmitters.rtn`, the `isMethod(pb->flags.instructType)` arm of the print-part walk.
+**What:** eight degrades per `pointerT` run, `print operand part: method emitted no value` on
+`Token`. After SEQ 142 the node channel is consulted first and the `uxp` parts clear; **the `Token`
+parts emit neither a node nor a scalar**, so they degrade and print nothing. **Eight of `pointerT`'s
+thirteen divergent jitted rows are this.**
+
+### F-52 (`cerr` has no jit emitter) — the sink fires at emit time
+**Gloss:** cerr unemitted. **Severity: LATENT.** **Interpreted road: CORRECT.**
+**Workaround: the interpreted road.** **Owner: Tony (jitter campaign).**
+**Where:** the `cerr` path under `jitting`. **What:** `cerr under jit -- no emitter, sink fires at
+emit time`, **fourteen per `pointerT` run** — the largest single degrade population in the fixture
+and **entirely unrelated to the star, to `opDot`, or to print-of-a-field.**
+⚠ **IT IS WHY A BLANKET `degrade 0` WAS UNREACHABLE THERE**, and it will make any future
+degrade-zero certificate on a `cerr`-carrying fixture unmeetable until it lands.
+
+### ⚠ pointerT's JITTED ARM — PINNED EXPECTED-DIVERGENT, THIRTEEN ROWS, TWO NAMED MECHANISMS
+Not a defect in `pointerT` and not chased. **The interpreted road is correct on all fourteen rows**;
+the jitted arm diverges on thirteen, and every one is accounted for by **F-51 (8)** and **F-52 (14
+degrades)**. The arm is **not carried in the committed fixture** — adding it would put a known-red
+jitted road into a bare fleet row — so this is the record of the expectation.
+
+### ⚠⚠ DOCTRINE (SEQ 143, Tony): **DEGRADE 0 IS NOT A CERTIFICATE ROW. A CERTIFICATE NAMES THE DEGRADES IT ALLOWS.**
+SEQ 142's certificate asked for zero on a fixture where **fourteen of twenty-five degrades belonged
+to an unemitted `cerr`** — unreachable by anything that stroke could do. **A blanket zero makes a
+certificate unmeetable for reasons outside its own subject**, which is the same failure as pinning a
+certificate to a *road* instead of to the *law*. Both were paid for in the same week.
+
+
 ### ⚠ SEQ 142 — opDot YIELDS THE NODE. THREE OF THE 25 CLEAR; pointerT IS **NOT** CERTIFIED
 **Built, all three correct by the ruling and none of them enough:**
 1. **`opDot` raises `gJitLastIsNode`** — a subscript yields a field, and the scalar it also unboxes

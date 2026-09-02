@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      142
+SEQ:      143
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 143, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 143 IS LIVE AND IS AT THE FOOT -- THE ROAD COLUMN IS CLOSED ON THE
+          STAR, pointerT IS PINNED EXPECTED-DIVERGENT WITH ITS TWO MECHANISMS
+          NAMED, AND THE BRANCH OPENS. Classify every red by mechanism BEFORE
+          fixing any. The asking is last and discharges carrierNode.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 142, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 142 IS LIVE AND IS AT THE FOOT -- RULED: opDot in print position
           yields THE NODE. The scalar is not consulted by print. Certificate wants
@@ -6969,3 +6975,31 @@ Then the branch, as dispatched.
   over one body -- C18's finding, third site; emit-time marking keys on the body.
 
   END SEQ 142
+
+
+SEQ 143  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  ROAD COLUMN CLOSED; THE BRANCH OPENS.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — road column closed on the star; pointerT pinned; the branch opens.
+1. starT six of six on both roads is the star ruling's certificate. Done.
+2. pointerT jitted arm: pin as expected-divergent, thirteen rows, two named mechanisms — Token print part emits nothing (8), cerr unemitted (14). Fixit lines for each: severity latent, interpreted road correct, workaround interpreted, owner Tony (jitter campaign). Not chased.
+3. Seal: degrade 0 is not a certificate row; a certificate names the degrades it allows.
+4. The try-and-buy, as dispatched in SEQ 138: branch flip, gNoUnwrap 1, main bare and green; incant/utilities first, then fleet, then unitTests; classify every red by mechanism before fixing — (a) holder reads need *, (b) capture semantics, (c) jit road, (d) other — and apply the queued candidates as bucket (a). Seal carries the bucket table.
+5. The asking, last: parser(Start) receives Start, addrOf field column; discharges carrierNode.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. Item 3 is the most portable thing in this dispatch and
+  it is worth restating as doctrine rather than as a seal line: DEGRADE 0 IS NOT A
+  CERTIFICATE ROW; A CERTIFICATE NAMES THE DEGRADES IT ALLOWS. SEQ 142 asked for
+  zero on a fixture where fourteen of the twenty-five belonged to an unemitted
+  `cerr` -- unreachable by anything the stroke could do. A blanket zero makes a
+  certificate unmeetable for reasons outside its own subject, which is the same
+  failure as pinning to a road instead of to the law.
+
+  END SEQ 143
