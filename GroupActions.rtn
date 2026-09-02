@@ -463,6 +463,34 @@ extern int assignFieldCore(GroupItem source,GroupItem target)
 }
 
 
+/*******************************************************************************
+    jitPrintNodeRT -- PRINT A NODE RESULT, AT RUN TIME. SEQ 141, F-50.
+
+    ⚠ IT CALLS appendGroup -- THE INTERPRETED WALK'S OWN CALL -- rather than
+    re-implementing "value if data, tag if holder". That rule IS getText since
+    SEQ 136 retired the follow, and appendGroup already goes through it, so this
+    helper is a refusal plus a delegation and nothing else. One spelling.
+
+    ⚠ IT EXISTS BECAUSE THE EMITTED PRINT COULD ONLY TAKE A SCALAR.
+    jitPrintItem's value arm called appendGroupValue with an i32, so a field
+    printed as whatever its slot happened to hold -- starT's `4` -- and a field
+    with no scalar printed as nothing at all -- pointerT's blanks. Scalars print,
+    fields did not; this is the field half.
+
+    REFUSES BY NAME on nothing, F-41's form.   GroupActions.jitPrintNodeRT
+*******************************************************************************/
+extern GroupItem jitPrintNodeRT(GroupItem node,GroupItem FormaT,Buffer buffer)
+{
+    -%
+    if ( !node ) {
+        ::fprintf(stderr,"ERROR print -- the item produced no node; nothing printed\n");
+        return 0;
+        }
+    return ::appendGroup(node,FormaT,buffer);
+    %-
+}
+
+
 extern GroupItem jitAssignNodeRT(GroupItem source,GroupItem target)
 {
     -%

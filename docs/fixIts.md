@@ -70,7 +70,35 @@ empty value. **Transitive followers in the tree: 6 → 0.**
 **Certificate: bare fleet BYTE-IDENTICAL, 176 green, frontier 10 PASS, canary 331. No row moved, so
 nothing was owed a re-pin** — no fixture reaches those five through a holder today.
 
-### ⚠⚠ F-50 (the jitted print reads slots) — THE STORE IS RIGHT AND THE READ IS WRONG
+### ✅ F-50 — starT IS SIX OF SIX ON BOTH ROADS. THE KEY WAS THE **BODY**, NOT THE NODE
+```
+JITTED        LEAF  stB  stC  LEAF  stE  stF
+INTERPRETED   LEAF  stB  stC  LEAF  stE  stF
+RULED         LEAF  stB  stC  LEAF  stE  stF        degrade 0
+```
+**Built:** `jitPrintNodeRT` — a refusal by name on nothing, then a delegation to **`appendGroup`,
+the interpreted walk's own call**. It re-implements nothing, because since SEQ 136 *"value if data,
+tag if holder"* **is** `getText`, and `appendGroup` already goes through it.
+**And the routing:** `jitEmitAssign`'s node branch records where the value went. It stores through
+`assignFieldCore` into the **field**; the ordinary branch stores into a **jitSlot**, a register. At
+emit time nothing on the node distinguishes them — both read `data=0, seeded=1` — so **the emitter
+that decides records it**, and the print consults it. Scalar prints are untouched: a target whose
+value went to its slot is not in the set.
+
+⚠⚠ **THE KEY IS THE `groupBody`, NOT THE NODE, AND THAT COST TWO FAILED ATTEMPTS THAT WERE WORTH
+IT.** Marking the assign's `target` and checking the print's `token` **did not fire** — and the
+negative result is the finding: **the print's operand and the assign's target are DIFFERENT NODES
+FOR THE SAME NAME.** Keyed on the shared `groupBody` it fires on all six. That is C18's *"two fields
+over one body"* arriving in a third place, and any future emit-time marking has to be told.
+
+⚠ **`pointerT` IS NOT CERTIFIED AND ITS ROWS ARE A DIFFERENT SUB-CASE.** 13 of 14 still diverge and
+the degrade count under the flip reads **25**. Its rows print **subscript reads** — `ptBagL["ptSrc"]`
+— not assignment targets, so nothing marks them field-resident and this fix does not reach them.
+**The sub-case is `opDot` in print position**, and it is its own stroke: `opDot` publishes both a
+node and a scalar, so which one a print should take is a ruling, not an inference.
+**Bare fleet byte-identical**, 176 green, frontier 10 PASS, canary 332.
+
+### F-50 (the jitted print reads slots) — the original entry, for the trail
 **Gloss:** jitted print misses the field.
 **This one finding covers both outstanding divergences.** A/D and `pointerT` are the same defect.
 

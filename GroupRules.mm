@@ -5335,6 +5335,7 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	llvm::ConstantInt::get(ni64, (uint64_t)(void*)&jitAssignNodeRT), nptr, "assignNodeFn");
 	llvm::FunctionType *ty = llvm::FunctionType::get(nptr, {nptr, nptr}, false);
 	nb->CreateCall(ty, fn, {gJitResultNode, tgtAddr}, "assignNode");
+	gJitFieldResident.insert((void*)target->groupBody);
 	return target;
 	}
 	// ⚠ THE SEED GATE (F-47, Tony SEQ 134) -- jitEmitUnary's own guard, copied.
@@ -7148,6 +7149,33 @@ extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue)
 	//  values were flowing, as 80329152 -- a stale read wearing the shape of
 	//  data. The degrade counter is asserted at zero by every rung, so this
 	//  turns an invisible wrong answer into a red.
+	//  ⚠ A NODE RESULT PRINTS AS A NODE (SEQ 141, F-50). The value arm below
+	//  can only carry an i32, so a field printed as whatever its slot held --
+	//  starT's `4` -- or as nothing at all. When a node is in flight, hand it
+	//  to jitPrintNodeRT, which delegates to appendGroup, the INTERPRETED
+	//  walk's own call. One spelling; the roads cannot say different things.
+	//  The flag is cleared here because this is the consumer.
+	//  ⚠ A FIELD-RESIDENT TARGET PRINTS AS A NODE. Its value went through
+	//  assignFieldCore into the FIELD, not into a jitSlot, so the scalar arm
+	//  below would read a stale register -- starT's `4`. jitPrintNodeRT
+	//  delegates to appendGroup, the interpreted walk's own call.
+	//  ⚠ SCALAR PRINTS ARE UNTOUCHED: a target whose value went to its slot
+	//  is not in this set, and takes the arm it always took.
+	if (token && gJitFieldResident.count((void*)token->groupBody)) {
+	llvm::Value *tAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)token), ptr, "printFieldNode");
+	llvm::Value *tfn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitPrintNodeRT), ptr, "printNodeFn2");
+	llvm::FunctionType *tty = llvm::FunctionType::get(ptr, {ptr, ptr, ptr}, false);
+	b->CreateCall(tty, tfn, {tAddr, fmtAddr, gJitPrintBuf}, "printFieldNodeCall");
+	return; }
+	if (gJitLastIsNode && gJitResultNode) {
+	gJitLastIsNode = false;
+	llvm::Value *pfn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitPrintNodeRT), ptr, "printNodeFn");
+	llvm::FunctionType *pty = llvm::FunctionType::get(ptr, {ptr, ptr, ptr}, false);
+	b->CreateCall(pty, pfn, {gJitResultNode, fmtAddr, gJitPrintBuf}, "printNode");
+	return; }
 	if (!gJitResult) {
 	jitDegrade("print operand: expression emitted no value", token);
 	return; }
@@ -7274,6 +7302,33 @@ extern "C" void jitPrintNode(GroupItem *FormaT)
 	b->CreateCall(ty, callee, {gJitResultNode, fmtAddr, gJitPrintBuf}, "printNode");
 	gJitResultNode = nullptr;
 	gJitEmitted = true;
+	
+}
+
+/*******************************************************************************
+    jitPrintNodeRT -- PRINT A NODE RESULT, AT RUN TIME. SEQ 141, F-50.
+
+    ⚠ IT CALLS appendGroup -- THE INTERPRETED WALK'S OWN CALL -- rather than
+    re-implementing "value if data, tag if holder". That rule IS getText since
+    SEQ 136 retired the follow, and appendGroup already goes through it, so this
+    helper is a refusal plus a delegation and nothing else. One spelling.
+
+    ⚠ IT EXISTS BECAUSE THE EMITTED PRINT COULD ONLY TAKE A SCALAR.
+    jitPrintItem's value arm called appendGroupValue with an i32, so a field
+    printed as whatever its slot happened to hold -- starT's `4` -- and a field
+    with no scalar printed as nothing at all -- pointerT's blanks. Scalars print,
+    fields did not; this is the field half.
+
+    REFUSES BY NAME on nothing, F-41's form.   GroupActions.jitPrintNodeRT
+*******************************************************************************/
+extern "C" GroupItem *jitPrintNodeRT(GroupItem *node, GroupItem *FormaT, Buffer *buffer)
+{
+	
+	if ( !node ) {
+	::fprintf(stderr,"ERROR print -- the item produced no node; nothing printed\n");
+	return 0;
+	}
+	return ::appendGroup(node,FormaT,buffer);
 	
 }
 

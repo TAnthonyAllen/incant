@@ -246,6 +246,7 @@ extern "C" void jitPrintClose(GroupItem *input);
 extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue);
 extern "C" void jitPrintList(GroupItem *ExpressioN, GroupItem *FormaT);
 extern "C" void jitPrintNode(GroupItem *FormaT);
+extern "C" GroupItem *jitPrintNodeRT(GroupItem *node, GroupItem *FormaT, Buffer *buffer);
 extern "C" void jitPrintOpen(GroupItem *input);
 extern "C" void jitPrintProbe(GroupItem *node, int phase);
 extern "C" GroupItem *jitRefire(GroupItem *input);

@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      140
+SEQ:      141
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 141, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 141 IS LIVE AND IS AT THE FOOT -- F-50: the jitted print takes a
+          node result through a runtime helper, completing the pattern. NODE-VALUED
+          OPERATIONS ON THE JIT ROAD GO THROUGH A RUNTIME HELPER -- deref, assign,
+          print -- ONE SPELLING SHARED WITH THE INTERPRETER. Then the branch.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 140, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 140 IS LIVE AND IS AT THE FOOT -- THE CERTIFICATE IS PINNED TO THE
           LAW AND NEVER TO A ROAD: LEAF stB stC LEAF stE stF. A/D measured then
@@ -6841,3 +6847,61 @@ Then the branch.
   ASSIGN OR THE STAR -- both are already correct. It is the print.
 
   END SEQ 140
+
+
+SEQ 141  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  F-50 -- THE JITTED PRINT THROUGH A HELPER.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — F-50: the jitted print takes a node result through a runtime helper.
+Emitted print of a field bakes the node and calls a helper that prints as getText does (value if data; tag if holder; F-41 refusal if nothing). Scalar prints untouched. Certificate: starT six of six on both roads against LEAF stB stC LEAF stE stF; pointerT fourteen of fourteen on both roads against the interpreted arm's rows (value reads only — the law's output there); scalar rows byte-identical; bare fleet byte-identical; degrade 0.
+Seal line: node-valued operations on the jit road go through a runtime helper — deref, assign, print — one spelling shared with the interpreter.
+Then the branch, as dispatched.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. "prints as getText does" is now a SHORT specification
+  rather than a vague one, and that is only true because of SEQ 136: getText no
+  longer follows, so "value if data, tag if holder" IS getText, in one line each.
+  The helper can therefore call getText itself rather than re-implement it --
+  which is the same one-spelling discipline assignFieldCore established, and the
+  reason this stroke is small.
+
+  ------ OUTCOME: starT SIX OF SIX ON BOTH ROADS. THE KEY WAS THE BODY ------
+    JITTED       LEAF  stB  stC  LEAF  stE  stF
+    INTERPRETED  LEAF  stB  stC  LEAF  stE  stF
+    RULED        LEAF  stB  stC  LEAF  stE  stF     degrade 0
+
+  BUILT: jitPrintNodeRT -- a refusal by name on nothing, then a delegation to
+  appendGroup, THE INTERPRETED WALK'S OWN CALL. It re-implements nothing, because
+  since SEQ 136 "value if data, tag if holder" IS getText and appendGroup already
+  goes through it. And the routing: jitEmitAssign's node branch RECORDS WHERE THE
+  VALUE WENT -- field via assignFieldCore, or jitSlot via the ordinary store. At
+  emit time nothing on the node tells them apart (both read data=0, seeded=1), so
+  the emitter that DECIDES records it and the print consults it. Scalar prints
+  untouched.
+
+  ⚠⚠ THE KEY IS THE groupBody, NOT THE NODE, and two failed attempts earned it.
+  Marking the assign's TARGET and checking the print's TOKEN did not fire, and
+  the negative result IS the finding: THE PRINT'S OPERAND AND THE ASSIGN'S TARGET
+  ARE DIFFERENT NODES FOR THE SAME NAME. Keyed on the shared groupBody it fires on
+  all six. C18's "two fields over one body" arriving in a third place.
+
+  ⚠ pointerT IS NOT CERTIFIED and its rows are a DIFFERENT SUB-CASE: 13 of 14
+  still diverge, degrade 25 under the flip. Its rows print SUBSCRIPT READS,
+  ptBagL["ptSrc"], not assignment targets -- nothing marks them field-resident and
+  this fix does not reach them. The sub-case is opDot in print position, and it is
+  its own stroke: opDot publishes BOTH a node and a scalar, so which one a print
+  should take is a RULING, not an inference.
+
+  Bare fleet BYTE-IDENTICAL, 176 green, frontier 10 PASS, canary 332.
+
+  SEAL LINE, as dictated: node-valued operations on the jit road go through a
+  runtime helper -- deref, assign, print -- one spelling shared with the
+  interpreter.
+
+  END SEQ 141

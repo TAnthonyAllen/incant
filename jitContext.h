@@ -1,3 +1,4 @@
+#include <set>
 // jitContext.h — Phase JIT codegen state (LLVM 22). Hand-written C++ — NOT tok-processed.
 // JitData mirrors OLDtawkDoNotTouch/Tokf/JitData.h (the proven pattern): a global
 // struct with fully-qualified llvm:: pointer fields + get/set methods. See
@@ -237,6 +238,14 @@ inline llvm::Value *gJitResultNode = nullptr;
 // latter and only the latter, is raised by jitEmitDeref, and is cleared by the
 // consumer that acts on it. One channel, one meaning.
 inline bool gJitLastIsNode = false;
+// ⚠ WHERE A TARGET'S VALUE LIVES (SEQ 141, F-50). jitEmitAssign's NODE branch
+// stores through assignFieldCore, which writes the FIELD; the ordinary branch
+// stores into the jitSlot, which is a REGISTER. A print must read whichever one
+// the value went to, and at emit time nothing on the node says which -- both
+// look like `data=0, seeded=1`. So the emitter that DECIDES records it here, and
+// the print consults it. One channel, one meaning; a set rather than a JitData
+// bit because that would be a layout change for a fact the emitter owns.
+inline std::set<void*> gJitFieldResident;
 
 // Nodes seeded with JitData during the current compile. JitData is transient (one
 // compile, into a per-run LLVMContext that jitRunAction destroys), but the field/
