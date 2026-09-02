@@ -17,8 +17,15 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      127
+SEQ:      128
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 128, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 128 IS LIVE AND IS AT THE FOOT -- RECON, READ ONLY. Census every
+          read and every write of rStuff->parseMethod and rStuff->actionMethod
+          from the GENERATED .mm, excluding setParse. Expected zero readers
+          outside setParse, in which case both slots leave RuleStuff -- a layout
+          shift. Report, do not edit. Tony rules.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 127, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 127 IS LIVE AND IS AT THE FOOT -- BOTH MOVED ROWS RULED AS FIXES.
           RESUME. Two re-pins land IN the stroke, each with its sentence and its
@@ -5946,3 +5953,27 @@ CLAY → CLOD — both moved rows ruled as fixes. Resume.
   it can diff against until the stroke is standing.
 
   END SEQ 127
+
+
+SEQ 128  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  RECON, READ ONLY -- parseMethod / actionMethod.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before the census, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — recon, read only: rStuff->parseMethod and rStuff->actionMethod.
+Census from the generated .mm (the .twk under use-scope hides dotted vs bare), every read and every write of both slots, excluding setParse (Generate.rtn:432-445). Table: site · slot · read/write · what it does with it · whether the same value is reachable from the body (gMethod) or the definition (::parseRule) at that site. Also: does anything read either slot off a copy's rStuff rather than the original's — that is the case where per-field storage would carry meaning.
+Expected: zero readers outside setParse, in which case both slots become locals there and leave RuleStuff (layout shift — RuleStuff.twk, groups.ext mirror, tokall, sub-level grep, bear-traps #10/#11). Report, don't edit. Tony rules.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. Rule H11: the census names its known-positive control
+  BEFORE it runs. setParse itself must appear in the raw hits for both slots --
+  it is the one site everybody agrees writes them -- and the generated
+  parse*/dispatch family must appear for parseMethod, because Ruling D records
+  34 deref sites dispatched THROUGH rStuff->parseMethod. If either is missing
+  from the raw match, the pattern is wrong and the count is void.
+
+  END SEQ 128

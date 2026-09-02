@@ -63,6 +63,51 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### RECON (SEQ 128) — `rStuff->parseMethod` / `rStuff->actionMethod`. ⚠ THE EXPECTATION IS FALSIFIED
+**Read only, nothing edited.** Census from the generated `.mm`, globs quoted — **87 raw hits, three
+files** (`GroupRules.mm` 73, `GroupItem.mm` 8, `RuleStuff.mm` 6). Most are prose in comment blocks;
+**13 are real slot accesses.** H11 controls both present: `setParse`'s own writes appear, and the
+`parseMethod` dispatch family appears.
+
+⚠ **"ZERO READERS OUTSIDE setParse" DOES NOT HOLD. THERE ARE SIX READ SITES AND TWO WRITE SITES
+OUTSIDE IT, AND ONE OF THE READS IS THE PARSE DISPATCH ITSELF.**
+
+| site | fn | slot | R/W | what it does | reachable elsewhere at that site? | face or definer |
+|---|---|---|---|---|---|---|
+| `GroupItem.mm:1955` | `GroupItem::parse` | `parseMethod` | **R + CALL** | **THE DISPATCH** — `ruleStuff->label = defStuff->parseMethod(this)` | **YES** — `builtinParsE`'s `gMethod` holds the same pointer | **definer** |
+| `GroupItem.mm:1952` | `GroupItem::parse` | `parseMethod` | R | the gate on that dispatch | same | **definer** |
+| `GroupItem.mm:1950` | `GroupItem::parse` | `parseMethod` | R | `SEAM fork` trace, `parseTrace`-gated | — | definer |
+| `GroupRules.mm:10870` | `parkOnMaster` | `actionMethod` | **W** | `defStuff->actionMethod = field->groupBody->gMethod` | **it IS the body value** | **definer** |
+| `GroupRules.mm:13998` | `setParseMethod` | `parseMethod` | **W** | the `parseMethod=` dlsym door | no — a name resolved at run time | face (`stuff` passed in) |
+| `GroupRules.mm:3697` | `evictAction` | `actionMethod` | R | compares it **against `field->groupBody->gMethod`** to decide eviction | **the site literally holds both** | face |
+| `GroupRules.mm:9512` | `opDot` case 36 | `actionMethod` | R | boolean gate, "is an action parked" | not identically — means *setParse has run*, not *gMethod is set* | face |
+| `GroupRules.mm:11141/11160/11161` | `parseClassify` | both | R | names the pointer for the `PC`/`PA` census rows | — | face |
+| `GroupRules.mm:11364/11365` | `parseRuleMethod` | `parseMethod` | R | bind trace | — | face |
+| `GroupRules.mm:2613` | `canonOf` | `parseMethod` | R | identity trace | — | definer |
+| `RuleStuff.mm:1058/1060/1102/1104` | both constructors | both | W | zero-init | — | — |
+
+⚠ **THE ANSWER TO THE COPY QUESTION, AND IT CUTS BOTH WAYS.** The two **load-bearing** sites both go
+through `definingRule()` **on purpose** — `GroupItem::parse` dispatches off `defStuff`, and
+`parkOnMaster` writes to `defStuff`. So the machinery that matters already refuses to read a face.
+**But `evictAction` and `opDot` case 36 read the FACE's `rStuff`**, and those are live gates, not
+traces. `RuleStuff.mm:608` says it outright in its own comment: *"parseMethod lives on rStuff, and
+rStuff is PER NODE: the term has its own, separate from the registry rule's."*
+
+⚠ **AND THE BODY-SIDE TWIN ALREADY EXISTS, WHICH IS THE USEFUL HALF FOR THE RULING.** `setParse`
+mirrors **both** slots into attribute `gMethod`s in the same breath that it writes them —
+`builtinParsE->setMethod(ruleStuff->parseMethod)` and `builtinActoR->setMethod(ruleStuff->action
+Method)` (`GroupRules.mm:13955-13968`). Those attributes park on the **shared child list**, so they
+are face-proof by the minted-data ruling, and `runRuleAction` **already reads through them**
+(`if (pMethod) ruleStuff = pMethod->getRStuff();`). So the value is reachable from a body at the one
+site that matters, and the relocation Tony is weighing is **less than it looks** — the mirror is
+built, it is just not what `GroupItem::parse` reads.
+
+**SO THE SLOTS CANNOT SIMPLY BECOME LOCALS IN `setParse`.** Three sites would have to move with
+them: the dispatch in `GroupItem::parse`, `parkOnMaster`'s write, and `setParseMethod`'s dlsym door;
+and two face-reading gates (`evictAction`, `opDot` 36) would have to be re-aimed or ruled harmless.
+**Not edited, not proposed as a shape. Tony rules.**
+
+
 ### F-45 (the jit road binds and never gives back) — `jitBindArgRT` leaves `gGroup` set, and the tripwire says so
 **Gloss:** jit binds, never restores.
 **Where:** `GroupActions.rtn`, `jitBindArgRT`'s `gNoUnwrap` arm, against `runAction`'s
