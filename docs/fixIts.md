@@ -70,7 +70,42 @@ cycle so the trail survives, then moves out.
   degrade-zero is asserted by every rung so it cannot pass silently ✅
 - **bare fleet byte-identical**, 176 green; frontier 10 PASS; canary 329 ✅
 
-### ⚠ F-49 (the guard revealed a loop) — after the degrade, starT's jitted arm STACK-OVERFLOWS
+### ⚠⚠ F-49 DIAGNOSED (SEQ 135) — `getText()` FOLLOWS THE GROUP CHAIN WITH NO CYCLE GUARD
+**NEITHER pre-registered reading. It is the third one, flagged at pickup: the cycle is not in
+`runAction` at all.**
+
+**The trace: `runAction` is entered ONCE in the whole run.** Instrumented at entry, capped at 20:
+```
+F49 0 action=stRun arg=InvokeArg coded=0 jitting=0
+distinct action tags: stRun        distinct count: 1
+```
+So it is not a degrade retry loop **(i)** and not the arm recursing on itself **(ii)** — one entry
+cannot be either. **The backtrace's `runAction` frame was at depth 130,706, i.e. the BOTTOM of the
+stack, not the cycle.** ⚠ Reading a deep-frame number as the cycle is bear-trap #36's family: the
+trace names where the stack *rests*, not where it *turns*.
+
+**THE CYCLE, from frames 0-6:**
+```
+0  GroupItem::getText() + 4
+1  GroupItem::getText() + 672   at GroupItem.mm:1571
+2..130704  the same frame, ~130,700 deep
+```
+**`GroupItem.twk`, `getText()`: `case isGROUP: if group junkText = group.getText();`** — it follows
+`gGroup` **recursively, with no cycle guard and no depth limit.** A field whose group chain contains
+a cycle overflows the stack.
+
+**TWO SEPARABLE FACTS, and only the first is a defect in the machine:**
+1. **`getText()` is unguarded against a cyclic group chain.** That is a latent stack overflow for
+   **any** cycle, entirely independent of the JIT, and it has been there as long as the function has.
+   ⚠ `setGroup`'s self-add guard catches a **direct** self-reference (`groupBody == g->groupBody`)
+   and **nothing catches an indirect one** — a→b→a passes it cleanly.
+2. **Something in `testing(stRun)` builds such a chain.** Not diagnosed; that is the trigger, not
+   the crash.
+**Fix is its own stroke, as dispatched. Not built.** The obvious shape — a depth cap or a visited
+check in `getText()` — turns an overflow into a named refusal, and it is worth noting that it would
+be **F-41's form applied to a walk rather than to an operator**.
+
+### ⚠ F-49 (the guard revealed a loop) — the original entry, for the trail
 **Gloss:** degrade exposes a recursion.
 **What:** with F-47's gate in place `starT`'s jitted arm no longer null-derefs — it degrades six
 times and then dies at **frame ~130,707** with `Bad pointer dereference at 0x16ed3bff8`, a **stack
@@ -82,7 +117,16 @@ is the third link in one chain today: F-47 revealed F-48, F-48's fix path reveal
 **Not diagnosed. Scope: `starT`'s jitted arm only — the bare fleet is byte-identical and every other
 fixture is unaffected.** It blocks stroke 1's resumption and nothing else.
 
-### ⚠⚠ F-48 — MEASURED FIRST, AS ORDERED, AND THE MEASUREMENT CHANGES THE PICTURE
+### ✅ F-48 CLOSED (SEQ 135) — NO PRESENT DEFECT. The interpreter refuses at the star, F-41 form, and nothing stores
+**Tony's close, on the measurement below.** The behaviour wanted is the behaviour there: a star in
+assignment position refuses **by name at the star**, and the assignment stores nothing. No build.
+⚠ **DOCKETED, NOT CLOSED WITH IT: `=` RECEIVING A GROUP UNDER THE FLIP.** The ruled refusal would
+also have fired on a star that SUCCEEDS, and the census found **no such site in the corpus** — so
+that half was never a repair, it is a forward-looking constraint on the language. **It joins the
+try-and-buy buckets and is ruled when a real site appears.**
+**Original measurement follows, for the trail.**
+
+### F-48 — MEASURED FIRST, AS ORDERED, AND THE MEASUREMENT CHANGES THE PICTURE
 **Ordered: "measure what it does today first, one row."** Done, and it is worth the order.
 
 **THE INTERPRETER ALREADY REFUSES.** All six `starT` rows are `stX = *stY` — star in assignment

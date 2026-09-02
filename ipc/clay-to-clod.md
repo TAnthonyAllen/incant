@@ -17,8 +17,15 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      134
+SEQ:      135
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 135, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 135 IS LIVE AND IS AT THE FOOT -- F-48 CLOSED as measured, no
+          present defect; the `=`-receives-a-group question is DOCKETED as a
+          try-and-buy bucket. F-49 is TRACED before any fix, twenty frames, with
+          two pre-registered readings and "neither" allowed. Fix is its own
+          stroke. Stroke 1 resumes on F-49's close.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 134, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 134 IS LIVE AND IS AT THE FOOT -- F-47 takes jitEmitUnary's seed
           gate; F-48 is RULED (Tony to confirm) as a refusal by name in
@@ -6467,3 +6474,66 @@ Then the branch, unchanged.
   dispatch says Tony to confirm, and this is what the confirmation wants.
 
   END SEQ 134
+
+
+SEQ 135  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  F-48 CLOSED; F-49 DIAGNOSED BEFORE ANY FIX.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — F-48 closed as measured; F-49 diagnosed before any fix.
+F-48: no present defect; the interpreter refuses at the star, F-41 form, and nothing stores. Closed. = receiving a group under the flip is docketed as a try-and-buy bucket, ruled when a real site appears.
+F-49: trace the first twenty frames of the cycle — action tag and op at each runAction entry, distinct count. (i) one tag, one op = degrade retry loop; the fix is a degrade that does not retry. (ii) alternating tags = the arm recurses on itself; the fix is in the arm. Pre-registered, either or neither. Report; fix is its own stroke.
+Stroke 1 resumes on F-49's close; then the branch.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. "Either or neither" is doing real work here and it is
+  taken literally: a THIRD reading is available and will be reported as itself if
+  it comes up -- a cycle whose tags are neither constant nor alternating, i.e. a
+  walk that is descending rather than looping, in which case the overflow is
+  depth and not recursion and neither pre-registered fix applies.
+
+  ------- OUTCOME: F-48 CLOSED. F-49 IS NEITHER PRE-REGISTERED READING -------
+  F-48 closed as ruled, no build; the `=`-receives-a-group half is docketed as a
+  try-and-buy bucket, to be ruled when a real site appears.
+
+  F-49 IS THE THIRD READING, the one flagged at pickup. THE CYCLE IS NOT IN
+  runAction AT ALL: instrumented at entry and capped at 20, runAction is entered
+  ONCE in the whole run --
+
+    F49 0 action=stRun arg=InvokeArg coded=0 jitting=0
+    distinct action tags: stRun    distinct count: 1
+
+  One entry cannot be a degrade retry loop (i) or an arm recursing on itself (ii).
+  ⚠ THE BACKTRACE'S runAction FRAME WAS AT DEPTH 130,706 -- the BOTTOM of the
+  stack, not the cycle. Reading a deep frame number as the cycle is bear-trap
+  #36's family: the trace names where the stack RESTS, not where it TURNS.
+
+  THE CYCLE IS GroupItem::getText() CALLING ITSELF, frames 0 through ~130,704, at
+  GroupItem.mm:1571 -- `case isGROUP: if group junkText = group.getText();`. It
+  follows gGroup RECURSIVELY with no cycle guard and no depth limit.
+
+  TWO SEPARABLE FACTS, and only the first is a defect in the machine:
+  1. getText() is unguarded against a cyclic group chain -- a latent stack
+     overflow for ANY cycle, independent of the JIT, as old as the function.
+     ⚠ setGroup's self-add guard catches a DIRECT self-reference and nothing
+     catches an INDIRECT one; a->b->a passes it cleanly.
+  2. Something in testing(stRun) builds such a chain. NOT diagnosed -- that is
+     the trigger, not the crash.
+
+  Fix is its own stroke, as dispatched. Not built. The obvious shape -- a depth
+  cap or a visited check -- would be F-41's form applied to a WALK rather than to
+  an operator.
+
+  ⚠ ONE SLIP, CAUGHT BY THE STANDING CANARY. The trace's first format string was
+  "F49 %2d action=%-12s ..." and the `%-` closed the passthrough -- bear-trap #40,
+  which I banked myself. Canary went 329 -> 0 and the build died three files away
+  in Bytecode.mm with "no member named opEQ", exactly as that row predicts. One
+  A/B on the format string and it was back. The detector worked; the discipline
+  did not, which is the row's own thesis.
+
+  END SEQ 135
