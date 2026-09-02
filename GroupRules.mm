@@ -13202,17 +13202,19 @@ GroupItem 	*ruleArg = 0;
 	ruleArg->groupBody = result->groupBody;
 	}
 	else {
-	/*  ⚠ DIRECT, AND THE isGROUP FLAG IS SET WITH IT -- the union is NOT left
-	undiscriminated. setGroup was RULED (Tony, SEQ 120) and MEASURED to cost
-	the channel its whole point: it stores `new GroupItem(g)` for a parented
-	source, so *argument reaches a COPY, not the field. The ruling's premise
-	was that direct leaves isGROUP unset; it does not. HELD AT DIRECT pending
-	Tony's re-ruling; the fork is in the seal.   GroupActions.runAction.argChannel  */
+	/*  ⚠ THROUGH setGroup, AND THE TWO ROADS ARE ONE AGAIN (Tony, SEQ 127).
+	SEQ 120 held this at a DIRECT write because setGroup stored
+	`new GroupItem(g)` for a parented source, so *argument reached a COPY
+	and the channel lost its whole point. setGroup no longer copies -- it
+	is the bare assignment and embedRule owns the one legitimate copy --
+	so routing through it keeps the FIELD and costs nothing.
+	⚠ THE TRIPWIRE STAYS ABOVE, AT THE CALL SITE, ahead of the call:
+	setGroup is not a union guard and does not become one.
+	GroupActions.runAction.argChannel  */
 	chanPrevGroup = ruleArg->groupBody->gGroup;
 	chanPrevData  = ruleArg->groupBody->flags.data;
 	chanBody      = ruleArg->groupBody;
-	chanBody->gGroup     = result;
-	chanBody->flags.data = 6;
+	ruleArg->setGroup(result);
 	}
 	}
 	else            ruleArg->setGroup(result);
