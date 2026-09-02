@@ -5722,6 +5722,12 @@ extern "C" GroupItem *jitEmitDot(GroupItem *argument, GroupItem *target, GroupIt
 	//  that wants the GroupItem -- the print path, which must not guess a type --
 	//  reads gJitResultNode. Two facts, two channels.
 	gJitResultNode = res;
+	//  ⚠ THE ELEMENT IS A NODE RESULT (Tony, SEQ 142). A subscript yields a
+	//  FIELD, and print must take that field rather than the unboxed count
+	//  below -- which is why pointerT's jitted rows came out empty while its
+	//  one scalar row printed. The scalar stays published for consumers that
+	//  want a count; print does not consult it.
+	gJitLastIsNode = true;
 	
 	if (resultNode) {
 	if (!resultNode->jitData) resultNode->jitData = new JitData();
@@ -7077,7 +7083,12 @@ extern "C" int jitNodeInFlight()
    jitPrintItem can now REFUSE rather than substitute. */
 extern "C" void jitPrintArm()
 {
-	 gJitResult = nullptr; 
+	/*  ⚠ IT CLEARS THE NODE CHANNEL TOO (SEQ 142). The arm exists so that "THIS
+	item emitted nothing" is answerable rather than "nobody ever did"; once
+	print consults gJitResultNode as well, a stale node from an EARLIER item
+	would be taken and the arm's whole purpose defeated. Both channels, one
+	clearing.   jitEmitters.jitPrintArm  */
+	 gJitResult = nullptr; gJitResultNode = nullptr; gJitLastIsNode = false; 
 }
 
 /*******************************************************************************
@@ -7248,6 +7259,14 @@ extern "C" void jitPrintList(GroupItem *ExpressioN, GroupItem *FormaT)
 	if (isMethod(pb->flags.instructType)) {
 	jitPrintArm();
 	if (pb->gMethod)    pb->gMethod(part);
+	//  ⚠ THE NODE IS TAKEN FIRST AND THE SCALAR IS NOT CONSULTED BY
+	//  PRINT (Tony, SEQ 142). A subscript yields a FIELD; opDot
+	//  publishes it on gJitResultNode and also unboxes a count, and the
+	//  count is right for noPrinT and wrong for a field. This check used
+	//  to sit BELOW the gJitResult degrade, so a method that emitted a
+	//  node and no scalar degraded before it could be reached -- which
+	//  is why pointerT's jitted rows printed empty.
+	if (gJitResultNode) { jitPrintNode(FormaT); continue; }
 	if (!gJitResult) {
 	jitDegrade("print operand part: method emitted no value", part);
 	continue; }

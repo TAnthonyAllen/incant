@@ -63,6 +63,45 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### ⚠ SEQ 142 — opDot YIELDS THE NODE. THREE OF THE 25 CLEAR; pointerT IS **NOT** CERTIFIED
+**Built, all three correct by the ruling and none of them enough:**
+1. **`opDot` raises `gJitLastIsNode`** — a subscript yields a field, and the scalar it also unboxes
+   is right for `noPrinT` and wrong for a field.
+2. **`jitPrintArm` clears the NODE channel too.** The arm exists so *"THIS item emitted nothing"* is
+   answerable rather than *"nobody ever did"*; once print consults `gJitResultNode`, a stale node
+   from an earlier item would be taken and the arm's whole purpose defeated. **Both channels, one
+   clearing.**
+3. **The node check moved ABOVE the scalar degrade.** It already existed at
+   `jitEmitters.rtn:2460` — *below* `if (!gJitResult) { degrade; continue; }` — so a method that
+   emitted a node and no scalar **degraded before it could be reached.** That is the ruling's
+   *"the scalar is not consulted by print"*, and it was one `continue` out of order.
+
+| certificate row | result |
+|---|---|
+| `starT` six of six unmoved | ✅ both roads still `LEAF stB stC LEAF stE stF` |
+| bare fleet byte-identical | ✅ 176 green, frontier 10 PASS, canary 332 |
+| `pointerT` fourteen of fourteen | **13 still diverge** ❌ |
+| degrade 0 under the flip | **25 → 22** ❌ |
+
+**WHAT THE 25 WERE, as asked — and the answer changes what "degrade 0" can mean:**
+```
+14  cerr under jit -- no emitter, sink fires at emit time      on StatemenT
+ 8  print operand part: method emitted no value                on Token
+ 3  print operand part: method emitted no value                on uxp     <- CLEARED
+```
+⚠⚠ **FOURTEEN OF THE TWENTY-FIVE ARE `cerr`, WHICH HAS NO JIT EMITTER AT ALL.** They are unrelated
+to F-50, to `opDot` and to print-of-a-field. **`degrade 0` on `pointerT` is unreachable while `cerr`
+is unemitted**, by any change to the print seam — that is a separate, larger stroke.
+The 3 `uxp` degrades cleared. The **8 on `Token`** did not, and that is where the remaining 13 rows
+live.
+
+⚠ **STOPPED RATHER THAN GROUND ON.** Three fixes, each right and each revealing another layer, is
+the project's own grinding signal. **What is established and what is not:** the ruling is
+implemented and `starT` holds; `pointerT`'s residue is a **`Token`-shaped print part** taking the
+method arm and emitting neither node nor scalar, which is a fourth sub-case and not the one ruled.
+**Reported rather than attempted a fourth time.**
+
+
 ### ✅ SEQ 140 STROKE 3 — THE FIVE FOLLOWERS STOP FOLLOWING. ZERO MOVED ROWS
 `getCount`, `getDataType`, `getItem`, `getNumber`, `getObject` no longer recurse on `gGroup`. On a
 holder each refuses by name — `ERROR <accessor> on <tag> -- holds a group; say *` — and returns the

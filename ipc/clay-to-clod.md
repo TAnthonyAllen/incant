@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      141
+SEQ:      142
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 142, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 142 IS LIVE AND IS AT THE FOOT -- RULED: opDot in print position
+          yields THE NODE. The scalar is not consulted by print. Certificate wants
+          pointerT 14/14, starT 6/6 unmoved, degrade 0 from 25 WITH THE 25
+          REPORTED. Then the branch.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 141, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 141 IS LIVE AND IS AT THE FOOT -- F-50: the jitted print takes a
           node result through a runtime helper, completing the pattern. NODE-VALUED
@@ -6905,3 +6911,61 @@ Then the branch, as dispatched.
   interpreter.
 
   END SEQ 141
+
+
+SEQ 142  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  opDot IN PRINT POSITION YIELDS THE NODE.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — ruled: opDot in print position yields the node.
+opDot publishes its element as a node result (gJitLastIsNode raised); print takes the node through jitPrintNodeRT; the scalar is not consulted by print. Certificate: pointerT fourteen of fourteen on both roads against the interpreted arm; starT six of six unmoved; degrade 0 under the flip (from 25 — report what the 25 were); scalar rows byte-identical; bare fleet byte-identical.
+Seal: the print operand and the assign target are different nodes over one body — C18's finding, third site; emit-time marking keys on the body.
+Then the branch, as dispatched.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. gJitLastIsNode has TWO consumers -- jitEmitAssign and
+  jitPrintItem -- so raising it in opDot reaches the ASSIGN as well as the print,
+  and `x = bag["y"]` would start going through assignFieldCore. That may well be
+  right by F-48, but it is a consequence the dispatch does not name, so it is
+  MEASURED against the scalar-rows and bare-fleet rows rather than assumed
+  harmless.
+
+  ---- OUTCOME: THE RULING IS IN. starT HOLDS. pointerT IS NOT CERTIFIED ----
+  BUILT, all three correct by the ruling: (1) opDot raises gJitLastIsNode; (2)
+  jitPrintArm clears the NODE channel too, or a stale node from an earlier item
+  would be taken and the arm's purpose defeated; (3) the node check MOVED ABOVE
+  the scalar degrade -- it already existed at jitEmitters.rtn:2460, BELOW
+  `if (!gJitResult) { degrade; continue; }`, so a method emitting a node and no
+  scalar degraded before it could be reached. That is the ruling's "the scalar is
+  not consulted by print", and it was one `continue` out of order.
+
+    starT six of six unmoved      YES, both roads LEAF stB stC LEAF stE stF
+    bare fleet byte-identical     YES, 176 green, frontier 10 PASS, canary 332
+    pointerT fourteen of fourteen NO -- 13 still diverge
+    degrade 0 under the flip      NO -- 25 -> 22
+
+  WHAT THE 25 WERE, and it changes what "degrade 0" can mean:
+    14  cerr under jit -- no emitter, sink fires at emit time   StatemenT
+     8  print operand part: method emitted no value             Token
+     3  print operand part: method emitted no value             uxp   <- CLEARED
+
+  ⚠⚠ FOURTEEN OF THE TWENTY-FIVE ARE cerr, WHICH HAS NO JIT EMITTER AT ALL --
+  unrelated to F-50, to opDot, and to print-of-a-field. degrade 0 on pointerT is
+  UNREACHABLE while cerr is unemitted, by any change to the print seam. That is a
+  separate and larger stroke.
+
+  ⚠ STOPPED RATHER THAN GROUND ON. Three fixes, each right and each revealing
+  another layer, is this project's own grinding signal. The residue is a
+  Token-shaped print part taking the method arm and emitting neither node nor
+  scalar -- a FOURTH sub-case, not the one ruled. Reported rather than attempted
+  a fourth time.
+
+  SEAL, as dictated: the print operand and the assign target are different nodes
+  over one body -- C18's finding, third site; emit-time marking keys on the body.
+
+  END SEQ 142
