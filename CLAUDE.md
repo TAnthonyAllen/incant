@@ -1847,6 +1847,9 @@ Hard-won lessons. Each one has cost real debugging time.
     **The rule: CAPTURE, THEN TEST.** Same family as bear-trap #28's silent `!`-forms and #26's
     plausible-wrong-reading, and the sibling of #38 — silent iterate miscount, opposite
     direction again.
+    ⚠⚠ **AND THE REMEDY HAS A SPELLING — SEE BEAR-TRAP #41, WHICH IS THIS ROW'S OTHER HALF.**
+    "Capture, then test" written with `=` captures NOTHING and produces a clean, plausible, wrong
+    table. It is `:=`. Measured 2026-09-02; the row above is not usable without it.
     ⚠ **PROVENANCE, because it names what the instinct was worth:** Tony flagged that he does not
     trust `!` applied to anything `opDot` returns *"or at all actually"*, having deliberately
     written the positive-with-`else` form in `incant/fixits/countInputInTmp`. The distrust was
@@ -1947,6 +1950,52 @@ Hard-won lessons. Each one has cost real debugging time.
     a careful editor writes**, so a patch applied by hand across N copies will keep producing it.
     A sweep that adds a cross-action counter must diff its OWN insertions against each other, not
     just against the intended result.
+
+41. **"CAPTURE, THEN TEST" IS ADVICE ABOUT AN OPERATOR, NOT AN ORDERING — `=` CAPTURES NOTHING,
+    `:=` CAPTURES. THE NATURAL SPELLING OF BEAR-TRAP #35's OWN REMEDY FAILS SILENTLY.** Gloss:
+    the remedy has an operator. Measured 2026-09-02 in `incant/atypeT`, one run, same 65 members,
+    the two arms differing by one character:
+    | the capture | `atLocal == 0` | `atLocal != 0` |
+    |---|---|---|
+    | `atLocal  = atCur.actionTypE;` | **0** | **65** — agrees with nothing, measures nothing |
+    | `atLocal := atCur.actionTypE;` | **1** | **64** — the distribution a grammar registry should have |
+    Bear-trap #35 ends *"the rule: CAPTURE, THEN TEST"* and every reader will write that with `=`,
+    because `=` is what capture looks like. It is the wrong operator: `=` is opAssign/setContent
+    (bear-trap #1) and does not bring a property's value across, so the local ends up data-less and
+    every later comparison reads bear-trap #26's tag echo instead of a number.
+    ⚠ **THE DANGER IS THAT THE WRONG SPELLING STILL PRODUCES A CLEAN, PLAUSIBLE TABLE** — 0 and 65
+    are a perfectly respectable-looking pair, and nothing says the capture never happened. Same
+    family as `pointerT`'s L2/L3 pair, where rebind-then-star follows and assign-then-star refuses;
+    this is that pair one property over, and L3 exists for exactly this reason.
+    ⚠ **AND PRINT CANNOT ADJUDICATE IT.** `cerr ... atLocal` prints the string `actionTypE` under
+    BOTH spellings — #26's tag echo — so a reader who reaches for the obvious oracle sees the same
+    output either way and learns nothing. The discrimination has to come from COUNTS with an
+    anti-vacuity sibling, which is what `incant/atypeT` is built out of.
+
+42. **AN INSERTED BLOCK RE-POINTS EVERY BARE FIELD BELOW IT — tok's BARE-FIELD RESOLUTION IS
+    LAST-MENTIONED-WINS, AND IT REACHES PAST THE BLOCK YOU ADDED.** Gloss: inserted block hijacks
+    the tail. Long known for LOOPS (project memory: *"declaring a local before a loop hijacks
+    it"*); this is the same mechanism aimed at the far commoner act of **adding a hunk in the
+    middle of an existing function**, and it silently rewrites code you did not touch.
+    Measured 2026-09-02 in `aCTionDefinE`. A block was inserted before the function's tail; its
+    last declaration was `embed`. The tail below it was unchanged source and had been resolving
+    against `NewGroup` under a `use NewGroup` fifty lines up:
+    ```
+    before          after the insertion, same source lines
+    NewGroup->...isInitialized = 1;      embed->...isInitialized = 1;
+    if ( NewGroup->...registry           if ( embed->...registry
+         && !NewGroup->parent )               && !embed->parent )
+    ```
+    Four statements re-aimed at a pointer that is **null on every definition the new block did not
+    touch** — so the crash is at the FIRST such definition, in a function that had worked for years,
+    on lines nobody edited. ⚠ **The generated `.mm` is the only place this is visible**; the `.twk`
+    reads correctly, because in the `.twk` those names are still bare.
+    **The cure is one line: re-mention the intended subject after the block — `use NewGroup`.**
+    ⚠ **THE DISCIPLINE, and it is bear-trap #30's H1-shaped one applied to source rather than to
+    directives: AFTER INSERTING A BLOCK INTO AN EXISTING FUNCTION, READ THE GENERATED TAIL.** Not
+    the block you wrote — the code BELOW it. One `sed -n` on the `.mm`, and it converts a null
+    deref three frames away into a visible diff. The extern canary will not catch this: the file
+    parses, tok exits clean, and the canary read **326, unchanged**, the whole time.
 
 ⚠⚠ **THE RULE-LADDER SELECTION CRITERION — TWO CLAUSES, AND THE SECOND WAS PAID FOR.** Tony,
 2026-08-24.

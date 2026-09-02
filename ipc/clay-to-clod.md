@@ -17,8 +17,25 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      121
+SEQ:      123
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 123, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 123 IS LIVE AND IS AT THE FOOT -- F-44 AND THE CALLER CENSUS.
+          STROKE 1 STAYS REVERTED. Three items: a no-edit census of every
+          setGroup caller classified copy-then-modify vs reference, plus one
+          measurement on whether seed rules re-enter aCTionDefinE; two bear-trap
+          rows banked; one try-and-buy row pre-registered, not run. Tony rules
+          F-44's shape FROM the census. Strokes 1-3 resume after F-44 lands.
+WRITTEN:  2026-09-02  -  Clay (SEQ 122, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 122 SUPERSEDES SEQ 121 AND ITS AMENDMENT -- the setGroup ruling
+          REFINED, not re-argued: the definition copy is a TERM of the rule with
+          affiliation = isEmbedded, exactly as attributes and members carry
+          theirs; isEmbedded is KEPT and its sole writer moves to (b);
+          getWhatFollows is UNCHANGED. Certificate now NAMES kant8T (K5/K6) and
+          pointerT rather than assuming them, and carries a standing WATCH on
+          per-embedding rStuff versus the recursion bracket. BLOCKED behind
+          F-44 (SEQ 123); scribed, not built.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 121, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 121 IS LIVE AND IS AT THE FOOT -- THE setGroup RULING. setGroup
           NEVER COPIES; definition is the one legitimate copy site for an embedded
@@ -5512,3 +5529,87 @@ NOT IN SCOPE: add's copy-and-reparent at GroupItem.twk:72-73 (the tree, single-p
   above is the machine's, and they are different crashes at different sites.
 
   END SEQ 121
+
+SEQ 122  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  THE setGroup RULING, REFINED.  SUPERSEDES
+             SEQ 121 AND ITS AMENDMENT.  BLOCKED BEHIND F-44.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, per WT-15. NOT BUILT. SEQ 123
+        (below) holds strokes 1-3 until F-44 lands. Scribed here so the
+        ruling that resumes is the refined one and nobody re-reads 121.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — setGroup ruling and the road to jitBindArgRT. Tony rules 2026-09-02. Scribe at pickup (WT-15).
+
+THE RULING. Definition makes structure; runtime makes reference. setGroup never copies: it stores the field itself, always. The one legitimate copy of an embedded rule is made at definition, where aCTionDefinE already mints rStuff for attributes and members — embedded rules get the same treatment there, and the copy is a term of the rule with affiliation = isEmbedded, exactly as attributes and members carry theirs. parent on a definition copy points up the tree to its term; on a runtime reference it means origin. findAttribute, findParent, and the GUI upward walks follow parent regardless — ruled, not measured. A runtime reference knows nothing about who holds it, and nothing may depend on that. The parent probe and the setGroup-copy recon are withdrawn.
+
+BEAR COUNTRY. This touches setGroup, definition, and the term/affiliation machinery. Capture bare baselines before anything moves; one stroke = one commit with its certificate; a stroke whose certificate fails reverts whole and reports — no patching forward; nothing is measured on a flipped or directives build except stroke 2's CHANCAM, and the bare binary is verified live afterward.
+
+STROKE 1 — setGroup never copies; definition copies embedded rules. Bare build.
+(a) setGroup (GroupItem.mm): the isLocal / isLabel / byRef / no-parent branches collapse to the one assignment gGroup = g, data = 6, isInitialized; zero on null. No parent write, no copy, no isEmbedded write.
+(b) aCTionDefinE, at the point rStuff is set on attributes and members, after the structure is complete: for each term with isGROUP whose gGroup is a rule, replace gGroup with a copy of that field (body shared, per SEQ 113), parent = the term, affiliation = isEmbedded, fresh rStuff. Non-rule embedded groups stay references. Forward references and define revisits need no special arm — at each define the field either has isGROUP or it does not (Tony).
+(c) getWhatFollows: unchanged. Its or isEmbedded arm now sees a definition copy whose parent is its term.
+(d) isEmbedded is kept as the third affiliation value; its only writer moves from GroupItem.twk:1950 to (b). GroupItem.twk:15, groups.ext, the macro, and the layout are untouched. Update incant/iterScratch:22 only if it mirrors the setGroup write.
+Certificate, pre-registered: bare fleet byte-identical to the captured baseline, with kant8T (K5/K6 rows) and pointerT named in the set, not assumed; frontier exit 0, 10 PASS; canary unchanged. A moved row is attributable to the parent.min = 0 write already on record as a defect (docs/genKantParse.md:210) or it is a finding — report and classify, do not fix in this stroke.
+WATCH, not a gate: per-embedding rStuff means A→B→A now activates on rStuffs the recursion bracket (recursive, line 587) never sees. K5/K6 byte-identical is the evidence it does not bite today; if a later stroke moves either, this is the first suspect. Recorded in the seal as a standing warning.
+
+STROKE 2 — the channel through setGroup, under the flip. Route runAction's bind through setGroup. The ARGCHANNEL REFUSED union tripwire stays at the call site, ahead of the call — setGroup is not a union guard and does not become one. Flip gNoUnwrap, rebuild, re-run CHANCAM: addrOf(*argument) must read the source field — the field column, not the body column. Frontier under the flip as the last seal recorded it. Flip back, rebuild, bare verified live. Commit.
+
+STROKE 3 — jitBindArgRT (GroupActions.rtn:382) lifts stroke 2's lines verbatim; its comment becomes true again. Certificate: both roads agree on the CHANCAM row. Commit.
+
+THEN, ORDER UNCHANGED: nestT f(g(x)); the A→B→A fixture through the bracket; fleet rows so the channel is certified daily; the asking, parser(Start), which discharges carrierNode and nothing earlier does.
+
+CARRIED, REPORT ONLY: the actionTypE == 0 A/B — one fixture, bare test vs captured local, both readings printed; no sweep.
+
+NOTED, NOT NEW: the definition copy is shallow; an embedded rule X's own terms are shared across every embedding of X, as under add today.
+
+NOT IN SCOPE: add's copy-and-reparent (GroupItem.twk:72-73) and the sweep's copy under the token (C18) — separate docket. GUI setGroup callers — Tony's, when he gets there. parser is Tony's WIP; he applies the gate removal, the notFirstTimeThru reset, and the line-95 capture-then-test himself.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP, and it is the one thing a reader must not miss.
+
+  THE REFINEMENT DOES NOT ADDRESS F-44 AND IS NOT MEANT TO. F-44 is a defect in
+  clause (a)'s blast radius -- the C++ bootstrapper borrowing setGroup's copy --
+  and every clause refined here is in (b), (c) and (d), which the 09-02 bisect
+  measured INNOCENT. So this ruling is landable exactly when F-44 lands and not
+  one stroke before. That is what SEQ 123 says and the two dispatches agree.
+
+  ⚠ AND ONE CLAUSE OF (b) IS NOW CHEAP TO GET RIGHT BECAUSE IT WAS PAID FOR
+  ALREADY: the built version of (b) excluded terms carrying isLocal or isLabel.
+  That was not in the dispatch and it is not cosmetic -- aCTionDefinE gives the
+  `this` local its group at ruleActions.rtn:469, and under the OLD setGroup the
+  isLocal branch meant `this` pointed at the REAL NewGroup rather than a copy.
+  Copying it would change what `this` means inside every coded action. The
+  exclusion preserved that and the fleet read 171 green with (b) standing, so it
+  is measured rather than argued. It carries forward unless Tony rules otherwise.
+
+  END SEQ 122
+
+
+SEQ 123  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  F-44 AND THE CALLER CENSUS.  THIS IS THE
+             LIVE WORK ORDER; SEQ 122 WAITS ON IT.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any census ran, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — F-44 and the caller census. Stroke 1 stays reverted.
+0. Census, no edits: every caller of setGroup in .twk/.rtn/.mm, classified copy-then-modify (borrowed the copy) vs reference. The seven GroupMain sites are the known members; report the rest. Also: do the seed grammar's rules ever pass through aCTionDefinE after bootstrap, or are they defined once in C++ only? One measurement, one line.
+1. Bank: := vs = capture as a bear-trap row beside #35; tok last-mentioned-wins on inserted blocks as its own row.
+2. Try-and-buy row: incant/atypeT re-run under the flip is pre-registered as a mechanism bucket; not run now.
+Tony rules F-44's shape (explicit copies with or without rStuff, or a shared helper) from the census. Strokes 1–3 resume after F-44 lands with the bare fleet byte-identical.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. Item 0's second half is a MEASUREMENT and the tree
+  already carries a cited answer to it -- incant/designDocs' parentPopulationSplit
+  says bootstrap-built rules have INERT grammar-file lines. Under the standing
+  citation discipline that is a premise to re-run, not to quote, and the sealed
+  ledger has three entries where exactly this went wrong. It gets measured.
+
+  END SEQ 123

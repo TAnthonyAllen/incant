@@ -124,3 +124,38 @@ stop();
     why the control and the anti-vacuity sibling carry the weight they do.
 
     RUN IT:   <binary> incant/atypeT
+
+    ⚠⚠ PRE-REGISTERED, NOT RUN -- THE TRY-AND-BUY BUCKET (Clay, SEQ 123 item 2).
+    This fixture is registered as a MECHANISM BUCKET for the gNoUnwrap
+    try-and-buy: when the flip goes on for the classify-reds-by-mechanism pass,
+    atypeT is re-run and its six numbers compared against the bare readings
+    above. It is written down BEFORE the flip so the comparison is a prediction
+    and not a story told afterwards.
+
+    BARE READINGS, this file's baseline, 2026-09-02, binary bare and verified:
+        65 / 65 / 1 / 64 / 0 / 65   in the order the rows print.
+
+    THREE OUTCOMES, and the third is named because predictions here keep
+    omitting it (ratified 2026-08-10, the treatment-voids-the-control rule).
+
+    MOVES. The bare arm falls from 65 toward 1 under the flip. That would say
+    the bare read was reaching a wrapper the flip removes, and it puts every
+    corpus site -- parser:47 and :60, f31:77, anyOrNumT, fixBisect, parseClass --
+    into the flip's blast radius rather than into a bear-trap. That is a
+    SCHEDULING finding, not a code one, and it belongs to the try-and-buy's
+    classification pass.
+
+    DOES NOT MOVE. The bare arm stays 65. The disagreement is then independent
+    of the unwrap and the mechanism is somewhere else entirely -- most likely
+    the bare name reaching the GroupField definition, which is what the CONTROL
+    row is consistent with today. The corpus sites stay suspect on their own
+    terms and the flip tells us nothing about them.
+
+    ⚠ VOID. The captured arm is the one that could stop meaning anything: it
+    reads through `:=`, and `<-`/`:=` carrier behaviour is itself part of what
+    the flip is changing. If the captured column moves for reasons that have
+    nothing to do with actionTypE, the two arms are no longer measuring one
+    subject and the row is UNINTERPRETABLE, not wrong. Report it as void and do
+    not grade it -- the anti-vacuity sibling is the tell, because a captured
+    non-zero count that leaves 64 for a reason nobody can name is exactly what
+    a voided discriminator looks like.

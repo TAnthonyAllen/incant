@@ -97,6 +97,72 @@ SEQ 121 ruling is blocked on this and nothing of it is in the tree.
 121's scope, and the shape is Tony's and Clay's to rule.
 **Owner:** Tony / Clay — a ruling, not an errand.
 
+#### THE CALLER CENSUS (SEQ 123 item 0) — measured 2026-09-02, no edits made
+**Population:** every `setGroup` caller in the tree, taken from the **generated `.mm`** because
+both spellings — dotted `X.group = Y` and bare `group = Y` under a `use`-scope — compile to the
+same call, so the `.mm` is the only complete list. **64 sites: 44 core, 20 GUI.**
+
+| class | count | where |
+|---|---|---|
+| **BORROWER** — reads the group back and mutates it | **6** | `GroupMain.twk` only |
+| **aliased victim** — plain reference, poisoned by a borrower sharing its source | **1** | `GroupMain.twk:353` |
+| **reference** — never reads the stored node back | **57** | everywhere else, GUI included |
+
+**The six borrowers, with what each would silently become:**
+
+| site | holder → source | modifier | without the copy |
+|---|---|---|---|
+| `GroupMain.twk:159` | `Limit.min` → `grok/counter` | `+` | **aliases 165** |
+| `GroupMain.twk:165` | `Limit.max` → `grok/counter` | `*` | **overwrites 159's `+`** |
+| `GroupMain.twk:290` | `DelimText.dtext` → `properties/delimiter` | `}` | **clobbers `properties`** |
+| `GroupMain.twk:357` | `Attributes` → `grok/TraiT` | `+` | **poisons 353** |
+| `GroupMain.twk:400` | `define.definitions` → `grok/DefinE` | `+` | stamps the **`DefinE` rule** |
+| `GroupMain.twk:435` | `InitiatE` → `grok/RunRulE` | `+` | stamps the **`RunRulE` rule** |
+
+⚠ **The `TraiT` pair is the cleanest exhibit and is sharper than the `counter` pair.**
+`NewGroup` takes `grok/TraiT` at **353 with no modifier** — it wants exactly one trait. `Attributes`
+takes the same `TraiT` at **357 and stamps it `+`**. With the copy, two nodes and one modifier each.
+Without it, **one node, and `NewGroup` silently becomes `TraiT+`** — a grammar rule changing arity
+because a different rule was defined after it.
+⚠ **`GroupMain.twk:218` looks like a borrower and is NOT**, which is why the census was read by eye
+and not counted by grep: its source is a freshly-minted `new("tik")` with **no parent**, so the old
+`setGroup` already took its no-parent branch and stored the node directly. It needs no copy and
+never had one. **6 borrowers, not 7** — the earlier report said seven and this corrects it.
+⚠ **Every read-back outside `GroupMain` is an UNWRAP-TO-READ** (`if x.isGROUP x = x.group;`), never
+a read-back-then-write. That is the idiom-family check rule H9 asks for, run across all `.twk`/`.rtn`.
+**GUI: zero borrowers** — all 20 sites are references, so Tony's own pile is clean on this axis.
+
+#### THE MEASUREMENT (SEQ 123 item 0, second half) — one line, with controls
+**Do the seed grammar's rules re-enter `aCTionDefinE` after bootstrap? FIVE OF THE SIX BORROWER
+HOLDERS NEVER DO — so clause (b) cannot reach them, and the fix must live in `GroupMain`.**
+
+Measured on a **one-entry directives build** (a `cerr` of `NewGroup.tag` at `aCTionDefinE`'s
+`if Attributes` anchor), installation verified in the generated `.mm` before the build per
+bear-trap #30, then `groupDirectives` restored **byte-identical by md5**, retok'd bare, rebuilt,
+and the bare binary verified live against the fleet.
+
+```
+465 aCTionDefinE firings in one oneTest run
+Limit 0 · Attributes 0 · InitiatE 0 · DelimText 0 · NewGroup 0 · define 1
+positive control  JSONfield 1 · Xpress 2 · StatemenT 2      negative control  zzzNotARule 0
+vacuity control   other grammar-file rules DO fire: counter 1 · GrouP 1 · NumbeR 4 · debug 1
+```
+⚠ **The vacuity control is what makes the zeros mean anything.** All six holders are re-listed in
+`incant/grammar` with the *same* modifiers the bootstrapper applies (`Attributes=TraiT+;`,
+`InitiatE=RunRulE+;`, `define … definitions=DefinE+ …`), so a reader would expect them to fire. Some
+grammar-file rules do fire and these do not — **it is a split, not a clean no**, and the split is
+`incant/designDocs`' `parentPopulationSplit` seen from another angle.
+⚠ **AND THE ANSWER IS ROBUST EVEN IF THE SPLIT LATER MOVES, because ORDER decides it independently:**
+`bootstrapper()` builds the seed rules and runs every `modify` at `GroupMain.mm:152-437`, and only
+*then* parses a file, at `:443`. **A definition-time copy cannot undo a mutation that already
+happened at bootstrap.** So clause (b) is not the fix here whether or not a rule re-enters.
+⚠ **RE-MEASURED RATHER THAN CITED, and it was worth it:** the tree's existing claim pairs `NamE` and
+`NumbeR` as equally inert. This run reads **`NamE` 0 and `NumbeR` 4**. Not chased — recorded, because
+the pairing is cited elsewhere and one of the two halves is wrong.
+
+**Shape is Tony's to rule** — explicit copies at the six sites with or without `rStuff`, or a shared
+helper. Nothing is built and no shape is recommended.
+
 ### ✅ F-43 (the guard that crashes) — CLOSED 2026-09-01, fixed and certified
 **Fix:** `Instruct.rtn` `opAddPointer` — the refusal now names `target.tag` explicitly instead of
 a bare `tag`, which is what every other F-41 guard resolves to (`opMultiply` generates
