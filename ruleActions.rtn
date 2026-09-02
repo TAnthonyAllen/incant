@@ -540,6 +540,18 @@ use NewGroup
         the NewGroup is a rule and zero if it is not
         materialiseTerms(NewGroup);
     ***********************************************************************/
+    /***********************************************************************
+        DEFINITION MAKES STRUCTURE; RUNTIME MAKES REFERENCE. embedRule() copies an
+        embedded RULE and stores anything else as it stands.
+        ruleActions.aCTionDefinE.embeddedRuleCopy
+    ***********************************************************************/
+    GroupItem   term;
+    int         t = 1;
+    while term = NewGroup[t] {
+        if term.isGROUP     term.embedRule(term.gGroup);
+        t++; }
+    // re-mention: the block above hijacks bare-field resolution   bear-trap #42
+use NewGroup
     input.clearList();
     isInitialized   = true;
     if registry && !parent  parent = currentRegistry;

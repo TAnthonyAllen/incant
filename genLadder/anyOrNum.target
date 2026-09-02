@@ -16,6 +16,6 @@ CodE = {
 	} 
  
 PARSE  ANYorNum <-  maybe a test; 
-	ANSWER  1 
+	ANSWER  ANYorNum 
 
 stop: ending input divert

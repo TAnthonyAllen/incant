@@ -54,6 +54,7 @@ GroupItem *dQ();
 GroupItem *definingRule();
 void dispatch();
 void dumpField();
+void embedRule(GroupItem *g);
 PLGset *ensureGuard();
 RuleStuff *ensureRStuff();
 void establishFrame(GroupItem *parentLabel);

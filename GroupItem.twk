@@ -1942,15 +1942,26 @@ void setGroup(GroupItem g)
         if groupBody == g.groupBody {
             cerr "setGroup: cannot add a group",tag,"to itself":;
             return; }
-        if isLocal || isLabel || g.byRef   gGroup = g;
-        else {
-            if !g.parent    gGroup = g;
-            else            gGroup = new(g);
-            gGroup.parent       = this;
-            gGroup.isEmbedded   = true; }
+        // setGroup NEVER copies; embedRule() owns the one legitimate copy   GroupItem.setGroup
+        gGroup          = g;
         isInitialized   = true;
         isGROUP         = true;
         if hasListeners updateListeners(); }
+}
+
+/***************************************************************************
+    embedRule -- THE ONE LEGITIMATE COPY OF AN EMBEDDED RULE, AND THE SOLE WRITER
+    OF isEmbedded.   GroupItem.embedRule
+***************************************************************************/
+void embedRule(GroupItem g)
+{
+GroupItem   copy;
+    if !g || !g.isRule  setGroup(g);
+    else {
+        copy            = new(g);
+        copy.parent     = this;
+        copy.isEmbedded = true;
+        setGroup(copy); }
 }
 
 void setItem(PLGitem i)

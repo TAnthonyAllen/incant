@@ -17,8 +17,15 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      126
+SEQ:      127
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 127, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 127 IS LIVE AND IS AT THE FOOT -- BOTH MOVED ROWS RULED AS FIXES.
+          RESUME. Two re-pins land IN the stroke, each with its sentence and its
+          capability line; the patch replays; certificate against the RE-PINNED
+          baseline; then strokes 2-3, the channel through setGroup under the flip
+          and jitBindArgRT.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 126, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 126 IS LIVE AND IS AT THE FOOT -- THE DISCRIMINATOR, IDENTITY NOT
           VALUES. Four reads with a pre-registered prediction: setParse's storage
@@ -5913,3 +5920,29 @@ Stroke stays held; holderT re-pin stays queued with the patch.
   checking the instrument before reading it.
 
   END SEQ 126
+
+
+SEQ 127  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  BOTH MOVED ROWS RULED AS FIXES. RESUME.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before the replay, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — both moved rows ruled as fixes. Resume.
+1. Re-pins, in the stroke: holderT row 3 → htWindow, sentence: arrived at gNoUnwrap 0; the trigger was setGroup's copy, not the flip. anyOrNum → the label, sentence: 1 was trueResult reached through a copy; trueResult is also the no-rStuff fallback, so it cannot witness; the label can. Each row carries its capability line: argument channel, .parenT and generated parse execution.
+2. Replay minionWork/embedStroke.patch (renamed form). Certificate: bare fleet byte-identical to the re-pinned baseline, kant8T/pointerT named; frontier 10 PASS; canary 326. Commit with the headline: setGroup's copy was part of the carrier defect; two fixtures had pinned it.
+3. Bank the two instrument notes beside #41/#42.
+4. Strokes 2–3 as dispatched: channel through setGroup under the flip, CHANCAM field column; then jitBindArgRT.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. The re-pins land IN the stroke and never before it --
+  at baseline both rows genuinely read their old values, so re-pinning first
+  would turn a clean baseline red on rows the shipped machine cannot satisfy.
+  Order is: apply the patch, build, re-pin, then certify. Stated because the
+  certificate's phrase "byte-identical to the re-pinned baseline" has no capture
+  it can diff against until the stroke is standing.
+
+  END SEQ 127

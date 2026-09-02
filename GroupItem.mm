@@ -763,6 +763,23 @@ GroupItem 	*grup = 0;
 	else	::fprintf(stderr,"   %s  | data= %s  | (no list)\n",groupBody->tag,getText());
 }
 
+/***************************************************************************
+    embedRule -- THE ONE LEGITIMATE COPY OF AN EMBEDDED RULE, AND THE SOLE WRITER
+    OF isEmbedded.   GroupItem.embedRule
+***************************************************************************/
+void GroupItem::embedRule(GroupItem *g)
+{
+GroupItem 	*copy = 0;
+	if ( !g || !g->groupBody->flags.isRule )
+		setGroup(g);
+	else {
+		copy = new GroupItem(g);
+		copy->parent = this;
+		copy->options.affiliation = 3;
+		setGroup(copy);
+		}
+}
+
 // builds+memoises the guard set; LINE 1 raises isRule on the SHARED body   GroupItem.ensureGuard
 PLGset *GroupItem::ensureGuard()
 {
@@ -2372,15 +2389,8 @@ void GroupItem::setGroup(GroupItem *g)
 			::fprintf(stderr,"setGroup: cannot add a group %s to itself\n",groupBody->tag);
 			return;
 			}
-		if ( groupBody->flags.isLocal || groupBody->flags.isLabel || g->groupBody->flags.byRef )
-			groupBody->gGroup = g;
-		else {
-			if ( !g->parent )
-				groupBody->gGroup = g;
-			else	groupBody->gGroup = new GroupItem(g);
-			groupBody->gGroup->parent = this;
-			groupBody->gGroup->options.affiliation = 3;
-			}
+		// setGroup NEVER copies; embedRule() owns the one legitimate copy   GroupItem.setGroup
+		groupBody->gGroup = g;
 		groupBody->flags.isInitialized = 1;
 		groupBody->flags.data = 6;
 		if ( groupBody->flags.hasListeners )

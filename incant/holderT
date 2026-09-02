@@ -14,10 +14,18 @@ search reset stack Grokking Utilities list;
     cases read through that; the node-returning case does not, and hands back
     the HOLDER, whose tag is `argument`.
 
-    ⚠ ROW 3 IS PINNED AT THE WRONG ANSWER ON PURPOSE. It reads `argument` and
-    wants `htWindow`. The holder read is the implicit unwrap THE FLIP REMOVES,
-    so WHEN THE FLIP LANDS THIS ROW GOES RED -- that is the fix arriving, not a
-    regression. Re-pin to htWindow, with the sentence, and say so.
+    ⚠⚠ RE-PINNED 2026-09-02 TO htWindow, AND IT ARRIVED AT gNoUnwrap 0. The
+    pin above predicted the FLIP would fix this and named the wrong cause. The
+    trigger was setGroup's COPY: runAction binds `ruleArg.group = argument`, and
+    the old setGroup copied a parented source and reparented the copy onto the
+    holder, so .parenT read the holder. setGroup no longer copies, so .parenT
+    reaches htWindow. The flip is still off and had nothing to do with it.
+
+    ⚠ THE LESSON IS ABOUT PINS, NOT ABOUT PARENTS: a pin at a known-wrong value
+    is worth keeping, and a pin's stated TRIGGER is a prediction that can be
+    wrong on its own. This one held its value correctly for four days while
+    naming the wrong cause the whole time, and nothing in the row could have
+    caught that -- only the fix arriving from somewhere else did.
 
     ROWS 1 AND 2 ARE THE ANTI-VACUITY PAIR AND MUST BE GREEN ALWAYS. Row 1 is
     the same accessor read DIRECTLY, which is correct today and must stay
@@ -39,7 +47,7 @@ define
 
     htProbe argument code={
         htP <- argument.parenT;
-        print "holderT 3 holder    .parenT =" htP.taG "  want htWindow, PINNED argument":;
+        print "holderT 3 holder    .parenT =" htP.taG "  want htWindow":;
         };
 
     htRun code={

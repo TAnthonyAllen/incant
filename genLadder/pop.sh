@@ -357,10 +357,17 @@ done
 #  without the direct read, row 3 cannot tell "the holder loses the parent" from
 #  "the accessor is broken everywhere".
 #
-#  ⚠ ROW 3 IS PINNED AT THE WRONG ANSWER ON PURPOSE. The holder read is the
-#  implicit unwrap THE FLIP REMOVES, so WHEN THE FLIP LANDS THIS ROW GOES RED.
-#  That is the fix arriving, not a regression. Re-pin to htWindow with the
-#  sentence.
+#  ⚠⚠ RE-PINNED 2026-09-02, AND THE SENTENCE IS THAT IT ARRIVED AT gNoUnwrap 0.
+#  Row 3 read `argument` from 2026-08-29 until the embedRule stroke and now reads
+#  htWindow, the value it always wanted. THE TRIGGER WAS setGroup'S COPY, NOT THE
+#  FLIP -- the pin above predicted the flip and named the wrong cause. runAction
+#  binds `ruleArg.group = argument`; the old setGroup COPIED a parented source and
+#  reparented the copy onto the holder, so .parenT read the holder. setGroup no
+#  longer copies, so it reaches the real parent. The flip is still off.
+#
+#  CAPABILITY: the argument channel, read through .parenT. This row is now the
+#  fleet's daily assertion that an action reaches its argument's real parent and
+#  not a carrier's.
 run1 holderT "$T/hold"; check "holderT runs" 0 $?
 if grep -q "HOLDERT SENTINEL" "$T/hold"; then
     echo "  ok    holderT sentinel (no truncation)"; green=$((green+1))
@@ -369,7 +376,7 @@ else
 fi
 for _arm in "holderT 1 direct    .parenT = htWindow" \
             "holderT 2 identity  .taG    = htInside" \
-            "holderT 3 holder    .parenT = argument"; do
+            "holderT 3 holder    .parenT = htWindow"; do
     if grep -qF "$_arm" "$T/hold"; then
         echo "  ok    ${_arm%% =*} = ${_arm##*= } -- PINNED BY VALUE"; green=$((green+1))
     else
@@ -922,6 +929,27 @@ fi
 #  THREE ASSERTIONS, THREE FAILURE MODES, deliberately not blurred into one:
 #  the census line catches a refusal, the body target catches generation drift,
 #  and the answer catches a body that compiles and then does not run.
+#
+#  ⚠⚠ THE ANSWER RE-PINNED 2026-09-02, 1 -> the LABEL, AND THE OLD VALUE COULD
+#  NEVER HAVE WITNESSED WHAT IT WAS ASKED TO. `1` was `trueResult`, reached
+#  because the invocation arrived at a COPY of the field that had been parsed
+#  against -- measured, minionWork/anyOrNumCam: install field #1, invoke field
+#  #23, one body #2. A copy's rStuff carries no label, and runRuleAction has
+#  exactly two returns, `ruleStuff->label` or `trueResult`. So the row read the
+#  fallback and called it an answer.
+#
+#  ⚠ AND trueResult IS ALSO THE NO-rStuff FALLBACK -- `if (!ruleStuff) return
+#  trueResult` on the line above -- so `1` cannot distinguish "the body ran and
+#  produced nothing" from "there was no rStuff to run against". IT IS AN H4
+#  ABSENCE WEARING A VALUE. The label is a real captured span and can only be
+#  returned by a body that ran and matched, so it witnesses what the row exists
+#  for. THE BODY RAN UNDER BOTH BUILDS -- verified with a marker emitted into all
+#  four generated bodies -- so the failure this row was minted to catch was never
+#  occurring and the old pin was recording the carrier defect instead.
+#
+#  CAPABILITY: the argument channel, read through generated-parse EXECUTION. The
+#  sibling of holderT row 3 above -- same defect, opposite end: that row asks what
+#  an action sees of its argument, this one asks what an invocation reaches.
 #
 #  ⚠ ITS NEGATIVE CONTROL IS ON RECORD RATHER THAN ASSERTED. Remove the gate on
 #  the builtinActoR attachment in Generate.rtn's setParse and this reads 4

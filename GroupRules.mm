@@ -707,6 +707,20 @@ GroupItem 	*item = 0;
 	the NewGroup is a rule and zero if it is not
 	materialiseTerms(NewGroup);
 	***********************************************************************/
+	/***********************************************************************
+	DEFINITION MAKES STRUCTURE; RUNTIME MAKES REFERENCE. embedRule() copies an
+	embedded RULE and stores anything else as it stands.
+	ruleActions.aCTionDefinE.embeddedRuleCopy
+	***********************************************************************/
+GroupItem 	*term = 0;
+int 		t = 1;
+	while ( term = NewGroup->get(t) )
+		{
+		if ( isGROUP(term->groupBody->flags.data) )
+			term->embedRule(term->groupBody->gGroup);
+		t++;
+		}
+	// re-mention: the block above hijacks bare-field resolution   bear-trap #42
 	input->clearList();
 	NewGroup->groupBody->flags.isInitialized = 1;
 	if ( NewGroup->groupBody->registry && !NewGroup->parent )
