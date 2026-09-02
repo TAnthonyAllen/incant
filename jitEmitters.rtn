@@ -524,6 +524,17 @@ extern void jitDoEnd()
 extern GroupItem jitEmitAssign(GroupItem argument,GroupItem target)
 {
     -%
+    // ⚠ THE SEED GATE (F-47, Tony SEQ 134) -- jitEmitUnary's own guard, copied.
+    // BOTH operands were dereferenced unguarded here, so an unseeded one was a
+    // bad pointer dereference at 0x28 rather than a named degrade. The sibling
+    // has had this gate all along and its comment argues the case: a quiet
+    // null-check returning target would be worse than the crash it replaces --
+    // exit 0 with wrong IR. So this DEGRADES, countably, and gJitDegradeCount is
+    // asserted 0 by every rung, which is what stops it passing silently.
+    if (!argument || !argument->jitData || !target || !target->jitData) {
+        jitDegrade("assign operand reached jitEmitAssign unseeded", target);
+        return target;
+    }
     llvm::IRBuilder<> *b = gJitBuilder;
     // Plain `=`: pure store-back of the source operand's SSA value into the
     // target's slot. No arithmetic.

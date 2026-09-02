@@ -63,6 +63,57 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### ✅ F-47 CLOSED (SEQ 134) — `jitEmitAssign` HAS `jitEmitUnary`'s SEED GATE
+**Certificate, both rows:**
+- **the crash site degrades by name** — six of them, `=== JIT DEGRADE #N: assign operand reached
+  jitEmitAssign unseeded ... : stA/stB/stC/stD/stE/stF ===`, F-41's exact form, countable, and
+  degrade-zero is asserted by every rung so it cannot pass silently ✅
+- **bare fleet byte-identical**, 176 green; frontier 10 PASS; canary 329 ✅
+
+### ⚠ F-49 (the guard revealed a loop) — after the degrade, starT's jitted arm STACK-OVERFLOWS
+**Gloss:** degrade exposes a recursion.
+**What:** with F-47's gate in place `starT`'s jitted arm no longer null-derefs — it degrades six
+times and then dies at **frame ~130,707** with `Bad pointer dereference at 0x16ed3bff8`, a **stack
+address**. The cycle is `aCTionXpress → runOP → runAction → processAction → …`.
+⚠ **THIS IS NOT F-47 REGRESSING — IT IS F-47 WORKING.** The old crash was a null deref that stopped
+execution at the first unseeded operand; the guard lets execution continue, and what it continues
+into recurses. **A guard that converts a crash into a degrade can expose a downstream loop**, which
+is the third link in one chain today: F-47 revealed F-48, F-48's fix path revealed this.
+**Not diagnosed. Scope: `starT`'s jitted arm only — the bare fleet is byte-identical and every other
+fixture is unaffected.** It blocks stroke 1's resumption and nothing else.
+
+### ⚠⚠ F-48 — MEASURED FIRST, AS ORDERED, AND THE MEASUREMENT CHANGES THE PICTURE
+**Ordered: "measure what it does today first, one row."** Done, and it is worth the order.
+
+**THE INTERPRETER ALREADY REFUSES.** All six `starT` rows are `stX = *stY` — star in assignment
+position — and bare, interpreted:
+```
+starT S1 = stA    S2a = stB    S2b = stC    S3a = stD    S3b = stE    S4 = stF
+stderr:  ERROR unary * on stLeaf -- it holds no group      x6
+```
+**Every row echoes its own target's tag** (bear-trap #26), which means **the assignment stored
+nothing**, and stderr carries six named refusals. So today's behaviour is *already* refuse-and-store-
+nothing — **at the STAR, naming the operand**, not at the `=`, naming the target.
+
+**CENSUS OF THE SHAPE — four real sites, three fixtures, and every one already refuses:**
+
+| site | star succeeds today? |
+|---|---|
+| `starT:47,48,52` | **no** — 6 refusals, targets echo their tags |
+| `spacingT:55` | **no** — 14 refusals; the row's own text says *"holds nothing, named error above"* |
+| `derefT:15` | **no** — 1 refusal |
+
+⚠ **SO THE RULED CHANGE MOVES THE MESSAGE, NOT THE VALUES** — `ERROR = on <target> -- *<x> is a
+field; use <- or +*` would replace `ERROR unary * on <operand> -- it holds no group` at three
+fixtures' stderr, and **no stored value moves, because none of them stores anything now.**
+⚠ **AND THE ONE THING THE CENSUS CANNOT TELL YOU:** the ruled refusal fires on a star that
+**succeeds** too — `x = *y` would be refused even where `*y` legitimately yields a group. **No such
+site exists in the corpus today**, so the census cannot price that half. It is a forward-looking
+constraint on the language, not a repair of a present defect.
+**NOT BUILT — the dispatch says "Tony to confirm", and this measurement is what the confirmation
+should be made on.**
+
+
 ### ⚠⚠ F-47 (the assign with no seat belt) — `jitEmitAssign` DEREFERENCES AN UNSEEDED OPERAND. LATENT 139
 **Gloss:** assign has no seed gate.
 **Where:** `GroupRules.mm:5276`, generated from `jitEmitters.rtn`:

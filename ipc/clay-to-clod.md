@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      133
+SEQ:      134
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 134, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 134 IS LIVE AND IS AT THE FOOT -- F-47 takes jitEmitUnary's seed
+          gate; F-48 is RULED (Tony to confirm) as a refusal by name in
+          assignment position, with the INTERPRETER MEASURED FIRST; then stroke 1
+          re-runs as dispatched, then the branch unchanged.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 133, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 133 IS LIVE AND IS AT THE FOOT -- TWO PRE-BRANCH STROKES, THEN THE
           BRANCH. starT/pointerT gain a jitted arm (jitted half FIRST, #25);
@@ -6403,3 +6409,61 @@ CLAY → CLOD — two pre-branch strokes, then the branch.
   red it finds under a doubt about the instrument. F-47 first.
 
   END SEQ 133
+
+
+SEQ 134  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  F-47 THEN F-48, THEN STROKE 1 RESUMES.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — F-47 then F-48, then stroke 1 resumes.
+F-47: jitEmitAssign takes jitEmitUnary's seed gate. Certificate: bare fleet byte-identical; the crash site degrades by name.
+F-48, ruled (Tony to confirm): a star in assignment position refuses by name — ERROR = on <target> -- *<x> is a field; use <- or +* in F-41's form. jitEmitDeref unchanged. Interpreter must refuse identically; measure what it does today first, one row. starT gets the row, both roads, text asserted.
+Stroke 1 then re-runs as dispatched: jitted arm, jitted half first, byte-identical across roads under the flip.
+Then the branch, unchanged.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. "Measure what it does today first" is the load-bearing
+  clause and it comes BEFORE the refusal is built, because starT's S1-S4 rows are
+  ALREADY `stA = *st1` in assignment position -- so the interpreter's behaviour
+  there is currently PINNED IN A FLEET TARGET. If it turns out the interpreter
+  already stores something, building a refusal changes those pinned rows, and
+  that is a re-pin needing a sentence rather than a green diff.
+
+  ---- OUTCOME: F-47 CLOSED. F-48 MEASURED AND THE MEASUREMENT CHANGES THE PICTURE ----
+  F-47 DONE, both certificate rows. The crash site degrades BY NAME -- six of
+  them, "assign operand reached jitEmitAssign unseeded", naming stA..stF -- and
+  the bare fleet is BYTE-IDENTICAL at 176 green, frontier 10 PASS, canary 329.
+
+  ⚠ F-49, NEW, AND IT IS F-47 WORKING RATHER THAN REGRESSING. With the gate in
+  place starT's jitted arm no longer null-derefs; it degrades six times and then
+  STACK-OVERFLOWS at frame ~130,707 through aCTionXpress -> runOP -> runAction ->
+  processAction. A guard that converts a crash into a degrade can expose a
+  downstream loop -- third link in one chain today: F-47 revealed F-48, F-48's
+  fix path revealed this. Scope is starT's JITTED ARM ONLY; it blocks stroke 1's
+  resumption and nothing else.
+
+  F-48 MEASURED FIRST, AS ORDERED, AND THE ORDER EARNED ITS KEEP.
+  THE INTERPRETER ALREADY REFUSES. All six starT rows are `stX = *stY` and bare
+  they print stA..stF -- each echoing its OWN target's tag, so the assignment
+  STORED NOTHING -- with six `ERROR unary * on stLeaf -- it holds no group` on
+  stderr. Today's behaviour is already refuse-and-store-nothing: at the STAR,
+  naming the operand, rather than at the `=`, naming the target.
+
+  CENSUS: four real `= *` sites, three fixtures -- starT, spacingT, derefT -- and
+  EVERY ONE already refuses. spacingT's own row text says "holds nothing, named
+  error above".
+
+  ⚠ SO THE RULED CHANGE MOVES THE MESSAGE, NOT THE VALUES. No stored value moves,
+  because none of them stores anything now.
+  ⚠ AND THE HALF THE CENSUS CANNOT PRICE: the ruled refusal also fires on a star
+  that SUCCEEDS -- `x = *y` refused even where `*y` legitimately yields a group.
+  No such site exists in the corpus today, so this is a forward-looking constraint
+  on the language rather than a repair of a present defect. NOT BUILT; the
+  dispatch says Tony to confirm, and this is what the confirmation wants.
+
+  END SEQ 134
