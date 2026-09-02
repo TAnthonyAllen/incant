@@ -63,6 +63,46 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-46 (the recursion that passes itself) — `setGroup`'s self-add guard silently no-ops the recursive bind
+**Gloss:** self-passing recursion, no-op bind.
+**Where:** `GroupItem::setGroup`'s `if ( groupBody == g->groupBody )` refusal, met by `jitBindArgRT`
+on a self-call that passes `argument` along.
+**Measured 2026-09-02 under the flip, three binds in `inlineSelfT`, camera on both roads:**
+```
+CHANCAM-INT src field=0x1054cee80 tag=rbArg      got 0x1054cee80  SAMEFIELD=1
+CHANCAM-JIT src field=0x1054cee80 tag=rbArg      got 0x1054cee80  SAMEFIELD=1
+CHANCAM-JIT src field=0x1054d0840 tag=argument   <- the RECURSIVE call
+setGroup: cannot add a group argument to itself  <- the self-add guard refuses
+CHANCAM-JIT got field=0x1054cee80  SAMEFIELD=0   <- the OUTER bind is left standing
+```
+⚠ **`SAMEFIELD=0` HERE IS NOT A COPY — IT IS A WRITE THAT DID NOT HAPPEN**, and the distinction is
+the whole entry. The recursion passes the callee's own `argument` holder, so target and source share
+a `groupBody`, and `setGroup`'s self-add guard (bear-trap #8's "benign but noisy" line) refuses. The
+outer activation's binding stays in place.
+⚠ **SEQ 130 DID NOT CAUSE THIS, IT EXPOSED IT.** Before the tripwire learned the tag, that same
+recursive bind was refused one guard earlier, by the tripwire itself. Now the tripwire passes it and
+`setGroup` catches it. **The bind has never written on a self-passing recursion; only the name of
+the guard that stops it has changed** — and it is louder now, one `cerr` per such call on a flipped
+build.
+⚠ **The outcome may be accidentally correct** — the callee's `argument` already points where the
+recursion wants it — but it arrives via a guard printing a refusal, not by design, and nothing
+asserts it. **Not diagnosed further, not fixed. It is the same shape as F-45: a single slot on a
+shared body meeting recursion.**
+
+### ⚠ DOCKET (SEQ 130 item 5) — CAPTURE SEMANTICS UNDER THE FLIP
+**One entry, not chased.** Two measurements point at the same unexamined area and neither is
+actionable yet:
+- **`incant/frontier` station 2** stops under the flip with `frLiveLen`/`frTwinLen` printing as
+  their own tags — both `=` captures carry no data. Recorded baseline for the flipped ladder:
+  `exit 0 · 1 PASS · 1 FAIL · ran-census 2 of 9`. Not the channel: **0 refusals, 0 channel binds**
+  in the whole run.
+- **`incant/atypeT`** under the flip reads `65/65/0/65/0/65` against a bare `65/65/1/64/0/65` — the
+  **bare** arm unmoved, the **`:=` captured** arm moved. That is the fixture's own pre-registered
+  **VOID**, reported as such and not graded.
+**Together:** under the flip, at least one capture spelling stops carrying, and it is not confined
+to `=`. **The try-and-buy bucket owns this; it is not F-44, F-45 or F-46.**
+
+
 ### RECON (SEQ 128) — `rStuff->parseMethod` / `rStuff->actionMethod`. ⚠ THE EXPECTATION IS FALSIFIED
 **Read only, nothing edited.** Census from the generated `.mm`, globs quoted — **87 raw hits, three
 files** (`GroupRules.mm` 73, `GroupItem.mm` 8, `RuleStuff.mm` 6). Most are prose in comment blocks;
@@ -136,7 +176,50 @@ bind-by-body road is acceptable, or whether the emitted path needs a restore cou
 **Done-when:** either the emitted path gains a restore and `inlineSelfT` goes back to 0 refusals, or
 the refusal is ruled acceptable and pinned by a fleet row so it cannot drift silently.
 
-#### ⚠⚠ F-45 RE-DIAGNOSED (SEQ 129) — IT IS **RECURSION**, NOT A MISSING RESTORE. THE BRACKET WAS BUILT AND DOES NOT CURE IT
+#### ✅ F-45 CLOSED (SEQ 130) — RULED, BUILT AND CERTIFIED: THE STACK IS THE BRACKET, AND THE TRIPWIRE LEARNED THE TAG
+**The ruling had two halves and needed both.** The bracket alone did not cure it (SEQ 129, below);
+the tripwire alone would not have been safe. Together:
+- **the bracket** — pending slot, push at `jitSaveFrameRT`, pop at `jitRestoreFrameRT`, so both roads
+  save and give back alike;
+- **the tripwire learns the tag** — refuse iff the union is non-zero **and NOT `isGROUP`**. A prior
+  channel bind is a real group and is an *occupant the bracket saves*, not a foreign clobber.
+
+| certificate row | result |
+|---|---|
+| `inlineSelfT` refusals under the flip | **1 → 0** ✅ |
+| `kant8T` refusals under the flip | **9 → 0** ✅ |
+| `kant8T` K5/K6 rows unmoved | **byte-identical**, whole stdout ✅ |
+| bare fleet | **byte-identical**, 171 green ✅ |
+| frontier bare · canary | **10 PASS** · **326** ✅ |
+| negative control | **fires, once, by name** ✅ |
+| `SAMEFIELD=1` both roads | **2 of 3 binds; the third is a no-op, not a copy** — see **F-46** |
+
+⚠ **THE NINE REFUSALS WERE CHANGING NOTHING OBSERVABLE, WHICH IS WHY NOBODY CAUGHT THEM.** `kant8T`'s
+entire stdout is **byte-identical** between the 9-refusal build and the 0-refusal build. The
+fallback road happened to produce the same answers, so the alarm was firing into a fixture that
+could not feel it. **An alarm nobody can hear is the failure mode this whole ledger is about.**
+
+⚠ **THE NEGATIVE CONTROL THE SEAL HAS OWED SINCE SEQ 120 NOW EXISTS: `minionWork/tripwireNeg`.**
+The 09-01f seal said in terms *"it has never been made to fire, so 'it stays silent' is not yet
+evidence that it CAN speak."* It speaks, and its sibling stays silent under the identical call:
+```
+tnPlain  (argument body empty)     0 refusals   <- the silent sibling, H7's other half
+tnLoaded (argument=42, non-group)  1 refusal, named
+```
+⚠ **AND THE LOADED ROW CARRIES A SECOND FACT, WHICH IS EVIDENCE FOR ITEM 4:** `tnLoaded` printed
+`argument = 42`, **not** the `ORIG` that was passed. **On a refusal the callee does not receive the
+argument it was called with.** That is measured, and it is the strongest argument for
+**abort-over-proceed**.
+⚠ **Only meaningful flipped** — with `gNoUnwrap` at 0 the channel arm is never reached and both rows
+go silent, asserting nothing. The fixture says so in its own prose, which is why it is **not a fleet
+row**: `pop.sh` runs bare.
+
+#### ITEM 4 — ABORT vs PROCEED: **NOT BUILT, AWAITING TONY.** Clay recommends abort, no fallback road.
+The evidence gathered for it, all measured: a refused bind **runs the action anyway**; the callee
+reads through the pre-channel bind-by-body road; and on `tnLoaded` the value it reads is **the
+occupant, not the argument passed**. Nothing is built.
+
+#### ⚠⚠ F-45 RE-DIAGNOSED (SEQ 129) — the reasoning trail, kept
 **The bracket was built** — a pending slot plus a push/pop stack, because the emitter's order is
 `bindArg → saveFrame → selfcall → restoreFrame` and `bindArg` is emitted only `if (argument)` while
 the frame pair is unconditional, so a stack pushed at the bind and popped at the restore desyncs on

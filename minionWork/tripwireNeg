@@ -1,0 +1,47 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(TripNeg);
+define
+    tnSrc="ORIG";
+    tnPlain argument code={
+        print "TN-A plain action, argument =" argument:;
+        };
+    tnLoaded argument=42 code={
+        print "TN-B loaded action, argument =" argument:;
+        };
+    tnRun code={
+        cerr "TN calling the PLAIN action -- its argument body holds nothing":;
+        tnPlain(tnSrc);
+        cerr "TN calling the LOADED action -- its argument body holds 42, non-group":;
+        tnLoaded(tnSrc);
+        };
+    ;
+tnRun();
+print "TRIPWIRENEG SENTINEL -- reached the foot":;
+stop();
+
+    tripwireNeg -- THE UNION TRIPWIRE'S NEGATIVE CONTROL. Owed since SEQ 120,
+    built 2026-09-02 under SEQ 130.
+
+    THE SEAL'S OWN WORDS, 2026-09-01f: "The refusal has NO NEGATIVE CONTROL -- it
+    has never been made to fire, so 'it stays silent' is not yet evidence that it
+    CAN speak." This file is that evidence.
+
+    HOW IT FIRES. The tripwire refuses when the callee's `argument` attribute body
+    holds a non-zero union that is NOT a group -- foreign data whose bytes would
+    merely read as a pointer. An ordinary action's argument attribute holds
+    nothing, which is why the alarm has been silent for its whole life. tnLoaded
+    declares `argument=42`, so its argument attribute body carries a NUMBER before
+    any bind happens, and the channel must refuse by name rather than clobber it.
+
+    TWO ROWS, AND THE PAIR IS THE POINT. tnPlain must NOT refuse and tnLoaded
+    MUST -- an alarm that fires on everything is as useless as one that fires on
+    nothing. Rule H7: this row certifies the refusal only because its sibling
+    stays silent under the identical call.
+
+    ⚠ ONLY MEANINGFUL UNDER gNoUnwrap = 1. With the flip off the channel arm is
+    not reached at all and BOTH rows are silent, which asserts nothing. Run it
+    flipped or do not run it.

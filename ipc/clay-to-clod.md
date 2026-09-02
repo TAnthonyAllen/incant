@@ -17,8 +17,16 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      129
+SEQ:      130
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 130, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 130 IS LIVE AND IS AT THE FOOT -- F-45 RULED. The channel's stack
+          IS the bracket, and the tripwire learns the tag: refuse iff the union is
+          non-zero and NOT isGROUP, so a prior channel bind is an occupant the
+          bracket saves rather than a refusal. Certificate under the flip, then
+          the negative control the seal has owed since SEQ 120. Abort-vs-proceed
+          NOT built until ruled.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 129, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 129 IS LIVE AND IS AT THE FOOT -- F-45, TWO CONTROLS, THEN THE
           ROAD. Bracket the emitted bind; measure the refusal's aftermath once;
@@ -6076,3 +6084,79 @@ Then nestT, A→B→A, fleet rows, the asking.
   canary 326.
 
   END SEQ 129
+
+
+SEQ 130  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  F-45 RULED -- THE STACK IS THE BRACKET.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — F-45 ruled: the channel's stack is the bracket; the tripwire learns the tag.
+1. Apply minionWork/f45Bracket.patch (pending slot, push at save, pop at restore) — both roads bracketed alike.
+2. Tripwire: refuse iff the union is non-zero and not isGROUP. A prior channel bind is an occupant the bracket saves, not a refusal.
+3. Certificate under the flip: inlineSelfT 0 refusals; kant8T 0 refusals, K5/K6 rows unmoved; SAMEFIELD=1 both roads. Bare fleet byte-identical. Then the negative control the seal owed: a fixture row whose argument attribute body holds data, so the refusal is made to fire once and named.
+4. Refusal aftermath: Tony rules abort vs proceed. Recommended: abort, no fallback road. Not built until ruled.
+5. Station 2 + atypeT VOID: one docket entry, capture semantics under the flip, try-and-buy bucket. Not chased.
+Then nestT, A→B→A, fleet rows, the asking.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. The saved patch carries FOUR DIAGNOSTIC fprintf lines
+  added after it was first built -- GCHAN push/pop/bind and OCCUPANT -- which were
+  the instrument for SEQ 129's trace and are NOT part of the bracket. They are
+  stripped before the certificate, because a build that prints two lines per
+  jitted call into stderr would move every merged fleet target and the
+  byte-identical row would be measuring the instrument. Recorded rather than
+  silently fixed: the patch in minionWork was banked mid-investigation and is not
+  a clean artifact.
+
+  --------------------- OUTCOME: F-45 CLOSED. BOTH HALVES WERE NEEDED ---------------------
+  The bracket alone did not cure it (SEQ 129) and the tripwire alone would not
+  have been safe. Together, certified:
+
+    inlineSelfT refusals under the flip   1 -> 0
+    kant8T      refusals under the flip   9 -> 0
+    kant8T      K5/K6 rows                BYTE-IDENTICAL, whole stdout
+    bare fleet                            BYTE-IDENTICAL, 171 green
+    frontier bare / canary                10 PASS / 326
+    negative control                      FIRES, once, by name
+    SAMEFIELD=1 both roads                2 of 3 binds -- the third is a NO-OP,
+                                          not a copy. Banked as F-46.
+
+  ⚠ THE NINE REFUSALS WERE CHANGING NOTHING OBSERVABLE, which is why nobody
+  caught them: kant8T's entire stdout is byte-identical between the 9-refusal and
+  the 0-refusal build. The fallback road happened to give the same answers, so the
+  alarm was firing into a fixture that could not feel it.
+
+  THE NEGATIVE CONTROL EXISTS -- minionWork/tripwireNeg. tnPlain (argument body
+  empty) 0 refusals, the silent sibling; tnLoaded (argument=42, non-group) 1
+  refusal, named. ⚠ AND THE LOADED ROW CARRIES EVIDENCE FOR ITEM 4: tnLoaded
+  printed `argument = 42`, NOT the ORIG it was called with. ON A REFUSAL THE
+  CALLEE DOES NOT RECEIVE THE ARGUMENT IT WAS PASSED. Measured, and it is the
+  strongest case for abort-over-proceed. Only meaningful flipped, so it is NOT a
+  fleet row -- pop.sh runs bare, and the fixture's prose says so.
+
+  ⚠ F-46, NEW AND NOT CAUSED BY THIS STROKE -- IT WAS EXPOSED BY IT. On the
+  recursive self-call the argument passed IS the callee's own `argument` holder,
+  so target and source share a groupBody and setGroup's SELF-ADD GUARD refuses the
+  write; the outer activation's binding is left standing. SAMEFIELD=0 there means
+  A WRITE THAT DID NOT HAPPEN, not a copy. Before the tripwire learned the tag
+  that same bind was refused one guard earlier, by the tripwire itself -- so the
+  bind has NEVER written on a self-passing recursion; only the name of the guard
+  that stops it has changed, and it is louder now.
+
+  ITEM 4 not built, awaiting Tony. ITEM 5 banked as one docket entry: frontier
+  station 2 and atypeT's VOID both point at capture semantics under the flip, and
+  under the flip at least one capture spelling stops carrying -- NOT confined to
+  `=`, since atypeT's moving arm is `:=`. The try-and-buy bucket owns it.
+
+  ⚠ ONE METHOD NOTE: minionWork/f45Bracket.patch was banked MID-INVESTIGATION and
+  carried four diagnostic fprintf lines added after the bracket was built. They
+  were stripped before the certificate -- a build printing two lines per jitted
+  call would have moved every merged fleet target and the byte-identical row would
+  have been measuring the instrument.
+
+  END SEQ 130

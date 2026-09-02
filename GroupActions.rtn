@@ -403,13 +403,18 @@ GroupItem   arg = argument,
             either. The divergence being closed is the BIND.
             GroupActions.jitBindArgRT.argChannel  */
         if (( ruleArg = field->get("argument") )) {
-            if ( ruleArg->groupBody->gGroup ) {
-                ::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the argument body's union is not empty; gGroup would clobber it\n",
+            if ( ruleArg->groupBody->gGroup && !isGROUP(ruleArg->groupBody->flags.data) ) {
+                ::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the argument body's union holds non-group data; gGroup would clobber it\n",
                     field->groupBody->tag);
                 ::fflush(stderr);
                 ruleArg->groupBody = arg->groupBody;
                 }
-            else    ruleArg->setGroup(arg);
+            else {
+                gChanPendBody  = ruleArg->groupBody;
+                gChanPendGroup = ruleArg->groupBody->gGroup;
+                gChanPendData  = ruleArg->groupBody->flags.data;
+                ruleArg->setGroup(arg);
+                }
             }
         }
     %-
@@ -437,6 +442,17 @@ Buffer      buffer  = bufferSTAK.pop();
 extern void jitRestoreFrameRT(GroupItem field)
 {
     restoreLocalFields(field);
+    /*  Pop, and restore only a non-empty entry -- an argument-less jitted call
+        pushed an empty one and has nothing to give back.   jitContext.gChan  */
+    -%
+    if ( gChanStkTop > 0 ) {
+        gChanStkTop--;
+        if ( gChanStkBody[gChanStkTop] ) {
+            gChanStkBody[gChanStkTop]->gGroup     = gChanStkGroup[gChanStkTop];
+            gChanStkBody[gChanStkTop]->flags.data = gChanStkData[gChanStkTop];
+            }
+        }
+    %-
 }
 
 
@@ -482,6 +498,17 @@ extern void jitRestoreFrameRT(GroupItem field)
     coupling is gone.  */
 extern void jitSaveFrameRT(GroupItem field)
 {
+    /*  Push the channel bracket's pending entry -- or an EMPTY one -- so the push
+        is unconditional and pairs with jitRestoreFrameRT's pop.   jitContext.gChan  */
+    -%
+    if ( gChanStkTop < GCHAN_DEPTH ) {
+        gChanStkBody[gChanStkTop]  = gChanPendBody;
+        gChanStkGroup[gChanStkTop] = gChanPendGroup;
+        gChanStkData[gChanStkTop]  = gChanPendData;
+        gChanStkTop++;
+        }
+    gChanPendBody = 0; gChanPendGroup = 0; gChanPendData = 0;
+    %-
     saveLocalFields(field);
 }
 
@@ -1264,8 +1291,17 @@ use field
                 CONSTRAINT WITH AN ALARM, not a fix: write only when the union is empty,
                 and refuse BY NAME otherwise. The refusal never fires in a correct build;
                 the day it does, it names the day the assumption broke.   GroupActions.runAction.unionTripwire  */
-            if ( ruleArg->groupBody->gGroup ) {
-                ::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the argument body's union is not empty; gGroup would clobber it\n",
+            /*  ⚠ THE TRIPWIRE LEARNS THE TAG (Tony, SEQ 130). It used to refuse on
+                `gGroup non-zero` alone, which conflated TWO occupants: foreign data
+                sharing the union -- gCount, gNumber, gBuffer -- whose bytes merely
+                READ as a pointer, and a PRIOR CHANNEL BIND, which is a real group
+                and is exactly what the bracket exists to save and give back. Under
+                recursion the second is the normal case, so the old test refused the
+                call's own outer activation and sent it down the pre-channel road.
+                Refuse iff the union is non-zero AND NOT isGROUP.
+                GroupActions.runAction.unionTripwire  */
+            if ( ruleArg->groupBody->gGroup && !isGROUP(ruleArg->groupBody->flags.data) ) {
+                ::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the argument body's union holds non-group data; gGroup would clobber it\n",
                     field->groupBody->tag);
                 ::fflush(stderr);
                 ruleArg->groupBody = result->groupBody;

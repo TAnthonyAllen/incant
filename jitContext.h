@@ -603,6 +603,30 @@ public:
 // retirement plan. When the legacy arm is deleted, delete this too.
 static int gNoUnwrap = 0;
 
+// ⚠ THE EMITTED PATH'S CHANNEL BRACKET (F-45, Tony SEQ 129). runAction saves the
+// argument attribute's previous gGroup/data pair across its own processAction
+// call and restores after; the emitted path spans THREE functions, so the state
+// cannot live in a local and needs a stack.
+//
+// ⚠ WHY A PENDING SLOT AND NOT A PUSH IN jitBindArgRT. The emitter's order is
+// bindArg -> saveFrame -> selfcall -> restoreFrame, and bindArg is emitted ONLY
+// `if (argument)` while the frame pair is emitted UNCONDITIONALLY. A stack pushed
+// at the bind and popped at the restore therefore goes out of step the first time
+// a jitted call has no argument. Instead the bind records into a single PENDING
+// slot; jitSaveFrameRT pushes that slot -- or an EMPTY entry -- and clears it, and
+// jitRestoreFrameRT pops. Push and pop are then both unconditional and paired, and
+// the pending slot is live only between two adjacent emitted calls, so nothing can
+// interleave. Both frame wrappers were checked ungated: the `if field.recursive`
+// lives inside saveLocalFields/restoreLocalFields, not in them.
+#define GCHAN_DEPTH 256
+static GroupBody *gChanPendBody  = 0;
+static GroupItem *gChanPendGroup = 0;
+static int        gChanPendData  = 0;
+static GroupBody *gChanStkBody[GCHAN_DEPTH];
+static GroupItem *gChanStkGroup[GCHAN_DEPTH];
+static int        gChanStkData[GCHAN_DEPTH];
+static int        gChanStkTop = 0;
+
 static int gCompileAttempted = 0;
 static int gCompileRefused   = 0;
 static int gCompileReported  = 0;
