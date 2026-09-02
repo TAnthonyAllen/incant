@@ -63,6 +63,48 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-45 (the jit road binds and never gives back) — `jitBindArgRT` leaves `gGroup` set, and the tripwire says so
+**Gloss:** jit binds, never restores.
+**Where:** `GroupActions.rtn`, `jitBindArgRT`'s `gNoUnwrap` arm, against `runAction`'s
+`chanPrevGroup`/`chanBody` save-and-restore pair around `processAction`.
+**What:** stroke 3 lifted `runAction`'s channel lines into `jitBindArgRT` so the two roads stop
+diverging. They now bind identically — **certified, both roads `SAMEFIELD=1` on the same raw field
+`0x10370ae80`, tag `rbArg`, one run.** But `runAction` **restores** `gGroup` after its
+`processAction`; the emitted path has no such bracket and this arm carried no restore before either.
+So the jit road now leaves `gGroup` set, and the **next** bind sees a non-empty union.
+**Evidence, attributed with a control rather than reasoned:**
+```
+                 stroke 2 only        stroke 2 + stroke 3
+  inlineSelfT    0 refusals           1 refusal      <- stroke 3's, exactly one
+  kant8T         9 refusals           9 refusals     <- NOT stroke 3's
+```
+⚠ **THE TRIPWIRE FIRED FOR THE FIRST TIME IN ITS LIFE, AND THAT IS THE GOOD NEWS.** The 09-01f seal
+recorded it as *"certified … zero refusals fired"* and said in terms: *"The refusal has NO NEGATIVE
+CONTROL — it has never been made to fire, so 'it stays silent' is not yet evidence that it CAN
+speak."* **It speaks.** It named the action (`rb`), it named the reason, and it fell back to
+bind-by-body. The alarm Tony built for the day the assumption broke went off on the day the
+assumption broke.
+⚠ **AND THE FALLBACK IS NOT THEREBY SOUND** — a degrade line asserts that a fallback *occurred*,
+never that it was *right*. Whether one call per jitted recursion silently taking the old
+bind-by-body road is acceptable, or whether the emitted path needs a restore counterpart beside
+`jitRestoreFrameRT`, is **not measured and is Tony's to rule.**
+**Done-when:** either the emitted path gains a restore and `inlineSelfT` goes back to 0 refusals, or
+the refusal is ruled acceptable and pinned by a fleet row so it cannot drift silently.
+⚠ **NOT IN SCOPE AND SEPARATELY OWED: `kant8T`'s NINE.** They are present with and without stroke 3,
+so they belong to stroke 2 or to the flip itself, and they are **not yet separated** — one more
+control build would do it. The likely reading, graded as inference and not measurement: the seal's
+"zero refusals" was taken on the `minionWork/` probes and **`kant8T` had never been run under the
+flip at all**, so this is the first look rather than a regression.
+
+⚠ **AND A SECOND FLIP-ONLY FINDING FROM THE SAME PASS: THE FRONTIER STOPS AT STATION 2 UNDER THE
+FLIP.** *"twin list length does not match the live rule, or is empty"*, with `frLiveLen` and
+`frTwinLen` printing as their own tags — bear-trap #26's echo, so **both reads carry no data**.
+Reverting stroke 2 with the flip still on reproduces it **byte-identically**, so it is the flip
+alone on the landed state. ⚠ **No seal has ever recorded the frontier under the flip** — every
+recorded `10 PASS` is BARE — so this is the **first measurement**, not a regression against a
+previous one. It belongs to the flip campaign.
+
+
 ### F-44 (the bootstrapper borrows a copy) — `GroupMain.twk` uses `setGroup`'s copy as its only copy primitive
 **Gloss:** bootstrap borrows setGroup's copy.
 **Where:** `GroupMain.twk` lines **159-161, 165-167, 218-220, 290-292, 353/358-359, 400-402,

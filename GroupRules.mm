@@ -4680,8 +4680,26 @@ GroupItem 	*ruleArg = 0;
 	arg = arg->getGroup();
 	if (( ruleArg = field->get("argument") ))  ruleArg->setGroup(arg);
 	}
-	else
-	if (( ruleArg = field->get("argument") ))  ruleArg->groupBody = arg->groupBody;
+	else {
+	/*  ⚠ STROKE 3 (Tony, SEQ 127) -- runAction's CHANNEL LINES, LIFTED VERBATIM,
+	so the comment above is true again. This arm was bind-by-body while
+	runAction's had grown a union tripwire and a setGroup call, and the two
+	roads had silently diverged -- which they were built never to do.
+	⚠ NO RESTORE IS LIFTED WITH THEM, AND NOTHING IS DROPPED BY THAT.
+	runAction's save/restore brackets its own processAction call; the emitted
+	path has no such call to bracket, and this arm carried no restore before
+	either. The divergence being closed is the BIND.
+	GroupActions.jitBindArgRT.argChannel  */
+	if (( ruleArg = field->get("argument") )) {
+	if ( ruleArg->groupBody->gGroup ) {
+	::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the argument body's union is not empty; gGroup would clobber it\n",
+	field->groupBody->tag);
+	::fflush(stderr);
+	ruleArg->groupBody = arg->groupBody;
+	}
+	else    ruleArg->setGroup(arg);
+	}
+	}
 	
 	return arg;
 }
