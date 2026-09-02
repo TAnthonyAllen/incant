@@ -1,0 +1,135 @@
+diff --git a/GroupItem.twk b/GroupItem.twk
+index b4f6adf..8ae0322 100644
+--- a/GroupItem.twk
++++ b/GroupItem.twk
+@@ -1942,17 +1942,28 @@ void setGroup(GroupItem g)
+         if groupBody == g.groupBody {
+             cerr "setGroup: cannot add a group",tag,"to itself":;
+             return; }
+-        if isLocal || isLabel || g.byRef   gGroup = g;
+-        else {
+-            if !g.parent    gGroup = g;
+-            else            gGroup = new(g);
+-            gGroup.parent       = this;
+-            gGroup.isEmbedded   = true; }
++        // setGroup NEVER copies; embed() owns the one legitimate copy   GroupItem.setGroup
++        gGroup          = g;
+         isInitialized   = true;
+         isGROUP         = true;
+         if hasListeners updateListeners(); }
+ }
+ 
++/***************************************************************************
++    embed -- THE ONE LEGITIMATE COPY OF AN EMBEDDED RULE, AND THE SOLE WRITER
++    OF isEmbedded.   GroupItem.embed
++***************************************************************************/
++void embed(GroupItem g)
++{
++GroupItem   copy;
++    if !g || !g.isRule  setGroup(g);
++    else {
++        copy            = new(g);
++        copy.parent     = this;
++        copy.isEmbedded = true;
++        setGroup(copy); }
++}
++
+ void setItem(PLGitem i)
+ {
+     item        = i;
+diff --git a/GroupMain.twk b/GroupMain.twk
+index c4249a8..9c47c64 100644
+--- a/GroupMain.twk
++++ b/GroupMain.twk
+@@ -156,13 +156,13 @@ GroupRules  ruler = groupRules;
+     item            = new("min");
+     item            = strap +% item;
+     item.setRuleStuff();
+-    item.group      = grok/counter;
++    item.embed(grok/counter);
+     item            = item.group;
+     modify(item,"+");
+     item            = new("max");
+     item            = strap +% item;
+     item.setRuleStuff();
+-    item.group      = grok/counter;
++    item.embed(grok/counter);
+     item            = item.group;
+     modify(item,"*");
+     item            = new("]");
+@@ -287,7 +287,7 @@ GroupRules  ruler = groupRules;
+     guarded         = true;
+     item            = strap += "dtext";
+     modify(item,"^");
+-    item.group      = properties/delimiter;
++    item.embed(properties/delimiter);
+     item            = item.group;
+     modify(item,"}");
+ 
+@@ -350,11 +350,11 @@ GroupRules  ruler = groupRules;
+     method          = aCTionNewGroup;
+     immediateACTION = true;
+     setRuleStuff();
+-    group           = grok/TraiT;
++    strap.embed(grok/TraiT);
+ 
+     strap           = grok += "Attributes";
+     setRuleStuff();
+-    group           = grok/TraiT;
++    strap.embed(grok/TraiT);
+     item            = gGroup;
+     modify(item,"+");
+ 
+@@ -397,7 +397,7 @@ GroupRules  ruler = groupRules;
+     item            = new("definitions");
+     item            = strap +% item;
+     item.setRuleStuff();
+-    item.group      = stuff;
++    item.embed(stuff);
+     item            = item.gGroup;
+     modify(item,"+");
+     item            = grok/DEFINing;
+@@ -432,7 +432,7 @@ GroupRules  ruler = groupRules;
+ 
+     strap           = grok += "InitiatE";
+     setRuleStuff();
+-    group           = grok/RunRulE;
++    strap.embed(grok/RunRulE);
+     item            = gGroup;
+     modify(item,"+");
+     item            = grok/InitiatE;
+diff --git a/ruleActions.rtn b/ruleActions.rtn
+index 4adcba7..8295754 100644
+--- a/ruleActions.rtn
++++ b/ruleActions.rtn
+@@ -540,6 +540,18 @@ use NewGroup
+         the NewGroup is a rule and zero if it is not
+         materialiseTerms(NewGroup);
+     ***********************************************************************/
++    /***********************************************************************
++        DEFINITION MAKES STRUCTURE; RUNTIME MAKES REFERENCE. embed() copies an
++        embedded RULE and stores anything else as it stands.
++        ruleActions.aCTionDefinE.embeddedRuleCopy
++    ***********************************************************************/
++    GroupItem   term;
++    int         t = 1;
++    while term = NewGroup[t] {
++        if term.isGROUP     term.embed(term.gGroup);
++        t++; }
++    // re-mention: the block above hijacks bare-field resolution   bear-trap #42
++use NewGroup
+     input.clearList();
+     isInitialized   = true;
+     if registry && !parent  parent = currentRegistry;
+diff --git a/Include/groups.ext b/Include/groups.ext
+index 753c2c4..d7ab348 100755
+--- a/Include/groups.ext
++++ b/Include/groups.ext
+@@ -220,6 +220,7 @@ boolean GroupOptions {
+     void            copyListTo(GroupItem grup);
+     void            dispatch();
+     GroupItem       dQ();
++    void            embed(GroupItem g);
+     GroupItem       findAttribute(String name);
+     GroupItem       findParent(String name);
+     GroupItem       firstComponent(String name);

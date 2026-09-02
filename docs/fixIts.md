@@ -163,6 +163,68 @@ the pairing is cited elsewhere and one of the two halves is wrong.
 **Shape is Tony's to rule** — explicit copies at the six sites with or without `rStuff`, or a shared
 helper. Nothing is built and no shape is recommended.
 
+#### ⚠ RULED AND BUILT (SEQ 124) — THE `embed` PRIMITIVE WORKS. TWO ROWS MOVED, ONE IS A FIX
+**Ruled:** `GroupItem::embed(g)` — copy when `g` is a rule (body shared, `parent = this`,
+`affiliation = isEmbedded`, fresh `rStuff`), store `g` itself otherwise. `setGroup` is the bare
+assignment. Built as one stroke with 1(a); patch preserved at `minionWork/embedStroke.patch` so it
+replays exactly. **Reverted whole under the stop clause because the fleet is not byte-identical** —
+not because it is broken.
+
+| certificate row | result |
+|---|---|
+| frontier | **exit 0, 10 PASS** ✅ |
+| canary | **326** ✅ |
+| `kant8T` and `pointerT` (named) | **31 green, zero failures** ✅ |
+| bare fleet byte-identical | **169 / 171 — two rows moved** ❌ |
+
+**The bootstrap survives**, which is the whole of what F-44 was blocking: 171 → 4 became 171 → 169.
+
+**BISECT WITH A CONTROL — CLAUSE (b) IS LOAD-BEARING, AND BY A LARGE MARGIN.** With (b) neutered
+and (a) plus the `GroupMain` conversions standing, the fleet reads **47 green**. So the
+definition-side copy is not a tidy-up beside `embed`; it is what restores at definition what
+`setGroup` stopped doing at runtime. **(a) and (b) are one change and cannot ship apart.**
+
+**GroupMain sites converted — 7 of 8, enumerated by reading:**
+`:159` `Limit.min`→`grok/counter` · `:165` `Limit.max`→`grok/counter` · `:290`
+`DelimText.dtext`→`properties/delimiter` · `:353` `NewGroup`→`grok/TraiT` (the non-borrower) ·
+`:357` `Attributes`→`grok/TraiT` · `:400` `define.definitions`→`grok/DefinE` · `:435`
+`InitiatE`→`grok/RunRulE`. All seven sources carry `setRuleStuff()`, so all are rules — **checked,
+not assumed**, including `properties/delimiter`, which lives in a non-rule registry and would have
+slipped through `embed`'s else-branch had it not been one.
+**`:218` NOT converted:** its source is a freshly-minted `new("tik")` with no parent and no
+`setRuleStuff`, so it is not a rule; `embed` would take the store-it-itself branch anyway and the
+plain assignment says so more directly.
+
+**ROW 1 — `holderT` row 3: THIS IS THE FIX ARRIVING, AND THE FIXTURE SAYS SO IN ADVANCE.**
+It moved from its pinned `argument` to **`htWindow`, the value it declares it wants.** The fixture's
+own prose: *"ROW 3 IS PINNED AT THE WRONG ANSWER ON PURPOSE … WHEN THE FLIP LANDS THIS ROW GOES RED
+— that is the fix arriving, not a regression. Re-pin to htWindow, with the sentence, and say so."*
+⚠ **THE SENTENCE IS THAT IT ARRIVED WITHOUT THE FLIP.** `gNoUnwrap` is **0** in this build.
+Mechanism, pointed at: `runAction` binds `ruleArg.group = argument`; the old `setGroup` copied a
+parented source and reparented the copy onto the holder, so `argument.parenT` read **the holder**.
+The bare assignment stores the subject itself, so `.parenT` reaches its real parent. **The
+`setGroup` copy was part of the carrier defect this campaign exists to cure, and 1(a) cures this
+much of it on its own.** The re-pin is Tony's — its stated trigger was the flip, and the trigger
+turned out to be wrong.
+
+**ROW 2 — `anyOrNum.target`: ONE LINE, `ANSWER 1` → `ANSWER ANYorNum`, AND IT IS NOT CLASSIFIED.**
+The census row (`4 attempted, 0 refused`) stays green and the generated bodies match byte for byte;
+only the final answer line moved. Two readings and **no instrument here separates them**:
+- **REGRESSION** — the generated body no longer runs, so no answer is produced.
+- **ASSERTABILITY** — the body still runs, the answer now arrives as a NODE rather than a value, and
+  `print` follows it (law 1), yielding the tag echo. `parseAnswer = argument(ruleText)` uses **`=`**,
+  which bear-trap #41 has just measured as capturing nothing from a data-less field.
+⚠ **REPORTED UNGRADED RATHER THAN GUESSED**, per the refusal to grade a voided control. The row's
+own charter says the answer exists to *"catch a body that compiles and then does not run"* — so
+which reading is right decides whether that assertion still holds, and that is a ruling.
+
+⚠ **A PRE-REGISTERED PREDICTION OF CLOD'S FAILED, AND THE FAILURE IS USEFUL.** Registered in
+`ipc/` before the build: that (b) without the `isLocal`/`isLabel` exclusion would move `kant8T` or a
+coded-action row, because `aCTionDefinE` gives the `this` local its group with `grup.group = NewGroup`
+and `NewGroup` is a rule, so `this` would become a copy. **`kant8T` is green and 31 named rows are
+unmoved.** The concern was a causal claim inferred from a mechanism, it was wrong, and **the
+exclusion is dropped rather than carried on a hunch.** (b) ships as dispatched.
+
 ### ✅ F-43 (the guard that crashes) — CLOSED 2026-09-01, fixed and certified
 **Fix:** `Instruct.rtn` `opAddPointer` — the refusal now names `target.tag` explicitly instead of
 a bare `tag`, which is what every other F-41 guard resolves to (`opMultiply` generates

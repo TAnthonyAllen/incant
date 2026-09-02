@@ -17,8 +17,15 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      123
+SEQ:      124
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 124, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 124 IS LIVE AND IS AT THE FOOT -- F-44 RULED: ONE embed PRIMITIVE.
+          GroupItem::embed(g) copies when g is a rule and stores otherwise;
+          GroupMain's rule-sourced sites call it; stroke 1(b) becomes
+          term.embed(term.gGroup). Built as ONE stroke with 1(a). Certificate
+          unchanged and pre-registered. Stop clause stands.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 123, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 123 IS LIVE AND IS AT THE FOOT -- F-44 AND THE CALLER CENSUS.
           STROKE 1 STAYS REVERTED. Three items: a no-edit census of every
@@ -5613,3 +5620,93 @@ Tony rules F-44's shape (explicit copies with or without rStuff, or a shared hel
   ledger has three entries where exactly this went wrong. It gets measured.
 
   END SEQ 123
+
+
+SEQ 124  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  F-44 RULED: ONE embed PRIMITIVE.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — F-44 ruled: one embed primitive.
+1. Add GroupItem::embed(g): if g is a rule — copy of the field (body shared), parent = this, affiliation = isEmbedded, fresh rStuff, store the copy; else store g itself. setGroup is unchanged from stroke 1(a) — the bare assignment.
+2. GroupMain.twk: every site whose source is a rule calls embed instead of the group assignment — the six borrowers and every non-borrower rule embed (:353 is the known one). Enumerate by reading; report the list with the stroke.
+3. Stroke 1(b) becomes: per term with isGROUP, term.embed(term.gGroup). (c) and (d) as amended.
+4. Build as one stroke with stroke 1(a). Certificate unchanged and pre-registered: bare fleet byte-identical with kant8T and pointerT named; frontier exit 0, 10 PASS; canary 326. Stop clause stands: revert whole, bisect with a control.
+Strokes 2–3 resume on green.
+
+Recorded, not chased: NamE 0 / NumbeR 4 contradicts the tree's pairing of them as equally inert; one half of a cited claim is wrong. Docket, not this stroke.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP, ONE PRE-REGISTERED PREDICTION AND IT IS THE ONLY
+  PLACE THIS DISPATCH DIFFERS FROM WHAT WAS LAST MEASURED GREEN.
+
+  Item 3 gives (b) as "per term with isGROUP, term.embed(term.gGroup)" with NO
+  exclusion. The version that measured 171 green on 2026-09-02 EXCLUDED terms
+  carrying isLocal or isLabel, and that exclusion was not cosmetic: aCTionDefinE
+  gives the `this` local its group at ruleActions.rtn:469 with
+  `grup.group = NewGroup`, and NewGroup IS a rule -- so an unexcluded (b) will
+  hand `this` a COPY where the old isLocal branch of setGroup handed it the real
+  NewGroup.
+
+  ⚠ IT IS BUILT AS DISPATCHED ANYWAY, AND THAT IS DELIBERATE. The concern above
+  is a CAUSAL claim inferred from a mechanism, and this project's own measured
+  asymmetry says causal claims here are roughly a coin flip until run, while the
+  cost of running it is one build. What was actually measured is (b) WITH the
+  exclusion at 171 green; (b) WITHOUT it has never been measured at all. So the
+  prediction is registered here BEFORE the build rather than produced afterwards:
+
+     PREDICT -- kant8T and/or a coded-action row moves, and the exclusion is the
+     control that restores it. If the fleet is byte-identical instead, the
+     concern was wrong, `this` does not care, and the exclusion is dropped for
+     good rather than carried on a hunch.
+
+  Either outcome is worth the build. Only the unmeasured middle is not.
+
+  ------------------------ OUTCOME: BUILT, MEASURED, REVERTED ------------------------
+  THE embed PRIMITIVE WORKS AND F-44 IS ANSWERED. The bootstrap survives: 171 -> 4
+  became 171 -> 169. frontier exit 0 with 10 PASS, canary 326, and the two NAMED
+  rows -- kant8T and pointerT -- are 31 green with zero failures. Reverted WHOLE
+  under the stop clause because the fleet is not byte-identical, NOT because it is
+  broken. The patch is preserved at minionWork/embedStroke.patch and replays exactly.
+  Baseline verified restored byte-identical afterwards.
+
+  BISECT WITH A CONTROL. Clause (b) is LOAD-BEARING and by a large margin: with (b)
+  neutered and (a) plus the GroupMain conversions standing, the fleet reads 47 green.
+  (a) and (b) are one change and cannot ship apart.
+
+  SEVEN OF EIGHT GroupMain SITES CONVERTED, enumerated by reading: :159 :165 :290
+  :353 :357 :400 :435. All seven sources carry setRuleStuff() so all are rules --
+  CHECKED, not assumed, and properties/delimiter is the one that mattered to check,
+  since it lives in a non-rule registry and would have slipped through embed's
+  else-branch had it not been a rule. :218 NOT converted: new("tik"), unparented, no
+  setRuleStuff, so not a rule; embed would store it itself anyway.
+
+  TWO ROWS MOVED.
+
+  1. holderT row 3 -- THE FIX ARRIVING, and the fixture said so in advance. Moved
+  from its pinned `argument` to `htWindow`, the value it declares it wants. ⚠ AND IT
+  ARRIVED WITHOUT THE FLIP -- gNoUnwrap is 0. The old setGroup copied runAction's
+  parented subject and reparented the copy onto the holder, so argument.parenT read
+  the HOLDER; the bare assignment stores the subject, so it reaches htWindow. The
+  setGroup copy was part of the carrier defect, and 1(a) cures this much alone. The
+  re-pin is Tony's, because the pin's stated trigger was the flip and the trigger
+  was wrong.
+
+  2. anyOrNum.target -- ONE LINE, ANSWER 1 -> ANSWER ANYorNum, NOT CLASSIFIED. The
+  census row stays green and the generated bodies match byte for byte. Two readings
+  and no instrument here separates them: REGRESSION (the body no longer runs) or
+  ASSERTABILITY (it runs, the answer now arrives as a NODE, print follows it, and
+  `parseAnswer = argument(ruleText)` uses `=`, which bear-trap #41 just measured as
+  capturing nothing from a data-less field). Reported UNGRADED rather than guessed.
+
+  ⚠ CLOD'S PRE-REGISTERED PREDICTION FAILED, which is the point of registering it.
+  The isLocal/isLabel exclusion was predicted necessary; kant8T is green and 31
+  named rows are unmoved. It was a causal claim inferred from a mechanism and it was
+  wrong. THE EXCLUSION IS DROPPED rather than carried on a hunch, and (b) ships
+  exactly as dispatched.
+
+  END SEQ 124
