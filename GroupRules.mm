@@ -2282,6 +2282,45 @@ extern "C" GroupItem *arrondir(GroupItem *field)
 	return GroupControl::groupController->groupRules->tempField;
 }
 
+/*******************************************************************************
+    jitAssignNodeRT -- `=` WITH A NODE ON THE RIGHT, AT RUN TIME. SEQ 138 item 2.
+
+    ⚠ F-48's RULING IN ONE PLACE, for both roads to share: `=` with a FIELD on
+    the right COPIES ITS VALUE; a HOLDER refuses by name (`holds a group; say *`);
+    NOTHING refuses by name. F-41's form throughout -- named, declined, stores
+    nothing, the run continues.
+
+    ⚠ THE RULING LIVES IN assignFieldCore, AND BOTH ROADS CALL IT (SEQ 139). The
+    interpreted `=` reaches it from opAssign under gNoUnwrap; the emitted `=`
+    reaches it through jitAssignNodeRT. ONE SPELLING, so the two roads cannot
+    drift -- which is the defect the road column found when only the jit road had
+    the ruling.
+
+    ⚠ IT EXISTS BECAUSE jitEmitAssign WAS STORING THE NODE'S ADDRESS. A star
+    publishes a NODE, not a scalar, and the emitted store put that pointer into
+    the target's slot -- which is how starT's jitted road read 5560000 where the
+    interpreted road read LEAF. A pointer wearing the shape of data.
+    GroupActions.jitAssignNodeRT
+*******************************************************************************/
+extern "C" int assignFieldCore(GroupItem *source, GroupItem *target)
+{
+	
+	if ( !target )  return 0;
+	if ( !source ) {
+	::fprintf(stderr,"ERROR = on %s -- nothing on the right; stores nothing\n",
+	target->groupBody->tag);
+	return 0;
+	}
+	if ( isGROUP(source->groupBody->flags.data) ) {
+	::fprintf(stderr,"ERROR = on %s -- holds a group; say *\n",
+	target->groupBody->tag);
+	return 0;
+	}
+	target->setContent(source);
+	return 1;
+	
+}
+
 /*****************************************************************************
     auditTerms / auditRegistry -- materialiseTerms' walk with the OPPOSITE
     intent. It repairs nothing; it reports what is missing.
@@ -4720,37 +4759,12 @@ finishXP:
 	return xpList;
 }
 
-/*******************************************************************************
-    jitAssignNodeRT -- `=` WITH A NODE ON THE RIGHT, AT RUN TIME. SEQ 138 item 2.
-
-    ⚠ F-48's RULING IN ONE PLACE, for both roads to share: `=` with a FIELD on
-    the right COPIES ITS VALUE; a HOLDER refuses by name (`holds a group; say *`);
-    NOTHING refuses by name. F-41's form throughout -- named, declined, stores
-    nothing, the run continues.
-
-    ⚠ IT EXISTS BECAUSE jitEmitAssign WAS STORING THE NODE'S ADDRESS. A star
-    publishes a NODE, not a scalar, and the emitted store put that pointer into
-    the target's slot -- which is how starT's jitted road read 5560000 where the
-    interpreted road read LEAF. A pointer wearing the shape of data.
-    GroupActions.jitAssignNodeRT
-*******************************************************************************/
 extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target)
 {
 	
-	if ( !target )  return 0;
-	if ( !source ) {
-	::fprintf(stderr,"ERROR = on %s -- nothing on the right; stores nothing\n",
-	target->groupBody->tag);
+	if ( ::assignFieldCore(source,target) )  return target;
 	return 0;
-	}
-	if ( isGROUP(source->groupBody->flags.data) ) {
-	::fprintf(stderr,"ERROR = on %s -- holds a group; say *\n",
-	target->groupBody->tag);
-	return 0;
-	}
-	target->setContent(source);
 	
-	return target;
 }
 
 extern "C" GroupItem *jitBindArgRT(GroupItem *argument, GroupItem *field)
@@ -9372,7 +9386,16 @@ int 	priorLimit = ::limitWriteGuard(target);
 	if ( argument )
 		if ( argument->groupBody->flags.byRef )
 			target->setGroup(argument);
-		else	target->setContent(argument);
+		else {
+			/*  ⚠ F-48 FOR THE INTERPRETER (Tony, SEQ 139), through the SAME core
+			the emitted road uses -- assignFieldCore -- so the two cannot
+			drift. A holder on the right refuses by name and stores nothing.
+			⚠ GATED ON gNoUnwrap: bare behaviour is unchanged, because at 0
+			the auto-unwrap is still in place and a holder legitimately
+			resolves to its value.   Instruct.opAssign.holderRefusal  */
+			 if (gNoUnwrap) { ::assignFieldCore(argument,target); }
+			else             target->setContent(argument); 
+			}
 	else	target->clearData();
 	/*  F-27, Tony's ruling 2026-08-19. Non-zero priorLimit means the target IS
 	maxLimit and here is what to restore, so every other assignment in the

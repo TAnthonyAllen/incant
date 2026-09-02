@@ -431,13 +431,19 @@ extern GroupItem chanReport(GroupItem input)
     NOTHING refuses by name. F-41's form throughout -- named, declined, stores
     nothing, the run continues.
 
+    ⚠ THE RULING LIVES IN assignFieldCore, AND BOTH ROADS CALL IT (SEQ 139). The
+    interpreted `=` reaches it from opAssign under gNoUnwrap; the emitted `=`
+    reaches it through jitAssignNodeRT. ONE SPELLING, so the two roads cannot
+    drift -- which is the defect the road column found when only the jit road had
+    the ruling.
+
     ⚠ IT EXISTS BECAUSE jitEmitAssign WAS STORING THE NODE'S ADDRESS. A star
     publishes a NODE, not a scalar, and the emitted store put that pointer into
     the target's slot -- which is how starT's jitted road read 5560000 where the
     interpreted road read LEAF. A pointer wearing the shape of data.
     GroupActions.jitAssignNodeRT
 *******************************************************************************/
-extern GroupItem jitAssignNodeRT(GroupItem source,GroupItem target)
+extern int assignFieldCore(GroupItem source,GroupItem target)
 {
     -%
     if ( !target )  return 0;
@@ -452,8 +458,17 @@ extern GroupItem jitAssignNodeRT(GroupItem source,GroupItem target)
         return 0;
         }
     target->setContent(source);
+    return 1;
     %-
-    return target;
+}
+
+
+extern GroupItem jitAssignNodeRT(GroupItem source,GroupItem target)
+{
+    -%
+    if ( ::assignFieldCore(source,target) )  return target;
+    return 0;
+    %-
 }
 
 

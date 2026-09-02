@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      138
+SEQ:      139
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 139, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 139 IS LIVE AND IS AT THE FOOT -- F-48 ruled for the INTERPRETER,
+          with the JIT ROAD AS THE REFERENCE. setContent refuses a holder on the
+          right of `=` under gNoUnwrap, through the SHARED CORE and not a second
+          spelling. Bare behaviour unchanged. Then stroke 3, then the branch.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 138, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 138 IS LIVE AND IS AT THE FOOT -- stroke 2's certificate CORRECTED
           (both roads match the INTERPRETED road's current output; it does not
@@ -6717,3 +6723,60 @@ Then the branch.
   STROKE 3 not started -- it is independent and is next.
 
   END SEQ 138
+
+
+SEQ 139  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  F-48 FOR THE INTERPRETER; JIT ROAD IS THE REFERENCE.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — F-48 ruled for the interpreter; jit road is the reference.
+setContent, under gNoUnwrap: a holder on the right of = refuses by name — through jitAssignNodeRT or its shared core, not a second spelling — and stores nothing. Bare behaviour unchanged (auto-unwrap stays at 0). Certificate: both roads byte-identical to the jit road's current six rows; starT B/C/E re-pinned with refusal text asserted; pointerT thirteen rows byte-identical across roads; bare fleet byte-identical. Degrade 0.
+Then stroke 3, the five followers, as dispatched; then the branch.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP, one arithmetic caution stated before the build. The
+  jit road's six rows today are 4 / 0 / 0 / 4 / 0 / 0, and the ruling reaches
+  only the HOLDER case -- which is B, C and E, exactly as the dispatch names for
+  re-pinning. It does NOT reach A and D, whose jit rows read 4 while their
+  interpreted rows read LEAF. So "both roads byte-identical" may land on B/C/E/F
+  and leave A/D apart. If it does, that is a SEPARATE divergence with its own
+  cause and it will be reported as one rather than chased into this stroke.
+
+  ------ OUTCOME: ONE SPELLING, BOTH ROADS. FOUR OF SIX CONVERGE; THE OTHER TWO
+  ------ SHOW THE CERTIFICATE'S REFERENCE IS WRONG
+  BUILT: the ruling moved into assignFieldCore and BOTH ROADS CALL IT -- the
+  interpreted `=` from opAssign under gNoUnwrap, the emitted `=` through
+  jitAssignNodeRT. One spelling, so they cannot drift. Bare untouched: the
+  interpreted call is gated on gNoUnwrap, because at 0 the auto-unwrap is still
+  in place and a holder legitimately resolves to its value.
+
+    row        jitted   interpreted   verdict
+    S2a stB      0         stB        CONVERGED
+    S2b stC      0         stC        CONVERGED
+    S3b stE      0         stE        CONVERGED
+    S4  stF      0         stF        CONVERGED
+    S1  stA      4         LEAF       diverges
+    S3a stD      4         LEAF       diverges
+
+  Degrade 0. Bare fleet BYTE-IDENTICAL, 176 green, frontier 10 PASS, canary 331.
+
+  ⚠⚠ ON THE TWO THAT REMAIN, THE CERTIFICATE'S REFERENCE IS THE WRONG ONE. It
+  pins both roads to the JIT road's current six rows, and for A and D the jit road
+  reads 4 -- which is NOT a value the ruling can produce. `stA = *st1` puts stLeaf
+  on the right, stLeaf holds TEXT, and the ruling says a field with a value COPIES
+  IT. LEAF is correct and THE INTERPRETED ROAD IS THE ONE GIVING IT. The jit road
+  is storing a stale scalar through the ordinary store path; its node branch does
+  not fire for those two rows.
+  So convergence on A and D is a JIT REPAIR, not an interpreter one, and pinning
+  to 4 would pin a defect. Reported rather than built.
+
+  ⚠ pointerT did NOT converge and its defect is a DIFFERENT one: all fourteen rows
+  diverge and the jitted arm prints EMPTY throughout -- not a wrong value, an
+  absent one. Unrelated to F-48's holder case. Separate finding, not chased.
+
+  END SEQ 139

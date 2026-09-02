@@ -131,6 +131,7 @@ extern "C" GroupItem *appendGroup(GroupItem *input, GroupItem *FormaT, Buffer *b
 extern "C" GroupItem *appendGroupValue(int value, GroupItem *FormaT, Buffer *buffer);
 extern "C" void appendPrintXP(GroupItem *stuff, Buffer *buffer);
 extern "C" GroupItem *arrondir(GroupItem *field);
+extern "C" int assignFieldCore(GroupItem *source, GroupItem *target);
 extern "C" int auditMissingRules(GroupItem *registry);
 extern "C" int auditMissingTerms(GroupItem *registry);
 extern "C" GroupItem *auditRStuff(GroupItem *argument);

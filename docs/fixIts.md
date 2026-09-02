@@ -63,6 +63,40 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### ⚠ SEQ 139 — F-48 IS NOW ON BOTH ROADS, THROUGH ONE SPELLING. FOUR OF SIX CONVERGE
+**Built:** the ruling moved into **`assignFieldCore`**, and **both roads call it** — the interpreted
+`=` from `opAssign` under `gNoUnwrap`, the emitted `=` through `jitAssignNodeRT`. **One spelling, so
+the two cannot drift**, which is the defect the road column found when only the jit road had it.
+Bare behaviour is untouched: the interpreted call is gated on `gNoUnwrap`, because at 0 the
+auto-unwrap is still in place and a holder legitimately resolves to its value.
+
+**`starT` under the flip, both roads:**
+
+| row | jitted | interpreted | verdict |
+|---|---|---|---|
+| S2a `stB` | `0` | **`stB`** | **converged** — both store nothing ✅ |
+| S2b `stC` | `0` | **`stC`** | **converged** ✅ |
+| S3b `stE` | `0` | **`stE`** | **converged** ✅ |
+| S4 `stF` | `0` | `stF` | **converged** ✅ |
+| S1 `stA` | **`4`** | **`LEAF`** | diverges ❌ |
+| S3a `stD` | **`4`** | **`LEAF`** | diverges ❌ |
+
+**Degrade 0. Bare fleet byte-identical, 176 green, frontier 10 PASS, canary 331.**
+
+⚠⚠ **AND ON THE TWO THAT REMAIN, THE CERTIFICATE'S REFERENCE IS THE WRONG ONE.** The certificate
+pins both roads to *the jit road's current six rows*. For A and D the jit road reads **`4`** — and
+`4` is **not a value the ruling can produce.** `stA = *st1` puts `stLeaf` on the right, `stLeaf`
+holds **text**, and the ruling says a field with a value **copies it**. `LEAF` is the correct answer
+and **the interpreted road is the one giving it.** The jit road is storing a stale scalar through the
+ordinary store path — its node branch does not fire for those two rows.
+**So convergence on A and D is a JIT repair, not an interpreter one**, and pinning to `4` would pin a
+defect. Reported rather than built: the reference needs correcting first.
+
+⚠ **`pointerT` DID NOT CONVERGE AND ITS DEFECT IS A DIFFERENT ONE.** All fourteen rows diverge, and
+the jitted arm prints **empty throughout** — not a wrong value, an absent one. That is unrelated to
+F-48's holder case and is not addressed by this ruling. **Separate finding, not chased.**
+
+
 ### ⚠⚠ SEQ 138 STROKE 2 — BUILT, AND IT FOUND THE DIVERGENCE'S REAL SEAT: **THE INTERPRETER, NOT THE JIT**
 **Built:** (i) `jitDerefRT`'s refusals carry a road tag — `ERROR unary * [jit road] on X` — so a run
 can finally say which road refused. (ii) A node result on the right of `=` goes through
