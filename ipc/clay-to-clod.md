@@ -17,8 +17,16 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      124
+SEQ:      125
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 125, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 125 IS LIVE AND IS AT THE FOOT -- TWO GATES ON THE embed STROKE.
+          holderT row 3 RE-PINS to htWindow with the sentence (Tony's ruling, and
+          his prediction). anyOrNum is MEASURED, NOT GRADED: respell `:=`, run
+          once, read ANSWER. On both green, replay the patch with embed renamed
+          embedRule throughout, certify byte-identical against the RE-PINNED
+          baseline, commit, resume strokes 2-3.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 124, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 124 IS LIVE AND IS AT THE FOOT -- F-44 RULED: ONE embed PRIMITIVE.
           GroupItem::embed(g) copies when g is a rule and stores otherwise;
@@ -5710,3 +5718,116 @@ Recorded, not chased: NamE 0 / NumbeR 4 contradicts the tree's pairing of them a
   exactly as dispatched.
 
   END SEQ 124
+
+
+SEQ 125  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  TWO GATES ON THE embed STROKE, PLUS TONY'S
+             embedRule RENAME.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any measurement, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — two gates on the embed stroke.
+holderT row 3: re-pin to htWindow, with the sentence that it arrived at gNoUnwrap 0 — the trigger was setGroup's copy, not the flip. Tony rules; this is his prediction.
+anyOrNum: measure, don't grade. Respell parseAnswer := argument(ruleText), run once, read ANSWER. 1 = assertability (bear-trap #41); re-pin with :=. Still ANYorNum = regression; report with the body's witness and hold the stroke. Pre-register both outcomes.
+On both green: replay minionWork/embedStroke.patch, certify byte-identical against the re-pinned baseline, commit, resume strokes 2–3.
+
+Haps: The embedRule name change did not go thru. Another one of my cut and paste errors
+
+No harm — the patch is in minionWork/, unapplied, so the rename is one line in the resume instruction rather than a new stroke. Add to the draft:
+
+On replay: embed → embedRule throughout the patch (GroupItem method, the seven GroupMain sites, clause (b)) before applying. Name is the ruling; the branch it names is unchanged.
+
+Since the patch replays byte-for-byte, the rename is the only edit between it and the certificate, which keeps the bisect clean if anything unexpected moves.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ PRE-REGISTERED BEFORE ANY MEASUREMENT, as ordered. FOUR ARMS, not two -- the
+  dispatch names two and a two-arm reading cannot tell "`:=` fixed it" from "`:=`
+  always read 1 and `=` was never the channel". So the control arms are added and
+  declared here first.
+
+     A  baseline binary, `=`  spelling   ANSWER 1          KNOWN -- the pinned target
+     C  embed    binary, `=`  spelling   ANSWER ANYorNum   KNOWN -- measured in C4
+     B  baseline binary, `:=` spelling   ?                 CONTROL, free, no rebuild
+     D  embed    binary, `:=` spelling   ?                 THE QUESTION
+
+  OUTCOME 1 -- ASSERTABILITY.  D reads 1.  The body still runs; the answer arrives
+  as a NODE and `=` could not carry it out of one, which is bear-trap #41 exactly.
+  Re-pin the fixture to `:=` and regenerate the target. ⚠ B DISCRIMINATES THE
+  REASON: B = 1 means `:=` reads the answer under BOTH machines and the respell is
+  a pure instrument fix; B = ANYorNum would mean `:=` changed what the fixture
+  measures and the re-pin is NOT a like-for-like swap -- report that, do not
+  quietly re-pin through it.
+
+  OUTCOME 2 -- REGRESSION.  D still reads ANYorNum.  The generated body compiles
+  and does not run, which is the precise failure the row was minted to catch.
+  Revert the stroke whole, hold, and report with the body's witness -- the census
+  line (4 attempted, 0 refused) and the byte-matching generated bodies, which
+  together say generation is intact and EXECUTION is not.
+
+  ⚠ THIRD OUTCOME, named because this project's predictions keep omitting it and
+  the omission is itself on the ledger: VOID. If the respell moves any line of the
+  target OTHER than ANSWER, then `:=` has changed the subject and neither reading
+  above applies. Report void; do not grade it.
+
+  ⚠ ONE NOTE ON THE RE-PINNED BASELINE, because the phrase is ambiguous and the
+  ambiguity would eat the certificate. Re-pinning holderT row 3 to htWindow makes
+  the CURRENT bare binary go RED on that row -- at baseline it genuinely reads
+  `argument`. So "byte-identical against the re-pinned baseline" cannot mean a
+  diff against a capture taken now. It is read as: WITH the patch applied and the
+  re-pins in place, the fleet returns to 171 GREEN with every other row unmoved
+  from the C4 baseline. That is the certificate being run.
+
+  ------------------ OUTCOME: GATE 2 IS RED. THE STROKE IS HELD. ------------------
+  ARM D READS ANYorNum. Pre-registered OUTCOME 2 -- REGRESSION -- and the stroke
+  is held whole, reverted, baseline verified byte-identical. The rename to
+  embedRule was applied and the renamed build reproduced C4's result EXACTLY --
+  same two rows, no others -- so the rename is clean and the bisect stays clean.
+
+  THE FOUR ARMS, and the two control arms are what make this a finding rather
+  than a guess:
+     A  baseline binary, `=`   ANSWER 1          the pinned target
+     B  baseline binary, `:=`  ANSWER 1          BYTE-IDENTICAL to the target
+     C  embedRule binary, `=`  ANSWER ANYorNum
+     D  embedRule binary, `:=` ANSWER ANYorNum
+
+  ⚠ THE SPELLING IS NOT THE CHANNEL, AND ARM B IS WHAT PROVES IT. `:=` reads 1
+  under the baseline machine and ANYorNum under the embedRule machine, so the
+  operator is irrelevant and THE MACHINE CHANGED THE ANSWER. Bear-trap #41 is
+  EXCLUDED as the explanation -- named because it was the pre-registered reading
+  and it lost.
+
+  ⚠ VOID IS EXCLUDED TOO. Arm B is byte-identical to the pinned target and arm D
+  differs from it in ONE hunk, line 19, ANSWER only. The respell moved no other
+  line under either machine, so `:=` did not change the subject.
+
+  THE BODY'S WITNESS, as ordered -- generation is intact and EXECUTION is not:
+     compile census: 4 attempted, 0 refused        unchanged
+     WITNESS compiled 1                            compile DID run on the rule
+     generated bodies                              byte-identical, all 18 lines
+     CodE = { if exponent() AND sign() AND power(); return runRuleAction(this); }
+     ANSWER                                        1 -> ANYorNum
+  So the body is generated, compiled, and attached identically, and what comes
+  back from invoking it is the RULE rather than an answer. That is precisely the
+  failure mode pop.sh's own comment says this row was minted to catch: "the
+  answer catches a body that compiles and then does not run."
+
+  ⚠ NOT DIAGNOSED, AND DELIBERATELY NOT GUESSED AT. Reproduction proves the
+  symptom, never the cause. What is measured: the answer is the rule node, under
+  both spellings, on a build whose only difference is that setGroup stores
+  instead of copying and definition copies embedded rules. What is NOT measured:
+  which of those two clauses does it, and whether the body executes and returns
+  the wrong thing or does not execute at all. A (a)-only bisect cannot answer it
+  -- (a) without (b) is the 47-green build -- so the discriminator has to be
+  built rather than selected.
+
+  ⚠ THE holderT RE-PIN IS RULED BUT NOT LANDED, and the reason is mechanical: at
+  baseline row 3 genuinely reads `argument`, so re-pinning to htWindow now would
+  turn the CLEAN baseline red on a row the shipped machine cannot satisfy. The
+  re-pin lands in the same stroke as the patch, not before it. Written down so
+  the ruling is not read as unexecuted.
+
+  END SEQ 125

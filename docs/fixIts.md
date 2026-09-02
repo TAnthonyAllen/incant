@@ -218,6 +218,53 @@ only the final answer line moved. Two readings and **no instrument here separate
 own charter says the answer exists to *"catch a body that compiles and then does not run"* — so
 which reading is right decides whether that assertion still holds, and that is a ruling.
 
+#### ⚠⚠ GATE 2 MEASURED (SEQ 125) — THE SPELLING IS NOT THE CHANNEL. THE STROKE IS HELD
+Ordered: respell `parseAnswer := argument(ruleText)`, run once, read ANSWER. **Two control arms
+were added and pre-registered first**, because a two-arm reading cannot tell *"`:=` fixed it"* from
+*"`:=` always read 1 and `=` was never the channel"*.
+
+| arm | binary | spelling | ANSWER |
+|---|---|---|---|
+| A | baseline | `=` | **1** — the pinned target |
+| B | baseline | `:=` | **1** — and **byte-identical** to the whole target |
+| C | `embedRule` | `=` | **ANYorNum** |
+| D | `embedRule` | `:=` | **ANYorNum** |
+
+**Arm B is what makes this a finding.** `:=` reads `1` under the baseline machine and `ANYorNum`
+under the `embedRule` machine, so **the operator is irrelevant and the MACHINE changed the answer.**
+Bear-trap #41 is **excluded** as the explanation — named because it was the pre-registered reading
+and it lost. **VOID is excluded too:** arm B matches the target byte for byte and arm D differs in
+one hunk, line 19, ANSWER only, so the respell moved no other line under either machine.
+
+**THE BODY'S WITNESS — generation is intact and EXECUTION is not:**
+```
+compile census: 4 attempted, 0 refused     unchanged
+WITNESS compiled 1                         compile DID run on the rule
+generated bodies                           byte-identical, every line
+CodE = { if  exponent() AND sign() AND power(); return runRuleAction(this); }
+ANSWER                                     1 -> ANYorNum
+```
+The body is generated, compiled and attached identically, and what comes back from invoking it is
+**the rule** rather than an answer. That is exactly what `pop.sh`'s own comment says the row was
+minted to catch: *"the answer catches a body that compiles and then does not run."*
+
+⚠ **NOT DIAGNOSED, AND NOT GUESSED AT.** Reproduction proves the symptom, never the cause.
+**Measured:** the answer is the rule node, under both spellings, on a build whose only difference is
+that `setGroup` stores instead of copying and definition copies embedded rules. **Not measured:**
+which of the two clauses does it, and whether the body executes and returns the wrong thing or does
+not execute at all. ⚠ **An (a)-only bisect cannot answer it** — (a) without (b) is the 47-green
+build — **so the discriminator has to be built rather than selected.**
+
+**THE RENAME LANDED CLEANLY.** `embed` → `embedRule` throughout (method, `groups.ext` mirror, the
+seven `GroupMain` sites, clause (b)); the renamed build reproduced C4's result **exactly** — same
+two rows, no others — so the rename is not in the blast radius and the bisect stays clean.
+`minionWork/embedStroke.patch` now carries the renamed form and replays as-is.
+
+⚠ **THE `holderT` RE-PIN IS RULED BUT NOT LANDED, for a mechanical reason.** At baseline row 3
+genuinely reads `argument`, so re-pinning to `htWindow` now would turn the **clean baseline red** on
+a row the shipped machine cannot satisfy. **The re-pin lands in the same stroke as the patch, never
+before it.** Recorded so the ruling is not misread as unexecuted.
+
 ⚠ **A PRE-REGISTERED PREDICTION OF CLOD'S FAILED, AND THE FAILURE IS USEFUL.** Registered in
 `ipc/` before the build: that (b) without the `isLocal`/`isLabel` exclusion would move `kant8T` or a
 coded-action row, because `aCTionDefinE` gives the `this` local its group with `grup.group = NewGroup`
