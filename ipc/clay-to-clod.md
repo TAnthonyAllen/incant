@@ -17,8 +17,15 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      128
+SEQ:      129
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 129, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 129 IS LIVE AND IS AT THE FOOT -- F-45, TWO CONTROLS, THEN THE
+          ROAD. Bracket the emitted bind; measure the refusal's aftermath once;
+          attribute kant8T's nine with a control build; classify the flipped
+          frontier's station 2 and give it its own recorded baseline. SEQ 128
+          held for Tony. Then nestT, A->B->A, fleet rows, the asking.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 128, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 128 IS LIVE AND IS AT THE FOOT -- RECON, READ ONLY. Census every
           read and every write of rStuff->parseMethod and rStuff->actionMethod
@@ -5977,3 +5984,95 @@ Expected: zero readers outside setParse, in which case both slots become locals 
   from the raw match, the pattern is wrong and the count is void.
 
   END SEQ 128
+
+
+SEQ 129  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  F-45, TWO CONTROLS, THEN THE ROAD.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any build, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — F-45, two controls, then the road.
+1. F-45: the emitted path brackets the bind as runAction does — save before, restore after the call. Then measure the refusal's aftermath once: on a refused bind, does the action run, and with which gGroup? Report; Tony rules whether refusal aborts. Certificate: inlineSelfT 0 refusals under the flip; SAMEFIELD=1 both roads; bare fleet byte-identical.
+2. Control build: stroke 2 reverted, flip on — kant8T's nine refusals attributed to the flip or to stroke 2. One build, one table.
+3. Frontier station 2 under the flip: first try-and-buy row. Classify by mechanism — F-45, the flip proper, or other — report, don't fix. The bare 10 PASS stays the certificate; the flipped frontier gets its own recorded baseline from this run forward.
+4. SEQ 128: held for Tony. Candidate shape recorded, not built: readers go through the body twin, slots retire.
+Then nestT, A→B→A, fleet rows, the asking.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP -- THE BRACKET NEEDS A PAIRED RESTORE POINT AND THE
+  OBVIOUS ONE DESYNCS. Read before building: the emitter's order is
+  bindArg -> saveFrame -> selfcall -> restoreFrame, and jitBindArgRT is emitted
+  ONLY `if (argument)` while jitSaveFrameRT/jitRestoreFrameRT are emitted
+  UNCONDITIONALLY (jitEmitters.rtn:1508 vs :1531-1550). So a stack pushed in
+  jitBindArgRT and popped in jitRestoreFrameRT goes out of step the first time a
+  jitted call has no argument.
+
+  THE SHAPE THAT DOES NOT: jitBindArgRT records the previous pair into a single
+  PENDING slot and binds; jitSaveFrameRT pushes that pending entry -- or an empty
+  one -- and clears it; jitRestoreFrameRT pops and restores only a non-empty
+  entry. The push and the pop are then both unconditional and paired, and the
+  pending slot is only ever live between two adjacent emitted calls, so nothing
+  can interleave. ⚠ Both wrappers were CHECKED to be ungated -- the
+  `if field.recursive` lives inside saveLocalFields/restoreLocalFields, not in
+  them -- because a gated wrapper would have unbalanced the stack silently.
+
+  ---------- OUTCOME: F-45 IS RECURSION, NOT A LEAK. THE BRACKET DOES NOT CURE IT ----------
+  1. THE BRACKET WAS BUILT, IS BALANCED, RUNS, AND inlineSelfT STILL REFUSES. Held
+  in minionWork/f45Bracket.patch rather than landed, because the certificate said
+  0 refusals. The trace says why in seven lines: the outer bind succeeds and
+  pushes BOUND at depth 1; the RECURSIVE self-call then refuses, and the OCCUPANT
+  is `rbArg` at stackDepth=1 -- the call's OWN outer activation. Nothing leaked.
+  The argument attribute's gGroup is ONE SLOT ON ONE SHARED BODY and a recursive
+  call needs a STACK there, for the same reason the frame bracket needs one for
+  locals. No amount of restoring fixes that.
+  ⚠ ONE CHANNEL, ONE MEANING, AGAIN: the tripwire's "union is not empty" carries
+  both "someone else's data" and "my own outer frame", and cannot separate them.
+
+  THE AFTERMATH, measured once as ordered: on a refused bind THE ACTION RUNS --
+  no abort -- and the callee is bound by the old bind-by-body road. kant8T: 9 of 9
+  ACTION PROCEEDS. ⚠ Whether the delivered value is CORRECT is NOT established by
+  this measurement; the occupant and the fallback target resolve to one address
+  here, and one is a holder while the other is what it points at. Tony rules
+  whether refusal aborts.
+
+  2. kant8T's NINE ARE THE FLIP'S, one build, one table:
+
+     fixture       s2 reverted / s3 present   s3 reverted / s2 present   both
+     kant8T                 9                          9                  9
+     inlineSelfT            1                          0                  1
+     jitJR                  0                          0                  0
+
+  Nine in every configuration -- neither stroke. inlineSelfT's one tracks stroke 3
+  and not stroke 2, which is what C10 said and which the re-diagnosis explains:
+  stroke 3 is what makes the jitted self-call bind through the channel at all, so
+  it is what first meets the recursion.
+
+  3. FRONTIER STATION 2 IS NOT F-45 AND NOT THE CHANNEL -- 0 refusals and 0
+  channel binds in the whole run, so the channel is never touched; and it
+  reproduces with stroke 2 reverted. IT IS THE FLIP PROPER. Recorded baseline for
+  the flipped ladder, the first that exists: exit 0, 1 PASS, 1 FAIL, stops at
+  station 2, ran-census 2 of 9. Bare 10 PASS stays the certificate.
+  MECHANISM, BEST GUESS and graded: frontier:77-78 captures with `=` and the
+  failing line prints frLiveLen and frTwinLen as their OWN TAGS, so both locals
+  carry no data -- bear-trap #41's family. ⚠ What would kill it: atypeT under the
+  flip shows the `:=` capture moving too. ⚠ What would promote it: respell those
+  two lines `:=` and re-run -- NOT DONE, because incant/frontier is ONE file,
+  never forked, and the order was report, don't fix.
+
+  ⚠ THE PRE-REGISTERED try-and-buy BUCKET FIRED AND CAME UP ITS OWN THIRD OUTCOME.
+  atypeT bare 65/65/1/64/0/65, under the flip 65/65/0/65/0/65. The BARE arm did
+  not move; the CAPTURED arm did. That is the fixture's pre-registered VOID, word
+  for word. REPORTED VOID, NOT GRADED. The residue is one fact and not a verdict:
+  under the flip, `:=` captures move too.
+
+  4. SEQ 128 held for Tony; candidate shape recorded in fixIts, not built.
+
+  STATE: everything restored to HEAD, flip verified back at 0, bare binary live,
+  fleet BYTE-IDENTICAL to the landed C10 fleet at 171 green, frontier 10 PASS,
+  canary 326.
+
+  END SEQ 129

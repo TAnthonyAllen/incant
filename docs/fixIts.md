@@ -135,6 +135,81 @@ bind-by-body road is acceptable, or whether the emitted path needs a restore cou
 `jitRestoreFrameRT`, is **not measured and is Tony's to rule.**
 **Done-when:** either the emitted path gains a restore and `inlineSelfT` goes back to 0 refusals, or
 the refusal is ruled acceptable and pinned by a fleet row so it cannot drift silently.
+
+#### ⚠⚠ F-45 RE-DIAGNOSED (SEQ 129) — IT IS **RECURSION**, NOT A MISSING RESTORE. THE BRACKET WAS BUILT AND DOES NOT CURE IT
+**The bracket was built** — a pending slot plus a push/pop stack, because the emitter's order is
+`bindArg → saveFrame → selfcall → restoreFrame` and `bindArg` is emitted only `if (argument)` while
+the frame pair is unconditional, so a stack pushed at the bind and popped at the restore desyncs on
+the first argument-less jitted call. It is in `minionWork/f45Bracket.patch`. **It is balanced and it
+runs — and `inlineSelfT` still refuses.** Held, not landed: the certificate said 0 refusals.
+
+**The trace says why, in seven lines:**
+```
+GCHAN bind on rb                            <- outer bind succeeds, pending recorded
+GCHAN push depth=1 entry=BOUND
+ARGCHANNEL REFUSED on rb                    <- the RECURSIVE self-call refuses
+OCCUPANT on rb: tag=rbArg  stackDepth=1     <- occupied by the OUTER activation
+GCHAN push depth=2 entry=empty
+GCHAN pop  depth=1 entry=empty
+GCHAN pop  depth=0 entry=BOUND              <- restored correctly
+```
+⚠ **THE OCCUPANT IS THE CALL'S OWN OUTER ACTIVATION, AT STACK DEPTH 1.** Nothing leaked. The
+argument attribute's `gGroup` is **ONE SLOT ON ONE SHARED BODY**, and a recursive call needs a
+**stack** there for exactly the reason the frame bracket needs one for locals. **No amount of
+restoring fixes that, because the outer bind is legitimately still live when the inner one arrives.**
+⚠ **AND IT IS THE ONE-CHANNEL-ONE-MEANING FAMILY AGAIN:** the tripwire's *"union is not empty"*
+carries two meanings — *someone else's data* and *my own outer frame* — and it cannot tell them
+apart. The alarm is correct and its message is ambiguous.
+
+**THE AFTERMATH, MEASURED ONCE AS ORDERED.** On a refused bind **the action RUNS** — no abort — and
+the callee is bound by the old **bind-by-body** road:
+```
+AFTERMATH-JIT on rb: occupant gGroup=0x1051bee80 tag=rbArg ; falling back to bind-by-body
+AFTERMATH-JIT on rb: after fallback the callee reads gGroup=0x1051bee80 ; ACTION PROCEEDS
+kant8T: 18 aftermath lines, 9 of them ACTION PROCEEDS
+```
+So a refusal silently returns that one call to the pre-channel road. ⚠ **Whether the value delivered
+is CORRECT is not established by this measurement** — the occupant and the fallback target resolve
+to the same address here, and one is a holder while the other is what it points at. **Tony rules
+whether refusal should abort.**
+
+#### ITEM 2 — kant8T's NINE ARE THE FLIP'S. Attributed with a control build
+| fixture | stroke 2 reverted (direct write), stroke 3 present | stroke 3 reverted, stroke 2 present | both present |
+|---|---|---|---|
+| `kant8T` | **9** | **9** | **9** |
+| `inlineSelfT` | **1** | **0** | **1** |
+| `jitJR` | 0 | 0 | 0 |
+
+**`kant8T`: nine in every configuration — neither stroke 2 nor stroke 3. It is the FLIP.** The C10
+inference stands and is now measured: the 09-01f *"zero refusals"* was taken on the `minionWork/`
+probes and **`kant8T` had never been run under the flip at all.**
+**`inlineSelfT`: the one refusal tracks stroke 3 and not stroke 2** — 0 only when stroke 3 is absent
+— which is what C10 reported, and the re-diagnosis above says why: stroke 3 is what makes the jitted
+self-call bind through the channel, so it is what first meets the recursion.
+
+#### ITEM 3 — FRONTIER STATION 2 UNDER THE FLIP: **NOT F-45, NOT THE CHANNEL.** First recorded baseline
+**RECORDED BASELINE, flipped frontier, 2026-09-02, and it is the first one that exists:**
+`exit 0 · 1 PASS · 1 FAIL · stops at station 2 · ran-census 2 of 9`. The bare `10 PASS` remains the
+certificate; this is the flipped ladder's own row from here forward.
+**CLASSIFICATION — measured, not reasoned: `0` refusals and `0` channel binds in the whole frontier
+run.** The argument channel is never touched, so F-45 is excluded outright. It reproduces with
+stroke 2 reverted, so stroke 2 is excluded. **It is the flip proper.**
+**MECHANISM — BEST GUESS, graded, not a remedy.** `incant/frontier:77-78` captures with `=` —
+`frLiveLen = frLive.listLengtH;` — and the failing line prints `frLiveLen` and `frTwinLen` as **their
+own tags**, so both locals carry no data. That is bear-trap #41's family exactly. ⚠ **What would
+kill it:** `atypeT` under the flip shows the **`:=`** capture moving too (below), so "the flip breaks
+`=` captures" is not sufficient on its own. ⚠ **What would promote it:** respelling those two lines
+`:=` and re-running under the flip — **not done, because `incant/frontier` is ONE file, never forked,
+and the dispatch said report, don't fix.**
+
+#### THE PRE-REGISTERED TRY-AND-BUY BUCKET FIRED, AND ITS OWN THIRD OUTCOME IS THE ONE THAT CAME UP
+`incant/atypeT`, bare baseline `65 / 65 / 1 / 64 / 0 / 65`, under the flip **`65 / 65 / 0 / 65 / 0 / 65`**.
+The **bare** arm did not move; the **captured** arm did (`1 → 0`, `64 → 65`).
+⚠ **THAT IS THE FIXTURE'S OWN PRE-REGISTERED `VOID`, WORD FOR WORD:** *"If the captured column moves
+for reasons that have nothing to do with actionTypE, the two arms are no longer measuring one subject
+and the row is UNINTERPRETABLE, not wrong. Report it as void and do not grade it."* **Reported void.
+Not graded.** The useful residue is one fact, not a verdict: **under the flip, `:=` captures move
+too**, which is what stops the station-2 guess from being promoted on its own.
 ⚠ **NOT IN SCOPE AND SEPARATELY OWED: `kant8T`'s NINE.** They are present with and without stroke 3,
 so they belong to stroke 2 or to the flip itself, and they are **not yet separated** — one more
 control build would do it. The likely reading, graded as inference and not measurement: the seal's
