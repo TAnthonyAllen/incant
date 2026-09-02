@@ -1285,7 +1285,10 @@ int GroupItem::getCount()
 		if ( isBUFFER(groupBody->flags.data) )
 			return groupBody->gBuffer->length();
 		if ( isGROUP(groupBody->flags.data) )
-			return groupBody->gGroup->getCount();
+			{
+			::fprintf(stderr,"ERROR getCount on %s -- holds a group; say *\n",groupBody->tag);
+			return 0;
+			}
 		}
 	return 0;
 }
@@ -1295,7 +1298,10 @@ int GroupItem::getDataType()
 	if ( isGROUP(groupBody->flags.data) )
 		if ( getGroup() == this )
 			return 0;
-		else	return getGroup()->getDataType();
+		else {
+			::fprintf(stderr,"ERROR getDataType on %s -- holds a group; say *\n",groupBody->tag);
+			return 0;
+			}
 	return groupBody->flags.data;
 }
 
@@ -1339,7 +1345,10 @@ PLGitem *GroupItem::getItem()
 	if ( isITEM(groupBody->flags.data) || "isDate" )
 		return groupBody->gItem;
 	if ( isGROUP(groupBody->flags.data) )
-		return groupBody->gGroup->getItem();
+		{
+		::fprintf(stderr,"ERROR getItem on %s -- holds a group; say *\n",groupBody->tag);
+		return 0;
+		}
 	return 0;
 }
 
@@ -1377,7 +1386,10 @@ double GroupItem::getNumber()
 		if ( isCOUNT(groupBody->flags.data) )
 			return (double)groupBody->gCount;
 		if ( isGROUP(groupBody->flags.data) )
-			return groupBody->gGroup->getNumber();
+			{
+			::fprintf(stderr,"ERROR getNumber on %s -- holds a group; say *\n",groupBody->tag);
+			return 0;
+			}
 		}
 	return 0;
 }
@@ -1387,7 +1399,10 @@ NSObject *GroupItem::getObject()
 	if ( isOBJECT(groupBody->flags.data) )
 		return groupBody->gObject;
 	if ( isGROUP(groupBody->flags.data) )
-		return groupBody->gGroup->getObject();
+		{
+		::fprintf(stderr,"ERROR getObject on %s -- holds a group; say *\n",groupBody->tag);
+		return 0;
+		}
 	return 0;
 }
 

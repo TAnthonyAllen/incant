@@ -63,6 +63,44 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### ✅ SEQ 140 STROKE 3 — THE FIVE FOLLOWERS STOP FOLLOWING. ZERO MOVED ROWS
+`getCount`, `getDataType`, `getItem`, `getNumber`, `getObject` no longer recurse on `gGroup`. On a
+holder each refuses by name — `ERROR <accessor> on <tag> -- holds a group; say *` — and returns the
+empty value. **Transitive followers in the tree: 6 → 0.**
+**Certificate: bare fleet BYTE-IDENTICAL, 176 green, frontier 10 PASS, canary 331. No row moved, so
+nothing was owed a re-pin** — no fixture reaches those five through a holder today.
+
+### ⚠⚠ F-50 (the jitted print reads slots) — THE STORE IS RIGHT AND THE READ IS WRONG
+**Gloss:** jitted print misses the field.
+**This one finding covers both outstanding divergences.** A/D and `pointerT` are the same defect.
+
+**THE A/D MEASUREMENT, as ordered — and it FALSIFIES the hypothesis it was sent to test.**
+`gJitLastIsNode` is raised on **all six rows**, refusing star and succeeding star alike:
+```
+derefEmit operand=st1 isGroup=1   assign target=stA lastIsNode=1 hasNode=1
+derefEmit operand=stLeaf isGroup=0  assign target=stF lastIsNode=1 hasNode=1
+```
+**So "fix it so a star's result is a node result whether it refused or reached a leaf" is already the
+state** — there is nothing to fix there, and the A/D divergence has another cause.
+
+**THE CAUSE, measured directly:**
+```
+ADPROBE stored into stA -> text now 'LEAF'      <- the core stored the RIGHT value
+ADPROBE stored into stD -> text now 'LEAF'
+jitted arm printed:  stA = 4     stD = 4        <- and the print did not read it
+```
+⚠ **`assignFieldCore` STORES CORRECTLY ON BOTH ROADS. THE JITTED PRINT IS NOT READING THE FIELD** —
+it emits a scalar slot, and `4` is whatever that slot holds. **The assignment was never the defect.**
+
+**AND `pointerT`'s SENTINEL CONFIRMS THE SAME SHAPE.** Case (ii), not (i): the sentinel fires
+**twice**, so the arm **runs on both roads** — this is not #25 routing. Its jitted rows print **empty
+for every field read** while `P0 both added = 1 1` — a **scalar** row — prints correctly.
+⚠ **SCALARS PRINT, FIELDS DO NOT.** `starT`'s `4` and `pointerT`'s blanks are one defect seen twice:
+the jitted print path handles a scalar and has nothing for a field.
+**Not chased past the sentinel, as ordered.** ⚠ **And it means the six-of-six certificate cannot be
+met by any change to the assign or the star** — both are already correct. It is the print.
+
+
 ### ⚠ SEQ 139 — F-48 IS NOW ON BOTH ROADS, THROUGH ONE SPELLING. FOUR OF SIX CONVERGE
 **Built:** the ruling moved into **`assignFieldCore`**, and **both roads call it** — the interpreted
 `=` from `opAssign` under `gNoUnwrap`, the emitted `=` through `jitAssignNodeRT`. **One spelling, so

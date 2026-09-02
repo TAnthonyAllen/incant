@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      139
+SEQ:      140
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 140, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 140 IS LIVE AND IS AT THE FOOT -- THE CERTIFICATE IS PINNED TO THE
+          LAW AND NEVER TO A ROAD: LEAF stB stC LEAF stE stF. A/D measured then
+          fixed; pointerT gets one sentinel and is not chased past it; stroke 3
+          taken now.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 139, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 139 IS LIVE AND IS AT THE FOOT -- F-48 ruled for the INTERPRETER,
           with the JIT ROAD AS THE REFERENCE. setContent refuses a holder on the
@@ -6780,3 +6786,58 @@ Then stroke 3, the five followers, as dispatched; then the branch.
   absent one. Unrelated to F-48's holder case. Separate finding, not chased.
 
   END SEQ 139
+
+
+SEQ 140  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  CERTIFICATE PINNED TO THE LAW; TWO JIT ITEMS; 3 NOW.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — certificate pinned to the law; two JIT items; stroke 3 now.
+Certificate, corrected once and for all: both roads byte-identical to the ruled output, LEAF stB stC LEAF stE stF. Never to a road.
+A/D: measure when gJitLastIsNode is raised — refusing star vs succeeding star. Fix so a star's result is a node result whether it refused or reached a leaf. Certificate: six of six on both roads; bare fleet byte-identical.
+pointerT: one sentinel in the jitted arm. (i) never runs → #25 routing, fix the arm; (ii) runs, print emits nothing → own finding, report. Not chased past the sentinel.
+Stroke 3: the five followers, as dispatched — take it now.
+Then the branch.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. "Never to a road" is the correction that matters and it
+  is worth naming: the previous two certificates pinned to whichever road looked
+  right at the time, and BOTH were wrong -- SEQ 138's to the interpreted road's
+  pre-ruling output, SEQ 139's to the jit road's stale `4`. A law-pinned target
+  cannot drift with whichever road is currently least broken.
+
+  ---- OUTCOME: STROKE 3 CLEAN. A/D AND pointerT ARE ONE FINDING, AND IT IS THE PRINT ----
+  STROKE 3 DONE. The five followers stop following; each refuses by name on a
+  holder and returns the empty value. Transitive followers 6 -> 0. Bare fleet
+  BYTE-IDENTICAL, ZERO moved rows -- no fixture reaches those five through a
+  holder today, so nothing was owed a re-pin. 176 green, frontier 10 PASS,
+  canary 331.
+
+  A/D MEASURED AS ORDERED, AND THE MEASUREMENT FALSIFIES ITS OWN HYPOTHESIS.
+  gJitLastIsNode is raised on ALL SIX rows -- refusing star and succeeding star
+  alike. So "fix it so a star's result is a node result whether it refused or
+  reached a leaf" IS ALREADY THE STATE, and A/D has another cause.
+
+  THE CAUSE, measured directly:
+    ADPROBE stored into stA -> text now 'LEAF'
+    ADPROBE stored into stD -> text now 'LEAF'
+    jitted arm printed  stA = 4   stD = 4
+  ⚠ assignFieldCore STORES CORRECTLY ON BOTH ROADS AND THE JITTED PRINT IS NOT
+  READING THE FIELD -- it emits a scalar slot and 4 is whatever that slot holds.
+  The assignment was never the defect.
+
+  pointerT's SENTINEL: case (ii), not (i). It fires TWICE, so the arm RUNS on both
+  roads -- not a #25 routing fault. Its jitted rows print EMPTY for every field
+  read while P0, a SCALAR row, prints 1 1 correctly.
+  ⚠ SCALARS PRINT, FIELDS DO NOT. starT's 4 and pointerT's blanks are ONE defect
+  seen twice. Banked as F-50. Not chased past the sentinel, as ordered.
+
+  ⚠ AND IT MEANS THE SIX-OF-SIX CERTIFICATE CANNOT BE MET BY ANY CHANGE TO THE
+  ASSIGN OR THE STAR -- both are already correct. It is the print.
+
+  END SEQ 140

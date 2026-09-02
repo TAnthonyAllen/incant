@@ -463,7 +463,9 @@ int getCount()
             rule, and a user who divides then indexes owns the result. */
         if isNUMBER     return (int)floor(number + 0.5);
         if isBUFFER     return buffer.length();
-        if isGROUP      return group.getCount();
+        if isGROUP {
+        cerr "ERROR getCount on",tag,"-- holds a group; say *":;
+        return 0; }
         }
 	return 0;
 }
@@ -472,7 +474,9 @@ int getDataType()
 {
     if isGROUP
         if group == this return 0;
-    else return group.getDataType();
+    else {
+        cerr "ERROR getDataType on",tag,"-- holds a group; say *":;
+        return 0; }
     return data;
 }
 
@@ -583,7 +587,9 @@ returnGuard:
 PLGitem getItem()
 {
 	if isITEM || isDate return item;
-    if isGROUP return group.getItem();
+    if isGROUP {
+        cerr "ERROR getItem on",tag,"-- holds a group; say *":;
+        return 0; }
 	return 0;
 }
 
@@ -593,7 +599,9 @@ double getNumber()
         {
         if isNUMBER  return number;
         if isCOUNT   return (double)count;
-        if isGROUP   return group.getNumber();
+        if isGROUP {
+            cerr "ERROR getNumber on",tag,"-- holds a group; say *":;
+            return 0; }
         }
 	return 0;
 }
@@ -601,7 +609,9 @@ double getNumber()
 Object getObject()
 {
 	if isOBJECT return object;
-    if isGROUP return group.getObject();
+    if isGROUP {
+        cerr "ERROR getObject on",tag,"-- holds a group; say *":;
+        return 0; }
 	return 0;
 }
 
