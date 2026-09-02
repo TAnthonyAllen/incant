@@ -17,8 +17,15 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      125
+SEQ:      126
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 126, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 126 IS LIVE AND IS AT THE FOOT -- THE DISCRIMINATOR, IDENTITY NOT
+          VALUES. Four reads with a pre-registered prediction: setParse's storage
+          site; an addrOf camera on three fields; a BODY RAN witness emitted into
+          the generated body; and the invoked field's rStuff. Stroke stays held,
+          holderT re-pin stays queued with the patch.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 125, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 125 IS LIVE AND IS AT THE FOOT -- TWO GATES ON THE embed STROKE.
           holderT row 3 RE-PINS to htWindow with the sentence (Tony's ruling, and
@@ -5831,3 +5838,78 @@ Since the patch replays byte-for-byte, the rename is the only edit between it an
   the ruling is not read as unexecuted.
 
   END SEQ 125
+
+
+SEQ 126  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  THE DISCRIMINATOR, IDENTITY NOT VALUES.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any measurement, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — the discriminator, identity not values.
+1. Read, don't run: where does setParse store the parse method — body (gMethod) or rStuff? One line, with the site.
+2. The camera, addrOf field and body columns, on the embedRule build: (i) the field generateParse receives and installs on; (ii) the field argument(ruleText) invokes in anyOrNum.target; (iii) the field runRuleAction(this) sees, if the body runs. Same fields or different, same body or different.
+3. Did the body execute? One-off in minionWork/: generateParse emits cerr "BODY RAN " taG:; as the body's first line. Present in the output = executed and returned the wrong thing; absent = never entered.
+4. On the invoked field: does its rStuff hold the parse method generateParse installed? Read it, don't infer it from isCodeD.
+Pre-registered prediction: (1) rStuff; (2) different fields, one body; (3) absent; (4) empty. If all four hold, the diagnosis is per-field rStuff under a definition copy, and the ruling is Tony's: parse method to the body, or (b) carries it. If (1) reads body, the candidate is dead and the report says so.
+Stroke stays held; holderT re-pin stays queued with the patch.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP, TWO ITEMS.
+
+  ITEM 1 IS ALREADY ANSWERED BY READING, AND IT READS rStuff -- THE CANDIDATE IS
+  LIVE. Generate.rtn:432-445, generated at GroupRules.mm:13878+:
+  `ruleStuff->parseMethod = ::parseRule;` where `RuleStuff *ruleStuff =
+  field->getRStuff();`. The sibling write on the line above is
+  `ruleStuff->actionMethod = field->groupBody->gMethod` -- so setParse READS the
+  body's gMethod and WRITES both slots into rStuff. Nothing of the parse method
+  lands in the body.
+
+  ⚠ ITEM 4 HAS NO INCANT-READABLE SPELLING, and that is stated before the work
+  rather than discovered in the report. rStuff.parseMethod has no registered
+  accessor -- incant/setup's `parseMethod` entry is parseRuleMethod, a define-
+  attribute WRITER, not a reader -- and the nearest incant-level read is the
+  `builtinParsE` attribute setParse hangs on the field. ⚠ THAT ATTRIBUTE IS THE
+  WRONG INSTRUMENT FOR THIS QUESTION AND THE REASON IS THE MINTED-DATA RULING
+  ITSELF: attributes park on the SHARED child list, precisely so they survive a
+  face change, while rStuff is per node. So builtinParsE would read PRESENT on a
+  copy whose rStuff is empty -- it cannot discriminate the thing being asked. It
+  is measured anyway, because "the mirror says installed and the slot is empty"
+  is a sharper finding than either half alone. The literal rStuff read is taken
+  with a one-off directives probe, on its own build, unwound afterwards.
+
+  ---------------- OUTCOME: THE CANDIDATE IS DEAD AND THE NEWS IS GOOD ----------------
+  anyOrNum IS NOT A REGRESSION. It is the SAME FIX as holderT row 3, seen from the
+  other end. Four lines:
+
+                  install (i)       invoke (ii)        returned       ANSWER
+    baseline      field #1 body#2   field #23 body#2   tag `true`     1
+    embedRule     field #1 body#2   field #1  body#2   tag ANYorNum   ANYorNum
+
+  "DIFFERENT FIELDS, ONE BODY" IS EXACTLY RIGHT AND IT DESCRIBES THE BASELINE. The
+  stroke CONVERGES them: at baseline the invocation reaches a COPY of the field
+  that was parsed against; under embedRule it reaches the field itself, same raw
+  pointer. runRuleAction has exactly two returns, so the ANSWER is a direct read of
+  which branch was taken -- trueResult when there is no label, the label otherwise.
+
+  THE BODY RUNS UNDER BOTH, so the failure the row was minted to catch is not
+  occurring. `1` was never a parse answer; it was the trueResult fallback taken
+  because the invocation reached a copy.
+
+  GRADED: (1) rStuff RIGHT, read at Generate.rtn:432-445. (2) RIGHT, of the
+  BASELINE. (3) WRONG -- the body runs under both. (4) WRONG -- rStuff is populated
+  and its label is what comes back. The offered ruling, parse method to the body or
+  (b) carries it, IS NOT NEEDED. What is owed is a RE-PIN, and it is Tony's.
+
+  ⚠ TWO INSTRUMENT NOTES, because both nearly produced a wrong finding.
+  The probe's first draft was a REWRITE of anyOrNumT rather than a delta, and it
+  answered `maybe` -- a third value belonging to neither build -- because the
+  retype silently dropped the dump and the compile call. And `cerr "BODY RAN " taG`
+  inside a generated body prints `BlocK` in EVERY body, so it cannot say which one
+  ran; the rule name is baked in at GENERATION time instead. Both were caught by
+  checking the instrument before reading it.
+
+  END SEQ 126

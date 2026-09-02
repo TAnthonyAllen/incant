@@ -1,0 +1,159 @@
+
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+register(Utilities);
+define
+    codeBuffer buffer;
+    openBrace="{";
+    closeBrace="}";
+    compiling=1;
+    activating=1;
+    ruleText="maybe a test;";
+    generateParse argument code={
+        cerr "generating parse for " argument.taG:;
+        cerr "CAM (i) generateParse receives/installs on":;
+        addrOf(argument);
+        reset(codeBuffer);
+        printTO(codeBuffer);
+        print openBrace:;
+        print $"cerr \"BODY RAN " taG "\":;":;
+        if activating != 0;     setParse(argument);
+        if datA != 0;
+            if listLengtH; print "rules should not have data and a list; one or the other":;
+            cerr "leaf " taG:;
+            printTO(0);
+            return;
+        if hasTraitS;       conjunct = "AND";
+        else                conjunct = "OR";
+        print `"if ";
+        iterate grup on argument;
+        while ++grup;
+            if noPrinT;     continue;
+            if notFirstTimeThru > 0;    print _conjunct;
+            ++notFirstTimeThru;
+            if activating != 0;     setParse(grup);
+            print $taG "()";
+        print ";";
+        @argument;
+        print $"return runRuleAction(this);":;
+        print `closeBrace:;
+        clear(CodE);
+        CodE = codeBuffer;
+        codeCopy <- copyOf(CodE);
+        codeCopy :. noPrinT;
+        argument +% codeCopy;
+        argument :. isCodeD;
+        printTO(0);
+        @CodE;
+        print taG "=" CodE:;
+        };
+    walkRules argument code={
+        if actionTypE == 0;
+            length  = listLengtH;
+            generateParse(argument);
+            if argument["CodE"];    compile(argument);
+            else    cerr taG "has no CodE":;
+            if length > 0;
+                iterate grup on argument;
+                while ++grup;
+                    if noPrinT;     continue;
+                    if binTypE;     continue;
+                    if isRule;      walkRules(grup);
+        else    cerr taG "already has code so no parse generated":;
+        };
+    parser argument code={
+        walkRules(argument);
+        cerr "PARSER SENTINEL -- walk complete":;
+        compiledHere = 0;
+        if argument.hasNewParsE;     compiledHere = 1;
+        cerr "WITNESS compiled " compiledHere " -- 1 = compile ran on this rule, 0 = it did not":;
+        cerr "CAM (ii) the field argument(ruleText) invokes":;
+        addrOf(argument);
+        if argument["builtinParsE"];    cerr "CAM mirror   builtinParsE PRESENT":;
+        else                            cerr "CAM mirror   builtinParsE ABSENT":;
+        parseAnswer = argument(ruleText);
+        cerr "CAM (iii) what came back from the invocation":;
+        addrOf(parseAnswer);
+        camDirect := argument(ruleText);
+        cerr "CAM (iii-b) same call captured by rebind":;
+        addrOf(camDirect);
+        print ~"PARSE " argument.taG " <- " ruleText:;
+        print `"ANSWER " parseAnswer:;
+        cerr "VERIFY SENTINEL -- answer reported":;
+        stop();
+        };
+    ;
+
+parser(ANYorNum);
+stop();
+
+    anyOrNumT -- THE isGROUP POISON STAYS FIXED. Minted 2026-08-29, Tony's
+    ruling, the moment the fix certified and not one minute before: a POP
+    captured before the fix would have pinned four refusals as truth.
+
+    WHAT IT IS. IncantForms/WorkingOn/parser, frozen, rooted at ANYorNum, with
+    every gate ON and no probe scaffolding of any kind. It walks ANYorNum and
+    everything under it, generates a parse body for each, compiles each, and
+    closes by parsing a specimen through ANYorNum so the run reports an answer
+    rather than a count.
+
+    WHY ANYorNum AND NOT SOMETHING BIGGER. ANYorNum is the smallest rule that
+    reaches ANYtoken, and ANYtoken is the alias whose actor-without-executor
+    poisoned the loader. Four rules is the whole reproduction; a larger root
+    adds downstream casualties and hides which one failed first.
+
+    WHAT WOULD GO RED, WHICH IS THE ONLY THING THAT MAKES A POP WORTH ANYTHING.
+    Remove the gate on the builtinActoR attachment in Generate.rtn's setParse
+    and rebuild, and this reads 4 attempted / 4 REFUSED. That was measured as
+    the baseline of the three-arm probe, so the negative control is on record
+    rather than asserted -- see designDocs ProblemRecords isGroupActorPoison.
+
+    THE THREE ASSERTIONS ARE THREE, DELIBERATELY. The census line catches a
+    refusal; the body target catches generation drift; the answer catches a
+    parse that compiles and then does not run. One blurred check could not
+    tell those apart, and they fail for different reasons.
+
+    THE DRIVER'S STOP IS INSIDE THE ACTION, and that is the shape rather than a
+    style. Binding parse methods across a grammar rewrites the grammar the
+    loader is still reading, so a driver that returns to the loader is reading
+    source through a grammar it has just changed. incant/parseClass carries the
+    same shape for the same reason.
+
+    ONE SENTINEL, AT THE FOOT, INSIDE THE DRIVER, reachable only through the
+    verification step -- so a run that dies before reporting an answer cannot
+    print it.
+
+    anyOrNumCam -- SEQ 126's camera. A MINIMAL DELTA from incant/anyOrNumT:
+    two addrOf reads, a builtinParsE probe, and one emitted line that makes the
+    generated body announce itself. Nothing else differs, and the diff is the
+    first thing to check if this ever disagrees with the fixture.
+
+    ⚠ ITS FIRST DRAFT WAS A REWRITE RATHER THAN A DELTA, AND IT LIED. Retyping
+    anyOrNumT's shape by hand produced ANSWER `maybe` -- a third value belonging
+    to neither build -- because the rewrite silently dropped the dump and the
+    compile call. A probe that reproduces the SUBJECT is worth nothing if it does
+    not reproduce the FIXTURE; copy the file and patch it.
+
+    ⚠ AND THE INSTRUMENT ASSERTS ITS OWN INSTALLATION. The emitted marker is
+    printed into every generated body and the run shows all four, named per rule,
+    before any conclusion is drawn from one of them being absent. An absent
+    marker means nothing until you have seen the marker be present.
+
+    ⚠ THE RUN-TIME `taG` IS NOT THE RULE'S NAME. `cerr "BODY RAN " taG:;` inside
+    a generated body prints `BlocK` in every body, so it cannot say WHICH body
+    ran. The rule name is baked in at GENERATION time instead. That cost one run
+    and would have cost a wrong finding.
+
+    WHAT IT MEASURED, both builds, same probe:
+
+                    install (i)      invoke (ii)      returned      ANSWER
+      baseline      field #1 body#2  field #23 body#2  tag `true`    1
+      embedRule     field #1 body#2  field #1  body#2  tag ANYorNum  ANYorNum
+
+    The body RAN under both. The invocation reaches a COPY at baseline and the
+    FIELD ITSELF under embedRule, and runRuleAction has exactly two returns --
+    `ruleStuff->label` when there is a label, `trueResult` otherwise -- so the
+    ANSWER is a direct read of which branch was taken.

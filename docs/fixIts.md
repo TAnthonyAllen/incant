@@ -265,6 +265,51 @@ genuinely reads `argument`, so re-pinning to `htWindow` now would turn the **cle
 a row the shipped machine cannot satisfy. **The re-pin lands in the same stroke as the patch, never
 before it.** Recorded so the ruling is not misread as unexecuted.
 
+#### ⚠⚠⚠ THE DISCRIMINATOR (SEQ 126) — `anyOrNum` IS NOT A REGRESSION. IT IS THE SAME FIX AS `holderT`
+**Four lines settle it.** `minionWork/anyOrNumCam`, a minimal delta from the fixture, run on both
+builds:
+
+| build | (i) field `generateParse` installs on | (ii) field `argument(ruleText)` invokes | body ran? | returned | ANSWER |
+|---|---|---|---|---|---|
+| **baseline** | field **#1**, body #2 | field **#23**, body #2 | **YES** | node tagged **`true`** | `1` |
+| **`embedRule`** | field **#1**, body #2 | field **#1**, body #2 | **YES** | node tagged **`ANYorNum`**, #25/#26 | `ANYorNum` |
+
+**"Different fields, one body" is exactly right — and it describes the BASELINE.** The stroke
+**converges them.** At baseline the invocation reaches a **copy** of the field that was parsed
+against; under `embedRule` it reaches **the field itself**, same raw pointer.
+
+**`runRuleAction` has exactly two returns** (`GroupRules.mm:13537`), so the ANSWER *is* a read of
+which branch was taken — no probe needed for it:
+```
+if ( ruleStuff->label ) { if ( aMethod ) ...; return ruleStuff->label; }
+return trueResult;
+```
+Baseline reaches a copy whose `rStuff` carries no label → **`trueResult`**, a node literally tagged
+`true`, printing `1`. `embedRule` reaches the real field, whose `rStuff` carries the label the parse
+just wrote → **the label**, a distinct node tagged `ANYorNum`.
+⚠ **AND `runRuleAction` CONSULTS `builtinParsE`'s rStuff, NOT THE FIELD'S** — `if (pMethod)
+ruleStuff = pMethod->getRStuff();`. `builtinParsE` parks on the **shared** child list by the
+minted-data ruling, so it survives a face change; measured **PRESENT** on the invoked field in both
+builds. That is a second, independent reason the per-field-rStuff-under-a-*definition*-copy story
+does not hold: the copy that mattered is the **runtime carrier copy**, and 1(a) removes it.
+
+**⚠ THE BODY RUNS UNDER BOTH BUILDS, so the failure the row was minted to catch is NOT occurring.**
+The marker was emitted into all four generated bodies and printed by name per rule before any
+conclusion was drawn from an absence. `1` was never a parse answer — it was the `trueResult`
+fallback, taken because the invocation reached a copy. **The row's pinned value was recording the
+carrier defect, exactly as `holderT` row 3 was, and neither fixture knew it.**
+
+**PREDICTIONS GRADED:** (1) `rStuff` — **RIGHT**, read at `Generate.rtn:432-445` /
+`GroupRules.mm:13878+`, `ruleStuff->parseMethod = …` beside `ruleStuff->actionMethod =
+field->groupBody->gMethod`. (2) different fields, one body — **RIGHT, of the baseline.**
+(3) body absent — **WRONG**, it runs under both. (4) rStuff empty — **WRONG**, it is populated and
+its label is what comes back.
+**So the offered ruling — parse method to the body, or (b) carries it — is not needed. Nothing is
+broken.** What is owed is a **re-pin**, and it is Tony's: `ANSWER` moves from the ambiguous
+`trueResult` sentinel to the captured parse label. ⚠ **The label is the stronger H4 witness**, since
+`trueResult` is also returned when there is no `rStuff` at all — but that is an argument, not a
+ruling, and the pin is not Clod's to move.
+
 ⚠ **A PRE-REGISTERED PREDICTION OF CLOD'S FAILED, AND THE FAILURE IS USEFUL.** Registered in
 `ipc/` before the build: that (b) without the `isLocal`/`isLabel` exclusion would move `kant8T` or a
 coded-action row, because `aCTionDefinE` gives the `this` local its group with `grup.group = NewGroup`
