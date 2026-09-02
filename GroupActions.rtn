@@ -396,6 +396,33 @@ use input
     REFUSES BY NAME on a non-group operand, F-41's form: named, null returned,
     the run continues.   GroupActions.jitDerefRT
 *******************************************************************************/
+/*******************************************************************************
+    chanReport -- THE ARGUMENT CHANNEL'S DAILY ROW. SEQ 132 item 2.
+
+    Prints binds and same-field binds UNCONDITIONALLY, in the shape of
+    `=== jitDegrade count = N ===`, so a fleet row compares a VALUE and cannot
+    pass by a line going missing (rule H4).
+
+    ⚠ IT COUNTS AT ALL FOUR BIND SITES -- both arms of both roads -- which is
+    what makes it a DAILY row rather than a flipped-only one. pop.sh runs bare,
+    and bare the non-flip arm goes through setGroup too, so the pair is
+    non-zero without the flip and the SAME row reads both configurations.
+
+    ⚠ SAME MUST EQUAL BINDS. Any gap is a bind that did not store the field it
+    was handed -- a copy, or a write that did not happen (F-46's shape). The
+    row asserts equality AND a non-zero total, because 0 of 0 is agreement
+    between two absences.   GroupActions.chanReport
+*******************************************************************************/
+extern GroupItem chanReport(GroupItem input)
+{
+    -%
+    ::fprintf(stderr,"=== ARGCHANNEL binds = %d same = %d ===\n",gChanBinds,gChanSame);
+    ::fflush(stderr);
+    %-
+    return trueResult;
+}
+
+
 extern GroupItem jitDerefRT(GroupItem operand)
 {
     -%
@@ -421,7 +448,11 @@ GroupItem   arg = argument,
     if (!gNoUnwrap) {
         if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
             arg = arg->getGroup();
-        if (( ruleArg = field->get("argument") ))  ruleArg->setGroup(arg);
+        if (( ruleArg = field->get("argument") )) {
+            ruleArg->setGroup(arg);
+            gChanBinds++;
+            if ( ruleArg->groupBody->gGroup == arg ) gChanSame++;
+            }
     }
     else {
         /*  ⚠ STROKE 3 (Tony, SEQ 127) -- runAction's CHANNEL LINES, LIFTED VERBATIM,
@@ -445,6 +476,8 @@ GroupItem   arg = argument,
                 gChanPendGroup = ruleArg->groupBody->gGroup;
                 gChanPendData  = ruleArg->groupBody->flags.data;
                 ruleArg->setGroup(arg);
+                gChanBinds++;
+                if ( ruleArg->groupBody->gGroup == arg ) gChanSame++;
                 }
             }
         }
@@ -1359,9 +1392,15 @@ use field
                 chanPrevData  = ruleArg->groupBody->flags.data;
                 chanBody      = ruleArg->groupBody;
                 ruleArg->setGroup(result);
+                gChanBinds++;
+                if ( ruleArg->groupBody->gGroup == result ) gChanSame++;
                 }
             }
-        else            ruleArg->setGroup(result);
+        else {
+            ruleArg->setGroup(result);
+            gChanBinds++;
+            if ( ruleArg->groupBody->gGroup == result ) gChanSame++;
+            }
     }
     else    result = field;
     %-

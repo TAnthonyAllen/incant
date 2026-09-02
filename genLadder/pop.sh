@@ -344,6 +344,49 @@ for _arm in "K2x row 0 control  = k2xBig" \
 done
 
 #  ============================================================================
+#  ⚠ chanT -- THE ARGUMENT CHANNEL'S DAILY ROW. Added 2026-09-02, SEQ 132 item 2.
+#
+#  WHY IT EXISTS: every SAMEFIELD reading taken during the channel campaign
+#  needed a TEMPORARY CAMERA under the flip, and a camera is not a fleet
+#  instrument. chanReport prints a counter pair incremented at ALL FOUR bind
+#  sites -- both arms of both roads -- so the same row reads bare and flipped
+#  with no rebuild, and pop.sh runs bare.
+#
+#  ⚠ SAME MUST EQUAL BINDS. A gap is a bind that did not store the field it was
+#  handed: a copy, or a write that did not happen, which is F-46's shape.
+#
+#  ⚠ AND THE TOTAL MUST BE NON-ZERO, asserted separately. `0 of 0` is agreement
+#  between two absences and is exactly what a channel that never ran would
+#  print -- H4's other half. The value rows are the second discriminator: a bind
+#  that stores the WRONG field passes the counter and fails them.
+run2 chanT "$T/chan" "$T/chane"; check "chanT runs" 0 $?
+sentinel "chanT sentinel (no truncation)" "$T/chan" "CHANT SENTINEL"
+chanline=$(grep -m1 '^=== ARGCHANNEL binds' "$T/chane")
+chanwant="=== ARGCHANNEL binds = 3 same = 3 ==="
+if [ "$chanline" = "$chanwant" ]; then
+    echo "  ok    chanT ARGCHANNEL binds = 3 same = 3 -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  chanT ARGCHANNEL pair moved -- a bind did not store the field it was handed"
+    echo "          actual:   $chanline"
+    echo "          expected: $chanwant"
+    fail=1
+fi
+chanbinds=$(printf '%s' "$chanline" | sed -n 's/.*binds = \([0-9]*\) .*/\1/p')
+if [ -n "$chanbinds" ] && [ "$chanbinds" -gt 0 ]; then
+    echo "  ok    chanT anti-vacuity: binds is NON-ZERO ($chanbinds)"; green=$((green+1))
+else
+    echo "  FAIL  chanT anti-vacuity: binds is 0 or unreadable -- the pair above"
+    echo "        compares two absences and asserts nothing"
+    fail=1
+fi
+chanseen=$(grep -c "CHANT sees ORIG" "$T/chan")
+if [ "$chanseen" = "3" ]; then
+    echo "  ok    chanT value rows: 3 of 3 read ORIG through the channel"; green=$((green+1))
+else
+    echo "  FAIL  chanT value rows -- wanted 3 reading ORIG, got $chanseen"; fail=1
+fi
+
+#  ============================================================================
 #  ⚠ holderT -- .parenT THROUGH AN ACTION-ARGUMENT HOLDER. Added 2026-09-01.
 #
 #  THIS IS ALL THAT REMAINS OF incant/fixits/parentUnreachable, which retired by

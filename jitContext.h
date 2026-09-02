@@ -627,6 +627,13 @@ static GroupItem *gChanStkGroup[GCHAN_DEPTH];
 static int        gChanStkData[GCHAN_DEPTH];
 static int        gChanStkTop = 0;
 
+// ⚠ THE CHANNEL'S DAILY INSTRUMENT (SEQ 132 item 2). Counted at ALL FOUR bind
+// sites -- both arms of both roads -- so the pair is readable BARE, where the
+// non-flip arm now also goes through setGroup, as well as flipped. H4's shape:
+// printed unconditionally and compared by value, never asserted by absence.
+static int gChanBinds = 0;
+static int gChanSame  = 0;
+
 static int gCompileAttempted = 0;
 static int gCompileRefused   = 0;
 static int gCompileReported  = 0;

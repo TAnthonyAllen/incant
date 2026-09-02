@@ -1,0 +1,40 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(ChanT);
+define
+    ctSrc="ORIG";
+    ctSeen argument code={
+        print "CHANT sees" argument "  want ORIG":;
+        };
+    ctRun code={
+        ctSeen(ctSrc);
+        ctSeen(ctSrc);
+        ctSeen(ctSrc);
+        };
+    ;
+ctRun();
+chanReport();
+print "CHANT SENTINEL -- reached the foot":;
+stop();
+
+    chanT -- THE ARGUMENT CHANNEL'S DAILY ROW. SEQ 132 item 2.
+
+    WHAT IT ASSERTS. chanReport prints `=== ARGCHANNEL binds = N same = M ===`
+    from counters incremented at ALL FOUR bind sites -- both arms of both roads.
+    SAME MUST EQUAL BINDS: a gap is a bind that did not store the field it was
+    handed, which is either a copy or a write that did not happen (F-46's shape).
+
+    ⚠ IT IS A DAILY ROW AND NOT A FLIPPED-ONLY ONE, WHICH IS THE WHOLE POINT.
+    pop.sh runs BARE, and every SAMEFIELD reading taken during the campaign
+    needed a temporary camera under the flip. Bare, the non-flip arm goes through
+    setGroup too, so the counters move without the flip and the SAME row reads
+    both configurations with no rebuild.
+
+    ⚠ ANTI-VACUITY: THE TOTAL MUST BE NON-ZERO. `0 of 0` is agreement between two
+    absences and asserts nothing whatever -- it is exactly what a channel that
+    never ran would print. The three calls above exist to put a floor under it,
+    and the value rows exist so a bind that stores the WRONG field is caught by
+    something other than the counter.

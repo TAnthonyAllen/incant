@@ -30,6 +30,7 @@ define
     bodyCensus immediateAction=bodyCensus;
     buffer immediateAction=setInternalType noPrint;
     canonOf immediateAction;
+    chanReport immediateAction;
     class immediateAction=rEGISTER noPrint;
     clear immediateAction=cLEAR;
     closeFile immediateAction;

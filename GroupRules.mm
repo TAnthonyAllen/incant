@@ -2625,6 +2625,70 @@ GroupItem 	*canon = 0;
 	return canon;
 }
 
+/*******************************************************************************
+    jitBindArgRT -- BIND A CALL'S ARGUMENT, AT RUN TIME. 2026-08-05.
+
+    THE GAP: runAction's jitting gate returns on a self-call BEFORE the two lines
+    below it that bind the argument, so an emitted self-call bound NOTHING. The
+    callee's `argument` field kept whatever emit time left in it, and every fire
+    at every depth saw the same node. Recursion with an argument -- displayForm's
+    whole shape -- could not work.
+
+    ⚠ THESE ARE runAction's OWN BINDING LINES, lifted verbatim rather than
+    reimplemented, so the emitted call binds exactly as the interpreted call
+    does and the two cannot drift. Same shared-implementation move as
+    jitEmitIterStep's call to opPlusPlus and opDot's call to itself.
+
+    ⚠ THE UNWRAP IS NOT OPTIONAL. The caller's operand may be an ITERATOR or a
+    group node -- `displayForm(grup)` passes exactly that -- and what the callee
+    must receive is the node it currently POINTS AT, which is a run-time fact.
+    Baking the operand's emit-time target would pin the recursion to whatever
+    node the compile happened to see. `if arg.isGROUP && !arg.isArgument
+    arg = arg.group;` is the tree's existing unwrap idiom (ruleActions.rtn:419).
+*******************************************************************************/
+/*******************************************************************************
+    jitDerefRT -- THE PREFIX `*`, AT RUN TIME. SEQ 132 item 3.
+
+    ⚠ opDeref's OWN LINES, LIFTED VERBATIM, for the same reason jitBindArgRT
+    lifts runAction's: the emitted star and the interpreted star must not drift.
+    ONE LEVEL, NO COMPOSITION -- it follows a field to the group it holds and
+    stops, exactly as the interpreter does.
+
+    ⚠ AND IT IS A RUN-TIME HELPER RATHER THAN AN EMIT-TIME FOLD BECAUSE WHAT A
+    FIELD POINTS AT IS A RUN-TIME FACT. Folding the star at emit time would pin
+    the deref to whatever node the compile happened to see -- the identical
+    hazard jitEmitSelfCall's own comment names for its argument, and the reason
+    the star degraded rather than folding silently until now.
+
+    REFUSES BY NAME on a non-group operand, F-41's form: named, null returned,
+    the run continues.   GroupActions.jitDerefRT
+*******************************************************************************/
+/*******************************************************************************
+    chanReport -- THE ARGUMENT CHANNEL'S DAILY ROW. SEQ 132 item 2.
+
+    Prints binds and same-field binds UNCONDITIONALLY, in the shape of
+    `=== jitDegrade count = N ===`, so a fleet row compares a VALUE and cannot
+    pass by a line going missing (rule H4).
+
+    ⚠ IT COUNTS AT ALL FOUR BIND SITES -- both arms of both roads -- which is
+    what makes it a DAILY row rather than a flipped-only one. pop.sh runs bare,
+    and bare the non-flip arm goes through setGroup too, so the pair is
+    non-zero without the flip and the SAME row reads both configurations.
+
+    ⚠ SAME MUST EQUAL BINDS. Any gap is a bind that did not store the field it
+    was handed -- a copy, or a write that did not happen (F-46's shape). The
+    row asserts equality AND a non-zero total, because 0 of 0 is agreement
+    between two absences.   GroupActions.chanReport
+*******************************************************************************/
+extern "C" GroupItem *chanReport(GroupItem *input)
+{
+	
+	::fprintf(stderr,"=== ARGCHANNEL binds = %d same = %d ===\n",gChanBinds,gChanSame);
+	::fflush(stderr);
+	
+	return GroupControl::groupController->groupRules->trueResult;
+}
+
 /***************************************************************************
     Close the file associated with the buffer. If no file has been set,
     fall back to using the field's tag as the filename — the tag is a
@@ -4667,7 +4731,11 @@ GroupItem 	*ruleArg = 0;
 	if (!gNoUnwrap) {
 	if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
 	arg = arg->getGroup();
-	if (( ruleArg = field->get("argument") ))  ruleArg->setGroup(arg);
+	if (( ruleArg = field->get("argument") )) {
+	ruleArg->setGroup(arg);
+	gChanBinds++;
+	if ( ruleArg->groupBody->gGroup == arg ) gChanSame++;
+	}
 	}
 	else {
 	/*  ⚠ STROKE 3 (Tony, SEQ 127) -- runAction's CHANNEL LINES, LIFTED VERBATIM,
@@ -4691,6 +4759,8 @@ GroupItem 	*ruleArg = 0;
 	gChanPendGroup = ruleArg->groupBody->gGroup;
 	gChanPendData  = ruleArg->groupBody->flags.data;
 	ruleArg->setGroup(arg);
+	gChanBinds++;
+	if ( ruleArg->groupBody->gGroup == arg ) gChanSame++;
 	}
 	}
 	}
@@ -5082,44 +5152,6 @@ extern "C" int jitDegrade(char *what, GroupItem *node)
 	
 }
 
-/*******************************************************************************
-    jitBindArgRT -- BIND A CALL'S ARGUMENT, AT RUN TIME. 2026-08-05.
-
-    THE GAP: runAction's jitting gate returns on a self-call BEFORE the two lines
-    below it that bind the argument, so an emitted self-call bound NOTHING. The
-    callee's `argument` field kept whatever emit time left in it, and every fire
-    at every depth saw the same node. Recursion with an argument -- displayForm's
-    whole shape -- could not work.
-
-    ⚠ THESE ARE runAction's OWN BINDING LINES, lifted verbatim rather than
-    reimplemented, so the emitted call binds exactly as the interpreted call
-    does and the two cannot drift. Same shared-implementation move as
-    jitEmitIterStep's call to opPlusPlus and opDot's call to itself.
-
-    ⚠ THE UNWRAP IS NOT OPTIONAL. The caller's operand may be an ITERATOR or a
-    group node -- `displayForm(grup)` passes exactly that -- and what the callee
-    must receive is the node it currently POINTS AT, which is a run-time fact.
-    Baking the operand's emit-time target would pin the recursion to whatever
-    node the compile happened to see. `if arg.isGROUP && !arg.isArgument
-    arg = arg.group;` is the tree's existing unwrap idiom (ruleActions.rtn:419).
-*******************************************************************************/
-/*******************************************************************************
-    jitDerefRT -- THE PREFIX `*`, AT RUN TIME. SEQ 132 item 3.
-
-    ⚠ opDeref's OWN LINES, LIFTED VERBATIM, for the same reason jitBindArgRT
-    lifts runAction's: the emitted star and the interpreted star must not drift.
-    ONE LEVEL, NO COMPOSITION -- it follows a field to the group it holds and
-    stops, exactly as the interpreter does.
-
-    ⚠ AND IT IS A RUN-TIME HELPER RATHER THAN AN EMIT-TIME FOLD BECAUSE WHAT A
-    FIELD POINTS AT IS A RUN-TIME FACT. Folding the star at emit time would pin
-    the deref to whatever node the compile happened to see -- the identical
-    hazard jitEmitSelfCall's own comment names for its argument, and the reason
-    the star degraded rather than folding silently until now.
-
-    REFUSES BY NAME on a non-group operand, F-41's form: named, null returned,
-    the run continues.   GroupActions.jitDerefRT
-*******************************************************************************/
 extern "C" GroupItem *jitDerefRT(GroupItem *operand)
 {
 	
@@ -13344,9 +13376,15 @@ int 		chanAbort = 0;
 	chanPrevData  = ruleArg->groupBody->flags.data;
 	chanBody      = ruleArg->groupBody;
 	ruleArg->setGroup(result);
+	gChanBinds++;
+	if ( ruleArg->groupBody->gGroup == result ) gChanSame++;
 	}
 	}
-	else            ruleArg->setGroup(result);
+	else {
+	ruleArg->setGroup(result);
+	gChanBinds++;
+	if ( ruleArg->groupBody->gGroup == result ) gChanSame++;
+	}
 	}
 	else    result = field;
 	
