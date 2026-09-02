@@ -17,8 +17,16 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      132
+SEQ:      133
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 133, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 133 IS LIVE AND IS AT THE FOOT -- TWO PRE-BRANCH STROKES, THEN THE
+          BRANCH. starT/pointerT gain a jitted arm (jitted half FIRST, #25);
+          inlineSelfT's respell is measured on the DAILY row across all four bind
+          sites; then the TRY-AND-BUY on a branch, classifying every red by
+          mechanism BEFORE fixing any; then the asking, which alone discharges
+          carrierNode.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 132, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 132 IS LIVE AND IS AT THE FOOT -- ROAD ORDER CONFIRMED. nestT and
           A->B->A bare and flipped; channel fleet rows, daily; jitEmitUnary learns
@@ -6321,3 +6329,77 @@ CLAY → CLOD — road order confirmed; two items ahead of the branch.
   ITEM 2 next, as its own stroke and its own certificate.
 
   END SEQ 132
+
+
+SEQ 133  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  TWO PRE-BRANCH STROKES, THEN THE BRANCH.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — two pre-branch strokes, then the branch.
+1. starT/pointerT jitted arm, jitted half first (#25). Certificate: bare fleet byte-identical with targets extended; under the flip, every row byte-identical jitted vs interpreted. A divergent interpreted row is a finding on the interpreter.
+2. inlineSelfT, rb(*argument), flipped: the daily row's total across all four bind sites. 2 = relocated, note it; 1 = lost, stop and report.
+3. The try-and-buy. Branch flip; gNoUnwrap 1; main stays bare and green throughout. Order: incant/utilities first (instruments up), then fleet, then unitTests. Classify every red by mechanism before fixing any: (a) reads through a holder need * — nestT, K6c, kant8T candidate, parser, and whatever joins; (b) capture semantics under the flip — station 2, atypeT; (c) jit road — inlineSelfT; (d) other — report, don't fix. Apply the queued candidates as bucket (a). A red with no bucket gets a fixit line, severity and workaround, Tony rules. This pass is the unitTests and pop.sh revision; the seal carries the bucket table.
+4. The asking, last: parser(Start), respelled per bucket (a), receives Start — addrOf field column. That, and nothing earlier, discharges carrierNode.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP. Stroke 2 is a STOP GATE with a pre-registered reading
+  and it is cheap, so it runs FIRST -- ahead of stroke 1 -- because a `1` there
+  stops the road and there is no sense adding a jitted arm to two fixtures before
+  knowing whether the road is open. The dispatch's ORDER OF STROKES is otherwise
+  unchanged; only which of the two cheap measurements is taken first differs, and
+  each still carries its own certificate.
+
+  ⚠ AND THE DAILY ROW IS THE RIGHT INSTRUMENT FOR STROKE 2 PRECISELY BECAUSE THE
+  CAMERA WAS NOT. C15 measured "jitted binds 1 of 2" with a camera on ONE road;
+  the daily counter counts ALL FOUR sites, so it can tell a bind that RELOCATED
+  to the other road from one that was LOST. That distinction is the whole of
+  stroke 2 and the camera could not have made it.
+
+  ------- OUTCOME: STROKE 2 PASSES ITS GATE. STROKE 1 IS BLOCKED BY TWO FINDINGS -------
+  STROKE 2 -- THE GATE ANSWERS 2, and better than relocated:
+
+    rb(*argument)   binds = 2 same = 2   degrade 0   self-add 0
+    rb(argument)    binds = 3 same = 2   degrade 0   self-add 1
+
+  ⚠ THE "LOST" BIND WAS A BIND THAT STORED NOTHING. Without the star there are
+  THREE binds and only TWO stores -- the third is the self-add refusal. With the
+  star, two binds and two stores. The star does not lose a bind; it removes a
+  futile one and its refusal with it. C15's "1 of 2" was a one-road view of the
+  same event, which is why the daily row was the right instrument and the camera
+  was not. ROAD OPEN.
+
+  STROKE 1 -- BLOCKED, AND ITS PURPOSE WAS SERVED ANYWAY. The jitted arm went in
+  to both fixtures, jitted half FIRST per #25, and BOTH crash at exit 139 -- bare
+  and flipped alike. Reverted; fleet byte-identical at 176 green. Two findings,
+  banked as F-47 and F-48:
+
+  F-47, and it is OLDER THAN THIS CAMPAIGN: jitEmitAssign dereferences BOTH
+  operands' jitData with NO seed gate -- `b->CreateStore(argument->jitData->
+  jitValue, target->jitData->jitSlot)` -- while its sibling jitEmitUnary opens
+  with exactly that guard and its own comment argues for it. Any unseeded operand
+  is a bad pointer dereference at 0x28 rather than a named degrade. Candidate fix
+  is jitEmitUnary's guard copied; not built, its own stroke.
+
+  F-48, MINE, from C15: jitEmitDeref publishes on gJitResultNode and deliberately
+  does not touch gJitResult, because a star's result is a node and not a scalar --
+  right on its own terms, and it leaves the result node UNSEEDED. ⚠ C15's
+  certificate COULD NOT have caught it: the star was exercised there only as a
+  CALL ARGUMENT, where jitEmitSelfCall bakes the node and never reads a value.
+  The assignment position was never on the road. The road column found it on its
+  first run, which is what the road column is for.
+
+  ⚠ AND ONE INSTRUMENT NOTE: #25's routing tell `=== jitRunAction: entering ===`
+  prints on STDOUT. The first grep read STDERR, got 0, and would have been filed
+  as "routed to the wrong engine" -- a finding about the stream reported as a
+  finding about the engine. Caught by reading the raw output.
+
+  ITEM 3, THE TRY-AND-BUY, NOT OPENED. It is a large classification pass and
+  stroke 1 did not certify; opening it on an un-certified stroke would put every
+  red it finds under a doubt about the instrument. F-47 first.
+
+  END SEQ 133

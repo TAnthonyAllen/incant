@@ -63,6 +63,64 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### ⚠⚠ F-47 (the assign with no seat belt) — `jitEmitAssign` DEREFERENCES AN UNSEEDED OPERAND. LATENT 139
+**Gloss:** assign has no seed gate.
+**Where:** `GroupRules.mm:5276`, generated from `jitEmitters.rtn`:
+```
+extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
+{
+    llvm::IRBuilder<> *b = gJitBuilder;
+    b->CreateStore(argument->jitData->jitValue, target->jitData->jitSlot);   <- BOTH unguarded
+```
+**Its sibling guards and it does not.** `jitEmitUnary` opens with
+`if (!target || !target->jitData) { jitDegrade("unary operand reached jitEmitUnary unseeded", target);
+return target; }` and its own comment argues the point — *"a quiet null-check returning target would
+be worse than the crash it replaces: exit 0 with wrong IR"*. `jitEmitAssign` has **no such gate at
+all**, so an unseeded operand is a **bad pointer dereference at 0x28**, not a named degrade.
+**Measured 2026-09-02**, backtrace: `jitEmitAssign +44` ← `opAssign` ← `runOP`. **Flip-independent —
+exit 139 bare and flipped alike.**
+**Candidate fix, F-41's exact form and not built:** `jitEmitUnary`'s guard, copied. That converts a
+crash into a counted degrade, and degrade-zero is asserted by every rung so it cannot pass silently.
+**Owner:** Tony — it is a one-guard stroke with its own certificate, not a ride-along.
+
+### ⚠ F-48 (the star with no value) — `jitEmitDeref` seeds no `jitData`, so an enclosing assignment has nothing to store
+**Gloss:** star publishes a node, not a value.
+**Where:** `jitEmitters.rtn` `jitEmitDeref` (landed C15), against `jitEmitAssign`.
+**What:** the star publishes on `gJitResultNode` — the GroupItem channel — and **deliberately does
+not touch `gJitResult`**, because a star's result is a node and not a scalar. That is right on its
+own terms and it leaves the result node **unseeded**, so `stA = *st1` under jit hands
+`jitEmitAssign` an operand with null `jitData`.
+⚠ **C15's certificate could not have caught this, and the reason is the useful part.** The star was
+exercised there **only as a call argument** (`rb(*argument)`), where `jitEmitSelfCall` bakes the node
+and never reads a value. **The assignment position was never on the road.** Stroke 1's road column
+found it on its first run, which is exactly what the road column is for.
+**Candidate shapes, neither built and neither recommended:** seed the result node's `jitData` with
+the call result (making a node-valued star storable), or refuse the star in assignment position by
+name. **The choice interacts with F-47** — with F-47's guard in place this degrades instead of
+crashing, which may be the whole of the wanted behaviour. **Tony rules; F-47 first.**
+
+### ⚠ SEQ 133 STROKE 1 — BLOCKED, AND ITS PURPOSE WAS SERVED ANYWAY
+**The jitted arm was written to `starT` and `pointerT`, jitted half FIRST per bear-trap #25, and
+BOTH crash at exit 139 — bare and flipped.** Reverted; fleet byte-identical at 176 green.
+⚠ **THE ROUTING TELL WAS SATISFIED and I nearly mis-reported it:** `=== jitRunAction: entering on
+stRun ===` prints on **stdout**, and the first grep looked at **stderr** and read 0, which would have
+been filed as *"routed to the wrong engine"*. The stream, not the engine. **Doubt the instrument.**
+**The certificate cannot be met until F-47 and F-48 are ruled**, and the road column's first act was
+to surface both — one of them a latent crash older than this campaign.
+
+### ✅ SEQ 133 STROKE 2 — THE GATE ANSWERS **2**. RELOCATED, AND BETTER THAN RELOCATED
+Measured on the **daily row**, which counts all four bind sites, precisely because C15's camera
+counted one road and could not tell a relocated bind from a lost one:
+```
+rb(*argument)   === ARGCHANNEL binds = 2 same = 2 ===   degrade 0   self-add 0
+rb(argument)    === ARGCHANNEL binds = 3 same = 2 ===   degrade 0   self-add 1
+```
+⚠ **THE "LOST" BIND WAS A BIND THAT STORED NOTHING.** Without the star there are **three** binds and
+only **two stores** — the third is the self-add refusal. With the star there are two binds and two
+stores. **The star does not lose a bind; it removes a futile one and its refusal with it.** C15's
+`1 of 2` was a one-road view of the same event. **Road open.**
+
+
 ### ⚠ SEQ 132 ITEM 1 — nestT AND A→B→A, BARE AND FLIPPED. THE ARGUMENT ROWS GO **VOID** UNDER THE FLIP
 **Bare, everything at its pinned value.** `nestT` ROW 0 `ntBig` · ROW 1 `ntSmall` · ROW 2 `ntSmall`
 — the nesting answer is correct, so **f(g(x)) does not clobber the inner bind.** `kant8T`'s A→B→A:
