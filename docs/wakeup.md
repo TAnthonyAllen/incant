@@ -1,3 +1,109 @@
+# ⚠⚠⚠ SEALED 2026-09-02 — THE setGroup COPY WAS PART OF THE CARRIER DEFECT; SIX
+# FIXITS OPENED AND FOUR CLOSED IN ONE DAY; AND THE ASKING STILL ANSWERS NO, WITH
+# A NEW SIGNATURE.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-02 15:31 and
+#   `git log -1 --date=iso` stamps 2026-09-02 15:02. They agree.
+#
+#   ## THE ONE-LINE STATE: **`setGroup` never copies, `embedRule` owns the one
+#   legitimate copy, the argument channel goes through `setGroup` on BOTH roads,
+#   and node-valued operations — deref, assign, print — go through runtime helpers
+#   sharing ONE spelling with the interpreter.** Fleet **176 green / 1 parked / 3
+#   pinned red**, frontier **exit 0, 10 PASS**, canary **332**, `gNoUnwrap` **0**,
+#   bare binary verified live. Both repos 0 dirty / 0 unpushed but for `parser`.
+#
+#   ## ⚠⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. `setGroup`'s COPY WAS PART OF THE CARRIER DEFECT, AND TWO FIXTURES HAD
+#   PINNED IT FOR DAYS WITHOUT KNOWING.** `holderT` row 3 (`argument` → `htWindow`)
+#   and `anyOrNum`'s ANSWER (`1` → the label) both moved when the copy went, and
+#   **both were fixes.** ⚠ `holderT`'s pin predicted the FLIP would fix it and
+#   named the wrong cause; it arrived at `gNoUnwrap` **0**. **A pin can hold its
+#   VALUE correctly while its stated TRIGGER is wrong, and nothing in the row can
+#   catch that.**
+#
+#   **2. THE BOOTSTRAPPER USED `setGroup`'s COPY AS ITS ONLY COPY PRIMITIVE (F-44).**
+#   `GroupMain.twk` hand-builds the grammar in C++ and never passes through
+#   `aCTionDefinE`, so six sites did copy-then-modify with no copy of their own.
+#   Cured by `GroupItem::embedRule` — copy when the source is a rule, store it
+#   otherwise — called at seven sites. ⚠ **`:218` is NOT one of them**: `new("tik")`
+#   is unparented and not a rule, so it never had a copy to borrow.
+#
+#   **3. PRINT DOES NOT FOLLOW. LAW 1 IS RETIRED (F-49).** `getText`'s `isGROUP`
+#   case yields `group.tag`; cyclic group chains are legal data and **the overflow
+#   is UNREACHABLE rather than guarded**. Five other transitive followers —
+#   `getCount`, `getDataType`, `getItem`, `getNumber`, `getObject` — stopped
+#   following in their own stroke, with **zero moved rows**.
+#   ⚠ **"one level, no follow" is not a one-line answer for all five**: `getText`'s
+#   answer was the TAG because a tag is text, and **a holder has no count of its
+#   own.**
+#
+#   **4. NODE-VALUED OPERATIONS GO THROUGH RUNTIME HELPERS — ONE SPELLING.**
+#   `jitDerefRT`, `assignFieldCore` (called by BOTH roads), `jitPrintNodeRT`
+#   (delegating to `appendGroup`, the interpreted walk's own call). ⚠ **The emit-time
+#   marking keys on the `groupBody`, NOT the node** — two failed attempts earned
+#   that: **the print's operand and the assign's target are different nodes over one
+#   body**, C18's finding at a third site.
+#
+#   **5. ⚠⚠ THE ASKING ANSWERS NO, WITH A NEW SIGNATURE, AND `carrierNode` IS NOT
+#   DISCHARGED.** Under the flip `parser(Start)` reports `PARSE argument <- ruleText`
+#   and `setParse: ERROR field passed in argument has no rStuff`. **Previously the
+#   callee got a COPY SHARING Start's body; now it gets THE HOLDER ITSELF**, named
+#   `argument`, carrying no `rStuff`.
+#   ⚠ **THE RULED RESPELL IS STAR EVERY USE — `<-` MINTS A COPY AND IS NOT AN
+#   ALIAS.** Measured: `pArg <- *argument` reports the capture's own name. Law 4's
+#   *name-it-then-star-it* does not reach Start.
+#
+#   **6. THE TRY-AND-BUY IS OPEN ON `tryAndBuy-gNoUnwrap`. 176 → 116, and THE 61
+#   RED ROWS ARE TEN MECHANISMS, NOT 61 FINDINGS.**
+#   ```
+#   kant8T HANGS (90s) -- K7a/b/c, K6c, K2x x3, sentinel are ITS truncation   8  (d)
+#   countPop truncates                                                        3  (d)
+#   spacingT                                                                 14  (a)
+#   pointerT (one row a by-design tripwire)                                   8  (a)
+#   holderT 3 - nestT 3 - starT 2 (pre-registered) - faceT/ADDROF 3 - argWriteT 1
+#   UNCLASSIFIED, need a look                                               ~14
+#   ```
+#   ⚠⚠ **`spacingT` IS THE LINE THAT A BUCKET IS NOT A DIRECTION.** Its pins
+#   expected the **tag** and under the flip it prints the **value**; every other
+#   (a) row moved tag-ward. **A re-pin sweep assuming one direction would have got
+#   those four backwards.**
+#
+#   ## ⚠ DOCTRINE BANKED TODAY
+#
+#   **DEGRADE 0 IS NOT A CERTIFICATE ROW; A CERTIFICATE NAMES THE DEGRADES IT
+#   ALLOWS.** A certificate asked for zero on a fixture where **14 of 25 degrades
+#   were an unemitted `cerr`** — unreachable by anything that stroke could do. Same
+#   family as pinning a certificate to a ROAD instead of to the LAW, and both were
+#   paid for in one week.
+#
+#   **Bear-traps #41–#45 minted:** `=` captures nothing where `:=` captures (#41,
+#   and it makes #35's own stated remedy usable); an inserted block re-points every
+#   bare field BELOW it (#42); a probe must be a minimal DELTA, never a rewrite
+#   (#43); a generated body's run-time `taG` reads `BlocK`, not the rule (#44); an
+#   unresolved bare name in a tok condition becomes a STRING LITERAL, always true,
+#   **with the canary green throughout** (#45).
+#
+#   ## THE ORDER FOR TOMORROW
+#   1. **`minionWork/kant8Tstar.candidate` is step 1** — the `*argument` respell,
+#      byte-identical under the flip and hanging bare, so it RIDES WITH the flip.
+#   2. The ~14 unclassified reds, then `kant8T`'s hang.
+#   3. The runtime-set item: **`noUnwrap;` on `debug;`'s mechanism, explicit set,
+#      NEW NAME** — `unWrap` has three callers and keeps its meaning. **Recon of
+#      `gNoUnwrap` reads FIRST.**
+#   4. F-51 (`Token` print part) and F-52 (`cerr` unemitted) are Tony's, jitter
+#      campaign, interpreted road correct, not chased.
+#
+#   ## ⚠ HOUSEKEEPING A FRESH SESSION SHOULD KNOW
+#   - **Fixit queue is 1** — `carrierNode`, since 2026-08-31, and the asking above
+#     is why it is still open. **Nothing earlier discharges it.**
+#   - **`gNoUnwrap` is 0 on main and 1 on the branch.** Every retok this session was
+#     BARE; no directives build was measured except one one-entry instrument,
+#     unwound and md5-verified.
+#   - **Tony flip-build-test-unflip-builds tonight, sealed on both sides, NO
+#     MEASUREMENT BETWEEN.**
+#   - `IncantForms/WorkingOn/parser` is the only dirty file and it is Tony's WIP.
+#
 # ⚠⚠⚠ SEALED 2026-09-01f — THE CHANNEL CARRIES. `*argument` IS THE SOURCE FIELD BY
 # ADDRESS, AND THE FOUR-ASKING MYSTERY IS CLOSED BY ADDRESS TOO. THE ASKING IS
 # TOMORROW'S FIRST STROKE.

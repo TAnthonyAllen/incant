@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      143
-STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+SEQ:      144
+STATUS:   cleared        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 144, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 144 IS THE SESSION'S CLOSING DISPATCH -- SEAL AND CLEAN KITCHEN,
+          NOTHING NEW. Session 2's dispatch stands as drafted plus a runtime-set
+          item. Tony flip-build-test-unflip-builds tonight, sealed on both sides,
+          NO MEASUREMENT BETWEEN.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 143, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 143 IS LIVE AND IS AT THE FOOT -- THE ROAD COLUMN IS CLOSED ON THE
           STAR, pointerT IS PINNED EXPECTED-DIVERGENT WITH ITS TWO MECHANISMS
@@ -7003,3 +7009,27 @@ CLAY → CLOD — road column closed on the star; pointerT pinned; the branch op
   failure as pinning to a road instead of to the law.
 
   END SEQ 143
+
+
+SEQ 144  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  SEAL AND CLEAN KITCHEN. NOTHING NEW.
+===================================================================
+
+STATUS: cleared -- transcribed AT PICKUP; the session closes on it.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — seal and clean kitchen. Nothing new this session.
+Session 2's dispatch stands as drafted, plus the runtime-set item: noUnwrap; on debug;'s mechanism, explicit set, new name (unWrap has three callers and keeps its meaning) — recon of gNoUnwrap reads first.
+Seal carries: the bucket table with the ten mechanisms as counted; the asking's new signature (holder named argument, no rStuff) and the ruled respell (star every use — <- mints a copy, not an alias); kant8Tstar.candidate as step 1 tomorrow; spacingT as the line that a bucket is not a direction. Main bare and verified live, both repos clean, parser the only WIP and Tony's.
+Kitchen: groups.ext committed, minionWork/ probes stripped or named, git status on both repos reads one file. Tony will flip-build-test-unflip-build on his own tonight, sealed on both sides, no measurement between. and we shutdown
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP, one clarification carried into the seal rather than
+  acted on: the ruled respell is STAR EVERY USE, because `<-` MINTS A COPY AND IS
+  NOT AN ALIAS -- measured today when `pArg <- *argument` reported the capture's
+  own name. That is the correction to law 4's practical spelling and it is what
+  tomorrow's parser work starts from.
+
+  END SEQ 144
