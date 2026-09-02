@@ -1,0 +1,43 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(F46);
+define
+    f46Src="ORIG";
+    f46Depth=0;
+    f46Rec argument code={
+        ++f46Depth;
+        print "F46 depth" f46Depth "sees" argument:;
+        if f46Depth < 3;    f46Rec(*argument);
+        };
+    f46Run code={
+        f46Depth = 0;
+        f46Rec(f46Src);
+        };
+    ;
+f46Run();
+print "F46 SENTINEL -- reached the foot":;
+stop();
+
+    f46Star -- F-46 MEASURED BEFORE IT IS RESPELLED. SEQ 131 item 2.
+
+    THE QUESTION. On a recursive self-call spelled f46Rec(argument), the source
+    handed to the bind IS the callee's own argument holder, so target and source
+    share a groupBody and setGroup's self-add guard refuses the write -- measured
+    2026-09-02, one guard line and SAMEFIELD=0. This file spells the self-call
+    f46Rec(*argument) instead, which hands over what the holder POINTS AT rather
+    than the holder itself.
+
+    PRE-REGISTERED, before the run: SAMEFIELD=1 on 3 of 3 binds, and ZERO
+    `setGroup: cannot add a group ... to itself` lines. A SAMEFIELD=0 or a guard
+    line means the star does not separate holder from subject here and the
+    respell of kant8T/inlineSelfT does not follow.
+
+    ⚠ THE DEPTH LINE IS THE ANTI-VACUITY ROW. Three binds only happen if the
+    recursion actually recurses; a fixture that returns at depth 1 would report
+    1 of 1 SAMEFIELD=1 and assert nothing about recursion at all.
+
+    ⚠ Only meaningful under gNoUnwrap = 1 -- with the flip off the channel arm is
+    never reached and no bind is measured.

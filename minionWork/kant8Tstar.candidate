@@ -1,0 +1,558 @@
+/*****************************************************************************
+    kant8T -- CHARACTERISING WHAT THE FRAME DISCIPLINE LOSES. 2026-08-05.
+
+    ⚠ THIS FIXTURE CHARACTERISES, IT DOES NOT FIX. CLAIM KANT-8's repair is
+    TONY'S -- both candidate fixes touch the interpreter's hot path. The job
+    here is to establish, by measurement, exactly WHICH returns survive a
+    recursive action and which do not, so that a frame-model decision is taken
+    against a diagnosed disease rather than an inferred one.
+
+    THE MECHANISM, read off GroupActions.rtn and not inferred:
+        if field.recursive      saveLocalFields(field);
+        result  = processAction(field);
+        if field.recursive      restoreLocalFields(field);
+        return  result;
+    saveLocalFields copies each (isArgument || isLocal) && !noPrint body onto a
+    stack and BLANKS it -- except an argument, which it saves WITHOUT blanking.
+    restoreLocalFields pops each body back with `*groupBody = *body`, an IN-PLACE
+    overwrite of the node's contents. So a returned node is a POINTER whose
+    CONTENTS are reverted underneath the caller. That is the whole disease.
+
+    ⚠ EVERY file:line IN THE COMMENTARY BELOW HAS DRIFTED (checked 2026-08-07).
+    The MECHANISMS are all intact -- only the numbers moved -- and the comments
+    are left as written because they were true when written. Current sites:
+    restoreLocalFields GroupActions.rtn:648 with the recursive-clear at :653;
+    saveLocalFields :919 with the save predicate at :928; runAction :759,
+    binding at :777-778 and saving at :782; `recursive` set on direct
+    self-mention at ruleActions.rtn:1387. Full drift table and the doctrine it
+    earned -- CITE THE MECHANISM AND ITS ENCLOSING FUNCTION, LINE NUMBERS ARE
+    HINTS -- in docs/kantCorpus.md under CLAIM KANT-8. ⚠ One stale citation
+    lands on jitBindArgRT, which really does bind an argument, so following it
+    unchecked CONFIRMS the sentence you came to verify, on the wrong engine.
+
+    TEN ROWS. The four below are the original set, each isolating ONE variable;
+    K5 and K6a-K6d were added 2026-08-05, and K6e/K6f 2026-08-07 to discriminate
+    the cause of K6a's 2. See their own comment blocks further down.
+
+    FOUR ROWS, each isolating ONE variable:
+
+      K1  recursive, returns a LOCAL      -- KANT-8 as claimed. The baseline.
+      K2  recursive, returns its ARGUMENT -- ⚠ THE NAMED OPEN PROBE, unresolved
+          since 2026-07-29: the corpus says "Not verified whether returning the
+          ARGUMENT instead of a local dodges it; that is the obvious next
+          probe." saveLocalFields does NOT blank an argument, but restore still
+          pops a body back over it, so the answer is not readable from the
+          blanking asymmetry alone.
+      K3  NON-recursive, returns a local  -- ⚠ THE CONTROL, and the row that
+          makes K1 mean anything. Without it, "returning a local is broken"
+          cannot be told from "`recursive` is the discriminator". K3's body must
+          not name itself, or the parse-time inference arms it.
+      K4  recursive, returns a local, RECURSIVE BRANCH NEVER TAKEN -- asks
+          whether the tax is paid on EVERY call or only on calls that actually
+          recurse. `recursive` is a STATIC flag set at parse time by identity,
+          so the prediction is that K4 breaks identically to K1 with no
+          recursion occurring at all. If so, the cost is not "recursion is
+          expensive" but "naming yourself anywhere in your body is".
+
+    ⚠ K1 vs K3 IS THE ANTI-VACUITY PAIR. Both rows returning a bare tag would be
+    consistent with "return is broken generally", which would say nothing about
+    frames. K3 must come back with a REAL VALUE for K1's emptiness to indict the
+    save/restore bracket specifically.
+
+    SENTINEL AT THE FOOT (standing harness rule H2).
+*****************************************************************************/
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(Kant8);
+define
+    k1depth;
+    k2depth;
+    k4depth;
+    kOut;
+    k2xOut;
+    kArg;
+
+    k1 argument code={
+        k1loc = 42;
+        if k1depth > 0;
+            k1depth = k1depth - 1;
+            k1(*argument);
+        return k1loc;
+        };
+
+    k2 argument code={
+        if k2depth > 0;
+            k2depth = k2depth - 1;
+            k2(*argument);
+        return argument;
+        };
+
+    /*  K2x -- K2's HONEST SIBLING, and it exists because K2 CANNOT ANSWER THE
+        QUESTION K2 ASKS. Added 2026-09-01 (SEQ 103), measured before the frame
+        bind was built rather than after.
+        K2 passes `argument` STRAIGHT DOWN, so the inner activation binds the
+        value the outer already had and restoring 7 over 7 is indistinguishable
+        from never trampling. A trampled run and a clean run both print 7.
+        That is this fixture's own anti-vacuity rule left unapplied: a constant
+        the default could also produce asserts nothing, and every zero-expecting
+        row wants a non-zero sibling.
+        K2x removes the one defect -- a DIFFERENT node goes down -- and keeps
+        K6c's honest witness, `.taG`, because printing a group node prints its
+        ATTRIBUTE COUNT, a legal-looking number in the answer's own range (the
+        instrument failure K6d was built to record).  */
+    k2xBig      aa bb cc;
+    k2xSmall    xx;
+    k2xdepth;
+    k2x argument code={
+        if k2xdepth > 0;
+            k2xdepth = k2xdepth - 1;
+            k2x(k2xSmall);
+        return argument.taG;
+        };
+    k2xCtl argument code={
+        return argument.taG;
+        };
+
+    k3 code={
+        k3loc = 42;
+        return k3loc;
+        };
+
+    k4 argument code={
+        k4loc = 42;
+        if k4depth > 0;
+            k4depth = k4depth - 1;
+            k4(*argument);
+        return k4loc;
+        };
+
+    /*  ===================== K5 (2026-08-05) ==========================
+        INVOCATION-HISTORY DEPENDENCE. k5 is k1's body character for character,
+        under its own name so that "call 1" is a genuine FIRST invocation --
+        k1 has already been called by the K1 row above, and the whole question
+        is whether the FIRST call differs from the SECOND.
+        Basis: restoreLocalFields clears `recursive` on the outermost restore
+        when the stack came back empty (GroupActions.rtn:587), so call 2 may
+        skip the bracket entirely and return the local intact.  */
+    k5depth;
+    k5 argument code={
+        k5loc = 42;
+        if k5depth > 0;
+            k5depth = k5depth - 1;
+            k5(*argument);
+        return k5loc;
+        };
+
+    /*  ===================== K6 (2026-08-05) ==========================
+        MUTUAL RECURSION -- THE UNPROTECTED SIBLING. `recursive` is set only on
+        DIRECT self-mention (ruleActions.rtn:1310), so in A -> B -> A NEITHER A
+        NOR B trips the bracket: no save, no restore, no protection at all.
+        The carried thing is an ITERATOR CURSOR mid-walk, which is the proven
+        node-resident specimen class (it is what displayForm's divergence was).
+
+        ⚠ THE TWO NODES HAVE DIFFERENT ATTRIBUTE COUNTS ON PURPOSE. With one
+        node both the protected and the trampled reading produce 3 and the row
+        would discriminate nothing. Big has 3, small has 1:
+            protected  outer walks its OWN cursor over big      -> 3
+            trampled   inner re-points the SHARED cursor at small,
+                       exhausts it, outer resumes on it          -> 1  */
+    k6big       aa bb cc;
+    k6small     xx;
+    k6depth;
+    k6A argument code={
+        iterate k6cur on argument attributes;
+        k6seen = 0;
+        while ++k6cur;
+            k6seen = k6seen + 1;
+            if k6depth > 0;
+                k6depth = k6depth - 1;
+                k6B(k6small);
+        return k6seen;
+        };
+    k6B argument code={
+        k6A(*argument);
+        return 0;
+        };
+
+    /*  K6b -- THE CONTROL. Identical A -> B -> A shape, but the local is
+        written entirely AFTER the B call returns and is never carried across
+        it. Clean here proves K6a's failure is THE CARRY, not the shape.  */
+    /*  ⚠ THE CONTROL ITERATES k6big BY NAME, NOT `argument`, AND THE FIRST CUT
+        DID NOT -- which is how a SECOND trample was found. Written with
+        `argument`, this control returned 1 instead of 3, because the inner
+        activation had rebound the action's `argument` field to k6small and, with
+        no bracket running, the OUTER resumed reading the inner's binding. That
+        is a real result and it gets its own row (K6c) rather than being quietly
+        designed out; here it would confound the iterator question with an
+        argument question, and a control that fails for a second reason controls
+        nothing.  */
+    k6depth2;
+    k6Actl argument code={
+        if k6depth2 > 0;
+            k6depth2 = k6depth2 - 1;
+            k6Bctl(k6small);
+        iterate k6cur2 on k6big attributes;
+        k6seen2 = 0;
+        while ++k6cur2;
+            k6seen2 = k6seen2 + 1;
+        return k6seen2;
+        };
+
+    /*  K6c -- THE ARGUMENT TRAMPLE, ISOLATED. No iterator at all: the outer
+        simply reads its OWN argument's tag after the B call returns.
+        ⚠ CONTRAST WITH K2, WHICH IS THE POINT. In DIRECT recursion an argument
+        DODGES the emptying, because runAction binds before saveLocalFields runs
+        so it is saved as-bound and restored as-bound. In MUTUAL recursion there
+        is no bracket at all, so the argument is not restored -- it simply keeps
+        the inner activation's binding. Same field, opposite outcomes, different
+        mechanisms.  */
+    k6depth3;
+    k6Aarg argument code={
+        if k6depth3 > 0;
+            k6depth3 = k6depth3 - 1;
+            k6Barg(k6small);
+        return argument.taG;
+        };
+    k6Barg argument code={
+        k6Aarg(*argument);
+        return 0;
+        };
+
+    /*  K6d -- THE RE-ITERATE, ISOLATED. No recursion, no mutual anything: one
+        action, one cursor local, iterated twice on two different nodes. If the
+        second walk counts 1 rather than 3, the cursor did not re-point and the
+        whole K6b-first-draft result belongs to the iterator rather than to any
+        frame question.  */
+    k6Re argument code={
+        iterate k6cur3 on k6small attributes;
+        k6seen3 = 0;
+        while ++k6cur3;
+            k6seen3 = k6seen3 + 1;
+        iterate k6cur3 on k6big attributes;
+        k6seen3 = 0;
+        while ++k6cur3;
+            k6seen3 = k6seen3 + 1;
+        return k6seen3;
+        };
+    k6Bctl argument code={
+        k6Actl(*argument);
+        return 0;
+        };
+
+    /*  ===================== K6e (2026-08-07) =========================
+        THE RESTART, ISOLATED -- built to discriminate the explanation of
+        K6a's 2 from its rival. K6a's own legend anticipated only 3
+        (protected) or 1 (trampled). It measured 2, and until today that
+        number was neither recorded nor explained anywhere.
+
+        THE HYPOTHESIS: the trample is real AND an exhausted cursor is not
+        terminal. The inner activation re-points the shared cursor at
+        k6small and walks it out; the outer then resumes, and its next ++
+        RESTARTS from the head of the list rather than reporting
+        exhaustion, buying exactly one extra tick. One outer tick plus one
+        restarted tick is 2.
+        THE RIVAL: exhaustion IS terminal, and the extra tick comes from
+        something the second activation did -- a cursor left mid-list, a
+        counter written back, an artefact of the call itself.
+
+        This row removes the second activation entirely: one action, one
+        cursor, one node, NO recursion of any kind, and two consecutive
+        while loops over the SAME cursor with no iterate between them.
+        Nothing here can trample anything, so a non-zero second count can
+        only be the restart.
+            restart      second walk counts 1
+            terminal     second walk counts 0
+        ⚠ AND THE FIRST COUNT IS THE ANTI-VACUITY GUARD. A row asserting
+        only a 0 cannot tell "exhaustion is terminal" from "the iterate
+        never armed and neither loop ran". k6seenA must come back 1.  */
+    /*  ⚠ THE FIRST COUNT IS PRINTED FROM INSIDE THE ACTION, and that is not
+        a stylistic choice. An action returns ONE value, so the guard and the
+        measurement cannot both leave by the return; and reading k6seenA from
+        outside afterwards would be reading a node-resident local across a
+        call boundary -- the exact quantity this whole file says is not
+        trustworthy. Printing it in place is the only reading that does not
+        depend on the thing under test. Bear-trap #26's fourth payment.  */
+    k6Rst argument code={
+        iterate k6cur4 on k6small attributes;
+        k6seenA = 0;
+        while ++k6cur4;
+            k6seenA = k6seenA + 1;
+        print "K6e first walk counted =" k6seenA " (ANTI-VACUITY: must be 1, else void)":;
+        k6seenB = 0;
+        while ++k6cur4;
+            k6seenB = k6seenB + 1;
+        return k6seenB;
+        };
+
+    /*  K7's subjects (2026-08-30). k7Self is the specimen: a field carrying a
+        VALUE and a CODE BLOCK that accumulates into its own name and returns
+        it. k7NoSelf and k7Plain are its discriminating siblings.  */
+    k7Self=3    code={ k7Self += 43; return k7Self; };
+    k7Other=3;
+    k7NoSelf    code={ k7Other += 43; return k7Other; };
+    k7Plain=3   code={ return 46; };
+
+    /*  ===================== K6f (2026-08-07) =========================
+        THE RESTART'S ARITHMETIC, IN THE MUTUAL SHAPE. K6e isolates the
+        property; this row asks whether the property actually ACCOUNTS for
+        K6a rather than merely coexisting with it -- and it is sized so
+        that three readings give three DIFFERENT numbers instead of the
+        collision a naive widening produces.
+
+        Outer walks k6wide (4 attributes), inner walks k6med (2). One tick
+        is taken before the call, so 3 outer attributes remain -- chosen
+        NOT to equal the inner list length, because when those two are
+        equal the restart reading and the cursor-never-trampled reading
+        land on the SAME total and the row discriminates nothing.
+            4   trampled AND restarting -- the inner's 2, then a full
+                restarted walk of k6med
+            5   cursor never trampled   -- outer resumes its own walk over
+                the 3 remaining k6wide attributes, from the inner's 2
+            2   trampled, exhaustion terminal -- the inner's count, frozen
+        K6a already excludes the middle reading; this row excludes it a
+        second time WITHOUT depending on K6a, which is the whole point of
+        a second witness.
+
+        ⚠⚠ THE INDEPENDENCE ABOVE EXPIRED ON 2026-08-10, SEQ 27 rung B, AND
+        THE NUMBER DID NOT MOVE WHEN IT DID -- which is the reason this note
+        is long. The row was sized against a world where the frame bracket
+        ran only for directly self-mentioning actions, so the three readings
+        it lists all assume the outer activation's COUNTER carries across the
+        inner call even when its cursor might not. With the bracket now
+        unconditional, the counter is per-activation too, and the outer
+        simply counts its own four attributes. THAT IS ALSO FOUR.
+
+        So four now carries two meanings from two different eras -- the old
+        trample-and-restart, and the new fully-bracketed walk -- and this row
+        can no longer separate them by itself. The reading listed as five was
+        never the bracketed answer; it was the answer for a bracket that
+        saved the cursor and not the counter, which is a world that no longer
+        exists.
+
+        READ IT WITH K6a, which is the same shape over a three-attribute
+        outer list and therefore still discriminates: two means trampled,
+        three means the activation kept its own. K6a moved from two to three
+        on the same build that left this row at four, so the pair is
+        consistent and the world is the bracketed one. The second witness
+        still works; it just needs the first one now, which is exactly what
+        the paragraph above says it was built not to need.
+
+        NOT RE-SIZED HERE. Choosing new list widths so this row discriminates
+        alone is a fixture-design decision and belongs to whoever owns the
+        K-row table, not to the rung that revealed the collision.  */
+    k6wide      ww ee rr tt;
+    k6med       pp qq;
+    k6depth4;
+    k6Awide argument code={
+        iterate k6cur5 on argument attributes;
+        k6seen5 = 0;
+        while ++k6cur5;
+            k6seen5 = k6seen5 + 1;
+            if k6depth4 > 0;
+                k6depth4 = k6depth4 - 1;
+                k6Bwide(k6med);
+        return k6seen5;
+        };
+    k6Bwide argument code={
+        k6Awide(*argument);
+        return 0;
+        };
+
+    /*  DRIVERS, so the jitted legs can run. testing() binds no argument, and
+        these rows are about actions that TAKE one -- so each driver is nullary
+        and makes the real call itself, exactly as dfDrive does for displayForm.
+        Under jitting an ordinary call INLINES, so k1's body is emitted into the
+        driver and its self-call is recognised through gJitInlining -- which is
+        the path the frame bracket added, so this is a real parity test of it.  */
+    k1Drive code={
+        k1depth = 1;
+        kOut = k1(kArg);
+        };
+    k2Drive code={
+        k2depth = 1;
+        kOut = k2(kArg);
+        };
+    ;
+
+kArg = 7;
+
+/*  ⚠⚠ THE JITTED PARITY LEGS ARE DELIBERATELY NOT RUN HERE, AND THE REASON IS
+    A FINDING RATHER THAN A LIMITATION. They were written, run, and REMOVED:
+
+      1. `return` UNDER JIT HAS NO EMITTER. It calls jitDegrade
+         ("break/return under jit -- no emitter yet"). Since KANT-8 is a claim
+         ABOUT WHAT A RETURN HANDS BACK, its jitted parity is not merely
+         unanswered -- IT IS NOT YET ASKABLE. Every green rung on the ladder
+         asserts a FIELD's value after the action, never a returned one, and
+         this is why.
+      2. Driving them CRASHED at 139, and the cause is a SEPARATE pre-existing
+         defect that has nothing to do with return -- see incant/inlineSelfT,
+         which isolates it. Running them here would put a SIGSEGV inside a
+         fixture whose job is to characterise something else, and rule H5 exists
+         because a fixture that dies takes every check below it with it.
+
+    So this file stays INTERPRETED-ONLY and exits 0. The parity question is
+    parked behind a named gate: it becomes askable when `return` gets an
+    emitter.  */
+print "== PARITY: jitted legs -- SEE HEADER, deliberately not run ==":;
+
+print "== K3 CONTROL: NON-recursive action returning a local ==":;
+kOut = k3();
+print "K3 returned =" kOut " (want 42; if this is not 42 the fixture is void)":;
+
+print "== K1 BASELINE: recursive action returning a local, one nested call ==":;
+k1depth = 1;
+kOut = k1(kArg);
+print "K1 returned =" kOut " (want 42; KANT-8 predicts NOT 42)":;
+
+print "== K4: recursive action, recursive branch NEVER TAKEN ==":;
+k4depth = 0;
+kOut = k4(kArg);
+print "K4 returned =" kOut " (want 42; is the tax paid without recursing?)":;
+
+print "== K2 OPEN PROBE: recursive action returning its ARGUMENT ==":;
+k2depth = 1;
+kOut = k2(kArg);
+print "K2 returned =" kOut " (kArg is 7; does an argument dodge the restore?)":;
+/*  ⚠⚠ AND K2's ANSWER IS VOID -- READ K2x, NOT K2. See the note on k2x above.
+    K2 prints 7 whether or not the argument was trampled, so it discriminates
+    nothing. It is kept because removing it would erase the record of a row this
+    gate relied on for a month; it is NOT evidence.  */
+print "== K2x: K2's HONEST SIBLING -- direct recursion, DIFFERENT inner arg ==":;
+k2xOut = k2xCtl(k2xBig);
+print "K2x row 0 control  =" k2xOut " (MUST be k2xBig, else rows 1-2 are void)":;
+k2xdepth = 1;
+k2xOut = k2x(k2xBig);
+print "K2x row 1 recursed =" k2xOut " (k2xBig = DODGES; k2xSmall = TRAMPLED)":;
+k2xdepth = 0;
+k2xOut = k2x(k2xBig);
+print "K2x row 2 depth 0  =" k2xOut " (MUST be k2xBig; isolates CALL from FLAG)":;
+
+print "== K5: INVOCATION-HISTORY DEPENDENCE -- K1's shape, called TWICE ==":;
+/*  ⚠ THE FLAG ITSELF CANNOT BE PRINTED FROM HERE, AND THAT IS A REPORTED
+    CONSTRAINT RATHER THAN AN OMISSION. `recursive` is NOT in the GroupFields
+    registry (incant/setup:236-276 lists 30-odd flags; recursivE is not among
+    them), so there is no incant spelling for it -- and incant/flagProbe already
+    established that a GroupFields name with no opDot case falls to
+    `product.text = "access to ... not supported yet"`, a NON-EMPTY STRING that
+    is TRUTHY either way. So an undeclared name would not merely fail, it would
+    read as permanently set. Adding one is an interpreter-side edit and out of
+    this brief's scope.
+    ROUTED AROUND: the RETURNS are the flag's observable. The bracket's only
+    effect on this shape is whether the local survives, so 42 means the bracket
+    did not run and the tag means it did. Two calls, two readings.  */
+k5depth = 1;
+kOut = k5(kArg);
+print "K5 call 1 returned =" kOut " (42 = bracket did NOT run; tag = it did)":;
+k5depth = 1;
+kOut = k5(kArg);
+print "K5 call 2 returned =" kOut " (does invocation HISTORY change the answer?)":;
+
+/*  ⚠ K5's ANSWER IS "NO", AND THE WHY IS STRUCTURAL RATHER THAN INFERRED --
+    which matters, because a causal claim in this domain is a coin flip until it
+    is run and this one can be READ instead.
+    saveLocalFields pushes ONE saved body per field matching
+    `(isArgument || isLocal) && !noPrint` (GroupActions.rtn:859-879);
+    restoreLocalFields pops exactly as many, walking the same predicate backward
+    (:589-593). So the stack is empty on entry to a restore IF AND ONLY IF the
+    save pushed nothing -- i.e. the action has NO matching fields, in which case
+    the bracket had nothing to blank in the first place.
+    THEREFORE line 587's `if !recurseSTAK.length action.recursive = false;` IS
+    REACHABLE ONLY FOR ACTIONS WHERE CLEARING IT CHANGES NOTHING. For any action
+    the bracket actually affects, `recursive` is never cleared -- which is
+    exactly what these two rows measure, and it makes the flag effectively
+    static in practice even though it is written at run time.
+    ⚠ THIS NARROWS A WARNING I ISSUED EARLIER THIS DAY. The S3 probe reported
+    "recursive is cleared at run time, so compile results could depend on
+    invocation history", and that was used as one of two reasons to reject
+    option (c). The clause is TRUE but INERT for any action with a local or an
+    argument. The ruling is unaffected -- (c)'s other reason was that `recursive`
+    misses A->B->A entirely, and K6a/K6c below MEASURE that gap rather than
+    predicting it -- but the record should carry the narrower claim.  */
+
+print "== K6a: MUTUAL RECURSION A->B->A, node-resident local CARRIED across ==":;
+k6depth = 1;
+kOut = k6A(k6big);
+print "K6a outer returned =" kOut " (3 = its own cursor; 1 = trampled by the inner)":;
+
+print "== K6b CONTROL: same A->B->A, local written AFTER the B call ==":;
+k6depth2 = 1;
+kOut = k6Actl(k6big);
+print "K6b outer returned =" kOut " (want 3; proves the SHAPE is not the fault)":;
+
+print "== K6c: MUTUAL RECURSION -- the ARGUMENT, read after the B call ==":;
+k6depth3 = 1;
+kOut = k6Aarg(k6big);
+print "K6c outer returned =" kOut " (k6big = its own; k6small = the inner's)":;
+
+/*  ⚠⚠ K6d IS THE ELIMINATION ROW, AND IT EXISTS BECAUSE A BAD WITNESS NEARLY
+    INVERTED A DIAGNOSIS. K6b's first draft iterated `argument` and returned 1
+    instead of 3; the attribution was "the inner activation trampled the
+    argument". K6c was then written to check that -- and in its FIRST form it
+    did `return argument;`, which printed 3, i.e. k6big's ATTRIBUTE COUNT rather
+    than its identity. Read as "the argument is intact", that inverted the
+    diagnosis and pointed at the iterator instead.
+    ⚠ PRINTING A GROUP NODE PRINTS ITS ATTRIBUTE COUNT. It is a legal-looking
+    number in the same range as the answer, so it does not announce itself as
+    the wrong quantity. `return argument.taG;` is the honest witness and it says
+    k6small -- the argument IS trampled, the original reading was right, and the
+    thing that was briefly wrong was the instrument.
+    K6d survives as the ELIMINATION it forced: a second `iterate` on the same
+    cursor, two different nodes, one straight-line action, no recursion of any
+    kind. It counts 3, so the re-iterate re-points correctly and the iterator is
+    NOT a suspect in any row above. A control that eliminates is worth keeping
+    even when the hypothesis it was built for dies.  */
+print "== K6d: RE-ITERATE THE SAME CURSOR ON A DIFFERENT NODE, no recursion ==":;
+kOut = k6Re(k6big);
+print "K6d second walk counted =" kOut " (want 3; 1 = the re-iterate did NOT re-point)":;
+
+/*  ⚠ K6e AND K6f ARE THE DISCRIMINATING PAIR FOR K6a's 2 (2026-08-07).
+    They are ordered isolation-then-arithmetic on purpose: K6e establishes
+    whether the restart exists AT ALL in a shape with no second activation,
+    and only then does K6f ask whether it accounts for K6a's total. Run the
+    other way round, a K6f of 4 would be read as confirming a mechanism that
+    had not yet been shown to exist.  */
+print "== K6e: EXHAUSTED-CURSOR RESTART, ISOLATED -- no recursion at all ==":;
+kOut = k6Rst(k6big);
+print "K6e second walk counted =" kOut " (1 = cursor RESTARTS; 0 = exhaustion terminal)":;
+
+/*  ⚠ K7 IS A REGRESSION ROW, NOT AN INVESTIGATION -- promoted 2026-08-30 from
+    the goldenDrift specimen, because the fleet WOULD NOT HAVE CAUGHT IT. The
+    frame bracket wrote its save-stack into the action node's DATA slot. For an
+    ordinary action that slot is empty and the write is free; for a field that
+    carries BOTH DATA AND A CODE BLOCK it held the VALUE, and the bracket
+    destroyed it -- data type 5 (number) becoming 12 (isSTAK), measured.
+
+    ⚠ EVERY OTHER ROW IN THIS FILE WAS GREEN THROUGHOUT, which is why this row
+    exists and why it lives HERE rather than anywhere else. No K-row uses a
+    data-carrying action, so the KANT-8 family's blast radius never covered the
+    one shape incant/unitTests documents as incant's distinguishing feature:
+    data and behaviour on one field. The defect rode 20 days inside the family
+    that was supposed to be watching, and surfaced through a golden nobody diffs.
+
+    THREE ARMS, because a lone specimen cannot say WHICH thing broke:
+      K7a  body references its OWN name      -- the specimen; 46
+      K7b  body references ANOTHER field     -- 46, or the whole += path is out
+      K7c  body references no field at all   -- 46, ANTI-VACUITY: if this moves,
+           actions are broken generally and K7a says nothing about this class.  */
+print "== K7: A FIELD THAT IS BOTH DATA AND BEHAVIOUR, self-mentioning ==":;
+kOut = k7Self();
+print "K7a own name returned =" kOut " (want 46; a NAME here = the bracket ate the value)":;
+kOut = k7NoSelf();
+print "K7b other field returned =" kOut " (want 46; if this moves, += itself is out)":;
+kOut = k7Plain();
+print "K7c no field at all returned =" kOut " (want 46; ANTI-VACUITY, else K7a is void)":;
+
+print "== K6f: THE RESTART ARITHMETIC IN THE MUTUAL SHAPE, 4 vs 5 vs 2 ==":;
+k6depth4 = 1;
+kOut = k6Awide(k6wide);
+print "K6f outer returned =" kOut " (4 = trample+restart OR fully bracketed, AMBIGUOUS since 08-10 -- read with K6a; 2 = terminal)":;
+
+print "kant8T SENTINEL -- run reached the end":;
+stop();

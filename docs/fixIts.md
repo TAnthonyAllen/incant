@@ -63,6 +63,42 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### ⚠⚠ F-46 — DIAGNOSED AND ITS CURE MEASURED, BUT THE CURE IS **FLIP-ONLY**. NOT LANDED
+**The cure is the star.** `minionWork/f46Star` spells the recursive self-call `f46Rec(*argument)` —
+handing over what the holder POINTS AT rather than the holder itself. **Pre-registered before the
+run: SAMEFIELD=1 on 3 of 3, zero guard lines. Both held, exactly:**
+```
+CHANCAM-INT src field=0x102e437c0 tag=f46Src   got 0x102e437c0  SAMEFIELD=1   (x3)
+guard lines: 0        depth reached: 3, and every depth sees the SAME source field
+```
+The anti-vacuity row holds too — the recursion actually recursed, so 3 of 3 is about recursion and
+not about one bind.
+
+**Respelled into `kant8T` (8 self-calls) and `inlineSelfT` (1). Both cured under the flip:**
+
+| fixture | guard lines | `SAMEFIELD=0` | refusals | verdict |
+|---|---|---|---|---|
+| `kant8T` | **4 → 0** | **4 → 0** | 0 | stdout **BYTE-IDENTICAL**, every K row unmoved ✅ |
+| `inlineSelfT` | **1 → 0** | **1 → 0** | 0 | **`jitDegrade` 0 → 2** ❌ |
+
+⚠ **`inlineSelfT` REVERTED: THE JIT CANNOT EMIT THE STAR.** `=== JIT DEGRADE: unary * under jit --
+no emitter yet -- running INTERPRETED: argument ===`, twice, and the jitted binds fell 2 → 1 because
+the self-call stopped being jitted. **The respell trades F-46 for a degrade on the JIT road**, and
+degrade-zero is asserted by every rung. A jitted self-call cannot take this cure until the star has
+an emitter.
+
+⚠⚠ **AND `kant8T` REVERTED TOO, FOR A HARDER REASON: THE RESPELL HANGS WITH THE FLIP OFF.** Under
+`gNoUnwrap = 1` it is byte-identical; under `gNoUnwrap = 0` — which is what `pop.sh` runs —
+**`kant8T` TIMED OUT after 90s** and took nine rows with it (162 green). The auto-unwrap is still in
+place at 0, so `*argument` is a second unwrap and the recursion's depth guard never terminates.
+**So the cure RIDES WITH THE FLIP and cannot land before it.** The respelled file is kept as
+`minionWork/kant8Tstar.candidate`.
+⚠ **RULE H5 EARNED ITS KEEP HERE.** The hang was caught as a named `TIMED OUT` row rather than as a
+silent suite deletion — a fixture that never returns would otherwise have eaten every check below it.
+
+**Done-when:** the flip lands, then the respell rides with it; or the star gets a JIT emitter, which
+is what `inlineSelfT` additionally needs. **Nothing is landed.**
+
 ### F-46 (the recursion that passes itself) — `setGroup`'s self-add guard silently no-ops the recursive bind
 **Gloss:** self-passing recursion, no-op bind.
 **Where:** `GroupItem::setGroup`'s `if ( groupBody == g->groupBody )` refusal, met by `jitBindArgRT`
@@ -214,7 +250,31 @@ argument it was called with.** That is measured, and it is the strongest argumen
 go silent, asserting nothing. The fixture says so in its own prose, which is why it is **not a fleet
 row**: `pop.sh` runs bare.
 
-#### ITEM 4 — ABORT vs PROCEED: **NOT BUILT, AWAITING TONY.** Clay recommends abort, no fallback road.
+#### ✅ ITEM 4 RULED AND BUILT (SEQ 131) — AN ARGUMENT ATTRIBUTE NEVER CARRIES AN INITIAL VALUE
+**Tony's ruling, in three parts, all built.** The field passed in carries the value; `aCTionDefinE`
+refuses a declared one **by name**; a refused bind **aborts the action** in F-41's form — named, the
+action does not run, the fixture continues — and **the bind-by-body fallback road is removed.**
+
+| certificate row | result |
+|---|---|
+| `DEFINE REFUSED` fires, `tnLoaded` only | **1, by name** ✅ |
+| `tnPlain` silent **and still runs** | 0 refusals, prints `argument = ORIG` ✅ |
+| `argument = 42` never printed | **0** — the action did not run ✅ |
+| fixture continues | sentinel reached ✅ |
+| bare fleet | **byte-identical**, 171 green ✅ |
+
+**The fallback road was removed on evidence, not on taste:** measured on `tnLoaded`, it handed the
+callee **the occupant** rather than the argument it was called with. A wrong answer delivered
+quietly is worse than no answer delivered loudly.
+⚠ **ONE JUDGMENT CALL, STATED SO IT CAN BE CHEAPLY OVERTURNED.** *"Refuses by name"* is ambiguous
+between name-and-**strip** and name-and-**leave**. Taken as **leave**: F-41's own form is
+name-and-decline, never name-and-repair, and the dispatch says the runtime tripwire *stays as a
+defect detector* — which reads oddly if the define-time check is meant to guarantee it can never
+fire. **Strip would also kill `minionWork/tripwireNeg`**, the negative control the seal owed since
+SEQ 120, on the day it was built. If Tony wants strip it is one line, and the control needs a new
+subject in the same stroke.
+
+#### ITEM 3 — THE SELF-ADD GUARD'S HOME: **NOT BUILT, AWAITING TONY.** Recommended: move to the tripwire, one refusal site.
 The evidence gathered for it, all measured: a refused bind **runs the action anyway**; the callee
 reads through the pre-channel bind-by-body road; and on `tnLoaded` the value it reads is **the
 occupant, not the argument passed**. Nothing is built.

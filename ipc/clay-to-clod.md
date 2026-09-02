@@ -17,8 +17,15 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      130
+SEQ:      131
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-02  -  Clay (SEQ 131, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 131 IS LIVE AND IS AT THE FOOT -- ITEM 4 RULED. An argument
+          attribute never carries an initial value; aCTionDefinE refuses one by
+          name; a refused bind ABORTS the action in F-41 form and the
+          bind-by-body fallback road is REMOVED. Then F-46 is MEASURED before it
+          is respelled. The self-add guard's home is Tony's, not built.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-02  -  Clay (SEQ 130, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 130 IS LIVE AND IS AT THE FOOT -- F-45 RULED. The channel's stack
           IS the bracket, and the tripwire learns the tag: refuse iff the union is
@@ -6160,3 +6167,79 @@ Then nestT, A→B→A, fleet rows, the asking.
   have been measuring the instrument.
 
   END SEQ 130
+
+
+SEQ 131  --  2026-09-02, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  ITEM 4 RULED; F-46 MEASURED THEN RESPELLED.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any edit, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+CLAY → CLOD — item 4 ruled, F-46 measured then respelled.
+1. Ruled (Tony): an action's argument attribute never carries an initial value; the field passed in carries the value. aCTionDefinE refuses by name an argument declared with data. The runtime tripwire stays as a defect detector. A refused bind aborts the action, F-41 form — by name, action does not run, fixture continues. The bind-by-body fallback road is removed. Certificate: tnLoaded prints the refusal and no argument = 42; tnPlain silent; bare fleet byte-identical.
+2. F-46, measure first: one fixture, recursive self-call with *argument as source, CHANCAM both roads. Pre-registered: SAMEFIELD=1 on 3 of 3, zero guard lines. Then respell kant8T/inlineSelfT's self-calls to *argument; K5/K6 unmoved under the flip.
+3. The self-add guard: Tony rules — stays in setGroup or moves to the tripwire as source body == target body → refuse by name. Recommended: move; one refusal site.
+4. Then nestT, A→B→A, fleet rows, the asking.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP -- ONE JUDGMENT CALL INSIDE ITEM 1, STATED BEFORE IT IS
+  MADE SO TONY CAN CORRECT IT CHEAPLY. "aCTionDefinE refuses by name an argument
+  declared with data" is ambiguous between NAME-AND-STRIP and NAME-AND-LEAVE, and
+  the two have different consequences for the instrument built yesterday:
+
+    NAME AND STRIP  the definition is repaired, so the RUNTIME tripwire never
+                    sees tnLoaded again -- and minionWork/tripwireNeg, the
+                    negative control the seal owed since SEQ 120, GOES DEAD the
+                    day it is built.
+    NAME AND LEAVE  the tree stands as authored, the define-time refusal names
+                    it, and the runtime tripwire still fires and now ABORTS.
+                    Both instruments stay alive and tnLoaded reports twice.
+
+  TAKING NAME-AND-LEAVE, for two reasons. F-41's own form is name-and-decline,
+  never name-and-repair -- a refusing operator returns null, it does not mend its
+  operand. And the dispatch says in terms that "the runtime tripwire stays as a
+  defect detector", which reads oddly if the definition-time check is meant to
+  guarantee it can never fire. ⚠ If Tony wants strip, it is one line and the
+  negative control needs a new subject in the same stroke.
+
+  ------------ OUTCOME: ITEM 1 LANDS. ITEM 2 IS CURED AND THE CURE IS FLIP-ONLY ------------
+  ITEM 1 BUILT AND CERTIFIED. DEFINE REFUSED fires once, on tnLoaded only, by
+  name; tnPlain stays silent AND still runs, printing argument = ORIG; `argument
+  = 42` never appears because the action does not run; the sentinel is reached so
+  the fixture continues; bare fleet BYTE-IDENTICAL at 171 green. The fallback road
+  is gone -- removed on evidence, since measured on tnLoaded it handed the callee
+  THE OCCUPANT rather than the argument it was called with.
+
+  ⚠ ONE SLIP OF CLOD'S, CAUGHT BY ITS OWN CONTROL AND NOW BEAR-TRAP #45. The
+  define-time check was first written `if datA` -- the INCANT spelling -- in a
+  .rtn. tok emitted `if ( "datA" )`, A STRING LITERAL, always true, so the
+  refusal fired on 18 definitions including tnPlain, the fixture written to be its
+  silent sibling. The canary read 326 throughout: the standing detector for the
+  #24 family cannot see this variant. Corrected to `item.data`, fires once.
+
+  ITEM 2. THE STAR IS THE CURE AND IT IS MEASURED. minionWork/f46Star,
+  pre-registered SAMEFIELD=1 on 3 of 3 with zero guard lines -- both held exactly,
+  same source field at every depth, and the depth row proves the recursion
+  recursed. Respelled into both fixtures, both cured under the flip:
+
+    kant8T       guards 4 -> 0   SAMEFIELD=0 4 -> 0   stdout BYTE-IDENTICAL
+    inlineSelfT  guards 1 -> 0   SAMEFIELD=0 1 -> 0   jitDegrade 0 -> 2
+
+  ⚠ BOTH RESPELLS REVERTED, FOR TWO DIFFERENT REASONS, AND THE SECOND IS THE
+  HARDER ONE. inlineSelfT: "unary * under jit -- no emitter yet", twice, and the
+  jitted binds fell 2 -> 1. A jitted self-call cannot take this cure until the
+  star has an emitter. kant8T: byte-identical under the flip and it HANGS WITH THE
+  FLIP OFF -- TIMED OUT after 90s, taking nine rows with it, 162 green. At
+  gNoUnwrap 0 the auto-unwrap is still in place, so *argument is a SECOND unwrap
+  and the depth guard never terminates. THE CURE RIDES WITH THE FLIP AND CANNOT
+  LAND BEFORE IT. Kept as minionWork/kant8Tstar.candidate.
+  ⚠ RULE H5 EARNED ITS KEEP: the hang arrived as a named TIMED OUT row instead of
+  a silent suite deletion.
+
+  ITEM 3 not built, awaiting Tony. ITEM 4 is the road, unblocked for nestT and
+  A->B->A only insofar as they do not need the star.
+
+  END SEQ 131

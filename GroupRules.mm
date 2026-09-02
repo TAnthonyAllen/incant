@@ -582,8 +582,18 @@ GroupItem 	*item = 0;
 					CodE->groupBody->tag = "CodE";
 					CodE->groupBody->flags.noPrint = 1;
 					}
+				/*  ⚠ AN ARGUMENT ATTRIBUTE NEVER CARRIES AN INITIAL VALUE
+				(Tony, SEQ 131). The FIELD PASSED IN carries the value;
+				a declared one is a defect, and it is refused BY NAME in
+				F-41's form -- named and declined, never repaired, so the
+				tree stands as authored and the runtime tripwire still
+				sees it.   ruleActions.aCTionDefinE.argumentHasData  */
 				if ( ::compare(item->groupBody->tag,"argument") == 0 )
+					{
 					item->groupBody->flags.isArgument = 1;
+					if ( item->groupBody->flags.data )
+						::fprintf(stderr,"DEFINE REFUSED on %s -- its `argument` attribute is declared with a value; an argument attribute never carries one, the field passed in does\n",NewGroup->groupBody->tag);
+					}
 				if ( NewGroup->groupBody->flags.isMacro )
 					item->groupBody->flags.noPrint = 1;
 				item->groupBody->flags.isInitialized = 1;
@@ -13167,6 +13177,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
 GroupItem 	*capture = 0;
 GroupItem 	*ruleArg = 0;
+int 		chanAbort = 0;
 	if ( isCoded(field->groupBody->flags.actionType) )
 		if ( !::processCode(field) )
 			return 0;
@@ -13249,11 +13260,18 @@ GroupItem 	*ruleArg = 0;
 	call's own outer activation and sent it down the pre-channel road.
 	Refuse iff the union is non-zero AND NOT isGROUP.
 	GroupActions.runAction.unionTripwire  */
+	/*  ⚠ A REFUSED BIND ABORTS THE ACTION (Tony, SEQ 131), in F-41's form:
+	named, declined, and the run continues. THE BIND-BY-BODY FALLBACK
+	ROAD IS GONE -- it silently returned one call to the pre-channel
+	road and, measured on tnLoaded, handed the callee THE OCCUPANT
+	rather than the argument it was called with. A wrong answer
+	delivered quietly is worse than no answer delivered loudly.
+	GroupActions.runAction.unionTripwire  */
 	if ( ruleArg->groupBody->gGroup && !isGROUP(ruleArg->groupBody->flags.data) ) {
-	::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the argument body's union holds non-group data; gGroup would clobber it\n",
+	::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the argument body's union holds non-group data; the action is NOT run\n",
 	field->groupBody->tag);
 	::fflush(stderr);
-	ruleArg->groupBody = result->groupBody;
+	chanAbort = 1;
 	}
 	else {
 	/*  ⚠ THROUGH setGroup, AND THE TWO ROADS ARE ONE AGAIN (Tony, SEQ 127).
@@ -13285,7 +13303,9 @@ GroupItem 	*ruleArg = 0;
 		{
 		 jitInlinePush(field); 
 		}
-	result = ::processAction(field);
+	if ( !chanAbort )
+		result = ::processAction(field);
+	else	result = 0;
 	
 	if ( chanBody ) { chanBody->gGroup = chanPrevGroup; chanBody->flags.data = chanPrevData; }
 	

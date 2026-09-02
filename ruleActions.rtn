@@ -443,7 +443,16 @@ use item
                         CodE                = item;
                         CodE.tag            = "CodE";
                         CodE.noPrint        = true; }
-                    if tag eq "argument"    isArgument = true;
+                    /*  ⚠ AN ARGUMENT ATTRIBUTE NEVER CARRIES AN INITIAL VALUE
+                        (Tony, SEQ 131). The FIELD PASSED IN carries the value;
+                        a declared one is a defect, and it is refused BY NAME in
+                        F-41's form -- named and declined, never repaired, so the
+                        tree stands as authored and the runtime tripwire still
+                        sees it.   ruleActions.aCTionDefinE.argumentHasData  */
+                    if tag eq "argument" {
+                        isArgument = true;
+                        if item.data     cerr "DEFINE REFUSED on " NewGroup.tag " -- its `argument` attribute is declared with a value; an argument attribute never carries one, the field passed in does":;
+                        }
                     if NewGroup.isMacro     noPrint = true;
                     isInitialized  = true;
                     if NewGroup.isRule && !item.binType && !item.isRule item.isRule = true;

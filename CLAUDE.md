@@ -2029,6 +2029,26 @@ Hard-won lessons. Each one has cost real debugging time.
     present** — which is rule H4's logic and bear-trap #30's install-check, applied to code you
     emit rather than to code you inject.
 
+45. **AN UNRESOLVED BARE NAME IN A tok CONDITION BECOMES A STRING LITERAL — ALWAYS TRUE — AND THE
+    EXTERN CANARY STAYS GREEN.** Gloss: the name becomes a quote. Measured 2026-09-02. Bear-trap
+    #24's family with a **quieter** failure: that one wipes the extern block and dies three files
+    away; this one **compiles, links, runs, and silently takes every branch.**
+    Writing the incant spelling `datA` in a `.rtn` condition generated
+    ```
+    if ( "datA" )        <- a STRING LITERAL, and every string literal is true
+    ```
+    so a refusal meant for one malformed definition fired on **18 of them**, including the fixture
+    written to be its silent control. `item.data` — the tok spelling — generates
+    `if ( item->groupBody->flags.data )` and fires once.
+    ⚠ **THE CANARY READ 326 THROUGHOUT**, which is the whole reason this needs its own row: the
+    standing detector for #10/#24/#29/#40 is `grep -c '^extern' GroupRules.h` going to 0, and it
+    **cannot see this one**. Nothing in the build says anything at all.
+    **The tell is in the OUTPUT, not the build: a guard that fires on everything.** When a new
+    refusal names more subjects than you believed existed, read the generated condition before you
+    doubt the subjects — one `grep -B2` on the `.mm`, and the quotes are visible.
+    Same root as the three-languages note in project memory: **confirm which language the line is
+    before trusting a bare name in it.**
+
 ⚠⚠ **THE RULE-LADDER SELECTION CRITERION — TWO CLAUSES, AND THE SECOND WAS PAID FOR.** Tony,
 2026-08-24.
 
