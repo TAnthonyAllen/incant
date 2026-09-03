@@ -17,8 +17,8 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      152a
-STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+SEQ:      154
+STATUS:   cleared        # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-09-03  -  Clay (SEQ 152a, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 152a IS LIVE AND IS AT THE FOOT -- B1 flipped six rows, the
           read-only designDocs includer grep, and the ruled pointer form
@@ -7615,3 +7615,30 @@ Fearless: SEQ C-152a  (Clay → Clod)
 -------------------------- END VERBATIM --------------------------
 
   END SEQ 152a
+
+===================================================================
+SEQ 154  --  2026-09-03, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  SEAL AND KITCHEN. NOTHING ELSE.
+===================================================================
+
+STATUS: cleared -- transcribed AT PICKUP; the session closes on it.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+RULING (Tony): stop here. Item 4, the Skip minion, and everything on
+the branch open tomorrow on a fresh seat. The minion channel stays
+STATUS fresh, not dispatched.
+
+[ORDER 1-3 and the eleven seal points a-k as dictated; the seal itself
+is docs/wakeup.md's 2026-09-03 mark, which carries them verbatim in
+substance and is the artifact of record.]
+
+-------------------------- END VERBATIM --------------------------
+
+  CLOD: sealed. Date check agrees (16:11 / 16:06). gNoUnwrap 0 in source
+  AND verified in the BINARY behaviourally rather than by mtime, per the
+  item-0 lesson that opened this session. Fleet 191/1/3, frontier exit 0
+  10 PASS, canary 332, ddPop 31 records, no probe strings in the binary,
+  both repos clean and pushed but for parser. Minion channel left fresh.
+
+  END SEQ 154

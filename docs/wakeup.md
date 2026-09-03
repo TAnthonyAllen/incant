@@ -1,3 +1,139 @@
+# ⚠⚠⚠ SEALED 2026-09-03 — ITERATE IS RE-RULED AND LANDED, THE :244 PROMOTION IS
+# RETIRED, AND THE COMMENT TEMPLATE IS RULED. FIFTEEN COMMITS, ONE FLIP WINDOW,
+# CLOSED md5-CLEAN.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-03 16:11 and
+#   `git log -1 --date=iso` stamps 2026-09-03 16:06. They agree.
+#
+#   ## THE ONE-LINE STATE: **`iterate grup attributes on *field;` — modifiers
+#   before `on`, the source through `IterSource`, the star handled by the action.
+#   The `:244` promotion is gone. Comments have a ruled template and
+#   `ruleActions.rtn` is 1,381 lines with an empty code-only diff.** Fleet
+#   **191 green / 1 parked / 3 pinned red**, frontier **exit 0, 10 PASS**, canary
+#   **332**, ddPop **31 records**, countPop **40/40**, decodePop **82**, formsPop
+#   **14**. `gNoUnwrap` **0 in source AND in the binary** — verified behaviourally,
+#   not by mtime. No probe strings in the binary. Both repos 0 dirty / 0 unpushed
+#   but for `parser`.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. ITERATE IS RE-RULED AND LANDED (82f1e6b).**
+#   `Iterate iterate- ANYtoken attributes? members? on- IterSource defer;` with
+#   `IterSource UnaryOPS? ANYtoken;`. Modifiers precede `on`; the star is handled
+#   by `aCTionIterate` and a non-star unary is refused by name.
+#   ⚠ **THE OLD FORM ON A HOLDER IS A HANG, NOT A RED** — it misparses, falls
+#   through to `Xpress`, and `++` on the data arm runs unbounded. **The repo-wide
+#   drift row at 0 is what guards it**; a row scoped to `incant/` would not have,
+#   and that is not hypothetical — the first respell missed four live `genLadder/`
+#   fixtures. 90 sites / 46 files.
+#   The greed finding is why the modifiers moved: `on- ExpressioN` swallowed
+#   `attributes` and walked **2**, which is the arity of the swallowed expression,
+#   at exit 0. Evidence: `docs/iterateRespell.md`.
+#   ⚠ **THE TWO-WRAPS SPLIT IS THE LOAD-BEARING PART.** The parse hop is peeled
+#   UNCONDITIONALLY; only the holder-follow is gated on `gNoUnwrap`, and it retires
+#   with the switch. Gating both is what made every iterate refuse — measured.
+#
+#   **b. ON BARE, `*x` IS ROAD-DEPENDENT, AND THAT IS NOT A DEFECT IN THE STAR.**
+#   Iterate derefs the holder; assign sees `x` already auto-unwrapped and the star
+#   refuses. Temporary by construction, gone with the switch.
+#
+#   **c. `:=` CALLS `setGroup`, WHICH SETS `gGroup` AND `isGROUP` AND NOTHING ELSE.**
+#   `:=` never stamped `byRef` except for four days in June — `692e121` to
+#   `fa9989c`. Four registers quoted the first one for eleven weeks: **EXPIRED, not
+#   wrong**, which is the harder grade because careful reading cannot catch it.
+#   Audit item rescoped to `:. byRef`. Bear-trap #3 carries the measured table.
+#   ⚠⚠ **OPEN, AND IT IS TONY'S:** is `arg := argument` a pointer COPY (arg →
+#   sample) or a pointer TO THE HOLDER (arg → argument)? **Measured today: HOLDER**
+#   (field #5, body #4). Clay recommends pointer-copy.
+#
+#   **d. THE `:244` PROMOTION IS RETIRED (24c3369).** 63 candidates across nine
+#   drivers, **0 firings**, first conjunct false every time.
+#   ⚠ **THE RECON'S CANDIDATE LIST AND THE FIRING LIST DID NOT COINCIDE, EXACTLY
+#   AS THE RECON WARNED** — it was computed over `=`-labelled terms while the
+#   mechanism walks `nextAttribute`, and it said so. That warning is why nothing
+#   was built on it. `allAttributesOptional()` now has **no caller** — a finding,
+#   not a task, and not deleted.
+#   **Spelling rule minted:** on a labelled term the `?` goes on the **LABEL**
+#   (`star?-=field+;`) — match-count modifiers on the value, presence and labelling
+#   on the label. ⚠ **`'*'-` in single quotes NEVER MATCHES** — bear-trap, measured
+#   as a six-way matrix.
+#
+#   **e. `=` ON A LIST-BEARING RHS: RULED TO REFUSE BY NAME**, with the three
+#   spellings in the message (`:=` point, `<-` copy of a field, `copyOf()` own
+#   copy). Half A (holder RHS) is built in `assignFieldCore`. **Half B is PARKED**
+#   — 179 sites in 21 files including `jsonTest`, a fleet baseline — with its
+#   census and four options in `docs/fixIts.md`, revisited after the flip closes.
+#   **`=` stays muddled and this seal says so rather than implying otherwise.**
+#
+#   **f. F-22 IS CLOSED by `incant/starIdiomT`:** `x := compile(rule)` survives.
+#   The documented idiom is `field := A(B); iterate grup on *field;` — a null
+#   refuses at the STAR, a listless field refuses at the ITERATE, and the pair is
+#   what makes either row mean anything.
+#   ⚠ **`nullAfterStar`: a refused star's null reached `unWrap`'s unguarded first
+#   line.** Minted by SEQ 148, found by the fixture on its FIRST run, fixed by
+#   silent-refuse-and-poison — silent because the star already spoke, poison
+#   because otherwise `++` runs away. **`unWrap`'s own missing guard is
+#   pre-existing, left alone, recorded.**
+#
+#   **g. THE COMMENT TEMPLATE IS RULED: `// <entryName> <one sentence>`** — name
+#   first, no path, what it is FOR. Long text to DesignDocs; **site warnings stay
+#   at the site**. `ruleActions.rtn` swept 1,784 → 1,381 with an **empty code-only
+#   diff**.
+#   ⚠ **TWO 09-01 POINTERS HAD NO ENTRY AND THE TEXT IS GONE.** Tony ruled the code
+#   sufficient. The **pointer-resolves check (26/26)** is the row that would have
+#   caught it, and it is the trial's dangling-pointer question answered yes.
+#   **`aCTionIterate`'s re-cut is C-153 and is OPEN** — Tony reviews it before the
+#   rest of the file, then `genParse.rtn`.
+#   ⚠ **SEAT RULE: a function carrying pointers gets its entries READ before it is
+#   touched.**
+#
+#   **h. DO / FOR / WhilE CARRY THREE BYTE-IDENTICAL TRAILING-CONTINUE GUARDS,
+#   ONE ENTRY, AND THEY ARE NOT EXTRACTABLE** — the body is the caller's own
+#   `continue`/`break`/`return`. `isContinue` census pinned at 3.
+#   ⚠ **The "not a paste" warning defended the RATIONALE and was read as a claim
+#   about the CODE, and that reading hid the third copy from two passes.**
+#
+#   **i. DesignDocs IS NOT LOADED BY `setup`** — it is named in `fILEs` only. Five
+#   includers: `ddGate`, `ddProbe`, `ddProbe2`, `lookup`, `tester`. The query verb
+#   (`dd key`, suffix match, refuse on ambiguity, never an empty node) is designed
+#   and unbuilt; **no index until a call is slow**. CLAUDE.md's 40 KB warning is the
+#   same disease and gets the same cure, AFTER C-153 has shown the form on one
+#   function.
+#
+#   ## THE ORDER FOR TOMORROW
+#   1. **Item 4** — the 73-site `*argument` respell, **BRANCH ONLY**, utilities
+#      first. The **25 other-name sites are READ and reported, respelled none** —
+#      silent class, fresh seat.
+#   2. **C-153** — `aCTionIterate` re-cut; Tony reviews before file-wide.
+#   3. **The Skip minion** — charter scribed at `ipc/clod-to-skip.md`, **STATUS
+#      fresh, NOT dispatched**; fires when Clod says the fence is ready.
+#   4. Then the 09-02 order resumes: `kant8Tstar`, the unclassified reds (iterate's
+#      share is now separable), `kant8T`'s hang, `jitBindArgRT`, `nestT`, A→B→A,
+#      fleet rows, the asking.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   - `IncantForms/WorkingOn/parser:72/76/82` — **silently unfiltered under this
+#     grammar**; excluded from the drift row by name.
+#   - `tester` drops `include(designDocs)` and the `DesignDocs` on its search line.
+#   - the `:=` pointer-copy ruling (c), the `++x`-in-condition bear-trap ruling,
+#     and `=`'s half-B options (e).
+#
+#   ## HOUSEKEEPING
+#   - **15 commits.** The flip window opened ONCE and closed md5-clean
+#     (`4b40cf70`). Every retok bare; no directives build was ever measured.
+#   - **Fleet 191** — `starIdiomT` (6 rows) and `iterRefuseT` (6) joined, plus the
+#     A3 unguarded-terms row and the A4 `isContinue` row. Three rule counts
+#     re-pinned **+1** with sentences (countPop 40/40, odometer 46/64 with GREEN
+#     UNMOVED at 18, shadowCensus 84).
+#   - **Fixit queue 1** — `carrierNode`, since 2026-08-31.
+#   - ⚠ **THE NINE MECHANICAL SLIPS TODAY WERE ALL CAUGHT BY AN INSTRUMENT AND
+#     NONE BY CARE** — a respell scoped to the wrong directory, a regex matching
+#     character-class members, a block comment that took the canary 332 → 0, two
+#     probes that did not test their own claim, an unreproduced zero, a script that
+#     threw twice, a malformed `sed`, and an absence-only first probe. **The pause
+#     is the doctrine firing, not fatigue**: reasoning held, the mechanical layer
+#     wore, and item 4's 25-site read is the silent class.
+#
 # ⚠⚠⚠ SEALED 2026-09-02 — THE setGroup COPY WAS PART OF THE CARRIER DEFECT; SIX
 # FIXITS OPENED AND FOUR CLOSED IN ONE DAY; AND THE ASKING STILL ANSWERS NO, WITH
 # A NEW SIGNATURE.
