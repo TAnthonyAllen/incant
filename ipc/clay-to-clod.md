@@ -7055,6 +7055,11 @@ SEQ 145  --  2026-09-03, Clay (dictated via Tony; transcribed by Clod,
 STATUS: working -- transcribed AT PICKUP, before any build, run, edit or
         census, per WT-15. SEQ number assigned by Clod (dispatch read
         "SEQ C-__"); 144 was the prior entry.
+        R4 landed bbfb247. Item 0 CLOSED (bare rebuild, 176/1/3, canary 332,
+        kant8T uncapped). Item 1 MEASURED and BLOCKED -- R1's spelling does not
+        parse; grammar change owed first. Item 2 + R3 landed d1061ed. Item 4
+        census landed 1932aaa (98 sites / 73 argument / 25 per-site). Item 5
+        PRICED, not built. Items 3 and 4a HELD -- both are gated on item 1.
 
 ------------------------- BEGIN VERBATIM -------------------------
 

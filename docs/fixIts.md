@@ -199,6 +199,62 @@ the jitted print path handles a scalar and has nothing for a field.
 met by any change to the assign or the star** — both are already correct. It is the print.
 
 
+### ⚠ SEQ 145 item 5 — THE `=` LIST-BEARING RHS, PRICED. **NOT BUILT. TONY'S RULING.**
+
+**Measured 2026-09-03, bare build, canary 332, instrument reverted and the bare binary verified
+live (`nm` and `strings` both 0).** Item 5 asked for `=` on a holder **or** a list-bearing RHS to
+refuse by name, F-48's shape. **Those are two different populations and only one is unbuilt.**
+
+**HALF A — a HOLDER on the right: ALREADY BUILT, nothing owed.** `assignFieldCore` refuses an
+`isGROUP` source by name — `ERROR = on <target> -- holds a group; say *` — and both roads call it.
+That is SEQ 139, above.
+
+**HALF B — a LIST-BEARING but NOT `isGROUP` right-hand side: unbuilt, and this is the one Tony
+raised from his own bench** (`arg = *argument` giving `arg` a copy of eight fields). It falls
+through to `setContent`, whose `if item.groupList copyListFrom(item)` makes the copy.
+
+**THE PRICE, censused across the whole `incant/` corpus by instrumenting `opAssign` directly —
+NOT `setContent`, which has six callers of which only one is `=`:**
+
+| | firings | files |
+|---|---|---|
+| **`ISGROUP`** — already refused by F-48 | **4** | 1 (`generating`, all four `tmp` ← `ExpressioN`) |
+| **`LISTONLY`** — half B's real population | **179** | **21** |
+| total | 183 | 21 |
+
+`spellScratch` 80 · `generating` 34 · **`jsonTest` 18** · `jiquery` 8 · `stringT` 5 · `decodeT` 5 ·
+`printFamily` 4 · then a tail of 3s, 2s and 1s across `nameRecurse`, `decode`, `branchProbe`,
+`lookup`, `hashProbe`, `aliasTwinT`, `setGroupInit`, `popScratch`, `kant8T`, `json1`, `faceT`,
+`countScratch`, `baselineTests`, `printFamilyNew`.
+
+⚠⚠ **SO A BLANKET REFUSAL IS NOT VIABLE, AND THAT IS THE WHOLE POINT OF PRICING IT.** 179 live
+sites in 21 files, including **`jsonTest`, which is a fleet baseline**, and `stringT` and `kant8T`,
+which are fleet fixtures. A refusal on "the RHS carries a list" turns those red on the day it
+lands. The menu, then, is not refuse-or-not:
+
+1. **Refuse by name** — F-48's shape, one line in `assignFieldCore`, **zero `setContent` sites
+   touched**, and **179 sites to respell first**. Cheapest code, most expensive corpus.
+2. **Alias it** — `setContent` does `setGroup` instead of `copyListFrom`, which is Tony's own
+   suggestion. Collapses `=` and `:=` for a list source, and touches `setContent`'s **six**
+   callers, so `runNotified` and `aCTionTraiT` change meaning too. Item 5 says those six are not
+   to be touched, so **this option is outside the dispatch as written** and is named only so the
+   menu is complete.
+3. **Narrow the refusal** to the case that actually motivated it — a source reached through a
+   star — rather than to any list. Not measured; named because the 179 are overwhelmingly
+   ordinary `=` between fields and not the shape Tony's bench hit.
+4. **Leave the copy.** Status quo, and it is what the fleet is pinned to.
+
+⚠ **CONTROL DISCLOSURE, because the pre-named one did not fire.** `tester`'s row 2
+(`arg = *argument`) was named as the positive control and produced **no** `ASSIGNLIST` line — on a
+bare build the star refuses first (`ERROR unary * on sample -- it holds no group`) and the
+assignment takes `clearData()`, so it never reaches the arm. **The control is void on a bare
+build for a measured reason, not passed.** The instrument is nonetheless demonstrably live — 183
+firings across 21 files — so the census stands on that rather than on the control that was
+planned for it. Recorded rather than quietly swapped, per the standing refusal to grade a voided
+control.
+
+---
+
 ### ⚠ SEQ 139 — F-48 IS NOW ON BOTH ROADS, THROUGH ONE SPELLING. FOUR OF SIX CONVERGE
 **Built:** the ruling moved into **`assignFieldCore`**, and **both roads call it** — the interpreted
 `=` from `opAssign` under `gNoUnwrap`, the emitted `=` through `jitAssignNodeRT`. **One spelling, so
