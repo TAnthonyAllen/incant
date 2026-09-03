@@ -1228,26 +1228,6 @@ define
                     already if
                     the NewGroup is a rule and zero if it is not
                     materialiseTerms(NewGroup);#);
-            aCTionFOR=(the for statement.#):
-                trailingContinueGuard=(THE TRAILING-CONTINUE GUARD, 2026-08-25, Tony's word.
-                    Model is
-                    aCTionWhilE's fix (b88f33d): the sentinel must not
-                    survive the
-                    loop that consumed it, or the LAST iteration's continue
-                    is
-                    still sitting in `result` when the loop exits and
-                    propagates to
-                    the enclosing block as a continue, deleting every
-                    statement
-                    after the loop. Silent, exit 0.
-                    ⚠ SITE-SPECIFIC READ, not a paste. This loop ALSO
-                    continues
-                    earlier, at the `restrict` test above -- that one is
-                    safe
-                    because `result = 0;` runs at the top of every iteration
-                    and so
-                    no sentinel is in flight there. Only this arm can carry
-                    one.#);
             aCTionFailed=(the parse-failure reporter.#):
                 lastCodeToCrash=(⚠ THE LAST CODE ALLOWED TO CRASH IS THE CODE THAT
                     REPORTS CRASHES.
@@ -1483,6 +1463,36 @@ define
                     not, on one shared handler -- is FILED AND UNRULED,
                     not overlooked. Widening tier 3 to the symbols is a
                     ruling, and it costs an edit to this line.#);
+            trailingContinueGuard=(THE TRAILING-CONTINUE GUARD, 2026-08-25, Tony's
+                word, modelled on aCTionWhilE's fix b88f33d. The sentinel must not
+                survive the loop that consumed it: if a `continue` is the LAST
+                statement a loop body executes, it is still sitting in `result` when
+                the loop exits, propagates to the enclosing block as a continue, and
+                deletes every statement after the loop.
+                ⚠⚠ IT IS NOT EXTRACTABLE, AND THE REASON IS NOT THAT THE THREE READS
+                DIFFER -- THEY ARE BYTE-IDENTICAL. Measured 2026-09-03 (SEQ 151) with
+                comments stripped: aCTionDO, aCTionFOR and aCTionWhilE all carry the
+                same seven lines, md5 816978812313. The obstruction is that the body
+                is ENTIRELY CONTROL FLOW OVER THE CALLER'S LOOP -- its three arms are
+                `continue`, `return result` and `break`. A callee cannot carry any of
+                them: continue and break bind to the callee's own loop, of which there
+                is none, and return returns from the callee. A helper could compute a
+                verdict, but the three-way branch would have to stay at each site, and
+                THE BRANCH IS THE GUARD -- there is nothing else in it. Same family as
+                bear-trap #37 and as the macro category mismatch in bear-trap #18: a
+                statement can never be a term.
+                ⚠ AND THE COMMENT THAT SAID "SITE-SPECIFIC READ, NOT A PASTE" WAS
+                RIGHT ABOUT THE RATIONALE AND MISLEADING ABOUT THE CODE. The rationale
+                really does differ -- in a do/while a continue jumps to the CONDITION
+                rather than out, and unlike aCTionFOR there is no `result = 0;` at the
+                head of the body, so `result` there is always the last statement's
+                value. But nothing about the GUARD differs, and reading that warning
+                as a barrier to unification is what kept a THIRD copy, in aCTionWhilE,
+                unnoticed by two passes -- it was never named as part of the pair.
+                ⚠ CERTIFIED BY incant/trailingContinueT, which already covers all
+                three arms: it drives WhilE, FOR and DO, asserts each entered its arm
+                (anti-vacuity, 3 of 3) and asserts by value that the statement AFTER
+                the loop ran in each. Five fleet rows.#);
             degradeByDefault=(DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05).
                 BODY-REACHABLE
                 CONTENT with no emitter, so under jitting it would otherwise

@@ -305,15 +305,9 @@ GroupItem 	*result = 0;
 		result = StatemenT->groupBody->gMethod(StatemenT);
 		if ( result->groupBody->flags.isBranch )
 			{
-			/*  THE TRAILING-CONTINUE GUARD, 2026-08-25, Tony's word. Model is
-			aCTionWhilE's fix (b88f33d) -- same defect, same cure.
-			⚠ SITE-SPECIFIC READ, not a paste. In a do/while a `continue`
-			jumps to the CONDITION rather than out, so the loop keeps
-			running and this is the only arm that can leave a sentinel in
-			`result` at exit. Unlike aCTionFOR there is no `result = 0;` at
-			the head of the body, so `result` here is always whatever the
-			last statement yielded -- which is exactly why the sentinel
-			survives without this line.  */
+			// ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
+			// extractable: the arms are continue/return/break over THIS loop
+			// ruleActions.trailingContinueGuard
 			if ( isContinue(result->groupBody->flags.isBranch) )
 				{
 				result = GroupControl::groupController->groupRules->trueResult;
@@ -631,8 +625,9 @@ int 		restrict = 0;
 			grup = result->priorInParent;
 		if ( result->groupBody->flags.isBranch )
 			{
-			// ⚠ SITE-SPECIFIC, NOT A PASTE -- aCTionDO's copy reads differently. The sentinel
-			// must not survive the loop that consumed it   ruleActions.aCTionFOR.trailingContinueGuard
+			// ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
+			// extractable: the arms are continue/return/break over THIS loop
+			// ruleActions.trailingContinueGuard
 			if ( isContinue(result->groupBody->flags.isBranch) )
 				{
 				result = ruler->trueResult;
@@ -1449,11 +1444,11 @@ GroupItem 	*result = 0;
 			{
 			if ( result->groupBody->flags.isBranch )
 				{
+				// ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
+				// extractable: the arms are continue/return/break over THIS loop
+				// ruleActions.trailingContinueGuard
 				if ( isContinue(result->groupBody->flags.isBranch) )
 					{
-					// result set to trueResult so result != continue or if continue is the last
-					// statement in the while loop result will be passed on to the enclosing block
-					// as continue which the pooches the block
 					result = GroupControl::groupController->groupRules->trueResult;
 					continue;
 					}

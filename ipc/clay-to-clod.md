@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      150
+SEQ:      151
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-03  -  Clay (SEQ 151, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 151 IS LIVE AND IS AT THE FOOT -- extract DO's and FOR's
+          trailing-continue guard to ONE body, or report the difference and
+          STOP. The stop clause is a deliverable: it tests SEQ 150's STAY
+          grading against the code rather than against the comment.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-03  -  Clay (SEQ 150, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 150 IS LIVE AND IS AT THE FOOT -- COMMENT SWEEP of
           ruleActions.rtn ONLY, opDot's TokFiles entry as the template.
@@ -7474,3 +7480,35 @@ about, named — those are what Tony reviews first.
   that certificate unmeasurable. Recorded as owed, awaiting its own stroke.
 
   END SEQ 150
+
+===================================================================
+SEQ 151  --  2026-09-03, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  DO/FOR TRAILING-CONTINUE GUARD -- ONE BODY,
+             OR REPORT THE DIFFERENCE AND STOP.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before reading either guard, per
+        WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+Fearless: SEQ C-151  (Clay → Clod) — DO/FOR trailing-continue guard, one body
+  Extract the guard to one function called from aCTionDO and aCTionFOR.
+  If the two reads are not unifiable without a parameter, report the
+  difference and stop — that is the answer to whether the "not a paste"
+  warning was right.
+  CERTIFICATE: trailingContinueT 5/5 · H7: drop the call from FOR alone,
+  FOR rows red by name, DO green; restore · fleet otherwise byte-
+  identical · canary +1 named, or +0 if it stays a static.
+  One TokFiles entry replaces the pair.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP: the STOP CLAUSE is the deliverable here as much as
+  the extraction is. SEQ 150 graded this pair STAY on the strength of the
+  comment's own words -- "⚠ SITE-SPECIFIC READ, not a paste" -- and reported
+  it as one of the three least-sure calls. This dispatch tests that grading
+  against the code rather than against the comment, which is the right way
+  round. Either outcome is a result and neither is a failure.
+
+  END SEQ 151
