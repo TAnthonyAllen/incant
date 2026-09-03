@@ -147,3 +147,80 @@ shadowCensus  2  (2)         ruleCount       2 (2)
 4. **Then the respell**, utilities first, in the same commit as the grammar and the peel —
    never separated, per §1's hang.
 5. **Item 4a's documentation** lands with step 2, naming the bare-on-holder form as retired.
+
+
+---
+
+# ⚠⚠ SEQ 147 item 1 — THE GREED PROBE. THE RULED RULE SWALLOWS `attributes` AND `members`, SILENTLY.
+
+**Measured 2026-09-03, bare, read-only. The grammar was applied, probed, and reverted — md5 back to
+`b255e06cfffd91036ffe3ccf54068045`. No build was needed: `incant/setup:357` does `include(grammar)`,
+so `incant/grammar` is read at RUN time.**
+
+The ruling was `Iterate iterate- ANYtoken on- ExpressioN attributes? members? defer;`. Same fixture,
+same binary, one line of grammar apart:
+
+| statement | baseline `on- ANYtoken` | ruled `on- ExpressioN` |
+|---|---|---|
+| `iterate g on argument;` | 8 | 8 |
+| `iterate g on argument attributes;` | **4** | **2** |
+| `iterate g on argument members;` | **4** | **2** |
+
+⚠ **AND `2` IS NOT "UNFILTERED" — IT IS THE ARITY OF THE SWALLOWED EXPRESSION.** The walk names what
+it visited, and that is the whole diagnosis:
+
+```
+baseline            ruled
+  attr x              attr attributes
+  attr y              attr argument
+  attr width
+  attr height
+```
+
+**`argument attributes` parses as a two-term `ExpressioN`**, the `attributes?` slot gets nothing, the
+source becomes the **expression node**, and the iterate walks *that node's own two operands* — which
+are the tokens `argument` and `attributes` themselves. It would read 2 for any `X attributes` form,
+because 2 is the operand count and has nothing to do with the data.
+
+⚠⚠ **IT FAILS SILENTLY: no error, sentinel reached, exit 0, and a small plausible number.** That is
+bear-trap #35's family — a walk that under-returns looks exactly like a walk that worked. Nothing in
+a run would say so.
+
+**THE BLAST RADIUS IS 62 OF THE 98 SITES** — 29 `attributes;` and 33 `members;` across the corpus —
+every one of which silently becomes a two-element walk of its own syntax.
+
+**VERDICT: REPORT, NO FIX, per item 1's own instruction. Item 2's grammar edit does not land.** The
+source slot needs a term that stops before the two keywords — a non-greedy expression, or the
+keywords lifted out of the `Iterate` rule and into the expression grammar, or a dedicated
+`IterSource` rule admitting a name and a starred name and nothing else. **That is Tony's grammar
+ruling and it is not taken here.**
+
+⚠ **METHOD NOTE, because a first probe read zero and would have been reported as a much worse
+finding.** The first greed fixture walked **0 on all three rows including the unfiltered one**, which
+reads as "iterate is broken". Bisecting against a known-good shape (`incant/iterRefuseT`'s row W)
+showed the fixture was at fault and not the subject; the rewritten probe reproduces the baseline
+8/4/4 exactly. **The suspected cause — a header string ending in a colon — was TESTED AND
+FALSIFIED** by a canary row that walks 8 with exactly that shape. The zero stays **unreproduced and
+undiagnosed**, and is recorded as that rather than pinned on a guess. Bear-trap #43: a probe is
+worth nothing until it reproduces its parent's known answer.
+
+---
+
+# SEQ 147 item 2 — THE JIT CENSUS, OWED BEFORE THE EDIT. **THERE IS NOTHING TO CHANGE ON THE JIT ROAD.**
+
+Item 2 required the jit iterate sites named before any edit, and said both roads land together or the
+item stops. **There are exactly two, and both emit a CALL TO THE INTERPRETED FUNCTION:**
+
+| site | emits |
+|---|---|
+| `jitEmitIterate` (`jitEmitters.rtn:1169`), called from `aCTionIterate` (`ruleActions.rtn:855`) | bakes the `input` node's address and emits `call aCTionIterate(input)` |
+| `jitEmitIterStep` (`jitEmitters.rtn:1223`), called from `opPlusPlus` (`Instruct.rtn:1016`) | bakes the `result` node's address and emits `call opPlusPlus(result)` |
+
+**So the two roads share one implementation BY CONSTRUCTION, and it is deliberate** — `opPlusPlus`'s
+own comment says *"jitEmitIterStep emits a CALL TO THIS FUNCTION so the two cannot drift"*. Whatever
+`aCTionIterate` does with `input[2]` — the peel, the evaluation, the refusal — the jit road inherits
+for free, because the jit road literally calls it.
+
+⚠ **This is the structure-over-discipline family paying out.** Item 2's stated risk was the two roads
+diverging; here that failure is **unconstructable** rather than avoided, and no census had to be
+trusted to keep them together.
