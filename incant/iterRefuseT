@@ -1,0 +1,71 @@
+/*  iterRefuseT -- A REFUSED ITERATE MUST REFUSE AND RETURN, NOT RUN AWAY.
+
+    WHAT THIS PINS. When aCTionIterate is handed a source with no list it
+    announces the refusal by name, poisons the cursor, and returns nothing.
+    The enclosing advance then reads that poison and declines to move, so the
+    while exits on the false it already trusts and the action carries on. The
+    behaviour is one line of complaint and out.
+
+    WHY IT NEEDED A ROW. Nothing in the fleet covered it, and the poison is
+    the only thing standing between a refused iterate and an unbounded loop.
+    The advance on a node that is not an iterator sets a count to one and then
+    increments it forever, and every value it yields is true, so a while over
+    it never ends. That is not a slow loop, it is a hang with no output to be
+    suspicious of. Measured 2026-09-03 at over eleven million iterations in
+    fifteen seconds.
+
+    THE NEGATIVE CONTROL IS RECORDED, per rule H7. With the poison write
+    removed from the refusal arm, row R hangs: exit 137 under a wall clock
+    cap, seven and a half million lines of the line that must never print.
+    With it present, row R refuses and the action returns. So this row fails
+    when the mechanism is removed, which is the whole of what makes it a
+    certification rather than a decoration.
+
+    ROW R is the subject. It iterates a leaf that carries data and no list,
+    then advances. The refusal line must appear, the walk line must not, and
+    the statement after the loop must be reached.
+
+    ROW W is the anti-vacuity sibling and it is not optional. Row R expects a
+    walk of length zero, and a fixture whose iterate machinery was dead would
+    also produce zero. Row W walks a real eight member group so that row R's
+    silence means refusal rather than nothing happening.
+
+    ⚠ ROW W NAMES ITS LAST MEMBER RATHER THAN COUNTING. A walk that stops
+    early agrees with a walk that works if all either of them reports is that
+    it ran, so the fleet asserts the presence of fifth, which only a walk that
+    reached the end can print. The first draft of this row counted instead and
+    was replaced for a measured reason: an undeclared counter incremented in
+    an iterate body reads back zero while the walk itself is demonstrably
+    complete. Both halves were seen in one run on 2026-09-03, the eight member
+    lines printing and the counter reporting nothing. That is a separate
+    finding and is reported rather than chased here; this row simply does not
+    depend on it.
+
+    READING IT. Both rows plus the sentinel must appear. A missing sentinel
+    means the run truncated, and a missing row W means row R asserts nothing.
+    A timeout means the poison is gone and the defect is back.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(IterRefuse);
+define
+    irLeaf = 5;
+    rowR argument code={
+        print "R drive  iterating a leaf that has data and no list":;
+        iterate g on irLeaf;
+        while ++g;
+            print "R BAD    the advance MOVED -- the cursor was not poisoned":;
+        print "R ok     refused and returned; the advance did not run away":;
+        };
+    rowW argument code={
+        print "W drive   walking a real eight member group":;
+        iterate w on argument;
+        while ++w;
+            print "W member" ~taG:;
+        };
+    ;
+rowR(irLeaf);
+rowW(sample);
+print "ITERREFUSET SENTINEL -- run reached the end":;
+stop();

@@ -17,8 +17,15 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      146
+SEQ:      147
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-03  -  Clay (SEQ 147, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 147 IS LIVE AND IS AT THE FOOT -- RULED: the Iterate rule's
+          source slot becomes ExpressioN. C-146's gate shape is DEAD by ruling;
+          do not re-derive it. Order: runaway fix FIRST and alone, then the
+          greed probe read-only, then grammar+evaluation both roads or stop,
+          then the flipped tester, then the respell.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-03  -  Clay (SEQ 146, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 146 IS ITEM 1 RE-AIMED: gate aCTionIterate's unWraps on
           !gNoUnwrap, one depth cerr beside them, flip, run tester with test3
@@ -7196,3 +7203,79 @@ item 1 goes into ipc/clay-to-clod.md at pickup
   diff (rule H5).
 
   END SEQ 146
+
+===================================================================
+SEQ 147  --  2026-09-03, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  THE ITERATE RULE TAKES ExpressioN. RUNAWAY FIX
+             FIRST, GREED PROBE, GRAMMAR+EVALUATION BOTH ROADS, THEN THE
+             FLIPPED TESTER AND THE RESPELL.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before the runaway fix, the greed
+        probe, the grammar edit or any build, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+Fearless: SEQ C-147  (Clay → Clod, 2026-09-03)
+
+RULINGS (Tony): Iterate rule becomes
+    Iterate  iterate- ANYtoken on- ExpressioN attributes? members? defer;
+R1 stands. Clod's revert of the C-146 gate is ratified; the gate shape
+is dead — do not re-derive it.
+
+  0  RUNAWAY FIX, main, bare, FIRST and its own commit. aCTionIterate
+     sets isIterator (or lands the poison on the cursor) before its
+     `return 0`. CERTIFY BY DRIVING: a fixture that iterates a listless
+     leaf then `while ++grup` must refuse by text and EXIT 0. Pin the
+     refusal line (H4). Pre-registered: today it hangs; after, one line
+     and out. Fleet otherwise byte-identical.
+
+  1  GREED PROBE, read-only, before the grammar lands: with the new
+     rule, `iterate g on x attributes;` — which slot does `attributes`
+     land in? Same for `members` and `defer`. If ExpressioN swallows
+     any of them: REPORT, no fix; that is a grammar ruling for Tony.
+     displayForm (utilities) is the live customer.
+
+  2  GRAMMAR + EVALUATION, one commit, both roads:
+     - Iterate rule as ruled.
+     - aCTionIterate evaluates input[2] via interpretXP; unWrap calls go.
+       input[1] peels ONE parse hop unconditionally, never follows.
+     - Refusal: evaluated source isGROUP →
+         ERROR iterate on <tag>: it holds a pointer, not a list; write *<tag>
+     - NAME the jit iterate sites before the edit. Both roads land
+       together or the item stops with the census reported.
+     Pre-registered: parseClass.target moves on the Iterate row ONLY;
+     Iterate's generated parse body changes; fleet otherwise unmoved on
+     bare; canary unchanged; the 73 bare-argument sites UNMOVED on main.
+
+  3  TESTER, branch, flipped, test3 respelled `*argument`, one process
+     per row (Clod's own rule from 145). Pre-registered:
+       test3 walks 8
+       test2 walks 8 (the copy; addrOf exhibit row stays)
+       test1 REFUSES by text, exit 0
+       control: `iterate grup on sample` walks under the flip
+       `arg := argument; addrOf(*arg)` — HOLDER (#4), the := question
+         left open on purpose
+     Unflip, rebuild bare, md5.
+
+  4  The 73-site respell is the branch's utilities-first pass, after 3
+     is green. 25 other-name sites: per-site read, report, respell none.
+
+  5  FILE bear-trap: a misparsed statement falls through to Xpress;
+     `while ++x` on a non-iterator runs opPlusPlus's data arm unbounded.
+     Item 0 closes the iterate instance; the general shape stays filed.
+
+  6  R3 rescope and item 5 half B as C-146 stated; unchanged.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP, one reading recorded so a later reader is not
+  guessing: "main" and "branch" here are read as the BARE road (the current
+  working line, gNoUnwrap 0) and the FLIPPED try-and-buy road respectively,
+  per the 2026-09-02 seal's "gNoUnwrap is 0 on main and 1 on the branch".
+  Items 0, 1 and 2 land bare; item 3 is the flipped capture; item 4's respell
+  is the branch's pass. If Tony means the literal `main` git branch for item 0,
+  that is a different instruction and this note is where the divergence would
+  be caught.
+
+  END SEQ 147

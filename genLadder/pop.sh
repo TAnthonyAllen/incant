@@ -1513,6 +1513,72 @@ else
 fi
 
 #  ---------------------------------------------------------------------------
+#  A REFUSED ITERATE MUST REFUSE AND RETURN, NOT RUN AWAY. Added 2026-09-03,
+#  SEQ 147 item 0, and it is a CERTIFICATION of standing behaviour rather than
+#  a regression test for a repair -- the mechanism was measured correct on main
+#  and nothing was changed.
+#
+#  WHY IT EARNED A ROW ANYWAY. Nothing in the fleet covered it, and the poison
+#  aCTionIterate writes on refusal is the only thing between a refused iterate
+#  and an unbounded loop: the advance on a non-iterator sets a count to one and
+#  increments it forever, and every value it yields is true. Measured at over
+#  eleven million iterations in fifteen seconds, with no output to be
+#  suspicious of. SEQ 146 showed the poison is one wrong operand away from
+#  landing on the parse wrapper instead of the cursor, at which point this
+#  hangs -- so the behaviour is fragile as well as uncovered.
+#
+#  ⚠ THE NEGATIVE CONTROL WAS RUN, per rule H7, and it is why this row is a
+#  certification and not a decoration. With the poison write removed from
+#  aCTionIterate's refusal arm and the binary rebuilt, row R HANGS: exit 137
+#  under the cap, 7,559,089 lines of the line that must never print. Restored,
+#  it refuses and returns. This row fails when the mechanism is removed.
+#
+#  ⚠ THE TIMEOUT IS THE POINT, so read a cap here as the defect and never as a
+#  slow machine. Every other row's cap is a safety net; this one's is the
+#  assertion.
+#
+#  ROW W IS THE ANTI-VACUITY SIBLING AND IT ASSERTS BY NAME. Row R expects a
+#  walk of length zero and a dead fixture would produce zero too. W walks a
+#  real eight member group and the fleet greps its LAST member, because a walk
+#  that stops early agrees with a walk that works about everything except how
+#  far it got. Counting was tried first and abandoned on a measurement: an
+#  undeclared counter incremented in an iterate body reads back zero while the
+#  same walk demonstrably prints all eight members. Separate finding, reported;
+#  this row does not depend on it.
+run1 iterRefuseT "$T/irf";   check "iterRefuseT runs (a refused iterate returns)" 0 $?
+sentinel "iterRefuseT sentinel" "$T/irf" "ITERREFUSET SENTINEL"
+if grep -q "^aCTionIterate: source irLeaf has no list" "$T/irf"; then
+    echo "  ok    refused iterate ANNOUNCES BY NAME -- PINNED BY TEXT (H4)"; green=$((green+1))
+else
+    echo "  FAIL  the refusal line is GONE. Either the refusal stopped naming its"
+    echo "        source, or the iterate stopped refusing a listless leaf. An"
+    echo "        absence here is not 'nothing went wrong' -- it is the only"
+    echo "        warning a refused iterate ever gives."; fail=1
+fi
+if grep -q "^R ok" "$T/irf"; then
+    echo "  ok    refused iterate RETURNS -- the advance declined to move"; green=$((green+1))
+else
+    echo "  FAIL  iterRefuseT row R -- the statement after the loop was never"
+    echo "        reached. The poison is not landing on the cursor and a refused"
+    echo "        iterate is now an unbounded loop. See SEQ 146: the operand the"
+    echo "        poison lands on is what decides this."; fail=1
+fi
+if grep -q "^R BAD" "$T/irf"; then
+    echo "  FAIL  iterRefuseT row R -- the advance MOVED on a refused iterate."
+    echo "        The cursor was not poisoned; the walk is running on a node that"
+    echo "        has no list."; fail=1
+else
+    echo "  ok    refused iterate did not move the cursor"; green=$((green+1))
+fi
+if grep -q "^W member fifth" "$T/irf"; then
+    echo "  ok    row W reached its LAST member -- row R's zero means refusal"; green=$((green+1))
+else
+    echo "  FAIL  iterRefuseT row W -- the walk did not reach 'fifth', so the"
+    echo "        iterate machinery is dead or short and ROW R ASSERTS NOTHING."
+    echo "        Fix this before reading row R at all."; fail=1
+fi
+
+#  ---------------------------------------------------------------------------
 #  F-15 REGRESSION + THE PARTITION GUARD. Both landed 2026-08-18 with the guard
 #  reorder in parse; ruling 3 makes the census a standing fleet check.
 #
