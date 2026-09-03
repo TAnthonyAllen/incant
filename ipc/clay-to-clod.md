@@ -17,8 +17,13 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      152
+SEQ:      152a
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-03  -  Clay (SEQ 152a, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 152a IS LIVE AND IS AT THE FOOT -- B1 flipped six rows, the
+          read-only designDocs includer grep, and the ruled pointer form
+          `// <entryName> <one sentence>` (name first, no path).
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-03  -  Clay (SEQ 152, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 152 IS LIVE AND IS AT THE FOOT -- STROKE A retires
           RuleStuff.twk:244 on main behind a mandatory before-capture, plus two
@@ -7584,3 +7589,29 @@ Tony's parser:72/76/82 are his.
   fires. The probe settles it either way; nothing is assumed.
 
   END SEQ 152
+
+===================================================================
+SEQ 152a --  2026-09-03, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  B1 FLIPPED, THE designDocs INCLUDER GREP,
+             AND THE RULED POINTER FORM.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before the grep or the flip.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+Fearless: SEQ C-152a  (Clay → Clod)
+  - B1 as written: flip, six rows one-process-each, unflip, rebuild
+    bare, md5. Then item 4.
+  - READ-ONLY, one grep: who includes designDocs? `grep -ln designDocs
+    incant/ genLadder/ IncantForms/`. Pre-registered: setup names it in
+    fILEs only and does not load it; includers are ddPop's fixtures,
+    tester, and the comment-trial probes. tester drops the include (and
+    the `DesignDocs` on its search line) — Tony's file, his edit.
+  - The two-line pointer you wrote for the B2 fix: Tony's ruled form is
+    `// <entryName> <one sentence>`, name first, no path — C-153 has the
+    exemplar. Re-cut when you do aCTionIterate; not a separate stroke.
+
+-------------------------- END VERBATIM --------------------------
+
+  END SEQ 152a
