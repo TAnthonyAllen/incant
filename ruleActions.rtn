@@ -840,9 +840,58 @@ GroupItem   result = ExpressioN;
 extern GroupItem aCTionIterate(GroupItem input)
 {
 GroupItem   attributes:,
-            members:;
-GroupItem   iterator = unWrap(input[1]);
-GroupItem   source = unWrap(input[2]);
+            members:,
+            IterSource:;
+GroupItem   iterator = input[1];
+GroupItem   source;
+    /*  SEQ 148 -- the source is reached BY LABEL, never by position, because
+        the modifiers now precede `on` and IterSource sits at 2, 3 or 4.
+        ruleActions.aCTionIterate.iterSource  */
+    -%
+    if ( iterator && isGROUP(iterator->groupBody->flags.data) )
+        iterator = iterator->getGroup();
+    if ( IterSource )
+        {
+        GroupItem *srcOp = IterSource->getLabelGroup("UnaryOPS");
+        source = srcOp ? IterSource->get(2) : IterSource->get(1);
+        if ( source && isGROUP(source->groupBody->flags.data) )
+            source = source->getGroup();
+        if ( srcOp )
+            {
+            if ( ::compare(srcOp->groupBody->tag,"*") == 0 )
+                source = ::opDeref(source);
+            else
+                {
+                ::fprintf(stderr,"ERROR iterate on %s: only * may precede the source\n",
+                    source ? source->groupBody->tag : "(null)");
+                source = 0;
+                }
+            }
+        }
+    /*  ⚠ THE LEGACY FOLLOW, AND IT IS THE ONLY THING KEEPING BARE BYTE-IDENTICAL.
+        Two of C-148's pre-registered outcomes collide on bare and cannot both
+        hold without this line: "unWrap calls go / never follows" and "the 73
+        bare-argument sites UNMOVED on main". On bare, gNoUnwrap is 0 and the
+        action's `argument` IS a holder -- measured at SEQ 145, ANYtoken ->
+        argument -> sample, two hops -- so a source that never follows refuses
+        on every one of those 73 sites the moment it lands.
+        So the PARSE hop is peeled unconditionally above (that is C-146's
+        lesson, and gating it is what broke every iterate), and the HOLDER
+        follow is gated on the migration switch exactly as its own header says
+        it should be: 0 LEGACY auto-unwrap live, 1 FLIPPED no auto-unwrap.
+        ⚠ THIS ARM RETIRES WITH gNoUnwrap, in the same stroke, per that
+        switch's pre-registered obituary. It is not a second mechanism.
+        ruleActions.aCTionIterate.legacyFollow  */
+    if ( !gNoUnwrap )   source = ::unWrap(source);
+    if ( source && isGROUP(source->groupBody->flags.data) )
+        {
+        ::fprintf(stderr,"ERROR iterate on %s: it holds a pointer, not a list; write *%s\n",
+            source->groupBody->tag, source->groupBody->tag);
+        if ( iterator ) iterator->groupBody->flags.fLAG = 1;
+        return 0;
+        }
+    %-
+use source
     /*  ⚠ EMIT, THEN FALL THROUGH -- the only gate in the tree that does not
         return, and deliberately so. The emit-time walk still needs the iterator
         ESTABLISHED, because the enclosing `while ++grup` must take opPlusPlus's

@@ -12,7 +12,7 @@ define
     i3Act argument code={
         length = listLengtH;
         if length > 0;
-            iterate grup on argument members;
+            iterate grup members on argument;
             while ++grup;
                 i3Act(grup);
         };

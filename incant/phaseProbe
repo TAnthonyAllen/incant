@@ -88,25 +88,25 @@ define
         ppEdges(argument);
         };
     ppMembers argument code={
-        iterate ppM on argument members;
+        iterate ppM members on argument;
         while ++ppM;
             if !isRulE;     continue;
             ppClean(ppM);
         };
     ppAttrs argument code={
-        iterate ppA on argument attributes;
+        iterate ppA attributes on argument;
         while ++ppA;
             if !isRulE;     continue;
             ppClean(ppA);
         };
     ppMembers2 argument code={
-        iterate ppM2 on argument members;
+        iterate ppM2 members on argument;
         while ++ppM2;
             if !isRulE;     continue;
             ppShape2(ppM2);
         };
     ppAttrs2 argument code={
-        iterate ppA2 on argument attributes;
+        iterate ppA2 attributes on argument;
         while ++ppA2;
             if !isRulE;     continue;
             ppShape2(ppA2);

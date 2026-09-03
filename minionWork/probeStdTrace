@@ -10,7 +10,7 @@ define
         stN = stN + 1;
         };
     stWalk argument code={
-        iterate stCur on argument members;
+        iterate stCur members on argument;
         while ++stCur;
             if stN == 3;    break;
             stBump(stCur);

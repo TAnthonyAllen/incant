@@ -47,7 +47,7 @@ define
             print "lines found, length" lines.listLengtH:;
         else
             print "REFUSE no lines under BlocK":;
-        iterate jdCur on lines members;
+        iterate jdCur members on lines;
         while ++jdCur;
             jdReport(jdCur);
         };

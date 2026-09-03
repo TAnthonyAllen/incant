@@ -39,7 +39,7 @@ define
         print " tag " ~taG " datA " datA " binTypE " binTypE:;
         };
     bpAttrs argument code={
-        iterate bpA on argument attributes;
+        iterate bpA attributes on argument;
         while ++bpA;
             print "ATTR  ";
             if noPrinT;     print "n";
@@ -49,7 +49,7 @@ define
             print " " ~taG " datA " datA:;
         };
     bpMembs argument code={
-        iterate bpM on argument members;
+        iterate bpM members on argument;
         while ++bpM;
             print "MEMB  ";
             if noPrinT;     print "n";

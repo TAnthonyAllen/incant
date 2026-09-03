@@ -34,14 +34,14 @@ define
         };
     jpWalkAttrs code={
         jpCount = 0;
-        iterate g on jpTrunk attributes;
+        iterate g attributes on jpTrunk;
         while ++g
             ++jpCount;
             print "  attr visited:" `taG g:;
         };
     jpWalkMembers code={
         jpCount = 0;
-        iterate g on jpTrunk members;
+        iterate g members on jpTrunk;
         while ++g
             ++jpCount;
             print "  member visited:" `taG g:;

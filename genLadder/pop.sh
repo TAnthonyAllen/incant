@@ -1513,6 +1513,41 @@ else
 fi
 
 #  ---------------------------------------------------------------------------
+#  THE ITERATE DRIFT ROW, SEQ 148. The modifier now precedes `on`:
+#  the modifier keyword goes BEFORE `on`, never after the source.
+#  The old form does not fail -- it PARSES, binds the source, and leaves the
+#  modifier behind as a stray statement, so the walk silently loses its filter.
+#  A fixture written the old way therefore goes GREEN on a wrong population, or
+#  hangs, and NOTHING in the fleet can see it: there is no row for a filter that
+#  quietly stopped filtering. Hence a text pin at zero.
+#
+#  ⚠ REPO-WIDE, NOT `incant/`, AND THAT SCOPE IS THE WHOLE VALUE OF THIS ROW.
+#  The SEQ 148 respell was written against `incant/` and MISSED FOUR LIVE
+#  HARNESS FIXTURES IN `genLadder/` -- countPopulation, odoPopulation,
+#  breakSpecimen, breakFire. They unfiltered two census walks and moved three
+#  pinned counts by +15 and +19, which read exactly like a grammar disaster and
+#  was a scope error in the sweep. A drift row scoped to the same directory the
+#  sweep used would have gone green through all of it.
+#  docs/, ipc/ and .trace files are excluded because they are PROSE and dated
+#  records: the old form appears there as quotation and rewriting it would
+#  falsify the record.
+#  IncantForms/ is excluded because it is Tony's, and its live count is
+#  reported in the seal rather than swept.
+drift=$(grep -rn "iterate  *[A-Za-z_][A-Za-z0-9_]*  *on  *[A-Za-z_][A-Za-z0-9_]*  *\(attributes\|members\) *;" . 2>/dev/null \
+        | grep -v "^\./docs/" | grep -v "^\./\.git/" | grep -v "^\./ipc/" | grep -v "^\./IncantForms/" | grep -v "^\./BeforeSave/" | grep -v "^\./Aside/" | grep -v "^\./BackupIncant/" | wc -l | tr -d " ")
+if [ "$drift" = "0" ]; then
+    echo "  ok    iterate drift: zero old-form \`on X attributes;\` sites -- PINNED AT ZERO"; green=$((green+1))
+else
+    echo "  FAIL  iterate drift: $drift site(s) still write the OLD form \`on X attributes;\`."
+    echo "        That form still PARSES -- it binds the source and drops the modifier as a"
+    echo "        stray statement -- so the walk silently loses its filter and the fixture"
+    echo "        goes green on the wrong population. Respell to \`attributes on X;\`:"
+    grep -rn "iterate  *[A-Za-z_][A-Za-z0-9_]*  *on  *[A-Za-z_][A-Za-z0-9_]*  *\(attributes\|members\) *;" . 2>/dev/null \
+        | grep -v "^\./docs/" | grep -v "^\./\.git/" | grep -v "^\./ipc/" | grep -v "^\./IncantForms/" | grep -v "^\./BeforeSave/" | grep -v "^\./Aside/" | grep -v "^\./BackupIncant/" | sed "s|^|          |"
+    fail=1
+fi
+
+#  ---------------------------------------------------------------------------
 #  A REFUSED ITERATE MUST REFUSE AND RETURN, NOT RUN AWAY. Added 2026-09-03,
 #  SEQ 147 item 0, and it is a CERTIFICATION of standing behaviour rather than
 #  a regression test for a repair -- the mechanism was measured correct on main
@@ -1678,7 +1713,14 @@ diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 #  and conflating them in a citation is the failure this wording exists to
 #  prevent.
 bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
-diffcheck "genParse odometer (18 green / 45 red of 63 -- RED BY DESIGN, pinned; ratchet monotone)" \
+#  ⚠ RE-PINNED 45/63 -> 46/64, 2026-09-03, SEQ 148, and the sentence is that the
+#  grammar gained EXACTLY ONE RULE by Tony's ruling. The whole delta is one new
+#  row -- `IterSource  REFUSE ANYtoken -- inline group / structural data isGROUP`
+#  -- so the ratchet's GREEN count is UNMOVED at 18 and the red went up by the
+#  one rule that was added. A new rule arriving un-emittable is the expected
+#  state for this odometer, not a regression: nothing has taught genParse about
+#  IterSource and nothing claimed to.
+diffcheck "genParse odometer (18 green / 46 red of 64 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
 #  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------
@@ -1702,11 +1744,25 @@ sentinel "countPop sentinel (no truncation)" "$T/cnt" "COUNTPOP SENTINEL"
 #  H4: the count is compared BY VALUE. A row that merely greps for the word
 #  "clean" would pass the day the number went to zero.
 cntline=$(grep -m1 '^THE COUNT:' "$T/cnt")
-if [ "$cntline" = "THE COUNT: 39 compiled clean, 0 parse-failed, 0 crashed/truncated, 0 missing, of 39 attempted" ]; then
-    echo "  ok    countPop headline (39/39 clean, 0 missing) -- PINNED BY VALUE"; green=$((green+1))
+#  ⚠ RE-PINNED 39 -> 40, 2026-09-03, SEQ 148, AND THE SENTENCE IS THE POINT:
+#  the grammar gained EXACTLY ONE RULE, `IterSource`, by Tony's ruling. The
+#  delta is +1 here, +1 in the odometer's qualifying population (63 -> 64) and
+#  +1 in shadowCensus's walk (83 -> 84) -- three independent rule counts moving
+#  by one, which is what a single added rule looks like and is not what
+#  anything else looks like. `0 missing, 0 parse-failed` HELD ACROSS THE MOVE,
+#  so the new rule compiles clean rather than merely being counted.
+#  A first attempt at this stroke moved these numbers by +15 and +19 instead.
+#  That was NOT the ruling: it was an incomplete respell -- `genLadder/`
+#  carries four incant files (countPopulation, odoPopulation, breakSpecimen,
+#  breakFire) that the respell's `incant/` glob never saw, and their stale
+#  `on X members;` left `members` behind as a stray statement, unfiltering the
+#  census walk. Named here because +19 and +1 have the same shape in a diff and
+#  only one of them is the ruling.
+if [ "$cntline" = "THE COUNT: 40 compiled clean, 0 parse-failed, 0 crashed/truncated, 0 missing, of 40 attempted" ]; then
+    echo "  ok    countPop headline (40/40 clean, 0 missing) -- PINNED BY VALUE"; green=$((green+1))
 else
     echo "  FAIL  countPop headline moved"; echo "          actual:   $cntline"
-    echo "          expected: THE COUNT: 39 compiled clean, 0 parse-failed, 0 crashed/truncated, 0 missing, of 39 attempted"
+    echo "          expected: THE COUNT: 40 compiled clean, 0 parse-failed, 0 crashed/truncated, 0 missing, of 40 attempted"
     fail=1
 fi
 

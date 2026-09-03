@@ -5,7 +5,7 @@ search reset stack Grokking UnitTests Utilities list;
 register(OdoPop);
 define
     opWalk argument code={
-        iterate opCur on argument members;
+        iterate opCur members on argument;
         while ++opCur;
             if noPrinT;             continue;
             if binTypE;             continue;

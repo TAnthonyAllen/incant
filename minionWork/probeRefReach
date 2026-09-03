@@ -86,7 +86,7 @@ define
         pbBind(pbSubject);
         cerr "-- ARM 2 bind every member of InvokeArg, i.e. the TERM nodes too":;
         pbIA <- Grokking["InvokeArg"];
-        iterate pbT on pbIA members;
+        iterate pbT members on pbIA;
         while ++pbT;
             setParse(pbT);
             parseClassify(pbT);

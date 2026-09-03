@@ -828,4 +828,62 @@ define
                     #3, and two TODO.md items -- all agreeing with each other, and
                     NOT ONE had been re-run. Four registers agreeing is one
                     citation counted four times.#);
+        ruleActions=(is the rtn file holding the rule actions -- the methods a
+                grammar rule fires when it matches.#):
+            aCTionIterate=(THE ITERATE STATEMENT'S ACTION.#):
+                iterSource=(THE SOURCE IS REACHED BY LABEL, NEVER BY POSITION.
+                    SEQ 148 moved the modifiers in front of `on`, so the rule
+                    reads iterate- ANYtoken attributes? members? on- IterSource
+                    and the source now sits at position 2, 3 or 4 depending on
+                    how many modifiers were written. The old input[2] read is
+                    therefore not merely wrong, it is UNFIXABLE POSITIONALLY --
+                    measured, it picked up the `attributes` keyword and refused
+                    with "source attributes has no list".
+                    ⚠ THE LABEL WAS CONFIRMED BEFORE THE CODE WAS WRITTEN, not
+                    assumed. An instrumented run dumped the parsed shape of all
+                    four forms and showed getLabelGroup("IterSource") resolving
+                    in every one, with the position moving 2 -> 3 exactly as
+                    predicted. That run also answered the star question below.
+                    ⚠ AND THE RULED SPELLING FOR THE STAR COULD NOT BE BUILT AS
+                    WRITTEN. Tony ruled IterSource '*'-? ANYtoken. Measured as a
+                    six-way matrix, one grammar line apart, all three statement
+                    forms per row: a SINGLE-quoted '*' never matches the star at
+                    all, and a DOUBLE-quoted "*" makes the term effectively
+                    REQUIRED so the bare form stops parsing -- with or without
+                    the noLabel dash, and with ? or *. Only UnaryOPS? parses
+                    both. That is not an invention: TokenXP already reads
+                    UnaryOPS? ANYorNum^ InvokeArg?, so it is this grammar's own
+                    idiom for an optional unary before a term, and the star
+                    arrives as the same operator node the unary path uses --
+                    which is what lets the deref go through opDeref, one
+                    spelling, as the ruling asked.
+                    ⚠ IT ADMITS MORE THAN THE RULING ALLOWS, and the action
+                    closes that rather than the grammar: any UnaryOPS whose tag
+                    is not "*" is refused BY NAME. So "a name or a starred name,
+                    nothing else" holds at the behaviour, which is where F-48
+                    puts the same kind of restriction.#);
+                legacyFollow=(THE ONE unWrap THAT STAYED, AND WHY.
+                    SEQ 148 said "unWrap calls go" and also pre-registered "the
+                    73 bare-argument sites UNMOVED on main". ON BARE THOSE TWO
+                    CANNOT BOTH HOLD, because gNoUnwrap is 0 there and an
+                    action's `argument` IS a holder -- measured at SEQ 145,
+                    ANYtoken -> argument -> sample, two hops. A source that
+                    never follows refuses on all 73 the moment it lands, and
+                    that is exactly what the first build did: the fleet went
+                    182 -> 165 with the new pointer refusal firing on
+                    iterRefuseT's own unfiltered row.
+                    ⚠ THE SPLIT IS PARSE HOP versus HOLDER FOLLOW, and it is
+                    the distinction SEQ 146 paid for. The PARSE hop -- the
+                    ANYtoken wrapper the parser puts round a resolved operand --
+                    is peeled UNCONDITIONALLY, because gating it is what made
+                    every iterate refuse under the flip, with aCTionIterate
+                    reading a node literally tagged ANYtoken. The HOLDER follow
+                    is gated on the migration switch, which is precisely what
+                    that switch's own header says it is for: 0 LEGACY
+                    auto-unwrap live, 1 FLIPPED no auto-unwrap.
+                    ⚠ THIS ARM RETIRES WITH gNoUnwrap, in the same stroke, per
+                    that switch's pre-registered obituary. It is not a second
+                    mechanism and it is not a permanent conditional; it is the
+                    legacy half of a migration that already has its death
+                    written down.#);
     ;

@@ -21,20 +21,20 @@ define
     npHits;
     npRules;
     npScanMembers argument code={
-        iterate npOut on argument members;
+        iterate npOut members on argument;
         while ++npOut;
             npRules = npRules + 1;
-            iterate npIn on npOut attributes;
+            iterate npIn attributes on npOut;
             while ++npIn;
                 if noPrinT;  npHits = npHits + 1;
                 if noPrinT;  print "  NOPRINT-ATTR:" ~taG:;
         return npHits;
         };
     npScanAttrs argument code={
-        iterate npOut2 on argument attributes;
+        iterate npOut2 attributes on argument;
         while ++npOut2;
             npRules = npRules + 1;
-            iterate npIn2 on npOut2 attributes;
+            iterate npIn2 attributes on npOut2;
             while ++npIn2;
                 if noPrinT;  npHits = npHits + 1;
                 if noPrinT;  print "  NOPRINT-ATTR:" ~taG:;

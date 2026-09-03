@@ -71,7 +71,7 @@ define
         cerr "INSTALL " fbCount " " ~taG:;
         };
     fbWalk argument code={
-        iterate fbCur on argument members;
+        iterate fbCur members on argument;
         while ++fbCur;
             if fbCount >= fbLimit;  continue;
             if noPrinT;             continue;
@@ -106,7 +106,7 @@ define
         fbTokLen2 = fbTok.listLengtH;
         cerr "POST  tokenize list length was " fbTokLen " now " fbTokLen2:;
         cerr "WHAT IS THE NEW CANON? walk the hook's one and only attribute:":;
-        iterate fbA on fbTok attributes;
+        iterate fbA attributes on fbTok;
         while ++fbA;
             showBody(fbA);
         cerr "and the canon reported above, resolved again for comparison:":;

@@ -7,7 +7,7 @@ register(SixShape);
 define
     ssA=0; ssB=0; ssC=0; ssD=0; ssE=0; ssF=0;
     ssW1 argument code={
-        iterate s1 on argument members;
+        iterate s1 members on argument;
         while ++s1;
             if noPrinT;             continue;
             if binTypE;             continue;
@@ -16,7 +16,7 @@ define
             if listLengtH;      ssA = ssA + 1;
         };
     ssW2 argument code={
-        iterate s2 on argument members;
+        iterate s2 members on argument;
         while ++s2;
             if noPrinT;             continue;
             if binTypE;             continue;
@@ -26,7 +26,7 @@ define
             ssB = ssB + 1;
         };
     ssW3 argument code={
-        iterate s3 on argument members;
+        iterate s3 members on argument;
         while ++s3;
             if noPrinT;             continue;
             if binTypE;             continue;
@@ -36,7 +36,7 @@ define
             ssC = ssC + 1;
         };
     ssW4 argument code={
-        iterate s4 on argument members;
+        iterate s4 members on argument;
         while ++s4;
             if noPrinT;             continue;
             if binTypE;             continue;
@@ -46,7 +46,7 @@ define
             ssD = ssD + 1;
         };
     ssW5 argument code={
-        iterate s5 on argument members;
+        iterate s5 members on argument;
         while ++s5;
             if noPrinT;             continue;
             if binTypE;             continue;
@@ -57,7 +57,7 @@ define
             ssE = ssE + 1;
         };
     ssW6 argument code={
-        iterate s6 on argument members;
+        iterate s6 members on argument;
         while ++s6;
             if noPrinT;             continue;
             if binTypE;             continue;

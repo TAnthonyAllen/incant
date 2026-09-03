@@ -17,11 +17,11 @@ define
     d2Walk argument code={
         length = listLengtH;
         if length > 0;
-            iterate grup on argument attributes;
+            iterate grup attributes on argument;
             while ++grup;
                 if noPrinT; continue;
                 ++d2Count;
-            iterate grup on argument members;
+            iterate grup members on argument;
             while ++grup;
                 d2Walk(grup);
         };

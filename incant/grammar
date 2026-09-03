@@ -127,6 +127,7 @@ define
         ShortcuT;
         PrintField  ExpressioN FormaT?;
     UnaryXP         UnaryOPS ANYtoken;
+    IterSource      UnaryOPS? ANYtoken;
     InvokeArg
         Braced      leftBrace="["- ExpressioN rightBrace="]"-;
         Parens      leftParen="("- ExpressioN? rightParen=")"-;
@@ -178,7 +179,7 @@ define
         SemI;
         BlocK;
         WardeD;
-        Iterate     iterate- ANYtoken on- ANYtoken attributes? members? defer;
+        Iterate     iterate- ANYtoken attributes? members? on- IterSource defer;
         Xpress;
     Start=StatemenT+;;
     /*************************************************************************

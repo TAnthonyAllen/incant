@@ -6,12 +6,12 @@ register(ProbeR);
 define
     pdDeclared;
     pdWalkDeclared argument code={
-        iterate pdDeclared on argument members;
+        iterate pdDeclared members on argument;
         while ++pdDeclared;
             cerr "A " ~taG:;
         };
     pdWalkUndeclared argument code={
-        iterate pdFresh on argument members;
+        iterate pdFresh members on argument;
         while ++pdFresh;
             cerr "B " ~taG:;
         };

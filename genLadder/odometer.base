@@ -1,6 +1,6 @@
-  pop   63 rules qualify (live walk, four filters: not noPrint, not a bin, is a rule, actionType 0)
+  pop   64 rules qualify (live walk, four filters: not noPrint, not a bin, is a rule, actionType 0)
 
-  -- FRONTIER: 45 rules genParse cannot yet emit. Each is a row, not a total.
+  -- FRONTIER: 46 rules genParse cannot yet emit. Each is a row, not a total.
      ANYtoken         REFUSE rule ANYtoken -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
      Any              REFUSE rule Any -- rule-level data isANY (§4.1 rule-as-data, rung 5)
      Attributes       REFUSE rule Attributes -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
@@ -17,6 +17,7 @@
      FloaT            REFUSE point -- inline group / structural data isCHAR (named future kind)
      IF               REFUSE followedBy -- inline group / structural data isSET (named future kind)
      InitiatE         REFUSE rule InitiatE -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+     IterSource       REFUSE ANYtoken -- inline group / structural data isGROUP (named future kind)
      Iterate          REFUSE ANYtoken -- inline group / structural data isGROUP (named future kind)
      Limit            REFUSE min -- inline group / structural data isGROUP (named future kind)
      Looper           REFUSE rule Looper -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
@@ -47,6 +48,6 @@
      rightCurly       REFUSE rule rightCurly -- rule-level literal but no rStuff, so LIT vs LITTO is undecidable
      rightParen       REFUSE rule rightParen -- rule-level literal but no rStuff, so LIT vs LITTO is undecidable
 
-  genParse count 18 green / 45 red of 63 attempted
+  genParse count 18 green / 46 red of 64 attempted
   ratchet  0 previously-green rules regressed (must be 0)
-  ODOMETER SENTINEL -- 63 of 63 attempted, foot reached
+  ODOMETER SENTINEL -- 64 of 64 attempted, foot reached

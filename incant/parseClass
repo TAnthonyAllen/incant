@@ -64,19 +64,19 @@ define
         it silently deleted every parseContainer row -- an over-correction
         that reads exactly like a clean result.  */
     pcTerms argument code={
-        iterate pcA on argument attributes;
+        iterate pcA attributes on argument;
         while ++pcA;
             if noPrinT;     continue;
             setParse(pcA);
             parseClassify(pcA);
-        iterate pcM on argument members;
+        iterate pcM members on argument;
         while ++pcM;
             if noPrinT;     continue;
             setParse(pcM);
             parseClassify(pcM);
         };
     pcWalk argument code={
-        iterate pcR on argument members;
+        iterate pcR members on argument;
         while ++pcR;
             if noPrinT;     continue;
             if !isRulE;     continue;

@@ -17,8 +17,20 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      147
+SEQ:      148
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-03  -  Clay (SEQ 148, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 148 IS LIVE AND IS AT THE FOOT -- IterSource minted, modifiers
+          move BEFORE `on`, grammar + 62-site respell + evaluation in ONE
+          commit. Clod's pickup note names two unmeasured mechanism questions
+          that decide the implementation: the source's position becomes
+          VARIABLE so it must be reached by label, and `'*'-?` is noLabel so
+          the star's presence may not be recoverable at all. One instrumented
+          run answers both BEFORE any evaluation code is written.
+          ⚠ AMENDED SAME PICKUP: item 3 gains three IDIOM ROWS on bare (no flip
+          needed) driving a COMMAND return through the star -- F-22's shape.
+          Exit 0 closes F-22; 139 reopens it with the row as its reproducer.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-03  -  Clay (SEQ 147, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 147 IS LIVE AND IS AT THE FOOT -- RULED: the Iterate rule's
           source slot becomes ExpressioN. C-146's gate shape is DEAD by ruling;
@@ -7279,3 +7291,88 @@ is dead — do not re-derive it.
   be caught.
 
   END SEQ 147
+
+===================================================================
+SEQ 148  --  2026-09-03, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  IterSource IS MINTED; MODIFIERS MOVE BEFORE
+             `on`; GRAMMAR + 62-SITE RESPELL + EVALUATION IN ONE COMMIT.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before the grammar edit, the
+        respell, any build or any probe, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+Fearless: SEQ C-148  (Clay → Clod, 2026-09-03)
+
+RULING (Tony): Iterate rule becomes
+    Iterate     iterate- ANYtoken attributes? members? on- IterSource defer;
+    IterSource  '*'-? ANYtoken
+Modifiers precede `on`. Source is a name or a starred name; nothing else
+today. Widening IterSource to an expression later is additive and is NOT
+this stroke. Options 3–5 priced and not taken.
+
+  2  GRAMMAR + RESPELL + EVALUATION, ONE COMMIT on main, bare:
+     - the two rules as ruled.
+     - the 62 modifier sites respelled `on X attributes;` → `attributes
+       on X;` (and members). Mechanical; list the files in the commit.
+     - DRIFT ROW: grep for the old form (`on \S+ (attributes|members);`)
+       across incant/ pinned at ZERO in pop.sh — the old form is a hang,
+       not a red, so the fleet cannot see it on its own.
+     - aCTionIterate reads input[2] as IterSource: star present → ONE-
+       level deref through the helper * already uses (one spelling);
+       else the named field. input[1] peels one parse hop, never
+       follows. unWrap calls go. Refusal:
+         ERROR iterate on <tag>: it holds a pointer, not a list; write *<tag>
+     Pre-registered: fleet BYTE-IDENTICAL after the respell (a moved row
+     is a respell error, not a finding); parseClass.target moves on the
+     Iterate/IterSource rows only; canary +0 or +1, named; the 73 bare-
+     argument sites unmoved; drift row reads 0.
+     ⚠ Read the respell diff before the commit, not after (C16's lesson);
+     bear-trap #42 — a bare-name re-bind below an inserted line — does
+     not apply to a reorder, but check one generated body anyway.
+  3  TESTER, branch, flipped, one process per row — C-147's rows, plus:
+       `iterate g attributes on argument;` walks 4 under the flip
+       `iterate g on sample` walks (control: a field with a list)
+  4  The 73 bare-argument → `*argument` respell is the branch's
+     utilities-first pass after 3 is green. 25 other-name sites read,
+     reported, not respelled.
+  5  Bear-trap filed, not built. Candidate ruling for Tony: `++x` in
+     condition position on a non-iterator non-counter refuses by name;
+     statement `x++` untouched.
+  6  R3 rescope, item 5 half B — unchanged from C-146.
+
+-------------------------- END VERBATIM --------------------------
+
+--------------- BEGIN VERBATIM -- AMENDMENT, same pickup ---------------
+
+btw Fearless: Adding to C-148 item 3:
+
+       IDIOM ROWS (bare, main — nothing here needs the flip):
+         field := A(B); iterate grup on *field;   walks N, by name
+         A returns null   → refuses at the star, by text
+         A returns listless field → refuses at iterate, by text
+       A is a COMMAND return: this is F-22's shape. Exit 0 closes
+       F-22; 139 reopens it with the row as its reproducer.
+
+---------------- END VERBATIM -- AMENDMENT, same pickup ----------------
+
+  ⚠ CLOD'S NOTE ON PICKUP, an open mechanism question recorded before any
+  code is written, because the answer decides the implementation and is not
+  yet measured:
+  (a) MOVING THE MODIFIERS BEFORE `on` MAKES THE SOURCE'S POSITION VARIABLE.
+      Today aCTionIterate reads `input[2]`. Under the new rule the source sits
+      at position 2, 3 or 4 depending on how many modifiers were written, so a
+      positional read cannot survive the reorder. The source must be reached by
+      LABEL -- `IterSource:` -- the same way `attributes:` and `members:` are
+      read today. Whether the parse mints that label is a MEASUREMENT, not an
+      assumption.
+  (b) `'*'-?` IS noLabel BY THE `-`, so it is not obvious that the star's
+      PRESENCE is recoverable from the parsed node at all. If a starred and an
+      unstarred IterSource are indistinguishable, the ruled spelling cannot be
+      implemented as written and that is a finding for Tony, not something to
+      route around.
+  Both are settled by ONE instrumented run dumping the parsed shape of all four
+  forms BEFORE any evaluation code is written. That is the first thing done.
+
+  END SEQ 148

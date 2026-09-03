@@ -21,10 +21,10 @@ define
     rowA argument code={
         aCount = 0;
         mCount = 0;
-        iterate grup on argument attributes;
+        iterate grup attributes on argument;
         while ++grup;
             aCount = aCount + 1;
-        iterate grup on argument members;
+        iterate grup members on argument;
         while ++grup;
             mCount = mCount + 1;
         print "A one local   attrs=" aCount " members=" mCount:;
@@ -33,10 +33,10 @@ define
     rowB argument code={
         aCount = 0;
         mCount = 0;
-        iterate one on argument attributes;
+        iterate one attributes on argument;
         while ++one;
             aCount = aCount + 1;
-        iterate two on argument members;
+        iterate two members on argument;
         while ++two;
             mCount = mCount + 1;
         print "B two locals  attrs=" aCount " members=" mCount:;
@@ -45,10 +45,10 @@ define
     rowC argument code={
         aCount = 0;
         mCount = 0;
-        iterate grup on argument members;
+        iterate grup members on argument;
         while ++grup;
             mCount = mCount + 1;
-        iterate grup on argument attributes;
+        iterate grup attributes on argument;
         while ++grup;
             aCount = aCount + 1;
         print "C one local, reversed  members=" mCount " attrs=" aCount:;

@@ -140,7 +140,7 @@ define
                 if isRule;      wpWalk(wpCur);
         };
     wpSweep argument code={
-        iterate wpSw on argument attributes;
+        iterate wpSw attributes on argument;
         while ++wpSw;
             cerr "COMPILING" ~taG:;
             wpOut := compileStored(wpSw);

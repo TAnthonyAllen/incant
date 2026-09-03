@@ -10,10 +10,10 @@ define
     cdCount argument code={
         cdA = 0;
         cdM = 0;
-        iterate cdAt on argument attributes;
+        iterate cdAt attributes on argument;
         while ++cdAt;
             cdA = cdA + 1;
-        iterate cdMe on argument members;
+        iterate cdMe members on argument;
         while ++cdMe;
             cdM = cdM + 1;
         cerr "   rule " argument.taG " attributes " cdA " members " cdM:;

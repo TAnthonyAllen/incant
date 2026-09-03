@@ -166,7 +166,7 @@ define
     k6small     xx;
     k6depth;
     k6A argument code={
-        iterate k6cur on argument attributes;
+        iterate k6cur attributes on argument;
         k6seen = 0;
         while ++k6cur;
             k6seen = k6seen + 1;
@@ -197,7 +197,7 @@ define
         if k6depth2 > 0;
             k6depth2 = k6depth2 - 1;
             k6Bctl(k6small);
-        iterate k6cur2 on k6big attributes;
+        iterate k6cur2 attributes on k6big;
         k6seen2 = 0;
         while ++k6cur2;
             k6seen2 = k6seen2 + 1;
@@ -230,11 +230,11 @@ define
         whole K6b-first-draft result belongs to the iterator rather than to any
         frame question.  */
     k6Re argument code={
-        iterate k6cur3 on k6small attributes;
+        iterate k6cur3 attributes on k6small;
         k6seen3 = 0;
         while ++k6cur3;
             k6seen3 = k6seen3 + 1;
-        iterate k6cur3 on k6big attributes;
+        iterate k6cur3 attributes on k6big;
         k6seen3 = 0;
         while ++k6cur3;
             k6seen3 = k6seen3 + 1;
@@ -279,7 +279,7 @@ define
         trustworthy. Printing it in place is the only reading that does not
         depend on the thing under test. Bear-trap #26's fourth payment.  */
     k6Rst argument code={
-        iterate k6cur4 on k6small attributes;
+        iterate k6cur4 attributes on k6small;
         k6seenA = 0;
         while ++k6cur4;
             k6seenA = k6seenA + 1;
@@ -350,7 +350,7 @@ define
     k6med       pp qq;
     k6depth4;
     k6Awide argument code={
-        iterate k6cur5 on argument attributes;
+        iterate k6cur5 attributes on argument;
         k6seen5 = 0;
         while ++k6cur5;
             k6seen5 = k6seen5 + 1;

@@ -20,7 +20,7 @@ define
         atDisagree  = 0;
         atAbsurd    = 0;
         atAfter     = 0;
-        iterate atCur on argument members;
+        iterate atCur members on argument;
         while ++atCur;
             ++atTotal;
             if actionTypE == 0;         ++atBare;

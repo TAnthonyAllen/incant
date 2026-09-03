@@ -12,8 +12,8 @@
     THE DISCRIMINATING SHAPE IS displayForm's OWN: ONE variable, TWO iterates,
     RE-TARGETED between them --
 
-        iterate g on trunk attributes;  while ++g  countA++;
-        iterate g on trunk members;     while ++g  countB++;
+        iterate g attributes on trunk;  while ++g  countA++;
+        iterate g members on trunk;     while ++g  countB++;
 
     At EMIT time both setups run, in order, so `g` ends bound to the MEMBER
     list. If the setup is not emitted, the compiled function starts BOTH loops
@@ -60,14 +60,14 @@ define
     itWalk code={
         itCountA = 0;
         itCountB = 0;
-        iterate g on itTrunk attributes;
+        iterate g attributes on itTrunk;
         while ++g
             ++itCountA;
-        iterate g on itTrunk members;
+        iterate g members on itTrunk;
         while ++g
             ++itCountB;
         itCountC = 0;
-        iterate g on itTrunk members;
+        iterate g members on itTrunk;
         while ++g;
             if noPrinT; continue;
             ++itCountC;

@@ -87,7 +87,7 @@ define
         cerr "INSTALL " fbCount " " ~taG:;
         };
     fbWalk argument code={
-        iterate fbCur on argument members;
+        iterate fbCur members on argument;
         while ++fbCur;
             if fbCount >= fbLimit;  continue;
             if noPrinT;             continue;

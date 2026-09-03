@@ -107,7 +107,7 @@ define
         shape += kidx;
         got  := shape.firsT;
         print "GOT=" got:;
-        iterate m on shape members;
+        iterate m members on shape;
         if ++m;
             print "FIRSTMEMBER=" m:;
         iterate a on shape;
