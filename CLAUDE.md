@@ -1201,9 +1201,37 @@ Hard-won lessons. Each one has cost real debugging time.
    content. A `copyOf` through `=` loses its `interpret` child's method. The inline
    `copyOf → +% → emitBC` path preserves it; an intermediate `=` assignment does not.
 
-3. **`byRef` sticky** — `:=` stamps `byRef` on the argument permanently. Any later `=`
-   on that same field also references instead of copying. Audit `:=` sites whose fields
-   later get legitimately `=`-copied (see TODO audit note).
+3. **`byRef` sticky — ⚠ EXPIRED, NOT WRONG. STRUCK 2026-09-03 (R3, Tony). `:=` DOES NOT
+   STAMP `byRef`, AND WILL NOT.** Struck rather than deleted, because the *reason* it was
+   wrong is worth more than the fact.
+   ~~`:=` stamps `byRef` on the argument permanently. Any later `=` on that same field also
+   references instead of copying. Audit `:=` sites whose fields later get legitimately
+   `=`-copied (see TODO audit note).~~
+   ⚠ **IT WAS TRUE WHEN WRITTEN AND HAS BEEN FALSE SINCE 2026-06-14 — a dated measurement
+   written as a timeless fact**, the same failure this file already records for the `ipc/`
+   gitignore row. Measured over every commit touching `Instruct.rtn`:
+
+   | commit | date | `opSetGroup` |
+   |---|---|---|
+   | `692e121` | 2026-06-10 | `argument.byRef = true; group = argument;` — **stamps** |
+   | `fa9989c` | 2026-06-14 | `if argument group = argument;` — **stamp dropped**, and note this is the bare `group =` setter, i.e. `setGroup` |
+   | `9c4962b` | 2026-08-15 | hand-written `target.gGroup` / `isGROUP` / `isInitialized` — the third spelling appears |
+   | today | 2026-09-03 | `if target target.setGroup(argument);` — R2 restores the `fa9989c` routing |
+
+   **So the trap was accurate for four days and stale for eleven weeks.** The only writers of
+   `byRef` today are `opSetFlag` case 31 (the explicit `:. byRef`), `Commands.rtn:556`, and
+   three sites in `Bytecode.twk` — so `opAssign`'s `if argument.byRef group = argument;` arm
+   is reachable **only** through an explicit `:. byRef`, never as a side effect of `:=`.
+   ⚠ **THE COST IS THE UNMEASURED-CITATION FAMILY AGAIN, and this instance is its purest
+   form:** this trap, `TODO.md`'s "bind with `<-` not `:=`" guidance, `TODO.md`'s standing
+   sticky-`byRef` audit item, and `opAssign`'s own header all said it, all agreed, and **not
+   one of them was ever re-run.** Four registers agreeing is one citation counted four times.
+   The check was a single `grep`, and the *history* — which is what turned "wrong" into
+   "expired" — was one loop over `git show`.
+   ⚠ **The `<-`-not-`:=` advice OUTLIVES its dead reason** — `<-` is still the right binder,
+   but because it rebinds a slot without a content copy, not because `:=` poisons anything.
+   And `<-` **mints a copy** and is not an alias (ruled 2026-09-01), so it is not a route to a
+   source field by identity either.
 
 4. **`//` comments that interrupt an `if`-statement parse** — the narrow real trigger
    (refined 2026-06-30, Tony). A `//` is **fine** in a block, inside a `-% … %-`

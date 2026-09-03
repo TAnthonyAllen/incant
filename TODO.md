@@ -126,10 +126,13 @@ constantly as a local in actions, and within a single action it may be retied to
   self-resets** — after `while ++grup` exhausts, `grup` is blank again, so a second `while ++grup`
   starts over. No reset call, no stale-position bug. The alternative (distinct before-begin and
   after-end states) would have needed an explicit reset and a way to get it wrong.
-- **Bind the source with `<-` / `opRebind`, NOT `:=`.** `:=` stamps `byRef`, and per the standing
-  audit item `byRef` is never cleared — so any field ever passed to `:=` aliases on `=` forever.
-  `opRebind` was added for exactly this (clean local rebinding, no byRef stamp, no content copy).
-  The primitive is already in the build.
+- **Bind the source with `<-` / `opRebind`, NOT `:=`.** ⚠ **THE ADVICE STANDS; ITS STATED REASON
+  IS FALSIFIED (R3, Tony 2026-09-03).** ~~`:=` stamps `byRef`, and per the standing audit item
+  `byRef` is never cleared — so any field ever passed to `:=` aliases on `=` forever.~~ `:=` has
+  not stamped `byRef` since `fa9989c` (2026-06-14); see bear-trap #3's measured table. Bind with
+  `<-` because it rebinds a slot with no content copy — that was always the real reason and it
+  is untouched. ⚠ And know its limit: `<-` **mints a copy** and is not an alias (ruled
+  2026-09-01), so it does not reach a source field by identity. The primitive is in the build.
 - **Own opMethods: `opIterNext` / `opIterPrior`.** Tony's first instinct was to dispatch in
   `aCTionTokenXP` at parse time, which is unsound: `iterate` is a *runtime* statement and an action
   body is parsed once, interpreted many times, so no parse-time scope analysis can know whether
@@ -229,11 +232,20 @@ identical debug scaffolding). (`oneTest:21` `stop()` already restored.)
   file: copy target into `Groups/Tests/` (real copy, not symlink — Tests/ is gitignored
   scratch), getFile/apply/closeFile, diff copy against original. The in-file POP is read-only
   (no closeFile) so it never touches the committed sample.
-- [ ] **AUDIT (after bytecode stabilizes) — sticky `byRef` aliasing** — `byRef` is left set
-  and never cleared, so any field ever passed as the argument of `:=` references-on-`=`
-  forever (opAssign honors it). Fine while nothing else reads the flag, but audit existing
-  `:=` sites for fields that later get legitimately `=`-copied — those would now alias.
-  Clay's flag, not today's problem; don't let it get buried.
+- [ ] **AUDIT — sticky `byRef` aliasing. ⚠ ITS PREMISE IS GONE; ITS DISPOSITION IS TONY'S
+  (R3, 2026-09-03).** ~~`byRef` is left set and never cleared, so any field ever passed as the
+  argument of `:=` references-on-`=` forever (opAssign honors it). Fine while nothing else
+  reads the flag, but audit existing `:=` sites for fields that later get legitimately
+  `=`-copied — those would now alias. Clay's flag, not today's problem; don't let it get
+  buried.~~
+  **`:=` has not stamped `byRef` since 2026-06-14, so there is no population to audit** —
+  32 corpus files use `:=` and not one of them can acquire the flag that way. The item is
+  therefore **vacuous as written**, and R3 leaves the choice open rather than taking it:
+  **retire it**, or **rescope it to `:. byRef`**, whose stamp is real, explicit, and still
+  never cleared (`opSetFlag` case 31 — one write, no clearing path anywhere). ⚠ Rescoped, the
+  audit is much smaller and answerable today: the question becomes *which fields are given
+  `:. byRef` and later `=`-copied*, and the corpus can be grepped for it in one command.
+  **Tony's word on which. Not decided here.**
 
 **Next (post-POP):**
 - **Track B — `=` semantics / divineIntent.** `opAssign`/`setContent` redesign: `=` means

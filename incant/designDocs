@@ -775,4 +775,57 @@ define
                     41. Both halves land together on purpose: a flag a fixture can
                     set and cannot read is a gate nobody can assert, which is rule
                     H4's absence-versus-value in flag form.#);
+            opSetGroup=(THE := SET-GROUP OPERATOR.#):
+                oneSpelling=(ROUTED THROUGH setGroup, R2, Tony 2026-09-03. It wrote
+                    gGroup, isGROUP and isInitialized by hand and was the LAST
+                    direct writer of gGroup outside setGroup and embedRule --
+                    the third spelling of a write that the campaign had already
+                    reduced to two. setGroup writes the same three fields, so the
+                    routing is free, and R2 says setGroup is NOT changed to
+                    accommodate it.
+                    ⚠ TWO GUARDS WERE FOLDED INTO ONE AND ARE NOW SEPARATE, which
+                    is the only behaviour this carries. The old `if argument` was
+                    doing two jobs: refusing a null argument (semantic) and
+                    incidentally not dereferencing a null target (structural).
+                    The target guard is now explicit and the null-argument
+                    question belongs to setGroup, which CLEARS -- so `x := null`
+                    was a silent no-op and now empties x. That is the ruled
+                    accept-the-clear, Clay's recommendation, and it is the one
+                    line to change if Tony rules the other way: restore the outer
+                    `if argument` and the clear goes away with it.
+                    ⚠ THE LISTENER HALF IS REAL AND CURRENTLY UNEXERCISED. setGroup
+                    fires updateListeners() when hasListeners is set, and the hand
+                    write bypassed that contract entirely. But hasListeners has
+                    exactly ONE arming site -- listenTo, Commands.rtn:705 -- and no
+                    file in the corpus uses listenTo, so no fleet run can observe
+                    the difference. Recorded as a censused zero rather than claimed
+                    as an improvement the instruments can see.
+                    ⚠ NOT byRef. := does not stamp byRef and will not (R3, same
+                    day); three registers said otherwise and were corrected.#);
+            opAssign=(THE = ASSIGN OPERATOR.#):
+                byRefProvenance=(THE HEADER NAMED THE WRONG PRODUCER FOR ELEVEN
+                    WEEKS. It said a byRef argument is "one that came through
+                    := / opSetGroup", so a reader met the byRef arm and was told
+                    an ordinary operator produced its input.
+                    ⚠ MEASURED OVER EVERY COMMIT TOUCHING Instruct.rtn, 2026-09-03.
+                    692e121 (2026-06-10) DID stamp -- `argument.byRef = true;
+                    group = argument;`. fa9989c (2026-06-14) dropped the stamp.
+                    9c4962b (2026-08-15) replaced the bare `group =` with the
+                    hand-written gGroup/isGROUP/isInitialized triple. R2 restores
+                    the fa9989c routing. So the sentence was ACCURATE FOR FOUR DAYS
+                    and stale for eleven weeks.
+                    ⚠ THE VALUE OF THE HISTORY IS THAT IT CHANGES THE VERDICT FROM
+                    WRONG TO EXPIRED, and expired is the more dangerous grade
+                    because it cannot be caught by reading carefully -- only by
+                    re-running. A dated measurement written as a timeless fact;
+                    the same failure this project already banked for the ipc/
+                    gitignore row.
+                    ⚠ WHAT IS TRUE NOW: the only byRef writers are opSetFlag case
+                    31 (the explicit `:. byRef`), Commands.rtn:556, and three sites
+                    in Bytecode.twk. So this arm is reachable ONLY by an explicit
+                    `:. byRef` and never as a side effect of any operator. Four
+                    registers carried the wrong sentence -- this header, bear-trap
+                    #3, and two TODO.md items -- all agreeing with each other, and
+                    NOT ONE had been re-run. Four registers agreeing is one
+                    citation counted four times.#);
     ;

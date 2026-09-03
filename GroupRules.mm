@@ -9445,10 +9445,13 @@ GroupItem 	*ptr = 0;
 }
 
 /***************************************************************************
-	Rule action for the = assign operator. A byRef argument (one that came
-	through := / opSetGroup) is stored BY REFERENCE so the `=` does not undo the
-	reference via setContent. Everything else copies via setContent exactly as
-	before — the non-byRef path is byte-identical. (2026-06-09)
+	Rule action for the = assign operator. A byRef argument is stored BY
+	REFERENCE so the `=` does not undo the reference via setContent.
+	Everything else copies via setContent.
+
+    ⚠ THIS ARM IS REACHABLE ONLY BY AN EXPLICIT `:. byRef`. `:=` does NOT
+    stamp byRef and has not since 2026-06-14; the header said it did until
+    R3.   Instruct.opAssign.byRefProvenance
 ***************************************************************************/
 extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *target)
 {
@@ -10964,16 +10967,16 @@ GroupItem 	*flagDef = 0;
 
 /***************************************************************************
 	Rule action for the := set group operator. It stashes argument as isGROUP
-    in target without changing its parent or affiliation
+    in target without changing its parent or affiliation.
+
+    ⚠ THROUGH setGroup, NOT BY HAND -- ONE SPELLING (R2, Tony 2026-09-03).
+    Do not re-inline the gGroup write; and note `x := null` now CLEARS x.
+    Instruct.opSetGroup.oneSpelling
 ***************************************************************************/
 extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target)
 {
-	if ( argument )
-		{
-		target->groupBody->gGroup = argument;
-		target->groupBody->flags.data = 6;
-		target->groupBody->flags.isInitialized = 1;
-		}
+	if ( target )
+		target->setGroup(argument);
 	return target;
 }
 
