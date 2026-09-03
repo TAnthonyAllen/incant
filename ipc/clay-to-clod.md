@@ -17,9 +17,21 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      144
-STATUS:   cleared        # fresh = parked/unread | working = picked up, in progress | cleared = done
-WRITTEN:  2026-09-02  -  Clay (SEQ 144, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+SEQ:      145
+STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-03  -  Clay (SEQ 145, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 145 IS A FEARLESS: four rulings (R1-R4) and a six-item order.
+          R1 aCTionIterate does not unwrap under gNoUnwrap; R2 := calls setGroup;
+          R3 := does not stamp byRef, three registers to correct; R4 Tony's
+          opDebug hunk lands first as its own commit. Item 0 is a BARE REBUILD --
+          the binary at pickup is the flipped one and nothing else is measurable
+          until that is closed.
+          ⚠ AMENDED SAME PICKUP: R1 is a PERMANENT SPELLING, not a flip-era
+          workaround -- `iterate grup on *field` is THE way to iterate a field
+          held by pointer and the bare form on a holder is RETIRED, refusing by
+          name. Item 4's census is therefore the RESPELL LIST, and item 4a docs
+          the form with the bare form named as retired.
+          PRIOR HEADER PRESERVED BELOW.
           ⚠ SEQ 144 IS THE SESSION'S CLOSING DISPATCH -- SEAL AND CLEAN KITCHEN,
           NOTHING NEW. Session 2's dispatch stands as drafted plus a runtime-set
           item. Tony flip-build-test-unflip-builds tonight, sealed on both sides,
@@ -7033,3 +7045,82 @@ Kitchen: groups.ext committed, minionWork/ probes stripped or named, git status 
   tomorrow's parser work starts from.
 
   END SEQ 144
+
+===================================================================
+SEQ 145  --  2026-09-03, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  FEARLESS: FOUR RULINGS + A SIX-ITEM ORDER.
+             gNoUnwrap ITERATE, := -> setGroup, byRef REGISTER CORRECTION.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any build, run, edit or
+        census, per WT-15. SEQ number assigned by Clod (dispatch read
+        "SEQ C-__"); 144 was the prior entry.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+Fearless: SEQ C-__  (Clay → Clod, 2026-09-03)
+
+RULINGS TAKEN IN CHAT, Tony 2026-09-03 — scribe these first (WT-15):
+  R1  Under gNoUnwrap, aCTionIterate does NOT unwrap its operand.
+      `iterate grup on *argument` is the spelling; *argument yields sample.
+  R2  := calls setGroup. setGroup is not changed to accommodate it.
+  R3  := does not stamp byRef and will not. Correct the three registers
+      (bear-trap #3, TODO.md:129-131 and :232, opAssign header). Audit
+      item retires or rescopes to `:. byRef` — Tony's word on which.
+  R4  Tony's opDebug hunk in Instruct.rtn lands as its own Tony-commit
+      ahead of everything below.
+
+ORDER:
+  0  Rebuild bare. Verify: jitContext.h:619 = 0, pop.sh 176/1/3, canary,
+     kant8T not capped. Nothing below is measured on the flipped binary.
+  1  MEASURE input[1]/input[2] wrap depth in aCTionIterate on a bare
+     build, one instrumented run, reverted before anything else. Report
+     the counts. The fix shape (gate vs one-peel) is decided off that
+     number, not before it.
+  2  := → setGroup. Null: accept the clear (Clay recommends; Tony rules).
+     Certificate: fleet byte-unmoved, canary unchanged, listener census
+     unchanged. setGroupInit is NOT in this item.
+  3  tester rows under the flip, on the branch, after item 1 lands:
+       test3 starred walks 8 · test3 bare refuses BY TEXT (H4)
+       test1 two-hop exhibit: *arg reaches argument not sample; pinned
+         so the star is not blamed; law-4 respell as its control row
+       test2 addrOf(arg) vs addrOf(sample): pre-registered content-copy
+         reads different body. Exhibit only; no edit.
+  4  CENSUS, read-only: every `iterate ... on <bare field>` under incant/,
+     utilities first. Count, sites, nothing respelled. This is the price
+     of R1 and the try-and-buy's 61/10 moves by it.
+  5  `=` on a holder / list-bearing RHS under the flip: REFUSE by name,
+     F-48's shape. Not built until Tony rules; priced here so the ruling
+     has the menu. setContent's six sites are NOT touched.
+
+NOT IN THIS DISPATCH: the file split (Tony's, after GroupBody; canary
+re-aim rides with it), the GroupBody split (blocked on gMethod).
+
+TONY, same message: in iteratorTest3 the iterate line should be
+`iterate grup on *argument;` going forward as the proper way to iterate.
+
+-------------------------- END VERBATIM --------------------------
+
+--------------- BEGIN VERBATIM -- AMENDMENT, same pickup ---------------
+
+btw Fearless amending: Amendment to the dispatch:
+
+  R1  (amended) `iterate grup on *field` is THE way to iterate a field
+      held by pointer, going forward, not a flip-era workaround. The
+      bare form on a holder is a retired spelling and refuses by name.
+  4   (amended) The census is the RESPELL LIST. Read-only this stroke;
+      the respell itself is the utilities-first pass of the try-and-buy.
+  4a  Doc: state the form where iterate is documented, dated, bare form
+      named as retired. Lands with item 1's fix, same commit.
+
+---------------- END VERBATIM -- AMENDMENT, same pickup ----------------
+
+  ⚠ CLOD'S NOTE ON PICKUP, recorded before item 0 runs and not acted on:
+  the installed binary at pickup is the FLIPPED one. jitContext.h:619 reads
+  0 while ~/bin/incant (Sep 3 09:38) measures 116 green / spacingT 14 red /
+  kant8T POPCAP-killed / countPop 0-of-39 -- the seal's recorded FLIPPED
+  numbers, not bare's 176. Tony reverted the source line without rebuilding
+  after last night's flip-build-test. That is precisely what item 0 exists
+  to close, and it is why nothing below item 0 may be measured first.
+
+  END SEQ 145
