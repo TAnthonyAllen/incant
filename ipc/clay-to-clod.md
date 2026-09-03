@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      148
+SEQ:      149
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-03  -  Clay (SEQ 149, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 149 IS LIVE AND IS AT THE FOOT -- RECON ONLY, NO EDIT: is the
+          star=field* -> star?=field* promotion live or dead, which rules it
+          fires on, whether any reader tells empty from missing on those
+          labels, and what still depends on the implied `?`.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-03  -  Clay (SEQ 148, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 148 IS LIVE AND IS AT THE FOOT -- IterSource minted, modifiers
           move BEFORE `on`, grammar + 62-site respell + evaluation in ONE
@@ -7376,3 +7382,24 @@ btw Fearless: Adding to C-148 item 3:
   forms BEFORE any evaluation code is written. That is the first thing done.
 
   END SEQ 148
+
+===================================================================
+SEQ 149  --  2026-09-03, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  RECON ONLY, NO EDIT: the star=field* ->
+             star?=field* PROMOTION -- live or dead, and what depends on it.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before any reading, per WT-15.
+        RECON ONLY. The dispatch says "No edit" and nothing will be changed.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+Fearless:   - RECON: the `star=field*` → `star?=field*` promotion. Read
+    getWhatFollows (retired?) and setTestMatch/processFlags for it. If
+    live: which rules it fires on, and whether any reader distinguishes
+    empty-from-missing on those labels. If dead: say when it went and
+    whether any grammar entry still depends on the implied `?`. No edit.
+
+-------------------------- END VERBATIM --------------------------
+
+  END SEQ 149
