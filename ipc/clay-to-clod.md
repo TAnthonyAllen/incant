@@ -17,8 +17,19 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      149
+SEQ:      150
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-03  -  Clay (SEQ 150, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 150 IS LIVE AND IS AT THE FOOT -- COMMENT SWEEP of
+          ruleActions.rtn ONLY, opDot's TokFiles entry as the template.
+          Criterion: WHY moves to a registry entry and leaves a pointer;
+          LOOK-BEFORE-YOU-TOUCH stays as one line where it guards.
+          ⚠ Dictated as C-149; renumbered because 149 was spent on the
+          star-promotion recon earlier the same day.
+          ⚠ RuleStuff.twk:244's retirement is RECORDED here, NOT executed --
+          different file, behaviour change, and it would void this sweep's
+          comment-lines-only certificate.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-03  -  Clay (SEQ 149, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 149 IS LIVE AND IS AT THE FOOT -- RECON ONLY, NO EDIT: is the
           star=field* -> star?=field* promotion live or dead, which rules it
@@ -7403,3 +7414,63 @@ Fearless:   - RECON: the `star=field*` → `star?=field*` promotion. Read
 -------------------------- END VERBATIM --------------------------
 
   END SEQ 149
+
+===================================================================
+SEQ 150  --  2026-09-03, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  COMMENT SWEEP, ruleActions.rtn ONLY.
+             ⚠ DICTATED AS "SEQ C-149"; RENUMBERED 150 ON TRANSCRIPTION
+             because 149 was already spent on the star-promotion recon
+             earlier the same day. Clay's C-149 IS this entry.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before reading a single comment
+        block, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+I have to duck out for a couple of chores. Not for long. Fearless in the meantime: SEQ C-149  (Clay → Clod, 2026-09-03) — COMMENT SWEEP, ruleActions.rtn ONLY
+
+RULING (Tony): the opDot TokFiles entry is the template. commentMinion.md's
+schema-v2 method-scoped form is superseded; dated note in the doc, not a
+rewrite. Also from Tony: RuleStuff.twk:244's promotion RETIRES — C-148b's
+probe is the before-capture, the retirement is not gated on it; FOR is the
+exhibit for why `field?=something+` exists.
+
+THE CRITERION, one sentence, applied per block:
+  If the comment explains WHY, it moves to a TokFiles entry and leaves a
+  one- or two-line pointer at its post. If it says LOOK BEFORE YOU TOUCH,
+  it stays, as one line, where it guards. Site-scoped warnings never move.
+  The reader model: Tony reads the pointer as "there may be something here
+  I need to look into before changing this"; the long text is for the
+  registry and the AI.
+
+MECHANICS:
+  - opDot's entry (130→85, fleet byte-identical) is the exemplar; diff your
+    first two conversions against its shape before doing the rest.
+  - ruleActions.rtn only. ~35 blocks, 1,714 lines. One commit.
+  - Bear-trap #29: no block comment between an if's brace and its else;
+    canary after every retok. #32/#27 family: header prose stays in a
+    comment block.
+  - The :685 FOR comment goes in this pass (matches incant/grammar:169).
+
+CERTIFICATE (H12, not fleet-alone):
+  fleet byte-identical · canary 332 · generated .mm diff is comment lines
+  ONLY (grep -v the comment markers and the diff is empty) · ddPop reads
+  the new entries (count named) · frontier unmoved.
+  STOP CLAUSE: any fleet row moves → revert the file, report the block.
+
+REPORT: line count before/after, block count moved/stayed with the
+criterion each was graded on, and the three blocks you were least sure
+about, named — those are what Tony reviews first.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP, one scope reading recorded before any edit:
+  RuleStuff.twk:244's RETIREMENT is transcribed here as Tony's ruling but is
+  NOT executed in this pass. The dispatch's own mechanics say "ruleActions.rtn
+  only" and "one commit", and RuleStuff.twk is a different file and a
+  behaviour change rather than a comment move -- landing it inside a sweep
+  whose certificate is "the generated diff is comment lines ONLY" would make
+  that certificate unmeasurable. Recorded as owed, awaiting its own stroke.
+
+  END SEQ 150

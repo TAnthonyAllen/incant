@@ -129,3 +129,35 @@ recording because bear-trap #4 makes `//` placement a live question and bear-tra
 comment *position* fatal in an `if`/`or` chain. A switch is not that construct. **The header keeps
 its short base description; only the long sections move.** And claims travel to the **case site**
 rather than staying in the header, because that is where an editor is standing.
+
+---
+
+## 2026-09-03 — `ruleActions.rtn` sweep (SEQ 150). **1,784 → 1,381 lines.**
+
+**Entries written: 24** (19 new method-scoped, 3 file-scoped for blocks repeated across
+methods, 2 retro-fitted for pointers that already existed with no entry).
+**Lookups Clod actually made: 2** — `Instruct.opDot` as the template, and the existing
+`ruleActions.aCTionIterate.legacyFollow`, which stopped a duplicate being written.
+
+### ⚠ THE TRIAL'S DANGLING-POINTER QUESTION IS ANSWERED, AND THE ANSWER IS YES
+
+This file said the dangling-pointer fleet row was *"obviously buildable"* and would **wait for
+evidence it is needed**. The evidence arrived the first time anyone looked: a one-line check over
+the file's own keys found **two pointers whose entries were never written** —
+`ruleActions.aCTionDefinE.argumentHasData` and `.embeddedRuleCopy`, both minted in the
+2026-09-01 first pass.
+
+⚠ **AND THE COST IS NOT "A MISSING FILE" — IT IS THAT THE ARGUMENT IS GONE.** The blocks were
+shortened to pointers and the long text they replaced was never banked anywhere. What survives is
+the claim on the pointer line and whatever is in git history before that pass. Both entries were
+written as **honest gaps** rather than reconstructed, because a plausible rewrite would be
+indistinguishable from the original and worth less than the admission.
+
+**So the failure mode is worse than the trial anticipated.** The doc framed the risk as *a reader
+follows a pointer and finds nothing*. The real risk is *the shortening happens, the entry never
+does, and the reasoning is deleted* — and nothing in the process notices, because the code still
+compiles and the fleet still passes.
+
+**The row is earned.** The check is one loop over `grep -o 'File\.method\.slug'` against
+`^ *slug=(` in `incant/designDocs`, it ran green at **26/26** at the end of this sweep, and it
+would have gone red on the day those two were minted.

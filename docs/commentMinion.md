@@ -1,3 +1,20 @@
+> ⚠⚠ **SUPERSEDED IN PART, 2026-09-03 (Tony's ruling via Clay, SEQ 150). THE
+> SCHEMA-V2 METHOD-SCOPED FORM BELOW IS NOT THE CONVENTION ANY MORE — the
+> `opDot` TokFiles entry is.** This is a dated note, deliberately not a rewrite:
+> the document's reasoning is why the convention arrived where it did, and
+> rewriting it would delete the trail that justifies the ruling.
+>
+> **What replaces it, in one sentence:** if the comment explains WHY, it moves to
+> a TokFiles entry and leaves a one- or two-line pointer at its post; if it says
+> LOOK BEFORE YOU TOUCH, it stays, as one line, where it guards. **Site-scoped
+> warnings never move.** The reader model is Tony reading the pointer as *"there
+> may be something here I need to look into before changing this"* — the long
+> text is for the registry and the AI.
+>
+> **The worked exemplars** are `Instruct.opDot` (130 lines to 85, fleet
+> byte-identical, 2026-09-02) and `ruleActions.rtn` (1,784 lines to 1,381,
+> 2026-09-03).
+
 # COMMENT MINION — CHARTER (the comment pancake)
 
 **STATUS: SIGNED, 2026-08-20. Clod drafted 08-17; Clay reviewed and signed 08-20 with amendments

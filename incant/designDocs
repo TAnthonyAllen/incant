@@ -886,4 +886,683 @@ define
                     mechanism and it is not a permanent conditional; it is the
                     legacy half of a migration that already has its death
                     written down.#);
+                refusedSource=(A REFUSED SOURCE IS ANNOUNCED ONCE AND POISONED (Tony's
+                    ruling,
+                    2026-08-02). Announced HERE, at the door, not per
+                    advance -- the
+                    advance is silent and merely refuses to move.
+                    Without this, a refused iterate returned 0 BEFORE
+                    setting
+                    isIterator, so `while ++grup` missed opPlusPlus's
+                    iterator arm
+                    entirely and fell through to the DATA arm: `if !data
+                    count = 1;`
+                    returns the node, which is truthy, so the loop never
+                    ends.
+                    Measured on iterT1m before the fix: 1,475,745 refusals,
+                    each with a
+                    DISTINCT source pointer and the iterator alternating
+                    leafA/leafB --
+                    so it is genuine mutual recursion re-entering, not a
+                    retry loop
+                    inside the rule machinery. That distinction was checked
+                    first
+                    because the two want opposite fixes.#);
+            aCTionBlocK=(the BlocK rule action -- the statement-list walk both engines run.#):
+                bareReturnValue=(A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not
+                    the keyword's tag.
+                    Tony's ratification, 2026-07-31: bare return means STOP,
+                    and an action's
+                    value is the value of the last executed statement. The
+                    old "return" string
+                    was CLAIM KANT-10 leaking -- aCTionBrancH falls back to
+                    the BrancheS keyword
+                    node when there is no expression, and a node with no
+                    data returns its own
+                    TAG. It was never a semantics.
+
+                    WHY THE FIX IS HERE AND NOT ONLY IN aCTionBrancH: the
+                    VALUE and the BRANCH
+                    SIGNAL ride the SAME NODE. aCTionBrancH stamps isBranch
+                    (1 break, 2
+                    continue, 3 return) on whatever it returns, and FOUR
+                    loop handlers read that
+                    flag back off the body's returned value (aCTionWhilE,
+                    aCTionDO, aCTionFOR,
+                    and this loop). Substituting a different node for the
+                    value would drop the
+                    signal with it and silently kill `break` and `continue`
+                    in every loop --
+                    measured, and nothing in the tree covered it before
+                    incant/loopBranchT.
+                    So the substitution re-stamps isBranch on the value it
+                    hands back.
+
+                    SCOPED TO isBranch == 3 (RETURN) AND TO A KEYWORD NODE,
+                    deliberately:
+                    - only a BARE branch returns the keyword node itself, so
+                    testing the
+                    registry is what distinguishes `return;` from `return
+                    someField;`
+                    - break/continue are handled at the LOOP boundary
+                    instead, not here.
+                    Ratified separately 2026-07-31: a break is CONSUMED by
+                    the innermost
+                    loop and propagates nothing. See the matching note in
+                    aCTionDO, and
+                    incant/loopBranchT for the fixture that covers all
+                    three.
+                    A bare return always reaches processAction, which clears
+                    isBranch at the
+                    action boundary, so the re-stamp cannot leak past the
+                    action.
+
+                    DEGENERATE CASE, left as-is and noted: an action whose
+                    FIRST statement is a
+                    bare return has no prior value, so it still yields the
+                    keyword node.#);
+                emitWalkMustNotStop=(⚠ UNDER JITTING THE WALK MUST NOT STOP. Measured
+                    2026-08-05.
+                    This break is INTERPRETER CONTROL FLOW, and under
+                    jitting it was
+                    terminating THE COMPILER'S WALK: a `continue` inside a
+                    loop body
+                    set isBranch, this break fired, and EVERY STATEMENT
+                    AFTER IT IN
+                    THE BLOCK WAS NEVER EMITTED. Visible in the IR as an
+                    `endif`
+                    block holding nothing but its back edge, with the
+                    increment that
+                    should follow simply absent -- and silent, degrade count
+                    0.
+
+                    The two eras want opposite things from the same flag. At
+                    RUN time
+                    a branch means stop executing this block. At EMIT time
+                    the
+                    statements after a branch are REACHABLE -- they run
+                    whenever the
+                    branch is not taken -- so they must all be emitted. The
+                    branch
+                    itself is already expressed in the IR by
+                    jitEmitContinue's
+                    terminator; the emitter does not need, and must not
+                    take, the
+                    interpreter's shortcut.
+
+                    Same family as everything else found today: emit-time
+                    execution
+                    doing something that belongs only to run time.#);
+            aCTionBrancH=(the BrancheS action: break, continue and return.#):
+                ke3NullOperand=(⚠ KE-3, REPAIRED 2026-08-13 (SEQ 67 C.1). THE LINE ABOVE
+                    OVERWRITES arg
+                    WITH WHATEVER THE METHOD RETURNS, AND UNDER JITTING THAT
+                    METHOD IS AN
+                    EMITTER THAT RETURNS NULL TO MEAN "I REFUSED".
+                    jitEmitShortCircuit ends
+                    its degrade path with a bare `return nullptr`, so a body
+                    whose operand
+                    the emitter cannot see -- a command invocation, which
+                    arrives as a bare
+                    Token -- left arg null and the stamp below dereferenced
+                    it. Exit 139,
+                    inside the EMIT walk, AFTER the degrade line had already
+                    announced the
+                    refusal. Measured with its control: the identical body
+                    interpreted exits
+                    0. Census and frames in docs/jit.md; entry in
+                    docs/knownErrors.md.
+
+                    ⚠ AND IT IS THE ONE-CHANNEL-ONE-MEANING FAMILY AGAIN, in
+                    its sharpest
+                    form yet -- the two meanings belong to different ERAS,
+                    not different
+                    facts. A method's return value means THE NODE at run
+                    time and means
+                    WHETHER EMISSION SUCCEEDED at emit time. One channel,
+                    one reader, two
+                    eras. That is the fourth row of the standing table
+                    exactly, and the cure
+                    here is the cheap half of the standing cure: stop
+                    treating "no node" as
+                    a node. The structural half -- a separate
+                    emitted/refused channel -- is
+                    the invokable mechanism's business, not this repair's.
+
+                    FALLING BACK TO BrancheS IS NOT A NEW BEHAVIOUR: it is
+                    the same node the
+                    no-expression path two lines up already uses, so the
+                    stamp lands
+                    somewhere real and the walk continues instead of dying.#);
+                branchesUnderJit=(BRANCHES UNDER JITTING. `continue` emits a branch to the
+                    innermost
+                    loop's condition block; break and return DEGRADE LOUDLY
+                    rather than
+                    emitting nothing.
+
+                    ⚠ THE DEGRADE ARM IS THE POINT, not politeness. In the
+                    displayForm dump
+                    `continue` appeared to work because both arms of the
+                    enclosing if fell
+                    through to a block that branched to `cond` -- which
+                    happened to be the
+                    back edge. A construct correct by accident of topology
+                    stays correct
+                    exactly until the block structure moves. break and
+                    return are in that
+                    same state RIGHT NOW, so they are COUNTED here instead
+                    of being left to
+                    look fine; a jitDegrade count the ladder already asserts
+                    at zero turns
+                    them from invisible into a red the moment a fixture
+                    reaches one.
+
+                    ⚠ THE TAG IS READ DIRECTLY rather than testing the flags
+                    set two lines
+                    above. Those assignments are bare, so which node they
+                    land on is a
+                    bare-name-resolution question (the last mentioned field
+                    is BrancheS, not
+                    arg, and the header comment says the stamp is meant for
+                    what is
+                    returned). That discrepancy is NOT this edit's business
+                    -- reading
+                    BrancheS.tag mirrors the switch exactly and settles
+                    nothing either way.#);
+            aCTionCerR=(the cerr statement.#):
+                stderrSink=(Immediate method for the CerR rule -- THE STDERR SINK,
+                    added 2026-08-01.
+                    CerR        cerr- followedBy PRINTing- stuff=PrintXP+
+                    SemI- defer;
+
+                    Term-for-term identical to PrinT with one substitution,
+                    the keyword; and
+                    this body is aCTionPrinT's operand loop with one
+                    substitution, the closing
+                    call. That is Tony's ruling KANT-13 in force -- ONE
+                    print mechanism, several
+                    destinations: PrintXP+ is fixed and only the sink
+                    varies.
+
+                    ⚠ NO `generating` BRANCH, and that is a real difference
+                    from aCTionPrinT
+                    rather than an omission. aCTionPrinT's generating arm is
+                    documented there as
+                    "currently UNUSED on the bytecode print path" and kept
+                    as the future home
+                    for operand compilation. A diagnostic sink has no
+                    bytecode story yet, so
+                    inventing one here would be building a branch nothing
+                    can reach and nothing
+                    can test. When `cerr` needs to be emitted, it inherits
+                    that arm from the
+                    print work rather than having grown a speculative copy
+                    of it.#);
+            aCTionCouT=(the cout statement.#):
+                stdoutSink=(Immediate method for the CouT rule -- THE EXPLICIT
+                    STDOUT SINK, 2026-08-01.
+                    CouT        cout- followedBy PRINTing- stuff=PrintXP+
+                    SemI- defer;
+
+                    WHY IT EXISTS, and it is not symmetry for its own sake
+                    (Tony): `print` is
+                    DIVERTIBLE -- printTO() sends it to a buffer -- and the
+                    moment you have
+                    diverted it you invariably need a way to reach the
+                    terminal anyway. `cout`
+                    is that way. So the three keywords are not three names
+                    for one thing:
+
+                    print   divertible      -> buffer if armed, else stdout
+                    cout    NOT divertible  -> always stdout
+                    cerr    NOT divertible  -> always stderr
+
+                    That is the KANT-13 shape exactly: one mechanism
+                    (PrintXP+, one spacing
+                    default, one appendPrintXP walk), the keyword selecting
+                    only the sink.
+
+                    ⚠ THIS CLOSES KANT-23. The pinned defect was that a
+                    grafted `cout` WAS
+                    being captured by an armed diversion --
+                    genLadder/printPop.sh calls that
+                    "the single most important byte in either file". A
+                    native CouT routed
+                    through opCout, which never consults toBUFFER, cannot be
+                    captured. The
+                    printFamilyNew divergence targets move accordingly and
+                    the move is
+                    accounted for in printPop.sh.#);
+            aCTionDefinE=(the define statement -- where a rule is born.#):
+                producerOwnsInvariant=(⚠ THE PRODUCER OWNS THE INVARIANT: EVERY LIVE RULE
+                    CARRIES rStuff. Mark 3, Tony 2026-08-22.
+
+                    GUARD THE CONSUMER GENTLY, ASSERT THE PRODUCER LOUDLY --
+                    R-4's shape, one layer up. The consumer-side guards
+                    added
+                    the same day (runRuleAction, opDot case 36,
+                    processFlags)
+                    make SILENCE out of a state that is lawful for a
+                    specimen
+                    and a DEFECT on a live rule, and per Ruling A the
+                    consumer
+                    must not try to tell those apart: rStuff-less IS the
+                    definition of specimen. So the loudness moves to where
+                    the
+                    invariant actually lives.
+
+                    This is the registration boundary -- filing into an
+                    isRule
+                    registry is what promotes a node to a rule -- so it is
+                    the
+                    one place that can promise a live rule has rStuff. The
+                    line above ensures it; this refuses if the ensure did
+                    not
+                    take, which would mean the allocation itself failed and
+                    every downstream guard is about to report "specimen" for
+                    something that is really a broken rule.#);
+                ruleMethodCheck=(If NewGroup is a rule check to see if it has a rule
+                    method .
+                    Also makes sure if NewGroup isGROUP the group is made a
+                    rule
+
+                    THE CODED TEST WINS (Tony's order, SEQ 56, 2026-08-13).
+                    The arms
+                    were dlsym-first until now. An incant code body on a
+                    rule is what
+                    the rule MEANS, so it takes the dispatch and the dlsym
+                    probe is
+                    the fallback. Two measured carry-overs, not style.
+
+                    First, the not-isMethod guard stays on the DLSYM ARM
+                    ONLY. A coded
+                    re-definition of a rule that already carries isMethod
+                    from its
+                    original definition, which is every Grokking rule with a
+                    C++
+                    action, never reaches a guarded arm. That is M1b silent
+                    inertness,
+                    measured on Braced and Parens: exit 0, no warning, the
+                    CodE
+                    attached and read by nobody. See
+                    docs/parseCodeMeasurements.md.
+
+                    Second, the order only discriminates for a rule that is
+                    BOTH coded
+                    and dlsym resolvable. The five coded rules in the tree,
+                    list twice
+                    plus JSONfield, JSONarray and DelimOver, have no aCTion
+                    symbol of
+                    their own, so they fell through the failed dlsym to
+                    isCoded before
+                    and land on processAction directly now. Same destination
+                    either
+                    way. Censused against the 34 aCTion symbols in the
+                    binary before
+                    the build. The only collision anywhere in the tree is
+                    the coded
+                    Braced in incant/parseCode, which is unregistered in the
+                    setup
+                    fILEs registry and so is loaded by nothing.#);
+                definitionComplete=(THE DEFINITION IS COMPLETE HERE — attributes and members
+                    are both in —
+                    so this is where a term's rStuff is materialised (Clay
+                    SEQ 27). Doing it
+                    at the completion point rather than per-attribute is
+                    what avoids the
+                    ordering hazard rung 7 hit with alternation binding: a
+                    definition
+                    attribute fires WHEN PARSED, which for an alternation is
+                    before its
+                    members exist.
+
+                    Almost always a no-op: `modify` has already materialised
+                    anything
+                    carrying a modifier, and terms from incant source come
+                    back with rStuff
+                    regardless. It is here so the INVARIANT holds at the
+                    define point rather
+                    than holding by luck.
+
+                    Note I commented this out because rStuff should be there
+                    already if
+                    the NewGroup is a rule and zero if it is not
+                    materialiseTerms(NewGroup);#);
+            aCTionFOR=(the for statement.#):
+                trailingContinueGuard=(THE TRAILING-CONTINUE GUARD, 2026-08-25, Tony's word.
+                    Model is
+                    aCTionWhilE's fix (b88f33d): the sentinel must not
+                    survive the
+                    loop that consumed it, or the LAST iteration's continue
+                    is
+                    still sitting in `result` when the loop exits and
+                    propagates to
+                    the enclosing block as a continue, deleting every
+                    statement
+                    after the loop. Silent, exit 0.
+                    ⚠ SITE-SPECIFIC READ, not a paste. This loop ALSO
+                    continues
+                    earlier, at the `restrict` test above -- that one is
+                    safe
+                    because `result = 0;` runs at the top of every iteration
+                    and so
+                    no sentinel is in flight there. Only this arm can carry
+                    one.#);
+            aCTionFailed=(the parse-failure reporter.#):
+                lastCodeToCrash=(⚠ THE LAST CODE ALLOWED TO CRASH IS THE CODE THAT
+                    REPORTS CRASHES.
+                    Standing principle, Tony 2026-08-22, and it outlives
+                    this fix.
+
+                    Failure reporting must survive its own subject.
+                    `failedAt` lives on
+                    rStuff, and a subject arriving here with no rStuff is
+                    exactly the
+                    "something went wrong in the getting-there" case this
+                    reporter exists
+                    to announce -- so trusting the subject to be intact is
+                    the one
+                    assumption it must never make. It cannot say so dead.
+
+                    Print what exists, name what is absent. Reported
+                    unconditionally and
+                    with its value either way (rule H4): an absence that
+                    prints nothing
+                    would be indistinguishable from a parse that failed at
+                    offset zero.#);
+            aCTionIF=(the if statement.#):
+                refuseLoudly=(MR, 2026-08-06. REFUSE LOUDLY, NEVER CRASH. The line
+                    below used to
+                    dereference StatemenT unguarded, so ANY `if` whose
+                    governed statement
+                    is absent exited 139 with ZERO bytes of output -- no
+                    diagnostic, no
+                    stop: line, nothing to grep. Smallest reproducer is `if
+                    1;`, which
+                    involves no rule and no mention.
+
+                    ⚠ THIS IS BEAR-TRAP #4's CRASH, AND THE TRAP NEVER SAID
+                    SO. A `//`
+                    wedged between an if's condition and its statement
+                    leaves exactly this
+                    terminal state, and the trap describes the symptom as a
+                    broken parse
+                    with field-resolution bleed. The bleed is real; the 139
+                    underneath it
+                    was this line.
+
+                    It is also what a rule mention in condition position
+                    produces -- naming
+                    a rule FIRES it, and in `if Braced;` the fired rule
+                    consumes the
+                    following statement as its input, leaving nothing to
+                    govern. That is a
+                    real language hazard but it is NOT the crash, and
+                    conflating them sent
+                    one earlier reading of `if Braced;` up the wrong tree.
+
+                    Refuses rather than falling through to `or ElsE`: an if
+                    whose statement
+                    vanished is malformed, and running its else arm would
+                    invent an answer
+                    for a construct nobody wrote. Says which construct and
+                    where.#);
+            aCTionNamE=(the NamE action -- how a bare name resolves.#):
+                bearCountryVirtual=(NamE rule action
+
+                    BEAR COUNTRY: the `defining && ... isVirtual -> copyOf`
+                    line below is a
+                    virtual fork, and it is define-gated ON PURPOSE. Virtual
+                    forks are define-
+                    time only. Without the `defining` gate, a READ of a
+                    virtual field (naming
+                    it as an operand) would fork a fresh empty copy and you
+                    would silently read
+                    0 / write to a copy nobody can find. If you are tempted
+                    to fork a virtual
+                    here outside a defining context, you have a bug. See the
+                    jigcorpus virtual-
+                    tag pattern and the wakeup bear-trap log.#);
+            aCTionNumbeR=(the NumbeR action -- numeric literals.#):
+                numericTower=(KANT'S NUMERIC TOWER IS count AND double. NO FLOATS,
+                    EVER (Tony,
+                    2026-08-01). A float-like literal IS a double literal
+                    and must
+                    survive as one -- so a decimal point mints isNUMBER
+                    here, at the
+                    literal's birth, and nothing rounds it.
+
+                    ⚠ THIS TESTS THE TEXT, NOT THE `FloaT` LABEL, AND THAT
+                    IS THE FIX.
+                    The old code read `GroupItem FloaT:;` and branched on
+                    it. MEASURED
+                    2026-08-01 with a trace in this function: for input
+                    `3.5` the label
+                    is ABSENT while the token text is exactly "3.5" --
+                    NumbeR matched
+                    the decimal fine, but `tokenize` on NumbeR flattens the
+                    match into a
+                    single token and the FloaT child label does not survive
+                    for this
+                    action to see. (⚠ `tokenize` RETIRED 2026-09-02. This
+                    account is
+                    dated 2026-08-01 and stands as what was measured then;
+                    the
+                    flattening survives it, carried now by the `tokened` bit
+                    and
+                    captureSpan, so the conclusion below is unaffected.) So
+                    the branch was ALWAYS taking atoi, and every
+                    double literal in the language silently truncated at
+                    birth:
+                    3.5 -> 3      0.25 -> 0      1.5e2 -> 1      3.5 + 1 ->
+                    4
+                    No rounding, no diagnostic. The text, however, is intact
+                    and
+                    complete -- including the exponent -- so it is the
+                    reliable
+                    classifier and atof consumes it directly.
+
+                    Exponent-only forms (`1e5`) are NOT reachable to begin
+                    with: FloaT
+                    requires a leading '.', so NumbeR matches just "1" and
+                    "e5" tokenizes
+                    separately. A '.' test therefore covers everything that
+                    can reach
+                    here, and `1.5e2` works because FloaT spells '.'
+                    decimals PoweR?.
+
+                    Written as an explicit scan rather than a libc call: the
+                    surrounding
+                    code is plain tok, and a bare short C name here is
+                    precisely the
+                    collision class of bear-traps #12 and #17.#);
+            aCTionPrinT=(the print statement.#):
+                jittedPrint=(JITTED PRINT (work item 3, Tony's ruling via Clay,
+                    2026-08-04). Under
+                    jitting a print USED TO FIRE AT COMPILE TIME -- once,
+                    reporting
+                    compile-time state -- which is worse than not printing
+                    at all because it
+                    appears to work. The emit-time walk must be EFFECT-FREE;
+                    the ladder's
+                    compile-once-fire-twice proof already assumed it was.
+
+                    THE WALK BELOW IS appendPrintXP's, TERM FOR TERM, with
+                    the append
+                    replaced by an emitted call. It is duplicated here and
+                    nowhere else
+                    because the two differ in exactly one line --
+                    appendPrintXP appends NOW,
+                    this emits a call that appends LATER -- and the thing
+                    that must not be
+                    duplicated is what appendGroup owns: shortcut semantics,
+                    formats, indent.
+                    Those stay in the chain; appendGroupValue routes into
+                    them.#);
+                emittersAtTokLevel=(⚠ THE THREE EMITTERS ARE CALLED AT tok LEVEL, NOT FROM
+                    PASSTHROUGH, and
+                    that is load-bearing twice over. Written as passthrough
+                    first, it hit
+                    BOTH documented hazards at once: `FormaT` is declared
+                    here but was
+                    referenced only inside the passthrough, so tok pruned it
+                    as unused
+                    (bear-trap #13) and the generated call named an
+                    undeclared identifier.
+                    A tok-level call is a tok-level USE, so nothing is
+                    pruned.
+                    ⚠ AND THE DECLARATION ORDER BELOW MATCHES
+                    appendPrintXP's EXACTLY --
+                    FormaT, result, ExpressioN. Reordered to put result
+                    last, tok bound the
+                    bare `isMethod` to `result` instead of to `ExpressioN`
+                    (last-mentioned
+                    wins) and generated a read of an unassigned pointer.
+                    Copying the walk
+                    means copying its declaration order.#);
+            appendPrintXP=(THE ONE PrintXP WALK, shared by all four print sinks.#):
+                onePrintXPWalk=(appendPrintXP -- THE ONE PrintXP WALK. Added 2026-08-01
+                    (Tony's call) when
+                    the arrival of `cerr` and `cout` made it the FOURTH copy
+                    of the same loop.
+
+                    Callers: aCTionPrinT, aCTionStringXP, aCTionCerR,
+                    aCTionCouT. They now
+                    differ only in their TAIL -- which sink op they close
+                    with -- which is
+                    Tony's ruling KANT-13 made structural instead of merely
+                    observed: ONE print
+                    mechanism, several destinations. A per-destination
+                    spacing or formatting
+                    default is no longer something you could introduce by
+                    accident; there is one
+                    body and four call sites.
+
+                    ⚠ WHAT DELIBERATELY DID NOT MOVE IN HERE, because
+                    hoisting it would have
+                    been a silent behaviour change rather than a refactor:
+                    - `isPRINTING = false;`  aCTionPrinT sets it,
+                    aCTionStringXP does not.
+                    That asymmetry is PRE-EXISTING and load-bearing (see the
+                    isPRINTING note
+                    on aCTionTokenXP's guard); hoisting it would have
+                    started clearing a
+                    generating-path flag on the string path. It stays in the
+                    callers.
+                    - aCTionPrinT's `generating` branch, which is a whole
+                    separate arm above
+                    this loop and has no equivalent on the other three.
+                    - the closing sink call, obviously -- that IS the
+                    difference.#);
+            interpretXP=(the interpret/run mode of the expression walk.#):
+                tier3Binding=(TIER-3 BINDING, and THIS LINE IS THE TIER-3 SET.
+                    2026-08-11, docs/andOrRung.md section 6; seat ruled
+                    by Tony the same day.
+
+                    Section 6 splits the operator table three ways, and
+                    the third tier -- "evaluation-controlling
+                    constructs, NOT operators at all" -- cannot go
+                    through runOP, which resolves both operands before
+                    it dispatches. Binding a DIFFERENT method here is
+                    the whole promotion: the node is built identically
+                    ([1]=op [2]=target [3]=arg), and only who walks it
+                    changes.
+
+                    ⚠ DECIDED AT TREE BUILD, ON PURPOSE. The category
+                    of an operator is a parse-time fact, so it is paid
+                    once per expression rather than re-tested on every
+                    evaluation -- and runOP stays what section 6 calls
+                    it, the strict dispatcher and nothing else.
+
+                    ⚠ THE SET IS CLOSED: `if`, AND/OR, iteration, then
+                    the door closes. The SYMBOL forms are deliberately
+                    NOT here -- `&&` is not even registered (setup:162
+                    has bare `'&'`, no operateMethod, the same state
+                    `'|'` was in before 2026-08-01) and `||` is strict.
+                    That asymmetry -- `OR` short-circuits, `||` does
+                    not, on one shared handler -- is FILED AND UNRULED,
+                    not overlooked. Widening tier 3 to the symbols is a
+                    ruling, and it costs an edit to this line.#);
+            degradeByDefault=(DEGRADE-BY-DEFAULT (Tony's ruling via Clay, 2026-08-05).
+                BODY-REACHABLE
+                CONTENT with no emitter, so under jitting it would otherwise
+                EXECUTE AT
+                EMIT TIME -- once, silently, in the wrong era. It now
+                announces itself
+                through the counter the ladder already asserts at zero, then
+                FALLS
+                THROUGH and runs interpreted, so behaviour is unchanged and
+                the gap is
+                COUNTED rather than invisible.
+                docs/gateCensus.md: one of the five. The WALK MACHINERY
+                (aCTionExpressioN
+                et al.) is deliberately NOT in this set -- degrading the
+                emit walk would
+                stop the compiler rather than surface a bug.
+                ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK. Placed by a
+                heuristic the
+                first time, it landed INSIDE two multi-line declaration
+                lists and wiped
+                GroupRules.h's extern block to ZERO (bear-trap #24's
+                signature, canary
+                239 -> 0). Declarations here span lines and end on a bare
+                `;`.#);
+            labelNoNotFalse=(labelNO, not falseResult (director, 2026-08-07). This
+                construct
+                executed NO statement, and an action's value is the value of
+                the LAST
+                EXECUTED STATEMENT -- so it has no value. `false` was never
+                a decision
+                that false is correct; it was the least-bad approximation
+                while "yields
+                nothing" was unsayable. labelNO is isCOUNT 0, so the NUMERIC
+                reading is
+                unchanged and both engines still agree; what is new is that
+                the attach
+                can tell "nothing" from "the number zero".#);
+            breakIsConsumed=(BREAK IS CONSUMED HERE, ratified 2026-07-31. A break
+                terminates
+                the INNERMOST loop and propagates NOTHING -- statements
+                after
+                the loop run. Clearing isBranch is what makes that true: the
+                flag and the value ride the same node, so leaving it set
+                made
+                the enclosing aCTionBlocK break too, and the code after the
+                loop
+                became unreachable (measured, incant/loopBranchT row 1).
+                Dropping a bare break's keyword node as the VALUE kills the
+                matching CLAIM KANT-10 leak -- the loop's value fell through
+                to
+                `if !result result = falseResult;` below.#);
+            aCTionDefinE=(the define statement -- where a rule is born.#):
+                argumentHasData=(THE CLAIM, from the site: an argument attribute never carries an initial value (Tony, SEQ 131); the field passed in carries the value, a declared one is a defect and is refused BY NAME in F-41's form.
+⚠ THE ARGUMENT FOR THIS ONE IS GONE, AND THAT IS THE
+                    ENTRY. The pointer at the site was written in the
+                    2026-09-01 trial's first pass and its registry entry was
+                    never created, so the long text it replaced is not in
+                    the tree and not in this file. What survives is the
+                    CLAIM, which the pointer still carries at the site, and
+                    the git history of ruleActions.rtn before that pass.
+                    Recorded rather than reconstructed: a plausible rewrite
+                    would be indistinguishable from the original and would
+                    be worth less than an honest gap. Found 2026-09-03 by
+                    the sweep's own dangling-pointer check -- the first two
+                    instances the comment trial has produced, and the
+                    evidence its docs/commentTrial.md says the
+                    dangling-pointer fleet row was waiting for.#);
+                embeddedRuleCopy=(THE CLAIM, from the site: definition makes structure, runtime makes reference -- embedRule() copies an embedded RULE and stores anything else as it stands.
+⚠ THE ARGUMENT FOR THIS ONE IS GONE, AND THAT IS THE
+                    ENTRY. The pointer at the site was written in the
+                    2026-09-01 trial's first pass and its registry entry was
+                    never created, so the long text it replaced is not in
+                    the tree and not in this file. What survives is the
+                    CLAIM, which the pointer still carries at the site, and
+                    the git history of ruleActions.rtn before that pass.
+                    Recorded rather than reconstructed: a plausible rewrite
+                    would be indistinguishable from the original and would
+                    be worth less than an honest gap. Found 2026-09-03 by
+                    the sweep's own dangling-pointer check -- the first two
+                    instances the comment trial has produced, and the
+                    evidence its docs/commentTrial.md says the
+                    dangling-pointer fleet row was waiting for.#);
     ;
