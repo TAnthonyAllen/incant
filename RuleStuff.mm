@@ -1263,9 +1263,11 @@ GroupItem 	*grup = 0;
 		{
 		if ( (rule->groupBody->flags.data && rule->groupBody->flags.data < 4) || max == 1 )
 			isTarget = 1;
-		if ( !min && rule->parent->getRStuff()->min && rule->parent->allAttributesOptional() )
-			rule->parent->getRStuff()->min = 0;
 		}
+	/*  ⚠ THE PARENT-min PROMOTION IS RETIRED HERE (Tony, SEQ 152, 2026-09-03).
+	Do not reintroduce it: it fired ZERO times and its absence is the reason
+	an optional term can no longer silently make its whole rule optional.
+	RuleStuff.getWhatFollows.promotionRetired  */
 	if ( !testMatch )
 		setTestMatch();
 }
@@ -1313,6 +1315,3 @@ void RuleStuff::setTestMatch()
 		if ( !isMethod(rule->groupBody->flags.instructType) )
 			testMatch = ::testString;
 }
-/*	Warning: the following methods were referenced but not declared
-	allAttributesOptional()
-*/

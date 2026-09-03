@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      151
+SEQ:      152
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-03  -  Clay (SEQ 152, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 152 IS LIVE AND IS AT THE FOOT -- STROKE A retires
+          RuleStuff.twk:244 on main behind a mandatory before-capture, plus two
+          new fleet rows; STROKE B is the flipped tester and the F-22 idiom
+          rows. A1 carries a STOP CLAUSE: if FOR fires, no retirement.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-03  -  Clay (SEQ 151, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 151 IS LIVE AND IS AT THE FOOT -- extract DO's and FOR's
           trailing-continue guard to ONE body, or report the difference and
@@ -7512,3 +7518,69 @@ Fearless: SEQ C-151  (Clay → Clod) — DO/FOR trailing-continue guard, one bod
   round. Either outcome is a result and neither is a failure.
 
   END SEQ 151
+
+===================================================================
+SEQ 152  --  2026-09-03, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  :244 RETIRES ON MAIN (STROKE A), THEN THE
+             FLIPPED TESTER AND IDIOM ROWS (STROKE B).
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before the probe, per WT-15.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+Fearless: SEQ C-152  (Clay → Clod, 2026-09-03) — :244 on main, then item 3 on the branch
+
+RULINGS IN FORCE: RuleStuff.twk:244's promotion RETIRES (Tony). Iterate
+grammar as landed in 82f1e6b. The isContinue census at 3 is pinned as a
+fleet row with its sentence (from C-151's report).
+
+STROKE A — main, bare, own commit:
+  A1  PROBE: cerr at RuleStuff.twk:244 naming parent.tag when it fires.
+      Bare build, full corpus run (pop.sh + the harnesses), capture,
+      revert, md5. This is the before-capture, not optional.
+      Pre-registered: firing set ⊆ {debug, DEBUG, FOR}; FOR does NOT
+      fire. If FOR fires: STOP, report, no retirement — "a statement is
+      optional" is not carried past one cerr.
+  A2  RETIRE the line. Any grammar entry that relied on the implied `?`
+      gets it written explicitly, named in the commit.
+      Pre-registered: fleet byte-identical (item 3 of the recon: no
+      reader distinguishes empty-from-missing); canary 332; parseClass
+      unmoved. A moved row names the reader — report it, don't re-pin.
+  A3  FLEET ROW: optional labelled terms that are unguarded (`_` or `{`),
+      pinned at 0 with the inversion sentence.
+  A4  FLEET ROW: isContinue arms = 3, setter = 1.
+
+STROKE B — tryAndBuy-gNoUnwrap, flipped, one process per row, unflip
+and rebuild bare after, md5:
+  B1  tester rows, test3 respelled `iterate grup on *argument;`:
+        test3            walks 8
+        test2            walks 8 (the copy); addrOf(arg) vs addrOf(sample)
+                         reads DIFFERENT body — exhibit row
+        test1            REFUSES by text, exit 0
+        `iterate grup on sample`             walks — control
+        `iterate grup attributes on argument` walks 4 — greed control
+        `arg := argument; addrOf(*arg)`      HOLDER (#4) — pre-registered,
+                         the := pointer-copy question stays OPEN
+  B2  IDIOM rows (these also run on main, bare — both binaries):
+        field := A(B); iterate grup on *field;   walks N by name
+        A returns null      → refuses at the star, by text
+        A returns listless  → refuses at iterate, by text
+      A is a COMMAND return. Exit 0 closes F-22; 139 reopens it with the
+      row as its reproducer.
+  B3  Report each row as predicted/actual. A falsified row stops the
+      stroke at that row; nothing below it is graded.
+
+NOT IN THIS DISPATCH: item 4 (the 73-site respell) waits on B green.
+jitBindArgRT, nestT, the asking — after item 4, per the 09-02 order.
+Tony's parser:72/76/82 are his.
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP: A1's stop clause is live and the recon already
+  flagged FOR as the likeliest false candidate -- its other terms (Looper,
+  ExpressioN, LoopRestrict?, StatemenT) are rule references, and if any is a
+  min-1 attribute then allAttributesOptional() returns false and FOR never
+  fires. The probe settles it either way; nothing is assumed.
+
+  END SEQ 152

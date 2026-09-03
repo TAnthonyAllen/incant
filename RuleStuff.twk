@@ -240,8 +240,11 @@ use rule
         isTarget    = true;
         if grup = followingMember() onFail = grup; }
     or isEmbedded {
-        if (data && data < 4) || max == 1 isTarget = true;
-        if !min && parent.min && parent.allAttributesOptional()   parent.min = 0; }
+        if (data && data < 4) || max == 1 isTarget = true; }
+    /*  ⚠ THE PARENT-min PROMOTION IS RETIRED HERE (Tony, SEQ 152, 2026-09-03).
+        Do not reintroduce it: it fired ZERO times and its absence is the reason
+        an optional term can no longer silently make its whole rule optional.
+        RuleStuff.getWhatFollows.promotionRetired  */
     if !testMatch   setTestMatch();
 }
 

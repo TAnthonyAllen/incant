@@ -828,6 +828,45 @@ define
                     #3, and two TODO.md items -- all agreeing with each other, and
                     NOT ONE had been re-run. Four registers agreeing is one
                     citation counted four times.#);
+        RuleStuff=(is the twk file holding RuleStuff, the per-node parse state.#):
+            getWhatFollows=(sets the fields of RuleStuff once, lazily, the first
+                time a rule is needed.#):
+                promotionRetired=(THE PARENT-min PROMOTION, RETIRED 2026-09-03 BY
+                    MEASUREMENT (Tony, SEQ 152). The retired line read
+                    `if !min && parent.min && parent.allAttributesOptional()
+                    parent.min = 0;` and meant: a rule every one of whose
+                    attributes is optional becomes optional itself. In effect
+                    `star=field*` was silently `star?=field*` one level up.
+                    ⚠ IT FIRED ZERO TIMES, AND THE PROBE THAT SHOWED THAT WAS
+                    BUILT TO BE POSITIVE BY CONSTRUCTION. A first probe printed
+                    only when the line fired and read nothing, which is an
+                    absence and asserts nothing on its own. It was replaced with
+                    one that prints THE THREE CONJUNCTS on every embedded term
+                    reaching the arm, so the instrument is demonstrably live
+                    whatever the answer. Across nine diverse drivers: 63
+                    candidates, 8 distinct term-parent pairs, 0 firings, and 0
+                    candidates with `!min` true. The FIRST conjunct fails every
+                    time -- every embedded term reaching this arm is mandatory.
+                    ⚠ AND IT CLOSED THE RECON'S OWN FLAGGED GAP. The 2026-09-03
+                    recon named three candidate rules -- debug, DEBUG, FOR --
+                    computed over `=`-labelled terms, and said explicitly that
+                    the mechanism walks nextAttribute instead and that the two
+                    sets coincide only if every `=`-labelled term is an
+                    attribute. They do not coincide. The terms that reach this
+                    arm are rule references (NamE, TraiT, DatA, PrintXP, DefinE,
+                    RunRulE, ANYtoken), all min 1, and FOR NEVER REACHES THE ARM
+                    AT ALL -- zero hits. The recon's candidate list was not the
+                    firing list, exactly as it warned.
+                    ⚠ WHY THE RETIREMENT IS SAFE TO READ AS A NO-OP: the fleet
+                    is byte-identical across it, the canary is unchanged at 332,
+                    parseClass.target's own diff is unmoved, and the frontier is
+                    unmoved. Nothing relied on the implied `?`, so no grammar
+                    entry needed one written explicitly.
+                    ⚠ ONE THING IS LEFT BEHIND DELIBERATELY: GroupItem's
+                    allAttributesOptional() now has NO CALLER. It is not deleted
+                    -- the condemned-code rule says read before deleting, and
+                    genParseSpec still cites it in two places. Recorded as
+                    callerless, which is a finding and not a task.#);
         ruleActions=(is the rtn file holding the rule actions -- the methods a
                 grammar rule fires when it matches.#):
             aCTionIterate=(THE ITERATE STATEMENT'S ACTION.#):

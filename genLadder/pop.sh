@@ -1513,6 +1513,74 @@ else
 fi
 
 #  ---------------------------------------------------------------------------
+#  A3 -- OPTIONAL LABELLED TERMS THAT ARE UNGUARDED. PINNED AT ZERO, SEQ 152.
+#
+#  ⚠ THE INVERSION SENTENCE, and it is the whole reason this row exists: a
+#  reader that asks `if label` on an optional term is asking "did it match", and
+#  what actually answers is THE GUARD, not the match. RuleStuff's checkInput
+#  mints the label BEFORE the term is matched, gated on its own sukcess, and the
+#  TOKEN is stamped much later under `counter && counter >= min`. So a term that
+#  matched zero times CAN own a label node that was never tokenised -- present,
+#  no data, and bear-trap #26 then makes .text return its own tag.
+#  What prevents that today is that checkInput's sukcess needs `unGuarded` or
+#  `guardSet.contains(*atRuleMark)`: a literal whose first character is absent
+#  fails the guard and the label is never minted at all. Missing stays missing.
+#  THE DAY AN OPTIONAL LABELLED TERM ACQUIRES `_` OR `{`, EVERY PRESENCE TEST ON
+#  IT SILENTLY INVERTS -- and aCTionFOR's `reversE ? prior : next` means every
+#  for loop in the system would run BACKWARDS. Nothing else in the fleet can see
+#  that, because a backwards walk is still a walk.
+#  Censused 2026-09-03 (SEQ 149 recon): the set is EMPTY. This row keeps it so.
+#  ⚠ THE CHECK STRIPS CHARACTER CLASSES FIRST, and that is not a detail: `_` and
+#  `{` are ordinary MEMBERS of two character sets in this grammar (modifySet and
+#  Modifier, lines 30 and 60), so a plain regex reads them as modifiers and the
+#  row fails on two false positives. A modifier is what follows the term body,
+#  never what sits inside [ ].
+unguarded=$(python3 -c "
+import re,sys
+n=0
+for l in open('incant/grammar'):
+    if l.lstrip().startswith('//'): continue
+    b=re.sub(r'\[[^]]*\]','',l)          # drop character classes
+    for m in re.finditer(r'[A-Za-z_][A-Za-z0-9_]*\??=\S+', b):
+        t=m.group(0)
+        if ('?' in t or '*' in t) and ('_' in t.split('=',1)[1] or '{' in t.split('=',1)[1]): n+=1
+print(n)")
+if [ "$unguarded" = "0" ]; then
+    echo "  ok    no optional labelled term is unguarded -- PINNED AT ZERO (presence tests hold)"; green=$((green+1))
+else
+    echo "  FAIL  $unguarded optional labelled term(s) carry _ or { and are therefore UNGUARDED."
+    echo "        checkInput will mint their label even when they do not match, so every"
+    echo "        presence test on them inverts -- aCTionFOR's reversE would send every for"
+    echo "        loop backwards. Give the term a guard, or stop presence-testing its label."; fail=1
+fi
+
+#  ---------------------------------------------------------------------------
+#  A4 -- THE isContinue CENSUS. SEQ 152, from SEQ 151's finding.
+#
+#  ⚠ THERE ARE THREE IDENTICAL GUARD BODIES, NOT TWO, and the third is why this
+#  is pinned. aCTionDO, aCTionFOR and aCTionWhilE each carry the same seven
+#  lines (md5-identical with comments stripped). A comment on two of them read
+#  "SITE-SPECIFIC READ, not a paste", which was true about the RATIONALE and
+#  false about the code -- and reading it as a barrier is what kept aCTionWhilE's
+#  copy unnoticed by two separate passes, because it was never named as part of
+#  "the pair". A count is the only thing that would have said so.
+#  The guard is NOT extractable: its arms are continue/return/break over the
+#  CALLER'S loop, so a callee cannot carry them. So the three copies are
+#  permanent, and what this row protects is that a fourth does not appear
+#  unnoticed, and that one of the three does not quietly go missing.
+cont=$(grep -c "^ *if isContinue {" ruleActions.rtn | tr -d " ")
+setr=$(grep -c "isContinue  = true;" ruleActions.rtn | tr -d " ")
+if [ "$cont" = "3" ] && [ "$setr" = "1" ]; then
+    echo "  ok    isContinue: 3 guard arms, 1 setter -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  isContinue census moved: $cont guard arms (want 3), $setr setter (want 1)."
+    echo "        A fourth arm is a fourth copy of a body that cannot be extracted -- give it"
+    echo "        the ruleActions.trailingContinueGuard pointer. A missing arm is a loop form"
+    echo "        that no longer consumes its trailing continue; incant/trailingContinueT"
+    echo "        covers all three and will say which."; fail=1
+fi
+
+#  ---------------------------------------------------------------------------
 #  THE ITERATE DRIFT ROW, SEQ 148. The modifier now precedes `on`:
 #  the modifier keyword goes BEFORE `on`, never after the source.
 #  The old form does not fail -- it PARSES, binds the source, and leaves the
