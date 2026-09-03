@@ -17,8 +17,16 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      145
+SEQ:      146
 STATUS:   working        # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-03  -  Clay (SEQ 146, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 146 IS ITEM 1 RE-AIMED: gate aCTionIterate's unWraps on
+          !gNoUnwrap, one depth cerr beside them, flip, run tester with test3
+          respelled, three pre-registered rows, then unflip and md5. Clod's
+          pickup note records a THIRD outcome the prediction does not
+          enumerate -- test3 VOID, because the starred form does not parse --
+          to be reported as void rather than graded if it lands.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-03  -  Clay (SEQ 145, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 145 IS A FEARLESS: four rulings (R1-R4) and a six-item order.
           R1 aCTionIterate does not unwrap under gNoUnwrap; R2 := calls setGroup;
@@ -7129,3 +7137,62 @@ btw Fearless amending: Amendment to the dispatch:
   to close, and it is why nothing below item 0 may be measured first.
 
   END SEQ 145
+
+===================================================================
+SEQ 146  --  2026-09-03, Clay (dictated via Tony; transcribed by Clod,
+             WT-9/WT-15).  FEARLESS ITEM 1, RE-AIMED: GATE THE UNWRAPS,
+             INSTRUMENT THE DEPTH, FLIP, RUN tester WITH test3 RESPELLED.
+             THREE PRE-REGISTERED ROWS.
+===================================================================
+
+STATUS: working -- transcribed AT PICKUP, before the gate edit, the flip,
+        the build or the run, per WT-15 and the dispatch's own instruction
+        ("item 1 goes into ipc/clay-to-clod.md at pickup").
+        RUN 2026-09-03. ALL THREE PRE-REGISTERED ROWS FAILED, ONE ROOT CAUSE:
+        the gate removes the ANYtoken PARSE-WRAP peel, so aCTionIterate is
+        handed a node literally tagged ANYtoken and every iterate refuses --
+        bare spelling and starred alike. ITERDEPTH read `operand ANYtoken
+        depth 3 lands sample` (row 1) and `depth 1 lands arg` (row 2); row 3
+        printed NO ITERDEPTH AT ALL, confirming SEQ 145's finding under the
+        flip with the marker live on the same binary. And a NEW finding: a
+        refused iterate is NOT silent, it RUNS AWAY -- 11.5M lines, exit 137
+        under cap, all three rows. The gate as specified was REVERTED, not
+        landed; md5 restored on both files, bare rebuilt and verified, fleet
+        byte-identical, canary 332. Implications are Tony's to assess.
+
+------------------------- BEGIN VERBATIM -------------------------
+
+Fearless: 1 Gate aCTionIterate's unWrap calls on !gNoUnwrap; add ONE cerr of
+     operand wrap depth beside it. Flip, rebuild, run tester with test3
+     respelled `iterate grup on *argument`. PRE-REGISTERED:
+       test3 walks 8 (else: two-wraps — report depth, no fix)
+       test2 walks 8 (the copy)
+       test1 header + 0 lines, exit 0 (the silence the refusal exists for)
+     Capture, unflip, rebuild bare, md5. Implications assessed from that
+     baseline before items 2–5 move.
+item 1 goes into ipc/clay-to-clod.md at pickup
+
+-------------------------- END VERBATIM --------------------------
+
+  ⚠ CLOD'S NOTE ON PICKUP, recorded before the edit and NOT acted on as an
+  objection -- the dispatch is executed as written and the measurement rules.
+  SEQ 145 item 1 measured, on a BARE build, that `iterate g on *leafy` NEVER
+  ENTERS aCTionIterate: the Iterate rule takes ANYtoken in both slots
+  (grammar:181), ANYtoken=NamE (grammar:116), and a starred term is a UnaryXP
+  (grammar:129) not reachable from those slots. Shown as an A/B with the marker
+  present in row A (`iterate g on leafy` -> "aCTionIterate: source leafy has no
+  list") and silent in row B. The parse does not consult gNoUnwrap, so that
+  finding is expected to survive the flip.
+  ⚠ IF IT DOES, THE THREE PRE-REGISTERED ROWS HAVE A THIRD OUTCOME THE
+  PREDICTION DOES NOT ENUMERATE: not "walks 8" and not "two-wraps", but VOID --
+  test3's respelled line is not an iterate at all, so its row measures nothing
+  about the gate. That is the treatment-voids-the-control outcome this project
+  ratified 2026-08-10, and per the standing refusal it will be REPORTED AS
+  VOID rather than graded. The other two rows are unaffected and stand.
+  ⚠ AND ONE HAZARD FOR THE RUN ITSELF: a mis-parsed starred iterate followed by
+  `while ++grup` RUNS AWAY -- 219 MB of stdout in 20s at no error and no exit,
+  measured 2026-09-03. The capture is therefore taken under a wall-clock cap so
+  a hang cannot take the session; a cap firing is reported by name, never as a
+  diff (rule H5).
+
+  END SEQ 146
