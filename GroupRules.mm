@@ -9568,7 +9568,9 @@ extern "C" GroupItem *opDebug(GroupItem *result)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*field = 0;
-	field = ruler->currentMETHOD;
+GroupItem 	*lastRef = 0;
+	lastRef = ruler->lastREF;
+	field = result;
 	if ( isGROUP(result->groupBody->flags.data) )
 		result = ::unWrap(result);
 	return result;

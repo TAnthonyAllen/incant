@@ -242,8 +242,10 @@ String      printText   = string();
 extern GroupItem opDebug(GroupItem result)
 {
 GroupRules  ruler = groupRules;
-GroupItem   field;
-    field   = currentMETHOD;
+GroupItem   field,
+            lastRef;
+    lastRef = lastREF;
+    field   = result;
     if result.isGROUP   result = unWrap(result);
     return  result;
 }
