@@ -606,6 +606,14 @@ GroupItem   source;
         }
     // ⚠ THE LEGACY FOLLOW, and it is the only thing keeping bare byte-identical.
     // Retires with gNoUnwrap, not before   ruleActions.aCTionIterate.legacyFollow
+    // ⚠ A REFUSED STAR YIELDS NULL and unWrap has no null guard -- refuse SILENTLY
+    // here (the star already spoke) but POISON THE CURSOR, or ++ runs away
+    // ruleActions.aCTionIterate.nullAfterStar
+    if ( !source )
+        {
+        if ( iterator ) iterator->groupBody->flags.fLAG = 1;
+        return 0;
+        }
     if ( !gNoUnwrap )   source = ::unWrap(source);
     if ( source && isGROUP(source->groupBody->flags.data) )
         {

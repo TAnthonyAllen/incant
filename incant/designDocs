@@ -870,6 +870,39 @@ define
         ruleActions=(is the rtn file holding the rule actions -- the methods a
                 grammar rule fires when it matches.#):
             aCTionIterate=(THE ITERATE STATEMENT'S ACTION.#):
+                nullAfterStar=(A REFUSED STAR YIELDS NULL, AND EVERYTHING BELOW IT
+                    WOULD HAVE DEREFERENCED THAT NULL. Measured at exit 139 on
+                    2026-09-03, SEQ 152 row B2-2, by the fixture written to drive
+                    the star idiom rather than by anything looking for a crash.
+                    opDeref returns null and announces by text when its operand
+                    holds no group, so `iterate cur on *x` where x holds nothing
+                    arrives with a null source. TWO things then break on it: unWrap
+                    has no null guard and dereferences its argument on its very
+                    first line, and the iterate's own refusal arm reads the
+                    source's tag. Either is fatal.
+                    ⚠ THE REFUSAL IS SILENT HERE, DELIBERATELY, and that is the one
+                    place in this action where an absent message is right: the star
+                    has ALREADY announced by name, and a second line naming the same
+                    failure would say the same thing twice from two mechanisms.
+                    ⚠ WHAT IT MUST NOT SKIP IS POISONING THE CURSOR. Returning 0
+                    without setting fLAG leaves the enclosing `while ++cur` on
+                    opPlusPlus's data arm, which sets a count to one and increments
+                    it forever -- SEQ 147 item 0 measured that at over eleven
+                    million iterations in fifteen seconds. The poison is what makes
+                    the refusal terminate instead of hang.
+                    ⚠ THE DEFECT WAS INTRODUCED BY SEQ 148 AND COULD NOT HAVE
+                    EXISTED BEFORE IT. Until the star was admissible in the source
+                    slot, input[2] was never null, so unWrap's missing guard was
+                    unreachable from here. That guard is still missing and is
+                    PRE-EXISTING -- it is left alone and recorded rather than
+                    widened into a change nothing has measured.
+                    ⚠ AND THE FIRST ATTEMPT TO DOCUMENT THIS WIPED THE EXTERN BLOCK
+                    TO ZERO. The long form was written as a block comment at the
+                    site and tok's canary went 332 -> 0, the #10/#24/#29/#40
+                    signature, with the build then failing three files away in
+                    Bytecode.mm. The guard ALONE re-toks clean; the comment was
+                    what broke it. That is the convention arguing for itself --
+                    short pointer at the site, argument here.#);
                 iterSource=(THE SOURCE IS REACHED BY LABEL, NEVER BY POSITION.
                     SEQ 148 moved the modifiers in front of `on`, so the rule
                     reads iterate- ANYtoken attributes? members? on- IterSource

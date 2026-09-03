@@ -1513,6 +1513,47 @@ else
 fi
 
 #  ---------------------------------------------------------------------------
+#  starIdiomT -- THE STAR IDIOM THROUGH A COMMAND RETURN. SEQ 152 B2.
+#  `iterate cur on *field` is the going-forward spelling and the field is
+#  usually whatever a command just handed back, so this drives that shape four
+#  ways: a command returning a walkable field, one returning NULL, one returning
+#  a listless field, and F-22's own subject (a := capture of compile's return).
+#  ⚠ ROWS 2 AND 3 ARE A PAIR AND NEITHER STANDS ALONE: they pin WHICH mechanism
+#  declines -- the STAR on a null, the ITERATE on a listless field -- and a
+#  fixture carrying only one of them cannot tell the two refusals apart.
+#  ⚠ EXIT 0 IS THE F-22 ASSERTION. A 139 here is F-22 reopening and this fixture
+#  is its reproducer.
+run1 starIdiomT "$T/sid";    check "starIdiomT runs (star idiom through a command return)" 0 $?
+sentinel "starIdiomT sentinel" "$T/sid" "IDIOM SENTINEL"
+if grep -q "^ROW1 member fifth" "$T/sid"; then
+    echo "  ok    star reaches a command-returned field and the walk completes"; green=$((green+1))
+else
+    echo "  FAIL  starIdiomT row 1 -- the walk did not reach its last member, so the"
+    echo "        star did not reach the command's field or the walk stopped short."; fail=1
+fi
+if grep -q "^ERROR unary \* on idN -- it holds no group" "$T/sid"; then
+    echo "  ok    a NULL command return refuses AT THE STAR -- PINNED BY TEXT"; green=$((green+1))
+else
+    echo "  FAIL  starIdiomT row 2 -- the star did not refuse a null by name. Either the"
+    echo "        refusal stopped naming its operand, or something downstream reached a"
+    echo "        null first: unWrap has no null guard and the iterate's refusal arm reads"
+    echo "        the source's tag, and both segfault on one (exit 139, SEQ 152)."; fail=1
+fi
+if grep -q "^aCTionIterate: source idLeaf has no list" "$T/sid"; then
+    echo "  ok    a LISTLESS command return refuses AT THE ITERATE -- PINNED BY TEXT"; green=$((green+1))
+else
+    echo "  FAIL  starIdiomT row 3 -- the iterate did not refuse a listless source by name."
+    echo "        Row 2 now asserts nothing either: the pair is what distinguishes a star"
+    echo "        refusal from an iterate refusal."; fail=1
+fi
+if grep -q "^ROW4 survived the capture" "$T/sid"; then
+    echo "  ok    F-22 stays closed: := on a command return does not crash"; green=$((green+1))
+else
+    echo "  FAIL  F-22 HAS REOPENED -- capturing a command's return with := killed the"
+    echo "        process. See docs/fixIts.md F-22; this row is its reproducer."; fail=1
+fi
+
+#  ---------------------------------------------------------------------------
 #  A3 -- OPTIONAL LABELLED TERMS THAT ARE UNGUARDED. PINNED AT ZERO, SEQ 152.
 #
 #  ⚠ THE INVERSION SENTENCE, and it is the whole reason this row exists: a

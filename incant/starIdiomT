@@ -1,0 +1,75 @@
+/*  starIdiomT -- THE STAR IDIOM THROUGH A COMMAND RETURN, AND F-22's SHAPE.
+
+    WHAT IT PINS. The going-forward way to iterate a field held by pointer is
+    `iterate cur on *field`, and the field is very often whatever a command
+    just handed back. This drives that shape four ways and pins each by text.
+
+    ROW 1 is the working case: a command returns a field with a list, the star
+    reaches it, the walk runs. It names its members so a short walk cannot pass
+    as a complete one.
+
+    ROW 2 is a command that returns NULL. The star must refuse BY NAME and the
+    iterate must not then try to walk nothing.
+
+    ROW 3 is a command that returns a field with no list. Here the star is fine
+    and the ITERATE is what refuses, by name. Rows 2 and 3 together are what
+    make either row mean anything: they pin WHICH of the two mechanisms
+    declines, and a fixture with only one of them cannot tell them apart.
+
+    ROW 4 is F-22's named subject, a capture of compile's return with the set
+    group operator. That shape used to exit 139 and produced a complete, false
+    finding before it was understood.
+
+    ⚠ ROW 2 FOUND A REAL CRASH ON ITS FIRST RUN, which is why this file exists
+    rather than being a note. A refused star yields null; unWrap has no null
+    guard and derefs its argument on its first line, and the iterate's own
+    refusal arm reads the source's tag. Both would segfault, and did, at exit
+    139. The guard added in aCTionIterate refuses silently there, because the
+    star has already announced, and poisons the cursor so the enclosing advance
+    cannot run away.
+
+    READING IT. All four rows plus the sentinel, and EXIT 0. A 139 is F-22
+    reopening and this file is its reproducer.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(Idiom);
+define
+    idLeaf = 5;
+    r1 argument code={
+        cerr "ROW1 field := A(B); iterate on *field -- expect a walk":;
+        idF := copyOf(argument);
+        iterate w on *idF;
+        while ++w;
+            cerr "ROW1 member" ~taG:;
+        cerr "ROW1 survived":;
+        };
+    r2 argument code={
+        cerr "ROW2 A returns NULL -- expect refusal AT THE STAR":;
+        idN := compile(idLeaf);
+        iterate w on *idN;
+        while ++w;
+            cerr "ROW2 BAD walked":;
+        cerr "ROW2 survived":;
+        };
+    r3 argument code={
+        cerr "ROW3 A returns a LISTLESS field -- expect refusal AT THE ITERATE":;
+        idL := copyOf(idLeaf);
+        iterate w on *idL;
+        while ++w;
+            cerr "ROW3 BAD walked":;
+        cerr "ROW3 survived":;
+        };
+    r4 argument code={
+        cerr "ROW4 F-22's NAMED SUBJECT: x := compile(rule)":;
+        idC := compile(argument);
+        cerr "ROW4 survived the capture":;
+        };
+    ;
+r1(sample);
+r2(sample);
+r3(sample);
+r4(QuotE);
+cerr "IDIOM SENTINEL -- foot reached":;
+stop();
