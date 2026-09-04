@@ -17,8 +17,13 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      154
-STATUS:   cleared        # fresh = parked/unread | working = picked up, in progress | cleared = done
+SEQ:      155
+STATUS:   cleared       # fresh = parked/unread | working = picked up, in progress | cleared = done
+WRITTEN:  2026-09-04  -  Clay (SEQ 155 / C-154, dictated via Tony; transcribed by Clod, WT-9/WT-15)
+          ⚠ SEQ 155 IS LIVE AND IS AT THE FOOT -- C-154, the := pointer-copy
+          try-and-buy. Five pre-registered rows, whole-revert stop clause,
+          nothing merges to main.
+          PRIOR HEADER PRESERVED BELOW.
 WRITTEN:  2026-09-03  -  Clay (SEQ 152a, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 152a IS LIVE AND IS AT THE FOOT -- B1 flipped six rows, the
           read-only designDocs includer grep, and the ruled pointer form
@@ -7642,3 +7647,119 @@ substance and is the artifact of record.]
   both repos clean and pushed but for parser. Minion channel left fresh.
 
   END SEQ 154
+
+
+===================================================================
+SEQ 155  -  C-154: TRY-AND-BUY, := POINTER-COPY
+WRITTEN: 2026-09-04  -  Clay, dictated via Tony; transcribed by Clod
+STATUS:  cleared  -  STOPPED AT P5, NOTHING EDITED. docs/c154PointerCopy.md
+===================================================================
+
+------------------------- BEGIN VERBATIM -------------------------
+
+Fearless: C-154 - TRY-AND-BUY: := POINTER-COPY. Branch tryAndBuy-gNoUnwrap,
+one stroke, whole-revert. Ruled go by Tony 2026-09-04.
+
+The question. arg := argument today makes arg point at the HOLDER (argument
+itself - measured 09-03: field #5, body #4). Pointer-copy makes it point at
+what the holder points at - the source field - one level, no follow, in
+agreement with S3a's one-star law. Does that land clean, and what moves?
+
+Step 0 - scribe and pre-register. Copy this dispatch into ipc/clay-to-clod.md.
+Commit the fixture with its expected rows before the edit (the 4dcee26
+practice). The fixture is incant/pointerCopyT; rows below.
+
+Step 1 - recon, read-only. Name the exact line where the := road hands its RHS
+to setGroup. Confirm it is one site. If it is two or more, stop and report
+before editing - a two-site edit is a different stroke.
+
+Step 2 - the edit. On the := road only: when the RHS is a holder (isGROUP set,
+gGroup non-null), the LHS takes RHS.gGroup rather than RHS itself. One level.
+Bare RHS unchanged. Null RHS unchanged. =, <-, and copyOf() untouched. No
+extern, no groups.ext edit - if the edit wants either, stop and report.
+
+Step 3 - the rows, pre-registered. Identity by addrOf; read the field column,
+the body column cannot discriminate a holder from what it holds (C18).
+
+row    spelling    predicted
+P1    arg := argument inside an action; addrOf(arg)    field column reads the
+      source field's number, not the holder's. Body column moves to the source
+      body. If only the body moves, that is <- behaviour - fail
+P2 control    x := y, y a bare field    addrOf(x) reads y's own field,
+      byte-identical to HEAD
+P3 anti-vacuity    RHS is a holder whose target is itself a holder    := reaches
+      the middle, not the leaf. Leaf = a second pointer semantics has been
+      minted - fail
+P4 negative    arg := null (or whatever spelling yields a refused operand today)
+      refuses/zeroes exactly as HEAD, by name. Drive it; do not assume
+P5 control    P1's spelling on HEAD, before the edit    reads the holder - the
+      before-capture that makes P1 a delta and not a description
+
+Step 4 - recorded, not graded. *arg after arg := argument, on bare and under the
+flip. Bare *x is already road-dependent (09-03 seal, b), so movement here is
+expected and is evidence of nothing. Write the readings in the report, no
+verdict.
+
+Step 5 - fleet, bare build. Bare retok, rebuild, pop.sh. The moved-row set is
+enumerated and every row explained by the one-level deref. The three pinned reds
+unchanged. Canary 332. A moved row nobody can explain is the stop clause, not a
+re-pin. Predicted candidates for movement: holderT, starIdiomT, pointerT,
+argWriteT - a move outside that set is a finding and needs its mechanism before
+it counts.
+
+Step 6 - Arm B, flip on. Set gNoUnwrap=1, rebuild, rerun the asking. Prediction:
+setParse: ERROR field passed in argument has no rStuff goes away, because the
+callee now receives the source field, which carries rStuff. A different refusal
+is a finding and is not a buy. parser(Start) receiving Start is not this
+stroke's claim; carrierNode does not discharge here. Lower the flip, rebuild
+bare, verify behaviourally (not by mtime) before anything else runs.
+
+Buy criterion. P1-P5 as predicted, step 5 clean, step 6 as predicted. Then
+commit on the branch with this certificate in the message. Nothing merges to
+main - that is Tony's, after the report.
+
+Stop clause. Any row off prediction -> whole revert, md5-verified against the
+pre-stroke .mm set, report the row and the reading. No partial landing, no
+re-pin to get green.
+
+Report. The five rows with readings, step 4's recordings, the fleet moved-set
+with mechanisms, Arm B's exact stderr line, and anything that surprised you -
+surprises first.
+
+One line for you: P5 is the row that keeps this honest. Without the
+before-capture, P1 reading "source" could be a fixture that was never asking the
+holder in the first place.
+
+-------------------------- END VERBATIM --------------------------
+
+  CLOD, at pickup: ONE DEVIATION FLAGGED BEFORE ANY EDIT. The named branch
+  tryAndBuy-gNoUnwrap is 19 commits STALE (base 96cff77, 2026-09-02) and its
+  single commit e27c407 sets gNoUnwrap = 1. Steps 1-5 require a BARE base at
+  today's numbers - canary 332, fleet 191/1/3 - which that branch is not and
+  cannot be without rewriting a branch Tony's 09-02 seal cites. So the stroke
+  runs on a branch cut from current HEAD; the name is recorded in the report
+  and the merge is Tony's call, as the charter already says.
+
+  CLOD, at close: STOPPED AT P5 BY THE STOP CLAUSE. No edit was made to the
+  := road; whole revert md5-verified; fleet row-for-row byte-identical.
+
+  P5 predicted the holder and read the SOURCE. Measured directly with a
+  one-entry directive on opSetGroup: on BARE the operand road unwraps one
+  level BEFORE the operator is entered, so opSetGroup never sees a holder and
+  := ALREADY IS pointer-copy there. The edit is a no-op on bare and P1 could
+  not have been a delta. Under the flip the holder arrives intact -- so the
+  arms are inverted: the rows and the fleet belong in Arm B, with bare as the
+  must-not-move control.
+
+  Two things for Clay before a re-run. The guard must be data == isGROUP and
+  never gGroup != 0 -- gGroup reads 0x3 on every non-holder (union bleed) and
+  two instrumented builds died at exit 139 proving it. And the identity
+  currency: the dispatch says read the field column, but on bare the field
+  column mints a fresh node per read (#1 then #3 over a stable body #2), and
+  pointerT L4 already says "read the BODY column only". C18's warning holds
+  where a holder shares its target's body; a holder has its own body, which is
+  what made argBody the discriminator here.
+
+  Report: docs/c154PointerCopy.md -- surprises first, as asked.
+
+  END SEQ 155
