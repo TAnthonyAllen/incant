@@ -58,151 +58,6 @@ GroupItem   grup,
 }
 
 
-/*****************************************************************************
-    auditTerms / auditRegistry -- materialiseTerms' walk with the OPPOSITE
-    intent. It repairs nothing; it reports what is missing.
-
-    Tony's ruling (2026-07-29): rStuff is set at DEFINITION time across the
-    board, and the runtime setting goes away. materialiseRegistry is a backup
-    plan, not the mechanism. This is what is left when the repairing is stripped
-    out -- the verification, without the silent fixing-up behind the code's back.
-
-    THE INVARIANT IT CHECKS, and it is a BICONDITIONAL: isRule IFF has rStuff.
-
-    Direction 1 SPLITS, for the same reason direction 2 did -- splitting spurious
-    took the answer from "20, act on it" to "4, and 16 you must not touch", and
-    there was never a reason to think the missing were one population either:
-      MISSRULE -- a RULE itself carrying no rStuff.
-      MISSTERM -- a term OF a rule carrying none.
-    Direction 2, auditSpurious -- rStuff on something that is NOT a rule, and it
-    splits into TWO POPULATIONS that must not be added together:
-      TERM  -- a term OF a rule. genParse REQUIRES these to carry rStuff; that is
-               what "unmaterialised term" means, and Limit's min/max were given
-               rStuff deliberately on 2026-07-29 to turn the census green. Counted
-               and printed, but NOT totalled -- stripping these would regress the
-               census immediately.
-      LOOSE -- rStuff on a node that is neither a rule nor a rule's term. THIS is
-               the population Tony described. Only these are totalled. Tony,
-    2026-07-29: non-rules pick rStuff up off whatever rule matched them (the
-    `--` entry in Operators carrying QuotE's), because GroupItem's copy
-    constructor copies rStuff whenever the source has it and never asks whether
-    the target is a rule. His `if !isRule rStuff = 0;` in aCTionDefinE corrects
-    the symptom downstream; the cause is the constructor. That is Tony's
-    `if !isRule rStuff = 0;` read as an assertion rather than an action, which is
-    why the walk skips non-rules instead of flagging them -- a non-rule with no
-    rStuff is CORRECT, not missing.
-
-    WHY IT PRINTS EVEN WHEN CLEAN, and this is the whole point. The instrument
-    it replaces was getRStuff's "no rStuff - creating" cerr, and grepping for
-    that returns zero in TWO indistinguishable cases: nothing fired late, and
-    the cerr was deleted. The second became true on 2026-07-29. An absence-based
-    check passes by being removed; a presence-based one cannot. So the summary
-    line is unconditional and pop.sh asserts it is THERE, not that a warning is
-    absent.
-*****************************************************************************/
-extern int auditMissingRules(GroupItem registry)
-{
-GroupItem   entry;
-int         missing = 0;
-    while entry = registry.next(entry)
-        if entry.isRule && !entry.rStuff {
-            cerr "AUDIT MISSRULE " registry.tag "/" entry.tag " -- isRule, no rStuff":;
-            missing++; }
-    return missing;
-}
-
-
-extern int auditMissingTerms(GroupItem registry)
-{
-GroupItem   entry;
-GroupItem   term;
-int         i;
-int         missing = 0;
-    while entry = registry.next(entry)
-        if entry.isRule {
-            i = 1;
-            while term = entry[i] {
-                if term.isRule && !term.rStuff {
-                    cerr "AUDIT MISSTERM " entry.tag " [" toStringFromInt(i) "] " term.tag " -- isRule term, no rStuff":;
-                    missing++; }
-                i++; }}
-    return missing;
-}
-
-
-extern int auditSpurious(GroupItem registry)
-{
-GroupItem   entry;
-GroupItem   term;
-int         i;
-int         spurious = 0;
-    while entry = registry.next(entry) {
-        if !entry.isRule && entry.rStuff {
-            cerr "AUDIT LOOSE    " registry.tag "/" entry.tag " -- not a rule, not a rule term, has rStuff":;
-            spurious++; }
-        i = 1;
-        while term = entry[i] {
-            if !term.isRule && term.rStuff
-                if entry.isRule
-                    cerr "AUDIT TERM     " entry.tag " [" toStringFromInt(i) "] " term.tag " -- rule TERM, not isRule, has rStuff":;
-                else {
-                    cerr "AUDIT LOOSE    " entry.tag " [" toStringFromInt(i) "] " term.tag " -- not a rule, not a rule term, has rStuff":;
-                    spurious++; }
-            i++; }}
-    return spurious;
-}
-
-
-/*******************************************************************************
-    auditUnconsumed -- THE CONSUMED-CHECK. Tony's rider, 2026-08-05.
-
-    AN INSTALL ATTRIBUTE THAT FIRED LEAVES NO TERM BEHIND. `parseMethod=` and
-    `parseTerms=` are define-time fire-and-forget commands of the isRule family:
-    they change the group being defined and are then FORGOTTEN, never added as
-    attributes (incant/setup:7-11 states the contract). So finding one sitting in
-    a rule's TERM LIST is proof it was never a command in that context -- it was
-    read as ordinary grammar.
-
-    ⚠ WHY IT IS ITS OWN CHECK AND NOT LEFT TO MISSTERM. The generic missing-rStuff
-    check DID fire on the specimen below, but it says "isRule term, no rStuff",
-    which reads as a materialisation problem and points at rStuff -- bear country,
-    and the wrong country. Two spurious terms in a rule the generator indexes by
-    position is a DIFFERENT DISEASE with a different cure, and a check that names
-    it saves the next reader the hunt.
-
-    ⚠ H7 NEGATIVE CONTROL -- THE SPECIMEN IS REAL AND DATED. Installing
-    `parseTerms=3 parseMethod=parseBraced` on incant/grammar:107 while the
-    vocabulary was registered ONLY in incant/genScratch produced exactly this:
-        AUDIT MISSTERM Braced [4] parseTerms  -- isRule term, no rStuff
-        AUDIT MISSTERM Braced [5] parseMethod -- isRule term, no rStuff
-        Braced 3 terms -> 5, against a method indexing rule[1..3]
-        oneTest: Segmentation fault: 11
-    That run is the control this check would have caught by NAME. The cure was to
-    register both commands in incant/setup, where the grammar is read; this check
-    is what makes a regression of that cure loud instead of silent.
-
-    ⚠ PRESENCE-WITH-VALUE, NOT ABSENCE-OF-MESSAGE (rule H4): the caller prints the
-    COUNT unconditionally and asserts it is zero, so deleting the emitter breaks
-    the check rather than satisfying it.
-*******************************************************************************/
-extern int auditUnconsumed(GroupItem registry)
-{
-GroupItem   entry;
-GroupItem   term;
-int         i;
-int         found = 0;
-    while entry = registry.next(entry)
-        if entry.isRule {
-            i = 1;
-            while term = entry[i] {
-                if term.tag eq "parseMethod" || term.tag eq "parseTerms" {
-                    cerr "AUDIT UNCONSUMED " entry.tag " [" toStringFromInt(i) "] " term.tag " -- install attribute survived as a TERM; it was not a command where this grammar was read":;
-                    found++; }
-                i++; }}
-    return found;
-}
-
-
 /***************************************************************************
     Close the file associated with the buffer. If no file has been set,
     fall back to using the field's tag as the filename — the tag is a
@@ -280,33 +135,6 @@ use input
         else    cerr "interpretMethod: expected a handler name in text":;
     else    cerr "interpretMethod: should be invoked as a definition attribute":;
     return group;
-}
-
-
-/*******************************************************************************
-    chanReport -- THE ARGUMENT CHANNEL'S DAILY ROW. SEQ 132 item 2.
-
-    Prints binds and same-field binds UNCONDITIONALLY, in the shape of
-    `=== jitDegrade count = N ===`, so a fleet row compares a VALUE and cannot
-    pass by a line going missing (rule H4).
-
-    ⚠ IT COUNTS AT ALL FOUR BIND SITES -- both arms of both roads -- which is
-    what makes it a DAILY row rather than a flipped-only one. pop.sh runs bare,
-    and bare the non-flip arm goes through setGroup too, so the pair is
-    non-zero without the flip and the SAME row reads both configurations.
-
-    ⚠ SAME MUST EQUAL BINDS. Any gap is a bind that did not store the field it
-    was handed -- a copy, or a write that did not happen (F-46's shape). The
-    row asserts equality AND a non-zero total, because 0 of 0 is agreement
-    between two absences.   GroupActions.chanReport
-*******************************************************************************/
-extern GroupItem chanReport(GroupItem input)
-{
-    -%
-    ::fprintf(stderr,"=== ARGCHANNEL binds = %d same = %d ===\n",gChanBinds,gChanSame);
-    ::fflush(stderr);
-    %-
-    return trueResult;
 }
 
 
@@ -398,6 +226,20 @@ use target
     return target;
 }
 
+
+/*  ⚠ IT CANNOT MOVE TO measure.twk, though it is a measuring instrument: it reads
+    gChanBinds/gChanSame, which are `static int` in jitContext.h, so a second
+    translation unit gets its OWN zeroed copies. Measured 2026-09-04.
+    SAME MUST EQUAL BINDS, and the row asserts a NON-ZERO total too, because 0 of 0
+    is agreement between two absences.   GroupActions.chanReport  */
+extern GroupItem chanReport(GroupItem input)
+{
+    -%
+    ::fprintf(stderr,"=== ARGCHANNEL binds = %d same = %d ===\n",gChanBinds,gChanSame);
+    ::fflush(stderr);
+    %-
+    return trueResult;
+}
 
 extern int materialiseRegistry(GroupItem registry)
 {
@@ -660,91 +502,6 @@ GroupRules  ruler = groupRules;
     cerr for its siblings' reason: a refusal that vanishes into a diverted
     print buffer is not loud.
 *****************************************************************************/
-/*****************************************************************************
-    parseClassify -- WHICH ARM OF setParse CLAIMED THIS FIELD.
-
-    ⚠ THE INSTRUMENT THE 2026-08-19 SESSION DID NOT HAVE, and both of that
-    day's parse-generation defects were invisible without it and obvious with
-    it. `tokenize` was silently bound to parseString -- which, before the
-    parseString repair, reported success without matching anything -- and
-    `CodE` came within one arm order of being moved off parseAction. Neither
-    needed a PARSE to be visible; both are decided the moment setParse runs,
-    and nothing printed that decision.
-
-    ⚠ IT READS THE BOUND POINTER, IT DOES NOT RE-DERIVE THE ARM. A classifier
-    that recomputed the answer from the flags would be a second implementation
-    of setParse's chain, and the day it disagreed with the real one it would
-    say so about the wrong thing. Comparing the actual fnptr cannot drift.
-
-    cerr rather than print: this is a diagnostic, a fixture may have print
-    diverted, and stdout is block-buffered so a run that ends badly loses it.
-    Returns the field so a walk can chain it.
-
-    ⚠ THE SECOND LINE, ADDED 2026-08-29 ON A SEPARATE PREFIX ON PURPOSE.
-    `PA` answers Tony's recon question -- setParse parks `actionMethod` for
-    EVERY rule it claims, not only the ones that get parseRule, so an action
-    can be parked on a rule whose executor never fires it. The PC line is
-    unchanged and genLadder/parseClass.target greps `^PC `, so this adds a
-    column without moving a pinned target.
-
-    ⚠ THREE FACTS, THREE FIELDS, because they can disagree and one of them
-    disagreeing is the finding:
-      act   -- what setParse parked in rStuff->actionMethod
-      hung  -- whether the builtinActoR attribute is actually on the node
-      fires -- whether anything on this executor's path ever runs it
-    act and hung are READ, like pcName. `fires` is DERIVED, and it is a table
-    over the pointer just read rather than a second implementation of
-    setParse's chain -- its authority is the READER side: parseRule's
-    generated tail reaches runRuleAction, which fires builtinActoR;
-    parseAction calls field.method(field) itself; every other builtin ends at
-    parseSetLabel, which does label work and no action. ⚠ IF A BUILTIN EVER
-    GAINS A FIRE, THIS TABLE IS THE THING THAT GOES STALE -- it is named here
-    so that lands as an edit and not as a silent wrong answer.
-*****************************************************************************/
-extern GroupItem parseClassify(GroupItem field)
-{
-String      pcName = "other";
-    -%
-    if (!field)                 pcName = (char *)"null-field";
-    else if (isREGISTRY(field->groupBody->flags.binType))
-                                pcName = (char *)"skipped-registry";
-    else if (!field->rStuff)    pcName = (char *)"NO-rSTUFF";
-    else {
-        GroupItem *(*pm)(GroupItem *) = field->rStuff->parseMethod;
-        if      (!pm)                    pcName = (char *)"none";
-        else if (pm == ::parseUpTo)      pcName = (char *)"parseUpTo";
-        else if (pm == ::parseContainer) pcName = (char *)"parseContainer";
-        else if (pm == ::parseCondition) pcName = (char *)"parseCondition";
-        else if (pm == ::parseAction)    pcName = (char *)"parseAction";
-        else if (pm == ::parseRule)      pcName = (char *)"parseRule";
-        else if (pm == ::parseAny)       pcName = (char *)"parseAny";
-        else if (pm == ::parseCharacter) pcName = (char *)"parseCharacter";
-        else if (pm == ::parseSet)       pcName = (char *)"parseSet";
-        else if (pm == ::parseString)    pcName = (char *)"parseString";
-    }
-    %-
-    cerr "PC " pcName " " field.tag:;
-    -%
-    if ( field ) {
-        const char *acted = "n/a", *hung = "n/a", *fires = "n/a";
-        GroupItem *actor = field->get("builtinActoR");
-        if ( field->rStuff ) {
-            GroupItem *(*am)(GroupItem *) = field->rStuff->actionMethod;
-            GroupItem *(*pm)(GroupItem *) = field->rStuff->parseMethod;
-            acted = am ? "parked" : "none";
-            hung  = actor ? "yes" : "no";
-            if      ( !am )                  fires = "nothing-parked";
-            else if ( pm == ::parseRule )    fires = "body";
-            else if ( pm == ::parseAction )  fires = "self";
-            else                             fires = "NEVER";
-        }
-        ::fprintf(stderr,"PA act=%s hung=%s fires=%s %s\n",
-            acted,hung,fires,field->groupBody->tag);
-    }
-    %-
-    return field;
-}
-
 /*****************************************************************************
     limitWriteGuard / limitWriteCheck -- F-27's ruling: a bad write to maxLimit
     is refused AT THE WRITE, and the assignment does not take.

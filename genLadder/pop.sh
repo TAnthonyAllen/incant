@@ -1906,8 +1906,16 @@ fi
 #  The 21 survivors are hand-written `-%` passthrough sites, which no mirror
 #  change can reach. If this row moves, the mirror moved -- go and read it
 #  BEFORE believing any audit number taken on the new binary.
-rawreads=$(grep -o -- "->rStuff" GroupItem.mm GroupBody.mm GroupControl.mm GroupMain.mm \
-                       GroupRules.mm RuleStuff.mm 2>/dev/null | grep -vc "getRStuff\|setRStuff")
+#  ⚠ THE FILE LIST WAS A HARDCODED SIX AND IS NOW `*.mm`, 2026-09-04. The cleanup
+#  arc moved fourteen methods out of the GroupRules chain into a new measure.twk,
+#  and SIXTEEN of the thirty reads went with them -- so the row read 14 and cried
+#  drift when nothing had drifted. The accounting is exact and was checked before
+#  the re-pin, not after: 14 in the old six + 16 in measure.mm = 30, none of them
+#  comment text (designDocs carries zero `-`+`>rStuff` after the move). `*.mm` over
+#  the top level gives 30, the same number the six-file list gave before the move,
+#  and it now matches what `rawlines` below already globs. Bear-trap #47: a census
+#  population is every file that can carry the thing, not a list someone maintains.
+rawreads=$(grep -o -- "->rStuff" *.mm 2>/dev/null | grep -vc "getRStuff\|setRStuff")
 rawlines=$(grep -l -- "->rStuff" *.mm 2>/dev/null | wc -l | tr -d ' ')
 #  ⚠ WENT 30 -> 32 -> 30 ON 2026-09-01 AND IS BACK AT ITS ORIGINAL VALUE, which is
 #  the strongest thing this row could say: SEQ 106's frame bind added one line

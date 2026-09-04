@@ -57,65 +57,6 @@ extern GroupItem arrondir(GroupItem field)
 *******************************************************************************/
 
 /***************************************************************************
-    The incant `audit` command invokes this. It reports every isRule node that
-    is missing rStuff, and prints an UNCONDITIONAL summary line.
-
-        audit();            every registry on `registries`
-        audit(Grokking);    one named registry
-
-    EMPTY PARENS ARRIVE AS AN InvokeArg NODE, not as null -- measured, not
-    assumed: `audit()` reported the wrapper's own tag before this was handled.
-    That is the test for "no argument given".
-
-    Run it AFTER the definitions are in place -- the point of it is to check
-    the whole board, not the bootstrap slice. (Tony, 2026-07-29: GroupMain was
-    the wrong home precisely because it runs before setup is parsed.)
-
-    The summary prints even when clean BY DESIGN. The instrument this replaces
-    was getRStuff's "no rStuff - creating" cerr, and grepping for that returned
-    zero both when nothing fired late AND when the cerr had been deleted. An
-    absence-based check passes by being removed; a presence-based one cannot.
-
-    NAMED auditRStuff, NOT audit: macOS declares a system audit(2), and extern "C"
-    strips overload resolution so only the NAME matters -- `extern "C" GroupItem
-    *audit(GroupItem*)` collides with `int audit(const char*, u_int)` and the
-    build dies with "conflicting types for 'audit'". Bear-trap #12, one layer out
-    from the in-repo case. The incant-facing command is still spelled `audit`;
-    the `=value` registration form is exactly what bridges the two names.
-***************************************************************************/
-extern GroupItem auditRStuff(GroupItem argument)
-{
-GroupRules  ruler = groupRules;
-GroupItem   registry;
-GroupItem   target;
-int         missRules = 0;
-int         missTerms = 0;
-int         loose = 0;
-int         unconsumed = 0;
-    target = argument;
-    if target.isGROUP               target = target.group;
-    if target.tag eq "InvokeArg"    target = 0;
-    if target {
-        missRules = auditMissingRules(target);
-        missTerms = auditMissingTerms(target);
-        loose     = auditSpurious(target);
-        unconsumed += auditUnconsumed(target);
-        cerr "AUDIT " target.tag ": " toStringFromInt(missRules) " missing rules, " toStringFromInt(missTerms) " missing terms, " toStringFromInt(loose) " loose, " toStringFromInt(unconsumed) " unconsumed":; }
-    else {
-        while registry = registries.next(registry) {
-            missRules += auditMissingRules(registry);
-            missTerms += auditMissingTerms(registry);
-            loose     += auditSpurious(registry);
-            unconsumed += auditUnconsumed(registry); }
-        /*  ⚠ REPORTED UNCONDITIONALLY AND WITH ITS VALUE (rule H4). An absence
-            check on the UNCONSUMED lines would go green the day the emitter is
-            deleted; a count that is always printed and asserted at zero cannot.  */
-        cerr "AUDIT all registries: " toStringFromInt(missRules) " missing rules, " toStringFromInt(missTerms) " missing terms, " toStringFromInt(loose) " loose, " toStringFromInt(unconsumed) " unconsumed":; }
-    return argument;
-}
-
-
-/***************************************************************************
 	The incant clear command invokes this. It clears its argument.
     If data is a buffer, it is reset. If data is a stak, it is cleared.
     Otherwise input is cleared wiping data and list.
@@ -308,31 +249,6 @@ GroupItem block = new;
 
 
 /***************************************************************************
-    canonOf -- name the node definingRule() resolves to, from incant.
-
-    THE INSTRUMENT ROAD-1 EXISTS FOR (Clay dispatch amendment 8). Ruling E is
-    about resolution, so the tree needs a way to ASK where a face resolves to,
-    and until now it had none: definingRule() is a C++ method with no command,
-    and it cannot be reconstructed from incant because parenT returns a WRAPPER
-    whose unWrap lands back on the child it was applied to. Three spellings
-    were tried on 2026-08-22 and none reached the parent.
-
-    ⚠ THIS IS ALSO setParse's OWN PREREQUISITE, which is why it is not a
-    detour: the provisional ruling needs setParse to resolve through
-    definingRule() before binding, and for that the call has to be rtn-shaped.
-    One build carries the instrument, the reads, and the edit.
-
-    Reports with its value on every call (rule H4) rather than only on
-    surprise -- a resolver that speaks only when it disagrees cannot be told
-    from one that was never called.
-
-    ⚠ definingRule() IS ASSIGNED TO A LOCAL, NEVER TESTED INLINE. genParse.rtn
-    :1129 records that `if term.definingRule() != term` fails to parse. The
-    hazard is documented, cheap to avoid, and expensive to rediscover -- it
-    would surface as bear-trap #24's signature, the extern block wiped to zero
-    three files away.
-***************************************************************************/
-/***************************************************************************
     parkParse / fireNewParse -- THE FACE-PROOF ARTIFACT ADDRESS.
 
     Ruled 2026-08-24 on ARCHITECTURAL grounds, not evidentiary ones: a
@@ -404,71 +320,6 @@ GroupItem   artifact;
         }
     return ((GroupItem *(*)(GroupItem *))address)(rule);
 %-
-}
-
-
-/*****************************************************************************
-    probeNode -- POINTER-LEVEL READ FOR THE parseSelfRecursion STATION.
-
-    Reports the three facts the docket's candidates disagree about, all as
-    POINTERS rather than names, because two faces of one rule share a tag by
-    construction and a reader that reports names cannot answer an identity
-    question (canonOf's own comment argues this at length).
-
-        gMethod     the dispatch target line 1487 reads
-        groupBody   the substance, which copyOf copies wholesale
-        parentLabel the rStuff link candidate 3 turns on
-
-    Passthrough because %p on a GroupItem* is not sayable in tok. Reports on
-    stderr, unbuffered, so a run that ends at a signal still carries it.
-
-    STATION INSTRUMENT, 2026-08-26. Returns the field so a walk can chain it.
-*****************************************************************************/
-extern GroupItem probeNode(GroupItem argument)
-{
-GroupItem   probed;
-    if !argument {
-        cerr "probeNode: no field passed in":;
-        return null; }
-    probed = argument;
--%
-    RuleStuff *rs = probed->rStuff;
-    GroupItem *pl = rs ? rs->parentLabel : (GroupItem *)0;
-    ::fprintf(stderr,"PN %s node=%p body=%p gMethod=%p rStuff=%p parentLabel=%p %s\n",
-        probed->groupBody->tag,
-        (void*)probed,(void*)probed->groupBody,
-        (void*)probed->groupBody->gMethod,
-        (void*)rs,(void*)pl,
-        pl ? pl->groupBody->tag : (char *)"(none)");
-%-
-    return probed;
-}
-
-
-extern GroupItem canonOf(GroupItem argument)
-{
-GroupItem   canon;
-    if !argument {
-        cerr "canonOf: no field passed in":;
-        return null; }
-    canon = argument.definingRule();
-    if !canon {
-        cerr "canonOf: " argument.tag " resolved to nothing":;
-        return null; }
-    /*  ⚠ POINTERS, NOT TAGS, AND THE TRIAL IS WHY. On 2026-08-22 this
-        function reported `canonOf: Braced -> Braced` and that sentence was
-        USELESS: the whole question was whether the catalog face and canon are
-        the SAME NODE, and two nodes of one rule share a tag by construction.
-        A resolver that reports names cannot answer a question about identity.
-        Passthrough because %p on a GroupItem* is not sayable in tok.  */
--%
-    ::fprintf(stderr,"canonOf: %s face=%p canon=%p  %s  faceStuff=%p canonStuff=%p canonParseMethod=%p\n",
-        argument->groupBody->tag,(void*)argument,(void*)canon,
-        argument == canon ? "SAME NODE" : "DIFFERENT NODES",
-        (void*)argument->rStuff,(void*)canon->rStuff,
-        canon->rStuff ? (void*)canon->rStuff->parseMethod : (void*)0);
-%-
-    return canon;
 }
 
 
@@ -950,113 +801,6 @@ int     status;
 }
 
 
-/***************************************************************************
-    showBody -- PRINT A FIELD'S NODE AND groupBody ADDRESSES. 2026-08-17.
-
-    An instrument, not a feature. Flags live in groupBody, so two field
-    instances either share one body and see each other's flags, or they do not
-    and they cannot. That is a pointer question and incant cannot ask it: every
-    incant-side accessor is snapshot-by-value, so two probes returning the same
-    text prove text equality and never node identity.
-
-    Its purpose is to settle copy-versus-share seams by measurement rather than
-    by reasoning about which of the two copy mechanisms in the tree a given
-    operation went through -- the copy constructor shares the body, setContent
-    copies content and drops flags, and knowing which one an operation used is
-    the whole question at such a seam.
-
-    stderr and not stdout, deliberately: a run that ends in stop() loses
-    buffered stdout, and a probe whose output vanishes on the interesting runs
-    is not a probe.
-***************************************************************************/
-extern GroupItem showBody(GroupItem field)
-{
-    if !field {
-        cerr "showBody: no field":;
-        return null; }
-    /*  ⚠ NO WIDTH SPECIFIER IN THE FORMAT STRING. A printf width of the form
-        percent-minus is the passthrough CLOSE delimiter, so it ends the block
-        in the middle of a string literal: tok exits 139 with a zero-byte log
-        and the extern canary drops to 0. Measured 2026-08-17. Pad by hand if
-        alignment is ever wanted here.  */
-    -%
-    ::fprintf(stderr,"BODY  %s  node=%p  groupBody=%p\n",
-        field->groupBody->tag ? field->groupBody->tag : "(untagged)",
-        (void*)field, (void*)field->groupBody);
-    ::fflush(stderr);
-    %-
-    return field;
-}
-
-
-/***************************************************************************
-    addrOf -- IDENTITY, ASKED IN A FORM A FIXTURE CAN PIN. SEQ 113, 2026-09-01.
-
-    showBody already prints node and body addresses, and that is the right
-    question asked in the wrong currency: a raw %p MOVES EVERY RUN, so a fixture
-    can eyeball it and can never assert it. Rule H3 -- an assertion that moves
-    for correctness-unrelated reasons is noise, and a target regenerated green is
-    not a target.
-
-    So addrOf prints a per-run SEQUENCE NUMBER instead. The first distinct
-    pointer seen in a run is #1, the second #2, and a pointer already seen reads
-    back its own number. Identity therefore becomes a SMALL STABLE INTEGER:
-
-        two faces of one field   ->  field=#1 body=#1   then  field=#2 body=#1
-        one field asked twice    ->  field=#1 body=#1   then  field=#1 body=#1
-
-    The numbers repeat exactly when the identity repeats and never otherwise, so
-    a pop.sh row pins what it means to pin. The raw addresses are still printed,
-    after the numbers, because they cost nothing and a human debugging a live
-    seam wants them.
-
-    ⚠ THE TABLE IS PER-PROCESS AND ORDER-DEPENDENT BY DESIGN. #1 means "first
-    thing this run asked about", not anything about the field. A fixture that
-    reorders its calls will renumber; that is correct, and it is why the numbers
-    are only ever compared WITHIN one run's output.
-
-    ⚠ RETURNS THE FIELD, NEVER AN int -- bear-trap #33. A command whose return
-    is read as a GroupItem* kills the process on the statement AFTER the call,
-    and the callee's own trace never fires, which reads as "never registered".
-
-    stderr, not stdout: same reason as showBody -- a run ending in stop() loses
-    buffered stdout, and a probe whose output vanishes on the interesting runs is
-    not a probe.
-***************************************************************************/
-extern GroupItem addrOf(GroupItem field)
-{
-    if !field {
-        cerr "addrOf: no field":;
-        return null; }
-    /*  ⚠ NO WIDTH SPECIFIER IN ANY FORMAT STRING BELOW -- `%` followed by `-`
-        is the passthrough CLOSE marker and ends the block inside the string
-        literal, wiping the extern block to zero. Bear-trap #40, measured
-        2026-09-01 in this very file.  */
-    -%
-    {
-    static void *seenTable[512];
-    static int   seenCount = 0;
-    void *nodeKey = (void*)field;
-    void *bodyKey = (void*)field->groupBody;
-    int nodeNum = 0, bodyNum = 0, i;
-    for ( i = 0; i < seenCount; i++ )
-        {
-        if ( seenTable[i] == nodeKey ) nodeNum = i + 1;
-        if ( seenTable[i] == bodyKey ) bodyNum = i + 1;
-        }
-    if ( !nodeNum && seenCount < 512 ) { seenTable[seenCount++] = nodeKey; nodeNum = seenCount; }
-    if ( !bodyNum && seenCount < 512 ) { seenTable[seenCount++] = bodyKey; bodyNum = seenCount; }
-    ::fprintf(stderr,"ADDROF %s field=#%d body=#%d  isCopy=%d  raw %p %p\n",
-        field->groupBody->tag ? field->groupBody->tag : "(untagged)",
-        nodeNum, bodyNum, (int)field->options.isCopy,
-        nodeKey, bodyKey);
-    ::fflush(stderr);
-    }
-    %-
-    return field;
-}
-
-
 /*******************************************************************************
     THE GENERATED-BODY CORPUS -- storeBody / activateBody / activateAll /
     bodyCensus. Charter A, SEQ 78, Ruling 1 (Fork 2).
@@ -1282,47 +1026,6 @@ int         done = 0;
                 cerr "activateAll: REFUSING " entry.tag " -- no live rule of that name":;
             or activateBody(rule)   done = done + 1; }
     cerr "CORPUS commissioned " toStringFromInt(done):;
-    return trueResult;
-}
-
-
-/*******************************************************************************
-    bodyCensus -- THE QUERY VERB.
-
-    Reports the corpus as pending / activated / stray, PRINTED UNCONDITIONALLY
-    AND WITH VALUES. That is rule H4: a census that stays silent when the
-    corpus is empty is an absence check, and an absence check passes the day
-    somebody deletes the code that would have spoken. Zero pending is a
-    reportable answer here, not a silence.
-
-    `stray` counts entries whose count is neither 1 nor 2. It should always be
-    zero; it exists so that a corpus written by something other than these
-    verbs is visible rather than silently partitioned into the two known bins.
-
-    ⚠ RETURNS GroupItem for the reason spelled out on activateAll above.
-*******************************************************************************/
-extern GroupItem bodyCensus(GroupItem ignored)
-{
-GroupItem   reg,
-            entry;
-int         pending  = 0;
-int         compiled = 0;
-int         active   = 0;
-int         stray    = 0;
-int         total    = 0;
-    reg = getRegistry("GenBodies");
-    if reg.groupList
-        while entry = reg.next(entry) {
-            total = total + 1;
-            if entry.count == 1         pending  = pending + 1;
-            or entry.count == 3         compiled = compiled + 1;
-            or entry.count == 2         active   = active + 1;
-            else                        stray    = stray + 1; }
-    cerr "CORPUS pending " toStringFromInt(pending)
-         " compiled " toStringFromInt(compiled)
-         " commissioned " toStringFromInt(active)
-         " stray " toStringFromInt(stray)
-         " total " toStringFromInt(total):;
     return trueResult;
 }
 

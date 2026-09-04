@@ -1,3 +1,4 @@
+class GroupItem;
 //
 //  measure.twk -- the measuring instruments.
 //
@@ -44,3 +45,17 @@ public:
 int dummy;
 void run();
 };
+extern "C" GroupItem *addrOf(GroupItem *field);
+extern "C" int auditMissingRules(GroupItem *registry);
+extern "C" int auditMissingTerms(GroupItem *registry);
+extern "C" GroupItem *auditRStuff(GroupItem *argument);
+extern "C" int auditSpurious(GroupItem *registry);
+extern "C" int auditUnconsumed(GroupItem *registry);
+extern "C" GroupItem *bodyCensus(GroupItem *ignored);
+extern "C" GroupItem *canonOf(GroupItem *argument);
+extern "C" GroupItem *evictAction(GroupItem *field);
+extern "C" GroupItem *frameProbe(GroupItem *field, GroupItem *rule);
+extern "C" int labelMinters(GroupItem *rule);
+extern "C" GroupItem *parseClassify(GroupItem *field);
+extern "C" GroupItem *probeNode(GroupItem *argument);
+extern "C" GroupItem *showBody(GroupItem *field);

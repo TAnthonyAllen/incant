@@ -23,6 +23,7 @@
 #include "PLGset.h"
 #include "PLGrgx.h"
 #include "Stylish.h"
+#include "measure.h"
 #include "GroupDraw.h"
 #include "GroupRules.h"
 
@@ -1688,75 +1689,6 @@ GroupItem 	*hung = 0;
 	return rule;
 }
 
-/***************************************************************************
-    addrOf -- IDENTITY, ASKED IN A FORM A FIXTURE CAN PIN. SEQ 113, 2026-09-01.
-
-    showBody already prints node and body addresses, and that is the right
-    question asked in the wrong currency: a raw %p MOVES EVERY RUN, so a fixture
-    can eyeball it and can never assert it. Rule H3 -- an assertion that moves
-    for correctness-unrelated reasons is noise, and a target regenerated green is
-    not a target.
-
-    So addrOf prints a per-run SEQUENCE NUMBER instead. The first distinct
-    pointer seen in a run is #1, the second #2, and a pointer already seen reads
-    back its own number. Identity therefore becomes a SMALL STABLE INTEGER:
-
-        two faces of one field   ->  field=#1 body=#1   then  field=#2 body=#1
-        one field asked twice    ->  field=#1 body=#1   then  field=#1 body=#1
-
-    The numbers repeat exactly when the identity repeats and never otherwise, so
-    a pop.sh row pins what it means to pin. The raw addresses are still printed,
-    after the numbers, because they cost nothing and a human debugging a live
-    seam wants them.
-
-    ⚠ THE TABLE IS PER-PROCESS AND ORDER-DEPENDENT BY DESIGN. #1 means "first
-    thing this run asked about", not anything about the field. A fixture that
-    reorders its calls will renumber; that is correct, and it is why the numbers
-    are only ever compared WITHIN one run's output.
-
-    ⚠ RETURNS THE FIELD, NEVER AN int -- bear-trap #33. A command whose return
-    is read as a GroupItem* kills the process on the statement AFTER the call,
-    and the callee's own trace never fires, which reads as "never registered".
-
-    stderr, not stdout: same reason as showBody -- a run ending in stop() loses
-    buffered stdout, and a probe whose output vanishes on the interesting runs is
-    not a probe.
-***************************************************************************/
-extern "C" GroupItem *addrOf(GroupItem *field)
-{
-	if ( !field )
-		{
-		::fprintf(stderr,"addrOf: no field\n");
-		return 0;
-		}
-	/*  ⚠ NO WIDTH SPECIFIER IN ANY FORMAT STRING BELOW -- `%` followed by `-`
-	is the passthrough CLOSE marker and ends the block inside the string
-	literal, wiping the extern block to zero. Bear-trap #40, measured
-	2026-09-01 in this very file.  */
-	
-	{
-	static void *seenTable[512];
-	static int   seenCount = 0;
-	void *nodeKey = (void*)field;
-	void *bodyKey = (void*)field->groupBody;
-	int nodeNum = 0, bodyNum = 0, i;
-	for ( i = 0; i < seenCount; i++ )
-	{
-	if ( seenTable[i] == nodeKey ) nodeNum = i + 1;
-	if ( seenTable[i] == bodyKey ) bodyNum = i + 1;
-	}
-	if ( !nodeNum && seenCount < 512 ) { seenTable[seenCount++] = nodeKey; nodeNum = seenCount; }
-	if ( !bodyNum && seenCount < 512 ) { seenTable[seenCount++] = bodyKey; bodyNum = seenCount; }
-	::fprintf(stderr,"ADDROF %s field=#%d body=#%d  isCopy=%d  raw %p %p\n",
-	field->groupBody->tag ? field->groupBody->tag : "(untagged)",
-	nodeNum, bodyNum, (int)field->options.isCopy,
-	nodeKey, bodyKey);
-	::fflush(stderr);
-	}
-	
-	return field;
-}
-
 /*******************************************************************************
 	Print the field passed in to the buffer passed in
 *******************************************************************************/
@@ -1937,84 +1869,6 @@ extern "C" int assignFieldCore(GroupItem *source, GroupItem *target)
 	
 }
 
-/*****************************************************************************
-    auditTerms / auditRegistry -- materialiseTerms' walk with the OPPOSITE
-    intent. It repairs nothing; it reports what is missing.
-
-    Tony's ruling (2026-07-29): rStuff is set at DEFINITION time across the
-    board, and the runtime setting goes away. materialiseRegistry is a backup
-    plan, not the mechanism. This is what is left when the repairing is stripped
-    out -- the verification, without the silent fixing-up behind the code's back.
-
-    THE INVARIANT IT CHECKS, and it is a BICONDITIONAL: isRule IFF has rStuff.
-
-    Direction 1 SPLITS, for the same reason direction 2 did -- splitting spurious
-    took the answer from "20, act on it" to "4, and 16 you must not touch", and
-    there was never a reason to think the missing were one population either:
-      MISSRULE -- a RULE itself carrying no rStuff.
-      MISSTERM -- a term OF a rule carrying none.
-    Direction 2, auditSpurious -- rStuff on something that is NOT a rule, and it
-    splits into TWO POPULATIONS that must not be added together:
-      TERM  -- a term OF a rule. genParse REQUIRES these to carry rStuff; that is
-               what "unmaterialised term" means, and Limit's min/max were given
-               rStuff deliberately on 2026-07-29 to turn the census green. Counted
-               and printed, but NOT totalled -- stripping these would regress the
-               census immediately.
-      LOOSE -- rStuff on a node that is neither a rule nor a rule's term. THIS is
-               the population Tony described. Only these are totalled. Tony,
-    2026-07-29: non-rules pick rStuff up off whatever rule matched them (the
-    `--` entry in Operators carrying QuotE's), because GroupItem's copy
-    constructor copies rStuff whenever the source has it and never asks whether
-    the target is a rule. His `if !isRule rStuff = 0;` in aCTionDefinE corrects
-    the symptom downstream; the cause is the constructor. That is Tony's
-    `if !isRule rStuff = 0;` read as an assertion rather than an action, which is
-    why the walk skips non-rules instead of flagging them -- a non-rule with no
-    rStuff is CORRECT, not missing.
-
-    WHY IT PRINTS EVEN WHEN CLEAN, and this is the whole point. The instrument
-    it replaces was getRStuff's "no rStuff - creating" cerr, and grepping for
-    that returns zero in TWO indistinguishable cases: nothing fired late, and
-    the cerr was deleted. The second became true on 2026-07-29. An absence-based
-    check passes by being removed; a presence-based one cannot. So the summary
-    line is unconditional and pop.sh asserts it is THERE, not that a warning is
-    absent.
-*****************************************************************************/
-extern "C" int auditMissingRules(GroupItem *registry)
-{
-GroupItem 	*entry = 0;
-int 		missing = 0;
-	while ( entry = registry->next(entry) )
-		if ( entry->groupBody->flags.isRule && !entry->getRStuff() )
-			{
-			::fprintf(stderr,"AUDIT MISSRULE %s/%s -- isRule, no rStuff\n",registry->groupBody->tag,entry->groupBody->tag);
-			missing++;
-			}
-	return missing;
-}
-
-extern "C" int auditMissingTerms(GroupItem *registry)
-{
-GroupItem 	*entry = 0;
-GroupItem 	*term = 0;
-int 		i = 0;
-int 		missing = 0;
-	while ( entry = registry->next(entry) )
-		if ( entry->groupBody->flags.isRule )
-			{
-			i = 1;
-			while ( term = entry->get(i) )
-				{
-				if ( term->groupBody->flags.isRule && !term->getRStuff() )
-					{
-					::fprintf(stderr,"AUDIT MISSTERM %s [%s] %s -- isRule term, no rStuff\n",entry->groupBody->tag,::toStringFromInt(i),term->groupBody->tag);
-					missing++;
-					}
-				i++;
-				}
-			}
-	return missing;
-}
-
 /*******************************************************************************
     Commands.rtn
     Home for extern methods backing the cOMMANDs base registry. Commands fire
@@ -2030,198 +1884,6 @@ int 		missing = 0;
     added to the definition; it is fire and forget. Commands without a noPrint
     attribute are intended to be run on the command line.
 *******************************************************************************/
-/***************************************************************************
-    The incant `audit` command invokes this. It reports every isRule node that
-    is missing rStuff, and prints an UNCONDITIONAL summary line.
-
-        audit();            every registry on `registries`
-        audit(Grokking);    one named registry
-
-    EMPTY PARENS ARRIVE AS AN InvokeArg NODE, not as null -- measured, not
-    assumed: `audit()` reported the wrapper's own tag before this was handled.
-    That is the test for "no argument given".
-
-    Run it AFTER the definitions are in place -- the point of it is to check
-    the whole board, not the bootstrap slice. (Tony, 2026-07-29: GroupMain was
-    the wrong home precisely because it runs before setup is parsed.)
-
-    The summary prints even when clean BY DESIGN. The instrument this replaces
-    was getRStuff's "no rStuff - creating" cerr, and grepping for that returned
-    zero both when nothing fired late AND when the cerr had been deleted. An
-    absence-based check passes by being removed; a presence-based one cannot.
-
-    NAMED auditRStuff, NOT audit: macOS declares a system audit(2), and extern "C"
-    strips overload resolution so only the NAME matters -- `extern "C" GroupItem
-    *audit(GroupItem*)` collides with `int audit(const char*, u_int)` and the
-    build dies with "conflicting types for 'audit'". Bear-trap #12, one layer out
-    from the in-repo case. The incant-facing command is still spelled `audit`;
-    the `=value` registration form is exactly what bridges the two names.
-***************************************************************************/
-extern "C" GroupItem *auditRStuff(GroupItem *argument)
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*registry = 0;
-GroupItem 	*target = 0;
-int 		missRules = 0;
-int 		missTerms = 0;
-int 		loose = 0;
-int 		unconsumed = 0;
-	target = argument;
-	if ( isGROUP(target->groupBody->flags.data) )
-		target = target->getGroup();
-	if ( ::compare(target->groupBody->tag,"InvokeArg") == 0 )
-		target = 0;
-	if ( target )
-		{
-		missRules = ::auditMissingRules(target);
-		missTerms = ::auditMissingTerms(target);
-		loose = ::auditSpurious(target);
-		unconsumed += auditUnconsumed(target);
-		::fprintf(stderr,"AUDIT %s: %s missing rules, %s missing terms, %s loose, %s unconsumed\n",target->groupBody->tag,::toStringFromInt(missRules),::toStringFromInt(missTerms),::toStringFromInt(loose),::toStringFromInt(unconsumed));
-		}
-	else {
-		while ( registry = ruler->registries->next(registry) )
-			{
-			missRules += ::auditMissingRules(registry);
-			missTerms += ::auditMissingTerms(registry);
-			loose += ::auditSpurious(registry);
-			unconsumed += auditUnconsumed(registry);
-			}
-		/*  ⚠ REPORTED UNCONDITIONALLY AND WITH ITS VALUE (rule H4). An absence
-		check on the UNCONSUMED lines would go green the day the emitter is
-		deleted; a count that is always printed and asserted at zero cannot.  */
-		::fprintf(stderr,"AUDIT all registries: %s missing rules, %s missing terms, %s loose, %s unconsumed\n",::toStringFromInt(missRules),::toStringFromInt(missTerms),::toStringFromInt(loose),::toStringFromInt(unconsumed));
-		}
-	return argument;
-}
-
-extern "C" int auditSpurious(GroupItem *registry)
-{
-GroupItem 	*entry = 0;
-GroupItem 	*term = 0;
-int 		i = 0;
-int 		spurious = 0;
-	while ( entry = registry->next(entry) )
-		{
-		if ( !entry->groupBody->flags.isRule && entry->getRStuff() )
-			{
-			::fprintf(stderr,"AUDIT LOOSE    %s/%s -- not a rule, not a rule term, has rStuff\n",registry->groupBody->tag,entry->groupBody->tag);
-			spurious++;
-			}
-		i = 1;
-		while ( term = entry->get(i) )
-			{
-			if ( !term->groupBody->flags.isRule && term->getRStuff() )
-				if ( entry->groupBody->flags.isRule )
-					::fprintf(stderr,"AUDIT TERM     %s [%s] %s -- rule TERM, not isRule, has rStuff\n",entry->groupBody->tag,::toStringFromInt(i),term->groupBody->tag);
-				else {
-					::fprintf(stderr,"AUDIT LOOSE    %s [%s] %s -- not a rule, not a rule term, has rStuff\n",entry->groupBody->tag,::toStringFromInt(i),term->groupBody->tag);
-					spurious++;
-					}
-			i++;
-			}
-		}
-	return spurious;
-}
-
-/*******************************************************************************
-    auditUnconsumed -- THE CONSUMED-CHECK. Tony's rider, 2026-08-05.
-
-    AN INSTALL ATTRIBUTE THAT FIRED LEAVES NO TERM BEHIND. `parseMethod=` and
-    `parseTerms=` are define-time fire-and-forget commands of the isRule family:
-    they change the group being defined and are then FORGOTTEN, never added as
-    attributes (incant/setup:7-11 states the contract). So finding one sitting in
-    a rule's TERM LIST is proof it was never a command in that context -- it was
-    read as ordinary grammar.
-
-    ⚠ WHY IT IS ITS OWN CHECK AND NOT LEFT TO MISSTERM. The generic missing-rStuff
-    check DID fire on the specimen below, but it says "isRule term, no rStuff",
-    which reads as a materialisation problem and points at rStuff -- bear country,
-    and the wrong country. Two spurious terms in a rule the generator indexes by
-    position is a DIFFERENT DISEASE with a different cure, and a check that names
-    it saves the next reader the hunt.
-
-    ⚠ H7 NEGATIVE CONTROL -- THE SPECIMEN IS REAL AND DATED. Installing
-    `parseTerms=3 parseMethod=parseBraced` on incant/grammar:107 while the
-    vocabulary was registered ONLY in incant/genScratch produced exactly this:
-        AUDIT MISSTERM Braced [4] parseTerms  -- isRule term, no rStuff
-        AUDIT MISSTERM Braced [5] parseMethod -- isRule term, no rStuff
-        Braced 3 terms -> 5, against a method indexing rule[1..3]
-        oneTest: Segmentation fault: 11
-    That run is the control this check would have caught by NAME. The cure was to
-    register both commands in incant/setup, where the grammar is read; this check
-    is what makes a regression of that cure loud instead of silent.
-
-    ⚠ PRESENCE-WITH-VALUE, NOT ABSENCE-OF-MESSAGE (rule H4): the caller prints the
-    COUNT unconditionally and asserts it is zero, so deleting the emitter breaks
-    the check rather than satisfying it.
-*******************************************************************************/
-extern "C" int auditUnconsumed(GroupItem *registry)
-{
-GroupItem 	*entry = 0;
-GroupItem 	*term = 0;
-int 		i = 0;
-int 		found = 0;
-	while ( entry = registry->next(entry) )
-		if ( entry->groupBody->flags.isRule )
-			{
-			i = 1;
-			while ( term = entry->get(i) )
-				{
-				if ( ::compare(term->groupBody->tag,"parseMethod") == 0 || ::compare(term->groupBody->tag,"parseTerms") == 0 )
-					{
-					::fprintf(stderr,"AUDIT UNCONSUMED %s [%s] %s -- install attribute survived as a TERM; it was not a command where this grammar was read\n",entry->groupBody->tag,::toStringFromInt(i),term->groupBody->tag);
-					found++;
-					}
-				i++;
-				}
-			}
-	return found;
-}
-
-/*******************************************************************************
-    bodyCensus -- THE QUERY VERB.
-
-    Reports the corpus as pending / activated / stray, PRINTED UNCONDITIONALLY
-    AND WITH VALUES. That is rule H4: a census that stays silent when the
-    corpus is empty is an absence check, and an absence check passes the day
-    somebody deletes the code that would have spoken. Zero pending is a
-    reportable answer here, not a silence.
-
-    `stray` counts entries whose count is neither 1 nor 2. It should always be
-    zero; it exists so that a corpus written by something other than these
-    verbs is visible rather than silently partitioned into the two known bins.
-
-    ⚠ RETURNS GroupItem for the reason spelled out on activateAll above.
-*******************************************************************************/
-extern "C" GroupItem *bodyCensus(GroupItem *ignored)
-{
-GroupItem 	*reg = 0;
-GroupItem 	*entry = 0;
-int 		pending = 0;
-int 		compiled = 0;
-int 		active = 0;
-int 		stray = 0;
-int 		total = 0;
-	reg = GroupControl::groupController->getRegistry("GenBodies");
-	if ( reg->groupBody->groupList )
-		while ( entry = reg->next(entry) )
-			{
-			total = total + 1;
-			if ( entry->getCount() == 1 )
-				pending = pending + 1;
-			else
-			if ( entry->getCount() == 3 )
-				compiled = compiled + 1;
-			else
-			if ( entry->getCount() == 2 )
-				active = active + 1;
-			else	stray = stray + 1;
-			}
-	::fprintf(stderr,"CORPUS pending %s compiled %s commissioned %s stray %s total %s\n",::toStringFromInt(pending),::toStringFromInt(compiled),::toStringFromInt(active),::toStringFromInt(stray),::toStringFromInt(total));
-	return GroupControl::groupController->groupRules->trueResult;
-}
-
 /***************************************************************************
 	The incant clear command invokes this. It clears its argument.
     If data is a buffer, it is reset. If data is a stak, it is cleared.
@@ -2250,53 +1912,11 @@ GroupItem 	*newField = new GroupItem(field);
 	return newField;
 }
 
-extern "C" GroupItem *canonOf(GroupItem *argument)
-{
-GroupItem 	*canon = 0;
-	if ( !argument )
-		{
-		::fprintf(stderr,"canonOf: no field passed in\n");
-		return 0;
-		}
-	canon = argument->definingRule();
-	if ( !canon )
-		{
-		::fprintf(stderr,"canonOf: %s resolved to nothing\n",argument->groupBody->tag);
-		return 0;
-		}
-	/*  ⚠ POINTERS, NOT TAGS, AND THE TRIAL IS WHY. On 2026-08-22 this
-	function reported `canonOf: Braced -> Braced` and that sentence was
-	USELESS: the whole question was whether the catalog face and canon are
-	the SAME NODE, and two nodes of one rule share a tag by construction.
-	A resolver that reports names cannot answer a question about identity.
-	Passthrough because %p on a GroupItem* is not sayable in tok.  */
-	
-	::fprintf(stderr,"canonOf: %s face=%p canon=%p  %s  faceStuff=%p canonStuff=%p canonParseMethod=%p\n",
-	argument->groupBody->tag,(void*)argument,(void*)canon,
-	argument == canon ? "SAME NODE" : "DIFFERENT NODES",
-	(void*)argument->rStuff,(void*)canon->rStuff,
-	canon->rStuff ? (void*)canon->rStuff->parseMethod : (void*)0);
-	
-	return canon;
-}
-
-/*******************************************************************************
-    chanReport -- THE ARGUMENT CHANNEL'S DAILY ROW. SEQ 132 item 2.
-
-    Prints binds and same-field binds UNCONDITIONALLY, in the shape of
-    `=== jitDegrade count = N ===`, so a fleet row compares a VALUE and cannot
-    pass by a line going missing (rule H4).
-
-    ⚠ IT COUNTS AT ALL FOUR BIND SITES -- both arms of both roads -- which is
-    what makes it a DAILY row rather than a flipped-only one. pop.sh runs bare,
-    and bare the non-flip arm goes through setGroup too, so the pair is
-    non-zero without the flip and the SAME row reads both configurations.
-
-    ⚠ SAME MUST EQUAL BINDS. Any gap is a bind that did not store the field it
-    was handed -- a copy, or a write that did not happen (F-46's shape). The
-    row asserts equality AND a non-zero total, because 0 of 0 is agreement
-    between two absences.   GroupActions.chanReport
-*******************************************************************************/
+/*  ⚠ IT CANNOT MOVE TO measure.twk, though it is a measuring instrument: it reads
+    gChanBinds/gChanSame, which are `static int` in jitContext.h, so a second
+    translation unit gets its OWN zeroed copies. Measured 2026-09-04.
+    SAME MUST EQUAL BINDS, and the row asserts a NON-ZERO total too, because 0 of 0
+    is agreement between two absences.   GroupActions.chanReport  */
 extern "C" GroupItem *chanReport(GroupItem *input)
 {
 	
@@ -3346,59 +2966,6 @@ char 		dq = 34;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/*******************************************************************************
-    evictAction -- THE EVICTION, AND IT REFUSES RATHER THAN SUBSTITUTES.
-
-    Tony's design, 2026-08-29. Step 3 of the earlier brief -- install the parse
-    INTO gMethod -- is dead, killed by the parseAction finding: gMethod is read
-    as THE ACTION by nine sites, one of which is a parse executor that would
-    then call itself. The replacement is bear-trap 34's retirement clause.
-    VACATE gMethod and install NOTHING. With the slot empty and isMethod
-    retracted by the symmetric setter, runOP arm two stops claiming the rule,
-    and a bare `QuotE()` in a generated body falls through to the isRule arm,
-    into runRule, into builtinParsE. The new parse wins by having no
-    competitor rather than by taking the old channel.
-
-    ⚠ RELOCATE-THEN-NULL IS STRUCTURAL HERE, NOT REMEMBERED. The whole reason
-    this is one extern rather than two statements in the driver is that the
-    null must be unreachable until the relocation is VERIFIED. setParse already
-    parks actionMethod for every rule it claims, so the relocation has usually
-    happened -- but "usually" is what the brief said not to trust, and a rule
-    that reached dual-flag by any road other than setParse is the burn case:
-    null its gMethod and the action is gone with nothing holding a copy.
-
-    ⚠ IT REPORTS A VALUE ON EVERY RULE, NOT A MESSAGE ON FAILURE (rule H4).
-    An eviction pass that printed only its refusals would go quiet the day it
-    stopped evicting anything, and quiet would read as success. Every rule
-    prints its outcome by name, so the driver can count them and a zero is
-    visible as a zero.
-
-    The passthrough reads two function pointers and compares them. There is no
-    kant spelling for that -- parseClassify above is the house precedent, and
-    the comparison is all that sits inside the escape.
-*******************************************************************************/
-extern "C" GroupItem *evictAction(GroupItem *field)
-{
-RuleStuff 	*ruleStuff = field->getRStuff();
-char 		*outcome = "no-rstuff";
-int 		doEvict = 0;
-	if ( ruleStuff )
-		{
-		
-		GroupItem *(*am)(GroupItem *) = ruleStuff->actionMethod;
-		GroupItem *(*gm)(GroupItem *) = field->groupBody->gMethod;
-		if      ( !gm )        outcome = (char *)"already-vacant";
-		else if ( !am )        outcome = (char *)"REFUSED-unparked";
-		else if ( am != gm )   outcome = (char *)"REFUSED-mismatch";
-		else                 { outcome = (char *)"evicted"; doEvict = 1; }
-		
-		}
-	::fprintf(stderr,"EVICT %s %s\n",field->groupBody->tag,outcome);
-	if ( doEvict )
-		field->setMethod((GroupItem*(*)(GroupItem*))0);
-	return field;
-}
-
 /***************************************************************************
 	The fAIL method expects to have the name of the fail method passed in as
     text of the FAIL attribute.
@@ -3499,36 +3066,6 @@ extern "C" char *foldOf(GroupItem *rule)
 extern "C" GroupItem *frameFind(GroupItem *action)
 {
 	return action->get("frameSTAK");
-}
-
-/*******************************************************************************
-    frameProbe -- LOOK 1 of the handover brief. TEMPORARY, parseTrace gated.
-
-    Question: at a bare sub-rule call, does runRule's `field` argument reach the
-    INVOKING body's in-flight label? If it does, runRule can resolve the frame
-    from its own arguments and no emitter change is owed. Prints what field is
-    and every node reachable from it in one hop, with pointers, because the
-    discriminator is whether four sub-calls yield four DIFFERENT nodes.
-
-    Separate function, not lines inside runRule: runRule is a declared-field
-    function and after parkOnMaster no new declarations go inside one.
-    No percent-dash in the format string; that token closes passthrough.
-*******************************************************************************/
-extern "C" GroupItem *frameProbe(GroupItem *field, GroupItem *rule)
-{
-	
-	if ( GroupControl::groupController->groupRules->parseTrace )
-	::fprintf(stderr,"FRAMEPROBE rule=%s field=%p fieldTag=%s fieldParent=%p fieldStuff=%p fieldStuffLabel=%p fieldStuffLabelTag=%s ruleSTUFF=%p\n",
-	rule ? rule->groupBody->tag : "(none)",
-	(void*)field,
-	field ? field->groupBody->tag : "(none)",
-	field ? (void*)field->parent : (void*)0,
-	field ? (void*)field->rStuff : (void*)0,
-	(field && field->rStuff) ? (void*)field->rStuff->label : (void*)0,
-	(field && field->rStuff && field->rStuff->label) ? field->rStuff->label->groupBody->tag : "(none)",
-	(void*)GroupControl::groupController->groupRules->ruleSTUFF);
-	
-	return field;
 }
 
 /*****************************************************************************
@@ -8013,30 +7550,6 @@ GroupItem 	*inner = 0;
 	return leaf;
 }
 
-/*******************************************************************************
-    labelMinters -- HOW MANY OF THIS RULE'S SUB-TERMS WILL MINT A LABEL.
-*******************************************************************************/
-extern "C" int labelMinters(GroupItem *rule)
-{
-GroupItem 	*grup = 0;
-RuleStuff 	*termStuff = 0;
-int 		minters = 0;
-	if ( !rule )
-		return 0;
-	while ( grup = rule->next(grup) )
-		{
-		if ( grup->groupBody->flags.noPrint )
-			continue;
-		termStuff = grup->getRStuff();
-		if ( termStuff && termStuff->noLabel )
-			continue;
-		if ( grup->groupBody->flags.isRule && grup->groupBody->flags.hasMembers && !grup->groupBody->flags.binType )
-			continue;
-		minters++;
-		}
-	return minters;
-}
-
 extern "C" void limitWriteCheck(GroupItem *target, int priorLimit)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -8058,6 +7571,38 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	ruler->maxLimit->setCount(priorLimit);
 }
 
+/*****************************************************************************
+    reportMaxLimit -- THE THIRD REFUSAL, and it states a fact neither sibling
+    can. reportCodeFail says a body was parsed and the parse failed;
+    reportNoBody says a rule was reached with no compiled body. This one says
+    a match ran into the maxLimit ceiling with input still matching, so what
+    was about to be returned is a TRUNCATION.
+
+    ⚠ IT REFUSES RATHER THAN TRUNCATING, and that is the whole point of it.
+    Silently returning the first N characters of a longer token is
+    parse-succeeded-with-wrong-content, which is the worst failure genre on
+    this project's books -- every downstream reader believes a token that was
+    never in the input. A limit hit means either a defect or a genuinely large
+    token, and both deserve to be named at the moment they happen.
+
+    ⚠ ONE IMPLEMENTER, WHICH IS HOW THE TWO ENGINES ARE KEPT HONEST. The
+    interpretive loop (testMacro, RuleStuff.twk) and the generated-parse loops
+    (parseAny/parseCharacter/parseSet, Generate.rtn) both call THIS function,
+    so "same behaviour, same words" is true by construction rather than by two
+    copies being carefully matched. The convergence note on reportCodeFail
+    applies to all three.
+
+    ⚠ WHAT IT IS NOT ALLOWED TO FIRE ON. max is not only the ceiling: it is 1
+    by default and it is whatever an explicit [min max] Limit sets. Both of
+    those hit `counter >= max` in the ordinary course of a correct parse -- a
+    one-character rule followed by another matching character reaches it on
+    every single match. So the callers gate on `max > 1 && !limitsSet`, which
+    is true only for the ceiling modify() stamps. Ungated, this would reject
+    every name longer than one letter.
+
+    cerr for its siblings' reason: a refusal that vanishes into a diverted
+    print buffer is not loud.
+*****************************************************************************/
 /*****************************************************************************
     limitWriteGuard / limitWriteCheck -- F-27's ruling: a bad write to maxLimit
     is refused AT THE WRITE, and the assignment does not take.
@@ -10684,31 +10229,6 @@ RuleStuff 	*defStuff = definer->getRStuff();
 }
 
 /***************************************************************************
-    canonOf -- name the node definingRule() resolves to, from incant.
-
-    THE INSTRUMENT ROAD-1 EXISTS FOR (Clay dispatch amendment 8). Ruling E is
-    about resolution, so the tree needs a way to ASK where a face resolves to,
-    and until now it had none: definingRule() is a C++ method with no command,
-    and it cannot be reconstructed from incant because parenT returns a WRAPPER
-    whose unWrap lands back on the child it was applied to. Three spellings
-    were tried on 2026-08-22 and none reached the parent.
-
-    ⚠ THIS IS ALSO setParse's OWN PREREQUISITE, which is why it is not a
-    detour: the provisional ruling needs setParse to resolve through
-    definingRule() before binding, and for that the call has to be rtn-shaped.
-    One build carries the instrument, the reads, and the edit.
-
-    Reports with its value on every call (rule H4) rather than only on
-    surprise -- a resolver that speaks only when it disagrees cannot be told
-    from one that was never called.
-
-    ⚠ definingRule() IS ASSIGNED TO A LOCAL, NEVER TESTED INLINE. genParse.rtn
-    :1129 records that `if term.definingRule() != term` fails to parse. The
-    hazard is documented, cheap to avoid, and expensive to rediscover -- it
-    would surface as bear-trap #24's signature, the extern block wiped to zero
-    three files away.
-***************************************************************************/
-/***************************************************************************
     parkParse / fireNewParse -- THE FACE-PROOF ARTIFACT ADDRESS.
 
     Ruled 2026-08-24 on ARCHITECTURAL grounds, not evidentiary ones: a
@@ -10866,123 +10386,6 @@ int 		more = 0;
 		ruleStuff->label->clear();
 	ruler->atRuleMark = ruleStuff->hereAt;
 	return 0;
-}
-
-/*****************************************************************************
-    reportMaxLimit -- THE THIRD REFUSAL, and it states a fact neither sibling
-    can. reportCodeFail says a body was parsed and the parse failed;
-    reportNoBody says a rule was reached with no compiled body. This one says
-    a match ran into the maxLimit ceiling with input still matching, so what
-    was about to be returned is a TRUNCATION.
-
-    ⚠ IT REFUSES RATHER THAN TRUNCATING, and that is the whole point of it.
-    Silently returning the first N characters of a longer token is
-    parse-succeeded-with-wrong-content, which is the worst failure genre on
-    this project's books -- every downstream reader believes a token that was
-    never in the input. A limit hit means either a defect or a genuinely large
-    token, and both deserve to be named at the moment they happen.
-
-    ⚠ ONE IMPLEMENTER, WHICH IS HOW THE TWO ENGINES ARE KEPT HONEST. The
-    interpretive loop (testMacro, RuleStuff.twk) and the generated-parse loops
-    (parseAny/parseCharacter/parseSet, Generate.rtn) both call THIS function,
-    so "same behaviour, same words" is true by construction rather than by two
-    copies being carefully matched. The convergence note on reportCodeFail
-    applies to all three.
-
-    ⚠ WHAT IT IS NOT ALLOWED TO FIRE ON. max is not only the ceiling: it is 1
-    by default and it is whatever an explicit [min max] Limit sets. Both of
-    those hit `counter >= max` in the ordinary course of a correct parse -- a
-    one-character rule followed by another matching character reaches it on
-    every single match. So the callers gate on `max > 1 && !limitsSet`, which
-    is true only for the ceiling modify() stamps. Ungated, this would reject
-    every name longer than one letter.
-
-    cerr for its siblings' reason: a refusal that vanishes into a diverted
-    print buffer is not loud.
-*****************************************************************************/
-/*****************************************************************************
-    parseClassify -- WHICH ARM OF setParse CLAIMED THIS FIELD.
-
-    ⚠ THE INSTRUMENT THE 2026-08-19 SESSION DID NOT HAVE, and both of that
-    day's parse-generation defects were invisible without it and obvious with
-    it. `tokenize` was silently bound to parseString -- which, before the
-    parseString repair, reported success without matching anything -- and
-    `CodE` came within one arm order of being moved off parseAction. Neither
-    needed a PARSE to be visible; both are decided the moment setParse runs,
-    and nothing printed that decision.
-
-    ⚠ IT READS THE BOUND POINTER, IT DOES NOT RE-DERIVE THE ARM. A classifier
-    that recomputed the answer from the flags would be a second implementation
-    of setParse's chain, and the day it disagreed with the real one it would
-    say so about the wrong thing. Comparing the actual fnptr cannot drift.
-
-    cerr rather than print: this is a diagnostic, a fixture may have print
-    diverted, and stdout is block-buffered so a run that ends badly loses it.
-    Returns the field so a walk can chain it.
-
-    ⚠ THE SECOND LINE, ADDED 2026-08-29 ON A SEPARATE PREFIX ON PURPOSE.
-    `PA` answers Tony's recon question -- setParse parks `actionMethod` for
-    EVERY rule it claims, not only the ones that get parseRule, so an action
-    can be parked on a rule whose executor never fires it. The PC line is
-    unchanged and genLadder/parseClass.target greps `^PC `, so this adds a
-    column without moving a pinned target.
-
-    ⚠ THREE FACTS, THREE FIELDS, because they can disagree and one of them
-    disagreeing is the finding:
-      act   -- what setParse parked in rStuff->actionMethod
-      hung  -- whether the builtinActoR attribute is actually on the node
-      fires -- whether anything on this executor's path ever runs it
-    act and hung are READ, like pcName. `fires` is DERIVED, and it is a table
-    over the pointer just read rather than a second implementation of
-    setParse's chain -- its authority is the READER side: parseRule's
-    generated tail reaches runRuleAction, which fires builtinActoR;
-    parseAction calls field.method(field) itself; every other builtin ends at
-    parseSetLabel, which does label work and no action. ⚠ IF A BUILTIN EVER
-    GAINS A FIRE, THIS TABLE IS THE THING THAT GOES STALE -- it is named here
-    so that lands as an edit and not as a silent wrong answer.
-*****************************************************************************/
-extern "C" GroupItem *parseClassify(GroupItem *field)
-{
-char 	*pcName = "other";
-	
-	if (!field)                 pcName = (char *)"null-field";
-	else if (isREGISTRY(field->groupBody->flags.binType))
-	pcName = (char *)"skipped-registry";
-	else if (!field->rStuff)    pcName = (char *)"NO-rSTUFF";
-	else {
-	GroupItem *(*pm)(GroupItem *) = field->rStuff->parseMethod;
-	if      (!pm)                    pcName = (char *)"none";
-	else if (pm == ::parseUpTo)      pcName = (char *)"parseUpTo";
-	else if (pm == ::parseContainer) pcName = (char *)"parseContainer";
-	else if (pm == ::parseCondition) pcName = (char *)"parseCondition";
-	else if (pm == ::parseAction)    pcName = (char *)"parseAction";
-	else if (pm == ::parseRule)      pcName = (char *)"parseRule";
-	else if (pm == ::parseAny)       pcName = (char *)"parseAny";
-	else if (pm == ::parseCharacter) pcName = (char *)"parseCharacter";
-	else if (pm == ::parseSet)       pcName = (char *)"parseSet";
-	else if (pm == ::parseString)    pcName = (char *)"parseString";
-	}
-	
-	::fprintf(stderr,"PC %s %s\n",pcName,field->groupBody->tag);
-	
-	if ( field ) {
-	const char *acted = "n/a", *hung = "n/a", *fires = "n/a";
-	GroupItem *actor = field->get("builtinActoR");
-	if ( field->rStuff ) {
-	GroupItem *(*am)(GroupItem *) = field->rStuff->actionMethod;
-	GroupItem *(*pm)(GroupItem *) = field->rStuff->parseMethod;
-	acted = am ? "parked" : "none";
-	hung  = actor ? "yes" : "no";
-	if      ( !am )                  fires = "nothing-parked";
-	else if ( pm == ::parseRule )    fires = "body";
-	else if ( pm == ::parseAction )  fires = "self";
-	else                             fires = "NEVER";
-	}
-	::fprintf(stderr,"PA act=%s hung=%s fires=%s %s\n",
-	acted,hung,fires,field->groupBody->tag);
-	}
-	
-	return field;
 }
 
 /*******************************************************************************
@@ -12223,45 +11626,6 @@ debugHere:
 		}
 	else	::fprintf(stderr,"printToBuffer: ignored\n");
 	return GroupControl::groupController->groupRules->trueResult;
-}
-
-/*****************************************************************************
-    probeNode -- POINTER-LEVEL READ FOR THE parseSelfRecursion STATION.
-
-    Reports the three facts the docket's candidates disagree about, all as
-    POINTERS rather than names, because two faces of one rule share a tag by
-    construction and a reader that reports names cannot answer an identity
-    question (canonOf's own comment argues this at length).
-
-        gMethod     the dispatch target line 1487 reads
-        groupBody   the substance, which copyOf copies wholesale
-        parentLabel the rStuff link candidate 3 turns on
-
-    Passthrough because %p on a GroupItem* is not sayable in tok. Reports on
-    stderr, unbuffered, so a run that ends at a signal still carries it.
-
-    STATION INSTRUMENT, 2026-08-26. Returns the field so a walk can chain it.
-*****************************************************************************/
-extern "C" GroupItem *probeNode(GroupItem *argument)
-{
-GroupItem 	*probed = 0;
-	if ( !argument )
-		{
-		::fprintf(stderr,"probeNode: no field passed in\n");
-		return 0;
-		}
-	probed = argument;
-	
-	RuleStuff *rs = probed->rStuff;
-	GroupItem *pl = rs ? rs->parentLabel : (GroupItem *)0;
-	::fprintf(stderr,"PN %s node=%p body=%p gMethod=%p rStuff=%p parentLabel=%p %s\n",
-	probed->groupBody->tag,
-	(void*)probed,(void*)probed->groupBody,
-	(void*)probed->groupBody->gMethod,
-	(void*)rs,(void*)pl,
-	pl ? pl->groupBody->tag : (char *)"(none)");
-	
-	return probed;
 }
 
 /*****************************************************************************
@@ -13856,46 +13220,6 @@ char 		*name = 0;
 		}
 	else	::fprintf(stderr,"setRuleAction: could not set action target\n");
 	return item;
-}
-
-/***************************************************************************
-    showBody -- PRINT A FIELD'S NODE AND groupBody ADDRESSES. 2026-08-17.
-
-    An instrument, not a feature. Flags live in groupBody, so two field
-    instances either share one body and see each other's flags, or they do not
-    and they cannot. That is a pointer question and incant cannot ask it: every
-    incant-side accessor is snapshot-by-value, so two probes returning the same
-    text prove text equality and never node identity.
-
-    Its purpose is to settle copy-versus-share seams by measurement rather than
-    by reasoning about which of the two copy mechanisms in the tree a given
-    operation went through -- the copy constructor shares the body, setContent
-    copies content and drops flags, and knowing which one an operation used is
-    the whole question at such a seam.
-
-    stderr and not stdout, deliberately: a run that ends in stop() loses
-    buffered stdout, and a probe whose output vanishes on the interesting runs
-    is not a probe.
-***************************************************************************/
-extern "C" GroupItem *showBody(GroupItem *field)
-{
-	if ( !field )
-		{
-		::fprintf(stderr,"showBody: no field\n");
-		return 0;
-		}
-	/*  ⚠ NO WIDTH SPECIFIER IN THE FORMAT STRING. A printf width of the form
-	percent-minus is the passthrough CLOSE delimiter, so it ends the block
-	in the middle of a string literal: tok exits 139 with a zero-byte log
-	and the extern canary drops to 0. Measured 2026-08-17. Pad by hand if
-	alignment is ever wanted here.  */
-	
-	::fprintf(stderr,"BODY  %s  node=%p  groupBody=%p\n",
-	field->groupBody->tag ? field->groupBody->tag : "(untagged)",
-	(void*)field, (void*)field->groupBody);
-	::fflush(stderr);
-	
-	return field;
 }
 
 extern "C" GroupItem *showParse(GroupItem *argument)

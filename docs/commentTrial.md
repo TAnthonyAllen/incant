@@ -47,6 +47,21 @@ the interesting quantity is the one that can come back zero.
 | 2026-09-04 | `jitEmitters.jitPrintBegin` | `jitEmitters.rtn` | why there is deliberately no jitPrintEnd |
 | 2026-09-04 | `jitEmitters.jitPrintNodeRT` | `jitEmitters.rtn` | why it delegates rather than re-implementing value-versus-tag |
 | 2026-09-04 | `jitEmitters.jitSaveFrameRT` | `jitEmitters.rtn` | the frame bracket as measurement not architecture, and why the recursive gate was the defect |
+| 2026-09-04 | `measure.addrOf` | `measure.twk` | identity as a small stable integer, and rule H3's argument for why a raw pointer cannot be pinned |
+| 2026-09-04 | `measure.auditMissingRules` | `measure.twk` | the isRule-IFF-rStuff biconditional, both direction splits, and why it prints when clean |
+| 2026-09-04 | `measure.auditMissingTerms` | `measure.twk` | carries none of its own; records that, and where the family argument lives |
+| 2026-09-04 | `measure.auditRStuff` | `measure.twk` | empty parens arrive as an InvokeArg node, and why GroupMain was the wrong home |
+| 2026-09-04 | `measure.auditSpurious` | `measure.twk` | carries none of its own; records that, and where the family argument lives |
+| 2026-09-04 | `measure.auditUnconsumed` | `measure.twk` | why it is its own check and not left to MISSTERM, with its dated H7 specimen |
+| 2026-09-04 | `measure.bodyCensus` | `measure.twk` | why zero pending is a reportable answer rather than a silence |
+| 2026-09-04 | `measure.canonOf` | `measure.twk` | why road 1 needed it, and why definingRule() is never tested inline |
+| 2026-09-04 | `measure.evictAction` | `measure.twk` | relocate-then-null as structure, and why it refuses rather than substitutes |
+| 2026-09-04 | `measure.frameProbe` | `measure.twk` | the handover question it was built to answer, and why it is a separate function |
+| 2026-09-04 | `measure.labelMinters` | `measure.twk` | RELOCATED from the Generate node, unchanged, because the method changed file |
+| 2026-09-04 | `measure.parseClassify` | `measure.twk` | the two 2026-08-19 defects it would have made visible, and what makes `fires` go stale |
+| 2026-09-04 | `measure.probeNode` | `measure.twk` | why it reports pointers and never names |
+| 2026-09-04 | `measure.showBody` | `measure.twk` | why incant cannot ask a pointer question, and which copy mechanism it settles |
+| 2026-09-04 | `GroupActions.chanReport` | `GroupActions.rtn` | ⚠ did NOT move: it reads `static int` state from `jitContext.h`, so a second TU gets its own zeroed copies |
 
 ## LOOKUPS CLOD ACTUALLY MADE
 
@@ -64,6 +79,30 @@ anyone edits that function, and because it is a good calibration for the too-sho
 is *"pure getter, does not construct — every bare `.rStuff` read routes here"*, and everything else
 under it is argument.
 
+
+## ⚠ THIRD FINDING, 2026-09-04 — A METHOD THAT READS A `static` GLOBAL CANNOT LEAVE ITS TU
+
+`chanReport` is a measuring instrument by every other test — registered as an incant command,
+reached only from `incant/chanT`, no C++ caller — and it is the one method in the cleanup census
+that **cannot** live in `measure.twk`. Its body reads `gChanBinds` and `gChanSame`, which are
+`static int` in `jitContext.h` (`:649-650`). A `static` at file scope in a header gives **each
+translation unit its own copy**, and the four sites that increment the pair all compile into
+`GroupRules.mm`.
+
+**Measured, not reasoned:** moved, retok'd and built, it failed as
+`use of undeclared identifier 'gChanBinds'` — because tok only auto-emits `#include "jitContext.h"`
+once something it can *see* uses a `jitExterns` type, and the read is inside raw `-% %-`
+passthrough. So the compiler refused.
+
+⚠ **THE REFUSAL WAS LUCK, AND THAT IS THE PART TO KEEP.** Had any other moved method used an LLVM
+type, tok would have emitted the include, `measure.mm` would have compiled against **its own zeroed
+copies**, and `chanReport` would have printed `binds = 0 same = 0` — forever, silently, in the shape
+of a real reading. The fleet would have caught it, but only because `pop.sh`'s chanT row asserts a
+**non-zero** total; the row's own comment says why (*"0 of 0 is agreement between two absences"*).
+A row that only asserted `binds == same` would have gone green on the wrong program.
+
+**The rule: before moving a method across a translation-unit boundary, grep its body for globals and
+check their linkage.** `static` in a header means per-TU, and a per-TU counter reads zero.
 
 ## ⚠ SECOND FINDING, 2026-09-04 — A CHILDLESS `#):` ABANDONS THE PARSE, AT EXIT 0
 

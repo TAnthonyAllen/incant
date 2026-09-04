@@ -224,24 +224,6 @@ RuleStuff   ruleStuff = field.rStuff;
 }
 
 /*******************************************************************************
-    labelMinters -- HOW MANY OF THIS RULE'S SUB-TERMS WILL MINT A LABEL.
-*******************************************************************************/
-extern int labelMinters(GroupItem rule)
-{
-GroupItem   grup;
-RuleStuff   termStuff;
-int         minters = 0;
-    if !rule    return 0;
-    while grup = rule.next(grup) {
-        if grup.noPrint     continue;
-        termStuff = grup.rStuff;
-        if termStuff && termStuff.noLabel   continue;
-        if grup.isRule && grup.hasMembers && !grup.binType  continue;
-        minters++; }
-    return minters;
-}
-
-/*******************************************************************************
 	runRuleAction checks to see if there is a method parked in actionMethod.
     If there is, and there is a rule label, it runs actionMethod.
 
@@ -288,86 +270,6 @@ int         minters = 0;
         if aMethod  label = aMethod.method(label);
         return label; }
     return  trueResult;
-}
-
-/*******************************************************************************
-    evictAction -- THE EVICTION, AND IT REFUSES RATHER THAN SUBSTITUTES.
-
-    Tony's design, 2026-08-29. Step 3 of the earlier brief -- install the parse
-    INTO gMethod -- is dead, killed by the parseAction finding: gMethod is read
-    as THE ACTION by nine sites, one of which is a parse executor that would
-    then call itself. The replacement is bear-trap 34's retirement clause.
-    VACATE gMethod and install NOTHING. With the slot empty and isMethod
-    retracted by the symmetric setter, runOP arm two stops claiming the rule,
-    and a bare `QuotE()` in a generated body falls through to the isRule arm,
-    into runRule, into builtinParsE. The new parse wins by having no
-    competitor rather than by taking the old channel.
-
-    ⚠ RELOCATE-THEN-NULL IS STRUCTURAL HERE, NOT REMEMBERED. The whole reason
-    this is one extern rather than two statements in the driver is that the
-    null must be unreachable until the relocation is VERIFIED. setParse already
-    parks actionMethod for every rule it claims, so the relocation has usually
-    happened -- but "usually" is what the brief said not to trust, and a rule
-    that reached dual-flag by any road other than setParse is the burn case:
-    null its gMethod and the action is gone with nothing holding a copy.
-
-    ⚠ IT REPORTS A VALUE ON EVERY RULE, NOT A MESSAGE ON FAILURE (rule H4).
-    An eviction pass that printed only its refusals would go quiet the day it
-    stopped evicting anything, and quiet would read as success. Every rule
-    prints its outcome by name, so the driver can count them and a zero is
-    visible as a zero.
-
-    The passthrough reads two function pointers and compares them. There is no
-    kant spelling for that -- parseClassify above is the house precedent, and
-    the comparison is all that sits inside the escape.
-*******************************************************************************/
-extern GroupItem evictAction(GroupItem field)
-{
-RuleStuff   ruleStuff = field.rStuff;
-String      outcome = "no-rstuff";
-int         doEvict = 0;
-    if ruleStuff {
-        -%
-        GroupItem *(*am)(GroupItem *) = ruleStuff->actionMethod;
-        GroupItem *(*gm)(GroupItem *) = field->groupBody->gMethod;
-        if      ( !gm )        outcome = (char *)"already-vacant";
-        else if ( !am )        outcome = (char *)"REFUSED-unparked";
-        else if ( am != gm )   outcome = (char *)"REFUSED-mismatch";
-        else                 { outcome = (char *)"evicted"; doEvict = 1; }
-        %- }
-    cerr "EVICT " field.tag " " outcome:;
-    if doEvict  field.method = 0;
-    return field;
-}
-
-/*******************************************************************************
-    frameProbe -- LOOK 1 of the handover brief. TEMPORARY, parseTrace gated.
-
-    Question: at a bare sub-rule call, does runRule's `field` argument reach the
-    INVOKING body's in-flight label? If it does, runRule can resolve the frame
-    from its own arguments and no emitter change is owed. Prints what field is
-    and every node reachable from it in one hop, with pointers, because the
-    discriminator is whether four sub-calls yield four DIFFERENT nodes.
-
-    Separate function, not lines inside runRule: runRule is a declared-field
-    function and after parkOnMaster no new declarations go inside one.
-    No percent-dash in the format string; that token closes passthrough.
-*******************************************************************************/
-extern GroupItem frameProbe(GroupItem field, GroupItem rule)
-{
-    -%
-    if ( GroupControl::groupController->groupRules->parseTrace )
-        ::fprintf(stderr,"FRAMEPROBE rule=%s field=%p fieldTag=%s fieldParent=%p fieldStuff=%p fieldStuffLabel=%p fieldStuffLabelTag=%s ruleSTUFF=%p\n",
-            rule ? rule->groupBody->tag : "(none)",
-            (void*)field,
-            field ? field->groupBody->tag : "(none)",
-            field ? (void*)field->parent : (void*)0,
-            field ? (void*)field->rStuff : (void*)0,
-            (field && field->rStuff) ? (void*)field->rStuff->label : (void*)0,
-            (field && field->rStuff && field->rStuff->label) ? field->rStuff->label->groupBody->tag : "(none)",
-            (void*)GroupControl::groupController->groupRules->ruleSTUFF);
-    %-
-    return field;
 }
 
 /*******************************************************************************
