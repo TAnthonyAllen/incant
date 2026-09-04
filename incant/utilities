@@ -111,7 +111,7 @@ define
     ***************************************************************************/
     flatten argument code={
         for grup in argument; members
-            if grup.hasMembers; flatten(grup);
+            if grup.hasMembers; flatten(*grup);
             else
                 print "Adding" grup.tag:;
                 whatsIt += grup;
@@ -138,7 +138,7 @@ define
                     if datA != 0;   print ~$taG "=" grup:;
                     else            print ~$taG:;
                 else
-                    listRules(grup);
+                    listRules(*grup);
                 print $-;
         else    print :;
         };
@@ -157,7 +157,7 @@ define
             print ">",:+;
             for grup in argument; members
                 ++recurse;
-                toXML(grup);
+                toXML(*grup);
                 --recurse;
                 if grup.next    print :;
         else    print "/>";
@@ -200,12 +200,12 @@ define
         for grup in argument; attributes
             newStuff +% grup;
         for grup in argument; members
-            grupCopy <- copyOf(grup);
+            grupCopy <- copyOf(*grup);
             newStuff += grupCopy;
         for grup in argument; members
             while valueCount > 0;
                 --valueCount;
-                grupCopy <- copyOf(grup);
+                grupCopy <- copyOf(*grup);
                 newStuff += grupCopy;
         clear(argument);
         argument += newStuff;
@@ -289,7 +289,7 @@ define
         for grup in argument; members
             :grup across down;
             if across > 0 OR down > 0;
-                setFrame(grup);
+                setFrame(*grup);
         };
     /***************************************************************************
         Return text wrapped in quotes if the field passed in contains text

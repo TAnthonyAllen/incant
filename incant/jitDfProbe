@@ -181,7 +181,7 @@ define
             iterate grup members on *argument;
             while ++grup;
                 print +;
-                displayForm(grup);
+                displayForm(*grup);
                 print $-;
         };
     dfDrive code={

@@ -113,7 +113,7 @@ define
             if binTypE;             continue;
             if !isRulE;             continue;
             if actionTypE != 0;     continue;
-            fbGen(fbCur);
+            fbGen(*fbCur);
         };
     fbRun code={
         fbWalk(Grokking);
@@ -121,7 +121,7 @@ define
         iterate fbC on fbFirst;
         while ++fbC;
             cerr "COMPILING " ~taG:;
-            compile(fbC);
+            compile(*fbC);
         cerr "FIXBISECT SENTINEL -- reached the end":;
         stop();
         };

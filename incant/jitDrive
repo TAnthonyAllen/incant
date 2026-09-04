@@ -49,7 +49,7 @@ define
             print "REFUSE no lines under BlocK":;
         iterate jdCur members on lines;
         while ++jdCur;
-            jdReport(jdCur);
+            jdReport(*jdCur);
         };
     jdReport argument code={
         print "  stmt" ~taG:;

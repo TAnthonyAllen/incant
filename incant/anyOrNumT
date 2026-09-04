@@ -31,7 +31,7 @@ define
             if noPrinT;     continue;
             if notFirstTimeThru > 0;    print _conjunct;
             ++notFirstTimeThru;
-            if activating != 0;     setParse(grup);
+            if activating != 0;     setParse(*grup);
             print $taG "()";
         print ";";
         @argument;
@@ -58,7 +58,7 @@ define
                 while ++grup;
                     if noPrinT;     continue;
                     if binTypE;     continue;
-                    if isRule;      walkRules(grup);
+                    if isRule;      walkRules(*grup);
         else    cerr taG "already has code so no parse generated":;
         };
     parser argument code={

@@ -56,7 +56,7 @@ define
         fbTermN = 0;
         iterate r8Term on *argument;
         while ++r8Term;
-            setParse(r8Term);
+            setParse(*r8Term);
             fbBump();
             print $"t" fbTermN "()";
             if nexT;    print _r8Join;

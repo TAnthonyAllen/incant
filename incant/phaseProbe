@@ -91,25 +91,25 @@ define
         iterate ppM members on *argument;
         while ++ppM;
             if !isRulE;     continue;
-            ppClean(ppM);
+            ppClean(*ppM);
         };
     ppAttrs argument code={
         iterate ppA attributes on *argument;
         while ++ppA;
             if !isRulE;     continue;
-            ppClean(ppA);
+            ppClean(*ppA);
         };
     ppMembers2 argument code={
         iterate ppM2 members on *argument;
         while ++ppM2;
             if !isRulE;     continue;
-            ppShape2(ppM2);
+            ppShape2(*ppM2);
         };
     ppAttrs2 argument code={
         iterate ppA2 attributes on *argument;
         while ++ppA2;
             if !isRulE;     continue;
-            ppShape2(ppA2);
+            ppShape2(*ppA2);
         };
     ppTermN=0;
     ppBump code={
@@ -158,7 +158,7 @@ define
             while ++ppCur;
                 if noPrinT;     continue;
                 if binTypE;     continue;
-                if isRule;      ppWalk(ppCur);
+                if isRule;      ppWalk(*ppCur);
         };
     ppRun argument code={
         ppMembers2(argument);

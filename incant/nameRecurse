@@ -95,7 +95,7 @@ define
         print "  ENTER " mark:;
         iterate kid on *argument;
         if ++kid;
-            probe(kid);
+            probe(*kid);
         print "  AFTER " mark:;
         };
 

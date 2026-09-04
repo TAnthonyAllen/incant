@@ -41,7 +41,7 @@ define
         print "at " taG argument:;
         iterate grup on *argument;
         while ++grup
-            walk(grup);
+            walk(*grup);
         };
     ;
 

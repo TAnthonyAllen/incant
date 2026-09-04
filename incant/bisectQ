@@ -62,7 +62,7 @@ define
         bqTermN = 0;
         iterate bqTerm on *argument;
         while ++bqTerm;
-            setParse(bqTerm);
+            setParse(*bqTerm);
             bqBump();
             print $"t" bqTermN "()";
             if nexT;    print _bqJoin;
@@ -92,7 +92,7 @@ define
             while ++bqCur;
                 if noPrinT;     continue;
                 if binTypE;     continue;
-                if isRule;      bqWalk(bqCur);
+                if isRule;      bqWalk(*bqCur);
         };
     bqRun argument code={
         cerr "== PREFIX, limit" bqLimit "==":;

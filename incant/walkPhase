@@ -137,13 +137,13 @@ define
             while ++wpCur;
                 if noPrinT;     continue;
                 if binTypE;     continue;
-                if isRule;      wpWalk(wpCur);
+                if isRule;      wpWalk(*wpCur);
         };
     wpSweep argument code={
         iterate wpSw attributes on *argument;
         while ++wpSw;
             cerr "COMPILING" ~taG:;
-            wpOut := compileStored(wpSw);
+            wpOut := compileStored(*wpSw);
             if wpOut;   wpCompiled = wpCompiled + 1;
             else        wpRejected = wpRejected + 1;
         };

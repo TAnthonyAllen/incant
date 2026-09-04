@@ -67,23 +67,23 @@ define
         iterate pcA attributes on *argument;
         while ++pcA;
             if noPrinT;     continue;
-            setParse(pcA);
-            parseClassify(pcA);
+            setParse(*pcA);
+            parseClassify(*pcA);
         iterate pcM members on *argument;
         while ++pcM;
             if noPrinT;     continue;
-            setParse(pcM);
-            parseClassify(pcM);
+            setParse(*pcM);
+            parseClassify(*pcM);
         };
     pcWalk argument code={
         iterate pcR members on *argument;
         while ++pcR;
             if noPrinT;     continue;
             if !isRulE;     continue;
-            setParse(pcR);
-            parseClassify(pcR);
+            setParse(*pcR);
+            parseClassify(*pcR);
             if binTypE;     continue;
-            pcTerms(pcR);
+            pcTerms(*pcR);
         };
     pcRun code={
         cerr "== PARSE CLASSIFICATION CENSUS ==":;
