@@ -78,21 +78,32 @@ stroke in the cleanup arc.
 **Done when:** either the caller lands, or Tony rules it dead and it retires with a run that would
 have reached it.
 
-### F-57 (`TOK.xcodeproj` is in no repository) — a build dependency that rides in no commit anywhere
-**Gloss:** the project file nobody tracks. **Severity: LATENT until someone rebuilds from scratch.**
-**Owner: Tony.**
-**Where:** `~/Library/CloudStorage/Dropbox/data/InProcess/TOK/TOK.xcodeproj/project.pbxproj`.
-**What:** `git rev-parse --show-toplevel` from `InProcess/` reports **not a git repository, and no
-parent is one** — so the Xcode project that builds `~/bin/incant` is tracked by nothing. It is
-bear-trap #11's family and **one degree worse**: `groups.ext` is at least committed in the
-`support` repo, and this is committed nowhere at all.
-**How it surfaced:** cleanup stroke 3 added `measure.mm` to the Groups target — four `pbxproj`
-entries — and that edit appears in no `git status` and no commit in either repo. A resurrection
-reader who clones Groups and `support` gets `measure.twk`, `measure.mm` and `measure.h`, and a
-target that does not compile any of them, with nothing to say why.
-**Best guess:** it wants the `support`-repo treatment — tracked somewhere, and named in the
-clean-kitchen status check the way `groups.ext` now is (bear-trap #11's 2026-08-25 mitigation).
-**Done when:** the project file is tracked in a repo, and the kitchen pass reads its state.
+### F-57 — ✅ **CLOSED 2026-09-04** — `TOK.xcodeproj` is now a repository of its own
+**Gloss:** the project file nobody tracks. **Closed by:** cleanup arc stroke 12,
+`github.com/TAnthonyAllen/TOK` at `644fe89`, **PRIVATE** — the two sibling repos are public
+and one command flips it, but publishing is the irreversible direction and that call is Tony's.
+
+**What it was.** `git rev-parse --show-toplevel` from `InProcess/` reported *not a repository,
+and no parent is one*, so the Xcode project that builds `~/bin/incant` was tracked by nothing.
+Bear-trap #11's family and one degree worse: `groups.ext` at least lives in the `support` repo.
+Surfaced when cleanup stroke 3 added four `measure.mm` entries to the Groups target and they
+rode in no commit in either repo.
+
+**What is tracked:** the project file, the workspace grouping, the schemes. Not the sources,
+not build output, not the old arcs in that directory.
+
+⚠ **AND THE ONE THING THE BRIEF GOT WRONG, worth keeping because it is the same shape as the
+defect: "ignore xcuserdata" would have DROPPED `Groups.xcscheme`.** The scheme the documented
+build command names is a **per-user** scheme — `xcshareddata` holds no files at all — so
+ignoring `xcuserdata` wholesale produces a clone that cannot be built by the recipe, which is
+exactly the failure the repo exists to end. The `.gitignore` tracks `*.xcscheme` and ignores
+the churn it was actually aimed at: window state, bookmarks, breakpoints, the scheme-ordering
+plist. Verified by rebuilding from the committed state.
+
+**Still open, and it is the reason this row is worth re-reading rather than deleting:** the
+repo does not make itself get committed. `groups.ext` needed a standing rule (bear-trap #11's
+2026-08-25 mitigation) before it stopped drifting, and this file wants the same one — the
+clean-kitchen pass now has a **third** repo to check, and nothing enforces that yet.
 
 ### F-51 (the Token print part) — a `Token`-shaped print part emits neither node nor scalar
 **Gloss:** Token part emits nothing. **Severity: LATENT.** **Interpreted road: CORRECT.**

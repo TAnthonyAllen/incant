@@ -1,3 +1,120 @@
+# ⚠⚠⚠ 2026-09-04, SECOND SESSION — THE CLEANUP ARC. TWELVE STROKES, THREE FILES
+# EMPTIED INTO TWO NEW HOMES, TWO RETIREMENTS, A THIRD REPOSITORY, AND FIVE
+# FINDINGS THE MOVES PAID FOR. FIFTEEN COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-04 19:14 and
+#   `git log -1 --date=iso` stamps 2026-09-04 19:11. They agree.
+#
+#   ## THE ONE-LINE STATE: **`measure.twk` exists and holds fifteen instruments;
+#   `Bytecode.twk` holds the dispatch loop; the corpus verbs live in `genParse.rtn`;
+#   `writeTempFile` and `resolveList` are retired; the Xcode project is in git.**
+#   Fleet **197 green / 1 parked / 3 pinned red**, ladder **208 / 3**, canary
+#   **314 + 21 + 15 = 350**, frontier **exit 0, 10 PASS**, ddPop **6**, countPop
+#   **40/40**, formsPop **14**, decodePop **82**, alphaLint **2 out of order** (both
+#   in `Instruct.rtn`, not in this arc). All three repos clean and pushed.
+#
+#   ## ⚠⚠ THE THIRD CLONE — RESURRECTION READERS, START HERE
+#
+#   **A working tree needs THREE repositories, not two.** As of 2026-09-04:
+#
+#   | repo | holds | note |
+#   |---|---|---|
+#   | `github.com/TAnthonyAllen/incant` | `InProcess/Groups` — the sources | public |
+#   | `github.com/TAnthonyAllen/support` | `~/data/support` — `groups.ext`, Frame, Include | public |
+#   | `github.com/TAnthonyAllen/TOK` | `InProcess/TOK` — **the Xcode project** | ⚠ **PRIVATE** |
+#
+#   **The third is new and closes F-57.** The project that builds `~/bin/incant` was
+#   tracked by nothing at all — `git rev-parse --show-toplevel` from `InProcess/`
+#   reported not a repository and no parent was one — so every edit to it rode in no
+#   commit anywhere. Bear-trap #11's family, one degree worse: `groups.ext` at least
+#   lived in `support`.
+#   ⚠ **It tracks `*.xcscheme` even though they sit under `xcuserdata`, deliberately.**
+#   `Groups.xcscheme` — the scheme the build recipe names — is a PER-USER scheme;
+#   `xcshareddata` holds no files. Ignoring `xcuserdata` wholesale gives a clone that
+#   cannot be built by the documented command.
+#   ⚠ **It is PRIVATE while its two siblings are public.** One command flips it;
+#   publishing is the irreversible direction, so that call was left to Tony.
+#   ⚠ **AND THE CLEAN-KITCHEN PASS NOW HAS A THIRD LEG.** Nothing enforces it yet.
+#   `groups.ext` needed a standing rule before it stopped drifting; this wants the same.
+#
+#   ## ⚠⚠ THE `.twk` CONVERSION SHOPPING LIST — WHAT THE SPLIT WILL COST, MEASURED
+#
+#   Held at Tony's word; this is what a future session needs and does not have to
+#   re-derive. All figures read off the tree AFTER the arc, 2026-09-04.
+#
+#   **Everything below turns on one fact: the eight chain `.rtn` are ONE translation
+#   unit.** `GroupRules.twk:291-298` includes `Commands.rtn`, `GroupActions.rtn`,
+#   `ruleActions.rtn`, `Debug.rtn`, `Instruct.rtn`, `jitEmitters.rtn`, `genParse.rtn`
+#   and `Generate.rtn`, all landing in `GroupRules.mm`. Converting three of them to
+#   standalone `.twk` splits that one TU into four, and every edge below becomes a
+#   cross-TU reference needing a `groups.ext` declaration in the right header block.
+#
+#   ### 1. The crossing table
+#
+#   | file | symbols OUT (called elsewhere in the chain) | OUT with no mirror | symbols IN (it calls elsewhere) | IN with no mirror |
+#   |---|---|---|---|---|
+#   | `Commands.rtn` | 8 | — | 10 | `setFile` |
+#   | `Generate.rtn` | 1 | — | 2 | `reportNoBody` |
+#   | `GroupActions.rtn` | 15 | `limitWriteCheck`, `limitWriteGuard`, `reportNoBody` | 11 | `jitEmitShortCircuit`, `setFile` |
+#
+#   **Union: 37 symbols cross a new boundary; FIVE have no `groups.ext` mirror** —
+#   `jitEmitShortCircuit`, `limitWriteCheck`, `limitWriteGuard`, `reportNoBody`,
+#   `setFile`. Those five are the whole declaration bill.
+#   ⚠ **And a mirror line is not enough on its own: it must sit in the RIGHT
+#   `external <Header>.h` BLOCK.** The block header is what tells tok which `#include`
+#   to emit. Stroke 4 learned this by failing to build: ten declarations left in the
+#   `GroupRules.h` block sent `GroupRules.mm` hunting measure's methods in its own
+#   header. Relocate, never copy.
+#   ⚠ **A block ADDITION has a blast radius past the files the stroke retok'd.** tok
+#   emits an include for every `external <Header>.h` block in scope whether the file
+#   uses it or not — `GroupItem.mm` silently gained `#include "measure.h"` and only a
+#   full bare `tokall` made the tree self-consistent again.
+#
+#   ### 2. The globals to migrate FIRST — and this is the ordering constraint
+#
+#   **`jitContext.h` carries FIFTEEN file-scope `static` variables. A file-scope
+#   `static` in a header gives every translation unit its OWN copy.** Today every one
+#   is touched by exactly one TU (`GroupRules`), so there is no live defect — **which
+#   is a property of the current file layout, not of the code.** The split is what
+#   breaks it, silently, in the shape of a real reading.
+#
+#   | line | static | reached from |
+#   |---|---|---|
+#   | 33 | `gParseRecordArmed` | GroupRules |
+#   | 276-278 | `gKantLabel`, `gKantFrom`, `gKantRule` | GroupRules |
+#   | 619 | `gNoUnwrap` | GroupRules — ⚠ **the flip switch** |
+#   | 637-639 | `gChanPendBody`, `gChanPendGroup`, `gChanPendData` | GroupRules |
+#   | 640-643 | `gChanStkBody`, `gChanStkGroup`, `gChanStkData`, `gChanStkTop` | GroupRules |
+#   | 652-654 | `gCompileAttempted`, `gCompileRefused`, `gCompileReported` | header-internal only |
+#
+#   **`gChanBinds`/`gChanSame` are NOT on that list any more — they were, and stroke 10
+#   moved them onto `GroupRules` as `chanBinds`/`chanSame`.** That is the worked pattern
+#   to copy: an `int` member beside `lastIndent`/`rulesParsed`/`sourceLINE`, a line in
+#   `groups.ext`'s `external GroupRules` block, and passthrough reaching it as
+#   `GroupControl::groupController->groupRules->chanBinds`. ⚠ Bare `groupRules->` does
+#   NOT compile outside a `GroupControl` method. It is a **layout change**, so a full
+#   `tokall`, not a retok.
+#   **The gChanPend/gChanStk family is the obvious next candidate** — same mechanism,
+#   same owner, and `jitSaveFrameRT`/`jitRestoreFrameRT` already live in `jitEmitters`.
+#
+#   ⚠ **THE RULE THIS ARC PAID FOR, and it is what the list is for: before moving a
+#   method across a TU boundary, grep its body for globals and check their linkage.**
+#   `static` in a header means per-TU, and a per-TU counter reads ZERO. `chanReport`
+#   was caught only because the compiler happened to refuse; had a sibling method used
+#   an LLVM type, tok would have emitted the include and it would have printed
+#   `binds = 0 same = 0` forever, with the fleet green — the only thing that would have
+#   caught it is that the row asserts a NON-ZERO total, not merely equality.
+#
+#   ### 3. What it does NOT cost
+#
+#   **The alphabetize is free and so is any same-TU move.** tok emits externs
+#   ASCII-sorted into the `.mm` regardless of source order, so a source reorder is
+#   provably codegen-neutral — six files were sorted with a byte-identical
+#   `GroupRules.mm` to prove it. **The one exception measured:** moving a definition
+#   past its caller flips tok between `::name(...)` and `name(...)`. Semantically
+#   identical unless a class member shares the free function's name — that check is one
+#   grep of the headers and it is the only one this class of edit needs.
+#
 # ⚠⚠⚠ SEALED 2026-09-04 — THE FLIP BRANCH SHRANK TO ONE COMMIT, TWO RESPELL CLASSES
 # LANDED ON THE TRUNK, R2 DIED ON ITS OWN CERTIFICATE FIXTURE, AND OPTION B IS RULED.
 # THIRTY-ONE COMMITS.
