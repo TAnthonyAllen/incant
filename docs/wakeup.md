@@ -1,3 +1,113 @@
+# ⚠⚠⚠ SEALED 2026-09-04 — THE FLIP BRANCH SHRANK TO ONE COMMIT, TWO RESPELL CLASSES
+# LANDED ON THE TRUNK, R2 DIED ON ITS OWN CERTIFICATE FIXTURE, AND OPTION B IS RULED.
+# THIRTY-ONE COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-04 12:25 and
+#   `git log -1 --date=iso` stamps 2026-09-04 12:15. They agree.
+#
+#   ## THE ONE-LINE STATE: **Class (a) `iterate … on *argument` (113 sites) and class
+#   (e) `callee(*cursor)` (72 sites) are on the TRUNK, arm-independent by measurement.
+#   R2 is retired, F-53 is closed, and the explicit-accessor class is STOPPED because
+#   its spelling does not parse as intended.** Fleet **197 green / 1 parked / 3 pinned
+#   red**, ladder **208 green / 3 pre-existing red**, canary **333**, frontier **exit 0,
+#   10 PASS**, ddPop **6**, countPop **40/40**, formsPop **14**, decodePop **82**.
+#   `flip-argument` is **ONE commit** — the flip itself. Binary bare, verified
+#   behaviourally; no probe strings.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. TWO RESPELL CLASSES LANDED ON THE TRUNK, BOTH ARM-INDEPENDENT BY MEASUREMENT.**
+#   Class (a), 113 sites/71 files, 5 commits; class (e) cursor-passed-to-action, 72
+#   sites/37 files, 4 commits. Drift row **0 in scope** for both. The 09-03 census said
+#   73 for class (a) because it was scoped to `incant/` alone — **the real scope is
+#   `incant/ genLadder/ minionWork/`**, and that understatement was 55%.
+#   ⚠ **The arm-independence was a SURPRISE, twice.** `iterate … on *argument` does not
+#   refuse bare — the 09-03 two-wraps split peels the parse hop unconditionally — and
+#   `callee(*cursor)` does not either, because **the cursor is genuinely a holder on both
+#   arms** and bare's auto-unwrap was only hiding it from `addrOf`.
+#
+#   **b. R2 IS RETIRED, KILLED BY THE FIXTURE BUILT TO CERTIFY IT.** `incant/walkRefT`
+#   measured that with no intervening call the flip **already** reads the member — the
+#   walk writers store the HELD at all four sites, which is what C-158's recon had said.
+#   ⚠ **And R2 would not have been a no-op: it would have regressed a correct case.** A
+#   member that is itself a holder reads `wrHeld` under the flip and `wrTarget` bare, so
+#   following one holder level at the write makes the FLIP behave like BARE —
+#   re-introducing for `lastREF` the very auto-unwrap the flip exists to remove.
+#   `walkRefT` is on the trunk with **row 3 pinned to bare as a TRIPWIRE**: when the flip
+#   lands it goes red, `pop.sh` says so by name, and the re-pin to `wrHeld` is the signal.
+#
+#   **c. `lastREF` IS ONE GLOBAL HOLDER WITH NO BRACKET — R1.** It answers *what was
+#   referenced last, calls included*: `runAction` writes it **per call**, so a nested call
+#   overwrites the caller's, measured identically on both arms. **The reader's fix is
+#   CAPTURE, THEN CALL** — with `:=`, not `=`. ⚠ **What that cannot fix is the CALLEE's own
+#   bare reads**, where the wrong thing is the value passed; `*cursor` at the call site is
+#   that half, and it is class (e).
+#
+#   **d. F-53 CLOSED: `jitEmitIterStepBack` + the moved gate. Canary 332 → 333.**
+#   `opMinusMinus`'s `isIterator` arm returned ABOVE its jitting gate, so a `--` walk
+#   emitted no loop — silently, at degrade 0. ⚠ **THREE CLAUSES OF THE RULING COULD NOT BE
+#   BUILT AS WRITTEN** and are in F-53's closing row: not the `jitEmitter` slot (a unary
+#   with a slot is REFUSED and runs interpreted — bear-trap #46); `gJitSlotCount` therefore
+#   cannot move for a unary; and no `groups.ext` line was needed. Rung **JD** certifies it
+#   on the **emitted IR**, not a count, because **F-55** — a field write inside a jitted
+#   walk body does not land, and the `++` twin fails identically, so it predates F-53.
+#
+#   **e. ⚠⚠ THE EXPLICIT-ACCESSOR CLASS IS STOPPED: `*argument.taG` DOES NOT MEAN WHAT IT
+#   LOOKS LIKE.** The star binds to **`taG`**, reading 0 on both arms. `(*argument).taG`
+#   **does not parse**. A `:=` capture becomes a holder, so `.taG` answers with its own
+#   name. And `@` does not repair it: after a call `@argument` re-aims to the **holder**
+#   and `@*argument` **does not re-aim at all**. **Four candidate spellings dead, two
+#   live** — drop `argument.` for the bare accessor, or change the grammar.
+#
+#   **f. OPTION B IS RULED, AND C-163 REFRAMED THE QUESTION FIRST.** The asymmetry is not
+#   where the unary sits: **`InvokeArg` is a sibling INSIDE `TokenXP`** (so `*a[0]` is
+#   structural) while **`.` is an operator and `a.b` is TWO terms** (so `*a.b` is KANT-43's
+#   right-to-left association). Option A had no dotted term to move into and is retired.
+#   ⚠ **And the second-unary DROP SITE is named, which S3a left open:** `UnaryOPS?` is
+#   singular, the leftover falls to `Token → Operators` and runs as a **binary multiply**,
+#   failing loudly as `ERROR Operator * failed on Token and a refused operand`. S3a missed
+#   it because its run was flip-ON, where the star succeeds, and the message names
+#   `Operator *`, not `unary *`. **That line vanishing is B's cheapest certificate row.**
+#
+#   **g. KANT-43 — NO OPERATOR PRECEDENCE, RIGHT TO LEFT, BY DESIGN.** `a * 10 + b` is
+#   `a * (10 + b)`. Tony's design decision, not a defect. It cost a chartered probe: an
+#   agreement fixture read 39 where its author assumed precedence, and the `lastREF` reads
+#   had been correct the whole time.
+#
+#   ## RULES AND TRAPS MINTED TODAY
+#   **H13** identity rows name their QUESTION before their column · **H14** a certificate
+#   number is read off the tree per commit, never carried from a template · **H5's other
+#   half** a control that removes a gate may RUN AWAY — single fixture, under an alarm ·
+#   **#46** a unary carries no `jitEmitter` slot · **#47** a drift row's population is
+#   every file, whatever the extension · **#48** law 3 amended, two mechanisms.
+#
+#   ## TOMORROW'S ORDER
+#   1. **Option B** — `UnaryOPS*`, one stroke, certificate pre-registered in
+#      `docs/unaryPlacement.md` §4.
+#   2. **The leading-dot row** — does bare `.description` parse and read through
+#      `lastREF`? Read-only, rides with B.
+#   3. **C-157 `iterateT`** — absorbs `walkRefT` and `iterRefuseT`'s rows.
+#   4. **C-161** — road 1, bare accessor, deletions; `@*argument` as the re-aim idiom
+#      **after B**.
+#   5. **F-54** `jitDotBareAccessor` — **moved up to fifth**, from unassigned.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   - `++grup.next` — noted, not opened; B changes nothing there, re-opens if something moves.
+#   - F-55 (field write in a jitted walk body) and F-52 (`cerr` unemitted) — owner unassigned.
+#   - `carrierNode` — the fixit queue, **1**, since 2026-08-31. Untouched today.
+#
+#   ## HOUSEKEEPING
+#   - **31 commits.** Both repos 0 dirty / 0 unpushed but for `IncantForms/WorkingOn/parser`.
+#     Support repo clean at `c1ae51a`; **`groups.ext` untouched this session** — no extern
+#     or mirror edit was made or needed.
+#   - ⚠ **`parser`'s WIP was reverted during branch shuffling and RESTORED from a
+#     scratchpad copy** — md5 `849b4cb9`, 3 insertions / 7 deletions, the `**argument` →
+#     `$$argument` rename and the `setPointer` scaffolding removal. **Confirm it is
+#     yours before working on it.** The old `main` stash (`unary WIP: runNOT handler…`)
+#     was also disturbed once and survives intact.
+#   - **`flip-argument` is ONE commit** after a rebase — it read 2 until the R2-held
+#     commit was dropped as already-applied on the trunk.
+#
 # ⚠⚠⚠ SEALED 2026-09-03 — ITERATE IS RE-RULED AND LANDED, THE :244 PROMOTION IS
 # RETIRED, AND THE COMMENT TEMPLATE IS RULED. FIFTEEN COMMITS, ONE FLIP WINDOW,
 # CLOSED md5-CLEAN.
