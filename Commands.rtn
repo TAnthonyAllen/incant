@@ -4,6 +4,8 @@
     loads the field buffer (creating it if necessary) with text read in from
     the file. Returns the loaded field. See DesignDocs entry: arrondirNote.
 ******************************************************************************/
+
+
 /***************************************************************************
     arrondir -- EXPLICIT CONVERSION TO A COUNT (Tony's ruling, 2026-08-01,
     clause 2 / word 3). For when the user wants control instead of relying on
@@ -70,6 +72,7 @@ extern GroupItem cLEAR(GroupItem input)
         input.clearList(); }
     return input;
 }
+
 
 /*******************************************************************************
 	Compile field action
@@ -218,6 +221,7 @@ endCompile:
     return field;
 }
 
+
 /***************************************************************************
 	Returns a copy of the field passed in
 ***************************************************************************/
@@ -249,35 +253,36 @@ GroupItem block = new;
 
 
 /***************************************************************************
-    parkParse / fireNewParse -- THE FACE-PROOF ARTIFACT ADDRESS.
-
-    Ruled 2026-08-24 on ARCHITECTURAL grounds, not evidentiary ones: a
-    generated parse body's address must be face-proof BY CONSTRUCTION. A rule
-    has many faces -- measured, three distinct reference nodes for one ScafKB,
-    each with its own RuleStuff -- and rStuff is PER NODE, so an address in it
-    is an address in one face. The shared child list is not.
-
-    So the artifact parks as a noPrint ATTRIBUTE tagged `ParsE`, which is
-    processCode's proven pattern for exactly this job (GroupActions.rtn:951 --
-    `result.noPrint = true; field +% result; field.isAction = true`), and the
-    `hasNewParse` flag is the cheap gate that says one is there.
-
-    ⚠ WHY THE MEMBER CARRIES A NAME AND NOT A POINTER. A dlsym'd C++ parse
-    method is a function pointer and there is no node to park; a GroupItem can
-    hold its NAME. So the artifact stores the name and the fire site resolves
-    it, which also means the address survives anything that copies structure
-    without copying rStuff -- which is the whole point of the move.
+	The incant debugGuard command invokes this to toggle the debugGuard
+    flag in the argument passed in
 ***************************************************************************/
-extern int parkParse(GroupItem rule, String name)
+extern GroupItem debugOnGuard(GroupItem input)
 {
-GroupItem   artifact;
-    if !rule    return 0;
-    artifact        = new("ParsE");
-    artifact.text   = name;
-    artifact.noPrint = true;
-    rule            +% artifact;
-    rule.hasNewParse = true;
-    return 1;
+    if !input   debugGuards = !debugGuards;
+    or fLAG     input = parent;
+    if isRule   debugGuard = !debugGuard;
+    else    cerr "debugOnGuard: expected a rule argument, got:",tag:;
+    return trueResult;
+}
+
+
+/***************************************************************************
+	The incant dumpContents command runs this. It is used mostly for debugging.
+    It lists out the componenst of the argument passed in.
+***************************************************************************/
+extern GroupItem dumpContents(GroupItem stuff)
+{
+GroupItem   grup;
+    stuff.debugText(1);
+    while grup = stuff.next(grup) {
+        cout `;
+        //debugLink();
+        debugText(grup,1); }
+    debugIndent--;
+    if stuff.isGROUP && !stuff.groupList {
+        stuff = stuff.group;
+        dumpContents(stuff); }
+    return trueResult;
 }
 
 
@@ -320,40 +325,6 @@ GroupItem   artifact;
         }
     return ((GroupItem *(*)(GroupItem *))address)(rule);
 %-
-}
-
-
-/***************************************************************************
-	The incant debugGuard command invokes this to toggle the debugGuard
-    flag in the argument passed in
-***************************************************************************/
-extern GroupItem debugOnGuard(GroupItem input)
-{
-    if !input   debugGuards = !debugGuards;
-    or fLAG     input = parent;
-    if isRule   debugGuard = !debugGuard;
-    else    cerr "debugOnGuard: expected a rule argument, got:",tag:;
-    return trueResult;
-}
-
-
-/***************************************************************************
-	The incant dumpContents command runs this. It is used mostly for debugging.
-    It lists out the componenst of the argument passed in.
-***************************************************************************/
-extern GroupItem dumpContents(GroupItem stuff)
-{
-GroupItem   grup;
-    stuff.debugText(1);
-    while grup = stuff.next(grup) {
-        cout `;
-        //debugLink();
-        debugText(grup,1); }
-    debugIndent--;
-    if stuff.isGROUP && !stuff.groupList {
-        stuff = stuff.group;
-        dumpContents(stuff); }
-    return trueResult;
 }
 
 
@@ -651,6 +622,39 @@ GroupItem   form = input.parent;
         form.isWindow = true;
     else    cerr "window: should be invoked as an attribute when its parent is defined":;
     return trueResult;
+}
+
+
+/***************************************************************************
+    parkParse / fireNewParse -- THE FACE-PROOF ARTIFACT ADDRESS.
+
+    Ruled 2026-08-24 on ARCHITECTURAL grounds, not evidentiary ones: a
+    generated parse body's address must be face-proof BY CONSTRUCTION. A rule
+    has many faces -- measured, three distinct reference nodes for one ScafKB,
+    each with its own RuleStuff -- and rStuff is PER NODE, so an address in it
+    is an address in one face. The shared child list is not.
+
+    So the artifact parks as a noPrint ATTRIBUTE tagged `ParsE`, which is
+    processCode's proven pattern for exactly this job (GroupActions.rtn:951 --
+    `result.noPrint = true; field +% result; field.isAction = true`), and the
+    `hasNewParse` flag is the cheap gate that says one is there.
+
+    ⚠ WHY THE MEMBER CARRIES A NAME AND NOT A POINTER. A dlsym'd C++ parse
+    method is a function pointer and there is no node to park; a GroupItem can
+    hold its NAME. So the artifact stores the name and the fire site resolves
+    it, which also means the address survives anything that copies structure
+    without copying rStuff -- which is the whole point of the move.
+***************************************************************************/
+extern int parkParse(GroupItem rule, String name)
+{
+GroupItem   artifact;
+    if !rule    return 0;
+    artifact        = new("ParsE");
+    artifact.text   = name;
+    artifact.noPrint = true;
+    rule            +% artifact;
+    rule.hasNewParse = true;
+    return 1;
 }
 
 
