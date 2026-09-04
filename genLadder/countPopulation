@@ -5,7 +5,7 @@ search reset stack Grokking UnitTests Utilities list;
 register(CountPop);
 define
     cpWalk argument code={
-        iterate cpCur members on argument;
+        iterate cpCur members on *argument;
         while ++cpCur;
             if noPrinT;             continue;
             if binTypE;             continue;

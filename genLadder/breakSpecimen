@@ -9,7 +9,7 @@ define
         bkN = bkN + 1;
         };
     bkWalk argument code={
-        iterate bkCur members on argument;
+        iterate bkCur members on *argument;
         while ++bkCur;
             if bkN == 3;    break;
             bkBump(bkCur);
