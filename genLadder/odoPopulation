@@ -11,7 +11,7 @@ define
             if binTypE;             continue;
             if !isRulE;             continue;
             if actionTypE != 0;     continue;
-            opEmit(opCur);
+            opEmit(*opCur);
         };
     opEmit argument code={
         print "ODOPOP" argument.taG:;

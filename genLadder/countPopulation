@@ -13,7 +13,7 @@ define
             if actionTypE != 0;     continue;
             cpLen = listLengtH;
             if cpLen == 0;          continue;
-            cpEmit(cpCur);
+            cpEmit(*cpCur);
         };
     cpEmit argument code={
         print "COUNTPOP" argument.taG:;
