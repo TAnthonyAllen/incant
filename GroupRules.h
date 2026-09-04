@@ -405,4 +405,3 @@ extern "C" void unMark(GroupItem *bufField);
 extern "C" GroupItem *unWrap(GroupItem *result);
 extern "C" int unresolvedTerms(GroupItem *rule);
 extern "C" char *wrapped(GroupItem *input);
-extern "C" GroupItem *writeTempFile(GroupItem *bufField);

@@ -104,7 +104,6 @@ define
     unary immediateAction=processFlags noPrint;
     unWrap immediateAction;
     window immediateAction=markWindow noPrint;
-    writeTempFile immediateAction;
     ;
 /*******************************************************************************
 	Operators is a base registry defined at startup and extended here. Unlike

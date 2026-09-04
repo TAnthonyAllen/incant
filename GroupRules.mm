@@ -13398,7 +13398,7 @@ GroupItem 	*reg = 0;
 	(The earlier bcLIST-priming bytecode harness is in git history; restore it
 	here when bytecode-emit verification is the need again.)
 	NB: keep this body free of `//` comments — they bleed field-resolution into
-	the following externs (unWrap/writeTempFile). Doc goes here, in the block.
+	the following extern (unWrap). Doc goes here, in the block.
 ***************************************************************************/
 extern "C" GroupItem *testing(GroupItem *input)
 {
@@ -13573,25 +13573,6 @@ char 	*junkText = input->getText();
 				junkText = ::concat(3,"'",junkText,"'");
 			else	junkText = ::concat(3,"\"",junkText,"\"");
 	return junkText;
-}
-
-/***************************************************************************
-    Write a buffer field's contents to /tmp/<field.tag> and close. Used as
-    the buffer-to-disk handoff for pipelines that need to run an external
-    tool (tok, etc.) on the buffer contents and consume the tool's output.
-    Returns the field unchanged so it can be threaded through a pipeline.
-    Used in incant directives processing.
-***************************************************************************/
-extern "C" GroupItem *writeTempFile(GroupItem *bufField)
-{
-char 	*tempPath = 0;
-	if ( isBUFFER(bufField->groupBody->flags.data) )
-		{
-		tempPath = ::concat(2,"/tmp/",bufField->groupBody->tag);
-		bufField->getBuffer()->setFile(tempPath);
-		bufField->getBuffer()->closeFile();
-		}
-	return bufField;
 }
 
 /*******************************************************************************
