@@ -2855,6 +2855,17 @@ move**, and the JM rows cannot assert a +1 for a unary; `gJitSlotUnaryRefused` i
 would have moved. *(c)* **No `groups.ext` mirror line was needed** — `jitEmitIterStep` has none and
 is called the same way from the same include chain; the build confirms it.
 
+⚠ **CANARY CORRECTION, 2026-09-04.** The four **C-162** commits (`7fd6fdc`, `8c14bad`,
+`545597e`, `b432458`) state **canary 332** in their certificates. **The measured value on that tree
+is 333** — F-53's `jitEmitIterStepBack` landed before C-162 began, and nothing was lost: the extern
+is present in `GroupRules.h` and four times in `GroupRules.mm`, and rung **JD** is green on all five
+rows, which is the witness that would have gone red had the extern vanished in a retok. **The
+commit messages are a transcription error and the tree is correct.** Cause named rather than
+excused: the certificate line was carried forward from the class-(a) template instead of being read
+off the tree — a number reused rather than measured, which is the failure this file has a ledger
+for. Recorded here because F-53 is where 333 was established and is where an auditor comparing the
+two numbers will land; the commits are not rewritten.
+
 ### F-55 — a field assignment inside a jitted WALK BODY does not land
 **What:** a counter incremented inside `iterate … while ++cur;` reads back as **its own tag**
 (bear-trap #26) after a jitted fire — the assignment never landed. The interpreted oracle is

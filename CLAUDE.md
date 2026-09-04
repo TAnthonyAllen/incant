@@ -2092,6 +2092,26 @@ Hard-won lessons. Each one has cost real debugging time.
     present** — which is rule H4's logic and bear-trap #30's install-check, applied to code you
     emit rather than to code you inject.
 
+47. **A DRIFT ROW'S POPULATION IS EVERY FILE CARRYING THE OLD SPELLING AS TEXT, WHATEVER THE
+    EXTENSION. REMOVE NOISE BY READING THE HITS, NEVER BY EXCLUDING A TYPE.** Gloss: the blast
+    radius is not the language. Measured 2026-09-04 (C-162), and it is the respell-sweep twin of
+    bear-trap #19's corollary: the cause sat in a file the search space had been told to ignore.
+    **The live example:** `genLadder/mkProbeOne.py` builds each `countPop` probe by **verbatim text
+    replacement** against `incant/f31`'s source, and its match block contains the literal line
+    `compile(fbC);`. A cursor respell to `compile(*fbC)` made that `.replace()` match **nothing** —
+    and Python's `.replace()` returns the original **silently**, so the generated probe simply lost
+    its `TARGETDONE` line. `countPop` went **40/40 clean to 0/40 crashed/truncated, every rule, at
+    exit 0 with its sentinel printing.** No error, anywhere, pointing at anything.
+    ⚠ **THE EXCLUSION THAT HID IT WAS A DELIBERATE, SENSIBLE ONE.** The census dropped `.py` to
+    remove noise — one file with embedded incant that was inflating the count — and that is exactly
+    the file the coupling lived in. **A type filter is a claim that no file of that type can carry
+    the spelling, and a text-matching generator falsifies it.** So: census over everything, then
+    **read the hits and drop them by name**, which leaves a record of what was dropped and why.
+    **The two shapes to expect:** a generator that pattern-matches source text (`.py`, `.sh`), and a
+    harness that greps for a literal line. Both fail silently and neither speaks incant.
+    ⚠ **AND THE CURE AT THE SITE IS A COMMENT, NOT VIGILANCE:** `mkProbeOne.py` now says it is
+    coupled to `f31`'s spelling and how it fails, so the next respeller greps it before sweeping.
+
 46. **A UNARY OP CARRIES NO `jitEmitter` SLOT — ITS JIT GATE LIVES IN THE FUNCTION BODY, AND
     INSTALLING A SLOT INVERTS THE FIX YOU ARE TRYING TO LAND.** Gloss: unary gates live in the
     body. Measured 2026-09-04 closing F-53, where the ruling said *"installed in `opMinusMinus`'s
