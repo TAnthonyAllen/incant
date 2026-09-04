@@ -129,7 +129,7 @@ define
         else            print ~$taG;
         if length > 0;
             print _length:;
-            iterate grup on argument;
+            iterate grup on *argument;
             while ++grup;
                 length  = listLengtH;
                 if noPrinT; continue;

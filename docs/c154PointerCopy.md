@@ -221,5 +221,11 @@ read identically on bare), and would have reported a green fleet while asserting
 question before it names its column — and the ruling above.**
 
 **Branch:** `tryAndBuy-gNoUnwrap` retired the same day, dated in the 09-02 seal's own line
-and **not deleted**. Future try-and-buy branches are cut from `main` per stroke, so a branch
-is never older than the question it answers.
+and **not deleted**. Future try-and-buy branches are cut **per stroke from the working
+trunk**, so a branch is never older than the question it answers.
+
+⚠ **CORRECTED 2026-09-04, one commit after this was first written as "cut from `main`":
+the trunk is `jit-unified-emit-wip`.** `main`'s tip is `b411ffa`, **2026-06-30 — 648 commits
+behind HEAD — and it has no `gNoUnwrap`.** Cutting from `main` would have produced a branch
+two months older than its question: the ruling committing the error it was written to
+prevent. The check was one `git rev-list --count`, and nobody had run it.

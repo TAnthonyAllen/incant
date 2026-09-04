@@ -195,8 +195,16 @@
 #   carrying one commit, `e27c407`, which sets `gNoUnwrap = 1`. By 09-04 it was **19
 #   commits stale**, so it could not host a bare arm at the day's numbers — C-154 needed
 #   canary 332 and fleet 191/1/3 and the branch is neither. **Ruled: future try-and-buy
-#   branches are cut from `main` per stroke**, so a branch is never older than the
-#   question it is answering. This line stays as written below because it was true when
+#   branches are cut PER STROKE FROM THE WORKING TRUNK**, so a branch is never older than
+#   the question it is answering.
+#   ⚠⚠ **AND THE TRUNK IS `jit-unified-emit-wip`, NOT `main` — CORRECTED 2026-09-04, ONE
+#   COMMIT AFTER THIS RULING WAS WRITTEN AS "cut from `main`".** Measured on the day:
+#   **`main`'s tip is `b411ffa`, dated 2026-06-30 — 648 commits and two months behind
+#   HEAD — and it carries no `gNoUnwrap` at all.** So "cut from main" would have produced
+#   a branch **two months older than its question**, which is the exact failure the ruling
+#   exists to prevent, committed by the ruling itself. Same family as bear-trap #3 and the
+#   `ipc/` gitignore row: a premise everybody shares and nobody re-runs. The check was one
+#   `git rev-list --count`. This line stays as written below because it was true when
 #   written; the retirement is dated rather than folded in.
 #
 #   **6. THE TRY-AND-BUY IS OPEN ON `tryAndBuy-gNoUnwrap`. 176 → 116, and THE 61
