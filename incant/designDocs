@@ -360,6 +360,42 @@ define
                 one stroke. Whether the QuotE campaign wants that move now, or wants
                 a narrower gate, is the ruling.";
     TokFiles="These are both twk and rtn files and the entries here contain notes that apply to methods in those files. Each file has an entry and contains entries for every method in it that has explanatory notes that were in the code and are now here.":
+        Bytecode=(is the twk file holding the bytecode op handlers. It compiles to its OWN
+            Bytecode.mm and is NOT part of the GroupRules include chain, so a method here
+            is in a different translation unit from everything in the eight chain rtn
+            files. Entries below are the WHY of methods whose comments used to sit in the
+            code.#):
+            interpretBC=(THE C++ DISPATCH LOOP OVER A bcLIST, and it replaced an incant one.
+                A plain C++ cursor sidesteps two entangled incant blockers that made the
+                branch inexpressible in interpreted incant: grup := result WELDS the test
+                variable to the branch-target node, and aCTionFOR advances its OWN C++
+                cursor so a body := cannot steer the iteration. nextGroup is stateless, so
+                a plain cursor relocates to an arbitrary branch-target member cleanly.
+                The reasoning trail is docs/branch-mechanism.md; the resolution is
+                docs/branch-dispatch-findings.md.
+
+                runByteFn returns the branch-target stream member on a taken branch and
+                null on every non-branch op, which is why the loop relocates by tag on a
+                non-null and falls to nextMember otherwise.
+
+                opStack is hung off the bcLIST here, at entry, so the bcOP handlers can
+                reach it through opStackOf, which is parent.getAttribute of opStack. The
+                file header states the same contract from the handlers' side.
+
+                MOVED HERE FROM GroupActions.rtn 2026-09-04, cleanup arc. The method is
+                unchanged; only its home and its comment moved.#);
+            runByteFn=(TRACK A DISPATCH PRIMITIVE. A bytecode op carries a method-bound
+                interpret child, built by interpretMethod. Invoking that child's method
+                from incant is the poochifier -- = drops the binding, bear-trap 2 -- so
+                interpretBC delegates here instead: fetch the child and call its bound
+                handler in place, with the op as the instruction. No copy, no =.
+
+                Label ops have no interpret child, so the lookup gives null and interpretBC
+                treats the null return as a no-op fall-through to the next instruction.
+                That is why the null case is a return rather than a refusal.
+
+                MOVED HERE FROM GroupActions.rtn 2026-09-04, cleanup arc. The method is
+                unchanged; only its home and its comment moved.#);
         Generate="is an rtn file that gets included into GroupRules.twk when it gets tokked. The text for these entries needs to be reviewed to see if they are still relevant. They were relevant once but things change and no one has been going thru comments to keep them up to date. The comments cluttered up code. Now they do not. They are here and the same relevancy question applies.":
             parseAny=(THE LABEL WRITE IS GUARDED IN ALL FOUR OF THESE, and until 2026-08-18 it
                 was guarded in only one. parseSet had `if label` and parseAny,

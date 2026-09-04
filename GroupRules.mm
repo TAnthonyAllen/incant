@@ -4276,32 +4276,6 @@ extern "C" GroupItem *guard(GroupItem *item)
 	return item;
 }
 
-/***************************************************************************
-    interpretBC — C++ dispatch loop over a bcLIST. Replaces the incant
-    interpretBC. A plain C++ cursor sidesteps the :=/byRef weld and the
-    for-loop's non-steerable advance (see docs/branch-dispatch-findings.md).
-    runByteFn returns the branch-target stream member on a taken branch
-    (null on every non-branch op); relocate the cursor to it by tag, then
-    advance. opStack is hung off the bcLIST so the bcOP handlers reach it
-    via opStackOf (parent.getAttribute("opStack")).
-***************************************************************************/
-extern "C" GroupItem *interpretBC(GroupItem *argument)
-{
-GroupItem 	*stack = new GroupItem("opStack");
-GroupItem 	*cursor = 0;
-GroupItem 	*result = 0;
-	argument->addAttribute(stack);
-	cursor = argument->nextMember(0);
-	while ( cursor )
-		{
-		result = runByteFn(cursor);
-		if ( result )
-			cursor = argument->getFromList(result->groupBody->tag);
-		else	cursor = argument->nextMember(cursor);
-		}
-	return argument;
-}
-
 /*****************************************************************************
     interpretMethod — binds a bytecode op's interpret handler. Unlike
     operateMethod (which binds the op's own operat slot, then vanishes as a
@@ -13347,25 +13321,6 @@ int 		chanAbort = 0;
 		}
 	::restoreLocalFields(field);
 	return result;
-}
-
-/***************************************************************************
-    runByteFn — Track A dispatch primitive. A bytecode op carries a
-    method-bound `interpret` child (built by interpretMethod). Invoking that
-    child's method from incant is the poochifier (`=` drops the binding), so
-    interpretBC delegates here: fetch the child and call its bound handler in
-    place, with the op as the instruction. No copy, no `=`. Label ops have no
-    `interpret` child -> null -> interpretBC treats it as a no-op fall-through.
-***************************************************************************/
-extern "C" GroupItem *runByteFn(GroupItem *instr)
-{
-GroupItem 	*interp = instr->get("interpret");
-GroupItem 	*result = 0;
-	if ( interp )
-		result = interp->groupBody->gMethod(instr);
-	if ( interp )
-		return result;
-	return 0;
 }
 
 extern "C" GroupItem *runOP(GroupItem *field)

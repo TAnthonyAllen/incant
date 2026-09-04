@@ -12,6 +12,25 @@
 #include "GroupDraw.h"
 #include "Bytecode.h"
 
+/*  a non-null return from runByteFn is a BRANCH TARGET, not a value -- relocate
+    the cursor to it by tag.   Bytecode.interpretBC  */
+extern "C" GroupItem *interpretBC(GroupItem *argument)
+{
+GroupItem 	*stack = new GroupItem("opStack");
+GroupItem 	*cursor = 0;
+GroupItem 	*result = 0;
+	argument->addAttribute(stack);
+	cursor = argument->nextMember(0);
+	while ( cursor )
+		{
+		result = runByteFn(cursor);
+		if ( result )
+			cursor = argument->getFromList(result->groupBody->tag);
+		else	cursor = argument->nextMember(cursor);
+		}
+	return argument;
+}
+
 // opGT / opMultiply / opAssign are declared via groupIncludes (included above).
 /***************************************************************************
     The operand stack for an instruction's body -- a plain field used as a
@@ -75,6 +94,19 @@ GroupItem 	*grup = 0;
 			return grup;
 			}
 		}
+	return 0;
+}
+
+/*  fire the bound handler IN PLACE -- an `=` anywhere on this path drops the
+    binding (bear-trap #2).   Bytecode.runByteFn  */
+extern "C" GroupItem *runByteFn(GroupItem *instr)
+{
+GroupItem 	*interp = instr->get("interpret");
+GroupItem 	*result = 0;
+	if ( interp )
+		result = interp->groupBody->gMethod(instr);
+	if ( interp )
+		return result;
 	return 0;
 }
 

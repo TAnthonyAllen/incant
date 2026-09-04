@@ -308,31 +308,6 @@ use input
 }
 
 
-/***************************************************************************
-    interpretBC — C++ dispatch loop over a bcLIST. Replaces the incant
-    interpretBC. A plain C++ cursor sidesteps the :=/byRef weld and the
-    for-loop's non-steerable advance (see docs/branch-dispatch-findings.md).
-    runByteFn returns the branch-target stream member on a taken branch
-    (null on every non-branch op); relocate the cursor to it by tag, then
-    advance. opStack is hung off the bcLIST so the bcOP handlers reach it
-    via opStackOf (parent.getAttribute("opStack")).
-***************************************************************************/
-extern GroupItem interpretBC(GroupItem argument)
-{
-GroupItem   stack   = new("opStack");
-GroupItem   cursor;
-GroupItem   result;
-    argument.addAttribute(stack);
-    cursor = argument.nextMember(0);
-    while cursor {
-        result = runByteFn(cursor);
-        if result   cursor = argument.getFromList(result.tag);
-        else        cursor = argument.nextMember(cursor);
-        }
-    return argument;
-}
-
-
 /*****************************************************************************
     interpretMethod — binds a bytecode op's interpret handler. Unlike
     operateMethod (which binds the op's own operat slot, then vanishes as a
@@ -1553,24 +1528,6 @@ use field
         result  = capture; }
     restoreLocalFields(field);
     return  result;
-}
-
-
-/***************************************************************************
-    runByteFn — Track A dispatch primitive. A bytecode op carries a
-    method-bound `interpret` child (built by interpretMethod). Invoking that
-    child's method from incant is the poochifier (`=` drops the binding), so
-    interpretBC delegates here: fetch the child and call its bound handler in
-    place, with the op as the instruction. No copy, no `=`. Label ops have no
-    `interpret` child -> null -> interpretBC treats it as a no-op fall-through.
-***************************************************************************/
-extern GroupItem runByteFn(GroupItem instr)
-{
-GroupItem   interp = instr["interpret"];
-GroupItem   result;
-    if interp   result = interp.gMethod(instr);
-    if interp   return result;
-    return null;
 }
 
 

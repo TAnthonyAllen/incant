@@ -421,3 +421,31 @@ GroupItem   result    = aCTionPrinT(statement);
     if stack  if result  stack.push(result);
     return null;
 }
+
+/*  a non-null return from runByteFn is a BRANCH TARGET, not a value -- relocate
+    the cursor to it by tag.   Bytecode.interpretBC  */
+extern GroupItem interpretBC(GroupItem argument)
+{
+GroupItem   stack   = new("opStack");
+GroupItem   cursor;
+GroupItem   result;
+    argument.addAttribute(stack);
+    cursor = argument.nextMember(0);
+    while cursor {
+        result = runByteFn(cursor);
+        if result   cursor = argument.getFromList(result.tag);
+        else        cursor = argument.nextMember(cursor);
+        }
+    return argument;
+}
+
+/*  fire the bound handler IN PLACE -- an `=` anywhere on this path drops the
+    binding (bear-trap #2).   Bytecode.runByteFn  */
+extern GroupItem runByteFn(GroupItem instr)
+{
+GroupItem   interp = instr["interpret"];
+GroupItem   result;
+    if interp   result = interp.gMethod(instr);
+    if interp   return result;
+    return null;
+}

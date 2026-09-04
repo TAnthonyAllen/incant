@@ -36,6 +36,8 @@ the interesting quantity is the one that can come back zero.
 | 2026-09-02 | `Instruct.opDot.case407binType` | `Instruct.rtn` | binType is an enum; why nonzero is the right width |
 | 2026-09-02 | `Instruct.opDot.case408isAction` | `Instruct.rtn` | why 406 cannot witness the isCoded → isAction transition |
 | 2026-09-02 | `Instruct.opDot.case41hasNewParse` | `Instruct.rtn` | why the read and write halves ship together |
+| 2026-09-04 | `Bytecode.interpretBC` | `Bytecode.twk` | the two incant blockers that made the branch inexpressible, and why a plain C++ cursor cures both |
+| 2026-09-04 | `Bytecode.runByteFn` | `Bytecode.twk` | why the handler is fired in place, and why a label op's null is a fall-through rather than a refusal |
 
 ## LOOKUPS CLOD ACTUALLY MADE
 

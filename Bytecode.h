@@ -39,9 +39,11 @@ public:
 int dummy;
 void run();
 };
+extern "C" GroupItem *interpretBC(GroupItem *argument);
 extern "C" GroupItem *opStackOf(GroupItem *instr);
 extern "C" GroupItem *runBR(GroupItem *instr);
 extern "C" GroupItem *runBRZ(GroupItem *instr);
+extern "C" GroupItem *runByteFn(GroupItem *instr);
 extern "C" GroupItem *runCall(GroupItem *instr);
 extern "C" GroupItem *runEQ(GroupItem *instr);
 extern "C" GroupItem *runForNext(GroupItem *instr);
