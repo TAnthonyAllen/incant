@@ -31,7 +31,6 @@ GroupItem 	*result = 0;
 	return argument;
 }
 
-// opGT / opMultiply / opAssign are declared via groupIncludes (included above).
 /***************************************************************************
     The operand stack for an instruction's body -- a plain field used as a
     stack. interpret() hangs an `opStack` field off the bcLIST before walking

@@ -30,6 +30,7 @@ class GroupItem;
 //             non-null = branch; interpret() jumps to that instruction.
 //
 
+// opGT / opMultiply / opAssign are declared via groupIncludes (included above).
 // Dummy class so tok emits Bytecode.mm (the output is named after the class).
 // The real content is the extern handlers below.
 
