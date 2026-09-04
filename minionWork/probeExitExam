@@ -44,7 +44,7 @@ define
         else                fbJoin = "OR";
         print `"if ";
         fbTermN = 0;
-        iterate fbTerm on argument;
+        iterate fbTerm on *argument;
         while ++fbTerm;
             fbBump();
             print $"t" fbTermN "()";
@@ -71,7 +71,7 @@ define
         cerr "INSTALL " fbCount " " ~taG:;
         };
     fbWalk argument code={
-        iterate fbCur members on argument;
+        iterate fbCur members on *argument;
         while ++fbCur;
             if fbCount >= fbLimit;  continue;
             if noPrinT;             continue;

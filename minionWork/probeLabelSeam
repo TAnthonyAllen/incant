@@ -27,7 +27,7 @@ define
         if hasAttributeS;   conjunct = "AND";
         else                conjunct = "OR";
         print `"if ";
-        iterate grup on argument;
+        iterate grup on *argument;
         while ++grup;
             if noPrinT;     continue;
             if spOn != 0;   setParse(grup);

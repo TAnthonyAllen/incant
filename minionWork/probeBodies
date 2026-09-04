@@ -32,7 +32,7 @@ define
         if hasAttributeS;   fbJoin = "AND";
         else                fbJoin = "OR";
         print `"if ";
-        iterate fbTerm on argument;
+        iterate fbTerm on *argument;
         while ++fbTerm;
             print $taG "()";
             if nexT;    print _fbJoin;
@@ -57,7 +57,7 @@ define
         cerr "BODYTEXT " ~taG " :: " fbBuffer:;
         };
     fbWalk argument code={
-        iterate fbCur members on argument;
+        iterate fbCur members on *argument;
         while ++fbCur;
             if fbCount >= fbLimit;  continue;
             if noPrinT;             continue;

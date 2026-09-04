@@ -15,12 +15,12 @@ define
     rnWalk argument code={
         cerr "  ATTRIBUTES of " ~taG ":":;
         rnI = 0;
-        iterate rnA attributes on argument;
+        iterate rnA attributes on *argument;
         while ++rnA;
             rnItem(rnA);
         cerr "  MEMBERS of " ~taG ":":;
         rnI = 0;
-        iterate rnM members on argument;
+        iterate rnM members on *argument;
         while ++rnM;
             rnItem(rnM);
         };

@@ -14,7 +14,7 @@ define
     dfR code={ dfRuleOnly = dfRuleOnly + 1; };
     dfM code={ dfMethOnly = dfMethOnly + 1; };
     dfWalk argument code={
-        iterate dfCur members on argument;
+        iterate dfCur members on *argument;
         while ++dfCur;
             if !isRulE;     continue;
             if isMethoD;    dfNote(dfCur);

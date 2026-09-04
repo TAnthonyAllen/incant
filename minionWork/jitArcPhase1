@@ -147,7 +147,7 @@ define
     jaCount=0;
     jaKids=0;
     jaWalk argument code={
-        iterate jaCur on argument;
+        iterate jaCur on *argument;
         while ++jaCur;
             jaCount = jaCount + 1;
             cerr "SECTION " ~taG:;

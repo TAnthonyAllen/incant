@@ -76,7 +76,7 @@ define
     fzCount=0;
     fzKids=0;
     fzWalk argument code={
-        iterate fzCur on argument;
+        iterate fzCur on *argument;
         while ++fzCur;
             fzCount = fzCount + 1;
             cerr "SECTION " ~taG:;

@@ -71,7 +71,7 @@ define
     fsCount=0;
     fsKids=0;
     fsWalk argument code={
-        iterate fsCur on argument;
+        iterate fsCur on *argument;
         while ++fsCur;
             fsCount = fsCount + 1;
             cerr "SECTION " ~taG:;

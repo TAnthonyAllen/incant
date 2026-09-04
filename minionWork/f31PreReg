@@ -51,7 +51,7 @@ define
     fpCount=0;
     fpKids=0;
     fpWalk argument code={
-        iterate fpCur on argument;
+        iterate fpCur on *argument;
         while ++fpCur;
             fpCount = fpCount + 1;
             cerr "SECTION " ~taG:;
