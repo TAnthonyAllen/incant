@@ -63,6 +63,37 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-56 (`fireNewParse` wired to nothing) — built, complete, and reached by no caller anywhere
+**Gloss:** the artifact arm nobody calls. **Severity: LATENT.** **Owner: Tony (Option B).**
+**Where:** `Commands.rtn`, `extern GroupItem fireNewParse(GroupItem rule)`.
+**What:** Option B's artifact-firing arm. It has **zero call sites, zero function-pointer bindings
+and no `incant/setup` registration**, measured 2026-09-04 over the whole `InProcess` tree plus
+`~/data/support` — 2500 files. It is the only method in the cleanup census with a genuine zero on
+every channel: `writeTempFile` at least has a command registration, `resolveList` at least has a
+commented-out call site.
+**Best guess:** pending wiring, not dead code. The body is complete — it forks ARTIFACT arm versus
+CODE arm on `hasNewParsE` and refuses loudly on wreckage — which is not the shape of something
+abandoned. **NOT a retirement candidate on that reading**, which is why it is a row here and not a
+stroke in the cleanup arc.
+**Done when:** either the caller lands, or Tony rules it dead and it retires with a run that would
+have reached it.
+
+### F-57 (`TOK.xcodeproj` is in no repository) — a build dependency that rides in no commit anywhere
+**Gloss:** the project file nobody tracks. **Severity: LATENT until someone rebuilds from scratch.**
+**Owner: Tony.**
+**Where:** `~/Library/CloudStorage/Dropbox/data/InProcess/TOK/TOK.xcodeproj/project.pbxproj`.
+**What:** `git rev-parse --show-toplevel` from `InProcess/` reports **not a git repository, and no
+parent is one** — so the Xcode project that builds `~/bin/incant` is tracked by nothing. It is
+bear-trap #11's family and **one degree worse**: `groups.ext` is at least committed in the
+`support` repo, and this is committed nowhere at all.
+**How it surfaced:** cleanup stroke 3 added `measure.mm` to the Groups target — four `pbxproj`
+entries — and that edit appears in no `git status` and no commit in either repo. A resurrection
+reader who clones Groups and `support` gets `measure.twk`, `measure.mm` and `measure.h`, and a
+target that does not compile any of them, with nothing to say why.
+**Best guess:** it wants the `support`-repo treatment — tracked somewhere, and named in the
+clean-kitchen status check the way `groups.ext` now is (bear-trap #11's 2026-08-25 mitigation).
+**Done when:** the project file is tracked in a repo, and the kitchen pass reads its state.
+
 ### F-51 (the Token print part) — a `Token`-shaped print part emits neither node nor scalar
 **Gloss:** Token part emits nothing. **Severity: LATENT.** **Interpreted road: CORRECT.**
 **Workaround: the interpreted road.** **Owner: Tony (jitter campaign).**

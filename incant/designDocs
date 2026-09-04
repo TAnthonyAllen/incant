@@ -1096,6 +1096,29 @@ define
 
                 The channel-stack push and pop are the gChan half and are documented in
                 jitContext.h; the push is unconditional so that it pairs with the pop.#);
+        measure=(is the twk file holding the measuring instruments -- censuses, audits,
+            probes, address and body readers, and the report verbs a fixture drives from
+            kant. Minted 2026-09-04, cleanup arc stroke 3, because those methods were
+            spread across GroupActions, Generate and Commands and had no home.
+
+            WHAT BELONGS HERE is a method whose job is to ANSWER A QUESTION ABOUT the tree
+            rather than to change it. Most are registered as incant commands in
+            incant/setup and are reached ONLY from kant text, with no C++ caller at all.
+            A method on the parse or execution path belongs where its callers are.
+
+            ⚠ IT IS ITS OWN TRANSLATION UNIT, not part of the GroupRules include chain.
+            That costs nothing for a kant-reached command -- the command machinery dlsyms
+            the symbol out of the binary and needs no declaration -- but a C++ caller
+            across the boundary needs a line in groups.ext, which lives outside this repo.
+
+            ⚠ AND THE DUMMY CLASS'S GroupItem LOCAL IS LOAD-BEARING. tok picks the output
+            extension from currentClass.isOC or makeOCfile, and makeOCfile is only raised
+            once the file USES an Objective-C-flavoured type -- so a genuinely empty shell
+            emits measure.C and not measure.mm. Measured 2026-09-04. Either would build;
+            the danger is that the extension FLIPS to .mm the moment the first real method
+            lands, leaving the Xcode entry pointed at a measure.C that tok no longer writes
+            and the compiler still happily compiles. The extension was fixed before
+            anything depended on it.#);
         ruleActions=(is the rtn file holding the rule actions -- the methods a
                 grammar rule fires when it matches.#):
             aCTionIterate=(THE ITERATE STATEMENT'S ACTION.#):

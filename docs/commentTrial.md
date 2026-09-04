@@ -65,6 +65,28 @@ is *"pure getter, does not construct — every bare `.rStuff` read routes here"*
 under it is argument.
 
 
+## ⚠ SECOND FINDING, 2026-09-04 — A CHILDLESS `#):` ABANDONS THE PARSE, AT EXIT 0
+
+**A node written with the has-children terminator `#):` and then given no children kills the
+`designDocs` parse** — and it kills it the way the first finding did, with
+`RunRulE: expected a method not DisplayDesignHTML`, naming the file's first and perfectly healthy
+entry (bear-trap #32's misdirection). `#);` — the leaf terminator — parses fine with identical
+prose.
+
+**Measured by bisect, one node at a time against HEAD:** the `Bytecode` and `jitEmitters` nodes
+both parse (both have children); the `measure` node, minted childless with `#):`, truncated the
+run. One character.
+
+⚠ **AND THE INSTRUMENT IS THE POINT.** `pop.sh` cannot see `designDocs` and read 197 green,
+byte-identical, throughout. `genLadder/ddPop.sh` caught it in one run: `ddGate sentinel MISSING`,
+`records walked reads ''`, and its own H7 negative control reporting *"stayed GREEN -- the gate
+certifies nothing"*. That is rule H12's provenance repeating itself almost verbatim, on the same
+file, five days later.
+
+**The cheap discipline: run `ddPop.sh` after ANY `designDocs` edit, not at the end of the arc.**
+An entry that parses is not the same fact as a file that parses, and only the second one is
+checked.
+
 ## ⚠ FIRST FINDING, ON THE FIRST ENTRY — THE REGISTER ALREADY EXISTED
 
 The convention was first written as `method.slug` with entries under a new `MethodNotes` member.
