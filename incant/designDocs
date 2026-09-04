@@ -1069,6 +1069,116 @@ define
 
                 The channel-stack push and pop are the gChan half and are documented in
                 jitContext.h; the push is unconditional so that it pairs with the pop.#);
+        genParse=(is the rtn file holding the parse-generation machinery -- the planner,
+            the emitters, and since 2026-09-04 the GENERATED-BODY CORPUS verbs that file
+            and bind what it generates. It is part of the GroupRules include chain.#):
+            activateAll=(activateAll -- THE WHOLE-POPULATION FORM.
+
+                Walks the corpus and binds every PENDING entry to the rule it was filed
+                against. The rule is read back from the entry's group back-pointer, which
+                storeBody set -- the same back-pointer idiom kantDoor uses for `this`.
+                PRINTS the number activated, unconditionally and with its value, so a
+                caller can assert a quantity rather than an absence (rule H4).
+
+                ⚠ RETURNS GroupItem, NOT int, AND THAT IS LOAD-BEARING. An extern wired as
+                an incant command MUST return a GroupItem: the command machinery takes the
+                return value as a GroupItem*, so an int return is read as a pointer and the
+                process dies ON THE STATEMENT AFTER THE CALL, never at the call itself.
+                Measured 2026-08-21 -- the first cut of this function returned int, and the
+                trace proved it by never firing: the crash happened before the callee was
+                entered on the NEXT statement, which reads as "the command was never
+                called". Census of incant/setup at that date: of every registered
+                immediateAction command in the tree, ZERO return int. This one does not
+                either.
+
+                MOVED HERE FROM Commands.rtn 2026-09-04, cleanup arc stroke 5. The method is
+                unchanged; only its home and its comment moved.#);
+            activateBody=(activateBody -- BIND ONE STORED BODY TO ITS RULE'S LIVE SLOT.
+
+                The per-rule form. THE ONLY WRITER of CodE and isCoded on the generated
+                arc. A fresh node is minted and retagged rather than the stored one being
+                moved, so the corpus entry survives activation and the census can still
+                see it -- a corpus that empties itself on activation cannot report a
+                zero remainder, it can only report an empty corpus.
+
+                MOVED HERE FROM Commands.rtn 2026-09-04, cleanup arc stroke 5. The method is
+                unchanged; only its home and its comment moved.#);
+            compileStored=(compileStored -- PHASE 2 UNDER OPTION B. COMPILE THE BODY OUT OF THE
+                REGISTRY, WITHOUT EVER WRITING THE RULE'S LIVE SLOT.
+
+                THE SPELLING, FLAGGED AS THE CHARTER ASKS: a sixth verb rather than a new
+                arm on compile, and it compiles THE CORPUS ENTRY, not the rule. The entry
+                is a GroupItem like any other, so hanging a CodE on IT and compiling IT
+                exercises the whole parse path while the rule stays untouched. That is
+                kantDoor's mint pattern (genParse.rtn) -- it compiles a `kp<Rule>` mint in
+                a separate registry for exactly this reason -- rather than a new mechanism.
+
+                WHY NOT AN ARM ON compile: compile's contract is "compile the field you are
+                given". Teaching it to go looking somewhere else for a body would make one
+                function mean two things depending on a flag, which is the one-channel-two-
+                meanings failure this project keeps paying for. The canary moves 313 -> 314
+                and that is PRE-STATED here rather than discovered.
+
+                STATES ON THE ENTRY: 1 pending · 3 COMPILED GREEN · 2 commissioned. Phase 2
+                moves 1 -> 3 for a green compile and LEAVES 1 for a failure, so the residue
+                is exactly the set still at 1. Phase 3 moves 3 -> 2. Never 0: a fresh node
+                counts zero already, so zero can never mean a state we put it in.
+
+                MOVED HERE FROM Commands.rtn 2026-09-04, cleanup arc stroke 5. The method is
+                unchanged; only its home and its comment moved.#);
+            storeBody=(THE GENERATED-BODY CORPUS -- storeBody / activateBody / activateAll /
+                bodyCensus. Charter A, SEQ 78, Ruling 1 (Fork 2).
+
+                THE INVARIANT THESE FOUR EXIST TO ENFORCE, and it is the whole point:
+                GENERATION NEVER WRITES THE LIVE SLOT. The live slot on the generated arc
+                is CodE plus isCoded, and activateBody is the ONLY thing in this file that
+                writes it. Phase one files bodies pending; phase two binds them. F-31's
+                mechanism was a body installed over a rule the reader was still using, and
+                that is unconstructable once the two steps are separate.
+
+                THE HANDOFF IS `StorE`, NOT `CodE`, AND THAT IS NOT A DETAIL. The walk
+                builds its body copy tagged StorE and hangs it on the rule; storeBody moves
+                it off into the corpus. A StorE attribute is inert -- nothing in parse()
+                or processCode reads that tag -- so at no point during generation does a
+                rule carry a body the reader can be diverted into. Retagging to CodE
+                happens in activateBody, at bind time, on a fresh node.
+
+                ⚠ COUNT IS 1 FOR PENDING AND 2 FOR ACTIVATED, NEVER 0. A fresh GroupItem's
+                count is already zero, so a zero-means-pending encoding cannot tell
+                "filed pending" from "never touched" -- the census would report a corpus
+                that was never written as a corpus full of pending work. Same reason the
+                JIT ladder pairs every zero-expecting row with a non-zero sibling.
+
+                THE MINT COPIES kantDoor's DOOR (genParse.rtn) rather than inventing a
+                second one, including its groupList guard: indexing a registry that has
+                just been created prints `nextGroup: ERROR ... does not contain a list`.
+
+                MOVED HERE FROM Commands.rtn 2026-09-04, cleanup arc stroke 5. The method is
+                unchanged; only its home and its comment moved. ⚠ The family header above names
+                bodyCensus as a fifth verb -- that one went to measure.twk in stroke 4, because it
+                only ASKS about the corpus and never writes it.#);
+            storedBody=(storedBody -- THE PER-RULE QUERY VERB. Returns the corpus entry for a rule,
+                or null if nothing is filed against it.
+
+                ⚠ THIS EXTERN WAS NOT IN THE PRE-REGISTERED SET, AND THAT IS REPORTED AS A
+                FINDING RATHER THAN RE-PINNED. The pre-registration named four verbs and a
+                canary delta of +4; this makes it five and +5. The gap it closes was found
+                by the build and could not have been reasoned out beforehand:
+
+                THE DIRECT-INSTALL IDIOM WAS DOING DOUBLE DUTY. A phase-one walk recurses
+                into a rule's terms, and its only termination guard is `actionType != 0` --
+                which became non-zero *because the body had just been installed*. Installing
+                was simultaneously the STORE and the VISITED MARK. Separating the two, which
+                is the whole point of this charter, deleted the visited mark: walkPhase went
+                StatemenT -> BlocK -> StatemenT for ever and died at exit 139.
+
+                So the corpus has to answer "is this rule already filed", and A1 already
+                says the corpus is censusable BY QUERY VERB. This is that verb at per-rule
+                granularity. It is a READ -- it writes nothing and never mints an entry --
+                so it cannot itself become a second writer of anything.
+
+                MOVED HERE FROM Commands.rtn 2026-09-04, cleanup arc stroke 5. The method is
+                unchanged; only its home and its comment moved.#);
         measure=(is the twk file holding the measuring instruments -- censuses, audits,
             probes, address and body readers, and the report verbs a fixture drives from
             kant. Minted 2026-09-04, cleanup arc stroke 3, because those methods were

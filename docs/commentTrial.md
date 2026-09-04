@@ -62,6 +62,11 @@ the interesting quantity is the one that can come back zero.
 | 2026-09-04 | `measure.probeNode` | `measure.twk` | why it reports pointers and never names |
 | 2026-09-04 | `measure.showBody` | `measure.twk` | why incant cannot ask a pointer question, and which copy mechanism it settles |
 | 2026-09-04 | `GroupActions.chanReport` | `GroupActions.rtn` | ⚠ did NOT move: it reads `static int` state from `jitContext.h`, so a second TU gets its own zeroed copies |
+| 2026-09-04 | `genParse.storeBody` | `genParse.rtn` | the corpus's founding invariant -- generation never writes the live slot |
+| 2026-09-04 | `genParse.storedBody` | `genParse.rtn` | why the fifth verb was a finding rather than a re-pin of the pre-registered four |
+| 2026-09-04 | `genParse.activateBody` | `genParse.rtn` | why it is the only writer of CodE plus isCoded among the corpus verbs |
+| 2026-09-04 | `genParse.compileStored` | `genParse.rtn` | phase two under Option B, and why it compiles out of the corpus |
+| 2026-09-04 | `genParse.activateAll` | `genParse.rtn` | the no-back-pointer ruling, and why it refuses per entry rather than aborting |
 
 ## LOOKUPS CLOD ACTUALLY MADE
 

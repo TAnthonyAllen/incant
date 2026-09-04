@@ -2759,3 +2759,142 @@ int         n = 0;
         i++; }
     return n;
 }
+
+
+/*  ⚠ NO BACK-POINTER: it resolves the rule by NAME out of the live registry.
+    Refuses by name per entry rather than aborting the sweep.   genParse.activateAll  */
+extern GroupItem activateAll(GroupItem ignored)
+{
+GroupItem   reg,
+            entry,
+            rule;
+int         done = 0;
+    reg = getRegistry("GenBodies");
+    if !reg.groupList {
+        cerr "CORPUS activated 0 -- the corpus is empty":;
+        return null; }
+    while entry = reg.next(entry)
+        if entry.count == 3 {
+            rule = locate(entry.tag);
+            if !rule
+                cerr "activateAll: REFUSING " entry.tag " -- no live rule of that name":;
+            or activateBody(rule)   done = done + 1; }
+    cerr "CORPUS commissioned " toStringFromInt(done):;
+    return trueResult;
+}
+
+
+/*  ⚠ THE ONLY WRITER OF THE LIVE SLOT among the corpus verbs -- CodE plus isCoded.
+    Generation files pending; this is phase two.   genParse.storeBody  */
+extern GroupItem activateBody(GroupItem rule)
+{
+GroupItem   reg,
+            entry,
+            body,
+            hung;
+    if !rule {
+        cerr "activateBody: no field":;
+        return null; }
+    reg = getRegistry("GenBodies");
+    if !reg.groupList {
+        cerr "activateBody: REFUSING " rule.tag " -- the corpus is empty":;
+        return null; }
+    entry = reg[rule.tag];
+    if !entry {
+        cerr "activateBody: REFUSING " rule.tag " -- nothing stored for it":;
+        return null; }
+    body = entry.getAttribute("StorE");
+    if !body {
+        cerr "activateBody: REFUSING " rule.tag " -- the entry carries no body":;
+        return null; }
+    hung            = copyOf(body);
+    hung.tag        = "CodE";
+    hung.noPrint    = true;
+    rule            +% hung;
+    rule.isCoded    = true;
+    entry.count     = 2;
+    return rule;
+}
+
+
+/*  PHASE 2 UNDER OPTION B: compile OUT OF the corpus, never over the live rule.
+    Refuses by name on every missing precondition.   genParse.compileStored  */
+extern GroupItem compileStored(GroupItem rule)
+{
+GroupItem   reg,
+            entry,
+            body,
+            hung,
+            out;
+    if !rule    return null;
+    reg = getRegistry("GenBodies");
+    if !reg.groupList {
+        cerr "compileStored: REFUSING " rule.tag " -- the corpus is empty":;
+        return null; }
+    entry = reg[rule.tag];
+    if !entry {
+        cerr "compileStored: REFUSING " rule.tag " -- no stored body":;
+        return null; }
+    body = entry.getAttribute("StorE");
+    if !body {
+        cerr "compileStored: REFUSING " rule.tag " -- the entry carries no body":;
+        return null; }
+    hung            = copyOf(body);
+    hung.tag        = "CodE";
+    hung.noPrint    = true;
+    entry           +% hung;
+    entry.isCoded   = true;
+    out             = compile(entry);
+    entry.isCoded   = false;
+    if !out     return null;
+    entry.count     = 3;
+    return trueResult;
+}
+
+
+/*  GENERATION NEVER WRITES THE LIVE SLOT -- this files a body PENDING, tagged StorE,
+    and refuses by name when there is nothing to file.   genParse.storeBody  */
+extern GroupItem storeBody(GroupItem rule)
+{
+GroupItem   reg,
+            entry,
+            body;
+    if !rule {
+        cerr "storeBody: no field":;
+        return null; }
+    body = rule.getAttribute("StorE");
+    if !body {
+        cerr "storeBody: REFUSING " rule.tag " -- no StorE attribute to file":;
+        return null; }
+    reg = getRegistry("GenBodies");
+    if reg.groupList    entry = reg[rule.tag];
+    if !entry           entry = reg += new(rule.tag);
+    body.parent = 0;
+    entry           +% body;
+    /*  ⚠ NO BACK-POINTER. SEQ 79 step 1, ruled: activateAll resolves the rule
+        by NAME instead. The entry once carried entry.group = rule so the
+        whole-population form could find its rule, and it did not work --
+        GroupItem::setGroup (GroupItem.twk:1662) keeps the pointer only for an
+        isLocal/isLabel node or a byRef target, and otherwise takes the
+        `gGroup = new(g)` arm and stores an EMBEDDED COPY of a parented node.
+        Setting isLocal first, which is what kantDoor does, did not rescue it.
+
+        THE FIELD IS DELETED RATHER THAN REPAIRED. Audited before removal, as
+        instructed: entry.group was written exactly here and read in exactly
+        one place, activateAll's loop. It had NO second purpose, so nothing
+        else can be relying on it.  */
+    entry.count     = 1;
+    return entry;
+}
+
+
+/*  the per-rule query verb: the corpus entry, or null when nothing is filed.
+    genParse.storedBody  */
+extern GroupItem storedBody(GroupItem rule)
+{
+GroupItem   reg;
+    if !rule    return null;
+    reg = getRegistry("GenBodies");
+    if !reg.groupList   return null;
+    return reg[rule.tag];
+}
