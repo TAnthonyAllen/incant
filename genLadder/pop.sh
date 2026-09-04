@@ -1779,13 +1779,28 @@ else
     echo "        The empty hybrid set below would be empty for that reason, not"
     echo "        because the population is clean."; fail=1
 fi
-if [ -z "$schybrid" ]; then
-    echo "  ok    pick-one: data-plus-members set is EMPTY -- no exceptions"; green=$((green+1))
+#  ⚠ THE EMPTINESS CHECK CARRIES ITS OWN ROW-COUNT GUARD, and it is NOT a
+#  duplicate of the non-vacuity row above. Measured 2026-09-04 (C-156 group 1):
+#  under the flip the unstarred walk returned ZERO rows, so this row read
+#  "data-plus-members set is EMPTY -- no exceptions" and went GREEN while the
+#  row above correctly went red. One green and one red on the same empty walk,
+#  and the green one is the claim a reader believes. An assertion must not
+#  outsource its own precondition to a neighbouring row: the neighbour can be
+#  read as a separate failure, re-pinned, or moved, and this row would go on
+#  passing for want of rows rather than for want of exceptions. That is rule
+#  H4's absence-versus-value applied to a SET, and the third member of the
+#  "a constant the default could also produce asserts nothing" family.
+if [ "$scrows" -gt 0 ] && [ -z "$schybrid" ]; then
+    echo "  ok    pick-one: data-plus-members set is EMPTY over $scrows rows -- no exceptions"; green=$((green+1))
+elif [ "$scrows" -eq 0 ]; then
+    echo "  FAIL  pick-one is VACUOUS -- the walk returned ZERO rows, so the empty"
+    echo "        set says nothing about the partition. This row asserts its own"
+    echo "        precondition; it does not borrow the row above's."; fail=1
 else
     echo "  FAIL  pick-one partition MOVED: data-plus-members set is { $schybrid}"
-    echo "        Expected EMPTY. A container's derived set is exempt by binTypE;"
-    echo "        anything appearing here is a rule that was genuinely written as"
-    echo "        both, which is what pick-one forbids."; fail=1
+    echo "        Expected EMPTY over $scrows rows. A container's derived set is"
+    echo "        exempt by binTypE; anything appearing here is a rule that was"
+    echo "        genuinely written as both, which is what pick-one forbids."; fail=1
 fi
 
 diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
