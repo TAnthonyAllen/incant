@@ -201,6 +201,12 @@ met by any change to the assign or the star** — both are already correct. It i
 
 ### ⚠ SEQ 145 item 5 — THE `=` LIST-BEARING RHS, PRICED. **NOT BUILT. TONY'S RULING.**
 
+⚠ **CONFIRMED UNCHANGED 2026-09-04 (C-159 item 6). No edit.** Half B still reads as parked and
+still resolves *revisited after the flip closes* — the census (179 sites / 21 files), the four
+options, and option 4 as the status quo the fleet is pinned to all stand as written. **Checked,
+not assumed:** the row was read in full, and this line records the check so a later reader can
+tell a confirmed disposition from a forgotten one.
+
 **Measured 2026-09-03, bare build, canary 332, instrument reverted and the bare binary verified
 live (`nm` and `strings` both 0).** Item 5 asked for `=` on a holder **or** a list-bearing RHS to
 refuse by name, F-48's shape. **Those are two different populations and only one is unbuilt.**
@@ -2174,6 +2180,15 @@ emit-time condition the note calls the danger is still constructable.
 ⚠ Whether a poisoned node actually reaches `opPlusPlus` during an emit walk is **causal and unrun**.
 **Status:** `parked Tony` — carried in Clay's step-2 brief as a logged candidate, explicitly not to
 be chased. **Owner:** Tony.
+
+### F-8 — `aCTionDebuG`'s three stacked directives — ✅ **DISCHARGED 2026-09-04, ruled by Tony**
+**Verdict by C-155's report.** ⚠ **The subject does not exist: `aCTionDebuG` has ZERO mentions in
+any source** — `*.twk`, `*.rtn`, `*.mm`, `*.h`, repo-wide. The three entries were graded
+FUNCTION GONE, cut, and archived verbatim in `docs/c155Cull.md` §4b. The row's premise — that
+arming two would silently fire only the first — is **also** superseded: bear-trap #30 is amended,
+one directive per matching statement *point*, and two anchors on one function both fire.
+**Nothing is owed. Kept as a dated tombstone rather than deleted**, because the row is cited from
+the trap it came from.
 
 ### F-8 — `aCTionDebuG`'s three stacked directives
 **Where:** `groupDirectives`, the three `aCTionDebuG` entries.

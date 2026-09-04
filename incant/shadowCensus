@@ -55,29 +55,45 @@ define
         iterate scCur members on *argument;
         while ++scCur;
             if !isRulE;     continue;
+            /*  CAPTURE, THEN CALL. lastREF answers "what was referenced last",
+                calls included, and scDcol below is a call -- so every bare
+                accessor after it reads scDcol's argument, not this member.
+                Measured C-158; the two reads that used to sit after the call
+                are hoisted above it. `:=` and not `=`, bear-trap #41.  */
+            scTag := taG;
+            scIsG = 0;
+            if isGROUP;         scIsG = 1;
             print "row ";
             if hasAttributeS;   print "A";
             else                print "-";
             if hasMemberS;      print "M";
             else                print "-";
             scDcol(scCur);
-            if isGROUP;         print "G";
+            if scIsG != 0;      print "G";
             else                print "-";
-            print " " ~taG:;
+            print " " ~scTag:;
         };
     scAttrs argument code={
         iterate scCur2 attributes on *argument;
         while ++scCur2;
             if !isRulE;     continue;
+            /*  CAPTURE, THEN CALL. lastREF answers "what was referenced last",
+                calls included, and scDcol below is a call -- so every bare
+                accessor after it reads scDcol's argument, not this member.
+                Measured C-158; the two reads that used to sit after the call
+                are hoisted above it. `:=` and not `=`, bear-trap #41.  */
+            scTag := taG;
+            scIsG = 0;
+            if isGROUP;         scIsG = 1;
             print "row ";
             if hasAttributeS;   print "A";
             else                print "-";
             if hasMemberS;      print "M";
             else                print "-";
             scDcol(scCur2);
-            if isGROUP;         print "G";
+            if scIsG != 0;      print "G";
             else                print "-";
-            print " " ~taG:;
+            print " " ~scTag:;
         };
     ;
 print "== SHADOW CENSUS: members of Grokking ==":;

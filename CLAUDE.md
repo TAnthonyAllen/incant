@@ -1706,7 +1706,25 @@ Hard-won lessons. Each one has cost real debugging time.
     any token inside it — an hour of hunting for a bad character is an hour wasted. And the standing
     canary is what caught it: **`grep -c '^extern' GroupRules.h` after every retok.**
 
-30. **THE DIRECTIVE CONTRACT: `groupDirectives` APPLIES AT MOST ONE DIRECTIVE PER TARGET FUNCTION —
+30. ⚠⚠ **AMENDED 2026-09-04 (C-155): THE RULE IS ONE DIRECTIVE PER MATCHING STATEMENT POINT,
+    NOT ONE PER TARGET FUNCTION.** A second armed directive on the same function with a
+    **different anchor** fires at its own point — measured on the culled file, one directives
+    retok, markers greped per file: `parseRule` carries two armed directives and **both** inject;
+    `parse` carries three and **all three** inject; six of six surviving armed directives inject
+    exactly once each. The mechanism supports it: `Statement2TawkNow` walks the whole directive
+    list at every statement point, skips already-fired entries via `isDirected`, and `break`s only
+    out of that one point. **What survives of the original claim:** two armed entries sharing the
+    SAME anchor still contest one point and the first latches.
+    ⚠ **AND THE ORIGINAL LIVE EXAMPLE WAS A GHOST — `aCTionDebuG` HAS ZERO MENTIONS IN ANY
+    SOURCE**, so the trap and `docs/fixIts.md` F-8 both cited a function that does not exist.
+    **The replacement example is real and is the reason the amendment was found: the `getGuard`
+    split.** `getGuard` is now a two-line pure read (`GroupItem.twk:493`) with its machinery moved
+    to `ensureGuard()`, and **three armed directives were attaching to it and injecting nothing**
+    — `tok` reported `getGuard() has directives` while the generated body stayed three lines long.
+    Silently dead since the split; cut by C-155 and archived verbatim in `docs/c155Cull.md`.
+    **The original text follows, struck only where the amendment says so.**
+
+    **THE DIRECTIVE CONTRACT: `groupDirectives` APPLIES AT MOST ONE DIRECTIVE PER TARGET FUNCTION —
     THE FIRST *ARMED* ENTRY IN FILE ORDER. Every loser injects NOTHING, silently.** ⚠ **This is BY
     DESIGN, not a tok defect** (ratified 2026-08-16) — but it is undocumented everywhere else and
     reads exactly like a broken directive. Sibling of #23: that one is about *passing* the
@@ -2099,6 +2117,24 @@ precisely the property that made it unusable.
 **The tuition is paid once. Every later rung checks the trace before it checks the seam** — and the
 census that answers "which rules actually fire" is cheap, so there is no excuse for a second
 instance.
+
+⚠⚠ **`lastREF` ANSWERS "WHAT WAS REFERENCED LAST", CALLS INCLUDED. THERE IS NO BRACKET.** Tony,
+ruled 2026-09-04 out of C-158. It is ONE global holder, minted once, and **a nested action call
+overwrites the caller's** — `runAction` writes it per call, measured identically on both arms.
+**So a bare accessor read AFTER an intervening call is the READER's problem, and the spelling is
+CAPTURE, THEN CALL.** Not a defect to be fixed by a save/restore: bracketing it would make
+*"what was referenced last"* mean something else, and the singleton is the design.
+
+**Worked example, and it is the one that paid for the rule:** `shadowCensus` printed
+`scDcol(scCur)` between its row start and its `~taG`, so the tag column read `scDcol`'s argument
+instead of the walked member — for as long as the fixture had existed. The cure is two hoisted
+lines, not a mechanism. ⚠ **And it must be `:=`, not `=`** (bear-trap #41): `=` captures nothing
+and the column would go on reading a tag echo.
+⚠ **What capture-then-call CANNOT fix is the CALLEE's own bare reads**, because there the wrong
+thing is the value passed, not the timing. Measured the same day: with the caller respelled,
+`scDcol`'s bare `datA` still reads the cursor holder under the flip and marks every row — D goes
+23 → 84 while the M column agrees exactly at 13 on both arms. That residue is R2's, and it is
+recorded rather than re-pinned.
 
 ⚠⚠ **MINTED DATA LIVES IN SHARED SUBSTANCE; DERIVED DATA MAY LIVE PER-FACE.** Tony, 2026-08-24,
 minted with the setParse mirror.

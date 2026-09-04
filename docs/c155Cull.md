@@ -318,6 +318,15 @@ getLabel endLabel ctive
 
 ## §5 LISTED FOR TONY, NOT CUT
 
+### §5a ⚠ RESOLVED 2026-09-04 — **AMBIGUOUS IS A GRADE, NOT A CUT CLASS.** Tony's ruling.
+
+**The charter's step 3 listed AMBIGUOUS among the classes to cut. It is corrected here, dated,
+rather than silently left as a deviation:** an AMBIGUOUS row has a live function and a live
+anchor, and the mechanism is deterministic first-match-wins, so the grade measures **legibility**
+and not resolution. Only FUNCTION GONE and ANCHOR GONE describe a target that is not there.
+`genLadder/directiveCensus.py` keeps reporting the match count and its header now says nothing is
+cut on it. **The deviation recorded below stands as the reasoning that produced the ruling.**
+
 ### §5a ⚠ A CHARTER DEVIATION, REPORTED LOUDLY: AMBIGUOUS WAS **NOT** CUT
 
 Step 3 said to cut AMBIGUOUS. **I did not, and the reason is a measurement rather than a

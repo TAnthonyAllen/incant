@@ -366,3 +366,27 @@ question; `=` on a holder RHS refuses by name. **None was touched.**
 | `minionWork/tripwireNeg:10` | `print "TN-A plain action, argument =" argument:;` |
 | `minionWork/tripwireNeg:12` | `tnLoaded argument=42 code={` |
 | `minionWork/tripwireNeg:13` | `print "TN-B loaded action, argument =" argument:;` |
+
+---
+
+## §13 ITEM 4 CLOSED — 2026-09-04, Tony
+
+**Class (a) is landed on the trunk; classes (b), (c) and (d) are read and reported.** Item 4 is
+closed.
+
+**C-156a BUYS, at 0 / 0 / 2.** Zero arm-attribution errors, zero controls voided by arm confusion,
+two scheduled bare runs — neither a toggle-and-back inside a sub-stroke: one was step 1's, taken
+under the original rule before the amendment took effect, and one was the group-1 red row's
+discriminator, taken with a heading because it decided whether the class could land on the trunk
+at all. The practice is bought on its own terms: **every number in this report states its arm, and
+no control was lost to arm confusion.**
+
+**`flip-argument` stays up**, at one commit — `gNoUnwrap = 1` in source. ⚠ An Xcode build from
+that branch still produces a flipped binary.
+
+⚠ **`shadowCensus`'s pick-one row is GREEN on the trunk and RED on the flip arm, and it is NOT
+re-pinned.** After the capture-then-call respell (R1) the tag column is correct on both arms, but
+the D column diverges — **23 on bare, 84 on the flip, with the M column agreeing exactly at 13** —
+because `scDcol`'s own bare `datA` reads the cursor holder. **That is R2's residue**, the walk
+writer storing the cursor rather than the member, and R2 is open pending C-158a.
+

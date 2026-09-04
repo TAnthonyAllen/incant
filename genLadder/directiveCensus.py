@@ -1,6 +1,14 @@
 #!/usr/bin/env python3
 """C-155 groupDirectives resolver.
 
+⚠ AMBIGUOUS IS A GRADE, NOT A CUT CLASS (ruled 2026-09-04). This script reports a
+match COUNT per directive and nothing is ever cut on it. An anchor matching more
+than one statement still has a live function and a live anchor, and the mechanism
+is deterministic first-match-wins -- so AMBIGUOUS grades LEGIBILITY, not
+resolution. Only FUNCTION GONE and ANCHOR GONE describe a target that is not
+there. C-155 cut those two classes and listed the rest.
+
+
 Grammar (parts.g:104, measured):
     DebugDirective : '#'! Comment? method=Name body=CodeMatch? locate=Directives?
                      active='active'? code='#;'}
