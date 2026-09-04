@@ -75,7 +75,7 @@ define
             if binTypE;             continue;
             if !isRulE;             continue;
             if actionTypE != 0;     continue;
-            fbGen(fbCur);
+            fbGen(*fbCur);
         };
     fbRun code={
         cerr "== fixit F-31 -- is it ONE install, or the COUNT of installs ==":;
@@ -91,7 +91,7 @@ define
         iterate fbC on fbFirst;
         while ++fbC;
             cerr "COMPILING " ~taG:;
-            compile(fbC);
+            compile(*fbC);
         fixF31Here = 0;
         cerr "ANCHOR fixF31Here -- the verdict is the failed at line just above":;
         cerr :;

@@ -78,7 +78,7 @@ define
             if binTypE;             continue;
             if !isRulE;             continue;
             if actionTypE != 0;     continue;
-            fbGen(fbCur);
+            fbGen(*fbCur);
         };
     fbRun code={
         cerr "== fixit F-31 -- is it ONE install, or the COUNT of installs ==":;
@@ -94,7 +94,7 @@ define
         while ++fbC;
             fbTried = fbTried + 1;
             cerr "COMPILING " ~taG:;
-            compile(fbC);
+            compile(*fbC);
         cerr "EXITEXAM bodies attempted " fbTried " of " fbCount " installed":;
         fixF31Here = 0;
         cerr "ANCHOR fixF31Here -- the verdict is the failed at line just above":;

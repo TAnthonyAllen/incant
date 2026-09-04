@@ -78,7 +78,7 @@ define
             if binTypE;             continue;
             if !isRulE;             continue;
             if actionTypE != 0;     continue;
-            fbGen(fbCur);
+            fbGen(*fbCur);
         };
     fbRun code={
         cerr "== fixit F-31 -- is it ONE install, or the COUNT of installs ==":;
@@ -108,7 +108,7 @@ define
         cerr "WHAT IS THE NEW CANON? walk the hook's one and only attribute:":;
         iterate fbA attributes on fbTok;
         while ++fbA;
-            showBody(fbA);
+            showBody(*fbA);
         cerr "and the canon reported above, resolved again for comparison:":;
         canonOf(Grokking["tokenize"]);
         showBody(Grokking["tokenize"]);
@@ -116,7 +116,7 @@ define
         iterate fbC on fbFirst;
         while ++fbC;
             cerr "COMPILING " ~taG:;
-            compile(fbC);
+            compile(*fbC);
         fixF31Here = 0;
         cerr "ANCHOR fixF31Here -- the verdict is the failed at line just above":;
         cerr :;

@@ -88,8 +88,8 @@ define
         pbIA <- Grokking["InvokeArg"];
         iterate pbT members on pbIA;
         while ++pbT;
-            setParse(pbT);
-            parseClassify(pbT);
+            setParse(*pbT);
+            parseClassify(*pbT);
         };
     pbCommission code={
         pbArt <- pbTwin["BlocK"];

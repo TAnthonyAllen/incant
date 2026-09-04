@@ -17,12 +17,12 @@ define
         rnI = 0;
         iterate rnA attributes on *argument;
         while ++rnA;
-            rnItem(rnA);
+            rnItem(*rnA);
         cerr "  MEMBERS of " ~taG ":":;
         rnI = 0;
         iterate rnM members on *argument;
         while ++rnM;
-            rnItem(rnM);
+            rnItem(*rnM);
         };
     rnHead argument code={
         rnL = argument.listLengtH;

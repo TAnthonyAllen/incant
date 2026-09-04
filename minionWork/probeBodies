@@ -64,7 +64,7 @@ define
             if binTypE;             continue;
             if !isRulE;             continue;
             if actionTypE != 0;     continue;
-            fbGen(fbCur);
+            fbGen(*fbCur);
         };
     fbRun code={
         cerr "== fixit F-31 -- is it ONE install, or the COUNT of installs ==":;

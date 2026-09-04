@@ -17,7 +17,7 @@ define
         iterate dfCur members on *argument;
         while ++dfCur;
             if !isRulE;     continue;
-            if isMethoD;    dfNote(dfCur);
+            if isMethoD;    dfNote(*dfCur);
             else            dfR();
         };
     dfRun code={

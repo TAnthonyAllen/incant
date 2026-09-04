@@ -30,7 +30,7 @@ define
         iterate grup on *argument;
         while ++grup;
             if noPrinT;     continue;
-            if spOn != 0;   setParse(grup);
+            if spOn != 0;   setParse(*grup);
             if notFirstTimeThru > 0;    print _conjunct;
             ++notFirstTimeThru;
             print $taG "()";
