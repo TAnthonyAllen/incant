@@ -62,6 +62,7 @@ the interesting quantity is the one that can come back zero.
 | 2026-09-04 | `measure.probeNode` | `measure.twk` | why it reports pointers and never names |
 | 2026-09-04 | `measure.showBody` | `measure.twk` | why incant cannot ask a pointer question, and which copy mechanism it settles |
 | 2026-09-04 | `GroupActions.chanReport` | `GroupActions.rtn` | ⚠ did NOT move: it reads `static int` state from `jitContext.h`, so a second TU gets its own zeroed copies |
+| 2026-09-04 | `measure.chanReport` | `measure.twk` | ⚠ SUPERSEDES the row above: stroke 10 moved the counters onto GroupRules, so the move became legal and the entry carries why it had not been |
 | 2026-09-04 | `genParse.storeBody` | `genParse.rtn` | the corpus's founding invariant -- generation never writes the live slot |
 | 2026-09-04 | `genParse.storedBody` | `genParse.rtn` | why the fifth verb was a finding rather than a re-pin of the pre-registered four |
 | 2026-09-04 | `genParse.activateBody` | `genParse.rtn` | why it is the only writer of CodE plus isCoded among the corpus verbs |

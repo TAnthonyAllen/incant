@@ -53,6 +53,7 @@ extern "C" int auditSpurious(GroupItem *registry);
 extern "C" int auditUnconsumed(GroupItem *registry);
 extern "C" GroupItem *bodyCensus(GroupItem *ignored);
 extern "C" GroupItem *canonOf(GroupItem *argument);
+extern "C" GroupItem *chanReport(GroupItem *input);
 extern "C" GroupItem *evictAction(GroupItem *field);
 extern "C" GroupItem *frameProbe(GroupItem *field, GroupItem *rule);
 extern "C" int labelMinters(GroupItem *rule);

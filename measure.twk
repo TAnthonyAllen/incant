@@ -260,6 +260,21 @@ GroupItem   canon;
 }
 
 
+/*  SAME MUST EQUAL BINDS, and the row asserts a NON-ZERO total too, because 0 of 0
+    is agreement between two absences. ⚠ It reads the counters through
+    GroupControl::groupController->groupRules -- a class member, NOT a file static,
+    which is what lets this live outside the GroupRules TU at all.
+    measure.chanReport  */
+extern GroupItem chanReport(GroupItem input)
+{
+    -%
+    ::fprintf(stderr,"=== ARGCHANNEL binds = %d same = %d ===\n",GroupControl::groupController->groupRules->chanBinds,GroupControl::groupController->groupRules->chanSame);
+    ::fflush(stderr);
+    %-
+    return trueResult;
+}
+
+
 /*  RELOCATE-THEN-NULL IS STRUCTURAL: the null must be unreachable until the
     relocation is verified. It REFUSES rather than substitutes.   measure.evictAction  */
 extern GroupItem evictAction(GroupItem field)

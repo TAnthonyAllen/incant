@@ -135,7 +135,6 @@ extern "C" GroupItem *arrondir(GroupItem *field);
 extern "C" int assignFieldCore(GroupItem *source, GroupItem *target);
 extern "C" GroupItem *cLEAR(GroupItem *input);
 extern "C" GroupItem *cOPY(GroupItem *field);
-extern "C" GroupItem *chanReport(GroupItem *input);
 extern "C" int closeFile(GroupItem *bufField);
 extern "C" GroupItem *compile(GroupItem *field);
 extern "C" GroupItem *compileStored(GroupItem *rule);

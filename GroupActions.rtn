@@ -83,21 +83,6 @@ extern int assignFieldCore(GroupItem source,GroupItem target)
 }
 
 
-/*  ⚠ IT CANNOT MOVE TO measure.twk, though it is a measuring instrument: it reads
-    gChanBinds/gChanSame, which are `static int` in jitContext.h, so a second
-    translation unit gets its OWN zeroed copies. Measured 2026-09-04.
-    SAME MUST EQUAL BINDS, and the row asserts a NON-ZERO total too, because 0 of 0
-    is agreement between two absences.   GroupActions.chanReport  */
-extern GroupItem chanReport(GroupItem input)
-{
-    -%
-    ::fprintf(stderr,"=== ARGCHANNEL binds = %d same = %d ===\n",GroupControl::groupController->groupRules->chanBinds,GroupControl::groupController->groupRules->chanSame);
-    ::fflush(stderr);
-    %-
-    return trueResult;
-}
-
-
 /***************************************************************************
     Close the file associated with the buffer. If no file has been set,
     fall back to using the field's tag as the filename — the tag is a

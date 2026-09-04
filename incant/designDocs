@@ -1473,6 +1473,37 @@ define
 
                 MOVED HERE FROM Commands.rtn 2026-09-04, cleanup arc stroke 4. The method is
                 unchanged; only its home and its comment moved.#);
+            chanReport=(THE ARGUMENT CHANNEL'S DAILY ROW. SEQ 132 item 2.
+
+                Prints binds and same-field binds UNCONDITIONALLY, so a fleet row compares a
+                VALUE and cannot pass by a line going missing (rule H4).
+
+                ⚠ IT COUNTS AT ALL FOUR BIND SITES -- both arms of both roads -- which is
+                what makes it a DAILY row rather than a flipped-only one. pop.sh runs bare,
+                and bare the non-flip arm goes through setGroup too, so the pair is non-zero
+                without the flip and the SAME row reads both configurations.
+
+                ⚠ SAME MUST EQUAL BINDS. Any gap is a bind that did not store the field it
+                was handed -- a copy, or a write that did not happen. The row asserts
+                equality AND a non-zero total, because 0 of 0 is agreement between two
+                absences.
+
+                ⚠ IT COULD NOT LIVE HERE UNTIL 2026-09-04, and the reason is worth keeping
+                because it is a rule about moving methods, not about this one. The counters
+                were gChanBinds/gChanSame, `static int` at file scope in jitContext.h, and a
+                file-scope static in a header gives EVERY translation unit its own copy. All
+                four writers compile into GroupRules.mm; this reader does not. Moved as-is
+                it would have read its own zeroed pair and printed `binds = 0 same = 0`
+                forever, in the shape of a real reading -- and the only thing that would
+                have caught it is that the fleet row asserts a NON-ZERO total. Stroke 10
+                moved the counters onto GroupRules, where they are class members reached
+                through GroupControl::groupController->groupRules, and the move became legal.
+
+                THE RULE THAT FALLS OUT: before moving a method across a translation-unit
+                boundary, grep its body for globals and check their linkage. `static` in a
+                header means per-TU, and a per-TU counter reads zero.
+
+                MOVED HERE FROM GroupActions.rtn 2026-09-04, cleanup arc stroke 11.#);
             evictAction=(evictAction -- THE EVICTION, AND IT REFUSES RATHER THAN SUBSTITUTES.
 
                 Tony's design, 2026-08-29. Step 3 of the earlier brief -- install the parse
