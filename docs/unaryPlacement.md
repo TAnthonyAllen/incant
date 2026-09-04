@@ -106,7 +106,20 @@ has never bitten in arithmetic.
 
 ## §3 THE SKETCH
 
-### §3a Option A — placement only, RE-SCOPED
+### §3a Option A — ⚠ **RETIRED 2026-09-04 by Tony's ruling. Option B is built instead.**
+
+**The reason, and it is this recon's own §0:** the change Option A names does not exist as a
+placement. There is no dotted term to move a unary into — `nameSet` carries no dot — so A is not
+"placement only" at all; it is **inventing a `DottedTail*` construct**, which is a larger change
+than B and buys less. And it **collides with the bare accessor**: `.` would have to be a tail
+marker *and* stay in `UnaryOPS` for a leading `.taG`, which is two roles for one token inside one
+rule — the one-channel-one-meaning hazard this project has paid for four times.
+
+**B is cheaper and strictly more capable**: `UnaryOPS?` → `UnaryOPS*` is one character of grammar,
+it fixes the doubled-unary mis-parse by construction, and it leaves the dot exactly where it is.
+**Retained below, not deleted, as the reasoning that produced the ruling.**
+
+### §3a-hist Option A as sketched — placement only, RE-SCOPED
 
 **The original phrasing — "move the unary inside the dotted term" — has no referent**, per §0. The
 only placement change that means anything is to **make the dot a term-internal construct like the
@@ -164,7 +177,11 @@ are the fixtures that must be re-pinned with sentences, not the ones that would 
 
 ---
 
-## §4 THE PRE-REGISTERED CERTIFICATE
+## §4 THE PRE-REGISTERED CERTIFICATE — **RULED 2026-09-04: BUILD B**
+
+⚠ **Tony's ruling: Option B, composing unaries, innermost first. Its own stroke.** The rows below
+stand as written, with B's conditionals now unconditional.
+
 
 Written now so the review can argue with it.
 

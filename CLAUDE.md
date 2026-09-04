@@ -1867,6 +1867,27 @@ Hard-won lessons. Each one has cost real debugging time.
     this and the documented statement-scope twin (*"naming a rule FIRES it"*, `GroupRules.mm:864`)
     in one stroke. Until then the restriction is absolute. Retire with a note, do not delete.
 
+48. **LAW 3 AMENDED: A UNARY BINDS *BEFORE* A SUBSCRIPT AND *AFTER* A DOT — AND THE TWO HALVES
+    HAVE DIFFERENT MECHANISMS.** Gloss: subscript is inside, dot is between. Amended 2026-09-04 on
+    C-163's evidence (`docs/unaryPlacement.md`), which is also the reason the asymmetry looked
+    arbitrary for as long as it did.
+    **BEFORE A SUBSCRIPT — STRUCTURAL.** `TokenXP UnaryOPS? ANYorNum^ InvokeArg?`
+    (`incant/grammar:138`): `InvokeArg` is a **sibling inside the same term**, so `*a[0]` is ONE
+    `TokenXP` and the star binds to the name → `(*a)[0]`. This is law 3 as originally stated and it
+    is unchanged.
+    **AFTER A DOT — RIGHT-TO-LEFT ASSOCIATION.** `nameSet` is `[a-zA-Z0-9]` with **no dot**, so
+    `a.b` is not one name. `.` is registered `operateMethod=opDot` (`incant/setup:181`) **and** is a
+    member of the `UnaryOPS` bin (`:255`), so `.b` is its own `TokenXP`. `*a.b` is therefore **two
+    terms**, and KANT-43 (no precedence, right to left) applies the star **last** → `*(a.b)`.
+    ⚠ **SO THE TWO READINGS ARE NOT ONE RULE WITH AN EXCEPTION — THEY ARE TWO MECHANISMS THAT
+    HAPPEN TO MEET AT THE SAME OPERATOR.** Anyone reasoning from one to the other will get the
+    opposite answer, which is precisely what C-161's pre-flight did before it was measured.
+    ⚠ **AND `.` LIVING IN BOTH PLACES IS WHAT MAKES THE BARE ACCESSOR WORK** — a leading `.taG` is
+    a `TokenXP` whose unary is `.`, resolved through `lastREF` by `opDot`'s fixup. It is not an
+    oddity to be tidied away; it is load-bearing.
+    **Retire the second half when Option B lands and composition is measured** — the subscript half
+    is structural and stays.
+
 35. **A CHAINED-SUBSCRIPT READ IN PRINT POSITION IS UNRELIABLE — `opDot` UNWRAPS ONCE.** Second
     confirmed instance of the same single-unwrap poisoning (Tony named the first on 2026-08-22
     reading `frTwin.taG` as `Braced` **after** the node had been turned into `ExpressioN`).
