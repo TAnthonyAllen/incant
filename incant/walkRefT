@@ -3,42 +3,34 @@ include(unitTests);
 include(utilities);
 search reset stack Grokking UnitTests Utilities list;
 
-/*  walkRefT -- R2's certificate row, and it REFUSED R2. C-160 stroke 2, 2026-09-04.
+/*  ⚑ walkRefT -- THE WALK-WRITER ROW, AND A TRIPWIRE FOR THE FLIP LANDING.
+    Built C-160 stroke 2, 2026-09-04; R2 RETIRED on its evidence, no edit made.
 
-    A bare accessor DIRECTLY inside a ++ walk, with NO intervening call, so
-    nothing but the walk writer can have aimed lastREF at the read. addrOf beside
-    it, so the claim is identity and not just a string.
+    A bare accessor DIRECTLY inside a ++ walk, no intervening call, so nothing
+    but the walk writer can have aimed lastREF at the read. addrOf beside it, so
+    the claim is identity and not merely a string.
 
-    PRE-REGISTERED: flip reads the CURSOR HOLDER's name before R2 and the
-    member's after; bare reads the member both times.
+    WHAT IT PINS, both arms, measured before any edit:
 
-    MEASURED, both arms, before any R2 edit:
+      arm BARE : aa   bb   wrTarget      <- the fleet pins THIS
+      arm FLIP : aa   bb   wrHeld        <- what the same run gives flipped
+                 addrOf(wrCur) = one stable node, #1/#2, on both
 
-      arm FLIP : aa   bb   wrHeld     addrOf(wrCur) = one stable node, #1/#2
-      arm BARE : aa   bb   wrTarget   same walk, same members
+    ⚠⚠ ROWS 1 AND 2 ARE THE INVARIANT. ROW 3 IS THE TRIPWIRE, AND IT IS PINNED
+    TO THE ARM THE FLEET RUNS ON, NOT TO THE ANSWER THAT WILL SURVIVE.
+    wrHeld is a member that is ITSELF a holder. Bare reads `wrTarget` because the
+    bare road auto-unwraps; the flip reads `wrHeld`, the members own identity,
+    preserved. WHEN THE FLIP LANDS THIS ROW GOES RED AND THAT IS THE ROW DOING
+    ITS JOB -- the expected value becomes `wrHeld`, and the re-pin is the signal
+    that the auto-unwrap is gone. Re-pin it then WITH A SENTENCE, per H6, and do
+    not re-pin it before.
 
-    TWO FINDINGS, and together they are why R2 did not land.
-
-    1. THE PRE-REGISTRATION IS FALSIFIED. With no intervening call the flip
-       already reads the MEMBER, not the cursor holder. lastREF holds the member
-       on both arms -- which is what C-158's LastRefWriters recon said in the
-       first place: every writer stores the HELD. So R2s premise, that the walk
-       writers store the cursor FIELD, does not hold at any of the four sites.
-       shadowCensus never showed otherwise: its defect was the INTERVENING CALL,
-       closed by R1s capture-then-call and by C-160s scDcol(*scCur).
-
-    2. THE ARMS ALREADY DISAGREE ON A HOLDER MEMBER, AND BARE IS THE ONE DOING
-       WHAT R2 PROPOSES. wrHeld is a member that is itself a holder. Bare reads
-       wrTarget -- it follows the holder level, because the bare road auto-
-       unwraps. The flip reads wrHeld -- the members own identity, preserved.
-       R2 would follow one holder level at the write, which makes the FLIP
-       behave like BARE here: it would re-introduce, for lastREF, exactly the
-       auto-unwrap the flip exists to remove. On a case that is currently
-       correct under the flip.
-
-    So R2 is not a no-op and not a fix; it is a behaviour change on holder
-    members, in the direction the flip is travelling away from. Reported and
-    held, per the stop clause. This fixture is the evidence and stays.  */
+    WHY R2 RETIRED, so nobody re-derives it: the walk writers store the HELD --
+    the member -- at all four sites, measured, which is what C-158s recon said.
+    R2 would have followed one holder level at the write, making the FLIP behave
+    like BARE on row 3 and re-introducing for lastREF exactly the auto-unwrap the
+    flip exists to remove. `*cursor` is the spelling that reaches a holder
+    members target; the writer is not the place for it.  */
 
 register(WalkRefT);
 define
@@ -50,7 +42,7 @@ define
         wrBag +% wrHeld;
         iterate wrCur attributes on wrBag;
         while ++wrCur;
-            cerr "W bare taG =" taG " <- member name; R2 would change a HOLDER member to its target":;
+            cerr "W bare taG =" taG:;
             addrOf(wrCur);
         };
     ;

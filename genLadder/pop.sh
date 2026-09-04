@@ -1936,6 +1936,43 @@ else
     fail=1
 fi
 
+#  ⚑ walkRefT -- THE WALK-WRITER ROW, AND ROW 3 IS A TRIPWIRE FOR THE FLIP
+#  LANDING. A bare accessor DIRECTLY inside a ++ walk with NO intervening call,
+#  so only the walk writer can have aimed lastREF at the read. Rows 1 and 2 are
+#  the invariant and hold on both arms. ROW 3 IS PINNED TO THE ARM THE FLEET RUNS
+#  ON, NOT TO THE ANSWER THAT WILL SURVIVE: wrHeld is a member that is itself a
+#  holder, bare reads `wrTarget` because the bare road auto-unwraps, and the flip
+#  reads `wrHeld`. WHEN THE FLIP LANDS THIS ROW GOES RED AND THAT IS IT WORKING --
+#  re-pin to wrHeld THEN, with a sentence (H6), and not before.
+#  R2 retired on this fixture's evidence 2026-09-04: the walk writers store the
+#  HELD at all four sites, so there was nothing for R2 to change and following a
+#  holder level at the write would have regressed row 3 under the flip.
+run1 walkRefT "$T/wrt"; check "walkRefT runs" 0 $?
+sentinel "walkRefT sentinel" "$T/wrt" "WALKREFT SENTINEL"
+wrn=$(grep -c "^W bare taG = " "$T/wrt")
+if [ "$wrn" = "3" ]; then
+    echo "  ok    walkRefT walked 3 members (anti-vacuity: an empty walk pins nothing)"; green=$((green+1))
+else
+    echo "  FAIL  walkRefT walked '$wrn' members, want 3 -- the pins below mean nothing"; fail=1
+fi
+for _wr in "W bare taG = aa" "W bare taG = bb"; do
+    if grep -qF "$_wr" "$T/wrt"; then
+        echo "  ok    ${_wr} -- PINNED BY VALUE (invariant, both arms)"; green=$((green+1))
+    else
+        echo "  FAIL  $_wr -- moved"; fail=1
+    fi
+done
+if grep -qF "W bare taG = wrTarget" "$T/wrt"; then
+    echo "  ok    walkRefT row 3 = wrTarget -- BARE PIN, the flip tripwire"; green=$((green+1))
+elif grep -qF "W bare taG = wrHeld" "$T/wrt"; then
+    echo "  FAIL  walkRefT row 3 = wrHeld -- THE FLIP HAS LANDED, or the binary is"
+    echo "        flipped. This row is DOING ITS JOB. Re-pin to wrHeld with a"
+    echo "        sentence (H6); do not re-pin to silence it."; fail=1
+else
+    echo "  FAIL  walkRefT row 3 is neither wrTarget nor wrHeld -- a third answer"
+    echo "        means the walk writer changed, which is not what either arm does."; fail=1
+fi
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi
