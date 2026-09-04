@@ -1,9 +1,9 @@
-# ⚠⚠⚠ 2026-09-04, SECOND SESSION — THE CLEANUP ARC. TWELVE STROKES, THREE FILES
-# EMPTIED INTO TWO NEW HOMES, TWO RETIREMENTS, A THIRD REPOSITORY, AND FIVE
-# FINDINGS THE MOVES PAID FOR. FIFTEEN COMMITS.
+# ⚠⚠⚠ SEALED 2026-09-04, SECOND SESSION — THE CLEANUP ARC. TWELVE STROKES, THREE
+# FILES EMPTIED INTO TWO NEW HOMES, TWO RETIREMENTS, A THIRD REPOSITORY, AND
+# FIVE FINDINGS THE MOVES PAID FOR. SIXTEEN COMMITS.
 #
-#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-04 19:14 and
-#   `git log -1 --date=iso` stamps 2026-09-04 19:11. They agree.
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-04 19:22 and
+#   `git log -1 --date=iso` stamps 2026-09-04 19:15. They agree.
 #
 #   ## THE ONE-LINE STATE: **`measure.twk` exists and holds fifteen instruments;
 #   `Bytecode.twk` holds the dispatch loop; the corpus verbs live in `genParse.rtn`;
@@ -12,6 +12,32 @@
 #   **314 + 21 + 15 = 350**, frontier **exit 0, 10 PASS**, ddPop **6**, countPop
 #   **40/40**, formsPop **14**, decodePop **82**, alphaLint **2 out of order** (both
 #   in `Instruct.rtn`, not in this arc). All three repos clean and pushed.
+#
+#   ⚠ **THE CANARY IS NO LONGER ONE NUMBER, AND THE MORNING SEAL'S 333 IS NOT
+#   COMPARABLE TO THIS EVENING'S 350.** `grep -c '^extern' GroupRules.h` counts the
+#   externs DEFINED IN THAT TRANSLATION UNIT, so a method leaving the chain drops it —
+#   which is why the brief's "canary unchanged" had to be inverted before stroke 1
+#   could start. **The conserved quantity is the SUM across the headers**, and the
+#   arithmetic for the day is: 333 + 19 (Bytecode.h) = **352** at the morning seal;
+#   352 across three headers after every move; **350** after the two retirements took
+#   one each. Nothing was lost. ⚠ **Any check that reads GroupRules.h alone is now
+#   measuring a fraction and will cry drift on the next move.** The whole-day figure is
+#   `GroupRules.h + Bytecode.h + measure.h`.
+#
+#   ## ⚠⚠ THE ONE THING THAT MAY BE DIRTY AT WAKEUP, AND IT IS NOT A FINDING
+#
+#   **`jitContext.h:619` — `static int gNoUnwrap = 0` — is Tony's switch, and he may
+#   flip it between sessions.** Told at shutdown, 2026-09-04: *"if I want to run parser
+#   w/no unwrap I have to change gNoUnwrap in jitContext.h. If I do, I will change it
+#   back."*
+#
+#   **So: sealed at 0. If wakeup finds it at 1, that is Tony running the parser lane
+#   under the flip — ASK, do not stash and do not restore.** Rule H8's quarantine clause
+#   is for dirt nobody can explain; this is explained in advance and here.
+#   ⚠ **What it DOES mean is that any measurement taken while it reads 1 is a
+#   measurement about the OTHER program.** The whole fleet is pinned bare. A red at
+#   wakeup should have this checked FIRST — one `grep -n 'static int gNoUnwrap'
+#   jitContext.h` — before anything is believed about the code. Doubt the instrument.
 #
 #   ## ⚠⚠ THE THIRD CLONE — RESURRECTION READERS, START HERE
 #
@@ -114,6 +140,48 @@
 #   past its caller flips tok between `::name(...)` and `name(...)`. Semantically
 #   identical unless a class member shares the free function's name — that check is one
 #   grep of the headers and it is the only one this class of edit needs.
+#
+#
+#   ## TOMORROW'S ORDER — UNCHANGED FROM THE FIRST SESSION'S SEAL, plus one
+#   1. **Option B** — `UnaryOPS*`, one stroke, certificate pre-registered in
+#      `docs/unaryPlacement.md` §4.
+#   2. The **leading-dot row** — read-only, rides with B.
+#   3. **C-157 `iterateT`** — absorbs `walkRefT` and `iterRefuseT`'s rows.
+#   4. **C-161** — road 1, bare accessor, deletions; `@*argument` after B.
+#   5. **F-54** `jitDotBareAccessor`.
+#   6. ⚠ **NEW — the `TOK` repo's visibility.** It is PRIVATE and its two siblings are
+#      public; one command flips it. Left to Tony deliberately, because publishing is
+#      the irreversible direction. Nothing depends on it.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   - **`carrierNode`** — the fixit queue, **1**, since 2026-08-31. Untouched again today.
+#   - **`IncantForms/WorkingOn/parser`** — dirty and untouched, as instructed. The lane
+#     is Tony's on a clean tree.
+#   - **`gNoUnwrap`** — see the section at the head of this seal.
+#   - **F-56 `fireNewParse`** — built, complete, reached by nothing at all. The census
+#     found it and the arc deliberately did NOT retire it: the body forks ARTIFACT arm
+#     versus CODE arm and refuses loudly on wreckage, which is not the shape of
+#     abandoned code. Either the caller lands or Tony rules it dead.
+#   - **F-55**, **F-52** — owner unassigned, unchanged.
+#
+#   ## HOUSEKEEPING
+#   - **Sixteen commits** on `jit-unified-emit-wip`; three on `support`; one on the new
+#     `TOK`. **All three repos clean and pushed**, but for `IncantForms/WorkingOn/parser`.
+#   - ⚠ **`groups.ext` was touched FOUR times** — the `external measure.h` block, the
+#     `resolveList` removal, `chanBinds`/`chanSame`, and `chanReport`'s relocation.
+#     Committed every time, per bear-trap #11's 2026-08-25 rule. A Groups `git status`
+#     shows none of it.
+#   - **`docs/commentTrial.md`**: 34 entries written this session, and the trial's first
+#     recorded LOOKUP — graded honestly as a relocation lookup rather than a
+#     comprehension one, because counting it as the stronger thing would be the
+#     instrument lying about itself.
+#   - **`incant/setup` lost one line** (`writeTempFile`). Bear-trap #31 says a setup edit
+#     goes live against whatever binary is installed — the rebuild came first here, and
+#     the fleet was measured after.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 1 (oldest: carrierNode, since 2026-08-31)`
+#   Step it, or name what goes first. It has been pointing at your foot for four days.
 #
 # ⚠⚠⚠ SEALED 2026-09-04 — THE FLIP BRANCH SHRANK TO ONE COMMIT, TWO RESPELL CLASSES
 # LANDED ON THE TRUNK, R2 DIED ON ITS OWN CERTIFICATE FIXTURE, AND OPTION B IS RULED.

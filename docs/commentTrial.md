@@ -74,7 +74,7 @@ the interesting quantity is the one that can come back zero.
 
 | date | key sought | found? | what it was needed for |
 |---|---|---|---|
-| — | — | — | *none yet* |
+| 2026-09-04 | `Generate.labelMinters` | **yes** | the cleanup arc was moving `labelMinters` to `measure.twk`, and its argument was already in DesignDocs rather than in the code. The entry was read, relocated whole to `measure.labelMinters`, and nothing had to be reconstructed. ⚠ **Graded honestly: this is a RELOCATION lookup, not a comprehension one.** The pointer was followed because the method changed file, not because a reader needed the argument to decide something. It is the weaker of the two things the trial is measuring, and counting it as the stronger one would be the instrument lying |
 
 ## STANDING NOTE — THE FIRST MIGRATION CANDIDATE, IF IT IS EVER TOUCHED
 
@@ -86,6 +86,24 @@ anyone edits that function, and because it is a good calibration for the too-sho
 is *"pure getter, does not construct — every bare `.rStuff` read routes here"*, and everything else
 under it is argument.
 
+
+
+## ⚠ FOURTH FINDING, 2026-09-04 — THE TRIAL SURVIVED A FILE MOVE, WHICH IS THE THING PROSE COMMENTS DO NOT
+
+The cleanup arc moved 30 methods between five files. **A `File.method` key is a TREE PATH, so a
+method changing file changes its key** — `Generate.labelMinters` became `measure.labelMinters`,
+`GroupActions.chanReport` became `measure.chanReport`. Both were relocated whole, in the same
+commit as the code, and the diff shows the move rather than a deletion and a re-creation.
+
+⚠ **The comparison worth drawing is with what happened to the comments that were still IN the
+code.** `parseRuleMethod`'s fifty-line header had drifted 234 lines from the method it documents
+and was sitting above a different one; the corpus family header named `bodyCensus`, which had
+moved to another file entirely. **Neither drift is possible for a keyed entry** — the key either
+resolves or it does not.
+
+**So the trial has one measured advantage it was not looking for: prose in a file rots by
+POSITION, and the register cannot.** That is separate from the retrieval-failure argument the
+register was actually built on.
 
 ## ⚠ THIRD FINDING, 2026-09-04 — A METHOD THAT READS A `static` GLOBAL CANNOT LEAVE ITS TU
 
