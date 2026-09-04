@@ -2840,6 +2840,36 @@ finds no entry, and the whole match fails rather than backing off.
 it decides whether this is a reshape or a change to `addGroup`. **Owner:** Tony (ruling), then whoever
 implements. **No edit made.**
 
+### F-53 — `minusMinusGate`: `--` on an iterator emits NOTHING under the JIT
+**What:** silent wrong code. `opMinusMinus`'s `isIterator` arm **returns** before the jitting gate,
+so an iterator under `--` never reaches it: the walk runs once at **emit** time, `lastREF` is
+written at emit time, and the compiled function contains **no loop**. Nothing announces it — no
+refusal, no degrade line. This is the *exact* defect `opPlusPlus`'s own comment says
+*"PLACEMENT IS THE FIX"* removed for `++` on 2026-08-04; **the fix was never applied to `--`.**
+**Where:** `Instruct.rtn:715` (the arm's `return`) and `:717` (the gate, one line too late).
+**Evidence:** C-158a's nine-row JIT census, `incant/designDocs` → `LastRef` → `JitMinusMinus`.
+`opPlusPlus` is HELPER at `:1015`; `opMinusMinus` is UNREACHED for the same shape.
+**Done when:** a `--` walk agrees by value on both engines at degrade 0, with a ladder rung driven
+red by reverting the fix once.
+⚠ **NOT a one-move mirror, and C-160 stroke 3 stopped on exactly this.** `jitEmitIterStep` bakes
+**`&opPlusPlus`** as its callee (`jitEmitters.rtn:1223`), takes one argument, and has exactly one
+live caller. Mirroring it for `--` needs either a **new extern** or a **widened signature** — a
+`groups.ext` mirror change. Both are stop clauses, and *"any second site that turns out to need the
+JIT's own write"* names this case. **The shape is ruled; the build is gated on Tony choosing
+between a second emitter and a parameterised one.** **Owner:** Tony. **Size:** small emitter + rung.
+
+### F-54 — `jitDotBareAccessor`: on the JIT road `opDot` never consults `lastREF`
+**What:** `opDot`'s jitting gate fires **before** the bare-accessor fixup, so the emitted code
+never takes the `lastREF` path at all. `jitEmitDot` bakes `argument` as a **constant address at
+emit time** and carries **no `jitDegrade`**, so a null left operand — which *is* the bare-accessor
+case — is baked as a null rather than resolved or refused.
+**Where:** `Instruct.rtn:327` (the gate) vs `:331-335` (the fixup); `jitEmitDot` in
+`jitEmitters.rtn`.
+**Evidence:** C-158a, read not measured. Recorded 2026-09-04, **not run in that dispatch.**
+**Done when:** one pre-registered row — a jitted body, a bare `taG` after a walk, both engines —
+**predicted to DISAGREE.** If they agree, this row is wrong and says so.
+**Owner:** unassigned. **Size:** one fixture, then a ruling.
+
 ### F-21 — `walkRules` prints a null through `appendString` on the five new `FloaT`/`PoweR` terms
 **Where:** `IncantForms/WorkingOn/parser`, `walkRules`' `print ~$taG "=" argument;` line. The message
 comes from the SUPPORT repo, `Frame/Buffer.C:202` (`Buffer: ERROR no text passed into

@@ -2029,6 +2029,32 @@ scope:       Extends CLAIM KANT-26 from quoted strings to comments; the
              case a fixture that emitted nothing at all.
 ```
 
+### CLAIM KANT-43 — NO OPERATOR PRECEDENCE: an expression associates RIGHT TO LEFT, **by design**
+
+**`a * 10 + b` is `a * (10 + b)`.** Not a defect and not a bug to be filed — Tony's design
+decision, 2026-09-04, stated in his own terms: *"That is how kant do. A design built in because I
+do not want to deal with precedence in operators, and methinks once you know how it works, no
+problem."*
+
+**Measured, literal control, one run, 2026-09-04 (`incant/probe39b`, since discarded):**
+
+| spelling | reads |
+|---|---|
+| `pbA * 10 + pbB` with `pbA=2 pbB=3` | **26** |
+| literals, `2 * 10 + 3` | **26** |
+| split — `pbZ = pbA * 10;` then `pbZ = pbZ + pbB;` | **23** |
+
+**Left-to-right would give 23; right-to-left gives `2 * (10 + 3) = 26`.** The literal row is the
+control: it removes the fields, so nothing about lookup or `lastREF` can be blamed for the answer.
+
+⚠ **PROVENANCE, AND IT IS WHY THIS ROW EXISTS AT ALL.** This was found the expensive way, as the
+residue of C-160 stroke 1: an agreement fixture read **39** where its author predicted 33, and a
+whole probe was chartered to find out why. `3 * (10 + 3) = 39` and `2 * (10 + 3) = 26` — both
+readings, exactly. **The reads through `lastREF` had been correct the entire time; the fixture's
+arithmetic was written by someone assuming precedence.** So the cost of not writing this down was
+a chartered stroke aimed at a mechanism that was working. **Anyone writing an incant expression
+with more than one operator writes the parentheses or splits the statement.**
+
 ## BLOCKED
 
 ### CLAIM KANT-41 — TWO DOORS into an action body, and only one has a bracket or a seam
