@@ -1895,7 +1895,7 @@ GroupItem 	*newField = new GroupItem(field);
 extern "C" GroupItem *chanReport(GroupItem *input)
 {
 	
-	::fprintf(stderr,"=== ARGCHANNEL binds = %d same = %d ===\n",gChanBinds,gChanSame);
+	::fprintf(stderr,"=== ARGCHANNEL binds = %d same = %d ===\n",GroupControl::groupController->groupRules->chanBinds,GroupControl::groupController->groupRules->chanSame);
 	::fflush(stderr);
 	
 	return GroupControl::groupController->groupRules->trueResult;
@@ -3802,8 +3802,8 @@ GroupItem 	*ruleArg = 0;
 	arg = arg->getGroup();
 	if (( ruleArg = field->get("argument") )) {
 	ruleArg->setGroup(arg);
-	gChanBinds++;
-	if ( ruleArg->groupBody->gGroup == arg ) gChanSame++;
+	GroupControl::groupController->groupRules->chanBinds++;
+	if ( ruleArg->groupBody->gGroup == arg ) GroupControl::groupController->groupRules->chanSame++;
 	}
 	}
 	else {
@@ -3821,8 +3821,8 @@ GroupItem 	*ruleArg = 0;
 	gChanPendGroup = ruleArg->groupBody->gGroup;
 	gChanPendData  = ruleArg->groupBody->flags.data;
 	ruleArg->setGroup(arg);
-	gChanBinds++;
-	if ( ruleArg->groupBody->gGroup == arg ) gChanSame++;
+	GroupControl::groupController->groupRules->chanBinds++;
+	if ( ruleArg->groupBody->gGroup == arg ) GroupControl::groupController->groupRules->chanSame++;
 	}
 	}
 	}
@@ -12323,14 +12323,14 @@ int 		chanAbort = 0;
 	chanPrevData  = ruleArg->groupBody->flags.data;
 	chanBody      = ruleArg->groupBody;
 	ruleArg->setGroup(result);
-	gChanBinds++;
-	if ( ruleArg->groupBody->gGroup == result ) gChanSame++;
+	GroupControl::groupController->groupRules->chanBinds++;
+	if ( ruleArg->groupBody->gGroup == result ) GroupControl::groupController->groupRules->chanSame++;
 	}
 	}
 	else {
 	ruleArg->setGroup(result);
-	gChanBinds++;
-	if ( ruleArg->groupBody->gGroup == result ) gChanSame++;
+	GroupControl::groupController->groupRules->chanBinds++;
+	if ( ruleArg->groupBody->gGroup == result ) GroupControl::groupController->groupRules->chanSame++;
 	}
 	}
 	else    result = field;
@@ -13550,6 +13550,8 @@ GroupRules::GroupRules()
 	trueResult = 0;
 	skipSet = 0;
 	inputSTAK = 0;
+	chanBinds = 0;
+	chanSame = 0;
 	lastIndent = 0;
 	rulesParsed = 0;
 	sourceLINE = 0;

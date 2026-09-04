@@ -62,7 +62,9 @@ class GroupRules
     Stak        blockSTAK,
                 bufferSTAK,
                 inputSTAK;
-    int         lastIndent,
+    int         chanBinds,
+                chanSame,
+                lastIndent,
                 rulesParsed,
                 sourceLINE;
     String      beforeSkip,

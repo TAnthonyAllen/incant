@@ -642,12 +642,12 @@ static GroupItem *gChanStkGroup[GCHAN_DEPTH];
 static int        gChanStkData[GCHAN_DEPTH];
 static int        gChanStkTop = 0;
 
-// ⚠ THE CHANNEL'S DAILY INSTRUMENT (SEQ 132 item 2). Counted at ALL FOUR bind
-// sites -- both arms of both roads -- so the pair is readable BARE, where the
-// non-flip arm now also goes through setGroup, as well as flipped. H4's shape:
-// printed unconditionally and compared by value, never asserted by absence.
-static int gChanBinds = 0;
-static int gChanSame  = 0;
+// ⚠ THE CHANNEL'S DAILY INSTRUMENT MOVED OUT, 2026-09-04. gChanBinds/gChanSame
+// are now chanBinds/chanSame ON GroupRules, declared in groups.ext. They were
+// `static int` here, which gives every translation unit its OWN copy -- fine
+// while every reader and writer compiled into GroupRules.mm, and a silent
+// zero-reading the moment one of them moved. chanReport is that one.
+// The gChanPend/gChanStk family above is untouched and has the same hazard.
 
 static int gCompileAttempted = 0;
 static int gCompileRefused   = 0;

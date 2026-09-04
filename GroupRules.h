@@ -51,6 +51,8 @@ PLGset *spaceSet;
 Stak *blockSTAK;
 Stak *bufferSTAK;
 Stak *inputSTAK;
+int chanBinds;
+int chanSame;
 int lastIndent;
 int rulesParsed;
 int sourceLINE;

@@ -24,6 +24,7 @@
 #include "PLGrgx.h"
 #include "PLGitem.h"
 #include "Stylish.h"
+#include "measure.h"
 #include "GroupDraw.h"
 
 /*****************************************************************************

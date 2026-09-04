@@ -91,7 +91,7 @@ extern int assignFieldCore(GroupItem source,GroupItem target)
 extern GroupItem chanReport(GroupItem input)
 {
     -%
-    ::fprintf(stderr,"=== ARGCHANNEL binds = %d same = %d ===\n",gChanBinds,gChanSame);
+    ::fprintf(stderr,"=== ARGCHANNEL binds = %d same = %d ===\n",GroupControl::groupController->groupRules->chanBinds,GroupControl::groupController->groupRules->chanSame);
     ::fflush(stderr);
     %-
     return trueResult;
@@ -907,14 +907,14 @@ use field
                 chanPrevData  = ruleArg->groupBody->flags.data;
                 chanBody      = ruleArg->groupBody;
                 ruleArg->setGroup(result);
-                gChanBinds++;
-                if ( ruleArg->groupBody->gGroup == result ) gChanSame++;
+                GroupControl::groupController->groupRules->chanBinds++;
+                if ( ruleArg->groupBody->gGroup == result ) GroupControl::groupController->groupRules->chanSame++;
                 }
             }
         else {
             ruleArg->setGroup(result);
-            gChanBinds++;
-            if ( ruleArg->groupBody->gGroup == result ) gChanSame++;
+            GroupControl::groupController->groupRules->chanBinds++;
+            if ( ruleArg->groupBody->gGroup == result ) GroupControl::groupController->groupRules->chanSame++;
             }
     }
     else    result = field;
