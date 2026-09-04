@@ -68,7 +68,7 @@ define
             else                print "-";
             if hasMemberS;      print "M";
             else                print "-";
-            scDcol(scCur);
+            scDcol(*scCur);
             if scIsG != 0;      print "G";
             else                print "-";
             print " " ~scTag:;
@@ -90,7 +90,7 @@ define
             else                print "-";
             if hasMemberS;      print "M";
             else                print "-";
-            scDcol(scCur2);
+            scDcol(*scCur2);
             if scIsG != 0;      print "G";
             else                print "-";
             print " " ~scTag:;
