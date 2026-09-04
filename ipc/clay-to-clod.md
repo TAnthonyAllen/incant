@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      156
-STATUS:   working        # C-156 / C-156a -- item 4, the *argument respell, branch flip-argument
+STATUS:   cleared        # C-156/C-156a closed; C-158..C-163 all reported; sealed 2026-09-04
 WRITTEN:  2026-09-04  -  Clay (SEQ 156 / C-156 + C-156a, dictated via Tony; transcribed by Clod)
           ⚠ SEQ 156 IS LIVE AND IS AT THE FOOT. Step 0 + step 1 landed;
           report is docs/c156Respell.md.
@@ -7772,7 +7772,7 @@ holder in the first place.
 ===================================================================
 SEQ 156  -  C-156 / C-156a: ITEM 4, THE *argument RESPELL
 WRITTEN: 2026-09-04  -  Clay, dictated via Tony; transcribed by Clod
-STATUS:  working  -  step 0 and step 1 landed on branch flip-argument
+STATUS:  cleared  -  item 4 CLOSED, C-156a bought at 0/0/2, sealed 2026-09-04
 ===================================================================
 
   [C-156 and its amendment C-156a as dictated. Report: docs/c156Respell.md.]

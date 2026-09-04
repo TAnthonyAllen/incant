@@ -185,7 +185,9 @@ query rather than by a second registry.** One registry, two channels, no migrati
    Prediction on record: **unmoved** — comments are not code. A red is news.
    ⚠ **A3 — AND THE CANARY FIRST, BY NAME (Clay, 2026-08-20):** after any retok of a touched file
    and **before trusting the fleet run**, `grep -c '^extern' GroupRules.h` against the canary count
-   (**308** at 2026-08-20). **This is bear-trap #29's exact territory** — a comment in the wrong
+   — ⚠ **READ IT OFF THE TREE, DO NOT TRUST A NUMBER IN THIS FILE.** It was **308** at 2026-08-20
+   and is **333** at 2026-09-04; it has moved five times in between. Take the before-capture in
+   the same stroke (rule H14). **This is bear-trap #29's exact territory** — a comment in the wrong
    position wiped the extern block **288 → 0** at `tok` exit 0 and BUILD SUCCEEDED, and the canary
    was the only tell. The minion's entire diet is comment edits in `.rtn` files. **The charter says
    it here, where the minion reads, rather than relying on the operator remembering why the canary
