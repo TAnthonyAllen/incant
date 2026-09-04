@@ -150,3 +150,143 @@ before the amendment took effect).
   keep, and it is untouched work.
 - The repo-wide drift row (old-form class-(a) sites at 0) is **not yet buildable** — 112 sites
   remain, so it would pin 112 and fail by design.
+
+---
+
+# C-156 REVISED — STEPS 2, 3, 4. CLASS (a) CLOSED AND LANDED ON THE TRUNK.
+
+**Run 2026-09-04 under the revised charter. Every section states its arm in its heading.**
+
+## §7 SURPRISES FIRST
+
+### ⚠⚠ S5 — 3b INVERTS ITS PREDICTION: `lastREF` HOLDS THE **SOURCE**, AND IT IS THE **EXPLICIT** SPELLING THAT READS THE HOLDER
+
+**Arm: FLIP ON.** At action entry, one probe, both spellings side by side:
+
+```
+3b bare taG at entry     = lrSource      <- the SOURCE
+3b explicit argument.taG = argument      <- the HOLDER
+```
+
+The dispatch predicted *"lastREF holds the holder."* It holds the source. **And the
+consequence runs the other way from the obvious reading of class (b): the 53 explicit
+`argument.taG` sites are the ones that changed meaning under the flip** — they now answer
+`argument`, the holder's own tag — **while bare accessors at action entry are correct.**
+
+### ⚠⚠ S6 — 3c: `*argument;` DOES **NOT** RE-AIM `lastREF`. SO (b) IS A `lastREF` RULING, NOT A RESPELL.
+
+**Arm: FLIP ON.** `*argument;` as a bare statement, bare `taG` either side:
+
+```
+3c BEFORE bare taG = lrSource
+3c AFTER  bare taG = lrSource      unchanged
+```
+
+The dispatch's own fork: *"Re-aims → a one-line-per-action fix is on the table. Doesn't →
+(b) is a lastREF ruling, not a respell."* **It does not re-aim. (b) is a ruling.**
+
+### ⚠⚠ S7 — THE PICK-ONE RED WAS THE FLIP'S DEFECT, NOT THE RESPELL'S, AND ONLY A CONTROL COULD TELL
+
+Group 1 moved three rows on the flip arm — two green, **one red**, which is the stop clause.
+Star and flip were confounded, so the mechanism was measured rather than named from the
+symptom:
+
+```
+arm BARE, starred:  row - - D - quoteBody ANYtoken     correct rule tags
+arm FLIP, starred:  row - - D - quoteBody scCur        the CURSOR
+```
+
+**The star is innocent.** Inside an `iterate`/`while ++` walk the flip aims `lastREF` at the
+**cursor node itself** rather than at the walked member, so `~taG` prints `scCur`. On bare
+the same starred source prints the member's tag.
+
+**And the row had been passing vacuously**: under the flip the *unstarred* walk returned zero
+rows, so the hybrid set was empty for want of rows, not for want of exceptions. That is the
+exact H4 hole `pop.sh`'s own comment predicts two lines above the check. **The respell made
+the walk non-empty and the hole visible.** Nothing regressed.
+
+### ⚠ S8 — CLASS (d) IS NOT THE SILENT CLASS IT WAS FEARED TO BE
+
+Of the 24 distinct source names behind the 44 sites, **21 have no `:=` or `<-` binding at
+all** — they are action parameters or define-block fields, so they are not captures of
+`argument` and nothing is owed. Two are bound `<- Grokking` (a registry subscript), one
+`:= blok`. Asked directly — *is any (d) source name bound from `argument` anywhere in
+scope?* — the answer is **one site**, `incant/generate:57  lines = argument[1];`, which is a
+**subscript with `=`**, not a holder capture.
+
+### ⚠ S9 — THE (b) POPULATION IS ~5× LARGER THAN THE (b) COUNT, AND IN A DIFFERENT PLACE
+
+Step 3a's split, scope `incant/ genLadder/ minionWork/`:
+
+| | count |
+|---|---|
+| explicit `argument.<accessor>` | **108** |
+| bare accessor, `lastREF`-resolved | **787** |
+| — of which explicit `argument.taG` | **53** |
+| — of which bare `taG` | **190** |
+
+**The 53 get their true home: they are the EXPLICIT column**, and by S5 they are the sites
+the flip changes. The 190 bare `taG` sites are a separate and much larger population that
+the earlier count of 162 never saw.
+
+## §8 STEP 2 — CLASS (a), 113 SITES, CLOSED
+
+**Census line, the charter's first ask: class-(a) sites that are NOT statement-initial
+`iterate` = ZERO.** The single grep hit is prose in a comment block (`incant/genEmit:84`).
+**So the arm-independence claim widens to the whole class.**
+
+| group | sites | files | commit (branch → trunk) |
+|---|---|---|---|
+| `incant/utilities` (step 1) | 1 | 1 | `53b107d` → `8fb627e` |
+| `incant/` core | 67 | 29 | `226db1c` → `1857134` |
+| `genLadder/` | 4 | 4 | `394b5c1` → `40f5627` |
+| `minionWork/` | 35 | 21 | `53b86a6` → `92f172a` |
+| `incant/attic/` | 6 | 4 | `1cf8838` → `999eeac` |
+| **total** | **113** | **71** | 5 commits, cherry-picked in order |
+
+**Per-commit certificate, arm BARE (the landing arm):** moved-set **empty** every time, fleet
+191 green / 1 parked / 3 pinned red, canary **332**, no extern, no `groups.ext` edit.
+`countPop` 40/40 and `decodePop` run clean after the `genLadder/` group, since two of those
+four feed them.
+
+**Drift row, whole tree: 5 hits, ZERO in scope**, each accounted for by name —
+`docs/kantCorpus.md:1465` and `ipc/clay-to-clod.md:1607` are prose and historical record and
+are **deliberately not rewritten**, and `IncantForms/WorkingOn/parser:25/50/63` is Tony's WIP,
+excluded by the charter.
+
+**Trunk certificate:** binary verified **bare behaviourally** (`ARM = SRC`); bare fleet
+**row-for-row identical** to pre-stroke at 191/1/3; canary 332; **no generated file touched
+at all** — no `.twk` or `.rtn` was edited, so the `.mm`/`.h` set is untouched rather than
+merely unchanged.
+
+**Branch after rebase: `flip-argument` is exactly ONE commit** — `fd0d300`, *"branch carries
+the flip from here."* There is no flip-dependent respell work, so the prediction *"one plus
+anything flip-dependent"* resolves to one.
+
+## §9 STEP 4 — (c) BY SHAPE. Nothing respelled.
+
+| operator | count | shape |
+|---|---|---|
+| `:= argument` | 19 | 19 plain, plus 7 through an accessor (`.claims` ×6, `.firsT`, `.firstMembeR`, `.tARGET`, `.dIRECTion`) |
+| `<- argument` | 12 | 10 plain, 2 `.parenT` |
+| `argument =` | 14 | plus `argument.byRef =` ×1 |
+
+By C-154's ruling the `:=` sites take `*argument`; `<-` mints a copy and is a separate
+question; `argument =` on a holder RHS refuses by name. **None was touched.**
+
+## §10 COUNTER, C-156a
+
+**0 arm-attribution errors · 0 controls voided by arm confusion · 2 scheduled bare runs.**
+
+⚠ The second bare run was **not** a toggle-and-back inside a sub-stroke: it was the group-1
+red row's discriminator, taken with a heading because it decided whether the class could land
+on the trunk at all. It answered that it could, and it produced S7. Counted honestly against
+the criterion all the same.
+
+## §11 WHAT IS OWED
+
+- **Class (b) is a `lastREF` ruling** (S6), and it is Tony's. The evidence pile is C-158.
+- **Class (c) and (d) are read and reported**; no ruling requested here.
+- ⚠ **`shadowCensus`'s pick-one row is red on the flip arm and green on the trunk.** It is
+  not a regression and it is not re-pinned; under the flip it is reporting the `lastREF`
+  cursor behaviour faithfully. It goes green again when (b) is ruled.
