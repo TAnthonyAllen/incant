@@ -585,6 +585,23 @@ above, applied to the family's own ledger.
 > way to show a discard cost nothing; it is bear-trap #21's compare-trees-not-labels rule run
 > in the other direction.
 >
+> ⚠ **RULE H5's OTHER HALF, EARNED 2026-09-04: A NEGATIVE CONTROL THAT REMOVES A GATE MAY RUN
+> AWAY. DRIVE IT ON THE SINGLE FIXTURE UNDER AN ALARM, NEVER ON THE LADDER.**
+>
+> H7 wants every new rung to record the run that goes RED. The obvious way to take it is to make
+> the change and re-run the suite — and that is the wrong way, because **the thing a gate is
+> usually gating is termination.** Rung JD's control reverts `opMinusMinus`'s jitting gate; without
+> it the emit-time walk runs away, so the ladder never reached its foot and **the full-ladder run
+> timed out at ten minutes, costing an extra build** on top of the two the control already needs.
+>
+> **The reading was one alarm-bounded run of the fixture alone** — `perl -e 'alarm 60; exec @ARGV'`
+> — and it gave the whole answer: `iterPrev` and `iterCondB` both gone from the IR. ⚠ **And the
+> hang is itself evidence, not just an obstacle:** it says the gate is load-bearing for
+> termination, which a red diff would not have told you. **Record it; do not merely survive it.**
+>
+> **The rule: a control that removes a guard, a gate, or a bound gets the single fixture and an
+> alarm. Bring it back to the suite only after you know it terminates.**
+
 > **RULE H5 — A FIXTURE MUST NOT BE ABLE TO DELETE THE REST OF THE SUITE.** Adopted
 > 2026-08-02. `incant/iterT1m` began to HANG rather than return, so `pop.sh` never reached its
 > summary line, its exit status, or the eleven checks below the iterator block. Those checks did
@@ -2074,6 +2091,33 @@ Hard-won lessons. Each one has cost real debugging time.
     one of them not firing. **An absent marker means nothing until you have seen that marker be
     present** — which is rule H4's logic and bear-trap #30's install-check, applied to code you
     emit rather than to code you inject.
+
+46. **A UNARY OP CARRIES NO `jitEmitter` SLOT — ITS JIT GATE LIVES IN THE FUNCTION BODY, AND
+    INSTALLING A SLOT INVERTS THE FIX YOU ARE TRYING TO LAND.** Gloss: unary gates live in the
+    body. Measured 2026-09-04 closing F-53, where the ruling said *"installed in `opMinusMinus`'s
+    jitEmitter slot"* and the slot was the one place it must not go.
+    **The slot path REFUSES a unary, by design and loudly:** `GroupActions.rtn:1656` tests
+    `flags.isUnary` on any node carrying a `gJitEmitter`, bumps `gJitSlotUnaryRefused`, prints
+    `JIT SLOT REFUSED … running INTERPRETED`, and falls through to the interpreter. The comment
+    says why — the seed gate spans `isOperator` **and** `isUnary`, so a unary with a slot would go
+    live down a path nothing has certified, and *"convention is not a gate."*
+    **So registering `jitEmitter=` on a unary does not enable the JIT for it; it guarantees the
+    interpreter** — which, for a defect whose whole symptom is *"runs interpreted at emit time"*,
+    is the original bug wearing the fix's clothes.
+    **THE PAIR IS THE REFERENCE, and it is why this row exists rather than a note:** `++` and `--`
+    are registered `unary ruleMethod=opPlusPlus` / `=opMinusMinus` in `incant/setup:184,189` with
+    **no `jitEmitter=`**, and both gate inside the function, within the `isIterator` arm, above the
+    arm's `return` (`Instruct.rtn:1015` and the F-53 mirror). Copy that shape for the next unary
+    emitter; do not reach for the slot.
+    ⚠ **Two corollaries that bit the same day.** `gJitSlotCount` **cannot move** for a unary, so a
+    certificate asking for `+1` on the JM rows is unsatisfiable — `gJitSlotUnaryRefused` is the
+    counter that would move, in the wrong direction. And **no `groups.ext` mirror line is needed**
+    for an emitter called from within the same include chain: `jitEmitIterStep` has none and never
+    did, and the build proves it. Adding one to an out-of-repo file to satisfy a habit is worse
+    than adding nothing.
+    **Retire this row when the unary specimen lands and the refusal arm is removed** —
+    `docs/jitSlotMigration.md`'s parked section owns that, and the guard, counter and rung row
+    retire together.
 
 45. **AN UNRESOLVED BARE NAME IN A tok CONDITION BECOMES A STRING LITERAL — ALWAYS TRUE — AND THE
     EXTERN CANARY STAYS GREEN.** Gloss: the name becomes a quote. Measured 2026-09-02. Bear-trap
