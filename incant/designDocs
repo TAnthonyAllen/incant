@@ -665,6 +665,30 @@ define
                 hasAttributes deliberately keeps reading TRUE here -- the node IS
                 marked up -- which is the whole reason the two flags are separate
                 channels. See designDocs ProblemRecords connectiveDiscriminant.#);
+        GroupActions=(is the rtn file holding the action methods -- the interpreter's
+            verbs. It is part of the GroupRules include chain.#):
+            runOP=(the operator dispatch hub.#):
+                listOperand=(⚠ A LIST OPERAND IS DELIBERATELY NOT RESOLVED IN runOP, and the
+                    function that used to do it -- resolveList -- was RETIRED 2026-09-04,
+                    cleanup arc stroke 8. Its rationale is kept here because the condemned
+                    code was the only written statement of the rule.
+
+                    resolveList walked an argument list, ran any member that was a method,
+                    and returned a NEW field containing the results with isLIST set. The
+                    call in runOP was commented out long before the retirement, and the
+                    comment said why: it returned a COPY of a list operand, losing tag,
+                    identity and byRef, which broke the list-consuming operators that walk
+                    argument.isLIST and depend on the real node. Single-method arguments
+                    are still resolved, one line above, and that line is untouched.
+
+                    THE CONDITION FOR EVER DOING THIS AGAIN, stated by whoever disabled it
+                    and preserved verbatim in substance: resolve the MEMBERS IN PLACE
+                    rather than building a new field, and skip the pass entirely for the
+                    list operators. Anything that copies is the defect that was removed.
+
+                    RETIREMENT EVIDENCE: zero call sites anywhere in InProcess or
+                    ~/data/support -- the only reference in the tree was the commented-out
+                    line itself -- and the symbol is gone from the binary.#);
         GroupItem=(is the twk file for the core tree node. Entries here are method notes
                 lifted out of the code under the 2026-09-01 convention: the inline line
                 carries the claim, this carries the argument.#):

@@ -367,7 +367,6 @@ extern "C" int reportMaxLimit(GroupItem *field);
 extern "C" void reportNoBody(GroupItem *field);
 extern "C" int reportRepeatLimit(GroupItem *rule, int kounted, int limit);
 extern "C" GroupItem *resetField(GroupItem *argument);
-extern "C" GroupItem *resolveList(GroupItem *input);
 extern "C" void restoreLocalFields(GroupItem *action);
 extern "C" char *row42(GroupItem *term);
 extern "C" GroupItem *ruleMethod(GroupItem *input);

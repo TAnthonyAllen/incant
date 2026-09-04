@@ -730,22 +730,6 @@ GroupRules  ruler = groupRules;
 
 
 /*****************************************************************************
-	Process an argument list to run any list elements that are methods
-    or actions and return a new field containing the resolved list.
-*****************************************************************************/
-extern GroupItem resolveList(GroupItem input)
-{
-GroupItem   result = new("resolvedList"),
-            grup;
-    while grup = input.next(grup)
-        if grup.isMethod    result += grup.method(grup);
-        else                result += grup;
-    result.isLIST = true;
-    return result;
-}
-
-
-/*****************************************************************************
 	Restore local fields after a recursive call.
 *****************************************************************************/
 extern void restoreLocalFields(GroupItem action)
@@ -1033,13 +1017,8 @@ GroupItem   result,
     if op.instructType && isMethod && invoke    target = method(target);
     if arg
         if arg.isMethod && arg.invoke           arg = arg.method(arg);
-        /* resolveList(arg) deliberately disabled: it returned a COPY of a
-           list operand (losing tag/identity/byRef), which broke the list-
-           consuming operators (:+ <- merge) that walk argument.isLIST and
-           depend on the real node. Single-method args are still resolved
-           one line up. Re-enable only by resolving members in place, and
-           skip it for the list operators. */
-        //or arg.isLIST   arg = resolveList(arg);
+        /*  ⚠ A LIST OPERAND IS DELIBERATELY NOT RESOLVED HERE -- doing it would
+            hand the list operators a COPY.   GroupActions.runOP.listOperand  */
     if target && target.isVirtual               target = copyOf(target);
     /*  The seed gate must cover BOTH dispatch arms below, not just the
         isOperator one. Unary operators are registered `unary ruleMethod=`

@@ -12004,22 +12004,6 @@ Buffer 	*buff = argument->getBuffer();
 }
 
 /*****************************************************************************
-	Process an argument list to run any list elements that are methods
-    or actions and return a new field containing the resolved list.
-*****************************************************************************/
-extern "C" GroupItem *resolveList(GroupItem *input)
-{
-GroupItem 	*result = new GroupItem("resolvedList");
-GroupItem 	*grup = 0;
-	while ( grup = input->next(grup) )
-		if ( isMethod(grup->groupBody->flags.instructType) )
-			result->addMember(grup->groupBody->gMethod(grup));
-		else	result->addMember(grup);
-	result->groupBody->flags.binType = 3;
-	return result;
-}
-
-/*****************************************************************************
 	Restore local fields after a recursive call.
 *****************************************************************************/
 extern "C" void restoreLocalFields(GroupItem *action)
@@ -12497,13 +12481,8 @@ GroupItem 	*target = field->get(2);
 	if ( arg )
 		if ( isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
 			arg = arg->groupBody->gMethod(arg);
-	/* resolveList(arg) deliberately disabled: it returned a COPY of a
-	list operand (losing tag/identity/byRef), which broke the list-
-	consuming operators (:+ <- merge) that walk argument.isLIST and
-	depend on the real node. Single-method args are still resolved
-	one line up. Re-enable only by resolving members in place, and
-	skip it for the list operators. */
-	//or arg.isLIST   arg = resolveList(arg);
+	/*  ⚠ A LIST OPERAND IS DELIBERATELY NOT RESOLVED HERE -- doing it would
+	hand the list operators a COPY.   GroupActions.runOP.listOperand  */
 	if ( target && target->groupBody->flags.isVirtual )
 		target = ::copyOf(target);
 	/*  The seed gate must cover BOTH dispatch arms below, not just the
