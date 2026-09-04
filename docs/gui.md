@@ -203,6 +203,14 @@ GC-retention of bridged Apple objects.
   `Groups.g` (drawing, not XML).
 - **`bigify` comment: "Tried it as a lambda. Collosal fail."** — a known runtime sharp edge.
 
+**Deferred to this arc — `GUI/groupDirectives` (Tony ruled 2026-09-04).** A second tok
+directives file, referenced by `TOK.xcodeproj` and never censused. Held out of the C-155
+cull deliberately, which took the top-level `groupDirectives` from 70 entries to 46. **The
+expected outcome is the shitcan, after a recon that makes sure that is the right call** —
+not a cull, because nothing here is presumed worth keeping. `genLadder/directiveCensus.py`
+runs against it unchanged (`python3 genLadder/directiveCensus.py GUI/groupDirectives`), and
+`docs/c155Cull.md` §1 carries the file grammar the recon needs.
+
 ---
 
 ## Layout and Stylish — salvage + Option A design brief

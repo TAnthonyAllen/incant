@@ -490,6 +490,11 @@ in one stroke, both caught, neither by care.**
   prose, and several are parked code stashes) · bear-trap #30's amendment (§5c).
 - **Dischargeable:** `docs/fixIts.md` **F-8**, whose three `aCTionDebuG` entries are cut and
   archived at §4b.
-- **Not touched, by scope:** `Parse/plgDirectives` (F-10), `incant/directives` (runtime, a
-  different mechanism), and `GUI/groupDirectives` — **which exists**, is referenced by the
-  Xcode project, and has never been censused.
+- **Not touched, by scope:** `Parse/plgDirectives` (F-10) and `incant/directives` (runtime,
+  a different mechanism).
+- **`GUI/groupDirectives` — RULED 2026-09-04, and it is NOT an open item here.** Tony:
+  ignore it until the GUI arc, and *"shitcan is the probable result after a make-sure-that-
+  is-the-right-call recon."* So it is a recon-then-probably-delete, **not** a second cull —
+  nothing in it is presumed worth keeping, which is the opposite of this file's premise.
+  Homed in `docs/gui.md` under *What is worth salvaging*; `genLadder/directiveCensus.py`
+  runs against it unchanged, and §1 above carries the grammar the recon needs.
