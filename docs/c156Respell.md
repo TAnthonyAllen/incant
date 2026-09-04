@@ -553,3 +553,71 @@ incant/attic/parentUnreachable:15  fpP <- argument.parenT;
 | `verdict` | `incant/lookup:41` | `print "  verdict    " argument.verdict:;` |
 | `vintage` | `incant/lookup:44` | `print "  vintage    " argument.vintage:;` |
 | `workaround` | `incant/lookup:38` | `print "  workaround " argument.workaround:;` |
+
+---
+
+## §15 C-162 SETTLED, AND THE C-161 PRE-FLIGHT SAYS **HOLD**
+
+### §15a C-162's flip arm — moved-set NOT empty, and better than predicted
+
+Pre-registered: *moved-set empty against the pre-C-162 flip capture; zero refusals.*
+
+**Zero refusals — held.** **Moved-set empty — missed:** six rows moved, **every one red → green.**
+
+⚠ **No pre-C-162 flip capture existed** — the last was C-156-era and confounded by everything
+since. One was built retroactively by running the fleet from a worktree at `ca604b0` **on the same
+flipped binary**, so only the incant sources differ. That is the comparison below.
+
+```
+ARM FLIP   pre-C-162  135 green / 66 red
+ARM FLIP   post       141 green / 60 red      six rows, all red -> green
+```
+
+| row | fixture | starred sites now |
+|---|---|---|
+| `fires=NEVER roster` | `parseClass` | 7 |
+| `anti-vacuity: parseRule parked actions` (0 → 59) | `parseClass` | 7 |
+| `iterT1` | `iterT1` | 1 |
+| `iterT1m` | `iterT1m` | 2 |
+| `iterT1m refusal count` (0 → 4) | `iterT1m` | 2 |
+| `displayForm baseline` | `displayFormT` | 1 |
+
+**All four backing fixtures were respelled by C-162**, and the mechanism is the class's own: under
+the flip a cursor passed to an action arrived as the **cursor holder**, so the callee walked or
+found nothing; `*cursor` delivers the member and the callee works. Bare unmoved throughout, canary
+**333**, flip lowered and verified behaviourally.
+
+### §15b ⚠ C-161 PRE-FLIGHT: THE PROPOSED SPELLING DOES NOT PARSE AS INTENDED. HOLD.
+
+One `*argument.taG` site, both arms, `addrOf` on the read. **No prediction was made; here is what
+it measured.**
+
+```
+                            ARM BARE                    ARM FLIP
+A  argument.taG             pfSource   (correct)        argument   (the defect)
+B  *argument.taG            0  + ERROR unary * on taG   0  + ERROR unary * on taG
+C  pfCap := *argument
+   then pfCap.taG           pfCap  + ERROR on pfSource  pfCap
+D  addrOf(argument)         #1 / body #2                #1 / body #2
+E  addrOf(pfCap)            #3 / body #4                #3 / body #4
+```
+
+⚠⚠ **ROW B IS THE FINDING: THE STAR BINDS TO `taG`, NOT TO `argument`.** `*argument.taG` parses as
+`*(argument.taG)` — the error names **`taG`** — so it reads **0 on both arms**. **C-161's spelling
+is not flip-only and not trunk-bound; it is wrong.** Same family as `pointerT`'s law 3, where a
+star written directly on a subscript binds to the bag.
+
+⚠ **And row C shows the obvious repair does not work either.** `pfCap := *argument` makes `pfCap` a
+**holder**, so `pfCap.taG` answers with the holder's own name — `pfCap` — under the flip, and on
+bare the star refuses first because `argument` is already unwrapped.
+
+**So the class cannot move on either arm until a spelling is chosen, and the pre-flight has done
+its job by stopping it before 122 sites did.**
+
+**THE CANDIDATE, and it is only a candidate: DROP `argument.` ENTIRELY and use the BARE accessor.**
+C-158 step 3b measured bare `taG` at action entry reading **the source on the flip** — `lrSource` —
+while the explicit spelling read `argument`. So for the 48-site identity family the fix may be a
+**deletion, not a star**. ⚠ **Not a blind substitution:** a bare accessor is `lastREF`-resolved and
+therefore position-sensitive, correct at entry and wrong after any intervening call (the clobber,
+R1). Every site would need reading for what sits above it. **Tony's ruling, before anything moves.**
+
