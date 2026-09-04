@@ -290,3 +290,79 @@ the criterion all the same.
 - ⚠ **`shadowCensus`'s pick-one row is red on the flip arm and green on the trunk.** It is
   not a regression and it is not re-pinned; under the flip it is reporting the `lastREF`
   cursor behaviour faithfully. It goes green again when (b) is ruled.
+
+---
+
+## §12 STEP 4 (c) — THE OPERATOR AT EVERY SITE (C-158 addition 3)
+
+**Arm-independent: a static read.** Prose and comment lines filtered out, which removes
+three that the aggregate in §9 had counted — `:=` 29 → **26**, `=` 14 → **12**, `<-`
+unchanged at 12. **§9's aggregate was the looser number; these are the code sites.**
+
+By C-154's ruling the `:=` sites take `*argument`; `<-` mints a copy and is a separate
+question; `=` on a holder RHS refuses by name. **None was touched.**
+
+**`:=` — 26 code sites**
+
+| site | line |
+|---|---|
+| `incant/genEmit:111` | `wrapped := argument.firstMembeR;` |
+| `incant/generate:68` | `st  := argument[1];` |
+| `incant/generate:69` | `xp  := argument["ExpressioN"];` |
+| `incant/generate:100` | `looper   := argument["Looper"];` |
+| `incant/generate:101` | `xp       := argument["ExpressioN"];` |
+| `incant/generate:102` | `restrict := argument["LoopRestrict"];` |
+| `incant/generate:103` | `st       := argument["StatemenT"];` |
+| `incant/generate:140` | `xp  := argument["ExpressioN"];` |
+| `incant/generate:142` | `st  := argument[2];` |
+| `incant/generate:143` | `el  := argument[3];` |
+| `incant/generate:197` | `xp  := argument["ExpressioN"];` |
+| `incant/generate:199` | `st  := argument[2];` |
+| `incant/iterT3:51` | `grup := argument;` |
+| `incant/jiabsorb:28` | `cg := argument.claims;` |
+| `incant/jiabsorb:33` | `cg     := argument.claims;` |
+| `incant/jidirect:25` | `cg := argument.claims;` |
+| `incant/jidirect:36` | `cg := argument.claims;` |
+| `incant/jidirect:45` | `cg := argument.claims;` |
+| `incant/jidirect:55` | `cg := argument.claims;` |
+| `incant/jitDrive:31` | `blok := argument["BlocK"];` |
+| `incant/setGroupInit:20` | `if dTarget := argument;` |
+| `incant/setGroupInit:32` | `fTarget := argument;` |
+| `incant/utilities:184` | `direct  := argument.dIRECTion;` |
+| `incant/utilities:185` | `target  := argument.tARGET;` |
+| `minionWork/anyOrNumCam:80` | `camDirect := argument(ruleText);` |
+| `minionWork/f31StoreActivate:39` | `BlockerRouteA="ROUTE A, := on the rule. piShell := argument th` |
+
+**`<-` — 12 code sites**
+
+| site | line |
+|---|---|
+| `incant/attic/parentUnreachable:15` | `fpP <- argument.parenT;` |
+| `incant/decoder:361` | `for grup in <- argument;` |
+| `incant/holderT:49` | `htP <- argument.parenT;` |
+| `incant/lookup:74` | `for grup in <- argument;` |
+| `incant/utilities:386` | `band <- argument :+ new(bandName);` |
+| `incant/utilities:432` | `rowBlock <- argument :+ new(rowName);` |
+| `minionWork/probeActionHome:10` | `ahN <- argument;` |
+| `minionWork/probeC3:7` | `c3E <- argument;` |
+| `minionWork/probeC4:11` | `c4N <- argument;` |
+| `minionWork/probeD2:10` | `d2N <- argument;` |
+| `minionWork/probeM3:25` | `fbN <- argument;` |
+| `minionWork/probeNameFlip:12` | `nfN <- argument;` |
+
+**`=` — 12 code sites**
+
+| site | line |
+|---|---|
+| `incant/argWriteT:15` | `awWrite argument code={ argument = 5; return argument; };` |
+| `incant/attic/jitIso3:26` | `i3Act.argument = i3Root;` |
+| `incant/designDocs:235` | `parseSelfRecursion gloss="generated parse re-enters itself" sy` |
+| `incant/designDocs:1620` | `argumentHasData=(THE CLAIM, from the site: an argument attribu` |
+| `incant/scopeUnits:186` | `argument = lineIn + 4;` |
+| `incant/unitTests:169` | `argument = lineIn + 4;` |
+| `minionWork/f31StoreActivate:47` | `SubFive="Passing the cell into a helper action as argument doe` |
+| `minionWork/probeStep4:15` | `print "  S4-E0 argument  =" argument:;` |
+| `minionWork/probeStep4:16` | `print "  S4-E1 *argument =" *argument "  want ORIG if the chan` |
+| `minionWork/tripwireNeg:10` | `print "TN-A plain action, argument =" argument:;` |
+| `minionWork/tripwireNeg:12` | `tnLoaded argument=42 code={` |
+| `minionWork/tripwireNeg:13` | `print "TN-B loaded action, argument =" argument:;` |
