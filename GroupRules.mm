@@ -11707,7 +11707,7 @@ int 		processing = ruler->processingCode;
 		field->addAttribute(result);
 		field->groupBody->flags.actionType = 1;
 		}
-	else	::reportCodeFail(field);
+	else	reportCodeFail(field);
 	if ( !processing )
 		ruler->processingCode = 0;
 	ruler->lastIndent = indenter;

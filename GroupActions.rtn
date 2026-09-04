@@ -1,4 +1,6 @@
 
+
+
 /*******************************************************************************
 	Print the field passed in to the buffer passed in
 *******************************************************************************/
@@ -58,6 +60,44 @@ GroupItem   grup,
 }
 
 
+/*  BOTH ROADS CALL THIS -- the interpreted `=` reaches it from opAssign, the
+    emitted `=` through jitAssignNodeRT. One spelling, so they cannot drift.
+    jitEmitters.jitAssignNodeRT  */
+extern int assignFieldCore(GroupItem source,GroupItem target)
+{
+    -%
+    if ( !target )  return 0;
+    if ( !source ) {
+        ::fprintf(stderr,"ERROR = on %s -- nothing on the right; stores nothing\n",
+            target->groupBody->tag);
+        return 0;
+        }
+    if ( isGROUP(source->groupBody->flags.data) ) {
+        ::fprintf(stderr,"ERROR = on %s -- holds a group; say *\n",
+            target->groupBody->tag);
+        return 0;
+        }
+    target->setContent(source);
+    return 1;
+    %-
+}
+
+
+/*  ⚠ IT CANNOT MOVE TO measure.twk, though it is a measuring instrument: it reads
+    gChanBinds/gChanSame, which are `static int` in jitContext.h, so a second
+    translation unit gets its OWN zeroed copies. Measured 2026-09-04.
+    SAME MUST EQUAL BINDS, and the row asserts a NON-ZERO total too, because 0 of 0
+    is agreement between two absences.   GroupActions.chanReport  */
+extern GroupItem chanReport(GroupItem input)
+{
+    -%
+    ::fprintf(stderr,"=== ARGCHANNEL binds = %d same = %d ===\n",gChanBinds,gChanSame);
+    ::fflush(stderr);
+    %-
+    return trueResult;
+}
+
+
 /***************************************************************************
     Close the file associated with the buffer. If no file has been set,
     fall back to using the field's tag as the filename — the tag is a
@@ -114,6 +154,58 @@ use input
 
 
 /*****************************************************************************
+	frameFind -- read-only twin. Returns null when no frame child exists, so
+	restore can tell "never saved" from "saved nothing" without minting one.
+*****************************************************************************/
+extern GroupItem frameFind(GroupItem action)
+{
+    return action["frameSTAK"];
+}
+
+
+/*****************************************************************************
+	frameStak -- THE FRAME BRACKET'S SAVE-STACK LIVES ON A noPrint CHILD OF THE
+	ACTION, NEVER IN THE ACTION'S OWN DATA SLOT.
+
+	THE DEFECT THIS REPAIRS, measured 2026-08-30. saveLocalFields opened with
+	`action.stak = recurseSTAK`, which writes the action node's DATA slot. For
+	an ordinary action that slot is empty and the write is free. For a field
+	that carries BOTH DATA AND A CODE BLOCK -- `lefty=3 code={ lefty += 43; }`,
+	the shape incant/unitTests documents as incant's distinguishing feature --
+	that slot holds the VALUE, and the bracket destroyed it. Measured directly:
+
+	    SLFENTRY action=spSelf data=5  text=3        <- the field holds 3
+	    SLFAFTER action=spSelf data=12 text=spSelf   <- data 12 = isSTAK, value gone
+
+	It read as CLAIM KANT-8's own symptom -- a field answering with its own tag
+	-- which is why it hid: the KANT-8 family is green on every row while this
+	is broken, because no K-row uses a data-carrying action.
+
+	ONE CHANNEL, ONE MEANING. The node's data slot was carrying the FIELD'S
+	VALUE and the FRAME'S SAVE-STACK. The cure is the standing one: a second
+	channel, not a cleverer test.
+
+	⚠ IT IS A REPAIR, NOT A SEMANTICS CHANGE, and rung B stands whole. The law
+	is that the bracket touches exactly MINTED SCRATCH; a defined field's value
+	was never its business. The recursive gates stay SHUT -- they are set at
+	parse time BY IDENTITY so mutual recursion never sets them, and cleared at
+	run time so behaviour follows invocation history. Both diseases documented.
+
+	SEPARATE FUNCTION on purpose: a declaration introduced into a declared-field
+	tok function re-binds every bare member name in scope, INCLUDING LINES ABOVE
+	IT. A call introduces no declaration. Same shape as parkOnMaster/frameParent.
+*****************************************************************************/
+extern GroupItem frameStak(GroupItem action)
+{
+GroupItem   frame = action["frameSTAK"];
+    if frame    return frame;
+    frame = action += "frameSTAK";
+    frame.noPrint = true;
+    return frame;
+}
+
+
+/*****************************************************************************
     interpretMethod — binds a bytecode op's interpret handler. Unlike
     operateMethod (which binds the op's own operat slot, then vanishes as a
     setter), this creates a PERSISTENT `interpret` child on the op and binds
@@ -138,26 +230,91 @@ use input
 }
 
 
-/*  BOTH ROADS CALL THIS -- the interpreted `=` reaches it from opAssign, the
-    emitted `=` through jitAssignNodeRT. One spelling, so they cannot drift.
-    jitEmitters.jitAssignNodeRT  */
-extern int assignFieldCore(GroupItem source,GroupItem target)
+extern void limitWriteCheck(GroupItem target,int priorLimit)
 {
-    -%
-    if ( !target )  return 0;
-    if ( !source ) {
-        ::fprintf(stderr,"ERROR = on %s -- nothing on the right; stores nothing\n",
-            target->groupBody->tag);
-        return 0;
-        }
-    if ( isGROUP(source->groupBody->flags.data) ) {
-        ::fprintf(stderr,"ERROR = on %s -- holds a group; say *\n",
-            target->groupBody->tag);
-        return 0;
-        }
-    target->setContent(source);
-    return 1;
-    %-
+GroupRules  ruler = groupRules;
+    if target.groupBody == repeatLimit.groupBody {
+        if (repeatLimit.isCOUNT || repeatLimit.isNUMBER) && repeatLimit.count > 0   return;
+        cerr "REFUSED repeatLimit write: " repeatLimit.text " is not a usable limit":;
+        cerr "    keeping repeatLimit " toStringFromInt(priorLimit):;
+        cerr "    limits already stamped are unchanged":;
+        repeatLimit.count = priorLimit;
+        return; }
+    if (maxLimit.isCOUNT || maxLimit.isNUMBER) && maxLimit.count > 0    return;
+    cerr "REFUSED maxLimit write: " maxLimit.text " is not a usable limit":;
+    cerr "    keeping maxLimit " toStringFromInt(priorLimit):;
+    cerr "    limits already stamped are unchanged":;
+    maxLimit.count  = priorLimit;
+}
+
+
+/*****************************************************************************
+    reportMaxLimit -- THE THIRD REFUSAL, and it states a fact neither sibling
+    can. reportCodeFail says a body was parsed and the parse failed;
+    reportNoBody says a rule was reached with no compiled body. This one says
+    a match ran into the maxLimit ceiling with input still matching, so what
+    was about to be returned is a TRUNCATION.
+
+    ⚠ IT REFUSES RATHER THAN TRUNCATING, and that is the whole point of it.
+    Silently returning the first N characters of a longer token is
+    parse-succeeded-with-wrong-content, which is the worst failure genre on
+    this project's books -- every downstream reader believes a token that was
+    never in the input. A limit hit means either a defect or a genuinely large
+    token, and both deserve to be named at the moment they happen.
+
+    ⚠ ONE IMPLEMENTER, WHICH IS HOW THE TWO ENGINES ARE KEPT HONEST. The
+    interpretive loop (testMacro, RuleStuff.twk) and the generated-parse loops
+    (parseAny/parseCharacter/parseSet, Generate.rtn) both call THIS function,
+    so "same behaviour, same words" is true by construction rather than by two
+    copies being carefully matched. The convergence note on reportCodeFail
+    applies to all three.
+
+    ⚠ WHAT IT IS NOT ALLOWED TO FIRE ON. max is not only the ceiling: it is 1
+    by default and it is whatever an explicit [min max] Limit sets. Both of
+    those hit `counter >= max` in the ordinary course of a correct parse -- a
+    one-character rule followed by another matching character reaches it on
+    every single match. So the callers gate on `max > 1 && !limitsSet`, which
+    is true only for the ceiling modify() stamps. Ungated, this would reject
+    every name longer than one letter.
+
+    cerr for its siblings' reason: a refusal that vanishes into a diverted
+    print buffer is not loud.
+*****************************************************************************/
+/*****************************************************************************
+    limitWriteGuard / limitWriteCheck -- F-27's ruling: a bad write to maxLimit
+    is refused AT THE WRITE, and the assignment does not take.
+
+    ⚠ THE SITE IS THE RULING. Tony, 2026-08-19: catching a bad limit at its one
+    write site is cheaper than diagnosing a million silent zero-matches at parse
+    time, and a stamped max = 0 is the succeed-without-advancing family wearing a
+    configuration costume. So this does NOT live in modify() -- by the time
+    modify() reads a poisoned count the write has already got away, and every
+    rule defined since carries it.
+
+    ⚠ WHY IT IS TWO FUNCTIONS AND NOT ONE. Refusing requires the value the write
+    is about to destroy, so half of it has to run BEFORE opAssign's setContent
+    and half after. The guard returns the prior count and doubles as the "is this
+    even maxLimit" test: a non-zero return means both "this write is to maxLimit"
+    and "here is what to put back", so opAssign pays one int test on every other
+    assignment in the system and nothing else.
+
+    ⚠ THE TEST IS ON THE DATA TYPE, NOT ONLY ON THE COUNT, and that is not
+    belt-and-braces. `maxLimit = "big"` leaves an isSTRING, and getCount reads
+    `count` straight out of the union for an isSTRING -- which overlaps the text
+    pointer, so it comes back LARGE and non-zero rather than 0. A count-only test
+    would wave that through and stamp a garbage ceiling. Only a genuine isCOUNT
+    or isNUMBER above zero is a usable limit.
+
+    The message names all three things the ruling asked for: the rejected value,
+    the retained value, and that repetition limits are unchanged.
+*****************************************************************************/
+extern int limitWriteGuard(GroupItem target)
+{
+GroupRules  ruler = groupRules;
+    if !target                                      return 0;
+    if target.groupBody == maxLimit.groupBody       return maxLimit.count;
+    if target.groupBody == repeatLimit.groupBody    return repeatLimit.count;
+    return 0;
 }
 
 
@@ -226,20 +383,6 @@ use target
     return target;
 }
 
-
-/*  ⚠ IT CANNOT MOVE TO measure.twk, though it is a measuring instrument: it reads
-    gChanBinds/gChanSame, which are `static int` in jitContext.h, so a second
-    translation unit gets its OWN zeroed copies. Measured 2026-09-04.
-    SAME MUST EQUAL BINDS, and the row asserts a NON-ZERO total too, because 0 of 0
-    is agreement between two absences.   GroupActions.chanReport  */
-extern GroupItem chanReport(GroupItem input)
-{
-    -%
-    ::fprintf(stderr,"=== ARGCHANNEL binds = %d same = %d ===\n",gChanBinds,gChanSame);
-    ::fflush(stderr);
-    %-
-    return trueResult;
-}
 
 extern int materialiseRegistry(GroupItem registry)
 {
@@ -409,194 +552,6 @@ use grup
 }
 
 
-/*****************************************************************************
-    Parse an action. Note: the coded field is made an action before its
-    code is parsed otherwise a recursive call will complain
-*****************************************************************************/
-/*****************************************************************************
-    reportCodeFail -- WHERE THE CODE BODY ACTUALLY FAILED TO PARSE.
-
-    A bare "parse failed" is a diagnostic that costs more than it gives. It sent
-    a whole session reverse-engineering six hypotheses about 53 failures, five
-    of which died on measurement, because nothing said which token or line.
-
-    ⚠ THIS IS NOT NEW MACHINERY. aCTionFailed already reports rule, position,
-    line and last-parsed-statement, and it works -- it is simply gated on the
-    rStuff notifyFail flag, which processFlags sets PER RULE, and the BlocK rule
-    a code body is parsed with does not carry it. So the report never fires for
-    processCode. This reads the same accessors rather than flagging a shared
-    grammar rule mid-flight.
-
-    ONE IMPLEMENTER BY INTENT. If parse-error reporting is ever made good --
-    and the standing complaint is that it points at the next county rather than
-    the error -- this and aCTionFailed should converge here, not diverge.
-
-    cerr, not cout: a code body can be processed with print diverted.
-*****************************************************************************/
-extern void reportCodeFail(GroupItem field)
-{
-GroupRules  ruler = groupRules;
-    cerr "ERROR processCode: " field.tag,"parse failed":;
-    cerr "    failed at " getDebugText(failedAt, 40):;
-    cerr "    on line " toStringFromInt(sourceLINE):;
-}
-
-/*****************************************************************************
-    reportNoBody -- the OTHER refusal, and it is a different fact from the one
-    above. reportCodeFail says a body was parsed and the parse failed.
-    reportNoBody says a rule was reached through a bound parse method and has
-    no compiled body to run, so the parse cannot proceed and is refusing.
-
-    A SIBLING RATHER THAN A REUSE, DELIBERATELY. Calling reportCodeFail here
-    would print "ERROR processCode: X parse failed" for a rule that processCode
-    never touched -- an instrument naming the wrong mechanism, which is the
-    failure this project spends most of its time paying for. The convergence
-    note above still applies to both: if parse-error reporting is ever made
-    good, these two and aCTionFailed converge here.
-
-    cerr for the same reason as its sibling: a code body can be processed with
-    print diverted, and a refusal that vanishes into a buffer is not loud.
-
-    ⚠ IT CAN REPEAT, and that is intended rather than overlooked. A refusing
-    rule refuses on every attempt, so a walk that binds a parse method without
-    compiling will print once per attempt. Nothing reaches this in an ordinary
-    run -- no ordinary path binds a parse method at all -- so the only way to
-    see a flood is to be doing exactly the work the flood is about.
-*****************************************************************************/
-extern void reportNoBody(GroupItem field)
-{
-GroupRules  ruler = groupRules;
-    cerr "REFUSED parseRule: " field.tag,"has a parse method but no compiled body":;
-    cerr "    at " getDebugText(atRuleMark, 40):;
-}
-
-/*****************************************************************************
-    reportMaxLimit -- THE THIRD REFUSAL, and it states a fact neither sibling
-    can. reportCodeFail says a body was parsed and the parse failed;
-    reportNoBody says a rule was reached with no compiled body. This one says
-    a match ran into the maxLimit ceiling with input still matching, so what
-    was about to be returned is a TRUNCATION.
-
-    ⚠ IT REFUSES RATHER THAN TRUNCATING, and that is the whole point of it.
-    Silently returning the first N characters of a longer token is
-    parse-succeeded-with-wrong-content, which is the worst failure genre on
-    this project's books -- every downstream reader believes a token that was
-    never in the input. A limit hit means either a defect or a genuinely large
-    token, and both deserve to be named at the moment they happen.
-
-    ⚠ ONE IMPLEMENTER, WHICH IS HOW THE TWO ENGINES ARE KEPT HONEST. The
-    interpretive loop (testMacro, RuleStuff.twk) and the generated-parse loops
-    (parseAny/parseCharacter/parseSet, Generate.rtn) both call THIS function,
-    so "same behaviour, same words" is true by construction rather than by two
-    copies being carefully matched. The convergence note on reportCodeFail
-    applies to all three.
-
-    ⚠ WHAT IT IS NOT ALLOWED TO FIRE ON. max is not only the ceiling: it is 1
-    by default and it is whatever an explicit [min max] Limit sets. Both of
-    those hit `counter >= max` in the ordinary course of a correct parse -- a
-    one-character rule followed by another matching character reaches it on
-    every single match. So the callers gate on `max > 1 && !limitsSet`, which
-    is true only for the ceiling modify() stamps. Ungated, this would reject
-    every name longer than one letter.
-
-    cerr for its siblings' reason: a refusal that vanishes into a diverted
-    print buffer is not loud.
-*****************************************************************************/
-/*****************************************************************************
-    limitWriteGuard / limitWriteCheck -- F-27's ruling: a bad write to maxLimit
-    is refused AT THE WRITE, and the assignment does not take.
-
-    ⚠ THE SITE IS THE RULING. Tony, 2026-08-19: catching a bad limit at its one
-    write site is cheaper than diagnosing a million silent zero-matches at parse
-    time, and a stamped max = 0 is the succeed-without-advancing family wearing a
-    configuration costume. So this does NOT live in modify() -- by the time
-    modify() reads a poisoned count the write has already got away, and every
-    rule defined since carries it.
-
-    ⚠ WHY IT IS TWO FUNCTIONS AND NOT ONE. Refusing requires the value the write
-    is about to destroy, so half of it has to run BEFORE opAssign's setContent
-    and half after. The guard returns the prior count and doubles as the "is this
-    even maxLimit" test: a non-zero return means both "this write is to maxLimit"
-    and "here is what to put back", so opAssign pays one int test on every other
-    assignment in the system and nothing else.
-
-    ⚠ THE TEST IS ON THE DATA TYPE, NOT ONLY ON THE COUNT, and that is not
-    belt-and-braces. `maxLimit = "big"` leaves an isSTRING, and getCount reads
-    `count` straight out of the union for an isSTRING -- which overlaps the text
-    pointer, so it comes back LARGE and non-zero rather than 0. A count-only test
-    would wave that through and stamp a garbage ceiling. Only a genuine isCOUNT
-    or isNUMBER above zero is a usable limit.
-
-    The message names all three things the ruling asked for: the rejected value,
-    the retained value, and that repetition limits are unchanged.
-*****************************************************************************/
-extern int limitWriteGuard(GroupItem target)
-{
-GroupRules  ruler = groupRules;
-    if !target                                      return 0;
-    if target.groupBody == maxLimit.groupBody       return maxLimit.count;
-    if target.groupBody == repeatLimit.groupBody    return repeatLimit.count;
-    return 0;
-}
-
-extern void limitWriteCheck(GroupItem target,int priorLimit)
-{
-GroupRules  ruler = groupRules;
-    if target.groupBody == repeatLimit.groupBody {
-        if (repeatLimit.isCOUNT || repeatLimit.isNUMBER) && repeatLimit.count > 0   return;
-        cerr "REFUSED repeatLimit write: " repeatLimit.text " is not a usable limit":;
-        cerr "    keeping repeatLimit " toStringFromInt(priorLimit):;
-        cerr "    limits already stamped are unchanged":;
-        repeatLimit.count = priorLimit;
-        return; }
-    if (maxLimit.isCOUNT || maxLimit.isNUMBER) && maxLimit.count > 0    return;
-    cerr "REFUSED maxLimit write: " maxLimit.text " is not a usable limit":;
-    cerr "    keeping maxLimit " toStringFromInt(priorLimit):;
-    cerr "    limits already stamped are unchanged":;
-    maxLimit.count  = priorLimit;
-}
-
-/*****************************************************************************
-    reportRepeatLimit -- THE FOURTH REFUSAL, and the one that had no voice.
-
-    reportMaxLimit says a MATCH ran into the token ceiling. This says a RULE ran
-    into the repetition ceiling: it matched its limit of times and parse() then
-    stopped, which until 2026-08-19 happened in total silence. That silence is
-    what made the shared-ceiling arrangement dangerous -- a rule cut short here
-    simply stops and the statements after the cut are never parsed, at exit 0.
-
-    ⚠ IT REPORTS AND DOES NOT FAIL, and that is deliberate rather than timid.
-    The character loop refuses because a truncated TOKEN is wrong content. A
-    rule that repeated to its ceiling has matched everything it matched
-    correctly; what is wrong is that there may be more. Failing the match would
-    discard correct work and change parse outcomes wholesale. So the fact gets
-    named and the existing kount >= min semantics are left alone.
-
-    ⚠ THE COUNTS ARE PASSED, NOT RE-DERIVED. rStuff is per node and parse() may
-    be running on a REENTRANCY CLONE (docs/rstuff-chokepoint.md), so reading
-    rule.rStuff here could report a different frame's numbers than the loop that
-    hit the ceiling. The caller has the live frame; it hands over the values.
-*****************************************************************************/
-extern int reportRepeatLimit(GroupItem rule,int kounted,int limit)
-{
-GroupRules  ruler = groupRules;
-    cerr "REFUSED repetition limit: rule " rule.tag:;
-    cerr "    repeated " toStringFromInt(kounted) " times, hit repeatLimit " toStringFromInt(limit):;
-    cerr "    at " getDebugText(atRuleMark, 40):;
-    return 0;
-}
-
-extern int reportMaxLimit(GroupItem field)
-{
-GroupRules  ruler = groupRules;
-RuleStuff   ruleStuff = field.rStuff;
-    cerr "REFUSED match limit: rule " ruleStuff.ruleName " term " field.tag:;
-    cerr "    hit maxLimit " toStringFromInt(max) " with input still matching":;
-    cerr "    at " getDebugText(atRuleMark, 40):;
-    return 0;
-}
-
-
 extern int processCode(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -666,6 +621,111 @@ use field
     currentMETHOD   = priorMETHOD;
     if result       return true;
     return false;
+}
+
+
+/*****************************************************************************
+    Parse an action. Note: the coded field is made an action before its
+    code is parsed otherwise a recursive call will complain
+*****************************************************************************/
+/*****************************************************************************
+    reportCodeFail -- WHERE THE CODE BODY ACTUALLY FAILED TO PARSE.
+
+    A bare "parse failed" is a diagnostic that costs more than it gives. It sent
+    a whole session reverse-engineering six hypotheses about 53 failures, five
+    of which died on measurement, because nothing said which token or line.
+
+    ⚠ THIS IS NOT NEW MACHINERY. aCTionFailed already reports rule, position,
+    line and last-parsed-statement, and it works -- it is simply gated on the
+    rStuff notifyFail flag, which processFlags sets PER RULE, and the BlocK rule
+    a code body is parsed with does not carry it. So the report never fires for
+    processCode. This reads the same accessors rather than flagging a shared
+    grammar rule mid-flight.
+
+    ONE IMPLEMENTER BY INTENT. If parse-error reporting is ever made good --
+    and the standing complaint is that it points at the next county rather than
+    the error -- this and aCTionFailed should converge here, not diverge.
+
+    cerr, not cout: a code body can be processed with print diverted.
+*****************************************************************************/
+extern void reportCodeFail(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+    cerr "ERROR processCode: " field.tag,"parse failed":;
+    cerr "    failed at " getDebugText(failedAt, 40):;
+    cerr "    on line " toStringFromInt(sourceLINE):;
+}
+
+
+extern int reportMaxLimit(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff = field.rStuff;
+    cerr "REFUSED match limit: rule " ruleStuff.ruleName " term " field.tag:;
+    cerr "    hit maxLimit " toStringFromInt(max) " with input still matching":;
+    cerr "    at " getDebugText(atRuleMark, 40):;
+    return 0;
+}
+
+
+/*****************************************************************************
+    reportNoBody -- the OTHER refusal, and it is a different fact from the one
+    above. reportCodeFail says a body was parsed and the parse failed.
+    reportNoBody says a rule was reached through a bound parse method and has
+    no compiled body to run, so the parse cannot proceed and is refusing.
+
+    A SIBLING RATHER THAN A REUSE, DELIBERATELY. Calling reportCodeFail here
+    would print "ERROR processCode: X parse failed" for a rule that processCode
+    never touched -- an instrument naming the wrong mechanism, which is the
+    failure this project spends most of its time paying for. The convergence
+    note above still applies to both: if parse-error reporting is ever made
+    good, these two and aCTionFailed converge here.
+
+    cerr for the same reason as its sibling: a code body can be processed with
+    print diverted, and a refusal that vanishes into a buffer is not loud.
+
+    ⚠ IT CAN REPEAT, and that is intended rather than overlooked. A refusing
+    rule refuses on every attempt, so a walk that binds a parse method without
+    compiling will print once per attempt. Nothing reaches this in an ordinary
+    run -- no ordinary path binds a parse method at all -- so the only way to
+    see a flood is to be doing exactly the work the flood is about.
+*****************************************************************************/
+extern void reportNoBody(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+    cerr "REFUSED parseRule: " field.tag,"has a parse method but no compiled body":;
+    cerr "    at " getDebugText(atRuleMark, 40):;
+}
+
+
+/*****************************************************************************
+    reportRepeatLimit -- THE FOURTH REFUSAL, and the one that had no voice.
+
+    reportMaxLimit says a MATCH ran into the token ceiling. This says a RULE ran
+    into the repetition ceiling: it matched its limit of times and parse() then
+    stopped, which until 2026-08-19 happened in total silence. That silence is
+    what made the shared-ceiling arrangement dangerous -- a rule cut short here
+    simply stops and the statements after the cut are never parsed, at exit 0.
+
+    ⚠ IT REPORTS AND DOES NOT FAIL, and that is deliberate rather than timid.
+    The character loop refuses because a truncated TOKEN is wrong content. A
+    rule that repeated to its ceiling has matched everything it matched
+    correctly; what is wrong is that there may be more. Failing the match would
+    discard correct work and change parse outcomes wholesale. So the fact gets
+    named and the existing kount >= min semantics are left alone.
+
+    ⚠ THE COUNTS ARE PASSED, NOT RE-DERIVED. rStuff is per node and parse() may
+    be running on a REENTRANCY CLONE (docs/rstuff-chokepoint.md), so reading
+    rule.rStuff here could report a different frame's numbers than the loop that
+    hit the ceiling. The caller has the live frame; it hands over the values.
+*****************************************************************************/
+extern int reportRepeatLimit(GroupItem rule,int kounted,int limit)
+{
+GroupRules  ruler = groupRules;
+    cerr "REFUSED repetition limit: rule " rule.tag:;
+    cerr "    repeated " toStringFromInt(kounted) " times, hit repeatLimit " toStringFromInt(limit):;
+    cerr "    at " getDebugText(atRuleMark, 40):;
+    return 0;
 }
 
 
@@ -1245,58 +1305,6 @@ int         leftIsTrue;
     if arg && arg.isMethod && arg.invoke            arg = arg.method(arg);
     if truthOf(arg)     return trueResult;
     return falseResult;
-}
-
-
-/*****************************************************************************
-	frameStak -- THE FRAME BRACKET'S SAVE-STACK LIVES ON A noPrint CHILD OF THE
-	ACTION, NEVER IN THE ACTION'S OWN DATA SLOT.
-
-	THE DEFECT THIS REPAIRS, measured 2026-08-30. saveLocalFields opened with
-	`action.stak = recurseSTAK`, which writes the action node's DATA slot. For
-	an ordinary action that slot is empty and the write is free. For a field
-	that carries BOTH DATA AND A CODE BLOCK -- `lefty=3 code={ lefty += 43; }`,
-	the shape incant/unitTests documents as incant's distinguishing feature --
-	that slot holds the VALUE, and the bracket destroyed it. Measured directly:
-
-	    SLFENTRY action=spSelf data=5  text=3        <- the field holds 3
-	    SLFAFTER action=spSelf data=12 text=spSelf   <- data 12 = isSTAK, value gone
-
-	It read as CLAIM KANT-8's own symptom -- a field answering with its own tag
-	-- which is why it hid: the KANT-8 family is green on every row while this
-	is broken, because no K-row uses a data-carrying action.
-
-	ONE CHANNEL, ONE MEANING. The node's data slot was carrying the FIELD'S
-	VALUE and the FRAME'S SAVE-STACK. The cure is the standing one: a second
-	channel, not a cleverer test.
-
-	⚠ IT IS A REPAIR, NOT A SEMANTICS CHANGE, and rung B stands whole. The law
-	is that the bracket touches exactly MINTED SCRATCH; a defined field's value
-	was never its business. The recursive gates stay SHUT -- they are set at
-	parse time BY IDENTITY so mutual recursion never sets them, and cleared at
-	run time so behaviour follows invocation history. Both diseases documented.
-
-	SEPARATE FUNCTION on purpose: a declaration introduced into a declared-field
-	tok function re-binds every bare member name in scope, INCLUDING LINES ABOVE
-	IT. A call introduces no declaration. Same shape as parkOnMaster/frameParent.
-*****************************************************************************/
-extern GroupItem frameStak(GroupItem action)
-{
-GroupItem   frame = action["frameSTAK"];
-    if frame    return frame;
-    frame = action += "frameSTAK";
-    frame.noPrint = true;
-    return frame;
-}
-
-
-/*****************************************************************************
-	frameFind -- read-only twin. Returns null when no frame child exists, so
-	restore can tell "never saved" from "saved nothing" without minting one.
-*****************************************************************************/
-extern GroupItem frameFind(GroupItem action)
-{
-    return action["frameSTAK"];
 }
 
 
