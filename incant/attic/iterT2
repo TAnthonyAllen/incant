@@ -20,13 +20,13 @@ define
     pair    x y;
 
     inner argument code={
-        iterate grup on argument;
+        iterate grup on *argument;
         while ++grup
             print "  inner " taG grup:;
         };
 
     outer argument code={
-        iterate grup on argument;
+        iterate grup on *argument;
         while ++grup
             inner(pair);
         };

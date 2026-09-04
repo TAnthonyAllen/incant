@@ -11,7 +11,7 @@ define
     npN;
     showAttrs argument code={
         npN = 0;
-        iterate npCur attributes on argument;
+        iterate npCur attributes on *argument;
         while ++npCur;
             npN = npN + 1;
             if noPrinT;  print "    noPrint attr:" ~taG:;
