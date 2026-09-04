@@ -704,6 +704,19 @@ extern GroupItem opMinusMinus(GroupItem result)
             also -- does not differentiate between members and attributes
             because GroupItem does not offer priorMember() or priorAttribute().
         *******************************************************************/
+        /*  ⚠ PLACEMENT IS THE FIX, and this gate is INSIDE the arm and ABOVE
+            the return for the same reason opPlusPlus's is. F-53, 2026-09-04.
+            The old order returned from this arm before the gate below, so an
+            iterator under `--` never reached it: the walk ran once at EMIT
+            time and the compiled function contained NO LOOP -- silently, with
+            no refusal and no degrade line. opPlusPlus was fixed this way on
+            2026-08-04 and `--` was left behind; C-158a's JIT census found it.
+            The arm below is untouched and remains the definition of correct;
+            jitEmitIterStepBack emits a CALL TO THIS FUNCTION so the two cannot
+            drift.   Instruct.opMinusMinus.iterGate  */
+        if jitting {
+            -% return jitEmitIterStepBack(result); %-
+        }
         GroupItem iterator;
         if !result.data     iterator = result.lastInList;
         else {

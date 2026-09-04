@@ -1,0 +1,42 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+/*  jitJD -- THE `--` WALK, BOTH ENGINES. F-53's certificate.
+
+    Before F-53, opMinusMinus's isIterator arm RETURNED above the jitting gate,
+    so a `--` walk emitted NO LOOP: the compiled function visited 0 where the
+    interpreter visited 3, silently and at degrade 0. jitEmitIterStepBack and the
+    moved gate close it; this rung is what says so.
+
+    Fire 2 adds a member with NO recompile, so the count must MOVE -- a pair that
+    agreed would prove the walk was folded at emit time, which is the exact
+    defect being certified against.  */
+
+register(JitLadder);
+define
+    jdBag aa bb cc;
+    jdCount;
+    jdRun code={
+        jdCount = 0;
+        iterate jdCur attributes on jdBag;
+        while --jdCur;
+            jdCount = jdCount + 1;
+        };
+    ;
+print "JD fire 1 setup : jdBag has 3":;
+testing(jdRun);
+print "JD fire 1 result: jdCount =" jdCount " (want 3)":;
+
+jdBag +% new("dd");
+print "JD fire 2 setup : jdBag has 4 (recompile: NONE)":;
+jitRefire();
+print "JD fire 2 result: jdCount =" jdCount " (want 4)":;
+
+jdRun();
+print "JD interpreted  : jdCount =" jdCount " (the oracle -- want 4)":;
+print "JD SENTINEL":;
+stop();

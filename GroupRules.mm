@@ -5592,6 +5592,60 @@ extern "C" GroupItem *jitEmitIterStep(GroupItem *result)
 	
 }
 
+/* jitEmitIterStepBack  THE JITTED ITERATOR RETREAT. F-53, Tony's ruling
+   2026-09-04: a SECOND EMITTER, not a parameterised one.
+
+   jitEmitIterStep's twin, one token different -- it bakes &opMinusMinus where
+   that bakes &opPlusPlus -- and it exists because opMinusMinus had the defect
+   opPlusPlus was fixed for on 2026-08-04 and never got the fix. Its isIterator
+   arm RETURNED before the jitting gate, so an iterator under `--` never reached
+   the gate: the walk ran once at EMIT time and the compiled function contained
+   no loop, with no refusal and no degrade line to say so. C-158a's nine-row JIT
+   census found it; F-53 carries the evidence.
+
+   ⚠ WHY A SECOND EMITTER AND NOT A PARAMETER. Widening jitEmitIterStep's
+   signature is a groups.ext mirror change, and a mirror change is the class of
+   edit that fails three files away with no line pointing back (bear-traps
+   #10/#16/#24). Two seven-line twins that differ by one baked address are
+   cheaper to read and cannot drift into each other silently.
+
+   ⚠ AND NOT THE jitEmitter SLOT, WHICH WOULD HAVE INVERTED THE FIX. A unary op
+   carrying a slot is REFUSED, loudly and countably, until the unary specimen
+   lands (GroupActions.rtn:1656) -- it would print JIT SLOT REFUSED and run
+   INTERPRETED, which is the very behaviour F-53 exists to remove. `++` and `--`
+   are `unary ruleMethod=` in incant/setup and carry no slot; the gate lives in
+   the function body, which is what opPlusPlus does and what this mirrors.
+
+   MODEL-NOT-ORACLE, inherited whole: the emitted call is to opMinusMinus
+   ITSELF, so the compiled code re-enters the interpreter's own arm with the
+   gate down and the two cannot drift. */
+extern "C" GroupItem *jitEmitIterStepBack(GroupItem *result)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	
+	llvm::Value *resAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)result), ptr, "iterNodeB");
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&opMinusMinus), ptr, "iterFnB");
+	llvm::FunctionType *stepTy = llvm::FunctionType::get(ptr, {ptr}, false);
+	llvm::Value *nxt = b->CreateCall(stepTy, callee, {resAddr}, "iterPrev");
+	
+	llvm::Value *live = b->CreateICmpNE(
+	b->CreatePtrToInt(nxt, i64),
+	llvm::ConstantInt::get(i64, 0), "iterLiveB");
+	llvm::Value *val = b->CreateZExt(live, i32, "iterCondB");
+	
+	gJitResult  = val;
+	gJitEmitted = true;
+	return result;
+	
+}
+
 /* jitEmitIterate  THE ITERATOR SETUP, EMITTED. Work item 1 of the convergence
    rung, 2026-08-04.
 
@@ -9915,6 +9969,20 @@ extern "C" GroupItem *opMinusMinus(GroupItem *result)
 		also -- does not differentiate between members and attributes
 		because GroupItem does not offer priorMember() or priorAttribute().
 		*******************************************************************/
+		/*  ⚠ PLACEMENT IS THE FIX, and this gate is INSIDE the arm and ABOVE
+		the return for the same reason opPlusPlus's is. F-53, 2026-09-04.
+		The old order returned from this arm before the gate below, so an
+		iterator under `--` never reached it: the walk ran once at EMIT
+		time and the compiled function contained NO LOOP -- silently, with
+		no refusal and no degrade line. opPlusPlus was fixed this way on
+		2026-08-04 and `--` was left behind; C-158a's JIT census found it.
+		The arm below is untouched and remains the definition of correct;
+		jitEmitIterStepBack emits a CALL TO THIS FUNCTION so the two cannot
+		drift.   Instruct.opMinusMinus.iterGate  */
+		if ( GroupControl::groupController->groupRules->jitting )
+			{
+			 return jitEmitIterStepBack(result); 
+			}
 		GroupItem *iterator = 0;
 		if ( !result->groupBody->flags.data )
 			iterator = result->groupBody->groupList->lastInList;

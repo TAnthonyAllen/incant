@@ -1556,7 +1556,50 @@ fi
 #  ⚠ AS OF 2026-08-11 THERE ARE NO INVERTED ROWS LEFT. JXD-1/JXD-2 graduated
 #  with the AND/OR rung and JXD-3 joined them, so the banner no longer carries a
 #  "pinned" clause at all -- if one is ever added back, add the row name with it.
-if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN JXD-1 JXD-2 JXD-3 + J-R THE PROOF + SLOT: JM1 JM2)"
+#  ⚑ JD -- THE `--` WALK EMITS A LOOP. F-53's certificate, 2026-09-04.
+#  Before F-53, opMinusMinus's isIterator arm RETURNED above the jitting gate, so
+#  a `--` walk emitted NOTHING: the compiled function contained no loop, visited
+#  0 where the interpreter visited 3, silently and at degrade 0. The gate moved
+#  inside the arm and jitEmitIterStepBack -- jitEmitIterStep's twin, baking
+#  &opMinusMinus -- close it.
+#
+#  ⚠ THIS RUNG ASSERTS THE EMITTED IR, NOT AN ENGINE-AGREEMENT COUNT, AND THE
+#  REASON IS A SEPARATE DEFECT MEASURED THE SAME DAY: a field assignment inside a
+#  jitted WALK BODY does not land -- the counter reads back as its own tag. That
+#  is NOT a `--` problem: the identical `++` fixture fails the same way, so it
+#  predates F-53 and is filed as F-55. Asserting a count here would have pinned
+#  that defect instead of this fix, and would have been red for a reason F-53
+#  cannot address. The interpreted oracle IS assertable and is pinned below.
+#
+#  H7 NEGATIVE CONTROL, DRIVEN 2026-09-04: with the gate move reverted and
+#  rebuilt, `iterPrev` disappears from the IR entirely and this rung goes red.
+if $B incant/jitJD > "$T/jitJD" 2>&1; then :; else echo "  FAIL  JD -- nonzero exit"; fail=1; fi
+if grep -qF "JD SENTINEL" "$T/jitJD"; then
+    echo "  ok    JD sentinel (no truncation)"; green=$((green+1))
+else echo "  FAIL  JD -- TRUNCATED at exit 0; nothing in this run is interpretable"; fail=1; fi
+INCANT_JIT_DUMP=2 $B incant/jitJD > "$T/jitJD.ir" 2>&1
+if grep -q "iterPrev = call" "$T/jitJD.ir"; then
+    echo "  ok    JD the -- advance is EMITTED as a call (the loop exists at run time)"; green=$((green+1))
+else
+    echo "  FAIL  JD no iterPrev call in the IR -- the -- walk emitted NO LOOP."
+    echo "        That is F-53's original defect: opMinusMinus's isIterator arm"
+    echo "        returning above its jitting gate. Check Instruct.rtn's gate"
+    echo "        placement before anything else."; fail=1
+fi
+if grep -q "iterCondB = zext" "$T/jitJD.ir"; then
+    echo "  ok    JD the advance feeds a null-test CONDITION (a loop, not a call)"; green=$((green+1))
+else
+    echo "  FAIL  JD the call emitted but no condition -- the loop cannot branch on it"; fail=1
+fi
+jdo=$(sed -n 's/.*JD interpreted  : jdCount = *\([0-9-][0-9]*\).*/\1/p' "$T/jitJD" | head -1)
+if [ "$jdo" = "4" ]; then
+    echo "  ok    JD interpreted oracle = 4 (fire 2 added a member; a folded walk would read 3)"; green=$((green+1))
+else echo "  FAIL  JD interpreted oracle '$jdo', want 4"; fail=1; fi
+jdd=$(sed -n 's/.*jitDegrade count = \([0-9]*\).*/\1/p' "$T/jitJD" | tail -1)
+if [ "$jdd" = "0" ]; then echo "  ok    JD degrade count 0 (nothing fell through at emit time)"; green=$((green+1))
+else echo "  FAIL  JD degrade count = '$jdd', want 0"; fail=1; fi
+
+if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN JXD-1 JXD-2 JXD-3 JD + J-R THE PROOF + SLOT: JM1 JM2)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"
 exit $fail

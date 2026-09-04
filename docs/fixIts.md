@@ -2840,7 +2840,34 @@ finds no entry, and the whole match fails rather than backing off.
 it decides whether this is a reshape or a change to `addGroup`. **Owner:** Tony (ruling), then whoever
 implements. **No edit made.**
 
-### F-53 — `minusMinusGate`: `--` on an iterator emits NOTHING under the JIT
+### F-53 — ✅ **CLOSED 2026-09-04** — `minusMinusGate`: `--` on an iterator emits NOTHING under the JIT
+**Fixed.** `jitEmitIterStepBack` (`jitEmitters.rtn`) bakes `&opMinusMinus` — `jitEmitIterStep`'s
+twin, one token different — and `opMinusMinus`'s jitting gate moved **inside** the `isIterator` arm,
+above its `return`, mirroring `opPlusPlus`. Canary **332 → 333**, the +1 being the new emitter.
+Certified by ladder rung **JD**, whose H7 negative control was driven: with the gate move reverted
+and rebuilt, `iterPrev` and `iterCondB` both vanish from the IR **and the run hangs** — the
+emit-time walk running away, which is extra evidence the gate is load-bearing.
+⚠ **Two clauses of the ruling could not be built as written, and both are recorded rather than
+worked around.** *(a)* **Not the `jitEmitter` slot:** a unary op carrying a slot is refused loudly
+and runs INTERPRETED (`GroupActions.rtn:1656`) — installing it there would have inverted the fix.
+`++`/`--` are `unary ruleMethod=` and carry no slot. *(b)* **`gJitSlotCount` therefore does not
+move**, and the JM rows cannot assert a +1 for a unary; `gJitSlotUnaryRefused` is the counter that
+would have moved. *(c)* **No `groups.ext` mirror line was needed** — `jitEmitIterStep` has none and
+is called the same way from the same include chain; the build confirms it.
+
+### F-55 — a field assignment inside a jitted WALK BODY does not land
+**What:** a counter incremented inside `iterate … while ++cur;` reads back as **its own tag**
+(bear-trap #26) after a jitted fire — the assignment never landed. The interpreted oracle is
+correct, so the walk itself runs; it is the field write inside the body that is lost.
+**Where:** measured with `incant/jitJD` and a `++` twin, 2026-09-04.
+**Evidence:** ⚠ **`++` fails IDENTICALLY, so this PREDATES F-53 and is not a `--` defect** — which
+is the whole reason rung JD asserts the emitted IR instead of a count. `jitJR` does field
+assignment under jit correctly, so the discriminator is the **walk body**, not assignment.
+**Done when:** a counter incremented inside a jitted walk agrees with the interpreter by value.
+**Owner:** unassigned. **Size:** unknown — likely the same family as F-52.
+
+### F-53 — SUPERSEDED HEADING, kept so the row above keeps its number
+
 **What:** silent wrong code. `opMinusMinus`'s `isIterator` arm **returns** before the jitting gate,
 so an iterator under `--` never reaches it: the walk runs once at **emit** time, `lastREF` is
 written at emit time, and the compiled function contains **no loop**. Nothing announces it — no

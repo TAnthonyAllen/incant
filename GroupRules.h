@@ -210,6 +210,7 @@ extern "C" GroupItem *jitEmitGE(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *jitEmitGIF(GroupItem *input);
 extern "C" GroupItem *jitEmitGT(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *jitEmitIterStep(GroupItem *result);
+extern "C" GroupItem *jitEmitIterStepBack(GroupItem *result);
 extern "C" void jitEmitIterate(GroupItem *input);
 extern "C" GroupItem *jitEmitLE(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *jitEmitLT(GroupItem *argument, GroupItem *target);
