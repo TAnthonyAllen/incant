@@ -3395,3 +3395,171 @@ extern int jitUnboxCount(GroupItem node)
     return node ? node->groupBody->gCount : 0;
     %-
 }
+
+
+/*  a FRESH carrier per call -- a shared one would be a second name for a value in
+    flight. i32 only; a double or string entry wants a rung.  jitEmitters.appendGroupValue  */
+extern GroupItem appendGroupValue(int value,GroupItem FormaT,Buffer buffer)
+{
+GroupItem   carrier = new("jitPrintValue");
+    carrier.setCount(value);
+    return appendGroup(carrier,FormaT,buffer);
+}
+
+
+/*  the ruling lives in assignFieldCore and BOTH roads call it -- do not inline it
+    here, or the emitted `=` and the interpreted `=` drift.  jitEmitters.jitAssignNodeRT  */
+extern GroupItem jitAssignNodeRT(GroupItem source,GroupItem target)
+{
+    -%
+    if ( ::assignFieldCore(source,target) )  return target;
+    return 0;
+    %-
+}
+
+
+/*  runAction's OWN binding lines, lifted verbatim. THE UNWRAP IS NOT OPTIONAL --
+    what the callee must receive is a run-time fact.   jitEmitters.jitBindArgRT  */
+extern GroupItem jitBindArgRT(GroupItem argument,GroupItem field)
+{
+GroupItem   arg = argument,
+            ruleArg;
+    /*  THE CODED PATH'S HALF, both clauses in one motion. The exemption above
+        was the wrapper's fingerprint -- "unwrap this, unless it is the argument"
+        -- and it retires WITH the wrapper, not before it.  */
+    -%
+    if (!gNoUnwrap) {
+        if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
+            arg = arg->getGroup();
+        if (( ruleArg = field->get("argument") )) {
+            ruleArg->setGroup(arg);
+            gChanBinds++;
+            if ( ruleArg->groupBody->gGroup == arg ) gChanSame++;
+            }
+    }
+    else {
+        /*  runAction's CHANNEL LINES, LIFTED VERBATIM; no restore comes with them
+            and nothing is dropped by that.   jitEmitters.jitBindArgRT.argChannel  */
+        if (( ruleArg = field->get("argument") )) {
+            if ( ruleArg->groupBody->gGroup && !isGROUP(ruleArg->groupBody->flags.data) ) {
+                ::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the argument body's union holds non-group data; gGroup would clobber it\n",
+                    field->groupBody->tag);
+                ::fflush(stderr);
+                ruleArg->groupBody = arg->groupBody;
+                }
+            else {
+                gChanPendBody  = ruleArg->groupBody;
+                gChanPendGroup = ruleArg->groupBody->gGroup;
+                gChanPendData  = ruleArg->groupBody->flags.data;
+                ruleArg->setGroup(arg);
+                gChanBinds++;
+                if ( ruleArg->groupBody->gGroup == arg ) gChanSame++;
+                }
+            }
+        }
+    %-
+    return arg;
+}
+
+
+/*  opDeref's own lines, lifted verbatim. ONE LEVEL, no composition -- and a run-time
+    helper rather than an emit-time fold.   jitEmitters.jitDerefRT  */
+extern GroupItem jitDerefRT(GroupItem operand)
+{
+    -%
+    if ( !operand ) {
+        ::fprintf(stderr,"ERROR unary * [jit road] -- null operand\n");
+        return 0;
+        }
+    if ( isGROUP(operand->groupBody->flags.data) )   return operand->getGroup();
+    ::fprintf(stderr,"ERROR unary * [jit road] on %s -- it holds no group\n",operand->groupBody->tag);
+    return 0;
+    %-
+}
+
+
+/*  IT SETS NO FLAG, deliberately -- presence of the slot is the only signal, and that
+    is what lets runOP's fork be a null test.   jitEmitters.jitEmitter  */
+extern GroupItem jitEmitter(GroupItem input)
+{
+String  name = text;
+use input
+    if input.fLAG
+        if name {
+            GroupItem   grup = parent;
+            void        *sym = dlsym(RTLD_SELF,name);
+            if grup {
+                /*  The symbol is tested, not the slot: GroupItem carries no
+                    jitEmitter member (it is a GroupBody slot reached by alias),
+                    and a failed dlsym must be LOUD rather than installing null
+                    and leaving the op silently unmigrated.  */
+                if sym  grup.setJitEmitter(sym);
+                else    cerr "jitEmitter: could not find emitter:",name:; }
+            else    cerr "jitEmitter: no parent to attach the emitter to":; }
+        else    cerr "jitEmitter: expected an emitter name in jitEmitter text":;
+    else    cerr "jitEmitter: should be invoked as an attribute when its parent is defined":;
+    return group;
+}
+
+
+/*  aCTionPrinT's own three lines. There is deliberately no jitPrintEnd -- opPrint is
+    the closing bracket.   jitEmitters.jitPrintBegin  */
+extern Buffer jitPrintBegin(GroupItem input)
+{
+GroupRules  ruler   = groupRules;
+Buffer      buffer  = bufferSTAK.pop();
+    if !buffer      buffer = new("print buffer");
+    ruler.isPRINTING = false;
+    return buffer;
+}
+
+
+/*  delegates to appendGroup, the interpreted walk's OWN call. Do not re-implement
+    value-versus-tag here.   jitEmitters.jitPrintNodeRT  */
+extern GroupItem jitPrintNodeRT(GroupItem node,GroupItem FormaT,Buffer buffer)
+{
+    -%
+    if ( !node ) {
+        ::fprintf(stderr,"ERROR print -- the item produced no node; nothing printed\n");
+        return 0;
+        }
+    return ::appendGroup(node,FormaT,buffer);
+    %-
+}
+
+
+/*  pairs with jitSaveFrameRT's unconditional push.   jitEmitters.jitSaveFrameRT  */
+extern void jitRestoreFrameRT(GroupItem field)
+{
+    restoreLocalFields(field);
+    /*  Pop, and restore only a non-empty entry -- an argument-less jitted call
+        pushed an empty one and has nothing to give back.   jitContext.gChan  */
+    -%
+    if ( gChanStkTop > 0 ) {
+        gChanStkTop--;
+        if ( gChanStkBody[gChanStkTop] ) {
+            gChanStkBody[gChanStkTop]->gGroup     = gChanStkGroup[gChanStkTop];
+            gChanStkBody[gChanStkTop]->flags.data = gChanStkData[gChanStkTop];
+            }
+        }
+    %-
+}
+
+
+/*  UNGATED on both roads since 2026-08-10 -- `field.recursive` was the defect, not
+    the guard, and ungating both keeps them from drifting.  jitEmitters.jitSaveFrameRT  */
+extern void jitSaveFrameRT(GroupItem field)
+{
+    /*  Push the channel bracket's pending entry -- or an EMPTY one -- so the push
+        is unconditional and pairs with jitRestoreFrameRT's pop.   jitContext.gChan  */
+    -%
+    if ( gChanStkTop < GCHAN_DEPTH ) {
+        gChanStkBody[gChanStkTop]  = gChanPendBody;
+        gChanStkGroup[gChanStkTop] = gChanPendGroup;
+        gChanStkData[gChanStkTop]  = gChanPendData;
+        gChanStkTop++;
+        }
+    gChanPendBody = 0; gChanPendGroup = 0; gChanPendData = 0;
+    %-
+    saveLocalFields(field);
+}

@@ -38,6 +38,15 @@ the interesting quantity is the one that can come back zero.
 | 2026-09-02 | `Instruct.opDot.case41hasNewParse` | `Instruct.rtn` | why the read and write halves ship together |
 | 2026-09-04 | `Bytecode.interpretBC` | `Bytecode.twk` | the two incant blockers that made the branch inexpressible, and why a plain C++ cursor cures both |
 | 2026-09-04 | `Bytecode.runByteFn` | `Bytecode.twk` | why the handler is fired in place, and why a label op's null is a fall-through rather than a refusal |
+| 2026-09-04 | `jitEmitters.appendGroupValue` | `jitEmitters.rtn` | why the jitted print cannot reuse the pointer entry, and why the carrier is fresh |
+| 2026-09-04 | `jitEmitters.jitAssignNodeRT` | `jitEmitters.rtn` | F-48's ruling, why it lives in assignFieldCore, and the pointer-as-data defect it cured |
+| 2026-09-04 | `jitEmitters.jitBindArgRT` | `jitEmitters.rtn` | the runAction gate gap, and why the unwrap is a run-time fact |
+| 2026-09-04 | `jitEmitters.jitBindArgRT.argChannel` | `jitEmitters.rtn` | stroke 3's lifted channel lines, and why no restore comes with them |
+| 2026-09-04 | `jitEmitters.jitDerefRT` | `jitEmitters.rtn` | why the star is a run-time helper and not an emit-time fold |
+| 2026-09-04 | `jitEmitters.jitEmitter` | `jitEmitters.rtn` | why it sets no flag and does not fork on the attribute tag |
+| 2026-09-04 | `jitEmitters.jitPrintBegin` | `jitEmitters.rtn` | why there is deliberately no jitPrintEnd |
+| 2026-09-04 | `jitEmitters.jitPrintNodeRT` | `jitEmitters.rtn` | why it delegates rather than re-implementing value-versus-tag |
+| 2026-09-04 | `jitEmitters.jitSaveFrameRT` | `jitEmitters.rtn` | the frame bracket as measurement not architecture, and why the recursive gate was the defect |
 
 ## LOOKUPS CLOD ACTUALLY MADE
 

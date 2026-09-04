@@ -1838,48 +1838,8 @@ GroupItem 	*field = 0;
 	return field;
 }
 
-/*******************************************************************************
-    appendGroupValue -- THE VALUE ENTRY ON appendGroup. Tony's ruling via Clay,
-    2026-08-04.
-
-    WHY IT EXISTS. Print's chain is opPrint -> appendGroup -> printField, and
-    appendGroup takes a GroupItem. The JIT's values are i32 SSA registers, and a
-    LOCAL's live value sits in a frame slot until the epilogue writes it back --
-    so handing appendGroup a field POINTER mid-function would read storage the
-    epilogue has not written yet. That is a silent wrong answer, the worst class,
-    and it is why the jitted path cannot simply reuse the pointer entry.
-
-    THE ALTERNATIVE WAS REJECTED ON COST: spilling live values to their frame
-    slots before every print turns each print into a SYNC BARRIER and requires
-    the JIT to enumerate liveness -- heavier machinery, bought to keep one
-    function signature pristine.
-
-    ⚠ NOTHING IS DUPLICATED, WHICH IS THE POINT OF PUTTING IT HERE. This does not
-    reimplement shortcut handling, formats or indent -- it routes INTO
-    appendGroup's own switch. A shortcut token is passed straight through
-    untouched; a value is stamped on a carrier node and handed to the same call
-    every interpreted print uses. So `~ $ _ : + - ` ,` and FormaT stay
-    single-sourced in the chain, and a change to shortcut semantics reaches the
-    jitted path for free.
-
-    A FRESH CARRIER PER CALL, not a static one. BDWGC makes it cheap, and a
-    shared carrier would be a second name for a value in flight -- the
-    one-channel-one-meaning failure this project has already paid for twice.
-
-    ⚠ IT TAKES NO TOKEN, AND THAT IS A CORRECTION WORTH KEEPING. The first cut
-    took the item node too and chose between "pass the node" and "stamp the
-    value" by testing isShortcut -- which is the WRONG DISCRIMINATOR and printed
-    `0` where a literal belonged, because a literal string is not a shortcut and
-    fell into the value path. appendPrintXP keys off EXPRESSION PRESENCE, not
-    shortcut-ness: an item with an ExpressioN contributes a computed value, and
-    everything else -- literals AND shortcuts -- contributes ITSELF. So the
-    caller makes that choice exactly as the interpreted walk does, and this entry
-    is only ever reached with a real value in hand.
-
-    PHASE SCOPE: i32 counts, matching what the emitters produce today. A double
-    or string entry is the same shape with a different setter and wants a rung
-    before it is written.
-*******************************************************************************/
+/*  a FRESH carrier per call -- a shared one would be a second name for a value in
+    flight. i32 only; a double or string entry wants a rung.  jitEmitters.appendGroupValue  */
 extern "C" GroupItem *appendGroupValue(int value, GroupItem *FormaT, Buffer *buffer)
 {
 GroupItem 	*carrier = new GroupItem("jitPrintValue");
@@ -1955,26 +1915,9 @@ extern "C" GroupItem *arrondir(GroupItem *field)
 	return GroupControl::groupController->groupRules->tempField;
 }
 
-/*******************************************************************************
-    jitAssignNodeRT -- `=` WITH A NODE ON THE RIGHT, AT RUN TIME. SEQ 138 item 2.
-
-    ⚠ F-48's RULING IN ONE PLACE, for both roads to share: `=` with a FIELD on
-    the right COPIES ITS VALUE; a HOLDER refuses by name (`holds a group; say *`);
-    NOTHING refuses by name. F-41's form throughout -- named, declined, stores
-    nothing, the run continues.
-
-    ⚠ THE RULING LIVES IN assignFieldCore, AND BOTH ROADS CALL IT (SEQ 139). The
-    interpreted `=` reaches it from opAssign under gNoUnwrap; the emitted `=`
-    reaches it through jitAssignNodeRT. ONE SPELLING, so the two roads cannot
-    drift -- which is the defect the road column found when only the jit road had
-    the ruling.
-
-    ⚠ IT EXISTS BECAUSE jitEmitAssign WAS STORING THE NODE'S ADDRESS. A star
-    publishes a NODE, not a scalar, and the emitted store put that pointer into
-    the target's slot -- which is how starT's jitted road read 5560000 where the
-    interpreted road read LEAF. A pointer wearing the shape of data.
-    GroupActions.jitAssignNodeRT
-*******************************************************************************/
+/*  BOTH ROADS CALL THIS -- the interpreted `=` reaches it from opAssign, the
+    emitted `=` through jitAssignNodeRT. One spelling, so they cannot drift.
+    jitEmitters.jitAssignNodeRT  */
 extern "C" int assignFieldCore(GroupItem *source, GroupItem *target)
 {
 	
@@ -2337,44 +2280,6 @@ GroupItem 	*canon = 0;
 	return canon;
 }
 
-/*******************************************************************************
-    jitBindArgRT -- BIND A CALL'S ARGUMENT, AT RUN TIME. 2026-08-05.
-
-    THE GAP: runAction's jitting gate returns on a self-call BEFORE the two lines
-    below it that bind the argument, so an emitted self-call bound NOTHING. The
-    callee's `argument` field kept whatever emit time left in it, and every fire
-    at every depth saw the same node. Recursion with an argument -- displayForm's
-    whole shape -- could not work.
-
-    ⚠ THESE ARE runAction's OWN BINDING LINES, lifted verbatim rather than
-    reimplemented, so the emitted call binds exactly as the interpreted call
-    does and the two cannot drift. Same shared-implementation move as
-    jitEmitIterStep's call to opPlusPlus and opDot's call to itself.
-
-    ⚠ THE UNWRAP IS NOT OPTIONAL. The caller's operand may be an ITERATOR or a
-    group node -- `displayForm(grup)` passes exactly that -- and what the callee
-    must receive is the node it currently POINTS AT, which is a run-time fact.
-    Baking the operand's emit-time target would pin the recursion to whatever
-    node the compile happened to see. `if arg.isGROUP && !arg.isArgument
-    arg = arg.group;` is the tree's existing unwrap idiom (ruleActions.rtn:419).
-*******************************************************************************/
-/*******************************************************************************
-    jitDerefRT -- THE PREFIX `*`, AT RUN TIME. SEQ 132 item 3.
-
-    ⚠ opDeref's OWN LINES, LIFTED VERBATIM, for the same reason jitBindArgRT
-    lifts runAction's: the emitted star and the interpreted star must not drift.
-    ONE LEVEL, NO COMPOSITION -- it follows a field to the group it holds and
-    stops, exactly as the interpreter does.
-
-    ⚠ AND IT IS A RUN-TIME HELPER RATHER THAN AN EMIT-TIME FOLD BECAUSE WHAT A
-    FIELD POINTS AT IS A RUN-TIME FACT. Folding the star at emit time would pin
-    the deref to whatever node the compile happened to see -- the identical
-    hazard jitEmitSelfCall's own comment names for its argument, and the reason
-    the star degraded rather than folding silently until now.
-
-    REFUSES BY NAME on a non-group operand, F-41's form: named, null returned,
-    the run continues.   GroupActions.jitDerefRT
-*******************************************************************************/
 /*******************************************************************************
     chanReport -- THE ARGUMENT CHANNEL'S DAILY ROW. SEQ 132 item 2.
 
@@ -4380,6 +4285,8 @@ finishXP:
 	return xpList;
 }
 
+/*  the ruling lives in assignFieldCore and BOTH roads call it -- do not inline it
+    here, or the emitted `=` and the interpreted `=` drift.  jitEmitters.jitAssignNodeRT  */
 extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target)
 {
 	
@@ -4388,6 +4295,8 @@ extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target)
 	
 }
 
+/*  runAction's OWN binding lines, lifted verbatim. THE UNWRAP IS NOT OPTIONAL --
+    what the callee must receive is a run-time fact.   jitEmitters.jitBindArgRT  */
 extern "C" GroupItem *jitBindArgRT(GroupItem *argument, GroupItem *field)
 {
 GroupItem 	*arg = argument;
@@ -4406,15 +4315,8 @@ GroupItem 	*ruleArg = 0;
 	}
 	}
 	else {
-	/*  ⚠ STROKE 3 (Tony, SEQ 127) -- runAction's CHANNEL LINES, LIFTED VERBATIM,
-	so the comment above is true again. This arm was bind-by-body while
-	runAction's had grown a union tripwire and a setGroup call, and the two
-	roads had silently diverged -- which they were built never to do.
-	⚠ NO RESTORE IS LIFTED WITH THEM, AND NOTHING IS DROPPED BY THAT.
-	runAction's save/restore brackets its own processAction call; the emitted
-	path has no such call to bracket, and this arm carried no restore before
-	either. The divergence being closed is the BIND.
-	GroupActions.jitBindArgRT.argChannel  */
+	/*  runAction's CHANNEL LINES, LIFTED VERBATIM; no restore comes with them
+	and nothing is dropped by that.   jitEmitters.jitBindArgRT.argChannel  */
 	if (( ruleArg = field->get("argument") )) {
 	if ( ruleArg->groupBody->gGroup && !isGROUP(ruleArg->groupBody->flags.data) ) {
 	::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the argument body's union holds non-group data; gGroup would clobber it\n",
@@ -4820,6 +4722,8 @@ extern "C" int jitDegrade(char *what, GroupItem *node)
 	
 }
 
+/*  opDeref's own lines, lifted verbatim. ONE LEVEL, no composition -- and a run-time
+    helper rather than an emit-time fold.   jitEmitters.jitDerefRT  */
 extern "C" GroupItem *jitDerefRT(GroupItem *operand)
 {
 	
@@ -6296,26 +6200,8 @@ GroupItem 	*result = 0;
 	return result;
 }
 
-/*******************************************************************************
-    jitEmitter — binds an op's JIT emitter, step 2 of the jit separation.
-
-    Modelled on ruleMethod directly above, with two deliberate differences.
-
-    ⚠ IT SETS NO FLAG. ruleMethod sets isMethod or isOperator because those say
-    how the INTERPRETER dispatches the op. An emitter must not disturb that: the
-    op keeps its interpreter binding and gains an emitter alongside it. Presence
-    of the slot is the only signal, which is what lets runOP's fork be a null
-    test and nothing more.
-
-    ⚠ IT DOES NOT FORK ON THE ATTRIBUTE TAG. ruleMethod reads input.tag == 'r' to
-    tell ruleMethod= from operateMethod=, which is why a third spelling could not
-    simply be added there — jitEmitter starts with 'j' and would silently take
-    the operateMethod branch, installing an emitter into the operat slot and
-    destroying the interpreter binding. A separate binder is the fix.
-
-    The binary/unary split is interpreter dispatch anatomy and the jit does not
-    inherit it, so one binder serves both families.
-*******************************************************************************/
+/*  IT SETS NO FLAG, deliberately -- presence of the slot is the only signal, and that
+    is what lets runOP's fork be a null test.   jitEmitters.jitEmitter  */
 extern "C" GroupItem *jitEmitter(GroupItem *input)
 {
 char 	*name = input->getText();
@@ -6766,13 +6652,8 @@ extern "C" void jitPrintArm()
 	 gJitResult = nullptr; gJitResultNode = nullptr; gJitLastIsNode = false; 
 }
 
-/*******************************************************************************
-    jitPrintBegin -- the chain's OPENING bracket, reached from emitted code.
-    aCTionPrinT's own three lines, lifted verbatim so the jitted path acquires
-    its buffer exactly as the interpreted path does. The closing bracket is
-    opPrint itself, which the emitter calls directly -- there is no jitPrintEnd,
-    because inventing one would put a second sink beside the real one.
-*******************************************************************************/
+/*  aCTionPrinT's own three lines. There is deliberately no jitPrintEnd -- opPrint is
+    the closing bracket.   jitEmitters.jitPrintBegin  */
 extern "C" Buffer *jitPrintBegin(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -6999,22 +6880,8 @@ extern "C" void jitPrintNode(GroupItem *FormaT)
 	
 }
 
-/*******************************************************************************
-    jitPrintNodeRT -- PRINT A NODE RESULT, AT RUN TIME. SEQ 141, F-50.
-
-    ⚠ IT CALLS appendGroup -- THE INTERPRETED WALK'S OWN CALL -- rather than
-    re-implementing "value if data, tag if holder". That rule IS getText since
-    SEQ 136 retired the follow, and appendGroup already goes through it, so this
-    helper is a refusal plus a delegation and nothing else. One spelling.
-
-    ⚠ IT EXISTS BECAUSE THE EMITTED PRINT COULD ONLY TAKE A SCALAR.
-    jitPrintItem's value arm called appendGroupValue with an i32, so a field
-    printed as whatever its slot happened to hold -- starT's `4` -- and a field
-    with no scalar printed as nothing at all -- pointerT's blanks. Scalars print,
-    fields did not; this is the field half.
-
-    REFUSES BY NAME on nothing, F-41's form.   GroupActions.jitPrintNodeRT
-*******************************************************************************/
+/*  delegates to appendGroup, the interpreted walk's OWN call. Do not re-implement
+    value-versus-tag here.   jitEmitters.jitPrintNodeRT  */
 extern "C" GroupItem *jitPrintNodeRT(GroupItem *node, GroupItem *FormaT, Buffer *buffer)
 {
 	
@@ -7135,6 +7002,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ruler->trueResult;
 }
 
+/*  pairs with jitSaveFrameRT's unconditional push.   jitEmitters.jitSaveFrameRT  */
 extern "C" void jitRestoreFrameRT(GroupItem *field)
 {
 	::restoreLocalFields(field);
@@ -7529,46 +7397,8 @@ extern "C" int jitRunIfTest(GroupItem *fld)
 	
 }
 
-/*******************************************************************************
-    jitSaveFrameRT / jitRestoreFrameRT -- THE FRAME BRACKET, AT RUN TIME.
-
-    ⚠ MEASUREMENT, NOT ARCHITECTURE. This is the experiment that asks whether the
-    depth->=2 displayForm divergence is the missing frame bracket. It INVERTS
-    docs/jit.md §0, which sentences saveLocalFields to be DELETED rather than
-    depended on, so it is Tony's ruling whether this shape stays. Do not read a
-    green run here as the architecture having been chosen.
-
-    THE GAP, and it is the SAME SEAM jitBindArgRT closed one increment earlier:
-    runAction's jitting gate returns at :705-707, ABOVE its own
-    `if field.recursive saveLocalFields(field)` at :713 and the matching restore
-    at :725. So an emitted self-call runs with NO frame bracket at all.
-    (Those three were written as :670/:677/:689 -- b7a01c1 line numbers, stale
-    the moment this very comment block was inserted above runAction and shifted
-    it down ~36 lines. Corrected 2026-08-05 as S3's ride-along.)
-
-    WHY THAT IS INVISIBLE UNTIL displayForm: the JIT's scalar locals live in
-    ALLOCAS inside gJitCurrentFn, and allocas are per-activation for free -- which
-    is why J-R and jitJRL are green with no bracket. Node-resident state is the
-    other class: an ITERATOR's cursor lives in a baked GroupItem shared by every
-    activation, so a recursive call walks the caller's cursor. saveLocalFields'
-    own comment names exactly this case -- "no local carrying a list could survive
-    recursion. Iterators were just the first to notice."
-
-    ⚠ THE `field.recursive` GATE IS CARRIED, NOT REIMPLEMENTED, so the emitted
-    path cannot drift from the interpreted one. The flag is set at PARSE time by
-    identity (ruleActions.rtn:1310), so it is already live on the callee node.
-*******************************************************************************/
-/*  ⚠ THE GATE IS GONE, 2026-08-10, SEQ 27 rung B. The comment above says the
-    gate is CARRIED so the emitted path cannot drift from the interpreted one,
-    and that reasoning still holds -- both paths are now ungated together, so
-    they still cannot drift. What changed is that the gate itself was the
-    defect. It is set at parse time BY IDENTITY, so mutual recursion never sets
-    it at all, and it is CLEARED at run time by restoreLocalFields, so whether
-    the bracket runs depends on invocation history. Unconditional kills both.
-    The prerequisite was rung A: while the return seam handed back the local's
-    own node, ungating the sweep blanked every returned local rather than only
-    the self-mentioning ones. With the value captured before the sweep, that
-    coupling is gone.  */
+/*  UNGATED on both roads since 2026-08-10 -- `field.recursive` was the defect, not
+    the guard, and ungating both keeps them from drifting.  jitEmitters.jitSaveFrameRT  */
 extern "C" void jitSaveFrameRT(GroupItem *field)
 {
 	/*  Push the channel bracket's pending entry -- or an EMPTY one -- so the push

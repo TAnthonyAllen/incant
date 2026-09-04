@@ -903,6 +903,199 @@ define
                     -- the condemned-code rule says read before deleting, and
                     genParseSpec still cites it in two places. Recorded as
                     callerless, which is a finding and not a task.#);
+        jitEmitters=(is the rtn file holding the JIT emitters and the run-time helpers the
+            emitted code calls. It IS part of the GroupRules include chain, so it shares a
+            translation unit with GroupActions and the rest. Entries below are the WHY of
+            methods whose comments used to sit in the code.
+
+            ⚠ THE RUN-TIME HELPERS ARE REACHED BY ADDRESS, NOT BY CALL. appendGroupValue,
+            jitPrintBegin and the five jit*RT functions have ZERO call sites; jitEmitters
+            takes their address -- nine ampersand sites -- and bakes it into emitted IR, so
+            they are invoked at run time by jitted code. A call-site census reports 0 for
+            every one of them and they are all live. Rule H9's shape: match the idiom
+            family, not the surface form.#):
+            appendGroupValue=(THE VALUE ENTRY ON appendGroup. Tony's ruling via Clay,
+                2026-08-04.
+
+                WHY IT EXISTS. Print's chain is opPrint to appendGroup to printField, and
+                appendGroup takes a GroupItem. The JIT's values are i32 SSA registers, and a
+                LOCAL's live value sits in a frame slot until the epilogue writes it back --
+                so handing appendGroup a field POINTER mid-function would read storage the
+                epilogue has not written yet. That is a silent wrong answer, the worst
+                class, and it is why the jitted path cannot simply reuse the pointer entry.
+
+                THE ALTERNATIVE WAS REJECTED ON COST: spilling live values to their frame
+                slots before every print turns each print into a SYNC BARRIER and requires
+                the JIT to enumerate liveness -- heavier machinery, bought to keep one
+                function signature pristine.
+
+                ⚠ NOTHING IS DUPLICATED, WHICH IS THE POINT. This does not reimplement
+                shortcut handling, formats or indent -- it routes INTO appendGroup's own
+                switch. A shortcut token passes straight through untouched; a value is
+                stamped on a carrier node and handed to the same call every interpreted
+                print uses. So the shortcut set and FormaT stay single-sourced in the chain,
+                and a change to shortcut semantics reaches the jitted path for free.
+
+                A FRESH CARRIER PER CALL, not a static one. BDWGC makes it cheap, and a
+                shared carrier would be a second name for a value in flight -- the
+                one-channel-one-meaning failure this project has already paid for twice.
+
+                ⚠ IT TAKES NO TOKEN, AND THAT IS A CORRECTION WORTH KEEPING. The first cut
+                took the item node too and chose between passing the node and stamping the
+                value by testing isShortcut -- the WRONG DISCRIMINATOR, which printed 0
+                where a literal belonged, because a literal string is not a shortcut and
+                fell into the value path. appendPrintXP keys off EXPRESSION PRESENCE, not
+                shortcut-ness: an item with an ExpressioN contributes a computed value and
+                everything else, literals AND shortcuts, contributes ITSELF. So the caller
+                makes that choice exactly as the interpreted walk does, and this entry is
+                only ever reached with a real value in hand.
+
+                PHASE SCOPE: i32 counts, matching what the emitters produce today. A double
+                or string entry is the same shape with a different setter and wants a rung
+                before it is written.#);
+            jitAssignNodeRT=(THE = OPERATOR WITH A NODE ON THE RIGHT, AT RUN TIME. SEQ 138
+                item 2.
+
+                ⚠ F-48's RULING IN ONE PLACE, for both roads to share: = with a FIELD on the
+                right COPIES ITS VALUE; a HOLDER refuses by name, holds a group say star;
+                NOTHING refuses by name. F-41's form throughout -- named, declined, stores
+                nothing, the run continues.
+
+                ⚠ THE RULING LIVES IN assignFieldCore, AND BOTH ROADS CALL IT (SEQ 139). The
+                interpreted = reaches it from opAssign under gNoUnwrap; the emitted = reaches
+                it through jitAssignNodeRT. ONE SPELLING, so the two roads cannot drift --
+                which is the defect the road column found when only the jit road had the
+                ruling. assignFieldCore stays in GroupActions.rtn and carries the one-line
+                pointer back here.
+
+                ⚠ IT EXISTS BECAUSE jitEmitAssign WAS STORING THE NODE'S ADDRESS. A star
+                publishes a NODE, not a scalar, and the emitted store put that pointer into
+                the target's slot -- which is how starT's jitted road read 5560000 where the
+                interpreted road read LEAF. A pointer wearing the shape of data.#);
+            jitBindArgRT=(BIND A CALL'S ARGUMENT, AT RUN TIME. 2026-08-05.
+
+                THE GAP: runAction's jitting gate returns on a self-call BEFORE the two lines
+                below it that bind the argument, so an emitted self-call bound NOTHING. The
+                callee's argument field kept whatever emit time left in it, and every fire at
+                every depth saw the same node. Recursion with an argument -- displayForm's
+                whole shape -- could not work.
+
+                ⚠ THESE ARE runAction's OWN BINDING LINES, lifted verbatim rather than
+                reimplemented, so the emitted call binds exactly as the interpreted call does
+                and the two cannot drift. Same shared-implementation move as
+                jitEmitIterStep's call to opPlusPlus and opDot's call to itself.
+
+                ⚠ THE UNWRAP IS NOT OPTIONAL. The caller's operand may be an ITERATOR or a
+                group node -- displayForm(grup) passes exactly that -- and what the callee
+                must receive is the node it currently POINTS AT, which is a run-time fact.
+                Baking the operand's emit-time target would pin the recursion to whatever
+                node the compile happened to see. The unwrap idiom is the tree's existing one
+                at ruleActions.rtn:419.#):
+                argChannel=(STROKE 3, Tony, SEQ 127. runAction's CHANNEL LINES, LIFTED
+                    VERBATIM, so the claim above is true again. This arm was bind-by-body
+                    while runAction's had grown a union tripwire and a setGroup call, and the
+                    two roads had silently diverged -- which they were built never to do.
+
+                    ⚠ NO RESTORE IS LIFTED WITH THEM, AND NOTHING IS DROPPED BY THAT.
+                    runAction's save/restore brackets its own processAction call; the emitted
+                    path has no such call to bracket, and this arm carried no restore before
+                    either. The divergence being closed is the BIND.#);
+            jitDerefRT=(THE PREFIX STAR, AT RUN TIME. SEQ 132 item 3.
+
+                ⚠ opDeref's OWN LINES, LIFTED VERBATIM, for the same reason jitBindArgRT
+                lifts runAction's: the emitted star and the interpreted star must not drift.
+                ONE LEVEL, NO COMPOSITION -- it follows a field to the group it holds and
+                stops, exactly as the interpreter does.
+
+                ⚠ AND IT IS A RUN-TIME HELPER RATHER THAN AN EMIT-TIME FOLD BECAUSE WHAT A
+                FIELD POINTS AT IS A RUN-TIME FACT. Folding the star at emit time would pin
+                the deref to whatever node the compile happened to see -- the identical
+                hazard jitEmitSelfCall's own comment names for its argument, and the reason
+                the star degraded rather than folding silently until now.
+
+                REFUSES BY NAME on a non-group operand, F-41's form: named, null returned,
+                the run continues.#);
+            jitEmitter=(BINDS AN OP'S JIT EMITTER, step 2 of the jit separation. Modelled on
+                ruleMethod, with two deliberate differences. Note it is a BINDER and not an
+                emitter -- the jitEmitter= spelling in incant/setup's Operators entries is
+                this, reached as a definition-time attribute, and GroupMain.twk is what
+                registers it.
+
+                ⚠ IT SETS NO FLAG. ruleMethod sets isMethod or isOperator because those say
+                how the INTERPRETER dispatches the op. An emitter must not disturb that: the
+                op keeps its interpreter binding and gains an emitter alongside it. Presence
+                of the slot is the only signal, which is what lets runOP's fork be a null
+                test and nothing more.
+
+                ⚠ IT DOES NOT FORK ON THE ATTRIBUTE TAG. ruleMethod reads the first letter of
+                input.tag to tell ruleMethod= from operateMethod=, which is why a third
+                spelling could not simply be added there -- jitEmitter starts with j and
+                would silently take the operateMethod branch, installing an emitter into the
+                operat slot and destroying the interpreter binding. A separate binder is the
+                fix.
+
+                The binary/unary split is interpreter dispatch anatomy and the jit does not
+                inherit it, so one binder serves both families. ⚠ But see bear-trap 46: a
+                UNARY op that carries a jitEmitter slot is REFUSED at run time and runs
+                interpreted, so a unary's gate goes in its function body and never here.#);
+            jitPrintBegin=(THE PRINT CHAIN'S OPENING BRACKET, reached from emitted code.
+                aCTionPrinT's own three lines, lifted verbatim so the jitted path acquires
+                its buffer exactly as the interpreted path does. The closing bracket is
+                opPrint itself, which the emitter calls directly -- there is no jitPrintEnd,
+                because inventing one would put a second sink beside the real one.#);
+            jitPrintNodeRT=(PRINT A NODE RESULT, AT RUN TIME. SEQ 141, F-50.
+
+                ⚠ IT CALLS appendGroup -- THE INTERPRETED WALK'S OWN CALL -- rather than
+                re-implementing value if data, tag if holder. That rule IS getText since SEQ
+                136 retired the follow, and appendGroup already goes through it, so this
+                helper is a refusal plus a delegation and nothing else. One spelling.
+
+                ⚠ IT EXISTS BECAUSE THE EMITTED PRINT COULD ONLY TAKE A SCALAR. jitPrintItem's
+                value arm called appendGroupValue with an i32, so a field printed as whatever
+                its slot happened to hold -- starT's 4 -- and a field with no scalar printed
+                as nothing at all -- pointerT's blanks. Scalars print, fields did not; this is
+                the field half.
+
+                REFUSES BY NAME on nothing, F-41's form.#);
+            jitSaveFrameRT=(THE FRAME BRACKET, AT RUN TIME, and the entry covers
+                jitRestoreFrameRT with it -- they are one mechanism and the original comment
+                named both.
+
+                ⚠ MEASUREMENT, NOT ARCHITECTURE. This is the experiment that asks whether the
+                depth-two-and-deeper displayForm divergence is the missing frame bracket. It
+                INVERTS docs/jit.md section 0, which sentences saveLocalFields to be DELETED
+                rather than depended on, so it is Tony's ruling whether this shape stays. Do
+                not read a green run here as the architecture having been chosen.
+
+                THE GAP, and it is the SAME SEAM jitBindArgRT closed one increment earlier:
+                runAction's jitting gate returns ABOVE its own recursive-gated
+                saveLocalFields and the matching restore. So an emitted self-call runs with
+                NO frame bracket at all. (The original comment carried b7a01c1 line numbers
+                which went stale the moment the comment itself was inserted and shifted them;
+                corrected 2026-08-05, and the numbers are deliberately not restated here.)
+
+                WHY THAT IS INVISIBLE UNTIL displayForm: the JIT's scalar locals live in
+                ALLOCAS inside gJitCurrentFn, and allocas are per-activation for free -- which
+                is why J-R and jitJRL are green with no bracket. Node-resident state is the
+                other class: an ITERATOR's cursor lives in a baked GroupItem shared by every
+                activation, so a recursive call walks the caller's cursor. saveLocalFields'
+                own comment names exactly this case -- no local carrying a list could survive
+                recursion, and iterators were just the first to notice.
+
+                ⚠ THE GATE IS GONE, 2026-08-10, SEQ 27 rung B. The paragraph above said the
+                field.recursive gate is CARRIED so the emitted path cannot drift from the
+                interpreted one, and that reasoning still holds -- both paths are now UNGATED
+                together, so they still cannot drift. What changed is that the gate itself was
+                the defect: it is set at parse time BY IDENTITY, so mutual recursion never
+                sets it at all, and it is CLEARED at run time by restoreLocalFields, so
+                whether the bracket runs depends on invocation history. Unconditional kills
+                both. The prerequisite was rung A: while the return seam handed back the
+                local's own node, ungating the sweep blanked every returned local rather than
+                only the self-mentioning ones. With the value captured before the sweep, that
+                coupling is gone.
+
+                The channel-stack push and pop are the gChan half and are documented in
+                jitContext.h; the push is unconditional so that it pairs with the pop.#);
         ruleActions=(is the rtn file holding the rule actions -- the methods a
                 grammar rule fires when it matches.#):
             aCTionIterate=(THE ITERATE STATEMENT'S ACTION.#):
