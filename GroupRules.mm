@@ -10485,6 +10485,9 @@ RuleStuff 	*ruleStuff = pMethod->getRStuff();
 	return 0;
 }
 
+/*  binds a compiled parse to rStuff.parseMethod. ⚠ definingRule(), NOT parent --
+    a cross-file re-definition binds a satellite the reader never looks at.
+    genParse.parseRuleMethod  */
 extern "C" GroupItem *parseRuleMethod(GroupItem *input)
 {
 char 		*name = input->getText();
@@ -10754,54 +10757,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return 0;
 }
 
-/*******************************************************************************
-    parseRuleMethod — genParseShape §4.1, the binding. What connects a compiled
-    parseScaf to Scaf.rStuff.parseMethod.
-
-    §4.1's candidate was the setRuleAction path in the `=value` form, and that
-    is what this is, modelled line for line on interpretMethod (GroupActions.rtn)
-    — the closest existing analogue, because it is the one command that binds a
-    dlsym'd symbol somewhere OTHER than the plain method slot. Registered in
-    cOMMANDs as `parseMethod`, used as a definition attribute:
-
-        Scaf isRule "x"- parseMethod=parseScaf;
-
-    exactly the shape the grammar already uses for ruleMethod= and
-    interpretMethod=. In the kant world this whole function is one ORC-compile
-    and a stored handle; here it is a dlsym.
-
-    ensureRStuff, not rStuff: a rule reached at definition time may not have
-    been parsed yet, and the fork reads the field off the rule's OWN stuff. This
-    is a definition-attribute door, so it fires DURING attachment -- which is
-    exactly the moment the 2026-08-31 ruling says construction belongs, and why
-    this site keeps its mint rather than losing it. (Spelled getRStuff until
-    that ruling split the getter's two jobs apart.)
-
-    definingRule(), not parent -- SEQ 58, 2026-08-13, and it is a MEASURED
-    repair, not a tidy-up. Both doors used to bind onto the node aCTionDefinE
-    hands them, which for a definition written in the SAME place as the rule is
-    the rule itself, so every binding that had ever been made worked. A
-    CROSS-FILE re-definition is different: the node being defined is a satellite
-    that shares the real rule's child list, and the two addresses were measured
-    apart in one run --
-
-        SEAM bind  Braced  boundNode=0x104c60840 boundStuff=0x104c5c100
-        SEAM read  Braced  definer=0x104c36a80   defStuff=0x104c34000
-                           defParseMethod=0x0    boundParseMethod=0x10406f3c8
-
-    -- so the write TOOK and the reader never saw it. parse() forks on
-    definingRule().rStuff.parseMethod (GroupItem.twk), so the cure is for the
-    door to resolve its target the same way the reader does. In the same-file
-    case definingRule() returns `this` (a node that owns its children routes
-    back to itself), so nothing that worked before changes.
-
-    BOTH DOORS MOVE TOGETHER, and that is not optional. parseTermCount writes
-    termCount and parseRuleMethod's refusal guard reads it; leaving one on the
-    satellite would compare a count nobody wrote against a rule's live terms and
-    silently downgrade the refusal to the no-parseTerms warning -- which still
-    binds. The guard would have been lost quietly, which is the failure mode
-    this fleet's rules exist to prevent.
-*******************************************************************************/
+/*  parseTermCount and parseRuleMethod are ONE decision and move together -- this
+    one writes termCount, the other's refusal guard reads it.
+    genParse.parseRuleMethod  */
 extern "C" GroupItem *parseTermCount(GroupItem *input)
 {
 char 		*name = input->getText();

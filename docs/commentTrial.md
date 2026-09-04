@@ -67,6 +67,7 @@ the interesting quantity is the one that can come back zero.
 | 2026-09-04 | `genParse.activateBody` | `genParse.rtn` | why it is the only writer of CodE plus isCoded among the corpus verbs |
 | 2026-09-04 | `genParse.compileStored` | `genParse.rtn` | phase two under Option B, and why it compiles out of the corpus |
 | 2026-09-04 | `genParse.activateAll` | `genParse.rtn` | the no-back-pointer ruling, and why it refuses per entry rather than aborting |
+| 2026-09-04 | `genParse.parseRuleMethod` | `genParse.rtn` | the §4.1 binding, definingRule-not-parent as a measured repair, and why both doors move together |
 
 ## LOOKUPS CLOD ACTUALLY MADE
 
