@@ -390,3 +390,166 @@ the D column diverges — **23 on bare, 84 on the flip, with the M column agreei
 because `scDcol`'s own bare `datA` reads the cursor holder. **That is R2's residue**, the walk
 writer storing the cursor rather than the member, and R2 is open pending C-158a.
 
+---
+
+## §14 R3 — THE 108→124 EXPLICIT-ACCESSOR READ (landed 2026-09-04)
+
+**Read only. Arm-independent: a static read.** Every `argument.<accessor>` code site in
+`incant/ genLadder/ minionWork/`, with comment and prose lines excluded — including
+`incant/designDocs`' own `(…#)` prose, which the first pass counted (2 sites) and which is not code.
+
+**124 sites. Source-meant 122 · holder-meant 2.**
+
+| family | n |
+|---|---|
+| identity — `taG`, `texT` | 48 |
+| shape — `listLengtH`, `hasAttributeS`, `hasMemberS`, `hasTraitS`, `hasActioN`, `firstMembeR` | 25 |
+| record fields + one-offs — `description`, `status`, `reviewed`, `symptom`, `finding`, … | 23 |
+| data — `datA`, `claims` | 16 |
+| kind — `isRulE`, `isActioN`, `isMethoD`, `actionTypE`, `hasNewParsE` | 10 |
+
+⚠ **HALF THE PRE-REGISTRATION HELD AND HALF INVERTED.** *Source-meant is the large majority* —
+yes, 122 of 124. *Holder-meant is the `taG`/presence-test family* — **no.** The `taG` family reads
+as *the name of the thing passed in* at every site (`cerr "generating parse for " argument.taG`,
+`decodeCorpus[argument.taG]`, `kind = argument.taG`), and the presence tests ask whether **the
+thing passed** has attributes or a list. **Both are source-meant, and they are precisely the sites
+that break under the flip** — so the 47 `taG` sites are the respell's centre of gravity, not its
+exception.
+
+**Holder-meant is two sites, both `parenT`, both in holder-specific fixtures by construction:**
+
+```
+incant/holderT:49                  htP <- argument.parenT;
+incant/attic/parentUnreachable:15  fpP <- argument.parenT;
+```
+
+**Both are untouched by C-161 and named there.**
+
+### §14a The per-site table
+
+| accessor | site | line |
+|---|---|---|
+| `actionTypE` | `minionWork/probeBind:55` | `if argument.actionTypE;     pbB = 1;` |
+| `actionTypE` | `minionWork/probeRefReach:57` | `if argument.actionTypE;     pbB = 1;` |
+| `beartraps` | `incant/lookup:46` | `print "  bear traps " argument.beartraps:;` |
+| `binTypE` | `minionWork/probeBreakShape:8` | `cerr "  " argument.taG "  isRulE " argument.isRulE "  binTypE " argument.binTy` |
+| `blocked` | `incant/jiquery:95` | `blockList = argument.blocked;` |
+| `claims` | `incant/jiabsorb:28` | `cg := argument.claims;` |
+| `claims` | `incant/jiabsorb:33` | `cg     := argument.claims;` |
+| `claims` | `incant/jidirect:25` | `cg := argument.claims;` |
+| `claims` | `incant/jidirect:36` | `cg := argument.claims;` |
+| `claims` | `incant/jidirect:45` | `cg := argument.claims;` |
+| `claims` | `incant/jidirect:55` | `cg := argument.claims;` |
+| `claims` | `incant/jiquery:129` | `claimList = argument.claims;` |
+| `claims` | `incant/jiquery:47` | `claimList = argument.claims;` |
+| `claims` | `incant/jiquery:57` | `claimList = argument.claims;` |
+| `claims` | `incant/jiquery:69` | `claimList = argument.claims;` |
+| `claims` | `incant/jiquery:77` | `claimList = argument.claims;` |
+| `dIRECTion` | `incant/utilities:184` | `direct  := argument.dIRECTion;` |
+| `datA` | `incant/ddProbe2:13` | `print "  children " argument.listLengtH " datA " argument.datA:;` |
+| `datA` | `incant/tableProbe:38` | `slot = argument.datA;` |
+| `datA` | `minionWork/probeChannels:10` | `cerr "     datA       " argument.datA:;` |
+| `datA` | `minionWork/probeNumAnat:12` | `if argument.datA != 0;      rnD = 1;` |
+| `datA` | `minionWork/probeNumAnat:30` | `if argument.datA != 0;      rnD = 1;` |
+| `description` | `incant/ddGate:36` | `if argument.description;     ddDesc = 1;` |
+| `description` | `incant/lookup:52` | `print argument.description:;` |
+| `finding` | `incant/lookup:37` | `print "  finding    " argument.finding:;` |
+| `firstMembeR` | `incant/genEmit:111` | `wrapped := argument.firstMembeR;` |
+| `hasActioN` | `minionWork/probeBind:59` | `if argument.hasActioN;      pbD = 1;` |
+| `hasActioN` | `minionWork/probeRefReach:61` | `if argument.hasActioN;      pbD = 1;` |
+| `hasAttributeS` | `incant/bothControl:20` | `if argument.hasAttributeS;  print "A";` |
+| `hasAttributeS` | `incant/connectiveT:123` | `same spelling against an explicit argument.hasAttributeS on the same node and` |
+| `hasAttributeS` | `incant/connectiveT:24` | `if argument.hasAttributeS;  cdHa = 1;` |
+| `hasAttributeS` | `minionWork/probeChannels:11` | `cerr "     hasAttrs   " argument.hasAttributeS:;` |
+| `hasAttributeS` | `minionWork/probeHasTraits:11` | `if argument.hasAttributeS;  phA = 1;` |
+| `hasAttributeS` | `minionWork/probeHasTraits:17` | `if argument.hasAttributeS;  phA = 1;` |
+| `hasMemberS` | `incant/bothControl:22` | `if argument.hasMemberS;     print "M";` |
+| `hasMemberS` | `minionWork/probeChannels:12` | `cerr "     hasMembs   " argument.hasMemberS:;` |
+| `hasNewParsE` | `incant/anyOrNumT:68` | `if argument.hasNewParsE;     compiledHere = 1;` |
+| `hasNewParsE` | `minionWork/anyOrNumCam:71` | `if argument.hasNewParsE;     compiledHere = 1;` |
+| `hasTraitS` | `incant/connectiveT:25` | `if argument.hasTraitS;      cdHt = 1;` |
+| `hasTraitS` | `minionWork/probeHasTraits:12` | `if argument.hasTraitS;      phT = 1;` |
+| `hasTraitS` | `minionWork/probeHasTraits:18` | `if argument.hasTraitS;      phT = 1;` |
+| `isActioN` | `minionWork/probeBind:53` | `if argument.isActioN;       pbA = 1;` |
+| `isActioN` | `minionWork/probeRefReach:55` | `if argument.isActioN;       pbA = 1;` |
+| `isMembeR` | `minionWork/probeBreakShape:8` | `cerr "  " argument.taG "  isRulE " argument.isRulE "  binTypE " argument.binTy` |
+| `isMethoD` | `minionWork/probeBind:57` | `if argument.isMethoD;       pbC = 1;` |
+| `isMethoD` | `minionWork/probeRefReach:59` | `if argument.isMethoD;       pbC = 1;` |
+| `isRulE` | `incant/flagProbe:27` | `if argument.isRulE;     print + "    if .isRulE  TOOK THE TRUE BRANCH":;` |
+| `isRulE` | `minionWork/probeBreakShape:8` | `cerr "  " argument.taG "  isRulE " argument.isRulE "  binTypE " argument.binTy` |
+| `listLengtH` | `incant/attic/parentUnreachable:14` | `cerr "    3 .listLengtH = " argument.listLengtH "   want 4          property":` |
+| `listLengtH` | `incant/ddProbe2:13` | `print "  children " argument.listLengtH " datA " argument.datA:;` |
+| `listLengtH` | `incant/ddProbe:13` | `print "entry " ~taG " children " argument.listLengtH:;` |
+| `listLengtH` | `incant/decoder:360` | `if argument.listLengtH;` |
+| `listLengtH` | `incant/genCount:105` | `if argument.listLengtH;` |
+| `listLengtH` | `incant/generate:251` | `if argument.listLengtH;` |
+| `listLengtH` | `incant/lookup:73` | `if argument.listLengtH;` |
+| `listLengtH` | `incant/utilities:10` | `if argument.listLengtH;` |
+| `listLengtH` | `minionWork/probeChannels:9` | `cerr "     listLengtH " argument.listLengtH:;` |
+| `listLengtH` | `minionWork/probeNumAnat:10` | `rnL = argument.listLengtH;` |
+| `listLengtH` | `minionWork/probeNumAnat:28` | `rnL = argument.listLengtH;` |
+| `nextStep` | `incant/jiquery:107` | `stepList = argument.nextStep;` |
+| `openItems` | `incant/jiquery:87` | `openList = argument.openItems;` |
+| `parenT` | `incant/attic/parentUnreachable:15` | `fpP <- argument.parenT;` |
+| `parenT` | `incant/holderT:49` | `htP <- argument.parenT;` |
+| `reviewed` | `incant/ddGate:37` | `print "GATE|" argument.taG "|" ddDesc "|" argument.status "|" argument.reviewe` |
+| `reviewed` | `incant/lookup:42` | `print "  reviewed   " argument.reviewed:;` |
+| `sink` | `incant/genEmit:15` | `argument.sink       an attribute, "label" or "into" -- the FOLD's` |
+| `site` | `incant/lookup:45` | `print "  site       " argument.site:;` |
+| `solution` | `incant/lookup:39` | `print "  solution   " argument.solution:;` |
+| `station` | `incant/lookup:43` | `print "  station    " argument.station:;` |
+| `status` | `incant/ddGate:37` | `print "GATE|" argument.taG "|" ddDesc "|" argument.status "|" argument.reviewe` |
+| `status` | `incant/lookup:40` | `print "  status     " argument.status:;` |
+| `symptom` | `incant/lookup:36` | `print "  symptom    " argument.symptom:;` |
+| `tARGET` | `incant/utilities:185` | `target  := argument.tARGET;` |
+| `taG` | `genLadder/countPopulation:19` | `print "COUNTPOP" argument.taG:;` |
+| `taG` | `genLadder/odoPopulation:17` | `print "ODOPOP" argument.taG:;` |
+| `taG` | `incant/anyOrNumT:16` | `cerr "generating parse for " argument.taG:;` |
+| `taG` | `incant/anyOrNumT:71` | `print ~"PARSE " argument.taG " <- " ruleText:;` |
+| `taG` | `incant/attic/argTrampleOrder:19` | `return argument.taG;` |
+| `taG` | `incant/attic/argTrampleOrder:23` | `return argument.taG;` |
+| `taG` | `incant/attic/argTrampleOrder:34` | `return argument.taG;` |
+| `taG` | `incant/attic/parentUnreachable:12` | `cerr "    1 .taG        = " argument.taG "   want fpInside   property":;` |
+| `taG` | `incant/bothControl:24` | `print " " argument.taG:;` |
+| `taG` | `incant/connectiveT:19` | `cerr "   rule " argument.taG " attributes " cdA " members " cdM:;` |
+| `taG` | `incant/connectiveT:26` | `cerr "   rule " argument.taG "  hasAttributeS " cdHa "   hasTraitS " cdHt:;` |
+| `taG` | `incant/countScratch:140` | `cerr $"KOUNT " argument.taG "=" n:;` |
+| `taG` | `incant/ddGate:37` | `print "GATE|" argument.taG "|" ddDesc "|" argument.status "|" argument.reviewe` |
+| `taG` | `incant/decoder:346` | `hit = decodeCorpus[argument.taG];` |
+| `taG` | `incant/decoder:348` | `print argument.taG " -- " hit.definition:;` |
+| `taG` | `incant/decoder:350` | `print "decode UNDEFINED TERM " argument.taG " -- FAILS LOUD, mint the entry no` |
+| `taG` | `incant/fixits/carrierNode:74` | `k1(argument)) and never for a property read like argument.taG.` |
+| `taG` | `incant/genEmit:109` | `kind = argument.taG;` |
+| `taG` | `incant/jitDrive:42` | `print "BlocK found on" argument.taG:;` |
+| `taG` | `incant/jitDrive:44` | `print "REFUSE no BlocK on" argument.taG:;` |
+| `taG` | `incant/kant8T:116` | `return argument.taG;` |
+| `taG` | `incant/kant8T:119` | `return argument.taG;` |
+| `taG` | `incant/kant8T:220` | `return argument.taG;` |
+| `taG` | `incant/lookup:58` | `luD = decodeCorpus[argument.taG];` |
+| `taG` | `incant/lookup:60` | `print "=== " argument.taG " -- " luD.definition:;` |
+| `taG` | `incant/lookup:62` | `luP = ProblemRecords[argument.taG];` |
+| `taG` | `incant/lookup:68` | `print "=== " argument.taG " -- IN NEITHER POPULATION. Not yet an id: a name is` |
+| `taG` | `incant/lookup:81` | `luP = ProblemRecords[argument.taG];` |
+| `taG` | `incant/lookup:83` | `print "=== " argument.taG " AS A TOMBSTONE, prose shed ===":;` |
+| `taG` | `incant/lookup:87` | `print "=== " argument.taG " -- no problem record ===":;` |
+| `taG` | `incant/nestT:38` | `return argument.taG;` |
+| `taG` | `incant/utilities:67` | `if goodToGo; print "OK to display" argument.taG; };` |
+| `taG` | `minionWork/anyOrNumCam:16` | `cerr "generating parse for " argument.taG:;` |
+| `taG` | `minionWork/anyOrNumCam:83` | `print ~"PARSE " argument.taG " <- " ruleText:;` |
+| `taG` | `minionWork/f31StoreActivate:43` | `SubOne="group[argument.taG] lookup on a runtime-built group WORKS. Two hits, b` |
+| `taG` | `minionWork/kant8Tstar.candidate:116` | `return argument.taG;` |
+| `taG` | `minionWork/kant8Tstar.candidate:119` | `return argument.taG;` |
+| `taG` | `minionWork/kant8Tstar.candidate:220` | `return argument.taG;` |
+| `taG` | `minionWork/probeBreakShape:8` | `cerr "  " argument.taG "  isRulE " argument.isRulE "  binTypE " argument.binTy` |
+| `taG` | `minionWork/probeCopyQ:11` | `cqSink argument code={ return argument.taG; };` |
+| `taG` | `minionWork/probeDualFlag:12` | `cerr "  BOTH " argument.taG:;` |
+| `taG` | `minionWork/probeHasTraits:13` | `cerr "    rule " argument.taG " PRISTINE  hasAttributeS " phA "  hasTraitS " p` |
+| `taG` | `minionWork/probeHasTraits:19` | `cerr "    rule " argument.taG " SETPARSE  hasAttributeS " phA "  hasTraitS " p` |
+| `taG` | `minionWork/probeK2vacuity:19` | `return argument.taG;` |
+| `taG` | `minionWork/probeK2vacuity:23` | `return argument.taG;` |
+| `taG` | `minionWork/probeK2vacuity:67` | `inner activation a DIFFERENT node and reads argument.taG rather than the node` |
+| `texT` | `incant/attic/parentUnreachable:13` | `cerr "    2 .texT       = " argument.texT "   want fpInside   property":;` |
+| `texT` | `minionWork/probeChannels:13` | `cerr "     texT       " argument.texT:;` |
+| `verdict` | `incant/lookup:41` | `print "  verdict    " argument.verdict:;` |
+| `vintage` | `incant/lookup:44` | `print "  vintage    " argument.vintage:;` |
+| `workaround` | `incant/lookup:38` | `print "  workaround " argument.workaround:;` |
