@@ -17,8 +17,13 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      155
-STATUS:   cleared       # fresh = parked/unread | working = picked up, in progress | cleared = done
+SEQ:      156
+STATUS:   working        # C-156 / C-156a -- item 4, the *argument respell, branch flip-argument
+WRITTEN:  2026-09-04  -  Clay (SEQ 156 / C-156 + C-156a, dictated via Tony; transcribed by Clod)
+          ⚠ SEQ 156 IS LIVE AND IS AT THE FOOT. Step 0 + step 1 landed;
+          report is docs/c156Respell.md.
+WRITTEN:  2026-09-04  -  Clay (SEQ 155 / C-154)
+STATUS-155: cleared       # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-09-04  -  Clay (SEQ 155 / C-154, dictated via Tony; transcribed by Clod, WT-9/WT-15)
           ⚠ SEQ 155 IS LIVE AND IS AT THE FOOT -- C-154, the := pointer-copy
           try-and-buy. Five pre-registered rows, whole-revert stop clause,
@@ -7763,3 +7768,45 @@ holder in the first place.
   Report: docs/c154PointerCopy.md -- surprises first, as asked.
 
   END SEQ 155
+
+===================================================================
+SEQ 156  -  C-156 / C-156a: ITEM 4, THE *argument RESPELL
+WRITTEN: 2026-09-04  -  Clay, dictated via Tony; transcribed by Clod
+STATUS:  working  -  step 0 and step 1 landed on branch flip-argument
+===================================================================
+
+  [C-156 and its amendment C-156a as dictated. Report: docs/c156Respell.md.]
+
+  CLOD, at step 1 close -- FOUR THINGS, surprises first.
+
+  1. THE RESPELL IS ARM-INDEPENDENT. C-156 says it "refuses bare, so it rides
+     with the flip". It does not refuse bare -- it WORKS. Moved-set empty on
+     BOTH arms; a targeted bare run prints all three members at exit 0. The
+     mechanism is the 09-03 two-wraps split: the parse hop is peeled
+     unconditionally and only the holder-follow is gated, so an iterate
+     source's star is handled by aCTionIterate, not by the generic unary star
+     that refuses. CONSEQUENCE: class (a) may be landable on main, which would
+     remove the need for a flip branch for that class. A ruling is worth having
+     before the next sub-stroke.
+
+  2. SCOPE UNDERSTATED BY 55%. Class (a) is 113 sites, not 73 -- incant/ 74,
+     minionWork/ 35, genLadder/ 4. The 09-03 census was incant/ only. Class (d)
+     is 44, not 25.
+
+  3. MY FIRST CENSUS PATTERN OVERCOUNTED AND THE CONTROL CAUGHT IT. 101 where
+     the baseline says 98; the three extras were PROSE mentioning the idiom.
+     Statement-initial `iterate` reproduces 98/73/25/40 exactly. Today: 100/74/
+     26/41, and the whole +2 delta is one new file, incant/iterRefuseT.
+
+  4. "FRESH BRANCH FROM MAIN" IS NOT AVAILABLE. main's tip is 2026-06-30, 648
+     commits behind, with no gNoUnwrap at all. Branch cut from the working trunk
+     instead. This also falsified my OWN ruling from C-154's closeout one commit
+     earlier -- "cut from main per stroke" -- which would have produced a branch
+     two months older than its question. Corrected in both registers.
+
+  C-156a applied: branch renamed flip-argument, gNoUnwrap = 1 committed in
+  source (69f8148), binary rebuilt and verified UP behaviourally. main stays 0.
+
+  OWED: 112 class-(a) sites, and classes (b)/(c)/(d) are read-and-report with
+  nothing read yet beyond counts. (b) is 162 sites, 53 of them argument.taG,
+  every one of which changes meaning under the flip.
