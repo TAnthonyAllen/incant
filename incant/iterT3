@@ -29,7 +29,7 @@ define
     pair    x y;
 
     twice argument code={
-        iterate grup on argument;
+        iterate grup on *argument;
         while ++grup
             print "P1 " taG grup:;
         while ++grup
@@ -37,7 +37,7 @@ define
         };
 
     rebind argument code={
-        iterate grup on argument;
+        iterate grup on *argument;
         while ++grup
             print "R1 " taG grup:;
         grup := pair;
@@ -46,7 +46,7 @@ define
         };
 
     resetSame argument code={
-        iterate grup on argument;
+        iterate grup on *argument;
         ++grup;
         grup := argument;
         while ++grup
@@ -60,7 +60,7 @@ define
         reusing the existing source rather than stacking another, `iterate`
         is idempotent as TODO.md requires.  */
     reIterate argument code={
-        iterate grup on argument;
+        iterate grup on *argument;
         ++grup;
         iterate grup on pair;
         while ++grup

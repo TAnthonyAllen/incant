@@ -60,7 +60,7 @@ define
         };
     rowW argument code={
         print "W drive   walking a real eight member group":;
-        iterate w on argument;
+        iterate w on *argument;
         while ++w;
             print "W member" ~taG:;
         };

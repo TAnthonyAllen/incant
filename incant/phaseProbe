@@ -54,7 +54,7 @@ define
     ppClose="}";
     ppSeen=0;
     ppEdges argument code={
-        iterate ppT on argument;
+        iterate ppT on *argument;
         while ++ppT;
             print "EDGE  " ~taG:;
         };
@@ -88,25 +88,25 @@ define
         ppEdges(argument);
         };
     ppMembers argument code={
-        iterate ppM members on argument;
+        iterate ppM members on *argument;
         while ++ppM;
             if !isRulE;     continue;
             ppClean(ppM);
         };
     ppAttrs argument code={
-        iterate ppA attributes on argument;
+        iterate ppA attributes on *argument;
         while ++ppA;
             if !isRulE;     continue;
             ppClean(ppA);
         };
     ppMembers2 argument code={
-        iterate ppM2 members on argument;
+        iterate ppM2 members on *argument;
         while ++ppM2;
             if !isRulE;     continue;
             ppShape2(ppM2);
         };
     ppAttrs2 argument code={
-        iterate ppA2 attributes on argument;
+        iterate ppA2 attributes on *argument;
         while ++ppA2;
             if !isRulE;     continue;
             ppShape2(ppA2);
@@ -131,7 +131,7 @@ define
         else                ppJoin = "OR";
         print `"if ";
         ppTermN = 0;
-        iterate ppTerm on argument;
+        iterate ppTerm on *argument;
         while ++ppTerm;
             ppBump();
             print $"t" ppTermN "()";
@@ -154,7 +154,7 @@ define
         if actionTypE != 0;     return;
         ppGen(argument);
         if listLengtH;
-            iterate ppCur on argument;
+            iterate ppCur on *argument;
             while ++ppCur;
                 if noPrinT;     continue;
                 if binTypE;     continue;

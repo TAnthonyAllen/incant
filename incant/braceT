@@ -49,7 +49,7 @@ register(BraceWalk);
 define
     btSeen=0;
     btWalk argument code={
-        iterate btCur on argument;
+        iterate btCur on *argument;
         while ++btCur;
             btSeen = btSeen + 1;
             cerr "ROW " btSeen " " ~taG " |" btCur "|":;

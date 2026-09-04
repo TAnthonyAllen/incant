@@ -40,13 +40,13 @@ define
     triple  a b c;
 
     walkFwd argument code={
-        iterate grup on argument;
+        iterate grup on *argument;
         while ++grup
             print "FWD " taG grup:;
         };
 
     walkBack argument code={
-        iterate grup on argument;
+        iterate grup on *argument;
         while --grup
             print "BCK " taG grup:;
         };

@@ -60,7 +60,7 @@ define
         else                bqJoin = "OR";
         print `"if ";
         bqTermN = 0;
-        iterate bqTerm on argument;
+        iterate bqTerm on *argument;
         while ++bqTerm;
             setParse(bqTerm);
             bqBump();
@@ -88,7 +88,7 @@ define
         cerr "SEQ" bqSeen ~taG:;
         compile(argument);
         if bqLen > 0;
-            iterate bqCur on argument;
+            iterate bqCur on *argument;
             while ++bqCur;
                 if noPrinT;     continue;
                 if binTypE;     continue;

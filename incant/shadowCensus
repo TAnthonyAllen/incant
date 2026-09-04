@@ -52,7 +52,7 @@ define
         else                print "-";
         };
     scMembers argument code={
-        iterate scCur members on argument;
+        iterate scCur members on *argument;
         while ++scCur;
             if !isRulE;     continue;
             print "row ";
@@ -66,7 +66,7 @@ define
             print " " ~taG:;
         };
     scAttrs argument code={
-        iterate scCur2 attributes on argument;
+        iterate scCur2 attributes on *argument;
         while ++scCur2;
             if !isRulE;     continue;
             print "row ";

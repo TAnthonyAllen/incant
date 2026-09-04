@@ -26,7 +26,7 @@ define
         if hasTraitS;       conjunct = "AND";
         else                conjunct = "OR";
         print `"if ";
-        iterate grup on argument;
+        iterate grup on *argument;
         while ++grup;
             if noPrinT;     continue;
             if notFirstTimeThru > 0;    print _conjunct;
@@ -54,7 +54,7 @@ define
             if argument["CodE"];    compile(argument);
             else    cerr taG "has no CodE":;
             if length > 0;
-                iterate grup on argument;
+                iterate grup on *argument;
                 while ++grup;
                     if noPrinT;     continue;
                     if binTypE;     continue;

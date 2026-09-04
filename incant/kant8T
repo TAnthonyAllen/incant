@@ -166,7 +166,7 @@ define
     k6small     xx;
     k6depth;
     k6A argument code={
-        iterate k6cur attributes on argument;
+        iterate k6cur attributes on *argument;
         k6seen = 0;
         while ++k6cur;
             k6seen = k6seen + 1;
@@ -350,7 +350,7 @@ define
     k6med       pp qq;
     k6depth4;
     k6Awide argument code={
-        iterate k6cur5 attributes on argument;
+        iterate k6cur5 attributes on *argument;
         k6seen5 = 0;
         while ++k6cur5;
             k6seen5 = k6seen5 + 1;

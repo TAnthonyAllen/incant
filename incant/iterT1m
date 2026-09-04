@@ -34,14 +34,14 @@ define
 
     walkA argument code={
         print "A " taG argument:;
-        iterate grup on argument;
+        iterate grup on *argument;
         while ++grup
             walkB(grup);
         };
 
     walkB argument code={
         print "B " taG argument:;
-        iterate grup on argument;
+        iterate grup on *argument;
         while ++grup
             walkA(grup);
         };

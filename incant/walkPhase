@@ -97,7 +97,7 @@ define
         else                wpJoin = "OR";
         print `"if ";
         wpTermN = 0;
-        iterate wpTerm on argument;
+        iterate wpTerm on *argument;
         while ++wpTerm;
             wpBump();
             print $"t" wpTermN "()";
@@ -133,14 +133,14 @@ define
             return;
         wpGen(argument);
         if listLengtH;
-            iterate wpCur on argument;
+            iterate wpCur on *argument;
             while ++wpCur;
                 if noPrinT;     continue;
                 if binTypE;     continue;
                 if isRule;      wpWalk(wpCur);
         };
     wpSweep argument code={
-        iterate wpSw attributes on argument;
+        iterate wpSw attributes on *argument;
         while ++wpSw;
             cerr "COMPILING" ~taG:;
             wpOut := compileStored(wpSw);

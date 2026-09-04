@@ -173,12 +173,12 @@ define
         length  = listLengtH;
         print ~taG:;
         if length > 0;
-            iterate grup attributes on argument;
+            iterate grup attributes on *argument;
             while ++grup;
                 if noPrinT; continue;
                 if isMethoD;    print ~`taG "has method":;
                 else            print ~`taG "does not have method":;
-            iterate grup members on argument;
+            iterate grup members on *argument;
             while ++grup;
                 print +;
                 displayForm(grup);

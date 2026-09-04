@@ -21,7 +21,7 @@ define
     npHits;
     npRules;
     npScanMembers argument code={
-        iterate npOut members on argument;
+        iterate npOut members on *argument;
         while ++npOut;
             npRules = npRules + 1;
             iterate npIn attributes on npOut;
@@ -31,7 +31,7 @@ define
         return npHits;
         };
     npScanAttrs argument code={
-        iterate npOut2 attributes on argument;
+        iterate npOut2 attributes on *argument;
         while ++npOut2;
             npRules = npRules + 1;
             iterate npIn2 attributes on npOut2;

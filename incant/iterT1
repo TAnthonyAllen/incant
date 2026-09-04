@@ -39,7 +39,7 @@ define
 
     walk argument code={
         print "at " taG argument:;
-        iterate grup on argument;
+        iterate grup on *argument;
         while ++grup
             walk(grup);
         };

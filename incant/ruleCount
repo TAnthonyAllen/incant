@@ -30,7 +30,7 @@ define
     countThem argument code={
         rcAll = 0;
         rcRules = 0;
-        iterate rcCur members on argument;
+        iterate rcCur members on *argument;
         while ++rcCur;
             rcAll = rcAll + 1;
             if isRulE;  rcRules = rcRules + 1;
@@ -41,7 +41,7 @@ define
     countAttrs argument code={
         rcAll = 0;
         rcRules = 0;
-        iterate rcCur3 attributes on argument;
+        iterate rcCur3 attributes on *argument;
         while ++rcCur3;
             rcAll = rcAll + 1;
             if isRulE;  rcRules = rcRules + 1;

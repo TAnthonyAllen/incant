@@ -11,7 +11,7 @@ register(DdProbe);
 define
     ddWalk argument code={
         print "entry " ~taG " children " argument.listLengtH:;
-        iterate ddCur members on argument;
+        iterate ddCur members on *argument;
         while ++ddCur;
             print "   child " ~taG " sub " listLengtH:;
         };

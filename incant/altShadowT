@@ -48,7 +48,7 @@ define
         print "B ok    the invocation parsed -- the alternation survived the poison":;
         };
     rowC argument code={
-        iterate asCur attributes on argument;
+        iterate asCur attributes on *argument;
         while ++asCur;
             print "C guard poisoned rule carries attribute" ~taG:;
         };
