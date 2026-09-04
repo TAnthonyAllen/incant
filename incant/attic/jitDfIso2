@@ -23,7 +23,7 @@ define
                 ++d2Count;
             iterate grup members on *argument;
             while ++grup;
-                d2Walk(grup);
+                d2Walk(*grup);
         };
     d2Drive code={
         d2Count = 0;
