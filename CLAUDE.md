@@ -2278,6 +2278,35 @@ direction the campaign might take, it is a state the machinery must report as a 
 > diff. When a row is red by choice, the choice covers the rows you named; it does not cover
 > whatever else moves underneath them.
 
+> **RULE H13 — AN IDENTITY ROW NAMES ITS QUESTION BEFORE IT NAMES ITS COLUMN.** Clay, ruled
+> 2026-09-04 out of C-154. `addrOf` prints a **field** number and a **body** number; they answer
+> **different questions**, and a row pinned on the wrong one **goes green while asserting
+> nothing.**
+>
+> **Three questions, three columns, and the column follows from the question — never the other
+> way round:**
+>
+> | the question | read | why, and its citation |
+> |---|---|---|
+> | *"is this the same thing, reached through a carrier?"* | **BODY** | the argument carrier **mints a fresh field on every call** — `apSrc` read field **#1, #3, #8** across three asks while the body held at **#2**. A field-column pin here **fails on every run for a reason unrelated to correctness**, which is rule H3's exact prohibition. (`pointerT` L4, S3a) |
+> | *"is this the holder, or what it holds?"* | **FIELD** | **when they share a body.** A copy of a field shares its source's body outright (C18), so two fields over one body read identically in the body column and **only the field column separates them.** (`setGroup`'s copy, CHANCAM) |
+> | *"did a holder arrive intact, or was it dereferenced on the way in?"* | **BODY** | **because a holder has its OWN body.** `pcMid` as a holder carries body `0x…5820`; arriving at `opSetGroup` on bare it carried `pcSource`'s `0x…5b40` instead. The body column discriminated; **the field column would not have.** (C-154) |
+>
+> **THE RULE: before pinning an identity row, WRITE WHICH OF THE THREE QUESTIONS IT ASKS, then
+> pick the column. A row that asks two of them needs two pins.**
+>
+> ⚠ **AND THE HALF THAT ASSIGNS THE BLAME CORRECTLY: A DISPATCH THAT SAYS "READ THE FIELD COLUMN"
+> WITHOUT THE QUESTION ATTACHED IS A DEFECT IN THE DISPATCH, NOT IN THE FIXTURE. C-154 WAS ONE.**
+> It said *"read the field column, the body column cannot discriminate a holder from what it
+> holds"* — which is **true of question 2 and false of question 3**, and question 3 was the one
+> the stroke was actually asking. The fixture would have been written correctly and pinned wrong.
+>
+> ⚠ **Note what this rule does NOT change: nothing in the code, and nothing in the instrument.**
+> `addrOf` was already right and already printed both columns. The only change is that **a fixture
+> header names its question before it names its column** — which is the same move as H4's
+> presence-with-value and H7's negative control, one level up: the assertion is fine, what was
+> missing was the statement of what it discriminates.
+
 > **RULE H10 — THE CITATION BOUNDARY: SMOKE-GREEN AUTHORIZES CONTINUING, ONLY A FLEET CHECK
 > AUTHORIZES LANDING. A smoke-green is NEVER citable as fleet-green.** Adopted 2026-08-13 (SEQ 60,
 > Tony's two-tier proposal). `genLadder/smoke.sh` is the iteration bell — fixture-under-test ·

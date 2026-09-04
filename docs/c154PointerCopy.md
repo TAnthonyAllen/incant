@@ -193,3 +193,33 @@ purpose is to retire the auto-unwrap, then **is `opSetGroup` the right place at 
 the flip simply owed the one-level deref that the auto-unwrap used to provide, at the
 operand road, for every operator rather than for `:=` alone?** S1 says the two roads
 currently disagree about `:=`; it does not say which one is right.
+
+---
+
+## §9 CLOSEOUT — RULED 2026-09-04 (Tony, on Clay's rulings 1 and 3)
+
+**`:=` DOES NOT DEREF.** The operator keeps the semantics it has: it stores what it is
+handed, through `setGroup`, one spelling, and it does not reach through a holder to what the
+holder points at. The one-level deref proposed by C-154 is **not** added to `opSetGroup`.
+
+**THE SPELLING UNDER THE FLIP IS STAR EVERY USE.** Where a holder must be reached, the star
+says so at the site that means it, rather than an operator doing it silently on the reader's
+behalf. This is the same ruling as the 09-02 respell (*"`<-` MINTS A COPY AND IS NOT AN
+ALIAS"*) arriving at `:=` — and it keeps the one-star law S3a intact instead of minting a
+second, invisible dereference with different rules.
+
+**C-154 IS CLOSED: REFUSED BY MEASUREMENT.** Not abandoned, not parked, not deferred to a
+better day — the stroke ran, the premise was measured, and the measurement refused it. §1's
+three surprises are the record of why, and they stand as findings whatever anyone later
+decides about the flip.
+
+⚠ **AND THE STROKE PAID FOR ITSELF TWICE OVER, WHICH IS THE ARGUMENT FOR RUNNING RECON
+BEFORE EDITS RATHER THAN ALONGSIDE THEM.** A stroke that edited first would have landed a
+crash (§1 S3's `gGroup == 0x3`) behind rows that could not have caught it (§1 S1: P1 and P5
+read identically on bare), and would have reported a green fleet while asserting nothing.
+**The two outputs that outlived the proposal are `RULE H13` — an identity row names its
+question before it names its column — and the ruling above.**
+
+**Branch:** `tryAndBuy-gNoUnwrap` retired the same day, dated in the 09-02 seal's own line
+and **not deleted**. Future try-and-buy branches are cut from `main` per stroke, so a branch
+is never older than the question it answers.

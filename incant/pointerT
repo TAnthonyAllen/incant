@@ -63,6 +63,8 @@ define
         print "pointerT L3 assign-then-star =" *ptAssigned "  want 0 -- name it means <- , NOT =":;
 
         cerr "pointerT L4 -- LAW 2 ASKED BY IDENTITY. Read the BODY column only.":;
+        cerr "  L4 asks question 1 of rule H13 -- same thing through a carrier -- so BODY.":;
+        cerr "  H13: name the question BEFORE the column; field is right for question 2 only.":;
         cerr "  L4a source asked once:":;
         addrOf(ptSrc);
         cerr "  L4b SAME source again -- body must REPEAT (column is stable):":;

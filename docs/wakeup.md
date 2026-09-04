@@ -190,6 +190,15 @@
 #   ALIAS.** Measured: `pArg <- *argument` reports the capture's own name. Law 4's
 #   *name-it-then-star-it* does not reach Start.
 #
+#   ⚠⚠ **BRANCH RETIRED 2026-09-04 — `tryAndBuy-gNoUnwrap` IS CITED HISTORY, NOT A
+#   WORKING BRANCH, AND IT IS NOT DELETED.** It sits at base `96cff77` (2026-09-02)
+#   carrying one commit, `e27c407`, which sets `gNoUnwrap = 1`. By 09-04 it was **19
+#   commits stale**, so it could not host a bare arm at the day's numbers — C-154 needed
+#   canary 332 and fleet 191/1/3 and the branch is neither. **Ruled: future try-and-buy
+#   branches are cut from `main` per stroke**, so a branch is never older than the
+#   question it is answering. This line stays as written below because it was true when
+#   written; the retirement is dated rather than folded in.
+#
 #   **6. THE TRY-AND-BUY IS OPEN ON `tryAndBuy-gNoUnwrap`. 176 → 116, and THE 61
 #   RED ROWS ARE TEN MECHANISMS, NOT 61 FINDINGS.**
 #   ```
