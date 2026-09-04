@@ -2378,6 +2378,30 @@ direction the campaign might take, it is a state the machinery must report as a 
 > diff. When a row is red by choice, the choice covers the rows you named; it does not cover
 > whatever else moves underneath them.
 
+> **RULE H14 — A CERTIFICATE NUMBER IS READ OFF THE TREE FOR EACH COMMIT, NEVER CARRIED FROM A
+> TEMPLATE.** Tony, 2026-09-04, and it is the seal-date lesson wearing a canary.
+>
+> The seal already runs a **date check** — `date` against `git log -1` — because a stamped date is
+> the cheapest thing in the world to copy forward and the hardest to notice once it is wrong. **A
+> certificate's canary, fleet count and rung count are the same class of fact and get the same
+> treatment.**
+>
+> **The instance:** four C-162 commits certify *canary 332*. The tree read **333** throughout —
+> F-53's `jitEmitIterStepBack` had landed before C-162 began. Nothing was broken and nothing was
+> lost; the line was **carried forward from the class-(a) certificate template** while every other
+> number in it was re-measured. So four commits describe a tree that had not existed for several
+> strokes.
+>
+> ⚠ **THE DANGER IS NOT THE WRONG NUMBER, IT IS THAT A CARRIED NUMBER LOOKS EXACTLY LIKE A
+> MEASURED ONE** — and the next reader has no way to tell which of a certificate's figures were
+> read and which were inherited. That is the unmeasured-citation family reaching the one place the
+> project trusts most: its own certificates.
+>
+> **The cheap discipline: if a number appears in a commit message, the command that produced it ran
+> in that stroke.** When a template is reused, its numbers are blanked first, not edited over. And
+> when a discrepancy IS found, the witness is named before the correction is written — here rung
+> **JD** green on all five rows, which would have gone red had the extern actually vanished.
+
 > **RULE H13 — AN IDENTITY ROW NAMES ITS QUESTION BEFORE IT NAMES ITS COLUMN.** Clay, ruled
 > 2026-09-04 out of C-154. `addrOf` prints a **field** number and a **body** number; they answer
 > **different questions**, and a row pinned on the wrong one **goes green while asserting

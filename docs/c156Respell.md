@@ -621,3 +621,70 @@ while the explicit spelling read `argument`. So for the 48-site identity family 
 therefore position-sensitive, correct at entry and wrong after any intervening call (the clobber,
 R1). Every site would need reading for what sits above it. **Tony's ruling, before anything moves.**
 
+---
+
+## §16 C-161 PRE-FLIGHT PART 2 — NO SPELLING MEASURED YET REPAIRS IT
+
+Read-only, both arms, binary bare at close and verified behaviourally.
+
+### §16a Rows D and E
+
+```
+                                  ARM BARE                  ARM FLIP
+A  argument.taG   (control)       pfSource                  argument      <- the defect
+D  (*argument).taG                PARSE FAILED              PARSE FAILED
+E  @*argument; then bare taG      pfSource (star refused)   pfSource
+E-ctl  bare taG, no @             pfSource                  pfSource
+```
+
+**Row D: literal parens do not parse.** `ERROR processCode: pfAct parse failed`, on both arms.
+`(*argument).taG` is not a spelling this grammar has.
+
+**Row E does not discriminate at entry**, and that is itself the finding: **bare `taG` already
+reads the source on both arms with or without `@`**, confirming C-158 step 3b. At action entry the
+`@` is redundant.
+
+### §16b Where `@` would earn its place — after a call — it does not
+
+`@` matters only where `lastREF` has been clobbered, so the mid-body case was measured. **ARM FLIP:**
+
+```
+F1  entry, bare taG                = pfSource     correct
+F2  after a call, bare taG         = pfOther      the clobber (the callee's argument)
+F3  after `@argument;`  bare taG   = argument     re-aimed to the HOLDER -- wrong answer
+F4  after `@*argument;` bare taG   = pfOther      DID NOT RE-AIM AT ALL
+```
+
+⚠ **Neither form is a repair.** `@argument` re-aims `lastREF` to the **holder**, so the bare read
+answers `argument`. `@*argument` leaves the aim **unchanged** — the read still returns the previous
+callee's argument — which is row B's binding problem again: the star is not reaching `@` as its
+operand.
+
+### §16c Census — the blast radius of a `UnaryOPS` placement change is ~ZERO
+
+```
+  *<name>.<accessor> :  4 sites, 2 files      3  *argument.taG      1  *grup.tag
+  *<name>[...]       :  2 sites, 2 files      1  *ptBagP[           1  *SENTINEL[
+```
+
+⚠ **Every dot site is in `IncantForms/`** — `WorkingOn/incant++` (Tony's WIP) and
+`Notions/fonting`. **Not one is in the live incant corpus, the fleet, or the harnesses.** The two
+subscript sites are `pointerT`'s law-3 tripwire and a harness marker, both deliberate.
+
+**So if the road is a grammar change to where `UnaryOPS` may sit, it breaks nothing that runs.**
+That is the cheapest of the remaining options by a wide margin, and the census is the reason to say
+so rather than the intuition.
+
+### §16d What is left, for Tony's ruling
+
+| candidate | standing |
+|---|---|
+| `*argument.<acc>` | **dead** — the star binds to the accessor (part 1, row B) |
+| `(*argument).<acc>` | **dead** — does not parse (row D) |
+| `capture := *argument` then `.acc` | **dead** — the capture is a holder, `.acc` answers with its name |
+| `@` re-aim | **dead as measured** — holder, or no re-aim at all (F3/F4) |
+| **drop `argument.`, use the bare accessor** | **live** — correct at entry on both arms; position-sensitive, soevery site needs reading for what sits above it |
+| **grammar: `UnaryOPS` placement** | **live and cheap** — §16c says the live-corpus blast radius is zero |
+
+**Nothing moves until the spelling is ruled.**
+
