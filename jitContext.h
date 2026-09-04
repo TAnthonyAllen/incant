@@ -616,7 +616,7 @@ public:
 // legacy arm holds. It is a probe arm with its death written down in advance --
 // NOT a gNewParseInFlight resurrection, which was a temporal guard with no
 // retirement plan. When the legacy arm is deleted, delete this too.
-static int gNoUnwrap = 0;
+static int gNoUnwrap = 1;
 
 // ⚠ THE EMITTED PATH'S CHANNEL BRACKET (F-45, Tony SEQ 129). runAction saves the
 // argument attribute's previous gGroup/data pair across its own processAction
