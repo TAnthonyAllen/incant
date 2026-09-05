@@ -62,34 +62,46 @@ means own-function, and therefore in scope. Its absence means the callee
 inlined and is already correct -- minionWork/probeArgJit is that case and reads
 8 / 22 / oracle 14 at degrade 0.
 
-NEXT: BEST GUESS -- feed a slot, stop baking.
+NEXT: REMEDY -- BEHAVIOUR. Discharged 2026-09-05, same day it was minted.
 
-Tony's words, 2026-09-05. jitBindArgRT already runs at the right moment and
-already knows the passed field; what it does not do is put that field where the
-emitted body will look. The emitter's side is the mirror -- jitEmitBareRead and
-jitSeedField compute a home address from the argument node at emit time, which
-for an own-function callee is a fact that has not happened yet.
+THE FIX WAS NOT A BUILD ON THIS ROAD AT ALL. It fell out of item 3's runAction
+revision: isArgument is now stamped ABOVE the jitting gate, so the JIT frame
+prologue's (isLocal || isArgument) walk finally SEES the argument and gives it
+an alloca. The read became a FRAME LOAD, fed per activation by the caller's
+bind, instead of a baked absolute address.
 
-⚠ IT IS A CANDIDATE, NOT A RULING, and one measurement promotes or kills it:
-does the own-function road have a frame slot for the argument at all, or only
-the baked home? The frame prologue walks (isLocal || isArgument) over the
-action's field list, so if the argument reaches the prologue it already has an
-alloca and the fix is to make jitBindArgRT store into it. If it does not, the
-slot has to be created first and the stroke is larger.
+SITE: GroupActions.rtn, runAction -- the mint and `ruleArg.isArgument = true`
+sit above `if jitting`. Nothing was added to jitSeedField or jitEmitBareRead.
 
-WHAT WOULD KILL IT: if one emitted function is shared across call sites with
-different arguments, a slot is not enough and the argument has to become a real
-function parameter. That is a much larger shape. Find out which one this is
-BEFORE building either.
+TAKEN vs NOT, on this file's own output:
+    NOT taken   jitted block prints large numbers, interpreted prints 7
+    TAKEN       both blocks print 7, at every depth
 
-FOLDED IN, SAME STROKE (Tony, 2026-09-05). jitBindArgRT's REFUSAL ARM DIVERGES
-FROM runAction's. runAction refuses and does NOT run the action (chanAbort).
-jitBindArgRT prints its refusal and then does the bind-by-body fallback anyway
--- ruleArg->groupBody = arg->groupBody -- which is exactly the road SEQ 131
-removed from runAction for handing the callee THE OCCUPANT rather than the
-argument it was called with. Same road, same arm, same stroke.
+ON THE EMITTED IR, which is the stronger witness because it names the mechanism
+rather than the answer:
+    NOT taken   define jit_jabA has an alloca for the LOCAL only
+    TAKEN       it also has `%argument = alloca i32` with its `%prolog` load
 
-⚠ THE REFUSAL HAS NEVER FIRED, so that half is a READING and not a
-measurement. Recorded that way deliberately: the divergence is visible in the
-source, the consequence is inferred from SEQ 131's measurement on the other
-road, and nobody has made either arm speak.
+⚠ THE BEST GUESS WAS RIGHT ABOUT THE SHAPE AND WRONG ABOUT THE WORK. "Feed a
+slot, stop baking" is exactly what happened. The promoting measurement it named
+-- does the own-function road have a frame slot for the argument at all --
+answered NO before the hoist and YES after, and no new machinery was needed
+because the prologue already re-loads its slots per activation.
+
+THE FOLDED-IN HALF IS ALSO DONE. jitBindArgRT's refusal arm and its bind-by-body
+fallback are removed, matching runAction: the tripwire guarded a union that
+could hold foreign data because the attribute was USER-DECLARED, and runAction
+now MINTS the slot, so the union is ours by construction. The arm had refused,
+said so, and then done the bind-by-body anyway -- the exact road SEQ 131 removed
+from runAction. Behaviour-neutral by measurement (fleet unmoved), because it
+never fired. THE PENDING SLOT STAYS: it is the emitted path's channel bracket,
+paired with jitSaveFrameRT/jitRestoreFrameRT, and was not what was wrong.
+
+FLEET COVER, so this citizen is not the only thing holding it:
+    incant/argRoundJ   re-pinned red -> 7 the same day, with its cause
+    incant/argJitT     the inlined road, promoted after it regressed silently
+Both are in genLadder/pop.sh.
+
+⚠ RETIREMENT IS TONY'S OR CLAY'S RULING, NOT CLOD'S (rule F2). This file is now
+a VERIFICATION HARNESS in Addendum 3's sense: run it, and the two blocks should
+agree at 7. It is left in the queue for that ruling rather than retired.

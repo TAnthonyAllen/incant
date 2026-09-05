@@ -35,20 +35,30 @@ an interpreted run first consumes isCoded and silently reroutes testing() to
 jitRunIfTest. So the interpreted oracle lives in argRoundT and the jitted arm
 lives here, and neither can spoil the other.
 
-⚠ THIS FILE IS PINNED TO A KNOWN DEFECT AND IS EXPECTED TO BE WRONG.
-jitArgBake: where the JIT gives a callee its OWN FUNCTION rather than inlining
-it, the callee's `argument` is read from an address baked at emit time and does
-not track the run-time bind. So the argument column here prints ADDRESSES where
-argRoundT's interpreted column prints 7.
+⚠ IT WAS PINNED TO A KNOWN DEFECT FOR ONE DAY AND IS NOW GREEN. jitArgBake:
+where the JIT gave a callee its OWN FUNCTION rather than inlining it, the
+callee's `argument` was read from an emit-time BAKED address and did not track
+the run-time bind, so this file printed ADDRESSES where argRoundT's interpreted
+column printed 7.
 
-    interpreted (argRoundT)   argument = 7 at every depth       CORRECT
-    jitted      (this file)   argument = a large number          THE DEFECT
+DISCHARGED 2026-09-05, and not by the machinery anyone proposed building. It
+fell out of item 3's flag hoist: setting isArgument ABOVE runAction's jitting
+gate means the JIT frame prologue's (isLocal || isArgument) walk finally SEES
+the argument and gives it an alloca, so the read is a FRAME LOAD fed per
+activation instead of a baked address. Confirmed on the emitted IR -- jit_jabA
+gained `%argument = alloca i32` with its `%prolog` load, where before it had
+only the local's.
 
-⚠ THE LOCAL COLUMN AGREES ON BOTH ENGINES -- 3/2/1 -- and that is what makes
-this a statement about the ARGUMENT CHANNEL rather than about the frame. A
-fixture that only showed the jitted side would not be able to say which.
+    interpreted (argRoundT)   argument = 7 at every depth
+    jitted      (this file)   argument = 7 at every depth   AGREE
 
-WHEN jitArgBake LANDS this file starts printing 7 and its pop.sh row goes RED.
-That is the signal, not a regression: re-pin the row to 7 with a sentence
-(rule H6 -- a parked pin that starts passing must graduate, and a re-pin needs
-a cause, not a green diff).
+⚠ THE LOCAL COLUMN AGREES ON BOTH ENGINES TOO -- 3/2/1 -- and it is still a
+separate assertion rather than a redundant one. While the argument column was
+wrong, the local column agreeing is what said the defect was the ARGUMENT
+CHANNEL and not the frame. That attribution is why the fix could be aimed.
+
+⚠ IT STAYS A SEPARATE FILE FROM argRoundT, and not out of history: a fixture
+gets ONE testing(). A second call on the same action hits the sequential-state
+tar baby, and an interpreted run first consumes isCoded and silently reroutes
+testing() to jitRunIfTest (bear-trap #25). Two files means neither arm can
+spoil the other.

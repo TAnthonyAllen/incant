@@ -2180,6 +2180,30 @@ Hard-won lessons. Each one has cost real debugging time.
     Same root as the three-languages note in project memory: **confirm which language the line is
     before trusting a bare name in it.**
 
+49. **A FLIP IS NOT MEASURED UNTIL THE BINARY IS REBUILT AT SOURCE TRUTH. A SOURCE GREP READS THE
+    HALF THAT IS TELLING THE TRUTH.** Gloss: the source was right, the binary was the other
+    program. Measured 2026-09-05, two-sided, at the cost of a morning's wrong premise.
+    `jitContext.h` read `static int gNoUnwrap = 0` and `~/bin/incant` had been built at **1** —
+    the switch was flipped, a test was run, the SOURCE was flipped back, and **no rebuild
+    followed**. The fleet read **141 green against a sealed 197**, which reads as a catastrophic
+    overnight regression and is nothing of the kind.
+    ⚠ **THE STANDING CHECK COULD NOT SEE IT, AND THAT IS THE POINT.** `docs/wakeup.md` prescribes
+    `grep -n 'static int gNoUnwrap' jitContext.h` before believing a red — and that grep reads
+    **the source**, which was correct. The binary was also correct about itself. **Only the PAIR
+    was wrong, and nothing in the tree compared them.** Same family as the stale-DerivedData hang
+    that produced rule H1: a stale binary does not fail as a diff.
+    **The two-sided measurement is what settles it, and one side alone would not have:** rebuilding
+    at source truth returned the fleet to exactly 197 **and** changed the `tester` trace; rebuilding
+    at 1 reproduced the morning trace **byte-identically**. A trace that matched could have been
+    flip-invariant; a trace that matched *and* moved when the flag moved could not.
+    ⚠ **THE FIX IS STRUCTURAL, NOT A REMINDER** — `genLadder/pop.sh` now compares the newest
+    `*.rtn`/`*.twk`/`*.h` mtime against the binary and prints **`⚠ STALE … REBUILD BEFORE BELIEVING
+    ANY ROW BELOW`**, plus the source's `gNoUnwrap` value with a line saying the staleness check is
+    what licenses trusting it. H7 control run: touching a source makes it fire by name.
+    **The general rule, and it outlives `gNoUnwrap`: when a switch lives in SOURCE and its effect
+    lives in a BUILD, reading the switch is not reading the system.** Rebuild, then measure — the
+    order in bear-trap #31's closing line, aimed one layer down.
+
 ⚠⚠ **THE RULE-LADDER SELECTION CRITERION — TWO CLAUSES, AND THE SECOND WAS PAID FOR.** Tony,
 2026-08-24.
 

@@ -3787,23 +3787,29 @@ GroupItem 	*ruleArg = 0;
 	}
 	}
 	else {
-	/*  runAction's CHANNEL LINES, LIFTED VERBATIM; no restore comes with them
-	and nothing is dropped by that.   jitEmitters.jitBindArgRT.argChannel  */
+	/*  THE TRIPWIRE AND ITS FALLBACK ARE GONE, 2026-09-05, folded in with
+	item 3 at Tony's ruling -- same road, same arm. Two reasons, and the
+	second is why this could not wait. The tripwire guarded a union that
+	might hold foreign data because the argument attribute was USER-
+	DECLARED; runAction now MINTS the slot, so the union is ours by
+	construction and the failure is unconstructable rather than guarded.
+	⚠ AND THE REFUSAL ARM DID THE BIND-BY-BODY FALLBACK ANYWAY --
+	`ruleArg->groupBody = arg->groupBody` -- which is exactly the road
+	SEQ 131 removed from runAction for handing the callee THE OCCUPANT
+	rather than the argument it was called with. runAction refused and
+	did not run; this road refused, said so, and then did it. The two
+	arms had diverged on the one thing the refusal existed to prevent.
+	THE PENDING SLOT STAYS: it is the emitted path's channel bracket,
+	paired with jitSaveFrameRT/jitRestoreFrameRT across three functions,
+	and it is not what was wrong here.
+	jitEmitters.jitBindArgRT.argChannel  */
 	if (( ruleArg = field->get("argument") )) {
-	if ( ruleArg->groupBody->gGroup && !isGROUP(ruleArg->groupBody->flags.data) ) {
-	::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the argument body's union holds non-group data; gGroup would clobber it\n",
-	field->groupBody->tag);
-	::fflush(stderr);
-	ruleArg->groupBody = arg->groupBody;
-	}
-	else {
 	gChanPendBody  = ruleArg->groupBody;
 	gChanPendGroup = ruleArg->groupBody->gGroup;
 	gChanPendData  = ruleArg->groupBody->flags.data;
 	ruleArg->setGroup(arg);
 	GroupControl::groupController->groupRules->chanBinds++;
 	if ( ruleArg->groupBody->gGroup == arg ) GroupControl::groupController->groupRules->chanSame++;
-	}
 	}
 	}
 	

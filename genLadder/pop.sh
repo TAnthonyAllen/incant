@@ -22,6 +22,27 @@ fi
 echo "  bin   $B"
 echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
 
+#  ⚠ IS THE BINARY BUILT FROM THE SOURCE ON DISK? Added 2026-09-05, and it is
+#  rule H1's second half: H1 says ECHO the binary, this says CHECK it against
+#  what it claims to be built from. A stale binary does not fail as a diff.
+#
+#  ⚠ PAID FOR THE SAME MORNING. jitContext.h read `gNoUnwrap = 0` while the
+#  installed binary had been built at 1 -- the switch was flipped, a test was
+#  run, the SOURCE was flipped back, and no rebuild followed. The fleet read 141
+#  green against a sealed 197 and looked like a catastrophic regression. It was
+#  the OTHER PROGRAM. Nothing in the tree could say so: the source grep reads 0
+#  and is right, the binary is right about itself, and only the pair is wrong.
+#  A GREP ON gNoUnwrap ALONE IS NOT A CHECK -- it reads the source, which is
+#  exactly the half that was telling the truth.
+newest=$(ls -t *.rtn *.twk *.h 2>/dev/null | head -1)
+if [ -n "$newest" ] && [ "$newest" -nt "$(readlink "$B" 2>/dev/null || echo "$B")" ]; then
+    echo "  ⚠ STALE  $newest is NEWER than the binary -- REBUILD BEFORE BELIEVING ANY ROW BELOW."
+    echo "           Every number in this run is about a program that is not the source on disk."
+else
+    echo "  bin   built no earlier than the newest source ($newest)"
+fi
+echo "  bin   gNoUnwrap = $(sed -n 's/^static int gNoUnwrap = \([01]\);/\1/p' jitContext.h) in SOURCE -- and the line above is what says the binary agrees"
+
 #  ===========================================================================
 #  THE KITCHEN LAW, 2026-08-04. Clean kitchen is not declared while anything
 #  working sits uncommitted -- "clean" means the fleet is green AND git status
@@ -335,10 +356,10 @@ for _j in "AJ fire 1 result: ajOut = 8" \
     fi
 done
 
-#  ⚠ argRoundJ -- THE JIT ARM, PINNED RED BY NAME (Tony, 2026-09-05). Never
-#  silently. jitArgBake is the open citizen: where the JIT gives a callee its
-#  OWN FUNCTION rather than inlining it, `argument` is read from an emit-time
-#  BAKED address and does not track the run-time bind.
+#  ⚠ argRoundJ -- THE JIT ARM. Minted pinned RED by name on jitArgBake and
+#  RE-PINNED GREEN the same day when the flag hoist discharged it; see the
+#  sentence at the argument-column row below. It stays a separate file from
+#  argRoundT because a fixture gets ONE testing().
 run1 argRoundJ "$T/arj"; check "argRoundJ runs" 0 $?
 sentinel "argRoundJ sentinel (no truncation)" "$T/arj" "ARGROUNDJ SENTINEL"
 #  The LOCAL column IS covered and IS green -- it agrees with the interpreted
@@ -350,12 +371,24 @@ if [ "$_arjloc" = 3 ]; then
 else
     echo "  FAIL  argRoundJ local column moved -- $_arjloc of 3 rows. That is the FRAME, not jitArgBake"; fail=1
 fi
-if grep -q 'argument = 7 ' "$T/arj"; then
-    echo "  FAIL  argRoundJ JIT argument column now reads 7 -- jitArgBake HAS LANDED."
-    echo "        RE-PIN THIS ROW TO 7 WITH A SENTENCE (H6). Do not silence it."
-    fail=1
+#  ⚠ RE-PINNED RED -> 7 ON 2026-09-05, SAME DAY, WITH ITS CAUSE (H6, and a
+#  re-pin needs a sentence rather than a green diff). jitArgBake DISCHARGED, and
+#  not by the machinery its BEST GUESS proposed building -- it fell out of item
+#  3's flag hoist. Setting isArgument ABOVE runAction's jitting gate means the
+#  JIT frame prologue's (isLocal || isArgument) walk finally SEES the argument
+#  and gives it an alloca, so the read is a FRAME LOAD fed per activation
+#  instead of a baked absolute address. Confirmed on the emitted IR: jit_jabA
+#  gained `%argument = alloca i32` with its `%prolog` load, where before it had
+#  only `%jabMine`. That IS "feed a slot, stop baking"; the guess was right
+#  about the shape and wrong about the work.
+#  ⚠ THE ROW NOW ASSERTS AGREEMENT WITH THE INTERPRETED ORACLE, which is what it
+#  wanted to say all along -- argRoundT reads 7/7/7 interpreted and this reads
+#  7/7/7 jitted, same fixture body, two engines.
+_arjarg=$(grep -c 'sees argument = 7 ' "$T/arj")
+if [ "$_arjarg" = 3 ]; then
+    echo "  ok    argRoundJ JIT argument column = 7 at all three depths -- agrees with the interpreted oracle"; green=$((green+1))
 else
-    echo "  FAIL  argRoundJ JIT argument column -- jitArgBake OPEN, pinned red BY NAME"
+    echo "  FAIL  argRoundJ JIT argument column moved -- $_arjarg of 3 rows read 7"
     echo "          got:  $(grep -m1 'sees argument' "$T/arj" | sed 's/^ *//')"
     echo "          want: argument = 7, as incant/argRoundT reads it interpreted"
     fail=1
