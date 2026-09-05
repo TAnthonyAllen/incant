@@ -2577,8 +2577,24 @@ testing" — which is why it is gitignored (SEQ 105 R4), the same move as `incan
 untracked is not invisible: LOOK IN ON IT WHEN IT CHANGES, because it is the cheapest signal of
 what Tony is working on, and he will answer questions about it.** Other than that, no worries —
 it never needs reconciling, it is never a finding, and it never blocks a clean kitchen.
-⚠ `IncantForms/WorkingOn/parser` **stays tracked** — it is WIP with an end date (it waits on the
-flip), not a scratch pad.
+⚠⚠ **`IncantForms/WorkingOn/parser` COMMITS WITH ROUTINE WORK, WIP OR NOT — AND IS NEVER LEFT
+DIRTY ACROSS A SEAL (Tony, 2026-09-05).** It stays tracked; it is WIP with an end date, not a
+scratch pad. **"WIP" describes its CONTENT, not its git status.** Same standing rule
+`groups.ext` already has, and Clod commits it under the standing permission without asking.
+
+⚠ **THE SIMPLIFICATION IS THE POINT — THIS RETIRES THREE THINGS RATHER THAN ADDING A FOURTH.**
+Gone with it: any dispatch clause of the form *"do not touch a dirty file"* (there will not be
+one); H8's stash-or-ask question **for this file** (a committed WIP is just history, and H8's
+quarantine clause is for dirt nobody can explain); and every seal line reading *"both repos
+clean **but for** Tony's WIP"*. **The tree is now simply clean, or it is a finding** — no
+exception left in the baseline, which is exactly what the 2026-09-02 retirement of the
+two-named-files clause bought for its predecessors. ⚠ **An exception in a baseline is the thing
+nobody re-examines.**
+
+⚠ **IT DOES NOT EXTEND TO ITS NEIGHBOURS, and the distinction is what the rule turns on:**
+`incant++` is a scratchpad and `tester` changes with whatever Tony is testing, so both stay
+**untracked and gitignored**. `parser` is work with an end date. Scratch stays out of git;
+unfinished work goes in.
 
 ⚠ **FIXIT CITIZENS ARE NOT CLOD'S TO MINT (Rule F2, Tony, 2026-09-01).** A finding goes in the
 **seal**; whether it becomes a citizen in `incant/fixits/` is Tony's or Clay's ruling. Clod may
