@@ -349,6 +349,25 @@ extern int jitBuildFunction(GroupItem action)
     gJitEpilogueBB->insertInto(fn);
     B.SetInsertPoint(gJitEpilogueBB);
 
+    //  ⚠ THE ARM IS CLEARED AT THE EMITTED FUNCTION'S EPILOGUE, MIRRORING
+    //  runAction (Tony, 2026-09-05). The emitted function IS the activation, so
+    //  this is the same boundary the interpreted road clears at -- and without
+    //  it the arm LEAKS: a run-time refusal inside an emitted body would still
+    //  be set when the next inlined check anywhere reads it, and that check
+    //  would fire on someone else's refusal.
+    //  ⚠ IT IS UNREACHABLE TODAY AND IS LANDING AHEAD OF ITS NEED, deliberately.
+    //  Nothing sets the arm at run time on this road yet, because no run-time
+    //  emitted-road helper calls refuse() -- measured, all six. Routing the
+    //  three gated sites (jitDerefRT x2, jitPrintNodeRT) is what makes the leak
+    //  reachable, so the clear lands FIRST and those follow.
+    {
+        void *armAddr = (void*)&(GroupControl::groupController->groupRules->refused);
+        llvm::Value *armP = B.CreateIntToPtr(
+            llvm::ConstantInt::get(llvm::Type::getInt64Ty(C), (uint64_t)armAddr),
+            llvm::PointerType::getUnqual(C));
+        B.CreateStore(llvm::ConstantInt::get(llvm::Type::getInt32Ty(C), 0), armP);
+    }
+
     // ================= FRAME EPILOGUE (Increment 1, 2026-08-01) =================
     // Store each frame slot back to the field's own storage, so the interpreter
     // and every later run see the action's effect. Walk order is the prologue's;
