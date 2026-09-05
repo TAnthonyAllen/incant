@@ -8482,6 +8482,11 @@ extern "C" GroupItem *opAND(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *opAddAttribute(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	/*  THE STORE RULING: an armed statement stores nothing.
+	Instruct.opAddAttribute.storeRuling  */
+	if ( ruler->refused )
+		return 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->prior(grup) )
 			target->addAttribute(grup);
@@ -8742,7 +8747,12 @@ extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *opDivEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
-	if ( GroupControl::groupController->groupRules->jitting )
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	/*  THE STORE RULING: an armed statement stores nothing.
+	Instruct.opDivEQ.storeRuling  */
+	if ( ruler->refused )
+		return 0;
+	if ( ruler->jitting )
 		{
 		 jitEmitBinary(argument, target, jitSDiv);
 		return jitEmitAssign(target, target); 
@@ -9288,7 +9298,12 @@ extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *opMinusEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
-	if ( GroupControl::groupController->groupRules->jitting )
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	/*  THE STORE RULING: an armed statement stores nothing.
+	Instruct.opMinusEQ.storeRuling  */
+	if ( ruler->refused )
+		return 0;
+	if ( ruler->jitting )
 		{
 		 jitEmitBinary(argument, target, jitSub);
 		return jitEmitAssign(target, target); 
@@ -9318,8 +9333,8 @@ GroupItem 	*result = 0;
 				difference -- incant/divT's c4 row is that test.  */
 				break;
 			case 5:
-				GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() - argument->getNumber());
-				target->groupBody->gCount = GroupControl::groupController->groupRules->tempField->getCount();
+				ruler->tempField->setNumber(target->getNumber() - argument->getNumber());
+				target->groupBody->gCount = ruler->tempField->getCount();
 				break;
 			case 9:
 				target->groupBody->gNumber -= argument->getNumber();
@@ -9349,6 +9364,11 @@ GroupItem 	*result = 0;
 ***************************************************************************/
 extern "C" GroupItem *opMinusMinus(GroupItem *result)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	/*  THE STORE RULING: an armed statement stores nothing.
+	Instruct.opMinusMinus.storeRuling  */
+	if ( ruler->refused )
+		return 0;
 	if ( result->groupBody->flags.isIterator )
 		{
 		/*******************************************************************
@@ -9366,7 +9386,7 @@ extern "C" GroupItem *opMinusMinus(GroupItem *result)
 		The arm below is untouched and remains the definition of correct;
 		jitEmitIterStepBack emits a CALL TO THIS FUNCTION so the two cannot
 		drift.   Instruct.opMinusMinus.iterGate  */
-		if ( GroupControl::groupController->groupRules->jitting )
+		if ( ruler->jitting )
 			{
 			 return jitEmitIterStepBack(result); 
 			}
@@ -9377,14 +9397,14 @@ extern "C" GroupItem *opMinusMinus(GroupItem *result)
 			iterator = result->getGroup();
 			iterator = iterator->priorInParent;
 			}
-		GroupControl::groupController->groupRules->lastREF->groupBody->gGroup = iterator;
-		GroupControl::groupController->groupRules->lastREF->groupBody->flags.data = 6;
+		ruler->lastREF->groupBody->gGroup = iterator;
+		ruler->lastREF->groupBody->flags.data = 6;
 		result->setGroup(iterator);
 		if ( !iterator )
 			result = 0;
 		return result;
 		}
-	if ( GroupControl::groupController->groupRules->jitting )
+	if ( ruler->jitting )
 		{
 		 return jitEmitUnary(result, jitDec); 
 		}
@@ -9468,7 +9488,12 @@ extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 extern "C" GroupItem *opMultiplyEQ(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
-	if ( GroupControl::groupController->groupRules->jitting )
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	/*  THE STORE RULING: an armed statement stores nothing.
+	Instruct.opMultiplyEQ.storeRuling  */
+	if ( ruler->refused )
+		return 0;
+	if ( ruler->jitting )
 		{
 		 jitEmitBinary(argument, target, jitMul);
 		return jitEmitAssign(target, target); 
@@ -9477,8 +9502,8 @@ GroupItem 	*result = 0;
 		{
 		if ( isCOUNT(target->groupBody->flags.data) )
 			{
-			GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() * argument->getNumber());
-			target->groupBody->gCount = GroupControl::groupController->groupRules->tempField->getCount();
+			ruler->tempField->setNumber(target->getNumber() * argument->getNumber());
+			target->groupBody->gCount = ruler->tempField->getCount();
 			}
 		else
 		if ( isNUMBER(target->groupBody->flags.data) )
@@ -9649,11 +9674,16 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	/*  THE STORE RULING: an armed statement stores nothing.
+	Instruct.opPlusEQ.storeRuling  */
+	if ( ruler->refused )
+		return 0;
 	if ( isLIST(argument->groupBody->flags.binType) && (!target->groupBody->flags.data || isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) )
 		{
-		if ( GroupControl::groupController->groupRules->jitting )
+		if ( ruler->jitting )
 			jitDegrade("+= list-concat into a string target",target);
-		Buffer *concatBuf = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
+		Buffer *concatBuf = (Buffer*)ruler->bufferSTAK->pop();
 		if ( !concatBuf )
 			concatBuf = new Buffer("concat buffer");
 		if ( target->groupBody->flags.data )
@@ -9663,14 +9693,14 @@ extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 		}
 	if ( isLIST(argument->groupBody->flags.binType) )
 		{
-		if ( GroupControl::groupController->groupRules->jitting )
+		if ( ruler->jitting )
 			jitDegrade("+= copyListTo a list argument",target);
 		argument->copyListTo(target);
 		}
 	else
 	if ( !target->groupBody->flags.isRule && !target->groupBody->flags.actionType && (target->groupBody->flags.binType || target->groupBody->groupList) )
 		{
-		if ( GroupControl::groupController->groupRules->jitting )
+		if ( ruler->jitting )
 			jitDegrade("+= structural append (binType/groupList)",target);
 		target->addMember(argument);
 		}
@@ -9680,16 +9710,16 @@ extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 			switch (target->groupBody->flags.data)
 				{
 				case 5:
-					if ( GroupControl::groupController->groupRules->jitting )
+					if ( ruler->jitting )
 						{
 						 jitEmitBinary(argument, target, jitAdd);
 						return jitEmitAssign(target, target); 
 						}
-					GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() + argument->getNumber());
-					target->groupBody->gCount = GroupControl::groupController->groupRules->tempField->getCount();
+					ruler->tempField->setNumber(target->getNumber() + argument->getNumber());
+					target->groupBody->gCount = ruler->tempField->getCount();
 					break;
 				case 9:
-					if ( GroupControl::groupController->groupRules->jitting )
+					if ( ruler->jitting )
 						{
 						 jitEmitBinary(argument, target, jitAdd);
 						return jitEmitAssign(target, target); 
@@ -9698,34 +9728,34 @@ extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 					break;
 				case 13:
 				case 14:
-					if ( GroupControl::groupController->groupRules->jitting )
+					if ( ruler->jitting )
 						return jitEmitStringPlusEQ(argument,target);
 					target->setText(::concat(2,target->getText(),argument->getText()));
 					break;
 				case 4:
-					if ( GroupControl::groupController->groupRules->jitting )
+					if ( ruler->jitting )
 						jitDegrade("+= on a Buffer target",target);
 					target->getBuffer()->appendString(argument->getText(),0,0);
 					// if buffer mark is set, argument is inserted into buffer at mark
 					// otherwise it is appended at end of buffer. mark is left as is
 					break;
 				case 12:
-					if ( GroupControl::groupController->groupRules->jitting )
+					if ( ruler->jitting )
 						jitDegrade("+= on a Stak target",target);
 					target->groupBody->gStak->push(argument);
 					break;
 				default:
-					if ( GroupControl::groupController->groupRules->jitting )
+					if ( ruler->jitting )
 						jitDegrade("+= on an unhandled datA",target);
 					else	::fprintf(stderr,"ERROR Operator += failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
 				}
 		else {
-			if ( GroupControl::groupController->groupRules->jitting )
+			if ( ruler->jitting )
 				jitDegrade("+= into a target with no datA",target);
 			target->copyData(argument);
 			}
 	else {
-		if ( GroupControl::groupController->groupRules->jitting )
+		if ( ruler->jitting )
 			jitDegrade("+= with a dataless argument",target);
 		target->addMember(argument);
 		}
@@ -9737,6 +9767,11 @@ extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opPlusPlus(GroupItem *result)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	/*  THE STORE RULING: an armed statement stores nothing.
+	Instruct.opPlusPlus.storeRuling  */
+	if ( ruler->refused )
+		return 0;
 	/*  POISONED ITERATOR (Tony's ruling, 2026-08-02). Its only reader is here.
 	The refusal was already announced once at the Iterate; this is silent
 	and simply does not move, so the enclosing `while` exits on the false
@@ -9756,7 +9791,7 @@ extern "C" GroupItem *opPlusPlus(GroupItem *result)
 		visited 3. The arm below is untouched and remains the definition of
 		correct; jitEmitIterStep emits a CALL TO THIS FUNCTION so the two
 		cannot drift.  */
-		if ( GroupControl::groupController->groupRules->jitting )
+		if ( ruler->jitting )
 			{
 			 return jitEmitIterStep(result); 
 			}
@@ -9795,8 +9830,8 @@ extern "C" GroupItem *opPlusPlus(GroupItem *result)
 		else	iterator = iterator->nextInParent;
 		if ( iterator )
 			{
-			GroupControl::groupController->groupRules->lastREF->groupBody->gGroup = iterator;
-			GroupControl::groupController->groupRules->lastREF->groupBody->flags.data = 6;
+			ruler->lastREF->groupBody->gGroup = iterator;
+			ruler->lastREF->groupBody->flags.data = 6;
 			iterator->groupBody->flags.isInitialized = 1;
 			result->setGroup(iterator);
 			}
@@ -9806,7 +9841,7 @@ extern "C" GroupItem *opPlusPlus(GroupItem *result)
 			}
 		return result;
 		}
-	if ( GroupControl::groupController->groupRules->jitting )
+	if ( ruler->jitting )
 		{
 		 return jitEmitUnary(result, jitInc); 
 		}
@@ -9873,6 +9908,11 @@ char 		*printText = buffer->string();
 ***************************************************************************/
 extern "C" GroupItem *opRebind(GroupItem *argument, GroupItem *target)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	/*  THE STORE RULING: an armed statement stores nothing.
+	Instruct.opRebind.storeRuling  */
+	if ( ruler->refused )
+		return 0;
 	if ( argument )
 		target->setGroup(argument);
 	return target;
@@ -9906,6 +9946,11 @@ extern "C" GroupItem *opReplaceAttribute(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
 GroupItem 	*added = 0;
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	/*  THE STORE RULING: an armed statement stores nothing.
+	Instruct.opReplaceAttribute.storeRuling  */
+	if ( ruler->refused )
+		return 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->prior(grup) )
 			{
@@ -9926,6 +9971,11 @@ extern "C" GroupItem *opReplaceMember(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*grup = 0;
 GroupItem 	*added = 0;
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	/*  THE STORE RULING: an armed statement stores nothing.
+	Instruct.opReplaceMember.storeRuling  */
+	if ( ruler->refused )
+		return 0;
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->prior(grup) )
 			{
@@ -9951,6 +10001,10 @@ extern "C" GroupItem *opSetFlag(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*flagDef = 0;
+	/*  THE STORE RULING: an armed statement stores nothing.
+	Instruct.opSetFlag.storeRuling  */
+	if ( ruler->refused )
+		return 0;
 	if ( !argument )
 		if ( ruler->lastREF )
 			{
@@ -10073,6 +10127,11 @@ GroupItem 	*flagDef = 0;
 ***************************************************************************/
 extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	/*  THE STORE RULING: an armed statement stores nothing.
+	Instruct.opSetGroup.storeRuling  */
+	if ( ruler->refused )
+		return 0;
 	if ( target )
 		target->setGroup(argument);
 	return target;
@@ -10083,6 +10142,11 @@ extern "C" GroupItem *opSetGroup(GroupItem *argument, GroupItem *target)
 ***************************************************************************/
 extern "C" GroupItem *opSetTag(GroupItem *argument, GroupItem *target)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	/*  THE STORE RULING: an armed statement stores nothing.
+	Instruct.opSetTag.storeRuling  */
+	if ( ruler->refused )
+		return 0;
 	if ( argument )
 		target->groupBody->tag = argument->getText();
 	return target;

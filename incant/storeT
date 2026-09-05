@@ -1,0 +1,69 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(StoreT);
+define
+    swBag;
+    swOther=9;
+    swAssign=101; swSetGroup=102; swRebind=103; swSetTag=104;
+    swPlusEQ=105;  swMinusEQ=106; swMultEQ=107; swDivEQ=108;
+    swAddAttr=109; swReplM=110;   swReplA=111;
+    wAssign   code={ swAssign   =  swBag +* Grokking["swNoRule"]; };
+    wSetGroup code={ swSetGroup := swBag +* Grokking["swNoRule"]; };
+    wRebind   code={ swRebind   <- swBag +* Grokking["swNoRule"]; };
+    wSetTag   code={ swSetTag   <: swBag +* Grokking["swNoRule"]; };
+    wPlusEQ   code={ swPlusEQ   += swBag +* Grokking["swNoRule"]; };
+    wMinusEQ  code={ swMinusEQ  -= swBag +* Grokking["swNoRule"]; };
+    wMultEQ   code={ swMultEQ   *= swBag +* Grokking["swNoRule"]; };
+    wDivEQ    code={ swDivEQ    /= swBag +* Grokking["swNoRule"]; };
+    wAddAttr  code={ swAddAttr  +% swBag +* Grokking["swNoRule"]; };
+    wReplM    code={ swReplM    :+ swBag +* Grokking["swNoRule"]; };
+    wReplA    code={ swReplA    :% swBag +* Grokking["swNoRule"]; };
+    swRun code={
+        wAssign();   print "SW = "  swAssign   " (want 101)":;
+        wSetGroup(); print "SW := " swSetGroup " (want 102)":;
+        wRebind();   print "SW <- " swRebind   " (want 103)":;
+        wSetTag();   print "SW <: " swSetTag   " (want 104)":;
+        wPlusEQ();   print "SW += " swPlusEQ   " (want 105)":;
+        wMinusEQ();  print "SW -= " swMinusEQ  " (want 106)":;
+        wMultEQ();   print "SW *= " swMultEQ   " (want 107)":;
+        wDivEQ();    print "SW /= " swDivEQ    " (want 108)":;
+        wAddAttr();  print "SW +% " swAddAttr  " (want 109)":;
+        wReplM();    print "SW :+ " swReplM    " (want 110)":;
+        wReplA();    print "SW :% " swReplA    " (want 111)":;
+        };
+    ;
+swRun();
+print "STORET SENTINEL -- reached the foot":;
+stop();
+
+storeT -- THE WRITERS CENSUS, ONE ROW PER WRITER.
+
+Tony ruled 2026-09-05 that AN ARMED STATEMENT STORES NOTHING. opAssign was the
+first writer taught to consult the arm; this file is the census that found the
+other thirteen and the certificate that each one consults it.
+
+EVERY ROW IS THE SAME SHAPE, deliberately: a target holding a DISTINCT starting
+value, and one statement whose right-hand side refuses before the write. The
+target must come back UNCHANGED.
+
+⚠ THE STARTING VALUES ARE ALL DIFFERENT (101..111) AND THAT IS NOT DECORATION.
+A row wanting 0, or wanting the same number as its neighbour, could be satisfied
+by a field that was never written, or by a write that landed on the wrong field.
+A distinct non-zero value can only be there because THAT field was left alone.
+
+⚠ THE REFUSAL COMES FROM `+*` ON A SUBSCRIPT MISS, not from a star. Once
+operand-producing operators refuse terminally, a star in front would arm FIRST
+and the row could no longer say which writer was being tested. Grokking["swNoRule"]
+is a genuine null with no refusal ahead of it.
+
+⚠⚠ TWO WRITERS ARE NOT CERTIFIED HERE AND THE REASON IS STRUCTURAL, NOT
+LAZINESS. `++` and `--` are UNARY: there is nothing to their left in a statement
+that could arm before they write, so a single statement cannot both raise a
+refusal and reach them. They carry the consult -- it is in the source -- but
+this file cannot exercise it, and saying so is better than a row that looks like
+a test and is not.
+
+ONE stop(), sentinel at the foot.

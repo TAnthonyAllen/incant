@@ -55,6 +55,10 @@ GroupItem   result;
 extern GroupItem opAddAttribute(GroupItem argument,GroupItem target)
 {
 GroupItem   grup;
+GroupRules  ruler = groupRules;
+    /*  THE STORE RULING: an armed statement stores nothing.
+        Instruct.opAddAttribute.storeRuling  */
+    if ruler.refused    return null;
     if argument.isLIST
         while grup = argument.prior(grup)
             target +% grup;
@@ -306,6 +310,10 @@ extern GroupItem opDiv(GroupItem argument,GroupItem target)
 extern GroupItem opDivEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   result;
+GroupRules  ruler = groupRules;
+    /*  THE STORE RULING: an armed statement stores nothing.
+        Instruct.opDivEQ.storeRuling  */
+    if ruler.refused    return null;
     if jitting {
         -% jitEmitBinary(argument, target, jitSDiv);
            return jitEmitAssign(target, target); %-
@@ -663,6 +671,10 @@ extern GroupItem opMinus(GroupItem argument,GroupItem target)
 extern GroupItem opMinusEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   result;
+GroupRules  ruler = groupRules;
+    /*  THE STORE RULING: an armed statement stores nothing.
+        Instruct.opMinusEQ.storeRuling  */
+    if ruler.refused    return null;
     if jitting {
         -% jitEmitBinary(argument, target, jitSub);
            return jitEmitAssign(target, target); %-
@@ -707,6 +719,10 @@ use target
 ***************************************************************************/
 extern GroupItem opMinusMinus(GroupItem result)
 {
+GroupRules  ruler = groupRules;
+    /*  THE STORE RULING: an armed statement stores nothing.
+        Instruct.opMinusMinus.storeRuling  */
+    if ruler.refused    return null;
     if isIterator {
         /*******************************************************************
             note: because result is an iterator it is not unwrapped in runOP()
@@ -800,6 +816,10 @@ extern GroupItem opMultiply(GroupItem argument,GroupItem target)
 extern GroupItem opMultiplyEQ(GroupItem argument,GroupItem target)
 {
 GroupItem   result;
+GroupRules  ruler = groupRules;
+    /*  THE STORE RULING: an armed statement stores nothing.
+        Instruct.opMultiplyEQ.storeRuling  */
+    if ruler.refused    return null;
     if jitting {
         -% jitEmitBinary(argument, target, jitMul);
            return jitEmitAssign(target, target); %-
@@ -953,6 +973,10 @@ extern GroupItem opPlus(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opPlusEQ(GroupItem argument,GroupItem target)
 {
+GroupRules  ruler = groupRules;
+    /*  THE STORE RULING: an armed statement stores nothing.
+        Instruct.opPlusEQ.storeRuling  */
+    if ruler.refused    return null;
 use target
     if argument.isLIST && (!data || isSTRING || isTOKEN) {
         if jitting  jitDegrade("+= list-concat into a string target",target);
@@ -1013,6 +1037,10 @@ use target
 ***************************************************************************/
 extern GroupItem opPlusPlus(GroupItem result)
 {
+GroupRules  ruler = groupRules;
+    /*  THE STORE RULING: an armed statement stores nothing.
+        Instruct.opPlusPlus.storeRuling  */
+    if ruler.refused    return null;
     /*  POISONED ITERATOR (Tony's ruling, 2026-08-02). Its only reader is here.
         The refusal was already announced once at the Iterate; this is silent
         and simply does not move, so the enclosing `while` exits on the false
@@ -1128,6 +1156,10 @@ String      printText   = string();
 ***************************************************************************/
 extern GroupItem opRebind(GroupItem argument,GroupItem target)
 {
+GroupRules  ruler = groupRules;
+    /*  THE STORE RULING: an armed statement stores nothing.
+        Instruct.opRebind.storeRuling  */
+    if ruler.refused    return null;
     if argument target.group = argument;
     return      target;
 }
@@ -1160,6 +1192,10 @@ extern GroupItem opReplaceAttribute(GroupItem argument,GroupItem target)
 {
 GroupItem   grup,
             added;
+GroupRules  ruler = groupRules;
+    /*  THE STORE RULING: an armed statement stores nothing.
+        Instruct.opReplaceAttribute.storeRuling  */
+    if ruler.refused    return null;
     if argument.isLIST
         while grup = argument.prior(grup) {
             added = target.replace(grup);
@@ -1178,6 +1214,10 @@ extern GroupItem opReplaceMember(GroupItem argument,GroupItem target)
 {
 GroupItem   grup,
             added;
+GroupRules  ruler = groupRules;
+    /*  THE STORE RULING: an armed statement stores nothing.
+        Instruct.opReplaceMember.storeRuling  */
+    if ruler.refused    return null;
     if argument.isLIST
         while grup = argument.prior(grup) {
             added = target.replace(grup);
@@ -1201,6 +1241,9 @@ extern GroupItem opSetFlag(GroupItem argument,GroupItem target)
 {
 GroupRules  ruler = groupRules;
 GroupItem   flagDef;
+    /*  THE STORE RULING: an armed statement stores nothing.
+        Instruct.opSetFlag.storeRuling  */
+    if ruler.refused    return null;
 use argument
     if !argument
         if lastREF {
@@ -1294,6 +1337,10 @@ use argument
 ***************************************************************************/
 extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
 {
+GroupRules  ruler = groupRules;
+    /*  THE STORE RULING: an armed statement stores nothing.
+        Instruct.opSetGroup.storeRuling  */
+    if ruler.refused    return null;
     if target   target.setGroup(argument);
     return      target;
 }
@@ -1304,6 +1351,10 @@ extern GroupItem opSetGroup(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opSetTag(GroupItem argument,GroupItem target)
 {
+GroupRules  ruler = groupRules;
+    /*  THE STORE RULING: an armed statement stores nothing.
+        Instruct.opSetTag.storeRuling  */
+    if ruler.refused    return null;
     if argument target.tag = argument.text;
     return      target;
 }

@@ -1804,6 +1804,42 @@ fi
 #  for loop in the system would run BACKWARDS. Nothing else in the fleet can see
 #  that, because a backwards walk is still a walk.
 #  ============================================================================
+#  ⚠ storeT -- THE WRITERS CENSUS. AN ARMED STATEMENT STORES NOTHING.
+#  Tony ruled it 2026-09-05; opAssign was the first writer taught to consult the
+#  arm and this is the census that found the other thirteen. Eleven are
+#  certified here, one row each, same shape: a target holding a DISTINCT value
+#  and one statement whose right-hand side refuses before the write.
+#
+#  ⚠ THE ELEVEN STARTING VALUES ARE ALL DIFFERENT (101..111) AND THAT IS THE
+#  ANTI-VACUITY. A row wanting 0, or wanting its neighbour's number, could be
+#  satisfied by a field never written or by a write that landed on the wrong
+#  field. A distinct non-zero value can only be there because THAT field was
+#  left alone.
+#
+#  ⚠ H7 CONTROL RUN, NOT CLAIMED: opSetGroup's consult removed and rebuilt makes
+#  the `:=` row read `swSetGroup` -- the tag echo of a BLANKED field -- and
+#  restoring it returns 102. So these rows are not vacuous: without the consult
+#  the writer genuinely destroys its target.
+#
+#  ⚠ ++ AND -- ARE NOT CERTIFIED AND THE REASON IS STRUCTURAL. They are UNARY:
+#  nothing to their left in a statement can arm before they write, so one
+#  statement cannot both raise a refusal and reach them. They carry the consult
+#  in source; this file cannot exercise it, and saying so beats a row that looks
+#  like a test and is not.
+run1 storeT "$T/stw"; check "storeT runs" 0 $?
+sentinel "storeT sentinel (no truncation)" "$T/stw" "STORET SENTINEL"
+_swn=0
+for _w in "=  101" ":=  102" "<-  103" "<:  104" "+=  105" "-=  106" "*=  107" "/=  108" "+%  109" ":+  110" ":%  111"; do
+    if grep -qF "SW $_w (want" "$T/stw"; then _swn=$((_swn+1)); fi
+done
+if [ "$_swn" = 11 ]; then
+    echo "  ok    storeT all 11 writers consult the arm -- targets UNCHANGED -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  storeT $_swn of 11 writers left their target alone -- a writer stopped"
+    echo "        consulting the arm and is blanking its target on a refused rhs."; fail=1
+fi
+
+#  ============================================================================
 #  ⚠ sentinelT -- THE SENTINEL-AS-DATA PROMOTIONS, one section per site.
 #  A sentinel-as-data site announced a failure and then handed its caller a
 #  VALUE THAT LOOKED LIKE A SUCCESSFUL ANSWER -- so the failure reached a human
