@@ -95,7 +95,7 @@
 #   you read the radius. This week was the slow kind and the instruments were the
 #   right kit; a one-operator stroke plays fast.
 #
-#   ## ⚠ TONY\'S, NOT CLOD\'S — AND THE PAUSE IS HERE
+#   ## ⚠ TONY'S, NOT CLOD'S — AND THE PAUSE IS HERE
 #   - **`tester` IS DEAD until three `argument` declarations are deleted.** Its
 #     three live actions are refused by name and not installed; it is UNTRACKED so
 #     no sweep can reach it. The file runs to exit 0 and does nothing.
