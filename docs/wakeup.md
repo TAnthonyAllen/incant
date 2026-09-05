@@ -1,3 +1,132 @@
+# ⚠⚠⚠ SEALED 2026-09-05 — THE FLIP LANDED AND THE SWITCH IS GONE. `argument` IS A
+# BINDING, A REFUSAL IS TERMINAL, AND `gNoUnwrap` NO LONGER EXISTS. 41 COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-05 14:28 and
+#   `git log -1 --date=iso` stamps 2026-09-05 14:01. They agree.
+#
+#   ## THE ONE-LINE STATE: **the auto-unwrap is REMOVED from the language — not
+#   gated off, removed; `argument` resolves to the passed field by address; and a
+#   refusal ENDS THE UNIT THAT RAISED IT, activation at run time and definition at
+#   define time.** Fleet **199 green / 1 parked**, ladder **208 / 3**, canary
+#   **352** = 316 + 21 + 15, frontier **exit 0, station 2**, ddPop 5, countPop
+#   0-of-40, decodePop 14, formsPop 14. All three repos clean and pushed.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. `gNoUnwrap` IS GONE.** Eleven live gates deleted plus the declaration.
+#   The delete was behaviour-neutral BY CONSTRUCTION — every bare arm was dead the
+#   moment the trunk became the flip — and the certificate is that the fleet was
+#   byte-identical through it. ⚠ **Do not go looking for the switch to check an
+#   arm; there are no arms.** One dated comment survives at `Instruct.rtn:261` and
+#   is a record, not a gate.
+#
+#   **b. ⚠ THE FRONTIER LOST NINE STATIONS TO THE FLIP, AND THAT IS NOW PERMANENT.**
+#   The 09-04 seal reads *"frontier exit 0, 10 PASS"*. It now reads **1 PASS,
+#   stopping at STATION 2**. Measured at THIS session's start, flip on, BEFORE any
+#   edit — so it is the flip's cost and not this session's work. It was a
+#   temporary condition all week; it is the standing state now. **A reader
+#   comparing the two seals will otherwise read a nine-station regression.**
+#
+#   **c. THE ARGUMENT BINDING (try-and-buy B, bought).** Bare `argument` IS the
+#   passed field; `*argument` reads one level BELOW it; it can be WRITTEN THROUGH
+#   (`=` is setContent and reaches the caller) and never REBOUND (`:=`, `<-`
+#   refuse by name). ⚠ **One edit served both roads** — runOP's operand fetch is
+#   upstream of `jitSeedField` — which is why B came in small. Three sites total:
+#   `runOP`, `aCTionIterate`, `jitEmitBareRead`, the third because print items are
+#   seeded outside runOP. designDocs `ArgBinding`.
+#
+#   **d. A REFUSAL IS TERMINAL FOR THE UNIT THAT RAISED IT.** One funnel,
+#   `refuse()`, an arm on GroupRules, checked by `aCTionBlocK`, cleared by
+#   `runAction` at the activation boundary and by `aCTionDefinE` at the DEFINITION
+#   boundary. ⚠ **The define-time clear is not a detail:** without it the first
+#   declared `argument` in a file killed every later definition in it — fleet
+#   171 → 107.
+#
+#   **e. AN ARMED STATEMENT STORES NOTHING — and the check is NOT where it looks.**
+#   At runOP's entry it never fires, because **an assignment dispatches BEFORE its
+#   own right-hand side** (`op== refused=0` then `op=+*`, refusal later still). It
+#   belongs in `opAssign`, where the store is. Fourteen writers consult the arm;
+#   `storeT` certifies eleven, and `++`/`--` cannot be certified because they are
+#   unary and nothing to their left can arm first.
+#
+#   **f. `*x` ON A NO-GROUP FIELD YIELDS NULL AND DOES NOT REFUSE.** Refusal is for
+#   CATEGORY errors. ⚠ **It has two halves** — making `opDeref` silent alone put
+#   f31 back to exit 142, because `aCTionIterate`'s null arm had been deliberately
+#   silent *"the star already spoke"*. The consumer refuses now, and names the
+#   construct the writer typed. **STAR paid for itself: fleet 188 → 198, ten rows
+#   recovered on their ORIGINAL assertions.**
+#
+#   **g. B WAS 40 SITES, NOT 92, AND THE PLANNER MUST NEVER BE ROUTED.**
+#   `planRule`/`planTerm`/`emitPlan`/`genKant` refuse as a NORMAL ANSWER their
+#   caller handles — the odometer is **46 refusals of 64 rules, red by design, all
+#   in ONE walk**. Routing them would have armed on the first unplannable rule and
+#   destroyed it. The word `ERROR` is now pinned at zero for that family precisely
+#   so the reading cannot be made again.
+#
+#   ## ⚠ WHAT WAS BUILT AND THROWN AWAY, so nobody rebuilds it
+#
+#   **LINE.** A statement DOES carry a define-time line (`rStuff.sourceLine`), so
+#   the recon said yes. **The count is not the writer's file line**: argBindT
+#   reported 10 for statements at 16 and 17; f31 reported 11 for an iterate at 45;
+#   `sourceLINE` reads 8,9,10 for definitions at 9,19,29. **Neither source gives
+#   the line a reader would look at.** Reverted in full; the knowledge is at the
+#   site in `refuse()`, with *do not chase it*.
+#
+#   ## ⚠ THREE THINGS I GOT WRONG AND CORRECTED IN THE OPEN
+#
+#   - **The sweep certificate was FALSE twice.** "declared-argument = 0" was
+#     measured with a regex matching `NAME argument code=`, which misses every
+#     declaration with an attribute in between. Six live sites survived it. H9's
+#     exact shape: matched the SURFACE FORM, not the family.
+#   - **The sentinel-as-data set was six, not seven, and two of the six were not
+#     sentinels.** `getMarkLineAt`'s `result` is a bare local already `= 0`;
+#     `opPlusPlus`'s is the PARAMETER. Reading the name instead of the declaration
+#     is what got it wrong.
+#   - **I overwrote Tony's dirty `parser`** with a path-scoped `git checkout`,
+#     the one file the dispatch said not to touch. Recovered byte-exact from a
+#     scratchpad copy (md5 4332f666). Provably lossless; that was an earlier copy,
+#     not process.
+#
+#   ## THE STANDING ORDER, and it is Tony's
+#   **Try fast.** A try-and-buy is cut from trunk, built, run, bought or not.
+#   **No buy: back out to clean and take the long road** — capture, one change,
+#   measure, repeat — until it buys. **pop.sh after every build regardless. The
+#   seal is once per session.** Caution scales with BLAST RADIUS; the claim is how
+#   you read the radius. This week was the slow kind and the instruments were the
+#   right kit; a one-operator stroke plays fast.
+#
+#   ## ⚠ TONY\'S, NOT CLOD\'S — AND THE PAUSE IS HERE
+#   - **`tester` IS DEAD until three `argument` declarations are deleted.** Its
+#     three live actions are refused by name and not installed; it is UNTRACKED so
+#     no sweep can reach it. The file runs to exit 0 and does nothing.
+#   - **`parser` runs but reads one level too deep.** `arg := *argument` and
+#     `iterate … on *argument` are A-era; the bare form makes the whole walk run
+#     clean with no errors at all. Measured, not guessed.
+#   - **`scopeUnits` had drifted and was regenerated** — its one-hunk guarantee had
+#     silently stopped being true since 17d3642, with the SAME VARIABLE as the
+#     intended one, so it never inverted, it just stopped being single-variable.
+#
+#   ## HOUSEKEEPING
+#   - **41 commits.** Groups, support and TOK all 0 dirty / 0 unpushed. ⚠ The
+#     `parser`-exception clause is retired: it commits with routine work now, so a
+#     dirty tree is a FINDING and not a standing state.
+#   - **`groups.ext` touched twice** — `refused` added, then removed with the
+#     switch; both committed, per bear-trap #11.
+#   - **Bear-trap 49 minted**: a flip is not measured until the binary is rebuilt
+#     at source truth. `pop.sh` carries the binary-vs-source check, which OUTLIVES
+#     the switch it was paid for.
+#   - **Two fixture families still owe the respell pass**: the 18 rows absent
+#     because a fixture drives N refusals from ONE action, and the 4 spacingT rows
+#     red before any of this — **two different facts, and the respell pass opens on
+#     spacingT A–D reading `LEAF` against a tag-echo pin.**
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: jitArgBake, since 2026-09-05)`
+#   `jitArgBake` (REMEDY, discharged, awaiting retirement ruling) · `namedReadTwoRoads`
+#   (OPEN, the two roads B did not fix) · `refusalNotTerminal` (its driver is a
+#   NEGATIVE CONTROL — the minimal shape does not reproduce). All three steppable.
+#   Step one, or name which goes first.
+#
 # ⚠⚠⚠ SEALED 2026-09-04, SECOND SESSION — THE CLEANUP ARC. TWELVE STROKES, THREE
 # FILES EMPTIED INTO TWO NEW HOMES, TWO RETIREMENTS, A THIRD REPOSITORY, AND
 # FIVE FINDINGS THE MOVES PAID FOR. SIXTEEN COMMITS.
