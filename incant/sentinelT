@@ -1,0 +1,70 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(SentinelT);
+define
+    stBag;
+    stNull;
+    stRead=111;
+    stAfter=0;
+    stAddPtr code={
+        stRead = stBag +* Grokking["stNoSuchRule"];
+        stAfter = 1;
+        };
+    stRun code={
+        stAddPtr();
+        print "ST-1 caller read       =" stRead " (want stRead -- BLANKED; the refusal's null was assigned)":;
+        print "ST-1 statement after   =" stAfter " (want 0 -- the statement after a refusal does not run)":;
+        };
+    ;
+stRun();
+print "SENTINELT SENTINEL -- reached the foot":;
+stop();
+
+sentinelT -- THE SENTINEL-AS-DATA PROMOTIONS, one section per site.
+
+A sentinel-as-data site announces a failure and then hands its caller A VALUE
+THAT LOOKS LIKE A SUCCESSFUL ANSWER -- `target`, `tempField`, `result`. The
+caller cannot tell the refusal from a result, which is the whole defect: the
+failure is reported to a human on stderr and concealed from the program.
+
+Tony ruled these promoted one at a time, 2026-09-05, each with two rows:
+THE CALLER'S READ OF THE NULL, and the F-41-style row that THE STATEMENT AFTER
+DOES NOT RUN. Both are needed and neither implies the other -- a site could
+start returning null while the block carried on, or could terminate while still
+handing back a value.
+
+    ST-1  opAddPointer   returned `target`
+
+⚠⚠ AND THE CALLER'S READ IS THE FINDING, NOT THE FORMALITY. It was PREDICTED to
+stay at 111 -- the refusal returns null, so surely nothing is written. It does
+not. stRead reads back as its OWN TAG, which is bear-trap #26's signature for a
+field with no data: THE ASSIGNMENT TOOK, AND IT WROTE THE NULL.
+
+So a refusal inside an expression BLANKS THE ASSIGNMENT TARGET. The refusal is
+terminal for the ACTION -- the statement after really does not run -- but the
+refusing statement itself completes far enough to destroy its own target. That
+is a consequence of the ruling nobody stated, and it is pinned here BY VALUE so
+it cannot change quietly. Leaving the target alone would need opAssign to read
+the arm before storing, which is a decision and not a repair.
+
+⚠ THE TWO ROWS STILL PULL OPPOSITE WAYS, which is why both are kept: the caller
+row says WHAT the refusal handed back, the after row says THAT the activation
+stopped. A site returning null but carrying on would pass the first and fail the
+second; one that stopped while still handing back `target` would show 111 here
+and fail the first.
+
+⚠ AND stRead's 111 IS A REAL STARTING VALUE, not a default. A row wanting 0
+could be satisfied by a field that was never written at all; 111 can only be
+there because nothing overwrote it.
+
+⚠⚠ THE NULL OPERAND COMES FROM A SUBSCRIPT MISS, NOT FROM ANOTHER REFUSAL, AND
+THAT IS DELIBERATE. incant/pointerT's F2 makes its null with `ptBagN +* *ptOther`
+-- the STAR refuses and hands +* the null. That was fine while a refusal only
+announced; now the star's refusal ARMS FIRST, so the block would stop on the
+STAR and the row could not say which refusal did it. `Grokking["stNoSuchRule"]`
+is a genuine null with no refusal in front of it, so ST-1 isolates opAddPointer.
+
+ONE stop(), sentinel at the foot.

@@ -8507,8 +8507,12 @@ GroupItem 	*ptr = 0;
 		{
 		/*  F-43: name TARGET explicitly. Bare `tag` resolved to `ptr` -- declared
 		above and still null here -- so this guard crashed instead of refusing.   Instruct.opAddPointer.f43  */
-		::fprintf(stderr,"ERROR Operator +* failed on %s and a refused operand\n",target->groupBody->tag);
-		return target;
+		/*  ⚠ PROMOTED 2026-09-05 FROM SENTINEL-AS-DATA. This returned `target`
+		after announcing a failure -- a VALUE that looks like a successful
+		answer, so a caller could not tell the refusal from a result. It now
+		refuses: null out, arm set, and the statement after does not run.
+		Instruct.opAddPointer.f43  */
+		return ::refuse(target,"Operator +* -- a refused operand");
 		}
 	ptr = new GroupItem(argument->groupBody->tag);
 	ptr->groupBody->gGroup = argument;

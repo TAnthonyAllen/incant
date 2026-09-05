@@ -1804,6 +1804,33 @@ fi
 #  for loop in the system would run BACKWARDS. Nothing else in the fleet can see
 #  that, because a backwards walk is still a walk.
 #  ============================================================================
+#  ⚠ sentinelT -- THE SENTINEL-AS-DATA PROMOTIONS, one section per site.
+#  A sentinel-as-data site announced a failure and then handed its caller a
+#  VALUE THAT LOOKED LIKE A SUCCESSFUL ANSWER -- so the failure reached a human
+#  on stderr and was CONCEALED FROM THE PROGRAM. Tony ruled them promoted one at
+#  a time, each with two rows: the caller's read, and the F-41-style row that
+#  the statement after does not run.
+#
+#  ⚠ ST-1's CALLER ROW IS A FINDING RATHER THAN A FORMALITY. It was predicted to
+#  read 111 -- a refusal returns null, so surely nothing is written. It does not:
+#  stRead comes back as its own TAG, bear-trap #26's signature for no data. THE
+#  ASSIGNMENT TOOK AND WROTE THE NULL. A refusal inside an expression BLANKS ITS
+#  ASSIGNMENT TARGET, which is a consequence of the ruling nobody stated. Pinned
+#  by value so it cannot change quietly.
+run1 sentinelT "$T/snt"; check "sentinelT runs" 0 $?
+sentinel "sentinelT sentinel (no truncation)" "$T/snt" "SENTINELT SENTINEL"
+if grep -qF "ST-1 caller read       = stRead" "$T/snt"; then
+    echo "  ok    sentinelT ST-1 opAddPointer: the caller gets the NULL (target blanked)"; green=$((green+1))
+else
+    echo "  FAIL  sentinelT ST-1 caller read moved -- opAddPointer may be handing back a VALUE again"; fail=1
+fi
+if grep -qF "ST-1 statement after   = 0" "$T/snt"; then
+    echo "  ok    sentinelT ST-1 the statement after the refusal did NOT run"; green=$((green+1))
+else
+    echo "  FAIL  sentinelT ST-1 the statement after the refusal RAN -- not terminal"; fail=1
+fi
+
+#  ============================================================================
 #  ⚠ THE `ERROR` CENSUS -- Tony's ruling 2026-09-05, part of B.
 #  A refusal now speaks through refuse(), which prints REFUSED. So the word
 #  ERROR belongs at NO refusal site: the routed ones cannot say it, and the
@@ -1841,10 +1868,10 @@ else
     echo "        it cannot plan is a NORMAL ANSWER its caller handles, not a failure --"
     echo "        and calling it ERROR is what makes routing it look reasonable."; fail=1
 fi
-if [ "$totalErr" -le 25 ]; then
-    echo "  ok    ERROR census ratchet: $totalErr of 25 remain (falls as B routes; may not rise)"; green=$((green+1))
+if [ "$totalErr" -le 23 ]; then
+    echo "  ok    ERROR census ratchet: $totalErr of 23 remain (falls as B routes; may not rise)"; green=$((green+1))
 else
-    echo "  FAIL  ERROR census ratchet ROSE to $totalErr, was 25. A new refusal site should"
+    echo "  FAIL  ERROR census ratchet ROSE to $totalErr, was 23. A new refusal site should"
     echo "        speak through refuse(), which prints REFUSED and never ERROR."; fail=1
 fi
 

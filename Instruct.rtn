@@ -187,8 +187,12 @@ GroupItem   ptr;
     if !argument {
         /*  F-43: name TARGET explicitly. Bare `tag` resolved to `ptr` -- declared
             above and still null here -- so this guard crashed instead of refusing.   Instruct.opAddPointer.f43  */
-        cerr "ERROR Operator +* failed on",target.tag,"and a refused operand":;
-        return target; }
+        /*  ⚠ PROMOTED 2026-09-05 FROM SENTINEL-AS-DATA. This returned `target`
+            after announcing a failure -- a VALUE that looks like a successful
+            answer, so a caller could not tell the refusal from a result. It now
+            refuses: null out, arm set, and the statement after does not run.
+            Instruct.opAddPointer.f43  */
+        return refuse(target,"Operator +* -- a refused operand"); }
     ptr                 = new(argument.tag);
     ptr.gGroup          = argument;
     ptr.isGROUP         = true;
