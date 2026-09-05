@@ -9441,7 +9441,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	else
 	if ( result->groupBody->groupList )
 		result->pop();
-	else	::fprintf(stderr,"ERROR Operator -- not supported for data type of %s\n",result->groupBody->tag);
+	else	return ::refuse(result,"Operator -- -- not supported for this data type");
 	return result;
 }
 
@@ -9869,7 +9869,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 			result->groupBody->gText++;
 			result->groupBody->gCount--;
 			}
-	else	::fprintf(stderr,"ERROR Operator ++ not supported for data type of %s\n",result->groupBody->tag);
+	else	return ::refuse(result,"Operator ++ -- not supported for this data type");
 	return result;
 }
 

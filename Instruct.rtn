@@ -775,7 +775,7 @@ GroupRules  ruler = groupRules;
         else    text = 0;
     or isSTAK   result = gStak.pop();
     or groupList    pop();
-    else    cerr "ERROR Operator -- not supported for data type of",tag:;
+    else    return refuse(result,"Operator -- -- not supported for this data type");
     return result;
 }
 
@@ -1116,7 +1116,7 @@ GroupRules  ruler = groupRules;
         else {
             gText++;
             gCount--; }
-    else    cerr "ERROR Operator ++ not supported for data type of",tag:;
+    else    return refuse(result,"Operator ++ -- not supported for this data type");
     return result;
 }
 
