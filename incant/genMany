@@ -102,7 +102,7 @@
 *****************************************************************************/
 registry(Maniers);
 define
-    spellMany argument closeBrace="}" code={
+    spellMany closeBrace="}" code={
         :argument site min;
         answer = "0";
         /*  ⚠ TWIN GUARDS, DELIBERATELY -- `!a || !b` IS NOT EQUIVALENT HERE.

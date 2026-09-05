@@ -46,7 +46,7 @@ search UnitTests list;
 
 register(ScopeC);
 define
-    actQQ argument fourth=77 code={ };
+    actQQ fourth=77 code={ };
     ;
 
 register(ScopeD);

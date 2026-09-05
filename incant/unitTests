@@ -150,7 +150,7 @@ define
     stringTest code={ print "stringTest:"`what = righty + 2, "added 2 to righty" whatsIt; };
     testOR code={ print "testOR:"`; if !righty OR feeling; print Saw righty feeling:; else print "I see nothing":; };
     testARG code={ print "testARG: Argument is:" argument:; };
-    testForC argument second=56 third="WTF?" code={
+    testForC second=56 third="WTF?" code={
         print "testForC:"`"Components of" argument with second third:;
         for grup in argument; attributes
             print `grup += righty:; };
@@ -214,7 +214,7 @@ define
         examine the value of argument by putting a break in opDebug() while
         debugging. incant does not have a debugger like xcode ... yet.
     ***************************************************************************/
-    printDefinition argument recurse code={
+    printDefinition recurse code={
         if datA != 0;  print ~$taG "=" argument$;
         else    print ~$taG$;
         if hasAttributeS;

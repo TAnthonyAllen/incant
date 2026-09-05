@@ -3,7 +3,7 @@ include(unitTests);
 search reset stack Grokking UnitTests list;
 register(LessProbe);
 define
-    spellManyLess argument closeBrace="}" code={
+    spellManyLess closeBrace="}" code={
         :argument site min;
         answer = "0";
         if !site || !min;
