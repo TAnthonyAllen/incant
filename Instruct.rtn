@@ -217,7 +217,7 @@ GroupItem   ptr;
             answer, so a caller could not tell the refusal from a result. It now
             refuses: null out, arm set, and the statement after does not run.
             Instruct.opAddPointer.f43  */
-        return refuse(target,"Operator +* -- a refused operand"); }
+        return refuse(target,"Operator +* -- an operand that is nothing"); }
     ptr                 = new(argument.tag);
     ptr.gGroup          = argument;
     ptr.isGROUP         = true;
@@ -456,7 +456,7 @@ extern GroupItem opEQ(GroupItem argument,GroupItem target)
     }
     /*  F-41 null-operand guard -- see the note on opPlus.  */
     if !argument {
-        return refuse(target,"Operator == -- a refused operand"); }
+        return refuse(target,"Operator == -- an operand that is nothing"); }
     if target && !data {
         if argument.isCOUNT || argument.isNUMBER
             if argument.gCount == 0     return trueResult; }
@@ -478,7 +478,7 @@ extern GroupItem opGE(GroupItem argument,GroupItem target)
     }
     /*  F-41 null-operand guard -- see the note on opPlus.  */
     if !argument {
-        return refuse(target,"Operator >= -- a refused operand"); }
+        return refuse(target,"Operator >= -- an operand that is nothing"); }
     if target && !data {
         if argument.isCOUNT || argument.isNUMBER
             if argument.gCount <= 0     return trueResult; }
@@ -536,7 +536,7 @@ extern GroupItem opGT(GroupItem argument,GroupItem target)
     }
     /*  F-41 null-operand guard -- see the note on opPlus.  */
     if !argument {
-        return refuse(target,"Operator > -- a refused operand"); }
+        return refuse(target,"Operator > -- an operand that is nothing"); }
     if target && !data {
         if argument.isCOUNT || argument.isNUMBER
             if argument.gCount < 0      return trueResult; }
@@ -599,7 +599,7 @@ extern GroupItem opLE(GroupItem argument,GroupItem target)
     }
     /*  F-41 null-operand guard -- see the note on opPlus.  */
     if !argument {
-        return refuse(target,"Operator <= -- a refused operand"); }
+        return refuse(target,"Operator <= -- an operand that is nothing"); }
     if target && !data {
         if argument.isCOUNT || argument.isNUMBER
             if argument.gCount >= 0     return trueResult; }
@@ -621,7 +621,7 @@ extern GroupItem opLT(GroupItem argument,GroupItem target)
     }
     /*  F-41 null-operand guard -- see the note on opPlus.  */
     if !argument {
-        return refuse(target,"Operator < -- a refused operand"); }
+        return refuse(target,"Operator < -- an operand that is nothing"); }
     if target && !data {
         if argument.isCOUNT || argument.isNUMBER
             if argument.gCount > 0      return trueResult; }
@@ -653,7 +653,7 @@ extern GroupItem opMinus(GroupItem argument,GroupItem target)
     }
     /*  F-41 null-operand guard -- see the note on opPlus.  */
     if !argument {
-        return refuse(target,"Operator - -- a refused operand"); }
+        return refuse(target,"Operator - -- an operand that is nothing"); }
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER) {
         /*  BINARY FAMILY PROMOTES (Tony, 2026-08-01, greenlight after Word 2).
             `.count` on a double operand narrowed it AT ENTRY, so 0 - 2.5 gave
@@ -808,7 +808,7 @@ extern GroupItem opMultiply(GroupItem argument,GroupItem target)
         REFUSE BY NAME, which is what the operator already does for a wrong TYPE
         -- a missing operand is simply the other way it cannot apply.  */
     if !argument {
-        return refuse(target,"Operator * -- a refused operand"); }
+        return refuse(target,"Operator * -- an operand that is nothing"); }
     if argument.isCOUNT || argument.isNUMBER
         if isNUMBER || argument.isNUMBER    tempField.number = number * argument.number;
         or isCOUNT                          tempField.count  = count * argument.count;
@@ -911,7 +911,7 @@ extern GroupItem opPlus(GroupItem argument,GroupItem target)
         REFUSE BY NAME. A missing operand is simply the other way an operator
         cannot apply, beside the wrong-type case each already names.  */
     if !argument {
-        return refuse(target,"Operator + -- a refused operand"); }
+        return refuse(target,"Operator + -- an operand that is nothing"); }
     if data && (argument.isCOUNT || argument.isNUMBER) {
         /*  BINARY FAMILY PROMOTES (Tony, 2026-08-01, greenlight after Word 2).
             `.count` on a double operand narrowed it AT ENTRY, so 0 - 2.5 gave

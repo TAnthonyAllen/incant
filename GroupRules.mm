@@ -8539,7 +8539,7 @@ GroupItem 	*ptr = 0;
 		answer, so a caller could not tell the refusal from a result. It now
 		refuses: null out, arm set, and the statement after does not run.
 		Instruct.opAddPointer.f43  */
-		return ::refuse(target,"Operator +* -- a refused operand");
+		return ::refuse(target,"Operator +* -- an operand that is nothing");
 		}
 	ptr = new GroupItem(argument->groupBody->tag);
 	ptr->groupBody->gGroup = argument;
@@ -9017,7 +9017,7 @@ extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target)
 	/*  F-41 null-operand guard -- see the note on opPlus.  */
 	if ( !argument )
 		{
-		return ::refuse(target,"Operator == -- a refused operand");
+		return ::refuse(target,"Operator == -- an operand that is nothing");
 		}
 	if ( target && !target->groupBody->flags.data )
 		{
@@ -9064,7 +9064,7 @@ extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *target)
 	/*  F-41 null-operand guard -- see the note on opPlus.  */
 	if ( !argument )
 		{
-		return ::refuse(target,"Operator >= -- a refused operand");
+		return ::refuse(target,"Operator >= -- an operand that is nothing");
 		}
 	if ( target && !target->groupBody->flags.data )
 		{
@@ -9097,7 +9097,7 @@ extern "C" GroupItem *opGT(GroupItem *argument, GroupItem *target)
 	/*  F-41 null-operand guard -- see the note on opPlus.  */
 	if ( !argument )
 		{
-		return ::refuse(target,"Operator > -- a refused operand");
+		return ::refuse(target,"Operator > -- an operand that is nothing");
 		}
 	if ( target && !target->groupBody->flags.data )
 		{
@@ -9206,7 +9206,7 @@ extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *target)
 	/*  F-41 null-operand guard -- see the note on opPlus.  */
 	if ( !argument )
 		{
-		return ::refuse(target,"Operator <= -- a refused operand");
+		return ::refuse(target,"Operator <= -- an operand that is nothing");
 		}
 	if ( target && !target->groupBody->flags.data )
 		{
@@ -9239,7 +9239,7 @@ extern "C" GroupItem *opLT(GroupItem *argument, GroupItem *target)
 	/*  F-41 null-operand guard -- see the note on opPlus.  */
 	if ( !argument )
 		{
-		return ::refuse(target,"Operator < -- a refused operand");
+		return ::refuse(target,"Operator < -- an operand that is nothing");
 		}
 	if ( target && !target->groupBody->flags.data )
 		{
@@ -9292,7 +9292,7 @@ extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *target)
 	/*  F-41 null-operand guard -- see the note on opPlus.  */
 	if ( !argument )
 		{
-		return ::refuse(target,"Operator - -- a refused operand");
+		return ::refuse(target,"Operator - -- an operand that is nothing");
 		}
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
@@ -9494,7 +9494,7 @@ extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 	-- a missing operand is simply the other way it cannot apply.  */
 	if ( !argument )
 		{
-		return ::refuse(target,"Operator * -- a refused operand");
+		return ::refuse(target,"Operator * -- an operand that is nothing");
 		}
 	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
@@ -9622,7 +9622,7 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 	cannot apply, beside the wrong-type case each already names.  */
 	if ( !argument )
 		{
-		return ::refuse(target,"Operator + -- a refused operand");
+		return ::refuse(target,"Operator + -- an operand that is nothing");
 		}
 	if ( target->groupBody->flags.data && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{

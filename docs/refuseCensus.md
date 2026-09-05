@@ -302,3 +302,31 @@ site, not a routing edit, so none of the seven is promoted here.
 ⚠ **And two of the fourteen are WARNINGS, not refusals** — `opSetFlag` says in
 its own message that it is *guessing*, and `opPlus`'s is a string-length notice.
 Routing either would turn a diagnostic into a stop.
+
+
+## GUARDS — the census answer is ZERO RETIRE, and it is a measurement
+
+Tony ruled: retire refused-operand guards by census with a note naming the
+upstream refusal; guards on the testable nothing stay.
+
+**None retire.** Measured 2026-09-05 with `probeGuards`, both arms firing:
+
+| shape | reaches the guard? |
+|---|---|
+| `5 + *emptyHolder` — a STAR's null | **yes** |
+| `5 + Grokking["noRule"]` — a subscript MISS's null | **yes** |
+
+⚠ **STAR is what makes them all stay.** Before it, the only way to hand an
+operator a null was for an upstream operator to fail, and once those refuse
+terminally the statement stops before the downstream guard is reached — which is
+the reasoning that made "retire them" look right. But STAR promotes the
+**testable nothing** to a first-class value: a star on a field holding no group,
+and a subscript that misses, both yield null **without arming**. So every one of
+these guards is reachable, by two routes, and retiring any of them would remove
+the only thing standing between a null operand and whatever the operator does
+with it.
+
+**What was wrong was the WORD, not the guard.** All nine said *"a refused
+operand"*, and after STAR the operand was not refused — it was **nothing**. They
+now say *"an operand that is nothing"*, which is what the guard actually caught
+all along and what STAR made unambiguous.
