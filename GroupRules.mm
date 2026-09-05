@@ -11535,10 +11535,17 @@ debugHere:
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/*****************************************************************************
-     Run an action. If called as a rule action, the field passed in will be
-     a label; otherwise it will be a field with an action.
-*****************************************************************************/
+/*  ⚠ THE ARGUMENT IS EXEMPT, and it is what lets the declaration go.
+                runAction binds the argument slot BEFORE calling here, so an
+                entry clear that includes it wipes the bind. The DECLARED
+                attribute escaped this for free -- aCTionDefinE flagged it
+                isArgument and never isLocal. A MINTED one does not: with no
+                declaration, aCTionNamE creates the name as an action LOCAL
+                (ruleActions.rtn, isLocal = true), which lands it squarely in
+                this walk. MEASURED 2026-09-05: without this clause the
+                declaration sweep took the fleet 185 -> 147, every argument
+                reading back as its own tag (bear-trap #26).
+                GroupActions.processAction.argumentExempt  */
 extern "C" GroupItem *processAction(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -11582,7 +11589,7 @@ GroupItem 	*action = field;
 		if ( action->groupBody->flags.isRule )
 			action = code;
 		while ( grup = action->nextAttribute(grup) )
-			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isLabel && !grup->groupBody->flags.noPrint && grup->groupBody != action->groupBody )
+			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isLabel && !grup->groupBody->flags.noPrint && !grup->groupBody->flags.isArgument && grup->groupBody != action->groupBody )
 				grup->clear();
 		if ( result = result->groupBody->gMethod(result) )
 			result->groupBody->flags.isBranch = 0;

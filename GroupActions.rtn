@@ -529,7 +529,18 @@ GroupItem   label = field,
         if isRule   action = code;
 use grup
         while grup = action.nextAttribute(grup)
-            if isLocal && !isLabel && !noPrint && groupBody != action.groupBody clear();
+            /*  ⚠ THE ARGUMENT IS EXEMPT, and it is what lets the declaration go.
+                runAction binds the argument slot BEFORE calling here, so an
+                entry clear that includes it wipes the bind. The DECLARED
+                attribute escaped this for free -- aCTionDefinE flagged it
+                isArgument and never isLocal. A MINTED one does not: with no
+                declaration, aCTionNamE creates the name as an action LOCAL
+                (ruleActions.rtn, isLocal = true), which lands it squarely in
+                this walk. MEASURED 2026-09-05: without this clause the
+                declaration sweep took the fleet 185 -> 147, every argument
+                reading back as its own tag (bear-trap #26).
+                GroupActions.processAction.argumentExempt  */
+            if isLocal && !isLabel && !noPrint && !isArgument && groupBody != action.groupBody clear();
         if result = result.gMethod(result)  result.isBranch = 0; }
     currentMETHOD   = priorMETHOD;
     tempField       = priorTempField;
