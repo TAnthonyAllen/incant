@@ -51,6 +51,7 @@ GroupItem 	*token = 0;
 *******************************************************************************/
 extern "C" GroupItem *aCTionBlocK(GroupItem *input)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
 GroupItem 	*prior = 0;
@@ -66,20 +67,28 @@ GroupItem 	*prior = 0;
 		EXECUTED STATEMENT'S", so a store-on-`return` emitter would return
 		garbage from every action that simply ends. Storing per statement is
 		what makes the compiled answer match the interpreted one.  */
-		if ( GroupControl::groupController->groupRules->jitting )
+		if ( ruler->jitting )
 			{
 			 jitStoreResult(); 
 			}
+		/*  ⚠ A REFUSAL STOPS THE BLOCK, and the jitting arm must NOT stop the
+		EMIT walk -- same era split as the isBranch check below, and the
+		same reason: at emit time the statements after a refusal are
+		REACHABLE and must all be emitted. The emitted body does its own
+		per-statement check at RUN time.   ruleActions.aCTionBlocK.refusalArm  */
+		if ( ruler->refused )
+			if ( !ruler->jitting )
+				break;
 		if ( result && result->groupBody->flags.isBranch )
 			{
-			if ( prior && result->groupBody->flags.isBranch == 3 && result->groupBody->registry == GroupControl::groupController->groupRules->keyWords )
+			if ( prior && result->groupBody->flags.isBranch == 3 && result->groupBody->registry == ruler->keyWords )
 				{
 				result = prior;
 				result->groupBody->flags.isBranch = 3;
 				}
 			// ⚠ DO NOT let this break run under jitting -- it stops the COMPILER'S walk and
 			// every statement after a branch vanishes from the IR   ruleActions.aCTionBlocK.emitWalkMustNotStop
-			if ( GroupControl::groupController->groupRules->jitting )
+			if ( ruler->jitting )
 				continue;
 			break;
 			}
@@ -736,8 +745,7 @@ GroupItem 	*source = 0;
 	source = ::opDeref(source);
 	else
 	{
-	::fprintf(stderr,"ERROR iterate on %s: only * may precede the source\n",
-	source ? source->groupBody->tag : "(null)");
+	::refuse(source,(char*)"iterate: only * may precede the source");
 	source = 0;
 	}
 	}
@@ -760,8 +768,10 @@ GroupItem 	*source = 0;
 	source = source->getGroup();
 	if ( source && isGROUP(source->groupBody->flags.data) )
 	{
-	::fprintf(stderr,"ERROR iterate on %s: it holds a pointer, not a list; write *%s\n",
-	source->groupBody->tag, source->groupBody->tag);
+	{ char why[192];
+	::snprintf(why,sizeof(why),"iterate: it holds a pointer, not a list; write *%s",
+	source->groupBody->tag);
+	::refuse(source,why); }
 	if ( iterator ) iterator->groupBody->flags.fLAG = 1;
 	return 0;
 	}
@@ -797,7 +807,7 @@ GroupItem 	*source = 0;
 		// between a refused iterate and an unbounded loop   ruleActions.aCTionIterate.refusedSource
 		if ( iterator )
 			iterator->groupBody->flags.fLAG = 1;
-		::fprintf(stderr,"aCTionIterate: source %s has no list\n",source->groupBody->tag);
+		::refuse(source,"iterate: the source has no list");
 		return 0;
 		}
 	// attributes and members filter overloaded on hasAttributes and hasMembers
@@ -11848,6 +11858,24 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ruler->trueResult;
 }
 
+/*******************************************************************************
+    refuse -- THE ONE FUNNEL. Print the line, arm the unwind, hand back null.
+    A refusal ENDS THE ACTIVATION THAT RAISED IT (Tony, 2026-09-05, on f31's
+    2,808,029 lines). The action returns null to its caller -- the testable
+    nothing -- and nothing after the refusing statement runs.
+    GroupActions.refuse
+*******************************************************************************/
+extern "C" GroupItem *refuse(GroupItem *subject, char *why)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*name = "(none)";
+	if ( subject )
+		name = subject->groupBody->tag;
+	::fprintf(stderr,"REFUSED %s -- %s [line %s]\n",name,why,::toStringFromInt(ruler->sourceLINE));
+	ruler->refused = 1;
+	return 0;
+}
+
 /*****************************************************************************
     Parse an action. Note: the coded field is made an action before its
     code is parsed otherwise a recursive call will complain
@@ -12255,6 +12283,15 @@ GroupItem 	*ruleArg = 0;
 		}
 	::restoreLocalFields(field);
 exitRunAction:
+	/*  THE ARM IS ACTIVATION-SCOPED. A refusal ends the action that raised it
+	and NOT its caller, so the caller gets a testable null and decides.
+	Clearing here is what makes "terminal for the action" mean the action
+	rather than the process.   GroupActions.runAction.refusalArm  */
+	if ( ruler->refused )
+		{
+		ruler->refused = 0;
+		result = 0;
+		}
 	return result;
 }
 
@@ -13408,6 +13445,7 @@ GroupRules::GroupRules()
 	inputSTAK = 0;
 	chanBinds = 0;
 	chanSame = 0;
+	refused = 0;
 	lastIndent = 0;
 	rulesParsed = 0;
 	sourceLINE = 0;

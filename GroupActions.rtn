@@ -779,6 +779,24 @@ use input
 
 
 /*******************************************************************************
+    refuse -- THE ONE FUNNEL. Print the line, arm the unwind, hand back null.
+    A refusal ENDS THE ACTIVATION THAT RAISED IT (Tony, 2026-09-05, on f31's
+    2,808,029 lines). The action returns null to its caller -- the testable
+    nothing -- and nothing after the refusing statement runs.
+    GroupActions.refuse
+*******************************************************************************/
+extern GroupItem refuse(GroupItem subject,String why)
+{
+GroupRules  ruler = groupRules;
+String      name = "(none)";
+    if subject      name = subject.tag;
+    cerr "REFUSED " name " -- " why " [line " toStringFromInt(sourceLINE) "]":;
+    ruler.refused = 1;
+    return null;
+}
+
+
+/*******************************************************************************
 	Run an action that may need code processing.
 *******************************************************************************/
 extern GroupItem runAction(GroupItem argument,GroupItem field)
@@ -828,6 +846,13 @@ use field
         result  = capture; }
     restoreLocalFields(field);
 exitRunAction:
+    /*  THE ARM IS ACTIVATION-SCOPED. A refusal ends the action that raised it
+        and NOT its caller, so the caller gets a testable null and decides.
+        Clearing here is what makes "terminal for the action" mean the action
+        rather than the process.   GroupActions.runAction.refusalArm  */
+    if ruler.refused {
+        ruler.refused = 0;
+        result = null; }
     return  result;
 }
 

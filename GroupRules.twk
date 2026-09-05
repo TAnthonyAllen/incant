@@ -65,6 +65,7 @@ class GroupRules
     int         chanBinds,
                 chanSame,
                 lastIndent,
+                refused,
                 rulesParsed,
                 sourceLINE;
     String      beforeSkip,

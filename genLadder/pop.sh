@@ -1537,7 +1537,11 @@ iterrunLIVE iterT1m genLadder/iterT1m.target "iterT1m (mutual recursion, each no
 #  iterate each. The number moved because the WALK moved, not the announcement.
 #  Both halves of this fixture are now live checks and neither is a pinned
 #  defect: the trace above, and the count below.
-n=$(grep -c "aCTionIterate: source" "$T/iterT1m.e")
+#  ⚠ RE-PINNED 2026-09-05 TO THE refuse() TEXT. Same refusal, same count --
+#  the message moved into the one funnel and now reads
+#  `REFUSED <src> -- iterate: the source has no list [line N]`. A refusal is
+#  still announced once per leaf; only its spelling is uniform now.
+n=$(grep -c "iterate: the source has no list" "$T/iterT1m.e")
 if [ "$n" = 4 ]; then echo "  ok    iterT1m announces its refusal 4 times (once per leaf)"; green=$((green+1))
 else echo "  FAIL  iterT1m refusal count is $n, want 4 -- the announcement, the poison, or the walk's leaf count has moved; 0 means the cerr in aCTionIterate's refusal arm is gone again (it was, once: 9c4962b)"; fail=1; fi
 
@@ -1725,7 +1729,9 @@ else
     echo "        null first: unWrap has no null guard and the iterate's refusal arm reads"
     echo "        the source's tag, and both segfault on one (exit 139, SEQ 152)."; fail=1
 fi
-if grep -q "^aCTionIterate: source idLeaf has no list" "$T/sid"; then
+#  ⚠ RE-PINNED 2026-09-05 to refuse()'s uniform line; the pair still
+#  distinguishes a star refusal from an iterate refusal.
+if grep -q "^REFUSED idLeaf -- iterate: the source has no list" "$T/sid"; then
     echo "  ok    a LISTLESS command return refuses AT THE ITERATE -- PINNED BY TEXT"; green=$((green+1))
 else
     echo "  FAIL  starIdiomT row 3 -- the iterate did not refuse a listless source by name."
@@ -1936,7 +1942,8 @@ fi
 #  this row does not depend on it.
 run1 iterRefuseT "$T/irf";   check "iterRefuseT runs (a refused iterate returns)" 0 $?
 sentinel "iterRefuseT sentinel" "$T/irf" "ITERREFUSET SENTINEL"
-if grep -q "^aCTionIterate: source irLeaf has no list" "$T/irf"; then
+#  ⚠ RE-PINNED 2026-09-05 to refuse()'s uniform line.
+if grep -q "^REFUSED irLeaf -- iterate: the source has no list" "$T/irf"; then
     echo "  ok    refused iterate ANNOUNCES BY NAME -- PINNED BY TEXT (H4)"; green=$((green+1))
 else
     echo "  FAIL  the refusal line is GONE. Either the refusal stopped naming its"
@@ -1944,13 +1951,25 @@ else
     echo "        absence here is not 'nothing went wrong' -- it is the only"
     echo "        warning a refused iterate ever gives."; fail=1
 fi
-if grep -q "^R ok" "$T/irf"; then
-    echo "  ok    refused iterate RETURNS -- the advance declined to move"; green=$((green+1))
+#  ⚠⚠ THIS ROW IS INVERTED, 2026-09-05, AND THE INVERSION IS THE RULING LANDING.
+#  It used to assert `R ok` -- the statement AFTER the refused loop -- was
+#  REACHED, because the old law was "a refusal announces and the action carries
+#  on". Tony ruled the opposite on f31's 2,808,029 lines: A REFUSAL ENDS THE
+#  ACTIVATION THAT RAISED IT. So the statement after a refused loop MUST NOT
+#  RUN, and `R ok` must now be ABSENT.
+#  ⚠ AN ABSENCE CANNOT STAND ALONE (H4), so it is paired with the SENTINEL: the
+#  run must have reached its foot. Sentinel present plus `R ok` absent means the
+#  statement was SKIPPED; sentinel absent would mean the run died, which is a
+#  different fact and is caught as a different row. Without the pairing this
+#  would pass on any truncated run.
+if grep -q "ITERREFUSET SENTINEL" "$T/irf" && ! grep -q "^R ok" "$T/irf"; then
+    echo "  ok    refusal is TERMINAL: the statement after a refused loop did NOT run"; green=$((green+1))
+elif ! grep -q "ITERREFUSET SENTINEL" "$T/irf"; then
+    echo "  FAIL  iterRefuseT truncated -- the absence of R ok below asserts nothing"; fail=1
 else
-    echo "  FAIL  iterRefuseT row R -- the statement after the loop was never"
-    echo "        reached. The poison is not landing on the cursor and a refused"
-    echo "        iterate is now an unbounded loop. See SEQ 146: the operand the"
-    echo "        poison lands on is what decides this."; fail=1
+    echo "  FAIL  iterRefuseT row R -- `R ok` STILL PRINTS, so the statement after"
+    echo "        a refused loop still runs. The refusal did not arm, or"
+    echo "        aCTionBlocK is not checking the arm."; fail=1
 fi
 if grep -q "^R BAD" "$T/irf"; then
     echo "  FAIL  iterRefuseT row R -- the advance MOVED on a refused iterate."
