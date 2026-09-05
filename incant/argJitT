@@ -1,0 +1,69 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(ArgJitT);
+define
+    ajSrc;
+    ajOut;
+    ajCallee argument code={
+        ajOut = argument * 2;
+        };
+    ajDrive code={
+        ajCallee(ajSrc);
+        };
+    ;
+
+ajSrc = 4;  ajOut = 0;
+print "AJ fire 1 setup : ajSrc =" ajSrc:;
+testing(ajDrive);
+print "AJ fire 1 result: ajOut =" ajOut " (want 8)":;
+
+ajSrc = 11; ajOut = 0;
+print "AJ fire 2 setup : ajSrc =" ajSrc " (recompile: NONE)":;
+jitRefire();
+print "AJ fire 2 result: ajOut =" ajOut " (want 22)":;
+
+ajSrc = 7;  ajOut = 0;
+ajDrive();
+print "AJ interpreted  : ajOut =" ajOut " (oracle -- want 14)":;
+print "ARGJIT SENTINEL -- reached the foot":;
+stop();
+
+argJitT -- DOES A JITTED BODY READ AN ACTION'S `argument` AS THE PASSED FIELD?
+
+⚠ PROMOTED INTO THE FLEET 2026-09-05 BECAUSE ITS ABSENCE COST A SILENT
+REGRESSION THE SAME DAY. Until this file existed there was NO fixture anywhere
+in the tree that read an action's `argument` under the JIT -- every jit fixture
+reads globals. Item 3's runAction revision moved the argument bind out of the
+jitting arm; the inlined road stopped reading the passed field and answered 0,
+and THE FLEET STAYED AT 179 GREEN. It was found by hand, on a probe, by
+accident of re-running it. That is the hole this file closes.
+
+WHAT IT DISCRIMINATES. The jitted callee is INLINED, so its body is walked at
+EMIT time and the argument must be bound by then -- which is a different road
+from jitBindArgRT's run-time bind for a callee given its own function. Both
+roads exist and only one of them is asserted here; incant/argRoundJ is the
+other, and it is pinned red on jitArgBake.
+
+    8 then 22, oracle 14      the jitted body reads the passed field per fire
+    two fires the same        the value was folded, not loaded per fire
+    0 / 0                     the jitted body is not reading the passed field
+                              at all -- the exact shape of the 2026-09-05
+                              regression, and of the pre-B state before it
+
+⚠ TWO FIRES WITH DIFFERENT ANSWERS, NOT MERELY DIFFERENT INPUTS. 8 and 22 differ,
+so a folded constant cannot satisfy both; a pair that happened to agree would
+prove nothing (the injectivity rule, jitJR's).
+
+⚠ ORACLE LAST, AND IT IS NOT STYLE (bear-trap #25). testing() routes on
+isCoded, and an interpreted run consumes it -- so an oracle placed first would
+send the jitted half to jitRunIfTest, assert nothing about the JIT, and print a
+plausible number the whole way. The oracle reads a FIELD, which is correct in
+that position; only a RETURNED value would need its own process.
+
+SENTINEL AT THE FOOT, exactly ONE stop().

@@ -308,6 +308,33 @@ for _a in "A depth 3 sees argument = 7 local = 3" \
     fi
 done
 
+#  ⚠ argJitT -- THE JITTED ARGUMENT READ, ON THE INLINED ROAD.
+#  PROMOTED 2026-09-05 BECAUSE ITS ABSENCE COST A SILENT REGRESSION THAT DAY.
+#  Until it existed NO fixture in the tree read an action's `argument` under the
+#  JIT -- every jit fixture reads globals. Item 3 moved the argument bind out of
+#  runAction's jitting arm, the inlined road stopped reading the passed field
+#  and answered 0, and THE FLEET STAYED AT 179 GREEN through it. Found by hand.
+#
+#  ⚠ AND argRoundJ COULD NOT HAVE CAUGHT IT, which is the sharper half: that row
+#  is pinned RED on jitArgBake, so a second, unrelated JIT defect landing
+#  underneath it changes nothing anyone can see. A red row absorbs new breakage
+#  silently. THIS is the green row that could not.
+#
+#  8 then 22 -- different ANSWERS, not merely different inputs, so a folded
+#  constant cannot satisfy both. Oracle LAST (bear-trap #25): testing() routes
+#  on isCoded and an interpreted run consumes it.
+run1 argJitT "$T/ajt"; check "argJitT runs" 0 $?
+sentinel "argJitT sentinel (no truncation)" "$T/ajt" "ARGJIT SENTINEL"
+for _j in "AJ fire 1 result: ajOut = 8" \
+          "AJ fire 2 result: ajOut = 22" \
+          "AJ interpreted  : ajOut = 14"; do
+    if grep -qF "$_j" "$T/ajt"; then
+        echo "  ok    argJitT ${_j%%:*} -- jitted body reads the PASSED FIELD -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  argJitT ${_j%%:*} -- wanted: $_j"; fail=1
+    fi
+done
+
 #  ⚠ argRoundJ -- THE JIT ARM, PINNED RED BY NAME (Tony, 2026-09-05). Never
 #  silently. jitArgBake is the open citizen: where the JIT gives a callee its
 #  OWN FUNCTION rather than inlining it, `argument` is read from an emit-time

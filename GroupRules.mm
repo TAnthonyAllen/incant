@@ -12199,6 +12199,13 @@ GroupItem 	*ruleArg = 0;
 			goto exitRunAction;
 	// runAction.lastREF a no-argument call leaves the action in lastREF
 	ruler->lastREF->setGroup(argument ? argument : field);
+	// runAction.mint argument is a runtime-minted binding slot, never a declared
+	// attribute -- and this sits ABOVE the jitting gate because BOTH ROADS need
+	// the slot to exist and to carry the flag. Only the interpreted arm BINDS it
+	ruleArg = field->get("argument");
+	if ( !ruleArg )
+		ruleArg = field->addString("argument");
+	ruleArg->groupBody->flags.isArgument = 1;
 	if ( ruler->jitting )
 		{
 		if ( ::jitEmitSelfCall(argument,field) )
@@ -12206,20 +12213,16 @@ GroupItem 	*ruleArg = 0;
 			result = field;
 			goto exitRunAction;
 			}
-		// runAction.jitBind the JIT binds argument at run time in jitBindArgRT, not here
+		// runAction.jitBind THE EMITTED CALL is jitBindArgRT's at RUN time. But an
+		// INLINED callee is walked HERE, at emit time, and the walk reads the
+		// argument as it goes -- so the emit-time bind is this arm's, and the two
+		// are different roads rather than one duplicated line
+		ruleArg->setGroup(argument);
 		::jitInlinePush(field);
 		result = ::processAction(field);
 		::jitInlinePop(result);
 		goto exitRunAction;
 		}
-	// runAction.mint argument is a runtime-minted binding slot, never a declared attribute
-	ruleArg = field->get("argument");
-	if ( !ruleArg )
-		ruleArg = field->addString("argument");
-	// runAction.mint runAction is the SINGLE WRITER of isArgument -- set on the
-	// found slot as well as the minted one, or a declared `argument` carries no
-	// flag and every isArgument reader goes dark at once
-	ruleArg->groupBody->flags.isArgument = 1;
 	// runAction.bindOrder save before bind so the outer activation gets its slot back
 	::saveLocalFields(field);
 	ruleArg->setGroup(argument);
