@@ -1409,8 +1409,18 @@ extern GroupItem opDeref(GroupItem result)
         -% if (!::jitEmitDeref(result))
                ::jitDegrade("unary * under jit -- emitter refused",result); %-
     }
+    /*  ⚠ THE STAR RULING (Tony, 2026-09-05). `*x` ON A FIELD THAT HOLDS NO
+        GROUP YIELDS NULL -- the testable nothing -- AND DOES NOT REFUSE.
+        REFUSAL IS FOR CATEGORY ERRORS; asking a field for what it holds is a
+        legitimate question with a legitimate empty answer, and `if *x` must be
+        able to take its else arm without ending the activation.
+        ⚠ THE CONSUMER OF THE NULL REFUSES, and that is where the name belongs:
+        an iterate handed nothing says so about the ITERATE, which is the
+        statement the writer actually typed. f31's spin was diagnosed for a day
+        as a star problem because the star was the thing shouting.
+        Instruct.opDeref.starRuling  */
     if result.isGROUP   return result.group;
-    return refuse(result,"unary * -- it holds no group");
+    return null;
 }
 
 

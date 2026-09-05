@@ -780,11 +780,20 @@ GroupItem 	*source = 0;
 	}
 	// ⚠ THE LEGACY FOLLOW, and it is the only thing keeping bare byte-identical.
 	// Retires with gNoUnwrap, not before   ruleActions.aCTionIterate.legacyFollow
-	// nullAfterStar  a refused star yields null, so refuse silently here -- the star
-	// already spoke -- but POISON THE CURSOR or the enclosing ++ runs away.
+	// nullAfterStar  THE CONSUMER OF THE NULL REFUSES (Tony's STAR ruling,
+	// 2026-09-05). This arm used to be SILENT because the star had already
+	// spoken; under STAR the star yields null quietly, so if this stays silent
+	// NOTHING speaks and the enclosing ++ runs away -- measured, f31 back to
+	// exit 142 on four lines of output. It now refuses BY NAME, and the name is
+	// the right one: the writer typed an iterate, not a deref.
+	// The cursor poison STAYS -- it is belt and braces, and it is what stopped
+	// the runaway before there was an arm at all.
 	if ( !source )
 	{
 	if ( iterator ) iterator->groupBody->flags.fLAG = 1;
+	
+	::refuse(IterSource,"iterate: the source is nothing -- a star on a field that holds no group yields null");
+	
 	return 0;
 	}
 	if ( !gNoUnwrap )   source = ::unWrap(source);
@@ -8713,9 +8722,19 @@ extern "C" GroupItem *opDeref(GroupItem *result)
 		 if (!::jitEmitDeref(result))
 		::jitDegrade("unary * under jit -- emitter refused",result); 
 		}
+	/*  ⚠ THE STAR RULING (Tony, 2026-09-05). `*x` ON A FIELD THAT HOLDS NO
+	GROUP YIELDS NULL -- the testable nothing -- AND DOES NOT REFUSE.
+	REFUSAL IS FOR CATEGORY ERRORS; asking a field for what it holds is a
+	legitimate question with a legitimate empty answer, and `if *x` must be
+	able to take its else arm without ending the activation.
+	⚠ THE CONSUMER OF THE NULL REFUSES, and that is where the name belongs:
+	an iterate handed nothing says so about the ITERATE, which is the
+	statement the writer actually typed. f31's spin was diagnosed for a day
+	as a star problem because the star was the thing shouting.
+	Instruct.opDeref.starRuling  */
 	if ( isGROUP(result->groupBody->flags.data) )
 		return result->getGroup();
-	return ::refuse(result,"unary * -- it holds no group");
+	return 0;
 }
 
 /***************************************************************************

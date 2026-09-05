@@ -1877,6 +1877,22 @@ if grep -qF "ST-2 statement after   = 0" "$T/snt"; then
 else
     echo "  FAIL  sentinelT ST-2 the statement after the refusal RAN -- not terminal"; fail=1
 fi
+#  ⚠ ST-3 IS THE STAR RULING AND IT PULLS THE OTHER WAY FROM ST-1 AND ST-2.
+#  `*x` on a field holding no group yields the TESTABLE NOTHING and does NOT
+#  refuse: refusal is for CATEGORY errors, and asking a field what it holds is a
+#  legitimate question with a legitimate empty answer. So `if *x` takes its else
+#  arm and THE ACTIVATION CARRIES ON -- the opposite of every other row here,
+#  which is why both halves are asserted.
+if grep -qF "ST-3 if *x else arm    = 2" "$T/snt"; then
+    echo "  ok    sentinelT ST-3 `*x` on an empty holder yields NULL -- the else arm ran"; green=$((green+1))
+else
+    echo "  FAIL  sentinelT ST-3 `*x` on an empty holder did not take the else arm"; fail=1
+fi
+if grep -qF "ST-3 statement after   = 1" "$T/snt"; then
+    echo "  ok    sentinelT ST-3 the activation was NOT ended -- a star is not a refusal"; green=$((green+1))
+else
+    echo "  FAIL  sentinelT ST-3 a star ENDED the activation -- the star ruling regressed"; fail=1
+fi
 
 #  ============================================================================
 #  ⚠ THE `ERROR` CENSUS -- Tony's ruling 2026-09-05, part of B.

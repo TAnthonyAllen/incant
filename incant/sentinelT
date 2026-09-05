@@ -11,9 +11,17 @@ define
     stAfter=0;
     stRead2=222;
     stAfter2=0;
+    stEmpty;
+    stElse=0;
+    stStarAfter=0;
     stAddPtr code={
         stRead = stBag +* Grokking["stNoSuchRule"];
         stAfter = 1;
+        };
+    stStar code={
+        if *stEmpty;    stElse = 1;
+        else            stElse = 2;
+        stStarAfter = 1;
         };
     stRem code={
         stRead2 = 7 % stBag;
@@ -26,6 +34,9 @@ define
         stRem();
         print "ST-2 caller read       =" stRead2 " (want 222 -- unchanged; opRem no longer hands back a dataless tempField)":;
         print "ST-2 statement after   =" stAfter2 " (want 0)":;
+        stStar();
+        print "ST-3 if *x else arm    =" stElse " (want 2 -- a star on an empty holder yields NULL, not a refusal)":;
+        print "ST-3 statement after   =" stStarAfter " (want 1 -- the activation was NOT ended)":;
         };
     ;
 stRun();
@@ -47,6 +58,12 @@ handing back a value.
 
     ST-1  opAddPointer   returned `target`
     ST-2  opRem          returned `tempField`, which at that point HAS NO DATA
+    ST-3  THE STAR RULING -- `*x` on a field holding no group yields the
+          testable nothing and does NOT refuse, so `if *x` takes its else arm
+          and the activation carries on. Refusal is for CATEGORY errors; asking
+          a field what it holds is a legitimate question with a legitimate empty
+          answer. The CONSUMER of the null is what refuses, and it names the
+          construct the writer actually typed.
 
 ⚠⚠ THE CALLER ROW IS 111 BECAUSE OF THE STORE RULING, AND IT READ ITS OWN TAG
 BEFORE THAT RULING LANDED. The first cut of this fixture measured the target
