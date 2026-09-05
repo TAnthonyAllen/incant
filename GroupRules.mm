@@ -70,6 +70,8 @@ GroupItem 	*prior = 0;
 		if ( ruler->jitting )
 			{
 			 jitStoreResult(); 
+			//  A3: the emitted body checks the arm per statement, inside inlines
+			 jitEmitRefusedCheck(); 
 			}
 		/*  ⚠ A REFUSAL STOPS THE BLOCK, and the jitting arm must NOT stop the
 		EMIT walk -- same era split as the isBranch check below, and the
@@ -5150,64 +5152,6 @@ extern "C" GroupItem *jitEmitNE(GroupItem *argument, GroupItem *target)
 	 return jitEmitCompare(argument, target, jitNE); 
 }
 
-/* jitEmitRem  THE FALLBACK COLUMN MEETING A REAL opMethod -- the first emitted
-   call to an existing operator rather than to a purpose-built helper.
-
-   TWO CALLS, and both legs are layout-free:
-     1. call opRem(argument, target)  ->  GroupItem*
-     2. call jitUnboxCount(that)      ->  i32
-
-   ⚠ THE ARITY IS TWO, AND THAT REFINES WHAT J6 ESTABLISHED. runOP has TWO
-   calling conventions, not one:
-       op.isOperator  ->  op.operat(arg,target)   TWO-arg   <- this one
-       op.isMethod    ->  op.method(target)       ONE-arg   <- J6's
-   `%` is registered `operateMethod=opRem`, so it is an OPERATOR and takes the
-   two-arg form. J6's "the ground agrees, one-argument" was true OF THE isMethod
-   ARM ONLY. The bulk of the fallback column is binary operators, so it is
-   mostly two-arg -- which is precisely what the ruling's SIGNATURE-KIND TABLE
-   COLUMN is for, and the column now has a concrete meaning: which arm, which
-   arity.
-
-   THE RESULT NODE IS SEEDED so the value composes downstream: an operator's
-   result lands in tempField, and stamping its jitData lets the enclosing
-   assignment read it exactly as it reads any other operand.
-
-   The callee is the ONE hardcoded part; a table-driven callee is the
-   generalisation and is the table arc's job, not this rung's. */
-extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupItem *resultNode)
-{
-	
-	llvm::IRBuilder<> *b = gJitBuilder;
-	llvm::LLVMContext &ctx = b->getContext();
-	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
-	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
-	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
-	
-	llvm::Value *argAddr = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)argument), ptr, "remArg");
-	llvm::Value *tgtAddr = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)target), ptr, "remTgt");
-	llvm::Value *callee = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)&opRem), ptr, "remFn");
-	llvm::FunctionType *opTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
-	llvm::Value *res = b->CreateCall(opTy, callee, {argAddr, tgtAddr}, "remRes");
-	
-	llvm::Value *unboxFn = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitUnboxCount), ptr, "unboxFn");
-	llvm::FunctionType *unboxTy = llvm::FunctionType::get(i32, {ptr}, false);
-	llvm::Value *val = b->CreateCall(unboxTy, unboxFn, {res}, "remVal");
-	
-	if (resultNode) {
-	if (!resultNode->jitData) resultNode->jitData = new JitData();
-	resultNode->jitData->setJitter(val);
-	gJitSeeded.push_back(resultNode);
-	}
-	gJitResult = val;
-	gJitEmitted = true;
-	return resultNode;
-	
-}
-
 /* jitEmitReturn  `return`, EMITTED. Item 2, Tony's ruling 2026-08-05.
 
    THE GAP IT CLOSES: return called jitDegrade. That is why EVERY green rung in
@@ -5269,6 +5213,104 @@ extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupIt
        1  emitted
       -1  REFUSED -- no builder, no epilogue block, or inlining with no frame:
           in every case a mis-sequenced caller, NOT a language gap  */
+/*  jitEmitRefusedCheck -- A3. THE PER-STATEMENT REFUSAL CHECK, EMITTED.
+    Tony's ruling 2026-09-05: plain per-statement check on inlined bodies first,
+    IR cost read on argJitT, a statement-local gate only if that cost warrants
+    its own stroke.
+
+    ⚠ THE TARGET IS E2's INLINE EXIT, NEVER gJitEpilogueBB. An inlined callee
+    that branches to the enclosing epilogue returns from the CALLER -- a wrong
+    answer wearing valid IR, which is the hazard E2 exists to close. The target
+    selection here is jitEmitReturn's, deliberately: model, not oracle, so the
+    two cannot drift about what "leave this region" means.
+
+    ⚠ EMITTED ONLY INSIDE AN INLINE, exactly as ruled. A top-level function's
+    own statements are NOT yet covered and that gap is named rather than
+    implied -- the interpreted road covers them, the emitted road does not.
+    jitEmitters.jitEmitRefusedCheck  */
+extern "C" int jitEmitRefusedCheck()
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b) return 0;
+	if (gJitInlining.empty()) return 0;
+	if (gJitInlineFrames.empty() || !gJitInlineFrames.back().exitBB) return 0;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Function  *fn  = b->GetInsertBlock()->getParent();
+	llvm::Type      *i32 = llvm::Type::getInt32Ty(ctx);
+	void *addr = (void*)&(GroupControl::groupController->groupRules->refused);
+	llvm::Value *p = b->CreateIntToPtr(
+	llvm::ConstantInt::get(llvm::Type::getInt64Ty(ctx),(uint64_t)addr),
+	llvm::PointerType::getUnqual(ctx));
+	llvm::Value *v = b->CreateLoad(i32, p, "refusedArm");
+	llvm::Value *c = b->CreateICmpNE(v, llvm::ConstantInt::get(i32,0), "isRefused");
+	JitInlineFrame &f = gJitInlineFrames.back();
+	if (!f.used) { fn->insert(fn->end(), f.exitBB); f.used = true; }
+	llvm::BasicBlock *cont = llvm::BasicBlock::Create(ctx,"notRefused",fn);
+	b->CreateCondBr(c, f.exitBB, cont);
+	b->SetInsertPoint(cont);
+	return 1;
+	
+}
+
+/* jitEmitRem  THE FALLBACK COLUMN MEETING A REAL opMethod -- the first emitted
+   call to an existing operator rather than to a purpose-built helper.
+
+   TWO CALLS, and both legs are layout-free:
+     1. call opRem(argument, target)  ->  GroupItem*
+     2. call jitUnboxCount(that)      ->  i32
+
+   ⚠ THE ARITY IS TWO, AND THAT REFINES WHAT J6 ESTABLISHED. runOP has TWO
+   calling conventions, not one:
+       op.isOperator  ->  op.operat(arg,target)   TWO-arg   <- this one
+       op.isMethod    ->  op.method(target)       ONE-arg   <- J6's
+   `%` is registered `operateMethod=opRem`, so it is an OPERATOR and takes the
+   two-arg form. J6's "the ground agrees, one-argument" was true OF THE isMethod
+   ARM ONLY. The bulk of the fallback column is binary operators, so it is
+   mostly two-arg -- which is precisely what the ruling's SIGNATURE-KIND TABLE
+   COLUMN is for, and the column now has a concrete meaning: which arm, which
+   arity.
+
+   THE RESULT NODE IS SEEDED so the value composes downstream: an operator's
+   result lands in tempField, and stamping its jitData lets the enclosing
+   assignment read it exactly as it reads any other operand.
+
+   The callee is the ONE hardcoded part; a table-driven callee is the
+   generalisation and is the table arc's job, not this rung's. */
+extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupItem *resultNode)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	
+	llvm::Value *argAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)argument), ptr, "remArg");
+	llvm::Value *tgtAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)target), ptr, "remTgt");
+	llvm::Value *callee = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&opRem), ptr, "remFn");
+	llvm::FunctionType *opTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
+	llvm::Value *res = b->CreateCall(opTy, callee, {argAddr, tgtAddr}, "remRes");
+	
+	llvm::Value *unboxFn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitUnboxCount), ptr, "unboxFn");
+	llvm::FunctionType *unboxTy = llvm::FunctionType::get(i32, {ptr}, false);
+	llvm::Value *val = b->CreateCall(unboxTy, unboxFn, {res}, "remVal");
+	
+	if (resultNode) {
+	if (!resultNode->jitData) resultNode->jitData = new JitData();
+	resultNode->jitData->setJitter(val);
+	gJitSeeded.push_back(resultNode);
+	}
+	gJitResult = val;
+	gJitEmitted = true;
+	return resultNode;
+	
+}
+
 extern "C" int jitEmitReturn()
 {
 	

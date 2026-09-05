@@ -207,6 +207,7 @@ extern "C" GroupItem *jitEmitLE(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *jitEmitLT(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *jitEmitMul(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *jitEmitNE(GroupItem *argument, GroupItem *target);
+extern "C" int jitEmitRefusedCheck();
 extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupItem *resultNode);
 extern "C" int jitEmitReturn();
 extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action);

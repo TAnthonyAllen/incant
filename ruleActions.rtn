@@ -38,6 +38,8 @@ GroupItem   grup,
             what makes the compiled answer match the interpreted one.  */
         if jitting {
             -% jitStoreResult(); %-
+            //  A3: the emitted body checks the arm per statement, inside inlines
+            -% jitEmitRefusedCheck(); %-
         }
         /*  ⚠ A REFUSAL STOPS THE BLOCK, and the jitting arm must NOT stop the
             EMIT walk -- same era split as the isBranch check below, and the

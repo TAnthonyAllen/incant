@@ -1551,6 +1551,47 @@ extern GroupItem jitEmitRem(GroupItem argument,GroupItem target,GroupItem result
        1  emitted
       -1  REFUSED -- no builder, no epilogue block, or inlining with no frame:
           in every case a mis-sequenced caller, NOT a language gap  */
+/*  jitEmitRefusedCheck -- A3. THE PER-STATEMENT REFUSAL CHECK, EMITTED.
+    Tony's ruling 2026-09-05: plain per-statement check on inlined bodies first,
+    IR cost read on argJitT, a statement-local gate only if that cost warrants
+    its own stroke.
+
+    ⚠ THE TARGET IS E2's INLINE EXIT, NEVER gJitEpilogueBB. An inlined callee
+    that branches to the enclosing epilogue returns from the CALLER -- a wrong
+    answer wearing valid IR, which is the hazard E2 exists to close. The target
+    selection here is jitEmitReturn's, deliberately: model, not oracle, so the
+    two cannot drift about what "leave this region" means.
+
+    ⚠ EMITTED ONLY INSIDE AN INLINE, exactly as ruled. A top-level function's
+    own statements are NOT yet covered and that gap is named rather than
+    implied -- the interpreted road covers them, the emitted road does not.
+    jitEmitters.jitEmitRefusedCheck  */
+extern int jitEmitRefusedCheck()
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    if (!b) return 0;
+    if (gJitInlining.empty()) return 0;
+    if (gJitInlineFrames.empty() || !gJitInlineFrames.back().exitBB) return 0;
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Function  *fn  = b->GetInsertBlock()->getParent();
+    llvm::Type      *i32 = llvm::Type::getInt32Ty(ctx);
+    void *addr = (void*)&(GroupControl::groupController->groupRules->refused);
+    llvm::Value *p = b->CreateIntToPtr(
+        llvm::ConstantInt::get(llvm::Type::getInt64Ty(ctx),(uint64_t)addr),
+        llvm::PointerType::getUnqual(ctx));
+    llvm::Value *v = b->CreateLoad(i32, p, "refusedArm");
+    llvm::Value *c = b->CreateICmpNE(v, llvm::ConstantInt::get(i32,0), "isRefused");
+    JitInlineFrame &f = gJitInlineFrames.back();
+    if (!f.used) { fn->insert(fn->end(), f.exitBB); f.used = true; }
+    llvm::BasicBlock *cont = llvm::BasicBlock::Create(ctx,"notRefused",fn);
+    b->CreateCondBr(c, f.exitBB, cont);
+    b->SetInsertPoint(cont);
+    return 1;
+    %-
+}
+
+
 extern int jitEmitReturn()
 {
     -%
