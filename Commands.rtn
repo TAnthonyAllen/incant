@@ -103,8 +103,7 @@ GroupItem   code,
         extern deliberately -- it is greppable by text, and a sixth extern
         would move the canary pin again for a message.  */
     if !field.isCoded {
-        cerr "compile: REFUSING " field.tag " -- no compiled body":;
-        return null; }
+        return refuse(field,"compile: no compiled body"); }
     /*  ⚠ COMPILE OWNS THE COMPILATION PRECONDITIONS, ENSURED IDEMPOTENTLY.
         R-4, Tony's ruling 2026-08-17.
 
@@ -159,8 +158,7 @@ GroupItem   code,
         not there" -- a different defect, in a different caller, and the two
         sentences send you to different places.  */
     if !code {
-        cerr "compile: REFUSING " field.tag " -- isCoded is set but there is no CodE attribute; the flag and the artifact disagree":;
-        return null; }
+        return refuse(field,"compile: isCoded is set but there is no CodE attribute; the flag and the artifact disagree"); }
     grup    = 0;
     while grup = field.next(grup)
         if grup.noPrint     continue;
@@ -214,8 +212,7 @@ GroupItem   code,
         -%
         gCompileRefused++;
         %-
-        cerr "compile: REFUSING " field.tag " -- processCode would not parse the generated body; its message above names the position":;
-        return null; }
+        return refuse(field,"compile: processCode would not parse the generated body; its message above names the position"); }
 endCompile:
     field.hasNewParse   = true;
     return field;

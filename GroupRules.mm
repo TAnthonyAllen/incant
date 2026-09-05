@@ -1936,8 +1936,7 @@ GroupItem 	*grup = 0;
 	would move the canary pin again for a message.  */
 	if ( !isCoded(field->groupBody->flags.actionType) )
 		{
-		::fprintf(stderr,"compile: REFUSING %s -- no compiled body\n",field->groupBody->tag);
-		return 0;
+		return refuse(field,"compile: no compiled body");
 		}
 	/*  ⚠ COMPILE OWNS THE COMPILATION PRECONDITIONS, ENSURED IDEMPOTENTLY.
 	R-4, Tony's ruling 2026-08-17.
@@ -1994,8 +1993,7 @@ GroupItem 	*grup = 0;
 	sentences send you to different places.  */
 	if ( !code )
 		{
-		::fprintf(stderr,"compile: REFUSING %s -- isCoded is set but there is no CodE attribute; the flag and the artifact disagree\n",field->groupBody->tag);
-		return 0;
+		return refuse(field,"compile: isCoded is set but there is no CodE attribute; the flag and the artifact disagree");
 		}
 	grup = 0;
 	while ( grup = field->next(grup) )
@@ -2054,8 +2052,7 @@ GroupItem 	*grup = 0;
 		
 		gCompileRefused++;
 		
-		::fprintf(stderr,"compile: REFUSING %s -- processCode would not parse the generated body; its message above names the position\n",field->groupBody->tag);
-		return 0;
+		return refuse(field,"compile: processCode would not parse the generated body; its message above names the position");
 		}
 endCompile:
 	field->groupBody->flags.hasNewParse = 1;
@@ -8614,8 +8611,7 @@ extern "C" GroupItem *opDeref(GroupItem *result)
 		}
 	if ( isGROUP(result->groupBody->flags.data) )
 		return result->getGroup();
-	::fprintf(stderr,"ERROR unary * on %s -- it holds no group\n",result->groupBody->tag);
-	return 0;
+	return ::refuse(result,"unary * -- it holds no group");
 }
 
 /***************************************************************************
@@ -8644,8 +8640,7 @@ extern "C" GroupItem *opDiv(GroupItem *argument, GroupItem *target)
 		GroupControl::groupController->groupRules->tempField->setNumber(target->getNumber() / argument->getNumber());
 	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
 		{
-		::fprintf(stderr,"ERROR Operator / not supported for %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
-		return 0;
+		return ::refuse(target,"Operator / -- not supported for these operands");
 		}
 	return GroupControl::groupController->groupRules->tempField;
 }
@@ -8894,8 +8889,7 @@ extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target)
 	/*  F-41 null-operand guard -- see the note on opPlus.  */
 	if ( !argument )
 		{
-		::fprintf(stderr,"ERROR Operator == failed on %s and a refused operand\n",target->groupBody->tag);
-		return 0;
+		return ::refuse(target,"Operator == -- a refused operand");
 		}
 	if ( target && !target->groupBody->flags.data )
 		{
@@ -8942,8 +8936,7 @@ extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *target)
 	/*  F-41 null-operand guard -- see the note on opPlus.  */
 	if ( !argument )
 		{
-		::fprintf(stderr,"ERROR Operator >= failed on %s and a refused operand\n",target->groupBody->tag);
-		return 0;
+		return ::refuse(target,"Operator >= -- a refused operand");
 		}
 	if ( target && !target->groupBody->flags.data )
 		{
@@ -8976,8 +8969,7 @@ extern "C" GroupItem *opGT(GroupItem *argument, GroupItem *target)
 	/*  F-41 null-operand guard -- see the note on opPlus.  */
 	if ( !argument )
 		{
-		::fprintf(stderr,"ERROR Operator > failed on %s and a refused operand\n",target->groupBody->tag);
-		return 0;
+		return ::refuse(target,"Operator > -- a refused operand");
 		}
 	if ( target && !target->groupBody->flags.data )
 		{
@@ -9086,8 +9078,7 @@ extern "C" GroupItem *opLE(GroupItem *argument, GroupItem *target)
 	/*  F-41 null-operand guard -- see the note on opPlus.  */
 	if ( !argument )
 		{
-		::fprintf(stderr,"ERROR Operator <= failed on %s and a refused operand\n",target->groupBody->tag);
-		return 0;
+		return ::refuse(target,"Operator <= -- a refused operand");
 		}
 	if ( target && !target->groupBody->flags.data )
 		{
@@ -9120,8 +9111,7 @@ extern "C" GroupItem *opLT(GroupItem *argument, GroupItem *target)
 	/*  F-41 null-operand guard -- see the note on opPlus.  */
 	if ( !argument )
 		{
-		::fprintf(stderr,"ERROR Operator < failed on %s and a refused operand\n",target->groupBody->tag);
-		return 0;
+		return ::refuse(target,"Operator < -- a refused operand");
 		}
 	if ( target && !target->groupBody->flags.data )
 		{
@@ -9174,8 +9164,7 @@ extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *target)
 	/*  F-41 null-operand guard -- see the note on opPlus.  */
 	if ( !argument )
 		{
-		::fprintf(stderr,"ERROR Operator - failed on %s and a refused operand\n",target->groupBody->tag);
-		return 0;
+		return ::refuse(target,"Operator - -- a refused operand");
 		}
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
@@ -9197,8 +9186,7 @@ extern "C" GroupItem *opMinus(GroupItem *argument, GroupItem *target)
 			GroupControl::groupController->groupRules->tempField->setText(::headToCount(target->getText(),target->groupBody->gCount - argument->getCount()));
 	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
 		{
-		::fprintf(stderr,"ERROR Operator - failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
-		return 0;
+		return ::refuse(target,"Operator - -- cannot apply to these operands");
 		}
 	return GroupControl::groupController->groupRules->tempField;
 }
@@ -9368,8 +9356,7 @@ extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 	-- a missing operand is simply the other way it cannot apply.  */
 	if ( !argument )
 		{
-		::fprintf(stderr,"ERROR Operator * failed on %s and a refused operand\n",target->groupBody->tag);
-		return 0;
+		return ::refuse(target,"Operator * -- a refused operand");
 		}
 	if ( isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
 		if ( isNUMBER(target->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data) )
@@ -9379,8 +9366,7 @@ extern "C" GroupItem *opMultiply(GroupItem *argument, GroupItem *target)
 			GroupControl::groupController->groupRules->tempField->setCount(target->getCount() * argument->getCount());
 	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
 		{
-		::fprintf(stderr,"ERROR Operator * failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
-		return 0;
+		return ::refuse(target,"Operator * -- cannot apply to these operands");
 		}
 	return GroupControl::groupController->groupRules->tempField;
 }
@@ -9493,8 +9479,7 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 	cannot apply, beside the wrong-type case each already names.  */
 	if ( !argument )
 		{
-		::fprintf(stderr,"ERROR Operator + failed on %s and a refused operand\n",target->groupBody->tag);
-		return 0;
+		return ::refuse(target,"Operator + -- a refused operand");
 		}
 	if ( target->groupBody->flags.data && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		{
@@ -9519,8 +9504,7 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 		}
 	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
 		{
-		::fprintf(stderr,"ERROR Operator + failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
-		return 0;
+		return ::refuse(target,"Operator + -- cannot apply to these operands");
 		}
 	return GroupControl::groupController->groupRules->tempField;
 }
@@ -10056,8 +10040,7 @@ extern "C" GroupItem *opUnaryMinus(GroupItem *result)
 		GroupControl::groupController->groupRules->tempField->setNumber((double)0 - result->groupBody->gNumber);
 	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
 		{
-		::fprintf(stderr,"ERROR Operator unary - failed on %s\n",result->groupBody->tag);
-		return 0;
+		return ::refuse(result,"Operator unary - -- cannot apply");
 		}
 	return GroupControl::groupController->groupRules->tempField;
 }
@@ -12314,10 +12297,11 @@ GroupItem 	*target = field->get(2);
 	if ( gNoUnwrap && op && target && target->groupBody->flags.isArgument ) {
 	void *gop = (void*)op->groupBody->gOp;
 	if ( gop == (void*)&opSetGroup || gop == (void*)&opRebind ) {
-	::fprintf(stderr,"ARGUMENT REBIND REFUSED: `%s` on argument -- argument is a binding, not a field; rebind is the caller's job\n",
+	char why[192];
+	::snprintf(why,sizeof(why),
+	"`%s` on argument -- argument is a BINDING, not a field; rebind is the caller's job",
 	op->groupBody->tag);
-	::fflush(stderr);
-	return 0;
+	return ::refuse(target,why);
 	}
 	}
 	if (!gNoUnwrap) {
@@ -12872,8 +12856,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		return 0;
 	if ( !ruleStuff )
 		{
-		::fprintf(stderr,"setParse: ERROR field passed in %s has no rStuff\n",field->groupBody->tag);
-		return 0;
+		return ::refuse(field,"setParse: the field passed in has no rStuff");
 		}
 	if ( !ruleStuff->parseMethod )
 		{

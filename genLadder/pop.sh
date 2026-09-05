@@ -306,7 +306,10 @@ for _b in "B1 read through the argument        7" \
     fi
 done
 for _o in ':=' '<-'; do
-    if grep -qF "ARGUMENT REBIND REFUSED: \`$_o\` on argument" "$T/abt"; then
+#  ⚠ RE-PINNED 2026-09-05 to refuse()'s uniform line. Same refusal, same two
+#  operators, same presence-with-value discipline -- only the spelling moved
+#  into the one funnel.
+    if grep -qF "\`$_o\` on argument -- argument is a BINDING" "$T/abt"; then
         echo "  ok    argBindT '$_o' refusal NAMED (presence-with-value, not absence)"; green=$((green+1))
     else
         echo "  FAIL  argBindT '$_o' refusal missing -- the guard stopped naming itself"; fail=1

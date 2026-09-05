@@ -876,10 +876,11 @@ GroupItem   result,
     if ( gNoUnwrap && op && target && target->groupBody->flags.isArgument ) {
         void *gop = (void*)op->groupBody->gOp;
         if ( gop == (void*)&opSetGroup || gop == (void*)&opRebind ) {
-            ::fprintf(stderr,"ARGUMENT REBIND REFUSED: `%s` on argument -- argument is a binding, not a field; rebind is the caller's job\n",
+            char why[192];
+            ::snprintf(why,sizeof(why),
+                "`%s` on argument -- argument is a BINDING, not a field; rebind is the caller's job",
                 op->groupBody->tag);
-            ::fflush(stderr);
-            return 0;
+            return ::refuse(target,why);
             }
         }
     if (!gNoUnwrap) {

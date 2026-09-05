@@ -337,8 +337,7 @@ extern GroupItem setParse(GroupItem field)
 RuleStuff   ruleStuff = rStuff;
     if isREGISTRY   return null;
     if !ruleStuff {
-        cerr "setParse: ERROR field passed in",tag,"has no rStuff":;
-        return null; }
+        return refuse(field,"setParse: the field passed in has no rStuff"); }
     if !parseMethod {
         /***********************************************************************
             Set the parseMethod
