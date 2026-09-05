@@ -1,0 +1,107 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(RefuseTerm);
+define
+    rnLeaf=7;
+    rnCount=0;
+    rnAnchor;
+    rnWalk argument code={
+        iterate rnCur on argument;
+        while ++rnCur;
+            ++rnCount;
+            if rnCount > 20;    return 0;
+        };
+    rnRun code={
+        cerr "== the source has NO LIST, so the iterate must refuse ==":;
+        rnCount = 0;
+        rnWalk(rnLeaf);
+        cerr "   iterations after the refusal =" rnCount " (want 0)":;
+        rnAnchor = 0;
+        cerr "fixRefusalNotTerminalHere -- 0 here is a NEGATIVE CONTROL, not a pass: the simple shape does NOT reproduce. The specimen is incant/f31 swept":;
+        };
+    ;
+rnRun();
+print "REFUSALNOTTERMINAL SENTINEL -- reached the foot":;
+stop();
+
+LANE:  runtime
+BLAST: OVERLAPS
+
+NAME      refusalNotTerminal -- a refused iterate leaves the cursor unbound and
+          the action CONTINUES; the enclosing `while ++X` then runs unbounded.
+
+WHAT      aCTionIterate refuses a source that holds no list, says so, and
+          returns. It does not stop the action. Control falls to `while ++X` on
+          a cursor that was never bound, and the loop has nothing to advance to
+          termination. In a body that also derefs the cursor, every iteration
+          prints a refusal, so the run floods rather than spins quietly.
+
+WHERE     aCTionIterate's refusal arm, aCTionWhilE, and `++` on an unbound
+          cursor.
+
+SEE       designDocs ProblemRecords F31. incant/f31 is the live specimen: with
+          a DECLARED argument the refusal is survivable and the walk continues
+          past 42 of them at exit 0; with a MINTED one the FIRST refusal is
+          fatal -- exit 142, 3,853,947 lines of `ERROR unary * on BlocK`.
+
+WHY NOW   Split out 2026-09-05. The argument-declaration sweep is blocked on
+          f31, and f31 is blocked on this. Everything else swept clean: 331
+          sites in 125 files, fleet byte-identical.
+
+WHAT YOU JUST RAN, AND IT IS A NEGATIVE CONTROL RATHER THAN THE REPRO.
+
+⚠ THE MINIMAL SHAPE DOES NOT REPRODUCE, and that is the most useful thing this
+file currently says. One action, one iterate on a listless source, one
+`while ++`: the count after the refusal reads 0. THE REFUSAL STOPS THE WALK
+CORRECTLY HERE. So the defect is NOT "a refused iterate plus a while loop" in
+general, and anybody who reasons from that description will go looking in the
+wrong function.
+
+⚠ THE SPECIMEN IS incant/f31 SWEPT, and it is not reduced yet. What separates
+it from the case above is unknown and is the first thing to find. The candidates
+visible from the two runs, none of them tested: the walk is nested two deep
+(fbWalk calls fbGen which walks again); the body DEREFS the cursor
+(`fbGen(*fbCur)`), so each iteration re-enters an action; the iterate carries a
+`members` modifier; and the argument is minted rather than declared, which is
+the one difference that is known to flip the outcome.
+
+THE ONE MEASURED DISCRIMINATION, and it is the whole reason this citizen exists:
+same file, same line, two spellings of the argument.
+    DECLARED   the refusal is SURVIVABLE -- 42 of them, walk continues, exit 0
+    MINTED     the FIRST refusal is FATAL -- exit 142, 3,853,947 lines
+
+⚠ THE GUARD AT 20 IS NOT DECORATION -- it is what stops this citizen becoming
+the thing it describes. A fixit that hangs takes the seal hostage, which is why
+fixitNag runs every citizen under an alarm (rule H5). Read the count, not the
+exit status: this file exits 0 either way BY CONSTRUCTION.
+
+⚠ THERE IS A POISON AND SOMETHING ABOUT IT IS NOT REACHING f31. aCTionIterate's
+refusal arm sets fLAG on the iterator when there IS one -- `if ( iterator )
+iterator->groupBody->flags.fLAG = 1;` -- precisely so a following `++` cannot
+run away. It was added for nullAfterStar, it works there, and the run above
+shows it working in the simple case. Why it does not cover f31 is exactly what
+is not diagnosed.
+
+NEXT: RULED -- refusal is TERMINAL for the action. Tony, 2026-09-05, pending
+his confirmation; nothing here is buildable until that is given.
+
+THE SHAPE, so the ruling has something to be a ruling about: a refused iterate
+should end the action the way a `return` does, not fall through to the loop.
+The alternative -- make the poison reach every path -- keeps the fall-through
+and asks every future loop construct to remember it.
+
+⚠ NOTHING IS APPLICABLE YET AND THE GATE IS NAMED: the shape is selected, the
+build is not started, and the discrimination that must come first is WHY the
+existing poison misses this case. Fixing the symptom without that answer risks
+a second guard beside a first one that already covers the case nobody checked.
+
+WHAT WOULD PROMOTE IT, cheapest first:
+  1. Print the iterator pointer in the refusal arm on both arms of f31. If it
+     is null under the minted argument and non-null under the declared one, the
+     poison is simply not reaching a node and the fix is upstream of the loop.
+  2. If it is non-null in both, the poison lands and `++` ignores it, which is
+     a different defect in a different function.
+  3. Only then choose between terminal-refusal and wider-poison.
