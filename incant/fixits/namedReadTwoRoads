@@ -1,0 +1,84 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(TwoRoads);
+define
+    trA;  trHost;  trTwin;  trAnchor;
+    trRun code={
+        cerr "== ROAD 1  probe one field TWICE with NOTHING between ==":;
+        probeNode(trA);
+        probeNode(trA);
+        cerr "   the two node= above should match and DO NOT -- the carrier mints a fresh field per ask":;
+
+        cerr "== ROAD 2  an addGroup twin and its original ==":;
+        cerr "   original:":;
+        probeNode(trHost);
+        trTwin <- copyOf(trHost);
+        cerr "   twin:":;
+        probeNode(trTwin);
+        cerr "   two nodes, and whether they share a body is the question":;
+
+        trAnchor = 0;
+        cerr "fixTwoRoadsHere -- both roads above are the SAME mechanism: a named read does not reach a written node":;
+        };
+    ;
+trRun();
+print "TWOROADS SENTINEL -- reached the foot":;
+stop();
+
+LANE:  runtime
+BLAST: DISJOINT
+
+NAME      namedReadTwoRoads -- a named read does not reach a written node, on
+          the two roads try-and-buy B did NOT fix.
+
+WHAT      The same mechanism was measured in three places on three days: the
+          argument road, the flag round trip, and the addGroup twin. B fixed
+          the first by ruling that `argument` is a binding and following the
+          holder at the read. The other two stand.
+
+WHERE     Road 1 is incant/roundTripT ARM 0 -- probeNode takes its subject
+          through a carrier that mints a fresh field per ask, so two adjacent
+          probes of one field report two nodes. It is PINNED AT THE MISMATCH in
+          pop.sh, which is the honest pin while this is open.
+          Road 2 is incant/broadcastT -- an addGroup twin and its original are
+          two nodes over one body, so a write through one is visible through
+          the other.
+
+WHY NOW   Split out 2026-09-05 when carrierNode discharged. That citizen
+          claimed all three roads and was right to; only one of them closed.
+          Retiring the whole thing would have taken these two with it silently,
+          which is the coverage loss retirement-by-mapping exists to prevent.
+
+WHAT YOU JUST RAN. Two adjacent probes of one field, then a twin and its
+original. Road 1 prints two different node addresses where nothing happened
+between them. Road 2 prints the pair whose body-sharing is the question.
+
+⚠ THE ANCESTOR IS incant/attic/carrierNode, retired the same day. Its six
+askings are preserved as designDocs ProblemRecords carrierNodeCarrier, keyed
+on the symptom -- bind writes node A, callee reads node B -- because that is
+what a rematch would grep for. Read that entry before re-opening either road:
+it records five write-side attempts that failed, and the answer to the third
+road turned out to be a READ-side rule. That is the shape to try first.
+
+NEXT: OPEN.
+
+No candidate fix is recommended and none should be inferred from the argument
+road closing -- B worked because a bare name could be given a resolution rule,
+and neither of these roads goes through a name lookup.
+
+WHAT WOULD GENERATE ONE, cheapest first:
+  1. For road 1, decide whether probeNode should read through the carrier at
+     all. If the instrument is what mints the fresh field, this is an
+     INSTRUMENT defect and not a language one, and the fix is to give addrOf
+     and probeNode a path that does not pass an argument.
+     ⚠ That is a candidate and it is NOT diagnosed. It is written down as the
+     first thing to test, not as the answer.
+  2. For road 2, ask whether copyOf sharing a body is the design or the defect.
+     C18 says a copy of a field shares its source body outright, and if that is
+     the ruling then broadcastT is asserting the wrong thing and the fix is a
+     re-pin with a sentence, not a code change.
+  3. Only if both survive: ask whether the two roads are one problem. They were
+     grouped by symptom, never by measurement.

@@ -329,6 +329,42 @@ for _a in "A depth 3 sees argument = 7 local = 3" \
     fi
 done
 
+#  ============================================================================
+#  ⚠ acceptStartT -- THE ACCEPTANCE LINE. UN-PARKED 2026-09-05 (rule H6).
+#  Parked since 2026-08-30 with "un-parks at the flip", because the answer it
+#  would be measured against had not been chosen. The flip has landed and B has
+#  discharged it, so parking it further is what turns a parked item into a
+#  forgotten one -- which is the failure the WOKE alarm exists to prevent.
+#
+#  THE CRITERION IS THE FIXTURE'S OWN, unchanged since it was written:
+#      LEGACY   the argument is a CARRIER -- its groupBody DIFFERS from the caller's
+#      FLIPPED  the argument IS the caller's storage -- groupBody IDENTICAL
+#  It used to print `asSubject` and `argument` over TWO bodies. It now prints
+#  the caller's tag twice over ONE.
+#
+#  ⚠ THE TWO BODIES ARE COMPARED TO EACH OTHER, NEVER TO A PINNED ADDRESS
+#  (rule H3). Addresses move every run for reasons that say nothing about
+#  whether the answer is right; a golden diff here would cry wolf daily and be
+#  regenerated green, which is not a target.
+#  ⚠ ANTI-VACUITY: the row demands exactly TWO BODY lines and a non-empty body
+#  value. Two absent lines compare equal, and "equal" over nothing is precisely
+#  what a fixture that stopped printing would report.
+run1 acceptStartT "$T/acc"; check "acceptStartT runs" 0 $?
+sentinel "acceptStartT sentinel (no truncation)" "$T/acc" "ACCEPT SENTINEL"
+_accn=$(grep -c '^BODY ' "$T/acc")
+_acc1=$(grep '^BODY ' "$T/acc" | sed -n '1s/.*groupBody=//p')
+_acc2=$(grep '^BODY ' "$T/acc" | sed -n '2s/.*groupBody=//p')
+if [ "$_accn" != 2 ] || [ -z "$_acc1" ]; then
+    echo "  FAIL  acceptStartT VACUITY: $_accn BODY line(s), body '$_acc1' -- the fixture stopped reporting, so the comparison below asserts nothing"; fail=1
+elif [ "$_acc1" = "$_acc2" ]; then
+    echo "  ok    acceptStartT THE ACCEPTANCE LINE: callee and caller share ONE body ($_acc1)"; green=$((green+1))
+else
+    echo "  FAIL  acceptStartT THE ACCEPTANCE LINE FAILS -- the callee is on a DIFFERENT body"
+    echo "          caller $_acc1"
+    echo "          callee $_acc2   (a CARRIER; see designDocs ProblemRecords carrierNodeCarrier)"
+    fail=1
+fi
+
 #  ⚠ argJitT -- THE JITTED ARGUMENT READ, ON THE INLINED ROAD.
 #  PROMOTED 2026-09-05 BECAUSE ITS ABSENCE COST A SILENT REGRESSION THAT DAY.
 #  Until it existed NO fixture in the tree read an action's `argument` under the

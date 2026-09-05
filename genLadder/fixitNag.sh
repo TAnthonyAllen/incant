@@ -54,4 +54,48 @@ echo "  lanes: $lanerow   |   blast: $blastrow"
 if [ -n "$unstamped" ]; then
     echo "  ⚠ UNSTAMPED (lane/blast owed):$unstamped"
 fi
+#  ⚠ EVERY CITIZEN IS RUN, AND ONE THAT CANNOT RUN IS MISFILED, NOT COUNTED.
+#  Added 2026-09-05 on Tony's ruling, after the register's OLDEST citizen was
+#  found to have no Start() and no stop() at all: carrierNode died at
+#  `RunRulE: expected a method not LANE` and exited 0, so for five days the
+#  headline counted a file that had never executed.
+#
+#  ⚠ THAT IS THE REGISTER'S FOUNDING RULE FAILING SILENTLY ON ITS OWN OLDEST
+#  ENTRY. `incant/fixits/` exists because PROSE CAPTURE ROTS and runnable
+#  capture does not; a citizen that is prose is the thing the register was built
+#  to replace, wearing the register's clothes. A count that includes it
+#  overstates what is actually steppable, which is the one number the loaded-gun
+#  line is for.
+#
+#  MISFILED IS PRINTED LOUDLY AND SEPARATELY, never folded into the tally --
+#  same discipline as UNSTAMPED above, and for the same reason: a check that
+#  vanishes from a count is invisible in a count of checks.
+#
+#  ⚠ EACH RUN IS ALARM-BOUNDED (rule H5). A hanging citizen must not take the
+#  seal hostage the way iterT1m once took pop.sh -- a nag that never returns is
+#  worse than a wrong number, because the operator just sees a quiet terminal.
+#  timeout(1) is not on macOS; perl's alarm is.
+B=${INCANT:-$HOME/bin/incant}
+runnable=0; misfiled=""; rows=""
+for f in "$D"/*; do
+    [ -e "$f" ] || continue
+    nm=$(basename "$f")
+    out=$(perl -e 'alarm 60; exec @ARGV' "$B" "$f" 2>/dev/null)
+    st=$?
+    if [ -z "$out" ]; then
+        misfiled="$misfiled $nm"
+    else
+        runnable=$((runnable+1))
+        if [ "$st" = 142 ]; then rows="$rows  repro: $nm -- HUNG (alarm at 60s)\n"
+        else                     rows="$rows  repro: $nm -- exit $st\n"; fi
+    fi
+done
+printf "$rows"
+if [ -n "$misfiled" ]; then
+    echo "  ⚠ MISFILED (no runnable repro -- NOT counted above):$misfiled"
+    echo "    The register's rule is RUNNABLE capture. A citizen that only reads is prose,"
+    echo "    and prose is what incant/fixits was built to replace. Give it a Start() and a"
+    echo "    single stop(), or retire it by ruling."
+fi
+echo "  steppable now: $runnable of $n"
 echo "  routing: OVERLAPS lands before the recon or rides the migration ledger; DISJOINT holds for the pledged hour"
