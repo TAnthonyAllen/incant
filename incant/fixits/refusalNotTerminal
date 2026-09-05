@@ -8,7 +8,7 @@ define
     rnLeaf=7;
     rnCount=0;
     rnAnchor;
-    rnWalk argument code={
+    rnWalk code={
         iterate rnCur on argument;
         while ++rnCur;
             ++rnCount;
