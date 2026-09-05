@@ -1804,6 +1804,51 @@ fi
 #  for loop in the system would run BACKWARDS. Nothing else in the fleet can see
 #  that, because a backwards walk is still a walk.
 #  ============================================================================
+#  ⚠ THE `ERROR` CENSUS -- Tony's ruling 2026-09-05, part of B.
+#  A refusal now speaks through refuse(), which prints REFUSED. So the word
+#  ERROR belongs at NO refusal site: the routed ones cannot say it, and the
+#  PLANNER family never should have, because a planner refusing a rule it cannot
+#  plan is a NORMAL ANSWER ITS CALLER HANDLES rather than a failure.
+#
+#  ⚠ THE PLANNER ROW IS PINNED AT ZERO AND IS THE ONE THAT MATTERS. genParse's
+#  odometer is 46 refusals of 64 rules, RED BY DESIGN, all in ONE walk. Calling
+#  those ERROR is what made "route the remaining 92" look reasonable, and
+#  routing them would have armed on the first unplannable rule and destroyed the
+#  odometer. The word is the guard against repeating that reading.
+#
+#  The TOTAL is a RATCHET, not a pin: it may only fall as B routes the
+#  candidate-TERMINAL bucket. Asserted BY VALUE (H4), never by absence.
+plannerErr=$(python3 -c "
+import re
+chain=['Commands.rtn','GroupActions.rtn','ruleActions.rtn','Debug.rtn','Instruct.rtn','jitEmitters.rtn','genParse.rtn','Generate.rtn']
+P={'planRule','planTerm','emitPlan','emitLeaf','emitMany','genKant','kantLeaf','kantDoor','activateAll','activateBody','compileStored','storeBody','actK','setParseMethod','parseRuleMethod','parseTermCount'}
+f_=re.compile(r'^extern\s+[A-Za-z_][A-Za-z0-9_ *]*\s+\**([A-Za-z_][A-Za-z0-9_]*)\s*\(')
+n=0
+for f in chain:
+    cur=''
+    for l in open(f,errors='ignore'):
+        m=f_.match(l)
+        if m: cur=m.group(1)
+        if cur in P and 'ERROR' in l and ('cerr' in l or 'fprintf' in l): n+=1
+print(n)")
+totalErr=$(python3 -c "
+chain=['Commands.rtn','GroupActions.rtn','ruleActions.rtn','Debug.rtn','Instruct.rtn','jitEmitters.rtn','genParse.rtn','Generate.rtn']
+print(sum(1 for f in chain for l in open(f,errors='ignore') if ('cerr' in l or 'fprintf' in l) and 'ERROR' in l))")
+if [ "$plannerErr" = 0 ]; then
+    echo "  ok    ERROR census: ZERO planner sites say ERROR -- PINNED AT ZERO"; green=$((green+1))
+else
+    echo "  FAIL  ERROR census: $plannerErr planner site(s) say ERROR. A planner refusing a rule"
+    echo "        it cannot plan is a NORMAL ANSWER its caller handles, not a failure --"
+    echo "        and calling it ERROR is what makes routing it look reasonable."; fail=1
+fi
+if [ "$totalErr" -le 25 ]; then
+    echo "  ok    ERROR census ratchet: $totalErr of 25 remain (falls as B routes; may not rise)"; green=$((green+1))
+else
+    echo "  FAIL  ERROR census ratchet ROSE to $totalErr, was 25. A new refusal site should"
+    echo "        speak through refuse(), which prints REFUSED and never ERROR."; fail=1
+fi
+
+#  ============================================================================
 #  ⚠ groups.ext MIRROR ARITY -- A DRIFT THAT tok CANNOT SEE, BY DESIGN.
 #  Added 2026-09-05, Tony's explanation + Clay's ruling, after two instances.
 #

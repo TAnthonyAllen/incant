@@ -880,7 +880,7 @@ extern GroupItem opPlus(GroupItem argument,GroupItem target)
         or isCOUNT                          tempField.count  = gCount + argument.count;
         or isSTRING || isTOKEN
             if gCount > argument.count  tempField.text = gText + argument.count;
-            else    cerr "ERROR Operator + tried to advance string past length of",tag:; }
+            else    cerr "opPlus WARNING: tried to advance a string past its length on",tag,"-- the value stands":; }
     if !tempField.data {
         return refuse(target,"Operator + -- cannot apply to these operands"); }
     return tempField;
@@ -1261,7 +1261,7 @@ use argument
                 constitutionally unable to disagree because they are the same
                 integer, which is isCodeD's discipline applied to its sibling.  */
             case 408:   -% target->groupBody->flags.actionType = 1; %-
-           default:    cerr "opSetFlag: groupField",tag,"has no case yet -- gCount",toStringFromInt(flagDef.gCount):; }
+           default:    cerr "opSetFlag WARNING: groupField",tag,"has no case yet -- guessing from gCount",toStringFromInt(flagDef.gCount),"; the value stands":; }
     else    cerr "opSetFlag: missing operand":;
     return target;
 }

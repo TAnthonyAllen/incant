@@ -2633,7 +2633,7 @@ extern int setParseMethod(RuleStuff stuff, String name)
     void    *address = ::dlsym(RTLD_DEFAULT,name);
     if ( !address )
         {
-        ::fprintf(stderr,"setParseMethod: ERROR no method found %s\n",name);
+        ::fprintf(stderr,"setParseMethod: REFUSING %s -- no method of that name\n",name);
         return 0;
         }
     stuff->parseMethod = (GroupItem *(*)(GroupItem *))address;

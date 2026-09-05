@@ -9568,7 +9568,7 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 		if ( isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data) )
 			if ( target->groupBody->gCount > argument->getCount() )
 				GroupControl::groupController->groupRules->tempField->setText(target->groupBody->gText + argument->getCount());
-			else	::fprintf(stderr,"ERROR Operator + tried to advance string past length of %s\n",target->groupBody->tag);
+			else	::fprintf(stderr,"opPlus WARNING: tried to advance a string past its length on %s -- the value stands\n",target->groupBody->tag);
 		}
 	if ( !GroupControl::groupController->groupRules->tempField->groupBody->flags.data )
 		{
@@ -10034,7 +10034,7 @@ GroupItem 	*flagDef = 0;
 				 target->groupBody->flags.actionType = 1; 
 				break;
 			default:
-				::fprintf(stderr,"opSetFlag: groupField %s has no case yet -- gCount %s\n",argument->groupBody->tag,::toStringFromInt(flagDef->groupBody->gCount));
+				::fprintf(stderr,"opSetFlag WARNING: groupField %s has no case yet -- guessing from gCount %s ; the value stands\n",argument->groupBody->tag,::toStringFromInt(flagDef->groupBody->gCount));
 			}
 	else	::fprintf(stderr,"opSetFlag: missing operand\n");
 	return target;
@@ -13010,7 +13010,7 @@ extern "C" int setParseMethod(RuleStuff *stuff, char *name)
 	void    *address = ::dlsym(RTLD_DEFAULT,name);
 	if ( !address )
 	{
-	::fprintf(stderr,"setParseMethod: ERROR no method found %s\n",name);
+	::fprintf(stderr,"setParseMethod: REFUSING %s -- no method of that name\n",name);
 	return 0;
 	}
 	stuff->parseMethod = (GroupItem *(*)(GroupItem *))address;
