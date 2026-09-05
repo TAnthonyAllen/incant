@@ -1,0 +1,60 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(ArgRound);
+define
+    arDepth=0;
+    arSrc=7;
+    arOther=41;
+    arA argument code={
+        ++arDepth;
+        arMine = arDepth;
+        if arDepth < 3;     arB(arOther);
+        print "  A depth" arMine " sees argument =" argument " local =" arMine:;
+        };
+    arB argument code={
+        arA(arSrc);
+        };
+    arRun code={
+        arA(arSrc);
+        };
+    ;
+arRun();
+print "ARGROUND SENTINEL -- reached the foot":;
+stop();
+
+argRoundT -- TRY-AND-BUY B.  A -> B -> A, with a LOCAL and an ARGUMENT each
+carried across the nested call.
+
+arA is entered three times through two different actions.  Each activation
+writes its own local (arMine = its depth) and reads BOTH its local and its
+`argument` AFTER the round trip has returned.  Every activation of arA is
+passed arSrc = 7; the intervening arB is passed arOther = 41, so a frame that
+leaks hands back 41 and the row says so by value rather than by absence.
+
+    A depth 3 ... argument = 7 local = 3
+    A depth 2 ... argument = 7 local = 2
+    A depth 1 ... argument = 7 local = 1
+
+WHAT EACH COLUMN DISCRIMINATES, and neither is redundant:
+
+  the LOCAL column   descending 3/2/1 means each activation kept its own.  All
+                     three reading 3 is the trample -- an inner activation's
+                     value handed back to the outer one, which is the defect
+                     the save/restore bracket exists to prevent (K2x's shape,
+                     one road over).
+
+  the ARGUMENT column  7 at every depth means each activation kept the field it
+                     was called with.  A 41 anywhere is arB's argument reaching
+                     arA -- the mutual-recursion leak K6c pins on the other
+                     road, and the reason the intervening call is passed a
+                     DIFFERENT value on purpose.
+
+⚠ 41 IS THE ANTI-VACUITY VALUE.  Had arB been passed arSrc too, a completely
+broken channel that handed every callee the same node would print 7 three
+times and pass.  The two values must differ or the argument column asserts
+nothing.
