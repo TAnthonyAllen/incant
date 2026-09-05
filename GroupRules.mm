@@ -764,6 +764,10 @@ GroupItem 	*source = 0;
 	return 0;
 	}
 	if ( !gNoUnwrap )   source = ::unWrap(source);
+	// TRY-AND-BUY B: an isArgument source yields what it holds, before the
+	// holds-a-pointer refusal   ruleActions.aCTionIterate.argBinding
+	if ( gNoUnwrap && source && source->groupBody->flags.isArgument && isGROUP(source->groupBody->flags.data) )
+	source = source->getGroup();
 	if ( source && isGROUP(source->groupBody->flags.data) )
 	{
 	::fprintf(stderr,"ERROR iterate on %s: it holds a pointer, not a list; write *%s\n",
@@ -4442,6 +4446,14 @@ extern "C" int jitEmitBareRead(GroupItem *token)
 	
 	llvm::IRBuilder<> *b = gJitBuilder;
 	if (!b || !token) return 0;
+	//  TRY-AND-BUY B: an isArgument token yields what it holds. The print item
+	//  walk seeds its operands here, NOT through runOP, so B's read rule has to
+	//  be stated a second time or a jitted `print argument` reads the holder's
+	//  storage -- which is this function's own 75102656, one road over.
+	//  jitEmitters.jitEmitBareRead.argBinding
+	if ( gNoUnwrap && token->groupBody->flags.isArgument && isGROUP(token->groupBody->flags.data) )
+	token = token->getGroup();
+	if (!token) return 0;
 	//  ⚠ REFUSE ANYTHING THAT IS NOT A SCALAR READ, and this guard is not
 	//  defensive padding -- its absence is what printed 75102656. Handed a LIST
 	//  node (a multi-part expression), the primitive below dutifully emitted a
@@ -12203,62 +12215,14 @@ int 		chanAbort = 0;
 	if ( isCoded(field->groupBody->flags.actionType) )
 		if ( !::processCode(field) )
 			return 0;
-	/*  THE SELF-CALL SEAM. Under jitting an ordinary call INLINES -- emit-on-walk
-	re-executes the callee's BlocK into the current builder, which is measured
-	to work and produces correct run-time answers with no `call` in the IR
-	(incant/jitJC). A SELF-call cannot inline: the re-walk reuses nodes that
-	already carry jitData from the enclosing pass, and the condition target's
-	jitValue is by then an i1 (jitEmitCompare's result), so the second pass
-	asserts inside LLVM. jitEmitSelfCall answers 0 for every other callee, so
-	this gate changes nothing about ordinary calls.  */
 	if ( ruler->jitting )
 		{
+		// SELF-CALL cannot inline in jitter
 		 if (::jitEmitSelfCall(argument, field)) return field; 
 		}
-	/*  ⚠ BIND-BY-BODY, the flip's other half. Under gNoUnwrap the argument node
-	ADOPTS the caller's groupBody, so every read and write through the
-	argument name reaches caller storage with no hop -- which is what the
-	auto-unwrap was silently providing (filmed 2026-08-30: `argument = 5`
-	already reaches the caller today, via runOP's !op.isAssign arm). The two
-	retire together or the write stops arriving, silently.
-	⚠ THE BODY IS THE STABLE IDENTITY AND THE NODE IS NOT: two calls passing
-	the same source field arrive as DIFFERENT NODES OVER ONE BODY. Binding
-	by body binds to what is already invariant.  */
-	/*  ⚠⚠ THE SAVE COMES FIRST, AND THE ORDER IS THE WHOLE FIX FOR THE TRAMPLE.
-	SEQ 106. saveLocalFields walks (isArgument || isLocal), so the argument
-	is IN the frame set. While the bind ran first the frame captured the NEW
-	argument and restore handed the NEW one back -- so an outer activation
-	never got its own argument returned, in BOTH directions of recursion.
-	Measured: kant8T K2x row 1 (direct) and K6c (mutual) both read the
-	inner's argument; with the save moved above the bind both read the
-	outer's, and no other fleet row moved.
-	⚠ THIS IS THE INTERPRETED CALLEE'S ENTIRE RECURSION SAFETY. It has no
-	stack local to lift into, unlike a generated C++ parse method, so the
-	save/restore bracket IS the frame -- correctly ordered. The frame bind's
-	"no save/restore" clause governs the C++ handoff only.
-	UNCONDITIONAL since 2026-08-10, SEQ 27 rung B; see the note above
-	jitSaveFrameRT for why the gate was the defect rather than the
-	protection, and why rung A's return seam had to land first.  */
+	// WHY SAVE HERE
 	::saveLocalFields(field);
-	/*  ⚠ BIND-BY-BODY, the flip's other half. Under gNoUnwrap the argument node
-	ADOPTS the caller's groupBody, so every read and write through the
-	argument name reaches caller storage with no hop.
-	⚠⚠ THE rStuff.frameArg SLOT WAS HERE AND IS GONE (SEQ 106 built it, SEQ 107
-	stripped it). It could never fire: the `if (field.rStuff)` guard is FALSE for an
-	interpreted action -- measured 16 of 16 action binds at rStuff = 0x0 --
-	because Ruling D makes rStuff presence the liveness test and an action is
-	not a rule. Do not re-add a slot there.
-	⚠ WHAT THE MEASUREMENT LEFT STANDING, because it is the live question:
-	after definition there are TWO nodes tagged `argument` -- the ORIGINAL on
-	the action, which this line binds, and ONE COPY under a Token in the
-	cached BlocK, which is what the body actually READS. They share one body
-	before the bind, and the bind repoints only the original's body pointer,
-	which is exactly why the callee keeps reading the pre-bind body.
-	⚠ IT IS ONE COPY, NOT ONE PER MENTION -- censused 2026-09-01 with parent
-	attribution across 23 actions: every action has exactly ONE original, and
-	copies are 0 or 1 regardless of how many times the body says `argument`
-	(ntF mentions it twice and has none; asTake mentions it twice and has
-	one).  */
+	// ARGUMENT HANDLING
 	
 	GroupItem *chanPrevGroup = 0;
 	GroupBody *chanBody      = 0;
@@ -12266,29 +12230,7 @@ int 		chanAbort = 0;
 	if (( ruleArg = field->get("argument") )) {
 	result = argument ? argument : field;
 	if (gNoUnwrap)  {
-	/*  THE UNION TRIPWIRE (Tony, SEQ 120). gGroup shares storage with gCount,
-	gNumber, gBuffer and six others, so this write CLOBBERS whatever else
-	that union holds. It is safe only because an action's argument attribute
-	body holds nothing -- measured, gGroup reads 0x0 there. That is a
-	CONSTRAINT WITH AN ALARM, not a fix: write only when the union is empty,
-	and refuse BY NAME otherwise. The refusal never fires in a correct build;
-	the day it does, it names the day the assumption broke.   GroupActions.runAction.unionTripwire  */
-	/*  ⚠ THE TRIPWIRE LEARNS THE TAG (Tony, SEQ 130). It used to refuse on
-	`gGroup non-zero` alone, which conflated TWO occupants: foreign data
-	sharing the union -- gCount, gNumber, gBuffer -- whose bytes merely
-	READ as a pointer, and a PRIOR CHANNEL BIND, which is a real group
-	and is exactly what the bracket exists to save and give back. Under
-	recursion the second is the normal case, so the old test refused the
-	call's own outer activation and sent it down the pre-channel road.
-	Refuse iff the union is non-zero AND NOT isGROUP.
-	GroupActions.runAction.unionTripwire  */
-	/*  ⚠ A REFUSED BIND ABORTS THE ACTION (Tony, SEQ 131), in F-41's form:
-	named, declined, and the run continues. THE BIND-BY-BODY FALLBACK
-	ROAD IS GONE -- it silently returned one call to the pre-channel
-	road and, measured on tnLoaded, handed the callee THE OCCUPANT
-	rather than the argument it was called with. A wrong answer
-	delivered quietly is worse than no answer delivered loudly.
-	GroupActions.runAction.unionTripwire  */
+	// ISSUES WITH NO MORE UNWRAP
 	if ( ruleArg->groupBody->gGroup && !isGROUP(ruleArg->groupBody->flags.data) ) {
 	::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the argument body's union holds non-group data; the action is NOT run\n",
 	field->groupBody->tag);
@@ -12296,15 +12238,6 @@ int 		chanAbort = 0;
 	chanAbort = 1;
 	}
 	else {
-	/*  ⚠ THROUGH setGroup, AND THE TWO ROADS ARE ONE AGAIN (Tony, SEQ 127).
-	SEQ 120 held this at a DIRECT write because setGroup stored
-	`new GroupItem(g)` for a parented source, so *argument reached a COPY
-	and the channel lost its whole point. setGroup no longer copies -- it
-	is the bare assignment and embedRule owns the one legitimate copy --
-	so routing through it keeps the FIELD and costs nothing.
-	⚠ THE TRIPWIRE STAYS ABOVE, AT THE CALL SITE, ahead of the call:
-	setGroup is not a union guard and does not become one.
-	GroupActions.runAction.argChannel  */
 	chanPrevGroup = ruleArg->groupBody->gGroup;
 	chanPrevData  = ruleArg->groupBody->flags.data;
 	chanBody      = ruleArg->groupBody;
@@ -12323,12 +12256,9 @@ int 		chanAbort = 0;
 	
 	ruler->lastREF->groupBody->gGroup = result;
 	ruler->lastREF->groupBody->flags.data = 6;
-	/*  BRACKET THE INLINE. Under jitting this call is being INLINED -- the
-	BlocK below re-executes into the caller's builder -- so for the duration
-	the action being walked is `field`, and a recursive call inside it must
-	be recognised as such. See gJitInlining.  */
 	if ( ruler->jitting )
 		{
+		// BRACKET THE INLINE
 		 jitInlinePush(field); 
 		}
 	if ( !chanAbort )
@@ -12337,59 +12267,12 @@ int 		chanAbort = 0;
 	
 	if ( chanBody ) { chanBody->gGroup = chanPrevGroup; chanBody->flags.data = chanPrevData; }
 	
-	/*  ⚠ `result` IS PASSED BECAUSE IT IS THE VALUE CHANNEL. An enclosing
-	assignment reads its operand's jitData, and this node is that operand --
-	so when E2's merge produces the callee's answer, this is what has to
-	carry it. Measured the hard way: a merge that set only gJitResult was
-	emitted correctly and then ignored.  */
 	if ( ruler->jitting )
 		{
+		// VALUE CHANNEL
 		 jitInlinePop(result); 
 		}
-	/*  THE RETURN SEAM -- VALUE-CAPTURE. Tony, 2026-08-10, SEQ 27 rung A.
-	
-	restoreLocalFields overwrites a local's body IN PLACE, so returning the
-	local's own node hands the caller a pointer INTO the frame that is about
-	to be swept. The caller then reads it back blanked -- it answers with its
-	own tag instead of its value, which is CLAIM KANT-8. The cure is to take
-	the value BEFORE the sweep and hand back the copy.
-	
-	THE BRACKET IS NOT TOUCHED. M1 measured the locals restoring perfectly at
-	every depth on both engines; the only defect was the returned pointer
-	aiming into the frame. So this is a seam repair, not a bracket repair.
-	
-	Three clauses, each load-bearing, each with a caller that proves it:
-	1. MINT A FRESH NODE and copy the value in -- never the local's node, and
-	never a bare scalar. manyKant and spellKant (genParse.rtn) both
-	null-check this result and then read .text off it, which a raw number
-	breaks. Note the copy constructor is NOT usable here: it SHARES the
-	body, which is precisely what the sweep overwrites. Minting and then
-	calling setContent is the detaching form, and setContent already
-	carries the contentless case (it stamps the tag as the text), so a
-	result with no value reads back the same string it does today.
-	2. MINT ON THE RESULT'S OWN TAG, so both the tag and the text answer
-	exactly as they did before this seam existed.
-	3. PRESERVE NULL AS NULL. Minting an empty node instead would invert the
-	two null checks at those same sites, and an empty answer would then
-	read as a successful one -- silently, and in the flattering direction.
-	⚠ MEASURED 2026-08-10, AND THE GUARD IS DEFENSIVE RATHER THAN LOAD-
-	BEARING, WHICH IS WORTH KNOWING BEFORE ANYONE "SIMPLIFIES" IT AWAY.
-	There are TWO ways this method answers with nothing. The reachable one
-	is the early return above, when a coded body fails to parse; it
-	returns before this block and so preserves nothing-ness for free. The
-	other is a run that gets past that and still yields no result, and a
-	sweep of the whole fixture population found it happening ZERO times in
-	128 files. So this guard is currently uncontrolled by any fixture: it
-	is here because without it the mint would dereference a null and take
-	the process down, not because a green run proves it fires. incant's
-	kant8N certifies the reachable path and says plainly that it does not
-	reach this one.
-	
-	NOT UNDER jitting. The jitted arm already returns by capture and is the
-	certified one; the node in flight there is the value channel an enclosing
-	assignment reads through jitData, which a fresh node would not carry.
-	The interpreter is adopting the jit's semantics here, so the jitted arm
-	owes byte-agreement and must emit unchanged.  */
+	// RETURN SEAM AND restoreLocalFields
 	if ( result && !ruler->jitting )
 		{
 		capture = new GroupItem(result->groupBody->tag);
@@ -12412,11 +12295,29 @@ GroupItem 	*target = field->get(2);
 	`!isPointer` is measured dead (0 suppressions in 29,634 runOP entries)
 	and `!op.isAssign` retires with the line rather than despite it -- the
 	exemption becomes the rule. See docs/unwrapRecon.md.  */
+	// TRY-AND-BUY B: an isArgument field yields what it holds; a REBIND of that
+	// binding refuses by name -- tested BEFORE the follow, which destroys the
+	// evidence   GroupActions.runOP.argBinding
 	
+	if ( gNoUnwrap && op && target && target->groupBody->flags.isArgument ) {
+	void *gop = (void*)op->groupBody->gOp;
+	if ( gop == (void*)&opSetGroup || gop == (void*)&opRebind ) {
+	::fprintf(stderr,"ARGUMENT REBIND REFUSED: `%s` on argument -- argument is a binding, not a field; rebind is the caller's job\n",
+	op->groupBody->tag);
+	::fflush(stderr);
+	return 0;
+	}
+	}
 	if (!gNoUnwrap) {
 	if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer && !target->groupBody->flags.isIterator && !op->groupBody->flags.isAssign )
 	target = target->getGroup();
 	if ( arg && isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isPointer )
+	arg = arg->getGroup();
+	}
+	else {
+	if ( target && target->groupBody->flags.isArgument && isGROUP(target->groupBody->flags.data) )
+	target = target->getGroup();
+	if ( arg && arg->groupBody->flags.isArgument && isGROUP(arg->groupBody->flags.data) )
 	arg = arg->getGroup();
 	}
 	

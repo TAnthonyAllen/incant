@@ -1,0 +1,50 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(ProbeArgJit);
+define
+    paSrc;
+    paOut;
+    paCallee argument code={
+        paOut = argument * 2;
+        };
+    paDrive code={
+        paCallee(paSrc);
+        };
+    ;
+
+paSrc = 4;  paOut = 0;
+print "PA fire 1 setup : paSrc =" paSrc:;
+testing(paDrive);
+print "PA fire 1 result: paOut =" paOut " (want 8)":;
+
+paSrc = 11; paOut = 0;
+print "PA fire 2 setup : paSrc =" paSrc " (recompile: NONE)":;
+jitRefire();
+print "PA fire 2 result: paOut =" paOut " (want 22)":;
+
+paSrc = 7;  paOut = 0;
+paDrive();
+print "PA interpreted  : paOut =" paOut " (oracle -- want 14)":;
+print "PA SENTINEL":;
+stop();
+
+probeArgJit -- does a JITTED body read an action's `argument` as the passed
+field, or as the holder?  There is no such fixture in the tree; every jit
+fixture reads globals.  Minimal delta from incant/jitJ6 (globals + testing +
+jitRefire + a value read), plus one argument-taking callee so the emitted call
+goes through jitBindArgRT.
+
+Jitted half FIRST, oracle LAST (bear-trap #25): an interpreted run consumes
+isCoded and testing() would silently reroute to jitRunIfTest.  The oracle reads
+a FIELD, which is correct in that position; only a RETURNED value needs its own
+process (bear-trap #35).
+
+    8 then 22, oracle 14      the jitted body reads the passed field per fire
+    two fires the same        the value was folded, not loaded per fire
+    0 / wrong / degrade > 0   the jitted body is not reading the passed field

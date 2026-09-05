@@ -614,6 +614,10 @@ GroupItem   source;
         return 0;
         }
     if ( !gNoUnwrap )   source = ::unWrap(source);
+    // TRY-AND-BUY B: an isArgument source yields what it holds, before the
+    // holds-a-pointer refusal   ruleActions.aCTionIterate.argBinding
+    if ( gNoUnwrap && source && source->groupBody->flags.isArgument && isGROUP(source->groupBody->flags.data) )
+        source = source->getGroup();
     if ( source && isGROUP(source->groupBody->flags.data) )
         {
         ::fprintf(stderr,"ERROR iterate on %s: it holds a pointer, not a list; write *%s\n",

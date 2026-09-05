@@ -736,6 +736,14 @@ extern int jitEmitBareRead(GroupItem token)
     -%
     llvm::IRBuilder<> *b = gJitBuilder;
     if (!b || !token) return 0;
+    //  TRY-AND-BUY B: an isArgument token yields what it holds. The print item
+    //  walk seeds its operands here, NOT through runOP, so B's read rule has to
+    //  be stated a second time or a jitted `print argument` reads the holder's
+    //  storage -- which is this function's own 75102656, one road over.
+    //  jitEmitters.jitEmitBareRead.argBinding
+    if ( gNoUnwrap && token->groupBody->flags.isArgument && isGROUP(token->groupBody->flags.data) )
+        token = token->getGroup();
+    if (!token) return 0;
     //  ⚠ REFUSE ANYTHING THAT IS NOT A SCALAR READ, and this guard is not
     //  defensive padding -- its absence is what printed 75102656. Handed a LIST
     //  node (a multi-part expression), the primitive below dutifully emitted a

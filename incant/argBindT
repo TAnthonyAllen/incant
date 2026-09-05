@@ -1,0 +1,61 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(ArgBind);
+define
+    abCaller=7;
+    abOther=7;
+    abElse=41;
+    abRebinds=0;
+    abRead   argument code={ return argument; };
+    abWrite  argument code={ argument = 5;          return argument; };
+    abSet    argument code={ argument := abElse;    return argument; };
+    abArrow  argument code={ argument <- abElse;    return argument; };
+    abRun code={
+        b1 = abRead(abCaller);
+        print "B1 read through the argument       " b1 " (want 7 -- the passed field)":;
+        abWrite(abCaller);
+        print "B2 caller after `argument = 5`     " abCaller " (want 5 -- a WRITE reaches the caller)":;
+        print "B3 untouched sibling               " abOther " (want 7 -- ANTI-VACUITY)":;
+        abSet(abCaller);
+        print "B4 caller after `argument := x`    " abCaller " (want 5 -- REBIND REFUSED, unmoved)":;
+        abArrow(abCaller);
+        print "B5 caller after `argument <- x`    " abCaller " (want 5 -- REBIND REFUSED, unmoved)":;
+        print "B6 the rebind target itself        " abElse " (want 41 -- never became the caller)":;
+        };
+    ;
+abRun();
+print "ARGBIND SENTINEL -- reached the foot":;
+stop();
+
+argBindT -- TRY-AND-BUY B.  `argument` is a BINDING, not a holder: a bare
+mention is the passed field, a WRITE through it reaches the caller, and a
+REBIND of the binding refuses by name.
+
+Minimal delta from incant/argWriteT (same shape, same caller/sibling pair),
+plus the two rebind spellings the ruling names.
+
+WHY B2 AND B4 ARE BOTH PINNED AT 5, and it is the whole point of the file:
+they assert OPPOSITE mechanisms with the same number.  B2 wants the write to
+LAND (5, changed from 7); B4 wants the rebind to be REFUSED so the caller is
+UNMOVED (still 5).  B2 is what makes B4 non-vacuous -- without a preceding
+write that moved the value, "unmoved" would be satisfied by a run in which
+nothing whatever happened.
+
+B3 and B6 are the anti-vacuity siblings.  B3 says the write was not a
+broadcast; B6 says the refused rebind did not quietly half-fire and leave the
+rebind target holding the caller.
+
+THE REFUSAL IS PRESENCE-WITH-VALUE, NOT ABSENCE (rule H4): the run prints
+`ARGUMENT REBIND REFUSED` on stderr, twice, once per spelling, naming the
+operator.  A check that merely asserted "the caller did not move" would go
+green the day the refusal is deleted and the rebind silently does nothing.
+
+NEGATIVE CONTROL (rule H7), recorded rather than implied: with the refusal
+block in runOP removed and the binary rebuilt, B4 and B5 read 41 -- the rebind
+lands and the caller becomes the rebind target.  That is the run that must go
+RED for this file to certify anything.
