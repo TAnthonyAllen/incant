@@ -214,3 +214,42 @@ and the `report*` family that exists to explain a refusal raised elsewhere:
 saying which is a census nobody can check, and the classification — not the grep — is
 the finding.
 
+
+## ⚠ THE ARM-LEAK QUESTION, ANSWERED 2026-09-05 — AND IT GATES PART OF B
+
+**Asked:** on the emitted road, a top-level function, a helper refuses mid-body —
+the arm is set, and `runAction`'s clear is EMIT-time. What clears it at the
+function boundary? If nothing does, the arm leaks and the next inlined check
+anywhere fires on someone else's refusal.
+
+**Probed** (`probeArmLeak`: refuse in one activation, then call an action with an
+inlined callee): both roads read **99** — the inline ran, no leak.
+
+⚠ **BUT THE PROBE PASSES FOR A REASON THAT B REMOVES, so read it as a dated fact
+and not as an all-clear.** Nothing sets the arm at RUN time on the emitted road
+today, because **no run-time emitted-road helper calls `refuse()`**. Measured,
+all six: `jitBindArgRT`, `jitDerefRT`, `jitPrintNodeRT`, `jitAssignNodeRT`,
+`jitSaveFrameRT`, `jitRestoreFrameRT` — zero `refuse(` calls between them. The
+arm can only be set during the emit walk, where `runAction` clears it at the
+activation boundary exactly as on the interpreted road.
+
+⚠⚠ **THREE OF THE UNROUTED SITES ARE CALLED FROM EMITTED CODE AT RUN TIME, AND
+ROUTING THEM IS WHAT CREATES THE LEAK:**
+
+| site | called at |
+|---|---|
+| `jitEmitters.rtn:502` `jitDerefRT` — null operand | RUN time, from emitted code |
+| `jitEmitters.rtn:506` `jitDerefRT` — holds no group | RUN time, from emitted code |
+| `jitEmitters.rtn:2751` `jitPrintNodeRT` — item produced no node | RUN time, from emitted code |
+
+**So B must not route those three until an emitted function's epilogue clears the
+arm** — or B introduces the defect this question was asked to prevent. The other
+JIT sites (`jitEmitContinue`, `jitEmitReturn`) are emit-time and are safe.
+
+**THE FIX SHAPE, reported and NOT built:** the emitted function's epilogue clears
+the arm, mirroring what `runAction` does for an interpreted activation — the
+emitted function *is* the activation. It is about four lines of emission.
+⚠ **It is NOT a one-liner in consequence, which is why it was not just done.** It
+adds a store to EVERY emitted function's epilogue, and A3 has just demonstrated
+how sensitive the JIT ladder's block-topology assertions are to IR shape. It
+wants its own stroke with the ladder read before and after.
