@@ -365,3 +365,47 @@ plainly for two reasons:
 call, or establish that nothing reaches it any more. Until then the gate is
 right by construction and half-certified by measurement, and this file says so
 rather than a green row implying otherwise.
+
+
+## LINE — BUILT, MEASURED, REVERTED. The recon said yes; the measurement says no.
+
+The recon was right that a statement carries a define-time line:
+`aCTionStatemenT` stamps `rStuff.sourceLine`, a `sourceAt` node with a count and
+the source file. So the shape was built — `currentLine` on GroupRules, stamped
+by `aCTionBlocK`, read by `refuse()`.
+
+**Two things came back, and the second kills it.**
+
+⚠ **Only `StatemenT`-tagged nodes carry a line.** Measured in the block walk: of
+21 nodes, **17 have live rStuff but only the StatemenT ones have a sourceLine**
+— `leftCurly`, `Token` and friends have none. Workable: remember the last line
+seen rather than read one per node. That part was built and behaved.
+
+⚠⚠ **BUT `sourceLine.count` IS NOT THE WRITER'S FILE LINE.**
+
+| fixture | reported | actual statement |
+|---|---|---|
+| `argBindT` | `[line 10]` twice | lines **16** and **17** |
+| `f31` | `[line 11]` | the iterate is at **45** |
+| `tester` (via sourceLINE) | `8, 9, 10` | definitions at **9, 19, 29** |
+
+**Neither source gives the line a reader would look at.** `sourceLine` is a
+parse-relative count, and so is `sourceLINE`. The stroke would have replaced a
+stale-but-plausible number with a *differently wrong* one — and a define-time
+refusal lost its line entirely (`[line 0]`), which a fallback then papered over
+with the same wrong number.
+
+**Reverted in full**: `currentLine` off GroupRules and out of `groups.ext`, the
+stamp out of `aCTionBlocK`, `refuse()` back to `sourceLINE`. Fleet 198, canary
+352, byte-identical.
+
+⚠ **What is kept is the KNOWLEDGE, at the site.** `refuse()`'s comment now says
+the number is the parser's, that it is approximate, that the statement's own
+line was tried and does not exist in a usable form, and gives the three
+measurements. **Do not chase it** — bear-trap #36's family, where a line number
+that is confidently wrong sends the next reader to the wrong place.
+
+**What would actually settle it:** whether anything in the tree knows a
+statement's FILE line at all. `sourceAt` carries the source FILE as an
+attribute, so the file half exists; the line half may simply never have been
+recorded in file terms.

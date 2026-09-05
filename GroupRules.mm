@@ -12079,6 +12079,17 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*name = "(none)";
 	if ( subject )
 		name = subject->groupBody->tag;
+	/*  ⚠ THE LINE IS THE PARSER'S AND IT IS APPROXIMATE. sourceLINE is where the
+	PARSER is, which for a re-executed cached body is stale: f31 prints the
+	same number for all 43 of its refusals.
+	⚠⚠ THE STATEMENT'S OWN LINE WAS TRIED AND DOES NOT EXIST IN A USABLE
+	FORM (2026-09-05). rStuff.sourceLine is real, stamped per statement by
+	aCTionStatemenT -- but its count is NOT the writer's file line: argBindT
+	reported 10 for statements at 16 and 17, and f31 reported 11 for an
+	iterate at 45. Nor is sourceLINE: tester reads 8, 9, 10 for definitions
+	at 9, 19, 29. NEITHER SOURCE GIVES THE LINE A READER WOULD LOOK AT, so
+	the stale-but-plausible number stays and this comment says what it is.
+	Do not chase it (bear-trap #36's family).   GroupActions.refuse.theLine  */
 	::fprintf(stderr,"REFUSED %s -- %s [line %s]\n",name,why,::toStringFromInt(ruler->sourceLINE));
 	ruler->refused = 1;
 	return 0;
