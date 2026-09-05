@@ -253,3 +253,52 @@ emitted function *is* the activation. It is about four lines of emission.
 adds a store to EVERY emitted function's epilogue, and A3 has just demonstrated
 how sensitive the JIT ladder's block-topology assertions are to IR shape. It
 wants its own stroke with the ladder read before and after.
+
+
+## ⚠⚠ B IS NOT "ROUTE THE REMAINING 92" — THE CLASSIFICATION IS B's REAL WORK
+
+Measured 2026-09-05, before any of B's routing. **The 92 split four ways, and
+only one of the four may be routed at all.**
+
+| bucket | sites | may B route it? |
+|---|---|---|
+| **INTERNAL-planner** | **44** | ⚠ **NO, AND ROUTING THEM IS CATASTROPHIC** |
+| GATED-runtime-emitted | 3 | not until the epilogue clears the arm |
+| JIT-emit-time | 5 | safe but low value; held |
+| candidate-TERMINAL | 40 | yes, site by site |
+
+⚠⚠ **THE PLANNER BUCKET IS THE FINDING, AND IT IS THE spacingT LESSON AT SCALE.**
+`planRule`, `planTerm`, `emitPlan`, `genKant` and their family refuse as a
+NORMAL ANSWER their caller handles — `genParse`'s odometer is pinned at
+**46 refusals of 64 rules, RED BY DESIGN**, all raised inside ONE walk. Routing
+them through `refuse()` would arm on the first unplannable rule and terminate
+the walking action, destroying the odometer entirely. A helper returning null
+to a caller that expects it is NOT a refusal in the ruling's sense; the ruling
+is about a user-facing "this cannot be done, stop".
+
+**So the honest count for B is 40, not 92** — and each of the 40 needs its own
+look, because the bucket boundary is a judgement about who handles the null.
+
+## Item 3's table — the Instruct sites, and the sentinel-as-data set
+
+| site | function | returns | class |
+|---|---|---|---|
+| :1415 | `setMark` | `null` | REFUSAL — **routed** |
+| :1416 | `setMark` | `null` | REFUSAL — routable |
+| :306 :680 :796 :983 | `opDivEQ` `opMinusEQ` `opMultiplyEQ` `opPlusEQ` | falls through | REFUSAL — compound assign cannot apply |
+| :190 | `opAddPointer` | **`return target`** | ⚠ SENTINEL-AS-DATA |
+| :1134 | `opRem` | **`return tempField`** | ⚠ SENTINEL-AS-DATA |
+| :46 :47 | `getMarkLineAt` | **`return result`** | ⚠ SENTINEL-AS-DATA |
+| :737 :1066 | `opMinusMinus` `opPlusPlus` | **`return result`** | ⚠ SENTINEL-AS-DATA |
+| :1264 | `opSetFlag` | `return target` | **WARNING** — its own text says *guessing*; rename, do not route |
+| :883 | `opPlus` | falls through | **WARNING** — string advanced past length; not a refusal |
+
+⚠ **THE SENTINEL-AS-DATA SET IS REPORTED BEFORE PROMOTION, AS ASKED, AND IT IS
+SEVEN SITES.** Each announces a failure and then hands the caller a VALUE that
+looks like a successful answer — `target`, `tempField`, `result`. Promoting them
+to terminal refusals changes what every caller sees from *a value* to *null plus
+an armed unwind*. That is the right direction and it is a BEHAVIOUR change per
+site, not a routing edit, so none of the seven is promoted here.
+⚠ **And two of the fourteen are WARNINGS, not refusals** — `opSetFlag` says in
+its own message that it is *guessing*, and `opPlus`'s is a string-length notice.
+Routing either would turn a diagnostic into a stop.

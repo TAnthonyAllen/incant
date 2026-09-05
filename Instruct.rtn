@@ -1412,7 +1412,7 @@ int         offset = markOffset.count;
         Buffer buffer = source.buffer;
         if mark && current >= mark + offset     mark += offset;
         or current >= start + offset            mark = start + offset;
-        else cerr "setMark: ERROR mark offset exceeds current buffer length":; }
+        else refuse(source,"setMark: the mark offset exceeds the current buffer length"); }
     else cerr "setMark: ERROR no buffer source provided":;
     return null;
 }

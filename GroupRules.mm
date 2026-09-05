@@ -12908,7 +12908,7 @@ int 		offset = markOffset->getCount();
 		else
 		if ( buffer->current >= buffer->start + offset )
 			buffer->mark = buffer->start + offset;
-		else	::fprintf(stderr,"setMark: ERROR mark offset exceeds current buffer length\n");
+		else	::refuse(source,"setMark: the mark offset exceeds the current buffer length");
 		}
 	else	::fprintf(stderr,"setMark: ERROR no buffer source provided\n");
 	return 0;
