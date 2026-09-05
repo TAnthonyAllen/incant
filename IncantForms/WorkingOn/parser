@@ -10,7 +10,10 @@ define
     openBrace="{";
     closeBrace="}";
     generateParse argument code={
+        arg := *argument;
+        @arg;
         cout "Generating parse code for" taG:;
+        $$arg;
         reset(codeBuffer);
         printTO(codeBuffer);
         print openBrace:;
@@ -22,7 +25,7 @@ define
         if hasTraitS;       conjunct = "AND";
         else                conjunct = "OR";
         print `"if ";
-        iterate grup on argument;
+        iterate grup on arg;
         while ++grup;
             if noPrinT;     continue;
             if notFirstTimeThru > 0;    print _conjunct;
@@ -42,12 +45,11 @@ define
         //print taG "=" CodE.taG:;
        };
     walkRules argument code={
-        **argument;
         generateParse(argument);
         if actionTypE == 0;
             length  = listLengtH;
             if length > 0;
-                iterate grup on argument;
+                iterate grup on *argument;
                 while ++grup;
                     if noPrinT;     continue;
                     if binTypE;     continue;
@@ -55,7 +57,7 @@ define
                     else generateParse(grup);
         };
     compileRules argument code={
-        **argument;
+        $$argument;
         compile(argument);
         if actionTypE == 0;
             length  = listLengtH;
@@ -88,11 +90,7 @@ define
             evictTerms(evR);
         };
     parser argument code={
-        setPointer(Start);
-        **whatsIt;
-        whatsIt := Start;
-        **whatsIt;
-        walkRules(whatsIt);
+        walkRules(argument);
         compileRules(argument);
         cerr "PARSER SENTINEL -- walk complete":;
         compiledHere = 0;
@@ -111,9 +109,9 @@ define
         };
     ;
 
-parser(Start);
-
+walkRules(NamE);
 stop();
+parser(Start);
 
     parser -- generates a new kant parse for every rule its argument touches.
 
