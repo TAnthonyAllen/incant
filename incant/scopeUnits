@@ -2,10 +2,13 @@
     scopeUnits -- the A/B ORACLE for the define-time name-search escape.
 
     A copy of incant/unitTests differing in EXACTLY ONE LINE (:153):
-        unitTests   testForC argument second=56 third="WTF?" code={
-        scopeUnits  testForC argument code={
+        unitTests   testForC second=56 third="WTF?" code={
+        scopeUnits  testForC code={
     Nothing else is changed; `diff incant/unitTests incant/scopeUnits` must
     show that one hunk and no other.
+    (Both lines carried a declared `argument` until 2026-09-05, when the
+    declaration was retired language-wide -- runAction mints the binding slot.
+    The variable under test is unchanged: a valued attribute versus a bare one.)
 
     It exists so the attribution is single-variable. Walk sample under each:
         unitTests   ->  second 56      third WTF?
@@ -14,6 +17,17 @@
 
     RECON ARTEFACT, 2026-08-01. If unitTests moves, regenerate this rather than
     hand-patching it, or the one-line guarantee stops being true.
+
+    ⚠ AND IT STOPPED BEING TRUE, EXACTLY AS WARNED. REGENERATED 2026-09-05.
+    unitTests moved in 17d3642 and this copy did not follow, so a SECOND hunk
+    appeared at :106 -- `aGroup one two=2 three` against `aGroup one two three`.
+    Measured: one hunk at birth (b9fbb5d), two from 17d3642 onward.
+    ⚠ THE DRIFT WAS THE SAME VARIABLE AS THE INTENDED ONE -- a valued attribute
+    against a bare one -- which is why nothing looked wrong and why it matters:
+    the oracle did not INVERT, it quietly stopped being SINGLE-variable, so any
+    attribution taken through it between those dates rests on two instances of
+    the variable rather than one. It did not fail loudly because it could not.
+    Found 2026-09-05 while checking an unrelated sweep, not by any instrument.
 *****************************************************************************/
 /*******************************************************************************
                 UnitTests registry — incant unit test suite.
@@ -120,7 +134,7 @@ define
                 stuff text=one pad=6;
         fourth rounded pad fill=lightGreen height=12;
         fifth;
-    aGroup one two three;
+    aGroup one two=2 three;
     hasGroup=simple;
 
     /***************************************************************************
