@@ -1649,6 +1649,65 @@ fi
 #  IT SILENTLY INVERTS -- and aCTionFOR's `reversE ? prior : next` means every
 #  for loop in the system would run BACKWARDS. Nothing else in the fleet can see
 #  that, because a backwards walk is still a walk.
+#  ============================================================================
+#  ⚠ groups.ext MIRROR ARITY -- A DRIFT THAT tok CANNOT SEE, BY DESIGN.
+#  Added 2026-09-05, Tony's explanation + Clay's ruling, after two instances.
+#
+#  TONY: "tok does not worry about parameters -- it finds jitInlinePop by name
+#  and is satisfied." So a groups.ext line is a ROUTING declaration -- which
+#  external <Header>.h block, therefore which #include tok emits -- and NOT a
+#  signature contract. The parameter list is documentation the toolchain never
+#  checks: tok reads the name, and the C++ compiler only ever sees the REAL
+#  prototype, because the whole .rtn chain is one TU with GroupRules.h in scope.
+#  MEASURED THE SAME DAY: correcting jitInlinePop's mirror and running a full
+#  bare tokall produced ZERO codegen change. That byte-identity IS the proof.
+#
+#  ⚠ WHICH MAKES IT SILENT BY CONSTRUCTION, and puts it in bear-trap #45's
+#  family: a name that resolves but means less than it reads. Nothing in any
+#  build, canary or fleet row could ever have caught either instance -- the
+#  extern canary read 350 throughout both.
+#
+#  Two found, two fixed: jitInlinePop (mirrored 0, real 1) and opDivEQ (mirrored
+#  1, real 2 -- its own siblings opPlusEQ/opMinusEQ were already right).
+#  ⚠ WHY A ROW AND NOT A LINT: the census IS the lint and costs nothing here. A
+#  separate script would be a second population for one subject.
+#  Compared by ARITY, not by type text: the mirror writes `GroupItem` where the
+#  header writes `GroupItem *`, and that difference is not drift.
+mirrordrift=$(python3 -c "
+import os,re,glob
+ext=os.path.expanduser('~/Dropbox/data/InProcess/Include/groups.ext')
+mirror={}
+for line in open(ext):
+    m=re.match(r'\s*extern\s+[A-Za-z_][A-Za-z0-9_]*\s+([A-Za-z_][A-Za-z0-9_]*)\s*\((.*?)\)\s*;',line)
+    if m:
+        a=m.group(2).strip()
+        mirror[m.group(1)]=0 if a=='' else len([x for x in a.split(',') if x.strip()])
+real={}
+for h in glob.glob('*.h'):
+    for line in open(h,errors='ignore'):
+        m=re.match(r'extern\s+.C.\s+[A-Za-z_][A-Za-z0-9_ *]*?\s*\*?\s*([A-Za-z_][A-Za-z0-9_]*)\s*\((.*?)\)\s*;',line)
+        if m:
+            a=m.group(2).strip()
+            real[m.group(1)]=0 if a in ('','void') else len([x for x in a.split(',') if x.strip()])
+both=set(mirror)&set(real)
+d=[k for k in sorted(both) if mirror[k]!=real[k]]
+print('%d %d %s' % (len(d), len(both), ' '.join(d)))
+")
+mdn=$(echo "$mirrordrift" | cut -d' ' -f1)
+mdcmp=$(echo "$mirrordrift" | cut -d' ' -f2)
+mdnames=$(echo "$mirrordrift" | cut -d' ' -f3-)
+#  ⚠ ANTI-VACUITY: the comparable count must be large, or a regex that matched
+#  nothing would report zero drift and read as green (H4's other half).
+if [ "$mdcmp" -lt 250 ]; then
+    echo "  FAIL  groups.ext mirror census compared only $mdcmp names -- the census is broken, not the mirrors"; fail=1
+elif [ "$mdn" = 0 ]; then
+    echo "  ok    groups.ext mirror arity: 0 drift over $mdcmp comparable names -- PINNED AT ZERO"; green=$((green+1))
+else
+    echo "  FAIL  groups.ext mirror arity: $mdn of $mdcmp drift -- $mdnames"
+    echo "        tok resolves by NAME, so nothing else in the fleet can see this."
+    fail=1
+fi
+
 #  Censused 2026-09-03 (SEQ 149 recon): the set is EMPTY. This row keeps it so.
 #  ⚠ THE CHECK STRIPS CHARACTER CLASSES FIRST, and that is not a detail: `_` and
 #  `{` are ordinary MEMBERS of two character sets in this grammar (modifySet and
