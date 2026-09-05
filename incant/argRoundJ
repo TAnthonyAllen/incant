@@ -1,0 +1,54 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(ArgRound);
+define
+    arDepth=0;
+    arSrc=7;
+    arOther=41;
+    arA argument code={
+        ++arDepth;
+        arMine = arDepth;
+        if arDepth < 3;     arB(arOther);
+        print "  A depth" arMine " sees argument =" argument " local =" arMine:;
+        };
+    arB argument code={
+        arA(arSrc);
+        };
+    arRun code={
+        arA(arSrc);
+        };
+    ;
+testing(arRun);
+print "ARGROUNDJ SENTINEL -- reached the foot":;
+stop();
+
+argRoundJ -- argRoundT's JIT arm, IN ITS OWN FILE.
+
+Two files because a fixture gets ONE testing(): a second call on the same
+action hits the sequential-state-corruption tar baby, and bear-trap #25 says
+an interpreted run first consumes isCoded and silently reroutes testing() to
+jitRunIfTest. So the interpreted oracle lives in argRoundT and the jitted arm
+lives here, and neither can spoil the other.
+
+⚠ THIS FILE IS PINNED TO A KNOWN DEFECT AND IS EXPECTED TO BE WRONG.
+jitArgBake: where the JIT gives a callee its OWN FUNCTION rather than inlining
+it, the callee's `argument` is read from an address baked at emit time and does
+not track the run-time bind. So the argument column here prints ADDRESSES where
+argRoundT's interpreted column prints 7.
+
+    interpreted (argRoundT)   argument = 7 at every depth       CORRECT
+    jitted      (this file)   argument = a large number          THE DEFECT
+
+⚠ THE LOCAL COLUMN AGREES ON BOTH ENGINES -- 3/2/1 -- and that is what makes
+this a statement about the ARGUMENT CHANNEL rather than about the frame. A
+fixture that only showed the jitted side would not be able to say which.
+
+WHEN jitArgBake LANDS this file starts printing 7 and its pop.sh row goes RED.
+That is the signal, not a regression: re-pin the row to 7 with a sentence
+(rule H6 -- a parked pin that starts passing must graduate, and a re-pin needs
+a cause, not a green diff).

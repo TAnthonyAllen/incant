@@ -256,6 +256,85 @@ for _r in "R1 read through the argument       7" \
 done
 
 #  ============================================================================
+#  ⚠ argBindT / argRoundT / argRoundJ -- THE ARGUMENT BINDING (Tony's VERDICT
+#  BUY, 2026-09-05). designDocs ArgBinding is the ruling; these are its rows.
+#
+#  argBindT asserts the two halves that pull in opposite directions. A WRITE
+#  through the argument LANDS (B2, 5 -- moved from 7); a REBIND of the binding
+#  is REFUSED so the caller is UNMOVED (B4/B5, still 5). ⚠ B2 IS WHAT MAKES B4
+#  NON-VACUOUS: without a preceding write that moved the value, "unmoved" is
+#  satisfied by a run in which nothing whatever happened.
+#
+#  The two refusal lines are asserted BY PRESENCE WITH VALUE (H4), naming the
+#  operator. A row that only checked "the caller did not move" would go green
+#  the day the refusal is deleted and the rebind silently does nothing -- and
+#  that is not hypothetical: B's own H7 negative control measured it. Gate
+#  removed, B4/B5 read 41, `argument := x` SILENTLY REPOINTS THE CALLER'S FIELD.
+run1 argBindT "$T/abt"; check "argBindT runs" 0 $?
+sentinel "argBindT sentinel (no truncation)" "$T/abt" "ARGBIND SENTINEL"
+for _b in "B1 read through the argument        7" \
+          "B2 caller after \`argument = 5\`      5" \
+          "B3 untouched sibling                7" \
+          "B4 caller after \`argument := x\`     5" \
+          "B5 caller after \`argument <- x\`     5" \
+          "B6 the rebind target itself         41"; do
+    if grep -qF "$_b" "$T/abt"; then
+        echo "  ok    argBindT ${_b%% *} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  argBindT ${_b%% *} -- wanted: $_b"; fail=1
+    fi
+done
+for _o in ':=' '<-'; do
+    if grep -qF "ARGUMENT REBIND REFUSED: \`$_o\` on argument" "$T/abt"; then
+        echo "  ok    argBindT '$_o' refusal NAMED (presence-with-value, not absence)"; green=$((green+1))
+    else
+        echo "  FAIL  argBindT '$_o' refusal missing -- the guard stopped naming itself"; fail=1
+    fi
+done
+
+#  argRoundT -- A->B->A, a LOCAL and an ARGUMENT each carried across the nested
+#  call. The intervening arB is passed 41 and every arA is passed 7, ON PURPOSE:
+#  had both been 7, a channel that handed every callee the same node would print
+#  7 three times and pass. INTERPRETED ARM ONLY -- the JIT arm is argRoundJ.
+run1 argRoundT "$T/art"; check "argRoundT runs" 0 $?
+sentinel "argRoundT sentinel (no truncation)" "$T/art" "ARGROUND SENTINEL"
+for _a in "A depth 3 sees argument = 7 local = 3" \
+          "A depth 2 sees argument = 7 local = 2" \
+          "A depth 1 sees argument = 7 local = 1"; do
+    if grep -qF "$_a" "$T/art"; then
+        echo "  ok    argRoundT ${_a%% sees*} -- own argument AND own local -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  argRoundT ${_a%% sees*} -- wanted: $_a"; fail=1
+    fi
+done
+
+#  ⚠ argRoundJ -- THE JIT ARM, PINNED RED BY NAME (Tony, 2026-09-05). Never
+#  silently. jitArgBake is the open citizen: where the JIT gives a callee its
+#  OWN FUNCTION rather than inlining it, `argument` is read from an emit-time
+#  BAKED address and does not track the run-time bind.
+run1 argRoundJ "$T/arj"; check "argRoundJ runs" 0 $?
+sentinel "argRoundJ sentinel (no truncation)" "$T/arj" "ARGROUNDJ SENTINEL"
+#  The LOCAL column IS covered and IS green -- it agrees with the interpreted
+#  oracle at 3/2/1, which is what says the defect is the argument channel and
+#  not the frame. Without this row the red below could not be attributed.
+_arjloc=$(grep -c 'local = [123] *$' "$T/arj")
+if [ "$_arjloc" = 3 ]; then
+    echo "  ok    argRoundJ local column agrees with the oracle (3/2/1) -- the JIT frame is sound"; green=$((green+1))
+else
+    echo "  FAIL  argRoundJ local column moved -- $_arjloc of 3 rows. That is the FRAME, not jitArgBake"; fail=1
+fi
+if grep -q 'argument = 7 ' "$T/arj"; then
+    echo "  FAIL  argRoundJ JIT argument column now reads 7 -- jitArgBake HAS LANDED."
+    echo "        RE-PIN THIS ROW TO 7 WITH A SENTENCE (H6). Do not silence it."
+    fail=1
+else
+    echo "  FAIL  argRoundJ JIT argument column -- jitArgBake OPEN, pinned red BY NAME"
+    echo "          got:  $(grep -m1 'sees argument' "$T/arj" | sed 's/^ *//')"
+    echo "          want: argument = 7, as incant/argRoundT reads it interpreted"
+    fail=1
+fi
+
+#  ============================================================================
 #  ⚠ K7 -- THE FRAME BRACKET vs A FIELD THAT IS BOTH DATA AND BEHAVIOUR.
 #  Added 2026-08-30, and the reason it is HERE rather than only in kant8T is the
 #  promotion convention: would the fleet have caught it? It did not, for 20 days.
