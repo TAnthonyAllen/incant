@@ -26,14 +26,16 @@ echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
 #  rule H1's second half: H1 says ECHO the binary, this says CHECK it against
 #  what it claims to be built from. A stale binary does not fail as a diff.
 #
-#  ⚠ PAID FOR THE SAME MORNING. jitContext.h read `gNoUnwrap = 0` while the
-#  installed binary had been built at 1 -- the switch was flipped, a test was
-#  run, the SOURCE was flipped back, and no rebuild followed. The fleet read 141
-#  green against a sealed 197 and looked like a catastrophic regression. It was
-#  the OTHER PROGRAM. Nothing in the tree could say so: the source grep reads 0
-#  and is right, the binary is right about itself, and only the pair is wrong.
-#  A GREP ON gNoUnwrap ALONE IS NOT A CHECK -- it reads the source, which is
-#  exactly the half that was telling the truth.
+#  ⚠ PAID FOR ON 2026-09-05, and the switch it was paid for is now GONE while
+#  the check outlives it -- which is the point. jitContext.h read
+#  `gNoUnwrap = 0` while the installed binary had been built at 1: flipped,
+#  tested, the SOURCE flipped back, no rebuild. The fleet read 141 green against
+#  a sealed 197 and looked like a catastrophic regression. It was THE OTHER
+#  PROGRAM, and nothing in the tree could say so -- the source was right about
+#  itself, the binary was right about itself, and only the PAIR was wrong.
+#  ⚠ THE LESSON GENERALISES PAST THAT ONE FLAG: when a switch lives in SOURCE
+#  and its effect lives in a BUILD, reading the switch is not reading the
+#  system. Bear-trap #49.
 newest=$(ls -t *.rtn *.twk *.h 2>/dev/null | head -1)
 if [ -n "$newest" ] && [ "$newest" -nt "$(readlink "$B" 2>/dev/null || echo "$B")" ]; then
     echo "  ⚠ STALE  $newest is NEWER than the binary -- REBUILD BEFORE BELIEVING ANY ROW BELOW."
@@ -41,7 +43,6 @@ if [ -n "$newest" ] && [ "$newest" -nt "$(readlink "$B" 2>/dev/null || echo "$B"
 else
     echo "  bin   built no earlier than the newest source ($newest)"
 fi
-echo "  bin   gNoUnwrap = $(sed -n 's/^static int gNoUnwrap = \([01]\);/\1/p' jitContext.h) in SOURCE -- and the line above is what says the binary agrees"
 
 #  ===========================================================================
 #  THE KITCHEN LAW, 2026-08-04. Clean kitchen is not declared while anything
@@ -907,7 +908,7 @@ for _arm in "pointerT P0 both added   = 1 1" \
             "pointerT L1 prints values = CHANGED OTHER" \
             "pointerT L2 name-then-star = CHANGED" \
             "pointerT L3 assign-then-star = 0" \
-            "pointerT D  depth        = 0" \
+            "pointerT D  depth        = ptOther" \
             "pointerT X  star binds tightest = 0" \
             "pointerT L5c flag road   = ptFlagRead" \
             "pointerT F2 null operand = 0"; do

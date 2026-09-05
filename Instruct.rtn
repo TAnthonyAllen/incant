@@ -134,11 +134,12 @@ int         priorLimit = limitWriteGuard(target);
             /*  ⚠ F-48 FOR THE INTERPRETER (Tony, SEQ 139), through the SAME core
                 the emitted road uses -- assignFieldCore -- so the two cannot
                 drift. A holder on the right refuses by name and stores nothing.
-                ⚠ GATED ON gNoUnwrap: bare behaviour is unchanged, because at 0
-                the auto-unwrap is still in place and a holder legitimately
-                resolves to its value.   Instruct.opAssign.holderRefusal  */
-            -% if (gNoUnwrap) { ::assignFieldCore(argument,target); }
-               else             target->setContent(argument); %-
+                ⚠ IT WAS GATED, AND THE GATE IS GONE (2026-09-05). The bare arm
+                was a plain setContent, kept only while the auto-unwrap still
+                stood and a holder legitimately resolved to its value. The trunk
+                is the flip; assignFieldCore is now unconditional.
+                Instruct.opAssign.holderRefusal  */
+            -% ::assignFieldCore(argument,target); %-
             }
     else    target.clearData();
     /*  F-27, Tony's ruling 2026-08-19. Non-zero priorLimit means the target IS

@@ -875,17 +875,16 @@ GroupItem   result,
             op      = field[1],
             arg     = field[3],
             target  = field[2];
-    /*  ⚠ THE FLIP LIVES HERE. Both lines are the ORIGINAL generated code, moved
-        into passthrough unchanged and wrapped in the one gate. Under gNoUnwrap
-        they do not run, and an operand reaches its operator AS THE FIELD.
-        `!isPointer` is measured dead (0 suppressions in 29,634 runOP entries)
-        and `!op.isAssign` retires with the line rather than despite it -- the
-        exemption becomes the rule. See docs/unwrapRecon.md.  */
+    /*  ⚠ THE ARGUMENT FOLLOW, and it is what is LEFT of the flip. runOP's two
+        legacy auto-unwraps stood here behind one gate; they were dead the day the
+        trunk became the flip and were deleted with the switch on 2026-09-05.
+        What survives is the rule that replaced them: an isArgument operand
+        yields what it holds.   ArgBinding.ArgBindingSites  */
     // argument is a BINDING: an isArgument operand yields what it holds, and a
     // REBIND of it refuses by name -- tested BEFORE the follow, which destroys
     // the evidence. This funnel serves BOTH ROADS   ArgBinding.ArgBindingSites
     -%
-    if ( gNoUnwrap && op && target && target->groupBody->flags.isArgument ) {
+    if ( op && target && target->groupBody->flags.isArgument ) {
         void *gop = (void*)op->groupBody->gOp;
         if ( gop == (void*)&opSetGroup || gop == (void*)&opRebind ) {
             char why[192];
@@ -895,18 +894,10 @@ GroupItem   result,
             return ::refuse(target,why);
             }
         }
-    if (!gNoUnwrap) {
-        if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer && !target->groupBody->flags.isIterator && !op->groupBody->flags.isAssign )
-            target = target->getGroup();
-        if ( arg && isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isPointer )
-            arg = arg->getGroup();
-    }
-    else {
-        if ( target && target->groupBody->flags.isArgument && isGROUP(target->groupBody->flags.data) )
-            target = target->getGroup();
-        if ( arg && arg->groupBody->flags.isArgument && isGROUP(arg->groupBody->flags.data) )
-            arg = arg->getGroup();
-    }
+    if ( target && target->groupBody->flags.isArgument && isGROUP(target->groupBody->flags.data) )
+        target = target->getGroup();
+    if ( arg && arg->groupBody->flags.isArgument && isGROUP(arg->groupBody->flags.data) )
+        arg = arg->getGroup();
     %-
     /*  ⚠ THE STORE RULING (Tony, 2026-09-05). AN ARMED STATEMENT DISPATCHES
         NOTHING FURTHER, STORES INCLUDED. Without this, a refusal raised inside
@@ -1169,9 +1160,6 @@ int         leftIsTrue;
         a divergence between `&&` and `+` is exactly the class nothing is aimed
         at, and it becomes real the day someone writes `if a.group && b`.  */
     -%
-    if (!gNoUnwrap)
-        if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer && !target->groupBody->flags.isIterator )
-            target = target->getGroup();
     %-
     if op.instructType && target.isMethod && target.invoke   target = target.method(target);
     leftIsTrue = truthOf(target);
@@ -1184,9 +1172,6 @@ int         leftIsTrue;
     if op.tag eq "AND"  && !leftIsTrue      return falseResult;
     if op.tag eq "OR"   &&  leftIsTrue      return trueResult;
     -%
-    if (!gNoUnwrap)
-        if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isPointer )
-            arg = arg->getGroup();
     %-
     if arg && arg.isMethod && arg.invoke            arg = arg.method(arg);
     if truthOf(arg)     return trueResult;

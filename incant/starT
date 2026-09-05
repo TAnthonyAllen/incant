@@ -66,10 +66,10 @@ stop();
 ⚠⚠ EVERY ROW HERE IS FLIP-GATED, AND THE FIXTURE IS PINNED AT ITS FLIP-OFF
 VALUES BECAUSE THAT IS THE FLEET'S BASELINE.
 
-With gNoUnwrap OFF every row refuses, and the reason is not the star: the
+⚠ HISTORICAL, AND THE SWITCH IS GONE (2026-09-05). With gNoUnwrap OFF every row refused, and the reason was not the star: the
 AUTO-UNWRAP dereferences the operand on the way in, so opDeref receives the LEAF
 and its own single step is one too many. The error names the leaf, not the
-pointer, which is the tell. Under gNoUnwrap ON the auto-unwrap is gone and the
+pointer, which is the tell. With the auto-unwrap gone -- which is now simply how the language works -- the
 stars start reading. So this whole fixture goes RED at the flip and re-pins --
 deliberately, like holderT row 3.
 
@@ -80,7 +80,7 @@ LARGER WAS FOUND: there is no fixpoint, and there is no composition either.
 
     ONLY ONE STAR IS EVER APPLIED. N stars behave as exactly one.
 
-MEASURED, gNoUnwrap = 1, one run, identity by `addrOf`'s body column -- which is
+MEASURED, one run, identity by `addrOf`'s body column -- which is
 carrier-proof, because the argument carrier mints a fresh FIELD every call but
 the BODY survives it:
 
@@ -127,7 +127,7 @@ diagnosis of WHY the earlier witnesses were void is correct and still worth
 reading; its conclusion that the row could not be graded is now superseded.
 
 ⚠⚠⚠ AND ONE ROW WAS RECORDED AS UNRESOLVED RATHER THAN AS A VERDICT: S3a.
-Measured under gNoUnwrap ON, `**x` on a ONE-deep pointer READ THE LEAF where the
+Measured, `**x` on a ONE-deep pointer READ THE LEAF where the
 law says the second star must refuse. That is the signature of a fixpoint. But
 the reading CANNOT BE TRUSTED YET, because both available witnesses are
 compromised:

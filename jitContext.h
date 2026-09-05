@@ -609,27 +609,6 @@ public:
 // — by its own subject is not a census.
 // ---------------------------------------------------------------------------
 // ===========================================================================
-// gNoUnwrap -- THE MIGRATION SWITCH for the no-auto-unwrap flip, 2026-08-30.
-//
-// ONE GATE, governing every retiring line in one motion: runOP's two unwraps,
-// runShortCircuit's two, the three `&& !arg.isArgument` exemptions, and the
-// wrapper's transparency dependence at both bind sites. There is deliberately
-// no per-site flag -- a half-flipped state is exactly what the two-half law
-// forbids, and a single int cannot express one.
-//
-//   0  LEGACY   auto-unwrap live, argument binds by GROUP (the wrapper)
-//   1  FLIPPED  no auto-unwrap, argument binds by BODY
-//
-// ⚠ THE FLIP-BACK IS THIS ONE LINE, which is the whole point of the switch:
-// if certification breaks, this becomes 0 and the stroke closes as measurement
-// rather than as failure, with nothing partial shipped.
-//
-// ⚠ OBITUARY PRE-REGISTERED, per standing scaffolding doctrine: this switch
-// RETIRES IN THE MIGRATION'S CLOSING STROKE, together with the dead code its
-// legacy arm holds. It is a probe arm with its death written down in advance --
-// NOT a gNewParseInFlight resurrection, which was a temporal guard with no
-// retirement plan. When the legacy arm is deleted, delete this too.
-static int gNoUnwrap = 1;
 
 // ⚠ THE EMITTED PATH'S CHANNEL BRACKET (F-45, Tony SEQ 129). runAction saves the
 // argument attribute's previous gGroup/data pair across its own processAction

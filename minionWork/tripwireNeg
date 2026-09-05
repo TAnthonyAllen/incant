@@ -42,6 +42,6 @@ stop();
     nothing. Rule H7: this row certifies the refusal only because its sibling
     stays silent under the identical call.
 
-    ⚠ ONLY MEANINGFUL UNDER gNoUnwrap = 1. With the flip off the channel arm is
+    ⚠ HISTORICAL. It was only meaningful under gNoUnwrap = 1; with the flip off the channel arm was
     not reached at all and BOTH rows are silent, which asserts nothing. Run it
     flipped or do not run it.

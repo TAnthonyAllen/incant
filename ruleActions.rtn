@@ -628,8 +628,6 @@ GroupItem   source;
                 }
             }
         }
-    // ⚠ THE LEGACY FOLLOW, and it is the only thing keeping bare byte-identical.
-    // Retires with gNoUnwrap, not before   ruleActions.aCTionIterate.legacyFollow
     // nullAfterStar  THE CONSUMER OF THE NULL REFUSES (Tony's STAR ruling,
     // 2026-09-05). This arm used to be SILENT because the star had already
     // spoken; under STAR the star yields null quietly, so if this stays silent
@@ -646,12 +644,11 @@ GroupItem   source;
         -%
         return 0;
         }
-    if ( !gNoUnwrap )   source = ::unWrap(source);
     // argument is a BINDING: an isArgument source yields what it holds, ahead of
     // the holds-a-pointer refusal. Iterate reads input[1]/input[2] itself and
     // never passes through runOP, so the rule is stated again here
     // ArgBinding.ArgBindingSites
-    if ( gNoUnwrap && source && source->groupBody->flags.isArgument && isGROUP(source->groupBody->flags.data) )
+    if ( source && source->groupBody->flags.isArgument && isGROUP(source->groupBody->flags.data) )
         source = source->getGroup();
     if ( source && isGROUP(source->groupBody->flags.data) )
         {
@@ -821,9 +818,6 @@ GroupItem   grup;
             if ExpressioN   result = ExpressioN;
             else            result = grup;
             -%
-            if (!gNoUnwrap)
-                if ( isGROUP(result->groupBody->flags.data) && !result->groupBody->flags.isArgument )
-                    result = result->getGroup();
             %-
             if FormaT   result += FormaT;
             revisedList += result; }
@@ -1306,9 +1300,6 @@ GroupItem   grup, store, tgt;
     if xpList.listLength == 1 {
         arg = xpList.firstInList;
         -%
-        if (!gNoUnwrap)
-            if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
-                arg = arg->getGroup();
         %-
         revisedList += arg; }
     else {
@@ -1381,9 +1372,6 @@ GroupItem   op, target, arg, xl, token;
     if xpList.listLength == 1 {
         arg = xpList.firstInList;
         -%
-        if (!gNoUnwrap)
-            if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
-                arg = arg->getGroup();
         %-
         goto finishXP; }
     while token = xpList.prior(token) {

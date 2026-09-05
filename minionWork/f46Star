@@ -39,5 +39,5 @@ stop();
     recursion actually recurses; a fixture that returns at depth 1 would report
     1 of 1 SAMEFIELD=1 and assert nothing about recursion at all.
 
-    ⚠ Only meaningful under gNoUnwrap = 1 -- with the flip off the channel arm is
+    ⚠ HISTORICAL. Only meaningful under gNoUnwrap = 1 -- with the flip off the channel arm was
     never reached and no bind is measured.

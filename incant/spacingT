@@ -106,7 +106,7 @@ define
             `**x` is now `*` applied TWICE. On a ONE-deep wrapper that is one star
             too many, so B and G REFUSE where they used to read LEAF and 12. Both
             re-pin to their tag echo, and both are FLIP TRIPWIRES -- under
-            gNoUnwrap they read again, measured.
+            the auto-unwrap retired they read again, measured.
             ⚠ AND H AND I MOVED 3 -> 1 because `+*` is now opAddPointer, not
             opCopyList: it adds ONE pointer attribute rather than copying a
             three-member list. That is the operator changing under them, not the

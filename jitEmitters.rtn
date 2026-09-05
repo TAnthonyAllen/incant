@@ -73,16 +73,7 @@ GroupItem   arg = argument,
         was the wrapper's fingerprint -- "unwrap this, unless it is the argument"
         -- and it retires WITH the wrapper, not before it.  */
     -%
-    if (!gNoUnwrap) {
-        if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
-            arg = arg->getGroup();
-        if (( ruleArg = field->get("argument") )) {
-            ruleArg->setGroup(arg);
-            GroupControl::groupController->groupRules->chanBinds++;
-            if ( ruleArg->groupBody->gGroup == arg ) GroupControl::groupController->groupRules->chanSame++;
-            }
-    }
-    else {
+    {
         /*  THE TRIPWIRE AND ITS FALLBACK ARE GONE, 2026-09-05, folded in with
             item 3 at Tony's ruling -- same road, same arm. Two reasons, and the
             second is why this could not wait. The tripwire guarded a union that
@@ -775,7 +766,7 @@ extern int jitEmitBareRead(GroupItem token)
     //  THIRD time -- without this line a jitted `print argument` reads the
     //  holder's storage and prints an address at degrade count 0, which is this
     //  function's own 75102656 one road over   ArgBinding.ArgBindingSites
-    if ( gNoUnwrap && token->groupBody->flags.isArgument && isGROUP(token->groupBody->flags.data) )
+    if ( token->groupBody->flags.isArgument && isGROUP(token->groupBody->flags.data) )
         token = token->getGroup();
     if (!token) return 0;
     //  ⚠ REFUSE ANYTHING THAT IS NOT A SCALAR READ, and this guard is not

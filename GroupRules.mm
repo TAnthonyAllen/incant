@@ -780,8 +780,6 @@ GroupItem 	*source = 0;
 	}
 	}
 	}
-	// ⚠ THE LEGACY FOLLOW, and it is the only thing keeping bare byte-identical.
-	// Retires with gNoUnwrap, not before   ruleActions.aCTionIterate.legacyFollow
 	// nullAfterStar  THE CONSUMER OF THE NULL REFUSES (Tony's STAR ruling,
 	// 2026-09-05). This arm used to be SILENT because the star had already
 	// spoken; under STAR the star yields null quietly, so if this stays silent
@@ -798,12 +796,11 @@ GroupItem 	*source = 0;
 	
 	return 0;
 	}
-	if ( !gNoUnwrap )   source = ::unWrap(source);
 	// argument is a BINDING: an isArgument source yields what it holds, ahead of
 	// the holds-a-pointer refusal. Iterate reads input[1]/input[2] itself and
 	// never passes through runOP, so the rule is stated again here
 	// ArgBinding.ArgBindingSites
-	if ( gNoUnwrap && source && source->groupBody->flags.isArgument && isGROUP(source->groupBody->flags.data) )
+	if ( source && source->groupBody->flags.isArgument && isGROUP(source->groupBody->flags.data) )
 	source = source->getGroup();
 	if ( source && isGROUP(source->groupBody->flags.data) )
 	{
@@ -989,9 +986,6 @@ GroupItem 	*grup = 0;
 				result = ExpressioN;
 			else	result = grup;
 			
-			if (!gNoUnwrap)
-			if ( isGROUP(result->groupBody->flags.data) && !result->groupBody->flags.isArgument )
-			result = result->getGroup();
 			
 			if ( FormaT )
 				result->addMember(FormaT);
@@ -3394,9 +3388,6 @@ GroupItem 	*tgt = 0;
 		{
 		arg = xpList->groupBody->groupList->firstInList;
 		
-		if (!gNoUnwrap)
-		if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
-		arg = arg->getGroup();
 		
 		revisedList->addMember(arg);
 		}
@@ -3750,9 +3741,6 @@ GroupItem 	*token = 0;
 		{
 		arg = xpList->groupBody->groupList->firstInList;
 		
-		if (!gNoUnwrap)
-		if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
-		arg = arg->getGroup();
 		
 		goto finishXP;
 		}
@@ -3836,16 +3824,7 @@ GroupItem 	*ruleArg = 0;
 	was the wrapper's fingerprint -- "unwrap this, unless it is the argument"
 	-- and it retires WITH the wrapper, not before it.  */
 	
-	if (!gNoUnwrap) {
-	if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isArgument )
-	arg = arg->getGroup();
-	if (( ruleArg = field->get("argument") )) {
-	ruleArg->setGroup(arg);
-	GroupControl::groupController->groupRules->chanBinds++;
-	if ( ruleArg->groupBody->gGroup == arg ) GroupControl::groupController->groupRules->chanSame++;
-	}
-	}
-	else {
+	{
 	/*  THE TRIPWIRE AND ITS FALLBACK ARE GONE, 2026-09-05, folded in with
 	item 3 at Tony's ruling -- same road, same arm. Two reasons, and the
 	second is why this could not wait. The tripwire guarded a union that
@@ -4529,7 +4508,7 @@ extern "C" int jitEmitBareRead(GroupItem *token)
 	//  THIRD time -- without this line a jitted `print argument` reads the
 	//  holder's storage and prints an address at degrade count 0, which is this
 	//  function's own 75102656 one road over   ArgBinding.ArgBindingSites
-	if ( gNoUnwrap && token->groupBody->flags.isArgument && isGROUP(token->groupBody->flags.data) )
+	if ( token->groupBody->flags.isArgument && isGROUP(token->groupBody->flags.data) )
 	token = token->getGroup();
 	if (!token) return 0;
 	//  ⚠ REFUSE ANYTHING THAT IS NOT A SCALAR READ, and this guard is not
@@ -8624,11 +8603,12 @@ int 		priorLimit = ::limitWriteGuard(target);
 			/*  ⚠ F-48 FOR THE INTERPRETER (Tony, SEQ 139), through the SAME core
 			the emitted road uses -- assignFieldCore -- so the two cannot
 			drift. A holder on the right refuses by name and stores nothing.
-			⚠ GATED ON gNoUnwrap: bare behaviour is unchanged, because at 0
-			the auto-unwrap is still in place and a holder legitimately
-			resolves to its value.   Instruct.opAssign.holderRefusal  */
-			 if (gNoUnwrap) { ::assignFieldCore(argument,target); }
-			else             target->setContent(argument); 
+			⚠ IT WAS GATED, AND THE GATE IS GONE (2026-09-05). The bare arm
+			was a plain setContent, kept only while the auto-unwrap still
+			stood and a holder legitimately resolved to its value. The trunk
+			is the flip; assignFieldCore is now unconditional.
+			Instruct.opAssign.holderRefusal  */
+			 ::assignFieldCore(argument,target); 
 			}
 	else	target->clearData();
 	/*  F-27, Tony's ruling 2026-08-19. Non-zero priorLimit means the target IS
@@ -12521,17 +12501,16 @@ GroupItem 	*result = 0;
 GroupItem 	*op = field->get(1);
 GroupItem 	*arg = field->get(3);
 GroupItem 	*target = field->get(2);
-	/*  ⚠ THE FLIP LIVES HERE. Both lines are the ORIGINAL generated code, moved
-	into passthrough unchanged and wrapped in the one gate. Under gNoUnwrap
-	they do not run, and an operand reaches its operator AS THE FIELD.
-	`!isPointer` is measured dead (0 suppressions in 29,634 runOP entries)
-	and `!op.isAssign` retires with the line rather than despite it -- the
-	exemption becomes the rule. See docs/unwrapRecon.md.  */
+	/*  ⚠ THE ARGUMENT FOLLOW, and it is what is LEFT of the flip. runOP's two
+	legacy auto-unwraps stood here behind one gate; they were dead the day the
+	trunk became the flip and were deleted with the switch on 2026-09-05.
+	What survives is the rule that replaced them: an isArgument operand
+	yields what it holds.   ArgBinding.ArgBindingSites  */
 	// argument is a BINDING: an isArgument operand yields what it holds, and a
 	// REBIND of it refuses by name -- tested BEFORE the follow, which destroys
 	// the evidence. This funnel serves BOTH ROADS   ArgBinding.ArgBindingSites
 	
-	if ( gNoUnwrap && op && target && target->groupBody->flags.isArgument ) {
+	if ( op && target && target->groupBody->flags.isArgument ) {
 	void *gop = (void*)op->groupBody->gOp;
 	if ( gop == (void*)&opSetGroup || gop == (void*)&opRebind ) {
 	char why[192];
@@ -12541,18 +12520,10 @@ GroupItem 	*target = field->get(2);
 	return ::refuse(target,why);
 	}
 	}
-	if (!gNoUnwrap) {
-	if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer && !target->groupBody->flags.isIterator && !op->groupBody->flags.isAssign )
-	target = target->getGroup();
-	if ( arg && isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isPointer )
-	arg = arg->getGroup();
-	}
-	else {
 	if ( target && target->groupBody->flags.isArgument && isGROUP(target->groupBody->flags.data) )
 	target = target->getGroup();
 	if ( arg && arg->groupBody->flags.isArgument && isGROUP(arg->groupBody->flags.data) )
 	arg = arg->getGroup();
-	}
 	
 	/*  ⚠ THE STORE RULING (Tony, 2026-09-05). AN ARMED STATEMENT DISPATCHES
 	NOTHING FURTHER, STORES INCLUDED. Without this, a refusal raised inside
@@ -12894,9 +12865,6 @@ int 		leftIsTrue = 0;
 	a divergence between `&&` and `+` is exactly the class nothing is aimed
 	at, and it becomes real the day someone writes `if a.group && b`.  */
 	
-	if (!gNoUnwrap)
-	if ( isGROUP(target->groupBody->flags.data) && !target->groupBody->flags.isPointer && !target->groupBody->flags.isIterator )
-	target = target->getGroup();
 	
 	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
 		target = target->groupBody->gMethod(target);
@@ -12912,9 +12880,6 @@ int 		leftIsTrue = 0;
 	if ( ::compare(op->groupBody->tag,"OR") == 0 && leftIsTrue )
 		return GroupControl::groupController->groupRules->trueResult;
 	
-	if (!gNoUnwrap)
-	if ( isGROUP(arg->groupBody->flags.data) && !arg->groupBody->flags.isPointer )
-	arg = arg->getGroup();
 	
 	if ( arg && isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
 		arg = arg->groupBody->gMethod(arg);

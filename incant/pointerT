@@ -99,7 +99,7 @@ define
 
         ptInner := ptOther;
         ptBagD +* ptInner;
-        print "pointerT D  depth        =" ptBagD["ptInner"] "  want 0 flip-OFF, OTHER flip-ON -- a flip tripwire":;
+        print "pointerT D  depth        =" ptBagD["ptInner"] "  want ptOther -- the holder, not the leaf":;
 
         print "pointerT X  star binds tightest =" *ptBagP["ptSrc"] "  want 0 -- LAW 3, the star took ptBagP":;
 
@@ -132,10 +132,14 @@ value needs re-reading.
 measured fact instead of an assumed one, and if `+%` ever DOES start isolating,
 P2 goes red and someone reads this note.
 
-⚠ ROW D IS A FLIP TRIPWIRE. It reads 0 with gNoUnwrap OFF and OTHER with it ON,
-measured both ways. Pinned at the flip-OFF value because that is the fleet's
-baseline; it goes RED at the flip and re-pins to OTHER, exactly like holderT
-row 3.
+⚠ ROW D WAS A FLIP TRIPWIRE AND IT HAS DISCHARGED, 2026-09-05. It read 0 with
+gNoUnwrap OFF and OTHER with it ON, measured both ways, and was pinned at the
+flip-OFF value because that was the fleet's baseline. THE SWITCH IS GONE: the
+trunk is the flip, the bare arm it discriminated no longer exists, and there is
+no longer a pair of readings to be a tripwire between. Re-pinned to OTHER --
+the value it has always had under the semantics that now simply ARE the
+semantics. The row still asserts something real (a one-deep pointer read
+reaches the holder, not the leaf); what it stopped asserting is a CHOICE.
 
 ⚠⚠ ROW F2 IS THE REFUSAL TEST F1 IS NOT, AND IT EXISTS BECAUSE THE ARM IT DRIVES
 CONTAINED A CRASH THAT NOTHING HAD EVER REACHED (F-43, fixed 2026-09-01).

@@ -108,7 +108,7 @@
 #   |---|---|---|
 #   | 33 | `gParseRecordArmed` | GroupRules |
 #   | 276-278 | `gKantLabel`, `gKantFrom`, `gKantRule` | GroupRules |
-#   | 619 | `gNoUnwrap` | GroupRules — ⚠ **the flip switch** |
+#   | 619 | `gNoUnwrap` | GroupRules — ⚠ **the flip switch** — ⚠ STRUCK 2026-09-05: the switch was REMOVED, so this row is discharged and the migration is one global shorter. Left in place because this seal is a dated record. |
 #   | 637-639 | `gChanPendBody`, `gChanPendGroup`, `gChanPendData` | GroupRules |
 #   | 640-643 | `gChanStkBody`, `gChanStkGroup`, `gChanStkData`, `gChanStkTop` | GroupRules |
 #   | 652-654 | `gCompileAttempted`, `gCompileRefused`, `gCompileReported` | header-internal only |
