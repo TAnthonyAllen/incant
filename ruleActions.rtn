@@ -304,6 +304,20 @@ use item
                         CodE                = item;
                         CodE.tag            = "CodE";
                         CodE.noPrint        = true; }
+                    /*  ⚠ A DECLARED `argument` IS A RETIRED SPELLING AND REFUSES BY
+                        NAME. runAction MINTS the binding slot now, so there is
+                        nothing left to declare. Same shape as iterate's old form:
+                        the retired spelling does not quietly do something slightly
+                        different, it says so and names the respell.
+                        ⚠ THE REFUSAL ARMS, and the arm is cleared AT THE DEFINITION
+                        BOUNDARY rather than by aCTionBlocK -- a refusal is terminal
+                        for THE UNIT THAT RAISED IT, and at define time that unit is
+                        the DEFINITION, not the enclosing block. Arming without the
+                        boundary clear kills every later definition in the file:
+                        measured 2026-09-05, fleet 171 -> 107.
+                        ruleActions.aCTionDefinE.argumentRetired  */
+                    if tag eq "argument"
+                        refuse(NewGroup,"a declared `argument` attribute is retired -- delete it; runAction mints the binding slot");
                     if NewGroup.isMacro     noPrint = true;
                     isInitialized  = true;
                     if NewGroup.isRule && !item.binType && !item.isRule item.isRule = true;
@@ -384,6 +398,15 @@ use NewGroup
     if addingMembers        addingMembers = false;
     if currentDefine && currentDefine.groupBody == NewGroup.groupBody    currentDefine = null;
     input.group     = NewGroup;
+    /*  ⚠ THE DEFINITION BOUNDARY. A refusal raised while defining is terminal
+        for THE DEFINITION: it is not installed, and the arm is cleared here so
+        the NEXT definition in the file is unaffected. One channel -- the same
+        `refused` the run-time road uses -- and no non-arming sibling, because a
+        second channel is how the two eras would drift.   Tony, 2026-09-05.
+        ruleActions.aCTionDefinE.refusalBoundary  */
+    if ruler.refused {
+        if currentRegistry  currentRegistry.remove(NewGroup.tag);
+        ruler.refused = 0; }
     return input;
 }
 

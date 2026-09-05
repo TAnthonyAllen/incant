@@ -1,0 +1,46 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(ArgRetired);
+define
+    arBefore code={ print "AR BEFORE ran":; };
+    arBad argument code={ print "AR BAD ran -- a REFUSED definition was installed":; };
+    arAfter code={ print "AR AFTER ran":; };
+    ;
+arBefore();
+arBad();
+arAfter();
+print "ARGRETIRED SENTINEL -- reached the foot":;
+stop();
+
+argRetiredT -- A DECLARED `argument` IS A RETIRED SPELLING AND REFUSES BY NAME.
+
+runAction MINTS the binding slot, so there is nothing left to declare. The
+retired spelling does not quietly do something slightly different: it says so,
+names the respell, and the definition is NOT INSTALLED.
+
+FOUR THINGS ASSERTED, and the three neighbours are what make the middle one
+mean anything:
+
+    AR BEFORE ran            the definition BEFORE the refusal is unharmed
+    REFUSED arBad ...        the refusal fires, BY NAME, with the respell in it
+    AR BAD absent            the refused definition was NOT installed
+    AR AFTER ran             the definition AFTER the refusal is unharmed
+
+⚠ `AR AFTER` IS THE ROW THAT COSTS SOMETHING TO GET WRONG, and it is here
+because getting it wrong was measured. A refusal is terminal for THE UNIT THAT
+RAISED IT (Tony, 2026-09-05): at run time that unit is the activation, at define
+time it is the DEFINITION. A first attempt armed without clearing at the
+definition boundary, so the first declared `argument` in a file killed EVERY
+LATER DEFINITION IN IT -- fleet 171 -> 107. `AR AFTER` is the row that would
+have caught it.
+
+⚠ AND `AR BAD` IS AN ABSENCE, SO IT DOES NOT STAND ALONE (H4). It is read only
+alongside the sentinel and the two neighbours: sentinel present plus BEFORE and
+AFTER present means the run completed and BAD was SKIPPED; sentinel absent would
+mean the run died, which is a different fact. Without that pairing the row would
+pass on any truncated run.
+
+ONE STOP(), sentinel at the foot.

@@ -333,6 +333,44 @@ for _a in "A depth 3 sees argument = 7 local = 3" \
 done
 
 #  ============================================================================
+#  ⚠ argRetiredT -- A DECLARED `argument` REFUSES BY NAME AND IS NOT INSTALLED.
+#  Tony's ruling 2026-09-05: a refusal is terminal for THE UNIT THAT RAISED IT.
+#  At run time that unit is the activation; AT DEFINE TIME IT IS THE DEFINITION.
+#
+#  ⚠ THE `AR AFTER` ROW IS THE ONE THAT COSTS SOMETHING TO GET WRONG, and it is
+#  here because getting it wrong was measured. A first attempt armed WITHOUT
+#  clearing at the definition boundary, so the first declared `argument` in a
+#  file killed EVERY LATER DEFINITION IN IT -- fleet 171 -> 107. This row is
+#  what would have caught it, and it is why the boundary clear is not optional.
+#
+#  ⚠ `AR BAD` IS AN ABSENCE and does not stand alone (H4). It is read only with
+#  the sentinel and its two neighbours: sentinel present plus BEFORE and AFTER
+#  present means the run COMPLETED and BAD was SKIPPED. Sentinel absent would
+#  mean the run DIED, which is a different fact. Without the pairing this passes
+#  on any truncated run.
+run1 argRetiredT "$T/art2"; check "argRetiredT runs" 0 $?
+sentinel "argRetiredT sentinel (no truncation)" "$T/art2" "ARGRETIRED SENTINEL"
+if grep -q "REFUSED arBad -- a declared .argument. attribute is retired" "$T/art2"; then
+    echo "  ok    argRetiredT the retired spelling REFUSES BY NAME, with the respell"; green=$((green+1))
+else
+    echo "  FAIL  argRetiredT the refusal is gone or stopped naming the respell"; fail=1
+fi
+for _n in BEFORE AFTER; do
+    if grep -q "^AR $_n ran" "$T/art2"; then
+        echo "  ok    argRetiredT AR $_n ran -- the definition $_n a refusal is unharmed"; green=$((green+1))
+    else
+        echo "  FAIL  argRetiredT AR $_n did NOT run -- the refusal escaped its definition"; fail=1
+    fi
+done
+if grep -q "ARGRETIRED SENTINEL" "$T/art2" && grep -q "^AR AFTER ran" "$T/art2" && ! grep -q "^AR BAD ran" "$T/art2"; then
+    echo "  ok    argRetiredT the REFUSED definition was NOT installed"; green=$((green+1))
+elif grep -q "^AR BAD ran" "$T/art2"; then
+    echo "  FAIL  argRetiredT the refused definition WAS installed and ran"; fail=1
+else
+    echo "  FAIL  argRetiredT truncated -- AR BAD's absence asserts nothing"; fail=1
+fi
+
+#  ============================================================================
 #  ⚠ acceptStartT -- THE ACCEPTANCE LINE. UN-PARKED 2026-09-05 (rule H6).
 #  Parked since 2026-08-30 with "un-parks at the flip", because the answer it
 #  would be measured against had not been chosen. The flip has landed and B has

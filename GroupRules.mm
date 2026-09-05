@@ -427,6 +427,20 @@ GroupItem 	*item = 0;
 					CodE->groupBody->tag = "CodE";
 					CodE->groupBody->flags.noPrint = 1;
 					}
+				/*  ⚠ A DECLARED `argument` IS A RETIRED SPELLING AND REFUSES BY
+				NAME. runAction MINTS the binding slot now, so there is
+				nothing left to declare. Same shape as iterate's old form:
+				the retired spelling does not quietly do something slightly
+				different, it says so and names the respell.
+				⚠ THE REFUSAL ARMS, and the arm is cleared AT THE DEFINITION
+				BOUNDARY rather than by aCTionBlocK -- a refusal is terminal
+				for THE UNIT THAT RAISED IT, and at define time that unit is
+				the DEFINITION, not the enclosing block. Arming without the
+				boundary clear kills every later definition in the file:
+				measured 2026-09-05, fleet 171 -> 107.
+				ruleActions.aCTionDefinE.argumentRetired  */
+				if ( ::compare(item->groupBody->tag,"argument") == 0 )
+					::refuse(NewGroup,"a declared `argument` attribute is retired -- delete it; runAction mints the binding slot");
 				if ( NewGroup->groupBody->flags.isMacro )
 					item->groupBody->flags.noPrint = 1;
 				item->groupBody->flags.isInitialized = 1;
@@ -539,6 +553,18 @@ int 		t = 1;
 	if ( ruler->currentDefine && ruler->currentDefine->groupBody == NewGroup->groupBody )
 		ruler->currentDefine = 0;
 	input->setGroup(NewGroup);
+	/*  ⚠ THE DEFINITION BOUNDARY. A refusal raised while defining is terminal
+	for THE DEFINITION: it is not installed, and the arm is cleared here so
+	the NEXT definition in the file is unaffected. One channel -- the same
+	`refused` the run-time road uses -- and no non-arming sibling, because a
+	second channel is how the two eras would drift.   Tony, 2026-09-05.
+	ruleActions.aCTionDefinE.refusalBoundary  */
+	if ( ruler->refused )
+		{
+		if ( ruler->currentRegistry )
+			ruler->currentRegistry->remove(NewGroup->groupBody->tag);
+		ruler->refused = 0;
+		}
 	return input;
 }
 
