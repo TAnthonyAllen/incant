@@ -38,8 +38,10 @@ GroupItem   grup,
             what makes the compiled answer match the interpreted one.  */
         if jitting {
             -% jitStoreResult(); %-
-            //  A3: the emitted body checks the arm per statement, inside inlines
-            -% jitEmitRefusedCheck(); %-
+            //  A3 + the statement-local gate: the check is emitted only for a
+            //  statement that can actually refuse at RUN time, and the flag is
+            //  cleared here so it cannot leak into the next statement.
+            -% jitEmitRefusedCheck(); gJitStmtCanRefuse = false; %-
         }
         /*  ⚠ A REFUSAL STOPS THE BLOCK, and the jitting arm must NOT stop the
             EMIT walk -- same era split as the isBranch check below, and the

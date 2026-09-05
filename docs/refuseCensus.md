@@ -330,3 +330,38 @@ with it.
 operand"*, and after STAR the operand was not refused — it was **nothing**. They
 now say *"an operand that is nothing"*, which is what the guard actually caught
 all along and what STAR made unambiguous.
+
+
+## The statement-local gate — landed, and one certificate is UNVERIFIED
+
+| certificate | result |
+|---|---|
+| argJitT back near 28/4 for a body with no refusable site | **30 lines / 4 blocks** (A3 was 58/12; the +2 is the epilogue's arm-clear) |
+| ladder 208/3 unmoved | **208/3** |
+| a body WITH a refusable site keeps its checks | ⚠ **NOT VERIFIED** |
+
+⚠ **THE THIRD IS UNVERIFIED BECAUSE I COULD NOT CONSTRUCT THE BODY, and that is
+a finding rather than a gap in effort.** The gate's predicate is "this statement
+emits a call to a run-time helper that can refuse", and today **exactly one
+helper qualifies: `jitPrintNodeRT`**. Two print shapes were tried inside an
+inlined callee — a literal-plus-value print and a backtick node print — and
+neither emitted a `printNode` call at all. They emit `printTok`, `printVal` and
+`printSink`, which are different helpers and none of them refuses.
+
+**So the refusing run-time surface on the emitted road is very small — possibly
+empty for every shape a fixture currently produces.** That is worth stating
+plainly for two reasons:
+
+- **it vindicates the gate more strongly than a passing certificate would.** If
+  almost nothing can refuse at run time in emitted code, then A3's
+  per-statement check was near-total waste — double the lines and triple the
+  blocks, paid on every inlined body, to guard a case that may not arise.
+- **and it means the epilogue clear is guarding a door nobody has walked
+  through.** It is still correct and still cheap, and it must land before
+  anything makes the door reachable; but no measurement yet shows the arm being
+  set at run time on the emitted road.
+
+**What would settle it:** find the source shape that emits a `jitPrintNodeRT`
+call, or establish that nothing reaches it any more. Until then the gate is
+right by construction and half-certified by measurement, and this file says so
+rather than a green row implying otherwise.

@@ -504,6 +504,19 @@ inline bool jitPendingHas(GroupBody *b) {
 // costs nothing and makes the dumps read in execution order.
 inline llvm::BasicBlock *gJitEpilogueBB = nullptr;
 
+// ⚠ THE STATEMENT-LOCAL GATE (Tony, 2026-09-05). A3 emits the refusal check
+// after every statement of every inlined body, which measured DOUBLE the lines
+// and TRIPLE the blocks on argJitT -- paid whether or not anything in the
+// statement can refuse. This flag is the predicate that makes it selective.
+//
+// ⚠ THE PREDICATE IS NARROWER THAN "CONTAINS A REFUSABLE SITE", and the reason
+// is what makes the gate worth anything. Almost every OPERATOR can refuse when
+// INTERPRETED -- but in an emitted body an operator is IR, not a call, and its
+// interpreted refusal never runs. What can refuse at RUN time inside emitted
+// code is only a call to a run-time helper that refuses. Today that is exactly
+// one: jitPrintNodeRT. So an arithmetic body needs no checks at all.
+inline bool gJitStmtCanRefuse = false;
+
 // SET BY DISCOVERY, READ BY THE BUILD LOOP. The function currently under
 // construction is now known to be wrong and must be erased rather than finished
 // into the module -- so this is not an error channel, it is "start over knowing

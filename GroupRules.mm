@@ -70,8 +70,10 @@ GroupItem 	*prior = 0;
 		if ( ruler->jitting )
 			{
 			 jitStoreResult(); 
-			//  A3: the emitted body checks the arm per statement, inside inlines
-			 jitEmitRefusedCheck(); 
+			//  A3 + the statement-local gate: the check is emitted only for a
+			//  statement that can actually refuse at RUN time, and the flag is
+			//  cleared here so it cannot leak into the next statement.
+			 jitEmitRefusedCheck(); gJitStmtCanRefuse = false; 
 			}
 		/*  ⚠ A REFUSAL STOPS THE BLOCK, and the jitting arm must NOT stop the
 		EMIT walk -- same era split as the isBranch check below, and the
@@ -5279,6 +5281,11 @@ extern "C" int jitEmitRefusedCheck()
 	llvm::IRBuilder<> *b = gJitBuilder;
 	if (!b) return 0;
 	if (gJitInlining.empty()) return 0;
+	//  ⚠ THE STATEMENT-LOCAL GATE. Nothing in this statement can refuse at RUN
+	//  time, so the check would be dead weight -- and A3 measured that weight at
+	//  double the lines and triple the blocks. Cleared per statement by the
+	//  caller so the flag cannot leak forward into the next one.
+	if (!gJitStmtCanRefuse) return 0;
 	if (gJitInlineFrames.empty() || !gJitInlineFrames.back().exitBB) return 0;
 	llvm::LLVMContext &ctx = b->getContext();
 	llvm::Function  *fn  = b->GetInsertBlock()->getParent();
@@ -6339,6 +6346,7 @@ extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue)
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)token), ptr, "printFieldNode");
 	llvm::Value *tfn = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitPrintNodeRT), ptr, "printNodeFn2");
+	gJitStmtCanRefuse = true;   // this statement emits a refusing run-time call
 	llvm::FunctionType *tty = llvm::FunctionType::get(ptr, {ptr, ptr, ptr}, false);
 	b->CreateCall(tty, tfn, {tAddr, fmtAddr, gJitPrintBuf}, "printFieldNodeCall");
 	return; }
@@ -6346,6 +6354,7 @@ extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue)
 	gJitLastIsNode = false;
 	llvm::Value *pfn = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitPrintNodeRT), ptr, "printNodeFn");
+	gJitStmtCanRefuse = true;   // this statement emits a refusing run-time call
 	llvm::FunctionType *pty = llvm::FunctionType::get(ptr, {ptr, ptr, ptr}, false);
 	b->CreateCall(pty, pfn, {gJitResultNode, fmtAddr, gJitPrintBuf}, "printNode");
 	return; }
