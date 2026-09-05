@@ -9,7 +9,7 @@ define
     codeBuffer buffer;
     openBrace="{";
     closeBrace="}";
-    generateParse argument code={
+    generateParse code={
         arg := *argument;
         @arg;
         cout "Generating parse code for" taG:;
@@ -44,7 +44,7 @@ define
         printTO(0);
         //print taG "=" CodE.taG:;
        };
-    walkRules argument code={
+    walkRules code={
         generateParse(argument);
         if actionTypE == 0;
             length  = listLengtH;
@@ -56,7 +56,7 @@ define
                     if listLengtH;  walkRules(grup);
                     else generateParse(grup);
         };
-    compileRules argument code={
+    compileRules code={
         $$argument;
         compile(argument);
         if actionTypE == 0;
@@ -70,7 +70,7 @@ define
                     if listLengtH;  compileRules(grup);
                     else compile(grup);
         };
-    evictTerms argument code={
+    evictTerms code={
         iterate evA on argument attributes;
         while ++evA;
             if noPrinT;     continue;
@@ -80,7 +80,7 @@ define
             if noPrinT;     continue;
             if hasNewParsE; evictAction(evM);
         };
-    evictWalk argument code={
+    evictWalk code={
         iterate evR on argument members;
         while ++evR;
             if noPrinT;     continue;
@@ -89,7 +89,7 @@ define
             if binTypE;     continue;
             evictTerms(evR);
         };
-    parser argument code={
+    parser code={
         walkRules(argument);
         compileRules(argument);
         cerr "PARSER SENTINEL -- walk complete":;

@@ -10,7 +10,7 @@ register(ProbeArgJit);
 define
     paSrc;
     paOut;
-    paCallee argument code={
+    paCallee code={
         paOut = argument * 2;
         };
     paDrive code={

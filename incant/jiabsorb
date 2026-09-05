@@ -24,12 +24,12 @@ search reset stack Grokking;
 search jigCorpus Utilities list;
 
 define
-    showClaims argument code={
+    showClaims code={
         cg := argument.claims;
         for grup in cg; print ``"    " grup.taG:;
         };
 
-    absorbClaim argument code={
+    absorbClaim code={
         cg     := argument.claims;
         cand   := new("absorbedClaim");
         if cand IN cg;

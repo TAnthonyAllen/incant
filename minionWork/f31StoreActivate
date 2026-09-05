@@ -75,7 +75,7 @@ register(F31SAWalk);
 define
     fzCount=0;
     fzKids=0;
-    fzWalk argument code={
+    fzWalk code={
         iterate fzCur on *argument;
         while ++fzCur;
             fzCount = fzCount + 1;
@@ -86,7 +86,7 @@ define
                     fzKids = fzKids + 1;
                     cerr "   ENTRY " ~taG:;
         };
-    fzRun argument code={
+    fzRun code={
         fzWalk(argument);
         cerr "F31SA top-level entries " fzCount:;
         cerr "F31SA child attributes " fzKids:;

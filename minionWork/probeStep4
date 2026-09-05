@@ -6,7 +6,7 @@ search reset stack Grokking UnitTests Utilities list;
 register(Step4);
 define
     s4Src="ORIG";
-    s4Callee argument code={
+    s4Callee code={
         cerr "S4-C the CALLEE's argument, by addrOf:":;
         addrOf(argument);
         cerr "S4-D the CALLEE's argument, by probeNode (rStuff column):":;

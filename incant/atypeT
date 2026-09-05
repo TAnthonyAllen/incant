@@ -13,7 +13,7 @@ define
     atDisagree  = 0;
     atAbsurd    = 0;
     atAfter     = 0;
-    atWalk argument code={
+    atWalk code={
         atBare      = 0;
         atCapt      = 0;
         atTotal     = 0;

@@ -18,7 +18,7 @@ define
     irRoot      alpha beta gamma
         irM1;
         irM2;
-    rowA argument code={
+    rowA code={
         aCount = 0;
         mCount = 0;
         iterate grup attributes on *argument;
@@ -30,7 +30,7 @@ define
         print "A one local   attrs=" aCount " members=" mCount:;
         };
 
-    rowB argument code={
+    rowB code={
         aCount = 0;
         mCount = 0;
         iterate one attributes on *argument;
@@ -42,7 +42,7 @@ define
         print "B two locals  attrs=" aCount " members=" mCount:;
         };
 
-    rowC argument code={
+    rowC code={
         aCount = 0;
         mCount = 0;
         iterate grup members on *argument;

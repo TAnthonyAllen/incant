@@ -5,7 +5,7 @@ search GroupFields Utilities list;
 
 register(Utilities);
 define
-    phRun argument code={
+    phRun code={
         phA = 0;
         phT = 0;
         if argument.hasAttributeS;  phA = 1;

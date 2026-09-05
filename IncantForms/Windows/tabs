@@ -32,7 +32,7 @@ define
     jsonResult;
     jsonTestField=({"kind":"webfonts#webfontList","items":[{"family":"ABeeZee","variants":["regular","italic"],"subsets":["latin"],"version":"v22","files":{"regular":"http://fonts.gstatic.com/s/abeezee/v22/a.ttf","italic":"http://fonts.gstatic.com/s/abeezee/v22/b.ttf"},"category":"sans-serif"},{"family":"Roboto","variants":["regular","700"],"subsets":["latin","cyrillic"],"version":"v30","files":{"regular":"http://fonts.gstatic.com/s/roboto/v30/c.ttf","700":"http://fonts.gstatic.com/s/roboto/v30/d.ttf"},"category":"sans-serif"}]}#);
     dataNames isANY isCHAR isSET isBUFFER isCOUNT isGROUP isITEM isMAP isNUMBER isOBJECT isREGEX isSTAK isSTRING isTOKEN;
-    tester argument code={
+    tester code={
         name = dataNames[datA];
         if name != 0;
             print "data name for" taG name:;

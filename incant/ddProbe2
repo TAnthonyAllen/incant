@@ -9,7 +9,7 @@ include(designDocs);
 search reset stack Grokking DesignDocs UnitTests Utilities list;
 register(DdProbe2);
 define
-    shape argument code={
+    shape code={
         print "  children " argument.listLengtH " datA " argument.datA:;
         };
     ;

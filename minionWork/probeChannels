@@ -4,7 +4,7 @@ include(utilities);
 search reset stack Grokking UnitTests Utilities list;
 register(ProbeR);
 define
-    pnOne argument code={
+    pnOne code={
         cerr "  RULE        " taG argument:;
         cerr "     listLengtH " argument.listLengtH:;
         cerr "     datA       " argument.datA:;

@@ -90,7 +90,7 @@ define
     inner   deep;
     outer   inner;
 
-    probe argument code={
+    probe code={
         mark = #"L-" taG argument;
         print "  ENTER " mark:;
         iterate kid on *argument;
@@ -99,7 +99,7 @@ define
         print "  AFTER " mark:;
         };
 
-    shapeProbe argument code={
+    shapeProbe code={
         shape = new("shape");
         atx   = new("atx");
         shape +% atx;
@@ -115,7 +115,7 @@ define
             print "FIRSTANY=" a:;
         };
 
-    fixProbe argument code={
+    fixProbe code={
         shape = new("shape");
         atx   = new("atx");
         shape +% atx;

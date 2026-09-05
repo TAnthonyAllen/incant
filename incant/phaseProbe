@@ -53,12 +53,12 @@ define
     ppOpen="{";
     ppClose="}";
     ppSeen=0;
-    ppEdges argument code={
+    ppEdges code={
         iterate ppT on *argument;
         while ++ppT;
             print "EDGE  " ~taG:;
         };
-    ppShape1 argument code={
+    ppShape1 code={
         print "S1    ";
         if hasAttributeS;   print "A";
         else                print "-";
@@ -70,7 +70,7 @@ define
         else                print "-";
         print " " ~taG:;
         };
-    ppShape2 argument code={
+    ppShape2 code={
         print "S2    ";
         if hasAttributeS;   print "A";
         else                print "-";
@@ -82,30 +82,30 @@ define
         else                print "-";
         print " " ~taG:;
         };
-    ppClean argument code={
+    ppClean code={
         print "RULE  " ~taG:;
         ppShape1(argument);
         ppEdges(argument);
         };
-    ppMembers argument code={
+    ppMembers code={
         iterate ppM members on *argument;
         while ++ppM;
             if !isRulE;     continue;
             ppClean(*ppM);
         };
-    ppAttrs argument code={
+    ppAttrs code={
         iterate ppA attributes on *argument;
         while ++ppA;
             if !isRulE;     continue;
             ppClean(*ppA);
         };
-    ppMembers2 argument code={
+    ppMembers2 code={
         iterate ppM2 members on *argument;
         while ++ppM2;
             if !isRulE;     continue;
             ppShape2(*ppM2);
         };
-    ppAttrs2 argument code={
+    ppAttrs2 code={
         iterate ppA2 attributes on *argument;
         while ++ppA2;
             if !isRulE;     continue;
@@ -115,12 +115,12 @@ define
     ppBump code={
         ppTermN = ppTermN + 1;
         };
-    ppTagMatch argument code={
+    ppTagMatch code={
         print $"m" taG;
         print $"()";
         print ";";
         };
-    ppGen argument code={
+    ppGen code={
         reset(ppBuffer);
         printTO(ppBuffer);
         print ppOpen:;
@@ -150,7 +150,7 @@ define
         printTO(0);
         ppSeen = ppSeen + 1;
         };
-    ppWalk argument code={
+    ppWalk code={
         if actionTypE != 0;     return;
         ppGen(argument);
         if listLengtH;
@@ -160,7 +160,7 @@ define
                 if binTypE;     continue;
                 if isRule;      ppWalk(*ppCur);
         };
-    ppRun argument code={
+    ppRun code={
         ppMembers2(argument);
         ppAttrs2(argument);
         ppSeen = 0;

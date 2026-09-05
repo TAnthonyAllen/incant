@@ -15,7 +15,7 @@ define traceParse immediateAction=traceParse; ;
 traceParse();
 register(ParensMin);
 define
-    pmTake argument code={
+    pmTake code={
         print "INSIDE pmTake, argument is" argument:;
         };
     pmRun code={

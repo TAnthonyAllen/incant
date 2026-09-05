@@ -61,7 +61,7 @@ define
         dfCoded2 codedTwo code={ counter = counter + 2; };
         dfBare;
     /*  displayForm, COPIED VERBATIM from IncantForms/WorkingOn/tester.  */
-    displayForm argument code={
+    displayForm code={
         length  = listLengtH;
         print ~taG:;
         if length > 0;

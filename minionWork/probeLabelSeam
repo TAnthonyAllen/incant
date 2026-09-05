@@ -15,7 +15,7 @@ define
     plsWs;
     plsFork;
 
-    genParseTest argument code={
+    genParseTest code={
         reset(codeBuffer);
         printTO(codeBuffer);
         print openBrace:;

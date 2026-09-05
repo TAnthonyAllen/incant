@@ -15,7 +15,7 @@ define
     bcPos       one two three
         p1;
         p2;
-    show argument code={
+    show code={
         print "ctl ";
         if argument.hasAttributeS;  print "A";
         else                        print "-";

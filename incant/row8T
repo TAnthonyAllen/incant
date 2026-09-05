@@ -45,7 +45,7 @@ define
     r8Buffer buffer;
     r8Open="{";
     r8Close="}";
-    r8Attach argument code={
+    r8Attach code={
         reset(r8Buffer);
         printTO(r8Buffer);
         print r8Open:;
@@ -75,7 +75,7 @@ define
         @CodE;
         cerr "BODY>>" CodE "<<":;
         };
-    r8Run argument code={
+    r8Run code={
         cerr "R8    attach  trivial body ->" ~taG:;
         r8Attach(argument);
         cerr "R8    compile" ~taG:;

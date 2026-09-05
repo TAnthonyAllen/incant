@@ -9,7 +9,7 @@ define
     pnClose="}";
     pnCopy;
     pnSubj;
-    pnBuild argument code={
+    pnBuild code={
         reset(pnBuf);
         printTO(pnBuf);
         print pnOpen:;

@@ -19,7 +19,7 @@ include(utilities);
 search reset stack Grokking UnitTests Utilities list;
 register(BothCensus);
 define
-    bcMembers argument code={
+    bcMembers code={
         iterate bcCur members on *argument;
         while ++bcCur;
             if !isRulE;     continue;
@@ -30,7 +30,7 @@ define
             else                print "-";
             print " " ~taG:;
         };
-    bcAttrs argument code={
+    bcAttrs code={
         iterate bcCur2 attributes on *argument;
         while ++bcCur2;
             if !isRulE;     continue;

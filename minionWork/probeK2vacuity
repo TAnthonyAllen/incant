@@ -12,14 +12,14 @@ define
     k2xdepth;
     k2xOut;
 
-    k2xA argument code={
+    k2xA code={
         if k2xdepth > 0;
             k2xdepth = k2xdepth - 1;
             k2xA(k2xSmall);
         return argument.taG;
         };
 
-    k2xCtl argument code={
+    k2xCtl code={
         return argument.taG;
         };
     ;

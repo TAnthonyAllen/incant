@@ -22,7 +22,7 @@ register(FlagProbe);
 define
     notARule = 7;
     hushed noPrint;
-    checkIt argument code={
+    checkIt code={
         print + `taG argument "  .isRulE ->[" argument.isRulE "]":;
         if argument.isRulE;     print + "    if .isRulE  TOOK THE TRUE BRANCH":;
         else                    print + "    if .isRulE  took the false branch":;

@@ -5,14 +5,14 @@ search reset stack Grokking UnitTests Utilities list;
 register(NumAnat);
 define
     rnI=0; rnL=0; rnD=0;
-    rnItem argument code={
+    rnItem code={
         rnI = rnI + 1;
         rnL = argument.listLengtH;
         rnD = 0;
         if argument.datA != 0;      rnD = 1;
         cerr "     [" rnI "] " ~taG " list=" rnL " data=" rnD:;
         };
-    rnWalk argument code={
+    rnWalk code={
         cerr "  ATTRIBUTES of " ~taG ":":;
         rnI = 0;
         iterate rnA attributes on *argument;
@@ -24,7 +24,7 @@ define
         while ++rnM;
             rnItem(*rnM);
         };
-    rnHead argument code={
+    rnHead code={
         rnL = argument.listLengtH;
         rnD = 0;
         if argument.datA != 0;      rnD = 1;

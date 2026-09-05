@@ -44,15 +44,15 @@ search reset stack Grokking UnitTests Utilities list;
 register(AltShadow);
 define
     dummy;
-    rowB argument code={
+    rowB code={
         print "B ok    the invocation parsed -- the alternation survived the poison":;
         };
-    rowC argument code={
+    rowC code={
         iterate asCur attributes on *argument;
         while ++asCur;
             print "C guard poisoned rule carries attribute" ~taG:;
         };
-    poison argument code={
+    poison code={
         dud <- copyOf(dummy);
         dud :. noPrinT;
         argument +% dud;

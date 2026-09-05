@@ -39,7 +39,7 @@ define
     /*  One `#` statement, reached twice. Balanced `$...$`: toggle spacing off
         for the join, toggle it back on, so the statement does not depend on
         what ran before it.  */
-    mintOne argument code={
+    mintOne code={
         pikkle = #$"bcLabel" argument$;
         print "  mint [" pikkle "]":;
         };

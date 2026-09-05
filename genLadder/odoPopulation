@@ -4,7 +4,7 @@ include(utilities);
 search reset stack Grokking UnitTests Utilities list;
 register(OdoPop);
 define
-    opWalk argument code={
+    opWalk code={
         iterate opCur members on *argument;
         while ++opCur;
             if noPrinT;             continue;
@@ -13,7 +13,7 @@ define
             if actionTypE != 0;     continue;
             opEmit(*opCur);
         };
-    opEmit argument code={
+    opEmit code={
         print "ODOPOP" argument.taG:;
         };
     opRun code={

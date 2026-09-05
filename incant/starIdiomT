@@ -37,7 +37,7 @@ search reset stack Grokking UnitTests Utilities list;
 register(Idiom);
 define
     idLeaf = 5;
-    r1 argument code={
+    r1 code={
         cerr "ROW1 field := A(B); iterate on *field -- expect a walk":;
         idF := copyOf(argument);
         iterate w on *idF;
@@ -45,7 +45,7 @@ define
             cerr "ROW1 member" ~taG:;
         cerr "ROW1 survived":;
         };
-    r2 argument code={
+    r2 code={
         cerr "ROW2 A returns NULL -- expect refusal AT THE STAR":;
         idN := compile(idLeaf);
         iterate w on *idN;
@@ -53,7 +53,7 @@ define
             cerr "ROW2 BAD walked":;
         cerr "ROW2 survived":;
         };
-    r3 argument code={
+    r3 code={
         cerr "ROW3 A returns a LISTLESS field -- expect refusal AT THE ITERATE":;
         idL := copyOf(idLeaf);
         iterate w on *idL;
@@ -61,7 +61,7 @@ define
             cerr "ROW3 BAD walked":;
         cerr "ROW3 survived":;
         };
-    r4 argument code={
+    r4 code={
         cerr "ROW4 F-22's NAMED SUBJECT: x := compile(rule)":;
         idC := compile(argument);
         cerr "ROW4 survived the capture":;

@@ -10,7 +10,7 @@ register(ArgJitT);
 define
     ajSrc;
     ajOut;
-    ajCallee argument code={
+    ajCallee code={
         ajOut = argument * 2;
         };
     ajDrive code={

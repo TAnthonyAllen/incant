@@ -27,7 +27,7 @@ register(RuleCount);
 define
     rcAll;
     rcRules;
-    countThem argument code={
+    countThem code={
         rcAll = 0;
         rcRules = 0;
         iterate rcCur members on *argument;
@@ -38,7 +38,7 @@ define
             else        print "  NOTRULE " ~taG:;
         return rcAll;
         };
-    countAttrs argument code={
+    countAttrs code={
         rcAll = 0;
         rcRules = 0;
         iterate rcCur3 attributes on *argument;

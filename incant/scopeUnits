@@ -126,9 +126,9 @@ define
     /***************************************************************************
         Actions
     ***************************************************************************/
-    accessTest argument code={ print "accessTest: " taG; if argument.across; print `"Saw across in" taG:; else print `"No across in" taG:; };
+    accessTest code={ print "accessTest: " taG; if argument.across; print `"Saw across in" taG:; else print `"No across in" taG:; };
     anotherTest code={ print "anotherTest: max should be" maximus " + 3"``"it is", maximus + 3, "and we done":; };
-    callMyself argument code={
+    callMyself code={
         print ~"callMyself: First time:" argument righty,:+;
         if righty == 13;
             righty++;
@@ -166,8 +166,8 @@ define
     simpleIF code={ print "simpleIF:":`; if righty; maximus = righty + 35; else maximus = 12; anotherTest(); };
     stringTest code={ print "stringTest:"`what = righty + 2, "added 2 to righty" whatsIt; };
     testOR code={ print "testOR:"`; if !righty OR feeling; print Saw righty feeling:; else print "I see nothing":; };
-    testARG argument code={ print "testARG: Argument is:" argument:; };
-    testForC argument code={
+    testARG code={ print "testARG: Argument is:" argument:; };
+    testForC code={
         print "testForC:"`"Components of" argument with second third:;
         for grup in argument; attributes
             print `grup += righty:; };
@@ -180,7 +180,7 @@ define
         print ~-Three:;
         print ~-Four:; };
     testNegate code={ print "testNegate: does not matter if the ! comes before or after"`; if !whatever; print "No result":; else print "Negate failed":; };
-    testNew argument code={ grup = new(argument); grup++; return grup; };
+    testNew code={ grup = new(argument); grup++; return grup; };
     testPointer lineIn code={
         print "testPointer:"`;
         argument = lineIn + 4;
@@ -188,7 +188,7 @@ define
     testList code={
         print `"Processing testList action that runs list rule":;
         list("righty 3.1 seven eight nine;"); };
-    testScope argument code={
+    testScope code={
             :argument width height;
             print taG width height:;
             :simple width height quinto@;

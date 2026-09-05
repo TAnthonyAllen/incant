@@ -37,7 +37,7 @@ define
     leafB   k l;
     trunk   leafA leafB;
 
-    walk argument code={
+    walk code={
         print "at " taG argument:;
         iterate grup on *argument;
         while ++grup

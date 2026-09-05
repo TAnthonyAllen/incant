@@ -79,12 +79,12 @@ define
     wpBump code={
         wpTermN = wpTermN + 1;
         };
-    wpTagMatch argument code={
+    wpTagMatch code={
         print $"m" taG;
         print $"()";
         print ";";
         };
-    wpGen argument code={
+    wpGen code={
         reset(wpBuffer);
         printTO(wpBuffer);
         print wpOpen:;
@@ -118,11 +118,11 @@ define
         wpCensus +% argument;
         cerr "GENERATED" ~taG:;
         };
-    wpAlready argument code={
+    wpAlready code={
         wpRefused = wpRefused + 1;
         cerr "REFUSED  " ~taG:;
         };
-    wpWalk argument code={
+    wpWalk code={
         wpEntered = wpEntered + 1;
         if actionTypE != 0;
             wpAlready(argument);
@@ -139,7 +139,7 @@ define
                 if binTypE;     continue;
                 if isRule;      wpWalk(*wpCur);
         };
-    wpSweep argument code={
+    wpSweep code={
         iterate wpSw attributes on *argument;
         while ++wpSw;
             cerr "COMPILING" ~taG:;
@@ -147,7 +147,7 @@ define
             if wpOut;   wpCompiled = wpCompiled + 1;
             else        wpRejected = wpRejected + 1;
         };
-    wpRun argument code={
+    wpRun code={
         cerr "== PHASE 0: warm the sweep body before the grammar is touched ==":;
         wpSweep(wpCensus);
         wpCompiled = 0;

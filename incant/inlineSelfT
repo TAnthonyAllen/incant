@@ -69,7 +69,7 @@ define
     rbDepth;
     rbArg;
     rbOut;
-    rb argument code={
+    rb code={
         rbLoc = 42;
         if rbDepth > 0;
             rbDepth = rbDepth - 1;

@@ -16,19 +16,19 @@ search Generating UnitTests bcOPs Utilities list;
 register(SetGroupInit);
 define
     sgSource    sgAlpha;
-    rowD argument code={
+    rowD code={
         if dTarget := argument;
             print "D setgroup in condition   THEN arm":;
         else
             print "D setgroup in condition   ELSE arm":;
         };
-    rowE argument code={
+    rowE code={
         if eTarget = argument;
             print "E assign in condition     THEN arm":;
         else
             print "E assign in condition     ELSE arm":;
         };
-    rowF argument code={
+    rowF code={
         fTarget := argument;
         print "F setgroup ran, target tag is" fTarget.taG:;
         if fTarget;

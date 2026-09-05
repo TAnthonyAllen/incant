@@ -48,7 +48,7 @@ define
         clear(StorE);
         StorE = frBuf;
         };
-    frHang argument code={
+    frHang code={
         frCopy <- copyOf(StorE);
         frCopy :. noPrinT;
         argument +% frCopy;

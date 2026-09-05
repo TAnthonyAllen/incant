@@ -4,7 +4,7 @@ include(utilities);
 search reset stack Grokking UnitTests Utilities list;
 register(ProbeR);
 define
-    pbOne argument code={
+    pbOne code={
         cerr "  " argument.taG "  isRulE " argument.isRulE "  binTypE " argument.binTypE "  isMembeR " argument.isMembeR:;
         };
     pbRun code={

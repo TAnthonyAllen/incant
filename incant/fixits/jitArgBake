@@ -11,13 +11,13 @@ define
     jabOther=41;
     jabDepth=0;
     jabAnchor;
-    jabA argument code={
+    jabA code={
         ++jabDepth;
         jabMine = jabDepth;
         if jabDepth < 2;    jabB(jabOther);
         print "   argument =" argument "   local =" jabMine:;
         };
-    jabB argument code={ jabA(jabSrc); };
+    jabB code={ jabA(jabSrc); };
     jabRun code={ jabA(jabSrc); };
     ;
 

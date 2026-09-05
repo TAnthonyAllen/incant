@@ -24,7 +24,7 @@ define
         clear(StorE);
         StorE = doBuf;
         };
-    doHang argument code={
+    doHang code={
         doCopy <- copyOf(StorE);
         doCopy :. noPrinT;
         argument +% doCopy;

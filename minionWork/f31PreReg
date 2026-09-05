@@ -50,7 +50,7 @@ register(F31PreRegWalk);
 define
     fpCount=0;
     fpKids=0;
-    fpWalk argument code={
+    fpWalk code={
         iterate fpCur on *argument;
         while ++fpCur;
             fpCount = fpCount + 1;
@@ -61,7 +61,7 @@ define
                     fpKids = fpKids + 1;
                     cerr "   ENTRY " ~taG:;
         };
-    fpRun argument code={
+    fpRun code={
         fpWalk(argument);
         cerr "PREREG sections " fpCount:;
         cerr "PREREG entries " fpKids:;

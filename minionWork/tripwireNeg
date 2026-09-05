@@ -6,7 +6,7 @@ search reset stack Grokking UnitTests Utilities list;
 register(TripNeg);
 define
     tnSrc="ORIG";
-    tnPlain argument code={
+    tnPlain code={
         print "TN-A plain action, argument =" argument:;
         };
     tnLoaded argument=42 code={

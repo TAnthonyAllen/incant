@@ -20,7 +20,7 @@ register(NpAll);
 define
     npHits;
     npRules;
-    npScanMembers argument code={
+    npScanMembers code={
         iterate npOut members on *argument;
         while ++npOut;
             npRules = npRules + 1;
@@ -30,7 +30,7 @@ define
                 if noPrinT;  print "  NOPRINT-ATTR:" ~taG:;
         return npHits;
         };
-    npScanAttrs argument code={
+    npScanAttrs code={
         iterate npOut2 attributes on *argument;
         while ++npOut2;
             npRules = npRules + 1;

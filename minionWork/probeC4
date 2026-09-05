@@ -7,7 +7,7 @@ define
     c4N;
     c4Len=0; c4M=0; c4Attr=0; c4Cond=0;
     c4Hex=0;
-    c4Row argument code={
+    c4Row code={
         c4N <- argument;
         c4Len = c4N.listLengtH;
         c4M = 0;

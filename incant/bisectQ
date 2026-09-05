@@ -43,12 +43,12 @@ define
     bqBump code={
         bqTermN = bqTermN + 1;
         };
-    bqTagMatch argument code={
+    bqTagMatch code={
         print $"m" taG;
         print $"()";
         print ";";
         };
-    bqGen argument code={
+    bqGen code={
         reset(bqBuffer);
         printTO(bqBuffer);
         print bqOpen:;
@@ -79,7 +79,7 @@ define
         argument +% bqCopy;
         argument :. isCodeD;
         };
-    bqWalk argument code={
+    bqWalk code={
         if bqSeen >= bqLimit;   return;
         if actionTypE != 0;     return;
         bqLen = listLengtH;
@@ -94,7 +94,7 @@ define
                 if binTypE;     continue;
                 if isRule;      bqWalk(*bqCur);
         };
-    bqRun argument code={
+    bqRun code={
         cerr "== PREFIX, limit" bqLimit "==":;
         bqWalk(TokenXP);
         cerr "== PREFIX DONE, compiles run" bqSeen "==":;

@@ -5,10 +5,10 @@ search reset stack Grokking UnitTests Utilities list;
 register(BrkT);
 define
     bkN=0;
-    bkBump argument code={
+    bkBump code={
         bkN = bkN + 1;
         };
-    bkWalk argument code={
+    bkWalk code={
         iterate bkCur members on *argument;
         while ++bkCur;
             if bkN == 3;    break;

@@ -342,7 +342,7 @@ register(Decoder);
 define
 
     /*  Print ONE term. Fails loud when the corpus has no entry.  */
-    decodeOne argument code={
+    decodeOne code={
         hit = decodeCorpus[argument.taG];
         if hit;
             print argument.taG " -- " hit.definition:;
@@ -356,7 +356,7 @@ define
         ⚠ THE GUARD IS LOAD-BEARING: a single-name call has no member list at
         all, and `for x in y;` over a leaf is the nextGroup does-not-contain-a-
         list error. Walked reversed so names print in the order written.  */
-    decodE argument code={
+    decodE code={
         if argument.listLengtH;
             for grup in <- argument;
                 decodeOne(grup);

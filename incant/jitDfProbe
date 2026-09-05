@@ -169,7 +169,7 @@ define
         dfMid   delta
             dfInner zeta;
         dfBare;
-    displayForm argument code={
+    displayForm code={
         length  = listLengtH;
         print ~taG:;
         if length > 0;

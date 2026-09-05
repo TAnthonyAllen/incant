@@ -6,7 +6,7 @@ search reset stack Grokking UnitTests Utilities list;
 register(SixShape);
 define
     ssA=0; ssB=0; ssC=0; ssD=0; ssE=0; ssF=0;
-    ssW1 argument code={
+    ssW1 code={
         iterate s1 members on *argument;
         while ++s1;
             if noPrinT;             continue;
@@ -15,7 +15,7 @@ define
             if actionTypE != 0;     continue;
             if listLengtH;      ssA = ssA + 1;
         };
-    ssW2 argument code={
+    ssW2 code={
         iterate s2 members on *argument;
         while ++s2;
             if noPrinT;             continue;
@@ -25,7 +25,7 @@ define
             if !listLengtH;     continue;
             ssB = ssB + 1;
         };
-    ssW3 argument code={
+    ssW3 code={
         iterate s3 members on *argument;
         while ++s3;
             if noPrinT;             continue;
@@ -35,7 +35,7 @@ define
             if listLengtH == 0; continue;
             ssC = ssC + 1;
         };
-    ssW4 argument code={
+    ssW4 code={
         iterate s4 members on *argument;
         while ++s4;
             if noPrinT;             continue;
@@ -45,7 +45,7 @@ define
             if s4.listLengtH == 0;  continue;
             ssD = ssD + 1;
         };
-    ssW5 argument code={
+    ssW5 code={
         iterate s5 members on *argument;
         while ++s5;
             if noPrinT;             continue;
@@ -56,7 +56,7 @@ define
             if s5Len == 0;      continue;
             ssE = ssE + 1;
         };
-    ssW6 argument code={
+    ssW6 code={
         iterate s6 members on *argument;
         while ++s6;
             if noPrinT;             continue;

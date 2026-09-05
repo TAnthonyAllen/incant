@@ -27,7 +27,7 @@ search reset stack Grokking Ladder UnitTests Utilities list;
     define time, and getWhatFollows (which populates rStuff.onGroup) gates on
     isGROUP — so the question is what parseR would actually see at RUNTIME.  */
 define
-    testJSON argument code={
+    testJSON code={
         clear(listed);
         field = JSONblock(argument);
         if field    print "  ok  :" argument:;

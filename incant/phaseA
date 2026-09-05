@@ -25,7 +25,7 @@ define dumpPlanTally immediateAction=dumpPlanTally; ;
     against a tree that has actually run (the census fixture's own note).  */
 register(PhaseA);
 define
-    paRun argument code={
+    paRun code={
         clear(listed);
         field = DefinE(argument);
         };

@@ -11,10 +11,10 @@ define
     abOther=7;
     abElse=41;
     abRebinds=0;
-    abRead   argument code={ return argument; };
-    abWrite  argument code={ argument = 5;          return argument; };
-    abSet    argument code={ argument := abElse;    return argument; };
-    abArrow  argument code={ argument <- abElse;    return argument; };
+    abRead   code={ return argument; };
+    abWrite  code={ argument = 5;          return argument; };
+    abSet    code={ argument := abElse;    return argument; };
+    abArrow  code={ argument <- abElse;    return argument; };
     abRun code={
         b1 = abRead(abCaller);
         print "B1 read through the argument       " b1 " (want 7 -- the passed field)":;

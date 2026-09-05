@@ -9,7 +9,7 @@ define
     loudZero code={ print + "    [RIGHT ARM EVALUATED]":; return oFalse; };
     hasBoth  alpha1="a" beta1="b";
     hasOnly  alpha1="a";
-    probeIt argument code={
+    probeIt code={
         :argument alpha1 beta1;
         if !alpha1;             print + "  seq: !alpha1 caught it":;
         or !beta1;              print + "  seq: !beta1 caught it":;

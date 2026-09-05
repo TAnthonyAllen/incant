@@ -13,7 +13,7 @@ register(NpFlag);
 define
     npLit noPrint;
     npPlain;
-    npShow argument code={
+    npShow code={
         if noPrinT;  print "  noPrinT SET   on" ~taG:;
         else         print "  noPrinT clear on" ~taG:;
         return 0;

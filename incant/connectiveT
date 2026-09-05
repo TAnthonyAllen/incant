@@ -7,7 +7,7 @@ register(Utilities);
 define
     cdBuf buffer;
     cdOpen="{";
-    cdCount argument code={
+    cdCount code={
         cdA = 0;
         cdM = 0;
         iterate cdAt attributes on *argument;
@@ -18,14 +18,14 @@ define
             cdM = cdM + 1;
         cerr "   rule " argument.taG " attributes " cdA " members " cdM:;
         };
-    cdRead argument code={
+    cdRead code={
         cdHa = 0;
         cdHt = 0;
         if argument.hasAttributeS;  cdHa = 1;
         if argument.hasTraitS;      cdHt = 1;
         cerr "   rule " argument.taG "  hasAttributeS " cdHa "   hasTraitS " cdHt:;
         };
-    cdBoth argument code={
+    cdBoth code={
         cerr "   PRISTINE -- as the node stands before any parse is bound:":;
         cdRead(argument);
         setParse(argument);

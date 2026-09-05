@@ -6,7 +6,7 @@ search reset stack Grokking UnitTests Utilities list;
 register(ChanT);
 define
     ctSrc="ORIG";
-    ctSeen argument code={
+    ctSeen code={
         print "CHANT sees" argument "  want ORIG":;
         };
     ctRun code={

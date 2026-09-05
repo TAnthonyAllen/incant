@@ -6,10 +6,10 @@ traceParse('on');
 register(StdT);
 define
     stN=0;
-    stBump argument code={
+    stBump code={
         stN = stN + 1;
         };
-    stWalk argument code={
+    stWalk code={
         iterate stCur members on *argument;
         while ++stCur;
             if stN == 3;    break;

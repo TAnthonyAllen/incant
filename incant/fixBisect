@@ -68,12 +68,12 @@ define
     fbBump code={
         fbTermN = fbTermN + 1;
         };
-    fbTagMatch argument code={
+    fbTagMatch code={
         print $"m" taG;
         print $"()";
         print ";";
         };
-    fbGen argument code={
+    fbGen code={
         reset(fbBuffer);
         printTO(fbBuffer);
         print fbOpen:;
@@ -105,7 +105,7 @@ define
         if fbCount == 1;    fbFirst +% argument;
         cerr "INSTALL " fbCount " " ~taG:;
         };
-    fbWalk argument code={
+    fbWalk code={
         iterate fbCur members on *argument;
         while ++fbCur;
             if fbCount >= fbLimit;  continue;

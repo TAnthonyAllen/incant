@@ -17,7 +17,7 @@ search UnitTests list;
 register(DivTest);
 define
     dataNames isANY isCHAR isSET isBUFFER isCOUNT isGROUP isITEM isMAP isNUMBER isOBJECT isREGEX isSTAK isSTRING isTOKEN;
-    nameOf argument code={ print + `taG argument "=" argument " datA->" dataNames[argument.datA]:; };
+    nameOf code={ print + `taG argument "=" argument " datA->" dataNames[argument.datA]:; };
     runDiv code={
         print "1 clause 1 -- / promotes:";
         d1 = 10; d1 = d1 / 4;   nameOf(d1);

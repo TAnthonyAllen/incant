@@ -8,8 +8,8 @@ search Generating UnitTests bcOPs Utilities list;
 register(CopyQ);
 define
     cqOther     zz;
-    cqSink argument code={ return argument.taG; };
-    cqA argument code={
+    cqSink code={ return argument.taG; };
+    cqA code={
         cqSink(argument);
         cqSink(cqOther);
         cqSink(argument);

@@ -26,7 +26,7 @@ include(utilities);
 search reset stack Grokking UnitTests Utilities list;
 register(BranchProbe);
 define
-    bpHead argument code={
+    bpHead code={
         print "HEAD  ";
         if hasAttributeS;   print "A";
         else                print "-";
@@ -38,7 +38,7 @@ define
         else                print "-";
         print " tag " ~taG " datA " datA " binTypE " binTypE:;
         };
-    bpAttrs argument code={
+    bpAttrs code={
         iterate bpA attributes on *argument;
         while ++bpA;
             print "ATTR  ";
@@ -48,7 +48,7 @@ define
             else            print "-";
             print " " ~taG " datA " datA:;
         };
-    bpMembs argument code={
+    bpMembs code={
         iterate bpM members on *argument;
         while ++bpM;
             print "MEMB  ";
@@ -58,12 +58,12 @@ define
             else            print "-";
             print " " ~taG " datA " datA:;
         };
-    bpOne argument code={
+    bpOne code={
         bpHead(argument);
         bpAttrs(argument);
         bpMembs(argument);
         };
-    bpRun argument code={
+    bpRun code={
         bpB = argument["BrancheS"];
         bpOne(bpB);
         bpO = argument["Operators"];

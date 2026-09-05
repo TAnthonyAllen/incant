@@ -54,7 +54,7 @@ define
         IN sets the buffer mark at the match; -= removes the matched text at
         the mark; += inserts toThis there. With no toThis it is a delete.
     *************************************************************************/
-    replaceAt argument code={
+    replaceAt code={
         print "Running replaceAt":;
         :argument source fromThis toThis;
         if fromThis IN source;
@@ -73,7 +73,7 @@ define
         getCount() getter that deals with that no problem. That is how markOffset
         is passed to setMark, which treats it as both a count and a string.
     *************************************************************************/
-    insertAt argument code={
+    insertAt code={
         print "Running insertAt":;
         :argument source fromThis toThis where;
         line = getLine(argument);

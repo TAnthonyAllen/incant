@@ -51,14 +51,14 @@ search reset stack Grokking UnitTests Utilities list;
 register(IterRefuse);
 define
     irLeaf = 5;
-    rowR argument code={
+    rowR code={
         print "R drive  iterating a leaf that has data and no list":;
         iterate g on irLeaf;
         while ++g;
             print "R BAD    the advance MOVED -- the cursor was not poisoned":;
         print "R ok     refused and returned; the advance did not run away":;
         };
-    rowW argument code={
+    rowW code={
         print "W drive   walking a real eight member group":;
         iterate w on *argument;
         while ++w;

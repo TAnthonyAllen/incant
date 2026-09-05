@@ -5,7 +5,7 @@ search UnitTests list;
 register(DblProbe);
 define
     dataNames isANY isCHAR isSET isBUFFER isCOUNT isGROUP isITEM isMAP isNUMBER isOBJECT isREGEX isSTAK isSTRING isTOKEN;
-    nameOf argument code={ print + `taG argument "datA=" argument.datA "->" dataNames[argument.datA]:; };
+    nameOf code={ print + `taG argument "datA=" argument.datA "->" dataNames[argument.datA]:; };
     runDbl code={
         print "1 bare literal in a print:";
         print + 3.5:;

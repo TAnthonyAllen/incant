@@ -39,7 +39,7 @@ define
         clear(StorE);
         StorE = pbBuf;
         };
-    pbHang argument code={
+    pbHang code={
         pbCopy <- copyOf(StorE);
         pbCopy :. noPrinT;
         argument +% pbCopy;
@@ -50,7 +50,7 @@ define
     pbC=0;
     pbD=0;
 
-    pbReadChannels argument code={
+    pbReadChannels code={
         pbA = 0;
         if argument.isActioN;       pbA = 1;
         pbB = 0;
@@ -77,7 +77,7 @@ define
         activateBody(pbTwin);
         compile(pbTwin);
         };
-    pbBind argument code={
+    pbBind code={
         setParse(argument);
         parseClassify(argument);
         };

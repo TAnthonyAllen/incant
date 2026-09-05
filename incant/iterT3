@@ -28,7 +28,7 @@ define
     triple  a b c;
     pair    x y;
 
-    twice argument code={
+    twice code={
         iterate grup on *argument;
         while ++grup
             print "P1 " taG grup:;
@@ -36,7 +36,7 @@ define
             print "P2 " taG grup:;
         };
 
-    rebind argument code={
+    rebind code={
         iterate grup on *argument;
         while ++grup
             print "R1 " taG grup:;
@@ -45,7 +45,7 @@ define
             print "R2 " taG grup:;
         };
 
-    resetSame argument code={
+    resetSame code={
         iterate grup on *argument;
         ++grup;
         grup := argument;
@@ -59,7 +59,7 @@ define
         handle and stamps the current entry instead; with it, and with iterBind
         reusing the existing source rather than stacking another, `iterate`
         is idempotent as TODO.md requires.  */
-    reIterate argument code={
+    reIterate code={
         iterate grup on *argument;
         ++grup;
         iterate grup on pair;

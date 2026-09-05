@@ -26,7 +26,7 @@ define
     /***************************************************************************
         Generate action code.
     ***************************************************************************/
-    generateAction argument code={
+    generateAction code={
         print "Generating action for" tag:;
         generated = generateCode(argument);
         //printTO(stringBUFFER);
@@ -43,7 +43,7 @@ define
         generator is a hashed list of actions that process statements that
         generate (print) code. It is used in the generate() action below.
     ***************************************************************************/
-    runGenerated argument code={
+    runGenerated code={
         print :"runGenerated: ";
         clear(action);
         if action := generator[argument];
@@ -52,13 +52,13 @@ define
         else    print ~,argument ";":;
         print "End of runGenerated":; };
     generator
-        gBlocK argument code={
+        gBlocK code={
             print "process block":;
             lines = argument[1];
             for grup in lines;
                 runGenerated(grup);
             };
-        gDO argument code={
+        gDO code={
             /*  sibling hoist -- members are not bare-locatable (2026-08-03) */
             emit := generator["emitBC"];
             gxp := generator["gXpress"];
@@ -87,7 +87,7 @@ define
             emit(copyOf(bcBR) +% topLabel);
             emit(exitLabel);
             };
-        gFOR argument code={
+        gFOR code={
             /*  sibling hoist -- members are not bare-locatable (2026-08-03) */
             emit := generator["emitBC"];
             gxp := generator["gXpress"];
@@ -124,7 +124,7 @@ define
             emit(copyOf(bcBR) +% topLabel);
             emit(exitLabel);
             };
-        gIF argument code={
+        gIF code={
             print `"gIF: tag=" argument.taG "text=" argument.texT:;
             /*  SIBLING HOIST (2026-08-03). gXpress and emitBC are MEMBERS of
                 generator, and since the members gate landed a member is no
@@ -177,7 +177,7 @@ define
             emit(endLabel);
             print `"End of gIF":;
             };
-        gPrinT argument code={
+        gPrinT code={
             /*  sibling hoist -- members are not bare-locatable (2026-08-03) */
             emit := generator["emitBC"];
             // Passthrough: emit one bcPrint carrying the print statement at [2].
@@ -188,7 +188,7 @@ define
             op +% argument;
             emit(op);
             };
-        gWhilE argument code={
+        gWhilE code={
             /*  sibling hoist -- members are not bare-locatable (2026-08-03) */
             emit := generator["emitBC"];
             gxp := generator["gXpress"];
@@ -218,7 +218,7 @@ define
             emit(copyOf(bcBR) +% topLabel);
             emit(exitLabel);
             };
-        gXpress argument code={
+        gXpress code={
             /*  sibling hoist -- members are not bare-locatable (2026-08-03) */
             emit := generator["emitBC"];
             tmp = argument;
@@ -235,7 +235,7 @@ define
                 // carries its label and bcStoreField its target.
                 else                            emit(copyOf(bcPushField) +% child);
             };
-        emitBC register argument code={
+        emitBC register code={
             :generator bcLIST;
             bcLIST += argument;
             print `"emit tag=" argument.taG "content=" argument:;
@@ -246,14 +246,14 @@ define
             Debugging action. Walks a bcLIST and prints each entry's tag and
             value. Use after emit-phase to verify what landed in the accumulator.
         ***********************************************************************/
-        dumpBC argument code={
+        dumpBC code={
             print `"dumpBC for" argument.taG ":":;
             if argument.listLengtH;
                 for grup in argument;
                     print ``"  tag=" grup.taG " op=" grup:;
             else print ``"single field xp":;
             };
-        generatE argument code={
+        generatE code={
             print :"About to generate":;
             dumpContents(argument);
             for field in argument;
@@ -415,7 +415,7 @@ define
         print `"Step 5 bcLIST after emitBC(endLabel)":;
         dumpContents(bcLIST);
         };
-    genBlock argument code={
+    genBlock code={
         for grup in sumple; attributes
             maximus += 22;
             print `,grup:; };

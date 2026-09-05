@@ -30,7 +30,7 @@ register(RegSubject);
 define
     holder
         regDark code={ print "regDark body ran":; };
-        insideProbe argument code={
+        insideProbe code={
             d := regDark;
             if d;
                 print "CELL B  regDark from INSIDE  a sibling member body: FOUND":;

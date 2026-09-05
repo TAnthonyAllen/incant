@@ -6,7 +6,7 @@ register(ProbeD2);
 define
     d2N;
     d2Len=0; d2M=0; d2Attr=0; d2Rule=0;
-    d2Row argument code={
+    d2Row code={
         d2N <- argument;
         d2Len = d2N.listLengtH;
         d2M = 0;

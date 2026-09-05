@@ -100,7 +100,7 @@
 *****************************************************************************/
 registry(Counters);
 define
-    countTerms argument code={
+    countTerms code={
         kount = 1;
         if argument.listLengtH;
             for term in argument;

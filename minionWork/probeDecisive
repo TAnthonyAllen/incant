@@ -23,7 +23,7 @@ define
         clear(StorE);
         StorE = dBuf;
         };
-    dHang argument code={
+    dHang code={
         dCopy <- copyOf(StorE);
         dCopy :. noPrinT;
         argument +% dCopy;

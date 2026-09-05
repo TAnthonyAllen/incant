@@ -114,7 +114,7 @@ define
         first named inside the body, so aCTionNamE stamps it isLocal -- and it
         is read AFTER the recursive call returns, which is what makes sfOut a
         statement about per-activation storage rather than about arithmetic.  */
-    sf argument code={
+    sf code={
         sfLoc = sfDepth;
         if sfDepth > 0;
             sfDepth = sfDepth - 1;

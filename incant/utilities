@@ -4,7 +4,7 @@ define
         dumpField — print a field as tag=value, then an indented list of the
         child tags (or a no-list note). Incant-side cousin of dumpContents.
     ***************************************************************************/
-    dumpField argument code={
+    dumpField code={
         if datA != 0;   print $taG "=" argument:;
         else            print $taG:;
         if argument.listLengtH;
@@ -47,7 +47,7 @@ define
         defined here and called from nowhere in the tree, measured again on
         2026-09-01 and agreeing with docs/andOrRung.md and incant/andProbe.
     ***************************************************************************/
-    displayIfVisible argument code={
+    displayIfVisible code={
         px  = x;
         py  = y;
         pw  = width;
@@ -109,7 +109,7 @@ define
         flatten converts the hierarchy of its argument into a list in whatsIt.
         Just a test action for now.
     ***************************************************************************/
-    flatten argument code={
+    flatten code={
         for grup in argument; members
             if grup.hasMembers; flatten(*grup);
             else
@@ -122,7 +122,7 @@ define
         of listed, which is explicitly not a local field used to control
         recursing and hold off a mad recursing loop
     ***************************************************************************/
-    listRules argument code={
+    listRules code={
         listed  += argument;
         length  = listLengtH;
         if datA != 0;   print ~$taG "=" argument;
@@ -146,7 +146,7 @@ define
         print out xml representation of the group passed in. Does not
         handle cdata yet.
     ***************************************************************************/
-    toXML argument code={
+    toXML code={
         print ~,"<" tag;
         if datA; print ,"=" argument;
         if hasAttributes;
@@ -180,7 +180,7 @@ define
     tARGET;
     dIRECTion;
     newStuff isList;
-    fillDownAcross argument code={
+    fillDownAcross code={
         direct  := argument.dIRECTion;
         target  := argument.tARGET;
         :argument target direct;
@@ -216,7 +216,7 @@ define
          
          Should modify to check for noRoom and bail if there aint none
     ***************************************************************************/
-    setFrame argument code={
+    setFrame code={
         print "Setting frame for" taG:;
         :argument across down width height x y;
         sideRoom    = width;
@@ -295,7 +295,7 @@ define
         Return text wrapped in quotes if the field passed in contains text
         not a valid name.
     ***************************************************************************/
-    quoteIfNeeded argument code={
+    quoteIfNeeded code={
         if nameSet IN argument;
             this = argument;
         else    this = #$'"' argument '"'$; };
@@ -351,7 +351,7 @@ define
         row, col, and reading-order seq. setFrame paints the result.
         v1: all-regular grid (no big band yet); percent/orientation in v2.
     ***************************************************************************/
-    bigifyLayout argument code={
+    bigifyLayout code={
         print "bigifyLayout building grid for" taG:;
         :argument rows columns bigRows bigColumns regularItem bigItem selRow selCol;
     /***************************************************************************

@@ -3,7 +3,7 @@ register(C3reg);
 define
     c3E;
     c3K;
-    c3Row argument code={
+    c3Row code={
         c3E <- argument;
         cerr "C3 entry " ~taG " children=" c3E.listLengtH:;
         c3K <- c3E[1];

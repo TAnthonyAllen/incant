@@ -12,7 +12,7 @@ define
     compiling=1;
     activating=1;
     ruleText="maybe a test;";
-    generateParse argument code={
+    generateParse code={
         cerr "generating parse for " argument.taG:;
         reset(codeBuffer);
         printTO(codeBuffer);
@@ -47,7 +47,7 @@ define
         @CodE;
         print taG "=" CodE:;
         };
-    walkRules argument code={
+    walkRules code={
         if actionTypE == 0;
             length  = listLengtH;
             generateParse(argument);
@@ -61,7 +61,7 @@ define
                     if isRule;      walkRules(*grup);
         else    cerr taG "already has code so no parse generated":;
         };
-    parser argument code={
+    parser code={
         walkRules(argument);
         cerr "PARSER SENTINEL -- walk complete":;
         compiledHere = 0;

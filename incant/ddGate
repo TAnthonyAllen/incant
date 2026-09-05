@@ -30,7 +30,7 @@ define
     ddDesc=0;
     ddSeen=0;
 
-    ddRow argument code={
+    ddRow code={
         ddSeen = ddSeen + 1;
         ddDesc = 0;
         if argument.description;     ddDesc = 1;

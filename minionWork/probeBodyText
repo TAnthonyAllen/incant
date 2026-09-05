@@ -16,22 +16,22 @@ define
     fbFirst;
     f31Arm=0;
     fixF31Here=0;
-    fbSkipIt argument code={
+    fbSkipIt code={
         fbSkipped = fbSkipped + 1;
         fbSkipAt = fbNever;
         cerr "SKIP  leaving this one OUT, and here is its name":;
         cerr "SKIP  " taG argument:;
         showBody(argument);
         };
-    fbBump argument code={
+    fbBump code={
         fbTermN = fbTermN + 1;
         };
-    fbTagMatch argument code={
+    fbTagMatch code={
         print $"m" taG;
         print $"()";
         print ";";
         };
-    fbGen argument code={
+    fbGen code={
         reset(fbBuffer);
         printTO(fbBuffer);
         print fbOpen:;
@@ -68,7 +68,7 @@ define
         cerr "INSTALL " fbCount " " ~taG:;
         cerr "TEXTOF " ~taG " :: " fbCopy.texT:;
         };
-    fbWalk argument code={
+    fbWalk code={
         iterate fbCur members on *argument;
         while ++fbCur;
             if fbCount >= fbLimit;  continue;

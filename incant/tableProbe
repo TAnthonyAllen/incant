@@ -34,7 +34,7 @@ define
     probeNumber = 3.5;
     probeString = "words";
     probeEmpty;
-    nameOf argument code={
+    nameOf code={
         slot = argument.datA;
         found = dataNames[slot];
         if found != 0;  print + `taG argument "datA=" slot "->" found:;

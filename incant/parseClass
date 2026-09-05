@@ -63,7 +63,7 @@ define
         its ENTRIES that is wrong. Skipping both was the first correction and
         it silently deleted every parseContainer row -- an over-correction
         that reads exactly like a clean result.  */
-    pcTerms argument code={
+    pcTerms code={
         iterate pcA attributes on *argument;
         while ++pcA;
             if noPrinT;     continue;
@@ -75,7 +75,7 @@ define
             setParse(*pcM);
             parseClassify(*pcM);
         };
-    pcWalk argument code={
+    pcWalk code={
         iterate pcR members on *argument;
         while ++pcR;
             if noPrinT;     continue;

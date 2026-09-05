@@ -45,7 +45,7 @@ define
         print "holderT 1 direct    .parenT =" htU.taG "  want htWindow":;
         };
 
-    htProbe argument code={
+    htProbe code={
         htP <- argument.parenT;
         print "holderT 3 holder    .parenT =" htP.taG "  want htWindow":;
         };

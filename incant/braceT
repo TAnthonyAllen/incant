@@ -48,7 +48,7 @@ define
 register(BraceWalk);
 define
     btSeen=0;
-    btWalk argument code={
+    btWalk code={
         iterate btCur on *argument;
         while ++btCur;
             btSeen = btSeen + 1;
@@ -58,7 +58,7 @@ define
                 while ++btKid;
                     cerr "   KID  " ~taG " |" btKid "|":;
         };
-    btRun argument code={
+    btRun code={
         btWalk(argument);
         cerr "BRACET COUNT" btSeen "-- want 10 (8 rows + nested parent + sentinel)":;
         cerr "BRACET SENTINEL -- the run reached the end":;

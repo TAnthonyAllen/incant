@@ -7,7 +7,7 @@ register(F46);
 define
     f46Src="ORIG";
     f46Depth=0;
-    f46Rec argument code={
+    f46Rec code={
         ++f46Depth;
         print "F46 depth" f46Depth "sees" argument:;
         if f46Depth < 3;    f46Rec(*argument);

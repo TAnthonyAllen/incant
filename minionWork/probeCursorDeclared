@@ -5,12 +5,12 @@ search reset stack Grokking UnitTests Utilities list;
 register(ProbeR);
 define
     pdDeclared;
-    pdWalkDeclared argument code={
+    pdWalkDeclared code={
         iterate pdDeclared members on *argument;
         while ++pdDeclared;
             cerr "A " ~taG:;
         };
-    pdWalkUndeclared argument code={
+    pdWalkUndeclared code={
         iterate pdFresh members on *argument;
         while ++pdFresh;
             cerr "B " ~taG:;

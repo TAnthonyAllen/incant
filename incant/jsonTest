@@ -8,7 +8,7 @@ search reset stack Grokking UnitTests Utilities list;
 	and reports ok (field returned) or FAIL (null).
 *****************************************************************************/
 define
-    testJSON argument code={
+    testJSON code={
         clear(listed);
         field = JSONblock(argument);
         if field;   print "  ok  :" argument:;

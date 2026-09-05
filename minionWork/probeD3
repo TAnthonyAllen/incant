@@ -18,7 +18,7 @@ define
     d3Code;
     f31Arm=0;
     fixF31Here=0;
-    fbSkipIt argument code={
+    fbSkipIt code={
         fbSkipped = fbSkipped + 1;
         fbSkipAt = fbNever;
         cerr "SKIP  leaving this one OUT, and here is its name":;
@@ -28,12 +28,12 @@ define
     fbBump code={
         fbTermN = fbTermN + 1;
         };
-    fbTagMatch argument code={
+    fbTagMatch code={
         print $"m" taG;
         print $"()";
         print ";";
         };
-    fbGen argument code={
+    fbGen code={
         reset(fbBuffer);
         printTO(fbBuffer);
         print fbOpen:;
@@ -69,7 +69,7 @@ define
         if fbCount == 1;    fbFirst +% argument;
         cerr "INSTALL " fbCount " " ~taG:;
         };
-    fbWalk argument code={
+    fbWalk code={
         iterate fbCur members on *argument;
         while ++fbCur;
             if fbCount >= fbLimit;  continue;

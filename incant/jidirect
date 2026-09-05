@@ -17,10 +17,10 @@ search reset stack Grokking;
 search jigCorpus Utilities list;
 
 define
-    showTags argument code={
+    showTags code={
         for grup in argument; print ``"    " grup.taG:; };
 
-    tInsert argument code={
+    tInsert code={
         print ``"=== tInsert (:= ref, += member) ===":;
         cg := argument.claims;
         print ``"  len before:" cg.listLengtH:;
@@ -31,7 +31,7 @@ define
         print ``"  len after +=:" cg.listLengtH::;
         };
 
-    tFind argument code={
+    tFind code={
         print ``"=== tFind (IN find existing member) ===":;
         cg := argument.claims;
         gbp := cg.gifBranchPoison;
@@ -40,7 +40,7 @@ define
         else           print ``"  gbp IN cg: NOT found"::;
         };
 
-    tRemove argument code={
+    tRemove code={
         print ``"=== tRemove (-= member, removes via groupList gate 5bad124) ===":;
         cg := argument.claims;
         gbp := cg.gifBranchPoison;
@@ -50,7 +50,7 @@ define
         print ``"  len after -=:" cg.listLengtH::;
         };
 
-    tNotIn argument code={
+    tNotIn code={
         print ``"=== tNotIn (!IN negated membership) ===":;
         cg := argument.claims;
         nc = new("absentClaim");

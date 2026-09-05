@@ -30,11 +30,11 @@ define
     ntSmall     xx;
     ntOut;
 
-    ntG argument code={
+    ntG code={
         return ntSmall;
         };
 
-    ntF argument code={
+    ntF code={
         return argument.taG;
         };
 

@@ -70,7 +70,7 @@ register(F31Walk);
 define
     fsCount=0;
     fsKids=0;
-    fsWalk argument code={
+    fsWalk code={
         iterate fsCur on *argument;
         while ++fsCur;
             fsCount = fsCount + 1;
@@ -81,7 +81,7 @@ define
                     fsKids = fsKids + 1;
                     cerr "   ENTRY " ~taG:;
         };
-    fsRun argument code={
+    fsRun code={
         fsWalk(argument);
         cerr "F31STOP top-level entries " fsCount:;
         cerr "F31STOP child attributes " fsKids:;

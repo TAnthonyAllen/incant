@@ -10,13 +10,13 @@ define
     arDepth=0;
     arSrc=7;
     arOther=41;
-    arA argument code={
+    arA code={
         ++arDepth;
         arMine = arDepth;
         if arDepth < 3;     arB(arOther);
         print "  A depth" arMine " sees argument =" argument " local =" arMine:;
         };
-    arB argument code={
+    arB code={
         arA(arSrc);
         };
     arRun code={

@@ -78,7 +78,7 @@ define
     k2xOut;
     kArg;
 
-    k1 argument code={
+    k1 code={
         k1loc = 42;
         if k1depth > 0;
             k1depth = k1depth - 1;
@@ -86,7 +86,7 @@ define
         return k1loc;
         };
 
-    k2 argument code={
+    k2 code={
         if k2depth > 0;
             k2depth = k2depth - 1;
             k2(argument);
@@ -109,13 +109,13 @@ define
     k2xBig      aa bb cc;
     k2xSmall    xx;
     k2xdepth;
-    k2x argument code={
+    k2x code={
         if k2xdepth > 0;
             k2xdepth = k2xdepth - 1;
             k2x(k2xSmall);
         return argument.taG;
         };
-    k2xCtl argument code={
+    k2xCtl code={
         return argument.taG;
         };
 
@@ -124,7 +124,7 @@ define
         return k3loc;
         };
 
-    k4 argument code={
+    k4 code={
         k4loc = 42;
         if k4depth > 0;
             k4depth = k4depth - 1;
@@ -141,7 +141,7 @@ define
         when the stack came back empty (GroupActions.rtn:587), so call 2 may
         skip the bracket entirely and return the local intact.  */
     k5depth;
-    k5 argument code={
+    k5 code={
         k5loc = 42;
         if k5depth > 0;
             k5depth = k5depth - 1;
@@ -165,7 +165,7 @@ define
     k6big       aa bb cc;
     k6small     xx;
     k6depth;
-    k6A argument code={
+    k6A code={
         iterate k6cur attributes on *argument;
         k6seen = 0;
         while ++k6cur;
@@ -175,7 +175,7 @@ define
                 k6B(k6small);
         return k6seen;
         };
-    k6B argument code={
+    k6B code={
         k6A(argument);
         return 0;
         };
@@ -193,7 +193,7 @@ define
         argument question, and a control that fails for a second reason controls
         nothing.  */
     k6depth2;
-    k6Actl argument code={
+    k6Actl code={
         if k6depth2 > 0;
             k6depth2 = k6depth2 - 1;
             k6Bctl(k6small);
@@ -213,13 +213,13 @@ define
         the inner activation's binding. Same field, opposite outcomes, different
         mechanisms.  */
     k6depth3;
-    k6Aarg argument code={
+    k6Aarg code={
         if k6depth3 > 0;
             k6depth3 = k6depth3 - 1;
             k6Barg(k6small);
         return argument.taG;
         };
-    k6Barg argument code={
+    k6Barg code={
         k6Aarg(argument);
         return 0;
         };
@@ -229,7 +229,7 @@ define
         second walk counts 1 rather than 3, the cursor did not re-point and the
         whole K6b-first-draft result belongs to the iterator rather than to any
         frame question.  */
-    k6Re argument code={
+    k6Re code={
         iterate k6cur3 attributes on k6small;
         k6seen3 = 0;
         while ++k6cur3;
@@ -240,7 +240,7 @@ define
             k6seen3 = k6seen3 + 1;
         return k6seen3;
         };
-    k6Bctl argument code={
+    k6Bctl code={
         k6Actl(argument);
         return 0;
         };
@@ -278,7 +278,7 @@ define
         call boundary -- the exact quantity this whole file says is not
         trustworthy. Printing it in place is the only reading that does not
         depend on the thing under test. Bear-trap #26's fourth payment.  */
-    k6Rst argument code={
+    k6Rst code={
         iterate k6cur4 attributes on k6small;
         k6seenA = 0;
         while ++k6cur4;
@@ -349,7 +349,7 @@ define
     k6wide      ww ee rr tt;
     k6med       pp qq;
     k6depth4;
-    k6Awide argument code={
+    k6Awide code={
         iterate k6cur5 attributes on *argument;
         k6seen5 = 0;
         while ++k6cur5;
@@ -359,7 +359,7 @@ define
                 k6Bwide(k6med);
         return k6seen5;
         };
-    k6Bwide argument code={
+    k6Bwide code={
         k6Awide(argument);
         return 0;
         };

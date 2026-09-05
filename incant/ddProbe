@@ -9,7 +9,7 @@ include(designDocs);
 search reset stack Grokking DesignDocs UnitTests Utilities list;
 register(DdProbe);
 define
-    ddWalk argument code={
+    ddWalk code={
         print "entry " ~taG " children " argument.listLengtH:;
         iterate ddCur members on *argument;
         while ++ddCur;

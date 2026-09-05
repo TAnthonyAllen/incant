@@ -8,7 +8,7 @@ define
     nfN;
     nfG;
     nfLen=0; nfAttr=0; nfMemb=0;
-    nfArm argument code={
+    nfArm code={
         nfN <- argument;
         nfLen = nfN.listLengtH;
         nfAttr = 0;

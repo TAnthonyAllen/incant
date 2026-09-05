@@ -21,7 +21,7 @@ define traceParse immediateAction=traceParse; ;
 register(InvokeMix);
 define
     imBag   aa=1 bb=2 cc=3;
-    imTake argument code={
+    imTake code={
         print "PARENS option: argument is" argument:;
         };
     imRun code={

@@ -10,7 +10,7 @@ define
     a3Close="}";
     StorE;
     a3Sample width=1 height=2;
-    a3Put argument code={
+    a3Put code={
         clear(StorE);
         StorE = a3Buf;
         a3Copy <- copyOf(StorE);
@@ -18,7 +18,7 @@ define
         argument +% a3Copy;
         storeBody(argument);
         };
-    a3Try argument code={
+    a3Try code={
         a3Out := compileStored(argument);
         if a3Out;  cerr "   >>> GREEN":;
         else       cerr "   >>> failed":;

@@ -18,7 +18,7 @@ search Generating UnitTests bcOPs Utilities list;
 
 register(JitDrive);
 define
-    jdTarget argument code={
+    jdTarget code={
         jdLocal = 1;
         if jdLocal > 0;
             jdLocal = jdLocal * 2;
@@ -27,7 +27,7 @@ define
         print "jdTarget ran, jdLocal =" jdLocal:;
         return jdLocal;
         };
-    jdWalk argument code={
+    jdWalk code={
         blok := argument["BlocK"];
         /*  ⚠ THIS LINE EXECUTES THE BLOCK TODAY -- fixIts F-11, and this is the
             census's only customer tree-wide. jdTarget is called ONCE at the foot
@@ -51,7 +51,7 @@ define
         while ++jdCur;
             jdReport(*jdCur);
         };
-    jdReport argument code={
+    jdReport code={
         print "  stmt" ~taG:;
         };
     ;

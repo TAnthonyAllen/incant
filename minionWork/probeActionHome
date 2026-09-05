@@ -6,7 +6,7 @@ register(ActHome);
 define
     ahN;
     ahM=0; ahLen=0; ahAttr=0;
-    ahRow argument code={
+    ahRow code={
         ahN <- argument;
         ahLen = ahN.listLengtH;
         ahM = 0;

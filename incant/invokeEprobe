@@ -24,7 +24,7 @@ define
     ieNoArg code={
         print "ieNoArg ran":;
         };
-    ieWithArg argument code={
+    ieWithArg code={
         print "ieWithArg ran, argument is" argument:;
         };
     ;

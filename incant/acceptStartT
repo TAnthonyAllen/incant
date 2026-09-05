@@ -8,7 +8,7 @@ search Generating UnitTests bcOPs Utilities list;
 register(AcceptStart);
 define
     asSubject=41;
-    asTake argument code={
+    asTake code={
         print "   INSIDE  the argument:":;
         showBody(argument);
         return argument; };

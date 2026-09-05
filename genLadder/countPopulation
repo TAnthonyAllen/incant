@@ -4,7 +4,7 @@ include(utilities);
 search reset stack Grokking UnitTests Utilities list;
 register(CountPop);
 define
-    cpWalk argument code={
+    cpWalk code={
         iterate cpCur members on *argument;
         while ++cpCur;
             if noPrinT;             continue;
@@ -15,7 +15,7 @@ define
             if cpLen == 0;          continue;
             cpEmit(*cpCur);
         };
-    cpEmit argument code={
+    cpEmit code={
         print "COUNTPOP" argument.taG:;
         };
     cpRun code={

@@ -84,7 +84,7 @@ define
         it, so the assertion's own spelling stops depending on what it just
         called. Presence-with-value, per standing rule H4: the answer is
         printed unconditionally and its VALUE compared, never its absence.  */
-    say argument code={
+    say code={
         cerr $"MANY ANSWER=" argument:;
         };
     runAll code={

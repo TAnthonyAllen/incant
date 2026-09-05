@@ -32,14 +32,14 @@ define
     leafB   k l;
     trunk   leafA leafB;
 
-    walkA argument code={
+    walkA code={
         print "A " taG argument:;
         iterate grup on *argument;
         while ++grup
             walkB(*grup);
         };
 
-    walkB argument code={
+    walkB code={
         print "B " taG argument:;
         iterate grup on *argument;
         while ++grup

@@ -103,7 +103,7 @@
 *****************************************************************************/
 registry(Spellers);
 define
-    spellLeaf argument code={
+    spellLeaf code={
         :argument at sink slot site;
         local = #$"t" at;
         kind = argument.taG;

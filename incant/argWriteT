@@ -11,8 +11,8 @@ define
     awOther=7;
     awHolder;
     awLeaf=99;
-    awRead argument code={ return argument; };
-    awWrite argument code={ argument = 5; return argument; };
+    awRead code={ return argument; };
+    awWrite code={ argument = 5; return argument; };
     awRun code={
         r1 = awRead(awCaller);
         print "R1 read through the argument      " r1 " (want 7)":;

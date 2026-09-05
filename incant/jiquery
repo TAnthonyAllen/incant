@@ -43,7 +43,7 @@ search jigCorpus Generating UnitTests Utilities list;
 
 define
     /*  Servable as fact -- a run was observed.  */
-    servableAsFact argument code={
+    servableAsFact code={
         claimList = argument.claims;
         for grup in claimList;
             if grup.confidence == "verified";
@@ -53,7 +53,7 @@ define
     /*  Hedge these: reasoned, read or counted -- never run. The challenge
         queue. `searched` is printed with each one because an inferred claim is
         only as good as the space it searched.  */
-    hedged argument code={
+    hedged code={
         claimList = argument.claims;
         for grup in claimList;
             if grup.confidence == "inferred";
@@ -65,7 +65,7 @@ define
         as "does not occur", NEVER as "is not a problem" -- and always with the
         fixture that guards it, because the acquittal expires silently if the
         protecting mechanism changes.  */
-    acquitted argument code={
+    acquitted code={
         claimList = argument.claims;
         for grup in claimList;
             if grup.confidence == "acquitted-unexplained";
@@ -73,7 +73,7 @@ define
         };
 
     /*  MUST NOT be served as true.  */
-    mustRefuse argument code={
+    mustRefuse code={
         claimList = argument.claims;
         for grup in claimList;
             if grup.confidence == "refuted";
@@ -83,7 +83,7 @@ define
         };
 
     /*  Open items are WORK, not knowledge (corpus-format RULE 2).  */
-    listOpen argument code={
+    listOpen code={
         openList = argument.openItems;
         for grup in openList;
             print "  OPEN   " grup.taG:;
@@ -91,7 +91,7 @@ define
             print `"    cost  :" grup.cost:;
         };
 
-    listBlocked argument code={
+    listBlocked code={
         blockList = argument.blocked;
         for grup in blockList;
             print "  BLOCKED" grup.taG:;
@@ -103,7 +103,7 @@ define
         measured 2026-07-31. The same shape works for claims/openItems because
         those are ITERATED, never dot-read through a copy. Use the iterating
         form for any sub-record.  */
-    showNext argument code={
+    showNext code={
         stepList = argument.nextStep;
         for grup in stepList;
             print "  action      :" grup.plannedAction:;
@@ -125,7 +125,7 @@ define
         check walks every claim and reports any whose content did not survive.
         A corpus that cannot hold its claims is worse than no corpus, because it
         reads as knowledge.  */
-    contentCheck argument code={
+    contentCheck code={
         claimList = argument.claims;
         bad = 0;
         for grup in claimList;

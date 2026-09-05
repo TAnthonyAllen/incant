@@ -41,7 +41,7 @@ search reset stack Grokking Ladder UnitTests Utilities list;
 /*  A real parse first: rStuff is materialised lazily, so the census must be
     taken against a tree that has actually run, not a freshly-defined one.  */
 define
-    testJSON argument code={
+    testJSON code={
         clear(listed);
         field = JSONblock(argument);
         };

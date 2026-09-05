@@ -146,7 +146,7 @@ register(JitArcWalk);
 define
     jaCount=0;
     jaKids=0;
-    jaWalk argument code={
+    jaWalk code={
         iterate jaCur on *argument;
         while ++jaCur;
             jaCount = jaCount + 1;
@@ -157,7 +157,7 @@ define
                     jaKids = jaKids + 1;
                     cerr "   ENTRY " ~taG:;
         };
-    jaRun argument code={
+    jaRun code={
         jaWalk(argument);
         cerr "JITARC top-level entries" jaCount:;
         cerr "JITARC child attributes " jaKids:;

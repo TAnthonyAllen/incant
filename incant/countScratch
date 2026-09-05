@@ -125,7 +125,7 @@ define
 search reset stack Grokking Counters Ladder UnitTests Utilities list;
 
 define
-    testJSON argument code={
+    testJSON code={
         clear(listed);
         field = JSONblock(argument);
         };
@@ -135,7 +135,7 @@ define
         spelling independent of whatever `countTerms` last left behind.
         Presence-with-value, per standing rule H4: the count is printed
         unconditionally and its VALUE compared, never its absence.  */
-    report argument code={
+    report code={
         n = countTerms(argument);
         cerr $"KOUNT " argument.taG "=" n:;
         };
