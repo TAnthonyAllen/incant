@@ -9,14 +9,23 @@ define
     stNull;
     stRead=111;
     stAfter=0;
+    stRead2=222;
+    stAfter2=0;
     stAddPtr code={
         stRead = stBag +* Grokking["stNoSuchRule"];
         stAfter = 1;
+        };
+    stRem code={
+        stRead2 = 7 % stBag;
+        stAfter2 = 1;
         };
     stRun code={
         stAddPtr();
         print "ST-1 caller read       =" stRead " (want 111 -- UNCHANGED; an armed statement stores nothing)":;
         print "ST-1 statement after   =" stAfter " (want 0 -- the statement after a refusal does not run)":;
+        stRem();
+        print "ST-2 caller read       =" stRead2 " (want 222 -- unchanged; opRem no longer hands back a dataless tempField)":;
+        print "ST-2 statement after   =" stAfter2 " (want 0)":;
         };
     ;
 stRun();
@@ -37,6 +46,7 @@ start returning null while the block carried on, or could terminate while still
 handing back a value.
 
     ST-1  opAddPointer   returned `target`
+    ST-2  opRem          returned `tempField`, which at that point HAS NO DATA
 
 ⚠⚠ THE CALLER ROW IS 111 BECAUSE OF THE STORE RULING, AND IT READ ITS OWN TAG
 BEFORE THAT RULING LANDED. The first cut of this fixture measured the target

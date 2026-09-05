@@ -1180,7 +1180,12 @@ GroupRules  ruler = groupRules;
     }
     if (isCOUNT || isNUMBER) && (argument.isCOUNT || argument.isNUMBER)
         tempField.count = count % argument.count;
-    if !tempField.data  cerr "ERROR integer div operator failed on",tag,"and",argument.tag:;
+    /*  ⚠ PROMOTED 2026-09-05 FROM SENTINEL-AS-DATA. This announced the failure
+        and then returned `tempField` -- which at this point HAS NO DATA, so the
+        caller received a field that looks like an answer and reads back as its
+        own tag. The failure reached a human and was concealed from the program.
+        Instruct.opRem.storeRuling  */
+    if !tempField.data  return refuse(target,"Operator % -- cannot apply to these operands");
     return tempField;
 }
 

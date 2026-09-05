@@ -1865,6 +1865,18 @@ if grep -qF "ST-1 statement after   = 0" "$T/snt"; then
 else
     echo "  FAIL  sentinelT ST-1 the statement after the refusal RAN -- not terminal"; fail=1
 fi
+#  ST-2 opRem returned `tempField`, which at the refusal point HAS NO DATA -- so
+#  the caller got a field that looks like an answer and reads back as its own tag.
+if grep -qF "ST-2 caller read       = 222" "$T/snt"; then
+    echo "  ok    sentinelT ST-2 opRem: the caller keeps 222 -- no dataless tempField handed back"; green=$((green+1))
+else
+    echo "  FAIL  sentinelT ST-2 opRem is handing back a value again, or the store ruling broke"; fail=1
+fi
+if grep -qF "ST-2 statement after   = 0" "$T/snt"; then
+    echo "  ok    sentinelT ST-2 the statement after the refusal did NOT run"; green=$((green+1))
+else
+    echo "  FAIL  sentinelT ST-2 the statement after the refusal RAN -- not terminal"; fail=1
+fi
 
 #  ============================================================================
 #  ⚠ THE `ERROR` CENSUS -- Tony's ruling 2026-09-05, part of B.

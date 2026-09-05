@@ -9934,8 +9934,13 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		}
 	if ( (isCOUNT(target->groupBody->flags.data) || isNUMBER(target->groupBody->flags.data)) && (isCOUNT(argument->groupBody->flags.data) || isNUMBER(argument->groupBody->flags.data)) )
 		ruler->tempField->setCount(target->getCount() % argument->getCount());
+	/*  ⚠ PROMOTED 2026-09-05 FROM SENTINEL-AS-DATA. This announced the failure
+	and then returned `tempField` -- which at this point HAS NO DATA, so the
+	caller received a field that looks like an answer and reads back as its
+	own tag. The failure reached a human and was concealed from the program.
+	Instruct.opRem.storeRuling  */
 	if ( !ruler->tempField->groupBody->flags.data )
-		::fprintf(stderr,"ERROR integer div operator failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
+		return ::refuse(target,"Operator % -- cannot apply to these operands");
 	return ruler->tempField;
 }
 
