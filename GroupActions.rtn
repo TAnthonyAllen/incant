@@ -862,9 +862,9 @@ GroupItem   result,
         `!isPointer` is measured dead (0 suppressions in 29,634 runOP entries)
         and `!op.isAssign` retires with the line rather than despite it -- the
         exemption becomes the rule. See docs/unwrapRecon.md.  */
-    // TRY-AND-BUY B: an isArgument field yields what it holds; a REBIND of that
-    // binding refuses by name -- tested BEFORE the follow, which destroys the
-    // evidence   GroupActions.runOP.argBinding
+    // argument is a BINDING: an isArgument operand yields what it holds, and a
+    // REBIND of it refuses by name -- tested BEFORE the follow, which destroys
+    // the evidence. This funnel serves BOTH ROADS   ArgBinding.ArgBindingSites
     -%
     if ( gNoUnwrap && op && target && target->groupBody->flags.isArgument ) {
         void *gop = (void*)op->groupBody->gOp;

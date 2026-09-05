@@ -764,8 +764,10 @@ GroupItem 	*source = 0;
 	return 0;
 	}
 	if ( !gNoUnwrap )   source = ::unWrap(source);
-	// TRY-AND-BUY B: an isArgument source yields what it holds, before the
-	// holds-a-pointer refusal   ruleActions.aCTionIterate.argBinding
+	// argument is a BINDING: an isArgument source yields what it holds, ahead of
+	// the holds-a-pointer refusal. Iterate reads input[1]/input[2] itself and
+	// never passes through runOP, so the rule is stated again here
+	// ArgBinding.ArgBindingSites
 	if ( gNoUnwrap && source && source->groupBody->flags.isArgument && isGROUP(source->groupBody->flags.data) )
 	source = source->getGroup();
 	if ( source && isGROUP(source->groupBody->flags.data) )
@@ -4446,11 +4448,11 @@ extern "C" int jitEmitBareRead(GroupItem *token)
 	
 	llvm::IRBuilder<> *b = gJitBuilder;
 	if (!b || !token) return 0;
-	//  TRY-AND-BUY B: an isArgument token yields what it holds. The print item
-	//  walk seeds its operands here, NOT through runOP, so B's read rule has to
-	//  be stated a second time or a jitted `print argument` reads the holder's
-	//  storage -- which is this function's own 75102656, one road over.
-	//  jitEmitters.jitEmitBareRead.argBinding
+	//  argument is a BINDING: an isArgument token yields what it holds. PRINT
+	//  ITEMS ARE SEEDED HERE, not through runOP, so the rule must be stated a
+	//  THIRD time -- without this line a jitted `print argument` reads the
+	//  holder's storage and prints an address at degrade count 0, which is this
+	//  function's own 75102656 one road over   ArgBinding.ArgBindingSites
 	if ( gNoUnwrap && token->groupBody->flags.isArgument && isGROUP(token->groupBody->flags.data) )
 	token = token->getGroup();
 	if (!token) return 0;
@@ -12295,9 +12297,9 @@ GroupItem 	*target = field->get(2);
 	`!isPointer` is measured dead (0 suppressions in 29,634 runOP entries)
 	and `!op.isAssign` retires with the line rather than despite it -- the
 	exemption becomes the rule. See docs/unwrapRecon.md.  */
-	// TRY-AND-BUY B: an isArgument field yields what it holds; a REBIND of that
-	// binding refuses by name -- tested BEFORE the follow, which destroys the
-	// evidence   GroupActions.runOP.argBinding
+	// argument is a BINDING: an isArgument operand yields what it holds, and a
+	// REBIND of it refuses by name -- tested BEFORE the follow, which destroys
+	// the evidence. This funnel serves BOTH ROADS   ArgBinding.ArgBindingSites
 	
 	if ( gNoUnwrap && op && target && target->groupBody->flags.isArgument ) {
 	void *gop = (void*)op->groupBody->gOp;

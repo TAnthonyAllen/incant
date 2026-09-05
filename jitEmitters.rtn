@@ -736,11 +736,11 @@ extern int jitEmitBareRead(GroupItem token)
     -%
     llvm::IRBuilder<> *b = gJitBuilder;
     if (!b || !token) return 0;
-    //  TRY-AND-BUY B: an isArgument token yields what it holds. The print item
-    //  walk seeds its operands here, NOT through runOP, so B's read rule has to
-    //  be stated a second time or a jitted `print argument` reads the holder's
-    //  storage -- which is this function's own 75102656, one road over.
-    //  jitEmitters.jitEmitBareRead.argBinding
+    //  argument is a BINDING: an isArgument token yields what it holds. PRINT
+    //  ITEMS ARE SEEDED HERE, not through runOP, so the rule must be stated a
+    //  THIRD time -- without this line a jitted `print argument` reads the
+    //  holder's storage and prints an address at degrade count 0, which is this
+    //  function's own 75102656 one road over   ArgBinding.ArgBindingSites
     if ( gNoUnwrap && token->groupBody->flags.isArgument && isGROUP(token->groupBody->flags.data) )
         token = token->getGroup();
     if (!token) return 0;

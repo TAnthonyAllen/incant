@@ -614,8 +614,10 @@ GroupItem   source;
         return 0;
         }
     if ( !gNoUnwrap )   source = ::unWrap(source);
-    // TRY-AND-BUY B: an isArgument source yields what it holds, before the
-    // holds-a-pointer refusal   ruleActions.aCTionIterate.argBinding
+    // argument is a BINDING: an isArgument source yields what it holds, ahead of
+    // the holds-a-pointer refusal. Iterate reads input[1]/input[2] itself and
+    // never passes through runOP, so the rule is stated again here
+    // ArgBinding.ArgBindingSites
     if ( gNoUnwrap && source && source->groupBody->flags.isArgument && isGROUP(source->groupBody->flags.data) )
         source = source->getGroup();
     if ( source && isGROUP(source->groupBody->flags.data) )

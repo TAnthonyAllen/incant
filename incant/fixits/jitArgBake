@@ -1,0 +1,95 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(JitArgBake);
+define
+    jabSrc=7;
+    jabOther=41;
+    jabDepth=0;
+    jabAnchor;
+    jabA argument code={
+        ++jabDepth;
+        jabMine = jabDepth;
+        if jabDepth < 2;    jabB(jabOther);
+        print "   argument =" argument "   local =" jabMine:;
+        };
+    jabB argument code={ jabA(jabSrc); };
+    jabRun code={ jabA(jabSrc); };
+    ;
+
+print "JITTED      -- want `argument = 7` on both lines:":;
+testing(jabRun);
+jabDepth = 0;
+print "INTERPRETED -- the oracle, and it is right:":;
+jabRun();
+jabAnchor = 0;
+cerr "fixJitArgBakeHere -- the two blocks above are the whole issue. Jitted argument column: 7 means fixed, a large number is the baked address":;
+print "JITARGBAKE SENTINEL":;
+stop();
+
+LANE:  jit
+BLAST: DISJOINT
+
+NAME      jitArgBake -- an own-function JIT callee reads `argument` at the
+          emit-time BAKED address, not the run-time bound slot.
+
+WHAT      Where the JIT gives a callee its own function instead of inlining it,
+          the callee's `argument` read is a load from an address baked when the
+          body was compiled. The run-time bind (jitBindArgRT) writes somewhere
+          else, so the emitted body reads whatever was bound at COMPILE time --
+          and prints an address where the interpreter prints 7. Silent: degrade
+          count 0, exit 0. Inlined callees are CORRECT; this is only the
+          own-function road.
+
+WHERE     jitEmitters.rtn -- jitBindArgRT binds at run time; jitEmitBareRead
+          and jitSeedField bake at emit time. The two never meet.
+
+WHY NOW   B landed 2026-09-05 and fixed the inlined road on both engines. This
+          is what B did not reach. PRE-EXISTING, not caused by B -- the same
+          read answered 0 before B.
+
+WHAT YOU JUST RAN. Two blocks, same action, same input, two engines. The
+interpreted block is the oracle and prints 7 twice. The jitted block prints an
+address twice. The LOCAL column agrees on both engines, which is what says the
+defect is the argument channel and not the frame.
+
+THE DISCRIMINATOR IS ONE LINE IN THE RUN: `callee jabA built as jit_jabA`
+means own-function, and therefore in scope. Its absence means the callee
+inlined and is already correct -- minionWork/probeArgJit is that case and reads
+8 / 22 / oracle 14 at degrade 0.
+
+NEXT: BEST GUESS -- feed a slot, stop baking.
+
+Tony's words, 2026-09-05. jitBindArgRT already runs at the right moment and
+already knows the passed field; what it does not do is put that field where the
+emitted body will look. The emitter's side is the mirror -- jitEmitBareRead and
+jitSeedField compute a home address from the argument node at emit time, which
+for an own-function callee is a fact that has not happened yet.
+
+⚠ IT IS A CANDIDATE, NOT A RULING, and one measurement promotes or kills it:
+does the own-function road have a frame slot for the argument at all, or only
+the baked home? The frame prologue walks (isLocal || isArgument) over the
+action's field list, so if the argument reaches the prologue it already has an
+alloca and the fix is to make jitBindArgRT store into it. If it does not, the
+slot has to be created first and the stroke is larger.
+
+WHAT WOULD KILL IT: if one emitted function is shared across call sites with
+different arguments, a slot is not enough and the argument has to become a real
+function parameter. That is a much larger shape. Find out which one this is
+BEFORE building either.
+
+FOLDED IN, SAME STROKE (Tony, 2026-09-05). jitBindArgRT's REFUSAL ARM DIVERGES
+FROM runAction's. runAction refuses and does NOT run the action (chanAbort).
+jitBindArgRT prints its refusal and then does the bind-by-body fallback anyway
+-- ruleArg->groupBody = arg->groupBody -- which is exactly the road SEQ 131
+removed from runAction for handing the callee THE OCCUPANT rather than the
+argument it was called with. Same road, same arm, same stroke.
+
+⚠ THE REFUSAL HAS NEVER FIRED, so that half is a READING and not a
+measurement. Recorded that way deliberately: the divergence is visible in the
+source, the consequence is inferred from SEQ 131's measurement on the other
+road, and nobody has made either arm speak.
