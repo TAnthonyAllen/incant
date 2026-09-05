@@ -26,6 +26,14 @@ extern GroupItem getMarkLineAt(GroupItem argument)
 GroupItem   source = argument["source"],
             fromThis = argument["fromThis"];
 GroupItem   result;
+    /*  ⚠ NOT A SENTINEL-AS-DATA SITE, and the 2026-09-05 table said it was.
+        `result` is a bare local -- tok emits `GroupItem *result = 0` -- so both
+        arms below ALREADY returned the testable nothing. What they did not do
+        was ARM, so the caller carried on. Ordinary routing, not a promotion.
+        ⚠ AND THIS PROSE SITS ABOVE THE WHOLE CHAIN ON PURPOSE (bear-trap #29):
+        the first cut put it between the arms, immediately before an `else`, and
+        wiped the extern block to 36. Comments go above the chain or inside an
+        arm, never in the gap between arms.   Instruct.getMarkLineAt.storeRuling  */
     if source && source.isBUFFER
         if fromThis {
             Buffer      buffer = source.buffer;
@@ -43,8 +51,8 @@ GroupItem   result;
                     result = new("markLine");
                     result.setToken(lineStart,(int)(mark - lineStart));
                     mark = lineStart; }}
-        else cerr "getMarkLineAt: ERROR no match field provided":;
-    else cerr "getMarkLineAt: ERROR no source or source is not a buffer":;
+        else refuse(fromThis,"getLine: no match field provided");
+    else refuse(source,"getLine: no source, or the source is not a buffer");
     return result;
 }
 

@@ -3555,6 +3555,14 @@ extern "C" GroupItem *getMarkLineAt(GroupItem *argument)
 GroupItem 	*source = argument->get("source");
 GroupItem 	*fromThis = argument->get("fromThis");
 GroupItem 	*result = 0;
+	/*  ⚠ NOT A SENTINEL-AS-DATA SITE, and the 2026-09-05 table said it was.
+	`result` is a bare local -- tok emits `GroupItem *result = 0` -- so both
+	arms below ALREADY returned the testable nothing. What they did not do
+	was ARM, so the caller carried on. Ordinary routing, not a promotion.
+	⚠ AND THIS PROSE SITS ABOVE THE WHOLE CHAIN ON PURPOSE (bear-trap #29):
+	the first cut put it between the arms, immediately before an `else`, and
+	wiped the extern block to 36. Comments go above the chain or inside an
+	arm, never in the gap between arms.   Instruct.getMarkLineAt.storeRuling  */
 	if ( source && isBUFFER(source->groupBody->flags.data) )
 		if ( fromThis )
 			{
@@ -3579,8 +3587,8 @@ GroupItem 	*result = 0;
 					buffer->mark = lineStart;
 					}
 			}
-		else	::fprintf(stderr,"getMarkLineAt: ERROR no match field provided\n");
-	else	::fprintf(stderr,"getMarkLineAt: ERROR no source or source is not a buffer\n");
+		else	::refuse(fromThis,"getLine: no match field provided");
+	else	::refuse(source,"getLine: no source, or the source is not a buffer");
 	return result;
 }
 
