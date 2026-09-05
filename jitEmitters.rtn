@@ -522,12 +522,16 @@ extern int jitDegrade(String what, GroupItem node)
 extern GroupItem jitDerefRT(GroupItem operand)
 {
     -%
-    if ( !operand ) {
-        ::fprintf(stderr,"ERROR unary * [jit road] -- null operand\n");
-        return 0;
-        }
+    /*  ⚠ THE STAR RULING ON THE EMITTED ROAD (Tony, 2026-09-05). `*x` on a
+        field that holds no group YIELDS NULL and does not refuse -- and these
+        two lines exist to mirror opDeref, so they take the same ruling or the
+        two roads answer differently for the same source text. They were on the
+        gated list as sites to ROUTE; STAR reclassified them, because refusal is
+        for CATEGORY errors and this is a legitimate question with a legitimate
+        empty answer. The CONSUMER of the null refuses, on both roads.
+        jitEmitters.jitDerefRT.starRuling  */
+    if ( !operand )                                  return 0;
     if ( isGROUP(operand->groupBody->flags.data) )   return operand->getGroup();
-    ::fprintf(stderr,"ERROR unary * [jit road] on %s -- it holds no group\n",operand->groupBody->tag);
     return 0;
     %-
 }
@@ -2772,7 +2776,13 @@ extern GroupItem jitPrintNodeRT(GroupItem node,GroupItem FormaT,Buffer buffer)
 {
     -%
     if ( !node ) {
-        ::fprintf(stderr,"ERROR print -- the item produced no node; nothing printed\n");
+        /*  ROUTED 2026-09-05, and it is the ONLY one of the three gated sites
+            that is a refusal: print is a CONSUMER of the null, and a consumer
+            that cannot do its job with what it was handed is exactly what the
+            ruling means. Reachable at RUN time from emitted code, which is why
+            the epilogue clear landed first.
+            jitEmitters.jitPrintNodeRT.storeRuling  */
+        ::refuse(0,"print: the item produced no node; nothing printed");
         return 0;
         }
     return ::appendGroup(node,FormaT,buffer);
