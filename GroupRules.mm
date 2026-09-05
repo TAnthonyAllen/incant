@@ -418,18 +418,6 @@ GroupItem 	*item = 0;
 					CodE->groupBody->tag = "CodE";
 					CodE->groupBody->flags.noPrint = 1;
 					}
-				/*  ⚠ AN ARGUMENT ATTRIBUTE NEVER CARRIES AN INITIAL VALUE
-				(Tony, SEQ 131). The FIELD PASSED IN carries the value;
-				a declared one is a defect, and it is refused BY NAME in
-				F-41's form -- named and declined, never repaired, so the
-				tree stands as authored and the runtime tripwire still
-				sees it.   ruleActions.aCTionDefinE.argumentHasData  */
-				if ( ::compare(item->groupBody->tag,"argument") == 0 )
-					{
-					item->groupBody->flags.isArgument = 1;
-					if ( item->groupBody->flags.data )
-						::fprintf(stderr,"DEFINE REFUSED on %s -- its `argument` attribute is declared with a value; an argument attribute never carries one, the field passed in does\n",NewGroup->groupBody->tag);
-					}
 				if ( NewGroup->groupBody->flags.isMacro )
 					item->groupBody->flags.noPrint = 1;
 				item->groupBody->flags.isInitialized = 1;
@@ -11988,13 +11976,6 @@ GroupItem 	*grup = 0;
 		if ( (grup->groupBody->flags.isArgument || grup->groupBody->flags.isLocal) && !grup->groupBody->flags.noPrint )
 			{
 			body = (GroupBody*)recurseSTAK->pop();
-			
-			if (gNoUnwrap && grup->groupBody->flags.isArgument) {
-			grup->groupBody = body;
-			body = 0;
-			continue;
-			}
-			
 			*grup->groupBody = *body;
 			body = 0;
 			}
@@ -12213,75 +12194,51 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
 GroupItem 	*capture = 0;
 GroupItem 	*ruleArg = 0;
-int 		chanAbort = 0;
 	if ( isCoded(field->groupBody->flags.actionType) )
 		if ( !::processCode(field) )
-			return 0;
+			goto exitRunAction;
+	// runAction.lastREF a no-argument call leaves the action in lastREF
+	ruler->lastREF->setGroup(argument ? argument : field);
 	if ( ruler->jitting )
 		{
-		// SELF-CALL cannot inline in jitter
-		 if (::jitEmitSelfCall(argument, field)) return field; 
-		}
-	// WHY SAVE HERE
-	::saveLocalFields(field);
-	// ARGUMENT HANDLING
-	
-	GroupItem *chanPrevGroup = 0;
-	GroupBody *chanBody      = 0;
-	int        chanPrevData  = 0;
-	if (( ruleArg = field->get("argument") )) {
-	result = argument ? argument : field;
-	if (gNoUnwrap)  {
-	// ISSUES WITH NO MORE UNWRAP
-	if ( ruleArg->groupBody->gGroup && !isGROUP(ruleArg->groupBody->flags.data) ) {
-	::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the argument body's union holds non-group data; the action is NOT run\n",
-	field->groupBody->tag);
-	::fflush(stderr);
-	chanAbort = 1;
-	}
-	else {
-	chanPrevGroup = ruleArg->groupBody->gGroup;
-	chanPrevData  = ruleArg->groupBody->flags.data;
-	chanBody      = ruleArg->groupBody;
-	ruleArg->setGroup(result);
-	GroupControl::groupController->groupRules->chanBinds++;
-	if ( ruleArg->groupBody->gGroup == result ) GroupControl::groupController->groupRules->chanSame++;
-	}
-	}
-	else {
-	ruleArg->setGroup(result);
-	GroupControl::groupController->groupRules->chanBinds++;
-	if ( ruleArg->groupBody->gGroup == result ) GroupControl::groupController->groupRules->chanSame++;
-	}
-	}
-	else    result = field;
-	
-	ruler->lastREF->groupBody->gGroup = result;
-	ruler->lastREF->groupBody->flags.data = 6;
-	if ( ruler->jitting )
-		{
-		// BRACKET THE INLINE
-		 jitInlinePush(field); 
-		}
-	if ( !chanAbort )
+		if ( ::jitEmitSelfCall(argument,field) )
+			{
+			result = field;
+			goto exitRunAction;
+			}
+		// runAction.jitBind the JIT binds argument at run time in jitBindArgRT, not here
+		::jitInlinePush(field);
 		result = ::processAction(field);
-	else	result = 0;
-	
-	if ( chanBody ) { chanBody->gGroup = chanPrevGroup; chanBody->flags.data = chanPrevData; }
-	
-	if ( ruler->jitting )
-		{
-		// VALUE CHANNEL
-		 jitInlinePop(result); 
+		::jitInlinePop(result);
+		goto exitRunAction;
 		}
-	// RETURN SEAM AND restoreLocalFields
-	if ( result && !ruler->jitting )
+	// runAction.mint argument is a runtime-minted binding slot, never a declared attribute
+	ruleArg = field->get("argument");
+	if ( !ruleArg )
+		ruleArg = field->addString("argument");
+	// runAction.mint runAction is the SINGLE WRITER of isArgument -- set on the
+	// found slot as well as the minted one, or a declared `argument` carries no
+	// flag and every isArgument reader goes dark at once
+	ruleArg->groupBody->flags.isArgument = 1;
+	// runAction.bindOrder save before bind so the outer activation gets its slot back
+	::saveLocalFields(field);
+	ruleArg->setGroup(argument);
+	// runAction.chanCount chanT's daily row reads this pair, and SAME MUST EQUAL
+	// BINDS -- a gap is a bind that did not store the field it was handed. In
+	// passthrough because the check is pointer identity, which `==` is not
+	
+	GroupControl::groupController->groupRules->chanBinds++;
+	if ( ruleArg->groupBody->gGroup == argument ) GroupControl::groupController->groupRules->chanSame++;
+	
+	result = ::processAction(field);
+	if ( result )
 		{
 		capture = new GroupItem(result->groupBody->tag);
 		capture->setContent(result);
 		result = capture;
 		}
 	::restoreLocalFields(field);
+exitRunAction:
 	return result;
 }
 
@@ -12726,12 +12683,6 @@ GroupItem 	*grup = 0;
 			POINTER, and each activation re-points rather than overwrites.
 			K2 -- recursive, returns its ARGUMENT -- is the row that moves
 			first if this is wrong. It is pinned at 7.  */
-			
-			if (gNoUnwrap && grup->groupBody->flags.isArgument) {
-			recurseSTAK->push(grup->groupBody);
-			continue;
-			}
-			
 			body = new GroupBody();
 			*body = *grup->groupBody;
 			/*  DO NOT clear() HERE. `*body = *grup.groupBody` copies the body

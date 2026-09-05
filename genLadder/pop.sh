@@ -438,10 +438,21 @@ done
 #  between two absences and is exactly what a channel that never ran would
 #  print -- H4's other half. The value rows are the second discriminator: a bind
 #  that stores the WRONG field passes the counter and fails them.
+#
+#  ⚠ RE-PINNED 3 -> 4 ON 2026-09-05, WITH THE CAUSE AND NOT A GREEN DIFF. The
+#  fixture is unchanged: ctRun calls ctSeen three times. The FOURTH bind is
+#  ctRun ITSELF. It declares no `argument`, so the old runAction -- which bound
+#  only `if (ruleArg = field->get("argument"))` -- skipped it entirely. Item 3
+#  makes runAction MINT the slot when there is none, so every call binds and
+#  the population grew by exactly the actions that never declared one.
+#  THAT IS THE ITEM'S WHOLE POINT ARRIVING IN THE COUNTER, not drift.
+#  ⚠ AND `same` TRACKED TO 4 TOO, which is the half that makes the re-pin safe:
+#  the invariant being asserted is SAME == BINDS, and it held across the change.
+#  A 4/3 would have been the F-46 shape and would NOT have been re-pinned.
 run2 chanT "$T/chan" "$T/chane"; check "chanT runs" 0 $?
 sentinel "chanT sentinel (no truncation)" "$T/chan" "CHANT SENTINEL"
 chanline=$(grep -m1 '^=== ARGCHANNEL binds' "$T/chane")
-chanwant="=== ARGCHANNEL binds = 3 same = 3 ==="
+chanwant="=== ARGCHANNEL binds = 4 same = 4 ==="
 if [ "$chanline" = "$chanwant" ]; then
     echo "  ok    chanT ARGCHANNEL binds = 3 same = 3 -- PINNED BY VALUE"; green=$((green+1))
 else

@@ -667,144 +667,15 @@ define
                 channels. See designDocs ProblemRecords connectiveDiscriminant.#);
         GroupActions=(is the rtn file holding the action methods -- the interpreter's
             verbs. It is part of the GroupRules include chain.#):
-            runAction=(Handles the set up to run an action. It runs processCode if needed; sets argument and lastREF; handles recursion; then runs processAction. Most of the comments below relate to recursion and argument handling.
-                SELF-CALL SEAM. Under jitting an ordinary call INLINES -- emit-on-walk
-                    re-executes the callee's BlocK into the current builder, which is measured
-                    to work and produces correct run-time answers with no `call` in the IR
-                    (incant/jitJC). A SELF-call cannot inline: the re-walk reuses nodes that
-                    already carry jitData from the enclosing pass, and the condition target's
-                    jitValue is by then an i1 (jitEmitCompare's result), so the second pass
-                    asserts inside LLVM. jitEmitSelfCall answers 0 for every other callee, so
-                    this gate changes nothing about ordinary calls.
-                WHY SAVE HERE
-                    BIND-BY-BODY, the flip's other half. Under gNoUnwrap the argument node
-                    ADOPTS the caller's groupBody, so every read and write through the
-                    argument name reaches caller storage with no hop -- which is what the
-                    auto-unwrap was silently providing (filmed 2026-08-30: `argument = 5`
-                    already reaches the caller today, via runOP's !op.isAssign arm). The two
-                    retire together or the write stops arriving, silently.
-                    ⚠ THE BODY IS THE STABLE IDENTITY AND THE NODE IS NOT: two calls passing
-                    the same source field arrive as DIFFERENT NODES OVER ONE BODY. Binding
-                    by body binds to what is already invariant.
-                    ⚠⚠ THE SAVE COMES FIRST, AND THE ORDER IS THE WHOLE FIX FOR THE TRAMPLE.
-                    SEQ 106. saveLocalFields walks (isArgument || isLocal), so the argument
-                    is IN the frame set. While the bind ran first the frame captured the NEW
-                    argument and restore handed the NEW one back -- so an outer activation
-                    never got its own argument returned, in BOTH directions of recursion.
-                    Measured: kant8T K2x row 1 (direct) and K6c (mutual) both read the
-                    inner's argument; with the save moved above the bind both read the
-                    outer's, and no other fleet row moved.
-                    ⚠ THIS IS THE INTERPRETED CALLEE'S ENTIRE RECURSION SAFETY. It has no
-                    stack local to lift into, unlike a generated C++ parse method, so the
-                    save/restore bracket IS the frame -- correctly ordered. The frame bind's
-                    "no save/restore" clause governs the C++ handoff only.
-                    UNCONDITIONAL since 2026-08-10, SEQ 27 rung B; see the note above
-                    jitSaveFrameRT for why the gate was the defect rather than the
-                    protection, and why rung A's return seam had to land first.
-                ARGUMENT HANDLING
-                    ⚠ BIND-BY-BODY, the flip's other half. Under gNoUnwrap the argument node
-                    ADOPTS the caller's groupBody, so every read and write through the
-                    argument name reaches caller storage with no hop.
-                    ⚠⚠ THE rStuff.frameArg SLOT WAS HERE AND IS GONE (SEQ 106 built it, SEQ 107
-                    stripped it). It could never fire: the `if (field.rStuff)` guard is FALSE for an
-                    interpreted action -- measured 16 of 16 action binds at rStuff = 0x0 --
-                    because Ruling D makes rStuff presence the liveness test and an action is
-                    not a rule. Do not re-add a slot there.
-                    ⚠ WHAT THE MEASUREMENT LEFT STANDING, because it is the live question:
-                    after definition there are TWO nodes tagged `argument` -- the ORIGINAL on
-                    the action, which this line binds, and ONE COPY under a Token in the
-                    cached BlocK, which is what the body actually READS. They share one body
-                    before the bind, and the bind repoints only the original's body pointer,
-                    which is exactly why the callee keeps reading the pre-bind body.
-                    ⚠ IT IS ONE COPY, NOT ONE PER MENTION -- censused 2026-09-01 with parent
-                    attribution across 23 actions: every action has exactly ONE original, and
-                    copies are 0 or 1 regardless of how many times the body says `argument`
-                    (ntF mentions it twice and has none; asTake mentions it twice and has
-                    one).
-                ISSUES WITH NO MORE UNWRAP
-                    THE UNION TRIPWIRE (Tony, SEQ 120). gGroup shares storage with gCount,
-                    gNumber, gBuffer and six others, so this write CLOBBERS whatever else
-                    that union holds. It is safe only because an action's argument attribute
-                    body holds nothing -- measured, gGroup reads 0x0 there. That is a
-                    CONSTRAINT WITH AN ALARM, not a fix: write only when the union is empty,
-                    and refuse BY NAME otherwise. The refusal never fires in a correct build;
-                    the day it does, it names the day the assumption broke.
-                    ⚠ THE TRIPWIRE LEARNS THE TAG (Tony, SEQ 130). It used to refuse on
-                    `gGroup non-zero` alone, which conflated TWO occupants: foreign data
-                    sharing the union -- gCount, gNumber, gBuffer -- whose bytes merely
-                    READ as a pointer, and a PRIOR CHANNEL BIND, which is a real group
-                    and is exactly what the bracket exists to save and give back. Under
-                    recursion the second is the normal case, so the old test refused the
-                    call's own outer activation and sent it down the pre-channel road.
-                    Refuse iff the union is non-zero AND NOT isGROUP.
-                    ⚠ A REFUSED BIND ABORTS THE ACTION (Tony, SEQ 131), in F-41's form:
-                    named, declined, and the run continues. THE BIND-BY-BODY FALLBACK
-                    ROAD IS GONE -- it silently returned one call to the pre-channel
-                    road and, measured on tnLoaded, handed the callee THE OCCUPANT
-                    rather than the argument it was called with. A wrong answer
-                    delivered quietly is worse than no answer delivered loudly.
-                setGroup changed to not copy its argument AND THE TWO ROADS ARE ONE AGAIN (Tony, SEQ 127).
-                    SEQ 120 held this at a DIRECT write because setGroup stored
-                    `new GroupItem(g)` for a parented source, so *argument reached a COPY
-                    and the channel lost its whole point. setGroup no longer copies -- it
-                    is the bare assignment and embedRule owns the one legitimate copy --
-                    so routing through it keeps the FIELD and costs nothing.
-                    ⚠ THE TRIPWIRE STAYS ABOVE, AT THE CALL SITE, ahead of the call:
-                    setGroup is not a union guard and does not become one.
-                BRACKET THE INLINE
-                    Under jitting this call is being INLINED -- the
-                    BlocK below re-executes into the caller's builder -- so for the duration
-                    the action being walked is `field`, and a recursive call inside it must
-                    be recognised as such. See gJitInlining.
-                VALUE CHANNEL
-                    ⚠ `result` IS PASSED BECAUSE IT IS THE VALUE CHANNEL. An enclosing
-                    assignment reads its operand's jitData, and this node is that operand --
-                    so when E2's merge produces the callee's answer, this is what has to
-                    carry it. Measured the hard way: a merge that set only gJitResult was
-                    emitted correctly and then ignored.
-                RETURN SEAM
-                    restoreLocalFields overwrites a local's body IN PLACE, so returning the
-                    local's own node hands the caller a pointer INTO the frame that is about
-                    to be swept. The caller then reads it back blanked -- it answers with its
-                    own tag instead of its value, which is CLAIM KANT-8. The cure is to take
-                    the value BEFORE the sweep and hand back the copy.
-
-                    THE BRACKET IS NOT TOUCHED. M1 measured the locals restoring perfectly at
-                    every depth on both engines; the only defect was the returned pointer
-                    aiming into the frame. So this is a seam repair, not a bracket repair.
-
-                    Three clauses, each load-bearing, each with a caller that proves it:
-                    1. MINT A FRESH NODE and copy the value in -- never the local's node, and
-                       never a bare scalar. manyKant and spellKant (genParse.rtn) both
-                       null-check this result and then read .text off it, which a raw number
-                       breaks. Note the copy constructor is NOT usable here: it SHARES the
-                       body, which is precisely what the sweep overwrites. Minting and then
-                       calling setContent is the detaching form, and setContent already
-                       carries the contentless case (it stamps the tag as the text), so a
-                       result with no value reads back the same string it does today.
-                    2. MINT ON THE RESULT'S OWN TAG, so both the tag and the text answer
-                       exactly as they did before this seam existed.
-                    3. PRESERVE NULL AS NULL. Minting an empty node instead would invert the
-                       two null checks at those same sites, and an empty answer would then
-                       read as a successful one -- silently, and in the flattering direction.
-                       ⚠ MEASURED 2026-08-10, AND THE GUARD IS DEFENSIVE RATHER THAN LOAD-
-                       BEARING, WHICH IS WORTH KNOWING BEFORE ANYONE "SIMPLIFIES" IT AWAY.
-                       There are TWO ways this method answers with nothing. The reachable one
-                       is the early return above, when a coded body fails to parse; it
-                       returns before this block and so preserves nothing-ness for free. The
-                       other is a run that gets past that and still yields no result, and a
-                       sweep of the whole fixture population found it happening ZERO times in
-                       128 files. So this guard is currently uncontrolled by any fixture: it
-                       is here because without it the mint would dereference a null and take
-                       the process down, not because a green run proves it fires. incant's
-                       kant8N certifies the reachable path and says plainly that it does not
-                       reach this one.
-
-                    NOT UNDER jitting. The jitted arm already returns by capture and is the
-                    certified one; the node in flight there is the value channel an enclosing
-                    assignment reads through jitData, which a fresh node would not carry.
-                    The interpreter is adopting the jit's semantics here, so the jitted arm
-                    owes byte-agreement and must emit unchanged.#)
+            runAction=(Runs an action. TWO ARMS THAT SHARE ALMOST NOTHING, and reading it as one path with jit conditionals is how it was misread for months. processCode if needed, lastREF, then either the JIT arm or the interpreted arm, and each returns through its own exit. REVISED 2026-09-05, Clay reviewed, Tony ruled -- the draft was lifted from incant++ rather than re-derived.#):
+                lastREF=(Written ONCE, ahead of both arms, so the two roads cannot disagree about it. ⚠ THE `argument ? argument : field` FALLBACK IS LOAD-BEARING: a call with NO argument leaves THE ACTION ITSELF in lastREF, which is what makes a bare accessor at the top of a no-argument body resolve to anything at all. Writing the argument unconditionally would put a null there. See LastRef.WriterRunAction.#);
+                jitBind=(THE JIT ARM BINDS NOTHING. jitBindArgRT owns the argument bind on that road and does it at RUN time, because what the callee must receive is a run-time fact and runAction executes at EMIT time under jitting. The arm is: self-call gate, jitInlinePush, processAction, jitInlinePop, exit. ⚠ NO SAVE, NO RESTORE, NO RETURN-SEAM CAPTURE -- the jitted arm already returns by capture and the node in flight is the value channel an enclosing assignment reads through jitData, which a fresh node would not carry.#);
+                mint=(⚠ runAction IS THE SINGLE WRITER OF isArgument, and the flag is set on the FOUND slot as well as the MINTED one. `argument` is a runtime-minted binding slot, never a declared attribute: aCTionDefinE no longer flags it and no longer refuses a declared-with-a-value one, because there is nothing left to declare. MEASURED THE HARD WAY 2026-09-05: setting the flag only on the mint branch, as the reviewed draft first read, sent the fleet 179 to 153 in one build -- every existing action DECLARES `argument`, so the slot was found, the flag was never set, and every isArgument reader went dark at once. B's read rule stopped firing, the rebind refusal stopped firing, and kant8T ran away and timed out. One line, hoisted, and all of it came back.#);
+                bindOrder=(SAVE BEFORE BIND. saveLocalFields walks (isArgument || isLocal), so the argument IS in the frame set; bind first and the frame captures the NEW argument and hands the NEW one back, so an outer activation never gets its own returned, in BOTH directions of recursion. SEQ 106 measured it on kant8T K2x row 1 (direct) and K6c (mutual). ⚠ THIS BRACKET IS THE INTERPRETED CALLEE'S ENTIRE RECURSION SAFETY -- it has no stack local to lift into, unlike a generated C++ parse method, so the save/restore pair IS the frame.#);
+                bracketIsContents=(⚠ THE ARGUMENT IS BRACKETED BY CONTENTS, NOT BY BODY POINTER, AND THE TWO ARE NOT INTERCHANGEABLE. save/restore carried a gNoUnwrap arm that pushed and restored the argument's groupBody POINTER. That was correct for BIND-BY-BODY, where the bind swapped the pointer. This revision binds with setGroup, which writes gGroup INSIDE the body -- so a pointer bracket saves and restores something nobody changed, a nested call overwrites gGroup, and restore does not undo it. MEASURED 2026-09-05: with the pointer arm still in place K2x row 1 returned k2xSmall and K6c returned k6small, the inner activation's argument handed to the outer. Removing both arms returned the argument to the ordinary contents bracket and both went green. ⚠ THE RULE UNDERNEATH: A BRACKET MUST MATCH WHAT THE BIND CHANGES. Change the bind and the bracket is a live question, not a detail.#);
+                chanCount=(The chanBinds/chanSame pair chanT reads. In passthrough because the check is POINTER IDENTITY and `==` is numeric. ⚠ THE PAIR RE-PINNED 3 TO 4 with this revision and the cause is the revision itself: the old runAction bound only when a declared `argument` was found, so an action that declared none never bound. Minting means every call binds, and the population grew by exactly the actions that never declared one -- in chanT that is ctRun. `same` tracked to 4 as well, which is what made the re-pin safe: the invariant asserted is SAME == BINDS and it held. A 4/3 would have been F-46's shape and would not have been re-pinned.#);
+                escapes=(The -% %- escapes around the jit calls are GONE, and the reason generalises. tok resolves an extern BY NAME, so jitEmitSelfCall, jitInlinePush and jitInlinePop need no passthrough -- being named in groups.ext is enough. See GroupsExtMirror. Passthrough survives only where the CODE needs C++, which here is the pointer-identity comparison in chanCount.#);
+                channelGone=(WHAT LEFT WITH THIS REVISION, so nobody hunts for it: the union tripwire and its ARGCHANNEL REFUSED message, the chanPrevGroup/chanPrevData save-and-restore around processAction, and chanAbort. The tripwire guarded a union that could hold foreign data because the argument attribute was USER-DECLARED and might carry anything. Now runAction mints the slot, so the union is ours by construction and the failure is unconstructable rather than guarded -- which is the family this project prefers. ⚠ IT NEVER FIRED AND HAD NO NEGATIVE CONTROL, so nothing measured is lost with it.#);
             runOP=(the operator dispatch hub.#):
                 listOperand=(⚠ A LIST OPERAND IS DELIBERATELY NOT RESOLVED IN runOP, and the
                     function that used to do it -- resolveList -- was RETIRED 2026-09-04,

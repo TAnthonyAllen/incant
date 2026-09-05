@@ -736,13 +736,6 @@ GroupItem   frame,
     while grup = action.prior(grup)
         if (grup.isArgument || grup.isLocal) && !grup.noPrint {
             body = recurseSTAK.pop();
-            -%
-            if (gNoUnwrap && grup->groupBody->flags.isArgument) {
-                grup->groupBody = body;
-                body = 0;
-                continue;
-            }
-            %-
             *groupBody = *body;
             body = 0;}
 }
@@ -780,72 +773,47 @@ use input
 extern GroupItem runAction(GroupItem argument,GroupItem field)
 {
 GroupRules  ruler = groupRules;
-GroupItem   result,
+GroupItem   result = null,
             capture,
             ruleArg;
-int         chanAbort = 0;
 use field
     if isCoded
-        if !processCode(field)  return null;
+        if !processCode(field)  goto exitRunAction;
+    // runAction.lastREF a no-argument call leaves the action in lastREF
+    lastREF.group = argument ? argument : field;
     if jitting {
-        // SELF-CALL cannot inline in jitter
-        -% if (::jitEmitSelfCall(argument, field)) return field; %-
-    }
-    // WHY SAVE HERE
+        if jitEmitSelfCall(argument, field) {
+            result = field;
+            goto exitRunAction; }
+        // runAction.jitBind the JIT binds argument at run time in jitBindArgRT, not here
+        jitInlinePush(field);
+        result = processAction(field);
+        jitInlinePop(result);
+        goto exitRunAction; }
+    // runAction.mint argument is a runtime-minted binding slot, never a declared attribute
+    ruleArg = field["argument"];
+    if !ruleArg     ruleArg = field += "argument";
+    // runAction.mint runAction is the SINGLE WRITER of isArgument -- set on the
+    // found slot as well as the minted one, or a declared `argument` carries no
+    // flag and every isArgument reader goes dark at once
+    ruleArg.isArgument = true;
+    // runAction.bindOrder save before bind so the outer activation gets its slot back
     saveLocalFields(field);
-    // ARGUMENT HANDLING
+    ruleArg.group = argument;
+    // runAction.chanCount chanT's daily row reads this pair, and SAME MUST EQUAL
+    // BINDS -- a gap is a bind that did not store the field it was handed. In
+    // passthrough because the check is pointer identity, which `==` is not
     -%
-    GroupItem *chanPrevGroup = 0;
-    GroupBody *chanBody      = 0;
-    int        chanPrevData  = 0;
-    if (( ruleArg = field->get("argument") )) {
-        result = argument ? argument : field;
-        if (gNoUnwrap)  {
-            // ISSUES WITH NO MORE UNWRAP
-            if ( ruleArg->groupBody->gGroup && !isGROUP(ruleArg->groupBody->flags.data) ) {
-                ::fprintf(stderr,"ARGCHANNEL REFUSED on %s -- the argument body's union holds non-group data; the action is NOT run\n",
-                    field->groupBody->tag);
-                ::fflush(stderr);
-                chanAbort = 1;
-                }
-            else {
-                chanPrevGroup = ruleArg->groupBody->gGroup;
-                chanPrevData  = ruleArg->groupBody->flags.data;
-                chanBody      = ruleArg->groupBody;
-                ruleArg->setGroup(result);
-                GroupControl::groupController->groupRules->chanBinds++;
-                if ( ruleArg->groupBody->gGroup == result ) GroupControl::groupController->groupRules->chanSame++;
-                }
-            }
-        else {
-            ruleArg->setGroup(result);
-            GroupControl::groupController->groupRules->chanBinds++;
-            if ( ruleArg->groupBody->gGroup == result ) GroupControl::groupController->groupRules->chanSame++;
-            }
-    }
-    else    result = field;
+    GroupControl::groupController->groupRules->chanBinds++;
+    if ( ruleArg->groupBody->gGroup == argument ) GroupControl::groupController->groupRules->chanSame++;
     %-
-    lastREF.gGroup  = result;
-    lastREF.isGROUP = true;
-    if jitting {
-        // BRACKET THE INLINE
-        -% jitInlinePush(field); %-
-    }
-    if !chanAbort   result = processAction(field);
-    else            result = null;
-    -%
-    if ( chanBody ) { chanBody->gGroup = chanPrevGroup; chanBody->flags.data = chanPrevData; }
-    %-
-    if jitting {
-        // VALUE CHANNEL
-        -% jitInlinePop(result); %-
-    }
-    // RETURN SEAM AND restoreLocalFields
-    if result && !jitting {
+    result = processAction(field);
+    if result {
         capture = new(result.tag);
         capture.setContent(result);
         result  = capture; }
     restoreLocalFields(field);
+exitRunAction:
     return  result;
 }
 
@@ -1188,12 +1156,6 @@ GroupItem   frame,
                 POINTER, and each activation re-points rather than overwrites.
                 K2 -- recursive, returns its ARGUMENT -- is the row that moves
                 first if this is wrong. It is pinned at 7.  */
-            -%
-            if (gNoUnwrap && grup->groupBody->flags.isArgument) {
-                recurseSTAK->push(grup->groupBody);
-                continue;
-            }
-            %-
             body    = new;
             *body   = *grup.groupBody;
             /*  DO NOT clear() HERE. `*body = *grup.groupBody` copies the body
