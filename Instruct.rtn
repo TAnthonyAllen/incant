@@ -99,10 +99,23 @@ extern GroupItem opAND(GroupItem argument,GroupItem target)
 ***************************************************************************/
 extern GroupItem opAssign(GroupItem argument,GroupItem target)
 {
+GroupRules  ruler = groupRules;
 int         priorLimit = limitWriteGuard(target);
     if jitting {
         -% return jitEmitAssign(argument, target); %-
     }
+    /*  ⚠ THE STORE RULING (Tony, 2026-09-05): AN ARMED STATEMENT STORES NOTHING.
+        AND THE CHECK HAS TO BE HERE RATHER THAN AT runOP's ENTRY, which is where
+        it was first put and where it does not work. MEASURED: an assignment
+        DISPATCHES BEFORE ITS OWN RIGHT-HAND SIDE -- a STORECAM trace reads
+        `op== refused=0` and only then `op=+*`, with the refusal firing later
+        still, inside the +* dispatch. So the enclosing operator is entered while
+        the arm is clear and an entry check can never see its own operand refuse.
+        ⚠ AND WITHOUT THIS THE REFUSAL DESTROYS ITS TARGET: a refused right-hand
+        side is null, and opAssign's `else target.clearData()` below is what
+        BLANKS the field. sentinelT ST-1 read its own tag instead of the 111 it
+        went in with, for exactly that reason.   Instruct.opAssign.storeRuling  */
+    if ruler.refused    return null;
     if argument
         if argument.byRef   group = argument;
         else {

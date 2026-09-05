@@ -1819,10 +1819,10 @@ fi
 #  by value so it cannot change quietly.
 run1 sentinelT "$T/snt"; check "sentinelT runs" 0 $?
 sentinel "sentinelT sentinel (no truncation)" "$T/snt" "SENTINELT SENTINEL"
-if grep -qF "ST-1 caller read       = stRead" "$T/snt"; then
-    echo "  ok    sentinelT ST-1 opAddPointer: the caller gets the NULL (target blanked)"; green=$((green+1))
+if grep -qF "ST-1 caller read       = 111" "$T/snt"; then
+    echo "  ok    sentinelT ST-1 opAddPointer: an armed statement STORES NOTHING (111 stands)"; green=$((green+1))
 else
-    echo "  FAIL  sentinelT ST-1 caller read moved -- opAddPointer may be handing back a VALUE again"; fail=1
+    echo "  FAIL  sentinelT ST-1 caller read moved -- the store ruling broke -- a refused rhs is blanking its target again"; fail=1
 fi
 if grep -qF "ST-1 statement after   = 0" "$T/snt"; then
     echo "  ok    sentinelT ST-1 the statement after the refusal did NOT run"; green=$((green+1))

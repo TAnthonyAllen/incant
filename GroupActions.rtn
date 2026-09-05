@@ -859,6 +859,7 @@ exitRunAction:
 
 extern GroupItem runOP(GroupItem field)
 {
+GroupRules  ruler = groupRules;
 GroupItem   result,
             op      = field[1],
             arg     = field[3],
@@ -896,6 +897,19 @@ GroupItem   result,
             arg = arg->getGroup();
     }
     %-
+    /*  ⚠ THE STORE RULING (Tony, 2026-09-05). AN ARMED STATEMENT DISPATCHES
+        NOTHING FURTHER, STORES INCLUDED. Without this, a refusal raised inside
+        an expression still lets the enclosing `=` run, and the assignment
+        writes the refusal's null -- BLANKING ITS OWN TARGET. Measured as
+        sentinelT ST-1: stRead came back as its own tag instead of the 111 it
+        went in with, because the store took.
+        ⚠ INTERPRETED ONLY, and the era split is the same one aCTionBlocK makes
+        three lines below its own arm check: at EMIT time the statements after a
+        refusal are REACHABLE and must all be emitted, so stopping the walk here
+        would delete them from the IR. The emitted road consults the arm in the
+        assign helpers instead.   GroupActions.runOP.storeRuling  */
+    if ruler.refused
+        if !jitting     return null;
     if op.instructType && isMethod && invoke    target = method(target);
     if arg
         if arg.isMethod && arg.invoke           arg = arg.method(arg);

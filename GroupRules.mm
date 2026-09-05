@@ -3797,6 +3797,11 @@ finishXP:
 extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target)
 {
 	
+	/*  THE STORE RULING on the emitted road (Tony, 2026-09-05): an armed
+	statement stores nothing. The interpreted twin is runOP's check before
+	dispatch; this is the same rule where the emitted road actually does its
+	storing.   jitEmitters.jitAssignNodeRT.storeRuling  */
+	if ( GroupControl::groupController->groupRules->refused ) return 0;
 	if ( ::assignFieldCore(source,target) )  return target;
 	return 0;
 	
@@ -8533,11 +8538,25 @@ GroupItem 	*ptr = 0;
 ***************************************************************************/
 extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *target)
 {
-int 	priorLimit = ::limitWriteGuard(target);
-	if ( GroupControl::groupController->groupRules->jitting )
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		priorLimit = ::limitWriteGuard(target);
+	if ( ruler->jitting )
 		{
 		 return jitEmitAssign(argument, target); 
 		}
+	/*  ⚠ THE STORE RULING (Tony, 2026-09-05): AN ARMED STATEMENT STORES NOTHING.
+	AND THE CHECK HAS TO BE HERE RATHER THAN AT runOP's ENTRY, which is where
+	it was first put and where it does not work. MEASURED: an assignment
+	DISPATCHES BEFORE ITS OWN RIGHT-HAND SIDE -- a STORECAM trace reads
+	`op== refused=0` and only then `op=+*`, with the refusal firing later
+	still, inside the +* dispatch. So the enclosing operator is entered while
+	the arm is clear and an entry check can never see its own operand refuse.
+	⚠ AND WITHOUT THIS THE REFUSAL DESTROYS ITS TARGET: a refused right-hand
+	side is null, and opAssign's `else target.clearData()` below is what
+	BLANKS the field. sentinelT ST-1 read its own tag instead of the 111 it
+	went in with, for exactly that reason.   Instruct.opAssign.storeRuling  */
+	if ( ruler->refused )
+		return 0;
 	if ( argument )
 		if ( argument->groupBody->flags.byRef )
 			target->setGroup(argument);
@@ -12352,6 +12371,7 @@ exitRunAction:
 
 extern "C" GroupItem *runOP(GroupItem *field)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
 GroupItem 	*op = field->get(1);
 GroupItem 	*arg = field->get(3);
@@ -12389,6 +12409,20 @@ GroupItem 	*target = field->get(2);
 	arg = arg->getGroup();
 	}
 	
+	/*  ⚠ THE STORE RULING (Tony, 2026-09-05). AN ARMED STATEMENT DISPATCHES
+	NOTHING FURTHER, STORES INCLUDED. Without this, a refusal raised inside
+	an expression still lets the enclosing `=` run, and the assignment
+	writes the refusal's null -- BLANKING ITS OWN TARGET. Measured as
+	sentinelT ST-1: stRead came back as its own tag instead of the 111 it
+	went in with, because the store took.
+	⚠ INTERPRETED ONLY, and the era split is the same one aCTionBlocK makes
+	three lines below its own arm check: at EMIT time the statements after a
+	refusal are REACHABLE and must all be emitted, so stopping the walk here
+	would delete them from the IR. The emitted road consults the arm in the
+	assign helpers instead.   GroupActions.runOP.storeRuling  */
+	if ( ruler->refused )
+		if ( !ruler->jitting )
+			return 0;
 	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
 		target = target->groupBody->gMethod(target);
 	if ( arg )
@@ -12408,7 +12442,7 @@ GroupItem 	*target = field->get(2);
 	gJitBuilder/gJitCurrentFn/gJitResultSlot all live -- so the emit context
 	was fine and it was only ever the seeding. isUnary is the precise gate:
 	widening to isMethod would seed an operand for every rule method.  */
-	if ( GroupControl::groupController->groupRules->jitting && (isOperator(op->groupBody->flags.instructType) || op->groupBody->flags.isUnary) )
+	if ( ruler->jitting && (isOperator(op->groupBody->flags.instructType) || op->groupBody->flags.isUnary) )
 		{
 		
 		if (target && !target->jitData) {

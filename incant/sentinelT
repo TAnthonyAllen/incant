@@ -15,7 +15,7 @@ define
         };
     stRun code={
         stAddPtr();
-        print "ST-1 caller read       =" stRead " (want stRead -- BLANKED; the refusal's null was assigned)":;
+        print "ST-1 caller read       =" stRead " (want 111 -- UNCHANGED; an armed statement stores nothing)":;
         print "ST-1 statement after   =" stAfter " (want 0 -- the statement after a refusal does not run)":;
         };
     ;
@@ -38,17 +38,22 @@ handing back a value.
 
     ST-1  opAddPointer   returned `target`
 
-⚠⚠ AND THE CALLER'S READ IS THE FINDING, NOT THE FORMALITY. It was PREDICTED to
-stay at 111 -- the refusal returns null, so surely nothing is written. It does
-not. stRead reads back as its OWN TAG, which is bear-trap #26's signature for a
-field with no data: THE ASSIGNMENT TOOK, AND IT WROTE THE NULL.
+⚠⚠ THE CALLER ROW IS 111 BECAUSE OF THE STORE RULING, AND IT READ ITS OWN TAG
+BEFORE THAT RULING LANDED. The first cut of this fixture measured the target
+BLANKED: a refused right-hand side is null, and opAssign's `else
+target.clearData()` is what destroys the field. So the refusal was terminal for
+the action AND destructive to its own target in the same breath.
 
-So a refusal inside an expression BLANKS THE ASSIGNMENT TARGET. The refusal is
-terminal for the ACTION -- the statement after really does not run -- but the
-refusing statement itself completes far enough to destroy its own target. That
-is a consequence of the ruling nobody stated, and it is pinned here BY VALUE so
-it cannot change quietly. Leaving the target alone would need opAssign to read
-the arm before storing, which is a decision and not a repair.
+Tony ruled it out the same day -- AN ARMED STATEMENT STORES NOTHING -- and the
+row is now 111, unchanged.
+
+⚠ AND WHERE THE CHECK LIVES IS THE PART WORTH KEEPING. It was first put at
+runOP's entry, which is the obvious place and does not work: AN ASSIGNMENT
+DISPATCHES BEFORE ITS OWN RIGHT-HAND SIDE. A trace reads `op== refused=0` and
+only then `op=+*`, with the refusal firing later still, inside the +* dispatch.
+The enclosing operator is entered while the arm is clear, so an entry check can
+never see its own operand refuse. The check belongs where the STORE is, in
+opAssign.
 
 ⚠ THE TWO ROWS STILL PULL OPPOSITE WAYS, which is why both are kept: the caller
 row says WHAT the refusal handed back, the after row says THAT the activation

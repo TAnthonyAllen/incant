@@ -52,6 +52,11 @@ GroupRules  ruler = groupRules;
 extern GroupItem jitAssignNodeRT(GroupItem source,GroupItem target)
 {
     -%
+    /*  THE STORE RULING on the emitted road (Tony, 2026-09-05): an armed
+        statement stores nothing. The interpreted twin is runOP's check before
+        dispatch; this is the same rule where the emitted road actually does its
+        storing.   jitEmitters.jitAssignNodeRT.storeRuling  */
+    if ( GroupControl::groupController->groupRules->refused ) return 0;
     if ( ::assignFieldCore(source,target) )  return target;
     return 0;
     %-
