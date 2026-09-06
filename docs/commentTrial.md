@@ -249,11 +249,31 @@ they sat there, and each surfaced within seconds of a cut script looking for the
 expected to find under a block. **The drift a human notices is the small one**; past a screenful,
 a misplaced comment simply reads as a different comment.
 
-⚠ **AND THE PROBABLE CAUSE IS A GOOD DEED.** The 09-04 cleanup arc alphabetised these files. A
-sort moves *declarations*; a detached comment block is not attached to anything, so it sorts as
-whatever it happens to sit above. **Alphabetising a file with drifted comments does not fix the
-drift, it randomises it** — which is worth knowing before the alphabetical lint runs on the
-remaining 23-of-56.
+⚠⚠ **THE "PROBABLE CAUSE" WAS WRONG AND IS WITHDRAWN — MEASURED 2026-09-08.** This entry said the
+09-04 alphabetisation caused the drift: *"a sort moves declarations; a detached block sorts as
+whatever it happens to sit above."* **It did not.** The orphan finder, run on the pre-sort file
+(`1e17912^`) against the pre-sweep file, reports:
+
+| file | orphans the SORT caused |
+|---|---|
+| `genParse.rtn` | **0 of 10** |
+| `jitEmitters.rtn` | **1** (`jitEmitReturn`, whose method the sort moved past `jitEmitRefusedCheck`) |
+
+Directly, on the worst genParse case: `dumpRuleTerms` was **970 lines from its method BEFORE the
+sort and 971 after**, and the file header sat at line 1208 pre-sort. **The sort moved nothing
+relative to the drift; it carried block-and-declaration together.**
+
+⚠ **SO THE TEN ORPHANS PREDATE THE ALPHABETISATION AND THEIR CAUSE IS UNKNOWN.** Recorded as
+unknown rather than replaced with a second guess — this project's ledger says structural claims
+here hold and causal ones fail, and this is the causal one failing. What is *not* in doubt is the
+measurement that started it: ten headers documenting the wrong function, four of them below their
+own method.
+
+⚠ **AND THE UNIT RULE SURVIVES ITS OWN RATIONALE BEING WRONG, which is worth separating.** It was
+adopted to stop sorts from orphaning headers; sorts turn out to orphan roughly one header per file,
+not ten. It still earns its place — `jitEmitReturn` is exactly the case it prevents, and
+`alphaLint` now catches that shape before a sort rather than after — but it is **hygiene, not the
+cure for what was actually found.** Whatever produced the other nine is still at large.
 
 **This is the argument for `jitEmitters.rtn`, not just for finishing `genParse.rtn`.** A keyed
 entry cannot drift: the key resolves or it does not, and `CodeSite` now makes the reverse
