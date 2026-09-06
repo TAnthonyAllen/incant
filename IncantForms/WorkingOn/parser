@@ -7,7 +7,6 @@ search GroupFields Utilities list;
 register(Utilities);
 define
     codeBuffer buffer;
-    codeCopy;
     openBrace="{";
     closeBrace="}";
     generateParse code={
@@ -37,9 +36,9 @@ define
         print `closeBrace:;
         clear(CodE);
         CodE = codeBuffer;
-        codeCopy <- copyOf(CodE);
-        codeCopy :. noPrinT;
-        argument +% codeCopy;
+        codeCopy := copyOf(CodE);
+        *codeCopy :. noPrinT;
+        argument +% *codeCopy;
         argument :. isCodeD;
         printTO(0);
         print taG "=" CodE.taG CodE:;
