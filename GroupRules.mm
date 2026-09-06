@@ -1493,58 +1493,13 @@ GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 	return input;
 }
 
-/*******************************************************************************
-    actK — THE ACTION TAIL SHIM. 2026-08-12, the full-monty rung.
-
-    Third of the litK/parseRK family and the same convention: ZERO information
-    from the body. The body says "and now the rule's action runs"; the frame
-    supplies WHICH rule and WHICH label, exactly as it supplies position and
-    mark for the other two.
-
-    ⚠ WHY A SHIM AT ALL, WHEN THE BODY COULD "JUST CALL aCTionBraced()".
-    Measured 2026-08-12, both spellings, and both are unsound:
-      · a BARE extern call from a kant body does not dispatch, and the negative
-        control settles it -- aCTionNOSUCHatALL() behaves identically, exit 0,
-        no diagnostic. There is no "it worked" to observe.
-      · REGISTERED as a command it does dispatch, and then reports TRUE in an
-        AND chain whatever the action did, because aCTionBraced hands back a
-        clear()ed node and the AND contract reads a present non-numeric node as
-        true. Bare `if` on the same call reads FALSE. One call, two readings --
-        the bare-if truthiness fork, filed UNRULED in the 08-11 seal, landing
-        on the tail spelling.
-      · and underneath both: the action wants the LABEL, and the body holds no
-        node by convention. aCTionBraced's first statement is input.clear(), so
-        a bare call CLEARS THE WRONG NODE (bear-trap #22's family).
-
-    ⚠ THE VERDICT IS THE SHIM'S, NEVER THE ACTION'S RETURN. That is the whole
-    point of the third bullet above. A datumless return is aCTionBraced doing
-    its job correctly -- it is not a failure, and it must not become a
-    TRUE-by-presence either. So: dispatch happened => trueResult. Full stop.
-
-    ⚠ AND THE FAILURE IS LOUD, because the negative control showed this exact
-    family failing SILENTLY. A missing symbol REFUSES and says which name it
-    looked for. Refuse, never substitute.
-
-    ROUTE: dlsym at call time rather than a pointer stashed at mint. Priced
-    2026-08-12: the stash would need actK to find the mint anyway, so it is not
-    obviously cheaper; it adds a field whose only reader is this function; and
-    step 2 (the kant body inlining the action) DELETES the question entirely.
-    Cheap-to-remove beat cheap-to-run. If anyone ever measures a dlsym per
-    bracket as hot, the stash is a local change with no callers to update.
-
-    NOTE FOR STEP 2, recorded rather than assumed: the C++ arm's
-    fireLabelMethod does `stuff.label = method(stuff.label)` and FAILS the rule
-    when the action answers null. This shim does neither. For aCTionBraced the
-    assignment is identity -- it mutates and returns the SAME node -- so the
-    arms agree here; that is a Braced-specific equivalence and NOT a general
-    one. A rule whose action returns a different node, or null, will need this
-    revisited.
-
-    ⚠ THE ARGUMENT IS DECLARED AND IGNORED, deliberately. traceParse is the
-    proven precedent for an extern that is called both as `traceParse('on')`
-    and as `traceParse()`; a zero-parameter incant command is untested here and
-    this rung is not the place to test it.
-*******************************************************************************/
+// actionTailShim  actK is the action tail shim: the body carries ZERO information and the frame supplies which rule and which label, as it does position and mark for litK/parseRK
+// shimRoute  resolves by dlsym at CALL time, not from a pointer stashed at mint -- cheap-to-remove beat cheap-to-run, and step 2 deletes the question
+/*  ⚠ THE VERDICT IS THE SHIM'S, NEVER THE ACTION'S RETURN. Dispatch happened
+    => trueResult, full stop. A datumless return is aCTionBraced doing its job
+    correctly; it is not a failure and it must not become a TRUE-by-presence
+    either. A missing symbol REFUSES and names what it looked for -- refuse,
+    never substitute, because this family was measured failing SILENTLY.  */
 extern "C" GroupItem *actK(GroupItem *ignored)
 {
 GroupItem 	*label = 0;
@@ -7239,49 +7194,12 @@ extern "C" int jitUnboxCount(GroupItem *node)
 	
 }
 
-/*******************************************************************************
-    kantDoor — THE THREE DUTIES, lifted out of aCTionDefinE so the hunk there
-    is three lines and the revert is one. 2026-08-12, the full-monty rung.
-
-        mint kp<Tag>  ·  hang the CodE on it  ·  rStuff.parseMethod = parseViaKant
-
-    ⚠ TWO THINGS THE ORDER'S SKELETON DOES NOT COVER, both measured, both
-    load-bearing. Read these before editing.
-
-    (1) THE isCoded ARM CANNOT SIT UNDER `!isMethod`, WHICH IS WHERE THE
-        dlsym LINE LIVES. Braced already carries isMethod from its ORIGINAL
-        definition in incant/grammar (dlsym found aCTionBraced then), so on the
-        parseCode re-definition that guard is FALSE and the whole block is
-        skipped. That is exactly the M1b measurement of 2026-08-12 -- code{} on
-        a Grokking rule with a C++ action is silently inert -- and the mechanism
-        is this guard. So the caller tests isCoded ABOVE `!isMethod`, and
-        `!isMethod` stays on the dlsym arm only, unchanged for everyone else.
-
-    (2) "THE METHOD SLOT STAYS EMPTY" REQUIRES AN ACTIVE CLEAR, NOT MERELY NOT
-        BINDING. Braced arrives here with gMethod ALREADY set to aCTionBraced.
-        Left alone, :1230's fireLabelMethod fires it AND actK fires it -- the
-        double fire the order says is prevented by construction. So the door
-        clears gMethod / isMethod / immediateACTION, which is what actually
-        starves :1230.
-
-    ⚠ AND THE SCOPING IS A REAL CONDITIONAL, NOT AN ORDERING CONSEQUENCE. The
-    order says scoping falls out of ordering with no new conditionals. That
-    holds for the C++ population (aCTionIF, aCTionFOR ... are not coded, so
-    they take the else-arm untouched) but NOT for the CODED NON-GRAMMAR
-    population, which the 2026-08-12 census measured at five: list x2,
-    JSONfield, JSONarray, DelimOver -- and two of those are in incant/utilities,
-    which every fixture preamble includes. A bare `if isCoded` would take all
-    five through the kant door and break jsonTest. The caller therefore keeps
-    the RATIFIED test -- registry.isRule, true only for Grokking
-    (GroupMain.twk:16, the only live site) -- exactly as specced on 08-12.
-
-    BOUNDS: the highest term position the body names, against the live term
-    count. Scanned from the CodE text here because there is no parseTerms
-    declaration to read -- Tony struck it. Note this is the EARLIER of two
-    checks, not the only one: litK/parseRK already refuse loudly at call time
-    naming the position, and that one cannot be bypassed. This one fails at
-    DEFINITION, before any parse happens.
-*******************************************************************************/
+// kantDoorDuties  kantDoor's three duties, lifted out of aCTionDefinE so the hunk there is three lines and the revert is one: mint kp<Tag>, hang the CodE on it, set rStuff.parseMethod = parseViaKant
+// kantDoorGuards  two measured hazards the skeleton does not cover -- where the isCoded test must sit, and why scoping is a real conditional
+/*  ⚠ THE DOOR CLEARS gMethod / isMethod / immediateACTION. "The method slot
+    stays empty" needs an ACTIVE CLEAR, not merely not binding -- Braced
+    arrives with gMethod already set, and left alone fireLabelMethod fires it
+    AND actK fires it. This clear is what starves the C++ arm.  */
 extern "C" int kantDoor(GroupItem *rule, GroupItem *code)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -7636,41 +7554,10 @@ GroupItem 	*notifyList = 0;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/*******************************************************************************
-    litK / parseRK — THE KANT-CALLABLE SHIMS. SEQ 54, step 2.
-
-    ⚠ BOTH TAKE A TERM POSITION -- ONE ARGUMENT -- AND THE :scope MULTI-ARG
-    IDIOM PRICED IN docs/kantShims.md §4 IS NOT NEEDED AT ALL. Measurements,
-    not concessions:
-
-      A KANT BODY CANNOT INDEX A RULE'S TERMS. `argument[1]` in an action body
-      does not reach term 1; measured 2026-08-11, the shim received a node
-      whose tag was the COMMAND NAME and dutifully tried to match the literal
-      "litK". Bear-trap #26's family -- a plausible string where a node was
-      wanted. So the position is passed as a number and the FRAME does the
-      indexing, in C++, where `rule[1]` is `rule->get(1)` and works.
-      ⚠ This made the convention CLEANER rather than costing something: the
-      body now names a term BY POSITION and holds no node at all.
-
-      lit(field,str) uses `field` ONLY for its trace line -- the match runs off
-      `str`. And for a noLabel literal term the TERM'S OWN TAG *IS* the literal:
-      the 2026-08-05 narration reads `lit " [ " at term [`. So litK derives the
-      literal from the same place the C++ emitter bakes it from, and a second
-      argument would only be a chance for the two to disagree.
-
-      parseR(term,into)'s `into` is the label to attach under, which door (a)
-      makes FRAME-OWNED. The body says what to parse; the frame says where it
-      goes.
-
-    So the convention this establishes is stronger than "one argument fits":
-    A KANT BODY NAMES A TERM AND NOTHING ELSE. Everything else -- position,
-    label, invariant -- belongs to the frame, which is SEQ 54 item 3's standing
-    convention expressed as a signature.
-
-    ⚠ RETURN CONTRACT IS truthOf's, deliberately: non-null for success, null
+// kantBodyNamesTerm  litK/parseRK take a term POSITION, one argument: a kant body names a term and nothing else, and position, label and invariant all belong to the frame
+/*  ⚠ RETURN CONTRACT IS truthOf's, deliberately: non-null for success, null
     for failure, so an AND chain short-circuits on exactly the same contract
-    both engines already share. No new notion of truth enters with the parser.
-*******************************************************************************/
+    both engines already share. No new notion of truth enters with the parser.  */
 extern "C" GroupItem *litK(GroupItem *idx)
 {
 GroupItem 	*term = 0;
@@ -7691,43 +7578,8 @@ int 		n = 0;
 	return 0;
 }
 
-/*******************************************************************************
-    litToK -- THE LABELLED LITERAL'S KANT SHIM. litK's twin, and the rung the
-    kant generator stopped at (incant/fixits/kantGenPath, minted 2026-08-24).
-
-    ⚠ TWO DERIVATIONS OF THE SLOT, NOT ONE, AND THAT IS THE FINDING THE CITIZEN
-    ASKED FOR. The candidate was graded BEST GUESS on exactly one open judgement
-    -- "is `term.tag` always the right slot" -- and the naive answer, yes-always,
-    is WRONG on the very rule the citizen drives:
-
-      at >= 1   a TERM position.  slot is `term.tag`   (planTerm, the `slot`
-                mint beside the LITTO node)
-      at == 0   THE ZERO-MEANS-SELF MARKER. There is no term -- `rule[0]` names
-                nothing -- and the slot is `rule.tag`, the literal `rule.text`
-                (planRule's `if literal` block)
-
-    `break`, the citizen's subject, plans at 0. So a one-argument litToK that
-    resolved through `gKantRule->get(n)` unconditionally would have refused the
-    subject while looking correct on every term-position specimen.
-
-    IT STILL TAKES ONE ARGUMENT, which is the convention litK's header states as
-    a law -- A KANT BODY NAMES A TERM AND NOTHING ELSE -- because both slots are
-    derivable from the index once the FRAME is consulted, and the frame already
-    holds the rule. Zero-means-self is the landed convention of 2026-08-24
-    (rule-ladder rung two), stated at the emit site in emitPlan; this is its
-    first reader on the kant side.
-
-    `into` is `gKantLabel`, read exactly as parseRK and optRK read it -- the
-    body says what to match, the frame says where it goes.
-
-    ⚠ THE LITERAL FOR A TERM POSITION IS `term.tag`, COPIED FROM litK RATHER
-    THAN FROM emitLeaf, DELIBERATELY. emitLeaf bakes `node.text`, which planTerm
-    sets to `term.text` when the term carries string data and to `term.tag` when
-    it does not. litK has always used `term.tag` for both. That divergence is
-    litK's, it predates this function, and making the twin disagree with its
-    sibling would hide it rather than fix it. Captured as a row in docs/fixIts.md
-    the day this landed; it is NOT repaired here.
-*******************************************************************************/
+// zeroMeansSelf  litToK is litK's labelled twin: at >= 1 the slot is term.tag, at == 0 there is NO term and the slot is rule.tag -- `break` plans at 0, so an unconditional rule[n] would refuse the very subject the citizen drives
+// tagDivergence  the term-position literal is term.tag, copied from litK not emitLeaf; the divergence is litK's, predates this, and is a docs/fixIts.md row rather than a repair here
 extern "C" GroupItem *litToK(GroupItem *idx)
 {
 GroupItem 	*into = 0;
