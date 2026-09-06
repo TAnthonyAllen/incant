@@ -10567,9 +10567,8 @@ RuleStuff 	*ruleStuff = pMethod->getRStuff();
 	return 0;
 }
 
-//  binds a compiled parse to rStuff.parseMethod. ⚠ definingRule(), NOT parent --
-//  a cross-file re-definition binds a satellite the reader never looks at
-//                                                    genParse.parseRuleMethod
+// parseRuleMethod  binds a compiled parse to rStuff.parseMethod. ⚠ definingRule(),
+// NOT parent -- a cross-file re-definition binds a satellite the reader never looks at
 extern "C" GroupItem *parseRuleMethod(GroupItem *input)
 {
 char 		*name = input->getText();

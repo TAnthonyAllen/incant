@@ -1568,9 +1568,8 @@ int         n;
 }
 
 
-//  binds a compiled parse to rStuff.parseMethod. ⚠ definingRule(), NOT parent --
-//  a cross-file re-definition binds a satellite the reader never looks at
-//                                                    genParse.parseRuleMethod
+// parseRuleMethod  binds a compiled parse to rStuff.parseMethod. ⚠ definingRule(),
+// NOT parent -- a cross-file re-definition binds a satellite the reader never looks at
 extern GroupItem parseRuleMethod(GroupItem input)
 {
 String      name = text;
