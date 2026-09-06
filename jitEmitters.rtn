@@ -790,33 +790,19 @@ extern GroupItem jitEmitCompare(GroupItem argument,GroupItem target,int op)
 }
 
 
-/* jitEmitContinue  `continue`, EMITTED. Work item 2 of the convergence rung.
+/*******************************************************************************
+    jitEmitContinue -- `continue`, EMITTED. Work item 2 of the convergence rung.
+    Returns 0 when there is no enclosing loop, so a stray continue cannot
+    silently branch to whatever happens to be on the stack.
 
-   THE GAP IT CLOSES: there was no continue emitter at all. In the displayForm
-   dump `continue` APPEARED to work -- both arms of the enclosing if fell
-   through to a block that branched to `cond`, which happens to be the back edge
-   -- and that is worse than a missing feature. A construct that is correct by
-   accident of topology stays correct exactly until the block structure moves,
-   and then fails somewhere else entirely.
+    ⚠ THE UNREACHABLE BLOCK AFTER THE BRANCH IS DELIBERATE. LLVM requires one
+    terminator per block and forbids code after it, so the builder parks in a
+    fresh block nothing branches to. Emitting the following statements into the
+    block just terminated would be INVALID IR.
 
-   THE TARGET IS THE LOOP'S CONDITION BLOCK, which the loop emitters already
-   maintain as a stack (gLoopCondBlocks), so nested loops get the INNERMOST one
-   for free -- the same rule the interpreter follows, where break and continue
-   are consumed by the innermost loop.
-
-   ⚠ A `do` LOOP'S CONTINUE GOES TO ITS COND TOO, not to its body. That matches
-   the interpreter: a do re-tests before repeating. The two loop shapes differ in
-   where they ENTER, not in where a continue lands, and gLoopCondBlocks holds the
-   right block for both.
-
-   ⚠ THE UNREACHABLE BLOCK IS DELIBERATE. LLVM requires a terminator per block
-   and forbids code after one, so after the branch the builder is parked in a
-   fresh block that nothing branches to. It is dead by construction and the
-   optimiser drops it; emitting the following statements into the block we just
-   terminated would be INVALID IR, which the verifier would refuse -- correctly.
-
-   Returns 0 when there is no enclosing loop, so a stray continue cannot silently
-   emit a branch to whatever happens to be on the stack. */
+    // correctByAccident  why it looked like it already worked, and why that is worse than a missing feature
+    // innermostLoop  the gLoopCondBlocks stack, and where a `do` loop's continue lands
+*******************************************************************************/
 extern int jitEmitContinue()
 {
     -%
@@ -2147,34 +2133,18 @@ extern void jitInitOnce()
 }
 
 
-/*  jitInlinePop  CLOSE THE INLINED REGION -- and, if any return branched out of
-    it, land the builder on the region's own exit with the callee's value in hand.
+/*******************************************************************************
+    jitInlinePop -- CLOSE THE INLINED REGION, and if any return branched out of
+    it, land the builder on the region's own exit with the callee's value in
+    hand.
 
-    ⚠ THE `used` ARM IS THE ONLY BEHAVIOUR CHANGE E2 MAKES TO AN EXISTING GREEN
-    PATH, AND IT IS GATED SO THERE IS NO CHANGE AT ALL WHEN NO RETURN FIRED.
-    A callee without a return leaves `used` false: the unparented block is deleted,
-    the builder is untouched, and the IR is what it was yesterday.
+    ⚠ IT TAKES `resultNode` BECAUSE gJitResult IS NOT THE CHANNEL THE CALLER
+    READS. An enclosing assignment reads its operand's jitData->jitValue, so
+    the merged value must be STAMPED on the node, not left in the global.
 
-    ⚠ THE LOAD IS NOT TIDINESS -- IT IS THE VALUE CHANNEL BECOMING EXPLICIT.
-    Until now an inlined callee's value reached its caller by ACCIDENT: the return
-    degraded before jitEmitReturn's `gJitResult = nullptr`, so the last statement's
-    value was left dangling in flight and the caller picked it up. That is
-    one-channel-one-meaning in its purest form -- gJitResult meaning both "the value
-    in flight" and "the callee's answer" -- and it is exactly why a TAIL return
-    looked fine while a mid-body one did not. Now every return stores to the slot
-    and branches; the merge point loads it once, deliberately.
-
-    ⚠⚠ AND IT TAKES `resultNode` BECAUSE gJitResult IS NOT THE CHANNEL THE CALLER
-    ACTUALLY READS -- measured, from the IR, after assuming otherwise and being
-    wrong. An enclosing assignment reads its operand's `jitData->jitValue`
-    (jitEmitAssign), and runAction's operand IS the node processAction returned.
-    Setting only gJitResult produced a MERGE THAT WAS CORRECT AND IGNORED: the
-    dump showed `%inlineRet = load %result` sitting unused one line above
-    `store %unbox3` -- the last statement's value stored on BOTH paths, and a
-    dominance violation as the early-return arm carried it out of its block.
-    So the merged value is STAMPED, the same way jitEmitRem stamps its result
-    node, and registered in gJitSeeded so it is cleared with every other seed at
-    the end of the build.  */
+    // returnedValueChannel  how the value used to arrive by accident, and the IR dump that corrected the assumption
+    // gatedNoChange  why a callee with no return emits byte-identical IR, which is the H7 obligation
+*******************************************************************************/
 extern void jitInlinePop(GroupItem resultNode)
 {
     -%
@@ -3318,42 +3288,17 @@ extern GroupItem jitSeedLiteral(GroupItem token)
 }
 
 
-/* jitShowRecord  READ-ONLY. Print what is CORESIDENT on a field's canonical
-   node -- every attribute by name, with its size, INCLUDING the noPrint ones.
+/*******************************************************************************
+    jitShowRecord -- READ-ONLY. Print what is CORESIDENT on a field's canonical
+    node: every attribute by name, with its size, INCLUDING the noPrint ones.
 
-   WHY IT HAS TO EXIST AT ALL, and it is a consequence of a ruling rather than a
-   gap: the 2026-08-03 print ruling gives two forms from one walk, and `display`
-   -- today's behaviour and what listRules does -- ELIDES noPrint attributes.
-   CodE, BlocK and JiT are all noPrint, so the display walk shows a jitted field
-   as though nothing were attached to it. The `fidelity` form is the one that
-   would show them and it is blocked on Tony's aCTionDefinE prerequisite (it
-   never ATTACHES a noPrint attribute that has a method, so "stop deleting" is
-   not the edit -- "start attaching" is).
-   So this is NOT a second print family. It is one probe, for one claim: that
-   the spec text, the source, the parsed block and the compiled artifact are all
-   on the same node at the same time. When fidelity print lands it subsumes this
-   and this should go.
+    ⚠ NO printf LEFT-JUSTIFY FORMAT INSIDE THE PASSTHROUGH BELOW -- percent,
+    hyphen, width, s. It breaks the tok pass and surfaces three files away as
+    `use of undeclared identifier` in genParse.rtn. Bear-trap #40.
 
-   BEAR TRAP, MEASURED 2026-08-04 AND WITH A NEGATIVE CONTROL. A printf
-   left-justify format -- percent, hyphen, width, s -- ANYWHERE INSIDE a
-   passthrough block breaks the tok pass: extern canary 230 -> 226, ERROR
-   FieldBody 0 -> 76, surfacing three files away as `use of undeclared
-   identifier` inside genParse.rtn's dataName, which is merely the next extern
-   downstream of this file. Reproduced FOUR times: in the printf mid-file, in
-   the printf with this function moved to end-of-file (so it is not ordering),
-   and twice more from a C-style comment placed INSIDE the passthrough.
-   THE CONTROL: the identical characters in a tok-level comment OUTSIDE the
-   passthrough are harmless -- canary stayed 228. So the boundary is the
-   passthrough, not the file.
-   MECHANISM IS TONY'S, recorded rather than derived: a print argument is an
-   EXPRESSION, and when the expression is fired the sequence is fair game. My
-   own first reading -- that tok scans for two literal characters because it has
-   no lexer -- is WRONG and is named here only so nobody re-derives it.
-
-   PRESENCE-WITH-VALUE THROUGHOUT (H4): each line carries the attribute's own
-   byte count, so "JiT is there" and "JiT is there and holds 1111 bytes of IR"
-   are different assertions and only the second can fail by the artifact going
-   empty. Reports the total so a check cannot pass over an empty walk. */
+    // fidelityGap  why this exists as a probe rather than a print family, and the ruling that makes it temporary
+    // percentHyphenTrap  the four reproductions, the negative control, and Tony's mechanism for it
+*******************************************************************************/
 extern GroupItem jitShowRecord(GroupItem field)
 {
     -%

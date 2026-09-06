@@ -1037,6 +1037,96 @@ define
                 publishes a NODE, not a scalar, and the emitted store put that pointer into
                 the target's slot -- which is how starT's jitted road read 5560000 where the
                 interpreted road read LEAF. A pointer wearing the shape of data.#);
+            fidelityGap=(WHY jitShowRecord HAS TO EXIST AT ALL, and it is a consequence of a
+                ruling rather than a gap. The 2026-08-03 print ruling gives two forms from one
+                walk, and `display` -- today's behaviour, and what listRules does -- ELIDES
+                noPrint attributes. CodE, BlocK and JiT are ALL noPrint, so the display walk
+                shows a jitted field as though nothing were attached to it.
+
+                The `fidelity` form is the one that would show them, and it is blocked on Tony's
+                aCTionDefinE prerequisite (it never ATTACHES a noPrint attribute that has a
+                method, so "stop deleting" is not the edit -- "start attaching" is).
+
+                ⚠ SO THIS IS NOT A SECOND PRINT FAMILY. It is one probe for one claim: that the
+                spec text, the source, the parsed block and the compiled artifact are all on the
+                same node at the same time. WHEN FIDELITY PRINT LANDS IT SUBSUMES THIS AND THIS
+                SHOULD GO.
+
+                PRESENCE-WITH-VALUE THROUGHOUT (H4): each line carries the attribute's own byte
+                count, so "JiT is there" and "JiT is there and holds 1111 bytes of IR" are
+                different assertions and only the second can fail by the artifact going empty.
+                It reports the total so a check cannot pass over an empty walk.#):
+                CodeSite="jitEmitters.rtn:jitShowRecord";
+            percentHyphenTrap=(obituary: none -- this is a LIVE trap, measured 2026-08-04 with a
+                negative control, and it is why jitShowRecord's passthrough is written the way
+                it is.
+
+                A printf LEFT-JUSTIFY format -- percent, hyphen, width, s -- ANYWHERE INSIDE a
+                passthrough block breaks the tok pass: extern canary 230 -> 226, ERROR FieldBody
+                0 -> 76, surfacing THREE FILES AWAY as `use of undeclared identifier` inside
+                genParse.rtn's dataName, which is merely the next extern downstream.
+
+                Reproduced FOUR times: in the printf mid-file, in the printf with the function
+                moved to end-of-file (so it is not ordering), and twice more from a C-style
+                comment placed INSIDE the passthrough. ⚠ THE CONTROL: the identical characters
+                in a tok-level comment OUTSIDE the passthrough are harmless -- canary stayed 228.
+                So the boundary is THE PASSTHROUGH, not the file.
+
+                ⚠ MECHANISM IS TONY'S, recorded rather than derived: a print argument is an
+                EXPRESSION, and when the expression is fired the sequence is fair game. The first
+                reading -- that tok scans for two literal characters because it has no lexer --
+                is WRONG and is named here only so nobody re-derives it. This is bear-trap #40.#):
+                CodeSite="jitEmitters.rtn:jitShowRecord";
+            correctByAccident=(THE GAP jitEmitContinue CLOSES: there was NO continue emitter at
+                all. In the displayForm dump `continue` APPEARED to work -- both arms of the
+                enclosing if fell through to a block that branched to `cond`, which happens to be
+                the back edge.
+
+                ⚠ THAT IS WORSE THAN A MISSING FEATURE. A construct that is correct BY ACCIDENT
+                OF TOPOLOGY stays correct exactly until the block structure moves, and then fails
+                somewhere else entirely.#):
+                CodeSite="jitEmitters.rtn:jitEmitContinue";
+            innermostLoop=(jitEmitContinue's TARGET IS THE LOOP'S CONDITION BLOCK, which the loop
+                emitters already maintain as a stack (gLoopCondBlocks), so nested loops get the
+                INNERMOST one for free -- the same rule the interpreter follows, where break and
+                continue are consumed by the innermost loop.
+
+                ⚠ A `do` LOOP'S CONTINUE GOES TO ITS COND TOO, not to its body. That matches the
+                interpreter: a do RE-TESTS before repeating. The two loop shapes differ in where
+                they ENTER, not in where a continue lands, and gLoopCondBlocks holds the right
+                block for both.
+
+                It returns 0 when there is no enclosing loop, so a stray continue cannot silently
+                emit a branch to whatever happens to be on the stack.#):
+                CodeSite="jitEmitters.rtn:jitEmitContinue";
+            returnedValueChannel=(THE LOAD IN jitInlinePop IS NOT TIDINESS -- IT IS THE VALUE
+                CHANNEL BECOMING EXPLICIT.
+
+                Until E2 an inlined callee's value reached its caller BY ACCIDENT: the return
+                degraded before jitEmitReturn's `gJitResult = nullptr`, so the last statement's
+                value was left dangling in flight and the caller picked it up. That is
+                one-channel-one-meaning in its purest form -- gJitResult meaning both "the value
+                in flight" and "the callee's answer" -- and it is exactly why a TAIL return
+                looked fine while a mid-body one did not. Now every return stores to the slot and
+                branches; the merge point loads it once, deliberately.
+
+                ⚠⚠ AND IT TAKES `resultNode` BECAUSE gJitResult IS NOT THE CHANNEL THE CALLER
+                ACTUALLY READS -- measured, from the IR, after assuming otherwise and being
+                wrong. An enclosing assignment reads its operand's `jitData->jitValue`
+                (jitEmitAssign), and runAction's operand IS the node processAction returned.
+                Setting only gJitResult produced A MERGE THAT WAS CORRECT AND IGNORED: the dump
+                showed `%inlineRet = load %result` sitting unused one line above `store %unbox3`
+                -- the last statement's value stored on BOTH paths, and a dominance violation as
+                the early-return arm carried it out of its block. So the merged value is STAMPED,
+                the way jitEmitRem stamps its result node, and registered in gJitSeeded so it is
+                cleared with every other seed at the end of the build.#):
+                CodeSite="jitEmitters.rtn:jitInlinePop";
+            gatedNoChange=(THE `used` ARM IS THE ONLY BEHAVIOUR CHANGE E2 MAKES TO AN EXISTING
+                GREEN PATH, AND IT IS GATED SO THERE IS NO CHANGE AT ALL WHEN NO RETURN FIRED. A
+                callee without a return leaves `used` false: the unparented block is deleted, the
+                builder is untouched, and the IR is what it was the day before. That is the H7
+                obligation JitInlineFrame was built to satisfy.#):
+                CodeSite="jitEmitters.rtn:jitInlinePop";
             iterateGapClosed=(jitEmitIterate -- THE ITERATOR SETUP, EMITTED. Work item 1 of
                 the convergence rung, 2026-08-04.
 
