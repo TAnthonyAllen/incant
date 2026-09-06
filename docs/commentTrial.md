@@ -218,13 +218,27 @@ The fourth finding said *prose rots by POSITION, and the register cannot*, on on
 | `emitLeaf`, 14 lines | `emitLeaf` (line 396) | above `locateManier` (line 975) | **579 lines** |
 | `emitMany`, 31 lines | `emitMany` (line 444) | above `locateManier` (line 989) | **545 lines** |
 | `dumpSpellings`, 23 lines | `dumpSpellings` (line 367) | above `kantLeaf` (line 808) | **441 lines** |
+| `showParse`, 28 lines | `showParse` | above `ruleNameArg` | **99 lines** |
+| `spellKant`, 15 lines | `spellKant` | **AFTER** its own method | 16 lines |
+| `recordParse`, 20 lines | `recordParse` | **AFTER** its own method | 79 lines |
+| **`genParse`, 15 lines** | `genParse` (line 624) | line 1741, **AFTER** its method | **1117 lines** |
 
-⚠ **UPDATED TWICE AS THE SWEEP WENT ON — SIX, NOT THREE, IN ONE FILE.** `emitLeaf` and
+⚠ **UPDATED THREE TIMES AS THE SWEEP WENT ON — TEN, NOT THREE, IN ONE FILE.** `emitLeaf` and
 `emitMany` were found stacked TOGETHER above a third method's link line, which is the shape to
 recognise: **drifted blocks accumulate at whatever declaration they were last sorted against**,
 so finding one is a reason to look immediately above and below it rather than to move on.
-**That prediction was then confirmed the next stroke**: `dumpSpellings` turned up stacked above
-`kantLeaf`'s link line, 441 lines from its method, exactly where the rule said to look.
+**That prediction was then confirmed twice**: `dumpSpellings` turned up stacked above `kantLeaf`'s
+link line, and `genParse` / `showParse` / `recordParse` turned up stacked THREE DEEP above
+`ruleNameArg`'s.
+
+⚠ **AND FOUR OF THE TEN SIT *AFTER* THE METHOD THEY DOCUMENT**, which reading cannot survive at
+all: a header below its own function reads as the header of the NEXT one. `genParse`'s own header
+was **1117 lines past** `genParse`, describing the two-pass design to a reader standing over
+`ruleNameArg`.
+
+⚠ **THE FINAL COUNT IS THE ARGUMENT. TEN HEADERS IN ONE 2900-LINE FILE WERE DOCUMENTING THE WRONG
+FUNCTION**, and the file was in daily use throughout. Nobody was careless; prose simply has no
+mechanism that objects when it ends up in the wrong place, and a `File.method` key does.
 
 **The file began with `activateAll` and no header whatever.** Anyone opening `genParse.rtn` — to
 learn what it is, or to be warned about the three tok traps that each cost a build cycle — saw
