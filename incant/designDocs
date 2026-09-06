@@ -1535,6 +1535,27 @@ define
                 with its sibling would hide it rather than fix it. Captured as a row in
                 docs/fixIts.md the day litToK landed; it is NOT repaired there.#):
                 CodeSite="genParse.rtn:litToK";
+            tagAsDataFallback=(THE TAG-AS-DATA FALLBACK in planRule, added 2026-08-24 (rung
+                one of the rule ladder). A literal-valued rule legitimately has NO terms --
+                its data IS its content -- so the no-terms refusal must not fire on it.
+
+                AND A RULE WITH NO TERMS AND NO DATA IS NOT DEGENERATE: its match content
+                lives in a channel this planner never read. Measured -- for DEFINing and
+                `break` every readable channel is empty (listLength 0, data 0, no attributes,
+                no members) and only `text` answers, carrying the rule's own TAG. That is
+                bear-trap #26's fallback doing real work: a field with no data reads back as
+                its name, and for these rules the name IS the token to match.
+
+                So the rule's own tag is planned as its literal, through the SAME LIT/LITTO
+                block the data-carrying case already uses -- no second mechanism, and
+                `node.text = rule.text` picks the tag up by that same fallback.
+
+                ⚠ THE NO-TERMS REFUSAL STAYS REACHABLE ON PURPOSE and is not dead code. It
+                still fires for a no-terms rule with no rStuff, because LIT vs LITTO is
+                undecidable without it -- exactly the reason the data-carrying path refuses
+                one line above. A rule whose tag-fallback also comes up empty must refuse LOUD
+                rather than emit a match on nothing.#):
+                CodeSite="genParse.rtn:planRule";
             ruleLevelLiteral=(GAP B FAMILY B -- RULE-LEVEL LITERAL. Phase R rung 1,
                 2026-08-09. The charter's smallest family with a fully-known treatment:
                 SemI=";", loopOnAttributes="attributes", loopOnMembers="members". A rule whose
@@ -1606,6 +1627,90 @@ define
                 THE COST, STATED SO IT IS NOT A SURPRISE: a bug can now live in the walk, the
                 plan, or the emitter. The mitigation is that a plan is PRINTABLE and an
                 intermediate visitor state is not.#):
+                CodeSite="genParse.rtn:planTerm";
+            leafIsTarget=(emitLeaf -- one PLAN node -> one leaf expression string.
+                EVERYTHING HERE IS ABOUT THE TARGET AND NOTHING ABOUT THE RULE: which support
+                function spells a decision the walk already made, and how a literal is quoted.
+                The walk decided LIT vs LITTO ("does this attach a label"); this decides that a
+                LITTO inside a SEQ is spelled litTo. The same plan handed to a kant emitter
+                produces different text and the same decisions -- which is the whole reason the
+                seam exists.
+
+                NOTE, latent: litTo has no implementation in the support library. It never
+                fires on the ladder (every Scaf/ScafA/ScafB term is noLabel). Flagged rather
+                than silently carried.#):
+                CodeSite="genParse.rtn:emitLeaf";
+            emitManyInvariantR=(emitMany -- the repetition helper, one per repeated term
+                (§3.3), and THIS IS WHERE INVARIANT R-PRIME LIVES. Both clauses are properties
+                of the emitted loop rather than promises made about it:
+
+                  MARK  -- `from` is captured ONCE, at helper entry, and the rewind on a short
+                           run goes back to THERE. The interpretive path cannot do this:
+                           checkInput() reassigns hereAt at the top of every iteration
+                           (RuleStuff.twk:125) and the rewind targets hereAt
+                           (GroupItem.twk:1101), so after N passes it points at the start of
+                           pass N. A min >= 2 term that matches once then fails strands the
+                           first match. The generated loop is correct for every min/max.
+
+                  LABEL -- each pass calls parseR, which goes through parse() and builds a
+                           FRESH label. Nothing here reads or writes fLAG, so parse()'s
+                           `isGROUP && max > 1` recycling handshake (writer
+                           GroupItem.twk:1087, reader RuleStuff.twk:141-144) is simply absent.
+                           R-prime says do not invent one.
+
+                A failing pass rewinds ITSELF (Invariant R in the callee's leaveRule), so the
+                helper never has to unwind a partial pass -- it only has to give back the whole
+                run when the count is short. R and R-prime COMPOSE; neither duplicates the
+                other.
+
+                min is baked as a literal. max is NOT bounded, matching the hand-written
+                manyJSONblockFields / manyJSONlistItems: every repeated term in the census is
+                unbounded (sentinel 268435457), so a bound would be dead code emitted at every
+                site. Revisit when a finite max first appears -- the plan carries what is
+                needed.#):
+                CodeSite="genParse.rtn:emitMany";
+            containerFirst=(CONTAINER FIRST, AND THAT ORDER IS THE CLASSIFICATION. A bin
+                term is ALSO a reference -- UnaryOPS is defined in pROPERTIEs and referenced
+                in UnaryXP -- so testing the reference first would plan it as a CALL and emit
+                parseR against a container that is not a rule.
+
+                A container matches longest-entry-first and DEPOSITS THE MATCHED ENTRY; that
+                is a different consumption from every other kind on the ladder, which is why
+                it is a kind and not a literal with a set. Measured on the specimen:
+                noLabel=0, min=1, max=1. A noLabel container has no spelling yet and refuses
+                rather than guessing at one.#):
+                CodeSite="genParse.rtn:planTerm";
+            labelledLiteralRepr=(THE LABELLED-LITERAL REPRESENTATION. Tony's ruling via Clay,
+                2026-08-16. A literal term now carries its spelling as CHARACTER DATA, so
+                planTerm's data arm -- which used to be a pure refusal -- classifies it
+                instead.
+
+                WHAT MOVED IS THE REPRESENTATION, NOT A FLAG. aCTionDefinE used to substitute
+                a literal term with a fresh node TAGGED with the spelling and carrying no
+                data. That branch is gone, the term itself is attached, and aCTionTraiT now
+                sets the spelling as CONTENT. So the spelling left the tag and lives in the
+                data, and every literal fell into the refusal, which is why the whole Scaf
+                family reported no plan.
+
+                ⚠ KEYED TO THE REPRESENTATION, NEVER TO isLiteral. That flag does not survive
+                rStuff duplication or the TraiTdata handoff into TraiT. Tony observed it
+                directly and the census is in docs/gateCensus.md §B0-2. It LIES at exactly the
+                read sites that matter, so the material signature is what is tested.
+
+                THE MEASURED SPLIT, from incant/litProbe beside countScratch's bare Ladder
+                rules: both halves carry isSTRING data and noLabel is the ONLY discriminator,
+                which is why LIT versus LITTO needs no new test. A labelled literal is tagged
+                with its LABEL and has noLabel clear; a bare one is tagged with the generic
+                container name and has noLabel set. Because that bare tag is now generic,
+                sourcing the spelling from the tag would emit the CONTAINER NAME as the
+                literal -- it comes from the data instead.
+
+                AND THE FIREWALL KEEPS ITS TEETH: isSTRING only, mirroring ruleLevelLiteral,
+                which records the same restriction and the same reason. The other kinds still
+                refuse, isGROUP above all, since the genuine inline-group construct is what
+                that refusal was written for. isCHAR stays out because it carries sub-fields.
+                Reading the text is guarded by `data`, which is bear-trap #26 exactly: a
+                dataless field answers with its own tag.#):
                 CodeSite="genParse.rtn:planTerm";
             positiveTestOnly=(EVERY PLAN NODE COMES FROM A POSITIVE TEST, and an unclassified
                 term is a REFUSAL, never a default. This is the ruling the §1 census forced,

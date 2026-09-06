@@ -215,6 +215,13 @@ The fourth finding said *prose rots by POSITION, and the register cannot*, on on
 | `parseRuleMethod`, ~50 lines | `parseRuleMethod` | above `parseTermCount` | **234 lines** |
 | `dumpRuleTerms`, 34 lines | `dumpRuleTerms` (line 319) | above `locateRule` (line 1115) | **~800 lines** |
 | **the FILE header**, 32 lines | `genParse.rtn` itself | line **1012**, between `kantLeaf` and `locateRule` | **~1000 lines, and not at the top at all** |
+| `emitLeaf`, 14 lines | `emitLeaf` (line 396) | above `locateManier` (line 975) | **579 lines** |
+| `emitMany`, 31 lines | `emitMany` (line 444) | above `locateManier` (line 989) | **545 lines** |
+
+⚠ **UPDATED 2026-09-06 AS THE SWEEP WENT ON — FIVE, NOT THREE, IN ONE FILE.** `emitLeaf` and
+`emitMany` were found stacked TOGETHER above a third method's link line, which is the shape to
+recognise: **drifted blocks accumulate at whatever declaration they were last sorted against**,
+so finding one is a reason to look immediately above and below it rather than to move on.
 
 **The file began with `activateAll` and no header whatever.** Anyone opening `genParse.rtn` — to
 learn what it is, or to be warned about the three tok traps that each cost a build cycle — saw
