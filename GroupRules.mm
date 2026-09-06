@@ -755,96 +755,54 @@ extern "C" GroupItem *aCTionIterate(GroupItem *input)
 GroupItem 	*attributes = input->getLabelGroup("attributes");
 GroupItem 	*members = input->getLabelGroup("members");
 GroupItem 	*IterSource = input->getLabelGroup("IterSource");
-GroupItem 	*iterator = input->get(1);
+GroupItem 	*iterator = ::unWrap(input->get(1));
 GroupItem 	*source = 0;
-	/*  SEQ 148 -- the source is reached BY LABEL, never by position, because
-	the modifiers now precede `on` and IterSource sits at 2, 3 or 4.
-	ruleActions.aCTionIterate.iterSource  */
-	
-	if ( iterator && isGROUP(iterator->groupBody->flags.data) )
-	iterator = iterator->getGroup();
+	// You cannot get here without an iterator, the rule stipulates it
 	if ( IterSource )
-	{
-	GroupItem *srcOp = IterSource->getLabelGroup("UnaryOPS");
-	source = srcOp ? IterSource->get(2) : IterSource->get(1);
-	if ( source && isGROUP(source->groupBody->flags.data) )
-	source = source->getGroup();
-	if ( srcOp )
-	{
-	if ( ::compare(srcOp->groupBody->tag,"*") == 0 )
-	source = ::opDeref(source);
-	else
-	{
-	::refuse(source,(char*)"iterate: only * may precede the source");
-	source = 0;
-	}
-	}
-	}
-	// nullAfterStar  THE CONSUMER OF THE NULL REFUSES (Tony's STAR ruling,
-	// 2026-09-05). This arm used to be SILENT because the star had already
-	// spoken; under STAR the star yields null quietly, so if this stays silent
-	// NOTHING speaks and the enclosing ++ runs away -- measured, f31 back to
-	// exit 142 on four lines of output. It now refuses BY NAME, and the name is
-	// the right one: the writer typed an iterate, not a deref.
-	// The cursor poison STAYS -- it is belt and braces, and it is what stopped
-	// the runaway before there was an arm at all.
+		{
+		// SOURCE REACHED BY LABEL, NEVER BY POSITION
+		GroupItem *srcOp = IterSource->getLabelGroup("UnaryOPS");
+		if ( source = srcOp ? IterSource->get(2) : IterSource->get(1) )
+			if ( isGROUP(source->groupBody->flags.data) )
+				source = source->getGroup();
+		if ( srcOp )
+			if ( ::compare(srcOp->groupBody->tag,"*") == 0 )
+				source = ::opDeref(source);
+			else	source = ::refuse(source,"iterate: only * may precede the source");
+		}
 	if ( !source )
-	{
-	if ( iterator ) iterator->groupBody->flags.fLAG = 1;
-	
-	::refuse(IterSource,"iterate: the source is nothing -- a star on a field that holds no group yields null");
-	
-	return 0;
-	}
-	// argument is a BINDING: an isArgument source yields what it holds, ahead of
-	// the holds-a-pointer refusal. Iterate reads input[1]/input[2] itself and
-	// never passes through runOP, so the rule is stated again here
-	// ArgBinding.ArgBindingSites
-	if ( source && source->groupBody->flags.isArgument && isGROUP(source->groupBody->flags.data) )
-	source = source->getGroup();
-	if ( source && isGROUP(source->groupBody->flags.data) )
-	{
-	{ char why[192];
-	::snprintf(why,sizeof(why),"iterate: it holds a pointer, not a list; write *%s",
-	source->groupBody->tag);
-	::refuse(source,why); }
-	if ( iterator ) iterator->groupBody->flags.fLAG = 1;
-	return 0;
-	}
-	
-	/*  ⚠ EMIT, THEN FALL THROUGH -- the only gate in the tree that does not
-	return, and deliberately so. The emit-time walk still needs the iterator
-	ESTABLISHED, because the enclosing `while ++grup` must take opPlusPlus's
-	iterator arm to reach jitEmitIterStep; gate-and-return would leave the
-	node un-flagged and the advance would emit against the DATA arm.
-	The emitted call re-establishes the iterator at RUN time, which is the
-	gap that made displayForm hang: the advance was emitted and the setup
-	was not, so the two lived at different times.  */
+		{
+		// nullAfterStar    THE CONSUMER OF THE NULL REFUSES
+		iterator->groupBody->flags.fLAG = 1;
+		return ::refuse(IterSource,"iterate: the source is nothing -- a star on a field that holds no group yields null");
+		}
+	else
+	if ( isGROUP(source->groupBody->flags.data) )
+		{
+		// argumentBINDING
+		if ( source->groupBody->flags.isArgument )
+			source = source->getGroup();
+		else {
+			char 	*why = ::concat(2,"iterate: it holds a pointer, not a list; write *",source->groupBody->tag);
+			iterator->groupBody->flags.fLAG = 1;
+			return ::refuse(source,why);
+			}
+		}
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
-		 jitEmitIterate(input); 
+		// emitThenFallThru -- the only gate in the tree that does not return, and deliberately so.
+		::jitEmitIterate(input);
 		}
-	// here iterator gets a copy of the source groupList
 	if ( iterator && source && source->groupBody->groupList )
 		{
+		// RESETiterator iterator gets a copy of the source groupList
 		iterator->groupBody->groupList = source->groupBody->groupList;
-		/*  THE RESET, and this is the only place it can live. The poison means
-		"the LAST iterate on this node was refused", so a fresh, successful
-		iterate is exactly what un-poisons it -- and under Tony's 2026-08-02
-		iterator design re-running the Iterate rule is the ONLY way to change
-		an iterator's source, so nothing can become live again behind this
-		line's back. Clearing anywhere else (at the advance, at action exit)
-		would either un-poison a still-refused iterator or leave a live one
-		poisoned.  */
 		iterator->groupBody->flags.fLAG = 0;
 		}
 	else {
-		// A REFUSED SOURCE IS ANNOUNCED ONCE AND POISONED -- the poison is the only thing
-		// between a refused iterate and an unbounded loop   ruleActions.aCTionIterate.refusedSource
-		if ( iterator )
-			iterator->groupBody->flags.fLAG = 1;
-		::refuse(source,"iterate: the source has no list");
-		return 0;
+		// refusedSource A REFUSED SOURCE IS ANNOUNCED AND POISONED -- the poison is only thing between a refused iterate and an unbounded loop
+		iterator->groupBody->flags.fLAG = 1;
+		return ::refuse(source,"iterate: the source has no list");
 		}
 	// attributes and members filter overloaded on hasAttributes and hasMembers
 	if ( attributes )
@@ -1969,7 +1927,7 @@ GroupItem 	*grup = 0;
 	would move the canary pin again for a message.  */
 	if ( !isCoded(field->groupBody->flags.actionType) )
 		{
-		return refuse(field,"compile: no compiled body");
+		return ::refuse(field,"compile: no compiled body");
 		}
 	/*  ⚠ COMPILE OWNS THE COMPILATION PRECONDITIONS, ENSURED IDEMPOTENTLY.
 	R-4, Tony's ruling 2026-08-17.
@@ -2026,7 +1984,7 @@ GroupItem 	*grup = 0;
 	sentences send you to different places.  */
 	if ( !code )
 		{
-		return refuse(field,"compile: isCoded is set but there is no CodE attribute; the flag and the artifact disagree");
+		return ::refuse(field,"compile: isCoded is set but there is no CodE attribute; the flag and the artifact disagree");
 		}
 	grup = 0;
 	while ( grup = field->next(grup) )
@@ -2085,7 +2043,7 @@ GroupItem 	*grup = 0;
 		
 		gCompileRefused++;
 		
-		return refuse(field,"compile: processCode would not parse the generated body; its message above names the position");
+		return ::refuse(field,"compile: processCode would not parse the generated body; its message above names the position");
 		}
 endCompile:
 	field->groupBody->flags.hasNewParse = 1;
@@ -13071,9 +13029,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( isREGISTRY(field->groupBody->flags.binType) )
 		return 0;
 	if ( !ruleStuff )
-		{
 		return ::refuse(field,"setParse: the field passed in has no rStuff");
-		}
 	if ( !ruleStuff->parseMethod )
 		{
 		/***********************************************************************

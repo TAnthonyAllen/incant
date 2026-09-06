@@ -1689,47 +1689,13 @@ define
         ruleActions=(is the rtn file holding the rule actions -- the methods a
                 grammar rule fires when it matches.#):
             aCTionIterate=(THE ITERATE STATEMENT'S ACTION.#):
-                nullAfterStar=(A REFUSED STAR YIELDS NULL, AND EVERYTHING BELOW IT
-                    WOULD HAVE DEREFERENCED THAT NULL. Measured at exit 139 on
-                    2026-09-03, SEQ 152 row B2-2, by the fixture written to drive
-                    the star idiom rather than by anything looking for a crash.
-                    opDeref returns null and announces by text when its operand
-                    holds no group, so `iterate cur on *x` where x holds nothing
-                    arrives with a null source. TWO things then break on it: unWrap
-                    has no null guard and dereferences its argument on its very
-                    first line, and the iterate's own refusal arm reads the
-                    source's tag. Either is fatal.
-                    ⚠ THE REFUSAL IS SILENT HERE, DELIBERATELY, and that is the one
-                    place in this action where an absent message is right: the star
-                    has ALREADY announced by name, and a second line naming the same
-                    failure would say the same thing twice from two mechanisms.
-                    ⚠ WHAT IT MUST NOT SKIP IS POISONING THE CURSOR. Returning 0
-                    without setting fLAG leaves the enclosing `while ++cur` on
-                    opPlusPlus's data arm, which sets a count to one and increments
-                    it forever -- SEQ 147 item 0 measured that at over eleven
-                    million iterations in fifteen seconds. The poison is what makes
-                    the refusal terminate instead of hang.
-                    ⚠ THE DEFECT WAS INTRODUCED BY SEQ 148 AND COULD NOT HAVE
-                    EXISTED BEFORE IT. Until the star was admissible in the source
-                    slot, input[2] was never null, so unWrap's missing guard was
-                    unreachable from here. That guard is still missing and is
-                    PRE-EXISTING -- it is left alone and recorded rather than
-                    widened into a change nothing has measured.
-                    ⚠ AND THE FIRST ATTEMPT TO DOCUMENT THIS WIPED THE EXTERN BLOCK
-                    TO ZERO. The long form was written as a block comment at the
-                    site and tok's canary went 332 -> 0, the #10/#24/#29/#40
-                    signature, with the build then failing three files away in
-                    Bytecode.mm. The guard ALONE re-toks clean; the comment was
-                    what broke it. That is the convention arguing for itself --
+                nullAfterStar=(THE CONSUMER OF THE NULL REFUSES(Tony's STAR ruling, 2026-09-05). This arm used to be SILENT because the star had already spoken; under STAR the star yields null quietly, so if this stays silent NOTHING speaks and the enclosing ++ runs away -- measured, f31 back to exit 142 on four lines of output. It now refuses BY NAME, and the name is the right one: the writer typed an iterate, not a deref. The cursor poison STAYS -- it is belt and braces, and it is what stopped the runaway before there was an arm at all.
                     short pointer at the site, argument here.#);
                 iterSource=(THE SOURCE IS REACHED BY LABEL, NEVER BY POSITION.
                     SEQ 148 moved the modifiers in front of `on`, so the rule
                     reads iterate- ANYtoken attributes? members? on- IterSource
                     and the source now sits at position 2, 3 or 4 depending on
-                    how many modifiers were written. The old input[2] read is
-                    therefore not merely wrong, it is UNFIXABLE POSITIONALLY --
-                    measured, it picked up the `attributes` keyword and refused
-                    with "source attributes has no list".
+                    how many modifiers were written.
                     ⚠ THE LABEL WAS CONFIRMED BEFORE THE CODE WAS WRITTEN, not
                     assumed. An instrumented run dumped the parsed shape of all
                     four forms and showed getLabelGroup("IterSource") resolving
@@ -1753,30 +1719,9 @@ define
                     is not "*" is refused BY NAME. So "a name or a starred name,
                     nothing else" holds at the behaviour, which is where F-48
                     puts the same kind of restriction.#);
-                legacyFollow=(THE ONE unWrap THAT STAYED, AND WHY.
-                    SEQ 148 said "unWrap calls go" and also pre-registered "the
-                    73 bare-argument sites UNMOVED on main". ON BARE THOSE TWO
-                    CANNOT BOTH HOLD, because gNoUnwrap is 0 there and an
-                    action's `argument` IS a holder -- measured at SEQ 145,
-                    ANYtoken -> argument -> sample, two hops. A source that
-                    never follows refuses on all 73 the moment it lands, and
-                    that is exactly what the first build did: the fleet went
-                    182 -> 165 with the new pointer refusal firing on
-                    iterRefuseT's own unfiltered row.
-                    ⚠ THE SPLIT IS PARSE HOP versus HOLDER FOLLOW, and it is
-                    the distinction SEQ 146 paid for. The PARSE hop -- the
-                    ANYtoken wrapper the parser puts round a resolved operand --
-                    is peeled UNCONDITIONALLY, because gating it is what made
-                    every iterate refuse under the flip, with aCTionIterate
-                    reading a node literally tagged ANYtoken. The HOLDER follow
-                    is gated on the migration switch, which is precisely what
-                    that switch's own header says it is for: 0 LEGACY
-                    auto-unwrap live, 1 FLIPPED no auto-unwrap.
-                    ⚠ THIS ARM RETIRES WITH gNoUnwrap, in the same stroke, per
-                    that switch's pre-registered obituary. It is not a second
-                    mechanism and it is not a permanent conditional; it is the
-                    legacy half of a migration that already has its death
-                    written down.#);
+                argumentBINDING=(an isArgument source yields what it holds, ahead of the holds-a-pointer refusal. Iterate reads input[1]/input[2] itself and never passes through runOP, so the rule is stated again here ArgBinding.ArgBindingSites#)
+                emitThenFallThru=(the only gate in the tree that does not return, and deliberately so. The emit-time walk still needs the iterator ESTABLISHED, because the enclosing `while ++grup` must take opPlusPlus's iterator arm to reach jitEmitIterStep; gate-and-return would leave the node un-flagged and the advance would emit against the DATA arm. The emitted call re-establishes the iterator at RUN time, which is the gap that made displayForm hang: the advance was emitted and the setup was not, so the two lived at different times.#);
+                RESETiterator=(this is the only place it can live. The poison means "the LAST iterate on this node was refused", so a fresh, successful iterate is exactly what un-poisons it -- and under Tony's 2026-08-02 iterator design re-running the Iterate rule is the ONLY way to change an iterator's source, so nothing can become live again behind this line's back. Clearing anywhere else (at the advance, at action exit) would either un-poison a still-refused iterator or leave a live one poisoned.#);
                 refusedSource=(A REFUSED SOURCE IS ANNOUNCED ONCE AND POISONED (Tony's
                     ruling,
                     2026-08-02). Announced HERE, at the door, not per

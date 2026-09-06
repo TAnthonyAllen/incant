@@ -7,16 +7,16 @@ search GroupFields Utilities list;
 register(Utilities);
 define
     codeBuffer buffer;
+    codeCopy;
     openBrace="{";
     closeBrace="}";
     generateParse code={
-        arg := *argument;
-        @arg;
         cout "Generating parse code for" taG:;
-        $$arg;
+        $$argument;
         reset(codeBuffer);
         printTO(codeBuffer);
         print openBrace:;
+        $$argument;
         setParse(argument);
         if datA != 0;
             if listLengtH; print "rules should not have data and a list; one or the other":;
@@ -25,7 +25,7 @@ define
         if hasTraitS;       conjunct = "AND";
         else                conjunct = "OR";
         print `"if ";
-        iterate grup on arg;
+        iterate grup on argument;
         while ++grup;
             if noPrinT;     continue;
             if notFirstTimeThru > 0;    print _conjunct;
@@ -42,19 +42,20 @@ define
         argument +% codeCopy;
         argument :. isCodeD;
         printTO(0);
-        //print taG "=" CodE.taG:;
+        print taG "=" CodE.taG CodE:;
        };
     walkRules code={
         generateParse(argument);
-        if actionTypE == 0;
-            length  = listLengtH;
-            if length > 0;
-                iterate grup on *argument;
-                while ++grup;
-                    if noPrinT;     continue;
-                    if binTypE;     continue;
-                    if listLengtH;  walkRules(grup);
-                    else generateParse(grup);
+        length  = listLengtH;
+        if length > 0;
+            iterate grup on argument;
+            while ++grup;
+                print "iterating on" taG:;
+                $$grup;
+                if noPrinT;     continue;
+                if binTypE;     continue;
+                if listLengtH;  walkRules(*grup);
+                else generateParse(*grup);
         };
     compileRules code={
         $$argument;
@@ -109,7 +110,7 @@ define
         };
     ;
 
-walkRules(NamE);
+walkRules(ANYorNum);
 stop();
 parser(Start);
 

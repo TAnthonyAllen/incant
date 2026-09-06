@@ -1,0 +1,64 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(NoPrintFrame);
+define
+    npAlpha=1;
+    npBeta=2;
+    /*  CONTROL -- two action locals, NEITHER flagged noPrint.  */
+    npCtl code={
+        cerr "N" npRow " control  arg " argument.taG " local1 " npC1.taG:;
+        npC1 = "a";
+        npC2 = "b";
+        };
+    /*  TREATMENT -- identical, except the LAST local is flagged noPrint
+        DURING the body: after saveLocalFields walked the field list
+        forward, and before restoreLocalFields walks it back.  */
+    npMint code={
+        cerr "N" npRow " treated  arg " argument.taG " local1 " npM1.taG:;
+        npM1 = "a";
+        npM2 = "b";
+        npM2 :. noPrinT;
+        };
+    npRow=0;
+    npRun code={
+        npRow = 1;  npCtl(npAlpha);
+        npRow = 2;  npCtl(npBeta);
+        npRow = 3;  npMint(npAlpha);
+        npRow = 4;  npMint(npBeta);
+        };
+    ;
+npRun();
+print "NOPRINTFRAME SENTINEL -- reached the foot":;
+stop();
+
+noPrintFrameT -- FLAGGING AN ACTION LOCAL `noPrint` DURING THE BODY SHIFTS
+EVERY FIELD BELOW IT IN THE NEXT ACTIVATION'S FRAME RESTORE.
+
+saveLocalFields (GroupActions.rtn:1196) walks the action's fields FORWARD and
+pushes a body for each matching (isArgument || isLocal) && !noPrint.
+restoreLocalFields (:747) walks BACKWARD and pops.  The pairing is purely
+positional, and noPrint is IN THE FILTER -- so a flag the body sets between
+the two walks removes that field from the restore set only.  Everything below
+it gets the wrong body back, `*groupBody = *body` copies the tag with it, and
+the corruption is PERMANENT for the life of the action.
+
+The two arms differ by ONE statement: `npM2 :. noPrinT;`.
+
+Rows 1-2 are the control and rows 3-4 the treatment; row 3 is clean on both
+arms because the flag is not set until the first body has already run, which
+is what makes row 4 the discriminator rather than row 3.
+
+Found 2026-09-06 under IncantForms/WorkingOn/parser, where generateParse's
+`codeCopy :. noPrinT;` shifted `argument` onto `conjunct` and every call after
+the first refused in setParse.  The workaround there was to DECLARE codeCopy
+so it is not an action local at all; the defect itself is untouched.
+
+⚠ Note this is bear-trap #39 pointing the wrong way.  Its rule is "declare it
+if and only if more than one action touches it" -- only one action touches
+codeCopy, so the rule says leave it undeclared, and undeclared is exactly what
+makes it corruptible once it is also flagged noPrint.

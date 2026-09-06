@@ -317,6 +317,50 @@ for _o in ':=' '<-'; do
     fi
 done
 
+#  ⚠ noPrintFrameT -- FLAGGING AN ACTION LOCAL `noPrint` DURING THE BODY SHIFTS
+#  THE NEXT ACTIVATION'S FRAME RESTORE BY ONE SLOT. saveLocalFields
+#  (GroupActions.rtn:1196) walks FORWARD and pushes; restoreLocalFields (:747)
+#  walks BACKWARD and pops; the pairing is positional and `noPrint` is IN THE
+#  FILTER. So a flag the body sets between the two walks drops that field from
+#  the restore set only, and every field below it gets the wrong body back --
+#  tag included, because `*groupBody = *body` copies the struct.
+#
+#  The two arms differ by ONE statement, `npM2 :. noPrinT;`. Rows 1-2 are the
+#  control and they are NOT decoration: they are what says the shift is the
+#  flag and not the minting, and N2 is the anti-vacuity sibling that fails if
+#  a second activation stops binding its argument at all.
+#
+#  ⚠ N4 IS PINNED RED ON PURPOSE (H7) and pins the CORRECT answer, not the
+#  measured one. It reads `npM1 local1 npM2` today -- shifted one slot -- and a
+#  green pin on that would freeze a live defect into the baseline as truth.
+#  ⚠ WHEN N4 GOES GREEN THE DEFECT IS FIXED: graduate it, do not re-pin it
+#  (H6). Row 3 is clean on BOTH arms because the flag is not set until the
+#  first body has already run, which is what makes row 4 the discriminator.
+#
+#  Found 2026-09-06 under IncantForms/WorkingOn/parser, where generateParse's
+#  `codeCopy :. noPrinT;` shifted `argument` onto `conjunct` and every call
+#  after the first refused inside setParse.
+run1 noPrintFrameT "$T/npf"; check "noPrintFrameT runs" 0 $?
+sentinel "noPrintFrameT sentinel (no truncation)" "$T/npf" "NOPRINTFRAME SENTINEL"
+for _n in "N 1 control  arg  npAlpha local1  npC1" \
+          "N 2 control  arg  npBeta local1  npC1" \
+          "N 3 treated  arg  npAlpha local1  npM1"; do
+    if grep -qF "$_n" "$T/npf"; then
+        echo "  ok    noPrintFrameT row ${_n:2:1} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  noPrintFrameT row ${_n:2:1} -- wanted: $_n"; fail=1
+    fi
+done
+if grep -qF "N 4 treated  arg  npBeta local1  npM1" "$T/npf"; then
+    echo "  ok    noPrintFrameT row 4 -- THE FRAME SHIFT IS FIXED. Graduate this row (H6)."; green=$((green+1))
+else
+    echo "  FAIL  noPrintFrameT row 4 -- PINNED RED ON PURPOSE (H7): the noPrint"
+    echo "        frame shift is live. Wanted 'arg npBeta local1 npM1';"
+    echo "        reads 'arg npM1 local1 npM2' -- every field below the"
+    echo "        flagged local restored one slot off. Do NOT re-pin to green."
+    fail=1
+fi
+
 #  argRoundT -- A->B->A, a LOCAL and an ARGUMENT each carried across the nested
 #  call. The intervening arB is passed 41 and every arA is passed 7, ON PURPOSE:
 #  had both been 7, a channel that handed every callee the same node would print
