@@ -566,22 +566,13 @@ extern GroupItem jitEmitAdd(GroupItem argument,GroupItem target)
 }
 
 
-/* jitEmitAssign  the store-back emitter — commits a value into a target field's
-   slot. Assign is a single store operation, so no jitOp selector. SKELETON — not
-   wired (no gate, no fixtures).
+/*******************************************************************************
+    jitEmitAssign -- the store-back emitter. SKELETON: not wired, no gate, no
+    fixtures.
 
-   STORE DESTINATION (resolved): target->jitData->jitSlot is now populated by
-   jitSeedField (it stashes the baked field-storage address), so a field target
-   has a live CreateStore destination. A literal target has no slot, correctly —
-   it is not assignable.
-
-   STORE-ONLY BY DESIGN (resolved): jitEmitAssign does the plain `=` store and
-   nothing else. A compound assign (+= *= ...) is NOT a second branch here — it is
-   composed at the opMethod gate: jitEmitBinary(argument,target,<jitOp>) first,
-   which leaves the new value in target->jitData->jitValue (and gJitResult), then
-   this same store-back commits it. Keeping the emitter op-free is the deliberate
-   choice (vs. an op param + jitNone sentinel) — it reuses jitEmitBinary untouched
-   and keeps the binary/store responsibilities separate. */
+    // storeOnlyByDesign  what the store destination resolves to, and why a literal target correctly has no slot
+    // compoundIsComposed  why += and friends are composed at the gate rather than branched here
+*******************************************************************************/
 extern GroupItem jitEmitAssign(GroupItem argument,GroupItem target)
 {
     -%
@@ -719,18 +710,15 @@ extern GroupItem jitEmitBinary(GroupItem argument,GroupItem target,int op)
 }
 
 
-/* jitEmitCompare  the shared relational emitter — jitEmitBinary's sibling for the
-   six predicates (== != < <= > >=). Same header-clean signature, same operand-load
-   and gJitResult-stash boilerplate, and the SAME int/float promotion block:
-   a mixed count/number pair is unified first (CreateSIToFP) because LLVM has no
-   cross-type compare — promotion is retained here, not dropped (only the same-type
-   case skips it, as in jitEmitBinary). Two real differences from binary: the result
-   is an i1 (a boolean, not the operand type), and the instruction comes from the
-   ICmp (integer) / FCmp (double) predicate matrix rather than add/sub/mul/div.
-   EQ/NE are sign-agnostic; the ordered four take signed-int / ordered-float
-   predicates. `op` is a jitCmp (jitContext.h). NOTE: when this is wired into an
-   opMethod gate later, jitRunAction's return-cap needs an i1->i32 ZExt branch
-   (it currently only widens double->i32) and a groups.ext extern decl is required. */
+/*******************************************************************************
+    jitEmitCompare -- the shared relational emitter for the six predicates.
+
+    ⚠ WIRING IT INTO AN opMethod GATE NEEDS TWO THINGS FIRST: jitRunAction's
+    return-cap needs an i1 -> i32 ZExt branch (it only widens double -> i32),
+    and a groups.ext extern decl is required.
+
+    // cmpIsI1  the two differences from jitEmitBinary, and why the promotion block is retained rather than dropped
+*******************************************************************************/
 extern GroupItem jitEmitCompare(GroupItem argument,GroupItem target,int op)
 {
     -%
@@ -943,23 +931,15 @@ extern GroupItem jitEmitEQ(GroupItem argument,GroupItem target)
 }
 
 
-/* jitEmitFill  DS-4(b) -- THE DRAWING COMMAND, CALLABLE FROM COMPILED CODE.
+/*******************************************************************************
+    jitEmitFill -- DS-4(b), THE DRAWING COMMAND, CALLABLE FROM COMPILED CODE. A
+    carbon copy of jitEmitTrace's shape.
 
-   A CARBON COPY OF jitEmitTrace'S SHAPE, and deliberately so: that is the
-   fallback-column convention, and it was verified against runOP's dispatch
-   rather than adopted from a design -- `result = op->groupBody->gMethod(target)`
-   is ONE ARGUMENT, VALUE-RETURNING, GroupItem*(GroupItem*). displayFillRT wears
-   exactly that shape, which is why no new calling convention was needed for the
-   first drawing method. FR section 4 predicted this route (the fallback column,
-   not IR emission) on the grounds that a drawing method needs to be CALLABLE
-   from emitted code rather than EMITTABLE as IR. It was right.
+    ⚠ NO STRUCT OFFSETS BAKED, AND THE CALL IS LEFT UNTAGGED -- jitEmitTrace's
+    two reasons apply here unchanged. See noBakedOffsets.
 
-   NO STRUCT OFFSETS ARE BAKED, for jitEmitTrace's reason: reaching the frame or
-   the style through GEP arithmetic over GroupItem -> groupBody would hard-code a
-   layout that bear-trap #10 moves, in emitted code no compiler checks. The
-   callee recomputes everything each build. One call, layout free.
-
-   The call is left untagged so LLVM cannot DCE a callee it cannot see into. */
+    // drawingIsCallable  why the fallback column was the right route, and what FR §4 predicted
+*******************************************************************************/
 extern void jitEmitFill(GroupItem field)
 {
     -%
@@ -1747,22 +1727,18 @@ extern GroupItem jitEmitUnary(GroupItem target,int op)
 }
 
 
-/* jitEmitWHILE  the while emitter (rung J3). Mirrors jitEmitGIF's shape: gate
-   in aCTionWhilE, bracket the sub-walks, let the runOP walk own its traversal.
+/*******************************************************************************
+    jitEmitWHILE -- the while emitter (rung J3). Mirrors jitEmitGIF's shape:
+    gate in aCTionWhilE, bracket the sub-walks, let the runOP walk own its
+    traversal.
 
-   ⚠ E1 AUDIT (docs/jitDesign.md): A BRACKETING EMITTER LEAVES NOTHING IN
-   FLIGHT. The body commits its own value to the result slot, so gJitResult is
-   cleared before returning -- otherwise the enclosing walk commits the stale
-   body value AGAIN, in the exit block, which is exactly the clobber that made
-   every gIF path return the last arm emitted. This is E1's first audit customer
-   and it obeys it by construction rather than by luck.
+    ⚠ IT CLEARS gJitResult BEFORE RETURNING. A bracketing emitter leaves
+    nothing in flight, or the enclosing walk commits the stale body value again
+    in the exit block.
 
-   ⚠ THE CONDITION IS WALKED ONCE, into `cond`, and that is the honest retest of
-   the old ICmp abort: testWhilE used to die at 134 because aCTionWhilE had NO
-   gate, so under jitting the loop EXECUTED at emit time and walked its
-   condition repeatedly -- re-emitting a compare against a node whose jitData
-   already held the previous i1. With a gate the condition is emitted exactly
-   once and the loop runs at RUN time, which is what the ladder measures. */
+    // e1FirstCustomer  E1's first audit customer, and the gIF clobber it exists to avoid
+    // conditionWalkedOnce  the old 134 abort, and why walking the condition once is the honest retest
+*******************************************************************************/
 extern GroupItem jitEmitWHILE(GroupItem input)
 {
 GroupItem   ExpressioN:,
@@ -2520,23 +2496,13 @@ extern void jitPrintProbe(GroupItem node,int phase)
 }
 
 
-/* jitRefire  FIRE THE LAST COMPILED FUNCTION AGAIN, without recompiling.
-   The jitLadder's proof-of-run-time-computation, and the reason every rung
-   compiles once and fires twice.
+/*******************************************************************************
+    jitRefire -- FIRE THE LAST COMPILED FUNCTION AGAIN, without recompiling.
+    Returns trueResult on a fire, null if nothing has been compiled yet -- LOUD,
+    because a silent no-op would make a rung green for the wrong reason.
 
-   THE THREAT IT ANSWERS: under jitting the interpreter executes the action body
-   for real at emit time (docs/jit.md S2.2 -- a jitted `print` printed during
-   compilation). So an end-to-end POP that compiles, fires, and sees the right
-   answer proves NOTHING on its own: the interpreter may have done the work
-   while compiling, with the compiled function returning a baked constant. Right
-   answer, wrong universe, exit 0 throughout.
-   Change an input AFTER emission and fire again: if the answer tracks the new
-   input, the computation is happening at RUN time in compiled code. That is the
-   load-vs-fold distinction jit.md has listed as unobservable since Phase 1,
-   and this is what makes it observable.
-
-   Returns trueResult on a fire, null if nothing has been compiled yet -- LOUD,
-   because a silent no-op here would make a rung green for the wrong reason. */
+    // rightAnswerWrongUniverse  why a compile-fire-check POP proves nothing on its own, and what a second fire settles
+*******************************************************************************/
 extern GroupItem jitRefire(GroupItem input)
 {
 GroupRules  ruler = groupRules;
@@ -2880,17 +2846,13 @@ extern int jitRunAddTwo()
 }
 
 
-/* jitRunIfTest  control-flow smoke test — the jitRunAddTwo analog for a branch,
-   and the first multi-basic-block IR in the JIT layer. Hand-builds
-   i32 f(){ if (fld < 0) fld = 99; return fld; } against the field's baked gCount
-   slot (the jitSeedField address-bake): load the slot, CreateICmpSLT against 0,
-   CreateCondBr to then/end, CreateStore 99 in the then block, merge at end,
-   ret the reloaded slot. The store lands in the field's real storage, so the
-   mutation is observable by reading the field back in interpreted incant
-   (the jitAssign readback pattern). Proves CondBr both directions + a
-   store-to-field through a taken/untaken branch — independent of the JIT walk
-   driver and the in-flight compare-operator design (the icmp is hand-built).
-   Field assumed a count (i32 gCount); drive with testing(<count field>). */
+/*******************************************************************************
+    jitRunIfTest -- CONTROL-FLOW SMOKE TEST, and the first multi-basic-block IR
+    in the JIT layer. Field assumed a count (i32 gCount); drive with
+    testing(<count field>).
+
+    // smokeBranchIR  what it hand-builds, and why a hand-built icmp makes it independent of the walk driver
+*******************************************************************************/
 extern int jitRunIfTest(GroupItem fld)
 {
     -%
@@ -2984,23 +2946,15 @@ extern void jitSaveFrameRT(GroupItem field)
    and never re-parents live nodes (the structural cure for the by-reference stack
    corruption the deferred path hit). First POP: single compare, one then arm, no
    else (else + nesting are the next increment; gIfEndBlocks already nests). */
-/* jitScBegin  opens the short-circuit diamond. Consumes the LEFT arm's value
-   from gJitResult, allocates the merge slot in the ENTRY block (so it is a
-   promotable alloca and mem2reg can retire it), pre-stores the short-circuit
-   answer, and branches so that the RIGHT arm's block is entered only on the
-   non-deciding value. Leaves insertion in scRhs so the right-arm walk emits
-   there.
+/*******************************************************************************
+    jitScBegin -- opens the short-circuit diamond. Leaves insertion in scRhs so
+    the right-arm walk emits there.
 
-   ⚠ THE ALLOCA GOES IN THE ENTRY BLOCK, NOT HERE. An alloca in a conditionally
-   entered block is not promotable, mem2reg leaves it as memory, and the phi we
-   are refusing to write by hand never appears -- the IR stays correct but the
-   whole never-write-a-phi argument silently stops applying. Entry-block
-   placement is what makes "mem2reg inserts the phi itself" true rather than
-   hoped for.
+    ⚠ THE MERGE ALLOCA GOES IN THE ENTRY BLOCK, NOT HERE. A conditionally
+    entered alloca is not promotable and mem2reg leaves it as memory.
 
-   isAND is passed rather than re-derived from the op, so the two callers of the
-   contract (this and runShortCircuit's interpreted arm) cannot disagree about
-   which word they are emitting. */
+    // allocaInEntryBlock  why entry placement is what makes "mem2reg inserts the phi itself" true rather than hoped for
+*******************************************************************************/
 extern void jitScBegin(int isAND)
 {
     -%
