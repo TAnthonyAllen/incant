@@ -170,6 +170,41 @@ trial's own thesis landing on the trial: the question was never *"were the entri
 was *"can the pointer be followed"*, and only a reader can answer it. **Stroke 2 opens against a
 convention that has now been read.**
 
+## ⚠ EIGHTH FINDING, 2026-09-06 — THE PAYOFF NOBODY HAD WRITTEN DOWN: METHOD NAMES BECOME GREPPABLE
+
+Tony, from using the tree rather than from reasoning about it: *"when searching a code file I have
+bumped into the genParse issue a few times, on other names. Method names appearing in comments are
+hit multiple times when looking for a method. Moving long comments into DesignDocs should fix much
+of that."*
+
+**This is a THIRD argument for the register, independent of the two already on file.** The doc was
+built on retrieval-failure (*a fresh paragraph nobody is looking at*) and gained
+position-rot at the 09-04 file move (*prose rots by POSITION, a key cannot*). Neither predicted
+this one: **long comments make the CODE unsearchable**, because every method named in prose is a
+false hit when someone greps for the method itself.
+
+**MEASURED on `genParse.rtn`, counting every hit of every `extern` name in the file and splitting
+it by whether the line is code or comment:**
+
+| | name-hits in comments | in code | noise |
+|---|---|---|---|
+| before stroke 1 | 218 | 187 | **53%** |
+| after stroke 1 | 209 | 187 | **52%** |
+
+**More than half of every method-name search in this file lands in prose.** The worst offenders
+after stroke 1: `genParse` **40 in comments vs 4 in code**, `emitLeaf` 14 vs 8, `parseRK` 12 vs 4,
+`litK` 12 vs 3, `planRule` 10 vs 5.
+
+⚠ **ONE METHOD MOVED IT ONE POINT, AND THAT IS THE ARGUMENT FOR THE SWEEP RATHER THAN AGAINST IT.**
+`genParse.rtn` has ~56 methods; stroke 1 did one. The metric is worth reporting per stroke because
+it is the first thing the trial measures that a READER feels directly, and unlike entries-written
+it can come back zero.
+
+⚠ **TONY'S EXEMPTION, and it keeps the metric honest: a name mention in the comment immediately
+before a method declaration is NOT noise.** That is the link line doing its job, adjacent to the
+thing it names. So the target is not zero — it is *"the only comment hit for a method name is the
+one line above its declaration."*
+
 
 ## LOOKUPS CLOD ACTUALLY MADE
 
