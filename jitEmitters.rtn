@@ -846,18 +846,8 @@ GroupItem   ExpressioN:,
 GroupItem   result;
     jitDoBegin();
     if StatemenT    result = StatemenT.gMethod(StatemenT);
-    /*  ⚠ THE EXPLICIT COMMIT IS REQUIRED HERE AND MUST NOT BE REMOVED, and the
-        asymmetry with jitEmitWHILE is MEASURED, not assumed:
-
-            while body -> aCTionBlocK commits it (one `store ... ptr %result`)
-            do    body -> NOTHING commits it (zero stores)
-
-        Removing this line on the strength of the while evidence made J4 emit
-        NO result at all -- "no result emitted (gate did not fire?)" -- and the
-        rung caught it immediately. So there is exactly ONE committer in each
-        case: aCTionBlocK for a while body, this line for a do body.
-        WHY the do body is not block-wrapped where the while body is has NOT
-        been established -- the measurement stands, the mechanism is open.  */
+    /*  ⚠ THE EXPLICIT COMMIT IS REQUIRED HERE AND MUST NOT BE REMOVED.  */
+    // doCommitAsymmetry  the measured asymmetry with jitEmitWHILE, whose body aCTionBlocK commits
     jitStoreResult();
     jitDoCond();
     result = ExpressioN;
@@ -972,23 +962,22 @@ extern GroupItem jitEmitGE(GroupItem argument,GroupItem target)
 }
 
 
+/*******************************************************************************
+    jitEmitGIF -- THE gIF EMITTER, riding the INTERPRET walk (pivot,
+    2026-06-30). Called from aCTionIF's jitting gate with the live if-node.
+
+    // gifRidesTheWalk  the five-step bracket, and why owning the traversal is the structural cure for the deferred path's stack corruption
+*******************************************************************************/
 extern GroupItem jitEmitGIF(GroupItem input)
 {
 GroupItem   ExpressioN:,
             StatemenT:,
             ElsE:;
 GroupItem   result = ExpressioN;
-    /*  ⚠ A BARE CONDITION OPERAND MUST BE MATERIALIZED. `if isMethod` is false
-        for a bare read -- a field, or a GroupField accessor like noPrinT -- so
-        this else branch made NO CALL and the condition emitted nothing. The
-        enclosing compare then branched on whatever was last in flight, which is
-        finding #3 exactly: `if noPrinT` reading the iterator's liveness. The
-        condition was never wrong; it was reading a value nobody had produced.
-        THE CONDITION IS ONE OF THREE VALUE-CONSUMING POSITIONS with this hole
-        (if / while / do) and they take the identical fix. The principle, Clay's:
-        EVERY POSITION THAT CONSUMES A VALUE INVOKES THE PRIMITIVE WHEN ITS
-        OPERAND IS BARE. Assignment RHS needs nothing -- opAssign is an operator,
-        so runOP's seed gate already covers it.  */
+    /*  ⚠ A BARE CONDITION OPERAND MUST BE MATERIALIZED -- `if isMethod` is
+        FALSE for a bare read, so without the call below the condition emits
+        nothing and the compare branches on whatever was last in flight.  */
+    // everyValuePosition  finding #3, the three value-consuming positions that share this hole, and why assignment RHS needs nothing
     if isMethod result = result.gMethod(result);
     else {
         result = ExpressioN;
@@ -1000,36 +989,18 @@ GroupItem   result = ExpressioN;
         ran. Must sit BEFORE jitIfElse/jitIfEnd, which move the insert point. */
     jitStoreResult();
     jitIfElse();
-    /*  ⚠ E1, ONE LEVEL DOWN, AND AN ABSENT ELSE IS WHY. jitIfElse has just moved
-        the insert point into elseBB, but gJitResult still holds THE THEN ARM'S
-        value -- so when there is no ElsE to overwrite it, the jitStoreResult
-        below commits a then-block value INSIDE the else block. That is a
-        dominance violation, and llvm::verifyFunction refuses the function:
-            else:  store i32 %sub, ptr %result     ; %sub is defined in `then`
-        Measured 2026-08-01 on a bare `if cond; body;` with no else -- a shape NO
-        LADDER RUNG HAD, because J2 uses if/else. Clearing here makes the store
-        below a no-op when the else arm emits nothing (jitStoreResult returns
-        early on a null gJitResult), which is the honest statement: an absent
-        else contributes NO value, so the slot correctly keeps whatever the
-        statement before the `if` put there.
-        Same rule as the clear at the foot of this function, applied per-arm
-        rather than per-statement: THE EMITTER THAT COMMITS OWNS THE CLEARING. */
+    /*  ⚠ THIS CLEAR IS LOAD-BEARING. Without it, an `if` with NO else commits
+        a then-block value inside elseBB -- a dominance violation the verifier
+        refuses. THE EMITTER THAT COMMITS OWNS THE CLEARING.  */
+    // absentElseDominance  the measured IR, and why no ladder rung had the shape that exposes it
     -% gJitResult = nullptr; %-
     if ElsE         result = ElsE.gMethod(ElsE);
     jitStoreResult();
     jitIfEnd();
-    /*  ⚠ NOTHING IS LEFT IN FLIGHT. Both arms have already committed their own
-        value to the result slot INSIDE their own block -- that is the merge.
-        gJitResult still holds the else-arm's value, and the enclosing walk
-        would commit it AGAIN in the merge block, clobbering the merge and
-        making every path return the last arm EMITTED rather than the one that
-        RAN. Measured: the endif block carried two extra `store i32 7` and the
-        function returned 7 on both paths.
-        Clearing it makes the enclosing jitStoreResult() calls no-ops, which is
-        the honest statement: a control-flow statement's value is already
-        committed, so there is no loose value for anyone else to commit.
-        THIS IS A RULE FOR EVERY BRACKETING EMITTER, not a gIF quirk -- the loop
-        emitters will need the same line.  */
+    /*  ⚠ NOTHING IS LEFT IN FLIGHT. Both arms already committed inside their
+        own block -- that IS the merge. Leaving a value here makes every path
+        return the last arm EMITTED rather than the one that RAN.  */
+    // bracketingLeavesNothing  the measured double-store, and why this is a rule for every bracketing emitter
     -% gJitResult = nullptr; %-
     return result;
 }
@@ -2514,16 +2485,10 @@ extern int jitRunAction(GroupItem action)
     -%
     printf("=== jitRunAction: entering on %s ===\n", action->groupBody->tag);
     fflush(stdout);
-    /*  PJ-8, THE JIT HALF OF THE LIFECYCLE. Cleared on ENTRY, written at the
-        capture site near the foot. The gap between them is the whole point:
-        a compile that REFUSES (-1..-5) never reaches the capture, so it leaves
-        NO record rather than the previous compile's -- which is the exact
-        staleness the ruling precludes. Clearing at the write instead would be
-        a no-op, and detecting staleness with a check afterwards is what the
-        ruling replaces: STALENESS IS PRECLUDED BY LIFECYCLE, NOT DETECTED.
-        setText("") and not clear(): a field with NO data returns its TAG from
-        getText(), so a clear()ed record would read back as the string "JiT"
-        and every non-empty test in the fleet would pass on it.  */
+    /*  ⚠ CLEARED ON ENTRY, WRITTEN AT THE FOOT, and the gap is the point: a
+        refused compile leaves NO record rather than the previous one's.
+        setText("") and not clear() -- a dataless field reads back as "JiT".  */
+    // stalenessPrecluded  why staleness is precluded by lifecycle rather than detected
     if (action) {
         GroupItem *stale = action->get("JiT");
         if (stale)  stale->setText(::strdup("")); }
@@ -2895,20 +2860,6 @@ extern void jitSaveFrameRT(GroupItem field)
 }
 
 
-/* jitEmitGIF  the gIF emitter — now rides the INTERPRET walk (pivot, 2026-06-30).
-   Called from aCTionIF's jitting gate with the live if-node. It mirrors aCTionIF's
-   own condition-eval (`result = ExpressioN; if isMethod result.gMethod`), but
-   instead of branching at runtime it brackets the arm with jitIfBegin/jitIfEnd:
-     - the condition gMethod drives its runOP tree -> opLT/opEQ jitting gate ->
-       jitEmitCompare leaves the i1 in gJitResult;
-     - jitIfBegin reads gJitResult, emits the CreateCondBr, enters the then block;
-     - the then-arm gMethod drives ITS runOP tree -> opAssign gate -> jitEmitAssign
-       stores INSIDE the then block;
-     - jitIfEnd branches to endif and resumes there.
-   No flat list, no jitXpress, no operand stack — the runOP walk owns its traversal
-   and never re-parents live nodes (the structural cure for the by-reference stack
-   corruption the deferred path hit). First POP: single compare, one then arm, no
-   else (else + nesting are the next increment; gIfEndBlocks already nests). */
 /*******************************************************************************
     jitScBegin -- opens the short-circuit diamond. Leaves insertion in scRhs so
     the right-arm walk emits there.

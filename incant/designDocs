@@ -1098,6 +1098,85 @@ define
                 "not yet migrated" and hardening now would fail on every one of them. The
                 sweep-close obligations are unchanged and unclaimed.#):
                 CodeSite="jitEmitters.rtn:jitEmitGE";
+            gifRidesTheWalk=(jitEmitGIF -- THE gIF EMITTER, riding the INTERPRET walk (pivot,
+                2026-06-30). Called from aCTionIF's jitting gate with the live if-node. It
+                mirrors aCTionIF's own condition-eval, but instead of branching at run time it
+                brackets the arm with jitIfBegin/jitIfEnd:
+
+                  - the condition gMethod drives its runOP tree -> opLT/opEQ jitting gate ->
+                    jitEmitCompare leaves the i1 in gJitResult;
+                  - jitIfBegin reads gJitResult, emits the CreateCondBr, enters the then block;
+                  - the then-arm gMethod drives ITS runOP tree -> opAssign gate ->
+                    jitEmitAssign stores INSIDE the then block;
+                  - jitIfEnd branches to endif and resumes there.
+
+                ⚠ NO FLAT LIST, NO jitXpress, NO OPERAND STACK -- the runOP walk owns its
+                traversal and NEVER RE-PARENTS LIVE NODES, which is the structural cure for the
+                by-reference stack corruption the deferred path hit.#):
+                CodeSite="jitEmitters.rtn:jitEmitGIF";
+            doCommitAsymmetry=(⚠ jitEmitDO's EXPLICIT COMMIT IS REQUIRED AND MUST NOT BE REMOVED,
+                and the asymmetry with jitEmitWHILE is MEASURED, not assumed: a while body is
+                committed by aCTionBlocK (one `store ... ptr %result`), and the do body is not.
+                Removing the commit here loses the body's value.#):
+                CodeSite="jitEmitters.rtn:jitEmitDO";
+            stalenessPrecluded=(PJ-8, THE JIT HALF OF THE LIFECYCLE. The JiT record is cleared on
+                ENTRY to jitRunAction and written at the capture site near the foot. ⚠ THE GAP
+                BETWEEN THEM IS THE WHOLE POINT: a compile that REFUSES (-1..-5) never reaches
+                the capture, so it leaves NO record rather than the PREVIOUS compile's -- which
+                is the exact staleness the ruling precludes.
+
+                Clearing at the write instead would be a no-op, and detecting staleness with a
+                check afterwards is what the ruling REPLACES: STALENESS IS PRECLUDED BY
+                LIFECYCLE, NOT DETECTED.
+
+                ⚠ setText("") AND NOT clear(): a field with NO data returns its TAG from
+                getText(), so a clear()ed record would read back as the string "JiT" -- bear-trap
+                #26, payment 3.#):
+                CodeSite="jitEmitters.rtn:jitRunAction";
+            everyValuePosition=(⚠ A BARE CONDITION OPERAND MUST BE MATERIALIZED. `if isMethod`
+                is FALSE for a bare read -- a field, or a GroupField accessor like noPrinT -- so
+                that else branch made NO CALL and the condition emitted nothing. The enclosing
+                compare then branched on whatever was last in flight, which is finding #3
+                exactly: `if noPrinT` reading the iterator's liveness.
+
+                THE CONDITION IS ONE OF THREE VALUE-CONSUMING POSITIONS with this hole (if /
+                while / do) and they take the IDENTICAL fix. The principle, Clay's: EVERY
+                POSITION THAT CONSUMES A VALUE INVOKES THE PRIMITIVE WHEN ITS OPERAND IS BARE.
+
+                Assignment RHS needs nothing -- opAssign is an operator, so runOP's seed gate
+                already covers it.#):
+                CodeSite="jitEmitters.rtn:jitEmitGIF";
+            absentElseDominance=(⚠ E1, ONE LEVEL DOWN, AND AN ABSENT ELSE IS WHY. jitIfElse moves
+                the insert point into elseBB, but gJitResult still holds THE THEN ARM'S value --
+                so with no ElsE to overwrite it, the jitStoreResult below commits a then-block
+                value INSIDE the else block. That is a DOMINANCE VIOLATION and
+                llvm::verifyFunction refuses the function:
+
+                    else:  store i32 %sub, ptr %result     ; %sub is defined in `then`
+
+                Measured 2026-08-01 on a bare `if cond; body;` with no else -- ⚠ A SHAPE NO
+                LADDER RUNG HAD, because J2 uses if/else.
+
+                Clearing there makes the store a no-op when the else arm emits nothing
+                (jitStoreResult returns early on a null gJitResult), which is the honest
+                statement: an absent else contributes NO value, so the slot correctly keeps
+                whatever the statement before the `if` put there. Same rule as the clear at the
+                foot of the function, applied per-arm rather than per-statement: THE EMITTER
+                THAT COMMITS OWNS THE CLEARING.#):
+                CodeSite="jitEmitters.rtn:jitEmitGIF";
+            bracketingLeavesNothing=(⚠ NOTHING IS LEFT IN FLIGHT AT jitEmitGIF's FOOT. Both arms
+                have already committed their own value to the result slot INSIDE their own block
+                -- that IS the merge. gJitResult still holds the else-arm's value, and the
+                enclosing walk would commit it AGAIN in the merge block, clobbering the merge and
+                making every path return the last arm EMITTED rather than the one that RAN.
+
+                Measured: the endif block carried two extra `store i32 7` and the function
+                returned 7 on both paths.
+
+                ⚠ THIS IS A RULE FOR EVERY BRACKETING EMITTER, not a gIF quirk -- the loop
+                emitters need the same line, and e1FirstCustomer records jitEmitWHILE obeying
+                it.#):
+                CodeSite="jitEmitters.rtn:jitEmitGIF";
             oneTopologyAlways=(jitIfElse IS CALLED UNCONDITIONALLY by jitEmitGIF, whether or not
                 the source has an `else` -- with no else the block is simply left empty and
                 jitIfEnd branches it to endif.
