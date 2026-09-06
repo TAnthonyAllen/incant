@@ -1546,6 +1546,27 @@ int 		fired = 0;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
+/*******************************************************************************
+    genParse.rtn -- THE PARSE-METHOD EMITTER (genParseSpec §4). What it is and
+    how it is measured: designDocs TokFiles -> genParse.
+
+    THREE TRAPS THAT BITE THIS FILE SPECIFICALLY. All three cost a build cycle.
+
+    1. A COMMENT CANNOT CONTAIN A STAR FOLLOWED BY A SLASH, and the modifier
+       fold is the next thing anyone will document here -- its comments will
+       want to quote the repetition modifiers by name. tok has no lexer, so the
+       terminator is matched wherever it appears: writing the two of them as a
+       pair inside a block comment CLOSES THE COMMENT EARLY and the rest of the
+       prose is parsed as code, taking the following extern with it. Spell them
+       out as "star" and "plus". (Cost one build, 2026-07-28.)
+    2. JUXTAPOSED CONCAT DOES NOT WORK IN ARGUMENT POSITION. `f(a, b " ")`
+       reads as THREE arguments and is caught only by the C++ compiler. In
+       return position it is loud (FAIL Block / ERROR Inheritance, taking the
+       extern with it); here it is SILENT. Concat into a local first, always.
+       Assignment position is fine.
+    3. A METHOD CALL CANNOT APPEAR IN AN `if` CONDITION --
+       `if term.definingRule() != term` fails to parse. Assign it to a local.
+*******************************************************************************/
 /*  ⚠ NO BACK-POINTER: it resolves the rule by NAME out of the live registry.
     Refuses by name per entry rather than aborting the sweep.   genParse.activateAll  */
 extern "C" GroupItem *activateAll(GroupItem *ignored)
@@ -7728,38 +7749,6 @@ GroupItem 	*hit = 0;
 	return 0;
 }
 
-/*******************************************************************************
-    genParse.rtn — the parse-method emitter (genParseSpec §4).
-
-    C++ prototype ("C++ first, kant second" — Tony 2026-07-27). genParse takes a
-    rule (by name) and emits a C++ parse method that mirrors the hand-written
-    RuleStuff.twk methods (§5.1). POP: text-diff the emission against the
-    hand-written target, climbing Clay's ladder (docs/genParseLadder.md) from a
-    synthetic single-literal scaffold up to the JSON rules.
-
-    Emission substrate for v0 is cerr, line by line (bear-trap #14: stderr, not
-    stdout — stop() does not flush). This is a C++ extern body, so all string
-    literals are DOUBLE-quoted; a double-quote in the emitted output is escaped
-    \" (single quotes here parse the inner ':' as an inheritance colon and
-    cascade the whole file into ERROR Inheritance — found 2026-07-27).
-
-    TRAPS THAT BITE THIS FILE SPECIFICALLY. All three cost a build cycle.
-
-    1. A COMMENT CANNOT CONTAIN A STAR FOLLOWED BY A SLASH, and the modifier
-       fold is the next thing anyone will document here — its comments will
-       want to quote the repetition modifiers by name. tok has no lexer, so the
-       terminator is matched wherever it appears: writing the two of them as a
-       pair inside a block comment CLOSES THE COMMENT EARLY and the rest of the
-       prose is parsed as code, taking the following extern with it. Spell them
-       out as "star" and "plus". (Cost one build, 2026-07-28.)
-    2. JUXTAPOSED CONCAT DOES NOT WORK IN ARGUMENT POSITION. `f(a, b " ")`
-       reads as THREE arguments and is caught only by the C++ compiler. In
-       return position it is loud (FAIL Block / ERROR Inheritance, taking the
-       extern with it); here it is silent. Concat into a local first, always.
-       Assignment position is fine.
-    3. A METHOD CALL CANNOT APPEAR IN AN `if` CONDITION —
-       `if term.definingRule() != term` fails to parse. Assign it to a local.
-*******************************************************************************/
 // ruleLookupScope  resolves on the SEARCH LIST only and only isRule hits -- a bare locate() falls through to the base registries and silently mis-targets any rule sharing a name with a keyword or command
 extern "C" GroupItem *locateRule(char *name)
 {
@@ -7776,15 +7765,7 @@ GroupItem 	*hit = 0;
 	return 0;
 }
 
-/*******************************************************************************
-    locateSpeller — is there a KANT emitLeaf on the search list?
-
-    SCOPED ON PURPOSE, and it is §1.3's lesson applied one more time: a bare
-    locate() resolves down the general search stack (pROPERTIEs, Operators,
-    cOMMANDs, Keywords, GroupFields), so anything sharing the name would be a
-    silent mis-target. Only a registry literally named `Spellers` can supply the
-    action, and only under the name `spellLeaf`.
-*******************************************************************************/
+// spellerScope  scoped on purpose: only a registry literally named `Spellers` supplies it, and only as `spellLeaf` -- a bare locate() would resolve down the general stack and silently mis-target
 extern "C" GroupItem *locateSpeller()
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
