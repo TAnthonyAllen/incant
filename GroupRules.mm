@@ -3662,34 +3662,19 @@ GroupItem 	*ruleArg = 0;
 	return arg;
 }
 
-/* jitBuildFunction  ONE FUNCTION, START TO FINISH. (S1 extraction, 2026-08-05,
-   Tony's ruling "own function, sequential build".)
+/*******************************************************************************
+    jitBuildFunction -- ONE FUNCTION, START TO FINISH. It owns the shell, entry
+    block, result alloca, frame prologue, body walk, frame epilogue, ret,
+    verifier and mem2reg; jitRunAction owns everything MODULE-scoped either
+    side.
 
-   THE SPLIT, and it is exactly the brief's list: this routine owns the function
-   shell, the entry block, the result-slot alloca, the frame prologue, the body
-   walk, the frame epilogue, the ret, the verifier and mem2reg. jitRunAction owns
-   everything MODULE-scoped either side of it -- the engine, the LLVMContext, the
-   Module, the IR text capture, the compile count, addIRModule, lookup and the
-   call.
+    ⚠ RETURN CODES ARE SHARED WITH jitRunAction AND MUST NOT BE RENUMBERED --
+    -2 nothing emitted, -5 verifier refused, -6 no context/module, -9 duplicate
+    function name. Callers and rungs read these.
 
-   ⚠ THIS IS A LIFT, NOT A MIGRATION, AND THE DISTINCTION IS THE BRIEF'S. The
-   sixteen file-scope globals stay exactly where they are; JitContext is NOT
-   adopted (see its note in jitContext.h). Sequential build never re-enters this
-   routine, so nothing here needs save/restore -- and if a later change makes it
-   re-enter, THAT is the moment the context object is owed, not before.
-
-   WHY IT TAKES A GroupItem AND RETURNS AN int: a tok-extern signature carrying an
-   llvm type poisons the generated header. So the two things it cannot name --
-   the context and the module -- arrive through gJitCtx/gJitModule, and the two
-   things it produces leave through gJitBuiltFn/gJitBuiltName.
-
-   Returns 0 on success, and the SAME negative codes jitRunAction has always
-   returned for the failures that now live in here -- -2 (nothing emitted, the
-   gate never fired) and -5 (the verifier refused the IR) -- kept identical so no
-   caller and no rung has to learn a new number. -6 means it was called with no
-   context/module set up, which only a mis-sequenced caller can produce; -9 means
-   two functions in one module wanted the same name, which the build loop's erase
-   discipline should make unreachable. */
+    // liftNotMigration  why the sixteen globals stay put, and the one future change that would owe a context object
+    // buildFunctionCodes  what each negative code means and which of them only a mis-sequenced caller can produce
+*******************************************************************************/
 extern "C" int jitBuildFunction(GroupItem *action)
 {
 	
@@ -4865,30 +4850,16 @@ extern "C" int jitEmitRefusedCheck()
 	
 }
 
-/* jitEmitRem  THE FALLBACK COLUMN MEETING A REAL opMethod -- the first emitted
-   call to an existing operator rather than to a purpose-built helper.
+/*******************************************************************************
+    jitEmitRem -- the first emitted call to an EXISTING operator rather than a
+    purpose-built helper. Two legs: opRem(argument,target) then jitUnboxCount.
 
-   TWO CALLS, and both legs are layout-free:
-     1. call opRem(argument, target)  ->  GroupItem*
-     2. call jitUnboxCount(that)      ->  i32
+    ⚠ TWO-ARG, BECAUSE `%` IS REGISTERED operateMethod. runOP has two calling
+    conventions and this is the isOperator one; J6's one-argument finding was
+    true of the isMethod arm only. Check the registration before assuming arity.
 
-   ⚠ THE ARITY IS TWO, AND THAT REFINES WHAT J6 ESTABLISHED. runOP has TWO
-   calling conventions, not one:
-       op.isOperator  ->  op.operat(arg,target)   TWO-arg   <- this one
-       op.isMethod    ->  op.method(target)       ONE-arg   <- J6's
-   `%` is registered `operateMethod=opRem`, so it is an OPERATOR and takes the
-   two-arg form. J6's "the ground agrees, one-argument" was true OF THE isMethod
-   ARM ONLY. The bulk of the fallback column is binary operators, so it is
-   mostly two-arg -- which is precisely what the ruling's SIGNATURE-KIND TABLE
-   COLUMN is for, and the column now has a concrete meaning: which arm, which
-   arity.
-
-   THE RESULT NODE IS SEEDED so the value composes downstream: an operator's
-   result lands in tempField, and stamping its jitData lets the enclosing
-   assignment read it exactly as it reads any other operand.
-
-   The callee is the ONE hardcoded part; a table-driven callee is the
-   generalisation and is the table arc's job, not this rung's. */
+    // twoArities  the two conventions side by side, and what the signature-kind table column now means
+*******************************************************************************/
 extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupItem *resultNode)
 {
 	
@@ -5159,34 +5130,18 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	
 }
 
-/* jitEmitShortCircuit  TIER 3 UNDER THE JIT (2026-08-11, docs/andOrRung.md
-   section 3 part 2; ruling SEQ 32).
+/*******************************************************************************
+    jitEmitShortCircuit -- TIER 3 UNDER THE JIT. 2026-08-11, docs/andOrRung.md
+    §3 part 2, ruling SEQ 32.
 
-   ⚠ WHY THIS EXISTS AT ALL, measured the same day and worth keeping: promoting
-   AND/OR to an intercepting action fixed the `AND`-under-jit 139 and REPLACED IT
-   WITH THE SILENT WRONG ANSWER. With no emitter, runShortCircuit ran at EMIT
-   time and folded its value -- jitXand2 and jitXor both wanted 1 on fire 2 and
-   returned 0, at DEGRADE COUNT 0. Trading a crash for section 2's "dangerous
-   one" is not progress, and this function is what makes the promotion honest.
+    ⚠ THE DEGRADE LINE HERE MEANS "NOT EMITTED", NEVER "SOUND". For an AND/OR
+    inside a multi-fire jitted action the fallback is NOT safe -- an emit-time
+    fold returns fire 1's answer forever. Rungs assert the VALUES on both
+    fires; they must not accept the counter as the proof.
 
-   ⚠ WHAT THIS EMITTER CAN AND CANNOT SEE, stated precisely because the
-   agreement claim depends on it. An arm that emits leaves an UNBOXED i32 in
-   flight, and `icmp ne 0` on it IS truthOf's row 2 exactly -- so on the
-   numeric row the two engines agree BY CONSTRUCTION, not by a careful copy.
-   Rows 1, 3 and 4 are NOT representable from an unboxed integer: a null, a
-   present-but-non-numeric node and a text node all arrive here as "no value in
-   flight", which is one symptom for three causes. The emitter therefore does
-   not GUESS among them -- it REFUSES (jitDegrade) and lets the interpreted arm,
-   which can still see the node, answer. A refused emit falls back to
-   interpretation, so this is one answer and a refusal to bake it, not two
-   answers.
-
-   ⚠ SO THE DEGRADE LINE HERE MEANS "NOT EMITTED", NEVER "SOUND". That is the
-   standing rule about degrade lines and it applies to this one: whether the
-   fallback is safe is a per-construct question, and for an AND/OR inside a
-   multi-fire jitted action it is NOT -- an emit-time fold returns fire 1's
-   answer forever. Rungs assert the VALUES on both fires; they must not accept
-   the counter as the proof. */
+    // crashTradedForSilence  what promoting AND/OR fixed, and the silent wrong answer it introduced at degrade count 0
+    // unboxedCannotSee  which of truthOf's four rows an unboxed i32 can represent, and why the other three are refused rather than guessed
+*******************************************************************************/
 extern "C" GroupItem *jitEmitShortCircuit(GroupItem *field)
 {
 GroupItem 	*op = field->get(1);
@@ -5261,27 +5216,17 @@ extern "C" GroupItem *jitEmitSub(GroupItem *argument, GroupItem *target)
 	 return jitEmitBinary(argument, target, jitSub); 
 }
 
-/* jitEmitTrace  THE EMITTER HALF -- and the FIRST EMITTED CALL in this layer
-   that is not the lonely concatEQ.
+/*******************************************************************************
+    jitEmitTrace -- THE EMITTER HALF. Bakes the field's stable GroupItem address
+    and jitTraceRT's address as constants, then emits ONE CreateCall of
+    GroupItem*(GroupItem*).
 
-   Bakes the field's stable GroupItem address and jitTraceRT's address as
-   constants, then emits ONE CreateCall of GroupItem*(GroupItem*).
+    ⚠ THE CALL IS LEFT UNTAGGED, not readnone, so LLVM cannot DCE a callee it
+    cannot see into -- the concatEQ lesson.
 
-   ⚠ THE SIGNATURE IS THE FALLBACK-COLUMN CONVENTION, and it was VERIFIED
-   AGAINST THE TREE rather than adopted from the design: runOP's dispatch is
-   `result = op->groupBody->gMethod(target)` -- ONE ARGUMENT, VALUE-RETURNING,
-   GroupItem*(GroupItem*). The ruling and the ground agree, so every non-scalar
-   op's emitted call can wear this shape.
-
-   ⚠ NO STRUCT OFFSETS ARE BAKED INTO THE IR, deliberately. Reaching a field's
-   value from a returned pointer would need GEP arithmetic over GroupItem ->
-   groupBody -> gCount, and BAKED OFFSETS BREAK SILENTLY ON ANY GroupBody LAYOUT
-   CHANGE -- bear-trap #10's blast radius, arriving in emitted code where no
-   compiler would catch it. A helper call is layout-independent: the C++ side
-   recomputes the offsets every build. Pay one call, keep the layout free.
-
-   The call is left UNTAGGED (not readnone) so LLVM cannot DCE a callee it
-   cannot see into -- the concatEQ lesson. */
+    // fallbackSignature  the convention, and that it was verified against runOP's dispatch rather than adopted from the design
+    // noBakedOffsets  why GEP arithmetic over GroupBody is refused, and what it would cost in emitted code
+*******************************************************************************/
 extern "C" void jitEmitTrace(GroupItem *field)
 {
 	
@@ -5518,28 +5463,16 @@ extern "C" GroupItem *jitFieldMethod(GroupItem *field)
 	
 }
 
-/* jitFlushTransient  THE TRANSIENT-STATE FLUSH, ONE MECHANISM, TWO CALL SITES.
-   (S3 rider R1, Tony 2026-08-05.)
+/*******************************************************************************
+    jitFlushTransient -- THE TRANSIENT-STATE FLUSH, ONE MECHANISM, TWO CALL
+    SITES. S3 rider R1, Tony 2026-08-05.
 
-   Everything an emitted function leaves lying about that is scoped to THAT
-   function and must not be visible while building the next one: the jitData
-   hung on nodes, the frame slots, the values in flight, the block stacks, the
-   inline stack.
+    ⚠ IT DOES NOT TOUCH gJitBuilder OR gJitResultSlot. jitBuildFunction sets
+    those for itself immediately after calling this, and the discard path nulls
+    them separately because there the function they point into is gone.
 
-   ⚠ WHY IT IS A FUNCTION AND NOT TWO COPIES OF FIVE LINES. It runs between
-   FUNCTIONS (jitBuildFunction's own head) and on DISCARD (jitDiscardPartial),
-   and those two had every chance to drift apart -- an llvm::Value is valid only
-   inside the function that defines it, so a rebuild reading a stale jitData is
-   the SSA-staleness class jitEmitSelfCall's header already measured: "the second
-   pass compares an i1 against an i32 and LLVM asserts". A discard leaves exactly
-   that debris, and an ERASED function makes it worse than stale -- it is a
-   pointer into freed IR.
-
-   gJitSeeded's own header states the obligation between COMPILES; this applies
-   the identical rule between FUNCTIONS, which is the only thing S3 changed about
-   it. It does NOT touch gJitBuilder or gJitResultSlot: jitBuildFunction sets
-   those for itself immediately after calling this, and the discard path nulls
-   them separately because there the function they point into is gone. */
+    // transientOneMechanism  what it clears, and why two copies of five lines would have drifted into an SSA-staleness bug
+*******************************************************************************/
 extern "C" void jitFlushTransient()
 {
 	
@@ -5955,34 +5888,17 @@ extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue)
 	
 }
 
-/* jitPrintList  A MULTI-PART PRINT OPERAND, CLASSIFIED BY CONSTANCY.
-   Tony's ruling via Clay, 2026-08-05, and the ruling is what makes the hard half
-   evaporate.
+/*******************************************************************************
+    jitPrintList -- A MULTI-PART PRINT OPERAND, CLASSIFIED BY CONSTANCY. Tony's
+    ruling via Clay, 2026-08-05.
 
-   A print item's ExpressioN can be a LIST -- `print "P value =" pVal:;` carries
-   ONE item whose expression holds two parts. Measured:
-       part 0  tag=pVal   text=[7]           literal=0   COMPUTED
-       part 1  tag=Token  text=[P value =]   literal=1   CONSTANT
-   One of each, which is why the constancy split closes this case with no new
-   evaluation machinery.
+    ⚠ A CONSTANT MAY TRAVEL AS A POINTER; A COMPUTED PART MAY NOT. A literal is
+    immutable and baked, so it cannot catch the stale-frame disease the value
+    entry exists to dodge.
 
-   ⚠ A CONSTANT NEEDS NO EVALUATION AND CANNOT CATCH THE STALE-FRAME DISEASE.
-   That disease is why the value entry exists: a local's live value sits in a
-   frame slot until the epilogue, so handing the chain a field POINTER reads
-   storage nothing has written. A string literal is IMMUTABLE -- baked at emit
-   time, identical at every fire -- so the pointer is safe, and the part goes
-   through appendGroup's existing entry exactly as the interpreted walk sends it.
-   The chain's shape rules; nothing new is added to it.
-
-   ⚠ WALKED WITH prior(), NOT next(), and that is appendGroup's own order rather
-   than a preference: its non-reversePrint arm walks `prior`, because the list is
-   built in reverse. Measured here too -- pVal is part 0 and the literal is part
-   1, while the source reads literal-then-value.
-
-   COMPUTED STRINGS STAY BEHIND THE COUNTER. A part that is neither a constant
-   nor a scalar read is out of the current phase scope (appendGroupValue takes an
-   i32), so it degrades rather than emitting a wrong kind -- counted, not silent,
-   per the refusal discipline that has already paid twice today. */
+    // constancySplit  the measured two-part example, and why the split needs no new evaluation machinery
+    // priorNotNext  why the walk is prior() -- appendGroup's own order, because the list is built in reverse
+*******************************************************************************/
 extern "C" void jitPrintList(GroupItem *ExpressioN, GroupItem *FormaT)
 {
 	
@@ -6106,29 +6022,17 @@ extern "C" void jitPrintOpen(GroupItem *input)
 	
 }
 
-/* jitPrintProbe  COMPILE-TIME DIAGNOSTIC for the jitted print walk. R3, Clay,
-   2026-08-05: one aimed measurement before the third swing.
+/*******************************************************************************
+    jitPrintProbe -- COMPILE-TIME DIAGNOSTIC for the jitted print walk. Off
+    unless INCANT_PRINT_PROBE is set; it never appears in the IR.
 
-   ⚠ COMPILE-TIME LOGGING IS EXEMPT FROM THE EFFECT-FREE-EMIT LAW, and the
-   distinction is worth stating because it looks like a violation: that law
-   governs THE EMITTED PROGRAM, not the compiler's own mouth. This never appears
-   in the IR. It is off unless INCANT_PRINT_PROBE is set.
+    ⚠ NO LEFT-JUSTIFY FORMAT IN THIS printf. The first draft of this very
+    function re-tripped that trap -- canary 238 to 235, hours after it was
+    documented two functions up. Plain %s. Bear-trap #40.
 
-   THE QUESTION IT AIMS AT. Two symptoms -- appendGroupValue handed a constant
-   i32 0, and TWO parts walked where the statement reads as three -- are
-   consistent with ONE cause: the emit walk's part-classification diverging from
-   appendPrintXP's enumeration. So it reports, per part: WHAT THE WALK SAW
-   (before any filter), how it CLASSIFIED it, and whether gJitResult moved
-   across the expression emit.
-
-   phase 0  a part, as the walk first sees it, BEFORE the noPrint filter
-   phase 1  about to emit an expression   (gJitResult before)
-   phase 2  expression emitted            (gJitResult after)
-   phase 3  classified as a token (no expression)
-
-   ⚠ NO LEFT-JUSTIFY FORMAT IN THIS printf, and the first draft of this very
-   function re-tripped that trap -- canary 238 to 235, hours after the same trap
-   was documented two functions up. Plain %s. */
+    // compileTimeExempt  why compile-time logging does not breach the effect-free-emit law
+    // probeQuestion  the two symptoms it was aimed at, and what each phase reports
+*******************************************************************************/
 extern "C" void jitPrintProbe(GroupItem *node, int phase)
 {
 	

@@ -1037,6 +1037,180 @@ define
                 publishes a NODE, not a scalar, and the emitted store put that pointer into
                 the target's slot -- which is how starT's jitted road read 5560000 where the
                 interpreted road read LEAF. A pointer wearing the shape of data.#);
+            twoArities=(jitEmitRem -- THE FALLBACK COLUMN MEETING A REAL opMethod, the first
+                emitted call to an EXISTING operator rather than to a purpose-built helper. Two
+                calls, both layout-free: opRem(argument,target) -> GroupItem*, then
+                jitUnboxCount(that) -> i32.
+
+                ⚠ THE ARITY IS TWO, AND THAT REFINES WHAT J6 ESTABLISHED. runOP has TWO calling
+                conventions, not one:
+
+                    op.isOperator  ->  op.operat(arg,target)   TWO-arg
+                    op.isMethod    ->  op.method(target)       ONE-arg   <- J6's
+
+                `%` is registered `operateMethod=opRem`, so it is an OPERATOR and takes the
+                two-arg form. J6's "the ground agrees, one-argument" was true OF THE isMethod
+                ARM ONLY. The bulk of the fallback column is binary operators, so it is mostly
+                two-arg -- which is precisely what the ruling's SIGNATURE-KIND TABLE COLUMN is
+                for, and the column now has a concrete meaning: which arm, which arity.
+
+                THE RESULT NODE IS SEEDED so the value composes downstream: an operator's result
+                lands in tempField, and stamping its jitData lets the enclosing assignment read
+                it exactly as it reads any other operand. The callee is the ONE hardcoded part;
+                a table-driven callee is the table arc's job, not this rung's.#):
+                CodeSite="jitEmitters.rtn:jitEmitRem";
+            compileTimeExempt=(⚠ COMPILE-TIME LOGGING IS EXEMPT FROM THE EFFECT-FREE-EMIT LAW,
+                and the distinction is worth stating because it LOOKS like a violation: that law
+                governs THE EMITTED PROGRAM, not the compiler's own mouth. jitPrintProbe never
+                appears in the IR, and it is off unless INCANT_PRINT_PROBE is set. R3, Clay,
+                2026-08-05.#):
+                CodeSite="jitEmitters.rtn:jitPrintProbe";
+            probeQuestion=(THE QUESTION jitPrintProbe AIMS AT. Two symptoms -- appendGroupValue
+                handed a constant i32 0, and TWO parts walked where the statement reads as three
+                -- are consistent with ONE cause: the emit walk's part-classification diverging
+                from appendPrintXP's enumeration.
+
+                So it reports, per part: WHAT THE WALK SAW (before any filter), how it CLASSIFIED
+                it, and whether gJitResult moved across the expression emit.
+
+                    phase 0  a part, as the walk first sees it, BEFORE the noPrint filter
+                    phase 1  about to emit an expression   (gJitResult before)
+                    phase 2  expression emitted            (gJitResult after)
+                    phase 3  classified as a token (no expression)
+
+                ⚠ AND THE FIRST DRAFT OF THIS VERY FUNCTION RE-TRIPPED THE LEFT-JUSTIFY TRAP --
+                canary 238 to 235, HOURS after the same trap was documented two functions up.
+                See percentHyphenTrap.#):
+                CodeSite="jitEmitters.rtn:jitPrintProbe";
+            transientOneMechanism=(jitFlushTransient -- THE TRANSIENT-STATE FLUSH, ONE MECHANISM,
+                TWO CALL SITES. S3 rider R1, Tony 2026-08-05. It clears everything an emitted
+                function leaves lying about that is scoped to THAT function: the jitData hung on
+                nodes, the frame slots, the values in flight, the block stacks, the inline stack.
+
+                ⚠ WHY IT IS A FUNCTION AND NOT TWO COPIES OF FIVE LINES. It runs between
+                FUNCTIONS (jitBuildFunction's own head) and on DISCARD (jitDiscardPartial), and
+                those two had every chance to drift apart -- an llvm::Value is valid only inside
+                the function that defines it, so a rebuild reading a stale jitData is the
+                SSA-staleness class jitEmitSelfCall measured: "the second pass compares an i1
+                against an i32 and LLVM asserts". A discard leaves exactly that debris, and an
+                ERASED function makes it worse than stale -- it is a pointer into FREED IR.
+
+                gJitSeeded's own header states the obligation between COMPILES; this applies the
+                identical rule between FUNCTIONS, which is the only thing S3 changed. It does NOT
+                touch gJitBuilder or gJitResultSlot: jitBuildFunction sets those for itself
+                immediately after calling this, and the discard path nulls them separately
+                because there the function they point into is gone.#):
+                CodeSite="jitEmitters.rtn:jitFlushTransient";
+            fallbackSignature=(jitEmitTrace's SIGNATURE IS THE FALLBACK-COLUMN CONVENTION, and it
+                was VERIFIED AGAINST THE TREE rather than adopted from the design: runOP's
+                dispatch is `result = op->groupBody->gMethod(target)` -- ONE ARGUMENT,
+                VALUE-RETURNING, GroupItem*(GroupItem*). The ruling and the ground agree, so
+                every non-scalar op's emitted call can wear this shape.
+
+                It is the FIRST EMITTED CALL in this layer that is not the lonely concatEQ, and
+                the call is left UNTAGGED (not readnone) so LLVM cannot DCE a callee it cannot
+                see into -- the concatEQ lesson.#):
+                CodeSite="jitEmitters.rtn:jitEmitTrace";
+            noBakedOffsets=(⚠ NO STRUCT OFFSETS ARE BAKED INTO THE IR, deliberately. Reaching a
+                field's value from a returned pointer would need GEP arithmetic over
+                GroupItem -> groupBody -> gCount, and BAKED OFFSETS BREAK SILENTLY ON ANY
+                GroupBody LAYOUT CHANGE -- bear-trap #10's blast radius, arriving in EMITTED CODE
+                where no compiler would catch it.
+
+                A helper call is layout-independent: the C++ side recomputes the offsets every
+                build. Pay one call, keep the layout free.#):
+                CodeSite="jitEmitters.rtn:jitEmitTrace";
+            liftNotMigration=(jitBuildFunction -- ONE FUNCTION, START TO FINISH. S1
+                extraction, 2026-08-05, Tony's ruling "own function, sequential build".
+
+                THE SPLIT, exactly the brief's list: this routine owns the function shell, the
+                entry block, the result-slot alloca, the frame prologue, the body walk, the
+                frame epilogue, the ret, the verifier and mem2reg. jitRunAction owns everything
+                MODULE-scoped either side -- the engine, the LLVMContext, the Module, the IR
+                text capture, the compile count, addIRModule, lookup and the call.
+
+                ⚠ THIS IS A LIFT, NOT A MIGRATION, AND THE DISTINCTION IS THE BRIEF'S. The
+                sixteen file-scope globals stay exactly where they are; JitContext is NOT
+                adopted (see its note in jitContext.h). Sequential build never re-enters this
+                routine, so nothing here needs save/restore -- AND IF A LATER CHANGE MAKES IT
+                RE-ENTER, THAT IS THE MOMENT THE CONTEXT OBJECT IS OWED, NOT BEFORE.
+
+                WHY IT TAKES A GroupItem AND RETURNS AN int: a tok-extern signature carrying an
+                llvm type poisons the generated header. So the two things it cannot name -- the
+                context and the module -- arrive through gJitCtx/gJitModule, and the two things
+                it produces leave through gJitBuiltFn/gJitBuiltName.#):
+                CodeSite="jitEmitters.rtn:jitBuildFunction";
+            buildFunctionCodes=(jitBuildFunction RETURNS 0 ON SUCCESS, and the SAME negative
+                codes jitRunAction has always returned for the failures that now live inside it
+                -- -2 (nothing emitted, the gate never fired) and -5 (the verifier refused the
+                IR) -- KEPT IDENTICAL so no caller and no rung has to learn a new number.
+
+                -6 means it was called with no context/module set up, which only a mis-sequenced
+                caller can produce. -9 means two functions in one module wanted the same name,
+                which the build loop's erase discipline should make unreachable.#):
+                CodeSite="jitEmitters.rtn:jitBuildFunction";
+            crashTradedForSilence=(⚠ WHY jitEmitShortCircuit EXISTS AT ALL, measured the same day
+                and worth keeping: promoting AND/OR to an intercepting action fixed the
+                `AND`-under-jit 139 AND REPLACED IT WITH THE SILENT WRONG ANSWER.
+
+                With no emitter, runShortCircuit ran at EMIT time and folded its value --
+                jitXand2 and jitXor both wanted 1 on fire 2 and returned 0, AT DEGRADE COUNT 0.
+                Trading a crash for the dangerous-one is not progress, and this function is what
+                makes the promotion honest. 2026-08-11, docs/andOrRung.md §3 part 2, ruling
+                SEQ 32.#):
+                CodeSite="jitEmitters.rtn:jitEmitShortCircuit";
+            unboxedCannotSee=(WHAT jitEmitShortCircuit CAN AND CANNOT SEE, stated precisely
+                because the agreement claim depends on it.
+
+                An arm that emits leaves an UNBOXED i32 in flight, and `icmp ne 0` on it IS
+                truthOf's row 2 exactly -- so ON THE NUMERIC ROW THE TWO ENGINES AGREE BY
+                CONSTRUCTION, not by a careful copy.
+
+                ⚠ ROWS 1, 3 AND 4 ARE NOT REPRESENTABLE FROM AN UNBOXED INTEGER: a null, a
+                present-but-non-numeric node and a text node ALL arrive as "no value in flight"
+                -- one symptom for three causes. The emitter therefore does not GUESS among
+                them; it REFUSES (jitDegrade) and lets the interpreted arm, which can still see
+                the node, answer. A refused emit falls back to interpretation, so this is ONE
+                ANSWER AND A REFUSAL TO BAKE IT, not two answers.
+
+                ⚠ SO THE DEGRADE LINE HERE MEANS "NOT EMITTED", NEVER "SOUND". Whether the
+                fallback is safe is a per-construct question, and for an AND/OR inside a
+                multi-fire jitted action it is NOT -- an emit-time fold returns fire 1's answer
+                forever. Rungs assert the VALUES on both fires; they must not accept the counter
+                as the proof.#):
+                CodeSite="jitEmitters.rtn:jitEmitShortCircuit";
+            constancySplit=(jitPrintList -- A MULTI-PART PRINT OPERAND, CLASSIFIED BY CONSTANCY.
+                Tony's ruling via Clay, 2026-08-05, and the ruling is what makes the hard half
+                evaporate.
+
+                A print item's ExpressioN can be a LIST -- `print "P value =" pVal:;` carries ONE
+                item whose expression holds two parts. Measured:
+
+                    part 0  tag=pVal   text=[7]          literal=0   COMPUTED
+                    part 1  tag=Token  text=[P value =]  literal=1   CONSTANT
+
+                One of each, which is why the constancy split closes this case with NO new
+                evaluation machinery.
+
+                ⚠ A CONSTANT NEEDS NO EVALUATION AND CANNOT CATCH THE STALE-FRAME DISEASE. That
+                disease is why the value entry exists: a local's live value sits in a frame slot
+                until the epilogue, so handing the chain a field POINTER reads storage nothing
+                has written. A string literal is IMMUTABLE -- baked at emit time, identical at
+                every fire -- so the pointer is SAFE, and the part goes through appendGroup's
+                existing entry exactly as the interpreted walk sends it. The chain's shape rules;
+                nothing new is added to it.
+
+                COMPUTED STRINGS STAY BEHIND THE COUNTER. A part that is neither a constant nor a
+                scalar read is out of the current phase scope (appendGroupValue takes an i32), so
+                it DEGRADES rather than emitting a wrong kind -- counted, not silent.#):
+                CodeSite="jitEmitters.rtn:jitPrintList";
+            priorNotNext=(jitPrintList WALKS WITH prior(), NOT next(), and that is appendGroup's
+                OWN order rather than a preference: its non-reversePrint arm walks `prior`,
+                because the list is built in reverse.
+
+                Measured here too -- pVal is part 0 and the literal is part 1, while the source
+                reads literal-then-value.#):
+                CodeSite="jitEmitters.rtn:jitPrintList";
             fidelityGap=(WHY jitShowRecord HAS TO EXIST AT ALL, and it is a consequence of a
                 ruling rather than a gap. The 2026-08-03 print ruling gives two forms from one
                 walk, and `display` -- today's behaviour, and what listRules does -- ELIDES
