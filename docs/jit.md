@@ -149,6 +149,7 @@ reaching its sentinel and **not** its target, and says so in its own header.
 
 ### 1.3a ⚠ LOAD-VS-FOLD IS NO LONGER UNOBSERVABLE — status change, 2026-07-31
 This document has carried *"the load-vs-fold distinction is invisible while compile+run is one
+⚠ **THE INSTRUMENT THAT MADE IT OBSERVABLE IS `jitRefire`** — compile once, change an input, fire again. designDocs `rightAnswerWrongUniverse` carries why a compile-fire-check POP proves nothing on its own.
 shot — observable once a compiled action is cached and re-fired after a field changes"* as a
 deferred item since Phase 1. **It is now measured.**
 

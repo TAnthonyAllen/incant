@@ -1,3 +1,117 @@
+# ⚠⚠⚠ SEALED 2026-09-06, SECOND SESSION — THE COMMENT SWEEP. TWO FILES, 132 ENTRIES,
+# CODE UNMOVED, AND THE ORPHAN MECHANISM CLOSED: INSERTION, NOT SORTING.
+# (The morning's seal, the frame defect, is immediately below and still stands.)
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-06 14:13 and
+#   `git log -1 --date=iso` stamps 2026-09-06 14:12. They agree.
+#
+#   ## THE ONE-LINE STATE: **`genParse.rtn` and `jitEmitters.rtn` are swept —
+#   every long comment is a keyed DesignDocs entry, every link is one line with
+#   its key first, and every header is a UNIT with its declaration.** Fleet
+#   **213 green / 48 red**, canary **352**, ddPop 5, countPop 0-of-40, decodePop
+#   14, formsPop 14, frontier exit 0 station 2, alphaLint 8 files / 4
+#   out-of-order / **0 broken units**. Groups and support clean and pushed.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. ORPHANED HEADERS COME FROM INSERTION, NOT SORTING. Five of five, by
+#   commit clock.** Every orphan header was born in the SAME COMMIT as its own
+#   method — adjacent at birth — and the declaration that ended up beneath it is
+#   YOUNGER. Two same-day cases needed commit-clock resolution, under three
+#   hours each. ⚠ **BOTH SORTS ARE EXONERATED**: the finder run against the real
+#   08-15 pass (`9c4962b`, which also introduced `alphaLint.sh`) and the 09-04
+#   re-sort reports **0 for genParse and 1 for jitEmitters** on both bases.
+#   Clay's sort theory and Clod's restatement of it are **recorded falsified**.
+#   It is a process fact: methods come and go without their headers coming too.
+#
+#   **b. THE UNIT RULE IS RE-JUSTIFIED ON BETTER GROUND THAN IT WAS ADOPTED ON.**
+#   It was argued from sorting, which was wrong. Its real value: **an inserted
+#   method cannot land between a header and its declaration when the two are one
+#   unit with no blank line between.** `alphaLint.sh` checks it, with an H7
+#   control — one injected blank line reads `UNIT BROKEN`.
+#
+#   **c. THE CONVENTION, FOUR CLAUSES, ALL OF THEM TONY'S CORRECTIONS.**
+#   `// slug sentence` — one physical line, key FIRST, bare slug with no file
+#   prefix, inside the top-of-method block AFTER the body, and **saying what the
+#   entry ADDS, never what the reader has just read.** ⚠ All four came from Tony
+#   reading the result; none from the seat writing it.
+#
+#   **d. THE FOURTH SPECIES IS THE OBITUARY, AND ITS TEST IS SUBJECT, NOT TENSE.**
+#   Subject is code that is GONE ⇒ DesignDocs whole, `Status: superseded <date>`,
+#   link labelled `// slug obituary: what died, when`. ⚠ **ONE member, not nine**
+#   — the grep's eight further candidates were all read and all are rationale
+#   carrying history in a subordinate clause.
+#
+#   ## THE NUMBERS, read from metrics.txt
+#
+#   | | genParse.rtn | jitEmitters.rtn |
+#   |---|---|---|
+#   | name-hits in COMMENTS | 218 → **164** | 256 → **188** |
+#   | name-hits in CODE | 187 → **187** | 208 → **208** |
+#   | noise | 53% → 46% | 55% → **47%** |
+#   | lines | 2862 → 2280 | 3663 → **3148** |
+#   | links | 56 | 76 |
+#
+#   ⚠ **CODE HITS NEVER MOVED, and the stripped-comment diff was EMPTY against
+#   the pre-sweep original at every stroke.** ⚠ **AND jitEmitters CROSSED 1:1** —
+#   188 comment mentions against 208 code — so a method-name grep now lands in
+#   code more often than in prose, which was Tony's original complaint.
+#
+#   ## ⚠ INSTRUMENTS BORN, AND EVERY ONE WAS WRONG ON FIRST RUN
+#   unit lint (in `alphaLint.sh`) · overlap scan · CodeSite agreement both
+#   directions with shared entries as their own row · pre-sort finder, **retired
+#   to its narrow question** (did a SORT move this — it cannot see insertion) ·
+#   `metrics.sh`, which writes numbers to a FILE so a commit message is read
+#   rather than drafted.
+#
+#   ⚠ **NOT ONE ANNOUNCED ITS OWN FAILURE.** Three void probes; an overlap scan
+#   reporting 569 then a vacuous 0; a CodeSite lint reading 0/5 because a
+#   `Status` field pushed the value out of view; a site map that silently dropped
+#   a shared entry (26 links, 25 checked); a bulk edit that reattached EVERY link
+#   to the wrong method, caught at 14/50. **Every one was caught by an adjacent
+#   number disagreeing.** ⚠ And the last catch is the one to keep: `jitEmitGIF`'s
+#   header was itself an orphan 1,890 lines from its method, so recutting it in
+#   place produced a CORRECT LINK ABOVE THE WRONG METHOD — adjacency said fine,
+#   because it WAS adjacent to a declaration; only CodeSite knew which one.
+#
+#   ## ⚠ TWO H14 SLIPS, AND THE FIX WAS STRUCTURAL
+#   Two commit messages carried searchability numbers drafted before the metric
+#   ran (`a1b16de` 165/46%/2440 → really 169/47%/2447; `fef0604` 235 → 237).
+#   Corrected in the following commits rather than force-pushed. **The rule had
+#   been read and was slipped anyway, which is the argument for `metrics.sh`
+#   rather than more care.**
+#
+#   ## THE DOCKET
+#   - **CLOSED** — 08-13 (c), the minion role: it is a **dispatch shape**, not a
+#     new seat. Also closed: the stale 08-17 method-scoped blocker (superseded
+#     2026-09-03, three weeks stale when read).
+#   - **SHELVED** — twk conversion, list banked.
+#   - **PARKED** — `bareIfTruth` charter, awaiting Tony's ratification ·
+#     `ruleActions.rtn` recut, behind Tony's BeforeSave diff · the relevance
+#     minion, `docs/relevanceMinion.md` DRAFT, **not chartered**.
+#   - **TONY, OFFLINE** — parser, frontier and compile. The parser compile bit
+#     against the frontier; **the first failing station is the number**.
+#
+#   ## ⚠ THE RELEVANCE MINION, IN ONE LINE
+#   **Placement · referent · noun-existence, three columns, a planted control,
+#   grades without rewriting, one specimen first.** ⚠ Placement is the column
+#   nobody proposed and it caught the most — **fourteen orphans in one day**. And
+#   a minion can check whether a claim's NOUNS are still true; **it cannot check
+#   whether its VERBS are.**
+#
+#   ## HOUSEKEEPING
+#   - Groups and support **0 dirty, 0 unpushed**. TOK carries 2 (Tony's scheme
+#     toggle — his, and not a finding).
+#   - `groups.ext` untouched this session; nothing owed there.
+#   - Cross-references landed: `rightAnswerWrongUniverse` from `docs/jit.md`'s
+#     load-vs-fold line, `callNotGep`/`noBakedOffsets` from bear-trap #10.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: namedReadTwoRoads, since 2026-09-05)`
+#   `namedReadTwoRoads` (OPEN) · `refusalNotTerminal` (its driver is a NEGATIVE
+#   CONTROL) · `artifactSkipByFlag` (RULED, gated on the depth-class respell
+#   pass). Step one, or name which goes first.
+#
 # ⚠⚠⚠ SEALED 2026-09-06 — A FRAME DEFECT THAT PREDATED THE FLIP, FOUND BY THE FIRST
 # BODY THAT FLAGGED A LOCAL MID-FLIGHT. THE RESTORE IS KEYED BY FIELD. M2 DISCHARGED.
 #

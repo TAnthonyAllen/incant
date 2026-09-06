@@ -432,6 +432,68 @@ and the sentence says what will happen to it. Past tense about a *live* thing is
 the species is past tense about a thing that is **gone**. Site count with the corrected pattern:
 **0**. File-wide it finds **8 more**, which is the population the rest of the sweep will classify.
 
+## ⚠ THE TWO-FILE SWEEP, CLOSED 2026-09-08 — WHAT IT MEASURED
+
+| | `genParse.rtn` | `jitEmitters.rtn` |
+|---|---|---|
+| name-hits in COMMENTS | 218 → **164** | 256 → **188** |
+| name-hits in CODE | 187 → **187** | 208 → **208** |
+| noise | 53% → **46%** | 55% → **47%** |
+| file lines | 2862 → **2280** | 3663 → **3148** |
+| links | 56 | 76 |
+| dangling · orphaned · units broken | 0 · 0 · 0 | 0 · 0 · 0 |
+
+**Code hits never moved in either file.** That is the certificate the whole sweep rests on: nothing
+but prose changed, and the diff-of-stripped-comments was empty against the pre-sweep original at
+every stroke.
+
+⚠ **AND THE 1:1 CROSSING IS THE READER-FACING RESULT.** `jitEmitters.rtn` now carries 188 comment
+mentions against 208 code mentions — **a method-name grep lands in code more often than in prose**,
+which was Tony's original complaint and is the first time either file has been on that side of the
+line.
+
+### THE FOUR SPECIES
+
+| species | test | where it goes |
+|---|---|---|
+| **site warning** | present tense; an editor here can break it | STAYS, in the body |
+| **rationale** | present tense; why it is like this | DesignDocs, link at the site |
+| **obituary** | **subject is code that is GONE** | DesignDocs whole, `Status: superseded <date>`, link labelled `// slug obituary: what died, when` |
+| **file-general** | not about any one method | the file node, or a guard block at the top |
+
+⚠ **THE OBITUARY'S TEST IS SUBJECT, NOT TENSE, AND THE COUNT WAS ONE — NOT NINE.** A pattern over
+past-tense language found eight further candidates; all eight were read and all eight are
+**rationale carrying its history in a subordinate clause** — `jitIfEnd`'s *"it used to close the
+then arm"* documents live code. `argChannel`'s tripwire, sixteen lines whose entire subject was a
+deleted guard, is the one member. **Reporting the grep's eight would have been H9's failure and put
+tombstones on nine live headers.**
+
+**The positive control is `jitPrintProbe`:** its own first draft re-tripped the left-justify trap
+its neighbour two functions up already documented — canary 238 → 235, within hours. That is what a
+site warning is for, and why it stays at the `printf` rather than in a header a reader has scrolled
+past.
+
+### INSTRUMENTS BORN
+
+| instrument | what it answers |
+|---|---|
+| **unit lint** (in `alphaLint.sh`) | is any header separated from its declaration by a blank line — the state a sort orphans |
+| **overlap scan** | does a link restate the header it sits under |
+| **CodeSite agreement**, both directions | does the site's adjacency match the registry's `CodeSite`, with shared entries as their own row |
+| **pre-sort finder** | *retired to its narrow question:* did a SORT move this. It cannot see insertion, which is the actual mechanism |
+| **`metrics.sh`** | writes the numbers to a FILE so a commit message is read rather than drafted |
+
+⚠ **EVERY ONE OF THOSE WAS WRONG ON FIRST RUN, AND EVERY FAILURE WAS CAUGHT BY AN ADJACENT NUMBER
+DISAGREEING RATHER THAN BY THE INSTRUMENT SAYING SO.** Three void probes; an overlap scan reporting
+569 then a vacuous 0; a CodeSite lint reading 0/5 because a `Status` field pushed the value out of
+view; a site map that silently dropped a shared entry (26 links, 25 checked); and a bulk edit that
+reattached **every** link to the wrong method and was caught at 14/50.
+
+⚠ **THE LINT'S LAST CATCH IS THE ONE TO KEEP.** `jitEmitGIF`'s header was itself an orphan, 1,890
+lines from its method. Recut in place, it produced a *correct link above the wrong method* —
+**adjacency alone said it was fine, because it WAS adjacent to a declaration.** Only `CodeSite`
+knew which one it should have been.
+
 
 ## LOOKUPS CLOD ACTUALLY MADE
 

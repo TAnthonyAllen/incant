@@ -1310,6 +1310,11 @@ Hard-won lessons. Each one has cost real debugging time.
     hits ⇒ documentation-only, nothing owed — which is what it was for the `RuleStuff.parseMethod`
     add on 2026-07-27. Any hits ⇒ retok those before trusting the binary on those paths.
     Same category as bear-trap #11: the build has more surface than the instructions describe.
+    ⚠ **AND ITS BLAST RADIUS REACHES EMITTED CODE, WHICH NO COMPILER CHECKS.** The JIT refuses to
+    bake GroupBody struct offsets into IR for exactly this reason — a layout shift would surface
+    as a WRONG NUMBER AT RUN TIME with nothing to catch it. designDocs `callNotGep` and
+    `noBakedOffsets` carry the argument, and any future GEP-for-speed proposal argues against it
+    in writing.
     Related, unresolved and Tony's: `GUI/Layout.twk` and `GUI/Stylish.twk` share basenames with
     the top-level `Layout.twk`/`Stylish.twk`, and only the top-level pair is ever swept.
 
