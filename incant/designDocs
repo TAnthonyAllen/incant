@@ -1077,6 +1077,48 @@ define
                 jitIfEnd closes the ELSE arm and resumes at the endif merge block, popping BOTH
                 stacks in lockstep. (It closed the THEN arm before jitIfElse existed, 2026-07-31.)#):
                 CodeSite="jitEmitters.rtn:jitIfEnd";
+            sweepBatches=(THE SLOT-MIGRATION SWEEP, 2026-08-17, IN TWO BATCHES. Batch one is
+                the four remaining comparisons, completing the ordered half of the jitCmp family
+                beside jitEmitGT. Batch two is the last four of the strict binary/comparison
+                population -- `!=` and the three remaining arithmetic -- AND IT CLOSES THE STRICT
+                SWEEP AT 10 OF 10.
+
+                All are the same three lines, which is the TEMPO CLAIM being tested and is now
+                measured over six ops rather than argued. Nothing in a shim decides anything: the
+                selector is the whole content, which is the point of moving it from a gate
+                parameter to a fact the op carries.
+
+                ⚠ EVERYTHING STILL CARRYING AN `if jitting` GATE IS OUT BY SHAPE, NOT UNSWEPT:
+                jitEmitDot and jitEmitRem take a third argument (ruler->tempField), three are
+                jitEmitUnary, and jitEmitAssign is a shape fit parked for other reasons. Each
+                waits on its own specimen. docs/jitSlotMigration.md.
+
+                ⚠ AND NEVER-NULL STAYS OPEN, DELIBERATELY. The strict population being complete
+                is NOT the sweep closing: ops remain without slots, so the null case still means
+                "not yet migrated" and hardening now would fail on every one of them. The
+                sweep-close obligations are unchanged and unclaimed.#):
+                CodeSite="jitEmitters.rtn:jitEmitGE";
+            oneTopologyAlways=(jitIfElse IS CALLED UNCONDITIONALLY by jitEmitGIF, whether or not
+                the source has an `else` -- with no else the block is simply left empty and
+                jitIfEnd branches it to endif.
+
+                ⚠ WHY UNCONDITIONALLY: the missing else arm was NOT A HARD BUG, it was a SECOND
+                TOPOLOGY THAT NOBODY EXERCISED. jitEmitGIF declared only ExpressioN and
+                StatemenT, so the else statement was never visited by anything -- neither emitted
+                nor interpreted, it simply VANISHED, and a false condition then left the variable
+                untouched and returned garbage AT EXIT 0.
+
+                One topology, always three blocks, is the STRUCTURAL fix; the alternative (branch
+                on hasElse) recreates the two paths that diverged.#):
+                CodeSite="jitEmitters.rtn:jitIfElse";
+            refusalNotZero=(⚠ IN jitScEnd A RIGHT ARM THAT EMITTED NOTHING IS A REFUSAL, NOT A
+                ZERO. gJitResult null there means the sub-walk produced NO VALUE -- and storing a
+                constant would be SUBSTITUTING AN ANSWER THE EMITTER DOES NOT HAVE, which is
+                exactly the move jitPrintItem was corrected for on 2026-08-05.
+
+                The slot keeps its pre-stored short-circuit answer and jitDegrade announces it,
+                so the run FAILS A RUNG instead of returning a plausible number.#):
+                CodeSite="jitEmitters.rtn:jitScEnd";
             secondFamilyOnPurpose=(jitEmitGT -- OP TWO of the slot migration, and A jitCmp
                 DELIBERATELY rather than a second arithmetic. The pathfinder proved the slot on
                 the family whose gate already worked; the selector population being retired has

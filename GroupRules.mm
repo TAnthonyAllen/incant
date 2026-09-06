@@ -4507,17 +4507,14 @@ extern "C" void jitEmitFill(GroupItem *field)
 	
 }
 
-/*  BATCH ONE OF THE SWEEP, 2026-08-17 -- the four remaining comparisons, which
-    completes the ordered half of the jitCmp family beside jitEmitGT above.
+/*******************************************************************************
+    jitEmitGE -- batch one of the slot sweep. Three lines, like every shim.
 
-    All four are the same three lines, which is the tempo claim being tested and
-    is now measured over six ops rather than argued. Nothing here decides
-    anything: the selector is the whole content of each shim, which is the point
-    of moving it from a gate parameter to a fact the op carries.
+    ⚠ DO NOT ADD A COUNTER INCREMENT TO ANY SHIM. The slot count lives at the
+    fork in runOP precisely so a shim author cannot forget it.
 
-    ⚠ DO NOT ADD A COUNTER INCREMENT TO ANY OF THESE. The slot count lives at the
-    fork in runOP precisely so a shim author cannot forget it. See
-    docs/jitSlotMigration.md.  */
+    // sweepBatches  the two batches, what closing at 10 of 10 does and does not mean, and why never-null stays open
+*******************************************************************************/
 extern "C" GroupItem *jitEmitGE(GroupItem *argument, GroupItem *target)
 {
 	 return jitEmitCompare(argument, target, jitGE); 
@@ -5467,19 +5464,12 @@ extern "C" void jitIfBegin()
 	
 }
 
-/* jitIfElse  closes the THEN arm and opens the ELSE arm (2026-07-31). Branches
-   the finished then block to the stacked endif, then resumes insertion in the
-   stacked else block. Called UNCONDITIONALLY by jitEmitGIF, whether or not the
-   source has an `else` -- with no else the block is simply left empty and
-   jitIfEnd branches it to endif.
+/*******************************************************************************
+    jitIfElse -- closes the THEN arm and opens the ELSE arm. Called
+    UNCONDITIONALLY by jitEmitGIF, with or without a source `else`.
 
-   WHY UNCONDITIONALLY: the missing else arm was not a hard bug, it was a SECOND
-   TOPOLOGY that nobody exercised. jitEmitGIF declared only ExpressioN and
-   StatemenT, so the else statement was never visited by anything -- neither
-   emitted nor interpreted, it simply vanished, and a false condition then left
-   the variable untouched and returned garbage AT EXIT 0. One topology, always
-   three blocks, is the structural fix; the alternative (branch on hasElse)
-   recreates the two paths that diverged. */
+    // oneTopologyAlways  why the missing else was a second topology rather than a bug, and what branching on hasElse would recreate
+*******************************************************************************/
 extern "C" void jitIfElse()
 {
 	
@@ -6470,16 +6460,15 @@ extern "C" void jitScBegin(int isAND)
 	
 }
 
-/* jitScEnd  closes the diamond. Stores the RIGHT arm's truth into the slot,
-   branches to the merge, and leaves the loaded result in flight as the value of
-   the whole conjunction.
+/*******************************************************************************
+    jitScEnd -- closes the diamond: store the RIGHT arm's truth, branch to the
+    merge, leave the loaded result in flight as the conjunction's value.
 
-   ⚠ A RIGHT ARM THAT EMITTED NOTHING IS A REFUSAL, NOT A ZERO. gJitResult null
-   here means the sub-walk produced no value -- and storing a constant would be
-   substituting an answer the emitter does not have, which is exactly the move
-   jitPrintItem was corrected for on 2026-08-05. The slot keeps its pre-stored
-   short-circuit answer and jitDegrade announces it, so the run fails a rung
-   instead of returning a plausible number. */
+    ⚠ A RIGHT ARM THAT EMITTED NOTHING IS A REFUSAL, NOT A ZERO. Storing a
+    constant substitutes an answer the emitter does not have.
+
+    // refusalNotZero  why the slot keeps its pre-stored answer and degrades instead
+*******************************************************************************/
 extern "C" void jitScEnd(GroupItem *resultNode)
 {
 	
