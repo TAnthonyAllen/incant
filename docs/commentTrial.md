@@ -205,6 +205,36 @@ before a method declaration is NOT noise.** That is the link line doing its job,
 thing it names. So the target is not zero — it is *"the only comment hit for a method name is the
 one line above its declaration."*
 
+## ⚠ NINTH FINDING, 2026-09-06 — THREE HEADERS IN ONE FILE, ALL ADRIFT, ALL FOUND BY A SCRIPT
+
+The fourth finding said *prose rots by POSITION, and the register cannot*, on one instance. The
+`genParse.rtn` sweep found two more, and the third is the one that makes the argument:
+
+| the header | belongs to | was found at | drift |
+|---|---|---|---|
+| `parseRuleMethod`, ~50 lines | `parseRuleMethod` | above `parseTermCount` | **234 lines** |
+| `dumpRuleTerms`, 34 lines | `dumpRuleTerms` (line 319) | above `locateRule` (line 1115) | **~800 lines** |
+| **the FILE header**, 32 lines | `genParse.rtn` itself | line **1012**, between `kantLeaf` and `locateRule` | **~1000 lines, and not at the top at all** |
+
+**The file began with `activateAll` and no header whatever.** Anyone opening `genParse.rtn` — to
+learn what it is, or to be warned about the three tok traps that each cost a build cycle — saw
+none of it.
+
+⚠ **ALL THREE WERE INVISIBLE TO READING AND OBVIOUS TO A SCRIPT.** Nobody noticed in the months
+they sat there, and each surfaced within seconds of a cut script looking for the `extern` it
+expected to find under a block. **The drift a human notices is the small one**; past a screenful,
+a misplaced comment simply reads as a different comment.
+
+⚠ **AND THE PROBABLE CAUSE IS A GOOD DEED.** The 09-04 cleanup arc alphabetised these files. A
+sort moves *declarations*; a detached comment block is not attached to anything, so it sorts as
+whatever it happens to sit above. **Alphabetising a file with drifted comments does not fix the
+drift, it randomises it** — which is worth knowing before the alphabetical lint runs on the
+remaining 23-of-56.
+
+**This is the argument for `jitEmitters.rtn`, not just for finishing `genParse.rtn`.** A keyed
+entry cannot drift: the key resolves or it does not, and `CodeSite` now makes the reverse
+direction checkable too.
+
 
 ## LOOKUPS CLOD ACTUALLY MADE
 
@@ -331,10 +361,14 @@ lines the claim honestly needs — the convention is about moving the ARGUMENT o
 count.** Two is not a licence for three; the acid test is still the acid test, and both two-liners
 here are load-bearing invariants (a segfault and a silent wrong answer).
 
-⚠ **ONE BLOCKER REMAINS ON THE SWEEP AND IT IS NOT THIS ONE.** `docs/commentMinion.md` is signed
-with schema v2 and Tony's **method-scoped-not-file-scoped** amendment, while this exemplar uses
-`TokFiles`. **Two conventions, one job** — still unreconciled, and the sweep does not open until it
-is. That is a ten-minute ruling, not a build.
+⚠ ~~**ONE BLOCKER REMAINS ON THE SWEEP.** `docs/commentMinion.md` is signed with schema v2 and
+Tony's method-scoped-not-file-scoped amendment, while this exemplar uses `TokFiles`.~~
+**CLOSED 2026-09-06, AND IT WAS NEVER THE CONFLICT IT LOOKED LIKE.** Read on the day the sweep
+needed it: the 08-17 amendment is about the minion's **work scope** — *"one easy file, one or two
+egregiously commented methods inside it"* — not about key nesting; and `commentMinion.md`'s own
+head carries a **2026-09-03 supersession** saying the schema-v2 method-scoped FORM below it *"is
+not the convention any more — the `opDot` TokFiles entry is."* So the two documents had already
+been reconciled by ruling and the row was stale. **A blocker nobody re-read for three weeks.**
 
 ⚠ **DATE NOTE:** the nine rows in the table above are stamped `2026-09-01` / `2026-09-02`. The
 machine says those entries were all written on **2026-08-31** — see the seal-date drift ledger at
