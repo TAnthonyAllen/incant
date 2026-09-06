@@ -1037,6 +1037,138 @@ define
                 publishes a NODE, not a scalar, and the emitted store put that pointer into
                 the target's slot -- which is how starT's jitted road read 5560000 where the
                 interpreted road read LEAF. A pointer wearing the shape of data.#);
+            printEffectFree=(THE LAW THE JITTED PRINT SERVES: the emit-time walk must be
+                EFFECT-FREE. Until 2026-08-04 a jitted print fired AT COMPILE TIME -- once,
+                reporting compile-time state -- which is WORSE than not printing, because it
+                appears to work. The compile-once-fire-twice proof the whole ladder rests on
+                already assumed the emit walk had no effects; the three emitted calls make that
+                true for print. Work item 3, Tony's ruling via Clay.#):
+                CodeSite="jitEmitters.rtn:jitPrintItem";
+            printSeamAppendGroup=(THE SEAM IS appendGroup, READ RATHER THAN ASSUMED
+                (2026-08-04):
+
+                    aCTionPrinT -> appendPrintXP  walks the PrintXP attributes and EVALUATES
+                                                  (result = method(ExpressioN))
+                                -> appendGroup    RECEIVES EVALUATED VALUES   <- the seam
+                                     - printField for real fields
+                                     - the shortcut switch for ~ $ _ : + - ` , and indent
+                                -> opPrint        the sink
+
+                appendGroup does NOT evaluate its own input, so the seam is exactly where the
+                ruling put it: below evaluate, above shortcut/format handling.#):
+                CodeSite="jitEmitters.rtn:jitPrintItem";
+            valueNotPointer=(⚠ THE ITEM CALL GOES TO THE VALUE ENTRY, NOT THE POINTER ENTRY, and
+                that is FORCED rather than stylistic: a LOCAL's live value sits in a frame slot
+                until the epilogue, so passing appendGroup a field pointer mid-function reads
+                storage NOTHING HAS WRITTEN YET -- a silent wrong answer.
+
+                appendGroupValue takes the evaluated i32 and stamps it on a carrier, routing
+                into appendGroup's own switch so shortcuts, formats and indent stay
+                single-sourced in the chain. The rejected alternative -- spill live values
+                before every print -- makes each print a sync barrier and needs liveness
+                enumeration.#):
+                CodeSite="jitEmitters.rtn:jitPrintItem";
+            shortcutImmediates=(SHORTCUT TOKENS TRAVEL AS IMMEDIATES. `print +` and `print $-`
+                are nodes whose TEXT is the shortcut; their address is baked and
+                appendGroupValue passes them through untouched. No format or indent decision is
+                baked at emit time -- they happen at RUN time, in the chain, exactly as
+                interpreted.#):
+                CodeSite="jitEmitters.rtn:jitPrintItem";
+            bareReadMissing=(jitEmitBareRead -- THE MISSING PRIMITIVE. Tony's ruling via Clay,
+                2026-08-05.
+
+                ⚠ WHY IT WENT MISSING FOR SO LONG: the JIT had never had to MATERIALIZE A BARE
+                READ. Every certified rung to date reached its operands through an operator or a
+                method, and runOP's seed gate seeded them on the way past -- so an operand was
+                always already a value by the time anyone wanted one. displayForm is the first
+                fixture whose statements simply LOOK AT THINGS, and it is the convergence rung,
+                which is exactly the rung that should find this.
+
+                IT CLOSES THREE THINGS AT ONCE, all one hole seen from three sides:
+                  - print values (appendPrintXP's `else result = ExpressioN` makes no call, so
+                    nothing was ever emitted for a bare operand)
+                  - the bare-flag-read item
+                  - finding #3, `if noPrinT` reading %iterCond -- the same hole from the
+                    CONDITION side, reusing whatever value was last in flight#):
+                CodeSite="jitEmitters.rtn:jitEmitBareRead";
+            bareReadTwoArms=(THE FORK IS EMIT-TIME KNOWLEDGE, SO IT COSTS NOTHING AT RUN TIME,
+                and both arms already exist inside jitSeedField -- jitEmitBareRead does not
+                reimplement them:
+
+                  arm 1  A JIT-TRACKED LOCAL. Its storage is a frame alloca, so the read is a
+                         load OF THE ALLOCA, which mem2reg promotes to the SSA value the
+                         function already holds. ⚠ Emitting a load of the FIELD'S OWN memory
+                         here would read the STALE FRAME SLOT -- the epilogue has not written it
+                         yet -- which is the exact disease valueNotPointer exists to dodge, and
+                         it would be silently wrong.
+                  arm 2  ANYTHING ELSE -- a persistent field. A run-time load through the baked
+                         address, unchanged from how globals have always been read.
+
+                jitSeedField keys the choice on the HOME ADDRESS rather than node identity,
+                because each occurrence of a local in a body is its own GroupItem, so the token
+                here is never the node the prologue walked.#):
+                CodeSite="jitEmitters.rtn:jitEmitBareRead";
+            bareReadThirdCategory=(⚠ A THIRD CATEGORY EXISTS AND IS NOT HANDLED IN
+                jitEmitBareRead, DELIBERATELY: an accessor whose resolution is a RUN-TIME
+                POINTER-WALK -- `noPrinT` on the iterator's CURRENT node, which node that is
+                depends on the iteration. That is not a read of any fixed storage, so no load
+                can express it. It goes through opDot's own gate instead, as a CALL to the
+                accessor, so read semantics cannot drift.
+
+                ⚠ IF A FOURTH CATEGORY TURNS UP while building on this, THAT IS A REPORT, NOT
+                AN IMPROVISATION.#):
+                CodeSite="jitEmitters.rtn:jitEmitBareRead";
+            crossoverPolicy=(jitDegrade -- THE CROSSOVER PRIMITIVE, lifted 2026-07-30.
+
+                docs/jit.md §0 carries an OPEN RULING of Tony's: during crossover, what happens
+                to a construct the JIT cannot emit yet? Falling back to the interpreter IS
+                divergence, arriving as a schedule artifact. The candidate answer that made
+                mixed mode safe is DEGRADE TO THE ORACLE LOUDLY.
+
+                That answer was already IMPLEMENTED, exactly once, by whoever did the
+                2026-07-29 iterator work -- opPlusPlus and opMinusMinus each announce on stderr
+                before handing an iterator back to iterAdvance. It was the only instance in the
+                tree and it had no name.
+
+                ⚠ AND IT WAS ABOUT TO BE DELETED WITHOUT BEING NOTICED. Both instances sit
+                inside `if result.isIterator`, and §0 schedules exactly that gate for removal --
+                the iterator becomes two stack slots, "no handle in the heap, and no
+                isIterator" (docs/jit.md:33). So the JIT's only worked example of its own
+                crossover policy would have vanished with its host, and the policy would have
+                gone back to being a paragraph in a design doc. Lifted FIRST, so the pattern
+                outlives the code that happened to carry it.#):
+                CodeSite="jitEmitters.rtn:jitDegrade";
+            counterIsThePoint=(THE jitDegrade COUNTER IS THE POINT, not decoration. The
+                2026-07-30 recon found ~53 places where an ungated construct silently runs
+                interpreted at emit time (jitExecBlock walks the BlocK, so anything without a
+                jitting gate simply EXECUTES).
+
+                ⚠ SILENT FALLBACK IS WHAT MAKES §0's RULING UNANSWERABLE: you cannot rule on a
+                boundary nobody has enumerated. Every call turns one of those into a COUNTABLE
+                ARTIFACT -- the same move the genParse walk made when it replaced quiet skips
+                with named refusals.
+
+                ⚠ AND WHAT THE COUNTER CANNOT DO IS RECORDED WITH IT: a degrade line asserts
+                that a fallback OCCURRED, never that it was SOUND. A tail return and a mid-body
+                return both report 2. See CLAUDE.md's entry and incant/jitXe2.#):
+                CodeSite="jitEmitters.rtn:jitDegrade";
+            degradeNotRefuse=(DEGRADE, NOT REFUSE. jitDegrade announces and RETURNS; the caller
+                then does the interpreted thing. That is deliberate and is the whole difference
+                from jitRunAction's verifier, which REFUSES (-5) because invalid IR must never
+                run.
+
+                An unemittable construct is NOT AN ERROR -- it is unfinished work, and the run
+                should still produce the right answer by the slow path.#):
+                CodeSite="jitEmitters.rtn:jitDegrade";
+            staticNotSlot=(jitDegrade's COUNTER LIVES IN A C++ static RATHER THAN A NODE SLOT,
+                for the reason CLAIM KANT-4 records: GroupBody's value slots are ONE UNION, and
+                a counter parked in gCount destroys whatever pointer shares it. iterSpins
+                (Instruct.rtn:457) is the existing precedent.
+
+                And it uses fprintf(stderr), not print: bear-trap #14 -- stdout is block-buffered
+                and a run ending via stop() loses it, so a degrade notice would silently vanish
+                exactly when a crash made it most valuable.#):
+                CodeSite="jitEmitters.rtn:jitDegrade";
             jitBindArgRT=(BIND A CALL'S ARGUMENT, AT RUN TIME. 2026-08-05.
 
                 THE GAP: runAction's jitting gate returns on a self-call BEFORE the two lines

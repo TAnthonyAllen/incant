@@ -442,50 +442,19 @@ extern int jitBuildFunction(GroupItem action)
 }
 
 
-/***************************************************************************
-    jitDegrade -- THE CROSSOVER PRIMITIVE, lifted 2026-07-30.
+/*******************************************************************************
+    jitDegrade -- THE CROSSOVER PRIMITIVE, lifted 2026-07-30. It ANNOUNCES and
+    RETURNS; the caller then does the interpreted thing.
 
-    docs/jit.md S0 carries an OPEN RULING of Tony's: during crossover, what
-    happens to a construct the JIT cannot emit yet? Falling back to the
-    interpreter IS divergence, arriving as a schedule artifact. The candidate
-    answer that made mixed mode safe is DEGRADE TO THE ORACLE LOUDLY.
+    ⚠ A DEGRADE LINE ASSERTS THAT A FALLBACK OCCURRED, NEVER THAT IT WAS SOUND.
+    A tail return and a mid-body return both report 2, and only one of them is
+    correct. Do not read the counter as a safety property.
 
-    That answer was already IMPLEMENTED, exactly once, by whoever did the
-    2026-07-29 iterator work -- opPlusPlus and opMinusMinus each announce on
-    stderr before handing an iterator back to iterAdvance. It was the only
-    instance in the tree and it had no name.
-
-    ⚠ AND IT WAS ABOUT TO BE DELETED WITHOUT BEING NOTICED. Both instances sit
-    inside `if result.isIterator`, and S0 schedules exactly that gate for
-    removal -- the iterator becomes two stack slots, "no handle in the heap,
-    and no isIterator" (docs/jit.md:33). So the JIT's only worked example of
-    its own crossover policy would have vanished with its host, and the policy
-    would have gone back to being a paragraph in a design doc. Lifted here
-    FIRST, so the pattern outlives the code that happened to carry it.
-
-    THE COUNTER IS THE POINT, not decoration. The 2026-07-30 recon found ~53
-    places where an ungated construct silently runs interpreted at emit time
-    (jitExecBlock walks the BlocK, so anything without a jitting gate simply
-    EXECUTES). Silent fallback is what makes S0's ruling unanswerable: you
-    cannot rule on a boundary nobody has enumerated. Every call to this turns
-    one of those into a COUNTABLE ARTIFACT -- which is the same move the
-    genParse walk made when it replaced quiet skips with named refusals.
-
-    It lives in a C++ static rather than a node slot, for the reason CLAIM
-    KANT-4 records: GroupBody's value slots are one union, and a counter
-    parked in gCount destroys whatever pointer shares it. iterSpins
-    (Instruct.rtn:457) is the existing precedent.
-
-    fprintf(stderr) and not print: bear-trap #14 -- stdout is block-buffered
-    and a run ending via stop() loses it, so a degrade notice would silently
-    vanish exactly when a crash made it most valuable.
-
-    DEGRADE, NOT REFUSE. It announces and returns; the caller then does the
-    interpreted thing. That is deliberate and is the whole difference from
-    jitRunAction's verifier, which REFUSES (-5) because invalid IR must never
-    run. An unemittable construct is not an error -- it is unfinished work,
-    and the run should still produce the right answer by the slow path.
-***************************************************************************/
+    // crossoverPolicy  the §0 open ruling this answers, and why the pattern was lifted before the code carrying it could be deleted
+    // counterIsThePoint  the ~53 silent emit-time fallbacks the counter was built to make countable
+    // degradeNotRefuse  why this announces where jitRunAction's verifier refuses
+    // staticNotSlot  why the counter is a C++ static and the notice goes to stderr
+*******************************************************************************/
 extern int jitDegrade(String what, GroupItem node)
 {
     if !jitting     return 0;
@@ -677,78 +646,19 @@ extern GroupItem jitEmitAssign(GroupItem argument,GroupItem target)
 }
 
 
-/* jitPrintOpen / jitPrintItem / jitPrintClose  THE THREE EMITTED CALLS of a
-   jitted print. Work item 3, Tony's ruling via Clay, 2026-08-04.
+/*******************************************************************************
+    jitEmitBareRead -- THE MISSING PRIMITIVE: materialize a bare read. Tony's
+    ruling via Clay, 2026-08-05. Returns 0 and emits nothing if there is no
+    builder.
 
-   THE LAW THIS SERVES: the emit-time walk must be EFFECT-FREE. Until now a
-   jitted print fired AT COMPILE TIME -- once, reporting compile-time state --
-   which is worse than not printing, because it appears to work. The
-   compile-once-fire-twice proof the whole ladder rests on already assumed the
-   emit walk had no effects; this makes that true for print.
+    ⚠ FOR A JIT-TRACKED LOCAL THE LOAD IS OF THE ALLOCA, NEVER OF THE FIELD'S
+    OWN MEMORY. The epilogue has not written the field yet, so a load there
+    reads a stale frame slot and is silently wrong.
 
-   THE SEAM IS appendGroup, READ RATHER THAN ASSUMED (2026-08-04):
-       aCTionPrinT -> appendPrintXP  walks the PrintXP attributes and EVALUATES
-                                     (result = method(ExpressioN))
-                   -> appendGroup    RECEIVES EVALUATED VALUES  <- the seam
-                        - printField for real fields
-                        - the shortcut switch for ~ $ _ : + - ` , and indent
-                   -> opPrint        the sink
-   appendGroup does NOT evaluate its own input, so the seam is where the ruling
-   put it: below evaluate, above shortcut/format handling.
-
-   ⚠ THE ITEM CALL GOES TO THE VALUE ENTRY, NOT THE POINTER ENTRY, and that is
-   forced rather than stylistic: a LOCAL's live value sits in a frame slot until
-   the epilogue, so passing appendGroup a field pointer mid-function reads
-   storage nothing has written yet -- silent wrong answer. appendGroupValue takes
-   the evaluated i32 and stamps it on a carrier, routing into appendGroup's own
-   switch so shortcuts, formats and indent stay single-sourced in the chain.
-   The rejected alternative -- spill live values before every print -- makes each
-   print a sync barrier and needs liveness enumeration.
-
-   ⚠ SHORTCUT TOKENS TRAVEL AS IMMEDIATES. `print +` and `print $-` are nodes
-   whose TEXT is the shortcut; their address is baked and appendGroupValue passes
-   them through untouched. No format or indent decision is baked at emit time --
-   they happen at run time, in the chain, exactly as interpreted. */
-/* jitEmitBareRead  THE MISSING PRIMITIVE. Tony's ruling via Clay, 2026-08-05.
-
-   ⚠ WHAT IT IS, AND WHY IT WENT MISSING FOR SO LONG: the JIT has never had to
-   MATERIALIZE A BARE READ. Every certified rung to date reached its operands
-   through an operator or a method, and runOP's seed gate seeded them on the way
-   past -- so an operand was always already a value by the time anyone wanted
-   one. displayForm is the first fixture whose statements simply LOOK AT THINGS,
-   and it is the convergence rung, which is exactly the rung that should find
-   this.
-
-   IT CLOSES THREE THINGS AT ONCE, all one hole seen from three sides:
-     - print values      (appendPrintXP's `else result = ExpressioN` makes no
-                          call, so nothing was ever emitted for a bare operand)
-     - the bare-flag-read item
-     - finding #3, `if noPrinT` reading %iterCond -- the same hole from the
-       CONDITION side, reusing whatever value was last in flight
-
-   THE FORK IS EMIT-TIME KNOWLEDGE, SO IT COSTS NOTHING AT RUN TIME, and both
-   arms already exist inside jitSeedField -- this does not reimplement them:
-     arm 1  A JIT-TRACKED LOCAL. Its storage is a frame alloca, so the read is
-            a load OF THE ALLOCA, which mem2reg promotes to the SSA value the
-            function already holds. ⚠ Emitting a load of the FIELD'S OWN memory
-            here would read the stale frame slot -- the epilogue has not written
-            it yet -- which is the exact disease the print value entry exists to
-            dodge, and it would be silently wrong.
-     arm 2  ANYTHING ELSE -- a persistent field. A run-time load through the
-            baked address, unchanged from how globals have always been read.
-   jitSeedField keys the choice on the HOME ADDRESS rather than node identity,
-   because each occurrence of a local in a body is its own GroupItem, so the
-   token here is never the node the prologue walked.
-
-   ⚠ A THIRD CATEGORY EXISTS AND IS NOT HANDLED HERE, deliberately: an accessor
-   whose resolution is a run-time pointer-walk (`noPrinT` on the iterator's
-   CURRENT node -- which node that is depends on the iteration). That is not a
-   read of any fixed storage, so no load can express it. It goes through opDot's
-   own gate instead, as a CALL to the accessor, so read semantics cannot drift.
-   If a FOURTH category turns up while building on this, that is a report, not
-   an improvisation.
-
-   Returns 0 and emits nothing if there is no builder. */
+    // bareReadMissing  why the JIT went this long without one, and the three holes it closes at once
+    // bareReadTwoArms  the emit-time fork, and why jitSeedField keys on the HOME ADDRESS and not node identity
+    // bareReadThirdCategory  the run-time pointer-walk this deliberately does not handle, and what to do if a fourth turns up
+*******************************************************************************/
 extern int jitEmitBareRead(GroupItem token)
 {
     -%
@@ -2527,6 +2437,18 @@ extern void jitPrintClose(GroupItem input)
    when the item carries no expression it is a literal or a shortcut and the
    carried value is unused, so a zero immediate is passed and the token's own
    text does the work. */
+/*******************************************************************************
+    jitPrintItem -- one item of a jitted print, one of the three emitted calls.
+
+    ⚠ IT CALLS THE VALUE ENTRY, NEVER THE POINTER ENTRY. A local's live value
+    sits in a frame slot until the epilogue, so handing appendGroup a field
+    pointer mid-function reads storage nothing has written yet.
+
+    // printEffectFree  what a jitted print did before 2026-08-04, and why firing once at compile time is worse than not firing
+    // printSeamAppendGroup  where the seam is and how it was read rather than assumed
+    // valueNotPointer  why the value entry is forced, and the rejected spill-before-every-print alternative
+    // shortcutImmediates  why shortcut tokens travel as immediates and nothing is baked at emit time
+*******************************************************************************/
 extern void jitPrintItem(GroupItem token,GroupItem FormaT,int hasValue)
 {
     -%

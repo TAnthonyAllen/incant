@@ -218,6 +218,8 @@ The fourth finding said *prose rots by POSITION, and the register cannot*, on on
 | `emitLeaf`, 14 lines | `emitLeaf` (line 396) | above `locateManier` (line 975) | **579 lines** |
 | `emitMany`, 31 lines | `emitMany` (line 444) | above `locateManier` (line 989) | **545 lines** |
 | `dumpSpellings`, 23 lines | `dumpSpellings` (line 367) | above `kantLeaf` (line 808) | **441 lines** |
+| `jitEmitReturn`, 61 lines | `jitEmitReturn` | above `jitEmitRefusedCheck`'s block | 107 lines |
+| **the `jitPrintOpen`/`Item`/`Close` FAMILY header**, 32 lines | three methods at 2471 / 2499 / 2710 | above `jitEmitBareRead` (line 649) | **~1,800 lines** |
 | `showParse`, 28 lines | `showParse` | above `ruleNameArg` | **99 lines** |
 | `spellKant`, 15 lines | `spellKant` | **AFTER** its own method | 16 lines |
 | `recordParse`, 20 lines | `recordParse` | **AFTER** its own method | 79 lines |
