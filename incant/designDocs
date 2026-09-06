@@ -1215,6 +1215,123 @@ define
                 parseTermCount while naming parseRuleMethod as its subject -- the one
                 subject-mismatched comment block in the seven files the arc alphabetized, and
                 already detached before the sort. Both methods now carry a claim and this key.#);
+            manierRegistry=(locateManier mirrors locateSpeller exactly, one registry over,
+                AND THE SEPARATE REGISTRY IS THE POINT -- it was minionA's call, improving on
+                the foreman's note. Sharing `Spellers` would mean any fixture putting it on
+                its search list turns on the kant spellLeaf TOO, so genScratch could not
+                adopt a kant emitMany without switching every rung's leaf spelling in the
+                same commit. Two registries, two independent switches, two independent
+                pins.#);
+            termListShape=(WHAT dumpRuleTerms MEASURED about the shape of a rule's term
+                list, 2026-07-28, incant/termScratch. genParseShape §1.5 requires genParse to
+                traverse with the SAME accessor the emitted code reads with (rule[i]),
+                because the two agree only if the list holds exactly the terms in exactly
+                that order. Whether a `fail` modifier or a `code={}` tail occupies a slot is
+                a question about the TREE, not about the design -- so it was measured.
+
+                  1. rule[i] is source order, 1-based. `fail` (JSONblock) occupies NO slot.
+                  2. A `code={}` tail DOES occupy slots, and FOUR of them, not one: CodE,
+                     this, tempField -- and, appearing only AFTER the rule has been parsed
+                     once, the cached BlocK. So the tail of rule[] is not even stable across
+                     a run. §1.5's hazard is real and bigger than "one extra entry".
+                  3. ALL FOUR tail entries are noPrint; no real term is. So the classifier is
+                     `noPrint`, which is not an invention -- it is the same test the
+                     interpretive walk already uses (testAttributes: `if noPrint continue`).
+                     Model-not-oracle applied to classification itself: take the oracle's own
+                     test rather than inventing a parallel one that can drift from it.
+                  4. Sequence terms are isAttribute; alternation options are isMember. One
+                     list, distinguished by affiliation.
+                  5. A rule-reference term (JSONblock's JSONfield) is a DISTINCT NODE from
+                     the registry rule of the same name -- different parent -- but the two
+                     SHARE a child list (the term shows the BlocK the parse added to the
+                     registry node). rStuff, however, is per-node: the term's own rStuff has
+                     its own onGroup/testMatch/followed state.
+                  6. No rule-reference term is isGROUP, and none has onGroup set, even after
+                     a parse -- getWhatFollows gates on isGROUP. §1.6's `t2.onGroup` does not
+                     exist to be written to.#);
+            ruleLookupScope=(locateRule -- genParseShape §1.3's ruling, the half that had not
+                landed. Emitted text has carried no locate since the shape brief; THE EMITTER
+                still ran one, and a bare locate() resolves down the GENERAL search stack:
+                search registries first, then the base registries (pROPERTIEs, Operators,
+                cOMMANDs, fILEs, Keywords, GroupFields). Any rule sharing a name with a
+                keyword or a command was a silent mis-target.
+
+                MEASURED, and it corrects the guess in 41a3831's message: `debug` resolves to
+                a NOT-isRule node in the **Keywords** registry (incant/setup:196 defines it as
+                a bare keyword) -- not cOMMANDs as first supposed. The real grammar rule is
+                **DEBUG**, isRule, in Grokking, with four terms. So there is no lowercase
+                `debug` rule to find, and after this change genParse REFUSES it rather than
+                planning a term-less node.
+
+                ⚠ THAT MIS-TARGET WAS ONLY VISIBLE BECAUSE THE NODE HAPPENED TO CARRY NO
+                TERMS and produced an empty fold. A collision with a node that HAS terms
+                would have produced a plausible-looking plan instead, and nothing would have
+                complained.
+
+                Scope: the search list only, and only isRule hits. Base registries are not
+                rule registries.#);
+            optContract=(optRK -- THE OPTIONAL RULE-REFERENCE. Vocabulary item 3, rung one
+                of the OPT charter (decision (a), ruled by Tony 2026-08-13 off SEQ 72's
+                stamped table: OPT opens 5 of the 16 L/R rules, the measured maximum).
+
+                THE CONTRACT, and it is parseRK's with ONE leg's answer flipped:
+                    attempt term N's parse;
+                    on success  -> proceed as any term                    (trueResult)
+                    on failure  -> RESTORE THE CURSOR and still answer     (trueResult)
+                Cursor discipline identical, only the verdict changes. That is why this is
+                one small function beside parseRK and not a new mechanism: it names a term
+                BY POSITION, holds no node, and leaves position/label/invariant to the
+                frame -- kantBodyNamesTerm's law, unchanged.
+
+                ⚠ THE RESTORE IS BELT AND BRACES ON THIS SHAPE, AND SAYS SO OUT LOUD SO
+                NOBODY LATER READS IT AS LOAD-BEARING WHERE IT IS NOT. For an optional
+                REFERENCE the callee owns a frame and its own leaveRule already rewinds to
+                the callee's `from` on failure (planTerm's rung-6 note records exactly this,
+                and records that the interpretive arm instead skips the rewind and re-skips
+                before the next term, so the two are not observably different). Restoring
+                here to OUR `from` is therefore at worst a no-op and at best one notch
+                tighter than the generated arm. It is written because the CONTRACT says the
+                failure leg restores, and a contract honoured by an accident of
+                who-else-happens-to-rewind stops being honoured the day that changes.#);
+            oneShimPerKind=(WHY A SEPARATE SHIM PER INNER KIND, rather than one optK that
+                works out LIT-vs-CALL at run time. planTerm ALREADY MAKES THAT DECISION when
+                it builds the plan, and a run-time re-derivation would be a SECOND
+                IMPLEMENTER of it -- the exact arrangement countRuleTerms' own comment
+                refuses ("ONE implementer, deliberately"), because two implementers of one
+                decision drift and the drift is silent. So the emitter keys on the plan
+                node's inner kind and picks the shim; the shim does one thing.
+
+                ⚠ THE LITERAL SIBLING optLK IS NOT BUILT -- `RunRulE`'s `';'-?` is the only
+                rung-population term that wants it and RunRulE is a later promotion.
+                kantLeaf REFUSES that shape BY NAME rather than letting optRK guess, per the
+                refuse-by-kind discipline that caught the ALT defect. An unexercised shim is
+                a green row nobody cashed.#);
+            trampolineSeam=(parseViaKant -- THE TRAMPOLINE. Loop closure step 1, 2026-08-11
+                (SEQ 52).
+
+                WHAT PROBLEM THIS SOLVES, because it is not the one the shims solve.
+                rStuff.parseMethod is a C++ FUNCTION POINTER -- RuleStuff.twk:88 declares
+                `GroupItem &parseMethod(GroupItem);` -- and parse() forks on it and calls
+                through it. A kant method is NOT a function pointer: it is a GroupItem
+                carrying CodE/BlocK, reached through processAction. So a kant parse method
+                cannot be installed into the slot that dispatches parse methods, and making
+                lit/parseR/leaveRule callable FROM kant does not touch that at all. The
+                shims govern what the body may call; this governs who may call the body.
+                Two distinct costs, and only the first is the "cheap" the charter promised.
+
+                THE CHEAP DOOR, AND THE OTHER ONE. RuleStuff.twk's jitMethod block named
+                this seam on 2026-08-05 and ruled that widening the pointer's signature is a
+                LAYOUT change -- bear-trap #10's whole apparatus, groups.ext sync plus tokall
+                plus rebuild. This function is the other door: an ordinary C++ function OF
+                THE EXISTING SIGNATURE that stands in the slot and forwards. No layout
+                change, no groups.ext edit, and it binds through the existing parseMethod=
+                dlsym path with no new vocabulary.#);
+            kpConvention=(parseViaKant RESOLVES BY CONVENTION, DELIBERATELY, so that v1 adds
+                no binding verb: rule `Foo` is served by the kant action named `kpFoo`. One
+                rule, one name, derivable in both directions by a reader. If a binding
+                attribute is wanted later it can carry the node itself and this lookup goes
+                away -- the convention is v1's scaffolding and is not load-bearing on the
+                design.#);
             kantDoorDuties=(kantDoor -- THE THREE DUTIES, lifted out of aCTionDefinE so
                 the hunk there is three lines and the revert is one. 2026-08-12, the
                 full-monty rung.
