@@ -1037,6 +1037,97 @@ define
                 publishes a NODE, not a scalar, and the emitted store put that pointer into
                 the target's slot -- which is how starT's jitted road read 5560000 where the
                 interpreted road read LEAF. A pointer wearing the shape of data.#);
+            iterateGapClosed=(jitEmitIterate -- THE ITERATOR SETUP, EMITTED. Work item 1 of
+                the convergence rung, 2026-08-04.
+
+                THE GAP IT CLOSES: aCTionIterate had NO jitting gate, so `iterate g on x` was
+                performed ONCE, AT EMIT TIME, and the compiled function inherited whatever state
+                that left behind -- while the `++` advance WAS emitted. ⚠ SETUP AND ADVANCE
+                LIVING AT TWO DIFFERENT TIMES IS THE SHAPE OF THE displayForm HANG: the second
+                fire began on a spent iterator because nothing re-established it.
+
+                NOTHING IS LEFT IN FLIGHT (E1). An iterate statement has no value anyone reads;
+                the loop's condition is the ++, not this. Setting gJitResult here would hand
+                aCTionBlocK a POINTER to commit into an i32 result slot.#):
+                CodeSite="jitEmitters.rtn:jitEmitIterate";
+            emitThenFallThrough=(jitEmitIterate's GATE EMITS AND THEN FALLS THROUGH -- it does
+                NOT return, and that is the one place it differs from every other jitting gate
+                in the tree.
+
+                The emit-time walk still needs the iterator ESTABLISHED, because the enclosing
+                `while ++grup` must take opPlusPlus's iterator arm to reach jitEmitIterStep at
+                all; gate-and-return would leave the node un-flagged and the advance would emit
+                against the DATA arm instead.
+
+                ⚠ AND IT DOES NOT BREAK THE EFFECT-FREE-EMIT LAW, which is worth stating rather
+                than assuming, since "it is only a little effect" is how that law erodes. The
+                law is about OBSERVABLE effects -- output, and mutation of user data.
+                aCTionIterate's effect is confined to the ITERATOR NODE's own list pointer and
+                poison flag: compile scaffolding, invisible to the program's result. The emitted
+                call re-establishes it at run time, so RUN-TIME BEHAVIOUR DOES NOT DEPEND ON THE
+                EMIT-TIME STATE -- which is the property the law actually protects.#):
+                CodeSite="jitEmitters.rtn:jitEmitIterate";
+            iterStepDefect=(THE DEFECT jitEmitIterStep CLOSES, precisely: opPlusPlus tested
+                `isIterator` BEFORE its jitting gate, so an iterator under ++ took the
+                interpreted arm and EMITTED NOTHING. The walk therefore happened once, at EMIT
+                time, and the compiled function contained no loop at all -- hence 0 visits at
+                run time against the interpreter's 3.
+
+                Tony's ruling, 2026-08-04: an unqualified iterate over a group visits EVERY
+                DECLARED CHILD; the interpreter's measured behaviour is the intended semantics
+                and THE JIT'S 0-VISIT WALK IS THE DEFECT.
+
+                TWO LEGS, jitEmitRem's shape with a one-arg callee (runOP's isMethod arity):
+                  1. call opPlusPlus(result) -> GroupItem*  (advances, or null when spent)
+                  2. null-test that pointer  -> i32 0/1     (the while's condition)
+                The i32 is what the loop branches on, so THE LOOP ITSELF now runs at run time
+                and visits what the interpreter visits. Layout-free: baked addresses only, no
+                new flag, no groups.ext, no tokall.#):
+                CodeSite="jitEmitters.rtn:jitEmitIterStep";
+            modelNotOracle=(THE EMITTED CALL IS TO THE INTERPRETER'S OWN ARM, AND THAT IS THE
+                DESIGN, NOT A SHORTCUT -- jitEmitIterate calls aCTionIterate, jitEmitIterStep
+                calls opPlusPlus, jitEmitIterStepBack calls opMinusMinus.
+
+                The obvious alternative -- re-implement the advance in a runtime helper -- would
+                put the iterator semantics in TWO PLACES, and this project has a name for what
+                happens next. Model-not-oracle: the compiled code calls the interpreter's own
+                arm, so the two CANNOT drift, and Tony's ruling ("the interpreter is right") is
+                satisfied BY CONSTRUCTION rather than by a careful copy.
+
+                ⚠ IT ALSO SIDESTEPS A REAL HAZARD: that arm resolves several bare names (group,
+                nextInParent, firstInList, lastREF) against opPlusPlus's OWN context, and
+                re-hosting them elsewhere is precisely where a silent divergence would live.
+
+                SAFE AT RUN TIME because jitRunAction lowers `jitting` to 0 after the walk, so
+                the call re-enters with the gate DOWN and takes the interpreted arm -- which is
+                the one whose answer we want.#):
+                CodeSite="jitEmitters.rtn:jitEmitIterStep";
+            twinNotParameter=(jitEmitIterStepBack -- THE JITTED ITERATOR RETREAT. F-53, Tony's
+                ruling 2026-09-04: A SECOND EMITTER, NOT A PARAMETERISED ONE.
+
+                It is jitEmitIterStep's twin, one token different -- it bakes &opMinusMinus
+                where that bakes &opPlusPlus -- and it exists because opMinusMinus had the
+                defect opPlusPlus was fixed for on 2026-08-04 and never got the fix. Its
+                isIterator arm RETURNED before the jitting gate, so an iterator under `--` never
+                reached the gate: the walk ran once at EMIT time and the compiled function
+                contained no loop, WITH NO REFUSAL AND NO DEGRADE LINE TO SAY SO. C-158a's
+                nine-row JIT census found it; F-53 carries the evidence.
+
+                ⚠ WHY A SECOND EMITTER AND NOT A PARAMETER. Widening jitEmitIterStep's signature
+                is a groups.ext MIRROR CHANGE, and a mirror change is the class of edit that
+                fails three files away with no line pointing back (bear-traps #10/#16/#24). Two
+                seven-line twins differing by one baked address are cheaper to read and cannot
+                drift into each other silently.#):
+                CodeSite="jitEmitters.rtn:jitEmitIterStepBack";
+            unaryHasNoSlot=(AND NOT THE jitEmitter SLOT, WHICH WOULD HAVE INVERTED F-53's FIX. A
+                unary op carrying a slot is REFUSED, loudly and countably, until the unary
+                specimen lands (GroupActions.rtn:1656) -- it would print JIT SLOT REFUSED and
+                run INTERPRETED, which is the very behaviour F-53 exists to remove.
+
+                `++` and `--` are `unary ruleMethod=` in incant/setup and carry NO slot; the gate
+                lives in the function body, which is what opPlusPlus does and what
+                jitEmitIterStepBack mirrors. See bear-trap #46.#):
+                CodeSite="jitEmitters.rtn:jitEmitIterStepBack";
             printEffectFree=(THE LAW THE JITTED PRINT SERVES: the emit-time walk must be
                 EFFECT-FREE. Until 2026-08-04 a jitted print fired AT COMPILE TIME -- once,
                 reporting compile-time state -- which is WORSE than not printing, because it
