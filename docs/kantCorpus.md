@@ -2275,6 +2275,64 @@ scope:       Covers a double-quoted string as the VALUE on a define line, leaf
 
 ---
 
+> ### ⚠⚠ M2 IS DISCHARGED — 2026-09-06. THE RESTORE IS KEYED BY FIELD, AND THE STACK
+> ### CARRIES A PER-ACTIVATION FLOOR. THE K5/K6 GATE RAN GREEN AFTER THE FACT.
+>
+> M2 (2026-08-10, above) read the walker and ruled: *"the principled version is to key the
+> restore by field instead of by position, which is a bigger change than either option the
+> dispatch weighed, and it is Tony's."* **That is what landed** — `1ab282f`, in two parts,
+> and M2's own diagram predicted the second one.
+>
+> **PART 1, IDENTITY.** `saveLocalFields` pushes the FIELD with its body; `restoreLocalFields`
+> walks the STACK, not the field list, and applies no filter of its own. M2's `f1<-b2` case
+> cannot be constructed: each body travels with the field it came from.
+>
+> **PART 2, THE FRAME FLOOR — one null per activation, pushed before that frame's pairs.**
+> M2 named this without naming it: *"and b1 STRANDED ON THE STACK."* Keying by field removes
+> the mis-pairing but not the stranding, and the un-floored loop was `while recurseSTAK.length`,
+> which drains EVERY activation at the innermost return. **The old positional walk was bounded
+> to one frame only by accident of walking the field list** — dropping the walk dropped the
+> bound with it.
+>
+> ⚠ **THE BOUND'S ABSENCE COST 20 FLEET ROWS AND FIVE RUNAWAYS** — `kant8T`, `anyOrNumT`,
+> `iterT1`, `iterT1m`, `displayFormT` all TIMED OUT at POPCAP and `pop.sh` read 184. H5 earned
+> its keep: without the wall-clock cap those five would have taken the suite hostage instead of
+> reporting.
+>
+> **THE FINDING CAME FROM A NEW CUSTOMER, NOT FROM THIS LEDGER.** `IncantForms/WorkingOn/parser`
+> is the first body in the corpus to flag an action local `noPrint` MID-BODY (`codeCopy :. noPrinT`).
+> `noPrint` was IN the walk filter, so the flag dropped that field from the restore set only and
+> every field below it came back one slot off — `argument` inheriting `conjunct`'s body, tag
+> included. `incant/noPrintFrameT` certifies it with a control; it was born pinned RED against the
+> correct answer and GRADUATED (H6) in the same session.
+>
+> **THE K5/K6 GATE, run 2026-09-06 as the after-the-fact certificate, interpreted:**
+>
+> | row | reads | the record | verdict |
+> |---|---|---|---|
+> | K5 call 1 / call 2 | **42 / 42** | 42/42 | green — no invocation-history dependence |
+> | K6a outer | **3** | 2 -> 3 | green — outer keeps its OWN cursor |
+> | K6b control | **3** | want 3 | green — the shape is not the fault |
+> | K6c outer | **k6big** | pinned 09-01 | green |
+> | K6d second walk | **3** | want 3 | green — the re-iterate re-points |
+> | K6e first / second | **1 / 1** | anti-vacuity first MUST be 1 | green — cursor restarts |
+> | K6f outer | **4** | ambiguous since 08-10, read with K6a | green by K6a's 3 |
+>
+> ⚠ **AN OLDER WAKEUP LINE SAYS "K6c unchanged at `k6small`" AND IS DATED, NOT WRONG.**
+> `pop.sh` has pinned `K6c outer returned = k6big` since 2026-09-01. A reader arriving at the
+> older line and today's output will otherwise read a move that did not happen.
+>
+> ⚠ **AND THE JIT'S RATIONALE STANDS VINDICATED RATHER THAN SUPERSEDED.** `GroupRules.mm`'s
+> FRAME EPILOGUE declined to reimplement the positional pairing on purpose — *"the stack
+> discipline was the bug surface, and it is gone rather than reimplemented."* The interpreter
+> has now stopped reimplementing it too. The two halves agree for the first time.
+>
+> **Certificates: `noPrintFrameT` N4 correct with its control unmoved · `argRoundT` depths
+> 3/2/1 all correct · parser exit 0, zero refusals, four rules, terminates · fleet 205 green /
+> 1 parked with ZERO new failures · canary 352 unmoved.**
+
+---
+
 ## RELATED, AND NOT PART OF THIS CORPUS
 
 - **`CLAUDE.md` bear traps** — tok and build hazards. Best-evidenced claims in the tree;

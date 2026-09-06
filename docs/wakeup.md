@@ -1,3 +1,118 @@
+# ⚠⚠⚠ SEALED 2026-09-06 — A FRAME DEFECT THAT PREDATED THE FLIP, FOUND BY THE FIRST
+# BODY THAT FLAGGED A LOCAL MID-FLIGHT. THE RESTORE IS KEYED BY FIELD. M2 DISCHARGED.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-06 10:13 and
+#   `git log -1 --date=iso` stamps 2026-09-06 10:01. They agree.
+#
+#   ## THE ONE-LINE STATE: **`saveLocalFields` pushes the FIELD with its body and
+#   `restoreLocalFields` walks the STACK behind a per-activation FLOOR, so the
+#   frame no longer pairs by position; `aCTionIterate` lives in tok; and
+#   `IncantForms/WorkingOn/parser` walks the whole grammar to exit 0 with zero
+#   refusals.** Fleet **213 green / 1 parked**, canary **352** = 316 + 21 + 15,
+#   ddPop 5, countPop 0-of-40, decodePop 14, formsPop 14, frontier **exit 0,
+#   station 2**. Groups and support clean and pushed.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE FRAME FIX IS TWO PARTS AND THE SECOND IS THE ONE THAT COSTS.**
+#   Identity alone (push the field with its body) fixes the shift. It also
+#   removes the BOUND: the old positional walk stopped after one frame **only by
+#   accident of walking the field list**, and `while recurseSTAK.length` drains
+#   every activation at the innermost return. The floor is one null per
+#   activation. ⚠ **Its absence cost 20 fleet rows and five runaways** —
+#   `kant8T`, `anyOrNumT`, `iterT1`, `iterT1m`, `displayFormT` all TIMED OUT at
+#   POPCAP and `pop.sh` read 184. **H5 earned its keep**: without the wall-clock
+#   cap those five take the suite hostage instead of reporting.
+#
+#   **b. M2 IS DISCHARGED, AND IT HAD BEEN OPEN SINCE 2026-08-10.** That probe
+#   read the walker and ruled *"the principled version is to key the restore by
+#   field instead of by position … and it is Tony's."* That is exactly what
+#   landed, and **M2's own diagram predicted the floor** — *"and b1 STRANDED ON
+#   THE STACK."* The discharge is written into `docs/kantCorpus.md`, which is the
+#   **LEDGER OF RECORD**. ⚠ **`KR-3` is RETIRED (Tony, 08-10) and never existed as
+#   a file** — a dispatch cited it this session; do not go looking for it.
+#
+#   **c. `**` IS A DOUBLE DEREF, NOT A MARKER. `$$` IS THE MARKER.**
+#   `incant/setup:185` registers `'$$' unary ruleMethod=opDebug`; `*` is in the
+#   UnaryOPS bin, so `**grup;` is two derefs and no breakpoint will ever fire on
+#   it. Renamed 2026-09-01 so `**` could compose. `tester:33` still carries it.
+#
+#   **d. THE JIT AND THE INTERPRETER NOW AGREE.** `GroupRules.mm`'s FRAME EPILOGUE
+#   declined to reimplement positional pairing on purpose — *"the stack discipline
+#   was the bug surface, and it is gone rather than reimplemented."* The
+#   interpreter has stopped reimplementing it too.
+#
+#   ## ⚠ THREE INSTRUMENT FAILURES, ALL MINE, ALL CHEAP TO HAVE AVOIDED
+#
+#   - **`argRoundT` GRADED ON ITS EXIT STATUS.** Run ad hoc, read as exit 0, used
+#     to declare the recursion hypothesis **falsified** — which sent the hunt away
+#     from the real cause for a round. It exits 0 with depths 2 and 1 returning
+#     **tag echoes**. The fleet's own rows were by-value and caught it correctly;
+#     only my ad-hoc check was wrong. **Never grade a value fixture on its exit
+#     code** — the third corollary in `CLAUDE.md`'s testing block, walked into
+#     head-first. A sentence now sits above those rows in `pop.sh`.
+#   - **THREE VOID PROBES BEFORE ONE DISCRIMINATED.** Dotted reads through an
+#     iterate cursor return **the cursor** (#35); `@grup` re-points at the cursor,
+#     not the member; and **`if isRulE` tests EXISTENCE**, so it read 1 on every
+#     child including the artifacts (the `frOk == 1` family, #26 payment 2). The
+#     working shape: **probe from INSIDE an action on `*grup`, capture with `:=`,
+#     `@argument` between reads.** A 0 comes back as a TAG ECHO, not the digit.
+#   - **`pgrep -f` MATCHES ITS OWN COMMAND LINE.** `until ! pgrep -f 'pop.sh'`
+#     never exits, because the waiter's own `zsh -c` string contains the pattern.
+#     Two waiters spun for minutes after `pop.sh` had finished.
+#
+#   ## ⚠ CLAY'S noPrint-CURSOR READING, FALSIFIED
+#   The dispatch offered two possibilities for parser's hang: the flag never
+#   reaches the attached node, or it does and the hang is elsewhere. **It reaches
+#   it** — `noPrinT` reads 1 on both `CodE` and `builtinParsE`, and `noPrinT`
+#   was skipping them correctly the whole time. **The runaway was the frame floor,
+#   not the walker.** So item 3's `!isRulE` skip is no longer load-bearing; the
+#   census cleared the fact and the change is parked as a nit.
+#
+#   ## WHAT LANDED
+#   - **`61d0e76`** — Tony's `aCTionIterate` rewrite into tok, plus
+#     `ruleActions.rtn:611` `IterSource["UnaryOPS"]` → **`getLabelGroup`** (the
+#     subscript returns the LABEL node, so every starred iterate source refused)
+#     and `Generate.rtn:339`'s restored `return` (the dropped one fell through
+#     into a null `ruleStuff->parseMethod` — parser's exit 139).
+#   - **`1ab282f`** — identity pairing + the frame floor + `noPrintFrameT`.
+#   - **`7e1b449`** — parser: `codeCopy` stays a LOCAL, `:= copyOf`, `+% *codeCopy`.
+#   - support **`c670466`** — `groups.ext` declares `refuse()`, per bear-trap #11's
+#     always-commit rule.
+#
+#   ## FLEET
+#   `incant/noPrintFrameT` is new and on the fleet. It was born **pinned RED
+#   against the correct answer** (H7) and **GRADUATED** (H6) in the same session.
+#   **`K5` and `K6a–K6f` are on the fleet for the first time** — chartered
+#   2026-08-05, answered in a seal, and never guarded since. All green:
+#   K5 **42/42**, K6a **3**, K6b **3**, K6d **3**, K6e **1/1**, K6f **4**.
+#   ⚠ **An older wakeup line reads "K6c unchanged at `k6small`" and is DATED, not
+#   wrong** — `pop.sh` has pinned `k6big` since 09-01.
+#
+#   ## ⚠ FIXITS — THE ARITHMETIC IS NET ZERO, SAY IT PLAINLY
+#   `jitArgBake` **retired to `incant/attic/`** (Tony's word). `artifactSkipByFlag`
+#   **minted** (Tony/Clay's ruling; F2 says Clod does not mint unbidden). So the
+#   queue went **3 → 2 → 3**, not to 2. `NEXT: RULED` — the shape is chosen and the
+#   build is gated on the depth-class respell pass, where walkRules' bare
+#   lastREF-dependent reads get restructured anyway.
+#
+#   ## ⚠ OWED, AND NOT DONE
+#   - **The channel rule is NOT ratified and is NOT written down.** The dispatch
+#     offered it conditionally — *"a no-buy ruled from the design seat is executed
+#     before the hunt continues, **if Tony ratifies it**"* — and no ratification
+#     arrived. It is named here and nowhere else. Ratify it or drop it.
+#   - **`tester` is Tony's**: three declaration deletions and the `$$grup`
+#     spelling at line 33.
+#   - **The depth-class respell pass opens on `spacingT` A–D reading `LEAF`.**
+#   - `TOK` carries 2 dirty (the scheme toggle). **Tony's, and not a finding** —
+#     he changes the scheme constantly when using Xcode.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: namedReadTwoRoads, since 2026-09-05)`
+#   `namedReadTwoRoads` (OPEN) · `refusalNotTerminal` (its driver is a NEGATIVE
+#   CONTROL) · `artifactSkipByFlag` (RULED, gated on the respell pass).
+#   Step one, or name which goes first.
+#
 # ⚠⚠⚠ SEALED 2026-09-05 — THE FLIP LANDED AND THE SWITCH IS GONE. `argument` IS A
 # BINDING, A REFUSAL IS TERMINAL, AND `gNoUnwrap` NO LONGER EXISTS. 41 COMMITS.
 #

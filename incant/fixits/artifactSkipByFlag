@@ -1,0 +1,83 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(ArtifactSkip);
+define
+    /*  THE NIT, LIVE. Read a child's isRulE the ONLY way that discriminates --
+        from inside an action, on the member, captured with := -- and show that
+        a real term and a minted artifact answer differently.  */
+    asProbe code={
+        @argument;
+        asR := isRulE;
+        @argument;
+        asN := noPrinT;
+        @argument;
+        cerr "  child " taG " isRulE " asR " noPrinT " asN:;
+        };
+    asWalk code={
+        iterate asCur on argument;
+        while ++asCur;
+            asProbe(*asCur);
+        };
+    asRun code={
+        cerr "ARTIFACTSKIP -- children of NumbeR after setParse":;
+        setParse(NumbeR);
+        asWalk(NumbeR);
+        fixArtifactSkipHere = 0;
+        };
+    ;
+asRun();
+print "ARTIFACTSKIP SENTINEL -- reached the foot":;
+stop();
+
+LANE:  runtime
+BLAST: OVERLAPS
+
+NAME      artifactSkipByFlag -- A NIT, PARKED. walkRules skips a generated artifact by
+reading `noPrinT`, and `noPrinT` is therefore doing double duty: "do not print
+me" AND "I am an artifact, not a grammar term". That is the one-channel-one-
+meaning disease, and CLAUDE.md's ledger of it now runs to five members.
+
+THE STRUCTURAL FACT IS AVAILABLE AND WAS MEASURED. Census over the four rules
+IncantForms/WorkingOn/parser generates, 2026-09-06, read from inside an action
+on the member with := captures:
+
+    NumbeR numberSet FloaT point decimals PoweR exponent sign power   isRulE 1
+    builtinParsE                                                      isRulE 0
+    CodE                                                              isRulE 0
+
+THIS FILE'S OWN RUN is the smaller live witness -- NumbeR after setParse:
+
+    numberSet FloaT                                                   isRulE 1
+    builtinParsE builtinActoR                                         isRulE 0
+
+isRulE discriminates CLEANLY -- no real term reads 0, so the
+literalMasterIsRule back-propagation worry did not materialise on this corpus.
+Terms are rule-shaped by registry promotion (08-21 seal); a minted CodE is not.
+
+WHY IT IS PARKED AND NOT DONE. The runaway that made this look urgent was NOT
+the walker -- it was the save/restore frame floor, landed 2026-09-06 (1ab282f),
+and with that in place `noPrinT` already skips both artifacts correctly and
+parser walks to exit 0. So this buys correctness of MEANING, not of behaviour.
+
+AND IT IS NOT A ONE-LINE CHANGE. walkRules' loop body reads `noPrinT`,
+`binTypE`, `listLengtH` and `taG` BARE, through lastREF, which is only the
+member for as long as no other statement intervenes. Inserting
+`asR := isRulE; if asR == 1;` ahead of them re-points lastREF and breaks every
+read below it -- measured three times while building the census above. So the
+skip requires restructuring those bare reads around captures.
+
+⚠ AND `if isRulE;` IS NOT THE SPELLING. It tests EXISTENCE, so it reads TRUE on
+every child including the artifacts -- the `frOk == 1` family, bear-trap #26
+payment 2. It must be captured with := and compared, and a 0 comes back as a
+TAG ECHO rather than the digit 0.
+
+NEXT: RULED -- the shape is chosen (skip on the structural fact, leave noPrinT
+as the print concern it is), and the build is GATED on the depth-class respell
+pass, which is where walkRules' bare reads get restructured anyway. Nothing in
+this block is applicable until that pass opens. When it does, this file's own
+census is the acceptance test: every term row 1, every artifact row 0.

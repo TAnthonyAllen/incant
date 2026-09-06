@@ -358,6 +358,19 @@ done
 #  7 three times and pass. INTERPRETED ARM ONLY -- the JIT arm is argRoundJ.
 run1 argRoundT "$T/art"; check "argRoundT runs" 0 $?
 sentinel "argRoundT sentinel (no truncation)" "$T/art" "ARGROUND SENTINEL"
+#  ⚠ THESE THREE ROWS ARE THE RECURSION-BOUND WITNESS, and 2026-09-06 is when
+#  they earned that name. The frame-floor stroke landed an identity-keyed
+#  restore whose first cut had NO per-activation bound: the innermost return
+#  drained every frame below it, and depths 2 and 1 came back as TAG ECHOES
+#  (`argument = argument local = arMine`, bear-trap #26's signature for "no
+#  data") while depth 3 stayed correct. These rows caught it. The pins were
+#  already by-value and needed no change.
+#  ⚠ WHAT DID GO WRONG IS WORTH THE LINE: the same fixture was checked ad hoc
+#  ON ITS EXIT STATUS, read as exit 0, and used to declare the recursion
+#  hypothesis FALSIFIED -- which sent the hunt away from the real cause for a
+#  round. argRoundT exits 0 with every row wrong. NEVER grade a value fixture
+#  on its exit code; that is the third corollary in CLAUDE.md's testing block,
+#  and this is it walked into head-first.
 for _a in "A depth 3 sees argument = 7 local = 3" \
           "A depth 2 sees argument = 7 local = 2" \
           "A depth 1 sees argument = 7 local = 1"; do
@@ -580,6 +593,31 @@ done
 #  It is the MUTUAL sibling of K2x row 1's DIRECT case, and the two are pinned
 #  together deliberately: the save reorder fixed both, and any change that moves
 #  one without the other is a finding.
+#  ⚠ K5 AND K6 PINNED 2026-09-06 -- THE FRAME-FLOOR GATE, discharged after the
+#  fact. Both were chartered 08-05 and neither was ever on the fleet, so the
+#  frame arc's two sharpest questions were answered in a seal and then left
+#  unguarded. K5 asks whether INVOCATION HISTORY changes the answer (call 1 vs
+#  call 2 of one shape); K6a asks whether A->B->A carries a node-resident local
+#  across, which `recursive` can NEVER cover because it is set at parse time by
+#  identity.
+#  ⚠ K6e's FIRST walk is the anti-vacuity sibling and is pinned with the second:
+#  a restart row over a walk that never ran asserts nothing. K6f is AMBIGUOUS BY
+#  DESIGN since 08-10 (4 means trample+restart OR fully bracketed) and is read
+#  with K6a, so it is pinned as a liveness value and never as a verdict.
+for _k in "K5 call 1 returned = 42" \
+          "K5 call 2 returned = 42" \
+          "K6a outer returned = 3" \
+          "K6b outer returned = 3" \
+          "K6d second walk counted = 3" \
+          "K6e first walk counted = 1" \
+          "K6e second walk counted = 1" \
+          "K6f outer returned = 4"; do
+    if grep -qF "$_k" "$T/k8"; then
+        echo "  ok    $_k -- PINNED BY VALUE (frame-floor gate)"; green=$((green+1))
+    else
+        echo "  FAIL  ${_k%%=*}-- wanted: $_k"; fail=1
+    fi
+done
 if grep -qF "K6c outer returned = k6big" "$T/k8"; then
     echo "  ok    K6c outer = k6big (mutual recursion carries its own argument) -- PINNED BY VALUE"; green=$((green+1))
 else

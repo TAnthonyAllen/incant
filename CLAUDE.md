@@ -2160,6 +2160,29 @@ Hard-won lessons. Each one has cost real debugging time.
     `docs/jitSlotMigration.md`'s parked section owns that, and the guard, counter and rung row
     retire together.
 
+50. **`+%` ON A LOCAL PUBLISHES THAT LOCAL'S BODY INTO THE PERSISTENT TREE, AND THE FRAME
+    RESTORE THEN WRITES A SAVED BODY BACK INTO A LIVE CHILD. ATTACH THROUGH THE HOLDER TO THE
+    MINT, NEVER THE LOCAL ITSELF.** Gloss: the scratch node got published. Ruled by Clay
+    2026-09-06 out of `IncantForms/WorkingOn/parser`, and it is the *other* half of that day's
+    frame work rather than a restatement of it.
+    An action local is **per-activation scratch**: `saveLocalFields` blanks it at entry and
+    `restoreLocalFields` writes the saved body back at exit. `argument +% codeCopy` hands that
+    same node to a rule, so the node is simultaneously scratch and a permanent tree child — and
+    at every return the tree child is overwritten with a body from another era, **flags
+    included**, which silently reverts a `noPrint` the body had set.
+    | spelling | what gets attached | refusals in parser |
+    |---|---|---|
+    | `codeCopy <- copyOf(CodE); argument +% codeCopy;` | **the local** | **2,112,543** |
+    | `codeCopy := copyOf(CodE); argument +% *codeCopy;` | **the mint** | **0** |
+    `:=` makes `codeCopy` a **holder whose body is only a pointer**, so restore clobbering it is
+    harmless; one mint, the local points at it, later reads spell `*codeCopy`.
+    ⚠ **AND THE TAG STAYS `CodE`.** The tempting repair is to re-tag the artifact so the walker
+    will not see it — that is a node lying about what it is so a reader will skip it, which is
+    absence-as-channel pointing the other way. `<-` gave it the tag `codeCopy` **by accident**,
+    and the walker's `if noPrinT; continue;` was `noPrint` doing double duty as *"I am an
+    artifact"*. The structural fact is `isRulE` and the parked spelling is
+    `incant/fixits/artifactSkipByFlag`.
+
 45. **AN UNRESOLVED BARE NAME IN A tok CONDITION BECOMES A STRING LITERAL — ALWAYS TRUE — AND THE
     EXTERN CANARY STAYS GREEN.** Gloss: the name becomes a quote. Measured 2026-09-02. Bear-trap
     #24's family with a **quieter** failure: that one wipes the extern block and dies three files
