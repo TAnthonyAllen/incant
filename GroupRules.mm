@@ -2570,6 +2570,7 @@ int 		i = 1;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
+// oracleIsTheReplaced  emitLeaf's own fixture: THE ORACLE IS THE FUNCTION BEING REPLACED, captured under both sinks while the C++ emitLeaf is still the only implementation, because LITTO is reached by no ladder rule and was ungated
 extern "C" GroupItem *dumpSpellings(GroupItem *argument)
 {
 GroupItem 	*rule = 0;
@@ -2739,23 +2740,7 @@ char 		dq = 34;
 		::fprintf(stderr,"emitPlan: REFUSING %s -- fold %s has no emitter\n",tag,plan->groupBody->tag);
 		return 0;
 		}
-	/*  THE FOLD DECIDES THE SINK AND THE JOINER, and both are emitter-side
-	(§4): the walk already said SEQ or ALT, this only spells it.
-	
-	S2.4 — AN ALTERNATION BUILDS NO LABEL OF ITS OWN and passes `into`
-	straight through, so the winning option attaches to the ENCLOSING
-	rule's label. Getting this wrong yields the right LANGUAGE over the
-	WRONG TREE — an empty JSONvalue wrapping every value — which passes
-	every mark-and-win check and only surfaces when a code={} action reads
-	it. That is why rung 7's acceptance test is a TREE COMPARISON against
-	the interpretive path, not a WIN/FAIL run.
-	
-	So an ALT emits no `label` local, its options take `into`, and a
-	labelled literal option is spelled litOption (which attaches itself,
-	because leaveAlt is label-transparent by design) rather than litTo.
-	litOption's first parameter is already the term, matching the
-	term-first convention, and is unused exactly as lit's is — re-read
-	2026-07-28 before wiring it in.  */
+	// altBuildsNoLabel  the fold decides the sink and the joiner, and an ALT builds NO label of its own -- getting it wrong yields the right LANGUAGE over the WRONG TREE, which passes every win check
 	if ( isAlt )
 		{
 		sink = "into";
@@ -2793,24 +2778,7 @@ char 		dq = 34;
 				::fprintf(stderr,"emitPlan: REFUSING %s -- unemittable repetition helper\n",tag);
 				return 0;
 				}
-		/*  ZERO MEANS SELF, THE BIND-SIDE HALF. Ruled 2026-08-24 with the emit
-		side; landed here 2026-08-24 when the rule ladder fired break and
-		the bind refused.
-		
-		`n` becomes the emitted `parseTerms=` value, and parseRuleMethod's
-		staleness guard compares that against countRuleTerms(rule) -- REAL
-		terms, non-noPrint. The marker-0 node is NOT A TERM; it is the
-		rule's own data. Counting it made the bind line claim one term for a
-		rule that has none, and the guard correctly refused:
-		
-		parseMethod: REFUSING to bind parsebreak to break
-		emitted against 1 terms, rule now has 0
-		
-		⚠ THE GUARD WAS RIGHT AND IS DELIBERATELY UNTOUCHED. It protects
-		every binding against a method emitted for a different shape, so
-		weakening it to accommodate one convention would trade a real safety
-		property for a counting convenience. The bind line was the thing
-		telling an untruth, so the bind line is what changed.  */
+		// zeroMeansSelfBind  the marker-0 node is NOT a term, so it must not reach the emitted parseTerms= count -- parseRuleMethod's staleness guard was right and the bind line was the thing telling an untruth
 		if ( ::compare(index,"0") != 0 )
 			{
 			n++;
@@ -3019,24 +2987,7 @@ int 		n = 0;
 		::fprintf(stderr,"genKant: REFUSING %s -- no plan\n",argument->getText());
 		return 0;
 		}
-	/*  ⚠ THE FOLD GATE, AND IT IS A REPAIR, NOT A PRECAUTION. SEQ 71, found by
-	the survey the same day the emitter landed. The join below is
-	UNCONDITIONALLY " AND ", which is correct for a SEQ and WRONG FOR AN
-	ALTERNATION -- an ALT means any option matches, and an AND chain means
-	they all must. Three of the five rules the survey found emittable are
-	fold=ALT (InvokeArg, ElsE, WardeD), so without this gate the emitter
-	produced bodies that PARSE AND ANSWER WRONG for every one of them.
-	
-	⚠ NOTE WHAT DID NOT CATCH IT. kantLeaf refuses by KIND and covered every
-	unknown TERM; nothing covered the wrong JOIN, because the join is not a
-	term. A per-item guard does not see a whole-body property. That is the
-	gap worth remembering, not the three rule names.
-	
-	REFUSING RATHER THAN EMITTING `OR`, deliberately: the template table's
-	alternation row is dead for a second, independent reason -- an option
-	attaches through a different frame (`into`, not `label`) -- so an OR
-	chain would be the right operator on the wrong plumbing. One dead row,
-	not half of one.  */
+	// foldGateRepair  the join below is unconditionally " AND ", correct for a SEQ and WRONG for an ALT, so an ungated emitter produced bodies that parse and answer wrong -- and nothing caught it because a per-item guard does not see a whole-body property
 	if ( ::compare(plan->groupBody->tag,"SEQ") != 0 )
 		{
 		::fprintf(stderr,"genKant: REFUSING %s -- fold is %s, and only SEQ has a kant spelling\n",argument->getText(),plan->groupBody->tag);
@@ -7306,29 +7257,6 @@ char 		*mintName = 0;
 	return 0;
 }
 
-/*******************************************************************************
-    dumpSpellings — emitLeaf's OWN fixture, and it exists because emitLeaf was
-    about to be replaced with nothing to diff the replacement against.
-
-    THE ORACLE IS THE FUNCTION BEING REPLACED. That is the whole design: this
-    prints, for a named rule, the spelling emitLeaf produces for every plan node
-    it planned, under BOTH sinks. Capture it while the C++ emitLeaf is still the
-    only implementation and it becomes a byte-exact target the kant emitLeaf must
-    reproduce — the same discipline as `rung4.target` holding the emitted text
-    against the compiled-in method.
-
-    WHY NOT JUST USE THE RUNG TARGETS: emitLeaf writes every term spelling
-    inside them, so they DO gate it — but only for the kinds the ladder reaches.
-    LITTO is reached by no ladder rule (every Scaf term is noLabel), so both of
-    its spellings, `litTo` and `litOption`, were UNGATED. `CodE` plans as a SEQ
-    of two LITTO terms, so driving this off the census rules instead of the
-    ladder covers the kind the ladder cannot.
-
-    BOTH SINKS ON EVERY NODE, deliberately, even where the fold could never ask
-    for one: `into` is the ALT sink and `label` the SEQ sink, and LITTO is the
-    ONLY kind whose text differs between them. Printing both on every node costs
-    two lines and means the target moves if that ever stops being true.
-*******************************************************************************/
 // refusingIsTheFeature  the kant twin of emitLeaf, spelling only the kinds the shim vocabulary HAS -- everything else returns null and the caller refuses loudly, because an emitter that guessed would parse and answer wrong
 extern "C" char *kantLeaf(GroupItem *node, char *at)
 {
@@ -7810,21 +7738,7 @@ GroupItem 	*grup = new GroupItem(strung);
 	return grup;
 }
 
-/*******************************************************************************
-    manyKant — call the kant emitMany and read its answer.
-
-    ⚠ THE ANSWER IS TEXT, NOT A POINTER, AND THAT IS FORCED (CLAIM KANT-32). A
-    kant action cannot return NULL across runAction (KANT-B1), and getText()
-    falls back to the node's TAG when there is no data — so "empty" and "named"
-    are indistinguishable and a null-test would read a refusal as a success.
-    Testing for the literal "1" instead makes ANYTHING ELSE a refusal, including
-    a kant body that failed to parse. That is the safe direction: a broken kant
-    emitter degrades to the C++ one rather than silently emitting nothing.
-
-    NOTHING RIDES IN ON THE NODE, unlike spellKant's `sink`. The MANY node already
-    carries `site` and `min`, so no attribute is stamped — which also means the
-    census cannot move underneath this.
-*******************************************************************************/
+// textNotPointer  the answer is TEXT and not a pointer, and that is forced: a kant action cannot return null across runAction and getText falls back to the tag, so a null-test would read a refusal as a success
 extern "C" int manyKant(GroupItem *manier, GroupItem *node)
 {
 GroupItem 	*result = ::runAction(node,manier);
