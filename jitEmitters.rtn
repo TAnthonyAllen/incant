@@ -63,33 +63,25 @@ extern GroupItem jitAssignNodeRT(GroupItem source,GroupItem target)
 }
 
 
-/*  runAction's OWN binding lines, lifted verbatim. THE UNWRAP IS NOT OPTIONAL --
-    what the callee must receive is a run-time fact.   jitEmitters.jitBindArgRT  */
+/*******************************************************************************
+    jitBindArgRT -- runAction's OWN binding lines, lifted verbatim.
+
+    ⚠ THE UNWRAP IS NOT OPTIONAL. What the callee must receive is a RUN-TIME
+    fact -- the node the operand currently points at -- not the operand's
+    emit-time target.
+
+    // jitBindArgRT  the gap it closes, why the lines are lifted rather than reimplemented, and the iterator case that makes the unwrap load-bearing
+*******************************************************************************/
 extern GroupItem jitBindArgRT(GroupItem argument,GroupItem field)
 {
 GroupItem   arg = argument,
             ruleArg;
-    /*  THE CODED PATH'S HALF, both clauses in one motion. The exemption above
-        was the wrapper's fingerprint -- "unwrap this, unless it is the argument"
-        -- and it retires WITH the wrapper, not before it.  */
+    // codedPathHalf  the exemption above was the wrapper's fingerprint and retires WITH the wrapper, not before it
     -%
     {
-        /*  THE TRIPWIRE AND ITS FALLBACK ARE GONE, 2026-09-05, folded in with
-            item 3 at Tony's ruling -- same road, same arm. Two reasons, and the
-            second is why this could not wait. The tripwire guarded a union that
-            might hold foreign data because the argument attribute was USER-
-            DECLARED; runAction now MINTS the slot, so the union is ours by
-            construction and the failure is unconstructable rather than guarded.
-            ⚠ AND THE REFUSAL ARM DID THE BIND-BY-BODY FALLBACK ANYWAY --
-            `ruleArg->groupBody = arg->groupBody` -- which is exactly the road
-            SEQ 131 removed from runAction for handing the callee THE OCCUPANT
-            rather than the argument it was called with. runAction refused and
-            did not run; this road refused, said so, and then did it. The two
-            arms had diverged on the one thing the refusal existed to prevent.
-            THE PENDING SLOT STAYS: it is the emitted path's channel bracket,
-            paired with jitSaveFrameRT/jitRestoreFrameRT across three functions,
-            and it is not what was wrong here.
-            jitEmitters.jitBindArgRT.argChannel  */
+        /*  ⚠ THE PENDING SLOT IS THE EMITTED PATH'S CHANNEL BRACKET, paired with
+            jitSaveFrameRT/jitRestoreFrameRT across three functions. It is not
+            the retired tripwire and does not retire with it.  */
         if (( ruleArg = field->get("argument") )) {
             gChanPendBody  = ruleArg->groupBody;
             gChanPendGroup = ruleArg->groupBody->gGroup;

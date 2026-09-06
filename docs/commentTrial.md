@@ -353,6 +353,41 @@ on 14/50`, naming all 36. Reverted, redone one method at a time with indices rec
 56/56. **An edit that plausibly succeeded was caught by an instrument that had existed for one
 stroke.**
 
+## ⚠ ELEVENTH FINDING, 2026-09-08 — A FOURTH COMMENT SPECIES: THE OBITUARY
+
+`jitBindArgRT` carries three species in one body, which is why it was picked as the second
+exemplar, and one of them had no home in the taxonomy.
+
+| species | test | where it goes |
+|---|---|---|
+| **site warning** | present tense; an editor here can break it | STAYS, in the body |
+| **rationale** | present tense; why it is like this | DesignDocs, link at the site |
+| **obituary** | **past tense, dated, describes what the code NO LONGER DOES** | DesignDocs **whole**, `Status: superseded <date>`, **and NOTHING at the site** |
+
+**The obituary is the new one.** `jitBindArgRT`'s tripwire block was sixteen lines explaining a
+guard that had been deleted three days earlier — why it existed, why it went, and the divergence
+its refusal arm had caused. Every verb past tense. **It is worth keeping and it is worth keeping
+somewhere a reader of the code will not meet it**, because a reader at the site is looking at what
+the code does, and an obituary answers a question they did not ask.
+
+⚠ **AND AN OBITUARY LEAVES NO LINK, WHICH IS WHAT MAKES IT A SPECIES RATHER THAN A LONG
+RATIONALE.** The other two both leave something at the site. This one leaves the site clean and
+stays reachable from the registry side by `CodeSite` alone. That is a real asymmetry and it is the
+thing to rule on.
+
+**What survived at the site was one present-tense line**, and it is the half a reader still needs:
+*the pending slot is the emitted path's channel bracket, paired with `jitSaveFrameRT` /
+`jitRestoreFrameRT`; it is not the retired tripwire and does not retire with it.* Without that,
+deleting the tripwire's neighbour looks safe.
+
+**Body block: 37 lines → 22, comments 19 → 4, code unchanged at 18.**
+
+⚠ **THE DETECTOR NEEDED CALIBRATING AND THE CALIBRATION IS THE DEFINITION.** A first pass matched
+`retires with` and flagged the `codedPathHalf` link — which is **live**: the exemption still exists
+and the sentence says what will happen to it. Past tense about a *live* thing is not an obituary;
+the species is past tense about a thing that is **gone**. Site count with the corrected pattern:
+**0**. File-wide it finds **8 more**, which is the population the rest of the sweep will classify.
+
 
 ## LOOKUPS CLOD ACTUALLY MADE
 

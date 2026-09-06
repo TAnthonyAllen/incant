@@ -1056,15 +1056,44 @@ define
                 Baking the operand's emit-time target would pin the recursion to whatever
                 node the compile happened to see. The unwrap idiom is the tree's existing one
                 at ruleActions.rtn:419.#):
-                argChannel=(STROKE 3, Tony, SEQ 127. runAction's CHANNEL LINES, LIFTED
-                    VERBATIM, so the claim above is true again. This arm was bind-by-body
-                    while runAction's had grown a union tripwire and a setGroup call, and the
-                    two roads had silently diverged -- which they were built never to do.
+                CodeSite="jitEmitters.rtn:jitBindArgRT";
+            argChannel=(STROKE 3, Tony, SEQ 127. runAction's CHANNEL LINES, LIFTED VERBATIM,
+                so jitBindArgRT's lifted-not-reimplemented claim is true again. This arm was
+                bind-by-body while runAction's had grown a union tripwire and a setGroup call,
+                and the two roads had silently diverged -- which they were built never to do.
 
-                    ⚠ NO RESTORE IS LIFTED WITH THEM, AND NOTHING IS DROPPED BY THAT.
-                    runAction's save/restore brackets its own processAction call; the emitted
-                    path has no such call to bracket, and this arm carried no restore before
-                    either. The divergence being closed is the BIND.#);
+                ⚠ NO RESTORE IS LIFTED WITH THEM, AND NOTHING IS DROPPED BY THAT. runAction's
+                save/restore brackets its own processAction call; the emitted path has no such
+                call to bracket, and this arm carried no restore before either. The divergence
+                being closed is the BIND.
+
+                ⚠⚠ THE OBITUARY, moved here whole from the site 2026-09-06. It describes what
+                the code NO LONGER DOES and is kept because it is the specification of why the
+                guard is gone rather than merely absent:
+
+                    THE TRIPWIRE AND ITS FALLBACK ARE GONE, 2026-09-05, folded in with item 3
+                    at Tony's ruling -- same road, same arm. Two reasons, and the second is why
+                    this could not wait. The tripwire guarded a union that might hold foreign
+                    data because the argument attribute was USER-DECLARED; runAction now MINTS
+                    the slot, so the union is ours BY CONSTRUCTION and the failure is
+                    unconstructable rather than guarded.
+                    ⚠ AND THE REFUSAL ARM DID THE BIND-BY-BODY FALLBACK ANYWAY --
+                    `ruleArg->groupBody = arg->groupBody` -- which is exactly the road SEQ 131
+                    removed from runAction for handing the callee THE OCCUPANT rather than the
+                    argument it was called with. runAction refused and did not run; this road
+                    refused, said so, and then did it. The two arms had diverged on the one
+                    thing the refusal existed to prevent.
+
+                ⚠ THE PENDING SLOT DID NOT RETIRE WITH IT and is live today: it is the emitted
+                path's channel bracket, paired with jitSaveFrameRT/jitRestoreFrameRT across
+                three functions. It was never what was wrong here.#):
+                Status="superseded 2026-09-05 -- the tripwire and its fallback removed; see the 2026-09-05 seal, `argument` is a BINDING and runAction mints the slot";
+                CodeSite="jitEmitters.rtn:jitBindArgRT";
+            codedPathHalf=(THE CODED PATH'S HALF, both clauses in one motion. The exemption
+                that sat above jitBindArgRT's bind was THE WRAPPER'S FINGERPRINT -- "unwrap
+                this, unless it is the argument" -- and it retires WITH the wrapper, not before
+                it.#):
+                CodeSite="jitEmitters.rtn:jitBindArgRT";
             jitDerefRT=(THE PREFIX STAR, AT RUN TIME. SEQ 132 item 3.
 
                 ⚠ opDeref's OWN LINES, LIFTED VERBATIM, for the same reason jitBindArgRT
