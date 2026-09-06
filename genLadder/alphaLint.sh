@@ -60,6 +60,32 @@ if [ "$TOTALFILES" -eq 0 ]; then
     exit 2
 fi
 
-echo "alphaLint -- $TOTALFILES file(s) examined, $TOTALBREAKS out-of-order method(s)"
+#   ⚠ UNIT SHAPE (Tony's ruling, 2026-09-07). THE UNIT IS header + declaration,
+#   and A BLANK LINE IS THE ONLY BOUNDARY. A comment block separated from its
+#   declaration by a blank line is NOT part of the method, so the next sort
+#   leaves it behind -- which is exactly how genParse.rtn came to have TEN
+#   headers documenting the wrong function, four of them sitting AFTER their
+#   own method. This is checked HERE because alphaLint is what runs before a
+#   sort, and a header with a blank line under it is the state in which sorting
+#   orphans it. Zero on every future sort is the certificate that the rule holds.
+UNITBREAKS=0
+for f in $FILES; do
+    [ -f "$f" ] || continue
+    _u=$(awk '
+        /^extern [A-Za-z]/ {
+            if (prev == "" && prev2 ~ /(\*\/|^[[:space:]]*\/\/)/) {
+                name=$0; sub(/\(.*/,"",name); n=split(name,a," "); print FILENAME": "a[n]
+            }
+        }
+        { prev2=prev; prev=$0 }
+    ' "$f")
+    if [ -n "$_u" ]; then
+        echo "$_u" | while read -r r; do echo "  UNIT BROKEN (blank line between header and declaration): $r"; done
+        UNITBREAKS=$(( UNITBREAKS + $(echo "$_u" | wc -l | tr -d ' ') ))
+    fi
+done
+
+echo "alphaLint -- $TOTALFILES file(s) examined, $TOTALBREAKS out-of-order method(s), $UNITBREAKS broken unit(s)"
 [ "$QUIET" = 1 ] && [ "$TOTALBREAKS" -gt 0 ] && exit 1
+[ "$UNITBREAKS" -gt 0 ] && exit 1
 exit 0

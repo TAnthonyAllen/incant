@@ -2185,7 +2185,8 @@ define
                 either.
 
                 MOVED HERE FROM Commands.rtn 2026-09-04, cleanup arc stroke 5. The method is
-                unchanged; only its home and its comment moved.#);
+                unchanged; only its home and its comment moved.#):
+                CodeSite="genParse.rtn:activateAll";
             activateBody=(activateBody -- BIND ONE STORED BODY TO ITS RULE'S LIVE SLOT.
 
                 The per-rule form. THE ONLY WRITER of CodE and isCoded on the generated
@@ -2195,7 +2196,8 @@ define
                 zero remainder, it can only report an empty corpus.
 
                 MOVED HERE FROM Commands.rtn 2026-09-04, cleanup arc stroke 5. The method is
-                unchanged; only its home and its comment moved.#);
+                unchanged; only its home and its comment moved.#):
+                CodeSite="genParse.rtn:activateBody";
             compileStored=(compileStored -- PHASE 2 UNDER OPTION B. COMPILE THE BODY OUT OF THE
                 REGISTRY, WITHOUT EVER WRITING THE RULE'S LIVE SLOT.
 
@@ -2218,7 +2220,8 @@ define
                 counts zero already, so zero can never mean a state we put it in.
 
                 MOVED HERE FROM Commands.rtn 2026-09-04, cleanup arc stroke 5. The method is
-                unchanged; only its home and its comment moved.#);
+                unchanged; only its home and its comment moved.#):
+                CodeSite="genParse.rtn:compileStored";
             storeBody=(THE GENERATED-BODY CORPUS -- storeBody / activateBody / activateAll /
                 bodyCensus. Charter A, SEQ 78, Ruling 1 (Fork 2).
 
@@ -2249,7 +2252,8 @@ define
                 MOVED HERE FROM Commands.rtn 2026-09-04, cleanup arc stroke 5. The method is
                 unchanged; only its home and its comment moved. ⚠ The family header above names
                 bodyCensus as a fifth verb -- that one went to measure.twk in stroke 4, because it
-                only ASKS about the corpus and never writes it.#);
+                only ASKS about the corpus and never writes it.#):
+                CodeSite="genParse.rtn:storeBody";
             storedBody=(storedBody -- THE PER-RULE QUERY VERB. Returns the corpus entry for a rule,
                 or null if nothing is filed against it.
 
@@ -2271,7 +2275,8 @@ define
                 so it cannot itself become a second writer of anything.
 
                 MOVED HERE FROM Commands.rtn 2026-09-04, cleanup arc stroke 5. The method is
-                unchanged; only its home and its comment moved.#);
+                unchanged; only its home and its comment moved.#):
+                CodeSite="genParse.rtn:storedBody";
         measure=(is the twk file holding the measuring instruments -- censuses, audits,
             probes, address and body readers, and the report verbs a fixture drives from
             kant. Minted 2026-09-04, cleanup arc stroke 3, because those methods were

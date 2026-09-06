@@ -1493,13 +1493,20 @@ GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 	return input;
 }
 
-// actionTailShim  actK is the action tail shim: the body carries ZERO information and the frame supplies which rule and which label, as it does position and mark for litK/parseRK
-// shimRoute  resolves by dlsym at CALL time, not from a pointer stashed at mint -- cheap-to-remove beat cheap-to-run, and step 2 deletes the question
-/*  ⚠ THE VERDICT IS THE SHIM'S, NEVER THE ACTION'S RETURN. Dispatch happened
+/*******************************************************************************
+    actK -- THE ACTION TAIL SHIM. The body carries ZERO information; the frame
+    supplies WHICH rule and WHICH label, exactly as it supplies position and
+    mark for litK and parseRK.
+
+    ⚠ THE VERDICT IS THE SHIM'S, NEVER THE ACTION'S RETURN. Dispatch happened
     => trueResult, full stop. A datumless return is aCTionBraced doing its job
     correctly; it is not a failure and it must not become a TRUE-by-presence
     either. A missing symbol REFUSES and names what it looked for -- refuse,
-    never substitute, because this family was measured failing SILENTLY.  */
+    never substitute, because this family was measured failing SILENTLY.
+
+    // actionTailShim  actK is the action tail shim: the body carries ZERO information and the frame supplies which rule and which label, as it does position and mark for litK/parseRK
+    // shimRoute  resolves by dlsym at CALL time, not from a pointer stashed at mint -- cheap-to-remove beat cheap-to-run, and step 2 deletes the question
+*******************************************************************************/
 extern "C" GroupItem *actK(GroupItem *ignored)
 {
 GroupItem 	*label = 0;
@@ -1567,8 +1574,15 @@ int 		fired = 0;
     3. A METHOD CALL CANNOT APPEAR IN AN `if` CONDITION --
        `if term.definingRule() != term` fails to parse. Assign it to a local.
 *******************************************************************************/
-/*  ⚠ NO BACK-POINTER: it resolves the rule by NAME out of the live registry.
-    Refuses by name per entry rather than aborting the sweep.   genParse.activateAll  */
+/*******************************************************************************
+    activateAll -- THE WHOLE-POPULATION FORM: walk the corpus and bind every
+    PENDING entry to the rule it was filed against.
+
+    ⚠ NO BACK-POINTER: it resolves the rule by NAME out of the live registry,
+    and refuses by name PER ENTRY rather than aborting the sweep.
+
+    // activateAll  why the rule is read back by name, and why one bad entry does not stop the walk
+*******************************************************************************/
 extern "C" GroupItem *activateAll(GroupItem *ignored)
 {
 GroupItem 	*reg = 0;
@@ -1595,8 +1609,14 @@ int 		done = 0;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/*  ⚠ THE ONLY WRITER OF THE LIVE SLOT among the corpus verbs -- CodE plus isCoded.
-    Generation files pending; this is phase two.   genParse.storeBody  */
+/*******************************************************************************
+    activateBody -- BIND ONE STORED BODY TO ITS RULE'S LIVE SLOT.
+
+    ⚠ THE ONLY WRITER OF THE LIVE SLOT among the corpus verbs -- CodE plus
+    isCoded. Generation files PENDING; this is phase two.
+
+    // activateBody  why this verb alone touches the live slot, and what phase two means for the corpus
+*******************************************************************************/
 extern "C" GroupItem *activateBody(GroupItem *rule)
 {
 GroupItem 	*reg = 0;
@@ -2026,8 +2046,12 @@ endCompile:
 	return field;
 }
 
-/*  PHASE 2 UNDER OPTION B: compile OUT OF the corpus, never over the live rule.
-    Refuses by name on every missing precondition.   genParse.compileStored  */
+/*******************************************************************************
+    compileStored -- PHASE 2 UNDER OPTION B: compile OUT OF the corpus, never
+    over the live rule. Refuses by name on every missing precondition.
+
+    // compileStored  what Option B's phase two compiles, and why it never reads the live rule
+*******************************************************************************/
 extern "C" GroupItem *compileStored(GroupItem *rule)
 {
 GroupItem 	*reg = 0;
@@ -2267,8 +2291,10 @@ int 	length = 0;
 		::printf("\n");
 }
 
-// invariantRprime  runs the two loop shapes side by side on one input so both clauses of R-prime are visible: a passing run alone proves neither
-// minTwoUnreachable  it is a controlled comparison and not a generated rule because the mark clause needs min >= 2, and min >= 2 cannot be reached through the grammar -- measured, the limit is silently not applied
+/*******************************************************************************
+    // invariantRprime  runs the two loop shapes side by side on one input so both clauses of R-prime are visible: a passing run alone proves neither
+    // minTwoUnreachable  it is a controlled comparison and not a generated rule because the mark clause needs min >= 2, and min >= 2 cannot be reached through the grammar -- measured, the limit is silently not applied
+*******************************************************************************/
 extern "C" GroupItem *demoRprime(GroupItem *argument)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -2488,7 +2514,9 @@ GroupItem 	*plan = 0;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-// termListShape  MEASUREMENT TOOL, not part of the emitter -- kept because it settled what a rule's term list actually holds (source order, the four noPrint code={} tail slots, attribute-vs-member, shared child lists) and re-measuring is one run
+/*******************************************************************************
+    // termListShape  MEASUREMENT TOOL, not part of the emitter -- kept because it settled what a rule's term list actually holds (source order, the four noPrint code={} tail slots, attribute-vs-member, shared child lists) and re-measuring is one run
+*******************************************************************************/
 extern "C" GroupItem *dumpRuleTerms(GroupItem *argument)
 {
 GroupItem 	*rule = GroupControl::groupController->locate(argument->getText());
@@ -2570,7 +2598,9 @@ int 		i = 1;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-// oracleIsTheReplaced  emitLeaf's own fixture: THE ORACLE IS THE FUNCTION BEING REPLACED, captured under both sinks while the C++ emitLeaf is still the only implementation, because LITTO is reached by no ladder rule and was ungated
+/*******************************************************************************
+    // oracleIsTheReplaced  emitLeaf's own fixture: THE ORACLE IS THE FUNCTION BEING REPLACED, captured under both sinks while the C++ emitLeaf is still the only implementation, because LITTO is reached by no ladder rule and was ungated
+*******************************************************************************/
 extern "C" GroupItem *dumpSpellings(GroupItem *argument)
 {
 GroupItem 	*rule = 0;
@@ -2606,7 +2636,9 @@ char 		*piece = 0;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-// leafIsTarget  one plan node -> one leaf expression string; everything here is about the TARGET and nothing about the rule, which is the whole reason the seam exists
+/*******************************************************************************
+    // leafIsTarget  one plan node -> one leaf expression string; everything here is about the TARGET and nothing about the rule, which is the whole reason the seam exists
+*******************************************************************************/
 extern "C" char *emitLeaf(GroupItem *node, char *local, char *sink)
 {
 GroupItem 	*speller = ::locateSpeller();
@@ -2673,7 +2705,9 @@ char 		*piece = 0;
 	return leaf;
 }
 
-// emitManyInvariantR  the repetition helper, and where invariant R-prime lives: `from` is captured ONCE at entry so a short run gives back the WHOLE run, and each pass builds a fresh label because nothing here touches fLAG
+/*******************************************************************************
+    // emitManyInvariantR  the repetition helper, and where invariant R-prime lives: `from` is captured ONCE at entry so a short run gives back the WHOLE run, and each pass builds a fresh label because nothing here touches fLAG
+*******************************************************************************/
 extern "C" int emitMany(GroupItem *node)
 {
 GroupItem 	*manier = ::locateManier();
@@ -2964,11 +2998,14 @@ GroupItem 	*frame = action->get("frameSTAK");
 	return frame;
 }
 
-// kantRatchetOracle  emits a rule's kant parse body from its live terms -- a hand-written body is a manual run of this, and byte-identity with the certified hand body inherits its certification
-// liveTermsNotEye  walks planRule's classified plan, so indices and kinds come from the rule as it is in the tree right now
-/*  ⚠ EMITTED TO stderr, NOT stdout, and that is bear-trap #14: a run that
+/*******************************************************************************
+    ⚠ EMITTED TO stderr, NOT stdout, and that is bear-trap #14: a run that
     ends via stop() exits hard with no flush, so buffered stdout vanishes and
-    looks exactly like an emitter that never ran.  */
+    looks exactly like an emitter that never ran.
+
+    // kantRatchetOracle  emits a rule's kant parse body from its live terms -- a hand-written body is a manual run of this, and byte-identity with the certified hand body inherits its certification
+    // liveTermsNotEye  walks planRule's classified plan, so indices and kinds come from the rule as it is in the tree right now
+*******************************************************************************/
 extern "C" GroupItem *genKant(GroupItem *argument)
 {
 GroupItem 	*rule = 0;
@@ -3020,7 +3057,9 @@ int 		n = 0;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-// twoPassesPlanThenWrite  two passes: planRule DECIDES and emitPlan WRITES, nothing between them knows about C++ -- and emitPlan walks the plan TWICE, once to validate and once to write, which is why the seam artifact is a plan and not a visitor
+/*******************************************************************************
+    // twoPassesPlanThenWrite  two passes: planRule DECIDES and emitPlan WRITES, nothing between them knows about C++ -- and emitPlan walks the plan TWICE, once to validate and once to write, which is why the seam artifact is a plan and not a visitor
+*******************************************************************************/
 extern "C" GroupItem *genParse(GroupItem *argument)
 {
 GroupItem 	*rule = ::ruleOrRefuse(ruleNameArg(argument),"genParse");
@@ -7128,12 +7167,15 @@ extern "C" int jitUnboxCount(GroupItem *node)
 	
 }
 
-// kantDoorDuties  kantDoor's three duties, lifted out of aCTionDefinE so the hunk there is three lines and the revert is one: mint kp<Tag>, hang the CodE on it, set rStuff.parseMethod = parseViaKant
-// kantDoorGuards  two measured hazards the skeleton does not cover -- where the isCoded test must sit, and why scoping is a real conditional
-/*  ⚠ THE DOOR CLEARS gMethod / isMethod / immediateACTION. "The method slot
+/*******************************************************************************
+    ⚠ THE DOOR CLEARS gMethod / isMethod / immediateACTION. "The method slot
     stays empty" needs an ACTIVE CLEAR, not merely not binding -- Braced
     arrives with gMethod already set, and left alone fireLabelMethod fires it
-    AND actK fires it. This clear is what starves the C++ arm.  */
+    AND actK fires it. This clear is what starves the C++ arm.
+
+    // kantDoorDuties  kantDoor's three duties, lifted out of aCTionDefinE so the hunk there is three lines and the revert is one: mint kp<Tag>, hang the CodE on it, set rStuff.parseMethod = parseViaKant
+    // kantDoorGuards  two measured hazards the skeleton does not cover -- where the isCoded test must sit, and why scoping is a real conditional
+*******************************************************************************/
 extern "C" int kantDoor(GroupItem *rule, GroupItem *code)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -7258,7 +7300,9 @@ char 		*mintName = 0;
 	return 0;
 }
 
-// refusingIsTheFeature  the kant twin of emitLeaf, spelling only the kinds the shim vocabulary HAS -- everything else returns null and the caller refuses loudly, because an emitter that guessed would parse and answer wrong
+/*******************************************************************************
+    // refusingIsTheFeature  the kant twin of emitLeaf, spelling only the kinds the shim vocabulary HAS -- everything else returns null and the caller refuses loudly, because an emitter that guessed would parse and answer wrong
+*******************************************************************************/
 extern "C" char *kantLeaf(GroupItem *node, char *at)
 {
 char 		*leaf = 0;
@@ -7445,10 +7489,13 @@ GroupItem 	*notifyList = 0;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-// kantBodyNamesTerm  litK/parseRK take a term POSITION, one argument: a kant body names a term and nothing else, and position, label and invariant all belong to the frame
-/*  ⚠ RETURN CONTRACT IS truthOf's, deliberately: non-null for success, null
+/*******************************************************************************
+    ⚠ RETURN CONTRACT IS truthOf's, deliberately: non-null for success, null
     for failure, so an AND chain short-circuits on exactly the same contract
-    both engines already share. No new notion of truth enters with the parser.  */
+    both engines already share. No new notion of truth enters with the parser.
+
+    // kantBodyNamesTerm  litK/parseRK take a term POSITION, one argument: a kant body names a term and nothing else, and position, label and invariant all belong to the frame
+*******************************************************************************/
 extern "C" GroupItem *litK(GroupItem *idx)
 {
 GroupItem 	*term = 0;
@@ -7469,8 +7516,10 @@ int 		n = 0;
 	return 0;
 }
 
-// zeroMeansSelf  litToK is litK's labelled twin: at >= 1 the slot is term.tag, at == 0 there is NO term and the slot is rule.tag -- `break` plans at 0, so an unconditional rule[n] would refuse the very subject the citizen drives
-// tagDivergence  the term-position literal is term.tag, copied from litK not emitLeaf; the divergence is litK's, predates this, and is a docs/fixIts.md row rather than a repair here
+/*******************************************************************************
+    // zeroMeansSelf  litToK is litK's labelled twin: at >= 1 the slot is term.tag, at == 0 there is NO term and the slot is rule.tag -- `break` plans at 0, so an unconditional rule[n] would refuse the very subject the citizen drives
+    // tagDivergence  the term-position literal is term.tag, copied from litK not emitLeaf; the divergence is litK's, predates this, and is a docs/fixIts.md row rather than a repair here
+*******************************************************************************/
 extern "C" GroupItem *litToK(GroupItem *idx)
 {
 GroupItem 	*into = 0;
@@ -7619,7 +7668,9 @@ PLGset 		*fieldSet = new PLGset("^ \n\r\t");
 		}
 }
 
-// manierRegistry  mirrors locateSpeller one registry over, and the SEPARATE registry is the point: sharing `Spellers` would tie the kant emitMany and the kant spellLeaf to one switch
+/*******************************************************************************
+    // manierRegistry  mirrors locateSpeller one registry over, and the SEPARATE registry is the point: sharing `Spellers` would tie the kant emitMany and the kant spellLeaf to one switch
+*******************************************************************************/
 extern "C" GroupItem *locateManier()
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -7635,7 +7686,9 @@ GroupItem 	*hit = 0;
 	return 0;
 }
 
-// ruleLookupScope  resolves on the SEARCH LIST only and only isRule hits -- a bare locate() falls through to the base registries and silently mis-targets any rule sharing a name with a keyword or command
+/*******************************************************************************
+    // ruleLookupScope  resolves on the SEARCH LIST only and only isRule hits -- a bare locate() falls through to the base registries and silently mis-targets any rule sharing a name with a keyword or command
+*******************************************************************************/
 extern "C" GroupItem *locateRule(char *name)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -7651,7 +7704,9 @@ GroupItem 	*hit = 0;
 	return 0;
 }
 
-// spellerScope  scoped on purpose: only a registry literally named `Spellers` supplies it, and only as `spellLeaf` -- a bare locate() would resolve down the general stack and silently mis-target
+/*******************************************************************************
+    // spellerScope  scoped on purpose: only a registry literally named `Spellers` supplies it, and only as `spellLeaf` -- a bare locate() would resolve down the general stack and silently mis-target
+*******************************************************************************/
 extern "C" GroupItem *locateSpeller()
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -7739,7 +7794,9 @@ GroupItem 	*grup = new GroupItem(strung);
 	return grup;
 }
 
-// textNotPointer  the answer is TEXT and not a pointer, and that is forced: a kant action cannot return null across runAction and getText falls back to the tag, so a null-test would read a refusal as a success
+/*******************************************************************************
+    // textNotPointer  the answer is TEXT and not a pointer, and that is forced: a kant action cannot return null across runAction and getText falls back to the tag, so a null-test would read a refusal as a success
+*******************************************************************************/
 extern "C" int manyKant(GroupItem *manier, GroupItem *node)
 {
 GroupItem 	*result = ::runAction(node,manier);
@@ -9715,13 +9772,16 @@ extern "C" GroupItem *opUnaryMinus(GroupItem *result)
 	return GroupControl::groupController->groupRules->tempField;
 }
 
-// optContract  optRK is parseRK with ONE leg's answer flipped: attempt term N, on success proceed, on FAILURE restore the cursor and still answer success -- same cursor discipline, only the verdict changes
-// oneShimPerKind  a shim per inner kind rather than one optK deciding LIT-vs-CALL at run time, because planTerm already made that decision and two implementers drift silently
-/*  ⚠ A BROKEN FRAME IS NOT AN ABSENT OPTIONAL, and the return values say so.
+/*******************************************************************************
+    ⚠ A BROKEN FRAME IS NOT AN ABSENT OPTIONAL, and the return values say so.
     No `into`, no `term` -> return NULL, which fails the chain loudly. Only the
     real "the optional did not match" leg answers success. One channel, one
     meaning: trueResult out of here means THE CHAIN MAY PROCEED, and a missing
-    frame is not that.  */
+    frame is not that.
+
+    // optContract  optRK is parseRK with ONE leg's answer flipped: attempt term N, on success proceed, on FAILURE restore the cursor and still answer success -- same cursor discipline, only the verdict changes
+    // oneShimPerKind  a shim per inner kind rather than one optK deciding LIT-vs-CALL at run time, because planTerm already made that decision and two implementers drift silently
+*******************************************************************************/
 extern "C" GroupItem *optRK(GroupItem *idx)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -9894,7 +9954,9 @@ int 		more = 0;
 	return 0;
 }
 
-// bracedControlOrigin  GENERATED by genParse('Braced') and pasted verbatim -- the emitter's own output, byte-identical to the recorded emission, standing as the oracle-bearing control for the bind-read seam
+/*******************************************************************************
+    // bracedControlOrigin  GENERATED by genParse('Braced') and pasted verbatim -- the emitter's own output, byte-identical to the recorded emission, standing as the oracle-bearing control for the bind-read seam
+*******************************************************************************/
 extern "C" GroupItem *parseBraced(GroupItem *rule)
 {
 GroupItem 	*into = rule->getRStuff()->parentLabel;
@@ -10087,7 +10149,9 @@ RuleStuff 	*ruleStuff = pMethod->getRStuff();
 	return 0;
 }
 
-// parseRuleMethod  binds a compiled parse to rStuff.parseMethod. ⚠ definingRule(), NOT parent -- a cross-file re-definition binds a satellite the reader never looks at
+/*******************************************************************************
+    // parseRuleMethod  binds a compiled parse to rStuff.parseMethod. ⚠ definingRule(), NOT parent -- a cross-file re-definition binds a satellite the reader never looks at
+*******************************************************************************/
 extern "C" GroupItem *parseRuleMethod(GroupItem *input)
 {
 char 		*name = input->getText();
@@ -10357,9 +10421,10 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return 0;
 }
 
-/*  parseTermCount and parseRuleMethod are ONE decision and move together -- this
-    one writes termCount, the other's refusal guard reads it.
-    genParse.parseRuleMethod  */
+/*  ⚠ parseTermCount AND parseRuleMethod ARE ONE DECISION AND MOVE TOGETHER --
+    this one writes termCount, the other's refusal guard reads it. Leaving one
+    on a satellite compares a count nobody wrote against a rule's live terms
+    and silently downgrades the refusal to a warning, which still binds.  */
 extern "C" GroupItem *parseTermCount(GroupItem *input)
 {
 char 		*name = input->getText();
@@ -10397,15 +10462,18 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return 0;
 }
 
-// trampolineSeam  rStuff.parseMethod is a C++ function POINTER and a kant method is a GroupItem, so this stands in the slot with the existing signature and forwards -- no layout change, no groups.ext edit
-// kpConvention  rule `Foo` is served by the kant action named `kpFoo`; v1 scaffolding, not load-bearing on the design
-/*  ⚠ IT REFUSES RATHER THAN FALLING THROUGH. A missing or uncoded action
+/*******************************************************************************
+    ⚠ IT REFUSES RATHER THAN FALLING THROUGH. A missing or uncoded action
     returns null, which parse() reads as "this rule did not match" -- the
     honest answer -- and says so on stderr once. Falling back quietly to the
     interpretive arm would make an unregistered action indistinguishable from a
     rule that legitimately failed.
     ⚠ ONE CHANNEL, ONE MEANING: this returns what processAction returns and
-    invents nothing, so parse()'s caller cannot tell the arms apart by shape.  */
+    invents nothing, so parse()'s caller cannot tell the arms apart by shape.
+
+    // trampolineSeam  rStuff.parseMethod is a C++ function POINTER and a kant method is a GroupItem, so this stands in the slot with the existing signature and forwards -- no layout change, no groups.ext edit
+    // kpConvention  rule `Foo` is served by the kant action named `kpFoo`; v1 scaffolding, not load-bearing on the design
+*******************************************************************************/
 extern "C" GroupItem *parseViaKant(GroupItem *rule)
 {
 GroupItem 	*action = 0;
@@ -10623,7 +10691,9 @@ int 		i = 1;
 	return plan;
 }
 
-// tallyAtThreeSites  the charter's two numbers PRINTED rather than grepped, counted at three sites because every refusal is immediately followed by a `return null` -- a measured invariant, and gapB.sh cross-checks the scalar against the grep every run
+/*******************************************************************************
+    // tallyAtThreeSites  the charter's two numbers PRINTED rather than grepped, counted at three sites because every refusal is immediately followed by a `return null` -- a measured invariant, and gapB.sh cross-checks the scalar against the grep every run
+*******************************************************************************/
 extern "C" int planTally(int mode)
 {
 	
@@ -10637,10 +10707,12 @@ extern "C" int planTally(int mode)
 	
 }
 
-// planVocabulary  the plan is a tree of GroupItems -- resolved decisions, baked literals, NO target syntax -- in five kinds (SEQ ALT LIT LITTO CALL) that grow one at a time as a rung demands one
-// planNotVisitor  a plan and not a visitor because a plan diff is TARGET-INDEPENDENT, refusals validate once for every emitter, and a plan is printable where visitor state is not
-// positiveTestOnly  planTerm turns one term into one plan node or REFUSES -- every node comes from a POSITIVE test, because inheriting setTestMatch's fall-through would make every unclassified term a silent bogus CALL
-// dataBeforeReference  `data` is tested BEFORE the reference test, so a term that is both refuses instead of silently becoming a CALL
+/*******************************************************************************
+    // planVocabulary  the plan is a tree of GroupItems -- resolved decisions, baked literals, NO target syntax -- in five kinds (SEQ ALT LIT LITTO CALL) that grow one at a time as a rung demands one
+    // planNotVisitor  a plan and not a visitor because a plan diff is TARGET-INDEPENDENT, refusals validate once for every emitter, and a plan is printable where visitor state is not
+    // positiveTestOnly  planTerm turns one term into one plan node or REFUSES -- every node comes from a POSITIVE test, because inheriting setTestMatch's fall-through would make every unclassified term a silent bogus CALL
+    // dataBeforeReference  `data` is tested BEFORE the reference test, so a term that is both refuses instead of silently becoming a CALL
+*******************************************************************************/
 extern "C" GroupItem *planTerm(GroupItem *term, int index)
 {
 RuleStuff 	*rs = term->getRStuff();
@@ -11250,7 +11322,9 @@ char 		*name = item->groupBody->flags.data ? item->getText() : (char*)0;
 	return ruler->trueResult;
 }
 
-// armFromFixture  one more door onto the SAME gate as INCANT_PARSE_RECORD, not a second gate -- a file-static rather than a GroupRules field, so a debug affordance never drags in bear-trap #10's apparatus
+/*******************************************************************************
+    // armFromFixture  one more door onto the SAME gate as INCANT_PARSE_RECORD, not a second gate -- a file-static rather than a GroupRules field, so a debug affordance never drags in bear-trap #10's apparatus
+*******************************************************************************/
 extern "C" GroupItem *recordParse(GroupItem *argument)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -11511,7 +11585,9 @@ char 	*name = input->getText();
 	return input->getGroup();
 }
 
-// ruleNameForms  three accepted forms -- quoted literal, bare name, field holding the name -- and BOTH surprises are bear-trap #26: a dataless field returns its own tag, which made the bare form work by accident and the field form fail by the same mechanism
+/*******************************************************************************
+    // ruleNameForms  three accepted forms -- quoted literal, bare name, field holding the name -- and BOTH surprises are bear-trap #26: a dataless field returns its own tag, which made the bare form work by accident and the field form fail by the same mechanism
+*******************************************************************************/
 extern "C" char *ruleNameArg(GroupItem *argument)
 {
 char 		*name = argument->getText();
@@ -12266,8 +12342,11 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return 0;
 }
 
-// setParseCast  passthrough because everything it touches must arrive as a PARAMETER -- an incant local referenced only inside passthrough is pruned with its initializing call (bear-trap #13)
-// ⚠ AND THE PASSTHROUGH PREMISE IS RECORDED WRONG in setParseCast, verbatim: most of this can be one tok line. NOT acted on by the comment sweep -- that is a code change with its own certificate
+/*******************************************************************************
+    // ⚠ AND THE PASSTHROUGH PREMISE IS RECORDED WRONG in setParseCast, verbatim: most of this can be one tok line. NOT acted on by the comment sweep -- that is a code change with its own certificate
+
+    // setParseCast  passthrough because everything it touches must arrive as a PARAMETER -- an incant local referenced only inside passthrough is pruned with its initializing call (bear-trap #13)
+*******************************************************************************/
 extern "C" int setParseMethod(RuleStuff *stuff, char *name)
 {
 	
@@ -12322,7 +12401,9 @@ char 		*name = 0;
 	return item;
 }
 
-// directorsWindow  a COMMAND and not a kant action, because a rule name in expression position INVOKES the rule -- `if Braced;` exits 139, measured -- so the window comes in through the same text-and-locateRule door genParse uses
+/*******************************************************************************
+    // directorsWindow  a COMMAND and not a kant action, because a rule name in expression position INVOKES the rule -- `if Braced;` exits 139, measured -- so the window comes in through the same text-and-locateRule door genParse uses
+*******************************************************************************/
 extern "C" GroupItem *showParse(GroupItem *argument)
 {
 GroupItem 	*rule = ::ruleOrRefuse(::ruleNameArg(argument),"showParse");
@@ -12344,7 +12425,9 @@ GroupItem 	*record = 0;
 	return record;
 }
 
-// treeNotLanguage  §2.4's acceptance test has to be a TREE test: an ALT attaches to the enclosing label, and getting it wrong gives the right LANGUAGE over the WRONG TREE, which every mark-and-win check reads green
+/*******************************************************************************
+    // treeNotLanguage  §2.4's acceptance test has to be a TREE test: an ALT attaches to the enclosing label, and getting it wrong gives the right LANGUAGE over the WRONG TREE, which every mark-and-win check reads green
+*******************************************************************************/
 extern "C" int showTree(GroupItem *node, char *pad)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -12365,7 +12448,9 @@ char 		*deeper = 0;
 	return 1;
 }
 
-// sinkRidesAsAttribute  one argument because a kant action takes one; `sink` is the fold's decision and rides as an attribute, REUSED not stacked, or getAttribute keeps answering with the stale one
+/*******************************************************************************
+    // sinkRidesAsAttribute  one argument because a kant action takes one; `sink` is the fold's decision and rides as an attribute, REUSED not stacked, or getAttribute keeps answering with the stale one
+*******************************************************************************/
 extern "C" char *spellKant(GroupItem *speller, GroupItem *node, char *sink)
 {
 GroupItem 	*slot = 0;
@@ -12383,7 +12468,9 @@ GroupItem 	*result = 0;
 	return result->getText();
 }
 
-// whichSpellerLive  which implementation is live, because emitLeaf's fork is silent by design and a round that never registered its action would read green too -- pop.sh pins this line and the pin IS the acceptance test
+/*******************************************************************************
+    // whichSpellerLive  which implementation is live, because emitLeaf's fork is silent by design and a round that never registered its action would read green too -- pop.sh pins this line and the pin IS the acceptance test
+*******************************************************************************/
 extern "C" GroupItem *spellMode(GroupItem *argument)
 {
 	if ( ::locateSpeller() )
@@ -12432,8 +12519,14 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return input;
 }
 
-/*  GENERATION NEVER WRITES THE LIVE SLOT -- this files a body PENDING, tagged StorE,
-    and refuses by name when there is nothing to file.   genParse.storeBody  */
+/*******************************************************************************
+    storeBody -- FILE A GENERATED BODY AGAINST ITS RULE, tagged StorE, PENDING.
+
+    ⚠ GENERATION NEVER WRITES THE LIVE SLOT. It refuses by name when there is
+    nothing to file.
+
+    // storeBody  the corpus's founding invariant -- generation never writes the live slot
+*******************************************************************************/
 extern "C" GroupItem *storeBody(GroupItem *rule)
 {
 GroupItem 	*reg = 0;
@@ -12473,8 +12566,12 @@ GroupItem 	*body = 0;
 	return entry;
 }
 
-/*  the per-rule query verb: the corpus entry, or null when nothing is filed.
-    genParse.storedBody  */
+/*******************************************************************************
+    storedBody -- THE PER-RULE QUERY VERB: the corpus entry for a rule, or null
+    when nothing is filed.
+
+    // storedBody  why the fifth verb was a finding rather than a re-pin of the pre-registered four
+*******************************************************************************/
 extern "C" GroupItem *storedBody(GroupItem *rule)
 {
 GroupItem 	*reg = 0;
@@ -12612,7 +12709,9 @@ GroupItem 	*grup = result;
 	return grup;
 }
 
-// lazyRStuff  rStuff is materialised LAZILY, so a missing one means NOT YET and not NOT-A-TERM -- conflating it with the noPrint code-tail entries once emitted a rule reduced to `(null)` that the §3 guard would have bound with a warning
+/*******************************************************************************
+    // lazyRStuff  rStuff is materialised LAZILY, so a missing one means NOT YET and not NOT-A-TERM -- conflating it with the noPrint code-tail entries once emitted a rule reduced to `(null)` that the §3 guard would have bound with a warning
+*******************************************************************************/
 extern "C" int unresolvedTerms(GroupItem *rule)
 {
 GroupItem 	*term = 0;

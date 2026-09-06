@@ -259,6 +259,45 @@ remaining 23-of-56.
 entry cannot drift: the key resolves or it does not, and `CodeSite` now makes the reverse
 direction checkable too.
 
+## ⚠ TENTH FINDING, 2026-09-07 — THE UNIT RULE, AND IT IS THE CURE THE LINT ONLY DIAGNOSED
+
+Tony, reading the result again: **the top-of-method comment should go with the method if it
+moves.** That is the cure. The agreement lint catches drift *after* it happens; making the block
+part of the method's unit prevents it.
+
+**Why the ten orphans existed at all:** the 08-15 sort's unit was the DECLARATION, and the comments
+above it were not in the unit. So the sort carried bodies and left headers where they sat.
+
+**THE RULE, and it is structural rather than a discipline:**
+- **The unit is header + declaration + body. A BLANK LINE IS THE ONLY BOUNDARY.** Block touches
+  declaration; blank line above the block. Anything separated by a blank line is not part of the
+  method — it is a file-level note or it is noise.
+- **Whatever moves methods moves units.** `genLadder/alphaLint.sh` now checks unit shape, because
+  alphaLint is what runs before a sort and **a header with a blank line under it is precisely the
+  state in which the next sort orphans it.** H7 control: injecting one blank line above `actK`'s
+  declaration takes it to `UNIT BROKEN … genParse.rtn: actK`, `1 broken unit(s)`; restored, 0.
+
+**AND THE LINK'S PLACE INSIDE THE BLOCK IS TONY'S, AGAINST THE DISPATCH.** The dispatch put links
+FIRST as an index. Tony put them **last, a blank line after the body**, calibrated against how he
+writes `opDeref` and `opAssign`: a header leads with **what the method is**, and a list of pointers
+is not that.
+
+⚠ **AND HIS ORDERING IMPROVED THE LINES THEMSELVES, which nobody predicted.** At the top a link had
+to carry the CLAIM, and it duplicated whatever description sat beside it. At the bottom it becomes
+**what you will find if you follow this** — `actionTailShim` went from restating the shim
+convention to *"why a shim at all: both spellings of a bare `aCTionBraced()` call are unsound, and
+one of them clears the wrong node"*, which tells a reader whether it is worth opening. **A
+placement ruling changed what the content should say.**
+
+**tok inertness measured before it was adopted:** `//` inside `/* */` passes through byte-identical
+— `genParse.rtn:82` reproduced at `GroupRules.mm:1496`, canary 352 unmoved.
+
+⚠ **AND THE LINT'S FIRST REAL CUSTOMER WAS THIS STROKE'S OWN BULK EDIT.** A script that reshaped
+all 28 methods at once reattached every link to the WRONG method — `CodeSite agrees with adjacency
+on 14/50`, naming all 36. Reverted, redone one method at a time with indices recomputed per pass,
+56/56. **An edit that plausibly succeeded was caught by an instrument that had existed for one
+stroke.**
+
 
 ## LOOKUPS CLOD ACTUALLY MADE
 
