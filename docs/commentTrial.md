@@ -126,8 +126,21 @@ too.** Executing the flip would have made `genParse.rtn` the only file out of st
 template and the written rule, and stroke 2 would have propagated it across 55 methods.
 
 **One grep settled it, and the grep is the point** — this is the unmeasured-citation family
-reaching the convention itself. The re-cut moved the links onto `//` lines and left the keys where
-both the rule and the template put them.
+reaching the convention itself. The re-cut moved the links onto `//` lines.
+
+⚠⚠ **AND THEN TONY RULED KEY-FIRST ANYWAY, WHICH IS THE RIGHT OUTCOME AND NOT A CLIMBDOWN.**
+The measurement answered *"what does the tree currently do"* and the ruling answered *"what should
+it do"*, and those are different questions. **The template is now
+`// <entryName> <one sentence>` — entry name FIRST, in column one of the comment, spelled exactly
+as the DesignDocs node is tagged, with NO `File.` prefix.** The reason is the one the measurement
+could not see: a key at the end of a wrapped sentence is not in a fixed place, so a reader scanning
+a file has nowhere to look, while a name in column one is scannable without reading the prose at
+all — and `grep '^ *// <name>'` finds it from the file side, exactly as `grep '<name>'` finds the
+entry from the doc side. **One token, two directions, both greppable.**
+
+⚠ **SO `CLAUDE.md`'s EXAMPLE AND `ruleActions.rtn`'s 25 LINES ARE NOW THE DIVERGENCE, not this
+file.** They are key-at-end with a `File.method.slug` path. Restating the rule and rotating those
+25 is owed; it is not done here, and stroke 2 should not assume either form until it is.
 
 
 ## LOOKUPS CLOD ACTUALLY MADE
