@@ -72,9 +72,9 @@ the interesting quantity is the one that can come back zero.
 | 2026-09-06 | `GroupActions.saveLocalFields.identityPair` | `GroupActions.rtn` | M2's ruling executed: why the pairing was positional and what the noPrint filter cost. ⚠ **OWED FROM THE SAME DAY'S EARLIER STROKE** — the pointer was written in `1ab282f` and the entry was not |
 | 2026-09-06 | `GroupActions.saveLocalFields.frameFloor` | `GroupActions.rtn` | why the bound is not tidiness: 20 fleet rows and five runaways measured its absence. ⚠ **OWED FROM `1ab282f`** |
 | 2026-09-06 | `GroupActions.restoreLocalFields.identityPair` | `GroupActions.rtn` | the filter lives in one place now. ⚠ **OWED FROM `1ab282f`** |
-| 2026-09-06 | `genParse.genParseRecordSite` | `genParse.rtn` | why the emitter and not the installer writes the record — two processes, days apart |
-| 2026-09-06 | `genParse.genParseSinkNotTee` | `genParse.rtn` | sink-swap over a fourteen-site tee, and the measured std::cerr-vs-fprintf defect |
-| 2026-09-06 | `genParse.genParseOneGate` | `genParse.rtn` | why the attribute is gated and not just the dump, and why the file sink is the only read path |
+| 2026-09-06 | `genParse.recordSite` | `genParse.rtn` | why the emitter and not the installer writes the record — two processes, days apart |
+| 2026-09-06 | `genParse.sinkNotTee` | `genParse.rtn` | sink-swap over a fourteen-site tee, and the measured std::cerr-vs-fprintf defect |
+| 2026-09-06 | `genParse.oneGate` | `genParse.rtn` | why the attribute is gated and not just the dump, and why the file sink is the only read path |
 
 ## ⚠ FIFTH FINDING, 2026-09-06 — THE DANGLING-POINTER ROW WENT 26/26 TO 67/108, AND THREE OF THE GAPS WERE MINE FROM THAT MORNING
 
@@ -141,6 +141,34 @@ entry from the doc side. **One token, two directions, both greppable.**
 ⚠ **SO `CLAUDE.md`'s EXAMPLE AND `ruleActions.rtn`'s 25 LINES ARE NOW THE DIVERGENCE, not this
 file.** They are key-at-end with a `File.method.slug` path. Restating the rule and rotating those
 25 is owed; it is not done here, and stroke 2 should not assume either form until it is.
+
+## ⚠ SEVENTH FINDING, 2026-09-06 — TWO MORE CLAUSES, BOTH FROM TONY READING THE RESULT
+
+The convention picked up two clauses that only a reader could have found, and neither was in the
+written rule.
+
+**ONE PHYSICAL LINE PER LINK, HOWEVER LONG.** Tony re-cut the three `genParse` links himself to
+prove it: *"they are one line each (long lines are OK)."* A wrapped link puts the key on line one
+and leaves the continuation looking like an orphan comment — and worse, `grep` returns half a
+claim. One line means one hit is one whole claim.
+
+**THE ENTRY NAME MUST NOT REPEAT ITS FILE.** *"When I look at genParse.rtn looking for genParse I
+get 49 hits."* Measured: **47 hits for `genParse` in `genParse.rtn`, of which 4 are links.** Naming
+the entries `genParseRecordSite` / `genParseSinkNotTee` / `genParseOneGate` buried them inside the
+noise of the file's own name — the one search a reader would actually type is the one that cannot
+find them. Renamed to **`recordSite` / `sinkNotTee` / `oneGate`**, each now a ONE-HIT grep in both
+`genParse.rtn` and `incant/designDocs`.
+
+⚠ **THE TEST FOR A SLUG IS THEREFORE NOT UNIQUENESS, IT IS SIGNAL.** `genParseRecordSite` was
+perfectly unique and perfectly unfindable. **Grep it in its own file before minting it**; if the
+count is not 1, the name is carrying something the path already says.
+
+⚠ **AND THIS IS THE FOURTH CORRECTION TO ONE CONVENTION IN ONE SESSION** — carrier (`//` not
+`/* */`), position (name first), line discipline (one line), naming (no file prefix). **Every one
+came from Tony trying to READ the result, and none from the seat that wrote it.** That is the
+trial's own thesis landing on the trial: the question was never *"were the entries written"*, it
+was *"can the pointer be followed"*, and only a reader can answer it. **Stroke 2 opens against a
+convention that has now been read.**
 
 
 ## LOOKUPS CLOD ACTUALLY MADE

@@ -1215,7 +1215,7 @@ define
                 parseTermCount while naming parseRuleMethod as its subject -- the one
                 subject-mismatched comment block in the seven files the arc alphabetized, and
                 already detached before the sort. Both methods now carry a claim and this key.#);
-            genParseRecordSite=(THE `ParsE` RECORD IS WRITTEN BY THE EMITTER, NOT BY THE
+            recordSite=(THE `ParsE` RECORD IS WRITTEN BY THE EMITTER, NOT BY THE
                 INSTALLER -- PJ-1, and the siting is forced rather than chosen.
 
                 The brief said "the site that installs rStuff.parseMethod". THAT SITE CANNOT
@@ -1230,7 +1230,7 @@ define
                 emitter, which is the only thing that has the text, and parseRuleMethod stays
                 the single source of truth for the BINDING and writes nothing at all. One
                 writer per fact.#);
-            genParseSinkNotTee=(WHY THE CAPTURE IS AT THE SINK AND NOT AT emitPlan'S FOURTEEN
+            sinkNotTee=(WHY THE CAPTURE IS AT THE SINK AND NOT AT emitPlan'S FOURTEEN
                 `cerr` SITES.
 
                 PJ-4 wants rule.ParsE byte-identical to the emitted text. Teeing at fourteen
@@ -1264,7 +1264,7 @@ define
                 one grep of the codegen would have settled it in ten seconds. It is also the
                 three-languages-share-the-tree hazard: `cerr` is a tok keyword and does not mean
                 what the same word means in C++.#);
-            genParseOneGate=(PJ-7, ONE GATE. `INCANT_PARSE_RECORD` arms the WHOLE record --
+            oneGate=(PJ-7, ONE GATE. `INCANT_PARSE_RECORD` arms the WHOLE record --
                 capture, attribute, and the optional file sink -- rather than arming a dump of
                 an always-written attribute.
 

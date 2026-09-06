@@ -3143,10 +3143,8 @@ GroupItem 	*result = 0;
 	if ( !plan )
 		return 0;
 	
-	// genParseRecordSite  the emitter writes the ParsE record because only the
-	// emitter has the text; parseRuleMethod binds the symbol and writes nothing
-	// genParseSinkNotTee  the capture swaps the SINK rather than teeing emitPlan's
-	// fourteen cerr sites, so record and emission are the same bytes
+	// recordSite  the emitter writes the ParsE record because only the emitter has the text; parseRuleMethod binds the symbol and writes nothing
+	// sinkNotTee  the capture swaps the SINK rather than teeing emitPlan's fourteen cerr sites, so record and emission are the same bytes
 	/*  ⚠ THE SWAP MUST STAY AT THE `FILE *` LEVEL. tok's `cerr` keyword
 	generates ::fprintf(stderr,...), NOT std::cerr, so an rdbuf() swap
 	captures ZERO BYTES -- emission perfect, record empty, exit 0. Measured
@@ -3154,8 +3152,7 @@ GroupItem 	*result = 0;
 	⚠ ONE STRAIGHT LINE, NO EARLY RETURN between the swap and the restore.
 	If that stops being true stderr stays redirected and the operator loses
 	the emitter's output with no symptom but silence.  */
-	// genParseOneGate  one gate arms capture, the attribute AND the file sink
-	// together; an always-on attribute write moves the AUDIT lines
+	// oneGate  one gate arms capture, the attribute AND the file sink together; an always-on attribute write moves the AUDIT lines
 	char   *rp      = ::getenv("INCANT_PARSE_RECORD");
 	/*  GX-6: the in-fixture door onto the SAME gate. Env var wins when both are
 	set, because only it can carry a path.  */
@@ -10567,8 +10564,7 @@ RuleStuff 	*ruleStuff = pMethod->getRStuff();
 	return 0;
 }
 
-// parseRuleMethod  binds a compiled parse to rStuff.parseMethod. ⚠ definingRule(),
-// NOT parent -- a cross-file re-definition binds a satellite the reader never looks at
+// parseRuleMethod  binds a compiled parse to rStuff.parseMethod. ⚠ definingRule(), NOT parent -- a cross-file re-definition binds a satellite the reader never looks at
 extern "C" GroupItem *parseRuleMethod(GroupItem *input)
 {
 char 		*name = input->getText();
