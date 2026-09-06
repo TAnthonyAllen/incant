@@ -12159,6 +12159,9 @@ GroupItem 	*grup = 0;
 	frame = ::frameFind(action);
 	if ( frame )
 		recurseSTAK = frame->getStak();
+	/*  RESTORE PAIRS BY IDENTITY, NEVER BY POSITION -- the loop below walks
+	the STACK, not the field list, and applies no filter of its own.
+	GroupActions.restoreLocalFields.identityPair  */
 	/*  THE NULL ARM IS REAL, not defensive. restore is reached on paths where
 	save never ran -- the jit bracket among them -- and before this repair
 	`action.stak` answered on any node, so the question could not arise.
@@ -12170,13 +12173,12 @@ GroupItem 	*grup = 0;
 	if ( !recurseSTAK->length )
 		action->groupBody->flags.recursive = 0;
 	else
-	while ( grup = action->prior(grup) )
-		if ( (grup->groupBody->flags.isArgument || grup->groupBody->flags.isLocal) && !grup->groupBody->flags.noPrint )
-			{
-			body = (GroupBody*)recurseSTAK->pop();
-			*grup->groupBody = *body;
-			body = 0;
-			}
+	while ( body = (GroupBody*)recurseSTAK->pop() )
+		{
+		grup = (GroupItem*)recurseSTAK->pop();
+		*grup->groupBody = *body;
+		body = 0;
+		}
 }
 
 /*******************************************************************************
@@ -12880,6 +12882,10 @@ GroupItem 	*grup = 0;
 		frame->setStak(recurseSTAK);
 		}
 	else	recurseSTAK = frame->getStak();
+	/*  THE FRAME FLOOR. One null per activation, pushed before this frame's
+	pairs, so restore stops at ITS OWN floor instead of draining the
+	activations below it.   GroupActions.saveLocalFields.frameFloor  */
+	recurseSTAK->push(0);
 	while ( grup = action->next(grup) )
 		if ( (grup->groupBody->flags.isArgument || grup->groupBody->flags.isLocal) && !grup->groupBody->flags.noPrint )
 			{
@@ -12914,6 +12920,10 @@ GroupItem 	*grup = 0;
 				grup->groupBody->flags.hasAttributes = 0;
 				grup->groupBody->flags.hasMembers = 0;
 				}
+			/*  PAIRED PUSH: the field goes on with its body, so restore
+			never has to re-derive which body belongs to whom.
+			GroupActions.saveLocalFields.identityPair  */
+			recurseSTAK->push(grup);
 			recurseSTAK->push(body);
 			}
 }

@@ -736,6 +736,9 @@ GroupItem   frame,
             grup;
     frame = frameFind(action);
     if frame    recurseSTAK = frame.stak;
+    /*  RESTORE PAIRS BY IDENTITY, NEVER BY POSITION -- the loop below walks
+        the STACK, not the field list, and applies no filter of its own.
+        GroupActions.restoreLocalFields.identityPair  */
     /*  THE NULL ARM IS REAL, not defensive. restore is reached on paths where
         save never ran -- the jit bracket among them -- and before this repair
         `action.stak` answered on any node, so the question could not arise.
@@ -744,11 +747,10 @@ GroupItem   frame,
     if !recurseSTAK             action.recursive = false;
     or !recurseSTAK.length      action.recursive = false;
     else
-    while grup = action.prior(grup)
-        if (grup.isArgument || grup.isLocal) && !grup.noPrint {
-            body = recurseSTAK.pop();
-            *groupBody = *body;
-            body = 0;}
+    while body = recurseSTAK.pop() {
+        grup = recurseSTAK.pop();
+        *grup.groupBody = *body;
+        body = 0; }
 }
 
 
@@ -1193,6 +1195,10 @@ GroupItem   frame,
         recurseSTAK = new;
         frame.stak = recurseSTAK; }
     else    recurseSTAK = frame.stak;
+    /*  THE FRAME FLOOR. One null per activation, pushed before this frame's
+        pairs, so restore stops at ITS OWN floor instead of draining the
+        activations below it.   GroupActions.saveLocalFields.frameFloor  */
+    recurseSTAK += null;
     while grup = action.next(grup)
         if (grup.isArgument || grup.isLocal) && !grup.noPrint {
             /*  ⚠ THE SCHEMA SPLIT, and it is not optional under bind-by-body.
@@ -1224,6 +1230,10 @@ GroupItem   frame,
                 grup.groupList      = 0;
                 grup.hasAttributes  = 0;
                 grup.hasMembers     = 0; }
+            /*  PAIRED PUSH: the field goes on with its body, so restore
+                never has to re-derive which body belongs to whom.
+                GroupActions.saveLocalFields.identityPair  */
+            recurseSTAK += grup;
             recurseSTAK += body; }
 }
 
