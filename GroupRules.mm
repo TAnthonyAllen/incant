@@ -10672,37 +10672,8 @@ int 		i = 1;
 		::fprintf(stderr,"  REFUSE rule %s -- %s unmaterialised terms\n",rule->groupBody->tag,::toStringFromInt(::unresolvedTerms(rule)));
 		return 0;
 		}
-	/*  ⚠ GAP B FAMILY B -- RULE-LEVEL LITERAL. Phase R rung 1, 2026-08-09.
-	The charter's smallest family with a fully-known treatment: SemI=";",
-	loopOnAttributes="attributes", loopOnMembers="members". A rule whose OWN
-	data is a quoted literal matches that literal, which is precisely what
-	planTerm already emits for a literal in TERM position -- so this family
-	needs no new plan kind and no new support function. It reuses LIT/LITTO.
-	
-	⚠ THE SPLIT IS ON THE RULE'S OWN rStuff.noLabel, MIRRORING planTerm
-	EXACTLY, because LIT vs LITTO carries "does this attach a label" and
-	nothing else (see the kind table above). Copying that decision rather
-	than re-deciding it is the whole reason this family is cheap.
-	
-	⚠ AND THE FAMILY IS isSTRING ONLY, DELIBERATELY. The other five kinds
-	keep the refusal verbatim. Three constructs used to share one refusal
-	message; the taxonomy exists so each gets its own treatment and its own
-	text, and widening this test to `rule.data` would re-merge them on day
-	one. isCHAR (FloaT) LOOKS like a one-character member of this family and
-	is an OPEN row on purpose -- it carries sub-fields, so it is not this
-	shape (docs/gapBPhaseT.md, OPEN row 1).
-	
-	⚠ A CONTAINER IS EXEMT BECAUSE ITS DATA IS DERIVED, NOT AUTHORED.
-	Measured 2026-08-19: GroupItem::addGroup builds a bin or registry's
-	character set incrementally at ADD-MEMBER time -- `if binType { ...
-	binGuard->set((int)*group->tag); ... }` -- one character per member, and
-	nothing anywhere authors it. So a container's `data` is a cache of its
-	own membership, not a rule-level alternative to its members, and
-	refusing it as rule-as-data reports a hybrid that was never written.
-	`!rule.binType` is deliberately the SAME test addGroup writes under, so
-	the reader cannot drift from the writer. No new flag: the only existing
-	candidate, `altered`, is the stak-invalidation bit and is CLEARED by
-	resetStak, so a derived mark stored there would silently evaporate.  */
+	// ruleLevelLiteral  a rule whose OWN data is a quoted literal reuses LIT/LITTO with no new plan kind, split on the rule's own rStuff.noLabel exactly as planTerm splits
+	// containerDataDerived  a container is exempt: addGroup builds its character set at add-member time, so its data is a cache of its membership and never an authored alternative
 	if ( rule->groupBody->flags.data && !rule->groupBody->flags.binType )
 		{
 		if ( !isSTRING(rule->groupBody->flags.data) )
@@ -10852,66 +10823,10 @@ extern "C" int planTally(int mode)
 	
 }
 
-/*******************************************************************************
-    THE PLAN (rung 3, Clay SEQ 26 §2/§3) — the seam artifact.
-
-    The walk produces a plan tree of GroupItems: resolved decisions, baked
-    literals, NO TARGET SYNTAX ANYWHERE. Emitters consume it. It is the bytecode
-    move one level up — bytecode instructions are GroupItems, so is this, and
-    the structure costs nothing.
-
-    FIVE KINDS, and that is the WHOLE vocabulary for rungs 1, 2 and 4:
-
-        SEQ    rule tag, label, ordered conjuncts   (members, in order)
-        ALT    rule tag, ordered disjuncts, no label
-        LIT    literal text (noLabel)               + `at` = baked rule[] index
-        LITTO  literal text + slot                  + `at`
-        CALL   the term to parse through            + `at`
-
-    It grows ONE KIND AT A TIME as a rung demands it — MANY with rung 5, GUARD
-    with the alternation rung, ACT when actions land. If the vocabulary ever
-    comes back complete, it is too big: that is the tell that this rung has gone
-    wrong, because designing against grammar features not yet on the ladder is
-    exactly what the ladder exists to prevent.
-
-    WHY A PLAN AND NOT A VISITOR, in this tree specifically: a plan diff is
-    TARGET-INDEPENDENT (Scaf2's plan is identical whether the emitter writes C++
-    or kant, so a POP can assert the DECISION rather than the TEXT); generate-
-    time refusals belong here, validated once so every emitter inherits them;
-    and §3.3's helper functions are discovered mid-walk, which with text already
-    going out means buffering or emitting out of order, and with a plan means
-    walking it twice. The cost, stated so it is not a surprise: a bug can now
-    live in the walk, the plan, or the emitter. The mitigation is that a plan is
-    PRINTABLE and an intermediate visitor state is not.
-
-    Note LIT vs LITTO carries "does this attach a label", NOT which support
-    function spells it. A labelled literal is litTo inside a SEQ and litOption
-    inside an ALT — the plan already records the enclosing fold, so choosing the
-    spelling is emitter-side work about the target, per §4.
-*******************************************************************************/
-/*******************************************************************************
-    planTerm — one term -> one plan node, or NULL meaning REFUSED.
-
-    EVERY NODE COMES FROM A POSITIVE TEST, and an unclassified term is a
-    REFUSAL, never a default. This is the ruling the §1 census forced, and it is
-    the one place genParse must NOT copy setTestMatch: there, references are
-    classified by FALL-THROUGH — "no row matches" is the answer, and parse()
-    picks them up on the hasAttributes arm. That residual class must not be
-    inherited. If the walk treated "nothing matched" as CALL, every future term
-    kind that fails to match would become a silent bogus CALL — and since the
-    census says the unmatched group is the LARGEST one, that failure mode would
-    be both easy to write and hard to see.
-
-    definingRule() != term is what turns the residual into a positive property.
-    It is a POINTER test, not a name test, and it is the same instrument rung 4
-    already runs on.
-
-    ORDER IS DELIBERATE. data is tested BEFORE the reference test, so a term
-    that is BOTH content-is-a-group AND a reference REFUSES rather than silently
-    becoming a CALL. Two such terms exist (JSONtoken[5] and DatA[2], both
-    NumbeR). Their precedence is a NAMED OPEN ITEM, not an unnoticed one — no
-    ladder rule reaches it, and what it means semantically is not settled.
-*******************************************************************************/
+// planVocabulary  the plan is a tree of GroupItems -- resolved decisions, baked literals, NO target syntax -- in five kinds (SEQ ALT LIT LITTO CALL) that grow one at a time as a rung demands one
+// planNotVisitor  a plan and not a visitor because a plan diff is TARGET-INDEPENDENT, refusals validate once for every emitter, and a plan is printable where visitor state is not
+// positiveTestOnly  planTerm turns one term into one plan node or REFUSES -- every node comes from a POSITIVE test, because inheriting setTestMatch's fall-through would make every unclassified term a silent bogus CALL
+// dataBeforeReference  `data` is tested BEFORE the reference test, so a term that is both refuses instead of silently becoming a CALL
 extern "C" GroupItem *planTerm(GroupItem *term, int index)
 {
 RuleStuff 	*rs = term->getRStuff();
