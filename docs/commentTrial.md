@@ -263,11 +263,46 @@ Directly, on the worst genParse case: `dumpRuleTerms` was **970 lines from its m
 sort and 971 after**, and the file header sat at line 1208 pre-sort. **The sort moved nothing
 relative to the drift; it carried block-and-declaration together.**
 
-⚠ **SO THE TEN ORPHANS PREDATE THE ALPHABETISATION AND THEIR CAUSE IS UNKNOWN.** Recorded as
-unknown rather than replaced with a second guess — this project's ledger says structural claims
-here hold and causal ones fail, and this is the causal one failing. What is *not* in doubt is the
-measurement that started it: ten headers documenting the wrong function, four of them below their
-own method.
+⚠⚠ **THE CAUSE IS NOW KNOWN, AND IT IS TONY'S HYPOTHESIS, MEASURED — INSERTION, NOT SORTING.**
+*"Orphan comments may come about when a method is retired or a new one inserted. In fixit mode a
+method can get inserted fast without a careful review of where it goes."*
+
+**Both sorts are exonerated.** The finder was re-run against the base of the REAL 08-15
+alphabetical pass — `9c4962b`, the commit that also introduced `alphaLint.sh`; the 09-04 "stroke 6"
+commits were a later re-sort:
+
+| base | `genParse.rtn` | `jitEmitters.rtn` |
+|---|---|---|
+| 08-15 pass (`9c4962b^`) | **0** | 1 |
+| 09-04 re-sort (`1e17912^` / `57be920^`) | **0** | 1 |
+
+**And the two-question test closes it.** Every orphan header was born in the SAME COMMIT as its own
+method — adjacent at birth. The declaration that ended up beneath it is **younger than the header
+in five of five tested**:
+
+| header | born | method that landed beneath it | born | verdict |
+|---|---|---|---|---|
+| `dumpSpellings` | 07-29 | `kantLeaf` | **08-13** | insertion |
+| `emitLeaf` | 07-28 | `locateManier` | **08-01** | insertion |
+| `emitMany` | 07-28 | `locateManier` | **08-01** | insertion |
+| `dumpRuleTerms` | 07-28 **10:57** | `locateRule` | **07-28 13:38** | insertion, same day |
+| `showParse` | 08-06 **10:48** | `ruleNameArg` | **08-06 12:45** | insertion, same day |
+
+**A new method dropped in between a header and its own method, and the header silently became the
+new method's.** The two same-day cases needed commit-clock resolution, which is the tell for how
+fast this happens — under three hours, twice.
+
+⚠ **SO IT IS A PROCESS FACT, NOT A TOOL FACT.** Headers orphan when methods come and go without
+their headers coming and going with them. **No fifth clause is needed, because the convention
+already guards both halves** — insertion makes adjacency point at the new method while `CodeSite`
+still names the old one, so the lint reads disagreement; retirement leaves a `CodeSite` naming a
+method not in the tree, which is the entry-outlives-method check `CodeSite` was put in schema v2
+for.
+
+⚠ **AND THE UNIT RULE IS RE-JUSTIFIED ON BETTER GROUND THAN IT WAS ADOPTED ON.** It was argued from
+sorting, which was wrong. Its real value is that **an inserted method cannot land between a header
+and its declaration when the two are one unit with no blank line between them** — the insertion has
+to go above the block or below the body, and both are visibly correct.
 
 ⚠ **AND THE UNIT RULE SURVIVES ITS OWN RATIONALE BEING WRONG, which is worth separating.** It was
 adopted to stop sorts from orphaning headers; sorts turn out to orphan roughly one header per file,
