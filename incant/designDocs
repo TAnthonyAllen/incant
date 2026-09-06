@@ -693,6 +693,32 @@ define
                 channelGone=(WHAT LEFT WITH THIS REVISION, so nobody hunts for it: the union tripwire and its ARGCHANNEL REFUSED message, the chanPrevGroup/chanPrevData save-and-restore around processAction, and chanAbort. The tripwire guarded a union that could hold foreign data because the argument attribute was USER-DECLARED and might carry anything. Now runAction mints the slot, so the union is ours by construction and the failure is unconstructable rather than guarded -- which is the family this project prefers. ⚠ IT NEVER FIRED AND HAD NO NEGATIVE CONTROL, so nothing measured is lost with it.#);
             processAction=(runs a cached BlocK for an action or a rule, clearing its locals at entry so each activation starts blank.#):
                 argumentExempt=(⚠ THE ARGUMENT IS EXEMPT FROM THE ENTRY CLEAR, AND THE EXEMPTION IS WHAT LETS THE DECLARATION GO. The clear takes every attribute that is isLocal and not isLabel and not noPrint. runAction binds the argument slot BEFORE calling here, so an entry clear that includes it wipes the bind. A DECLARED `argument` escaped this for free, because aCTionDefinE flagged it isArgument and never isLocal -- the two flags were mutually exclusive and nobody had to think about it. A MINTED one does not: with no declaration, aCTionNamE creates the name as an action LOCAL, so the field is isLocal AND isArgument at once and lands squarely in this walk. MEASURED 2026-09-05: without the clause the declaration sweep took the fleet 185 to 147, with every argument reading back as its own tag, which is bear-trap #26 wearing the shape of data. ⚠ IT IS BEHAVIOUR-NEUTRAL WHILE ANY DECLARATION SURVIVES -- fleet byte-identical with it in and declarations present -- so it cannot certify itself and did not; the sweep is what exercises it. See runAction.mint for the two-flag fact and ArgBinding for the rule the flag serves.#);
+            storeRuling=(THE STORE RULING -- AN ARMED STATEMENT STORES NOTHING. Tony,
+                2026-09-05. ⚠ ONE SHARED ENTRY FOR NINETEEN SITES ACROSS THREE FILES: sixteen in
+                Instruct.rtn, one in GroupActions.rtn, two in jitEmitters.rtn. Every one of them
+                is the same rule at a different writer, which is why it is written once.
+
+                THE RULE: when the refusal arm is set, a statement must not commit its value. A
+                refused right-hand side is NULL, and an assignment that runs anyway writes that
+                null -- BLANKING ITS OWN TARGET. Measured as sentinelT ST-1: stRead came back as
+                its OWN TAG instead of the 111 it went in with, because the store took.
+
+                ⚠ AND THE CHECK HAS TO BE AT THE STORE, NOT AT runOP's ENTRY, which is where it
+                was first put and where it does not work. MEASURED: an assignment DISPATCHES
+                BEFORE ITS OWN RIGHT-HAND SIDE -- a STORECAM trace reads `op== refused=0` and
+                only then `op=+*`, with the refusal firing later still, inside the +* dispatch.
+                So the enclosing operator is entered while the arm is CLEAR, and an entry check
+                can never see its own operand refuse.
+
+                ⚠ THE ERA SPLIT, and it is the same one aCTionBlocK makes: the interpreted road
+                consults the arm at runOP; the EMITTED road consults it in the assign helpers
+                instead, because at EMIT time the statements after a refusal are REACHABLE and
+                must all be emitted -- stopping the walk would delete them from the IR.
+
+                Fourteen writers consult the arm; incant/storeT certifies eleven. `++` and `--`
+                cannot be certified because they are unary and nothing to their left can arm
+                first.#):
+                CodeSite="GroupActions.rtn:runOP";
             runOP=(the operator dispatch hub.#):
                 listOperand=(⚠ A LIST OPERAND IS DELIBERATELY NOT RESOLVED IN runOP, and the
                     function that used to do it -- resolveList -- was RETIRED 2026-09-04,
@@ -1037,6 +1063,72 @@ define
                 publishes a NODE, not a scalar, and the emitted store put that pointer into
                 the target's slot -- which is how starT's jitted road read 5560000 where the
                 interpreted road read LEAF. A pointer wearing the shape of data.#);
+            inliningStopsHere=(⚠ jitEmitSelfCall IS WHERE INLINING STOPS BEING A VALID
+                STRATEGY. Emit-on-walk inlines a callee by RE-EXECUTING its BlocK into the
+                current builder. For a SELF-call that re-walks nodes which ALREADY carry
+                jitData from the enclosing pass, and jitEmitCompare has by then written its i1
+                result into the condition target's jitValue -- so the second pass compares an i1
+                against an i32 and LLVM ASSERTS (measured 2026-08-01, trace in jitEmitCompare).
+
+                ⚠ TERMINATING IS NOT THE ONLY PROBLEM; THE CACHED SSA STATE IS. That is the part
+                a reader guesses wrong -- infinite recursion is the obvious hazard and it is not
+                the one that fires first.
+
+                It returns 1 when it emitted (the callee IS the action being compiled) and 0
+                when it did not -- and 0 is the common, CORRECT answer: an ordinary call still
+                inlines, which is measured to work (incant/jitJC).#):
+                CodeSite="jitEmitters.rtn:jitEmitSelfCall";
+            selfCallSignature=(SIGNATURE NOTE for jitEmitSelfCall: the function under
+                construction is i32(), so it emits a NO-ARGUMENT self-call.
+
+                ⚠ THAT IS ENOUGH TO PROVE CALL EMISSION AND IS NOT ENOUGH TO PROVE FRAMES --
+                with globals the recursion accumulates through shared baked storage, which is a
+                LOOP WEARING RECURSION'S CLOTHES. Per-activation locals need the
+                argument-passing signature.#):
+                CodeSite="jitEmitters.rtn:jitEmitSelfCall";
+            namedForCollision=(⚠ IT IS NAMED jitEmitMul AND NOT jitMul, AND THAT IS NOT A
+                PREFERENCE. `jitMul` is already an UNSCOPED ENUM CONSTANT -- enum jitOp { jitAdd,
+                jitSub, jitMul, jitSDiv } in jitContext.h -- so a function of that name is a
+                redeclaration in the same scope.
+
+                Same class as the jitMethod/jitEmitter collision Clay ruled on, resolved the same
+                way: keep the jitEmit* stem so the whole mechanism greps under one name. The body
+                is passthrough because jitMul is a jitContext.h enum and tok does not see it.#):
+                CodeSite="jitEmitters.rtn:jitEmitMul";
+            shimStaysThin=(jitEmitMul's BODY IS DELIBERATELY ONE LINE ONTO jitEmitBinary. THE
+                STEP-2 PATHFINDER: the emitter for `*`, installed on the op node's gJitEmitter
+                slot by `jitEmitter=jitEmitMul` in the Operators registry and called by runOP's
+                fork instead of the `if jitting` gate inside opMultiply.
+
+                The shim exists to move the SELECTOR from a parameter passed at the gate to a
+                fact BAKED INTO THE FUNCTION THE OP CARRIES -- which is the entire point of the
+                slot model, and why the selector parameter can eventually retire.
+
+                ⚠ IT ADDS NO EMISSION LOGIC OF ITS OWN AND MUST NOT GROW ANY: a shim that starts
+                deciding things is a SECOND HOME for the op's identity.#):
+                CodeSite="jitEmitters.rtn:jitEmitMul";
+            accessorFamilyOneGate=(jitEmitDot -- THE ACCESSOR ARM, and it closes the whole
+                GroupField accessor family in ONE gate rather than one emitter per accessor. `.`
+                is registered `operateMethod=opDot`, so it is a two-argument operator and this is
+                jitEmitRem's shape exactly:
+
+                    1. call opDot(argument, target)  ->  GroupItem*
+                    2. call jitUnboxCount(that)      ->  i32
+
+                ⚠ THE CALL IS TO opDot ITSELF -- shared implementation, the same move as
+                jitEmitIterStep's call to opPlusPlus. opDot resolves ~40 numbered cases including
+                the ones this is really for (noPrint 29, isAttribute 34, isMember 35), and
+                reimplementing that switch in IR would be a second copy of a table that has grown
+                twice this month. Read semantics cannot drift because there is only ONE READER.#):
+                CodeSite="jitEmitters.rtn:jitEmitDot";
+            finding3NotACondition=(⚠ WHY FINDING #3 LOOKED LIKE A CONDITION BUG: with no emitter
+                at the accessor arm, `if noPrinT` emitted NOTHING and the enclosing `if` branched
+                on whatever was last in flight -- the iterator's liveness.
+
+                THE CONDITION WAS NEVER WRONG; IT WAS READING A VALUE NOBODY HAD PRODUCED. Worth
+                keeping as the shape: a missing emitter presents as a wrong test, and the test is
+                where a reader will look first.#):
+                CodeSite="jitEmitters.rtn:jitEmitDot";
             twoArities=(jitEmitRem -- THE FALLBACK COLUMN MEETING A REAL opMethod, the first
                 emitted call to an EXISTING operator rather than to a purpose-built helper. Two
                 calls, both layout-free: opRem(argument,target) -> GroupItem*, then

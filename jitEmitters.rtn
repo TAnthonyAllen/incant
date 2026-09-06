@@ -886,25 +886,13 @@ GroupItem   result;
 }
 
 
-/* jitEmitDot  THE ACCESSOR ARM -- the third category above, and it closes the
-   whole GroupField accessor family in ONE gate rather than one emitter per
-   accessor. `.` is registered `operateMethod=opDot`, so it is a two-argument
-   operator and this is jitEmitRem's shape exactly:
+/*******************************************************************************
+    jitEmitDot -- THE ACCESSOR ARM. Two legs, jitEmitRem's shape: call opDot,
+    then jitUnboxCount. `.` is registered operateMethod, so it is two-arg.
 
-       1. call opDot(argument, target)  ->  GroupItem*
-       2. call jitUnboxCount(that)      ->  i32
-
-   ⚠ THE CALL IS TO opDot ITSELF -- shared implementation, the same move as
-   jitEmitIterStep's call to opPlusPlus and jitEmitIterate's call to
-   aCTionIterate. opDot resolves ~40 numbered cases including the ones this is
-   really for (noPrint 29, isAttribute 34, isMember 35), and reimplementing that
-   switch in IR would be a second copy of a table that has grown twice this
-   month. Read semantics cannot drift because there is only one reader.
-
-   ⚠ AND IT IS WHY finding #3 LOOKED LIKE A CONDITION BUG: with no emitter here,
-   `if noPrinT` emitted nothing and the enclosing `if` branched on whatever was
-   last in flight -- the iterator's liveness. The condition was never wrong; it
-   was reading a value nobody had produced. */
+    // accessorFamilyOneGate  why one gate closes the whole accessor family, and why opDot's ~40 cases are called rather than reimplemented
+    // finding3NotACondition  why a missing emitter here presented as a wrong test, which is where a reader looks first
+*******************************************************************************/
 extern GroupItem jitEmitDot(GroupItem argument,GroupItem target,GroupItem resultNode)
 {
     -%
@@ -1216,25 +1204,16 @@ extern GroupItem jitEmitLT(GroupItem argument,GroupItem target)
 }
 
 
-/* jitEmitMul  THE STEP-2 PATHFINDER. The emitter for `*`, installed on the op
-   node's gJitEmitter slot by `jitEmitter=jitEmitMul` in the Operators registry,
-   and called by runOP's fork instead of the `if jitting` gate inside opMultiply.
+/*******************************************************************************
+    jitEmitMul -- THE STEP-2 PATHFINDER: the emitter for `*`, installed on the
+    op node's gJitEmitter slot and called by runOP's fork.
 
-   ⚠ IT IS NAMED jitEmitMul AND NOT jitMul, AND THAT IS NOT A PREFERENCE.
-   `jitMul` is already an unscoped enum constant — enum jitOp { jitAdd, jitSub,
-   jitMul, jitSDiv } in jitContext.h — so a function of that name is a
-   redeclaration in the same scope. Same class as the jitMethod/jitEmitter
-   collision Clay ruled on, resolved the same way: keep the jitEmit* stem so the
-   whole mechanism greps under one name.
+    ⚠ THE BODY IS ONE LINE ONTO jitEmitBinary AND MUST NOT GROW. A shim that
+    starts deciding things is a second home for the op's identity.
 
-   The body is deliberately ONE LINE ONTO jitEmitBinary. This shim exists to move
-   the SELECTOR from a parameter passed at the gate to a fact baked into the
-   function the op carries — which is the entire point of the slot model, and why
-   the selector parameter can eventually retire. It adds no emission logic of its
-   own and must not grow any: a shim that starts deciding things is a second home
-   for the op's identity.
-
-   Passthrough because jitMul is a jitContext.h enum and tok does not see it. */
+    // namedForCollision  why it cannot be called jitMul -- an unscoped enum constant of that name already exists
+    // shimStaysThin  what the slot model buys, and why the selector parameter can eventually retire
+*******************************************************************************/
 extern GroupItem jitEmitMul(GroupItem argument,GroupItem target)
 {
     -% return jitEmitBinary(argument, target, jitMul); %-
@@ -1425,25 +1404,14 @@ extern int jitEmitReturn()
 }
 
 
-/* jitEmitSelfCall  THE RECURSIVE CALL, emitted rather than inlined.
+/*******************************************************************************
+    jitEmitSelfCall -- THE RECURSIVE CALL, emitted rather than inlined. Returns
+    1 when it emitted, 0 when it did not -- and 0 is the common, CORRECT
+    answer, because an ordinary call still inlines.
 
-   Returns 1 when it emitted (the callee IS the action being compiled), 0 when it
-   did not -- and 0 is the common, correct answer: an ordinary call still inlines,
-   which is measured to work (incant/jitJC).
-
-   ⚠ THIS IS WHERE INLINING STOPS BEING A VALID STRATEGY. Emit-on-walk inlines a
-   callee by re-executing its BlocK into the current builder. For a self-call that
-   re-walks nodes which ALREADY carry jitData from the enclosing pass, and
-   jitEmitCompare has by then written its i1 result into the condition target's
-   jitValue -- so the second pass compares an i1 against an i32 and LLVM asserts
-   (measured 2026-08-01, trace in jitEmitCompare). Terminating is not the only
-   problem; the cached SSA state is.
-
-   SIGNATURE NOTE: the function under construction is i32(), so this emits a
-   no-argument self-call. That is enough to prove CALL EMISSION and is NOT enough
-   to prove frames -- with globals the recursion accumulates through shared baked
-   storage, which is a loop wearing recursion's clothes. Per-activation locals
-   need the argument-passing signature, which is the next increment. */
+    // inliningStopsHere  why a self-call cannot be inlined, and why the cached SSA state fires before non-termination does
+    // selfCallSignature  what a no-argument self-call proves and what it does not
+*******************************************************************************/
 extern int jitEmitSelfCall(GroupItem argument,GroupItem action)
 {
     -%
