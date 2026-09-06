@@ -1628,6 +1628,148 @@ define
                 plan, or the emitter. The mitigation is that a plan is PRINTABLE and an
                 intermediate visitor state is not.#):
                 CodeSite="genParse.rtn:planTerm";
+            ruleNameForms=(ruleNameArg -- GA, 2026-08-06. WHAT A RULE-NAME ARGUMENT MAY BE.
+                The ruling is "text, or a field resolving to text; anything unresolvable
+                refuses loudly by name":
+
+                    genParse('Parens')   quoted literal   -- the baseline
+                    genParse(Parens)     bare name        -- works, see below
+                    genParse(gaName)     field holding "Parens"
+
+                ⚠ MEASURED, AND BOTH SURPRISES ARE THE SAME TRAP. A field with no data returns
+                its TAG from .text (bear-trap #26), and that single fact explains the whole
+                table:
+                  · the BARE form already worked BY ACCIDENT OF THE TRAP rather than by design
+                    -- `Parens` arrives as a node with no data of its own, so .text echoes the
+                    tag, which happens to BE the rule name.
+                  · the FIELD form failed for the identical reason in the opposite direction --
+                    `gaName` arrives as a REFERENCE node with no data, so .text echoed "gaName"
+                    and genParse dutifully refused a rule by that name. The DEFINED gaName
+                    holds "Parens"; the reference passed in does not.
+
+                ⚠ IT WAS NOT A SILENT FAILURE, which an earlier note claimed: it printed
+                `genParse: REFUSING gaName -- not a rule` on STDERR the whole time, and the
+                first reading only looked at stdout. The refusal was working; the resolution
+                was missing.
+
+                So: try the name as given (covers literal and bare); if that is not a rule,
+                look it up and, if it is a field CARRYING DATA, take its text and try that.
+                Unresolvable falls through to ruleOrRefuse, which already refuses by name.#):
+                CodeSite="genParse.rtn:ruleNameArg";
+            setParseCast=(setParseMethod -- dlsym a name into a RuleStuff's parseMethod slot.
+                Passthrough because tok was believed to have no syntax for casting a void* to a
+                typed fnptr member, and parseMethod is typed by construction (bear-trap #20).
+                The body is ENTIRELY passthrough and everything it touches arrives as a
+                PARAMETER -- bear-trap #13: an incant-level local referenced only inside a
+                passthrough gets pruned as unused, taking its initializing call with it.
+                Parameters are never pruned, so the whole computation is pushed into the
+                argument list. stderr, not stdout, for the failure report (bear-trap #14).
+
+                ⚠ AND THE PREMISE IS RECORDED AS WRONG, IN THE ORIGINAL COMMENT'S OWN WORDS:
+                "The above comment on tok passthru is incorrect. Most of the code between -%
+                and %- below can be replaced with one tok line; no need to qualify
+                parseMethod: parseMethod = dlsym(RTLD_SELF,name);"
+
+                That correction is carried here VERBATIM and is NOT acted on by the comment
+                sweep -- it is a code change with its own certificate, and a sweep whose
+                contract is "code-only diff empty" must not be the thing that makes it.#):
+                CodeSite="genParse.rtn:setParseMethod";
+            treeNotLanguage=(showTree / treeOf -- §2.4's acceptance test, and IT HAS TO BE A
+                TREE TEST. An alternation builds no label and passes `into` through, so the
+                winning option attaches to the ENCLOSING rule's label.
+
+                ⚠ GET THAT WRONG AND YOU GET THE RIGHT LANGUAGE OVER THE WRONG TREE -- an empty
+                JSONvalue wrapping every value. Every mark-and-win check still reads GREEN,
+                because the parse accepted exactly the same strings; the damage only surfaces
+                when a code={} action goes looking for a child by name and finds a wrapper.
+
+                So the POP compares the TREE the generated method builds against the tree the
+                interpretive walk builds, on a PASSING case (§6.5-style). Run the fixture with
+                the parseMethod bindings in place and again with them stripped; the two dumps
+                must be identical.
+
+                nextGroup is stateless, so it is safe to recurse on (unlike the shared-entry
+                next()).#):
+                CodeSite="genParse.rtn:showTree";
+            whichSpellerLive=(spellMode -- WHICH IMPLEMENTATION IS LIVE. One line, and it is
+                the whole answer to "a green stub reads as coverage".
+
+                emitLeaf's fork is SILENT BY DESIGN: absent a kant speller it is the function it
+                always was, so every target stays green -- which means a round that never
+                registered its action would ALSO be green, and the POP could not tell the
+                difference. This prints the answer, `pop.sh` pins it, and THE PIN IS THE
+                ACCEPTANCE TEST: it says `c++` until the kant emitLeaf lands and `kant`
+                afterwards, and whoever flips it accounts for the flip. Same shape as
+                tree.divergence flipping from asserting a divergence to asserting agreement.
+
+                Called BEFORE the first `SPELL` line on purpose -- spell.target starts at
+                `SPELL`, so the mode line is asserted separately and cannot move the target.#):
+                CodeSite="genParse.rtn:spellMode";
+            lazyRStuff=(unresolvedTerms -- HOW MANY REAL TERMS HAVE NO rStuff YET. MEASURED
+                2026-07-28 (§1 census): rStuff is materialised LAZILY. The runtime creates it on
+                demand through getRStuff -- caught in the act, printing "getRStuff: min no
+                rStuff - creating" for one of the very terms this counts. So a missing rStuff
+                means NOT YET, not NOT A TERM, and it is nothing like the noPrint code-tail
+                entries it was briefly conflated with.
+
+                ⚠ THAT CONFLATION WAS A REAL DEFECT: with `!rStuff` in the skip test,
+                genParse('CodE') emitted `leaveRule(rule,into,label,from, (null) )` -- a rule
+                reduced to nothing -- and recorded parseTerms=0, which the §3 guard would have
+                BOUND with a warning rather than refused. Rules outside the ladder only;
+                Scaf/Scaf2/ScafA/ScafB terms all carry rStuff.
+
+                Until the rung-3 walk decides how to classify an unmaterialised term (it cannot
+                read modifiers that are not there yet, and whether they are merely absent or
+                genuinely default is NOT yet established), genParse REFUSES rather than
+                emitting a method it knows is missing terms. A refusal is a validity question
+                about the rule, so it belongs walk-side either way.#):
+                CodeSite="genParse.rtn:unresolvedTerms";
+            bracedControlOrigin=(parseBraced -- GENERATED by genParse('Braced') and pasted
+                VERBATIM. SEQ 58, 2026-08-13. THE ORACLE-BEARING CONTROL FOR THE BIND-READ
+                SEAM: byte-identical to docs/emitted/phaseB-twelve-emitted.txt lines 2-10,
+                which docs/respellRung.md re-derived on 2026-08-11 and found unmoved, so this
+                is the emitter's OWN OUTPUT and not a hand-written imitation.
+
+                WHY IT WAS ADDED. SEQ 58 specified the C++ control as
+                `parseMethod=parseBraced` on the grounds that parseBraced has an oracle
+                (incant/bracedT). It had never been COMPILED -- `nm` showed zero hits and the
+                only parseBraced in the tree was emitted text inside two .md files. Without it
+                the control could only be run with a stand-in that fails to match, which
+                answers the seam bit but cannot ring SEQ 58 §5's bell.
+
+                It costs one extern in one in-repo file. No groups.ext edit is owed: the
+                binding door reaches it by dlsym on the name, exactly as the parseScaf family
+                is reached, so nothing needs to see a declaration. No grammar line either --
+                the bind is made from a fixture, which is the whole point of the cross-file
+                control.#):
+                CodeSite="genParse.rtn:parseBraced";
+            tallyAtThreeSites=(planTally -- THE CHARTER'S TWO NUMBERS, PRINTED RATHER THAN
+                GREPPED (Tony, 2026-08-09). The charter demands two numbers at every rung, and
+                until this both were derived by grepping phaseA's output. A quantity nobody
+                prints is a quantity that can drift silently -- and the SEQ 42 census is this
+                project's own proof that a derived-and-transcribed number outlives the moment
+                it was true.
+
+                ⚠ IT COUNTS AT THREE SITES, NOT SEVENTEEN, AND THE LICENCE IS A MEASURED
+                INVARIANT RATHER THAN A GUESS: every refusal line is immediately followed by a
+                `return null`, and planRule stops at its FIRST bad term. So
+
+                    total refusals == (planRule nulls) + (planTerm nulls)
+
+                which is countable at the two CALL sites. Verified against the pre-change
+                corpus before being relied on:
+
+                    97 total == 65 `REFUSE rule` (65 distinct rules refused)
+                             + 32 term-level    (32 `unclassified`)
+
+                ⚠ AND THE INVARIANT IS ASSERTED, NOT ASSUMED. It couples the tally to "one line
+                per null return", which a future two-line refusal path would break silently.
+                `genLadder/gapB.sh` therefore cross-checks the printed scalar against the grep
+                every run: the cheap instrument guards the cheap counter, and a divergence
+                names itself instead of quietly moving the metric.
+
+                mode 1 bump refusals · 2 bump plannable · 3 read refusals · 4 read plannable#):
+                CodeSite="genParse.rtn:planTally";
             oracleIsTheReplaced=(dumpSpellings -- emitLeaf's OWN fixture, and it exists
                 because emitLeaf was about to be replaced with nothing to diff the replacement
                 against.
