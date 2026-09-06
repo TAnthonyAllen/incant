@@ -370,10 +370,36 @@ its refusal arm had caused. Every verb past tense. **It is worth keeping and it 
 somewhere a reader of the code will not meet it**, because a reader at the site is looking at what
 the code does, and an obituary answers a question they did not ask.
 
-⚠ **AND AN OBITUARY LEAVES NO LINK, WHICH IS WHAT MAKES IT A SPECIES RATHER THAN A LONG
-RATIONALE.** The other two both leave something at the site. This one leaves the site clean and
-stays reachable from the registry side by `CodeSite` alone. That is a real asymmetry and it is the
-thing to rule on.
+⚠⚠ **RULED 2026-09-08, AND THE RULING DISSOLVED THE ASYMMETRY RATHER THAN DEFENDING IT.** The
+first proposal was that an obituary leaves NO link, on the ground that a link says *"open this to
+understand the code in front of you"* and an obituary cannot honestly say that. **Tony's amendment:
+label the species on the link itself.**
+
+```
+// slug obituary: what died, when
+```
+
+One line, the same four clauses as any link, with the species named after the key — and the entry's
+own summary line carries the same `obituary:` prefix so it reads identically from the registry side.
+`Status: superseded <date>` on the entry as before.
+
+**It is better than the no-link rule for two reasons.** A reader sees
+`// argChannel obituary: the union tripwire and its bind-by-body fallback, removed 2026-09-05` and
+knows in one line whether to open it — the invited-wrong-read problem is answered at the site
+instead of avoided. **And it does the re-addition guard's job for free: the thing that died is named
+at the exact spot where someone might resurrect it.**
+
+**So the present-tense warning survives only where there is a live consequence beyond "do not
+re-add this."** `jitBindArgRT`'s *"the pending slot does not retire with it"* is that case and keeps
+its line. Where the obituary IS the whole hazard, the labelled link is enough and the site is one
+line lighter.
+
+⚠ **AND THE INSTRUMENT WAS BLIND TO THE NEW FORM UNTIL TOLD — MEASURED, NOT ASSUMED.** With the
+obituary link in place the lint reported **7 links, not 8**: its regex wanted two spaces after the
+key and the labelled form has `obituary:` there. **A new species is invisible to the checker that
+counts species until the checker learns it**, and an uncounted link is an unchecked link — dangling,
+orphaned and CodeSite all silently skip it. All three instruments taught the form; the count went
+7 → 8 and CodeSite reads 8/8.
 
 **What survived at the site was one present-tense line**, and it is the half a reader still needs:
 *the pending slot is the emitted path's channel bracket, paired with `jitSaveFrameRT` /

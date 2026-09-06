@@ -1057,7 +1057,8 @@ define
                 node the compile happened to see. The unwrap idiom is the tree's existing one
                 at ruleActions.rtn:419.#):
                 CodeSite="jitEmitters.rtn:jitBindArgRT";
-            argChannel=(STROKE 3, Tony, SEQ 127. runAction's CHANNEL LINES, LIFTED VERBATIM,
+            argChannel=(obituary: the union tripwire and its bind-by-body fallback, removed
+                2026-09-05. STROKE 3, Tony, SEQ 127. runAction's CHANNEL LINES, LIFTED VERBATIM,
                 so jitBindArgRT's lifted-not-reimplemented claim is true again. This arm was
                 bind-by-body while runAction's had grown a union tripwire and a setGroup call,
                 and the two roads had silently diverged -- which they were built never to do.

@@ -3645,6 +3645,7 @@ GroupItem 	*ruleArg = 0;
 	// codedPathHalf  the exemption above was the wrapper's fingerprint and retires WITH the wrapper, not before it
 	
 	{
+	// argChannel obituary: the union tripwire and its bind-by-body fallback, removed 2026-09-05
 	/*  ⚠ THE PENDING SLOT IS THE EMITTED PATH'S CHANNEL BRACKET, paired with
 	jitSaveFrameRT/jitRestoreFrameRT across three functions. It is not
 	the retired tripwire and does not retire with it.  */
