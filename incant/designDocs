@@ -718,6 +718,48 @@ define
         GroupItem=(is the twk file for the core tree node. Entries here are method notes
                 lifted out of the code under the 2026-09-01 convention: the inline line
                 carries the claim, this carries the argument.#):
+            saveLocalFields=(saves an action's argument and locals before a nested call,
+                so each activation starts from its own state. REWRITTEN 2026-09-06.#):
+                identityPair=(THE FIELD TRAVELS WITH ITS BODY. Before this, save pushed a body
+                    per qualifying field and restore walked the field list BACKWARD popping
+                    one per qualifying field -- nothing associated a body with its field except
+                    walk position, and the Stak carries no key. M2 read exactly this on
+                    2026-08-10 and ruled the principled fix was to key the restore by field
+                    instead of by position. This is that fix.
+
+                    ⚠ THE FILTER WAS THE BUG SURFACE, not merely the pairing. `noPrint` was IN
+                    the walk condition, so a flag the BODY set mid-run dropped that field from
+                    the restore set only, and every field below it got the wrong body back --
+                    tag included, since `*groupBody = *body` copies the struct. Permanent for
+                    the life of the action. IncantForms/WorkingOn/parser was the first body in
+                    the corpus to flag a local mid-flight (`codeCopy :. noPrinT`), which is why
+                    a defect that predates the flip surfaced only in September.
+
+                    incant/noPrintFrameT certifies it against a control.#);
+                frameFloor=(ONE NULL PER ACTIVATION, pushed before that frame's pairs, so
+                    restore stops at ITS OWN floor instead of draining the activations below.
+
+                    ⚠ IT IS NOT A TIDINESS MEASURE AND ITS ABSENCE WAS MEASURED. Keying by
+                    field removes the mis-pairing but NOT the stranding -- M2's own diagram
+                    said "and b1 STRANDED ON THE STACK". The unfloored loop was
+                    `while recurseSTAK.length`, which drains EVERY frame at the innermost
+                    return. The old positional walk was bounded to one frame ONLY BY ACCIDENT
+                    of walking the field list, so dropping the walk dropped the bound with it.
+
+                    COST OF LEARNING THAT: 20 fleet rows and five runaways -- kant8T,
+                    anyOrNumT, iterT1, iterT1m and displayFormT all TIMED OUT at POPCAP and
+                    pop.sh read 184. argRoundT is the oracle: depth 3 stayed correct while
+                    depths 2 and 1 came back as TAG ECHOES.#);
+            restoreLocalFields=(restores what saveLocalFields banked, at the end of a nested
+                call. REWRITTEN 2026-09-06.#):
+                identityPair=(WALKS THE STACK, NOT THE FIELD LIST, and applies no filter of its
+                    own -- it restores exactly what was saved, to the field it came from, and
+                    stops at the frame floor. The filter now lives in ONE place (save), which
+                    is what makes a mid-body flag change unable to move anything.
+
+                    See saveLocalFields.identityPair for the defect and saveLocalFields.frameFloor
+                    for the bound. The full discharge, with M2's original reading, is in
+                    docs/kantCorpus.md, which is the LEDGER OF RECORD.#);
             getGuard=(PURE READ OF THE GUARD SET. Builds nothing. Split out of the
                 constructing body 2026-09-01 by Tony's ruling -- the same cure applied to
                 getRStuff the day before.
@@ -1173,6 +1215,82 @@ define
                 parseTermCount while naming parseRuleMethod as its subject -- the one
                 subject-mismatched comment block in the seven files the arc alphabetized, and
                 already detached before the sort. Both methods now carry a claim and this key.#);
+            genParseRecordSite=(THE `ParsE` RECORD IS WRITTEN BY THE EMITTER, NOT BY THE
+                INSTALLER -- PJ-1, and the siting is forced rather than chosen.
+
+                The brief said "the site that installs rStuff.parseMethod". THAT SITE CANNOT
+                DO IT. parseRuleMethod receives a METHOD NAME to dlsym-bind; the generated
+                source text is not in its scope and is not even in its PROCESS. genParse emits
+                text in one run, a human pastes it into this file, it compiles into the binary,
+                and a LATER run's `parseMethod=parseScaf` definition attribute binds the symbol.
+                Two processes, days apart. So "one path, two effects" cannot join emitter and
+                installer; they are not one path and cannot be made one.
+
+                PJ-2 IS HONOURED MORE STRICTLY HERE, NOT LESS. The record is written by the
+                emitter, which is the only thing that has the text, and parseRuleMethod stays
+                the single source of truth for the BINDING and writes nothing at all. One
+                writer per fact.#);
+            genParseSinkNotTee=(WHY THE CAPTURE IS AT THE SINK AND NOT AT emitPlan'S FOURTEEN
+                `cerr` SITES.
+
+                PJ-4 wants rule.ParsE byte-identical to the emitted text. Teeing at fourteen
+                call sites is a DISCIPLINE -- every future cerr added to the emitter has to
+                remember to tee, and the day one forgets the record is silently short and still
+                diffs clean against a target regenerated from it. Swapping the sink for the
+                duration makes the record and the emission THE SAME BYTES BY CONSTRUCTION:
+                there is no second stream to keep in step. That is CLAUDE.md's "prefer a
+                structure that makes the failure unconstructable over a discipline that avoids
+                it".
+
+                REDIRECT-THEN-REPLAY, NOT A TEE, so no custom stream machinery is needed.
+                `stderr` on macOS is `__stderrp`, a modifiable FILE* lvalue, and
+                `fprintf(stderr,...)` reads it per call -- so pointing it at a memstream for the
+                duration catches every byte every callee writes, including ones added to the
+                emitter years from now that nobody remembered to tee. The operator still sees
+                every byte; it arrives after emitPlan returns instead of during. Rule-level
+                interleaving is preserved because emitAll's `@@@ <rule>` / `DONE <rule>` markers
+                come from the FIXTURE, around this call, not from inside it. planRule's refusals
+                are deliberately OUTSIDE the swap and stay live and unbuffered.
+
+                THE `if (ms)` GUARD exists so a failed open_memstream degrades to "no record,
+                normal output" rather than to a swallowed emitter.
+
+                ⚠ THE MEASURED DEFECT THAT SET THE LEVEL. tok's `cerr` keyword generates
+                `::fprintf(stderr,...)`, NOT `std::cerr` -- read the generated emitPlan in
+                GroupRules.mm if you doubt it. A std::cerr.rdbuf() swap therefore captures
+                NOTHING, silently: emission is perfect, the record is zero bytes, and the run
+                exits 0. Measured 2026-08-06 by writing exactly that bug. Bear-trap #19's
+                corollary in miniature -- the sink was reasoned about rather than grepped, and
+                one grep of the codegen would have settled it in ten seconds. It is also the
+                three-languages-share-the-tree hazard: `cerr` is a tok keyword and does not mean
+                what the same word means in C++.#);
+            genParseOneGate=(PJ-7, ONE GATE. `INCANT_PARSE_RECORD` arms the WHOLE record --
+                capture, attribute, and the optional file sink -- rather than arming a dump of
+                an always-written attribute.
+
+                    unset     nothing happens at all: no redirect, no attribute, no file
+                    =1        capture + the ParsE attribute
+                    =<path>   capture + the ParsE attribute + a dump of it to <path>
+
+                WHY THE ATTRIBUTE ITSELF IS GATED AND NOT JUST THE DUMP. An always-on attribute
+                write changes the attribute LIST of every rule genParse touches, and this tree
+                audits attribute lists -- pop.sh's census walks registries counting terms and
+                loose entries, and `AUDIT` lines are baselined. A record that can move an audit
+                is an instrument that can move a measurement, which is the 2026-08-02 defect
+                (an instrument broke three POP targets by prepending ~290 lines with zero
+                content divergence). With the gate closed the run is byte-identical to one built
+                before any of this existed, and recordPop asserts exactly that on both streams.
+
+                THE FILE SINK EARNS ITS KEEP AND SO IT STAYS, behind this same gate. It is the
+                ONLY read path: a rule name in incant EXPRESSION POSITION INVOKES THE RULE
+                rather than naming it -- `if Braced;` exits 139, measured -- so no ordinary
+                incant statement can reach the attribute to diff it. The `showParse` command is
+                the director's window; the file is the POP's, because a byte-for-byte diff needs
+                bytes in a file and not on a terminal.
+
+                BOTH READ pe->getText() AND NEVER THE LOCAL -- the point is to prove what LANDED
+                ON THE NODE, and dumping the local would pass even if addAttribute had silently
+                done nothing.#);
             activateAll=(activateAll -- THE WHOLE-POPULATION FORM.
 
                 Walks the corpus and binds every PENDING entry to the rule it was filed

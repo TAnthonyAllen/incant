@@ -69,6 +69,37 @@ the interesting quantity is the one that can come back zero.
 | 2026-09-04 | `genParse.compileStored` | `genParse.rtn` | phase two under Option B, and why it compiles out of the corpus |
 | 2026-09-04 | `genParse.activateAll` | `genParse.rtn` | the no-back-pointer ruling, and why it refuses per entry rather than aborting |
 | 2026-09-04 | `genParse.parseRuleMethod` | `genParse.rtn` | the §4.1 binding, definingRule-not-parent as a measured repair, and why both doors move together |
+| 2026-09-06 | `GroupActions.saveLocalFields.identityPair` | `GroupActions.rtn` | M2's ruling executed: why the pairing was positional and what the noPrint filter cost. ⚠ **OWED FROM THE SAME DAY'S EARLIER STROKE** — the pointer was written in `1ab282f` and the entry was not |
+| 2026-09-06 | `GroupActions.saveLocalFields.frameFloor` | `GroupActions.rtn` | why the bound is not tidiness: 20 fleet rows and five runaways measured its absence. ⚠ **OWED FROM `1ab282f`** |
+| 2026-09-06 | `GroupActions.restoreLocalFields.identityPair` | `GroupActions.rtn` | the filter lives in one place now. ⚠ **OWED FROM `1ab282f`** |
+| 2026-09-06 | `genParse.genParseRecordSite` | `genParse.rtn` | why the emitter and not the installer writes the record — two processes, days apart |
+| 2026-09-06 | `genParse.genParseSinkNotTee` | `genParse.rtn` | sink-swap over a fourteen-site tee, and the measured std::cerr-vs-fprintf defect |
+| 2026-09-06 | `genParse.genParseOneGate` | `genParse.rtn` | why the attribute is gated and not just the dump, and why the file sink is the only read path |
+
+## ⚠ FIFTH FINDING, 2026-09-06 — THE DANGLING-POINTER ROW WENT 26/26 TO 67/108, AND THREE OF THE GAPS WERE MINE FROM THAT MORNING
+
+The 09-03 sweep earned the dangling-pointer check and left it green at **26/26**. Run again at the
+head of the `genParse.rtn` sweep, over every `File.method[.slug]` key in `*.rtn` and `*.twk`:
+**41 dangling of 108.**
+
+⚠ **AND THE PROVENANCE IS THE POINT, NOT THE COUNT.** Three of the 41 —
+`saveLocalFields.identityPair`, `saveLocalFields.frameFloor`,
+`restoreLocalFields.identityPair` — were minted **the same morning**, in `1ab282f`, by the seat
+that then ran the census. The argument was not lost (it is in that commit and in
+`docs/kantCorpus.md`), so the entries were written from the real reasoning rather than
+reconstructed. **But nothing in the process noticed**, which is exactly the failure this file
+already names: *"the shortening happens, the entry never does, and the reasoning is deleted."*
+
+**The remaining 38 are reported, not fixed** — they belong to `Instruct.rtn` (20, almost all the
+shared `storeRuling` slug), `jitEmitters.rtn` (5), `GroupItem.twk` (6), `ruleActions.rtn` (3) and
+`GroupActions.rtn` (4). ⚠ **The `storeRuling` cluster is one decision, not twenty**: it is a
+file-scoped slug used at many sites and needs a single entry the way the 09-03 sweep wrote three.
+
+⚠ **THE CHECK ITSELF FAILED TWICE BEFORE IT MEASURED ANYTHING**, and both failures are on this
+file's own list. The first cut matched filenames — `Bytecode.h`, `genParse.rtn` — as keys and
+reported 54 dangling; the second had to be told that a pointer resolves on its LAST segment, not
+its full path. **A census is an instrument (H9): read the hits before reporting the number.**
+
 
 ## LOOKUPS CLOD ACTUALLY MADE
 

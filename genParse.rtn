@@ -741,90 +741,23 @@ GroupItem   result;
     plan = planRule(rule);
     if !plan    return null;
     -%
-    /*  THE `ParsE` RECORD -- PJ-1, sited here rather than at the installer.
-        ============================================================
-        THE BRIEF SAID "the site that installs rStuff.parseMethod". THAT SITE
-        CANNOT DO IT, and the reason is worth keeping: parseRuleMethod (below)
-        receives a METHOD NAME to dlsym-bind. The generated source text is not
-        in its scope and is not even in its PROCESS -- genParse emits text in
-        one run, a human pastes it into this file, it compiles into the binary,
-        and a LATER run's `parseMethod=parseScaf` definition attribute binds the
-        symbol. Two processes, days apart. So "one path, two effects" cannot
-        join emitter and installer; they are not one path and cannot be made
-        one.
-
-        PJ-2 IS HONOURED MORE STRICTLY HERE, NOT LESS: the record is written by
-        the emitter, which is the only thing that has the text, and
-        parseRuleMethod stays the single source of truth for the BINDING and
-        writes nothing at all. One writer per fact.
-
-        WHY THE CAPTURE IS AT THE SINK AND NOT AT emitPlan's FOURTEEN `cerr`
-        SITES. PJ-4 wants rule.ParsE byte-identical to the emitted text. Teeing
-        at fourteen call sites is a DISCIPLINE -- every future cerr added to the
-        emitter has to remember to tee, and the day one forgets, the record is
-        silently short and still diffs clean against a target regenerated from
-        it. Swapping the sink for the duration makes the record and the emission
-        THE SAME BYTES BY CONSTRUCTION: there is no second stream to keep in
-        step. That is CLAUDE.md's "prefer a structure that makes the failure
-        unconstructable over a discipline that avoids it".
-
-        ⚠ THE CAPTURE IS AT THE `FILE *` LEVEL, AND THAT IS NOT A STYLE CHOICE.
-        tok's `cerr` KEYWORD GENERATES `::fprintf(stderr,...)`, NOT `std::cerr`
-        -- read the generated emitPlan in GroupRules.mm if you doubt it. A
-        std::cerr.rdbuf() swap therefore captures NOTHING, silently: emission is
-        perfect, the record is zero bytes, and the run exits 0. Measured
-        2026-08-06 by writing exactly that bug. It is bear-trap #19's corollary
-        in miniature -- the sink was reasoned about rather than grepped, and one
-        grep of the codegen would have settled it in ten seconds. It is also the
-        three-languages-share-the-tree hazard: `cerr` is a tok keyword and does
-        not mean what the same word means in C++.
-
-        REDIRECT-THEN-REPLAY, not a tee, so no custom stream machinery is
-        needed. `stderr` on macOS is `__stderrp`, a modifiable FILE* lvalue, and
-        `fprintf(stderr,...)` reads it per call -- so pointing it at a
-        memstream for the duration catches every byte every callee writes,
-        including ones added to the emitter years from now that nobody
-        remembered to tee. The operator still sees every byte; it arrives after
-        emitPlan returns instead of during. Rule-level interleaving is preserved
-        because emitAll's `@@@ <rule>` / `DONE <rule>` markers come from the
-        FIXTURE, around this call, not from inside it. planRule's refusals are
-        deliberately OUTSIDE the swap and stay live and unbuffered.
-
-        ONE STRAIGHT LINE, NO EARLY RETURN, between the swap and the restore --
-        if that ever stops being true, stderr stays redirected and the operator
-        loses the emitter's output with no symptom but silence. The `if (ms)`
-        guard exists so a failed open_memstream degrades to "no record, normal
-        output" rather than to a swallowed emitter.  */
-    /*  PJ-7, ONE GATE. `INCANT_PARSE_RECORD` arms the whole record -- capture,
-        attribute, and the optional file sink -- rather than arming a dump of an
-        always-written attribute.
-
-            unset     nothing happens at all: no redirect, no attribute, no file
-            =1        capture + the ParsE attribute
-            =<path>   capture + the ParsE attribute + a dump of it to <path>
-
-        WHY THE ATTRIBUTE ITSELF IS GATED AND NOT JUST THE DUMP. An always-on
-        attribute write changes the attribute LIST of every rule genParse
-        touches, and this tree audits attribute lists -- pop.sh's census walks
-        registries counting terms and loose entries, and `AUDIT` lines are
-        baselined. A record that can move an audit is an instrument that can
-        move a measurement, which is the 2026-08-02 defect (an instrument broke
-        three POP targets by prepending ~290 lines with zero content
-        divergence). With the gate closed the run is byte-identical to one
-        built before any of this existed, and recordPop asserts exactly that on
-        both streams.
-
-        THE FILE SINK EARNS ITS KEEP AND SO IT STAYS, behind this same gate.
-        It is the ONLY read path: a rule name in incant EXPRESSION POSITION
-        INVOKES THE RULE rather than naming it -- `if Braced;` exits 139,
-        measured -- so no ordinary incant statement can reach the attribute to
-        diff it. The `showParse` command below is the director's window; the
-        file is the POP's, because a byte-for-byte diff needs bytes in a file
-        and not on a terminal.
-
-        Both read pe->getText() and never the local -- the point is to prove
-        what LANDED ON THE NODE, and dumping the local would pass even if
-        addAttribute had silently done nothing.  */
+    /*  THE `ParsE` RECORD is written HERE, by the emitter, because only the
+        emitter has the text -- parseRuleMethod binds the symbol and writes
+        nothing at all. One writer per fact.   genParse.genParseRecordSite
+        The capture swaps the SINK for the duration rather than teeing emitPlan's
+        fourteen `cerr` sites, so the record and the emission are the same bytes
+        by construction.   genParse.genParseSinkNotTee
+        ⚠ THE SWAP MUST STAY AT THE `FILE *` LEVEL. tok's `cerr` keyword
+        generates ::fprintf(stderr,...), NOT std::cerr, so an rdbuf() swap
+        captures ZERO BYTES -- emission perfect, record empty, exit 0. Measured
+        2026-08-06 by writing exactly that bug.
+        ⚠ ONE STRAIGHT LINE, NO EARLY RETURN between the swap and the restore.
+        If that stops being true stderr stays redirected and the operator loses
+        the emitter's output with no symptom but silence.  */
+    /*  PJ-7, ONE GATE: `INCANT_PARSE_RECORD` arms capture, the attribute AND
+        the optional file sink together, never a dump of an always-written
+        attribute -- an always-on write moves the attribute LIST this tree's
+        AUDIT lines are baselined on.   genParse.genParseOneGate  */
     char   *rp      = ::getenv("INCANT_PARSE_RECORD");
     /*  GX-6: the in-fixture door onto the SAME gate. Env var wins when both are
         set, because only it can carry a path.  */
@@ -852,6 +785,9 @@ GroupItem   result;
             rule->addAttribute(pe); }
         else    pe->setText(::strdup(recBuf ? recBuf : ""));
 
+        /*  ⚠ THE DUMP READS pe->getText() AND NEVER recBuf. The point is to
+            prove what LANDED ON THE NODE -- dumping the local would pass even
+            if addAttribute had silently done nothing.  */
         if (::compare(rp,"1") != 0) {
             if (FILE *f = ::fopen(rp,"w")) {
                 char *got = pe->getText();
