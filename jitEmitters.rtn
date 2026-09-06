@@ -831,16 +831,14 @@ extern GroupItem jitEmitDiv(GroupItem argument,GroupItem target)
 }
 
 
-/* jitEmitDO  the do-while emitter (rung J4). Body first, condition second.
+/*******************************************************************************
+    jitEmitDO -- the do-while emitter (rung J4). Body first, condition second.
 
-   ⚠ E1 AUDIT: clears gJitResult before returning, as every bracketing emitter
-   must -- the body commits its own value to the result slot, so leaving one in
-   flight would let the enclosing walk re-commit it in the exit block.
+    ⚠ THE STORE MUST HAPPEN BEFORE jitDoCond MOVES THE INSERT POINT, or the
+    body's value is committed into the CONDITION block.
 
-   ⚠ AND THE STORE MUST HAPPEN BEFORE jitDoCond MOVES THE INSERT POINT, or the
-   body's value is committed into the CONDITION block, where it executes on
-   every test rather than every iteration of the body. Same class of ordering
-   trap as jitLoopBegin's. */
+    // storeBeforeCondMoves  the ordering trap, and the E1 clear every bracketing emitter owes
+*******************************************************************************/
 extern GroupItem jitEmitDO(GroupItem input)
 {
 GroupItem   ExpressioN:,
@@ -1040,22 +1038,12 @@ GroupItem   result = ExpressioN;
 }
 
 
-/* jitEmitGT  OP TWO of the slot migration, and a jitCmp deliberately rather than
-   a second arithmetic. The pathfinder proved the slot on the family whose gate
-   already worked; the selector population being retired has THREE families
-   (jitOp, jitCmp, jitUnary), so the second specimen is chosen to exercise a
-   different one -- a binary-shaped assumption in the slot signature would hide
-   behind a second jitOp and surface at op nine instead of op two.
+/*******************************************************************************
+    jitEmitGT -- OP TWO of the slot migration, a jitCmp deliberately rather than
+    a second arithmetic. Three lines, the same as jitEmitMul.
 
-   ⚠ THE FINDING IS THAT THERE WAS NO SUCH ASSUMPTION. jitEmitCompare has the
-   same shape as jitEmitBinary -- (argument,target,op) returning target -- even
-   though its RESULT type differs (an i1 rather than an operand-typed value).
-   The slot's two-argument signature therefore spans jitOp and jitCmp with
-   nothing special-cased, and this shim is the same three lines as jitEmitMul.
-
-   `>` was picked from five structurally identical comparison gates because
-   incant/jitJR already contains `if jrN > 1`, so migrating it converts an
-   existing rung into a free 1 -> 2 cross-check on the slot count. */
+    // secondFamilyOnPurpose  why the second specimen exercises a different family, and the assumption it went looking for and did not find
+*******************************************************************************/
 extern GroupItem jitEmitGT(GroupItem argument,GroupItem target)
 {
     -% return jitEmitCompare(argument, target, jitGT); %-
@@ -1266,21 +1254,17 @@ extern GroupItem jitEmitRem(GroupItem argument,GroupItem target,GroupItem result
 }
 
 
-/*  jitEmitRefusedCheck -- A3. THE PER-STATEMENT REFUSAL CHECK, EMITTED.
-    Tony's ruling 2026-09-05: plain per-statement check on inlined bodies first,
-    IR cost read on argJitT, a statement-local gate only if that cost warrants
-    its own stroke.
+/*******************************************************************************
+    jitEmitRefusedCheck -- A3, THE PER-STATEMENT REFUSAL CHECK, EMITTED. Tony's
+    ruling 2026-09-05.
 
-    ⚠ THE TARGET IS E2's INLINE EXIT, NEVER gJitEpilogueBB. An inlined callee
-    that branches to the enclosing epilogue returns from the CALLER -- a wrong
-    answer wearing valid IR, which is the hazard E2 exists to close. The target
-    selection here is jitEmitReturn's, deliberately: model, not oracle, so the
-    two cannot drift about what "leave this region" means.
+    ⚠ THE TARGET IS E2's INLINE EXIT, NEVER gJitEpilogueBB. A callee branching
+    to the enclosing epilogue returns from the CALLER -- a wrong answer wearing
+    valid IR.
 
-    ⚠ EMITTED ONLY INSIDE AN INLINE, exactly as ruled. A top-level function's
-    own statements are NOT yet covered and that gap is named rather than
-    implied -- the interpreted road covers them, the emitted road does not.
-    jitEmitters.jitEmitRefusedCheck  */
+    // inlineExitNotEpilogue  why the target selection is jitEmitReturn's, so the two cannot drift
+    // namedGapNotImplied  the top-level statements this does not yet cover, named rather than implied
+*******************************************************************************/
 extern int jitEmitRefusedCheck()
 {
     -%
@@ -1973,17 +1957,12 @@ extern void jitIfElse()
 }
 
 
-/* jitIfEnd  closes the ELSE arm (2026-07-31; it used to close the then arm,
-   before jitIfElse existed) and resumes at the endif merge block, popping BOTH
-   stacks in lockstep.
+/*******************************************************************************
+    jitIfEnd -- closes the ELSE arm and resumes at the endif merge block,
+    popping BOTH stacks in lockstep.
 
-   NO PHI IS NEEDED FOR FIELD STORES, and the old comment here got the reason
-   wrong -- it credited PromotePass. There are NO ALLOCAS in this emitter: a
-   field slot is a BAKED ABSOLUTE ADDRESS (inttoptr), so fields live in MEMORY
-   and two stores to the same address on two paths need no merge at all. mem2reg
-   is a documented no-op on this shape. What genuinely has no merge is the
-   RETURN VALUE, which is capped from gJitResult -- a scalar C++ global -- and
-   that is a separate defect from anything phi-shaped. */
+    // fieldStoresNeedNoPhi  why no phi is needed, why the old comment's PromotePass reason was wrong, and which thing genuinely has no merge
+*******************************************************************************/
 extern void jitIfEnd()
 {
     -%
@@ -2080,16 +2059,15 @@ extern void jitInlinePush(GroupItem action)
 }
 
 
-/* jitLoopBegin  open a loop: create cond/body/exit, branch into cond, and set
-   the insert point THERE so the condition sub-walk emits inside it.
+/*******************************************************************************
+    jitLoopBegin -- open a loop: create cond/body/exit, branch into cond, and
+    set the insert point THERE so the condition sub-walk emits inside it.
 
-   ⚠ ORDER IS THE OPPOSITE OF gIF AND IT MATTERS. jitIfBegin is called AFTER the
-   condition has been emitted into the current block, because an if evaluates
-   its condition once. A loop's condition must re-execute on every iteration, so
-   it has to live in a block the back edge returns to -- which means the block
-   must exist and be current BEFORE the condition walk runs. Get it backwards
-   and the condition is evaluated once, ahead of the loop: infinite, or never
-   entered. */
+    ⚠ THE ORDER IS THE OPPOSITE OF gIF. Get it backwards and the condition is
+    evaluated once, ahead of the loop: infinite, or never entered.
+
+    // loopOrderInverted  why an if emits its condition first and a loop cannot
+*******************************************************************************/
 extern void jitLoopBegin()
 {
     -%
@@ -2156,18 +2134,14 @@ extern int jitNodeInFlight()
 }
 
 
-/* jitPrintArm  CLEAR THE IN-FLIGHT VALUE before an item's expression emits.
+/*******************************************************************************
+    jitPrintArm -- CLEAR THE IN-FLIGHT VALUE before an item's expression emits.
 
-   ⚠ WITHOUT THIS, AN ITEM THAT EMITS NOTHING INHERITS THE PREVIOUS ITEM'S VALUE.
-   Measured 2026-08-05, and it got WORSE as the emitters got better: before the
-   bare-read primitive existed, gJitResult was null for everything and a
-   non-emitting item printed 0 -- wrong, but stable. Once real values started
-   flowing, the same item printed 80329152: whatever was last in flight. A stale
-   read is worse than a zero because it looks like data.
-   That is the one-channel-one-meaning family again -- gJitResult means "the
-   value in flight", and "the value THIS item produced" is a different fact.
-   Clearing per item is what makes the second question answerable, and it is why
-   jitPrintItem can now REFUSE rather than substitute. */
+    ⚠ WITHOUT THIS AN ITEM THAT EMITS NOTHING INHERITS THE PREVIOUS ITEM'S
+    VALUE, and a stale read is worse than a zero because it looks like data.
+
+    // staleReadLooksLikeData  the measured 0-then-80329152, and why the defect got worse as the emitters got better
+*******************************************************************************/
 extern void jitPrintArm()
 {
     /*  ⚠ IT CLEARS THE NODE CHANNEL TOO (SEQ 142). The arm exists so that "THIS
@@ -2536,16 +2510,15 @@ extern void jitRestoreFrameRT(GroupItem field)
 }
 
 
-/* jitRunAction  the generic compile driver — the JIT analog of generateCode. Owns
-   the ENGINE, the LLVMContext and the Module; jitBuildFunction above owns each
-   function inside them. Builds the driver's function, captures the module IR,
-   ORC-compiles, looks the driver up BY NAME, and calls it. Returns the native
-   result.
+/*******************************************************************************
+    jitRunAction -- THE GENERIC COMPILE DRIVER. It owns the engine, the
+    LLVMContext and the Module; jitBuildFunction owns each function in them.
 
-   ⚠ THE SPLIT IS S1 AND IT IS DELIBERATELY BEHAVIOUR-NEUTRAL. Nothing here does
-   anything it did not do on 2026-08-05 before the extraction, in a different
-   order or otherwise -- which is why its POP is "every baseline byte-identical"
-   and why anything that moves is a defect rather than an improvement. */
+    ⚠ THE S1 SPLIT IS BEHAVIOUR-NEUTRAL, so its POP is "every baseline
+    byte-identical" and ANYTHING THAT MOVES IS A DEFECT, not an improvement.
+
+    // behaviourNeutralSplit  what it owns either side of jitBuildFunction, and why nothing here may change order
+*******************************************************************************/
 extern int jitRunAction(GroupItem action)
 {
     -%
@@ -3037,16 +3010,13 @@ extern void jitScEnd(GroupItem resultNode)
 }
 
 
-/* jitSeedField  unbox a real count/number field operand — the past-constant-folding
-   path. Bakes the field's stable GroupItem storage address as a constant pointer and
-   emits a CreateLoad of its gCount/gNumber, so the operand reads the LIVE field value
-   at run time rather than a folded compile-time constant. The field's address is
-   stable (BDWGC-managed, persists), so baking it is sound. (Slot-array calling
-   convention per jit.md is the later refinement; this proves the unbox mechanism.)
-   Also stashes that baked address into jitData->jitSlot, so an assign store-back
-   (jitEmitAssign) has a destination — immediate writeback to the field's own
-   storage. Literals get no slot (jitSeedLiteral), which is correct: a literal
-   is not an assignable target. */
+/*******************************************************************************
+    jitSeedField -- unbox a real count/number field operand, past constant
+    folding: bake the stable GroupItem address, load gCount/gNumber, and stash
+    the address into jitData->jitSlot so an assign has a destination.
+
+    // bakedAddressIsSound  why baking the address is sound, and why a literal correctly gets no slot
+*******************************************************************************/
 extern GroupItem jitSeedField(GroupItem token)
 {
     -%
@@ -3153,20 +3123,17 @@ extern GroupItem jitShowRecord(GroupItem field)
 }
 
 
-/* jitStoreResult  commit the value just emitted into THE RESULT SLOT.
-   Tony's ruling 2026-07-31: the compiled action returns what the interpreted
-   action returns, and the interpreted rule is "the value of the LAST EXECUTED
-   STATEMENT". So every statement stores here, and the cap loads.
+/*******************************************************************************
+    jitStoreResult -- COMMIT THE VALUE JUST EMITTED into the result slot. Tony's
+    ruling 2026-07-31: the compiled action returns what the interpreted action
+    returns, so every statement stores here and the cap loads.
 
-   THE MERGE IS THE MEMORY LOCATION. On a two-armed if the answer differs per
-   path; each arm calls this INSIDE its own block, so the store is what merges
-   them and the exit load reads whichever ran. No phi is written -- the same
-   reasoning that makes field stores need no merge, applied to results.
+    ⚠ A NULL gJitResult IS A NO-OP, NOT AN ERROR. A statement that emitted
+    nothing simply does not move the result, which is the interpreted
+    behaviour.
 
-   Coerces to i32 the way the old cap did (double -> FPToSI, i1 -> ZExt), so the
-   slot has one type and the function signature is unchanged. A null gJitResult
-   is a no-op rather than an error: a statement that emitted nothing simply does
-   not move the result, which is exactly the interpreted behaviour. */
+    // mergeIsTheMemory  why the store is the merge on a two-armed if, and why no phi is written
+*******************************************************************************/
 extern void jitStoreResult()
 {
     -%
@@ -3223,18 +3190,15 @@ extern GroupItem jitTraceRT(GroupItem field)
 }
 
 
-/* jitUnboxCount  THE RETURN-VALUE UNBOX, and the second leg of the calling
-   story. An emitted call hands back a GroupItem* -- this turns it into the i32
-   the emitted code works in.
+/*******************************************************************************
+    jitUnboxCount -- THE RETURN-VALUE UNBOX. An emitted call hands back a
+    GroupItem*; this turns it into the i32 emitted code works in.
 
-   ⚠ IT IS A CALL AND NOT GEP ARITHMETIC, ON PRINCIPLE (adopted 2026-07-31).
-   Reaching gCount from a returned pointer in IR would mean baking the offsets
-   of GroupItem -> groupBody -> gCount as constants. BAKED OFFSETS BREAK
-   SILENTLY ON ANY GroupBody LAYOUT CHANGE -- bear-trap #10's blast radius,
-   arriving in EMITTED CODE where no compiler catches it and the failure is a
-   wrong number at run time. This helper is recompiled with the struct every
-   build, so layout stays C++'s business and IR knows only addresses and calls.
-   Any future GEP-for-speed proposal argues against this in writing. */
+    ⚠ A CALL, NOT GEP ARITHMETIC, ON PRINCIPLE. Any future GEP-for-speed
+    proposal argues against this in writing.
+
+    // callNotGep  what baked offsets would cost in emitted code, where no compiler catches them
+*******************************************************************************/
 extern int jitUnboxCount(GroupItem node)
 {
     -%

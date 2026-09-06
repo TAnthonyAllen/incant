@@ -1063,6 +1063,141 @@ define
                 publishes a NODE, not a scalar, and the emitted store put that pointer into
                 the target's slot -- which is how starT's jitted road read 5560000 where the
                 interpreted road read LEAF. A pointer wearing the shape of data.#);
+            fieldStoresNeedNoPhi=(NO PHI IS NEEDED FOR FIELD STORES, AND THE OLD COMMENT AT
+                jitIfEnd GOT THE REASON WRONG -- it credited PromotePass.
+
+                THERE ARE NO ALLOCAS IN THIS EMITTER: a field slot is a BAKED ABSOLUTE ADDRESS
+                (inttoptr), so fields live in MEMORY and two stores to the same address on two
+                paths need no merge at all. mem2reg is a documented no-op on this shape.
+
+                ⚠ WHAT GENUINELY HAS NO MERGE IS THE RETURN VALUE, which is capped from
+                gJitResult -- a scalar C++ global -- and that is a SEPARATE defect from anything
+                phi-shaped. Conflating the two is what the old comment did.
+
+                jitIfEnd closes the ELSE arm and resumes at the endif merge block, popping BOTH
+                stacks in lockstep. (It closed the THEN arm before jitIfElse existed, 2026-07-31.)#):
+                CodeSite="jitEmitters.rtn:jitIfEnd";
+            secondFamilyOnPurpose=(jitEmitGT -- OP TWO of the slot migration, and A jitCmp
+                DELIBERATELY rather than a second arithmetic. The pathfinder proved the slot on
+                the family whose gate already worked; the selector population being retired has
+                THREE families (jitOp, jitCmp, jitUnary), so the second specimen exercises a
+                DIFFERENT one -- a binary-shaped assumption in the slot signature would hide
+                behind a second jitOp and surface at op nine instead of op two.
+
+                ⚠ THE FINDING IS THAT THERE WAS NO SUCH ASSUMPTION. jitEmitCompare has the same
+                shape as jitEmitBinary -- (argument,target,op) returning target -- even though
+                its RESULT type differs (an i1 rather than an operand-typed value). The slot's
+                two-argument signature therefore spans jitOp and jitCmp with nothing
+                special-cased, and this shim is the same three lines as jitEmitMul.
+
+                `>` was picked from five structurally identical comparison gates because
+                incant/jitJR already contains `if jrN > 1`, so migrating it converts an existing
+                rung into a free 1 -> 2 cross-check on the slot count.#):
+                CodeSite="jitEmitters.rtn:jitEmitGT";
+            staleReadLooksLikeData=(jitPrintArm -- CLEAR THE IN-FLIGHT VALUE before an item's
+                expression emits.
+
+                ⚠ WITHOUT IT, AN ITEM THAT EMITS NOTHING INHERITS THE PREVIOUS ITEM'S VALUE.
+                Measured 2026-08-05, and IT GOT WORSE AS THE EMITTERS GOT BETTER: before the
+                bare-read primitive existed, gJitResult was null for everything and a
+                non-emitting item printed 0 -- wrong, but stable. Once real values started
+                flowing, the same item printed 80329152: whatever was last in flight. A STALE
+                READ IS WORSE THAN A ZERO BECAUSE IT LOOKS LIKE DATA.
+
+                That is the one-channel-one-meaning family again -- gJitResult means "the value
+                in flight", and "the value THIS item produced" is a different fact. Clearing per
+                item is what makes the second question answerable, and it is why jitPrintItem can
+                now REFUSE rather than substitute.#):
+                CodeSite="jitEmitters.rtn:jitPrintArm";
+            loopOrderInverted=(⚠ jitLoopBegin's ORDER IS THE OPPOSITE OF gIF AND IT MATTERS.
+                jitIfBegin is called AFTER the condition has been emitted into the current block,
+                because an if evaluates its condition ONCE.
+
+                A loop's condition must RE-EXECUTE on every iteration, so it has to live in a
+                block the back edge returns to -- which means the block must exist AND BE CURRENT
+                BEFORE the condition walk runs. Get it backwards and the condition is evaluated
+                once, ahead of the loop: infinite, or never entered.#):
+                CodeSite="jitEmitters.rtn:jitLoopBegin";
+            storeBeforeCondMoves=(⚠ IN jitEmitDO THE STORE MUST HAPPEN BEFORE jitDoCond MOVES THE
+                INSERT POINT, or the body's value is committed into the CONDITION block, where it
+                executes on every TEST rather than every ITERATION of the body. Same class of
+                ordering trap as loopOrderInverted.
+
+                It also clears gJitResult before returning, as every bracketing emitter must
+                (see e1FirstCustomer).#):
+                CodeSite="jitEmitters.rtn:jitEmitDO";
+            callNotGep=(⚠ jitUnboxCount IS A CALL AND NOT GEP ARITHMETIC, ON PRINCIPLE (adopted
+                2026-07-31). It is the RETURN-VALUE UNBOX, the second leg of the calling story:
+                an emitted call hands back a GroupItem* and this turns it into the i32 the
+                emitted code works in.
+
+                Reaching gCount from a returned pointer in IR would mean baking the offsets of
+                GroupItem -> groupBody -> gCount as constants. BAKED OFFSETS BREAK SILENTLY ON
+                ANY GroupBody LAYOUT CHANGE -- bear-trap #10's blast radius, arriving in EMITTED
+                CODE where no compiler catches it and the failure is a WRONG NUMBER AT RUN TIME.
+
+                This helper is recompiled with the struct every build, so layout stays C++'s
+                business and IR knows only addresses and calls. ⚠ ANY FUTURE GEP-FOR-SPEED
+                PROPOSAL ARGUES AGAINST THIS IN WRITING.#):
+                CodeSite="jitEmitters.rtn:jitUnboxCount";
+            behaviourNeutralSplit=(jitRunAction -- THE GENERIC COMPILE DRIVER, the JIT analog
+                of generateCode. It owns the ENGINE, the LLVMContext and the Module;
+                jitBuildFunction owns each function inside them. Builds the driver's function,
+                captures the module IR, ORC-compiles, looks the driver up BY NAME, calls it, and
+                returns the native result.
+
+                ⚠ THE S1 SPLIT IS DELIBERATELY BEHAVIOUR-NEUTRAL. Nothing here does anything it
+                did not do on 2026-08-05 before the extraction, in a different order or
+                otherwise -- WHICH IS WHY ITS POP IS "EVERY BASELINE BYTE-IDENTICAL" AND WHY
+                ANYTHING THAT MOVES IS A DEFECT RATHER THAN AN IMPROVEMENT.#):
+                CodeSite="jitEmitters.rtn:jitRunAction";
+            bakedAddressIsSound=(jitSeedField -- UNBOX A REAL count/number FIELD OPERAND, the
+                past-constant-folding path. It bakes the field's stable GroupItem storage address
+                as a constant pointer and emits a CreateLoad of its gCount/gNumber, so the
+                operand reads THE LIVE FIELD VALUE at run time rather than a folded compile-time
+                constant.
+
+                ⚠ THE ADDRESS IS STABLE -- BDWGC-managed, persists -- SO BAKING IT IS SOUND. The
+                slot-array calling convention per jit.md is the later refinement; this proves the
+                unbox mechanism.
+
+                It also stashes that baked address into jitData->jitSlot, so an assign store-back
+                (jitEmitAssign) has a destination -- immediate writeback to the field's own
+                storage. Literals get NO slot (jitSeedLiteral), which is correct: a literal is
+                not an assignable target.#):
+                CodeSite="jitEmitters.rtn:jitSeedField";
+            mergeIsTheMemory=(jitStoreResult -- COMMIT THE VALUE JUST EMITTED INTO THE RESULT
+                SLOT. Tony's ruling 2026-07-31: the compiled action returns what the interpreted
+                action returns, and the interpreted rule is "the value of the LAST EXECUTED
+                STATEMENT". So every statement stores here, and the cap loads.
+
+                ⚠ THE MERGE IS THE MEMORY LOCATION. On a two-armed if the answer differs per
+                path; each arm calls this INSIDE ITS OWN BLOCK, so the STORE is what merges them
+                and the exit load reads whichever ran. NO PHI IS WRITTEN -- the same reasoning
+                that makes field stores need no merge, applied to results.
+
+                It coerces to i32 the way the old cap did (double -> FPToSI, i1 -> ZExt), so the
+                slot has one type and the function signature is unchanged. ⚠ A NULL gJitResult IS
+                A NO-OP RATHER THAN AN ERROR: a statement that emitted nothing simply does not
+                move the result, which is exactly the interpreted behaviour.#):
+                CodeSite="jitEmitters.rtn:jitStoreResult";
+            inlineExitNotEpilogue=(⚠ jitEmitRefusedCheck's TARGET IS E2's INLINE EXIT, NEVER
+                gJitEpilogueBB. An inlined callee that branches to the enclosing epilogue RETURNS
+                FROM THE CALLER -- a wrong answer wearing valid IR, which is the hazard E2 exists
+                to close.
+
+                The target selection is jitEmitReturn's, deliberately: model, not oracle, so the
+                two cannot drift about what "leave this region" means.
+
+                A3, Tony's ruling 2026-09-05: plain per-statement check on inlined bodies first,
+                IR cost read on argJitT, a statement-local gate only if that cost warrants its
+                own stroke.#):
+                CodeSite="jitEmitters.rtn:jitEmitRefusedCheck";
+            namedGapNotImplied=(⚠ jitEmitRefusedCheck IS EMITTED ONLY INSIDE AN INLINE, exactly
+                as ruled. A TOP-LEVEL FUNCTION'S OWN STATEMENTS ARE NOT YET COVERED, and that gap
+                is NAMED rather than implied -- the interpreted road covers them, the emitted road
+                does not.#):
+                CodeSite="jitEmitters.rtn:jitEmitRefusedCheck";
             rightAnswerWrongUniverse=(THE THREAT jitRefire ANSWERS, and it is why every rung
                 compiles ONCE and fires TWICE. Under jitting the interpreter EXECUTES the action
                 body for real at emit time (docs/jit.md §2.2 -- a jitted `print` printed during

@@ -403,6 +403,22 @@ counts species until the checker learns it**, and an uncounted link is an unchec
 orphaned and CodeSite all silently skip it. All three instruments taught the form; the count went
 7 → 8 and CodeSite reads 8/8.
 
+⚠⚠ **AND THE SPECIES TURNED OUT TO BE RARER THAN ITS DETECTOR — ONE MEASURED MEMBER, NOT NINE.**
+The pattern found **8 more** past-tense hits across `jitEmitters.rtn`, and every one was read
+before being labelled. **None is an obituary.** They are past-tense CLAUSES INSIDE LIVE HEADERS —
+`jitIfEnd` "it used to close the then arm, before jitIfElse existed", `jitEmitGT`'s
+"it used to be `jitFn%d` off a static", `jitRunAction`'s "no longer the same". Each documents live
+code and carries its history in a subordinate clause.
+
+**So the discriminator is not tense, it is SUBJECT.** An obituary's subject is code that is gone;
+a rationale's subject is code that is there, and its history is an aside. `argChannel`'s tripwire
+block was sixteen lines whose entire subject was a deleted guard — that is the one member.
+
+⚠ **THE DETECTOR WAS RIGHT TO OVER-MATCH AND THE READING WAS THE POINT.** A pattern over language
+finds candidates; only reading them finds members. Reporting "8 obituaries" from the grep would
+have been H9's exact failure — a count standing in for a classification — and the labels would
+have gone on nine live headers.
+
 **What survived at the site was one present-tense line**, and it is the half a reader still needs:
 *the pending slot is the emitted path's channel bracket, paired with `jitSaveFrameRT` /
 `jitRestoreFrameRT`; it is not the retired tripwire and does not retire with it.* Without that,
