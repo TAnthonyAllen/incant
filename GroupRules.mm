@@ -4993,67 +4993,6 @@ extern "C" GroupItem *jitEmitNE(GroupItem *argument, GroupItem *target)
 	 return jitEmitCompare(argument, target, jitNE); 
 }
 
-/* jitEmitReturn  `return`, EMITTED. Item 2, Tony's ruling 2026-08-05.
-
-   THE GAP IT CLOSES: return called jitDegrade. That is why EVERY green rung in
-   the ladder asserts a FIELD's value after the action and never a RETURNED one,
-   and why CLAIM KANT-8's jitted parity was not merely unanswered but NOT YET
-   ASKABLE. This makes it askable.
-
-   ⚠ E3 -- A BARE `return;` IS CORRECT BY CONSTRUCTION AND NOT BY A SPECIAL CASE,
-   which is the nicest thing about this emitter. The interpreter's convention
-   (Tony, 2026-07-31, and the header on aCTionBlocK states it): a bare return
-   yields THE PRIOR STATEMENT'S VALUE, because an action's value is the value of
-   the last executed statement and `return` only means STOP. Under jitting every
-   statement has already called jitStoreResult, so THE SLOT ALREADY HOLDS exactly
-   that value -- and jitStoreResult returns early on a null gJitResult. So a bare
-   return stores nothing, keeps the prior value, and matches the ruling with no
-   test for bareness anywhere in this function. `return expr;` differs only in
-   that gJitResult is non-null when we arrive.
-
-   ⚠ E1 -- THE UNREACHABLE CONTINUATION BLOCK IS jitEmitContinue's IDIOM, LIFTED
-   RATHER THAN REINVENTED (its header argues the case in full). LLVM requires one
-   terminator per block and forbids code after it, so after the branch the
-   builder parks in a fresh block nothing branches to. It is dead by construction
-   and the optimiser drops it. This matters more for return than for continue,
-   because aCTionBlocK's `if jitting continue;` means the walk KEEPS EMITTING the
-   statements after a return -- correctly, since at emit time they are reachable
-   text even when at run time they are not.
-
-   ⚠⚠ E2 -- BUILT 2026-08-09. WAS: "a return inside an inlined body is refused,
-   loudly, deferred with Tony's sanction." The diagnosis that stood behind that
-   refusal was right and is worth keeping, because it IS the fix's specification:
-   an ordinary (non-self-test) callee INLINES into the enclosing function, so its
-   `return` must terminate the INLINED REGION and not the enclosing function --
-   branching to gJitEpilogueBB there would return from the caller, which is a
-   wrong answer wearing valid IR. gJitInlining is non-empty exactly while a callee
-   is being inlined, and empty while jitBuildFunction walks the function's own
-   action (it calls processCode/jitExecBlock directly, not through runAction).
-
-   THE FIX IS THAT AN INLINED REGION GETS AN EPILOGUE OF ITS OWN -- one
-   JitInlineFrame per inline, bracketed by jitInlinePush/Pop, whose exit block is
-   this return's branch target. See JitInlineFrame in jitContext.h for why the
-   block is created unparented and inserted on first use (an H7 obligation: a
-   return-free callee must emit byte-identical IR), and why the value needs no phi.
-
-   ⚠ WHY IT WAS SURVIVABLE AT ALL, WHICH IS THE PART TO REMEMBER: a TAIL return
-   needs no branch, so falling through was accidentally equivalent and every
-   fixture in the fleet was tail-shaped. `incant/jitXe2` is the mid-body case --
-   jitted 222/999 against an interpreted 111/0, at degrade count 2 either way.
-   THE DEGRADE COUNTER COULD NOT TELL THE TWO POSITIONS APART, which is the
-   worked example behind CLAUDE.md's "a degrade line asserts that a fallback
-   OCCURRED, never that it was SOUND."
-
-   ⚠ TWO RETURN VALUES NOW, AND THE RETIRED THIRD IS RECORDED RATHER THAN
-   DELETED. The value 0 meant "E2, inside an inlined body, unbuilt" and E2 is
-   built, so nothing produces it and the caller's arm for it would be an
-   assertion nothing can fire. It was split out from -1 in the first place
-   because one code for both "deferred with sanction" and "something is wrong"
-   mis-reported an ordering bug as E2 -- one-channel-one-meaning, caught early,
-   and the split did its job for the three days it was needed.
-       1  emitted
-      -1  REFUSED -- no builder, no epilogue block, or inlining with no frame:
-          in every case a mis-sequenced caller, NOT a language gap  */
 /*  jitEmitRefusedCheck -- A3. THE PER-STATEMENT REFUSAL CHECK, EMITTED.
     Tony's ruling 2026-09-05: plain per-statement check on inlined bodies first,
     IR cost read on argJitT, a statement-local gate only if that cost warrants
@@ -5157,6 +5096,24 @@ extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupIt
 	
 }
 
+/*******************************************************************************
+    jitEmitReturn -- `return`, EMITTED. Item 2, Tony's ruling 2026-08-05.
+
+    THE GAP IT CLOSES: return called jitDegrade. That is why EVERY green rung in
+    the ladder asserts a FIELD's value after the action and never a RETURNED one,
+    and why CLAIM KANT-8's jitted parity was not merely unanswered but NOT YET
+    ASKABLE. This makes it askable.
+
+    ⚠ RETURNS 1 EMITTED or -1 REFUSED, and -1 is always a MIS-SEQUENCED CALLER --
+    no builder, no epilogue block, or inlining with no frame -- never a language
+    gap. Do not add an arm for 0; it is retired and nothing produces it.
+
+    // bareReturnFree  why a bare `return;` needs no test for bareness anywhere in this function
+    // deadContinuation  why the unreachable block after the branch is required, and why it matters more here than for continue
+    // inlineEpilogue  E2: why a callee's return must not branch to gJitEpilogueBB, and what one JitInlineFrame per inline buys
+    // tailWasSurvivable  why the whole fleet stayed green without it, and the degrade counter that could not tell the two positions apart
+    // returnCodes  the retired third value, and the one-channel-one-meaning defect that forced the split
+*******************************************************************************/
 extern "C" int jitEmitReturn()
 {
 	

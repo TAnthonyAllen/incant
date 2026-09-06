@@ -1080,6 +1080,76 @@ define
 
                 REFUSES BY NAME on a non-group operand, F-41's form: named, null returned,
                 the run continues.#);
+            bareReturnFree=(A BARE `return;` IS CORRECT BY CONSTRUCTION AND NOT BY A SPECIAL
+                CASE, which is the nicest thing about jitEmitReturn. The interpreter's
+                convention (Tony, 2026-07-31, and aCTionBlocK's header states it): a bare
+                return yields THE PRIOR STATEMENT'S VALUE, because an action's value is the
+                value of the last executed statement and `return` only means STOP.
+
+                Under jitting every statement has already called jitStoreResult, so THE SLOT
+                ALREADY HOLDS exactly that value -- and jitStoreResult returns early on a null
+                gJitResult. So a bare return stores nothing, keeps the prior value, and matches
+                the ruling with NO TEST FOR BARENESS anywhere in the function. `return expr;`
+                differs only in that gJitResult is non-null on arrival.#):
+                Status="carried, unverified";
+                CodeSite="jitEmitters.rtn:jitEmitReturn";
+            deadContinuation=(THE UNREACHABLE CONTINUATION BLOCK IS jitEmitContinue's IDIOM,
+                LIFTED RATHER THAN REINVENTED (its own header argues the case in full). LLVM
+                requires one terminator per block and forbids code after it, so after the branch
+                the builder parks in a fresh block nothing branches to. It is dead by
+                construction and the optimiser drops it.
+
+                ⚠ THIS MATTERS MORE FOR RETURN THAN FOR CONTINUE, because aCTionBlocK's
+                `if jitting continue;` means the walk KEEPS EMITTING the statements after a
+                return -- correctly, since at emit time they are reachable text even when at run
+                time they are not.#):
+                Status="carried, unverified";
+                CodeSite="jitEmitters.rtn:jitEmitReturn";
+            inlineEpilogue=(E2 -- AN INLINED REGION GETS AN EPILOGUE OF ITS OWN. Built
+                2026-08-09. It was previously refused loudly with Tony's sanction, and THE
+                DIAGNOSIS BEHIND THAT REFUSAL IS THE FIX'S SPECIFICATION, which is why it is
+                kept rather than deleted:
+
+                An ordinary (non-self-test) callee INLINES into the enclosing function, so its
+                `return` must terminate the INLINED REGION and not the enclosing function --
+                branching to gJitEpilogueBB there would return from the CALLER, which is a wrong
+                answer wearing valid IR. gJitInlining is non-empty exactly while a callee is
+                being inlined, and empty while jitBuildFunction walks the function's own action
+                (it calls processCode/jitExecBlock directly, not through runAction).
+
+                THE FIX: one JitInlineFrame per inline, bracketed by jitInlinePush/Pop, whose
+                exit block is this return's branch target. See JitInlineFrame in jitContext.h
+                for why the block is created unparented and inserted on first use (an H7
+                obligation: a return-free callee must emit byte-identical IR), and why the value
+                needs no phi.#):
+                Status="carried, unverified";
+                CodeSite="jitEmitters.rtn:jitEmitReturn";
+            tailWasSurvivable=(WHY THE MISSING INLINE EPILOGUE WAS SURVIVABLE AT ALL, WHICH IS
+                THE PART TO REMEMBER: a TAIL return needs no branch, so falling through was
+                ACCIDENTALLY EQUIVALENT and every fixture in the fleet was tail-shaped.
+
+                `incant/jitXe2` is the mid-body case -- jitted 222/999 against an interpreted
+                111/0, at degrade count 2 EITHER WAY. ⚠ THE DEGRADE COUNTER COULD NOT TELL THE
+                TWO POSITIONS APART, which is the worked example behind CLAUDE.md's "a degrade
+                line asserts that a fallback OCCURRED, never that it was SOUND".#):
+                Status="carried, unverified";
+                CodeSite="jitEmitters.rtn:jitEmitReturn";
+            returnCodes=(TWO RETURN VALUES FROM jitEmitReturn, AND THE RETIRED THIRD IS RECORDED
+                RATHER THAN DELETED.
+
+                    1  emitted
+                   -1  REFUSED -- no builder, no epilogue block, or inlining with no frame:
+                       in every case a MIS-SEQUENCED CALLER, not a language gap
+
+                The value 0 meant "E2, inside an inlined body, unbuilt". E2 is built, so nothing
+                produces it and a caller's arm for it would be an assertion nothing can fire.
+
+                ⚠ IT WAS SPLIT OUT FROM -1 IN THE FIRST PLACE because one code for both
+                "deferred with sanction" and "something is wrong" MIS-REPORTED AN ORDERING BUG
+                AS E2 -- one-channel-one-meaning, caught early, and the split did its job for
+                the three days it was needed.#):
+                Status="carried, unverified";
+                CodeSite="jitEmitters.rtn:jitEmitReturn";
             jitEmitter=(BINDS AN OP'S JIT EMITTER, step 2 of the jit separation. Modelled on
                 ruleMethod, with two deliberate differences. Note it is a BINDER and not an
                 emitter -- the jitEmitter= spelling in incant/setup's Operators entries is
