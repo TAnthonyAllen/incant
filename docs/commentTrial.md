@@ -100,6 +100,35 @@ file's own list. The first cut matched filenames — `Bytecode.h`, `genParse.rtn
 reported 54 dangling; the second had to be told that a pointer resolves on its LAST segment, not
 its full path. **A census is an instrument (H9): read the hits before reporting the number.**
 
+## ⚠ SIXTH FINDING, 2026-09-06 — THE LINK IS INVISIBLE IN A `/* */` BLOCK, AND THAT IS THE WHOLE COMPLAINT
+
+Tony went back and forth between `genParse.rtn`'s `parseRuleMethod` and its DesignDocs entry and
+**could not see the link** — *"I am looking for a `//` link entry left behind that is not there."*
+
+**The link was there.** `genParse.parseRuleMethod` sat on the third line of a `/* */` header. What
+was missing was not the key but its CARRIER: measured across the two swept files —
+
+| file | links on `//` lines | links inside `/* */` blocks |
+|---|---|---|
+| `ruleActions.rtn` (09-03 sweep) | **25** | 11 |
+| `genParse.rtn` (before this re-cut) | 3 | **7** |
+
+**A key on a `//` line reads as a link; the same key wrapped in a prose block reads as prose.** So
+the convention has a third clause nobody had written down: **the link line is a `//` line**, and a
+retained `/* */` block is for site warnings, which are not links.
+
+⚠ **AND THE DISPATCH'S DIAGNOSIS WAS WRONG IN A WAY WORTH RECORDING.** It read the symptom as
+key-POSITION — *"the 09-03 template is `// <entryName> <one sentence>`, and stroke 1 dropped the
+name off the front"* — and dispatched a flip to name-first. **Measured: the 09-03 sweep is 25
+key-at-END and 0 key-at-start, and `CLAUDE.md`'s own documented example
+(`// single writer of parentLabel; callee lifts at entry   parseRule.frameLift`) is key-at-end
+too.** Executing the flip would have made `genParse.rtn` the only file out of step with both the
+template and the written rule, and stroke 2 would have propagated it across 55 methods.
+
+**One grep settled it, and the grep is the point** — this is the unmeasured-citation family
+reaching the convention itself. The re-cut moved the links onto `//` lines and left the keys where
+both the rule and the template put them.
+
 
 ## LOOKUPS CLOD ACTUALLY MADE
 

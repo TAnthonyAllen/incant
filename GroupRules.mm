@@ -3143,23 +3143,19 @@ GroupItem 	*result = 0;
 	if ( !plan )
 		return 0;
 	
-	/*  THE `ParsE` RECORD is written HERE, by the emitter, because only the
-	emitter has the text -- parseRuleMethod binds the symbol and writes
-	nothing at all. One writer per fact.   genParse.genParseRecordSite
-	The capture swaps the SINK for the duration rather than teeing emitPlan's
-	fourteen `cerr` sites, so the record and the emission are the same bytes
-	by construction.   genParse.genParseSinkNotTee
-	⚠ THE SWAP MUST STAY AT THE `FILE *` LEVEL. tok's `cerr` keyword
+	// the emitter writes the ParsE record because only the emitter has the text;
+	// parseRuleMethod binds the symbol and writes nothing   genParse.genParseRecordSite
+	// the capture swaps the SINK rather than teeing emitPlan's fourteen cerr sites,
+	// so record and emission are the same bytes   genParse.genParseSinkNotTee
+	/*  ⚠ THE SWAP MUST STAY AT THE `FILE *` LEVEL. tok's `cerr` keyword
 	generates ::fprintf(stderr,...), NOT std::cerr, so an rdbuf() swap
 	captures ZERO BYTES -- emission perfect, record empty, exit 0. Measured
 	2026-08-06 by writing exactly that bug.
 	⚠ ONE STRAIGHT LINE, NO EARLY RETURN between the swap and the restore.
 	If that stops being true stderr stays redirected and the operator loses
 	the emitter's output with no symptom but silence.  */
-	/*  PJ-7, ONE GATE: `INCANT_PARSE_RECORD` arms capture, the attribute AND
-	the optional file sink together, never a dump of an always-written
-	attribute -- an always-on write moves the attribute LIST this tree's
-	AUDIT lines are baselined on.   genParse.genParseOneGate  */
+	// one gate arms capture, the attribute AND the file sink together; an always-on
+	// attribute write moves the AUDIT lines   genParse.genParseOneGate
 	char   *rp      = ::getenv("INCANT_PARSE_RECORD");
 	/*  GX-6: the in-fixture door onto the SAME gate. Env var wins when both are
 	set, because only it can carry a path.  */
@@ -10571,9 +10567,9 @@ RuleStuff 	*ruleStuff = pMethod->getRStuff();
 	return 0;
 }
 
-/*  binds a compiled parse to rStuff.parseMethod. ⚠ definingRule(), NOT parent --
-    a cross-file re-definition binds a satellite the reader never looks at.
-    genParse.parseRuleMethod  */
+//  binds a compiled parse to rStuff.parseMethod. ⚠ definingRule(), NOT parent --
+//  a cross-file re-definition binds a satellite the reader never looks at
+//                                                    genParse.parseRuleMethod
 extern "C" GroupItem *parseRuleMethod(GroupItem *input)
 {
 char 		*name = input->getText();
