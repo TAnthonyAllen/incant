@@ -103,7 +103,7 @@ GroupItem   reg,
     either. A missing symbol REFUSES and names what it looked for -- refuse,
     never substitute, because this family was measured failing SILENTLY.
 
-    // actionTailShim  actK is the action tail shim: the body carries ZERO information and the frame supplies which rule and which label, as it does position and mark for litK/parseRK
+    // actionTailShim  why a shim at all: both spellings of a bare aCTionBraced() call are unsound, and one of them clears the wrong node
     // shimRoute  resolves by dlsym at CALL time, not from a pointer stashed at mint -- cheap-to-remove beat cheap-to-run, and step 2 deletes the question
 *******************************************************************************/
 extern GroupItem actK(GroupItem ignored)
@@ -150,7 +150,7 @@ int         fired;
     compileStored -- PHASE 2 UNDER OPTION B: compile OUT OF the corpus, never
     over the live rule. Refuses by name on every missing precondition.
 
-    // compileStored  what Option B's phase two compiles, and why it never reads the live rule
+    // compileStored  the preconditions it refuses on, one by one, and why the corpus is the source
 *******************************************************************************/
 extern GroupItem compileStored(GroupItem rule)
 {
