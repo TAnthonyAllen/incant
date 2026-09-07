@@ -416,7 +416,11 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	strap = grok->addString("InitiatE");
 	strap->setRuleStuff();
 	item = strap->addAttribute(grok->getMember("RunRulE"));
-	::modify(item,"+@");
+	// bare + only. NOT @: nothing reads InitiatE's product -- RunRulE consumes it
+	// before it returns -- so there is no label to promote, and @ paired with a
+	// repetition is the shape that took Attributes to 49 green. NOT `+-` either:
+	// measured 2026-09-07 at 10 green, so the noLabel dash is load-bearing here
+	::modify(item,"+");
 	item = grok->getMember("InitiatE");
 	item = 0;
 	/*************************************************************************
