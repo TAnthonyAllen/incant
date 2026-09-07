@@ -1184,6 +1184,14 @@ if [ -f genLadder/rung7.target ]; then
 fi
 
 grep -v "^getRStuff" "$T/cen" | sed -n '/^PLAN /,$p' | grep -vE "^Search list:|^stop:|^$" > "$T/cenp"
+#  ⚠ RE-PINNED 2026-09-07 and the sentence is the ruling: NEWGROUP NO LONGER
+#  CARRIES isGROUP. GroupMain.twk:353 adds TraiT as a term with `@` instead of
+#  embedding it, so genParse stops refusing NewGroup and PLANS it -- the row goes
+#  from `REFUSE rule NewGroup -- rule-level data isGROUP` to a real `SEQ NewGroup
+#  / CALL TraiT`. The second hunk is DefinE's blocker moving NewGroup -> Attributes,
+#  which is H9's corollary and not a regression: a refusal census names the FIRST
+#  blocker, so fixing one reveals the next. Two hunks, both explained; anything
+#  else in this diff would have been a finding.
 diffcheck "census.target" genLadder/census.target "$T/cenp"
 
 #  parseClass -- WHICH setParse ARM CLAIMS EACH FIELD, over the whole grammar.
@@ -2413,7 +2421,12 @@ bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
 #  three. First stroke of this ruling in C++ rather than the grammar; the inert
 #  grammar mirror at incant/grammar:68 was updated in the same commit so the file
 #  stops describing a shape the bootstrap no longer builds.
-diffcheck "genParse odometer (23 green / 41 red of 64 -- RED BY DESIGN, pinned; ratchet monotone)" \
+#  ⚠ RE-PINNED 23/41 -> 24/40, 2026-09-07, same stroke and same sentence as the
+#  census.target re-pin above: NewGroup loses its group at GroupMain.twk:353.
+#  Green 23 -> 24, red 41 -> 40, POPULATION UNMOVED AT 64. DefinE stays red with a
+#  NEW REASON (term NewGroup -> term Attributes), which is the blocker behind the
+#  one just fixed.
+diffcheck "genParse odometer (24 green / 40 red of 64 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
 #  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------

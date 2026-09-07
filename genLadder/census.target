@@ -149,10 +149,13 @@ PLAN TraiTdata
 PLAN Attributes
   REFUSE rule Attributes -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
 PLAN NewGroup
-  REFUSE rule NewGroup -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  SEQ NewGroup
+    label=NewGroup
+    CALL TraiT
+      at=1
 PLAN DefinE
-  REFUSE NewGroup -- inline group / structural data isGROUP (named future kind)
-  REFUSE rule DefinE -- term NewGroup unclassified
+  REFUSE Attributes -- inline group / structural data isGROUP (named future kind)
+  REFUSE rule DefinE -- term Attributes unclassified
 PLAN debug
   plan: REFUSING debug -- not a rule; locate finds a non-rule in registry Keywords
 PLAN DEBUG

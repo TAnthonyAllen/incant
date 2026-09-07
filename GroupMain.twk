@@ -350,7 +350,8 @@ GroupRules  ruler = groupRules;
     method          = aCTionNewGroup;
     immediateACTION = true;
     setRuleStuff();
-    strap.embedRule(grok/TraiT);
+    item            = strap +% grok/TraiT;
+    modify(item,"@");
 
     strap           = grok += "Attributes";
     setRuleStuff();
