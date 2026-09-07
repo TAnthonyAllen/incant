@@ -432,9 +432,8 @@ GroupRules  ruler = groupRules;
 
     strap           = grok += "InitiatE";
     setRuleStuff();
-    strap.embedRule(grok/RunRulE);
-    item            = gGroup;
-    modify(item,"+");
+    item            = strap +% grok/RunRulE;
+    modify(item,"+@");
     item            = grok/InitiatE;
     item            = 0;
 

@@ -414,9 +414,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::modify(item,"-?");
 	strap = grok->addString("InitiatE");
 	strap->setRuleStuff();
-	strap->embedRule(grok->getMember("RunRulE"));
-	item = strap->groupBody->gGroup;
-	::modify(item,"+");
+	item = strap->addAttribute(grok->getMember("RunRulE"));
+	::modify(item,"+@");
 	item = grok->getMember("InitiatE");
 	item = 0;
 	/*************************************************************************

@@ -65,7 +65,7 @@ NewGroup            TraiT@;
 DefinE              NewGroup Attributes? MemberS endDefine-=[;>];
 define              DEFINing-^ definitions=DefinE+ DEFINing- ';'-;
 RunRulE             NamE InvokE? ';'-?;
-InitiatE=RunRulE+;
+InitiatE RunRulE+@;
 
     DEFINing is a command that sets a defining flag
     The Grokking registry contains the incant grammar. The incant grammar rules

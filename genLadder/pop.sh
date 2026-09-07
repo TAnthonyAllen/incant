@@ -2405,7 +2405,15 @@ bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
 #  before and after and red both times; only its reason moved. H9's corollary --
 #  a refusal census reports the FIRST blocker, never the blocker set -- so a rule
 #  that stays red after its blocker is fixed has simply revealed the next one.
-diffcheck "genParse odometer (22 green / 42 red of 64 -- RED BY DESIGN, pinned; ratchet monotone)" \
+#  ⚠ RE-PINNED 22/42 -> 23/41, 2026-09-07, and the sentence is the ruling reaching
+#  the BOOTSTRAP: InitiatE no longer carries isGROUP. GroupMain.twk:435 stopped
+#  embedding RunRulE as a group and adds it as a term with `+@` instead. Green
+#  22 -> 23, red 42 -> 41, POPULATION UNMOVED AT 64, and InitiatE's row is the only
+#  one that moved -- no other rule was blocked on it, unlike ANYtoken which carried
+#  three. First stroke of this ruling in C++ rather than the grammar; the inert
+#  grammar mirror at incant/grammar:68 was updated in the same commit so the file
+#  stops describing a shape the bootstrap no longer builds.
+diffcheck "genParse odometer (23 green / 41 red of 64 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
 #  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------
