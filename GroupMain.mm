@@ -416,10 +416,13 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	strap = grok->addString("InitiatE");
 	strap->setRuleStuff();
 	item = strap->addAttribute(grok->getMember("RunRulE"));
-	// bare + only. NOT @: nothing reads InitiatE's product -- RunRulE consumes it
-	// before it returns -- so there is no label to promote, and @ paired with a
-	// repetition is the shape that took Attributes to 49 green. NOT `+-` either:
-	// measured 2026-09-07 at 10 green, so the noLabel dash is load-bearing here
+	// bare + only, and BOTH omissions are deliberate.
+	// NOT @: nothing reads InitiatE's own product -- RunRulE consumes it before it
+	// returns -- so there is no label to promote, and @ on a REPEATED term is the
+	// shape that took Attributes to 49 green.
+	// NOT -: aCTionRunRulE reaches its rule by `input[1]`, a POSITIONAL read, and a
+	// noLabel term never attaches into that list -- so the dash makes rule null and
+	// every definition stops running. Measured 2026-09-07 at 10 green.
 	::modify(item,"+");
 	item = grok->getMember("InitiatE");
 	item = 0;
