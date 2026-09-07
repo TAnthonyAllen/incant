@@ -2376,7 +2376,20 @@ bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
 #  one rule that was added. A new rule arriving un-emittable is the expected
 #  state for this odometer, not a regression: nothing has taught genParse about
 #  IterSource and nothing claimed to.
-diffcheck "genParse odometer (18 green / 46 red of 64 -- RED BY DESIGN, pinned; ratchet monotone)" \
+#
+#  ⚠ RE-PINNED 18/46 -> 19/45, 2026-09-07, ATCH, and the sentence is the ruling:
+#  START NO LONGER CARRIES isGROUP; THE §4.1 RULE-AS-DATA REFUSAL ON IT IS
+#  REMOVED AT THE GRAMMAR, NOT THE GENERATOR. `Start=StatemenT+` became
+#  `Start StatemenT-+`, so the terms live in the list like every other rule's
+#  and there is no embedded group left to refuse. THIS RE-PIN MOVES THE RATCHET
+#  THE OTHER WAY -- it is the first one that is an IMPROVEMENT rather than a
+#  removal or an addition, and the arithmetic is the check: green 18 -> 19, red
+#  46 -> 45, POPULATION UNMOVED AT 64. One rule crossed from red to green and
+#  none entered or left. Green rising while the population held is what makes
+#  this a rule becoming emittable rather than a rule disappearing, which is the
+#  shape the 09-01 tokenize re-pin had; any other split would have been a
+#  finding. genParse itself was not touched.
+diffcheck "genParse odometer (19 green / 45 red of 64 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
 #  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------

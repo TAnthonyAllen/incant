@@ -181,7 +181,7 @@ define
         WardeD;
         Iterate     iterate- ANYtoken attributes? members? on- IterSource defer;
         Xpress;
-    Start=StatemenT+;;
+    Start StatemenT-+;;
     /*************************************************************************
         Start is the incant entry point.
         Note its ending:    first ; ends Start second ; ends define command
