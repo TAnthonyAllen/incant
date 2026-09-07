@@ -687,3 +687,33 @@ compiles and the fleet still passes.
 **The row is earned.** The check is one loop over `grep -o 'File\.method\.slug'` against
 `^ *slug=(` in `incant/designDocs`, it ran green at **26/26** at the end of this sweep, and it
 would have gone red on the day those two were minted.
+
+---
+
+## 2026-09-07 — the star/dot and `@` session
+
+**Entries written: 2.** `ruleActions.aCTionTokenXP.starDotRotation` and
+`Instruct.opGet.nullTarget`, both minted with their inline claim line at the site.
+
+**Lookups made: 0, and the zero is reported rather than rounded up.** No pointer was
+followed to read an argument this session. What *did* happen twice is a different motion
+worth separating from a lookup: reading `incant/designDocs` to find the right insertion
+point and the surrounding convention before writing a new entry. That is authoring
+overhead, not comprehension, and counting it as a lookup would make the trial's own
+instrument say the pointer is being used when it is not.
+
+⚠ **A THIRD MOTION APPEARED AND IT IS THE ONE THE TALLY DOES NOT MODEL: comments were
+read as EVIDENCE, repeatedly, and none of them were DesignDocs entries.** The session's
+mechanisms came out of `GroupItem.twk`'s `embedRule` header ("the sole writer of
+isEmbedded"), `attachLabel`'s isTarget block, `docs/fixIts.md`'s borrower census, and
+`aCTionRunRulE`'s body. Those are long comments and prose sitting *at their sites* or in
+`docs/`, and they answered questions the code alone could not. The trial asks whether a
+pointer gets followed; it does not ask whether the argument would have been found at all
+had it been moved. On this session's evidence the in-place long comment is still doing
+the load-bearing work.
+
+**One entry earned its keep the same day it was written.** `starDotRotation` records that
+the subscript road *looked* correct and was not — the star already held the bare left
+operand, which is what the law wants, while the subscript was being discarded. That is
+exactly the claim a future reader would re-derive the hard way, and it is too long for the
+inline line.

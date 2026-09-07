@@ -1,3 +1,151 @@
+# ⚠⚠⚠ SEALED 2026-09-07 — THE STAR BINDS TIGHTER THAN A POSTFIX, AND `@` TOOK THE
+# isGROUP CENSUS FROM SIX TO THREE. SEVEN COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-07 13:09 and
+#   `git log -1 --date=iso` stamps 2026-09-07 12:55. They agree.
+#
+#   ## THE ONE-LINE STATE: **`*a.b` means `(*a).b` and `*a[k]` means `(*a)[k]`;
+#   Start, ANYtoken, InitiatE and NewGroup no longer carry isGROUP at declaration;
+#   the odometer went 18/46 → 24/40 with the population never moving off 64.**
+#   Fleet **218 green / 49 red**, canary **352** = 316 + 21 + 15, odometer **24
+#   green / 40 red of 64**, frontier **exit 0, station 3**, ddPop 5, decodePop 14,
+#   formsPop 14, countPop **0-of-44** (population 40 → 44 as rules became
+#   plannable), alphaLint 8 files / 4 out-of-order / 0 broken units. Both repos
+#   **0 dirty, 0 unpushed**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE DECLARATION AND THE PARSE-TIME NODE ARE DIFFERENT OBJECTS. This is the
+#   session's load-bearing fact and it explains why NO ACTION WAS EDITED.** genParse
+#   reads a rule's DECLARATION; a rule action reads the node the PARSE built. Moving
+#   a declaration out of isGROUP satisfies the ruling and changes nothing the action
+#   sees. Measured on ANYtoken: instrumenting `aCTionANYtoken`'s two arms across five
+#   fixtures gave **418 calls, group arm every time, else arm never — identical
+#   before and after**. `aCTionNewGroup` reads `group` and was likewise untouched.
+#   The charter predicted "this should be subtraction"; there was nothing to subtract.
+#
+#   **b. `@` ALREADY MEANT WHAT THE RULING WANTED.** `modify` maps `'@'` to
+#   `isTarget` (`GroupActions.rtn:456`), and `attachLabel`'s arm
+#   (`GroupItem.twk:1338`) is `pStuff.label = lab; lab.tag = pStuff.ruleName;` —
+#   literally "this term wears my label". Nothing was added to the modifier
+#   machinery. ⚠ **And the spelling is a SUFFIX**: `ANYtoken NamE@`, not `@NamE`,
+#   which produces no rule at all. `TraiT NamE Modifier*` puts modifiers after the
+#   name and `NewGroup TraiT@` was the tree's existing customer.
+#
+#   **c. ⚠ `@` IS INCOMPATIBLE WITH REPETITION, AND THAT IS THE SESSION'S SHARPEST
+#   FINDING.** `@` promotes ONE term to be the rule's label; `+` says there are many.
+#   `+@` asks for N nodes in one label slot. Attributes is the exhibit: the change
+#   took the fleet to **49 green**, and the failing build names its own victim —
+#   `nextGroup: ERROR immediateAction does not contain a list`, because
+#   `aCTionDefinE`'s `while item = Attributes.next(item)` (`ruleActions.rtn:290`)
+#   then walks the promoted TraiT's own sub-terms instead of a list of TraiTs.
+#   NewGroup is clean for the same reason inverted: `docs/fixIts.md` says it "wants
+#   exactly one trait", so promotion is right there.
+#
+#   **d. TWO ROADS, AND ONLY THE C++ ONE IS SAFE FOR A REGISTERED TERM.** `Looper
+#   ANYtoken@` on the GRAMMAR road takes ANYtoken **out of Grokking** (66 members →
+#   65) and drops the population 64 → 63. The C++ `+%` road does not: it copies
+#   first (`addGroup` copies a parented node), so InitiatE and NewGroup were clean.
+#   ⚠ **An earlier explanation — "unsafe where the term is a registered rule" — is
+#   WITHDRAWN, measured false**: RunRulE IS a member; the reading that said otherwise
+#   used `grep '^MP RunRulE$'` against a line with a trailing space. Bear-trap #47's
+#   anchored-regex family, caught by the count disagreeing.
+#
+#   **e. `embedRule` IS THE SOLE WRITER OF `isEmbedded`** (`GroupItem.twk:1975`, its
+#   own header says so) and mints "the one legitimate copy". `+%` copies too but
+#   stamps `isAttribute` and raises `hasAttributes`/`hasTraits`. Measured shapes:
+#   the embedRule wrapper reads isAttr **0**, parent **TraiT**, in the GROUP slot;
+#   the `+%` term reads isAttr **1**, parent **NewGroup**, in the LIST. **Neither is
+#   shared**, so "the stamp poisons a shared object" was falsified before any change.
+#
+#   ## ⚠ THE NO-BUYS, NAMED, ALL REVERTED TO CLEAN
+#   - **Looper** — grammar road, consumes ANYtoken. Tony's, with `aCTionFOR`.
+#   - **Attributes** — 218 → 49. First attempt was CONFOUNDED (C++ and mirror changed
+#     together); the re-run with the mirror untouched still read 49, and that second
+#     run is the only reason this is a finding rather than a guess.
+#   - **ShortcuT** — **CLOSED, the flag is correct.** Its isGROUP is the ordinary
+#     consequence of a grammar-level `X=data+`: drop the `+` and datA goes 6 → 3. The
+#     premise dissolved on measurement — its four "isSET siblings" (`nameSet`,
+#     `counter`, `Modifier`, `numberSet`) are all **GroupMain-built inert mirrors**
+#     (rename control: they survive), and ShortcuT has **zero** GroupMain hits. The
+#     comparison was a grammar-built rule against four C++-built ones.
+#
+#   ## ⚠ THREE THINGS I GOT WRONG AND CORRECTED IN THE OPEN
+#   - **The Looper mechanism** (above), withdrawn on one grep.
+#   - **`+-` on InitiatE**, proposed and measured at **10 green**. The dash is
+#     load-bearing: `aCTionRunRulE` reads `rule = input[1]`, a POSITIONAL subscript,
+#     and a noLabel term never attaches into that list. ⚠ **It inverts the premise
+#     that produced the proposal**: "nothing reads InitiatE's product" is TRUE and
+#     licensed dropping `@`, but the label is read one level down, by the TERM's
+#     action, not by any consumer of the rule. **Two different questions: what reads
+#     the YIELD, what reads the TERM'S LABEL.** Landed spelling is bare `+`.
+#   - **A vacuous census** — the first isGROUP census read 0 and its pre-registered
+#     control (`InitiatE must appear`) voided it. The `argument.` accessor spelling;
+#     the rewrite used `odoPopulation`'s bare-accessor idiom.
+#
+#   ## ⚠ INSTRUMENT FAILURES, MINE, WORTH THE LINE
+#   - **A truncated capture read as data.** parser's trace was 264 lines ending
+#     mid-word at `Gen`; the alarm killed it with stdout buffered while `PARSER
+#     SENTINEL` arrived on stderr. Every count off it was discarded. Complete run: 270.
+#   - **`stop()` DOES NOT STOP** — it printed its sentinel and fell through into
+#     `evictWalk`. Second sighting; the frontier note had it first. On Tony's docket.
+#   - **A greedy `sed 's/.*for //'`** collapsed `Generating parse code for for` to an
+#     empty string and manufactured BOTH a missing `for` and a phantom empty entry.
+#   - **One pop.sh read 217 where four consecutive runs read 218** — fired in the same
+#     shell command that WROTE `odometer.base`, so the file was likely mid-write. Did
+#     not reproduce; recorded rather than hidden.
+#
+#   ## THE PARSER READING (generate-only, exit 0)
+#   Checks 1, 2 and 4 hold. **Check 1**: 96 generate lines / 89 distinct tags, and the
+#   three duplicate tags equal their DECLARATION-SITE counts exactly (96−89 = 7 =
+#   2+3+2) — distinct nodes sharing a name, not a rule generated twice. **Check 2**:
+#   empty. **Check 4**: Start's CodE reads back non-empty with `hasNewParsE`/`isCodeD`
+#   = 1, against a negative control (`TraiT`, unreached) reading tag echoes.
+#   **Check 3 is the one with content: 43 of 64 reached, 21 not** — 18 behind
+#   data-carrying holders (`definitions=DefinE+`, `InitiatE=RunRulE+`,
+#   `stuff=PrintXP+`) and 3 behind the `BrancheS` bin. `parseMethod` is NOT readable
+#   from incant; `hasNewParsE` was the proxy used.
+#
+#   ## ⚠ A RED ROW MOVED UNDERNEATH THE COUNT (H12)
+#   `fires=NEVER roster` reads **[NewGroup]**, pinned at `[ANYtoken NewGroup ShortcuT]`.
+#   ANYtoken LEFT it — no longer a parked action with no executor, which is
+#   `isGroupActorPoison`'s shape and what the change is for. Already red, so the fleet
+#   said 218 on both sides and hid it. **Re-pin to [NewGroup] with a sentence is on the
+#   docket.**
+#
+#   ## WHAT LANDED — SEVEN COMMITS
+#   `0cef7ed` star/dot rotation + `opGet` null guard + starT S5–S10 ·
+#   `dbeef7e` ATCH, Start loses its group · `c466620` `@` on ANYtoken (carried three) ·
+#   `d2029b3` `@` on InitiatE + Looper no-buy · `2ff7f10` `@` on NewGroup + Attributes
+#   no-buy · `06db2d5` Tony's working set · `a1db494`/`ecfa551` InitiatE's bare `+`
+#   and its mechanism.
+#
+#   ## ⚠ A STANDING RULE CHANGED — TONY, 2026-09-07
+#   **When POP is green, Clod commits the files involved INCLUDING Tony's, and says so
+#   in the message.** Replaces holding them out and reporting them as dirt. ⚠ **Its
+#   edge, recorded before it bites**: when Tony's uncommitted edit is CODE rather than
+#   a comment, a green POP certifies both bodies of work together and the message must
+#   name whose is whose — it happened once today, when `Generate.rtn`'s `setParse` edit
+#   sat in the baseline binary and cost the `fires=NEVER` row, needing a separate
+#   control build to attribute.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   Parser and `walkRules`; `ruleActions.rtn`'s comment pass (**not started** — he
+#   will note it in his offline status); Looper and `aCTionFOR`; frontier station 3's
+#   missing `*`; the **Attributes ruling** — change `attachLabel`, change
+#   `aCTionDefinE`'s walk, or declare `+@` an illegal spelling.
+#
+#   ## THE FRONTIER
+#   `incant/frontier` exit 0, **first failing station 3**. Not revised this session:
+#   station 3's `frLiveLen2 = frLive.listLengtH` needs the `*` that station 2 got, and
+#   that line is Tony's.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: namedReadTwoRoads, since 2026-09-05)`
+#   `namedReadTwoRoads` (OPEN) · `refusalNotTerminal` (wants a real driver or a strike) ·
+#   `artifactSkipByFlag` (RULED, behind the depth-class respell). Step one, or name
+#   which goes first.
+#
 # ⚠⚠⚠ SEALED 2026-09-06, SECOND SESSION — THE COMMENT SWEEP. TWO FILES, 132 ENTRIES,
 # CODE UNMOVED, AND THE ORPHAN MECHANISM CLOSED: INSERTION, NOT SORTING.
 # (The morning's seal, the frame defect, is immediately below and still stands.)
