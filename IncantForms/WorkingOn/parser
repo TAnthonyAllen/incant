@@ -15,7 +15,6 @@ define
         reset(codeBuffer);
         printTO(codeBuffer);
         print openBrace:;
-        $$argument;
         setParse(argument);
         if datA != 0;
             if listLengtH; print "rules should not have data and a list; one or the other":;
@@ -33,7 +32,7 @@ define
         print ";";
         @argument;
         print $"return runRuleAction(this);":;
-        print `closeBrace:;
+        print `closeBrace;
         clear(CodE);
         CodE = codeBuffer;
         codeCopy := copyOf(CodE);
@@ -49,10 +48,11 @@ define
         if length > 0;
             iterate grup on argument;
             while ++grup;
-                print "iterating on" taG:;
-                $$grup;
                 if noPrinT;     continue;
-                if binTypE;     continue;
+                if binTypE;
+                    generateParse(*grup);
+                    continue;
+                if hasNewParsE; continue;
                 if listLengtH;  walkRules(*grup);
                 else generateParse(*grup);
         };
@@ -109,7 +109,7 @@ define
         };
     ;
 
-walkRules(ANYorNum);
+walkRules(Start);
 stop();
 parser(Start);
 

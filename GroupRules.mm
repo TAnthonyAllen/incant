@@ -43,11 +43,8 @@ GroupItem 	*token = 0;
 
 /*******************************************************************************
 	The BlocK rule action.
-*******************************************************************************/
-/*******************************************************************************
-    A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not the keyword's tag,
-    and the substitution MUST re-stamp isBranch or every break and continue dies.
-    ruleActions.aCTionBlocK.bareReturnValue
+
+    // bareReturnValue A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not the keyword's tag, and the substitution MUST re-stamp isBranch or every break and continue dies. ruleActions.aCTionBlocK.bareReturnValue
 *******************************************************************************/
 extern "C" GroupItem *aCTionBlocK(GroupItem *input)
 {
@@ -7885,7 +7882,6 @@ GroupItem 	*product = 0;
 		{
 		 return jitEmitDot(argument, target, ruler->tempField); 
 		}
-	//if target.isGROUP target = target.group;  <- Need this line to unwrap because *field.whatever is read as *(field.whatever) not (*field).whatever
 	if ( !argument )
 		if ( ruler->lastREF )
 			{

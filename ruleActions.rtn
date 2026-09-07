@@ -14,11 +14,8 @@ GroupItem   token;
 
 /*******************************************************************************
 	The BlocK rule action.
-*******************************************************************************/
-/*******************************************************************************
-    A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not the keyword's tag,
-    and the substitution MUST re-stamp isBranch or every break and continue dies.
-    ruleActions.aCTionBlocK.bareReturnValue
+
+    // bareReturnValue A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not the keyword's tag, and the substitution MUST re-stamp isBranch or every break and continue dies. ruleActions.aCTionBlocK.bareReturnValue
 *******************************************************************************/
 extern GroupItem aCTionBlocK(GroupItem input)
 {

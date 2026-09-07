@@ -361,7 +361,6 @@ GroupItem   product;
         -% return jitEmitDot(argument, target, ruler->tempField); %-
     }
 use argument
-    //if target.isGROUP target = target.group;  <- Need this line to unwrap because *field.whatever is read as *(field.whatever) not (*field).whatever
     if !argument
         if lastREF {
             argument = target;
