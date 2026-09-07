@@ -877,9 +877,26 @@ if grep -q "START SENTINEL" "$T/star"; then
 else
     echo "  FAIL  starT sentinel MISSING"; fail=1
 fi
+#  ⚠ S5-S10 ADDED 2026-09-07 -- THE STAR/DOT PRECEDENCE ROTATION. `*a.b` now means
+#  `(*a).b` and `*a[k]` means `(*a)[k]`, rotated in aCTionTokenXP's postfix arms.
+#  S5 and S6 are S7's control pair: S5 reads the length off the target DIRECTLY (3)
+#  and S6 reads the holder's OWN list, which is empty -- so a rotation that did
+#  nothing cannot pass S7 by accident.
+#  ⚠⚠ S10 IS NOT DECORATION, IT IS THE ROW THAT MADE S9 MEAN ANYTHING. Before the
+#  subscript half of the rotation, `*a[k]` read a tag echo for a PRESENT key and
+#  for a MISSING one alike -- the subscript was being DROPPED, not applied to the
+#  dereferenced target. Pinning S9 alone would have gone green on that the moment
+#  it read BB, with nothing asserting the subscript had actually run. S9 and S10
+#  must disagree; if they ever agree again, the subscript is being discarded.
 for _arm in "starT S1  *x   one-deep   = stA" \
             "starT S3a **x  ONE-deep   = stD" \
-            "starT S4  *x   on a LEAF  = stF"; do
+            "starT S4  *x   on a LEAF  = stF" \
+            "starT S5  a.b     direct   = 3" \
+            "starT S6  a.b     holder   = stH" \
+            "starT S7  *a.b    holder   = 3" \
+            "starT S8  a[k]    holder   = stL" \
+            "starT S9  *a[k]   holder   = BB" \
+            "starT S10 *a[miss] holder   = stN"; do
     if grep -qF "$_arm" "$T/star"; then
         echo "  ok    ${_arm} -- PINNED BY VALUE"; green=$((green+1))
     else

@@ -361,6 +361,7 @@ GroupItem   product;
         -% return jitEmitDot(argument, target, ruler->tempField); %-
     }
 use argument
+    //if target.isGROUP target = target.group;  <- Need this line to unwrap because *field.whatever is read as *(field.whatever) not (*field).whatever
     if !argument
         if lastREF {
             argument = target;
@@ -401,6 +402,8 @@ use argument
                 case 34:    if target.isAttribute   product.count = 1;
                 case 35:    if target.isMember      product.count = 1;
                 case 36:    if target.rStuff && target.actionMethod  product.count = 1;
+                case 40:    if target.isCoded       product.count = 1;
+                case 41:    if target.hasNewParse   product.count = 1;
                 case 401:   if !target.nextInParent product = null;
                             else {
                                 product = target.nextInParent;
@@ -426,7 +429,6 @@ use argument
                 case 408:   if target.isAction    product.count = 1;
                 // READ half; the WRITE half is opSetFlag case 41 -- they ship
                 // together or the flag is unassertable   Instruct.opDot.case41hasNewParse
-                case 41:    if target.hasNewParse product.count = 1;
                 default:    product.text    = "access to " tag " not supported yet"; }
             if product && !product.parent   product.parent = target; }}
     return product;
@@ -498,6 +500,8 @@ extern GroupItem opGet(GroupItem argument,GroupItem target)
 {
 GroupItem   result;
 String      txt;
+    // null target is a lawful empty answer, as in opDot   Instruct.opGet.nullTarget
+    if !target  return null;
     if argument.isGROUP && argument.gText txt = argument.gText;
     else    txt = argument.text;
 use target

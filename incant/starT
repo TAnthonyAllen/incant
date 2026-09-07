@@ -30,7 +30,26 @@ search reset stack Grokking UnitTests Utilities list;
 
     ⚠ S3a WILL READ THE LEAF AT THE FLIP AND WILL BE RIGHT TO -- FOR THE WRONG
     REASON, because one star on a one-deep pointer reaches the leaf by itself.
-    Do not read a green S3a as evidence that the second star ran.  */
+    Do not read a green S3a as evidence that the second star ran.
+
+    ⚠⚠ S5-S10 ARE A DIFFERENT LAW AND WERE ADDED 2026-09-07: THE STAR BINDS
+    TIGHTER THAN A POSTFIX. `*a.b` means `(*a).b` and `*a[k]` means `(*a)[k]`.
+    Rows S1-S4 above are about HOW MANY levels one star reads; these are about
+    WHICH OPERAND it reads. They can hold or fail independently.
+
+    ⚠ EACH ROW HERE HAS A SIBLING AND NEITHER HALF IS WORTH ANYTHING ALONE.
+    S5 reads the length straight off the target and S6 reads the holder's own
+    empty list, so S7 cannot pass by accident on a rotation that did nothing.
+    S8 does the same for S9.
+
+    ⚠⚠ AND S10 IS THE ROW THAT MADE S9 MEAN SOMETHING, which is why it exists at
+    all. When this stroke started, `*a[k]` looked like it already obeyed the law:
+    the star action receives the BARE left operand for a subscript, exactly as
+    the law wants. It was measured anyway, and a present key and a MISSING key
+    read identically -- because the subscript was being DISCARDED, not applied to
+    the dereferenced target. `*a[k]` was evaluating as plain `*a`. S9 pinned
+    alone would have gone green the day it read BB while asserting nothing about
+    whether the subscript ran. S9 and S10 must DISAGREE.  */
 
 register(StarT);
 define
@@ -38,7 +57,10 @@ define
     st1;
     st2;
     st3;
+    stList aa="AA" bb="BB" cc="CC";
+    stHold;
     stA; stB; stC; stD; stE; stF;
+    stG; stH; stI; stL; stM; stN;
     stRun code={
         st1 := stLeaf;
         st2 := st1;
@@ -57,13 +79,65 @@ define
         print "starT S3a **x  ONE-deep   =" stD "  want stD -- MUST refuse in BOTH arms":;
         print "starT S3b ***x three-deep =" stE "  want stE flip-OFF":;
         print "starT S4  *x   on a LEAF  =" stF "  want stF -- MUST refuse, ANTI-VACUITY, BOTH arms":;
+
+        stHold := stList;
+        stG = stList.listLengtH;
+        stH = stHold.listLengtH;
+        stI = *stHold.listLengtH;
+        stL = stHold["bb"];
+        stM = *stHold["bb"];
+        stN = *stHold["zzzNotThere"];
+
+        print "starT S5  a.b     direct   =" stG "  want 3 -- POSITIVE CONTROL, no holder, no star":;
+        print "starT S6  a.b     holder   =" stH "  want stH -- ANTI-VACUITY SIBLING, the holder's OWN list is empty":;
+        print "starT S7  *a.b    holder   =" stI "  want 3 -- LAW 3 ON THE DOT: *a.b is (*a).b":;
+        print "starT S8  a[k]    holder   =" stL "  want stL -- ANTI-VACUITY SIBLING, the holder has no member bb":;
+        print "starT S9  *a[k]   holder   =" stM "  want BB -- LAW 3 ON THE SUBSCRIPT: *a[k] is (*a)[k]":;
+        print "starT S10 *a[miss] holder   =" stN "  want stN -- S9's DISCRIMINATOR: a MISSING key must not read like a present one":;
         };
     ;
 stRun();
 print "START SENTINEL -- reached the foot":;
 stop();
 
-⚠⚠ EVERY ROW HERE IS FLIP-GATED, AND THE FIXTURE IS PINNED AT ITS FLIP-OFF
+⚠⚠ THE S5-S10 MEASUREMENT, 2026-09-07, AND ITS NEGATIVE CONTROL.
+
+The rotation lives in aCTionTokenXP's two postfix arms and nowhere else -- no
+grammar change, and opDot was not touched. What the star action RECEIVES was
+measured before anything was written, by instrumenting the action itself:
+
+    *a.b     handleUnary  operand = xp        <- the WHOLE (. a b) node
+    *a[k]    handleUnary  operand = a         <- the bare left operand
+
+So the two postfixes arrived in OPPOSITE shapes, and only the dot was obviously
+wrong. The subscript's shape looked right and its BEHAVIOUR was not: the star
+node was installed as the token's group while the subscript triple was left on
+the xpress attributes with no method, so nothing ever evaluated it. Both arms
+now rotate; the subscript arm is gated on `=[` so an INVOCATION `*fn(x)` is
+left alone, which is a different question nobody has asked yet.
+
+NEGATIVE CONTROL, three builds, run on the single fixture under an alarm rather
+than on the ladder (H5's other half). It is recorded as three points because the
+two halves of the rotation landed separately and disagreed about which was broken:
+
+    build                     S5-S10                       frontier station 2
+    no rotation               fixture CRASHES, exit 139    FAIL, tag echoes
+                              in opDeref, reached from a
+                              nested runOP -- the rows are
+                              not merely wrong, they are
+                              unrunnable
+    dot rotation only         S5-S8 as pinned;  S9 and     PASS, 3 / 3
+                              S10 BOTH read a tag echo --
+                              a present key and a missing
+                              key agreeing, which is the
+                              dropped subscript
+    both halves (shipped)     all six as pinned            PASS, 3 / 3
+
+⚠ THE MIDDLE ROW IS THE ONE WORTH KEEPING. It is green on everything the stroke
+originally set out to certify and still silently wrong about the subscript, and
+nothing but S10 could tell the difference.
+
+⚠⚠ EVERY ROW S1-S4 IS FLIP-GATED, AND THE FIXTURE IS PINNED AT ITS FLIP-OFF
 VALUES BECAUSE THAT IS THE FLEET'S BASELINE.
 
 ⚠ HISTORICAL, AND THE SWITCH IS GONE (2026-09-05). With gNoUnwrap OFF every row refused, and the reason was not the star: the

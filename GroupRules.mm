@@ -1304,6 +1304,25 @@ GroupItem 	*ANYtoken = xpress->get("ANYorNum");
 				arg = arg->getGroup();
 			if ( UnaryOPS )
 				{
+				/*  THE STAR/DOT ROTATION. `*a.b` must mean `(*a).b`, so the star
+				is applied to the dot's LEFT operand and the dot re-applied to
+				the result -- not wrapped around the finished dot node.
+				ruleActions.aCTionTokenXP.starDotRotation  */
+				if ( ::compare(UnaryOPS->groupBody->tag,"*") == 0 )
+					if ( ::compare(op->groupBody->tag,".") == 0 )
+						{
+						GroupItem 	*starred = new GroupItem("uxp");
+						starred->addAttribute(ruler->opFields->get("deref"));
+						starred->addAttribute(ANYtoken);
+						starred->setMethod(::runOP);
+						starred->groupBody->flags.invoke = 1;
+						xpress->addAttribute(op);
+						xpress->addAttribute(starred);
+						xpress->addAttribute(arg);
+						xpress->groupBody->flags.invoke = 1;
+						xpress->setMethod(::runOP);
+						goto endToken;
+						}
 				// this happens with two unary ops like: !field.someThing
 				GroupItem *xp = new GroupItem("xp");
 				xp->addAttribute(op);
@@ -1333,6 +1352,24 @@ GroupItem 	*ANYtoken = xpress->get("ANYorNum");
 				arg = InvokeArg->getGroup();
 			if ( !arg )
 				arg = InvokeArg;
+			/*  THE STAR ROTATION, SUBSCRIPT HALF -- gated on `=[` so an INVOCATION
+			`*fn(x)` is left alone   ruleActions.aCTionTokenXP.starDotRotation  */
+			if ( UnaryOPS )
+				if ( ::compare(UnaryOPS->groupBody->tag,"*") == 0 )
+					if ( ::compare(op->groupBody->tag,"=[") == 0 )
+						{
+						GroupItem 	*starred = new GroupItem("uxp");
+						starred->addAttribute(ruler->opFields->get("deref"));
+						starred->addAttribute(ANYtoken);
+						starred->setMethod(::runOP);
+						starred->groupBody->flags.invoke = 1;
+						xpress->addAttribute(op);
+						xpress->addAttribute(starred);
+						xpress->addAttribute(arg);
+						xpress->groupBody->flags.invoke = 1;
+						xpress->setMethod(::runOP);
+						goto endToken;
+						}
 			xpress->addAttribute(op);
 			xpress->addAttribute(ANYtoken);
 			xpress->addAttribute(arg);
@@ -7848,6 +7885,7 @@ GroupItem 	*product = 0;
 		{
 		 return jitEmitDot(argument, target, ruler->tempField); 
 		}
+	//if target.isGROUP target = target.group;  <- Need this line to unwrap because *field.whatever is read as *(field.whatever) not (*field).whatever
 	if ( !argument )
 		if ( ruler->lastREF )
 			{
@@ -7962,6 +8000,14 @@ GroupItem 	*product = 0;
 					if ( target->getRStuff() && target->getRStuff()->actionMethod )
 						product->setCount(1);
 					break;
+				case 40:
+					if ( isCoded(target->groupBody->flags.actionType) )
+						product->setCount(1);
+					break;
+				case 41:
+					if ( target->groupBody->flags.hasNewParse )
+						product->setCount(1);
+					break;
 				case 401:
 					if ( !target->nextInParent )
 						product = 0;
@@ -8015,10 +8061,6 @@ GroupItem 	*product = 0;
 						product->setCount(1);
 					// READ half; the WRITE half is opSetFlag case 41 -- they ship
 					// together or the flag is unassertable   Instruct.opDot.case41hasNewParse
-					break;
-				case 41:
-					if ( target->groupBody->flags.hasNewParse )
-						product->setCount(1);
 					break;
 				default:
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));
@@ -8150,6 +8192,9 @@ extern "C" GroupItem *opGet(GroupItem *argument, GroupItem *target)
 {
 GroupItem 	*result = 0;
 char 		*txt = 0;
+	// null target is a lawful empty answer, as in opDot   Instruct.opGet.nullTarget
+	if ( !target )
+		return 0;
 	if ( isGROUP(argument->groupBody->flags.data) && argument->groupBody->gText )
 		txt = argument->groupBody->gText;
 	else	txt = argument->getText();
@@ -11760,8 +11805,6 @@ int 		offset = markOffset->getCount();
 extern "C" GroupItem *setParse(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
-	if ( isREGISTRY(field->groupBody->flags.binType) )
-		return 0;
 	if ( !ruleStuff )
 		return ::refuse(field,"setParse: the field passed in has no rStuff");
 	if ( !ruleStuff->parseMethod )
@@ -11822,6 +11865,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			builtinActoR->groupBody->flags.noPrint = 1;
 			builtinActoR->setMethod(ruleStuff->actionMethod);
 			}
+		field->groupBody->flags.hasNewParse = 1;
 		field->updateContentFlags();
 		}
 	return 0;

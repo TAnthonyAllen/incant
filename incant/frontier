@@ -49,15 +49,15 @@ define
         StorE = frBuf;
         };
     frHang code={
-        frCopy <- copyOf(StorE);
+        frCopy := copyOf(StorE);
         frCopy :. noPrinT;
-        argument +% frCopy;
+        argument +% *frCopy;
         };
 
     frStation1 code={
         fixFrontier1Here = 0;
         frRan = frRan + 1;
-        cerr "ANCHOR frontier station 1 -- generate one body":;
+        cerr :"ANCHOR frontier station 1 -- generate one body":;
         frBodyMarker();
         frOk = 0;
         if StorE.datA;      frOk = 1;
@@ -68,14 +68,20 @@ define
             cerr "STATION 1 generate body: FAIL -- expected non-empty body text, read empty":;
             frDead = 1;
         };
+    frTest code={
+        dumpField(*frTwin);
+        dumpField(*frLive);
+        cerr "*frTwin and *frLive are distinct copies of the same rule with distinct lists": "we just added StorE to a working rule to make sure frStation4 no longer parses??? Why?"::;
+        };
     frStation2 code={
         fixFrontier2Here = 0;
         frRan = frRan + 1;
         cerr "ANCHOR frontier station 2 -- mint the twin, BEFORE anything is hung on the live rule":;
-        frTwin <- copyOf(Grokking["Braced"]);
-        frLive <- Grokking["Braced"];
-        frLiveLen = frLive.listLengtH;
-        frTwinLen = frTwin.listLengtH;
+        frTwin := copyOf(Grokking["Braced"]);
+        frLive := Grokking["Braced"];
+        // the star reaches the HELD rule; the rotation makes `*a.b` mean `(*a).b`
+        frLiveLen = *frLive.listLengtH;
+        frTwinLen = *frTwin.listLengtH;
         cerr "STATION 2 live list length " frLiveLen " twin list length " frTwinLen:;
         frOk = 0;
         if frTwinLen == frLiveLen;      frOk = 1;
@@ -88,11 +94,12 @@ define
     frStation3 code={
         fixFrontier3Here = 0;
         frRan = frRan + 1;
-        cerr "ANCHOR frontier station 3 -- hang the body on the LIVE rule and store it":;
+        cerr :"ANCHOR frontier station 3 -- hang the body on the LIVE rule and store it":;
         frHang(Grokking["Braced"]);
         storeBody(Grokking["Braced"]);
-        frLive <- Grokking["Braced"];
+        frLive := Grokking["Braced"];
         frLiveLen2 = frLive.listLengtH;
+        frTest();
         cerr "STATION 3 live list length was " frLiveLen " now " frLiveLen2:;
         frOk = 0;
         if frLiveLen2 > frLiveLen;      frOk = 1;
@@ -105,9 +112,11 @@ define
     frStation4 code={
         fixFrontier4Here = 0;
         frRan = frRan + 1;
-        cerr "ANCHOR frontier station 4 -- install on the twin via activateBody, then READ IT BACK":;
+        cerr :"ANCHOR frontier station 4 -- install on the twin via activateBody, then READ IT BACK":;
         activateBody(frTwin);
-        frCode <- frTwin["CodE"];
+        // The following line will not compile because it invokes Braced which now is a bogus rule with a StorE (not quite a code attribute) in it
+        frCode := frTwin["CodE"];
+        $$frCode;
         frTwinLen2 = frTwin.listLengtH;
         cerr "STATION 4 twin list length was " frTwinLen " now " frTwinLen2:;
         frOk = 0;
@@ -125,7 +134,7 @@ define
     frStation5 code={
         fixFrontier5Here = 0;
         frRan = frRan + 1;
-        cerr "ANCHOR frontier station 5 -- compile the twin":;
+        cerr :"ANCHOR frontier station 5 -- compile the twin":;
         frLive <- frTwin;
         frTwinLen = frLive.listLengtH;
         compile(frTwin);
@@ -142,7 +151,7 @@ define
     frStation6 code={
         fixFrontier6Here = 0;
         frRan = frRan + 1;
-        cerr "ANCHOR frontier station 6 -- harvest the BlocK onto the original rule":;
+        cerr :"ANCHOR frontier station 6 -- harvest the BlocK onto the original rule":;
         frArt <- frTwin["BlocK"];
         frCod <- frTwin["CodE"];
         frLive <- Grokking["Braced"];
@@ -166,7 +175,7 @@ define
     frStation7 code={
         fixFrontier7Here = 0;
         frRan = frRan + 1;
-        cerr "ANCHOR frontier station 7 -- BIND the live rule's parse path to the artifact":;
+        cerr :"ANCHOR frontier station 7 -- BIND the live rule's parse path to the artifact":;
         setParse(Grokking["Braced"]);
         cerr "STATION 7 parseClassify follows; it must read  PC parseRule Braced":;
         parseClassify(Grokking["Braced"]);
@@ -182,7 +191,7 @@ define
     frStation8 code={
         fixFrontier8Here = 0;
         frRan = frRan + 1;
-        cerr "ANCHOR frontier station 8 -- discard the twin":;
+        cerr :"ANCHOR frontier station 8 -- discard the twin":;
         clear(frTwin);
         cerr "STATION 8 discard twin: PASS -- twin cleared; census follows, stray must read 0":;
         bodyCensus(frAny);
@@ -190,7 +199,7 @@ define
     frStation9 code={
         fixFrontier9Here = 0;
         frRan = frRan + 1;
-        cerr "ANCHOR frontier station 9 -- run the original; the witness is the verdict":;
+        cerr :"ANCHOR frontier station 9 -- run the original; the witness is the verdict":;
         cerr "STATION 9 expects the witness to read " frMark " if the commissioned artifact executed":;
         frBodyTrigger();
         frHang(Grokking["QuotE"]);
@@ -214,6 +223,8 @@ define
         frStation1();
         if frDead == 0;     frStation2();
         if frDead == 0;     frStation3();
+        // frStation4 will not parse because the Braced rule now has a StorE attribute that is not a rule and not noPrint
+        // also if a stop(); is added here it runs and then frRun continues. That should not happen stop() should exit(0);
         if frDead == 0;     frStation4();
         if frDead == 0;     frStation5();
         if frDead == 0;     frStation6();
@@ -236,6 +247,7 @@ define
         stop();
         };
     ;
+
 frRun();
 
 WHAT THIS FILE IS

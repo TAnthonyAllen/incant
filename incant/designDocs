@@ -902,6 +902,29 @@ define
                     41. Both halves land together on purpose: a flag a fixture can
                     set and cannot read is a gate nobody can assert, which is rule
                     H4's absence-versus-value in flag form.#);
+            opGet=(THE SUBSCRIPT OPERATOR, `a[k]`. Registered '=[' operateMethod=opGet.#):
+                nullTarget=(A NULL TARGET IS A LAWFUL EMPTY ANSWER, NOT A REFUSAL,
+                    and it is the sibling of the line opDot has carried all along --
+                    `if !target return 0;` in the groupFields branch.
+                    ⚠ IT BECAME REACHABLE ON 2026-09-07 and was a SEGFAULT until
+                    that day. Before the star/dot rotation `*a[k]` DISCARDED its
+                    subscript and evaluated as plain `*a`, so opGet was never handed
+                    the star's result. Once the rotation made `*a[k]` mean `(*a)[k]`,
+                    a star that yields null -- `*bag[key]` on a bag holding no group,
+                    which is pointerT's row X -- arrived here as a null target and
+                    `use target ... get(txt)` dereferenced it. Exit 139, crash frame
+                    0 in opGet's get, taking the whole of pointerT with it.
+                    ⚠ THE RULING IT FOLLOWS IS opDeref's, NOT A NEW ONE. The 2026-09-05
+                    STAR ruling says `*x` on a field holding no group yields null and
+                    does NOT refuse, because refusal is for CATEGORY errors, and that
+                    THE CONSUMER of the null is where the name belongs. Here the
+                    consumer's honest answer is the same one opDot gives: asking a
+                    nothing for its member `k` is a legitimate question with a
+                    legitimate empty answer. Refusing instead was considered and
+                    rejected -- a refusal is TERMINAL for the activation that raised
+                    it, so it would have truncated pointerT at row X and deleted rows
+                    F1 and F2 below it, which is a fixture reporting less rather than
+                    a language saying more.   Instruct.opGet.nullTarget#);
             opSetGroup=(THE := SET-GROUP OPERATOR.#):
                 oneSpelling=(ROUTED THROUGH setGroup, R2, Tony 2026-09-03. It wrote
                     gGroup, isGROUP and isInitialized by hand and was the LAST
@@ -4286,6 +4309,43 @@ define
                     wins) and generated a read of an unassigned pointer.
                     Copying the walk
                     means copying its declaration order.#);
+            aCTionTokenXP=(THE TokenXP RULE'S ACTION -- it returns a token or a
+                token expression, and it is where a prefix unary is paired with its
+                operand.#):
+                starDotRotation=(THE STAR BINDS TIGHTER THAN A POSTFIX, and this is
+                    where that is made true. `*a.b` means `(*a).b` and `*a[k]` means
+                    `(*a)[k]`. Landed 2026-09-07; no grammar change, and opDot was
+                    not touched.
+                    ⚠ THE TWO POSTFIXES ARRIVED HERE IN OPPOSITE SHAPES, which is
+                    why one rotation would not do and why the shape was MEASURED
+                    before anything was written. Instrumenting this action directly:
+                    `*a.b` reaches handleUnary with operand = the whole composite
+                    (. a b) node, because a dot InvokeArg is a UnaryXP and the
+                    two-unary arm wraps op, left and right into one `xp` first;
+                    `*a[k]` reaches handleUnary with operand = the bare left operand,
+                    because a Braced InvokeArg deposits its triple on xpress instead.
+                    ⚠⚠ AND THE SECOND SHAPE LOOKED CORRECT AND WAS NOT. The star
+                    already had the bare left operand, which is exactly what the law
+                    wants -- so the subscript road appeared to need no rotation at
+                    all. It was measured anyway. handleUnary ends `xpress.group = op;
+                    goto endToken`, which skips `if xpress.invoke xpress.method =
+                    runOP` -- so the subscript triple sat on xpress with no method
+                    and NOTHING EVER EVALUATED IT. `*a[k]` was evaluating as plain
+                    `*a`, silently, and a present key and a missing key read
+                    identically. That is starT's S10, and S9 alone could never have
+                    seen it.
+                    ⚠ THE SUBSCRIPT ARM IS GATED ON `=[`, NOT ON THE BRANCH. The same
+                    branch also serves INVOCATION, where op is falseResult, and
+                    `*fn(x)` almost certainly means `*(fn(x))` rather than star the
+                    function and then call it. That is a different question and
+                    nobody has asked it; the gate keeps it unasked rather than
+                    answering it by accident.
+                    ⚠ AND ONLY `*` ROTATES. The two-unary arm serves every unary,
+                    and C-163's census is explicit that `-` and `!` want the ACCESSOR
+                    RESULT and are already right -- `!a.b` is `!(a.b)`. `++` and `--`
+                    are the two whose dotted reading is arguably wrong the same way
+                    `*`'s was, and with 208 `++` sites that is Tony's ruling, not a
+                    side effect of this one.   ruleActions.aCTionTokenXP.starDotRotation#);
             appendPrintXP=(THE ONE PrintXP WALK, shared by all four print sinks.#):
                 onePrintXPWalk=(appendPrintXP -- THE ONE PrintXP WALK. Added 2026-08-01
                     (Tony's call) when

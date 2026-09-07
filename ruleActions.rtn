@@ -1062,6 +1062,23 @@ GroupItem   arg,
             if op.isGROUP   op = op.group;
             if arg.isGROUP  arg = arg.group;
             if UnaryOPS {
+                /*  THE STAR/DOT ROTATION. `*a.b` must mean `(*a).b`, so the star
+                    is applied to the dot's LEFT operand and the dot re-applied to
+                    the result -- not wrapped around the finished dot node.
+                    ruleActions.aCTionTokenXP.starDotRotation  */
+                if UnaryOPS.tag eq "*"
+                    if op.tag eq "." {
+                        GroupItem starred = new("uxp");
+                        starred +% opFields["deref"];
+                        starred +% ANYtoken;
+                        starred.method  = runOP;
+                        starred.invoke  = true;
+                        xpress  +% op;
+                        xpress  +% starred;
+                        xpress  +% arg;
+                        xpress.invoke   = true;
+                        xpress.method   = runOP;
+                        goto endToken; }
                 // this happens with two unary ops like: !field.someThing
                 GroupItem xp = new("xp");
                 xp  +% op;
@@ -1083,6 +1100,22 @@ GroupItem   arg,
                     if ANYtoken.groupBody == currentMETHOD.groupBody    currentMETHOD.recursive = true; }
             if InvokeArg.isGROUP arg = InvokeArg.group;
             if !arg arg = InvokeArg;
+            /*  THE STAR ROTATION, SUBSCRIPT HALF -- gated on `=[` so an INVOCATION
+                `*fn(x)` is left alone   ruleActions.aCTionTokenXP.starDotRotation  */
+            if UnaryOPS
+                if UnaryOPS.tag eq "*"
+                    if op.tag eq "=[" {
+                        GroupItem starred = new("uxp");
+                        starred +% opFields["deref"];
+                        starred +% ANYtoken;
+                        starred.method  = runOP;
+                        starred.invoke  = true;
+                        xpress  +% op;
+                        xpress  +% starred;
+                        xpress  +% arg;
+                        xpress.invoke   = true;
+                        xpress.method   = runOP;
+                        goto endToken; }
             xpress  +% op;
             xpress  +% ANYtoken;
             xpress  +% arg; }
