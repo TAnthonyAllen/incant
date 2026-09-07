@@ -113,7 +113,7 @@ define
     HeX             zero-="0" x-=[xX] value-=[0-9a-fA-F]+;
     *************************************************************************/
     ShortcuT=[-+~`$_:,]+;
-    ANYtoken=NamE;
+    ANYtoken NamE@;
     ANYstring=[^ \n\r\t;]+;
     BlocK           leftCurly="{"- StatemenT+ rightCurly="}"- defer;
     PRINTing parseAction=processFlags guard='n';

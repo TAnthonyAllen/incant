@@ -2389,7 +2389,23 @@ bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
 #  this a rule becoming emittable rather than a rule disappearing, which is the
 #  shape the 09-01 tokenize re-pin had; any other split would have been a
 #  finding. genParse itself was not touched.
-diffcheck "genParse odometer (19 green / 45 red of 64 -- RED BY DESIGN, pinned; ratchet monotone)" \
+#  ⚠ RE-PINNED 19/45 -> 22/45 -> 22/42, 2026-09-07, and the sentence is the ruling
+#  applied to its KEYSTONE: ANYTOKEN NO LONGER CARRIES isGROUP. `ANYtoken=NamE`
+#  became `ANYtoken NamE@` -- the @ modifier, which already meant "this term wears
+#  my label" (attachLabel's isTarget arm sets pStuff.label = lab and
+#  lab.tag = pStuff.ruleName). No action changed; no C++ changed.
+#  ⚠⚠ THIS RE-PIN IS THE FIRST WHERE ONE RULE CARRIED THREE, and that is the whole
+#  reason the reason column is read and not just the verdicts. ANYtoken was the
+#  INLINE blocker for four other rules, so fixing one rule-level refusal cleared
+#  four rows: ANYtoken, IterSource and UnaryXP go GREEN, and Iterate stays RED
+#  with a NEW REASON -- `REFUSE attributes -- optional labelled literal` -- which
+#  is its next blocker, not a regression. Green 19 -> 22, red 45 -> 42, POPULATION
+#  UNMOVED AT 64: three crossed, none entered or left.
+#  ⚠ AND A VERDICT-ONLY DIFF WOULD HAVE MISREAD IT. Iterate's row is present
+#  before and after and red both times; only its reason moved. H9's corollary --
+#  a refusal census reports the FIRST blocker, never the blocker set -- so a rule
+#  that stays red after its blocker is fixed has simply revealed the next one.
+diffcheck "genParse odometer (22 green / 42 red of 64 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
 #  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------

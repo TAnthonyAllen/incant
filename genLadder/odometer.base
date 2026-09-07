@@ -1,7 +1,6 @@
   pop   64 rules qualify (live walk, four filters: not noPrint, not a bin, is a rule, actionType 0)
 
-  -- FRONTIER: 45 rules genParse cannot yet emit. Each is a row, not a total.
-     ANYtoken         REFUSE rule ANYtoken -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  -- FRONTIER: 42 rules genParse cannot yet emit. Each is a row, not a total.
      Any              REFUSE rule Any -- rule-level data isANY (§4.1 rule-as-data, rung 5)
      Attributes       REFUSE rule Attributes -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
      BasicElse        REFUSE followedBy -- inline group / structural data isSET (named future kind)
@@ -17,8 +16,7 @@
      FloaT            REFUSE point -- inline group / structural data isCHAR (named future kind)
      IF               REFUSE followedBy -- inline group / structural data isSET (named future kind)
      InitiatE         REFUSE rule InitiatE -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
-     IterSource       REFUSE ANYtoken -- inline group / structural data isGROUP (named future kind)
-     Iterate          REFUSE ANYtoken -- inline group / structural data isGROUP (named future kind)
+     Iterate          REFUSE attributes -- optional labelled literal (no census shape, not designed for)
      Limit            REFUSE min -- inline group / structural data isGROUP (named future kind)
      Looper           REFUSE rule Looper -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
      MemberS          REFUSE MEMBERs -- parseAction (tail position only, §2.8)
@@ -35,7 +33,6 @@
      StringXP         REFUSE stuff -- inline group / structural data isGROUP (named future kind)
      TraiT            REFUSE Modifier -- inline group / structural data isSET (named future kind)
      TraiTdata        REFUSE Modifier -- inline group / structural data isSET (named future kind)
-     UnaryXP          REFUSE ANYtoken -- inline group / structural data isGROUP (named future kind)
      WhilE            REFUSE followedBy -- inline group / structural data isSET (named future kind)
      followedBy       REFUSE rule followedBy -- rule-level data isSET (§4.1 rule-as-data, rung 5)
      leftBrace        REFUSE rule leftBrace -- rule-level literal but no rStuff, so LIT vs LITTO is undecidable
@@ -47,6 +44,6 @@
      rightCurly       REFUSE rule rightCurly -- rule-level literal but no rStuff, so LIT vs LITTO is undecidable
      rightParen       REFUSE rule rightParen -- rule-level literal but no rStuff, so LIT vs LITTO is undecidable
 
-  genParse count 19 green / 45 red of 64 attempted
+  genParse count 22 green / 42 red of 64 attempted
   ratchet  0 previously-green rules regressed (must be 0)
   ODOMETER SENTINEL -- 64 of 64 attempted, foot reached
