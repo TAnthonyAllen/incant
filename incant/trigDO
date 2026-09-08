@@ -1,0 +1,180 @@
+
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+register(Utilities);
+define
+    codeBuffer buffer;
+    openBrace="{";
+    closeBrace="}";
+    termCount;
+    parseCount;
+    generateParse code={
+        cout "Generating parse code for" taG:;
+        reset(codeBuffer);
+        printTO(codeBuffer);
+        print openBrace:;
+        setParse(argument);
+        if datA != 0;
+            if listLengtH; print "rules should not have data and a list; one or the other":;
+            printTO(0);
+            return;
+        if hasTraitS;       conjunct = "AND";
+        else                conjunct = "OR";
+        print `"if ";
+        iterate grup on argument;
+        while ++grup;
+            if noPrinT;     continue;
+            if notFirstTimeThru > 0;    print _conjunct;
+            ++notFirstTimeThru;
+            setParse(*grup);
+            print $taG "()";
+        print ";";
+        @argument;
+        print $"return runRuleAction(this);":;
+        print `closeBrace;
+        clear(CodE);
+        CodE = codeBuffer;
+        codeCopy := copyOf(CodE);
+        *codeCopy :. noPrinT;
+        argument +% *codeCopy;
+        argument :. isCodeD;
+        argument :. hasNewParsE;
+        printTO(0);
+        //print taG "=" CodE.taG CodE:;
+       };
+    walkRules code={
+        generateParse(argument);
+        length  = listLengtH;
+        if length > 0;
+            iterate grup on argument;
+            while ++grup;
+                if isRulE == 0; continue;
+                if binTypE;
+                    generateParse(*grup);
+                    continue;
+                if hasNewParsE; continue;
+                if listLengtH;  walkRules(*grup);
+                else generateParse(*grup);
+        };
+    compileRules code={
+        compile(argument);
+        length  = listLengtH;
+        if length > 0;
+            iterate grup on argument;
+            while ++grup;
+                if hasNewParsE AND isCodeD;
+                    if listLengtH;  compileRules(*grup);
+                    else            compile(*grup);
+        };
+    parser code={
+        walkRules(argument);
+        compileRules(argument);
+        cerr "PARSER SENTINEL -- walk complete":;
+        compiledHere = 0;
+        if argument.hasNewParsE;     compiledHere = 1;
+        cerr "WITNESS compiled " compiledHere " -- 1 = compile ran on this rule, 0 = it did not":;
+        };
+    ;
+
+parser(DO);
+cerr "=== TRIGGER: invoking DO through the runRule door ===":;
+trigResult := DO("do print 1; while 0;");
+cerr "TRIGGER RESULT ":;
+cerr trigResult:;
+cerr "TRIG SENTINEL -- reached the foot":;
+stop();
+parser(Start);
+
+    THE NEW PARSE FIRES. TWO SEPARATE THINGS THEN BREAK, AND ONLY ONE OF THEM IS
+    THE CLOSE.
+
+    Run this file: exit 139, and roughly 74,000 stack frames of aCTionStatemenT
+    calling itself. What is NOT wrong is the trigger. runRule already forks on
+    hasNewParse and reaches builtinParsE -> parseRule, and with traceParse() on
+    the trace shows DO's generated body MATCHING ALL SIX TERMS of
+    `do print 1; while 0;` -- do(), followedBy(), StatemenT(), while(),
+    ExpressioN(), SemI() -- before anything goes wrong.
+
+    THE MATRIX, six arms, one build, 2026-09-08. Two switches: WHAT IS COMPILED
+    (this file's `parser(DO);`, which compiles 39 rules, versus
+    `generateParse(DO); compile(DO);`, which compiles one) and WHAT THE BODY
+    CLOSES WITH (generateParse's `print $"return runRuleAction(this);":;`).
+
+        compiled      close                          outcome
+        DO alone      (no return at all)             exit 0, sentinel, prints 1
+        DO alone      return this;                   exit 139
+        DO alone      return runRuleAction(this);    exit 139
+        all 39        (no return at all)             exit 139
+        all 39        return this;                   exit 139
+        all 39        return runRuleAction(this);    exit 139
+
+    READ THE FIRST THREE ROWS AND THE LAST THREE SEPARATELY. They are two
+    findings, and reading the top block alone -- which is what an earlier pass
+    did -- yields the wrong sentence "the close decides it."
+
+    BLOCKER 1, THE CLOSE, and it is real: with one rule compiled, dropping the
+    rule-returning close is the whole difference between 139 and a clean run.
+    The mechanism is NOT parseRule's `label = result` -- that was the first
+    guess and it is wrong, because the guard added there never fires on either
+    arm. It is aCTionBrancH: `return <expr>` evaluates its operand and, at
+    ruleActions.rtn's `or isMethod arg = arg.gMethod(arg);`, CALLS it if it
+    carries a method. `this` is a holder whose group is the rule, getLabelGroup
+    dereferences it to the rule, and the rule's method is its action. So the
+    return statement fires the rule it is returning from. Bear-trap #34 in
+    return position.
+
+    BLOCKER 2, AND IT IS THE FRONTIER: compiling the other 38 rules reproduces
+    the same aCTionStatemenT self-recursion with the close already fixed. The
+    cycle is entered through aCTionXpress -> runOP -> aCTionStatemenT, and
+    aCTionStatemenT recurses when the node handed to it IS the StatemenT rule,
+    whose gMethod is aCTionStatemenT. Not diagnosed further. It is not the
+    close, because row 4 has the good close.
+
+    WHAT IS IN THE TREE FOR THIS, and what is not:
+
+    IN -- parseRule now guards its label store. ruleAsLabel (Generate.rtn) asks
+    whether a result is a rule or a HOLDER STANDING IN FOR ONE, and parseRule
+    refuses loudly and by name rather than storing it. ⚠ isRule alone is not
+    the test and that half is measured: a body closing `return this;` walked
+    straight past an isRule-only guard, because `this` is not isRule -- it is a
+    holder whose group is. The guard is a contract check on the label channel;
+    it does not fire on either arm above, because both die upstream in the
+    return's own evaluation. Its H7 control is recorded: forcing ruleAsLabel to
+    1 makes a run refuse with `REFUSED DO -- parseRule: the generated body
+    returned a RULE where a label was owed`, so the guard is reachable and names
+    its subject.
+
+    NOT IN -- the close itself. The dispatch asks every generated body to close
+    with "the same leaveRule spelling", and ON THIS ROAD THAT SPELLING DOES NOT
+    EXIST. leaveRule is a five-argument tok extern (RuleStuff.twk) used inside
+    genParse's EMITTED TOK SOURCE, which is built by the compiler. This road
+    emits KANT, compiled at run time by compile()/processCode, and a kant action
+    takes ONE argument, so leaveRule is not callable from it and is registered
+    in no registry. Nor are null, labelNO, trueResult or falseResult, so a kant
+    body cannot even spell "return nothing".
+
+    The three closes a kant body CAN spell were measured and none is right:
+      return runRuleAction(this);   fires the rule from inside itself
+      return this;                  same, one indirection along
+      (no return)                   the body's value becomes aCTionIF's labelNO,
+                                    which is NON-NULL on BOTH the success and the
+                                    failure path, so parseRule reports success
+                                    either way. Green here by accident of DO's
+                                    input parsing, not by being right.
+
+    So the close is a DESIGN FORK and it is Tony's: either a kant-callable,
+    one-argument sibling of leaveRule that yields the rule's label-or-0, or a
+    falsy sentinel a kant body can name, or parseRule stops reading the body's
+    return value and derives the label itself. Nothing here guesses between them.
+
+    ⚠ AND ONE COVERAGE FACT WORTH MORE THAN THE REST: with ruleAsLabel forced to
+    1 -- a guard that refuses EVERY generated parse -- the fleet stayed at 243
+    green, unmoved. NO FLEET FIXTURE REACHES parseRule AT ALL. The new parse road
+    has zero standing coverage, so a green fleet says nothing whatever about it.
+
+    TO REPRODUCE THE MATRIX: copy this file, and in generateParse change the line
+    `print $"return runRuleAction(this);":;` to `print $"return this;":;` or
+    delete it; and swap `parser(DO);` for `generateParse(DO);` + `compile(DO);`.

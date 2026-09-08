@@ -9497,8 +9497,13 @@ RuleStuff 	*ruleStuff = pMethod->getRStuff();
 			}
 		if ( result )
 			{
-			ruleStuff->label = result;
-			return parseSetLabel(field);
+			// ruleAsLabel  a rule handed back as a label re-enters its own action; refuse, and fall to the rewind below so Invariant R still holds
+			if ( ::ruleAsLabel(result) )
+				::refuse(field,"parseRule: the generated body returned a RULE where a label was owed -- close the body with the label-or-0 spelling, never `this` and never runRuleAction(this)");
+			else {
+				ruleStuff->label = result;
+				return parseSetLabel(field);
+				}
 			}
 		}
 	if ( ruleStuff->label )
@@ -10909,6 +10914,34 @@ int 		d = term->groupBody->flags.data;
 	if ( !term->contents() )
 		return "default lit/litTo";
 	return "NO ROW MATCHES";
+}
+
+/*******************************************************************************
+    ruleAsLabel -- is this node a rule, or a holder standing in for one?
+
+    parseRule stores a generated body's return value as the rule's LABEL, and a
+    rule handed back there re-enters its own action: naming a rule fires it
+    (bear-trap #34), and everything downstream reads the label. So the body's
+    close owes a label-or-0 and never the rule.
+
+    ⚠ isRule ALONE IS NOT THE TEST, and that is the measured half. `this` -- the
+    hidden local every coded body is built with -- is NOT isRule: aCTionDefinE
+    and compile mint it as a HOLDER whose group is the rule. Measured 2026-09-08:
+    a body closing `return this;` walked straight past an isRule-only guard and
+    still exhausted the stack. One indirection, and the guard saw nothing.
+*******************************************************************************/
+extern "C" int ruleAsLabel(GroupItem *result)
+{
+GroupItem 	*inner = 0;
+	if ( !result )
+		return 0;
+	if ( result->groupBody->flags.isRule )
+		return 1;
+	if ( isGROUP(result->groupBody->flags.data) )
+		inner = result->groupBody->gGroup;
+	if ( inner )
+		return inner->groupBody->flags.isRule;
+	return 0;
 }
 
 /*****************************************************************************
