@@ -1983,9 +1983,9 @@ fi
 #  arm and THE ACTIVATION CARRIES ON -- the opposite of every other row here,
 #  which is why both halves are asserted.
 if grep -qF "ST-3 if *x else arm    = 2" "$T/snt"; then
-    echo "  ok    sentinelT ST-3 `*x` on an empty holder yields NULL -- the else arm ran"; green=$((green+1))
+    echo "  ok    sentinelT ST-3 \`*x\` on an empty holder yields NULL -- the else arm ran"; green=$((green+1))
 else
-    echo "  FAIL  sentinelT ST-3 `*x` on an empty holder did not take the else arm"; fail=1
+    echo "  FAIL  sentinelT ST-3 \`*x\` on an empty holder did not take the else arm"; fail=1
 fi
 if grep -qF "ST-3 statement after   = 1" "$T/snt"; then
     echo "  ok    sentinelT ST-3 the activation was NOT ended -- a star is not a refusal"; green=$((green+1))
