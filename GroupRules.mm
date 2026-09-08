@@ -8250,16 +8250,18 @@ GroupItem 	*result = 0;
 	else
 	if ( isBUFFER(argument->groupBody->flags.data) )
 		{
-		/* Text-substrate find: argument is a string field, target is a
-		buffer field. On match, buffer's mark is set to start of match
-		(side effect); we return argument so caller has the matched
-		string for length-of-match computations (argument.count). */
+		/*******************************************************************
+		search argument buffer for text in it that matches target
+		On match, buffer's mark is set to start of match (side effect);
+		we return argument so caller has the matched string for
+		length-of-match computations (argument.count).
+		*******************************************************************/
 		if ( argument->getBuffer()->findInBuffer(target->getText()) )
 			result = target;
 		}
 	else
 	if ( argument->groupBody->groupList )
-		result = argument->get(target->groupBody->tag);
+		result = argument->firstComponent(target->groupBody->tag);
 	return result;
 }
 

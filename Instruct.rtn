@@ -570,12 +570,14 @@ GroupItem   result;
         if set = target.characterSet
             if set.contains(argument.text)  result = trueResult; }
     or argument.isBUFFER {
-        /* Text-substrate find: argument is a string field, target is a
-           buffer field. On match, buffer's mark is set to start of match
-           (side effect); we return argument so caller has the matched
-           string for length-of-match computations (argument.count). */
+        /*******************************************************************
+            search argument buffer for text in it that matches target
+            On match, buffer's mark is set to start of match (side effect);
+            we return argument so caller has the matched string for
+            length-of-match computations (argument.count).
+        *******************************************************************/
         if argument.buffer.findInBuffer(target.text)    result = target; }
-    or argument.groupList                   result = argument[target.tag];
+    or argument.groupList   result = argument.firstComponent(target.tag);
     return result ;
 }
 
