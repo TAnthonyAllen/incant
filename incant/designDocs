@@ -616,6 +616,38 @@ define
                 so nothing here has been run -- the template diff is the control and the
                 Xcode walk is the measurement. What was NOT touched, and why, is in
                 docs/fixIts.md F-26.#);
+            ruleAsLabel=(A RULE HANDED BACK AS A LABEL RE-ENTERS ITS OWN ACTION, which is
+                why parseRule refuses instead of storing it. parseRule takes a generated
+                body's return value and makes it the rule's label; naming a rule fires it
+                (bear-trap 34) and everything downstream reads the label, so a rule in that
+                slot is a loop with a plausible shape.
+
+                ⚠ isRule ALONE IS NOT THE TEST, and this half is measured rather than
+                reasoned. `this` -- the hidden local every coded body is built with -- is
+                NOT isRule: aCTionDefinE and compile mint it as a HOLDER whose group is the
+                rule. Measured 2026-09-08: a body closing `return this;` walked straight
+                past an isRule-only guard and still exhausted the stack. One indirection,
+                and the guard saw nothing. So the test asks both questions -- is this a
+                rule, or a holder standing in for one.
+
+                IT IS A FUNCTION RATHER THAN AN INLINE CONDITION for parkOnMaster's reason,
+                which is the same file's own hard-won note: a declaration inside parseRule
+                would re-point every bare field below it, bare `label` included, and it
+                would compile clean (bear-trap 42). A call introduces no declaration.
+                Verified in the generated .mm.
+
+                ⚠ IT IS A CONTRACT CHECK, NOT THE CURE, and the distinction matters to
+                anyone reading it as a fix. It does not fire on either failing arm of
+                incant/trigDO, because both die upstream in the return's own evaluation --
+                aCTionBrancH calls a return operand that carries a method, so the return
+                fires the rule it is returning from. This guard catches the case where a
+                body gets that far and still hands back a rule.
+
+                H7 CONTROL, RECORDED: forcing ruleAsLabel to 1 makes a run refuse with
+                `REFUSED DO -- parseRule: the generated body returned a RULE where a label
+                was owed`, so the guard is reachable and names its subject. That same run
+                left the fleet unmoved at 243 green, which says NO FLEET FIXTURE REACHES
+                parseRule AT ALL -- a green fleet is evidence about nothing on this road.#);
             parseSetLabel=(THE ACTION FIRE IS GONE FROM HERE, 2026-08-25, Tony's ruling, and
                 its absence is the point rather than an omission. THE SPLIT IS:
                     parseSetLabel   label work only -- and it stays alive as the

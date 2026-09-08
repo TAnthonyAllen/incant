@@ -1,3 +1,173 @@
+# ⚠⚠⚠ SEALED 2026-09-08, SECOND SESSION -- THE NEW PARSE ALREADY HAD A DOOR, AND
+# THE CLOSE IT NEEDS DOES NOT EXIST ON ITS ROAD. THREE COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-08 18:46 and
+#   `git log -1 --date=iso` stamps 2026-09-08 18:32. They agree.
+#   ⚠ THE DISPATCH WAS HEADED 2026-09-09 AND THE TREE IS ON 09-08. Everything
+#   here -- commits, pop.sh re-pin sentences, the fixit file -- is stamped with the
+#   TREE's clock, so the record and the commits cannot disagree. H14's family: a
+#   date is the cheapest thing in the world to carry forward and the hardest to
+#   notice once it is wrong.
+#
+#   ## THE ONE-LINE STATE: **runRule has forked on `hasNewParse` all along, so the
+#   trigger was never missing; DO's generated body matches all six terms of
+#   `do print 1; while 0;` and then dies; and the close the dispatch asked for --
+#   leaveRule -- is a five-argument tok extern that a kant body cannot call.**
+#   Fleet **243 green / 49 red** (from 239/53 at open), canary **318**, ddPop 5,
+#   decodePop 14, formsPop 14 passed, countPop 0-of-44, frontier **exit 0, first
+#   failing station 3**. Both repos **0 dirty, 0 unpushed**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE TRIGGER EXISTS AND IS `runRule`.** `GroupActions.rtn:1049` reads
+#   `if hasNewParse` then `rule["builtinParsE"]` then parseRule. Invoking a rule by
+#   name from kant IS the door. Measured with `traceParse()` on: after
+#   `parser(DO)`, `DO("do print 1; while 0;")` goes through builtinParsE and its
+#   generated body MATCHES ALL SIX TERMS -- do(), followedBy(), StatemenT() (which
+#   parses `print 1;` down through PrinT and WardeD), while(), ExpressioN(), SemI().
+#   **Nothing needed building to make the new parse run.**
+#
+#   **b. ⚠ THE CLOSE THE DISPATCH SPECIFIED CANNOT BE WRITTEN ON THIS ROAD, and
+#   this is the session's load-bearing finding.** `leaveRule` is a FIVE-ARGUMENT tok
+#   extern (RuleStuff.twk) used inside genParse's EMITTED TOK SOURCE, which the
+#   compiler builds. Tony's `parser` emits **kant**, compiled at run time by
+#   compile()/processCode, and a kant action takes ONE argument -- so leaveRule is
+#   not callable from it and is registered in no registry. **Neither are `null`,
+#   `labelNO`, `trueResult` or `falseResult`: a kant body cannot spell "return
+#   nothing".** Two generators, two languages, one name.
+#
+#   **c. ALL THREE CLOSES A KANT BODY *CAN* SPELL WERE MEASURED AND NONE IS RIGHT.**
+#   `return runRuleAction(this);` and `return this;` both fire the rule from inside
+#   itself. **The third is the trap: with NO return the body's value becomes
+#   aCTionIF's `labelNO`, which is NON-NULL on the success AND the failure path**, so
+#   parseRule would report success either way. It is green on trigDO by accident of
+#   DO's input parsing, not by being right. **So the close is a DESIGN FORK and it is
+#   Tony's** -- a kant-callable one-argument sibling of leaveRule, a falsy sentinel
+#   kant can name, or parseRule deriving the label instead of reading the return.
+#
+#   **d. ⚠ A CORRECTION I MADE TO MYSELF MID-SESSION, and the shape is the usual
+#   one.** I reported "the close decides it" off a three-arm A/B. The full six-arm
+#   matrix says that holds ONLY when DO ALONE is compiled:
+#
+#       compiled      close                          outcome
+#       DO alone      (no return at all)             exit 0, sentinel, prints 1
+#       DO alone      return this;                   exit 139
+#       DO alone      return runRuleAction(this);    exit 139
+#       all 39        (no return at all)             **exit 139**
+#       all 39        return this;                   exit 139
+#       all 39        return runRuleAction(this);    exit 139
+#
+#   **TWO BLOCKERS, NOT ONE.** And blocker 1's MECHANISM was also wrong in my first
+#   telling: it is not parseRule's label store -- the guard added there never fires
+#   on either arm. It is **aCTionBrancH**: `return <expr>` evaluates its operand and
+#   CALLS it if it carries a method, so **a return whose operand resolves to the rule
+#   fires the rule it is returning from.** Bear-trap #34 in return position.
+#   **Blocker 2 is the frontier**: all 39 compiled reproduces the same
+#   aCTionStatemenT self-recursion WITH the good close, entered through
+#   aCTionXpress -> runOP. Not diagnosed.
+#
+#   **e. ⚠⚠ NO FLEET FIXTURE REACHES parseRule AT ALL.** Under the H7 control --
+#   `ruleAsLabel` forced to 1, refusing EVERY generated parse -- **the fleet stayed at
+#   243 green, unmoved.** The new parse road has ZERO standing coverage, so a green
+#   fleet is evidence about nothing on it. That is the dispatch's stroke 4, and it is
+#   a bigger row than it looked.
+#
+#   ## WHAT LANDED -- THREE COMMITS
+#
+#   **`ad35796` + support `6007c31` -- STROKE 1, the working set.** Tony's five files
+#   and groups.ext; both H6 re-pins; the `compiling` leak; two re-bases. Fleet
+#   239 -> 243, four rows recovered, none newly red.
+#   - **bare-master 10 -> 12** and **odometer 24/40 of 64 -> 24/42 of 66**, both
+#     ColoN and EquaL, both named in oneTest's own AUDIT lines. GREEN UNMOVED AT 24.
+#   - **`compiling` leaked on compile()'s refusal path** (Clod's). Set before
+#     processCode, cleared after -- but the refusal arm RETURNS, so the flag stayed
+#     set for the rest of the process and aCTionANYtoken would permanently stop
+#     rejecting key words. One line.
+#   - ⚠ **jsonTest was NOT just the sentinel: 38 of its 40 error lines were a
+#     PRE-FLIP SPELLING in the fixture's own grammar.** `token = JSONvalue` under the
+#     landed ruling wants `token = *JSONvalue` (incant/utilities:97). **Fixed, not
+#     banked** -- goldenDrift's clause 2 says attribute first, then pin. The 2 that
+#     remain are attributed and owed: the EMPTY-ARRAY case, where JSONarray's
+#     `if JSONlist;` falls back to the RULE when the optional term did not match, so
+#     the guard passes and the walk reads a rule with no list. Two `{"a":[]}` calls,
+#     two lines. Two guard respellings failed; banked attributed.
+#   - ⚠ **oneTest was not just the sentinel either.** SIX punctuation MISSRULEs
+#     PREDATE this session -- measured on a HEAD build -- so the arithmetic is
+#     4 + 8 = 12 and it closes against the bare-master row. Both bases dated
+#     2026-07-29 and had been absorbing drift silently ever since.
+#
+#   **`7460228` -- STROKE 2, PART 1: parseRule guards its label store.**
+#   `ruleAsLabel` (Generate.rtn), a FUNCTION rather than an inline condition for
+#   parkOnMaster's reason -- a declaration inside parseRule re-points every bare
+#   field below it and compiles clean (#42). ⚠ **isRule alone is not the test, and
+#   that half is measured**: `this` is NOT isRule, it is a HOLDER whose group is the
+#   rule, and a `return this;` body walked straight past an isRule-only guard.
+#   H7 recorded: forcing it to 1 prints `REFUSED DO -- parseRule: the generated body
+#   returned a RULE where a label was owed`. **incant/trigDO is tracked, exits 139 BY
+#   DESIGN, and is not in pop.sh** -- it is the repro, carrying the matrix, both
+#   mechanisms and the reproduction recipe below its stop().
+#
+#   **`4df2e50` -- branchTagTruth MINTED** (Tony's dispatch; F2 says the ruling is
+#   his and it was). Queue **2 -> 3**. BT-2 reads 3-of-3 on the REAL BrancheS members,
+#   with the three printed tags -- break, continue, return -- as the anti-vacuity
+#   control, which is a better one than the row I planned.
+#
+#   ## ⚠⚠ A SECOND FINDING THE CITIZEN'S OWN PROBE PRODUCED, AND IT WIDENS A
+#   ## STANDING BEAR-TRAP
+#   **A content test on a tag inside an iterate body answers TRUE FOR EVERY MEMBER,
+#   in FOUR spellings, one run each, on three tags known to differ:**
+#
+#       if taG eq "return";                      3 of 3
+#       if btCur.taG eq "return";                3 of 3
+#       btT := taG;  then  if btT eq "return";   3 of 3
+#       minted nodes instead of a walk           3 of 3, tags came back wrong too
+#
+#   **THE THIRD IS THE REMEDY BEAR-TRAP #28 PRESCRIBES FOR ITS OWN FOURTH ROW --
+#   capture, then test -- AND IT DOES NOT WORK HERE.** The capture is REAL (btT prints
+#   the correct distinct tag every iteration) and the comparison is still void. So
+#   #28's cure is not sufficient and #35's "capture, then test" has a hole.
+#   **The amendment is Tony's; it is recorded in the citizen and here and nowhere
+#   else.** It also means the citizen cannot show content discrimination at all,
+#   which the file states rather than works around.
+#
+#   ## ⚠ THE DISPATCH'S STROKES 3-6, AND WHY NONE OPENED
+#   Stroke 2 is not green, and 3-6 are all downstream of it. **Stroke 4** diffs the
+#   fleet on the new road and the new road crashes at parser(Start) scale.
+#   **Stroke 6** Tony gated explicitly. **Stroke 3** is the one genuinely independent
+#   piece and `measure.twk` exists, so the counts have a home -- but a witness line
+#   counting generated/compiled/refused over a road that segfaults is a number about
+#   a crash. **Stroke 5** (the upward hole) is unstarted and unblocked in principle.
+#
+#   ## ⚠ THE FRONTIER, RUN, NOT REVISED -- AND THE OMISSION IS DELIBERATE
+#   `incant/frontier` exits 0, **first failing station 3 (store body)**: live list
+#   length was 3, now 0. Stations 1 and 2 PASS. **It was NOT revised to today's edge**
+#   and that is a choice, not a lapse: the seal rule asks for a revision, and revising
+#   it at the end of a long session is exactly the silent-failure work the 08-08
+#   loudness doctrine says to route away from late mechanical state. Today's road was
+#   compile/parseRule, not generate/mint/store. **The revision is owed and named.**
+#
+#   ## ⚠ STILL OPEN, CAPTURED NOT CHASED
+#   The compile census is **silently dead** -- `gCompileAttempted++`/`gCompileRefused++`
+#   went out with the comment relocation, so `reportCompileCensus()` returns
+#   immediately on zero forever; the new per-rule `print "compile succeeded for X"` is
+#   a trace, not a count, and it prints into every baseline of any run that compiles
+#   (the dispatch's stroke 3 moves it behind a flag) · `aCTionDefinE`'s embedRule loop
+#   is narrower than it was, attributes-only where it walked all terms, and gated on
+#   isRule -- tested as a suspect and NOT the cause of anything currently red · the
+#   two jsonTest empty-array lines · `incant/f31` still exits 139.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   The close spelling -- it is the smallest thing that unblocks everything else, and
+#   nothing here guesses between the three candidates. The bear-trap #28/#35
+#   amendment. Whether `parser`'s stale prose about `activating` should go.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: branchTagTruth, since 2026-09-08)`
+#   `branchTagTruth` (BEST GUESS, two candidates, and BT-3 is the thing candidate 1
+#   has to survive) · `faceFlagsNoCross` (BEST GUESS, cheaper test named first) ·
+#   `hasTraits` (OPEN, guess withdrawn on measurement). **Step one, or name which
+#   goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-08 — `if noPrinT;` MEANS WHAT IT SAYS. bareIfTruth LANDS,
 # opIN's LOOKUP ARM GOES FIRST, AND THE FIXIT QUEUE TURNS OVER. ELEVEN COMMITS.
 #

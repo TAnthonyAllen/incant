@@ -717,3 +717,33 @@ the subscript road *looked* correct and was not — the star already held the ba
 operand, which is what the law wants, while the subscript was being discarded. That is
 exactly the claim a future reader would re-derive the hard way, and it is too long for the
 inline line.
+
+## 2026-09-08 (second session) — 1 entry written, 1 pointer followed, and the follow was decisive
+
+**Entry written: `Generate.ruleAsLabel`.** One inline claim at the site
+(`// ruleAsLabel  a rule handed back as a label re-enters its own action; refuse, and
+fall to the rewind below so Invariant R still holds`), argument in DesignDocs. It passes
+the too-short test: the inline line alone tells an editor what not to break, and the
+measured half — that `isRule` alone is not the test, because `this` is a holder rather
+than a rule — is four sentences and could not have gone inline.
+
+**Pointer followed: `parse.genParseRuleAccess`, and it changed the session.** The two
+anchor comments in `GroupItem::parse` (`// genParseRuleAccess`, `// bindReadSeamProbe`)
+are all that is left in the code after Tony stripped the genParse fork on 09-07. Following
+the key produced the whole design record of the removed block — why it sits inside the
+`inProcess` bracket, why it does not return early, the RUNG-6 kount tripwire, the
+shape/frame split between `parseMethod` and `parentLabel`. **That turned "the fork is
+missing" from a possible defect into a documented deliberate removal with its rationale
+intact**, which is exactly the outcome the register was built for: the argument survived
+the code's deletion. Counted as one lookup, and it is the trial's best evidence to date.
+
+⚠ **THE THIRD MOTION RECURRED, and again from an in-place comment.** The decision to make
+`ruleAsLabel` a function rather than an inline condition came from `parkOnMaster`'s header
+in `Generate.rtn` — the note recording that adding two locals inside `setParse` silently
+re-pointed every bare field below them and compiled clean. That is a long comment **at its
+site**, not a DesignDocs entry, and it was read as evidence rather than followed as a
+pointer. Second session running where the load-bearing prose was in-place. The tally still
+does not model this, and on this session's evidence it remains the trial's open question.
+
+**Absent entry: none.** No `File.method` key was followed and found missing.
+
