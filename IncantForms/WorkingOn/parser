@@ -108,12 +108,13 @@ define
         };
     parser code={
         walkRules(argument);
-        //compileRules(argument);
+        compileRules(argument);
         cerr "PARSER SENTINEL -- walk complete":;
         compiledHere = 0;
         if argument.hasNewParsE;     compiledHere = 1;
         cerr "WITNESS compiled " compiledHere " -- 1 = compile ran on this rule, 0 = it did not":;
-        evictWalk(argument);
+        stop();
+        print "We stopped. This should not print":;
         };
     ;
 

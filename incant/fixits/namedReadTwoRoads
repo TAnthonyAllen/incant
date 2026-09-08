@@ -24,6 +24,9 @@ define
         cerr "fixTwoRoadsHere -- both roads above are the SAME mechanism: a named read does not reach a written node":;
         };
     ;
+dumpContents(TwoRoads);
+dumpContents(trA);
+dumpContents(trA);
 trRun();
 print "TWOROADS SENTINEL -- reached the foot":;
 stop();
