@@ -1,3 +1,159 @@
+# ⚠⚠⚠ SEALED 2026-09-08 — `if noPrinT;` MEANS WHAT IT SAYS. bareIfTruth LANDS,
+# opIN's LOOKUP ARM GOES FIRST, AND THE FIXIT QUEUE TURNS OVER. ELEVEN COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-08 11:05 and
+#   `git log -1 --date=iso` stamps 2026-09-08 11:05. They agree.
+#
+#   ## THE ONE-LINE STATE: **aCTionIF answers by `truthOf`, so a FALSE flag tests
+#   false; opIN tries its groupList arm FIRST, so `X IN <registry>` answers the
+#   question asked; and four anti-vacuity controls that had been passing on a tag
+#   echo now read a real 0.** Fleet **241 green / 51 red** (from 206/61 at open),
+#   canary **316**, ddPop 5, formsPop 14 passed, decodePop 14, countPop 0-of-44,
+#   frontier **exit 0, first failing station 3**. Both repos **0 dirty, 0 unpushed**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. `opDot`'s `count = 0` AND `bareIfTruth` ARE A MATCHED PAIR, MEASURED.**
+#   `setCount` raises `isInitialized` (`GroupItem.twk:1802`) and `aCTionIF` tested
+#   truth as `result && isInitialized`. So the moment opDot gave a data-less flag
+#   read a real 0, every FALSE flag tested TRUE — `odoPopulation`'s filters went
+#   from rejecting 2 of 66 to rejecting all 66, and the odometer population read 0
+#   at exit 0. ⚠ **Neither half fixes it alone**: reverting opDot while KEEPING
+#   truthOf leaves the bug fully intact, because a data-less product lands on
+#   truthOf's row 3 and is true by presence. opDot supplies the VALUE, truthOf
+#   READS it. That is why they are one commit.
+#
+#   **b. NO ARM OF `truthOf` NEEDED FIXING, AND ITS HEADER NAMED THIS STROKE IN
+#   ADVANCE.** It has implemented the ruled table since 2026-08-11 and says so:
+#   *"`if <field>` and `<field> AND …` ALREADY DISAGREE … closing that gap is a
+#   separate ruling with its own customer."* bareIfTruth is that customer.
+#
+#   **c. ⚠ `!` ON A ZERO-HOLDING FIELD ANSWERS FALSE, AND IT CHANGED HOW A STROKE
+#   WAS WRITTEN.** `if !isRulE;` skips NOTHING — both artifacts read VISITED —
+#   while `if isRulE == 0;` skips correctly. The obvious spelling of the artifact
+#   gate would have produced a walker silently visiting every artifact at exit 0.
+#   Caught only because `andProbe` AP-5b had been measured an hour earlier.
+#   ⚠ **`odoPopulation` and `parseClass`'s `pcWalk` both carry that spelling and
+#   are therefore filtering nothing.** Captured, not chased.
+#
+#   **d. THE `IN` FINDING IS ROW R4, AND IT IS THE ONLY ROW THAT COULD CATCH IT.**
+#   A registry carries BOTH a character set and a group list; the isSET arm sat
+#   first and returned `trueResult` for everything, so a field DECLARED in the
+#   probe's own define block — which cannot be in the registry — read HIT. Any
+#   census built on `IN` was unmeasurable. With the lookup arm first, R4 misses for
+#   the first time. ⚠ **R1 and R2 stay GREEN on the broken order too** — they
+#   passed by accident — which is exactly why a zero-expecting row needs a
+#   non-zero sibling and not the other way round.
+#
+#   **e. `firstComponent` WAS SURFACED, NOT CAUSED.** `GroupItem.twk` read
+#   `if listLength`, generating `groupBody->groupList->listLength` — an UNGUARDED
+#   deref. It recurses, and the first childless child dereferences null: exit 139.
+#   It never bit because the isSET arm shadowed that path for every registry. The
+#   reorder made a latent crash reachable; the guard (`if groupList`) ships with it
+#   and neither is correct alone.
+#
+#   ## ⚠ WHAT THE FLEET COULD NOT SEE, AND WHY IT WAS CHECKED BY HAND (H12)
+#   The opIN reorder left the fleet UNMOVED at 226/55 — and unmoved meant NOT
+#   REACHED. Both at-risk sites had no rows: `quoteIfNeeded` (set arm) and
+#   `replaceAt` (buffer arm, load-bearing for directives). Captured and diffed
+#   explicitly: **oneTest, jsonTest, displayFormT, directives, Tests/dirtest — all
+#   five BYTE-IDENTICAL**, all exit 0. `decodePop` was controlled the same way and
+#   differs only in its own binary-mtime echo. Both gaps are now standing rows.
+#
+#   ## THE TURNOVER — QUEUE 3 → 2, AND EVERY MOVE WAS A MEASUREMENT
+#   - **`artifactSkipByFlag` CLOSED**, promoted to `incant/artifactSkipT` with six
+#     pinned rows. ⚠ The choice was never "keep noPrint's double duty or add a
+#     flag" — `isRulE` already discriminated, and Tony's own offline trace printed
+#     the `1 1 0 0` column in the same output as the vote to keep noPrint.
+#   - **`refusalNotTerminal` STRUCK.** 32 refusal-arm hits across 9 files, **zero
+#     null iterators** — the poison lands, so it is step 2 and not step 1, and the
+#     refusal IS terminal everywhere measured. ⚠ **Its named specimen `incant/f31`
+#     exits 139** at `showBody(Grokking["tokenize"])` — tokenize is a fossil now —
+#     so it produced no hits and cannot be the gate.
+#   - **`namedReadTwoRoads` STRUCK, both roads.** ROAD 1 closes on the addresses
+#     (fresh node, same body — the carrier, already pinned as roundTripT ARM 0).
+#     ⚠ **ROAD 2 DISSOLVED AND I DID NOT MINT THE REFILE THE DISPATCH ASKED FOR**:
+#     its label says "addGroup twin", its code is `copyOf`, and roundTripT already
+#     pins copyOf as not-crossing. Rule F1. Tony mints it if he disagrees.
+#   - **`hasTraits` MINTED**, and its banked guess is **withdrawn on measurement**:
+#     42/42/42 and **zero disagreements** over 66 rules. They come apart AFTER
+#     setParse, not on the raw grammar; connectiveT's red row is its other half.
+#   - **`faceFlagsNoCross` MINTED.** faceT's face is a copy of a copy (`+%` then
+#     `<-`), bodies #2 vs #4, so F2/F3 cannot pass — and F0, their control, now
+#     reads 0 exactly like them. ⚠ **The fix exposed it**: the tag echo was the
+#     only thing distinguishing control from subject, and it was never a real
+#     distinction. Lands on the already-ruled `<-` copy-on-rebind defect.
+#   - **`quoteIfNeeded` RETIRED** — zero callers, obituary at the site, whole entry
+#     in designDocs. Its arm gained cover it never had (`inArmsT` IA-S1/IA-S2).
+#
+#   ## ⚠ A MEASUREMENT THAT RIDES, NOT A FIX: THE 22-OF-66 INTERSECTION
+#   **`fires=NEVER` is deliberately NOT re-pinned** and stays red carrying its
+#   reason in `pop.sh`. It reads `[]`; ANYtoken and NewGroup have genuinely left
+#   (both classify `fires=body`). **But the census does not cover its own
+#   population: 22 of Grokking's 66 members produce no PC and no PA line at all** —
+#   `parseClassify` is never called for them. **One of the 22 is `ShortcuT`, a
+#   named member of the pin itself**, which probes as an ordinary rule
+#   (noPrinT 0 / isRulE 1 / binTypE 0). So the category could contain ShortcuT and
+#   this census would still print `[]`. Re-pinning would freeze a claim over a
+#   third of the grammar it never looked at — rule H3. Same instrument as
+#   `parseClass.target`, whose 239 → 66 drift the 09-07 seal recorded.
+#
+#   ## ⚠ INSTRUMENT FAILURES, MINE, WORTH THE LINE
+#   - **A census counted MENTIONS, not calls.** I reported "26 files carry more
+#     than one `stop()`" off `grep -c 'stop()'`, which matches PROSE — every
+#     H2-compliant header says *"ONE stop(), at the foot"*, and `jiquery` says it
+#     four times because it is the file the rule came from. **The real population
+#     is 3.** Rule H9, and an overcount reads as a bigger problem rather than a
+#     broken instrument.
+#   - **I removed `anyOrNumT`'s inner `stop()` and had to reverse it** — it is the
+#     LAST statement of its action, so H2's "everything between" is empty.
+#     Removing it moved WITNESS 1 → 0 and produced six new refusals.
+#   - **A commit landed the RENAME ALONE (`4b515d8`).** A stale pathspec in
+#     `git add` aborts the WHOLE add, so nothing else staged and the message
+#     described work it did not contain. The tell was the `--stat` disagreeing with
+#     the message. Amended by `a48fc89`.
+#   - **A "control" that controlled nothing:** a python assert threw, the revert
+#     never happened, and I re-ran the same build calling it the other arm. Caught
+#     because the result was identical.
+#   - **`.taG` in a `.rtn` took the canary to 0** (bear-trap #24) and back to 316 on
+#     the lowercase fix. The standing canary caught it, as designed.
+#
+#   ## ⚠ TWO SPELLING NOTES EARNED TODAY
+#   - **`=` REIMPRINTS THE TAG.** `tester`'s `findField` printed `Found result`
+#     rather than the found name, because `result = X IN Y` is opAssign and stamps
+#     the receiving field's own tag (bear-trap #1). `:=` keeps it — Tony has since
+#     switched.
+#   - **Naming a rule FIRES it.** `htProbe(BlocK)` crashed a fixture at exit 139
+#     with zero bytes (bear-trap #34). Walk members; do not pass a rule by name.
+#
+#   ## ⚠ STILL OPEN, CAPTURED NOT CHASED
+#   `incant/f31` exits 139 · the isSET arm still reads `.text` off a possibly
+#   data-less field, so a pure set can still be handed a name · `if !isRulE;` is
+#   vacuous in `odoPopulation` and `pcWalk` · `faceT` F2/F3 red and now
+#   non-discriminating (filed) · `directives` reports "did not find" on text that
+#   is present (pinned, pre-existing) · four files carry no end sentinel
+#   (`directives`, `grammarOnTheFly`, `oneTest`, `dirtest`) — `oneTest` is covered
+#   by its baseline diff, the other three are not.
+#
+#   ## WHAT LANDED — ELEVEN COMMITS
+#   `e0000a4` pop.sh backtick escape + bisect reset · `fb9e4de` **bareIfTruth** ·
+#   `d5f4a5a` stop() sweep · `4b515d8`/`a48fc89` artifactSkipByFlag closed ·
+#   `8d33df6` Tony's opIN descent · `bf31ef5` **opIN reorder + firstComponent
+#   guard** · `2d337b6` four H6 re-pins + two opIN gates · `ab7ed2b` quoteIfNeeded
+#   retired · `b914194` two citizens struck, hasTraits minted · `b49acf7`
+#   faceFlagsNoCross minted.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   The parser and `walkRules`; the `Attributes` ruling; `Looper` and `aCTionFOR`;
+#   frontier station 3. **The floor is clean for the syntax-testing arc — each
+#   reach into source is a fresh stroke against this baseline.**
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 2 (oldest: hasTraits, since 2026-09-08)`
+#   `hasTraits` (OPEN, guess withdrawn on measurement) · `faceFlagsNoCross`
+#   (BEST GUESS, and its cheaper test is named first). Step one, or name which
+#   goes first.
+#
 # ⚠⚠⚠ SEALED 2026-09-07 — THE STAR BINDS TIGHTER THAN A POSTFIX, AND `@` TOOK THE
 # isGROUP CENSUS FROM SIX TO THREE. SEVEN COMMITS.
 #
