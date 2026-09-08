@@ -340,19 +340,22 @@ RuleStuff   ruleStuff = rStuff;
         /***********************************************************************
             Set the parseMethod
         ***********************************************************************/
+        hasNewParse = true;
         actionMethod = method;
         //parkOnMaster(field);
         if upTo || upToOver     parseMethod = parseUpTo;
         or isBIN || isREGISTRY  parseMethod = parseContainer;
         or isCondition          parseMethod = parseCondition;
         or parseACTION          parseMethod = parseAction;
-        or groupList            parseMethod = parseRule;
+        or groupList {
+            parseMethod = parseRule;
+            hasNewParse = 0; }
         or data switch(data) {
-            case isANY:     parseMethod = parseAny;
-            case isCHAR:    parseMethod = parseCharacter;
-            case isSET:     parseMethod = parseSet;
-            case isGROUP:   parseMethod = null;
-            default:        parseMethod = parseString; }
+            case isANY:         parseMethod = parseAny;
+            case isCHAR:        parseMethod = parseCharacter;
+            case isSET:         parseMethod = parseSet;
+            case isGROUP:       parseMethod = null;
+            default:            parseMethod = parseString; }
         or method               parseMethod = parseAction;
         else                    parseMethod = parseString;
         if parseMethod {
@@ -365,7 +368,6 @@ RuleStuff   ruleStuff = rStuff;
             rStuff  = ruleStuff;
             noPrint = true;
             method  = actionMethod; }
-        hasNewParse = true;
         updateContentFlags(); }
     return null;
 }

@@ -120,6 +120,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	strap->setText("}");
 	strap = grok->addMember(new GroupItem("rightParen"));
 	strap->setText(")");
+	strap = grok->addMember(new GroupItem("SemI"));
+	strap->setText(";");
 	/**************************************************************************
 	Define the setupFILE declared in GroupRules. It gets loaded at the
 	end of this bootstrapper method.
@@ -389,8 +391,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item = grok->getMember("DEFINing");
 	item = strap->addAttribute(item);
 	item->setRuleStuff();
-	item = new GroupItem(";");
-	item = strap->addAttribute(item);
+	item = strap->addAttribute(grok->getMember("SemI"));
 	::modify(item,"-");
 	strap = grok->addString("InvokE");
 	strap->setRuleStuff();
@@ -410,19 +411,11 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item = grok->getMember("InvokE");
 	item = strap->addAttribute(item);
 	::modify(item,"?");
-	item = new GroupItem(";");
-	item = strap->addAttribute(item);
+	item = strap->addAttribute(grok->getMember("SemI"));
 	::modify(item,"-?");
 	strap = grok->addString("InitiatE");
 	strap->setRuleStuff();
 	item = strap->addAttribute(grok->getMember("RunRulE"));
-	// bare + only, and BOTH omissions are deliberate.
-	// NOT @: nothing reads InitiatE's own product -- RunRulE consumes it before it
-	// returns -- so there is no label to promote, and @ on a REPEATED term is the
-	// shape that took Attributes to 49 green.
-	// NOT -: aCTionRunRulE reaches its rule by `input[1]`, a POSITIONAL read, and a
-	// noLabel term never attaches into that list -- so the dash makes rule null and
-	// every definition stops running. Measured 2026-09-07 at 10 green.
 	::modify(item,"+");
 	item = grok->getMember("InitiatE");
 	item = 0;

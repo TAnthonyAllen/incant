@@ -1875,128 +1875,10 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 	ruleStuff->kount = 0;
 	ruleStuff->isOK = 0;
 	ruleStuff->inProcess = 1;
-	/***********************************************************************
-	genParseRuleAccess S1.3 -- a generated parse supersedes the
-	interpretive walk.
-	
-	INSIDE the inProcess bracket, DELIBERATELY, and it does NOT return
-	early. Two reasons, both load-bearing:
-	1. inProcess must be SET, so getStuff() hands a nested call a fresh
-	clone. The JSON family is mutually recursive (JSONvalue ->
-	JSONblock -> JSONfield -> JSONvalue); without it a nested call
-	shares one frame with its parent. Placing the fork BEFORE this
-	line is safe against leaks and wrong about reentrancy.
-	2. inProcess must be CLEARED, and aCTionFailed/trueResult must still
-	run. So the fork sets sukcess and falls through to the ONE shared
-	exit rather than reimplementing it. The generated path then
-	matches the interpretive path because it RUNS the same exit, not
-	because the exit was copied carefully -- model-not-oracle applied
-	to the exit itself. In particular notifyFail survives onto the
-	generated path: a generated rule that could not report failure
-	would rebuild exactly the blindness that made jsonTest useless.
-	
-	leaveRule/leaveAlt own only the REWIND (Invariant R) and the
-	label-or-0 return. parse()'s tail keeps the trueResult substitution
-	and the aCTionFailed decision. One implementer each.
-	
-	NO-OP until something is generated: no current path assigns
-	parseMethod, so every rule takes the old road and the baseline must
-	be byte-identical.
-	Deliberately NOT lazily initialized (contrast testMatch's
-	`if !testMatch setTestMatch()` at RuleStuff.twk:159). Generation is
-	explicit and idempotent; an `if !parseMethod genParse(rule)` here
-	would turn first-parse into a generation event -- this phase, that
-	means emitting text and running a build, from inside a parse.
-	
-	RUNG-6 TRIPWIRE: the interpretive path does kount++ on success, which
-	feeds `kount >= min` and the iteration bound. The generated path does
-	not. Invisible at max 1 (rungs 1-2); rung 6 must address it.
-	
-	genParseShape S1.1/S1.2 (2026-07-28): the fnptr takes ONE argument and
-	it is the rule -- kant methods take one argument, so the old
-	(rule, parentLabel) pair could never survive the kant handover. The
-	`into` travels through the named parentLabel field instead, and THIS
-	LINE IS ITS SINGLE WRITER. It is written on the rule's OWN rStuff, not
-	on ruleStuff, because ruleStuff may be a reentrancy clone the callee
-	cannot reach -- the callee only receives the rule. The callee lifts it
-	into a stack local at entry, before descending, so a nested invocation
-	overwriting it here cannot disturb an outer frame already under way.
-	
-	RUNG 4, and the split is the whole point (Clay SEQ 26 S1/S2). The two
-	fields go to DIFFERENT nodes, deliberately:
-	
-	parseMethod is SHAPE. One answer, always the same for a given rule,
-	so it is read from the DEFINING rule (definingRule(), a pointer walk,
-	no name lookup). That is what lets a generated rule be reached
-	through another rule's reference term and not only by name -- bind
-	once, and every reference sees it, including references created after
-	the binding.
-	
-	parentLabel is FRAME. It varies per invocation and is what carries
-	the variation. It stays on `this` -- the node actually being parsed.
-	Routing it to the defining rule instead would make every reference to
-	a recursive rule write the SAME slot, which is correct-looking right
-	up until the recursion is live. A field that looks like it belongs
-	with the rule because it is usually the same is exactly the dangerous
-	case.
-	
-	`this` is what gets passed, not the definer: the two share a child
-	list, so rule[n] reads the same terms from either, while
-	rule.rStuff.parentLabel has to be this invocation's.
-	***********************************************************************/
+	//  genParseRuleAccess
 	definer = definingRule();
 	defStuff = definer->getRStuff();
-	/*  THE READ HALF OF THE BIND-READ SEAM PROBE, SEQ 58, 2026-08-13. Its
-	write half sits in the binding door in genParse. Together they
-	answered, in one bit, why a cross-file parse-method bind was written
-	and never read: the door bound onto a satellite node while this fork
-	resolved the real one.
-	
-	Gated on the parse-trace flag, so an ordinary run cannot see it and no
-	baseline can move. A bind runs live in swept fixtures, and an
-	unconditional print here would move them.
-	
-	NARROWED TO ONE RULE NAME ON PURPOSE, and cheap to widen. Braced is
-	the campaign's specimen; printing for every rule would add a line per
-	parse to a trace that is already verbose. If the next seam question is
-	about a different rule, change the string -- do not delete the probe,
-	because it is the only instrument that makes this seam visible.
-	
-	Written as passthrough because it reads the flag off the rules
-	singleton from inside a method on this class, and the generated file
-	already carries the headers that spelling needs.  */
-	
-	if ( GroupControl::groupController->groupRules->parseTrace
-	&& groupBody->tag && !::strcmp(groupBody->tag,"Braced") )
-	::fprintf(stderr,"SEAM fork  Braced  this=%p thisRStuff=%p definer=%p defStuff=%p defParseMethod=%p\n",
-	(void*)this,(void*)rStuff,(void*)definer,(void*)defStuff,
-	defStuff ? (void*)defStuff->parseMethod : (void*)0);
-	
-	if ( defStuff && defStuff->parseMethod )
-		{
-		establishFrame(parentLabel);
-		ruleStuff->label = defStuff->parseMethod(this);
-		ruleStuff->sukcess = ruleStuff->label != 0;
-		/*  GX-1: fire the rule action, through the SAME method the
-		interpretive arm calls. Guarded on sukcess so it sits at exactly
-		the point in the sequence its interpretive twin does -- there, the
-		action block is reached only after `if !sukcess goto matchFailed`.
-		The kount++/pStuff-label plumbing below it is NOT wanted here and
-		is not shared: leaveRule already attached this label through
-		`into`, and the kount question is the rung-6 tripwire noted above,
-		which is a separate and still-owed decision.  */
-		/*  PC-1: ATTACH-UNDER, ALWAYS. The generated arm passes promote=0 and
-		so never consults isTarget -- the emitted method bakes `into` and
-		assumes attachment, and promotion would replace the parent's subtree
-		instead of growing it (GM-22's third wall, measured as ScafOUT
-		coming back childless).  */
-		if ( ruleStuff->sukcess )
-			{
-			fireLabelMethod(ruleStuff);
-			attachLabel(ruleStuff,pStuff,0);
-			}
-		goto generatedExit;
-		}
+	// bindReadSeamProbe
 	while ( !ruleStuff->isOK && ruleStuff->kount < ruleStuff->maxRepeat )
 		{
 continueHere:
@@ -2007,36 +1889,7 @@ continueHere:
 			::setMacroValue(this);
 		/*******************************************************************
 		Run the matches that determine if this rule succeeds
-		
-		THE MEMBERS ARM IS TESTED FIRST, AND THE !data GATE IS WHY IT CAN
-		BE. Tony ruled this 2026-08-18, closing F-15. The two arms are
-		chained with or, so whichever is written first claims the rule.
-		Written the other way round, hasAttributes SHADOWED hasMembers: an
-		alternation rule that acquired any attribute at all stopped
-		reaching testOptions, and testAttributes skips every noPrint
-		attribute and so returned false by vacancy. The rule then matched
-		nothing, and whatever parse was reading it ran off the end of its
-		input. The generated parse walk hit this because it hangs a
-		noPrint body on the rule, and hits it a second time because a
-		successful compile hangs a noPrint block there too.
-		
-		THE GATE IS NOT A SPECIAL CASE, IT IS THE CLASSIFICATION. A rule
-		carrying data is a data rule and is matched by testMatch. A rule
-		carrying members and no data is an alternation and is matched by
-		testOptions. Doctrine: shape is tested members-first, and data
-		presence excludes the members arm.
-		
-		MEASURED BEFORE IT WAS WRITTEN, by the census in incant, over 79
-		rules. Eleven are members-only and move to testOptions, which is
-		the repair. Two carry members AND data, and both are containers
-		whose executor is parseContainer; the gate keeps them on arm one
-		exactly as before, so the edit is behavior-preserving by census
-		rather than by hope. Nothing else in the population can move.
-		
-		AND THE GATE IS LOAD-TIME SAFE, which the alternatives were not.
-		It reads flags that exist the moment a rule is built, so it has no
-		dependency on setParse having bound a parse method -- and in an
-		ordinary run setParse has never fired at all.
+		//runParseMatches
 		*******************************************************************/
 		if ( groupBody->flags.isRule && groupBody->flags.hasMembers && !groupBody->flags.data )
 			ruleStuff->sukcess = ::testOptions(ruleStuff);
@@ -2095,11 +1948,6 @@ debugHere:
 generatedExit:
 	if ( !ruleStuff->sukcess && ruleStuff->notifyFail )
 		::aCTionFailed(ruleStuff->rule);
-	/*  PC-3: a label-less SUCCESS yields labelNO, not trueResult. The old
-	substitution manufactured a value to mean "succeeded with nothing to
-	hand back". labelNO is non-null, so every pointer-null consumer (parseR,
-	each emitted method's && chain) still reads success exactly as before,
-	and isCOUNT 0 keeps its numeric reading identical.  */
 	if ( ruleStuff->sukcess && !ruleStuff->label )
 		ruleStuff->label = ruler->labelNO;
 	ruleStuff->inProcess = 0;

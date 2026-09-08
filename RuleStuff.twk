@@ -377,7 +377,7 @@ extern int testAction(GroupItem field)
 extern int testAttributes(RuleStuff stuff)
 {
 GroupItem   grup;
-int         result;
+int         result = true;
     while grup = rule.nextAttribute(grup)
         if noPrint  continue;
         or parse(stuff) result = true;
@@ -503,12 +503,6 @@ use field
         *******************************************************************/
         for (; *atText; atText++ lngth++) {
             if isSET && characterSet.contains(*atText)  matched++;
-            or groupList {
-                while grup = field.next(grup)
-                    if !compareToStream(grup.tag,atText) {
-                        matchLength = (int)strlen(grup.tag);
-                        matched++;
-                        goto gotMatch; }}
             or matchLength == 1 {
                 if *atText == '\\' {
                     atText++;
@@ -520,11 +514,6 @@ use field
             or !compareToStream(endString,atText) matched++;
             if matched  break;
             or *atText  buffer += *atText; }
-        /*******************************************************************
-            Fields w/o label are skips. The number of fields skipped is
-            determined by the counter set above from the field count
-        *******************************************************************/
-gotMatch:
         if skipping {
             atText  += matchLength;
             lngth   += matchLength;

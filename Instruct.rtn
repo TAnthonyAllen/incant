@@ -377,16 +377,12 @@ use argument
                 case 3:     if !target.registry  product = null; else product = target.registry;
                 case 4:     product.text    = target.text;
                 case 5:     if target.groupList     product.count = target.listLength;
-                            else                    product = 0;
                 case 6:     product.count   = target.data;
                 case 7:     if target.hasAttributes product.count = 1;
-                            else    product = 0;
                 case 8:     if target.hasMembers    product.count = 1;
-                            else    product = 0;
                 // NOT case 7: setParse makes hasAttributes TRUE for every walked
                 // rule, so only this one discriminates   Instruct.opDot.case42hasTraits
                 case 42:    if target.hasTraits     product.count = 1;
-                            else    product = 0;
                 case 9:     if target.isLocal       product.count = 1;
                 case 10:    if target.isArgument    product.count = 1;
                 case 11:    if target.invoke        product.count = 1;
@@ -398,6 +394,7 @@ use argument
                 case 24:    if target.isShortcut    product.count = 1;
                 case 28:    if target.rStuff && target.noLabel  product.count = 1;
                 case 29:    if target.noPrint       product.count = 1;
+                case 33:    if target.isBIN         product.count = 1;
                 case 34:    if target.isAttribute   product.count = 1;
                 case 35:    if target.isMember      product.count = 1;
                 case 36:    if target.rStuff && target.actionMethod  product.count = 1;
@@ -1314,10 +1311,10 @@ use argument
                 the shared child list (processCode's proven pattern) and this
                 flag is the cheap test that says one is there. The rStuff field
                 spelling for parseMethod/actionMethod retires behind it.  */
-            case 41:    target.hasNewParse   = true;
-            case 32:    -% target->groupBody->flags.binType = 3; %-
-            case 33:    -% target->groupBody->flags.binType = 1; %-
-            case 40:    -% target->groupBody->flags.actionType = 2; %-
+            case 32:    target.binType      = 3;
+            case 33:    target.binType      = 1;
+            case 40:    target.actionType   = 2;
+            case 41:    target.hasNewParse  = 1;
             /*  isActioN -- THE WRITE HALF. The read half (opDot case 408) has
                 existed since incant/enumT; only the write was missing, so
                 `x :. isActioN` printed "no case yet -- gCount 408" and did

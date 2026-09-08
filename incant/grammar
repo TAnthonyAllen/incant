@@ -29,6 +29,7 @@
 counter=[0-9];
 modifySet=[-~+?!%&|*@_<^{}$];
 nameSet=[a-zA-Z0-9];
+SemI=";";
 PoweR               e=[eE] sign?=[+-] power=[0-9]+;
 FloaT               point="." decimals=[0-9]+ PoweR?;
     ⚠ THE NEXT TWO RULE LINES ARE INERT AND ARE MIRRORS, NOT DEFINITIONS.
@@ -53,7 +54,6 @@ DatA
     SetBrackets     leftBrace- rightBrace};
     DelimText       leftParen dtext^=delimiter};
     NotA=[^ \t\r\n;]+;
-debug               "ALL"? "GUARD"? rules=NamE* ';'-;
 InvokE              leftParen- NamE? rightParen-;
 Limit               leftBrace- min=[0-9]+ max?=[0-9]+ rightBrace- noPrint;
 MemberS             ':'- MEMBERs- Mlist=DefinE+;
@@ -87,7 +87,6 @@ define
     ExpressioN guard="^,;{}[]`";
     StatemenT guard=[{A-Za-z0-9+-;(];
     followedBy<^-=notInNameSet;
-    SemI=";";
     ElsE;
 
     /*************************************************************************

@@ -114,6 +114,8 @@ GroupRules  ruler = groupRules;
     text            = "}";
     strap           = grok += new("rightParen");
     text            = ")";
+    strap           = grok += new("SemI");
+    text            = ";";
    /**************************************************************************
         Define the setupFILE declared in GroupRules. It gets loaded at the
         end of this bootstrapper method.
@@ -404,8 +406,7 @@ GroupRules  ruler = groupRules;
     item            = grok/DEFINing;
     item            = strap +% item;
     item.setRuleStuff();
-    item            = new(";");
-    item            = strap +% item;
+    item            = strap +% grok/SemI;
     modify(item,"-");
 
     strap           = grok += "InvokE";
@@ -427,20 +428,12 @@ GroupRules  ruler = groupRules;
     item            = grok/InvokE;
     item            = strap +% item;
     modify(item,"?");
-    item            = new(";");
-    item            = strap +% item;
+    item            = strap +% grok/SemI;
     modify(item,"-?");
 
     strap           = grok += "InitiatE";
     setRuleStuff();
     item            = strap +% grok/RunRulE;
-    // bare + only, and BOTH omissions are deliberate.
-    // NOT @: nothing reads InitiatE's own product -- RunRulE consumes it before it
-    // returns -- so there is no label to promote, and @ on a REPEATED term is the
-    // shape that took Attributes to 49 green.
-    // NOT -: aCTionRunRulE reaches its rule by `input[1]`, a POSITIONAL read, and a
-    // noLabel term never attaches into that list -- so the dash makes rule null and
-    // every definition stops running. Measured 2026-09-07 at 10 green.
     modify(item,"+");
     item            = grok/InitiatE;
     item            = 0;

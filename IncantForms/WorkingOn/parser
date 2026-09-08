@@ -9,9 +9,10 @@ define
     codeBuffer buffer;
     openBrace="{";
     closeBrace="}";
+    termCount;
+    parseCount;
     generateParse code={
         cout "Generating parse code for" taG:;
-        $$argument;
         reset(codeBuffer);
         printTO(codeBuffer);
         print openBrace:;
@@ -28,6 +29,7 @@ define
             if noPrinT;     continue;
             if notFirstTimeThru > 0;    print _conjunct;
             ++notFirstTimeThru;
+            setParse(*grup);
             print $taG "()";
         print ";";
         @argument;
@@ -39,6 +41,7 @@ define
         *codeCopy :. noPrinT;
         argument +% *codeCopy;
         argument :. isCodeD;
+        argument :. hasNewParsE;
         printTO(0);
         print taG "=" CodE.taG CodE:;
        };
@@ -52,7 +55,9 @@ define
                 if binTypE;
                     generateParse(*grup);
                     continue;
-                if hasNewParsE; continue;
+                $$grup;
+                if hasNewParsE != 0;    continue;
+                $$grup;
                 if listLengtH;  walkRules(*grup);
                 else generateParse(*grup);
         };
@@ -71,45 +76,48 @@ define
                     else compile(grup);
         };
     evictTerms code={
-        iterate evA on argument attributes;
+        iterate evA attributes on argument;
         while ++evA;
             if noPrinT;     continue;
-            if hasNewParsE; evictAction(evA);
-        iterate evM on argument members;
+            ++termCount;
+            if hasNewParsE != 0;
+                ++parseCount;
+                newParse = 1;
+            print `"Rule attribute" taG;
+            if newParse;    print "Has new parse":;
+            else            print "No new parse":;
+        iterate evM members on argument;
         while ++evM;
             if noPrinT;     continue;
-            if hasNewParsE; evictAction(evM);
+            ++termCount;
+            if hasNewParsE != 0;    ++parseCount;
+            print `"Rule member" taG;
+            if newParse;    print "Has new parse":;
+            else            print "No new parse":;
         };
     evictWalk code={
-        iterate evR on argument members;
+        iterate evR members on argument;
         while ++evR;
             if noPrinT;     continue;
-            if !isRulE;     continue;
-            if hasNewParsE; evictAction(evR);
-            if binTypE;     continue;
-            evictTerms(evR);
+            ++ruleCount;
+            if hasNewParsE != 0;    ++parseCount;
+            //print "Rule" taG "Has new parse":;
+            if binTypE != 0;     continue;
+            evictTerms(*evR);
+        //print "Rules processed" ruleCount "Terms processed" termCount "Has new parse" parseCount:;
         };
     parser code={
         walkRules(argument);
-        compileRules(argument);
+        //compileRules(argument);
         cerr "PARSER SENTINEL -- walk complete":;
         compiledHere = 0;
         if argument.hasNewParsE;     compiledHere = 1;
         cerr "WITNESS compiled " compiledHere " -- 1 = compile ran on this rule, 0 = it did not":;
-        evictWalk(Grokking);
-        cerr "EVICTION SENTINEL -- cohort swept":;
-        @argument;
-        cout "Running" taG "on" ruleText:;
-        debug;
-        Xpress("dumpContents(Xpress");
-        print ~"PARSE " argument.taG " <- " ruleText:;
-        print `"ANSWER " parseAnswer:;
-        cerr "VERIFY SENTINEL -- answer reported":;
-        stop();
+        evictWalk(argument);
         };
     ;
 
-walkRules(Start);
+parser(DefinE);
 stop();
 parser(Start);
 

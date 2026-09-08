@@ -737,7 +737,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 extern "C" int testAttributes(RuleStuff *stuff)
 {
 GroupItem 	*grup = 0;
-int 		result = 0;
+int 		result = 1;
 	while ( grup = stuff->rule->nextAttribute(grup) )
 		if ( grup->groupBody->flags.noPrint )
 			continue;
@@ -972,17 +972,6 @@ GroupItem 	*grup = isGROUP(field->groupBody->flags.data) ? field->getGroup() : f
 			if ( isSET(field->groupBody->flags.data) && field->getCharacterSet()->contains(*atText) )
 				matched++;
 			else
-			if ( field->groupBody->groupList )
-				{
-				while ( grup = field->next(grup) )
-					if ( !::compareToStream(grup->groupBody->tag,atText) )
-						{
-						matchLength = (int)::strlen(grup->groupBody->tag);
-						matched++;
-						goto gotMatch;
-						}
-				}
-			else
 			if ( matchLength == 1 )
 				{
 				if ( *atText == '\\' )
@@ -1013,11 +1002,6 @@ GroupItem 	*grup = isGROUP(field->groupBody->flags.data) ? field->getGroup() : f
 			if ( *atText )
 				buffer->appendChar(*atText,0,0);
 			}
-		/*******************************************************************
-		Fields w/o label are skips. The number of fields skipped is
-		determined by the counter set above from the field count
-		*******************************************************************/
-gotMatch:
 		if ( skipping )
 			{
 			atText += matchLength;

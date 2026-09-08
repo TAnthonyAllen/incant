@@ -7918,7 +7918,6 @@ GroupItem 	*product = 0;
 				case 5:
 					if ( target->groupBody->groupList )
 						product->setCount(target->groupBody->groupList->listLength);
-					else	product = 0;
 					break;
 				case 6:
 					product->setCount((int)target->groupBody->flags.data);
@@ -7926,19 +7925,16 @@ GroupItem 	*product = 0;
 				case 7:
 					if ( target->groupBody->flags.hasAttributes )
 						product->setCount(1);
-					else	product = 0;
 					break;
 				case 8:
 					if ( target->groupBody->flags.hasMembers )
 						product->setCount(1);
-					else	product = 0;
 					// NOT case 7: setParse makes hasAttributes TRUE for every walked
 					// rule, so only this one discriminates   Instruct.opDot.case42hasTraits
 					break;
 				case 42:
 					if ( target->groupBody->flags.hasTraits )
 						product->setCount(1);
-					else	product = 0;
 					break;
 				case 9:
 					if ( target->groupBody->flags.isLocal )
@@ -7982,6 +7978,10 @@ GroupItem 	*product = 0;
 					break;
 				case 29:
 					if ( target->groupBody->flags.noPrint )
+						product->setCount(1);
+					break;
+				case 33:
+					if ( isBIN(target->groupBody->flags.binType) )
 						product->setCount(1);
 					break;
 				case 34:
@@ -9174,17 +9174,17 @@ GroupItem 	*flagDef = 0;
 				flag is the cheap test that says one is there. The rStuff field
 				spelling for parseMethod/actionMethod retires behind it.  */
 				break;
-			case 41:
-				target->groupBody->flags.hasNewParse = 1;
-				break;
 			case 32:
-				 target->groupBody->flags.binType = 3; 
+				target->groupBody->flags.binType = 3;
 				break;
 			case 33:
-				 target->groupBody->flags.binType = 1; 
+				target->groupBody->flags.binType = 1;
 				break;
 			case 40:
-				 target->groupBody->flags.actionType = 2; 
+				target->groupBody->flags.actionType = 2;
+				break;
+			case 41:
+				target->groupBody->flags.hasNewParse = 1;
 				/*  isActioN -- THE WRITE HALF. The read half (opDot case 408) has
 				existed since incant/enumT; only the write was missing, so
 				`x :. isActioN` printed "no case yet -- gCount 408" and did
@@ -11808,6 +11808,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		/***********************************************************************
 		Set the parseMethod
 		***********************************************************************/
+		field->groupBody->flags.hasNewParse = 1;
 		ruleStuff->actionMethod = field->groupBody->gMethod;
 		//parkOnMaster(field);
 		if ( upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo) )
@@ -11823,7 +11824,10 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			ruleStuff->parseMethod = ::parseAction;
 		else
 		if ( field->groupBody->groupList )
+			{
 			ruleStuff->parseMethod = ::parseRule;
+			field->groupBody->flags.hasNewParse = 0;
+			}
 		else
 		if ( field->groupBody->flags.data )
 			switch (field->groupBody->flags.data)
@@ -11861,7 +11865,6 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			builtinActoR->groupBody->flags.noPrint = 1;
 			builtinActoR->setMethod(ruleStuff->actionMethod);
 			}
-		field->groupBody->flags.hasNewParse = 1;
 		field->updateContentFlags();
 		}
 	return 0;
