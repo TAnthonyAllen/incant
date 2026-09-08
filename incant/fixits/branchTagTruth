@@ -1,0 +1,129 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(BranchTagTruth);
+define
+    btSeen; btTruthy; btDiscrim; btAnchor;
+    btProbe code={
+        ++btSeen;
+        btT := taG;
+        cerr "   BrancheS member " btSeen " tag = " btT:;
+        if taG;                 ++btTruthy;
+        if btT eq "return";     ++btDiscrim;
+        };
+    btWalk code={
+        iterate btCur members on *argument;
+        while ++btCur;
+            btProbe(*btCur);
+        };
+    btRun code={
+        btSeen = 0;  btTruthy = 0;  btDiscrim = 0;
+        btBin := Grokking["BrancheS"];
+        btWalk(*btBin);
+        cerr "BT-1 BrancheS members walked          = " btSeen    " (want 3; the three tags above are the control)":;
+        cerr "BT-2 `if taG;` answered TRUE on       = " btTruthy  " of 3 -- PRESENCE. This is the defect's shape":;
+        cerr "BT-3 a content test on the same tags  = " btDiscrim " of 3 -- WANTS 1. Reads 3: VOID, and a second finding":;
+        btAnchor = 0;
+        cerr "fixBranchTagTruthHere -- BT-2 is the finding; BT-3 is a separate one":;
+        };
+    ;
+btRun();
+print "BRANCHTAGTRUTH SENTINEL -- reached the foot":;
+stop();
+
+LANE:  build
+BLAST: DISJOINT
+
+NAME      branchTagTruth -- a truth test on a tag answers by presence, so the
+          jitting arm of aCTionBrancH cannot tell break from return. Minted
+          2026-09-08 on Tony's dispatch.
+
+SEVERITY  WRONG, LATENT. It cannot bite today because the arm is reachable only
+          under jitting and nothing jits a break. It bites the day something does.
+
+WHERE     ruleActions.rtn, aCTionBrancH, the `if jitting { ... }` arm.
+
+WHAT HAPPENED. The arm used to be C++ passthrough and read the tag's FIRST
+CHARACTER:
+
+    if      (*BrancheS->groupBody->tag == 'c')   jitEmitContinue();
+    else if (*BrancheS->groupBody->tag == 'r')   { ...emit the return... }
+    else    jitDegrade("break under jit -- no emitter yet", input);
+
+It was rewritten into incant in the 2026-09-08 working set and now reads:
+
+    if BrancheS.tag == 'c'      jitEmitContinue();
+    or BrancheS.tag {
+        ...emit the return... }
+    else    jitDegrade("break under jit -- no emitter yet", input);
+
+The second arm lost its comparison. `or BrancheS.tag {` is a truth test on a tag,
+and a tag is always there, so THE ARM IS TAKEN FOR EVERY TAG THAT IS NOT 'c'.
+`break` walks into the RETURN emitter instead of reaching jitDegrade, and the
+degrade arm below it becomes unreachable for anything at all.
+
+WHAT THIS INCANTATION MEASURES. The real population, not an analogue: BrancheS is
+a bin in Grokking and break / continue / return are literally its three members.
+The walk reaches them through a subscript and passes each one down, because naming
+a rule fires it (bear-trap #34).
+
+    BT-1  BrancheS members walked          3
+    BT-2  `if taG;` answered TRUE on       3 of 3
+    BT-3  a content test on the same tags  3 of 3   <- wants 1, and does not get it
+
+BT-2 AT 3-OF-3 IS THE FINDING, and it is not vacuous: the run prints the three
+tags -- break, continue, return -- so the walk demonstrably visited three DISTINCT
+members and the bare truth test still could not tell them apart. Those printed tags
+are this file's anti-vacuity control, and they are a better one than BT-3 was going
+to be, because a walk that read nothing cannot produce them.
+
+⚠⚠ BT-3 IS A SECOND FINDING, NOT A BROKEN ROW, AND IT IS LEFT IN DELIBERATELY.
+A content test on a tag inside an iterate body answers TRUE FOR EVERY MEMBER.
+Four spellings were measured, one run each, on these same three tags:
+
+    if taG eq "return";                      3 of 3
+    if btCur.taG eq "return";                3 of 3
+    btT := taG;  then  if btT eq "return";   3 of 3
+    minted nodes instead of a walk           3 of 3, and the tags came back wrong too
+
+THE THIRD IS THE REMEDY BEAR-TRAP #28 PRESCRIBES FOR ITS FOURTH ROW -- capture,
+then test -- AND IT DOES NOT WORK HERE. #28 records `eq` against a tag inside an
+iterate matching every member; #35's cure is to capture first. This says the cure
+is not sufficient: the capture is REAL -- btT prints the correct, distinct tag on
+every iteration -- and the comparison is still void.
+
+⚠ SO THIS FILE CANNOT SHOW CONTENT DISCRIMINATION AT ALL, and that is stated rather
+than worked around. Do not read BT-3 as "the fix would not work". Read it as "this
+language has no working string discriminator in this position, measured four ways"
+-- a fact the fix in NEXT below has to survive.
+
+SAME FAMILY, DO NOT FOLD (Tony's instruction). The parked `!` finding from the
+2026-09-08 seal -- `if !isRulE;` skipping nothing while `if isRulE == 0;` skips
+correctly, with odoPopulation and parseClass's pcWalk both carrying the vacuous
+spelling. Same disease, different operator, different sites. Cross-reference; they
+are not one entry. BT-3 above is a THIRD member of the family and is likewise not
+folded into either.
+
+NEXT: BEST GUESS. Two candidates, and they are not equivalent.
+
+  1. RESTORE THE DISCRIMINATION THE C++ HAD -- test for 'r' rather than for
+     presence. Grade: HIGH. It is what the passthrough did, the behaviour is known,
+     and the diff is one comparison. What would PROMOTE it: reading the two versions
+     side by side and confirming nothing in the rewrite depended on the arm being
+     total. What would KILL it: BT-3. The surviving first arm spells
+     `BrancheS.tag == 'c'`, and tok compares strings with eq/ne while `==` is
+     numeric -- so the 'c' arm may already be broken in its own way, and BT-3 says
+     the obvious repair spelling cannot be trusted without its own measurement.
+     THE FIX MAY OWE BOTH ARMS. Read the generated .mm for this function before
+     choosing; source and codegen have disagreed here before.
+
+  2. ROUTE IT THROUGH truthOf. Grade: LOW, recorded only because it was raised.
+     truthOf answers "is this true", which is exactly the wrong question -- the arm
+     does not want a truth value, it wants to know WHICH BRANCH KEYWORD this is. A
+     better truth test does not turn presence into content.
+
+⚠ NOT A RECOMMENDATION. Neither has been run against the jitting arm, and nothing
+jits a break today, so there is no live customer to measure against yet. The site is
+one function and the reading is cheap; do that before choosing.
