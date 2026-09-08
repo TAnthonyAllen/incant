@@ -1,3 +1,5 @@
+nextGroup: ERROR JSONlist does not contain a list
+nextGroup: ERROR JSONlist does not contain a list
 Search list: Grokking UnitTests Utilities
 ok  : {"a":[]} 
 ok  : {"a":["x","y"]} 
@@ -19,3 +21,5 @@ ok  : {"family":"EB Garamond","variants":["regular","700"],"files":{"regular":"h
 ok  : {"kind":"webfonts#webfontList","items":[{"family":"ABeeZee","variants":["regular","italic"],"subsets":["latin"],"version":"v22","files":{"regular":"http://fonts.gstatic.com/s/abeezee/v22/a.ttf","italic":"http://fonts.gstatic.com/s/abeezee/v22/b.ttf"},"category":"sans-serif"},{"family":"Roboto","variants":["regular","700"],"subsets":["latin","cyrillic"],"version":"v30","files":{"regular":"http://fonts.gstatic.com/s/roboto/v30/c.ttf","700":"http://fonts.gstatic.com/s/roboto/v30/d.ttf"},"category":"sans-serif"}]} 
 
 stop: ending input divert
+
+stop: end parsing

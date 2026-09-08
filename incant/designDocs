@@ -86,9 +86,6 @@ define
         KantParserHow="Incant rules are just incant fields; every component of a rule is an incant field; and kant code is all incant fields (a kant statement is a rule and its components, operators operands et al, are all fields. Thus you can walk a rule and its components using kant statements (the bar napkin design session also produced a design for a kant iterator to help with that). To simplify the walk and parser code generation, we opted to constrain the structure of incant rules to contain only data, only attributes, or only members (in a rule, members are rule options). Incant grammar rules now fit that constraint; it does not constrain how rules work, only how they are written.";
         KantParserFlow="Generating a rule specific parse is a rule walk that generates parse action code -> code gets stashed in the rule -> generalized parser interprets that code and stores it in the rule as a parsed block of code that the interpreter can run to verify the generated parse code works -> once verified the generated parse code gets jitted -> the jitted code then replaces the generalized parser -> field() runs a field method; and for a rule field, that method invokes jitted parse code that did not exist at flow start.";
         InterpretOrCompile="Interpreting and compiling follow parallel paths. Both walk field action code. The code looks the same to interpreter and compiler. Both produce a block of code that can be interpreted. However, the compiler/jitting process also produces a jitted field method to run the field's parse.";
-    arrondirNote date="2026-08-20" site="Commands.rtn arrondir" purpose="rounds a value" invoke="as incant command" why="avoid libc symbol collision" beartraps="7 12" description="arrondir is French for round and it works as an incant command that does what round does. round is in libc math.h so trying to use it directly as an incant command would generate a duplicate symbol error on linking.
-        Borrowing a word from another language gets around that issue. arrondir is free at C level, causing no linking duplication.
-        arrondir is not used in underlying kant methods like opDiv(). Likewise GroupItem getCount() does not use arrondir. opDiv and getCount are C++ methods so they do not need it. Kant has no such option; arrondir allows kant to run round().";
     Incantations="Design entries that belong to a particular INCANTATION rather than to a subsystem, one child per incantation. Minted 2026-08-26 on Tony's suggestion: designDocs was growing a flat list in which a file's operating notes sat at the same level as a subsystem's architecture, and the two answer different questions. A subsystem entry says what the design IS; an incantation entry says how one runnable file WORKS and what it has already been measured to do. The child key is the incantation, never the campaign it serves -- KantParser stays a subsystem entry because the campaign outlives any one file, while the parser form's gates and provenance live here.":
         UtilitiesIncantation=(incant/utilities. The shared helper incantation -- listRules,
             displayForm, setFrame, dumpField and friends -- included by nearly every fixture
@@ -464,6 +461,100 @@ define
 
                 MOVED HERE FROM GroupActions.rtn 2026-09-04, cleanup arc. The method is
                 unchanged; only its home and its comment moved.#);
+        Commands="an rtn file that gets included into GroupRules.twk when it gets tokked.":
+            arrondir="A kant command for rounding":
+                arrondirNote date="2026-08-20" site="Commands.rtn arrondir" purpose="rounds a value" invoke="as incant command" why="avoid libc symbol collision" beartraps="7 12" description=(arrondir is French for round and it works as an incant command that does what round does. round is in libc math.h so trying to use it directly as an incant command would generate a duplicate symbol error on linking.
+                    Borrowing a word from another language gets around that issue. arrondir is free at C level, causing no linking duplication.
+                    arrondir is not used in underlying kant methods like opDiv(). Likewise GroupItem getCount() does not use arrondir. opDiv and getCount are C++ methods so they do not need it. Kant has no such option; arrondir allows kant to run round().
+                    HALF-UP, the same rule and the same spelling as everywhere else: >= .5 goes
+                    up, < .5 goes down, so -2.5 gives -2. ⚠ THAT DISTINCTION IS NOW LOAD-BEARING
+                    rather than academic -- under Word 2 the compound-assign family computes in
+                    doubles and narrows the RESULT, so negative halves actually reach a rounding
+                    decision. lround() would round half AWAY FROM ZERO and disagree here.
+                    ROUTED THROUGH .count (getCount) DELIBERATELY, exactly as the compound
+                    arms are, so the half-up rule keeps ONE IMPLEMENTER. An inline floor(x+0.5)
+                    here would be a second copy of a rule whose whole history is copies
+                    disagreeing.#);
+            compile="compiles a rule parse generated in the parser incantation.":
+                compileAddTempFields=(Every coded body is built with TWO HIDDEN LOCALS -- `this` and
+                    `tempField`. aCTionDefinE adds them at definition time when it sees a
+                    CodE, and genParse's kant door replicates them by hand for the same
+                    reason, its own comment calling them "the two hidden locals every coded
+                    body is built with". A body generated at RUN time gets a CodE attached
+                    and NEITHER local, so `runRuleAction(this)` names something that does
+                    not exist and processCode refuses the parse.
+
+                    PRESENT-CHECK PER MEMBER, so a define-door rule that already carries
+                    them is left ALONE -- not re-minted, not replaced. That idempotence is
+                    the whole point of putting this here rather than in the generator: the
+                    precondition belongs to compilation, so compile guarantees it for every
+                    caller instead of each generator remembering.
+
+                    ⚠ `this` NEEDS THE BACK-POINTER, not just the two flags. Both minting
+                    sites set group to the owning field, which is what makes `this` resolve
+                    to the rule inside its own body. An ensure that created the member and
+                    stopped at isLocal/noPrint would look right and still fail.
+
+                    ⚠ THE PRESENT-CHECK IS A SUBSCRIPT, NOT getMember, AND THE DIFFERENCE
+                    IS A BUG I ALREADY WROTE ONCE. These two are ATTRIBUTES, not members:
+                    tok's `+=` on a name routes through addString, which does
+                    `if binType addMember else addAttribute`, and a rule is not a bin. So
+                    getMember could never find them, the guard would miss every time, and
+                    compile would re-mint on every call -- the exact non-idempotence this
+                    block exists to prevent, behind a check that looked correct.
+                    The subscript runs get(String), which walks the whole list with next()
+                    and is agnostic between attributes and members, so it finds them.
+                    (addString is idempotent on its own -- getFromList first -- so this
+                    guard is belt and braces. It is kept because R-4 asks that an existing
+                    precondition be left untouched, not merely un-duplicated.)#);
+                secondRefuseInCompile=(THE SECOND REFUSAL, AND IT IS DELIBERATELY NOT THE FIRST ONE'S
+                    MESSAGE. Ruling C, 2026-08-22: compile owns its preconditions BY FLAG
+                    AND BY ARTIFACT, and the two can disagree.
+
+                    isCoded IS actionType == 2 (GroupBody.h:75). Anything may set that
+                    flag; only activateBody and compileStored actually mint the CodE, as
+                    the last of the same three lines. So a caller that hand-sets the flag
+                    -- which incant/frontier did until 2026-08-22 -- arrives here claiming
+                    a body it does not have, and the lines below took `code` straight into
+                    addAttribute. That crashed: SIGSEGV at GroupItem.mm:212, no
+                    diagnostic, and from a shell it looked like a silent early exit
+                    because a crash eats buffered stdout.
+
+                    THE FLAG/ARTIFACT DISAGREEMENT IS ITSELF THE DIAGNOSTIC, which is why
+                    this must not collapse into the bodyless message above. That one says
+                    "you never claimed a body". This one says "you claimed one and it is
+                    not there" -- a different defect, in a different caller, and the two
+                    sentences send you to different places.#);
+                refusedRuleDoesNotEndRun=(A REFUSED RULE MUST NOT TERMINATE THE RUN. Tony's ruling on F-17e,
+                    2026-08-19. This line was `exit(1)` and that was louder than ruled:
+                    R-4 asks compile to REPORT and REFUSE, and processCode has already
+                    reported through reportCodeFail by the time control arrives here, so
+                    exiting added nothing but the end of the process.
+
+                    WHAT IT COST is the reason the ruling exists: a flat sweep could never
+                    report more than its FIRST refusal, so the population figure everyone
+                    was quoting was a lower bound wearing the shape of a count, and the
+                    census that would have corrected it was the thing being terminated.
+                    Returning null makes a refusal a VALUE a caller can tally, which is
+                    what a per-rule failure report needs.
+
+                    NO DOUBLE REPORT: processCode owns the message (GroupActions.rtn), and
+                    compile owns only the verdict.
+
+                    ⚠ THE TATTLE, Tony 2026-08-26 (refuse-loud on the compile road, R-2).
+                    processCode names its own failure and the position it stopped at, but
+                    it does NOT say who asked. A sweep over a hundred rules therefore
+                    produced a column of positions with no patient attached to any of
+                    them. This line names the rule compile was standing on when the
+                    refusal came back, so the two messages read as one chain: processCode
+                    says what broke and where, compile says whom it broke for.
+
+                    IT IS A NAMING, NOT A VERDICT, AND THE DISTINCTION IS F-17e's RULING
+                    STILL STANDING: a refused rule does not terminate the run, because a
+                    flat sweep that exits on its first refusal can never report more than
+                    one, and the census is the thing being terminated. Adding the name
+                    costs nothing a caller was relying on -- the return value is unchanged
+                    and every tally still counts a null as a refusal.#);
         Generate="is an rtn file that gets included into GroupRules.twk when it gets tokked. The text for these entries needs to be reviewed to see if they are still relevant. They were relevant once but things change and no one has been going thru comments to keep them up to date. The comments cluttered up code. Now they do not. They are here and the same relevancy question applies.":
             parseAny=(THE LABEL WRITE IS GUARDED IN ALL FOUR OF THESE, and until 2026-08-18 it
                 was guarded in only one. parseSet had `if label` and parseAny,
@@ -4112,10 +4203,8 @@ define
                     stamp lands
                     somewhere real and the walk continues instead of dying.#);
                 branchesUnderJit=(BRANCHES UNDER JITTING. `continue` emits a branch to the
-                    innermost
-                    loop's condition block; break and return DEGRADE LOUDLY
-                    rather than
-                    emitting nothing.
+                    innermost loop's condition block; break and return DEGRADE LOUDLY
+                    rather than emitting nothing.
 
                     ⚠ THE DEGRADE ARM IS THE POINT, not politeness. In the
                     displayForm dump
@@ -4146,6 +4235,15 @@ define
                     -- reading
                     BrancheS.tag mirrors the switch exactly and settles
                     nothing either way.#);
+                returnEmitNow=(RETURN IS EMITTED NOW (item 2, Tony 2026-08-05). The degrade arm below
+                    shrank from "break and return" to "break, and the ONE return case that is
+                    still unbuilt". jitEmitReturn answers 0 for a return inside an INLINED
+                    body -- E2, deferred with sanction -- and that is the only path that
+                    still counts, so the message says which case it was rather than leaving
+                    a reader to infer it from a construct name that is otherwise covered.#);
+                branchReturnPosition=( A RETURN IS A POSITION THAT CONSUMES A VALUE, and jitEmitters' own standing rule (the note above jitEmitBareRead's callers) is that EVERY such position invokes the primitive when its operand is BARE. `return` was not on that list only because it did not exist when the list was written.
+                    Without this, `return someField;` emits NOTHING -- `if isMethod` is false for a bare read -- so jitStoreResult finds a null gJitResult, stores nothing, and the action returns whatever the PRIOR statement left in the slot. Measured 2026-08-05: `return ftAcc;` off a base case returned 0, silently, at degrade count 0. Exactly the shape gIF and both loops already carry.
+                    E2 BUILT 2026-08-09 -- the rr==0 arm is GONE, not silenced. jitEmitReturn no longer has an "inside an inlined callee" answer: an inlined region now carries its own exit block and the return branches there. A degrade arm nothing can fire is an assertion nothing can fire, so it is removed rather than left to rot. -1 keeps its meaning exactly: a mis-sequenced caller, never a language gap.#);
             aCTionCerR=(the cerr statement.#):
                 stderrSink=(Immediate method for the CerR rule -- THE STDERR SINK,
                     added 2026-08-01.
@@ -4281,54 +4379,21 @@ define
                     Braced in incant/parseCode, which is unregistered in the
                     setup
                     fILEs registry and so is loaded by nothing.#);
-                definitionComplete=(THE DEFINITION IS COMPLETE HERE — attributes and members
-                    are both in —
-                    so this is where a term's rStuff is materialised (Clay
-                    SEQ 27). Doing it
-                    at the completion point rather than per-attribute is
-                    what avoids the
-                    ordering hazard rung 7 hit with alternation binding: a
-                    definition
-                    attribute fires WHEN PARSED, which for an alternation is
-                    before its
-                    members exist.
-
-                    Almost always a no-op: `modify` has already materialised
-                    anything
-                    carrying a modifier, and terms from incant source come
-                    back with rStuff
-                    regardless. It is here so the INVARIANT holds at the
-                    define point rather
-                    than holding by luck.
-
-                    Note I commented this out because rStuff should be there
-                    already if
-                    the NewGroup is a rule and zero if it is not
-                    materialiseTerms(NewGroup);#);
             aCTionFailed=(the parse-failure reporter.#):
-                lastCodeToCrash=(⚠ THE LAST CODE ALLOWED TO CRASH IS THE CODE THAT
-                    REPORTS CRASHES.
-                    Standing principle, Tony 2026-08-22, and it outlives
-                    this fix.
+                lastCodeToCrash=(LAST CODE ALLOWED TO CRASH IS THE CODE THAT REPORTS CRASHES.
+                    Standing principle, Tony 2026-08-22, and it outlives this fix.
 
-                    Failure reporting must survive its own subject.
-                    `failedAt` lives on
-                    rStuff, and a subject arriving here with no rStuff is
-                    exactly the
-                    "something went wrong in the getting-there" case this
-                    reporter exists
-                    to announce -- so trusting the subject to be intact is
-                    the one
+                    Failure reporting must survive its own subject. `failedAt` lives on
+                    rStuff, and a subject arriving here with no rStuff is exactly the
+                    "something went wrong in the getting-there" case this reporter exists
+                    to announce -- so trusting the subject to be intact is the one
                     assumption it must never make. It cannot say so dead.
 
-                    Print what exists, name what is absent. Reported
-                    unconditionally and
-                    with its value either way (rule H4): an absence that
-                    prints nothing
-                    would be indistinguishable from a parse that failed at
-                    offset zero.#);
+                    Print what exists, name what is absent. Reported unconditionally and
+                    with its value either way (rule H4): an absence that prints nothing
+                    would be indistinguishable from a parse that failed at offset zero.#);
             aCTionIF=(the if statement.#):
-                refuseLoudly=(MR, 2026-08-06. REFUSE LOUDLY, NEVER CRASH. The line
+                ifRefuseLoudly=(MR, 2026-08-06. REFUSE LOUDLY, NEVER CRASH. The line
                     below used to
                     dereference StatemenT unguarded, so ANY `if` whose
                     governed statement
@@ -4631,18 +4696,12 @@ define
                 signature, canary
                 239 -> 0). Declarations here span lines and end on a bare
                 `;`.#);
-            labelNoNotFalse=(labelNO, not falseResult (director, 2026-08-07). This
-                construct
-                executed NO statement, and an action's value is the value of
-                the LAST
-                EXECUTED STATEMENT -- so it has no value. `false` was never
-                a decision
-                that false is correct; it was the least-bad approximation
-                while "yields
-                nothing" was unsayable. labelNO is isCOUNT 0, so the NUMERIC
-                reading is
-                unchanged and both engines still agree; what is new is that
-                the attach
+            labelNoNotFalse=(labelNO, not falseResult (director, 2026-08-07). This construct
+                executed NO statement, and an action's value is the value of the LAST
+                EXECUTED STATEMENT -- so it has no value. `false` was never a decision
+                that false is correct; it was the least-bad approximation while "yields
+                nothing" was unsayable. labelNO is isCOUNT 0, so the NUMERIC reading is
+                unchanged and both engines still agree; what is new is that the attach
                 can tell "nothing" from "the number zero".#);
             breakIsConsumed=(BREAK IS CONSUMED HERE, ratified 2026-07-31. A break
                 terminates
@@ -4659,23 +4718,8 @@ define
                 to
                 `if !result result = falseResult;` below.#);
             aCTionDefinE=(the define statement -- where a rule is born.#):
-                argumentHasData=(THE CLAIM, from the site: an argument attribute never carries an initial value (Tony, SEQ 131); the field passed in carries the value, a declared one is a defect and is refused BY NAME in F-41's form.
-⚠ THE ARGUMENT FOR THIS ONE IS GONE, AND THAT IS THE
-                    ENTRY. The pointer at the site was written in the
-                    2026-09-01 trial's first pass and its registry entry was
-                    never created, so the long text it replaced is not in
-                    the tree and not in this file. What survives is the
-                    CLAIM, which the pointer still carries at the site, and
-                    the git history of ruleActions.rtn before that pass.
-                    Recorded rather than reconstructed: a plausible rewrite
-                    would be indistinguishable from the original and would
-                    be worth less than an honest gap. Found 2026-09-03 by
-                    the sweep's own dangling-pointer check -- the first two
-                    instances the comment trial has produced, and the
-                    evidence its docs/commentTrial.md says the
-                    dangling-pointer fleet row was waiting for.#);
                 embeddedRuleCopy=(THE CLAIM, from the site: definition makes structure, runtime makes reference -- embedRule() copies an embedded RULE and stores anything else as it stands.
-⚠ THE ARGUMENT FOR THIS ONE IS GONE, AND THAT IS THE
+                    THE ARGUMENT FOR THIS ONE IS GONE, AND THAT IS THE
                     ENTRY. The pointer at the site was written in the
                     2026-09-01 trial's first pass and its registry entry was
                     never created, so the long text it replaced is not in
@@ -4689,6 +4733,12 @@ define
                     instances the comment trial has produced, and the
                     evidence its docs/commentTrial.md says the
                     dangling-pointer fleet row was waiting for.#);
+                refusalBoundary=(A refusal raised while defining is terminal
+                    for THE DEFINITION: it is not installed, and the arm is cleared here so
+                    the NEXT definition in the file is unaffected. One channel -- the same
+                    `refused` the run-time road uses -- and no non-arming sibling, because a
+                    second channel is how the two eras would drift.   Tony, 2026-09-05.
+                    ruleActions.aCTionDefinE.refusalBoundary#);
     LastRef=(lastREF is ONE global holder field, minted once, whose gGroup is re-pointed at the most recently referenced field; it stores the HELD field and never a copy of it, and it has no save/restore, so a nested action call overwrites the caller's.#):
         LastRefStatus=(measured 2026-09-04, C-158, on both arms. Census is every lastREF mention in the .rtn/.twk sources: 27 sites, 1 minting, 6 writers, 4 readers. Read-only recon; no change, no ruling.#);
         LastRefMinting=(GroupControl.twk:183 -- lastREF = properties += new("lastREF"). Minted ONCE as a property of the controller, so there is exactly one for the whole run. Writers never replace the field; they re-point its gGroup. That is why lastREF is itself a holder and why nothing needs to allocate one.#);

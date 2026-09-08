@@ -36,7 +36,7 @@ GroupItem 	*token = 0;
 	if ( isGROUP(input->groupBody->flags.data) )
 		token = input->getGroup();
 	else	token = input;
-	if ( token && token->groupBody->registry == GroupControl::groupController->groupRules->keyWords && !token->groupBody->flags.noPrint )
+	if ( !GroupControl::groupController->groupRules->compiling && token && token->groupBody->registry == GroupControl::groupController->groupRules->keyWords && !token->groupBody->flags.noPrint )
 		return 0;
 	return input;
 }
@@ -125,8 +125,7 @@ GroupItem 	*arg = ExpressioN;
 	else
 	if ( isMethod(arg->groupBody->flags.instructType) )
 		arg = arg->groupBody->gMethod(arg);
-	// ⚠ THE LINE ABOVE CAN LEAVE arg NULL -- under jitting that method is an emitter
-	// and null means I REFUSED, not a node   ruleActions.aCTionBrancH.ke3NullOperand
+	// ke3NullOperand under jitting that method is an emitter and a null arg means I REFUSED
 	if ( !arg )
 		arg = BrancheS;
 	switch (*BrancheS->groupBody->tag)
@@ -140,44 +139,22 @@ GroupItem 	*arg = ExpressioN;
 		case 'r':
 			arg->groupBody->flags.isBranch = 3;
 		}
-	// break and return DEGRADE LOUDLY here rather than emitting nothing, and the tag
-	// is read DIRECTLY rather than off the flags set above   ruleActions.aCTionBrancH.branchesUnderJit
-	/*  ⚠ RETURN IS EMITTED NOW (item 2, Tony 2026-08-05). The degrade arm below
-	shrank from "break and return" to "break, and the ONE return case that is
-	still unbuilt". jitEmitReturn answers 0 for a return inside an INLINED
-	body -- E2, deferred with sanction -- and that is the only path that
-	still counts, so the message says which case it was rather than leaving
-	a reader to infer it from a construct name that is otherwise covered.  */
+	// branchesUnderJit break and return DEGRADE LOUDLY here rather than emitting nothing, and the tag
+	// returnEmitNow
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
-		
-		if (*BrancheS->groupBody->tag == 'c')       jitEmitContinue();
-		else if (*BrancheS->groupBody->tag == 'r') {
-		//  ⚠ A RETURN IS A POSITION THAT CONSUMES A VALUE, and jitEmitters'
-		//  own standing rule (the note above jitEmitBareRead's callers) is
-		//  that EVERY such position invokes the primitive when its operand
-		//  is BARE. `return` was not on that list only because it did not
-		//  exist when the list was written.
-		//  Without this, `return someField;` emits NOTHING -- `if isMethod`
-		//  is false for a bare read -- so jitStoreResult finds a null
-		//  gJitResult, stores nothing, and the action returns whatever the
-		//  PRIOR statement left in the slot. Measured 2026-08-05:
-		//  `return ftAcc;` off a base case returned 0, silently, at degrade
-		//  count 0. Exactly the shape gIF and both loops already carry.
-		if (ExpressioN && !isMethod(ExpressioN->groupBody->flags.instructType))
-		::jitEmitBareRead(ExpressioN);
-		//  ⚠ E2 BUILT 2026-08-09 -- the rr==0 arm is GONE, not silenced.
-		//  jitEmitReturn no longer has an "inside an inlined callee" answer:
-		//  an inlined region now carries its own exit block and the return
-		//  branches there. A degrade arm nothing can fire is an assertion
-		//  nothing can fire, so it is removed rather than left to rot.
-		//  -1 keeps its meaning exactly: a mis-sequenced caller, never a
-		//  language gap.
-		if (::jitEmitReturn() < 0)
-		jitDegrade("return REFUSED -- no builder, no epilogue block, or "
-		"inlining with no frame. A mis-sequenced caller", input); }
-		else    jitDegrade("break under jit -- no emitter yet", input);
-		
+		if ( *BrancheS->groupBody->tag == 'c' )
+			::jitEmitContinue();
+		else
+		if ( BrancheS->groupBody->tag )
+			{
+			// branchReturnPosition
+			if ( ExpressioN && !isMethod(arg->groupBody->flags.instructType) )
+				::jitEmitBareRead(ExpressioN);
+			if ( ::jitEmitReturn() < 0 )
+				::jitDegrade("return REFUSED -- no builder, no epilogue block, or  inlining with no frame. A mis-sequenced caller",input);
+			}
+		else	::jitDegrade("break under jit -- no emitter yet",input);
 		}
 	return arg;
 }
@@ -194,7 +171,7 @@ Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTA
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
 	// GroupRules.h's extern block to zero   ruleActions.degradeByDefault
 	if ( GroupControl::groupController->groupRules->jitting )
-		jitDegrade("cerr under jit -- no emitter, sink fires at emit time",input);
+		::jitDegrade("cerr under jit -- no emitter, sink fires at emit time",input);
 	if ( !buffer )
 		buffer = new Buffer("cerr buffer");
 	appendPrintXP(stuff,buffer);
@@ -266,7 +243,7 @@ Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTA
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
 	// GroupRules.h's extern block to zero   ruleActions.degradeByDefault
 	if ( GroupControl::groupController->groupRules->jitting )
-		jitDegrade("cout under jit -- no emitter, sink fires at emit time",input);
+		::jitDegrade("cout under jit -- no emitter, sink fires at emit time",input);
 	if ( !buffer )
 		buffer = new Buffer("cout buffer");
 	appendPrintXP(stuff,buffer);
@@ -428,18 +405,7 @@ GroupItem 	*item = 0;
 					CodE->groupBody->tag = "CodE";
 					CodE->groupBody->flags.noPrint = 1;
 					}
-				/*  ⚠ A DECLARED `argument` IS A RETIRED SPELLING AND REFUSES BY
-				NAME. runAction MINTS the binding slot now, so there is
-				nothing left to declare. Same shape as iterate's old form:
-				the retired spelling does not quietly do something slightly
-				different, it says so and names the respell.
-				⚠ THE REFUSAL ARMS, and the arm is cleared AT THE DEFINITION
-				BOUNDARY rather than by aCTionBlocK -- a refusal is terminal
-				for THE UNIT THAT RAISED IT, and at define time that unit is
-				the DEFINITION, not the enclosing block. Arming without the
-				boundary clear kills every later definition in the file:
-				measured 2026-09-05, fleet 171 -> 107.
-				ruleActions.aCTionDefinE.argumentRetired  */
+				// argument was set here once; no longer, now set in runAction
 				if ( ::compare(item->groupBody->tag,"argument") == 0 )
 					::refuse(NewGroup,"a declared `argument` attribute is retired -- delete it; runAction mints the binding slot");
 				if ( NewGroup->groupBody->flags.isMacro )
@@ -503,10 +469,7 @@ GroupItem 	*item = 0;
 					newMember->setRStuff(fresh);
 					}
 			}
-	/*******************************************************************************
-	THE CODED TEST WINS -- the arms are ordered, not interchangeable.
-	ruleActions.aCTionDefinE.ruleMethodCheck
-	*******************************************************************************/
+	// ruleMethodCheck the arms are ordered, not interchangeable.
 	if ( NewGroup->groupBody->flags.isRule )
 		{
 		if ( !isREGISTRY(NewGroup->groupBody->flags.binType) )
@@ -526,25 +489,11 @@ GroupItem 	*item = 0;
 				}
 			}
 		}
-	/*******************************************************************************
-	THE DEFINITION IS COMPLETE HERE, which is why a term's rStuff is materialised
-	at this point and not per-attribute.
-	ruleActions.aCTionDefinE.definitionComplete
-	*******************************************************************************/
-	/***********************************************************************
-	DEFINITION MAKES STRUCTURE; RUNTIME MAKES REFERENCE. embedRule() copies an
-	embedded RULE and stores anything else as it stands.
-	ruleActions.aCTionDefinE.embeddedRuleCopy
-	***********************************************************************/
-GroupItem 	*term = 0;
-int 		t = 1;
-	while ( term = NewGroup->get(t) )
-		{
-		if ( isGROUP(term->groupBody->flags.data) )
-			term->embedRule(term->groupBody->gGroup);
-		t++;
-		}
-	// re-mention: the block above hijacks bare-field resolution   bear-trap #42
+	// embeddedRuleCopy embedRule() copies an embedded RULE
+	if ( NewGroup->groupBody->flags.isRule && NewGroup->groupBody->groupList )
+		while ( item = NewGroup->nextAttribute(item) )
+			if ( isGROUP(item->groupBody->flags.data) )
+				item->embedRule(item->groupBody->gGroup);
 	input->clearList();
 	NewGroup->groupBody->flags.isInitialized = 1;
 	if ( NewGroup->groupBody->registry && !NewGroup->parent )
@@ -554,18 +503,25 @@ int 		t = 1;
 	if ( ruler->currentDefine && ruler->currentDefine->groupBody == NewGroup->groupBody )
 		ruler->currentDefine = 0;
 	input->setGroup(NewGroup);
-	/*  ⚠ THE DEFINITION BOUNDARY. A refusal raised while defining is terminal
-	for THE DEFINITION: it is not installed, and the arm is cleared here so
-	the NEXT definition in the file is unaffected. One channel -- the same
-	`refused` the run-time road uses -- and no non-arming sibling, because a
-	second channel is how the two eras would drift.   Tony, 2026-09-05.
-	ruleActions.aCTionDefinE.refusalBoundary  */
+	// refusalBoundary
 	if ( ruler->refused )
 		{
 		if ( ruler->currentRegistry )
 			ruler->currentRegistry->remove(NewGroup->groupBody->tag);
 		ruler->refused = 0;
 		}
+	return input;
+}
+
+/*******************************************************************************
+	Immediate method for DelimText rule
+*******************************************************************************/
+extern "C" GroupItem *aCTionDelimText(GroupItem *input)
+{
+GroupItem 	*dtext = input->getLabelGroup("dtext");
+GroupItem 	*grup = dtext->groupBody->groupList->firstInList;
+	input->clear();
+	input->setText(grup->getText());
 	return input;
 }
 
@@ -611,7 +567,7 @@ int 		restrict = 0;
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
 	// GroupRules.h's extern block to zero   ruleActions.degradeByDefault
 	if ( ruler->jitting )
-		jitDegrade("FOR under jit -- no emitter (iterate's disease, different keyword)",input);
+		::jitDegrade("FOR under jit -- no emitter (iterate's disease, different keyword)",input);
 	if ( isGROUP(Looper->groupBody->flags.data) )
 		Looper = Looper->getGroup();
 	Looper->clear();
@@ -689,12 +645,7 @@ int 		restrict = 0;
 extern "C" GroupItem *aCTionFailed(GroupItem *input)
 {
 GroupItem 	*lastStatement = GroupControl::groupController->groupRules->lastStatement;
-	// lastStatement is a stable marker set in aCTionStatemenT only on confirmed
-	// top-level statement execution (!processingCode) — it survives backtracking,
-	// unlike ruleSTUFF.label. Top-level granularity for now; in-block is a future
-	// refinement.
-	// ⚠ THE LAST CODE ALLOWED TO CRASH IS THE CODE THAT REPORTS CRASHES -- failure
-	// reporting must survive its own subject, so nothing here may deref unguarded   ruleActions.aCTionFailed.lastCodeToCrash
+	// lastCodeToCrash
 	::printf("Rule %s\n",input->groupBody->tag);
 	if ( input->getRStuff() )
 		::printf("\tFailed at:\t%s\n",::getDebugText(input->getRStuff()->failedAt,40));
@@ -725,8 +676,7 @@ GroupItem 	*result = ExpressioN;
 	if ( isMethod(result->groupBody->flags.instructType) )
 		result = result->groupBody->gMethod(result);
 	else	result = ExpressioN;
-	// bareIfTruth  aCTionIF answers by truthOf; isInitialized is a value marker, not a truth
-	// ⚠ REFUSE LOUDLY, NEVER CRASH -- unguarded, `if 1;` exits 139 with zero output   ruleActions.aCTionIF.refuseLoudly
+	// ifRefuseLoudly
 	if ( ::truthOf(result) && !StatemenT )
 		{
 		::fprintf(stderr,"aCTionIF: REFUSING -- the condition parsed but its governed statement is MISSING. Common causes: a // between the condition and the statement (bear-trap #4), an `if <cond>;` with no statement at all, or a rule named in the condition consuming the statement as its input.\n");
@@ -737,8 +687,7 @@ GroupItem 	*result = ExpressioN;
 	else
 	if ( ElsE )
 		result = ElsE->groupBody->gMethod(ElsE);
-	// labelNO, not falseResult: this construct executed NO statement, so it has no
-	// value -- and 0 is a value   ruleActions.labelNoNotFalse
+	// labelNoNotFalse if this executed NO statement, it has no value, hence labelNO
 	if ( !result )
 		result = GroupControl::groupController->groupRules->labelNO;
 	return result;
@@ -1138,7 +1087,7 @@ int 		setStakked = 0;
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
 	// GroupRules.h's extern block to zero   ruleActions.degradeByDefault
 	if ( GroupControl::groupController->groupRules->jitting )
-		jitDegrade("search under jit -- no emitter, mutates the search stack at emit time",input);
+		::jitDegrade("search under jit -- no emitter, mutates the search stack at emit time",input);
 	while ( grup = input->next(grup) )
 		if ( ::compare(grup->groupBody->tag,"reset") == 0 )
 			searchLIST->clearList();
@@ -1242,7 +1191,7 @@ Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTA
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
 	// GroupRules.h's extern block to zero   ruleActions.degradeByDefault
 	if ( GroupControl::groupController->groupRules->jitting )
-		jitDegrade("string expression under jit -- no emitter, builds at emit time",input);
+		::jitDegrade("string expression under jit -- no emitter, builds at emit time",input);
 	if ( !buffer )
 		buffer = new Buffer("print buffer");
 	appendPrintXP(stuff,buffer);
@@ -1806,37 +1755,26 @@ GroupItem 	*grup = 0;
 		}
 }
 
+/*******************************************************************************
+                            Commands.rtn
+    Home for extern methods backing the cOMMANDs base registry. Commands fire
+    C++ methods used to set flags or perform side effects; they are wired up
+    via the immediateAction attribute in incant/setup.
+
+    Externs are ordered alphabetically by method name (case-sensitive ASCII,
+    matching tok's emit order so the .rtn order and .mm order line up).
+    
+    Note: incant commands are defined at setup in the cOMMANDs registry. They
+    come in two flavors: commands with a noPrint attribute are invoked during
+    field definition to modify the field being defined; the command is not
+    added to the definition; it is fire and forget. Commands without a noPrint
+    attribute are intended to be run on the command line.
+*******************************************************************************/
 /******************************************************************************
-    This incant command method reads the field passed in as a file spec and
-    loads the field buffer (creating it if necessary) with text read in from
-    the file. Returns the loaded field. See DesignDocs entry: arrondirNote.
+    arrondir is French for to round. Named because libc has round so cannot
+    declare a kant command named round.
+        // arrondirNote
 ******************************************************************************/
-/***************************************************************************
-    arrondir -- EXPLICIT CONVERSION TO A COUNT (Tony's ruling, 2026-08-01,
-    clause 2 / word 3). For when the user wants control instead of relying on
-    implicit narrowing.
-
-    ⚠ NAMED IN FRENCH ON PURPOSE, AND IT PAYS TWICE (Tony). `round` is libc
-    <math.h>, and extern "C" strips overload resolution, so an extern named
-    `round` is bear-trap #12 -- clean per file, `duplicate symbol` at Ld, no hint
-    which incant file caused it. The first cut dodged that with a differently
-    named extern plus the `=method` binding form (bear-trap #7). BORROWING A WORD
-    FROM ANOTHER LANGUAGE INSTEAD REMOVES BOTH: the name is free at the C level,
-    so the extern carries it directly and the indirection disappears. Cheaper
-    than inventing a name, and it reads.
-
-    HALF-UP, the same rule and the same spelling as everywhere else: >= .5 goes
-    up, < .5 goes down, so -2.5 gives -2. ⚠ THAT DISTINCTION IS NOW LOAD-BEARING
-    rather than academic -- under Word 2 the compound-assign family computes in
-    doubles and narrows the RESULT, so negative halves actually reach a rounding
-    decision. lround() would round half AWAY FROM ZERO and disagree here.
-
-    ⚠ ROUTED THROUGH .count (getCount) DELIBERATELY, exactly as the compound
-    arms are, so the half-up rule keeps ONE IMPLEMENTER. An inline floor(x+0.5)
-    here would be a second copy of a rule whose whole history is copies
-    disagreeing.
-
-***************************************************************************/
 extern "C" GroupItem *arrondir(GroupItem *field)
 {
 	if ( !field )
@@ -1871,25 +1809,10 @@ extern "C" int assignFieldCore(GroupItem *source, GroupItem *target)
 }
 
 /*******************************************************************************
-    Commands.rtn
-    Home for extern methods backing the cOMMANDs base registry. Commands fire
-    C++ methods used to set flags or perform side effects; they are wired up
-    via the immediateAction attribute in incant/setup.
-
-    Externs are ordered alphabetically by method name (case-sensitive ASCII,
-    matching tok's emit order so the .rtn order and .mm order line up).
-    
-    Note: incant commands are defined at setup in the cOMMANDs registry. They
-    come in two flavors: commands with a noPrint attribute are invoked during
-    field definition to modify the field being defined; the command is not
-    added to the definition; it is fire and forget. Commands without a noPrint
-    attribute are intended to be run on the command line.
-*******************************************************************************/
-/***************************************************************************
 	The incant clear command invokes this. It clears its argument.
     If data is a buffer, it is reset. If data is a stak, it is cleared.
     Otherwise input is cleared wiping data and list.
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *cLEAR(GroupItem *input)
 {
 	if ( isBUFFER(input->groupBody->flags.data) )
@@ -1904,9 +1827,9 @@ extern "C" GroupItem *cLEAR(GroupItem *input)
 	return input;
 }
 
-/***************************************************************************
+/*******************************************************************************
 	Returns a copy of the field passed in
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *cOPY(GroupItem *field)
 {
 GroupItem 	*newField = new GroupItem(field);
@@ -1937,86 +1860,12 @@ extern "C" GroupItem *compile(GroupItem *field)
 {
 GroupItem 	*code = 0;
 GroupItem 	*grup = 0;
-	/*  ⚠ REFUSE LOUD ON A BODYLESS FIELD, AND RETURN null. SEQ 79 step 2,
-	in-charter under R-4: compile owns the compilation preconditions, and
-	"carries a body at all" is the first of them.
-	
-	WHAT THIS REPLACES IS WORSE THAN THE CRASH IT WAS CHARTERED AGAINST.
-	The old spelling was `goto endCompile`, and endCompile is `return
-	field` -- so compile on a rule with NO BODY returned the field, which
-	is TRUTHY, and every caller tallying `if compile(x)` counted it as a
-	SUCCESS. A bodyless rule did not fail to compile, it silently reported
-	that it had. That is an absence passing for a value, rule H4's exact
-	shape, and it was invisible for as long as every caller happened to
-	pass coded fields.
-	
-	A SIBLING MESSAGE, NOT reportNoBody, per the F-18 standard: that one
-	says a rule was reached THROUGH A BOUND PARSE METHOD and has no body,
-	which is a different fact about a different path. Reusing it would put
-	two meanings on one channel. Spelled as a cerr rather than a new
-	extern deliberately -- it is greppable by text, and a sixth extern
-	would move the canary pin again for a message.  */
 	if ( !isCoded(field->groupBody->flags.actionType) )
-		{
 		return ::refuse(field,"compile: no compiled body");
-		}
-	/*  ⚠ COMPILE OWNS THE COMPILATION PRECONDITIONS, ENSURED IDEMPOTENTLY.
-	R-4, Tony's ruling 2026-08-17.
-	
-	Every coded body is built with TWO HIDDEN LOCALS -- `this` and
-	`tempField`. aCTionDefinE adds them at definition time when it sees a
-	CodE, and genParse's kant door replicates them by hand for the same
-	reason, its own comment calling them "the two hidden locals every coded
-	body is built with". A body generated at RUN time gets a CodE attached
-	and NEITHER local, so `runRuleAction(this)` names something that does
-	not exist and processCode refuses the parse.
-	
-	PRESENT-CHECK PER MEMBER, so a define-door rule that already carries
-	them is left ALONE -- not re-minted, not replaced. That idempotence is
-	the whole point of putting this here rather than in the generator: the
-	precondition belongs to compilation, so compile guarantees it for every
-	caller instead of each generator remembering.
-	
-	⚠ `this` NEEDS THE BACK-POINTER, not just the two flags. Both minting
-	sites set group to the owning field, which is what makes `this` resolve
-	to the rule inside its own body. An ensure that created the member and
-	stopped at isLocal/noPrint would look right and still fail.
-	
-	⚠ THE PRESENT-CHECK IS A SUBSCRIPT, NOT getMember, AND THE DIFFERENCE
-	IS A BUG I ALREADY WROTE ONCE. These two are ATTRIBUTES, not members:
-	tok's `+=` on a name routes through addString, which does
-	`if binType addMember else addAttribute`, and a rule is not a bin. So
-	getMember could never find them, the guard would miss every time, and
-	compile would re-mint on every call -- the exact non-idempotence this
-	block exists to prevent, behind a check that looked correct.
-	The subscript runs get(String), which walks the whole list with next()
-	and is agnostic between attributes and members, so it finds them.
-	(addString is idempotent on its own -- getFromList first -- so this
-	guard is belt and braces. It is kept because R-4 asks that an existing
-	precondition be left untouched, not merely un-duplicated.)  */
 	code = field->get("CodE");
-	/*  ⚠ THE SECOND REFUSAL, AND IT IS DELIBERATELY NOT THE FIRST ONE'S
-	MESSAGE. Ruling C, 2026-08-22: compile owns its preconditions BY FLAG
-	AND BY ARTIFACT, and the two can disagree.
-	
-	isCoded IS actionType == 2 (GroupBody.h:75). Anything may set that
-	flag; only activateBody and compileStored actually mint the CodE, as
-	the last of the same three lines. So a caller that hand-sets the flag
-	-- which incant/frontier did until 2026-08-22 -- arrives here claiming
-	a body it does not have, and the lines below took `code` straight into
-	addAttribute. That crashed: SIGSEGV at GroupItem.mm:212, no
-	diagnostic, and from a shell it looked like a silent early exit
-	because a crash eats buffered stdout.
-	
-	THE FLAG/ARTIFACT DISAGREEMENT IS ITSELF THE DIAGNOSTIC, which is why
-	this must not collapse into the bodyless message above. That one says
-	"you never claimed a body". This one says "you claimed one and it is
-	not there" -- a different defect, in a different caller, and the two
-	sentences send you to different places.  */
+	// secondRefuseInCompile
 	if ( !code )
-		{
 		return ::refuse(field,"compile: isCoded is set but there is no CodE attribute; the flag and the artifact disagree");
-		}
 	grup = 0;
 	while ( grup = field->next(grup) )
 		if ( grup->groupBody->flags.noPrint )
@@ -2024,6 +1873,7 @@ GroupItem 	*grup = 0;
 		else
 		if ( grup->groupBody->flags.isRule )
 			code->addAttribute(grup);
+	// compileAddTempFields this and tempField
 	grup = new GroupItem("this");
 	grup->groupBody->flags.isLocal = 1;
 	grup->groupBody->flags.noPrint = 1;
@@ -2036,46 +1886,18 @@ GroupItem 	*grup = 0;
 	grup->groupBody->flags.noPrint = 1;
 	grup->options.affiliation = 1;
 	code->replace(grup);
-	/*  ⚠ A REFUSED RULE MUST NOT TERMINATE THE RUN. Tony's ruling on F-17e,
-	2026-08-19. This line was `exit(1)` and that was louder than ruled:
-	R-4 asks compile to REPORT and REFUSE, and processCode has already
-	reported through reportCodeFail by the time control arrives here, so
-	exiting added nothing but the end of the process.
-	
-	WHAT IT COST is the reason the ruling exists: a flat sweep could never
-	report more than its FIRST refusal, so the population figure everyone
-	was quoting was a lower bound wearing the shape of a count, and the
-	census that would have corrected it was the thing being terminated.
-	Returning null makes a refusal a VALUE a caller can tally, which is
-	what a per-rule failure report needs.
-	
-	NO DOUBLE REPORT: processCode owns the message (GroupActions.rtn), and
-	compile owns only the verdict.
-	
-	⚠ THE TATTLE, Tony 2026-08-26 (refuse-loud on the compile road, R-2).
-	processCode names its own failure and the position it stopped at, but
-	it does NOT say who asked. A sweep over a hundred rules therefore
-	produced a column of positions with no patient attached to any of
-	them. This line names the rule compile was standing on when the
-	refusal came back, so the two messages read as one chain: processCode
-	says what broke and where, compile says whom it broke for.
-	
-	IT IS A NAMING, NOT A VERDICT, AND THE DISTINCTION IS F-17e's RULING
-	STILL STANDING: a refused rule does not terminate the run, because a
-	flat sweep that exits on its first refusal can never report more than
-	one, and the census is the thing being terminated. Adding the name
-	costs nothing a caller was relying on -- the return value is unchanged
-	and every tally still counts a null as a refusal.  */
-	
-	gCompileAttempted++;
-	
+	// refusedRuleDoesNotEndRun has to continue to processCode below
+	GroupControl::groupController->groupRules->compiling = 1;
+	// so ANYtoken allows key fields
 	if ( !::processCode(field) )
 		{
-		
-		gCompileRefused++;
-		
+		// BOTH arms clear it -- this arm RETURNS, so the tail below never runs and compiling would stay set for the rest of the process
+		GroupControl::groupController->groupRules->compiling = 0;
+		::printf("\t%s\n",code->getText());
 		return ::refuse(field,"compile: processCode would not parse the generated body; its message above names the position");
 		}
+	else	::printf("compile succeeded for %s\n",field->groupBody->tag);
+	GroupControl::groupController->groupRules->compiling = 0;
 endCompile:
 	field->groupBody->flags.hasNewParse = 1;
 	return field;
@@ -2143,13 +1965,13 @@ extern "C" GroupItem *concatEQ(GroupItem *target, GroupItem *argument)
 	
 }
 
-/***************************************************************************
+/*******************************************************************************
 	copyOf() makes a copy of the field passed in. The copy groupBody is a copy.
     if the source isVirtual the copy will share the same list as grup (the source).
     If source is not isVirtual the copy list will be distinct but will have
     the same elements as the source. Difference is adding anything to the
     copy's list will not add anything to the source list.
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *copyOf(GroupItem *grup)
 {
 GroupItem 	*block = new GroupItem();
@@ -2235,10 +2057,10 @@ extern "C" char *dataName(int d)
 	return "unknown";
 }
 
-/***************************************************************************
+/*******************************************************************************
 	The incant debugGuard command invokes this to toggle the debugGuard
     flag in the argument passed in
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *debugOnGuard(GroupItem *input)
 {
 	if ( !input )
@@ -2459,10 +2281,10 @@ extern "C" void dumpColorRGB(GroupItem *field)
 	
 }
 
-/***************************************************************************
+/*******************************************************************************
 	The incant dumpContents command runs this. It is used mostly for debugging.
     It lists out the componenst of the argument passed in.
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *dumpContents(GroupItem *stuff)
 {
 GroupItem 	*grup = 0;
@@ -3157,7 +2979,7 @@ GroupItem 	*result = 0;
 	return result;
 }
 
-/***************************************************************************
+/*******************************************************************************
     runJSONblock (genParseSpec S5.3's entry wrapper) is RETIRED, genParseShape
     S1.7. Generated code emits no entry wrapper: invocation is JSONblock(...)
     through parse()'s fork, exactly as Start(). The wrapper called
@@ -3167,11 +2989,11 @@ GroupItem 	*result = 0;
     the Invariant R report, now lives in leaveRule (S1.8) where `from` and
     atRuleMark are both in hand. Restore from git history if a direct-call
     harness is ever wanted again; do not re-emit one.
-***************************************************************************/
-/*****************************************************************************
+*******************************************************************************/
+/*******************************************************************************
     This is the simplified generateCode command method that leaves dirty work
     to the incant actions in the incant generate file
-*****************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *generateCode(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -3342,6 +3164,11 @@ int 	advance = 0;
 	return debugText;
 }
 
+/*******************************************************************************
+    getFile reads the field passed in as a file spec and loads the field buffer
+    (creating it if necessary) with text read in from the file. Returns the
+    loaded field.
+*******************************************************************************/
 extern "C" GroupItem *getFile(GroupItem *filing)
 {
 GroupItem 	*File = filing->getLabelGroup("File");
@@ -3444,10 +3271,10 @@ GroupItem 	*result = 0;
 	return result;
 }
 
-/***************************************************************************
+/*******************************************************************************
 	Returns a type field (from types: defined in the Generating registry)
     based on the data of the field passed in.
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *getType(GroupItem *field)
 {
 GroupItem 	*type = 0;
@@ -3495,7 +3322,7 @@ GroupItem 	*types = GroupControl::groupController->locate("types");
 	return type;
 }
 
-/***************************************************************************
+/*******************************************************************************
 	guard command should be run as a rule attribute to specify a guard for
     a rule that has not been guarded.
     If the guard attribute contains:
@@ -3510,7 +3337,7 @@ GroupItem 	*types = GroupControl::groupController->locate("types");
     a live graft (Rule += newAlternative) adds an alternative whose first
     character is not in the cached guardSet: the member list grew but the stale
     guardSet would otherwise reject the new alternative's input.
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *guard(GroupItem *item)
 {
 	if ( item->groupBody->flags.fLAG )
@@ -6966,7 +6793,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
-/*****************************************************************************
+/*******************************************************************************
 	The input argument is expected to be a listenTo attribute that contains
     a group, the notifier, that will be listened to by listenTo's parent, the
     listener. The listenTo attribute is noPrint and runs when its parent gets
@@ -6987,7 +6814,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
     into the listener using setContent().
     
     Note: the listener does not remember the field or fields it listens to.
-*****************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *listenTo(GroupItem *input)
 {
 GroupItem 	*listener = input->parent;
@@ -7083,12 +6910,12 @@ int 		n = 0;
 	return 0;
 }
 
-/***************************************************************************
+/*******************************************************************************
 	The incant load command, a noPrint command designed used as an
     attribute invokes loadDirectory to read in a directory and for every file
     in the directory creates an entry in the input parent group.
     DOES NOT HANDLE FILE MASKS??? It used to I think.
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *loadDirectory(GroupItem *input)
 {
 dirent 		*direct = 0;
@@ -7138,10 +6965,10 @@ char 		*name = 0;
 	return target;
 }
 
-/*****************************************************************************
+/*******************************************************************************
 	The incant include command call this method to read in file to be processed.
     It does not specify what rule to run on the new input.
-*****************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *loadInputFromFile(GroupItem *source)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -7298,13 +7125,13 @@ char 		*fileName = 0;
 	return target;
 }
 
-/*****************************************************************************
+/*******************************************************************************
 	Command to make a new field w/tag set from input text. The GroupItem(String)
 	constructor seeds BOTH tag and text from the string; we clear the text so a
 	freshly-made field starts empty — the tag carries the name, the value does
 	not. (Without this, new("x") yields text "x", which rides along through <:
 	retags as a stale "=x" content artifact. Igor minion absorb, 2026-06-29.)
-*****************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *makeNew(GroupItem *input)
 {
 char 		*strung = input->getText();
@@ -7382,13 +7209,13 @@ int 		kount = 0;
 	return 0;
 }
 
-/***************************************************************************
+/*******************************************************************************
 	window attribute handler. A form field carries `window` as an attribute;
     this fires at parent-define time (fLAG set) and marks the parent form
     field as a window (isWindow). Define-then-show: it does NOT open the
     window -- openWindow(form) is the separate explicit raise trigger,
     called by name when the window should appear.
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *markWindow(GroupItem *input)
 {
 GroupItem 	*form = input->parent;
@@ -8780,7 +8607,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( isLIST(argument->groupBody->flags.binType) && (!target->groupBody->flags.data || isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) )
 		{
 		if ( ruler->jitting )
-			jitDegrade("+= list-concat into a string target",target);
+			::jitDegrade("+= list-concat into a string target",target);
 		Buffer *concatBuf = (Buffer*)ruler->bufferSTAK->pop();
 		if ( !concatBuf )
 			concatBuf = new Buffer("concat buffer");
@@ -8792,14 +8619,14 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( isLIST(argument->groupBody->flags.binType) )
 		{
 		if ( ruler->jitting )
-			jitDegrade("+= copyListTo a list argument",target);
+			::jitDegrade("+= copyListTo a list argument",target);
 		argument->copyListTo(target);
 		}
 	else
 	if ( !target->groupBody->flags.isRule && !target->groupBody->flags.actionType && (target->groupBody->flags.binType || target->groupBody->groupList) )
 		{
 		if ( ruler->jitting )
-			jitDegrade("+= structural append (binType/groupList)",target);
+			::jitDegrade("+= structural append (binType/groupList)",target);
 		target->addMember(argument);
 		}
 	else
@@ -8832,29 +8659,29 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 					break;
 				case 4:
 					if ( ruler->jitting )
-						jitDegrade("+= on a Buffer target",target);
+						::jitDegrade("+= on a Buffer target",target);
 					target->getBuffer()->appendString(argument->getText(),0,0);
 					// if buffer mark is set, argument is inserted into buffer at mark
 					// otherwise it is appended at end of buffer. mark is left as is
 					break;
 				case 12:
 					if ( ruler->jitting )
-						jitDegrade("+= on a Stak target",target);
+						::jitDegrade("+= on a Stak target",target);
 					target->groupBody->gStak->push(argument);
 					break;
 				default:
 					if ( ruler->jitting )
-						jitDegrade("+= on an unhandled datA",target);
+						::jitDegrade("+= on an unhandled datA",target);
 					else	::fprintf(stderr,"ERROR Operator += failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
 				}
 		else {
 			if ( ruler->jitting )
-				jitDegrade("+= into a target with no datA",target);
+				::jitDegrade("+= into a target with no datA",target);
 			target->copyData(argument);
 			}
 	else {
 		if ( ruler->jitting )
-			jitDegrade("+= with a dataless argument",target);
+			::jitDegrade("+= with a dataless argument",target);
 		target->addMember(argument);
 		}
 	return target;
@@ -9394,7 +9221,7 @@ RuleStuff 	*defStuff = definer->getRStuff();
 	return field;
 }
 
-/***************************************************************************
+/*******************************************************************************
     parkParse / fireNewParse -- THE FACE-PROOF ARTIFACT ADDRESS.
 
     Ruled 2026-08-24 on ARCHITECTURAL grounds, not evidentiary ones: a
@@ -9413,7 +9240,7 @@ RuleStuff 	*defStuff = definer->getRStuff();
     hold its NAME. So the artifact stores the name and the fire site resolves
     it, which also means the address survives anything that copies structure
     without copying rStuff -- which is the whole point of the move.
-***************************************************************************/
+*******************************************************************************/
 extern "C" int parkParse(GroupItem *rule, char *name)
 {
 GroupItem 	*artifact = 0;
@@ -10526,12 +10353,12 @@ char 		*deeper = 0;
 	return 1;
 }
 
-/***************************************************************************
+/*******************************************************************************
 	The incant printTO command runs this to set toBUFFER to the buffer in
     bufferField. toBUFFER gets reset. If there is no bufferField toBUFFER
     is set to null. If toBUFFER is not null, opPrint(), invoked by the
     print command via the PrinT rule, writes in toBUFFER instead of stdout
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *printToBuffer(GroupItem *bufferField)
 {
 	if ( bufferField && isBUFFER(bufferField->groupBody->flags.data) )
@@ -10691,7 +10518,7 @@ int 		processing = ruler->processingCode;
 	return 0;
 }
 
-/***************************************************************************
+/*******************************************************************************
 	The processFlags method is invoked by multiple incant noPrint fire and
     forget commands run at field definition). The item passed in as argument
     is used to figure out what flag to set/reset; the exception is the exit
@@ -10702,7 +10529,7 @@ int 		processing = ruler->processingCode;
     definition. Do not virtualize a field outside a define. Virtual is a
     define-time property; the forks that consume it (aCTionNamE, runOP) assume
     nothing virtual was created elsewhere. See the wakeup bear-trap log.
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *processFlags(GroupItem *item)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10797,10 +10624,10 @@ GroupItem 	*target = item->groupBody->flags.fLAG ? item->parent : item;
 	return ruler->trueResult;
 }
 
-/*****************************************************************************
+/*******************************************************************************
 	The incant quoted command is usually used in a print statement to output
     its argument text in quotes.
-*****************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *quoted(GroupItem *input)
 {
 char 		*strung = ::concat(3,"\"",input->getText(),"\"");
@@ -10808,7 +10635,7 @@ GroupItem 	*grup = new GroupItem(strung);
 	return grup;
 }
 
-/***************************************************************************
+/*******************************************************************************
 	Register the parent block of item in the currentRegistry. This method is
     associated with register and class attributes defined in bootCommands()
     NOTE: the class attribute that makes its parent a registry should preceed any
@@ -10817,7 +10644,7 @@ GroupItem 	*grup = new GroupItem(strung);
 
     Note the argument passed in may be a copy of a registry, hence the use
     of registri below to make sure argument references the original
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *rEGISTER(GroupItem *item)
 {
 GroupItem 	*registri = 0;
@@ -11618,12 +11445,12 @@ int 		leftIsTrue = 0;
 	return GroupControl::groupController->groupRules->falseResult;
 }
 
-/***************************************************************************
+/*******************************************************************************
     C extern backing the incant `system` command. Named runSystem to avoid
     the extern "C" symbol clash with libc system(3). User-beware: no escaping,
     no stdout capture, no elaborate error handling. Returns trueResult on
     exit code 0, falseResult otherwise.
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *runSystem(GroupItem *command)
 {
 char 	*cmdText = command->getText();
@@ -11734,10 +11561,10 @@ extern "C" GroupItem *setFileOp(GroupItem *argument, GroupItem *target)
 	return target;
 }
 
-/***************************************************************************
+/*******************************************************************************
     A cOMMANDs method associated with commands like hash and buffer that set
     the appropriate value for the grup passed in.
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *setInternalType(GroupItem *grup)
 {
 	if ( grup )
@@ -11808,7 +11635,7 @@ extern "C" GroupItem *setParse(GroupItem *field)
 RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( !ruleStuff )
 		return ::refuse(field,"setParse: the field passed in has no rStuff");
-	if ( !ruleStuff->parseMethod )
+	if ( !field->groupBody->flags.hasNewParse )
 		{
 		/***********************************************************************
 		Set the parseMethod
@@ -12021,9 +11848,9 @@ extern "C" int statementMatches(GroupItem *a, GroupItem *b)
 	return a->matches(b);
 }
 
-/***************************************************************************
+/*******************************************************************************
 	Immediate method for the stop command.
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *stopParsingInput(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -12115,7 +11942,7 @@ GroupItem 	*reg = 0;
 	return reg->get(rule->groupBody->tag);
 }
 
-/***************************************************************************
+/*******************************************************************************
 	Immediate method for the testing command — scratch verification harness,
 	rewritten per the current need (see CLAUDE.md). Currently drives the JIT
 	compile path: testing(<action>) runs jitRunAction on the action, which
@@ -12129,7 +11956,7 @@ GroupItem 	*reg = 0;
 	here when bytecode-emit verification is the need again.)
 	NB: keep this body free of `//` comments — they bleed field-resolution into
 	the following extern (unWrap). Doc goes here, in the block.
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *testing(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -12229,9 +12056,9 @@ extern "C" void unMark(GroupItem *bufField)
 		bufField->getBuffer()->unMark();
 }
 
-/***************************************************************************
+/*******************************************************************************
 	Rule action for unWrap used in the gXpress generator action.
-***************************************************************************/
+*******************************************************************************/
 extern "C" GroupItem *unWrap(GroupItem *result)
 {
 GroupItem 	*grup = result;
@@ -12337,6 +12164,7 @@ GroupRules::GroupRules()
 	formatBUFFER = 0;
 	stringBUFFER = 0;
 	toBUFFER = 0;
+	compiling = 0;
 	debugAllRules = 0;
 	debugGuards = 0;
 	defining = 0;

@@ -43,39 +43,72 @@ define
         argument :. isCodeD;
         argument :. hasNewParsE;
         printTO(0);
-        print taG "=" CodE.taG CodE:;
+        //print taG "=" CodE.taG CodE:;
        };
     walkRules code={
         generateParse(argument);
         length  = listLengtH;
         if length > 0;
-            // artifactSkipByFlag  terms are isRulE, artifacts are not; noPrint is not load-bearing for the skip
             iterate grup on argument;
             while ++grup;
                 if isRulE == 0; continue;
                 if binTypE;
                     generateParse(*grup);
                     continue;
-                $$grup;
-                if hasNewParsE != 0;    continue;
-                $$grup;
+                if hasNewParsE; continue;
                 if listLengtH;  walkRules(*grup);
                 else generateParse(*grup);
         };
     compileRules code={
-        $$argument;
         compile(argument);
-        if actionTypE == 0;
-            length  = listLengtH;
-            if length > 0;
-                iterate grup on argument;
-                while ++grup;
-                    if noPrinT;     continue;
-                    if binTypE;     continue;
-                    cout `grup.taG:;
-                    if listLengtH;  compileRules(grup);
-                    else compile(grup);
+        length  = listLengtH;
+        if length > 0;
+            iterate grup on argument;
+            while ++grup;
+                if hasNewParsE AND isCodeD;
+                    if listLengtH;  compileRules(*grup);
+                    else            compile(*grup);
         };
+    parser code={
+        walkRules(argument);
+        compileRules(argument);
+        cerr "PARSER SENTINEL -- walk complete":;
+        compiledHere = 0;
+        if argument.hasNewParsE;     compiledHere = 1;
+        cerr "WITNESS compiled " compiledHere " -- 1 = compile ran on this rule, 0 = it did not":;
+        };
+    ;
+
+parser(DO);
+stop();
+parser(Start);
+
+    parser -- generates a new kant parse for every rule its argument touches.
+
+    parser(rule) walks the rule and everything below it, generates a parse body
+    for each, compiles it, and closes by parsing a specimen through the rule so
+    the run reports an answer rather than a count. parser(Start) is the POP.
+
+    Three phases, two gates. Generation always runs. Activation binds the
+    generated body as the rule's parse method and is gated by activating.
+    Compilation is gated by compiling. A measuring run turns one or both off; a
+    verifying run leaves both on, because a parse method that is never bound is
+    never exercised.
+
+    Both gates are declared fields and both are tested against a value, never
+    bare. A bare test on a declared field asks whether it exists, which is
+    always true.
+
+    The witness line reports whether compile actually ran on the rule, read off
+    the hasNewParsE flag that compile sets as its last act. It exists because
+    the answer alone cannot tell the two gate positions apart: a body that was
+    never explicitly compiled still parses, because bodies compile lazily at
+    first call. So the run prints the answer AND who produced it.
+
+    The design record for this file is in DesignDocs, entry ParserDesign. The
+    walk crib, the hang provenance and the exhibit history retired there on
+    2026-08-26 when the hang they measured stopped reproducing.
+
     evictTerms code={
         iterate evA attributes on argument;
         while ++evA;
@@ -107,44 +140,3 @@ define
             evictTerms(*evR);
         //print "Rules processed" ruleCount "Terms processed" termCount "Has new parse" parseCount:;
         };
-    parser code={
-        walkRules(argument);
-        compileRules(argument);
-        cerr "PARSER SENTINEL -- walk complete":;
-        compiledHere = 0;
-        if argument.hasNewParsE;     compiledHere = 1;
-        cerr "WITNESS compiled " compiledHere " -- 1 = compile ran on this rule, 0 = it did not":;
-        stop();
-        print "We stopped. This should not print":;
-        };
-    ;
-
-parser(DefinE);
-stop();
-parser(Start);
-
-    parser -- generates a new kant parse for every rule its argument touches.
-
-    parser(rule) walks the rule and everything below it, generates a parse body
-    for each, compiles it, and closes by parsing a specimen through the rule so
-    the run reports an answer rather than a count. parser(Start) is the POP.
-
-    Three phases, two gates. Generation always runs. Activation binds the
-    generated body as the rule's parse method and is gated by activating.
-    Compilation is gated by compiling. A measuring run turns one or both off; a
-    verifying run leaves both on, because a parse method that is never bound is
-    never exercised.
-
-    Both gates are declared fields and both are tested against a value, never
-    bare. A bare test on a declared field asks whether it exists, which is
-    always true.
-
-    The witness line reports whether compile actually ran on the rule, read off
-    the hasNewParsE flag that compile sets as its last act. It exists because
-    the answer alone cannot tell the two gate positions apart: a body that was
-    never explicitly compiled still parses, because bodies compile lazily at
-    first call. So the run prints the answer AND who produced it.
-
-    The design record for this file is in DesignDocs, entry ParserDesign. The
-    walk crib, the hang provenance and the exhibit history retired there on
-    2026-08-26 when the hang they measured stopped reproducing.

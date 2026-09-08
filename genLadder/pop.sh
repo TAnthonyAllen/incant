@@ -1597,9 +1597,17 @@ diffcheck "manyScratch.target (kant emitMany: emission + both refusals)" \
 #  alternative was re-specifying what "missing" should mean, and that is a
 #  semantic ruling on code neither seat wrote, starting life unmeasured.
 #  ⚠ THE GATE READS "AUDIT AT PIN", NEVER "AUDIT CLEAN".
-AUDITLINE="AUDIT all registries: 10 missing rules, 0 missing terms, 4 loose, 0 unconsumed"
+#  ⚠ RE-PINNED 10 -> 12, 2026-09-08, and the sentence is that the grammar gained
+#  EXACTLY TWO PUNCTUATION FIELDS by Tony's ruling: ColoN and EquaL, minted in
+#  GroupMain's bootstrap so that literal attributes carry a LABEL for parse
+#  generation. Both are isRule with no rStuff -- the lawful bare-master signature
+#  this row exists to count -- and they join six siblings of identical shape
+#  (leftBrace, leftCurly, leftParen, rightBrace, rightCurly, rightParen) that were
+#  already there. TWO ENTERED, NONE LEFT, and the two are named in oneTest's own
+#  AUDIT MISSRULE lines, so the arithmetic is checkable rather than asserted.
+AUDITLINE="AUDIT all registries: 12 missing rules, 0 missing terms, 4 loose, 0 unconsumed"
 if grep -qF "$AUDITLINE" "$T/one"; then
-    echo "  ok    bare-master population AT PIN (isRule without rStuff = 10, loose = 4)"; green=$((green+1))
+    echo "  ok    bare-master population AT PIN (isRule without rStuff = 12, loose = 4)"; green=$((green+1))
 else
     echo "  FAIL  bare-master population MOVED (row pinned 2026-09-01, NOT a defect count):"
     grep "^AUDIT all registries" "$T/one" | sed 's/^/          actual:   /' || echo "          (no AUDIT summary at all -- is audit() still called from oneTest?)"
@@ -2517,6 +2525,37 @@ else
     echo "        genuinely written as both, which is what pick-one forbids."; fail=1
 fi
 
+#  ⚠ BOTH RE-BASED 2026-09-08, and each cluster of the delta is NAMED -- a target
+#  that moved is a claim that the world changed, and the claim needs a cause. Both
+#  bases dated 2026-07-29 and had absorbed drift silently ever since, which is what a
+#  long-red row does.
+#
+#  oneTest, five clusters, and the arithmetic closes:
+#    - SIX punctuation MISSRULE lines (leftBrace, leftCurly, leftParen, rightBrace,
+#      rightCurly, rightParen) that PREDATE this session -- measured present on a
+#      HEAD build -- plus ColoN and EquaL, Tony's two new ones. 4 + 8 = 12, which is
+#      exactly what the AUDIT summary line now reads and what the row above pins.
+#    - AUDIT TERM IterSource [1] UnaryOPS arrives with the 09-03 iterate re-rule.
+#    - AUDIT TERM Limit [4] ] LEAVES, because Limit's bare "]" literal became a
+#      labelled reference to grok/rightBrace. That is the whole point of the
+#      punctuation conversion: the term stops being an unlabelled rule-level literal.
+#    - "stop: end parsing", emitted by stopParsingInput and present at HEAD.
+#
+#  jsonTest, and 38 of its 40 error lines were FIXED rather than banked:
+#    - "ERROR = on JSONtoken -- holds a group; say *" x38 was a PRE-FLIP SPELLING in
+#      the fixture's own grammar. JSONfield's body said `token = JSONvalue;` and under
+#      the landed ruling an `=` whose source holds a group refuses and tells you to
+#      say `*`. Respelt to `token = *JSONvalue;` (incant/utilities:97) and all 38 go.
+#      The base predates the flip, so it never saw them.
+#    - "nextGroup: ERROR JSONlist does not contain a list" x2 REMAINS, attributed and
+#      not yet fixed: it is the EMPTY-ARRAY case. JSONarray guards with `if JSONlist;`
+#      and, when the optional term did not match, that name falls back to the RULE --
+#      which exists, so the guard passes and the walk reads a rule that carries no
+#      list. Two `{"a":[]}` calls, two lines. Bear-traps #26/#34. The fixture still
+#      answers ok on both, so this is noise and not a wrong answer; two guard
+#      respellings were tried and both failed, so it is banked ATTRIBUTED and owed.
+#      docs/fixIts.md carries the row.
+#    - "stop: end parsing", same as above.
 diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
 diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 
@@ -2600,7 +2639,15 @@ bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
 #  Green 23 -> 24, red 41 -> 40, POPULATION UNMOVED AT 64. DefinE stays red with a
 #  NEW REASON (term NewGroup -> term Attributes), which is the blocker behind the
 #  one just fixed.
-diffcheck "genParse odometer (24 green / 40 red of 64 -- RED BY DESIGN, pinned; ratchet monotone)" \
+#  ⚠ RE-PINNED 24/40 of 64 -> 24/42 of 66, 2026-09-08, and the sentence is the same
+#  ruling as the bare-master row above: ColoN and EquaL join the grammar as labelled
+#  punctuation. Both arrive un-emittable and say so by name -- "REFUSE rule ColoN --
+#  rule-level literal but no rStuff, so LIT vs LITTO is undecidable" -- which is the
+#  expected state for a new rule, not a regression: nothing has taught genParse about
+#  them and nothing claimed to. GREEN IS UNMOVED AT 24 and the population rose by
+#  exactly two. Two rules entered the population, neither entered the green set, and
+#  no existing row moved in either direction; any other split would have been a finding.
+diffcheck "genParse odometer (24 green / 42 red of 66 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
 #  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------

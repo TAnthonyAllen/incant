@@ -65,6 +65,7 @@ Buffer *stringBUFFER;
 Buffer *toBUFFER;
 struct 
 	{
+	unsigned int compiling:1;
 	unsigned int debugAllRules:1;
 	unsigned int debugGuards:1;
 	unsigned int defining:1;
@@ -103,6 +104,7 @@ extern "C" GroupItem *aCTionCouT(GroupItem *input);
 extern "C" GroupItem *aCTionDEBUG(GroupItem *input);
 extern "C" GroupItem *aCTionDO(GroupItem *input);
 extern "C" GroupItem *aCTionDefinE(GroupItem *input);
+extern "C" GroupItem *aCTionDelimText(GroupItem *input);
 extern "C" GroupItem *aCTionExpressioN(GroupItem *xpList);
 extern "C" GroupItem *aCTionFOR(GroupItem *input);
 extern "C" GroupItem *aCTionFailed(GroupItem *input);

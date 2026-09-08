@@ -7,10 +7,9 @@ extern GroupItem aCTionANYtoken(GroupItem input)
 GroupItem   token;
     if input.isGROUP    token = input.group;
     else                token = input;
-    if token && registry == keyWords && !noPrint      return null;
+    if !compiling && token && registry == keyWords && !noPrint      return null;
     return input;
 }
-
 
 /*******************************************************************************
 	The BlocK rule action.
@@ -59,7 +58,6 @@ GroupItem   grup,
     return  result;
 }
 
-
 /*******************************************************************************
 	Rule action for Braced rule.
         Braced      leftBrace="["- ExpressioN rightBrace="]"-;
@@ -73,7 +71,6 @@ GroupItem ExpressioN:;
     return input;
 }
 
-
 /*******************************************************************************
 	Rule action for BrancH.
 *******************************************************************************/
@@ -84,54 +81,23 @@ GroupItem   BrancheS:,
 GroupItem   arg = ExpressioN;
     if !arg         arg = BrancheS;
     or isMethod     arg = arg.gMethod(arg);
-    // ⚠ THE LINE ABOVE CAN LEAVE arg NULL -- under jitting that method is an emitter
-    // and null means I REFUSED, not a node   ruleActions.aCTionBrancH.ke3NullOperand
+    // ke3NullOperand under jitting that method is an emitter and a null arg means I REFUSED
     if !arg         arg = BrancheS;
     switch(*BrancheS.tag) {
         case 'b':   isBreak     = true;
         case 'c':   isContinue  = true;
         case 'r':   isReturn    = true; }
-    // break and return DEGRADE LOUDLY here rather than emitting nothing, and the tag
-    // is read DIRECTLY rather than off the flags set above   ruleActions.aCTionBrancH.branchesUnderJit
-    /*  ⚠ RETURN IS EMITTED NOW (item 2, Tony 2026-08-05). The degrade arm below
-        shrank from "break and return" to "break, and the ONE return case that is
-        still unbuilt". jitEmitReturn answers 0 for a return inside an INLINED
-        body -- E2, deferred with sanction -- and that is the only path that
-        still counts, so the message says which case it was rather than leaving
-        a reader to infer it from a construct name that is otherwise covered.  */
+    // branchesUnderJit break and return DEGRADE LOUDLY here rather than emitting nothing, and the tag
+    // returnEmitNow
     if jitting {
-        -%
-        if (*BrancheS->groupBody->tag == 'c')       jitEmitContinue();
-        else if (*BrancheS->groupBody->tag == 'r') {
-            //  ⚠ A RETURN IS A POSITION THAT CONSUMES A VALUE, and jitEmitters'
-            //  own standing rule (the note above jitEmitBareRead's callers) is
-            //  that EVERY such position invokes the primitive when its operand
-            //  is BARE. `return` was not on that list only because it did not
-            //  exist when the list was written.
-            //  Without this, `return someField;` emits NOTHING -- `if isMethod`
-            //  is false for a bare read -- so jitStoreResult finds a null
-            //  gJitResult, stores nothing, and the action returns whatever the
-            //  PRIOR statement left in the slot. Measured 2026-08-05:
-            //  `return ftAcc;` off a base case returned 0, silently, at degrade
-            //  count 0. Exactly the shape gIF and both loops already carry.
-            if (ExpressioN && !isMethod(ExpressioN->groupBody->flags.instructType))
-                ::jitEmitBareRead(ExpressioN);
-            //  ⚠ E2 BUILT 2026-08-09 -- the rr==0 arm is GONE, not silenced.
-            //  jitEmitReturn no longer has an "inside an inlined callee" answer:
-            //  an inlined region now carries its own exit block and the return
-            //  branches there. A degrade arm nothing can fire is an assertion
-            //  nothing can fire, so it is removed rather than left to rot.
-            //  -1 keeps its meaning exactly: a mis-sequenced caller, never a
-            //  language gap.
-            if (::jitEmitReturn() < 0)
-                jitDegrade("return REFUSED -- no builder, no epilogue block, or "
-                           "inlining with no frame. A mis-sequenced caller", input); }
-        else    jitDegrade("break under jit -- no emitter yet", input);
-        %-
-    }
+        if BrancheS.tag == 'c'          jitEmitContinue();
+        or BrancheS.tag {
+            // branchReturnPosition
+            if ExpressioN && !isMethod  jitEmitBareRead(ExpressioN);
+            if jitEmitReturn() < 0  jitDegrade("return REFUSED -- no builder, no epilogue block, or  inlining with no frame. A mis-sequenced caller", input); }
+        else    jitDegrade("break under jit -- no emitter yet", input); }
     return arg;
 }
-
 
 /*******************************************************************************
     THE STDERR SINK. One print mechanism, several destinations -- PrintXP+ is fixed
@@ -150,7 +116,6 @@ Buffer      buffer = bufferSTAK.pop();
     return opCerr(input,buffer);
 }
 
-
 /*******************************************************************************
     CheckFor is a debugging tool. It matches its text and returns null
     if it matches so it fails even if it succeeds.
@@ -165,7 +130,6 @@ extern GroupItem aCTionCheckFor(GroupItem input)
     debugAllRules = true;
     return null;
 }
-
 
 /*******************************************************************************
 	CodE rule action Note: box boundaries defined by its left and right attributes
@@ -197,7 +161,6 @@ GroupItem   lefty   = rule[1],
     return label;
 }
 
-
 /*******************************************************************************
     THE EXPLICIT STDOUT SINK. print is DIVERTIBLE, cout is not -- that is the whole
     reason it exists, and routing through opCout is what closes KANT-23.
@@ -214,7 +177,6 @@ Buffer      buffer = bufferSTAK.pop();
     appendPrintXP(stuff,buffer);
     return opCout(input,buffer);
 }
-
 
 /*******************************************************************************
 	Immediate method for DEBUG rule
@@ -236,7 +198,6 @@ GroupItem   rules:,
     else    debugAllRules = !debugAllRules;
     return input;
 }
-
 
 /*******************************************************************************
 	Immediate method for the Define rule that defines a rule.
@@ -305,32 +266,21 @@ use item
                         CodE                = item;
                         CodE.tag            = "CodE";
                         CodE.noPrint        = true; }
-                    /*  ⚠ A DECLARED `argument` IS A RETIRED SPELLING AND REFUSES BY
-                        NAME. runAction MINTS the binding slot now, so there is
-                        nothing left to declare. Same shape as iterate's old form:
-                        the retired spelling does not quietly do something slightly
-                        different, it says so and names the respell.
-                        ⚠ THE REFUSAL ARMS, and the arm is cleared AT THE DEFINITION
-                        BOUNDARY rather than by aCTionBlocK -- a refusal is terminal
-                        for THE UNIT THAT RAISED IT, and at define time that unit is
-                        the DEFINITION, not the enclosing block. Arming without the
-                        boundary clear kills every later definition in the file:
-                        measured 2026-09-05, fleet 171 -> 107.
-                        ruleActions.aCTionDefinE.argumentRetired  */
+                    // argument was set here once; no longer, now set in runAction
                     if tag eq "argument"
                         refuse(NewGroup,"a declared `argument` attribute is retired -- delete it; runAction mints the binding slot");
                     if NewGroup.isMacro     noPrint = true;
                     isInitialized  = true;
                     if NewGroup.isRule && !item.binType && !item.isRule item.isRule = true;
-                    if item.isRule
-                        if !item.rStuff item.rStuff = new(item);
+                    if isRule
+                        if !rStuff rStuff = new(item);
                         else {
-                            item.rStuff = new(item.rStuff);
+                            rStuff = new(rStuff);
                             grup = item.parent;
                             if grup && grup.rStuff {
-                                item.parentStuff = grup.rStuff;
-                                item.parentLabel = grup.parentLabel; }
-                            item.rStuff.rule    = item; }
+                                parentStuff = grup.rStuff;
+                                parentLabel = grup.parentLabel; }
+                            rStuff.rule    = item; }
                     grup    = NewGroup +% item; }
         /***********************************************************************
             If there is code NewGroup is flagged as coded. The code gets processed
@@ -363,10 +313,7 @@ use NewGroup
                     if max != 1 || min != 1 {
                         RuleStuff   fresh = new(newMember);
                         newMember.setRStuff(fresh); }}
-        /*******************************************************************************
-            THE CODED TEST WINS -- the arms are ordered, not interchangeable.
-            ruleActions.aCTionDefinE.ruleMethodCheck
-        *******************************************************************************/
+        // ruleMethodCheck the arms are ordered, not interchangeable.
         if isRule {
             if !isREGISTRY {
                 if isCoded     method = processAction;
@@ -376,22 +323,10 @@ use NewGroup
                     if methodAddress = dlsym(RTLD_SELF,methodName) method = methodAddress;
                     free(methodName);
                     if gMethod  immediateACTION = true; }}}
-    /*******************************************************************************
-        THE DEFINITION IS COMPLETE HERE, which is why a term's rStuff is materialised
-        at this point and not per-attribute.
-        ruleActions.aCTionDefinE.definitionComplete
-    *******************************************************************************/
-    /***********************************************************************
-        DEFINITION MAKES STRUCTURE; RUNTIME MAKES REFERENCE. embedRule() copies an
-        embedded RULE and stores anything else as it stands.
-        ruleActions.aCTionDefinE.embeddedRuleCopy
-    ***********************************************************************/
-    GroupItem   term;
-    int         t = 1;
-    while term = NewGroup[t] {
-        if term.isGROUP     term.embedRule(term.gGroup);
-        t++; }
-    // re-mention: the block above hijacks bare-field resolution   bear-trap #42
+    // embeddedRuleCopy embedRule() copies an embedded RULE
+    if isRule && groupList
+        while item = NewGroup.nextAttribute(item)
+            if item.isGROUP item.embedRule(item.gGroup);
 use NewGroup
     input.clearList();
     isInitialized   = true;
@@ -399,18 +334,24 @@ use NewGroup
     if addingMembers        addingMembers = false;
     if currentDefine && currentDefine.groupBody == NewGroup.groupBody    currentDefine = null;
     input.group     = NewGroup;
-    /*  ⚠ THE DEFINITION BOUNDARY. A refusal raised while defining is terminal
-        for THE DEFINITION: it is not installed, and the arm is cleared here so
-        the NEXT definition in the file is unaffected. One channel -- the same
-        `refused` the run-time road uses -- and no non-arming sibling, because a
-        second channel is how the two eras would drift.   Tony, 2026-09-05.
-        ruleActions.aCTionDefinE.refusalBoundary  */
+    // refusalBoundary
     if ruler.refused {
         if currentRegistry  currentRegistry.remove(NewGroup.tag);
         ruler.refused = 0; }
     return input;
 }
 
+/*******************************************************************************
+	Immediate method for DelimText rule
+*******************************************************************************/
+extern GroupItem aCTionDelimText(GroupItem input)
+{
+GroupItem   dtext:;
+GroupItem   grup = dtext.firstInList;
+    input.clear();
+    input.text = grup.text;
+    return input;
+}
 
 /*******************************************************************************
 	Sets the operator method in a do statement
@@ -446,7 +387,6 @@ GroupItem   StatemenT:,
     return result;
 }
 
-
 /*******************************************************************************
 	ExpressioN rule immediate action. Note: operators including unary operators
     have to preceed their arguments.
@@ -464,7 +404,6 @@ extern GroupItem aCTionExpressioN(GroupItem xpList)
     return interpretXP(xpList);
 }
 
-
 /*******************************************************************************
 	If the parse gets here it failed.
 *******************************************************************************/
@@ -472,12 +411,7 @@ extern GroupItem aCTionFailed(GroupItem input)
 {
 GroupItem   lastStatement = groupRules.lastStatement;
 use input
-    // lastStatement is a stable marker set in aCTionStatemenT only on confirmed
-    // top-level statement execution (!processingCode) — it survives backtracking,
-    // unlike ruleSTUFF.label. Top-level granularity for now; in-block is a future
-    // refinement.
-    // ⚠ THE LAST CODE ALLOWED TO CRASH IS THE CODE THAT REPORTS CRASHES -- failure
-    // reporting must survive its own subject, so nothing here may deref unguarded   ruleActions.aCTionFailed.lastCodeToCrash
+    // lastCodeToCrash
     cout "Rule " tag:;
     if rStuff   cout `"Failed at:" `getDebugText(failedAt, 40):;
     if !rStuff  cout `"Failed at:  <unavailable -- this subject carries no rStuff; see Ruling D>":;
@@ -487,7 +421,6 @@ use input
     stopParsingInput(input);
     return input;
 }
-
 
 /*******************************************************************************
 	Runs the action associated with a for statement
@@ -558,7 +491,6 @@ int         restrict;
     return result;
 }
 
-
 /*******************************************************************************
 	IF rule action
         IF=if ExpressioN ';'? StatemenT ElsE?;
@@ -574,8 +506,7 @@ GroupItem   result = ExpressioN;
     }
     if isMethod result = result.gMethod(result);
     else        result = ExpressioN;
-    // bareIfTruth  aCTionIF answers by truthOf; isInitialized is a value marker, not a truth
-    // ⚠ REFUSE LOUDLY, NEVER CRASH -- unguarded, `if 1;` exits 139 with zero output   ruleActions.aCTionIF.refuseLoudly
+    // ifRefuseLoudly
     if truthOf(result) && !StatemenT {
         cerr "aCTionIF: REFUSING -- the condition parsed but its governed "
              "statement is MISSING. Common causes: a // between the condition "
@@ -585,12 +516,10 @@ GroupItem   result = ExpressioN;
         return falseResult; }
     if truthOf(result)  result = StatemenT.gMethod(StatemenT);
     or ElsE     result = ElsE.gMethod(ElsE);
-    // labelNO, not falseResult: this construct executed NO statement, so it has no
-    // value -- and 0 is a value   ruleActions.labelNoNotFalse
+    // labelNoNotFalse if this executed NO statement, it has no value, hence labelNO
     if !result  result = labelNO;
     return result;
 }
-
 
 /*******************************************************************************
 	The rule action for the Iterate rule
@@ -643,7 +572,6 @@ GroupItem   source;
     return  iterator;
 }
 
-
 /*******************************************************************************
     BEAR COUNTRY: the virtual fork below is define-gated ON PURPOSE. Forking a
     virtual outside a defining context silently reads 0 and writes to a copy.
@@ -677,7 +605,6 @@ endName:
     return input;
 }
 
-
 /*******************************************************************************
 	The NewGroup action just sets the currentDefine field in GroupRules so
     that the MEMBERs case in processFlags can find it to set its addingMembers flag
@@ -689,7 +616,6 @@ GroupItem   grup = group;
     if !currentRegistry.isRule && !currentDefine    currentDefine = grup;
     return field;
 }
-
 
 /*******************************************************************************
 	immediate method for the incant Number rule.
@@ -719,7 +645,6 @@ String  arg = input.text;
     return input;
 }
 
-
 /*******************************************************************************
 	Rule action for Parens rule.
         Parens      leftParen="("- ExpressioN? rightParen=")"-;
@@ -731,7 +656,6 @@ GroupItem ExpressioN:;
     if ExpressioN   input.group = ExpressioN;
     return input;
 }
-
 
 /*******************************************************************************
 	Immediate method for the Print rule or the StringXP rule.
@@ -824,7 +748,6 @@ Buffer      buffer = bufferSTAK.pop();
     return opPrint(input,buffer);
 }
 
-
 /***************************************************************************
     QuotE rule action
         QuotE       tik=['"] isRule quoteBody}=tik;
@@ -848,7 +771,6 @@ use input
         isLiteral = true; }
     return  input;
 }
-
 
 /*******************************************************************************
 	runs the rule passed in, returns the rule result if it succeeds.
@@ -879,7 +801,6 @@ GroupItem   argument,
         }
     return input;
 }
-
 
 /***************************************************************************
     Process a scope expression. It is a convenient way to set local fields.
@@ -915,7 +836,6 @@ String      name;
             else    grup.clear(); }}
 }
 
-
 /*******************************************************************************
 	Search rule action. List, setStakked, add to, or reset the SearchList.
 *******************************************************************************/
@@ -947,7 +867,6 @@ int         setStakked;
     return input;
 }
 
-
 /*******************************************************************************
 	Create a set from the string passed in
 *******************************************************************************/
@@ -962,7 +881,6 @@ use group
     return group;
 }
 
-
 /*******************************************************************************
 	Process string shortcuts.
 *******************************************************************************/
@@ -972,7 +890,6 @@ extern GroupItem aCTionShortcuT(GroupItem group)
     isShortcut = true;
     return group;
 }
-
 
 /*******************************************************************************
 	Process a statement (if we are not parsing code), otherwise return it.
@@ -1002,7 +919,6 @@ use input
     return input;
 }
 
-
 /*******************************************************************************
 	Immediate method for the StringXP rule.
         StringXP    pound="#"- stuff=PrintXP+ defer;
@@ -1018,7 +934,6 @@ Buffer      buffer = bufferSTAK.pop();
     appendPrintXP(stuff,buffer);
     return opString(stuff,buffer);
 }
-
 
 /*******************************************************************************
 	TokenXP returns a token or a token expression.
@@ -1137,7 +1052,6 @@ endToken:
     return xpress;
 }
 
-
 /*******************************************************************************
 	Immediate method for the TraiT rule that defines an attribute. It can be
         TraiTdata="="       DatA Modifier? Limit?;
@@ -1165,7 +1079,6 @@ GroupItem   Modifier:,
     input.group     = trait;
     return input;
 }
-
 
 /*******************************************************************************
     Immediate method for the TraiTdata rule.
@@ -1224,7 +1137,6 @@ GroupItem   looper,
     return result;
 }
 
-
 /*******************************************************************************
 	Xpress rule method.
 *******************************************************************************/
@@ -1238,7 +1150,6 @@ GroupItem   ExpressioN:;
         input.group = ExpressioN; }
     return input;
 }
-
 
 /*******************************************************************************
     THE ONE PrintXP WALK. Callers: aCTionPrinT, aCTionStringXP, aCTionCerR,
@@ -1259,7 +1170,6 @@ GroupItem   grup;
             appendGroup(result,FormaT,buffer); }
         else            appendGroup(grup,FormaT,buffer); }
 }
-
 
 /*******************************************************************************
     generateXP — the `generating` mode: build a flat-RPN revisedList from the
@@ -1336,7 +1246,6 @@ GroupItem   grup, store, tgt;
     xpList.group = revisedList;
     return xpList;
 }
-
 
 /*******************************************************************************
     interpretXP — the interpret/run mode: build the left-associative runOP tree

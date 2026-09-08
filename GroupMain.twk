@@ -100,7 +100,7 @@ GroupRules  ruler = groupRules;
     member.isMethod     = true;
     member.unGuarded    = true;
    /**************************************************************************
-        initialize punctuation fields
+        initialize punctuation fields (so they have a label needed for parsing)
     *************************************************************************/
     strap           = grok += new("leftBrace");
     text            = "[";
@@ -116,6 +116,10 @@ GroupRules  ruler = groupRules;
     text            = ")";
     strap           = grok += new("SemI");
     text            = ";";
+    strap           = grok += new("ColoN");
+    text            = ":";
+    strap           = grok += new("EquaL");
+    text            = "=";
    /**************************************************************************
         Define the setupFILE declared in GroupRules. It gets loaded at the
         end of this bootstrapper method.
@@ -167,7 +171,7 @@ GroupRules  ruler = groupRules;
     item.embedRule(grok/counter);
     item            = item.group;
     modify(item,"*");
-    item            = new("]");
+    item            = strap +% grok/rightBrace;
     modify(item,"-");
     item            = strap +% item;
 
@@ -282,6 +286,7 @@ GroupRules  ruler = groupRules;
     item.setRuleStuff();
 
     strap           = grok += "DelimText";
+    method          = aCTionDelimText;
     setRuleStuff();
     item            = strap +% grok/leftParen;
     item.setRuleStuff();
@@ -309,7 +314,7 @@ GroupRules  ruler = groupRules;
     setRuleStuff();
     method          = aCTionTraiTdata;
     immediateACTION = true;
-    item            = strap += "=";
+    item            = strap +% grok/EquaL;
     modify(item,"-");
     item            = grok/DatA;
     item            = strap +% item;
@@ -363,7 +368,7 @@ GroupRules  ruler = groupRules;
 
     strap           = grok += "MemberS";
     setRuleStuff();
-    item            = strap += ":";
+    item            = strap +% grok/ColoN;
     modify(item,"-");
     item            = strap +% member;
     modify(item,"-");

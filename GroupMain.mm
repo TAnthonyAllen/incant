@@ -106,7 +106,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	member->groupBody->flags.instructType = 1;
 	member->groupBody->flags.guarding = 2;
 	/**************************************************************************
-	initialize punctuation fields
+	initialize punctuation fields (so they have a label needed for parsing)
 	*************************************************************************/
 	strap = grok->addMember(new GroupItem("leftBrace"));
 	strap->setText("[");
@@ -122,6 +122,10 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	strap->setText(")");
 	strap = grok->addMember(new GroupItem("SemI"));
 	strap->setText(";");
+	strap = grok->addMember(new GroupItem("ColoN"));
+	strap->setText(":");
+	strap = grok->addMember(new GroupItem("EquaL"));
+	strap->setText("=");
 	/**************************************************************************
 	Define the setupFILE declared in GroupRules. It gets loaded at the
 	end of this bootstrapper method.
@@ -172,7 +176,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item->embedRule(grok->getMember("counter"));
 	item = item->getGroup();
 	::modify(item,"*");
-	item = new GroupItem("]");
+	item = strap->addAttribute(grok->getMember("rightBrace"));
 	::modify(item,"-");
 	item = strap->addAttribute(item);
 	strap = grok->addMember(new GroupItem("Any"));
@@ -277,6 +281,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item = strap->addAttribute(grok->getMember("rightCurly"));
 	item->setRuleStuff();
 	strap = grok->addString("DelimText");
+	strap->setMethod(::aCTionDelimText);
 	strap->setRuleStuff();
 	item = strap->addAttribute(grok->getMember("leftParen"));
 	item->setRuleStuff();
@@ -302,7 +307,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	strap->setRuleStuff();
 	strap->setMethod(::aCTionTraiTdata);
 	strap->groupBody->flags.methodType = 1;
-	item = strap->addString("=");
+	item = strap->addAttribute(grok->getMember("EquaL"));
 	::modify(item,"-");
 	item = grok->getMember("DatA");
 	item = strap->addAttribute(item);
@@ -350,7 +355,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::modify(item,"+");
 	strap = grok->addString("MemberS");
 	strap->setRuleStuff();
-	item = strap->addString(":");
+	item = strap->addAttribute(grok->getMember("ColoN"));
 	::modify(item,"-");
 	item = strap->addAttribute(member);
 	::modify(item,"-");

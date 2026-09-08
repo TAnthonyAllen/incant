@@ -75,6 +75,7 @@ class GroupRules
                 stringBUFFER,
                 toBUFFER;
     boolean
+            compiling
             debugAllRules
             debugGuards
             defining

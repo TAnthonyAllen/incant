@@ -94,7 +94,7 @@ define
         JSONtoken;
     JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={
         token <: JSONtoken; // sets token tag to JSONtoken text
-        token = JSONvalue;
+        token = *JSONvalue;
         return token;
         };
     JSONitem isRule JSONtoken@ ","?-;

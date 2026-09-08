@@ -1,49 +1,5 @@
-
-/******************************************************************************
-    This incant command method reads the field passed in as a file spec and
-    loads the field buffer (creating it if necessary) with text read in from
-    the file. Returns the loaded field. See DesignDocs entry: arrondirNote.
-******************************************************************************/
-
-
-/***************************************************************************
-    arrondir -- EXPLICIT CONVERSION TO A COUNT (Tony's ruling, 2026-08-01,
-    clause 2 / word 3). For when the user wants control instead of relying on
-    implicit narrowing.
-
-    ⚠ NAMED IN FRENCH ON PURPOSE, AND IT PAYS TWICE (Tony). `round` is libc
-    <math.h>, and extern "C" strips overload resolution, so an extern named
-    `round` is bear-trap #12 -- clean per file, `duplicate symbol` at Ld, no hint
-    which incant file caused it. The first cut dodged that with a differently
-    named extern plus the `=method` binding form (bear-trap #7). BORROWING A WORD
-    FROM ANOTHER LANGUAGE INSTEAD REMOVES BOTH: the name is free at the C level,
-    so the extern carries it directly and the indirection disappears. Cheaper
-    than inventing a name, and it reads.
-
-    HALF-UP, the same rule and the same spelling as everywhere else: >= .5 goes
-    up, < .5 goes down, so -2.5 gives -2. ⚠ THAT DISTINCTION IS NOW LOAD-BEARING
-    rather than academic -- under Word 2 the compound-assign family computes in
-    doubles and narrows the RESULT, so negative halves actually reach a rounding
-    decision. lround() would round half AWAY FROM ZERO and disagree here.
-
-    ⚠ ROUTED THROUGH .count (getCount) DELIBERATELY, exactly as the compound
-    arms are, so the half-up rule keeps ONE IMPLEMENTER. An inline floor(x+0.5)
-    here would be a second copy of a rule whose whole history is copies
-    disagreeing.
-
-***************************************************************************/
-extern GroupItem arrondir(GroupItem field)
-{
-    if !field {
-        cerr "arrondir: no argument provided":;
-        return null; }
-    tempField.count = field.count;
-    return tempField;
-}
-
-
 /*******************************************************************************
-    Commands.rtn
+                            Commands.rtn
     Home for extern methods backing the cOMMANDs base registry. Commands fire
     C++ methods used to set flags or perform side effects; they are wired up
     via the immediateAction attribute in incant/setup.
@@ -58,11 +14,25 @@ extern GroupItem arrondir(GroupItem field)
     attribute are intended to be run on the command line.
 *******************************************************************************/
 
-/***************************************************************************
+/******************************************************************************
+    arrondir is French for to round. Named because libc has round so cannot
+    declare a kant command named round.
+        // arrondirNote
+******************************************************************************/
+extern GroupItem arrondir(GroupItem field)
+{
+    if !field {
+        cerr "arrondir: no argument provided":;
+        return null; }
+    tempField.count = field.count;
+    return tempField;
+}
+
+/*******************************************************************************
 	The incant clear command invokes this. It clears its argument.
     If data is a buffer, it is reset. If data is a stak, it is cleared.
     Otherwise input is cleared wiping data and list.
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem cLEAR(GroupItem input)
 {
     if isBUFFER     buffer.reset();
@@ -73,169 +43,65 @@ extern GroupItem cLEAR(GroupItem input)
     return input;
 }
 
-
 /*******************************************************************************
 	Compile field action
 *******************************************************************************/
-
-
 extern GroupItem compile(GroupItem field)
 {
 GroupItem   code,
             grup;
-    /*  ⚠ REFUSE LOUD ON A BODYLESS FIELD, AND RETURN null. SEQ 79 step 2,
-        in-charter under R-4: compile owns the compilation preconditions, and
-        "carries a body at all" is the first of them.
-
-        WHAT THIS REPLACES IS WORSE THAN THE CRASH IT WAS CHARTERED AGAINST.
-        The old spelling was `goto endCompile`, and endCompile is `return
-        field` -- so compile on a rule with NO BODY returned the field, which
-        is TRUTHY, and every caller tallying `if compile(x)` counted it as a
-        SUCCESS. A bodyless rule did not fail to compile, it silently reported
-        that it had. That is an absence passing for a value, rule H4's exact
-        shape, and it was invisible for as long as every caller happened to
-        pass coded fields.
-
-        A SIBLING MESSAGE, NOT reportNoBody, per the F-18 standard: that one
-        says a rule was reached THROUGH A BOUND PARSE METHOD and has no body,
-        which is a different fact about a different path. Reusing it would put
-        two meanings on one channel. Spelled as a cerr rather than a new
-        extern deliberately -- it is greppable by text, and a sixth extern
-        would move the canary pin again for a message.  */
-    if !field.isCoded {
-        return refuse(field,"compile: no compiled body"); }
-    /*  ⚠ COMPILE OWNS THE COMPILATION PRECONDITIONS, ENSURED IDEMPOTENTLY.
-        R-4, Tony's ruling 2026-08-17.
-
-        Every coded body is built with TWO HIDDEN LOCALS -- `this` and
-        `tempField`. aCTionDefinE adds them at definition time when it sees a
-        CodE, and genParse's kant door replicates them by hand for the same
-        reason, its own comment calling them "the two hidden locals every coded
-        body is built with". A body generated at RUN time gets a CodE attached
-        and NEITHER local, so `runRuleAction(this)` names something that does
-        not exist and processCode refuses the parse.
-
-        PRESENT-CHECK PER MEMBER, so a define-door rule that already carries
-        them is left ALONE -- not re-minted, not replaced. That idempotence is
-        the whole point of putting this here rather than in the generator: the
-        precondition belongs to compilation, so compile guarantees it for every
-        caller instead of each generator remembering.
-
-        ⚠ `this` NEEDS THE BACK-POINTER, not just the two flags. Both minting
-        sites set group to the owning field, which is what makes `this` resolve
-        to the rule inside its own body. An ensure that created the member and
-        stopped at isLocal/noPrint would look right and still fail.
-
-        ⚠ THE PRESENT-CHECK IS A SUBSCRIPT, NOT getMember, AND THE DIFFERENCE
-        IS A BUG I ALREADY WROTE ONCE. These two are ATTRIBUTES, not members:
-        tok's `+=` on a name routes through addString, which does
-        `if binType addMember else addAttribute`, and a rule is not a bin. So
-        getMember could never find them, the guard would miss every time, and
-        compile would re-mint on every call -- the exact non-idempotence this
-        block exists to prevent, behind a check that looked correct.
-        The subscript runs get(String), which walks the whole list with next()
-        and is agnostic between attributes and members, so it finds them.
-        (addString is idempotent on its own -- getFromList first -- so this
-        guard is belt and braces. It is kept because R-4 asks that an existing
-        precondition be left untouched, not merely un-duplicated.)  */
+    if !field.isCoded       return refuse(field,"compile: no compiled body");
     code    = field["CodE"];
-    /*  ⚠ THE SECOND REFUSAL, AND IT IS DELIBERATELY NOT THE FIRST ONE'S
-        MESSAGE. Ruling C, 2026-08-22: compile owns its preconditions BY FLAG
-        AND BY ARTIFACT, and the two can disagree.
-
-        isCoded IS actionType == 2 (GroupBody.h:75). Anything may set that
-        flag; only activateBody and compileStored actually mint the CodE, as
-        the last of the same three lines. So a caller that hand-sets the flag
-        -- which incant/frontier did until 2026-08-22 -- arrives here claiming
-        a body it does not have, and the lines below took `code` straight into
-        addAttribute. That crashed: SIGSEGV at GroupItem.mm:212, no
-        diagnostic, and from a shell it looked like a silent early exit
-        because a crash eats buffered stdout.
-
-        THE FLAG/ARTIFACT DISAGREEMENT IS ITSELF THE DIAGNOSTIC, which is why
-        this must not collapse into the bodyless message above. That one says
-        "you never claimed a body". This one says "you claimed one and it is
-        not there" -- a different defect, in a different caller, and the two
-        sentences send you to different places.  */
-    if !code {
-        return refuse(field,"compile: isCoded is set but there is no CodE attribute; the flag and the artifact disagree"); }
+    // secondRefuseInCompile
+    if !code                return refuse(field,"compile: isCoded is set but there is no CodE attribute; the flag and the artifact disagree");
     grup    = 0;
     while grup = field.next(grup)
-        if grup.noPrint     continue;
-        or grup.isRule      code +% grup;
-    grup            = new("this");
-    grup.isLocal    = true;
-    grup.noPrint    = true;
-    grup.group      = field;
-    grup.isAttribute    = true;
+        if noPrint  continue;
+        or isRule   code +% grup;
+    // compileAddTempFields this and tempField
+    grup        = new("this");
+    isLocal     = true;
+    noPrint     = true;
+    group       = field;
+    isAttribute = true;
     code.replace(grup);
+
     grup = field["tempField"];
-    grup            = new("tempField");
-    grup.isLocal    = true;
-    grup.noPrint    = true;
-    grup.isAttribute    = true;
+    grup        = new("tempField");
+    isLocal     = true;
+    noPrint     = true;
+    isAttribute = true;
     code.replace(grup);
-    /*  ⚠ A REFUSED RULE MUST NOT TERMINATE THE RUN. Tony's ruling on F-17e,
-        2026-08-19. This line was `exit(1)` and that was louder than ruled:
-        R-4 asks compile to REPORT and REFUSE, and processCode has already
-        reported through reportCodeFail by the time control arrives here, so
-        exiting added nothing but the end of the process.
-
-        WHAT IT COST is the reason the ruling exists: a flat sweep could never
-        report more than its FIRST refusal, so the population figure everyone
-        was quoting was a lower bound wearing the shape of a count, and the
-        census that would have corrected it was the thing being terminated.
-        Returning null makes a refusal a VALUE a caller can tally, which is
-        what a per-rule failure report needs.
-
-        NO DOUBLE REPORT: processCode owns the message (GroupActions.rtn), and
-        compile owns only the verdict.
-
-        ⚠ THE TATTLE, Tony 2026-08-26 (refuse-loud on the compile road, R-2).
-        processCode names its own failure and the position it stopped at, but
-        it does NOT say who asked. A sweep over a hundred rules therefore
-        produced a column of positions with no patient attached to any of
-        them. This line names the rule compile was standing on when the
-        refusal came back, so the two messages read as one chain: processCode
-        says what broke and where, compile says whom it broke for.
-
-        IT IS A NAMING, NOT A VERDICT, AND THE DISTINCTION IS F-17e's RULING
-        STILL STANDING: a refused rule does not terminate the run, because a
-        flat sweep that exits on its first refusal can never report more than
-        one, and the census is the thing being terminated. Adding the name
-        costs nothing a caller was relying on -- the return value is unchanged
-        and every tally still counts a null as a refusal.  */
-    -%
-    gCompileAttempted++;
-    %-
+    // refusedRuleDoesNotEndRun has to continue to processCode below
+    compiling   = true;     // so ANYtoken allows key fields
     if !processCode(field) {
-        -%
-        gCompileRefused++;
-        %-
+        // BOTH arms clear it -- this arm RETURNS, so the tail below never runs and compiling would stay set for the rest of the process
+        compiling   = false;
+        print `code.text:;
         return refuse(field,"compile: processCode would not parse the generated body; its message above names the position"); }
+    else    print "compile succeeded for " field.tag:;
+    compiling   = false;
 endCompile:
     field.hasNewParse   = true;
     return field;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
 	Returns a copy of the field passed in
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem cOPY(GroupItem field)
 {
 GroupItem newField = new(field);
     return newField;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
 	copyOf() makes a copy of the field passed in. The copy groupBody is a copy.
     if the source isVirtual the copy will share the same list as grup (the source).
     If source is not isVirtual the copy list will be distinct but will have
     the same elements as the source. Difference is adding anything to the
     copy's list will not add anything to the source list.
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem copyOf(GroupItem grup)
 {
 GroupItem block = new;
@@ -248,11 +114,10 @@ GroupItem block = new;
     return block;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
 	The incant debugGuard command invokes this to toggle the debugGuard
     flag in the argument passed in
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem debugOnGuard(GroupItem input)
 {
     if !input   debugGuards = !debugGuards;
@@ -263,10 +128,10 @@ extern GroupItem debugOnGuard(GroupItem input)
 }
 
 
-/***************************************************************************
+/*******************************************************************************
 	The incant dumpContents command runs this. It is used mostly for debugging.
     It lists out the componenst of the argument passed in.
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem dumpContents(GroupItem stuff)
 {
 GroupItem   grup;
@@ -281,7 +146,6 @@ GroupItem   grup;
         dumpContents(stuff); }
     return trueResult;
 }
-
 
 extern GroupItem fireNewParse(GroupItem rule)
 {
@@ -324,8 +188,7 @@ GroupItem   artifact;
 %-
 }
 
-
-/***************************************************************************
+/*******************************************************************************
     runJSONblock (genParseSpec S5.3's entry wrapper) is RETIRED, genParseShape
     S1.7. Generated code emits no entry wrapper: invocation is JSONblock(...)
     through parse()'s fork, exactly as Start(). The wrapper called
@@ -335,12 +198,12 @@ GroupItem   artifact;
     the Invariant R report, now lives in leaveRule (S1.8) where `from` and
     atRuleMark are both in hand. Restore from git history if a direct-call
     harness is ever wanted again; do not re-emit one.
-***************************************************************************/
+*******************************************************************************/
 
-/*****************************************************************************
+/*******************************************************************************
     This is the simplified generateCode command method that leaves dirty work
     to the incant actions in the incant generate file
-*****************************************************************************/
+*******************************************************************************/
 extern GroupItem generateCode(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -376,7 +239,11 @@ GroupItem   fieldList   = field.getAttribute("bcLIST");
     return fieldList;
 }
 
-
+/*******************************************************************************
+    getFile reads the field passed in as a file spec and loads the field buffer
+    (creating it if necessary) with text read in from the file. Returns the
+    loaded field.
+*******************************************************************************/
 extern GroupItem getFile(GroupItem filing)
 {
 GroupItem   File:;
@@ -422,10 +289,10 @@ use filing
 }
 
 
-/***************************************************************************
+/*******************************************************************************
 	Returns a type field (from types: defined in the Generating registry)
     based on the data of the field passed in.
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem getType(GroupItem field)
 {
 GroupItem   type,
@@ -450,8 +317,7 @@ use field
     return type;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
 	guard command should be run as a rule attribute to specify a guard for
     a rule that has not been guarded.
     If the guard attribute contains:
@@ -466,7 +332,7 @@ use field
     a live graft (Rule += newAlternative) adds an alternative whose first
     character is not in the cached guardSet: the member list grew but the stale
     guardSet would otherwise reject the new alternative's input.
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem guard(GroupItem item)
 {
     if fLAG {
@@ -492,8 +358,7 @@ extern GroupItem guard(GroupItem item)
     return item;
 }
 
-
-/*****************************************************************************
+/*******************************************************************************
 	The input argument is expected to be a listenTo attribute that contains
     a group, the notifier, that will be listened to by listenTo's parent, the
     listener. The listenTo attribute is noPrint and runs when its parent gets
@@ -514,7 +379,7 @@ extern GroupItem guard(GroupItem item)
     into the listener using setContent().
     
     Note: the listener does not remember the field or fields it listens to.
-*****************************************************************************/
+*******************************************************************************/
 extern GroupItem listenTo(GroupItem input)
 {
 GroupItem   listener = input.parent;
@@ -532,13 +397,12 @@ GroupItem	grup = input.group,
     return trueResult;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
 	The incant load command, a noPrint command designed used as an
     attribute invokes loadDirectory to read in a directory and for every file
     in the directory creates an entry in the input parent group.
     DOES NOT HANDLE FILE MASKS??? It used to I think.
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem loadDirectory(GroupItem input)
 {
 Directory   *direct;
@@ -572,11 +436,10 @@ String      directoryName,
     return target;
 }
 
-
-/*****************************************************************************
+/*******************************************************************************
 	The incant include command call this method to read in file to be processed.
     It does not specify what rule to run on the new input.
-*****************************************************************************/
+*******************************************************************************/
 extern GroupItem loadInputFromFile(GroupItem source)
 {
 GroupRules  ruler = groupRules;
@@ -587,14 +450,13 @@ GroupRules  ruler = groupRules;
     return falseResult;
 }
 
-
-/*****************************************************************************
+/*******************************************************************************
 	Command to make a new field w/tag set from input text. The GroupItem(String)
 	constructor seeds BOTH tag and text from the string; we clear the text so a
 	freshly-made field starts empty — the tag carries the name, the value does
 	not. (Without this, new("x") yields text "x", which rides along through <:
 	retags as a stale "=x" content artifact. Igor minion absorb, 2026-06-29.)
-*****************************************************************************/
+*******************************************************************************/
 extern GroupItem makeNew(GroupItem input)
 {
 String  strung = text;
@@ -604,14 +466,13 @@ GroupItem   grup = new(strung);
     return grup;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
 	window attribute handler. A form field carries `window` as an attribute;
     this fires at parent-define time (fLAG set) and marks the parent form
     field as a window (isWindow). Define-then-show: it does NOT open the
     window -- openWindow(form) is the separate explicit raise trigger,
     called by name when the window should appear.
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem markWindow(GroupItem input)
 {
 GroupItem   form = input.parent;
@@ -621,8 +482,7 @@ GroupItem   form = input.parent;
     return trueResult;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
     parkParse / fireNewParse -- THE FACE-PROOF ARTIFACT ADDRESS.
 
     Ruled 2026-08-24 on ARCHITECTURAL grounds, not evidentiary ones: a
@@ -641,7 +501,7 @@ GroupItem   form = input.parent;
     hold its NAME. So the artifact stores the name and the fire site resolves
     it, which also means the address survives anything that copies structure
     without copying rStuff -- which is the whole point of the move.
-***************************************************************************/
+*******************************************************************************/
 extern int parkParse(GroupItem rule, String name)
 {
 GroupItem   artifact;
@@ -654,13 +514,12 @@ GroupItem   artifact;
     return 1;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
 	The incant printTO command runs this to set toBUFFER to the buffer in
     bufferField. toBUFFER gets reset. If there is no bufferField toBUFFER
     is set to null. If toBUFFER is not null, opPrint(), invoked by the
     print command via the PrinT rule, writes in toBUFFER instead of stdout
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem printToBuffer(GroupItem bufferField)
 {
 use toBUFFER
@@ -674,8 +533,7 @@ debugHere:
     return trueResult;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
 	The processFlags method is invoked by multiple incant noPrint fire and
     forget commands run at field definition). The item passed in as argument
     is used to figure out what flag to set/reset; the exception is the exit
@@ -686,7 +544,7 @@ debugHere:
     definition. Do not virtualize a field outside a define. Virtual is a
     define-time property; the forks that consume it (aCTionNamE, runOP) assume
     nothing virtual was created elsewhere. See the wakeup bear-trap log.
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem processFlags(GroupItem item)
 {
 GroupRules  ruler   = groupRules;
@@ -734,11 +592,10 @@ GroupItem   target  = item.fLAG ? item.parent : item;
     return trueResult;
 }
 
-
-/*****************************************************************************
+/*******************************************************************************
 	The incant quoted command is usually used in a print statement to output
     its argument text in quotes.
-*****************************************************************************/
+*******************************************************************************/
 extern GroupItem quoted(GroupItem input)
 {
 String  strung = "\"" text "\"";
@@ -746,8 +603,7 @@ GroupItem   grup = new(strung);
     return grup;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
 	Register the parent block of item in the currentRegistry. This method is
     associated with register and class attributes defined in bootCommands()
     NOTE: the class attribute that makes its parent a registry should preceed any
@@ -756,7 +612,7 @@ GroupItem   grup = new(strung);
 
     Note the argument passed in may be a copy of a registry, hence the use
     of registri below to make sure argument references the original
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem rEGISTER(GroupItem item)
 {
 GroupItem   registri;
@@ -784,13 +640,12 @@ String      name = item.data ? item.text : 0;
     return trueResult;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
     C extern backing the incant `system` command. Named runSystem to avoid
     the extern "C" symbol clash with libc system(3). User-beware: no escaping,
     no stdout capture, no elaborate error handling. Returns trueResult on
     exit code 0, falseResult otherwise.
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem runSystem(GroupItem command)
 {
 String  cmdText = command.text;
@@ -801,11 +656,10 @@ int     status;
     return falseResult;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
     A cOMMANDs method associated with commands like hash and buffer that set
     the appropriate value for the grup passed in.
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem setInternalType(GroupItem grup)
 {
     if grup {
@@ -817,10 +671,9 @@ extern GroupItem setInternalType(GroupItem grup)
     return null;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
 	Immediate method for the stop command.
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem stopParsingInput(GroupItem input)
 {
 GroupRules  ruler = groupRules;
@@ -846,8 +699,7 @@ GroupRules  ruler = groupRules;
     return  input;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
 	Immediate method for the testing command — scratch verification harness,
 	rewritten per the current need (see CLAUDE.md). Currently drives the JIT
 	compile path: testing(<action>) runs jitRunAction on the action, which
@@ -861,7 +713,7 @@ GroupRules  ruler = groupRules;
 	here when bytecode-emit verification is the need again.)
 	NB: keep this body free of `//` comments — they bleed field-resolution into
 	the following extern (unWrap). Doc goes here, in the block.
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem testing(GroupItem input)
 {
 GroupRules  ruler = groupRules;
@@ -869,10 +721,9 @@ GroupRules  ruler = groupRules;
     return jitRunIfTest(input) ? trueResult : null;
 }
 
-
-/***************************************************************************
+/*******************************************************************************
 	Rule action for unWrap used in the gXpress generator action.
-***************************************************************************/
+*******************************************************************************/
 extern GroupItem unWrap(GroupItem result)
 {
 GroupItem   grup = result;
