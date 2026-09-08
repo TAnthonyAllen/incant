@@ -291,14 +291,7 @@ define
             if across > 0 OR down > 0;
                 setFrame(*grup);
         };
-    /***************************************************************************
-        Return text wrapped in quotes if the field passed in contains text
-        not a valid name.
-    ***************************************************************************/
-    quoteIfNeeded code={
-        if nameSet IN argument;
-            this = argument;
-        else    this = #$'"' argument '"'$; };
+    // quoteIfNeeded obituary: never called; set arm exercised by inArmsT, 2026-09-08
     /***************************************************************************
         Convert the hex string in the target passed in to a floating point number
     ***************************************************************************/

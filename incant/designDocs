@@ -90,6 +90,34 @@ define
         Borrowing a word from another language gets around that issue. arrondir is free at C level, causing no linking duplication.
         arrondir is not used in underlying kant methods like opDiv(). Likewise GroupItem getCount() does not use arrondir. opDiv and getCount are C++ methods so they do not need it. Kant has no such option; arrondir allows kant to run round().";
     Incantations="Design entries that belong to a particular INCANTATION rather than to a subsystem, one child per incantation. Minted 2026-08-26 on Tony's suggestion: designDocs was growing a flat list in which a file's operating notes sat at the same level as a subsystem's architecture, and the two answer different questions. A subsystem entry says what the design IS; an incantation entry says how one runnable file WORKS and what it has already been measured to do. The child key is the incantation, never the campaign it serves -- KantParser stays a subsystem entry because the campaign outlives any one file, while the parser form's gates and provenance live here.":
+        UtilitiesIncantation=(incant/utilities. The shared helper incantation -- listRules,
+            displayForm, setFrame, dumpField and friends -- included by nearly every fixture
+            in the fleet. Entries here are its own methods, including ones that have been
+            struck.#):
+            quoteIfNeeded=(obituary: never called; set arm exercised by inArmsT, removed
+                2026-09-08. It wrapped a field's text in quotes unless the text was a valid
+                name, and it read `if nameSet IN argument;` -- the target.isSET arm of opIN.
+
+                WHY IT WENT. A census of live `IN` sites on 2026-09-08, taken to size the blast
+                radius of moving opIN's groupList arm to the front, found quoteIfNeeded had
+                ZERO CALLERS. It was defined and never invoked, the same state andProbe's header
+                records for displayIfVisible. So it was neither a customer to protect nor a
+                gate to rely on, and the reorder could not have been certified through it.
+
+                ⚠ THE COVERAGE IT LOOKED LIKE IT PROVIDED IS NOW REAL AND ELSEWHERE. incant/
+                inArmsT rows IA-S1 and IA-S2 drive the same target.isSET arm by value with a
+                discriminating pair -- a plain name reads 1, a name with spaces reads 0 -- and
+                pop.sh pins both. That is the retirement-by-mapping: the arm did not lose
+                cover, it gained cover it never actually had.
+
+                ⚠ AND THE ARM IT EXERCISED IS STILL SUSPECT, which is worth knowing before
+                anyone revives this. `set.foundIn(target.text)` and `set.contains(argument.text)`
+                both read `.text` off a field that may carry no data, and a data-less field
+                returns its own TAG (bear-trap 26) -- so a character-set membership test can be
+                handed a NAME. The 2026-09-08 reorder stops a REGISTRY from reaching that arm;
+                a pure set still does.#):
+                Status="superseded 2026-09-08 -- never called; the set arm it exercised is pinned by incant/inArmsT IA-S1 and IA-S2";
+                CodeSite="incant/utilities:quoteIfNeeded";
         ParserIncantation="IncantForms/WorkingOn/parser. Walks a rule and everything below it, generates a parse body for each, compiles it, and closes by parsing a specimen through the rule so the run reports an answer rather than a count. parser(Start) is the intended POP and does not pass yet; see ProblemRecords parseSelfRecursion. Reduced from 344 lines to its finished shape 2026-08-26 across two reviewed iterations, Tony ruling by review at each pass.":
             ParserGates="Three phases, two gates, ruled 2026-08-26. Generation always runs. Activation binds the generated body as the rule parse method via setParse and is gated by the activating field. Compilation is gated by the compiling field. A measuring run turns one or both off; a verifying run leaves both on, because a parse method that is never bound is never exercised. Both gates are declared fields in the define block, because a driver writes them and the walk reads them and an undeclared name shared by two actions becomes a per-action local (bear trap 39). Both are tested against a value and never bare, because a bare test on a declared field asks whether it exists and is always true (bear trap 26).";
             artifactSkipByFlag=(TERMS ARE isRulE, ARTIFACTS ARE NOT; noPrint is not load-bearing
