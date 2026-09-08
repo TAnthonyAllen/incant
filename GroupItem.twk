@@ -309,7 +309,7 @@ GroupItem firstComponent(String name)
 GroupItem   grup;
 GroupItem   entry = get(name);
     if !entry
-        if listLength
+        if groupList
             while entry = next(entry)
                 if grup = entry.firstComponent(name) {
                     entry = grup;

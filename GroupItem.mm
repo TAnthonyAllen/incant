@@ -1101,7 +1101,7 @@ GroupItem *GroupItem::firstComponent(char *name)
 GroupItem 	*grup = 0;
 GroupItem 	*entry = get(name);
 	if ( !entry )
-		if ( groupBody->groupList->listLength )
+		if ( groupBody->groupList )
 			while ( entry = next(entry) )
 				if ( grup = entry->firstComponent(name) )
 					{

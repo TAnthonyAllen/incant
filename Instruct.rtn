@@ -563,7 +563,8 @@ extern GroupItem opIN(GroupItem argument,GroupItem target)
 {
 PLGset  set;
 GroupItem   result;
-    if argument.isSET {
+    if argument.groupList   result = argument.firstComponent(target.tag);
+    or argument.isSET {
         if set = argument.characterSet
             if set.foundIn(target.text)     result = trueResult; }
     or target.isSET {
@@ -577,7 +578,6 @@ GroupItem   result;
             length-of-match computations (argument.count).
         *******************************************************************/
         if argument.buffer.findInBuffer(target.text)    result = target; }
-    or argument.groupList   result = argument.firstComponent(target.tag);
     return result ;
 }
 

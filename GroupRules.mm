@@ -8234,6 +8234,9 @@ extern "C" GroupItem *opIN(GroupItem *argument, GroupItem *target)
 {
 PLGset 		*set = 0;
 GroupItem 	*result = 0;
+	if ( argument->groupBody->groupList )
+		result = argument->firstComponent(target->groupBody->tag);
+	else
 	if ( isSET(argument->groupBody->flags.data) )
 		{
 		if ( set = argument->getCharacterSet() )
@@ -8259,9 +8262,6 @@ GroupItem 	*result = 0;
 		if ( argument->getBuffer()->findInBuffer(target->getText()) )
 			result = target;
 		}
-	else
-	if ( argument->groupBody->groupList )
-		result = argument->firstComponent(target->groupBody->tag);
 	return result;
 }
 
