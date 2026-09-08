@@ -1,0 +1,91 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(FaceCross);
+define
+    fcSrc="ORIG";
+    fcBag;
+    fcClean;
+    fcRun code={
+        fcBag +% fcSrc;
+        fcFace <- fcBag["fcSrc"];
+        cerr "FC-1 the two bodies, side by side -- faceT F1 claims ONE body:":;
+        addrOf(fcSrc);
+        addrOf(fcFace);
+        fcSrc :. noPrinT;
+        fcFwd = fcFace.noPrinT;
+        fcCtl = fcClean.noPrinT;
+        cerr "FC-2 FORWARD  wrote source, read face  = " fcFwd " (faceT F2 wants 1)":;
+        cerr "FC-3 CONTROL  never written anywhere   = " fcCtl " (must differ from FC-2)":;
+        fcAnchor = 0;
+        cerr "fixFaceFlagsNoCrossHere -- FC-2 and FC-3 reading the SAME value is the defect":;
+        };
+    ;
+fcRun();
+print "FACEFLAGS SENTINEL -- reached the foot":;
+stop();
+
+LANE:  runtime
+BLAST: OVERLAPS
+
+NAME      faceFlagsNoCross -- faceT's two faces do not share a body, so F2 and F3
+          cannot pass, and its control now reads the same as its assertions.
+
+SEVERITY  The fixture is SILENTLY NON-DISCRIMINATING. That is worse than red.
+
+WHAT      incant/faceT asserts that a field and its "face" share one GroupBody,
+          so a flag written through either is visible through the other. Its rows:
+
+              F2  flags FORWARD  write source, read face    want 1   reads 0
+              F3  flags REVERSE  write face, read source    want 1   reads 0
+              F0  anti-vacuity   never written              control  reads 0
+
+          F2 and F3 have been RED. F0 is their control and it now reads 0 TOO, so
+          the control and the assertions are indistinguishable. A fixture whose
+          control cannot be told from its subject asserts nothing, whichever way
+          the rows go.
+
+⚠ THE CONTROL ONLY BECAME INDISTINGUISHABLE ON 2026-09-08, AND NOT BY BREAKING.
+F0 used to read the string `noPrinT` -- an unset flag had no data and returned
+its own tag (bear-trap 26). It reads an honest 0 now because opDot gives a
+data-less flag read a real count and bareIfTruth makes `if` answer by truthOf.
+The row was re-pinned to 0 the same day. So the FIX is what exposed this: the
+echo had been hiding the collision between the control and the subject.
+
+WHY THE BODIES DIFFER, and this is the part that makes it someone else's bug.
+faceT builds its face in two steps and BOTH COPY:
+
+        fcBag +% fcSrc;              +% attaches a COPY and stamps isAttribute
+        fcFace <- fcBag["fcSrc"];    <- MINTS A COPY, it is not an alias
+
+So the face is a copy of a copy. addrOf says so out loud -- FC-1 prints two
+different body numbers where faceT's own F1 line says "two fields, ONE body".
+
+⚠ `<-` COPYING IS A RULED DEFECT, NOT THE DESIGN. Tony, 2026-08-23: `<-` is MEANT
+to hand back THE NODE, and copy-on-rebind is the defect -- a copy confirms every
+read-back of a write that changed nothing. faceT is a downstream casualty of it,
+which is why this is filed rather than fixed here.
+
+NEXT: BEST GUESS.
+
+  1. THE LIKELY ANSWER, and it is not this file's to land: faceT cannot work
+     while `<-` copies. When copy-on-rebind is fixed, re-run faceT -- F2 and F3
+     should go to 1 and F0 must STAY 0. ⚠ If F0 moves to 1 as well, the fix has
+     over-shared and the control is telling you so.
+     GRADE: strong. The two-copy construction is read directly from the source
+     and the differing bodies are printed. What is NOT established is that
+     copy-on-rebind is the ONLY reason -- `+%` copies too, so even a fixed `<-`
+     leaves one copy between source and face.
+  2. ⚠ WHICH MEANS THE CHEAPER TEST COMES FIRST: reach the face WITHOUT `<-`.
+     Read it by direct subscript at the point of use rather than rebinding it to
+     a local. If the bodies still differ, `+%` is the copy that matters and `<-`
+     is exonerated for this fixture.
+  3. Failing both, faceT's premise is simply wrong and the fixture wants
+     retiring rather than repairing -- roundTripT already pins the same law from
+     the other side (ARM B1 copyOf does not cross, ARM B2 addGroup does).
+
+⚠ WHAT MUST NOT HAPPEN: do not re-pin F2 and F3 to 0 to make the fleet green.
+That freezes "flags do not cross a face" as the law, which is the opposite of
+what the fixture was built to prove, and it would be a target regenerated green.
