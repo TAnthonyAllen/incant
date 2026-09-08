@@ -1952,6 +1952,39 @@ fi
 #  ASSIGNMENT TOOK AND WROTE THE NULL. A refusal inside an expression BLANKS ITS
 #  ASSIGNMENT TARGET, which is a consequence of the ruling nobody stated. Pinned
 #  by value so it cannot change quietly.
+#  ---- artifactSkipByFlag: the skip reads the STRUCTURAL fact ----------------
+#  Retired citizen, 2026-09-08, retirement BY MAPPING: this is where its census
+#  now lives. walkRules used to skip a generated artifact by reading `noPrinT`,
+#  so noPrint carried two meanings -- "do not print me" AND "I am an artifact".
+#  It gates on `isRulE == 0` now. Terms are rules; minted artifacts are not.
+#
+#  ⚠ THE GATE IS `== 0` AND NOT `!isRulE`, AND THAT IS NOT A STYLE CHOICE. The
+#  bang form was MEASURED and it skips NOTHING -- both artifacts read VISITED --
+#  because `!` on a zero-holding field answers false (andProbe AP-5b, a
+#  pre-existing defect). Writing the obvious spelling would have produced a
+#  walker that silently visits every artifact at exit 0. Do not "tidy" this.
+#
+#  ⚠ ASSERTABILITY, NOT BEHAVIOUR: the two gates agree on today's data (parser
+#  walks 21 either way, WITNESS 1 either way) because no node is a noPrint rule
+#  or a printing artifact. That agreement is exactly why noPrint appeared to
+#  work. The rows below pin the FACT each child answers, so the day those two
+#  populations diverge the fleet says so instead of guessing.
+run1 artifactSkipT "$T/ask"; check "artifactSkipT runs (promoted citizen; census carried here)" 0 $?
+sentinel "artifactSkipT sentinel (no truncation)" "$T/ask" "ARTIFACTSKIP SENTINEL"
+for _r in "term numberSet    is a rule|child  numberSet isRulE  1 noPrinT  0" \
+          "term FloaT        is a rule|child  FloaT isRulE  1 noPrinT  0" \
+          "artifact builtinParsE is NOT|child  builtinParsE isRulE  0 noPrinT  1" \
+          "artifact builtinActoR is NOT|child  builtinActoR isRulE  0 noPrinT  1"; do
+    _lbl=${_r%%|*}; _want=${_r##*|}
+    if grep -qF "$_want" "$T/ask"; then
+        echo "  ok    artifactSkip $_lbl -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  artifactSkip $_lbl -- MOVED. The 1 1 0 0 census is the"
+        echo "        certificate the citizen retired on; if it moved, the skip's"
+        echo "        structural fact moved with it."; fail=1
+    fi
+done
+
 #  ---- bareIfTruth: aCTionIF answers by truthOf ------------------------------
 #  Tony's ruling, 2026-09-08. `if noPrinT;` must work as spelled. aCTionIF used
 #  to test `result && isInitialized`, and setCount RAISES isInitialized -- so the

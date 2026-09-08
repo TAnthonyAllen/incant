@@ -49,9 +49,10 @@ define
         generateParse(argument);
         length  = listLengtH;
         if length > 0;
+            // artifactSkipByFlag  terms are isRulE, artifacts are not; noPrint is not load-bearing for the skip
             iterate grup on argument;
             while ++grup;
-                if noPrinT;     continue;
+                if isRulE == 0; continue;
                 if binTypE;
                     generateParse(*grup);
                     continue;
