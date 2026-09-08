@@ -33,22 +33,34 @@ Section 3c fires a CALL in left position. Rows 1 through 3b all use bare
 fields on the left, so none of them touches the arm firing path at all --
 a fixture can look thorough and still leave the interesting branch cold.
 
-Section 4 is the assignment position, and it records a PREDICTION THAT
-FAILED. Before the rung, a false conjunction returned no node at all, so
-the receiving field held no data and read as false. After the rung it
-holds the number zero. The prediction was that this would not change how
-the field reads. It DID change -- the field now reads TRUE -- because a
-bare field test goes by presence and not by value. Recorded as a failure
-rather than quietly re-pinned. The only shipping consumer of this shape
-is displayIfVisible in incant utilities, which is defined and never
-called, so nothing live moved. The next caller of that idiom is the one
-who gets bitten.
+Section 4 is the assignment position, and it recorded a PREDICTION THAT
+FAILED and has since been DISCHARGED. Before the AND OR rung, a false
+conjunction returned no node at all, so the receiving field held no data
+and read as false. After the rung it holds the number zero, and the
+prediction was that this would not change how the field reads. It DID
+change -- the field read TRUE -- because a bare field test went by
+presence and not by value. ⚠ bareIfTruth (2026-09-08, Tony's ruling)
+closed that: aCTionIF now answers by truthOf, so a field holding zero
+reads FALSE and this row moved TRUE -> false. The only shipping consumer
+of the shape is displayIfVisible in incant utilities, defined and never
+called, so nothing live moved in either direction.
 
-Section 5 is why. A field holding zero dumps as an int carrying zero, and
-a bare test on it still reads TRUE, while the same field through the word
-form reads false. The bare test and the operator DISAGREE, they disagreed
-before this rung, and the ruled contract governs the operator only.
-Closing that gap is a separate ruling with its own customer.
+Section 5 is why, and it is now the RECORD of a closed gap rather than an
+open one. A field holding zero dumps as an int carrying zero; the bare
+test read TRUE while the same field through the word form read false. The
+bare test and the operator DISAGREED, and the ruled contract governed the
+operator only. ⚠ This file's own header named the exit -- "closing that
+gap is a separate ruling with its own customer" -- and bareIfTruth is that
+customer. `if aFalse;` now reads false, matching AND. ⚠ `if !aFalse;`
+still reads false and is a SEPARATE, PRE-EXISTING defect: it was measured
+false on both arms of bareIfTruth's own control, so it did not move and is
+not this ruling's doing. Filed rather than chased.
+
+Section 6 is bareIfTruth's driver, and it is the row the ruling was
+written for: `if length;` on a ZERO-LENGTH list must read FALSE. Its
+non-zero sibling is not decoration -- a zero-expecting row alone cannot
+tell "answered by value" from "answered by nothing", so the 3-member list
+is the anti-vacuity control and both rows are pinned.
 
 ZERO TEXT BEARING LOCALS, so this fixture stays inside the audited set
 and the KE-4 length defect cannot masquerade in any row above.
@@ -61,6 +73,8 @@ register(AndProbe);
 define
     aTrue = 1;
     aFalse = 0;
+    apEmpty;
+    apFull ap1 ap2 ap3;
     loudOne code={ print + "    [RIGHT ARM EVALUATED]":; return aTrue; };
     loudLeft code={ print + "    [LEFT ARM EVALUATED]":; return aTrue; };
     runAnd code={
@@ -99,6 +113,13 @@ define
         else                    print + "  if aTrue;  -> false":;
         if !aFalse;             print + "  if !aFalse; -> TRUE":;
         else                    print + "  if !aFalse; -> false":;
+        print "6 bareIfTruth -- `if length;` by VALUE, with its non-zero sibling:":;
+        apLen := apEmpty.listLengtH;
+        if apLen;               print + "  if length; on an EMPTY list -> TRUE":;
+        else                    print + "  if length; on an EMPTY list -> false":;
+        apLen := apFull.listLengtH;
+        if apLen;               print + "  if length; on a 3-MEMBER list -> TRUE":;
+        else                    print + "  if length; on a 3-MEMBER list -> false":;
         };
     ;
 runAnd();

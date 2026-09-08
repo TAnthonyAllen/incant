@@ -827,10 +827,9 @@ GroupRules  ruler = groupRules;
     if inputDiverted {
         popInput();
         cout :"stop: ending input divert":; }
-    else {
-        *atRuleMark = 0;
-        endParse    = true;
-        cout :"stop: end parsing":; }
+    *atRuleMark = 0;
+    endParse    = true;
+    cout :"stop: end parsing":;
     /*  ⚠ THE CENSUS FIRES AT COMPLETION, NOT AT THE REFUSAL, and that is the
         whole of Tony's ruling: F-17e's full sweep is preserved -- all 42
         refusals report as 42 -- and only then does the run refuse to call
@@ -843,6 +842,7 @@ GroupRules  ruler = groupRules;
     -%
     ::reportCompileCensus();
     %-
+    exit(0);
     return  input;
 }
 

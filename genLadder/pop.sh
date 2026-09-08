@@ -1952,6 +1952,45 @@ fi
 #  ASSIGNMENT TOOK AND WROTE THE NULL. A refusal inside an expression BLANKS ITS
 #  ASSIGNMENT TARGET, which is a consequence of the ruling nobody stated. Pinned
 #  by value so it cannot change quietly.
+#  ---- bareIfTruth: aCTionIF answers by truthOf ------------------------------
+#  Tony's ruling, 2026-09-08. `if noPrinT;` must work as spelled. aCTionIF used
+#  to test `result && isInitialized`, and setCount RAISES isInitialized -- so the
+#  moment opDot gave a data-less flag read a real `count = 0`, every FALSE flag
+#  started testing TRUE. It filtered odoPopulation from 64 rules to 0 at exit 0.
+#
+#  ⚠ THESE ROWS ARE PINNED BY VALUE AND EACH ONE HAS A NON-ZERO SIBLING, because
+#  a row that only ever wants "false" cannot tell ANSWERED-BY-VALUE from
+#  ANSWERED-BY-NOTHING -- the two look identical from outside. AP-5 pairs aFalse
+#  with aTrue; AP-6 pairs an empty list with a 3-member one.
+#
+#  ⚠ AND AP-5b IS PINNED AT A DEFECT ON PURPOSE (H7's other half): `if !aFalse;`
+#  reads false when aFalse holds 0, which is wrong. It was measured false on BOTH
+#  arms of bareIfTruth's own control, so it did not move and is not this ruling's
+#  doing. Pinned wrong with a sentence rather than left uncovered, so the day it
+#  changes -- in either direction -- the fleet says so.
+run1 andProbe "$T/apr"; check "andProbe runs (bareIfTruth driver)" 0 $?
+sentinel "andProbe sentinel (no truncation)" "$T/apr" "AP SENTINEL"
+for _r in "AP-4  a 0-holding conjunction result|and if andOut; reads it false" \
+          "AP-5  if aFalse; on a 0-holding field|if aFalse; -> false" \
+          "AP-5s anti-vacuity sibling: if aTrue;|if aTrue;  -> TRUE" \
+          "AP-6  if length; on an EMPTY list|if length; on an EMPTY list -> false" \
+          "AP-6s anti-vacuity sibling: 3 members|if length; on a 3-MEMBER list -> TRUE"; do
+    _lbl=${_r%%|*}; _want=${_r##*|}
+    if grep -qF "$_want" "$T/apr"; then
+        echo "  ok    andProbe $_lbl -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  andProbe $_lbl -- MOVED. bareIfTruth is the ruling; aCTionIF"
+        echo "        must answer by truthOf (absent false, numeric by value, else"
+        echo "        true by presence). Do not re-pin to silence it."; fail=1
+    fi
+done
+if grep -qF "if !aFalse; -> false" "$T/apr"; then
+    echo "  ok    andProbe AP-5b if !aFalse; -> false -- PINNED AT A PRE-EXISTING DEFECT (see note)"; green=$((green+1))
+else
+    echo "  FAIL  andProbe AP-5b if !aFalse; MOVED -- if it now reads TRUE the defect is"
+    echo "        FIXED and this row graduates (H6); re-pin with a sentence naming what fixed it"; fail=1
+fi
+
 run1 sentinelT "$T/snt"; check "sentinelT runs" 0 $?
 sentinel "sentinelT sentinel (no truncation)" "$T/snt" "SENTINELT SENTINEL"
 if grep -qF "ST-1 caller read       = 111" "$T/snt"; then

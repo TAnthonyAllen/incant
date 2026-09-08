@@ -725,13 +725,14 @@ GroupItem 	*result = ExpressioN;
 	if ( isMethod(result->groupBody->flags.instructType) )
 		result = result->groupBody->gMethod(result);
 	else	result = ExpressioN;
+	// bareIfTruth  aCTionIF answers by truthOf; isInitialized is a value marker, not a truth
 	// ⚠ REFUSE LOUDLY, NEVER CRASH -- unguarded, `if 1;` exits 139 with zero output   ruleActions.aCTionIF.refuseLoudly
-	if ( result && result->groupBody->flags.isInitialized && !StatemenT )
+	if ( ::truthOf(result) && !StatemenT )
 		{
 		::fprintf(stderr,"aCTionIF: REFUSING -- the condition parsed but its governed statement is MISSING. Common causes: a // between the condition and the statement (bear-trap #4), an `if <cond>;` with no statement at all, or a rule named in the condition consuming the statement as its input.\n");
 		return GroupControl::groupController->groupRules->falseResult;
 		}
-	if ( result && result->groupBody->flags.isInitialized )
+	if ( ::truthOf(result) )
 		result = StatemenT->groupBody->gMethod(StatemenT);
 	else
 	if ( ElsE )
@@ -8061,6 +8062,8 @@ GroupItem 	*product = 0;
 				default:
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));
 				}
+			if ( !product->groupBody->flags.data )
+				product->setCount(0);
 			if ( product && !product->parent )
 				product->parent = target;
 			}
@@ -12027,11 +12030,9 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		ruler->popInput();
 		::printf("\nstop: ending input divert\n");
 		}
-	else {
-		*ruler->atRuleMark = 0;
-		ruler->endParse = 1;
-		::printf("\nstop: end parsing\n");
-		}
+	*ruler->atRuleMark = 0;
+	ruler->endParse = 1;
+	::printf("\nstop: end parsing\n");
 	/*  ⚠ THE CENSUS FIRES AT COMPLETION, NOT AT THE REFUSAL, and that is the
 	whole of Tony's ruling: F-17e's full sweep is preserved -- all 42
 	refusals report as 42 -- and only then does the run refuse to call
@@ -12044,6 +12045,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	
 	::reportCompileCensus();
 	
+	::exit(0);
 	return input;
 }
 

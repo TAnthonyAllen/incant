@@ -426,6 +426,7 @@ use argument
                 // READ half; the WRITE half is opSetFlag case 41 -- they ship
                 // together or the flag is unassertable   Instruct.opDot.case41hasNewParse
                 default:    product.text    = "access to " tag " not supported yet"; }
+            if !product.data product.count  = 0;
             if product && !product.parent   product.parent = target; }}
     return product;
 }
