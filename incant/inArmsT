@@ -1,0 +1,72 @@
+Start();
+include(unitTests);
+include(utilities);
+include(designDocs);
+search reset stack Grokking;
+search DesignDocs UnitTests Utilities list;
+
+register(InArmsT);
+define
+    iaPlain  = "justaname";
+    iaSpacey = "has spaces";
+    iaDeclaredMiss;
+    iaRun code={
+        iaSetPlain  = 0;
+        if nameSet IN iaPlain;              iaSetPlain  = 1;
+        iaSetSpacey = 0;
+        if nameSet IN iaSpacey;             iaSetSpacey = 1;
+        iaListTop   = 0;
+        if TokFiles IN DesignDocs;          iaListTop   = 1;
+        iaListDeep  = 0;
+        if ParserGates IN DesignDocs;       iaListDeep  = 1;
+        iaListMiss  = 0;
+        if iaDeclaredMiss IN DesignDocs;    iaListMiss  = 1;
+        cerr "IA-S1 setArm  plain-name  = " iaSetPlain:;
+        cerr "IA-S2 setArm  has-spaces  = " iaSetSpacey:;
+        cerr "IA-G1 listArm top-level   = " iaListTop:;
+        cerr "IA-G2 listArm deep        = " iaListDeep:;
+        cerr "IA-G3 listArm absent      = " iaListMiss:;
+        };
+    ;
+iaRun();
+print "INARMST SENTINEL -- reached the foot":;
+stop();
+
+inArmsT -- THE THREE ARMS OF opIN, EACH PINNED BY VALUE. Minted 2026-09-08 when
+the groupList arm was moved to the FRONT of opIN, because until that stroke two
+of these three arms had no fleet cover at all and the reorder could have broken
+either one silently.
+
+WHAT opIN DOES, and the operand order is measured, not assumed: `X IN Y` calls
+opIN with `argument` = Y (the CONTAINER) and `target` = X (the NEEDLE). The arms
+are tried in order and the FIRST match wins, which is the whole reason order is
+load-bearing.
+
+    IA-S1  nameSet IN "justaname"     1     the SET arm, target.isSET
+    IA-S2  nameSet IN "has spaces"    0     same arm, and the discriminator
+    IA-G1  TokFiles IN DesignDocs     1     the groupList arm, top level
+    IA-G2  ParserGates IN DesignDocs  1     same arm, and it DESCENDS
+    IA-G3  <declared field> IN ...    0     the miss control
+
+/  EVERY ZERO ROW HAS A NON-ZERO SIBLING, and that is not decoration. A row that
+only ever wants 0 cannot tell "answered false" from "answered nothing" -- the two
+are identical from outside. S2 is paired with S1 and G3 with G1/G2 for exactly
+that reason.
+
+/  IA-G3 IS THE ROW THIS FILE EXISTS FOR. Before the reorder it read 1. A
+registry carries BOTH a character set and a group list, so the isSET arm matched
+first and `set.foundIn(target.text)` returned trueResult for EVERYTHING -- and on
+a data-less field `.text` hands back the field's own tag (bear-trap 26), so a
+character-set test was being fed a name. A field DECLARED in this file's own
+define block, which cannot be in DesignDocs, still read HIT. Any census built on
+IN was unmeasurable until this row went to 0.
+
+/  IA-G2 IS WHY THE ARM MOVED AT ALL. Tony wanted `result = name IN field` to
+search DesignDocs at any depth, which is what firstComponent gives and what plain
+get does not.
+
+/  THE FIELDS ARE WRITTEN AND READ BY ONE ACTION, DELIBERATELY. The first draft
+split measure and report across two actions and every row printed a tag echo: an
+undeclared name in an action body is a per-action LOCAL, so the reader saw its
+own copies (bear-trap 39). Either declare them in the define block or keep them
+in one action; this file keeps them in one action.

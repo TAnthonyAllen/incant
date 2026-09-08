@@ -1095,6 +1095,13 @@ done
 #  confirmed by failing to measure it. See faceT's note.
 #  ⚠ F0 is the anti-vacuity control: if an unwritten flag ever reads 1, F2 and F3
 #  assert nothing.
+#  ⚠⚠ F0 AND F4 GRADUATED 2026-09-08 (H6), tag echo -> 0. Both had been PASSING on
+#  a bear-trap #26 echo: an unwritten flag carried no data, so the read returned
+#  the field's own NAME and the control could not distinguish "unset" from
+#  "unreadable". F0's own want-text says "must NOT read 1" and F4's says "NOT
+#  READABLE" -- 0 satisfies both honestly where the echo only appeared to. Tony's
+#  opDot change supplies the value, bareIfTruth makes `if` read it. Re-pinned onto
+#  what the rows already claimed, not onto whatever the run happened to print.
 run1 faceT "$T/face"; check "faceT runs" 0 $?
 if grep -q "FACET SENTINEL" "$T/face"; then
     echo "  ok    faceT sentinel (no truncation)"; green=$((green+1))
@@ -1104,9 +1111,9 @@ fi
 for _arm in "ADDROF faSrc field=#1 body=#2" \
             "ADDROF faSrc field=#3 body=#2" \
             "faceT F2 flags FORWARD  = 1" \
-            "faceT F0 anti-vacuity   = noPrinT" \
+            "faceT F0 anti-vacuity   = 0" \
             "faceT F3 flags REVERSE  = 1" \
-            "faceT F4 parent read    = faP1"; do
+            "faceT F4 parent read    = 0"; do
     if grep -qF "$_arm" "$T/face"; then
         echo "  ok    ${_arm} -- PINNED BY VALUE"; green=$((green+1))
     else
@@ -1122,17 +1129,22 @@ done
 #  ⚠ WHAT IT READS TODAY, and the pre-registration is CONFIRMED: a body flag
 #  crosses between two names EXACTLY WHEN THE BODY IS SHARED.
 #      ARM A   one node, write then read       1          round trip works
-#      ARM C   never written                   noPrinT    tag echo, NOT 1
-#      ARM B1  copyOf twin, write twin         noPrinT    does NOT cross
+#      ARM C   never written                   0          NOT 1
+#      ARM B1  copyOf twin, write twin         0          does NOT cross
 #      ARM B2  addGroup twin, write twin       1          DOES cross
 #  ⚠ B1 IS NOT A COUNTEREXAMPLE, IT IS THE SAME RULE. copyOf makes its OWN body
 #  (which is why Tony's ruling says copyOf is not a "copy of a field" at all), so
 #  there is no shared body for the flag to cross through. B1 and B2 differ in the
 #  road, not in the law.
-#  ⚠ ARM C READS A TAG ECHO, NOT 0, and its own want-text still says "MUST be 0".
-#  An unset flag has no data and returns its own tag (bear-trap #26) -- that is
-#  the honest answer, the same one faceT's F0 gives. What the control actually
-#  asserts is that it is NOT 1, and the row below pins the echo by value.
+#  ⚠⚠ ARM C AND B1 GRADUATED 2026-09-08 (H6), tag echo -> 0, AND THE SENTENCE IS
+#  THAT THE FIXTURE ALWAYS SAID SO. Its own want-text reads "MUST be 0, else ARM A
+#  asserts nothing", and it had been PASSING on `noPrinT` -- an unset flag had no
+#  data and returned its own tag (bear-trap #26). So the anti-vacuity control was
+#  VOID: it could not tell "unset" from "unreadable", which is exactly what it
+#  exists to tell. Tony's opDot change gives a data-less flag read a real count of
+#  0 and bareIfTruth makes aCTionIF answer by truthOf, so the row now reads the 0
+#  it always wanted. THIS IS A RE-PIN ONTO THE FIXTURE'S OWN STATED TARGET, not a
+#  target moved to chase an output.
 #  ⚠⚠ AND ARM 0 -- THE FIXTURE'S OWN VOIDING CONTROL -- IS FAILING, PINNED HERE
 #  AT THE DEFECT ON PURPOSE. It probes one field twice with nothing between and
 #  says "the two node= above MUST match, or every address below is void." THEY DO
@@ -1152,8 +1164,8 @@ else
     echo "  FAIL  roundTripT sentinel MISSING"; fail=1
 fi
 for _arm in "ARM A   r = 1" \
-            "ARM C   r = noPrinT" \
-            "ARM B1  original reads noPrinT" \
+            "ARM C   r = 0" \
+            "ARM B1  original reads 0" \
             "ARM B2  original reads 1"; do
     if grep -qF "$_arm" "$T/rt"; then
         echo "  ok    roundTripT $_arm -- PINNED BY VALUE"; green=$((green+1))
@@ -1246,6 +1258,34 @@ pcNEVER=$(awk '/^PA / && $4=="fires=NEVER" {print $5}' "$T/pce" | sort -u | tr '
 #  ⚠ ONE LITERAL, READ BY BOTH THE TEST AND THE MESSAGE. Written as two, the
 #  FAIL arm printed "actual X, expected X" under its own H7 perturbation --
 #  a message that cannot describe the failure it is reporting.
+#  ⚠⚠ DELIBERATELY NOT RE-PINNED, 2026-09-08, AND THIS IS THE SENTENCE. The row
+#  reads [] today and the 09-07 seal expected to re-pin it to [NewGroup]. BOTH
+#  ANYtoken AND NewGroup have measurably left the category -- each now classifies
+#  `fires=body`, i.e. rStuff->parseMethod == parseRule. That part is real.
+#
+#  ⚠ BUT THE CENSUS UNDER THIS ROW DOES NOT COVER ITS OWN POPULATION, so [] is
+#  not a finding, it is a gap. Measured: Grokking has 66 members and 22 of them
+#  produce NO PC and NO PA line at all -- break, continue, return, Operators,
+#  Parens, PrinT, PrintField, QuotE, ScopeXP, Search, ShortcuT, Start, StringXP,
+#  TokenXP, TraiTdata, UnaryXP, WardeD, WhilE, Xpress, nameSet, loopOnAttributes,
+#  loopOnMembers. parseClassify is never CALLED for them.
+#
+#  ⚠ ONE OF THE MISSING IS ShortcuT, WHICH IS A MEMBER OF THIS VERY PIN. Probed
+#  directly from inside an action with := on the member: noPrinT 0, isRulE 1,
+#  binTypE 0 -- an ordinary rule that pcWalk's own gates should not skip. So the
+#  category could contain ShortcuT and this census would still print [].
+#
+#  Re-pinning to [] would freeze "no rule is NEVER" over a population that
+#  excludes a third of the grammar including a named member of the pin. That is
+#  rule H3's regenerated-green failure exactly. The row stays RED and carries its
+#  reason; it graduates when the census covers its population.
+#  Related and already known: `parseClass.target` is red and the seal recorded
+#  its census silently falling 239 -> 66 rows. Same instrument, same disease.
+#  ⚠ ALSO NOTED, NOT FIXED: pcWalk gates with `if !isRulE; continue;`, and `!` on
+#  a zero-holding field answers false, so that filter skips NOTHING (see the
+#  artifactSkipByFlag block above and andProbe AP-5b). It is not the cause of the
+#  22 -- noPrinT is the only working gate and ShortcuT reads 0 there -- but it is
+#  a filter asserting nothing and it sits in this walk.
 pcNEVERwant="ANYtoken NewGroup ShortcuT"
 if [ "$pcNEVER" = "$pcNEVERwant" ]; then
     echo "  ok    fires=NEVER roster PINNED BY VALUE (ANYtoken NewGroup ShortcuT)"; green=$((green+1))
@@ -1952,6 +1992,68 @@ fi
 #  ASSIGNMENT TOOK AND WROTE THE NULL. A refusal inside an expression BLANKS ITS
 #  ASSIGNMENT TARGET, which is a consequence of the ruling nobody stated. Pinned
 #  by value so it cannot change quietly.
+#  ---- opIN's three arms, and the directives buffer arm ----------------------
+#  Minted 2026-09-08 with the opIN reorder (groupList arm moved to the FRONT).
+#  `X IN Y` calls opIN with argument=Y (CONTAINER) and target=X (NEEDLE); the arms
+#  are tried in order and FIRST MATCH WINS, so the order is load-bearing and two
+#  of the three arms had no cover at all until now.
+#
+#  ⚠ IA-G3 IS THE ROW THIS BLOCK EXISTS FOR. Before the reorder it read 1: a
+#  registry carries BOTH a character set and a group list, the isSET arm matched
+#  first, and `set.foundIn(target.text)` on a data-less field gets that field's
+#  own TAG back (bear-trap #26) -- so a character-set test was being handed a
+#  name and answered true for everything, including a field declared in the
+#  fixture's own define block. Any census built on IN was unmeasurable.
+#
+#  ⚠ EVERY ZERO ROW HERE HAS A NON-ZERO SIBLING. S2 pairs with S1, G3 with G1/G2.
+#  A row that only ever wants 0 cannot tell "answered false" from "answered
+#  nothing".
+run1 inArmsT "$T/ia"; check "inArmsT runs (opIN arms)" 0 $?
+sentinel "inArmsT sentinel (no truncation)" "$T/ia" "INARMST SENTINEL"
+for _r in "IA-S1 set arm, valid name   = 1|IA-S1 setArm  plain-name  =  1" \
+          "IA-S2 set arm, has spaces   = 0|IA-S2 setArm  has-spaces  =  0" \
+          "IA-G1 list arm, top level   = 1|IA-G1 listArm top-level   =  1" \
+          "IA-G2 list arm, DESCENDS    = 1|IA-G2 listArm deep        =  1" \
+          "IA-G3 list arm, absent      = 0|IA-G3 listArm absent      =  0"; do
+    _lbl=${_r%%|*}; _want=${_r##*|}
+    if grep -qF "$_want" "$T/ia"; then
+        echo "  ok    inArmsT $_lbl -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  inArmsT $_lbl -- MOVED. opIN's arm order or firstComponent"
+        echo "        changed. G3 back to 1 means the isSET arm is shadowing the"
+        echo "        lookup again and every IN answer is true."; fail=1
+    fi
+done
+
+#  THE BUFFER ARM, gated through incant/directives, which is the only live
+#  customer of it (replaceAt: `if fromThis IN source;` where source is a buffer).
+#  ⚠ IT IS GATED HERE BECAUSE THE FLEET COULD NOT SEE IT. directives is not a
+#  fleet citizen and has no sentinel of its own, so the opIN reorder was checked
+#  against it BY HAND. This row makes that hand-check standing (H12: a green
+#  fleet is evidence only about what the fleet reads).
+#  ⚠ SAFE TO RUN: measured 2026-09-08 -- it mutates no tracked file and its
+#  output is byte-identical across consecutive runs.
+#  ⚠ ROW 2 IS PINNED AT A POSSIBLE DEFECT, ON PURPOSE, AND WAS NOT INTRODUCED BY
+#  THE REORDER: replaceAt reports "Did not find matchOnThis: in source" while
+#  that text is plainly present in the BEFORE block it prints. Captured before
+#  and after the reorder and byte-identical, so it is pre-existing. Pinned rather
+#  than left uncovered; if it starts finding the text, this row goes red and
+#  graduates with a sentence (H6).
+#  ⚠ ROW 3 IS ITS ANTI-VACUITY SIBLING: insertAt DOES fire and writes two toThis
+#  lines, so row 2's "did not find" cannot be a dead directive mechanism.
+run1 directives "$T/dirv"; check "directives runs (opIN buffer arm)" 0 $?
+for _r in "buffer arm reached (replaceAt ran)|Running replaceAt" \
+          "buffer arm result PINNED AT A PRE-EXISTING DEFECT|Did not find matchOnThis: in source" \
+          "anti-vacuity: insertAt DID write|toThis        print x:;"; do
+    _lbl=${_r%%|*}; _want=${_r##*|}
+    if grep -qF "$_want" "$T/dirv"; then
+        echo "  ok    directives $_lbl -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  directives $_lbl -- MOVED. The buffer arm of opIN is the"
+        echo "        suspect; it is the arm the 2026-09-08 reorder moved past."; fail=1
+    fi
+done
+
 #  ---- artifactSkipByFlag: the skip reads the STRUCTURAL fact ----------------
 #  Retired citizen, 2026-09-08, retirement BY MAPPING: this is where its census
 #  now lives. walkRules used to skip a generated artifact by reading `noPrinT`,
