@@ -648,6 +648,31 @@ define
                 was owed`, so the guard is reachable and names its subject. That same run
                 left the fleet unmoved at 243 green, which says NO FLEET FIXTURE REACHES
                 parseRule AT ALL -- a green fleet is evidence about nothing on this road.#);
+            parseRule=(THE EXECUTOR FOR A RULE CARRYING A GENERATED KANT BODY. Reached only through rStuff.parseMethod, so a specimen with no rStuff cannot arrive here -- the dispatch is the guard. It mints a fresh label per invocation, binds it as the body's one argument, runs the BlocK, and reads the chain's truth off the return. Prose moved out of Generate.rtn 2026-09-09 under the long-comments-to-DesignDocs convention; what stays at the edit site is the one claim a reader must not miss.#):
+                bareFieldRepoint=(⚠⚠ ANY DECLARATION ADDED INSIDE THIS FUNCTION OWES THE BEAR-TRAP 42 CHECK, AND IT IS A NAMED CHECK RATHER THAN A HABIT: tok resolves bare fields last-mentioned-wins, so a new local RE-POINTS EVERY BARE FIELD BELOW IT AND COMPILES CLEAN. It bit here on 2026-09-09 -- checkInput() aimed at intoStuff and the locals-clear loop cleared ruleArg instead of grup, silently. The use ruleStuff and use grup lines are the cure and are load-bearing; deleting either as noise re-opens it.
+
+                THE CHECK, one command, after every retok and BEFORE the build:
+
+                    diff <(git show HEAD:GroupRules.mm | awk '/^extern "C" GroupItem \*parseRule/{f=1} f{print} f&&/^}/{exit}' \
+                             | grep -E "checkInput|isLocal|grup->clear|atRuleMark = from") \
+                         <(awk '/^extern "C" GroupItem \*parseRule/{f=1} f{print} f&&/^}/{exit}' GroupRules.mm \
+                             | grep -E "checkInput|isLocal|grup->clear|atRuleMark = from")
+
+                ⚠ THE EXTERN CANARY CANNOT SEE THIS ONE -- it read 318 throughout. That is the whole reason the check is written down rather than left to the standing detector.#);
+                noElseHere=(THE FLAG IDIOM IS NOT CLUMSINESS, IT IS THE CURE. bear-trap 32: a multi-statement indented arm followed by else does not parse, and it fails at DEFINE time naming a healthy function -- the first action in the file, which is perfectly fine. parseRule's `if field.isAction { ... else reportNoBody; }` broke the moment the arm grew, and took the canary 318 to 0. Set a flag in a single-statement if, then test it twice. incant/frontier uses the same shape at every station and its prose says why. ⚠ Anyone tidying this into an if/else re-breaks the build three files away in Bytecode.mm with no member named opEQ.#);
+                intoRidesArgument=(RULING B, 2026-09-09. The incoming `into` arrives on the frame runRule established, and the label the terms fill is a FRESH MINT PER INVOCATION -- never rStuff.label, which is one slot and cannot survive recursion. H19 measured it on incant/trigRecur: four activations of two mutually recursive rules mint four distinct addresses, each inner LABELMINT's intoAt IS the enclosing activation's at, and the outer label is unchanged at its OUT line after two nested activations.#);
+                argumentBind=(runAction's own three lines, so the body's one argument IS the label and every emitted term forwards it. Copied rather than re-derived, deliberately: the two roads must not disagree about what an argument slot is.#);
+                bindTheBodysOwnSlot=(MEASURED 2026-09-09, bear-trap 39. The emitted body's `argument` was resolved at COMPILE time, and the rule carried no argument slot then, so aCTionNamE minted an action LOCAL on the CodE and the BlocK holds that node. Binding field["argument"] therefore wrote a slot nothing reads -- measured as one shared, data-less body arriving at all six terms while the holder one line away read isGROUP with gGroup == myLabel. Bind the node the body actually holds, and bind it AFTER the clear loop, which blanks exactly this local. ⚠ THE TELL IF IT IS EVER UNDONE: every term receives ONE SHARED BODY with dataKind 0 while the holder one line away reads isGROUP with gGroup == the minted label.#);
+                currentMethod=(MEASURED 2026-09-09, and it is the whole reason the bind was invisible. parseRule runs the body by calling BlocK's gMethod DIRECTLY, so it never passes through processAction -- which is the single writer of currentMETHOD (GroupActions.rtn:511). locateInMethod resolves a body's bare name against currentMETHOD's locals first, so with the wrong currentMETHOD the emitted `argument` resolved to a data-less carrier instead of the slot bound one line above: measured as ONE SHARED BODY, dataKind 0, arriving at all six terms. Save and restore, exactly as processAction does. ⚠ ON ITS OWN IT MOVED NOTHING -- the compile-time bind above is what was actually wrong. The bracket is kept because a body resolving names against the wrong method is a defect waiting for a customer, and it is recorded here so the next reader does not re-try it as a cure.#);
+                labelOrZero=(RULING B, 2026-09-09. THE BODY'S RETURN VALUE IS NOT READ -- not by presence, not by value, not by identity. The answer is label-or-0 taken from what this invocation MINTED, exactly as leaveRule takes it from the local the emitted tok body minted. The old `if result` presence test is retired with it; it is the fifth face of the answers-by-presence family.#);
+                chainTruthOnly=(RULING (c'), Tony, 2026-09-09. The return carries ONE BIT -- the AND chain's truth -- and never a label. This is leaveRule's shape: RuleStuff.twk:776 branches on `ok` and nothing else, and `ok` is the chain (genParse.rtn:596). Measured H20: the chain hands back trueResult on a match and falseResult BY IDENTITY on a miss, and truthOf reads them 1 and 0 -- so the bit is real and a false chain is genuinely falsy, not F-55's sixth face.
+
+                ⚠ A TRUTH VALUE CARRIES NO METHOD (H16), so bear-trap 34 cannot reach this return. ruleAsLabel stays anyway, now as a GENERATOR-ERROR guard: a label in return position means the emitter is wrong, not the input.
+
+                ⚠ OBSTACLE 3 IS RETIRED STRUCTURALLY RATHER THAN GUARDED. The empty label was this road's failure case AND its crash case, because listLength decided the yield; under (c') truthOf decides, so the deref is simply GONE. Unconstructable beats guarded.
+
+                ⚠ SAME NAME, TWO PROVENANCES (bear-trap 51): a kant body SPELLING `false` gets a COPY, while the AND chain hands back the registry node ITSELF. Compare sentinels by VALUE, never by pointer, unless you can name which road minted the node you are holding.#);
+                oneAttach=(ONE ATTACH, THROUGH THE SINGLE WRITER. promote=0: this road never consults isTarget where a parent label exists -- PC-1, and the promote case would replace the into's subtree.#);
             parseSetLabel=(THE ACTION FIRE IS GONE FROM HERE, 2026-08-25, Tony's ruling, and
                 its absence is the point rather than an omission. THE SPLIT IS:
                     parseSetLabel   label work only -- and it stays alive as the
@@ -3970,6 +3995,52 @@ define
 
                 MOVED HERE FROM Generate.rtn 2026-09-04, cleanup arc stroke 4. The method is
                 unchanged; only its home and its comment moved.#);
+            measureLabelMint=(TEMPORARY, parseTrace gated. Called from Generate.rtn parseRule
+                immediately after the per-invocation label is minted.
+
+                It prints AT THE MINT so an outer activation's line brackets its inner
+                one's in the trace: distinctness is an address comparison, and survival is
+                the same address appearing again at measureLabelProbe's line below. That is
+                what H19's readings 1 to 4 are read off -- incant/trigRecur, four
+                activations of two mutually recursive rules, four distinct addresses, each
+                inner intoAt equal to the enclosing activation's at.
+
+                No percent-dash in the format string; that token closes passthrough
+                (bear-trap 40). The `measure` prefix is Tony's naming rule for call-outs,
+                2026-09-09: a reader meeting one in the middle of real code should know from
+                the name alone that its purpose is measuring.#);
+            measureLabelProbe=(⚠ NOT TEMPORARY. genLadder/pop.sh PINS THIS LINE BY EXACT
+                STRING -- trigDO arms 1 and 2, plus the attach count -- so its format is a
+                fleet target and changing it is a re-pin owed a sentence (rule H6). Called
+                from Generate.rtn parseRule immediately before the yield decision is acted
+                on, so it reports what the invocation DECIDED rather than recomputing it.
+
+                ⚠ `yielded` IS PASSED IN RATHER THAN DERIVED, deliberately. Recomputing it
+                here would assert something about this function instead of about parseRule,
+                which is rule H4's point one level down: print the quantity the code
+                actually used.
+
+                It is the reason the three probes are call-outs rather than directives. A
+                parseTrace-gated call-out is toggled at RUN time, so the ordinary bare build
+                carries it and the fleet can pin it; a directive is toggled by a retok and a
+                rebuild, which would mean the fleet could only run on a directives build --
+                and a directives build is a different program (bear-trap 23).
+
+                No percent-dash in the format string (bear-trap 40).#);
+            measureParentProbe=(TEMPORARY, parseTrace gated. Called from Generate.rtn
+                parseRule at entry, before the use lines.
+
+                Question: which parent can a parseMethod see from the field handed in, the
+                structural one or the per-invocation parse-time one? It prints both with
+                POINTERS, because the discriminator is recursion -- one structural node in
+                flight at two depths prints the same address twice, and no tag comparison
+                can tell those apart.
+
+                ⚠ NOTHING IN THE FLEET READS IT. It is the one of the three that could
+                retire or move to a directives file with no consequence; it is kept in
+                source only because a one-line call-out costs nothing to keep.
+
+                No percent-dash in the format string (bear-trap 40).#);
             parseClassify=(parseClassify -- WHICH ARM OF setParse CLAIMED THIS FIELD.
 
                 ⚠ THE INSTRUMENT THE 2026-08-19 SESSION DID NOT HAVE, and both of that

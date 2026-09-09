@@ -335,6 +335,66 @@ int         minters = 0;
 }
 
 
+/*  TEMPORARY, parseTrace-gated. Prints at the MINT so an outer activation's line
+    brackets its inner one's: distinctness is an address comparison, survival is the
+    same address appearing again at measureLabelProbe. ⚠ No percent-dash in the format
+    string -- that token closes passthrough (bear-trap #40).   measure.measureLabelMint  */
+extern GroupItem measureLabelMint(GroupItem field, GroupItem myLabel, GroupItem into)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace )
+        ::fprintf(stderr,"LABELMINT %s at=%p into=%s intoAt=%p intoLen=%d\n",
+            field->groupBody->tag,(void*)myLabel,
+            into ? into->groupBody->tag : "(none)",(void*)into,
+            (into && into->groupBody->groupList) ? (int)into->groupBody->groupList->listLength : 0);
+    %-
+    return field;
+}
+
+
+/*  ⚠ NOT TEMPORARY -- genLadder/pop.sh PINS THIS LINE BY EXACT STRING (trigDO arms
+    1 and 2), so its format is a fleet target and changing it is a re-pin owed a
+    sentence (rule H6). parseTrace-gated. ⚠ No percent-dash in the format string
+    (bear-trap #40).   measure.measureLabelProbe  */
+extern GroupItem measureLabelProbe(GroupItem field, GroupItem myLabel, GroupItem into, GroupItem result, int yielded)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace )
+        ::fprintf(stderr,"LABELPROBE %s minted=%s mintedLen=%d into=%s chainTrue=%d yielded=%d at=%p\n",
+            field->groupBody->tag,
+            myLabel ? myLabel->groupBody->tag : "(none)",
+            (myLabel && myLabel->groupBody->groupList) ? (int)myLabel->groupBody->groupList->listLength : 0,
+            into ? into->groupBody->tag : "(none)",
+            ::truthOf(result),
+            yielded,
+            (void*)myLabel);
+    %-
+    return field;
+}
+
+
+/*  TEMPORARY, parseTrace-gated. Which parent can a parseMethod see from the field
+    handed in -- the structural one, or the per-invocation parse-time one. Prints
+    both with POINTERS, because the discriminator is recursion: one structural node
+    in flight at two depths prints the same address twice. ⚠ No percent-dash in the
+    format string (bear-trap #40).   measure.measureParentProbe  */
+extern GroupItem measureParentProbe(GroupItem field)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace )
+        ::fprintf(stderr,"PARENTPROBE %s self=%p parent=%p parentTag=%s stuff=%p parentLabel=%p parentLabelTag=%s\n",
+            field->groupBody->tag,
+            (void*)field,
+            (void*)field->parent,
+            field->parent ? field->parent->groupBody->tag : "(none)",
+            (void*)field->rStuff,
+            field->rStuff ? (void*)field->rStuff->parentLabel : (void*)0,
+            (field->rStuff && field->rStuff->parentLabel) ? field->rStuff->parentLabel->groupBody->tag : "(none)");
+    %-
+    return field;
+}
+
+
 /*  IT READS THE BOUND POINTER, it does not re-derive the arm. ⚠ `fires` is a table
     over that pointer and goes stale if a builtin ever gains a fire.
     measure.parseClassify  */

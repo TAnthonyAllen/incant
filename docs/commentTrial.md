@@ -75,6 +75,35 @@ the interesting quantity is the one that can come back zero.
 | 2026-09-06 | `genParse.recordSite` | `genParse.rtn` | why the emitter and not the installer writes the record — two processes, days apart |
 | 2026-09-06 | `genParse.sinkNotTee` | `genParse.rtn` | sink-swap over a fourteen-site tee, and the measured std::cerr-vs-fprintf defect |
 | 2026-09-06 | `genParse.oneGate` | `genParse.rtn` | why the attribute is gated and not just the dump, and why the file sink is the only read path |
+| 2026-09-09 | `Generate.parseRule` | `Generate.rtn` | the executor itself: what it mints, binds and reads, and why the dispatch is its own guard |
+| 2026-09-09 | `Generate.parseRule.bareFieldRepoint` | `Generate.rtn` | bear-trap 42's named check and the diff command, out of an 18-line header block |
+| 2026-09-09 | `Generate.parseRule.noElseHere` | `Generate.rtn` | why the flag idiom is the cure, not clumsiness — canary 318 → 0 |
+| 2026-09-09 | `Generate.parseRule.intoRidesArgument` | `Generate.rtn` | ruling B, and H19's four-activation measurement behind it |
+| 2026-09-09 | `Generate.parseRule.argumentBind` | `Generate.rtn` | runAction's three lines copied rather than re-derived, deliberately |
+| 2026-09-09 | `Generate.parseRule.bindTheBodysOwnSlot` | `Generate.rtn` | bear-trap 39, and the tell if it is ever undone |
+| 2026-09-09 | `Generate.parseRule.currentMethod` | `Generate.rtn` | ⚠ the bracket that moved NOTHING on its own — recorded so the next reader does not re-try it as a cure |
+| 2026-09-09 | `Generate.parseRule.labelOrZero` | `Generate.rtn` | ruling B's retired presence test. ⚠ **NO INLINE POINTER** — superseded by `chainTruthOnly`, kept as the reasoning trail |
+| 2026-09-09 | `Generate.parseRule.chainTruthOnly` | `Generate.rtn` | ruling (c'), H20's table, and bear-trap 51's two provenances |
+| 2026-09-09 | `Generate.parseRule.oneAttach` | `Generate.rtn` | PC-1, and why promote=0 |
+| 2026-09-09 | `measure.measureLabelMint` | `measure.twk` | H19's bracket reading, and Tony's `measure` naming rule for call-outs |
+| 2026-09-09 | `measure.measureLabelProbe` | `measure.twk` | ⚠ NOT temporary — pop.sh pins it by value; why `yielded` is passed and not derived; why call-out beat directive |
+| 2026-09-09 | `measure.measureParentProbe` | `measure.twk` | the recursion discriminator, and that nothing in the fleet reads it |
+
+## ⚠ SIXTH FINDING, 2026-09-09 — THE FIRST TIME THE TRIAL WAS APPLIED TO A FUNCTION THE OWNER COULD NOT STAND TO READ
+
+Every prior row moved a comment because it was long. **This batch moved one because `parseRule` had
+become unworkable** — Tony's word was *horrified* — at **147 lines: 56 code, 60 comment, 29 probe.**
+It is now **72**, and the three probes are one line each.
+
+**That makes it the trial's first real test rather than its twelfth data point.** The prior rows
+answer *did the entry get written*. This one answers *did the split make a function workable again*,
+which is the question the convention was actually minted for, and the answer at the edit site is
+visible without reading a single DesignDocs entry.
+
+⚠ **AND THE PROBE HALF IS NOT THIS CONVENTION — it is a second, separate move that happened to be
+owed on the same function**, and conflating them would misread both. The comments went to
+DesignDocs; the probes went to `measure.twk` as tok call-outs. They are different registers with
+different rules, and the only thing they share is that `parseRule` was carrying both.
 
 ## ⚠ FIFTH FINDING, 2026-09-06 — THE DANGLING-POINTER ROW WENT 26/26 TO 67/108, AND THREE OF THE GAPS WERE MINE FROM THAT MORNING
 

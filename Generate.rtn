@@ -178,21 +178,10 @@ Buffer      buffer  = stringBUFFER;
 /*****************************************************************************
      Parse a rule.
 
-     ⚠⚠ ANY DECLARATION ADDED INSIDE THIS FUNCTION OWES THE BEAR-TRAP 42 CHECK,
-     AND IT IS A NAMED CHECK RATHER THAN A HABIT: tok resolves bare fields
-     last-mentioned-wins, so a new local RE-POINTS EVERY BARE FIELD BELOW IT AND
-     COMPILES CLEAN. It bit here on 2026-09-09 -- `checkInput()` aimed at
-     `intoStuff` and the locals-clear loop cleared `ruleArg` instead of `grup`,
-     silently. The `use ruleStuff` / `use grup` lines below are the cure. THE
-     CHECK, one command, after every retok and BEFORE the build:
-
-        diff <(git show HEAD:GroupRules.mm | awk '/^extern "C" GroupItem \*parseRule/{f=1} f{print} f&&/^}/{exit}' \
-                 | grep -E "checkInput|isLocal|grup->clear|atRuleMark = from") \
-             <(awk '/^extern "C" GroupItem \*parseRule/{f=1} f{print} f&&/^}/{exit}' GroupRules.mm \
-                 | grep -E "checkInput|isLocal|grup->clear|atRuleMark = from")
-
-     The extern canary CANNOT see this one -- it read 318 throughout.
-     parseRule.bareFieldRepoint carries the argument.
+     ⚠⚠ ANY DECLARATION ADDED INSIDE THIS FUNCTION RE-POINTS EVERY BARE FIELD
+     BELOW IT, AND IT COMPILES CLEAN (bear-trap 42). It bit here on 2026-09-09.
+     Run the check before the build -- the extern canary cannot see this one.
+        Generate.parseRule.bareFieldRepoint carries the check and the argument.
 *****************************************************************************/
 extern GroupItem parseRule(GroupItem field)
 {
@@ -213,75 +202,31 @@ GroupItem   priorMETHOD;
 int         hasBody = 0;
 int         yielded = 0;
     // assumes processCode was run on field already
-    /*  MEASUREMENT 1, setParentLabel brief. TEMPORARY, parseTrace gated.
-        Which parent can a parseMethod see from the field handed in: the
-        structural one, or the per-invocation parse-time one? Prints both with
-        POINTERS, because the discriminator is recursion -- one structural node
-        in flight at two depths prints the same address twice.
-        No percent-dash in the format string; that token closes passthrough.  */
-    -%
-    if ( GroupControl::groupController->groupRules->parseTrace )
-        ::fprintf(stderr,"PARENTPROBE %s self=%p parent=%p parentTag=%s stuff=%p parentLabel=%p parentLabelTag=%s\n",
-            field->groupBody->tag,
-            (void*)field,
-            (void*)field->parent,
-            field->parent ? field->parent->groupBody->tag : "(none)",
-            (void*)field->rStuff,
-            field->rStuff ? (void*)field->rStuff->parentLabel : (void*)0,
-            (field->rStuff && field->rStuff->parentLabel) ? field->rStuff->parentLabel->groupBody->tag : "(none)");
-    %-
-    // parseRule.bareFieldRepoint  bear-trap 42: the declarations added above re-point every bare field below them, last-mentioned-wins, and it COMPILES CLEAN. These two `use` lines are the whole cure; without them checkInput aimed at intoStuff and the locals-clear loop cleared ruleArg instead of grup
+    measureParentProbe(field);
+    // THESE TWO `use` LINES ARE LOAD-BEARING, NOT NOISE -- without them checkInput aims at intoStuff and the clear loop clears ruleArg   parseRule.bareFieldRepoint
 use ruleStuff
     if checkInput() {
 use grup
-        // parseRule.noElseHere  bear-trap 32: a multi-statement arm followed by `else` does not parse, and it fails at DEFINE time naming a healthy function. Flag idiom, as incant/frontier uses at every station
+        // flag idiom, NOT an if/else -- an else here breaks the parse at DEFINE time and names a healthy function   parseRule.noElseHere
         hasBody = 0;
         if field.isAction   hasBody = 1;
         if !hasBody         reportNoBody(field);
         if hasBody {
             while grup = code.nextAttribute(grup)
                 if isLocal && !isRule && !noPrint && groupBody != field.groupBody clear();
-            // parseRule.intoRidesArgument  ruling B: the incoming into arrives on the frame runRule established, and the label the terms fill is a FRESH MINT per invocation -- never rStuff.label, which is one slot and cannot survive recursion
+            // a FRESH MINT per invocation, never rStuff.label -- one slot cannot survive recursion   parseRule.intoRidesArgument
             into    = fieldStuff.parentLabel;
             myLabel = new(field.tag);
-    /*  LABELMINT -- H19's instrument, parseTrace-gated, NO behaviour change.
-        Prints at the MINT so an outer activation's line brackets its inner
-        one's in the trace: distinctness is an address comparison, survival is
-        the same address appearing again at the OUT line below.
-        No percent-dash in the format string.  */
-    -%
-    if ( GroupControl::groupController->groupRules->parseTrace )
-        ::fprintf(stderr,"LABELMINT %s at=%p into=%s intoAt=%p intoLen=%d\n",
-            field->groupBody->tag,(void*)myLabel,
-            into ? into->groupBody->tag : "(none)",(void*)into,
-            (into && into->groupBody->groupList) ? (int)into->groupBody->groupList->listLength : 0);
-    %-
-            // parseRule.argumentBind  runAction's own three lines, so the body's one argument IS the label and every emitted term forwards it
-            /*  parseRule.bindTheBodysOwnSlot  MEASURED 2026-09-09, bear-trap 39.
-                The emitted body's `argument` was resolved at COMPILE time, and
-                the rule carried no argument slot then, so aCTionNamE minted an
-                action LOCAL on the CodE and the BlocK holds that node. Binding
-                field["argument"] therefore wrote a slot nothing reads -- measured
-                as one shared, data-less body arriving at all six terms while the
-                holder one line away read isGROUP with gGroup == myLabel. Bind the
-                node the body actually holds, and bind it AFTER the clear loop
-                above, which blanks exactly this local.  */
+            measureLabelMint(field,myLabel,into);
+            // runAction's own three lines: the body's one argument IS the label   parseRule.argumentBind
+            // bind the node the BODY holds, and bind it AFTER the clear loop that blanks it (bear-trap 39)   parseRule.bindTheBodysOwnSlot
             ruleArg = code["argument"];
             if !ruleArg     ruleArg = field["argument"];
             if !ruleArg     ruleArg = field += "argument";
             ruleArg.isArgument = true;
             saveLocalFields(field);
             ruleArg.group = myLabel;
-            /*  parseRule.currentMethod  MEASURED 2026-09-09, and it is the whole
-                reason the bind was invisible. parseRule runs the body by calling
-                BlocK's gMethod DIRECTLY, so it never passes through
-                processAction -- which is the single writer of currentMETHOD
-                (GroupActions.rtn:511). locateInMethod resolves a body's bare
-                name against currentMETHOD's locals first, so with the wrong
-                currentMETHOD the emitted `argument` resolved to a data-less
-                carrier instead of the slot bound one line above: measured as ONE
-                SHARED BODY, dataKind 0, arriving at all six terms. Save and
-                restore, exactly as processAction does.  */
+            // save/restore as processAction does -- a body resolves its bare names against currentMETHOD   parseRule.currentMethod
             priorMETHOD     = currentMETHOD;
             currentMETHOD   = field;
             // here the parse action in method gets run
@@ -290,46 +235,15 @@ use grup
                 if result   result.isBranch = 0; }
             currentMETHOD = priorMETHOD;
             restoreLocalFields(field); }
-        /*  parseRule.labelOrZero  ruling B, 2026-09-09. THE BODY'S RETURN VALUE
-            IS NOT READ -- not by presence, not by value, not by identity. The
-            answer is label-or-0 taken from what this invocation MINTED, exactly
-            as leaveRule takes it from the local the emitted tok body minted.
-            The old `if result` presence test is retired with it; it is the fifth
-            face of the answers-by-presence family.  */
-        // ruleAsLabel  a rule handed back where a label was owed re-enters its own action; refuse, and fall to the rewind below so Invariant R still holds
-        /*  parseRule.chainTruthOnly  RULING (c'), Tony, 2026-09-09. The return
-            carries ONE BIT -- the AND chain's truth -- and never a label. This is
-            leaveRule's shape: RuleStuff.twk:776 branches on `ok` and nothing
-            else, and `ok` is the chain (genParse.rtn:596). Measured H20: the
-            chain hands back trueResult on a match and falseResult BY IDENTITY on
-            a miss, and truthOf reads them 1 and 0 -- so the bit is real and a
-            false chain is genuinely falsy, not F-55's sixth face.
-            ⚠ A TRUTH VALUE CARRIES NO METHOD (H16), so bear-trap 34 cannot reach
-            this return. ruleAsLabel stays anyway, now as a GENERATOR-ERROR guard:
-            a label in return position means the emitter is wrong, not the input.
-            ⚠ OBSTACLE 3 IS RETIRED STRUCTURALLY RATHER THAN GUARDED. The empty
-            label was this road's failure case AND its crash case because
-            listLength decided the yield; under (c') truthOf decides, so the
-            deref is simply GONE. Unconstructable beats guarded.  */
+        // ruling (c'): the return carries ONE BIT, the chain's truth, never a label   parseRule.chainTruthOnly
+        // a rule where a label was owed re-enters its own action -- refuse, then fall to the rewind so Invariant R holds
         yielded = 0;
         if ruleAsLabel(result)
             refuse(field,"parseRule: the generated body returned a RULE where the chain's truth was owed -- this is a GENERATOR error, not a parse failure");
         if truthOf(result) && !ruleAsLabel(result) && myLabel   yielded = 1;
-    -%
-    if ( GroupControl::groupController->groupRules->parseTrace )
-        ::fprintf(stderr,"LABELPROBE %s minted=%s mintedLen=%d into=%s chainTrue=%d yielded=%d at=%p\n",
-            field->groupBody->tag,
-            myLabel ? myLabel->groupBody->tag : "(none)",
-            (myLabel && myLabel->groupBody->groupList) ? (int)myLabel->groupBody->groupList->listLength : 0,
-            into ? into->groupBody->tag : "(none)",
-            ::truthOf(result),
-            yielded,
-            (void*)myLabel);
-    %-
+        measureLabelProbe(field,myLabel,into,result,yielded);
         if yielded {
-            /*  ONE ATTACH, through the single writer. promote=0: this road never
-                consults isTarget where a parent label exists -- PC-1, and the
-                promote case would replace the into's subtree.  */
+            // one attach, through the single writer; promote=0 where a parent label exists   parseRule.oneAttach
             myStuff         = new(field);
             myStuff.label   = myLabel;
             intoStuff       = new(field);
