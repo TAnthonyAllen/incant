@@ -140,6 +140,36 @@ line vanish.
 **`jitEmitAssign` call-shape wrinkle** stay parked with unary. Clod proposes when the campaign opens
 that door.
 
+### ⚠ `jitEntryOnCompiled` — MINTED 2026-09-09 (dispatch 7). PARKED, NOT BLOCKING THE ROAD.
+
+**ENTRY MUST ACCEPT AN `isAction` BODY, because on the new parse road there is never an `isCoded`
+one.** `actionType` is a **2-bit enum, not two flags** — `isAction == 1`, `isCoded == 2`
+(`GroupBody.h:76-77`, field at `:18`) — so the two states are mutually exclusive and `compile()`
+moves a body from the second to the first, permanently.
+
+**THE COLLISION, measured 2026-09-09.** `testing()` routes on `input.isCoded`
+(`Commands.rtn:720`), and the generated-parse road **compiles eagerly at generate time**. So after
+`parser(DO)` the harness cannot hand DO to the JIT at all: it falls to `jitRunIfTest`, the
+control-flow smoke test, and prints `=== jitRunIfTest on DO === / result = 0` — bear-trap #25's
+exact symptom, twice. Skipping `compile(DO)` is what let the reading be taken, and that is a fair
+reading only because **`jitRunAction` compiles the body itself** when handed an uncompiled one
+(`GroupRules.mm:3650`, `if (isCoded(...)) ::processCode(action);`).
+
+⚠ **SO THE DEFECT IS IN THE ENTRY CONDITION, NOT IN THE JIT.** `jitRunAction` is written to accept
+either state; `testing()` is what narrows it to one. Any harness or gate that asks *"is this body
+jittable"* by testing `isCoded` will answer **no** for every rule the new road has generated, and
+will keep answering no as the road grows.
+
+**Done when:** entry asks a question that both states can satisfy — the presence of a `BlocK`, or
+`isCoded || isAction` — rather than a state that compilation consumes. **Negative control:** a rule
+put through `parser(...)` and then handed to the harness must reach `jitRunAction`, not
+`jitRunIfTest`.
+
+**NOT BLOCKING.** The road does not need the JIT, and the JIT emits nothing for a generated body
+today for an unrelated and larger reason — see the emit-gate table in the 2026-09-09 seal: every
+operator in a generated body is `AND`, which carries no `jitEmitter`. Fixing entry alone would move
+the failure from `jitRunIfTest` to `no result emitted` and nothing else.
+
 ---
 
 ## HOW TO ADD AN OP — the whole recipe
