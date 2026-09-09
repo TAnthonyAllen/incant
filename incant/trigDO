@@ -129,6 +129,75 @@ parser(Start);
     -- null at base+0x513340, labelNO at base+0x3d12c0 -- and they differ in
     more than address; see the init column below.
 
+    ⚠⚠ RULING (c), TONY, 2026-09-09 -- AND IT RETIRES THE CLOSE COLUMN OF THIS
+    TABLE. A kant-emitted rule body closes with NO RETURN. parseRule does what
+    leaveRule does on the tok road: rewind, then read label-or-0 from the slot
+    the terms attached into. The body's return value is never consulted -- not
+    by presence, not by value, not by identity -- and parseRule's `if result`
+    presence test GOES. So rows 2, 3, 5 and 6, and the three 2026-09-09 rows
+    above, are retired AS CANDIDATES and kept only as history; the shape the
+    ruling adopts is row 1's close, and row 4 (blocker 2) is untouched by it.
+
+    ⚠⚠ AND STROKE 2b STOPPED BEFORE BUILDING IT, BY THE DISPATCH'S OWN CLAUSE:
+    THE SLOT DOES NOT EXIST ON THIS ROAD. Measured 2026-09-09, SLOTPROBE either
+    side of the body, DO alone, no-return close.
+
+    ON THE TOK ROAD the slot is a FRESH LOCAL minted per invocation. The emitter
+    writes `GroupItem label = new("<tag>");` (genParse.rtn:575), passes it to
+    every sub-term as `into` (`parseR(t2,label)`, genParse.rtn:1122), and
+    leaveRule returns exactly that local on success (RuleStuff.twk:784) or
+    rewinds atRuleMark to `from` and returns null (RuleStuff.twk:785-790). The
+    attach of that label into the PARENT is parse()'s, once, via attachLabel
+    (GroupItem.twk:1314-1341) -- leaveRule's own PC-4 comment says so
+    (RuleStuff.twk:777-782).
+
+    ON THE KANT ROAD THERE IS NO SUCH LOCAL AND NO SUCH `into`. generateParse
+    emits BARE CALLS -- `if do() AND followedBy() AND ...;` -- with no label
+    argument. Each bare call reaches runRule (GroupActions.rtn:1044), and a leaf
+    term has no hasNewParse, so it takes `result = rule.parse(0)`
+    (GroupActions.rtn:1054) -- pStuff NULL -- and attachLabel returns at once on
+    `if !pStuff return;` (GroupItem.twk:1319). The terms have nowhere to attach.
+
+    MEASURED, not inferred. Across the whole window between the two probes there
+    is NOT ONE attach naming DO:
+
+        SLOTPROBE-IN  DO pmLabel=0x1010255c0 pmLabelTag=DO
+                         fLabel=0x0  fParentLabel=0x101025880 (tag Token)
+        ... six terms fire, and every attachLabel line names a term-internal
+            parent -- pRule=Token, ExpressioN, PrintField, PrintXP, stuff,
+            PrinT, WardeD, StatemenT -- and never pRule=DO ...
+        SLOTPROBE-OUT DO pmLabel=0x1010255c0 UNCHANGED, pmLabelLen=-1
+                         fLabel=0x0 fLabelLen=-1
+
+    `pmLabel` is `field["builtinParsE"].rStuff.label` -- the slot parseRule
+    itself writes and clears (Generate.rtn:188). It already holds a node tagged
+    DO before the body runs, it is the SAME POINTER after, and listLength -1
+    means it has no list at all. Nothing accumulated into it. `field.rStuff.label`
+    is null throughout.
+
+    ⚠ SO THE ANSWER TO "IS IT THE SAME SLOT leaveRule READS" IS: IT IS NOT A
+    DIFFERENT SLOT, IT IS NO SLOT. Building (c) needs a place for the terms to
+    attach before it needs a way to read one. STOPPED AND REPORTED; the fallback
+    (body returns null plus truthOf in parseRule) was NOT taken -- it is a
+    fallback, not a second option, and it is Tony's nod.
+
+    ⚠ STROKE 2a, THE REGISTRY-SIDE READING, MEASURED AT THE ENTRIES THEMSELVES
+    rather than at the node a body hands back. This turns 2026-09-09's mechanism
+    from grounded to measured, and the copies are faithful:
+
+        falseResult   tag false     isCOUNT  count 0  isInitialized 0
+        labelNO       tag labelNO   isCOUNT  count 0  isInitialized 0
+        trueResult    tag true      isCOUNT  count 1  isInitialized 1
+        null          tag null      isCOUNT  count 0  isInitialized 1
+
+    The predicted mechanism holds exactly: falseResult and labelNO are built in
+    C++ with `.isCOUNT = true` (GroupControl.twk:155,182), which raises no
+    isInitialized, while trueResult goes through `count = 1` and `null` through
+    kant's `null=0` (incant/setup:243), both of which use setCount and do raise
+    it. ⚠ SO OF THE THREE SENTINELS ONLY `null` WOULD READ FALSE UNDER truthOf --
+    which is now moot for the close, and still worth knowing for anything else
+    that reaches for a falsy name.
+
     READ THE FIRST THREE ROWS AND THE LAST THREE SEPARATELY. They are two
     findings, and reading the top block alone -- which is what an earlier pass
     did -- yields the wrong sentence "the close decides it."
@@ -150,6 +219,26 @@ parser(Start);
     aCTionStatemenT recurses when the node handed to it IS the StatemenT rule,
     whose gMethod is aCTionStatemenT. Not diagnosed further. It is not the
     close, because row 4 has the good close.
+
+    ⚠⚠ BLOCKER 2 IS `parseSelfRecursion`, ANSWERED 2026-09-09 AND NOT DIAGNOSED
+    PAST IT. The dispatch asked one question -- does the recursion enter through
+    the isMethod arm that citizen names, aCTionBlocK firing anything isMethod
+    with no legality check -- and the answer is YES. This file with all 39
+    compiled and the no-return close is a SECOND DRIVER for a citizen banked
+    2026-08-27 at status ruled.
+
+    lldb, breakpoint on aCTionStatemenT ignored 400 times, then a backtrace:
+    every frame is `aCTionStatemenT ... at GroupRules.mm:1166`, which is
+    `return statement->groupBody->gMethod(statement);` -- the isMethod arm, no
+    legality check -- and the input pointer is IDENTICAL in every frame. At that
+    breakpoint: tag `StatemenT`, isRule 1, gMethod 0x10001d2b4, which `nm`
+    resolves to `_aCTionStatemenT`. One node, its own action, dispatched at the
+    line the citizen names.
+
+    ⚠ THE CITIZEN'S RECORD CITES GroupRules.mm:1487 AND :1490 FROM ITS
+    2026-08-27 AND 2026-08-29 VINTAGES. In the current tree that dispatch is
+    :1166. The line MOVED under intervening edits; it is the same call. Do not
+    read the discrepancy as a second site.
 
     WHAT IS IN THE TREE FOR THIS, and what is not:
 
