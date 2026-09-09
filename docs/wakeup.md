@@ -1,3 +1,129 @@
+# ⚠⚠⚠ SEALED 2026-09-09 -- THE KANT ROAD PARSES, REFUSES, AND HAS FLEET ROWS.
+# ONE RULE DEEP, INTERPRETED, THE JIT THREE RUNGS AWAY. SIX COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-09 12:17 and
+#   `git log -1 --date=iso` stamps 2026-09-09 12:08. They agree.
+#
+#   ## THE ONE-LINE STATE: **a rule invoked by name generates, compiles,
+#   dispatches, parses, attaches, and REFUSES a bad input -- certified by five
+#   measurements (H17 both rows, H18, H20, the H7 control, and H19's readings
+#   1-4) -- and it stops in exactly two places: blocker 2 for all-39, and the
+#   JIT, which has no emitter for anything a generated body contains.** Fleet
+#   **248 green / 49 red** (from 243/49 at open), canary **318**, ddPop 5,
+#   decodePop 14, formsPop 14, countPop 0-of-44, frontier **exit 0, stations 1-3
+#   PASS, first absent station 4**. Both repos **0 dirty, 0 unpushed**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. RULING (c'): THE RETURN CARRIES ONE BIT -- THE CHAIN'S TRUTH -- NEVER A
+#   LABEL.** The emitted body is `return A(argument) AND ... AND F(argument);`
+#   with no `if`. parseRule mints a FRESH label per invocation, binds it as the
+#   body's one argument, reads `truthOf(result)` and nothing else, and returns
+#   label-or-0. That is leaveRule's shape: `RuleStuff.twk:776` branches on `ok`
+#   and nothing else, and `ok` IS the chain (`genParse.rtn:596`). parseRule's
+#   `if result` presence test is DELETED -- F-55's fifth face, retired by ruling.
+#
+#   **b. `into` RIDES THE ARGUMENT, and the old arm attached NOTHING.** Before
+#   `808313b`, runRule's leaf arm called `rule.parse(0)` -- pStuff NULL -- so
+#   `attachLabel` returned at `GroupItem.twk:1319` and the terms had nowhere to
+#   go. ⚠ **SO EVERY trigDO "PASS" BEFORE THAT COMMIT WAS MATCHING, NOT PARSING**,
+#   and the reading that says so is `mintedLen`: it read 0 on both arms while
+#   every other signal looked healthy. It now reads 2 on a good input and 1 on a
+#   broken one.
+#
+#   **c. THE JIT DOES NOT REFUSE THE ROAD -- IT HAS NO EMITTER FOR ANYTHING IN
+#   IT.** `jitRunAction` enters, walks, and prints `no result emitted (gate did
+#   not fire?)` with **no op named and no jitDegrade line at all**. The gate is
+#   one condition testing two things (`GroupActions.rtn:981`,
+#   `GroupRules.mm:11316`): `jitting` -- true -- and `op->groupBody->gJitEmitter`
+#   -- NULL, because the only operator in a generated body is `AND`, registered
+#   `AND operateMethod=opAND;` (`incant/setup:134`) with no `jitEmitter=`.
+#   ⚠ **AND THE ARCHAEOLOGY REFINES THAT: `jitEmitShortCircuit` EXISTS** and
+#   landed at `3483167`, reached through an in-body gate at
+#   `GroupRules.mm:11589` rather than the slot. **So there are TWO doors and for
+#   DO's body NEITHER FIRED** -- and since that emitter degrades loudly when it
+#   refuses, a silent run means it was never reached. Rung (i) is therefore
+#   *find which door should have fired*, not *write an opAND emitter*.
+#
+#   **d. THE FIVE CERTIFICATES, all measured today.**
+#     - **H20** (the gate): the chain hands back `trueResult` on a match and
+#       `falseResult` BY IDENTITY on a miss; truthOf reads them 1 and 0.
+#     - **H17 both rows**: good parses and attaches, exit 0; broken exits 0,
+#       attaches NOTHING, and the label is discarded.
+#     - **H18**: `mintedLen=2` good / `1` broken -- the parsing-vs-matching line.
+#     - **H7 control**: `ruleAsLabel` forced to 1 prints the refusal by name and
+#       takes all three value rows red, 248/49 -> 245/52. Run, not asserted.
+#     - **H19 readings 1-4**: labels distinct PER ACTIVATION, inner attaches under
+#       OUTER, the outer SURVIVES the inner, twice-in-sequence yields two labels.
+#
+#   ## ⚠ WHAT DID NOT LAND, NAMED RATHER THAN SOFTENED
+#   **H19's reading 5 and the whole QuotE row.** Neither earned a pop.sh row, so
+#   the fleet is 248 and not the 250 the dispatch expected. Both stopped on the
+#   SAME KIND of blocker and neither is ruling B's fault:
+#   - **the emitter DROPS the `?` MODIFIER** -- `trB?` emits `AND trB(argument)`,
+#     required -- so a recursive fixture grammar can never bottom out and its
+#     chain can never read true. Visible in the live grammar too: `IF ... ElsE?`
+#     emits `AND ElsE()`.
+#   - **QuotE does not discriminate**: a closed quote and an unterminated one
+#     produce IDENTICAL readings. Pinning that would pass on a dead road (H7).
+#     ⚠ What attaches for a leaf is the TERMS themselves -- `lab=tik pRule=QuotE`,
+#     `lab=quoteBody pRule=QuotE` -- so `mintedLen=1` is one TERM, not one rule;
+#     and the chain reads FALSE on a GOOD input while DO's reads true on the same
+#     build. **Term-into-rule specifically.** Undiagnosed, and it is the frontier.
+#   - **A second finding from the same bench**: a rule FORWARD-DECLARED then
+#     redefined with members compiles fine and then does NOT take the new-parse
+#     door -- the walk marks one node, the call resolves another.
+#
+#   ## THE FRONTIER, REVISED AT LAST -- AND THE OLD RED WAS THE INSTRUMENT
+#   Owed since 09-08's second session. **What moved: `storeBody` is DROPPED**
+#   (the (c') road hangs its own body -- generateParse is frHang plus two flags),
+#   **and station 3's read gained the STAR it had been missing.** It read
+#   `frLive.listLengtH`, which reaches the HOLDER and returns 0, while station 2
+#   two lines up had `*frLive.listLengtH` all along -- so `was 3 now 0`, a rule
+#   apparently SHRINKING, was bear-trap #35 in the instrument and never a road
+#   failure. Stations 1-3 now PASS; **the first absent station is 4** (install on
+#   twin), and station 5 prints its anchor with no verdict, which is bear-trap
+#   #37's signature.
+#
+#   ## WHAT LANDED -- SIX COMMITS
+#   `34d9b2b` the three spellable sentinels + parseRule never asks the value ·
+#   `893f2ce` 2a measured, 2b STOPPED (no slot on the kant road), blocker 2 named
+#   as parseSelfRecursion · `808313b` ruling B, into rides the argument ·
+#   `cefeedf` ruling (c') + trigDO into pop.sh with five rows · `bddba43` H19 and
+#   QuotE, both stop with findings · `996beca` the emit gate named,
+#   jitEntryOnCompiled minted. Support: `0583cac` (attachLabel decl).
+#
+#   ## ⚠ FOUR BEAR-TRAPS BIT IN THEIR DOCUMENTED FORM, and one is new
+#   **#32** (multi-statement arm then `else`, canary 318 -> 0) · **#42** (added
+#   declarations re-pointed `checkInput` at `intoStuff` and the clear loop at
+#   `ruleArg` instead of `grup`, COMPILING CLEAN -- parseRule's header now
+#   carries the named diff-against-HEAD check, because the canary read 318
+#   throughout and could not see it) · **#39** (the body's `argument` was bound
+#   at COMPILE time to an action local on the CodE, so `field["argument"]` wrote
+#   a slot nothing reads; the cure is `code["argument"]`, after the clear) ·
+#   **#40** (my own `%-16s` took the canary to 304 in one retok) ·
+#   **#51 MINTED**: SAME NAME, TWO PROVENANCES -- a kant body spelling `false`
+#   gets a COPY, the AND chain hands back `falseResult` ITSELF, so an identity
+#   test works from one road and never from the other, silently.
+#   **Doctrine also landed**: truthOf's header gains a dated sentence --
+#   `isInitialized` on an isCOUNT node is NOT load-bearing for truth where
+#   truthOf is the reader, because it reads the COUNT.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   blocker 2 (`trigDO39`, the isMethod arm; the ruling is what `aCTionBlocK` may
+#   fire) · stroke 4, fleet diff road-on vs road-off · stroke 3, compile census
+#   revived in `measure.twk` · F-55 sweep (`!isRulE` in `odoPopulation`/`pcWalk`,
+#   `eq` on a captured tag) · stroke 5, the upward hole · JIT ladder (i)-(iii) ·
+#   runRule's DOOR-trace deref, one line.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   The #28/#35 amendment · `parser`'s stale `activating` prose · which fixit
+#   citizen steps first (F-55, branchTagTruth, faceFlagsNoCross, hasTraits).
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: branchTagTruth, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-08, SECOND SESSION -- THE NEW PARSE ALREADY HAD A DOOR, AND
 # THE CLOSE IT NEEDS DOES NOT EXIST ON ITS ROAD. THREE COMMITS.
 #

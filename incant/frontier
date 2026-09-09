@@ -114,9 +114,13 @@ define
             is recorded here instead of half-applied. THE NEXT READER SHOULD NOT
             TREAT STATION 3's FAIL AS THE FRONTIER; the frontier is chain truth.  */
         frHang(Grokking["Braced"]);
-        storeBody(Grokking["Braced"]);
+        // WHAT MOVED, 2026-09-09: storeBody DROPPED. The (c') road hangs the body itself and never calls it -- generateParse is copyOf, noPrint, `+%`, then `:. isCodeD` and `:. hasNewParsE`, which is frHang plus two flags. This station now measures the live road's hang
+        frLiveRule := Grokking["Braced"];
+        *frLiveRule :. isCodeD;
+        *frLiveRule :. hasNewParsE;
         frLive := Grokking["Braced"];
-        frLiveLen2 = frLive.listLengtH;
+        // ⚠ THE STAR, and station 2 had it all along: `*frLive.listLengtH` reaches the HELD rule, the unstarred form reads the HOLDER and returns 0. Station 3 read it unstarred and so reported `was 3 now 0` -- the rule SHRINKING -- which is not a road failure at all, it is bear-trap 35 in the instrument
+        frLiveLen2 = *frLive.listLengtH;
         frTest();
         cerr "STATION 3 live list length was " frLiveLen " now " frLiveLen2:;
         frOk = 0;

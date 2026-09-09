@@ -140,6 +140,40 @@ line vanish.
 **`jitEmitAssign` call-shape wrinkle** stay parked with unary. Clod proposes when the campaign opens
 that door.
 
+### ⚠⚠ THE KANT-ROAD JIT LADDER — THREE RUNGS, IN ORDER. Minted 2026-09-09 (dispatch 8), PARKED.
+
+The generated-parse road runs interpreted and has fleet rows; the JIT emits **nothing** for any body
+it produces. These are the three rungs, and the order is not preference — each earlier one is a
+precondition for the next being measurable.
+
+**(i) `andOr` REACHABILITY — short-circuit under the JIT for a generated body.** ⚠ **AND THE
+ARCHAEOLOGY ANSWERS "LANDED", NOT "DESIGNED AND NEVER BUILT" — WHICH CHANGES WHAT THIS RUNG IS.**
+`docs/andOrRung.md` is in the tree and its rung shipped: `3483167` *"AND/OR promoted to tier 3:
+short-circuit in both engines, all six parts"*, sealed `1c46324`. **`jitEmitShortCircuit` exists**
+(`GroupRules.mm:4907`) and is reached **not through the `jitEmitter=` slot but through an in-body
+gate** — `runShortCircuit`'s `if (jitting) return jitEmitShortCircuit(field);`
+(`GroupRules.mm:11589`), the same shape bear-trap #46 documents for unaries, and for the recorded
+reason that **runOP resolves both operands before dispatch, so short-circuit is unreachable at the
+handler position at all**.
+⚠ **SO DISPATCH 7's TABLE IS RIGHT ABOUT THE SLOT GATE AND INCOMPLETE ABOUT THE ROAD: THERE ARE TWO
+DOORS AND FOR DO's BODY NEITHER FIRED.** Measured the same day: `jitRunAction` on DO reports
+`no result emitted` **and prints no `jitDegrade` line at all** — and `jitEmitShortCircuit` degrades
+loudly when it refuses (`GroupRules.mm:12200`), so a silent run means it was **never reached**, not
+that it declined. **The rung is therefore "find which door should have fired and why the walk
+reaches neither", not "write an opAND emitter".** Writing one without answering that would add a
+third door to a body that reaches none.
+
+**(ii) RULE INVOCATION FROM JITTED CODE — the Option B rule-in-op-position arm, argument forwarded
+through `runRule`.** Every operand in a generated body is `Term(argument)`, a rule invoked in
+expression position; that arm (`GroupActions.rtn`, the Option B block below the seed gate) has no
+jit path, so even with (i) answered the chain's operands emit nothing. This is the rung that
+carries the road's actual shape, and it is second because its readings are only interpretable once
+(i) says which door a chain takes.
+
+**(iii) `jitEntryOnCompiled` — LAST, because it moves nothing alone.** Entry is a real defect and a
+small one; fixing it moves the failure from `jitRunIfTest` to `no result emitted` and no further.
+It is worth doing when (i) and (ii) make the difference observable, and not before.
+
 ### ⚠ `jitEntryOnCompiled` — MINTED 2026-09-09 (dispatch 7). PARKED, NOT BLOCKING THE ROAD.
 
 **ENTRY MUST ACCEPT AN `isAction` BODY, because on the new parse road there is never an `isCoded`
