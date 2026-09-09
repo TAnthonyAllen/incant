@@ -47,17 +47,7 @@ What is the implementation plan
 
 Then the wrinkles you added:
 Sketch a design for an incant documentation field to capture all that, with a printDocument() action to do what its name says.
-Make printDocument() able to print rich text (using fonts and such). Open question: where does that rich text functionality reside in incant? Is it a feature of the print/display tooling so it's generally available when printing in any incant action?
-You wanted my thoughts on rich text printing and what our options are.
-The list-with-gates piece:
-Printing and Display are HWF topics to go on the HWF list. That list itself should have a structure — "you wanna add a topic to the list, you gotta answer some questions and fill in these here boxes." Same boxes as the session structure above, in my reading.
-The bottom-line you stated:
-You do not think we are getting adequate return on our HWF work, which you find helpful and valuable.
-
-Let me restate that bottom line: I want to maximize the return on our HWF efforts and include HWF in a documentation strategy that currently does not exist. The point I want to get to is be able to generate documentation in incant. What that documentation looks like to be determined. In that regard, I like the way java documents java classes. We can use that as a model. The ability to do it from incant means if we want to change how documentation looks or how it is generated, that becomes an incant problem and I want incant to be able to handle it. That way what the documentation looks like is just an incant printDocument() action.
-I do not want to flog all this into a long session. Maybe we touch on each point briefly and then assess with an eye towards figuring out how we proceed further.
-
-As soon as we gain momentum, the number of incant files like setup grammar utilities documentation (not there yet) explode. We need to think how we want to manage them
+How about a document form along with a way to print it: ideally want to say print form;
 
 /*****************************************************************************
 	incant wiki

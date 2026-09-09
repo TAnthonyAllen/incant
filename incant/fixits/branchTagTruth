@@ -11,7 +11,7 @@ define
         btT := taG;
         cerr "   BrancheS member " btSeen " tag = " btT:;
         if taG;                 ++btTruthy;
-        if btT eq "return";     ++btDiscrim;
+        if *btT == "return";    ++btDiscrim;
         };
     btWalk code={
         iterate btCur members on *argument;

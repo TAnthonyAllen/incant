@@ -15,8 +15,11 @@ define
         addrOf(fcSrc);
         addrOf(fcFace);
         fcSrc :. noPrinT;
-        fcFwd = fcFace.noPrinT;
+        $$fcFace;
+        fcFwd = fcFace.noPrint;
+        $$fcFwd;
         fcCtl = fcClean.noPrinT;
+        $$fcCtl;
         cerr "FC-2 FORWARD  wrote source, read face  = " fcFwd " (faceT F2 wants 1)":;
         cerr "FC-3 CONTROL  never written anywhere   = " fcCtl " (must differ from FC-2)":;
         fcAnchor = 0;

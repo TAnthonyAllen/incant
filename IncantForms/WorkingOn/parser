@@ -79,6 +79,7 @@ define
     ;
 
 parser(DO);
+IterSource(someName);
 stop();
 parser(Start);
 
