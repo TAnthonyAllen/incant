@@ -111,6 +111,24 @@ parser(Start);
         all 39        return this;                   exit 139
         all 39        return runRuleAction(this);    exit 139
 
+    THREE MORE ROWS, H16/H16b, one build, 2026-09-09. Tony's correction of
+    2026-09-09 is what made them askable: labelNO, trueResult and falseResult
+    ARE declared (GroupRules.twk:41,43,55) and ARE added to the pROPERTIEs base
+    registry in setBaseRegistries (GroupControl.twk:151-183), and `null` is in
+    the same registry, added from kant at incant/setup:243 as `null=0`. locate()
+    searches baseRegistryList (GroupControl.twk:86), so a kant body CAN spell
+    all four. ⚠ THE REGISTRY TAGS ARE `true` AND `false`, NOT `trueResult` AND
+    `falseResult` -- the C++ globals and the kant names are different spellings
+    of the same nodes.
+
+        DO alone      return false;                  exit 0, sentinel, prints 1
+        DO alone      return labelNO;                exit 0, sentinel, prints 1
+        DO alone      return null;                   exit 0, sentinel, prints 1
+
+    ⚠ `null` IS NOT AN ALIAS FOR labelNO. Measured as distinct nodes in one run
+    -- null at base+0x513340, labelNO at base+0x3d12c0 -- and they differ in
+    more than address; see the init column below.
+
     READ THE FIRST THREE ROWS AND THE LAST THREE SEPARATELY. They are two
     findings, and reading the top block alone -- which is what an earlier pass
     did -- yields the wrong sentence "the close decides it."
@@ -153,17 +171,73 @@ parser(Start);
     genParse's EMITTED TOK SOURCE, which is built by the compiler. This road
     emits KANT, compiled at run time by compile()/processCode, and a kant action
     takes ONE argument, so leaveRule is not callable from it and is registered
-    in no registry. Nor are null, labelNO, trueResult or falseResult, so a kant
-    body cannot even spell "return nothing".
+    in no registry.
 
-    The three closes a kant body CAN spell were measured and none is right:
-      return runRuleAction(this);   fires the rule from inside itself
-      return this;                  same, one indirection along
-      (no return)                   the body's value becomes aCTionIF's labelNO,
-                                    which is NON-NULL on BOTH the success and the
-                                    failure path, so parseRule reports success
-                                    either way. Green here by accident of DO's
-                                    input parsing, not by being right.
+    ⚠ STRUCK 2026-09-09, TONY'S CORRECTION, AND IT WAS AN ATTRIBUTION ABOUT THE
+    TREE RATHER THAN A STRUCTURAL CLAIM: this paragraph used to continue "Nor
+    are null, labelNO, trueResult or falseResult, so a kant body cannot even
+    spell return nothing." That is FALSE. All four are in pROPERTIEs and all
+    four are spellable -- see the three new matrix rows above. What survives is
+    only the structural half: a one-argument kant action cannot reach a
+    five-argument tok extern.
+
+    The closes a kant body CAN spell, MEASURED. Three readings each, H16, one
+    build, 2026-09-09, DO alone, RESULTPROBE gated on parseTrace inside
+    parseRule immediately above the ruleAsLabel check:
+
+      return runRuleAction(this);   fires the rule from inside itself, 139
+      return this;                  same, one indirection along, 139
+      return false;                 exit 0
+      return labelNO;               exit 0
+      return null;                  exit 0
+      (no return)                   exit 0
+
+    (i) COMPILES OR REFUSES. All four clean arms print `compile succeeded for
+    DO` and no refusal fires anywhere -- `grep -c refuse` is 0 in all four.
+
+    (ii) WHAT POINTER parseRule RECEIVES. Identity, never truthOf, because a
+    data-less field is true by presence. ⚠ IN NO ARM IS THE RESULT THE REGISTRY
+    FIELD. The tag is right and the node is a different one every time -- the
+    value channel hands back a COPY:
+
+        close        result tag   dataKind      count  isInitialized
+        false        false        5 isCOUNT       0        0
+        labelNO      labelNO      5 isCOUNT       0        0
+        null         null         5 isCOUNT       0        1
+        (no return)  rightCurly  13 isSTRING      1        1
+
+    ⚠ THE init COLUMN IS THE WHOLE DISCRIMINATOR AND ONLY ONE ARM HAS IT.
+    truthOf reads a data-less-or-uninitialised field as TRUE BY PRESENCE
+    (the 2026-09-08 bareIfTruth pair), so of the three sentinels ONLY `null`
+    carries a 0 that would read FALSE. The mechanism that predicts it is the
+    registration difference and it is checkable: falseResult and labelNO are
+    built in C++ with `.isCOUNT = true`, which raises no isInitialized, while
+    `null=0` is written from kant through setCount, which does
+    (GroupItem.twk:1802). GRADE: measured on the node parseRule receives;
+    mechanism-grounded, NOT yet measured at the registry entries themselves.
+
+    ⚠⚠ AND THE READING THAT OUTRANKS ALL OF THEM: parseRule NEVER ASKS THE
+    VALUE. Its test is `if result {` -- a non-null POINTER -- and then only
+    ruleAsLabel. Any non-null node that is not rule-shaped takes the success
+    path: `label = result; return parseSetLabel(field);`. Confirmed on all four
+    arms, no refusal, label stored. So a falsy sentinel does not express refusal
+    on this road TODAY, whatever its value, because nothing downstream reads it.
+    Candidate (b) needs parseRule to test the value or the identity as well.
+
+    (iii) DOES ANYTHING FIRE. traceParse() on, `runRule DOOR` counted: all four
+    clean arms read EXACTLY 7 -- DO, do, followedBy, StatemenT, while,
+    ExpressioN, SemI. Nothing extra fires. ⚠ SO CANDIDATE (b)'s CLAIM HOLDS ON
+    ITS OWN TERMS: a plain field carries no method, and `return false;` does NOT
+    enter aCTionBrancH's fire-the-operand arm. The `return this;` control reads
+    7 too and then dies before RESULTPROBE, inside the return's own evaluation,
+    which is where blocker 1 says it dies.
+
+    ⚠ AND THE (no return) ROW'S OLD SENTENCE IS ALSO STRUCK. It read "the body's
+    value becomes aCTionIF's labelNO". MEASURED: it is a node tagged
+    `rightCurly`, isSTRING, count 1, isInitialized -- not labelNO, and not
+    falsy. The conclusion drawn from it stands and is if anything stronger:
+    parseRule reports success either way, and this arm is green by accident of
+    DO's input parsing rather than by being right.
 
     So the close is a DESIGN FORK and it is Tony's: either a kant-callable,
     one-argument sibling of leaveRule that yields the rule's label-or-0, or a
@@ -178,3 +252,15 @@ parser(Start);
     TO REPRODUCE THE MATRIX: copy this file, and in generateParse change the line
     `print $"return runRuleAction(this);":;` to `print $"return this;":;` or
     delete it; and swap `parser(DO);` for `generateParse(DO);` + `compile(DO);`.
+
+    TO REPRODUCE THE 2026-09-09 ROWS: same two edits, with the close set to
+    `print $"return false;":;` / `labelNO` / `null`. For readings (ii) and (iii)
+    add `traceParse();` immediately above the TRIGGER line, and put RESULTPROBE
+    back into parseRule -- a passthrough block gated on `parseTrace`, inserted
+    directly after `if result {` and above the ruleAsLabel comment, printing
+    result's pointer and tag beside ruler->falseResult, ruler->labelNO,
+    ruler->trueResult and locate("null"), plus isRule, isGROUP(flags.data),
+    flags.data, getCount() and flags.isInitialized. ⚠ Spell isGROUP as the MACRO
+    `isGROUP(result->groupBody->flags.data)`; there is no `flags.isGROUP` and
+    the build fails on it. No percent-dash in the format string (bear-trap #40).
+    The probe was REMOVED after the measurement and the tree rebuilt bare.
