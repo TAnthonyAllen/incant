@@ -1036,6 +1036,7 @@ extern GroupItem runRule(GroupItem field,GroupItem rule)
 GroupRules  ruler = groupRules;
 GroupItem   result;
 GroupItem   newParse;
+GroupItem   intoField;
 int         baseStak = 0;
 use rule
     /*  DOOR TRACE, parseTrace-gated so it cannot move a baseline. It answers
@@ -1046,12 +1047,32 @@ use rule
         divertToRule    = true;
         pushInput(field); }
     if parseTrace   frameProbe(field,rule);
+    /*  runRule.unwrapTheHolder  H13 question 3, and it is hoisted above the fork
+        deliberately: a kant body forwards its one argument, and `argument`
+        resolves to the argument HOLDER whose group is the label. A holder
+        arriving where the label was owed is the carrier family, and the READER
+        dereferences -- once, here -- so BOTH the generated arm's frameParent and
+        the leaf arm's parseR see the label itself and not the thing carrying it.  */
+    intoField = field;
+    if intoField && intoField.isGROUP   intoField = intoField.gGroup;
     if hasNewParse
         if newParse = rule["builtinParsE"] {
-            rule.establishFrame(rule.frameParent(field));
+            rule.establishFrame(rule.frameParent(intoField));
             result = newParse.method(rule); }
         else        cerr "runRule could not find builtinParsE attribute":;
-    else            result = rule.parse(0);
+    else {
+        /*  runRule.intoRidesArgument  ruling B, 2026-09-09: a kant-emitted body
+            forwards its one argument to every term, so a non-null argument with
+            NO DATA is the label the caller wants this term to attach into. That
+            is parseR's shape exactly -- a fresh bridge stuff per call carrying
+            `into` as its label -- and it is the tok road's mechanism reused, not
+            a second one. A field WITH data is the input-divert case above and
+            keeps the bare parse.
+            ⚠ THE CELL IS EMPTY TODAY, MEASURED: 1934 leaf-arm entries over 246
+            files split 1915 field=0 and 19 field-with-data, and ZERO
+            field-without-data. So this gate adds a road and re-routes nothing.  */
+        if intoField && !intoField.data     result = parseR(rule,intoField);
+        else                                result = rule.parse(0); }
     while field && field.data && inputSTAK && inputSTAK.length > baseStak
         popInput();
     return result;

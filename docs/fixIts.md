@@ -2938,6 +2938,29 @@ live caller. Mirroring it for `--` needs either a **new extern** or a **widened 
 JIT's own write"* names this case. **The shape is ruled; the build is gated on Tony choosing
 between a second emitter and a parameterised one.** **Owner:** Tony. **Size:** small emitter + rung.
 
+### F-55 — `answersByPresence`: one family, five faces, and each one answered TRUE by existing
+**What:** A test that means *"is there a value here"* is written as a test that only asks *"is
+there a NODE here"*, so it answers true for a node carrying nothing. It is one mechanism, not five
+coincidences, and it keeps arriving as **a plausible answer rather than a crash** — which is why
+each face cost a separate investigation before anyone read them as a class.
+**The faces, on the see line:**
+| face | what it answered by presence | state |
+|---|---|---|
+| `aCTionIF`'s `result && isInitialized` | a FALSE flag tested TRUE | **FIXED** 2026-09-08, `bareIfTruth` + `opDot`'s `count = 0`, a matched pair |
+| `!` on a data-less field | `if !isRulE;` skipped NOTHING while `== 0` skipped correctly | **PARKED** — `odoPopulation` and `pcWalk` both carry the spelling and filter nothing |
+| a tag test inside an `iterate` body | `if taG eq "return"` matched EVERY member, 3 of 3, in four spellings | **OPEN**, `branchTagTruth`, and ⚠ bear-trap #28/#35's own prescribed cure (capture, then test) **does not work on it** |
+| `eq` on a captured tag | the capture is REAL and the comparison is still void | same citizen; the amendment is Tony's |
+| **`parseRule`'s `if result`** | *"the body yielded a value"* answered by *"the body returned a pointer"* | ⚠ **RETIRED BY RULING (c)/B, 2026-09-09** — the test is deleted, not repaired; parseRule now derives label-or-0 from what it minted and never reads the return |
+**Evidence:** the fifth face is measured — all four closes a kant body can spell (`false`,
+`labelNO`, `null`, no-return) returned a NON-NULL node and took parseRule's success path, so no
+sentinel could ever express refusal through that channel. `incant/trigDO` carries the table.
+**Why it is one row and not five:** the cure is the same every time and it is **never a cleverer
+test** — it is to ask the question you actually mean, of a channel that can answer it. `truthOf`
+for a value, `groupList` length for a list, a second channel for a signal.
+**Done when:** the two OPEN faces have a ruling (they are `branchTagTruth`'s), and the PARKED
+spelling is swept — `if !x;` on a data-less field is not a filter and two live walks rely on it.
+**Owner:** Tony holds the ruling; the sweep is Clod-sized. **Size:** one grep, then a ruling.
+
 ### F-54 — `jitDotBareAccessor`: on the JIT road `opDot` never consults `lastREF`
 **What:** `opDot`'s jitting gate fires **before** the bare-accessor fixup, so the emitted code
 never takes the `lastREF` path at all. `jitEmitDot` bakes `argument` as a **constant address at

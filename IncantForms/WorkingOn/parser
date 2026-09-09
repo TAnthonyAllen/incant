@@ -30,10 +30,9 @@ define
             if notFirstTimeThru > 0;    print _conjunct;
             ++notFirstTimeThru;
             setParse(*grup);
-            print $taG "()";
+            print $taG "(argument)";
         print ";";
         @argument;
-        print $"return runRuleAction(this);":;
         print `closeBrace;
         clear(CodE);
         CodE = codeBuffer;

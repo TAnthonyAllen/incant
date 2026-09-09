@@ -30,10 +30,9 @@ define
             if notFirstTimeThru > 0;    print _conjunct;
             ++notFirstTimeThru;
             setParse(*grup);
-            print $taG "()";
+            print $taG "(argument)";
         print ";";
         @argument;
-        print $"return runRuleAction(this);":;
         print `closeBrace;
         clear(CodE);
         CodE = codeBuffer;
@@ -128,6 +127,100 @@ parser(Start);
     ⚠ `null` IS NOT AN ALIAS FOR labelNO. Measured as distinct nodes in one run
     -- null at base+0x513340, labelNO at base+0x3d12c0 -- and they differ in
     more than address; see the init column below.
+
+    ⚠⚠ RULING B, TONY, 2026-09-09 -- BUILT, AND THE ROAD NOW PARSES. `into`
+    rides the argument: every emitted term call carries it, the body forwards it
+    and never holds it, and parseRule mints a fresh label per invocation and
+    reads label-or-0 from what it minted. The body's return value is not read at
+    all and parseRule's `if result` presence test is GONE.
+
+    THE EMITTED BODY, BEFORE AND AFTER, VERBATIM:
+
+        before   DO = CodE {
+                   if  do() AND followedBy() AND StatemenT() AND while()
+                       AND ExpressioN() AND SemI(); return runRuleAction(this);
+                   }
+        after    DO = CodE {
+                   if  do(argument) AND followedBy(argument) AND
+                       StatemenT(argument) AND while(argument) AND
+                       ExpressioN(argument) AND SemI(argument);
+                   }
+
+    ⚠⚠ H18 IS THE ROW THAT MATTERS, AND IT DISCRIMINATES:
+
+        good input   `do print 1; while 0;`   LABELPROBE DO minted=DO mintedLen=2
+        broken while `do print 1; xyzzy 0;`   LABELPROBE DO minted=DO mintedLen=1
+
+    and the attaches name DO as the parent --
+    `parseR term= StatemenT into= DO -> attached as true under DO`,
+    `parseR term= ExpressioN into= DO`, then
+    `attachLabel lab=DO promote=0 isTarget=0 pLabel=1 pRule=DO`.
+    Before this stroke every one of those read `into= argument` and mintedLen 0.
+    THAT IS THE LINE BETWEEN PARSING AND MATCHING, and it has moved.
+
+    ⚠⚠⚠ H17 ROW 1 DOES NOT HOLD, AND IT IS A CONSEQUENCE OF THE RULING RATHER
+    THAN A DEFECT IN THE BUILD. The broken-input arm does NOT refuse: it exits 0,
+    prints 1, attaches one child and RETURNS A LABEL. There is no refusal because
+    there is nothing left to refuse WITH.
+
+    THE TOK ROAD KEEPS THE BIT THIS ROAD THROWS AWAY. `leaveRule(rule, into,
+    label, from, ok)` takes the AND-chain's value as its FIFTH ARGUMENT
+    (genParse.rtn:596 emits `leaveRule(rule,into,label,from, <terms> )`), and
+    `ok` is the ONLY thing that separates success from a partial match --
+    RuleStuff.twk:776 branches on it and nothing else. Ruling B says the body's
+    return is never consulted, and the body's return IS that AND chain. So:
+
+        label non-empty  IS NOT  parse succeeded
+
+    A partial match leaves a non-empty label, which is exactly what row 1
+    produces. ⚠ THE FIX IS NOT AVAILABLE TO ME -- it is a fork and it is Tony's:
+    carry `ok` on a SECOND CHANNEL (one channel, one meaning), or let parseRule
+    derive failure from the input mark rather than from the label, or read the
+    return after all for that one bit. Nothing here guesses between them.
+
+    ⚠ FOUR OBSTACLES WERE MEASURED AND CLEARED ON THE WAY, and three of them are
+    standing bear-traps that bit in their documented form:
+
+    1. **bear-trap 32** -- a multi-statement arm followed by `else` does not
+       parse. parseRule's `if field.isAction { ... else reportNoBody; }` broke the
+       moment the arm grew. Canary 318 -> 0. Cured with the flag idiom.
+    2. **bear-trap 42** -- the declarations added to parseRule re-pointed two bare
+       fields BELOW them, last-mentioned-wins, and IT COMPILED CLEAN:
+       `checkInput()` aimed at `intoStuff` and the locals-clear loop cleared
+       `ruleArg` instead of `grup`. Found by reading the generated tail against
+       HEAD's, which is the only place it is visible. Cured with two `use` lines.
+    3. **the unguarded list deref** -- `myLabel.listLength` generates
+       `groupBody->groupList->listLength` with no guard, and the EMPTY label is
+       the case this road takes on every failure. Same shape as firstComponent.
+    4. **bear-trap 39, and it is the one that cost the most** -- the emitted
+       body's `argument` was resolved at COMPILE time, when the rule carried no
+       argument slot, so aCTionNamE minted an action LOCAL on the CodE and the
+       BlocK holds THAT node. Binding `field["argument"]` therefore wrote a slot
+       nothing reads. Measured decisively: the holder read
+       `dataKind=6 isGROUP=1 gGroup == myLabel` while all six terms received ONE
+       SHARED BODY with `dataKind=0` -- and the shared body is that local, which
+       parseRule's own clear loop had just blanked. The cure is one line: bind
+       `code["argument"]`, after the clear.
+
+    ⚠ AND ONE THING THAT LOOKED LIKE THE ANSWER AND WAS NOT: `currentMETHOD`.
+    parseRule runs the body by calling BlocK's gMethod directly and so never
+    passes through processAction, the single writer of currentMETHOD
+    (GroupActions.rtn:511). That is TRUE, and the bracket is kept because a body
+    resolving names against the wrong method is a defect waiting for a customer --
+    but it moved NOTHING on its own, measured. The compile-time bind above is
+    what was actually wrong. Recorded so the next reader does not re-try it.
+
+    ⚠ THE runRule CHANGE HAS A MEASURED BLAST RADIUS OF ZERO. Its gate is
+    `field && !field.data`, and a census over 246 files found 1934 leaf-arm
+    entries -- 1915 with field=0 and 19 with field-carrying-data -- and ZERO in
+    the gated cell. Fleet 243/49 unmoved row for row after the build, which is
+    the prediction cashing.
+
+    ⚠ A LATENT CRASH SURFACED, NOT CAUSED, AND IT IS CAPTURED NOT CHASED: runRule's
+    own DOOR trace dereferences `field->groupBody->flags.data` UNGUARDED after
+    testing `field != 0` in the same printf (GroupRules.mm:11329). With
+    parseTrace on and a bare rule invocation it is an immediate null deref. It has
+    been latent because the 1915 bare calls are not usually traced.
 
     ⚠⚠ RULING (c), TONY, 2026-09-09 -- AND IT RETIRES THE CLOSE COLUMN OF THIS
     TABLE. A kant-emitted rule body closes with NO RETURN. parseRule does what

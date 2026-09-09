@@ -9460,7 +9460,17 @@ GroupItem 	*pMethod = field->get("builtinParsE");
 GroupItem 	*code = field->get("CodE");
 GroupItem 	*result = 0;
 GroupItem 	*grup = 0;
+GroupItem 	*myLabel = 0;
+GroupItem 	*into = 0;
+GroupItem 	*ruleArg = 0;
 RuleStuff 	*ruleStuff = pMethod->getRStuff();
+RuleStuff 	*fieldStuff = field->getRStuff();
+RuleStuff 	*myStuff = 0;
+RuleStuff 	*intoStuff = 0;
+char 		*from = ruler->atRuleMark;
+GroupItem 	*priorMETHOD = 0;
+int 		hasBody = 0;
+int 		yielded = 0;
 	// assumes processCode was run on field already
 	/*  MEASUREMENT 1, setParentLabel brief. TEMPORARY, parseTrace gated.
 	Which parent can a parseMethod see from the field handed in: the
@@ -9479,13 +9489,53 @@ RuleStuff 	*ruleStuff = pMethod->getRStuff();
 	field->rStuff ? (void*)field->rStuff->parentLabel : (void*)0,
 	(field->rStuff && field->rStuff->parentLabel) ? field->rStuff->parentLabel->groupBody->tag : "(none)");
 	
+	// parseRule.bareFieldRepoint  bear-trap 42: the declarations added above re-point every bare field below them, last-mentioned-wins, and it COMPILES CLEAN. These two `use` lines are the whole cure; without them checkInput aimed at intoStuff and the locals-clear loop cleared ruleArg instead of grup
 	if ( ruleStuff->checkInput() )
 		{
+		// parseRule.noElseHere  bear-trap 32: a multi-statement arm followed by `else` does not parse, and it fails at DEFINE time naming a healthy function. Flag idiom, as incant/frontier uses at every station
+		hasBody = 0;
 		if ( isAction(field->groupBody->flags.actionType) )
+			hasBody = 1;
+		if ( !hasBody )
+			::reportNoBody(field);
+		if ( hasBody )
 			{
 			while ( grup = code->nextAttribute(grup) )
 				if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isRule && !grup->groupBody->flags.noPrint && grup->groupBody != field->groupBody )
 					grup->clear();
+			// parseRule.intoRidesArgument  ruling B: the incoming into arrives on the frame runRule established, and the label the terms fill is a FRESH MINT per invocation -- never rStuff.label, which is one slot and cannot survive recursion
+			into = fieldStuff->parentLabel;
+			myLabel = new GroupItem(field->groupBody->tag);
+			// parseRule.argumentBind  runAction's own three lines, so the body's one argument IS the label and every emitted term forwards it
+			/*  parseRule.bindTheBodysOwnSlot  MEASURED 2026-09-09, bear-trap 39.
+			The emitted body's `argument` was resolved at COMPILE time, and
+			the rule carried no argument slot then, so aCTionNamE minted an
+			action LOCAL on the CodE and the BlocK holds that node. Binding
+			field["argument"] therefore wrote a slot nothing reads -- measured
+			as one shared, data-less body arriving at all six terms while the
+			holder one line away read isGROUP with gGroup == myLabel. Bind the
+			node the body actually holds, and bind it AFTER the clear loop
+			above, which blanks exactly this local.  */
+			ruleArg = code->get("argument");
+			if ( !ruleArg )
+				ruleArg = field->get("argument");
+			if ( !ruleArg )
+				ruleArg = field->addString("argument");
+			ruleArg->groupBody->flags.isArgument = 1;
+			::saveLocalFields(field);
+			ruleArg->setGroup(myLabel);
+			/*  parseRule.currentMethod  MEASURED 2026-09-09, and it is the whole
+			reason the bind was invisible. parseRule runs the body by calling
+			BlocK's gMethod DIRECTLY, so it never passes through
+			processAction -- which is the single writer of currentMETHOD
+			(GroupActions.rtn:511). locateInMethod resolves a body's bare
+			name against currentMETHOD's locals first, so with the wrong
+			currentMETHOD the emitted `argument` resolved to a data-less
+			carrier instead of the slot bound one line above: measured as ONE
+			SHARED BODY, dataKind 0, arriving at all six terms. Save and
+			restore, exactly as processAction does.  */
+			priorMETHOD = ruler->currentMETHOD;
+			ruler->currentMETHOD = field;
 			// here the parse action in method gets run
 			if ( result = field->get("BlocK") )
 				{
@@ -9493,22 +9543,53 @@ RuleStuff 	*ruleStuff = pMethod->getRStuff();
 				if ( result )
 					result->groupBody->flags.isBranch = 0;
 				}
-			else	::reportNoBody(field);
+			ruler->currentMETHOD = priorMETHOD;
+			::restoreLocalFields(field);
 			}
-		if ( result )
+		/*  parseRule.labelOrZero  ruling B, 2026-09-09. THE BODY'S RETURN VALUE
+		IS NOT READ -- not by presence, not by value, not by identity. The
+		answer is label-or-0 taken from what this invocation MINTED, exactly
+		as leaveRule takes it from the local the emitted tok body minted.
+		The old `if result` presence test is retired with it; it is the fifth
+		face of the answers-by-presence family.  */
+		/*  LABELPROBE -- ruling B's H18 row, parseTrace-gated so no baseline moves.
+		Presence-with-value: prints the minted label's tag and list length and
+		the into's, on EVERY invocation, so a run that yields nothing prints a 0
+		rather than printing nothing. That is the row that tells PARSING from
+		MATCHING -- a matched-but-unattached run reads len=0.
+		⚠ Named LABELPROBE, not SLOTPROBE: GroupRules.mm already carries two
+		SLOTPROBE lines for the JIT slot, and one grep must not serve two
+		subjects. No percent-dash in the format string.  */
+		
+		if ( GroupControl::groupController->groupRules->parseTrace )
+		::fprintf(stderr,"LABELPROBE %s minted=%s mintedLen=%d into=%s intoLen=%d\n",
+		field->groupBody->tag,
+		myLabel ? myLabel->groupBody->tag : "(none)",
+		(myLabel && myLabel->groupBody->groupList) ? (int)myLabel->groupBody->groupList->listLength : 0,
+		into ? into->groupBody->tag : "(none)",
+		(into && into->groupBody->groupList) ? (int)into->groupBody->groupList->listLength : 0);
+		
+		// ruleAsLabel  a rule handed back where a label was owed re-enters its own action; refuse, and fall to the rewind below so Invariant R still holds
+		yielded = 0;
+		if ( ::ruleAsLabel(myLabel) )
+			::refuse(field,"parseRule: the generated body left a RULE where a label was owed");
+		// parseRule.guardTheList  listLength generates an UNGUARDED groupList deref, and the EMPTY label is the case this road takes on every failure -- same shape as firstComponent, 2026-09-08
+		if ( !::ruleAsLabel(myLabel) && myLabel && myLabel->groupBody->groupList && myLabel->groupBody->groupList->listLength )
+			yielded = 1;
+		if ( yielded )
 			{
-			// ruleAsLabel  a rule handed back as a label re-enters its own action; refuse, and fall to the rewind below so Invariant R still holds
-			if ( ::ruleAsLabel(result) )
-				::refuse(field,"parseRule: the generated body returned a RULE where a label was owed -- close the body with the label-or-0 spelling, never `this` and never runRuleAction(this)");
-			else {
-				ruleStuff->label = result;
-				return parseSetLabel(field);
-				}
+			/*  ONE ATTACH, through the single writer. promote=0: this road never
+			consults isTarget where a parent label exists -- PC-1, and the
+			promote case would replace the into's subtree.  */
+			myStuff = new RuleStuff(field);
+			myStuff->label = myLabel;
+			intoStuff = new RuleStuff(field);
+			intoStuff->label = into;
+			field->attachLabel(myStuff,intoStuff,0);
+			return myLabel;
 			}
 		}
-	if ( ruleStuff->label )
-		ruleStuff->label->clear();
-	ruler->atRuleMark = ruleStuff->hereAt;
+	ruler->atRuleMark = from;
 	return 0;
 }
 
@@ -11265,6 +11346,7 @@ extern "C" GroupItem *runRule(GroupItem *field, GroupItem *rule)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
 GroupItem 	*newParse = 0;
+GroupItem 	*intoField = 0;
 int 		baseStak = 0;
 	/*  DOOR TRACE, parseTrace-gated so it cannot move a baseline. It answers
 	the one question the gate cannot: WHICH DOOR a rule arrived through.  */
@@ -11279,14 +11361,37 @@ int 		baseStak = 0;
 		}
 	if ( ruler->parseTrace )
 		::frameProbe(field,rule);
+	/*  runRule.unwrapTheHolder  H13 question 3, and it is hoisted above the fork
+	deliberately: a kant body forwards its one argument, and `argument`
+	resolves to the argument HOLDER whose group is the label. A holder
+	arriving where the label was owed is the carrier family, and the READER
+	dereferences -- once, here -- so BOTH the generated arm's frameParent and
+	the leaf arm's parseR see the label itself and not the thing carrying it.  */
+	intoField = field;
+	if ( intoField && isGROUP(intoField->groupBody->flags.data) )
+		intoField = intoField->groupBody->gGroup;
 	if ( rule->groupBody->flags.hasNewParse )
 		if ( newParse = rule->get("builtinParsE") )
 			{
-			rule->establishFrame(rule->frameParent(field));
+			rule->establishFrame(rule->frameParent(intoField));
 			result = newParse->groupBody->gMethod(rule);
 			}
 		else	::fprintf(stderr,"runRule could not find builtinParsE attribute\n");
-	else	result = rule->parse(0);
+	else {
+		/*  runRule.intoRidesArgument  ruling B, 2026-09-09: a kant-emitted body
+		forwards its one argument to every term, so a non-null argument with
+		NO DATA is the label the caller wants this term to attach into. That
+		is parseR's shape exactly -- a fresh bridge stuff per call carrying
+		`into` as its label -- and it is the tok road's mechanism reused, not
+		a second one. A field WITH data is the input-divert case above and
+		keeps the bare parse.
+		⚠ THE CELL IS EMPTY TODAY, MEASURED: 1934 leaf-arm entries over 246
+		files split 1915 field=0 and 19 field-with-data, and ZERO
+		field-without-data. So this gate adds a road and re-routes nothing.  */
+		if ( intoField && !intoField->groupBody->flags.data )
+			result = ::parseR(rule,intoField);
+		else	result = rule->parse(0);
+		}
 	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
 		ruler->popInput();
 	return result;
