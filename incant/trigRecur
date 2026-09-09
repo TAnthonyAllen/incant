@@ -136,10 +136,34 @@ stop();
        the ones that should succeed. There is no true-chain control, so arm 3 is
        indistinguishable from arms 1 and 2 and proves nothing on its own.
 
-    ⚠ THE BLOCKER IS THE EMITTER, AND IT IS MEASURED: IT DROPS THE `?` MODIFIER.
-    `trA ta="a" trB?;` emits `return ta(argument) AND trB(argument);` -- the
-    optional term is emitted as REQUIRED. The same is visible in the live
-    grammar: `IF ... ElsE?` emits `... AND ElsE()`. So a recursive fixture
+    ⚠⚠ THE BLOCKER, CORRECTED 2026-09-09 BY TONY, AND THE FIRST TELLING NAMED THE
+    WRONG MECHANISM. It was written as "the emitter drops the `?` modifier". The
+    truth is larger and is this: THE EMITTED CALL CARRIES ONLY THE TAG, SO IT
+    LOSES THE TERM REFERENCE'S ENTIRE rStuff.
+
+    Tony's statement of the contract, which is the correct one: an optional term
+    SHOULD fire, generate no result and no label, and RETURN SUCCESS. That is
+    exactly what the old parse does, and the machinery is three lines apart:
+      - `?` sets `min = 0` on the TERM REFERENCE'S rStuff, via
+        `modify(field,modifier)` -- GroupActions.rtn:451
+      - `parse()` honours it: `if !sukcess && kount >= min sukcess = true;`
+        -- GroupItem.twk:1552. Zero matches, min 0, SUCCESS.
+      - `min` defaults to 1 -- RuleStuff.twk:135
+
+    The emitter writes `print $taG "(argument)";` (this file:33 and
+    IncantForms/WorkingOn/parser:33) -- THE TAG AND NOTHING ELSE. So the call
+    resolves BY NAME to the DEFINING rule, and the reference node and the
+    definition are DIFFERENT NODES WITH DIFFERENT rStuff (`getStuff` mints per
+    node). The defining rule's min is 1, so an unmatched optional term reports
+    failure and the AND chain dies.
+
+    ⚠ SO `?` IS ONLY THE MODIFIER THAT BIT FIRST. The same loss takes
+    `* + ! - < ^ @ { } _ % &` and any `Limit` -- everything `modify()` writes.
+    Repetition, negation, noLabel, noAdvance, noSkip, isTarget and upTo are all
+    invisible to a generated body as it is spelled today.
+    The same is visible in the live grammar: `IF ... ElsE?` emits
+    `... AND ElsE()`, and `Start StatemenT-+` would lose both its dash and its
+    plus. So a recursive fixture
     grammar can never bottom out and its chain can never read true.
     ⚠ A SECOND FINDING FROM THE SAME BENCH, recorded because it cost a rebuild:
     a rule that is FORWARD-DECLARED and then redefined with members

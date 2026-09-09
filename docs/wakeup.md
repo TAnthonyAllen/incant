@@ -64,6 +64,19 @@
 #     required -- so a recursive fixture grammar can never bottom out and its
 #     chain can never read true. Visible in the live grammar too: `IF ... ElsE?`
 #     emits `AND ElsE()`.
+#     ⚠⚠ **CORRECTED WITHIN THE HOUR BY TONY, AND THE LINE ABOVE NAMES THE WRONG
+#     MECHANISM -- IT IS KEPT ONLY SO THE CORRECTION HAS A SUBJECT.** The emitted
+#     call carries ONLY THE TAG, so it resolves BY NAME to the DEFINING rule and
+#     loses the term REFERENCE's entire rStuff. Tony's contract, which is what the
+#     old parse already does: an optional term FIRES, yields no result and no
+#     label, and RETURNS SUCCESS -- `?` sets `min = 0` on the reference
+#     (`GroupActions.rtn:451`), `parse()` honours it at `GroupItem.twk:1552`
+#     (`if !sukcess && kount >= min sukcess = true;`), and `min` defaults to 1
+#     (`RuleStuff.twk:135`). ⚠ **SO `?` IS ONLY THE MODIFIER THAT BIT FIRST: the
+#     same loss takes `* + ! - < ^ @ { } _ % &` and any `Limit`.** Repetition,
+#     negation, noLabel, noAdvance, noSkip, isTarget and upTo are ALL invisible to
+#     a generated body as spelled. This is a road-shaped hole, not a fixture one,
+#     and it is the docket's new head.
 #   - **QuotE does not discriminate**: a closed quote and an unterminated one
 #     produce IDENTICAL readings. Pinning that would pass on a dead road (H7).
 #     ⚠ What attaches for a leaf is the TERMS themselves -- `lab=tik pRule=QuotE`,
