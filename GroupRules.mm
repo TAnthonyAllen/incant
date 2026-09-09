@@ -9522,6 +9522,18 @@ int 		yielded = 0;
 			// parseRule.intoRidesArgument  ruling B: the incoming into arrives on the frame runRule established, and the label the terms fill is a FRESH MINT per invocation -- never rStuff.label, which is one slot and cannot survive recursion
 			into = fieldStuff->parentLabel;
 			myLabel = new GroupItem(field->groupBody->tag);
+			/*  LABELMINT -- H19's instrument, parseTrace-gated, NO behaviour change.
+			Prints at the MINT so an outer activation's line brackets its inner
+			one's in the trace: distinctness is an address comparison, survival is
+			the same address appearing again at the OUT line below.
+			No percent-dash in the format string.  */
+			
+			if ( GroupControl::groupController->groupRules->parseTrace )
+			::fprintf(stderr,"LABELMINT %s at=%p into=%s intoAt=%p intoLen=%d\n",
+			field->groupBody->tag,(void*)myLabel,
+			into ? into->groupBody->tag : "(none)",(void*)into,
+			(into && into->groupBody->groupList) ? (int)into->groupBody->groupList->listLength : 0);
+			
 			// parseRule.argumentBind  runAction's own three lines, so the body's one argument IS the label and every emitted term forwards it
 			/*  parseRule.bindTheBodysOwnSlot  MEASURED 2026-09-09, bear-trap 39.
 			The emitted body's `argument` was resolved at COMPILE time, and
@@ -9590,13 +9602,14 @@ int 		yielded = 0;
 			yielded = 1;
 		
 		if ( GroupControl::groupController->groupRules->parseTrace )
-		::fprintf(stderr,"LABELPROBE %s minted=%s mintedLen=%d into=%s chainTrue=%d yielded=%d\n",
+		::fprintf(stderr,"LABELPROBE %s minted=%s mintedLen=%d into=%s chainTrue=%d yielded=%d at=%p\n",
 		field->groupBody->tag,
 		myLabel ? myLabel->groupBody->tag : "(none)",
 		(myLabel && myLabel->groupBody->groupList) ? (int)myLabel->groupBody->groupList->listLength : 0,
 		into ? into->groupBody->tag : "(none)",
 		::truthOf(result),
-		yielded);
+		yielded,
+		(void*)myLabel);
 		
 		if ( yielded )
 			{
@@ -12200,6 +12213,17 @@ int 		baseStak = 0;
     behaviour, which is the one it governs; it does not touch `if`, and
     closing that gap is a separate ruling with its own customer.
     Instrument: incant/andProbe rows 1 and 5.
+
+    ⚠ AND ONE CONSEQUENCE, MEASURED 2026-09-09 AND WORTH STATING BECAUSE IT
+    RETIRES A WORRY RATHER THAN ADDING ONE: `isInitialized` ON AN isCOUNT NODE IS
+    NOT LOAD-BEARING FOR TRUTH WHERE truthOf IS THE READER. The row above reads
+    the COUNT, so `falseResult` -- built in C++ with `.isCOUNT = true`, which
+    raises no isInitialized (GroupControl.twk:155) -- reads FALSE here, while a
+    presence test on the same node reads true. Measured on ruling (c')'s gate:
+    the AND chain hands back falseResult with count 0 and isInitialized 0, and
+    truthOf answers 0. So a caller that asks truthOf does not need the node
+    initialised; a caller that asks by PRESENCE does, and that is F-55's whole
+    subject. Ask truthOf.
 ***************************************************************************/
 extern "C" int truthOf(GroupItem *field)
 {

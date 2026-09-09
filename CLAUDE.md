@@ -2165,6 +2165,26 @@ Hard-won lessons. Each one has cost real debugging time.
     `docs/jitSlotMigration.md`'s parked section owns that, and the guard, counter and rung row
     retire together.
 
+51. **SAME NAME, TWO PROVENANCES: A KANT BODY SPELLING `false` GETS A *COPY*; THE `AND` CHAIN
+    HANDS BACK THE REGISTRY NODE *ITSELF*. AN IDENTITY TEST AGAINST `falseResult` THEREFORE WORKS
+    FROM ONE ROAD AND NEVER FROM THE OTHER, SILENTLY.** Gloss: one name, two provenances. Measured
+    2026-09-09, both halves in one day, on the same node:
+    | the road | what arrives | `result == falseResult` |
+    |---|---|---|
+    | a kant body writing `return false;` | a **copy** — right tag, different node, value carried faithfully | **never true** |
+    | the `AND` chain's own value | **`falseResult` itself**, by pointer | **always true** |
+    Both are tagged `false`, both read isCOUNT with count 0, and **both answer `truthOf` 0** — so
+    every value-based test agrees and only an identity test disagrees.
+    ⚠ **THE DANGER IS THE USUAL ONE IN THIS FAMILY: THE WRONG TEST STILL ANSWERS.** An identity
+    check written against the chain's value passes, ships, and then reads false forever the day
+    someone routes the same question through a spelled sentinel — or the reverse. Nothing crashes
+    and nothing names a line.
+    **The rule: compare sentinels BY VALUE (`truthOf`, or the count), never by pointer, unless you
+    can name which road minted the node you are holding.** Same family as bear-trap #26 — a
+    plausible answer wearing the shape of a real reading — and the sibling of rule H13, which is
+    this question asked about holders instead of about sentinels.
+    Provenance: ruling (c')'s H20 gate, `incant/trigDO`'s dead region carries the table.
+
 50. **`+%` ON A LOCAL PUBLISHES THAT LOCAL'S BODY INTO THE PERSISTENT TREE, AND THE FRAME
     RESTORE THEN WRITES A SAVED BODY BACK INTO A LIVE CHILD. ATTACH THROUGH THE HOLDER TO THE
     MINT, NEVER THE LOCAL ITSELF.** Gloss: the scratch node got published. Ruled by Clay

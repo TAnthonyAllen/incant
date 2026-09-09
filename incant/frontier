@@ -95,6 +95,24 @@ define
         fixFrontier3Here = 0;
         frRan = frRan + 1;
         cerr :"ANCHOR frontier station 3 -- hang the body on the LIVE rule and store it":;
+        /*  ⚠ WHAT MOVED, 2026-09-09: THIS STATION'S MECHANISM IS SUPERSEDED AND
+            ITS RED IS NOW STALE RATHER THAN INFORMATIVE. It measures frHang +
+            storeBody, and the road that landed under rulings B and (c') does not
+            use storeBody at all -- generateParse hangs the body itself
+            (`clear(CodE); CodE = <buffer>; codeCopy := copyOf(CodE);
+            argument +% *codeCopy;` then `:. isCodeD` and `:. hasNewParsE`), and
+            incant/trigDO certifies that path end to end at five green pop.sh
+            rows. So the campaign's edge is no longer "can a body be stored" --
+            it is CHAIN TRUTH: incant/trigQuotE reads chainTrue=0 on a GOOD input
+            for a leaf, and incant/trigRecur reads chainTrue=0 on every arm
+            because the emitter drops the `?` modifier.
+            ⚠ THE REVISION IS NOT DONE AND IS NAMED RATHER THAN GUESSED: pointing
+            stations 3-8 at the live hang means re-basing the whole frTwin /
+            activateBody apparatus, and storeBody's and frHang's contracts were
+            not read. Revising the campaign's own edge instrument on an unread
+            contract is the failure class this project has paid for most, so it
+            is recorded here instead of half-applied. THE NEXT READER SHOULD NOT
+            TREAT STATION 3's FAIL AS THE FRONTIER; the frontier is chain truth.  */
         frHang(Grokking["Braced"]);
         storeBody(Grokking["Braced"]);
         frLive := Grokking["Braced"];

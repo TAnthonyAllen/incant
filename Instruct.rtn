@@ -1553,6 +1553,17 @@ int         offset = markOffset.count;
     behaviour, which is the one it governs; it does not touch `if`, and
     closing that gap is a separate ruling with its own customer.
     Instrument: incant/andProbe rows 1 and 5.
+
+    ⚠ AND ONE CONSEQUENCE, MEASURED 2026-09-09 AND WORTH STATING BECAUSE IT
+    RETIRES A WORRY RATHER THAN ADDING ONE: `isInitialized` ON AN isCOUNT NODE IS
+    NOT LOAD-BEARING FOR TRUTH WHERE truthOf IS THE READER. The row above reads
+    the COUNT, so `falseResult` -- built in C++ with `.isCOUNT = true`, which
+    raises no isInitialized (GroupControl.twk:155) -- reads FALSE here, while a
+    presence test on the same node reads true. Measured on ruling (c')'s gate:
+    the AND chain hands back falseResult with count 0 and isInitialized 0, and
+    truthOf answers 0. So a caller that asks truthOf does not need the node
+    initialised; a caller that asks by PRESENCE does, and that is F-55's whole
+    subject. Ask truthOf.
 ***************************************************************************/
 extern int truthOf(GroupItem field)
 {

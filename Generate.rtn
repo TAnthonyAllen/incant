@@ -244,6 +244,18 @@ use grup
             // parseRule.intoRidesArgument  ruling B: the incoming into arrives on the frame runRule established, and the label the terms fill is a FRESH MINT per invocation -- never rStuff.label, which is one slot and cannot survive recursion
             into    = fieldStuff.parentLabel;
             myLabel = new(field.tag);
+    /*  LABELMINT -- H19's instrument, parseTrace-gated, NO behaviour change.
+        Prints at the MINT so an outer activation's line brackets its inner
+        one's in the trace: distinctness is an address comparison, survival is
+        the same address appearing again at the OUT line below.
+        No percent-dash in the format string.  */
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace )
+        ::fprintf(stderr,"LABELMINT %s at=%p into=%s intoAt=%p intoLen=%d\n",
+            field->groupBody->tag,(void*)myLabel,
+            into ? into->groupBody->tag : "(none)",(void*)into,
+            (into && into->groupBody->groupList) ? (int)into->groupBody->groupList->listLength : 0);
+    %-
             // parseRule.argumentBind  runAction's own three lines, so the body's one argument IS the label and every emitted term forwards it
             /*  parseRule.bindTheBodysOwnSlot  MEASURED 2026-09-09, bear-trap 39.
                 The emitted body's `argument` was resolved at COMPILE time, and
@@ -305,13 +317,14 @@ use grup
         if truthOf(result) && !ruleAsLabel(result) && myLabel   yielded = 1;
     -%
     if ( GroupControl::groupController->groupRules->parseTrace )
-        ::fprintf(stderr,"LABELPROBE %s minted=%s mintedLen=%d into=%s chainTrue=%d yielded=%d\n",
+        ::fprintf(stderr,"LABELPROBE %s minted=%s mintedLen=%d into=%s chainTrue=%d yielded=%d at=%p\n",
             field->groupBody->tag,
             myLabel ? myLabel->groupBody->tag : "(none)",
             (myLabel && myLabel->groupBody->groupList) ? (int)myLabel->groupBody->groupList->listLength : 0,
             into ? into->groupBody->tag : "(none)",
             ::truthOf(result),
-            yielded);
+            yielded,
+            (void*)myLabel);
     %-
         if yielded {
             /*  ONE ATTACH, through the single writer. promote=0: this road never

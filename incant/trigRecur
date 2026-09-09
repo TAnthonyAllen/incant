@@ -1,0 +1,153 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+registry(Grokking);
+define
+    trB;
+    trA     ta="a" trB?;
+    trB     tb="b" trA?;
+    ;
+
+register(Utilities);
+define
+    codeBuffer buffer;
+    openBrace="{";
+    closeBrace="}";
+    termCount;
+    parseCount;
+    generateParse code={
+        cout "Generating parse code for" taG:;
+        reset(codeBuffer);
+        printTO(codeBuffer);
+        print openBrace:;
+        setParse(argument);
+        if datA != 0;
+            if listLengtH; print "rules should not have data and a list; one or the other":;
+            printTO(0);
+            return;
+        if hasTraitS;       conjunct = "AND";
+        else                conjunct = "OR";
+        print `"return ";
+        iterate grup on argument;
+        while ++grup;
+            if noPrinT;     continue;
+            if notFirstTimeThru > 0;    print _conjunct;
+            ++notFirstTimeThru;
+            setParse(*grup);
+            print $taG "(argument)";
+        print ";";
+        @argument;
+        print `closeBrace;
+        clear(CodE);
+        CodE = codeBuffer;
+        codeCopy := copyOf(CodE);
+        *codeCopy :. noPrinT;
+        argument +% *codeCopy;
+        argument :. isCodeD;
+        argument :. hasNewParsE;
+        printTO(0);
+        //print taG "=" CodE.taG CodE:;
+       };
+    walkRules code={
+        generateParse(argument);
+        length  = listLengtH;
+        if length > 0;
+            iterate grup on argument;
+            while ++grup;
+                if isRulE == 0; continue;
+                if binTypE;
+                    generateParse(*grup);
+                    continue;
+                if hasNewParsE; continue;
+                if listLengtH;  walkRules(*grup);
+                else generateParse(*grup);
+        };
+    compileRules code={
+        compile(argument);
+        length  = listLengtH;
+        if length > 0;
+            iterate grup on argument;
+            while ++grup;
+                if hasNewParsE AND isCodeD;
+                    if listLengtH;  compileRules(*grup);
+                    else            compile(*grup);
+        };
+    parser code={
+        walkRules(argument);
+        compileRules(argument);
+        cerr "PARSER SENTINEL -- walk complete":;
+        compiledHere = 0;
+        if argument.hasNewParsE;     compiledHere = 1;
+        cerr "WITNESS compiled " compiledHere " -- 1 = compile ran on this rule, 0 = it did not":;
+        };
+    ;
+
+
+parser(trA);
+traceParse();
+cerr "=== H19 ARM 1: aba -- trA -> trB -> trA, three activations ===":;
+r1 := trA("aba");
+cerr "=== H19 ARM 2: trA CALLED TWICE IN SEQUENCE -- two labels, not one reused ===":;
+r2 := trA("a");
+r3 := trA("a");
+cerr "=== H19 ARM 3: REFUSAL -- inner trB cannot match, outer decides on its own chain ===":;
+r4 := trA("az");
+cerr "TRIGRECUR SENTINEL -- reached the foot":;
+stop();
+
+    incant/trigRecur -- H19, RECURSION THROUGH THE NEW PARSE ROAD.
+
+    Two mutually recursive rules defined as FIXTURE grammar in their own
+    registry, deliberately NOT in the live grammar: this is a reading about
+    ruling B, not a change to the parser. parseRule and runRule are not edited
+    for it -- the only instrument added is LABELMINT, a parseTrace-gated print.
+
+    THE FIVE READINGS, and each one is an address comparison rather than a count:
+      1. each activation's minted label is DISTINCT -- per activation, not per rule
+      2. both attach, and the INNER goes under the OUTER
+      3. the outer label SURVIVES the inner call -- same address at MINT and at OUT
+      4. trA twice in sequence yields TWO labels, not one reused
+      5. inner refuses -> inner label discarded, outer still decides on its chain
+
+    ⚠⚠ VERDICT 2026-09-09: READINGS 1-4 GREEN AND MEASURED. READING 5 IS
+    UNCERTIFIABLE TODAY, AND THAT STOPS THE ROW.
+
+    Arm 1, `aba`, four activations, from the trace:
+
+        LABELMINT trA at=0x...2080 into=Token intoAt=0x...2380
+        LABELMINT trB at=0x...5f40 into=trA   intoAt=0x...2080
+        LABELMINT trA at=0x...5e00 into=trB   intoAt=0x...5f40
+        LABELMINT trB at=0x...5d40 into=trA   intoAt=0x...5e00
+        LABELPROBE trA ... at=0x...2080      <- the OUTER, unchanged
+
+    1. DISTINCT PER ACTIVATION, NOT PER RULE -- four activations, four addresses,
+       and the two trA activations differ (2080 vs 5e00). ✅
+    2. INNER UNDER OUTER -- each LABELMINT's intoAt IS the enclosing
+       activation's at. Not under itself, not under the rule. ✅
+    3. THE OUTER SURVIVES THE INNER -- outer trA mints at 0x...2080 and its OUT
+       line reads at=0x...2080, after two nested activations. ✅
+    4. TWICE IN SEQUENCE YIELDS TWO LABELS -- arm 2 mints 0x...5280 then
+       0x...7a40. Not one reused. ✅
+    5. THE REFUSAL ARM HAS THE RIGHT SHAPE -- inner trB reads mintedLen=0
+       yielded=0 and is discarded; the outer decides on its own chain --
+       ⚠ BUT IT IS NOT CERTIFIED, because `chainTrue=0` ON EVERY ARM including
+       the ones that should succeed. There is no true-chain control, so arm 3 is
+       indistinguishable from arms 1 and 2 and proves nothing on its own.
+
+    ⚠ THE BLOCKER IS THE EMITTER, AND IT IS MEASURED: IT DROPS THE `?` MODIFIER.
+    `trA ta="a" trB?;` emits `return ta(argument) AND trB(argument);` -- the
+    optional term is emitted as REQUIRED. The same is visible in the live
+    grammar: `IF ... ElsE?` emits `... AND ElsE()`. So a recursive fixture
+    grammar can never bottom out and its chain can never read true.
+    ⚠ A SECOND FINDING FROM THE SAME BENCH, recorded because it cost a rebuild:
+    a rule that is FORWARD-DECLARED and then redefined with members
+    (`trA;` ... `trA <members>`) is generated and compiled -- four bodies, four
+    `compile succeeded` -- and then invoking it does NOT take the new-parse door:
+    `runRule DOOR on trA` fires and `hasNewParse` reads false. The walk marked one
+    node and the call resolves another. Dropping the forward declaration fixes
+    it. Not diagnosed further.
+
+    NEITHER FINDING IS FIXED HERE. parseRule and runRule were not edited for this
+    row, as the dispatch required; the only instrument added is LABELMINT.
