@@ -23,7 +23,7 @@ define
             return;
         if hasTraitS;       conjunct = "AND";
         else                conjunct = "OR";
-        print `"return ";
+        print `"if ";
         iterate grup on argument;
         while ++grup;
             if noPrinT;     continue;
@@ -78,16 +78,26 @@ define
         };
     ;
 
-generateParse(DO);
-compile(DO);
-traceParse();
-cerr "=== ARM 1: GOOD INPUT -- expect chainTrue=1 yielded=1 mintedLen=2 ===":;
-goodResult := DO("do print 1; while 0;");
-cerr "=== ARM 2: BROKEN while TERM -- expect chainTrue=0 yielded=0, and NO attach ===":;
-badResult := DO("do print 1; xyzzy 0;");
+parser(DO);
+cerr "=== TRIGGER: invoking DO through the runRule door ===":;
+trigResult := DO("do print 1; while 0;");
+cerr "TRIGGER RESULT ":;
+cerr trigResult:;
 cerr "TRIG SENTINEL -- reached the foot":;
 stop();
 parser(Start);
+
+    ⚠⚠ THIS FILE IS parseSelfRecursion's SECOND DRIVER, AND NOTHING ELSE.
+    Split out of incant/trigDO on 2026-09-09 when trigDO became the (c') parse
+    certificate and joined pop.sh. It compiles all 39 rules through `parser(DO);`
+    and exits 139 BY DESIGN, reproducing aCTionStatemenT's self-recursion at
+    GroupRules.mm:1166 -- one node, its own action, identical input pointer in
+    every frame. It is NOT in pop.sh and must never be: rule H5 -- a fixture that
+    cannot return would delete the rest of the suite.
+    ⚠ ITS EMITTER IS FROZEN AT THE 2026-09-08 SHAPE on purpose (bare term calls,
+    `return runRuleAction(this);`). The recursion is reproduced against the body
+    that produced it; re-spelling it to (c') would be measuring a different
+    program. trigDO carries the live emitter.
 
     THE NEW PARSE FIRES. TWO SEPARATE THINGS THEN BREAK, AND ONLY ONE OF THEM IS
     THE CLOSE.
@@ -129,70 +139,6 @@ parser(Start);
     ⚠ `null` IS NOT AN ALIAS FOR labelNO. Measured as distinct nodes in one run
     -- null at base+0x513340, labelNO at base+0x3d12c0 -- and they differ in
     more than address; see the init column below.
-
-    ⚠⚠⚠ RULING (c'), TONY, 2026-09-09 -- LANDED, AND THIS FILE IS NOW THE
-    CERTIFICATE RATHER THAN THE REPRO. THE RETURN CARRIES ONE BIT: THE CHAIN'S
-    TRUTH, NEVER A LABEL.
-
-        DO = CodE {
-          return  do(argument) AND followedBy(argument) AND StatemenT(argument)
-                  AND while(argument) AND ExpressioN(argument) AND SemI(argument);
-          }
-
-    The `if` is gone. parseRule reads truthOf(return) and NOTHING ELSE from it;
-    the label is always the one this invocation minted. This is leaveRule's shape
-    exactly -- RuleStuff.twk:776 branches on `ok` and nothing else, and `ok` is
-    the chain (genParse.rtn:596).
-
-    ⚠ H20, THE GATE, MEASURED FIRST AND IT PASSED FOR A BETTER REASON THAN EITHER
-    OUTCOME THE DISPATCH LISTED:
-
-        arm      return          tag     dataKind  count  init  truthOf
-        good     0x...9340       true    5 isCOUNT   1      1      1
-        broken   0x...9300       false   5 isCOUNT   0      0      0
-                 ^ falseResult BY IDENTITY, not a copy
-
-    So the chain DOES hand back falseResult-as-registered and uninitialised --
-    the shape the stop condition named -- but truthOf reads it 0. It is NOT
-    F-55's sixth face, because the bareIfTruth pair already taught truthOf to
-    read an isCOUNT node by its count. ⚠ NOTE THE CONTRAST WITH STROKE 1: a
-    kant body SPELLING `false` gets a COPY, while the AND chain hands back the
-    registry node ITSELF. Same name, two provenances.
-
-    ⚠⚠ THE CERTIFICATE, BOTH ARMS, ONE RUN, ONE COMPILE:
-
-        arm 1  do print 1; while 0;    chainTrue=1 yielded=1 mintedLen=2   7 rule entries
-        arm 2  do print 1; xyzzy 0;    chainTrue=0 yielded=0 mintedLen=1   5 rule entries
-
-    Arm 2's minted label is DISCARDED, NOT ATTACHED -- `attachLabel lab=DO`
-    appears EXACTLY ONCE in the whole run. The 5-vs-7 is the AND chain
-    short-circuiting, and nothing extra fires on either arm.
-    ⚠ THE TWO ARMS ARE EACH OTHER'S ANTI-VACUITY PARTNER. A road that stopped
-    discriminating would fail arm 2 while arm 1 still passed -- which is the
-    failure a single-arm certificate cannot see.
-
-    ⚠ H7 CONTROL, RUN: forcing ruleAsLabel to 1 prints the refusal by name,
-    yields 0, attaches nothing, and takes all three value rows red -- fleet
-    248/49 -> 245/52.
-
-    ⚠ OBSTACLE 3 IS RETIRED STRUCTURALLY RATHER THAN GUARDED, and that is the
-    better outcome: under ruling B the yield was decided by `myLabel.listLength`,
-    whose generated form is an UNGUARDED groupList deref, and the empty label was
-    this road's failure case -- so its failure case was also its crash case.
-    Under (c') truthOf decides and the deref is simply GONE. Unconstructable
-    beats guarded.
-
-    ⚠ THE #39 CURE IS PART OF THE RECIPE NOW, so it is not rediscovered: the
-    emitted body's `argument` is resolved at COMPILE time, and the rule carries
-    no argument slot then, so aCTionNamE mints an action LOCAL on the CodE and
-    the BlocK holds THAT node. parseRule therefore binds `code["argument"]` --
-    AFTER the clear loop, which blanks exactly that local -- and NOT
-    `field["argument"]`, which writes a slot nothing reads. The tell if it is
-    ever undone: every term receives ONE SHARED BODY with dataKind 0 while the
-    holder one line away reads isGROUP with gGroup == the minted label.
-
-    ⚠ THE ALL-39 RECURSION DRIVER MOVED OUT. incant/trigDO39 carries it, with the
-    2026-09-08 emitter frozen on purpose, and it stays out of pop.sh (rule H5).
 
     ⚠⚠ RULING B, TONY, 2026-09-09 -- BUILT, AND THE ROAD NOW PARSES. `into`
     rides the argument: every emitted term call carries it, the body forwards it

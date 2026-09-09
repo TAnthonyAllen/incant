@@ -177,6 +177,22 @@ Buffer      buffer  = stringBUFFER;
 
 /*****************************************************************************
      Parse a rule.
+
+     ⚠⚠ ANY DECLARATION ADDED INSIDE THIS FUNCTION OWES THE BEAR-TRAP 42 CHECK,
+     AND IT IS A NAMED CHECK RATHER THAN A HABIT: tok resolves bare fields
+     last-mentioned-wins, so a new local RE-POINTS EVERY BARE FIELD BELOW IT AND
+     COMPILES CLEAN. It bit here on 2026-09-09 -- `checkInput()` aimed at
+     `intoStuff` and the locals-clear loop cleared `ruleArg` instead of `grup`,
+     silently. The `use ruleStuff` / `use grup` lines below are the cure. THE
+     CHECK, one command, after every retok and BEFORE the build:
+
+        diff <(git show HEAD:GroupRules.mm | awk '/^extern "C" GroupItem \*parseRule/{f=1} f{print} f&&/^}/{exit}' \
+                 | grep -E "checkInput|isLocal|grup->clear|atRuleMark = from") \
+             <(awk '/^extern "C" GroupItem \*parseRule/{f=1} f{print} f&&/^}/{exit}' GroupRules.mm \
+                 | grep -E "checkInput|isLocal|grup->clear|atRuleMark = from")
+
+     The extern canary CANNOT see this one -- it read 318 throughout.
+     parseRule.bareFieldRepoint carries the argument.
 *****************************************************************************/
 extern GroupItem parseRule(GroupItem field)
 {
@@ -268,29 +284,35 @@ use grup
             as leaveRule takes it from the local the emitted tok body minted.
             The old `if result` presence test is retired with it; it is the fifth
             face of the answers-by-presence family.  */
-    /*  LABELPROBE -- ruling B's H18 row, parseTrace-gated so no baseline moves.
-        Presence-with-value: prints the minted label's tag and list length and
-        the into's, on EVERY invocation, so a run that yields nothing prints a 0
-        rather than printing nothing. That is the row that tells PARSING from
-        MATCHING -- a matched-but-unattached run reads len=0.
-        ⚠ Named LABELPROBE, not SLOTPROBE: GroupRules.mm already carries two
-        SLOTPROBE lines for the JIT slot, and one grep must not serve two
-        subjects. No percent-dash in the format string.  */
+        // ruleAsLabel  a rule handed back where a label was owed re-enters its own action; refuse, and fall to the rewind below so Invariant R still holds
+        /*  parseRule.chainTruthOnly  RULING (c'), Tony, 2026-09-09. The return
+            carries ONE BIT -- the AND chain's truth -- and never a label. This is
+            leaveRule's shape: RuleStuff.twk:776 branches on `ok` and nothing
+            else, and `ok` is the chain (genParse.rtn:596). Measured H20: the
+            chain hands back trueResult on a match and falseResult BY IDENTITY on
+            a miss, and truthOf reads them 1 and 0 -- so the bit is real and a
+            false chain is genuinely falsy, not F-55's sixth face.
+            ⚠ A TRUTH VALUE CARRIES NO METHOD (H16), so bear-trap 34 cannot reach
+            this return. ruleAsLabel stays anyway, now as a GENERATOR-ERROR guard:
+            a label in return position means the emitter is wrong, not the input.
+            ⚠ OBSTACLE 3 IS RETIRED STRUCTURALLY RATHER THAN GUARDED. The empty
+            label was this road's failure case AND its crash case because
+            listLength decided the yield; under (c') truthOf decides, so the
+            deref is simply GONE. Unconstructable beats guarded.  */
+        yielded = 0;
+        if ruleAsLabel(result)
+            refuse(field,"parseRule: the generated body returned a RULE where the chain's truth was owed -- this is a GENERATOR error, not a parse failure");
+        if truthOf(result) && !ruleAsLabel(result) && myLabel   yielded = 1;
     -%
     if ( GroupControl::groupController->groupRules->parseTrace )
-        ::fprintf(stderr,"LABELPROBE %s minted=%s mintedLen=%d into=%s intoLen=%d\n",
+        ::fprintf(stderr,"LABELPROBE %s minted=%s mintedLen=%d into=%s chainTrue=%d yielded=%d\n",
             field->groupBody->tag,
             myLabel ? myLabel->groupBody->tag : "(none)",
             (myLabel && myLabel->groupBody->groupList) ? (int)myLabel->groupBody->groupList->listLength : 0,
             into ? into->groupBody->tag : "(none)",
-            (into && into->groupBody->groupList) ? (int)into->groupBody->groupList->listLength : 0);
+            ::truthOf(result),
+            yielded);
     %-
-        // ruleAsLabel  a rule handed back where a label was owed re-enters its own action; refuse, and fall to the rewind below so Invariant R still holds
-        yielded = 0;
-        if ruleAsLabel(myLabel)
-            refuse(field,"parseRule: the generated body left a RULE where a label was owed");
-        // parseRule.guardTheList  listLength generates an UNGUARDED groupList deref, and the EMPTY label is the case this road takes on every failure -- same shape as firstComponent, 2026-09-08
-        if !ruleAsLabel(myLabel) && myLabel && myLabel.groupList && myLabel.listLength   yielded = 1;
         if yielded {
             /*  ONE ATTACH, through the single writer. promote=0: this road never
                 consults isTarget where a parent label exists -- PC-1, and the

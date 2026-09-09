@@ -23,7 +23,7 @@ define
             return;
         if hasTraitS;       conjunct = "AND";
         else                conjunct = "OR";
-        print `"if ";
+        print `"return ";
         iterate grup on argument;
         while ++grup;
             if noPrinT;     continue;

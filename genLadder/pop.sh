@@ -2747,6 +2747,50 @@ else
     fail=1
 fi
 
+#  ⚑ trigDO -- THE NEW PARSE ROAD'S FIRST STANDING COVERAGE. Until 2026-09-09
+#  NO FLEET FIXTURE REACHED parseRule AT ALL: the 09-08 H7 control forced
+#  ruleAsLabel to 1, refusing EVERY generated parse, and the fleet stayed at 243
+#  green, UNMOVED. A green fleet was evidence about nothing on this road.
+#  ⚠ THE TWO ARMS ARE EACH OTHER'S ANTI-VACUITY PARTNER, in ONE run and ONE
+#  compile. Arm 1 is the good input; arm 2 breaks the `while` term against
+#  `xyzzy` and must FAIL. Both print the same generated line with different
+#  values, so a road that stopped discriminating fails arm 2 while arm 1 still
+#  passes -- which is exactly the failure a single-arm row could not see.
+#  ⚠ mintedLen IS THE PARSING-vs-MATCHING LINE. Before ruling B the terms
+#  attached into the argument HOLDER and this read 0 on both arms while every
+#  other signal looked healthy. A zero here is the road matching and not parsing.
+#  ⚠ THE ATTACH COUNT IS PINNED AT EXACTLY 1, NOT "at least 1": arm 2 must not
+#  attach. A road that attached on failure would pass every row above this one.
+#  H7 CONTROL, RUN 2026-09-09 and recorded rather than run here (it needs a
+#  source edit and a rebuild, which pop.sh cannot do). Forcing ruleAsLabel to 1
+#  prints `REFUSED DO -- parseRule: the generated body returned a RULE where the
+#  chain's truth was owed`, arm 1 reads `chainTrue=1 yielded=0`, the attach count
+#  goes to 0, and ALL THREE value rows below go red -- fleet 248/49 -> 245/52.
+#  The rows are not vacuous, measured rather than asserted.
+#  The all-39 companion that exits 139 by design is incant/trigDO39, and it is
+#  DELIBERATELY NOT HERE -- rule H5, a fixture that cannot return deletes the
+#  rest of the suite.
+run1 trigDO "$T/tdo"; check "trigDO runs" 0 $?
+sentinel "trigDO sentinel" "$T/tdo" "TRIG SENTINEL -- reached the foot"
+if grep -qF "LABELPROBE DO minted=DO mintedLen=2 into=Token chainTrue=1 yielded=1" "$T/tdo"; then
+    echo "  ok    trigDO arm 1 GOOD: mintedLen=2 chainTrue=1 yielded=1 -- PINNED BY VALUE (the road PARSES)"; green=$((green+1))
+else
+    echo "  FAIL  trigDO arm 1 -- the good input did not parse and attach. Actual:"; fail=1
+    grep -F "LABELPROBE" "$T/tdo" | sed -n '1p' | sed 's/^/          /'
+fi
+if grep -qF "LABELPROBE DO minted=DO mintedLen=1 into=Token chainTrue=0 yielded=0" "$T/tdo"; then
+    echo "  ok    trigDO arm 2 BROKEN: chainTrue=0 yielded=0 -- the anti-vacuity partner"; green=$((green+1))
+else
+    echo "  FAIL  trigDO arm 2 -- a broken term did NOT fail the parse. Actual:"; fail=1
+    grep -F "LABELPROBE" "$T/tdo" | sed -n '2p' | sed 's/^/          /'
+fi
+tdoAttach=$(grep -c "attachLabel lab=DO " "$T/tdo")
+if [ "$tdoAttach" = "1" ]; then
+    echo "  ok    trigDO attached under DO exactly once -- arm 2 did NOT attach"; green=$((green+1))
+else
+    echo "  FAIL  trigDO attached under DO $tdoAttach times, want exactly 1"; fail=1
+fi
+
 #  ⚑ walkRefT -- THE WALK-WRITER ROW, AND ROW 3 IS A TRIPWIRE FOR THE FLIP
 #  LANDING. A bare accessor DIRECTLY inside a ++ walk with NO intervening call,
 #  so only the walk writer can have aimed lastREF at the read. Rows 1 and 2 are
