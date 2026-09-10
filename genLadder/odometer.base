@@ -1,6 +1,6 @@
   pop   62 rules qualify (live walk, four filters: not noPrint, not a bin, is a rule, actionType 0)
 
-  -- FRONTIER: 38 rules genParse cannot yet emit. Each is a row, not a total.
+  -- FRONTIER: 34 rules genParse cannot yet emit. Each is a row, not a total.
      Any              REFUSE rule Any -- rule-level data isANY (§4.1 rule-as-data, rung 5)
      Attributes       REFUSE rule Attributes -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
      BasicElse        REFUSE followedBy -- inline group / structural data isSET (named future kind)
@@ -26,20 +26,16 @@
      PoweR            REFUSE exponent -- inline group / structural data isSET (named future kind)
      PrinT            REFUSE followedBy -- inline group / structural data isSET (named future kind)
      QuotE            REFUSE tik -- inline group / structural data isSET (named future kind)
-     ScopeXP          REFUSE scopeList -- inline group / structural data isGROUP (named future kind)
      Search           REFUSE followedBy -- inline group / structural data isSET (named future kind)
      SetBrackets      REFUSE rightBrace -- upTo/upToOver (not on the ladder yet)
      ShortcuT         REFUSE rule ShortcuT -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
-     StringXP         REFUSE stuff -- inline group / structural data isGROUP (named future kind)
      TraiT            REFUSE Modifier -- inline group / structural data isSET (named future kind)
      TraiTdata        REFUSE Modifier -- inline group / structural data isSET (named future kind)
      WhilE            REFUSE followedBy -- inline group / structural data isSET (named future kind)
      followedBy       REFUSE rule followedBy -- rule-level data isSET (§4.1 rule-as-data, rung 5)
-     leftCurly        REFUSE rule leftCurly -- rule-level literal but no rStuff, so LIT vs LITTO is undecidable
      nameSet          REFUSE rule nameSet -- rule-level data isSET (§4.1 rule-as-data, rung 5)
      numberSet        REFUSE rule numberSet -- rule-level data isSET (§4.1 rule-as-data, rung 5)
-     rightCurly       REFUSE rule rightCurly -- rule-level literal but no rStuff, so LIT vs LITTO is undecidable
 
-  genParse count 24 green / 38 red of 62 attempted
+  genParse count 28 green / 34 red of 62 attempted
   ratchet  0 previously-green rules regressed (must be 0)
   ODOMETER SENTINEL -- 62 of 62 attempted, foot reached

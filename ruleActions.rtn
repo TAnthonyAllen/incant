@@ -18,6 +18,7 @@ GroupItem   token;
 *******************************************************************************/
 extern GroupItem aCTionBlocK(GroupItem input)
 {
+int         broke = 0;
 GroupRules  ruler = groupRules;
 GroupItem   grup,
             result,
@@ -45,7 +46,8 @@ GroupItem   grup,
             REACHABLE and must all be emitted. The emitted body does its own
             per-statement check at RUN time.   ruleActions.aCTionBlocK.refusalArm  */
         if ruler.refused
-            if !jitting     break;
+            if !jitting     broke = 1;
+        if broke == 1       break;
         if result && result.isBranch {
             if prior && result.isBranch == 3 && result.registry == keyWords {
                 result = prior;
@@ -53,10 +55,25 @@ GroupItem   grup,
             // ⚠ DO NOT let this break run under jitting -- it stops the COMPILER'S walk and
             // every statement after a branch vanishes from the IR   ruleActions.aCTionBlocK.emitWalkMustNotStop
             if jitting  continue;
+            broke = 1;
             break; }}
     if result && result.isGROUP  result = result.gGroup;
+    /*  ⚠ A BLOCK THAT RAN TO THE END AND YIELDED NOTHING SUCCEEDED AND HAS NO VALUE --
+        which is labelNO, not null. NULL means FAILED (GroupControl.twk:158), and
+        aCTionWhilE/DO/FOR all end `if !result result = labelNO;` for exactly this. This
+        one did not, so a body whose last statement yielded nothing handed back null and
+        aCTionWhilE's `else break;` read it as "stop".
+        ⚠ IT WAS INVISIBLE WHILE BlocK's CURLIES CARRIED LABELS: the trailing rightCurly
+        was the block's value on every iteration, so no block ever handed back null and
+        the loop could not stop that way. Honouring the noLabel dash removed the sentinel
+        and left the channel -- value and continue-signal on one slot -- exposed.
+        ⚠ BROKE IS THE SECOND CHANNEL, and it is the whole repair: a block that BROKE on
+        a refusal or a branch still hands back what it had, because there null means
+        failed and that is true.   ruleActions.aCTionBlocK.ranOutIsLabelNo  */
+    if !result
+        if broke == 0   result = labelNO;
     // what the block hands back, and whether it is a value or a signal   measure.measureBlockResult
-    measureBlockResult(input,result,0);
+    measureBlockResult(input,result,broke);
     return  result;
 }
 
@@ -1080,6 +1097,11 @@ GroupItem   upMark,
     if Modifier     input +% Modifier;
     if Modifier     upMark = input["Modifier"];
     if upMark       upMark.noPrint = true;
+    /*  ⚠ AND IT CARRIES NO rStuff. noPrint alone keeps it out of the PARSE; the AUDIT
+        walks by `isRule`/`rStuff` and reported four `AUDIT TERM ... Modifier -- rule
+        TERM, not isRule, has rStuff` lines in oneTest until this line. An artifact must
+        be invisible to BOTH readers or it is only half an artifact.  */
+    if upMark       upMark.rStuff = 0;
     if (isRule && !isLiteral) || registry == opFields    input.group = DatA;
     else input.setContent(DatA);
     return  input;

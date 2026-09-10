@@ -123,12 +123,10 @@ PLAN GrouP
 PLAN CodeBody
   SEQ CodeBody
     label=CodeBody
-    LITTO {
+    CALL leftCurly
       at=1
-      slot=leftCurly
-    LITTO }
+    CALL rightCurly
       at=2
-      slot=rightCurly
 PLAN DatA
   REFUSE CodeBody -- parseAction (tail position only, §2.8)
   REFUSE rule DatA -- term CodeBody unclassified

@@ -48,6 +48,7 @@ GroupItem 	*token = 0;
 *******************************************************************************/
 extern "C" GroupItem *aCTionBlocK(GroupItem *input)
 {
+int 		broke = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
@@ -79,7 +80,9 @@ GroupItem 	*prior = 0;
 		per-statement check at RUN time.   ruleActions.aCTionBlocK.refusalArm  */
 		if ( ruler->refused )
 			if ( !ruler->jitting )
-				break;
+				broke = 1;
+		if ( broke == 1 )
+			break;
 		if ( result && result->groupBody->flags.isBranch )
 			{
 			if ( prior && result->groupBody->flags.isBranch == 3 && result->groupBody->registry == ruler->keyWords )
@@ -91,13 +94,29 @@ GroupItem 	*prior = 0;
 			// every statement after a branch vanishes from the IR   ruleActions.aCTionBlocK.emitWalkMustNotStop
 			if ( ruler->jitting )
 				continue;
+			broke = 1;
 			break;
 			}
 		}
 	if ( result && isGROUP(result->groupBody->flags.data) )
 		result = result->groupBody->gGroup;
+	/*  ⚠ A BLOCK THAT RAN TO THE END AND YIELDED NOTHING SUCCEEDED AND HAS NO VALUE --
+	which is labelNO, not null. NULL means FAILED (GroupControl.twk:158), and
+	aCTionWhilE/DO/FOR all end `if !result result = labelNO;` for exactly this. This
+	one did not, so a body whose last statement yielded nothing handed back null and
+	aCTionWhilE's `else break;` read it as "stop".
+	⚠ IT WAS INVISIBLE WHILE BlocK's CURLIES CARRIED LABELS: the trailing rightCurly
+	was the block's value on every iteration, so no block ever handed back null and
+	the loop could not stop that way. Honouring the noLabel dash removed the sentinel
+	and left the channel -- value and continue-signal on one slot -- exposed.
+	⚠ BROKE IS THE SECOND CHANNEL, and it is the whole repair: a block that BROKE on
+	a refusal or a branch still hands back what it had, because there null means
+	failed and that is true.   ruleActions.aCTionBlocK.ranOutIsLabelNo  */
+	if ( !result )
+		if ( broke == 0 )
+			result = ruler->labelNO;
 	// what the block hands back, and whether it is a value or a signal   measure.measureBlockResult
-	::measureBlockResult(input,result,0);
+	::measureBlockResult(input,result,broke);
 	return result;
 }
 
@@ -1385,6 +1404,12 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 		upMark = input->get("Modifier");
 	if ( upMark )
 		upMark->groupBody->flags.noPrint = 1;
+	/*  ⚠ AND IT CARRIES NO rStuff. noPrint alone keeps it out of the PARSE; the AUDIT
+	walks by `isRule`/`rStuff` and reported four `AUDIT TERM ... Modifier -- rule
+	TERM, not isRule, has rStuff` lines in oneTest until this line. An artifact must
+	be invisible to BOTH readers or it is only half an artifact.  */
+	if ( upMark )
+		upMark->setRStuff((RuleStuff*)0);
 	if ( (DatA->groupBody->flags.isRule && !DatA->groupBody->flags.isLiteral) || DatA->groupBody->registry == GroupControl::groupController->groupRules->opFields )
 		input->setGroup(DatA);
 	else	input->setContent(DatA);

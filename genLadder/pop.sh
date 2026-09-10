@@ -1204,6 +1204,11 @@ grep -v "^getRStuff" "$T/cen" | sed -n '/^PLAN /,$p' | grep -vE "^Search list:|^
 #  which is H9's corollary and not a regression: a refusal census names the FIRST
 #  blocker, so fixing one reveals the next. Two hunks, both explained; anything
 #  else in this diff would have been a finding.
+#  ⚠ RE-PINNED 2026-09-10 BY RULING, one line: `LITTO {` becomes `CALL leftCurly`. The
+#  modifier two-class ruling gives BlocK's leftCurly its noLabel dash, so it stops being a
+#  rule-level literal with no rStuff and becomes a term genParse can CALL. This is the
+#  same fact the odometer's 24 -> 28 records, seen in the plan rather than in the count --
+#  one line moved, and it moved from a literal-emit to a call.
 diffcheck "census.target" genLadder/census.target "$T/cenp"
 
 #  parseClass -- WHICH setParse ARM CLAIMS EACH FIELD, over the whole grammar.
@@ -1619,9 +1624,14 @@ diffcheck "manyScratch.target (kant emitMany: emission + both refusals)" \
 #  â  leftCurly and rightCurly are STILL IN THE COUNT ON PURPOSE. BlocK carries
 #  the same respell and it is HELD -- it alone regresses iterT1/iterT1m (7 visits
 #  -> 5). When BlocK lands this row goes 8 -> 6 and that will be its own sentence.
-AUDITLINE="AUDIT all registries: 8 missing rules, 0 missing terms, 4 loose, 0 unconsumed"
+#  ⚠ RE-PINNED 2026-09-10 BY RULING: leftCurly and rightCurly LEAVE. The modifier
+#  two-class ruling makes BlocK's noLabel dash reach the trait, so the two curlies stop
+#  being minted as labelled rules with no rStuff. Tony's words: "leftCurly and rightCurly
+#  must not appear as attributes in the new parse, and the hand-up made the grammar say
+#  so." TWO LEFT, NONE ENTERED, and they are named by their vanished MISSRULE lines.
+AUDITLINE="AUDIT all registries: 6 missing rules, 0 missing terms, 4 loose, 0 unconsumed"
 if grep -qF "$AUDITLINE" "$T/one"; then
-    echo "  ok    bare-master population AT PIN (isRule without rStuff = 8, loose = 4)"; green=$((green+1))
+    echo "  ok    bare-master population AT PIN (isRule without rStuff = 6, loose = 4)"; green=$((green+1))
 else
     echo "  FAIL  bare-master population MOVED (row pinned 2026-09-01, NOT a defect count):"
     grep "^AUDIT all registries" "$T/one" | sed 's/^/          actual:   /' || echo "          (no AUDIT summary at all -- is audit() still called from oneTest?)"
@@ -2854,7 +2864,13 @@ bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
 #  ⚠ leftCurly and rightCurly are STILL IN THE POPULATION ON PURPOSE -- BlocK carries
 #  the same respell and is HELD, because it alone regresses iterT1/iterT1m. When BlocK
 #  lands this row goes 62 -> 60 with green still 24, and that will be its own sentence.
-diffcheck "genParse odometer (24 green / 38 red of 62 -- RED BY DESIGN, pinned; ratchet monotone)" \
+#  ⚠ RE-PINNED 24/38 -> 28/34 of 62, 2026-09-10, and the sentence is that the modifier
+#  two-class ruling made FOUR RULES EMITTABLE. POPULATION UNMOVED AT 62 and green went UP
+#  by four -- ScopeXP, StringXP, leftCurly, rightCurly. The two respelled grammar lines'
+#  flags now reach their traits, so genParse can plan them. A ratchet moving in the GREEN
+#  direction with the population still is the one motion that needs no apology; any other
+#  split would have been a finding.
+diffcheck "genParse odometer (28 green / 34 red of 62 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
 #  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------

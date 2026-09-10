@@ -135,3 +135,28 @@ WHAT THIS COSTS AND WHAT IT BUYS. It costs the tidy story that one fix closes tw
 rows. It buys the knowledge that the braced-else refusal is its own mechanism,
 which is worth more than the story was: the NEXT block above names three places to
 look, and none of them is the grammar's modifier position. Cross it off.
+
+================================================================================
+RE-READ 2026-09-10, the blockDashRefusalWalk chase: THE CANDIDATE LIST LOSES
+"POSITIONAL REACH", AND THE TWO CITIZENS ARE STILL TWO.
+================================================================================
+
+blockDashRefusalWalk was chased to ground and CLOSED in the same session. Its
+cause was aCTionBlocK handing back NULL when its last statement yielded nothing,
+which aCTionWhilE's `else break;` read as "stop" -- the trailing rightCurly label
+had been masking it. The repair is one line: a block that ran to the END and has
+no value returns labelNO, which is what NULL-means-failed already required.
+
+⚠ THIS FILE'S ROW WAS RE-READ ON THAT SAME COMMIT AND IT STILL BREAKS:
+
+    braced multi-statement arm then else     RunRulE: expected a method not bkFirst
+
+IDENTICAL to before the repair. So the braced-else failure is NOT the block's
+value channel, is not the trailing-label sentinel, and is not positional reach
+into a BlocK. Cross "positional reach" off the NEXT block's list.
+
+⚠ AND THAT IS THE SECOND TIME THESE TWO WERE TESTED TOGETHER AND CAME APART. The
+first was the grammar-modifier hypothesis, which died when the braced-else arm
+read identically on both BlocK spellings. This is the second, and it is stronger:
+the other citizen's actual cause is now known and fixed, and this row did not
+move a character. They are two defects and the case for folding them is spent.
