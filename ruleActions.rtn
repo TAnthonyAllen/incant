@@ -55,6 +55,8 @@ GroupItem   grup,
             if jitting  continue;
             break; }}
     if result && result.isGROUP  result = result.gGroup;
+    // what the block hands back, and whether it is a value or a signal   measure.measureBlockResult
+    measureBlockResult(input,result,0);
     return  result;
 }
 

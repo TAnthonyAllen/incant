@@ -57,6 +57,7 @@ extern "C" GroupItem *chanReport(GroupItem *input);
 extern "C" GroupItem *evictAction(GroupItem *field);
 extern "C" GroupItem *frameProbe(GroupItem *field, GroupItem *rule);
 extern "C" int labelMinters(GroupItem *rule);
+extern "C" GroupItem *measureBlockResult(GroupItem *input, GroupItem *result, int stopped);
 extern "C" GroupItem *measureDotOperands(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *measureLabelMint(GroupItem *field, GroupItem *myLabel, GroupItem *into);
 extern "C" GroupItem *measureLabelProbe(GroupItem *field, GroupItem *myLabel, GroupItem *into, GroupItem *result, int yielded);

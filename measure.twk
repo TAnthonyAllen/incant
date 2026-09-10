@@ -415,6 +415,25 @@ extern GroupItem measureTokenArm(String arm, GroupItem ANYtoken, GroupItem Invok
 }
 
 
+/*  WHAT A BLOCK HANDS BACK, and whether the thing it hands back is a VALUE or a
+    SIGNAL. parseTrace gated. ⚠ It READS the state at the foot of the walk; it does not
+    re-derive which arm ended it. ⚠ No percent-dash in the format string (bear-trap
+    #40).   measure.measureBlockResult  */
+extern GroupItem measureBlockResult(GroupItem input, GroupItem result, int stopped)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace )
+        ::fprintf(stderr,"BLOCKRESULT items=%d stopped=%d result=%s isBranch=%d refused=%d\n",
+            (input && input->groupBody->groupList) ? (int)input->groupBody->groupList->listLength : 0,
+            stopped,
+            result ? result->groupBody->tag : "(null)",
+            result ? (int)result->groupBody->flags.isBranch : -1,
+            GroupControl::groupController->groupRules->refused);
+    %-
+    return result;
+}
+
+
 /*  WHAT opDot RECEIVES ON THE RIGHT. parseTrace gated. The accessor family turns on
     one test -- `argument.registry == groupFields` -- and everything else is a
     subscript by text, so this prints the RIGHT operand's registry membership, its

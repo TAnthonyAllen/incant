@@ -96,6 +96,8 @@ GroupItem 	*prior = 0;
 		}
 	if ( result && isGROUP(result->groupBody->flags.data) )
 		result = result->groupBody->gGroup;
+	// what the block hands back, and whether it is a value or a signal   measure.measureBlockResult
+	::measureBlockResult(input,result,0);
 	return result;
 }
 
