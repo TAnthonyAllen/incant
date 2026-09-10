@@ -1,3 +1,93 @@
+# ⚠⚠⚠ SEALED 2026-09-10, SEVENTH SESSION -- THE UNARY CLASS SPLIT LANDS ALONE, AND
+# ITS BUY ROW SAYS IT IS A CLEANUP. THE FOLD IT WAS MEANT TO RIDE HAS NO COMMIT.
+# ONE COMMIT.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 12:23 and
+#   `git log -1 --date=iso` stamps 2026-09-10 12:23. They agree.
+#
+#   ## THE ONE-LINE STATE: **the amendment could not ride stroke 3's commit because
+#   stroke 3 has none — the fold is blocked — but the ruling is buildable without the
+#   loop, because today's dispatch already implements it as two hardcoded `tag eq "*"`
+#   literals; landing it turns those into the registration the ruling asks for, and the
+#   pre-registered prediction that NOTHING WOULD MOVE held exactly.** Fleet **258 green
+#   / 50** (255 + A7's three new rows), canary **323**, ddPop 5, decodePop 14, formsPop
+#   14, countPop 0-of-44, frontier **exit 0, 4 PASS**. Both repos **0 dirty, 0
+#   unpushed**. Fixit queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE RULING, AND WHY IT LANDED ALONE.** A prefix unary is **ACCESS** class,
+#   binding to the **PRIMARY** before the postfix chain, or **VALUE** class, binding to
+#   the chain's **RESULT**:
+#
+#       *A.B = (*A).B   access        !A.B = !(A.B)    -A.B = -(A.B)   value
+#       !*A.B = !((*A).B)             both, in that order
+#
+#   **It refines the flip campaign's "unary binds tightest": true of `*`, and of `*`
+#   alone.** The class is `accessClass` on the operator in `incant/setup`; the dispatch
+#   asks **one predicate**, `unaryIsAccess`; **no inline lists in the action.** It sits on
+#   `'*'` and **not** on `deref`, because the class is asked BEFORE `handleUnary` maps the
+#   token to its named operator. `@` pending Tony.
+#   ⚠ **It was to ride stroke 3's commit and stroke 3 has no commit** — the fold is
+#   blocked on an indirection, not a repetition (`31bfff6`) — **so there is no loop to
+#   hang "before the loop / after the loop" on.** It landed anyway because the two
+#   hardcoded literals ARE the ruling, unregistered.
+#
+#   **b. ⚠⚠ THE BUY ROW BOUGHT: NOTHING MOVED — AND THAT WAS THE PREDICTION.**
+#
+#       UC-0 control  ucBag.listLengtH        3      3    the bag really has three
+#       UC-1 access   *ucH.listLengtH         3      3    deref bound to the PRIMARY
+#       UC-2 holder    ucH.listLengtH         0      0    the holder's own
+#       UC-3 value    !ucH.listLengtH         0      0
+#       UC-4 value    -ucH.listLengtH         0      0
+#       UC-5 both     !*ucH.listLengtH      absent absent no output at all
+#                                           before  after
+#
+#   **The prediction was banked before the build and named the MECHANISM, not the
+#   count:** the non-star path already builds the `xp` node as `(A . B)` and hands it to
+#   `handleUnary`, which **is** the value-class shape. So this lands as a **structural
+#   cleanup — the code now says what it already did** — and is landed on that basis
+#   rather than on a behaviour change. **Revert is one commit and nobody is embarrassed.**
+#
+#   **c. ⚠ TWO SEPARATE DEFECTS THE BUY ROW SURFACED**, recorded so they are not later
+#   mistaken for this ruling's blast radius — **both read identically before and after**:
+#   **UC-3** `!ucH.listLengtH` reads **0** where `!(0)` wants 1, and **UC-5**
+#   `!*ucH.listLengtH` — two unaries over a dot — **PRINTS NOTHING AT ALL**.
+#
+#   **d. THE H7 CONTROL IS WHAT MAKES IT ASSERTABLE.** Deleting `accessClass` from the
+#   registration takes **UC-1 from 3 to 0**: the star stops binding to the primary and the
+#   read **collapses onto UC-2**, so subject and control become indistinguishable — exactly
+#   the failure the pair exists to catch. `incant/setup` is read at run time (bear-trap
+#   #31) so the control costs **no rebuild**; the file was restored **md5-identical** and
+#   verified. Banked as fleet rows **A7**, not prose.
+#
+#   ## WHAT LANDED — ONE COMMIT
+#   `e6d946e` the unary class split, its buy row, A7's three rows, and the
+#   `UnaryClassSplit` DesignDocs entry. Support: `unaryIsAccess` mirror (bear-trap #11),
+#   mirror-arity 305 → 306.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **The fold**, still blocked and undiagnosed — `InvokeArg` must be referenced by
+#   `TokenXP` **directly**, and a one-term alias kills the parse as thoroughly as `*` does.
+#   **Strokes 4, 5 and 6 remain gated behind it.**
+#   ⚠ **STILL BUILDABLE AND STILL NOT ATTEMPTED: handleDot's name half** — right operand
+#   taken as a name via term@/captureSpan. Independent of the fold, and it fixes
+#   `DesignDocs.TokFiles` reading 0, which is where #26 payments 5 and 6 live.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **diagnose the indirection** (it gates the fold, #52 and 6b entire) · handleDot's name
+#   half, independent · **UC-3 and UC-5**, newly surfaced and unexplained · the modifier
+#   two-class ruling, signed and not started · 6b-ii · unknown-operator refusal · the two
+#   held citizens on the finished dot road.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s class, pending · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 `noPrint`
+#   → `noPrinT` · parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, SIXTH SESSION -- #52 MINTED AND SHARPENED; THE TRAILING DOT
 # IS A DROPPED TERM, NOT A LEADING ONE; AND THE FOLD IS BLOCKED BY SOMETHING THAT IS
 # NOT REPETITION. FOUR COMMITS.
