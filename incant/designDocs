@@ -4261,6 +4261,45 @@ define
                 is NOT a groupField gets minted as an action local instead (bear-trap 26,
                 payments 5 and 6). Taking it as a tag closes that, and the fold-left for
                 A.B.C is untouched by any of this.#);
+            NotAnswersByTruthOf=(LANDED 2026-09-10. `!` read PRESENCE where it had to read
+                TRUTH, and the one-line cure is the contract that already existed.
+
+                opNOT was `if !contents() return trueResult;` -- the presence question -- so
+                `!0` came back FALSE, because a node holding zero HAS contents. It now asks
+                `!truthOf(result)`. Same class as aCTionIF/bareIfTruth, and the contract is
+                LAYERED and lives in ONE place (truthOf, Instruct.rtn): absent is false, a
+                numeric node answers BY ITS VALUE, a node with no numeric value is true by
+                presence.
+
+                    !<numeric 0>              1     was 0
+                    !<numeric 5>              0
+                    !<no numeric value>       0     row 3, true by presence
+                    UC-3  !ucH.listLengtH     1     was 0, the parked finding
+                    UC-0/1/2/4                unchanged
+
+                ⚠⚠ AND IT BROKE A GUARD THAT WAS USING `!` TO MEAN "HAS NO CONTENTS",
+                which is the whole cost of the stroke and the reason it is written down.
+                incant/genMany's spellMany guarded with `if !site;` and `if !min;`. An
+                attribute hoisted by the `:argument site min;` scope line is PRESENT AND
+                EMPTY, so under the old `!` it read "nothing there" and refused; under
+                truthOf it is true by presence, `!site` reads false, and the guard stopped
+                firing -- letting a site-but-no-min node EMIT. ⚠ THAT FILE'S OWN COMMENT
+                PRE-REGISTERED THAT EXACT SYMPTOM as the wrong outcome, from a different
+                cause, in August: "the collapsed form let a site-but-no-min node EMIT
+                instead of refusing, and manyScratch.target moved by ten lines." It moved
+                by nineteen this time, and the comment is why it took one A/B to recognise
+                rather than an afternoon.
+
+                THE REPAIR IS TO SPELL THE INTENT: the guards ask `site.datA` and `min.datA`
+                through the flag idiom, because DATA is the question they were always
+                asking. manyScratch.target holds byte for byte afterwards -- NOT re-pinned.
+
+                ⚠ ONE ROW GRADUATED AND ONE IS STILL OWED. andProbe AP-5b was pinned at
+                this defect and its own failure message asked for the re-pin; it now reads
+                TRUE. But truthOf's header records that `if <field>` and `<field> AND ...`
+                DISAGREE in the shipping language, and `!` has now crossed to the operator
+                side while BARE `if aFalse;` (AP-5) has not. Two spellings, one contract,
+                one still owed.#);
             RightIsAName=(LANDED 2026-09-10, and it is the half of 6b-i that does not need
                 the fold. The dot's RIGHT OPERAND IS A NAME, never a value.
 

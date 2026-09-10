@@ -8546,9 +8546,16 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 /***************************************************************************
 	Rule action for ! operator
 ***************************************************************************/
+/*  ⚠ `!` ANSWERS BY truthOf, NOT BY PRESENCE. It read `!contents()` until 2026-09-10,
+    which is the presence question, so `!0` came back FALSE -- a node holding zero HAS
+    contents. Same class as aCTionIF/bareIfTruth: the operator was asking whether
+    anything is there when it had to ask whether what is there is TRUE. The contract is
+    layered and lives in ONE place (truthOf, this file): absent is false, a numeric node
+    answers BY ITS VALUE, and a node with no numeric value is true by presence.
+        Instruct.opNOT.answersByTruthOf  */
 extern "C" GroupItem *opNOT(GroupItem *result)
 {
-	if ( !result->contents() )
+	if ( !::truthOf(result) )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
 }

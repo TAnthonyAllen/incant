@@ -114,10 +114,22 @@ define
             guards do -- opOR receives already-evaluated operands and tests
             gCount, and an absent attribute's negation does not arrive as one.
             See the corpus. Do not "tidy" these back into a disjunction.  */
-        if !site;
+        /*  ⚠ THE GUARDS ASK FOR DATA, NOT FOR TRUTH, AND THEY SAY SO SINCE 2026-09-10.
+            They were spelled `if !site;` and that worked only while `!` answered by
+            PRESENCE: an attribute hoisted by the scope line is PRESENT AND EMPTY, so
+            `!contents()` said "nothing there" and refused. Now `!` answers by truthOf
+            and a present node with no numeric value is TRUE BY PRESENCE, so `!site`
+            reads FALSE and the guard stopped firing -- which let a site-but-no-min node
+            EMIT, the exact ten-line move the comment above pre-registered as wrong.
+            `datA` is the question these guards were always asking.  */
+        smHas = 0;
+        if site.datA;   smHas = 1;
+        if smHas == 0;
             cerr $"emitMany: MANY node has no site/min":;
             return answer;
-        if !min;
+        smHas = 0;
+        if min.datA;    smHas = 1;
+        if smHas == 0;
             cerr $"emitMany: MANY node has no site/min":;
             return answer;
         /*  ⚠ ONE STATEMENT, NOT TEN -- Tony's instruction, and it holds.

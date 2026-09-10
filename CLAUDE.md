@@ -2327,6 +2327,13 @@ Hard-won lessons. Each one has cost real debugging time.
     NOT a leading-dot spelling riding `lastREF`.** No `dot-LEADING` arm fires for it. So retiring
     the leading form does not owe `X[…].Y` a respell — that shape is a **dropped term**, and it is
     fixed by the fold, not by the accessor road.
+    ⚠⚠ **AND THE TRAP IS SYMMETRIC: `UnaryOPS?` DROPS A SECOND PREFIX THE WAY `InvokeArg?`
+    DROPS A SECOND POSTFIX.** Both slots on `TokenXP  UnaryOPS? ANYorNum^ InvokeArg?` are
+    singular, so the failure has two faces and only one of them has been named until now.
+    The prefix face is `!*ucH.listLengtH` — two unaries over one primary — which in
+    `incant/unaryClassT` **prints nothing at all**, the statement producing no output rather
+    than a wrong value. **So a fix for one face is owed the other**, and a fold that unpacks
+    only the postfix container leaves half the trap standing.
     **Detector:** count `opDot` entries or arm entries, never results. A results-based check
     cannot see this at all, which is why it survived until a seat callout existed to count calls.
 

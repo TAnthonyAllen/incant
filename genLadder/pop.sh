@@ -2141,11 +2141,25 @@ for _r in "AP-4  a 0-holding conjunction result|and if andOut; reads it false" \
         echo "        true by presence). Do not re-pin to silence it."; fail=1
     fi
 done
-if grep -qF "if !aFalse; -> false" "$T/apr"; then
-    echo "  ok    andProbe AP-5b if !aFalse; -> false -- PINNED AT A PRE-EXISTING DEFECT (see note)"; green=$((green+1))
+#  ⚠ GRADUATED 2026-09-10, and the sentence is that `!` NOW ANSWERS BY truthOf.
+#  This row was pinned at a PRE-EXISTING DEFECT and its own failure message asked for
+#  exactly this re-pin. opNOT read `!contents()` -- the PRESENCE question -- so `!0`
+#  came back false, because a node holding zero HAS contents. It now reads
+#  `!truthOf(result)`, which is the layered contract this file already governs for the
+#  word forms: absent is false, a numeric node answers BY ITS VALUE, a node with no
+#  numeric value is true by presence. So `if !aFalse;` reads TRUE, which is what a
+#  0-holding field should give.
+#  ⚠ THE GAP THE truthOf HEADER NAMED IS NOW HALF CLOSED, and the half that remains is
+#  named rather than left to be rediscovered: that header records `if <field>` and
+#  `<field> AND ...` disagreeing in the shipping language, and says closing it is a
+#  separate ruling. `!` has crossed to the operator side; bare `if aFalse;` (AP-5) has
+#  NOT and is still pinned reading TRUE. Two spellings, one contract, one still owed.
+if grep -qF "if !aFalse; -> TRUE" "$T/apr"; then
+    echo "  ok    andProbe AP-5b if !aFalse; -> TRUE -- ! answers by truthOf (graduated)"; green=$((green+1))
 else
-    echo "  FAIL  andProbe AP-5b if !aFalse; MOVED -- if it now reads TRUE the defect is"
-    echo "        FIXED and this row graduates (H6); re-pin with a sentence naming what fixed it"; fail=1
+    echo "  FAIL  andProbe AP-5b if !aFalse; MOVED -- it was graduated to TRUE on 2026-09-10"
+    echo "        when opNOT stopped asking !contents() and started asking !truthOf."
+    echo "        Reading `false` again means opNOT went back to the presence question."; fail=1
 fi
 
 run1 sentinelT "$T/snt"; check "sentinelT runs" 0 $?
