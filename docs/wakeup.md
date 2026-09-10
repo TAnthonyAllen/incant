@@ -1,3 +1,85 @@
+# ⚠⚠⚠ SEALED 2026-09-10, NINTH SESSION -- STROKE 2: `!` ANSWERS BY truthOf. ONE ROW
+# GRADUATES, AND A GUARD THAT WAS USING `!` TO MEAN "HAS NO CONTENTS" IS RESPELLED
+# RATHER THAN RE-PINNED. ONE COMMIT.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 12:45 and
+#   `git log -1 --date=iso` stamps 2026-09-10 12:45. They agree.
+#
+#   ## THE ONE-LINE STATE: **UC-3 reads 1, the layered truth contract now governs `!`
+#   as well as the word forms, and the one thing it broke was a guard whose own comment
+#   had pre-registered the symptom in August — so it took one A/B to recognise.** Fleet
+#   **261 green / 50**, canary **323**, ddPop 5, decodePop 14, formsPop 14, countPop
+#   0-of-44, frontier **exit 0, 4 PASS**. Both repos **0 dirty, 0 unpushed**. Fixit queue
+#   **4**. **Sealed after the stroke, as instructed; stroke 3 not opened.**
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE FIX IS ONE LINE AND THE CONTRACT ALREADY EXISTED.** `opNOT` was
+#   `if !contents()` — the **presence** question — so `!0` came back FALSE, because a node
+#   holding zero HAS contents. It now asks `!truthOf(result)`.
+#
+#       !<numeric 0>            1     was 0
+#       !<numeric 5>            0
+#       !<no numeric value>     0     row 3, true by presence
+#       UC-3 !ucH.listLengtH    1     was 0 — the parked finding
+#       UC-0 3 / UC-1 3 / UC-2 0 / UC-4 0     unchanged
+#
+#   ⚠ **NT-1's `!<absent>` row is NOT evidence and is reported as such:** an undeclared
+#   name in an action body is minted as an action LOCAL (bear-trap #39), so it lands on
+#   row 3, not row 1. **The probe cannot reach row 1 from inside a body.**
+#
+#   **b. ⚠⚠ WHAT IT BROKE, AND THE COMMENT THAT SAVED THE AFTERNOON.** `incant/genMany`'s
+#   `spellMany` guarded with `if !site;` / `if !min;`. An attribute hoisted by the
+#   `:argument site min;` scope line is **PRESENT AND EMPTY**, so under the old `!` it read
+#   *"nothing there"* and refused; under truthOf it is **true by presence**, `!site` reads
+#   false, the guard stops firing, and a site-but-no-min node **EMITS**.
+#   ⚠ **THAT FILE'S OWN COMMENT PRE-REGISTERED THE EXACT SYMPTOM, from a different cause,
+#   in August:** *"the collapsed form let a site-but-no-min node EMIT instead of refusing,
+#   and manyScratch.target moved by ten lines."* It moved by nineteen this time. **The A/B
+#   is the evidence** — opNOT reverted in the `.mm` gives 2 refusals, truthOf gives 0.
+#   **THE REPAIR IS TO SPELL THE INTENT, NOT TO RE-PIN:** the guards now ask `site.datA`
+#   and `min.datA` through the flag idiom, because **data is the question they were always
+#   asking**. `manyScratch.target` holds **byte for byte** afterwards.
+#
+#   **c. ONE ROW GRADUATED AND ONE IS STILL OWED.** `andProbe` AP-5b was pinned at this
+#   defect and **its own failure message asked for exactly this re-pin**; it now reads
+#   TRUE. ⚠ But truthOf's header records that `if <field>` and `<field> AND …` **disagree
+#   in the shipping language**, and **`!` has now crossed to the operator side while BARE
+#   `if aFalse;` (AP-5) has not.** Two spellings, one contract, one owed — named here
+#   rather than left to be rediscovered.
+#
+#   **d. #52 GAINED ITS SYMMETRY SENTENCE, riding this commit as instructed:**
+#   `UnaryOPS?` drops a second **PREFIX** the way `InvokeArg?` drops a second postfix.
+#   Both slots on `TokenXP` are singular, so the trap has two faces — the prefix face is
+#   `!*ucH.listLengtH`, which **prints nothing at all**. **A fold that unpacks only the
+#   postfix container leaves half the trap standing.**
+#
+#   ## WHAT LANDED — ONE COMMIT
+#   `e87db98` opNOT by truthOf, genMany's guards respelled, AP-5b graduated, #52's
+#   symmetry sentence, and the `NotAnswersByTruthOf` DesignDocs entry.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **Stroke 3 not opened** — sealing after each stroke was the instruction. Its two
+#   guesses are unchanged and go one build each, reporting a number before the next:
+#   **`PostFiX InvokeArg@;`** referenced from TokenXP (if the language comes back, the
+#   alias was collapsing into a group and `term@` is the cure — isGROUP, third instance),
+#   then **`InvokeArg-*`** directly in TokenXP (if the language comes back, it is the
+#   Start rule's group issue again). **Both dying** opens the diagnosis from the two facts
+#   already in hand — InvokeArg is an alternation, TokenXP reaches it after `^` — with
+#   UC-5 as the symmetric case. **No fold this SEQ either way.**
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   stroke 3's two guesses · the bare-`if` half of the truth contract (AP-5) · the fold ·
+#   6b-ii · unknown-operator refusal · both held citizens.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 `noPrint` →
+#   `noPrinT` · parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, EIGHTH SESSION -- STROKE 1 ONLY, AND IT WORKS:
 # `DesignDocs.TokFiles` READS `TokFiles`. THE DOT's RIGHT OPERAND IS A NAME.
 # ONE COMMIT.
