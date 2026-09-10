@@ -4406,6 +4406,33 @@ define
                 so the mechanism has nothing to do with repeating anything: INVOKEARG MUST BE
                 REFERENCED BY TokenXP DIRECTLY.
 
+                ⚠⚠ NARROWED 2026-09-10 BY A MODIFIER CENSUS, one run each, and the split
+                is clean enough to name: EVERY FLAG-CLASS MODIFIER LIVES, EVERY
+                REPETITION-CLASS MODIFIER DIES, AND `@` DIES WITH THE REPETITIONS.
+
+                    InvokeArg?      LIVES      InvokeArg@?     DEAD
+                    InvokeArg-?     LIVES      InvokeArg*      DEAD
+                    InvokeArg^?     LIVES      InvokeArg+      DEAD
+                    InvokeArg_?     LIVES      InvokeArg{0 9}  DEAD
+                    InvokeArg!?     LIVES
+
+                So it is NOT "TokenXP tolerates no modifier on that slot" -- it tolerates
+                four of them. ⚠ AND THE TWO STROKE-3 GUESSES BOTH DIED, WITH GUESS 1's
+                PREMISE FALSIFIED RATHER THAN MERELY UNCONFIRMED: `PostFiX InvokeArg@;`
+                was offered on the theory that `term@` is the CURE for an alias collapsing
+                into a group, and `@` turns out to be one of the KILLERS. `InvokeArg-*`
+                died too, and its `-`-alone bisect LIVES, so the `-` is innocent and the
+                `*` is not.
+
+                THREE FACTS NOW BOUND THE DIAGNOSIS, and they share one shape: repetition
+                is fatal, `@` is fatal, and ANY INTERPOSED RULE is fatal -- a plain alias
+                `PostFiX InvokeArg;` carrying no modifier at all kills the language as
+                thoroughly as `*` does. All three turn the term from a DIRECT SINGLE
+                REFERENCE into something carrying a container: a repetition list, an
+                isTarget capture, an alias node. That is where to start, and it is
+                consistent with the isGROUP theory guess 1 was built on even though guess
+                1's own spelling was wrong.
+
                 ⚠ UNDIAGNOSED, AND DELIBERATELY NOT GUESSED. InvokeArg is an alternation
                 (Braced / Parens / UnaryXP) and TokenXP reaches it after a `^` noSkip term,
                 which are the two facts worth starting from; nothing here establishes either
