@@ -4261,6 +4261,47 @@ define
                 is NOT a groupField gets minted as an action local instead (bear-trap 26,
                 payments 5 and 6). Taking it as a tag closes that, and the fold-left for
                 A.B.C is untouched by any of this.#);
+            PostfixFoldBlocked=(MEASURED 2026-09-10, stroke 3, AND THE BLOCKER IS NOT
+                REPETITION. 6b-i wants TokenXP to carry a repeated postfix so the dispatch
+                can fold left; the grammar will not take one, and the controls say why not
+                -- or rather, say what it is NOT.
+
+                FOUR SPELLINGS, one run each, two probes: does a PLAIN ASSIGNMENT still
+                parse, and how many dispatch arms fire for DesignDocs.TokFiles.Commands.
+
+                    TokenXP  UnaryOPS? ANYorNum^ InvokeArg?     plainAssign 1   arms 6
+                    TokenXP  UnaryOPS? ANYorNum^ InvokeArg*     plainAssign 0   arms 0
+                    TokenXP  UnaryOPS? ANYorNum^ PostFiX?
+                             PostFiX  InvokeArg+;              plainAssign 0   arms 0
+                    TokenXP  UnaryOPS? ANYorNum^ InvokeArg+?    plainAssign 0   arms 0
+
+                ⚠ EVERY FAILURE IS TOTAL. Not a wrong parse of the chain -- NOTHING parses,
+                not a bare `s3A = s3B;`, and no sentinel is reached. So this is not a
+                narrowing of what TokenXP accepts, it is TokenXP ceasing to match.
+
+                ⚠⚠ AND THE TWO CONTROLS MOVE THE BLAME OFF REPETITION ENTIRELY:
+
+                    add `PostFiX  InvokeArg+;` and leave TokenXP UNTOUCHED   plainAssign 1
+                    `PostFiX  InvokeArg;` -- a PLAIN ALIAS, no repetition,
+                        referenced from TokenXP                             plainAssign 0
+
+                THE ADDED RULE IS HARMLESS. THE INDIRECTION IS FATAL. A one-term alias
+                between TokenXP and InvokeArg kills the language as thoroughly as `*` does,
+                so the mechanism has nothing to do with repeating anything: INVOKEARG MUST BE
+                REFERENCED BY TokenXP DIRECTLY.
+
+                ⚠ UNDIAGNOSED, AND DELIBERATELY NOT GUESSED. InvokeArg is an alternation
+                (Braced / Parens / UnaryXP) and TokenXP reaches it after a `^` noSkip term,
+                which are the two facts worth starting from; nothing here establishes either
+                as the cause. The causal-claim ledger says a mechanism inferred from a symptom
+                is a coin flip in this codebase, and four spellings plus two controls is where
+                the measuring stopped rather than where the reasoning did.
+
+                WHAT IT MEANS FOR 6b-i: the handleDot half -- right operand taken as a name --
+                is independent and still buildable. THE FOLD IS NOT, until this is diagnosed,
+                because there is no grammar shape today that delivers more than one postfix.
+                Bear-trap 52 stands unfixed and its cause is now known to be deeper than the
+                `?`.#);
             TokenXParms=(aCTionTokenXP's FOUR ARMS, extracted 2026-09-10 as stroke 6a --
                 A PURE MOVE, certified byte-identical and re-pinning nothing.
 
