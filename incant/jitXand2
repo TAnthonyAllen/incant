@@ -27,7 +27,7 @@ define
     x2R;
     x2Out;
     x2Driver code={
-        x2Out = x2L AND x2R;
+        x2Out = x2L && x2R;
         };
     ;
 

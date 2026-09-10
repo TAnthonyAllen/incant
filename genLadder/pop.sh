@@ -2406,14 +2406,15 @@ fi
 run2 shortCircuitT "$T/sq.o" "$T/sq.e"; check "shortCircuitT runs" 0 $?
 sentinel "shortCircuitT sentinel (no truncation)" "$T/sq.o" "SHORTCIRCUIT SENTINEL"
 _sqfail=0
-for _r in "SC-1 false AND loud  fires =  0" "SC-2 true  AND loud  fires =  1" \
-          "SC-3 true  OR  loud  fires =  0" "SC-4 false OR  loud  fires =  1" \
-          "SC-5 false &&  loud  fires =  0" "SC-6 true  &&  loud  fires =  1" \
+#  ⚠ FOUR ROWS SINCE THE WORD FORMS RETIRED. The AND/OR rows went when `AND` and `OR`
+#  left incant/setup: the 2c scrub respelled their operators and left their labels, so
+#  they printed "AND" while testing `&&` -- green, duplicated, and lying.
+for _r in "SC-5 false &&  loud  fires =  0" "SC-6 true  &&  loud  fires =  1" \
           "SC-7 true  ||  loud  fires =  0" "SC-8 false ||  loud  fires =  1"; do
     grep -qF "$_r" "$T/sq.e" || _sqfail=1
 done
 if [ "$_sqfail" = 0 ]; then
-    echo "  ok    short-circuit: all four spellings skip and evaluate correctly, in pairs -- PINNED BY VALUE"; green=$((green+1))
+    echo "  ok    short-circuit: && and || skip and evaluate correctly, in pairs -- PINNED BY VALUE"; green=$((green+1))
 else
     echo "  FAIL  the short-circuit table moved:"
     grep "^SC-" "$T/sq.e" | sed 's/^/          actual:   /'

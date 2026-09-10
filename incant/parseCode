@@ -62,6 +62,6 @@
 
 define
     kpBraced code={
-        return litK(1) AND parseRK(2) AND litK(3);
+        return litK(1) && parseRK(2) && litK(3);
         };
     ;

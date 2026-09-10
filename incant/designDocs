@@ -4092,6 +4092,46 @@ define
                 source only because a one-line call-out costs nothing to keep.
 
                 No percent-dash in the format string (bear-trap 40).#);
+            AndOrAreCSpellings=(LANDED 2026-09-10 in three strokes. THE SPELLING IS C, THE
+                SEMANTICS ARE AND/OR'S, and the rename was not free.
+
+                `&&` and `||` carry opAND/opOR, short-circuit, and an unevaluated right
+                operand. The word forms are out of incant/setup and 36 lines across 19
+                files were respelled.
+
+                ⚠⚠ THE MEASURED REASON IT WAS NOT FREE, and it is the whole entry: `||`
+                CARRIED opOR FOR WEEKS AND STILL EVALUATED ITS RIGHT OPERAND. Two separate
+                lists selected behaviour by SPELLING -- interpretXP chose the tier-3
+                BINDING by tag, runShortCircuit chose the SKIP DIRECTION by tag -- and
+                neither knew the symbol. Fixing only the first sent `||` past both skips
+                into the right-arm evaluation, which is how `true || false` came to read
+                FALSE. ONE LIST HID ANOTHER. `shortCircuit` says IF and `isOR` says WHICH
+                WAY; no spelling appears in either action.
+
+                ⚠ AND THE CERTIFICATE FOR 2b WAS VOID UNTIL A CONTROL SAID SO. "trigDO's
+                five rows unchanged" asserts nothing about the emitted conjunct, because
+                incant/trigDO CARRIES ITS OWN COPY of generateParse. THERE ARE EIGHT
+                COPIES -- the generator, five fixtures, two probes -- and they have already
+                drifted: probeLabelSeam branches on hasAttributeS where every other copy
+                branches on hasTraitS. Six were changed; the two minionWork probes are
+                scratch and were left, named.
+
+                ⚠⚠⚠ AND THE WORD FORMS ARE NOT ACTUALLY GONE. Measured after the
+                deregistration: `if wT AND wF;` -- true AND false -- STILL PARSES AND TOOK
+                THE TRUE ARM. Removing an operator from the registry does not remove the
+                token; it removes the MEANING and leaves the spelling answering wrongly and
+                silently. That is the third casualty for the held unknown-operator refusal,
+                and the sharpest: `eq` was never registered, `&&` was a known operator with
+                no correct road, and `AND` is now a RETIRED operator that still answers.
+
+                ⚠ ONE VACUITY THE SCRUB CREATED AND THE SAME PASS CAUGHT. incant/shortCircuitT
+                had eight rows; the scrub respelled their OPERATORS and left their LABELS,
+                so four rows printed "AND"/"OR" while testing `&&`/`||` -- green,
+                duplicated, and lying. Collapsed to four. TWO SPELLINGS OF ONE OPERATOR IS
+                ONE ROW.
+
+                ⚠ C PRECEDENCE IS NOT DONE and is not a registration to add: KANT-43 says
+                this language has none and associates right to left. Its own arc.#);
             ShortCircuitIsASpelling=(MEASURED 2026-09-10, and 2a DID NOT LAND. Recorded
                 because the measurement is worth more than the attempt.
 

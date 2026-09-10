@@ -79,11 +79,11 @@ define
     loudLeft code={ print + "    [LEFT ARM EVALUATED]":; return aTrue; };
     runAnd code={
         print "1 the WORD form, AND, on fields holding 1 and 0:":;
-        if aTrue AND aTrue;     print + "true  AND true  -> TRUE":;
+        if aTrue && aTrue;     print + "true  AND true  -> TRUE":;
         else                    print + "true  AND true  -> false":;
-        if aTrue AND aFalse;    print + "true  AND false -> TRUE":;
+        if aTrue && aFalse;    print + "true  AND false -> TRUE":;
         else                    print + "true  AND false -> false":;
-        if aFalse AND aTrue;    print + "false AND true  -> TRUE":;
+        if aFalse && aTrue;    print + "false AND true  -> TRUE":;
         else                    print + "false AND true  -> false":;
         print "2 the SYMBOL form, &&  -- PINNED WRONG, see the header:":;
         if aTrue && aTrue;      print + "true  && true  -> TRUE":;
@@ -96,13 +96,13 @@ define
         if aFalse && loudOne();   print + "false && loudOne() -> TRUE":;
         else                      print + "false && loudOne() -> false":;
         print "3b SHORT-CIRCUIT, the WORD form, left arm FALSE:":;
-        if aFalse AND loudOne();  print + "false AND loudOne() -> TRUE":;
+        if aFalse && loudOne();  print + "false AND loudOne() -> TRUE":;
         else                      print + "false AND loudOne() -> false":;
         print "3c A CALL IN LEFT POSITION -- the arm-firing path, left TRUE:":;
-        if loudLeft() AND loudOne();  print + "loudLeft() AND loudOne() -> TRUE":;
+        if loudLeft() && loudOne();  print + "loudLeft() AND loudOne() -> TRUE":;
         else                          print + "loudLeft() AND loudOne() -> false":;
         print "4 ASSIGNMENT POSITION -- what the result LOOKS like:":;
-        andOut = aTrue AND aFalse;
+        andOut = aTrue && aFalse;
         print + "andOut after (true AND false) =" andOut:;
         if andOut;              print + "  and if andOut; reads it TRUE":;
         else                    print + "  and if andOut; reads it false":;

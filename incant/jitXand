@@ -63,7 +63,7 @@ define
         return 1;
         };
     xaDriver code={
-        xaOut = xaLeft() AND xaRight();
+        xaOut = xaLeft() && xaRight();
         };
     ;
 

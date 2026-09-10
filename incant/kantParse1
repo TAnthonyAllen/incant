@@ -61,7 +61,7 @@ define parseRK immediateAction=parseRK; ;
 register(KantParse1);
 define
     kpScafKB code={
-        return litK(1) AND litK(2);
+        return litK(1) && litK(2);
         };
     ;
 

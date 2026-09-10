@@ -111,13 +111,13 @@ define
     /*  THE ALTERNATION, an OR chain in its own method -- which is how a
         generated rule would emit an option list.  */
     krAlt code={
-        return krA1() OR krA2();
+        return krA1() || krA2();
         };
 
     /*  THE RULE. Three terms, the middle one an alternation. This is the
         whole method: one statement where the if chain needs seven.  */
     krRule code={
-        krSuk = krT1() AND krAlt() AND krT3();
+        krSuk = krT1() && krAlt() && krT3();
         if krSuk == 0;
             return 0;
         return 1;

@@ -136,13 +136,17 @@ define
         skips into the right-arm evaluation. ONE LIST HID ANOTHER.
         `isOR` names WHICH way it short-circuits; the two together are the whole
         contract, and no spelling appears in either action.  */
+    /*  ⚠ THE WORD FORMS ARE RETIRED, 2026-09-10. `AND` and `OR` were registered here
+        until the C spellings became correct; they are gone, and the only boolean
+        operators in the language are `&&` and `||`. What made the rename possible was
+        not the registration -- `||` carried opOR for weeks -- but the two SPELLING LISTS
+        becoming registrations, one choosing the tier-3 binding and one choosing the skip
+        direction. Until both fell, `||` evaluated its right operand and `OR` did not.  */
     '||'    operateMethod=opOR   shortCircuit isOR;
     '&&'    operateMethod=opAND  shortCircuit;
     '^';
-    OR      operateMethod=opOR   shortCircuit isOR;
     IN      operateMethod=opIN;
     GO;
-    AND     operateMethod=opAND  shortCircuit;
     modedOP operateMethod=setFileOp;
     negate  unary ruleMethod=opUnaryMinus;
     /*  `deref` -- the unary * that replaces auto-unwrapping. Named, not

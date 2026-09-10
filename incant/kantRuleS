@@ -119,7 +119,7 @@ define
     /*  THE RULE. Three terms, the middle one an alternation. This is the
         whole method: one statement where the if chain needs seven.  */
     ksRule code={
-        ksSuk = ksT1() AND ksAlt() AND ksT3();
+        ksSuk = ksT1() && ksAlt() && ksT3();
         if ksSuk == 0;
             return 0;
         return 1;

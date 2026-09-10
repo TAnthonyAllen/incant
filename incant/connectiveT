@@ -103,7 +103,7 @@ The measurement says the discriminant never picks OR. StatemenT carries zero
 attributes and five members, which is the textbook alternation, and it is
 emitted as
 
-    if SemI() AND BlocK() AND WardeD() AND Iterate() AND Xpress();
+    if SemI() && BlocK() && WardeD() && Iterate() && Xpress();
 
 Across a whole walk of the grammar, 36 bodies carry AND and NOT ONE carries OR.
 
@@ -201,7 +201,7 @@ THE FIX, AND ITS SITES.
 WHAT THE OUTPUT LOOKS LIKE WHEN THE REMEDY HAS TAKEN.
   ROW 3 second line   rule StatemenT hasAttributeS 1  hasTraitS 0
   ROW 4 hasTraitS row 28 AND / 8 OR in BOTH columns
-  StatemenT's body    if SemI() OR BlocK() OR WardeD() OR Iterate() OR Xpress();
+  StatemenT's body    if SemI() || BlocK() || WardeD() || Iterate() || Xpress();
 
 WHAT IT LOOKS LIKE WHEN IT HAS NOT.
   ROW 3 second line reading 1 1, and the ROW 4 hasTraitS row reading 36 / 0

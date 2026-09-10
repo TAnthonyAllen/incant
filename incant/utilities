@@ -55,15 +55,15 @@ define
         pyh = py + ph;
         pxw = px + pw;
         :argument x y width height;
-        goodToGo = x > px AND x < pxw;
+        goodToGo = x > px && x < pxw;
         if !goodToGo;
             xw  = x + width;
-            goodToGo = xw > px AND xw < pxw;
+            goodToGo = xw > px && xw < pxw;
         if goodToGo;
-            goodToGo = y > py AND y < pyh;
+            goodToGo = y > py && y < pyh;
             if !goodToGo;
                 yh = y + height;
-                goodToGo = yh > py AND yh < pyh;
+                goodToGo = yh > py && yh < pyh;
         if goodToGo; print "OK to display" argument.taG; };
     /***************************************************************************
         JSON rules invoked as JSONblock("json string or json file name");
@@ -134,7 +134,7 @@ define
                 length  = listLengtH;
                 if noPrinT; continue;
                 print +;
-                if !length OR grup IN listed;
+                if !length || grup IN listed;
                     if datA != 0;   print ~$taG "=" grup:;
                     else            print ~$taG:;
                 else
@@ -288,7 +288,7 @@ define
                 grup :% copyOf(x);
         for grup in argument; members
             :grup across down;
-            if across > 0 OR down > 0;
+            if across > 0 || down > 0;
                 setFrame(*grup);
         };
     // quoteIfNeeded obituary: never called; set arm exercised by inArmsT, 2026-09-08

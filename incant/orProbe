@@ -25,11 +25,11 @@ define
         };
     runOr code={
         print "1 the WORD form, OR:":;
-        if oTrue OR oFalse;    print + "true  OR false -> TRUE":;
+        if oTrue || oFalse;    print + "true  OR false -> TRUE":;
         else                   print + "true  OR false -> false":;
-        if oFalse OR oFalse;   print + "false OR false -> TRUE":;
+        if oFalse || oFalse;   print + "false OR false -> TRUE":;
         else                   print + "false OR false -> false":;
-        if oFalse OR oTrue;    print + "false OR true  -> TRUE":;
+        if oFalse || oTrue;    print + "false OR true  -> TRUE":;
         else                   print + "false OR true  -> false":;
         print "2 the SYMBOL form, || (the fill):":;
         if oTrue || oFalse;    print + "true  || false -> TRUE":;

@@ -148,7 +148,7 @@ define
     printTest code={ print "printTest:"`"lefty should return itself. It returns" lefty():; };
     simpleIF code={ print "simpleIF:":`; if righty; maximus = righty + 35; else maximus = 12; anotherTest(); };
     stringTest code={ print "stringTest:"`what = righty + 2, "added 2 to righty" whatsIt; };
-    testOR code={ print "testOR:"`; if !righty OR feeling; print Saw righty feeling:; else print "I see nothing":; };
+    testOR code={ print "testOR:"`; if !righty || feeling; print Saw righty feeling:; else print "I see nothing":; };
     testARG code={ print "testARG: Argument is:" argument:; };
     testForC second=56 third="WTF?" code={
         print "testForC:"`"Components of" argument with second third:;

@@ -9,10 +9,12 @@
     PAIRS -- one that must fire and one that must not -- because a zero on its
     own is what a right arm that never ran at all would also print.
 
-        SC-1  false AND loud()    0    the skip
-        SC-2  true  AND loud()    1    its non-zero sibling
-        SC-3  true  OR  loud()    0    the skip
-        SC-4  false OR  loud()    1    its non-zero sibling
+    ⚠ FOUR ROWS, NOT EIGHT, SINCE THE WORD FORMS RETIRED 2026-09-10. It carried
+    AND/OR rows too until `AND` and `OR` left incant/setup; the 2c scrub respelled
+    their OPERATORS and left their LABELS, so four rows went on printing "AND" and
+    "OR" while testing `&&` and `||` -- green, duplicated, and lying. Deleted
+    rather than relabelled: two spellings of one operator is one row.
+
         SC-5  false && loud()     0    the skip
         SC-6  true  && loud()     1    its non-zero sibling
         SC-7  true  || loud()     0    the skip
@@ -37,14 +39,6 @@ define
     sqFired;
     sqLoud code={ ++sqFired; return sqT; };
     sqRun code={
-        sqFired = 0;   if sqF AND sqLoud();   sqFired = sqFired;
-        cerr "SC-1 false AND loud  fires = " sqFired " (want 0)":;
-        sqFired = 0;   if sqT AND sqLoud();   sqFired = sqFired;
-        cerr "SC-2 true  AND loud  fires = " sqFired " (want 1)":;
-        sqFired = 0;   if sqT OR  sqLoud();   sqFired = sqFired;
-        cerr "SC-3 true  OR  loud  fires = " sqFired " (want 0)":;
-        sqFired = 0;   if sqF OR  sqLoud();   sqFired = sqFired;
-        cerr "SC-4 false OR  loud  fires = " sqFired " (want 1)":;
         sqFired = 0;   if sqF &&  sqLoud();   sqFired = sqFired;
         cerr "SC-5 false &&  loud  fires = " sqFired " (want 0)":;
         sqFired = 0;   if sqT &&  sqLoud();   sqFired = sqFired;

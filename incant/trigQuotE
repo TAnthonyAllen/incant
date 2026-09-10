@@ -63,7 +63,7 @@ define
         if length > 0;
             iterate grup on argument;
             while ++grup;
-                if hasNewParsE AND isCodeD;
+                if hasNewParsE && isCodeD;
                     if listLengtH;  compileRules(*grup);
                     else            compile(*grup);
         };
