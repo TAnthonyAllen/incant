@@ -413,5 +413,6 @@ extern "C" GroupItem *treeOf(GroupItem *argument);
 extern "C" int truthOf(GroupItem *field);
 extern "C" void unMark(GroupItem *bufField);
 extern "C" GroupItem *unWrap(GroupItem *result);
+extern "C" int unaryIsAccess(GroupItem *unary);
 extern "C" int unresolvedTerms(GroupItem *rule);
 extern "C" char *wrapped(GroupItem *input);

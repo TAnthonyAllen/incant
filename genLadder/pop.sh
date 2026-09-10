@@ -2345,6 +2345,40 @@ else
 fi
 
 #  ---------------------------------------------------------------------------
+#  A7 -- THE UNARY CLASS SPLIT, the BUY ROW for a try-and-buy ruling. 2026-09-10.
+#
+#  THE RULING: a prefix unary is ACCESS class, binding to the PRIMARY before the
+#  postfix chain, or VALUE class, binding to the chain's RESULT. `*A.B` is `(*A).B`;
+#  `!A.B` is `!(A.B)`. The class is a REGISTRATION -- `accessClass` on the operator
+#  in incant/setup -- and the dispatch asks one predicate, so there is no list in the
+#  action and adding a class member is an edit to setup.
+#
+#  ⚠ THE PAIR UC-1/UC-2 IS THE WHOLE ASSERTION AND NEITHER ROW STANDS ALONE. `ucH` is
+#  a holder over a three-member bag: reading THROUGH it gives the holder's own length,
+#  dereferencing FIRST gives the bag's. So UC-1 wants 3 and UC-2 wants 0, and the two
+#  differing is what says the star bound to the primary. H7 control run: deleting
+#  `accessClass` from the registration takes UC-1 from 3 to 0 -- it collapses onto UC-2
+#  and the two become indistinguishable, which is exactly the failure the pair exists
+#  to catch. The registration is load-bearing, not decoration.
+#
+#  ⚠ UC-0 IS THE ANTI-VACUITY CONTROL. A run that read nothing would print 0 for both
+#  UC-1 and UC-2; UC-0 at 3 says the bag really does have three members.
+run2 unaryClassT "$T/uc.o" "$T/uc.e"; check "unaryClassT runs" 0 $?
+sentinel "unaryClassT sentinel (no truncation)" "$T/uc.o" "UNARYCLASS SENTINEL"
+if grep -q "UC-0 control  ucBag.listLengtH  bare  =  3 " "$T/uc.e" \
+   && grep -q "UC-1 access   \*ucH.listLengtH         =  3 " "$T/uc.e" \
+   && grep -q "UC-2 holder    ucH.listLengtH         =  0 " "$T/uc.e"; then
+    echo "  ok    unary class: deref binds to the PRIMARY (3), the bare read to the holder (0) -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  unary class split moved:"
+    grep "^UC-" "$T/uc.e" | sed 's/^/          actual:   /'
+    echo "          expected: UC-0 = 3, UC-1 = 3, UC-2 = 0."
+    echo "          UC-1 falling to 0 means the star stopped binding to the primary -- check that"
+    echo "          `accessClass` is still on '\''*'\'' in incant/setup; the predicate is presence-based"
+    echo "          and a missing registration silently demotes the star to value class."; fail=1
+fi
+
+#  ---------------------------------------------------------------------------
 #  A6 -- HOW A MEMBER'S TAG IS READ FROM INSIDE AN ITERATE BODY. 2026-09-10,
 #  stroke 6b's PRE-MEASURE, banked as a row rather than as prose.
 #

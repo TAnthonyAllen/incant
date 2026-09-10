@@ -4261,6 +4261,48 @@ define
                 is NOT a groupField gets minted as an action local instead (bear-trap 26,
                 payments 5 and 6). Taking it as a tag closes that, and the fold-left for
                 A.B.C is untouched by any of this.#);
+            UnaryClassSplit=(RULING, Tony, try-and-buy 2026-09-10, LANDED as a structural
+                cleanup with its buy row green. THE SECOND DESIGN FACT FOR THE FOLD, beside
+                the container-arrives-loop-unpacks row.
+
+                A prefix unary is ACCESS class, binding to the PRIMARY before the postfix
+                chain, or VALUE class, binding to the chain's RESULT.
+
+                    *A.B  = (*A).B      access
+                    !A.B  = !(A.B)      value
+                    -A.B  = -(A.B)      value
+                    !*A.B = !((*A).B)   both, in that order
+
+                ⚠ IT REFINES THE FLIP CAMPAIGN'S "UNARY BINDS TIGHTEST" -- true of `*`, and
+                of `*` alone. The class is a REGISTRATION, `accessClass` on the operator in
+                incant/setup, and the dispatch asks ONE PREDICATE (unaryIsAccess), so there
+                is no list in the action and adding a member is an edit to setup. It sits on
+                `'*'` rather than on `deref` because the class is asked BEFORE handleUnary
+                maps the token to its named operator. `@` is pending Tony.
+
+                ⚠⚠ WHAT THE BUY ROW BOUGHT, and the prediction was written before the build:
+                NOTHING MOVED. Every row of incant/unaryClassT reads the same before and
+                after, and the fleet is unmoved at 255. THAT IS THE PREDICTED RESULT: the
+                non-star path already built the `xp` node as (A . B) and handed it to
+                handleUnary, which is the value-class shape the ruling describes. So the
+                ruling MAKES THE CODE SAY WHAT IT ALREADY DID -- two inline `tag eq "*"`
+                literals became one registered predicate -- and it is landed on that basis
+                rather than on a behaviour change.
+
+                ⚠ TWO SEPARATE DEFECTS THE BUY ROW SURFACED AND THE RULING NEITHER CAUSES
+                NOR CURES, recorded so they are not later mistaken for its blast radius:
+                UC-3 `!ucH.listLengtH` reads 0 where `!(0)` wants 1, and UC-5
+                `!*ucH.listLengtH` -- two unaries over a dot -- PRINTS NOTHING AT ALL, the
+                statement producing no output. Both read identically before and after.
+
+                ⚠ THE H7 CONTROL IS THE ROW THAT MAKES IT ASSERTABLE. Deleting `accessClass`
+                from the registration takes UC-1 from 3 to 0: the star stops binding to the
+                primary and the read COLLAPSES ONTO UC-2, so the subject and its control
+                become indistinguishable -- which is exactly the failure the pair exists to
+                catch. incant/setup is read at run time (bear-trap 31), so the control costs
+                no rebuild, and the file was restored md5-identical.
+
+                REVERT IS ONE COMMIT: put the two literals back and drop the registration.#);
             PostfixFoldBlocked=(MEASURED 2026-09-10, stroke 3, AND THE BLOCKER IS NOT
                 REPETITION. 6b-i wants TokenXP to carry a repeated postfix so the dispatch
                 can fold left; the grammar will not take one, and the controls say why not

@@ -1,0 +1,39 @@
+/*****************************************************************************
+    unaryClassT -- THE BUY ROW for the try-and-buy ruling that prefix unaries
+    have two classes.
+
+    RULING under trial, Tony 2026-09-10: deref binds to the PRIMARY, before the
+    chain; every other prefix unary binds to the CHAIN'S RESULT.
+        *A.B  = (*A).B      access class
+        !A.B  = !(A.B)      value class
+        -A.B  = -(A.B)      value class
+        !*A.B = !((*A).B)   both, in that order
+
+    A is a HOLDER over a three-member bag, so the two bindings give different
+    numbers and the rows can tell them apart. Reading through the holder gives
+    the holder's own length; dereferencing first gives the bag's.
+
+    Header is prose on purpose -- bear-trap 27.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(UnaryClass);
+define
+    ucAlpha; ucBeta; ucGamma;
+    ucBag   ucAlpha ucBeta ucGamma;
+    ucRun code={
+        ucH := ucBag;
+        cerr "UC-0 control  ucBag.listLengtH  bare  = " ucBag.listLengtH " (want 3 -- the bag really has three)":;
+        cerr "UC-1 access   *ucH.listLengtH         = " *ucH.listLengtH " (want 3 -- deref bound to the PRIMARY)":;
+        cerr "UC-2 holder    ucH.listLengtH         = " ucH.listLengtH " (the holder's own, NOT 3)":;
+        cerr "UC-3 value    !ucH.listLengtH         = " !ucH.listLengtH:;
+        cerr "UC-4 value    -ucH.listLengtH         = " -ucH.listLengtH:;
+        cerr "UC-5 both     !*ucH.listLengtH        = " !*ucH.listLengtH " (want 0 -- NOT of 3)":;
+        };
+    ;
+ucRun();
+print "UNARYCLASS SENTINEL -- reached the foot":;
+stop();

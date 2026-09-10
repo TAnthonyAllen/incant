@@ -195,7 +195,14 @@ define
         interpretMethod is the bytecode handler, jitEmitter is the JIT. They sit
         side by side deliberately; installing the third disturbs neither of the
         first two, which is what makes the migration one op at a time.  */
-    '*'     operateMethod=opMultiply  interpretMethod=runMultiply  jitEmitter=jitEmitMul;
+    /*  `accessClass` -- THE UNARY CLASS, and it is a REGISTRATION rather than a list in
+        the action. Ruled try-and-buy 2026-09-10: a prefix unary is ACCESS class, binding
+        to the PRIMARY before the postfix chain, or VALUE class, binding to the chain's
+        RESULT. `*A.B` is `(*A).B`; `!A.B` is `!(A.B)`. Only the ACCESS class carries the
+        attribute, so the predicate is presence and the default is value.
+        ⚠ IT GOES ON `'*'` AND NOT ON `deref` because the class is asked BEFORE
+        handleUnary maps the token to its named operator.  */
+    '*'     operateMethod=opMultiply  interpretMethod=runMultiply  jitEmitter=jitEmitMul  accessClass;
     '@'     unary ruleMethod=opLastREF;
     '&';
     '%'     operateMethod=opRem;

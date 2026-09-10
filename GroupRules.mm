@@ -3371,7 +3371,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		is applied to the dot's LEFT operand and the dot re-applied to
 		the result -- not wrapped around the finished dot node.
 		ruleActions.aCTionTokenXP.starDotRotation  */
-		if ( ::compare(unary->groupBody->tag,"*") == 0 )
+		if ( ::unaryIsAccess(unary) )
 			if ( ::compare(op->groupBody->tag,".") == 0 )
 				{
 				GroupItem 	*starred = new GroupItem("uxp");
@@ -3414,7 +3414,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( !arg )
 		arg = InvokeArg;
 	if ( unary )
-		if ( ::compare(unary->groupBody->tag,"*") == 0 )
+		if ( ::unaryIsAccess(unary) )
 			{
 			GroupItem 	*starred = new GroupItem("uxp");
 			starred->addAttribute(ruler->opFields->get("deref"));
@@ -12223,6 +12223,26 @@ GroupItem 	*grup = result;
 		while ( isGROUP(grup->groupBody->flags.data) )
 			grup = grup->getGroup();
 	return grup;
+}
+
+/*  unaryIsAccess -- THE UNARY CLASS PREDICATE, one question asked by two arms. ACCESS
+    class binds to the PRIMARY, before the postfix chain; VALUE class binds to the
+    chain's RESULT. The class is a REGISTRATION (`accessClass` in incant/setup) and not
+    a list here, so adding one is an edit to setup and never to this file.
+    ⚠ A HAND, NOT A WITNESS -- no measure prefix, and it is asked for effect on control
+    flow.   ruleActions.aCTionTokenXP.unaryClass  */
+extern "C" int unaryIsAccess(GroupItem *unary)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*reg = 0;
+	if ( !unary )
+		return 0;
+	reg = ruler->opFields->get(unary->groupBody->tag);
+	if ( !reg )
+		return 0;
+	if ( reg->get("accessClass") )
+		return 1;
+	return 0;
 }
 
 /*******************************************************************************

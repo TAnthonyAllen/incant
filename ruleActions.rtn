@@ -1244,7 +1244,7 @@ GroupRules  ruler = groupRules;
             is applied to the dot's LEFT operand and the dot re-applied to
             the result -- not wrapped around the finished dot node.
             ruleActions.aCTionTokenXP.starDotRotation  */
-        if unary.tag eq "*"
+        if unaryIsAccess(unary)
             if op.tag eq "." {
                 GroupItem starred = new("uxp");
                 starred +% ruler.opFields["deref"];
@@ -1285,7 +1285,7 @@ GroupRules  ruler = groupRules;
     if unary
         /*  THE STAR ROTATION, SUBSCRIPT HALF -- gated on `=[` so an INVOCATION
             `*fn(x)` is left alone   ruleActions.aCTionTokenXP.starDotRotation  */
-        if unary.tag eq "*" {
+        if unaryIsAccess(unary) {
             GroupItem starred = new("uxp");
             starred +% ruler.opFields["deref"];
             starred +% ANYtoken;
@@ -1372,4 +1372,21 @@ finishXP:
     xpList.clear();
     xpList.group = arg;
     return xpList;
+}
+
+/*  unaryIsAccess -- THE UNARY CLASS PREDICATE, one question asked by two arms. ACCESS
+    class binds to the PRIMARY, before the postfix chain; VALUE class binds to the
+    chain's RESULT. The class is a REGISTRATION (`accessClass` in incant/setup) and not
+    a list here, so adding one is an edit to setup and never to this file.
+    ⚠ A HAND, NOT A WITNESS -- no measure prefix, and it is asked for effect on control
+    flow.   ruleActions.aCTionTokenXP.unaryClass  */
+extern int unaryIsAccess(GroupItem unary)
+{
+GroupRules  ruler = groupRules;
+GroupItem   reg;
+    if !unary               return 0;
+    reg = ruler.opFields[unary.tag];
+    if !reg                 return 0;
+    if reg["accessClass"]   return 1;
+    return 0;
 }
