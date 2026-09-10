@@ -1219,6 +1219,7 @@ it was measured on.
 | **`eq` compares strings** | **tok** — where `==` is numeric and `eq` is the string compare | **kant**, which has NO `eq` at all, so the token fell through **truthy** and four registers agreed with each other for weeks |
 | **`leaveRule` is the close** | **emitted tok**, where genParse's generated source calls a five-argument extern the compiler builds | **kant**, whose bodies take ONE argument — so the close the 09-08 dispatch specified could not be written, and a session went looking for a spelling that does not exist |
 | **bear-trap #32, dangling `else`** | **kant**, measured at define time with the canary going 318 → 0 | quoted as a fact about *"the parser"*, i.e. about tok as well, which **has never been measured** |
+| **`:.` sets a flag** | **kant**, where `:.` is opSetFlag | **tok**, where it is nothing at all — `upMark :. noPrinT;` in a `.rtn` took the canary **326 → 0** and failed three files away in `Bytecode.mm` with `no member named 'aCTionPrinT'`. The tok spelling is `upMark.noPrint = true;` |
 
 ⚠ **AND THE CASE IT WOULD HAVE CAUGHT IS #28's FOURTH ROW.** *"`eq` against a tag inside an
 `iterate` body matches EVERY member"* — a **kant** measurement, written as a fact about
@@ -1226,6 +1227,13 @@ it was measured on.
 road at once*, and it stood until a 2×3 on one line falsified it. **Had the row said "measured
 in kant", the next reader would have asked what kant's `eq` is — and the answer is that there
 isn't one.**
+
+⚠ **AND THE FOURTH CASUALTY IS THE ONE THAT SHOWS THE COST IS NOT SYMMETRIC.** The first
+three were claims *recorded* on the wrong road and cost a wrong belief. The fourth was a
+line *written* on the wrong road, and it cost the **entire extern block** — a canary of 0
+and a compile failure in a file that has nothing to do with the edit. **Writing the wrong
+language fails loudly and three files away; recording on the wrong language fails
+quietly and weeks later.** Both are this rule; only one of them announces itself.
 
 **THE DISCIPLINE IS ONE WORD PER FINDING**, and it is cheap at writing time and impossible to
 retrofit: say **tok**, **kant** or **emitted** when you record the measurement. A finding with
