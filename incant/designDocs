@@ -4609,6 +4609,34 @@ define
                 only line in the tree that says it happened.
 
                 No percent-dash in the format string (bear-trap 40).#);
+            NeverSelectBySpelling=(THE SENTENCE, 2026-09-10: AN ACTION NEVER SELECTS
+                BEHAVIOUR BY SPELLING. The class lives on the REGISTRATION and the action
+                asks a PREDICATE. Three casualties, all found inside one campaign, all the
+                same shape.
+
+                    handleDot          `if unary.tag eq "*"`            -> accessClass
+                    aCTionTraiTdata    no test at all, so a `+` doubled -> repeatClass
+                    interpretXP        `if op.tag eq "AND" || op.tag eq "OR"`  -> owed
+
+                ⚠ THE THIRD IS THE ONE THAT SHOWS THE COST. `||` carries the SAME
+                operateMethod as `OR` -- opOR -- and still did not short-circuit, because
+                the tier-3 binding is chosen by TAG and the list only knew the word. A
+                reader looking at the registration sees two identical operators; the
+                difference lives in an action three files away and is invisible from
+                either end.
+
+                ⚠⚠ AND A SPELLING LIST DOES NOT COME ALONE. The interpretXP list has a
+                TWIN inside runShortCircuit itself -- `if op.tag eq "AND" && !leftIsTrue`
+                and `if op.tag eq "OR" && leftIsTrue` -- so binding `||` to the tier-3
+                road without fixing the second list sends it PAST both skip lines and into
+                the right-arm evaluation, which is exactly how `true || false` came to
+                read FALSE. ONE LIST HIDES ANOTHER: fix the selection and the behaviour
+                is still chosen by spelling one level down.
+
+                THE RULE THAT FALLS OUT: when a predicate replaces a spelling list, GREP
+                THE METHOD IT BINDS TO before believing the job is done. A registration
+                that reaches a body which still asks the tag has moved the list, not
+                removed it.#);
             MeasureCallouts=(THE STANDING SHAPE FOR MEASURING A SEAT, Tony 2026-09-10,
                 landed with measureRuleDispatch as its first use.
 
