@@ -4129,6 +4129,45 @@ define
                 reads it, and mints the term as a labelled rule with no rStuff. The four
                 Braced/Parens/StringXP/ScopeXP lines were respelled on 2026-09-10 (a0524c8)
                 and BlocK is held behind incant/fixits/blockDashRefusalWalk.#);
+            DotLeftOperand=(MEASURED 2026-09-10, stroke 1, off measureDotOperands, and it
+                moves the `.` defect from the RIGHT operand to the LEFT.
+
+                THE QUESTION WAS whether `taG` arrives at opDot the way `noPrint` does --
+                isGroupField=0, i.e. down the keyword road, with the cursor echo being
+                bear-trap 26's shape. IT DOES NOT.
+
+                    bare taG      right=taG isGroupField=1 gCount=1  left=crAlpha  -> crAlpha
+                    crCur.taG     right=taG isGroupField=1 gCount=1  left=crCur    -> crCur
+                    *crCur.taG                                       left=*crCur   -> crAlpha
+
+                ⚠ THE RIGHT OPERAND IS ALREADY CORRECT IN BOTH SPELLINGS. taG resolves to
+                the GroupFields accessor, gCount 1, every time. So `crCur.taG` returning
+                `crCur` is not a wrong lookup and not a tag echo -- IT IS THE RIGHT ANSWER
+                FOR THE NODE opDot WAS HANDED. The cursor is a HOLDER, and the dot read
+                the holder's own tag, faithfully.
+
+                ⚠⚠ WHICH MEANS THE ESCAPE HATCH ALREADY EXISTS AND IS SPELLED WITH A STAR.
+                `*crCur.taG` reads the member on both rows, measured. The star/dot rotation
+                in handleDot applies the deref to the dot's LEFT operand, which is exactly
+                what a holder needs. This is bear-trap 41 and 50's family -- a `:=` or an
+                iterate cursor is a holder and a bare read of it reads the holder -- and it
+                is not the accessor family at all.
+
+                ⚠ THE CONSEQUENCE FOR THE `.`-IS-BINARY RULING, and it is a certificate
+                correction rather than an objection: making the right operand a NAME taken
+                via term@/captureSpan changes nothing here, because the right operand was
+                never evaluated wrongly. So the row `crCur.taG reads the member in both
+                rows` IS NOT PRODUCIBLE BY A RIGHT-OPERAND CHANGE. If the ruling wants the
+                unstarred spelling to reach the member it has to say what the LEFT operand
+                does with a holder, which is a different ruling and touches every `:=`
+                capture in the tree, not just the dot.
+
+                WHAT THE RIGHT-OPERAND CHANGE IS STILL WORTH, so it is not read as dead:
+                today the right operand is RESOLVED, and it happens to land on the accessor
+                only because a GroupFields entry of that name exists. A right-hand name that
+                is NOT a groupField gets minted as an action local instead (bear-trap 26,
+                payments 5 and 6). Taking it as a tag closes that, and the fold-left for
+                A.B.C is untouched by any of this.#);
             TokenXParms=(aCTionTokenXP's FOUR ARMS, extracted 2026-09-10 as stroke 6a --
                 A PURE MOVE, certified byte-identical and re-pinning nothing.
 
