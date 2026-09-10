@@ -4064,6 +4064,69 @@ define
                 source only because a one-line call-out costs nothing to keep.
 
                 No percent-dash in the format string (bear-trap 40).#);
+            measureRuleDispatch=(THE FORK ABOVE runRule, parseTrace gated. Called from
+                GroupActions.rtn runOP, immediately before the four-arm dispatch.
+
+                Question: when an emitted body says `Foo(argument)`, WHICH NODE did the
+                name reach, and which arm will the fork take? It prints the tag, BOTH
+                identity columns, the five flags the fork tests, and the arm by name --
+                including `NONE`, which is the answer that has no other witness.
+
+                ⚠ WHY BOTH COLUMNS AND NOT ONE, rule H13: the question here is `is this
+                the defining node or a reference over its body`, which is H13's question 2,
+                and a copy shares its source body outright -- so the FIELD column is the
+                discriminator and the BODY column is what proves the flags came through.
+                Printing one would have answered half. First use, 2026-09-10, read exactly
+                that: `field` differed from the defining node and `body` was identical,
+                which is how it was settled that the emitter loses nothing.
+
+                ⚠ THE `arm=NONE` CASE IS THE WHOLE REASON IT IS NOT TEMPORARY. runOP tests
+                isOperator, isMethod, isRule and actionType; a BIN is none of them, so an
+                emitted call on a container falls off the bottom of the fork, returns null,
+                and prints NOTHING. There is no error, no refusal and no trace. This is the
+                only line in the tree that says it happened.
+
+                No percent-dash in the format string (bear-trap 40).#);
+            MeasureCallouts=(THE STANDING SHAPE FOR MEASURING A SEAT, Tony 2026-09-10,
+                landed with measureRuleDispatch as its first use.
+
+                THE RULE: a measure* method opens with its own arming check and is INERT
+                otherwise; the callout line in the seat is PERMANENT and carries NO GATE.
+                One callout per seat, named for the seat, the seat's state as arguments,
+                returning nothing into the caller and writing nothing it is handed. The
+                prefix `measure` is reserved and `grep -n 'measure[A-Z]'` is the census.
+
+                WHY, and it is three things a reader at the edit site should be able to see
+                at once. THE SEAT IS VISIBLE: a permanent, ungated line says a question is
+                being asked here, so the next reader does not have to discover the seat by
+                bisecting. THE NAME IS LEGIBLE: measureRuleDispatch names the fork, not the
+                bug, so it outlives the investigation that minted it. AND THERE IS NO
+                CLUTTER: the gate and the format live in measure.twk, so the seat costs one
+                line whatever the instrument grows into.
+
+                ⚠ WHAT IT REPLACED, and this is the argument. Two things were doing this
+                job badly. DIRECTIVES BUILDS -- `tok GroupRules.twk groupDirectives` -- are
+                a DIFFERENT PROGRAM, not an annotated one: an armed entry can change
+                behaviour (bear-trap 23's 08-18 hardening), at most one directive per
+                anchor fires and the losers are silent (bear-trap 30), and the instrumented
+                .mm is a file that must never be committed or measured against. On
+                2026-09-10 the session opened with exactly that binary installed and every
+                reading had to be discarded and rebuilt. INLINE PRINTS are worse in the
+                other direction: they are cheap to add, invisible to a census, and they
+                leave when the person who added them leaves, so the seat goes dark again
+                and the next investigation re-derives it.
+
+                A callout is neither. It is in source, so it is in git and in the census; it
+                is gated, so it costs nothing on an ordinary run; and it is permanent, so a
+                seat that has been measured once stays measurable. Provenance: three of
+                these already existed and worked -- measureLabelMint, measureLabelProbe and
+                measureParentProbe, minted 2026-09-04 -- and this ratifies the pattern they
+                were already, rather than inventing one.
+
+                ⚠ ONE OF THEM IS ALREADY A FLEET TARGET. measureLabelProbe's format string
+                is pinned by exact string in genLadder/pop.sh, so `no gate on the callout`
+                and `the format is an instrument` are both load-bearing: changing either is
+                a re-pin owed a sentence.#);
             parseClassify=(parseClassify -- WHICH ARM OF setParse CLAIMED THIS FIELD.
 
                 ⚠ THE INSTRUMENT THE 2026-08-19 SESSION DID NOT HAVE, and both of that

@@ -1205,6 +1205,35 @@ no context, it is not finished being written.
 
 ---
 
+⚠⚠ **NAME WHICH LANGUAGE. A CLAIM ABOUT "THE LANGUAGE" NAMES ONE OF THREE — tok, kant, or
+emitted — AND A BEAR-TRAP RECORDED ON ONE ROAD IS NOT EVIDENCE ABOUT ANOTHER UNTIL MEASURED
+THERE.** Tony, ruled 2026-09-10. Project memory has carried *"three languages share the tree"*
+as an editing hazard for months; this promotes it to a **recording** rule, because the expensive
+version is not writing the wrong syntax, it is writing down a finding without saying which road
+it was measured on.
+
+**THREE CASUALTIES, ALL THE SAME SHAPE:**
+
+| the claim | the road it was true on | the road it was cited on |
+|---|---|---|
+| **`eq` compares strings** | **tok** — where `==` is numeric and `eq` is the string compare | **kant**, which has NO `eq` at all, so the token fell through **truthy** and four registers agreed with each other for weeks |
+| **`leaveRule` is the close** | **emitted tok**, where genParse's generated source calls a five-argument extern the compiler builds | **kant**, whose bodies take ONE argument — so the close the 09-08 dispatch specified could not be written, and a session went looking for a spelling that does not exist |
+| **bear-trap #32, dangling `else`** | **kant**, measured at define time with the canary going 318 → 0 | quoted as a fact about *"the parser"*, i.e. about tok as well, which **has never been measured** |
+
+⚠ **AND THE CASE IT WOULD HAVE CAUGHT IS #28's FOURTH ROW.** *"`eq` against a tag inside an
+`iterate` body matches EVERY member"* — a **kant** measurement, written as a fact about
+`iterate`. The population was real; the attribution named the wrong mechanism *and the wrong
+road at once*, and it stood until a 2×3 on one line falsified it. **Had the row said "measured
+in kant", the next reader would have asked what kant's `eq` is — and the answer is that there
+isn't one.**
+
+**THE DISCIPLINE IS ONE WORD PER FINDING**, and it is cheap at writing time and impossible to
+retrofit: say **tok**, **kant** or **emitted** when you record the measurement. A finding with
+no road named is a finding whose search space nobody can reconstruct — bear-trap #19's corollary
+arriving through the register rather than through the debugger.
+
+---
+
 ## Bear Traps
 
 Hard-won lessons. Each one has cost real debugging time.
@@ -1588,6 +1617,29 @@ Hard-won lessons. Each one has cost real debugging time.
     something else. The order is: `tok <file>` with no directives file · rebuild · *then* measure.
     Ratified 2026-08-18 after the F-15 landing, where the bare rebuild was done first and the
     before/after certification is only worth anything because it was.
+
+    ⚠⚠ **AMENDED 2026-09-10 (Tony) — THERE IS NOW A REPLACEMENT, AND IT IS THE DEFAULT:
+    THE MEASURE CALLOUT.** A `measure*` method **opens with its own arming check and is inert
+    otherwise; the callout line in the seat is PERMANENT and carries NO GATE.** One callout per
+    seat, **named for the seat**, the seat's state as arguments, **returning nothing into the
+    caller and writing nothing it is handed.** The prefix `measure` is **reserved**, and
+    **`grep -n 'measure[A-Z]'` is the census.**
+
+    **Reach for a callout first; reach for a directives build only when no seat exists to put one
+    in.** The three reasons are the three failures of what it replaces. A directives build is a
+    **different program**, not an annotated one — everything above this line. **Inline prints**
+    fail the other way: cheap to add, **invisible to any census**, and they leave with the person
+    who added them, so the seat goes dark and the next investigation re-derives it. A callout is
+    in source (so it is in git and in the census), gated (so it costs nothing on an ordinary run),
+    and permanent (so a seat measured once **stays** measurable).
+
+    ⚠ **THE PATTERN WAS ALREADY WORKING BEFORE IT WAS RULED** — `measureLabelMint`,
+    `measureLabelProbe` and `measureParentProbe`, minted 2026-09-04 — and one of them,
+    `measureLabelProbe`, is **pinned by exact string in `genLadder/pop.sh`**. So *no gate on the
+    callout* and *the format is an instrument* are both load-bearing: changing either is a re-pin
+    owed a sentence. First use under the rule: `measureRuleDispatch` in `runOP`, which is the only
+    line in the tree that can report `arm=NONE`. The **why** lives in `incant/designDocs` under
+    `TokFiles -> measure -> MeasureCallouts`; this row is the **what to do**.
 
 25. **`testing()` ROUTES BY `isCoded`, AND AN INTERPRETED RUN CONSUMES IT — SO AN ORACLE PLACED
     ABOVE THE JITTED HALF SILENTLY MEASURES THE WRONG ENGINE, AT EXIT 0.** `testing()` calls

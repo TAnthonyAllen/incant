@@ -60,6 +60,7 @@ extern "C" int labelMinters(GroupItem *rule);
 extern "C" GroupItem *measureLabelMint(GroupItem *field, GroupItem *myLabel, GroupItem *into);
 extern "C" GroupItem *measureLabelProbe(GroupItem *field, GroupItem *myLabel, GroupItem *into, GroupItem *result, int yielded);
 extern "C" GroupItem *measureParentProbe(GroupItem *field);
+extern "C" GroupItem *measureRuleDispatch(GroupItem *op, GroupItem *target, GroupItem *arg);
 extern "C" GroupItem *parseClassify(GroupItem *field);
 extern "C" GroupItem *probeNode(GroupItem *argument);
 extern "C" GroupItem *showBody(GroupItem *field);

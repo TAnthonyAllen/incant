@@ -388,6 +388,33 @@ extern "C" GroupItem *measureParentProbe(GroupItem *field)
 	return field;
 }
 
+/*  THE FORK ABOVE runRule, and it prints the node the NAME actually reached --
+    not the node a subscript reaches. parseTrace-gated. ⚠ No percent-dash in the
+    format string (bear-trap #40).   measure.measureRuleDispatch  */
+extern "C" GroupItem *measureRuleDispatch(GroupItem *op, GroupItem *target, GroupItem *arg)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && target )
+	::fprintf(stderr,"RULEDISPATCH %s at=%p body=%p isRule=%d binType=%d hasNewParse=%d actionType=%d isMethod=%d isOperator=%d arm=%s\n",
+	target->groupBody->tag,
+	(void*)target,
+	(void*)target->groupBody,
+	target->groupBody->flags.isRule,
+	target->groupBody->flags.binType,
+	target->groupBody->flags.hasNewParse,
+	target->groupBody->flags.actionType,
+	isMethod(target->groupBody->flags.instructType) ? 1 : 0,
+	isOperator(target->groupBody->flags.instructType) ? 1 : 0,
+	(op && isOperator(op->groupBody->flags.instructType)) ? "operator"
+	: (op && isMethod(op->groupBody->flags.instructType)) ? "opMethod"
+	: target->groupBody->flags.isRule ? "runRule"
+	: target->groupBody->flags.actionType ? "runAction"
+	: isMethod(target->groupBody->flags.instructType) ? "method"
+	: "NONE");
+	
+	return target;
+}
+
 /*  IT READS THE BOUND POINTER, it does not re-derive the arm. ⚠ `fires` is a table
     over that pointer and goes stale if a builtin ever gains a fire.
     measure.parseClassify  */

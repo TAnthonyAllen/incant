@@ -11259,6 +11259,8 @@ GroupItem 	*target = field->get(2);
 	to divert. The bare-case contract is under measurement and is recorded
 	rather than assumed -- today a bare invocation parses against the live
 	input stream and consumes it.  */
+	// which node the NAME reached, and which arm the fork will take   measure.measureRuleDispatch
+	::measureRuleDispatch(op,target,arg);
 	if ( isOperator(op->groupBody->flags.instructType) )
 		result = op->groupBody->gOp(arg,target);
 	else
