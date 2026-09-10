@@ -1,3 +1,96 @@
+# ⚠⚠⚠ SEALED 2026-09-10, THIRTEENTH SESSION -- blockDashRefusalWalk CLOSED BY CAUSE.
+# THE TRAILING CURLY WAS MASKING A NULL, AND NULL MEANS FAILED. THREE COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 13:4x and
+#   `git log -1 --date=iso` stamps the same minute. They agree.
+#
+#   ## THE ONE-LINE STATE: **the citizen is closed by CAUSE and not by re-pin — one line,
+#   and the convention it needed was already written down — the fleet is back to 261 with
+#   the modifier ruling KEPT and the odometer's four-rule gain intact.** Fleet **261 green
+#   / 50**, canary **326**, frontier **exit 0**. Both repos **0 dirty, 0 unpushed**.
+#   Fixit queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE GUESS WAS HALF RIGHT AND THE WRONG HALF WAS THE USEFUL ONE.** The grep found
+#   **no positional reach in `aCTionBlocK` at all** — it walks with `input.next(grup)`.
+#   `aCTionRunRulE`'s `input[1]` and `aCTionIterate`'s `IterSource[1]/[2]` reach their
+#   OWN labels, and genParse's twenty `rule[1..3]` are per-ARITY planners. **What the block
+#   had was a positional RESULT: whatever the last item left.**
+#
+#   **b. ⚠⚠ THE MECHANISM, measured at the foot with a new witness, A/B on one grammar
+#   line:**
+#
+#       curlies LABELLED   items=5   while-body result = rightCurly   loop CONTINUES
+#       curlies noLabel    items=3   while-body result = NULL         loop STOPS
+#
+#   **`aCTionWhilE`'s loop is `if result = StatemenT.gMethod(...) { … } else break;`** — so
+#   a body that **succeeded and yielded nothing** stopped the loop. `walk(i)` refuses,
+#   `runAction` clears the arm and returns null, the block hands back null, the caller
+#   ends. **The trailing `rightCurly` had been the block's value on every iteration**, so
+#   no block could ever hand back null and the loop could not stop that way.
+#
+#   **c. THE REPAIR IS ONE LINE AND THE CONVENTION ALREADY EXISTED.** `GroupControl.twk:158`
+#   — *"NULL = failed · labelNO = succeeded and yields NOTHING"* — and **four sites in
+#   `ruleActions.rtn` already end `if !result result = labelNO;`, including `aCTionWhilE`
+#   itself.** `aCTionBlocK` was the one that did not. `broke` is the second channel: a
+#   block that BROKE on a refusal or a branch still hands back what it had, because there
+#   null means failed and that is true.
+#   ⚠ **Fifth measured member of ONE-CHANNEL-ONE-MEANING, and saveLocalFields' shape
+#   exactly** — position standing in for identity, at the block's exit rather than in a
+#   subscript.
+#
+#   **d. THE CERTIFICATE, all of it.** iterT1 back to **7**, iterT1m refusals back to **4**
+#   · the shed curlies **STAY shed** (oneTest 8→6, bare-master AUDITLINE 8→6, census
+#   `LITTO {`→`CALL leftCurly`, odometer 24/38→**28/34 of 62 with the population
+#   unmoved**), all four re-pinned WITH SENTENCES per the ruling · **the odometer's 28
+#   green survives the repair** · fleet **261** · **H7 control**: the labelNO line disabled
+#   in the `.mm` takes iterT1 to 5 and iterT1m's refusals to 2, and both come back on
+#   restore.
+#
+#   **e. ⚠ ONE MORE ARTIFACT, FOUND BY THE AUDIT AND NOT BY CARE.** The handed-up Modifier
+#   copy was noPrint but **still carried rStuff**, so oneTest showed four
+#   `AUDIT TERM … Modifier -- rule TERM, not isRule, has rStuff` lines. **AN ARTIFACT MUST
+#   BE INVISIBLE TO BOTH READERS OR IT IS ONLY HALF AN ARTIFACT**: noPrint keeps it out of
+#   the PARSE, clearing rStuff keeps it out of the AUDIT.
+#
+#   **f. danglingElse RE-READ ON THE SAME COMMIT AND IT STILL BREAKS, identically.** So the
+#   braced-else failure is **not** the block's value channel, **not** the trailing-label
+#   sentinel, and **not** positional reach — its candidate list loses that entry and it
+#   stays open. ⚠ **Second time the two citizens were tested together and came apart**; the
+#   first killed the grammar-modifier hypothesis. **The case for folding them is spent.**
+#
+#   **g. DOCTRINE: drift casualty four.** `:.` is opSetFlag in KANT and **nothing at all**
+#   in TOK; `upMark :. noPrinT;` in a `.rtn` took the canary **326 → 0**. ⚠ **And the cost
+#   is not symmetric** — the first three casualties were claims RECORDED on the wrong road
+#   and cost a wrong belief; this was a line WRITTEN on the wrong road and cost the entire
+#   extern block. **Writing the wrong language fails loudly and three files away; recording
+#   on the wrong language fails quietly and weeks later.**
+#
+#   ## WHAT LANDED — THREE COMMITS
+#   `ccbcc31` drift casualty four · `9733cbf` the grep + `measureBlockResult` · `9311a5c`
+#   the repair, four re-pins with sentences, and danglingElse's re-read. Support:
+#   `measureBlockResult` mirror.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **Strokes 3 (`&&`/`||`) and 4 (load-time or parse-time) not opened** — stroke 3 was
+#   gated on stroke 2 sealing green, which it now has.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **stroke 3** — `&&`/`||` take AND/OR's methods (2a register + short-circuit probe and
+#   H7 · 2b emitter emits `&&` · 2c scrub to zero live word forms) · **stroke 4** load-time
+#   or parse-time · **blockDashRefusalWalk's retirement** (closed by cause; its assertions
+#   want mapping out) · danglingElse, one candidate lighter · AP-5 · the fold · 6b-ii ·
+#   unknown-operator refusal.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 `noPrint` →
+#   `noPrinT` · parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, TWELFTH SESSION -- THE TRAIT HAND-UP LANDS, AND ITS
 # CERTIFICATE CONTAINS A CONTRADICTION THAT ROW 3 WINS. ONE COMMIT.
 #
