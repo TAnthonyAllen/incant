@@ -1371,13 +1371,15 @@ GroupItem 	*trait = input->get(1);
 		if ( trait->getRStuff() )
 			trait = new GroupItem(trait);
 		else	trait->setRuleStuff();
-		if ( Modifier )
-			::modify(trait,Modifier->getText());
-		if ( Limit )
-			::setLimits(trait,Limit);
 		}
 	if ( TraiTdata )
 		trait->setContent(TraiTdata);
+	// ruling 2026-09-10: the trait takes its own flags, AFTER setContent, from either
+	// Modifier* -- so modifier position on a trait is free   ruleActions.aCTionTraiT.traitTakesOwnFlags
+	if ( Modifier )
+		::modify(trait,Modifier->getText());
+	if ( Limit )
+		::setLimits(trait,Limit);
 	input->setGroup(trait);
 	return input;
 }

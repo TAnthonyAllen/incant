@@ -1072,10 +1072,12 @@ GroupItem   Modifier:,
     if Modifier || Limit {
         isAttribute = true;
         if rStuff   trait = new(trait);
-        else        setRuleStuff();
-        if Modifier modify(trait,Modifier.text);
-        if Limit    setLimits(trait,Limit); }
+        else        setRuleStuff(); }
     if TraiTdata    setContent(TraiTdata);
+    // ruling 2026-09-10: the trait takes its own flags, AFTER setContent, from either
+    // Modifier* -- so modifier position on a trait is free   ruleActions.aCTionTraiT.traitTakesOwnFlags
+    if Modifier     modify(trait,Modifier.text);
+    if Limit        setLimits(trait,Limit);
     input.group     = trait;
     return input;
 }

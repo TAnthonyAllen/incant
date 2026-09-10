@@ -4064,6 +4064,43 @@ define
                 source only because a one-line call-out costs nothing to keep.
 
                 No percent-dash in the format string (bear-trap 40).#);
+            TraitTakesOwnFlags=(RULING 2026-09-10, Tony, AND ONLY HALF OF IT LANDED --
+                the half that did not is recorded here because its failure is the
+                argument for what a future version has to do.
+
+                WHAT LANDED. aCTionTraiT applies Modifier and Limit to the TRAIT, and does
+                it AFTER setContent rather than before. Fleet unmoved at 249 green.
+
+                WHAT DID NOT, AND IT IS NOT CLOSE. The other half was `modifier position on
+                a trait is free -- both spellings are equivalent`, implemented by having
+                aCTionTraiTdata hand its Modifier up so the trait could take it too. That
+                took the fleet 249 -> 170 with baselineTests at EXIT 139. Reverting the
+                hand-up and keeping only the reorder returned it to 249 exactly, so the
+                bisect is clean and the reorder is exonerated.
+
+                ⚠ WHY IT CANNOT BE FREE, AND THE GRAMMAR CENSUS IS THE WHOLE ARGUMENT.
+                `grep -n '="[^"]*"[-~+?!%&|*@_<^{}$]'` over incant/grammar returns EXACTLY
+                ONE HIT -- the BlocK line, which is held. But the same shape over a SET,
+                `=[...]` followed by a modifier, is everywhere: numberSet=[0-9]+,
+                min=[0-9]+, power=[0-9]+, decimals=[0-9]+, NotA=[^ \t\r\n;]+,
+                ANYstring=[^ \n\r\t;]+, ShortcuT=[-+~`$_:,]+, flags=[-# 0+ etc]*.
+                In every one of those the trailing + or * is REPETITION ON THE DATA and
+                belongs exactly where it is written. Handing it up applies it to the trait
+                as well, and a repetition applied twice is not the same parse.
+
+                ⚠ SO THE TWO MODIFIER SLOTS ARE NOT INTERCHANGEABLE TODAY BECAUSE THE
+                MODIFIER SET IS NOT ONE KIND. `-` (noLabel) is a fact about the TRAIT;
+                `+ * ?` are facts about what is being repeated. Equivalence would need the
+                modifier CLASS discriminated at the point of application -- affiliation and
+                naming flags to the trait, repetition to whichever node carries the data --
+                and that is a ruling with its own certificate, not a reorder.
+
+                THE PRACTICAL CONSEQUENCE, until that lands: WRITE THE DASH BEFORE THE
+                EQUALS. `leftCurly-="{"` puts noLabel on the trait, which is what a
+                punctuation term wants; `leftCurly="{"-` puts it on the data, where nothing
+                reads it, and mints the term as a labelled rule with no rStuff. The four
+                Braced/Parens/StringXP/ScopeXP lines were respelled on 2026-09-10 (a0524c8)
+                and BlocK is held behind incant/fixits/blockDashRefusalWalk.#);
             measureRuleDispatch=(THE FORK ABOVE runRule, parseTrace gated. Called from
                 GroupActions.rtn runOP, immediately before the four-arm dispatch.
 
