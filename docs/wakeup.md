@@ -1,3 +1,103 @@
+# ⚠⚠⚠ SEALED 2026-09-10, SIXTH SESSION -- #52 MINTED AND SHARPENED; THE TRAILING DOT
+# IS A DROPPED TERM, NOT A LEADING ONE; AND THE FOLD IS BLOCKED BY SOMETHING THAT IS
+# NOT REPETITION. FOUR COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 12:16 and
+#   `git log -1 --date=iso` stamps 2026-09-10 12:16. They agree.
+#
+#   ## THE ONE-LINE STATE: **the truncation is named as bear-trap #52 and measured from
+#   two sides; stroke 2 answered NO, so 6b-ii's zero-respells stands; and stroke 3
+#   stopped at the grinding line with the fold blocked by an INDIRECTION, not by a
+#   repetition.** Fleet **255 green / 50**, unmoved all session, canary **322**, ddPop 5,
+#   decodePop 14, formsPop 14, countPop 0-of-44, frontier **exit 0, 4 PASS**. Both repos
+#   **0 dirty, 0 unpushed**. Fixit queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. BEAR-TRAP #52 — THE SECOND POSTFIX EVAPORATES.** Measured from **both** sides:
+#
+#       calls          DesignDocs.TokFiles              1 opDot
+#                      DesignDocs["TokFiles"]           0   correct, a subscript is `=[`
+#                      DesignDocs["TokFiles"].Commands  0
+#                      DesignDocs.TokFiles.Commands     0
+#       arms           A["B"].C   ONE arm: subscript,    primary=DesignDocs
+#                      A.B.C      ONE arm: dot-COMPOSED, primary=DesignDocs
+#                      A.B        ONE arm: dot-COMPOSED, primary=DesignDocs
+#
+#   ⚠ **`A.B.C` AND `A.B` PRODUCE IDENTICAL PARSES.** The trailing `.C` yields no term,
+#   no arm and no call — **dropped at parse time, not mis-evaluated at run time.**
+#   ⚠ **THE DANGER IS THAT IT ANSWERS:** the expression hands back the FIRST postfix's
+#   result, so `A["B"].C` returns `A["B"]` and a reader checking the row is populated
+#   sees a real node with a real tag. **Detector: count opDot ENTRIES or ARM entries,
+#   never results** — a results-based check cannot see this at all, which is why it
+#   survived until seat callouts existed to count calls.
+#
+#   **b. STROKE 2 ANSWERED **NO**, and it protects 6b-ii's scope.** The trailing `.C`
+#   does **not** enter `handleUnary`'s `.` arm on `lastREF` — **no `dot-LEADING` arm
+#   fires for it**. So `X[…].Y` is **not** a leading-dot spelling in disguise; it is a
+#   dropped term, fixed by the fold and not by the accessor road. **6b-ii's "zero
+#   respells" stands and stroke 4's census is unchanged.**
+#
+#   **c. ⚠⚠ STROKE 3 STOPPED, AND THE BLOCKER IS NOT REPETITION.** Four spellings, one
+#   run each, two probes — does a PLAIN ASSIGNMENT still parse, and how many arms fire:
+#
+#       InvokeArg?                         plainAssign 1   arms 6
+#       InvokeArg*                         plainAssign 0   arms 0
+#       PostFiX? with PostFiX InvokeArg+   plainAssign 0   arms 0
+#       InvokeArg+?                        plainAssign 0   arms 0
+#
+#   ⚠ **EVERY FAILURE IS TOTAL** — nothing parses, not a bare `s3A = s3B;`, no sentinel.
+#   TokenXP ceases to match at all.
+#   ⚠⚠ **AND TWO CONTROLS MOVE THE BLAME OFF REPETITION ENTIRELY:**
+#
+#       add `PostFiX InvokeArg+;` and leave TokenXP UNTOUCHED     plainAssign 1
+#       `PostFiX InvokeArg;` — a PLAIN ALIAS, no repetition —
+#           referenced from TokenXP                              plainAssign 0
+#
+#   **THE ADDED RULE IS HARMLESS; THE INDIRECTION IS FATAL.** A one-term alias between
+#   TokenXP and InvokeArg kills the language as thoroughly as `*` does. **So InvokeArg
+#   must be referenced by TokenXP DIRECTLY**, and last session's `?`→`*` reading was the
+#   right symptom attached to the wrong cause.
+#   ⚠ **UNDIAGNOSED AND DELIBERATELY NOT GUESSED.** InvokeArg is an alternation
+#   (Braced / Parens / UnaryXP) and TokenXP reaches it after a `^` noSkip term; those are
+#   the two facts worth starting from and neither is established. **Four spellings plus
+#   two controls is where the measuring stopped, which is also the grinding line.**
+#
+#   **d. DOCTRINE, first commit.** *A `measure*` method READS the state it is handed; it
+#   never recomputes the decision it witnesses* — cited to `measureRuleDispatch`'s stale
+#   `arm=`, which **drifted in the direction that hid the change just made.** And the door
+#   ruling's entry gained the **face-proof reason, dated**: `hasNewParsE` rides the shared
+#   child list, `rStuff` is per-node, so a door keyed on `rStuff` opens for some faces and
+#   not others.
+#
+#   ## WHAT LANDED — FOUR COMMITS
+#   `5c40052` doctrine + #52 minted · `1732a2c` stroke 2's NO + #52 sharpened +
+#   `measureTokenArm` · `31bfff6` stroke 3's blocker recorded. Support: `measureTokenArm`
+#   mirror (bear-trap #11), mirror-arity 304 → 305.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **6b-i's fold**, blocked as above. **Nothing was built** — the grammar was restored
+#   and verified clean, and 6a's sixteen captures were banked before the attempt and are
+#   untouched. **Strokes 4, 5 and 6 untouched**, 4 and 5 being gated behind the fold.
+#   ⚠ **WHAT IS STILL BUILDABLE AND WAS NOT ATTEMPTED: handleDot's half alone** — right
+#   operand taken as a name via term@/captureSpan. It is independent of the fold and it
+#   would fix `DesignDocs.TokFiles` reading 0, which is the single-dot case and the one
+#   #26 payments 5 and 6 live in. That is the next stroke if the fold stays blocked.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **diagnose the indirection** (why a one-term alias between TokenXP and InvokeArg kills
+#   the parse — it gates the fold, #52, and 6b entire) · handleDot's name half, which is
+#   independent · stroke 2's modifier two-class ruling, signed and not started · 6b-ii ·
+#   unknown-operator refusal · the two held citizens on the finished dot road.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 `noPrint` → `noPrinT` ·
+#   parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, FIFTH SESSION -- THE DOOR RULING LANDED AND OPENED FOR A
 # BIN; THE DOT's RIGHT OPERAND IS EVALUATED, AS SUSPECTED; AND THERE IS NO FOLD TO
 # FOLD WITH. THREE COMMITS.
