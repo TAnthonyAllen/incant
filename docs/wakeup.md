@@ -1,3 +1,73 @@
+# ⚠⚠⚠ SEALED 2026-09-10, FIFTEENTH SESSION -- 2a DOES NOT LAND. THE REPAIR BREAKS
+# `||`, AND THE FLEET COULD NOT SEE IT. TWO COMMITS.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-10 13:5x and `git log -1 --date=iso` the same
+#   minute. They agree.
+#
+#   ## THE ONE-LINE STATE: **stroke 0 retired the citizen on its cause; 2a is reverted
+#   whole, and what lands in its place is the measurement plus the fleet row that would
+#   have caught the regression it produced.** Fleet **264 green / 50** (261 + A9's three),
+#   canary **326**, frontier **exit 0**. Both repos **0 dirty, 0 unpushed**. **Fixit queue
+#   3.**
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. STROKE 0 — the citizen retired diagnosed, not re-pinned.** `aCTionBlocK` handed
+#   back NULL where **labelNO** was owed; `GroupControl.twk:158` already said so and four
+#   sites in `ruleActions.rtn` already did it. Coverage mapped onto `iterT1`/`iterT1m`,
+#   which predate the file. **Queue 4 → 3.**
+#
+#   **b. THE `||` GAP IS REAL AND IS NOW MEASURED with a side effect, not argued:**
+#
+#       false AND loud()    right fires 0    short-circuits
+#       true  OR  loud()    right fires 0    short-circuits
+#       false ||  loud()    right fires 1    correct, it must
+#       true  ||  loud()    right fires 1    ⚠ SHOULD BE 0
+#
+#   **The word forms short-circuit and the symbol form does not — and both carry the SAME
+#   operateMethod**, so it was never about `opOR`.
+#   **The cause is an INLINE LIST OF SPELLINGS**, `ruleActions.rtn` interpretXP:
+#   `if op.tag eq "AND" || op.tag eq "OR"  xl.method = runShortCircuit;` — the tier-3
+#   binding is selected by TAG, so `||` cannot be seen. **Third inline list this campaign
+#   has found in an action**, after `accessClass` and `repeatClass`.
+#
+#   **c. ⚠⚠ AND THE OBVIOUS REPAIR BREAKS IT.** Registering `shortCircuit` on `'||'` and
+#   minting `'&&'` beside it gives the symbol form the tier-3 binding — and
+#   **`true || false` READS FALSE.** `runShortCircuit` is **not** a drop-in for the symbol
+#   form and the reason is undiagnosed; `&&` registers and parses but evaluates wrong too
+#   (`!true && true` reads TRUE). **Reverted whole.**
+#
+#   **d. ⚠⚠⚠ THE EXPENSIVE PART: THE FLEET DID NOT MOVE.** 261 green before the attempt
+#   and 261 after, **with `true || false` reading FALSE the whole time.** No row read
+#   `orProbe`'s operator table. **A live regression in a core operator was completely
+#   invisible to a 264-row instrument** — which is the green-banner-is-not-evidence lesson
+#   arriving in a new place.
+#   **So the row that would have caught it lands instead: pop.sh A9**, pinning BOTH halves
+#   because they are different questions — the **TABLE** is what `||` ANSWERS, the
+#   **SHORT-CIRCUIT** row is what it EVALUATES. The second is **pinned AT THE DEFECT** on
+#   purpose, `andProbe` AP-5b's shape, so the day the gap closes the fleet says so and
+#   asks for a sentence.
+#
+#   ## WHAT LANDED — TWO COMMITS
+#   `783315d` the retirement · `3477057` 2a's measurement, its revert, and row A9.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **2a, 2b, 2c and stroke 4.** 2b and 2c were gated on 2a. **Nothing of the `&&`/`||`
+#   ruling is in the tree** — the revert is complete and verified byte-identical.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **why `runShortCircuit` mis-evaluates the symbol form** — it gates 2a, and 2a gates 2b
+#   and 2c · then `&&`/`||` entire · stroke 4 load-time or parse-time · AP-5 ·
+#   danglingElse's first read when opened · the fold · 6b-ii · unknown-operator refusal
+#   (which `&&`'s silent non-evaluation is a fresh argument for).
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 · noElseHere.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, FOURTEENTH SESSION -- STROKE 0: blockDashRefusalWalk RETIRES
 # ON ITS CAUSE. QUEUE 4 -> 3. ONE COMMIT.
 #
