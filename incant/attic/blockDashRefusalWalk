@@ -141,3 +141,69 @@ CROSS-REFERENCE. The four sibling lines landed 2026-09-10 with the fleet at 248
 green and three rows re-pinned by sentence: oneTest.base, the bare-master AUDITLINE
 (12 -> 8), and the genParse odometer (24/42 of 66 -> 24/38 of 62, GREEN UNMOVED).
 When this closes, all three move again by exactly the leftCurly/rightCurly pair.
+
+================================================================================
+RETIRED 2026-09-10 ON ITS CAUSE, by Tony's word. Not re-pinned, not parked, not
+withdrawn -- diagnosed and repaired in one session, and the repair is one line.
+================================================================================
+
+THE CAUSE. aCTionBlocK handed back NULL for a block that SUCCEEDED AND YIELDED
+NOTHING, where labelNO was owed. GroupControl.twk:158 already said it --
+"NULL = failed · labelNO = succeeded and yields NOTHING · any other node ..." --
+and four sites in ruleActions.rtn already ended `if !result result = labelNO;`,
+including aCTionWhilE itself. aCTionBlocK was the one that did not.
+
+THE CONSUMER. aCTionWhilE's loop is
+
+    if result = StatemenT.gMethod(StatemenT) { ...branch handling... }
+    else    break;
+
+so a body that succeeded and yielded nothing STOPPED THE LOOP. walk(i) hits the
+no-list refusal, runAction clears the arm and returns null, the body's block hands
+back null, and the caller's `else break;` reads it as "stop".
+
+⚠ FIFTH MEASURED MEMBER OF ONE-CHANNEL-ONE-MEANING. `result` carried the body's
+VALUE and the loop's CONTINUE SIGNAL on one slot. `broke` is the second channel and
+is the whole repair: a block that BROKE on a refusal or a branch still hands back
+what it had, because there null means failed and that is true.
+
+⚠ AND IT WAS MASKED, WHICH IS WHY IT LOOKED LIKE A GRAMMAR DEFECT FOR THREE
+SESSIONS. While BlocK's curlies carried labels, the trailing rightCurly was the
+block's value on EVERY iteration, so no block could ever hand back null and the
+loop could not stop that way. Honouring the noLabel dash removed the sentinel and
+left the channel exposed. THE DASH WAS ALWAYS RIGHT; the sentinel was hiding the
+defect behind it.
+
+THE A/B THAT NAMED IT, measured at the block's foot with measureBlockResult:
+
+    curlies LABELLED   items=5   while-body result = rightCurly   loop CONTINUES
+    curlies noLabel    items=3   while-body result = NULL         loop STOPS
+
+THE H7 CONTROL, run on the repair: the labelNO line disabled in the generated .mm
+takes iterT1 from 7 visits to 5 and iterT1m's refusals from 4 to 2 -- the reds
+return on command -- and both come back on restore.
+
+RETIREMENT BY MAPPING, and the coverage was already in the fleet before this file
+existed, which is why no new row is owed:
+
+    BD-1  7 visits on the live grammar   -> genLadder/iterT1.target (the ORDER
+                                            assertion: trunk/leafA/i/j/leafB/k/l)
+                                         -> genLadder/iterT1m.target
+    the refusal count                    -> pop.sh "iterT1m announces its refusal
+                                            4 times (once per leaf)"
+    the H7 control (5 visits)            -> the same two rows, which go red when the
+                                            labelNO line is removed. Demonstrated.
+
+⚠ TWO SENTENCES THE CHASE PRODUCED THAT OUTLIVE IT.
+
+AN ARTIFACT IS INVISIBLE TO BOTH READERS OR IT IS ONLY HALF AN ARTIFACT. The
+handed-up Modifier copy was noPrint and still carried rStuff, so oneTest showed four
+`AUDIT TERM ... Modifier -- rule TERM, not isRule, has rStuff` lines. noPrint keeps
+an artifact out of the PARSE; clearing rStuff keeps it out of the AUDIT. Found by
+the audit, not by care.
+
+THE HAND-UP'S ODOMETER GAIN SURVIVED THE REPAIR. The modifier two-class ruling took
+genParse from 24 green to 28 with the population unmoved at 62 -- ScopeXP, StringXP,
+leftCurly, rightCurly became emittable -- and the labelNO repair did not cost any of
+it back. The seven reds this citizen was blamed for were one defect, and closing it
+kept the capability.
