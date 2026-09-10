@@ -126,12 +126,23 @@ define
         on `'|'` doubling, because the Operators header states the matcher
         returns the LONGEST match -- so the two-character entry wins cleanly and
         `'|'` keeps whatever future single-char meaning it is being held for.  */
-    '||'    operateMethod=opOR;
+    /*  ⚠ `shortCircuit` IS A REGISTRATION, NOT A LIST, and it replaced TWO lists rather
+        than one -- the tier-3 SELECTION in interpretXP and the SKIP ITSELF inside
+        runShortCircuit, which both asked `op.tag eq "AND" || op.tag eq "OR"`. That is
+        why `||` did not short-circuit while `OR` did, on the same operateMethod:
+        measured 2026-09-10 with a side effect, `true OR loud()` fired the right arm 0
+        times and `true || loud()` fired it once. ⚠ AND FIXING ONLY THE SELECTION MADE
+        `true || false` READ FALSE, because the second list then sent `||` past both
+        skips into the right-arm evaluation. ONE LIST HID ANOTHER.
+        `isOR` names WHICH way it short-circuits; the two together are the whole
+        contract, and no spelling appears in either action.  */
+    '||'    operateMethod=opOR   shortCircuit isOR;
+    '&&'    operateMethod=opAND  shortCircuit;
     '^';
-    OR      operateMethod=opOR;
+    OR      operateMethod=opOR   shortCircuit isOR;
     IN      operateMethod=opIN;
     GO;
-    AND     operateMethod=opAND;
+    AND     operateMethod=opAND  shortCircuit;
     modedOP operateMethod=setFileOp;
     negate  unary ruleMethod=opUnaryMinus;
     /*  `deref` -- the unary * that replaces auto-unwrapping. Named, not

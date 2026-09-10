@@ -3639,9 +3639,10 @@ GroupItem 	*token = 0;
 					xl->addMember(op);
 					xl->addMember(target);
 					xl->addMember(arg);
-					// TIER-3 BINDING, AND THIS LINE IS THE TIER-3 SET -- see the three-way operator
-					// split before changing it   ruleActions.interpretXP.tier3Binding
-					if ( ::compare(op->groupBody->tag,"AND") == 0 || ::compare(op->groupBody->tag,"OR") == 0 )
+					// TIER-3 BINDING, AND THE SET IS A REGISTRATION -- `shortCircuit` on the
+					// operator in incant/setup, never a list of spellings here
+					// ruleActions.interpretXP.tier3Binding
+					if ( ::opIsShortCircuit(op) )
 						xl->setMethod(::runShortCircuit);
 					else	xl->setMethod(::runOP);
 					xl->groupBody->flags.invoke = 1;
@@ -8307,6 +8308,31 @@ GroupItem 	*result = 0;
 	return result;
 }
 
+extern "C" int opIsOR(GroupItem *op)
+{
+	if ( !op )
+		return 0;
+	if ( op->get("isOR") )
+		return 1;
+	return 0;
+}
+
+/*  opIsShortCircuit -- TIER-3 MEMBERSHIP. opIsOR -- WHICH WAY IT SKIPS. Two questions,
+    two attributes on the operator in incant/setup, and NO SPELLING IN EITHER ACTION.
+    ⚠ THEY REPLACED TWO LISTS, NOT ONE: interpretXP chose the tier-3 binding by tag AND
+    runShortCircuit chose the skip direction by tag. `||` could be seen by neither, on
+    the very same operateMethod as `OR`, and fixing only the first made `true || false`
+    read FALSE because the second then sent it past both skips.
+    ⚠ HANDS, NOT WITNESSES -- no measure prefix.   ruleActions.interpretXP.tier3Binding  */
+extern "C" int opIsShortCircuit(GroupItem *op)
+{
+	if ( !op )
+		return 0;
+	if ( op->get("shortCircuit") )
+		return 1;
+	return 0;
+}
+
 /***************************************************************************
 	Rule action for the <= operator
 ***************************************************************************/
@@ -11742,9 +11768,14 @@ int 		leftIsTrue = 0;
 	exists to prove. A value assertion cannot prove it: a right arm
 	that runs anyway still produces the right ANSWER in most shapes,
 	so only COUNTING shows it was skipped.  */
-	if ( ::compare(op->groupBody->tag,"AND") == 0 && !leftIsTrue )
+	/*  ⚠ THE SKIP DIRECTION IS A REGISTRATION, NOT A SPELLING. These two lines read
+	`op.tag eq "AND"` and `op.tag eq "OR"` until 2026-09-10, so `||` -- same
+	operateMethod as OR -- matched NEITHER, fell past both skips, evaluated the right
+	arm and returned truthOf(arg). That is the whole of why `true || false` read
+	FALSE the first time `||` was given this handler.   GroupActions.runShortCircuit.skipByRegistration  */
+	if ( !::opIsOR(op) && !leftIsTrue )
 		return GroupControl::groupController->groupRules->falseResult;
-	if ( ::compare(op->groupBody->tag,"OR") == 0 && leftIsTrue )
+	if ( ::opIsOR(op) && leftIsTrue )
 		return GroupControl::groupController->groupRules->trueResult;
 	
 	

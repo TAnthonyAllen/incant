@@ -1,0 +1,60 @@
+/*****************************************************************************
+    shortCircuitT -- WHAT THE FOUR BOOLEAN SPELLINGS EVALUATE, counted.
+
+    The TABLE is what an operator ANSWERS; SHORT-CIRCUIT is what it EVALUATES.
+    Different questions, and only a COUNT can answer the second: a right arm
+    that runs anyway still produces the right answer in most shapes.
+
+    Every row counts fires of one side-effecting action, and the rows come in
+    PAIRS -- one that must fire and one that must not -- because a zero on its
+    own is what a right arm that never ran at all would also print.
+
+        SC-1  false AND loud()    0    the skip
+        SC-2  true  AND loud()    1    its non-zero sibling
+        SC-3  true  OR  loud()    0    the skip
+        SC-4  false OR  loud()    1    its non-zero sibling
+        SC-5  false && loud()     0    the skip
+        SC-6  true  && loud()     1    its non-zero sibling
+        SC-7  true  || loud()     0    the skip
+        SC-8  false || loud()     1    its non-zero sibling
+
+    ⚠ SC-7 IS THE ONE THAT WAS BROKEN. `||` carried the same operateMethod as
+    `OR` and still evaluated its right arm, because TWO separate lists selected
+    behaviour by SPELLING -- interpretXP's tier-3 binding and runShortCircuit's
+    skip direction -- and neither knew the symbol. Both are registrations now.
+
+    Header is prose on purpose -- bear-trap 27.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(ShortCircuitT);
+define
+    sqT = 1;
+    sqF = 0;
+    sqFired;
+    sqLoud code={ ++sqFired; return sqT; };
+    sqRun code={
+        sqFired = 0;   if sqF AND sqLoud();   sqFired = sqFired;
+        cerr "SC-1 false AND loud  fires = " sqFired " (want 0)":;
+        sqFired = 0;   if sqT AND sqLoud();   sqFired = sqFired;
+        cerr "SC-2 true  AND loud  fires = " sqFired " (want 1)":;
+        sqFired = 0;   if sqT OR  sqLoud();   sqFired = sqFired;
+        cerr "SC-3 true  OR  loud  fires = " sqFired " (want 0)":;
+        sqFired = 0;   if sqF OR  sqLoud();   sqFired = sqFired;
+        cerr "SC-4 false OR  loud  fires = " sqFired " (want 1)":;
+        sqFired = 0;   if sqF &&  sqLoud();   sqFired = sqFired;
+        cerr "SC-5 false &&  loud  fires = " sqFired " (want 0)":;
+        sqFired = 0;   if sqT &&  sqLoud();   sqFired = sqFired;
+        cerr "SC-6 true  &&  loud  fires = " sqFired " (want 1)":;
+        sqFired = 0;   if sqT ||  sqLoud();   sqFired = sqFired;
+        cerr "SC-7 true  ||  loud  fires = " sqFired " (want 0 -- THE ONE THAT WAS BROKEN)":;
+        sqFired = 0;   if sqF ||  sqLoud();   sqFired = sqFired;
+        cerr "SC-8 false ||  loud  fires = " sqFired " (want 1)":;
+        };
+    ;
+sqRun();
+print "SHORTCIRCUIT SENTINEL -- reached the foot":;
+stop();

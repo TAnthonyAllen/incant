@@ -1249,8 +1249,13 @@ int         leftIsTrue;
         exists to prove. A value assertion cannot prove it: a right arm
         that runs anyway still produces the right ANSWER in most shapes,
         so only COUNTING shows it was skipped.  */
-    if op.tag eq "AND"  && !leftIsTrue      return falseResult;
-    if op.tag eq "OR"   &&  leftIsTrue      return trueResult;
+    /*  ⚠ THE SKIP DIRECTION IS A REGISTRATION, NOT A SPELLING. These two lines read
+        `op.tag eq "AND"` and `op.tag eq "OR"` until 2026-09-10, so `||` -- same
+        operateMethod as OR -- matched NEITHER, fell past both skips, evaluated the right
+        arm and returned truthOf(arg). That is the whole of why `true || false` read
+        FALSE the first time `||` was given this handler.   GroupActions.runShortCircuit.skipByRegistration  */
+    if !opIsOR(op)  && !leftIsTrue      return falseResult;
+    if opIsOR(op)   &&  leftIsTrue      return trueResult;
     -%
     %-
     if arg && arg.isMethod && arg.invoke            arg = arg.method(arg);

@@ -2396,12 +2396,31 @@ else
     echo "        signature of the tier-3 binding being given to the symbol form."
     grep -E '\-> ' "$T/orp.o" | sed 's/^/          actual:   /'; fail=1
 fi
-if grep -qF "true || loudZero() -> TRUE" "$T/orp.o"; then
-    echo "  ok    orProbe: || evaluates its right operand -- PINNED AT A KNOWN GAP (see note)"; green=$((green+1))
+#  ⚠ GRADUATED 2026-09-10, AND IT MOVED HOUSE. The row above pinned `||` AT THE DEFECT
+#  and asked, in its own failure text, to be re-pinned when the gap closed. IT HAS CLOSED
+#  -- two spelling lists became registrations -- so the pin does not merely flip, it moves
+#  to incant/shortCircuitT, which COUNTS FIRES IN PAIRS. orProbe cannot host it: it has a
+#  single loudZero case, so post-fix its marker count is 0 with NO NON-ZERO SIBLING, and a
+#  lone zero is what a right arm that never ran at all would also print. The table row
+#  above stays here; the evaluation rows go where they can be paired.
+run2 shortCircuitT "$T/sq.o" "$T/sq.e"; check "shortCircuitT runs" 0 $?
+sentinel "shortCircuitT sentinel (no truncation)" "$T/sq.o" "SHORTCIRCUIT SENTINEL"
+_sqfail=0
+for _r in "SC-1 false AND loud  fires =  0" "SC-2 true  AND loud  fires =  1" \
+          "SC-3 true  OR  loud  fires =  0" "SC-4 false OR  loud  fires =  1" \
+          "SC-5 false &&  loud  fires =  0" "SC-6 true  &&  loud  fires =  1" \
+          "SC-7 true  ||  loud  fires =  0" "SC-8 false ||  loud  fires =  1"; do
+    grep -qF "$_r" "$T/sq.e" || _sqfail=1
+done
+if [ "$_sqfail" = 0 ]; then
+    echo "  ok    short-circuit: all four spellings skip and evaluate correctly, in pairs -- PINNED BY VALUE"; green=$((green+1))
 else
-    echo "  FAIL  orProbe: the || short-circuit row MOVED. If the right operand is no longer"
-    echo "        evaluated the gap has CLOSED and this row graduates (H6) -- re-pin with a"
-    echo "        sentence naming what closed it. `OR` has never evaluated it; `||` always has."; fail=1
+    echo "  FAIL  the short-circuit table moved:"
+    grep "^SC-" "$T/sq.e" | sed 's/^/          actual:   /'
+    echo "          Each row is paired: the 0 rows are the SKIP, the 1 rows are their"
+    echo "          non-zero siblings. SC-7 going to 1 means \`||\` stopped short-circuiting --"
+    echo "          check that `shortCircuit` and `isOR` are still on '\''||'\'' in incant/setup;"
+    echo "          BOTH are needed, one for the tier-3 binding and one for the skip direction."; fail=1
 fi
 
 #  ---------------------------------------------------------------------------
