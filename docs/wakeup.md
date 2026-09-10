@@ -1,3 +1,150 @@
+# ⚠⚠⚠ SEALED 2026-09-10, SECOND SESSION -- THE DOOR IS A NAME AND THE NAME IS FINE;
+# THE FORK IS WHAT HAS NO ARM. TRAITS TAKE HALF THEIR FLAGS. #32 IS A TOK FACT AND
+# KANT INVERTS IT. FOUR COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 11:20 and
+#   `git log -1 --date=iso` stamps 2026-09-10 11:20. They agree.
+#
+#   ## THE ONE-LINE STATE: **three of seven strokes closed, and TWO OF THEM CLOSED
+#   BY FALSIFYING THEIR OWN PREMISE -- the emitted call reaches the right node and
+#   runOP's fork has no arm for a bin; the trait-flag ruling lands in half and its
+#   other half takes the fleet to 170 with an exit 139; and bear-trap #32 is true in
+#   tok, inverted in kant, measured both ways in one session.** Fleet **249 green /
+#   50**, unmoved all session, canary **318**, ddPop 5, decodePop 14, formsPop 14,
+#   countPop 0-of-44, frontier **exit 0, stations 1/2/3/8 PASS**. Both repos **0
+#   dirty, 0 unpushed**. Fixit queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. STROKE 1 -- THE EMITTER LOSES NOTHING. THE FORK HAS NO ARM.** The dispatch
+#   asked whether the emitted `UnaryOPS(argument)` reaches the node carrying
+#   `hasNewParsE=1 binTypE=1` or some other node off `parser`'s search list. **It
+#   reaches the right one.** Both identities, one run, hit and miss controls passing:
+#
+#       ADDROF       UnaryOPS  field=0x1044abe40  body=0x1044aacd0   the DEFINING node
+#       RULEDISPATCH UnaryOPS  at   =0x104e5ac40  body=0x1044aacd0   what the NAME reached
+#
+#   **SAME BODY, DIFFERENT FIELD** -- rule H13's question 2, so the FIELD column is
+#   the discriminator and the BODY column proves the flags came through. The name
+#   reached a REFERENCE over the defining node's body, and a copy shares its source
+#   body outright, so every flag the fork tests arrived intact. **This is NOT the
+#   modifier-drop hole and is recorded separately from it.**
+#
+#   ⚠⚠ **THE HOLE IS ONE LINE LATER AND IT IS SILENT:**
+#
+#       RULEDISPATCH UnaryOPS ... isRule=0 binType=1 hasNewParse=1 actionType=0
+#                                 isMethod=0 isOperator=0 arm=NONE
+#
+#   `runOP` tests isOperator, isMethod, isRule, actionType. **A BIN IS NONE OF THEM**,
+#   so an emitted call on a container falls off the bottom of the fork, `result` stays
+#   null, and **nothing is printed** -- no error, no refusal, no trace. A full
+#   traceParse run shows ONE `runRule DOOR`, on IterSource, and UnaryOPS nowhere.
+#   ⚠ **AND IT IS BINS GENERALLY, NOT THE REFERENCE:** the DEFINING node reads
+#   `isRule=0` too, so **nothing the emitter could carry would open this door.**
+#   Stopped there, per the dispatch: which arm a container gets is a ruling.
+#
+#   **b. THE MEASURE CALLOUT IS THE STANDING SHAPE, landed with its first use.** A
+#   `measure*` method opens with its OWN arming check and is inert otherwise; the
+#   callout line in the seat is **permanent and carries no gate**. One per seat, named
+#   for the seat, seat state as arguments, returns nothing into the caller, writes
+#   nothing it is handed. `grep -n 'measure[A-Z]'` is the census. **CLAUDE.md carries
+#   the what-to-do as #23's amendment; `incant/designDocs` TokFiles -> measure ->
+#   MeasureCallouts carries the why** -- visible seat, legible name, no clutter -- and
+#   **what it replaced**: a directives build is a DIFFERENT PROGRAM whose `.mm` must
+#   never be committed, and inline prints are invisible to a census and leave with the
+#   person who added them. ⚠ `measureLabelProbe` is **pinned by exact string in
+#   pop.sh**, so *no gate* and *the format is an instrument* are both load-bearing.
+#
+#   **c. NAME WHICH LANGUAGE -- doctrine, and it paid the same day.** A claim about
+#   "the language" names one of three: **tok, kant, or emitted**, and a bear-trap
+#   recorded on one road is not evidence about another until measured there. Three
+#   casualties in CLAUDE.md: **`eq`** (true in tok, cited in kant, which has none, so
+#   it fell through truthy and four registers agreed for weeks), **`leaveRule`** (true
+#   in emitted tok, cited for kant, whose bodies take one argument), **#32** (measured
+#   in kant, quoted as a fact about "the parser"). ⚠ **The third one is now closed by
+#   measurement -- see (e).**
+#
+#   **d. STROKE 2 -- HALF LANDS, AND THE OTHER HALF IS NOT CLOSE.** `aCTionTraiT` now
+#   applies Modifier and Limit to the **trait**, **after** setContent. Fleet unmoved,
+#   three re-pinned rows byte-unchanged, BlocK still held at 7 with its H7 control
+#   still 5.
+#   ⚠⚠ **"MODIFIER POSITION IS FREE / BOTH SPELLINGS EQUIVALENT" DOES NOT LAND.**
+#   Implemented as aCTionTraiTdata handing its Modifier up, it took the fleet
+#   **249 -> 170 with baselineTests at EXIT 139**. Reverting ONLY the hand-up returned
+#   it to 249 exactly, so the bisect is clean and the reorder is exonerated.
+#   ⚠ **THE GRAMMAR CENSUS IS THE ARGUMENT AND IT WAS ONE GREP.** `="..."` followed by
+#   a modifier returns **exactly ONE hit** in incant/grammar -- line 117, the BlocK
+#   line, already held. But the same shape over a **SET** is everywhere:
+#   `numberSet=[0-9]+`, `min=[0-9]+`, `power=[0-9]+`, `decimals=[0-9]+`, `NotA=[^ ...]+`,
+#   `ANYstring=[^ ...]+`, `ShortcuT=[-+~...]+`, `flags=[-# 0+']*`. In every one the
+#   trailing `+`/`*` is **repetition on the DATA** and belongs where it is written;
+#   handing it up applies it to the trait as well, **and a repetition applied twice is
+#   not the same parse.** ⚠ **So the premise needs one more distinction: THE MODIFIER
+#   SET IS NOT ONE KIND.** `-` is a fact about the trait; `+ * ?` are facts about what
+#   repeats. Equivalence needs the modifier CLASS discriminated at the point of
+#   application. That is a ruling with its own certificate, and it is Tony's.
+#   ⚠ The prediction was written **before** the build and named the `=[0-9]+` family as
+#   the risk, which is the only reason the bisect took one build instead of a search.
+#
+#   **e. STROKE 4 -- #32 IS A TOK FACT, AND KANT INVERTS IT.** Both roads driven.
+#
+#       TOK   unbraced multi-statement arm then else    canary 0     fatal
+#             the same method BRACED (H7 control)       canary 319   318 + one extern
+#             restored                                  canary 318
+#
+#       KANT  single-statement if, and if + else                 OK
+#             multi-statement indented arm, NO else              OK
+#             multi-statement indented arm THEN else             OK   <- #32 says BROKEN
+#             BRACED multi-statement arm then else               BROKE <- #32 omits it
+#
+#   ⚠ **The braced one breaks with #32's OWN misdirection** -- `RunRulE: expected a
+#   method not <X>` naming the first, healthy action. **So the diagnosis survives and
+#   the discriminator is backwards in kant: the brace is not the cure, it is the
+#   trigger.** The flag idiom stays right on both roads.
+#   ⚠ **THE ELSE IS NOT SILENTLY DROPPED, and that pair is what makes this a finding**
+#   -- a swallowed else prints no error and leaves a plausible number. Both directions
+#   driven: flag true **2**, flag false **9**, where a 5 would be the initialiser
+#   showing through.
+#   ⚠ **WHAT IS NOT KNOWN, stated rather than inferred:** #32 was measured 2026-08-21
+#   with two passing controls and frontier's eight stations were built on it.
+#   **Something changed which shape kant refuses and nobody has looked.** Do not read
+#   the inversion as "it was always wrong".
+#
+#   ## WHAT LANDED -- FOUR COMMITS
+#   `27c23e6` measure callouts + NAME WHICH LANGUAGE + stroke 1 · `81f8336` stroke 2's
+#   landable half, with the 139 recorded · `237fc7b` stroke 4, both arms, #32 amended,
+#   `noElseHere` restored · support `groups.ext` mirror line (bear-trap #11), committed
+#   and pushed. ⚠ `incant/fixits/danglingElse` MINTED; queue 3 -> 4.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **Strokes 3, 5, 6, 7 untouched.** Stroke 1 stopped where its own clause said to;
+#   stroke 2 stopped at the 139. Stroke 5's pre-flight from the previous seal still
+#   stands and is unrepeated: **`.` out of UnaryOPS takes every dotted accessor dark**
+#   (all reads become tag echoes), so the removal and the name-as-tag road land on ONE
+#   stroke or not at all.
+#   ⚠ **OWED AND NOW REPORTED, from last SEQ:** hasTraits' post-setParse row LANDED in
+#   `fe9318e` and came back **VACUOUS** -- HP-5 reads DISAGREE 0 like the raw row, and
+#   **HP-0 says setParse took on 3 members of 64**; the other 61 refuse "no rStuff",
+#   which is Ruling D working as written. A member-walk of Grokking cannot prime that
+#   population. Its live thread also **closed**: connectiveT is green on both rows.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **which arm a container gets in runOP's fork** (stroke 1's ruling, and it is the
+#   new head) · the modifier-CLASS distinction (stroke 2's other half) · stroke 3
+#   (testing() splits) · stroke 5 (the `.` ruling, both halves on one stroke) · stroke 6
+#   · stroke 7 · then blockDashRefusalWalk re-read on the dot road · what moved kant's
+#   `else` refusal between 08-21 and today.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   parseRule's `noElseHere` **inline line** -- the DesignDocs entry is restored, the
+#   line is his · which arm a bin gets · the modifier-class ruling · faceFlagsNoCross's
+#   FC-2 spelling (`noPrint` keyword vs `noPrinT` accessor -- the two rows have never
+#   asked the same question) · the `eq` sites, per-site.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10 -- FOUR `-` LINES LAND, BlocK HELD AS A CITIZEN, `eq`
 # VOIDS FOUR CITATIONS. THREE STROKES OF SIX; 4, 5 AND 6 ARE MEASURED AND NOT BUILT,
 # AND STROKE 4's CERTIFICATE HALF DOES NOT REPRODUCE. THREE COMMITS.
