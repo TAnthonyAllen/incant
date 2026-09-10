@@ -1,0 +1,194 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(HasTraits);
+define
+    htSeen; htAll; htAttrs; htTraits; htDisagree; htBoth; htNeither; htAnchor; htTook; htFlag;
+    printTagLine code={
+        print `taG;
+        iterate grup on argument;
+        while ++grup;
+            print _$taG;
+            if datA;    print $"=" grup;
+            if noPrinT; print $"<nP>";
+        print :;
+        };
+    htProbe code={
+        htA := hasAttributeS;
+        htB := hasTraitS;
+        htMix = 0;
+        if htA;             htMix = 1;
+        if htB;             htMix = htMix + 1;
+        if htMix == 0;      ++htNeither;
+        if htMix == 1;
+            ++htDisagree;
+            htDisagree  +% argument;
+            $$htDisagree;
+        if htMix == 2;      ++htBoth;
+        if htB;             ++htTraits;
+        if htA;             ++htAttrs;
+        ++htSeen;
+        htAll  +% argument;
+        };
+    htWalk code={
+        iterate htCur on *argument;
+        while ++htCur;
+            htProbe(*htCur);
+        };
+    htSet code={
+        htFlag = 0;
+        setParse(*argument);
+        htFlag = 1;
+        };
+    htPrime code={
+        htTook = 0;
+        iterate htP members on *argument;
+        while ++htP;
+            htSet(*htP);
+            if htFlag == 1;     ++htTook;
+        };
+    htRun code={
+        htSeen = 0;  htAttrs = 0;  htTraits = 0;  htDisagree = 0;  htBoth = 0;
+        htWalk(Grokking);
+        cerr "HT-1 rules seen                   = " htSeen:;
+        cerr "HT-2 carrying hasAttributeS       = " htAttrs:;
+        cerr "HT-3 carrying hasTraitS           = " htTraits:;
+        cerr "HT-4 carrying BOTH                = " htBoth:;
+        cerr "HT-6 no attributes                = " htNeither:;
+        cerr "ALL RULES:":;
+        iterate grup on htAll;
+        while ++grup;
+            printTagLine(*grup);
+        cerr "HT-5 the two flags DISAGREE on    = " htDisagree " rules":"The rules that disagree are:":;
+        iterate grup on htDisagree;
+        while ++grup;
+            printTagLine(*grup);
+        htAnchor = 0;
+        cerr "fixHasTraitsHere -- HT-5 is the number, and HT-4 is what stops HT-5 being vacuous":;
+        // I removed the rest of this action code and moved it below the stop() because running setParse with nothing to parse is meaningless.
+        };
+    ;
+htRun();
+print "HASTRAITS SENTINEL -- reached the foot":;
+stop();
+
+LANE:  runtime
+BLAST: DISJOINT
+
+NAME      hasTraits -- the flag agrees with hasAttributes on the raw grammar and
+          cannot carry a gate. Minted 2026-09-08, Tony's ruling.
+
+SEVERITY  NIT. Nothing is broken today and nothing is waiting on this. It is
+          banked so the next person who reaches for hasTraitS learns in one run
+          what it does and does not tell them.
+
+WHAT WAS IN BUT GOT TOOK OUT
+        htPrime(Grokking);
+        htSeen = 0;  htAttrs = 0;  htTraits     = 0;  htDisagree = 0;  htBoth = 0;
+        htWalk(Grokking);
+        cerr "HP-0 setParse calls that TOOK     = " htTook " of " htSeen " -- THE VACUITY GUARD":;
+        cerr "HP-2 carrying hasAttributeS       = " htAttrs:;
+        cerr "HP-3 carrying hasTraitS           = " htTraits:;
+        cerr "HP-4 carrying BOTH                = " htBoth:;
+        cerr "HP-5 the two flags DISAGREE on    = " htDisagree " rules":;
+
+WHAT HAPPENED. Chasing the QuotE failure on 2026-09-07, Tony gated the old parse
+on hasTraits instead of hasAttribute. The result was a major face plant: NOTHING
+PARSED. It was backed out the same night and the real fix landed elsewhere --
+testAttributes now tolerates an attribute list holding only a noPrint entry,
+which is commit 0150f29.
+
+WHAT THIS INCANTATION MEASURES. Over the members of Grokking, read from inside an
+action on the member and captured with :=, RAW and then again after an attempt to
+prime with setParse:
+
+    HT-1  rules seen                64      (was 66; see the note below)
+    HT-2  carrying hasAttributeS    42
+    HT-3  carrying hasTraitS        42
+    HT-4  carrying BOTH             42
+    HT-5  the two flags DISAGREE     0
+
+    HP-0  setParse calls that TOOK   3 of 64      <- THE VACUITY GUARD
+    HP-2  carrying hasAttributeS    42
+    HP-3  carrying hasTraitS        42
+    HP-4  carrying BOTH             42
+    HP-5  the two flags DISAGREE     0
+
+⚠ SO THE FLAGS AGREE EXACTLY ON THE RAW GRAMMAR. The guess this was banked with --
+"a writer bypasses addAttribute, so the flag is stale" -- IS NOT SUPPORTED and is
+withdrawn as stated. Whatever made the gate face-plant, it is not a population
+difference on the untouched grammar.
+
+⚠ HT-4 IS NOT DECORATION. HT-5 wants 0, and a run where the probe read nothing at
+all would also print 0. HT-4 at 42 is what makes HT-5's zero mean "they agree"
+rather than "nothing was measured".
+
+⚠⚠ AND HP-5 IS VACUOUS, WHICH IS WHY THIS FILE STAYS OPEN. Added 2026-09-10 on
+Tony's dispatch, which asked for the row POST-setParse. It reads 0 like HT-5, and
+HP-0 says why: setParse TOOK ON THREE MEMBERS OUT OF SIXTY-FOUR. The other 61
+refuse by name -- "setParse: the field passed in has no rStuff" -- which is
+RULING D working exactly as written: a bare master lawfully has no rStuff, and
+absence there is a specimen, not a wound. So a member-walk of Grokking CANNOT
+prime this population, and HP-5 is not a post-setParse reading. It is a reading of
+a population that was never primed.
+
+⚠ HP-0 IS THE ROW TO COPY. Without it HP-5's zero is indistinguishable from
+agreement, and the two mean opposite things. The counter is built out of the
+refusal arm's own semantics rather than out of a return value: htSet sets htFlag
+to 0, calls setParse, then sets htFlag to 1 -- and a refusal STOPS THE BLOCK, so
+the second assignment never runs. A take is a flag that reached 1.
+
+⚠ THE PRIMING ROAD THAT WORKS is the one generateParse uses: setParse on the RULE
+and then on each of its TERMS, which are references and do carry rStuff. That is
+the shape a real post-setParse census wants, and it is not what this file does.
+
+⚠⚠ THE LIVE THREAD HAS CLOSED SINCE THIS WAS BANKED, and that is the other half of
+the 09-10 re-read. This file used to say: "connectiveT pins StatemenT at
+hasAttributeS 1 / hasTraitS 0 and that row is RED today, reading 1/1." IT IS GREEN.
+The fleet carries two rows, both passing:
+
+    connectiveT: StatemenT after setParse reads hasAttributeS 1 hasTraitS 0
+    connectiveT: BlocK hit control still reads 1 1 (hasTraits is not simply dead)
+
+So the divergence this file went looking for IS MEASURED, it IS post-setParse, and
+it HAS an anti-vacuity hit control -- in connectiveT, not here. Agreement before
+setParse and divergence after is now certified from both sides.
+
+⚠ HT-1 MOVED 66 -> 64, 2026-09-10, and the sentence is the noLabel dash landing on
+the TRAIT rather than on its DATA (commit a0524c8). Braced and Parens stopped
+minting leftBrace/leftParen/rightBrace/rightParen as labelled rules with no rStuff,
+and two of those four left Grokking's member list. It is the same fact the
+bare-master AUDITLINE re-pin and the odometer re-pin carry, seen from a third
+place. HT-2..HT-5 did NOT move, which is the expected split: the four that left
+were rStuff-less phantoms and were never in the 42.
+
+NEXT: OPEN.
+
+No fix is recommended. The guess that came with the banking has been measured and
+withdrawn; do not re-infer it from this file.
+
+WHAT WOULD GENERATE ONE, cheapest first:
+  1. ⚠ SUPERSEDED IN PART. This asked for the post-setParse census; it is now
+     HP-0..HP-5 above and it came back VACUOUS at 3 takes of 64. Re-do it along
+     generateParse's road -- rule then TERMS -- and keep HP-0 or its equivalent,
+     because the naive member-walk answers 0 whether or not anything was primed.
+  2. Read updateContentFlags against the direct writers of hasTraits. If the
+     recompute and the direct writes disagree about what a trait IS, that is the
+     answer and it is one read. UNTOUCHED, and it is now the cheapest thing here.
+  3. Only then decide: repair, retire, or document. RETIRING IS A LIVE OPTION and
+     is stronger than it was: connectiveT already certifies the post-setParse
+     divergence with a hit control, so this file's remaining unique content is the
+     BEFORE half. A second instrument for a fact one already pins is not coverage.
+
+⚠ TWO SPELLING TRAPS PAID FOR WHILE WRITING THIS, both worth the line:
+  . htProbe(BlocK) CRASHED THE FILE at exit 139 with zero bytes. Naming a rule
+    FIRES its action (bear-trap 34), and BlocK's action executes a block. The
+    walk over Grokking members is not a stylistic choice; passing a rule by name
+    is not safe.
+  . `if htA != htB;` counted 66 disagreements while HT-2 and HT-3 both read 42 --
+    arithmetically impossible. `!=` on two captured flag locals is void. And
+    `if htA == 1;` reads 0 for all 66, because the flag's stored value is a
+    bitfield and not literally 1. The working shape is BARE for the flag
+    (truthOf answers it) and == only on a derived counter.

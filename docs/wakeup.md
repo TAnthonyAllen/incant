@@ -1,3 +1,123 @@
+# ⚠⚠⚠ OPEN, UNSEALED, FOR CLAY -- 2026-09-10, AFTER THE SEVENTEENTH SEAL.
+# THE TraiT HAND-UP LEAVES ITS TRANSPORT PACKET ON THE TREE.
+#
+#   ## TONY'S FRAMING, VERBATIM, AND IT IS THE ISSUE
+#
+#   *"Our changes to `aCTionTraiT` and `aCTionTraiTdata` did not clear out the Modifier
+#   attribute which will fire that attribute every time the rules affected get parsed."*
+#
+#   ## THE MECHANISM, STRUCTURAL -- READ FROM CODE, NOT RUN
+#
+#   `1f5ff65` gave `aCTionTraiTdata` a hand-up it did not have before: `input +% Modifier`,
+#   stamped `noPrint` and `rStuff = 0`. It is TRANSPORT -- `aCTionTraiTdata` opens with
+#   `input.clear()`, so the Modifier node is detached, and republishing it onto TraiTdata's
+#   list is the only way `aCTionTraiT` can still find it at `TraiTdata["Modifier"]`.
+#   `aCTionTraiT` then reads the flags, applies `modifyClass(trait,...,0)` -- and NOBODY
+#   TAKES THE PACKET OFF. `trait.setContent(TraiTdata)` copied it onto the trait one line
+#   earlier, and that copy is written and never read: the only two readers of a `Modifier`
+#   attribute in the tree are `ruleActions.rtn:1052` and `:1098`, both on TraiTdata.
+#
+#   ⚠ **AND `hasAttributes` IS A PARSE-TIME GATE, WHICH IS WHY TONY'S SENTENCE IS RIGHT.**
+#   `GroupItem.twk:1539` -- `if sukcess && hasAttributes  sukcess = testAttributes(ruleStuff);`
+#   So four rules now enter `testAttributes` on every successful match and did not before
+#   today. What stops that costing anything is `RuleStuff.twk:382`, `if noPrint continue;`
+#   -- which is `0150f29`, the QuotE fix of 09-07, written three days before the packet
+#   existed and for an unrelated reason. **The packet's harmlessness rests on a tolerance
+#   line nothing ties to it.** Narrow that `continue` and these four rules break.
+#
+#   ## THE POPULATION, MEASURED
+#
+#   Four rules carry a spent packet: `ShortcuT`, `ANYstring`, `leftCurly`, `rightCurly`.
+#   They are the sites where a data-side modifier lands on a node that is itself a Grokking
+#   child; the grammar has **12** data-side modifier sites and the other 8 land on terms
+#   nested inside a parent rule. `leftCurly`/`rightCurly` are the only FLAG-class pair,
+#   because `a0524c8` respelled Braced, Parens, StringXP and ScopeXP name-side and **held
+#   BlocK** -- so the held citizen is the last place in the grammar where a flag rides the
+#   data side, and that is why the two puzzles are one fact.
+#
+#   The citizen's own banked numbers are the before-picture, so no rebuild is needed to
+#   date this: `incant/fixits/hasTraits` recorded HT-2 42 / HT-3 42 / HT-5 **0** on
+#   2026-09-08, and the tree reads HT-2 45 / HT-3 42 / HT-5 **3** today. hasTraits did not
+#   move. Three rules gained a noPrint-only attribute on the day `+%` first published one.
+#
+#   ## ⚠⚠ REMOVING IT IS NOT FREE -- BUILT AND MEASURED TWICE, THEN REVERTED
+#
+#   Two removal shapes -- take the copy off the trait after `modifyClass`, and take the
+#   packet off TraiTdata BEFORE `setContent` copies its list. **Identical outcome both
+#   times**, so it is not the removal verb. Census goes clean (HT-2 = HT-3 = HT-4 = 47,
+#   HT-5 **0** over the full 86-rule population, zero artifacts anywhere), and the
+#   **fleet goes 266 -> 264**. Two rows move and THEY POINT OPPOSITE WAYS:
+#
+#     census.target    CALL leftCurly   ->  LITTO {  /  slot=leftCurly      <- CORRECT
+#     odometer         28 green -> 26, losing ScopeXP and StringXP          <- A REAL LOSS
+#
+#   The odometer loss is genuine and was verified by dumping the emission at HEAD before
+#   reverting: `lit(t1,":") && parseR(t2,label) && lit(t3,";")` is a correct parse method,
+#   and after removal it becomes `REFUSE scopeList -- inline group / structural data isGROUP`.
+#
+#   ⚠ **THE CAUSE IS ONE PREDICATE DOING TWO JOBS.** `genParse.rtn:1639-1665` tests
+#   `isBIN` -> CONTAINER, then **`definer != term` -> CALL**, then the data arms. Arm 2
+#   fires ahead of every data arm, and THE PACKET IS WHAT MAKES ARM 2 FIRE. Remove it and
+#   `leftCurly` falls to arm 3 (LITTO -- right) while `scopeList` falls to arm 4 (REFUSE --
+#   wrong). One artifact, one predicate, two populations, opposite answers. Same family as
+#   this file's one-channel-one-meaning ledger.
+#
+#   **So it is not litter-collection, it is a planner-classification question.** The
+#   discrimination arm 2 wants is almost certainly Ruling D's liveness test -- *is the
+#   named definer a LIVE rule, with `rStuff`* -- rather than merely *is it a different
+#   node*. `CALL leftCurly` today aims `parseR` at the phantom master `a0524c8` named,
+#   which has no rStuff. With that test in place the packet could come off and both
+#   populations would land correctly. UNMEASURED; nobody has tried it.
+#
+#   ## THE THIRD ROAD, and it costs nothing
+#
+#   Respell BlocK. That removes the flag-class half of the population without touching
+#   the planner, and it is already the held citizen's own subject.
+#
+#   ## THE EXACT CHANGE, so nobody re-derives it
+#
+#   In `aCTionTraiT`, hoist the upFlags read above `setContent`, drop the packet, and
+#   spell `setContent`'s subject EXPLICITLY (bear-trap #42 -- a bare `setContent` below an
+#   inserted `upFlags` line re-points to `upFlags`):
+#
+#       if TraiTdata    upFlags = TraiTdata["Modifier"];
+#       if upFlags      upFlags.remove();
+#       if TraiTdata    trait.setContent(TraiTdata);
+#       if Modifier     modify(trait,Modifier.text);
+#       if upFlags      modifyClass(trait,upFlags.text,0);
+#
+#   Canary held 328 across both builds; no `groups.ext` change is owed -- both `remove`
+#   overloads are already mirrored at lines 299-300.
+#
+#   ## TWO SIDE-YIELDS FROM THE SAME SESSION
+#
+#   **a. `incant/fixits/hasTraits` COUNTS 64 OF 86 RULES.** `htWalk` says
+#   `iterate htCur members on *argument;` and **22 rules sit in Grokking's ATTRIBUTE list,
+#   not its member list** -- `ANYorNum ANYstring counter define ElsE ExpressioN FormaT
+#   GrouP InvokeArg leftBrace leftParen LoopRestrict NamE Precision PRINTing PrintXP
+#   rightBrace rightParen ScopeField SemI StatemenT Token`. That is why `ANYstring` never
+#   appeared on HT-5 despite being `ShortcuT`'s exact twin. Rule H11: the census excluded a
+#   known member of its own population. Drop the word `members` and HT-1 reads 86.
+#
+#   ⚠ Its HT-1 `66 -> 64` sentence does not reproduce either. Control run, today's binary,
+#   `git checkout a0524c8~1 -- incant/grammar`: **HT-1 68, HT-5 7**, and ALL FOUR of
+#   leftBrace/leftParen/rightBrace/rightParen left the MEMBER list, not two. They are still
+#   in Grokking, as attributes.
+#
+#   **b. THE FIXIT DELETES ITS OWN TAIL WHEN IT PASSES.** With HT-5 at 0,
+#   `iterate grup on htDisagree;` refuses -- the group has no list -- and **the refusal
+#   stops the block**, so `htAnchor` and the `fixHasTraitsHere` line below it never run.
+#   Observed on the fixed binary. Rule H5 shape: the fixture's tail vanishes at exactly the
+#   moment the fix lands. It wants a guard before that walk.
+#
+#   ## STATE AT HANDOFF
+#
+#   Substrate REVERTED and rebuilt at HEAD. Fleet **266 green / 1 parked**, every row
+#   byte-identical to the pre-change capture; decodePop 14, ddPop 5, countPop 47-of-47,
+#   canary **328**. Groups carries Tony's two fixit edits (`faceFlagsNoCross`, `hasTraits`)
+#   plus one untracked probe, `minionWork/probeHTdump` -- the widened census with a `<nP>`
+#   marker, and the evidence for everything above. Support repo clean.
+#
 # ⚠⚠⚠ SEALED 2026-09-10, SEVENTEENTH SESSION -- `&&` AND `||` ARE THE LANGUAGE's
 # BOOLEANS. 2b, 2c AND THE LOAD/PARSE READ. CLEAN KITCHEN. FOUR COMMITS.
 #
