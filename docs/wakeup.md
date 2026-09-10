@@ -1,3 +1,72 @@
+# ⚠⚠⚠ SEALED 2026-09-10, TENTH SESSION -- STROKE 3: BOTH GUESSES DIE, AND A MODIFIER
+# CENSUS SPLITS THE SLOT ON THE FLAG / REPETITION LINE. ONE COMMIT.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 12:48 and
+#   `git log -1 --date=iso` stamps 2026-09-10 12:47. They agree.
+#
+#   ## THE ONE-LINE STATE: **neither guess lands, so no fold — but the diagnosis opens
+#   with far more than the two facts it was given: every FLAG-class modifier survives on
+#   that slot, every REPETITION-class modifier kills the language, and `@` dies with the
+#   repetitions.** Fleet **261 green / 50**, canary **323**, frontier **exit 0, 4 PASS**.
+#   Both repos **0 dirty, 0 unpushed**. Fixit queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE TWO GUESSES, one build each, in order, reported as numbers:**
+#
+#       GUESS 1  `PostFiX InvokeArg@;` referenced from TokenXP   plainAssign 0  DEAD
+#       GUESS 2  `InvokeArg-*` directly in TokenXP               plainAssign 0  DEAD
+#
+#   **b. ⚠⚠ THE CENSUS IS THE YIELD, one run each:**
+#
+#       InvokeArg?      LIVES        InvokeArg@?     DEAD
+#       InvokeArg-?     LIVES        InvokeArg*      DEAD
+#       InvokeArg^?     LIVES        InvokeArg+      DEAD
+#       InvokeArg_?     LIVES        InvokeArg{0 9}  DEAD
+#       InvokeArg!?     LIVES
+#
+#   **EVERY FLAG-CLASS MODIFIER LIVES; EVERY REPETITION-CLASS MODIFIER DIES; `@` DIES
+#   WITH THE REPETITIONS.** So it is **not** *"TokenXP tolerates no modifier there"* — it
+#   tolerates four. ⚠ **And that is the same two-class line the modifier ruling already
+#   draws for `TraiT`, arriving from a completely different direction.**
+#
+#   **c. ⚠ GUESS 1's PREMISE IS FALSIFIED, NOT MERELY UNCONFIRMED**, which is worth more
+#   than a dead guess: it was offered on the theory that **`term@` is the CURE** for an
+#   alias collapsing into a group, and **`@` turns out to be one of the KILLERS.** Guess
+#   2's `-`-alone bisect **LIVES**, so the `-` is innocent and the `*` is not — the two
+#   halves of that spelling do not share the blame.
+#
+#   **d. THREE FACTS NOW BOUND THE DIAGNOSIS AND THEY SHARE ONE SHAPE.** Repetition is
+#   fatal · `@` is fatal · **any interposed rule is fatal** — a plain alias
+#   `PostFiX InvokeArg;` carrying **no modifier at all** kills the language as thoroughly
+#   as `*` does. **All three turn the term from a DIRECT SINGLE REFERENCE into something
+#   carrying a CONTAINER** — a repetition list, an isTarget capture, an alias node. That
+#   is where to start, and it is consistent with the isGROUP theory guess 1 was built on
+#   even though its spelling was wrong. **UC-5 remains the symmetric case on the prefix
+#   slot.**
+#
+#   ## WHAT LANDED — ONE COMMIT
+#   `d9a7458` the two guesses as numbers, the modifier census, and the narrowing written
+#   into `PostfixFoldBlocked`. **Nothing built**; the grammar was restored and verified
+#   clean after every arm.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **The fold**, as pre-agreed for either outcome. **Strokes beyond 3 not opened.**
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **diagnose the container shape** — why repetition, `@`, and an interposed rule all
+#   kill a `TokenXP` term while four flag modifiers do not · the bare-`if` half of the
+#   truth contract (AP-5, named last seal and still owed) · the fold, then 6b-ii ·
+#   unknown-operator refusal · both held citizens on the finished dot road.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 `noPrint` →
+#   `noPrinT` · parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, NINTH SESSION -- STROKE 2: `!` ANSWERS BY truthOf. ONE ROW
 # GRADUATES, AND A GUARD THAT WAS USING `!` TO MEAN "HAS NO CONTENTS" IS RESPELLED
 # RATHER THAN RE-PINNED. ONE COMMIT.
