@@ -331,6 +331,27 @@ int 		minters = 0;
 	return minters;
 }
 
+/*  WHAT opDot RECEIVES ON THE RIGHT. parseTrace gated. The accessor family turns on
+    one test -- `argument.registry == groupFields` -- and everything else is a
+    subscript by text, so this prints the RIGHT operand's registry membership, its
+    gCount and its tag, plus the target it will read from. ⚠ No percent-dash in the
+    format string (bear-trap #40).   measure.measureDotOperands  */
+extern "C" GroupItem *measureDotOperands(GroupItem *argument, GroupItem *target)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace )
+	::fprintf(stderr,"DOTOPERANDS right=%s rightAt=%p isGroupField=%d gCount=%d rightData=%d left=%s leftAt=%p\n",
+	argument ? argument->groupBody->tag : "(null)",
+	(void*)argument,
+	(argument && argument->groupBody->registry == GroupControl::groupController->groupRules->groupFields) ? 1 : 0,
+	argument ? (int)argument->groupBody->gCount : -1,
+	argument ? (int)argument->groupBody->flags.data : -1,
+	target ? target->groupBody->tag : "(null)",
+	(void*)target);
+	
+	return argument;
+}
+
 /*  TEMPORARY, parseTrace-gated. Prints at the MINT so an outer activation's line
     brackets its inner one's: distinctness is an address comparison, survival is the
     same address appearing again at measureLabelProbe. ⚠ No percent-dash in the format

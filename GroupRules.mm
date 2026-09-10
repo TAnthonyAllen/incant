@@ -7719,6 +7719,8 @@ GroupItem 	*product = 0;
 			target = ruler->lastREF->getGroup();
 			}
 		else	::fprintf(stderr,"opDot: lastREF not set\n");
+	// what arrived on the right, and whether it is a groupField   measure.measureDotOperands
+	::measureDotOperands(argument,target);
 	if ( argument )
 		{
 		if ( argument->groupBody->registry != ruler->groupFields )

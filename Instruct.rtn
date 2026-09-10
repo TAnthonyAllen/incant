@@ -366,6 +366,8 @@ use argument
             argument = target;
             target = lastREF.group; }
         else    cerr "opDot: lastREF not set":;
+    // what arrived on the right, and whether it is a groupField   measure.measureDotOperands
+    measureDotOperands(argument,target);
     if argument {
         if registry != groupFields  product = target[text];
         else {
