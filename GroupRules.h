@@ -180,6 +180,7 @@ extern "C" GroupItem *handleCall(GroupItem *xpress, GroupItem *ANYtoken, GroupIt
 extern "C" GroupItem *handleDot(GroupItem *xpress, GroupItem *unary, GroupItem *ANYtoken, GroupItem *InvokeArg);
 extern "C" GroupItem *handleSubscript(GroupItem *xpress, GroupItem *unary, GroupItem *ANYtoken, GroupItem *InvokeArg);
 extern "C" GroupItem *handleUnary(GroupItem *xpress, GroupItem *unary, GroupItem *ANYtoken);
+extern "C" int hasRepeatClass(char *modifier);
 extern "C" GroupItem *interpretMethod(GroupItem *input);
 extern "C" GroupItem *interpretXP(GroupItem *xpList);
 extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target);
@@ -285,7 +286,9 @@ extern "C" int manyScafC1(GroupItem *label, GroupItem *term);
 extern "C" GroupItem *markWindow(GroupItem *input);
 extern "C" int materialiseRegistry(GroupItem *registry);
 extern "C" int materialiseTerms(GroupItem *rule);
+extern "C" int modifierIsRepeat(char *modifier);
 extern "C" void modify(GroupItem *field, char *modifier);
+extern "C" void modifyClass(GroupItem *field, char *modifier, int wantRepeat);
 extern "C" GroupItem *opAND(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opAddAttribute(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opAddPointer(GroupItem *argument, GroupItem *target);

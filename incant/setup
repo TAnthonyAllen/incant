@@ -261,6 +261,40 @@ define
         '.';
     ;
 /*******************************************************************************
+    Modifiers -- THE MODIFIER CLASS, one registration per character.
+
+    Ruled 2026-09-10: A FLAG DESCRIBES A TERM; A REPETITION CHANGES WHAT THE TERM
+    IS. Only the REPETITION class carries `repeatClass`, so the predicate is
+    presence and the default is flag -- the same shape `accessClass` uses for the
+    unary split, and for the same reason: a class you must not forget to declare
+    is a class that will be forgotten.
+
+    ⚠ THE CLASS LIVES HERE AND NOWHERE ELSE. modifyClass asks one predicate;
+    there is no list of characters in any action. Adding a modifier is an edit to
+    this block.
+
+    ⚠ AND `{`/`}` ARE FLAGS DESPITE LOOKING LIKE A LIMIT. They raise upTo and
+    unGuarded -- facts ABOUT the term. The Limit construct `{n m}` is a separate
+    grammar term and is repetition; it is handed to setLimits, never to modify.
+*******************************************************************************/
+registry(Modifiers);
+define
+    '+' repeatClass;
+    '*' repeatClass;
+    '?' repeatClass;
+    '!';
+    '<';
+    '%';
+    '&';
+    '@';
+    '-';
+    '_';
+    '^';
+    '{';
+    '}';
+    '$';
+    ;
+/*******************************************************************************
 	Keywords is a base registry defined on startup. It contains groups that play
     a role in the grammar. Keywords cannot be used as fields (the NamE rule rejects them);
 *******************************************************************************/

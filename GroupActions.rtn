@@ -1,6 +1,58 @@
 
 
 
+/*  modifierIsRepeat -- THE MODIFIER CLASS PREDICATE, one question, no list here.
+    A FLAG DESCRIBES A TERM; A REPETITION CHANGES WHAT THE TERM IS, and only the
+    repetition class carries `repeatClass` in incant/setup's Modifiers registry, so
+    this is a presence test and the default is flag.
+    ⚠ A HAND, NOT A WITNESS -- no measure prefix.   GroupActions.modify.modifierClass  */
+extern int modifierIsRepeat(String modifier)
+{
+    -%
+    char one[2];
+    if ( !modifier || !*modifier ) return 0;
+    one[0] = *modifier; one[1] = 0;
+    GroupItem *reg = GroupControl::groupController->getRegistry("Modifiers");
+    if ( !reg ) return 0;
+    GroupItem *entry = reg->get(one);
+    if ( !entry ) return 0;
+    return entry->get("repeatClass") ? 1 : 0;
+    %-
+    return 0;
+}
+
+
+/*  modifyClass -- modify(), filtered to ONE class. `wantRepeat` selects which.
+    It applies through modify() itself rather than re-implementing the switch, so
+    there is exactly one place that knows what a modifier DOES and exactly one
+    place that knows what CLASS it is.   GroupActions.modify.modifierClass  */
+extern int hasRepeatClass(String modifier)
+{
+    -%
+    char one[2];
+    one[1] = 0;
+    for ( char *p = modifier; p && *p; p++ ) {
+        one[0] = *p;
+        if ( ::modifierIsRepeat(one) ) return 1;
+        }
+    %-
+    return 0;
+}
+
+
+extern void modifyClass(GroupItem field,String modifier,int wantRepeat)
+{
+    -%
+    char one[2];
+    one[1] = 0;
+    for ( char *p = modifier; p && *p; p++ ) {
+        one[0] = *p;
+        if ( ::modifierIsRepeat(one) == wantRepeat ) ::modify(field,one);
+        }
+    %-
+}
+
+
 /*******************************************************************************
 	Print the field passed in to the buffer passed in
 *******************************************************************************/

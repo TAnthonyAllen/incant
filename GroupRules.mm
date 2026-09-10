@@ -1292,6 +1292,7 @@ endToken:
 *******************************************************************************/
 extern "C" GroupItem *aCTionTraiT(GroupItem *input)
 {
+GroupItem 	*upFlags = 0;
 GroupItem 	*Modifier = input->getLabelGroup("Modifier");
 GroupItem 	*Limit = input->getLabelGroup("Limit");
 GroupItem 	*TraiTdata = input->get("TraiTdata");
@@ -1312,10 +1313,19 @@ GroupItem 	*trait = input->get(1);
 		}
 	if ( TraiTdata )
 		trait->setContent(TraiTdata);
-	// ruling 2026-09-10: the trait takes its own flags, AFTER setContent, from either
-	// Modifier* -- so modifier position on a trait is free   ruleActions.aCTionTraiT.traitTakesOwnFlags
+	/*  THE TRAIT TAKES ITS OWN MODIFIERS ENTIRE, AND THE HANDED-UP FLAGS ON TOP, both
+	AFTER setContent -- which copies data and lists but NOT flags, so anything
+	applied before it is applied to a node whose flags are about to be discarded.
+	The name-side Modifier is the author writing about the TRAIT, so both classes
+	apply there; what rides up from TraiTdata is FLAGS ONLY, because its repetitions
+	belong to the data and are already on it.
+	ruleActions.aCTionTraiT.traitTakesOwnFlags  */
 	if ( Modifier )
 		::modify(trait,Modifier->getText());
+	if ( TraiTdata )
+		upFlags = TraiTdata->get("Modifier");
+	if ( upFlags )
+		::modifyClass(trait,upFlags->getText(),0);
 	if ( Limit )
 		::setLimits(trait,Limit);
 	input->setGroup(trait);
@@ -1327,6 +1337,8 @@ GroupItem 	*trait = input->get(1);
 *******************************************************************************/
 extern "C" GroupItem *aCTionTraiTdata(GroupItem *input)
 {
+int 		tdBad = 0;
+GroupItem 	*upMark = 0;
 GroupItem 	*Modifier = input->getLabelGroup("Modifier");
 GroupItem 	*Limit = input->getLabelGroup("Limit");
 GroupItem 	*DatA = input->getLabelGroup("DatA");
@@ -1337,12 +1349,40 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 		if ( DatA->getRStuff() )
 			DatA = new GroupItem(DatA);
 		else	DatA->setRuleStuff();
+		/*  REPETITION AND Limit LAND ON THE DATA; FLAGS ARE SET ASIDE FOR THE TRAIT.
+		Ruled 2026-09-10. `numberSet=[0-9]+` means the SET repeats, and applying
+		that `+` to the trait as well is a repetition applied TWICE -- measured, it
+		takes the fleet to 170 with an exit 139. A FLAG is a fact ABOUT the term and
+		rides up harmlessly. That is the whole two-class split.
+		ruleActions.aCTionTraiTdata.modifierRidesUp  */
 		if ( Modifier )
-			::modify(DatA,Modifier->getText());
+			::modifyClass(DatA,Modifier->getText(),1);
 		if ( Limit )
 			::setLimits(DatA,Limit);
 		DatA->groupBody->flags.isRule = 1;
 		}
+	/*  ⚠ REPETITION AFTER SCALAR DATA REFUSES LOUD. A literal is one token; there is
+	nothing for a `+` or `*` to repeat, and stamping max on it silently produces a
+	rule that looks defined and matches wrong.
+	ruleActions.aCTionTraiTdata.scalarRepeat  */
+	tdBad = 0;
+	if ( Modifier )
+		if ( DatA->groupBody->flags.isLiteral )
+			tdBad = ::hasRepeatClass(Modifier->getText());
+	if ( tdBad == 1 )
+		::refuse(input,"a repetition modifier after scalar data -- a literal is one token and has nothing to repeat");
+	/*  THE FLAGS RIDE UP AS A noPrint ARTIFACT, NOT AS A TERM. `+%` publishes a copy
+	onto the child list, and a plain one is walked by every census and audit as a
+	rule TERM -- measured, it took the fleet to 178 with baselineTests at exit 139
+	and filled oneTest with `AUDIT TERM ... Modifier -- rule TERM, not isRule`.
+	noPrint is this tree's standing "artifact, not a term" mark, as builtinParsE and
+	CodE already use.   ruleActions.aCTionTraiTdata.modifierRidesUp  */
+	if ( Modifier )
+		input->addAttribute(Modifier);
+	if ( Modifier )
+		upMark = input->get("Modifier");
+	if ( upMark )
+		upMark->groupBody->flags.noPrint = 1;
 	if ( (DatA->groupBody->flags.isRule && !DatA->groupBody->flags.isLiteral) || DatA->groupBody->registry == GroupControl::groupController->groupRules->opFields )
 		input->setGroup(DatA);
 	else	input->setContent(DatA);
@@ -3470,6 +3510,23 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	op->groupBody->flags.invoke = 1;
 	xpress->setGroup(op);
 	return xpress;
+}
+
+/*  modifyClass -- modify(), filtered to ONE class. `wantRepeat` selects which.
+    It applies through modify() itself rather than re-implementing the switch, so
+    there is exactly one place that knows what a modifier DOES and exactly one
+    place that knows what CLASS it is.   GroupActions.modify.modifierClass  */
+extern "C" int hasRepeatClass(char *modifier)
+{
+	
+	char one[2];
+	one[1] = 0;
+	for ( char *p = modifier; p && *p; p++ ) {
+	one[0] = *p;
+	if ( ::modifierIsRepeat(one) ) return 1;
+	}
+	
+	return 0;
 }
 
 /*****************************************************************************
@@ -7393,6 +7450,26 @@ int 		made = 0;
 	return made;
 }
 
+/*  modifierIsRepeat -- THE MODIFIER CLASS PREDICATE, one question, no list here.
+    A FLAG DESCRIBES A TERM; A REPETITION CHANGES WHAT THE TERM IS, and only the
+    repetition class carries `repeatClass` in incant/setup's Modifiers registry, so
+    this is a presence test and the default is flag.
+    ⚠ A HAND, NOT A WITNESS -- no measure prefix.   GroupActions.modify.modifierClass  */
+extern "C" int modifierIsRepeat(char *modifier)
+{
+	
+	char one[2];
+	if ( !modifier || !*modifier ) return 0;
+	one[0] = *modifier; one[1] = 0;
+	GroupItem *reg = GroupControl::groupController->getRegistry("Modifiers");
+	if ( !reg ) return 0;
+	GroupItem *entry = reg->get(one);
+	if ( !entry ) return 0;
+	return entry->get("repeatClass") ? 1 : 0;
+	
+	return 0;
+}
+
 /*****************************************************************************
 	modify processes modifiers for field passed in updating the field RuleStuff
 *****************************************************************************/
@@ -7449,6 +7526,18 @@ extern "C" void modify(GroupItem *field, char *modifier)
 			case '$':
 				field->groupBody->flags.isMacro = 1;
 			}
+}
+
+extern "C" void modifyClass(GroupItem *field, char *modifier, int wantRepeat)
+{
+	
+	char one[2];
+	one[1] = 0;
+	for ( char *p = modifier; p && *p; p++ ) {
+	one[0] = *p;
+	if ( ::modifierIsRepeat(one) == wantRepeat ) ::modify(field,one);
+	}
+	
 }
 
 /***************************************************************************
