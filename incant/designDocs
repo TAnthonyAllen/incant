@@ -4261,6 +4261,41 @@ define
                 is NOT a groupField gets minted as an action local instead (bear-trap 26,
                 payments 5 and 6). Taking it as a tag closes that, and the fold-left for
                 A.B.C is untouched by any of this.#);
+            RightIsAName=(LANDED 2026-09-10, and it is the half of 6b-i that does not need
+                the fold. The dot's RIGHT OPERAND IS A NAME, never a value.
+
+                THE DEFECT: the right operand arrived RESOLVED, and a resolved node WITH
+                DATA returns its DATA from .text (bear-trap 26). So opDot's
+                `product = target[text]` looked up the member's whole CONTENTS instead of
+                its name -- `DesignDocs.TokFiles` looked up TokFiles' entire description
+                paragraph, and missed. Accessors were unaffected because a groupFields
+                entry is selected by REGISTRY MEMBERSHIP and never reaches the text road,
+                which is exactly why `fcFace.noPrinT` worked while `DesignDocs.TokFiles`
+                read 0.
+
+                THE FIX IS THREE LINES IN handleDot: after the unwrap, if the op is a dot
+                and the operand is NOT a groupFields entry, hand opDot a fresh DATA-LESS
+                node carrying the name as its tag. #26 working DELIBERATELY instead of by
+                accident.
+
+                ⚠⚠ THE ACCESSOR EXEMPTION IS LOAD-BEARING, and it was measured the
+                expensive way. The FIRST cut left the operand UNWRAPPED instead of
+                re-minting it, on the theory that an unevaluated operand carries its own
+                tag. It carries the RULE WRAPPER's tag -- `ANYtoken` -- so every dot in the
+                tree looked up "ANYtoken" and FC-3, cursorReadT and the unary buy row all
+                moved at once. Re-minting is right; re-minting an ACCESSOR would strip its
+                registry and take the whole accessor family off its road, so the exemption
+                is not tidiness.
+
+                ⚠ AND THE H7 CONTROL CAUGHT THIS FILE'S OWN FIXTURE BEING VACUOUS.
+                incant/dotNameT's first cut used a DATA-LESS member, which returns its own
+                tag anyway -- so DN-1 passed with the fix REMOVED. The member now carries
+                data, and with the mint disabled DN-1 reads 0 while DN-4 stays 1. A fixture
+                for a bear-trap-26 defect has to be built out of a node that HAS data, or
+                it is testing the trap instead of the fix.
+
+                SCOPE: single-dot rows only. Chains still drop their second postfix
+                (bear-trap 52) and wait on the fold, which is blocked elsewhere.#);
             UnaryClassSplit=(RULING, Tony, try-and-buy 2026-09-10, LANDED as a structural
                 cleanup with its buy row green. THE SECOND DESIGN FACT FOR THE FOLD, beside
                 the container-arrives-loop-unpacks row.

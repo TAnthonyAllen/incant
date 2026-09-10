@@ -1,0 +1,47 @@
+/*****************************************************************************
+    dotNameT -- THE DOT'S RIGHT OPERAND IS A NAME, NEVER A VALUE.
+
+    Landed 2026-09-10. Before it, `A.B` on a member name read 0: the right
+    operand arrived RESOLVED, and a resolved node WITH DATA returns its DATA
+    from .text (bear-trap 26), so the lookup key was the member's whole
+    contents instead of its name.
+
+    ⚠ dnKid CARRIES DATA ON PURPOSE, and that is the whole discriminator. A
+    data-less member returns its own TAG from .text anyway (bear-trap 26), so a
+    fixture built on one passes with the fix REMOVED -- measured, on the first
+    cut of this file, when its H7 control stayed green. Only a member with data
+    can tell the two roads apart.
+
+    Four rows and they are not separable. DN-1 is the capability. DN-2 is the
+    MISS, which has to stay empty or the fix would be minting nodes for names
+    that do not exist. DN-3 is the ACCESSOR EXEMPTION -- a groupFields entry is
+    selected by REGISTRY MEMBERSHIP and re-minting it would strip that, taking
+    the whole accessor family off its road, so it must NOT be re-minted and it
+    must still read. DN-0 is the anti-vacuity control.
+
+    Header is prose on purpose -- bear-trap 27.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(DotName);
+define
+    dnKid="a member WITH DATA -- this is the discriminator"; dnOther;
+    dnBag   dnKid dnOther;
+    dnRes;
+    dnRun code={
+        cerr "DN-0 control  dnBag.listLengtH        = " dnBag.listLengtH " (want 2 -- the bag really has two)":;
+        dnRes := dnBag.dnKid;
+        cerr "DN-1 member   dnBag.dnKid       taG   = " *dnRes.taG " (want dnKid)":;
+        dnRes := dnBag.zzNoSuchMember;
+        cerr "DN-2 miss     dnBag.zzNoSuchMember    = " *dnRes.taG " (want 0 -- a miss mints nothing)":;
+        cerr "DN-3 accessor dnBag.noPrinT  BEFORE   = " dnBag.noPrinT " (want 0)":;
+        dnBag :. noPrinT;
+        cerr "DN-4 accessor dnBag.noPrinT  AFTER    = " dnBag.noPrinT " (want 1 -- DN-3's non-zero sibling; a dead accessor reads 0 both times)":;
+        };
+    ;
+dnRun();
+print "DOTNAME SENTINEL -- reached the foot":;
+stop();

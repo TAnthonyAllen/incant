@@ -3347,6 +3347,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
     back, null means the term is finished.   ruleActions.aCTionTokenXP.arms  */
 extern "C" GroupItem *handleDot(GroupItem *xpress, GroupItem *unary, GroupItem *ANYtoken, GroupItem *InvokeArg)
 {
+int 		dotName = 0;
 GroupItem 	*op = 0;
 GroupItem 	*arg = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -3365,6 +3366,20 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		op = op->getGroup();
 	if ( isGROUP(arg->groupBody->flags.data) )
 		arg = arg->getGroup();
+	/*  THE DOT'S RIGHT OPERAND IS A NAME, NEVER A VALUE. It arrives RESOLVED, and a
+	resolved node WITH DATA returns its DATA from .text (bear-trap 26) -- which is
+	why `DesignDocs.TokFiles` looked up the whole description paragraph and missed.
+	So hand opDot a fresh DATA-LESS node carrying the name as its tag: #26 working
+	deliberately instead of by accident.
+	⚠ ACCESSORS ARE EXEMPT AND THE EXEMPTION IS LOAD-BEARING -- a groupFields entry
+	is selected by REGISTRY MEMBERSHIP and re-minting would strip it, taking the
+	whole accessor family off its road.   ruleActions.handleDot.rightIsAName  */
+	dotName = 0;
+	if ( ::compare(op->groupBody->tag,".") == 0 )
+		dotName = 1;
+	 if ( arg && arg->groupBody->registry == ruler->groupFields ) dotName = 0; 
+	if ( dotName == 1 )
+		arg = new GroupItem(arg->groupBody->tag);
 	if ( unary )
 		{
 		/*  THE STAR/DOT ROTATION. `*a.b` must mean `(*a).b`, so the star

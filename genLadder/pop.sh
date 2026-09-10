@@ -2345,6 +2345,44 @@ else
 fi
 
 #  ---------------------------------------------------------------------------
+#  A8 -- THE DOT'S RIGHT OPERAND IS A NAME, NEVER A VALUE. Landed 2026-09-10.
+#
+#  BEFORE IT, `A.B` on a member name read 0. The right operand arrived RESOLVED, and a
+#  resolved node WITH DATA returns its DATA from .text (bear-trap #26), so the lookup
+#  key was the member's whole contents instead of its name -- `DesignDocs.TokFiles`
+#  looked up TokFiles' entire description paragraph and missed. handleDot now hands
+#  opDot a fresh DATA-LESS node carrying the name as its tag: #26 working deliberately
+#  instead of by accident.
+#
+#  ⚠ THE FOUR ROWS ARE NOT SEPARABLE. DN-1 is the capability. DN-2 is the MISS and it
+#  must stay EMPTY -- a fix that minted a node for every right-hand name would pass DN-1
+#  and be wrong. DN-3/DN-4 are the ACCESSOR EXEMPTION, and they are a PAIR because DN-3
+#  wants 0 and a DEAD accessor reads 0 too: DN-4 writes the flag and wants 1, so only a
+#  live accessor produces both. DN-0 is the anti-vacuity control on the walk itself.
+#
+#  ⚠ WHY THE EXEMPTION EXISTS AT ALL: a groupFields entry is selected by REGISTRY
+#  MEMBERSHIP, and re-minting strips the registry -- which would take the WHOLE accessor
+#  family off its road. Measured the expensive way on the first cut of this change, which
+#  left the operand unwrapped instead and sent `ANYtoken` to opDot as the key: FC-3,
+#  cursorRead and the unary buy row all moved at once.
+run2 dotNameT "$T/dn.o" "$T/dn.e"; check "dotNameT runs" 0 $?
+sentinel "dotNameT sentinel (no truncation)" "$T/dn.o" "DOTNAME SENTINEL"
+if grep -q "DN-0 control  dnBag.listLengtH        =  2 " "$T/dn.e" \
+   && grep -q "DN-1 member   dnBag.dnKid       taG   =  dnKid " "$T/dn.e" \
+   && grep -q "DN-2 miss     dnBag.zzNoSuchMember    =  0 " "$T/dn.e" \
+   && grep -q "DN-3 accessor dnBag.noPrinT  BEFORE   =  0 " "$T/dn.e" \
+   && grep -q "DN-4 accessor dnBag.noPrinT  AFTER    =  1 " "$T/dn.e"; then
+    echo "  ok    dot right-operand is a NAME: member resolves, miss stays empty, accessor road live -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  the dot's right-operand rows moved:"
+    grep "^DN-" "$T/dn.e" | sed 's/^/          actual:   /'
+    echo "          expected: DN-0 2, DN-1 dnKid, DN-2 0, DN-3 0, DN-4 1."
+    echo "          DN-1 falling back to 0 means the operand is being EVALUATED again."
+    echo "          DN-4 falling to 0 means the accessor exemption was lost -- a re-minted"
+    echo "          groupFields entry loses its registry and the whole accessor family goes dark."; fail=1
+fi
+
+#  ---------------------------------------------------------------------------
 #  A7 -- THE UNARY CLASS SPLIT, the BUY ROW for a try-and-buy ruling. 2026-09-10.
 #
 #  THE RULING: a prefix unary is ACCESS class, binding to the PRIMARY before the
