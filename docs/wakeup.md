@@ -1,3 +1,76 @@
+# ⚠⚠⚠ SEALED 2026-09-10, TWELFTH SESSION -- THE TRAIT HAND-UP LANDS, AND ITS
+# CERTIFICATE CONTAINS A CONTRADICTION THAT ROW 3 WINS. ONE COMMIT.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 13:2x and
+#   `git log -1 --date=iso` stamps the same minute. They agree.
+#
+#   ## THE ONE-LINE STATE: **flags ride up, repetitions stay on the data, the two
+#   spellings are now equivalent — and genParse gained FOUR emittable rules while the
+#   fleet lost seven rows to ONE cause: a held citizen's defect becoming live.** Fleet
+#   **254 green / 57**, canary **326**, frontier **exit 0**. Both repos **0 dirty, 0
+#   unpushed**. Fixit queue **4**. **Sealed after the stroke; 2a/2b/2c and 3 not opened.**
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE CERTIFICATE CONTRADICTS ITSELF AND ROW 3 WINS.** Row 1 asks *fleet 261
+#   unmoved*; row 3 asks that **BlocK's ORIGINAL `="}"-` now reproduce
+#   blockDashRefusalWalk's 5 visits with no respell.** **They cannot both hold** —
+#   honouring BlocK's dash is exactly what takes iterT1/iterT1m red. Row 3 passes, so row
+#   1 cannot.
+#
+#       ✅ ROW 2  StringXP reverted to `pound="#"-` → oneTest BYTE-IDENTICAL.
+#                 The old spelling and the new one are now equivalent — the ruling in one row.
+#       ✅ ROW 3  BlocK's original spelling reproduces 5 visits with NO respell.
+#       ✅ ROW 4  the `=[...]+` population UNMOVED at 62 — no repetition doubled.
+#       ⚠ ROW 1  fleet 261 → 254. SEVEN ROWS, ONE CAUSE.
+#
+#   **b. THE SEVEN MOVERS ARE ONE FACT.** BlocK's dash is now honoured, so **the held
+#   citizen's defect is LIVE ON THE TREE**: iterT1 walks 5 instead of 7, iterT1m the same,
+#   and oneTest / bare-master / census / odometer all shed `leftCurly` and `rightCurly`.
+#   **NOT RE-PINNED** — the citizen is held and re-pinning would freeze its defect as truth.
+#
+#   **c. ⚠⚠ AND THE ODOMETER IS A CAPABILITY GAIN, NOT A LOSS: 24 green → 28 green,
+#   population UNMOVED at 62, red 38 → 34.** **Four rules became emittable** — `ScopeXP`,
+#   `StringXP`, `leftCurly`, `rightCurly`. The two respelled lines' flags now reach their
+#   traits and genParse can plan them. **That is the ruling paying for itself in the one
+#   instrument that measures generation.**
+#
+#   **d. THE SHAPE, as specified.** `modifierClass` is a REGISTRATION — a new `Modifiers`
+#   registry in `incant/setup`, one entry per character, and **only the repetition class
+#   carries `repeatClass`**, so the predicate is presence and the default is flag. **One
+#   predicate, no inline lists**: `modifyClass` applies through `modify()` itself, so one
+#   place knows what a modifier DOES and one place knows what CLASS it is. Repetition
+#   after scalar data **refuses loud**.
+#
+#   **e. ⚠ TWO DOCUMENTED TRAPS BIT ON THE WAY IN.** The plain `+%` hand-up **published
+#   the Modifier as a VISIBLE TERM** — fleet 178, baselineTests **exit 139**, oneTest full
+#   of `AUDIT TERM … Modifier -- rule TERM, not isRule`. It rides as a **noPrint artifact**
+#   now, this tree's standing *artifact-not-a-term* mark (`builtinParsE`, `CodE`). And the
+#   first noPrint spelling was **`upMark :. noPrinT;` — KANT in a `.rtn`** — canary 326 → 0,
+#   failing three files away in `Bytecode.mm`. **Three languages, named.**
+#
+#   ## WHAT LANDED — ONE COMMIT
+#   `1f5ff65` the ruling in five files, plus the support `groups.ext` mirror (306 → 309).
+#   **Revert is one commit** if the seven reds are not the trade wanted.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **The `&&`/`||` amendment (2a/2b/2c) and stroke 3 not opened** — sealing after each
+#   stroke was the instruction, and the trait hand-up is stroke 2.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **the seven reds' disposition** — respell BlocK forward, or leave them red under the
+#   held citizen (Tony's) · **2a** register `&&`/`||` with AND/OR's methods · **2b** the
+#   emitter emits `&&` · **2c** the scrub to zero live word forms · **stroke 3** load-time
+#   or parse-time · AP-5 · the fold · 6b-ii · unknown-operator refusal.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   The seven reds above · `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE`
+#   · FC-2 `noPrint` → `noPrinT` · parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, ELEVENTH SESSION -- THE `if !` SWEEP: 47 LIVE HITS, EXACTLY
 # THREE ASK PRESENCE, AND ALL THREE ARE ONE SHAPE. TWO COMMITS.
 #
