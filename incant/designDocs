@@ -4092,6 +4092,40 @@ define
                 source only because a one-line call-out costs nothing to keep.
 
                 No percent-dash in the format string (bear-trap 40).#);
+            ShortCircuitIsASpelling=(MEASURED 2026-09-10, and 2a DID NOT LAND. Recorded
+                because the measurement is worth more than the attempt.
+
+                THE GAP, measured with a side effect rather than argued:
+
+                    false AND loud()    right fires 0 times     short-circuits
+                    true  OR  loud()    right fires 0 times     short-circuits
+                    false ||  loud()    right fires 1 time      correct, it must
+                    true  ||  loud()    right fires 1 time      ⚠ SHOULD BE 0
+
+                ⚠ THE WORD FORMS SHORT-CIRCUIT AND THE SYMBOL FORM DOES NOT, and both
+                carry the SAME operateMethod. So it was never about opOR.
+
+                THE CAUSE IS AN INLINE LIST OF SPELLINGS, ruleActions.rtn interpretXP:
+                `if op.tag eq "AND" || op.tag eq "OR"  xl.method = runShortCircuit;`
+                -- the tier-3 binding is selected by TAG, so `||` could not be seen. Third
+                inline list this campaign has found in an action after accessClass and
+                repeatClass, and the obvious repair is the same one: an attribute on the
+                operator plus one predicate.
+
+                ⚠⚠ AND THE OBVIOUS REPAIR BREAKS `||`. Registering `shortCircuit` on
+                `'||'` (and minting `'&&'` beside it) gives the symbol form the tier-3
+                binding and `true || false` READS FALSE. So runShortCircuit is NOT a
+                drop-in for the symbol form and the reason is undiagnosed. `&&` registers
+                and parses but evaluates wrong too -- `!true && true` reads TRUE.
+                REVERTED WHOLE; canary back to 326, orProbe byte-identical.
+
+                ⚠⚠⚠ THE EXPENSIVE PART IS THAT THE FLEET DID NOT MOVE. 261 green before
+                the attempt and 261 after, with `true || false` reading FALSE the whole
+                time. NO ROW READ orProbe'S OPERATOR TABLE. That is why pop.sh row A9 now
+                pins it -- both halves, because they are different questions: the TABLE is
+                what `||` ANSWERS, the SHORT-CIRCUIT row is what it EVALUATES. The second
+                is pinned AT THE DEFECT on purpose, andProbe AP-5b's shape, so the day the
+                gap closes the fleet says so.#);
             ModifierTwoClasses=(THE SENTENCE, 2026-09-10: A FLAG DESCRIBES A TERM; A
                 REPETITION CHANGES WHAT THE TERM IS. That is why the two classes cannot
                 share a code path, and it is measured from two directions that never met.

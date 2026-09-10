@@ -2369,6 +2369,42 @@ else
 fi
 
 #  ---------------------------------------------------------------------------
+#  A9 -- THE `||` TRUTH TABLE AND ITS SHORT-CIRCUIT. Banked 2026-09-10, and it is
+#  banked because a REAL `||` REGRESSION WAS INVISIBLE TO THIS FLEET.
+#
+#  ⚠ WHAT HAPPENED. A try at giving `||` the tier-3 short-circuit binding made
+#  `true || false` read FALSE. incant/orProbe caught it in one line; THE FLEET DID NOT
+#  MOVE AT ALL -- 261 green before and after -- because no row read orProbe's operator
+#  table. The change was reverted, and this row exists so the next try cannot be silent.
+#
+#  ⚠ IT PINS BOTH HALVES, and they are different questions. The TABLE is what `||`
+#  ANSWERS; the SHORT-CIRCUIT row is what it EVALUATES. The measured state on
+#  2026-09-10 is that the table is correct and the short-circuit is NOT -- `OR` does not
+#  evaluate its right operand when the left decides, and `||` does. THAT ROW IS PINNED
+#  AT THE DEFECT ON PURPOSE, the way andProbe's AP-5b was: it is a known gap with a
+#  ruling owed, and pinning it means the day it closes, the fleet says so.
+run2 orProbe "$T/orp.o" "$T/orp.e"; check "orProbe runs" 0 $?
+_orfail=0
+for _r in "true  || false -> TRUE" "false || false -> false" "false || true  -> TRUE"; do
+    grep -qF "$_r" "$T/orp.o" || _orfail=1
+done
+if [ "$_orfail" = 0 ]; then
+    echo "  ok    orProbe: the || truth table holds (T|F, F|F, F|T) -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  orProbe: the || TRUTH TABLE moved. This is the row that a short-circuit"
+    echo "        change breaks first -- `true || false` reading false is the measured"
+    echo "        signature of the tier-3 binding being given to the symbol form."
+    grep -E '\-> ' "$T/orp.o" | sed 's/^/          actual:   /'; fail=1
+fi
+if grep -qF "true || loudZero() -> TRUE" "$T/orp.o"; then
+    echo "  ok    orProbe: || evaluates its right operand -- PINNED AT A KNOWN GAP (see note)"; green=$((green+1))
+else
+    echo "  FAIL  orProbe: the || short-circuit row MOVED. If the right operand is no longer"
+    echo "        evaluated the gap has CLOSED and this row graduates (H6) -- re-pin with a"
+    echo "        sentence naming what closed it. `OR` has never evaluated it; `||` always has."; fail=1
+fi
+
+#  ---------------------------------------------------------------------------
 #  A8 -- THE DOT'S RIGHT OPERAND IS A NAME, NEVER A VALUE. Landed 2026-09-10.
 #
 #  BEFORE IT, `A.B` on a member name read 0. The right operand arrived RESOLVED, and a
