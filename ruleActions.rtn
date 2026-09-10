@@ -91,7 +91,7 @@ GroupItem   arg = ExpressioN;
     // returnEmitNow
     if jitting {
         if BrancheS.tag == 'c'          jitEmitContinue();
-        or BrancheS.tag {
+        or BrancheS.tag == 'r' {
             // branchReturnPosition
             if ExpressioN && !isMethod  jitEmitBareRead(ExpressioN);
             if jitEmitReturn() < 0  jitDegrade("return REFUSED -- no builder, no epilogue block, or  inlining with no frame. A mis-sequenced caller", input); }

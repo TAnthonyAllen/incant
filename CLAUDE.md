@@ -1693,7 +1693,24 @@ Hard-won lessons. Each one has cost real debugging time.
       `if fbCur.taG eq "x"` used as a skip guard in an `iterate`/`while ++` walk skipped the entire
       population — 43 installs became 0. No error, no diagnostic; the walk simply does nothing and a
       control built on it is **void rather than negative**. Found 2026-08-19 building F-31's negative
-      control, and the A/B that replaced it needed no name test at all |
+      control, and the A/B that replaced it needed no name test at all.
+      ⚠⚠ **AMENDED 2026-09-10, AND THE ATTRIBUTION IN THIS ROW WAS WRONG: THE DISCRIMINATOR IS `eq`,
+      NOT `iterate`.** `eq` is a **tok** operator and **kant has none** — it is registered nowhere in
+      `incant/setup`'s `Operators` — so the token falls through **truthy** instead of refusing, in any
+      position, inside a walk or outside one. `==` is opEQ and compares values correctly. Measured six
+      ways on three tags in one run (`incant/attic/branchTagTruth` carries the table): `*btT ==` and
+      bare `taG ==` both read **1**, `*btT eq` and `btT eq` both read **3**. ⚠ **The star is NOT the
+      variable** — `eq` is void with it and without it — which is why an A/B that varies two things at
+      once cannot name a cause. **The population this row reports is real; only the blame moves.**
+      ⚠ **THREE OTHER CITATIONS DIE WITH IT**, all of them agreeing with this row and all of them
+      taken through `eq`: `incant/f31:132`, `incant/fixBisect:47-48`'s name-skip control, and
+      branchTagTruth's own four-spelling table with its headline claim that *"this language has no
+      working string discriminator in this position, measured four ways"* — **withdrawn; two spellings
+      discriminate and one of them needs no capture at all.** Four registers agreeing was one bad
+      spelling counted four times, and measuring four ways is not measuring if all four share a
+      variable nobody varied. ⚠ **And the census sweep that found it: there are ZERO executable `eq`
+      in `incant/` today — all eight remaining hits are prose in dead regions, recording exactly the
+      void measurements above.** |
     **And a fourth, mechanical rather than syntactic, in the same silent class: `include(X)`
     SEARCHES NO PATH.** `getFile` opens the name relative to the working directory; every
     includable file is registered by hand in **`incant/setup`'s `fILEs` registry**

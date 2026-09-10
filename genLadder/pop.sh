@@ -2345,6 +2345,35 @@ else
 fi
 
 #  ---------------------------------------------------------------------------
+#  A5 -- aCTionBrancH's TWO JIT ARMS BOTH DISCRIMINATE BY CONTENT. 2026-09-10.
+#  This is the coverage incant/fixits/branchTagTruth carried out with it when it
+#  retired; the citizen is in incant/attic/ and this row is where BT-3 now lives.
+#
+#  WHAT IT PROTECTS. The arm used to read `or BrancheS.tag {` -- a bare presence
+#  test on a char*, which is non-null for every tag -- so break fell into the
+#  RETURN emitter and the jitDegrade below it was unreachable for anything at all.
+#  ⚠ AND THE READING THAT SETTLED IT WAS THE GENERATED .mm, NOT THE SOURCE: the
+#  surviving 'c' arm looked equally suspect, because tok's `==` is numeric and
+#  `.tag` is a char*. It is NOT broken -- tok renders `BrancheS.tag == 'c'` as
+#  `*BrancheS->groupBody->tag == 'c'`, a real first-character compare. So the fix
+#  owed ONE arm, not both, and reading the source alone would have owed two.
+#
+#  ⚠ H4-SHAPED ON PURPOSE. It counts a PRESENT construct rather than asserting the
+#  absence of a bad one: a presence test cannot pass by someone deleting the line,
+#  because deleting it drops the count. Both arms are in ONE grep so that reverting
+#  either is visible.
+arms=$(grep -c "\*BrancheS->groupBody->tag == " GroupRules.mm | tr -d " ")
+if [ "$arms" = "2" ]; then
+    echo "  ok    aCTionBrancH: $arms jit arms discriminate by content -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  aCTionBrancH content-test arms = $arms, want 2."
+    echo "        One arm has gone back to a bare presence test on the tag. `or BrancheS.tag {`"
+    echo "        is true for EVERY tag, so break walks into the return emitter and the"
+    echo "        jitDegrade below becomes unreachable. Spell it `BrancheS.tag == 'r'`;"
+    echo "        tok renders that as a first-character compare, same as the 'c' arm."; fail=1
+fi
+
+#  ---------------------------------------------------------------------------
 #  THE ITERATE DRIFT ROW, SEQ 148. The modifier now precedes `on`:
 #  the modifier keyword goes BEFORE `on`, never after the source.
 #  The old form does not fail -- it PARSES, binds the source, and leaves the

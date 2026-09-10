@@ -146,7 +146,7 @@ GroupItem 	*arg = ExpressioN;
 		if ( *BrancheS->groupBody->tag == 'c' )
 			::jitEmitContinue();
 		else
-		if ( BrancheS->groupBody->tag )
+		if ( *BrancheS->groupBody->tag == 'r' )
 			{
 			// branchReturnPosition
 			if ( ExpressioN && !isMethod(arg->groupBody->flags.instructType) )

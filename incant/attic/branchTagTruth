@@ -127,3 +127,86 @@ NEXT: BEST GUESS. Two candidates, and they are not equivalent.
 ⚠ NOT A RECOMMENDATION. Neither has been run against the jitting arm, and nothing
 jits a break today, so there is no live customer to measure against yet. The site is
 one function and the reading is cheap; do that before choosing.
+
+
+================================================================================
+RETIRED 2026-09-10, ON BT-3, AND THE CAUSE IS `eq` -- NOT THE STAR, AND NOT
+`iterate`. Tony's dispatch. The fix landed in the same stroke.
+================================================================================
+
+THE FIX. `aCTionBrancH`'s second jit arm was `or BrancheS.tag {` and is now
+`or BrancheS.tag == 'r' {`. ONE arm, not two, and the reading that settled that
+was the GENERATED .mm rather than the source: tok renders `BrancheS.tag == 'c'`
+as `*BrancheS->groupBody->tag == 'c'`, a real first-character compare, so the
+surviving 'c' arm was never broken. This file's NEXT block worried in writing
+that "the fix may owe both arms" and asked for exactly that reading. It owed one.
+
+WHERE THE COVERAGE WENT -- retirement by mapping, line by line.
+  BT-1  the walk visits 3 distinct members       -> subsumed; it was the local
+                                                    anti-vacuity control for BT-2/BT-3
+  BT-2  `if taG;` answers TRUE 3 of 3            -> NOT a defect and no row is owed.
+                                                    Tony's ruling: a string-holding tag
+                                                    is true by presence. That is the
+                                                    truth table, not a bug. Do not chase.
+  BT-3  a content test discriminates 1 of 3      -> genLadder/pop.sh row A5,
+                                                    "aCTionBrancH: 2 jit arms discriminate
+                                                    by content -- PINNED BY VALUE", H4-shaped
+                                                    (counts a PRESENT construct, so it cannot
+                                                    pass by deletion) with an H7 control:
+                                                    reverting either arm reads 1 and goes red.
+
+⚠ THE SIX-SPELLING TABLE, one run each, same three tags, same bare binary,
+2026-09-10. BT-3 wants 1.
+
+    if *btT == "return";              1   correct
+    if taG == "return";               1   correct, and NO capture is needed at all
+    if btT == "return";               0
+    if *btCur.taG == "return";        0
+    if *btT eq "return";              3   VOID
+    if btT eq "return";               3   VOID
+
+READ THE ROWS IN PAIRS AND THE ANSWER IS FLAT.
+  . `eq` answers TRUE FOR EVERY MEMBER **with the star and without it**. The star
+    is not what fixed anything. kant has no `eq` -- it is registered nowhere in
+    incant/setup's Operators -- so the token falls through truthy instead of
+    refusing. That is three-language drift: `eq` is tok's string compare, and
+    `==` is tok's NUMERIC one, which is why the habit exists and why it is wrong
+    here. In kant, `==` is opEQ and it compares values.
+  . `btT == "return"` reading 0 is `:=` MINTING A HOLDER. `btT := taG` makes btT
+    a holder whose body is a pointer, so a bare read of it is a read of the
+    holder and never of the tag. `*btT` reads through. Bear-trap #41 is the
+    parent -- "capture, then test" is advice about an OPERATOR -- and this is its
+    other half: having captured with `:=`, READ IT BACK WITH `*`.
+  . `*btCur.taG == "return"` reading 0 is the DOT defect, and it is the row that
+    belongs to the `.`-is-binary ruling rather than to this file. A chained read
+    through a cursor does not deliver the tag. Carry this row into that stroke's
+    evidence list; it is a second witness beside the chained-subscript one.
+
+⚠⚠ THE VOID-CITATION LIST, and it is the expensive part of this retirement.
+Every measurement below was taken through `eq` and therefore measured nothing.
+None of them is a fact about `iterate`, about capture, or about kant's ability
+to compare strings.
+
+  1. BEAR-TRAP #28, FOURTH ROW -- "`eq` against a tag inside an `iterate` body
+     matches EVERY member", 43 installs to 0. The population was right and the
+     attribution was wrong: the culprit is `eq`, and it is NOT iterate-specific.
+     Amended in place, dated.
+  2. incant/f31:132 -- the note repeating #28's fourth row. Prose, dead region.
+  3. incant/fixBisect:47-48 -- the name-skip control, `taG eq "tokenize"` and
+     `fbCur.taG eq "tokenize"`, reported VOID at the time and correctly so. The
+     file already says a control that installs zero bodies asserts nothing; what
+     it did not know is WHY, and now it does.
+  4. THIS FILE'S OWN FOUR-SPELLING TABLE, and its headline claim that "this
+     language has no working string discriminator in this position, measured
+     four ways". All four spellings were `eq`. The claim is withdrawn: two
+     spellings discriminate correctly, one of them needs no capture at all.
+
+⚠ THE SHAPE IS THE ONE THIS PROJECT KEEPS PAYING FOR. Four registers agreed --
+a bear-trap row, two fixtures and this citizen -- and the agreement was one bad
+spelling counted four times. Measuring four ways is not measuring, if all four
+ways share a variable nobody varied. The 2x3 above cost one command.
+
+⚠ AND A STANDING ITEM FELL OUT OF IT, captured for Tony: an unknown operator in
+a kant body should REFUSE AT COMPILE, not fall through truthy. `if btT eq
+"return";` parsed, ran, and answered TRUE three times. Nothing named the operator
+and nothing named the rule.
