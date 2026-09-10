@@ -2345,6 +2345,51 @@ else
 fi
 
 #  ---------------------------------------------------------------------------
+#  A6 -- HOW A MEMBER'S TAG IS READ FROM INSIDE AN ITERATE BODY. 2026-09-10,
+#  stroke 6b's PRE-MEASURE, banked as a row rather than as prose.
+#
+#  ⚠ WHAT IT PROTECTS, and it is a RULING'S PRECONDITION rather than a defect.
+#  The `.`-is-binary ruling retires the leading/bare accessor form and says a
+#  collision between a bare name and a member is spelled explicitly, `btCur.taG`.
+#  MEASURED BEFORE ANY OF THAT IS BUILT, two arms, because a ruling that retires
+#  the working spelling in favour of a broken one is a ruling that goes dark:
+#
+#      ARM A, no collision      bare taG -> crAlpha / crBeta   CORRECT
+#                               crCur.taG -> `crCur`           THE CURSOR, not the member
+#      ARM B, a field named taG bare taG -> 0
+#      declared in the define   crCur.taG -> 1
+#
+#  So TODAY the bare form is the one that works, the explicit form the ruling
+#  names as the escape hatch reads the CURSOR (bear-trap #35's chained-read
+#  family), and a declared same-named field shadows BOTH. Two independent
+#  fixtures agree on the explicit form: incant/attic/branchTagTruth's table has
+#  `if btCur.taG eq "return"` at 3 of 3 and `*btCur.taG == "return"` at 0.
+#
+#  ⚠ BOTH ARMS ARE REQUIRED. A alone cannot see the shadowing; B alone cannot
+#  show that bare is the working spelling when nothing shadows it. Each carries
+#  its own walked-count control at 2, so a row that read nothing cannot pass.
+run2 cursorReadT "$T/cra.o" "$T/cra.e"; check "cursorReadT runs" 0 $?
+sentinel "cursorReadT sentinel (no truncation)" "$T/cra.o" "CURSORREAD SENTINEL"
+if grep -q "CR-A 1 bare= crAlpha explicit= crCur" "$T/cra.e" && grep -q "CR-A walked =  2 " "$T/cra.e"; then
+    echo "  ok    cursorRead A: bare reads the MEMBER, explicit reads the CURSOR -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  cursorRead A moved -- the two spellings no longer read what they read on 2026-09-10:"
+    grep "^CR-A" "$T/cra.e" | sed 's/^/          actual:   /'
+    echo "          expected: CR-A 1 bare= crAlpha explicit= crCur   (and walked = 2)"
+    echo "          If `explicit` now reads the member, the .-is-binary ruling's escape"
+    echo "          hatch has started working and this row is a RE-PIN owed a sentence."; fail=1
+fi
+run2 cursorReadTb "$T/crb.o" "$T/crb.e"; check "cursorReadTb runs" 0 $?
+sentinel "cursorReadTb sentinel (no truncation)" "$T/crb.o" "CURSORREADB SENTINEL"
+if grep -q "CR-B 1 bare= 0 explicit= 1" "$T/crb.e" && grep -q "CR-B walked =  2 " "$T/crb.e"; then
+    echo "  ok    cursorRead B: a declared same-named field SHADOWS both spellings -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  cursorRead B moved -- the shadowing changed:"
+    grep "^CR-B" "$T/crb.e" | sed 's/^/          actual:   /'
+    echo "          expected: CR-B 1 bare= 0 explicit= 1   (and walked = 2)"; fail=1
+fi
+
+#  ---------------------------------------------------------------------------
 #  A5 -- aCTionBrancH's TWO JIT ARMS BOTH DISCRIMINATE BY CONTENT. 2026-09-10.
 #  This is the coverage incant/fixits/branchTagTruth carried out with it when it
 #  retired; the citizen is in incant/attic/ and this row is where BT-3 now lives.

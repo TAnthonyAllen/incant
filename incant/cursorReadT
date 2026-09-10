@@ -1,0 +1,40 @@
+/*****************************************************************************
+    cursorReadT -- HOW A MEMBER'S TAG IS READ FROM INSIDE AN ITERATE BODY,
+    and the two spellings do not agree.
+
+    Minted 2026-09-10 as stroke 6b's PRE-MEASURE. The `.`-is-binary ruling
+    retires the leading/bare accessor form and says a collision between a bare
+    name and a member is spelled explicitly, btCur.taG. This file measures both
+    spellings before any of that is built, because a ruling that retires the
+    working form in favour of a broken one is a ruling that goes dark.
+
+    ARM A, no collision. Bare wins and the explicit form does not.
+    ARM B, a field literally named taG declared in the enclosing define block.
+
+    Both arms are needed: A alone cannot show the shadowing, and B alone cannot
+    show that the bare form is the one that works when nothing shadows it.
+*****************************************************************************/
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(CursorRead);
+define
+    crBag   crAlpha crBeta;
+    crN;
+    crWalk code={
+        iterate crCur on *argument;
+        while ++crCur;
+            ++crN;
+            cerr "CR-A" crN " bare=" taG " explicit=" crCur.taG:;
+        };
+    crRun code={
+        crN = 0;
+        crWalk(crBag);
+        cerr "CR-A walked = " crN " (want 2 -- the anti-vacuity control)":;
+        };
+    ;
+crRun();
+print "CURSORREAD SENTINEL -- reached the foot":;
+stop();
