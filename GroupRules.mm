@@ -1198,6 +1198,14 @@ Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTA
 	return ::opString(stuff,buffer);
 }
 
+/*******************************************************************************
+	TokenXP returns a token or a token expression.
+
+    ⚠ THIS IS A SEAT WITH FOUR CALLOUTS, NOT A BODY. Since 2026-09-10 the arms live
+    in handleUnary, handleCall, handleSubscript and handleDot; what is left here is
+    the dispatch and the two control facts it reads back from an arm.
+        ruleActions.aCTionTokenXP.arms
+*******************************************************************************/
 extern "C" GroupItem *aCTionTokenXP(GroupItem *xpress)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -3413,9 +3421,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
-/*******************************************************************************
-	TokenXP returns a token or a token expression.
-*******************************************************************************/
 /*  handleUnary -- the PREFIX operators. Wraps ANYtoken in a `uxp` under the unary's
     own op and hangs it as xpress's group. ⚠ A HAND, NOT A WITNESS: it changes the
     tree, so it does NOT wear the measure prefix.   ruleActions.aCTionTokenXP.arms  */
