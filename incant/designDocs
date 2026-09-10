@@ -4569,6 +4569,32 @@ define
                 consistent with the isGROUP theory guess 1 was built on even though guess
                 1's own spelling was wrong.
 
+                ⚠⚠ IT IS PARSE-TIME, NOT LOAD-TIME, AND THE `^` IS EXONERATED. Measured
+                2026-09-10, one read, no build. Under the dying grammar the trace shows the
+                grammar LOADED and rules FIRING -- `fireLabelMethod StatemenT`,
+                `attachLabel lab=StatemenT pRule=Start` -- and the run then dies at EXIT 2
+                on the FIRST STATEMENT it tries to parse, `include(unitTests);`, which is a
+                NAME WITH AN InvokeArg. So nothing refuses the container where the rule is
+                generated; the rule is built and the first use of it fails.
+
+                THE FOUR-CELL READ, and the second row is the one that clears a suspect:
+
+                    ANYorNum^ InvokeArg?    exit 0    baseline
+                    ANYorNum^ InvokeArg*    exit 2
+                    ANYorNum  InvokeArg*    exit 2    ^ REMOVED, still dies
+                    ANYorNum  InvokeArg?    exit 0    ^ REMOVED, still fine
+
+                ⚠ THE `^` CHANGES NOTHING IN EITHER DIRECTION. `InvokeArg?` works with it
+                and without it; `InvokeArg*` dies with it and without it. So noSkip on the
+                preceding term is NOT the mechanism, and ONE OF THE TWO FACTS THE DIAGNOSIS
+                WAS RESTING ON IS GONE. What survives is the other: InvokeArg is an
+                ALTERNATION, and every fatal spelling -- repetition, `@`, an interposed
+                rule -- turns the term into something carrying a CONTAINER.
+
+                ⚠ AND A NOISE LINE THAT LOOKED LIKE A MARKER: `CAPTURE ORACLE-ABSENT
+                rule=NamE` appears in ALL FOUR cells, including the two that exit 0. It is
+                not the failure signature and reading it as one would have cost a session.
+
                 ⚠ UNDIAGNOSED, AND DELIBERATELY NOT GUESSED. InvokeArg is an alternation
                 (Braced / Parens / UnaryXP) and TokenXP reaches it after a `^` noSkip term,
                 which are the two facts worth starting from; nothing here establishes either
