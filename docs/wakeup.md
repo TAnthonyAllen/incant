@@ -1,3 +1,188 @@
+# ⚠⚠⚠ SEALED 2026-09-10 -- FOUR `-` LINES LAND, BlocK HELD AS A CITIZEN, `eq`
+# VOIDS FOUR CITATIONS. THREE STROKES OF SIX; 4, 5 AND 6 ARE MEASURED AND NOT BUILT,
+# AND STROKE 4's CERTIFICATE HALF DOES NOT REPRODUCE. THREE COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 10:49 and
+#   `git log -1 --date=iso` stamps 2026-09-10 10:46. They agree.
+#
+#   ## THE ONE-LINE STATE: **Tony's offline `-` respell is a real fix and four of
+#   its five lines landed clean; the fifth regresses a nested walk and is now a
+#   fixit citizen; and the day's sharpest finding is that `eq` -- which kant does
+#   not have -- silently answered TRUE and had voided four separate registers that
+#   all agreed with each other.** Fleet **249 green / 50** (from 248/50 at open,
+#   +1 for a new row), canary **318**, ddPop 5, decodePop 14, formsPop 14, countPop
+#   0-of-44, frontier **exit 0, stations 1/2/3/8 PASS**. Both repos **0 dirty, 0
+#   unpushed**. Fixit queue **3**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE BINARY AT SESSION OPEN WAS A DIRECTIVES BUILD, AND IT WAS
+#   BEHAVIOUR-CHANGING.** `GroupRules.mm` carried `if compare(arg,"trA")==0
+#   result = 0;` in aCTionNamE plus two `dumpContents` and a `printf` in parseRule
+#   -- Tony's live parseRule debugging, 7 armed entries in `groupDirectives`.
+#   Retok'd bare per bear-trap #23's 08-18 hardening before anything was measured.
+#   The instrumented copy is reference-only in scratch; `tok GroupRules.twk
+#   groupDirectives` reproduces it. **Every number in this seal is from a bare build.**
+#
+#   **b. THE `-` RESPELL IS A REAL FIX AND THE MECHANISM IS setContent.** Both
+#   spellings parse -- `TraiT` is `NamE Modifier* Limit? TraiTdata?` and TraiTdata
+#   is `'=' DatA Modifier* Limit?`, so a dash written after the `=` lands in
+#   TraiTdata's Modifier* instead of TraiT's. aCTionTraiTdata modifies the **DatA**
+#   node; aCTionTraiT then `setContent`s that node onto the trait, and setContent
+#   does not carry flags (bear-trap #1/#2). So the old spelling applied the dash to
+#   a node whose flags were about to be discarded, and the term was minted as a
+#   **labelled rule with no rStuff** -- the bare-master wreckage the audit reports.
+#
+#   **c. ⚠ IT IS NOT "MOVEMENT IN BOTH DIRECTIONS". FOUR LINES ARE CLEAN WINS AND
+#   ONE IS A REGRESSION, ISOLATED BY ONE-LINE BISECT:**
+#
+#       respelled rule    oneTest MISSRULE    iterT1 / iterT1m
+#       HEAD                     12                MATCH
+#       BlocK                    10                DIFF   <- HELD
+#       Braced                   10                MATCH
+#       Parens                   10                MATCH
+#       StringXP                 12                MATCH
+#       ScopeXP                  12                MATCH
+#
+#   The wreckage removal is **additive and per-rule**; the walk regression is
+#   BlocK's alone. Three fleet rows moved for ONE fact seen from three places and
+#   all three were re-pinned with the sentence: `oneTest.base` (four vanished AUDIT
+#   MISSRULE lines, summary 12 -> 8), the bare-master `AUDITLINE` (12 -> 8), and the
+#   genParse odometer (24/42 of 66 -> **24/38 of 62, GREEN UNMOVED AT 24** and
+#   `odometer.green` byte-unchanged at its 18 names -- a population correction, not
+#   a capability claim). leftCurly and rightCurly stay in all three counts on
+#   purpose, because BlocK is held.
+#
+#   **d. ⚠⚠ `eq` IS THE DAY'S FINDING, AND IT COST FOUR REGISTERS.** kant has
+#   **no** `eq` -- registered nowhere in `incant/setup`'s Operators -- so the token
+#   **falls through TRUTHY instead of refusing.** Six spellings, one run each, same
+#   three tags, BT-3 wants 1:
+#
+#       if *btT == "return";      1  correct     if *btT eq "return";   3  VOID
+#       if taG  == "return";      1  correct     if btT  eq "return";   3  VOID
+#       if btT  == "return";      0  (holder)    if *btCur.taG == ...;  0  (dot)
+#
+#   ⚠ **THE STAR WAS NEVER THE VARIABLE** -- `eq` is void with it and without it,
+#   so Tony's offline A/B moved two things and could not name a cause. `btT ==`
+#   reading 0 is `:=` **minting a holder** (bear-trap #41's other half: having
+#   captured with `:=`, read it back with `*`). `*btCur.taG ==` reading 0 is the
+#   **dot defect** and rides into that ruling's evidence list as a second witness.
+#   **VOIDED BY IT, all four agreeing with each other:** bear-trap #28's fourth row
+#   (amended in place, dated -- the population it reports is real, only the blame
+#   moves; the discriminator is `eq`, **not** `iterate`), `incant/f31:132`,
+#   `incant/fixBisect:47-48`'s name-skip control, and branchTagTruth's own
+#   four-spelling table with its headline claim that kant has no working string
+#   discriminator in this position -- **withdrawn**. ⚠ **Four registers agreeing was
+#   one bad spelling counted four times.** The 2x3 that killed it cost one command.
+#   **The eq sweep, report-only: EIGHT hits in `incant/`, ZERO executable** -- all
+#   prose in dead regions, recording exactly the void measurements above. Nothing
+#   respelled; per-site calls are Tony's.
+#
+#   ## WHAT LANDED -- THREE COMMITS
+#   `a0524c8` four `-` lines, three re-pins, the BlocK citizen, Tony's comment moves
+#   · `d532815` aCTionBrancH's second arm + branchTagTruth retires · `fe9318e`
+#   stroke 3, hasTraits gains a post-setParse row that comes back vacuous.
+#
+#   **aCTionBrancH owed ONE arm, not two, and the generated `.mm` is what said so.**
+#   The citizen asked in writing for that reading because tok's `==` is numeric and
+#   `.tag` is a `char*`. tok renders `BrancheS.tag == 'c'` as
+#   `*BrancheS->groupBody->tag == 'c'` -- a real first-character compare -- so the
+#   surviving arm was never broken. Source alone would have owed two. New pop.sh row
+#   **A5** greps the generated `.mm` for both arms: H4-shaped (counts a PRESENT
+#   construct, so it cannot pass by deletion), H7 control run, reverting either arm
+#   reads 1 and goes red.
+#
+#   ## ⚠ WHAT DID NOT LAND, NAMED RATHER THAN SOFTENED
+#   **Strokes 4, 5 and 6 are measured and not built**, and stroke 4 stopped on its
+#   own pre-flight clause -- *measure "keyed to the defining rule" before building.*
+#
+#   - **STROKE 4: THERE IS NO INSTALL IN runRule TO REMOVE.** runRule reads
+#     `hasNewParse` and forks to `rule["builtinParsE"]`; it writes nothing. The
+#     single install is **`compile()`'s last line**, `field.hasNewParse = true`, on
+#     the outer rule only. So the ruling's shape is right and its demolition clause
+#     has no subject.
+#   - ⚠ **AND THE DIAGNOSIS BEHIND IT DOES NOT REPRODUCE ON THIS BUILD.** After
+#     `parser(IterSource)`, the DEFINING UnaryOPS reads **hasNewParsE=1, binTypE=1**
+#     -- `setParse` did reach it through generateParse's term loop, and `isBIN`
+#     routes to `parseContainer`. It gets no *generated body*, correctly: a bin
+#     needs a container parse, not a body. **What is still unmeasured is whether the
+#     emitted `UnaryOPS(argument)` call resolves to that node**, and UnaryOPS lives
+#     in **`pROPERTIEs`**, which is **not on `parser`'s search list**
+#     (`Grokking GroupFields Utilities`). That is the next measurement and it is one run.
+#   - ⚠ **THE CERTIFICATE'S OTHER HALF DOES NOT REPRODUCE EITHER.** A rule
+#     forward-declared then redefined with members was measured beside a plain rule
+#     of identical shape, both controls passing (hit 1, miss 0):
+#         F-1 FwdRule   hasNewParsE=1 isCodeD=0 listLengtH=5
+#         F-2 PlainRule hasNewParsE=1 isCodeD=0 listLengtH=5
+#     **Identical.** So the same-file shape cannot serve as the certificate; the
+#     09-09 finding needs the **cross-file** re-definition shape
+#     (`genParse.rtn:1154` -- *"a cross-file re-definition binds a satellite the
+#     reader never looks at"*). ⚠ `isCodeD=0` on BOTH after `compile succeeded` is a
+#     separate loose thread, captured not chased.
+#   - **STROKE 5 GAINED ITS PRE-FLIGHT AND IT IS A WARNING, NOT A VETO.** Removing
+#     `.` from UnaryOPS -- Tony's offline experiment, which **never reached the
+#     tree**; `incant/setup` is byte-clean at HEAD and was restored md5-identical
+#     after the arm -- takes **every dotted accessor dark, silently**:
+#         `.` IN UnaryOPS      fcSrc.noPrinT 1 · fcFace.noPrinT 0 · *fcFace.noPrinT 1
+#         `.` OUT of UnaryOPS  all three read a TAG ECHO (bear-trap #26)
+#     opDot stops producing a groupFields read at all. **That is Tony's
+#     faceFlagsNoCross symptom exactly** -- "noPrinT comes through as true, not as a
+#     groupField" -- and it means his offline reading was taken on the experiment
+#     build. **It is evidence FOR the ruling's design, not against it:** the
+#     replacement right-operand road (name-as-tag via term@/captureSpan) has to land
+#     **on the same stroke** as the removal, or the accessor family goes dark.
+#
+#   ## ⚠ FINDINGS REGISTERED, NOT CHASED
+#   - **`incant/fixits/blockDashRefusalWalk`** minted. The BlocK respell alone takes
+#     iterT1/iterT1m from **7 visits to 5** -- a nested walk loses every member after
+#     the first that refuses, refusals 4 -> 2. Carries the bisect table, a probe
+#     showing the stopping frame moves from the refusing callee to its **caller**,
+#     and the one structural observation that BlocK is the only one of the five
+#     whose repeated term is `StatemenT`. **NEXT: OPEN, no guess line**, per dispatch.
+#     H7 control built in: 7 held, 5 respelled.
+#   - **`hasTraits` NOT retired**, and HP-0 is why. The post-setParse row reads
+#     DISAGREE 0 like the raw one, and **`setParse` took on 3 members of 64** -- the
+#     other 61 refuse *"no rStuff"*, which is **Ruling D working as written**. A
+#     member-walk of Grokking cannot prime this population, so HP-5 is a reading of
+#     something never primed. ⚠ **HP-0 is the row to copy**: it is built out of the
+#     refusal arm's own semantics, not a return value -- set a flag 0, call, set it
+#     1, and a refusal stops the block so the second assignment never runs.
+#   - ⚠ **AND THE CITIZEN'S LIVE THREAD HAS CLOSED SINCE IT WAS BANKED.** Its text
+#     said connectiveT pins StatemenT 1/0 *"and that row is RED today, reading 1/1"*.
+#     **It is green**, both rows, with the BlocK 1/1 hit control beside it. So
+#     agreement-before / divergence-after is certified from both sides, and what is
+#     unique to hasTraits is only the BEFORE half. Corrected in place.
+#   - **faceFlagsNoCross, re-read only, not fixed.** Beyond the `.` A/B above: its
+#     **FC-2 reads `fcFace.noPrint`** -- lowercase t, the **Commands keyword** --
+#     while FC-3 reads `fcClean.noPrinT`, the groupFields accessor. FC-2 answers a
+#     tag echo and FC-3 answers 0. **The two rows have never been reading the same
+#     thing**, so "FC-2 and FC-3 reading the SAME value is the defect" measures a
+#     spelling difference on top of whatever else is true. Tony's call.
+#   - **Two probes voided themselves and are reported void, not graded.**
+#     `Grokking["UnaryOPS"]` is a MISS (it lives in pROPERTIEs) and read 0/0/0
+#     convincingly; and `if pZ;` after a `:=` capture answered TRUE on a name that
+#     does not exist. Both are bear-trap #35's ⚠⚠ -- **test existence with a DIRECT
+#     subscript, and carry a hit/miss pair** -- and the corrected runs carry one.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   stroke 4 (compile-side install; **needs the cross-file shape for its
+#   certificate, and one run to see where `UnaryOPS(argument)` resolves**) · stroke 5
+#   (the `.` ruling, with the right-operand road landing on the same stroke) ·
+#   stroke 6 (unknown-operator refusal at compile -- **measured: `eq` parsed, ran and
+#   answered TRUE three times without naming the operator or the rule**) · then BlocK,
+#   re-read on the dot road · blocker 2 (`trigDO39`) · F-55 sweep · JIT ladder (i)-(iii).
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   The `#28/#35` amendment beyond the `eq` row · whether faceFlagsNoCross's FC-2
+#   spelling is fixed or the citizen retires · the `eq` sites, per-site · whether
+#   parseRule's deleted `noElseHere` marker comes back (the entry AND its inline
+#   pointer both went; bear-trap #32 says tidying that flag idiom into an if/else
+#   takes the canary 318 -> 0 and names a healthy function).
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-09 -- THE KANT ROAD PARSES, REFUSES, AND HAS FLEET ROWS.
 # ONE RULE DEEP, INTERPRETED, THE JIT THREE RUNGS AWAY. SIX COMMITS.
 #
