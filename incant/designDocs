@@ -4129,6 +4129,44 @@ define
                 reads it, and mints the term as a labelled rule with no rStuff. The four
                 Braced/Parens/StringXP/ScopeXP lines were respelled on 2026-09-10 (a0524c8)
                 and BlocK is held behind incant/fixits/blockDashRefusalWalk.#);
+            DoorIsHasNewParse=(RULING, Tony, 2026-09-10, signed and landed. runOP's arm for
+                a generated parse is entered on hasNewParsE, not on isRule. ONE CONDITION,
+                and no isBIN arm: rule, bin, forward-declared rule -- anything carrying a
+                body takes it.
+
+                WHAT IT FIXED. runOP tested isOperator, isMethod, isRule, actionType. A BIN
+                IS NONE OF THEM, so an emitted `UnaryOPS(argument)` fell off the bottom of
+                the fork, returned null, and printed NOTHING -- no error, no refusal, no
+                trace. measureRuleDispatch read `arm=NONE` and was the only line in the tree
+                that could say so.
+
+                    before   RULEDISPATCH UnaryOPS ... hasNewParse=1 ... arm=NONE
+                    after    RULEDISPATCH UnaryOPS ... hasNewParse=1 ... arm=runRule
+                             runRule DOOR on UnaryOPS  field=1 fieldData=0
+
+                ⚠⚠ AND THE RULING IS RIGHT FOR A REASON WORTH KEEPING, WHICH THE
+                CERTIFICATE TURNED UP BY ACCIDENT: parseClassify on the node a subscript
+                reaches reads `PC none UnaryOPS` -- rStuff.parseMethod is NULL there -- while
+                the same node reads hasNewParsE=1. That is not a defect, it is the
+                minted-versus-derived split working exactly as ruled on 2026-08-24:
+                hasNewParsE and the builtinParsE artifact ride the SHARED CHILD LIST and are
+                face-proof, while rStuff.parseMethod is PER NODE and a reference face has its
+                own. SO A DOOR KEYED ON rStuff WOULD OPEN FOR SOME FACES AND NOT OTHERS, and
+                a door keyed on hasNewParsE opens for all of them. The one-condition form is
+                not merely tidier; it is the only one that can be face-proof.
+
+                ⚠ THE INSTRUMENT WENT STALE WITHIN THE HOUR, and that is the second lesson.
+                measureRuleDispatch's `arm=` string RE-DERIVES runOP's ladder rather than
+                reading it, so the moment the door widened it still reported arm=NONE for the
+                node that had just gone through. A witness that recomputes its subject's
+                decision drifts from it silently. Its header now says so; edit the two
+                together.
+
+                ⚠ BEAR-TRAP 29 BIT ON THE WAY IN, in its documented form. The ruling's
+                two-line comment was first written BETWEEN two arms of the if/or chain,
+                immediately before an `or`, and took the canary 322 to 0 -- the exact cell of
+                that trap's measured table. Moved above the whole chain; canary back to 322.
+                The generated .mm was read before the build, which is what caught it.#);
             DotLeftOperand=(MEASURED 2026-09-10, stroke 1, off measureDotOperands, and it
                 moves the `.` defect from the RIGHT operand to the LEFT.
 

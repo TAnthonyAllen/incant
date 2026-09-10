@@ -11332,11 +11332,16 @@ GroupItem 	*target = field->get(2);
 	input stream and consumes it.  */
 	// which node the NAME reached, and which arm the fork will take   measure.measureRuleDispatch
 	::measureRuleDispatch(op,target,arg);
+	// ruled 2026-09-10: the door is hasNewParse, not isRule -- anything carrying a
+	// generated body takes it, a bin included   GroupActions.runOP.doorIsHasNewParse
 	if ( isOperator(op->groupBody->flags.instructType) )
 		result = op->groupBody->gOp(arg,target);
 	else
 	if ( isMethod(op->groupBody->flags.instructType) )
 		result = op->groupBody->gMethod(target);
+	else
+	if ( target->groupBody->flags.hasNewParse )
+		result = ::runRule(arg,target);
 	else
 	if ( target->groupBody->flags.isRule )
 		result = ::runRule(arg,target);

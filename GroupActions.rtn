@@ -1018,8 +1018,11 @@ GroupItem   result,
         input stream and consumes it.  */
     // which node the NAME reached, and which arm the fork will take   measure.measureRuleDispatch
     measureRuleDispatch(op,target,arg);
+    // ruled 2026-09-10: the door is hasNewParse, not isRule -- anything carrying a
+    // generated body takes it, a bin included   GroupActions.runOP.doorIsHasNewParse
     if op.isOperator    result = op.operat(arg,target);
     or op.isMethod      result = op.method(target);
+    or hasNewParse      result = runRule(arg,target);
     or isRule           result = runRule(arg,target);
     or actionType       result = runAction(arg,target);
     or isMethod {

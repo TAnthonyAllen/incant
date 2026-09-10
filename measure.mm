@@ -410,7 +410,11 @@ extern "C" GroupItem *measureParentProbe(GroupItem *field)
 }
 
 /*  THE FORK ABOVE runRule, and it prints the node the NAME actually reached --
-    not the node a subscript reaches. parseTrace-gated. ⚠ No percent-dash in the
+    not the node a subscript reaches. parseTrace-gated.
+    ⚠ THE `arm=` STRING RE-DERIVES runOP's LADDER AND MUST BE EDITED WITH IT. It went
+    stale within the hour on 2026-09-10: the door widened to hasNewParse and this still
+    said arm=NONE for the node that had just gone through. A witness that recomputes its
+    subject's decision drifts from it silently.   measure.measureRuleDispatch ⚠ No percent-dash in the
     format string (bear-trap #40).   measure.measureRuleDispatch  */
 extern "C" GroupItem *measureRuleDispatch(GroupItem *op, GroupItem *target, GroupItem *arg)
 {
@@ -428,6 +432,7 @@ extern "C" GroupItem *measureRuleDispatch(GroupItem *op, GroupItem *target, Grou
 	isOperator(target->groupBody->flags.instructType) ? 1 : 0,
 	(op && isOperator(op->groupBody->flags.instructType)) ? "operator"
 	: (op && isMethod(op->groupBody->flags.instructType)) ? "opMethod"
+	: target->groupBody->flags.hasNewParse ? "runRule"
 	: target->groupBody->flags.isRule ? "runRule"
 	: target->groupBody->flags.actionType ? "runAction"
 	: isMethod(target->groupBody->flags.instructType) ? "method"
