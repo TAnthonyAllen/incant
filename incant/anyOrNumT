@@ -23,8 +23,8 @@ define
             cerr "leaf " taG:;
             printTO(0);
             return;
-        if hasTraitS;       conjunct = "AND";
-        else                conjunct = "OR";
+        if hasTraitS;       conjunct = "&&";
+        else                conjunct = "||";
         print `"if ";
         iterate grup on *argument;
         while ++grup;

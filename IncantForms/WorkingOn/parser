@@ -21,8 +21,12 @@ define
             if listLengtH; print "rules should not have data and a list; one or the other":;
             printTO(0);
             return;
-        if hasTraitS;       conjunct = "AND";
-        else                conjunct = "OR";
+        /*  ⚠ THE C SPELLINGS SINCE 2026-09-10, and they are not a rename: `&&` and `||`
+            only became correct that day, when the two spelling lists that chose the
+            tier-3 binding and the skip direction became registrations. Before it, `||`
+            carried opOR and still evaluated its right operand.  */
+        if hasTraitS;       conjunct = "&&";
+        else                conjunct = "||";
         print `"return ";
         iterate grup on argument;
         while ++grup;
