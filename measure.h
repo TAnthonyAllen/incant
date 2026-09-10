@@ -62,6 +62,7 @@ extern "C" GroupItem *measureLabelMint(GroupItem *field, GroupItem *myLabel, Gro
 extern "C" GroupItem *measureLabelProbe(GroupItem *field, GroupItem *myLabel, GroupItem *into, GroupItem *result, int yielded);
 extern "C" GroupItem *measureParentProbe(GroupItem *field);
 extern "C" GroupItem *measureRuleDispatch(GroupItem *op, GroupItem *target, GroupItem *arg);
+extern "C" GroupItem *measureTokenArm(char *arm, GroupItem *ANYtoken, GroupItem *InvokeArg, GroupItem *unary);
 extern "C" GroupItem *parseClassify(GroupItem *field);
 extern "C" GroupItem *probeNode(GroupItem *argument);
 extern "C" GroupItem *showBody(GroupItem *field);

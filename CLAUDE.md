@@ -2311,8 +2311,24 @@ Hard-won lessons. Each one has cost real debugging time.
     arrives as a repetition CONTAINER and `aCTionTokenXP`'s arms do not unpack it. **The grammar
     and the dispatch are one change, not two**, and the container arriving is the loop's first
     design fact rather than an obstacle to it.
-    **Detector:** count `opDot` entries, never results. A results-based check cannot see this at
-    all, which is why it survived until a seat callout existed to count calls.
+    ⚠⚠ **AND IT IS SHARPER THAN "THE DOT DOES NOT FIRE": THE SECOND POSTFIX IS NOT PARSED AS A
+    TERM AT ALL.** Measured the same day from the arm side (`measureTokenArm`), one arm printed
+    per postfix:
+
+    | spelling | arms that fire |
+    |---|---|
+    | `DesignDocs["TokFiles"].Commands` | **one** — `subscript`, primary `DesignDocs` |
+    | `DesignDocs.TokFiles.Commands` | **one** — `dot-COMPOSED`, primary `DesignDocs` |
+    | `DesignDocs.TokFiles` | **one** — `dot-COMPOSED`, primary `DesignDocs` |
+
+    **`A.B.C` and `A.B` produce IDENTICAL parses.** The trailing `.C` yields no term, no arm and
+    no call — it is dropped at parse time, not mis-evaluated at run time.
+    ⚠ **THE USEFUL COROLLARY, and it answers the question people will ask: the trailing `.C` is
+    NOT a leading-dot spelling riding `lastREF`.** No `dot-LEADING` arm fires for it. So retiring
+    the leading form does not owe `X[…].Y` a respell — that shape is a **dropped term**, and it is
+    fixed by the fold, not by the accessor road.
+    **Detector:** count `opDot` entries or arm entries, never results. A results-based check
+    cannot see this at all, which is why it survived until a seat callout existed to count calls.
 
 51. **SAME NAME, TWO PROVENANCES: A KANT BODY SPELLING `false` GETS A *COPY*; THE `AND` CHAIN
     HANDS BACK THE REGISTRY NODE *ITSELF*. AN IDENTITY TEST AGAINST `falseResult` THEREFORE WORKS

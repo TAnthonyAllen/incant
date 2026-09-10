@@ -1234,20 +1234,33 @@ GroupItem 	*ANYtoken = xpress->get("ANYorNum");
 		{
 		if ( !UnaryOPS )
 			if ( ANYtoken->groupBody->registry == ruler->groupFields )
+				{
+				::measureTokenArm("dot-LEADING",ANYtoken,0,UnaryOPS);
 				::handleDot(xpress,UnaryOPS,ANYtoken,0);
-			else	xpress->setGroup(ANYtoken);
+				}
+			else {
+				::measureTokenArm("primary",ANYtoken,0,UnaryOPS);
+				xpress->setGroup(ANYtoken);
+				}
 		}
 	else {
 		if ( InvokeArg->groupBody->groupList )
 			{
+			::measureTokenArm("dot-COMPOSED",ANYtoken,InvokeArg,UnaryOPS);
 			swap = ::handleDot(xpress,UnaryOPS,ANYtoken,InvokeArg);
 			if ( swap )
 				ANYtoken = swap;
 			}
 		else
 		if ( InvokeArg->groupBody->flags.fLAG )
+			{
+			::measureTokenArm("subscript",ANYtoken,InvokeArg,UnaryOPS);
 			::handleSubscript(xpress,UnaryOPS,ANYtoken,InvokeArg);
-		else	::handleCall(xpress,ANYtoken,InvokeArg);
+			}
+		else {
+			::measureTokenArm("call",ANYtoken,InvokeArg,UnaryOPS);
+			::handleCall(xpress,ANYtoken,InvokeArg);
+			}
 		if ( !swap )
 			xpress->groupBody->flags.invoke = 1;
 		}

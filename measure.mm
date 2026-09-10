@@ -441,6 +441,25 @@ extern "C" GroupItem *measureRuleDispatch(GroupItem *op, GroupItem *target, Grou
 	return target;
 }
 
+/*  WHICH ARM OF aCTionTokenXP's DISPATCH A TERM TOOK, and whether the dot it carries is
+    the LEADING form. parseTrace gated. ⚠ It READS the arm it is handed rather than
+    re-deriving the ladder -- the callout convention's fourth sentence, paid for by
+    measureRuleDispatch going stale. ⚠ No percent-dash in the format string (bear-trap
+    #40).   measure.measureTokenArm  */
+extern "C" GroupItem *measureTokenArm(char *arm, GroupItem *ANYtoken, GroupItem *InvokeArg, GroupItem *unary)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace )
+	::fprintf(stderr,"TOKENARM %s primary=%s invokeArg=%s invokeList=%d unary=%s\n",
+	arm ? arm : "(none)",
+	ANYtoken ? ANYtoken->groupBody->tag : "(null)",
+	InvokeArg ? InvokeArg->groupBody->tag : "(none)",
+	(InvokeArg && InvokeArg->groupBody->groupList) ? 1 : 0,
+	unary ? unary->groupBody->tag : "(none)");
+	
+	return ANYtoken;
+}
+
 /*  IT READS THE BOUND POINTER, it does not re-derive the arm. ⚠ `fires` is a table
     over that pointer and goes stale if a builtin ever gains a fire.
     measure.parseClassify  */

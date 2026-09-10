@@ -965,14 +965,23 @@ GroupItem   swap,
     if isGROUP  ANYtoken = group;
     if !InvokeArg {
         if !UnaryOPS
-            if registry == groupFields  handleDot(xpress,UnaryOPS,ANYtoken,0);
-            else                        xpress.group = ANYtoken; }
+            if registry == groupFields {
+                measureTokenArm("dot-LEADING",ANYtoken,0,UnaryOPS);
+                handleDot(xpress,UnaryOPS,ANYtoken,0); }
+            else {
+                measureTokenArm("primary",ANYtoken,0,UnaryOPS);
+                xpress.group = ANYtoken; }}
     else {
         if InvokeArg.groupList {
+            measureTokenArm("dot-COMPOSED",ANYtoken,InvokeArg,UnaryOPS);
             swap = handleDot(xpress,UnaryOPS,ANYtoken,InvokeArg);
             if swap     ANYtoken = swap; }
-        or InvokeArg.fLAG   handleSubscript(xpress,UnaryOPS,ANYtoken,InvokeArg);
-        else                handleCall(xpress,ANYtoken,InvokeArg);
+        or InvokeArg.fLAG {
+            measureTokenArm("subscript",ANYtoken,InvokeArg,UnaryOPS);
+            handleSubscript(xpress,UnaryOPS,ANYtoken,InvokeArg); }
+        else {
+            measureTokenArm("call",ANYtoken,InvokeArg,UnaryOPS);
+            handleCall(xpress,ANYtoken,InvokeArg); }
         if !swap    xpress.invoke = true; }
     /*  ⚠ A ROTATING ARM FINISHES THE TERM ITSELF AND SAYS SO BY SETTING THE METHOD.
         That is the one control fact the loop needs from an arm, and reading it here
