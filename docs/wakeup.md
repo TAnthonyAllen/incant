@@ -1,3 +1,86 @@
+# ⚠⚠⚠ SEALED 2026-09-10, SEVENTEENTH SESSION -- `&&` AND `||` ARE THE LANGUAGE's
+# BOOLEANS. 2b, 2c AND THE LOAD/PARSE READ. CLEAN KITCHEN. FOUR COMMITS.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-10 14:12 and `git log -1 --date=iso` 14:12.
+#   They agree.
+#
+#   ## THE ONE-LINE STATE: **the C spellings are the only booleans, 36 sites scrubbed
+#   with the fleet unmoved, the indirection is PARSE-TIME and the `^` is exonerated —
+#   and three separate certificates in this session were VOID until a control said so.**
+#   Fleet **266 green / 50**, canary **328**, ddPop 5, decodePop 14, formsPop 14, countPop
+#   0-of-47, frontier **exit 0, 4 PASS**. Both repos **0 dirty, 0 unpushed**,
+#   `groups.ext` committed and pushed. Fixit queue **3**.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. 2b — AND THE CERTIFICATE WAS VOID.** *"trigDO's five rows unchanged"* asserts
+#   nothing about the emitted conjunct, because **`incant/trigDO` carries its own copy of
+#   `generateParse`.** ⚠ **THERE ARE EIGHT COPIES** — the generator, five fixtures, two
+#   probes — **and they have already drifted**: `probeLabelSeam` branches on
+#   `hasAttributeS` where every other copy branches on `hasTraitS`. Six changed; the two
+#   `minionWork` probes left, named. **The H7 control bites only after the right copy is
+#   edited**: `zzNOTANOP` takes arm 1's `mintedLen` 2 → 0.
+#
+#   **b. 2c — 36 SITES, 19 FILES, FLEET UNMOVED, NO RE-PINS.** Operators only, outside
+#   quoted strings and comment fences; every print string is a literal, so every
+#   output-grepping target is byte-identical **by construction**. One prose casualty
+#   caught and reverted (`that was MEASURED AND IS` — English, not an operator).
+#   designDocs/decoder/jigcorpus excluded as data; `minionWork` as scratch.
+#
+#   **c. ⚠⚠⚠ THE WORD FORMS ARE NOT GONE. `if wT AND wF;` — true AND false — STILL PARSES
+#   AND TOOK THE TRUE ARM.** Removing an operator from the registry removes the MEANING,
+#   not the TOKEN, and leaves the spelling **answering wrongly and silently**. **Third
+#   casualty for the held unknown-operator refusal and the sharpest**: `eq` was never
+#   registered, `&&` was a KNOWN operator with no correct road, `AND` is now a RETIRED
+#   operator that still answers. **A refusal gate would have caught all three; nothing
+#   else did.**
+#
+#   **d. ⚠ A VACUITY THE SCRUB CREATED AND THE SAME PASS CAUGHT.** `shortCircuitT` had
+#   eight rows; the scrub respelled their OPERATORS and left their LABELS, so four printed
+#   "AND"/"OR" while testing `&&`/`||` — **green, duplicated, and lying.** Collapsed to
+#   four, pop.sh with it. **Two spellings of one operator is one row.**
+#
+#   **e. LOAD-TIME OR PARSE-TIME: PARSE-TIME, AND THE `^` IS EXONERATED.** The grammar
+#   LOADS and rules FIRE (`attachLabel lab=StatemenT pRule=Start`); the run dies at
+#   **exit 2** on the **first statement**, `include(unitTests);` — a NAME with an
+#   InvokeArg. Four cells:
+#
+#       ANYorNum^ InvokeArg?   exit 0        ANYorNum  InvokeArg*   exit 2   ^ removed
+#       ANYorNum^ InvokeArg*   exit 2        ANYorNum  InvokeArg?   exit 0   ^ removed
+#
+#   **The `^` changes nothing in either direction**, so **one of the two facts the
+#   diagnosis rested on is gone.** What survives: InvokeArg is an **alternation**, and
+#   every fatal spelling turns the term into something carrying a **container**.
+#   ⚠ **`CAPTURE ORACLE-ABSENT rule=NamE` appears in ALL FOUR cells, including the two
+#   that exit 0** — it is noise, not the failure signature.
+#
+#   ## WHAT LANDED — FOUR COMMITS
+#   `261b240` 2b · `2b39d87` 2c · `ed5a22f` the load/parse read. (`a423d82` 2a sealed
+#   last session.) Support: `4403fce`.
+#
+#   ## ⚠⚠ THE PARKED ITEMS, BY NAME, SO THE NEXT WAKEUP NEEDS TO OPEN NOTHING
+#   - **WARNING PASS** — owed, not started.
+#   - **UNKNOWN-OPERATOR REFUSAL** — Tony's nod. **Three measured casualties now**: `eq`
+#     (never registered, answered truthy 3 of 3), `&&` (known, no correct road, silent),
+#     `AND` (retired, still answers, and answers WRONG). One gate in the operator lookup.
+#   - **PRECEDENCE ARC** — `&&` above `||`, both below comparison, above assignment.
+#     ⚠ **Not a registration**: KANT-43 says this language has NO precedence and
+#     associates right to left. A mechanism that does not exist yet.
+#   - **THE FOLD and 6b-ii**, both behind the indirection — now known **parse-time**, `^`
+#     exonerated, container-shape the surviving suspect.
+#   - **AP-5** — bare `if aFalse;` disagrees with AND/`&&`; the last presence-side reader.
+#   - **danglingElse's `bkFirst` READ** — what `bkFirst` is on the braced road versus the
+#     unbraced. Its candidate list has already lost "positional reach".
+#   - **STATION 4/6/7** — `Braced`'s `StorE`; `frStation4/6/7` fail to PARSE. Tony's.
+#   - **FC-2** — `noPrint` → `noPrinT` before faceFlagsNoCross is read again. Tony's.
+#   - **noElseHere** — parseRule's inline line, on the tok reading. Tony's. (The
+#     DesignDocs entry is already restored.)
+#   - **EIGHT EMITTER COPIES** — new this session, not owed to anyone yet.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, SIXTEENTH SESSION -- `&&` AND `||` SHORT-CIRCUIT. IT WAS TWO
 # SPELLING LISTS, NOT ONE. THREE COMMITS.
 #
