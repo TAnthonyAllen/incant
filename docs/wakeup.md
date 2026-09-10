@@ -1,3 +1,111 @@
+# ⚠⚠⚠ SEALED 2026-09-10, FIFTH SESSION -- THE DOOR RULING LANDED AND OPENED FOR A
+# BIN; THE DOT's RIGHT OPERAND IS EVALUATED, AS SUSPECTED; AND THERE IS NO FOLD TO
+# FOLD WITH. THREE COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 12:02 and
+#   `git log -1 --date=iso` stamps 2026-09-10 12:01. They agree.
+#
+#   ## THE ONE-LINE STATE: **stroke 1's ruling is in and a bin now takes the door;
+#   stroke 3 confirms the dot's right operand is EVALUATED and that this is exactly
+#   6b-i's road; and stroke 4 found that a two-postfix chain fires NO dot at all, so
+#   the fold the ruling delegates to "TokenXP's loop" does not exist yet.** Fleet
+#   **255 green / 50**, unmoved all session, canary **322**, ddPop 5, decodePop 14,
+#   formsPop 14, countPop 0-of-44, frontier **exit 0, 4 PASS**. Both repos **0 dirty,
+#   0 unpushed**. Fixit queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE DOOR IS `hasNewParsE`, LANDED, AND THE CERTIFICATE TURNED UP THE REASON.**
+#   One condition, no isBIN arm.
+#
+#       before   RULEDISPATCH UnaryOPS ... hasNewParse=1 ... arm=NONE
+#       after    RULEDISPATCH UnaryOPS ... hasNewParse=1 ... arm=runRule
+#                runRule DOOR on UnaryOPS  field=1 fieldData=0
+#
+#   ⚠⚠ **AND THIS IS THE PART WORTH KEEPING:** `parseClassify` on the node a subscript
+#   reaches reads **`PC none UnaryOPS`** — `rStuff.parseMethod` is NULL there — while the
+#   SAME node reads `hasNewParsE=1`. That is the **minted-versus-derived split** working
+#   exactly as ruled 08-24: `hasNewParsE` and the `builtinParsE` artifact ride the
+#   **shared child list** and are face-proof; `rStuff` is **per node** and a reference
+#   face has its own. **So a door keyed on rStuff would open for some faces and not
+#   others.** The one-condition form is not merely tidier — **it is the only one that can
+#   be face-proof.**
+#   ⚠ **frontier station 4 NOT MET, and not by this stroke's doing:** `frStation4`, 6 and
+#   7 fail to PARSE (`ERROR processCode: frStation4 parse failed`) for the reason Tony's
+#   own inline comment gives — `Braced` carries a `StorE` attribute that is neither a rule
+#   nor noPrint. Stations 1/2/3/5/8 run; the block predates the door.
+#
+#   **b. ⚠ TWO INSTRUMENT LESSONS FROM ONE STROKE, both cheap and both new.**
+#   **The witness went stale within the hour:** `measureRuleDispatch`'s `arm=` string
+#   **re-derives** runOP's ladder rather than reading it, so the moment the door widened
+#   it still said `arm=NONE` for the node that had just gone through. **A witness that
+#   recomputes its subject's decision drifts from it silently** — synced, and its header
+#   now says the two are edited together.
+#   **And bear-trap #29 bit in its documented form:** the ruling's comment was first
+#   written **between two arms of the if/or chain, immediately before an `or`**, and took
+#   the canary **322 → 0** — the exact cell of that trap's measured table. **Caught by
+#   reading the generated `.mm` before the build, not by the canary alone**: the `.mm`
+#   showed the new arm simply absent.
+#
+#   **c. STROKE 3 — THE RIGHT OPERAND IS EVALUATED, AND THAT IS 6b-i's ROAD.**
+#
+#       fcFace.noPrinT       right=noPrinT  isGroupField=1 gCount=29                works
+#       DesignDocs.TokFiles  right=TokFiles isGroupField=0 gCount=239 rightData=13  reads 0
+#
+#   ⚠ **`rightData=13` is the finding.** An accessor never reaches the text road —
+#   `isGroupField=1` takes the switch arm and `text` is never touched. A **member name**
+#   does, opDot falls to `product = target[text]`, and by **bear-trap #26 a node WITH data
+#   returns its DATA from `.text`**, not its name. TokFiles' data is its long description
+#   paragraph, so the lookup is `DesignDocs[<that whole paragraph>]` and misses. **Taking
+#   the right operand as a TAG closes exactly this.** Answer to the stroke's question:
+#   **no**, it is not falling to a road the fix doesn't touch.
+#
+#   **d. ⚠⚠ STROKE 4 — THERE IS NO FOLD. Counted through the callout, no capture:**
+#
+#       DesignDocs.TokFiles                 1
+#       DesignDocs["TokFiles"]              0   (correct — a subscript is `=[`)
+#       DesignDocs["TokFiles"].Commands     0
+#       DesignDocs.TokFiles.Commands        0
+#
+#   **A single dot fires; ANY two-postfix chain fires none at all** — not left-fold, not
+#   right-fold. The call order the stroke asked for **does not exist to be read**. The
+#   cause is one grammar line: `TokenXP  UnaryOPS? ANYorNum^ InvokeArg?` — **one** optional
+#   postfix — so `A.B.C` cannot be one TokenXP with two.
+#   ⚠ **AND THE GRAMMAR HALF ALONE MAKES IT WORSE, measured rather than assumed:** the `?`
+#   → `*` takes the SINGLE dot from **1 call to 0**, because InvokeArg then arrives as a
+#   repetition container the arms do not recognise. Grammar restored clean. **The two
+#   halves are not separable and neither is a one-liner.**
+#
+#   ## WHAT LANDED — THREE COMMITS
+#   `822e149` stroke 1's ruling + the witness sync + `DoorIsHasNewParse` ·
+#   `2b5a265` strokes 3 and 4 + `DotRightIsEvaluated`. (`4f2aed8` was the prior seal.)
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **Stroke 2 (the modifier two-class ruling), 5 (6b-i), 6 and 7 untouched.** 6b-i is
+#   **re-scoped rather than blocked**, and the scope is now honest: the grammar taking
+#   `InvokeArg*`, `aCTionTokenXP`'s dispatch becoming a **real left-folding loop** over
+#   that list, and `handleDot` taking its right operand as a name. **The clause "the
+#   fold-left is TokenXP's loop" assumes a loop that does not exist — building it IS the
+#   stroke**, and it rewrites the dispatch 6a certified byte-identical, so it wants its
+#   own certificate rather than the tail of another stroke.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   6b-i at its true size (grammar `InvokeArg*` + the fold loop + handleDot's name) ·
+#   stroke 2, the modifier two-class ruling (signed, not started) · 6b-ii the removal ·
+#   stroke 7 (unknown-operator refusal; measured: `eq` parsed, ran, answered truthy 3 of
+#   3) · `blockDashRefusalWalk` · what moved kant's `else` refusal between 08-21 and today
+#   · frontier's `Braced`/`StorE` state, which is blocking three stations.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   FC-2 respelled `noPrint` -> `noPrinT` before faceFlagsNoCross is read again ·
+#   parseRule's `noElseHere` inline line on the tok reading (the DesignDocs entry is
+#   already back) · whether frontier's station 4/6/7 parse failure is cleared before the
+#   next certificate asks for station 4.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, FOURTH SESSION -- THE DOT DEFECT IS ON THE **LEFT**
 # OPERAND, AND THE ESCAPE HATCH ALREADY EXISTS SPELLED WITH A STAR. 6b-i NOT BUILT;
 # ITS CERTIFICATE HAS A ROW THE MECHANISM CANNOT CASH. FOUR COMMITS.
