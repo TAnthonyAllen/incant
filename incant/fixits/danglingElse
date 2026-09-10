@@ -107,3 +107,31 @@ single-statement baseline -- which reads exactly like "the whole construct is br
 and is really "the fixture is misspelt". Kant's `if` is `if <cond>; <statement>`. The
 tell is that the arm you believe is the CONTROL fails too; when that happens, doubt
 the fixture before the language.
+
+================================================================================
+RE-READ 2026-09-10, stroke 5: THE GUESS DIED FOR ONE BUILD. THE TWO CITIZENS ARE
+NOT ONE DEFECT.
+================================================================================
+
+THE GUESS WAS that blockDashRefusalWalk and this file are the same defect seen
+twice -- that BlocK's noLabel dash, once honoured, would change what a braced arm
+means, and that the "regression" in the walk was the cure being mis-read.
+
+MEASURED, the braced-plus-else arm on BOTH grammars, one run each:
+
+    BlocK HELD      (leftCurly="{"- )    RunRulE: expected a method not bkFirst
+    BlocK RESPELLED (leftCurly-="{" )    RunRulE: expected a method not bkFirst
+
+IDENTICAL. The dash makes no difference to it at all, in either direction. So the
+braced-else failure is not downstream of the modifier's position, and the two
+citizens stay two.
+
+⚠ AND blockDashRefusalWalk IS UNMOVED IN THE SAME RUN -- 7 held, 5 respelled, the
+same pair it was minted with. Stroke 2's hand-up, which was the only thing that
+could have changed the modifier's reach, DETONATED and was reverted (fleet 249 to
+170, exit 139), so nothing under either citizen has moved since.
+
+WHAT THIS COSTS AND WHAT IT BUYS. It costs the tidy story that one fix closes two
+rows. It buys the knowledge that the braced-else refusal is its own mechanism,
+which is worth more than the story was: the NEXT block above names three places to
+look, and none of them is the grammar's modifier position. Cross it off.
