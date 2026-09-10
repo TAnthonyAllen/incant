@@ -4167,6 +4167,49 @@ define
                 immediately before an `or`, and took the canary 322 to 0 -- the exact cell of
                 that trap's measured table. Moved above the whole chain; canary back to 322.
                 The generated .mm was read before the build, which is what caught it.#);
+            DotRightIsEvaluated=(MEASURED 2026-09-10, strokes 3 and 4, off
+                measureDotOperands, and together they say what 6b-i has to be.
+
+                STROKE 3 -- THE SINGLE DOT ON A GROUP MEMBER, and it is exactly the road
+                6b-i's fix targets, so that half is a green light:
+
+                    fcFace.noPrinT       right=noPrinT  isGroupField=1 gCount=29   works
+                    DesignDocs.TokFiles  right=TokFiles isGroupField=0 gCount=239
+                                                        rightData=13               reads 0
+
+                ⚠ THE RIGHT OPERAND HAS BEEN EVALUATED -- `rightData=13` says the resolved
+                node carries data. An accessor never reaches this: isGroupField=1 takes the
+                switch arm and `text` is never touched. A MEMBER NAME does reach it, opDot
+                falls to `product = target[text]`, and by bear-trap 26 a node WITH data
+                returns its DATA from .text rather than its name. TokFiles' data is its long
+                description string, so the lookup is `DesignDocs[<that whole paragraph>]`,
+                which misses. THAT IS THE WHOLE FAILURE, and taking the right operand as a
+                TAG closes it.
+
+                ⚠⚠ STROKE 4 -- AND THIS IS THE ONE THAT RE-SCOPES THE WORK. The chain was
+                read through the callout rather than through a capture, counting opDot calls:
+
+                    DesignDocs.TokFiles                 1
+                    DesignDocs["TokFiles"]              0   (correct -- a subscript is `=[`)
+                    DesignDocs["TokFiles"].Commands     0
+                    DesignDocs.TokFiles.Commands        0
+
+                A SINGLE DOT FIRES; ANY TWO-POSTFIX CHAIN FIRES NONE AT ALL. Not left-fold,
+                not right-fold -- NO FOLD. The second postfix suppresses the first entirely.
+                The cause is structural and is one grammar line: TokenXP is
+                `UnaryOPS? ANYorNum^ InvokeArg?`, ONE optional postfix, so `A.B.C` cannot be
+                one TokenXP with two of them and whatever it does parse to invokes no dot.
+
+                ⚠ AND THE GRAMMAR HALF ALONE MAKES IT WORSE, measured: changing that `?` to
+                `*` takes the SINGLE dot from 1 call to 0, because InvokeArg then arrives as
+                a repetition container and the existing arms do not recognise it. So the two
+                halves are not separable and neither is a one-liner.
+
+                WHAT 6b-i THEREFORE IS: the grammar taking InvokeArg*, aCTionTokenXP's
+                dispatch becoming a real left-folding loop over that list, and handleDot
+                taking its right operand as a name. The "fold-left is TokenXP's loop" clause
+                assumes a loop that does not exist yet -- building it IS the stroke, not a
+                consequence of it.#);
             DotLeftOperand=(MEASURED 2026-09-10, stroke 1, off measureDotOperands, and it
                 moves the `.` defect from the RIGHT operand to the LEFT.
 
