@@ -1605,9 +1605,23 @@ diffcheck "manyScratch.target (kant emitMany: emission + both refusals)" \
 #  (leftBrace, leftCurly, leftParen, rightBrace, rightCurly, rightParen) that were
 #  already there. TWO ENTERED, NONE LEFT, and the two are named in oneTest's own
 #  AUDIT MISSRULE lines, so the arithmetic is checkable rather than asserted.
-AUDITLINE="AUDIT all registries: 12 missing rules, 0 missing terms, 4 loose, 0 unconsumed"
+#  â  RE-PINNED 12 -> 8, 2026-09-10, and the sentence is that FOUR PHANTOM
+#  BARE MASTERS LEFT THE POPULATION when the noLabel dash was respelled onto the
+#  TRAIT rather than onto its DATA -- `leftBrace-="["` in place of
+#  `leftBrace="["-`. In the old spelling the dash reached aCTionTraiTdata, which
+#  modifies the DatA node, and aCTionTraiT then setContent's that node onto the
+#  trait -- and setContent does not carry flags (bear-trap #1/#2), so the dash was
+#  silently dropped and the term was minted as a labelled rule with no rStuff.
+#  The four that left are leftBrace, leftParen, rightBrace, rightParen, from the
+#  Braced and Parens lines of incant/grammar. FOUR LEFT, NONE ENTERED, and the
+#  four are named by their vanished oneTest AUDIT MISSRULE lines, so the
+#  arithmetic is checkable here too.
+#  â  leftCurly and rightCurly are STILL IN THE COUNT ON PURPOSE. BlocK carries
+#  the same respell and it is HELD -- it alone regresses iterT1/iterT1m (7 visits
+#  -> 5). When BlocK lands this row goes 8 -> 6 and that will be its own sentence.
+AUDITLINE="AUDIT all registries: 8 missing rules, 0 missing terms, 4 loose, 0 unconsumed"
 if grep -qF "$AUDITLINE" "$T/one"; then
-    echo "  ok    bare-master population AT PIN (isRule without rStuff = 12, loose = 4)"; green=$((green+1))
+    echo "  ok    bare-master population AT PIN (isRule without rStuff = 8, loose = 4)"; green=$((green+1))
 else
     echo "  FAIL  bare-master population MOVED (row pinned 2026-09-01, NOT a defect count):"
     grep "^AUDIT all registries" "$T/one" | sed 's/^/          actual:   /' || echo "          (no AUDIT summary at all -- is audit() still called from oneTest?)"
@@ -2556,6 +2570,24 @@ fi
 #      respellings were tried and both failed, so it is banked ATTRIBUTED and owed.
 #      docs/fixIts.md carries the row.
 #    - "stop: end parsing", same as above.
+#  ⚠ oneTest RE-BASED 2026-09-10, four lines only, and the sentence is the noLabel
+#  dash moving onto the TRAIT rather than onto its DATA -- `leftBrace-="["` in place
+#  of `leftBrace="["-`. Both spellings parse: TraiT is `NamE Modifier* Limit?
+#  TraiTdata?` and TraiTdata is `'=' DatA Modifier* Limit?`, so the dash lands in one
+#  Modifier* or the other. In the OLD spelling it reached aCTionTraiTdata, which
+#  modifies the DatA node -- and aCTionTraiT then setContent's that node onto the
+#  trait, which does not carry flags (bear-trap #1/#2). So the dash was applied to a
+#  node whose flags were about to be discarded, and the term was minted as a labelled
+#  rule with no rStuff. In the NEW spelling it reaches aCTionTraiT, which modifies the
+#  trait itself, and the trait survives.
+#  THE WHOLE DELTA IS FOUR VANISHED MISSRULE LINES -- leftBrace, leftParen,
+#  rightBrace, rightParen -- and the summary going 12 -> 8. Measured additively, one
+#  respelled grammar line at a time: Braced removes its pair, Parens removes its pair,
+#  StringXP and ScopeXP remove none. Nothing else in the capture moved.
+#  ⚠ leftCurly and rightCurly SURVIVE ON PURPOSE. BlocK carries the same respell and
+#  is HELD: it alone takes iterT1/iterT1m from 7 visits to 5, a nested walk losing the
+#  second member of each leaf after the first refuses. That is a fixit citizen, not an
+#  attribution. When it lands, this base loses two more lines and 8 -> 6.
 diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
 diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 
@@ -2647,7 +2679,22 @@ bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
 #  them and nothing claimed to. GREEN IS UNMOVED AT 24 and the population rose by
 #  exactly two. Two rules entered the population, neither entered the green set, and
 #  no existing row moved in either direction; any other split would have been a finding.
-diffcheck "genParse odometer (24 green / 42 red of 66 -- RED BY DESIGN, pinned; ratchet monotone)" \
+#  ⚠ RE-PINNED 24/42 of 66 -> 24/38 of 62, 2026-09-10, and the sentence is the same
+#  ruling as the bare-master row above: FOUR PHANTOM RULES LEAVE THE POPULATION when
+#  the noLabel dash is respelled onto the TRAIT rather than onto its DATA. leftBrace,
+#  leftParen, rightBrace and rightParen were minted as labelled rules with no rStuff
+#  because aCTionTraiT setContent's the modified DatA node onto the trait and
+#  setContent does not carry flags (bear-trap #1/#2). Each was refusing by name --
+#  "rule-level literal but no rStuff, so LIT vs LITTO is undecidable" -- so they were
+#  four rows of the FRONTIER that were never rules at all.
+#  ⚠ GREEN IS UNMOVED AT 24 and genLadder/odometer.green is BYTE-UNCHANGED at its
+#  18 names, which is what makes this a population correction and not a capability
+#  claim: four rules left the population, NONE left the green set, and no surviving
+#  row moved in either direction. Any other split would have been a finding.
+#  ⚠ leftCurly and rightCurly are STILL IN THE POPULATION ON PURPOSE -- BlocK carries
+#  the same respell and is HELD, because it alone regresses iterT1/iterT1m. When BlocK
+#  lands this row goes 62 -> 60 with green still 24, and that will be its own sentence.
+diffcheck "genParse odometer (24 green / 38 red of 62 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
 #  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------

@@ -128,8 +128,8 @@ define
     UnaryXP         UnaryOPS ANYtoken;
     IterSource      UnaryOPS? ANYtoken;
     InvokeArg
-        Braced      leftBrace="["- ExpressioN rightBrace="]"-;
-        Parens      leftParen="("- ExpressioN? rightParen=")"-;
+        Braced      leftBrace-="[" ExpressioN rightBrace-="]";
+        Parens      leftParen-="(" ExpressioN? rightParen-=")";
         UnaryXP;
     ANYorNum
         NumbeR;
@@ -138,7 +138,7 @@ define
     Token
         QuotE;
         NumbeR;
-        StringXP    pound="#"- stuff=PrintXP+ defer;
+        StringXP    pound-="#" stuff=PrintXP+ defer;
         TokenXP;
         Operators;
     ExpressioN      Token+;
@@ -172,7 +172,7 @@ define
         CouT        cout- followedBy PRINTing- stuff=PrintXP+ SemI- defer;
         Search      search- followedBy GrouP+ SemI-;
         BrancH      BrancheS ExpressioN? SemI- defer;
-        ScopeXP     colon=":"- scopeList=ScopeField+ SemI- defer;
+        ScopeXP     colon-=":" scopeList=ScopeField+ SemI- defer;
     Xpress          ExpressioN SemI-;
     StatemenT
         SemI;

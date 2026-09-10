@@ -1216,44 +1216,18 @@ GroupItem   frame,
         recurseSTAK = new;
         frame.stak = recurseSTAK; }
     else    recurseSTAK = frame.stak;
-    /*  THE FRAME FLOOR. One null per activation, pushed before this frame's
-        pairs, so restore stops at ITS OWN floor instead of draining the
-        activations below it.   GroupActions.saveLocalFields.frameFloor  */
+    // frameFloor null pushed so restore stops at ITS OWN floor
     recurseSTAK += null;
     while grup = action.next(grup)
         if (grup.isArgument || grup.isLocal) && !grup.noPrint {
-            /*  ⚠ THE SCHEMA SPLIT, and it is not optional under bind-by-body.
-                save/restore copy body CONTENTS. That is harmless while the
-                argument owns its own body. Once the argument SHARES the
-                caller's body, copying contents means the saved body is the
-                CALLER's and restore writes it back at return -- UNDOING every
-                write the action made through the argument, which is the
-                reference semantics the flip exists to preserve.
-                So: isLocal carries CONTENTS, isArgument carries the BODY
-                POINTER, and each activation re-points rather than overwrites.
-                K2 -- recursive, returns its ARGUMENT -- is the row that moves
-                first if this is wrong. It is pinned at 7.  */
             body    = new;
             *body   = *grup.groupBody;
-            /*  DO NOT clear() HERE. `*body = *grup.groupBody` copies the body
-                STRUCT, and that includes the groupList POINTER -- so body and
-                grup point at the SAME list object. clear() calls clearList(),
-                which pops that shared object EMPTY IN PLACE, gutting the copy we
-                just saved. Restore then hands back a body whose list is empty.
-                The intent here is only "give the new frame a blank local", so
-                blank grup's OWN slots and leave the list object alone; the saved
-                body keeps it and restore puts the pointer back.
-                Found 2026-07-29 via the iterator, whose cursor state lives in a
-                `source` CHILD -- but this is general: no local carrying a list
-                could survive recursion. Iterators were just the first to notice.  */
             if !grup.isArgument {
                 grup.clearData();
                 grup.groupList      = 0;
                 grup.hasAttributes  = 0;
                 grup.hasMembers     = 0; }
-            /*  PAIRED PUSH: the field goes on with its body, so restore
-                never has to re-derive which body belongs to whom.
-                GroupActions.saveLocalFields.identityPair  */
+            // identityPair the field goes on with its body
             recurseSTAK += grup;
             recurseSTAK += body; }
 }

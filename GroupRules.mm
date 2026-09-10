@@ -9451,12 +9451,8 @@ int 		n = 0;
 }
 
 /*****************************************************************************
-     Parse a rule.
-
-     ⚠⚠ ANY DECLARATION ADDED INSIDE THIS FUNCTION RE-POINTS EVERY BARE FIELD
-     BELOW IT, AND IT COMPILES CLEAN (bear-trap 42). It bit here on 2026-09-09.
-     Run the check before the build -- the extern canary cannot see this one.
-        Generate.parseRule.bareFieldRepoint carries the check and the argument.
+     Parse a rule. Assumes processCode was run on field already.
+        See bareFieldRepoint DesignDocs entry
 *****************************************************************************/
 extern "C" GroupItem *parseRule(GroupItem *field)
 {
@@ -9470,18 +9466,14 @@ GroupItem 	*into = 0;
 GroupItem 	*ruleArg = 0;
 RuleStuff 	*ruleStuff = pMethod->getRStuff();
 RuleStuff 	*fieldStuff = field->getRStuff();
-RuleStuff 	*myStuff = 0;
-RuleStuff 	*intoStuff = 0;
 char 		*from = ruler->atRuleMark;
 GroupItem 	*priorMETHOD = 0;
 int 		hasBody = 0;
 int 		yielded = 0;
-	// assumes processCode was run on field already
 	::measureParentProbe(field);
-	// THESE TWO `use` LINES ARE LOAD-BEARING, NOT NOISE -- without them checkInput aims at intoStuff and the clear loop clears ruleArg   parseRule.bareFieldRepoint
+	// bareFieldRepoint the use lines below are load bearing
 	if ( ruleStuff->checkInput() )
 		{
-		// flag idiom, NOT an if/else -- an else here breaks the parse at DEFINE time and names a healthy function   parseRule.noElseHere
 		hasBody = 0;
 		if ( isAction(field->groupBody->flags.actionType) )
 			hasBody = 1;
@@ -9492,12 +9484,13 @@ int 		yielded = 0;
 			while ( grup = code->nextAttribute(grup) )
 				if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isRule && !grup->groupBody->flags.noPrint && grup->groupBody != field->groupBody )
 					grup->clear();
-			// a FRESH MINT per invocation, never rStuff.label -- one slot cannot survive recursion   parseRule.intoRidesArgument
+			// intoRidesArgument a FRESH MINT per invocation, one slot cannot survive recursion
 			into = fieldStuff->parentLabel;
 			myLabel = new GroupItem(field->groupBody->tag);
 			::measureLabelMint(field,myLabel,into);
-			// runAction's own three lines: the body's one argument IS the label   parseRule.argumentBind
-			// bind the node the BODY holds, and bind it AFTER the clear loop that blanks it (bear-trap 39)   parseRule.bindTheBodysOwnSlot
+			/*****************************************************************
+			Add argument to the field. See argumentBind and bindTheBodysOwnSlot DesignDocs entries
+			*****************************************************************/
 			ruleArg = code->get("argument");
 			if ( !ruleArg )
 				ruleArg = field->get("argument");
@@ -9506,10 +9499,11 @@ int 		yielded = 0;
 			ruleArg->groupBody->flags.isArgument = 1;
 			::saveLocalFields(field);
 			ruleArg->setGroup(myLabel);
-			// save/restore as processAction does -- a body resolves its bare names against currentMETHOD   parseRule.currentMethod
 			priorMETHOD = ruler->currentMETHOD;
 			ruler->currentMETHOD = field;
-			// here the parse action in method gets run
+			/*****************************************************************
+			here the parse action in method gets run
+			*****************************************************************/
 			if ( result = field->get("BlocK") )
 				{
 				result = result->groupBody->gMethod(result);
@@ -9519,8 +9513,9 @@ int 		yielded = 0;
 			ruler->currentMETHOD = priorMETHOD;
 			::restoreLocalFields(field);
 			}
-		// ruling (c'): the return carries ONE BIT, the chain's truth, never a label   parseRule.chainTruthOnly
-		// a rule where a label was owed re-enters its own action -- refuse, then fall to the rewind so Invariant R holds
+		/*********************************************************************
+		Make sure the RuleStuffs involved are in sync. See chainTruthOnly and oneAttach DesignDocs entries
+		*********************************************************************/
 		yielded = 0;
 		if ( ::ruleAsLabel(result) )
 			::refuse(field,"parseRule: the generated body returned a RULE where the chain's truth was owed -- this is a GENERATOR error, not a parse failure");
@@ -9529,10 +9524,9 @@ int 		yielded = 0;
 		::measureLabelProbe(field,myLabel,into,result,yielded);
 		if ( yielded )
 			{
-			// one attach, through the single writer; promote=0 where a parent label exists   parseRule.oneAttach
-			myStuff = new RuleStuff(field);
+			RuleStuff 	*myStuff = new RuleStuff(field);
+			RuleStuff 	*intoStuff = new RuleStuff(field);
 			myStuff->label = myLabel;
-			intoStuff = new RuleStuff(field);
 			intoStuff->label = into;
 			field->attachLabel(myStuff,intoStuff,0);
 			return myLabel;
@@ -11566,37 +11560,13 @@ GroupItem 	*grup = 0;
 		frame->setStak(recurseSTAK);
 		}
 	else	recurseSTAK = frame->getStak();
-	/*  THE FRAME FLOOR. One null per activation, pushed before this frame's
-	pairs, so restore stops at ITS OWN floor instead of draining the
-	activations below it.   GroupActions.saveLocalFields.frameFloor  */
+	// frameFloor null pushed so restore stops at ITS OWN floor
 	recurseSTAK->push(0);
 	while ( grup = action->next(grup) )
 		if ( (grup->groupBody->flags.isArgument || grup->groupBody->flags.isLocal) && !grup->groupBody->flags.noPrint )
 			{
-			/*  ⚠ THE SCHEMA SPLIT, and it is not optional under bind-by-body.
-			save/restore copy body CONTENTS. That is harmless while the
-			argument owns its own body. Once the argument SHARES the
-			caller's body, copying contents means the saved body is the
-			CALLER's and restore writes it back at return -- UNDOING every
-			write the action made through the argument, which is the
-			reference semantics the flip exists to preserve.
-			So: isLocal carries CONTENTS, isArgument carries the BODY
-			POINTER, and each activation re-points rather than overwrites.
-			K2 -- recursive, returns its ARGUMENT -- is the row that moves
-			first if this is wrong. It is pinned at 7.  */
 			body = new GroupBody();
 			*body = *grup->groupBody;
-			/*  DO NOT clear() HERE. `*body = *grup.groupBody` copies the body
-			STRUCT, and that includes the groupList POINTER -- so body and
-			grup point at the SAME list object. clear() calls clearList(),
-			which pops that shared object EMPTY IN PLACE, gutting the copy we
-			just saved. Restore then hands back a body whose list is empty.
-			The intent here is only "give the new frame a blank local", so
-			blank grup's OWN slots and leave the list object alone; the saved
-			body keeps it and restore puts the pointer back.
-			Found 2026-07-29 via the iterator, whose cursor state lives in a
-			`source` CHILD -- but this is general: no local carrying a list
-			could survive recursion. Iterators were just the first to notice.  */
 			if ( !grup->groupBody->flags.isArgument )
 				{
 				grup->clearData();
@@ -11604,9 +11574,7 @@ GroupItem 	*grup = 0;
 				grup->groupBody->flags.hasAttributes = 0;
 				grup->groupBody->flags.hasMembers = 0;
 				}
-			/*  PAIRED PUSH: the field goes on with its body, so restore
-			never has to re-derive which body belongs to whom.
-			GroupActions.saveLocalFields.identityPair  */
+			// identityPair the field goes on with its body
 			recurseSTAK->push(grup);
 			recurseSTAK->push(body);
 			}

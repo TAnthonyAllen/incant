@@ -78,8 +78,8 @@ define
         };
     ;
 
-parser(DO);
-IterSource(someName);
+parser(IterSource);
+IterSource("someName");
 stop();
 parser(Start);
 

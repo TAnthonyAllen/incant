@@ -176,12 +176,8 @@ Buffer      buffer  = stringBUFFER;
 
 
 /*****************************************************************************
-     Parse a rule.
-
-     ⚠⚠ ANY DECLARATION ADDED INSIDE THIS FUNCTION RE-POINTS EVERY BARE FIELD
-     BELOW IT, AND IT COMPILES CLEAN (bear-trap 42). It bit here on 2026-09-09.
-     Run the check before the build -- the extern canary cannot see this one.
-        Generate.parseRule.bareFieldRepoint carries the check and the argument.
+     Parse a rule. Assumes processCode was run on field already.
+        See bareFieldRepoint DesignDocs entry
 *****************************************************************************/
 extern GroupItem parseRule(GroupItem field)
 {
@@ -195,58 +191,57 @@ GroupItem   pMethod = field["builtinParsE"],
             ruleArg;
 RuleStuff   ruleStuff = pMethod.rStuff;
 RuleStuff   fieldStuff = field.rStuff;
-RuleStuff   myStuff;
-RuleStuff   intoStuff;
 String      from = atRuleMark;
 GroupItem   priorMETHOD;
 int         hasBody = 0;
 int         yielded = 0;
-    // assumes processCode was run on field already
     measureParentProbe(field);
-    // THESE TWO `use` LINES ARE LOAD-BEARING, NOT NOISE -- without them checkInput aims at intoStuff and the clear loop clears ruleArg   parseRule.bareFieldRepoint
+    // bareFieldRepoint the use lines below are load bearing
 use ruleStuff
     if checkInput() {
 use grup
-        // flag idiom, NOT an if/else -- an else here breaks the parse at DEFINE time and names a healthy function   parseRule.noElseHere
         hasBody = 0;
         if field.isAction   hasBody = 1;
         if !hasBody         reportNoBody(field);
         if hasBody {
             while grup = code.nextAttribute(grup)
                 if isLocal && !isRule && !noPrint && groupBody != field.groupBody clear();
-            // a FRESH MINT per invocation, never rStuff.label -- one slot cannot survive recursion   parseRule.intoRidesArgument
+            // intoRidesArgument a FRESH MINT per invocation, one slot cannot survive recursion
             into    = fieldStuff.parentLabel;
             myLabel = new(field.tag);
             measureLabelMint(field,myLabel,into);
-            // runAction's own three lines: the body's one argument IS the label   parseRule.argumentBind
-            // bind the node the BODY holds, and bind it AFTER the clear loop that blanks it (bear-trap 39)   parseRule.bindTheBodysOwnSlot
+            /*****************************************************************
+                Add argument to the field. See argumentBind and bindTheBodysOwnSlot DesignDocs entries
+            *****************************************************************/
             ruleArg = code["argument"];
             if !ruleArg     ruleArg = field["argument"];
             if !ruleArg     ruleArg = field += "argument";
             ruleArg.isArgument = true;
+
             saveLocalFields(field);
             ruleArg.group = myLabel;
-            // save/restore as processAction does -- a body resolves its bare names against currentMETHOD   parseRule.currentMethod
             priorMETHOD     = currentMETHOD;
             currentMETHOD   = field;
-            // here the parse action in method gets run
+            /*****************************************************************
+                here the parse action in method gets run
+            *****************************************************************/
             if result = field["BlocK"] {
                 result = result.gMethod(result);
                 if result   result.isBranch = 0; }
             currentMETHOD = priorMETHOD;
             restoreLocalFields(field); }
-        // ruling (c'): the return carries ONE BIT, the chain's truth, never a label   parseRule.chainTruthOnly
-        // a rule where a label was owed re-enters its own action -- refuse, then fall to the rewind so Invariant R holds
+        /*********************************************************************
+            Make sure the RuleStuffs involved are in sync. See chainTruthOnly and oneAttach DesignDocs entries
+        *********************************************************************/
         yielded = 0;
         if ruleAsLabel(result)
             refuse(field,"parseRule: the generated body returned a RULE where the chain's truth was owed -- this is a GENERATOR error, not a parse failure");
         if truthOf(result) && !ruleAsLabel(result) && myLabel   yielded = 1;
         measureLabelProbe(field,myLabel,into,result,yielded);
         if yielded {
-            // one attach, through the single writer; promote=0 where a parent label exists   parseRule.oneAttach
-            myStuff         = new(field);
+            RuleStuff   myStuff = new(field);
+            RuleStuff   intoStuff = new(field);
             myStuff.label   = myLabel;
-            intoStuff       = new(field);
             intoStuff.label = into;
             field.attachLabel(myStuff,intoStuff,0);
             return myLabel; }

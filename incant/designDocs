@@ -659,7 +659,6 @@ define
                              | grep -E "checkInput|isLocal|grup->clear|atRuleMark = from")
 
                 ⚠ THE EXTERN CANARY CANNOT SEE THIS ONE -- it read 318 throughout. That is the whole reason the check is written down rather than left to the standing detector.#);
-                noElseHere=(THE FLAG IDIOM IS NOT CLUMSINESS, IT IS THE CURE. bear-trap 32: a multi-statement indented arm followed by else does not parse, and it fails at DEFINE time naming a healthy function -- the first action in the file, which is perfectly fine. parseRule's `if field.isAction { ... else reportNoBody; }` broke the moment the arm grew, and took the canary 318 to 0. Set a flag in a single-statement if, then test it twice. incant/frontier uses the same shape at every station and its prose says why. ⚠ Anyone tidying this into an if/else re-breaks the build three files away in Bytecode.mm with no member named opEQ.#);
                 intoRidesArgument=(RULING B, 2026-09-09. The incoming `into` arrives on the frame runRule established, and the label the terms fill is a FRESH MINT PER INVOCATION -- never rStuff.label, which is one slot and cannot survive recursion. H19 measured it on incant/trigRecur: four activations of two mutually recursive rules mint four distinct addresses, each inner LABELMINT's intoAt IS the enclosing activation's at, and the outer label is unchanged at its OUT line after two nested activations.#);
                 argumentBind=(runAction's own three lines, so the body's one argument IS the label and every emitted term forwards it. Copied rather than re-derived, deliberately: the two roads must not disagree about what an argument slot is.#);
                 bindTheBodysOwnSlot=(MEASURED 2026-09-09, bear-trap 39. The emitted body's `argument` was resolved at COMPILE time, and the rule carried no argument slot then, so aCTionNamE minted an action LOCAL on the CodE and the BlocK holds that node. Binding field["argument"] therefore wrote a slot nothing reads -- measured as one shared, data-less body arriving at all six terms while the holder one line away read isGROUP with gGroup == myLabel. Bind the node the body actually holds, and bind it AFTER the clear loop, which blanks exactly this local. ⚠ THE TELL IF IT IS EVER UNDONE: every term receives ONE SHARED BODY with dataKind 0 while the holder one line away reads isGROUP with gGroup == the minted label.#);
@@ -953,6 +952,30 @@ define
                     walk position, and the Stak carries no key. M2 read exactly this on
                     2026-08-10 and ruled the principled fix was to key the restore by field
                     instead of by position. This is that fix.
+
+                    THE SCHEMA SPLIT, and it is not optional under bind-by-body.
+                    save/restore copy body CONTENTS. That is harmless while the
+                    argument owns its own body. Once the argument SHARES the
+                    caller's body, copying contents means the saved body is the
+                    CALLER's and restore writes it back at return -- UNDOING every
+                    write the action made through the argument, which is the
+                    reference semantics the flip exists to preserve.
+                    So: isLocal carries CONTENTS, isArgument carries the BODY
+                    POINTER, and each activation re-points rather than overwrites.
+                    K2 -- recursive, returns its ARGUMENT -- is the row that moves
+                    first if this is wrong. It is pinned at 7.
+
+                    DO NOT clear() HERE. `*body = *grup.groupBody` copies the body
+                    STRUCT, and that includes the groupList POINTER -- so body and
+                    grup point at the SAME list object. clear() calls clearList(),
+                    which pops that shared object EMPTY IN PLACE, gutting the copy we
+                    just saved. Restore then hands back a body whose list is empty.
+                    The intent here is only "give the new frame a blank local", so
+                    blank grup's OWN slots and leave the list object alone; the saved
+                    body keeps it and restore puts the pointer back.
+                    Found 2026-07-29 via the iterator, whose cursor state lives in a
+                    `source` CHILD -- but this is general: no local carrying a list
+                    could survive recursion. Iterators were just the first to notice.
 
                     ⚠ THE FILTER WAS THE BUG SURFACE, not merely the pairing. `noPrint` was IN
                     the walk condition, so a flag the BODY set mid-run dropped that field from

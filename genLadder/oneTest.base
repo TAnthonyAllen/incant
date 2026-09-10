@@ -2,12 +2,8 @@ AUDIT LOOSE    pROPERTIEs [1] UnaryOPS -- not a rule, not a rule term, has rStuf
 AUDIT LOOSE    pROPERTIEs [6] delimiter -- not a rule, not a rule term, has rStuff
 AUDIT MISSRULE Grokking/ColoN -- isRule, no rStuff
 AUDIT MISSRULE Grokking/EquaL -- isRule, no rStuff
-AUDIT MISSRULE Grokking/leftBrace -- isRule, no rStuff
 AUDIT MISSRULE Grokking/leftCurly -- isRule, no rStuff
-AUDIT MISSRULE Grokking/leftParen -- isRule, no rStuff
-AUDIT MISSRULE Grokking/rightBrace -- isRule, no rStuff
 AUDIT MISSRULE Grokking/rightCurly -- isRule, no rStuff
-AUDIT MISSRULE Grokking/rightParen -- isRule, no rStuff
 AUDIT TERM     IterSource [1] UnaryOPS -- rule TERM, not isRule, has rStuff
 AUDIT TERM     Limit [2] min -- rule TERM, not isRule, has rStuff
 AUDIT TERM     Limit [3] max -- rule TERM, not isRule, has rStuff
@@ -20,7 +16,7 @@ AUDIT MISSRULE Keywords/return -- isRule, no rStuff
 AUDIT MISSRULE SearchList/Grokking -- isRule, no rStuff
 AUDIT LOOSE    pROPERTIEs/UnaryOPS -- not a rule, not a rule term, has rStuff
 AUDIT LOOSE    pROPERTIEs/delimiter -- not a rule, not a rule term, has rStuff
-AUDIT all registries: 12 missing rules, 0 missing terms, 4 loose, 0 unconsumed
+AUDIT all registries: 8 missing rules, 0 missing terms, 4 loose, 0 unconsumed
 Search list: Grokking Generating UnitTests bcOPs Utilities
 
 stop: ending input divert
