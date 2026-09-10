@@ -1198,14 +1198,11 @@ Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTA
 	return ::opString(stuff,buffer);
 }
 
-/*******************************************************************************
-	TokenXP returns a token or a token expression.
-*******************************************************************************/
 extern "C" GroupItem *aCTionTokenXP(GroupItem *xpress)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*arg = 0;
-GroupItem 	*op = 0;
+int 		unaryOwed = 0;
+GroupItem 	*swap = 0;
 GroupItem 	*UnaryOPS = xpress->getLabelGroup("UnaryOPS");
 GroupItem 	*InvokeArg = xpress->get("InvokeArg");
 GroupItem 	*ANYtoken = xpress->get("ANYorNum");
@@ -1227,118 +1224,38 @@ GroupItem 	*ANYtoken = xpress->get("ANYorNum");
 		ANYtoken = ANYtoken->getGroup();
 	if ( !InvokeArg )
 		{
-		if ( UnaryOPS )
-			goto handleUnary;
-		if ( ANYtoken->groupBody->registry == ruler->groupFields )
-			{
-			op = ruler->opFields->get(".");
-			xpress->addAttribute(op);
-			xpress->addAttribute(ANYtoken);
-			// w/no argument opDot will try to use lastREF
-			xpress->groupBody->flags.invoke = 1;
-			}
-		else	xpress->setGroup(ANYtoken);
+		if ( !UnaryOPS )
+			if ( ANYtoken->groupBody->registry == ruler->groupFields )
+				::handleDot(xpress,UnaryOPS,ANYtoken,0);
+			else	xpress->setGroup(ANYtoken);
 		}
 	else {
 		if ( InvokeArg->groupBody->groupList )
 			{
-			// this happens when InvokeArg is UnaryXP
-			op = InvokeArg->groupBody->groupList->firstInList;
-			arg = InvokeArg->groupBody->groupList->lastInList;
-			if ( isGROUP(op->groupBody->flags.data) )
-				op = op->getGroup();
-			if ( isGROUP(arg->groupBody->flags.data) )
-				arg = arg->getGroup();
-			if ( UnaryOPS )
-				{
-				/*  THE STAR/DOT ROTATION. `*a.b` must mean `(*a).b`, so the star
-				is applied to the dot's LEFT operand and the dot re-applied to
-				the result -- not wrapped around the finished dot node.
-				ruleActions.aCTionTokenXP.starDotRotation  */
-				if ( ::compare(UnaryOPS->groupBody->tag,"*") == 0 )
-					if ( ::compare(op->groupBody->tag,".") == 0 )
-						{
-						GroupItem 	*starred = new GroupItem("uxp");
-						starred->addAttribute(ruler->opFields->get("deref"));
-						starred->addAttribute(ANYtoken);
-						starred->setMethod(::runOP);
-						starred->groupBody->flags.invoke = 1;
-						xpress->addAttribute(op);
-						xpress->addAttribute(starred);
-						xpress->addAttribute(arg);
-						xpress->groupBody->flags.invoke = 1;
-						xpress->setMethod(::runOP);
-						goto endToken;
-						}
-				// this happens with two unary ops like: !field.someThing
-				GroupItem *xp = new GroupItem("xp");
-				xp->addAttribute(op);
-				xp->addAttribute(ANYtoken);
-				xp->addAttribute(arg);
-				ANYtoken = xp;
-				xp->setMethod(::runOP);
-				xp->groupBody->flags.invoke = 1;
-				goto handleUnary;
-				}
-			else {
-				xpress->addAttribute(op);
-				xpress->addAttribute(ANYtoken);
-				xpress->addAttribute(arg);
-				}
+			swap = ::handleDot(xpress,UnaryOPS,ANYtoken,InvokeArg);
+			if ( swap )
+				ANYtoken = swap;
 			}
-		else {
-			if ( InvokeArg->groupBody->flags.fLAG )
-				op = ruler->opFields->get("=[");
-			else {
-				op = ruler->falseResult;
-				if ( ruler->processingCode )
-					if ( ANYtoken->groupBody == ruler->currentMETHOD->groupBody )
-						ruler->currentMETHOD->groupBody->flags.recursive = 1;
-				}
-			if ( isGROUP(InvokeArg->groupBody->flags.data) )
-				arg = InvokeArg->getGroup();
-			if ( !arg )
-				arg = InvokeArg;
-			/*  THE STAR ROTATION, SUBSCRIPT HALF -- gated on `=[` so an INVOCATION
-			`*fn(x)` is left alone   ruleActions.aCTionTokenXP.starDotRotation  */
-			if ( UnaryOPS )
-				if ( ::compare(UnaryOPS->groupBody->tag,"*") == 0 )
-					if ( ::compare(op->groupBody->tag,"=[") == 0 )
-						{
-						GroupItem 	*starred = new GroupItem("uxp");
-						starred->addAttribute(ruler->opFields->get("deref"));
-						starred->addAttribute(ANYtoken);
-						starred->setMethod(::runOP);
-						starred->groupBody->flags.invoke = 1;
-						xpress->addAttribute(op);
-						xpress->addAttribute(starred);
-						xpress->addAttribute(arg);
-						xpress->groupBody->flags.invoke = 1;
-						xpress->setMethod(::runOP);
-						goto endToken;
-						}
-			xpress->addAttribute(op);
-			xpress->addAttribute(ANYtoken);
-			xpress->addAttribute(arg);
-			}
-		xpress->groupBody->flags.invoke = 1;
+		else
+		if ( InvokeArg->groupBody->flags.fLAG )
+			::handleSubscript(xpress,UnaryOPS,ANYtoken,InvokeArg);
+		else	::handleCall(xpress,ANYtoken,InvokeArg);
+		if ( !swap )
+			xpress->groupBody->flags.invoke = 1;
 		}
-handleUnary:
+	/*  ⚠ A ROTATING ARM FINISHES THE TERM ITSELF AND SAYS SO BY SETTING THE METHOD.
+	That is the one control fact the loop needs from an arm, and reading it here
+	is what preserves the old `goto endToken` out of both rotations -- the star is
+	already spent on the dot's LEFT operand, so running the prefix arm again would
+	apply it twice.   ruleActions.aCTionTokenXP.arms  */
+	unaryOwed = 0;
 	if ( UnaryOPS )
+		unaryOwed = 1;
+	if ( xpress->groupBody->gMethod )
+		unaryOwed = 0;
+	if ( unaryOwed )
 		{
-		// Prefix - routes to the named "negate" op (opUnaryMinus), keeping the
-		// binary - slot (opMinus) completely isolated. Other unaries resolve
-		// their method straight from their own Operators entry.
-		if ( ::compare(UnaryOPS->groupBody->tag,"-") == 0 )
-			UnaryOPS = ruler->opFields->get("negate");
-		if ( ::compare(UnaryOPS->groupBody->tag,"*") == 0 )
-			UnaryOPS = ruler->opFields->get("deref");
-		op = new GroupItem("uxp");
-		op->addAttribute(UnaryOPS);
-		op->addAttribute(ANYtoken);
-		op->setMethod(::runOP);
-		op->groupBody->flags.invoke = 1;
-		xpress->setGroup(op);
+		::handleUnary(xpress,UnaryOPS,ANYtoken);
 		goto endToken;
 		}
 	if ( xpress->groupBody->flags.invoke )
@@ -3375,6 +3292,151 @@ extern "C" GroupItem *guard(GroupItem *item)
 	else	::fprintf(stderr,"ERROR guard should be used as an attribute when defining\n");
 	item->clearData();
 	return item;
+}
+
+/*  handleCall -- the `(` arm. No operator: the falsy op is what tells runOP this is
+    an invocation rather than an operation. ⚠ THE RECURSION STAMP LIVES HERE and
+    nowhere else -- a body naming itself is how currentMETHOD learns it recurses.
+    ruleActions.aCTionTokenXP.arms  */
+extern "C" GroupItem *handleCall(GroupItem *xpress, GroupItem *ANYtoken, GroupItem *InvokeArg)
+{
+GroupItem 	*op = 0;
+GroupItem 	*arg = 0;
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	op = ruler->falseResult;
+	if ( ruler->processingCode )
+		if ( ANYtoken->groupBody == ruler->currentMETHOD->groupBody )
+			ruler->currentMETHOD->groupBody->flags.recursive = 1;
+	if ( isGROUP(InvokeArg->groupBody->flags.data) )
+		arg = InvokeArg->getGroup();
+	if ( !arg )
+		arg = InvokeArg;
+	xpress->addAttribute(op);
+	xpress->addAttribute(ANYtoken);
+	xpress->addAttribute(arg);
+	return 0;
+}
+
+/*  handleDot -- the `.` arm, both shapes. With no InvokeArg it is the LEADING form
+    (`.taG`), which hangs the dot op with no right operand so opDot falls to lastREF.
+    With one it is the composed form, where InvokeArg arrived as a UnaryXP holding the
+    operator and the right-hand name.
+    ⚠ IT RETURNS A REPLACEMENT ANYtoken OR NULL, and that is the whole control
+    protocol: non-null means the caller must run the prefix arm over the node handed
+    back, null means the term is finished.   ruleActions.aCTionTokenXP.arms  */
+extern "C" GroupItem *handleDot(GroupItem *xpress, GroupItem *unary, GroupItem *ANYtoken, GroupItem *InvokeArg)
+{
+GroupItem 	*op = 0;
+GroupItem 	*arg = 0;
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( !InvokeArg )
+		{
+		op = ruler->opFields->get(".");
+		xpress->addAttribute(op);
+		xpress->addAttribute(ANYtoken);
+		// w/no argument opDot will try to use lastREF
+		xpress->groupBody->flags.invoke = 1;
+		return 0;
+		}
+	op = InvokeArg->groupBody->groupList->firstInList;
+	arg = InvokeArg->groupBody->groupList->lastInList;
+	if ( isGROUP(op->groupBody->flags.data) )
+		op = op->getGroup();
+	if ( isGROUP(arg->groupBody->flags.data) )
+		arg = arg->getGroup();
+	if ( unary )
+		{
+		/*  THE STAR/DOT ROTATION. `*a.b` must mean `(*a).b`, so the star
+		is applied to the dot's LEFT operand and the dot re-applied to
+		the result -- not wrapped around the finished dot node.
+		ruleActions.aCTionTokenXP.starDotRotation  */
+		if ( ::compare(unary->groupBody->tag,"*") == 0 )
+			if ( ::compare(op->groupBody->tag,".") == 0 )
+				{
+				GroupItem 	*starred = new GroupItem("uxp");
+				starred->addAttribute(ruler->opFields->get("deref"));
+				starred->addAttribute(ANYtoken);
+				starred->setMethod(::runOP);
+				starred->groupBody->flags.invoke = 1;
+				xpress->addAttribute(op);
+				xpress->addAttribute(starred);
+				xpress->addAttribute(arg);
+				xpress->groupBody->flags.invoke = 1;
+				xpress->setMethod(::runOP);
+				return 0;
+				}
+		// this happens with two unary ops like: !field.someThing
+		GroupItem *xp = new GroupItem("xp");
+		xp->addAttribute(op);
+		xp->addAttribute(ANYtoken);
+		xp->addAttribute(arg);
+		xp->setMethod(::runOP);
+		xp->groupBody->flags.invoke = 1;
+		return xp;
+		}
+	xpress->addAttribute(op);
+	xpress->addAttribute(ANYtoken);
+	xpress->addAttribute(arg);
+	return 0;
+}
+
+/*  THE STAR ROTATION, SUBSCRIPT HALF -- gated on `=[` so an INVOCATION
+            `*fn(x)` is left alone   ruleActions.aCTionTokenXP.starDotRotation  */
+extern "C" GroupItem *handleSubscript(GroupItem *xpress, GroupItem *unary, GroupItem *ANYtoken, GroupItem *InvokeArg)
+{
+GroupItem 	*op = 0;
+GroupItem 	*arg = 0;
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	op = ruler->opFields->get("=[");
+	if ( isGROUP(InvokeArg->groupBody->flags.data) )
+		arg = InvokeArg->getGroup();
+	if ( !arg )
+		arg = InvokeArg;
+	if ( unary )
+		if ( ::compare(unary->groupBody->tag,"*") == 0 )
+			{
+			GroupItem 	*starred = new GroupItem("uxp");
+			starred->addAttribute(ruler->opFields->get("deref"));
+			starred->addAttribute(ANYtoken);
+			starred->setMethod(::runOP);
+			starred->groupBody->flags.invoke = 1;
+			xpress->addAttribute(op);
+			xpress->addAttribute(starred);
+			xpress->addAttribute(arg);
+			xpress->groupBody->flags.invoke = 1;
+			xpress->setMethod(::runOP);
+			return xpress;
+			}
+	xpress->addAttribute(op);
+	xpress->addAttribute(ANYtoken);
+	xpress->addAttribute(arg);
+	return 0;
+}
+
+/*******************************************************************************
+	TokenXP returns a token or a token expression.
+*******************************************************************************/
+/*  handleUnary -- the PREFIX operators. Wraps ANYtoken in a `uxp` under the unary's
+    own op and hangs it as xpress's group. ⚠ A HAND, NOT A WITNESS: it changes the
+    tree, so it does NOT wear the measure prefix.   ruleActions.aCTionTokenXP.arms  */
+extern "C" GroupItem *handleUnary(GroupItem *xpress, GroupItem *unary, GroupItem *ANYtoken)
+{
+GroupItem 	*op = 0;
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	// Prefix - routes to the named "negate" op (opUnaryMinus), keeping the
+	// binary - slot (opMinus) completely isolated. Other unaries resolve
+	// their method straight from their own Operators entry.
+	if ( ::compare(unary->groupBody->tag,"-") == 0 )
+		unary = ruler->opFields->get("negate");
+	if ( ::compare(unary->groupBody->tag,"*") == 0 )
+		unary = ruler->opFields->get("deref");
+	op = new GroupItem("uxp");
+	op->addAttribute(unary);
+	op->addAttribute(ANYtoken);
+	op->setMethod(::runOP);
+	op->groupBody->flags.invoke = 1;
+	xpress->setGroup(op);
+	return xpress;
 }
 
 /*****************************************************************************

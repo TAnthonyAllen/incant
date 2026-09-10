@@ -1641,6 +1641,16 @@ Hard-won lessons. Each one has cost real debugging time.
     line in the tree that can report `arm=NONE`. The **why** lives in `incant/designDocs` under
     `TokFiles -> measure -> MeasureCallouts`; this row is the **what to do**.
 
+    ⚠ **THERE ARE TWO SPECIES OF CALLOUT AND THE PREFIX IS WHAT TELLS THEM APART: A WITNESS
+    REPORTS AND A HAND CHANGES THE TREE.** A witness wears `measure` and is bound by everything
+    above — gated, inert when disarmed, writes nothing it is handed. A **hand** is an ordinary
+    extracted arm (`handleUnary`, `handleCall`, `handleSubscript`, `handleDot` in `aCTionTokenXP`)
+    and wears **no prefix**, because it is load-bearing code that happens to be called from one
+    line. **The reserved prefix is the whole discipline: `grep -n 'measure[A-Z]'` has to return
+    instruments and nothing else, or the census stops meaning anything.** A hand that took the
+    prefix would make every future reader ask whether the run changes when it is disarmed — and
+    the answer for a hand is that it cannot be disarmed at all.
+
 25. **`testing()` ROUTES BY `isCoded`, AND AN INTERPRETED RUN CONSUMES IT — SO AN ORACLE PLACED
     ABOVE THE JITTED HALF SILENTLY MEASURES THE WRONG ENGINE, AT EXIT 0.** `testing()` calls
     `jitRunAction` only `if input.isCoded` and otherwise falls to `jitRunIfTest`, the control-flow

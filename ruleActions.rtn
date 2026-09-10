@@ -938,11 +938,139 @@ Buffer      buffer = bufferSTAK.pop();
 /*******************************************************************************
 	TokenXP returns a token or a token expression.
 *******************************************************************************/
+/*  handleUnary -- the PREFIX operators. Wraps ANYtoken in a `uxp` under the unary's
+    own op and hangs it as xpress's group. ⚠ A HAND, NOT A WITNESS: it changes the
+    tree, so it does NOT wear the measure prefix.   ruleActions.aCTionTokenXP.arms  */
+extern GroupItem handleUnary(GroupItem xpress, GroupItem unary, GroupItem ANYtoken)
+{
+GroupItem   op;
+GroupRules  ruler = groupRules;
+    // Prefix - routes to the named "negate" op (opUnaryMinus), keeping the
+    // binary - slot (opMinus) completely isolated. Other unaries resolve
+    // their method straight from their own Operators entry.
+    if unary.tag eq "-"     unary = ruler.opFields["negate"];
+    if unary.tag eq "*"     unary = ruler.opFields["deref"];
+    op  = new("uxp");
+    op  +% unary;
+    op  +% ANYtoken;
+    op.method = runOP;
+    op.invoke = true;
+    xpress.group = op;
+    return xpress;
+}
+
+/*  handleDot -- the `.` arm, both shapes. With no InvokeArg it is the LEADING form
+    (`.taG`), which hangs the dot op with no right operand so opDot falls to lastREF.
+    With one it is the composed form, where InvokeArg arrived as a UnaryXP holding the
+    operator and the right-hand name.
+    ⚠ IT RETURNS A REPLACEMENT ANYtoken OR NULL, and that is the whole control
+    protocol: non-null means the caller must run the prefix arm over the node handed
+    back, null means the term is finished.   ruleActions.aCTionTokenXP.arms  */
+extern GroupItem handleDot(GroupItem xpress, GroupItem unary, GroupItem ANYtoken, GroupItem InvokeArg)
+{
+GroupItem   op,
+            arg;
+GroupRules  ruler = groupRules;
+    if !InvokeArg {
+        op = ruler.opFields["."];
+        xpress  +% op;
+        xpress  +% ANYtoken;
+        // w/no argument opDot will try to use lastREF
+        xpress.invoke = true;
+        return null; }
+    op  = InvokeArg.firstInList;
+    arg = InvokeArg.lastInList;
+    if op.isGROUP   op = op.group;
+    if arg.isGROUP  arg = arg.group;
+    if unary {
+        /*  THE STAR/DOT ROTATION. `*a.b` must mean `(*a).b`, so the star
+            is applied to the dot's LEFT operand and the dot re-applied to
+            the result -- not wrapped around the finished dot node.
+            ruleActions.aCTionTokenXP.starDotRotation  */
+        if unary.tag eq "*"
+            if op.tag eq "." {
+                GroupItem starred = new("uxp");
+                starred +% ruler.opFields["deref"];
+                starred +% ANYtoken;
+                starred.method  = runOP;
+                starred.invoke  = true;
+                xpress  +% op;
+                xpress  +% starred;
+                xpress  +% arg;
+                xpress.invoke   = true;
+                xpress.method   = runOP;
+                return null; }
+        // this happens with two unary ops like: !field.someThing
+        GroupItem xp = new("xp");
+        xp  +% op;
+        xp  +% ANYtoken;
+        xp  +% arg;
+        xp.method   = runOP;
+        xp.invoke   = true;
+        return xp; }
+    xpress  +% op;
+    xpress  +% ANYtoken;
+    xpress  +% arg;
+    return null;
+}
+
+/*  handleSubscript -- the `[` arm. InvokeArg carries fLAG, the op is `=[`, and the
+    star rotation applies here for the same reason it applies to the dot.
+    ruleActions.aCTionTokenXP.arms  */
+extern GroupItem handleSubscript(GroupItem xpress, GroupItem unary, GroupItem ANYtoken, GroupItem InvokeArg)
+{
+GroupItem   op,
+            arg;
+GroupRules  ruler = groupRules;
+    op = ruler.opFields["=["];
+    if InvokeArg.isGROUP    arg = InvokeArg.group;
+    if !arg                 arg = InvokeArg;
+    if unary
+        /*  THE STAR ROTATION, SUBSCRIPT HALF -- gated on `=[` so an INVOCATION
+            `*fn(x)` is left alone   ruleActions.aCTionTokenXP.starDotRotation  */
+        if unary.tag eq "*" {
+            GroupItem starred = new("uxp");
+            starred +% ruler.opFields["deref"];
+            starred +% ANYtoken;
+            starred.method  = runOP;
+            starred.invoke  = true;
+            xpress  +% op;
+            xpress  +% starred;
+            xpress  +% arg;
+            xpress.invoke   = true;
+            xpress.method   = runOP;
+            return xpress; }
+    xpress  +% op;
+    xpress  +% ANYtoken;
+    xpress  +% arg;
+    return null;
+}
+
+/*  handleCall -- the `(` arm. No operator: the falsy op is what tells runOP this is
+    an invocation rather than an operation. ⚠ THE RECURSION STAMP LIVES HERE and
+    nowhere else -- a body naming itself is how currentMETHOD learns it recurses.
+    ruleActions.aCTionTokenXP.arms  */
+extern GroupItem handleCall(GroupItem xpress, GroupItem ANYtoken, GroupItem InvokeArg)
+{
+GroupItem   op,
+            arg;
+GroupRules  ruler = groupRules;
+    op = falseResult;
+    if ruler.processingCode
+        if ANYtoken.groupBody == ruler.currentMETHOD.groupBody   ruler.currentMETHOD.recursive = true;
+    if InvokeArg.isGROUP    arg = InvokeArg.group;
+    if !arg                 arg = InvokeArg;
+    xpress  +% op;
+    xpress  +% ANYtoken;
+    xpress  +% arg;
+    return null;
+}
+
 extern GroupItem aCTionTokenXP(GroupItem xpress)
 {
 GroupRules  ruler = groupRules;
-GroupItem   arg,
-            op,
+int         unaryOwed = 0;
+GroupItem   swap,
             UnaryOPS:,
             InvokeArg = xpress["InvokeArg"],
             ANYtoken = xpress["ANYorNum"];
@@ -959,93 +1087,26 @@ GroupItem   arg,
     xpress.clear();
     if isGROUP  ANYtoken = group;
     if !InvokeArg {
-        if UnaryOPS goto handleUnary;
-        if registry == groupFields {
-            op = opFields["."];
-            xpress  +% op;
-            xpress  +% ANYtoken;
-            // w/no argument opDot will try to use lastREF
-            xpress.invoke = true; }
-        else xpress.group = ANYtoken; }
+        if !UnaryOPS
+            if registry == groupFields  handleDot(xpress,UnaryOPS,ANYtoken,0);
+            else                        xpress.group = ANYtoken; }
     else {
         if InvokeArg.groupList {
-            // this happens when InvokeArg is UnaryXP
-            op  = InvokeArg.firstInList;
-            arg = InvokeArg.lastInList;
-            if op.isGROUP   op = op.group;
-            if arg.isGROUP  arg = arg.group;
-            if UnaryOPS {
-                /*  THE STAR/DOT ROTATION. `*a.b` must mean `(*a).b`, so the star
-                    is applied to the dot's LEFT operand and the dot re-applied to
-                    the result -- not wrapped around the finished dot node.
-                    ruleActions.aCTionTokenXP.starDotRotation  */
-                if UnaryOPS.tag eq "*"
-                    if op.tag eq "." {
-                        GroupItem starred = new("uxp");
-                        starred +% opFields["deref"];
-                        starred +% ANYtoken;
-                        starred.method  = runOP;
-                        starred.invoke  = true;
-                        xpress  +% op;
-                        xpress  +% starred;
-                        xpress  +% arg;
-                        xpress.invoke   = true;
-                        xpress.method   = runOP;
-                        goto endToken; }
-                // this happens with two unary ops like: !field.someThing
-                GroupItem xp = new("xp");
-                xp  +% op;
-                xp  +% ANYtoken;
-                xp  +% arg;
-                ANYtoken    = xp;
-                xp.method   = runOP;
-                xp.invoke   = true;
-                goto handleUnary; }
-            else {
-                xpress  +% op;
-                xpress  +% ANYtoken;
-                xpress  +% arg; }}
-        else {
-            if InvokeArg.fLAG op = opFields["=["];
-            else {
-                op = falseResult;
-                if processingCode
-                    if ANYtoken.groupBody == currentMETHOD.groupBody    currentMETHOD.recursive = true; }
-            if InvokeArg.isGROUP arg = InvokeArg.group;
-            if !arg arg = InvokeArg;
-            /*  THE STAR ROTATION, SUBSCRIPT HALF -- gated on `=[` so an INVOCATION
-                `*fn(x)` is left alone   ruleActions.aCTionTokenXP.starDotRotation  */
-            if UnaryOPS
-                if UnaryOPS.tag eq "*"
-                    if op.tag eq "=[" {
-                        GroupItem starred = new("uxp");
-                        starred +% opFields["deref"];
-                        starred +% ANYtoken;
-                        starred.method  = runOP;
-                        starred.invoke  = true;
-                        xpress  +% op;
-                        xpress  +% starred;
-                        xpress  +% arg;
-                        xpress.invoke   = true;
-                        xpress.method   = runOP;
-                        goto endToken; }
-            xpress  +% op;
-            xpress  +% ANYtoken;
-            xpress  +% arg; }
-        xpress.invoke = true; }
-handleUnary:
-    if UnaryOPS {
-        // Prefix - routes to the named "negate" op (opUnaryMinus), keeping the
-        // binary - slot (opMinus) completely isolated. Other unaries resolve
-        // their method straight from their own Operators entry.
-        if UnaryOPS.tag eq "-"  UnaryOPS = opFields["negate"];
-        if UnaryOPS.tag eq "*"  UnaryOPS = opFields["deref"];
-        op  = new("uxp");
-        op  +% UnaryOPS;
-        op  +% ANYtoken;
-        op.method = runOP;
-        op.invoke = true;
-        xpress.group = op;
+            swap = handleDot(xpress,UnaryOPS,ANYtoken,InvokeArg);
+            if swap     ANYtoken = swap; }
+        or InvokeArg.fLAG   handleSubscript(xpress,UnaryOPS,ANYtoken,InvokeArg);
+        else                handleCall(xpress,ANYtoken,InvokeArg);
+        if !swap    xpress.invoke = true; }
+    /*  ⚠ A ROTATING ARM FINISHES THE TERM ITSELF AND SAYS SO BY SETTING THE METHOD.
+        That is the one control fact the loop needs from an arm, and reading it here
+        is what preserves the old `goto endToken` out of both rotations -- the star is
+        already spent on the dot's LEFT operand, so running the prefix arm again would
+        apply it twice.   ruleActions.aCTionTokenXP.arms  */
+    unaryOwed = 0;
+    if UnaryOPS         unaryOwed = 1;
+    if xpress.method    unaryOwed = 0;
+    if unaryOwed {
+        handleUnary(xpress,UnaryOPS,ANYtoken);
         goto endToken; }
     if xpress.invoke    xpress.method = runOP;
 endToken:

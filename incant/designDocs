@@ -4129,6 +4129,51 @@ define
                 reads it, and mints the term as a labelled rule with no rStuff. The four
                 Braced/Parens/StringXP/ScopeXP lines were respelled on 2026-09-10 (a0524c8)
                 and BlocK is held behind incant/fixits/blockDashRefusalWalk.#);
+            TokenXParms=(aCTionTokenXP's FOUR ARMS, extracted 2026-09-10 as stroke 6a --
+                A PURE MOVE, certified byte-identical and re-pinning nothing.
+
+                THE SHAPE. A TokenXP is prefix unaries, then a primary, then postfixes.
+                The four arms are handleUnary (the prefix operators), handleCall (the
+                `(` form), handleSubscript (the `[` form) and handleDot (the `.` form,
+                both the leading `.taG` shape and the composed one). aCTionTokenXP keeps
+                the dispatch and nothing else.
+
+                ⚠ THEY ARE HANDS, NOT WITNESSES, AND SO THEY WEAR NO `measure` PREFIX.
+                A witness reports and is gated and inert when disarmed; a hand changes
+                the tree and cannot be disarmed at all. The reserved prefix is the whole
+                discipline -- `grep -n 'measure[A-Z]'` must return instruments and
+                nothing else, or the census stops meaning anything.
+
+                ⚠⚠ THE ONE CONTROL FACT THE DISPATCH NEEDS BACK FROM AN ARM, and it is
+                the only piece of cleverness in the move: A ROTATING ARM FINISHES THE
+                TERM ITSELF AND SAYS SO BY SETTING xpress.method. The old code said this
+                with `goto endToken` out of both star rotations -- the dot half and the
+                subscript half -- and the reason is not bookkeeping: THE STAR IS ALREADY
+                SPENT on the dot's LEFT operand, so falling on to the prefix arm would
+                apply it a second time. The extracted version reads xpress.method as the
+                flag, which is a fact the rotations already had to set for their own
+                reasons, so nothing new is invented to carry it.
+
+                THE OTHER RETURN CHANNEL IS THE SWAP. handleDot's two-unary case (`!a.b`)
+                builds an inner `xp` node and the old code fell to handleUnary with
+                ANYtoken replaced by it. The extracted handleDot RETURNS that node; null
+                means the term is finished. Non-null also suppresses the `xpress.invoke`
+                set, exactly as the old `goto` skipped it.
+
+                CERTIFICATE, and it was strict by instruction: sixteen captures banked
+                before the move and compared after -- oneTest, jsonTest, genScratch,
+                popScratch and frontier on both channels, the odometer, pop.sh,
+                decodePop, ddPop, countPop, formsPop. ALL BYTE-IDENTICAL once two H1/H3
+                artifacts are scrubbed: the harness's own binary size and mtime echo, and
+                the raw ADDRESSES in genScratch's RULEDISPATCH and FRAMEPROBE trace lines,
+                which move on every run for reasons that say nothing about the code.
+                Every count unmoved -- fleet, ddPop 5, decodePop 14, countPop 0-of-44.
+                Canary 318 -> 322, which is 318 plus exactly the four new externs.
+
+                ⚠ WHAT THIS MOVE DELIBERATELY DID NOT DO: it did not turn the dispatch
+                into a real left-folding loop. Today's control flow is preserved exactly,
+                because a fold changes what `A.B.C` means and that is stroke 6b's ruling,
+                not a refactor's to make. A move that changes a number is not a move.#);
             measureRuleDispatch=(THE FORK ABOVE runRule, parseTrace gated. Called from
                 GroupActions.rtn runOP, immediately before the four-arm dispatch.
 
