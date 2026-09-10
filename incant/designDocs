@@ -4092,6 +4092,32 @@ define
                 source only because a one-line call-out costs nothing to keep.
 
                 No percent-dash in the format string (bear-trap 40).#);
+            ModifierTwoClasses=(THE SENTENCE, 2026-09-10: A FLAG DESCRIBES A TERM; A
+                REPETITION CHANGES WHAT THE TERM IS. That is why the two classes cannot
+                share a code path, and it is measured from two directions that never met.
+
+                THE TraiT CENSUS. Handing a TraiTdata modifier up to the trait detonated
+                the fleet -- 249 green to 170, baselineTests at exit 139 -- because the
+                grammar is full of `numberSet=[0-9]+`, `min=[0-9]+`, `NotA=[^ ...]+`, where
+                the trailing `+` is REPETITION ON THE DATA. Applied to the trait as well it
+                is a repetition applied TWICE, and a repetition applied twice is not the
+                same parse. Meanwhile `="..."` followed by a modifier has exactly ONE hit
+                in the whole grammar. A flag would have handed up harmlessly; a repetition
+                cannot.
+
+                THE TokenXP CENSUS, arriving from a completely different direction and
+                landing on the same line. On TokenXP's postfix slot, one run each:
+
+                    InvokeArg?  -?  ^?  _?  !?     LIVE
+                    InvokeArg@?  *  +  {0 9}       DEAD
+                    an interposed alias rule       DEAD
+
+                Every FLAG lives; every REPETITION kills the language outright; and `@` and
+                an interposed rule die with them. ⚠ THE SHAPE THE DEAD SHARE IS THE SENTENCE
+                ITSELF: each turns the term from a DIRECT SINGLE REFERENCE into something
+                carrying a CONTAINER -- a repetition list, an isTarget capture, an alias
+                node -- while a flag leaves the term exactly what it was and only says
+                something ABOUT it.#);
             TraitTakesOwnFlags=(RULING 2026-09-10, Tony, AND ONLY HALF OF IT LANDED --
                 the half that did not is recorded here because its failure is the
                 argument for what a future version has to do.
