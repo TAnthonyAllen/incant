@@ -1,3 +1,80 @@
+# ⚠⚠⚠ SEALED 2026-09-10, ELEVENTH SESSION -- THE `if !` SWEEP: 47 LIVE HITS, EXACTLY
+# THREE ASK PRESENCE, AND ALL THREE ARE ONE SHAPE. TWO COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 12:59 and
+#   `git log -1 --date=iso` stamps 2026-09-10 12:58. They agree.
+#
+#   ## THE ONE-LINE STATE: **stroke 2's `!` change is swept and it costs almost nothing —
+#   the value-askers were always fine, the presence-askers number three, and all three
+#   turn out to be the same shape: `:argument a b;` mints an absent attribute PRESENT AND
+#   EMPTY.** Fleet **261 green / 50**, unmoved, canary **323**, frontier **exit 0, 4
+#   PASS**. Both repos **0 dirty, 0 unpushed**. Fixit queue **4**. **Sealed after the
+#   stroke; strokes 2 and 3 not opened.**
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. DOCTRINE, first commit: A FLAG DESCRIBES A TERM; A REPETITION CHANGES WHAT THE
+#   TERM IS.** Two censuses that never met, landing on one line. **TraiT**: handing a
+#   `TraiTdata` modifier up detonated the fleet (249 → 170, exit 139) because the grammar
+#   is full of `=[0-9]+` where the `+` is repetition ON THE DATA, and a repetition applied
+#   twice is not the same parse. **TokenXP**: `?`, `-?`, `^?`, `_?`, `!?` all LIVE while
+#   `@?`, `*`, `+`, `{0 9}` and any interposed rule all DIE. ⚠ **The shape the dead share
+#   IS the sentence** — each turns the term from a direct single reference into something
+#   carrying a CONTAINER, while a flag leaves the term what it was and only says something
+#   about it.
+#
+#   **b. THE SWEEP, reported before respelling.** 47 live hits once quoted strings, comment
+#   blocks and dead regions are stripped — **designDocs' own prose is a third of the raw
+#   grep and is not code.**
+#   **ASKS VALUE — fine, and most of them.** Every `if !isRulE;`, `!term.noPrinT`,
+#   `!listLengtH`, `!s6Len`: a flag or count accessor returns a numeric, so truthOf answers
+#   BY VALUE, which is what the guard wanted. ⚠ **Measured, not assumed — the fleet did not
+#   move on any of them across the opNOT change.**
+#   **ASKS PRESENCE — exactly THREE:** `genMany` (repaired in the stroke that broke it),
+#   `orProbe`'s probeIt, `jidirect`'s tNotIn.
+#
+#   **c. ⚠⚠ ALL THREE ARE ONE SHAPE, AND THAT IS THE FINDING: `:argument a b;` MINTS AN
+#   ABSENT ATTRIBUTE AS PRESENT AND EMPTY.** So `!x` was the idiom for *"the scope hoist
+#   found nothing"*, and it worked only while `!` asked presence. jidirect's is the same
+#   shape one road over — `nc IN cg` hands back a present, valueless node on a miss, and
+#   its own comment already called the guard *"a kludge that handles !IN that does not
+#   exist"*. **The respell is the same every time — ask `.datA` — and both came back
+#   BYTE-IDENTICAL to their pre-stroke readings. No re-pins.**
+#
+#   **d. TWO FILES DELIBERATELY NOT RESPELLED, each for its own reason.**
+#   `lessProbe` carries the identical `if !site || !min;` and **did not move**: `||`
+#   receives already-evaluated operands and tests gCount, so **the disjunction was
+#   truthOf-shaped all along** — genMany's August comment turning out right about `||` for
+#   a reason nobody had measured. `jitXnot` **moved and is now CORRECT**: its header
+#   pre-registers row 1 as `xnIn = 0` present-and-zero, `!` MUST fire, and it now reads 1
+#   where it read 0. **That file was documenting this exact defect and has stopped.**
+#
+#   ⚠ **And the respell is a free consistency check on last SEQ's unary ruling:** `!x.datA`
+#   requires `!` to bind to the CHAIN'S RESULT, which is the value class. It does.
+#
+#   ## WHAT LANDED — TWO COMMITS
+#   `38c9319` the doctrine sentence · `08f88eb` the sweep, two respells, and the
+#   `IfNotSweep` DesignDocs entry.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **Stroke 2 (the TraiT hand-up) and stroke 3 (load-time or parse-time) not opened** —
+#   sealing after each stroke was the instruction.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **stroke 2** — the TraiT hand-up with `modifierClass` on each Modifier's registration,
+#   one predicate, no inline lists; its certificate is written and it is the predicate
+#   stroke 3 will need · **stroke 3** — load-time or parse-time, one read, no build ·
+#   **AP-5**, bare `if aFalse;` disagreeing with AND, the last split reader · the fold ·
+#   6b-ii · unknown-operator refusal · both citizens.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 `noPrint` →
+#   `noPrinT` · parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, TENTH SESSION -- STROKE 3: BOTH GUESSES DIE, AND A MODIFIER
 # CENSUS SPLITS THE SLOT ON THE FLAG / REPETITION LINE. ONE COMMIT.
 #
