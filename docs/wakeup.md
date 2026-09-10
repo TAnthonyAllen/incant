@@ -1,3 +1,44 @@
+# ⚠⚠⚠ SEALED 2026-09-10, FOURTEENTH SESSION -- STROKE 0: blockDashRefusalWalk RETIRES
+# ON ITS CAUSE. QUEUE 4 -> 3. ONE COMMIT.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-10 13:3x and `git log -1 --date=iso` the same
+#   minute. They agree.
+#
+#   ## THE ONE-LINE STATE: **the citizen is retired diagnosed and repaired rather than
+#   re-pinned or withdrawn, and its coverage was already in the fleet before it existed —
+#   so nothing is owed.** Fleet **261 green / 50**, canary **326**, frontier **exit 0**.
+#   Both repos **0 dirty, 0 unpushed**. **Fixit queue 3.**
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#   **The cause:** `aCTionBlocK` handed back **NULL** for a block that **succeeded and
+#   yielded nothing**, where **labelNO** was owed — and `GroupControl.twk:158` already said
+#   so, with four sites in `ruleActions.rtn` already ending `if !result result = labelNO;`,
+#   **`aCTionWhilE` among them.** Fifth member of one-channel-one-meaning; `broke` is the
+#   second channel.
+#   ⚠ **Masked for three sessions by the trailing `rightCurly`**, which was the block's
+#   value on every iteration. **The dash was always right; the sentinel was hiding the
+#   defect behind it.**
+#   **Mapping:** BD-1's 7 visits → `iterT1.target` (the ORDER assertion) and
+#   `iterT1m.target`; the refusal count → pop.sh's *"announces its refusal 4 times"*; the
+#   H7 control → the same two rows, demonstrated red on command.
+#   **Two sentences that outlive it:** *an artifact is invisible to both readers or it is
+#   only half an artifact* (noPrint for the parse, cleared rStuff for the audit); *the
+#   hand-up's odometer gain survived the repair* — 24 → 28 green, population unmoved, and
+#   the labelNO fix cost none of it back.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **2a** register `&&`/`||` with opAND/opOR and jitEmitShortCircuit · **2b** the emitter
+#   emits `&&` · **2c** the scrub · **stroke 4** load-time or parse-time · AP-5 ·
+#   danglingElse's first read when opened — what `bkFirst` is on the braced road versus the
+#   unbraced · the fold · 6b-ii · unknown-operator refusal.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 · noElseHere.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, THIRTEENTH SESSION -- blockDashRefusalWalk CLOSED BY CAUSE.
 # THE TRAILING CURLY WAS MASKING A NULL, AND NULL MEANS FAILED. THREE COMMITS.
 #
