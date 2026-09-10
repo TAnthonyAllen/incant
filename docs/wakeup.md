@@ -1,3 +1,84 @@
+# ⚠⚠⚠ SEALED 2026-09-10, EIGHTH SESSION -- STROKE 1 ONLY, AND IT WORKS:
+# `DesignDocs.TokFiles` READS `TokFiles`. THE DOT's RIGHT OPERAND IS A NAME.
+# ONE COMMIT.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 12:35 and
+#   `git log -1 --date=iso` stamps 2026-09-10 12:35. They agree.
+#
+#   ## THE ONE-LINE STATE: **the half of 6b-i that never needed the fold is in, and
+#   the single dot works on a member name for the first time — three lines in
+#   `handleDot`, every certificate row green, fleet moved only by its own new rows.**
+#   Fleet **261 green / 50** (258 + A8's three), canary **323**, ddPop 5, decodePop 14,
+#   formsPop 14, countPop 0-of-44, frontier **exit 0, 4 PASS**. Both repos **0 dirty, 0
+#   unpushed**. Fixit queue **4**. **Sealed after one stroke, as instructed.**
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE DEFECT WAS BEAR-TRAP #26 ARRIVING THROUGH THE RIGHT OPERAND.** It arrived
+#   **resolved**, and a resolved node **with data** returns its **data** from `.text`. So
+#   `product = target[text]` looked up the member's whole CONTENTS instead of its name —
+#   `DesignDocs.TokFiles` looked up TokFiles' entire description paragraph and missed.
+#   ⚠ **And that is why accessors always worked while member names never did:** a
+#   groupFields entry is selected by **registry membership** and never reaches the text
+#   road at all. `fcFace.noPrinT` and `DesignDocs.TokFiles` were never on the same road.
+#
+#   **b. THE FIX IS THREE LINES:** after the unwrap, if the op is a dot **and the operand
+#   is not a groupFields entry**, hand opDot a fresh **data-less** node carrying the name
+#   as its tag. **#26 working deliberately instead of by accident.**
+#
+#       DesignDocs.TokFiles reads TokFiles          was 0
+#       measureDotOperands  rightData=0 gCount=0    was rightData=13
+#       fcFace.noPrinT still a groupField, FC-3 back to 0
+#       *crCur.taG reads the member, crCur.taG reads crCur   controls, byte-unchanged
+#       UC-1 3 / UC-2 0                                      control, unchanged
+#       #26 payments 5 and 6: a member name resolves by tag; a MISS returns 0 and
+#           mints nothing
+#
+#   **c. ⚠⚠ THE ACCESSOR EXEMPTION IS LOAD-BEARING AND WAS MEASURED THE EXPENSIVE WAY.**
+#   The FIRST cut left the operand **unwrapped** instead of re-minting, on the theory that
+#   an unevaluated operand carries its own tag. **It carries the RULE WRAPPER's tag —
+#   `ANYtoken`** — so every dot in the tree looked up "ANYtoken", and **FC-3, cursorReadT
+#   and the unary buy row all moved at once.** Re-minting is right; re-minting an
+#   **accessor** would strip its registry and take the whole family off its road.
+#
+#   **d. ⚠⚠ AND THE H7 CONTROL CAUGHT MY OWN FIXTURE BEING VACUOUS — the best finding of
+#   the stroke.** `dotNameT`'s first cut used a **data-less** member, which returns its own
+#   tag anyway, **so DN-1 PASSED WITH THE FIX REMOVED.** The member now carries data: with
+#   the mint disabled DN-1 reads **0** while DN-4 stays **1**. ⚠ **A fixture for a
+#   bear-trap-26 defect has to be built out of a node that HAS data, or it is testing the
+#   trap instead of the fix.**
+#
+#   **e. A8's FIVE ROWS ARE NOT SEPARABLE.** DN-1 is the capability; **DN-2 is the MISS and
+#   must stay EMPTY** — a fix that minted for every right-hand name would pass DN-1 and be
+#   wrong; **DN-3/DN-4 are the accessor exemption as a PAIR**, because a DEAD accessor also
+#   reads 0 and only a live one can produce 0-then-1; DN-0 is the walk's anti-vacuity
+#   control.
+#
+#   ## WHAT LANDED — ONE COMMIT
+#   `67bb7ff` handleDot's name half, `incant/dotNameT`, pop.sh row A8, and the
+#   `RightIsAName` DesignDocs entry.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **Strokes 2 and 3 not opened** — sealing after each stroke was the instruction, and
+#   this is that seal. **Scope was single-dot rows only**: chains still drop their second
+#   postfix (bear-trap #52) and wait on the fold.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **stroke 2** — `!` answers by truthOf (UC-3 reads 0 where `!(0)` wants 1; same class
+#   as aCTionIF/bareIfTruth) · **stroke 3** — the two indirection guesses, one build each,
+#   `PostFiX InvokeArg@;` then `InvokeArg-*`, reporting each as a number before trying the
+#   next · then the fold, 6b-ii, unknown-operator refusal, and both held citizens.
+#   ⚠ **#52 still owes its symmetry sentence**: `UnaryOPS?` drops a second PREFIX the way
+#   `InvokeArg?` drops a second postfix — UC-5 is that case and it is in hand.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class, pending · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2
+#   `noPrint` → `noPrinT` · parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, SEVENTH SESSION -- THE UNARY CLASS SPLIT LANDS ALONE, AND
 # ITS BUY ROW SAYS IT IS A CLEANUP. THE FOLD IT WAS MEANT TO RIDE HAS NO COMMIT.
 # ONE COMMIT.
