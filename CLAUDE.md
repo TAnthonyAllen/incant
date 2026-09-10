@@ -1881,6 +1881,40 @@ Hard-won lessons. Each one has cost real debugging time.
     separate `if`s on its value. `incant/frontier` uses it at all eight stations and its prose says
     why. Same no-lexer family as bear-traps #4 and #29 — the parser has no idea a block ended.
 
+    ⚠⚠ **AMENDED 2026-09-10 — THIS ROW WAS FILED AS A FACT ABOUT "THE PARSER" AND IT IS A FACT
+    ABOUT *TOK*. IN KANT THE TABLE IS INVERTED.** Driven on both roads the same day, which is the
+    NAME WHICH LANGUAGE doctrine's third casualty being closed by measurement rather than by
+    argument.
+
+    **TOK — the shape is fatal exactly as written above.** One method added to `Commands.rtn`,
+    two retoks, the canary read each time:
+
+    | shape | `grep -c '^extern' GroupRules.h` |
+    |---|---|
+    | unbraced multi-statement arm then `else` | **0 — fatal** |
+    | the same method **braced** (H7 control) | **319** (318 + the one new extern) |
+    | restored | **318** |
+
+    **KANT — the named shape is FINE and the BRACED one breaks.** Six arms, one run each, same
+    file, only the body changing:
+
+    | shape | result |
+    |---|---|
+    | single-statement `if`, and `if` + `else` | OK |
+    | multi-statement indented arm, **no** `else` | OK |
+    | **multi-statement indented arm THEN `else`** | **OK** — and the else genuinely fires |
+    | **BRACED multi-statement arm then `else`** | **BROKE**, with this row's own misdirection |
+
+    ⚠ **THE ELSE IS NOT SILENTLY DROPPED, and that row is what makes this a finding rather than a
+    shrug** — a parse that swallowed the else would print no error and leave a plausible number.
+    Both directions were driven: flag true → 2, flag false → **9**, where a 5 would have been the
+    initialiser showing through. `incant/fixits/danglingElse` is the pair.
+    ⚠ **SO THE DIAGNOSIS SURVIVES AND THE DISCRIMINATOR IS BACKWARDS IN KANT: the brace is not the
+    cure, it is the trigger.** The flag idiom remains right on both roads. **What is NOT known is
+    what moved** — this row was measured 2026-08-21 with two passing controls, so something between
+    then and now changed which shape kant refuses, and nobody has looked. Do not read the inversion
+    as "it was always wrong".
+
 33. **AN EXTERN WIRED AS AN INCANT COMMAND MUST RETURN `GroupItem`. RETURNING `int` KILLS THE
     PROCESS ON THE STATEMENT *AFTER* THE CALL.** Measured 2026-08-21. The command machinery takes
     the return value as a `GroupItem*`, so an `int` is read as a pointer and the crash lands on the

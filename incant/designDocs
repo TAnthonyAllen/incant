@@ -659,6 +659,34 @@ define
                              | grep -E "checkInput|isLocal|grup->clear|atRuleMark = from")
 
                 ⚠ THE EXTERN CANARY CANNOT SEE THIS ONE -- it read 318 throughout. That is the whole reason the check is written down rather than left to the standing detector.#);
+                noElseHere=(RESTORED 2026-09-10, and the restoration is itself a measurement.
+                THE FLAG IDIOM IS NOT CLUMSINESS. parseRule spells `hasBody = 0; if
+                field.isAction hasBody = 1; if !hasBody reportNoBody(field);` rather than an
+                if/else, and anyone tidying that into an if/else is invited to read this first.
+
+                THE ORIGINAL ARGUMENT, bear-trap 32: a multi-statement indented arm followed
+                by an else does not parse, it fails at DEFINE time, and the error names a
+                HEALTHY function -- the first action in the file. parseRule broke exactly that
+                way the moment its arm grew, and took the canary 318 to 0.
+
+                ⚠ THIS ENTRY WAS DELETED WITH ITS INLINE POINTER IN THE 2026-09-09 COMMENT
+                MOVE, so for one day the idiom carried neither the line nor the doc -- which
+                is the one state the comment trial's own too-short test forbids: if the
+                one-line version would let someone break the invariant without reading the
+                doc, the line is too short, and no line at all is shorter than that.
+
+                ⚠⚠ AND THE MEASUREMENT THAT EARNED IT BACK IS NOT THE ONE THE TRAP DESCRIBES.
+                Stroke 4, 2026-09-10, drove both roads. In TOK the shape is fatal exactly as
+                written -- one method added to Commands.rtn, unbraced multi-statement arm then
+                else, canary 0; the same method BRACED, canary 319; restored, 318. In KANT it
+                is NOT: six arms measured, the unbraced-then-else form runs correctly in both
+                directions (2 and 9, anti-vacuity control passing) and the BRACED form is the
+                one that breaks, with the trap's own misdirection signature. parseRule is TOK,
+                so the reason this idiom is load-bearing stands on the tok reading and not on
+                the kant one. incant/fixits/danglingElse carries the kant half.
+
+                THE INLINE LINE IS TONY'S TO RESTORE, not Clod's -- the dispatch said so, and
+                the entry is restored either way so that a pointer written later resolves.#);
                 intoRidesArgument=(RULING B, 2026-09-09. The incoming `into` arrives on the frame runRule established, and the label the terms fill is a FRESH MINT PER INVOCATION -- never rStuff.label, which is one slot and cannot survive recursion. H19 measured it on incant/trigRecur: four activations of two mutually recursive rules mint four distinct addresses, each inner LABELMINT's intoAt IS the enclosing activation's at, and the outer label is unchanged at its OUT line after two nested activations.#);
                 argumentBind=(runAction's own three lines, so the body's one argument IS the label and every emitted term forwards it. Copied rather than re-derived, deliberately: the two roads must not disagree about what an argument slot is.#);
                 bindTheBodysOwnSlot=(MEASURED 2026-09-09, bear-trap 39. The emitted body's `argument` was resolved at COMPILE time, and the rule carried no argument slot then, so aCTionNamE minted an action LOCAL on the CodE and the BlocK holds that node. Binding field["argument"] therefore wrote a slot nothing reads -- measured as one shared, data-less body arriving at all six terms while the holder one line away read isGROUP with gGroup == myLabel. Bind the node the body actually holds, and bind it AFTER the clear loop, which blanks exactly this local. ⚠ THE TELL IF IT IS EVER UNDONE: every term receives ONE SHARED BODY with dataKind 0 while the holder one line away reads isGROUP with gGroup == the minted label.#);

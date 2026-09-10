@@ -1,0 +1,109 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(DangleE);
+define
+    deFlag; deN; deAnchor;
+    deArm code={
+        deN = 5;
+        if deFlag;
+            deN = 1;
+            deN = deN + 1;
+        else            deN = 9;
+        };
+    deRun code={
+        deFlag = 1;
+        deArm();
+        cerr "DE-1 unbraced arm, flag TRUE   deN = " deN " -- wants 2 (then-arm ran)":;
+        deFlag = 0;
+        deArm();
+        cerr "DE-2 unbraced arm, flag FALSE  deN = " deN " -- wants 9. A 5 means the ELSE was DROPPED":;
+        deAnchor = 0;
+        cerr "fixDanglingElseHere -- DE-1/DE-2 are the pair; neither alone can see a dropped else":;
+        };
+    ;
+deRun();
+print "DANGLINGELSE SENTINEL -- reached the foot":;
+stop();
+
+LANE:  build
+BLAST: DISJOINT
+
+NAME      danglingElse -- bear-trap #32's shape table is INVERTED in kant, and the
+          shape it names as broken is correct in both directions. Minted 2026-09-10
+          on Tony's dispatch, stroke 4's kant arm.
+
+SEVERITY  DOCTRINE, not breakage. Nothing is broken by what this file measures; a
+          bear-trap is wrong, which is worse in the long run because it is cited.
+
+WHAT #32 SAYS. "A MULTI-STATEMENT INDENTED `if`-ARM FOLLOWED BY AN `else` BREAKS THE
+PARSE -- AND THE ERROR NAMES A HEALTHY ACTION, NEVER THE OFFENDER", with a table:
+
+    multi-statement indented arm, no else      ok
+    single-statement if + else                 ok
+    multi-statement indented arm THEN else     BROKEN
+
+WHAT IT ACTUALLY DOES TODAY, six arms, one run each, same file shape, only the body
+changing, on the bare 2026-09-10 build:
+
+    baseline, no if                            OK
+    single-statement if, same line             OK
+    single-statement if + else                 OK
+    multi-statement indented arm, NO else      OK   deN = 2
+    multi-statement indented arm THEN else     OK   deN = 2      <- #32 says BROKEN
+    BRACED multi-statement arm then else       BROKE             <- #32 does not list it
+
+⚠ AND THE BRACED ONE BREAKS WITH #32's OWN MISDIRECTION SIGNATURE -- `RunRulE:
+expected a method not <X>` where X is the FIRST action in the file, which is
+perfectly healthy. So the trap's DIAGNOSIS is intact and its DISCRIMINATOR is
+backwards: the brace is not the cure, it is the trigger.
+
+⚠ THE ELSE IS NOT SILENTLY DROPPED, WHICH IS THE ROW THAT MAKES THIS A FINDING AND
+NOT A SHRUG. "OK" would be worthless if the arm merely parsed and the else vanished:
+that failure prints no error and leaves a plausible number. So both directions are
+driven. DE-1 wants 2 and DE-2 wants 9; a 5 in DE-2 is the init showing through and
+means the else never ran. Measured 2 and 9. The pair is the assertion; neither row
+alone can see a dropped else.
+
+⚠ WHAT THIS FILE DOES **NOT** SAY. It does not say #32 was wrong when written. It was
+measured on 2026-08-21 with two passing controls, and `incant/frontier`'s eight
+stations were built on it. Something between then and now changed which shape the
+parser refuses, and NOTHING HERE IDENTIFIES WHAT. A trap that inverted is a trap
+whose cause moved, and the cause has not been looked for.
+
+SAME DAY, THE OTHER ARM, and it is why #32 does not retire: THE TOK ROAD DOES BREAK,
+and it breaks on the shape #32 names. One method added to Commands.rtn, two retoks,
+canary read each time:
+
+    unbraced multi-statement arm then else      canary 0     <- fatal, extern block wiped
+    the same method BRACED (H7 control)         canary 319   <- 318 + the one new extern
+    restored                                    canary 318
+
+So the shape is fatal in TOK and fine in KANT, and #32 is filed as a fact about "the
+parser". That is exactly the NAME WHICH LANGUAGE doctrine's third casualty, ruled the
+same day, and this file is the measurement that closed it.
+
+NEXT: OPEN.
+
+No fix is recommended -- there is nothing here to fix, only something to know.
+
+WHAT WOULD GENERATE A CAUSE, cheapest first:
+  1. `git log -S` the kant `if`/`else` parse path between 2026-08-21 and today. The
+     grammar's IF/ElsE lines, aCTionIF, and checkSkip's indent handling are the three
+     places a shape-refusal could have moved. One of them changed; the log will say
+     which, and the answer is a date rather than a theory.
+  2. Re-run frontier's eight stations against the BRACED form. They use the flag idiom
+     because of #32; if the brace is now the trigger, the flag idiom is still correct
+     but for the opposite reason, and the prose at those stations is misleading.
+  3. Only then decide whether #32 is amended, split in two by road, or retired with the
+     braced form minted in its place.
+
+⚠ A METHOD NOTE, because it cost two runs and would cost the next reader the same.
+The first version of this bisect wrote `if deFlag` with NO SEMICOLON after the
+condition and every arm reported `ERROR processCode: parse failed`, including the
+single-statement baseline -- which reads exactly like "the whole construct is broken"
+and is really "the fixture is misspelt". Kant's `if` is `if <cond>; <statement>`. The
+tell is that the arm you believe is the CONTROL fails too; when that happens, doubt
+the fixture before the language.
