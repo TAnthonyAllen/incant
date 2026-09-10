@@ -1,3 +1,117 @@
+# ⚠⚠⚠ SEALED 2026-09-10, THIRD SESSION -- 6a IS A CLEAN MOVE; 6b IS BLOCKED BY
+# ITS OWN PRE-MEASURE. THE EXPLICIT SPELLING THE RULING RETIRES TO DOES NOT WORK.
+# FOUR COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 11:33 and
+#   `git log -1 --date=iso` stamps 2026-09-10 11:33. They agree.
+#
+#   ## THE ONE-LINE STATE: **stroke 5 read at the seat, 6a landed byte-identical with
+#   nothing re-pinned, and 6b STOPPED ON ITS SECOND PRE-MEASURE -- `btCur.taG`, the
+#   explicit spelling the ruling names as the escape hatch, reads the CURSOR and not
+#   the member.** Fleet **255 green / 50** (249 + the six new pre-measure rows), canary
+#   **322** (318 + 6a's four arms), ddPop 5, decodePop 14, formsPop 14, countPop
+#   0-of-44, frontier **exit 0, 4 PASS**. Both repos **0 dirty, 0 unpushed**. Fixit
+#   queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. STROKE 5 -- opDot RECEIVES A GROUPFIELD ON THE RIGHT, read at the seat.**
+#   Not inferred from a value this time. `measureDotOperands`, second use of the
+#   callout doctrine, sits in opDot above the accessor gate:
+#
+#       fcFace.noPrinT   right=noPrinT isGroupField=1 gCount=29   value 0
+#       fcClean.noPrinT  right=noPrinT isGroupField=1 gCount=29   value 0   (FC-3)
+#       fcFace.noPrint   right=noPrint isGroupField=0 gCount=0    tag echo  (FC-2)
+#
+#   **So it is a groupField, not a tag echo and not `true`.** The offline reading was
+#   taken on the build with `.` removed from UnaryOPS, which never reached the tree.
+#   ⚠ **And FC-2's spelling is confirmed at the seat**: `noPrint` is the COMMANDS
+#   keyword, arrives `isGroupField=0`, so opDot falls to `target[text]` and returns
+#   bear-trap #26's echo. **FC-2 and FC-3 have never asked the same question.** Read
+#   only; the respell is Tony's.
+#
+#   **b. STROKE 6a -- A PURE MOVE, AND THE CERTIFICATE HELD.** `handleUnary`,
+#   `handleCall`, `handleSubscript`, `handleDot` extracted; `aCTionTokenXP` keeps the
+#   dispatch. **Sixteen captures banked before and compared after** -- oneTest,
+#   jsonTest, genScratch, popScratch, frontier on both channels, odometer, pop.sh,
+#   decodePop, ddPop, countPop, formsPop -- **all byte-identical** once two H1/H3
+#   artifacts are scrubbed (the harness's own binary size/mtime echo, and raw
+#   ADDRESSES in genScratch's trace lines). **Every count unmoved. No re-pins.**
+#   Canary 318 -> 322, which is exactly the four new externs.
+#   ⚠ **THE ONE PIECE OF CLEVERNESS, and it is worth keeping: A ROTATING ARM FINISHES
+#   THE TERM ITSELF AND SAYS SO BY SETTING `xpress.method`.** The old code said it with
+#   `goto endToken` out of both star rotations, and the reason is not bookkeeping --
+#   **the star is already spent on the dot's LEFT operand**, so falling on to the prefix
+#   arm would apply it twice. Reading `xpress.method` preserves that and invents no new
+#   channel. The second channel is the SWAP: handleDot's two-unary case returns the
+#   inner `xp`, which both replaces ANYtoken and suppresses the `invoke` set.
+#   ⚠ **It deliberately did NOT become a real fold loop** -- a fold changes what
+#   `A.B.C` means, and that is 6b's ruling, not a refactor's to make.
+#   ⚠ **TWO SPECIES OF CALLOUT, one sentence, landed with it:** a WITNESS reports and
+#   wears `measure`; a HAND changes the tree and wears no prefix. The reserved prefix
+#   IS the discipline -- `grep -n 'measure[A-Z]'` must return instruments and nothing
+#   else, and a hand cannot be disarmed at all.
+#
+#   **c. ⚠⚠ STROKE 6b IS BLOCKED, AND THE BLOCKER IS ONE OF ITS OWN PRE-MEASURES.**
+#
+#   **PRE-MEASURE 1, the leading-dot census: THIRTY raw hits, ZERO LIVE.** With quoted
+#   strings stripped first (so a printed `.taG` in a label is not counted as code),
+#   three survive and **all three are prose** -- holderT's header twice, nameRecurse's
+#   results block. Grammar none, setup none, tok sources none. **So "no leading form"
+#   costs zero respellings.** That half is de-risked.
+#
+#   **PRE-MEASURE 2 IS THE BLOCKER.** Two arms, one run each:
+#
+#       ARM A, no collision       bare taG   -> crAlpha / crBeta    CORRECT
+#                                 crCur.taG  -> `crCur`             THE CURSOR
+#       ARM B, a field named taG  bare taG   -> 0
+#       declared in the define    crCur.taG  -> 1
+#
+#   **The ruling says a collision is spelled explicitly, `btCur.taG`. THAT SPELLING
+#   DOES NOT READ THE MEMBER** -- it reads the cursor, bear-trap #35's chained-read
+#   family. So the ruling retires the form that WORKS in favour of the form that does
+#   not, **and pre-measure 1 is what makes that fatal rather than survivable: there is
+#   no third spelling in the tree to fall back on.**
+#   ⚠ **And a declared same-named field shadows BOTH**, so the dispatch's premise --
+#   *a bare member name wins over a same-named field* -- is **half true**: it wins when
+#   nothing shadows it, and when something does, neither spelling is the tag.
+#   ⚠ **CORROBORATED, so it is not one probe's artifact (bear-trap #43):**
+#   `incant/attic/branchTagTruth`'s table has `btCur.taG eq "return"` at 3 of 3 and
+#   `*btCur.taG == "return"` at 0. Two fixtures, same conclusion.
+#   ⚠ **SAME SHAPE AS THE PREVIOUS PRE-FLIGHT:** removing `.` from UnaryOPS without
+#   the replacement road takes every accessor dark; retiring the bare form without a
+#   working explicit form takes **every iterate body** dark. **6b needs the explicit
+#   read fixed FIRST, or in the same stroke.**
+#   **Banked as ROWS, not prose** -- pop.sh **A6**, `incant/cursorReadT` and
+#   `cursorReadTb`, each arm carrying its own walked-count control at 2, H7 control run.
+#
+#   ## WHAT LANDED -- FOUR COMMITS
+#   `762b70a` stroke 5, measureDotOperands · `ef74253` stroke 6a, the four arms ·
+#   `6a4d773` 6b's pre-measures as fleet rows · support `groups.ext` mirror line for
+#   measureDotOperands (bear-trap #11), committed and pushed. Mirror-arity 299 -> 300.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **6b itself**, blocked as above -- and it is a **stop-and-report**, not a partial
+#   build: nothing of the ruling was written, so there is nothing to revert.
+#   **Strokes 3 and 7 untouched.**
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **make `crCur.taG` read the member** (6b's precondition, and the new head) · then 6b
+#   entire, removal and name-as-tag road in one commit · which arm a container gets in
+#   runOP's fork · the modifier-CLASS distinction (stroke 2's other half) · stroke 3
+#   (testing() splits) · stroke 7 (unknown-operator refusal) · blockDashRefusalWalk
+#   re-read on the dot road · what moved kant's `else` refusal between 08-21 and today.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   parseRule's `noElseHere` inline line (the DesignDocs entry is restored) · which arm
+#   a bin gets · the modifier-class ruling · faceFlagsNoCross's FC-2 spelling · the `eq`
+#   sites, per-site · **whether 6b waits on the explicit read or changes its escape
+#   hatch to something that works.**
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, SECOND SESSION -- THE DOOR IS A NAME AND THE NAME IS FINE;
 # THE FORK IS WHAT HAS NO ARM. TRAITS TAKE HALF THEIR FLAGS. #32 IS A TOK FACT AND
 # KANT INVERTS IT. FOUR COMMITS.
