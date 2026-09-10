@@ -1641,6 +1641,15 @@ Hard-won lessons. Each one has cost real debugging time.
     line in the tree that can report `arm=NONE`. The **why** lives in `incant/designDocs` under
     `TokFiles -> measure -> MeasureCallouts`; this row is the **what to do**.
 
+    ⚠ **A `measure*` METHOD READS THE STATE IT IS HANDED; IT NEVER RECOMPUTES THE DECISION IT
+    WITNESSES.** Adopted 2026-09-10, and it was paid for within the hour of the rule it amends.
+    `measureRuleDispatch`'s `arm=` string **re-derived `runOP`'s ladder** instead of reading the
+    outcome, so the moment the door widened from `isRule` to `hasNewParsE` it still printed
+    `arm=NONE` **for the node that had just gone through it**. ⚠ **A witness that recomputes its
+    subject's decision drifts from it silently, and it drifts in the direction that hides the
+    change you just made** — which is exactly when you are trusting it most. Where the outcome
+    cannot be handed in, say so in the callout's header and edit the two together.
+
     ⚠ **THERE ARE TWO SPECIES OF CALLOUT AND THE PREFIX IS WHAT TELLS THEM APART: A WITNESS
     REPORTS AND A HAND CHANGES THE TREE.** A witness wears `measure` and is bound by everything
     above — gated, inert when disarmed, writes nothing it is handed. A **hand** is an ordinary
@@ -2277,6 +2286,33 @@ Hard-won lessons. Each one has cost real debugging time.
     **Retire this row when the unary specimen lands and the refusal arm is removed** —
     `docs/jitSlotMigration.md`'s parked section owns that, and the guard, counter and rung row
     retire together.
+
+52. **A TWO-POSTFIX CHAIN SILENTLY DROPS TO ONE. `A["B"].C` RUNS THE SUBSCRIPT AND NEVER THE
+    DOT, AND READS AS WORKING BECAUSE THE FIRST POSTFIX'S VALUE IS WHAT COMES BACK.** Gloss:
+    the second postfix evaporates. Measured 2026-09-10 by counting `opDot` entries at the seat
+    (`measureDotOperands`), which is the only thing in the tree that can see it:
+
+    | spelling | opDot calls |
+    |---|---|
+    | `DesignDocs.TokFiles` | **1** |
+    | `DesignDocs["TokFiles"]` | 0 — correct, a subscript is `=[` and not a dot |
+    | `DesignDocs["TokFiles"].Commands` | **0** |
+    | `DesignDocs.TokFiles.Commands` | **0** |
+
+    **A single dot fires; ANY two-postfix chain fires none at all** — not left-fold, not
+    right-fold, no fold. ⚠ **THE DANGER IS THAT IT ANSWERS**, which is #26's whole family: the
+    expression yields the FIRST postfix's result, so `A["B"].C` hands back `A["B"]` and a reader
+    checking that the row is populated sees a real node with a real tag. Nothing is null, nothing
+    refuses, nothing is logged.
+    **The cause is one grammar line:** `TokenXP  UnaryOPS? ANYorNum^ InvokeArg?` — **one**
+    optional postfix — so `A.B.C` cannot be one TokenXP with two of them.
+    ⚠ **AND THE OBVIOUS ONE-LINE FIX MAKES IT WORSE, measured rather than assumed:** changing
+    that `?` to `*` takes the **single** dot from 1 call to **0**, because `InvokeArg` then
+    arrives as a repetition CONTAINER and `aCTionTokenXP`'s arms do not unpack it. **The grammar
+    and the dispatch are one change, not two**, and the container arriving is the loop's first
+    design fact rather than an obstacle to it.
+    **Detector:** count `opDot` entries, never results. A results-based check cannot see this at
+    all, which is why it survived until a seat callout existed to count calls.
 
 51. **SAME NAME, TWO PROVENANCES: A KANT BODY SPELLING `false` GETS A *COPY*; THE `AND` CHAIN
     HANDS BACK THE REGISTRY NODE *ITSELF*. AN IDENTITY TEST AGAINST `falseResult` THEREFORE WORKS

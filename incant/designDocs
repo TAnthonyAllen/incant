@@ -4155,6 +4155,18 @@ define
                 a door keyed on hasNewParsE opens for all of them. The one-condition form is
                 not merely tidier; it is the only one that can be face-proof.
 
+                ⚠⚠ THE FACE-PROOF REASON, dated 2026-09-10 and promoted out of the certificate
+                because it is the argument rather than a by-product. hasNewParsE rides the SHARED
+                CHILD LIST, as does the builtinParsE artifact it gates; rStuff is PER NODE. A rule
+                has many faces and every one of them shares the body and the child list, so a door
+                keyed on hasNewParsE opens for all of them -- while a door keyed on
+                rStuff.parseMethod OPENS FOR SOME FACES AND NOT OTHERS. Measured on the node a
+                subscript reaches: parseClassify reads `PC none UnaryOPS`, rStuff.parseMethod NULL,
+                while the same node reads hasNewParsE=1. Both readings are correct and they are
+                about different storage. ⚠ SO THE ONE-CONDITION FORM IS NOT MERELY TIDIER, IT IS
+                THE ONLY ONE THAT CAN BE FACE-PROOF, and that is the sentence to quote if anyone
+                proposes narrowing the door again.
+
                 ⚠ THE INSTRUMENT WENT STALE WITHIN THE HOUR, and that is the second lesson.
                 measureRuleDispatch's `arm=` string RE-DERIVES runOP's ladder rather than
                 reading it, so the moment the door widened it still reported arm=NONE for the
