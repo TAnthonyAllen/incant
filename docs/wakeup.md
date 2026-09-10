@@ -1,3 +1,85 @@
+# ⚠⚠⚠ SEALED 2026-09-10, SIXTEENTH SESSION -- `&&` AND `||` SHORT-CIRCUIT. IT WAS TWO
+# SPELLING LISTS, NOT ONE. THREE COMMITS.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-10 14:0x and `git log -1 --date=iso` the same
+#   minute. They agree.
+#
+#   ## THE ONE-LINE STATE: **2a lands — the identity guess was falsified, the real cause
+#   was a SECOND spelling list inside `runShortCircuit`, and both lists are registrations
+#   now.** Fleet **266 green / 50** (264 + shortCircuitT's two), canary **328**, frontier
+#   **exit 0**. Both repos **0 dirty, 0 unpushed**. Fixit queue **3**.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE DISPATCH'S GUESS WAS FALSIFIED, AND THE COUNTER-PREDICTION WAS BANKED FIRST.**
+#   `runShortCircuit` already reads `leftIsTrue = truthOf(target);` — **no identity test on
+#   the left operand anywhere in it.** The read:
+#
+#       ID-1 trueResult  OR  loud()   fires 0      ID-2 true  OR loud()   fires 0
+#       ID-3 trueResult  ||  loud()   fires 1      ID-5 false AND loud()  fires 0
+#       ID-4 falseResult AND loud()   fires 1
+#
+#   ⚠ **ID-4 LOOKS LIKE EVIDENCE FOR THE GUESS AND IS NOT.** `falseResult` **is not
+#   spellable in a body** — measured directly, `if falseResult;` reads TRUTHY, because an
+#   undeclared name is minted as an action LOCAL (bear-trap #39) and a data-less local is
+#   true by presence. So ID-1 and ID-4 are artifacts of the name not resolving. **The shape
+#   that would have carried the guess is the one its own control kills.**
+#
+#   **b. ⚠⚠ IT WAS TWO LISTS.** `interpretXP` chose the tier-3 **binding** by tag;
+#   `runShortCircuit` chose the **skip direction** by tag. `||` — same `operateMethod` as
+#   `OR` — could be seen by neither, so **fixing only the first sent it past both skips**
+#   into the right-arm evaluation and out through `if truthOf(arg) return trueResult;`.
+#   **That is exactly how `true || false` came to read FALSE last session.** `shortCircuit`
+#   says IF, `isOR` says WHICH WAY, and no spelling appears in either action.
+#   **THE RULE: when a predicate replaces a spelling list, GREP THE METHOD IT BINDS TO. A
+#   registration that reaches a body which still asks the tag has MOVED the list, not
+#   removed it.**
+#
+#   **c. THE CERTIFICATE, in pairs:**
+#
+#       SC-1 false AND loud 0    SC-2 true  AND loud 1
+#       SC-3 true  OR  loud 0    SC-4 false OR  loud 1
+#       SC-5 false &&  loud 0    SC-6 true  &&  loud 1
+#       SC-7 true  ||  loud 0    SC-8 false ||  loud 1     ← SC-7 was 1
+#
+#   `true || false` TRUE · orProbe byte-identical · `!true && true` FALSE · **H7: restoring
+#   the spelling test takes `true || false` back to false and SC-7 back to 1.**
+#
+#   **d. A9's SHORT-CIRCUIT ROW GRADUATED AND MOVED HOUSE.** ⚠ **It could not just flip:**
+#   orProbe has a SINGLE `loudZero` case, so post-fix its marker count is **0 with no
+#   non-zero sibling**, and a lone zero is what a right arm that never ran at all would
+#   also print. The evaluation rows moved to `incant/shortCircuitT`, which counts fires in
+#   **pairs**; the truth-table row stays in orProbe. **Two questions, two homes.**
+#
+#   **e. DOCTRINE: an action never selects behaviour by spelling.** Three casualties in one
+#   campaign — `handleDot`'s `"*"` → accessClass, TraiT's doubled `+` → repeatClass,
+#   `interpretXP`'s `"AND" || "OR"` → shortCircuit/isOR. **And a spelling list does not
+#   come alone.**
+#
+#   ## ⚠ WHAT IS NOT DONE AND IS NAMED RATHER THAN CLAIMED
+#   **C PRECEDENCE.** The dispatch asks for `&&` above `||`, both below comparison and
+#   above assignment. **KANT-43 says this language has NO precedence and associates right
+#   to left**, so precedence is not a registration to add — it is a mechanism that does not
+#   exist. `&&`/`||` are correct on short-circuit and on truth; a mixed `a && b || c` still
+#   associates right to left like every other operator here. **Its own stroke.**
+#
+#   ## WHAT LANDED — THREE COMMITS
+#   `2c49965` the doctrine · `e399c83` stroke 1's read · `a423d82` 2a. Support:
+#   `opIsShortCircuit`/`opIsOR` mirrors.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **2b** the emitter emits `&&` · **2c** the scrub · **precedence**, its own stroke ·
+#   stroke 5 load-time or parse-time · AP-5 · danglingElse's `bkFirst` read · the fold ·
+#   6b-ii · unknown-operator refusal — **now with `&&` as a second casualty: a KNOWN
+#   operator with no correct road was exactly as silent as an unknown one.**
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 · noElseHere.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, FIFTEENTH SESSION -- 2a DOES NOT LAND. THE REPAIR BREAKS
 # `||`, AND THE FLEET COULD NOT SEE IT. TWO COMMITS.
 #
