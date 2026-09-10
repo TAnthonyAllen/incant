@@ -4287,6 +4287,42 @@ define
                 is NOT a groupField gets minted as an action local instead (bear-trap 26,
                 payments 5 and 6). Taking it as a tag closes that, and the fold-left for
                 A.B.C is untouched by any of this.#);
+            IfNotSweep=(THE `if !` SWEEP, 2026-09-10, run AFTER `!` moved to truthOf, and
+                the yield is a SPECIES rather than a list.
+
+                47 live hits in kant once quoted strings, comment blocks and dead regions
+                are stripped; designDocs' own prose accounts for a third of the raw grep
+                and is not code. Classified, they fall into two piles:
+
+                ASKS VALUE -- fine under truthOf, and MOST of them. Every `if !isRulE;`,
+                `if !term.noPrinT;`, `if !listLengtH;`, `if !s6Len;` -- a flag or count
+                accessor returns a numeric, so truthOf answers BY VALUE, which is what the
+                guard wanted. bothCensus, f31, fixBisect, parseClass, phaseProbe,
+                shadowCensus, sixShapeT, genCount, utilities all sit here. ⚠ MEASURED, NOT
+                ASSUMED: the fleet did not move on any of them across the opNOT change.
+
+                ASKS PRESENCE -- spellMany's species, and there are exactly THREE:
+                incant/genMany (repaired in the same stroke), incant/orProbe's probeIt,
+                incant/jidirect's tNotIn.
+
+                ⚠⚠ AND ALL THREE ARE ONE SHAPE, WHICH IS THE FINDING: `:argument a b;`
+                MINTS AN ABSENT ATTRIBUTE AS PRESENT AND EMPTY. So `!x` was the idiom for
+                "the scope hoist found nothing", and it worked only while `!` asked
+                PRESENCE. jidirect's is the same shape one road over -- `nc IN cg` hands
+                back a present, valueless node on a miss, and its own comment already
+                called the guard "a kludge that handles !IN that does not exist".
+                ⚠ THE RESPELL IS THE SAME ONE EVERY TIME -- ask `.datA` -- and every one of
+                the three came back BYTE-IDENTICAL to its pre-stroke reading. No re-pins.
+
+                TWO FILES DELIBERATELY NOT RESPELLED, and each for its own reason.
+                incant/lessProbe carries the identical `if !site || !min;` and DID NOT MOVE:
+                `||` receives already-evaluated operands and tests gCount, so the
+                disjunction was truthOf-shaped all along -- which is genMany's August
+                comment turning out to be right about `||` for a reason nobody had measured.
+                incant/jitXnot MOVED AND IS NOW CORRECT: its header pre-registers row 1 as
+                `xnIn = 0` present-and-zero, `!` MUST fire, and it now reads 1 where it read
+                0. That file was documenting this exact defect and it has stopped
+                documenting it.#);
             NotAnswersByTruthOf=(LANDED 2026-09-10. `!` read PRESENCE where it had to read
                 TRUTH, and the one-line cure is the contract that already existed.
 

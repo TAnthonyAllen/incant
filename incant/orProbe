@@ -11,11 +11,17 @@ define
     hasOnly  alpha1="a";
     probeIt code={
         :argument alpha1 beta1;
-        if !alpha1;             print + "  seq: !alpha1 caught it":;
-        or !beta1;              print + "  seq: !beta1 caught it":;
-        else                    print + "  seq: neither -- both present":;
-        if !alpha1 || !beta1;   print + "  ||  : disjunction caught it":;
-        else                    print + "  ||  : disjunction saw BOTH PRESENT":;
+        /*  ⚠ THE GUARDS ASK FOR DATA SINCE 2026-09-10, and the reason is the whole
+            point of this probe's subject. `:argument alpha1 beta1;` mints an absent
+            attribute as PRESENT AND EMPTY, so `!alpha1` only meant "the hoist found
+            nothing" while `!` answered by PRESENCE. It answers by truthOf now, a
+            present valueless node is true, and the bare form stopped catching the
+            missing beta1. DATA is the question these rows were always asking.  */
+        if !alpha1.datA;             print + "  seq: !alpha1 caught it":;
+        or !beta1.datA;              print + "  seq: !beta1 caught it":;
+        else                         print + "  seq: neither -- both present":;
+        if !alpha1.datA || !beta1.datA;  print + "  ||  : disjunction caught it":;
+        else                             print + "  ||  : disjunction saw BOTH PRESENT":;
         };
     runOr code={
         print "1 the WORD form, OR:":;

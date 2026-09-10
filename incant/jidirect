@@ -56,8 +56,10 @@ define
         nc = new("absentClaim");
         // the next 2 lines are a kludge that handles !IN that does not exist
         nc = nc IN cg;
-        if !nc; print ``"  !IN: reports ABSENT (works)":;
-        else    print ``"  !IN: reports present / not working":;
+        // asks for DATA, not presence: `nc IN cg` hands back a present, valueless node
+        // on a miss, so the bare `!` stopped catching it when `!` moved to truthOf
+        if !nc.datA; print ``"  !IN: reports ABSENT (works)":;
+        else         print ``"  !IN: reports present / not working":;
         };
     ;
 
