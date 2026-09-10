@@ -1,3 +1,98 @@
+# ⚠⚠⚠ SEALED 2026-09-10, FOURTH SESSION -- THE DOT DEFECT IS ON THE **LEFT**
+# OPERAND, AND THE ESCAPE HATCH ALREADY EXISTS SPELLED WITH A STAR. 6b-i NOT BUILT;
+# ITS CERTIFICATE HAS A ROW THE MECHANISM CANNOT CASH. FOUR COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 11:47 and
+#   `git log -1 --date=iso` stamps 2026-09-10 11:47. They agree.
+#
+#   ## THE ONE-LINE STATE: **stroke 0's housekeeping landed, stroke 1's one read
+#   answered NO to the question it was given and relocated the defect from the right
+#   operand to the left, and stroke 5 killed the guess that the two held citizens are
+#   one defect.** Fleet **255 green / 50**, unmoved all session, canary **322**, ddPop
+#   5, decodePop 14, formsPop 14, countPop 0-of-44, frontier **exit 0, 4 PASS**. Both
+#   repos **0 dirty, 0 unpushed**. Fixit queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. CORRECTION ACCEPTED AND ITS DOCKET HEAD WITHDRAWN.** The ruling retires the
+#   LEADING form `.taG`, not bare `taG`; bare resolves scope-first and stays legal.
+#   A6 is 6b-i's **certificate**, not a blocker, and the previous seal's "make
+#   crCur.taG read the member" head is struck.
+#
+#   **b. ⚠⚠ STROKE 1 ANSWERS **NO**, AND THAT MOVES THE DEFECT.** The question was
+#   whether `taG` arrives isGroupField=0 the way `noPrint` did — on the keyword road,
+#   with the cursor echo being bear-trap #26's shape. Off `measureDotOperands`:
+#
+#       bare taG      right=taG isGroupField=1 gCount=1  left=crAlpha  -> crAlpha
+#       crCur.taG     right=taG isGroupField=1 gCount=1  left=crCur    -> crCur
+#       *crCur.taG                                       left=*crCur   -> crAlpha
+#
+#   **THE RIGHT OPERAND IS ALREADY CORRECT IN BOTH SPELLINGS.** `taG` resolves to the
+#   GroupFields accessor, gCount 1, every time. So `crCur.taG` returning `crCur` is
+#   **not** a wrong lookup and **not** a tag echo — **it is the right answer for the
+#   node opDot was handed.** The cursor is a HOLDER and the dot read the holder's own
+#   tag, faithfully.
+#   ⚠⚠ **AND THE ESCAPE HATCH ALREADY EXISTS, SPELLED WITH A STAR:** `*crCur.taG`
+#   reads the member on both rows, measured. The star/dot rotation applies the deref to
+#   the dot's LEFT operand, which is exactly what a holder needs. **Bear-traps #41/#50's
+#   family, not the accessor family.**
+#   ⚠ **SO STROKE 2's CERTIFICATE HAS A ROW THE MECHANISM CANNOT CASH** — *"crCur.taG
+#   reads the member in both rows"* is not producible by a right-operand change, because
+#   the right operand was never evaluated wrongly. **6b-i NOT BUILT**, per *report the
+#   line, don't fix*. **What 6b-i is still worth**, so it is not read as dead: today the
+#   right operand is RESOLVED and lands on the accessor only because a GroupFields entry
+#   of that name exists — a right-hand name that is **not** a groupField is minted as an
+#   action local instead (#26, payments 5 and 6). Taking it as a tag closes that, and the
+#   fold-left for `A.B.C` is untouched. What it **cannot** do is change what a holder on
+#   the LEFT means; that reaches every `:=` capture in the tree and is a different ruling.
+#
+#   **c. STROKE 5 — THE GUESS DIED FOR ONE BUILD.** The braced-plus-else arm, measured
+#   on both grammars, one run each: **`RunRulE: expected a method not bkFirst` on BOTH.**
+#   The dash makes no difference in either direction, so **the two held citizens are NOT
+#   one defect** and `danglingElse`'s three candidate sites can all drop the grammar's
+#   modifier position. `blockDashRefusalWalk` is **unmoved** — 7 held, 5 respelled, the
+#   pair it was minted with — and that is a re-read, not a re-pin: stroke 2's hand-up was
+#   the only thing that could have moved the dash's reach and it detonated and was
+#   reverted last session.
+#
+#   ## WHAT LANDED — FOUR COMMITS
+#   `713a07d` stroke 0 (four mirrors into groups.ext, alpha order, TokenXP's banner back
+#   beside TokenXP and brought current) · `94a98af` stroke 1's finding + the
+#   `DotLeftOperand` DesignDocs entry · `c0853c5` stroke 5, both citizens · support
+#   `groups.ext` mirror commit (bear-trap #11), mirror-arity 300 -> 304.
+#
+#   ## ⚠ WHAT DID NOT LAND, AND ONE MEASUREMENT REPORTED VOID
+#   **Strokes 2, 3 and 4 untouched** — 2 stopped on the certificate row above and 3/4
+#   were gated behind it.
+#   ⚠ **THE CHAINED-DOT BASELINE IS PARTLY VOID AND IS REPORTED AS VOID, NOT GRADED.**
+#   Trustworthy: `DesignDocs["TokFiles"]` reads **TokFiles**, `DesignDocs.TokFiles` reads
+#   **0** — the ruling's headline target, confirmed broken. **The deeper rows are void:**
+#   `:=` on a dot-expression captured an expression wrapper tagged **`xl1`** for the
+#   subscript spelling AND the dot spelling alike, so the two could not be told apart,
+#   and a direct-print probe died on its own syntax. **Grading it would be reading a
+#   broken instrument.** A working deep-chain probe is owed before 6b-i's certificate can
+#   be evaluated at all.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **a working deep-chain probe** (owed, and it gates 6b-i's certificate) · **the
+#   holder-on-the-left ruling** — does an unstarred dot deref a holder, and what does
+#   that cost every `:=` in the tree · 6b-i's right-operand-as-name half, which stands on
+#   its own merits · 6b-ii the removal · stroke 3 (testing() splits) · stroke 4
+#   (unknown-operator refusal, measured: `eq` parsed, ran and answered truthy 3 of 3) ·
+#   blockDashRefusalWalk · what moved kant's `else` refusal between 08-21 and today.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   **Held pending signature, untouched this SEQ as instructed:** the runOP arm
+#   (`hasNewParsE` as the door) and the two-class modifier hand-up.
+#   **Owed to Tony:** FC-2 respelled `noPrint` -> `noPrinT` before faceFlagsNoCross is
+#   read again · parseRule's `noElseHere` inline line restored on the tok reading (the
+#   DesignDocs entry is already back) · whether 6b-i's certificate drops the
+#   `crCur.taG` row or the ruling grows a left-operand clause.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
 # ⚠⚠⚠ SEALED 2026-09-10, THIRD SESSION -- 6a IS A CLEAN MOVE; 6b IS BLOCKED BY
 # ITS OWN PRE-MEASURE. THE EXPLICIT SPELLING THE RULING RETIRES TO DOES NOT WORK.
 # FOUR COMMITS.
