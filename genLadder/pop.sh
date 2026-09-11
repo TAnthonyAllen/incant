@@ -1997,6 +1997,29 @@ fi
 #  statement cannot both raise a refusal and reach them. They carry the consult
 #  in source; this file cannot exercise it, and saying so beats a row that looks
 #  like a test and is not.
+#  ⚠ memberLitT -- +/ REFUSES A LITERAL RIGHT SIDE, by presence rather than by kind.
+#  ML-1 is the anti-vacuity control: the same operator with a FIELD on the right must
+#  still attach, or the refusal is equally consistent with +/ being broken. ML-3 reads
+#  the length from a LATER action, because a refusal is terminal for the action and the
+#  line after the refused statement never runs.
+run2 memberLitT "$T/ml.o" "$T/ml.e"; check "memberLitT runs" 0 $?
+sentinel "memberLitT sentinel (no truncation)" "$T/ml.e" "MEMBERLIT SENTINEL"
+if grep -qF "ML-1 length =  1" "$T/ml.e"; then
+    echo "  ok    memberLitT ML-1 +/ a FIELD still attaches -- 1 (anti-vacuity control)"; green=$((green+1))
+else
+    echo "  FAIL  memberLitT ML-1 -- +/ stopped attaching a field; the refusal is over-firing"; fail=1
+fi
+if grep -qF "Operator +/ -- the right side is a literal" "$T/ml.e"; then
+    echo "  ok    memberLitT ML-2 a literal right side refuses BY NAME"; green=$((green+1))
+else
+    echo "  FAIL  memberLitT ML-2 -- a literal was accepted as a member, or the refusal lost its name"; fail=1
+fi
+if grep -qF "ML-3 length AFTER the refusal =  1" "$T/ml.e"; then
+    echo "  ok    memberLitT ML-3 nothing was attached -- read from a later action"; green=$((green+1))
+else
+    echo "  FAIL  memberLitT ML-3 -- the list moved despite the refusal"; fail=1
+fi
+
 #  ⚠ testPrecedence -- THE PRECEDENCE MAP, and its row is a RATCHET rather than a pin.
 #  Thirty-six rows: six target shapes x six operators. The tracked number is the count of
 #  rows NOT YET TRUE, and it is meant to go DOWN -- a stroke that makes a spelling work

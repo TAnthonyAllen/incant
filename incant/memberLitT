@@ -1,0 +1,53 @@
+
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+register(Utilities);
+define
+    mlBag; mlNum;
+    mlField code={
+        mlNum = 7;
+        cerr "ML-1 CONTROL  +/ a FIELD attaches":;
+        mlBag +/ mlNum;
+        mlLen := mlBag.listLengtH;
+        cerr "ML-1 length = " *mlLen " (want 1)":;
+        };
+    mlLiteral code={
+        cerr "ML-2 SUBJECT  +/ a LITERAL must refuse":;
+        mlBag +/ 7;
+        cerr "ML-2 DID NOT REFUSE -- a literal was attached as a member":;
+        };
+    mlAfter code={
+        mlLen := mlBag.listLengtH;
+        cerr "ML-3 length AFTER the refusal = " *mlLen " (want 1 -- nothing was attached)":;
+        };
+    ;
+mlField(mlBag);
+mlLiteral(mlBag);
+mlAfter(mlBag);
+cerr "MEMBERLIT SENTINEL":;
+stop();
+
+memberLitT -- +/ REFUSES A LITERAL RIGHT SIDE, BY PRESENCE.
+
+Membership attaches a NODE to a list. A literal is a value with no node to attach, so
+`bag +/ 7` is asking the membership channel to do the value channel's job. The test is
+`isLiteral`, which the parse already knows -- presence, not kind. A classifier-based gate
+was the withdrawn S3, and a gate that waits for one is a gate that never lands.
+
+ML-1 IS THE ANTI-VACUITY CONTROL and is not decoration: the same operator with a FIELD on
+the right must still attach, or ML-2's refusal is equally consistent with +/ being broken.
+ML-3 reads the length in a LATER action, because a refusal is terminal for the action and
+the line after the refused statement does not run -- so the only way to see that nothing
+was attached is from outside.
+
+⚠ WHY THIS IS ITS OWN FILE RATHER THAN A testPrecedence ROW. The row was written there
+first and took the fixture to exit 138 with ZERO bytes on both streams. Bisected: the
+statement is innocent (it runs fine here), and so is the row's comment. What moves it is
+the LENGTH of the minted tag -- 14 and 15 characters parse, 16 and 17 die, 20 parses
+again, with three different 16-character names all dying and the content irrelevant.
+Since the name's length shifts every byte after it, that reads as a file-offset window
+rather than a name rule, and the full row died again at a 12-character name once the body
+grew. Not diagnosed; recorded. A small file sidesteps it entirely.

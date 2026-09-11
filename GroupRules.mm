@@ -7610,6 +7610,15 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	Instruct.opAddMember.storeRuling  */
 	if ( ruler->refused )
 		return 0;
+	/*  ⚠ A LITERAL RIGHT SIDE REFUSES, AND THE TEST IS PRESENCE RATHER THAN KIND.
+	Tony's nod, 2026-09-11. Membership attaches a NODE to a list; a literal is a
+	value with nowhere to be attached from, so `bag +/ 7` is asking the membership
+	channel to do the value channel's job. Refusing by presence -- isLiteral, which
+	the parse already knows -- rather than by consulting a classifier is deliberate:
+	the classifier was S3 and S3 was withdrawn, and a gate that waits for one would
+	be a gate that never lands.   Instruct.opAddMember.literalRightSideRefuses  */
+	if ( argument->groupBody->flags.isLiteral )
+		return ::refuse(target,"Operator +/ -- the right side is a literal; membership attaches a field to a list, and a literal is a value with no node to attach");
 	if ( isLIST(argument->groupBody->flags.binType) )
 		while ( grup = argument->prior(grup) )
 			target->addMember(grup);
