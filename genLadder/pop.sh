@@ -1997,6 +1997,30 @@ fi
 #  statement cannot both raise a refusal and reach them. They carry the consult
 #  in source; this file cannot exercise it, and saying so beats a row that looks
 #  like a test and is not.
+#  ⚠ testPrecedence -- THE PRECEDENCE MAP, and its row is a RATCHET rather than a pin.
+#  Thirty-six rows: six target shapes x six operators. The tracked number is the count of
+#  rows NOT YET TRUE, and it is meant to go DOWN -- a stroke that makes a spelling work
+#  lowers it. So this row goes red only if the count RISES, and prints the number either
+#  way (rule H4: the quantity is printed unconditionally and compared, never asserted by
+#  the absence of a line). When it falls, lower TPWANT in the same commit with a sentence
+#  naming which rows graduated -- that is rule H6, and a ratchet that is never tightened
+#  is just a pin that stopped meaning anything.
+TPWANT=15
+run2 testPrecedence "$T/tp.o" "$T/tp.e"; check "testPrecedence runs" 0 $?
+sentinel "testPrecedence sentinel (no truncation)" "$T/tp.e" "PRECEDENCE SENTINEL"
+_tpn=$(sed -n 's/.*PRECEDENCE ROWS NOT YET TRUE = *//p' "$T/tp.e" | sed 's/[^0-9].*//' | head -1)
+if [ -z "$_tpn" ]; then
+    echo "  FAIL  testPrecedence reported no count -- the map ran but said nothing"; fail=1
+elif [ "$_tpn" -le "$TPWANT" ]; then
+    echo "  ok    testPrecedence $_tpn of 36 rows not yet true (ratchet: $TPWANT)"; green=$((green+1))
+    if [ "$_tpn" -lt "$TPWANT" ]; then
+        echo "        ^ it went DOWN. Lower TPWANT to $_tpn and name the rows that graduated (H6)."
+    fi
+else
+    echo "  FAIL  testPrecedence $_tpn of 36 not yet true, was $TPWANT -- a spelling that worked"
+    echo "        has stopped working. The pending slugs are listed above the count."; fail=1
+fi
+
 #  ⚠ opRoadT -- THE UNKNOWN-OPERATOR REFUSAL. A token registered in Operators with
 #  no operateMethod fell through every arm of runOP's chain and returned null: the
 #  statement parsed, changed nothing, said nothing. Four measured casualties before

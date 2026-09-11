@@ -11501,6 +11501,12 @@ GroupItem 	*target = field->get(2);
 	legitimate for plenty of nodes; what is never legitimate is an OPERATOR that
 	cannot operate. So the arm asks whether op lives in Operators and refuses only
 	then -- a rule, an action or a bare value reaching the foot is untouched.
+	⚠ THE SUBJECT FALLS BACK TO op WHEN target IS NULL, and that is not defensive
+	padding: a methodless operator on a SUBSCRIPTED target arrives here with a null
+	target and `refuse(null,...)` is an exit 139. Found 2026-09-11 by testPrecedence
+	within the hour of this gate landing -- the crash was in the gate, not in the
+	thing it was reporting. Refusing against op keeps it loud rather than silent,
+	which is the whole point of the arm.
 	⚠ No percent-dash in the format string (bear-trap #40).
 	GroupActions.runOP.unknownOperatorRefusal  */
 	// which node the NAME reached, and which arm the fork will take   measure.measureRuleDispatch
@@ -11532,10 +11538,11 @@ GroupItem 	*target = field->get(2);
 		
 		if ( op && op->groupBody->registry == GroupControl::groupController->groupRules->opFields ) {
 		char why[224];
+		GroupItem *who = target ? target : op;
 		::snprintf(why,sizeof(why),
 		"operator '%s' has no road -- the token is registered in Operators with no operateMethod, so this statement would change nothing",
 		op->groupBody->tag ? op->groupBody->tag : "(unnamed)");
-		return ::refuse(target,why);
+		return ::refuse(who,why);
 		}
 		
 		}

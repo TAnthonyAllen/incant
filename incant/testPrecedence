@@ -1,0 +1,770 @@
+
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+register(Utilities);
+define
+    tpPending; tpRows; tpTrue; tpNot; tpV; tpBag; tpOuter; tpNode;
+
+    tpSeed code={
+        clear(tpBag);
+        clear(tpOuter);
+        tpV = 7;
+        tpKid := new("kid");
+        *tpKid = 7;
+        tpBag +% *tpKid;
+        tpInner := new("bag");
+        tpOuter +% *tpInner;
+        tpNode := new("extra");
+        *tpNode = 1;
+        };
+
+    tpAssignBare code={
+        // writes the target outright. A bare name IS the field, so nothing has to be navigated first.
+        tpMark := new("assignBare");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["assignBare"];
+        tpSeed(tpBag);
+        tpV = 7;
+        cerr "ROW assignBare":;
+        tpV = 9;
+        tpRead := tpV;
+        if *tpRead == 9;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    assignBare  WANT 9 GOT " *tpRead:;
+        };
+
+    tpAssignArgDo code={
+        argument = 9;
+        };
+    tpAssignArg code={
+        // writes the target outright. An argument is a binding to the caller's field, so writing it writes what the caller passed.
+        tpMark := new("assignArg");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["assignArg"];
+        tpSeed(tpBag);
+        cerr "ROW assignArg":;
+        tpK := tpBag["kid"];
+        tpAssignArgDo(*tpK);
+        tpRead := tpBag["kid"];
+        if *tpRead == 9;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    assignArg  WANT 9 GOT " *tpRead:;
+        };
+
+    tpAssignSub code={
+        // writes the target outright. A subscript names a member of the bag, and the write lands on that member.
+        tpMark := new("assignSub");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["assignSub"];
+        tpSeed(tpBag);
+        cerr "ROW assignSub":;
+        tpBag["kid"] = 9;
+        tpRead := tpBag["kid"];
+        if *tpRead == 9;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    assignSub  WANT 9 GOT " *tpRead:;
+        };
+
+    tpAssignDot code={
+        // writes the target outright. A dot navigates to the same member a subscript reaches.
+        tpMark := new("assignDot");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["assignDot"];
+        tpSeed(tpBag);
+        cerr "ROW assignDot":;
+        tpBag.kid = 9;
+        tpRead := tpBag["kid"];
+        if *tpRead == 9;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    assignDot  WANT 9 GOT " *tpRead:;
+        };
+
+    tpAssignStar code={
+        // writes the target outright. A star reaches through a holder to the field it holds.
+        tpMark := new("assignStar");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["assignStar"];
+        tpSeed(tpBag);
+        tpH := tpBag["kid"];
+        cerr "ROW assignStar":;
+        *tpH = 9;
+        tpRead := tpBag["kid"];
+        if *tpRead == 9;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    assignStar  WANT 9 GOT " *tpRead:;
+        };
+
+    tpAssignStarsub code={
+        // writes the target outright. The star reaches through the holder FIRST and the subscript then names a member of what it holds -- star to the base, subscript after.
+        tpMark := new("assignStarsub");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["assignStarsub"];
+        tpSeed(tpBag);
+        tpH := tpBag;
+        cerr "ROW assignStarsub":;
+        *tpH["kid"] = 9;
+        tpRead := tpBag["kid"];
+        if *tpRead == 9;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    assignStarsub  WANT 9 GOT " *tpRead:;
+        };
+
+    tpPlusEQBare code={
+        // adds one into the target. A bare name IS the field, so nothing has to be navigated first.
+        tpMark := new("plusEQBare");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["plusEQBare"];
+        tpSeed(tpBag);
+        tpV = 7;
+        cerr "ROW plusEQBare":;
+        tpV += 1;
+        tpRead := tpV;
+        if *tpRead == 8;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    plusEQBare  WANT 8 GOT " *tpRead:;
+        };
+
+    tpPlusEQArgDo code={
+        argument += 1;
+        };
+    tpPlusEQArg code={
+        // adds one into the target. An argument is a binding to the caller's field, so writing it writes what the caller passed.
+        tpMark := new("plusEQArg");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["plusEQArg"];
+        tpSeed(tpBag);
+        cerr "ROW plusEQArg":;
+        tpK := tpBag["kid"];
+        tpPlusEQArgDo(*tpK);
+        tpRead := tpBag["kid"];
+        if *tpRead == 8;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    plusEQArg  WANT 8 GOT " *tpRead:;
+        };
+
+    tpPlusEQSub code={
+        // adds one into the target. A subscript names a member of the bag, and the write lands on that member.
+        tpMark := new("plusEQSub");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["plusEQSub"];
+        tpSeed(tpBag);
+        cerr "ROW plusEQSub":;
+        tpBag["kid"] += 1;
+        tpRead := tpBag["kid"];
+        if *tpRead == 8;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    plusEQSub  WANT 8 GOT " *tpRead:;
+        };
+
+    tpPlusEQDot code={
+        // adds one into the target. A dot navigates to the same member a subscript reaches.
+        tpMark := new("plusEQDot");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["plusEQDot"];
+        tpSeed(tpBag);
+        cerr "ROW plusEQDot":;
+        tpBag.kid += 1;
+        tpRead := tpBag["kid"];
+        if *tpRead == 8;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    plusEQDot  WANT 8 GOT " *tpRead:;
+        };
+
+    tpPlusEQStar code={
+        // adds one into the target. A star reaches through a holder to the field it holds.
+        tpMark := new("plusEQStar");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["plusEQStar"];
+        tpSeed(tpBag);
+        tpH := tpBag["kid"];
+        cerr "ROW plusEQStar":;
+        *tpH += 1;
+        tpRead := tpBag["kid"];
+        if *tpRead == 8;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    plusEQStar  WANT 8 GOT " *tpRead:;
+        };
+
+    tpPlusEQStarsub code={
+        // adds one into the target. The star reaches through the holder FIRST and the subscript then names a member of what it holds -- star to the base, subscript after.
+        tpMark := new("plusEQStarsub");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["plusEQStarsub"];
+        tpSeed(tpBag);
+        tpH := tpBag;
+        cerr "ROW plusEQStarsub":;
+        *tpH["kid"] += 1;
+        tpRead := tpBag["kid"];
+        if *tpRead == 8;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    plusEQStarsub  WANT 8 GOT " *tpRead:;
+        };
+
+    tpPlusPlusBare code={
+        // bumps the target by one. A bare name IS the field, so nothing has to be navigated first.
+        tpMark := new("plusPlusBare");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["plusPlusBare"];
+        tpSeed(tpBag);
+        tpV = 7;
+        cerr "ROW plusPlusBare":;
+        ++tpV;
+        tpRead := tpV;
+        if *tpRead == 8;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    plusPlusBare  WANT 8 GOT " *tpRead:;
+        };
+
+    tpPlusPlusArgDo code={
+        ++argument;
+        };
+    tpPlusPlusArg code={
+        // bumps the target by one. An argument is a binding to the caller's field, so writing it writes what the caller passed.
+        tpMark := new("plusPlusArg");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["plusPlusArg"];
+        tpSeed(tpBag);
+        cerr "ROW plusPlusArg":;
+        tpK := tpBag["kid"];
+        tpPlusPlusArgDo(*tpK);
+        tpRead := tpBag["kid"];
+        if *tpRead == 8;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    plusPlusArg  WANT 8 GOT " *tpRead:;
+        };
+
+    tpPlusPlusSub code={
+        // a prefix unary binds to the NAME before the subscript, so today this bumps the BAG and leaves the member alone. The fold is what makes the subscript bind first.
+        tpMark := new("plusPlusSub");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["plusPlusSub"];
+        tpSeed(tpBag);
+        cerr "ROW plusPlusSub":;
+        ++tpBag["kid"];
+        tpRead := tpBag["kid"];
+        if *tpRead == 8;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    plusPlusSub  WANT 8 GOT " *tpRead:;
+        };
+
+    tpPlusPlusDot code={
+        // a prefix unary binds before the dot as well, for the same reason it binds before a subscript.
+        tpMark := new("plusPlusDot");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["plusPlusDot"];
+        tpSeed(tpBag);
+        cerr "ROW plusPlusDot":;
+        ++tpBag.kid;
+        tpRead := tpBag["kid"];
+        if *tpRead == 8;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    plusPlusDot  WANT 8 GOT " *tpRead:;
+        };
+
+    tpPlusPlusStar code={
+        // two prefix unaries meet one name, and the slot holds only one -- so the second is dropped and the statement does nothing at all, silently.
+        tpMark := new("plusPlusStar");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["plusPlusStar"];
+        tpSeed(tpBag);
+        tpH := tpBag["kid"];
+        cerr "ROW plusPlusStar":;
+        ++*tpH;
+        tpRead := tpBag["kid"];
+        if *tpRead == 8;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    plusPlusStar  WANT 8 GOT " *tpRead:;
+        };
+
+    tpPlusPlusStarsub code={
+        // bumps the target by one. The star reaches through the holder FIRST and the subscript then names a member of what it holds -- star to the base, subscript after.
+        tpMark := new("plusPlusStarsub");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["plusPlusStarsub"];
+        tpSeed(tpBag);
+        tpH := tpBag;
+        cerr "ROW plusPlusStarsub":;
+        ++*tpH["kid"];
+        tpRead := tpBag["kid"];
+        if *tpRead == 8;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    plusPlusStarsub  WANT 8 GOT " *tpRead:;
+        };
+
+    tpMinusMinusBare code={
+        // steps the target down by one. A bare name IS the field, so nothing has to be navigated first.
+        tpMark := new("minusMinusBare");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["minusMinusBare"];
+        tpSeed(tpBag);
+        tpV = 7;
+        cerr "ROW minusMinusBare":;
+        --tpV;
+        tpRead := tpV;
+        if *tpRead == 6;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    minusMinusBare  WANT 6 GOT " *tpRead:;
+        };
+
+    tpMinusMinusArgDo code={
+        --argument;
+        };
+    tpMinusMinusArg code={
+        // steps the target down by one. An argument is a binding to the caller's field, so writing it writes what the caller passed.
+        tpMark := new("minusMinusArg");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["minusMinusArg"];
+        tpSeed(tpBag);
+        cerr "ROW minusMinusArg":;
+        tpK := tpBag["kid"];
+        tpMinusMinusArgDo(*tpK);
+        tpRead := tpBag["kid"];
+        if *tpRead == 6;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    minusMinusArg  WANT 6 GOT " *tpRead:;
+        };
+
+    tpMinusMinusSub code={
+        // a prefix unary binds to the NAME before the subscript, so today this bumps the BAG and leaves the member alone. The fold is what makes the subscript bind first.
+        tpMark := new("minusMinusSub");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["minusMinusSub"];
+        tpSeed(tpBag);
+        cerr "ROW minusMinusSub":;
+        --tpBag["kid"];
+        tpRead := tpBag["kid"];
+        if *tpRead == 6;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    minusMinusSub  WANT 6 GOT " *tpRead:;
+        };
+
+    tpMinusMinusDot code={
+        // a prefix unary binds before the dot as well, for the same reason it binds before a subscript.
+        tpMark := new("minusMinusDot");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["minusMinusDot"];
+        tpSeed(tpBag);
+        cerr "ROW minusMinusDot":;
+        --tpBag.kid;
+        tpRead := tpBag["kid"];
+        if *tpRead == 6;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    minusMinusDot  WANT 6 GOT " *tpRead:;
+        };
+
+    tpMinusMinusStar code={
+        // two prefix unaries meet one name, and the slot holds only one -- so the second is dropped and the statement does nothing at all, silently.
+        tpMark := new("minusMinusStar");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["minusMinusStar"];
+        tpSeed(tpBag);
+        tpH := tpBag["kid"];
+        cerr "ROW minusMinusStar":;
+        --*tpH;
+        tpRead := tpBag["kid"];
+        if *tpRead == 6;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    minusMinusStar  WANT 6 GOT " *tpRead:;
+        };
+
+    tpMinusMinusStarsub code={
+        // steps the target down by one. The star reaches through the holder FIRST and the subscript then names a member of what it holds -- star to the base, subscript after.
+        tpMark := new("minusMinusStarsub");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["minusMinusStarsub"];
+        tpSeed(tpBag);
+        tpH := tpBag;
+        cerr "ROW minusMinusStarsub":;
+        --*tpH["kid"];
+        tpRead := tpBag["kid"];
+        if *tpRead == 6;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    minusMinusStarsub  WANT 6 GOT " *tpRead:;
+        };
+
+    tpAddAttrBare code={
+        // adds the node to the bag as an attribute. A bare name IS the bag.
+        tpMark := new("addAttrBare");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["addAttrBare"];
+        tpSeed(tpBag);
+        cerr "ROW addAttrBare":;
+        tpBag +% *tpNode;
+        tpRead := tpBag.listLengtH;
+        if *tpRead == 2;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    addAttrBare  WANT 2 GOT " *tpRead:;
+        };
+
+    tpAddAttrArgDo code={
+        argument +% *tpNode;
+        };
+    tpAddAttrArg code={
+        // adds the node as an attribute through an argument binding.
+        tpMark := new("addAttrArg");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["addAttrArg"];
+        tpSeed(tpBag);
+        cerr "ROW addAttrArg":;
+        tpAddAttrArgDo(tpBag);
+        tpRead := tpBag.listLengtH;
+        if *tpRead == 2;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    addAttrArg  WANT 2 GOT " *tpRead:;
+        };
+
+    tpAddAttrSub code={
+        // adds the node as an attribute to a bag reached by subscript.
+        tpMark := new("addAttrSub");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["addAttrSub"];
+        tpSeed(tpBag);
+        cerr "ROW addAttrSub":;
+        tpOuter["bag"] +% *tpNode;
+        tpInner := tpOuter["bag"];
+        tpRead := tpInner.listLengtH;
+        if *tpRead == 1;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    addAttrSub  WANT 1 GOT " *tpRead:;
+        };
+
+    tpAddAttrDot code={
+        // adds the node as an attribute to a bag reached by a dot.
+        tpMark := new("addAttrDot");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["addAttrDot"];
+        tpSeed(tpBag);
+        cerr "ROW addAttrDot":;
+        tpOuter.bag +% *tpNode;
+        tpInner := tpOuter["bag"];
+        tpRead := tpInner.listLengtH;
+        if *tpRead == 1;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    addAttrDot  WANT 1 GOT " *tpRead:;
+        };
+
+    tpAddAttrStar code={
+        // adds the node as an attribute through a holder.
+        tpMark := new("addAttrStar");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["addAttrStar"];
+        tpSeed(tpBag);
+        tpH := tpBag;
+        cerr "ROW addAttrStar":;
+        *tpH +% *tpNode;
+        tpRead := tpBag.listLengtH;
+        if *tpRead == 2;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    addAttrStar  WANT 2 GOT " *tpRead:;
+        };
+
+    tpAddAttrStarsub code={
+        // adds the node as an attribute to a bag reached through a holder and then a subscript.
+        tpMark := new("addAttrStarsub");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["addAttrStarsub"];
+        tpSeed(tpBag);
+        tpH := tpOuter;
+        cerr "ROW addAttrStarsub":;
+        *tpH["bag"] +% *tpNode;
+        tpInner := tpOuter["bag"];
+        tpRead := tpInner.listLengtH;
+        if *tpRead == 1;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    addAttrStarsub  WANT 1 GOT " *tpRead:;
+        };
+
+    tpAddMemberBare code={
+        // adds the node to the bag as a member. A bare name IS the bag. This one is not built yet: the token is registered with no road, so it refuses by name.
+        tpMark := new("addMemberBare");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["addMemberBare"];
+        tpSeed(tpBag);
+        cerr "ROW addMemberBare":;
+        tpBag +/ *tpNode;
+        tpRead := tpBag.listLengtH;
+        if *tpRead == 2;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    addMemberBare  WANT 2 GOT " *tpRead:;
+        };
+
+    tpAddMemberArgDo code={
+        argument +/ *tpNode;
+        };
+    tpAddMemberArg code={
+        // adds the node as a member through an argument binding. This one is not built yet: the token is registered with no road, so it refuses by name.
+        tpMark := new("addMemberArg");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["addMemberArg"];
+        tpSeed(tpBag);
+        cerr "ROW addMemberArg":;
+        tpAddMemberArgDo(tpBag);
+        tpRead := tpBag.listLengtH;
+        if *tpRead == 2;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    addMemberArg  WANT 2 GOT " *tpRead:;
+        };
+
+    tpAddMemberSub code={
+        // adds the node as a member to a bag reached by subscript. This one is not built yet: the token is registered with no road, so it refuses by name.
+        // NOT RUN TODAY: this spelling exits 139 rather than refusing, and a crash is
+        // terminal for the RUN where a refusal is only terminal for the ACTION -- so
+        // running it would delete every row below it. Counted as not-yet-true.
+        tpMark := new("addMemberSub");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        cerr "ROW addMemberSub -- DEFERRED, exits 139 instead of refusing":;
+        return;
+        tpSlot := tpPending["addMemberSub"];
+        tpSeed(tpBag);
+        cerr "ROW addMemberSub":;
+        tpOuter["bag"] +/ *tpNode;
+        tpInner := tpOuter["bag"];
+        tpRead := tpInner.listLengtH;
+        if *tpRead == 1;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    addMemberSub  WANT 1 GOT " *tpRead:;
+        };
+
+    tpAddMemberDot code={
+        // adds the node as a member to a bag reached by a dot. This one is not built yet: the token is registered with no road, so it refuses by name.
+        // NOT RUN TODAY: this spelling exits 139 rather than refusing, and a crash is
+        // terminal for the RUN where a refusal is only terminal for the ACTION -- so
+        // running it would delete every row below it. Counted as not-yet-true.
+        tpMark := new("addMemberDot");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        cerr "ROW addMemberDot -- DEFERRED, exits 139 instead of refusing":;
+        return;
+        tpSlot := tpPending["addMemberDot"];
+        tpSeed(tpBag);
+        cerr "ROW addMemberDot":;
+        tpOuter.bag +/ *tpNode;
+        tpInner := tpOuter["bag"];
+        tpRead := tpInner.listLengtH;
+        if *tpRead == 1;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    addMemberDot  WANT 1 GOT " *tpRead:;
+        };
+
+    tpAddMemberStar code={
+        // adds the node as a member through a holder. This one is not built yet: the token is registered with no road, so it refuses by name.
+        // NOT RUN TODAY: this spelling exits 139 rather than refusing, and a crash is
+        // terminal for the RUN where a refusal is only terminal for the ACTION -- so
+        // running it would delete every row below it. Counted as not-yet-true.
+        tpMark := new("addMemberStar");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        cerr "ROW addMemberStar -- DEFERRED, exits 139 instead of refusing":;
+        return;
+        tpSlot := tpPending["addMemberStar"];
+        tpSeed(tpBag);
+        tpH := tpBag;
+        cerr "ROW addMemberStar":;
+        *tpH +/ *tpNode;
+        tpRead := tpBag.listLengtH;
+        if *tpRead == 2;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    addMemberStar  WANT 2 GOT " *tpRead:;
+        };
+
+    tpAddMemberStarsub code={
+        // adds the node as a member to a bag reached through a holder and then a subscript. This one is not built yet: the token is registered with no road, so it refuses by name.
+        // NOT RUN TODAY: this spelling exits 139 rather than refusing, and a crash is
+        // terminal for the RUN where a refusal is only terminal for the ACTION -- so
+        // running it would delete every row below it. Counted as not-yet-true.
+        tpMark := new("addMemberStarsub");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        cerr "ROW addMemberStarsub -- DEFERRED, exits 139 instead of refusing":;
+        return;
+        tpSlot := tpPending["addMemberStarsub"];
+        tpSeed(tpBag);
+        tpH := tpOuter;
+        cerr "ROW addMemberStarsub":;
+        *tpH["bag"] +/ *tpNode;
+        tpInner := tpOuter["bag"];
+        tpRead := tpInner.listLengtH;
+        if *tpRead == 1;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    addMemberStarsub  WANT 1 GOT " *tpRead:;
+        };
+
+    tpReport code={
+        cerr "PRECEDENCE MAP -- rows not yet true, by slug:":;
+        tpLen := tpPending.listLengtH;
+        if *tpLen;
+            iterate tpCur on tpPending;
+            while ++tpCur;
+                tpVal := *tpCur;
+                if *tpVal == 0;     cerr "    PENDING " taG:;
+        tpNot = tpRows - tpTrue;
+        cerr "PRECEDENCE ROWS NOT YET TRUE = " tpNot " of " tpRows:;
+        cerr "PRECEDENCE SENTINEL":;
+        };
+    ;
+
+tpRows = 0;
+tpTrue = 0;
+tpAssignBare(tpBag);
+tpAssignArg(tpBag);
+tpAssignSub(tpBag);
+tpAssignDot(tpBag);
+tpAssignStar(tpBag);
+tpAssignStarsub(tpBag);
+tpPlusEQBare(tpBag);
+tpPlusEQArg(tpBag);
+tpPlusEQSub(tpBag);
+tpPlusEQDot(tpBag);
+tpPlusEQStar(tpBag);
+tpPlusEQStarsub(tpBag);
+tpPlusPlusBare(tpBag);
+tpPlusPlusArg(tpBag);
+tpPlusPlusSub(tpBag);
+tpPlusPlusDot(tpBag);
+tpPlusPlusStar(tpBag);
+tpPlusPlusStarsub(tpBag);
+tpMinusMinusBare(tpBag);
+tpMinusMinusArg(tpBag);
+tpMinusMinusSub(tpBag);
+tpMinusMinusDot(tpBag);
+tpMinusMinusStar(tpBag);
+tpMinusMinusStarsub(tpBag);
+tpAddAttrBare(tpBag);
+tpAddAttrArg(tpBag);
+tpAddAttrSub(tpBag);
+tpAddAttrDot(tpBag);
+tpAddAttrStar(tpBag);
+tpAddAttrStarsub(tpBag);
+tpAddMemberBare(tpBag);
+tpAddMemberArg(tpBag);
+tpAddMemberSub(tpBag);
+tpAddMemberDot(tpBag);
+tpAddMemberStar(tpBag);
+tpAddMemberStarsub(tpBag);
+tpReport();
+stop();
+
+testPrecedence -- HOW KANT READS A CHAINED EXPRESSION, AS A MAP.
+
+This is an example before it is a test. Six ways to name a target crossed with six
+operators, thirty-six rows, each printing WANT and GOT and each carrying one sentence
+saying what the language does with that spelling. The number at the foot is the count of
+rows that are not true YET. It is meant to go down. A row that moves from pending to true
+is a stroke landing; the fleet tracks the count and goes red only if it goes UP.
+
+THE SIX TARGET SHAPES are the six ways an expression can name the thing being written:
+a bare name, an argument, a subscript, a dot, a star through a holder, and a star through
+a holder followed by a subscript. THE SIX OPERATORS are the four value-channel ones
+(= += ++ --) and the two membership ones (+% attribute, +/ member).
+
+WHAT THE MAP SAYS TODAY, and the shape of it is the point:
+
+  = and +=      all six shapes true. Assignment and add-into already navigate every way
+                a target can be named.
+
+  ++ and --     true on a bare name, on an argument, AND THROUGH A DOT -- but not through
+                a subscript or a star. That is not arbitrary: a prefix unary binds to the
+                NAME before a subscript and to the RESULT after a dot, so `++bag["kid"]`
+                bumps the BAG while `++bag.kid` bumps the member. The two halves have
+                different mechanisms and meet at the same operator.
+
+  ⚠ AND THE SUBSCRIPT CASE IS NOT A NO-OP, IT IS A WRITE TO THE WRONG NODE. `++bag["kid"]`
+  stamps 1 onto the container, because the bag carries no data and ++ takes its
+  "no data, so start at one" arm. `--bag["kid"]` is worse: the bag has a list, so -- takes
+  its POP arm and REMOVES A MEMBER. That is why minusMinusSub reads 0 rather than 7.
+
+  ++ and -- through a star   two prefix unaries meet one name and the slot holds one, so
+                the second is dropped and the statement does nothing whatever, silently.
+
+  +%            true on a bare name, an argument and a star; not yet on a container
+                reached by subscript, dot, or holder-then-subscript.
+
+  +/            not built. The token is registered with no road, so on a bare or argument
+                target it refuses BY NAME, which is correct and is the refusal gate doing
+                its job. Four rows are DEFERRED rather than run: with a NAVIGATED target a
+                methodless operator exits 139 instead of refusing, and a crash is terminal
+                for the RUN where a refusal is only terminal for the ACTION -- so running
+                them would delete every row below. They are counted as not-yet-true.
+
+WHY ONE ROW PER ACTION. A refusal is terminal for the ACTION and not for the run: a later
+action runs and its stores land, measured. So each row is its own action and a refusing
+row costs only itself. Each row also marks itself PENDING BEFORE it runs and clears the
+mark only on success, so a row that refuses or dies is counted as pending rather than
+vanishing -- an absent row would otherwise read as no row at all.
+
+TWO CHANNELS FOR THE COUNT, deliberately. The slug list is walked from the pending
+collector; the number is `tpRows - tpTrue`, kept by two counters that never read that
+list. If the walk ever goes quiet the number still reports, and if they disagree the file
+is lying and should be distrusted rather than believed.
