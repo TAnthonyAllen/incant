@@ -2005,7 +2005,7 @@ fi
 #  the absence of a line). When it falls, lower TPWANT in the same commit with a sentence
 #  naming which rows graduated -- that is rule H6, and a ratchet that is never tightened
 #  is just a pin that stopped meaning anything.
-TPWANT=15
+TPWANT=12
 run2 testPrecedence "$T/tp.o" "$T/tp.e"; check "testPrecedence runs" 0 $?
 sentinel "testPrecedence sentinel (no truncation)" "$T/tp.e" "PRECEDENCE SENTINEL"
 _tpn=$(sed -n 's/.*PRECEDENCE ROWS NOT YET TRUE = *//p' "$T/tp.e" | sed 's/[^0-9].*//' | head -1)

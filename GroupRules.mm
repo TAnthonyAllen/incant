@@ -7591,6 +7591,33 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 }
 
 /***************************************************************************
+    Rule action for the +/ ADD-MEMBER operator.
+
+    THE FAMILY READS FROM ITS CHARACTERS: += value, +% attribute, +/ member,
+    +* pointer. `/` is tok's own get-member-by-name spelling, which is why `+/`
+    is legible to anyone who has read tok.
+
+    SHARE-BODY, exactly as +% is -- the two differ by WHICH LIST, never by
+    copy-versus-share. If a membership-by-copy form is ever wanted it is a
+    third spelling and not a mode on this one, so += never grows a second
+    meaning.   Instruct.opAddMember.familyReadsFromCharacters
+***************************************************************************/
+extern "C" GroupItem *opAddMember(GroupItem *argument, GroupItem *target)
+{
+GroupItem 	*grup = 0;
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	/*  THE STORE RULING: an armed statement stores nothing.
+	Instruct.opAddMember.storeRuling  */
+	if ( ruler->refused )
+		return 0;
+	if ( isLIST(argument->groupBody->flags.binType) )
+		while ( grup = argument->prior(grup) )
+			target->addMember(grup);
+	else	target->addMember(argument);
+	return target;
+}
+
+/***************************************************************************
 	Rule action for the +* add-pointer operator
 ***************************************************************************/
 extern "C" GroupItem *opAddPointer(GroupItem *argument, GroupItem *target)

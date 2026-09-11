@@ -585,9 +585,9 @@ define
         };
 
 //  ============ SECTION 3: NOT YET -- WAITING ON A RULING ============
-//  +/ is registered with no road. On a bare or argument target it refuses BY NAME,
-//  which is correct and is the refusal gate working. These graduate when the operator
-//  is built, not before.
+//  EMPTY as of the +/ registration. It held addMemberBare and addMemberArg, which
+//  refused by name while +/ was a token with no road; both now read true and have moved
+//  to section 1. The section stays so a future ruling-blocked row has a home.
 
     tpAddMemberBare code={
         // adds the node to the bag as a member. A bare name IS the bag. This one is not built yet: the token is registered with no road, so it refuses by name.
@@ -636,12 +636,6 @@ define
         *tpMark = 0;
         tpPending +% *tpMark;
         tpRows = tpRows + 1;
-        // NOT RUN: this spelling exits 139 rather than refusing. R1b attempted the guard
-        // and was reverted -- see the section banner. A crash is terminal for the RUN
-        // where a refusal is only terminal for the ACTION, so running it would delete
-        // every row below. Counted as not-yet-true.
-        cerr "ROW addMemberSub -- DEFERRED, exits 139 instead of refusing":;
-        return;
         tpSlot := tpPending["addMemberSub"];
         tpSeed(tpBag);
         cerr "ROW addMemberSub":;
@@ -658,12 +652,6 @@ define
         *tpMark = 0;
         tpPending +% *tpMark;
         tpRows = tpRows + 1;
-        // NOT RUN: this spelling exits 139 rather than refusing. R1b attempted the guard
-        // and was reverted -- see the section banner. A crash is terminal for the RUN
-        // where a refusal is only terminal for the ACTION, so running it would delete
-        // every row below. Counted as not-yet-true.
-        cerr "ROW addMemberDot -- DEFERRED, exits 139 instead of refusing":;
-        return;
         tpSlot := tpPending["addMemberDot"];
         tpSeed(tpBag);
         cerr "ROW addMemberDot":;
@@ -680,12 +668,6 @@ define
         *tpMark = 0;
         tpPending +% *tpMark;
         tpRows = tpRows + 1;
-        // NOT RUN: this spelling exits 139 rather than refusing. R1b attempted the guard
-        // and was reverted -- see the section banner. A crash is terminal for the RUN
-        // where a refusal is only terminal for the ACTION, so running it would delete
-        // every row below. Counted as not-yet-true.
-        cerr "ROW addMemberStar -- DEFERRED, exits 139 instead of refusing":;
-        return;
         tpSlot := tpPending["addMemberStar"];
         tpSeed(tpBag);
         tpH := tpBag;
@@ -702,12 +684,6 @@ define
         *tpMark = 0;
         tpPending +% *tpMark;
         tpRows = tpRows + 1;
-        // NOT RUN: this spelling exits 139 rather than refusing. R1b attempted the guard
-        // and was reverted -- see the section banner. A crash is terminal for the RUN
-        // where a refusal is only terminal for the ACTION, so running it would delete
-        // every row below. Counted as not-yet-true.
-        cerr "ROW addMemberStarsub -- DEFERRED, exits 139 instead of refusing":;
-        return;
         tpSlot := tpPending["addMemberStarsub"];
         tpSeed(tpBag);
         tpH := tpOuter;
@@ -762,6 +738,9 @@ tpZeroBump(tpBag);
 tpZeroStep(tpBag);
 tpAbsentBump(tpBag);
 tpAbsentStep(tpBag);
+tpAddMemberBare(tpBag);
+tpAddMemberArg(tpBag);
+tpAddMemberStar(tpBag);
 cerr "-- section 2 --":;
 tpPlusPlusSub(tpBag);
 tpPlusPlusStar(tpBag);
@@ -772,14 +751,11 @@ tpMinusMinusStarsub(tpBag);
 tpAddAttrSub(tpBag);
 tpAddAttrDot(tpBag);
 tpAddAttrStarsub(tpBag);
-cerr "-- section 3 --":;
-tpAddMemberBare(tpBag);
-tpAddMemberArg(tpBag);
-cerr "-- section 4 --":;
 tpAddMemberSub(tpBag);
 tpAddMemberDot(tpBag);
-tpAddMemberStar(tpBag);
 tpAddMemberStarsub(tpBag);
+cerr "-- section 3 --":;
+cerr "-- section 4 --":;
 tpReport();
 stop();
 

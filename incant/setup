@@ -223,7 +223,7 @@ define
     '%'     operateMethod=opRem;
     '!='    operateMethod=opNotEQ  interpretMethod=runNotEQ  jitEmitter=jitEmitNE;
     '!'     unary ruleMethod=opNOT;
-    '+/';
+    '+/'    operateMethod=opAddMember;
     ;
 /*******************************************************************************
 	bcOPs — bytecode opcodes (control flow + stack ops). A SEPARATE registry,

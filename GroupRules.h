@@ -291,6 +291,7 @@ extern "C" void modify(GroupItem *field, char *modifier);
 extern "C" void modifyClass(GroupItem *field, char *modifier, int wantRepeat);
 extern "C" GroupItem *opAND(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opAddAttribute(GroupItem *argument, GroupItem *target);
+extern "C" GroupItem *opAddMember(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opAddPointer(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opCerr(GroupItem *target, Buffer *buffer);
