@@ -26,6 +26,17 @@
 #  own pulse.
 
 B=${INCANT:-$HOME/bin/incant}
+
+#  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
+#  without touching a single row label. Falls back to incant/<name> so an unknown name
+#  still produces the old error rather than an empty path.
+ip () {
+    for _d in incant incant/pop incant/pop/jit incant/fixits; do
+        [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
+    done
+    printf '%s\n' "incant/$1"
+}
+
 T=${TMPDIR:-/tmp}/formspop.$$
 mkdir -p "$T"
 fail=0
@@ -69,7 +80,7 @@ _cap () {
     fi
     return $_ec
 }
-run2 () { $B "incant/$1" > "$2" 2> "$3" & _cap "$1"; }
+run2 () { $B "$(ip "$1")" > "$2" 2> "$3" & _cap "$1"; }
 
 #  RULE H1 -- a harness echoes the binary it is testing, FIRST. A stale binary
 #  does not fail as a diff, it hangs.

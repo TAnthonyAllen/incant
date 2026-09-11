@@ -1,4 +1,14 @@
 #  smokelib.sh -- SHARED HELPERS FOR smoke.sh AND parked.sh. Not runnable on
+
+#  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
+#  without touching a single row label. Falls back to incant/<name> so an unknown name
+#  still produces the old error rather than an empty path.
+ip () {
+    for _d in incant incant/pop incant/pop/jit incant/fixits; do
+        [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
+    done
+    printf '%s\n' "incant/$1"
+}
 #  its own; it is sourced.
 #
 #  ⚠ THIS FILE EXISTS SO THERE IS ONE COPY, AND THAT IS NOT TIDINESS. This
@@ -24,7 +34,7 @@
 #  run only because the row prints the value it wanted (H4); a bare pass/fail
 #  would have read as three real reds. Do not shorten these names.
 runcap () {                       # runcap <fixture> <outfile>
-    $B "incant/$1" > "$2" 2>&1 &
+    $B "$(ip "$1")" > "$2" 2>&1 &
     cap_pid=$!
     { ( sleep "$CAP"; kill -9 $cap_pid 2>/dev/null ) >/dev/null 2>&1 & } 2>/dev/null
     cap_wd=$!
@@ -47,7 +57,7 @@ unrunnable () { echo "  ????  $1 -- FIXTURE MISSING, not checked"; checks=$((che
 #  Pass "-" for sentinel or want to skip that leg.
 row () {                          # row <fixture> <sentinel|-> <want|-> <label>
     row_f=$1; row_s=$2; row_w=$3; row_l=$4
-    if [ ! -f "incant/$row_f" ]; then unrunnable "$row_l"; return 2; fi
+    if [ ! -f "$(ip "$row_f")" ]; then unrunnable "$row_l"; return 2; fi
     runcap "$row_f" "$T/$row_f"; row_rc=$?
     if [ $row_rc = 124 ]; then bad "$row_l -- TIMEOUT after ${CAP}s (a hang is not a wrong answer)"; return 1; fi
     if [ $row_rc != 0 ];  then bad "$row_l -- exit $row_rc"; return 1; fi

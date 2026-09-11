@@ -83,6 +83,17 @@
 #  post-pass dump cannot tell you whether the emitter emitted something or the
 #  optimiser produced it, which is the first question any rung failure raises.
 B=${INCANT:-$HOME/bin/incant}
+
+#  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
+#  without touching a single row label. Falls back to incant/<name> so an unknown name
+#  still produces the old error rather than an empty path.
+ip () {
+    for _d in incant incant/pop incant/pop/jit incant/fixits; do
+        [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
+    done
+    printf '%s\n' "incant/$1"
+}
+
 T=${TMPDIR:-/tmp}/jitladder.$$
 mkdir -p "$T"
 fail=0
@@ -131,7 +142,7 @@ sentinel () {                   # sentinel <name> <file> <text>
 #  its own chatter to the evidence is an instrument that will be misread.
 JITCAP=${JITCAP:-90}
 runcap () {                     # runcap <label> <fixture> <outfile> [env-prefix]
-    if [ -n "$4" ]; then env "$4" $B "incant/$2" > "$3" 2>&1 & else $B "incant/$2" > "$3" 2>&1 & fi
+    if [ -n "$4" ]; then env "$4" $B "$(ip "$2")" > "$3" 2>&1 & else $B "$(ip "$2")" > "$3" 2>&1 & fi
     _p=$!
     { ( sleep "$JITCAP"; kill -9 $_p 2>/dev/null ) >/dev/null 2>&1 & } 2>/dev/null
     _w=$!
@@ -157,7 +168,7 @@ echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
 #  fire-2 value (the run-time proof) · degrade count zero.
 rung () {
     f=$1; sent=$2; label=$3; w1=$4; w2=$5
-    $B "incant/$f" > "$T/$f" 2>&1
+    $B "$(ip "$f")" > "$T/$f" 2>&1
     if [ $? != 0 ]; then echo "  FAIL  $label -- nonzero exit"; fail=1; return; fi
     if ! grep -qF "$sent" "$T/$f"; then
         echo "  FAIL  $label -- TRUNCATED at exit 0; nothing in this run is interpretable"
@@ -312,7 +323,7 @@ slotrung () {
 #  is what the emitter built, not what the optimiser left.
 irshape () {
     f=$1; label=$2; shift 2
-    INCANT_JIT_DUMP=2 $B "incant/$f" > "$T/$f.ir" 2>&1
+    INCANT_JIT_DUMP=2 $B "$(ip "$f")" > "$T/$f.ir" 2>&1
     for blk in "$@"; do
         if grep -q "^$blk:" "$T/$f.ir"; then echo "  ok    $label block $blk:"
         else echo "  FAIL  $label block $blk: MISSING from emitter output"; fail=1; fi
@@ -403,7 +414,7 @@ elif [ "$trn" = "1" ]; then
     echo "  FAIL  J6 ONE trace -- the call ran at EMIT time (the print disease)"; fail=1
 else echo "  FAIL  J6 trace count '$trn', want 3"; fail=1; fi
 if grep -q "call ptr inttoptr" "$T/jitJ6.ir" 2>/dev/null || \
-   INCANT_JIT_DUMP=2 $B incant/jitJ6 2>&1 | grep -q "call ptr inttoptr"; then
+   INCANT_JIT_DUMP=2 $B "$(ip jitJ6)" 2>&1 | grep -q "call ptr inttoptr"; then
     echo "  ok    J6 a CreateCall is in the emitted IR (ptr in, ptr out)"
 else
     echo "  FAIL  J6 no emitted call in the IR"; fail=1
@@ -419,7 +430,7 @@ echo "-- J7  + THE FALLBACK COLUMN meeting a REAL opMethod"
 #  lands on a different remainder. Added to rung style -- earlier rungs got this
 #  for free because their operations were injective over the inputs used.
 rung jitJ7 "J7 SENTINEL" "J7" 2 1
-INCANT_JIT_DUMP=2 $B incant/jitJ7 > "$T/jitJ7.ir" 2>&1
+INCANT_JIT_DUMP=2 $B "$(ip jitJ7)" > "$T/jitJ7.ir" 2>&1
 if grep -q "call ptr inttoptr" "$T/jitJ7.ir" && grep -q "call i32 inttoptr" "$T/jitJ7.ir"; then
     echo "  ok    J7 BOTH legs emitted (call ptr -> opMethod, call i32 -> unbox)"
 else
@@ -441,7 +452,7 @@ echo '-- JE  `if` WITH NO ELSE ARM -- the shape no rung had'
 #  Fire 2 FLIPS THE CONDITION, so it proves the branch is decided at run time AND
 #  that an absent else leaves the result slot alone (7, not 0 and not 50).
 rung jitJE "JE SENTINEL" "JE" 50 7
-INCANT_JIT_DUMP=2 $B incant/jitJE > "$T/jitJE.ir" 2>&1
+INCANT_JIT_DUMP=2 $B "$(ip jitJE)" > "$T/jitJE.ir" 2>&1
 if grep -qE "INVALID IR|does not dominate" "$T/jitJE.ir"; then
     echo "  FAIL  JE emitted invalid IR (the absent-else dominance bug is back)"; fail=1
 else
@@ -464,7 +475,7 @@ echo "-- JF  THE FRAME MODEL, INCREMENT 1 -- STRUCTURE ONLY, NOT THE PROOF"
 #  increment, and a structure claim read off that would have been VACUOUS.
 #  Measured by dumping J1's IR: no frame alloca, both operands still inttoptr.
 rung jitJF "JF SENTINEL" "JF" 115 135
-INCANT_JIT_DUMP=2 $B incant/jitJF > "$T/jitJF.ir" 2>&1
+INCANT_JIT_DUMP=2 $B "$(ip jitJF)" > "$T/jitJF.ir" 2>&1
 #  THE DISCRIMINATOR IS BOTH HALVES IN ONE FUNCTION, and each half alone is
 #  satisfiable by a wrong emitter: "an alloca exists" passes if the prologue
 #  framed EVERYTHING; "a baked address exists" passes if it framed NOTHING.
@@ -508,7 +519,7 @@ echo "-- JPd THE DEGRADE CITIZEN -- the rung that expects a NON-ZERO count"
 #  `+=` on one degrades LOUDLY and runs interpreted. Asserting that it DOES fire
 #  is what makes the zeros elsewhere load-bearing rather than decorative.
 #  H4-shaped: this is presence-with-value, not absence-of-message.
-$B incant/jitJPd > "$T/jpd" 2>&1
+$B "$(ip jitJPd)" > "$T/jpd" 2>&1
 check "JPd runs" 0 $?
 sentinel "JPd sentinel (no truncation)" "$T/jpd" "JPD SENTINEL"
 if grep -q "JIT DEGRADE #1: += on a Buffer target" "$T/jpd"; then
@@ -526,7 +537,7 @@ fi
 #  ⚠ A PARTIAL GUARANTEE IS NOT ONE. With any arm left silent, "no degrade fired"
 #  means "covered OR silently fell through" -- exactly the ambiguity T1 removes.
 #  Two checks because two arm KINDS; one passing would not imply the other.
-$B incant/jitJPl > "$T/jpl" 2>&1
+$B "$(ip jitJPl)" > "$T/jpl" 2>&1
 check "JPl runs" 0 $?
 sentinel "JPl sentinel (no truncation)" "$T/jpl" "JPL SENTINEL"
 if grep -q "JIT DEGRADE #1: += list-concat into a string target" "$T/jpl"; then
@@ -545,7 +556,7 @@ echo "-- J-R  RECURSION. THE FRAME MODEL'S DEFINITION OF DONE."
 #  needs a real `call`. Fire 2 changes the DEPTH, 3 -> 4, and 6 vs 24 are different
 #  answers, not merely different inputs.
 rung jitJR "JR SENTINEL" "JR" 6 24
-INCANT_JIT_DUMP=2 $B incant/jitJR > "$T/jitJR.ir" 2>&1
+INCANT_JIT_DUMP=2 $B "$(ip jitJR)" > "$T/jitJR.ir" 2>&1
 if grep -q "call i32 @jit_" "$T/jitJR.ir"; then
     echo "  ok    JR the recursive call is EMITTED (not inlined)"
 else
@@ -558,7 +569,7 @@ fi
 #  DEPTH-1 PASSES ON ALIASED SLOTS AND DEPTH-N CANNOT -- that is why both depths
 #  are asserted and why the two answers must differ.
 rung jitJRL "JRL SENTINEL" "JRL" 5 9
-INCANT_JIT_DUMP=2 $B incant/jitJRL > "$T/jitJRL.ir" 2>&1
+INCANT_JIT_DUMP=2 $B "$(ip jitJRL)" > "$T/jitJRL.ir" 2>&1
 if grep -q "%jrLoc = alloca" "$T/jitJRL.ir"; then
     echo "  ok    JRL the surviving local has a FRAME SLOT (per-activation storage)"
 else
@@ -580,7 +591,7 @@ fi
 #  one decrement so that ++ and -- cannot BOTH fail and still land right.
 #  10/30 = both no-oped · 12/32 = `--` no-oped · 9/29 = `++` no-oped.
 rung jitJU "JU SENTINEL" "JU" 11 31
-INCANT_JIT_DUMP=2 $B incant/jitJU > "$T/jitJU.ir" 2>&1
+INCANT_JIT_DUMP=2 $B "$(ip jitJU)" > "$T/jitJU.ir" 2>&1
 if grep -q "add i32" "$T/jitJU.ir" && grep -q "sub i32" "$T/jitJU.ir"; then
     echo "  ok    JU ++ and -- are both EMITTED (add i32 / sub i32 in the IR)"
 else
@@ -629,7 +640,7 @@ fi
 #  ⚠ WITH THIS THE JIT PARITY CLAIM CARRIES NO ITERATOR ASTERISK. The excluded
 #  list on CLAIM JIT-0.1 loses its first entry; IR persistence and inlining
 #  remain.
-$B incant/jitJUi > "$T/jitJUi" 2>&1
+$B "$(ip jitJUi)" > "$T/jitJUi" 2>&1
 juie=$?
 if [ $juie != 0 ]; then echo "  FAIL  JUi -- nonzero exit ($juie)"; fail=1
 elif ! grep -qF "JUi SENTINEL" "$T/jitJUi"; then
@@ -676,7 +687,7 @@ fi
 #  iterator walk is fixed, an iterator here would make a wrong count ambiguous
 #  between this claim and that one.
 echo "-- JA  ATTRIBUTE METHOD. COMPILE ONCE, DISPATCH THROUGH THE SLOT FOREVER."
-$B incant/jitAttrPop > "$T/jitAttrPop" 2>&1
+$B "$(ip jitAttrPop)" > "$T/jitAttrPop" 2>&1
 jae=$?
 if [ $jae != 0 ]; then echo "  FAIL  JA -- nonzero exit ($jae)"; fail=1
 elif ! grep -qF "AP SENTINEL" "$T/jitAttrPop"; then
@@ -774,7 +785,7 @@ fi
 #  So this row now certifies `continue` AND the bare-flag read, at parity with
 #  the interpreter, on both fires, at degrade 0.
 echo "-- JI  SEQUENTIAL RE-TARGETED ITERATES. THE SETUP HAPPENS AT RUN TIME."
-$B incant/jitIterTwice > "$T/jitIterTwice" 2>&1
+$B "$(ip jitIterTwice)" > "$T/jitIterTwice" 2>&1
 jie=$?
 if [ $jie != 0 ]; then echo "  FAIL  JI -- nonzero exit ($jie)"; fail=1
 elif ! grep -qF "IT SENTINEL" "$T/jitIterTwice"; then
@@ -839,7 +850,7 @@ fi
 #  after -- a stale read wearing the shape of data, at degrade 0 both times. A
 #  count-only check would have been green for the whole of that.
 echo "-- JPv PRINT VALUES. THE JITTED PRINT FIRES AT RUN TIME, WITH REAL VALUES."
-$B incant/jitPrintT > "$T/jitPrintT" 2>&1
+$B "$(ip jitPrintT)" > "$T/jitPrintT" 2>&1
 jpe=$?
 if [ $jpe != 0 ]; then echo "  FAIL  JPv -- nonzero exit ($jpe)"; fail=1
 elif ! grep -qF "JP2 SENTINEL" "$T/jitPrintT"; then
@@ -877,7 +888,7 @@ echo "-- JV VALUE PARITY on an EMPTY loop or branch."
 #  "the convention was carried" from "nothing was written". C wants 4, so it
 #  fails unless the slot holds a REAL computed value. Two zeros alone would be
 #  an absence check wearing a value's clothes.
-$B incant/jitFalseT > "$T/jv" 2>&1
+$B "$(ip jitFalseT)" > "$T/jv" 2>&1
 check "JV runs" 0 $?
 sentinel "JV sentinel (no truncation)" "$T/jv" "jitFalseT SENTINEL"
 jva=$(sed -n 's/.*jitRunAction result = \([0-9-][0-9]*\).*/\1/p' "$T/jv" | sed -n 1p)
@@ -937,7 +948,7 @@ echo "-- JC CONVERGENCE. THE JITTED WALK MATCHES THE ORACLE AT EVERY DEPTH."
 #
 #  ⚠ VACUITY GUARD, H4's other half: both halves must be NON-EMPTY before they
 #  are compared, or a run that emitted nothing at all would diff clean and pass.
-$B incant/jitDfProbe > "$T/jc" 2>&1
+$B "$(ip jitDfProbe)" > "$T/jc" 2>&1
 check "JC runs" 0 $?
 sentinel "JC sentinel (no truncation)" "$T/jc" "jitDfProbe SENTINEL"
 #  ⚠ THE FILTER DROPS COMPILE NARRATION, NOT OUTPUT, AND THE CONVENTION IS THE
@@ -1573,11 +1584,11 @@ fi
 #
 #  H7 NEGATIVE CONTROL, DRIVEN 2026-09-04: with the gate move reverted and
 #  rebuilt, `iterPrev` disappears from the IR entirely and this rung goes red.
-if $B incant/jitJD > "$T/jitJD" 2>&1; then :; else echo "  FAIL  JD -- nonzero exit"; fail=1; fi
+if $B "$(ip jitJD)" > "$T/jitJD" 2>&1; then :; else echo "  FAIL  JD -- nonzero exit"; fail=1; fi
 if grep -qF "JD SENTINEL" "$T/jitJD"; then
     echo "  ok    JD sentinel (no truncation)"; green=$((green+1))
 else echo "  FAIL  JD -- TRUNCATED at exit 0; nothing in this run is interpretable"; fail=1; fi
-INCANT_JIT_DUMP=2 $B incant/jitJD > "$T/jitJD.ir" 2>&1
+INCANT_JIT_DUMP=2 $B "$(ip jitJD)" > "$T/jitJD.ir" 2>&1
 if grep -q "iterPrev = call" "$T/jitJD.ir"; then
     echo "  ok    JD the -- advance is EMITTED as a call (the loop exists at run time)"; green=$((green+1))
 else

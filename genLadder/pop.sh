@@ -12,6 +12,17 @@
 #  stale-binary run a DIFF IN THE LOG rather than a mystery, which is the same
 #  move as the sentinel: convert a silent failure into a visible one.
 B=${INCANT:-$HOME/bin/incant}          # Tony's canonical symlink
+
+#  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
+#  without touching a single row label. Falls back to incant/<name> so an unknown name
+#  still produces the old error rather than an empty path.
+ip () {
+    for _d in incant incant/pop incant/pop/jit incant/fixits; do
+        [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
+    done
+    printf '%s\n' "incant/$1"
+}
+
 T=${TMPDIR:-/tmp}/genpop.$$
 mkdir -p "$T"
 fail=0
@@ -202,8 +213,8 @@ _cap () {                       # _cap <fixture> -- caller has already redirecte
     fi
     return $_ec
 }
-run1 () { $B "incant/$1" > "$2" 2>&1      & _cap "$1"; }   # merged
-run2 () { $B "incant/$1" > "$2" 2> "$3"   & _cap "$1"; }   # split
+run1 () { $B "$(ip "$1")" > "$2" 2>&1      & _cap "$1"; }   # merged
+run2 () { $B "$(ip "$1")" > "$2" 2> "$3"   & _cap "$1"; }   # split
 
 run1 genScratch "$T/gen";    check "genScratch runs"  0 $?
 run1 popScratch "$T/cen"; check "popScratch runs" 0 $?
@@ -240,7 +251,7 @@ run1 baselineTests "$T/base"; check "baselineTests runs (smoke, exit code only)"
 #  completeness marker is the LAST LINE OF ITS GOLDEN -- which only appears if
 #  the run reached the end. This is a presence check on one line, not the golden
 #  diff that ruling 3 deliberately declined.
-if [ -s "$T/base" ] && tail -1 incant/baselineTests.golden | grep -qFf - "$T/base"; then
+if [ -s "$T/base" ] && tail -1 "$(ip baselineTests.golden)" | grep -qFf - "$T/base"; then
     echo "  ok    baselineTests reached its end (completeness, not content)"; green=$((green+1))
 else
     echo "  FAIL  baselineTests TRUNCATED -- exited 0 without reaching its last line"; fail=1
@@ -516,7 +527,7 @@ if [ "$_arjarg" = 3 ]; then
 else
     echo "  FAIL  argRoundJ JIT argument column moved -- $_arjarg of 3 rows read 7"
     echo "          got:  $(grep -m1 'sees argument' "$T/arj" | sed 's/^ *//')"
-    echo "          want: argument = 7, as incant/argRoundT reads it interpreted"
+    echo "          want: argument = 7, as "$(ip argRoundT)" reads it interpreted"
     fail=1
 fi
 
@@ -1911,7 +1922,7 @@ if grep -q "^AL U ok" "$T/alc"; then
 else
     echo "  FAIL  actionLocalT row U -- an undeclared counter MOVED across actions."
     echo "        Action-local clearing semantics have changed. This wants a RULING,"
-    echo "        not a repair: incant/bisectQ and every emitter copy depend on it."; fail=1
+    echo "        not a repair: "$(ip bisectQ)" and every emitter copy depend on it."; fail=1
 fi
 
 #  ---------------------------------------------------------------------------
@@ -2417,7 +2428,7 @@ fi
 unguarded=$(python3 -c "
 import re,sys
 n=0
-for l in open('incant/grammar'):
+for l in open('"$(ip grammar)"'):
     if l.lstrip().startswith('//'): continue
     b=re.sub(r'\[[^]]*\]','',l)          # drop character classes
     for m in re.finditer(r'[A-Za-z_][A-Za-z0-9_]*\??=\S+', b):
@@ -2455,7 +2466,7 @@ else
     echo "  FAIL  isContinue census moved: $cont guard arms (want 3), $setr setter (want 1)."
     echo "        A fourth arm is a fourth copy of a body that cannot be extracted -- give it"
     echo "        the ruleActions.trailingContinueGuard pointer. A missing arm is a loop form"
-    echo "        that no longer consumes its trailing continue; incant/trailingContinueT"
+    echo "        that no longer consumes its trailing continue; "$(ip trailingContinueT)""
     echo "        covers all three and will say which."; fail=1
 fi
 
@@ -2511,7 +2522,7 @@ else
     grep "^SC-" "$T/sq.e" | sed 's/^/          actual:   /'
     echo "          Each row is paired: the 0 rows are the SKIP, the 1 rows are their"
     echo "          non-zero siblings. SC-7 going to 1 means \`||\` stopped short-circuiting --"
-    echo "          check that `shortCircuit` and `isOR` are still on '\''||'\'' in incant/setup;"
+    echo "          check that `shortCircuit` and `isOR` are still on '\''||'\'' in "$(ip setup)";"
     echo "          BOTH are needed, one for the tier-3 binding and one for the skip direction."; fail=1
 fi
 
@@ -2583,7 +2594,7 @@ else
     grep "^UC-" "$T/uc.e" | sed 's/^/          actual:   /'
     echo "          expected: UC-0 = 3, UC-1 = 3, UC-2 = 0."
     echo "          UC-1 falling to 0 means the star stopped binding to the primary -- check that"
-    echo "          `accessClass` is still on '\''*'\'' in incant/setup; the predicate is presence-based"
+    echo "          `accessClass` is still on '\''*'\'' in "$(ip setup)"; the predicate is presence-based"
     echo "          and a missing registration silently demotes the star to value class."; fail=1
 fi
 

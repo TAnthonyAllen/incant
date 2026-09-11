@@ -24,6 +24,17 @@
 #  ⚠ $? IS TAKEN DIRECTLY, NEVER THROUGH A PIPE. ${PIPESTATUS[0]} is silently
 #  empty in zsh and reports every run as passing.
 B=${INCANT:-$HOME/bin/incant}          # Tony's canonical symlink -- see note at foot
+
+#  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
+#  without touching a single row label. Falls back to incant/<name> so an unknown name
+#  still produces the old error rather than an empty path.
+ip () {
+    for _d in incant incant/pop incant/pop/jit incant/fixits; do
+        [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
+    done
+    printf '%s\n' "incant/$1"
+}
+
 T=${TMPDIR:-/tmp}/printpop.$$
 mkdir -p "$T"
 fail=0
@@ -45,7 +56,7 @@ strip () { grep -vE "^Search list:|^stop:|^$" "$1"; }
 
 echo "-- STABLE HALF: print + string. GREEN NOW, AND MUST STAY GREEN AFTER THE CHANGE."
 
-$B incant/printFamily > "$T/pf.o" 2> "$T/pf.e"; check "printFamily runs" 0 $?
+$B "$(ip printFamily)" > "$T/pf.o" 2> "$T/pf.e"; check "printFamily runs" 0 $?
 sentinel "printFamily sentinel (no truncation)" "$T/pf.o" "PF SENTINEL"
 strip "$T/pf.o" > "$T/pf.f"
 #  stdout: print unarmed, string in all three spacing modes, the armed rows
@@ -67,7 +78,7 @@ diffcheck "printFamily.captured (stderr: what the diversion swallowed)" \
 
 echo "-- MOVING HALF: cout + cerr. RED ON PURPOSE. TARGETS ARE .divergence FILES."
 
-$B incant/printFamilyNew > "$T/pn.o" 2> "$T/pn.e"; check "printFamilyNew runs" 0 $?
+$B "$(ip printFamilyNew)" > "$T/pn.o" 2> "$T/pn.e"; check "printFamilyNew runs" 0 $?
 sentinel "printFamilyNew sentinel (no truncation)" "$T/pn.o" "PN SENTINEL"
 strip "$T/pn.o" > "$T/pn.f"
 #  ⚠⚠ BOTH ACCEPTANCE TESTS HAVE NOW FIRED -- 2026-08-01. These files were

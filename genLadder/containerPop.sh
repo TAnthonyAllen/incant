@@ -22,6 +22,17 @@
 #             anywhere in the file fails the check instead of passing quietly.
 # ============================================================================
 B=${INCANT:-$HOME/bin/incant}
+
+#  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
+#  without touching a single row label. Falls back to incant/<name> so an unknown name
+#  still produces the old error rather than an empty path.
+ip () {
+    for _d in incant incant/pop incant/pop/jit incant/fixits; do
+        [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
+    done
+    printf '%s\n' "incant/$1"
+}
+
 #  H1 resolves the symlink before stating it: ~/bin/incant is a link, and
 #  stat-ing the link reports 111 bytes forever no matter what it points at.
 R=$(readlink "$B" 2>/dev/null); [ -n "$R" ] || R=$B
@@ -54,7 +65,7 @@ else
 fi
 
 # --- section 2: testContainer, through the language --------------------------
-SWIFT_BACKTRACE=enable=no $B incant/containerT > "$T/ct.out" 2> "$T/ct.err"
+SWIFT_BACKTRACE=enable=no $B "$(ip containerT)" > "$T/ct.out" 2> "$T/ct.err"
 rc=$?
 if [ $rc != 0 ]; then echo "  FAIL  containerT runs (exit $rc)"; fail=1
 else echo "  ok    containerT runs"; green=$((green+1)); fi

@@ -56,6 +56,17 @@
 #  names the wrong row.
 
 B=${INCANT:-$HOME/bin/incant}
+
+#  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
+#  without touching a single row label. Falls back to incant/<name> so an unknown name
+#  still produces the old error rather than an empty path.
+ip () {
+    for _d in incant incant/pop incant/pop/jit incant/fixits; do
+        [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
+    done
+    printf '%s\n' "incant/$1"
+}
+
 T=${TMPDIR:-/tmp}/decodepop.$$
 CAP=${POPCAP:-90}
 mkdir -p "$T"
@@ -104,9 +115,9 @@ fi
 
 # --------------------------------------------------------------------------
 echo ""
-echo "-- THE POP FIXTURE. incant/decodeT produces the quantities; this harness"
+echo "-- THE POP FIXTURE. "$(ip decodeT)" produces the quantities; this harness"
 echo "   compares them. Its sentinel is checked FIRST and by name."
-capped "$T/dt.o" "$T/dt.e" incant/decodeT
+capped "$T/dt.o" "$T/dt.e" "$(ip decodeT)"
 rc=$?
 if [ $rc = 124 ]; then
     echo "  FAIL  decodeT TIMED OUT after ${CAP}s -- a hang is the absence of a run,"
@@ -292,8 +303,8 @@ check "decodeT writes nothing to stderr" "" "$(cat "$T/dt.e")"
 
 # --------------------------------------------------------------------------
 echo ""
-echo "-- THE RUNNER. incant/decode serves a decode line and dumps the corpus."
-capped "$T/dc.o" "$T/dc.e" incant/decode
+echo "-- THE RUNNER. "$(ip decode)" serves a decode line and dumps the corpus."
+capped "$T/dc.o" "$T/dc.e" "$(ip decode)"
 rc=$?
 if [ $rc = 124 ]; then
     echo "  FAIL  decode TIMED OUT after ${CAP}s."; fail=1

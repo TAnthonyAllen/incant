@@ -41,6 +41,17 @@
 #  last -- see that file's header for the four-instance ledger behind the rule.
 
 B=${INCANT:-$HOME/bin/incant}
+
+#  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
+#  without touching a single row label. Falls back to incant/<name> so an unknown name
+#  still produces the old error rather than an empty path.
+ip () {
+    for _d in incant incant/pop incant/pop/jit incant/fixits; do
+        [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
+    done
+    printf '%s\n' "incant/$1"
+}
+
 T=${TMPDIR:-/tmp}/parked.$$
 CAP=${POPCAP:-30}
 mkdir -p "$T"
@@ -96,7 +107,7 @@ parkrow bindSeamB "BINDSEAMB SENTINEL" "sumple width is now 251" \
 echo "  ---- bindSeamB ARM (generated arm, promote=0)"
 echo "       parked 2026-08-13   from smoke.sh slot 1"
 echo "       reason promoted to pop.sh pin, SEQ 61 -- rides with the value row above"
-if [ ! -f incant/bindSeamB ]; then
+if [ ! -f "$(ip bindSeamB)" ]; then
     unrunnable "     bindSeamB arm"; dead=$((dead+1))
     echo "       verdict FLUSH -- fixture gone, nothing left to guard."
 elif grep -q "attachLabel lab=Braced promote=0" "$T/bindSeamB" 2>/dev/null; then

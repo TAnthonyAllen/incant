@@ -1,4 +1,14 @@
 #!/bin/sh
+
+#  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
+#  without touching a single row label.
+ip () {
+    for _d in incant incant/pop incant/pop/jit incant/fixits; do
+        [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
+    done
+    printf '%s\n' "incant/$1"
+}
+
 #  RECORD POP -- ParsE and JiT, the per-rule/per-action audit records (PJ).
 #  Run from the Groups directory:   sh genLadder/recordPop.sh
 #
@@ -92,7 +102,7 @@ _cap () {                       # _cap <label> -- caller has already redirected
 #  split streams: stdout carries the sentinel, stderr carries the emission.
 runrec () {                     # runrec <fixture> <out> <err> [VAR=value ...]
     _f=$1; _o=$2; _e=$3; shift 3
-    env "$@" $B "incant/$_f" > "$_o" 2> "$_e" & _cap "$_f"
+    env "$@" $B "$(ip "$_f")" > "$_o" 2> "$_e" & _cap "$_f"
 }
 
 #  ---- RULE H1: a harness echoes the binary it is testing, FIRST. -------------

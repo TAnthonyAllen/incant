@@ -1,4 +1,14 @@
 #!/bin/bash
+
+#  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
+#  without touching a single row label. Falls back to incant/<name> so an unknown name
+#  still produces the old error rather than an empty path.
+ip () {
+    for _d in incant incant/pop incant/pop/jit incant/fixits; do
+        [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
+    done
+    printf '%s\n' "incant/$1"
+}
 # ddPop.sh -- THE TRIM GATE, ASSERTED.
 #
 # THE GATE (ruled 2026-08-23): no designDocs problem record has shed its
@@ -15,7 +25,7 @@
 #     md5 is verified byte-identical.
 
 INCANT="${INCANT:-$HOME/bin/incant}"
-DD="incant/designDocs"
+DD="$(ip designDocs)"
 PLACEHOLDER="-- unreviewed --"
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 fail=0
@@ -48,7 +58,7 @@ gate_violations () {
 }
 
 # ---------------- measurement: the tree as it stands ----------------
-"$INCANT" incant/ddGate > "$T/g.out" 2>"$T/g.err"; st=$?
+"$INCANT" "$(ip ddGate)" > "$T/g.out" 2>"$T/g.err"; st=$?
 [ $st -eq 0 ] && ok "ddGate exit 0" || bad "ddGate exit $st"
 grep -q "DDGATE SENTINEL" "$T/g.out" && ok "ddGate sentinel (no truncation)" || bad "ddGate sentinel MISSING -- run truncated, every row below is uninterpretable"
 
@@ -76,7 +86,7 @@ j=s.index(' description="',i)
 k=s.index('";\n',j)
 open(p,'w').write(s[:j]+s[k+1:])
 PY
-"$INCANT" incant/ddGate > "$T/n.out" 2>/dev/null
+"$INCANT" "$(ip ddGate)" > "$T/n.out" 2>/dev/null
 nv=$(gate_violations < "$T/n.out" 2>/dev/null)
 cp "$T/dd.bak" "$DD"
 after=$(md5 -q "$DD")

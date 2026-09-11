@@ -3,11 +3,22 @@
 #  A mark-and-win run reads green on the bug this catches (an empty ALT node
 #  wrapping every value), because the parse accepts exactly the same strings.
 B=${INCANT:-$HOME/bin/incant}          # Tony's canonical symlink -- see note at foot
+
+#  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
+#  without touching a single row label. Falls back to incant/<name> so an unknown name
+#  still produces the old error rather than an empty path.
+ip () {
+    for _d in incant incant/pop incant/pop/jit incant/fixits; do
+        [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
+    done
+    printf '%s\n' "incant/$1"
+}
+
 T=${TMPDIR:-/tmp}/gentree.$$
 mkdir -p "$T"
 sed -e 's/ parseMethod=parse[A-Za-z0-9]*//g' -e 's/ parseTerms=[0-9]*//g' \
-    incant/treeScratch > "$T/interpretive"
-$B incant/treeScratch  2>&1 | sed -n '/^TREE /,$p' | grep -vE "^Search list:|^stop:" > "$T/gen"
+    "$(ip treeScratch)" > "$T/interpretive"
+$B "$(ip treeScratch)"  2>&1 | sed -n '/^TREE /,$p' | grep -vE "^Search list:|^stop:" > "$T/gen"
 gx=$?
 $B "$T/interpretive"   2>&1 | sed -n '/^TREE /,$p' | grep -vE "^Search list:|^stop:" > "$T/int"
 ix=$?

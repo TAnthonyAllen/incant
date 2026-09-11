@@ -36,6 +36,17 @@
 #  ===========================================================================
 
 B=${INCANT:-$HOME/bin/incant}
+
+#  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
+#  without touching a single row label. Falls back to incant/<name> so an unknown name
+#  still produces the old error rather than an empty path.
+ip () {
+    for _d in incant incant/pop incant/pop/jit incant/fixits; do
+        [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
+    done
+    printf '%s\n' "incant/$1"
+}
+
 T=${TMPDIR:-/tmp}/ratchet.$$
 CAP=${POPCAP:-30}
 mkdir -p "$T"
@@ -53,9 +64,9 @@ echo ""
 #  Add a row when a rule's body class comes into the shim vocabulary.
 #  ---------------------------------------------------------------------------
 RULE=Braced
-HAND=incant/parseCode
+HAND="$(ip parseCode)"
 HANDLINES=5
-FIXTURE=incant/bracedK
+FIXTURE="$(ip bracedK)"
 SENTINEL="BRACEDK SENTINEL"
 WANT="sumple width is now 251"
 
@@ -172,12 +183,12 @@ else pass "R1 emit ScafKB from live terms ($(wc -l < "$T/emitted2" | tr -d ' ') 
 fi
 #  The oracle is kpScafKB's five lines inside kantParse1, sliced by name rather
 #  than by a line number that any edit above it would silently invalidate.
-sed -n '/^    kpScafKB code={/,/^    ;/p' incant/kantParse1 > "$T/hand2body"
+sed -n '/^    kpScafKB code={/,/^    ;/p' "$(ip kantParse1)" > "$T/hand2body"
 { echo "define"; cat "$T/hand2body"; } > "$T/hand2"
 if [ ! -s "$T/hand2body" ]; then
-    bad "R2 oracle for ScafKB is EMPTY -- the kpScafKB block was not found in incant/kantParse1"
+    bad "R2 oracle for ScafKB is EMPTY -- the kpScafKB block was not found in "$(ip kantParse1)""
 elif diff "$T/hand2" "$T/emitted2" > "$T/d2" 2>&1; then
-    pass "R2 ScafKB emitted == hand body, BYTE-IDENTICAL (oracle: incant/kantParse1)"
+    pass "R2 ScafKB emitted == hand body, BYTE-IDENTICAL (oracle: "$(ip kantParse1)")"
 else
     bad "R2 ScafKB DIVERGES from the hand body -- byte-oracle dead for this rule:"
     sed 's/^/        /' "$T/d2" | head -20

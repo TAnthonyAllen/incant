@@ -46,6 +46,17 @@
 #  last comparison. H5: every run under a wall-clock cap.
 #  =========================================================================
 B=${INCANT:-$HOME/bin/incant}
+
+#  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
+#  without touching a single row label. Falls back to incant/<name> so an unknown name
+#  still produces the old error rather than an empty path.
+ip () {
+    for _d in incant incant/pop incant/pop/jit incant/fixits; do
+        [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
+    done
+    printf '%s\n' "incant/$1"
+}
+
 T=${TMPDIR:-/tmp}/genmixed.$$
 CAP=${POPCAP:-90}
 mkdir -p "$T"
@@ -82,7 +93,7 @@ strip () {                      # strip <file> <methodname>
         -e "/parseMethod=$2;/ s/ parseMethod=$2//" "$1"
 }
 
-SRC=incant/treeScratch
+SRC="$(ip treeScratch)"
 
 #  ---- the four variants -------------------------------------------------
 #  NONE: every install stripped. The interpretive baseline.

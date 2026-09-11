@@ -43,6 +43,17 @@
 #  Any isANY). So the rung DISCRIMINATES -- it is not a script that reddens on
 #  any old input, which is the way a negative control usually lies.
 B=${INCANT:-$HOME/bin/incant}
+
+#  ip <name> -- resolve a fixture NAME to its path, so the incant/ layout can change
+#  without touching a single row label. Falls back to incant/<name> so an unknown name
+#  still produces the old error rather than an empty path.
+ip () {
+    for _d in incant incant/pop incant/pop/jit incant/fixits; do
+        [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
+    done
+    printf '%s\n' "incant/$1"
+}
+
 T=${TMPDIR:-/tmp}/gapb.$$
 mkdir -p "$T"
 fail=0
@@ -69,10 +80,10 @@ fi
 
 # --------------------------------------------------------------------------
 echo ""
-echo "-- THE CENSUS FIXTURE. incant/phaseA is the ruling-4 instrument, and"
+echo "-- THE CENSUS FIXTURE. "$(ip phaseA)" is the ruling-4 instrument, and"
 echo "   Amendment A says NO RUNG MAY CITE AN UNVERIFIED ORACLE -- so its"
 echo "   existence, completeness and reach are asserted here, not assumed."
-$B incant/phaseA > "$T/pa.o" 2> "$T/pa.e"
+$B "$(ip phaseA)" > "$T/pa.o" 2> "$T/pa.e"
 check "phaseA runs" 0 $?
 sentinel "phaseA sentinel (walk reached the end)" "$T/pa.e" "PHASEA SENTINEL"
 
