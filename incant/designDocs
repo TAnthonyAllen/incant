@@ -157,6 +157,64 @@ define
                 The pre-walk call prints its header and no rows, because the counters do not
                 exist until the generator mints them. That is the expected reading and not a
                 broken instrument.#);
+            refusalZombieDischarge=(CLOSED 2026-09-11. THE LAW IS CONFIRMED AND THE UNIT
+                IS THE ACTION. A refusal arms the refused flag, every store operator opens by
+                consulting it, and an armed statement stores nothing -- that much was already
+                written. What was open was the SCOPE, and it is measured: a refusal is
+                terminal for the ACTION and not for the run. An action refuses, the next
+                action runs, and ITS STORE LANDS.
+
+                The earlier report that everything downstream went inert was a real
+                observation with the wrong scope attached -- what was seen was the rest of
+                that one action dying, and the statements taken for later units were in the
+                same action. Reattributed rather than withdrawn.
+
+                THE CONSEQUENCE IS A FIXTURE SHAPE, not a repair. One row per action means a
+                refusing row costs only itself, which is what lets testPrecedence carry forty
+                rows of which several refuse. A file that puts two refusable statements in one
+                action can only ever measure the first.#);
+            tokenXPshapes=(THE BEFORE-PICTURE FOR THE FOLD. Measured 2026-09-11 at the TokenXP
+                seat through measureTokenArm, thirteen spellings, one run each, with traceParse
+                armed at PARSE time and the expression at TOP LEVEL -- an expression inside an
+                action body never reaches this seat, because the body is parsed at define time
+                and that cost the first attempt.
+
+                    rBag                arm primary       primary rBag  postfix none  unary none
+                    rBag[kid]           arm subscript     primary rBag  postfix yes   list 0
+                    rBag.kid            arm dot-COMPOSED  primary rBag  postfix yes   list 1
+                    star rH[kid]        arm subscript     primary rH    postfix yes   list 0  unary star
+                    star rH.kid         arm dot-COMPOSED  primary rH    postfix yes   list 1  unary star
+                    rBag.kid.sub        IDENTICAL to rBag.kid
+                    rBag[kid].sub       IDENTICAL to rBag[kid]
+                    rBag[kid][sub]      IDENTICAL to rBag[kid]
+                    star rH[kid].sub    IDENTICAL to star rH[kid]
+                    star rH  -  bang rBag  -  star star rH  -  bang star rH   NO ROW AT ALL
+
+                THREE READINGS, AND THE LAST TWO ARE NEW.
+
+                FIRST, the second postfix yields nothing, and now on four chain shapes rather
+                than the one bear-trap 52 recorded. A.B.C parses identically to A.B, and
+                A[x][y] identically to A[x].
+
+                SECOND, A LONE PREFIX NEVER REACHES TokenXP. A star or a bang with NO postfix
+                produces no arm here at all, because that shape is a UnaryXP -- a separate
+                grammar rule -- while a prefix WITH a postfix is a TokenXP. Prefixes are
+                covered by TWO rules, so a fold that edits only TokenXP moves half the
+                population and the other half keeps its old reading.
+
+                THIRD, THE DOT ARRIVES CARRYING A LIST AND THE SUBSCRIPT DOES NOT, list 1
+                against list 0. That is the container shape a fold would have to unpack, and
+                it is already present today on one of the two postfix roads.
+
+                AND THE GRAMMAR-ONLY HALF DOES NOT LOAD. InvokeArg with a question mark
+                changed to InvokeArg with a star, in a COPY reached by repointing the fILEs
+                registry with the live grammar untouched: exit 2 before any rule fires, with
+                the misleading message about being unable to open a file called include. The
+                control -- an UNMODIFIED copy through the identical repoint -- runs clean at
+                exit 0 with its three rows, so the mechanism is sound and the star is what
+                breaks it. That is worse than bear-trap 52 recorded: 52 measured a single dot
+                falling from one call to zero, a behaviour change, where this does not come up
+                at all.#);
             compileVisited=(THE COMPILE WALK NEEDS ITS OWN VISITED MARK, AND THE GENERATION
                 WALK'S GUARD IS NOT ONE. Measured 2026-09-11. The grammar is cyclic by
                 construction -- BlocK is leftCurly StatemenT+ rightCurly, and StatemenT bins
