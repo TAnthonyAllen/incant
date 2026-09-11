@@ -2008,6 +2008,24 @@ fi
 #  statement cannot both raise a refusal and reach them. They carry the consult
 #  in source; this file cannot exercise it, and saying so beats a row that looks
 #  like a test and is not.
+#  ⚠ THE ip LOOKUP MUST NEVER BE THE THING THAT PICKS A FILE. Fixtures live in four
+#  directories now and the harnesses resolve a NAME, trying incant, incant/pop,
+#  incant/pop/jit, incant/fixits in that order. That is only safe while the name is
+#  UNIQUE: two files sharing one name would make the ORDER load-bearing, and the row
+#  would silently start certifying whichever copy happened to sort first. This row
+#  asserts the precondition rather than trusting the layout to stay tidy.
+_dup=$(for _d in incant incant/pop incant/pop/jit incant/fixits; do
+           [ -d "$_d" ] && ls -p "$_d" 2>/dev/null | grep -v / ; done | sort | uniq -d)
+_names=$(for _d in incant incant/pop incant/pop/jit incant/fixits; do
+           [ -d "$_d" ] && ls -p "$_d" 2>/dev/null | grep -v / ; done | sort -u | wc -l | tr -d ' ')
+if [ -z "$_dup" ]; then
+    echo "  ok    fixture names unique across the four incant directories ($_names names)"; green=$((green+1))
+else
+    echo "  FAIL  fixture name collision -- ip's lookup ORDER is picking the file:"
+    printf '        %s\n' $_dup
+    echo "        Rename one, or the row above it is certifying an unknown copy."; fail=1
+fi
+
 #  ⚠ memberLitT -- +/ REFUSES A LITERAL RIGHT SIDE, by presence rather than by kind.
 #  ML-1 is the anti-vacuity control: the same operator with a FIELD on the right must
 #  still attach, or the refusal is equally consistent with +/ being broken. ML-3 reads

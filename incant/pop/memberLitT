@@ -69,3 +69,11 @@ own stroke.
 
 DO NOT cite the 32265 number as a general limit. Cite it as: two real fixtures, same
 preamble, same threshold.
+
+⚠ THE STACK IS NOT IT -- MEASURED 2026-09-11, and this closes the standing guess rather
+than leaving it open. A file padded to 32266 bytes dies identically at every stack size
+offered: 8176 KB (the default), 16384, 32768 and 65520. The ulimit was confirmed applied
+inside the subshell before each run, and under the LARGEST stack the threshold is still
+exactly 32265 passes / 32266 dies -- unmoved, not merely still present. So "SIGBUS, stack
+suspected" should now read "SIGBUS, stack EXCLUDED". Deep recursion in the read is not the
+mechanism, and the next probe wants the mapping or the buffer rather than the depth.
