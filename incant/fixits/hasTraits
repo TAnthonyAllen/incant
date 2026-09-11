@@ -5,21 +5,25 @@ search reset stack Grokking UnitTests Utilities list;
 
 register(HasTraits);
 define
-    htSeen; htAttrs; htTraits; htDisagree; htBoth; htAnchor; htTook; htFlag;
+    htSeen; htAttrs; htTraits; htDisagree; htBoth; htNeither; htAnchor; htTook; htFlag;
     htProbe code={
         htA := hasAttributeS;
         htB := hasTraitS;
         htMix = 0;
         if htA;             htMix = 1;
         if htB;             htMix = htMix + 1;
-        if htMix == 1;      ++htDisagree;
+        if htMix == 0;      ++htNeither;
+        if htMix == 1;
+            ++htDisagree;
+            htDisagree  +% argument;
+            $$htDisagree;
         if htMix == 2;      ++htBoth;
         if htB;             ++htTraits;
         if htA;             ++htAttrs;
         ++htSeen;
         };
     htWalk code={
-        iterate htCur members on *argument;
+        iterate htCur on *argument;
         while ++htCur;
             htProbe(*htCur);
         };
@@ -35,24 +39,29 @@ define
             htSet(*htP);
             if htFlag == 1;     ++htTook;
         };
+    printTagLine code={
+        print `taG;
+        iterate grup on argument;
+        while ++grup;
+            print _$taG;
+            if datA;    print $"=" grup;
+        print :;
+        };
     htRun code={
         htSeen = 0;  htAttrs = 0;  htTraits = 0;  htDisagree = 0;  htBoth = 0;
         htWalk(Grokking);
-        cerr "HT-1 rules seen                 = " htSeen:;
-        cerr "HT-2 carrying hasAttributeS     = " htAttrs:;
-        cerr "HT-3 carrying hasTraitS         = " htTraits:;
-        cerr "HT-4 carrying BOTH               = " htBoth:;
-        cerr "HT-5 the two flags DISAGREE on  = " htDisagree " rules":;
+        cerr "HT-1 rules seen                   = " htSeen:;
+        cerr "HT-2 carrying hasAttributeS       = " htAttrs:;
+        cerr "HT-3 carrying hasTraitS           = " htTraits:;
+        cerr "HT-4 carrying BOTH                = " htBoth:;
+        cerr "HT-6 no attributes                = " htNeither:;
+        cerr "HT-5 the two flags DISAGREE on    = " htDisagree " rules":"The rules that disagree are:":;
+        iterate grup on htDisagree;
+        while ++grup;
+            printTagLine(*grup);
         htAnchor = 0;
         cerr "fixHasTraitsHere -- HT-5 is the number, and HT-4 is what stops HT-5 being vacuous":;
-        htPrime(Grokking);
-        htSeen = 0;  htAttrs = 0;  htTraits = 0;  htDisagree = 0;  htBoth = 0;
-        htWalk(Grokking);
-        cerr "HP-0 setParse calls that TOOK  = " htTook " of " htSeen " -- THE VACUITY GUARD":;
-        cerr "HP-2 carrying hasAttributeS    = " htAttrs:;
-        cerr "HP-3 carrying hasTraitS        = " htTraits:;
-        cerr "HP-4 carrying BOTH             = " htBoth:;
-        cerr "HP-5 the two flags DISAGREE on = " htDisagree " rules":;
+        // I removed the rest of this action code and moved it below the stop() because running setParse with nothing to parse is meaningless.
         };
     ;
 htRun();
@@ -68,6 +77,16 @@ NAME      hasTraits -- the flag agrees with hasAttributes on the raw grammar and
 SEVERITY  NIT. Nothing is broken today and nothing is waiting on this. It is
           banked so the next person who reaches for hasTraitS learns in one run
           what it does and does not tell them.
+
+WHAT WAS IN BUT GOT TOOK OUT
+        htPrime(Grokking);
+        htSeen = 0;  htAttrs = 0;  htTraits     = 0;  htDisagree = 0;  htBoth = 0;
+        htWalk(Grokking);
+        cerr "HP-0 setParse calls that TOOK     = " htTook " of " htSeen " -- THE VACUITY GUARD":;
+        cerr "HP-2 carrying hasAttributeS       = " htAttrs:;
+        cerr "HP-3 carrying hasTraitS           = " htTraits:;
+        cerr "HP-4 carrying BOTH                = " htBoth:;
+        cerr "HP-5 the two flags DISAGREE on    = " htDisagree " rules":;
 
 WHAT HAPPENED. Chasing the QuotE failure on 2026-09-07, Tony gated the old parse
 on hasTraits instead of hasAttribute. The result was a major face plant: NOTHING

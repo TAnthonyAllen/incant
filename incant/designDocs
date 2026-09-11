@@ -117,6 +117,48 @@ define
                 CodeSite="incant/utilities:quoteIfNeeded";
         ParserIncantation="IncantForms/WorkingOn/parser. Walks a rule and everything below it, generates a parse body for each, compiles it, and closes by parsing a specimen through the rule so the run reports an answer rather than a count. parser(Start) is the intended POP and does not pass yet; see ProblemRecords parseSelfRecursion. Reduced from 344 lines to its finished shape 2026-08-26 across two reviewed iterations, Tony ruling by review at each pass.":
             ParserGates="Three phases, two gates, ruled 2026-08-26. Generation always runs. Activation binds the generated body as the rule parse method via setParse and is gated by the activating field. Compilation is gated by the compiling field. A measuring run turns one or both off; a verifying run leaves both on, because a parse method that is never bound is never exercised. Both gates are declared fields in the define block, because a driver writes them and the walk reads them and an undeclared name shared by two actions becomes a per-action local (bear trap 39). Both are tested against a value and never bare, because a bare test on a declared field asks whether it exists and is always true (bear trap 26).";
+            compileVisited=(THE COMPILE WALK NEEDS ITS OWN VISITED MARK, AND THE GENERATION
+                WALK'S GUARD IS NOT ONE. Measured 2026-09-11. The grammar is cyclic by
+                construction -- BlocK is leftCurly StatemenT+ rightCurly, and StatemenT bins
+                over BlocK -- so a walk that descends on structure alone cannot terminate.
+                walkRules survives it because `if hasNewParsE; continue;` skips what it has
+                already generated. compileRules reads the same flag the other way round, as
+                `if hasNewParsE AND isCodeD;`, so it descends into precisely the rules
+                walkRules skips and carries no visited state at all.
+
+                parser(IterSource) hid this for as long as it was the only driver, because
+                IterSource -> ANYtoken -> NamE is acyclic. parser(Start) died at exit 139 with
+                84,591 stack frames on a four-name cycle -- StatemenT SemI BlocK leftCurly --
+                15,370 entries over five distinct tags. Generation had already completed all
+                49 rules cleanly, so nothing upstream named it.
+
+                THE MARK IS flaG, SET AT ENTRY AND TESTED BARE, AND THE BARE TEST IS
+                LOAD-BEARING. `crSeen := argument.flaG;` then `if crSeen == 1;` reads FALSE
+                while `cerr crSeen` prints 1, because := hands back a HOLDER and print unwraps
+                once; `*crSeen == 1` fires. Measured as one A/B in one run: 0 fires against
+                15,365. Bear-trap 35's capture-then-test is advice about VALUES; on a flag the
+                capture needs the star or it silently compares the holder.
+
+                With the mark: exit 0, 49 generated, 40 compiled, sentinel reached.#);
+            warningSink=(THE FILE'S OWN DATA-AND-LIST WARNING WAS PRINTING INTO THE CODE
+                BUFFER AND BEING DISCARDED. Found 2026-09-11. generateParse arms
+                printTO(codeBuffer) three lines before it tests `if datA != 0;`, so the
+                warning "rules should not have data and a list" went into the buffer, and the
+                early return abandons that buffer without ever assigning it to CodE. The
+                message had never once been seen. Moving printTO(0) ABOVE the test un-swallows
+                it, and NINE rules warn: leftCurly, rightCurly, rules, stuff (four faces),
+                BrancheS and scopeList. Those nine are exactly the rules that return before
+                `:. isCodeD` and therefore compile to nothing, so the warning names the cause
+                that the sentinel list can only name the members of.
+
+                ASSERTABILITY, NOT BEHAVIOUR -- the machine is unchanged and the output moves.
+                Rule H4: the absent message asserted nothing, and it was absent because of a
+                sink and not because the condition was false.
+
+                ⚠ AND THE LIST HALF OF leftCurly AND rightCurly IS THE SPENT Modifier PACKET.
+                They are the only two entries in the 86-rule population carrying BOTH data and
+                a list; every other data-carrying entry reads len 0. That is the same artifact
+                the 2026-09-10 handoff is about, seen from the kant road.#);
             artifactSkipByFlag=(TERMS ARE isRulE, ARTIFACTS ARE NOT; noPrint is not load-bearing
                 for the skip. Ruled 2026-09-08. walkRules used to skip a generated artifact
                 by reading noPrinT, so noPrint carried two meanings at once: "do not print
@@ -5384,7 +5426,34 @@ define
                     are the two whose dotted reading is arguably wrong the same way
                     `*`'s was, and with 208 `++` sites that is Tony's ruling, not a
                     side effect of this one.   ruleActions.aCTionTokenXP.starDotRotation#);
-            appendPrintXP=(THE ONE PrintXP WALK, shared by all four print sinks.#):
+            aCTionTraiT="Immediate method for the TraiT rule that defines an attribute.":
+                traitTakesOwnFlags=(THE TRAIT TAKES ITS OWN MODIFIERS ENTIRE, AND THE HANDED-UP FLAGS ON TOP, both
+                AFTER setContent -- which copies data and lists but NOT flags, so anything
+                applied before it is applied to a node whose flags are about to be discarded.
+                The name-side Modifier is the author writing about the TRAIT, so both classes
+                apply there; what rides up from TraiTdata is FLAGS ONLY, because its repetitions
+                belong to the data and are already on it.#);
+            aCTionTraiTdata="Immediate method for the TraiTdata rule":
+                modifierRidesUp=(REPETITION AND Limit LAND ON THE DATA; FLAGS ARE SET ASIDE FOR THE TRAIT.
+                    Ruled 2026-09-10. `numberSet=[0-9]+` means the SET repeats, and applying
+                    that `+` to the trait as well is a repetition applied TWICE -- measured, it
+                    takes the fleet to 170 with an exit 139. A FLAG is a fact ABOUT the term and
+                    rides up harmlessly. That is the whole two-class split.
+                    
+                    THE FLAGS RIDE UP AS A noPrint ARTIFACT, NOT AS A TERM. `+%` publishes a copy
+                    onto the child list, and a plain one is walked by every census and audit as a
+                    rule TERM -- measured, it took the fleet to 178 with baselineTests at exit 139
+                    and filled oneTest with `AUDIT TERM ... Modifier -- rule TERM, not isRule`.
+                    noPrint is this tree's standing "artifact, not a term" mark, as builtinParsE and
+                    CodE already use.#);
+                scalarRepeat=(REPETITION AFTER SCALAR DATA REFUSES LOUD. A literal is one token; there is
+                    nothing for a `+` or `*` to repeat, and stamping max on it silently produces a
+                    rule that looks defined and matches wrong.#);
+                upMarkNoRstuff=(upMark CARRIES NO rStuff. noPrint alone keeps it out of the PARSE; the AUDIT
+                    walks by `isRule`/`rStuff` and reported four `AUDIT TERM ... Modifier -- rule
+                    TERM, not isRule, has rStuff` lines in oneTest until this line. An artifact must
+                    be invisible to BOTH readers or it is only half an artifact.#);
+            appendPrintXP="THE ONE PrintXP WALK, shared by all four print sinks.":
                 onePrintXPWalk=(appendPrintXP -- THE ONE PrintXP WALK. Added 2026-08-01
                     (Tony's call) when
                     the arrival of `cerr` and `cout` made it the FOURTH copy

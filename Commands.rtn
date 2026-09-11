@@ -50,7 +50,7 @@ extern GroupItem compile(GroupItem field)
 {
 GroupItem   code,
             grup;
-    if !field.isCoded       return refuse(field,"compile: no compiled body");
+    if !field.isCoded       return null;    // any rule without parseRule as its method will exit here
     code    = field["CodE"];
     // secondRefuseInCompile
     if !code                return refuse(field,"compile: isCoded is set but there is no CodE attribute; the flag and the artifact disagree");

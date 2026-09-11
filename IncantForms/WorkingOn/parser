@@ -11,6 +11,7 @@ define
     closeBrace="}";
     termCount;
     parseCount;
+    uncompiled;
     generateParse code={
         cout "Generating parse code for" taG:;
         reset(codeBuffer);
@@ -18,8 +19,10 @@ define
         print openBrace:;
         setParse(argument);
         if datA != 0;
-            if listLengtH; print "rules should not have data and a list; one or the other":;
+            // printTO(0) FIRST -- the buffer is still armed and would eat the warning   ParserIncantation.warningSink
             printTO(0);
+            if listLengtH; print "rules should not have data and a list; one or the other":;
+            uncompiled +% argument;
             return;
         /*  ⚠ THE C SPELLINGS SINCE 2026-09-10, and they are not a rename: `&&` and `||`
             only became correct that day, when the two spelling lists that chose the
@@ -63,6 +66,9 @@ define
                 else generateParse(*grup);
         };
     compileRules code={
+        // single visited mark for the compile walk; the grammar is cyclic   ParserIncantation.compileVisited
+        if flaG;    return;
+        argument :. flaG;
         compile(argument);
         length  = listLengtH;
         if length > 0;
@@ -76,6 +82,11 @@ define
         walkRules(argument);
         compileRules(argument);
         cerr "PARSER SENTINEL -- walk complete":;
+        if uncompiled.listLengtH;
+            cerr "GENERATED BUT NOT COMPILED -- no isCodeD, so compile returned null:":;
+            iterate grup on uncompiled;
+            while ++grup;
+                cerr "    uncompiled " taG:;
         compiledHere = 0;
         if argument.hasNewParsE;     compiledHere = 1;
         cerr "WITNESS compiled " compiledHere " -- 1 = compile ran on this rule, 0 = it did not":;
@@ -83,7 +94,7 @@ define
     ;
 
 parser(IterSource);
-IterSource("someName");
+if IterSource("*someName"); print "IterSource parsed compiled and ran successfully":;
 stop();
 parser(Start);
 
@@ -109,7 +120,7 @@ parser(Start);
     never explicitly compiled still parses, because bodies compile lazily at
     first call. So the run prints the answer AND who produced it.
 
-    The design record for this file is in DesignDocs, entry ParserDesign. The
+    The design record for this file is in DesignDocs, entry ParserIncantation. The
     walk crib, the hang provenance and the exhibit history retired there on
     2026-08-26 when the hang they measured stopped reproducing.
 

@@ -16,7 +16,7 @@ define
         addrOf(fcFace);
         fcSrc :. noPrinT;
         $$fcFace;
-        fcFwd = fcFace.noPrint;
+        fcFwd = *fcFace.noPrinT;
         $$fcFwd;
         fcCtl = fcClean.noPrinT;
         $$fcCtl;

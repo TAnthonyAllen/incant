@@ -776,3 +776,36 @@ does not model this, and on this session's evidence it remains the trial's open 
 
 **Absent entry: none.** No `File.method` key was followed and found missing.
 
+
+## 2026-09-11 — 7 claims written, 2 entries, 1 pointer followed, 1 DANGLING POINTER found
+
+**Claims written: five at the `aCTionTraiT`/`aCTionTraiTdata` sites** (Tony moved the prose
+to DesignDocs offline and left bare keys; Tony's word, relayed by Clay, was to write the
+claims). Each is the line an editor at that site must not miss, then the key — e.g.
+`// BOTH modifier classes apply AFTER this line -- setContent discards flags
+ruleActions.aCTionTraiT.traitTakesOwnFlags`. **The too-short test is what shaped them**: the
+bare key told a reader nothing about what breaks, and `setContent discards flags` is the
+whole reason the ordering is load-bearing. One site had lost its comment entirely in the move
+(`input +% Modifier`, the transport packet) and got a claim back pointing at the merged key.
+
+**Entries written: two, both new, both on `IncantForms/WorkingOn/parser`** —
+`ParserIncantation.compileVisited` (the compile walk's missing visited mark, the cycle it
+died on, and why the flag test must be bare) and `ParserIncantation.warningSink` (the file's
+own data-and-list warning printing into the code buffer and being discarded). Both pass the
+too-short test easily: the inline lines are one clause each and the arguments are measured
+tables.
+
+⚠ **DANGLING POINTER, THE FIRST OF THE TRIAL, and it was in prose rather than in a key.**
+`parser`'s own dead-region prose said *"The design record for this file is in DesignDocs,
+entry ParserDesign."* **There is no `ParserDesign`.** The entry is `ParserIncantation`, under
+`Incantations`, and has been since 2026-08-26. Repointed in the same stroke. It cost nothing
+because the register is small enough to grep, and that is exactly the property that will stop
+being true. **It is one data point for the dangling-pointer fleet row the trial deliberately
+did not build yet** — and note which half failed: the machine-shaped `File.method` keys all
+resolved, and the one that rotted was the sentence a human wrote about where to look.
+
+**Pointer followed: `Incantations.ParserIncantation`** — read before adding children, to put
+them under the right parent and in the house voice. It also answered a question I would
+otherwise have re-measured: `ParserHangHistory` records that the 2026-08-19 hang stopped
+reproducing on 2026-08-26, so the exit-139 measured today is **a new defect and not that one
+returning**. Counted as one lookup, and it saved a wrong headline.

@@ -1334,13 +1334,7 @@ GroupItem 	*trait = input->get(1);
 		}
 	if ( TraiTdata )
 		trait->setContent(TraiTdata);
-	/*  THE TRAIT TAKES ITS OWN MODIFIERS ENTIRE, AND THE HANDED-UP FLAGS ON TOP, both
-	AFTER setContent -- which copies data and lists but NOT flags, so anything
-	applied before it is applied to a node whose flags are about to be discarded.
-	The name-side Modifier is the author writing about the TRAIT, so both classes
-	apply there; what rides up from TraiTdata is FLAGS ONLY, because its repetitions
-	belong to the data and are already on it.
-	ruleActions.aCTionTraiT.traitTakesOwnFlags  */
+	// BOTH modifier classes apply AFTER this line -- setContent discards flags   ruleActions.aCTionTraiT.traitTakesOwnFlags
 	if ( Modifier )
 		::modify(trait,Modifier->getText());
 	if ( TraiTdata )
@@ -1370,44 +1364,28 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 		if ( DatA->getRStuff() )
 			DatA = new GroupItem(DatA);
 		else	DatA->setRuleStuff();
-		/*  REPETITION AND Limit LAND ON THE DATA; FLAGS ARE SET ASIDE FOR THE TRAIT.
-		Ruled 2026-09-10. `numberSet=[0-9]+` means the SET repeats, and applying
-		that `+` to the trait as well is a repetition applied TWICE -- measured, it
-		takes the fleet to 170 with an exit 139. A FLAG is a fact ABOUT the term and
-		rides up harmlessly. That is the whole two-class split.
-		ruleActions.aCTionTraiTdata.modifierRidesUp  */
+		// repetition lands on the DATA only; applying it to the trait as well repeats TWICE   ruleActions.aCTionTraiTdata.modifierRidesUp
 		if ( Modifier )
 			::modifyClass(DatA,Modifier->getText(),1);
 		if ( Limit )
 			::setLimits(DatA,Limit);
 		DatA->groupBody->flags.isRule = 1;
 		}
-	/*  ⚠ REPETITION AFTER SCALAR DATA REFUSES LOUD. A literal is one token; there is
-	nothing for a `+` or `*` to repeat, and stamping max on it silently produces a
-	rule that looks defined and matches wrong.
-	ruleActions.aCTionTraiTdata.scalarRepeat  */
+	// a repetition after scalar data REFUSES -- a literal is one token and has nothing to repeat   ruleActions.aCTionTraiTdata.scalarRepeat
 	tdBad = 0;
 	if ( Modifier )
 		if ( DatA->groupBody->flags.isLiteral )
 			tdBad = ::hasRepeatClass(Modifier->getText());
 	if ( tdBad == 1 )
 		::refuse(input,"a repetition modifier after scalar data -- a literal is one token and has nothing to repeat");
-	/*  THE FLAGS RIDE UP AS A noPrint ARTIFACT, NOT AS A TERM. `+%` publishes a copy
-	onto the child list, and a plain one is walked by every census and audit as a
-	rule TERM -- measured, it took the fleet to 178 with baselineTests at exit 139
-	and filled oneTest with `AUDIT TERM ... Modifier -- rule TERM, not isRule`.
-	noPrint is this tree's standing "artifact, not a term" mark, as builtinParsE and
-	CodE already use.   ruleActions.aCTionTraiTdata.modifierRidesUp  */
+	// the flags ride up as a noPrint ARTIFACT, never as a term   ruleActions.aCTionTraiTdata.modifierRidesUp
 	if ( Modifier )
 		input->addAttribute(Modifier);
 	if ( Modifier )
 		upMark = input->get("Modifier");
 	if ( upMark )
 		upMark->groupBody->flags.noPrint = 1;
-	/*  ⚠ AND IT CARRIES NO rStuff. noPrint alone keeps it out of the PARSE; the AUDIT
-	walks by `isRule`/`rStuff` and reported four `AUDIT TERM ... Modifier -- rule
-	TERM, not isRule, has rStuff` lines in oneTest until this line. An artifact must
-	be invisible to BOTH readers or it is only half an artifact.  */
+	// THIS LINE hides the packet from the AUDIT; noPrint alone only hides it from the PARSE   ruleActions.aCTionTraiTdata.upMarkNoRstuff
 	if ( upMark )
 		upMark->setRStuff((RuleStuff*)0);
 	if ( (DatA->groupBody->flags.isRule && !DatA->groupBody->flags.isLiteral) || DatA->groupBody->registry == GroupControl::groupController->groupRules->opFields )
@@ -1868,7 +1846,8 @@ extern "C" GroupItem *compile(GroupItem *field)
 GroupItem 	*code = 0;
 GroupItem 	*grup = 0;
 	if ( !isCoded(field->groupBody->flags.actionType) )
-		return ::refuse(field,"compile: no compiled body");
+		return 0;
+	// any rule without parseRule as its method will exit here
 	code = field->get("CodE");
 	// secondRefuseInCompile
 	if ( !code )
