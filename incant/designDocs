@@ -117,6 +117,46 @@ define
                 CodeSite="incant/utilities:quoteIfNeeded";
         ParserIncantation="IncantForms/WorkingOn/parser. Walks a rule and everything below it, generates a parse body for each, compiles it, and closes by parsing a specimen through the rule so the run reports an answer rather than a count. parser(Start) is the intended POP and does not pass yet; see ProblemRecords parseSelfRecursion. Reduced from 344 lines to its finished shape 2026-08-26 across two reviewed iterations, Tony ruling by review at each pass.":
             ParserGates="Three phases, two gates, ruled 2026-08-26. Generation always runs. Activation binds the generated body as the rule parse method via setParse and is gated by the activating field. Compilation is gated by the compiling field. A measuring run turns one or both off; a verifying run leaves both on, because a parse method that is never bound is never exercised. Both gates are declared fields in the define block, because a driver writes them and the walk reads them and an undeclared name shared by two actions becomes a per-action local (bear trap 39). Both are tested against a value and never bare, because a bare test on a declared field asks whether it exists and is always true (bear trap 26).";
+            fireCounter=(THE WITNESS COUNTS BODIES FIRED, BY RULE, AND TWO OF ITS THREE
+                LINES ARE THERE FOR A MEASURED REASON. Built 2026-09-11.
+
+                The generator mints one zero slot per generated rule in the declared
+                collector `fireLog`, tagged with the rule's name and marked noPrinT, and
+                emits two statements at the head of each body. The name is baked as a
+                LITERAL at generation time because at run time a generated body's `taG`
+                reads `BlocK` and not the rule (bear-trap 44) -- an earlier marker proved
+                that A body ran and could not say WHICH, which was the whole question.
+
+                THE SLOT IS REACHED BY SUBSCRIPT AND BUMPED WITH `+= 1`, NEVER `++`.
+                Measured the same day: on a member of another node, `=` lands and `+=`
+                lands and `++` DOES NOT -- 9, 8 and 7 on the identical target in one run,
+                reached either by subscript or through a := holder, while `++` on a bare
+                declared field and on an action local both work. That defect is the store
+                fold's business; this file just spells around it, and the comment is here
+                so the next reader does not "tidy" the += back into a ++.
+
+                ⚠ AND A BARE NAME IN THE EMITTED BODY WOULD NOT HAVE WORKED EITHER. The
+                body is an action, so an undeclared `fireS` in it is an action LOCAL minted
+                and cleared per call (bear-trap 39) -- the first spelling tried, and it
+                read zero forever while looking correct. The terms resolve only because
+                they are CALLED with an InvokeArg.#);
+            primeBeforeWalk=(AN ACTION NAME FIRST REFERENCED AFTER THE WALK NEVER RESOLVES,
+                SILENTLY -- so the report action is called once BEFORE the walk, and that
+                call is not decoration. Measured 2026-09-11 with the control both ways: with
+                a pre-walk call the identical post-sentinel calls run in full; without it
+                they no-op while the cerr lines bracketing them still print, so it reads as
+                "the helper did nothing" rather than "the name is gone".
+
+                RULES ARE UNAFFECTED -- `Search("...")` still dispatches after the walk. It
+                is ACTIONS that die, which is why the file has always carried one driver
+                line and why ParserDriverShape's rule held without anyone knowing this was
+                the mechanism under it. Very likely the same mechanism as the 2026-09-10
+                seal's `include(unitTests);` exit 2, which is a NAME with an InvokeArg first
+                seen after the walk; that is a candidate and is not measured here.
+
+                The pre-walk call prints its header and no rows, because the counters do not
+                exist until the generator mints them. That is the expected reading and not a
+                broken instrument.#);
             compileVisited=(THE COMPILE WALK NEEDS ITS OWN VISITED MARK, AND THE GENERATION
                 WALK'S GUARD IS NOT ONE. Measured 2026-09-11. The grammar is cyclic by
                 construction -- BlocK is leftCurly StatemenT+ rightCurly, and StatemenT bins

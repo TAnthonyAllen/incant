@@ -12,6 +12,7 @@ define
     termCount;
     parseCount;
     uncompiled;
+    fireLog;
     generateParse code={
         cout "Generating parse code for" taG:;
         reset(codeBuffer);
@@ -30,6 +31,15 @@ define
             carried opOR and still evaluated its right operand.  */
         if hasTraitS;       conjunct = "&&";
         else                conjunct = "||";
+        // one zero slot per generated rule, tagged with the rule's name   ParserIncantation.fireCounter
+        fireSlot := new(taG);
+        *fireSlot = 0;
+        *fireSlot :. noPrinT;
+        fireLog +% *fireSlot;
+        // the name is baked at GENERATION time; at run time taG reads BlocK (bear-trap #44)
+        print $"fhSlot := fireLog[\"" taG "\"];":;
+        // `+= 1` and NOT `++` -- ++ does not land on a member of another node   ParserIncantation.fireCounter
+        print `"*fhSlot += 1;":;
         print `"return ";
         iterate grup on argument;
         while ++grup;
@@ -78,10 +88,22 @@ define
                     if listLengtH;  compileRules(*grup);
                     else            compile(*grup);
         };
+    fireReport code={
+        cerr "BODIES FIRED, by rule:":;
+        flLen := fireLog.listLengtH;
+        if *flLen;
+            iterate frCur on fireLog;
+            while ++frCur;
+                cerr "    FIRES " taG " = " *frCur:;
+        };
     parser code={
+        // primed BEFORE the walk on purpose -- a name first referenced after it never
+        // resolves, silently   ParserIncantation.primeBeforeWalk
+        fireReport(argument);
         walkRules(argument);
         compileRules(argument);
         cerr "PARSER SENTINEL -- walk complete":;
+        fireReport(argument);
         if uncompiled.listLengtH;
             cerr "GENERATED BUT NOT COMPILED -- no isCodeD, so compile returned null:":;
             iterate grup on uncompiled;
@@ -93,10 +115,11 @@ define
         };
     ;
 
-parser(IterSource);
-if IterSource("*someName"); print "IterSource parsed compiled and ran successfully":;
+parser(Search);
+search list;
 stop();
 parser(Start);
+if IterSource("*someName"); print "IterSource parsed compiled and ran successfully":;
 
     parser -- generates a new kant parse for every rule its argument touches.
 
