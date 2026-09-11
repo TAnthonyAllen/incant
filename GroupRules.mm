@@ -8553,6 +8553,17 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		{
 		 return jitEmitUnary(result, jitDec); 
 		}
+	/*  ⚠ THE SAME ZERO-IS-NOT-ABSENT LINE AS opPlusPlus, and for the sharper reason:
+	`--` had no data-less arm at all, so a data-less node with a LIST fell through to
+	`or groupList pop()` and `--bag["kid"]` REMOVED A MEMBER -- silently, at exit 0,
+	because the unary binds to the name before the subscript. That pop arm is gone
+	with this stroke: `--` is value-channel per the channel-by-operator ruling, and
+	removing a member is `remove`'s job. Census at the stroke: of 21 live `--`
+	operator sites in the corpus, ZERO used the pop arm -- all are numeric counters
+	or the iterator walk.   Instruct.opMinusMinus.zeroIsNotAbsent  */
+	if ( !result->groupBody->flags.data )
+		return ::refuse(result,"Operator -- -- this field has no value to step; a field assigned 0 is a count and steps to -1, one never assigned is absent");
+	else
 	if ( isCOUNT(result->groupBody->flags.data) )
 		result->groupBody->gCount--;
 	else
@@ -8575,9 +8586,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	else
 	if ( isSTAK(result->groupBody->flags.data) )
 		result = (GroupItem*)result->groupBody->gStak->pop();
-	else
-	if ( result->groupBody->groupList )
-		result->pop();
 	else	return ::refuse(result,"Operator -- -- not supported for this data type");
 	return result;
 }
@@ -9000,8 +9008,17 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		 return jitEmitUnary(result, jitInc); 
 		}
 	measurePlusPlusWrite(result);
+	/*  ⚠ ZERO IS NOT ABSENT, and this line is where the difference is enforced.
+	Ruled 2026-09-11. `field = 0` puts a value in the slot and sets isCOUNT, so
+	`++field` reads a numeric zero and writes 1 through the arm below. A field that
+	was never assigned has NO value, is the ABSENT kind, and must say so by name.
+	This line used to read `if !data count = 1;` -- it stamped 1 onto anything
+	data-less, which on a CONTAINER meant `++bag["kid"]` silently wrote 1 to the bag
+	while leaving the member alone, because a prefix unary binds to the name before
+	the subscript. The wrong target is a grammar question; writing to it regardless
+	was this line.   Instruct.opPlusPlus.zeroIsNotAbsent  */
 	if ( !result->groupBody->flags.data )
-		result->setCount(1);
+		return ::refuse(result,"Operator ++ -- this field has no value to bump; a field assigned 0 is a count and bumps to 1, one never assigned is absent");
 	else
 	if ( isCOUNT(result->groupBody->flags.data) )
 		result->groupBody->gCount++;

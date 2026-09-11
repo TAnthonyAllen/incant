@@ -661,6 +661,75 @@ define
         cerr "    addMemberStarsub  WANT 1 GOT " *tpRead:;
         };
 
+    tpZeroBump code={
+        // zero is a VALUE: assigning 0 puts a count in the slot, so the bump reads it and writes 1.
+        tpMark := new("zeroBump");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["zeroBump"];
+        cerr "ROW zeroBump":;
+        tpZ = 0;
+        ++tpZ;
+        tpRead := tpZ;
+        if *tpRead == 1;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    zeroBump  WANT 1 GOT " *tpRead:;
+        };
+
+    tpZeroStep code={
+        // the same rule downward: a field holding zero steps to minus one, it does not refuse.
+        tpMark := new("zeroStep");
+        *tpMark = 0;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["zeroStep"];
+        cerr "ROW zeroStep":;
+        tpZ = 0;
+        --tpZ;
+        tpRead := tpZ;
+        if *tpRead == -1;    *tpSlot = 1;
+        if *tpSlot == 1;     tpTrue = tpTrue + 1;
+        cerr "    zeroStep  WANT -1 GOT " *tpRead:;
+        };
+
+    tpAbsentBump code={
+        // a field that was never assigned is ABSENT, not zero, and the bump refuses it by
+        // name rather than inventing a value. THIS ROW IS INVERTED: it marks itself TRUE
+        // first and clears the mark on the line AFTER the statement, which only runs if
+        // the statement did NOT refuse. A refusal is terminal for the action, so the mark
+        // survives exactly when the refusal happened.
+        tpMark := new("absentBump");
+        *tpMark = 1;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["absentBump"];
+        tpTrue = tpTrue + 1;
+        cerr "ROW absentBump -- wants a refusal, and prints nothing after it":;
+        ++tpNever;
+        *tpSlot = 0;
+        tpTrue = tpTrue - 1;
+        cerr "    absentBump  DID NOT REFUSE -- the absent kind was accepted":;
+        };
+
+    tpAbsentStep code={
+        // a field that was never assigned is ABSENT, not zero, and the step refuses it by
+        // name rather than inventing a value. THIS ROW IS INVERTED: it marks itself TRUE
+        // first and clears the mark on the line AFTER the statement, which only runs if
+        // the statement did NOT refuse. A refusal is terminal for the action, so the mark
+        // survives exactly when the refusal happened.
+        tpMark := new("absentStep");
+        *tpMark = 1;
+        tpPending +% *tpMark;
+        tpRows = tpRows + 1;
+        tpSlot := tpPending["absentStep"];
+        tpTrue = tpTrue + 1;
+        cerr "ROW absentStep -- wants a refusal, and prints nothing after it":;
+        --tpNever;
+        *tpSlot = 0;
+        tpTrue = tpTrue - 1;
+        cerr "    absentStep  DID NOT REFUSE -- the absent kind was accepted":;
+        };
     tpReport code={
         cerr "PRECEDENCE MAP -- rows not yet true, by slug:":;
         tpLen := tpPending.listLengtH;
@@ -713,6 +782,10 @@ tpAddMemberSub(tpBag);
 tpAddMemberDot(tpBag);
 tpAddMemberStar(tpBag);
 tpAddMemberStarsub(tpBag);
+tpZeroBump(tpBag);
+tpZeroStep(tpBag);
+tpAbsentBump(tpBag);
+tpAbsentStep(tpBag);
 tpReport();
 stop();
 

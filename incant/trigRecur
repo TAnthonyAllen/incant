@@ -30,6 +30,9 @@ define
         if hasTraitS;       conjunct = "&&";
         else                conjunct = "||";
         print `"return ";
+        // the from-nothing counter is seeded explicitly: ++ refuses an ABSENT field, and
+        // zero is a value while never-assigned is not. It stays UNDECLARED (bear-trap #39).
+        notFirstTimeThru = 0;
         iterate grup on argument;
         while ++grup;
             if noPrinT;     continue;

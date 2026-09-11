@@ -20,6 +20,9 @@
     Unary operators precede their operand
         ++grup is the only form. grup++ parses but does not increment — no
         postfix form exists. See testUnary.
+        ⚠ AND THE OPERAND MUST ALREADY HOLD A VALUE. `grup = 0;` puts a count in the
+        slot and ++ then reads 1; a field that was never assigned is the ABSENT kind
+        and ++ refuses it by name. Zero is a value, absent is not. Ruled 2026-09-11.
 
     A field can hold a value AND run code on use
         lefty=3 code={...} sets an initial value; the code block fires when
@@ -178,6 +181,7 @@ define
             print taG width height:; };
     testUnary code={
         print "testUnary:":;
+        grup = 0;
         if ++grup; print ``"++grup is" grup:;
         if grup++; print ``"now grup++ is still" grup "Unary operators must preceed their argument":; };
     testInterpret code={

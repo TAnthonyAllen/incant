@@ -2009,15 +2009,18 @@ TPWANT=15
 run2 testPrecedence "$T/tp.o" "$T/tp.e"; check "testPrecedence runs" 0 $?
 sentinel "testPrecedence sentinel (no truncation)" "$T/tp.e" "PRECEDENCE SENTINEL"
 _tpn=$(sed -n 's/.*PRECEDENCE ROWS NOT YET TRUE = *//p' "$T/tp.e" | sed 's/[^0-9].*//' | head -1)
+#  the TOTAL is read from the fixture too -- a hardcoded one goes stale the first time a
+#  row is added, and then the row reports a true count against a false denominator
+_tpt=$(sed -n 's/.*PRECEDENCE ROWS NOT YET TRUE = *[0-9]* of *//p' "$T/tp.e" | sed 's/[^0-9].*//' | head -1)
 if [ -z "$_tpn" ]; then
     echo "  FAIL  testPrecedence reported no count -- the map ran but said nothing"; fail=1
 elif [ "$_tpn" -le "$TPWANT" ]; then
-    echo "  ok    testPrecedence $_tpn of 36 rows not yet true (ratchet: $TPWANT)"; green=$((green+1))
+    echo "  ok    testPrecedence $_tpn of $_tpt rows not yet true (ratchet: $TPWANT)"; green=$((green+1))
     if [ "$_tpn" -lt "$TPWANT" ]; then
         echo "        ^ it went DOWN. Lower TPWANT to $_tpn and name the rows that graduated (H6)."
     fi
 else
-    echo "  FAIL  testPrecedence $_tpn of 36 not yet true, was $TPWANT -- a spelling that worked"
+    echo "  FAIL  testPrecedence $_tpn of $_tpt not yet true, was $TPWANT -- a spelling that worked"
     echo "        has stopped working. The pending slugs are listed above the count."; fail=1
 fi
 
