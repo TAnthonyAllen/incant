@@ -44,10 +44,28 @@ the line after the refused statement does not run -- so the only way to see that
 was attached is from outside.
 
 ⚠ WHY THIS IS ITS OWN FILE RATHER THAN A testPrecedence ROW. The row was written there
-first and took the fixture to exit 138 with ZERO bytes on both streams. Bisected: the
-statement is innocent (it runs fine here), and so is the row's comment. What moves it is
-the LENGTH of the minted tag -- 14 and 15 characters parse, 16 and 17 die, 20 parses
-again, with three different 16-character names all dying and the content irrelevant.
-Since the name's length shifts every byte after it, that reads as a file-offset window
-rather than a name rule, and the full row died again at a 12-character name once the body
-grew. Not diagnosed; recorded. A small file sidesteps it entirely.
+first and took the fixture to exit 138 with ZERO bytes on both streams. The signal is
+SIGBUS, not SEGV.
+
+⚠ AND THE FIRST READING OF IT, PUBLISHED IN 89002da, WAS WRONG. It said 14 and 15
+characters parse, 16 and 17 die, and 20 parses again -- so a window rather than a
+threshold. The 20 came from a row with a DIFFERENT BODY, so the two runs differed by more
+than the name. Re-swept with the body held fixed, lengths 8 through 32: everything at 15
+and below passes, everything at 16 and above dies, monotone. No window.
+
+WHAT IS SOLID, measured with controls:
+  - It is FILE SIZE and not the tag. One padding byte in a COMMENT takes the same file
+    from passing to dying, and so does padding in the DEAD REGION AFTER stop(), which is
+    never parsed. So the fault is in the READ, not the parse.
+  - Two unrelated fixtures -- testPrecedence and this file, padded only after its stop()
+    -- have the IDENTICAL threshold: 32265 bytes passes, 32266 dies.
+
+WHAT IS NOT SOLID, said out loud rather than tidied away: a synthetic file with no
+include, padded as one enormous line, passes at 32266, dies at 40000, and passes again at
+60000. That is not monotone, so a single global size constant does NOT explain it and
+line structure or content position is doing something. The probe was stopped there rather
+than pushed, because the next step is reading the input-stack read itself and that is its
+own stroke.
+
+DO NOT cite the 32265 number as a general limit. Cite it as: two real fixtures, same
+preamble, same threshold.
