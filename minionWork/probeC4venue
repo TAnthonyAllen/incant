@@ -1,4 +1,0 @@
-Start();
-audit();
-cerr "C4VENUE SENTINEL -- audit ran with no user parse after load":;
-stop();

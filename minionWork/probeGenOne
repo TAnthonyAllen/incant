@@ -1,9 +1,0 @@
-Start();
-include(unitTests);
-include(utilities);
-search reset stack Grokking UnitTests Utilities list;
-registry(cOMMANDs);
-define genParse immediateAction=genParse; ;
-genParse('break');
-print "ODO SENTINEL":;
-stop();
