@@ -1,0 +1,49 @@
+
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+register(Utilities);
+define
+    orBagA; orBagB;
+    orRun code={
+        orNode := new("kid");
+        *orNode = 7;
+        orBagA +% *orNode;
+        orLenA := orBagA.listLengtH;
+        cerr "ROAD-A registered +% len = " *orLenA:;
+        cerr "ROAD-B reached, about to use the methodless token":;
+        orBagB << *orNode;
+        cerr "ROAD-C UNREACHABLE -- a refusal is terminal for the unit":;
+        };
+    ;
+orRun();
+stop();
+
+opRoadT -- THE UNKNOWN-OPERATOR REFUSAL, and its negative control.
+
+A token registered in Operators with NO operateMethod used to fall through every arm of
+runOP's dispatch chain and return null: the statement parsed, changed nothing, and said
+nothing. Four measured casualties before the gate landed on 2026-09-11 -- `eq` (never
+registered, answered truthy 3 of 3), `&&` (known token, no road, silent), `AND` (retired
+operator, still answers and answers WRONG), and `+/` (banked silent at length 0 the day
+before it gained a road). Ten tokens were in that state: | ^ ? >> << :> :< :- & +/
+
+ROAD-A IS THE ANTI-VACUITY SIBLING AND IS NOT DECORATION. A registered operator in the
+identical shape must still move the length, or ROAD-B's refusal is just as consistent with
+a broken fixture as with a working gate. It wants 1, which a slot that merely defaults to
+zero cannot produce.
+
+ROAD-B is the marker that the subject was REACHED. The refusal line below it is asserted
+BY THE TOKEN NAME, not by the presence of any refusal -- a gate that refused everything
+would satisfy a bare "something was refused" check and would be catastrophic.
+
+ROAD-C must NEVER appear. A refusal is terminal for the unit, so the line after the
+refused statement does not run; if it ever prints, the terminal property has been lost and
+the refusal has become a warning.
+
+`<<` IS THE STANDING NEGATIVE CONTROL AND MUST STAY METHODLESS. When `+/` gains its
+add-member road in the store-operator fold it stops refusing, by design; `<<` keeps this
+row honest afterwards. If someone ever gives `<<` an operateMethod, this fixture must be
+re-pointed at another methodless token and the re-pin wants a sentence, not a green diff.

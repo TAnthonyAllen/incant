@@ -11486,6 +11486,20 @@ GroupItem 	*target = field->get(2);
 	to divert. The bare-case contract is under measurement and is recorded
 	rather than assumed -- today a bare invocation parses against the live
 	input stream and consumes it.  */
+	/*  THE UNKNOWN-OPERATOR REFUSAL at the foot of this chain, Tony's ruling 2026-09-11.
+	A token registered in Operators with NO operateMethod falls through every arm
+	below and returns null, so the statement parses, changes nothing and says
+	nothing. FOUR MEASURED CASUALTIES: `eq` (never registered, answered truthy 3 of
+	3), `&&` (known, no road, silent), `AND` (retired, still answers and answers
+	WRONG), and `+/` (registered token, no road -- banked silent at length 0 the day
+	before it gained one). Ten tokens sit in that state today:
+	| ^ ? >> << :> :< :- & +/
+	⚠ THE PREDICATE IS THE REGISTRY, NOT THE FALL-THROUGH. Reaching the foot is
+	legitimate for plenty of nodes; what is never legitimate is an OPERATOR that
+	cannot operate. So the arm asks whether op lives in Operators and refuses only
+	then -- a rule, an action or a bare value reaching the foot is untouched.
+	⚠ No percent-dash in the format string (bear-trap #40).
+	GroupActions.runOP.unknownOperatorRefusal  */
 	// which node the NAME reached, and which arm the fork will take   measure.measureRuleDispatch
 	::measureRuleDispatch(op,target,arg);
 	// ruled 2026-09-10: the door is hasNewParse, not isRule -- anything carrying a
@@ -11510,6 +11524,17 @@ GroupItem 	*target = field->get(2);
 		if ( !arg )
 			arg = target;
 		result = target->groupBody->gMethod(arg);
+		}
+	else {
+		
+		if ( op && op->groupBody->registry == GroupControl::groupController->groupRules->opFields ) {
+		char why[224];
+		::snprintf(why,sizeof(why),
+		"operator '%s' has no road -- the token is registered in Operators with no operateMethod, so this statement would change nothing",
+		op->groupBody->tag ? op->groupBody->tag : "(unnamed)");
+		return ::refuse(target,why);
+		}
+		
 		}
 	return result;
 }

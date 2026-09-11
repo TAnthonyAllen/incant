@@ -1997,6 +1997,47 @@ fi
 #  statement cannot both raise a refusal and reach them. They carry the consult
 #  in source; this file cannot exercise it, and saying so beats a row that looks
 #  like a test and is not.
+#  ⚠ opRoadT -- THE UNKNOWN-OPERATOR REFUSAL. A token registered in Operators with
+#  no operateMethod fell through every arm of runOP's chain and returned null: the
+#  statement parsed, changed nothing, said nothing. Four measured casualties before
+#  the gate landed 2026-09-11 (eq, &&, AND, +/), ten tokens in that state.
+#
+#  THE ROWS ARE ORDERED BY WHAT THEY DISCRIMINATE, not by what they assert.
+#  ROAD-A is the anti-vacuity sibling: a registered operator in the identical shape
+#  must still move the length to 1, or the refusal below is equally consistent with a
+#  broken fixture. The refusal row greps the TOKEN NAME, never the bare word REFUSED --
+#  a gate that refused everything would satisfy a bare check and would be catastrophic.
+#  ROAD-C asserts an ABSENCE on purpose and is the one place here that may: a refusal is
+#  terminal for the unit, and if the statement after a refused one ever runs, the refusal
+#  has silently become a warning. It is paired with ROAD-B's presence so it cannot pass
+#  by the fixture failing to reach the subject.
+#
+#  `<<` IS THE STANDING NEGATIVE CONTROL and must stay methodless. `+/` gains a road in
+#  the store-operator fold and stops refusing by design; this row is what keeps the gate
+#  honest afterwards. Re-pointing it at another methodless token wants a sentence (H6).
+run1 opRoadT "$T/ord"; check "opRoadT runs" 0 $?
+if grep -qF "ROAD-A registered +% len =  1" "$T/ord"; then
+    echo "  ok    opRoadT ROAD-A registered +% still stores -- 1 (anti-vacuity sibling)"; green=$((green+1))
+else
+    echo "  FAIL  opRoadT ROAD-A -- a REGISTERED operator stopped storing; the gate is over-firing"; fail=1
+fi
+if grep -qF "ROAD-B reached" "$T/ord"; then
+    echo "  ok    opRoadT ROAD-B the methodless token was reached"; green=$((green+1))
+else
+    echo "  FAIL  opRoadT ROAD-B missing -- the fixture never reached its subject"; fail=1
+fi
+if grep -qF "operator '<<' has no road" "$T/ord"; then
+    echo "  ok    opRoadT '<<' refuses BY NAME -- a methodless operator cannot be silent"; green=$((green+1))
+else
+    echo "  FAIL  opRoadT '<<' did not refuse by name -- the unknown-operator gate is GONE,"
+    echo "        and every methodless token is silently changing nothing again."; fail=1
+fi
+if grep -qF "ROAD-C" "$T/ord"; then
+    echo "  FAIL  opRoadT ROAD-C ran -- the refusal is no longer TERMINAL for the unit"; fail=1
+else
+    echo "  ok    opRoadT ROAD-C absent -- the refusal is terminal (paired with ROAD-B)"; green=$((green+1))
+fi
+
 run1 storeT "$T/stw"; check "storeT runs" 0 $?
 sentinel "storeT sentinel (no truncation)" "$T/stw" "STORET SENTINEL"
 _swn=0

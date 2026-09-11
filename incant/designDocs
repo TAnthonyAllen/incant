@@ -990,6 +990,55 @@ define
                 first.#):
                 CodeSite="GroupActions.rtn:runOP";
             runOP=(the operator dispatch hub.#):
+                unknownOperatorRefusal=(A TOKEN REGISTERED IN Operators WITH NO
+                    operateMethod USED TO CHANGE NOTHING AND SAY NOTHING. Ruled and landed
+                    2026-09-11. Such a token fell through every arm of runOP's dispatch
+                    chain and returned null, so the statement parsed, the target was
+                    untouched, stderr stayed empty and the process exited 0.
+
+                    FOUR MEASURED CASUALTIES, and they are four different shapes of the
+                    same hole. `eq` was never registered at all and fell through TRUTHY,
+                    agreeing with four registers for weeks. `&&` was a known token with no
+                    correct road. `AND` is a RETIRED operator that still parses and answers
+                    WRONG -- removing an operator from the registry removes the meaning and
+                    not the token. `+/` is the cleanest exhibit because it was banked
+                    BEFORE it gained a road: same shape as a working `+%` in the same run,
+                    target length 0 against the control's 1, no diagnostic anywhere.
+
+                    THE PREDICATE IS THE REGISTRY, NOT THE FALL-THROUGH, and that is the
+                    whole design. Reaching the foot of the chain is legitimate for plenty
+                    of nodes; what is never legitimate is an OPERATOR that cannot operate.
+                    So the arm asks whether op lives in Operators -- the same
+                    `registry == opFields` idiom aCTionTraiTdata already uses -- and a
+                    rule, an action or a bare value reaching the foot is untouched. A gate
+                    written as "nothing matched, so refuse" would have refused those too.
+
+                    TEN TOKENS WERE IN THAT STATE and all ten now refuse by name, measured
+                    one run each: | ^ ? >> << :> :< :- & +/ . The registry reads 37 tokens
+                    with a road and 10 without. `?` and `^` are the two worth knowing about,
+                    because both are live grammar modifier characters, so a hand that
+                    mistypes one into an expression used to get silence.
+
+                    THE FLEET DID NOT MOVE AND THAT IS A RESULT. 267 green before and
+                    after, with zero refusal lines anywhere in the run -- so no live fleet
+                    code was leaning on a methodless operator, and the four casualties were
+                    historical or in probes rather than in the corpus.
+
+                    THE NEGATIVE CONTROL IS `<<` AND IT IS LOAD-BEARING. incant/opRoadT
+                    pairs a registered `+%` reading 1 against `<<` refusing by name, and
+                    asserts the refusal's TOKEN NAME rather than the bare word REFUSED --
+                    a gate that refused everything would satisfy a bare check. With the
+                    gate reverted and rebuilt, two rows go red and nothing else moves.
+                    ⚠ When `+/` gains its add-member road in the store-operator fold it
+                    stops refusing BY DESIGN; `<<` is what keeps the row honest afterwards,
+                    so it must stay methodless or the fixture wants a re-pin with a
+                    sentence.
+
+                    ⚠ THE PROSE ABOVE THE CHAIN IS NOT A STYLE CHOICE. This comment sat in
+                    the gap between the last `or` arm and the new `else` on the first
+                    attempt and took the extern canary 328 to 0 -- bear-trap #29, measured
+                    again here by accident. The cure was the one the trap names: put the
+                    prose above the whole chain.#);
                 listOperand=(⚠ A LIST OPERAND IS DELIBERATELY NOT RESOLVED IN runOP, and the
                     function that used to do it -- resolveList -- was RETIRED 2026-09-04,
                     cleanup arc stroke 8. Its rationale is kept here because the condemned
