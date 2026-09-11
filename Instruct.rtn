@@ -999,6 +999,7 @@ GroupRules  ruler = groupRules;
         Instruct.opPlusEQ.storeRuling  */
     if ruler.refused    return null;
 use target
+    measurePlusEQWrite(target);
     if argument.isLIST && (!data || isSTRING || isTOKEN) {
         if jitting  jitDegrade("+= list-concat into a string target",target);
         Buffer  concatBuf = bufferSTAK.pop();
@@ -1062,6 +1063,7 @@ GroupRules  ruler = groupRules;
     /*  THE STORE RULING: an armed statement stores nothing.
         Instruct.opPlusPlus.storeRuling  */
     if ruler.refused    return null;
+    measurePlusPlusWrite(result);
     /*  POISONED ITERATOR (Tony's ruling, 2026-08-02). Its only reader is here.
         The refusal was already announced once at the Iterate; this is silent
         and simply does not move, so the enclosing `while` exits on the false
@@ -1121,6 +1123,7 @@ GroupRules  ruler = groupRules;
     if jitting {
         -% return jitEmitUnary(result, jitInc); %-
     }
+    measurePlusPlusWrite(result);
     if !data        count = 1;
     or isCOUNT      gCount++;
     or isNUMBER     gNumber++;

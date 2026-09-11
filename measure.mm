@@ -427,6 +427,52 @@ extern "C" GroupItem *measureParentProbe(GroupItem *field)
 	return field;
 }
 
+/*  measure.measurePlusEQWrite  */
+extern "C" GroupItem *measurePlusEQWrite(GroupItem *field)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && field )
+	::fprintf(stderr,"PEQWRITE tag=%s field=%p body=%p data=%d count=%d jitting=%d isCopy=%d isVirtual=%d\n",
+	field->groupBody->tag ? field->groupBody->tag : "(untagged)",
+	(void*)field, (void*)field->groupBody,
+	(int)field->groupBody->flags.data,
+	(int)field->groupBody->gCount,
+	(int)GroupControl::groupController->groupRules->jitting,
+	(int)field->options.isCopy,
+	(int)field->groupBody->flags.isVirtual);
+	
+	return field;
+}
+
+/*  THE TWO STORE SEATS, printed as RAW POINTERS so they are comparable with addrOf's
+    `raw` columns across instruments -- the small-integer tables are per-instrument and
+    two of them cannot be compared. parseTrace-gated, inert otherwise.
+    ⚠ Each reads the field it is HANDED and re-derives nothing.
+    ⚠ No percent-dash in any format string (bear-trap #40).
+    measure.measurePlusPlusWrite  */
+extern "C" GroupItem *measurePlusPlusWrite(GroupItem *field)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && field )
+	::fprintf(stderr,"PPWRITE tag=%s field=%p body=%p data=%d count=%d jitting=%d isCopy=%d isVirtual=%d\n",
+	field->groupBody->tag ? field->groupBody->tag : "(untagged)",
+	(void*)field, (void*)field->groupBody,
+	(int)field->groupBody->flags.data,
+	(int)field->groupBody->gCount,
+	(int)GroupControl::groupController->groupRules->jitting,
+	(int)field->options.isCopy,
+	(int)field->groupBody->flags.isVirtual);
+	if ( GroupControl::groupController->groupRules->parseTrace && field )
+	::fprintf(stderr,"PPWRITE   isIterator=%d fLAG=%d isGROUP=%d hasAttributes=%d hasMembers=%d\n",
+	(int)field->groupBody->flags.isIterator,
+	(int)field->groupBody->flags.fLAG,
+	isGROUP(field->groupBody->flags.data) ? 1 : 0,
+	(int)field->groupBody->flags.hasAttributes,
+	(int)field->groupBody->flags.hasMembers);
+	
+	return field;
+}
+
 /*  THE FORK ABOVE runRule, and it prints the node the NAME actually reached --
     not the node a subscript reaches. parseTrace-gated.
     ⚠ THE `arm=` STRING RE-DERIVES runOP's LADDER AND MUST BE EDITED WITH IT. It went

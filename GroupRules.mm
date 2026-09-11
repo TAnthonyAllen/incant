@@ -8831,6 +8831,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	Instruct.opPlusEQ.storeRuling  */
 	if ( ruler->refused )
 		return 0;
+	measurePlusEQWrite(target);
 	if ( isLIST(argument->groupBody->flags.binType) && (!target->groupBody->flags.data || isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) )
 		{
 		if ( ruler->jitting )
@@ -8924,6 +8925,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	Instruct.opPlusPlus.storeRuling  */
 	if ( ruler->refused )
 		return 0;
+	measurePlusPlusWrite(result);
 	/*  POISONED ITERATOR (Tony's ruling, 2026-08-02). Its only reader is here.
 	The refusal was already announced once at the Iterate; this is silent
 	and simply does not move, so the enclosing `while` exits on the false
@@ -8997,6 +8999,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		{
 		 return jitEmitUnary(result, jitInc); 
 		}
+	measurePlusPlusWrite(result);
 	if ( !result->groupBody->flags.data )
 		result->setCount(1);
 	else
@@ -12780,4 +12783,6 @@ int 	result = 0;
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
 	floor(double)
+	measurePlusEQWrite(GroupItem*)
+	measurePlusPlusWrite(GroupItem*)
 */
