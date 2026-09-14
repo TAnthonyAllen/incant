@@ -63,6 +63,28 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-59 (baked `rule[n]` shifts under a noPrint attribute) — LATENT, on the live road
+**Gloss:** a decoration moves every index below it. **Severity: LATENT CORRECTNESS.**
+**Owner: Tony.** **Entered 2026-09-14 by ruling; NO repair.**
+**Where:** `ruleActions.rtn:159-160` (`aCTionCodE`: `lefty = rule[1], righty = rule[2]`) and
+`RuleStuff.twk:944-1092` (seven hand-pasted `parseJSON*` methods baking `rule[1..5]`).
+**What:** `GroupItem::get(int)` walks `firstInList` by raw position and **does not skip noPrint**.
+So any new noPrint attribute that lands in a slot shifts every baked index below it — silently, at
+run time, with nothing to catch it. The compiler cannot see it; these are literal integers.
+**Measured 2026-09-14:** `genParse.rtn:589` is the only place an `at` value is *emitted* as a baked
+`rule[index]`, so the generator side is one site. The sites above are **hand-written and not
+regenerated**, which is what makes them the exposure. `planRule`'s own walk
+(`while term = rule[i]`) skips noPrint terms from the PLAN but not from the INDEX, which is the
+same fact seen from the generator side and is what moved `census.target` (`at=1` → `at=2` on
+NewGroup's `CALL TraiT`, after `builtinActoR` took slot [1]).
+**Not yet bitten, and this is the discriminator:** neither `CodE` nor any `JSON*` rule appears in
+the `builtinActoR` audit in `genLadder/oneTest.base`, so none of them gained an attribute. That is
+also why `jsonTest` stayed byte-identical through the builtinActoR relocation.
+**Done when:** either the hand-baked sites stop using positional access, or `get(int)` grows a
+noPrint-skipping sibling that baked indices use — **or** a rule is adopted that no noPrint
+decoration may occupy a slot below a baked index, with a check that can fail.
+**Watch:** the day `CodE` or a `JSON*` rule gains any noPrint attribute, this becomes live.
+
 ### F-58 — ✅ **CLOSED 2026-09-14** (`hasTraitS` back to 1) — the connective remedy had regressed
 **Closed by:** stroke 5. Both `setActionMethod` arms now mint with `new()`, set `noPrint`, and
 **then** call `addAttribute` — because `addAttribute` reads `grup.noPrint` **at the instant of
