@@ -63,6 +63,28 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-61 (`actionMethod` has no writer at install time on the parseACTION road) — LATENT
+**Gloss:** the action slot is filled late, by a guess. **Severity: LATENT / design.**
+**Owner: Tony.** **Entered 2026-09-14 by ruling; not now.**
+**What:** under the three-slot ruling (gMethod = ENTRY, `rStuff->parseMethod` = LEAF,
+`rStuff->actionMethod` = ACTION), the parseACTION road publishes **no `builtinActoR`**, so nothing
+writes `actionMethod` when the rule is installed. It is filled later and opportunistically by
+`testAction`'s fallback (`RuleStuff.twk`), which copies `gMethod`.
+**Why that is fragile, measured:** `gMethod` is the ENTRY and `setParseWalk` overwrites it. Run on
+`incant/pop/trigDO`, the fallback fires on `PRINTing` **three times** — twice capturing
+`processFlags`, the real action, and the **third time capturing `parseAction`**, after the
+overwrite. `parseAction` then called itself until the stack was gone.
+⚠ **And it cannot simply be deleted: it is also the PRIMARY writer.** Removing it outright took
+the fleet **273 → 13 green**. It is one line doing two jobs, and which job it does depends only on
+whether `setParseWalk` has run yet.
+**Interim containment (stroke 6b, measured, not landed):** gate the fallback on `&& !hasNewParse`
+— that flag is raised exactly when `setParseWalk` installs, so it reads as *"the entry slot is now
+claimed"*. With it, trigDO stops crashing (139 → exit 0) and the fleet goes 273 → 274 with nothing
+newly red. Banked as `stroke6b.patch`.
+**Done when:** a writer exists at install time for the parseACTION road — the same job
+`builtinActoR` does for the dlsym and `ruleMethod=` roads — after which the fallback is dead and
+can be removed with the fleet unmoved.
+
 ### F-60 (`parseRule carries NO parked actions` under the 4b patch) — a VARIANT regression, not a standing defect
 **Gloss:** the parked-action census empties under the slot split. **Severity: BLOCKS the stroke.**
 **Owner: Tony.** **Entered 2026-09-14 by ruling.**
