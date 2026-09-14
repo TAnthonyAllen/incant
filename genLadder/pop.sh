@@ -1220,6 +1220,15 @@ grep -v "^getRStuff" "$T/cen" | sed -n '/^PLAN /,$p' | grep -vE "^Search list:|^
 #  rule-level literal with no rStuff and becomes a term genParse can CALL. This is the
 #  same fact the odometer's 24 -> 28 records, seen in the plan rather than in the count --
 #  one line moved, and it moved from a literal-emit to a call.
+#  ⚠ RE-PINNED 2026-09-14, ONE LINE: NewGroup's `CALL TraiT` moved `at=1` -> `at=2`.
+#  planRule walks `while term = rule[i]` and skips noPrint terms from the PLAN but NOT
+#  from the INDEX, and NewGroup now carries the noPrint `builtinActoR` at slot [1] --
+#  confirmed against oneTest.base's own audit -- so every later term shifts by one.
+#  The planner is right about the tree it is looking at; the tree gained an attribute.
+#  ⚠ The LATENT hazard this exposes is banked as fixIts F-59: baked `rule[n]` on the
+#  live road (ruleActions.rtn aCTionCodE, RuleStuff.twk's seven parseJSON*) shifts the
+#  same way, and `GroupItem::get(int)` does not skip noPrint. Not bitten -- no CodE or
+#  JSON* rule carries a builtinActoR -- which is also why jsonTest never moved.
 diffcheck "census.target" genLadder/census.target "$T/cenp"
 
 #  parseClass -- WHICH setParse ARM CLAIMS EACH FIELD, over the whole grammar.
@@ -2225,9 +2234,17 @@ done
 #  populations diverge the fleet says so instead of guessing.
 run1 artifactSkipT "$T/ask"; check "artifactSkipT runs (promoted citizen; census carried here)" 0 $?
 sentinel "artifactSkipT sentinel (no truncation)" "$T/ask" "ARTIFACTSKIP SENTINEL"
+#  ⚠ THE builtinParsE ROW RETIRED 2026-09-14, BY MAPPING RATHER THAN BY DELETION.
+#  builtinParsE HAS NO WRITER ANY MORE: setParse minted it at Generate.rtn:414 as of
+#  1947e59 and the parser rework dropped that line, so the attribute is never created
+#  and the string could not match on any tree. It is not a regression in the SKIP --
+#  it is the absence of the thing being skipped.
+#  WHAT IT ASSERTED AND WHERE THAT LIVES NOW: "a minted artifact reads isRulE 0 and
+#  noPrinT 1, so the walker skips it structurally". Its surviving sibling below,
+#  builtinActoR, asserts exactly that fact on the artifact that IS still minted, so
+#  the structural claim keeps a live witness and the census is 1 1 0 rather than 1 1 0 0.
 for _r in "term numberSet    is a rule|child  numberSet isRulE  1 noPrinT  0" \
           "term FloaT        is a rule|child  FloaT isRulE  1 noPrinT  0" \
-          "artifact builtinParsE is NOT|child  builtinParsE isRulE  0 noPrinT  1" \
           "artifact builtinActoR is NOT|child  builtinActoR isRulE  0 noPrinT  1"; do
     _lbl=${_r%%|*}; _want=${_r##*|}
     if grep -qF "$_want" "$T/ask"; then

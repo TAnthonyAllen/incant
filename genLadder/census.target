@@ -150,7 +150,7 @@ PLAN NewGroup
   SEQ NewGroup
     label=NewGroup
     CALL TraiT
-      at=1
+      at=2
 PLAN DefinE
   REFUSE Attributes -- inline group / structural data isGROUP (named future kind)
   REFUSE rule DefinE -- term Attributes unclassified
