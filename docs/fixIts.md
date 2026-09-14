@@ -63,6 +63,23 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-60 (`parseRule carries NO parked actions` under the 4b patch) — a VARIANT regression, not a standing defect
+**Gloss:** the parked-action census empties under the slot split. **Severity: BLOCKS the stroke.**
+**Owner: Tony.** **Entered 2026-09-14 by ruling.**
+⚠ **Read the classification first, because the row is easy to mis-file.** This check is **GREEN on
+the sealed tree** — `parseClass` reports `parseRule carries 1 parked actions`. It goes red **only**
+when `stroke4b.patch` is applied, and it did so under every variant tried (4b as dispatched, 4b
+with the loop-dispatch correction, 4b with `currentMETHOD` as the re-resolve source, 4b with
+`exitFromParse`'s repair restored). So there is nothing to fix on the sealed tree; this is a
+property the eventual landing must not reproduce.
+**Where:** `genLadder/pop.sh` anti-vacuity row, reading `PA act=parked` under `PC parseRule` from
+`incant/pop/parseClass`.
+**History, because it is the tell:** the same row went red under stroke 2's per-PROCESS
+`parseWalked` mark and was recovered by stroke 2b's per-WALK mark. It is sensitive to how many
+times `setParseWalk` classifies a node, which is the same axis the slot split moves.
+**Done when:** whatever lands for the lastRule/slot split leaves this row green, or the row is
+re-pinned with a sentence saying why zero parked actions is now correct.
+
 ### F-59 (baked `rule[n]` shifts under a noPrint attribute) — LATENT, on the live road
 **Gloss:** a decoration moves every index below it. **Severity: LATENT CORRECTNESS.**
 **Owner: Tony.** **Entered 2026-09-14 by ruling; NO repair.**
