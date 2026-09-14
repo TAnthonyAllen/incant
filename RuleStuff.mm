@@ -680,7 +680,16 @@ GroupItem 	*ancestor = 0;
 *******************************************************************************/
 extern "C" int testAction(GroupItem *field)
 {
-	if ( parseACTION(field->groupBody->flags.methodType) && field->groupBody->gMethod && !field->getRStuff()->actionMethod )
+	/*  notAfterInstall  the fallback is the PRIMARY WRITER of actionMethod for the
+	parseACTION road -- removing it took the fleet 273 -> 13 -- but it reads gMethod,
+	which setParseWalk overwrites with the ENTRY (parseLoop or the leaf). After that
+	overwrite the copy is a category error: it files the entry as the action, and
+	parseAction then calls itself. setParseWalk raises hasNewParse exactly when it
+	installs, so that flag is the "the entry slot is now claimed" signal and the
+	fallback simply stops there. MEASURED on incant/pop/trigDO: it fires on PRINTing
+	three times, twice capturing processFlags -- the real action -- and the THIRD
+	time capturing parseAction.   RuleStuff.testAction.notAfterInstall  */
+	if ( parseACTION(field->groupBody->flags.methodType) && field->groupBody->gMethod && !field->getRStuff()->actionMethod && !field->groupBody->flags.hasNewParse )
 		field->getRStuff()->actionMethod = field->groupBody->gMethod;
 	if ( field->getRStuff()->actionMethod )
 		if ( parseACTION(field->groupBody->flags.methodType) || !field->getRStuff()->label )

@@ -9566,14 +9566,25 @@ GroupItem 	*artifact = 0;
 extern "C" GroupItem *parseAction(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
+	/*  ownSlot  THREE SLOTS, THREE MEANINGS (Tony, 2026-09-14): gMethod is the ENTRY
+	(parseLoop for a repeating term, the leaf otherwise), rStuff.parseMethod is the
+	LEAF, and rStuff.actionMethod is the rule's ACTION. parseAction wants the ACTION
+	and used to read gMethod -- which setParseWalk's tail overwrites with the parse
+	method, so on a node classified parseACTION gMethod IS parseAction and the body
+	called itself until the stack was gone. setParseWalk captures the action into
+	actionMethod at its HEAD, before that overwrite, so the slot is already correct
+	here and nothing upstream moves.   Generate.parseAction.ownSlot  */
 	ruleStuff->sukcess = 0;
+	// noNullActor the old spelling read gMethod, which setParseWalk always fills; actionMethod can be empty, and calling it would trade the self-recursion for a null call
+	if ( !ruleStuff->actionMethod )
+		return ::refuse(field,"parseAction: no actionMethod is installed for this rule");
 	if ( parseACTION(field->groupBody->flags.methodType) || !ruleStuff->label )
 		{
-		if ( ruleStuff->label = field->groupBody->gMethod(field) )
+		if ( ruleStuff->label = ruleStuff->actionMethod(field) )
 			ruleStuff->sukcess = 1;
 		}
 	else
-	if ( ruleStuff->label = field->groupBody->gMethod(ruleStuff->label) )
+	if ( ruleStuff->label = ruleStuff->actionMethod(ruleStuff->label) )
 		ruleStuff->sukcess = 1;
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();

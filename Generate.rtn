@@ -35,10 +35,20 @@ RuleStuff   ruleStuff = rStuff;
 extern GroupItem parseAction(GroupItem field)
 {
 RuleStuff   ruleStuff = rStuff;
+    /*  ownSlot  THREE SLOTS, THREE MEANINGS (Tony, 2026-09-14): gMethod is the ENTRY
+        (parseLoop for a repeating term, the leaf otherwise), rStuff.parseMethod is the
+        LEAF, and rStuff.actionMethod is the rule's ACTION. parseAction wants the ACTION
+        and used to read gMethod -- which setParseWalk's tail overwrites with the parse
+        method, so on a node classified parseACTION gMethod IS parseAction and the body
+        called itself until the stack was gone. setParseWalk captures the action into
+        actionMethod at its HEAD, before that overwrite, so the slot is already correct
+        here and nothing upstream moves.   Generate.parseAction.ownSlot  */
     sukcess = false;
+    // noNullActor the old spelling read gMethod, which setParseWalk always fills; actionMethod can be empty, and calling it would trade the self-recursion for a null call
+    if !actionMethod    return refuse(field,"parseAction: no actionMethod is installed for this rule");
     if parseACTION || !label
-        { if label = field.method(field)    sukcess = true; }
-    or label = field.method(label)          sukcess = true;
+        { if label = ruleStuff.actionMethod(field)  sukcess = true; }
+    or label = ruleStuff.actionMethod(label)        sukcess = true;
     if label    label.clear();
     return exitFromParse(field);
 }
