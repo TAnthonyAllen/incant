@@ -2200,10 +2200,12 @@ RuleStuff 	*ruleStuff = getRStuff();
 		void 	*methodAddress = 0;
 		if ( methodAddress = ::dlsym(RTLD_SELF,methodName) )
 			{
-			GroupItem 	*builtinActoR = addString("builtinActoR");
-			builtinActoR->setRStuff(ruleStuff);
+			// markThenAdd noPrint is set BEFORE the node is attached, because addAttribute reads it at the instant of adding to decide hasTraits -- marking after is always too late (fixIts F-58)   GroupItem.setActionMethod.markThenAdd
+			GroupItem *builtinActoR = new GroupItem("builtinActoR");
 			builtinActoR->groupBody->flags.noPrint = 1;
+			builtinActoR->setRStuff(ruleStuff);
 			builtinActoR->setMethod((GroupItem*(*)(GroupItem*))methodAddress);
+			addAttribute(builtinActoR);
 			}
 		::free(methodName);
 		if ( groupBody->gMethod )
@@ -2214,10 +2216,12 @@ RuleStuff 	*ruleStuff = getRStuff();
 		{
 		// registeredActor a ruleMethod= registration has ALREADY set gMethod, so the dlsym arm is skipped and NOTHING publishes the actor   GroupItem.setActionMethod.registeredActor
 		void *actorAddress = (void*)groupBody->gMethod;
-		GroupItem *builtinActoR = addString("builtinActoR");
-		builtinActoR->setRStuff(ruleStuff);
+		// markThenAdd as the dlsym arm above -- noPrint before the attach, never after (fixIts F-58)
+		GroupItem *builtinActoR = new GroupItem("builtinActoR");
 		builtinActoR->groupBody->flags.noPrint = 1;
+		builtinActoR->setRStuff(ruleStuff);
 		builtinActoR->setMethod((GroupItem*(*)(GroupItem*))actorAddress);
+		addAttribute(builtinActoR);
 		}
 }
 

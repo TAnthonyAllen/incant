@@ -1777,19 +1777,23 @@ RuleStuff   ruleStuff = rStuff;
         String  methodName = "aCTion" tag;
         void*   methodAddress;
         if methodAddress = dlsym(RTLD_SELF,methodName) {
-            GroupItem builtinActoR  = addString("builtinActoR");
-            builtinActoR.rStuff     = ruleStuff;
+            // markThenAdd noPrint is set BEFORE the node is attached, because addAttribute reads it at the instant of adding to decide hasTraits -- marking after is always too late (fixIts F-58)   GroupItem.setActionMethod.markThenAdd
+            GroupItem builtinActoR  = new("builtinActoR");
             builtinActoR.noPrint    = true;
-            builtinActoR.method     = methodAddress; }
+            builtinActoR.rStuff     = ruleStuff;
+            builtinActoR.method     = methodAddress;
+            addAttribute(builtinActoR); }
         free(methodName);
         if gMethod  immediateACTION = true; }
     or gMethod {
         // registeredActor a ruleMethod= registration has ALREADY set gMethod, so the dlsym arm is skipped and NOTHING publishes the actor   GroupItem.setActionMethod.registeredActor
         void*   actorAddress    = gMethod;
-        GroupItem builtinActoR  = addString("builtinActoR");
-        builtinActoR.rStuff     = ruleStuff;
+        // markThenAdd as the dlsym arm above -- noPrint before the attach, never after (fixIts F-58)
+        GroupItem builtinActoR  = new("builtinActoR");
         builtinActoR.noPrint    = true;
-        builtinActoR.method     = actorAddress; }
+        builtinActoR.rStuff     = ruleStuff;
+        builtinActoR.method     = actorAddress;
+        addAttribute(builtinActoR); }
 }
 
 /*****************************************************************************

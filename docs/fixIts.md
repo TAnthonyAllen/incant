@@ -63,7 +63,18 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
-### F-58 (`hasTraitS` back to 1) — the 2026-08-26 connective remedy has REGRESSED, both halves
+### F-58 — ✅ **CLOSED 2026-09-14** (`hasTraitS` back to 1) — the connective remedy had regressed
+**Closed by:** stroke 5. Both `setActionMethod` arms now mint with `new()`, set `noPrint`, and
+**then** call `addAttribute` — because `addAttribute` reads `grup.noPrint` **at the instant of
+adding** to decide `hasTraits`, so marking after is always too late. ⚠ **Only ONE of the two
+halves was restored, by ruling:** `updateContentFlags` stays **out** of `setParseWalk` (Tony,
+2026-09-14 — it exists to propagate listener-driven flag changes, and `setParseWalk`'s own writes
+are not that). The reorder alone carries it.
+**Verified:** `StatemenT hasAttributeS 1 hasTraitS 0`, with the `BlocK` control still at `1 1` so
+`hasTraits` is not simply dead. Fleet 272 → 273, nothing newly red. designDocs
+`connectiveDiscriminant` `solution` corrected to record the regression and this third landing.
+*Original row follows for the trail.*
+
 **Gloss:** decoration marked after it lands. **Severity: CORRECTNESS (not a crash).**
 **Owner: Tony.** **Entered 2026-09-14 by ruling; NO repair attempted.**
 **Where:** `GroupItem.twk` `setActionMethod`; `Generate.rtn` `setParseWalk`.
