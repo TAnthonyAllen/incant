@@ -14,13 +14,16 @@ define
     generateParse code={
         cout "Generating parse code for" taG:;
         reset(codeBuffer);
-        printTO(codeBuffer);
-        print openBrace:;
+        // redirectSpan  setParse is called BEFORE the redirect opens, and its refusals are
+        // why: a refusal inside a library walk aborts THIS action, and an abort cannot
+        // restore printTO. Sixty `no rStuff` refusals land in here on ordinary operator
+        // terms, so the span must not contain the call that raises them.
         setParse(argument);
         if datA != 0;
-            if listLengtH; print "rules should not have data and a list; one or the other":;
-            printTO(0);
+            if listLengtH; cerr "rules should not have data and a list; one or the other":;
             return;
+        printTO(codeBuffer);
+        print openBrace:;
         if hasTraitS;       conjunct = "&&";
         else                conjunct = "||";
         print `"return ";

@@ -63,7 +63,16 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
-### F-62 (`generateParse` leaks its output redirect) — the run goes silent and still exits 0
+### F-62 — ✅ **CLOSED 2026-09-14** — redirect span narrowed so no refusing call sits inside it
+**Closed by:** stroke 9. `setParse(argument)` now runs BEFORE `printTO(codeBuffer)` opens the
+span. ⚠ **The obvious fix was measured and killed first:** making setParse's `no rStuff` case
+return silently (the same shape as stroke 8's re-entry ruling) takes trigDO to **exit 139** -- that
+refusal is load-bearing, it stops the walk descending into something that then crashes. So the
+call moves out of the span rather than the refusal being silenced.
+**Measured:** trigDO stdout 2 → 6 lines, sentinel present, exit 0, fleet 274 → 275.
+*Original row follows for the trail.*
+
+#### F-62 (original) — `generateParse` leaks its output redirect
 **Gloss:** printTO restored only when nothing refuses. **Severity: WRONG.** **Owner: Tony.**
 **Entered 2026-09-14 by ruling. Fix is restore-on-every-exit; its own stroke, after 7.**
 **Where:** `incant/pop/trigDO` `generateParse` — `printTO(codeBuffer)` at line 17, `printTO(0)` at
@@ -80,7 +89,13 @@ stop, but `refuse()` raises `ruler.refused` and that aborts the calling incant a
 question this exposes, which is not trigDO's:** a loud refusal on a routine condition aborts its
 caller. Any incant action that brackets state across a `setParse` call has this shape.
 
-### F-63 (`RunRulE: expected a method not cerr`) — trigDO drops both arms, sentinel and `stop()` at exit 0
+### F-63 — ✅ **CLOSED 2026-09-14** — it was collateral, and stroke 9 removed it
+**Closed by:** stroke 9 narrowing generateParse's redirect span. With the leak gone the parse
+failure went with it: `RunRulE: expected a method not cerr` count **1 → 0**, trigDO's sentinel
+prints, exit 0. The prediction in this row -- *"it may go with F-62"* -- held.
+*Original row follows for the trail.*
+
+#### F-63 (original) — `RunRulE: expected a method not cerr`
 **Gloss:** a good line refused for a bad neighbour. **Severity: WRONG.** **Owner: Tony.**
 **Entered 2026-09-14 by ruling; read-only, no repair.**
 **Where:** `incant/pop/trigDO` line 87 —
