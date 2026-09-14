@@ -327,7 +327,15 @@ RuleStuff   ruleStuff = rStuff;
         Set the parseMethod
     ***************************************************************************/
     // walkGuard the grammar is cyclic -- StatemenT contains BlocK contains StatemenT -- so the internalized walk below cannot terminate without its OWN mark. NOT hasNewParse: parkParse is that flag's other writer. It also stops a DAG node being classified twice in one walk, which is what puts parseAction into BOTH gMethod and actionMethod   Generate.setParseWalk.walkGuard
-    if parseWalked  return refuse(field,"setParse: RE-ENTRY -- this node was already walked in THIS walk");
+    /*  silentReEntry  RE-ENTRY IS ROUTINE, NOT AN ERROR. The grammar is a DAG -- shared
+        terms and StatemenT/BlocK -- so a node is legitimately reached twice inside one
+        walk: measured 52 repeat arrivals among 207 visits on incant/pop/trigDO. It used
+        to refuse(), and refuse() raises ruler.refused, which ABORTS THE INCANT ACTION THAT
+        CALLED THE WALK -- that is what left generateParse's printTO redirected (F-62).
+        Return without descending; say so only under debug.   Generate.setParseWalk.silentReEntry  */
+    if parseWalked {
+        if groupRules.debugAllRules     cerr "setParseWalk: re-entry on " tag ", not descending":;
+        return null; }
     parseWalked = true;
     actionMethod = method;
     if upTo || upToOver     parseMethod = parseUpTo;
