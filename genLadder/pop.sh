@@ -2934,6 +2934,27 @@ fi
 #  is HELD: it alone takes iterT1/iterT1m from 7 visits to 5, a nested walk losing the
 #  second member of each leaf after the first refuses. That is a fixit citizen, not an
 #  attribution. When it lands, this base loses two more lines and 8 -> 6.
+#  ⚠ BOTH BASES RE-PINNED 2026-09-14, and each gets its sentence (rule H6 -- a
+#  re-pin is a claim that the world changed, and the claim needs a cause).
+#
+#  oneTest: +37 lines, ALL of them `AUDIT TERM <rule> builtinActoR -- rule TERM,
+#  not isRule, has rStuff`, zero removals and zero other additions. Tony's
+#  builtinActoR relocation became visible to the audit block: rule actions moved
+#  off gMethod into a published builtinActoR attribute, and the audit reports
+#  every TERM now carrying one. One of the 37 is ElseIf, added by the stroke-1
+#  fix that made `or` arms fire at all. The audit is reporting a real new state,
+#  not drifting.
+#
+#  jsonTest: -2 lines, EXACTLY the two `nextGroup: ERROR JSONlist does not
+#  contain a list`. Measured at HEAD under lldb rather than inferred: the emitter
+#  is aCTionFOR, i.e. `for grup in JSONlist;` at incant/utilities:104, guarded
+#  only by `if JSONlist;`. An unmatched optional `JSONlist?` used to leave a
+#  truthy empty label behind, so the guard passed and the for walked a listless
+#  node; it no longer does. The populated case still parses, so the for still
+#  runs when there IS a list. A spurious error stopped firing -- this base moved
+#  in the good direction. (The fixture's own guard is still an existence test
+#  where project memory wants `if JSONlist.listLengtH;`; that is unfixed and is
+#  not what moved.)
 diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
 diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 

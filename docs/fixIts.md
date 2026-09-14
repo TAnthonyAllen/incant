@@ -63,6 +63,33 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-58 (`hasTraitS` back to 1) — the 2026-08-26 connective remedy has REGRESSED, both halves
+**Gloss:** decoration marked after it lands. **Severity: CORRECTNESS (not a crash).**
+**Owner: Tony.** **Entered 2026-09-14 by ruling; NO repair attempted.**
+**Where:** `GroupItem.twk` `setActionMethod`; `Generate.rtn` `setParseWalk`.
+**What:** fleet row `connectiveT: the remedied row MOVED` reads
+`rule StatemenT hasAttributeS 1 hasTraitS 1`, where `1 0` is the remedy and `1 1` is the
+2026-08-26 defect. `connectiveT`'s own companion control is still green
+(`BlocK hit control still reads 1 1`), so `hasTraits` is not simply dead.
+**Cause, read from source rather than inferred — BOTH halves of the remedy are gone:**
+1. The designDocs `connectiveDiscriminant` record's second mechanism was *"setParse adds each
+   decoration attribute BEFORE marking it noPrint, so `addAttribute` — the flag writer — cannot
+   see that decoration is decoration at the one instant it looks."* `setActionMethod` now does
+   exactly that: `addString("builtinActoR")` first, `builtinActoR.noPrint = true` second.
+2. The 2026-08-27 half was *"setParse calls `field.updateContentFlags()` once after both
+   decoration attributes are fully formed — a rebuild at exit rather than a reorder."* The
+   current `setParseWalk` contains **no `updateContentFlags` call**, and no longer mints
+   `builtinParsE` at all (its writer was `Generate.rtn:414` at `1947e59`; it is absent now).
+⚠ **Clod's stroke-1 arm in `setActionMethod` copies the same add-then-mark order** and so is part
+of the present population, not merely a bystander.
+**Consequence beyond this row:** the connective is emitted as a conjunction where an alternation
+is meant — a WRONG parse, not an unbounded one, so it survives every instrument the parse work is
+using. That is the reason the original record argued it deserved its own row.
+**Done when:** `connectiveT` reads `hasTraitS 0` again with its `BlocK` control still at `1 1`,
+and the fix names which half (order, rebuild-at-exit, or both) it restores.
+**Related:** designDocs `connectiveDiscriminant` (status `remedy` — ⚠ that status is now false),
+`artifactSkip artifact builtinParsE is NOT` (same missing writer), bear-traps #26, #28.
+
 ### F-56 (`fireNewParse` wired to nothing) — built, complete, and reached by no caller anywhere
 **Gloss:** the artifact arm nobody calls. **Severity: LATENT.** **Owner: Tony (Option B).**
 **Where:** `Commands.rtn`, `extern GroupItem fireNewParse(GroupItem rule)`.

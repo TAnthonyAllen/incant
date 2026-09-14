@@ -2,12 +2,45 @@ AUDIT LOOSE    pROPERTIEs [1] UnaryOPS -- not a rule, not a rule term, has rStuf
 AUDIT LOOSE    pROPERTIEs [6] delimiter -- not a rule, not a rule term, has rStuff
 AUDIT MISSRULE Grokking/ColoN -- isRule, no rStuff
 AUDIT MISSRULE Grokking/EquaL -- isRule, no rStuff
+AUDIT TERM     ANYtoken [2] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     BlocK [4] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     Braced [4] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     BrancH [4] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     CerR [6] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     CouT [6] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     DEBUG [5] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     DO [7] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     DefinE [1] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     DelimText [1] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     ElseIf [6] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     ExpressioN [1] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     FOR [10] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     IF [7] builtinActoR -- rule TERM, not isRule, has rStuff
 AUDIT TERM     IterSource [1] UnaryOPS -- rule TERM, not isRule, has rStuff
+AUDIT TERM     Iterate [7] builtinActoR -- rule TERM, not isRule, has rStuff
 AUDIT TERM     Limit [2] min -- rule TERM, not isRule, has rStuff
 AUDIT TERM     Limit [3] max -- rule TERM, not isRule, has rStuff
+AUDIT TERM     NamE [1] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     NewGroup [1] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     NumbeR [2] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     Parens [4] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     PrinT [6] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     QuotE [1] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     RunRulE [1] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     ScopeXP [4] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     Search [5] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     SetBrackets [1] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     ShortcuT [2] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     StatemenT [1] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     StringXP [3] builtinActoR -- rule TERM, not isRule, has rStuff
 AUDIT TERM     Token [5] Operators -- rule TERM, not isRule, has rStuff
 AUDIT TERM     TokenXP [1] UnaryOPS -- rule TERM, not isRule, has rStuff
+AUDIT TERM     TokenXP [4] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     TraiT [1] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     TraiTdata [1] builtinActoR -- rule TERM, not isRule, has rStuff
 AUDIT TERM     UnaryXP [1] UnaryOPS -- rule TERM, not isRule, has rStuff
+AUDIT TERM     WhilE [6] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     Xpress [3] builtinActoR -- rule TERM, not isRule, has rStuff
 AUDIT MISSRULE Keywords/break -- isRule, no rStuff
 AUDIT MISSRULE Keywords/continue -- isRule, no rStuff
 AUDIT MISSRULE Keywords/return -- isRule, no rStuff
