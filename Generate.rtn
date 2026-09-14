@@ -269,17 +269,47 @@ RuleStuff   ruleStuff = rStuff;
 }
 
 /*******************************************************************************
+    Clear the per-walk mark over a subtree. Terminates on the cyclic grammar
+    because it only descends into a node it has just UNMARKED, so a cycle meets
+    a cleared node and returns.
+*******************************************************************************/
+extern void clearWalked(GroupItem field)
+{
+GroupItem   grup;
+    if !field                       return;
+    if !field.parseWalked           return;
+    field.parseWalked = false;
+    if field.hasTraits || field.hasMembers
+        while grup = field.next(grup)
+            clearWalked(grup);
+}
+
+/*******************************************************************************
 	Set parseMethod and label for the field passed in. For now does not handle macros
+
+    THE TOP-LEVEL ENTRY, and the only one incant calls. It resets the per-walk
+    mark and hands off to setParseWalk.
 *******************************************************************************/
 extern GroupItem setParse(GroupItem field)
+{
+    // perWalkNotPerProcess the mark breaks the cyclic grammar WITHIN one walk and must not outlive it, or a second legitimate root over shared nodes is refused instead of classified   Generate.setParse.perWalkNotPerProcess
+    clearWalked(field);
+    return setParseWalk(field);
+}
+
+/*******************************************************************************
+	The walk proper. Recurses into ITSELF, never back through setParse, so the
+    mark is cleared once per top-level walk and not once per node.
+*******************************************************************************/
+extern GroupItem setParseWalk(GroupItem field)
 {
 RuleStuff   ruleStuff = rStuff;
     if !ruleStuff   return refuse(field,"setParse: the field passed in has no rStuff");
     /***************************************************************************
         Set the parseMethod
     ***************************************************************************/
-    // walkGuard the grammar is cyclic -- StatemenT contains BlocK contains StatemenT -- so the internalized walk below cannot terminate without its OWN mark. NOT hasNewParse: parkParse is that flag's other writer   Generate.setParse.walkGuard
-    if parseWalked  return refuse(field,"setParse: RE-ENTRY -- this node was already walked");
+    // walkGuard the grammar is cyclic -- StatemenT contains BlocK contains StatemenT -- so the internalized walk below cannot terminate without its OWN mark. NOT hasNewParse: parkParse is that flag's other writer. It also stops a DAG node being classified twice in one walk, which is what puts parseAction into BOTH gMethod and actionMethod   Generate.setParseWalk.walkGuard
+    if parseWalked  return refuse(field,"setParse: RE-ENTRY -- this node was already walked in THIS walk");
     parseWalked = true;
     actionMethod = method;
     if upTo || upToOver     parseMethod = parseUpTo;
@@ -300,7 +330,7 @@ RuleStuff   ruleStuff = rStuff;
         while grup = field.next(grup) {
             parent  = field;    // if field is a copy grup.parent is not field
             if grup.noPrint continue;
-            else setParse(grup); }}
+            else setParseWalk(grup); }}
     if max > 1 && (!data || data > 3) field.method = parseLoop;
     else    field.method = parseMethod;
     // flagFollowsInstall hasNewParse says A METHOD IS THERE TO FIRE, so it is raised HERE and never at entry: parseMethod is null for the isGROUP case and the head cannot know   Generate.setParse.flagFollowsInstall

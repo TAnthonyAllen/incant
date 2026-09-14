@@ -1811,6 +1811,24 @@ GroupItem 	*newField = new GroupItem(field);
 	return newField;
 }
 
+/*******************************************************************************
+    Clear the per-walk mark over a subtree. Terminates on the cyclic grammar
+    because it only descends into a node it has just UNMARKED, so a cycle meets
+    a cleared node and returns.
+*******************************************************************************/
+extern "C" void clearWalked(GroupItem *field)
+{
+GroupItem 	*grup = 0;
+	if ( !field )
+		return;
+	if ( !field->groupBody->flags.parseWalked )
+		return;
+	field->groupBody->flags.parseWalked = 0;
+	if ( field->groupBody->flags.hasTraits || field->groupBody->flags.hasMembers )
+		while ( grup = field->next(grup) )
+			::clearWalked(grup);
+}
+
 /***************************************************************************
     Close the file associated with the buffer. If no file has been set,
     fall back to using the field's tag as the filename — the tag is a
@@ -11913,8 +11931,41 @@ int 		offset = markOffset->getCount();
 
 /*******************************************************************************
 	Set parseMethod and label for the field passed in. For now does not handle macros
+
+    THE TOP-LEVEL ENTRY, and the only one incant calls. It resets the per-walk
+    mark and hands off to setParseWalk.
 *******************************************************************************/
 extern "C" GroupItem *setParse(GroupItem *field)
+{
+	// perWalkNotPerProcess the mark breaks the cyclic grammar WITHIN one walk and must not outlive it, or a second legitimate root over shared nodes is refused instead of classified   Generate.setParse.perWalkNotPerProcess
+	::clearWalked(field);
+	return setParseWalk(field);
+}
+
+/*******************************************************************************
+    // ⚠ AND THE PASSTHROUGH PREMISE IS RECORDED WRONG in setParseCast, verbatim: most of this can be one tok line. NOT acted on by the comment sweep -- that is a code change with its own certificate
+
+    // setParseCast  passthrough because everything it touches must arrive as a PARAMETER -- an incant local referenced only inside passthrough is pruned with its initializing call (bear-trap #13)
+*******************************************************************************/
+extern "C" int setParseMethod(RuleStuff *stuff, char *name)
+{
+	
+	void    *address = ::dlsym(RTLD_DEFAULT,name);
+	if ( !address )
+	{
+	::fprintf(stderr,"setParseMethod: REFUSING %s -- no method of that name\n",name);
+	return 0;
+	}
+	stuff->parseMethod = (GroupItem *(*)(GroupItem *))address;
+	return 1;
+	
+}
+
+/*******************************************************************************
+	The walk proper. Recurses into ITSELF, never back through setParse, so the
+    mark is cleared once per top-level walk and not once per node.
+*******************************************************************************/
+extern "C" GroupItem *setParseWalk(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( !ruleStuff )
@@ -11922,9 +11973,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	/***************************************************************************
 	Set the parseMethod
 	***************************************************************************/
-	// walkGuard the grammar is cyclic -- StatemenT contains BlocK contains StatemenT -- so the internalized walk below cannot terminate without its OWN mark. NOT hasNewParse: parkParse is that flag's other writer   Generate.setParse.walkGuard
+	// walkGuard the grammar is cyclic -- StatemenT contains BlocK contains StatemenT -- so the internalized walk below cannot terminate without its OWN mark. NOT hasNewParse: parkParse is that flag's other writer. It also stops a DAG node being classified twice in one walk, which is what puts parseAction into BOTH gMethod and actionMethod   Generate.setParseWalk.walkGuard
 	if ( field->groupBody->flags.parseWalked )
-		return ::refuse(field,"setParse: RE-ENTRY -- this node was already walked");
+		return ::refuse(field,"setParse: RE-ENTRY -- this node was already walked in THIS walk");
 	field->groupBody->flags.parseWalked = 1;
 	ruleStuff->actionMethod = field->groupBody->gMethod;
 	if ( upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo) )
@@ -11973,7 +12024,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			// if field is a copy grup.parent is not field
 			if ( grup->groupBody->flags.noPrint )
 				continue;
-			else	::setParse(grup);
+			else	::setParseWalk(grup);
 			}
 		}
 	if ( ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3) )
@@ -11983,25 +12034,6 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( field->groupBody->gMethod )
 		field->groupBody->flags.hasNewParse = 1;
 	return 0;
-}
-
-/*******************************************************************************
-    // ⚠ AND THE PASSTHROUGH PREMISE IS RECORDED WRONG in setParseCast, verbatim: most of this can be one tok line. NOT acted on by the comment sweep -- that is a code change with its own certificate
-
-    // setParseCast  passthrough because everything it touches must arrive as a PARAMETER -- an incant local referenced only inside passthrough is pruned with its initializing call (bear-trap #13)
-*******************************************************************************/
-extern "C" int setParseMethod(RuleStuff *stuff, char *name)
-{
-	
-	void    *address = ::dlsym(RTLD_DEFAULT,name);
-	if ( !address )
-	{
-	::fprintf(stderr,"setParseMethod: REFUSING %s -- no method of that name\n",name);
-	return 0;
-	}
-	stuff->parseMethod = (GroupItem *(*)(GroupItem *))address;
-	return 1;
-	
 }
 
 /***************************************************************************
