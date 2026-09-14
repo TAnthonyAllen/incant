@@ -1,5 +1,6 @@
 #include <Cocoa/Cocoa.h>
 #include <dispatch/dispatch.h>
+#include <dlfcn.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -200,11 +201,7 @@ GroupItem *GroupItem::addAttribute(GroupItem *grup)
 	grup->options.affiliation = 1;
 	groupBody->flags.hasAttributes = 1;
 	/***************************************************************
-	hasTraits is the CONNECTIVE half: attributes that are not
-	noPrint-class. setParse's builtinParsE/builtinActoR are
-	decoration and must not make a rule read as conjoining
-	traits. Co-writer: updateContentFlags(), which rebuilds
-	this flag with the same test.
+	hasTraits is set if the field passed in is not noPrint-class.
 	***************************************************************/
 	if ( !grup->groupBody->flags.noPrint )
 		groupBody->flags.hasTraits = 1;
@@ -1045,6 +1042,12 @@ GroupItem 	*group = this;
 void GroupItem::fireLabelMethod(RuleStuff *stuff)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( !stuff->actionMethod )
+		{
+		GroupItem 	*builtinActoR = getAttribute("builtinActoR");
+		if ( builtinActoR )
+			stuff->actionMethod = builtinActoR->groupBody->gMethod;
+		}
 	ruler->ruleSTUFF = stuff;
 	/*  THE COLLISION PROBE, 2026-08-25, assertion 5 of the label-seam brief.
 	fixIts row 1 predicts that adding a capture at runRuleAction gives a
@@ -1060,10 +1063,11 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		captureSpan(stuff);
 	if ( ruler->parseTrace )
 		::fprintf(stderr,"  fireLabelMethod %s isMethod=%s label=%s deferred=%s parseACTION=%s\n",groupBody->tag,::toStringFromInt(isMethod(groupBody->flags.instructType) != 0),::toStringFromInt(stuff->label != 0),::toStringFromInt(groupBody->flags.deferred != 0),::toStringFromInt(parseACTION(groupBody->flags.methodType) != 0));
-	if ( isMethod(groupBody->flags.instructType) && stuff->label )
+	if ( stuff->actionMethod && stuff->label )
+		{
 		if ( groupBody->flags.deferred )
 			{
-			stuff->label->setMethod(groupBody->gMethod);
+			stuff->label->setMethod(stuff->actionMethod);
 			stuff->label->groupBody->flags.deferred = 1;
 			if ( !stuff->label->groupBody->flags.data )
 				stuff->label->setText(::concat(2,"g",groupBody->tag));
@@ -1081,7 +1085,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 				::fprintf(stderr,"    fireLabel IN  %s isLabel=%s\n",groupBody->tag,::toStringFromInt(stuff->label->groupBody->flags.isLabel != 0));
 			if ( ruler->parseTrace )
 				::fprintf(stderr,"  ACTFIRE fireLabelMethod %s\n",groupBody->tag);
-			stuff->label = groupBody->gMethod(stuff->label);
+			stuff->label = stuff->actionMethod(stuff->label);
 			if ( ruler->parseTrace )
 				if ( stuff->label )
 					::fprintf(stderr,"    fireLabel OUT %s isLabel=%s tag=%s\n",groupBody->tag,::toStringFromInt(stuff->label->groupBody->flags.isLabel != 0),stuff->label->groupBody->tag);
@@ -1089,6 +1093,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 			if ( !stuff->label )
 				stuff->sukcess = 0;
 			}
+		}
 }
 
 /***************************************************************************
@@ -1543,7 +1548,8 @@ RuleStuff *stuff = ensureRStuff();
 		stuff = new RuleStuff(getRStuff());
 		stuff->rule = this;
 		}
-	stuff->parentStuff = pStuff;
+	if ( stuff->parentStuff = pStuff )
+		stuff->parentLabel = stuff->parentStuff->label;
 	if ( !stuff->followed )
 		stuff->getWhatFollows();
 	return stuff;
@@ -2173,6 +2179,46 @@ GroupItem 	*action = 0;
 		return action->groupBody->gMethod(notifier);
 	else	setContent(notifier);
 	return this;
+}
+
+/*******************************************************************************
+    setActionMethod adds builtinActoR to contain rule action method. It is not
+    a setter. The actionMethod field in rStuff gets set from it in
+    fireLabelMethod
+*******************************************************************************/
+void GroupItem::setActionMethod()
+{
+RuleStuff 	*ruleStuff = getRStuff();
+	if ( getAttribute("builtinActoR") )
+		return;
+	if ( isCoded(groupBody->flags.actionType) )
+		setMethod(::processAction);
+	else
+	if ( !isMethod(groupBody->flags.instructType) )
+		{
+		char 	*methodName = ::concat(2,"aCTion",groupBody->tag);
+		void 	*methodAddress = 0;
+		if ( methodAddress = ::dlsym(RTLD_SELF,methodName) )
+			{
+			GroupItem 	*builtinActoR = addString("builtinActoR");
+			builtinActoR->setRStuff(ruleStuff);
+			builtinActoR->groupBody->flags.noPrint = 1;
+			builtinActoR->setMethod((GroupItem*(*)(GroupItem*))methodAddress);
+			}
+		::free(methodName);
+		if ( groupBody->gMethod )
+			groupBody->flags.methodType = 1;
+		}
+	else
+	if ( groupBody->gMethod )
+		{
+		// registeredActor a ruleMethod= registration has ALREADY set gMethod, so the dlsym arm is skipped and NOTHING publishes the actor   GroupItem.setActionMethod.registeredActor
+		void *actorAddress = (void*)groupBody->gMethod;
+		GroupItem *builtinActoR = addString("builtinActoR");
+		builtinActoR->setRStuff(ruleStuff);
+		builtinActoR->groupBody->flags.noPrint = 1;
+		builtinActoR->setMethod((GroupItem*(*)(GroupItem*))actorAddress);
+		}
 }
 
 /*****************************************************************************

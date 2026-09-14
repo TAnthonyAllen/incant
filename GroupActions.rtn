@@ -1094,7 +1094,6 @@ GroupItem   result,
     // generated body takes it, a bin included   GroupActions.runOP.doorIsHasNewParse
     if op.isOperator    result = op.operat(arg,target);
     or op.isMethod      result = op.method(target);
-    or hasNewParse      result = runRule(arg,target);
     or isRule           result = runRule(arg,target);
     or actionType       result = runAction(arg,target);
     or isMethod {
@@ -1124,7 +1123,6 @@ extern GroupItem runRule(GroupItem field,GroupItem rule)
 {
 GroupRules  ruler = groupRules;
 GroupItem   result;
-GroupItem   newParse;
 GroupItem   intoField;
 int         baseStak = 0;
 use rule
@@ -1144,11 +1142,10 @@ use rule
         the leaf arm's parseR see the label itself and not the thing carrying it.  */
     intoField = field;
     if intoField && intoField.isGROUP   intoField = intoField.gGroup;
-    if hasNewParse
-        if newParse = rule["builtinParsE"] {
-            rule.establishFrame(rule.frameParent(intoField));
-            result = newParse.method(rule); }
-        else        cerr "runRule could not find builtinParsE attribute":;
+    if rule.hasNewParse {
+        // noSilentFallthrough a flag promising a method that is not there is a SEGFAULT here, and falling through to the old parse would trade a loud crash for a quiet wrong answer   GroupActions.runRule.noSilentFallthrough
+        if !rule.gMethod    result = refuse(rule,"runRule: hasNewParse is set but no method is installed to fire");
+        else                result = rule.method(rule); }
     else {
         /*  runRule.intoRidesArgument  ruling B, 2026-09-09: a kant-emitted body
             forwards its one argument to every term, so a non-null argument with

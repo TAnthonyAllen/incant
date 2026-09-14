@@ -86,7 +86,6 @@ define
     register immediateAction=rEGISTER noPrint;
     reset immediateAction=resetField;
     runByteFn immediateAction=runByteFn;
-    runRuleAction immediateAction;
     setFile immediateAction=setFile;
     setMark immediateAction;
     setParse immediateAction;

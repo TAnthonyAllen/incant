@@ -443,7 +443,7 @@ GroupItem 	*item = 0;
 						if ( grup && grup->getRStuff() )
 							{
 							item->getRStuff()->parentStuff = grup->getRStuff();
-							item->getRStuff()->parentLabel = grup->getRStuff()->parentLabel;
+							item->getRStuff()->parentLabel = grup->getRStuff()->label;
 							}
 						item->getRStuff()->rule = item;
 						}
@@ -491,24 +491,11 @@ GroupItem 	*item = 0;
 					}
 			}
 	// ruleMethodCheck the arms are ordered, not interchangeable.
-	if ( NewGroup->groupBody->flags.isRule )
+	if ( NewGroup->groupBody->flags.isRule && !parseACTION(NewGroup->groupBody->flags.methodType) && !isREGISTRY(NewGroup->groupBody->flags.binType) )
 		{
-		if ( !isREGISTRY(NewGroup->groupBody->flags.binType) )
-			{
-			if ( isCoded(NewGroup->groupBody->flags.actionType) )
-				NewGroup->setMethod(::processAction);
-			else
-			if ( !isMethod(NewGroup->groupBody->flags.instructType) )
-				{
-				char 	*methodName = ::concat(2,"aCTion",NewGroup->groupBody->tag);
-				void 	*methodAddress = 0;
-				if ( methodAddress = ::dlsym(RTLD_SELF,methodName) )
-					NewGroup->setMethod((GroupItem*(*)(GroupItem*))methodAddress);
-				::free(methodName);
-				if ( NewGroup->groupBody->gMethod )
-					NewGroup->groupBody->flags.methodType = 1;
-				}
-			}
+		if ( !NewGroup->getRStuff() )
+			NewGroup->setRStuff(new RuleStuff(NewGroup));
+		NewGroup->setActionMethod();
 		}
 	// embeddedRuleCopy embedRule() copies an embedded RULE
 	if ( NewGroup->groupBody->flags.isRule && NewGroup->groupBody->groupList )
@@ -1362,7 +1349,10 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 		{
 		DatA->options.affiliation = 1;
 		if ( DatA->getRStuff() )
+			{
 			DatA = new GroupItem(DatA);
+			DatA->getRStuff()->actionMethod = 0;
+			}
 		else	DatA->setRuleStuff();
 		// repetition lands on the DATA only; applying it to the trait as well repeats TWICE   ruleActions.aCTionTraiTdata.modifierRidesUp
 		if ( Modifier )
@@ -1885,7 +1875,16 @@ GroupItem 	*grup = 0;
 	else	::printf("compile succeeded for %s\n",field->groupBody->tag);
 	GroupControl::groupController->groupRules->compiling = 0;
 endCompile:
-	field->groupBody->flags.hasNewParse = 1;
+	grup = 0;
+	if ( field->groupBody->flags.hasTraits || field->groupBody->flags.hasMembers )
+		while ( grup = field->next(grup) )
+			{
+			grup->parent = field;
+			// because if field is a copy grup.parent is not field
+			if ( grup->groupBody->flags.noPrint )
+				continue;
+			else	::compile(grup);
+			}
 	return field;
 }
 
@@ -2697,6 +2696,49 @@ char 		dq = 34;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
+/*******************************************************************************
+	This is a wrapper for returning a parse result (mostly to provide a
+    common place to add a success/failure directive
+*******************************************************************************/
+extern "C" GroupItem *exitFromParse(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*ruleStuff = field->getRStuff();
+	if ( ruleStuff->sukcess )
+		{
+		if ( ruler->lastRule != field )
+			if ( ruler->lastRule && ruler->lastRule->getRStuff() != ruleStuff->parentStuff )
+				{
+				ruleStuff->parentStuff = ruler->lastRule->getRStuff();
+				if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
+					ruleStuff->parentLabel = ruleStuff->parentStuff->label;
+				}
+		if ( ruleStuff->noAdvance )
+			ruler->atRuleMark = ruleStuff->hereAt;
+		field->fireLabelMethod(ruleStuff);
+		if ( ruleStuff->sukcess )
+			{
+			if ( ruleStuff->label && !ruleStuff->noLabel )
+				{
+				if ( ruleStuff->parentLabel && ruleStuff->parentLabel != ruleStuff->label )
+					if ( isGROUP(ruleStuff->label->groupBody->flags.data) && ruleStuff->max > 1 )
+						{
+						ruleStuff->parentLabel->addAttribute(ruleStuff->label->getGroup());
+						ruleStuff->label->clear();
+						}
+					else {
+						ruleStuff->parentLabel->addAttribute(ruleStuff->label);
+						ruleStuff->label = new GroupItem(field->groupBody->tag);
+						}
+				return ruleStuff->label;
+				}
+			else	return ruler->trueResult;
+			}
+		}
+	ruler->atRuleMark = ruleStuff->hereAt;
+	return 0;
+}
+
 /***************************************************************************
 	The fAIL method expects to have the name of the fail method passed in as
     text of the FAIL attribute.
@@ -3206,7 +3248,7 @@ Buffer 		*buffet = 0;
 }
 
 /*****************************************************************************
-    The argument passed in to getMarkLineAt must have source and fromThis ƒ
+    The argument passed in to getMarkLineAt must have source and fromThis
     It returns the line wrapped in a GroupItem field using setToken (as a stream
     pointer into the buffer with a length). The field will only contain
     valid text as long as the buffer contains it in place. Note: getMarkLineAt
@@ -9461,50 +9503,6 @@ int 		n = 0;
 }
 
 /*******************************************************************************
-    parkOnMaster -- park the action on the DEFINING rule's rStuff.
-
-    Tony/Clay, 2026-08-29. rStuff is PER NODE and groupBody is SHARED, so
-    parking on whatever FACE setParse was handed put the eviction's verified
-    copy and the slot it must null on DIFFERENT NODES: the generation walk
-    calls setParse on member TERMS, the eviction sweep reaches the MASTER, and
-    the master's rStuff had never been parked. evictAction refused nine of ten
-    Xpress-cohort rules on exactly that, correctly. Resolving definingRule()
-    and parking there too means guard and write interrogate one node.
-
-    ⚠ IT IS A SEPARATE FUNCTION FOR A MEASURED REASON, not for tidiness, and
-    the reason is worth more than the function. Written inline in setParse it
-    needs two locals -- a GroupItem for the definer and a RuleStuff for its
-    stuff -- and tok resolves a bare field name against whichever DECLARED
-    field owns that member, later declaration winning. Adding them silently
-    re-pointed every bare `parseMethod`, `actionMethod`, `upTo` and `data` in
-    the REST of setParse onto the definer and its stuff, including the lines
-    ABOVE the insertion: the rStuff refusal began testing the wrong node and
-    the whole classification switch began writing the master's slot. It
-    compiled clean. Read in the generated .mm it is unmistakable, which is the
-    only reason it was caught -- project memory's "verify in the regen .mm".
-    A call introduces no declaration, so the caller's resolution cannot move.
-
-    ⚠ ADDITIVE, NOT A MOVE. setParse still parks on the face as well, because
-    the actor gate below reads actionMethod off THIS face; park only on the
-    master and that read goes null and builtinActoR stops being hung at all.
-    Writing both is what makes "the actor gate is untouched" a true sentence.
-    The face copy costs nothing -- arm two of the isGroupActorPoison probe
-    measured a persisted actionMethod harmless, on its own rebuild.
-
-    ⚠ NO MIGRATION IS OWED: parking happens fresh inside every parser run, so
-    re-running the driver IS the migration and no stale face copy survives
-    into a new process.
-*******************************************************************************/
-extern "C" GroupItem *parkOnMaster(GroupItem *field)
-{
-GroupItem 	*definer = field->definingRule();
-RuleStuff 	*defStuff = definer->getRStuff();
-	if ( defStuff )
-		defStuff->actionMethod = field->groupBody->gMethod;
-	return field;
-}
-
-/*******************************************************************************
     parkParse / fireNewParse -- THE FACE-PROOF ARTIFACT ADDRESS.
 
     Ruled 2026-08-24 on ARCHITECTURAL grounds, not evidentiary ones: a
@@ -9533,7 +9531,14 @@ GroupItem 	*artifact = 0;
 	artifact->setText(name);
 	artifact->groupBody->flags.noPrint = 1;
 	rule->addAttribute(artifact);
-	rule->groupBody->flags.hasNewParse = 1;
+	/*  ⚠ parkParse NO LONGER RAISES hasNewParse (stroke 2, 2026-09-14). It parks a
+	dlsym-able NAME for fireNewParse to resolve; it installs no gMethod. The flag's
+	one reader that fires, runRule, calls gMethod off it -- so raising it here
+	promised a method that was never installed, and `Scaf` segfaulted genScratch at
+	exit 139 with hasNewParse=1 and gMethod=0. fireNewParse, the arm that WOULD have
+	resolved the name, is reached by nothing (fixIts F-56). One channel, one meaning:
+	the flag now means setParse installed a method, and nothing else.
+	Commands.parkParse.flagNotRaised  */
 	return 1;
 }
 
@@ -9542,18 +9547,19 @@ GroupItem 	*artifact = 0;
 *******************************************************************************/
 extern "C" GroupItem *parseAction(GroupItem *field)
 {
-	if ( parseACTION(field->groupBody->flags.methodType) || !field->getRStuff()->label )
+RuleStuff 	*ruleStuff = field->getRStuff();
+	ruleStuff->sukcess = 0;
+	if ( parseACTION(field->groupBody->flags.methodType) || !ruleStuff->label )
 		{
-		if ( field->groupBody->gMethod(field) )
-			return GroupControl::groupController->groupRules->trueResult;
+		if ( ruleStuff->label = field->groupBody->gMethod(field) )
+			ruleStuff->sukcess = 1;
 		}
 	else
-	if ( field->getRStuff()->label && field->groupBody->gMethod(field->getRStuff()->label) )
-		return parseSetLabel(field);
-	if ( field->getRStuff()->label )
-		field->getRStuff()->label->clear();
-	GroupControl::groupController->groupRules->atRuleMark = field->getRStuff()->hereAt;
-	return 0;
+	if ( ruleStuff->label = field->groupBody->gMethod(ruleStuff->label) )
+		ruleStuff->sukcess = 1;
+	if ( ruleStuff->label )
+		ruleStuff->label->clear();
+	return ::exitFromParse(field);
 }
 
 /*******************************************************************************
@@ -9565,6 +9571,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
 int 		counter = 0;
 int 		more = 0;
+	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
 		while ( *ruler->atRuleMark )
@@ -9586,13 +9593,12 @@ int 		more = 0;
 			{
 			if ( ruleStuff->label )
 				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
-			return parseSetLabel(field);
+			ruleStuff->sukcess = 1;
 			}
 		}
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();
-	ruler->atRuleMark = ruleStuff->hereAt;
-	return 0;
+	return ::exitFromParse(field);
 }
 
 /*******************************************************************************
@@ -9618,6 +9624,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
 int 		counter = 0;
 int 		more = 0;
+	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
 		while ( *ruler->atRuleMark == field->getCharacter() )
@@ -9639,13 +9646,12 @@ int 		more = 0;
 			{
 			if ( ruleStuff->label )
 				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
-			return parseSetLabel(field);
+			ruleStuff->sukcess = 1;
 			}
 		}
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();
-	ruler->atRuleMark = ruleStuff->hereAt;
-	return 0;
+	return ::exitFromParse(field);
 }
 
 /*******************************************************************************
@@ -9655,8 +9661,9 @@ extern "C" GroupItem *parseCondition(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( ruleStuff->min )
-		return GroupControl::groupController->groupRules->trueResult;
-	return 0;
+		ruleStuff->sukcess = 1;
+	else	ruleStuff->sukcess = 0;
+	return ::exitFromParse(field);
 }
 
 /*******************************************************************************
@@ -9664,13 +9671,14 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 *******************************************************************************/
 extern "C" GroupItem *parseContainer(GroupItem *field)
 {
-GroupItem 	*grup = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->getRStuff();
 PLGset 		*inSet = field->getCharacterSet();
 char 		*atInput = ruler->atRuleMark;
 int 		advance = 0;
 Buffer 		*buffer = ruler->stringBUFFER;
+RuleStuff 	*ruleStuff = field->getRStuff();
+GroupItem 	*grup = 0;
+	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
 		buffer->reset();
@@ -9690,14 +9698,31 @@ Buffer 		*buffer = ruler->stringBUFFER;
 					ruler->atRuleMark += advance;
 				if ( ruleStuff->label )
 					ruleStuff->label->setGroup(grup);
-				return parseSetLabel(field);
+				ruleStuff->sukcess = 1;
 				}
 			buffer->shorten(1);
 			}
 		}
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();
-	ruler->atRuleMark = ruleStuff->hereAt;
+	return ::exitFromParse(field);
+}
+
+/*******************************************************************************
+	Process a loop (max > 1)
+*******************************************************************************/
+extern "C" GroupItem *parseLoop(GroupItem *field)
+{
+	if ( GroupControl::groupController->groupRules->lastRule )
+		field = GroupControl::groupController->groupRules->lastRule->get(field->groupBody->tag);
+RuleStuff *ruleStuff = field->getRStuff();
+	ruleStuff->kount = 0;
+	while ( ruleStuff->kount < ruleStuff->max )
+		if ( !ruleStuff->parseMethod(field) )
+			break;
+		else	ruleStuff->kount++;
+	if ( ruleStuff->sukcess )
+		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
 }
 
@@ -9740,35 +9765,40 @@ int 		n = 0;
 extern "C" GroupItem *parseRule(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*pMethod = field->get("builtinParsE");
 GroupItem 	*code = field->get("CodE");
 GroupItem 	*result = 0;
 GroupItem 	*grup = 0;
 GroupItem 	*myLabel = 0;
 GroupItem 	*into = 0;
+GroupItem 	*saveLastRule = 0;
 GroupItem 	*ruleArg = 0;
-RuleStuff 	*ruleStuff = pMethod->getRStuff();
-RuleStuff 	*fieldStuff = field->getRStuff();
-char 		*from = ruler->atRuleMark;
 GroupItem 	*priorMETHOD = 0;
-int 		hasBody = 0;
-int 		yielded = 0;
+	if ( ruler->lastRule )
+		field = ruler->lastRule->get(field->groupBody->tag);
+RuleStuff 	*ruleStuff = field->getRStuff();
 	::measureParentProbe(field);
 	// bareFieldRepoint the use lines below are load bearing
+	if ( ruler->lastRule )
+		{
+		saveLastRule = ruler->lastRule;
+		if ( ruler->lastRule && ruler->lastRule->getRStuff() != ruleStuff->parentStuff )
+			{
+			ruleStuff->parentStuff = ruler->lastRule->getRStuff();
+			if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
+				ruleStuff->parentLabel = ruleStuff->parentStuff->label;
+			}
+		}
+	ruler->lastRule = field;
+	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
-		hasBody = 0;
 		if ( isAction(field->groupBody->flags.actionType) )
-			hasBody = 1;
-		if ( !hasBody )
-			::reportNoBody(field);
-		if ( hasBody )
 			{
 			while ( grup = code->nextAttribute(grup) )
 				if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isRule && !grup->groupBody->flags.noPrint && grup->groupBody != field->groupBody )
 					grup->clear();
 			// intoRidesArgument a FRESH MINT per invocation, one slot cannot survive recursion
-			into = fieldStuff->parentLabel;
+			into = ruleStuff->parentLabel;
 			myLabel = new GroupItem(field->groupBody->tag);
 			::measureLabelMint(field,myLabel,into);
 			/*****************************************************************
@@ -9796,27 +9826,16 @@ int 		yielded = 0;
 			ruler->currentMETHOD = priorMETHOD;
 			::restoreLocalFields(field);
 			}
-		/*********************************************************************
-		Make sure the RuleStuffs involved are in sync. See chainTruthOnly and oneAttach DesignDocs entries
-		*********************************************************************/
-		yielded = 0;
-		if ( ::ruleAsLabel(result) )
-			::refuse(field,"parseRule: the generated body returned a RULE where the chain's truth was owed -- this is a GENERATOR error, not a parse failure");
-		if ( ::truthOf(result) && !::ruleAsLabel(result) && myLabel )
-			yielded = 1;
-		::measureLabelProbe(field,myLabel,into,result,yielded);
-		if ( yielded )
-			{
-			RuleStuff 	*myStuff = new RuleStuff(field);
-			RuleStuff 	*intoStuff = new RuleStuff(field);
-			myStuff->label = myLabel;
-			intoStuff->label = into;
-			field->attachLabel(myStuff,intoStuff,0);
-			return myLabel;
-			}
+		else	::reportNoBody(field);
+checkSuccess:
+		// this is just a marker for directives
+		if ( result )
+			ruleStuff->sukcess = 1;
 		}
-	ruler->atRuleMark = from;
-	return 0;
+	if ( saveLastRule )
+		ruler->lastRule = saveLastRule;
+	else	ruler->lastRule = 0;
+	return ::exitFromParse(field);
 }
 
 /*******************************************************************************
@@ -10012,6 +10031,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
 int 		counter = 0;
 int 		more = 0;
+	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
 		while ( set->contains(*ruler->atRuleMark) )
@@ -10033,39 +10053,12 @@ int 		more = 0;
 			{
 			if ( ruleStuff->label )
 				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
-			return parseSetLabel(field);
+			ruleStuff->sukcess = 1;
 			}
 		}
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();
-	ruler->atRuleMark = ruleStuff->hereAt;
-	return 0;
-}
-
-/*******************************************************************************
-	On rule success deal w/label setting and return true
-*******************************************************************************/
-extern "C" GroupItem *parseSetLabel(GroupItem *field)
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->getRStuff();
-	if ( ruleStuff->noAdvance )
-		ruler->atRuleMark = ruleStuff->hereAt;
-	if ( ruleStuff->label )
-		{
-		if ( ruleStuff->parentLabel )
-			if ( isGROUP(ruleStuff->label->groupBody->flags.data) && ruleStuff->max > 1 )
-				{
-				ruleStuff->parentLabel->addAttribute(ruleStuff->label->getGroup());
-				ruleStuff->label->clear();
-				}
-			else {
-				ruleStuff->parentLabel->addAttribute(ruleStuff->label);
-				ruleStuff->label = new GroupItem(field->groupBody->tag);
-				}
-		return ruleStuff->label;
-		}
-	return ruler->trueResult;
+	return ::exitFromParse(field);
 }
 
 /***************************************************************************
@@ -10075,6 +10068,7 @@ extern "C" GroupItem *parseString(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
+	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
 		char 	*matchedString = ruleStuff->rule->matches(ruler->atRuleMark);
@@ -10082,13 +10076,12 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			{
 			if ( ruleStuff->label )
 				ruleStuff->label->setText(matchedString);
-			return ::parseSetLabel(field);
+			ruleStuff->sukcess = 1;
 			}
 		}
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();
-	ruler->atRuleMark = ruleStuff->hereAt;
-	return 0;
+	return ::exitFromParse(field);
 }
 
 /*  ⚠ parseTermCount AND parseRuleMethod ARE ONE DECISION AND MOVE TOGETHER --
@@ -10121,15 +10114,14 @@ RuleStuff 	*stuff = 0;
 *******************************************************************************/
 extern "C" GroupItem *parseUpTo(GroupItem *field)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
+	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		if ( ::testUpTo(field) )
-			return ::parseSetLabel(field);
+			ruleStuff->sukcess = 1;
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();
-	ruler->atRuleMark = ruleStuff->hereAt;
-	return 0;
+	return ::exitFromParse(field);
 }
 
 /*******************************************************************************
@@ -11223,34 +11215,6 @@ int 		d = term->groupBody->flags.data;
 	return "NO ROW MATCHES";
 }
 
-/*******************************************************************************
-    ruleAsLabel -- is this node a rule, or a holder standing in for one?
-
-    parseRule stores a generated body's return value as the rule's LABEL, and a
-    rule handed back there re-enters its own action: naming a rule fires it
-    (bear-trap #34), and everything downstream reads the label. So the body's
-    close owes a label-or-0 and never the rule.
-
-    ⚠ isRule ALONE IS NOT THE TEST, and that is the measured half. `this` -- the
-    hidden local every coded body is built with -- is NOT isRule: aCTionDefinE
-    and compile mint it as a HOLDER whose group is the rule. Measured 2026-09-08:
-    a body closing `return this;` walked straight past an isRule-only guard and
-    still exhausted the stack. One indirection, and the guard saw nothing.
-*******************************************************************************/
-extern "C" int ruleAsLabel(GroupItem *result)
-{
-GroupItem 	*inner = 0;
-	if ( !result )
-		return 0;
-	if ( result->groupBody->flags.isRule )
-		return 1;
-	if ( isGROUP(result->groupBody->flags.data) )
-		inner = result->groupBody->gGroup;
-	if ( inner )
-		return inner->groupBody->flags.isRule;
-	return 0;
-}
-
 /*****************************************************************************
     Uses dsym to look for a matching method in internal symbols. Uses group
     text for the name to match.
@@ -11572,9 +11536,6 @@ GroupItem 	*target = field->get(2);
 	if ( isMethod(op->groupBody->flags.instructType) )
 		result = op->groupBody->gMethod(target);
 	else
-	if ( target->groupBody->flags.hasNewParse )
-		result = ::runRule(arg,target);
-	else
 	if ( target->groupBody->flags.isRule )
 		result = ::runRule(arg,target);
 	else
@@ -11610,7 +11571,6 @@ extern "C" GroupItem *runRule(GroupItem *field, GroupItem *rule)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
-GroupItem 	*newParse = 0;
 GroupItem 	*intoField = 0;
 int 		baseStak = 0;
 	/*  DOOR TRACE, parseTrace-gated so it cannot move a baseline. It answers
@@ -11636,12 +11596,12 @@ int 		baseStak = 0;
 	if ( intoField && isGROUP(intoField->groupBody->flags.data) )
 		intoField = intoField->groupBody->gGroup;
 	if ( rule->groupBody->flags.hasNewParse )
-		if ( newParse = rule->get("builtinParsE") )
-			{
-			rule->establishFrame(rule->frameParent(intoField));
-			result = newParse->groupBody->gMethod(rule);
-			}
-		else	::fprintf(stderr,"runRule could not find builtinParsE attribute\n");
+		{
+		// noSilentFallthrough a flag promising a method that is not there is a SEGFAULT here, and falling through to the old parse would trade a loud crash for a quiet wrong answer   GroupActions.runRule.noSilentFallthrough
+		if ( !rule->groupBody->gMethod )
+			result = ::refuse(rule,"runRule: hasNewParse is set but no method is installed to fire");
+		else	result = rule->groupBody->gMethod(rule);
+		}
 	else {
 		/*  runRule.intoRidesArgument  ruling B, 2026-09-09: a kant-emitted body
 		forwards its one argument to every term, so a non-null argument with
@@ -11660,64 +11620,6 @@ int 		baseStak = 0;
 	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
 		ruler->popInput();
 	return result;
-}
-
-/*******************************************************************************
-	runRuleAction checks to see if there is a method parked in actionMethod.
-    If there is, and there is a rule label, it runs actionMethod.
-
-    THE CAPTURE GATE IS STRUCTURAL NOW, AND THAT IS THE WHOLE POINT.
-    It asks pMethod -- does THIS FIELD carry a builtinParsE -- where it used to
-    ask gNewParseInFlight, a file scope C++ global raised by parseRule around
-    the generated body and read back through a -% pocket.
-
-    Both spellings answer the same question, "are we inside a new parse", but
-    they answer it about different subjects. The global answered it about TIME:
-    it was true for whatever ran while parseRule's frame was live, so its
-    correctness depended on every road that reaches here either being under
-    that frame or being excluded by hand. aCTionBrancH and runOP are two roads
-    that are not, which is why the global existed at all. pMethod answers it
-    about the FIELD, and a field either carries a generated parse or it does
-    not, on every road, with nothing to save and nothing to restore.
-
-    So this is the escape pocket doctrine's first payment: a temporal guard,
-    unspellable in kant and therefore written in C++ inside this function, is
-    replaced by an ordinary read of a node the function already had in a local.
-    Tony objected to the -% spelling before anyone noticed the gate could be
-    structural; the objection was the better instinct and this is where it led.
-
-    ⚠ AND IT IS NOT A BEHAVIOUR CHANGE TODAY, which is worth saying so nobody
-    reads the fleet staying still as the edit not landing. In an ordinary run
-    setParse never fires, so no field carries builtinParsE and this arm is dead
-    either way -- exactly as it was dead under the global, which nothing raised
-    once parseRule's set was removed. The gate becomes live the first time a
-    generated parse runs, which is the campaign.
-*******************************************************************************/
-extern "C" GroupItem *runRuleAction(GroupItem *field)
-{
-GroupItem 	*pMethod = field->get("builtinParsE");
-GroupItem 	*aMethod = field->get("builtinActoR");
-RuleStuff 	*ruleStuff = field->getRStuff();
-int 		minters = 0;
-	if ( pMethod )
-		ruleStuff = pMethod->getRStuff();
-	if ( !ruleStuff )
-		return GroupControl::groupController->groupRules->trueResult;
-	if ( pMethod && ruleStuff->label )
-		{
-		minters = ::labelMinters(field);
-		if ( GroupControl::groupController->groupRules->parseTrace )
-			::fprintf(stderr,"  CENSUS %s labelMinters=%d\n",field->groupBody->tag,minters);
-		if ( minters == 0 )
-			field->captureSpan(ruleStuff);
-		}
-	if ( ruleStuff->label )
-		{
-		if ( aMethod )
-			ruleStuff->label = aMethod->groupBody->gMethod(ruleStuff->label);
-		return ruleStuff->label;
-		}
-	return GroupControl::groupController->groupRules->trueResult;
 }
 
 /***************************************************************************
@@ -12017,70 +11919,69 @@ extern "C" GroupItem *setParse(GroupItem *field)
 RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( !ruleStuff )
 		return ::refuse(field,"setParse: the field passed in has no rStuff");
-	if ( !field->groupBody->flags.hasNewParse )
+	/***************************************************************************
+	Set the parseMethod
+	***************************************************************************/
+	// walkGuard the grammar is cyclic -- StatemenT contains BlocK contains StatemenT -- so the internalized walk below cannot terminate without its OWN mark. NOT hasNewParse: parkParse is that flag's other writer   Generate.setParse.walkGuard
+	if ( field->groupBody->flags.parseWalked )
+		return ::refuse(field,"setParse: RE-ENTRY -- this node was already walked");
+	field->groupBody->flags.parseWalked = 1;
+	ruleStuff->actionMethod = field->groupBody->gMethod;
+	if ( upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo) )
+		ruleStuff->parseMethod = ::parseUpTo;
+	else
+	if ( isBIN(field->groupBody->flags.binType) || isREGISTRY(field->groupBody->flags.binType) )
+		ruleStuff->parseMethod = ::parseContainer;
+	else
+	if ( field->groupBody->flags.isCondition )
+		ruleStuff->parseMethod = ::parseCondition;
+	else
+	if ( parseACTION(field->groupBody->flags.methodType) )
+		ruleStuff->parseMethod = ::parseAction;
+	else
+	if ( field->groupBody->groupList )
+		ruleStuff->parseMethod = ::parseRule;
+	else
+	if ( field->groupBody->flags.data )
+		switch (field->groupBody->flags.data)
+			{
+			case 1:
+				ruleStuff->parseMethod = ::parseAny;
+				break;
+			case 2:
+				ruleStuff->parseMethod = ::parseCharacter;
+				break;
+			case 3:
+				ruleStuff->parseMethod = ::parseSet;
+				break;
+			case 6:
+				ruleStuff->parseMethod = 0;
+				break;
+			default:
+				ruleStuff->parseMethod = ::parseString;
+			}
+	else
+	if ( field->groupBody->gMethod )
+		ruleStuff->parseMethod = ::parseAction;
+	else	ruleStuff->parseMethod = ::parseString;
+	if ( field->groupBody->flags.hasTraits || field->groupBody->flags.hasMembers )
 		{
-		/***********************************************************************
-		Set the parseMethod
-		***********************************************************************/
-		field->groupBody->flags.hasNewParse = 1;
-		ruleStuff->actionMethod = field->groupBody->gMethod;
-		//parkOnMaster(field);
-		if ( upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo) )
-			ruleStuff->parseMethod = ::parseUpTo;
-		else
-		if ( isBIN(field->groupBody->flags.binType) || isREGISTRY(field->groupBody->flags.binType) )
-			ruleStuff->parseMethod = ::parseContainer;
-		else
-		if ( field->groupBody->flags.isCondition )
-			ruleStuff->parseMethod = ::parseCondition;
-		else
-		if ( parseACTION(field->groupBody->flags.methodType) )
-			ruleStuff->parseMethod = ::parseAction;
-		else
-		if ( field->groupBody->groupList )
+		GroupItem 	*grup = 0;
+		while ( grup = field->next(grup) )
 			{
-			ruleStuff->parseMethod = ::parseRule;
-			field->groupBody->flags.hasNewParse = 0;
+			grup->parent = field;
+			// if field is a copy grup.parent is not field
+			if ( grup->groupBody->flags.noPrint )
+				continue;
+			else	::setParse(grup);
 			}
-		else
-		if ( field->groupBody->flags.data )
-			switch (field->groupBody->flags.data)
-				{
-				case 1:
-					ruleStuff->parseMethod = ::parseAny;
-					break;
-				case 2:
-					ruleStuff->parseMethod = ::parseCharacter;
-					break;
-				case 3:
-					ruleStuff->parseMethod = ::parseSet;
-					break;
-				case 6:
-					ruleStuff->parseMethod = 0;
-					break;
-				default:
-					ruleStuff->parseMethod = ::parseString;
-				}
-		else
-		if ( field->groupBody->gMethod )
-			ruleStuff->parseMethod = ::parseAction;
-		else	ruleStuff->parseMethod = ::parseString;
-		if ( ruleStuff->parseMethod )
-			{
-			GroupItem 	*builtinParsE = field->addString("builtinParsE");
-			builtinParsE->setRStuff(ruleStuff);
-			builtinParsE->groupBody->flags.noPrint = 1;
-			builtinParsE->setMethod(ruleStuff->parseMethod);
-			}
-		if ( ruleStuff->actionMethod && ruleStuff->parseMethod )
-			{
-			GroupItem 	*builtinActoR = field->addString("builtinActoR");
-			builtinActoR->setRStuff(ruleStuff);
-			builtinActoR->groupBody->flags.noPrint = 1;
-			builtinActoR->setMethod(ruleStuff->actionMethod);
-			}
-		field->updateContentFlags();
 		}
+	if ( ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3) )
+		field->setMethod(::parseLoop);
+	else	field->setMethod(ruleStuff->parseMethod);
+	// flagFollowsInstall hasNewParse says A METHOD IS THERE TO FIRE, so it is raised HERE and never at entry: parseMethod is null for the isGROUP case and the head cannot know   Generate.setParse.flagFollowsInstall
+	if ( field->groupBody->gMethod )
+		field->groupBody->flags.hasNewParse = 1;
 	return 0;
 }
 
@@ -12553,6 +12454,7 @@ GroupRules::GroupRules()
 	inDENT = 0;
 	labelNO = 0;
 	lastREF = 0;
+	lastRule = 0;
 	lastStatement = 0;
 	generator = 0;
 	maxLimit = 0;

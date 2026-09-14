@@ -2,7 +2,7 @@
 Start();
 include(utilities);
 search reset stack Grokking;
-search GroupFields Utilities list;
+search GroupFields Utilities;
 
 register(Utilities);
 define
@@ -18,29 +18,15 @@ define
         reset(codeBuffer);
         printTO(codeBuffer);
         print openBrace:;
-        setParse(argument);
         if datA != 0;
             // printTO(0) FIRST -- the buffer is still armed and would eat the warning   ParserIncantation.warningSink
             printTO(0);
             if listLengtH; print "rules should not have data and a list; one or the other":;
             uncompiled +% argument;
             return;
-        /*  ⚠ THE C SPELLINGS SINCE 2026-09-10, and they are not a rename: `&&` and `||`
-            only became correct that day, when the two spelling lists that chose the
-            tier-3 binding and the skip direction became registrations. Before it, `||`
-            carried opOR and still evaluated its right operand.  */
         if hasTraitS;       conjunct = "&&";
         else                conjunct = "||";
-        // one zero slot per generated rule, tagged with the rule's name   ParserIncantation.fireCounter
-        fireSlot := new(taG);
-        *fireSlot = 0;
-        *fireSlot :. noPrinT;
-        fireLog +% *fireSlot;
-        // the name is baked at GENERATION time; at run time taG reads BlocK (bear-trap #44)
-        print $"fhSlot := fireLog[\"" taG "\"];":;
-        // `+= 1` and NOT `++` -- ++ does not land on a member of another node   ParserIncantation.fireCounter
-        print `"*fhSlot += 1;":;
-        print `"return ";
+        print `"return";
         // the from-nothing counter is seeded explicitly: ++ refuses an ABSENT field, and
         // zero is a value while never-assigned is not. It stays UNDECLARED (bear-trap #39).
         notFirstTimeThru = 0;
@@ -49,11 +35,10 @@ define
             if noPrinT;     continue;
             if notFirstTimeThru > 0;    print _conjunct;
             ++notFirstTimeThru;
-            setParse(*grup);
-            print $taG "(argument)";
-        print ";";
+            print $taG "()";
         @argument;
-        print `closeBrace;
+        print $";";
+        print :`closeBrace;
         clear(CodE);
         CodE = codeBuffer;
         codeCopy := copyOf(CodE);
@@ -62,7 +47,7 @@ define
         argument :. isCodeD;
         argument :. hasNewParsE;
         printTO(0);
-        //print taG "=" CodE.taG CodE:;
+        print taG "=" CodE.taG CodE:;
        };
     walkRules code={
         generateParse(argument);
@@ -79,47 +64,22 @@ define
                 else generateParse(*grup);
         };
     compileRules code={
-        // single visited mark for the compile walk; the grammar is cyclic   ParserIncantation.compileVisited
-        if flaG;    return;
-        argument :. flaG;
+        // setParse and compile loop recursively thru components
+        setParse(argument);
         compile(argument);
-        length  = listLengtH;
-        if length > 0;
-            iterate grup on argument;
-            while ++grup;
-                if hasNewParsE AND isCodeD;
-                    if listLengtH;  compileRules(*grup);
-                    else            compile(*grup);
-        };
-    fireReport code={
-        cerr "BODIES FIRED, by rule:":;
-        flLen := fireLog.listLengtH;
-        if *flLen;
-            iterate frCur on fireLog;
-            while ++frCur;
-                cerr "    FIRES " taG " = " *frCur:;
+        print "end compileRules"::;
         };
     parser code={
         // primed BEFORE the walk on purpose -- a name first referenced after it never
         // resolves, silently   ParserIncantation.primeBeforeWalk
-        fireReport(argument);
-        walkRules(argument);
-        compileRules(argument);
-        cerr "PARSER SENTINEL -- walk complete":;
-        fireReport(argument);
-        if uncompiled.listLengtH;
-            cerr "GENERATED BUT NOT COMPILED -- no isCodeD, so compile returned null:":;
-            iterate grup on uncompiled;
-            while ++grup;
-                cerr "    uncompiled " taG:;
-        compiledHere = 0;
-        if argument.hasNewParsE;     compiledHere = 1;
-        cerr "WITNESS compiled " compiledHere " -- 1 = compile ran on this rule, 0 = it did not":;
+        walkRules(Grokking[argument.taG]);
+        compileRules(Grokking[argument.taG]);
         };
     ;
 
+debug;
 parser(Search);
-search list;
+Search("search list;");
 stop();
 parser(Start);
 if IterSource("*someName"); print "IterSource parsed compiled and ran successfully":;

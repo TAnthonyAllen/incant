@@ -42,6 +42,7 @@ class GroupRules
                 inDENT,
                 labelNO,
                 lastREF,
+                lastRule,
                 lastStatement,
                 generator,
                 maxLimit,

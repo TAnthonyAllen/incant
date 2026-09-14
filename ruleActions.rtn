@@ -298,7 +298,7 @@ use item
                             grup = item.parent;
                             if grup && grup.rStuff {
                                 parentStuff = grup.rStuff;
-                                parentLabel = grup.parentLabel; }
+                                parentLabel = grup.label; }
                             rStuff.rule    = item; }
                     grup    = NewGroup +% item; }
         /***********************************************************************
@@ -333,15 +333,9 @@ use NewGroup
                         RuleStuff   fresh = new(newMember);
                         newMember.setRStuff(fresh); }}
         // ruleMethodCheck the arms are ordered, not interchangeable.
-        if isRule {
-            if !isREGISTRY {
-                if isCoded     method = processAction;
-                or !isMethod {
-                    String  methodName = "aCTion" tag;
-                    void*   methodAddress;
-                    if methodAddress = dlsym(RTLD_SELF,methodName) method = methodAddress;
-                    free(methodName);
-                    if gMethod  immediateACTION = true; }}}
+        if isRule && !parseACTION && !isREGISTRY {
+            if !rStuff          rStuff = new(NewGroup);
+            NewGroup.setActionMethod(); }
     // embeddedRuleCopy embedRule() copies an embedded RULE
     if isRule && groupList
         while item = NewGroup.nextAttribute(item)
@@ -1063,7 +1057,9 @@ GroupItem   upMark,
     input.clear();
     if Modifier || Limit {
         isAttribute = true;
-        if rStuff   DatA = new(DatA);
+        if rStuff {
+            DatA = new(DatA);
+            actionMethod = null; }
         else        setRuleStuff();
         // repetition lands on the DATA only; applying it to the trait as well repeats TWICE   ruleActions.aCTionTraiTdata.modifierRidesUp
         if Modifier modifyClass(DatA,Modifier.text,1);

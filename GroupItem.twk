@@ -99,11 +99,7 @@ GroupItem addAttribute(GroupItem grup)
     grup.isAttribute	= true;
     hasAttributes       = true;
     /***************************************************************
-        hasTraits is the CONNECTIVE half: attributes that are not
-        noPrint-class. setParse's builtinParsE/builtinActoR are
-        decoration and must not make a rule read as conjoining
-        traits. Co-writer: updateContentFlags(), which rebuilds
-        this flag with the same test.
+        hasTraits is set if the field passed in is not noPrint-class.
     ***************************************************************/
     if !grup.noPrint    hasTraits = true;
 	return grup;
@@ -495,6 +491,21 @@ PLGset getGuard()
     return guardSet;
 }
 
+/***************************************************************************
+    embedRule -- THE ONE LEGITIMATE COPY OF AN EMBEDDED RULE, AND THE SOLE WRITER
+    OF isEmbedded.   GroupItem.embedRule
+***************************************************************************/
+void embedRule(GroupItem g)
+{
+GroupItem   copy;
+    if !g || !g.isRule  setGroup(g);
+    else {
+        copy            = new(g);
+        copy.parent     = this;
+        copy.isEmbedded = true;
+        setGroup(copy); }
+}
+
 // builds+memoises the guard set; LINE 1 raises isRule on the SHARED body   GroupItem.ensureGuard
 PLGset ensureGuard()
 {
@@ -770,7 +781,8 @@ RuleStuff   stuff = ensureRStuff();
     if stuff.rule != this || stuff.inProcess {
         stuff       = new(rStuff);
         stuff.rule  = this; }
-    parentStuff = pStuff;
+    if parentStuff = pStuff
+        parentLabel = parentStuff.label;
     if !followed    getWhatFollows();
     return stuff;
 }
@@ -1144,6 +1156,9 @@ GroupItem   owner;
 void fireLabelMethod(RuleStuff stuff)
 {
 GroupRules  ruler = groupRules;
+    if !stuff.actionMethod {
+        GroupItem   builtinActoR = getAttribute("builtinActoR");
+        if builtinActoR stuff.actionMethod = builtinActoR.method; }
     ruleSTUFF   = stuff;
     /*  THE COLLISION PROBE, 2026-08-25, assertion 5 of the label-seam brief.
         fixIts row 1 predicts that adding a capture at runRuleAction gives a
@@ -1163,9 +1178,9 @@ GroupRules  ruler = groupRules;
              " label=" toStringFromInt(stuff.label != 0)
              " deferred=" toStringFromInt(deferred != 0)
              " parseACTION=" toStringFromInt(parseACTION != 0):;
-    if isMethod && stuff.label
+    if actionMethod && stuff.label {
         if deferred {
-            stuff.label.method    = method;
+            stuff.label.method    = actionMethod;
             stuff.label.deferred  = true;
             if !stuff.label.data  stuff.label.text = "g" tag; }
         or !parseACTION {
@@ -1179,14 +1194,14 @@ GroupRules  ruler = groupRules;
                 cerr "    fireLabel IN  " tag
                      " isLabel=" toStringFromInt(stuff.label.isLabel != 0):;
             if parseTrace   cerr "  ACTFIRE fireLabelMethod " tag:;
-            stuff.label = method(stuff.label);
-            if parseTrace
+            stuff.label = actionMethod(stuff.label);
+           if parseTrace
                 if stuff.label
                     cerr "    fireLabel OUT " tag
                          " isLabel=" toStringFromInt(stuff.label.isLabel != 0)
                          " tag=" stuff.label.tag:;
                 else cerr "    fireLabel OUT " tag " NULL":;
-            if !stuff.label   stuff.sukcess = false; }
+            if !stuff.label   stuff.sukcess = false; }}
 }
 
 /***************************************************************************
@@ -1747,6 +1762,35 @@ GroupItem action;
     else        setContent(notifier);
     return this;
 }
+  
+/*******************************************************************************
+    setActionMethod adds builtinActoR to contain rule action method. It is not
+    a setter. The actionMethod field in rStuff gets set from it in
+    fireLabelMethod
+*******************************************************************************/
+void setActionMethod()
+{
+RuleStuff   ruleStuff = rStuff;
+    if getAttribute("builtinActoR") return;
+    if isCoded     method = processAction;
+    or !isMethod {
+        String  methodName = "aCTion" tag;
+        void*   methodAddress;
+        if methodAddress = dlsym(RTLD_SELF,methodName) {
+            GroupItem builtinActoR  = addString("builtinActoR");
+            builtinActoR.rStuff     = ruleStuff;
+            builtinActoR.noPrint    = true;
+            builtinActoR.method     = methodAddress; }
+        free(methodName);
+        if gMethod  immediateACTION = true; }
+    or gMethod {
+        // registeredActor a ruleMethod= registration has ALREADY set gMethod, so the dlsym arm is skipped and NOTHING publishes the actor   GroupItem.setActionMethod.registeredActor
+        void*   actorAddress    = gMethod;
+        GroupItem builtinActoR  = addString("builtinActoR");
+        builtinActoR.rStuff     = ruleStuff;
+        builtinActoR.noPrint    = true;
+        builtinActoR.method     = actorAddress; }
+}
 
 /*****************************************************************************
 	Value setters
@@ -1818,21 +1862,6 @@ void setGroup(GroupItem g)
         isInitialized   = true;
         isGROUP         = true;
         if hasListeners updateListeners(); }
-}
-
-/***************************************************************************
-    embedRule -- THE ONE LEGITIMATE COPY OF AN EMBEDDED RULE, AND THE SOLE WRITER
-    OF isEmbedded.   GroupItem.embedRule
-***************************************************************************/
-void embedRule(GroupItem g)
-{
-GroupItem   copy;
-    if !g || !g.isRule  setGroup(g);
-    else {
-        copy            = new(g);
-        copy.parent     = this;
-        copy.isEmbedded = true;
-        setGroup(copy); }
 }
 
 void setItem(PLGitem i)

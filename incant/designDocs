@@ -756,38 +756,6 @@ define
                 so nothing here has been run -- the template diff is the control and the
                 Xcode walk is the measurement. What was NOT touched, and why, is in
                 docs/fixIts.md F-26.#);
-            ruleAsLabel=(A RULE HANDED BACK AS A LABEL RE-ENTERS ITS OWN ACTION, which is
-                why parseRule refuses instead of storing it. parseRule takes a generated
-                body's return value and makes it the rule's label; naming a rule fires it
-                (bear-trap 34) and everything downstream reads the label, so a rule in that
-                slot is a loop with a plausible shape.
-
-                ⚠ isRule ALONE IS NOT THE TEST, and this half is measured rather than
-                reasoned. `this` -- the hidden local every coded body is built with -- is
-                NOT isRule: aCTionDefinE and compile mint it as a HOLDER whose group is the
-                rule. Measured 2026-09-08: a body closing `return this;` walked straight
-                past an isRule-only guard and still exhausted the stack. One indirection,
-                and the guard saw nothing. So the test asks both questions -- is this a
-                rule, or a holder standing in for one.
-
-                IT IS A FUNCTION RATHER THAN AN INLINE CONDITION for parkOnMaster's reason,
-                which is the same file's own hard-won note: a declaration inside parseRule
-                would re-point every bare field below it, bare `label` included, and it
-                would compile clean (bear-trap 42). A call introduces no declaration.
-                Verified in the generated .mm.
-
-                ⚠ IT IS A CONTRACT CHECK, NOT THE CURE, and the distinction matters to
-                anyone reading it as a fix. It does not fire on either failing arm of
-                incant/trigDO, because both die upstream in the return's own evaluation --
-                aCTionBrancH calls a return operand that carries a method, so the return
-                fires the rule it is returning from. This guard catches the case where a
-                body gets that far and still hands back a rule.
-
-                H7 CONTROL, RECORDED: forcing ruleAsLabel to 1 makes a run refuse with
-                `REFUSED DO -- parseRule: the generated body returned a RULE where a label
-                was owed`, so the guard is reachable and names its subject. That same run
-                left the fleet unmoved at 243 green, which says NO FLEET FIXTURE REACHES
-                parseRule AT ALL -- a green fleet is evidence about nothing on this road.#);
             parseRule=(THE EXECUTOR FOR A RULE CARRYING A GENERATED KANT BODY. Reached only through rStuff.parseMethod, so a specimen with no rStuff cannot arrive here -- the dispatch is the guard. It mints a fresh label per invocation, binds it as the body's one argument, runs the BlocK, and reads the chain's truth off the return. Prose moved out of Generate.rtn 2026-09-09 under the long-comments-to-DesignDocs convention; what stays at the edit site is the one claim a reader must not miss.#):
                 bareFieldRepoint=(⚠⚠ ANY DECLARATION ADDED INSIDE THIS FUNCTION OWES THE BEAR-TRAP 42 CHECK, AND IT IS A NAMED CHECK RATHER THAN A HABIT: tok resolves bare fields last-mentioned-wins, so a new local RE-POINTS EVERY BARE FIELD BELOW IT AND COMPILES CLEAN. It bit here on 2026-09-09 -- checkInput() aimed at intoStuff and the locals-clear loop cleared ruleArg instead of grup, silently. The use ruleStuff and use grup lines are the cure and are load-bearing; deleting either as noise re-opens it.
 
@@ -862,90 +830,6 @@ define
                 GroupBody.h defines as isGROUP, which setParse binds to
                 parseMethod = null. They never reach a leaf executor, so they never
                 reached this line. The fire was unreachable, not merely redundant.#);
-            runRuleAction=(THE GATE IS LIFTED INTO A LOCAL AT ENTRY, in passthrough because a
-                hand-declared C++ global in jitContext.h is invisible to tok's field
-                resolution -- gParseRecordArmed is the precedent and every one of ITS
-                uses is inside a passthrough too. `inFlight` is read OUTSIDE the block
-                as well, which is what keeps bear-trap #13 from pruning it.
-
-                After line:
-                THE SPECIMEN GUARD, AND trueResult HERE IS A SEMANTIC RULING RATHER
-                THAN A CRASH GUARD SOMEBODY FORGOT TO REVISIT. Ruling A + Ruling D1,
-                Tony 2026-08-22.
-
-                FOR AN INERT SPECIMEN, THE BODY'S YIELD IS trueResult BY DEFINITION:
-                no action exists to run, so "ran successfully, nothing happened" is
-                the truthful report. A copyOf twin is a specimen, not an organism --
-                copyOf copies the groupBody and the list, and rStuff is neither, so a
-                twin having no rStuff is LAWFUL and is what a twin IS.
-
-                THIS LINE IS THE TAIL OF EVERY GENERATED BODY. `return runRuleAction(this)`
-                is what the generator emits, and on a specimen
-                `this` is the twin -- so this return is the body's yield for every
-                specimen there will ever be. When generated bodies are later wired
-                into the live yield protocol (null / labelNO / node), READ THIS AS A
-                DECISION, not as a placeholder.
-
-                It was found the expensive way: incant/frontier station 5 ran a
-                generated body end to end -- the marker printed, the first body ever
-                to execute in that pipeline -- and then died here, at the last
-                statement, dereferencing a null rStuff.
-                
-                THE pMethod GUARD, 2026-08-24. The classification attributes only
-                exist where setParse has run, which today is almost nowhere -- and
-                runRuleAction is NOT reached only by the new parse. It is on the
-                ORDINARY path: aCTionBrancH (GroupRules.mm:157) and runOP (:12698)
-                both dispatch a rule action through gMethod and land here, which is how
-                incant/frontier died at exit 139 without ever touching setParse,
-                generate or compile.
-
-                SO THE DEFAULT IS THE OLD ADDRESS AND THE NEW ONE IS PREFERRED ONLY
-                WHEN PRESENT. An early `if !pMethod return trueResult` would have been
-                the obvious guard and is WRONG: it swaps the crash for a silent no-op
-                on every ordinary call, which is the undiscriminated-green shape --
-                the function would stop doing the actionMethod dispatch it has always
-                done and nothing would say so.
-
-                ⚠ AND THE DEREF CANNOT BE GUARDED IN PLACE, which is why the
-                declaration above changed rather than gaining a test: it was an
-                INITIALISER, so it ran unconditionally on entry, before any statement
-                could protect it. The specimen guard below tests the RESULT of that
-                deref and therefore could only ever fire when pMethod was already
-                non-null.
-
-                THE LABEL SOURCE FOR AN ALL-DASHED RULE (Tony's ruling, 2026-08-25).
-                Two label sources by case: a rule with labelled components gloms them;
-                a rule with NONE takes its label from the matched text, the way
-                tokenize did. This is the second arm, and it is the ONLY seam
-                available for it -- the emitted body's tail is
-                `return runRuleAction(this)`, so the action fires from INSIDE the
-                body and nothing outside can get between the terms matching and the
-                action running.
-
-                ⚠ THE GATE IS NOT OPTIONAL. See jitContext.h's gNewParseInFlight: this
-                function is on the ORDINARY path too, where no parse is in flight and
-                hereAt is stale. Ungated, this writes a plausible span into a label
-                every ordinary rule-action dispatch is about to read.
-
-                ⚠ AND THE `or` ARM IS SILENCE, DELIBERATELY. A rule WITH labelled
-                components belongs to the glom seam, which is separately uninherited
-                and separately parked; this fix must not fire across it. The count is
-                printed either way so the reader can see which arm was taken.
-
-                IDENTITY IN POINTERS, NEVER IN TAGS -- assertion 3 of the
-                brief, and the standing lesson of the `<-` week: two faces of
-                one rule share a tag by construction, so a resolver that
-                reports names cannot answer a question about identity. The
-                twin print at the ACTFIRE site below reads the SAME locals, so
-                a reader can compare the write site and the read site directly
-                instead of inheriting that they agree.
-
-                THE actionMethod TAIL MEASUREMENT, parseTrace-gated. This is the
-                consumption site for the OTHER half of the classification pair, and it
-                reads the FACE's rStuff. Printing it here answers, per firing, whether
-                the derived channel is populated where it is actually consumed --
-                which is the question the setParse mirror deliberately does NOT
-                change, and therefore the one worth watching while it does not.#);
             setParse=(THE `or data` GUARD IS THE TEMPLATE'S AND DROPPING IT COSTS REAL ROUTING.
                 setTestMatch tests data THIRD, above every method-shaped arm, so a field
                 that CARRIES data is matched by its data and a method-bearing leaf is the
@@ -1393,6 +1277,32 @@ define
                 method notes lifted out of the code under the 2026-09-01
                 convention: the inline line carries the claim, this carries the
                 argument.#):
+            opAssign=(THE = ASSIGN OPERATOR.#):
+                byRefProvenance=(THE HEADER NAMED THE WRONG PRODUCER FOR ELEVEN
+                    WEEKS. It said a byRef argument is "one that came through
+                    := / opSetGroup", so a reader met the byRef arm and was told
+                    an ordinary operator produced its input.
+                    ⚠ MEASURED OVER EVERY COMMIT TOUCHING Instruct.rtn, 2026-09-03.
+                    692e121 (2026-06-10) DID stamp -- `argument.byRef = true;
+                    group = argument;`. fa9989c (2026-06-14) dropped the stamp.
+                    9c4962b (2026-08-15) replaced the bare `group =` with the
+                    hand-written gGroup/isGROUP/isInitialized triple. R2 restores
+                    the fa9989c routing. So the sentence was ACCURATE FOR FOUR DAYS
+                    and stale for eleven weeks.
+                    ⚠ THE VALUE OF THE HISTORY IS THAT IT CHANGES THE VERDICT FROM
+                    WRONG TO EXPIRED, and expired is the more dangerous grade
+                    because it cannot be caught by reading carefully -- only by
+                    re-running. A dated measurement written as a timeless fact;
+                    the same failure this project already banked for the ipc/
+                    gitignore row.
+                    ⚠ WHAT IS TRUE NOW: the only byRef writers are opSetFlag case
+                    31 (the explicit `:. byRef`), Commands.rtn:556, and three sites
+                    in Bytecode.twk. So this arm is reachable ONLY by an explicit
+                    `:. byRef` and never as a side effect of any operator. Four
+                    registers carried the wrong sentence -- this header, bear-trap
+                    #3, and two TODO.md items -- all agreeing with each other, and
+                    NOT ONE had been re-run. Four registers agreeing is one
+                    citation counted four times.#);
             opDot=(THE DOT OPERATOR. Returns the field referenced in a dot
                 expression, where the field may be a group field or the name of a
                 component of target that may or may not exist. Local fields are
@@ -1508,32 +1418,6 @@ define
                     as an improvement the instruments can see.
                     ⚠ NOT byRef. := does not stamp byRef and will not (R3, same
                     day); three registers said otherwise and were corrected.#);
-            opAssign=(THE = ASSIGN OPERATOR.#):
-                byRefProvenance=(THE HEADER NAMED THE WRONG PRODUCER FOR ELEVEN
-                    WEEKS. It said a byRef argument is "one that came through
-                    := / opSetGroup", so a reader met the byRef arm and was told
-                    an ordinary operator produced its input.
-                    ⚠ MEASURED OVER EVERY COMMIT TOUCHING Instruct.rtn, 2026-09-03.
-                    692e121 (2026-06-10) DID stamp -- `argument.byRef = true;
-                    group = argument;`. fa9989c (2026-06-14) dropped the stamp.
-                    9c4962b (2026-08-15) replaced the bare `group =` with the
-                    hand-written gGroup/isGROUP/isInitialized triple. R2 restores
-                    the fa9989c routing. So the sentence was ACCURATE FOR FOUR DAYS
-                    and stale for eleven weeks.
-                    ⚠ THE VALUE OF THE HISTORY IS THAT IT CHANGES THE VERDICT FROM
-                    WRONG TO EXPIRED, and expired is the more dangerous grade
-                    because it cannot be caught by reading carefully -- only by
-                    re-running. A dated measurement written as a timeless fact;
-                    the same failure this project already banked for the ipc/
-                    gitignore row.
-                    ⚠ WHAT IS TRUE NOW: the only byRef writers are opSetFlag case
-                    31 (the explicit `:. byRef`), Commands.rtn:556, and three sites
-                    in Bytecode.twk. So this arm is reachable ONLY by an explicit
-                    `:. byRef` and never as a side effect of any operator. Four
-                    registers carried the wrong sentence -- this header, bear-trap
-                    #3, and two TODO.md items -- all agreeing with each other, and
-                    NOT ONE had been re-run. Four registers agreeing is one
-                    citation counted four times.#);
         RuleStuff=(is the twk file holding RuleStuff, the per-node parse state.#):
             getWhatFollows=(sets the fields of RuleStuff once, lazily, the first
                 time a rule is needed.#):

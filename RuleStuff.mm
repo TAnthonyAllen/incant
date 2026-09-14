@@ -680,14 +680,16 @@ GroupItem 	*ancestor = 0;
 *******************************************************************************/
 extern "C" int testAction(GroupItem *field)
 {
-	if ( parseACTION(field->groupBody->flags.methodType) || !field->getRStuff()->label )
-		{
-		if ( field->groupBody->gMethod(field) )
-			return 1;
-		}
-	else
-	if ( field->getRStuff()->label && field->groupBody->gMethod(field->getRStuff()->label) )
-		return 1;
+	if ( parseACTION(field->groupBody->flags.methodType) && field->groupBody->gMethod && !field->getRStuff()->actionMethod )
+		field->getRStuff()->actionMethod = field->groupBody->gMethod;
+	if ( field->getRStuff()->actionMethod )
+		if ( parseACTION(field->groupBody->flags.methodType) || !field->getRStuff()->label )
+			if ( field->getRStuff()->actionMethod(field) )
+				return 1;
+			else
+			if ( field->getRStuff()->label && field->getRStuff()->actionMethod(field->getRStuff()->label) )
+				return 1;
+			else	::fprintf(stderr,"testAction: %shas no actionMethod\n",field->groupBody->tag);
 	return 0;
 }
 
@@ -1189,7 +1191,7 @@ GroupItem 	*field = rule;
 	Set the label
 	***************************************************************************/
 	if ( sukcess )
-		if ( noLabel || (field->groupBody->flags.isRule && field->groupBody->flags.hasMembers && !field->groupBody->flags.binType) )
+		if ( noLabel || (field->groupBody->flags.hasMembers && !field->groupBody->flags.binType) )
 			label = 0;
 		else {
 			if ( !label || !label->groupBody->flags.fLAG )
@@ -1200,6 +1202,8 @@ GroupItem 	*field = rule;
 			else	label->groupBody->flags.fLAG = 0;
 			if ( !label->getRStuff() || ::compare(ruleName,field->groupBody->tag) != 0 )
 				label->setRStuff(this);
+			if ( field->groupBody->flags.hasNewParse && isMember(field->options.affiliation) )
+				field->parent->getRStuff()->label = label;
 			}
 checkFailed:
 	return sukcess;

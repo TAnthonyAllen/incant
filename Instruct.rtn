@@ -10,9 +10,8 @@ extern void flushBuffer(GroupItem bufField)
     if bufField.isBUFFER    bufField.buffer.flush();
 }
 
-
 /*****************************************************************************
-    The argument passed in to getMarkLineAt must have source and fromThis ƒ
+    The argument passed in to getMarkLineAt must have source and fromThis
     It returns the line wrapped in a GroupItem field using setToken (as a stream
     pointer into the buffer with a length). The field will only contain
     valid text as long as the buffer contains it in place. Note: getMarkLineAt

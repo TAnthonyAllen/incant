@@ -197,13 +197,14 @@ GroupItem   field = rule;
         Set the label
     ***************************************************************************/
     if sukcess
-        if noLabel || (isRule && hasMembers && !binType)    label = 0;
+        if noLabel || (hasMembers && !binType)   label = 0;
         else {
             if !label || !label.fLAG {
                 label           = new(tag);
                 label.isLabel   = true; }
             else label.fLAG     = false;
-            if !label.rStuff || ruleName ne tag label.setRStuff(this); }
+            if !label.rStuff || ruleName ne tag label.setRStuff(this);
+            if hasNewParse && isMember  parent.rStuff.label = label; }
 checkFailed:
     return sukcess;
 }
@@ -365,10 +366,14 @@ testMacro(set.contains(*atRuleMark));
 *******************************************************************************/
 extern int testAction(GroupItem field)
 {
-    if parseACTION || !label
-        { if field.method(field)    return true; }
-    or label && field.method(label) return true;
-    return false;
+    if parseACTION && method && !actionMethod
+        actionMethod = method;
+    if actionMethod
+        if parseACTION || !label
+            if actionMethod(field)      return true;
+        or label && actionMethod(label) return true;
+    else    cerr "testAction: " tag "has no actionMethod":;
+    return  false;
 }
 
 /*******************************************************************************

@@ -82,7 +82,13 @@ GroupItem   code,
     else    print "compile succeeded for " field.tag:;
     compiling   = false;
 endCompile:
-    field.hasNewParse   = true;
+use field
+    grup = 0;
+    if hasTraits || hasMembers
+        while grup = field.next(grup) {
+            grup.parent  = field;    // because if field is a copy grup.parent is not field
+            if grup.noPrint continue;
+            else compile(grup); }
     return field;
 }
 
@@ -510,7 +516,14 @@ GroupItem   artifact;
     artifact.text   = name;
     artifact.noPrint = true;
     rule            +% artifact;
-    rule.hasNewParse = true;
+    /*  ⚠ parkParse NO LONGER RAISES hasNewParse (stroke 2, 2026-09-14). It parks a
+        dlsym-able NAME for fireNewParse to resolve; it installs no gMethod. The flag's
+        one reader that fires, runRule, calls gMethod off it -- so raising it here
+        promised a method that was never installed, and `Scaf` segfaulted genScratch at
+        exit 139 with hasNewParse=1 and gMethod=0. fireNewParse, the arm that WOULD have
+        resolved the name, is reached by nothing (fixIts F-56). One channel, one meaning:
+        the flag now means setParse installed a method, and nothing else.
+        Commands.parkParse.flagNotRaised  */
     return 1;
 }
 

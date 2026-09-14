@@ -1,71 +1,31 @@
 
-
-
 /*******************************************************************************
-    parkOnMaster -- park the action on the DEFINING rule's rStuff.
-
-    Tony/Clay, 2026-08-29. rStuff is PER NODE and groupBody is SHARED, so
-    parking on whatever FACE setParse was handed put the eviction's verified
-    copy and the slot it must null on DIFFERENT NODES: the generation walk
-    calls setParse on member TERMS, the eviction sweep reaches the MASTER, and
-    the master's rStuff had never been parked. evictAction refused nine of ten
-    Xpress-cohort rules on exactly that, correctly. Resolving definingRule()
-    and parking there too means guard and write interrogate one node.
-
-    ⚠ IT IS A SEPARATE FUNCTION FOR A MEASURED REASON, not for tidiness, and
-    the reason is worth more than the function. Written inline in setParse it
-    needs two locals -- a GroupItem for the definer and a RuleStuff for its
-    stuff -- and tok resolves a bare field name against whichever DECLARED
-    field owns that member, later declaration winning. Adding them silently
-    re-pointed every bare `parseMethod`, `actionMethod`, `upTo` and `data` in
-    the REST of setParse onto the definer and its stuff, including the lines
-    ABOVE the insertion: the rStuff refusal began testing the wrong node and
-    the whole classification switch began writing the master's slot. It
-    compiled clean. Read in the generated .mm it is unmistakable, which is the
-    only reason it was caught -- project memory's "verify in the regen .mm".
-    A call introduces no declaration, so the caller's resolution cannot move.
-
-    ⚠ ADDITIVE, NOT A MOVE. setParse still parks on the face as well, because
-    the actor gate below reads actionMethod off THIS face; park only on the
-    master and that read goes null and builtinActoR stops being hung at all.
-    Writing both is what makes "the actor gate is untouched" a true sentence.
-    The face copy costs nothing -- arm two of the isGroupActorPoison probe
-    measured a persisted actionMethod harmless, on its own rebuild.
-
-    ⚠ NO MIGRATION IS OWED: parking happens fresh inside every parser run, so
-    re-running the driver IS the migration and no stale face copy survives
-    into a new process.
+	This is a wrapper for returning a parse result (mostly to provide a
+    common place to add a success/failure directive
 *******************************************************************************/
-extern GroupItem parkOnMaster(GroupItem field)
+extern GroupItem exitFromParse(GroupItem field)
 {
-GroupItem   definer  = field.definingRule();
-RuleStuff   defStuff = definer.rStuff;
-    if defStuff     defStuff.actionMethod = field.method;
-    return field;
-}
-
-
-/*******************************************************************************
-    ruleAsLabel -- is this node a rule, or a holder standing in for one?
-
-    parseRule stores a generated body's return value as the rule's LABEL, and a
-    rule handed back there re-enters its own action: naming a rule fires it
-    (bear-trap #34), and everything downstream reads the label. So the body's
-    close owes a label-or-0 and never the rule.
-
-    ⚠ isRule ALONE IS NOT THE TEST, and that is the measured half. `this` -- the
-    hidden local every coded body is built with -- is NOT isRule: aCTionDefinE
-    and compile mint it as a HOLDER whose group is the rule. Measured 2026-09-08:
-    a body closing `return this;` walked straight past an isRule-only guard and
-    still exhausted the stack. One indirection, and the guard saw nothing.
-*******************************************************************************/
-extern int ruleAsLabel(GroupItem result)
-{
-GroupItem   inner;
-    if !result          return 0;
-    if result.isRule    return 1;
-    if result.isGROUP   inner = result.gGroup;
-    if inner            return inner.isRule;
+GroupRules  ruler = groupRules;
+RuleStuff   ruleStuff = rStuff;
+    if sukcess {
+        if lastRule != field
+            if lastRule && lastRule.rStuff != parentStuff {
+                parentStuff = lastRule.rStuff;
+                if parentStuff && parentLabel != parentStuff.label  parentLabel = parentStuff.label; }
+        if noAdvance    atRuleMark = hereAt;
+        fireLabelMethod(ruleStuff);
+        if sukcess {
+            if label && !noLabel {
+                if parentLabel && parentLabel != label
+                    if label.isGROUP && max > 1 {
+                        parentLabel     +% label.group;
+                        label.clear(); }
+                    else {
+                        parentLabel +% label;
+                        label   = new(tag); }
+                return label; }
+            else    return trueResult; }}
+    atRuleMark  = hereAt;
     return 0;
 }
 
@@ -74,14 +34,14 @@ GroupItem   inner;
 *******************************************************************************/
 extern GroupItem parseAction(GroupItem field)
 {
+RuleStuff   ruleStuff = rStuff;
+    sukcess = false;
     if parseACTION || !label
-        { if field.method(field)    return trueResult; }
-    or label && field.method(label) return parseSetLabel(field);
+        { if label = field.method(field)    sukcess = true; }
+    or label = field.method(label)          sukcess = true;
     if label    label.clear();
-    atRuleMark  = hereAt;
-    return 0;
+    return exitFromParse(field);
 }
-
 
 /*******************************************************************************
 	Run a wild card test on this group against current input
@@ -89,9 +49,10 @@ extern GroupItem parseAction(GroupItem field)
 extern GroupItem parseAny(GroupItem field)
 {
 GroupRules  ruler = groupRules;
-RuleStuff   ruleStuff = field.rStuff;
+RuleStuff   ruleStuff = rStuff;
 int         counter;
 int         more;
+    sukcess = false;
     if checkInput() {
         while *atRuleMark {
             if counter >= max { more = true; break; }
@@ -100,13 +61,11 @@ int         more;
             if !*atRuleMark break; }
         if more && max > 1 && !limitsSet   reportMaxLimit(field);
         or counter && counter >= min {
-            if label   label.setToken(hereAt,counter);
-            return parseSetLabel(field); }}
+            if label    label.setToken(hereAt,counter);
+            sukcess     = true; }}
     if label    label.clear();
-    atRuleMark = hereAt;
-    return 0;
+    return exitFromParse(field);
 }
-
 
 /*******************************************************************************
 	Run a character test on this group against current input
@@ -114,9 +73,10 @@ int         more;
 extern GroupItem parseCharacter(GroupItem field)
 {
 GroupRules  ruler = groupRules;
-RuleStuff   ruleStuff = field.rStuff;
+RuleStuff   ruleStuff = rStuff;
 int         counter;
 int         more;
+    sukcess = false;
     if checkInput() {
         while *atRuleMark == character {
             if counter >= max { more = true; break; }
@@ -125,38 +85,37 @@ int         more;
             if !*atRuleMark break; }
         if more && max > 1 && !limitsSet   reportMaxLimit(field);
         or counter && counter >= min {
-            if label   label.setToken(hereAt,counter);
-            return parseSetLabel(field); }}
+            if label    label.setToken(hereAt,counter);
+            sukcess     = true; }}
     if label    label.clear();
-    atRuleMark = hereAt;
-    return 0;
+    return exitFromParse(field);
 }
-
 
 /*******************************************************************************
 	Process a condition
 *******************************************************************************/
 extern GroupItem parseCondition(GroupItem field)
 {
-RuleStuff   ruleStuff = field.rStuff;
-    if min  return trueResult;
-    return  0;
+RuleStuff   ruleStuff = rStuff;
+    if min  sukcess = true;
+    else    sukcess = false;
+    return exitFromParse(field);
 }
-
 
 /*******************************************************************************
     Registry and Container test looks for a field entry that matches the input stream.
 *******************************************************************************/
 extern GroupItem parseContainer(GroupItem field)
 {
-GroupItem   grup;
-use field
-GroupRules  ruler   = groupRules;
-RuleStuff   ruleStuff = rStuff;
-PLGset      inSet   = characterSet;
+GroupRules  ruler = groupRules;
+PLGset      inSet = characterSet;
 String      atInput = atRuleMark;
 int         advance;
-Buffer      buffer  = stringBUFFER;
+Buffer      buffer = stringBUFFER;
+RuleStuff   ruleStuff = rStuff;
+GroupItem   grup;
+use field
+    sukcess = false;
     if checkInput() {
         reset();
         atInput = atRuleMark;
@@ -167,13 +126,26 @@ Buffer      buffer  = stringBUFFER;
             if grup = get(string()) {
                 if !noAdvance   atRuleMark += advance;
                 if label    label.group = grup;
-                return parseSetLabel(field); }
+                sukcess     = true; }
             shorten(1); }}
     if label    label.clear();
-    atRuleMark = hereAt;
-    return 0;
+    return exitFromParse(field);
 }
 
+/*******************************************************************************
+	Process a loop (max > 1)
+*******************************************************************************/
+extern GroupItem parseLoop(GroupItem field)
+{
+    if lastRule     field = lastRule.get(field.tag);
+RuleStuff   ruleStuff = rStuff;
+    kount = 0;
+    while kount < max
+        if !parseMethod(field) break;
+        else kount++;
+    if sukcess  return trueResult;
+    return 0;
+}
 
 /*****************************************************************************
      Parse a rule. Assumes processCode was run on field already.
@@ -182,32 +154,34 @@ Buffer      buffer  = stringBUFFER;
 extern GroupItem parseRule(GroupItem field)
 {
 GroupRules  ruler = groupRules;
-GroupItem   pMethod = field["builtinParsE"],
-            code = field[CodE],
+GroupItem   code = field[CodE],
             result,
             grup,
             myLabel,
             into,
+            saveLastRule,
             ruleArg;
-RuleStuff   ruleStuff = pMethod.rStuff;
-RuleStuff   fieldStuff = field.rStuff;
-String      from = atRuleMark;
 GroupItem   priorMETHOD;
-int         hasBody = 0;
-int         yielded = 0;
+use field
+    if lastRule     field = lastRule.get(field.tag);
+RuleStuff   ruleStuff = rStuff;
     measureParentProbe(field);
     // bareFieldRepoint the use lines below are load bearing
+    if lastRule {
+        saveLastRule    = lastRule;
+        if lastRule && lastRule.rStuff != parentStuff {
+            parentStuff = lastRule.rStuff;
+            if parentStuff && parentLabel != parentStuff.label  parentLabel = parentStuff.label; }}
+    lastRule = field;
 use ruleStuff
+    sukcess = false;
     if checkInput() {
 use grup
-        hasBody = 0;
-        if field.isAction   hasBody = 1;
-        if !hasBody         reportNoBody(field);
-        if hasBody {
+        if field.isAction {
             while grup = code.nextAttribute(grup)
                 if isLocal && !isRule && !noPrint && groupBody != field.groupBody clear();
             // intoRidesArgument a FRESH MINT per invocation, one slot cannot survive recursion
-            into    = fieldStuff.parentLabel;
+            into    = parentLabel;
             myLabel = new(field.tag);
             measureLabelMint(field,myLabel,into);
             /*****************************************************************
@@ -230,26 +204,14 @@ use grup
                 if result   result.isBranch = 0; }
             currentMETHOD = priorMETHOD;
             restoreLocalFields(field); }
-        /*********************************************************************
-            Make sure the RuleStuffs involved are in sync. See chainTruthOnly and oneAttach DesignDocs entries
-        *********************************************************************/
-        yielded = 0;
-        if ruleAsLabel(result)
-            refuse(field,"parseRule: the generated body returned a RULE where the chain's truth was owed -- this is a GENERATOR error, not a parse failure");
-        if truthOf(result) && !ruleAsLabel(result) && myLabel   yielded = 1;
-        measureLabelProbe(field,myLabel,into,result,yielded);
-        if yielded {
-            RuleStuff   myStuff = new(field);
-            RuleStuff   intoStuff = new(field);
-            myStuff.label   = myLabel;
-            intoStuff.label = into;
-            field.attachLabel(myStuff,intoStuff,0);
-            return myLabel; }
+        else        reportNoBody(field);
+checkSuccess:   // this is just a marker for directives
+        if result   sukcess = true;
         }
-    atRuleMark = from;
-    return 0;
+    if saveLastRule lastRule = saveLastRule;
+    else            lastRule = 0;
+    return exitFromParse(field);
 }
-
 
 /*******************************************************************************
 	Run a character set test on this group against current input
@@ -258,9 +220,10 @@ extern GroupItem parseSet(GroupItem field)
 {
 PLGset      set = characterSet;
 GroupRules  ruler = groupRules;
-RuleStuff   ruleStuff = field.rStuff;
+RuleStuff   ruleStuff = rStuff;
 int         counter;
 int         more;
+    sukcess = false;
     if checkInput() {
         while set.contains(*atRuleMark) {
             if counter >= max { more = true; break; }
@@ -269,34 +232,11 @@ int         more;
             if !*atRuleMark break; }
         if more && max > 1 && !limitsSet   reportMaxLimit(field);
         or counter && counter >= min {
-            if label   label.setToken(hereAt,counter);
-            return parseSetLabel(field); }}
+            if label    label.setToken(hereAt,counter);
+            sukcess     = true; }}
     if label    label.clear();
-    atRuleMark = hereAt;
-    return 0;
+    return exitFromParse(field);
 }
-
-
-/*******************************************************************************
-	On rule success deal w/label setting and return true
-*******************************************************************************/
-extern GroupItem parseSetLabel(GroupItem field)
-{
-GroupRules  ruler = groupRules;
-RuleStuff   ruleStuff = field.rStuff;
-    if noAdvance    atRuleMark = hereAt;
-    if label {
-        if parentLabel
-            if label.isGROUP && max > 1 {
-                parentLabel     +% label.group;
-                label.clear(); }
-            else {
-                parentLabel +% label;
-                label   = new(tag); }
-        return label; }
-    return trueResult;
-}
-
 
 /***************************************************************************
 	Parse method for a field w/data = isSTRING or isTOKEN
@@ -304,82 +244,29 @@ RuleStuff   ruleStuff = field.rStuff;
 extern GroupItem parseString(GroupItem field)
 {
 GroupRules  ruler = groupRules;
-RuleStuff   ruleStuff = field.rStuff;
+RuleStuff   ruleStuff = rStuff;
+    sukcess = false;
     if checkInput() {
         String  matchedString = rule.matches(atRuleMark);
         if matchedString {
-            if label   label.text  = matchedString;
-            return parseSetLabel(field); }}
+            if label    label.text  = matchedString;
+            sukcess     = true; }}
     if label    label.clear();
-    atRuleMark = hereAt;
-    return 0;
+    return exitFromParse(field);
 }
-
 
 /*******************************************************************************
 	Process an up to match
 *******************************************************************************/
 extern GroupItem parseUpTo(GroupItem field)
 {
-GroupRules  ruler = groupRules;
-RuleStuff   ruleStuff = field.rStuff;
+RuleStuff   ruleStuff = rStuff;
+    sukcess = false;
     if checkInput()
-        if testUpTo(field)  return parseSetLabel(field);
+        if testUpTo(field)  sukcess = true;
     if label    label.clear();
-    atRuleMark = hereAt;
-    return 0;
+    return exitFromParse(field);
 }
-
-
-/*******************************************************************************
-	runRuleAction checks to see if there is a method parked in actionMethod.
-    If there is, and there is a rule label, it runs actionMethod.
-
-    THE CAPTURE GATE IS STRUCTURAL NOW, AND THAT IS THE WHOLE POINT.
-    It asks pMethod -- does THIS FIELD carry a builtinParsE -- where it used to
-    ask gNewParseInFlight, a file scope C++ global raised by parseRule around
-    the generated body and read back through a -% pocket.
-
-    Both spellings answer the same question, "are we inside a new parse", but
-    they answer it about different subjects. The global answered it about TIME:
-    it was true for whatever ran while parseRule's frame was live, so its
-    correctness depended on every road that reaches here either being under
-    that frame or being excluded by hand. aCTionBrancH and runOP are two roads
-    that are not, which is why the global existed at all. pMethod answers it
-    about the FIELD, and a field either carries a generated parse or it does
-    not, on every road, with nothing to save and nothing to restore.
-
-    So this is the escape pocket doctrine's first payment: a temporal guard,
-    unspellable in kant and therefore written in C++ inside this function, is
-    replaced by an ordinary read of a node the function already had in a local.
-    Tony objected to the -% spelling before anyone noticed the gate could be
-    structural; the objection was the better instinct and this is where it led.
-
-    ⚠ AND IT IS NOT A BEHAVIOUR CHANGE TODAY, which is worth saying so nobody
-    reads the fleet staying still as the edit not landing. In an ordinary run
-    setParse never fires, so no field carries builtinParsE and this arm is dead
-    either way -- exactly as it was dead under the global, which nothing raised
-    once parseRule's set was removed. The gate becomes live the first time a
-    generated parse runs, which is the campaign.
-*******************************************************************************/
-extern GroupItem runRuleAction(GroupItem field)
-{
-GroupItem   pMethod = field["builtinParsE"],
-            aMethod = field["builtinActoR"];
-RuleStuff   ruleStuff = field.rStuff;
-int         minters = 0;
-    if pMethod      ruleStuff = pMethod.rStuff;
-    if !ruleStuff   return trueResult;
-    if pMethod && label {
-        minters = labelMinters(field);
-        if parseTrace   cerr "  CENSUS " field.tag " labelMinters=" minters:;
-        if minters == 0     field.captureSpan(ruleStuff); }
-    if label {
-        if aMethod  label = aMethod.method(label);
-        return label; }
-    return  trueResult;
-}
-
 
 /*******************************************************************************
 	Set parseMethod and label for the field passed in. For now does not handle macros
@@ -388,38 +275,35 @@ extern GroupItem setParse(GroupItem field)
 {
 RuleStuff   ruleStuff = rStuff;
     if !ruleStuff   return refuse(field,"setParse: the field passed in has no rStuff");
-    if !hasNewParse {
-        /***********************************************************************
-            Set the parseMethod
-        ***********************************************************************/
-        hasNewParse = true;
-        actionMethod = method;
-        //parkOnMaster(field);
-        if upTo || upToOver     parseMethod = parseUpTo;
-        or isBIN || isREGISTRY  parseMethod = parseContainer;
-        or isCondition          parseMethod = parseCondition;
-        or parseACTION          parseMethod = parseAction;
-        or groupList {
-            parseMethod = parseRule;
-            hasNewParse = 0; }
-        or data switch(data) {
-            case isANY:         parseMethod = parseAny;
-            case isCHAR:        parseMethod = parseCharacter;
-            case isSET:         parseMethod = parseSet;
-            case isGROUP:       parseMethod = null;
-            default:            parseMethod = parseString; }
-        or method               parseMethod = parseAction;
-        else                    parseMethod = parseString;
-        if parseMethod {
-            GroupItem builtinParsE = field += "builtinParsE";
-            rStuff  = ruleStuff;
-            noPrint = true;
-            method  = parseMethod; }
-        if actionMethod && parseMethod {
-            GroupItem builtinActoR = field += "builtinActoR";
-            rStuff  = ruleStuff;
-            noPrint = true;
-            method  = actionMethod; }
-        updateContentFlags(); }
+    /***************************************************************************
+        Set the parseMethod
+    ***************************************************************************/
+    // walkGuard the grammar is cyclic -- StatemenT contains BlocK contains StatemenT -- so the internalized walk below cannot terminate without its OWN mark. NOT hasNewParse: parkParse is that flag's other writer   Generate.setParse.walkGuard
+    if parseWalked  return refuse(field,"setParse: RE-ENTRY -- this node was already walked");
+    parseWalked = true;
+    actionMethod = method;
+    if upTo || upToOver     parseMethod = parseUpTo;
+    or isBIN || isREGISTRY  parseMethod = parseContainer;
+    or isCondition          parseMethod = parseCondition;
+    or parseACTION          parseMethod = parseAction;
+    or groupList            parseMethod = parseRule;
+    or data switch(data) {
+        case isANY:         parseMethod = parseAny;
+        case isCHAR:        parseMethod = parseCharacter;
+        case isSET:         parseMethod = parseSet;
+        case isGROUP:       parseMethod = null;
+        default:            parseMethod = parseString; }
+    or method               parseMethod = parseAction;
+    else                    parseMethod = parseString;
+    if hasTraits || hasMembers {
+        GroupItem grup;
+        while grup = field.next(grup) {
+            parent  = field;    // if field is a copy grup.parent is not field
+            if grup.noPrint continue;
+            else setParse(grup); }}
+    if max > 1 && (!data || data > 3) field.method = parseLoop;
+    else    field.method = parseMethod;
+    // flagFollowsInstall hasNewParse says A METHOD IS THERE TO FIRE, so it is raised HERE and never at entry: parseMethod is null for the isGROUP case and the head cannot know   Generate.setParse.flagFollowsInstall
+    if field.gMethod    field.hasNewParse = true;
     return null;
 }
