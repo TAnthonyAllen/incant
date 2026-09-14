@@ -8,10 +8,12 @@ extern GroupItem exitFromParse(GroupItem field)
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = rStuff;
     if sukcess {
-        if lastRule != field
-            if lastRule && lastRule.rStuff != parentStuff {
-                parentStuff = lastRule.rStuff;
-                if parentStuff && parentLabel != parentStuff.label  parentLabel = parentStuff.label; }
+        /*  parentLabelSync  the block that stood here re-derived parentStuff from lastRule
+            -- the ENCLOSING rule -- after parseRule had already closed its bracket. parentStuff
+            IS the enclosing rule's stuff, reached through this field's own rStuff, so the
+            re-derivation was a no-op and only the sync it guarded carries anything.
+            Generate.exitFromParse.parentLabelSync  */
+        if parentStuff && parentLabel != parentStuff.label  parentLabel = parentStuff.label;
         if noAdvance    atRuleMark = hereAt;
         fireLabelMethod(ruleStuff);
         if sukcess {
@@ -147,7 +149,11 @@ use field
 *******************************************************************************/
 extern GroupItem parseLoop(GroupItem field)
 {
-    if lastRule     field = lastRule.get(field.tag);
+    // enclosingRule currentMETHOD is the rule whose body is executing, kept under parseRule's own priorMETHOD bracket. MEASURED at both re-resolve sites: it tracks lastRule exactly -- GrouP/Search, NamE/GrouP   Generate.parseLoop.enclosingRule
+    // onlyIfFound the old guard was `if lastRule`, and lastRule was null exactly where this
+    // lookup finds nothing; currentMETHOD is set more often, so an unfound tag would overwrite
+    // field with NULL and parseRule would deref it. Tested on the lookup, not on the source.
+    if currentMETHOD && currentMETHOD.get(field.tag)    field = currentMETHOD.get(field.tag);
 RuleStuff   ruleStuff = rStuff;
     kount = 0;
     while kount < max
@@ -169,20 +175,24 @@ GroupItem   code = field[CodE],
             grup,
             myLabel,
             into,
-            saveLastRule,
             ruleArg;
 GroupItem   priorMETHOD;
 use field
-    if lastRule     field = lastRule.get(field.tag);
+    // enclosingRule as parseLoop -- the enclosing rule at the moment of entry   Generate.parseRule.enclosingRule
+    // onlyIfFound the old guard was `if lastRule`, and lastRule was null exactly where this
+    // lookup finds nothing; currentMETHOD is set more often, so an unfound tag would overwrite
+    // field with NULL and parseRule would deref it. Tested on the lookup, not on the source.
+    if currentMETHOD && currentMETHOD.get(field.tag)    field = currentMETHOD.get(field.tag);
 RuleStuff   ruleStuff = rStuff;
     measureParentProbe(field);
+    /*  parentRepair  this is NOT part of the lastRule bracket, it only lived inside its
+        guard: it re-points parentStuff at the ENCLOSING rule's stuff and syncs parentLabel.
+        Sourced from currentMETHOD now, which was measured to track lastRule exactly at both
+        re-resolve sites.   Generate.parseRule.parentRepair  */
+    if currentMETHOD && currentMETHOD.rStuff != parentStuff {
+        parentStuff = currentMETHOD.rStuff;
+        if parentStuff && parentLabel != parentStuff.label  parentLabel = parentStuff.label; }
     // bareFieldRepoint the use lines below are load bearing
-    if lastRule {
-        saveLastRule    = lastRule;
-        if lastRule && lastRule.rStuff != parentStuff {
-            parentStuff = lastRule.rStuff;
-            if parentStuff && parentLabel != parentStuff.label  parentLabel = parentStuff.label; }}
-    lastRule = field;
 use ruleStuff
     sukcess = false;
     if checkInput() {
@@ -218,8 +228,6 @@ use grup
 checkSuccess:   // this is just a marker for directives
         if result   sukcess = true;
         }
-    if saveLastRule lastRule = saveLastRule;
-    else            lastRule = 0;
     return exitFromParse(field);
 }
 

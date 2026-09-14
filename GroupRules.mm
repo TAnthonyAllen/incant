@@ -2724,13 +2724,13 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( ruleStuff->sukcess )
 		{
-		if ( ruler->lastRule != field )
-			if ( ruler->lastRule && ruler->lastRule->getRStuff() != ruleStuff->parentStuff )
-				{
-				ruleStuff->parentStuff = ruler->lastRule->getRStuff();
-				if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
-					ruleStuff->parentLabel = ruleStuff->parentStuff->label;
-				}
+		/*  parentLabelSync  the block that stood here re-derived parentStuff from lastRule
+		-- the ENCLOSING rule -- after parseRule had already closed its bracket. parentStuff
+		IS the enclosing rule's stuff, reached through this field's own rStuff, so the
+		re-derivation was a no-op and only the sync it guarded carries anything.
+		Generate.exitFromParse.parentLabelSync  */
+		if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
+			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
 		if ( ruleStuff->noAdvance )
 			ruler->atRuleMark = ruleStuff->hereAt;
 		field->fireLabelMethod(ruleStuff);
@@ -9742,8 +9742,12 @@ GroupItem 	*grup = 0;
 *******************************************************************************/
 extern "C" GroupItem *parseLoop(GroupItem *field)
 {
-	if ( GroupControl::groupController->groupRules->lastRule )
-		field = GroupControl::groupController->groupRules->lastRule->get(field->groupBody->tag);
+	// enclosingRule currentMETHOD is the rule whose body is executing, kept under parseRule's own priorMETHOD bracket. MEASURED at both re-resolve sites: it tracks lastRule exactly -- GrouP/Search, NamE/GrouP   Generate.parseLoop.enclosingRule
+	// onlyIfFound the old guard was `if lastRule`, and lastRule was null exactly where this
+	// lookup finds nothing; currentMETHOD is set more often, so an unfound tag would overwrite
+	// field with NULL and parseRule would deref it. Tested on the lookup, not on the source.
+	if ( GroupControl::groupController->groupRules->currentMETHOD && GroupControl::groupController->groupRules->currentMETHOD->get(field->groupBody->tag) )
+		field = GroupControl::groupController->groupRules->currentMETHOD->get(field->groupBody->tag);
 RuleStuff *ruleStuff = field->getRStuff();
 	ruleStuff->kount = 0;
 	while ( ruleStuff->kount < ruleStuff->max )
@@ -9799,25 +9803,27 @@ GroupItem 	*result = 0;
 GroupItem 	*grup = 0;
 GroupItem 	*myLabel = 0;
 GroupItem 	*into = 0;
-GroupItem 	*saveLastRule = 0;
 GroupItem 	*ruleArg = 0;
 GroupItem 	*priorMETHOD = 0;
-	if ( ruler->lastRule )
-		field = ruler->lastRule->get(field->groupBody->tag);
+	// enclosingRule as parseLoop -- the enclosing rule at the moment of entry   Generate.parseRule.enclosingRule
+	// onlyIfFound the old guard was `if lastRule`, and lastRule was null exactly where this
+	// lookup finds nothing; currentMETHOD is set more often, so an unfound tag would overwrite
+	// field with NULL and parseRule would deref it. Tested on the lookup, not on the source.
+	if ( ruler->currentMETHOD && ruler->currentMETHOD->get(field->groupBody->tag) )
+		field = ruler->currentMETHOD->get(field->groupBody->tag);
 RuleStuff 	*ruleStuff = field->getRStuff();
 	::measureParentProbe(field);
-	// bareFieldRepoint the use lines below are load bearing
-	if ( ruler->lastRule )
+	/*  parentRepair  this is NOT part of the lastRule bracket, it only lived inside its
+	guard: it re-points parentStuff at the ENCLOSING rule's stuff and syncs parentLabel.
+	Sourced from currentMETHOD now, which was measured to track lastRule exactly at both
+	re-resolve sites.   Generate.parseRule.parentRepair  */
+	if ( ruler->currentMETHOD && ruler->currentMETHOD->getRStuff() != ruleStuff->parentStuff )
 		{
-		saveLastRule = ruler->lastRule;
-		if ( ruler->lastRule && ruler->lastRule->getRStuff() != ruleStuff->parentStuff )
-			{
-			ruleStuff->parentStuff = ruler->lastRule->getRStuff();
-			if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
-				ruleStuff->parentLabel = ruleStuff->parentStuff->label;
-			}
+		ruleStuff->parentStuff = ruler->currentMETHOD->getRStuff();
+		if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
+			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
 		}
-	ruler->lastRule = field;
+	// bareFieldRepoint the use lines below are load bearing
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
@@ -9861,9 +9867,6 @@ checkSuccess:
 		if ( result )
 			ruleStuff->sukcess = 1;
 		}
-	if ( saveLastRule )
-		ruler->lastRule = saveLastRule;
-	else	ruler->lastRule = 0;
 	return ::exitFromParse(field);
 }
 
@@ -12497,7 +12500,6 @@ GroupRules::GroupRules()
 	inDENT = 0;
 	labelNO = 0;
 	lastREF = 0;
-	lastRule = 0;
 	lastStatement = 0;
 	generator = 0;
 	maxLimit = 0;

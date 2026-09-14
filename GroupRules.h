@@ -31,7 +31,6 @@ GroupItem *falseResult;
 GroupItem *inDENT;
 GroupItem *labelNO;
 GroupItem *lastREF;
-GroupItem *lastRule;
 GroupItem *lastStatement;
 GroupItem *generator;
 GroupItem *maxLimit;
