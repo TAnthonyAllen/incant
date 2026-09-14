@@ -63,6 +63,41 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-62 (`generateParse` leaks its output redirect) — the run goes silent and still exits 0
+**Gloss:** printTO restored only when nothing refuses. **Severity: WRONG.** **Owner: Tony.**
+**Entered 2026-09-14 by ruling. Fix is restore-on-every-exit; its own stroke, after 7.**
+**Where:** `incant/pop/trigDO` `generateParse` — `printTO(codeBuffer)` at line 17, `printTO(0)` at
+line 47 (the success path) and line 22 (the early-return arm). No restore on any other exit.
+**What:** a refusal is terminal for the ACTION, so anything that refuses between 17 and 47 leaves
+stdout pointed at `codeBuffer` **for the rest of the run**. Measured on trigDO with the streams
+split: **stdout = 2 lines, stderr = 201**. `compile(DO)`'s own `compile succeeded` line is absent
+*although compile ran* — it went into the buffer. The run looks truncated and is not.
+⚠ **What refuses is normal, not exceptional:** `setParse`'s re-entry guard. Hit counts on one
+trigDO run — `setParse` **1**, `clearWalked` **1**, `setParseWalk` **207**, re-entry refusals
+**52**. A shared node in a DAG grammar is *expected* to be reached twice; the guard is right to
+stop, but `refuse()` raises `ruler.refused` and that aborts the calling incant action.
+**Done when:** the redirect is restored on every exit from `generateParse`. ⚠ **And note the wider
+question this exposes, which is not trigDO's:** a loud refusal on a routine condition aborts its
+caller. Any incant action that brackets state across a `setParse` call has this shape.
+
+### F-63 (`RunRulE: expected a method not cerr`) — trigDO drops both arms, sentinel and `stop()` at exit 0
+**Gloss:** a good line refused for a bad neighbour. **Severity: WRONG.** **Owner: Tony.**
+**Entered 2026-09-14 by ruling; read-only, no repair.**
+**Where:** `incant/pop/trigDO` line 87 —
+`cerr "=== ARM 1: GOOD INPUT -- expect chainTrue=1 yielded=1 mintedLen=2 ===":;`
+**What:** the parser takes `cerr` for a method call, refuses, and — per CLAUDE.md's documented
+silent-truncation signature — **drops every statement after it**: both arms, the `TRIG SENTINEL`
+line and `stop()`, at exit 0. That is the whole reason trigDO's sentinel row is red; the sentinel
+is not missed, it is never executed.
+⚠ **THE LINE IS INNOCENT, AND THIS IS THE MEASURED PART.** A control with the same preamble and
+the **byte-identical** `cerr` statement, minus the `generateParse(DO)`/`compile(DO)` above it,
+parses and prints clean at exit 0. So nothing on line 87 is a method call and nothing about it is
+malformed — it is **collateral of the state left by the aborted `generateParse(DO)`** (F-62),
+which returns with DO half-built: `setParse` has classified it and its terms, but no `CodE` was
+attached and `hasNewParsE` was never set.
+**Done when:** F-62 is fixed and this is re-measured — it may go with it. If it does not, the
+question is why a half-built `WardeD` alternative stops `cerr` matching `CerR`.
+
 ### F-61 (`actionMethod` has no writer at install time on the parseACTION road) — LATENT
 **Gloss:** the action slot is filled late, by a guess. **Severity: LATENT / design.**
 **Owner: Tony.** **Entered 2026-09-14 by ruling; not now.**
