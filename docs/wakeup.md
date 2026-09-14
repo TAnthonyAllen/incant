@@ -1,3 +1,133 @@
+# ⚠⚠⚠ SEALED 2026-09-14, EIGHTEENTH SESSION -- TONY'S PARSER ARC RECONCILED, AND
+# THE lastRule GLOBAL IS GONE. NINE STROKES, TEN COMMITS.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-14 18:30 and `git log -1 --date=iso` 18:19,
+#   same session. They agree.
+#
+#   ## THE ONE-LINE STATE: **Tony's offline parser work is reconciled and sealed, three
+#   real regressions in it are fixed, `lastRule` is retired, and the fleet is HIGHER than
+#   the tree it started from.** Fleet **276 green**, canary **329**, still-new against
+#   HEAD **4**. Both repos **0 dirty, 0 unpushed**. Fixit queue **3**.
+#
+#   ⚠ THE BASELINE WAS MEASURED, NOT ASSUMED, AND IT IS WHY ANY OF THIS IS READABLE.
+#   HEAD was stashed, rebuilt and run before a single edit: **281 green / 48 red**. So
+#   "new" below means new against the committed tree, never merely red. The arc:
+#
+#       HEAD            281 green   canary 329
+#       Tony's tree     260 green   canary 327    21 new reds
+#       ... nine strokes ...
+#       sealed          276 green   canary 329     4 new reds
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE THREE REGRESSIONS, all in Tony's arc, all fixed.**
+#   - **Every `or` arm in the language segfaulted.** `ElseIf` is the grammar's ONLY
+#     `ruleMethod=` registration, so its action was installed BEFORE `setActionMethod`
+#     ran; the dlsym arm was skipped and nothing published `builtinActoR`. Fixed by a
+#     third arm that publishes an already-set `gMethod`.
+#   - **`setParse`'s internalized walk had no cycle guard.** The grammar is cyclic --
+#     **StatemenT contains BlocK contains StatemenT**, read off the stack. New GroupBody
+#     flag `parseWalked`, **per-walk, not per-process** (per-process over-refuses a second
+#     legitimate root: 54 refusals and zero parked actions in parseClass).
+#   - **`hasNewParse` was raised before anything was installed.** Moved to `setParseWalk`'s
+#     tail; `parkParse` stopped raising it (it parks a NAME for `fireNewParse`, which is
+#     reached by nothing -- F-56); `runRule` refuses by name instead of calling null.
+#
+#   **b. ⚠ THE THREE-SLOT RULING IS THE SPINE OF THE WHOLE SESSION.** `gMethod` is the
+#   ENTRY (parseLoop for a repeating term, the leaf otherwise) · `rStuff->parseMethod` is
+#   the LEAF · `rStuff->actionMethod` is the ACTION. **Measured, not argued:** at
+#   `runRule`'s dispatch the two slots AGREE on six rules and **DISAGREE on `GrouP`** --
+#   `gMethod=parseLoop`, `parseMethod=parseRule`. They are not two copies of one answer,
+#   and collapsing them makes `parseLoop` call itself.
+#
+#   **c. ⚠⚠ A REFUSAL INSIDE A LIBRARY WALK ABORTS WHATEVER INCANT ACTION CALLED THE
+#   WALK. REFUSE ONLY WHERE THERE IS A PATIENT.** New doctrine, and it cost two strokes.
+#   ⚠ **AND ITS QUALIFIER, WHICH IS THE HALF THAT WILL BE MISAPPLIED: "no patient" is
+#   PER-REFUSAL, NOT PER-WALK.** `setParseWalk` has two refusals and they rule opposite
+#   ways -- **re-entry** is routine (52 repeat arrivals among 207 visits, now a silent
+#   return traced under debug only) and **no-rStuff** is LOAD-BEARING. Silencing the
+#   second, which looks like the identical fix, takes trigDO to **exit 139**: that
+#   refusal stops the walk descending into something that then crashes. Measured and
+#   killed, not reasoned about.
+#
+#   **d. `lastRule` IS RETIRED.** It was a global standing in for the ENCLOSING rule,
+#   which the caller already holds. `currentMETHOD` means exactly that and is already
+#   bracketed by `priorMETHOD`. Measured at both re-resolve sites before editing:
+#   `GrouP -> Search`, `NamE -> GrouP`, matching `lastRule` exactly.
+#   ⚠ **TWO THINGS THE PLAN DID NOT ANTICIPATE, and the first is why four earlier strokes
+#   died:** the "save/restore bracket" also held a **parentStuff/parentLabel REPAIR** that
+#   merely lived inside the `if lastRule` guard. **That repair, not the re-resolve's
+#   source, is what every failed attempt had been deleting.** And `currentMETHOD` is set
+#   where `lastRule` was null, so the guard must be on the LOOKUP, not the source.
+#
+#   **e. ⚠ THE MATCH TRACE LIVES IN `groupDirectives` AND IN NO SOURCE FILE.** Three
+#   reconstructions failed before this was found. Verifying the GrouP item needs a
+#   directives build -- legitimate for an OBSERVATION, never for a number. Taken, read,
+#   then **rebuilt bare before the fleet and before the commit** (0 Match markers in the
+#   committed `.mm`). The whole **419-line trace is byte-identical** across the stroke.
+#
+#   ## ⚠⚠ WAITING ON TONY -- trigDO's THREE ROWS. NO REPAIR UNTIL HE READS THEM.
+#
+#   **They are ONE fact wearing three rows.** The fixture now RUNS to its foot and
+#   REPORTS, which it could not do this morning -- that is what makes them askable.
+#
+#       row                  expected                                              actual
+#       arm 1   LABELPROBE DO minted=DO mintedLen=2 into=Token chainTrue=1 yielded=1   NO LABELPROBE LINE AT ALL
+#       arm 2   LABELPROBE DO minted=DO mintedLen=1 into=Token chainTrue=0 yielded=0   NO LABELPROBE LINE AT ALL
+#       attach  `attachLabel lab=DO ` count = 1                                        0
+#
+#   **WHY, bisected with stderr markers this evening:** `generateParse` prints its cout
+#   and then aborts **inside `setParse(argument)`** -- `M0 before` prints, `M1 AFTER` does
+#   not -- on the first of **60 `setParse: the field passed in has no rStuff` refusals**,
+#   raised on ordinary operator terms (`--`, `-`, `++`, `@`, `!`). So **DO never gets a
+#   `CodE`**, `compile(DO)` exits at its first line (`if !field.isCoded return null`), and
+#   `DO("...")` never runs a generated parse. `measureLabelProbe` fires from `parseRule`,
+#   which is never reached -- hence zero probe lines rather than wrong ones.
+#   ⚠ **This is the doctrine question in (c) with a real subject:** those 60 refusals are
+#   raised on nodes that have no business having rStuff, inside a walk with no patient --
+#   but the refusal is load-bearing and cannot simply be silenced. **That is Tony's.**
+#
+#   ## TONY IS TAKING `testPrecedence` OFFLINE
+#   The trim collapsed the per-row slug mint into a shared `tpMark := new("bare")`, so
+#   every row writes the SAME marker: 26 identical `PENDING bare` lines, and `tpSlot`
+#   becomes a latch that **all 35 rows** increment -- `tpRows=27`, `tpTrue=35`, hence
+#   `-8`. pop.sh's extractor then reads nothing, because `s/[^0-9].*//` **cannot parse a
+#   minus sign**. Two fixes, both instrument-shape calls, both his.
+#
+#   ## WHAT LANDED -- TEN COMMITS
+#   `5f24cf3` seal of Tony's arc + strokes 1-2 · `d179305` 2b per-walk mark ·
+#   `d9926d2` re-pins + causes read · `2c8e07a` stroke 5 F-58 · `e130973` F-59 ·
+#   `de7f2c9` F-60 · `70622a5` F-61 · `338f834` 6b · `65a27dc` 7 lastRule retired ·
+#   `8df10c9` 8 · `b04902b` 9 F-62/F-63 · `715fc0c`/`0e4c2f4` re-pins.
+#   Support: `f0b27ce` (alpha-order + parseWalked mirror), plus the lastRule mirror drop.
+#
+#   ## ⚠ FIVE STROKES WERE REVERTED WHOLE, AND THAT IS THE METHOD WORKING
+#   4, 4b, 4c, 6, and stroke 7's first cut. Every revert was verified byte-identical back
+#   to its seal before the next attempt, and **every one bought a measurement** that the
+#   next stroke used. Try-and-buy is why nine strokes produced no accumulated wreckage.
+#
+#   ## TOMORROW, IN ORDER
+#   1. **The `GroupItem.twk` recon** -- read-only, as dispatched 2026-09-14, output one
+#      report to `ipc/clod-to-clay.md`. **It is the opening move and nothing is owed
+#      before it.** Sections: comment census · alpha order · measuring constructs ·
+#      blast radius on `fireLabelMethod`/`setActionMethod` (both fresh this session) ·
+#      genParse callers.
+#   2. **Comment minion, first pass drafted from that report.**
+#   3. **Peas: `faceFlagsNoCross` first, ONE citizen per POP.**
+#
+#   ## STATE OF THE REST OF THE CHECKLIST
+#   formsPop 14 PASSED · decodePop red · ddPop 5 red (32 pre-existing trim-gate
+#   violations) · **countPop 0-of-47, RED AT HEAD TOO and NOT from this work** ·
+#   frontier 3 PASS, dies at station 5 · canary 329 · `groups.ext` committed and pushed.
+#   Ledger open: **F-59** (baked `rule[n]` shifts under a noPrint attribute -- latent,
+#   not bitten), **F-60** (parked-action census empties under the 4b patch -- a VARIANT
+#   property, green on the tree), **F-61** (`actionMethod` has no writer at install on
+#   the parseACTION road). F-58, F-62, F-63 closed this session.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which citizen goes first.**
+#
 # ⚠⚠⚠ OPEN, UNSEALED, FOR CLAY -- 2026-09-10, AFTER THE SEVENTEENTH SEAL.
 # THE TraiT HAND-UP LEAVES ITS TRANSPORT PACKET ON THE TREE.
 #
