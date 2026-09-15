@@ -109,6 +109,29 @@ tok GroupItem.twk    # produces GroupItem.mm + GroupItem.h
 ./groups <input_file>
 ```
 
+⚠⚠ **TWO XCODE DOORS, AND ONLY ONE OF THEM FEEDS `~/bin/incant`. MEASURED 2026-09-15,
+BECAUSE THE GUIDANCE AND THE TREE DISAGREED.** `InProcess.xcworkspace` *does* contain
+`TOK/TOK.xcodeproj`, so it is the right door for **reading, debugging and `bt`** — it
+brings `Include/` into scope, which a bare project open does not. **It is the wrong door
+for a build**, and the check is one `ls`:
+
+| DerivedData root | holds a `Groups` product? |
+|---|---|
+| `TOK-dunathwfzpvwdxcoubekdzzjoxid` | **yes** — and `~/bin/incant` symlinks to it |
+| `InProcess-ezzmcllcsvijqmbipricnduikqfp` | **no `Build/Products` at all**, only an index and logs |
+
+**Nothing has ever been built through the workspace**, so a workspace build would write a
+fresh product tree that the symlink does not point at — and the fleet would go on
+measuring the old binary. That is rule **H1**'s exact hazard: *a stale binary does not
+fail as a diff*; the first symptom is a hang or an inexplicable green.
+
+**THE RULE: build with `xcodebuild -project TOK.xcodeproj -scheme Groups -configuration
+Debug`, and let `pop.sh`'s own binary echo be the proof.** It prints the path, size and
+mtime as its first output and warns `⚠ STALE` when the newest source is younger — which
+is the standing guard and needs no remembering. If the workspace is ever made to build the
+fleet binary, the symlink moves with it or this table is wrong; **re-measure before
+citing it.**
+
 Same TAWK quirks as the rest of the ecosystem (see Parse/CLAUDE.md or the
 bible's TAWK Known Issues table):
 - Empty `//` lines reset field-resolution context — remove from method bodies

@@ -1151,6 +1151,70 @@ for _arm in "ADDROF faSrc field=#1 body=#2" \
 done
 
 #  ============================================================================
+
+#  ============================================================================
+#  ⚠⚠ starFlagT -- JOINS THE FLEET 2026-09-15 AS THE ACCEPTANCE FIXTURE FOR THE
+#  CHAINED-DOT CHANGE (`.` as a binary left-associative operator). Tony's ruling.
+#  Its rows are what FLIP when that lands; until then they pin what the language
+#  does today, which is not what anyone reading `*x.flag` expects.
+#
+#  ⚠ IT WAS MINTED BY A NEAR-MISS. incant/fixits/faceFlagsNoCross spelt its
+#  forward row `*fcFace.noPrinT` and read 1 where faceT's `faFace.noPrinT` reads
+#  0, and the citizen was one commit from retiring as "fixed" on that 1.
+#
+#  ⚠⚠ SF-6 IS THE ROW THAT SETTLES IT. SF-1 against SF-2 is only a disagreement
+#  -- it says one of them is wrong, not which. SF-5 and SF-6 ask the SAME
+#  question of the SOURCE field the flag was just written to, where the answer is
+#  not in doubt: plain says 1, starred returns the local's own TAG. A spelling
+#  that cannot read a flag off the field carrying it is not reading flags at all.
+#
+#  ⚠ THE TAG ECHOES ARE PINNED BY VALUE ON PURPOSE AND THIS IS NOT A BEAR-TRAP
+#  #26 RE-OFFENCE. Pinning an echo AS IF IT WERE DATA is the trap; pinning it as
+#  the evidence that there IS no data is the assertion, and it is
+#  presence-with-value rather than absence-of-message (H4). The day the starred
+#  read returns a number these two rows go red and somebody re-reads.
+#
+#  ⚠ SF-0 IS LOAD-BEARING: if the two bodies were ONE body, SF-1's 0 would be a
+#  defect instead of the right answer. `+%` attaches a copy and `<-` mints one,
+#  so the face is a copy of a copy. Mechanism for the star is bear-trap #48's
+#  second half -- `.` is in the UnaryOPS bin, so `*a.b` is two terms and
+#  right-to-left association gives `*(a.b)`, a star on a flag's VALUE.
+#
+#  ⚠⚠ WHEN THE FOLD LANDS, READ THE FIXTURE'S OWN HEADER BEFORE GRADING IT. It
+#  carries a pre-registered prediction (SF-2 1->0, SF-4 echo->0, SF-6 echo->1,
+#  and SF-1/SF-3/SF-5 must NOT move) AND a third outcome: the treatment touches
+#  this fixture's own read machinery, so a move in SF-1 or SF-5 VOIDS the
+#  controls and every row below them is uninterpretable rather than wrong.
+#  Report a voided control; do not grade it.
+run1 starFlagT "$T/sf"; check "starFlagT runs" 0 $?
+sentinel "starFlagT sentinel (no truncation)" "$T/sf" "STARFLAG SENTINEL"
+for _arm in "SF-1 face   NO star   =  0" \
+            "SF-2 face   WITH star =  1" \
+            "SF-3 MISS control never written  NO star   =  0" \
+            "SF-4 MISS control never written  WITH star =  sfCtlS" \
+            "SF-5 HIT control the SOURCE      NO star   =  1" \
+            "SF-6 HIT control the SOURCE      WITH star =  sfSrcS"; do
+    if grep -qF "$_arm" "$T/sf"; then
+        echo "  ok    starFlagT ${_arm} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  starFlagT $_arm -- MOVED. If the chained-dot fold has landed"
+        echo "        this is the EXPECTED flip: read starFlagT's own prediction"
+        echo "        block, and check SF-1/SF-3/SF-5 first -- a move there voids"
+        echo "        the controls and the other rows cannot be graded at all."
+        grep -F "$(echo "$_arm" | cut -c1-4)" "$T/sf" | sed 's/^/          actual:   /'
+        fail=1
+    fi
+done
+if grep -qE 'ADDROF sfSrc field=#1 body=#2' "$T/sf" && grep -qE 'ADDROF sfFace field=#3 body=#4' "$T/sf"; then
+    echo "  ok    starFlagT SF-0 the two faces do NOT share a body -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  starFlagT SF-0 moved -- if the bodies now MATCH, copy-on-rebind has"
+    echo "        been fixed and SF-1 should read 1; this fixture and faceT F2/F3 move"
+    echo "        together and neither can be re-pinned without the other."
+    grep 'ADDROF sf' "$T/sf" | sed 's/^/          actual:   /'
+    fail=1
+fi
+
 #  ⚠⚠ roundTripT -- JOINS THE FLEET 2026-09-01 (SEQ 116), AND IT HAD NEVER BEEN
 #  IN IT. Born 2026-08-31, it carries the founding measurement of the mechanism
 #  table -- which twinning road SHARES a body and which COPIES one -- and nothing

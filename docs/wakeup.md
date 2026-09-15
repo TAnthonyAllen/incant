@@ -157,6 +157,22 @@
 #
 #   ## THE POPULATION, MEASURED
 #
+#   ⚠⚠ **IT HAS A LIVE COUNT ON THE FLEET SINCE 2026-09-15: `traitFlagsT`'s TF-5, reading 5,
+#   with the five names pinned one row each as TF-7. THAT IS THIS QUESTION'S CERTIFICATE WHEN
+#   THE PACKET RULING LANDS** -- the number and the names move together and neither can be
+#   re-pinned without a sentence (H6). It arrived carrying `incant/fixits/hasTraits` out by
+#   mapping; retiring that citizen without it would have put the only instrument that counts
+#   this population in the attic.
+#   ⚠ AND THE COUNT IS **FIVE, NOT FOUR**, which is a correction to the paragraph below rather
+#   than a change underneath it: `StatemenT` also disagrees, and it is **NOT a packet carrier**
+#   -- its attribute list is `builtinActoR SemI=; BlocK WardeD Iterate Xpress` with no Modifier
+#   anywhere in it. So the packet explains four of the five and nobody has looked at the fifth.
+#   ⚠ The 09-10 reading of **3** was taken through a walk that said `iterate ... members on`,
+#   which skips the 22 rules living in Grokking's ATTRIBUTE list. Measured both ways in one
+#   session 2026-09-15: narrow walk 64 rules / 3 disagreements, wide walk 86 / 5, the two
+#   admitted being `ANYstring` -- `ShortcuT`'s exact twin, absent from its own population the
+#   whole time -- and `StatemenT`. Rule H11.
+#
 #   Four rules carry a spent packet: `ShortcuT`, `ANYstring`, `leftCurly`, `rightCurly`.
 #   They are the sites where a data-side modifier lands on a node that is itself a Grokking
 #   child; the grammar has **12** data-side modifier sites and the other 8 land on terms

@@ -1,0 +1,104 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(StarFlagT);
+define
+    sfSrc="ORIG";
+    sfBag;
+    sfClean;
+    sfRun code={
+        sfBag +% sfSrc;
+        sfFace <- sfBag["sfSrc"];
+        cerr "SF-0 the two bodies -- if these DIFFER a flag must not cross:":;
+        addrOf(sfSrc);
+        addrOf(sfFace);
+        sfSrc :. noPrinT;
+        sfPlain  =  sfFace.noPrinT;
+        sfStar   = *sfFace.noPrinT;
+        sfCtlP   =  sfClean.noPrinT;
+        sfCtlS   = *sfClean.noPrinT;
+        sfSrcP   =  sfSrc.noPrinT;
+        sfSrcS   = *sfSrc.noPrinT;
+        cerr "SF-1 face   NO star   = " sfPlain:;
+        cerr "SF-2 face   WITH star = " sfStar:;
+        cerr "SF-3 MISS control never written  NO star   = " sfCtlP:;
+        cerr "SF-4 MISS control never written  WITH star = " sfCtlS:;
+        cerr "SF-5 HIT control the SOURCE      NO star   = " sfSrcP:;
+        cerr "SF-6 HIT control the SOURCE      WITH star = " sfSrcS:;
+        };
+    ;
+sfRun();
+print "STARFLAG SENTINEL -- reached the foot":;
+stop();
+
+starFlagT -- `*x.flagName` IS NOT A FLAG READ, AND THIS IS THE ACCEPTANCE FIXTURE FOR
+THE CHAINED-DOT CHANGE. Minted 2026-09-15 on Tony's ruling. Its rows are what FLIP when
+`.` becomes a binary left-associative operator; until then they pin what the language
+does today, which is not what anyone reading `*x.flag` expects.
+
+WHY IT EXISTS. incant/fixits/faceFlagsNoCross spelt its forward row `*fcFace.noPrinT`
+and read 1; incant/pop/faceT asks the identical question as `faFace.noPrinT` and reads
+0. One character, opposite answers, and the citizen was one commit from retiring as
+"fixed" on the strength of it.
+
+⚠⚠ THE ROW THAT SETTLES IT IS SF-6, AND IT IS WHY THE CONTROLS ARE ARRANGED THIS WAY.
+SF-1 against SF-2 is only a disagreement -- it says one of them is wrong and not which.
+SF-5 and SF-6 ask the SAME question of the SOURCE FIELD THE FLAG WAS JUST WRITTEN TO,
+where the answer is not in doubt. The plain read says 1. The starred read returns the
+local's own TAG -- no data at all. A spelling that cannot read a flag off the field that
+carries it is not reading flags anywhere, so SF-2's 1 is noise rather than an answer.
+
+    read                 NO star        WITH star
+    the face             0              1
+    never written        0              tag echo
+    the SOURCE           1              tag echo
+
+⚠ THE TAG ECHOES ARE PINNED BY VALUE, DELIBERATELY, and this is not a bear-trap #26
+re-offence. Pinning an echo as if it were data is the trap; pinning it as the EVIDENCE
+THAT THERE IS NO DATA is the assertion, and it is presence-with-value rather than
+absence-of-message (rule H4) -- the row prints a value on every run and compares it.
+The moment the starred read starts returning a number, these two rows go red and
+somebody re-reads. That is the whole job.
+
+⚠ SF-0 IS LOAD-BEARING. If the two bodies were the SAME body, SF-1's 0 would be a defect
+rather than the correct answer, and the fixture would be measuring something else. `+%`
+attaches a COPY and `<-` MINTS a copy (a ruled defect, Tony 2026-08-23, not the design),
+so the face is a copy of a copy and the bodies differ. SF-1 reading 0 is the language
+being right.
+
+MECHANISM, and it is already recorded rather than new: bear-trap #48's second half. `.`
+is a member of the UnaryOPS bin as well as being registered opDot, so `*a.b` is TWO terms
+and KANT-43's right-to-left association applies the star LAST -- `*(a.b)` -- a star
+applied to a flag's VALUE. Banked as bear-trap #26 payment seven, which cross-references
+this file.
+
+WHAT FLIPS WHEN THE CHAINED-DOT ITEM LANDS -- A PRE-REGISTERED PREDICTION, GRADED AS A
+PREDICTION AND NOT AS A FACT. If `.` becomes binary and left-associative, `*a.b` folds
+as `(*a).b` instead, and the star then binds the NAME rather than the flag's value:
+
+    SF-2  1        -> 0     the face, dereferenced, still does not share the body
+    SF-4  tag echo -> 0     the control reads an unset flag honestly
+    SF-6  tag echo -> 1     THE ROW TO WATCH: the source reads its own set flag
+
+    SF-1, SF-3, SF-5 must NOT move. They contain no star and the change is about
+    association, so a move there means the fold reached something it should not have.
+
+GRADE: mechanism-grounded, which in this codebase is the half that usually holds -- the
+association rule is read directly off the grammar and the registration, not inferred from
+a symptom. It is still a prediction.
+
+⚠⚠ AND THE THIRD OUTCOME, NAMED BECAUSE THIS FIXTURE IS EXACTLY THE CASE THAT NEEDS IT:
+THE TREATMENT CAN VOID THE CONTROL. The chained-dot change touches this fixture's own
+read machinery, so a run where SF-5 or SF-1 moves does not mean the prediction failed --
+it means the discriminators stopped discriminating and every row below them is
+UNINTERPRETABLE rather than wrong. Report that as a voided control. Do not grade it.
+(Ratified 2026-08-10 on the KANT-8 bracket rung, which failed in precisely this way.)
+
+⚠ THE POSTFIX FOLD IS BLOCKED TODAY AND THE BLOCKER IS NOT REPETITION -- designDocs
+PostfixFoldBlocked carries the four-spelling table and the two controls that moved the
+blame: a one-term ALIAS between TokenXP and InvokeArg kills the language as thoroughly as
+a `*` does, so InvokeArg must be referenced by TokenXP directly. Every flag-class modifier
+lives on that slot and every repetition-class one dies. That is the wall this fixture is
+waiting on.
