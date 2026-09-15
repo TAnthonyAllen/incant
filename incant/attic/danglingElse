@@ -160,3 +160,27 @@ first was the grammar-modifier hypothesis, which died when the braced-else arm
 read identically on both BlocK spellings. This is the second, and it is stronger:
 the other citizen's actual cause is now known and fixed, and this row did not
 move a character. They are two defects and the case for folding them is spent.
+
+================================================================================
+RETIRED BY MAPPING 2026-09-15, Tony's ruling. Queue 3 -> 0.
+================================================================================
+
+ASSERTIONS CARRIED OUT, both of them, to `incant/pop/danglingE` plus four pop.sh rows:
+
+    DE-1  unbraced arm, flag TRUE   deN = 2   -> pop.sh, PINNED BY VALUE
+    DE-2  unbraced arm, flag FALSE  deN = 9   -> pop.sh, PINNED BY VALUE
+    runs at exit 0                            -> pop.sh `danglingE runs`
+    DANGLINGELSE SENTINEL                     -> DANGLINGE SENTINEL, pop.sh sentinel row
+
+The live region moved verbatim but for the sentinel's name and the anchor line, which
+was a fixit device and has no job in a fleet citizen.
+
+H7 NEGATIVE CONTROL, RUN AND RECORDED. Braced the arm in the promoted fixture and re-ran:
+`RunRulE: expected a method not deArm`, both DE rows GONE, the sentinel absent. So the
+rung fails when the shape it certifies is changed, and the control independently re-reads
+the inversion -- the brace is the trigger. Restored byte-identical.
+
+WHAT DOES NOT MOVE TO THE FLEET, and is why this text is kept rather than deleted: the
+NEXT block's three cause-hunting steps. Nothing has identified WHAT changed between
+2026-08-21, when bear-trap 32 was measured with two passing controls, and today. A fleet
+row pins the behaviour; it does not name the cause, and the cause is still open.

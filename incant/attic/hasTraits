@@ -186,3 +186,69 @@ WHAT WOULD GENERATE ONE, cheapest first:
     `if htA == 1;` reads 0 for all 66, because the flag's stored value is a
     bitfield and not literally 1. The working shape is BARE for the flag
     (truthOf answers it) and == only on a derived counter.
+
+================================================================================
+RETIRED BY MAPPING 2026-09-15, Tony's ruling. Queue 3 -> 0.
+================================================================================
+
+⚠⚠ THE BANKED HEADLINE IS FALSIFIED AND MUST NOT BE CITED FROM HERE. This file says
+"THE FLAGS AGREE EXACTLY ON THE RAW GRAMMAR", HT-5 at 0 over 64 rules. Today it reads
+FIVE disagreements over 86. The sentence was true on 2026-09-08 and is a dated
+measurement written as a timeless fact -- the same failure the `ipc/` gitignore row
+records in CLAUDE.md.
+
+TODAY'S NUMBERS, and the movement DECOMPOSES CLEANLY because the H7 control measured
+both walks in the same session:
+
+    walk            rules   hasAttr   hasTraits   BOTH   DISAGREE   names
+    members only      64      --          --       --        3      ShortcuT leftCurly rightCurly
+    Grokking itself   86      52          47       47        5      + ANYstring StatemenT
+
+So TWO INDEPENDENT THINGS MOVED and neither is the other. The TraiT transport packet
+landing on 2026-09-10 took the narrow walk 0 -> 3, which is what the unsealed section of
+that date already records. Dropping the word `members` took it 3 -> 5, because ANYstring
+and StatemenT sit in Grokking's ATTRIBUTE list and the narrow walk never saw them --
+which is exactly the rule H11 finding this file's own side-yield predicted, now measured
+rather than reasoned. ANYstring is ShortcuT's twin and had been missing from its own
+population the whole time.
+
+⚠ StatemenT IS NOT A PACKET CARRIER. Its attribute list is `builtinActoR SemI=; BlocK
+WardeD Iterate Xpress` with no Modifier anywhere in it, so it disagrees for a reason
+nobody has looked at. That is a loose end the promoted fixture names and does not chase.
+
+ASSERTIONS CARRIED OUT to `incant/pop/traitFlagsT` plus fourteen pop.sh rows:
+
+    HT-1 rules seen           -> TF-1, pinned 86
+    HT-2 hasAttributeS        -> TF-2, pinned 52
+    HT-3 hasTraitS            -> TF-3, pinned 47
+    HT-4 BOTH                 -> TF-4, pinned 47, the anti-vacuity sibling
+    HT-5 DISAGREE             -> TF-5, pinned 5, AND the five names as TF-7's own rows
+    HT-6 no attributes        -> TF-6, pinned 34
+    the disagree-list walk    -> TF-7, one pop.sh row per name
+    runs / SENTINEL           -> two pop.sh rows
+
+    HP-0..HP-5 post-setParse  -> DROPPED, and this is a deliberate non-carry. They were
+                                 VACUOUS by this file's own reading: setParse took on 3
+                                 members of 64, because a bare master lawfully has no
+                                 rStuff (Ruling D) and refuses by name, so HP-5's zero
+                                 was a reading of a population never primed. The
+                                 post-setParse divergence is certified WITH a hit control
+                                 by connectiveT's two fleet rows. One instrument each.
+
+⚠ WHY A ROW WAS OWED AT ALL, since this file's own NEXT block called retiring a live
+option: the five rules TF-5 counts ARE the TraiT packet's population, and Tony has ruled
+that question stays OPEN as a design item. Retiring without the row would have put the
+only instrument that counts them in the attic -- silent coverage loss in exactly the gap
+the mapping rule exists to close.
+
+H7 NEGATIVE CONTROL, RUN AND RECORDED. Re-narrowed the promoted fixture's walk to
+`members` and re-ran: TF-1 64, TF-5 3, ANYstring and StatemenT gone from TF-7. Four rows
+red. Restored byte-identical (md5 d464e6b606ecc79eca8f19b7fbeca3c6).
+
+⚠ AND THE TAIL-DELETION HAZARD THIS FILE RECORDED IS STILL LIVE IN THE PROMOTED ONE.
+With the disagree count at 0, `iterate grup on tfDisagree;` refuses -- the group has no
+list -- and the refusal STOPS THE BLOCK, so the sentinel below it never prints. Today the
+count is 5 so the walk runs. If the packet question is ever closed and TF-5 goes to 0,
+TF-7's rows and the SENTINEL row go red TOGETHER, and the sentinel is the tell: that is
+the fixture's tail vanishing at the moment the fix lands (rule H5's shape), not a
+truncation. It wants a guard before that walk at the same time.

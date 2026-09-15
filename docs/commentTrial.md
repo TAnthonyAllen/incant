@@ -896,8 +896,16 @@ measurement purposes** and is owed a fleet run like any other.
 ⚠ **AND THE HARNESS DID SEE IT — WHICH IS WORSE, NOT BETTER.** `ddPop` was measured on the broken
 file rather than assumed about, after this section's first draft asserted it was blind: it reads
 **3 green on the broken tree and 5 on the fixed one**, and its walk row and sentinel both go red.
-**But it prints `DDPOP FAILED` either way**, because it has been red for weeks on 32 pre-existing
-trim-gate violations. So the signal existed, arrived, and was invisible — H12's second lesson
-verbatim: *a red row absorbs new breakage silently, because nobody diffs a diff.* The cheap
-instrument is not a new row but a **count** on the banner line, so `5 -> 3` is legible without
-anyone reading the rows underneath it.
+**But it prints `DDPOP FAILED` either way**, because it has been red for weeks on a pre-existing
+trim-gate row. So the signal existed, arrived, and was invisible — H12's second lesson verbatim:
+*a red row absorbs new breakage silently, because nobody diffs a diff.*
+
+⚠⚠ **AND THE REMEDY PROPOSED HERE WAS ITSELF AN UNMEASURED CITATION, CORRECTED 2026-09-15.** The
+first draft said the cure was *"a count on the banner line"*. **`ddPop` already printed one** —
+`DDPOP FAILED -- 5 green` — and it had moved to `3 green`, so the thing being asked for existed and
+had worked. Reading the script before proposing the fix would have cost one command. **What was
+actually missing is the OTHER number**: a green count alone cannot tell *5 of 5 with one known red*
+from *5 of 10*, so the banner now reads `5 green, 1 red, 6 checks ran` and goes to
+`3 green, 3 red, 6 checks ran` on the broken tree. **The total is the H2 half** — green + red is the
+count of checks that RAN, so a check that evaporates moves a number a reader can see, where before
+it moved nothing at all.

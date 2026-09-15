@@ -92,3 +92,48 @@ NEXT: BEST GUESS.
 ⚠ WHAT MUST NOT HAPPEN: do not re-pin F2 and F3 to 0 to make the fleet green.
 That freezes "flags do not cross a face" as the law, which is the opposite of
 what the fixture was built to prove, and it would be a target regenerated green.
+
+================================================================================
+RETIRED BY MAPPING 2026-09-15, Tony's ruling. Queue 3 -> 0.
+================================================================================
+
+⚠⚠ READ THIS BEFORE READING THE ROWS ABOVE: FC-2 PRINTS 1 TODAY AND THE CITIZEN HAS
+NOT STARTED PASSING. The spelling is void, and retiring this file on its face value
+would have banked a fix that did not happen.
+
+    FC-1  bodies      field=#1 body=#2  vs  field=#3 body=#4   -- STILL DIFFER
+    FC-2  FORWARD     reads 1                                  -- VOID, see below
+    FC-3  CONTROL     reads 0
+
+FC-2 is spelt `fcFwd = *fcFace.noPrinT;` with a STAR. incant/pop/faceT asks the identical
+question one character apart -- `faR1 = faFace.noPrinT;` -- and reads 0. A 2x3 settled it
+in one run, and the row that kills the starred form is the SOURCE row, where the answer
+is not in doubt:
+
+    read              NO star        WITH star
+    the face          0              1
+    never written     0              tag echo   (no data at all)
+    the SOURCE        1              tag echo   (no data at all)
+
+The starred form returns nothing on the very field the flag was just written to, and
+returns 1 on the face whose body is a different body. It is not a flag read. Same family
+as bear-trap 26 -- a plausible answer wearing the shape of a real reading -- and it is
+recorded there as payment seven, cross-referenced to bear-trap 48's `*a.b` association.
+
+SO THE CITIZEN'S VERDICT STANDS UNCHANGED: the face is a copy of a copy, `+%` copies and
+`<-` mints a copy, the bodies differ, and a flag written through one is not visible
+through the other.
+
+ASSERTIONS CARRIED OUT -- NO NEW ROW OWED, because the fleet already carries every one of
+them, and carries them in the correct spelling:
+
+    FC-1  the two bodies      -> pop.sh faceT F1, two ADDROF rows. `field=#3 body=#2`
+                                 is RED today and its redness IS this finding
+    FC-2  FORWARD             -> pop.sh faceT F2 `flags FORWARD = 1`, RED, correctly
+    FC-3  CONTROL             -> pop.sh faceT F0 `anti-vacuity = 0`, GREEN since it
+                                 graduated off a tag echo on 2026-09-08 (H6)
+
+⚠ AND THE WARNING THAT GOES WITH THEM, now also in pop.sh's faceT block: DO NOT "FIX"
+F2 BY ADDING A STAR. It will read 1 and assert nothing, and the fixture would become a
+target regenerated green -- which is the one thing the original NEXT block said must not
+happen, arriving by a door it did not anticipate.

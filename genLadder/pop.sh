@@ -1113,6 +1113,24 @@ done
 #  READABLE" -- 0 satisfies both honestly where the echo only appeared to. Tony's
 #  opDot change supplies the value, bareIfTruth makes `if` read it. Re-pinned onto
 #  what the rows already claimed, not onto whatever the run happened to print.
+#  ⚠⚠ WHY F2 AND F3 ARE RED, AND WHY THAT IS THE FIXTURE WORKING. Diagnosed by
+#  incant/fixits/faceFlagsNoCross, retired to incant/attic/faceFlagsNoCross
+#  2026-09-15 with its verdict intact. The face is a COPY OF A COPY: `+%`
+#  attaches a copy and stamps isAttribute, then `<-` MINTS A COPY rather than
+#  aliasing (a ruled defect, Tony 2026-08-23, not the design). So the two names
+#  do not share a body -- F1's second ADDROF row reads body=#4 against #2 and is
+#  red for exactly that reason -- and a flag written through one is not visible
+#  through the other. F2 and F3 cannot pass until copy-on-rebind is fixed, and
+#  when it is, F0 must STAY 0; if F0 moves to 1 the fix has over-shared.
+#
+#  ⚠⚠ DO NOT "FIX" F2 BY ADDING A STAR. `*faFace.noPrinT` reads 1 where
+#  `faFace.noPrinT` reads 0, and the starred form is NOT A FLAG READ: measured
+#  2026-09-15, it returns no data at all on the SOURCE field the flag was just
+#  written to, and no data on the never-written control. It answers 1 in one
+#  position out of three. A row pinned on it would go green and assert nothing
+#  -- a target regenerated green, which the retired citizen's NEXT block said
+#  must not happen, arriving through a door it did not anticipate. Bear-trap #26
+#  payment seven, cross-referenced to #48's `*a.b` association.
 run1 faceT "$T/face"; check "faceT runs" 0 $?
 if grep -q "FACET SENTINEL" "$T/face"; then
     echo "  ok    faceT sentinel (no truncation)"; green=$((green+1))
@@ -1456,6 +1474,85 @@ else
     echo "          expected: $CT_CONTROL"
     fail=1
 fi
+
+
+#  ============================================================================
+#  ⚠ traitFlagsT -- JOINS THE FLEET 2026-09-15, carrying incant/fixits/hasTraits
+#  out by mapping. It is the BEFORE half of the hasAttributeS/hasTraitS pair:
+#  the raw grammar, walked before anything primes it. connectiveT above is the
+#  AFTER half. One instrument each, and neither duplicates the other.
+#
+#  ⚠⚠ TF-5 IS PINNED AT A KNOWN OPEN STATE, NOT A PASSING ONE, AND THAT IS THE
+#  ROW'S WHOLE POINT. The five are the TraiT transport packet's live population
+#  -- the unsealed 2026-09-10 question Tony has ruled stays open as a DESIGN
+#  item. Retiring the citizen without this row would have left the only
+#  instrument that counts them in the attic. TF-5 moving is news EITHER WAY:
+#  down means the packet question moved, up means a new population joined it.
+#  Re-pin only with a sentence saying which (rule H6).
+#
+#  ⚠ TF-4 IS THE ANTI-VACUITY SIBLING and is not decoration -- a walk that read
+#  nothing prints a count too. TF-4 at 47 is non-zero on the same walk, so the
+#  pair tells "they disagree on five" from "nothing was measured" (rule H4).
+#
+#  ⚠ TF-7 PINS THE NAMES, not just the count, and it is the row that survives a
+#  renumbering: a count says something moved, the names say WHAT. Note StatemenT
+#  is NOT one of the four packet carriers -- its attribute list holds no
+#  Modifier at all, so it disagrees for a reason nobody has looked at yet.
+run1 traitFlagsT "$T/tf"; check "traitFlagsT runs" 0 $?
+sentinel "traitFlagsT sentinel (no truncation)" "$T/tf" "TRAITFLAGS SENTINEL"
+for _arm in "TF-1 rules seen                   =  86" \
+            "TF-2 carrying hasAttributeS       =  52" \
+            "TF-3 carrying hasTraitS           =  47" \
+            "TF-4 carrying BOTH                =  47" \
+            "TF-6 no attributes                =  34" \
+            "TF-5 the two flags DISAGREE on    =  5"; do
+    if grep -qF "$_arm" "$T/tf"; then
+        echo "  ok    traitFlagsT ${_arm} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  traitFlagsT $_arm -- MOVED. TF-5 is the TraiT packet"
+        echo "        population and moving is news either way; re-pin with a"
+        echo "        sentence saying which direction and why (H6)."
+        grep -F "$(echo "$_arm" | cut -c1-4)" "$T/tf" | sed 's/^/          actual:   /'
+        fail=1
+    fi
+done
+for _rule in ANYstring ShortcuT StatemenT leftCurly rightCurly; do
+    if grep -qE "^	${_rule}  " "$T/tf"; then
+        echo "  ok    traitFlagsT TF-7 names ${_rule} -- PRESENCE WITH VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  traitFlagsT TF-7 no longer names ${_rule}"; fail=1
+    fi
+done
+
+#  ============================================================================
+#  ⚠ danglingE -- JOINS THE FLEET 2026-09-15, carrying incant/fixits/danglingElse
+#  out by mapping. KANT parses an unbraced multi-statement if-arm followed by an
+#  else, and the else FIRES.
+#
+#  ⚠⚠ IT PINS THE OPPOSITE OF WHAT BEAR-TRAP 32 SAYS, ON PURPOSE. The trap names
+#  this shape as fatal, and on the TOK road it is -- canary 0 against a braced
+#  control's 319, measured 2026-09-10. On the KANT road the discriminator is
+#  BACKWARDS: the brace is the trigger, not the cure. The trap carries that
+#  amendment; this is the standing measurement underneath it, so an inversion
+#  back is visible rather than argued about.
+#
+#  ⚠ NEITHER ROW ALONE CAN SEE THE DEFECT. A parse that swallowed the else would
+#  print no error and leave a plausible number -- deN keeping its initialiser. So
+#  DE-1 takes the then-arm and DE-2 takes the else, and a 5 in DE-2 is the
+#  initialiser showing through, which is exactly what a dropped else looks like.
+run1 danglingE "$T/de"; check "danglingE runs" 0 $?
+sentinel "danglingE sentinel (no truncation)" "$T/de" "DANGLINGE SENTINEL"
+for _arm in "DE-1 unbraced arm, flag TRUE   deN =  2" \
+            "DE-2 unbraced arm, flag FALSE  deN =  9"; do
+    if grep -qF "$_arm" "$T/de"; then
+        echo "  ok    danglingE ${_arm} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  danglingE $_arm -- MOVED. A 5 in DE-2 is the else being"
+        echo "        DROPPED; anything else means kant's if/else shape changed."
+        grep -F "$(echo "$_arm" | cut -c1-4)" "$T/de" | sed 's/^/          actual:   /'
+        fail=1
+    fi
+done
 
 #  emitLeaf's OWN target -- THE ORACLE IS THE FUNCTION BEING REPLACED. Captured
 #  while the C++ emitLeaf was still the only implementation, so a kant rewrite

@@ -1,0 +1,103 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(TraitFlagsT);
+define
+    tfSeen; tfAttrs; tfTraits; tfDisagree; tfBoth; tfNeither;
+    tfProbe code={
+        tfA := hasAttributeS;
+        tfB := hasTraitS;
+        tfMix = 0;
+        if tfA;             tfMix = 1;
+        if tfB;             tfMix = tfMix + 1;
+        if tfMix == 0;      ++tfNeither;
+        if tfMix == 1;
+            ++tfDisagree;
+            tfDisagree  +% argument;
+        if tfMix == 2;      ++tfBoth;
+        if tfB;             ++tfTraits;
+        if tfA;             ++tfAttrs;
+        ++tfSeen;
+        };
+    tfWalk code={
+        iterate tfCur on *argument;
+        while ++tfCur;
+            tfProbe(*tfCur);
+        };
+    tfTagLine code={
+        print `taG;
+        iterate grup on argument;
+        while ++grup;
+            print _$taG;
+            if datA;    print $"=" grup;
+        print :;
+        };
+    tfRun code={
+        tfSeen = 0;  tfAttrs = 0;  tfTraits = 0;  tfDisagree = 0;  tfBoth = 0;  tfNeither = 0;
+        tfWalk(Grokking);
+        cerr "TF-1 rules seen                   = " tfSeen:;
+        cerr "TF-2 carrying hasAttributeS       = " tfAttrs:;
+        cerr "TF-3 carrying hasTraitS           = " tfTraits:;
+        cerr "TF-4 carrying BOTH                = " tfBoth:;
+        cerr "TF-6 no attributes                = " tfNeither:;
+        cerr "TF-5 the two flags DISAGREE on    = " tfDisagree " rules":;
+        print "TF-7 the disagreeing rules:":;
+        iterate grup on tfDisagree;
+        while ++grup;
+            tfTagLine(*grup);
+        };
+    ;
+tfRun();
+print "TRAITFLAGS SENTINEL -- reached the foot":;
+stop();
+
+traitFlagsT -- hasAttributeS AND hasTraitS OVER THE RAW GRAMMAR, AND THE FIVE RULES
+THEY DISAGREE ABOUT. Promoted into the fleet 2026-09-15 from incant/fixits/hasTraits,
+which retires to incant/attic on these rows.
+
+⚠⚠ TF-5 IS PINNED AT A KNOWN OPEN STATE, NOT AT A PASSING ONE. The five are the TraiT
+transport packet's live population -- the unsealed 2026-09-10 question, which Tony has
+ruled stays open as a DESIGN item. aCTionTraiTdata republishes a Modifier attribute onto
+TraiTdata so aCTionTraiT can still read it, and nobody takes the packet off, so four
+rules end this parse carrying a spent noPrint-only attribute: ANYstring, ShortcuT,
+leftCurly, rightCurly. StatemenT is the fifth and is NOT one of them -- its attribute
+list carries no Modifier at all, so it disagrees for a reason nobody has looked at.
+⚠ So TF-5 moving is NEWS EITHER WAY. Down means the packet question moved; up means a
+new population joined it. Do not re-pin it without a sentence saying which.
+
+⚠ TF-4 IS WHAT STOPS TF-5 BEING VACUOUS, and it is not decoration. TF-5 wants a count,
+and a run whose probe read nothing at all would print a count too -- zero, or whatever
+a broken walk happened to reach. TF-4 at 47 is a non-zero sibling on the same walk, so
+the pair distinguishes "they disagree on five" from "nothing was measured". Rule H4's
+anti-vacuity clause, and the reason every zero-expecting row here has one.
+
+⚠ TF-7 PRINTS THE NAMES, and that is the row that survives a renumbering. A count tells
+you something moved; the names tell you WHAT, without anybody re-deriving the walk. It is
+presence-with-value applied to a population instead of to a quantity.
+
+⚠ WHAT WAS DROPPED IN THE PROMOTION, deliberately, and it is not coverage lost. The
+retired citizen's HP-0..HP-5 rows attempted the same census AFTER setParse and came back
+VACUOUS: setParse TOOK on three members out of sixty-four, because a bare master lawfully
+has no rStuff (Ruling D) and refuses by name. A member-walk of Grokking cannot prime this
+population, so HP-5's zero was a reading of a population that was never primed. The
+post-setParse divergence IS certified, with a hit control, by connectiveT's two fleet rows
+-- StatemenT reads 1/0 after setParse, BlocK's hit control still reads 1/1. Agreement
+before and divergence after are now pinned from both sides, one instrument each.
+
+⚠ THE WALK IS OVER Grokking ITSELF AND NOT OVER ITS MEMBERS, and that word cost a census
+once. `iterate ... members on` skips the 22 rules that sit in Grokking's ATTRIBUTE list --
+ANYorNum, ANYstring, NamE, StatemenT, Token and eighteen others -- so ShortcuT's exact
+twin never appeared in the disagreement list and the population silently excluded a known
+member of itself (rule H11). Dropping the word takes TF-1 from 64 to 86.
+
+⚠ TWO SPELLING TRAPS INHERITED WITH THE FILE, both still live.
+  . Passing a rule BY NAME crashes the run at exit 139 with zero bytes: naming a rule
+    FIRES its action (bear-trap 34), and a block-executing action does exactly that. The
+    walk over Grokking is not a stylistic choice.
+  . `if tfA != tfB;` counts 66 disagreements while TF-2 and TF-3 read 42 -- arithmetically
+    impossible, and `!=` on two captured flag locals is void. `if tfA == 1;` reads 0 for
+    all of them, because a flag's stored value is a bitfield and not literally 1. The
+    working shape is BARE for the flag, letting truthOf answer it, and `==` only on a
+    derived counter.

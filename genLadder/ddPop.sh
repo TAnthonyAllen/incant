@@ -30,9 +30,22 @@ PLACEHOLDER="-- unreviewed --"
 T=$(mktemp -d); trap 'rm -rf "$T"' EXIT
 fail=0
 green=0
+red=0
 
+#  ⚠ THE RED COUNT IS NOT DECORATION, AND IT IS WHAT MAKES THE GREEN COUNT MEAN
+#  ANYTHING. This harness has been red for weeks on pre-existing trim-gate
+#  violations, and a banner reading only "N green, at least one row red" cannot
+#  tell 5-of-5-with-one-known-red from 5-of-10. It went 5 -> 3 on 2026-09-15
+#  under a designDocs edit that would not load at all, and said FAILED both
+#  times, so the signal arrived and was invisible -- H12's lesson that a red row
+#  absorbs new breakage silently. Printing both numbers makes a drop legible
+#  without anyone reading the rows underneath it.
+#  ⚠ AND IT IS H2 TURNED ON THE HARNESS: green + red is the count of checks that
+#  RAN, so a check that EVAPORATES -- the missing-helper family this project has
+#  paid for three times -- moves the total, where it used to move nothing a
+#  reader could see.
 ok ()   { echo "  ok   $1"; green=$((green+1)); }
-bad ()  { echo "  FAIL $1"; fail=1; }
+bad ()  { echo "  FAIL $1"; fail=1; red=$((red+1)); }
 
 echo "=== ddPop.sh -- designDocs trim gate ==="
 echo "binary: $INCANT"
@@ -104,8 +117,8 @@ if [ "$green" -eq 0 ]; then
   exit 1
 fi
 if [ "$fail" -eq 0 ]; then
-  echo "DDPOP PASSED -- $green green"
+  echo "DDPOP PASSED -- $green green, $red red, $((green+red)) checks ran"
   exit 0
 fi
-echo "DDPOP FAILED -- $green green, at least one row red"
+echo "DDPOP FAILED -- $green green, $red red, $((green+red)) checks ran"
 exit 1

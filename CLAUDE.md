@@ -843,6 +843,15 @@ retiring citizen still **carries its assertions out by mapping** — `parentUnre
 `incant/holderT` plus three `pop.sh` rows, `argTrampleOrder` as `kant8T`'s K2x plus three more.
 **Retirement by ruling is not permission to drop coverage silently.**
 
+⚠⚠ **AMENDED 2026-09-15 — THE QUEUE IS AT ZERO AND THE "SHOULD READ 1" ABOVE IS SPENT.** Tony
+ruled the last three out (`danglingElse`, `faceFlagsNoCross`, `hasTraits`), and `carrierNode` had
+already gone to the attic before them, so the nag reads **0** and `incant/fixits/` is empty.
+`fixitNag.sh` handles a missing directory by design and prints `waiting: 0`. **The line stays
+generated and stays in the seal** — an empty queue is a reading, not an absence, and the day it
+stops being printed is the day nobody notices it filling up again. ⚠ **Read the sentence above as
+dated rather than wrong**: it was true on 2026-09-01 with one charter citizen standing, which is
+this file's own *dated-measurement-written-as-timeless-fact* failure recorded against itself.
+
 
 **PROSE CAPTURE ROTS; RUNNABLE CAPTURE DOES NOT.** An issue banked for Tony as a paragraph costs him
 a reconstruction before he can start — the exhibit that forced this was *"what are the iterT1m
@@ -1736,6 +1745,14 @@ Hard-won lessons. Each one has cost real debugging time.
     | 4 | the `parensMin` localizer (2026-08-06) | `pmOut = argument;` then printing `pmOut` gave `pmOut is pmOut` — **with the mechanism installed AND removed alike.** A fixture that discriminated nothing and would have been read as proof. Print from INSIDE the action instead |
     | 5 | `genParse`'s argument (2026-08-06) | the BARE form (`genParse(Parens)`) worked **by accident of this trap** — a node with no data echoes the tag, which happens to be the rule name — while the FIELD form failed by the same mechanism, because the *reference* node passed in has no data even when the *defined* field does |
     | 6 | define syntax (2026-08-06) | **`gsRule "Parens";` does NOT give the field data** and prints as `gsRule`; only `gsRule = "Parens";` does. Two characters, and the failure is a plausible name |
+    | 7 | **`*x.flagName` is NOT a flag read** (2026-09-15) | one character turned a red fixture green. `incant/fixits/faceFlagsNoCross` asked "did the flag cross to the face" as `*fcFace.noPrinT` and read **1**; `incant/pop/faceT` asks it as `faFace.noPrinT` and reads **0**. A 2×3 named the starred form as the liar, and **the row that kills it is the SOURCE row, where the answer is not in doubt**: read with no star the face gives 0, the never-written control 0, the source **1**; read WITH a star the face gives 1 and *both* the control and **the source** give a **tag echo — no data at all**. So it answers in one position out of three, and the one it answers is the one nobody could check. Mechanism is bear-trap #48's second half — `.` lives in `UnaryOPS`, so `*a.b` is two terms associating right-to-left as `*(a.b)`, a star applied to a flag's *value*. ⚠ **The cost was nearly a false retirement**: the citizen looked like it had started passing, and retiring it on that reading would have banked a fix that did not happen |
+    ⚠ **AND THE LEDGER'S HEADER NOW UNDERSTATES IT: PAYMENT 7 IS NOT A `.text` READ AT ALL.**
+    The first six are one mechanism -- a data-less field echoing its tag. Payment 7 is a
+    *parse* fact wearing the same clothes, and it arrives through a spelling nobody would
+    call a `.text` read. **What the whole family shares is the SYMPTOM, not the cause: a
+    plausible answer wearing the shape of a real reading.** So the detector generalises and
+    the rule does not -- when a one-character spelling change moves an answer, **ask the
+    question in a position where you already know the answer** before believing either.
     **THE RULE THAT FALLS OUT, and it is cheap: never test presence or identity with `.text`.**
     Test `data` for "does this field carry a value", test the node itself (`if x;`) for existence,
     and when reading a name out of a field, be explicit about which you want. Payment 5 is the one

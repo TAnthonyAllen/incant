@@ -1,0 +1,55 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(DangleE);
+define
+    deFlag; deN;
+    deArm code={
+        deN = 5;
+        if deFlag;
+            deN = 1;
+            deN = deN + 1;
+        else            deN = 9;
+        };
+    deRun code={
+        deFlag = 1;
+        deArm();
+        cerr "DE-1 unbraced arm, flag TRUE   deN = " deN " -- wants 2 (then-arm ran)":;
+        deFlag = 0;
+        deArm();
+        cerr "DE-2 unbraced arm, flag FALSE  deN = " deN " -- wants 9. A 5 means the ELSE was DROPPED":;
+        };
+    ;
+deRun();
+print "DANGLINGE SENTINEL -- reached the foot":;
+stop();
+
+danglingE -- KANT PARSES AN UNBRACED MULTI-STATEMENT if-ARM FOLLOWED BY AN else,
+AND THE else FIRES. Promoted into the fleet 2026-09-15 from incant/fixits/danglingElse,
+which retires to incant/attic on this row.
+
+WHAT IT PINS, and why it is two rows rather than one. Bear-trap 32 says this exact
+shape breaks the parse. On the TOK road it does -- measured 2026-09-10, canary 0 against
+a braced control's 319. On the KANT road it does not, and the trap's discriminator is
+backwards there: the BRACE is the trigger, not the cure. That inversion is recorded in
+the trap itself; this file is the standing measurement underneath it.
+
+⚠ DE-1 ALONE WOULD BE WORTHLESS. A parse that swallowed the else would print no error
+and leave a plausible number -- deN would simply keep its initialiser. So both directions
+are driven from one arm: DE-1 takes the then, DE-2 takes the else, and a 5 in DE-2 is the
+initialiser showing through, which is what a dropped else looks like. The pair is the
+assertion; neither row alone can see the defect.
+
+⚠ WHAT THIS FILE DOES NOT SAY. It does not say bear-trap 32 was wrong when written. It
+was measured 2026-08-21 with two passing controls. Something between then and now changed
+which shape kant refuses and NOTHING HERE IDENTIFIES WHAT -- the cause has not been looked
+for, and the three places to look are named in the retired citizen's NEXT block.
+
+⚠ A SPELLING TRAP PAID FOR TWICE. The first cut wrote `if deFlag` with NO SEMICOLON after
+the condition, and every arm reported `ERROR processCode: parse failed` INCLUDING the
+single-statement baseline -- which reads exactly like "the whole construct is broken" and
+is really "the fixture is misspelt". Kant's if is `if <cond>; <statement>`. The tell is
+that the arm you believe is the CONTROL fails too; when that happens, doubt the fixture
+before the language.
