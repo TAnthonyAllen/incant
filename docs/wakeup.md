@@ -1,3 +1,174 @@
+# ⚠⚠⚠ SEALED 2026-09-15, NINETEENTH SESSION -- THE COMMENT CONVENTION IS RULED AND SWEPT,
+# THE FIXIT QUEUE IS EMPTY, F-61 IS CLOSED, AND THE KITCHEN HAS THREE REPOS.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-15 14:25 and `git log -1 --date=iso` 14:23. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 300 green, canary 329, fixit queue 0, all THREE repos clean
+#   and pushed.** Seventeen commits across Groups, support and TOK.
+#
+#   The arc: 276 (seal) -> 293 (three citizens retired by mapping, 17 rows carried out) -> 302
+#   (starFlagT) -> 299 (three TF-7 rows RETIRED with their subject, not regressed) -> 300.
+#   ⚠ **A FALLING FLEET NUMBER IS NOT A REGRESSION HERE AND THE SEAL SAYS SO ONCE: 302 -> 299
+#   IS THREE CHECKS CEASING TO EXIST** -- TF-7 had one row per disagreeing rule and three rules
+#   stopped disagreeing.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE COMMENT CONVENTION IS RULED, AND IT IS TWO RULES.** The inline form is
+#   `// slug sentence?` -- slug required, sentence optional, **dotted path never inline**, and
+#   where an entry exists to FORBID something the sentence carries the forbid. The split is
+#   **argument versus description** -- move what argues, keep what describes -- and it is
+#   **explicitly not a size rule**: four headers of six-plus lines stayed as descriptions while
+#   `allAttributesOptional` moved at nine. Both in CLAUDE.md.
+#
+#   **b. `GroupItem.twk` IS SWEPT AND IN ALPHA ORDER. 2144 -> 1932 lines**, 20 DesignDocs
+#   entries, `attachLabel` alone from 97 lines of comment around 20 lines of code to seven
+#   `// slug` lines and seven addressable children. **69 of 103 methods changed position and the
+#   generated code did not move a byte** -- tok sorts its own output, measured, not assumed.
+#
+#   **c. `genLadder/codeOnly.py` IS NEW AND IS THE INSTRUMENT THE SWEEP RESTS ON.** It strips C
+#   and C++ comments so *"the .mm diff is comment-only"* is a `diff` rather than an eyeball.
+#   Hygiene tier with `alphaLint.sh`, and **deliberately not on the H12 checklist**: a
+#   formatting claim must never be able to fail the correctness gate.
+#
+#   **d. THE FIXIT QUEUE IS 0.** All three citizens retired by mapping, with their assertions
+#   carried out: `danglingElse` -> `incant/pop/danglingE`, `hasTraits` -> `incant/pop/traitFlagsT`,
+#   `faceFlagsNoCross` -> faceT's existing rows. ⚠ **AND ONE WOULD HAVE RETIRED ON A LIE**:
+#   `faceFlagsNoCross` printed a passing row because `*x.flagName` is **not a flag read** -- it
+#   returns no data on the very field the flag was written to. Banked as **bear-trap #26 payment
+#   seven**, with `incant/pop/starFlagT` as the chained-dot acceptance fixture.
+#
+#   **e. THE TraiT PACKET IS OFF (item A).** `TF-5` 5 -> 2, and the two survivors are a
+#   DIFFERENT cause named **before** the build: `builtinActoR` is their only attribute and it is
+#   noPrint. Four rules carried the packet; only three ever disagreed because of it.
+#
+#   **f. F-61 IS CLOSED.** `setParseAction` is the one writer on both roads -- it raises
+#   `parseACTION`, installs the method as the LEAF in `rStuff->parseMethod` undisguised, and
+#   raises `hasNewParse`. `testAction`'s fallback is gone. ⚠ **The replacement fires 63 times
+#   across exactly the four** (DEFINing 22, CodeBody 17, MEMBERs 13, PRINTing 11), so "nothing
+#   broke" is not luck. **Two attempts failed first and both are kept in `docs/fixIts.md`,
+#   because between them they name where the writer does NOT go.**
+#
+#   **g. THE KITCHEN HAS THREE REPOS.** `InProcess/TOK` has been tracked since 2026-09-04 and
+#   **every seal since has read "both repos"**, so its dirt was invisible for eleven days. Its
+#   `project.pbxproj` is committed today as navigator churn -- measured NOT to be the Xcode 27
+#   format upgrade, and with no target or build-setting change whatever.
+#
+#   ## ⚠⚠ THE TWO STROKES IN FLIGHT -- BOTH LANDED BY THEIR CERTIFICATE
+#
+#   **F-61 writer (`467f76d`)**: fleet 299 unmoved row for row, canary 329, trigDO exit 0,
+#   `GroupItem.h` carries `setActions` and `setParseAction`, alphaLint `104 methods, in order`.
+#   **testPrecedence latch (`6134390`)**: 299 -> 300 and the ONLY row that moved is its own,
+#   latched -> real. 35 distinct markers, 8 pending, 8 of 35 not yet true, non-negative.
+#   ⚠ The ratchet re-baseline **12 -> 8 IS NOT FOUR GRADUATIONS** -- the repair changed both
+#   numerator and denominator. Nothing graduated; the eight are named in `pop.sh`.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **300 green** · decodePop 15 · ddPop 5 green / 1 red / 6 ran · countPop 0-of-45
+#   (red at HEAD too, not from this work) · formsPop 14 PASSED · frontier dies at station 5 ·
+#   canary **329** · alphaLint 0 out of order · `groups.ext` committed and pushed ·
+#   **Groups 0/0, support 0/0, TOK 0/0.**
+#
+#   ## ⚠⚠⚠ WAITING ON TONY -- BEAR-TRAP #18, STATED AND NOT RESOLVED
+#
+#   **The entry verbatim, as it stands in `CLAUDE.md` today:**
+#
+#   18. **OBSERVATION (confirmed, load-bearing): tok's `#name(args)-...-` macro facility would not
+#       support the shapes genParse needed, so genParse §3 was rewritten against ordinary `extern`
+#       functions — which is why that code looks the way it does. ATTRIBUTION (OPEN, see the end of
+#       this entry): *why* it wouldn't is NOT settled, and the causal headline this entry used to
+#       carry is falsified by shipping code.** Read the three failure modes below as reproduced
+#       symptoms, which they are, and not as a mechanism, which they are not.
+#       ~~only works when the invocation is the ENTIRE, SOLE
+#       body of its containing function~~ — exactly `testMacro`'s only existing usage (`testAny`/
+#       `testCharacter`/`testSet`, each just `use field \n testMacro(...);`). The moment a macro call
+#       is one statement among several, it fails, and fails in two different ways depending on shape:
+#       (a) nested in an expression (`return someMacro(x) && true;`, or even bare
+#       `return someMacro(x);`) — **silently does not expand**, emitted verbatim as a literal call to a
+#       function that doesn't exist, flagged only as "referenced but not declared" in a trailing
+#       comment; fails at the C++ compile step, not at tok. (b) a bare statement that is NOT the
+#       function's only statement (preceded or followed by other code) — **tok segfaults** (exit 139),
+#       reproduced with both a GCC `({...})` block and plain ordinary tok syntax matching `testMacro`'s
+#       own style, so it is not about `({...})` specifically. (c) **the most consequential**: two
+#       macro calls in sequence in one function (an `enterX(...)` bare statement followed by
+#       `return leaveX(...);`) does not crash, but silently drops the FIRST macro's statement entirely
+#       (locals pruned, "Declarations ignored because not used: N" — the same warning bear-trap #13
+#       uses for a different cause) while the SECOND remains an unresolved, unexpanded call. Neither
+#       macro fires. Root cause per Clay (2026-07-25): not a tok bug so much as a category mismatch —
+#       a macro expands to a block that declares locals and executes `return`; a statement can never be
+#       a term in `A && B`. Candidates Tony was checking for a narrower rule (untested as of this
+#       writing): missing terminating semicolon on the macro call, column-0/declaration-position vs
+#       indented/statement-position, and whether `use field` needs to precede the call for bare-name
+#       resolution inside the expansion to have anything to bind to. **Fix that actually worked**:
+#       don't use tok macros for anything beyond `testMacro`'s existing shape. Write plain `extern`
+#       functions instead — they're expressions by construction, so `&&`/`||` composition works
+#       natively with zero substitution machinery, and multiple calls in one function are just
+#       ordinary sequential statements. (genParse S3, 2026-07-25 — see `docs/genParseSpec.md`.)
+#       **ATTRIBUTION — OPEN, and do not act on the strikethrough above (2026-07-27).** The
+#       "sole body of its function" rule is **falsified by shipping code**: `testSet` in
+#       `RuleStuff.twk` has a declaration (`PLGset set = characterSet;`) *before* its `testMacro(...)`
+#       call and works, in the current build. So the real constraint is narrower than the symptoms
+#       suggested, and four candidates remain, **one of which is Clay's own spec error**:
+#       (a) **the terminating semicolon** — every working invocation is `testMacro(...);`; genParseSpec
+#       §5.1 wrote `enterSeq(JSONblock)` with none, and an unterminatable construct would produce
+#       exactly mode (c)'s dropped-statement signature; (b) **column-0 / declaration position** — all
+#       three working invocations sit unindented, and if tok expands macros during declaration parsing
+#       then "works at column 0, fails indented" explains modes (b) and (c) with no tok bug at all;
+#       (c) **the `use field` prefix** — all three working sites have it, and `testMacro`'s body
+#       references bare `isOK`/`max`/`min`/`label`/`hereAt` which only resolve through it, so stripping
+#       it is a plausible route to a tok-side segfault; (d) **category mismatch** (Clay, 2026-07-25) —
+#       a macro expands to a block that declares locals and executes `return`, and a statement can
+#       never be a term in `A && B`; on this reading §3 was wrong on its own terms and tok is fine.
+#       **Tony's sign-off is owed on which, if any** — he is the only one who knows what tok promises.
+#       What is NOT in doubt and stands as doctrine regardless: **tok exiting 139 with no diagnostic is
+#       a real defect**, and **the fix that worked was to stop using macros for anything beyond
+#       `testMacro`'s existing shape.** Split out per bear-trap #19's corollary — reproduction proves
+#       the SYMPTOM, never the CAUSE, and this entry was one bad session from hardening a wrong
+#       mechanism into doctrine.
+#
+#   **WHAT IS OBSERVATION AND WHAT IS ATTRIBUTION.** The **observation** is the whole of what
+#   was run and is not in doubt: three failure modes were reproduced -- a macro call nested in
+#   an expression expands silently to nothing and fails at the C++ compile step; a bare macro
+#   statement that is not its function's only statement makes **tok exit 139 with no
+#   diagnostic**; and two macro calls in sequence drop the first entirely while leaving the
+#   second unexpanded. Also observed, and load-bearing: **the fix that worked was to stop using
+#   macros** and write ordinary `extern` functions, which is why genParse S3 looks as it does.
+#   The **attribution** is everything about *why*, and it is unconfirmed: the entry's original
+#   headline -- that a macro only works when its invocation is the entire, sole body of its
+#   containing function -- **is falsified by shipping code**, because `testSet` in
+#   `RuleStuff.twk` carries a declaration before its `testMacro(...)` call and works in the
+#   current build. So the real constraint is narrower than the symptoms suggested and nobody
+#   has isolated it; reproduction proves the symptom, never the cause.
+#
+#   **THE FOUR CANDIDATES, one line each, none tested:**
+#   - **(a) the terminating semicolon** -- every working invocation is `testMacro(...);` and
+#     genParseSpec S5.1 wrote `enterSeq(JSONblock)` with none.
+#   - **(b) column-0 / declaration position** -- all three working invocations sit unindented,
+#     and "works at column 0, fails indented" would explain two modes with no tok bug at all.
+#   - **(c) the `use field` prefix** -- all three working sites have it, and `testMacro`'s body
+#     references bare names that only resolve through it.
+#   - **(d) category mismatch (Clay, 2026-07-25)** -- a macro expands to a block that declares
+#     locals and executes `return`, and a statement can never be a term in `A && B`; on this
+#     reading S3 was wrong on its own terms and tok is fine.
+#
+#   **Tony's sign-off is owed on which, if any.** What is NOT in doubt regardless: **tok exiting
+#   139 with no diagnostic is a real defect.**
+#
+#   ## TOMORROW, IN ORDER
+#   1. Reports from the two landed strokes.
+#   2. **The #18 ruling.**
+#   3. `checkInput`'s second arm -- the top-of-parse skip -- toward trigDO 1/0/1. The single
+#      remaining refusal is `REFUSED BlocK -- checkInput: no enclosing activation to take the
+#      label`, and it is a named refusal where it used to be an EXC_BAD_ACCESS.
+#   4. **BlocK respell (item C)**, on a fresh baseline, carrying the grammar line before and
+#      after verbatim.
+#   5. The design docket proper, **chained dot first** -- `starFlagT` is its acceptance fixture
+#      and carries a pre-registered prediction plus its voided-control clause.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+#
 # ⚠⚠⚠ SEALED 2026-09-14, EIGHTEENTH SESSION -- TONY'S PARSER ARC RECONCILED, AND
 # THE lastRule GLOBAL IS GONE. NINE STROKES, TEN COMMITS.
 #
