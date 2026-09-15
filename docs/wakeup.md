@@ -147,6 +147,46 @@
 #   Instrumented at `Generate.rtn:325`, run, reverted; `Generate.rtn` md5 `9a4e5242…` both
 #   sides, canary 329, fleet 299 unmoved, zero CHAIN lines in the shipped binary.
 #
+#   ## ⚠⚠⚠ THE RULING WAS BUILT 2026-09-15 AND IS **NOT LANDED** -- IT UNCOVERS AN
+#   ## UNBOUNDED RECURSION. Item 4's stop clause fired; the rows read 0/0/0, not 1/0/1.
+#
+#   **THE RULING ITSELF IS RIGHT ABOUT THE SIXTY.** Built exactly as ruled -- a member with
+#   `isRule=0` skips silently in the 6b shape, the no-rStuff refusal untouched and still
+#   firing only on `isRule=1` -- and **refusals went 60 -> 0 with the canary at 329.** That
+#   half of the certificate is met and reproducible.
+#
+#   **WHAT IT UNCOVERS, MEASURED RATHER THAN EYEBALLED:**
+#
+#       trigDO exit          139, and it is NOT checkInput any more
+#       stop reason          EXC_BAD_ACCESS code=2 at 0x16f603fc0 -- a STACK address,
+#                            write fault: the guard page. A stack overflow.
+#       the cycle            parseRule -> fireLabelMethod -> exitFromParse -> parseRule
+#       depth                65 `parseRule` frames in the top 200, one every ~3 frames
+#       where it died        reportNoBody's fprintf, which is incidental
+#
+#   That is **`parseSelfRecursion`**, already a problem record, and designDocs
+#   `methodSlotFourReaders` names it in advance: *a parse executor whose whole body is
+#   `field.method(field)` calls itself until the stack is gone.* The ruling does not cause
+#   it; it removes the thing that was holding it off.
+#
+#   ⚠⚠ **AND IT IS NOT CONFINED TO trigDO, WHICH IS THE PART THAT DECIDED NOT TO LAND IT.**
+#   The fleet went **299 -> 296** and two of the three moved rows are substantive:
+#
+#       label-work executors carry 0 parked actions   ->  FAIL, TWELVE of them
+#       parseRule carries 1 parked actions            ->  NINE (row still green, number moved)
+#       trigDO runs / sentinel                        ->  FAIL, exit 139
+#
+#   The parked-action rows are F-60's territory and nobody predicted them.
+#
+#   **THE ENCLOSING-ACTIVATION GUARD WAS BUILT TOO, IN THE SAME STROKE AS INSTRUCTED, AND IT
+#   WORKS.** `RuleStuff.twk:207` becomes `if parent && parent.rStuff` write, `else` refuse by
+#   name. It **fired exactly once** and the `checkInput:1215` crash is gone -- the second 139
+#   is a different site entirely. So the guard is good and is waiting on the recursion, not
+#   the other way round.
+#
+#   **BOTH EDITS ARE REVERTED.** Tree clean, fleet back to 299, trigDO exit 0, canary 329.
+#   The two edits are six lines between them and are fully specified by the ruling itself.
+#
 #   ## ⚠⚠ WAITING ON TONY -- trigDO's THREE ROWS. NO REPAIR UNTIL HE READS THEM.
 #
 #   **They are ONE fact wearing three rows.** The fixture now RUNS to its foot and
