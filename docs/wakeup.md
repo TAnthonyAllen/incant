@@ -115,6 +115,38 @@
 #   Ruling D's own diagnostic sentence -- *whenever a guard and its subject live in different
 #   structures, ask whether they can disagree* -- arriving at a new site.
 #
+#   ## ⚠⚠⚠ WHERE THE SIXTY LIVE -- MEASURED 2026-09-15, AND THEY ARE NOT GRAMMAR TERMS.
+#
+#   Tony's puzzle was that there is no `++` or `--` anywhere in the grammar or GroupMain.
+#   There is not. **The sixty refused fields are the CONTENTS of a registry and a bin**, and
+#   the parent chain says so in one line. All three chains asked for -- the first refusal,
+#   an `@` and a `!` -- are IDENTICAL above level 0:
+#
+#       CHAIN  lvl=0  --          kind=-         isRule=0  rStuff=0   aff=member
+#       CHAIN  lvl=1  UnaryOPS    kind=BIN       isRule=0  rStuff=1   aff=attribute  data=isSET
+#       CHAIN  lvl=2  TokenXP     kind=-         isRule=1  rStuff=1
+#       CHAIN  lvl=3  Token       isRule=1 . lvl=4 ExpressioN . lvl=5 IF . lvl=6 WardeD
+#       CHAIN  lvl=7  StatemenT   isRule=1 . lvl=8 DO . then Token, ExpressioN, Xpress
+#
+#   **THE WHOLE POPULATION, all sixty, by the container they sit in:**
+#
+#       52   Operators   (binType 4, REGISTRY)     = . := <- += &&  ==  ?  ^  %  ... 
+#        8   UnaryOPS    (binType 1, BIN)          -- - ++ @ ! * . $$
+#       44 of them sit under `Token`, 8 under `TokenXP`.
+#
+#   ⚠⚠ **THE ANSWER TO ITEM 3's QUESTION IS NO, AND IT IS A CLEAN NO: `actionType` IS 0 AT
+#   EVERY LEVEL OF ALL SIXTY CHAINS.** No `aCTionBlocK`, no action child, nothing. **The walk
+#   is NOT crossing from grammar into action code.** It is descending into a container whose
+#   members are operator tokens.
+#
+#   ⚠ **AND THE CONTAINERS THEMSELVES ARE FINE.** `Operators` and `UnaryOPS` both HAVE rStuff
+#   and `setParseWalk` already has an arm for them -- `isBIN || isREGISTRY -> parseContainer`.
+#   What produces the sixty is the descent INTO their members, and an operator token is not a
+#   rule and never will be: `isRule=0`, `rStuff=0`, lawfully, by Ruling D.
+#
+#   Instrumented at `Generate.rtn:325`, run, reverted; `Generate.rtn` md5 `9a4e5242…` both
+#   sides, canary 329, fleet 299 unmoved, zero CHAIN lines in the shipped binary.
+#
 #   ## ⚠⚠ WAITING ON TONY -- trigDO's THREE ROWS. NO REPAIR UNTIL HE READS THEM.
 #
 #   **They are ONE fact wearing three rows.** The fixture now RUNS to its foot and
