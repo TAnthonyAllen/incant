@@ -1472,6 +1472,11 @@ define
                     only caller; setParse became the second one and hands this function
                     every term it touches, leaves included. Same guard case 5 and cases
                     403/404 in opDot have always used for the same read.#);
+                onePassNoEarlyOut=(Three flags, one pass. hasTraits uses the same test as
+                    addAttribute() -- an attribute that is not noPrint-class.
+                    The old early-outs are gone because they could break out
+                    before a trait-bearing attribute was reached, which would
+                    leave the third flag answering about a partial scan.#);
             fireLabelMethod=(THE RULE ACTION, and the ONLY site that fires one.
 
                 GX-1, 2026-08-06. Extracted verbatim from parse()'s match loop so that the

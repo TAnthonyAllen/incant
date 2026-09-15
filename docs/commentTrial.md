@@ -1026,3 +1026,50 @@ It was stripped to `// selfAdd` under the ruling, which is the first time the ne
 hit/miss control pair, with the counts asserted by name — `attachLabel` 7 children, `captureSpan` 1
 — because *"the entries exist"* and *"the entries landed under the right parent"* are two claims and
 only the second one is worth having.
+
+## ⚠ M4-c, 2026-09-15 — ALPHA ORDER, AND THE LINT LEARNED TO READ A CLASS
+
+Item 2b. **69 of 103 class methods changed position and the three file-scope functions were
+sorted among themselves.** `GroupItem.twk` reads `ok … 103 methods, in order`; `measure.twk`
+still reports its three pre-existing drifts, untouched, because the `extern` path was not changed.
+
+**`alphaLint.sh` could not see this file at all before today** — it extracted `^extern` only, so a
+class file reported `ALPHALINT BROKEN`, which is the right failure but is not a measurement. It
+now falls back to a column-0 signature whose **next line is a bare `{`**, which is tok's house
+body style and makes the one-line lookahead exact rather than a guess.
+
+**Two carve-outs, both deliberate, both named in the source so nobody reads them as a bug.** A
+**constructor is not alphabetised** — it shares the class's name, so sorting it would bury
+`GroupItem()` in the g's; constructors lead the file. And the **file-scope region is its own run**,
+so `compareAttribute` following `walk` is not reported as a break. Depth is counted on lines that
+are *exactly* `{` or `}`, so the class close is the one taking depth 1 → 0 and a `-- group --`
+marker resets the comparison there.
+
+**H7 control, run and recorded:** swapping `addAttribute` and `addGroup` back out of order reads
+`OUT … 1 out of order / addAttribute after addgroup`; restoring reads `in order`. The lint fails
+when the property it certifies is removed.
+
+## ⚠⚠ THE WHOLE M4 SWEEP, AND THE NUMBER TONY ASKED FOR
+
+    GroupItem.twk   BEFORE  2144 lines
+                    AFTER   1932 lines          -- 212 fewer, a tenth of the file
+
+**20 DesignDocs entries** under `TokFiles → GroupItem` (7 method arguments, 14 in-body children,
+5 new parent entries minted for owners that had none). `attachLabel` alone went from **97 lines of
+comment around 20 lines of code** to seven `// slug` lines and seven addressable children.
+
+**And the certification is the part worth keeping, because every one of these diffs is
+unreadable by eye:**
+
+| claim | how it was proved |
+|---|---|
+| the header pass changed no code | `codeOnly.py`, 1768 lines, identical |
+| the in-body pass changed no code | `codeOnly.py`, 1768 lines, identical |
+| **69 of 103 methods moved and nothing moved in the `.mm`** | `codeOnly.py` identical **and** `GroupItem.h` md5 unchanged from the session's first baseline |
+| the entries landed under the right parents | read-back with a hit/miss control pair and **counts asserted by name** — `attachLabel` 7, `captureSpan` 1, `updateContentFlags` 2 |
+| the lint can fail | H7 control, both directions |
+
+⚠ **THE REORDER WAS FREE BECAUSE tok SORTS ITS OWN OUTPUT**, which Clay asked about and which was
+then measured rather than assumed — and the full sweep is a far stronger instance of that
+measurement than the two-method experiment was: **sixty-nine methods moved in the source and the
+generated code did not move a byte.**

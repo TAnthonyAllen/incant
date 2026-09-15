@@ -140,6 +140,7 @@ int 	result = -1;
 }
 
 /*******************************************************************************
+                                GroupItem
     GroupItem constructors
 *******************************************************************************/
 GroupItem::GroupItem()
@@ -154,6 +155,7 @@ GroupItem::GroupItem()
 }
 
 /******************************************************************************
+                                GroupItem
     Copy constructor. Changes to this group will change the group passed in and
     vice versa. This group will have no parent (that will change as soon as it
     is added to another). The affiliation remains the same pending any change
@@ -625,7 +627,10 @@ GroupItem 	*copy = 0;
 		}
 }
 
-// builds+memoises the guard set; LINE 1 raises isRule on the SHARED body   GroupItem.ensureGuard
+/***************************************************************************
+                                ensureGuard
+    // ensureGuard builds and memoises the guard set -- LINE 1 raises isRule on the SHARED body
+***************************************************************************/
 PLGset *GroupItem::ensureGuard()
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -1080,7 +1085,10 @@ GroupItem *GroupItem::getGroup()
 	return 0;
 }
 
-// pure read -- builds NOTHING; ensureGuard() constructs   GroupItem.getGuard
+/***************************************************************************
+                                getGuard
+    // getGuard a PURE read -- it builds NOTHING; ensureGuard is what constructs
+***************************************************************************/
 PLGset *GroupItem::getGuard()
 {
 	return groupBody->guardSet;
@@ -2232,13 +2240,8 @@ void GroupItem::updateContentFlags()
 	if ( groupBody->groupList && groupBody->groupList->listLength )
 		{
 		GroupItem 	*item = 0;
-		/***********************************************************
-		Three flags, one pass. hasTraits uses the same test as
-		addAttribute() -- an attribute that is not noPrint-class.
-		The old early-outs are gone because they could break out
-		before a trait-bearing attribute was reached, which would
-		leave the third flag answering about a partial scan.
-		***********************************************************/
+		// onePassNoEarlyOut three flags, ONE pass -- the old early-outs could break out before a
+		// onePassNoEarlyOut trait-bearing attribute was reached, leaving the third flag answering about a partial scan
 		groupBody->flags.hasAttributes = 0;
 		groupBody->flags.hasMembers = 0;
 		groupBody->flags.hasTraits = 0;

@@ -17,6 +17,7 @@ boolean GroupOptions {
 #autoGetSet
 
 /*******************************************************************************
+                                GroupItem
     GroupItem constructors
 *******************************************************************************/
 GroupItem()
@@ -32,6 +33,7 @@ GroupItem(String c)
 }
 
 /******************************************************************************
+                                GroupItem
     Copy constructor. Changes to this group will change the group passed in and
     vice versa. This group will have no parent (that will change as soon as it
     is added to another). The affiliation remains the same pending any change
@@ -46,6 +48,24 @@ GroupItem(GroupItem grup)
         *rStuff = *grup.rStuff;
         rule    = this;
         followed = isOK = sukcess = false; }
+}
+
+/***************************************************************************
+                                addAttribute
+	Add an attribute.
+***************************************************************************/
+GroupItem addAttribute(GroupItem grup)
+{
+    if !grup            return null;
+    if grup.mergeOn && mergeOn { merge(grup); return this; }
+    grup                = addGroup(grup);
+    grup.isAttribute	= true;
+    hasAttributes       = true;
+    /***************************************************************
+        hasTraits is set if the field passed in is not noPrint-class.
+    ***************************************************************/
+    if !grup.noPrint    hasTraits = true;
+	return grup;
 }
 
 /***************************************************************************
@@ -90,24 +110,6 @@ GroupItem addGroup(GroupItem group)
 }
 
 /***************************************************************************
-                                addAttribute
-	Add an attribute.
-***************************************************************************/
-GroupItem addAttribute(GroupItem grup)
-{
-    if !grup            return null;
-    if grup.mergeOn && mergeOn { merge(grup); return this; }
-    grup                = addGroup(grup);
-    grup.isAttribute	= true;
-    hasAttributes       = true;
-    /***************************************************************
-        hasTraits is set if the field passed in is not noPrint-class.
-    ***************************************************************/
-    if !grup.noPrint    hasTraits = true;
-	return grup;
-}
-
-/***************************************************************************
                                 addMember
 	Add a member.
 ***************************************************************************/
@@ -141,6 +143,18 @@ GroupItem	group;
 	return group;
 }
 
+/***************************************************************************
+                                allAttributesOptional
+    // allAttributesOptional an attribute with no rStuff counts as MANDATORY -- not yet known is not the same as optional
+***************************************************************************/
+int allAttributesOptional()
+{
+GroupItem   attr;
+    while attr = nextAttribute(attr)
+        if !attr.rStuff || attr.min     return false;
+    return true;
+}
+
 /*****************************************************************************
                                 append
 	Append the group passed in to this one. Does not care if there is no
@@ -153,6 +167,100 @@ void append(GroupItem grup)
     if nextInParent     nextInParent.priorInParent  = grup;
     or parent           parent.lastInList = grup;
 	nextInParent		= grup;
+}
+
+/***************************************************************************
+                                attachLabel
+    // attachLabel the yield protocol IS the skip -- NULL failed, labelNO yields nothing, anything else
+    // attachLabel attaches. Do not reach for a flag here, it was falsified fleet-wide
+***************************************************************************/
+void attachLabel(RuleStuff stuff, RuleStuff pStuff, int promote)
+{
+GroupRules  ruler = groupRules;
+GroupItem   lab = stuff.label;
+    if !lab || lab == labelNO   return;
+    if !pStuff                  return;
+    // caseLocalizer parseTrace-gated -- the interesting failure is a SILENT return at the no-label guard, and
+    // caseLocalizer an absent attach announces nothing on its own
+    if parseTrace
+        cerr "    attachLabel lab=" lab.tag " promote=" promote " isTarget=" stuff.isTarget " pLabel=" (pStuff.label != 0) " pRule=" pStuff.ruleName "\n";
+    // promoteUnguarded promotion is an assign and is NOT guarded on the destination -- a parent with no label
+    // promoteUnguarded yet is the normal case here, and this is what gives it one
+    // pc1Restated the disjunct is PC-1 RESTATED, not loosened -- the forbidden consult is the one where a
+    // pc1Restated parent label exists, because that is the one with a subtree to destroy
+    if (promote || !pStuff.label) && stuff.isTarget {
+        pStuff.label    = lab;
+        lab.tag         = pStuff.ruleName;
+        return; }
+    // attachGuardHere the guard belongs HERE and not above the promote case -- both placements were measured
+    // attachGuardHere and each crashes the fleet the other way, three lines apart
+    // ia2Narrow the landed spelling is the NARROW one -- the broad one was also green and was rejected
+    // ia2Narrow because ZERO of 216 calls fell in the cell where the two differ
+    if !pStuff.label {
+        // dropSiteProbe parseTrace-gated -- at the instant an option's label is dropped, is there a reachable
+        // dropSiteProbe destination in the frame, or is the label simply homeless
+-%
+        if ( GroupControl::groupController->groupRules->parseTrace )
+            {
+            const char *pName  = pStuff->ruleName ? pStuff->ruleName : "(none)";
+            const char *pPar   = pStuff->parentLabel ? pStuff->parentLabel->groupBody->tag : "(null)";
+            const char *ppName = (pStuff->parentStuff && pStuff->parentStuff->ruleName)
+                                 ? pStuff->parentStuff->ruleName : "(none)";
+            const char *ppLab  = (pStuff->parentStuff && pStuff->parentStuff->label)
+                                 ? pStuff->parentStuff->label->groupBody->tag : "(null)";
+            const char *sPar   = stuff->parentLabel ? stuff->parentLabel->groupBody->tag : "(null)";
+            ::fprintf(stderr,"    IA2 DROP  lab=%s  pRule=%s  pStuff.parentLabel=%s  pStuff.parentStuff=%s pp.label=%s  stuff.parentLabel=%s\n",
+                lab->groupBody->tag,pName,pPar,ppName,ppLab,sPar);
+            }
+%-
+        // rung2bRed reachable is not correct -- an alternation must YIELD its winning option's label upward,
+        // rung2bRed never park it in the grandparent's subtree
+        return; }
+    if promote && lab.isGROUP && stuff.max > 1 {
+        pStuff.label    +% lab.group;
+        lab.clear();
+        lab.fLAG        = true;
+        return; }
+    pStuff.label +% lab;
+}
+
+/***************************************************************************
+                                captureSpan
+    // captureSpan the formula is THIS chair's -- from the action's chair the same rule reads the other way
+    // captureSpan round, so the action-chair spelling must never be copied here
+***************************************************************************/
+void captureSpan(RuleStuff stuff)
+{
+GroupRules  ruler = groupRules;
+GroupItem   label = stuff.label;
+String      spanFrom = stuff.hereAt;
+String      spanTo   = ruler.atRuleMark;
+int         spanLen;
+    if !label       return;
+    if !spanFrom    return;
+    if !spanTo      return;
+    spanLen = (int)(spanTo - spanFrom);
+    if spanLen < 0  return;
+-%
+    // oracleBeforeWrite the comparator samples the product BEFORE the write below, or it compares this function
+    // oracleBeforeWrite to itself and reads MATCH forever
+    if ( GroupControl::groupController->groupRules->parseTrace )
+        {
+        int   shipLen  = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gCount : -1;
+        char *shipFrom = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gText : 0;
+        const char *verdict;
+        if ( !shipFrom )                                   verdict = "ORACLE-ABSENT";
+        else if ( shipLen <= 0 && spanLen <= 0 )           verdict = "VOID-bothEmpty";
+        else if ( shipLen != spanLen )                     verdict = "DIVERGE-len";
+        else if ( ::strncmp(shipFrom,spanFrom,spanLen) )   verdict = "DIVERGE-bytes";
+        else                                               verdict = "MATCH";
+        ::fprintf(stderr,"CAPTURE %s rule=%s shipLen=%d spanLen=%d ship=[%.*s] span=[%.*s]\n",
+            verdict, groupBody->tag ? groupBody->tag : "?", shipLen, spanLen,
+            shipLen > 0 ? shipLen : 0, shipFrom ? shipFrom : "",
+            spanLen > 0 ? spanLen : 0, spanFrom);
+        }
+%-
+    label.setToken(spanFrom,spanLen);
 }
 
 /******************************************************************************
@@ -249,6 +357,20 @@ GroupItem   entry;
             else    grup.addMember(entry);
 }
 
+/***************************************************************************
+                                definingRule
+    // definingRule the definer is the first child's PARENT, by pointer, with no name lookup -- and the test
+    // definingRule discriminates, which is why it is unguarded on purpose
+***************************************************************************/
+GroupItem definingRule()
+{
+GroupItem   first = get(1);
+GroupItem   owner;
+    if first    owner = first.parent;
+    if owner && owner != this   return owner;
+    return this;
+}
+
 /*****************************************************************************
                                 dispatch
 	Run a group method in the dispatch Q
@@ -278,234 +400,20 @@ GroupItem   stuff;
 }
 
 /*****************************************************************************
-                                findAttribute
-	Searches ancestors bottom up for the first attribute matching name.
-    Keep in mind the parent hierarchy has to be reset first for this to work.
+                                dumpField
+	dumpField — debugging dump of one field: tag, data value, and (if it has
+	a list) the member tags only. tok cousin of the incant dumpField action.
+	Uses cerr (not print) so it never disturbs the sticky print default.
+	Read-only; never mutates. Call as item.dumpField().
 *****************************************************************************/
-GroupItem findAttribute(String name)
-{
-GroupItem	result,
-            group = this;
-	while group
-		{
-        if result = group%name break;
-		if group = group.parent
-            if result = group.findAttribute(name) break;
-		}
-	return result;
-}
-
-/*****************************************************************************
-                                findParent
-	Returns the named parent.
-*****************************************************************************/
-GroupItem findParent(String name)
-{
-GroupItem	group = this;
-    while group
-        {
-        if group.tag eq name
-            break;
-        group = group.parent;
-        }
-    return group;
-}
-
-/***************************************************************************
-                                firstComponent
-	Returns first component with matching tag. Unlike get() it recurses and descends.
-    This should check to make sure it does not search the same field more
-    than once or it ends up in an infinite loop. TBD need a searchable Stak
-***************************************************************************/
-GroupItem firstComponent(String name)
+void dumpField()
 {
 GroupItem   grup;
-GroupItem   entry = get(name);
-    if !entry
-        if groupList
-            while entry = next(entry)
-                if grup = entry.firstComponent(name) {
-                    entry = grup;
-                    break; }
-    return entry;
-}
-
-/***************************************************************************
-                                get
-	Returns first component with tag == name. The search does not descend.
-***************************************************************************/
-GroupItem get(String name)
-{
-GroupItem   entry;
-    if name
-        if groupList {
-            if binType {
-                if stakked                              return getFromStak(name);
-                or guarded && !guardSet.contains(*name) return null; }
-            if listLength
-                while entry = next(entry)
-                    if entry.tag eq name return entry; }
-    return null;
-}
-
-/*****************************************************************************
-                                get
-    Return nth component if it exists. Not efficient unless this is stakked.
-*****************************************************************************/
-GroupItem get(int offset)
-{
-GroupItem   entry;
-int         i;
-    if offset && groupList {
-        if stakked      return getFromStak(offset);
-        or --offset <= listLength {
-            entry = firstInList;
-            while offset > i++
-                entry = entry.nextInParent; }
-        return entry; }
-    return null;
-}
-
-/*****************************************************************************
-                                getAttribute
-	Get the named attribute. This will return an attribute even if the
-	attribute noPrint flag is set.
-*****************************************************************************/
-GroupItem getAttribute(String name)
-{
-GroupItem   block;
-    if name
-        if block = get(name)
-            if block.isAttribute return block;
-    return null;
-}
-
-/***************************************************************************
-                                getFromList
-	Returns first component with tag == name. The search does not descend.
-    Called from put() because unlike get() it does not search stakked.
-***************************************************************************/
-GroupItem getFromList(String name)
-{
-GroupItem   entry;
-    if name
-        if groupList
-            if guarded && !guardSet.contains(*name) return null;
-            or listLength
-                while entry = next(entry)
-                    if entry.tag eq name return entry;
-    return null;
-}
-
-/***************************************************************************
-                                getLabelGroup
-	Initializer method for accessing rule results (used in rule actions);
-***************************************************************************/
-GroupItem getLabelGroup(String name)
-{
-GroupItem   block = get(name);
-    while block && block.isGROUP && !block.isMethod && !block.isRule
-        block = block.group;
-    return block;
-}
-
-/*****************************************************************************
-                                getMember
-	Return the member matching the tag passed in.
-*****************************************************************************/
-GroupItem getMember(String name)
-{
-    if name && hasMembers
-        {
-        GroupItem    block = get(name);
-        if block && block.isMember return block;
-        }
-    return null;
-}
-
-/*****************************************************************************
-                                getBuffer
-	Value getters
-*****************************************************************************/
-Buffer getBuffer()
-{
-	if isBUFFER
-        return buffer;
-	return 0;
-}
-
-char getCharacter()
-{
-String	atStart, atNext;
-	if data
-        if isCHAR   return character;
-		or isSTRING && gCount == 1  atStart = gText;
-	if atStart
-		{
-		if atStart != '\\' return *atStart;
-		else {
-            atNext = atStart + 1;
-            switch(*atNext)
-                {
-                case 'n':   return '\n';
-                case 'r':   return '\r';
-                case 'f':   return '\f';
-                case 't':   return '\t';
-                case '\\':  return '\\';
-                default:    return *atNext;
-                }
-            }
-		}
-	return null;
-}
-
-PLGset getCharacterSet()
-{
-	if isSET
-        return characterSet;
-	return 0;
-}
-
-int getCount()
-{
-    if data
-        {
-        if isCOUNT || isTOKEN || isCHAR || isSTRING return count;
-        // roundHalfUp THE site -- every .count read of a double lands here, and it is floor(x+0.5) and NOT
-        // roundHalfUp lround, which rounds half AWAY from zero and would send -2.5 to -3
-        if isNUMBER     return (int)floor(number + 0.5);
-        if isBUFFER     return buffer.length();
-        if isGROUP {
-        cerr "ERROR getCount on",tag,"-- holds a group; say *":;
-        return 0; }
-        }
-	return 0;
-}
-
-int getDataType()
-{
-    if isGROUP
-        if group == this return 0;
-    else {
-        cerr "ERROR getDataType on",tag,"-- holds a group; say *":;
-        return 0; }
-    return data;
-}
-
-/*****************************************************************************
-                                getGroup
-	Need to test how getMacro works in this case
-*****************************************************************************/
-GroupItem getGroup()
-{
-	if isGROUP  return gGroup;
-	return 0;
-}
-
-// pure read -- builds NOTHING; ensureGuard() constructs   GroupItem.getGuard
-PLGset getGuard()
-{
-    return guardSet;
+	if groupList {
+		cerr "  ",tag," | data=",getText()," | listLen=",listLength:;
+		while grup = next(grup)
+			cerr "      - ",grup.tag:; }
+	else cerr "  ",tag," | data=",getText()," | (no list)":;
 }
 
 /***************************************************************************
@@ -524,7 +432,10 @@ GroupItem   copy;
         setGroup(copy); }
 }
 
-// builds+memoises the guard set; LINE 1 raises isRule on the SHARED body   GroupItem.ensureGuard
+/***************************************************************************
+                                ensureGuard
+    // ensureGuard builds and memoises the guard set -- LINE 1 raises isRule on the SHARED body
+***************************************************************************/
 PLGset ensureGuard()
 {
 GroupRules  ruler = groupRules;
@@ -613,6 +524,282 @@ returnGuard:
     return  guardSet;
 }
 
+/*******************************************************************************
+                                ensureRStuff
+    // ensureRStuff the constructing half -- it is NOT setRuleStuff, whose second arm
+    // re-clones an rStuff belonging to another node
+*******************************************************************************/
+RuleStuff ensureRStuff()
+{
+    if !rStuff {
+        RuleStuff   fresh = new(this);
+        setRStuff(fresh); }
+    return rStuff;
+}
+
+/***************************************************************************
+                                establishFrame
+    // establishFrame the SINGLE WRITER of parentLabel, and there is deliberately no save/restore -- the callee
+    // establishFrame lifts it at entry, so a parseMethod that reads it LATE is unsafe under recursion
+***************************************************************************/
+void establishFrame(GroupItem parentLabel)
+{
+    if rStuff   rStuff.parentLabel = parentLabel;
+}
+
+/*****************************************************************************
+                                findAttribute
+	Searches ancestors bottom up for the first attribute matching name.
+    Keep in mind the parent hierarchy has to be reset first for this to work.
+*****************************************************************************/
+GroupItem findAttribute(String name)
+{
+GroupItem	result,
+            group = this;
+	while group
+		{
+        if result = group%name break;
+		if group = group.parent
+            if result = group.findAttribute(name) break;
+		}
+	return result;
+}
+
+/*****************************************************************************
+                                findParent
+	Returns the named parent.
+*****************************************************************************/
+GroupItem findParent(String name)
+{
+GroupItem	group = this;
+    while group
+        {
+        if group.tag eq name
+            break;
+        group = group.parent;
+        }
+    return group;
+}
+
+/***************************************************************************
+                                fireLabelMethod
+    // fireLabelMethod returns NOTHING deliberately -- a null label already means
+    // noLabel-on-success, so handing it back would be one channel with two meanings
+***************************************************************************/
+void fireLabelMethod(RuleStuff stuff)
+{
+GroupRules  ruler = groupRules;
+    if !stuff.actionMethod {
+        GroupItem   builtinActoR = getAttribute("builtinActoR");
+        if builtinActoR stuff.actionMethod = builtinActoR.method; }
+    ruleSTUFF   = stuff;
+    // collisionProbe this seat stays ABOVE captureSpan, so the capture's own comparator
+    // line prints inside the bracket
+    measureFireLabelEntry(this);
+    if tokened  captureSpan(stuff);
+    measureFireLabelFork(this,stuff.label);
+    if stuff.actionMethod && stuff.label {
+        if deferred {
+            stuff.label.method    = actionMethod;
+            stuff.label.deferred  = true;
+            if !stuff.label.data  stuff.label.text = "g" tag; }
+        or !parseACTION {
+            // replacementReturn IN and OUT are two seats -- one read after the fire
+            // cannot tell a replacement from a pass-through
+            measureFireLabelActionIn(this,stuff.label);
+            stuff.label = stuff.actionMethod(stuff.label);
+            measureFireLabelActionOut(this,stuff.label);
+            if !stuff.label   stuff.sukcess = false; }}
+}
+
+/***************************************************************************
+                                firstComponent
+	Returns first component with matching tag. Unlike get() it recurses and descends.
+    This should check to make sure it does not search the same field more
+    than once or it ends up in an infinite loop. TBD need a searchable Stak
+***************************************************************************/
+GroupItem firstComponent(String name)
+{
+GroupItem   grup;
+GroupItem   entry = get(name);
+    if !entry
+        if groupList
+            while entry = next(entry)
+                if grup = entry.firstComponent(name) {
+                    entry = grup;
+                    break; }
+    return entry;
+}
+
+/***************************************************************************
+                                frameParent
+    // frameParent it reads runRule's OWN argument, never the ruleSTUFF singleton -- a singleton answers what
+    // frameParent happened last, never who is asking
+***************************************************************************/
+GroupItem frameParent(GroupItem holder)
+{
+RuleStuff   holderStuff;
+    if !holder  return holder;
+    holderStuff = holder.rStuff;
+    if holderStuff && holderStuff.label     return holderStuff.label;
+    return holder;
+}
+
+/***************************************************************************
+                                get
+	Returns first component with tag == name. The search does not descend.
+***************************************************************************/
+GroupItem get(String name)
+{
+GroupItem   entry;
+    if name
+        if groupList {
+            if binType {
+                if stakked                              return getFromStak(name);
+                or guarded && !guardSet.contains(*name) return null; }
+            if listLength
+                while entry = next(entry)
+                    if entry.tag eq name return entry; }
+    return null;
+}
+
+/*****************************************************************************
+                                get
+    Return nth component if it exists. Not efficient unless this is stakked.
+*****************************************************************************/
+GroupItem get(int offset)
+{
+GroupItem   entry;
+int         i;
+    if offset && groupList {
+        if stakked      return getFromStak(offset);
+        or --offset <= listLength {
+            entry = firstInList;
+            while offset > i++
+                entry = entry.nextInParent; }
+        return entry; }
+    return null;
+}
+
+/*****************************************************************************
+                                getAttribute
+	Get the named attribute. This will return an attribute even if the
+	attribute noPrint flag is set.
+*****************************************************************************/
+GroupItem getAttribute(String name)
+{
+GroupItem   block;
+    if name
+        if block = get(name)
+            if block.isAttribute return block;
+    return null;
+}
+
+/*****************************************************************************
+                                getBuffer
+	Value getters
+*****************************************************************************/
+Buffer getBuffer()
+{
+	if isBUFFER
+        return buffer;
+	return 0;
+}
+
+char getCharacter()
+{
+String	atStart, atNext;
+	if data
+        if isCHAR   return character;
+		or isSTRING && gCount == 1  atStart = gText;
+	if atStart
+		{
+		if atStart != '\\' return *atStart;
+		else {
+            atNext = atStart + 1;
+            switch(*atNext)
+                {
+                case 'n':   return '\n';
+                case 'r':   return '\r';
+                case 'f':   return '\f';
+                case 't':   return '\t';
+                case '\\':  return '\\';
+                default:    return *atNext;
+                }
+            }
+		}
+	return null;
+}
+
+PLGset getCharacterSet()
+{
+	if isSET
+        return characterSet;
+	return 0;
+}
+
+int getCount()
+{
+    if data
+        {
+        if isCOUNT || isTOKEN || isCHAR || isSTRING return count;
+        // roundHalfUp THE site -- every .count read of a double lands here, and it is floor(x+0.5) and NOT
+        // roundHalfUp lround, which rounds half AWAY from zero and would send -2.5 to -3
+        if isNUMBER     return (int)floor(number + 0.5);
+        if isBUFFER     return buffer.length();
+        if isGROUP {
+        cerr "ERROR getCount on",tag,"-- holds a group; say *":;
+        return 0; }
+        }
+	return 0;
+}
+
+int getDataType()
+{
+    if isGROUP
+        if group == this return 0;
+    else {
+        cerr "ERROR getDataType on",tag,"-- holds a group; say *":;
+        return 0; }
+    return data;
+}
+
+/***************************************************************************
+                                getFromList
+	Returns first component with tag == name. The search does not descend.
+    Called from put() because unlike get() it does not search stakked.
+***************************************************************************/
+GroupItem getFromList(String name)
+{
+GroupItem   entry;
+    if name
+        if groupList
+            if guarded && !guardSet.contains(*name) return null;
+            or listLength
+                while entry = next(entry)
+                    if entry.tag eq name return entry;
+    return null;
+}
+
+/*****************************************************************************
+                                getGroup
+	Need to test how getMacro works in this case
+*****************************************************************************/
+GroupItem getGroup()
+{
+	if isGROUP  return gGroup;
+	return 0;
+}
+
+/***************************************************************************
+                                getGuard
+    // getGuard a PURE read -- it builds NOTHING; ensureGuard is what constructs
+***************************************************************************/
+PLGset getGuard()
+{
+    return guardSet;
+}
+
 PLGitem getItem()
 {
 	if isITEM || isDate return item;
@@ -620,6 +807,32 @@ PLGitem getItem()
         cerr "ERROR getItem on",tag,"-- holds a group; say *":;
         return 0; }
 	return 0;
+}
+
+/***************************************************************************
+                                getLabelGroup
+	Initializer method for accessing rule results (used in rule actions);
+***************************************************************************/
+GroupItem getLabelGroup(String name)
+{
+GroupItem   block = get(name);
+    while block && block.isGROUP && !block.isMethod && !block.isRule
+        block = block.group;
+    return block;
+}
+
+/*****************************************************************************
+                                getMember
+	Return the member matching the tag passed in.
+*****************************************************************************/
+GroupItem getMember(String name)
+{
+    if name && hasMembers
+        {
+        GroupItem    block = get(name);
+        if block && block.isMember return block;
+        }
+    return null;
 }
 
 double getNumber()
@@ -649,7 +862,7 @@ void *getPointer()
     if isPointer    return pointer;
 	return 0;
 }
-    
+
 PLGrgx getRegex()
 {
 	if isREGEX return regex;
@@ -663,19 +876,6 @@ PLGrgx getRegex()
 *******************************************************************************/
 RuleStuff getRStuff()
 {
-    return rStuff;
-}
-
-/*******************************************************************************
-                                ensureRStuff
-    // ensureRStuff the constructing half -- it is NOT setRuleStuff, whose second arm
-    // re-clones an rStuff belonging to another node
-*******************************************************************************/
-RuleStuff ensureRStuff()
-{
-    if !rStuff {
-        RuleStuff   fresh = new(this);
-        setRStuff(fresh); }
     return rStuff;
 }
 
@@ -744,20 +944,18 @@ String      junkText;
 }
 
 /*****************************************************************************
-                                dumpField
-	dumpField — debugging dump of one field: tag, data value, and (if it has
-	a list) the member tags only. tok cousin of the incant dumpField action.
-	Uses cerr (not print) so it never disturbs the sticky print default.
-	Read-only; never mutates. Call as item.dumpField().
+                                insertAfter
+    Insert grup into this's parent list immediately after this. Bookkeeping
+    parallel: append() only adjusts sibling pointers, so this wraps it with
+    parent/listLength/lastInList updates so the parent list stays consistent.
 *****************************************************************************/
-void dumpField()
+void insertAfter(GroupItem grup)
 {
-GroupItem   grup;
-	if groupList {
-		cerr "  ",tag," | data=",getText()," | listLen=",listLength:;
-		while grup = next(grup)
-			cerr "      - ",grup.tag:; }
-	else cerr "  ",tag," | data=",getText()," | (no list)":;
+    append(grup);
+    grup.parent = parent;
+    if parent {
+        parent.listLength++;
+        if !grup.nextInParent   parent.lastInList = grup; }
 }
 
 /*****************************************************************************
@@ -776,21 +974,6 @@ GroupItem insertGroup(GroupItem grup)
     grup.parent = this;
     listLength++;
     return firstInList;
-}
-
-/*****************************************************************************
-                                insertAfter
-    Insert grup into this's parent list immediately after this. Bookkeeping
-    parallel: append() only adjusts sibling pointers, so this wraps it with
-    parent/listLength/lastInList updates so the parent list stays consistent.
-*****************************************************************************/
-void insertAfter(GroupItem grup)
-{
-    append(grup);
-    grup.parent = parent;
-    if parent {
-        parent.listLength++;
-        if !grup.nextInParent   parent.lastInList = grup; }
 }
 
 /***************************************************************************
@@ -971,18 +1154,6 @@ GroupItem nextAttribute(GroupItem current)
 }
 
 /***************************************************************************
-                                allAttributesOptional
-    // allAttributesOptional an attribute with no rStuff counts as MANDATORY -- not yet known is not the same as optional
-***************************************************************************/
-int allAttributesOptional()
-{
-GroupItem   attr;
-    while attr = nextAttribute(attr)
-        if !attr.rStuff || attr.min     return false;
-    return true;
-}
-
-/***************************************************************************
                                 nextGroup
     Return the group following the group passed in. If a null group is
     passed in, returns the first group;
@@ -1006,169 +1177,6 @@ GroupItem nextMember(GroupItem current)
     while current = nextGroup(current)
         if current.isMember break;
     return current;
-}
-
-/***************************************************************************
-                                definingRule
-    // definingRule the definer is the first child's PARENT, by pointer, with no name lookup -- and the test
-    // definingRule discriminates, which is why it is unguarded on purpose
-***************************************************************************/
-GroupItem definingRule()
-{
-GroupItem   first = get(1);
-GroupItem   owner;
-    if first    owner = first.parent;
-    if owner && owner != this   return owner;
-    return this;
-}
-
-/***************************************************************************
-                                fireLabelMethod
-    // fireLabelMethod returns NOTHING deliberately -- a null label already means
-    // noLabel-on-success, so handing it back would be one channel with two meanings
-***************************************************************************/
-void fireLabelMethod(RuleStuff stuff)
-{
-GroupRules  ruler = groupRules;
-    if !stuff.actionMethod {
-        GroupItem   builtinActoR = getAttribute("builtinActoR");
-        if builtinActoR stuff.actionMethod = builtinActoR.method; }
-    ruleSTUFF   = stuff;
-    // collisionProbe this seat stays ABOVE captureSpan, so the capture's own comparator
-    // line prints inside the bracket
-    measureFireLabelEntry(this);
-    if tokened  captureSpan(stuff);
-    measureFireLabelFork(this,stuff.label);
-    if stuff.actionMethod && stuff.label {
-        if deferred {
-            stuff.label.method    = actionMethod;
-            stuff.label.deferred  = true;
-            if !stuff.label.data  stuff.label.text = "g" tag; }
-        or !parseACTION {
-            // replacementReturn IN and OUT are two seats -- one read after the fire
-            // cannot tell a replacement from a pass-through
-            measureFireLabelActionIn(this,stuff.label);
-            stuff.label = stuff.actionMethod(stuff.label);
-            measureFireLabelActionOut(this,stuff.label);
-            if !stuff.label   stuff.sukcess = false; }}
-}
-
-/***************************************************************************
-                                captureSpan
-    // captureSpan the formula is THIS chair's -- from the action's chair the same rule reads the other way
-    // captureSpan round, so the action-chair spelling must never be copied here
-***************************************************************************/
-void captureSpan(RuleStuff stuff)
-{
-GroupRules  ruler = groupRules;
-GroupItem   label = stuff.label;
-String      spanFrom = stuff.hereAt;
-String      spanTo   = ruler.atRuleMark;
-int         spanLen;
-    if !label       return;
-    if !spanFrom    return;
-    if !spanTo      return;
-    spanLen = (int)(spanTo - spanFrom);
-    if spanLen < 0  return;
--%
-    // oracleBeforeWrite the comparator samples the product BEFORE the write below, or it compares this function
-    // oracleBeforeWrite to itself and reads MATCH forever
-    if ( GroupControl::groupController->groupRules->parseTrace )
-        {
-        int   shipLen  = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gCount : -1;
-        char *shipFrom = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gText : 0;
-        const char *verdict;
-        if ( !shipFrom )                                   verdict = "ORACLE-ABSENT";
-        else if ( shipLen <= 0 && spanLen <= 0 )           verdict = "VOID-bothEmpty";
-        else if ( shipLen != spanLen )                     verdict = "DIVERGE-len";
-        else if ( ::strncmp(shipFrom,spanFrom,spanLen) )   verdict = "DIVERGE-bytes";
-        else                                               verdict = "MATCH";
-        ::fprintf(stderr,"CAPTURE %s rule=%s shipLen=%d spanLen=%d ship=[%.*s] span=[%.*s]\n",
-            verdict, groupBody->tag ? groupBody->tag : "?", shipLen, spanLen,
-            shipLen > 0 ? shipLen : 0, shipFrom ? shipFrom : "",
-            spanLen > 0 ? spanLen : 0, spanFrom);
-        }
-%-
-    label.setToken(spanFrom,spanLen);
-}
-
-/***************************************************************************
-                                attachLabel
-    // attachLabel the yield protocol IS the skip -- NULL failed, labelNO yields nothing, anything else
-    // attachLabel attaches. Do not reach for a flag here, it was falsified fleet-wide
-***************************************************************************/
-void attachLabel(RuleStuff stuff, RuleStuff pStuff, int promote)
-{
-GroupRules  ruler = groupRules;
-GroupItem   lab = stuff.label;
-    if !lab || lab == labelNO   return;
-    if !pStuff                  return;
-    // caseLocalizer parseTrace-gated -- the interesting failure is a SILENT return at the no-label guard, and
-    // caseLocalizer an absent attach announces nothing on its own
-    if parseTrace
-        cerr "    attachLabel lab=" lab.tag " promote=" promote " isTarget=" stuff.isTarget " pLabel=" (pStuff.label != 0) " pRule=" pStuff.ruleName "\n";
-    // promoteUnguarded promotion is an assign and is NOT guarded on the destination -- a parent with no label
-    // promoteUnguarded yet is the normal case here, and this is what gives it one
-    // pc1Restated the disjunct is PC-1 RESTATED, not loosened -- the forbidden consult is the one where a
-    // pc1Restated parent label exists, because that is the one with a subtree to destroy
-    if (promote || !pStuff.label) && stuff.isTarget {
-        pStuff.label    = lab;
-        lab.tag         = pStuff.ruleName;
-        return; }
-    // attachGuardHere the guard belongs HERE and not above the promote case -- both placements were measured
-    // attachGuardHere and each crashes the fleet the other way, three lines apart
-    // ia2Narrow the landed spelling is the NARROW one -- the broad one was also green and was rejected
-    // ia2Narrow because ZERO of 216 calls fell in the cell where the two differ
-    if !pStuff.label {
-        // dropSiteProbe parseTrace-gated -- at the instant an option's label is dropped, is there a reachable
-        // dropSiteProbe destination in the frame, or is the label simply homeless
--%
-        if ( GroupControl::groupController->groupRules->parseTrace )
-            {
-            const char *pName  = pStuff->ruleName ? pStuff->ruleName : "(none)";
-            const char *pPar   = pStuff->parentLabel ? pStuff->parentLabel->groupBody->tag : "(null)";
-            const char *ppName = (pStuff->parentStuff && pStuff->parentStuff->ruleName)
-                                 ? pStuff->parentStuff->ruleName : "(none)";
-            const char *ppLab  = (pStuff->parentStuff && pStuff->parentStuff->label)
-                                 ? pStuff->parentStuff->label->groupBody->tag : "(null)";
-            const char *sPar   = stuff->parentLabel ? stuff->parentLabel->groupBody->tag : "(null)";
-            ::fprintf(stderr,"    IA2 DROP  lab=%s  pRule=%s  pStuff.parentLabel=%s  pStuff.parentStuff=%s pp.label=%s  stuff.parentLabel=%s\n",
-                lab->groupBody->tag,pName,pPar,ppName,ppLab,sPar);
-            }
-%-
-        // rung2bRed reachable is not correct -- an alternation must YIELD its winning option's label upward,
-        // rung2bRed never park it in the grandparent's subtree
-        return; }
-    if promote && lab.isGROUP && stuff.max > 1 {
-        pStuff.label    +% lab.group;
-        lab.clear();
-        lab.fLAG        = true;
-        return; }
-    pStuff.label +% lab;
-}
-
-/***************************************************************************
-                                establishFrame
-    // establishFrame the SINGLE WRITER of parentLabel, and there is deliberately no save/restore -- the callee
-    // establishFrame lifts it at entry, so a parseMethod that reads it LATE is unsafe under recursion
-***************************************************************************/
-void establishFrame(GroupItem parentLabel)
-{
-    if rStuff   rStuff.parentLabel = parentLabel;
-}
-
-/***************************************************************************
-                                frameParent
-    // frameParent it reads runRule's OWN argument, never the ruleSTUFF singleton -- a singleton answers what
-    // frameParent happened last, never who is asking
-***************************************************************************/
-GroupItem frameParent(GroupItem holder)
-{
-RuleStuff   holderStuff;
-    if !holder  return holder;
-    holderStuff = holder.rStuff;
-    if holderStuff && holderStuff.label     return holderStuff.label;
-    return holder;
 }
 
 /***************************************************************************
@@ -1425,7 +1433,7 @@ GroupItem action;
     else        setContent(notifier);
     return this;
 }
-  
+
 /*******************************************************************************
                                 setActionMethod
     setActionMethod adds builtinActoR to contain rule action method. It is not
@@ -1490,6 +1498,7 @@ void setCharacterSet(PLGset set)
     isInitialized   = true;
     if hasListeners updateListeners();
 }
+
 /*****************************************************************************
                                 setContent
 	setContent is not a setter. It updates data.
@@ -1540,6 +1549,13 @@ void setItem(PLGitem i)
     if hasListeners updateListeners();
 }
 
+void setJitEmitter(void* m)
+{
+    // noFlagSet it sets NO flag deliberately -- presence of the slot IS the gate, and the emitter rides
+    // noFlagSet alongside the interpreter binding rather than replacing it
+    -% groupBody->gJitEmitter = (GroupItem*(*)(GroupItem*,GroupItem*))m; %-
+}
+
 void setMap(BitMAP i)
 {
     gMap        = i;
@@ -1587,13 +1603,6 @@ void setOperat(void* m)
     -% groupBody->gOp = (GroupItem*(*)(GroupItem*,GroupItem*))m; %-
 }
 
-void setJitEmitter(void* m)
-{
-    // noFlagSet it sets NO flag deliberately -- presence of the slot IS the gate, and the emitter rides
-    // noFlagSet alongside the interpreter binding rather than replacing it
-    -% groupBody->gJitEmitter = (GroupItem*(*)(GroupItem*,GroupItem*))m; %-
-}
-
 void setPointer(void *v)
 {
     pointer     = v;
@@ -1622,6 +1631,22 @@ void setRStuff(RuleStuff stuff)
     rStuff = stuff;
 }
 
+/*******************************************************************************
+                                setRuleStuff
+    Set rStuff and isRule. This takes no argument so not a setter
+*******************************************************************************/
+void setRuleStuff()
+{
+    if !isRule
+        if registry && registry.isRule              isRule = true;
+        or parent && parent.isRule
+            if !registry || registry == keyWords    isRule = true;
+    if !rStuff  rStuff = new(this);
+    or rule != this {
+        rStuff  = new(rStuff);
+        rule    = this; }
+}
+
 void setStak(Stak s)
 {
     if s {
@@ -1642,22 +1667,6 @@ void setText(String s)
     else data   = 0;
     isInitialized = true;
     if hasListeners updateListeners();
-}
-
-/*******************************************************************************
-                                setRuleStuff
-    Set rStuff and isRule. This takes no argument so not a setter
-*******************************************************************************/
-void setRuleStuff()
-{
-    if !isRule
-        if registry && registry.isRule              isRule = true;
-        or parent && parent.isRule
-            if !registry || registry == keyWords    isRule = true;
-    if !rStuff  rStuff = new(this);
-    or rule != this {
-        rStuff  = new(rStuff);
-        rule    = this; }
 }
 
 /*****************************************************************************
@@ -1743,13 +1752,8 @@ void updateContentFlags()
     if groupList && listLength
         {
         GroupItem   item;
-        /***********************************************************
-            Three flags, one pass. hasTraits uses the same test as
-            addAttribute() -- an attribute that is not noPrint-class.
-            The old early-outs are gone because they could break out
-            before a trait-bearing attribute was reached, which would
-            leave the third flag answering about a partial scan.
-        ***********************************************************/
+        // onePassNoEarlyOut three flags, ONE pass -- the old early-outs could break out before a
+        // onePassNoEarlyOut trait-bearing attribute was reached, leaving the third flag answering about a partial scan
         hasAttributes   = false;
         hasMembers      = false;
         hasTraits       = false;
@@ -1842,6 +1846,40 @@ GroupItem result,group;
 }
 
 /*****************************************************************************
+                                compareAttribute
+    Compare attribute value of group1 to attribute value of group2. The results
+    get a little arbitrary if the values differ in type. Attributes are less than members.
+    The way this works is text in the group being sorted is set to the name
+    of the tag in the attributes whose values are used in the compare for the sort
+*****************************************************************************/
+int compareAttribute(GroupItem group1,GroupItem group2)
+{
+String      traitName   = group1.parent.text;
+GroupItem   trait1      = group1[traitName];
+GroupItem   trait2      = group2[traitName];
+int result;
+    if group1.isAttribute && !group2.isAttribute result = -1;
+    or group1.isMember && !group2.isMember result = 1;
+    or !result && group1.isMember
+        {
+        if trait1.data == trait2.data
+            switch(trait1.data)
+                {
+                case isCOUNT:
+                case isNUMBER:
+                    result = (int)(trait1.number - trait2.number);
+                case isITEM:
+                    result = trait1.item.compare(trait2.item);
+                case isSTRING:
+                    result = compare(trait1.text,trait2.text);
+                }
+        or !trait1.data result = -1;
+        else result = 1;
+        }
+    return result;
+}
+
+/*****************************************************************************
                                 compareTags
     Compare tag of group1 to tag of group2. Attributes are less than members.
 *****************************************************************************/
@@ -1890,39 +1928,5 @@ use group1
             }
     or group2.data              result = -1;
     else result = compare(text,group2.text);
-    return result;
-}
-
-/*****************************************************************************
-                                compareAttribute
-    Compare attribute value of group1 to attribute value of group2. The results
-    get a little arbitrary if the values differ in type. Attributes are less than members.
-    The way this works is text in the group being sorted is set to the name
-    of the tag in the attributes whose values are used in the compare for the sort
-*****************************************************************************/
-int compareAttribute(GroupItem group1,GroupItem group2)
-{
-String      traitName   = group1.parent.text;
-GroupItem   trait1      = group1[traitName];
-GroupItem   trait2      = group2[traitName];
-int result;
-    if group1.isAttribute && !group2.isAttribute result = -1;
-    or group1.isMember && !group2.isMember result = 1;
-    or !result && group1.isMember
-        {
-        if trait1.data == trait2.data
-            switch(trait1.data)
-                {
-                case isCOUNT:
-                case isNUMBER:
-                    result = (int)(trait1.number - trait2.number);
-                case isITEM:
-                    result = trait1.item.compare(trait2.item);
-                case isSTRING:
-                    result = compare(trait1.text,trait2.text);
-                }
-        or !trait1.data result = -1;
-        else result = 1;
-        }
     return result;
 }
