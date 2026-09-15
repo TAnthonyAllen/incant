@@ -1034,10 +1034,15 @@ GroupItem   upFlags,
         isAttribute = true;
         if rStuff   trait = new(trait);
         else        setRuleStuff(); }
-    if TraiTdata    setContent(TraiTdata);
+    if TraiTdata    upFlags = TraiTdata["Modifier"];
+    // packetIsSpent the flags are READ here and the node is TAKEN OFF -- nothing downstream reads a
+    // packetIsSpent Modifier on a trait, and leaving it makes four rules enter testAttributes on every match
+    if upFlags      upFlags.remove();
+    // traitSubjectExplicit trait, NOT bare -- a bare setContent below the upFlags read re-points
+    // traitSubjectExplicit to upFlags (bear-trap #42)
+    if TraiTdata    trait.setContent(TraiTdata);
     // BOTH modifier classes apply AFTER this line -- setContent discards flags   ruleActions.aCTionTraiT.traitTakesOwnFlags
     if Modifier     modify(trait,Modifier.text);
-    if TraiTdata    upFlags = TraiTdata["Modifier"];
     if upFlags      modifyClass(trait,upFlags.text,0);
     if Limit        setLimits(trait,Limit);
     input.group     = trait;

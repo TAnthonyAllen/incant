@@ -1311,6 +1311,16 @@ grep -v "^getRStuff" "$T/cen" | sed -n '/^PLAN /,$p' | grep -vE "^Search list:|^
 #  live road (ruleActions.rtn aCTionCodE, RuleStuff.twk's seven parseJSON*) shifts the
 #  same way, and `GroupItem::get(int)` does not skip noPrint. Not bitten -- no CodE or
 #  JSON* rule carries a builtinActoR -- which is also why jsonTest never moved.
+#  ⚠⚠ RE-PINNED 2026-09-15 BY RULING, AND IT IS THE 09-10 ROW GOING BACK THE OTHER WAY.
+#  `CALL leftCurly` / `CALL rightCurly` become `LITTO { slot=leftCurly` / `LITTO }
+#  slot=rightCurly`. The TraiT transport packet came off aCTionTraiT, so leftCurly and
+#  rightCurly stop carrying a spent Modifier attribute -- and that attribute was the ONLY
+#  reason planTerm's arm 2 (`definer != term` -> CALL) fired on them. Without it they fall
+#  to arm 3 and emit a literal.
+#  ⚠ THIS IS THE CORRECT ANSWER AND THE PRIOR PIN WAS THE WRONG ONE. `CALL leftCurly`
+#  aimed parseR at the phantom master a0524c8 named, which has NO rStuff; a literal is what
+#  a literal should emit. The 09-10 note above records the opposite move and is kept as the
+#  trail -- read the two together, they are one predicate doing two jobs.
 diffcheck "census.target" genLadder/census.target "$T/cenp"
 
 #  parseClass -- WHICH setParse ARM CLAIMS EACH FIELD, over the whole grammar.
@@ -1546,30 +1556,42 @@ fi
 #  the raw grammar, walked before anything primes it. connectiveT above is the
 #  AFTER half. One instrument each, and neither duplicates the other.
 #
-#  ⚠⚠ TF-5 IS PINNED AT A KNOWN OPEN STATE, NOT A PASSING ONE, AND THAT IS THE
-#  ROW'S WHOLE POINT. The five are the TraiT transport packet's live population
-#  -- the unsealed 2026-09-10 question Tony has ruled stays open as a DESIGN
-#  item. Retiring the citizen without this row would have left the only
-#  instrument that counts them in the attic. TF-5 moving is news EITHER WAY:
-#  down means the packet question moved, up means a new population joined it.
-#  Re-pin only with a sentence saying which (rule H6).
+#  ⚠⚠ RE-PINNED 2026-09-15, 5 -> 2, AND THE PACKET QUESTION IS CLOSED. Tony ruled
+#  the TraiT transport packet off aCTionTraiT the same day this row was minted.
+#  TF-2 52 -> 49 and TF-6 34 -> 37: ANYstring, leftCurly and rightCurly carried
+#  the packet as their ONLY attribute, so removing it leaves them with no
+#  attributes at all and both flags read 0 -- agreement.
+#
+#  ⚠⚠ THE TWO SURVIVORS ARE A DIFFERENT CAUSE AND WERE NAMED BEFORE THE BUILD.
+#  ShortcuT and StatemenT disagree because their only attribute is `builtinActoR`,
+#  which setActionMethod publishes noPrint on every rule with a dlsym-able action.
+#  A rule whose attributes are ALL noPrint reads hasAttributeS 1 / hasTraitS 0
+#  whatever the packet does -- measured per attribute, with affiliation:
+#      ShortcuT    builtinActoR/nP=1/attr=1
+#      StatemenT   builtinActoR/nP=1/attr=1, then SemI BlocK WardeD Iterate
+#                  Xpress -- all attr=0, MEMBERS, which cannot carry a trait
+#  ⚠ SO ShortcuT CARRIED THE PACKET AND NEVER DISAGREED BECAUSE OF IT: it had two
+#  noPrint attributes and now has one. Four rules carried the packet; only three
+#  ever disagreed because of it.
+#
+#  ⚠ TF-5 MOVING IS STILL NEWS EITHER WAY. Down to 0 means something took
+#  builtinActoR off, or hasTraits learned to ignore it. Up means a new population
+#  joined. Re-pin only with a sentence saying which (rule H6).
 #
 #  ⚠ TF-4 IS THE ANTI-VACUITY SIBLING and is not decoration -- a walk that read
 #  nothing prints a count too. TF-4 at 47 is non-zero on the same walk, so the
-#  pair tells "they disagree on five" from "nothing was measured" (rule H4).
+#  pair tells "they disagree on two" from "nothing was measured" (rule H4).
 #
 #  ⚠ TF-7 PINS THE NAMES, not just the count, and it is the row that survives a
-#  renumbering: a count says something moved, the names say WHAT. Note StatemenT
-#  is NOT one of the four packet carriers -- its attribute list holds no
-#  Modifier at all, so it disagrees for a reason nobody has looked at yet.
+#  renumbering: a count says something moved, the names say WHAT.
 run1 traitFlagsT "$T/tf"; check "traitFlagsT runs" 0 $?
 sentinel "traitFlagsT sentinel (no truncation)" "$T/tf" "TRAITFLAGS SENTINEL"
 for _arm in "TF-1 rules seen                   =  86" \
-            "TF-2 carrying hasAttributeS       =  52" \
+            "TF-2 carrying hasAttributeS       =  49" \
             "TF-3 carrying hasTraitS           =  47" \
             "TF-4 carrying BOTH                =  47" \
-            "TF-6 no attributes                =  34" \
-            "TF-5 the two flags DISAGREE on    =  5"; do
+            "TF-6 no attributes                =  37" \
+            "TF-5 the two flags DISAGREE on    =  2"; do
     if grep -qF "$_arm" "$T/tf"; then
         echo "  ok    traitFlagsT ${_arm} -- PINNED BY VALUE"; green=$((green+1))
     else
@@ -1580,7 +1602,7 @@ for _arm in "TF-1 rules seen                   =  86" \
         fail=1
     fi
 done
-for _rule in ANYstring ShortcuT StatemenT leftCurly rightCurly; do
+for _rule in ShortcuT StatemenT; do
     if grep -qE "^	${_rule}  " "$T/tf"; then
         echo "  ok    traitFlagsT TF-7 names ${_rule} -- PRESENCE WITH VALUE"; green=$((green+1))
     else
@@ -3133,6 +3155,11 @@ fi
 #  in the good direction. (The fixture's own guard is still an existence test
 #  where project memory wants `if JSONlist.listLengtH;`; that is unfixed and is
 #  not what moved.)
+#  ⚠ RE-PINNED 2026-09-15, ONE LINE, AND IT IS THE PACKET REMOVAL SHOWING ITS WORK:
+#  `AUDIT TERM ShortcuT [2] builtinActoR` -> `[1]`. ShortcuT carried TWO attributes, the
+#  spent Modifier packet and builtinActoR; the packet came off aCTionTraiT, so the audit's
+#  slot index drops by one. Nothing else in the baseline moved, which is the useful half --
+#  the removal is visible here and invisible everywhere it should be.
 diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
 diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 
@@ -3245,7 +3272,17 @@ bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
 #  flags now reach their traits, so genParse can plan them. A ratchet moving in the GREEN
 #  direction with the population still is the one motion that needs no apology; any other
 #  split would have been a finding.
-diffcheck "genParse odometer (28 green / 34 red of 62 -- RED BY DESIGN, pinned; ratchet monotone)" \
+#  ⚠⚠ RE-PINNED 2026-09-15, 28 -> 26, AND THE LOSS IS ACCEPTED BY RULING RATHER THAN
+#  ABSORBED. ScopeXP and StringXP stop emitting when the TraiT packet comes off -- each
+#  falls to `REFUSE ... inline group / structural data isGROUP`, named, not silent. Tony
+#  gated the removal on one grep: are those two rows genParse-only, or does anything live
+#  read them. THEY ARE genParse-ONLY. The odometer installs nothing and fires nothing -- it
+#  greps genParse's own printed `extern GroupItem parse<rule>(` in a fresh process -- and no
+#  fixture that installs a parse method names either rule. They retire with genParse.
+#  ⚠ AND THE RATCHET DID NOT FIRE, which is the distinction that makes this a re-pin rather
+#  than a stop-the-line: `ratchet 0 previously-green rules regressed`. Neither rule is on
+#  genLadder/odometer.green's 18-rule protected list.
+diffcheck "genParse odometer (26 green / 36 red of 62 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
 #  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------

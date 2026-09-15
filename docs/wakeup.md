@@ -128,7 +128,35 @@
 #   `Tony's fixit incantations waiting: 3 (oldest: faceFlagsNoCross, since 2026-09-08)`
 #   **Step one, or name which citizen goes first.**
 #
-# ⚠⚠⚠ OPEN, UNSEALED, FOR CLAY -- 2026-09-10, AFTER THE SEVENTEENTH SEAL.
+# ⚠⚠⚠ RULED AND EXECUTED 2026-09-15 (Tony). THE PACKET IS OFF. Everything below is the
+# reasoning trail and is kept verbatim; three of its statements are corrected by the landing
+# and the corrections are here rather than in the body, so the trail is not falsified.
+#
+#   THE CERTIFICATE ASKED FOR WAS `TF-5 -> 0` AND THE TREE GIVES `TF-5 -> 2`, which is the
+#   change working. ANYstring, leftCurly and rightCurly carried the packet as their ONLY
+#   attribute and now carry none, so both flags read 0 and they agree. ShortcuT and StatemenT
+#   still disagree on a DIFFERENT cause, named BEFORE the build: their only attribute is
+#   `builtinActoR`, which setActionMethod publishes noPrint on every rule with a dlsym-able
+#   action, and a rule whose attributes are all noPrint reads 1/0 whatever the packet does.
+#
+#   ⚠ SO "FOUR RULES CARRY A SPENT PACKET" IS RIGHT AND "FOUR RULES DISAGREE BECAUSE OF IT"
+#   WOULD NOT HAVE BEEN. ShortcuT had TWO noPrint attributes and now has one; its flags could
+#   not move either way. Four carried it, THREE ever disagreed because of it.
+#
+#   ⚠ The "HT-5 0 over the full 86-rule population" reading below is not reproduced and is
+#   withdrawn as stated. The measurement that stands is today's, with its per-attribute
+#   affiliation dump; the one below was never re-run.
+#
+#   THE REST LANDED AS PREDICTED: census.target's `CALL leftCurly` went back to `LITTO {
+#   slot=leftCurly` -- the CORRECT answer, and the 09-10 pin was the wrong one -- the odometer
+#   went 28 -> 26 losing ScopeXP and StringXP with named refusals, and the ratchet did NOT
+#   fire because neither is on its protected list. `oneTest.base` moved one line,
+#   `ShortcuT [2] builtinActoR` -> `[1]`, which is the removal showing its work.
+#   ⚠ AND parseClass's raw output is BYTE-IDENTICAL across the change, which was checked
+#   rather than assumed because `parseClass.target` is a red row and a red row absorbs new
+#   breakage silently.
+#
+# ⚠⚠⚠ THE ORIGINAL ENTRY, 2026-09-10, AFTER THE SEVENTEENTH SEAL.
 # THE TraiT HAND-UP LEAVES ITS TRANSPORT PACKET ON THE TREE.
 #
 #   ## TONY'S FRAMING, VERBATIM, AND IT IS THE ISSUE

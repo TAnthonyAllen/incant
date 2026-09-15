@@ -57,20 +57,34 @@ traitFlagsT -- hasAttributeS AND hasTraitS OVER THE RAW GRAMMAR, AND THE FIVE RU
 THEY DISAGREE ABOUT. Promoted into the fleet 2026-09-15 from incant/fixits/hasTraits,
 which retires to incant/attic on these rows.
 
-⚠⚠ TF-5 IS PINNED AT A KNOWN OPEN STATE, NOT AT A PASSING ONE. The five are the TraiT
-transport packet's live population -- the unsealed 2026-09-10 question, which Tony has
-ruled stays open as a DESIGN item. aCTionTraiTdata republishes a Modifier attribute onto
-TraiTdata so aCTionTraiT can still read it, and nobody takes the packet off, so four
-rules end this parse carrying a spent noPrint-only attribute: ANYstring, ShortcuT,
-leftCurly, rightCurly. StatemenT is the fifth and is NOT one of them -- its attribute
-list carries no Modifier at all, so it disagrees for a reason nobody has looked at.
-⚠ So TF-5 moving is NEWS EITHER WAY. Down means the packet question moved; up means a
-new population joined it. Do not re-pin it without a sentence saying which.
+⚠⚠ TF-5 READS 2, AND THE TraiT PACKET QUESTION IS CLOSED. Tony ruled the transport packet
+off aCTionTraiT on 2026-09-15, the day this fixture was minted. ANYstring, leftCurly and
+rightCurly carried that packet as their ONLY attribute, so removing it leaves them with no
+attributes at all and both flags read 0 -- agreement. TF-2 went 52 -> 49 and TF-6 34 -> 37.
+
+⚠⚠ THE TWO SURVIVORS ARE A DIFFERENT CAUSE, AND THEY WERE NAMED BEFORE THE BUILD RATHER
+THAN EXPLAINED AFTER IT. ShortcuT and StatemenT disagree because their only ATTRIBUTE is
+`builtinActoR`, which setActionMethod publishes noPrint on every rule carrying a dlsym-able
+action. A rule whose attributes are all noPrint reads hasAttributeS 1 / hasTraitS 0 whatever
+the packet does. Measured per attribute, with affiliation, before the removal was built:
+
+    ShortcuT    builtinActoR/nP=1/attr=1
+    StatemenT   builtinActoR/nP=1/attr=1, then SemI BlocK WardeD Iterate Xpress
+                -- all attr=0, MEMBERS, and a member cannot carry a trait
+
+⚠ SO ShortcuT CARRIED THE PACKET AND NEVER DISAGREED BECAUSE OF IT. It had two noPrint
+attributes and now has one; the flags could not move. Four rules carried the packet and only
+THREE ever disagreed because of it -- a distinction the 09-10 write-up did not draw, and the
+reason a certificate of "TF-5 -> 0" could not have been met.
+
+⚠ TF-5 MOVING IS STILL NEWS EITHER WAY. Down to 0 means something took builtinActoR off, or
+hasTraits learned to ignore it. Up means a new population joined. Do not re-pin it without a
+sentence saying which.
 
 ⚠ TF-4 IS WHAT STOPS TF-5 BEING VACUOUS, and it is not decoration. TF-5 wants a count,
 and a run whose probe read nothing at all would print a count too -- zero, or whatever
 a broken walk happened to reach. TF-4 at 47 is a non-zero sibling on the same walk, so
-the pair distinguishes "they disagree on five" from "nothing was measured". Rule H4's
+the pair distinguishes "they disagree on two" from "nothing was measured". Rule H4's
 anti-vacuity clause, and the reason every zero-expecting row here has one.
 
 ⚠ TF-7 PRINTS THE NAMES, and that is the row that survives a renumbering. A count tells

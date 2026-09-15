@@ -1320,12 +1320,18 @@ GroupItem 	*trait = input->get(1);
 		else	trait->setRuleStuff();
 		}
 	if ( TraiTdata )
+		upFlags = TraiTdata->get("Modifier");
+	// packetIsSpent the flags are READ here and the node is TAKEN OFF -- nothing downstream reads a
+	// packetIsSpent Modifier on a trait, and leaving it makes four rules enter testAttributes on every match
+	if ( upFlags )
+		upFlags->remove();
+	// traitSubjectExplicit trait, NOT bare -- a bare setContent below the upFlags read re-points
+	// traitSubjectExplicit to upFlags (bear-trap #42)
+	if ( TraiTdata )
 		trait->setContent(TraiTdata);
 	// BOTH modifier classes apply AFTER this line -- setContent discards flags   ruleActions.aCTionTraiT.traitTakesOwnFlags
 	if ( Modifier )
 		::modify(trait,Modifier->getText());
-	if ( TraiTdata )
-		upFlags = TraiTdata->get("Modifier");
 	if ( upFlags )
 		::modifyClass(trait,upFlags->getText(),0);
 	if ( Limit )

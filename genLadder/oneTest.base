@@ -30,7 +30,7 @@ AUDIT TERM     RunRulE [1] builtinActoR -- rule TERM, not isRule, has rStuff
 AUDIT TERM     ScopeXP [4] builtinActoR -- rule TERM, not isRule, has rStuff
 AUDIT TERM     Search [5] builtinActoR -- rule TERM, not isRule, has rStuff
 AUDIT TERM     SetBrackets [1] builtinActoR -- rule TERM, not isRule, has rStuff
-AUDIT TERM     ShortcuT [2] builtinActoR -- rule TERM, not isRule, has rStuff
+AUDIT TERM     ShortcuT [1] builtinActoR -- rule TERM, not isRule, has rStuff
 AUDIT TERM     StatemenT [1] builtinActoR -- rule TERM, not isRule, has rStuff
 AUDIT TERM     StringXP [3] builtinActoR -- rule TERM, not isRule, has rStuff
 AUDIT TERM     Token [5] Operators -- rule TERM, not isRule, has rStuff
