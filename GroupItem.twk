@@ -49,6 +49,7 @@ GroupItem(GroupItem grup)
 }
 
 /***************************************************************************
+                                addGroup
 	Add a group to this group. Should only be called from addAttribute()
     or addMember().
 ***************************************************************************/
@@ -89,6 +90,7 @@ GroupItem addGroup(GroupItem group)
 }
 
 /***************************************************************************
+                                addAttribute
 	Add an attribute.
 ***************************************************************************/
 GroupItem addAttribute(GroupItem grup)
@@ -106,6 +108,7 @@ GroupItem addAttribute(GroupItem grup)
 }
 
 /***************************************************************************
+                                addMember
 	Add a member.
 ***************************************************************************/
 GroupItem addMember(GroupItem grup)
@@ -119,6 +122,7 @@ GroupItem addMember(GroupItem grup)
 }
 
 /***************************************************************************
+                                addString
 	Adds an attribute, or if this is a container (binType), adds a member.
     If the entry already exists, returns it,
 ***************************************************************************/
@@ -138,6 +142,7 @@ GroupItem	group;
 }
 
 /*****************************************************************************
+                                append
 	Append the group passed in to this one. Does not care if there is no
     parent (does not increment parent or listLength).
 *****************************************************************************/
@@ -151,6 +156,7 @@ void append(GroupItem grup)
 }
 
 /******************************************************************************
+                                clear
     Clear list and data. Flags are not cleared, neither is rStuff.
 ******************************************************************************/
 void clear()
@@ -160,6 +166,7 @@ void clear()
 }
 
 /******************************************************************************
+                                clearData
     Clears data. Does not clear pointer.
 ******************************************************************************/
 void clearData()
@@ -170,6 +177,7 @@ void clearData()
 }
 
 /***************************************************************************
+                                clearList
 	Clear the list.
 ***************************************************************************/
 void clearList()
@@ -180,6 +188,7 @@ void clearList()
 }
 
 /*****************************************************************************
+                                contents
 	Returns true if this is a registry or data or has anything on its list
     If fLAG is set return true even without contents
 *****************************************************************************/
@@ -191,6 +200,7 @@ int contents()
 }
 
 /*****************************************************************************
+                                copyData
 	copyData copies data but not lists. Data type is changed to match input.
     It is called by setContent() which then copies list;
 *****************************************************************************/
@@ -208,6 +218,7 @@ void copyData(GroupItem item)
 }
 
 /*****************************************************************************
+                                copyListFrom
     Copy the list of this from the list of the group passed in. The new entries
     have the same data content as the source entries (but they are copies
     so they have a new parent);
@@ -226,6 +237,7 @@ GroupItem   fild,
 }
 
 /*****************************************************************************
+                                copyListTo
     Copy this list into the grup passed in.
 *****************************************************************************/
 void copyListTo(GroupItem grup)
@@ -238,6 +250,7 @@ GroupItem   entry;
 }
 
 /*****************************************************************************
+                                dispatch
 	Run a group method in the dispatch Q
 *****************************************************************************/
 void dispatch()
@@ -249,6 +262,7 @@ DispatchQ   dq = dispatchQ;
 }
 
 /***************************************************************************
+                                dQ
 	Like pop treats the list as stack but pops off first item, not last.
 ***************************************************************************/
 GroupItem dQ()
@@ -264,6 +278,7 @@ GroupItem   stuff;
 }
 
 /*****************************************************************************
+                                findAttribute
 	Searches ancestors bottom up for the first attribute matching name.
     Keep in mind the parent hierarchy has to be reset first for this to work.
 *****************************************************************************/
@@ -281,6 +296,7 @@ GroupItem	result,
 }
 
 /*****************************************************************************
+                                findParent
 	Returns the named parent.
 *****************************************************************************/
 GroupItem findParent(String name)
@@ -296,6 +312,7 @@ GroupItem	group = this;
 }
 
 /***************************************************************************
+                                firstComponent
 	Returns first component with matching tag. Unlike get() it recurses and descends.
     This should check to make sure it does not search the same field more
     than once or it ends up in an infinite loop. TBD need a searchable Stak
@@ -314,6 +331,7 @@ GroupItem   entry = get(name);
 }
 
 /***************************************************************************
+                                get
 	Returns first component with tag == name. The search does not descend.
 ***************************************************************************/
 GroupItem get(String name)
@@ -331,6 +349,7 @@ GroupItem   entry;
 }
 
 /*****************************************************************************
+                                get
     Return nth component if it exists. Not efficient unless this is stakked.
 *****************************************************************************/
 GroupItem get(int offset)
@@ -348,6 +367,7 @@ int         i;
 }
 
 /*****************************************************************************
+                                getAttribute
 	Get the named attribute. This will return an attribute even if the
 	attribute noPrint flag is set.
 *****************************************************************************/
@@ -361,6 +381,7 @@ GroupItem   block;
 }
 
 /***************************************************************************
+                                getFromList
 	Returns first component with tag == name. The search does not descend.
     Called from put() because unlike get() it does not search stakked.
 ***************************************************************************/
@@ -377,6 +398,7 @@ GroupItem   entry;
 }
 
 /***************************************************************************
+                                getLabelGroup
 	Initializer method for accessing rule results (used in rule actions);
 ***************************************************************************/
 GroupItem getLabelGroup(String name)
@@ -388,6 +410,7 @@ GroupItem   block = get(name);
 }
 
 /*****************************************************************************
+                                getMember
 	Return the member matching the tag passed in.
 *****************************************************************************/
 GroupItem getMember(String name)
@@ -401,6 +424,7 @@ GroupItem getMember(String name)
 }
 
 /*****************************************************************************
+                                getBuffer
 	Value getters
 *****************************************************************************/
 Buffer getBuffer()
@@ -477,6 +501,7 @@ int getDataType()
 }
 
 /*****************************************************************************
+                                getGroup
 	Need to test how getMacro works in this case
 *****************************************************************************/
 GroupItem getGroup()
@@ -492,6 +517,7 @@ PLGset getGuard()
 }
 
 /***************************************************************************
+                                embedRule
     embedRule -- THE ONE LEGITIMATE COPY OF AN EMBEDDED RULE, AND THE SOLE WRITER
     OF isEmbedded.   GroupItem.embedRule
 ***************************************************************************/
@@ -703,6 +729,7 @@ RuleStuff   stuff = ensureRStuff();
 }
 
 /*****************************************************************************
+                                getText
 	getText does what it can to return the contents of this group as text.
     Note: if has text but is not a string, text is ignored.
 *****************************************************************************/
@@ -742,6 +769,7 @@ String      junkText;
 }
 
 /*****************************************************************************
+                                dumpField
 	dumpField — debugging dump of one field: tag, data value, and (if it has
 	a list) the member tags only. tok cousin of the incant dumpField action.
 	Uses cerr (not print) so it never disturbs the sticky print default.
@@ -758,6 +786,7 @@ GroupItem   grup;
 }
 
 /*****************************************************************************
+                                insertGroup
 	Insert an item at the beginning of this list. If list has entries and is
     sorted will throw an error and return null;
 *****************************************************************************/
@@ -775,6 +804,7 @@ GroupItem insertGroup(GroupItem grup)
 }
 
 /*****************************************************************************
+                                insertAfter
     Insert grup into this's parent list immediately after this. Bookkeeping
     parallel: append() only adjusts sibling pointers, so this wraps it with
     parent/listLength/lastInList updates so the parent list stays consistent.
@@ -789,6 +819,7 @@ void insertAfter(GroupItem grup)
 }
 
 /***************************************************************************
+                                makeRegistry
     Makes the group passed in a registry
 ***************************************************************************/
 void makeRegistry()
@@ -816,6 +847,7 @@ void makeRegistry()
 }
 
 /*****************************************************************************
+                                matches
     Returns true if this data matches data of the group passed in.
 *****************************************************************************/
 int matches(GroupItem arg)
@@ -838,6 +870,7 @@ String  argString   = arg.data ? arg.text : arg.tag;
 }
 
 /*****************************************************************************
+                                matches
 	Check to see if this matches the string passed in. If this has text
     it matches with the text, otherwise it matches the tag (registry matches
     are always against the tag). If this matches, returns the matching text
@@ -859,6 +892,7 @@ String  atStart     = atText;
 }
 
 /***************************************************************************
+                                merge
 	Merge group into this item. Does not add matching attributes.
 ***************************************************************************/
 void merge(GroupItem group)
@@ -878,6 +912,7 @@ void merge(GroupItem group)
 }
 
 /***************************************************************************
+                                mergeAttributes
 	Merge attributes from the group passed in into this item. Does not add
     matching attributes.
 ***************************************************************************/
@@ -923,6 +958,7 @@ GroupItem	existing,replacement,item;
 }
 
 /***************************************************************************
+                                moveTo
     Moves this group to the item passed in. No copy involved because remove
     clears the item parent.
 ***************************************************************************/
@@ -935,6 +971,7 @@ void moveTo(GroupItem item)
 }
 
 /***************************************************************************
+                                next
 	Iterates thru attributes and members. The group passed in is taken as
     the last item iterated. If it is null, the first entry found is returned.
 ***************************************************************************/
@@ -947,6 +984,7 @@ GroupItem next(GroupItem current)
 }
 
 /***************************************************************************
+                                nextAttribute
 	Iterates thru attributes. The group passed in is taken as the last item
 	iterated. If it is null, the first attribute found is returned.
 ***************************************************************************/
@@ -958,13 +996,8 @@ GroupItem nextAttribute(GroupItem current)
 }
 
 /***************************************************************************
-    True if every attribute of this group has min 0. getWhatFollows() only
-    zeroes a parent rule's min when ALL of its attributes are individually
-    optional -- one optional attribute among mandatory siblings must not
-    drag the parent's own min down to 0 (genParseSpec.md S7.1). An attribute
-    with no rStuff yet has not had a chance to relax its implicit default
-    min of 1 (RuleStuff(GroupItem) sets min=1), so treat "not yet known" as
-    mandatory, not as optional -- the safe default, same as an untouched min.
+                                allAttributesOptional
+    // allAttributesOptional an attribute with no rStuff counts as MANDATORY -- not yet known is not the same as optional
 ***************************************************************************/
 int allAttributesOptional()
 {
@@ -975,6 +1008,7 @@ GroupItem   attr;
 }
 
 /***************************************************************************
+                                nextGroup
     Return the group following the group passed in. If a null group is
     passed in, returns the first group;
 ***************************************************************************/
@@ -988,6 +1022,7 @@ GroupItem nextGroup(GroupItem grup)
 }
 
 /***************************************************************************
+                                nextMember
 	Iterates thru members. The group passed in is taken as the last member
 	iterated thru. If it is null, the first member found is returned.
 ***************************************************************************/
@@ -999,25 +1034,9 @@ GroupItem nextMember(GroupItem current)
 }
 
 /***************************************************************************
-    definingRule -- the node a rule-reference term refers to, reached WITHOUT
-    a name lookup. Clay SEQ 26 S1; measured, not reasoned (incant/termScratch).
-
-    A reference term is a distinct node that SHARES the defining rule's child
-    list. The children are parented to the definer, so the first child's parent
-    IS the definer, by pointer. Verified on JSONblock->JSONfield,
-    JSONfield->JSONtoken and JSONfield->JSONvalue: pointer-identical to what
-    locate() returns for the same name.
-
-    The test discriminates, which is why it can be trusted unguarded: a node
-    that OWNS its children (a defining rule, and also CodE/BlocK) routes back
-    to ITSELF, and a leaf term has no children at all. Both fall through to
-    `return this`, so the only nodes that resolve elsewhere are the ones that
-    genuinely reference something else.
-
-    This is what makes rung 4 possible. parseMethod is SHAPE -- one answer,
-    always the same -- so resolving it here means binding a rule once reaches
-    every reference to it, including references created LATER. No registry
-    sweep (which would miss late references) and no locate (S1.3 forbids it).
+                                definingRule
+    // definingRule the definer is the first child's PARENT, by pointer, with no name lookup -- and the test
+    // definingRule discriminates, which is why it is unguarded on purpose
 ***************************************************************************/
 GroupItem definingRule()
 {
@@ -1060,38 +1079,9 @@ GroupRules  ruler = groupRules;
 }
 
 /***************************************************************************
-    captureSpan — THE BOUNDARY CAPTURE, and the ONLY definition of it.
-
-    Invoked from parse()'s two success paths when the rule's groupBody carries
-    the tokened bit, which TOKENize sets once at definition. It writes the span
-    the rule just matched onto the rule's product as a noPrint attribute, and
-    it does nothing else.
-
-    THE FORMULA IS CHAIR-SPECIFIC AND WAS MEASURED, not inherited. From THIS
-    chair the rule's own stuff carries the ENTRY mark and the rules singleton
-    carries the exit: own hereAt matched the shipped span start in 125 firings
-    out of 125. From the ACTION's chair the same rule reads the other way
-    round, because there the node in hand is the PRODUCT, whose parent stuff is
-    the rule. The action-chair spelling must never be copied here.
-
-    IT RUNS BEFORE fireLabelMethod AT BOTH CALL SITES, which is not a
-    preference. An action reads its own product, so a stamp landing after the
-    action is a null read waiting to happen; that was measured the expensive
-    way once, at exit 139 with no output.
-
-    IT SUPPLIES THE PRODUCT, not merely a side record. The setToken at the foot
-    is the channel every consumer already reads; the noPrint attribute above it
-    is kept as free debug surface and nothing consults it. Ruled 2026-08-23.
-
-    THE TRACE READS THE PRODUCT BEFORE THE WRITE, deliberately. Once this
-    function supplies the product, a comparison taken AFTER the write would
-    compare this function to itself and report MATCH forever -- vacuity in a
-    new coat. The oracle is sampled first or it is not an oracle.
-
-    THE LOCALS ARE NAMED spanFrom AND spanTo FOR A REASON: the obvious spellings
-    are tok keywords and the parse fails on the declaration line while naming
-    the enclosing function, which reads as a broken function rather than a
-    reserved word.
+                                captureSpan
+    // captureSpan the formula is THIS chair's -- from the action's chair the same rule reads the other way
+    // captureSpan round, so the action-chair spelling must never be copied here
 ***************************************************************************/
 void captureSpan(RuleStuff stuff)
 {
@@ -1130,56 +1120,9 @@ int         spanLen;
 }
 
 /***************************************************************************
-    attachLabel — THE LABEL ATTACH, and the ONLY site that performs one.
-
-    PC-4, 2026-08-07. Extracted from parse()'s match loop so both arms run the
-    same code. Second half of the pair GX started: GX made both arms fire the
-    same rule ACTION, this makes both perform the same ATTACH. It supersedes
-    leaveRule's `if into  into +% label`, which was ONE case, run BEFORE the
-    action instead of after -- GM-17's divergence. Removed there, not duplicated.
-
-    THE YIELD PROTOCOL IS THE SKIP, and it is not a forensic test:
-        NULL      the rule FAILED               -- nothing to attach
-        labelNO   succeeded, yields NOTHING     -- nothing to attach
-        anything  succeeded, yields THAT node   -- attach it
-    An earlier attempt guarded on `isLabel` instead and was falsified fleet-wide
-    (GM-19/GM-21): trueResult is minted as `new("true")` and never stamped, so
-    the guard silently dropped DEFINing's attach and killed every definition in
-    the file. Do not reach for a flag here; the channel says what it means.
-
-    ⚠ THE `promote` PARAMETER IS A DATED DIVERGENCE, NOT A DESIGN. PC-1 rules
-    the generated arm ATTACH-UNDER ALWAYS -- it never consults isTarget --
-    while interpretive promotion runs untouched as legacy. So the fork is real
-    today and is passed explicitly rather than inferred, because a divergence
-    the signature states is one the next reader cannot miss.
-
-    ⚠ AND IT HAS A NAMED EXPIRY (IT-3, director 2026-08-07). isTarget promotion
-    is retired as a PARSE-LAYER mechanism -- the parse builds one shape, and
-    opinions about shape belong to actions. Promotion becomes opt-in in one
-    line: an action returns the child's label as its own yield, and attach-under
-    plants it. When the last carrier converts, `promote` and the isTarget case
-    DELETE, three cases become one, and this function is `pStuff.label +% lab`
-    with the two skips. Attrition list per GM-23: aCTionNewGroup (done),
-    aCTionShortcuT, plus the four text-readers at their own rungs.
-
-    ⚠ DEMOLITION ITEM ADDED 2026-08-13 (SEQ 61, with the PC-1 restatement):
-    BEFORE the promote/isTarget case deletes, THE IA-2 CELL NEEDS AN
-    ACTION-LAYER CARRIER -- the winning option's label yielded UPWARD as the
-    alternation's own yield. Not attached into the grandparent's subtree: that
-    was built and measured RED (SEQ 59 rung 2b, recorded at the drop site
-    below). The narrow guard is NOT a new carrier; it extends the condemned
-    case and deletes with it, so IT-3's end state is unmoved. THE TRIPWIRE IS
-    incant/bindSeamB PINNED AT 251 in genLadder/pop.sh -- delete the case
-    without supplying the carrier and that pin goes red.
-
-    ⚠ NESTED REFERENCES ARE COVERED, MEASURED BEFORE THIS LANDED. parseR
-    (RuleStuff.twk:689) does `bridge.label = into; term.parse(bridge)`, so a
-    reference term reaches parse() with `into` as pStuff's label -- both arms of
-    the nested call come through here too. parseR's header always claimed "ONE
-    mechanism serves both halves of mixed mode"; now it is true.
-
-    litOption keeps its own attach: a literal option builds its own fresh label
-    and never enters parse().
+                                attachLabel
+    // attachLabel the yield protocol IS the skip -- NULL failed, labelNO yields nothing, anything else
+    // attachLabel attaches. Do not reach for a flag here, it was falsified fleet-wide
 ***************************************************************************/
 void attachLabel(RuleStuff stuff, RuleStuff pStuff, int promote)
 {
@@ -1305,35 +1248,9 @@ GroupItem   lab = stuff.label;
 }
 
 /***************************************************************************
-    establishFrame -- THE SINGLE WRITER OF parentLabel, now one body with two
-    call sites. Tony's ruling via Clay, 2026-08-29.
-
-    parse()'s fork used to carry this write inline, under a comment reading
-    "THIS LINE IS ITS SINGLE WRITER". That was true and it is still true: the
-    doctrine is one BODY, not one call site. Both seams call here.
-
-    ⚠ WHY runRule NEEDED IT. The new parse road dispatches
-    `newParse.method(rule)` straight at builtinParsE and never calls
-    rule.parse(), so it never crossed the writing line. Measured 2026-08-29:
-    PARENTPROBE printed parentLabel=0x0 on all four invocations of an Xpress
-    walk -- Xpress, ExpressioN, Token, QuotE -- while the structural parent
-    named definitional positions (Token's own parent is Token). The frame
-    channel existed and the new road did not write it.
-
-    ⚠⚠ THE DISCIPLINE IS NOT SAVE/RESTORE, AND THAT IS WORTH KNOWING BEFORE
-    ANYONE "FIXES" IT. There is no save and no restore here, and the incumbent
-    had none either -- it is a bare write immediately before the call. The
-    recursion safety lives in the CALLEE: parse()'s fork comment states that
-    the callee lifts parentLabel into a stack local at entry before descending,
-    so a nested invocation overwriting this slot cannot disturb an outer frame
-    already under way. The genParse-emitted methods implement exactly that --
-    `GroupItem into = rule.rStuff.parentLabel;` is their first line.
-
-    THE CONSEQUENCE, NAMED RATHER THAN LEFT TO BITE: a parseMethod that reads
-    parentLabel LATE instead of lifting it at entry is unsafe under recursion,
-    and parseRule does not lift today because it does not yet read the frame at
-    all. When setParentLabel lands, the lift is owed AT parseRule's ENTRY, not
-    at the point of use.
+                                establishFrame
+    // establishFrame the SINGLE WRITER of parentLabel, and there is deliberately no save/restore -- the callee
+    // establishFrame lifts it at entry, so a parseMethod that reads it LATE is unsafe under recursion
 ***************************************************************************/
 void establishFrame(GroupItem parentLabel)
 {
@@ -1341,32 +1258,9 @@ void establishFrame(GroupItem parentLabel)
 }
 
 /***************************************************************************
-    frameParent -- resolve the parse-time parent for a rule invoked through
-    runRule, which has no pStuff to read one from.
-
-    IT READS runRule's OWN ARGUMENT, and that is the whole finding. The holder
-    is the node the call site handed down -- the InvokeArg for a sub-rule call,
-    the argument field for a top-level one -- and its rStuff carries a label
-    that is DISTINCT PER INVOCATION. So the caller's name reaches the writer as
-    dataflow along the existing call, with no emitter change and no channel
-    invented.
-
-    ⚠ THE FIRST VERSION READ ruler->ruleSTUFF AND WAS WRONG, MEASURABLY.
-    A singleton is not a channel: a distant read of shared state answers "what
-    happened last", never "who is asking". It printed ONE pointer for all four
-    invocations of an Xpress walk -- the driver action's own BlocK, stale --
-    where four distinct ones were pre-registered. The holder's own stuff prints
-    four distinct labels on the same run, and the singleton prints its single
-    stale pointer beside them, which is the control.
-
-    A top-level invocation's holder has no rStuff at all (the probe shows
-    fieldStuff=0x0 for ruleText), so it falls through to the holder itself --
-    the argument holder, which is what a top-level parse should attach into.
-
-    Separate from establishFrame deliberately: runRule is a declared-field
-    function and after the parkOnMaster near-miss no new declarations go inside
-    one. A call introduces no declaration, so the resolution happens here and
-    runRule's own bare-name resolution cannot move.
+                                frameParent
+    // frameParent it reads runRule's OWN argument, never the ruleSTUFF singleton -- a singleton answers what
+    // frameParent happened last, never who is asking
 ***************************************************************************/
 GroupItem frameParent(GroupItem holder)
 {
@@ -1442,6 +1336,7 @@ generatedExit:
 }
 
 /***************************************************************************
+                                pop
     Pop treats the list as a stack and pops off the last item.
 ***************************************************************************/
 GroupItem pop()
@@ -1458,6 +1353,7 @@ GroupItem    stuff;
 }
 
 /*****************************************************************************
+                                prepend
 	Insert the group passed in before this one. Does not update listLength
     or parent (in case called from addHash).
 *****************************************************************************/
@@ -1471,6 +1367,7 @@ void prepend(GroupItem grup)
 }
 
 /***************************************************************************
+                                prior
     Return the group preceeding the group passed in. If a null group is
     passed in, returns the last group;
 ***************************************************************************/
@@ -1484,6 +1381,7 @@ GroupItem prior(GroupItem grup)
 }
 
 /*****************************************************************************
+                                push
 	Add to list. Does not care about duplicates. If sorted sorts in ascending
     order. next and prior methods flip if sort is descending.
 *****************************************************************************/
@@ -1542,6 +1440,7 @@ finishAdd:
 }
 
 /*****************************************************************************
+                                put
 	Adds an entry unless it already exists. No duplicates
 *****************************************************************************/
 void put(GroupItem grup)
@@ -1550,6 +1449,7 @@ void put(GroupItem grup)
 }
 
 /*****************************************************************************
+                                remove
 	Remove this group from its parent list and return it.
 *****************************************************************************/
 GroupItem remove()
@@ -1577,6 +1477,7 @@ GroupItem remove()
 }
 
 /*****************************************************************************
+                                remove
 	Remove named group from this list, if there is a matching group on the list.
     Returns the removed group.
 *****************************************************************************/
@@ -1588,6 +1489,7 @@ GroupItem   group = getFromList(name);
 }
 
 /*****************************************************************************
+                                replace
 	If this contains an entry matching the tag of the argument passed in, replace
     the entry with the argument. If no matching entry, insert the argument.
 *****************************************************************************/
@@ -1601,6 +1503,7 @@ GroupItem   grup = getFromList(argument.tag);
 }
 
 /***************************************************************************
+                                resolvedTag
     Returns the right tag in case of loadByValue groups
 ***************************************************************************/
 String resolvedTag()
@@ -1610,6 +1513,7 @@ String resolvedTag()
 }
 
 /***************************************************************************
+                                runNotified
     runNotified is called by updateListeners() to handle listener notifications.
 ***************************************************************************/
 GroupItem runNotified(GroupItem notifier)
@@ -1623,6 +1527,7 @@ GroupItem action;
 }
   
 /*******************************************************************************
+                                setActionMethod
     setActionMethod adds builtinActoR to contain rule action method. It is not
     a setter. The actionMethod field in rStuff gets set from it in
     fireLabelMethod
@@ -1656,6 +1561,7 @@ RuleStuff   ruleStuff = rStuff;
 }
 
 /*****************************************************************************
+                                setBuffer
 	Value setters
 *****************************************************************************/
 void setBuffer(Buffer b)
@@ -1685,6 +1591,7 @@ void setCharacterSet(PLGset set)
     if hasListeners updateListeners();
 }
 /*****************************************************************************
+                                setContent
 	setContent is not a setter. It updates data.
 *****************************************************************************/
 void setContent(GroupItem item)
@@ -1746,33 +1653,9 @@ void setMap(BitMAP i)
 }
 
 /***************************************************************************
-    setMethod -- SYMMETRIC, AND IT IS THE SOLE MAINTAINER OF A SHAPE FACT.
-    Tony's design, 2026-08-29, minted with the eviction campaign.
-
-    Present method  -> occupy gMethod and MINT isMethod.
-    Absent  method  -> vacate gMethod and RETRACT isMethod.
-
-    So `rule.method = 0;` is the whole eviction, in one ordinary write, and it
-    cannot leave the shape fact disagreeing with the occupancy.
-
-    ⚠ WHY EVERY WRITE GOES THROUGH HERE, both directions, with no raw
-    `gMethod =` anywhere but the line below. isMethod is not a second fact
-    about the slot -- it IS the slot's occupancy, read as
-    isMethod(instructType) by every dispatcher in the tree. A bypass does not
-    merely skip a courtesy update; it desynchronizes the two BY CONSTRUCTION,
-    and the failure it produces is the one this project has paid for five
-    times: a reader asking a channel for something other than what it holds.
-    runOP arm two claims any node whose isMethod reads true, so a raw clear
-    that leaves instructType at 1 hands that arm a null gMethod to call.
-
-    The asymmetric form this replaces set isMethod unconditionally, so a null
-    argument minted the flag over an empty slot -- a state no caller wanted
-    and none had yet constructed. Symmetry costs one branch and makes it
-    unbuildable rather than merely unbuilt.
-
-    House style is its siblings': setItem, setMap and setObject all test the
-    incoming value and clear the shape field on absence. This is that idiom
-    applied to the one setter that had been written the other way.
+                                setMethod
+    // setMethod SYMMETRIC, and the sole maintainer of isMethod -- a raw gMethod write anywhere else
+    // setMethod desynchronises the shape fact by construction
 ***************************************************************************/
 void setMethod(GroupItem &m(GroupItem))
 {
@@ -1836,6 +1719,7 @@ void setRegex(PLGrgx v)
 }
 
 /*******************************************************************************
+                                setRStuff
     setRStuff is the single writer of the rStuff field. Route every rStuff
     assignment through here so the field has one observable chokepoint (set a
     breakpoint/log here to trace where rStuff took a wrong turn). For now plain.
@@ -1868,6 +1752,7 @@ void setText(String s)
 }
 
 /*******************************************************************************
+                                setRuleStuff
     Set rStuff and isRule. This takes no argument so not a setter
 *******************************************************************************/
 void setRuleStuff()
@@ -1883,6 +1768,7 @@ void setRuleStuff()
 }
 
 /*****************************************************************************
+                                setToken
 	setToken is not a setter (there is no token field)
 *****************************************************************************/
 void setToken(String s,int length)
@@ -1894,6 +1780,7 @@ void setToken(String s,int length)
 }
 
 /***************************************************************************
+                                sort
     Sorts list using the compare method. The basic idea is to walk the list
     forward, and keep the already traversed part of the list in order.
     At the end of the list we done. If order is not null, sort is descending
@@ -1933,6 +1820,7 @@ moveForward:
 }
 
 /*****************************************************************************
+                                sortByAttribute
     Sort members by the value of the attribute named in the parameter
     passed in.
 *****************************************************************************/
@@ -1945,6 +1833,7 @@ String  saveText = text;
 }
 
 /*******************************************************************************
+                                updateContentFlags
 	Make sure affiliation and content flags (hasMembers, hasAttributes) match
 *******************************************************************************/
 void updateContentFlags()
@@ -1986,6 +1875,7 @@ void updateContentFlags()
 }
 
 /*****************************************************************************
+                                updateDispatch
 	Not used, was updateListeners, saved here just in case
 *****************************************************************************/
 void updateDispatch()
@@ -2005,6 +1895,7 @@ GroupItem	item,listener;
 }
 
 /*****************************************************************************
+                                updateListeners
 	Notify groups listening to this one.
 *****************************************************************************/
 void updateListeners()
@@ -2016,6 +1907,7 @@ GroupItem	grup,listener;
 }
 
 /***************************************************************************
+                                walk
 	Iterates thru the member hierarchy in a depth first walk. The group pointer
     passed in is taken as the last item iterated. If it is null, this group
     is returned. If the item passed in is this group, the first member of
@@ -2061,6 +1953,7 @@ GroupItem result,group;
 }
 
 /*****************************************************************************
+                                compareTags
     Compare tag of group1 to tag of group2. Attributes are less than members.
 *****************************************************************************/
 int compareTags(GroupItem group1,GroupItem group2)
@@ -2078,6 +1971,7 @@ int result;
 }
 
 /*****************************************************************************
+                                compareValues
     Compare value of group1 to value of group2.
 *****************************************************************************/
 int compareValues(GroupItem group1,GroupItem group2)
@@ -2111,6 +2005,7 @@ use group1
 }
 
 /*****************************************************************************
+                                compareAttribute
     Compare attribute value of group1 to attribute value of group2. The results
     get a little arbitrary if the values differ in type. Attributes are less than members.
     The way this works is text in the group being sorted is set to the name

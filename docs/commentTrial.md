@@ -95,6 +95,13 @@ the interesting quantity is the one that can come back zero.
 | 2026-09-15 | `measure.measureFireLabelFork` | `measure.twk` | the label is passed in, not re-read — the callout convention's fourth sentence |
 | 2026-09-15 | `measure.measureFireLabelActionIn` | `measure.twk` | two lines from one callout, because they are one seat |
 | 2026-09-15 | `measure.measureFireLabelActionOut` | `measure.twk` | a NULL prints as NULL and never as `isLabel=0` |
+| 2026-09-15 | `GroupItem.allAttributesOptional` | `GroupItem.twk` | why an rStuff-less attribute counts as MANDATORY — "not yet known" is not "optional" |
+| 2026-09-15 | `GroupItem.attachLabel` | `GroupItem.twk` | 52 lines — the yield protocol, and the `isLabel` guard that was falsified fleet-wide |
+| 2026-09-15 | `GroupItem.captureSpan` | `GroupItem.twk` | 34 lines — the formula is chair-specific and the action chair reads it the other way round |
+| 2026-09-15 | `GroupItem.definingRule` | `GroupItem.twk` | why the test discriminates, and therefore why it is unguarded on purpose |
+| 2026-09-15 | `GroupItem.establishFrame` | `GroupItem.twk` | the single writer, and ⚠ **no save/restore** — the callee lifts at entry |
+| 2026-09-15 | `GroupItem.frameParent` | `GroupItem.twk` | the singleton that was measurably wrong: it answers "what happened last", never "who is asking" |
+| 2026-09-15 | `GroupItem.setMethod` | `GroupItem.twk` | symmetry as structure — a raw `gMethod` write desynchronises the shape fact by construction |
 
 ## ⚠ SIXTH FINDING, 2026-09-09 — THE FIRST TIME THE TRIAL WAS APPLIED TO A FUNCTION THE OWNER COULD NOT STAND TO READ
 
@@ -943,3 +950,42 @@ header comment at all**, and `Treat this field as a rule and match it against th
 sitting **349 lines up**, above `fireLabelMethod`, which does no input matching whatever. Placed
 with `parse()` on Tony's ruling. **Drift of 349 lines, and the tell was semantic rather than
 positional**: the sentence did not describe the function it sat on. Nobody greps for that.
+
+
+## ⚠ M4-a, 2026-09-15 — THE HEADER SWEEP, AND THE SPLIT RULE IT NEEDED
+
+`GroupItem.twk`'s 102 methods carry 77 headers. **Seven moved and seventy stayed**, and the rule
+that split them is the convention's own sentence turned into a test:
+
+> **Move it if it carries an ARGUMENT — a why, a history, a measurement, a forbid. Keep it if it is
+> a DESCRIPTION of what the method does.**
+
+That is not a size rule, and the census says why it cannot be. Of the twelve headers at six lines or
+more, **four are plain descriptions** (`dumpField`, `matches`, `sort`, `compareAttribute`) and
+`walk`'s eight lines are a parameter contract, not an argument — all five stayed. Meanwhile
+`allAttributesOptional` is **nine lines and moved**, because every one of them is reasoning about
+why an rStuff-less attribute must count as mandatory. And a scan of all sixty-five mid-sized
+headers for argument markers — ⚠, *measured*, *ruling*, a date, a name — **returned nothing**, so
+the split is clean rather than judged case by case.
+
+## ⚠⚠ AND THE SWEEP GOT A REAL PROOF, NOT AN EYEBALL: `genLadder/codeOnly.py`
+
+"The `.mm` diff is comment-only" had been asserted three times this session by *reading* the diff
+and seeing prose. That is an eyeball, and a header sweep of this size is exactly where an eyeball
+fails. `codeOnly.py` strips C and C++ comments (string- and escape-aware) and normalises blank
+lines, so the claim becomes a `diff` that either holds or does not:
+
+    code-only bytes, HEAD vs swept:  1768 lines each, IDENTICAL
+
+**It is reusable and it is the instrument the rest of M4 is certified with** — the in-body pass and
+the alpha reorder both make large, entirely-not-code diffs, and neither is readable by eye.
+
+## ⚠ AND THE ALPHA REORDER IS PROVABLY INERT — CLAY'S HYPOTHESIS, MEASURED
+
+Clay asked whether tok emits the `.mm` in alphabetical order rather than source order. **It does**,
+and it is visible without an experiment: the `.mm` runs `addAttribute, addGroup, addMember,
+addString, allAttributesOptional, append, attachLabel…` while the `.twk` has `addGroup` before
+`addAttribute` and `attachLabel` three hundred lines further down. The experiment ran anyway,
+because *visible* is not *measured*: swapping `addGroup` and `addAttribute` in the `.twk` and
+re-tokking left **`GroupItem.mm` AND `GroupItem.h` byte-identical**, md5 for md5, and restoring gave
+the same pair a third time. So item 2b's reorder costs nothing and its proof is one line.

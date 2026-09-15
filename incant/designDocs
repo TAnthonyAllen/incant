@@ -1140,6 +1140,196 @@ define
 
                 Certified byte-identical on the fleet against a capture banked before the
                 first edit, 87 green, raw-rStuff drift row unmoved at 30.#);
+            allAttributesOptional=(True if every attribute of this group has min 0. getWhatFollows() only
+                zeroes a parent rule's min when ALL of its attributes are individually
+                optional -- one optional attribute among mandatory siblings must not
+                drag the parent's own min down to 0 (genParseSpec.md S7.1). An attribute
+                with no rStuff yet has not had a chance to relax its implicit default
+                min of 1 (RuleStuff(GroupItem) sets min=1), so treat "not yet known" as
+                mandatory, not as optional -- the safe default, same as an untouched min.#);
+            attachLabel=(THE LABEL ATTACH, and the ONLY site that performs one.
+
+                PC-4, 2026-08-07. Extracted from parse()'s match loop so both arms run the
+                same code. Second half of the pair GX started: GX made both arms fire the
+                same rule ACTION, this makes both perform the same ATTACH. It supersedes
+                leaveRule's `if into  into +% label`, which was ONE case, run BEFORE the
+                action instead of after -- GM-17's divergence. Removed there, not duplicated.
+
+                THE YIELD PROTOCOL IS THE SKIP, and it is not a forensic test:
+                    NULL      the rule FAILED               -- nothing to attach
+                    labelNO   succeeded, yields NOTHING     -- nothing to attach
+                    anything  succeeded, yields THAT node   -- attach it
+                An earlier attempt guarded on `isLabel` instead and was falsified fleet-wide
+                (GM-19/GM-21): trueResult is minted as `new("true")` and never stamped, so
+                the guard silently dropped DEFINing's attach and killed every definition in
+                the file. Do not reach for a flag here; the channel says what it means.
+
+                ⚠ THE `promote` PARAMETER IS A DATED DIVERGENCE, NOT A DESIGN. PC-1 rules
+                the generated arm ATTACH-UNDER ALWAYS -- it never consults isTarget --
+                while interpretive promotion runs untouched as legacy. So the fork is real
+                today and is passed explicitly rather than inferred, because a divergence
+                the signature states is one the next reader cannot miss.
+
+                ⚠ AND IT HAS A NAMED EXPIRY (IT-3, director 2026-08-07). isTarget promotion
+                is retired as a PARSE-LAYER mechanism -- the parse builds one shape, and
+                opinions about shape belong to actions. Promotion becomes opt-in in one
+                line: an action returns the child's label as its own yield, and attach-under
+                plants it. When the last carrier converts, `promote` and the isTarget case
+                DELETE, three cases become one, and this function is `pStuff.label +% lab`
+                with the two skips. Attrition list per GM-23: aCTionNewGroup (done),
+                aCTionShortcuT, plus the four text-readers at their own rungs.
+
+                ⚠ DEMOLITION ITEM ADDED 2026-08-13 (SEQ 61, with the PC-1 restatement):
+                BEFORE the promote/isTarget case deletes, THE IA-2 CELL NEEDS AN
+                ACTION-LAYER CARRIER -- the winning option's label yielded UPWARD as the
+                alternation's own yield. Not attached into the grandparent's subtree: that
+                was built and measured RED (SEQ 59 rung 2b, recorded at the drop site
+                below). The narrow guard is NOT a new carrier; it extends the condemned
+                case and deletes with it, so IT-3's end state is unmoved. THE TRIPWIRE IS
+                incant/bindSeamB PINNED AT 251 in genLadder/pop.sh -- delete the case
+                without supplying the carrier and that pin goes red.
+
+                ⚠ NESTED REFERENCES ARE COVERED, MEASURED BEFORE THIS LANDED. parseR
+                (RuleStuff.twk:689) does `bridge.label = into; term.parse(bridge)`, so a
+                reference term reaches parse() with `into` as pStuff's label -- both arms of
+                the nested call come through here too. parseR's header always claimed "ONE
+                mechanism serves both halves of mixed mode"; now it is true.
+
+                litOption keeps its own attach: a literal option builds its own fresh label
+                and never enters parse().#);
+            captureSpan=(THE BOUNDARY CAPTURE, and the ONLY definition of it.
+
+                Invoked from parse()'s two success paths when the rule's groupBody carries
+                the tokened bit, which TOKENize sets once at definition. It writes the span
+                the rule just matched onto the rule's product as a noPrint attribute, and
+                it does nothing else.
+
+                THE FORMULA IS CHAIR-SPECIFIC AND WAS MEASURED, not inherited. From THIS
+                chair the rule's own stuff carries the ENTRY mark and the rules singleton
+                carries the exit: own hereAt matched the shipped span start in 125 firings
+                out of 125. From the ACTION's chair the same rule reads the other way
+                round, because there the node in hand is the PRODUCT, whose parent stuff is
+                the rule. The action-chair spelling must never be copied here.
+
+                IT RUNS BEFORE fireLabelMethod AT BOTH CALL SITES, which is not a
+                preference. An action reads its own product, so a stamp landing after the
+                action is a null read waiting to happen; that was measured the expensive
+                way once, at exit 139 with no output.
+
+                IT SUPPLIES THE PRODUCT, not merely a side record. The setToken at the foot
+                is the channel every consumer already reads; the noPrint attribute above it
+                is kept as free debug surface and nothing consults it. Ruled 2026-08-23.
+
+                THE TRACE READS THE PRODUCT BEFORE THE WRITE, deliberately. Once this
+                function supplies the product, a comparison taken AFTER the write would
+                compare this function to itself and report MATCH forever -- vacuity in a
+                new coat. The oracle is sampled first or it is not an oracle.
+
+                THE LOCALS ARE NAMED spanFrom AND spanTo FOR A REASON: the obvious spellings
+                are tok keywords and the parse fails on the declaration line while naming
+                the enclosing function, which reads as a broken function rather than a
+                reserved word.#);
+            definingRule=(the node a rule-reference term refers to, reached WITHOUT
+                a name lookup. Clay SEQ 26 S1; measured, not reasoned (incant/termScratch).
+
+                A reference term is a distinct node that SHARES the defining rule's child
+                list. The children are parented to the definer, so the first child's parent
+                IS the definer, by pointer. Verified on JSONblock->JSONfield,
+                JSONfield->JSONtoken and JSONfield->JSONvalue: pointer-identical to what
+                locate() returns for the same name.
+
+                The test discriminates, which is why it can be trusted unguarded: a node
+                that OWNS its children (a defining rule, and also CodE/BlocK) routes back
+                to ITSELF, and a leaf term has no children at all. Both fall through to
+                `return this`, so the only nodes that resolve elsewhere are the ones that
+                genuinely reference something else.
+
+                This is what makes rung 4 possible. parseMethod is SHAPE -- one answer,
+                always the same -- so resolving it here means binding a rule once reaches
+                every reference to it, including references created LATER. No registry
+                sweep (which would miss late references) and no locate (S1.3 forbids it).#);
+            establishFrame=(THE SINGLE WRITER OF parentLabel, now one body with two
+                call sites. Tony's ruling via Clay, 2026-08-29.
+
+                parse()'s fork used to carry this write inline, under a comment reading
+                "THIS LINE IS ITS SINGLE WRITER". That was true and it is still true: the
+                doctrine is one BODY, not one call site. Both seams call here.
+
+                ⚠ WHY runRule NEEDED IT. The new parse road dispatches
+                `newParse.method(rule)` straight at builtinParsE and never calls
+                rule.parse(), so it never crossed the writing line. Measured 2026-08-29:
+                PARENTPROBE printed parentLabel=0x0 on all four invocations of an Xpress
+                walk -- Xpress, ExpressioN, Token, QuotE -- while the structural parent
+                named definitional positions (Token's own parent is Token). The frame
+                channel existed and the new road did not write it.
+
+                ⚠⚠ THE DISCIPLINE IS NOT SAVE/RESTORE, AND THAT IS WORTH KNOWING BEFORE
+                ANYONE "FIXES" IT. There is no save and no restore here, and the incumbent
+                had none either -- it is a bare write immediately before the call. The
+                recursion safety lives in the CALLEE: parse()'s fork comment states that
+                the callee lifts parentLabel into a stack local at entry before descending,
+                so a nested invocation overwriting this slot cannot disturb an outer frame
+                already under way. The genParse-emitted methods implement exactly that --
+                `GroupItem into = rule.rStuff.parentLabel;` is their first line.
+
+                THE CONSEQUENCE, NAMED RATHER THAN LEFT TO BITE: a parseMethod that reads
+                parentLabel LATE instead of lifting it at entry is unsafe under recursion,
+                and parseRule does not lift today because it does not yet read the frame at
+                all. When setParentLabel lands, the lift is owed AT parseRule's ENTRY, not
+                at the point of use.#);
+            frameParent=(resolve the parse-time parent for a rule invoked through
+                runRule, which has no pStuff to read one from.
+
+                IT READS runRule's OWN ARGUMENT, and that is the whole finding. The holder
+                is the node the call site handed down -- the InvokeArg for a sub-rule call,
+                the argument field for a top-level one -- and its rStuff carries a label
+                that is DISTINCT PER INVOCATION. So the caller's name reaches the writer as
+                dataflow along the existing call, with no emitter change and no channel
+                invented.
+
+                ⚠ THE FIRST VERSION READ ruler->ruleSTUFF AND WAS WRONG, MEASURABLY.
+                A singleton is not a channel: a distant read of shared state answers "what
+                happened last", never "who is asking". It printed ONE pointer for all four
+                invocations of an Xpress walk -- the driver action's own BlocK, stale --
+                where four distinct ones were pre-registered. The holder's own stuff prints
+                four distinct labels on the same run, and the singleton prints its single
+                stale pointer beside them, which is the control.
+
+                A top-level invocation's holder has no rStuff at all (the probe shows
+                fieldStuff=0x0 for ruleText), so it falls through to the holder itself --
+                the argument holder, which is what a top-level parse should attach into.
+
+                Separate from establishFrame deliberately: runRule is a declared-field
+                function and after the parkOnMaster near-miss no new declarations go inside
+                one. A call introduces no declaration, so the resolution happens here and
+                runRule's own bare-name resolution cannot move.#);
+            setMethod=(SYMMETRIC, AND IT IS THE SOLE MAINTAINER OF A SHAPE FACT.
+                Tony's design, 2026-08-29, minted with the eviction campaign.
+
+                Present method  -> occupy gMethod and MINT isMethod.
+                Absent  method  -> vacate gMethod and RETRACT isMethod.
+
+                So `rule.method = 0;` is the whole eviction, in one ordinary write, and it
+                cannot leave the shape fact disagreeing with the occupancy.
+
+                ⚠ WHY EVERY WRITE GOES THROUGH HERE, both directions, with no raw
+                `gMethod =` anywhere but the line below. isMethod is not a second fact
+                about the slot -- it IS the slot's occupancy, read as
+                isMethod(instructType) by every dispatcher in the tree. A bypass does not
+                merely skip a courtesy update; it desynchronizes the two BY CONSTRUCTION,
+                and the failure it produces is the one this project has paid for five
+                times: a reader asking a channel for something other than what it holds.
+                runOP arm two claims any node whose isMethod reads true, so a raw clear
+                that leaves instructType at 1 hands that arm a null gMethod to call.
+
+                The asymmetric form this replaces set isMethod unconditionally, so a null
+                argument minted the flag over an empty slot -- a state no caller wanted
+                and none had yet constructed. Symmetry costs one branch and makes it
+                unbuildable rather than merely unbuilt.
+
+                House style is its siblings': setItem, setMap and setObject all test the
+                incoming value and clear the shape field on absence. This is that idiom
+                applied to the one setter that had been written the other way.#);
             fireLabelMethod=(THE RULE ACTION, and the ONLY site that fires one.
 
                 GX-1, 2026-08-06. Extracted verbatim from parse()'s match loop so that the
