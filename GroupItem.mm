@@ -339,78 +339,28 @@ GroupItem 	*lab = stuff->label;
 		return;
 	if ( !pStuff )
 		return;
-	/*  IA-2 LOCALIZER, gated on the standing parseTrace and therefore silent by
-	default. Reports the four quantities that decide which case below runs,
-	because the interesting failure is a SILENT return at the no-label guard
-	and an absent attach announces nothing on its own.  */
+	// caseLocalizer parseTrace-gated -- the interesting failure is a SILENT return at the no-label guard, and
+	// caseLocalizer an absent attach announces nothing on its own
 	if ( ruler->parseTrace )
 		::fprintf(stderr,"    attachLabel lab=%s promote=%d isTarget=%u pLabel=%lu pRule=%s\n",lab->groupBody->tag,promote,stuff->isTarget,(pStuff->label != 0),pStuff->ruleName);
-	/*  PROMOTION IS AN ASSIGN AND IS NOT GUARDED ON THE DESTINATION -- a parent
-	with no label yet is the NORMAL case here, and this is what gives it
-	one.  */
-	/*  ⚠ THE `!pStuff.label` DISJUNCT IS PC-1 AS RESTATED BY THE DIRECTOR ON
-	2026-08-13 (SEQ 61), NOT A LOOSENING OF IT. The generated arm never
-	consults isTarget WHERE A PARENT LABEL EXISTS -- promotion there would
-	replace the parent's subtree, which is GM-22's third wall, measured as
-	ScafOUT coming back childless. Where no parent label exists there is no
-	subtree at risk, so the consult is permitted, and that cell is IA-2's.
-	PC-1's rationale stands; its letter is trimmed to the rationale's reach.
-	See the IA-2 block below and docs/parseCodeMeasurements.md addendum (j)
-	for the ruling verbatim and the trial it rests on.  */
+	// promoteUnguarded promotion is an assign and is NOT guarded on the destination -- a parent with no label
+	// promoteUnguarded yet is the normal case here, and this is what gives it one
+	// pc1Restated the disjunct is PC-1 RESTATED, not loosened -- the forbidden consult is the one where a
+	// pc1Restated parent label exists, because that is the one with a subtree to destroy
 	if ( (promote || !pStuff->label) && stuff->isTarget )
 		{
 		pStuff->label = lab;
 		lab->groupBody->tag = pStuff->ruleName;
 		return;
 		}
-	/*  ⚠ THE ATTACH CASES ARE GUARDED, AND leaveRule ALREADY KNEW THIS. Its
-	line was `if into  into +% label` -- and `into` IS pStuff.label.
-	Extracting the body without the guard cost a fleet-wide SIGSEGV the
-	moment a rule was installed under a parent with no label
-	(RuleStuff.twk:181 sets label = 0 for a noLabel rule, ON SUCCESS):
-	addGroup with a null `this`, no diagnostic. A parent with nowhere to
-	put a child is not an error; there is simply nothing to attach to.
-	⚠ AND THE GUARD BELONGS HERE, NOT ABOVE THE PROMOTE CASE. Placing it at
-	the top -- which was the first attempt -- ALSO crashes the fleet, by
-	skipping the promotion that was supposed to create the missing label.
-	Same symptom, opposite cause, and only three lines apart.  */
-	/*  ⚠ IA-2, 2026-08-07 — THIS SILENT RETURN IS WHERE A GENERATED OPTION OF AN
-	ALTERNATION DIES, and it is measured, not suspected. An alternation is
-	label-transparent (S2.4): it mints no label, so `pStuff.label` is null
-	and there is nothing to attach under. Interpretively that is fine
-	because promotion at the isTarget case ABOVE runs first and is what
-	gives the alternation its label — but the generated arm passes
-	promote=0 by PC-1's ruling, so it reaches here and drops the option on
-	the floor. Probe line, Parens installed:
-	attachLabel lab=Parens promote=0 isTarget=1 pLabel=0 pRule=InvokeArg
-	A one-line experiment promoting in this case turned parensMin green with
-	the whole fleet at its standing footprint — so the missing promotion
-	ACCOUNTS for the red completely. It was NOT landed: it makes the
-	generated arm consult isTarget, which PC-1 forbids, and it moves against
-	IT-3's end state where promotion deletes entirely. Director's call.
-	
-	⚠ RULED 2026-08-13, SEQ 61 -- AND THE CELL IS NOW CLOSED. Both
-	objections were answered rather than waived. PC-1 was RESTATED, not
-	overridden: the forbidden consult is the one where a parent label
-	exists, because that is the one with a subtree to destroy; this cell has
-	no parent label and therefore nothing at risk. IT-3 is unmoved because
-	the narrow guard adds no carrier -- it rides the condemned case and dies
-	with it, and IT-3's list gained the demolition item this cell needs
-	(see the header above). The landed spelling is the NARROW one,
-	`(promote || !pStuff.label) && stuff.isTarget`. The broad spelling was
-	also measured green and was REJECTED ON PRINCIPLE: over 216 attachLabel
-	calls in one full run, ZERO fell in the cell where the two spellings
-	differ, so its green was a pass on a case that never occurs.
-	Ruling verbatim: docs/parseCodeMeasurements.md addendum (j).  */
+	// attachGuardHere the guard belongs HERE and not above the promote case -- both placements were measured
+	// attachGuardHere and each crashes the fleet the other way, three lines apart
+	// ia2Narrow the landed spelling is the NARROW one -- the broad one was also green and was rejected
+	// ia2Narrow because ZERO of 216 calls fell in the cell where the two differ
 	if ( !pStuff->label )
 		{
-		/*  SEQ 59 RUNG 2 -- THE FRAME PROBE AT THE DROP SITE. Gated on the
-		standing parse-trace flag, so no baseline can move. It asks one
-		thing: at the instant an option's label is dropped, is there a
-		reachable destination anywhere in the frame, or is the label simply
-		homeless. Reports the label itself (present, by construction -- the
-		guard above already returned if it were not), the parent rule, and
-		three candidate destinations one step out.  */
+		// dropSiteProbe parseTrace-gated -- at the instant an option's label is dropped, is there a reachable
+		// dropSiteProbe destination in the frame, or is the label simply homeless
 		
 		if ( GroupControl::groupController->groupRules->parseTrace )
 		{
@@ -425,31 +375,8 @@ GroupItem 	*lab = stuff->label;
 		lab->groupBody->tag,pName,pPar,ppName,ppLab,sPar);
 		}
 		
-		/*  ⚠ RUNG 2b WAS BUILT HERE AND IS RED. SEQ 59, 2026-08-13. Recorded
-		because the destination it used is the one the frame offers, so the
-		next reader will reach for it too.
-		
-		The probe above measures a reachable destination one step out --
-		pStuff.parentStuff.label, which is TokenXP when Braced dies. That is
-		the interpreted spelling of the `into` a GENERATED alternation hands
-		its options through parseR's bridge, so it looked like option 2
-		exactly: no target flag consulted, nothing promoted, PC-1 untouched.
-		
-		if pStuff.parentStuff && pStuff.parentStuff.label {
-		pStuff.parentStuff.label +% lab;
-		return; }
-		
-		Built, run, and it moved NOTHING: bindSeamB stayed at 1, and its
-		whole trace and stdout came back byte-identical but for ASLR. The
-		attach demonstrably ran -- the guard is true by the probe's own
-		printed values and the generated line was read at the site -- so the
-		node was really planted and NOTHING READS IT THERE.
-		
-		The lesson, which is the part worth keeping: an alternation must
-		YIELD its winning option's label upward, not park it in the
-		grandparent's subtree. Reachable is not the same as correct, and the
-		frame having somewhere to put a node is not evidence that it is the
-		right somewhere.  */
+		// rung2bRed reachable is not correct -- an alternation must YIELD its winning option's label upward,
+		// rung2bRed never park it in the grandparent's subtree
 		return;
 		}
 	if ( promote && isGROUP(lab->groupBody->flags.data) && stuff->max > 1 )
@@ -484,10 +411,8 @@ int 		spanLen = 0;
 	if ( spanLen < 0 )
 		return;
 	
-	/*  DUAL-RUN COMPARATOR, live only under the parse trace, temporary for the
-	migration runs. THE ORACLE IS SAMPLED BEFORE THE WRITE BELOW -- once
-	this function supplies the product, a sample taken after would compare
-	the function to itself and read MATCH forever.  */
+	// oracleBeforeWrite the comparator samples the product BEFORE the write below, or it compares this function
+	// oracleBeforeWrite to itself and reads MATCH forever
 	if ( GroupControl::groupController->groupRules->parseTrace )
 	{
 	int   shipLen  = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gCount : -1;
@@ -1097,16 +1022,8 @@ int GroupItem::getCount()
 		{
 		if ( isCOUNT(groupBody->flags.data) || isTOKEN(groupBody->flags.data) || isCHAR(groupBody->flags.data) || isSTRING(groupBody->flags.data) )
 			return groupBody->gCount;
-		/*  IMPLICIT NARROWING ROUNDS HALF-UP, UNIFORMLY (Tony's ruling,
-		2026-08-01, clause 3). This is THE site: every `.count` read of a
-		double reaches here, so one line makes the rule uniform rather than
-		per-operator. It used to be `(int)number`, a C truncating cast, which
-		is neither of the two behaviours a user could reasonably expect.
-		floor(x + 0.5) is round-half-UP as ruled -- >= .5 goes up, < .5 goes
-		down -- and it is deliberately NOT lround(), which rounds half AWAY
-		FROM ZERO and so sends -2.5 to -3 where this ruling sends it to -2.
-		No error arm, no context-dependent behaviour, no guard rails: one
-		rule, and a user who divides then indexes owns the result. */
+		// roundHalfUp THE site -- every .count read of a double lands here, and it is floor(x+0.5) and NOT
+		// roundHalfUp lround, which rounds half AWAY from zero and would send -2.5 to -3
 		if ( isNUMBER(groupBody->flags.data) )
 			return (int)floor(groupBody->gNumber + 0.5);
 		if ( isBUFFER(groupBody->flags.data) )
@@ -1274,25 +1191,8 @@ Stak *GroupItem::getStak()
 *******************************************************************************/
 RuleStuff *GroupItem::getStuff(RuleStuff *pStuff)
 {
-	/*  ⚠ ensureRStuff, AND IT IS THE FOURTH CALLER THE 2026-08-31 RULING FIXED.
-	This spelled getRStuff() for as long as getRStuff constructed, and it is
-	the site that made the construction load-bearing: parse() is its only
-	caller, so EVERY node that is parsed comes through here, and the ones
-	with no rStuff got one minted silently.
-	
-	⚠⚠ IT IS NOT A MIS-USE TO BE REPAIRED, WHICH IS THE MEASURED PART.
-	With the getter made pure and complaining, one fixture run produced
-	4853 complaints over 4389 DISTINCT NODES — near one-to-one, so these
-	are fresh nodes each legitimately arriving without rStuff, not one node
-	asked repeatedly. LAZY MATERIALISATION IS THE PARSER'S DESIGN, recorded
-	as such in genParse.rtn's unresolvedTerms header, and this is where it
-	happens. So the honest fix is the honest VERB: it always wanted the
-	ensure, and now it asks for it by name.
-	
-	WHAT THAT COSTS THE "LIVE AUDIT" IDEA is written up rather than
-	discovered again — see docs/fixIts.md F-35. A getter-complaint cannot
-	replace auditMissingRules, because its population is not defects: it is
-	every node the parse mints.  */
+	// lazyMaterialisation it asks ensureRStuff BY NAME -- a node arriving with no rStuff is the parser's design,
+	// lazyMaterialisation not a mis-use to be repaired
 RuleStuff *stuff = ensureRStuff();
 	if ( stuff->rule != this || stuff->inProcess )
 		{
@@ -2081,11 +1981,8 @@ void GroupItem::setGroup(GroupItem *g)
 		groupBody->flags.data = 0;
 		}
 	else {
-		/*  ⚠ THE SELF-ADD GUARD IS RETIRED (Tony, SEQ 136). A one-element cycle
-		is legal data like any other under pointer semantics, and NOTHING
-		FOLLOWS IT -- print stopped following at the same stroke, and no walk
-		in the machine chases gGroup transitively. setGroup is the assignment
-		again, with nothing to refuse.   GroupItem.setGroup.selfAdd  */
+		// selfAdd the self-add guard is RETIRED -- a one-element cycle is legal data and nothing follows
+		// selfAdd gGroup transitively
 		// setGroup NEVER copies; embedRule() owns the one legitimate copy   GroupItem.setGroup
 		groupBody->gGroup = g;
 		groupBody->flags.isInitialized = 1;
@@ -2108,12 +2005,8 @@ void GroupItem::setItem(PLGitem *i)
 
 void GroupItem::setJitEmitter(void *m)
 {
-	/*  Deliberately sets NO flag. isOperator and isMethod describe how the
-	INTERPRETER dispatches this op, and installing an emitter must not
-	disturb that -- the emitter rides alongside the binding, it does not
-	replace it. Presence of the slot IS the gate, which is what makes the
-	migration fork in runOP a null test and nothing more.
-	void* and a hand-cast for the same reason setOperat does it.  */
+	// noFlagSet it sets NO flag deliberately -- presence of the slot IS the gate, and the emitter rides
+	// noFlagSet alongside the interpreter binding rather than replacing it
 	 groupBody->gJitEmitter = (GroupItem*(*)(GroupItem*,GroupItem*))m; 
 }
 
@@ -2334,12 +2227,8 @@ void GroupItem::updateContentFlags()
 		else
 		if ( isMember(options.affiliation) )
 			parent->groupBody->flags.hasMembers = 1;
-	/*  ⚠ groupList GUARD, and it is not decoration. A LEAF has no list at
-	all, so the bare `if listLength` reads through a null groupList and
-	dies at EXC_BAD_ACCESS. It was latent for as long as moveTo was the
-	only caller; setParse became the second one and hands this function
-	every term it touches, leaves included. Same guard case 5 and cases
-	403/404 in opDot have always used for the same read.  */
+	// groupListGuard a LEAF has no list, so a bare listLength read goes through a null groupList and dies at
+	// groupListGuard EXC_BAD_ACCESS
 	if ( groupBody->groupList && groupBody->groupList->listLength )
 		{
 		GroupItem 	*item = 0;

@@ -102,6 +102,19 @@ the interesting quantity is the one that can come back zero.
 | 2026-09-15 | `GroupItem.establishFrame` | `GroupItem.twk` | the single writer, and ⚠ **no save/restore** — the callee lifts at entry |
 | 2026-09-15 | `GroupItem.frameParent` | `GroupItem.twk` | the singleton that was measurably wrong: it answers "what happened last", never "who is asking" |
 | 2026-09-15 | `GroupItem.setMethod` | `GroupItem.twk` | symmetry as structure — a raw `gMethod` write desynchronises the shape fact by construction |
+| 2026-09-15 | `GroupItem.getCount.roundHalfUp` | `GroupItem.twk` | THE site for every `.count` read of a double, and why it is **not** `lround` |
+| 2026-09-15 | `GroupItem.getStuff.lazyMaterialisation` | `GroupItem.twk` | 4853 complaints over 4389 distinct nodes — the population is the design, not defects |
+| 2026-09-15 | `GroupItem.captureSpan.oracleBeforeWrite` | `GroupItem.twk` | sample before the write or the function compares itself to itself and reads MATCH forever |
+| 2026-09-15 | `GroupItem.attachLabel.caseLocalizer` | `GroupItem.twk` | the interesting failure is a SILENT return, and an absent attach announces nothing |
+| 2026-09-15 | `GroupItem.attachLabel.promoteUnguarded` | `GroupItem.twk` | a parent with no label is the normal case here |
+| 2026-09-15 | `GroupItem.attachLabel.pc1Restated` | `GroupItem.twk` | PC-1 restated, not loosened — the forbidden consult is the one with a subtree to destroy |
+| 2026-09-15 | `GroupItem.attachLabel.attachGuardHere` | `GroupItem.twk` | ⚠ both placements measured; each crashes the fleet the other way, **three lines apart** |
+| 2026-09-15 | `GroupItem.attachLabel.ia2Narrow` | `GroupItem.twk` | the broad spelling was green and rejected — 0 of 216 calls fell where the two differ |
+| 2026-09-15 | `GroupItem.attachLabel.dropSiteProbe` | `GroupItem.twk` | is the dropped label homeless, or is there a reachable destination |
+| 2026-09-15 | `GroupItem.attachLabel.rung2bRed` | `GroupItem.twk` | **reachable is not correct** — the negative result and why the next reader will reach for it too |
+| 2026-09-15 | `GroupItem.setGroup.selfAdd` | `GroupItem.twk` | the retired guard, and the only entry whose inline pointer was already dotted |
+| 2026-09-15 | `GroupItem.setJitEmitter.noFlagSet` | `GroupItem.twk` | presence of the slot IS the gate |
+| 2026-09-15 | `GroupItem.updateContentFlags.groupListGuard` | `GroupItem.twk` | a LEAF has no list; the bare read dies at EXC_BAD_ACCESS |
 
 ## ⚠ SIXTH FINDING, 2026-09-09 — THE FIRST TIME THE TRIAL WAS APPLIED TO A FUNCTION THE OWNER COULD NOT STAND TO READ
 
@@ -989,3 +1002,27 @@ addString, allAttributesOptional, append, attachLabel…` while the `.twk` has `
 because *visible* is not *measured*: swapping `addGroup` and `addAttribute` in the `.twk` and
 re-tokking left **`GroupItem.mm` AND `GroupItem.h` byte-identical**, md5 for md5, and restoring gave
 the same pair a third time. So item 2b's reorder costs nothing and its proof is one line.
+
+
+## ⚠ M4-b, 2026-09-15 — THE IN-BODY PASS, AND `attachLabel` CARRIED SEVEN OF THE THIRTEEN
+
+Twenty-seven `/* */` blocks in `GroupItem.twk` sit inside a body rather than above a signature.
+Fourteen of them are constructor and section banners that the header pass could not see, because a
+constructor has no return type and does not match a signature scan — **they are M4-c's, and the fact
+that a mechanical pass had a blind spot is worth the line.** The other thirteen are arguments, and
+**seven of them live in one method**: `attachLabel`, whose body carried 97 lines of comment around
+20 lines of code.
+
+**That is the case the convention was built for.** `attachLabel` now reads as seven `// slug`
+lines at the seven decisions, and its DesignDocs entry has seven children — one per decision,
+addressable, rather than one 97-line wall a reader scrolls past to reach the code.
+
+⚠ **AND ONE OF THE THIRTEEN WAS ALREADY WEARING THE OLD FORM** — `setGroup`'s block ended
+`GroupItem.setGroup.selfAdd`, the only dotted inline pointer in the file outside `setActionMethod`.
+It was stripped to `// selfAdd` under the ruling, which is the first time the new form has
+*replaced* the old one rather than merely been written beside it.
+
+**Certified with `codeOnly.py`: 1768 lines of code-only bytes, identical.** Read-back under a
+hit/miss control pair, with the counts asserted by name — `attachLabel` 7 children, `captureSpan` 1
+— because *"the entries exist"* and *"the entries landed under the right parent"* are two claims and
+only the second one is worth having.

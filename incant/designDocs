@@ -1196,7 +1196,94 @@ define
                 mechanism serves both halves of mixed mode"; now it is true.
 
                 litOption keeps its own attach: a literal option builds its own fresh label
-                and never enters parse().#);
+                and never enters parse().#):
+                rung2bRed=(⚠ RUNG 2b WAS BUILT HERE AND IS RED. SEQ 59, 2026-08-13. Recorded
+                    because the destination it used is the one the frame offers, so the
+                    next reader will reach for it too.
+
+                    The probe above measures a reachable destination one step out --
+                    pStuff.parentStuff.label, which is TokenXP when Braced dies. That is
+                    the interpreted spelling of the `into` a GENERATED alternation hands
+                    its options through parseR's bridge, so it looked like option 2
+                    exactly: no target flag consulted, nothing promoted, PC-1 untouched.
+
+                        if pStuff.parentStuff && pStuff.parentStuff.label {
+                            pStuff.parentStuff.label +% lab;
+                            return; }
+
+                    Built, run, and it moved NOTHING: bindSeamB stayed at 1, and its
+                    whole trace and stdout came back byte-identical but for ASLR. The
+                    attach demonstrably ran -- the guard is true by the probe's own
+                    printed values and the generated line was read at the site -- so the
+                    node was really planted and NOTHING READS IT THERE.
+
+                    The lesson, which is the part worth keeping: an alternation must
+                    YIELD its winning option's label upward, not park it in the
+                    grandparent's subtree. Reachable is not the same as correct, and the
+                    frame having somewhere to put a node is not evidence that it is the
+                    right somewhere.#);
+                dropSiteProbe=(SEQ 59 RUNG 2 -- THE FRAME PROBE AT THE DROP SITE. Gated on the
+                    standing parse-trace flag, so no baseline can move. It asks one
+                    thing: at the instant an option's label is dropped, is there a
+                    reachable destination anywhere in the frame, or is the label simply
+                    homeless. Reports the label itself (present, by construction -- the
+                    guard above already returned if it were not), the parent rule, and
+                    three candidate destinations one step out.#);
+                ia2Narrow=(⚠ IA-2, 2026-08-07 — THIS SILENT RETURN IS WHERE A GENERATED OPTION OF AN
+                    ALTERNATION DIES, and it is measured, not suspected. An alternation is
+                    label-transparent (S2.4): it mints no label, so `pStuff.label` is null
+                    and there is nothing to attach under. Interpretively that is fine
+                    because promotion at the isTarget case ABOVE runs first and is what
+                    gives the alternation its label — but the generated arm passes
+                    promote=0 by PC-1's ruling, so it reaches here and drops the option on
+                    the floor. Probe line, Parens installed:
+                    attachLabel lab=Parens promote=0 isTarget=1 pLabel=0 pRule=InvokeArg
+                    A one-line experiment promoting in this case turned parensMin green with
+                    the whole fleet at its standing footprint — so the missing promotion
+                    ACCOUNTS for the red completely. It was NOT landed: it makes the
+                    generated arm consult isTarget, which PC-1 forbids, and it moves against
+                    IT-3's end state where promotion deletes entirely. Director's call.
+
+                    ⚠ RULED 2026-08-13, SEQ 61 -- AND THE CELL IS NOW CLOSED. Both
+                    objections were answered rather than waived. PC-1 was RESTATED, not
+                    overridden: the forbidden consult is the one where a parent label
+                    exists, because that is the one with a subtree to destroy; this cell has
+                    no parent label and therefore nothing at risk. IT-3 is unmoved because
+                    the narrow guard adds no carrier -- it rides the condemned case and dies
+                    with it, and IT-3's list gained the demolition item this cell needs
+                    (see the header above). The landed spelling is the NARROW one,
+                    `(promote || !pStuff.label) && stuff.isTarget`. The broad spelling was
+                    also measured green and was REJECTED ON PRINCIPLE: over 216 attachLabel
+                    calls in one full run, ZERO fell in the cell where the two spellings
+                    differ, so its green was a pass on a case that never occurs.
+                    Ruling verbatim: docs/parseCodeMeasurements.md addendum (j).#);
+                attachGuardHere=(⚠ THE ATTACH CASES ARE GUARDED, AND leaveRule ALREADY KNEW THIS. Its
+                    line was `if into  into +% label` -- and `into` IS pStuff.label.
+                    Extracting the body without the guard cost a fleet-wide SIGSEGV the
+                    moment a rule was installed under a parent with no label
+                    (RuleStuff.twk:181 sets label = 0 for a noLabel rule, ON SUCCESS):
+                    addGroup with a null `this`, no diagnostic. A parent with nowhere to
+                    put a child is not an error; there is simply nothing to attach to.
+                    ⚠ AND THE GUARD BELONGS HERE, NOT ABOVE THE PROMOTE CASE. Placing it at
+                    the top -- which was the first attempt -- ALSO crashes the fleet, by
+                    skipping the promotion that was supposed to create the missing label.
+                    Same symptom, opposite cause, and only three lines apart.#);
+                pc1Restated=(⚠ THE `!pStuff.label` DISJUNCT IS PC-1 AS RESTATED BY THE DIRECTOR ON
+                    2026-08-13 (SEQ 61), NOT A LOOSENING OF IT. The generated arm never
+                    consults isTarget WHERE A PARENT LABEL EXISTS -- promotion there would
+                    replace the parent's subtree, which is GM-22's third wall, measured as
+                    ScafOUT coming back childless. Where no parent label exists there is no
+                    subtree at risk, so the consult is permitted, and that cell is IA-2's.
+                    PC-1's rationale stands; its letter is trimmed to the rationale's reach.
+                    See the IA-2 block below and docs/parseCodeMeasurements.md addendum (j)
+                    for the ruling verbatim and the trial it rests on.#);
+                promoteUnguarded=(PROMOTION IS AN ASSIGN AND IS NOT GUARDED ON THE DESTINATION -- a parent
+                    with no label yet is the NORMAL case here, and this is what gives it
+                    one.#);
+                caseLocalizer=(IA-2 LOCALIZER, gated on the standing parseTrace and therefore silent by
+                    default. Reports the four quantities that decide which case below runs,
+                    because the interesting failure is a SILENT return at the no-label guard
+                    and an absent attach announces nothing on its own.#);
             captureSpan=(THE BOUNDARY CAPTURE, and the ONLY definition of it.
 
                 Invoked from parse()'s two success paths when the rule's groupBody carries
@@ -1228,7 +1315,11 @@ define
                 THE LOCALS ARE NAMED spanFrom AND spanTo FOR A REASON: the obvious spellings
                 are tok keywords and the parse fails on the declaration line while naming
                 the enclosing function, which reads as a broken function rather than a
-                reserved word.#);
+                reserved word.#):
+                oracleBeforeWrite=(DUAL-RUN COMPARATOR, live only under the parse trace, temporary for the
+                    migration runs. THE ORACLE IS SAMPLED BEFORE THE WRITE BELOW -- once
+                    this function supplies the product, a sample taken after would compare
+                    the function to itself and read MATCH forever.#);
             definingRule=(the node a rule-reference term refers to, reached WITHOUT
                 a name lookup. Clay SEQ 26 S1; measured, not reasoned (incant/termScratch).
 
@@ -1330,6 +1421,57 @@ define
                 House style is its siblings': setItem, setMap and setObject all test the
                 incoming value and clear the shape field on absence. This is that idiom
                 applied to the one setter that had been written the other way.#);
+            getCount="returns the field count, narrowing a double on the way in":
+                roundHalfUp=(IMPLICIT NARROWING ROUNDS HALF-UP, UNIFORMLY (Tony's ruling,
+                    2026-08-01, clause 3). This is THE site: every `.count` read of a
+                    double reaches here, so one line makes the rule uniform rather than
+                    per-operator. It used to be `(int)number`, a C truncating cast, which
+                    is neither of the two behaviours a user could reasonably expect.
+                    floor(x + 0.5) is round-half-UP as ruled -- >= .5 goes up, < .5 goes
+                    down -- and it is deliberately NOT lround(), which rounds half AWAY
+                    FROM ZERO and so sends -2.5 to -3 where this ruling sends it to -2.
+                    No error arm, no context-dependent behaviour, no guard rails: one
+                    rule, and a user who divides then indexes owns the result.#);
+            getStuff="returns rStuff unless it is inProcess, in which case a fresh copy of it":
+                lazyMaterialisation=(⚠ ensureRStuff, AND IT IS THE FOURTH CALLER THE 2026-08-31 RULING FIXED.
+                    This spelled getRStuff() for as long as getRStuff constructed, and it is
+                    the site that made the construction load-bearing: parse() is its only
+                    caller, so EVERY node that is parsed comes through here, and the ones
+                    with no rStuff got one minted silently.
+
+                    ⚠⚠ IT IS NOT A MIS-USE TO BE REPAIRED, WHICH IS THE MEASURED PART.
+                    With the getter made pure and complaining, one fixture run produced
+                    4853 complaints over 4389 DISTINCT NODES — near one-to-one, so these
+                    are fresh nodes each legitimately arriving without rStuff, not one node
+                    asked repeatedly. LAZY MATERIALISATION IS THE PARSER'S DESIGN, recorded
+                    as such in genParse.rtn's unresolvedTerms header, and this is where it
+                    happens. So the honest fix is the honest VERB: it always wanted the
+                    ensure, and now it asks for it by name.
+
+                    WHAT THAT COSTS THE "LIVE AUDIT" IDEA is written up rather than
+                    discovered again — see docs/fixIts.md F-35. A getter-complaint cannot
+                    replace auditMissingRules, because its population is not defects: it is
+                    every node the parse mints.#);
+            setGroup="the group assignment":
+                selfAdd=(⚠ THE SELF-ADD GUARD IS RETIRED (Tony, SEQ 136). A one-element cycle
+                    is legal data like any other under pointer semantics, and NOTHING
+                    FOLLOWS IT -- print stopped following at the same stroke, and no walk
+                    in the machine chases gGroup transitively. setGroup is the assignment
+                    again, with nothing to refuse.#);
+            setJitEmitter="installs a jit emitter beside the interpreter binding, never in place of it":
+                noFlagSet=(Deliberately sets NO flag. isOperator and isMethod describe how the
+                    INTERPRETER dispatches this op, and installing an emitter must not
+                    disturb that -- the emitter rides alongside the binding, it does not
+                    replace it. Presence of the slot IS the gate, which is what makes the
+                    migration fork in runOP a null test and nothing more.
+                    void* and a hand-cast for the same reason setOperat does it.#);
+            updateContentFlags="recomputes the three content flags in one pass":
+                groupListGuard=(⚠ groupList GUARD, and it is not decoration. A LEAF has no list at
+                    all, so the bare `if listLength` reads through a null groupList and
+                    dies at EXC_BAD_ACCESS. It was latent for as long as moveTo was the
+                    only caller; setParse became the second one and hands this function
+                    every term it touches, leaves included. Same guard case 5 and cases
+                    403/404 in opDot have always used for the same read.#);
             fireLabelMethod=(THE RULE ACTION, and the ONLY site that fires one.
 
                 GX-1, 2026-08-06. Extracted verbatim from parse()'s match loop so that the
