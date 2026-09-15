@@ -12132,7 +12132,7 @@ char 		*name = 0;
 				item->groupBody->flags.methodType = 1;
 			else
 			if ( ::compare(block->groupBody->tag,"parseAction") == 0 )
-				item->groupBody->flags.methodType = 2;
+				item->setParseAction(item->groupBody->gMethod);
 			}
 		else	::fprintf(stderr,"setRuleAction: could not set action for %s\n",block->groupBody->tag);
 		}

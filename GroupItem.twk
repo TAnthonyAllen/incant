@@ -1445,23 +1445,6 @@ void setActions()
 RuleStuff   ruleStuff = rStuff;
     if getAttribute("builtinActoR") return;
     if isCoded     method = processAction;
-    or parseACTION && gMethod {
-        /*  parseIsTheLeaf  A parseAction REPLACES THE PARSE. It is a LEAF, not an action, so it
-            is installed UNDISGUISED in rStuff.parseMethod here at definition and hasNewParse
-            says so. actionMethod holds the rule's real action or null; null at exit is a no-op.
-            ⚠ IT IS AN ARM, NOT A PREAMBLE, and that is the whole difference from the attempt
-            that took the fleet to 27: a parseAction rule takes THIS arm INSTEAD of publishing a
-            builtinActoR, rather than doing both.
-            ⚠ AND THE PROSE SITS INSIDE THE ARM, NOT ABOVE THE `or`, because a block comment in
-            that gap is bear-trap #29 and it killed this whole ClassBlock on the first cut.
-            ⚠⚠ MEASURED 2026-09-15 AND IT DOES NOT FIRE TODAY: setActions is called NINETY times
-            on incant/pop/trigDO and NOT ONCE with parseACTION set. Nothing sets that flag before
-            this method runs -- GroupMain assigns it directly on nodes setActions is never called
-            for, and setRuleAction sets it where this method has already been and gone. The arm is
-            RIGHT AND UNREACHABLE; the site does not carry the population, and the real sites are
-            the two that SET parseACTION.   GroupItem.setActions.parseIsTheLeaf  */
-        if ruleStuff    ruleStuff.parseMethod = gMethod;
-        hasNewParse     = true; }
     or !isMethod {
         String  methodName = "aCTion" tag;
         void*   methodAddress;
@@ -1618,6 +1601,20 @@ void setOperat(void* m)
     // Until that's fixed, take the dlsym result as void* and hand-cast it here in raw C++.
     // Revise to typed `void setOperat(GroupItem &m(GroupItem,GroupItem&)){ operat = m; }` post-fix.
     -% groupBody->gOp = (GroupItem*(*)(GroupItem*,GroupItem*))m; %-
+}
+
+/*******************************************************************************
+                                setParseAction
+    // setParseAction the ONE writer for a parseAction, on both roads -- it raises the flag,
+    // setParseAction installs the method as the LEAF undisguised, and says so with hasNewParse
+*******************************************************************************/
+void setParseAction(GroupItem &m(GroupItem))
+{
+RuleStuff   ruleStuff = ensureRStuff();
+    parseACTION = true;
+    if m {
+        ruleStuff.parseMethod = m;
+        hasNewParse           = true; }
 }
 
 void setPointer(void *v)

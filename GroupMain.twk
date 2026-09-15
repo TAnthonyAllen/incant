@@ -96,7 +96,7 @@ GroupRules  ruler = groupRules;
     currentRegistry     = grok;
     member = new("MEMBERs");
     member.method       = processFlags;
-    member.parseACTION  = true;
+    member.setParseAction(processFlags);
     member.isMethod     = true;
     member.unGuarded    = true;
    /**************************************************************************
@@ -278,7 +278,7 @@ GroupRules  ruler = groupRules;
     method          = aCTionCodE;
     guardSet        = new("{");
     guarded         = true;
-    parseACTION     = true;
+    setParseAction(aCTionCodE);
     isRule          = true;
     item            = strap +% grok/leftCurly;
     item.setRuleStuff();
@@ -334,7 +334,7 @@ GroupRules  ruler = groupRules;
     strap           = grok += "DEFINing";
     setRuleStuff();
     method          = processFlags;
-    parseACTION     = true;
+    setParseAction(processFlags);
     unGuarded       = true;
 
     strap           = grok += "TraiT";

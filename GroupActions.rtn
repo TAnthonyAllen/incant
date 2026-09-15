@@ -1385,7 +1385,7 @@ String      name;
             if block.tag eq "immediateAction"
                 immediateACTION   = true;
             or block.tag eq "parseAction"
-                parseACTION       = true; }
+                setParseAction(method); }
         else cerr "setRuleAction: could not set action for",block.tag:; }
     else cerr "setRuleAction: could not set action target":;
     return item;

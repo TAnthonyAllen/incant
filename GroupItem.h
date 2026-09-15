@@ -124,6 +124,7 @@ void setMethod(GroupItem *(*m)(GroupItem *));
 void setNumber(double d);
 void setObject(NSObject *v);
 void setOperat(void *m);
+void setParseAction(GroupItem *(*m)(GroupItem *));
 void setPointer(void *v);
 void setRStuff(RuleStuff *stuff);
 void setRegex(PLGrgx *v);

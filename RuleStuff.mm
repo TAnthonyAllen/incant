@@ -680,17 +680,20 @@ GroupItem 	*ancestor = 0;
 *******************************************************************************/
 extern "C" int testAction(GroupItem *field)
 {
-	/*  notAfterInstall  the fallback is the PRIMARY WRITER of actionMethod for the
-	parseACTION road -- removing it took the fleet 273 -> 13 -- but it reads gMethod,
-	which setParseWalk overwrites with the ENTRY (parseLoop or the leaf). After that
-	overwrite the copy is a category error: it files the entry as the action, and
-	parseAction then calls itself. setParseWalk raises hasNewParse exactly when it
-	installs, so that flag is the "the entry slot is now claimed" signal and the
-	fallback simply stops there. MEASURED on incant/pop/trigDO: it fires on PRINTing
-	three times, twice capturing processFlags -- the real action -- and the THIRD
-	time capturing parseAction.   RuleStuff.testAction.notAfterInstall  */
-	if ( parseACTION(field->groupBody->flags.methodType) && field->groupBody->gMethod && !field->getRStuff()->actionMethod && !field->groupBody->flags.hasNewParse )
-		field->getRStuff()->actionMethod = field->groupBody->gMethod;
+	/*  installedIsTheParse  AN INSTALLED rStuff IS CALLED THROUGH ITS LEAF. Tony's ruling,
+	2026-09-15. A parseAction REPLACES the parse, so it is a leaf and lives in parseMethod
+	undisguised, written at definition by setParseAction -- the ONE writer on both roads.
+	actionMethod holds the rule's real action or null, and null at exit is a no-op.
+	⚠ THE FALLBACK THAT STOOD HERE IS GONE AND F-61 CLOSES BY REMOVAL. It wrote by COPYING
+	gMethod, which setParseWalk overwrites with the ENTRY, so it filed the entry as the
+	action and parseAction called itself. A writer now exists at DEFINITION, which is what
+	the row asked for.
+	⚠ hasNewParse is a groupBody flag and IS copied; rStuff is not -- the guard asks both.
+	RuleStuff.testAction.installedIsTheParse  */
+	if ( field->groupBody->flags.hasNewParse && field->getRStuff() && field->getRStuff()->parseMethod )
+		if ( field->getRStuff()->parseMethod(field) )
+			return 1;
+		else	return 0;
 	if ( field->getRStuff()->actionMethod )
 		if ( parseACTION(field->groupBody->flags.methodType) || !field->getRStuff()->label )
 			if ( field->getRStuff()->actionMethod(field) )

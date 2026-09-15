@@ -141,7 +141,7 @@ attached and `hasNewParsE` was never set.
 **Done when:** F-62 is fixed and this is re-measured — it may go with it. If it does not, the
 question is why a half-built `WardeD` alternative stops `cerr` matching `CerR`.
 
-### F-61 (`actionMethod` has no writer at install time on the parseACTION road) — LATENT
+### F-61 — ✅ **CLOSED 2026-09-15** — `setParseAction` is the writer, and the fallback is gone
 **Gloss:** the action slot is filled late, by a guess. **Severity: LATENT / design.**
 **Owner: Tony.** **Entered 2026-09-14 by ruling; not now.**
 **What:** under the three-slot ruling (gMethod = ENTRY, `rStuff->parseMethod` = LEAF,
@@ -162,6 +162,22 @@ newly red. Banked as `stroke6b.patch`.
 **Done when:** a writer exists at install time for the parseACTION road — the same job
 `builtinActoR` does for the dlsym and `ruleMethod=` roads — after which the fallback is dead and
 can be removed with the fleet unmoved.
+
+⚠⚠ **CLOSED 2026-09-15 BY `setParseAction`, THE ONE WRITER ON BOTH ROADS.** It raises
+`parseACTION`, installs the method as the LEAF in `rStuff->parseMethod` undisguised, and raises
+`hasNewParse`. `setRuleAction`'s `parseAction` arm calls it (the `incant/grammar` road);
+GroupMain's three bare `parseACTION = true` assignments became three calls (the bootstrap road).
+`testAction`'s fallback is **removed**, replaced by *installed ⇒ call the leaf*.
+**Certified:** fleet **299 unmoved row for row**, canary **329**, trigDO exit 0, `GroupItem.h`
+carries `setActions` and `setParseAction`, alphaLint `104 methods, in order`.
+⚠ **AND THE ARM IS NOT DEAD, WHICH IS THE ROW THAT MATTERS:** the replacement fires **63 times
+across exactly the four** — `DEFINing` 22, `CodeBody` 17, `MEMBERs` 13, `PRINTing` 11. It is doing
+all the work the fallback did, so "nothing broke" is not luck.
+⚠ `ensureRStuff()` is used rather than a guarded read, because `MEMBERs` has no `rStuff` at its
+definition site and a writer that silently skips one of its three callers is half a writer.
+
+**THE TWO FAILED ATTEMPTS ARE KEPT BELOW**, because between them they name where the writer does
+NOT go.
 
 ⚠⚠ **THE DEFINITION-TIME WRITER WAS BUILT 2026-09-15 UNDER RULING AND IS NOT LANDED — IT TOOK THE
 FLEET 299 → 27.** Built exactly as ruled: the rule's own method installed **undisguised** into
