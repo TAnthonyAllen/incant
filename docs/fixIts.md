@@ -163,6 +163,31 @@ newly red. Banked as `stroke6b.patch`.
 `builtinActoR` does for the dlsym and `ruleMethod=` roads — after which the fallback is dead and
 can be removed with the fleet unmoved.
 
+⚠⚠ **THE DEFINITION-TIME WRITER WAS BUILT 2026-09-15 UNDER RULING AND IS NOT LANDED — IT TOOK THE
+FLEET 299 → 27.** Built exactly as ruled: the rule's own method installed **undisguised** into
+`rStuff->parseMethod` at definition on both roads (`setActionMethod` for the GroupMain rules,
+`setRuleAction`'s `parseAction` arm for the `incant/grammar` ones), `hasNewParse` raised there, and
+`testAction`'s fallback **removed** in favour of *"installed ⇒ call the leaf"*.
+
+**The collapse is total and immediate:** `oneTest` dies on its FIRST statement —
+`RunRulE: expected a method not include` — and trigDO returns to 139.
+
+⚠ **THE CAUSE IS AN INTERACTION WITH THE SAME DAY'S OTHER RULING, AND IT IS THE INTERESTING PART.**
+`setParseWalk` now returns immediately on any rStuff carrying `hasNewParse` (the propagation guard,
+landed in `9785324`). Raising that flag at **definition** therefore means the walk **never enters a
+parseACTION rule at all — and so never descends into its children.** Whole subtrees lose their
+parseMethods. The two rulings are individually sound and compose into a walk that skips most of the
+grammar: *installed* now means two different things — *"this node is done"* and *"this node and
+everything under it is done"* — and only the first is true.
+
+**What that does NOT settle:** whether the writer belongs at definition at all. It may simply need
+the flag raised somewhere the walk still descends, or a second mark that distinguishes *node
+installed* from *subtree installed*. Unmeasured; nobody has tried it.
+
+**Also measured before the attempt, and it stands:** with the fallback still in place the fires are
+**7 across 4 rules — `PRINTing` 3, `DEFINing` 2, `CodeBody` 1, `MEMBERs` 1.** That is F-61's live
+scope. Reverted; tree at fleet 299, canary 329, trigDO exit 0.
+
 ### F-60 (`parseRule carries NO parked actions` under the 4b patch) — a VARIANT regression, not a standing defect
 **Gloss:** the parked-action census empties under the slot split. **Severity: BLOCKS the stroke.**
 **Owner: Tony.** **Entered 2026-09-14 by ruling.**
