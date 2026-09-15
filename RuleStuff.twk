@@ -204,7 +204,12 @@ GroupItem   field = rule;
                 label.isLabel   = true; }
             else label.fLAG     = false;
             if !label.rStuff || ruleName ne tag label.setRStuff(this);
-            if hasNewParse && isMember  parent.rStuff.label = label; }
+            // enclosingActivation this write hands the label UP to the enclosing rule's stuff,
+            // enclosingActivation and a TOP-LEVEL rule's parent is the REGISTRY, which lawfully has
+            // enclosingActivation none -- so refuse by name rather than dereference a null
+            if hasNewParse && isMember {
+                if parent && parent.rStuff  parent.rStuff.label = label;
+                else    refuse(field,"checkInput: no enclosing activation to take the label"); } }
 checkFailed:
     return sukcess;
 }

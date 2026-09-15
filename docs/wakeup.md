@@ -237,6 +237,66 @@
 #   not in the binary, and the probe reported a DIFFERENT crash. Bear-trap #49's family. The
 #   tell was the measurement disagreeing with the previous run.
 #
+#   ## ⚠⚠⚠ RELANDED 2026-09-15. trigDO 139 -> 0, REFUSALS 60 -> 0, FLEET UNMOVED AT 299.
+#   ## ONE CERTIFICATE CLAUSE IS UNMET AND IT IS NAMED: THE ROWS READ 0/0/0, NOT 1/0/1.
+#
+#   **WHAT `actionMethod = method;` WAS, read before it was removed.** `method` is `gMethod`
+#   -- it generated `ruleStuff->actionMethod = field->groupBody->gMethod;`. It entered in
+#   `5f24cf3` (2026-09-14) inside Tony's offline parser arc, and it was aimed at **F-61**: on
+#   the `parseACTION` road nothing publishes a `builtinActoR`, so `actionMethod` had no writer
+#   at install time and was being filled late and opportunistically by `testAction`'s
+#   fallback, which copies `gMethod` -- and since `setParseWalk` overwrites `gMethod` with the
+#   parse executor, that fallback had been caught filing `parseAction` as the action and
+#   recursing. Capturing `gMethod` at the TOP of the walk, before the ladder overwrites it,
+#   was meant to snapshot the real action while it was still there.
+#
+#   ⚠⚠ **IT DID NOT SNAPSHOT THE ACTION, IT ERASED IT -- AND THEN IT PROPAGATED THE EXECUTOR.**
+#   Measured on `NamE`: THREE visits, ONE field (`0x10444bbc0`), ONE rStuff (`0x104e00cf0`):
+#
+#       visit 1   g=0x0        hasNewParse=0   oldAction=0x1041cf184  -> writes 0x0
+#       visit 2   g=parseRule  hasNewParse=1   oldAction=0x0          -> writes parseRule
+#       visit 3   g=parseRule  hasNewParse=1   oldAction=parseRule    -> writes parseRule
+#
+#   Visit 1 wrote NULL over the real action. Visits 2 and 3 copied the ENTRY into the ACTION
+#   slot, and `parseRule` firing `parseRule` is the unbounded recursion.
+#
+#   ⚠ **AND `parseWalked` DID NOT STOP VISITS 2 AND 3 BECAUSE IT IS PER-WALK, NOT PER-PROCESS.**
+#   Three passes, three visits, and on visits 2 and 3 the slots are POST-install. That is
+#   exactly the ruling's second clause, and `hasNewParse` is now the mark that answers it.
+#
+#   ## ITEM 4 -- IS hasNewParse RAISED ON NamE, AND WHY IS gMethod EMPTY
+#
+#   **Raised: YES**, on visits 2 and 3, by visit 1's own install. **gMethod empty:** the nodes
+#   `parseRule` actually RECEIVES are not the walked node. They are freshly minted labels --
+#   `isCopy=0`, a new 64-byte node each turn -- carrying the master's rStuff (`0x104e00cf0`,
+#   identical) over **their own empty body**, so `g=0` while `parse` and `action` both read
+#   `parseRule`. `runRule` would refuse that by name; the `exitFromParse` road reached it
+#   without asking.
+#
+#   ## ITEM 3b -- F-61 IS **NOT** CLOSED BY REMOVAL. SEVEN FIRES, FOUR RULES.
+#
+#       PRINTing 3 . DEFINing 2 . CodeBody 1 . MEMBERs 1
+#
+#   So `testAction`'s fallback is still the only writer of `actionMethod` for those four on the
+#   parseACTION road. **That is F-61's remaining scope, named.** Reported, not fixed.
+#
+#   ## ⚠⚠ THE ONE UNMET CLAUSE, AND IT IS NOW A NAMED REFUSAL INSTEAD OF A SEGFAULT
+#
+#   `Generating parse code for DO` . `compile succeeded for DO` . both arm headers print .
+#   `TRIG SENTINEL` reached. **But no LABELPROBE and no attachLabel**, and the reason is one
+#   line on stderr:
+#
+#       REFUSED BlocK -- checkInput: no enclosing activation to take the label
+#
+#   `BlocK` carries `hasNewParse`, is a MEMBER, and its parent is the REGISTRY -- so there is
+#   no enclosing activation to hand the label to. The guard turns what was an EXC_BAD_ACCESS
+#   into a refusal that names its subject. **That refusal is the whole remaining distance to
+#   1/0/1.**
+#
+#   ⚠ **AND F-60's PRE-AUTHORISED RE-PIN WAS NOT NEEDED.** With the installed-guard in place the
+#   walk no longer re-enters installed nodes, so the twelve parked-action classifications never
+#   happen and the row stays green at 0. The fleet is unmoved at 299, row for row.
+#
 #   ## ⚠⚠ WAITING ON TONY -- trigDO's THREE ROWS. NO REPAIR UNTIL HE READS THEM.
 #
 #   **They are ONE fact wearing three rows.** The fixture now RUNS to its foot and

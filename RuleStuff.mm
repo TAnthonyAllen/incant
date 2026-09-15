@@ -1211,8 +1211,15 @@ GroupItem 	*field = rule;
 			else	label->groupBody->flags.fLAG = 0;
 			if ( !label->getRStuff() || ::compare(ruleName,field->groupBody->tag) != 0 )
 				label->setRStuff(this);
+			// enclosingActivation this write hands the label UP to the enclosing rule's stuff,
+			// enclosingActivation and a TOP-LEVEL rule's parent is the REGISTRY, which lawfully has
+			// enclosingActivation none -- so refuse by name rather than dereference a null
 			if ( field->groupBody->flags.hasNewParse && isMember(field->options.affiliation) )
-				field->parent->getRStuff()->label = label;
+				{
+				if ( field->parent && field->parent->getRStuff() )
+					field->parent->getRStuff()->label = label;
+				else	::refuse(field,"checkInput: no enclosing activation to take the label");
+				}
 			}
 checkFailed:
 	return sukcess;
