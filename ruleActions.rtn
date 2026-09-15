@@ -335,7 +335,7 @@ use NewGroup
         // ruleMethodCheck the arms are ordered, not interchangeable.
         if isRule && !parseACTION && !isREGISTRY {
             if !rStuff          rStuff = new(NewGroup);
-            NewGroup.setActionMethod(); }
+            NewGroup.setActions(); }
     // embeddedRuleCopy embedRule() copies an embedded RULE
     if isRule && groupList
         while item = NewGroup.nextAttribute(item)

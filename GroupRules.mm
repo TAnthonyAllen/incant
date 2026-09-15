@@ -495,7 +495,7 @@ GroupItem 	*item = 0;
 		{
 		if ( !NewGroup->getRStuff() )
 			NewGroup->setRStuff(new RuleStuff(NewGroup));
-		NewGroup->setActionMethod();
+		NewGroup->setActions();
 		}
 	// embeddedRuleCopy embedRule() copies an embedded RULE
 	if ( NewGroup->groupBody->flags.isRule && NewGroup->groupBody->groupList )

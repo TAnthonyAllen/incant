@@ -64,7 +64,7 @@ attributes at all and both flags read 0 -- agreement. TF-2 went 52 -> 49 and TF-
 
 ⚠⚠ THE TWO SURVIVORS ARE A DIFFERENT CAUSE, AND THEY WERE NAMED BEFORE THE BUILD RATHER
 THAN EXPLAINED AFTER IT. ShortcuT and StatemenT disagree because their only ATTRIBUTE is
-`builtinActoR`, which setActionMethod publishes noPrint on every rule carrying a dlsym-able
+`builtinActoR`, which setActions publishes noPrint on every rule carrying a dlsym-able
 action. A rule whose attributes are all noPrint reads hasAttributeS 1 / hasTraitS 0 whatever
 the packet does. Measured per attribute, with affiliation, before the removal was built:
 

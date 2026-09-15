@@ -1863,12 +1863,12 @@ GroupItem 	*action = 0;
 }
 
 /*******************************************************************************
-                                setActionMethod
-    setActionMethod adds builtinActoR to contain rule action method. It is not
+                                setActions
+    setActions adds builtinActoR to contain rule action method. It is not
     a setter. The actionMethod field in rStuff gets set from it in
     fireLabelMethod
 *******************************************************************************/
-void GroupItem::setActionMethod()
+void GroupItem::setActions()
 {
 RuleStuff 	*ruleStuff = getRStuff();
 	if ( getAttribute("builtinActoR") )
@@ -1876,13 +1876,34 @@ RuleStuff 	*ruleStuff = getRStuff();
 	if ( isCoded(groupBody->flags.actionType) )
 		setMethod(::processAction);
 	else
+	if ( parseACTION(groupBody->flags.methodType) && groupBody->gMethod )
+		{
+		/*  parseIsTheLeaf  A parseAction REPLACES THE PARSE. It is a LEAF, not an action, so it
+		is installed UNDISGUISED in rStuff.parseMethod here at definition and hasNewParse
+		says so. actionMethod holds the rule's real action or null; null at exit is a no-op.
+		⚠ IT IS AN ARM, NOT A PREAMBLE, and that is the whole difference from the attempt
+		that took the fleet to 27: a parseAction rule takes THIS arm INSTEAD of publishing a
+		builtinActoR, rather than doing both.
+		⚠ AND THE PROSE SITS INSIDE THE ARM, NOT ABOVE THE `or`, because a block comment in
+		that gap is bear-trap #29 and it killed this whole ClassBlock on the first cut.
+		⚠⚠ MEASURED 2026-09-15 AND IT DOES NOT FIRE TODAY: setActions is called NINETY times
+		on incant/pop/trigDO and NOT ONCE with parseACTION set. Nothing sets that flag before
+		this method runs -- GroupMain assigns it directly on nodes setActions is never called
+		for, and setRuleAction sets it where this method has already been and gone. The arm is
+		RIGHT AND UNREACHABLE; the site does not carry the population, and the real sites are
+		the two that SET parseACTION.   GroupItem.setActions.parseIsTheLeaf  */
+		if ( ruleStuff )
+			ruleStuff->parseMethod = groupBody->gMethod;
+		groupBody->flags.hasNewParse = 1;
+		}
+	else
 	if ( !isMethod(groupBody->flags.instructType) )
 		{
 		char 	*methodName = ::concat(2,"aCTion",groupBody->tag);
 		void 	*methodAddress = 0;
 		if ( methodAddress = ::dlsym(RTLD_SELF,methodName) )
 			{
-			// markThenAdd noPrint is set BEFORE the node is attached, because addAttribute reads it at the instant of adding to decide hasTraits -- marking after is always too late (fixIts F-58)   GroupItem.setActionMethod.markThenAdd
+			// markThenAdd noPrint is set BEFORE the node is attached, because addAttribute reads it at the instant of adding to decide hasTraits -- marking after is always too late (fixIts F-58)   GroupItem.setActions.markThenAdd
 			GroupItem *builtinActoR = new GroupItem("builtinActoR");
 			builtinActoR->groupBody->flags.noPrint = 1;
 			builtinActoR->setRStuff(ruleStuff);
@@ -1896,7 +1917,7 @@ RuleStuff 	*ruleStuff = getRStuff();
 	else
 	if ( groupBody->gMethod )
 		{
-		// registeredActor a ruleMethod= registration has ALREADY set gMethod, so the dlsym arm is skipped and NOTHING publishes the actor   GroupItem.setActionMethod.registeredActor
+		// registeredActor a ruleMethod= registration has ALREADY set gMethod, so the dlsym arm is skipped and NOTHING publishes the actor   GroupItem.setActions.registeredActor
 		void *actorAddress = (void*)groupBody->gMethod;
 		// markThenAdd as the dlsym arm above -- noPrint before the attach, never after (fixIts F-58)
 		GroupItem *builtinActoR = new GroupItem("builtinActoR");

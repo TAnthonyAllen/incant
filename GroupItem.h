@@ -110,7 +110,7 @@ GroupItem *remove(char *name);
 GroupItem *replace(GroupItem *argument);
 char *resolvedTag();
 GroupItem *runNotified(GroupItem *notifier);
-void setActionMethod();
+void setActions();
 void setBuffer(Buffer *b);
 void setCharacter(char c);
 void setCharacterSet(PLGset *set);

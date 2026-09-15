@@ -1564,7 +1564,7 @@ fi
 #
 #  ⚠⚠ THE TWO SURVIVORS ARE A DIFFERENT CAUSE AND WERE NAMED BEFORE THE BUILD.
 #  ShortcuT and StatemenT disagree because their only attribute is `builtinActoR`,
-#  which setActionMethod publishes noPrint on every rule with a dlsym-able action.
+#  which setActions publishes noPrint on every rule with a dlsym-able action.
 #  A rule whose attributes are ALL noPrint reads hasAttributeS 1 / hasTraitS 0
 #  whatever the packet does -- measured per attribute, with affiliation:
 #      ShortcuT    builtinActoR/nP=1/attr=1
