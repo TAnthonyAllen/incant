@@ -5,7 +5,7 @@ search GroupFields Utilities list;
 
 register(Utilities);
 define
-    tpPending; tpRows=0; tpTrue=0; tpNot; tpV; tpBag; tpOuter; tpNode; tpMark; tpSlot; tpRead;
+    tpName; tpPending; tpRows=0; tpTrue=0; tpNot; tpV; tpBag; tpOuter; tpNode; tpMark; tpSlot; tpRead;
 
     tpSeed code={
         clear(tpBag);
@@ -18,16 +18,26 @@ define
         tpOuter +% *tpInner;
         tpNode := new("extra");
         *tpNode = 1;
-        tpMark := new("bare");
+        };
+    tpMintRow code={
+        // tpMintRow ONE marker per row, tagged with the row's own slug, and tpSlot points at the
+        // tpMintRow ATTACHED COPY because +% copies. Called from tpTestResult for the ordinary
+        // tpMintRow rows and directly by the two INVERTED rows, which never reach tpTestResult
+        tpMark := new(argument);
         *tpMark = 0;
         tpPending +% *tpMark;
-        tpSlot := tpPending["bare"];
+        tpSlot := tpPending[argument];
         tpRows = tpRows + 1;
         };
     tpTestResult code={
+        tpName := argument.taG;
+        tpMintRow(*tpName);
         if *tpRead == argument; *tpSlot = 1;
         if *tpSlot == 1;        tpTrue = tpTrue + 1;
-        cerr "ROW" taG "WANT" argument "GOT " *tpRead:;
+        // rowLabelIsCaptured tpMintRow sits between the capture and this line, and lastREF
+        // rowLabelIsCaptured answers WHAT WAS REFERENCED LAST, calls included -- so a bare taG
+        // rowLabelIsCaptured here prints the string taG. Capture, then call, then read the capture
+        cerr "ROW" *tpName "WANT" argument "GOT " *tpRead:;
         };
     tpAssignBare code={
         // tpMark := new("assignBare"); tpPending +% *tpMark; writes the target outright. A bare name IS the field.
@@ -213,6 +223,8 @@ define
         // first and clears the mark on the line AFTER the statement, which only runs if
         // the statement did NOT refuse. A refusal is terminal for the action, so the mark
         // survives exactly when the refusal happened.
+        tpMintRow("absentBump");
+        *tpSlot = 1;
         tpTrue = tpTrue + 1;
         cerr "ROW absentBump -- wants a refusal, and prints nothing after it":;
         ++tpNever;
@@ -226,6 +238,8 @@ define
         // first and clears the mark on the line AFTER the statement, which only runs if
         // the statement did NOT refuse. A refusal is terminal for the action, so the mark
         // survives exactly when the refusal happened.
+        tpMintRow("absentStep");
+        *tpSlot = 1;
         tpTrue = tpTrue + 1;
         cerr "ROW absentStep -- wants a refusal, and prints nothing after it":;
         --tpNever;

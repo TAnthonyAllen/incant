@@ -2249,15 +2249,37 @@ fi
 #  the absence of a line). When it falls, lower TPWANT in the same commit with a sentence
 #  naming which rows graduated -- that is rule H6, and a ratchet that is never tightened
 #  is just a pin that stopped meaning anything.
-TPWANT=12
+#  ⚠⚠ RE-BASELINED 12 -> 8 ON 2026-09-15, AND IT IS NOT FOUR GRADUATIONS. The fixture's
+#  per-row marker had collapsed into ONE shared latch, so every row after the first success
+#  counted true and tpTrue outran tpRows: the printed number was -8 of 27 against 35 real
+#  rows. Repairing it changed BOTH the numerator and the denominator -- rows counted went
+#  33 -> 35 when the two inverted rows started minting a marker of their own -- so 8 is a
+#  reading on a repaired instrument and NOT a distance travelled from 12. Nothing graduated.
+#  The eight still pending, named so the next move is checkable: addAttrDot, addAttrStarsub,
+#  addAttrSub, addMemberDot, addMemberSub, minusMinusStar, plusPlusStar, plusPlusStarsub.
+#  ⚠ THE TWO CHANNELS NOW AGREE -- eight markers printed and eight counted. They did not
+#  before: the two INVERTED rows (absentBump, absentStep) count themselves true on a refusal
+#  and never set their own marker, so they showed as pending while counting as true. They
+#  now mark their slot where they bump the counter, and marker-count and counter say 8 each.
+TPWANT=8
 run2 testPrecedence "$T/tp.o" "$T/tp.e"; check "testPrecedence runs" 0 $?
 sentinel "testPrecedence sentinel (no truncation)" "$T/tp.e" "PRECEDENCE SENTINEL"
-_tpn=$(sed -n 's/.*PRECEDENCE ROWS NOT YET TRUE = *//p' "$T/tp.e" | sed 's/[^0-9].*//' | head -1)
+#  ⚠ THE EXTRACTOR READS A LEADING MINUS, AND A NEGATIVE COUNT IS LOUD. It used to strip
+#  with `s/[^0-9].*//`, which CANNOT PARSE A MINUS SIGN: a `-8` came back as the EMPTY
+#  STRING, so the row reported "the map ran but said nothing" -- an instrument reporting
+#  SILENCE for the one reading that most needed saying. The count went negative because the
+#  fixture's per-row marker had collapsed into a shared latch, so tpTrue outran tpRows; that
+#  is fixed in the fixture, and this is the half that makes the next occurrence audible.
+_tpn=$(sed -n 's/.*PRECEDENCE ROWS NOT YET TRUE = *//p' "$T/tp.e" | sed 's/[^-0-9].*//' | head -1)
 #  the TOTAL is read from the fixture too -- a hardcoded one goes stale the first time a
 #  row is added, and then the row reports a true count against a false denominator
-_tpt=$(sed -n 's/.*PRECEDENCE ROWS NOT YET TRUE = *[0-9]* of *//p' "$T/tp.e" | sed 's/[^0-9].*//' | head -1)
+_tpt=$(sed -n 's/.*PRECEDENCE ROWS NOT YET TRUE = *-*[0-9]* of *//p' "$T/tp.e" | sed 's/[^-0-9].*//' | head -1)
 if [ -z "$_tpn" ]; then
     echo "  FAIL  testPrecedence reported no count -- the map ran but said nothing"; fail=1
+elif [ "$_tpn" -lt 0 ]; then
+    echo "  FAIL  testPrecedence reported a NEGATIVE count: $_tpn of $_tpt"
+    echo "        tpTrue has outrun tpRows, which means the per-row markers are sharing a"
+    echo "        slot again -- the number is printed rather than swallowed, on purpose."; fail=1
 elif [ "$_tpn" -le "$TPWANT" ]; then
     echo "  ok    testPrecedence $_tpn of $_tpt rows not yet true (ratchet: $TPWANT)"; green=$((green+1))
     if [ "$_tpn" -lt "$TPWANT" ]; then
