@@ -1073,3 +1073,34 @@ unreadable by eye:**
 then measured rather than assumed — and the full sweep is a far stronger instance of that
 measurement than the two-method experiment was: **sixty-nine methods moved in the source and the
 generated code did not move a byte.**
+
+## ⚠ RATIFIED 2026-09-15 — BOTH RULES GO INTO `CLAUDE.md`, AND THE TRIAL HAS ITS ANSWER ON ONE OF THEM
+
+Tony ratified the two rulings this sweep produced into the conventions, and into the comment
+minion's charter when that is written:
+
+1. **The inline form is `// slug sentence?`** — slug required, sentence optional, **dotted path
+   never inline**. Where an entry exists to forbid something, the sentence carries the forbid.
+2. **The header split is argument versus description** — move what argues (a why, a history, a
+   measurement, a forbid), keep what describes. **Explicitly not a size rule.**
+
+⚠ **THE TRIAL'S OWN QUESTION IS NOW HALF-ANSWERED, AND IT IS THE HALF NOBODY EXPECTED.** The tally
+was built to ask *was the pointer ever followed* — and the lookups column is still thin. What the
+sweep settled instead is a **different** question the trial had not posed: *can the split be applied
+mechanically, or does every comment need a judgement?* The census says mechanically. Sixty-five
+mid-sized headers scanned for argument markers returned **nothing**, so the two populations do not
+overlap in practice, and a minion can run this without ruling on anything.
+
+**That is worth more than the lookups number**, because it is what decides whether a minion can be
+written at all — and it is a measurement rather than an opinion, which the lookups column still is
+not.
+
+## ⚠ AND THE ALPHA PASS PICKED UP `measure.twk`'s THREE DRIFTS — WITH A CLEANER PROOF THAN `GroupItem` COULD OFFER
+
+13 of 28 externs changed position and **`measure.mm` and `measure.h` came back byte-identical, md5
+for md5.** `GroupItem.twk` could not show that, because its reorder rode in a commit that also moved
+comments, so the `.mm` legitimately changed and the proof had to be `codeOnly.py`. Here nothing
+moved at all, so the md5 *is* the proof — the strongest available statement that **tok sorts its own
+output and source order is not an input.**
+
+    alphaLint -- 2 file(s) examined, 0 out-of-order method(s), 0 broken unit(s)

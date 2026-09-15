@@ -120,10 +120,23 @@ for a build**, and the check is one `ls`:
 | `TOK-dunathwfzpvwdxcoubekdzzjoxid` | **yes** — and `~/bin/incant` symlinks to it |
 | `InProcess-ezzmcllcsvijqmbipricnduikqfp` | **no `Build/Products` at all**, only an index and logs |
 
-**Nothing has ever been built through the workspace**, so a workspace build would write a
-fresh product tree that the symlink does not point at — and the fleet would go on
-measuring the old binary. That is rule **H1**'s exact hazard: *a stale binary does not
-fail as a diff*; the first symptom is a hang or an inexplicable green.
+⚠⚠ **CORRECTED 2026-09-15, SAME DAY, AND THE CORRECTION IS THE USUAL FAMILY.** This entry
+first read *"nothing has ever been built through the workspace"* — inferred from *"no
+`Build/Products` today"*, which is not the same claim. **It is falsified by this project's
+own record**: `docs/wakeup.md`'s run recipe of **2026-06-30** (`095bcb1`) names
+`xcodebuild -workspace InProcess.xcworkspace -scheme Groups` and gives the binary as
+`DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/…/Groups`. So the workspace **can**
+build it and **did**; that product tree has since been cleaned. An absence measured today
+is not a history, and one `git log -S` was the check.
+
+**The hazard is unchanged and does not depend on the wrong half.** `~/bin/incant` points at
+the **TOK-\*** tree and has since 2026-05-20, so a workspace build puts a fresh binary
+somewhere the symlink does not look — and the fleet goes on measuring the old one. That is
+rule **H1**'s exact hazard: *a stale binary does not fail as a diff*; the first symptom is
+a hang or an inexplicable green. ⚠ **And the 06-30 recipe is the proof that this can
+happen rather than a counter-example to it**: its `Binary:` line names the workspace
+product while the symlink already pointed elsewhere, so two binaries existed and the
+recipe named the one the fleet was not running.
 
 **THE RULE: build with `xcodebuild -project TOK.xcodeproj -scheme Groups -configuration
 Debug`, and let `pop.sh`'s own binary echo be the proof.** It prints the path, size and
@@ -1145,6 +1158,31 @@ and under the method's DesignDocs entry, a child `frameLift` holding the full te
 **THE INLINE LINE CARRIES THE CLAIM; THE DOC CARRIES THE ARGUMENT.** A bare `parseRule.frameLift` is
 a pointer, and **a pointer is not a warning**. The line states the thing a reader at the edit site
 must not miss, *then* the key. The why, the history and the measurement go under the key.
+
+⚠⚠ **THE INLINE FORM IS `// slug sentence?` — RULED 2026-09-15 (Tony), AND THE DOTTED PATH IS NEVER
+INLINE.** Slug **required**, sentence **optional**, path **never**: DesignDocs is keyed
+`File.method.slug` and a reader at the edit site already holds the first two, so writing them again
+is ceremony. ⚠ **Where an entry exists to FORBID something, the sentence carries the forbid** —
+that is what answers the too-short test, and it answers it better than the spelling it replaces,
+which paid for the path on every line and left the *claim* optional. **What is lost is named rather
+than glossed:** you can no longer spot a *drifted* block by reading its path, which was the
+instrument that found ten adrift in `genParse.rtn`. Accepted — a block with no path cannot be wrong
+about one.
+
+⚠⚠ **AND THE SPLIT IS ARGUMENT-VERSUS-DESCRIPTION, NOT SIZE. RULED 2026-09-15 (Tony), and it goes
+into the comment minion's charter when that is written.**
+
+> **MOVE what ARGUES** — a why, a history, a measurement, a forbid.
+> **KEEP what DESCRIBES** — what the method does, what its parameters mean.
+
+**A size rule cannot do this job and the census is why.** Sweeping `GroupItem.twk`'s 102 methods:
+of the twelve headers at six lines or more, **four are plain descriptions and stayed**
+(`dumpField`, `matches`, `sort`, `compareAttribute`), and `walk`'s eight lines are a parameter
+contract and stayed. Meanwhile **`allAttributesOptional` is nine lines and moved**, because all nine
+reason about why an rStuff-less attribute must count as mandatory. Seven moved, seventy stayed.
+⚠ **And the split is cheap to apply rather than judged case by case:** a scan of all sixty-five
+mid-sized headers for argument markers — ⚠, *measured*, *ruling*, a date, a name — **returned
+nothing**, so the two populations do not overlap in practice.
 ⚠ **THE TOO-SHORT TEST: if the one-line version would let someone break the invariant without
 reading the doc, the line is too short.** Bear-trap markers and *"THIS LINE IS ITS SINGLE WRITER"*
 are the calibration.
@@ -2672,6 +2710,20 @@ direction the campaign might take, it is a state the machinery must report as a 
 > **The checklist, and all of it every time:** `pop.sh` · `decodePop.sh` · `ddPop.sh` ·
 > `countPop.sh` · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **both repos clean and pushed, with no exception clause.**
+>
+> ⚠⚠ **AND TWO HYGIENE-TIER INSTRUMENTS THAT ARE NOT ON THAT CHECKLIST AND MUST NOT BE —
+> `genLadder/alphaLint.sh` AND `genLadder/codeOnly.py`.** Standing instruments as of
+> 2026-09-15 (Tony), report tier: **a style drift or a formatting claim must never be able to
+> fail the correctness gate.** They are run when a stroke makes the claim they certify.
+>
+> **`codeOnly.py <file>` strips C and C++ comments, string- and escape-aware, and normalises
+> blank lines.** Its whole job is to turn *"the generated `.mm` diff is comment-only"* from an
+> eyeball into a `diff`. ⚠ **It exists because the eyeball had already been used three times in
+> one day** and a 275-line header sweep is precisely where reading a diff and seeing prose stops
+> being evidence. **Any stroke that claims comment-only, or claims a reorder is inert, runs it and
+> quotes the line count both sides.** The `GroupItem.twk` sweep is the worked example: 69 of 103
+> methods changed position in the source and the code-only bytes read **1768 lines, identical** —
+> which is a claim no amount of careful reading could have made.
 >
 > ⚠ **THE "BUT FOR TONY'S TWO NAMED FILES" CLAUSE RETIRED 2026-09-02, AND ITS RETIREMENT IS THE
 > QUIET PAYOFF OF UNTRACKING THEM.** From mid-August until that date every seal read *"clean and

@@ -9643,6 +9643,16 @@ sh genLadder/tree.sh    # §2.4 tree fixture — asserts the OPEN divergence is 
 wrong once; this exists so nobody does that again.
 
 ## Run recipe / reproduce
+⚠⚠ **THE BUILD AND BINARY LINES BELOW ARE SUPERSEDED (Tony, 2026-09-15). THEY ARE LEFT
+VERBATIM BECAUSE THEY WERE TRUE WHEN WRITTEN** — rewriting a dated record to match a later
+convention falsifies it, and this pair is now *evidence* rather than instruction. Build
+through `TOK.xcodeproj / scheme Groups`; the measured door and its table are in CLAUDE.md's
+Build Workflow. ⚠ **These two lines are also what corrected that CLAUDE.md entry the day it
+was written**: it had claimed nothing was ever built through the workspace, and this recipe
+says otherwise. What makes the pair worth keeping is that its `Binary:` line names the
+**workspace** product while `~/bin/incant` already pointed at the `TOK-*` tree — so two
+binaries existed and the recipe named the one the fleet was not running, which is exactly
+the hazard the replacement guards.
 - Binary: `~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups`.
 - Build: `cd ~/Library/CloudStorage/Dropbox/data/InProcess && xcodebuild -workspace
   InProcess.xcworkspace -scheme Groups -configuration Debug build`.
