@@ -48,7 +48,7 @@ define
         print :;
         };
     htRun code={
-        htSeen = 0;  htAttrs = 0;  htTraits = 0;  htDisagree = 0;  htBoth = 0;
+        htSeen = 0;  htAttrs = 0;  htTraits = 0;  htDisagree = 0;  htBoth = 0; htNeither = 0;
         htWalk(Grokking);
         cerr "HT-1 rules seen                   = " htSeen:;
         cerr "HT-2 carrying hasAttributeS       = " htAttrs:;

@@ -908,20 +908,8 @@ returnGuard:
 }
 
 /*******************************************************************************
-    ensureRStuff — THE CONSTRUCTING HALF, SPLIT OUT AND NAMED. 2026-08-31.
-
-    Byte-for-byte the body getRStuff used to carry, moved behind a verb that
-    says what it does. ONE CHANNEL, ONE MEANING: `get` reads, `ensure` mints,
-    and no site can silently get the second while asking for the first.
-
-    ⚠ IT IS NOT `setRuleStuff`, AND THE DIFFERENCE IS NOT COSMETIC. setRuleStuff
-    also sets isRule, and carries a second arm — `or rule != this` — that
-    RE-CLONES an rStuff belonging to another node. That arm is the master/face
-    seam, and adopting it here would change behaviour at three call sites in the
-    same stroke that removes the construction from the getter, making any
-    regression indistinguishable from the refactor. Whether those three sites
-    WANT setRuleStuff's re-clone is a live question and now a visible one; it is
-    deliberately not answered here.
+                                ensureRStuff
+    // ensureRStuff see entry in DesignDocs
 *******************************************************************************/
 RuleStuff *GroupItem::ensureRStuff()
 {
@@ -1008,36 +996,8 @@ GroupItem 	*group = this;
     Treat this field as a rule and match it against the input stream.
 ***************************************************************************/
 /***************************************************************************
-    fireLabelMethod — THE RULE ACTION, and the ONLY site that fires one.
-
-    GX-1, 2026-08-06. Extracted verbatim from parse()'s match loop so that the
-    interpretive arm and the generated arm RUN THE SAME CODE rather than
-    carrying two carefully-matched copies. That is the same principle parse()'s
-    own S1.3 comment already states about the shared exit — "the generated path
-    matches the interpretive path because it RUNS the same exit, not because the
-    exit was copied carefully" — applied one region further up. The defect this
-    closes was precisely that the shared region STARTED TOO LATE: it began at
-    generatedExit, so the action layer sat outside it and the generated arm's
-    `goto` jumped clean over the rule action.
-
-    ⚠ MEASURED CONSEQUENCE OF THE GAP, TWO SPECIMENS, BOTH SHAPE-IDENTICAL:
-    `Braced` (2026-08-05) and `Parens` (2026-08-06) each parsed correctly,
-    attached their term under the right label, HIT and WIN — and their actions
-    never ran. corpus GM-16 / GM-17. Parens was catastrophic rather than subtle
-    only because of where it sits in the grammar: every parenthesised
-    invocation goes through it, so `include(x)` invoked `include` with no
-    argument and every fixture died on its first statement.
-
-    ⚠ NO RETURN VALUE, AND THAT IS DELIBERATE. Both things this can change --
-    the label and the success flag -- live on the RuleStuff, so it mutates them
-    in place and reports nothing. The tempting shape, "return the label, null
-    means failure", is WRONG here and quietly so: RuleStuff.twk:181 sets
-    `label = 0` for a `noLabel` rule ON SUCCESS, so a null label means "this
-    rule has no label" AND "the method failed" — one channel, two meanings, the
-    failure family this project has paid for repeatedly. Nothing is returned,
-    so there is nothing to conflate.
-
-    Not in groups.ext: called only from parse(), in this file.
+                                fireLabelMethod
+    // fireLabelMethod has a long entry in DesignDocs
 ***************************************************************************/
 void GroupItem::fireLabelMethod(RuleStuff *stuff)
 {
@@ -1049,20 +1009,11 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 			stuff->actionMethod = builtinActoR->groupBody->gMethod;
 		}
 	ruler->ruleSTUFF = stuff;
-	/*  THE COLLISION PROBE, 2026-08-25, assertion 5 of the label-seam brief.
-	fixIts row 1 predicts that adding a capture at runRuleAction gives a
-	rule reached through parse()'s FORK a second one here -- capture,
-	action, capture, action -- with this one reading getStuff(pStuff),
-	which may be a re-entrancy CLONE whose hereAt is not the rule's own.
-	The prediction is inferred rather than measured, so it is instrumented
-	rather than designed around. Reports the tokened bit and the stuff
-	identity in POINTERS, because the whole question is WHICH stuff.  */
-	if ( ruler->parseTrace )
-		::fprintf(stderr,"  CAPFIRE fireLabelMethod %s tokened=%s\n",groupBody->tag,::toStringFromInt(groupBody->flags.tokened != 0));
+	// collisionProbe
+	::measureFireLabelEntry(this);
 	if ( groupBody->flags.tokened )
 		captureSpan(stuff);
-	if ( ruler->parseTrace )
-		::fprintf(stderr,"  fireLabelMethod %s isMethod=%s label=%s deferred=%s parseACTION=%s\n",groupBody->tag,::toStringFromInt(isMethod(groupBody->flags.instructType) != 0),::toStringFromInt(stuff->label != 0),::toStringFromInt(groupBody->flags.deferred != 0),::toStringFromInt(parseACTION(groupBody->flags.methodType) != 0));
+	::measureFireLabelFork(this,stuff->label);
 	if ( stuff->actionMethod && stuff->label )
 		{
 		if ( groupBody->flags.deferred )
@@ -1075,21 +1026,10 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		else
 		if ( !parseACTION(groupBody->flags.methodType) )
 			{
-			/*  LA''-5 RIDER, 2026-08-06: the flag dump at a REPLACEMENT-RETURN
-			site. 14 of 33 rule actions return a node they were not handed,
-			so the question is whether the node coming BACK still carries
-			isLabel. clear() does not strip flags (director, 2026-08-07), so
-			a replacement is the only remaining way an unstamped node can
-			reach the label channel. Gated on the standing parseTrace.  */
-			if ( ruler->parseTrace )
-				::fprintf(stderr,"    fireLabel IN  %s isLabel=%s\n",groupBody->tag,::toStringFromInt(stuff->label->groupBody->flags.isLabel != 0));
-			if ( ruler->parseTrace )
-				::fprintf(stderr,"  ACTFIRE fireLabelMethod %s\n",groupBody->tag);
+			// replacementReturn
+			::measureFireLabelActionIn(this,stuff->label);
 			stuff->label = stuff->actionMethod(stuff->label);
-			if ( ruler->parseTrace )
-				if ( stuff->label )
-					::fprintf(stderr,"    fireLabel OUT %s isLabel=%s tag=%s\n",groupBody->tag,::toStringFromInt(stuff->label->groupBody->flags.isLabel != 0),stuff->label->groupBody->tag);
-				else	::fprintf(stderr,"    fireLabel OUT %s NULL\n",groupBody->tag);
+			::measureFireLabelActionOut(this,stuff->label);
 			if ( !stuff->label )
 				stuff->sukcess = 0;
 			}
@@ -1420,84 +1360,8 @@ void *GroupItem::getPointer()
 }
 
 /*******************************************************************************
-    getRStuff — A PURE GETTER. IT DOES NOT CONSTRUCT. Tony's ruling, 2026-08-31.
-
-    ⚠ IT USED TO, AND ITS OWN HEADER LIED ABOUT IT. The old body minted an
-    rStuff on a miss, and the header said it "warns if it had to create one".
-    The warn — `getRStuff: <node> no rStuff - creating` — was DELETED on
-    2026-07-29, so for a month the function constructed in total silence while
-    its documentation promised otherwise. Two comments elsewhere in the tree
-    (GroupActions.rtn, Commands.rtn) record the deletion and are the only
-    reason it was findable; `auditMissingRules` was built as the presence-based
-    replacement precisely because an absence-based grep cannot tell "nothing
-    fired" from "the cerr is gone".
-
-    ⚠⚠ THE REASON THE RULING IS A ROAD FIX AND NOT A READER FIX: a getter that
-    constructs makes a MISS UNOBSERVABLE, so every census over rStuff is taken
-    through an instrument that repairs its own subject as it counts. That is
-    not hypothetical — genParse.rtn's `unresolvedTerms` header records the old
-    cerr being CAUGHT IN THE ACT, printing "no rStuff - creating" for one of
-    the very terms that function was trying to count.
-
-    ⚠⚠ IT IS SILENT, AND A COMPLAINT WAS BUILT, MEASURED AND REMOVED. The brief
-    asked for a complaint on the miss so the getter could become the live audit
-    and retire auditMissingRules. It was built and run:
-
-        one fixture   4853 complaints over 4389 DISTINCT nodes (near 1:1)
-        whole fleet   16607 complaints, and THREE baseline rows red on the noise
-
-    THE PREMISE IS FALSIFIED, AND ONE MEASUREMENT NAMES WHY: this getter is not
-    called at four sites, it is called at ONE HUNDRED AND THIRTY-SEVEN, because
-    tok's #autoGetSet binds EVERY bare `.rStuff` read in the tree to it. So the
-    complaint fires loudest exactly where the code is CORRECTLY asking "is there
-    one?" — `if !x.rStuff` is an existence test, and finding nothing is its right
-    answer. A complaint here cannot tell a reader that NEEDS an rStuff from a
-    reader ASKING WHETHER THERE IS ONE. One channel, two meanings, so the cure is
-    not a quieter complaint — it is no complaint in this seat. The audit stays
-    where it is, and is now honest because the getter no longer repairs.
-
-    THE POPULATION WAS THE ANSWER, NOT THE DEFECT LIST: 4389 distinct nodes,
-    not one node asked repeatedly, so the parse legitimately meets fresh nodes
-    without rStuff. Lazy materialisation is the design (genParse.rtn's
-    unresolvedTerms header says so), and `getStuff` now names it: it calls
-    ensureRStuff, because that is what it always wanted.
-
-    ⚠ ZERO LITERAL CALLERS, AND THAT IS NOT DEAD CODE. Every bare `.rStuff` in
-    the tree IS a call to this function — the four literal spellings were the
-    only ones that wanted the other half.
-
-    ⚠⚠ THE isRule-GATED COMPLAINT WAS BUILT, RUN, GRADED AND REMOVED — SEQ 100
-    C2/C3, 2026-09-01. It shipped nothing because it had NO SIGNAL, and the
-    reason is worth more than the instrument: EVERY CALLER IS ASKING.
-
-        caller                                  rows   grade
-        setRuleStuff        GroupItem.mm:2530     45   ASKING
-        aCTionDefinE        GroupRules.mm:528     48   ASKING
-        aCTionDefinE        GroupRules.mm:593     16   ASKING
-        auditMissingRules   GroupRules.mm:2217    10   ASKING
-        processFlags        GroupRules.mm:12445    9   ASKING
-
-    Five callers, ZERO NEEDING, zero WRONG NODE, zero OPEN — so C4 did not run,
-    by its own gate. Four of the five are the IDENTICAL idiom,
-    `if !X.rStuff  X.rStuff = new(X)`, which is a producer about to construct;
-    the fifth is the audit, whose entire job is to find null. A complaint here
-    fires on the code that FIXES the condition and on the code that COUNTS it,
-    and on nothing else.
-
-    ⚠ AND THE PLACEMENT IS THE ONE-CHANNEL-TWO-MEANINGS FAULT, not the volume.
-    A miss at a producer means "about to be constructed, this statement"; a miss
-    at the audit means "genuinely absent". SAME SIGNAL, OPPOSITE MEANINGS, and
-    that is why the deduped population was 115 nodes where ten were
-    pre-registered: 105 of them were missing rStuff for the width of one
-    statement. The getter cannot tell those apart because it fires BEFORE the
-    fix, on the same line.
-
-    THE RECIPE, kept because the instrument is worth rebuilding and is not worth
-    shipping: gate on `!rStuff && isRule`; take the caller from
-    `__builtin_return_address(0)`; dedupe on (node tag, caller) in a static
-    table; print an anchor once — `(void*)::probeNode` — and symbolise offline
-    with `atos -o ~/bin/incant -l <0x100000000 + runtimeAnchor - nmAnchor>`.
-    dladdr is NOT available in GroupItem.mm's include chain; do not reach for it.
+                                getRStuff
+    // getRStuff has a long entry in DesignDocs
 *******************************************************************************/
 RuleStuff *GroupItem::getRStuff()
 {
@@ -1519,6 +1383,7 @@ Stak *GroupItem::getStak()
 }
 
 /*******************************************************************************
+                                getStuff
 	Returns rStuff unless it is inProcess, IWC returns a fresh copy of rStuff
 *******************************************************************************/
 RuleStuff *GroupItem::getStuff(RuleStuff *pStuff)
@@ -1587,13 +1452,7 @@ char 	*junkText = 0;
 					::sprintf(junkText,"%g",groupBody->gNumber);
 				if ( groupBody->flags.isPercent )
 					::strcat(junkText,"%");
-				/*  ⚠ PRINT DOES NOT FOLLOW (Tony, SEQ 136). LAW 1 IS RETIRED.
-				A holder prints as the TAG of the field it holds; a writer who
-				wants the value says `*`. Cyclic group chains are LEGAL DATA
-				under pointer semantics, and this line was the only walk that
-				followed gGroup transitively from print -- so F-49's overflow is
-				UNREACHABLE rather than guarded, and no guard is built.
-				GroupItem.getText.printDoesNotFollow  */
+				// printDoesNotFollow
 				break;
 			case 6:
 				if ( groupBody->gGroup )

@@ -88,6 +88,13 @@ the interesting quantity is the one that can come back zero.
 | 2026-09-09 | `measure.measureLabelMint` | `measure.twk` | H19's bracket reading, and Tony's `measure` naming rule for call-outs |
 | 2026-09-09 | `measure.measureLabelProbe` | `measure.twk` | ⚠ NOT temporary — pop.sh pins it by value; why `yielded` is passed and not derived; why call-out beat directive |
 | 2026-09-09 | `measure.measureParentProbe` | `measure.twk` | the recursion discriminator, and that nothing in the fleet reads it |
+| 2026-09-15 | `GroupItem.fireLabelMethod` | `GroupItem.twk:1031` | 31-line header — GX-1's extraction, the two shape-identical specimens, and why the function returns nothing |
+| 2026-09-15 | `GroupItem.fireLabelMethod.collisionProbe` | `GroupItem.twk` | why the capture seat sits ABOVE `captureSpan` and not beside the other flags |
+| 2026-09-15 | `GroupItem.fireLabelMethod.replacementReturn` | `GroupItem.twk` | LA''-5, and why the action fire is bracketed by two seats instead of reported by one |
+| 2026-09-15 | `measure.measureFireLabelEntry` | `measure.twk` | the capture bracket's opening line |
+| 2026-09-15 | `measure.measureFireLabelFork` | `measure.twk` | the label is passed in, not re-read — the callout convention's fourth sentence |
+| 2026-09-15 | `measure.measureFireLabelActionIn` | `measure.twk` | two lines from one callout, because they are one seat |
+| 2026-09-15 | `measure.measureFireLabelActionOut` | `measure.twk` | a NULL prints as NULL and never as `isLabel=0` |
 
 ## ⚠ SIXTH FINDING, 2026-09-09 — THE FIRST TIME THE TRIAL WAS APPLIED TO A FUNCTION THE OWNER COULD NOT STAND TO READ
 
@@ -809,3 +816,88 @@ them under the right parent and in the house voice. It also answered a question 
 otherwise have re-measured: `ParserHangHistory` records that the 2026-08-19 hang stopped
 reproducing on 2026-08-26, so the exit-139 measured today is **a new defect and not that one
 returning**. Counted as one lookup, and it saved a wrong headline.
+
+## 2026-09-15 — THE MINION TEST RUN: `fireLabelMethod`, 7 entries, 0 pointers followed
+
+Tony's dispatch: one method, `GroupItem.twk`, comments to DesignDocs per his two hand-worked
+models, **and all measuring out of the body into callouts from `measure.twk`**. Review before
+anything else moves.
+
+**What moved.** A 31-line header, two in-body `/* */` blocks, and five `parseTrace`-gated `cerr`
+statements. What is left in the method is **four callout lines and two `// slug` lines** — the body
+went 49 lines to 26, and every line of it is now code.
+
+**Certification, and the trace is the interesting half.** `pop.sh` **276 green before and after**,
+and the generated `GroupItem.mm` is **identical outside the relocated lines** — bear-trap #42's
+discipline (read the generated tail, not the block you wrote) was run and the bare-name resolution
+held, including `actionMethod` still resolving through `stuff`. A `parseTrace` capture over a
+21-line deterministic trace covering five of the six line shapes is **byte-identical** across the
+move, which is the claim worth having: the seats relocated, the instrument did not change.
+
+**The trace oracle, so the line above is reproducible and not merely asserted.** A scratch file
+that `include`s `unitTests`/`utilities`, calls `traceParse()`, defines one driver action with an
+`if` in it, calls the driver and `stop()`s. It exits 139 on the bare invocation — which is
+bear-trap-#31-adjacent and irrelevant here, because *a crash truncates output, so a full matching
+capture cannot come from a process that died early*. Two runs before the edit were byte-identical
+to each other; the run after it was byte-identical to both. Five of the six line shapes are
+covered; the sixth, `fireLabel OUT <rule> NULL`, is not exercised by that input and was checked by
+reading the generated branch instead.
+
+## ⚠ TWELFTH FINDING, 2026-09-15 — BOTH OF TONY'S MODELS DROP THE INLINE KEY, AND THAT IS A CHOICE THE TRIAL SHOULD MAKE ON PURPOSE
+
+The convention as written in `CLAUDE.md` is **one inline claim plus a `File.method.slug` key**:
+
+```
+    // single writer of parentLabel; callee lifts at entry   parseRule.frameLift
+```
+
+**Neither hand-worked model does that.** `getRStuff` leaves `// getRStuff has a long entry in
+DesignDocs` — a pointer with no claim and no path. `getText` leaves `// printDoesNotFollow` — a
+slug with no claim and no path, replacing a block that *had* carried
+`GroupItem.getText.printDoesNotFollow` in full.
+
+**This costs the eighth finding.** That finding's payoff was that the keys make method names
+greppable and a drifted block findable; a bare slug is greppable only within its own file, and a
+bare `has a long entry in DesignDocs` is not greppable at all. It also removes what the
+**too-short test** was written to protect: `// collisionProbe` will not stop anyone moving that
+callout below `captureSpan`, which is the one thing its entry exists to forbid.
+
+**The test run followed the models rather than the convention**, deliberately, so Tony is reviewing
+the shape he asked for. The three ways out, none of them chosen here: keep the models and accept
+the loss; keep the models but require the claim where an invariant is breakable; or restore the
+path and treat the models as shorthand for leaf methods with nothing to break. **It is a ruling,
+not a drafting preference — the two spellings are now both in `GroupItem.twk` and a sweep over the
+whole file will freeze whichever one it copies.**
+
+## ⚠ THIRTEENTH FINDING, 2026-09-15 — A MISSING CLOSING QUOTE IN `designDocs` COST SIX FLEET ROWS AT EXIT 0
+
+Found taking the baseline, not by looking for it. Tony's `getText` entry was written
+
+```
+            getText="does what it can to return the contents of this group as text:
+```
+
+with **no closing quote** — the `:` that opens the child scope was inside the string. The whole
+`define` block died, `incant/pop/inArmsT` truncated, and the run reported
+`RunRulE: expected a method not DisplayDesignHTML` — **bear-trap #32's misdirection exactly**: the
+name in the error is the file's FIRST entry, which is perfectly healthy.
+
+| tree | fleet |
+|---|---|
+| HEAD | 276 green |
+| + Tony's `designDocs` | **270 green** |
+| + Tony's `designDocs`, one quote added | 276 green |
+| + Tony's `hasTraits` alone | 276 green (innocent) |
+
+⚠ **THE LESSON IS ABOUT THE REGISTER, NOT THE TYPO.** `designDocs` is **read at runtime**
+(bear-trap #31) and six fleet fixtures include it, so **a prose register edit is a code edit for
+measurement purposes** and is owed a fleet run like any other.
+
+⚠ **AND THE HARNESS DID SEE IT — WHICH IS WORSE, NOT BETTER.** `ddPop` was measured on the broken
+file rather than assumed about, after this section's first draft asserted it was blind: it reads
+**3 green on the broken tree and 5 on the fixed one**, and its walk row and sentinel both go red.
+**But it prints `DDPOP FAILED` either way**, because it has been red for weeks on 32 pre-existing
+trim-gate violations. So the signal existed, arrived, and was invisible — H12's second lesson
+verbatim: *a red row absorbs new breakage silently, because nobody diffs a diff.* The cheap
+instrument is not a new row but a **count** on the banner line, so `5 -> 3` is legible without
+anyone reading the rows underneath it.

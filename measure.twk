@@ -335,6 +335,86 @@ int         minters = 0;
 }
 
 
+
+/*  THE ACTION SEAT, BEFORE THE FIRE -- the label's isLabel bit on the way IN, then the
+    fire marker itself, so the pair brackets whatever the action prints. parseTrace-gated,
+    inert otherwise. ⚠ No percent-dash in the format string (bear-trap #40).
+    measure.measureFireLabelActionIn  */
+extern GroupItem measureFireLabelActionIn(GroupItem field, GroupItem myLabel)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace && field )
+        {
+        ::fprintf(stderr,"    fireLabel IN  %s isLabel=%d\n",
+            field->groupBody->tag,
+            (myLabel && myLabel->groupBody->flags.isLabel) ? 1 : 0);
+        ::fprintf(stderr,"  ACTFIRE fireLabelMethod %s\n",field->groupBody->tag);
+        }
+    %-
+    return field;
+}
+
+
+/*  THE ACTION SEAT, AFTER THE FIRE -- whether the node coming BACK is the node that went
+    in, and whether it still carries isLabel. A NULL is printed as NULL and never as
+    isLabel=0: the two say different things and one channel may not carry both.
+    parseTrace-gated, inert otherwise. ⚠ No percent-dash in the format string
+    (bear-trap #40).   measure.measureFireLabelActionOut  */
+extern GroupItem measureFireLabelActionOut(GroupItem field, GroupItem myLabel)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace && field )
+        {
+        if ( myLabel )
+            ::fprintf(stderr,"    fireLabel OUT %s isLabel=%d tag=%s\n",
+                field->groupBody->tag,
+                myLabel->groupBody->flags.isLabel != 0,
+                myLabel->groupBody->tag);
+        else
+            ::fprintf(stderr,"    fireLabel OUT %s NULL\n",field->groupBody->tag);
+        }
+    %-
+    return field;
+}
+
+
+/*  THE CAPTURE SEAT in GroupItem's fireLabelMethod -- printed BEFORE captureSpan, so
+    the capture's own comparator line sits between this line and measureFireLabelFork's.
+    parseTrace-gated, inert otherwise. ⚠ It reads the node it is handed and re-derives
+    nothing. ⚠ No percent-dash in the format string (bear-trap #40).
+    measure.measureFireLabelEntry  */
+extern GroupItem measureFireLabelEntry(GroupItem field)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace && field )
+        ::fprintf(stderr,"  CAPFIRE fireLabelMethod %s tokened=%d\n",
+            field->groupBody->tag,
+            field->groupBody->flags.tokened != 0);
+    %-
+    return field;
+}
+
+
+/*  THE FORK SEAT in GroupItem's fireLabelMethod -- the four flags the action fork below
+    it reads, printed before it forks. parseTrace-gated, inert otherwise. ⚠ The label is
+    PASSED IN rather than re-read off the stuff, because the question is what the fork
+    saw. ⚠ No percent-dash in the format string (bear-trap #40).
+    measure.measureFireLabelFork  */
+extern GroupItem measureFireLabelFork(GroupItem field, GroupItem myLabel)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace && field )
+        ::fprintf(stderr,"  fireLabelMethod %s isMethod=%d label=%d deferred=%d parseACTION=%d\n",
+            field->groupBody->tag,
+            isMethod(field->groupBody->flags.instructType) != 0,
+            myLabel != 0,
+            field->groupBody->flags.deferred != 0,
+            parseACTION(field->groupBody->flags.methodType) != 0);
+    %-
+    return field;
+}
+
+
 /*  TEMPORARY, parseTrace-gated. Prints at the MINT so an outer activation's line
     brackets its inner one's: distinctness is an address comparison, survival is the
     same address appearing again at measureLabelProbe. ⚠ No percent-dash in the format

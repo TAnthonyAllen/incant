@@ -1140,6 +1140,147 @@ define
 
                 Certified byte-identical on the fleet against a capture banked before the
                 first edit, 87 green, raw-rStuff drift row unmoved at 30.#);
+            fireLabelMethod=(THE RULE ACTION, and the ONLY site that fires one.
+
+                GX-1, 2026-08-06. Extracted verbatim from parse()'s match loop so that the
+                interpretive arm and the generated arm RUN THE SAME CODE rather than
+                carrying two carefully-matched copies. That is the same principle parse()'s
+                own S1.3 comment already states about the shared exit -- the generated path
+                matches the interpretive path because it RUNS the same exit, not because the
+                exit was copied carefully -- applied one region further up. The defect this
+                closes was precisely that the shared region STARTED TOO LATE: it began at
+                generatedExit, so the action layer sat outside it and the generated arm's
+                goto jumped clean over the rule action.
+
+                ⚠ MEASURED CONSEQUENCE OF THE GAP, TWO SPECIMENS, BOTH SHAPE-IDENTICAL:
+                Braced (2026-08-05) and Parens (2026-08-06) each parsed correctly, attached
+                their term under the right label, HIT and WIN -- and their actions never ran.
+                corpus GM-16 / GM-17. Parens was catastrophic rather than subtle only because
+                of where it sits in the grammar: every parenthesised invocation goes through
+                it, so include(x) invoked include with no argument and every fixture died on
+                its first statement.
+
+                ⚠ NO RETURN VALUE, AND THAT IS DELIBERATE. Both things this can change --
+                the label and the success flag -- live on the RuleStuff, so it mutates them
+                in place and reports nothing. The tempting shape, "return the label, null
+                means failure", is WRONG here and quietly so: RuleStuff.twk:181 sets
+                label = 0 for a noLabel rule ON SUCCESS, so a null label would mean "this
+                rule has no label" AND "the method failed" -- one channel, two meanings, the
+                failure family this project has paid for repeatedly. Nothing is returned, so
+                there is nothing to conflate.
+
+                Not in groups.ext: called only from parse(), in this file.
+
+                ⚠ ITS FOUR MEASURING SEATS LEFT THE BODY 2026-09-15 and are now callouts into
+                measure.twk -- measureFireLabelEntry, measureFireLabelFork,
+                measureFireLabelActionIn, measureFireLabelActionOut. The five trace lines are
+                BYTE-IDENTICAL across that move, verified on a parseTrace capture, and the
+                generated GroupItem.mm is identical outside the relocated lines.#):
+                collisionProbe=(THE COLLISION PROBE, 2026-08-25, assertion 5 of the label-seam
+                    brief, and it is why measureFireLabelEntry sits ABOVE captureSpan rather
+                    than beside the other flags.
+
+                    fixIts row 1 predicts that adding a capture at runRuleAction gives a rule
+                    reached through parse()'s FORK a second one here -- capture, action,
+                    capture, action -- with this one reading getStuff(pStuff), which may be a
+                    re-entrancy CLONE whose hereAt is not the rule's own. The prediction is
+                    inferred rather than measured, so it is instrumented rather than designed
+                    around. It reports the tokened bit, so the capture's own comparator line
+                    prints between this seat and the fork seat and the bracket is readable.#);
+                replacementReturn=(THE LA''-5 RIDER, 2026-08-06: the flag dump at a
+                    REPLACEMENT-RETURN site, and the reason the action fire is bracketed by
+                    two callouts instead of reported by one.
+
+                    14 of 33 rule actions return a node they were not handed, so the question
+                    is whether the node coming BACK still carries isLabel. clear() does not
+                    strip flags (director, 2026-08-07), so a replacement is the only remaining
+                    way an unstamped node can reach the label channel. IN and OUT are separate
+                    seats because a single after-the-fact read cannot tell a replacement from
+                    a pass-through, and a NULL is printed as NULL rather than as isLabel=0
+                    because those are two facts and one channel may not carry both.#);
+            getRstuff=(The old body minted an
+                rStuff on a miss, and the header said it "warns if it had to create one".
+                The warn — `getRStuff: <node> no rStuff - creating` — was DELETED on
+                2026-07-29, so for a month the function constructed in total silence while
+                its documentation promised otherwise. Two comments elsewhere in the tree
+                (GroupActions.rtn, Commands.rtn) record the deletion and are the only
+                reason it was findable; `auditMissingRules` was built as the presence-based
+                replacement precisely because an absence-based grep cannot tell "nothing
+                fired" from "the cerr is gone".
+
+                ⚠⚠ THE REASON THE RULING IS A ROAD FIX AND NOT A READER FIX: a getter that
+                constructs makes a MISS UNOBSERVABLE, so every census over rStuff is taken
+                through an instrument that repairs its own subject as it counts. That is
+                not hypothetical — genParse.rtn's `unresolvedTerms` header records the old
+                cerr being CAUGHT IN THE ACT, printing "no rStuff - creating" for one of
+                the very terms that function was trying to count.
+
+                ⚠⚠ IT IS SILENT, AND A COMPLAINT WAS BUILT, MEASURED AND REMOVED. The brief
+                asked for a complaint on the miss so the getter could become the live audit
+                and retire auditMissingRules. It was built and run:
+
+                    one fixture   4853 complaints over 4389 DISTINCT nodes (near 1:1)
+                    whole fleet   16607 complaints, and THREE baseline rows red on the noise
+
+                THE PREMISE IS FALSIFIED, AND ONE MEASUREMENT NAMES WHY: this getter is not
+                called at four sites, it is called at ONE HUNDRED AND THIRTY-SEVEN, because
+                tok's #autoGetSet binds EVERY bare `.rStuff` read in the tree to it. So the
+                complaint fires loudest exactly where the code is CORRECTLY asking "is there
+                one?" — `if !x.rStuff` is an existence test, and finding nothing is its right
+                answer. A complaint here cannot tell a reader that NEEDS an rStuff from a
+                reader ASKING WHETHER THERE IS ONE. One channel, two meanings, so the cure is
+                not a quieter complaint — it is no complaint in this seat. The audit stays
+                where it is, and is now honest because the getter no longer repairs.
+
+                THE POPULATION WAS THE ANSWER, NOT THE DEFECT LIST: 4389 distinct nodes,
+                not one node asked repeatedly, so the parse legitimately meets fresh nodes
+                without rStuff. Lazy materialisation is the design (genParse.rtn's
+                unresolvedTerms header says so), and `getStuff` now names it: it calls
+                ensureRStuff, because that is what it always wanted.
+
+                ⚠ ZERO LITERAL CALLERS, AND THAT IS NOT DEAD CODE. Every bare `.rStuff` in
+                the tree IS a call to this function — the four literal spellings were the
+                only ones that wanted the other half.
+
+                ⚠⚠ THE isRule-GATED COMPLAINT WAS BUILT, RUN, GRADED AND REMOVED — SEQ 100
+                C2/C3, 2026-09-01. It shipped nothing because it had NO SIGNAL, and the
+                reason is worth more than the instrument: EVERY CALLER IS ASKING.
+
+                    caller                                  rows   grade
+                    setRuleStuff        GroupItem.mm:2530     45   ASKING
+                    aCTionDefinE        GroupRules.mm:528     48   ASKING
+                    aCTionDefinE        GroupRules.mm:593     16   ASKING
+                    auditMissingRules   GroupRules.mm:2217    10   ASKING
+                    processFlags        GroupRules.mm:12445    9   ASKING
+
+                Five callers, ZERO NEEDING, zero WRONG NODE, zero OPEN — so C4 did not run,
+                by its own gate. Four of the five are the IDENTICAL idiom,
+                `if !X.rStuff  X.rStuff = new(X)`, which is a producer about to construct;
+                the fifth is the audit, whose entire job is to find null. A complaint here
+                fires on the code that FIXES the condition and on the code that COUNTS it,
+                and on nothing else.
+
+                ⚠ AND THE PLACEMENT IS THE ONE-CHANNEL-TWO-MEANINGS FAULT, not the volume.
+                A miss at a producer means "about to be constructed, this statement"; a miss
+                at the audit means "genuinely absent". SAME SIGNAL, OPPOSITE MEANINGS, and
+                that is why the deduped population was 115 nodes where ten were
+                pre-registered: 105 of them were missing rStuff for the width of one
+                statement. The getter cannot tell those apart because it fires BEFORE the
+                fix, on the same line.
+
+                THE RECIPE, kept because the instrument is worth rebuilding and is not worth
+                shipping: gate on `!rStuff && isRule`; take the caller from
+                `__builtin_return_address(0)`; dedupe on (node tag, caller) in a static
+                table; print an anchor once — `(void*)::probeNode` — and symbolise offline
+                with `atos -o ~/bin/incant -l <0x100000000 + runtimeAnchor - nmAnchor>`.
+                dladdr is NOT available in GroupItem.mm's include chain; do not reach for it.#);
+            getText="does what it can to return the contents of this group as text":
+                printDoesNotFollow=(PRINT DOES NOT FOLLOW (Tony, SEQ 136). LAW 1 IS RETIRED.
+                    A holder prints as the TAG of the field it holds; a writer who
+                    wants the value says `*`. Cyclic group chains are LEGAL DATA
+                    under pointer semantics, and this line was the only walk that
+                    followed gGroup transitively from print -- so F-49's overflow is
+                    UNREACHABLE rather than guarded, and no guard is built.#);
             ensureGuard=(THE CONSTRUCTING HALF, byte-for-byte the old getGuard including its
                 setRuleStuff call, moved behind a verb that says what it does. Six sites:
                 three recursive within its own body, two in RuleStuff, one definition.
@@ -1158,6 +1299,19 @@ define
                 Anyone reopening this starts from the fact that the three internal recursive
                 calls need the BUILT set from their children, which is why they route to
                 ensureGuard and not to the pure getter.#);
+            ensureRStuff=(THE CONSTRUCTING alternative to getRStuff. 2026-08-31.
+                Byte-for-byte the body getRStuff used to carry, moved behind a verb that
+                says what it does. ONE CHANNEL, ONE MEANING: `get` reads, `ensure` mints,
+                and no site can silently get the second while asking for the first.
+
+                ⚠ IT IS NOT `setRuleStuff`, AND THE DIFFERENCE IS NOT COSMETIC. setRuleStuff
+                also sets isRule, and carries a second arm — `or rule != this` — that
+                RE-CLONES an rStuff belonging to another node. That arm is the master/face
+                seam, and adopting it here would change behaviour at three call sites in the
+                same stroke that removes the construction from the getter, making any
+                regression indistinguishable from the refactor. Whether those three sites
+                WANT setRuleStuff's re-clone is a live question and now a visible one; it is
+                deliberately not answered here.#);
             parse="the old parse"
                 genParseRuleAccess=(genParseRuleAccess S1.3 -- a generated parse supersedes the interpretive walk.
 
@@ -4119,6 +4273,50 @@ define
 
                 MOVED HERE FROM Generate.rtn 2026-09-04, cleanup arc stroke 4. The method is
                 unchanged; only its home and its comment moved.#);
+            measureFireLabelActionIn=(TEMPORARY, parseTrace gated. The first half of the
+                bracket around GroupItem fireLabelMethod's action fire, printing the label's
+                isLabel bit on the way IN and then the ACTFIRE marker, so whatever the action
+                itself prints sits between this pair and measureFireLabelActionOut's line.
+
+                ⚠ TWO LINES FROM ONE CALLOUT, deliberately: they are one seat, not two. The
+                pair was two adjacent parseTrace blocks in the body before 2026-09-15 and
+                moved together, byte for byte.
+
+                No percent-dash in the format string (bear-trap 40).#);
+            measureFireLabelActionOut=(TEMPORARY, parseTrace gated. The second half of the
+                bracket around GroupItem fireLabelMethod's action fire: whether the node
+                coming back still carries isLabel, and what it is tagged.
+
+                ⚠ A NULL PRINTS AS NULL AND NEVER AS isLabel=0. Those are different facts --
+                the action refused, versus the action returned an unstamped node -- and the
+                rule action's null is what sets sukcess false one line later. One channel may
+                not carry both, so the callout branches instead of substituting a zero.
+
+                The seat exists because 14 of 33 rule actions return a node they were not
+                handed; see GroupItem fireLabelMethod replacementReturn for the argument.
+
+                No percent-dash in the format string (bear-trap 40).#);
+            measureFireLabelEntry=(TEMPORARY, parseTrace gated. Called from GroupItem
+                fireLabelMethod BEFORE captureSpan, which is the whole point of the seat: the
+                capture's own dual-run comparator line prints between this line and
+                measureFireLabelFork's, so the bracket says which capture belongs to which
+                fire.
+
+                It reports the tokened bit because that is the flag the captureSpan call on
+                the next line reads. See GroupItem fireLabelMethod collisionProbe for what the
+                seat was minted to watch.
+
+                No percent-dash in the format string (bear-trap 40).#);
+            measureFireLabelFork=(TEMPORARY, parseTrace gated. Called from GroupItem
+                fireLabelMethod immediately before the action fork, printing the four flags
+                that fork reads -- isMethod, label, deferred, parseACTION.
+
+                ⚠ THE LABEL IS PASSED IN RATHER THAN RE-READ off the stuff. The callout
+                convention's fourth sentence: a witness reads the state it is handed and never
+                recomputes the decision it witnesses, which is what took measureRuleDispatch
+                stale inside an hour on 2026-09-10.
+
+                No percent-dash in the format string (bear-trap 40).#);
             measureLabelMint=(TEMPORARY, parseTrace gated. Called from Generate.rtn parseRule
                 immediately after the per-invocation label is minted.
 
