@@ -909,3 +909,37 @@ from *5 of 10*, so the banner now reads `5 green, 1 red, 6 checks ran` and goes 
 `3 green, 3 red, 6 checks ran` on the broken tree. **The total is the H2 half** — green + red is the
 count of checks that RAN, so a check that evaporates moves a number a reader can see, where before
 it moved nothing at all.
+
+## ⚠ THE INLINE FORM IS RULED, 2026-09-15 — `// slug sentence?`, AND THE TWELFTH FINDING CLOSES
+
+Tony, same day, on the finding above: **slug required, sentence optional, dotted path never
+inline.** DesignDocs is keyed `File.method.slug` and a reader at the edit site already holds the
+first two, so writing them again is ceremony. **Where an entry exists to forbid something, the
+sentence carries the forbid.**
+
+**That is the too-short test answered, and it is answered better than the convention it replaces.**
+The old form paid for the path in every line and left the *claim* optional; the ruled form does the
+reverse. So the six lines landed today all carry their forbid where they have one:
+
+| slug | the forbid it carries |
+|---|---|
+| `fireLabelMethod` | returns nothing DELIBERATELY — a null label already means noLabel-on-success |
+| `getRStuff` | a PURE getter, and **no miss-complaint belongs in this seat** — every caller is asking |
+| `ensureRStuff` | it is **NOT** `setRuleStuff`, whose second arm re-clones another node's rStuff |
+| `printDoesNotFollow` | print never follows `gGroup`; cyclic chains are legal data, **so no guard belongs here** |
+| `collisionProbe` | the seat stays **ABOVE** `captureSpan` |
+| `replacementReturn` | IN and OUT are **two** seats — one read after the fire cannot tell a replacement from a pass-through |
+
+**The greppability the eighth finding wanted is not lost, it moved:** the slug is unique enough to
+grep on its own, and `grep -rn '// <slug>'` finds the site while the DesignDocs key finds the
+argument. What is genuinely gone is the ability to spot a **drifted** block by reading its path —
+which is what the ninth finding used. That is the cost, it is accepted, and the replacement is that
+a drifted block now has no path to be wrong about.
+
+## ⚠ AND THE NINTH FINDING GOT ONE MORE, FOUND BY READING RATHER THAN BY SCRIPT
+
+`GroupItem.twk`'s `parse()` — the interpretive parser, the busiest function in the file — **had no
+header comment at all**, and `Treat this field as a rule and match it against the input stream` was
+sitting **349 lines up**, above `fireLabelMethod`, which does no input matching whatever. Placed
+with `parse()` on Tony's ruling. **Drift of 349 lines, and the tell was semantic rather than
+positional**: the sentence did not describe the function it sat on. Nobody greps for that.

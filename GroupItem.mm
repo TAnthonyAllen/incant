@@ -909,7 +909,8 @@ returnGuard:
 
 /*******************************************************************************
                                 ensureRStuff
-    // ensureRStuff see entry in DesignDocs
+    // ensureRStuff the constructing half -- it is NOT setRuleStuff, whose second arm
+    // re-clones an rStuff belonging to another node
 *******************************************************************************/
 RuleStuff *GroupItem::ensureRStuff()
 {
@@ -993,11 +994,9 @@ GroupItem 	*group = this;
 }
 
 /***************************************************************************
-    Treat this field as a rule and match it against the input stream.
-***************************************************************************/
-/***************************************************************************
                                 fireLabelMethod
-    // fireLabelMethod has a long entry in DesignDocs
+    // fireLabelMethod returns NOTHING deliberately -- a null label already means
+    // noLabel-on-success, so handing it back would be one channel with two meanings
 ***************************************************************************/
 void GroupItem::fireLabelMethod(RuleStuff *stuff)
 {
@@ -1009,7 +1008,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 			stuff->actionMethod = builtinActoR->groupBody->gMethod;
 		}
 	ruler->ruleSTUFF = stuff;
-	// collisionProbe
+	// collisionProbe this seat stays ABOVE captureSpan, so the capture's own comparator
+	// line prints inside the bracket
 	::measureFireLabelEntry(this);
 	if ( groupBody->flags.tokened )
 		captureSpan(stuff);
@@ -1026,7 +1026,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		else
 		if ( !parseACTION(groupBody->flags.methodType) )
 			{
-			// replacementReturn
+			// replacementReturn IN and OUT are two seats -- one read after the fire
+			// cannot tell a replacement from a pass-through
 			::measureFireLabelActionIn(this,stuff->label);
 			stuff->label = stuff->actionMethod(stuff->label);
 			::measureFireLabelActionOut(this,stuff->label);
@@ -1361,7 +1362,8 @@ void *GroupItem::getPointer()
 
 /*******************************************************************************
                                 getRStuff
-    // getRStuff has a long entry in DesignDocs
+    // getRStuff a PURE getter -- it does not construct, and no miss-complaint belongs
+    // in this seat: every caller is asking whether there is one
 *******************************************************************************/
 RuleStuff *GroupItem::getRStuff()
 {
@@ -1452,7 +1454,8 @@ char 	*junkText = 0;
 					::sprintf(junkText,"%g",groupBody->gNumber);
 				if ( groupBody->flags.isPercent )
 					::strcat(junkText,"%");
-				// printDoesNotFollow
+				// printDoesNotFollow print reads the TAG of a held field and never follows
+				// gGroup -- cyclic chains are legal data, so no overflow guard belongs here
 				break;
 			case 6:
 				if ( groupBody->gGroup )
@@ -1728,6 +1731,10 @@ GroupItem *GroupItem::nextMember(GroupItem *current)
 	return current;
 }
 
+/***************************************************************************
+                                parse
+    Treat this field as a rule and match it against the input stream.
+***************************************************************************/
 GroupItem *GroupItem::parse(RuleStuff *pStuff)
 {
 GroupItem 	*parentLabel = 0;
