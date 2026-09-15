@@ -187,6 +187,56 @@
 #   **BOTH EDITS ARE REVERTED.** Tree clean, fleet back to 299, trigDO exit 0, canary 329.
 #   The two edits are six lines between them and are fully specified by the ruling itself.
 #
+#   ## ⚠⚠⚠ THE RECURSION, MEASURED 2026-09-15. ALL THREE QUESTIONS ANSWERED, AND THE
+#   ## MECHANISM IS ONE LINE: NamE's actionMethod IS parseRule.
+#
+#   Probe at `parseRule`'s entry, debug-only depth guard at 60 so it REPORTS instead of
+#   overflowing -- **exit 7, not 139**. Measurement only; reverted.
+#
+#       PR  1  NamE  field=0x1005b1440  isCopy=0  cursor=0xae4c68b78  g=0x0  parse=...854  action=...854
+#       PR  2  NamE  field=0x1005b4e40  isCopy=0  cursor=0xae4c0348a  g=0x0  parse=...854  action=...854
+#       PR  3  NamE  field=0x1005b4e00  isCopy=0  cursor=0xae4c0348c  ...
+#       PR  4..12       e40 dc0 d80 d40 d00 cc0 c80 c40 c00 bc0   -- DOWN BY EXACTLY 0x40 EACH
+#       PRADDR parseRule=0x10022f854
+#
+#   **A -- DISTINCT FIELDS, NOT ONE FIELD.** A fresh 64-byte node every turn, marching down by
+#   0x40. Same NAME, different node: the loop MINTS a label per entry and never reuses one.
+#
+#   **B -- THE CURSOR DOES NOT ADVANCE.** `0xae4c68b78`, then `…348a`, then **frozen at
+#   `…348c` for entries 3 through 12.** Two bytes of movement in total. **No input is being
+#   consumed**, so nothing can ever terminate it.
+#
+#   **C -- `NamE`.** `parse=0x10022f854` is `parseRule` EXACTLY. ⚠⚠ **AND SO IS `action`.**
+#   Both slots hold the same function, and `g=0x0` -- gMethod is empty.
+#
+#   ⚠⚠ **SO THE CYCLE IS NOT MYSTERIOUS: `parseRule` runs the body, the body's exit fires the
+#   rule ACTION, the rule action IS `parseRule`.** designDocs `methodSlotFourReaders` predicted
+#   exactly this shape one slot over -- *a parse executor whose whole body is
+#   `field.method(field)` calls itself until the stack is gone.* Here it is `actionMethod`
+#   rather than `gMethod`, and `setParseWalk`'s own `actionMethod = method;` is the line to
+#   look at first.
+#
+#   ## ⚠⚠ THE TWELVE PARKED-ACTION EXECUTORS, NAMED -- AND ALL TWELVE WERE BEYOND THE OLD
+#   ## WALK'S FIRST REFUSAL. F-60's re-pin has its cause.
+#
+#       followedBy  parseSet         leftCurly   parseString      rightCurly  parseString
+#       leftBrace   parseString      rightBrace  parseString      BrancheS    parseContainer
+#       SemI        parseString
+#
+#   Twelve rows, **seven distinct names** -- five of them classified twice, two once.
+#
+#   ⚠ **AND THE ANSWER IS STRONGER THAN "BEYOND THE FIRST REFUSAL": ALL SEVEN ARE ABSENT FROM
+#   THE UNRULED WALK ENTIRELY.** Not before it, not after it -- never classified at all. The
+#   old walk's first refusal is line 14 of parseClass's capture and lines 14-73 are the sixty
+#   refusals; in the ruled run those same lines are the real classifications. **The rows move
+#   because the walk now COMPLETES**, which is F-60 closing with a cause rather than a
+#   coincidence. No row is owed an explanation of any other kind.
+#
+#   ⚠ METHOD NOTE, because it cost a run and would cost the next reader the same: the first
+#   attempt retok'd `GroupRules.twk` and NOT `RuleStuff.twk`, so the guard sat in source and
+#   not in the binary, and the probe reported a DIFFERENT crash. Bear-trap #49's family. The
+#   tell was the measurement disagreeing with the previous run.
+#
 #   ## ⚠⚠ WAITING ON TONY -- trigDO's THREE ROWS. NO REPAIR UNTIL HE READS THEM.
 #
 #   **They are ONE fact wearing three rows.** The fixture now RUNS to its foot and
