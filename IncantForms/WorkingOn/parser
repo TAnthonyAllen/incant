@@ -78,9 +78,33 @@ define
     ;
 
 debug;
+
+/*  THE BOTTOM SELECTS THE RULE AND THE INPUT, and the selector is WHERE THE stop() SITS.
+    Move it down past a case to run that case; everything below stop() is never read, so a
+    parked case cannot fire, cannot be parsed, and cannot break the run.
+
+    Each case is a PAIR and both halves name the same rule: parser(R) generates, compiles
+    and binds R's new parse body, and R(input) then drives a specimen through it, so the
+    run reports an ANSWER and not a count.
+
+    ⚠ THE PAIR STAYS AT TOP LEVEL AND MUST NOT BE WRAPPED IN AN ACTION. A rule named inside
+    an action body is an UNDECLARED name and becomes an action LOCAL (bear-trap 39), so
+    parser(Search) would be handed a fresh empty node instead of the grammar rule. The
+    selection moves; the calls do not.  */
+
+/*  CASE 1 -- the default.  Search  search- followedBy GrouP+ SemI-;  */
 parser(Search);
 Search("search list;");
 stop();
+
+/*  CASE 2 -- DO.  DO  do- followedBy StatemenT while- ExpressioN SemI- defer;
+    Specimen taken from incant/pop/trigDO, which already drives this rule.  */
+parser(DO);
+DO("do print 1; while 0;");
+stop();
+
+/*  PARKED -- neither the rule nor the input is settled here, and Start is the campaign POP
+    rather than a case.  */
 parser(Start);
 if IterSource("*someName"); print "IterSource parsed compiled and ran successfully":;
 

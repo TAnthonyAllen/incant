@@ -63,6 +63,34 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-64 — `REFUSED ... [line N]` IS NOT A SOURCE LINE, AND IT MOVES BY AN AMOUNT NOBODY CAN PREDICT
+**What:** the refusal diagnostic's bracketed line number tracks edits *above* the refusal site but
+is **not** the source line of anything, and the amount it moves is not the number of lines added.
+**Where:** whatever prints `REFUSED <term> -- iterate: the source has no list [line N]`; surfaced
+in `IncantForms/WorkingOn/parser`, whose standing (pre-existing) refusal is `REFUSED search`.
+**Evidence, four runs, one file, deterministic three times each:**
+
+| edit | reported |
+|---|---|
+| none (baseline) — the driver is at source line **81** | `[line 22]` |
+| 10 blank lines at the **top** | `[line 32]` — +10 |
+| 10 blank lines **before `debug;`** (line 79) | `[line 32]` — +10 |
+| 10 blank lines at the **bottom**, below `stop()` | `[line 22]` — unmoved |
+| the 2026-09-15 bottom-selector edit, **15 lines added above the driver** | `[line 26]` — **+4** |
+
+⚠ **THE LAST ROW IS THE DEFECT.** Blank lines give +1 each, so the counter is positional and
+file-relative — but a real edit of fifteen lines moved it four. So it counts *something* above the
+site and it is not lines, not statements the reader can see, and not a constant offset either:
+the gap from the driver's own line went **59 → 70** across that one edit.
+**Why it matters:** it is a **position report that cannot be used to find a position**, which is
+worse than no number — a reader will open the file at line 26 and find an unrelated statement, as
+happened here. Same family as bear-trap #36 (a backtrace names the line that died, not the line
+that read null), except #36 is off by one and this is off by an unknown amount.
+**Done when:** either the number is made to name the refusal's real source line, or the bracket is
+dropped so nothing implies it does.
+**Owner:** unassigned. Captured 2026-09-15 while editing `parser`; **not chased** — the refusal
+itself is pre-existing and unchanged, and that edit's stdout was byte-identical across it.
+
 ### F-62 — ✅ **CLOSED 2026-09-14** — redirect span narrowed so no refusing call sits inside it
 **Closed by:** stroke 9. `setParse(argument)` now runs BEFORE `printTO(codeBuffer)` opens the
 span. ⚠ **The obvious fix was measured and killed first:** making setParse's `no rStuff` case
