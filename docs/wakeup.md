@@ -66,6 +66,55 @@
 #   then **rebuilt bare before the fleet and before the commit** (0 Match markers in the
 #   committed `.mm`). The whole **419-line trace is byte-identical** across the stroke.
 #
+#   ## ⚠⚠⚠ THE TRACE, BANKED 2026-09-15 BY RULING. READ THIS BEFORE THE THREE ROWS BELOW.
+#
+#   **TWO FACTS, AND KEEPING THEM APART IS THE POINT (Tony, 2026-09-15): THE CRASH IS NOT IN
+#   THE WALK. It is `checkInput:1215` at PARSE time, reached only because silencing the
+#   no-rStuff refusal let `DO` compile at all.** Taken on the silenced build -- `Generate.rtn:325`
+#   `return refuse(...)` replaced by `return null` -- which is the exit-139 configuration.
+#   Reverted and rebuilt before anything landed; `Generate.rtn` md5 `9a4e5242…` both sides.
+#
+#       frame #0  RuleStuff::checkInput        RuleStuff.mm:1215
+#       frame #1  GroupItem::parse             GroupItem.mm:1563
+#       frame #2  processCode                  GroupRules.mm:10846
+#       frame #3  compile                      GroupRules.mm:1892
+#       frame #4  aCTionRunRulE                GroupRules.mm:1032
+#       frame #5  GroupItem::fireLabelMethod   GroupItem.mm:860
+#       frame #6  GroupItem::parse             GroupItem.mm:1591
+#       frame #7  testAttributes               RuleStuff.mm:756
+#       frame #8  GroupItem::parse             GroupItem.mm:1583
+#       frame #9  main                         groups.mm:25
+#
+#   `EXC_BAD_ACCESS (code=1, address=0x18)` on
+#   `field->parent->getRStuff()->label = label;`, guarded one line above by
+#   `field->groupBody->flags.hasNewParse && isMember(field->options.affiliation)`.
+#
+#   ⚠ **BEAR-TRAP #36: THE LINE NAMED IS THE CONSUMER.** `field->parent` is a LIVE node;
+#   `getRStuff()` returns nil on that same line and `->label` writes at offset `0x18`. And
+#   `getRStuff` is the PURE getter since the 2026-08-31 ruling -- before it, this line
+#   silently minted an rStuff and could never crash. The split did not cause this; it
+#   revealed a site that had been depending on the getter constructing.
+#
+#   ## ⚠⚠ THE ITEM-3 MEASUREMENT, AND IT SETTLES THE FORK: NEITHER BRANCH IS A COPY.
+#
+#       field                              BlocK       isCopy 0
+#       field->parent                      Grokking    isCopy 0     rStuff nil
+#       field->parent->definingRule()      Grokking    -- RETURNS ITSELF, same pointer
+#       field->parent->definingRule()->rStuff          nil
+#
+#   **So `field->parent` IS NOT A COPY AND HAS NO MASTER -- it is the REGISTRY.** `BlocK` is a
+#   top-level grammar rule and its parent is `Grokking` itself, which lawfully has no rStuff
+#   because it is not a rule. There is nothing to resolve through, so by the ruling's own fork
+#   **the fix is UPSTREAM, where `hasNewParse` is raised**, and this site refuses loud when it
+#   cannot resolve.
+#
+#   ⚠ **AND THE STRUCTURAL READING, which is the kind that holds here: THE GUARD AND ITS
+#   SUBJECT LIVE IN DIFFERENT STRUCTURES.** `hasNewParse` is a `groupBody` flag, which `copyOf`
+#   copies; `rStuff` is never copied and a registry never has one. Line 1215 assumes every
+#   `hasNewParse` MEMBER has a rule-shaped parent, and a top-level rule does not. That is
+#   Ruling D's own diagnostic sentence -- *whenever a guard and its subject live in different
+#   structures, ask whether they can disagree* -- arriving at a new site.
+#
 #   ## ⚠⚠ WAITING ON TONY -- trigDO's THREE ROWS. NO REPAIR UNTIL HE READS THEM.
 #
 #   **They are ONE fact wearing three rows.** The fixture now RUNS to its foot and

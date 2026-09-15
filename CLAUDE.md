@@ -2709,7 +2709,17 @@ direction the campaign might take, it is a state the machinery must report as a 
 >
 > **The checklist, and all of it every time:** `pop.sh` · `decodePop.sh` · `ddPop.sh` ·
 > `countPop.sh` · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
-> `groups.ext`'s state · **both repos clean and pushed, with no exception clause.**
+> `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
+>
+> ⚠⚠ **THREE, NOT TWO — CORRECTED 2026-09-15 (Tony), AND THE THIRD HAD BEEN INVISIBLE FOR
+> ELEVEN DAYS.** `InProcess/TOK` is a git repo and has been since `644fe89` (2026-09-04,
+> *"the Xcode project enters version control"*). Every seal since has read *"both repos"* and
+> none of them looked at it — so when it went dirty, nothing said so. It was found only
+> because a stroke needed the Xcode scheme. **The three are `Groups`, the support repo
+> (`~/Dropbox/data/InProcess/Include`), and `InProcess/TOK`.**
+> ⚠ **And the lesson is the checklist's own:** a count in an instrument is a claim about
+> coverage, and *"both"* was a claim that there were two. **When a repo joins the tree, it
+> joins this line in the same commit**, or the line starts lying quietly.
 >
 > ⚠⚠ **AND TWO HYGIENE-TIER INSTRUMENTS THAT ARE NOT ON THAT CHECKLIST AND MUST NOT BE —
 > `genLadder/alphaLint.sh` AND `genLadder/codeOnly.py`.** Standing instruments as of
