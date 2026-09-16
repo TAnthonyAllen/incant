@@ -1,3 +1,95 @@
+# ⚠⚠⚠ SEALED 2026-09-16, TWENTY-FIRST SESSION -- THE DIRECTIVES MODEL RAN ON PRODUCTION
+# CODE, THE DOT CHAIN FOLDS, AND TWO PREDICTIONS FAILED HONESTLY.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-16 12:20 and `git log -1 --date=iso` 12:20. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 352 green / 51 red, canary 330, fixit queue 0, all THREE
+#   repos clean and pushed.** Fourteen commits in Groups, one in support, two in TOK.
+#
+#   The arc: 300 (seal) -> 302 -> 308 (designDocs repaired) -> 311 (deleteAt) -> 317 -> 318
+#   (F-67) -> 343 (opPrefixT) -> 352 (dotChainT). Red 51 throughout except one deliberate
+#   red-on-purpose row that graduated the same day.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE DIRECTIVES MODEL RAN ON PRODUCTION SOURCE FOR THE FIRST TIME.** 30 inline keys
+#   respelled across `Commands.rtn` and `ruleActions.rtn` by `genLadder/batches/slugDirectives`
+#   -- TRACKED, because a batch that edited production and was thrown away is a change nobody
+#   can audit. ⚠ **The second-run check earned its place immediately**: the first run was
+#   perfect and the SECOND rewrote a BLOCK comment, because two paths also live in `/* */`
+#   blocks which the convention leaves alone. **Every fromThis is now END-ANCHORED WITH \n** --
+#   an inline key is always last on its line and a block mention never is. Second-run-inert is
+#   now a stated requirement in the directives guide, with the `\n` rule and the re-point
+#   mechanism (`closeFile` / assign / `getFile`) beside it.
+#
+#   **b. THE DOT CHAIN FOLDS.** `a.b.c` and `a[b].c` used to read `xl1` -- interpretXP's
+#   juxtaposition accumulator -- because the trailing `.c` parsed as a whole second TokenXP
+#   that produced no dot call and simply sat next to the term on its left. `isDotUxp` finds it
+#   BY ITS OP and `interpretXP` hands it the left operand the parser never gave it.
+#   ⚠ **The seam carries the direction fact in a comment BEFORE the code: the accumulator is
+#   the RIGHT, because `prior` walks BACKWARD.** Do not re-derive that.
+#
+#   **c. ⚠⚠ TWO PREDICTIONS FAILED, BOTH WITH THEIR CONTROLS INTACT, AND BOTH ARE RESULTS.**
+#   `starFlagT`'s pre-registered flip did not happen -- SF-1/3/5 did not move either, which is
+#   the clause that makes it a negative result rather than a voided control. **The prediction
+#   was built on SF-0 comparing the wrong pair**: the ORIGINAL against the HOLDER, not against
+#   the FACE. Corrected, the face shares the original's body #2 and SF-2's 1 is the flag
+#   crossing LAWFULLY. F-71's headline was withdrawn on it.
+#
+#   **d. F-71 IS CLOSED WITH NO DEFECT, AND THE 2026-09-05 STAR RULING IS RE-AFFIRMED.**
+#   `*x` on a non-group field yields NULL and does NOT refuse; the CONSUMER refuses. It is
+#   built on both halves -- `Instruct.opDeref.starRuling` and `aCTionIterate`'s `nullAfterStar`
+#   arm -- and it records what the other way round cost. ⚠ **A provisional refusal was raised
+#   and withdrawn the same day; 36 live `*argument` sites read isGrouP 0 and work BY THAT
+#   DESIGN.** Overturning it is a design change with those sites behind it, not a repair.
+#
+#   **e. `isGrouP` IS NEW AND IS AN INSTRUMENT, NOT A FIX.** GroupFields 43, read-only, because
+#   `isGROUP` is a VALUE of GroupBody's 5-bit `data` enum and not a flag -- so there is no
+#   opSetFlag write half and its absence is deliberate, said at the site. It predicts the
+#   star's answer exactly: **1 iff `*x` yields something**, measured across eight classes.
+#
+#   **f. F-67 CLOSED IN TWO REPAIRS THAT WERE TWO DIFFERENT DEFECTS.** `where == "before"` was
+#   NEVER TRUE -- a hoisted local is a HOLDER and this was the file's only unstarred read, so
+#   `where=before` silently meant `after` everywhere. Then, newly reachable, the graded
+#   candidate proved true: `if lineStart >= start lineStart++` always fired, stepping one
+#   character INTO line one. ⚠ **Grading that candidate is what saved it** -- written as a fact
+#   it would have been discarded with the wrong theory it was attached to.
+#
+#   **g. OPERATORS IS LONGEST-FIRST AGAIN, AND ORDER BUYS READABILITY ONLY.** Read, not
+#   inferred: `testContainer` scans greedily then BACKS OFF one character at a time, and
+#   `get()` is a linear walk with an exact whole-tag compare. Order changes how many compares
+#   happen before the hit and nothing else. `incant/pop/opPrefixT` pins THE ANSWER, never the
+#   row order, so it survived the reorder and proved it inert.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **352 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · frontier dies at station 5 · canary **330** · alphaLint 10 out of
+#   order (the pre-existing opIsShortCircuit/opIsOR pair) · **Groups 0/0, support 0/0, TOK 0/0.**
+#
+#   ## ⚠⚠ WAITING ON TONY
+#
+#   **1. THE 09-05 STAR RULING -- DECIDED, NOT OPEN. RE-AFFIRMED 2026-09-16.** It is listed
+#   here so tomorrow's reader does NOT re-open it. If it is ever overturned that is a design
+#   change with 36 `*argument` sites behind it and it wants its own day.
+#
+#   **2. F-72, OPEN AND ITS OWN STROKE.** `a.*b` never forms a dot at all -- no dot-COMPOSED
+#   arm, and DOTOPERANDS reads left=right=a -- so neither opDot nor handleDot can refuse it.
+#   The refusal wants siting where the unary is visible, with the cure `a[*b]` spelled.
+#   `dotChainT` DC-9 pins today's echo and its header says IN TERMS that it is not yet a refusal.
+#
+#   **3. F-69, F-70, F-71's residue.** Removing `deleteAt`'s `else` arm exits 139, undiagnosed.
+#   `dumpContents(GroupFields)` exits 139 on a clean tree. Both latent, neither chased.
+#
+#   ## TOMORROW, IN ORDER
+#   1. F-72, its own stroke.
+#   2. The `a.b.c.d` case -- the fold handles the two-element chain; a longer chain was not
+#      measured and the backward walk needs a stack for it.
+#   3. The design docket proper.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+#
 # ⚠⚠⚠ SEALED 2026-09-15, NINETEENTH SESSION -- THE COMMENT CONVENTION IS RULED AND SWEPT,
 # THE FIXIT QUEUE IS EMPTY, F-61 IS CLOSED, AND THE KITCHEN HAS THREE REPOS.
 #
