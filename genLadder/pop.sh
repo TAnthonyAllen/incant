@@ -2418,6 +2418,32 @@ done
 #  actions moved to a DEFINITIONS-ONLY incant/directives that ends in bail(),
 #  so it can be include()d by a generated directive file instead of being
 #  copy-pasted into one. dirT includes it and owns the samples and the driver.
+#  neighbour <file> <payload> <offset> <expected> -- assert the line <offset>
+#  away from the one carrying <payload>. This is how "before" and "after" are
+#  told apart AT ALL: every row here used to grep only that the payload was
+#  PRESENT, and presence is satisfied identically by a payload on either side of
+#  its anchor. F-67 sat undetected behind exactly that for as long as the rows
+#  existed -- where=before wrote its value, so the row was green, and it wrote it
+#  in the wrong place.
+#  ⚠ IT PRINTS THE LINE IT FOUND ON A FAILURE, because "not where it should be"
+#  without saying where it IS costs the next reader a run.
+neighbour () {
+    local _f=$1 _pay=$2 _off=$3 _want=$4 _lbl=$5
+    local _n=$(grep -n -F -- "$_pay" "$_f" | head -1 | cut -d: -f1)
+    if [ -z "$_n" ]; then
+        echo "  FAIL  directives $_lbl -- the payload '$_pay' is not in the capture"; fail=1; return
+    fi
+    local _got=$(sed -n "$((_n+_off))p" "$_f")
+    if [ "$_got" = "$_want" ]; then
+        echo "  ok    directives $_lbl -- PLACEMENT PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  directives $_lbl -- want the neighbour to read"
+        echo "          $_want"
+        echo "        got"
+        echo "          $_got"; fail=1
+    fi
+}
+
 run1 dirT "$T/dirv"; check "directives runs (opIN buffer arm)" 0 $?
 sentinel "directives sentinel" "$T/dirv" "DIRT SENTINEL"
 for _r in "buffer arm reached (replaceAt ran)|Running replaceAt" \
@@ -2489,6 +2515,41 @@ else
     echo "        miss arm -- the text is already gone -- and leave the buffer"
     echo "        untouched. This row is F-66's ruling, not its code."; fail=1
 fi
+
+#  ---- F-67: where=before/after PLACEMENT at middle and tail ------------------
+#  Landed 2026-09-16. `where == "before"` was never true -- a hoisted local is a
+#  HOLDER and every other read in incant/directives already starred it, so this
+#  one line was the file's only unstarred read and where=before silently became
+#  where=after. Measured 5 spellings x 2 with a control before the star went in.
+#  ⚠ THESE ARE RE-PINS AND THEY NEED THIS SENTENCE (H6): the middle rows moved
+#  because the BEHAVIOUR moved, and it moved toward what the fixture always said
+#  it did. They are not re-pinned to silence anything.
+neighbour "$T/dirv" 'print "Stuck this in before":;'  1 '        x = "hi";' \
+    "where=before lands AHEAD of its line (middle)"
+neighbour "$T/dirv" 'print "Stuck this in after":;'  -1 '        print x:;' \
+    "where=after lands BEHIND its line (middle)"
+#  The two tail rows BRACKET the same neighbour, so a payload on the wrong side
+#  of the last line cannot satisfy either of them.
+neighbour "$T/dirv" 'TAIL-BEFORE'  1 '        y = "Thats all ": };' \
+    "where=before lands AHEAD of its line (tail)"
+neighbour "$T/dirv" 'TAIL-AFTER'  -1 '        y = "Thats all ": };' \
+    "where=after lands BEHIND its line (tail)"
+
+#  ---- F-67's RESIDUE: where=before on the FIRST line of a buffer -------------
+#  ⚠ RED ON PURPOSE AND PINNED TO THE RIGHT ANSWER (H7's other half). The payload
+#  lands ONE CHARACTER INTO line one, so the buffer reads `hHEAD-PAYLOAD` then
+#  `eadLine alpha`. Cause named and graded in docs/fixIts.md F-67: getMarkLineAt's
+#  `if lineStart >= start lineStart++;` -- lineStart can never be BELOW start, so
+#  the ++ always fires; over a \n that is right, into line one it is not.
+#  It is pinned RIGHT rather than pinned WRONG so the day the one-character repair
+#  lands this row GRADUATES instead of waiting to be noticed. Do not re-pin it to
+#  the broken value.
+#  ⚠ IT HAS ITS OWN RUN because getFile is once per FIELD and the mark only
+#  advances -- a head case cannot share a buffer with anything.
+run1 dirHeadT "$T/dirh"; check "dirHeadT runs" 0 $?
+sentinel "dirHeadT sentinel" "$T/dirh" "DIRHEADT SENTINEL"
+neighbour "$T/dirh" 'HEAD-PAYLOAD'  1 'headLine alpha' \
+    "where=before at the HEAD leaves line one intact -- F-67 RESIDUE, RED ON PURPOSE"
 
 #  ---- artifactSkipByFlag: the skip reads the STRUCTURAL fact ----------------
 #  Retired citizen, 2026-09-08, retirement BY MAPPING: this is where its census

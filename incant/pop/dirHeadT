@@ -1,0 +1,39 @@
+/*  dirHeadT -- insertAt with where=before on the FIRST LINE of a buffer.
+
+    ⚠ THIS FIXTURE IS RED ON PURPOSE AND IS PINNED TO THE RIGHT ANSWER (H7).
+    It is F-67's RESIDUE, and it only became visible on 2026-09-16: until the
+    `*where` star landed in incant/directives, where=before never fired at all,
+    so the first-line case could not be reached to be wrong.
+
+    THE DEFECT: the payload lands ONE CHARACTER INTO the first line, so the
+    buffer reads `hPAYLOAD` / `eadLine alpha` instead of the payload ahead of
+    an intact line.
+
+    THE CAUSE IS NAMED AND GRADED, NOT GUESSED -- getMarkLineAt (Instruct.rtn)
+    ends its walk with `if lineStart >= start lineStart++;`, and lineStart can
+    never be BELOW start, so the ++ always fires. For a line reached by walking
+    back to a \n that step is right, because it steps over the newline. For the
+    first line the walk stops at start and the step goes into the text.
+
+    PINNED RIGHT RATHER THAN PINNED WRONG, deliberately: the day the repair
+    lands this row GRADUATES on its own instead of waiting to be noticed.
+
+    ⚠ IT HAS ITS OWN SAMPLE AND ITS OWN RUN because getFile is once per FIELD
+    and the buffer mark only ever ADVANCES -- a head case cannot share a buffer
+    with anything, since everything else is forward of it.
+
+    Sentinel at the foot, single stop.  */
+Start();
+include(directives);
+
+register(Directives);
+define
+    source="incant/dirHeadSample";
+    dHead source fromThis="headLine" toThis='HEAD-PAYLOAD\n' where=before;
+    ;
+
+getFile(source);
+insertAt(dHead);
+print ``"=== head, where=before ===":source:;
+print "DIRHEADT SENTINEL":;
+stop();

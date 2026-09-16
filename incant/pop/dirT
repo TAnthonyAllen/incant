@@ -42,6 +42,20 @@ define
     dIRECTive5 source fromThis=" she wrote";
     dIRECTive6 source fromThis="zzzNotInTheSampleEither";
 
+    /*  TAIL placement, both directions, F-67. Together they BRACKET the sample's
+        last line, so both rows name the same neighbour and a payload on the
+        wrong side of it cannot pass either.
+        ⚠ THEY STRADDLE THE DELETES, AND THAT IS THE MARK, NOT A PREFERENCE. The
+        mark only ever advances, so dIRECTive7 must run BEFORE the delete (its
+        anchor is behind the delete site) and dIRECTive8 AFTER it -- which is why
+        dIRECTive8 anchors on `};`, the only text forward of where the delete left
+        the mark.
+        HEAD is not here and cannot be: a head case cannot share a buffer with
+        anything, since everything else is forward of it. It has its own run --
+        incant/pop/dirHeadT -- and it is red on purpose.  */
+    dIRECTive7 source fromThis="Thats all" toThis='TAIL-BEFORE\n' where=before;
+    dIRECTive8 source fromThis="};" toThis='TAIL-AFTER\n' where;
+
     /***************************************************************************
         replaceAt — find fromThis in source, replace it with toThis.
         IN sets the buffer mark at the match; -= removes the matched text at
@@ -56,10 +70,12 @@ replaceAt(dIRECTive1);
 insertAt(dIRECTive2);
 insertAt(dIRECTive3);
 insertAt(dIRECTive4);
+insertAt(dIRECTive7);
 deleteAt(dIRECTive5);
 print "--- deleteAt second fire, must be inert ---":;
 deleteAt(dIRECTive5);
 deleteAt(dIRECTive6);
+insertAt(dIRECTive8);
 print ``"--- AFTER directives ---":source:;
 print "DIRT SENTINEL":;
 stop();

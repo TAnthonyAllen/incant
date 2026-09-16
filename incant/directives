@@ -67,7 +67,9 @@ define
         if line;            insMiss = 0;
         if insMiss == 1;    print "Did not find" fromThis "in source":;
         if insMiss == 1;    return 0;
-        if where == "before";
+        // whereNeedsItsStar  a hoisted local is a HOLDER -- unstarred, `where == "before"`
+        //                    is never true and where=before silently became where=after
+        if *where == "before";
             source += *toThis;
         else
             where +% source;

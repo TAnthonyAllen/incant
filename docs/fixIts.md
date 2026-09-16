@@ -3159,6 +3159,52 @@ that is resolved. **Owner:** Tony for the staleness RULE, unassigned for the fix
 **Size:** the fixture is small; the rule is a ruling.
 
 ### F-67 — `where=before` on a directive inserts AFTER the matched line
+⚠⚠ **HALF CLOSED 2026-09-16. THE HEADLINE DEFECT IS FIXED AND ITS CAUSE WAS NEITHER OF THE
+CANDIDATES BELOW — `where` WAS NEVER COMPARED AT ALL.** The entry's graded candidate was right
+about its own scope and wrong as an explanation of the headline, which is what grading it bought.
+
+**THE MEASUREMENT CAME FIRST AND IT WAS BIGGER THAN THE ENTRY.** Six probes — a three-line buffer,
+a match on line 1, 2 and 3, each in both directions — and `where` **did nothing at all**: before and
+after produced **byte-identical placement at every position**, the payload always landing after the
+matched line. That is not an off-by-one in anybody's arithmetic; it is an arm that never runs.
+
+**Then one more run said which half was dead, with a control.** `where` prints `before`, and
+`where == "before"` reads **0**:
+
+| spelling | `where=before` | `where=after` (control) | verdict |
+|---|---|---|---|
+| `where == "before"` | 0 | 0 | **void — never true** |
+| `wCap := where;` then `wCap == "before"` | 0 | 0 | void |
+| `where.text == "before"` | 0 | 0 | void |
+| **`*where == "before"`** | **1** | **0** | ✅ discriminates |
+| `where eq "before"` | 1 | **1** | void — always true (bear-trap #28: kant has no `eq`) |
+
+**THE FIX IS ONE CHARACTER AND THE FILE'S OWN CONVENTION IS THE PROOF.** A hoisted local is a
+HOLDER, and `incant/directives` already stars every other one — `*fromThis` twice, `*toThis` three
+times. `where == "before"` was **the only unstarred read in the file**. Starred, `dirT` moves
+exactly one line and nothing else; middle and tail now place correctly in both directions.
+**H7 control:** star removed, `where=before` lands after its line again.
+
+⚠⚠ **WHAT REMAINS OPEN IS THE ENTRY'S OWN GRADED CANDIDATE, NOW CONFIRMED AND PINNED RED —
+`where=before` ON THE FIRST LINE OF A BUFFER INSERTS ONE CHARACTER INTO IT.** `hHEAD-PAYLOAD` then
+`eadLine alpha`. ⚠ **It was UNREACHABLE until today**: while `before` never fired, the first-line
+path could not be taken, so the candidate could not have been confirmed or killed by any run.
+**The cause stands exactly as graded below:** `getMarkLineAt`'s `if lineStart >= start lineStart++;`
+where `lineStart` can never be below `start`, so the `++` always fires — correct when the walk
+reached a `\n`, one character too far when it stopped at the buffer head.
+**NOT ATTEMPTED, by the session's timebox** (one measurement pass, one repair, and both are spent),
+and because the repair is in `Instruct.rtn` and therefore costs a retok and a rebuild where the
+headline fix cost neither. **Pinned RED ON PURPOSE in `incant/pop/dirHeadT` + its `pop.sh` row,
+pinned to the RIGHT answer** so the day the one-character repair lands the row graduates on its own.
+**Done when:** that row goes green with a sentence.
+**Owner:** unassigned. **Size:** one character plus a retok, rebuild and full-fleet re-read.
+
+**One case is measured but NOT covered by a fleet row, and it is named rather than left silent:**
+`where=after` at the HEAD is correct (probe: payload below an intact `lineOne alpha`). It has no row
+because `getFile` is once per FIELD and the mark only ever advances, so a head case cannot share a
+buffer with anything — one head case per run, and the red one earned the run.
+
+**The original entry, kept because its graded candidate is the half still open:**
 **What:** `insertAt` with `where=before` lands its text after the matched line, not ahead of it.
 Measured twice 2026-09-15, independently: `incant/directives`' own `dIRECTive2` (`fromThis="x ="`)
 puts its line below `x = "hi";` while the fixture header says *"a `Stuck this in before` line ahead
