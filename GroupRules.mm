@@ -3304,11 +3304,11 @@ GroupItem 	*result = 0;
 				if ( matchLength = buffer->findInBuffer(fromThis->getText()) )
 					{
 					lineStart = buffer->mark;
+					// headLineStep  step over the \n the walk STOPPED at, never into line one
 					while ( lineStart != buffer->start && *lineStart != '\n' )
 						lineStart--;
-					if ( lineStart >= buffer->start )
+					if ( *lineStart == '\n' )
 						lineStart++;
-					else	lineStart = buffer->start;
 					buffer->mark = lineStart + matchLength;
 					while ( buffer->mark < buffer->current && *buffer->mark != '\n' )
 						buffer->mark++;

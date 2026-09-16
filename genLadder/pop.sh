@@ -2535,21 +2535,24 @@ neighbour "$T/dirv" 'TAIL-BEFORE'  1 '        y = "Thats all ": };' \
 neighbour "$T/dirv" 'TAIL-AFTER'  -1 '        y = "Thats all ": };' \
     "where=after lands BEHIND its line (tail)"
 
-#  ---- F-67's RESIDUE: where=before on the FIRST line of a buffer -------------
-#  ⚠ RED ON PURPOSE AND PINNED TO THE RIGHT ANSWER (H7's other half). The payload
-#  lands ONE CHARACTER INTO line one, so the buffer reads `hHEAD-PAYLOAD` then
-#  `eadLine alpha`. Cause named and graded in docs/fixIts.md F-67: getMarkLineAt's
-#  `if lineStart >= start lineStart++;` -- lineStart can never be BELOW start, so
-#  the ++ always fires; over a \n that is right, into line one it is not.
-#  It is pinned RIGHT rather than pinned WRONG so the day the one-character repair
-#  lands this row GRADUATES instead of waiting to be noticed. Do not re-pin it to
-#  the broken value.
+#  ---- where=before on the FIRST line of a buffer -----------------------------
+#  ⚠ GRADUATED 2026-09-16, SAME DAY IT WAS MINTED, and H6 is why the label moved
+#  with it: a pin that starts passing must stop calling itself a pin. It was born
+#  RED ON PURPOSE (H7's other half) -- the payload landed ONE CHARACTER INTO line
+#  one, `hHEAD-PAYLOAD` then `eadLine alpha` -- and it was pinned to the RIGHT
+#  answer precisely so that the repair would turn it green without anyone having
+#  to notice. It did.
+#  THE REPAIR, one line in Instruct.rtn getMarkLineAt: `if lineStart >= start
+#  lineStart++;` became `if lineStart == '\n' lineStart++;`. lineStart can never
+#  be BELOW start, so the old test always fired -- right when the walk stopped at
+#  a newline, one character too far when it stopped at the buffer head. The new
+#  test asks what the walk actually stopped ON.
 #  ⚠ IT HAS ITS OWN RUN because getFile is once per FIELD and the mark only
 #  advances -- a head case cannot share a buffer with anything.
 run1 dirHeadT "$T/dirh"; check "dirHeadT runs" 0 $?
 sentinel "dirHeadT sentinel" "$T/dirh" "DIRHEADT SENTINEL"
 neighbour "$T/dirh" 'HEAD-PAYLOAD'  1 'headLine alpha' \
-    "where=before at the HEAD leaves line one intact -- F-67 RESIDUE, RED ON PURPOSE"
+    "where=before at the HEAD leaves line one intact"
 
 #  ---- artifactSkipByFlag: the skip reads the STRUCTURAL fact ----------------
 #  Retired citizen, 2026-09-08, retirement BY MAPPING: this is where its census

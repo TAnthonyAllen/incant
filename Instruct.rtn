@@ -41,9 +41,9 @@ GroupItem   result;
             if buffer
                 if matchLength = findInBuffer(fromThis.text) {
                     lineStart = mark;
+                    // headLineStep  step over the \n the walk STOPPED at, never into line one
                     while lineStart != start && lineStart != '\n' lineStart--;
-                    if lineStart >= start lineStart++;
-                    else lineStart = start;
+                    if lineStart == '\n' lineStart++;
                     mark = lineStart + matchLength;
                     while mark < current && mark != '\n' mark++;
                     mark++;

@@ -1,22 +1,22 @@
 /*  dirHeadT -- insertAt with where=before on the FIRST LINE of a buffer.
 
-    ⚠ THIS FIXTURE IS RED ON PURPOSE AND IS PINNED TO THE RIGHT ANSWER (H7).
-    It is F-67's RESIDUE, and it only became visible on 2026-09-16: until the
-    `*where` star landed in incant/directives, where=before never fired at all,
-    so the first-line case could not be reached to be wrong.
+    ⚠ BORN RED ON PURPOSE AND GRADUATED THE SAME DAY (H7, then H6). It is
+    F-67's residue, and it only became visible on 2026-09-16: until the `*where`
+    star landed in incant/directives, where=before never fired at all, so the
+    first-line case could not be reached to be wrong. It was pinned to the RIGHT
+    answer rather than to the broken one, deliberately, so that the repair would
+    turn it green without anyone having to notice. It did, within the hour.
 
-    THE DEFECT: the payload lands ONE CHARACTER INTO the first line, so the
-    buffer reads `hPAYLOAD` / `eadLine alpha` instead of the payload ahead of
-    an intact line.
+    THE DEFECT IT WAS BORN ON: the payload landed ONE CHARACTER INTO the first
+    line -- `hHEAD-PAYLOAD` then `eadLine alpha`.
 
-    THE CAUSE IS NAMED AND GRADED, NOT GUESSED -- getMarkLineAt (Instruct.rtn)
-    ends its walk with `if lineStart >= start lineStart++;`, and lineStart can
-    never be BELOW start, so the ++ always fires. For a line reached by walking
-    back to a \n that step is right, because it steps over the newline. For the
-    first line the walk stops at start and the step goes into the text.
-
-    PINNED RIGHT RATHER THAN PINNED WRONG, deliberately: the day the repair
-    lands this row GRADUATES on its own instead of waiting to be noticed.
+    THE REPAIR, one line in getMarkLineAt (Instruct.rtn): the walk ended with
+    `if lineStart >= start lineStart++;`, and lineStart can never be BELOW start,
+    so the ++ always fired. For a line reached by walking back to a \n that step
+    is right, because it steps over the newline; for the first line the walk
+    stops at start and the step goes into the text. It now asks what the walk
+    actually stopped ON -- `if lineStart == '\n' lineStart++;` -- which is right
+    in both positions and makes the dead `else lineStart = start;` unnecessary.
 
     ⚠ IT HAS ITS OWN SAMPLE AND ITS OWN RUN because getFile is once per FIELD
     and the buffer mark only ever ADVANCES -- a head case cannot share a buffer

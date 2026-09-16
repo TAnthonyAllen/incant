@@ -3159,9 +3159,10 @@ that is resolved. **Owner:** Tony for the staleness RULE, unassigned for the fix
 **Size:** the fixture is small; the rule is a ruling.
 
 ### F-67 — `where=before` on a directive inserts AFTER the matched line
-⚠⚠ **HALF CLOSED 2026-09-16. THE HEADLINE DEFECT IS FIXED AND ITS CAUSE WAS NEITHER OF THE
-CANDIDATES BELOW — `where` WAS NEVER COMPARED AT ALL.** The entry's graded candidate was right
-about its own scope and wrong as an explanation of the headline, which is what grading it bought.
+⚠⚠ **CLOSED 2026-09-16, IN TWO REPAIRS, AND THEY ARE TWO DIFFERENT DEFECTS THAT LOOKED LIKE ONE.**
+The entry's graded candidate was **right about its own scope and wrong as an explanation of the
+headline** — which is exactly what grading it bought, and why it survived to be confirmed rather
+than being discarded with the theory it was attached to.
 
 **THE MEASUREMENT CAME FIRST AND IT WAS BIGGER THAN THE ENTRY.** Six probes — a three-line buffer,
 a match on line 1, 2 and 3, each in both directions — and `where` **did nothing at all**: before and
@@ -3185,26 +3186,33 @@ times. `where == "before"` was **the only unstarred read in the file**. Starred,
 exactly one line and nothing else; middle and tail now place correctly in both directions.
 **H7 control:** star removed, `where=before` lands after its line again.
 
-⚠⚠ **WHAT REMAINS OPEN IS THE ENTRY'S OWN GRADED CANDIDATE, NOW CONFIRMED AND PINNED RED —
-`where=before` ON THE FIRST LINE OF A BUFFER INSERTS ONE CHARACTER INTO IT.** `hHEAD-PAYLOAD` then
-`eadLine alpha`. ⚠ **It was UNREACHABLE until today**: while `before` never fired, the first-line
-path could not be taken, so the candidate could not have been confirmed or killed by any run.
-**The cause stands exactly as graded below:** `getMarkLineAt`'s `if lineStart >= start lineStart++;`
-where `lineStart` can never be below `start`, so the `++` always fires — correct when the walk
-reached a `\n`, one character too far when it stopped at the buffer head.
-**NOT ATTEMPTED, by the session's timebox** (one measurement pass, one repair, and both are spent),
-and because the repair is in `Instruct.rtn` and therefore costs a retok and a rebuild where the
-headline fix cost neither. **Pinned RED ON PURPOSE in `incant/pop/dirHeadT` + its `pop.sh` row,
-pinned to the RIGHT answer** so the day the one-character repair lands the row graduates on its own.
-**Done when:** that row goes green with a sentence.
-**Owner:** unassigned. **Size:** one character plus a retok, rebuild and full-fleet re-read.
+⚠⚠ **THE SECOND REPAIR — THE ENTRY'S OWN GRADED CANDIDATE, CONFIRMED THEN FIXED.** `where=before`
+on the FIRST line of a buffer inserted one character INTO it: `hHEAD-PAYLOAD` then `eadLine alpha`.
+⚠ **It was UNREACHABLE until the star landed**: while `before` never fired, the first-line path
+could not be taken, so nothing could have confirmed or killed the candidate. It became reachable and
+wrong within the hour, was **pinned RED ON PURPOSE to the RIGHT answer** (H7's other half), and
+**graduated the same day** (H6) when the repair went in.
+
+**THE ONE-LINE CAUSE:** `getMarkLineAt`'s walk ended `if lineStart >= start lineStart++;` — and
+`lineStart` can never be BELOW `start`, so **the `++` always fired**. Right when the walk stopped at
+a `\n`, because it steps over the newline; one character too far when it stopped at the buffer head.
+**THE FIX ASKS WHAT THE WALK ACTUALLY STOPPED ON:** `if lineStart == '\n' lineStart++;`, which is
+correct in both positions and makes the `else lineStart = start;` beneath it unnecessary — that
+branch was **dead**, being reachable only when `lineStart` was already `start`.
+
+**Certificate:** `Instruct.rtn` one line, bare retok (zero armed directives, zero directive markers
+in the `.mm`), generated diff **two lines out, one in, `GroupRules.h` byte-identical**, canary
+**329** both sides, rebuilt. **Fleet 317 → 318 green, red 52 → 51, and the ONLY row that moved
+across a full C++ rebuild is `dirHeadT`'s own, red → green.** ddPop 5/1 · decodePop 14 · countPop
+0-of-45 · formsPop 14 · frontier station 5 · alphaLint 10 · inArmsT sentinel — all identical either
+side of the rebuild.
 
 **One case is measured but NOT covered by a fleet row, and it is named rather than left silent:**
 `where=after` at the HEAD is correct (probe: payload below an intact `lineOne alpha`). It has no row
 because `getFile` is once per FIELD and the mark only ever advances, so a head case cannot share a
 buffer with anything — one head case per run, and the red one earned the run.
 
-**The original entry, kept because its graded candidate is the half still open:**
+**The original entry, kept because its graded candidate is the half that turned out to be true:**
 **What:** `insertAt` with `where=before` lands its text after the matched line, not ahead of it.
 Measured twice 2026-09-15, independently: `incant/directives`' own `dIRECTive2` (`fromThis="x ="`)
 puts its line below `x = "hi";` while the fixture header says *"a `Stuck this in before` line ahead
