@@ -1838,6 +1838,20 @@ Hard-won lessons. Each one has cost real debugging time.
     | 5 | `genParse`'s argument (2026-08-06) | the BARE form (`genParse(Parens)`) worked **by accident of this trap** — a node with no data echoes the tag, which happens to be the rule name — while the FIELD form failed by the same mechanism, because the *reference* node passed in has no data even when the *defined* field does |
     | 6 | define syntax (2026-08-06) | **`gsRule "Parens";` does NOT give the field data** and prints as `gsRule`; only `gsRule = "Parens";` does. Two characters, and the failure is a plausible name |
     | 7 | **`*x.flagName` is NOT a flag read** (2026-09-15) | one character turned a red fixture green. `incant/fixits/faceFlagsNoCross` asked "did the flag cross to the face" as `*fcFace.noPrinT` and read **1**; `incant/pop/faceT` asks it as `faFace.noPrinT` and reads **0**. A 2×3 named the starred form as the liar, and **the row that kills it is the SOURCE row, where the answer is not in doubt**: read with no star the face gives 0, the never-written control 0, the source **1**; read WITH a star the face gives 1 and *both* the control and **the source** give a **tag echo — no data at all**. So it answers in one position out of three, and the one it answers is the one nobody could check. Mechanism is bear-trap #48's second half — `.` lives in `UnaryOPS`, so `*a.b` is two terms associating right-to-left as `*(a.b)`, a star applied to a flag's *value*. ⚠ **The cost was nearly a false retirement**: the citizen looked like it had started passing, and retiring it on that reading would have banked a fix that did not happen |
+    ⚠⚠ **PAYMENT 7 SHARPENED 2026-09-16, AND THE PRACTICAL ADVICE IS UNCHANGED — READ A FLAG
+    WITHOUT THE STAR.** What moves is *why*. The starred form is not lying; it is **asking a
+    different question and getting a lawful answer**. `*x` on a field that holds no group
+    **yields NULL by ruling** (Tony 2026-09-05, re-affirmed 2026-09-16,
+    `Instruct.opDeref.starRuling`), so on the SOURCE row — a plain field — the star lawfully
+    answers nothing, and that is the row payment 7 called the killer.
+    ⚠ **And the FACE row's 1 is lawful too, which is the half that was wrong.** `starFlagT`'s
+    SF-0 control compared the original against the **holder** instead of against the **face**.
+    Corrected, the face shares the original's **body #2**, so a flag written to one is readable
+    through the other and `*face.flagName` reading 1 is the flag crossing **as it should**.
+    **So the spelling is a category mismatch, not a liar** — and `isGrouP` (GroupFields 43,
+    minted 2026-09-16) is the accessor that lets you ask which you are holding before you star
+    it. The population the row reports is unchanged; only the blame moves.
+
     ⚠ **AND THE LEDGER'S HEADER NOW UNDERSTATES IT: PAYMENT 7 IS NOT A `.text` READ AT ALL.**
     The first six are one mechanism -- a data-less field echoing its tag. Payment 7 is a
     *parse* fact wearing the same clothes, and it arrives through a spelling nobody would

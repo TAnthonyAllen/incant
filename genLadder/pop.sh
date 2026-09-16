@@ -1181,9 +1181,20 @@ done
 #  right-to-left association gives `*(a.b)`, a star on a flag's VALUE.
 #
 #  ⚠⚠ WHEN THE FOLD LANDS, READ THE FIXTURE'S OWN HEADER BEFORE GRADING IT. It
-#  carries a pre-registered prediction (SF-2 1->0, SF-4 echo->0, SF-6 echo->1,
-#  and SF-1/SF-3/SF-5 must NOT move) AND a third outcome: the treatment touches
-#  this fixture's own read machinery, so a move in SF-1 or SF-5 VOIDS the
+#  ⚠⚠ THE PRE-REGISTERED PREDICTION IS RESOLVED 2026-09-16 AND IT FAILED, WITH THE
+#  CONTROL INTACT. It said SF-2 1->0, SF-4 echo->0, SF-6 echo->1 once the dot
+#  folded. The fold landed (incant/pop/dotChainT) and NONE of the three moved --
+#  and SF-1/SF-3/SF-5 did not move either, which is the clause that matters: the
+#  treatment never reached the read machinery, so this is a genuine NEGATIVE
+#  RESULT and not a voided control. The prediction was built on SF-0's wrong pair.
+#  WHAT THE ROWS MEAN NOW: SF-2's 1 is the flag crossing LAWFULLY between two
+#  fields over one body. SF-4 and SF-6 are NULL BY RULING -- Tony's star ruling of
+#  2026-09-05, re-affirmed 2026-09-16, at Instruct.opDeref.starRuling: `*x` on a
+#  field that holds no group yields NULL and does NOT refuse, and the CONSUMER of
+#  the null refuses. Those two rows are the language behaving as ruled.
+#  The old third-outcome clause is kept below because it is still how to read a
+#  move in SF-1 or SF-5:
+#  the treatment touches
 #  controls and every row below them is uninterpretable rather than wrong.
 #  Report a voided control; do not grade it.
 run1 starFlagT "$T/sf"; check "starFlagT runs" 0 $?
@@ -1205,12 +1216,24 @@ for _arm in "SF-1 face   NO star   =  0" \
         fail=1
     fi
 done
-if grep -qE 'ADDROF sfSrc field=#1 body=#2' "$T/sf" && grep -qE 'ADDROF sfFace field=#3 body=#4' "$T/sf"; then
-    echo "  ok    starFlagT SF-0 the two faces do NOT share a body -- PINNED BY VALUE"; green=$((green+1))
+#  ⚠⚠ SF-0 REWRITTEN 2026-09-16, AND THE OLD ONE COMPARED THE WRONG PAIR. It read
+#  the ORIGINAL against the HOLDER -- `addrOf(sfSrc)` against `addrOf(sfFace)` --
+#  and concluded from their different bodies that a flag must not cross. But the
+#  holder is not the face: the FACE is what the holder POINTS AT, `*sfFace`, and
+#  it shares the original's body outright because `+%` attached a copy over it.
+#  Rule H13 question 1 -- "is this the same thing, reached through a carrier?" --
+#  reads the BODY column, and read correctly it says #2 on both sides.
+#  ⚠ THAT WRONG PAIR IS HOW THE PRE-REGISTERED PREDICTION GOT MADE. SF-2 = 1 is
+#  the flag crossing LAWFULLY, not noise. F-71's headline was withdrawn on it.
+if grep -qE 'ADDROF sfSrc field=#1 body=#2' "$T/sf" \
+   && grep -qE 'ADDROF sfFace field=#3 body=#4' "$T/sf" \
+   && grep -qE 'ADDROF sfSrc field=#5 body=#2' "$T/sf"; then
+    echo "  ok    starFlagT SF-0 original and FACE share body #2; the holder does not -- PINNED BY VALUE"; green=$((green+1))
 else
-    echo "  FAIL  starFlagT SF-0 moved -- if the bodies now MATCH, copy-on-rebind has"
-    echo "        been fixed and SF-1 should read 1; this fixture and faceT F2/F3 move"
-    echo "        together and neither can be re-pinned without the other."
+    echo "  FAIL  starFlagT SF-0 moved. The three rows are the ORIGINAL (#1/#2), the"
+    echo "        HOLDER \`<-\` minted (#3/#4), and THE FACE \`*sfFace\` (#5/#2). If the"
+    echo "        original and the face STOP sharing a body, SF-2 should stop reading 1"
+    echo "        and faceT F2/F3 move with it; neither re-pins without the other."
     grep 'ADDROF sf' "$T/sf" | sed 's/^/          actual:   /'
     fail=1
 fi

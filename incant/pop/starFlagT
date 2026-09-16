@@ -11,9 +11,13 @@ define
     sfRun code={
         sfBag +% sfSrc;
         sfFace <- sfBag["sfSrc"];
-        cerr "SF-0 the two bodies -- if these DIFFER a flag must not cross:":;
+        cerr "SF-0 THREE NODES, AND THE FACE IS THE THIRD -- read the BODY column:":;
+        cerr "     1 the ORIGINAL:":;
         addrOf(sfSrc);
+        cerr "     2 the HOLDER -- NOT the face, this is what <- minted:":;
         addrOf(sfFace);
+        cerr "     3 THE FACE -- what the holder POINTS AT, and the one that matters:":;
+        addrOf(*sfFace);
         sfSrc :. noPrinT;
         sfPlain  =  sfFace.noPrinT;
         sfStar   = *sfFace.noPrinT;
@@ -24,9 +28,9 @@ define
         cerr "SF-1 face   NO star   = " sfPlain:;
         cerr "SF-2 face   WITH star = " sfStar:;
         cerr "SF-3 MISS control never written  NO star   = " sfCtlP:;
-        cerr "SF-4 MISS control never written  WITH star = " sfCtlS:;
+        cerr "SF-4 MISS control never written  WITH star = " sfCtlS " -- NULL BY RULING, Instruct.opDeref.starRuling 2026-09-05":;
         cerr "SF-5 HIT control the SOURCE      NO star   = " sfSrcP:;
-        cerr "SF-6 HIT control the SOURCE      WITH star = " sfSrcS:;
+        cerr "SF-6 HIT control the SOURCE      WITH star = " sfSrcS " -- NULL BY RULING, Instruct.opDeref.starRuling 2026-09-05":;
         };
     ;
 sfRun();
@@ -62,11 +66,21 @@ absence-of-message (rule H4) -- the row prints a value on every run and compares
 The moment the starred read starts returning a number, these two rows go red and
 somebody re-reads. That is the whole job.
 
-⚠ SF-0 IS LOAD-BEARING. If the two bodies were the SAME body, SF-1's 0 would be a defect
-rather than the correct answer, and the fixture would be measuring something else. `+%`
-attaches a COPY and `<-` MINTS a copy (a ruled defect, Tony 2026-08-23, not the design),
-so the face is a copy of a copy and the bodies differ. SF-1 reading 0 is the language
-being right.
+⚠⚠ SF-0 IS LOAD-BEARING, AND UNTIL 2026-09-16 IT COMPARED THE WRONG PAIR. It read the
+ORIGINAL against the HOLDER and concluded from their different bodies that a flag must
+not cross. THE HOLDER IS NOT THE FACE. The face is what the holder POINTS AT -- `*sfFace`
+-- and it is now printed as SF-0's third row, where it reads body #2: THE SAME BODY AS THE
+ORIGINAL, because `+%` attached a copy over it. Rule H13's question 1 -- is this the same
+thing reached through a carrier -- reads the BODY column, and read correctly it says #2 on
+both sides.
+
+    1 the ORIGINAL          field #1   body #2
+    2 the HOLDER <- minted  field #3   body #4    <- the old comparison stopped here
+    3 THE FACE  *sfFace     field #5   body #2    <- and this is the one that matters
+
+⚠ SO SF-2's 1 IS THE FLAG CROSSING LAWFULLY between two fields over one body, and it was
+never noise. That wrong pair is how this file's prediction got made, and F-71's headline
+was withdrawn on it.
 
 MECHANISM, and it is already recorded rather than new: bear-trap #48's second half. `.`
 is a member of the UnaryOPS bin as well as being registered opDot, so `*a.b` is TWO terms
@@ -74,20 +88,45 @@ and KANT-43's right-to-left association applies the star LAST -- `*(a.b)` -- a s
 applied to a flag's VALUE. Banked as bear-trap #26 payment seven, which cross-references
 this file.
 
-WHAT FLIPS WHEN THE CHAINED-DOT ITEM LANDS -- A PRE-REGISTERED PREDICTION, GRADED AS A
-PREDICTION AND NOT AS A FACT. If `.` becomes binary and left-associative, `*a.b` folds
-as `(*a).b` instead, and the star then binds the NAME rather than the flag's value:
+THE PRE-REGISTERED PREDICTION IS RESOLVED, 2026-09-16, AND IT FAILED -- WITH THE CONTROL
+INTACT, WHICH IS WHY IT IS A RESULT AND NOT A SHRUG. It said that once `.` folded,
 
     SF-2  1        -> 0     the face, dereferenced, still does not share the body
     SF-4  tag echo -> 0     the control reads an unset flag honestly
     SF-6  tag echo -> 1     THE ROW TO WATCH: the source reads its own set flag
 
-    SF-1, SF-3, SF-5 must NOT move. They contain no star and the change is about
-    association, so a move there means the fold reached something it should not have.
+The fold LANDED -- incant/pop/dotChainT, DC-2 and DC-4 went from `xl1` to LEAFVAL -- and
+NONE OF THE THREE MOVED. ⚠ SF-1, SF-3 and SF-5 did not move either, and that is the clause
+that decides how to read it: the treatment never reached this fixture's read machinery, so
+this is a GENUINE NEGATIVE RESULT and not a voided control.
 
-GRADE: mechanism-grounded, which in this codebase is the half that usually holds -- the
-association rule is read directly off the grammar and the registration, not inferred from
-a symptom. It is still a prediction.
+⚠ WHY IT COULD NOT HAVE MOVED, measured rather than argued. Every row here is a SINGLE
+dot-COMPOSED term carrying its star as the term's own unary, so handleDot's
+starDotRotation -- built 2026-09-07 -- already applies and interpretXP's juxtaposition is
+never reached. The chain fold cannot touch these rows and NEITHER COULD ANY OTHER FOLD.
+The prediction's premise was SF-0's wrong pair, corrected above.
+
+WHAT THE ROWS MEAN NOW, and both halves are rulings rather than defects:
+
+    SF-2   1        the flag crossing LAWFULLY -- original and face share body #2
+    SF-4   no data  NULL BY RULING
+    SF-6   no data  NULL BY RULING
+
+⚠⚠ THE STAR RULING (Tony, 2026-09-05, re-affirmed 2026-09-16) lives at
+Instruct.opDeref.starRuling and is what SF-4 and SF-6 report: `*x` on a field that holds no
+group YIELDS NULL AND DOES NOT REFUSE -- refusal is for category errors, and asking a field
+what it holds is a legitimate question with a legitimate empty answer, so `if *x` must be
+able to take its else arm without ending the activation. THE CONSUMER OF THE NULL REFUSES,
+and aCTionIterate's `nullAfterStar` arm is where that name is spoken. The ruling records
+what the other way round cost: f31's spin was diagnosed for a day as a star problem because
+the star was the thing shouting.
+
+⚠ A PROVISIONAL RULING TO REFUSE HERE WAS RAISED AND WITHDRAWN ON 2026-09-16, and the
+number behind the withdrawal is worth keeping: 36 live `*argument` sites read isGrouP 0 and
+work today BY THIS DESIGN. Overturning it is a design change with those sites behind it,
+not a fixture repair. `isGrouP` -- the GroupFields accessor minted in the same stroke --
+predicts the star's answer exactly (1 iff the star yields something) and is the instrument
+that made all of this legible.
 
 ⚠⚠ AND THE THIRD OUTCOME, NAMED BECAUSE THIS FIXTURE IS EXACTLY THE CASE THAT NEEDS IT:
 THE TREATMENT CAN VOID THE CONTROL. The chained-dot change touches this fixture's own
