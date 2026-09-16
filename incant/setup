@@ -56,17 +56,6 @@ define
     interpretBC immediateAction=interpretBC;
     isList immediateAction=processFlags noPrint;
     isRule immediateAction=processFlags noPrint;
-    /*  THE INSTALL VOCABULARY, promoted from incant/genScratch 2026-08-05 by
-        Tony's ruling, and it joins the isRule family deliberately: these are
-        define-time fire-and-forget commands and they must be commands WHERE THE
-        GRAMMAR IS READ, not only inside the fixture that tests them.
-        ⚠ WHAT IT COST TO LEARN: registered only in genScratch, a
-        `parseMethod=parseBraced` written into incant/grammar was not a command,
-        so it was never fired and consumed -- it was parsed as an ORDINARY TERM.
-        Braced went from 3 terms to 5 against a generated method indexing
-        rule[1..3], and oneTest died at SIGSEGV. Every Scaf* rule is defined
-        inside genScratch itself, so the install route had only ever been
-        exercised in the one file that defines the words it needs. */
     jitRefire immediateAction=jitRefire;
     jitFieldMethod immediateAction=jitFieldMethod;
     jitShowRecord immediateAction=jitShowRecord;
@@ -114,34 +103,6 @@ registry(Operators);
 define
     '~='    operateMethod=opMatch;
     '|';
-    /*  THE `||` SYMBOL, filled 2026-08-01 (Tony's word). Demand was demonstrated
-        by minionA round 2, which hit this and wrote twin sequential guards in
-        `spellMany` instead of one disjunction.
-        ⚠ THIS IS A REGISTRATION, NOT AN IMPLEMENTATION. Boolean OR already
-        existed and was already sound -- `OR operateMethod=opOR` two lines below,
-        with opOR in Instruct.rtn and `testOR` exercising it in the unitTests
-        baseline. What was missing was only the SYMBOL spelling: `'|'` above is
-        registered BARE, with no operateMethod, so `||` matched an inert operator
-        and failed the body. `'||'` is registered explicitly rather than relying
-        on `'|'` doubling, because the Operators header states the matcher
-        returns the LONGEST match -- so the two-character entry wins cleanly and
-        `'|'` keeps whatever future single-char meaning it is being held for.  */
-    /*  ⚠ `shortCircuit` IS A REGISTRATION, NOT A LIST, and it replaced TWO lists rather
-        than one -- the tier-3 SELECTION in interpretXP and the SKIP ITSELF inside
-        runShortCircuit, which both asked `op.tag eq "AND" || op.tag eq "OR"`. That is
-        why `||` did not short-circuit while `OR` did, on the same operateMethod:
-        measured 2026-09-10 with a side effect, `true OR loud()` fired the right arm 0
-        times and `true || loud()` fired it once. ⚠ AND FIXING ONLY THE SELECTION MADE
-        `true || false` READ FALSE, because the second list then sent `||` past both
-        skips into the right-arm evaluation. ONE LIST HID ANOTHER.
-        `isOR` names WHICH way it short-circuits; the two together are the whole
-        contract, and no spelling appears in either action.  */
-    /*  ⚠ THE WORD FORMS ARE RETIRED, 2026-09-10. `AND` and `OR` were registered here
-        until the C spellings became correct; they are gone, and the only boolean
-        operators in the language are `&&` and `||`. What made the rename possible was
-        not the registration -- `||` carried opOR for weeks -- but the two SPELLING LISTS
-        becoming registrations, one choosing the tier-3 binding and one choosing the skip
-        direction. Until both fell, `||` evaluated its right operand and `OR` did not.  */
     '||'    operateMethod=opOR   shortCircuit isOR;
     '&&'    operateMethod=opAND  shortCircuit;
     '^';
@@ -149,10 +110,6 @@ define
     GO;
     modedOP operateMethod=setFileOp;
     negate  unary ruleMethod=opUnaryMinus;
-    /*  `deref` -- the unary * that replaces auto-unwrapping. Named, not
-        symbol-spelled, for exactly the reason `negate` is: handleUnary
-        re-points a prefix `*` here so the BINARY `*` slot (opMultiply, three
-        consumers) is never touched. Same two-slot separation, same reason.  */
     deref   unary ruleMethod=opDeref;
     '?';
     '>>';
@@ -163,18 +120,6 @@ define
     '=['    operateMethod=opGet;
     '=]'    operateMethod=opEnd;
     '=/'    assign operateMethod=opGetMember;
-    /*  ⚠ `'=*'` RETIRED 2026-08-30, ruled by Tony, and this is its obituary.
-        It was the manual way to set isPointer -- the flag that exempts a field
-        from runOP's auto-unwrap. It could never be USED, because the unwrap it
-        exempts from runs BEFORE the operator that sets it: the mechanism
-        intercepted its own repair. That is what prompted the unary-* ruling.
-        Measured 2026-08-30 across 178 fixtures and 29,634 runOP entries:
-        isPointer suppressed an unwrap ZERO times, against 5,447 unwraps fired
-        and 2,815 isIterator suppressions -- so the `!isPointer` clause in all
-        four unwrap lines is a never-true condition with no live customers.
-        `deref` above is its successor. `opPointer` the extern SURVIVES: it is
-        still reached as the `setPointer` definition-time command (line 91,
-        used by bcPushField), which is a different spelling with a real user.  */
     '=%'    operateMethod=opGetAttribute;
     '='     operateMethod=opAssign;
 
@@ -205,18 +150,6 @@ define
     '+%'    operateMethod=opAddAttribute;
     '+'     operateMethod=opPlus  interpretMethod=runPlus  jitEmitter=jitEmitAdd;
     '*='    operateMethod=opMultiplyEQ;
-    /*  `*` IS THE STEP-2 PATHFINDER -- the first op to carry a jitEmitter.
-        Three slots, three consumers, one op: operateMethod is the interpreter,
-        interpretMethod is the bytecode handler, jitEmitter is the JIT. They sit
-        side by side deliberately; installing the third disturbs neither of the
-        first two, which is what makes the migration one op at a time.  */
-    /*  `accessClass` -- THE UNARY CLASS, and it is a REGISTRATION rather than a list in
-        the action. Ruled try-and-buy 2026-09-10: a prefix unary is ACCESS class, binding
-        to the PRIMARY before the postfix chain, or VALUE class, binding to the chain's
-        RESULT. `*A.B` is `(*A).B`; `!A.B` is `!(A.B)`. Only the ACCESS class carries the
-        attribute, so the predicate is presence and the default is value.
-        ⚠ IT GOES ON `'*'` AND NOT ON `deref` because the class is asked BEFORE
-        handleUnary maps the token to its named operator.  */
     '*'     operateMethod=opMultiply  interpretMethod=runMultiply  jitEmitter=jitEmitMul  accessClass;
     '@'     unary ruleMethod=opLastREF;
     '&';
@@ -276,21 +209,9 @@ define
         '.';
     ;
 /*******************************************************************************
-    Modifiers -- THE MODIFIER CLASS, one registration per character.
-
-    Ruled 2026-09-10: A FLAG DESCRIBES A TERM; A REPETITION CHANGES WHAT THE TERM
-    IS. Only the REPETITION class carries `repeatClass`, so the predicate is
-    presence and the default is flag -- the same shape `accessClass` uses for the
-    unary split, and for the same reason: a class you must not forget to declare
-    is a class that will be forgotten.
-
-    ⚠ THE CLASS LIVES HERE AND NOWHERE ELSE. modifyClass asks one predicate;
-    there is no list of characters in any action. Adding a modifier is an edit to
-    this block.
-
-    ⚠ AND `{`/`}` ARE FLAGS DESPITE LOOKING LIKE A LIMIT. They raise upTo and
-    unGuarded -- facts ABOUT the term. The Limit construct `{n m}` is a separate
-    grammar term and is repetition; it is handed to setLimits, never to modify.
+    Modifiers -- one registration per character. The REPETITION class carries
+    `repeatClass`; everything without it is a flag. See THE MODIFIER CLASS at
+    the foot of this file.
 *******************************************************************************/
 registry(Modifiers);
 define
@@ -398,15 +319,155 @@ define
     utilities File='incant/utilities';
     unitTests File='incant/unitTests';
     generate File='incant/generate';
-    /*  The bytecode row was struck here on 2026-08-28 by Tony's ruling, from trim
-        census phase one. Its file was deleted at cc2fd2d and nothing has included
-        it since. A registered includable naming a file that is gone fails at exit
-        zero with nothing saying why, which is bear-trap 28 fourth row.
-        This note is deliberately prose. Bear-trap 27 says a comment carrying
-        indented code-shaped text can kill the parse, and this file is read at
-        runtime, so a break here would take down every run.  */
     jigcorpus File='incant/jigcorpus';
     decoder File='incant/decoder';
     designDocs File='incant/designDocs';
     ;
 include(grammar);
+
+/*******************************************************************************
+                    incant/setup -- the commentary
+
+    WHY IT IS DOWN HERE. Tony's ruling, 2026-09-16: the definitions above are a
+    reference table and they are read as one, so argument wedged between the rows
+    gets in the way of the thing the file is for. The same split the comment
+    convention makes inside a method -- MOVE WHAT ARGUES, KEEP WHAT DESCRIBES --
+    applied to a registry file. The short slug comments beside individual rows
+    stay where they are; what moved is the long-form reasoning, one section per
+    topic rather than one per line.
+
+    ⚠ THIS IS NOT incant/directives' SHAPE, AND THE DIFFERENCE IS MEASURED.
+    directives ends in bail() and carries its guide in a parse-dead region.
+    setup cannot: bail() pops a DIVERTED input, and GroupMain loads setup with
+    pushInput at a moment when sourceFILE is still null, so pushInput never
+    raises inputDiverted and setup sits at the BOTTOM of the input stack with
+    nothing to hand back to. A bail() here is inert -- measured 2026-09-16, prose
+    placed under one was parsed and answered with three RunRulE complaints. So
+    this region is an ordinary comment and is subject to every comment hazard.
+
+    ⚠ ONE OPEN, ONE CLOSE, AND NO NESTED COMMENT MARKER ANYWHERE INSIDE. Bear-trap
+    27: a comment carrying indented code-shaped text can kill the parse, silently,
+    at exit 138 with no output -- and this file is read at runtime by every single
+    run, so a break here takes down the whole fleet rather than one fixture. Keep
+    additions to prose. Quote a spelling inline with backticks, never as an
+    indented line of its own.
+
+
+    1. THE INSTALL VOCABULARY -- parseMethod, parseTerms, setParse, parseClassify
+
+    Promoted from incant/genScratch 2026-08-05 by Tony's ruling, and they join the
+    isRule family deliberately: these are define-time fire-and-forget commands and
+    they must be commands WHERE THE GRAMMAR IS READ, not only inside the fixture
+    that tests them.
+
+    ⚠ WHAT IT COST TO LEARN: registered only in genScratch, a `parseMethod=parseBraced`
+    written into incant/grammar was not a command, so it was never fired and never
+    consumed -- it was parsed as an ORDINARY TERM. Braced went from 3 terms to 5
+    against a generated method indexing rule 1 through 3, and oneTest died at
+    SIGSEGV. Every Scaf rule is defined inside genScratch itself, so the install
+    route had only ever been exercised in the one file that defines the words it
+    needs.
+
+
+    2. THE BOOLEAN OPERATORS -- `||`, `&&`, `shortCircuit`, `isOR`
+
+    THE SYMBOL WAS FILLED 2026-08-01 (Tony's word). Demand was demonstrated by
+    minionA round 2, which hit this and wrote twin sequential guards in `spellMany`
+    instead of one disjunction.
+
+    ⚠ IT WAS A REGISTRATION, NOT AN IMPLEMENTATION. Boolean OR already existed and
+    was already sound -- `opOR` lives in Instruct.rtn and `testOR` exercised it in
+    the unitTests baseline. What was missing was only the SYMBOL spelling: `'|'` is
+    registered BARE, with no operateMethod, so `||` matched an inert operator and
+    failed the body. `'||'` is registered explicitly rather than relying on `'|'`
+    doubling, because the Operators header states the matcher returns the LONGEST
+    match -- so the two-character entry wins cleanly and `'|'` keeps whatever future
+    single-character meaning it is being held for.
+
+    ⚠ `shortCircuit` IS A REGISTRATION, NOT A LIST, AND IT REPLACED TWO LISTS RATHER
+    THAN ONE -- the tier-3 SELECTION in interpretXP and the SKIP ITSELF inside
+    runShortCircuit, which both asked whether the operator's tag was AND or OR. That
+    is why `||` did not short-circuit while the word form did, on the same
+    operateMethod: measured 2026-09-10 with a side effect, `true OR loud()` fired the
+    right arm 0 times and `true || loud()` fired it once. ⚠ AND FIXING ONLY THE
+    SELECTION MADE `true || false` READ FALSE, because the second list then sent `||`
+    past both skips into the right-arm evaluation. ONE LIST HID ANOTHER.
+    `isOR` names WHICH way it short-circuits; the two together are the whole
+    contract, and no spelling appears in either action.
+
+    ⚠ THE WORD FORMS ARE RETIRED, 2026-09-10. `AND` and `OR` were registered here
+    until the C spellings became correct; they are gone, and the only boolean
+    operators in the language are `&&` and `||`. What made the rename possible was
+    not the registration -- `||` carried opOR for weeks -- but the two SPELLING LISTS
+    becoming registrations, one choosing the tier-3 binding and one choosing the skip
+    direction. Until both fell, `||` evaluated its right operand and the word did not.
+
+
+    3. THE PREFIX UNARIES -- `deref` and `accessClass`
+
+    `deref` is the unary star that replaces auto-unwrapping. It is NAMED rather than
+    symbol-spelled, for exactly the reason `negate` is: handleUnary re-points a prefix
+    star here so the BINARY star slot (opMultiply, three consumers) is never touched.
+    Same two-slot separation, same reason.
+
+    `accessClass` IS A REGISTRATION RATHER THAN A LIST IN THE ACTION. Ruled
+    try-and-buy 2026-09-10: a prefix unary is ACCESS class, binding to the PRIMARY
+    before the postfix chain, or VALUE class, binding to the chain's RESULT. A
+    starred `A.B` is a starred A, then dotted B; a negated `A.B` negates the whole of
+    `A.B`. Only the ACCESS class carries the attribute, so the predicate is presence
+    and the default is value.
+
+    ⚠ IT GOES ON THE STAR OPERATOR AND NOT ON `deref`, because the class is asked
+    BEFORE handleUnary maps the token to its named operator.
+
+
+    4. THE RETIRED SET-POINTER OPERATOR -- its obituary
+
+    Retired 2026-08-30, ruled by Tony. It was the manual way to set isPointer -- the
+    flag that exempts a field from runOP's auto-unwrap. It could never be USED,
+    because the unwrap it exempts from runs BEFORE the operator that sets it: the
+    mechanism intercepted its own repair. That is what prompted the unary-star ruling.
+
+    Measured 2026-08-30 across 178 fixtures and 29,634 runOP entries: isPointer
+    suppressed an unwrap ZERO times, against 5,447 unwraps fired and 2,815 isIterator
+    suppressions -- so the not-isPointer clause in all four unwrap lines is a
+    never-true condition with no live customers. `deref` is its successor.
+
+    ⚠ `opPointer` THE EXTERN SURVIVES: it is still reached as the `setPointer`
+    definition-time command in the cOMMANDs registry above, used by bcPushField,
+    which is a different spelling with a real user.
+
+
+    5. THE THREE SLOTS -- operateMethod, interpretMethod, jitEmitter
+
+    The star operator is the step-2 pathfinder, the first op to carry a jitEmitter.
+    Three slots, three consumers, one op: operateMethod is the interpreter,
+    interpretMethod is the bytecode handler, jitEmitter is the JIT. They sit side by
+    side deliberately; installing the third disturbs neither of the first two, which
+    is what makes the migration one op at a time.
+
+
+    6. THE MODIFIER CLASS
+
+    Ruled 2026-09-10: A FLAG DESCRIBES A TERM; A REPETITION CHANGES WHAT THE TERM IS.
+    Only the REPETITION class carries `repeatClass`, so the predicate is presence and
+    the default is flag -- the same shape `accessClass` uses for the unary split, and
+    for the same reason: a class you must not forget to declare is a class that will
+    be forgotten.
+
+    ⚠ THE CLASS LIVES IN THE Modifiers REGISTRY AND NOWHERE ELSE. modifyClass asks
+    one predicate; there is no list of characters in any action. Adding a modifier is
+    an edit to that block.
+
+    ⚠ AND THE CURLY BRACES ARE FLAGS DESPITE LOOKING LIKE A LIMIT. They raise upTo
+    and unGuarded -- facts ABOUT the term. The Limit construct is a separate grammar
+    term and is repetition; it is handed to setLimits, never to modify.
+
+
+    7. THE STRUCK BYTECODE ROW in fILEs
+
+    Struck 2026-08-28 by Tony's ruling, from trim census phase one. Its file was
+    deleted at cc2fd2d and nothing has included it since. A registered includable
+    naming a file that is gone fails at exit zero with nothing saying why, which is
+    bear-trap 28's fourth row.
+*******************************************************************************/

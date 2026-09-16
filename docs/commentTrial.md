@@ -1127,3 +1127,18 @@ pointing at entries that do not exist yet — which the trial's own rule covers:
 followed and the entry is absent, log it and move on.* This is that log.
 
 **Owed:** both entries, once the designDocs sweep lands and `ddPop` is green again.
+
+## 2026-09-16 — THE TWO OWED ENTRIES ARE WRITTEN, AND A DANGLING POINTER WAS FOUND BY FOLLOWING IT
+
+**Both debts from the 2026-09-15 entry above are discharged.** The reason they were held — `incant/designDocs` dirty and `ddPop.sh` red on it, so an addition could not be verified — was removed this session when the file was repaired (bear-trap #53), and `ddPop` reads 5 green / 1 red with its walk finding 32 records again.
+
+| key | entry |
+|---|---|
+| `Commands.stop.twoVerbs` | **written** — under the existing `stop` entry, beside `stopRefusalHandling` |
+| `ruleActions.handleCall.emptyParens` | **written** — new `handleCall` parent in its alpha slot under `ruleActions` |
+
+⚠ **AND FOLLOWING THE POINTER IS WHAT FOUND THE DEFECT IN IT, which is the trial's own question answered in the affirmative.** The source key was `Commands.stopParsingInput.twoVerbs` and **no such key could ever have resolved**: the register had already keyed that method as `Commands.stop` — the command name, not the extern name — when `stopRefusalHandling` was written. So the pointer named a parent that does not exist, and nothing but following it would have said so. Both source spellings were retargeted to `Commands.stop.twoVerbs`.
+
+**THE TALLY LINE THE TRIAL ASKED FOR: entries written 2, pointers followed 2, pointers found dangling 1.** The dangling-pointer fleet row is *"obviously buildable and waits for evidence it is needed"* — this is one instance, not yet evidence, and it is recorded rather than acted on.
+
+⚠ **ONE FINDING, CAPTURED NOT CHASED: the inline `//` keys in `Commands.rtn` and `ruleActions.rtn` carry DOTTED PATHS, which the 2026-09-15 ruling forbids.** The ruled inline form is `// slug sentence?` — slug required, sentence optional, **path never inline** — and both lines read `// <sentence>   <File.method.slug>`. They were written on 2026-09-15, the same day as the ruling, so this is drift at birth rather than an old spelling. Not fixed here: the dispatch scoped this stroke to correcting one comment's *claim*, and a spelling sweep across two files is a separate decision. ⚠ **It is worth noting that the ruled form would have made the dangling pointer above unconstructable** — a bare `// twoVerbs` names no parent and so cannot name the wrong one.

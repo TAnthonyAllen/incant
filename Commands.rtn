@@ -693,15 +693,17 @@ GroupRules  ruler = groupRules;
 int         bailing = 0;
     // which verb, and which node the empty () handed back   measure.measureStopCaller
     measureStopCaller(input);
-    // bail LEAVES THE FILE, stop LEAVES THE PROCESS -- never exit(0) on a bail   Commands.stopParsingInput.twoVerbs
+    // bail LEAVES THE FILE, stop LEAVES THE PROCESS -- never exit(0) on a bail   Commands.stop.twoVerbs
     if input
         if input.tag eq "bail"  bailing = 1;
 use ruler
-    /*  THE DIVERT IS THE THING bail ENDS, so it is the OUTER question -- a bail with
-        no file to leave has nothing to do and falls through to stop's road rather
-        than half-popping. NUL the mark BEFORE the pop: after it, atRuleMark is the
-        PARENT's and truncating there would end the includer instead.
-        Commands.stopParsingInput.twoVerbs  */
+    /*  THE DIVERT IS THE THING bail ENDS, so it is the OUTER question. NUL the mark
+        BEFORE the pop: after it, atRuleMark is the PARENT's and truncating there
+        would end the includer instead.
+        ⚠ A BAIL WITH NO DIVERTED INPUT DOES NOTHING -- it does not fall through to
+        stop's road, because that block is gated on !bailing. Ruled to stay so
+        unless it causes a problem (Tony, 2026-09-16).
+        Commands.stop.twoVerbs  */
     if inputDiverted {
         popInput();
         cout :"stop: ending input divert":; }

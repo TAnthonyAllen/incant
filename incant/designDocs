@@ -705,6 +705,33 @@ define
                     compile has no compile census, so nothing prints and no baseline
                     moves. That is not a gate on the assertion; it is the difference
                     between a zero and an absence.#);
+                twoVerbs=(TWO VERBS THROUGH ONE EXTERN, told apart by the node handed in.
+                    bail LEAVES THE FILE and stop LEAVES THE PROCESS, and the whole
+                    discrimination is a tag test on the argument -- which works only
+                    because an empty pair of parentheses hands the COMMAND NODE ITSELF
+                    back rather than a wrapper. See ruleActions handleCall emptyParens;
+                    the two are one mechanism read from its two ends.
+
+                    THE DIVERT IS THE OUTER QUESTION, and the order inside it is
+                    load-bearing: NUL the mark BEFORE the pop, because after the pop
+                    atRuleMark belongs to the PARENT, and truncating there would end the
+                    INCLUDER instead of the included file.
+
+                    ⚠ A BAIL WITH NO DIVERTED INPUT DOES NOTHING AT ALL, and the comment
+                    in source claimed otherwise until 2026-09-16. It does not fall through
+                    to stop's road, because that block is gated on not-bailing -- so with
+                    bailing set and inputDiverted clear, neither arm runs and the extern
+                    returns its input untouched. Ruled to stay so unless it causes a
+                    problem (Tony, 2026-09-16).
+
+                    ⚠ AND THAT IS WHY bail CANNOT PARK PROSE IN incant/setup, which is the
+                    first place anyone tried to use it after incant/directives. GroupMain
+                    loads setup with pushInput at a moment when sourceFILE is still null,
+                    and pushInput raises inputDiverted ONLY inside its sourceFILE arm -- so
+                    setup sits at the BOTTOM of the input stack with nothing to hand back
+                    to. Measured 2026-09-16: prose placed under a bail in setup was PARSED,
+                    and answered with three RunRulE complaints. setup carries its
+                    commentary in an ordinary trailing comment block instead.#);
         Generate="is an rtn file that gets included into GroupRules.twk when it gets tokked. The text for these entries needs to be reviewed to see if they are still relevant. They were relevant once but things change and no one has been going thru comments to keep them up to date. The comments cluttered up code. Now they do not. They are here and the same relevancy question applies.":
             parseAny=(THE LABEL WRITE IS GUARDED IN ALL FOUR OF THESE, and until 2026-08-18 it
                 was guarded in only one. parseSet had `if label` and parseAny,
@@ -5992,6 +6019,30 @@ define
                     this loop and has no equivalent on the other three.
                     - the closing sink call, obviously -- that IS the
                     difference.#);
+            handleCall=(THE CALL ARM of aCTionTokenXP -- it pairs a name with its
+                InvokeArg and appends both to the expression being built.#):
+                emptyParens=(AN EMPTY PAIR OF PARENTHESES CARRIES NOTHING AND IS NOT AN
+                    ARGUMENT, so no third operand is appended. Until 2026-09-15 the arm
+                    fell back to the InvokeArg WRAPPER itself when the group was empty,
+                    which handed every no-argument call a Parens node that meant nothing.
+
+                    ⚠ THE CONSEQUENCE IS DELIBERATE AND IS WHAT bail AND stop RUN ON: with
+                    nothing appended, runOP's foot substitutes the CALLEE, so a
+                    no-argument command receives ITSELF and can read its own tag to learn
+                    which verb was spelled. See Commands stop twoVerbs.
+
+                    ⚠ AND IT IS A HAZARD FOR ANY COMMAND THAT WRITES THROUGH ITS ARGUMENT,
+                    banked as fixIts F-65. A bare clear call would reach cLEAR's clearData
+                    and clearList aimed at the clear entry in the Commands registry, and a
+                    bare new call would set isInitialized on the new entry. Before the
+                    change both landed on a throwaway Parens node. No live site exists
+                    today -- the census of commands reachable that way is 16, measured
+                    2026-09-15 -- and the one live casualty, audit, was found and fixed in
+                    the same stroke.
+
+                    THE GUARD IS ON CONTENT, NEVER ON THE TAG: it asks for a groupList or
+                    for data. A tag test would be bear-trap 26's family, since a data-less
+                    node reads back its own name and would answer yes to everything.#);
             interpretXP=(the interpret/run mode of the expression walk.#):
                 tier3Binding=(TIER-3 BINDING, and THIS LINE IS THE TIER-3 SET.
                     2026-08-11, docs/andOrRung.md section 6; seat ruled
