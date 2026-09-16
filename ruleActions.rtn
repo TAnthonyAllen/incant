@@ -1258,29 +1258,6 @@ GroupRules  ruler = groupRules;
     return null;
 }
 
-/*  isDotUxp -- is this juxtaposed term an ORPHANED LEADING DOT?
-
-    IDENTIFY IT BY ITS OP AND BY NOTHING ELSE. By the time interpretXP sees the
-    term, handleUnary has already wrapped it -- the raw `UnaryOPS ANYorNum` shape
-    is gone, so a shape test would be testing the wrapper. This asks the one
-    durable question: is the first attribute the Operators entry `.`?
-    ⚠ THE REGISTRY TEST IS NOT DECORATION. A bare tag compare would start
-    answering yes the day anything else mints a node tagged `.`; membership of
-    opFields is what makes it THE OPERATOR rather than a name that looks like
-    one.   ruleActions.interpretXP.dotFold  */
-extern int isDotUxp(GroupItem node)
-{
-GroupRules  ruler = groupRules;
-GroupItem   op;
-    if !node                            return false;
-    if node.tag ne "uxp"                return false;
-    op = node.firstInList;
-    if !op                              return false;
-    if op.registry != ruler.opFields    return false;
-    if op.tag ne "."                    return false;
-    return true;
-}
-
 /*  handleDot -- the `.` arm, both shapes. With no InvokeArg it is the LEADING form
     (`.taG`), which hangs the dot op with no right operand so opDot falls to lastREF.
     With one it is the composed form, where InvokeArg arrived as a UnaryXP holding the
@@ -1475,6 +1452,29 @@ finishXP:
     xpList.clear();
     xpList.group = arg;
     return xpList;
+}
+
+/*  isDotUxp -- is this juxtaposed term an ORPHANED LEADING DOT?
+
+    IDENTIFY IT BY ITS OP AND BY NOTHING ELSE. By the time interpretXP sees the
+    term, handleUnary has already wrapped it -- the raw `UnaryOPS ANYorNum` shape
+    is gone, so a shape test would be testing the wrapper. This asks the one
+    durable question: is the first attribute the Operators entry `.`?
+    ⚠ THE REGISTRY TEST IS NOT DECORATION. A bare tag compare would start
+    answering yes the day anything else mints a node tagged `.`; membership of
+    opFields is what makes it THE OPERATOR rather than a name that looks like
+    one.   ruleActions.interpretXP.dotFold  */
+extern int isDotUxp(GroupItem node)
+{
+GroupRules  ruler = groupRules;
+GroupItem   op;
+    if !node                            return false;
+    if node.tag ne "uxp"                return false;
+    op = node.firstInList;
+    if !op                              return false;
+    if op.registry != ruler.opFields    return false;
+    if op.tag ne "."                    return false;
+    return true;
 }
 
 /*  unaryIsAccess -- THE UNARY CLASS PREDICATE, one question asked by two arms. ACCESS

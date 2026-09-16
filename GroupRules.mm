@@ -3677,7 +3677,7 @@ GroupItem 	*token = 0;
 				LEFT. `a.b.c` dumps as [uxp, Token] for exactly that reason.
 				Read that before changing anything below it.
 				ruleActions.interpretXP.dotFold  */
-				if ( ::isDotUxp(arg) )
+				if ( isDotUxp(arg) )
 					{
 					/*  THE CHAIN FOLD. An orphaned `.c` juxtaposed against a term on
 					its left is not a juxtaposition at all -- it is a dot whose
