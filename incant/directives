@@ -2,17 +2,19 @@
     Directives registry — runtime text rewriting of a buffer.
 
     An incant directive is a small named field whose sub-fields describe a
-    single edit to apply to a text buffer loaded via getFile. Two actions
+    single edit to apply to a text buffer loaded via getFile. Three actions
     consume them:
 
-        replaceAt(directive)   replace matched text in-place
+        deleteAt(directive)    remove matched text
         insertAt(directive)    insert text before or after a matched line
+        replaceAt(directive)   replace matched text in-place
 
     Directive sub-fields:
         source     field loaded via getFile — the buffer being edited
         fromThis   text to match (any substring, not just line-start)
         toThis     replacement or insertion text; may be a single token or a
-                   large multi-line block (quote with \n for newlines)
+                   large multi-line block (quote with \n for newlines).
+                   deleteAt does not take one
         where      insertAt only — "before" inserts ahead of the matched line;
                    any other value (or omitted) inserts after it
 
@@ -20,7 +22,8 @@
         - fromThis matches anywhere on a line; tok matches line-start only
         - toThis can be arbitrarily large — swap a single token or an entire
           set of actions for a revised set in one directive
-        - replaceAt with no toThis is a delete
+        - deleting is its own verb, so a directive never has to be read for
+          what it LACKS
 
     These actions mutate source's in-memory buffer via the mark-aware buffer
     operators: IN finds fromThis and sets the mark; -= removes at the mark;
@@ -36,12 +39,13 @@
 *******************************************************************************/
 register(Directives);
 define
-    replaceAt code={
-        print "Running replaceAt":;
-        :argument source fromThis toThis;
+    // deleteAt  a SEPARATE VERB, never a flag on replaceAt -- toThis must carry
+    //           exactly one fact, and "absent" is not a value anything can test
+    deleteAt code={
+        print "Running deleteAt":;
+        :argument source fromThis;
         if *fromThis IN source;
             source -= *fromThis;
-            if toThis;  source += *toThis;
         else    print "Did not find" fromThis "in source":; };
 
     /***************************************************************************
@@ -73,6 +77,15 @@ define
             setMark(where);
             source += *toThis;
         };
+
+    replaceAt code={
+        print "Running replaceAt":;
+        :argument source fromThis toThis;
+        if *fromThis IN source;
+            source -= *fromThis;
+            if toThis;  source += *toThis;
+        else    print "Did not find" fromThis "in source":; };
+
     ;
 
 /*  DEFINITIONS ONLY, so this file can be include()d. The bail() below ends
@@ -95,7 +108,8 @@ WHAT A DIRECTIVE IS
         source     the buffer to edit — load it first with getFile(source)
         fromThis   match text — any substring of any line, not just line-start
         toThis     the replacement or insertion text; a token or a multi-line
-                   block (use \n for embedded newlines, \t for tabs)
+                   block (use \n for embedded newlines, \t for tabs).
+                   deleteAt does not take one
         where      insertAt only: "before" inserts ahead of the matched line;
                    any other value (or omitted) inserts after it
 
@@ -105,19 +119,32 @@ WHAT A DIRECTIVE IS
     Example — insert before a line:
         myInsert source fromThis="anchor line" toThis="new line\n" where=before;
 
-    Example — delete (no toThis):
+    Example — delete:
         myDelete source fromThis="line to remove\n";
+        deleteAt(myDelete);
 
-THE TWO ACTIONS
-    replaceAt(directive)
-        Finds fromThis anywhere in the buffer, removes it, inserts toThis at
-        the mark. If toThis is absent the match is deleted. Uses IN to set the
-        mark, -= to remove, += to insert.
+THE THREE ACTIONS
+    deleteAt(directive)
+        Finds fromThis anywhere in the buffer and removes it. Takes source and
+        fromThis only. On a miss it writes nothing and says so by name.
 
     insertAt(directive)
         Finds the line containing fromThis. If where=before, inserts toThis
         at the mark (ahead of the line). Otherwise advances the mark past the
         matched line via setMark/markOffset, then inserts toThis after it.
+
+    replaceAt(directive)
+        Finds fromThis anywhere in the buffer, removes it, inserts toThis at
+        the mark. Uses IN to set the mark, -= to remove, += to insert.
+
+    ⚠ DELETING IS ITS OWN VERB, AND THAT IS A RULING (Clay, Tony assenting,
+    2026-09-16), not an accident of how these three grew. replaceAt used to
+    delete when toThis was absent, which asked `toThis` to carry TWO facts —
+    the replacement text, AND whether this was a replace at all. Worse, the
+    two are not distinguishable in-language: an absent sub-field and a present
+    empty one read identically (F-66, measured 2026-09-15), so replaceAt could
+    not have told them apart even if it wanted to. A `deleting` flag would have
+    moved the same conflation one field over. One verb, one fact.
 
     The mark only advances. Directives on one buffer must target locations in
     forward order — out-of-order application fails (fromThis falls behind the

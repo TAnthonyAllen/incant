@@ -31,10 +31,22 @@ define
         batch corrupted the top of the file silently.  */
     dIRECTive4 source fromThis="zzzNotInTheSample" toThis='\t\tMISS-MUST-NOT-APPEAR\n' where=before;
 
+    /*  deleteAt, F-66, ruled 2026-09-16: a SEPARATE VERB, so neither of these
+        carries a toThis at all. Three rows, and the third is the one that needs
+        saying: dIRECTive5 is fired TWICE. The second fire must find nothing --
+        the text is gone -- so it must take the miss arm and leave the buffer
+        alone. A verb that deleted by re-reading an absent toThis could not
+        tell that second fire from the first.
+        ⚠ THE DELETE TARGETS THE LAST LINE OF THE SAMPLE because the mark only
+        ever advances: it has to sit forward of dIRECTive3's insert.  */
+    dIRECTive5 source fromThis=" she wrote";
+    dIRECTive6 source fromThis="zzzNotInTheSampleEither";
+
     /***************************************************************************
         replaceAt — find fromThis in source, replace it with toThis.
         IN sets the buffer mark at the match; -= removes the matched text at
-        the mark; += inserts toThis there. With no toThis it is a delete.
+        the mark; += inserts toThis there. Deleting is deleteAt's job, not a
+        replaceAt with something missing (F-66, ruled 2026-09-16).
     ***************************************************************************/
     ;
 
@@ -44,6 +56,10 @@ replaceAt(dIRECTive1);
 insertAt(dIRECTive2);
 insertAt(dIRECTive3);
 insertAt(dIRECTive4);
+deleteAt(dIRECTive5);
+print "--- deleteAt second fire, must be inert ---":;
+deleteAt(dIRECTive5);
+deleteAt(dIRECTive6);
 print ``"--- AFTER directives ---":source:;
 print "DIRT SENTINEL":;
 stop();

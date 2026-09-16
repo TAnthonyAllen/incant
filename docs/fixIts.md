@@ -3180,6 +3180,33 @@ mid-buffer match, with the `pop.sh` rows re-pinned and a sentence (H6) saying th
 **Owner:** unassigned. **Size:** small, once the mark arithmetic is measured rather than read.
 
 ### F-66 — a directive cannot express DELETE, because absent-vs-present `toThis` is undiscriminable
+⚠⚠ **CLOSED 2026-09-16 BY RULING AND BUILD — `deleteAt` IS A SEPARATE VERB.** Ruled by Clay, Tony
+assenting: not a flag, not a sentinel. A `deleting` flag would have moved the conflation one field
+over — `toThis` would still be read for two facts, the replacement text AND whether this is a
+replace at all — and the measurement below says the second fact is not readable in-language at all.
+**One verb, one fact.**
+**The build:** `deleteAt(directive)` takes `source` + `fromThis`, removes the matched span with
+`IN`/`-=`, and on a miss writes nothing and names itself through the same arm `replaceAt` uses.
+It sits in `incant/directives` in its alpha slot beside `insertAt`/`replaceAt`, above `bail()`.
+`replaceAt` and both usage guides lose the *"with no `toThis` it is a delete"* line, in the header
+block, in the guide, and in `dirT`'s own comment.
+**Three fleet rows in `dirT`, and the third is the one that certifies the RULING rather than the
+code:** HIT pinned by the buffer line it produces (`y = "Thats all ": };`), MISS pinned by value on
+the refusal text, and **SECOND FIRE** — `dIRECTive5` fired twice, where the second must take the
+miss arm and leave the buffer byte-identical. A verb that decided by reading an absent field could
+not have told the second fire from the first.
+**H7 negative control, measured, two of them.** Removing `deleteAt`'s removal line while leaving
+the miss arm intact: HIT **1 → 0**, SECOND FIRE **1 → 0**, MISS **1 → 1** — exactly the rows that
+should move and the one that should not. (Removing the miss arm instead took the whole run to
+**exit 139**, which is a louder red than wanted and whose cause was not chased.) `incant/directives`
+restored byte-identical after both, md5 `bc2adbe664cbd0c1073c009194f84ffd`.
+**Fleet:** 308 → **311 green**, red unmoved at 51; the only rows that moved are the three new ones.
+⚠ **AND ONE ROW WAS RED FIRST, FOR AN INSTRUMENT REASON WORTH KEEPING:** the second-fire row's
+anti-vacuity half originally counted `Thats all`, which the fixture prints **twice by design**
+because it dumps the buffer BEFORE and AFTER. A perfectly good run read 2. Count the post-delete
+line, never the shorter substring that straddles both captures; `pop.sh` carries the note.
+
+**The original entry, kept because it is the measurement the ruling rests on:**
 **What:** `replaceAt` documents *"with no `toThis` it is a delete"*. It cannot be, today. The
 `:argument` hoist points a local at the found field and `clear()`s it when the field is absent, and
 **no in-language test separates the two**: measured 2026-09-15 over a present and an absent

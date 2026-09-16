@@ -2450,6 +2450,46 @@ else
     echo "  ok    directives a miss wrote nothing (paired with the row above)"; green=$((green+1))
 fi
 
+#  ---- deleteAt (F-66), ruled 2026-09-16: a separate verb, not an absent field --
+#  Three rows. The HIT is pinned by the buffer line it produces, not by the
+#  verb's own chatter, so a deleteAt that announced itself and removed nothing
+#  cannot pass it. The MISS is presence-with-value on the refusal text (H4).
+#  ⚠ THE THIRD ROW IS THE ONE THAT CERTIFIES THE RULING rather than the code:
+#  dIRECTive5 is fired TWICE and the buffer after both fires must read exactly
+#  the SAME line as after one. That is what "absent toThis is undiscriminable"
+#  cost us -- a verb that decided by reading what was missing could not tell a
+#  second fire from a first. Pinning the line rather than counting the fires is
+#  also its anti-vacuity half: a delete that took the whole line out would
+#  satisfy "it is gone" and fail this.
+if grep -qF 'y = "Thats all ": };' "$T/dirv"; then
+    echo "  ok    directives deleteAt HIT removed exactly its span -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  directives deleteAt HIT -- want the sample's last line to read"
+    echo '        y = "Thats all ": };  -- either the delete missed, or it took'
+    echo "        more than the matched span. Actual line:"
+    grep -F 'Thats all' "$T/dirv" | sed 's/^/          /'; fail=1
+fi
+if grep -qF "Did not find zzzNotInTheSampleEither in source" "$T/dirv"; then
+    echo "  ok    directives deleteAt MISS refuses BY NAME -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  directives deleteAt a miss no longer names itself. An absence-"
+    echo "        based check here would pass by having the arm deleted; this"
+    echo "        one cannot."; fail=1
+fi
+#  ⚠ THE COUNT IS OF THE POST-DELETE LINE, NEVER OF 'Thats all' -- the fixture
+#  prints the buffer BEFORE and AFTER, so the shorter substring is in the capture
+#  TWICE by design and a count of it reads 2 on a perfectly good run. Cost one
+#  red row on 2026-09-16; the tell was the refusal text being present anyway.
+if grep -qF "Did not find she wrote in source" "$T/dirv" \
+   && [ "$(grep -cF 'y = "Thats all ": };' "$T/dirv")" = "1" ] \
+   && [ "$(grep -cF 'Thats all she wrote' "$T/dirv")" = "1" ]; then
+    echo "  ok    directives deleteAt SECOND FIRE is inert and says so"; green=$((green+1))
+else
+    echo "  FAIL  directives deleteAt second fire is NOT inert. It must take the"
+    echo "        miss arm -- the text is already gone -- and leave the buffer"
+    echo "        untouched. This row is F-66's ruling, not its code."; fail=1
+fi
+
 #  ---- artifactSkipByFlag: the skip reads the STRUCTURAL fact ----------------
 #  Retired citizen, 2026-09-08, retirement BY MAPPING: this is where its census
 #  now lives. walkRules used to skip a generated artifact by reading `noPrinT`,
