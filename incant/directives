@@ -32,7 +32,50 @@
     (top-to-bottom) order; a fromThis that falls behind the current mark will
     not match. getFile resets the mark to the buffer start.
 
-    See APPLYING DIRECTIVES and KNOWN LIMITS in the usage guide after stop().
+    See APPLYING DIRECTIVES and APPLYING A BATCH TO PRODUCTION SOURCE -- the certificate every batch owes
+    A batch that edits committed source runs with git as its undo, not with the
+    copy-to-Tests workflow. That is sound only if the batch is certified, and the
+    certificate has a required clause:
+
+    ⚠ SECOND-RUN-INERT IS A REQUIREMENT, NOT A NICETY. Run the batch a SECOND
+    time. Every directive must refuse -- the count of refusals equals the count
+    of calls -- and every edited file must come back md5-IDENTICAL. A batch that
+    is right once and wrong twice is a batch nobody can re-run, and re-running is
+    what happens when a batch is half-applied and someone reaches for it again.
+
+    ⚠ IT IS NOT A FORMALITY, AND IT PAID ON THE FIRST BATCH EVER APPLIED. The
+    2026-09-16 dotted-path sweep passed its first run with 30 of 30 keys correct
+    and zero misses. Its SECOND run rewrote a BLOCK comment: one path appeared
+    both as an inline key, which the sweep was for, and inside a `/* */` block,
+    which the convention leaves alone. The first run consumed the inline one; the
+    second found the block one and changed it. Nothing in the first run's output
+    was wrong, so only the second run could have caught it.
+
+    END-ANCHOR fromThis WITH \n FOR AN INLINE KEY. An inline key is always the
+    last thing on its line and a block-comment mention never is, so the newline
+    is the discriminator, and it makes the batch idempotent by CONSTRUCTION
+    rather than by luck. Do not drop it because a particular path looks unique --
+    it is a claim about every other occurrence in the file, which is the kind of
+    claim nobody checks.
+
+    ONE FIELD CAN REACH TWO FILES. getFile is once per FIELD, but a field can be
+    RE-POINTED: closeFile(source), then assign the next path to source, then
+    getFile(source) again. Measured 2026-09-16; it is how one batch edits both
+    Commands.rtn and ruleActions.rtn in one run.
+    ⚠ `source:=otherField` was tried first and exits 139. The source sub-field
+    must be the bare reference to a field literally named `source`, so a batch
+    spanning files re-points that ONE field between batches rather than naming a
+    second one.
+
+    THE REST OF THE CERTIFICATE, for a batch over .rtn source: codeOnly.py on
+    every edited file byte-identical (the sweep is comment-only), a bare retok,
+    the extern canary, codeOnly.py on the generated .mm byte-identical, a
+    rebuild, and the fleet unmoved row for row.
+
+    Batches live in genLadder/batches/ and are TRACKED. A batch that edited
+    production and was then thrown away is a change nobody can audit.
+
+KNOWN LIMITS in the usage guide after stop().
 
     Supersedes the previous BlocK-line `:+ DiRFoo` splice path (the
     drop-first-line content-match bug). That positional mechanism is retired.

@@ -691,9 +691,9 @@ extern GroupItem stopParsingInput(GroupItem input)
 {
 GroupRules  ruler = groupRules;
 int         bailing = 0;
-    // which verb, and which node the empty () handed back   measure.measureStopCaller
+    // measureStopCaller which verb, and which node the empty () handed back
     measureStopCaller(input);
-    // bail LEAVES THE FILE, stop LEAVES THE PROCESS -- never exit(0) on a bail   Commands.stop.twoVerbs
+    // twoVerbs bail LEAVES THE FILE, stop LEAVES THE PROCESS -- never exit(0) on a bail
     if input
         if input.tag eq "bail"  bailing = 1;
 use ruler

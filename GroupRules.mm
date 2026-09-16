@@ -44,7 +44,7 @@ GroupItem 	*token = 0;
 /*******************************************************************************
 	The BlocK rule action.
 
-    // bareReturnValue A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not the keyword's tag, and the substitution MUST re-stamp isBranch or every break and continue dies. ruleActions.aCTionBlocK.bareReturnValue
+    // bareReturnValue A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not the keyword's tag, and the substitution MUST re-stamp isBranch or every break and continue dies.
 *******************************************************************************/
 extern "C" GroupItem *aCTionBlocK(GroupItem *input)
 {
@@ -91,7 +91,7 @@ GroupItem 	*prior = 0;
 				result->groupBody->flags.isBranch = 3;
 				}
 			// ⚠ DO NOT let this break run under jitting -- it stops the COMPILER'S walk and
-			// every statement after a branch vanishes from the IR   ruleActions.aCTionBlocK.emitWalkMustNotStop
+			// emitWalkMustNotStop every statement after a branch vanishes from the IR
 			if ( ruler->jitting )
 				continue;
 			broke = 1;
@@ -115,7 +115,7 @@ GroupItem 	*prior = 0;
 	if ( !result )
 		if ( broke == 0 )
 			result = ruler->labelNO;
-	// what the block hands back, and whether it is a value or a signal   measure.measureBlockResult
+	// measureBlockResult what the block hands back, and whether it is a value or a signal
 	::measureBlockResult(input,result,broke);
 	return result;
 }
@@ -190,7 +190,7 @@ extern "C" GroupItem *aCTionCerR(GroupItem *input)
 GroupItem 	*stuff = input->getLabelGroup("stuff");
 Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
-	// GroupRules.h's extern block to zero   ruleActions.degradeByDefault
+	// degradeByDefault GroupRules.h's extern block to zero
 	if ( GroupControl::groupController->groupRules->jitting )
 		::jitDegrade("cerr under jit -- no emitter, sink fires at emit time",input);
 	if ( !buffer )
@@ -262,7 +262,7 @@ extern "C" GroupItem *aCTionCouT(GroupItem *input)
 GroupItem 	*stuff = input->getLabelGroup("stuff");
 Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
-	// GroupRules.h's extern block to zero   ruleActions.degradeByDefault
+	// degradeByDefault GroupRules.h's extern block to zero
 	if ( GroupControl::groupController->groupRules->jitting )
 		::jitDegrade("cout under jit -- no emitter, sink fires at emit time",input);
 	if ( !buffer )
@@ -316,7 +316,7 @@ GroupItem 	*result = 0;
 			{
 			// ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
 			// extractable: the arms are continue/return/break over THIS loop
-			// ruleActions.trailingContinueGuard
+			// trailingContinueGuard
 			if ( isContinue(result->groupBody->flags.isBranch) )
 				{
 				result = GroupControl::groupController->groupRules->trueResult;
@@ -326,7 +326,7 @@ GroupItem 	*result = 0;
 			if ( isReturn(result->groupBody->flags.isBranch) )
 				return result;
 			// BREAK IS CONSUMED HERE -- clearing isBranch is what stops the enclosing
-			// block breaking too   ruleActions.breakIsConsumed
+			// breakIsConsumed block breaking too
 			result->groupBody->flags.isBranch = 0;
 			if ( result->groupBody->registry == GroupControl::groupController->groupRules->keyWords )
 				result = 0;
@@ -335,7 +335,7 @@ GroupItem 	*result = 0;
 		}
 	while ( ExpressioN->groupBody->gMethod(ExpressioN) );
 	// labelNO, not falseResult: this construct executed NO statement, so it has no
-	// value -- and 0 is a value   ruleActions.labelNoNotFalse
+	// labelNoNotFalse value -- and 0 is a value
 	if ( !result )
 		result = GroupControl::groupController->groupRules->labelNO;
 	return result;
@@ -389,7 +389,7 @@ GroupItem 	*item = 0;
 				if ( !NewGroup->getRStuff() )
 					NewGroup->setRStuff(new RuleStuff(NewGroup));
 				// ⚠ THE PRODUCER OWNS THE INVARIANT: every live rule carries rStuff. Assert here,
-				// loudly -- do not soften this into a consumer-side guard   ruleActions.aCTionDefinE.producerOwnsInvariant
+				// producerOwnsInvariant loudly -- do not soften this into a consumer-side guard
 				if ( !NewGroup->getRStuff() )
 					::fprintf(stderr,"REGISTER: INVARIANT BROKEN -- %s promoted to a rule in registry %s but carries no rStuff. Every live rule must carry rStuff (Mark 3); downstream guards will now read this broken rule as a lawful specimen.\n",NewGroup->groupBody->tag,ruler->currentRegistry->groupBody->tag);
 				}
@@ -573,7 +573,7 @@ GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
 int 		restrict = 0;
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
-	// GroupRules.h's extern block to zero   ruleActions.degradeByDefault
+	// degradeByDefault GroupRules.h's extern block to zero
 	if ( ruler->jitting )
 		::jitDegrade("FOR under jit -- no emitter (iterate's disease, different keyword)",input);
 	if ( isGROUP(Looper->groupBody->flags.data) )
@@ -616,7 +616,7 @@ int 		restrict = 0;
 			{
 			// ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
 			// extractable: the arms are continue/return/break over THIS loop
-			// ruleActions.trailingContinueGuard
+			// trailingContinueGuard
 			if ( isContinue(result->groupBody->flags.isBranch) )
 				{
 				result = ruler->trueResult;
@@ -626,7 +626,7 @@ int 		restrict = 0;
 			if ( isReturn(result->groupBody->flags.isBranch) )
 				return result;
 			// BREAK IS CONSUMED HERE -- clearing isBranch is what stops the enclosing
-			// block breaking too   ruleActions.breakIsConsumed
+			// breakIsConsumed block breaking too
 			result->groupBody->flags.isBranch = 0;
 			if ( result->groupBody->registry == ruler->keyWords )
 				result = 0;
@@ -634,7 +634,7 @@ int 		restrict = 0;
 			}
 		}
 	// labelNO, not falseResult: this construct executed NO statement, so it has no
-	// value -- and 0 is a value   ruleActions.labelNoNotFalse
+	// labelNoNotFalse value -- and 0 is a value
 	if ( !result )
 		result = ruler->labelNO;
 	if ( LoopRestrict )
@@ -837,7 +837,7 @@ char 	*arg = input->getText();
 	if ( arg )
 		{
 		// KANT'S NUMERIC TOWER IS count AND double. NO FLOATS, EVER -- a decimal point
-		// mints isNUMBER here, at the literal's birth, and nothing rounds it   ruleActions.aCTionNumbeR.numericTower
+		// numericTower mints isNUMBER here, at the literal's birth, and nothing rounds it
 		char *scan = arg;
 		int sawDecimal = 0;
 		while ( *scan )
@@ -908,9 +908,9 @@ GroupItem 	*grup = 0;
 		return input;
 		}
 	// ⚠ THE EMIT-TIME WALK MUST BE EFFECT-FREE -- a print that fires at compile time
-	// is worse than one that does not print, because it appears to work   ruleActions.aCTionPrinT.jittedPrint
+	// jittedPrint is worse than one that does not print, because it appears to work
 	// ⚠ CALLED AT tok LEVEL, NOT FROM PASSTHROUGH -- as passthrough this hit both
-	// bear-trap #13 and the type-alias hazard at once   ruleActions.aCTionPrinT.emittersAtTokLevel
+	// emittersAtTokLevel bear-trap #13 and the type-alias hazard at once
 	if ( ruler->jitting )
 		{
 		::jitPrintOpen(input);
@@ -1093,7 +1093,7 @@ GroupItem 	*base = 0;
 GroupItem 	*grup = 0;
 int 		setStakked = 0;
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
-	// GroupRules.h's extern block to zero   ruleActions.degradeByDefault
+	// degradeByDefault GroupRules.h's extern block to zero
 	if ( GroupControl::groupController->groupRules->jitting )
 		::jitDegrade("search under jit -- no emitter, mutates the search stack at emit time",input);
 	while ( grup = input->next(grup) )
@@ -1197,7 +1197,7 @@ extern "C" GroupItem *aCTionStringXP(GroupItem *input)
 GroupItem 	*stuff = input->getLabelGroup("stuff");
 Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTAK->pop();
 	// ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
-	// GroupRules.h's extern block to zero   ruleActions.degradeByDefault
+	// degradeByDefault GroupRules.h's extern block to zero
 	if ( GroupControl::groupController->groupRules->jitting )
 		::jitDegrade("string expression under jit -- no emitter, builds at emit time",input);
 	if ( !buffer )
@@ -1329,7 +1329,7 @@ GroupItem 	*trait = input->get(1);
 	// traitSubjectExplicit to upFlags (bear-trap #42)
 	if ( TraiTdata )
 		trait->setContent(TraiTdata);
-	// BOTH modifier classes apply AFTER this line -- setContent discards flags   ruleActions.aCTionTraiT.traitTakesOwnFlags
+	// traitTakesOwnFlags BOTH modifier classes apply AFTER this line -- setContent discards flags
 	if ( Modifier )
 		::modify(trait,Modifier->getText());
 	if ( upFlags )
@@ -1360,28 +1360,28 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 			DatA->getRStuff()->actionMethod = 0;
 			}
 		else	DatA->setRuleStuff();
-		// repetition lands on the DATA only; applying it to the trait as well repeats TWICE   ruleActions.aCTionTraiTdata.modifierRidesUp
+		// modifierRidesUp repetition lands on the DATA only; applying it to the trait as well repeats TWICE
 		if ( Modifier )
 			::modifyClass(DatA,Modifier->getText(),1);
 		if ( Limit )
 			::setLimits(DatA,Limit);
 		DatA->groupBody->flags.isRule = 1;
 		}
-	// a repetition after scalar data REFUSES -- a literal is one token and has nothing to repeat   ruleActions.aCTionTraiTdata.scalarRepeat
+	// scalarRepeat a repetition after scalar data REFUSES -- a literal is one token and has nothing to repeat
 	tdBad = 0;
 	if ( Modifier )
 		if ( DatA->groupBody->flags.isLiteral )
 			tdBad = ::hasRepeatClass(Modifier->getText());
 	if ( tdBad == 1 )
 		::refuse(input,"a repetition modifier after scalar data -- a literal is one token and has nothing to repeat");
-	// the flags ride up as a noPrint ARTIFACT, never as a term   ruleActions.aCTionTraiTdata.modifierRidesUp
+	// modifierRidesUp the flags ride up as a noPrint ARTIFACT, never as a term
 	if ( Modifier )
 		input->addAttribute(Modifier);
 	if ( Modifier )
 		upMark = input->get("Modifier");
 	if ( upMark )
 		upMark->groupBody->flags.noPrint = 1;
-	// THIS LINE hides the packet from the AUDIT; noPrint alone only hides it from the PARSE   ruleActions.aCTionTraiTdata.upMarkNoRstuff
+	// upMarkNoRstuff THIS LINE hides the packet from the AUDIT; noPrint alone only hides it from the PARSE
 	if ( upMark )
 		upMark->setRStuff((RuleStuff*)0);
 	if ( (DatA->groupBody->flags.isRule && !DatA->groupBody->flags.isLiteral) || DatA->groupBody->registry == GroupControl::groupController->groupRules->opFields )
@@ -1414,7 +1414,7 @@ GroupItem 	*result = 0;
 				{
 				// ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
 				// extractable: the arms are continue/return/break over THIS loop
-				// ruleActions.trailingContinueGuard
+				// trailingContinueGuard
 				if ( isContinue(result->groupBody->flags.isBranch) )
 					{
 					result = GroupControl::groupController->groupRules->trueResult;
@@ -1424,7 +1424,7 @@ GroupItem 	*result = 0;
 				if ( isReturn(result->groupBody->flags.isBranch) )
 					return result;
 				// BREAK IS CONSUMED HERE -- clearing isBranch is what stops the
-				// enclosing block breaking too   ruleActions.breakIsConsumed
+				// breakIsConsumed enclosing block breaking too
 				result->groupBody->flags.isBranch = 0;
 				if ( result->groupBody->registry == GroupControl::groupController->groupRules->keyWords )
 					result = 0;
@@ -1434,7 +1434,7 @@ GroupItem 	*result = 0;
 		else	break;
 		}
 	// labelNO, not falseResult: this construct executed NO statement, so it has no
-	// value -- and 0 is a value   ruleActions.labelNoNotFalse
+	// labelNoNotFalse value -- and 0 is a value
 	if ( !result )
 		result = GroupControl::groupController->groupRules->labelNO;
 	return result;
@@ -3443,7 +3443,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 			ruler->currentMETHOD->groupBody->flags.recursive = 1;
 	if ( isGROUP(InvokeArg->groupBody->flags.data) )
 		arg = InvokeArg->getGroup();
-	// an EMPTY () carries nothing and is NOT an argument -- hand on no third operand   ruleActions.handleCall.emptyParens
+	// emptyParens an EMPTY () carries nothing and is NOT an argument -- hand on no third operand
 	if ( !arg )
 		if ( InvokeArg->groupBody->groupList || InvokeArg->groupBody->flags.data )
 			arg = InvokeArg;
@@ -3690,7 +3690,7 @@ GroupItem 	*token = 0;
 					xl->addMember(arg);
 					// TIER-3 BINDING, AND THE SET IS A REGISTRATION -- `shortCircuit` on the
 					// operator in incant/setup, never a list of spellings here
-					// ruleActions.interpretXP.tier3Binding
+					// tier3Binding
 					if ( ::opIsShortCircuit(op) )
 						xl->setMethod(::runShortCircuit);
 					else	xl->setMethod(::runOP);
@@ -12215,9 +12215,9 @@ extern "C" GroupItem *stopParsingInput(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 int 		bailing = 0;
-	// which verb, and which node the empty () handed back   measure.measureStopCaller
+	// measureStopCaller which verb, and which node the empty () handed back
 	::measureStopCaller(input);
-	// bail LEAVES THE FILE, stop LEAVES THE PROCESS -- never exit(0) on a bail   Commands.stop.twoVerbs
+	// twoVerbs bail LEAVES THE FILE, stop LEAVES THE PROCESS -- never exit(0) on a bail
 	if ( input )
 		if ( ::compare(input->groupBody->tag,"bail") == 0 )
 			bailing = 1;

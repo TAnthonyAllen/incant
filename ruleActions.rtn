@@ -14,7 +14,7 @@ GroupItem   token;
 /*******************************************************************************
 	The BlocK rule action.
 
-    // bareReturnValue A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not the keyword's tag, and the substitution MUST re-stamp isBranch or every break and continue dies. ruleActions.aCTionBlocK.bareReturnValue
+    // bareReturnValue A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not the keyword's tag, and the substitution MUST re-stamp isBranch or every break and continue dies.
 *******************************************************************************/
 extern GroupItem aCTionBlocK(GroupItem input)
 {
@@ -53,7 +53,7 @@ GroupItem   grup,
                 result = prior;
                 result.isBranch = 3; }
             // ⚠ DO NOT let this break run under jitting -- it stops the COMPILER'S walk and
-            // every statement after a branch vanishes from the IR   ruleActions.aCTionBlocK.emitWalkMustNotStop
+            // emitWalkMustNotStop every statement after a branch vanishes from the IR
             if jitting  continue;
             broke = 1;
             break; }}
@@ -72,7 +72,7 @@ GroupItem   grup,
         failed and that is true.   ruleActions.aCTionBlocK.ranOutIsLabelNo  */
     if !result
         if broke == 0   result = labelNO;
-    // what the block hands back, and whether it is a value or a signal   measure.measureBlockResult
+    // measureBlockResult what the block hands back, and whether it is a value or a signal
     measureBlockResult(input,result,broke);
     return  result;
 }
@@ -128,7 +128,7 @@ extern GroupItem aCTionCerR(GroupItem input)
 GroupItem   stuff:;
 Buffer      buffer = bufferSTAK.pop();
     // ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
-    // GroupRules.h's extern block to zero   ruleActions.degradeByDefault
+    // degradeByDefault GroupRules.h's extern block to zero
     if jitting  jitDegrade("cerr under jit -- no emitter, sink fires at emit time", input);
     if !buffer      buffer = new("cerr buffer");
     appendPrintXP(stuff,buffer);
@@ -190,7 +190,7 @@ extern GroupItem aCTionCouT(GroupItem input)
 GroupItem   stuff:;
 Buffer      buffer = bufferSTAK.pop();
     // ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
-    // GroupRules.h's extern block to zero   ruleActions.degradeByDefault
+    // degradeByDefault GroupRules.h's extern block to zero
     if jitting  jitDegrade("cout under jit -- no emitter, sink fires at emit time", input);
     if !buffer      buffer = new("cout buffer");
     appendPrintXP(stuff,buffer);
@@ -257,7 +257,7 @@ use NewGroup
                 if !binType     isRule = true;
                 if !rStuff      rStuff = new(NewGroup);
                 // ⚠ THE PRODUCER OWNS THE INVARIANT: every live rule carries rStuff. Assert here,
-                // loudly -- do not soften this into a consumer-side guard   ruleActions.aCTionDefinE.producerOwnsInvariant
+                // producerOwnsInvariant loudly -- do not soften this into a consumer-side guard
                 if !rStuff  cerr "REGISTER: INVARIANT BROKEN -- " NewGroup.tag " promoted to a rule in registry " currentRegistry.tag " but carries no rStuff. Every live rule must carry rStuff (Mark 3); downstream guards will now read this broken rule as a lawful specimen.":; }
             or registry != currentRegistry
                 if currentDefine == NewGroup ||  !currentDefine || !currentDefine.addingMembers
@@ -383,19 +383,19 @@ GroupItem   StatemenT:,
         if isBranch {
             // ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
             // extractable: the arms are continue/return/break over THIS loop
-            // ruleActions.trailingContinueGuard
+            // trailingContinueGuard
             if isContinue {
                 result      = trueResult;
                 continue; }
             or isReturn     return result;
             // BREAK IS CONSUMED HERE -- clearing isBranch is what stops the enclosing
-            // block breaking too   ruleActions.breakIsConsumed
+            // breakIsConsumed block breaking too
             result.isBranch = 0;
             if result.registry == keyWords  result = 0;
             break; }}
     while ExpressioN.gMethod(ExpressioN);
     // labelNO, not falseResult: this construct executed NO statement, so it has no
-    // value -- and 0 is a value   ruleActions.labelNoNotFalse
+    // labelNoNotFalse value -- and 0 is a value
     if !result  result = labelNO;
     return result;
 }
@@ -457,7 +457,7 @@ GroupItem   Looper  = input["Looper"],
             result;
 int         restrict;
     // ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
-    // GroupRules.h's extern block to zero   ruleActions.degradeByDefault
+    // degradeByDefault GroupRules.h's extern block to zero
     if jitting  jitDegrade("FOR under jit -- no emitter (iterate's disease, different keyword)", input);
     if Looper.isGROUP       Looper = Looper.group;
     Looper.clear();
@@ -483,18 +483,18 @@ int         restrict;
         if isBranch {
             // ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
             // extractable: the arms are continue/return/break over THIS loop
-            // ruleActions.trailingContinueGuard
+            // trailingContinueGuard
             if isContinue {
                 result      = trueResult;
                 continue; }
             or isReturn     return result;
             // BREAK IS CONSUMED HERE -- clearing isBranch is what stops the enclosing
-            // block breaking too   ruleActions.breakIsConsumed
+            // breakIsConsumed block breaking too
             result.isBranch = 0;
             if result.registry == keyWords  result = 0;
             break; }}
     // labelNO, not falseResult: this construct executed NO statement, so it has no
-    // value -- and 0 is a value   ruleActions.labelNoNotFalse
+    // labelNoNotFalse value -- and 0 is a value
     if !result  result = labelNO;
     if LoopRestrict
         if !LoopRestrict.byRef {
@@ -645,7 +645,7 @@ String  arg = input.text;
     if arg
         {
         // KANT'S NUMERIC TOWER IS count AND double. NO FLOATS, EVER -- a decimal point
-        // mints isNUMBER here, at the literal's birth, and nothing rounds it   ruleActions.aCTionNumbeR.numericTower
+        // numericTower mints isNUMBER here, at the literal's birth, and nothing rounds it
         String  scan        = arg;
         int     sawDecimal;
         while *scan {
@@ -705,9 +705,9 @@ GroupItem   grup;
         input.group = revisedList;
         return input; }
     // ⚠ THE EMIT-TIME WALK MUST BE EFFECT-FREE -- a print that fires at compile time
-    // is worse than one that does not print, because it appears to work   ruleActions.aCTionPrinT.jittedPrint
+    // jittedPrint is worse than one that does not print, because it appears to work
     // ⚠ CALLED AT tok LEVEL, NOT FROM PASSTHROUGH -- as passthrough this hit both
-    // bear-trap #13 and the type-alias hazard at once   ruleActions.aCTionPrinT.emittersAtTokLevel
+    // emittersAtTokLevel bear-trap #13 and the type-alias hazard at once
     if jitting {
         jitPrintOpen(input);
         while grup = stuff.nextAttribute(grup) {
@@ -859,7 +859,7 @@ GroupItem   base,
             grup;
 int         setStakked;
     // ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
-    // GroupRules.h's extern block to zero   ruleActions.degradeByDefault
+    // degradeByDefault GroupRules.h's extern block to zero
     if jitting  jitDegrade("search under jit -- no emitter, mutates the search stack at emit time", input);
     while grup = input.next(grup)
         if tag eq "reset"  searchLIST.clearList();
@@ -941,7 +941,7 @@ extern GroupItem aCTionStringXP(GroupItem input)
 GroupItem   stuff:;
 Buffer      buffer = bufferSTAK.pop();
     // ⚠ MUST SIT AFTER THE WHOLE DECLARATION BLOCK -- inside one, this line wiped
-    // GroupRules.h's extern block to zero   ruleActions.degradeByDefault
+    // degradeByDefault GroupRules.h's extern block to zero
     if jitting  jitDegrade("string expression under jit -- no emitter, builds at emit time", input);
     if !buffer      buffer = new("print buffer");
     appendPrintXP(stuff,buffer);
@@ -1041,7 +1041,7 @@ GroupItem   upFlags,
     // traitSubjectExplicit trait, NOT bare -- a bare setContent below the upFlags read re-points
     // traitSubjectExplicit to upFlags (bear-trap #42)
     if TraiTdata    trait.setContent(TraiTdata);
-    // BOTH modifier classes apply AFTER this line -- setContent discards flags   ruleActions.aCTionTraiT.traitTakesOwnFlags
+    // traitTakesOwnFlags BOTH modifier classes apply AFTER this line -- setContent discards flags
     if Modifier     modify(trait,Modifier.text);
     if upFlags      modifyClass(trait,upFlags.text,0);
     if Limit        setLimits(trait,Limit);
@@ -1066,20 +1066,20 @@ GroupItem   upMark,
             DatA = new(DatA);
             actionMethod = null; }
         else        setRuleStuff();
-        // repetition lands on the DATA only; applying it to the trait as well repeats TWICE   ruleActions.aCTionTraiTdata.modifierRidesUp
+        // modifierRidesUp repetition lands on the DATA only; applying it to the trait as well repeats TWICE
         if Modifier modifyClass(DatA,Modifier.text,1);
         if Limit    setLimits(DatA,Limit);
         isRule      = true; }
-    // a repetition after scalar data REFUSES -- a literal is one token and has nothing to repeat   ruleActions.aCTionTraiTdata.scalarRepeat
+    // scalarRepeat a repetition after scalar data REFUSES -- a literal is one token and has nothing to repeat
     tdBad = 0;
     if Modifier
         if DatA.isLiteral   tdBad = hasRepeatClass(Modifier.text);
     if tdBad == 1   refuse(input,"a repetition modifier after scalar data -- a literal is one token and has nothing to repeat");
-    // the flags ride up as a noPrint ARTIFACT, never as a term   ruleActions.aCTionTraiTdata.modifierRidesUp
+    // modifierRidesUp the flags ride up as a noPrint ARTIFACT, never as a term
     if Modifier     input +% Modifier;
     if Modifier     upMark = input["Modifier"];
     if upMark       upMark.noPrint = true;
-    // THIS LINE hides the packet from the AUDIT; noPrint alone only hides it from the PARSE   ruleActions.aCTionTraiTdata.upMarkNoRstuff
+    // upMarkNoRstuff THIS LINE hides the packet from the AUDIT; noPrint alone only hides it from the PARSE
     if upMark       upMark.rStuff = 0;
     if (isRule && !isLiteral) || registry == opFields    input.group = DatA;
     else input.setContent(DatA);
@@ -1105,19 +1105,19 @@ GroupItem   looper,
             if isBranch {
                 // ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
                 // extractable: the arms are continue/return/break over THIS loop
-                // ruleActions.trailingContinueGuard
+                // trailingContinueGuard
                 if isContinue {
                     result      = trueResult;
                     continue; }
                 or isReturn     return result;
                 // BREAK IS CONSUMED HERE -- clearing isBranch is what stops the
-                // enclosing block breaking too   ruleActions.breakIsConsumed
+                // breakIsConsumed enclosing block breaking too
                 result.isBranch = 0;
                 if result.registry == keyWords  result = 0;
                 break; }}
         else    break; }
     // labelNO, not falseResult: this construct executed NO statement, so it has no
-    // value -- and 0 is a value   ruleActions.labelNoNotFalse
+    // labelNoNotFalse value -- and 0 is a value
     if !result  result = labelNO;
     return result;
 }
@@ -1245,7 +1245,7 @@ GroupRules  ruler = groupRules;
     if ruler.processingCode
         if ANYtoken.groupBody == ruler.currentMETHOD.groupBody   ruler.currentMETHOD.recursive = true;
     if InvokeArg.isGROUP    arg = InvokeArg.group;
-    // an EMPTY () carries nothing and is NOT an argument -- hand on no third operand   ruleActions.handleCall.emptyParens
+    // emptyParens an EMPTY () carries nothing and is NOT an argument -- hand on no third operand
     if !arg
         if InvokeArg.groupList || InvokeArg.data     arg = InvokeArg;
     use xpress
@@ -1413,7 +1413,7 @@ GroupItem   op, target, arg, xl, token;
                     xl  += arg;
                     // TIER-3 BINDING, AND THE SET IS A REGISTRATION -- `shortCircuit` on the
                     // operator in incant/setup, never a list of spellings here
-                    // ruleActions.interpretXP.tier3Binding
+                    // tier3Binding
                     if opIsShortCircuit(op)
                             xl.method   = runShortCircuit;
                     else    xl.method   = runOP;

@@ -1,0 +1,111 @@
+/*  slugDirectives -- THE DOTTED-PATH SWEEP, as a directives batch.
+
+    WHAT IT DOES. The 2026-09-15 ruling on the comment convention is that the
+    inline form is `// slug sentence?` -- slug required, sentence optional, and
+    the DOTTED PATH IS NEVER INLINE. Two production files still carry the older
+    spelling, which puts the path at the end of the line. This respells all of
+    them to bare slugs, in place, and touches nothing else.
+
+    ⚠ IT EDITS PRODUCTION SOURCE AND closeFile WRITES THE FILE BACK. The guide's
+    copy-to-Tests workflow exists because directives have no undo. Here git is the
+    undo: both files are committed and clean before this runs, so `git checkout --`
+    restores either one. Do not run this against a dirty tree.
+
+    THE FOUR CONSTRAINTS, and how each is met.
+    1  SOURCE IS NAMED `source`. replaceAt and deleteAt hoist it by that literal
+       name, so a differently-named field silently gives the hoist nothing and
+       EVERY directive misses.
+    2  getFile IS ONCE PER FIELD -- but a field can be RE-POINTED. closeFile,
+       then assign the next path, then getFile again. Measured 2026-09-16; it is
+       how one batch reaches two files. `source:=otherField` was tried first and
+       exits 139.
+    3  THE MARK ONLY ADVANCES, so the calls below are in FILE ORDER, and a
+       directive whose text occurs N times is FIRED N TIMES -- each fire takes
+       the next occurrence forward of the mark.
+    4  fromThis NEVER CONTAINS `//` OR A QUOTE. It matches the comment INTERIOR
+       only, because checkSkip swallows anything comment-shaped even inside
+       quotes. The one entry whose sentence carries backticks is matched on the
+       period before its path instead, so that sentence is never quoted at all.
+
+    ⚠ EVERY fromThis IS END-ANCHORED WITH A NEWLINE, AND THAT IS WHAT MAKES THE
+    BATCH IDEMPOTENT RATHER THAN SINGLE-USE. Two of these paths ALSO appear in a
+    BLOCK comment -- Commands.rtn:706 and ruleActions.rtn:1454 -- and block
+    comments KEEP their dotted paths under the convention. Unanchored, the
+    bare-path entry matched the block comment on a SECOND run and corrupted it:
+    caught by the second-run check, not by reading. An inline key is always at
+    end of line and a block-comment mention never is, so the newline is the
+    discriminator. Do NOT drop it from a future entry.
+
+    ⚠ THE REPLACEMENT TEXT CONTAINS ITS OWN fromThis PREFIX for the repeated
+    entries, which is safe only because the mark has moved past the insert before
+    the next search starts -- and because every fromThis ends with the PATH, which
+    the replacement does not have. Neither fact is an accident; do not shorten a
+    fromThis to just its sentence.
+
+    Sentinel at the foot, single stop.  */
+Start();
+include(directives);
+
+register(Directives);
+define
+    source="Commands.rtn";
+    sd01 source fromThis="which verb, and which node the empty () handed back   measure.measureStopCaller\n" toThis="measureStopCaller which verb, and which node the empty () handed back\n";
+    sd02 source fromThis="bail LEAVES THE FILE, stop LEAVES THE PROCESS -- never exit(0) on a bail   Commands.stop.twoVerbs\n" toThis="twoVerbs bail LEAVES THE FILE, stop LEAVES THE PROCESS -- never exit(0) on a bail\n";
+    sd03 source fromThis=". ruleActions.aCTionBlocK.bareReturnValue\n" toThis=".\n";
+    sd04 source fromThis="every statement after a branch vanishes from the IR   ruleActions.aCTionBlocK.emitWalkMustNotStop\n" toThis="emitWalkMustNotStop every statement after a branch vanishes from the IR\n";
+    sd05 source fromThis="what the block hands back, and whether it is a value or a signal   measure.measureBlockResult\n" toThis="measureBlockResult what the block hands back, and whether it is a value or a signal\n";
+    sd06 source fromThis="GroupRules.h's extern block to zero   ruleActions.degradeByDefault\n" toThis="degradeByDefault GroupRules.h's extern block to zero\n";
+    sd07 source fromThis="loudly -- do not soften this into a consumer-side guard   ruleActions.aCTionDefinE.producerOwnsInvariant\n" toThis="producerOwnsInvariant loudly -- do not soften this into a consumer-side guard\n";
+    sd08 source fromThis="ruleActions.trailingContinueGuard\n" toThis="trailingContinueGuard\n";
+    sd09 source fromThis="block breaking too   ruleActions.breakIsConsumed\n" toThis="breakIsConsumed block breaking too\n";
+    sd10 source fromThis="value -- and 0 is a value   ruleActions.labelNoNotFalse\n" toThis="labelNoNotFalse value -- and 0 is a value\n";
+    sd11 source fromThis="mints isNUMBER here, at the literal's birth, and nothing rounds it   ruleActions.aCTionNumbeR.numericTower\n" toThis="numericTower mints isNUMBER here, at the literal's birth, and nothing rounds it\n";
+    sd12 source fromThis="is worse than one that does not print, because it appears to work   ruleActions.aCTionPrinT.jittedPrint\n" toThis="jittedPrint is worse than one that does not print, because it appears to work\n";
+    sd13 source fromThis="bear-trap #13 and the type-alias hazard at once   ruleActions.aCTionPrinT.emittersAtTokLevel\n" toThis="emittersAtTokLevel bear-trap #13 and the type-alias hazard at once\n";
+    sd14 source fromThis="BOTH modifier classes apply AFTER this line -- setContent discards flags   ruleActions.aCTionTraiT.traitTakesOwnFlags\n" toThis="traitTakesOwnFlags BOTH modifier classes apply AFTER this line -- setContent discards flags\n";
+    sd15 source fromThis="repetition lands on the DATA only; applying it to the trait as well repeats TWICE   ruleActions.aCTionTraiTdata.modifierRidesUp\n" toThis="modifierRidesUp repetition lands on the DATA only; applying it to the trait as well repeats TWICE\n";
+    sd16 source fromThis="a repetition after scalar data REFUSES -- a literal is one token and has nothing to repeat   ruleActions.aCTionTraiTdata.scalarRepeat\n" toThis="scalarRepeat a repetition after scalar data REFUSES -- a literal is one token and has nothing to repeat\n";
+    sd17 source fromThis="the flags ride up as a noPrint ARTIFACT, never as a term   ruleActions.aCTionTraiTdata.modifierRidesUp\n" toThis="modifierRidesUp the flags ride up as a noPrint ARTIFACT, never as a term\n";
+    sd18 source fromThis="THIS LINE hides the packet from the AUDIT; noPrint alone only hides it from the PARSE   ruleActions.aCTionTraiTdata.upMarkNoRstuff\n" toThis="upMarkNoRstuff THIS LINE hides the packet from the AUDIT; noPrint alone only hides it from the PARSE\n";
+    sd19 source fromThis="enclosing block breaking too   ruleActions.breakIsConsumed\n" toThis="breakIsConsumed enclosing block breaking too\n";
+    sd20 source fromThis="an EMPTY () carries nothing and is NOT an argument -- hand on no third operand   ruleActions.handleCall.emptyParens\n" toThis="emptyParens an EMPTY () carries nothing and is NOT an argument -- hand on no third operand\n";
+    sd21 source fromThis="ruleActions.interpretXP.tier3Binding\n" toThis="tier3Binding\n";
+    ;
+
+getFile(source);
+replaceAt(sd01);      // Commands.rtn:694  measureStopCaller
+replaceAt(sd02);      // Commands.rtn:696  twoVerbs
+closeFile(source);
+source = "ruleActions.rtn";
+getFile(source);
+replaceAt(sd03);      // ruleActions.rtn:17  bareReturnValue
+replaceAt(sd04);      // ruleActions.rtn:56  emitWalkMustNotStop
+replaceAt(sd05);      // ruleActions.rtn:75  measureBlockResult
+replaceAt(sd06);      // ruleActions.rtn:131  degradeByDefault
+replaceAt(sd06);      // ruleActions.rtn:193  degradeByDefault
+replaceAt(sd07);      // ruleActions.rtn:260  producerOwnsInvariant
+replaceAt(sd08);      // ruleActions.rtn:386  trailingContinueGuard
+replaceAt(sd09);      // ruleActions.rtn:392  breakIsConsumed
+replaceAt(sd10);      // ruleActions.rtn:398  labelNoNotFalse
+replaceAt(sd06);      // ruleActions.rtn:460  degradeByDefault
+replaceAt(sd08);      // ruleActions.rtn:486  trailingContinueGuard
+replaceAt(sd09);      // ruleActions.rtn:492  breakIsConsumed
+replaceAt(sd10);      // ruleActions.rtn:497  labelNoNotFalse
+replaceAt(sd11);      // ruleActions.rtn:648  numericTower
+replaceAt(sd12);      // ruleActions.rtn:708  jittedPrint
+replaceAt(sd13);      // ruleActions.rtn:710  emittersAtTokLevel
+replaceAt(sd06);      // ruleActions.rtn:862  degradeByDefault
+replaceAt(sd06);      // ruleActions.rtn:944  degradeByDefault
+replaceAt(sd14);      // ruleActions.rtn:1044  traitTakesOwnFlags
+replaceAt(sd15);      // ruleActions.rtn:1069  modifierRidesUp
+replaceAt(sd16);      // ruleActions.rtn:1073  scalarRepeat
+replaceAt(sd17);      // ruleActions.rtn:1078  modifierRidesUp
+replaceAt(sd18);      // ruleActions.rtn:1082  upMarkNoRstuff
+replaceAt(sd08);      // ruleActions.rtn:1108  trailingContinueGuard
+replaceAt(sd19);      // ruleActions.rtn:1114  breakIsConsumed
+replaceAt(sd10);      // ruleActions.rtn:1120  labelNoNotFalse
+replaceAt(sd20);      // ruleActions.rtn:1248  emptyParens
+replaceAt(sd21);      // ruleActions.rtn:1416  tier3Binding
+closeFile(source);
+print "SLUGDIRECTIVES SENTINEL -- keys respelled: 30":;
+stop();
