@@ -468,6 +468,14 @@ include(grammar);
 
     7. OPERATOR ORDER -- LONGEST-FIRST IS A CONVENTION, NOT THE MECHANISM
 
+    ⚠ Operators IS CREATED UNSORTED, AND IT IS THE EXCEPTION. getRegistry mints
+    every registry with isSorted = 1, which is sortAscending; GroupControl then
+    clears it for this one registry alone -- `opFields.isSorted = false`, beside
+    `opFields.isOperator = true`. ⚠ THE DEFAULT WOULD INVERT THIS TABLE: ascending
+    order puts every PREFIX above its long form, which is exactly the spelling
+    this file is written to avoid. So the order below is kept longest-first BY
+    HAND, on purpose, and survives only because nothing re-sorts it.
+
     Twenty-three registered operators have another registered operator as a strict
     prefix: the vertical-bar pair, the whole plus family, every compare. The table
     is written longest-first throughout, and as of 2026-09-16 it is, with no
@@ -488,10 +496,40 @@ include(grammar);
       the add-member operator answered 3 where a bare-plus read would have answered
       7, while registered eight rows BELOW bare plus.
 
-    So the matcher returns the longest match irrespective of where a row sits. The
-    ordering convention is worth keeping because it makes the table readable and
-    makes a mis-registration obvious to a human -- not because anything depends on
-    it. ⚠ DO NOT PIN THE ORDER IN A FIXTURE: a row-order pin moves for reasons
+    So the matcher returns the longest match irrespective of where a row sits.
+
+    ⚠⚠ AND THE MECHANISM WAS READ, NOT INFERRED FROM THE BEHAVIOUR -- 2026-09-16,
+    read-only, two functions. IT IS LONGEST-FIT, AND THE FIT IS DECIDED ONE LAYER
+    ABOVE THE REGISTRY.
+
+    testContainer (RuleStuff.twk) does a greedy CHARACTER-SET scan to build the
+    longest run of characters that could belong to SOME entry -- an UPPER BOUND,
+    never the answer, because a set has no notion of where an entry ends -- and
+    then BACKS OFF ONE CHARACTER AT A TIME, calling get() on each candidate, until
+    one is a real entry. It starts long and shortens, so the first success is the
+    LONGEST candidate that exists.
+
+    get() (GroupItem.twk) is a linear walk with an EXACT WHOLE-TAG COMPARE. It
+    stops at its first hit, and since tags in a registry are unique that first hit
+    is the ONLY hit. So where a row sits changes how many compares happen before
+    it is found and NOTHING ELSE.
+
+    ⚠ THEREFORE LONGEST-FIRST ORDER BUYS READABILITY, AND NOT CORRECTNESS OR
+    EFFICIENCY. Not correctness: get() finds the unique tag wherever it sits. Not
+    efficiency in any useful sense either -- the linear walk's cost depends on
+    where the FREQUENTLY-MATCHED entries sit, which is orthogonal to how long they
+    are. The convention is worth keeping because it makes a mis-registration
+    obvious to a human reading the table. That is the whole of it.
+
+    ⚠ AND THE UPPER-BOUND SCAN IS WHERE THE REAL HAZARD LIVES, not the ordering.
+    Any container holding both a symbol and a WORD puts that word's letters into
+    the character set, so the scan can build a run that is an entry of nothing:
+    `--grup` scanned as `--g` and the whole match failed, until the back-off
+    landed on `--`. Tony's finding and ruling, 2026-08-02, recorded at
+    testContainer. It is a design flaw of set-based character grouping and not an
+    edge case -- and no amount of row ordering touches it.
+
+    ⚠ DO NOT PIN THE ORDER IN A FIXTURE: a row-order pin moves for reasons
     unrelated to correctness, which is rule H3. incant/pop/opPrefixT pins THE
     ANSWER instead, one discriminating row per pair, and it stayed byte-identical
     across the 2026-09-16 reorder -- which is how that reorder was shown to be
