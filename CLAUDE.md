@@ -469,6 +469,31 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 >   *convention carried* from *nothing written*. Row C wants **4**, so it fails unless the slot
 >   holds a real computed value. **Pair every zero-expecting row with a non-zero sibling.**
 >
+> **RULE H4a — WHERE PLACEMENT IS THE CLAIM, ASSERT THE NEIGHBOUR, NOT THE PRESENCE.** Adopted
+> 2026-09-16, and it is H4 one turn further round: H4 says a check must not pass because a line is
+> missing; this says **a check must not pass because a line is merely there.**
+>
+> **PRESENCE IS SATISFIED IDENTICALLY BY A PAYLOAD ON EITHER SIDE OF ITS ANCHOR.** So a row that
+> greps for the text asserts that something was written and says nothing whatever about *where* —
+> which is the entire claim when the feature under test is `before` versus `after`.
+>
+> **The worked example is F-67, and the cost is measured: `where=before` inserted AFTER its line
+> for as long as the fixture had existed, and the row was GREEN the whole time** — it wrote its
+> value, so presence held, and it wrote it in the wrong place. Two independent people read the
+> fixture's own header saying *"a line ahead of the `x =` line"*, looked at a green row, and did
+> not look at the buffer. A third defect (the first-line off-by-one) was hiding underneath it and
+> **could not be reached at all** while the first one stood.
+>
+> **THE INSTRUMENT IS `pop.sh`'s `neighbour` helper** — `neighbour <file> <payload> <offset>
+> <expected> <label>` — which finds the line carrying the payload and asserts the line `<offset>`
+> away from it. It prints the line it actually found on a failure, because *"not where it should
+> be"* without saying where it IS costs the next reader a run.
+> ⚠ **AND THE ANTI-VACUITY SHAPE THAT COMES WITH IT: PIN BOTH DIRECTIONS AGAINST THE SAME
+> NEIGHBOUR.** `dirT`'s tail rows put `before` above and `after` below one line, so a payload on
+> the wrong side of it fails one of the pair no matter which side it lands on. A single-direction
+> placement row can still be satisfied by a mechanism that ignores `where` entirely — which is
+> precisely the mechanism F-67 turned out to be.
+>
 > **RULE H4 — ASSERT PRESENCE-WITH-VALUE, NEVER ABSENCE-OF-MESSAGE.** Adopted 2026-07-31.
 > Generalises H2's sentinel logic from *completeness* to **every asserted quantity**: if a check
 > can pass because a line is missing, it will eventually pass because someone deleted the code
@@ -2414,6 +2439,37 @@ Hard-won lessons. Each one has cost real debugging time.
     **Detector:** count `opDot` entries or arm entries, never results. A results-based check
     cannot see this at all, which is why it survived until a seat callout existed to count calls.
 
+53. **`//` IN A `define` FILE COMMENTS THE LINE, NOT THE VALUE — SO A MULTI-LINE `(…#)` BODY
+    SURVIVES ITS OWN COMMENT MARKER AND IS PARSED AS STATEMENTS.** Gloss: the comment ends, the
+    value does not. Measured 2026-09-16 in `incant/designDocs`, bisected by hunk then by one grep.
+    A `//` reaches end of LINE. A `(…#)` value reaches its `#)`. Comment out the opening line of a
+    multi-line entry —
+    ```
+        //tokenSkip=(A MEMBER WITH isRule 0 IS A TOKEN -- Tony's ruling,
+            2026-09-15, off the parent chains: the sixty refusals this replaces
+            ... #);
+    ```
+    — and only the FIRST line is commented. **Every remaining body line is then ordinary source**,
+    and prose parsed as statements kills the enclosing `define`.
+    ⚠ **THE FAILURE NAMES THE FILE'S FIRST ENTRY, NEVER THE OFFENDER.** `include(designDocs)` died
+    with `RunRulE: expected a method not DisplayDesignHTML` — the file's first and healthiest entry
+    — which is **bear-trap #32's misdirection arriving through a different door**, and the same
+    bisect rule applies: bisect by REMOVING LATER ENTRIES, never by staring at the named one.
+    **SYMPTOM TO RECOGNISE:** `include()` of a `define` file dies at its first entry; `ddPop` and
+    `inArmsT` go red together; and **it is working-tree-only**, so the file at HEAD is fine and the
+    instruments say so — two independent instruments, one uncommitted change.
+    **THE CURE IS TO COMMENT THE VALUE OR DELETE THE ENTRY, NEVER THE LINE.** There is no spelling
+    of `//` that parks a multi-line value, because the two delimiters do not nest.
+    ⚠ **AND THE DETECTOR IS ONE COMMAND, because the population is normally zero:**
+    `grep -c '^\s*//' <the define file>` — `incant/designDocs` read **5**, and all five were the
+    new entries. A `define` file with any `//` in it at all is worth a look.
+    ⚠ **HOW IT GETS WRITTEN, which is the part worth guarding against:** the five were pasted from
+    the `.rtn` where they had lived as `// slug` inline comments, under the comment convention that
+    moves the argument out of the method and into DesignDocs. **The `//` is correct at the source
+    end and fatal at the destination end**, so the move is exactly where this is produced — and it
+    will be produced again, because the convention makes that move routine. Same family as the
+    three-languages note: confirm which language the line has landed in, not which one it came from.
+
 51. **SAME NAME, TWO PROVENANCES: A KANT BODY SPELLING `false` GETS A *COPY*; THE `AND` CHAIN
     HANDS BACK THE REGISTRY NODE *ITSELF*. AN IDENTITY TEST AGAINST `falseResult` THEREFORE WORKS
     FROM ONE ROAD AND NEVER FROM THE OTHER, SILENTLY.** Gloss: one name, two provenances. Measured
@@ -2916,6 +2972,27 @@ nobody re-examines.**
 `incant++` is a scratchpad and `tester` changes with whatever Tony is testing, so both stay
 **untracked and gitignored**. `parser` is work with an end date. Scratch stays out of git;
 unfinished work goes in.
+
+⚠⚠ **`WorkingOn/` IS NOT SCRATCH. `incant++` IS THE ONLY SCRATCH FILE. Tony, 2026-09-16, and it
+narrows the sentence directly above.** Everything else under `IncantForms/WorkingOn/` is work —
+unfinished, changing daily, but work — and it belongs in git. Read *"scratch stays out"* as a rule
+about **one file**, not about a directory.
+
+⚠⚠ **AND THE OPERATIVE HALF, WHICH IS ABOUT CLOD'S HANDS: AN UNTRACKED FILE OF TONY'S IS COMMITTED
+UNDER HIS NAME IN THE KITCHEN PASS. NO STASH, NO H8, AND IT IS NOT A FINDING.** H8's quarantine
+clause is for dirt that **nobody can account for** — it was never about dirt whose author is
+obvious. A new file sitting in Tony's own working directory, with today's date on it, is accounted
+for by where it is.
+
+⚠ **THE SENTENCE TO KEEP: OWNERSHIP IN THE LEDGER IS BOOKKEEPING, NOT A FINDING.** A ledger like
+`docs/minionModel.md` §6b exists so a commit message can name hunks correctly — it is **not a
+manifest that a file has to appear on to be legitimate**, and a file's absence from it says only
+that it arrived after the ledger was written. **Committing it and flagging it are two different
+acts, and only the first is owed.**
+⚠ **Paid for on the day the rule was written:** `IncantForms/WorkingOn/forms` — Tony's notes on
+form attributes, created that morning, sibling of the already-tracked `docs` — was committed
+correctly and then **raised as something for Tony to rule on**. The commit was right; the flag was
+noise, and noise in a report is how the signals in it get discounted.
 
 ⚠ **FIXIT CITIZENS ARE NOT CLOD'S TO MINT (Rule F2, Tony, 2026-09-01).** A finding goes in the
 **seal**; whether it becomes a citizen in `incant/fixits/` is Tony's or Clay's ruling. Clod may

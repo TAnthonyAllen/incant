@@ -63,6 +63,31 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-69 — removing `deleteAt`'s `else` miss arm takes the whole run to exit 139
+**What:** latent, and found as an H7 negative control rather than as a symptom, 2026-09-16.
+`deleteAt` in `incant/directives` is
+```
+    if *fromThis IN source;
+        source -= *fromThis;
+    else    print "Did not find" fromThis "in source":;
+```
+Dropping the `else` line and leaving the rest untouched makes `incant/pop/dirT` **exit 139 with
+none of its three deleteAt values printed**. The `else` is doing something structural, not merely
+reporting.
+**Where:** `incant/directives`, `deleteAt`. The same shape is in `replaceAt` two definitions down
+and has never been tested without its `else`.
+**Evidence:** one alarmed run of the single fixture, control applied and reverted, `incant/directives`
+restored byte-identical (md5 `bc2adbe664cbd0c1073c009194f84ffd`). The second control in the same
+stroke — removing the *removal line* and keeping the `else` — exits **0** and moves exactly the two
+rows it should, so the crash is specific to the missing arm and not to editing the action at all.
+**Grade:** ⚠ **CANDIDATE, NOT DIAGNOSED.** Possibly bear-trap #32's dangling-arm family, where kant
+and tok disagree about which `if`/`else` shapes are legal and the failure names the wrong thing. It
+is a guess with nothing measured behind it and is recorded as one.
+**Done when:** the cause is named, or the shape is shown to be a language rule and written into #32.
+**Owner:** unassigned. **Size:** unknown — one bisect to find out whether it is even the `else`.
+⚠ **NOT ON ANYBODY'S PATH:** no live code removes that arm. This is banked because the control was
+already paid for, not because anything is blocked.
+
 ### F-64 — `REFUSED ... [line N]` IS NOT A SOURCE LINE, AND IT MOVES BY AN AMOUNT NOBODY CAN PREDICT
 **What:** the refusal diagnostic's bracketed line number tracks edits *above* the refusal site but
 is **not** the source line of anything, and the amount it moves is not the number of lines added.
