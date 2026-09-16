@@ -63,6 +63,48 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-72 — `a.*b` never forms a dot at all, so nothing can refuse it
+**What:** ruling (iv) of item 6 asked for a loud refusal when the right operand of `.` carries a
+unary, sited "before the `switch(gCount)`" in `opDot`, with the cure `a[*b]` spelled. **It cannot go
+there, and it cannot go in `handleDot` either, because neither is reached.**
+**Evidence, two independent traces, 2026-09-16.** `dcRoot.*dcMid` produces **no `dot-COMPOSED`
+arm** — the arms are `primary=dRoot`, `primary=dJ`, twice — and `measureDotOperands` reads
+`right=dRoot left=dRoot`, i.e. the `.` fired as a LEADING dot off `lastREF` and the `*dcMid`
+went somewhere else entirely. The star is never an operand of the dot, so opDot cannot see it.
+**Where:** the shape is decided before `handleDot`; `aCTionTokenXP` never takes its dot arm.
+**Done when:** the parse of `a.*b` is diagnosed, and the refusal is sited where the unary is
+visible. **Grade:** OPEN — shape measured, cause not diagnosed. `incant/pop/dotChainT` DC-9 pins
+today's answer (a tag echo) **and its header says in terms that it is NOT yet a refusal**, so the
+row cannot be misread as coverage.
+**Owner:** unassigned. **Size:** unknown until the parse is read.
+
+### F-71 — `*x.flagName` answers NOTHING when `x` is a plain field, and the SOURCE when it is a holder
+**What:** the acceptance for item 6 stroke 1 was `starFlagT` SF-2 → 0, SF-4 → 0, SF-6 → 1. **None of
+the three moved**, and the measurement says why: they never enter the mechanism that was changed.
+Each is a SINGLE `dot-COMPOSED` term carrying its star as the term's own unary, so `handleDot`'s
+`starDotRotation` — built 2026-09-07 — already applies and `interpretXP`'s juxtaposition is never
+reached. **The chain fold cannot move these rows and neither could any other fold.**
+**What the star actually does, measured on one run:**
+
+| spelling | reads |
+|---|---|
+| `source.noPrinT` | **1** — correct |
+| `*source.noPrinT` | **nothing** — a tag echo |
+| `clean.noPrinT` | **0** — correct |
+| `*clean.noPrinT` | **nothing** — a tag echo |
+| `*face.noPrinT` | **1** — and `DOTOPERANDS` reads `left=spSrc`, the SOURCE |
+
+So on a plain field the star yields **no value at all**, and on a `<-` holder it reaches **past the
+face to the original** — even though `addrOf` shows the two carry **different bodies** (`#2` vs
+`#4`), which is `starFlagT`'s own SF-0 control saying a flag must not cross between them.
+⚠ **THE PREDICTION FAILED, AND IT IS NOT VOIDED: SF-1, SF-3 and SF-5 DID NOT MOVE** (0, 0, 1), so
+the fixture's read machinery was untouched and this is a genuine negative result rather than an
+uninterpretable one.
+**Done when:** `*x` on a non-holder yields `x` rather than nothing, and `*holder` yields what the
+holder holds rather than what that was copied from — then SF-2/4/6 are re-measured against the
+pre-registered flip. **Grade:** OPEN, and it is the real blocker the acceptance was aimed at.
+**Owner:** unassigned. **Size:** unknown; the two behaviours may be one defect or two.
+
 ### F-70 — `dumpContents(GroupFields)` exits 139 with zero output
 **What:** latent, found 2026-09-16 while building a registry census for the `incant/setup`
 recompose. `dumpContents` prints a header line carrying the registry's length and then its members;

@@ -977,6 +977,9 @@ GroupItem   swap,
     xpress.clear();
     if isGROUP  ANYtoken = group;
     if !InvokeArg {
+        // unaryOnlyArm  the ONE arm with no callout until 2026-09-16, which is why
+        // unaryOnlyArm  bear-trap 52 read "no arm" for a term that fires handleUnary
+        if UnaryOPS     measureTokenArm("unary-only",ANYtoken,0,UnaryOPS);
         if !UnaryOPS
             if registry == groupFields {
                 measureTokenArm("dot-LEADING",ANYtoken,0,UnaryOPS);
@@ -1255,6 +1258,29 @@ GroupRules  ruler = groupRules;
     return null;
 }
 
+/*  isDotUxp -- is this juxtaposed term an ORPHANED LEADING DOT?
+
+    IDENTIFY IT BY ITS OP AND BY NOTHING ELSE. By the time interpretXP sees the
+    term, handleUnary has already wrapped it -- the raw `UnaryOPS ANYorNum` shape
+    is gone, so a shape test would be testing the wrapper. This asks the one
+    durable question: is the first attribute the Operators entry `.`?
+    ⚠ THE REGISTRY TEST IS NOT DECORATION. A bare tag compare would start
+    answering yes the day anything else mints a node tagged `.`; membership of
+    opFields is what makes it THE OPERATOR rather than a name that looks like
+    one.   ruleActions.interpretXP.dotFold  */
+extern int isDotUxp(GroupItem node)
+{
+GroupRules  ruler = groupRules;
+GroupItem   op;
+    if !node                            return false;
+    if node.tag ne "uxp"                return false;
+    op = node.firstInList;
+    if !op                              return false;
+    if op.registry != ruler.opFields    return false;
+    if op.tag ne "."                    return false;
+    return true;
+}
+
 /*  handleDot -- the `.` arm, both shapes. With no InvokeArg it is the LEADING form
     (`.taG`), which hangs the dot op with no right operand so opDot falls to lastREF.
     With one it is the composed form, where InvokeArg arrived as a UnaryXP holding the
@@ -1397,12 +1423,36 @@ GroupItem   op, target, arg, xl, token;
                 target  = token;
                 if xl   xl = null; }
             else {
-                if !xl {
-                    xl = new("xl1");
-                    xl.isLIST   = true; }
-                if arg != xl    xl += arg;
-                xl  += token;
-                arg = xl; }}
+                /*  ⚠ THE ACCUMULATOR IS THE RIGHT-HAND SIDE HERE, NOT THE LEFT, AND
+                    NOTHING ELSE IN THIS FUNCTION SAYS SO. The loop walks
+                    `xpList.prior` -- BACKWARD -- so the term already in `arg` sits
+                    further RIGHT in the source and the `token` arriving now is its
+                    LEFT. `a.b.c` dumps as [uxp, Token] for exactly that reason.
+                    Read that before changing anything below it.
+                    ruleActions.interpretXP.dotFold  */
+                if isDotUxp(arg) {
+                    /*  THE CHAIN FOLD. An orphaned `.c` juxtaposed against a term on
+                        its left is not a juxtaposition at all -- it is a dot whose
+                        left operand the parser never handed it. Hand it one. Left
+                        associative BY CONSTRUCTION: the left is whatever arrived.
+                        ruleActions.interpretXP.dotFold  */
+                    GroupItem dotOp   = arg.firstInList;
+                    GroupItem dotName = arg.lastInList;
+                    GroupItem folded  = new("xdot");
+                    folded  +% dotOp;
+                    folded  +% token;
+                    folded  +% dotName;
+                    folded.method = runOP;
+                    folded.invoke = true;
+                    arg = folded;
+                    if xl   xl = null; }
+                else {
+                    if !xl {
+                        xl = new("xl1");
+                        xl.isLIST   = true; }
+                    if arg != xl    xl += arg;
+                    xl  += token;
+                    arg = xl; }}}
         if op
             if arg {
                 if arg.actionType || arg.instructType   arg.invoke = true;

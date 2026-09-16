@@ -2476,6 +2476,36 @@ else
     echo "  ok    directives a miss wrote nothing (paired with the row above)"; green=$((green+1))
 fi
 
+#  ---- dotChainT: what each dot spelling reads --------------------------------
+#  Built 2026-09-16 with the chain fold. The tree is seeded with REAL VALUES --
+#  dcMid=MIDVAL, dcLeaf=LEAFVAL -- so a row that reaches its node answers with a
+#  VALUE while a row that merely reaches a data-less node answers with a TAG, and
+#  the two are told apart on sight rather than by trust.
+#  ⚠ DC-2 AND DC-4 ARE THE FOLD. Before it they read `xl1` -- interpretXP's
+#  juxtaposition accumulator -- because the trailing `.c` parsed as a whole second
+#  TokenXP that produced no dot call and simply sat next to the term on its left.
+#  ⚠ DC-7 AND DC-8 ARE THE ROWS THAT PROVE THE BARE FORM SURVIVED. They are tag
+#  echoes, pinned AS echoes: a leading dot with nothing to its left is unchanged
+#  by the fold, and if either ever answers with a value the fold has reached a
+#  seam it was ruled to leave alone.
+run2 dotChainT "$T/dc.o" "$T/dc.e"; check "dotChainT runs" 0 $?
+sentinel "dotChainT sentinel" "$T/dc.o" "DOTCHAIN SENTINEL"
+for _r in "DC-1 a.b        = MIDVAL|DC-1 a.b        =  MIDVAL" \
+          "DC-2 a.b.c      = LEAFVAL  (THE FOLD)|DC-2 a.b.c      =  LEAFVAL" \
+          "DC-3 a[b]       = MIDVAL|DC-3 a[b]       =  MIDVAL" \
+          "DC-4 a[b].c     = LEAFVAL  (THE FOLD)|DC-4 a[b].c     =  LEAFVAL" \
+          "DC-5 *a.b       = MIDVAL|DC-5 *a.b     =  MIDVAL" \
+          "DC-7 .b afterCall stays an ECHO|DC-7 .b afterCall =  dcG" \
+          "DC-8 .b noLastREF stays an ECHO|DC-8 .b noLastREF =  dcI"; do
+    _lbl=${_r%%|*}; _want=${_r##*|}
+    if grep -qF "$_want" "$T/dc.e"; then
+        echo "  ok    dotChain $_lbl -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  dotChain $_lbl -- MOVED. Actual:"
+        grep -F "${_lbl%% *}" "$T/dc.e" | sed 's/^/          /'; fail=1
+    fi
+done
+
 #  ---- opPrefixT: every operator with a prefix sibling reads as ONE term ------
 #  Built 2026-09-16. Twenty-three registered operators have another registered
 #  operator as a strict prefix. If one were ever read as its shorter sibling the

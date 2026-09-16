@@ -2438,8 +2438,19 @@ Hard-won lessons. Each one has cost real debugging time.
     | `DesignDocs.TokFiles.Commands` | **one** — `dot-COMPOSED`, primary `DesignDocs` |
     | `DesignDocs.TokFiles` | **one** — `dot-COMPOSED`, primary `DesignDocs` |
 
-    **`A.B.C` and `A.B` produce IDENTICAL parses.** The trailing `.C` yields no term, no arm and
-    no call — it is dropped at parse time, not mis-evaluated at run time.
+    ⚠⚠ **THE ARM TABLE ABOVE IS RIGHT AND ITS VALUE SENTENCE WAS WRONG — CORRECTED 2026-09-16.**
+    It read *"`A.B.C` and `A.B` produce IDENTICAL parses; the trailing `.C` yields no term and is
+    dropped at parse time"*. The arm and call counts reproduce exactly, on today's binary. **The
+    trailing `.C` is NOT dropped.** It parses as a whole second `TokenXP` — `UnaryOPS='.'`,
+    `ANYorNum=C`, no `InvokeArg` — which falls past every instrumented arm into `handleUnary`,
+    becomes a `uxp`, and JUXTAPOSES against the term on its left. `a.b.c` read back **`xl1`**,
+    `interpretXP`'s juxtaposition accumulator, a list of length 2. So the expression does not
+    "hand back the first postfix's result" either.
+    ⚠ **AND THE ENTRY'S OWN DETECTOR IS WHY THE ERROR SURVIVED**: *count arms, never results* is
+    correct advice and it made the value claim unfalsifiable by the only instrument anyone ran.
+    **A detector that is right about its own question can still let a second claim rot beside it.**
+    **FIXED 2026-09-16** by the chain fold in `interpretXP` — `ruleActions.interpretXP.dotFold`,
+    fixture `incant/pop/dotChainT` rows DC-2 and DC-4.
     ⚠ **THE USEFUL COROLLARY, and it answers the question people will ask: the trailing `.C` is
     NOT a leading-dot spelling riding `lastREF`.** No `dot-LEADING` arm fires for it. So retiring
     the leading form does not owe `X[…].Y` a respell — that shape is a **dropped term**, and it is

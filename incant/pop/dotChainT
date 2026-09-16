@@ -1,0 +1,74 @@
+/*  dotChainT -- WHAT EACH DOT SPELLING READS. Built 2026-09-16 for item 6.
+
+    ONE ACTION PER ROW, DELIBERATELY. A spelling that will not parse costs ONE
+    row here; in a single-action fixture it kills every row after it and the
+    run still exits 0. That is how the first cut of this file lost eight rows
+    to one bad spelling, and it is bear-trap 32's misdirection in fixture form.
+
+    ⚠ ECHOES ARE PINNED AS ECHOES. A row reading back the RECEIVING LOCAL'S OWN
+    NAME is bear-trap 26 saying NO DATA -- it is not a value and must never be
+    recorded as one. DC-7, DC-8 and DC-9 are all of those and they are pinned
+    that way ON PURPOSE: DC-7 and DC-8 are the rows that prove the BARE
+    leading-dot form was not disturbed by the chain fold.
+
+    ⚠ AND THE TREE IS SEEDED WITH REAL VALUES SO THE PASSING ROWS CANNOT BE
+    ECHOES TOO. dcMid holds MIDVAL and dcLeaf holds LEAFVAL, so a row that reads
+    its node correctly answers with a VALUE and a row that merely reaches a
+    data-less node answers with a tag -- and the two are told apart on sight.
+    The seed goes through the SUBSCRIPT, `dcRoot["dcMid"] = "MIDVAL"`, because
+    assigning to the local that `+%` returned sets the LOCAL and not the
+    attached node; measured 2026-09-16, the local-assign form reads back a tag.
+
+    THE ROWS
+      DC-1  a.b        one dot, the shape that always worked
+      DC-2  a.b.c      the CHAIN
+      DC-3  a[b]       subscript, the control for DC-4
+      DC-4  a[b].c     subscript then dot
+      DC-5  *a.b       star and dot in one term
+      DC-7  .b  after a call, lastREF set
+      DC-8  .b  with nothing in lastREF
+      DC-9  a.*b       a unary on the RIGHT operand. ⚠ PINNED AS AN ECHO AND
+                       NOT YET A REFUSAL -- `a.*b` never forms a dot at all
+                       (measured twice, 2026-09-16: no dot-COMPOSED arm, and
+                       DOTOPERANDS reads left=right=a), so neither opDot nor
+                       handleDot ever sees the star and neither can refuse it.
+                       The refusal is owed once the shape is diagnosed; this row
+                       exists so the day it changes, something says so.
+    DC-6 was `(*a).b` and is NOT here: parenthesised grouping does not parse in
+    this position, measured 2026-09-16. Its question is DC-5's.
+
+    Sentinel at the foot, checked first, single stop.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(DotChainT);
+define
+    dcRoot;
+    dcOther="OTHERVAL";
+    dcSeed code={
+        dcRoot +% new("dcMid");
+        dcRoot["dcMid"] = "MIDVAL";
+        dcM := dcRoot["dcMid"];
+        *dcM +% new("dcLeaf");
+        *dcM["dcLeaf"] = "LEAFVAL";
+        cerr "DC-0 seeded dcRoot -> dcMid=MIDVAL -> dcLeaf=LEAFVAL":;
+        };
+    dcR1 code={ dcA := dcRoot.dcMid;           cerr "DC-1 a.b        = " dcA:; };
+    dcR2 code={ dcB := dcRoot.dcMid.dcLeaf;    cerr "DC-2 a.b.c      = " dcB:; };
+    dcR3 code={ dcC := dcRoot["dcMid"];        cerr "DC-3 a[b]       = " dcC:; };
+    dcR4 code={ dcD := dcRoot["dcMid"].dcLeaf; cerr "DC-4 a[b].c     = " dcD:; };
+    dcR5 code={ dcH := dcRoot; dcE := *dcH.dcMid; cerr "DC-5 *a.b     = " dcE:; };
+    dcTouch code={ dcT := dcOther; return dcT; };
+    dcR7 code={ dcTouch(dcOther); dcG := .dcT; cerr "DC-7 .b afterCall = " dcG:; };
+    dcR8 code={ dcI := .dcNeverSet;            cerr "DC-8 .b noLastREF = " dcI:; };
+    dcR9 code={ dcJ := dcRoot.*dcMid;          cerr "DC-9 a.*b       = " dcJ:; };
+    dcRun code={
+        dcSeed(dcRoot);
+        dcR1(dcRoot); dcR2(dcRoot); dcR3(dcRoot); dcR4(dcRoot);
+        dcR5(dcRoot); dcR7(dcRoot); dcR8(dcRoot); dcR9(dcRoot);
+        };
+    ;
+dcRun();
+print "DOTCHAIN SENTINEL -- reached the foot":;
+stop();

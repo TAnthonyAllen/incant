@@ -185,6 +185,7 @@ extern "C" GroupItem *handleUnary(GroupItem *xpress, GroupItem *unary, GroupItem
 extern "C" int hasRepeatClass(char *modifier);
 extern "C" GroupItem *interpretMethod(GroupItem *input);
 extern "C" GroupItem *interpretXP(GroupItem *xpList);
+extern "C" int isDotUxp(GroupItem *node);
 extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target);
 extern "C" GroupItem *jitBindArgRT(GroupItem *argument, GroupItem *field);
 extern "C" int jitBuildFunction(GroupItem *action);

@@ -1240,6 +1240,10 @@ GroupItem 	*ANYtoken = xpress->get("ANYorNum");
 		ANYtoken = ANYtoken->getGroup();
 	if ( !InvokeArg )
 		{
+		// unaryOnlyArm  the ONE arm with no callout until 2026-09-16, which is why
+		// unaryOnlyArm  bear-trap 52 read "no arm" for a term that fires handleUnary
+		if ( UnaryOPS )
+			::measureTokenArm("unary-only",ANYtoken,0,UnaryOPS);
 		if ( !UnaryOPS )
 			if ( ANYtoken->groupBody->registry == ruler->groupFields )
 				{
@@ -3666,15 +3670,43 @@ GroupItem 	*token = 0;
 					xl = 0;
 				}
 			else {
-				if ( !xl )
+				/*  ⚠ THE ACCUMULATOR IS THE RIGHT-HAND SIDE HERE, NOT THE LEFT, AND
+				NOTHING ELSE IN THIS FUNCTION SAYS SO. The loop walks
+				`xpList.prior` -- BACKWARD -- so the term already in `arg` sits
+				further RIGHT in the source and the `token` arriving now is its
+				LEFT. `a.b.c` dumps as [uxp, Token] for exactly that reason.
+				Read that before changing anything below it.
+				ruleActions.interpretXP.dotFold  */
+				if ( ::isDotUxp(arg) )
 					{
-					xl = new GroupItem("xl1");
-					xl->groupBody->flags.binType = 3;
+					/*  THE CHAIN FOLD. An orphaned `.c` juxtaposed against a term on
+					its left is not a juxtaposition at all -- it is a dot whose
+					left operand the parser never handed it. Hand it one. Left
+					associative BY CONSTRUCTION: the left is whatever arrived.
+					ruleActions.interpretXP.dotFold  */
+					GroupItem *dotOp = arg->groupBody->groupList->firstInList;
+					GroupItem *dotName = arg->groupBody->groupList->lastInList;
+					GroupItem *folded = new GroupItem("xdot");
+					folded->addAttribute(dotOp);
+					folded->addAttribute(token);
+					folded->addAttribute(dotName);
+					folded->setMethod(::runOP);
+					folded->groupBody->flags.invoke = 1;
+					arg = folded;
+					if ( xl )
+						xl = 0;
 					}
-				if ( arg != xl )
-					xl->addMember(arg);
-				xl->addMember(token);
-				arg = xl;
+				else {
+					if ( !xl )
+						{
+						xl = new GroupItem("xl1");
+						xl->groupBody->flags.binType = 3;
+						}
+					if ( arg != xl )
+						xl->addMember(arg);
+					xl->addMember(token);
+					arg = xl;
+					}
 				}
 			}
 		if ( op )
@@ -3705,6 +3737,34 @@ finishXP:
 	xpList->clear();
 	xpList->setGroup(arg);
 	return xpList;
+}
+
+/*  isDotUxp -- is this juxtaposed term an ORPHANED LEADING DOT?
+
+    IDENTIFY IT BY ITS OP AND BY NOTHING ELSE. By the time interpretXP sees the
+    term, handleUnary has already wrapped it -- the raw `UnaryOPS ANYorNum` shape
+    is gone, so a shape test would be testing the wrapper. This asks the one
+    durable question: is the first attribute the Operators entry `.`?
+    ⚠ THE REGISTRY TEST IS NOT DECORATION. A bare tag compare would start
+    answering yes the day anything else mints a node tagged `.`; membership of
+    opFields is what makes it THE OPERATOR rather than a name that looks like
+    one.   ruleActions.interpretXP.dotFold  */
+extern "C" int isDotUxp(GroupItem *node)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*op = 0;
+	if ( !node )
+		return 0;
+	if ( ::compare(node->groupBody->tag,"uxp") != 0 )
+		return 0;
+	op = node->groupBody->groupList->firstInList;
+	if ( !op )
+		return 0;
+	if ( op->groupBody->registry != ruler->opFields )
+		return 0;
+	if ( ::compare(op->groupBody->tag,".") != 0 )
+		return 0;
+	return 1;
 }
 
 /*  the ruling lives in assignFieldCore and BOTH roads call it -- do not inline it
@@ -8020,8 +8080,12 @@ GroupItem 	*product = 0;
 	::measureDotOperands(argument,target);
 	if ( argument )
 		{
+		// rightIsATag  the right operand is a LITERAL NAME, so read its TAG. Reading
+		// rightIsATag  .text worked only through bear-trap 26's fall-through on a
+		// rightIsATag  data-less node, which handleDot mints deliberately -- but a
+		// rightIsATag  reader should not depend on another site's deliberate accident
 		if ( argument->groupBody->registry != ruler->groupFields )
-			product = target->get(argument->getText());
+			product = target->get(argument->groupBody->tag);
 		else {
 			if ( !target )
 				return 0;
@@ -8128,6 +8192,8 @@ GroupItem 	*product = 0;
 				case 40:
 					if ( isCoded(target->groupBody->flags.actionType) )
 						product->setCount(1);
+					// case41hasNewParse  READ half; the WRITE half is opSetFlag case 41 -- they
+					// case41hasNewParse  ship together or the flag is unassertable
 					break;
 				case 41:
 					if ( target->groupBody->flags.hasNewParse )
@@ -8184,8 +8250,8 @@ GroupItem 	*product = 0;
 				case 408:
 					if ( isAction(target->groupBody->flags.actionType) )
 						product->setCount(1);
-					// READ half; the WRITE half is opSetFlag case 41 -- they ship
-					// together or the flag is unassertable   Instruct.opDot.case41hasNewParse
+					// unsupportedAccessor  every gCount with no case of its own lands here and
+					// unsupportedAccessor  SAYS SO, rather than answering with a silent null
 					break;
 				default:
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));

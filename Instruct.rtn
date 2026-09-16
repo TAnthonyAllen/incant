@@ -370,7 +370,11 @@ use argument
     // what arrived on the right, and whether it is a groupField   measure.measureDotOperands
     measureDotOperands(argument,target);
     if argument {
-        if registry != groupFields  product = target[text];
+        // rightIsATag  the right operand is a LITERAL NAME, so read its TAG. Reading
+        // rightIsATag  .text worked only through bear-trap 26's fall-through on a
+        // rightIsATag  data-less node, which handleDot mints deliberately -- but a
+        // rightIsATag  reader should not depend on another site's deliberate accident
+        if registry != groupFields  product = target[tag];
         else {
             if !target  return 0;
             product = new(tag);
@@ -402,6 +406,8 @@ use argument
                 case 35:    if target.isMember      product.count = 1;
                 case 36:    if target.rStuff && target.actionMethod  product.count = 1;
                 case 40:    if target.isCoded       product.count = 1;
+                // case41hasNewParse  READ half; the WRITE half is opSetFlag case 41 -- they
+                // case41hasNewParse  ship together or the flag is unassertable
                 case 41:    if target.hasNewParse   product.count = 1;
                 case 401:   if !target.nextInParent product = null;
                             else {
@@ -426,8 +432,8 @@ use argument
                 // 406 cannot witness isCoded -> isAction; this tests isAction
                 // SPECIFICALLY, as parseRule does   Instruct.opDot.case408isAction
                 case 408:   if target.isAction    product.count = 1;
-                // READ half; the WRITE half is opSetFlag case 41 -- they ship
-                // together or the flag is unassertable   Instruct.opDot.case41hasNewParse
+                // unsupportedAccessor  every gCount with no case of its own lands here and
+                // unsupportedAccessor  SAYS SO, rather than answering with a silent null
                 default:    product.text    = "access to " tag " not supported yet"; }
             if !product.data product.count  = 0;
             if product && !product.parent   product.parent = target; }}
