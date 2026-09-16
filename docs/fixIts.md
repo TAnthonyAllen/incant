@@ -78,7 +78,37 @@ today's answer (a tag echo) **and its header says in terms that it is NOT yet a 
 row cannot be misread as coverage.
 **Owner:** unassigned. **Size:** unknown until the parse is read.
 
-### F-71 — `*x.flagName` answers NOTHING when `x` is a plain field, and the SOURCE when it is a holder
+### F-71 — ⚠⚠ **HEADLINE WITHDRAWN 2026-09-16. `*x.flagName` IS CORRECT; THE FIXTURE'S CONTROL COMPARES THE WRONG PAIR.**
+**The withdrawal, measured by `addrOf` chain:**
+
+| node | field | body |
+|---|---|---|
+| `sfSrc`, the original | #1 | **#2** |
+| the bag copy `sfBag["sfSrc"]` | #3 | **#2** |
+| `sfFace`, the `<-` holder | #4 | #5 |
+| **`*sfFace`** | **#3** | **#2** |
+
+`*sfFace` lands on the **bag copy** — exactly what `<-` took, so **the star is right** — and the bag
+copy **shares body #2 with the original**, because `sfBag +% sfSrc` attached a copy over the same
+body. The flag therefore crosses **lawfully** and **SF-2 = 1 is the correct answer.**
+⚠ **SF-0, the control that exists to establish this, compares `addrOf(sfSrc)` against
+`addrOf(sfFace)` — the original against the HOLDER (#1/#2 vs #4/#5) — not against the FACE
+(#3/#2).** It is asking rule H13's question 1, *"is this the same thing reached through a
+carrier?"*, which reads the **body** column; read correctly it says #2 both sides. **The wrong pair
+is how the prediction got made.** SF-0 is owed a rewrite and the predictions a re-registration
+against the corrected control; **that is what is left of this row.**
+
+⚠ **AND WHAT REMAINS IS NOT A DEFECT EITHER — IT IS A RULING THAT WAS ALREADY MADE AND ALREADY
+BUILT.** `*x` on a plain field yielding nothing (SF-4, SF-6) is **THE STAR RULING, Tony,
+2026-09-05**, recorded at `Instruct.opDeref.starRuling` and implemented on both halves: `opDeref`
+returns **null, deliberately and without refusing**, and the CONSUMER refuses by name —
+`aCTionIterate`'s `nullAfterStar` arm says *"iterate: the source is nothing -- a star on a field
+that holds no group yields null"*. The comment records the cost of getting it the other way round:
+*"f31's spin was diagnosed for a day as a star problem because the star was the thing shouting."*
+**So SF-4 and SF-6 are the language behaving as ruled, and the rows should be re-pinned to say so
+rather than treated as broken.**
+
+### F-71 (original entry, kept — the measurement stands, the headline did not)
 **What:** the acceptance for item 6 stroke 1 was `starFlagT` SF-2 → 0, SF-4 → 0, SF-6 → 1. **None of
 the three moved**, and the measurement says why: they never enter the mechanism that was changed.
 Each is a SINGLE `dot-COMPOSED` term carrying its star as the term's own unary, so `handleDot`'s

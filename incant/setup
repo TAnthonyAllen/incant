@@ -283,6 +283,7 @@ define
     isBiN=33;
     isConditioN;
     isFilE;
+    isGrouP=43;
     isIndexeD;
     isInitializeD;
     isLiteraL=17;

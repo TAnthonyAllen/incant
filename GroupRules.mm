@@ -8198,6 +8198,21 @@ GroupItem 	*product = 0;
 				case 41:
 					if ( target->groupBody->flags.hasNewParse )
 						product->setCount(1);
+					/*  isGrouPNoWriteHalf  READ-ONLY, AND THAT IS NOT THE case 41 SHAPE ABOVE.
+					isGROUP is a VALUE of GroupBody's 5-bit `data` enum -- it sits beside
+					isCOUNT and isSTRING -- and is NOT a boolean flag. So there is no
+					opSetFlag write half to ship with it, and its absence is DELIBERATE
+					rather than owed: a field's data TYPE is not set through the flag
+					channel. ⚠ Do not read the missing half as the unassertable-flag
+					defect case 41 warns about; that rule is about flags.
+					⚠ AND IT EXISTS BECAUSE THE QUESTION WAS OTHERWISE UNASKABLE IN KANT.
+					`datA` returns the enum as a RAW NUMBER, so the only spelling before
+					this was `field.datA == 5` -- a magic constant against an enum whose
+					order is an implementation detail.   Instruct.opDot.isGrouPNoWriteHalf  */
+					break;
+				case 43:
+					if ( isGROUP(target->groupBody->flags.data) )
+						product->setCount(1);
 					break;
 				case 401:
 					if ( !target->nextInParent )
