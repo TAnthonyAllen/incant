@@ -63,6 +63,28 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-70 — `dumpContents(GroupFields)` exits 139 with zero output
+**What:** latent, found 2026-09-16 while building a registry census for the `incant/setup`
+recompose. `dumpContents` prints a header line carrying the registry's length and then its members;
+it does this for `cOMMANDs`, `Operators`, `bcOPs`, `pROPERTIEs`, `UnaryOPS`, `Modifiers`,
+`Keywords` and `fILEs`. On `GroupFields` it **exits 139 with zero bytes of output** — no header, no
+partial dump, nothing on stderr.
+**Where:** `dumpContents` / `dumpField` in `GroupItem.twk`; the subject is the `GroupFields`
+registry as built in `incant/setup`, whose 47 entries are the incant-visible names for C++
+GroupItem fields (`taG=1`, `parenT=2`, …), several of which carry no number at all.
+**Evidence:** on a **clean, untouched tree** — the eight siblings above all printed correctly in the
+same harness, in the same run order, so it is this registry and not the verb. Reproduced either
+side of the setup recompose and either side of a rebuild.
+⚠ **WHY IT IS WORTH A ROW RATHER THAN A SHRUG: A CENSUS INSTRUMENT THAT CANNOT SAY "I COULD NOT
+COUNT THIS" IS THE PROBLEM, NOT THE MISSING COUNT.** Zero output at 139 is indistinguishable from
+"the harness never ran that line", which is the missing-helper family this project has paid for
+three times. The setup census worked around it by finding the header **by name** and printing
+`NO HEADER FOUND`, so the gap is visible in the output — but that is the harness compensating for
+an instrument that lies, which is exactly the shape rule H1 exists to forbid.
+**Done when:** `dumpContents(GroupFields)` either prints its header and members, or refuses by name.
+**Grade:** OPEN — not diagnosed, and **not chased**: it blocks nothing today.
+**Owner:** unassigned. **Size:** unknown; one `lldb` run against the fixture would probably name it.
+
 ### F-69 — removing `deleteAt`'s `else` miss arm takes the whole run to exit 139
 **What:** latent, and found as an H7 negative control rather than as a symptom, 2026-09-16.
 `deleteAt` in `incant/directives` is

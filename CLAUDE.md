@@ -1226,6 +1226,21 @@ not a new one.** Writing `MethodNotes` beside it would have been a second popula
 subject — the duplicate-register failure this file warns about, committed by the person writing the
 warning down. **Read the register before you add to it.**
 
+⚠⚠ **A DesignDocs ENTRY FOR A COMMAND IS KEYED BY THE COMMAND NAME, NEVER BY THE EXTERN BEHIND
+IT — Tony, 2026-09-16.** `Commands.stop`, not `Commands.stopParsingInput`. The register already
+worked this way; what was missing was anyone writing it down.
+
+**Found the hard way, and the way it was found is the argument for the rule.** An inline key was
+minted as `Commands.stopParsingInput.twoVerbs` and **could never have resolved** — the method's
+entry had been keyed `Commands.stop` when its sibling `stopRefusalHandling` was written, so the
+pointer named a parent that does not exist. Nothing but *following* it would have said so, and it
+was followed only because the entry it pointed at was being written.
+
+⚠ **AND THE RULED INLINE FORM MAKES THE MISTAKE UNCONSTRUCTABLE, which is why the two rules belong
+together:** `// slug sentence?` carries no parent at all, so it cannot carry the wrong one. The
+dotted path is what creates the opportunity to be wrong about a name nobody checks. Prefer the
+structure over the discipline — a bare `// twoVerbs` needs no convention to be right.
+
 ⚠ **PROSE ENTRIES USE THE `(…#)` LITERAL, NEVER A `"…"` STRING — Tony, 2026-09-01.** A quoted
 string cannot carry an apostrophe or a double quote, and reaching for one is what killed the first
 `designDocs` write under this convention: it died with bear-trap #32's misdirection, naming
