@@ -96,14 +96,16 @@ define
     ;
 /*******************************************************************************
 	Operators is a base registry defined at startup and extended here. Unlike
-    most registries, it is unsorted, however, it is loaded in descending order
-    (so when comparing against an input stream, longest match is returned by the parse).
+    most registries, it is unsorted. It is loaded LONGEST-FIRST: every operator
+    that has another operator as a strict prefix is registered above it.
+    ⚠ That is a convention, NOT the mechanism -- see OPERATOR ORDER at the foot
+    of this file before relying on it either way.
 *******************************************************************************/
 registry(Operators);
 define
     '~='    operateMethod=opMatch;
-    '|';
     '||'    operateMethod=opOR   shortCircuit isOR;
+    '|';
     '&&'    operateMethod=opAND  shortCircuit;
     '^';
     IN      operateMethod=opIN;
@@ -148,6 +150,7 @@ define
     '++'    unary ruleMethod=opPlusPlus;
     '+*'    operateMethod=opAddPointer;
     '+%'    operateMethod=opAddAttribute;
+    '+/'    operateMethod=opAddMember;
     '+'     operateMethod=opPlus  interpretMethod=runPlus  jitEmitter=jitEmitAdd;
     '*='    operateMethod=opMultiplyEQ;
     '*'     operateMethod=opMultiply  interpretMethod=runMultiply  jitEmitter=jitEmitMul  accessClass;
@@ -156,7 +159,6 @@ define
     '%'     operateMethod=opRem;
     '!='    operateMethod=opNotEQ  interpretMethod=runNotEQ  jitEmitter=jitEmitNE;
     '!'     unary ruleMethod=opNOT;
-    '+/'    operateMethod=opAddMember;
     ;
 /*******************************************************************************
 	bcOPs — bytecode opcodes (control flow + stack ops). A SEPARATE registry,
@@ -464,7 +466,39 @@ include(grammar);
     term and is repetition; it is handed to setLimits, never to modify.
 
 
-    7. THE STRUCK BYTECODE ROW in fILEs
+    7. OPERATOR ORDER -- LONGEST-FIRST IS A CONVENTION, NOT THE MECHANISM
+
+    Twenty-three registered operators have another registered operator as a strict
+    prefix: the vertical-bar pair, the whole plus family, every compare. The table
+    is written longest-first throughout, and as of 2026-09-16 it is, with no
+    exceptions -- two were found and fixed that day, the vertical-bar pair and the
+    add-member operator, which had been sitting below bare plus.
+
+    ⚠ BUT THE ORDER IS NOT WHAT MAKES THE MATCH WORK, AND THE HEADER USED TO SAY IT
+    WAS. It read that the table is loaded in descending order SO longest match is
+    returned -- a causal claim, and it is false. Measured 2026-09-16, three ways,
+    on the two rows that were out of order at the time:
+
+      the two-character bar form answered its whole truth table correctly while
+      registered BELOW its one-character sibling;
+
+      the one-character bar and the caret both refused BY NAME in the same run, so
+      the channel that would have reported a mis-read was live and reporting;
+
+      the add-member operator answered 3 where a bare-plus read would have answered
+      7, while registered eight rows BELOW bare plus.
+
+    So the matcher returns the longest match irrespective of where a row sits. The
+    ordering convention is worth keeping because it makes the table readable and
+    makes a mis-registration obvious to a human -- not because anything depends on
+    it. ⚠ DO NOT PIN THE ORDER IN A FIXTURE: a row-order pin moves for reasons
+    unrelated to correctness, which is rule H3. incant/pop/opPrefixT pins THE
+    ANSWER instead, one discriminating row per pair, and it stayed byte-identical
+    across the 2026-09-16 reorder -- which is how that reorder was shown to be
+    inert rather than assumed to be.
+
+
+    8. THE STRUCK BYTECODE ROW in fILEs
 
     Struck 2026-08-28 by Tony's ruling, from trim census phase one. Its file was
     deleted at cc2fd2d and nothing has included it since. A registered includable

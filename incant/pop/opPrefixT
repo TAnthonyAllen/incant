@@ -1,0 +1,142 @@
+/*  opPrefixT -- EVERY OPERATOR WITH A PREFIX SIBLING READS AS ONE TERM.
+
+    THE QUESTION. incant/setup's Operators header says the table is loaded in
+    descending order so the matcher returns the LONGEST match. Twenty-three
+    registered operators have another registered operator as a strict prefix --
+    the vertical-bar pair, the whole plus family, every compare -- and if any one
+    of them were ever read as its shorter sibling, the remainder of the token
+    would be swallowed into the next term. This file pins that it does not.
+
+    ⚠ WHAT IT IS NOT. It is NOT a pin on the ORDER OF THE ROWS in setup. Order
+    was measured on 2026-09-16 and does NOT drive the match: the vertical-bar
+    pair was registered short-first for months and the two-character form still
+    read correctly. Pinning the order would pin a thing that does not matter and
+    would go red for a correctness-unrelated reason, which rule H3 forbids. This
+    pins the ANSWER -- what the tokenizer actually returns -- so it stays green
+    through a reorder and goes red the day longest-match stops working.
+
+    HOW EACH ROW DISCRIMINATES. Every row is chosen so the long read and the
+    prefix read give DIFFERENT observable answers. `3 >= 3` is 1 where `3 > 3`
+    would be 0. `1 += 2` is 3 where `1 + 2` would leave 1. `3 +/ 4` is 3 where
+    `3 + 4` would be 7. A row that both reads could satisfy would pin nothing.
+
+    THE TWO ROADLESS LONG FORMS ARE ASSERTED THE OTHER WAY ROUND, and it is the
+    stronger way. A token registered in Operators with no operateMethod refuses
+    BY NAME, printing the tag it actually read -- so the shift operators assert
+    the PRESENCE of a message carrying their own two characters. Read as their
+    one-character siblings they would find a road, do a comparison, and refuse
+    NOTHING, so the row fails by absence of the value rather than passing by it.
+    That is rule H4 satisfied by the mechanism rather than by care.
+
+    ANTI-VACUITY. The one-character roadless operators are fired deliberately in
+    section 3 so their refusals appear too. They prove the refusal channel is
+    live and reports the token it actually read; without them a suite where
+    refusals had simply stopped printing would pass sections 1 and 2 silently.
+
+    WHAT IS NOT COVERED, NAMED RATHER THAN LEFT SILENT. The two unary iterator
+    operators have no binary form, so there is no value row that separates them
+    from their arithmetic siblings; they are exercised by the iterator fixtures
+    instead. The four get-family operators are covered only WEAKLY -- their rows
+    prove the token was not read as a bare assign, because an assign would answer
+    with a number, but they do not assert that the operator does its job.
+
+    Sentinel at the foot, single stop.  */
+Start();
+include(unitTests);
+search reset stack Grokking;
+search UnitTests list;
+register(OpPrefixT);
+define
+    opX = 3;
+    opY = 4;
+    opHold;
+    opTag;
+
+    opShiftR code={ opX >> opY;  };
+    opShiftL code={ opX << opY;  };
+    opBar    code={ opX |  opY;  };
+    opAmp    code={ opX &  opY;  };
+    opCaret  code={ opX ^  opY;  };
+
+    opRun code={
+        print "== 1 COMPARE -- the long form answers where the prefix would not":;
+        opGE = 0;
+        if opX >= 3;    opGE = 1;
+        print "OPP ge     3>=3   = " opGE:;
+        opLE = 0;
+        if opX <= 3;    opLE = 1;
+        print "OPP le     3<=3   = " opLE:;
+        opEQ = 0;
+        if opX == 3;    opEQ = 1;
+        print "OPP eq     3==3   = " opEQ:;
+        opNE = 0;
+        if opX != opY;  opNE = 1;
+        print "OPP ne     3!=4   = " opNE:;
+        opLT = 0;
+        if opX < opY;   opLT = 1;
+        print "OPP lt     3<4    = " opLT:;
+
+        print "== 2 ASSIGN-FAMILY -- the prefix read would leave the target alone":;
+        opP = 1;
+        opP += 2;
+        print "OPP pluseq  1+=2  = " opP:;
+        opM = 5;
+        opM -= 2;
+        print "OPP minuseq 5-=2  = " opM:;
+        opD = 6;
+        opD /= 2;
+        print "OPP diveq   6/=2  = " opD:;
+        opT = 3;
+        opT *= 2;
+        print "OPP muleq   3*=2  = " opT:;
+
+        print "== 3 STRUCTURAL PLUS-FAMILY -- a plus read would answer 7":;
+        opAP := opX +* opY;
+        print "OPP addptr  3+*4  = " opAP:;
+        opAA := opX +% opY;
+        print "OPP addattr 3+%4  = " opAA:;
+        opAM := opX +/ opY;
+        print "OPP addmem  3+/4  = " opAM:;
+
+        print "== 4 THE ANGLE FAMILY -- a less-than read would answer a boolean":;
+        opHold <- opY;
+        print "OPP rebind  <-    = " opHold:;
+        opTag = 9;
+        opTag <: "opRenamed";
+        print "OPP settag  <:    = " opTag.taG:;
+
+        print "== 5 BOOLEAN -- the bar prefix is roadless and would refuse":;
+        opOR = 0;
+        if opX || 0;    opOR = 1;
+        print "OPP oror    3||0  = " opOR:;
+        opORF = 0;
+        if 0 || 0;      opORF = 1;
+        print "OPP oror    0||0  = " opORF:;
+        opAND = 0;
+        if opX && 0;    opAND = 1;
+        print "OPP andand  3&&0  = " opAND:;
+        opAND2 = 0;
+        if opX && opY;  opAND2 = 1;
+        print "OPP andand  3&&4  = " opAND2:;
+
+        print "== 6 GET-FAMILY -- weak rows: an assign read would answer a number":;
+        opGA := opX =% opY;
+        print "OPP getattr 3=%4  = " opGA:;
+        opGM := opX =/ opY;
+        print "OPP getmem  3=/4  = " opGM:;
+        opGT := opX =[ opY;
+        print "OPP get     3=[4  = " opGT:;
+
+        print "== 7 ROADLESS -- each must refuse BY ITS OWN NAME, on stderr":;
+        opShiftR(opX);
+        opShiftL(opX);
+        print "== 8 ANTI-VACUITY -- the one-character roadless siblings refuse too":;
+        opBar(opX);
+        opAmp(opX);
+        opCaret(opX);
+
+        print "OPPREFIXT SENTINEL":;
+        stop();
+        };
+    ;
+opRun();

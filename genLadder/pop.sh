@@ -2476,6 +2476,69 @@ else
     echo "  ok    directives a miss wrote nothing (paired with the row above)"; green=$((green+1))
 fi
 
+#  ---- opPrefixT: every operator with a prefix sibling reads as ONE term ------
+#  Built 2026-09-16. Twenty-three registered operators have another registered
+#  operator as a strict prefix. If one were ever read as its shorter sibling the
+#  rest of the token would be swallowed into the next term, and for the pairs
+#  whose prefix HAS a road that would be silent -- `3 +/ 4` would simply answer 7.
+#
+#  ⚠ THIS DOES NOT PIN THE ROW ORDER IN incant/setup, DELIBERATELY. Order was
+#  measured on 2026-09-16 and does NOT drive the match: the vertical-bar pair was
+#  registered short-first for months and `||` still read correctly, and `+/` read
+#  correctly from BELOW `+`. A row-order pin would go red for a reason unrelated
+#  to correctness, which rule H3 forbids. These rows pin THE ANSWER, so they
+#  survive a reorder and fail the day longest-match does.
+#
+#  EVERY ROW DISCRIMINATES: the long read and the prefix read give DIFFERENT
+#  answers. 3>=3 is 1 where 3>3 is 0; 1+=2 is 3 where 1+2 leaves 1; 3+/4 is 3
+#  where 3+4 is 7. A row both reads could satisfy would pin nothing.
+run2 opPrefixT "$T/opp.o" "$T/opp.e"; check "opPrefixT runs" 0 $?
+sentinel "opPrefixT sentinel" "$T/opp.o" "OPPREFIXT SENTINEL"
+for _r in "ge     3>=3 (prefix > answers 0)|OPP ge     3>=3   =  1" \
+          "le     3<=3 (prefix < answers 0)|OPP le     3<=3   =  1" \
+          "eq     3==3 (prefix = would assign)|OPP eq     3==3   =  1" \
+          "ne     3!=4 (prefix ! is unary)|OPP ne     3!=4   =  1" \
+          "lt     3<4  anti-vacuity sibling|OPP lt     3<4    =  1" \
+          "pluseq  1+=2 (prefix + leaves 1)|OPP pluseq  1+=2  =  3" \
+          "minuseq 5-=2 (prefix - leaves 5)|OPP minuseq 5-=2  =  3" \
+          "diveq   6/=2 (prefix / leaves 6)|OPP diveq   6/=2  =  3" \
+          "muleq   3*=2 (prefix * leaves 3)|OPP muleq   3*=2  =  6" \
+          "addptr  3+*4 (prefix + answers 7)|OPP addptr  3+*4  =  3" \
+          "addattr 3+%4 (prefix + answers 7)|OPP addattr 3+%4  =  3" \
+          "addmem  3+/4 (prefix + answers 7)|OPP addmem  3+/4  =  3" \
+          "rebind  <-   (prefix < leaves it empty)|OPP rebind  <-    =  4" \
+          "settag  <:   (prefix < leaves the tag)|OPP settag  <:    =  opRenamed" \
+          "oror    3||0 (prefix | would refuse)|OPP oror    3||0  =  1" \
+          "oror    0||0 non-vacuity sibling|OPP oror    0||0  =  0" \
+          "andand  3&&0 (prefix & would refuse)|OPP andand  3&&0  =  0" \
+          "andand  3&&4 non-vacuity sibling|OPP andand  3&&4  =  1"; do
+    _lbl=${_r%%|*}; _want=${_r##*|}
+    if grep -qF "$_want" "$T/opp.o"; then
+        echo "  ok    opPrefix $_lbl -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  opPrefix $_lbl -- MOVED. The operator was read as its PREFIX,"
+        echo "        or its road changed. Actual:"
+        grep -F "${_want%% =*}" "$T/opp.o" | sed 's/^/          /'; fail=1
+    fi
+done
+#  ⚠ THE TWO ROADLESS LONG FORMS ARE ASSERTED THE OTHER WAY ROUND, AND IT IS THE
+#  STRONGER WAY. A token registered with no operateMethod refuses BY NAME and
+#  prints the tag it ACTUALLY READ. Read as `>` or `<` these would find a road, do
+#  a comparison, and refuse NOTHING -- so the row fails by the value's ABSENCE
+#  instead of passing by it, which is H4 satisfied by the mechanism not by care.
+#  The three one-character rows below are the anti-vacuity half: they prove the
+#  refusal channel is live and reports the token it read. Without them, a build
+#  where refusals had stopped printing would pass the two rows above in silence.
+for _op in '>>' '<<' '|' '&' '^'; do
+    if grep -qF "operator '$_op' has no road" "$T/opp.e"; then
+        echo "  ok    opPrefix roadless '$_op' refuses BY ITS OWN NAME"; green=$((green+1))
+    else
+        echo "  FAIL  opPrefix roadless '$_op' did not refuse by name. Either the"
+        echo "        token was read as something else, or the roadless refusal"
+        echo "        stopped naming its operator."; fail=1
+    fi
+done
+
 #  ---- deleteAt (F-66), ruled 2026-09-16: a separate verb, not an absent field --
 #  Three rows. The HIT is pinned by the buffer line it produces, not by the
 #  verb's own chatter, so a deleteAt that announced itself and removed nothing
