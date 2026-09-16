@@ -1,0 +1,20 @@
+print "BAILINC ALIVE: the included file parsed down to its foot":;
+bail();
+
+ANTI-VACUITY POISON, AND IT IS LOAD-BEARING RATHER THAN DECORATIVE.
+
+Everything below the bail() above is parse-dead ONLY IF bail works. The line
+below is deliberately un-parseable, and the discipline it enforces is presence-
+based rather than absence-based (rule H4):
+
+    if bail fails to leave this file, this line raises
+    `RunRulE: expected a method not ...` on stderr -- and per the standing
+    truncation rule a parse failure ABANDONS THE REST OF THE INPUT, which means
+    the INCLUDER's markers and its sentinel never print either.
+
+So the fixture's BAILT A row and its sentinel are not merely evidence that
+control came back; they are evidence that this text was never read. Measured
+2026-09-15 as the `n2` control: with the bail removed, seven RunRulE lines on
+stderr and BAILT A absent.
+
+thisWouldNotParse(   { { {  ;

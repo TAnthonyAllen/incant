@@ -1,4 +1,3 @@
-Start();
 /*******************************************************************************
     Directives registry — runtime text rewriting of a buffer.
 
@@ -37,29 +36,12 @@ Start();
 *******************************************************************************/
 register(Directives);
 define
-    /***************************************************************************
-        POP fixtures. source points at a committed read-only sample
-        (incant/dirSample). The POP only getFile's it (read) and rewrites the
-        in-memory buffer — it never closeFile's, so the sample on disk is
-        never touched. To rewrite a REAL file, see the copy-to-Tests/ workflow
-        in the guide below.
-    ***************************************************************************/
-    source="incant/dirSample";
-    dIRECTive1 source fromThis="matchOnThis:" toThis="\tStick this in instead";
-    dIRECTive2 source fromThis="x =" toThis='\t\tprint "Stuck this in before":;\n' where=before;
-    dIRECTive3 source fromThis="x:;" toThis='\t\tprint "Stuck this in after":;\n' where;
-
-    /***************************************************************************
-        replaceAt — find fromThis in source, replace it with toThis.
-        IN sets the buffer mark at the match; -= removes the matched text at
-        the mark; += inserts toThis there. With no toThis it is a delete.
-    ***************************************************************************/
     replaceAt code={
         print "Running replaceAt":;
         :argument source fromThis toThis;
-        if fromThis IN source;
-            source -= fromThis;
-            if toThis;  source += toThis;
+        if *fromThis IN source;
+            source -= *fromThis;
+            if toThis;  source += *toThis;
         else    print "Did not find" fromThis "in source":; };
 
     /***************************************************************************
@@ -77,33 +59,29 @@ define
         print "Running insertAt":;
         :argument source fromThis toThis where;
         line = getLine(argument);
+        insMiss = 1;
+        if line;            insMiss = 0;
+        if insMiss == 1;    print "Did not find" fromThis "in source":;
+        if insMiss == 1;    return 0;
         if where == "before";
-            source += toThis;
+            source += *toThis;
         else
             where +% source;
             markOffset = new("markOffset");
             markOffset = line;
             where +% markOffset;
             setMark(where);
-            source += toThis;
+            source += *toThis;
         };
     ;
 
-/*******************************************************************************
-    POP — load the read-only sample, apply one replace + two inserts, show
-    before/after. Verify by diff: the AFTER buffer should show
-      - "matchOnThis:" replaced by "Stick this in instead"
-      - a "Stuck this in before" line ahead of the `x =` line
-      - a "Stuck this in after" line following the `print x:;` line
-    The sample file incant/dirSample is unchanged on disk afterward.
-*******************************************************************************/
-getFile(source);
-print ``"--- BEFORE directives ---":source:;
-replaceAt(dIRECTive1);
-insertAt(dIRECTive2);
-insertAt(dIRECTive3);
-print ``"--- AFTER directives ---":source:;
-stop();
+/*  DEFINITIONS ONLY, so this file can be include()d. The bail() below ends
+    THIS FILE and returns to whoever included it -- it does not end the run,
+    which is what stop() would do. Everything under it is parse-dead, which is
+    how the usage guide survives in a file that gets included.
+    The POP fixture and its sample directives live in incant/pop/dirT.  */
+bail();
+
 
 /*******************************************************************************
                     Incant Directives — usage guide

@@ -1,0 +1,49 @@
+/*  dirT -- the POP fixture for incant/directives.
+
+    Split out 2026-09-15 so incant/directives could become definitions-only and
+    therefore includable. The actions come from the include; the sample
+    directives and the driver live here, which is where a fixture's data belongs.
+    ⚠ SOURCE MUST BE NAMED `source`: replaceAt/insertAt hoist it by that literal
+    name (`:argument source fromThis toThis`), so a differently-named field
+    silently gives the hoist nothing and EVERY directive misses.
+    ⚠ getFile IS ONCE PER FIELD: a second call reads the buffer CONTENTS back as
+    a filename. One source field, one getFile, directives in forward order --
+    the buffer mark only ever advances.  */
+Start();
+include(directives);
+
+register(Directives);
+define
+    /***************************************************************************
+        POP fixtures. source points at a committed read-only sample
+        (incant/dirSample). The POP only getFile's it (read) and rewrites the
+        in-memory buffer — it never closeFile's, so the sample on disk is
+        never touched. To rewrite a REAL file, see the copy-to-Tests/ workflow
+        in the guide below.
+    ***************************************************************************/
+    source="incant/dirSample";
+    dIRECTive1 source fromThis="matchOnThis:" toThis="\tStick this in instead";
+    dIRECTive2 source fromThis="x =" toThis='\t\tprint "Stuck this in before":;\n' where=before;
+    dIRECTive3 source fromThis="x:;" toThis='\t\tprint "Stuck this in after":;\n' where;
+    /*  A DELIBERATE MISS. fromThis is not in the sample, so this directive must
+        write NOTHING and must say so by name. Before 2026-09-15 it wrote its
+        toThis at the buffer head instead -- a stale fromThis in a generated
+        batch corrupted the top of the file silently.  */
+    dIRECTive4 source fromThis="zzzNotInTheSample" toThis='\t\tMISS-MUST-NOT-APPEAR\n' where=before;
+
+    /***************************************************************************
+        replaceAt — find fromThis in source, replace it with toThis.
+        IN sets the buffer mark at the match; -= removes the matched text at
+        the mark; += inserts toThis there. With no toThis it is a delete.
+    ***************************************************************************/
+    ;
+
+getFile(source);
+print ``"--- BEFORE directives ---":source:;
+replaceAt(dIRECTive1);
+insertAt(dIRECTive2);
+insertAt(dIRECTive3);
+insertAt(dIRECTive4);
+print ``"--- AFTER directives ---":source:;
+print "DIRT SENTINEL":;
+stop();

@@ -690,25 +690,30 @@ extern GroupItem setInternalType(GroupItem grup)
 extern GroupItem stopParsingInput(GroupItem input)
 {
 GroupRules  ruler = groupRules;
+int         bailing = 0;
+    // which verb, and which node the empty () handed back   measure.measureStopCaller
+    measureStopCaller(input);
+    // bail LEAVES THE FILE, stop LEAVES THE PROCESS -- never exit(0) on a bail   Commands.stopParsingInput.twoVerbs
+    if input
+        if input.tag eq "bail"  bailing = 1;
+use ruler
+    /*  THE DIVERT IS THE THING bail ENDS, so it is the OUTER question -- a bail with
+        no file to leave has nothing to do and falls through to stop's road rather
+        than half-popping. NUL the mark BEFORE the pop: after it, atRuleMark is the
+        PARENT's and truncating there would end the includer instead.
+        Commands.stopParsingInput.twoVerbs  */
     if inputDiverted {
         popInput();
         cout :"stop: ending input divert":; }
-    *atRuleMark = 0;
-    endParse    = true;
-    cout :"stop: end parsing":;
-    /*  ⚠ THE CENSUS FIRES AT COMPLETION, NOT AT THE REFUSAL, and that is the
-        whole of Tony's ruling: F-17e's full sweep is preserved -- all 42
-        refusals report as 42 -- and only then does the run refuse to call
-        itself successful. Exiting at the first refusal would report one.
-
-        SILENT WHEN THE ROAD WAS NEVER TRAVELLED. A run that never called
-        compile has no compile census, so nothing prints and no baseline
-        moves. That is not a gate on the assertion; it is the difference
-        between a zero and an absence.  */
-    -%
-    ::reportCompileCensus();
-    %-
-    exit(0);
+    if !bailing {
+        *atRuleMark = 0;
+        endParse    = true;
+        cout :"stop: end parsing":;
+        // stopRefusalHandling census fires at completion not at refusal
+        -%
+        ::reportCompileCensus();
+        %-
+        exit(0); }
     return  input;
 }
 

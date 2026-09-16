@@ -2399,18 +2399,31 @@ done
 #  fleet is evidence only about what the fleet reads).
 #  ⚠ SAFE TO RUN: measured 2026-09-08 -- it mutates no tracked file and its
 #  output is byte-identical across consecutive runs.
-#  ⚠ ROW 2 IS PINNED AT A POSSIBLE DEFECT, ON PURPOSE, AND WAS NOT INTRODUCED BY
-#  THE REORDER: replaceAt reports "Did not find matchOnThis: in source" while
-#  that text is plainly present in the BEFORE block it prints. Captured before
-#  and after the reorder and byte-identical, so it is pre-existing. Pinned rather
-#  than left uncovered; if it starts finding the text, this row goes red and
-#  graduates with a sentence (H6).
-#  ⚠ ROW 3 IS ITS ANTI-VACUITY SIBLING: insertAt DOES fire and writes two toThis
-#  lines, so row 2's "did not find" cannot be a dead directive mechanism.
-run1 directives "$T/dirv"; check "directives runs (opIN buffer arm)" 0 $?
+#  ⚠⚠ ROWS 2 AND 3 GRADUATED 2026-09-15 (H6), AND THEIR OLD PINS ARE THE
+#  SENTENCE THIS RULE ASKS FOR. Row 2 pinned "Did not find matchOnThis: in
+#  source" as a pre-existing defect; row 3 pinned "toThis        print x:;" as
+#  its anti-vacuity sibling -- and that pinned value WAS the bug, because the
+#  literal string `toThis` is what got written instead of toThis's value
+#  (bear-trap #26's tag echo). Both had ONE cause: replaceAt and insertAt read
+#  the hoisted local directly, and the `:argument` hoist makes a HOLDER, whose
+#  later reads spell `*name` (bear-trap #50). Three stars fixed both.
+#  The rows now pin the edits the fixture's own header promises.
+#  ⚠ ROW 5 IS THE ONE THAT MATTERS FOR GENERATED BATCHES: a directive whose
+#  fromThis is absent must write NOTHING. It used to write its toThis at the
+#  buffer head, so one stale fromThis silently corrupted the top of the file.
+#  getMarkLineAt now ARMS on no-match -- which its own comment said it did not
+#  -- and insertAt's activation ends. Asserted BY VALUE (the refusal names
+#  itself) and paired with row 6, its anti-vacuity sibling.
+#  ⚠ DRIVES incant/pop/dirT, NOT incant/directives. Split 2026-09-15: the
+#  actions moved to a DEFINITIONS-ONLY incant/directives that ends in bail(),
+#  so it can be include()d by a generated directive file instead of being
+#  copy-pasted into one. dirT includes it and owns the samples and the driver.
+run1 dirT "$T/dirv"; check "directives runs (opIN buffer arm)" 0 $?
+sentinel "directives sentinel" "$T/dirv" "DIRT SENTINEL"
 for _r in "buffer arm reached (replaceAt ran)|Running replaceAt" \
-          "buffer arm result PINNED AT A PRE-EXISTING DEFECT|Did not find matchOnThis: in source" \
-          "anti-vacuity: insertAt DID write|toThis        print x:;"; do
+          "replaceAt REPLACED its match|	Stick this in instead" \
+          "insertAt where=before DID write its VALUE|print \"Stuck this in before\":;" \
+          "insertAt where=after DID write its VALUE|print \"Stuck this in after\":;"; do
     _lbl=${_r%%|*}; _want=${_r##*|}
     if grep -qF "$_want" "$T/dirv"; then
         echo "  ok    directives $_lbl -- PINNED BY VALUE"; green=$((green+1))
@@ -2419,6 +2432,23 @@ for _r in "buffer arm reached (replaceAt ran)|Running replaceAt" \
         echo "        suspect; it is the arm the 2026-09-08 reorder moved past."; fail=1
     fi
 done
+#  THE MISS PAIR. Row A is presence-with-value on the REFUSAL (H4: the miss
+#  announces itself by name, so deleting the guard cannot satisfy this row).
+#  Row B is its anti-vacuity sibling -- a mechanism that inserted nothing at all
+#  would pass row A for the wrong reason.
+if grep -qF "getLine: no line in the buffer contains the match text" "$T/dirv"; then
+    echo "  ok    directives a MISS refuses BY NAME -- PINNED BY VALUE"; green=$((green+1))
+else
+    echo "  FAIL  directives a miss no longer refuses by name. getMarkLineAt's"
+    echo "        no-match arm is the suspect; without it a stale fromThis"
+    echo "        writes at the buffer head instead of doing nothing."; fail=1
+fi
+if grep -qF "MISS-MUST-NOT-APPEAR" "$T/dirv"; then
+    echo "  FAIL  directives a MISS WROTE ITS PAYLOAD -- the buffer was corrupted"
+    echo "        at the head. This is the 2026-09-15 defect returning."; fail=1
+else
+    echo "  ok    directives a miss wrote nothing (paired with the row above)"; green=$((green+1))
+fi
 
 #  ---- artifactSkipByFlag: the skip reads the STRUCTURAL fact ----------------
 #  Retired citizen, 2026-09-08, retirement BY MAPPING: this is where its census
@@ -3483,6 +3513,36 @@ elif grep -qF "W bare taG = wrHeld" "$T/wrt"; then
 else
     echo "  FAIL  walkRefT row 3 is neither wrTarget nor wrHeld -- a third answer"
     echo "        means the walk writer changed, which is not what either arm does."; fail=1
+fi
+
+#  ⚑ bailT -- BAIL LEAVES THE FILE, STOP LEAVES THE PROCESS. Minted 2026-09-15
+#  with the verb. bail is registered against the SAME extern as stop
+#  (stopParsingInput); the two are told apart by the node handed in, which only
+#  works because an empty () stopped handing on the InvokeArg wrapper --
+#  ruleActions.handleCall.emptyParens. So these rows cover the TokenXP change
+#  as much as the verb.
+#  ALL THREE ROWS ARE PRESENCE-WITH-VALUE (H4). The poison below bailInc's bail
+#  is never asserted by its ABSENCE from stderr: if it were parsed, the parse
+#  failure would abandon the rest of the input and rows A and the sentinel would
+#  not print at all. That is the H7 negative control, measured 2026-09-15 on the
+#  fixture alone -- bail() deleted gives `RunRulE: expected a method not ANTI`,
+#  BAILINC ALIVE still printing, and A and the sentinel GONE, at exit 0.
+#  ⚠ BAILINC ALIVE IS THE ANTI-VACUITY ROW AND IS NOT THE ASSERTION: it prints
+#  in the control too. It is here so that an include which silently loaded
+#  nothing cannot pass row A by default.
+run1 bailT "$T/bail"; check "bailT runs" 0 $?
+sentinel "bailT sentinel" "$T/bail" "BAILT SENTINEL"
+if grep -qF "BAILINC ALIVE" "$T/bail"; then
+    echo "  ok    bailT anti-vacuity: the included file really parsed"; green=$((green+1))
+else
+    echo "  FAIL  bailT anti-vacuity: the include loaded nothing -- rows below mean nothing"; fail=1
+fi
+if grep -qF "BAILT A: control RETURNED" "$T/bail"; then
+    echo "  ok    bail RETURNED to the includer -- bail is not stop"; green=$((green+1))
+else
+    echo "  FAIL  bail did NOT return to the includer. Either bail exited the"
+    echo "        process (it is behaving as stop), or the text below the bail"
+    echo "        was parsed and its failure abandoned the run."; fail=1
 fi
 
 echo ""

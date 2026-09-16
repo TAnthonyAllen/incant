@@ -49,7 +49,9 @@ GroupItem   result;
                     mark++;
                     result = new("markLine");
                     result.setToken(lineStart,(int)(mark - lineStart));
-                    mark = lineStart; }}
+                    mark = lineStart; }
+                else refuse(fromThis,"getLine: no line in the buffer contains the match text");
+                }
         else refuse(fromThis,"getLine: no match field provided");
     else refuse(source,"getLine: no source, or the source is not a buffer");
     return result;

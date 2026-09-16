@@ -3126,6 +3126,96 @@ off the tree — a number reused rather than measured, which is the failure this
 for. Recorded here because F-53 is where 333 was established and is where an auditor comparing the
 two numbers will land; the commits are not rewritten.
 
+### F-68 — `incant/designDocs` has NO staleness discipline for its TokFiles half
+**What:** Tony's observation, 2026-09-15: the register is getting long and its entries are liable
+to go out of date and stay that way. The structural version of that worry is an **asymmetry
+between the two populations living in one file**. `ProblemRecords` HAS a staleness discipline —
+the trim gate, `status` terminal plus `reviewed` past the `-- unreviewed --` placeholder, asserted
+by `genLadder/ddPop.sh` with an H7 negative control. **`TokFiles` has none.** A comment entry is a
+claim about a method, and nothing ties the claim to the code: refactor the method and the entry is
+silently wrong, with no instrument anywhere that can notice.
+**Where:** `incant/designDocs` — 6233 lines and 447 named entries at HEAD, 2026-09-15.
+**Evidence:** ⚠ **A FIRST CENSUS WAS RUN AND IS VOID — recorded so nobody repeats it.** Matching
+dotted keys by grep and intersecting last segments against defined entry names reported *"304 of
+447 never cited"*. That number is **not usable**: the register is a TREE, so `aCTionBlocK`,
+`aCTionIF` and their siblings are intermediate parent nodes rather than leaf entries and are never
+cited as a last segment, and ordinary C++ member access (`adjustedFrame.origin.y`) pollutes the
+cited set from the other side. H9 exactly — the census matched a surface form, not the idiom
+family. **The real instrument is a walk, not a grep**, and `incant/lookup` and `incant/pop/ddGate`
+already walk this tree; the check wants to be an incant fixture that asks each entry whether its
+key is live and each key whether its entry exists.
+⚠ **AND THE RULED INLINE FORM MAKES THIS HARDER, WHICH IS A COST NOBODY HAS PRICED.** The
+2026-09-15 ruling is `// slug sentence?` with the **dotted path never inline**, and CLAUDE.md
+already names what that loses: *"you can no longer spot a drifted block by reading its path."* A
+bare slug is not greppable as a key, so the source side of any dangling-pointer census is now
+weaker than it was the week before. The comment trial deferred this row pending *"evidence it is
+needed"*; this is that evidence arriving from the register's own growth rather than from a miss.
+**Done when:** every TokFiles entry's key resolves to a live site and every key in source resolves
+to an entry, asserted by a fixture with an H7 control, **and** a rule exists saying what makes an
+entry stale and who retires it — the `ProblemRecords` trim gate is the model to copy.
+⚠ **Gated:** `incant/designDocs` does not currently parse on the working tree (`include(designDocs)`
+dies at `DisplayDesignHTML`, bear-trap #32's misdirection), so no walk-based census can run until
+that is resolved. **Owner:** Tony for the staleness RULE, unassigned for the fixture.
+**Size:** the fixture is small; the rule is a ruling.
+
+### F-67 — `where=before` on a directive inserts AFTER the matched line
+**What:** `insertAt` with `where=before` lands its text after the matched line, not ahead of it.
+Measured twice 2026-09-15, independently: `incant/directives`' own `dIRECTive2` (`fromThis="x ="`)
+puts its line below `x = "hi";` while the fixture header says *"a `Stuck this in before` line ahead
+of the `x =` line"*; and a single-directive probe on a two-line sample put its text below
+`plainAnchor:`. So the fixture's documented intent and its behaviour have disagreed since it was
+written, and the rows in `pop.sh` now pin the BEHAVIOUR.
+**Where:** `insertAt` in `incant/directives` (the `where == "before"` arm is a bare
+`source += *toThis` at the mark getLine left), and `getMarkLineAt` in `Instruct.rtn`.
+**Evidence:** ⚠ **CANDIDATE CAUSE, GRADED, NOT CONFIRMED** — `getMarkLineAt` ends the match with
+`if lineStart >= start lineStart++;` and `lineStart` can never be below `start`, so that test is
+always true and the `++` always fires. For a line reached by walking back to a `\n` that is
+correct; for the FIRST line of a buffer the walk stops at `start` and the `++` steps one character
+INTO the line. That predicts a first-line off-by-one, and a first-line probe did corrupt mid-word
+(`plai` + payload) before the no-match arm landed. It does NOT by itself explain a mid-buffer
+`where=before` landing a whole line late, so something else is in play and this is one command away
+from being measured: print the mark offset either side of the insert.
+**Done when:** `where=before` puts its text ahead of the matched line for both a first-line and a
+mid-buffer match, with the `pop.sh` rows re-pinned and a sentence (H6) saying the behaviour moved.
+**Owner:** unassigned. **Size:** small, once the mark arithmetic is measured rather than read.
+
+### F-66 — a directive cannot express DELETE, because absent-vs-present `toThis` is undiscriminable
+**What:** `replaceAt` documents *"with no `toThis` it is a delete"*. It cannot be, today. The
+`:argument` hoist points a local at the found field and `clear()`s it when the field is absent, and
+**no in-language test separates the two**: measured 2026-09-15 over a present and an absent
+`toThis`, `toThis.data` read 0 for both, `toThis.isGROUP` 0 for both, `*toThis` then `.data` 0 for
+both, and a direct `argument["toThis"]` subscript read truthy for both. Only the PRINTED value
+differs — `HASVALUE` versus a tag echo — which is exactly the present-but-dataless case bear-trap
+#26 records as caught by neither test.
+**Where:** `replaceAt` in `incant/directives`; the guard is `if toThis;`, which is truthy always.
+**Evidence:** the guard was briefly changed to `if toThis.data;` and the replace payload vanished —
+the line was removed and nothing inserted — which is the same reading from the other side.
+**Done when:** a directive with no `toThis` deletes its match and one with a `toThis` replaces it,
+both asserted by value in `pop.sh`. ⚠ **The shape is a RULING, not a repair:** kant has no empty
+string (bear-trap #28), so the options are an explicit `deleting` flag on the directive, a sentinel
+value, or a separate `deleteAt` verb. **Owner:** Tony, for the shape. **Size:** small after that.
+
+### F-65 — a MUTATING command called as `cmd()` now mutates its own registry entry
+**What:** latent, introduced deliberately 2026-09-15 with `bail`. An empty `()` no longer hands on
+the `InvokeArg` wrapper (`ruleActions.handleCall.emptyParens`), so `runOP`'s foot substitutes the
+callee — a no-argument command now receives **itself**. That is the whole point for `bail`/`stop`,
+which only READ the node. It is a hazard for a command that WRITES it: `clear()` would reach
+`cLEAR`'s `input.clearData(); input.clearList();` **aimed at the `clear` entry in the Commands
+registry**, and `new()` would set `isInitialized` on the `new` entry. Before the change these
+landed on a throwaway Parens node.
+**Where:** `Commands.rtn` `cLEAR`, `makeNew`; the class is "any `immediateAction` handler that
+writes through its argument". The census of commands reachable as `cmd()` is 16 (2026-09-15).
+**Evidence:** **no live site exists today** — `clear()`, `new()` and `quoted()` appear in `incant/`
+and `IncantForms/` only inside prose and dead regions, which is why the fleet is unmoved at 298.
+The one LIVE casualty was `audit()`, found by `oneTest baseline` and `bare-master population` going
+red, and fixed in the same stroke: `auditRStuff` had been compensating with
+`if target.tag eq "InvokeArg" target = 0;` and now asks `target.registry == ruler.commands`.
+⚠ **The old sentinel was the ONLY one in the tree** — `grep '"InvokeArg"'` over `*.rtn`/`*.twk`
+returns that one site — so there is no second compensator still to convert.
+**Done when:** either a guard refuses a self-aimed mutation at the foot of `runOP`, or the two
+handlers test `registry == commands` the way `auditRStuff` now does. **Owner:** unassigned.
+**Size:** small, but the RULING on which of the two shapes is wanted is Tony's.
+
 ### F-55 — a field assignment inside a jitted WALK BODY does not land
 **What:** a counter incremented inside `iterate … while ++cur;` reads back as **its own tag**
 (bear-trap #26) after a jitted fire — the assignment never landed. The interpreted oracle is

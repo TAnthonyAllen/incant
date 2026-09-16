@@ -69,94 +69,39 @@
 #   canary **329** · alphaLint 0 out of order · `groups.ext` committed and pushed ·
 #   **Groups 0/0, support 0/0, TOK 0/0.**
 #
-#   ## ⚠⚠⚠ WAITING ON TONY -- BEAR-TRAP #18, STATED AND NOT RESOLVED
+#   ## ⚠⚠⚠ RULED 2026-09-16 (Tony) -- BEAR-TRAP #18: ATTRIBUTION CLOSED AS UNKNOWN.
 #
-#   **The entry verbatim, as it stands in `CLAUDE.md` today:**
+#   **The ruling, verbatim in its operative half:** *Cause not isolated; not pursued -- would
+#   require tok work. Do not use tok macros outside `testMacro`'s existing shape.* Settling it
+#   means tok maintenance, and **tok macros are not used beyond `testMacro`'s shape, so nothing
+#   in the tree depends on the answer.** The question is CLOSED, not parked: do not re-open it
+#   and do not re-derive the candidate list.
 #
-#   18. **OBSERVATION (confirmed, load-bearing): tok's `#name(args)-...-` macro facility would not
-#       support the shapes genParse needed, so genParse §3 was rewritten against ordinary `extern`
-#       functions — which is why that code looks the way it does. ATTRIBUTION (OPEN, see the end of
-#       this entry): *why* it wouldn't is NOT settled, and the causal headline this entry used to
-#       carry is falsified by shipping code.** Read the three failure modes below as reproduced
-#       symptoms, which they are, and not as a mechanism, which they are not.
-#       ~~only works when the invocation is the ENTIRE, SOLE
-#       body of its containing function~~ — exactly `testMacro`'s only existing usage (`testAny`/
-#       `testCharacter`/`testSet`, each just `use field \n testMacro(...);`). The moment a macro call
-#       is one statement among several, it fails, and fails in two different ways depending on shape:
-#       (a) nested in an expression (`return someMacro(x) && true;`, or even bare
-#       `return someMacro(x);`) — **silently does not expand**, emitted verbatim as a literal call to a
-#       function that doesn't exist, flagged only as "referenced but not declared" in a trailing
-#       comment; fails at the C++ compile step, not at tok. (b) a bare statement that is NOT the
-#       function's only statement (preceded or followed by other code) — **tok segfaults** (exit 139),
-#       reproduced with both a GCC `({...})` block and plain ordinary tok syntax matching `testMacro`'s
-#       own style, so it is not about `({...})` specifically. (c) **the most consequential**: two
-#       macro calls in sequence in one function (an `enterX(...)` bare statement followed by
-#       `return leaveX(...);`) does not crash, but silently drops the FIRST macro's statement entirely
-#       (locals pruned, "Declarations ignored because not used: N" — the same warning bear-trap #13
-#       uses for a different cause) while the SECOND remains an unresolved, unexpanded call. Neither
-#       macro fires. Root cause per Clay (2026-07-25): not a tok bug so much as a category mismatch —
-#       a macro expands to a block that declares locals and executes `return`; a statement can never be
-#       a term in `A && B`. Candidates Tony was checking for a narrower rule (untested as of this
-#       writing): missing terminating semicolon on the macro call, column-0/declaration-position vs
-#       indented/statement-position, and whether `use field` needs to precede the call for bare-name
-#       resolution inside the expansion to have anything to bind to. **Fix that actually worked**:
-#       don't use tok macros for anything beyond `testMacro`'s existing shape. Write plain `extern`
-#       functions instead — they're expressions by construction, so `&&`/`||` composition works
-#       natively with zero substitution machinery, and multiple calls in one function are just
-#       ordinary sequential statements. (genParse S3, 2026-07-25 — see `docs/genParseSpec.md`.)
-#       **ATTRIBUTION — OPEN, and do not act on the strikethrough above (2026-07-27).** The
-#       "sole body of its function" rule is **falsified by shipping code**: `testSet` in
-#       `RuleStuff.twk` has a declaration (`PLGset set = characterSet;`) *before* its `testMacro(...)`
-#       call and works, in the current build. So the real constraint is narrower than the symptoms
-#       suggested, and four candidates remain, **one of which is Clay's own spec error**:
-#       (a) **the terminating semicolon** — every working invocation is `testMacro(...);`; genParseSpec
-#       §5.1 wrote `enterSeq(JSONblock)` with none, and an unterminatable construct would produce
-#       exactly mode (c)'s dropped-statement signature; (b) **column-0 / declaration position** — all
-#       three working invocations sit unindented, and if tok expands macros during declaration parsing
-#       then "works at column 0, fails indented" explains modes (b) and (c) with no tok bug at all;
-#       (c) **the `use field` prefix** — all three working sites have it, and `testMacro`'s body
-#       references bare `isOK`/`max`/`min`/`label`/`hereAt` which only resolve through it, so stripping
-#       it is a plausible route to a tok-side segfault; (d) **category mismatch** (Clay, 2026-07-25) —
-#       a macro expands to a block that declares locals and executes `return`, and a statement can
-#       never be a term in `A && B`; on this reading §3 was wrong on its own terms and tok is fine.
-#       **Tony's sign-off is owed on which, if any** — he is the only one who knows what tok promises.
-#       What is NOT in doubt and stands as doctrine regardless: **tok exiting 139 with no diagnostic is
-#       a real defect**, and **the fix that worked was to stop using macros for anything beyond
-#       `testMacro`'s existing shape.** Split out per bear-trap #19's corollary — reproduction proves
-#       the SYMPTOM, never the CAUSE, and this entry was one bad session from hardening a wrong
-#       mechanism into doctrine.
+#   **THE FOUR CANDIDATES ARE STRUCK** -- the terminating semicolon, column-0/declaration
+#   position, the `use field` prefix, and Clay's category mismatch. `CLAUDE.md`'s entry 18 carries
+#   the same edit and is the live text; this is the seal-side record of the decision.
 #
-#   **WHAT IS OBSERVATION AND WHAT IS ATTRIBUTION.** The **observation** is the whole of what
-#   was run and is not in doubt: three failure modes were reproduced -- a macro call nested in
-#   an expression expands silently to nothing and fails at the C++ compile step; a bare macro
-#   statement that is not its function's only statement makes **tok exit 139 with no
-#   diagnostic**; and two macro calls in sequence drop the first entirely while leaving the
-#   second unexpanded. Also observed, and load-bearing: **the fix that worked was to stop using
-#   macros** and write ordinary `extern` functions, which is why genParse S3 looks as it does.
-#   The **attribution** is everything about *why*, and it is unconfirmed: the entry's original
-#   headline -- that a macro only works when its invocation is the entire, sole body of its
-#   containing function -- **is falsified by shipping code**, because `testSet` in
-#   `RuleStuff.twk` carries a declaration before its `testMacro(...)` call and works in the
-#   current build. So the real constraint is narrower than the symptoms suggested and nobody
-#   has isolated it; reproduction proves the symptom, never the cause.
+#   ⚠ **WHAT SURVIVES AS DOCTRINE, UNDIMINISHED BY THE CLOSURE -- the OBSERVATION was never in
+#   doubt and is not what was closed:**
+#   - **Three failure modes, all reproduced.** A macro call nested in an expression expands
+#     silently to nothing and fails at the C++ compile step; a bare macro statement that is not
+#     its function's only statement makes **tok exit 139 with no diagnostic**; two macro calls in
+#     sequence drop the first entirely while leaving the second unexpanded.
+#   - **tok exiting 139 with no diagnostic is a real defect**, ruling or no ruling.
+#   - **The fix that worked was to stop using macros** and write ordinary `extern` functions --
+#     which is why genParse S3 looks as it does.
+#   - The old headline -- *a macro only works when its invocation is the entire, sole body of its
+#     containing function* -- **stays struck as falsified by shipping code**: `testSet` in
+#     `RuleStuff.twk` carries a declaration before its `testMacro(...)` call and works today.
 #
-#   **THE FOUR CANDIDATES, one line each, none tested:**
-#   - **(a) the terminating semicolon** -- every working invocation is `testMacro(...);` and
-#     genParseSpec S5.1 wrote `enterSeq(JSONblock)` with none.
-#   - **(b) column-0 / declaration position** -- all three working invocations sit unindented,
-#     and "works at column 0, fails indented" would explain two modes with no tok bug at all.
-#   - **(c) the `use field` prefix** -- all three working sites have it, and `testMacro`'s body
-#     references bare names that only resolve through it.
-#   - **(d) category mismatch (Clay, 2026-07-25)** -- a macro expands to a block that declares
-#     locals and executes `return`, and a statement can never be a term in `A && B`; on this
-#     reading S3 was wrong on its own terms and tok is fine.
-#
-#   **Tony's sign-off is owed on which, if any.** What is NOT in doubt regardless: **tok exiting
-#   139 with no diagnostic is a real defect.**
+#   ⚠ **AND THE METHOD NOTE IS THE REASON THE ENTRY READ THIS WAY FOR SEVEN WEEKS**, per
+#   bear-trap #19's corollary: **reproduction proves the SYMPTOM, never the CAUSE.** Splitting
+#   observation from attribution is what let the attribution be closed as unknown without losing
+#   a single thing that had actually been measured.
 #
 #   ## TOMORROW, IN ORDER
 #   1. Reports from the two landed strokes.
-#   2. **The #18 ruling.**
+#   2. ~~The #18 ruling.~~ **DONE 2026-09-16 -- closed as unknown; see the section above.**
 #   3. `checkInput`'s second arm -- the top-of-parse skip -- toward trigDO 1/0/1. The single
 #      remaining refusal is `REFUSED BlocK -- checkInput: no enclosing activation to take the
 #      label`, and it is a named refusal where it used to be an EXC_BAD_ACCESS.

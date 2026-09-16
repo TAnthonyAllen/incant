@@ -1,0 +1,34 @@
+/*****************************************************************************
+    This file is not an incantation, just notes on form design
+*****************************************************************************/
+Here is a list form attributes along with an explanation of what each attribute does. The list is derived from attributes in old GUI forms. Some of the attributes are part of the little drawing language (see drawing incantation).
+    across          form field members will be laid out horizontally
+    align           aligns text in the frame; allowed values: left center right;
+    border          prints a rectangular border around the field; if border value is number that is used for its width;
+                    an off value says no border but that is only relevant if border is inherited and probably it should not be inheritable
+    closable        makes a window or panel closable; should only work on windows or panels
+    doNotScroll     scroll block search goes bottom up looking for a scrollable block; doNotScroll means keep searching up
+    down            form field members will be laid out vertically
+    drawPath        says the attributes that follow it are drawing commands. Needs design and fleshing out.
+    font            value is a font defined in the Fonts registry. updates current style
+    pad             not planned to be supported in layout
+    perforation     draws a perforated border on its parent using incant little drawing language
+                        depth gap perfRight perfLeft perfTop perfBottom and stride are attributes used by perforation as parameters (they have default settings)
+    radius          defines the radius used by rounded
+    resize          makes a window or panel resizeable; should only work on windows or panels
+    rounded         like border but puts up a rounded rectangle; the rounding radius should probably go into style
+    text            prints the form field text into its frame applying the current style
+
+/*****************************************************************************
+    Form fields (not attributes) with special meaning
+*****************************************************************************/
+    space           form field can have a numeric value; if its parent orientation is across, the value is its width; otherwise its height.
+                    Typically, has no content. If has no value, its size if determined as its share of any residual space in its parent.
+
+/*****************************************************************************
+    Design Issues
+*****************************************************************************/
+    design decision pending: do we need a vertical align? Thinking no. Can use a space field
+    use of font: thinking only way to refer to a font is by its tag as defined in the Fonts registry. That means fontSize is not a valid attribute
+    some form attributes implicitly update style
+    if a form attribute has a method/action when does it fire? Methinks the default is on click; action attributes are processed in left to right order

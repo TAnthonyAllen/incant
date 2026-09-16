@@ -1,0 +1,35 @@
+/*  bailT -- BAIL LEAVES THE FILE, STOP LEAVES THE PROCESS.
+
+    bail is registered in incant/setup against stopParsingInput, the same extern
+    stop uses; the two are told apart by the node handed in, which only works
+    because an empty () no longer hands on the InvokeArg wrapper
+    (ruleActions.handleCall.emptyParens).
+
+    THREE PROPERTIES, ALL ASSERTED BY PRESENCE:
+      BAILINC ALIVE  the included file really parsed  -- anti-vacuity, because
+                     BAILT A would print just as happily if the include had
+                     silently failed to load anything at all.
+      BAILT A        control RETURNED to the includer -- this is the row that
+                     separates bail from stop. Under stop() the process exits
+                     inside the include and A never prints.
+      BAILT SENTINEL the driver reached its own foot, which additionally proves
+                     the poison below bailInc's bail was never parsed: a parse
+                     failure there abandons the rest of the input and takes both
+                     rows above with it.
+*/
+Start();
+include(unitTests);
+include(utilities);
+
+search reset stack Grokking;
+search UnitTests Utilities list;
+
+register(fILEs);
+define
+    bailInc File='incant/pop/bailInc';
+    ;
+
+include(bailInc);
+print "BAILT A: control RETURNED from the included file -- bail did not exit":;
+print "BAILT SENTINEL":;
+stop();

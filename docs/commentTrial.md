@@ -1104,3 +1104,26 @@ moved at all, so the md5 *is* the proof — the strongest available statement th
 output and source order is not an input.**
 
     alphaLint -- 2 file(s) examined, 0 out-of-order method(s), 0 broken unit(s)
+
+## 2026-09-15 — THE `bail` STROKE: THREE KEYS WRITTEN, TWO ENTRIES OWED, AND THE REASON IS A FINDING
+
+Three inline keys minted with the verb, all in the ruled `// slug sentence` form:
+
+| key | where | entry |
+|---|---|---|
+| `ruleActions.handleCall.emptyParens` | `ruleActions.rtn` | **owed** |
+| `Commands.stopParsingInput.twoVerbs` | `Commands.rtn` | **owed** |
+| `measure.measureStopCaller` | `measure.twk` | inline, matching that file's own convention |
+
+⚠ **THE TWO ENTRIES WERE NOT WRITTEN, DELIBERATELY, AND THE REASON BELONGS IN THE TALLY RATHER THAN
+IN A COMMIT MESSAGE.** `incant/designDocs` was dirty with an in-flight sweep at the time and
+`ddPop.sh` was **red on it** — sentinel missing, the walk reading **zero records**, the H7 negative
+control reporting that the gate certifies nothing. Against `HEAD`'s copy of the same file the gate
+reads 5 green / 1 red and the control works, so the breakage is in the working copy.
+
+**Adding an entry to a file whose walk currently finds nothing cannot be verified**, and an
+unverifiable addition to the register is exactly what the register exists to stop. So the keys ship
+pointing at entries that do not exist yet — which the trial's own rule covers: *when a pointer is
+followed and the entry is absent, log it and move on.* This is that log.
+
+**Owed:** both entries, once the designDocs sweep lands and `ddPop` is green again.

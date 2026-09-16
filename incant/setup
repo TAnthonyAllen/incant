@@ -24,6 +24,7 @@ define
     arrondir immediateAction=arrondir;
     assign immediateAction=processFlags noPrint;
     audit immediateAction=auditRStuff;
+    bail=stopParsingInput immediateAction;
     bin immediateAction=processFlags noPrint;
     bitmap immediateAction=setInternalType noPrint;
     BLOCKing immediateAction=processFlags guard;

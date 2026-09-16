@@ -17,5 +17,8 @@ wraplist window x=400 y=400 width=400 height=450 fill=saberBrown title="Wrap Lis
                     blank pad rounded fill=lightGreen width=50%;
                     list pad rounded down=* fill=paleGray
                         junk label=tag next=body height=20 border=off jit=showTag;
+;
 
-Note: in the cell block above you need doNotScroll because want scrolling to happen at rows block level (and the scroll block search goes bottom up looking for a scrollable block and without doNotScroll it would find the cells block first and think it was done)  # TODO: review
+bail();
+
+Note: perforation draws a fancy border like a perforated stamp used by the post office.

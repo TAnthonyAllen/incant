@@ -69,6 +69,7 @@ extern "C" GroupItem *measureParentProbe(GroupItem *field);
 extern "C" GroupItem *measurePlusEQWrite(GroupItem *field);
 extern "C" GroupItem *measurePlusPlusWrite(GroupItem *field);
 extern "C" GroupItem *measureRuleDispatch(GroupItem *op, GroupItem *target, GroupItem *arg);
+extern "C" GroupItem *measureStopCaller(GroupItem *caller);
 extern "C" GroupItem *measureTokenArm(char *arm, GroupItem *ANYtoken, GroupItem *InvokeArg, GroupItem *unary);
 extern "C" GroupItem *parseClassify(GroupItem *field);
 extern "C" GroupItem *probeNode(GroupItem *argument);

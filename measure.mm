@@ -92,9 +92,9 @@ int 		missing = 0;
 	return missing;
 }
 
-/*  EMPTY PARENS ARRIVE AS AN InvokeArg NODE, not as null -- that is the test for
-    "no argument given". Run it AFTER the definitions are in place.
-    measure.auditRStuff  */
+/*  A NO-ARGUMENT CALL HANDS BACK THE COMMAND NODE ITSELF -- that is the test for
+    "no argument given", and it is asked of the REGISTRY, not the tag. Run it AFTER
+    the definitions are in place.   measure.auditRStuff  */
 extern "C" GroupItem *auditRStuff(GroupItem *argument)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -107,7 +107,7 @@ int 		unconsumed = 0;
 	target = argument;
 	if ( isGROUP(target->groupBody->flags.data) )
 		target = target->getGroup();
-	if ( ::compare(target->groupBody->tag,"InvokeArg") == 0 )
+	if ( target->groupBody->registry == ruler->commands )
 		target = 0;
 	if ( target )
 		{
@@ -578,6 +578,22 @@ extern "C" GroupItem *measureRuleDispatch(GroupItem *op, GroupItem *target, Grou
 	: "NONE");
 	
 	return target;
+}
+
+/*  WHO ASKED THE PARSE TO STOP, and by which verb. parseTrace gated. stopParsingInput
+    serves both `stop` and `bail`, and the two are told apart by the node handed in --
+    so this prints that node's TAG, which is the discriminator itself, and NOT a
+    re-derived verdict.   measure.measureStopCaller  */
+extern "C" GroupItem *measureStopCaller(GroupItem *caller)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace )
+	::fprintf(stderr,"STOPCALLER tag=%s node=%p diverted=%d\n",
+	caller ? (caller->groupBody->tag ? caller->groupBody->tag : "(untagged)") : "(null)",
+	(void*)caller,
+	GroupControl::groupController->groupRules->inputDiverted ? 1 : 0);
+	
+	return caller;
 }
 
 /*  WHICH ARM OF aCTionTokenXP's DISPATCH A TERM TOOK, and whether the dot it carries is

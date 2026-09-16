@@ -695,6 +695,16 @@ define
                     one, and the census is the thing being terminated. Adding the name
                     costs nothing a caller was relying on -- the return value is unchanged
                     and every tally still counts a null as a refusal.#);
+            stop="Immediate method for the stop command.":
+                stopRefusalHandling=(census fires at completion not at refusal, and that is the
+                    whole of Tony's ruling: F-17e's full sweep is preserved -- all 42
+                    refusals report as 42 -- and only then does the run refuse to call
+                    itself successful. Exiting at the first refusal would report one.
+
+                    SILENT WHEN THE ROAD WAS NEVER TRAVELLED. A run that never called
+                    compile has no compile census, so nothing prints and no baseline
+                    moves. That is not a gate on the assertion; it is the difference
+                    between a zero and an absence.#);
         Generate="is an rtn file that gets included into GroupRules.twk when it gets tokked. The text for these entries needs to be reviewed to see if they are still relevant. They were relevant once but things change and no one has been going thru comments to keep them up to date. The comments cluttered up code. Now they do not. They are here and the same relevancy question applies.":
             parseAny=(THE LABEL WRITE IS GUARDED IN ALL FOUR OF THESE, and until 2026-08-18 it
                 was guarded in only one. parseSet had `if label` and parseAny,
@@ -830,108 +840,35 @@ define
                 GroupBody.h defines as isGROUP, which setParse binds to
                 parseMethod = null. They never reach a leaf executor, so they never
                 reached this line. The fire was unreachable, not merely redundant.#);
-            setParse=(THE `or data` GUARD IS THE TEMPLATE'S AND DROPPING IT COSTS REAL ROUTING.
-                setTestMatch tests data THIRD, above every method-shaped arm, so a field
-                that CARRIES data is matched by its data and a method-bearing leaf is the
-                leftover case. With `or method` above an unguarded switch, the method arm
-                claimed fields that have a data answer. Measured 2026-08-19 by
-                incant/parseClass, before and after: exactly three fields moved, and all
-                three are isGROUP references carrying a method -- `ANYtoken` (=NamE),
-                `NewGroup` (TraiT@) and `ShortcuT`. Each had bound parseAction; each is now
-                left UNBOUND, which is the template's answer for isGROUP and what lets
-                parse()'s onGroup dereference the reference instead of firing a method at
-                it. `tokenize` and `CodE` did not move. Data first, then the leftover
-                method leaf, then string.
-
-                THE FIRST DRAFT OF THIS PARAGRAPH CALLED ShortcuT A CHARACTER SET and
-                said it should bind parseSet. It is isGROUP, and the right answer is
-                unbound -- the census said so and the prose had been written from the
-                grammar line `ShortcuT=[-+~`$_:,]+` before the measurement came back.
-
-                REGISTRIES ARE SKIPPED AT THE ENTRY, AND THE SITE IS THE RULING (Tony,
-                2026-08-19). A registry is INFRASTRUCTURE, not grammar: `Operators` is
-                reachable as a member of `Grokking`, so a walk that binds parse methods
-                reached it, found no rStuff, and printed
-                `setParse: ERROR field passed in Operators has no rStuff` -- an error for a
-                node that was never a parse candidate. Skipping at the entry rather than
-                inside the chain means it never reaches arming AND never reaches the rStuff
-                complaint, which is the difference between a clean skip and a swallowed
-                error. Closes F-30.
-
-                THE SKIP IS isREGISTRY ONLY, NEVER isBIN, and the two are different
-                answers to different questions. A bin is a grammar TERM whose entries are
-                the alternatives -- `BrancheS` and `UnaryOPS` are bins and both legitimately
-                bind parseContainer, measured. A registry is a namespace the walk happens to
-                be standing in. Widening this to binType would silently delete four
-                parseContainer rows.
-
-                AND THIS PROSE LIVES ABOVE THE FUNCTION FOR A MEASURED REASON. Written
-                inside the if/or chain, immediately before an `or`, it silently DELETED
-                setParse from the generated extern block -- 307 externs to 306, tok exit 0,
-                build succeeded. That is bear-trap #29 exactly, and the standing canary
-                `grep -c '^extern' GroupRules.h` is what caught it. Comments go above the
-                chain or inside an arm's braces, never in the gap between arms.
-
-                THE CANON-RESOLUTION TRIAL WAS RUN HERE ON 2026-08-22 AND REVERTED THE
-                SAME DAY. Recorded so nobody re-runs it blind.
-
-                THE TRY (Tony's try-and-buy on Ruling E): resolve through definingRule()
-                to canon before binding -- `canon = field.definingRule()`, then bind
-                canon's rStuff, with the actionMethod write riding the same resolution.
-                One resolution function, both directions, since parse() forks on
-                definingRule().rStuff.parseMethod.
-
-                THE BUY FAILED, on measurement, and the numbers are the reason:
-
-                  pristine setParse(Braced)   before: PC parseRule Braced
-                                               after: PC none Braced
-                  parseClass census           parseRule 104 -> 39, none 23 -> 92,
-                                              parseContainer 4 -> 1
-                  fleet                       53 green -> 52; parseClass.target the only
-                                              new red, exactly as pre-registered
-                  finding 1                   NOT cured -- canon hasActioN still 0
-
-                So resolving the binder to canon does not merely fail to help, it stops
-                most rules binding at all. The census move was PRE-REGISTERED as expected
-                (minionWork/canonTrialPreReg) but its DIRECTION was not: the prediction was
-                that terms would classify as their canon, not that binding would collapse.
-
-                CANDIDATE MECHANISM, UNCONFIRMED AND DELIBERATELY NOT ACTED ON: parseClassify
-                reads the rStuff of the node it is HANDED, while the trial made setParse
-                write a different node's -- so every face would report `none` whether or not
-                canon was bound. It is contradicted by the same run reading `none` off canon
-                itself, so it does not stand as an explanation. Left as a candidate with its
-                grade attached, per the citation discipline.
-
-                WHAT SURVIVES THE REVERT: canonOf(), the instrument the trial was worth --
-                definingRule() had no incant road before it, which is why read 2 could not
-                be run honestly at all.
-
-                THE REFUSAL MUST RETURN. Before 2026-08-28 this arm printed and fell
-                through to `if parseMethod` below -- which resolves against ruleStuff,
-                the very null it had just refused -- so a rStuff-less field was
-                reported and then dereferenced. Latent for as long as every caller
-                happened to pass a rule; Tony's six punctuation members of Grokking
-                are the first callers that do not, and parseClass died at exit 139.
-                Same family as firstCallerNullList. Ruling D: absence of rStuff on a
-                non-label node is LAWFUL -- a specimen -- so the refusal is the
-                correct answer and it must be a refusal, not a remark.
-
-                REBUILD THE CONTENT FLAGS, and it is hasTraits that needs it.
-                Both attributes above are added FIRST and marked noPrint SECOND,
-                so addAttribute -- the other writer -- cannot see that they are
-                decoration at the one instant it gets to look, and it raises
-                hasTraits on a rule whose only attributes are these two. That
-                made generateParse's connective gate read AND for every walked
-                rule and the OR branch unreachable: 36 AND / 0 OR across a full
-                parser(Start) walk. Rebuilding here is a rebuild AT EXIT, which
-                works with the data flow rather than fighting it -- the flags are
-                recomputed once both attributes are fully formed.
-                ⚠ THE COST IS NAMED: this is updateContentFlags' first live
-                caller, and it now runs on every rule's activation path.
-                hasAttributes deliberately keeps reading TRUE here -- the node IS
-                marked up -- which is the whole reason the two flags are separate
-                channels. See designDocs ProblemRecords connectiveDiscriminant.#);
+            setParseWalk="Sets parseMethod. Recurses into ITSELF, never back through setParse":
+                tokenSkip=(A MEMBER WITH isRule 0 IS A TOKEN -- MATCHED, NEVER ENTERED. Tony's ruling,
+                    2026-09-15, off the parent chains: the sixty refusals this replaces were the members of
+                    Operators (52, a REGISTRY) and UnaryOPS (8, a BIN), reached LAWFULLY through the
+                    container arm below. An operator token is not a rule and never will be.
+                    ⚠ THE REFUSAL BELOW IS UNCHANGED AND STAYS LOAD-BEARING: isRule 1 with no rStuff is a
+                    WOUND, not a specimen, and refuse() names it.   Generate.setParseWalk.tokenSkip#);
+                walkGuard=(the grammar is cyclic -- StatemenT contains BlocK contains StatemenT -- so the internalized walk below cannot terminate without its OWN mark. NOT hasNewParse: parkParse is that flag's other writer. It also stops a DAG node being classified twice in one walk, which is what puts parseAction into BOTH gMethod and actionMethod#);
+                silentReEntry=(RE-ENTRY IS ROUTINE, NOT AN ERROR. The grammar is a DAG -- shared
+                    terms and StatemenT/BlocK -- so a node is legitimately reached twice inside one
+                    walk: measured 52 repeat arrivals among 207 visits on incant/pop/trigDO. It used
+                    to refuse(), and refuse() raises ruler.refused, which ABORTS THE INCANT ACTION THAT
+                    CALLED THE WALK -- that is what left generateParse's printTO redirected (F-62).
+                    Return without descending; say so only under debug.   Generate.setParseWalk.silentReEntry#);
+                installedIsDone=(AN rStuff CARRYING hasNewParse IS INSTALLED, AND THE WALK LEAVES IT
+                    ALONE. Tony's ruling, 2026-09-15. parseWalked guards the grammar CYCLE within one walk;
+                    hasNewParse guards PROPAGATION across walks. Two marks, two questions, and conflating
+                    them is what let a node be re-entered with POST-install slots and read as pre-install.
+                    ⚠ MEASURED ON NamE -- three visits of ONE field over ONE rStuff, and the middle column
+                    is the defect: visit 1 g=0 hasNewParse=0, visits 2 and 3 g=parseRule hasNewParse=1.
+                    Generate.setParseWalk.installedIsDone#);
+                actionMethodRemoved=(THE WALK WRITES gMethod AND parseMethod, AND NOTHING ELSE. Tony's
+                    ruling, 2026-09-15. `actionMethod = method;` stood here from 5f24cf3 and is REMOVED,
+                    not replaced: actionMethod is set at DEFINITION -- setActionMethod publishes
+                    builtinActoR and fireLabelMethod stamps it -- and the walk never touches it.
+                    ⚠ IT DID NOT SNAPSHOT THE ACTION, IT ERASED IT: on NamE's first visit gMethod was 0
+                    and actionMethod held the real action, so the line wrote NULL over it. On the later
+                    visits gMethod held parseRule, and copying THAT into the action slot is the unbounded
+                    recursion.   Generate.setParseWalk.actionMethodRemoved#);
         GroupActions=(is the rtn file holding the action methods -- the interpreter's
             verbs. It is part of the GroupRules include chain.#):
             runAction=(Runs an action. TWO ARMS THAT SHARE ALMOST NOTHING, and reading it as one path with jit conditionals is how it was misread for months. processCode if needed, lastREF, then either the JIT arm or the interpreted arm, and each returns through its own exit. REVISED 2026-09-05, Clay reviewed, Tony ruled -- the draft was lifted from incant++ rather than re-derived.#):
@@ -1910,6 +1847,8 @@ define
                     ⚠ NOT byRef. := does not stamp byRef and will not (R3, same
                     day); three registers said otherwise and were corrected.#);
         RuleStuff=(is the twk file holding RuleStuff, the per-node parse state.#):
+            checkInput="sets hereAt and atRuleMark, handles input diversion, and returns true if current input is valid.":
+                 enclosingActivation=(this write hands the label UP to the enclosing rule's stuff, and a TOP-LEVEL rule's parent is the REGISTRY, which lawfully has none -- so refuse by name rather than dereference a null#);
             getWhatFollows=(sets the fields of RuleStuff once, lazily, the first
                 time a rule is needed.#):
                 promotionRetired=(THE PARENT-min PROMOTION, RETIRED 2026-09-03 BY

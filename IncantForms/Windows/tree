@@ -1,10 +1,8 @@
-Start();
-include(unitTests);
-include(generate);
-include(utilities);
-initFORMs();
-search Generating bcOPs list;
 
+/********************************************************************************
+	tree is an example form to demonstrate a panel that shows a tree that you
+    can expand and contract by clicking on its elements.
+********************************************************************************/
 register(dESCRIPTIONs);
 define
     treeExample="An example of two trees. A tree is defined by the tree attribute that sets its source. A tree must have one member that defines a branch that serves as template for its branches. The branch template must hava a leaf attribute that marks the branch as expandable. Some component of the branch template must have an expandTree attribute which provides the method to expand or contract the branch. Each branch should have an indent with an initial width as its first member and may have an expander member that works as described in the description of the left tree below. If there is an expander, it should have the expandTree attribute. Finally, a branch must have a member named entry to display the contents of the branch.";
@@ -47,7 +45,7 @@ define
                 leftBranch border=off across height=18 leaf
                     indent width=1;
                     expander label width=10 expandTree;
-                    entry label jit=showTag;
+                    entry label showTag;
             right tree=glen rounded
                 rightBranch border=off across height=18 leaf
                     indent width=1;
@@ -55,5 +53,11 @@ define
         help describe=treeExample rounded height=100 pad font=normal fill=lightGreen;
     ;
 
-printDefinition(treeExample);
-stop();
+bail();
+
+There are unexplained commands buried in the treeExample
+    expander
+    expandTree
+    indentIncrement (probably needs renaming); presumably used in expander
+    indent
+    label (it may have been used to treat forest tags as data; not needed)

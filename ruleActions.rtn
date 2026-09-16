@@ -1245,10 +1245,13 @@ GroupRules  ruler = groupRules;
     if ruler.processingCode
         if ANYtoken.groupBody == ruler.currentMETHOD.groupBody   ruler.currentMETHOD.recursive = true;
     if InvokeArg.isGROUP    arg = InvokeArg.group;
-    if !arg                 arg = InvokeArg;
+    // an EMPTY () carries nothing and is NOT an argument -- hand on no third operand   ruleActions.handleCall.emptyParens
+    if !arg
+        if InvokeArg.groupList || InvokeArg.data     arg = InvokeArg;
+    use xpress
     xpress  +% op;
     xpress  +% ANYtoken;
-    xpress  +% arg;
+    if arg  xpress  +% arg;
     return null;
 }
 

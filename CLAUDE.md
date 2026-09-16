@@ -1537,10 +1537,11 @@ Hard-won lessons. Each one has cost real debugging time.
 
 18. **OBSERVATION (confirmed, load-bearing): tok's `#name(args)-...-` macro facility would not
     support the shapes genParse needed, so genParse §3 was rewritten against ordinary `extern`
-    functions — which is why that code looks the way it does. ATTRIBUTION (OPEN, see the end of
-    this entry): *why* it wouldn't is NOT settled, and the causal headline this entry used to
-    carry is falsified by shipping code.** Read the three failure modes below as reproduced
-    symptoms, which they are, and not as a mechanism, which they are not.
+    functions — which is why that code looks the way it does. ATTRIBUTION (RULED 2026-09-16,
+    CLOSED AS UNKNOWN — see the end of this entry): *why* it wouldn't was never isolated, and
+    the causal headline this entry used to carry is falsified by shipping code.** Read the three
+    failure modes below as reproduced symptoms, which they are, and not as a mechanism, which
+    they are not.
     ~~only works when the invocation is the ENTIRE, SOLE
     body of its containing function~~ — exactly `testMacro`'s only existing usage (`testAny`/
     `testCharacter`/`testSet`, each just `use field \n testMacro(...);`). The moment a macro call
@@ -1556,37 +1557,27 @@ Hard-won lessons. Each one has cost real debugging time.
     `return leaveX(...);`) does not crash, but silently drops the FIRST macro's statement entirely
     (locals pruned, "Declarations ignored because not used: N" — the same warning bear-trap #13
     uses for a different cause) while the SECOND remains an unresolved, unexpanded call. Neither
-    macro fires. Root cause per Clay (2026-07-25): not a tok bug so much as a category mismatch —
-    a macro expands to a block that declares locals and executes `return`; a statement can never be
-    a term in `A && B`. Candidates Tony was checking for a narrower rule (untested as of this
-    writing): missing terminating semicolon on the macro call, column-0/declaration-position vs
-    indented/statement-position, and whether `use field` needs to precede the call for bare-name
-    resolution inside the expansion to have anything to bind to. **Fix that actually worked**:
+    macro fires. (The four candidate mechanisms that once stood here — a category mismatch, a
+    terminating semicolon, column-0 position, the `use field` prefix — are **struck by the
+    2026-09-16 ruling at the foot of this entry**; do not re-derive them.) **Fix that actually
+    worked**:
     don't use tok macros for anything beyond `testMacro`'s existing shape. Write plain `extern`
     functions instead — they're expressions by construction, so `&&`/`||` composition works
     natively with zero substitution machinery, and multiple calls in one function are just
     ordinary sequential statements. (genParse S3, 2026-07-25 — see `docs/genParseSpec.md`.)
-    **ATTRIBUTION — OPEN, and do not act on the strikethrough above (2026-07-27).** The
-    "sole body of its function" rule is **falsified by shipping code**: `testSet` in
+    **ATTRIBUTION — RULED 2026-09-16 (Tony): CLOSED AS UNKNOWN, AND THE FOUR CANDIDATES ARE
+    STRUCK.** *Cause not isolated; not pursued — would require tok work. Do not use tok macros
+    outside `testMacro`'s existing shape.* Settling it means tok maintenance, and nothing in the
+    tree depends on the answer, so the question is closed rather than parked — **do not re-open
+    it, and do not re-derive the candidate list.** The strikethrough above stays struck: the
+    "sole body of its function" rule is **falsified by shipping code**, because `testSet` in
     `RuleStuff.twk` has a declaration (`PLGset set = characterSet;`) *before* its `testMacro(...)`
-    call and works, in the current build. So the real constraint is narrower than the symptoms
-    suggested, and four candidates remain, **one of which is Clay's own spec error**:
-    (a) **the terminating semicolon** — every working invocation is `testMacro(...);`; genParseSpec
-    §5.1 wrote `enterSeq(JSONblock)` with none, and an unterminatable construct would produce
-    exactly mode (c)'s dropped-statement signature; (b) **column-0 / declaration position** — all
-    three working invocations sit unindented, and if tok expands macros during declaration parsing
-    then "works at column 0, fails indented" explains modes (b) and (c) with no tok bug at all;
-    (c) **the `use field` prefix** — all three working sites have it, and `testMacro`'s body
-    references bare `isOK`/`max`/`min`/`label`/`hereAt` which only resolve through it, so stripping
-    it is a plausible route to a tok-side segfault; (d) **category mismatch** (Clay, 2026-07-25) —
-    a macro expands to a block that declares locals and executes `return`, and a statement can
-    never be a term in `A && B`; on this reading §3 was wrong on its own terms and tok is fine.
-    **Tony's sign-off is owed on which, if any** — he is the only one who knows what tok promises.
-    What is NOT in doubt and stands as doctrine regardless: **tok exiting 139 with no diagnostic is
-    a real defect**, and **the fix that worked was to stop using macros for anything beyond
-    `testMacro`'s existing shape.** Split out per bear-trap #19's corollary — reproduction proves
-    the SYMPTOM, never the CAUSE, and this entry was one bad session from hardening a wrong
-    mechanism into doctrine.
+    call and works in the current build. **What stands as doctrine, undiminished by the closure:
+    the three failure modes above, reproduced; tok exiting 139 with no diagnostic is a real
+    defect; and the fix that worked was to stop using macros for anything beyond `testMacro`'s
+    existing shape — write plain `extern` functions instead.** Split out per bear-trap #19's
+    corollary — reproduction proves the SYMPTOM, never the CAUSE, and this entry was one bad
+    session from hardening a wrong mechanism into doctrine.
 
 19. **The "invocation blocker" is an ENVIRONMENT/STALENESS class, not a language class — suspect
     the build state before the language.** Signature: an `extern` registered as an incant command

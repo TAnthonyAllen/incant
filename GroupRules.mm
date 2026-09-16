@@ -3317,6 +3317,7 @@ GroupItem 	*result = 0;
 					result->setToken(lineStart,(int)(buffer->mark - lineStart));
 					buffer->mark = lineStart;
 					}
+				else	::refuse(fromThis,"getLine: no line in the buffer contains the match text");
 			}
 		else	::refuse(fromThis,"getLine: no match field provided");
 	else	::refuse(source,"getLine: no source, or the source is not a buffer");
@@ -3442,11 +3443,14 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 			ruler->currentMETHOD->groupBody->flags.recursive = 1;
 	if ( isGROUP(InvokeArg->groupBody->flags.data) )
 		arg = InvokeArg->getGroup();
+	// an EMPTY () carries nothing and is NOT an argument -- hand on no third operand   ruleActions.handleCall.emptyParens
 	if ( !arg )
-		arg = InvokeArg;
+		if ( InvokeArg->groupBody->groupList || InvokeArg->groupBody->flags.data )
+			arg = InvokeArg;
 	xpress->addAttribute(op);
 	xpress->addAttribute(ANYtoken);
-	xpress->addAttribute(arg);
+	if ( arg )
+		xpress->addAttribute(arg);
 	return 0;
 }
 
@@ -11988,12 +11992,7 @@ extern "C" int setParseMethod(RuleStuff *stuff, char *name)
 extern "C" GroupItem *setParseWalk(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
-	/*  tokenSkip  A MEMBER WITH isRule 0 IS A TOKEN -- MATCHED, NEVER ENTERED. Tony's ruling,
-	2026-09-15, off the parent chains: the sixty refusals this replaces were the members of
-	Operators (52, a REGISTRY) and UnaryOPS (8, a BIN), reached LAWFULLY through the
-	container arm below. An operator token is not a rule and never will be.
-	⚠ THE REFUSAL BELOW IS UNCHANGED AND STAYS LOAD-BEARING: isRule 1 with no rStuff is a
-	WOUND, not a specimen, and refuse() names it.   Generate.setParseWalk.tokenSkip  */
+	//tokenSkip  A MEMBER WITH isRule 0 IS A TOKEN -- MATCHED, NEVER ENTERED.
 	if ( !ruleStuff )
 		{
 		if ( !field->groupBody->flags.isRule )
@@ -12007,20 +12006,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	/***************************************************************************
 	Set the parseMethod
 	***************************************************************************/
-	// walkGuard the grammar is cyclic -- StatemenT contains BlocK contains StatemenT -- so the internalized walk below cannot terminate without its OWN mark. NOT hasNewParse: parkParse is that flag's other writer. It also stops a DAG node being classified twice in one walk, which is what puts parseAction into BOTH gMethod and actionMethod   Generate.setParseWalk.walkGuard
-	/*  silentReEntry  RE-ENTRY IS ROUTINE, NOT AN ERROR. The grammar is a DAG -- shared
-	terms and StatemenT/BlocK -- so a node is legitimately reached twice inside one
-	walk: measured 52 repeat arrivals among 207 visits on incant/pop/trigDO. It used
-	to refuse(), and refuse() raises ruler.refused, which ABORTS THE INCANT ACTION THAT
-	CALLED THE WALK -- that is what left generateParse's printTO redirected (F-62).
-	Return without descending; say so only under debug.   Generate.setParseWalk.silentReEntry  */
-	/*  installedIsDone  AN rStuff CARRYING hasNewParse IS INSTALLED, AND THE WALK LEAVES IT
-	ALONE. Tony's ruling, 2026-09-15. parseWalked guards the grammar CYCLE within one walk;
-	hasNewParse guards PROPAGATION across walks. Two marks, two questions, and conflating
-	them is what let a node be re-entered with POST-install slots and read as pre-install.
-	⚠ MEASURED ON NamE -- three visits of ONE field over ONE rStuff, and the middle column
-	is the defect: visit 1 g=0 hasNewParse=0, visits 2 and 3 g=parseRule hasNewParse=1.
-	Generate.setParseWalk.installedIsDone  */
+	// walkGuard the grammar is cyclic so parseWalked gets set
+	// silentReEntry  RE-ENTRY IS ROUTINE, NOT AN ERROR.
+	// installedIsDone  AN rStuff CARRYING hasNewParse IS INSTALLED, AND THE WALK LEAVES IT ALONE.
 	if ( field->groupBody->flags.hasNewParse )
 		{
 		if ( GroupControl::groupController->groupRules->debugAllRules )
@@ -12034,14 +12022,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		return 0;
 		}
 	field->groupBody->flags.parseWalked = 1;
-	/*  actionMethodRemoved  THE WALK WRITES gMethod AND parseMethod, AND NOTHING ELSE. Tony's
-	ruling, 2026-09-15. `actionMethod = method;` stood here from 5f24cf3 and is REMOVED,
-	not replaced: actionMethod is set at DEFINITION -- setActionMethod publishes
-	builtinActoR and fireLabelMethod stamps it -- and the walk never touches it.
-	⚠ IT DID NOT SNAPSHOT THE ACTION, IT ERASED IT: on NamE's first visit gMethod was 0
-	and actionMethod held the real action, so the line wrote NULL over it. On the later
-	visits gMethod held parseRule, and copying THAT into the action slot is the unbounded
-	recursion.   Generate.setParseWalk.actionMethodRemoved  */
+	//  actionMethodRemoved  THE WALK WRITES gMethod AND parseMethod, AND NOTHING ELSE.
 	if ( upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo) )
 		ruleStuff->parseMethod = ::parseUpTo;
 	else
@@ -12233,27 +12214,34 @@ extern "C" int statementMatches(GroupItem *a, GroupItem *b)
 extern "C" GroupItem *stopParsingInput(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		bailing = 0;
+	// which verb, and which node the empty () handed back   measure.measureStopCaller
+	::measureStopCaller(input);
+	// bail LEAVES THE FILE, stop LEAVES THE PROCESS -- never exit(0) on a bail   Commands.stopParsingInput.twoVerbs
+	if ( input )
+		if ( ::compare(input->groupBody->tag,"bail") == 0 )
+			bailing = 1;
+	/*  THE DIVERT IS THE THING bail ENDS, so it is the OUTER question -- a bail with
+	no file to leave has nothing to do and falls through to stop's road rather
+	than half-popping. NUL the mark BEFORE the pop: after it, atRuleMark is the
+	PARENT's and truncating there would end the includer instead.
+	Commands.stopParsingInput.twoVerbs  */
 	if ( ruler->inputDiverted )
 		{
 		ruler->popInput();
 		::printf("\nstop: ending input divert\n");
 		}
-	*ruler->atRuleMark = 0;
-	ruler->endParse = 1;
-	::printf("\nstop: end parsing\n");
-	/*  ⚠ THE CENSUS FIRES AT COMPLETION, NOT AT THE REFUSAL, and that is the
-	whole of Tony's ruling: F-17e's full sweep is preserved -- all 42
-	refusals report as 42 -- and only then does the run refuse to call
-	itself successful. Exiting at the first refusal would report one.
-	
-	SILENT WHEN THE ROAD WAS NEVER TRAVELLED. A run that never called
-	compile has no compile census, so nothing prints and no baseline
-	moves. That is not a gate on the assertion; it is the difference
-	between a zero and an absence.  */
-	
-	::reportCompileCensus();
-	
-	::exit(0);
+	if ( !bailing )
+		{
+		*ruler->atRuleMark = 0;
+		ruler->endParse = 1;
+		::printf("\nstop: end parsing\n");
+		// stopRefusalHandling census fires at completion not at refusal
+		
+		::reportCompileCensus();
+		
+		::exit(0);
+		}
 	return input;
 }
 

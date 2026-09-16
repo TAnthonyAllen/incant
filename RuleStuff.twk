@@ -1,7 +1,7 @@
 
 include groupIncludes
 
-/*******************************************************************************
+/********************************************************************************
 	RuleStuff is used to stash data used by the parse
 
     parentLabel (genParseShape S1.2) -- the `into` a generated parse method
@@ -80,7 +80,7 @@ include groupIncludes
     in-process and costs a compile, so compile-on-first-fire is the ruling
     (Clay SEQ 27 v2). The prohibition and this divergence are about two
     different costs, not two readings of one rule.
-*******************************************************************************/
+********************************************************************************/
 class RuleStuff
 {
 String      ruleName;       // for debugging
@@ -122,9 +122,9 @@ boolean
     sukcess
     ;
 
-/*******************************************************************************
+/********************************************************************************
 	RuleStuff constructors.
-*******************************************************************************/
+********************************************************************************/
 RuleStuff(GroupItem grup)
 {
     rule        = grup;
@@ -147,9 +147,9 @@ RuleStuff(RuleStuff r)
     parentStuff = null;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	checkGuard returns true if rule is unGuarded or input pointer is in guardSet
-*******************************************************************************/
+********************************************************************************/
 int checkGuard(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -160,10 +160,10 @@ GroupRules  ruler = groupRules;
     return false;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	checkInput sets hereAt and atRuleMark, handles input diversion, and returns
     true if current input is valid. Called by GroupItem match()
-*******************************************************************************/
+********************************************************************************/
 int checkInput()
 {
 GroupRules  ruler = groupRules;
@@ -174,15 +174,15 @@ GroupItem   field = rule;
         goto checkFailed; }
     if *atRuleMark
         if !noSkip && skipSet.contains(*atRuleMark) atRuleMark = checkSkip(atRuleMark);
-    /***************************************************************************
+    /****************************************************************************
         Check for end of input
-    ***************************************************************************/
+    ****************************************************************************/
     if *atRuleMark
         if !noSkip && skipSet.contains(*atRuleMark) atRuleMark = checkSkip(atRuleMark);
     if !*atRuleMark     goto checkFailed;
-    /***************************************************************************
+    /****************************************************************************
         Check the rule guard if there is one
-    ***************************************************************************/
+    ****************************************************************************/
     hereAt  = atRuleMark;
     if guardOK {
         guardOK = false;
@@ -193,9 +193,9 @@ GroupItem   field = rule;
         if unGuarded        sukcess = true;
         or guarded && guardSet.contains(*atRuleMark) sukcess = true;
         else    guardFAIL   = true; }
-    /***************************************************************************
+    /****************************************************************************
         Set the label
-    ***************************************************************************/
+    ****************************************************************************/
     if sukcess
         if noLabel || (hasMembers && !binType)   label = 0;
         else {
@@ -204,9 +204,7 @@ GroupItem   field = rule;
                 label.isLabel   = true; }
             else label.fLAG     = false;
             if !label.rStuff || ruleName ne tag label.setRStuff(this);
-            // enclosingActivation this write hands the label UP to the enclosing rule's stuff,
-            // enclosingActivation and a TOP-LEVEL rule's parent is the REGISTRY, which lawfully has
-            // enclosingActivation none -- so refuse by name rather than dereference a null
+            // enclosingActivation
             if hasNewParse && isMember {
                 if parent && parent.rStuff  parent.rStuff.label = label;
                 else    refuse(field,"checkInput: no enclosing activation to take the label"); } }
@@ -214,10 +212,10 @@ checkFailed:
     return sukcess;
 }
 
-/*****************************************************************************
+/******************************************************************************
     Return the member following this group in the parent list
     Called by getWhatFollows() in RuleStuff
-*****************************************************************************/
+******************************************************************************/
 GroupItem followingMember()
 {
     if parent
@@ -230,9 +228,9 @@ GroupItem followingMember()
     return null;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Sets the fields of RuleStuff.
-*******************************************************************************/
+********************************************************************************/
 void getWhatFollows()
 {
 GroupItem   grup;
@@ -254,9 +252,9 @@ use rule
     if !testMatch   setTestMatch();
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Set testMatch
-*******************************************************************************/
+********************************************************************************/
 void setTestMatch()
 {
     if upTo || upToOver     testMatch = testUpTo;
@@ -278,10 +276,10 @@ void setTestMatch()
 }
 }
 
-/*******************************************************************************
+/********************************************************************************
 	This sets the data of rule to the value of a previously processed label
     with the same name as rule
-*******************************************************************************/
+********************************************************************************/
 extern int setMacroValue(GroupItem field)
 {
 RuleStuff   ruleStuff = rStuff;
@@ -298,7 +296,7 @@ GroupItem   ancestor;
     return false;
 }
 
-/*******************************************************************************
+/********************************************************************************
     ⚠ THE LIMIT TEST MOVED TO THE TOP OF THE LOOP, 2026-08-19, and the move is
     what makes the ceiling REPORTABLE. Written as `if !*atRuleMark || counter >=
     max break;` at the foot, the two exits are indistinguishable afterwards: a
@@ -317,7 +315,7 @@ GroupItem   ancestor;
     tester is still used EXACTLY ONCE. That is deliberate: bear-trap #18 says
     tok's macro facility is only trusted in the shape it already ships in, and a
     twice-substituted parameter is not that shape.
-*******************************************************************************/
+********************************************************************************/
 #testMacro(tester)-
 int         counter;
 int         more;
@@ -338,27 +336,27 @@ RuleStuff   ruleStuff = rStuff;
     if isOK return true;
     return  false;-
 
-/*******************************************************************************
+/********************************************************************************
 	Run a wild card test on this group against current input
-*******************************************************************************/
+********************************************************************************/
 extern int testAny(GroupItem field)
 {
 use field
 testMacro(*atRuleMark);
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Run a character test on this group against current input
-*******************************************************************************/
+********************************************************************************/
 extern int testCharacter(GroupItem field)
 {
 use field
 testMacro(*atRuleMark == character);
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Run a character set test on this group against current input
-*******************************************************************************/
+********************************************************************************/
 extern int testSet(GroupItem field)
 {
 use field
@@ -366,9 +364,9 @@ PLGset  set = characterSet;
 testMacro(set.contains(*atRuleMark));
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Process a parseAction
-*******************************************************************************/
+********************************************************************************/
 extern int testAction(GroupItem field)
 {
     /*  installedIsTheParse  AN INSTALLED rStuff IS CALLED THROUGH ITS LEAF. Tony's ruling,
@@ -392,9 +390,9 @@ extern int testAction(GroupItem field)
     return  false;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Parse field attributes and return true if they all succeed
-*******************************************************************************/
+********************************************************************************/
 extern int testAttributes(RuleStuff stuff)
 {
 GroupItem   grup;
@@ -408,9 +406,9 @@ int         result = true;
     return  result;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Process a condition
-*******************************************************************************/
+********************************************************************************/
 extern int testCondition(GroupItem field)
 {
 RuleStuff   ruleStuff = field.rStuff;
@@ -418,7 +416,7 @@ RuleStuff   ruleStuff = field.rStuff;
     return  false;
 }
 
-/*******************************************************************************
+/********************************************************************************
     Registry and Container test looks for an entry that matches the input stream.
 
     LONGEST-ENTRY MATCH (Tony's finding and ruling, 2026-08-02). The greedy
@@ -438,7 +436,7 @@ RuleStuff   ruleStuff = field.rStuff;
 
     Same disease class as the ShortcuT `+`-merge that sank `,` as the string
     opener (2026-07-31): set-based character grouping making token decisions.
-*******************************************************************************/
+********************************************************************************/
 extern int testContainer(GroupItem field)
 {
 GroupItem   grup;
@@ -462,9 +460,9 @@ Buffer      buffer  = stringBUFFER;
     return false;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Process the first field member that passes its guard
-*******************************************************************************/
+********************************************************************************/
 extern int testOptions(RuleStuff stuff)
 {
 GroupItem   grup;
@@ -475,9 +473,9 @@ GroupItem   grup;
     return  false;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Run a string test on this group against current input
-*******************************************************************************/
+********************************************************************************/
 extern int testString(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -490,13 +488,13 @@ String      matchedString = rule.matches(atRuleMark);
     return false;
 }
     
-/***************************************************************************
+/****************************************************************************
 	Capture input until it gets a match. It returns a token and the input
     stream is left pointing at the match if upTo or after the match if upToOver.
     If the current rule is a set, the set is matched against.
     If the current rule isSTRING its text is matched against. Otherwise
     the default match is against a comma.
-***************************************************************************/
+****************************************************************************/
 extern int testUpTo(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -519,9 +517,9 @@ use field
         skipping = true; }
     grup = 0;
     while counter-- {
-        /*******************************************************************
+        /********************************************************************
             Advance atText until the rule matches
-        *******************************************************************/
+        ********************************************************************/
         for (; *atText; atText++ lngth++) {
             if isSET && characterSet.contains(*atText)  matched++;
             or matchLength == 1 {
@@ -540,9 +538,9 @@ use field
             lngth   += matchLength;
             if counter > 0  continue;
             else atRuleMark  += lngth; }
-        /*******************************************************************
+        /********************************************************************
             If succeeds, update rule label and advance atRuleMark
-        *******************************************************************/
+        ********************************************************************/
         if matched {
             if lngth {
                 if label {
@@ -554,14 +552,14 @@ use field
     return false;
 }
 
-/*******************************************************************************
+/********************************************************************************
     genParse Step 1/2 prototype (docs/genParseSpec.md S3/S5): hand-written
     support library + the seven JSONblock methods + entry wrapper. No tok
     macros -- every primitive below is a real function, so &&/|| composition
     works natively.
-*******************************************************************************/
+********************************************************************************/
 
-/*******************************************************************************
+/********************************************************************************
     Match a literal string at atRuleMark (skip-set pass first). No label --
     for "-"/noLabel attribute terms (JSONblock's "{"-/"}"-,  JSONfield's ":"-,
     JSONitem's ","?-).
@@ -571,7 +569,7 @@ use field
     (`lit(t1,"{")`), which is what gives every leaf frame its own identity: a
     breakpoint in here during parseJSONfield can now tell the ":" match from
     the "," one, which is the question a debugger frame usually needs answered.
-*******************************************************************************/
+********************************************************************************/
 extern int lit(GroupItem field, String str)
 {
 GroupRules  ruler = groupRules;
@@ -587,7 +585,7 @@ String      atText, matchStr;
     return true;
 }
 
-/*******************************************************************************
+/********************************************************************************
     containerTo — CT, 2026-08-07. The generated arm's spelling of a CONTAINER
     term, and the support-library twin of testContainer.
 
@@ -617,8 +615,8 @@ String      atText, matchStr;
     NOTE, and it is a sibling gap rather than this one: `litTo` -- the labelled
     LITERAL spelling -- still has no implementation (genParse.rtn's own latent
     note). CT adds the labelled CONTAINER road and does not pave the literal one.
-*******************************************************************************/
-/*******************************************************************************
+********************************************************************************/
+/********************************************************************************
     ctProbe -- MEASUREMENT SCAFFOLD, rule-ladder rung two, 2026-08-24.
 
     containerTo is emitted-but-never-executed: its only caller is genParse's
@@ -630,8 +628,8 @@ String      atText, matchStr;
 
     ⚠ TEMPORARY. Remove with its groups.ext declaration once the answer is
     banked; it exists to make one ruling checkable, not to ship.
-*******************************************************************************/
-/*******************************************************************************
+********************************************************************************/
+/********************************************************************************
     litTo -- THE LABELLED LITERAL. `lit`'s twin, and genParse ladder rung 3.
 
     Emitted as  litTo(t0,label,"break","break")  by emitLeaf's LITTO case, so
@@ -660,7 +658,7 @@ String      atText, matchStr;
     the rule's own tag IS the token it matches) the two answers coincide. That
     is a coincidence of VALUES, not a special case in the code, and no branch
     here tests for it.
-*******************************************************************************/
+********************************************************************************/
 extern int litTo(GroupItem field, GroupItem into, String str, String slot)
 {
 GroupRules  ruler = groupRules;
@@ -721,14 +719,14 @@ Buffer      buffer  = stringBUFFER;
     return false;
 }
 
-/*******************************************************************************
+/********************************************************************************
     Match a literal string as an alternation MEMBER (JSONtoken's "false"/
     "true"). A plain literal member is not noLabel, so on success this
     creates a label tagged with the literal text and attaches it into `into`
     directly -- leaveAlt is label-transparent by design, so literal options
     must attach themselves (rule-reference options attach via their own
     leaveRule against the same `into`).
-*******************************************************************************/
+********************************************************************************/
 extern int litOption(GroupItem field, GroupItem into, String str)
 {
 GroupRules  ruler = groupRules;
@@ -746,11 +744,11 @@ String      atText, matchStr;
     return true;
 }
 
-/*******************************************************************************
+/********************************************************************************
     True if ch is one of the characters in chars -- a guard test for baked
     guard sets. PLGset stays the default for larger sets (banked, S5.2); this
     covers the single/small-explicit-set cases in the JSONblock family.
-*******************************************************************************/
+********************************************************************************/
 extern int inGuard(GroupItem field, String chars, char ch)
 {
     while *chars
@@ -759,7 +757,7 @@ extern int inGuard(GroupItem field, String chars, char ch)
     return false;
 }
 
-/*******************************************************************************
+/********************************************************************************
     Sequence exit -- Invariant R lives here and in leaveAlt, nowhere else.
     On success: attach label into `into`'s list, return the label. On failure:
     rewind atRuleMark to `from`, return null (label is simply not attached;
@@ -788,7 +786,7 @@ extern int inGuard(GroupItem field, String chars, char ch)
     Note the rewind is unconditional, so R cannot be "violated" here -- what
     the report carries is whether the rewind had ground to give back, which is
     the thing runScaf actually measured. Gate: GroupRules.parseTrace.
-*******************************************************************************/
+********************************************************************************/
 extern GroupItem leaveRule(GroupItem rule, GroupItem into, GroupItem label, String from, int ok)
 {
 GroupRules  ruler = groupRules;
@@ -811,7 +809,7 @@ String      at = atRuleMark;
     return null;
 }
 
-/*******************************************************************************
+/********************************************************************************
     Alternation exit. No label of its own (S2.4) -- the winning option has
     already attached (rule-reference options attach via their own leaveRule
     against the same `into`; literal options attach via litOption). Only
@@ -821,7 +819,7 @@ String      at = atRuleMark;
     skip pass to atRuleMark BEFORE matching, so a failing lit returns false
     with the mark advanced. Until that is made non-destructive, leaveAlt
     cannot drop to (rule, ok).
-*******************************************************************************/
+********************************************************************************/
 extern GroupItem leaveAlt(GroupItem rule, String from, int ok)
 {
 GroupRules  ruler = groupRules;
@@ -844,7 +842,7 @@ String      at = atRuleMark;
     return null;
 }
 
-/*******************************************************************************
+/********************************************************************************
     parseR (genParseShape S1.6) -- the set-then-call primitive for a term that
     references another rule. Two jobs the emitted `&&` chain cannot do itself:
 
@@ -885,7 +883,7 @@ String      at = atRuleMark;
     (S1.6's whole justification) needs an answer to that before rung 4, which
     is the first cross-method call. It does not bite rungs 1-2: Scaf/Scaf2 have
     no rule-reference terms.
-*******************************************************************************/
+********************************************************************************/
 extern GroupItem parseR(GroupItem term, GroupItem into)
 {
 GroupRules  ruler = groupRules;
@@ -919,12 +917,12 @@ GroupItem   got;
     return got;
 }
 
-/*******************************************************************************
+/********************************************************************************
     Generated per-term iteration helper for JSONblock's `JSONfield*` (min 0).
     Same treatment S5.2 already gives character-level accumulators, extended
     to group-reference iteration -- one small function per loop site rather
     than a reusable macro (S2.5).
-*******************************************************************************/
+********************************************************************************/
 extern int manyJSONblockFields(GroupItem label, GroupItem term)
 {
 GroupRules  ruler = groupRules;
@@ -936,9 +934,9 @@ int         kount;
     return false;
 }
 
-/*******************************************************************************
+/********************************************************************************
     Generated per-term iteration helper for JSONlist's `JSONitem+` (min 1).
-*******************************************************************************/
+********************************************************************************/
 extern int manyJSONlistItems(GroupItem label, GroupItem term)
 {
 GroupRules  ruler = groupRules;
@@ -950,9 +948,9 @@ int         kount;
     return false;
 }
 
-/*******************************************************************************
+/********************************************************************************
     JSONblock isRule fail "{"- JSONfield* "}"-;
-*******************************************************************************/
+********************************************************************************/
 extern GroupItem parseJSONblock(GroupItem rule)
 {
 GroupItem   into  = rule.rStuff.parentLabel;
@@ -967,7 +965,7 @@ int         ok;
     return leaveRule(rule,into,label,from,ok);
 }
 
-/*******************************************************************************
+/********************************************************************************
     JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={
         token <: JSONtoken; token = JSONvalue; return token; };
 
@@ -984,7 +982,7 @@ int         ok;
     exact bug (the action received two children both tagged "GrouP" and
     could find neither "JSONtoken" nor "JSONvalue", so it silently returned
     null and the whole field's content was discarded).
-*******************************************************************************/
+********************************************************************************/
 extern GroupItem parseJSONfield(GroupItem rule)
 {
 GroupItem   into  = rule.rStuff.parentLabel;
@@ -1009,9 +1007,9 @@ int         ok;
     return leaveRule(rule,into,label,from, ok && label );
 }
 
-/*******************************************************************************
+/********************************************************************************
     JSONvalue isRule JSONblock; JSONarray; JSONtoken;
-*******************************************************************************/
+********************************************************************************/
 extern GroupItem parseJSONvalue(GroupItem rule)
 {
 GroupItem   into = rule.rStuff.parentLabel;
@@ -1026,9 +1024,9 @@ String      from = atRuleMark;
              || parseR(t3,into) );
 }
 
-/*******************************************************************************
+/********************************************************************************
     JSONtoken isRule JSONblock; "false"; "true"; GrouP; NumbeR;
-*******************************************************************************/
+********************************************************************************/
 extern GroupItem parseJSONtoken(GroupItem rule)
 {
 GroupItem   into = rule.rStuff.parentLabel;
@@ -1047,7 +1045,7 @@ String      from = atRuleMark;
              || parseR(t5,into) );
 }
 
-/*******************************************************************************
+/********************************************************************************
     Bridge to the GENERIC driver for rules genParse hasn't converted yet
     (GrouP, NumbeR -- pre-existing bootstrap rules, out of scope for this
     prototype). Builds a throwaway RuleStuff whose .label IS `into`, so
@@ -1055,7 +1053,7 @@ String      from = atRuleMark;
     where a converted callee's leaveRule/leaveAlt would have. Generated
     methods and the generic driver coexist rule by rule (S0) -- this is the
     seam.
-*******************************************************************************/
+********************************************************************************/
 extern GroupItem parseGeneric(GroupItem into, String ruleName)
 {
 GroupItem   rule = locate(ruleName);
@@ -1064,13 +1062,13 @@ RuleStuff   bridge = new(rule);
     return rule.parse(bridge);
 }
 
-/*******************************************************************************
+/********************************************************************************
     JSONitem isRule JSONtoken@ ","?-;
     @ (isTarget/promote): the child's label becomes JSONitem's own result,
     retagged. No fresh label of its own and no leaveRule call -- JSONtoken's
     own leaveAlt/leaveRule already rewinds on failure (Invariant R), so
     promotion needs nothing extra on the failure path.
-*******************************************************************************/
+********************************************************************************/
 extern GroupItem parseJSONitem(GroupItem rule)
 {
 GroupItem   into = rule.rStuff.parentLabel;
@@ -1083,9 +1081,9 @@ GroupRules  ruler = groupRules;
     return trueResult;
 }
 
-/*******************************************************************************
+/********************************************************************************
     JSONlist isRule JSONitem+;
-*******************************************************************************/
+********************************************************************************/
 extern GroupItem parseJSONlist(GroupItem rule)
 {
 GroupItem   into  = rule.rStuff.parentLabel;
@@ -1095,10 +1093,10 @@ String      from  = atRuleMark;
     return leaveRule(rule,into,label,from, manyJSONlistItems(label,rule[1]) );
 }
 
-/*******************************************************************************
+/********************************************************************************
     JSONarray isRule "["- JSONlist? "]"- code={
         if JSONlist; for grup in JSONlist; grup <: grup; };
-*******************************************************************************/
+********************************************************************************/
 extern GroupItem parseJSONarray(GroupItem rule)
 {
 GroupItem   into  = rule.rStuff.parentLabel;
@@ -1116,7 +1114,7 @@ int         ok;
     return leaveRule(rule,into,label,from, ok && label );
 }
 
-/*******************************************************************************
+/********************************************************************************
     runJSONblock (the incant-callable entry wrapper, genParseSpec S5.3) lives
     in Commands.rtn, not here -- Clay's structural hypothesis (2026-07-25):
     no incant-callable command has ever lived in a standalone class file like
@@ -1125,4 +1123,4 @@ int         ok;
     here) suggests the immediateAction binding mechanism only resolves names
     against GroupRules' own extern space. parseJSONblock/etc. above stay here
     and are called normally as ordinary cross-file C++ from Commands.rtn.
-*******************************************************************************/
+********************************************************************************/
