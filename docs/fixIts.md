@@ -63,6 +63,53 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-85 — `parser(list)` never reaches `list`; station 4's premise is not demonstrated
+**STATION 4 IS BLOCKED ON THIS, and the blocker is one line of `parser`.** Nothing was landed.
+
+**`parser` resolves its root as `Grokking[argument.taG]`** — a single registry, and `.taG` read off
+the argument **holder**. Measured by what `generateParse` announces:
+
+| call | generates for |
+|---|---|
+| `parser(Search)` | `Search`, `search`, `followedBy`, `GrouP` — correct, and it is the control |
+| **`parser(list)`** | **`argument`** — bear-trap #26's tag echo. It never reaches `list`. |
+
+**⚠ SO MY OWN "CONFIRMED COLLISION" IS WITHDRAWN.** I measured that `list`'s action fires before
+`parser(list)` and not after, and recorded that as *"generateParse destroys the action body: two
+bodies, one slot."* **The mechanism is wrong** — `generateParse` never sees `list` at all. Something
+else stops the action after a `parser(list)` that ran on the holder, and what that is has not been
+diagnosed. **The two-bodies collision Clay named may well be real; it is simply NOT what that
+measurement showed**, and building `builtinParseR` on it would have been building on a premise
+whose evidence pointed elsewhere.
+
+**⚠ AND THE REGISTRY QUESTION COULD NOT BE ANSWERED — TWO PROBES WENT VOID, REPORTED NOT GRADED.**
+Asking "is `list` in Grokking or UnitTests" needs an existence test, and neither spelling worked
+here: `gk := Grokking["list"]; if gk; … else …` printed **both arms** of every if/else, and the
+direct form `if Grokking["zzzNotARule"];` — the deliberate **miss control** — **fired**. A run
+where the miss control passes answers nothing about the hits beside it. Bear-trap #35 says the
+direct subscript reads 0 on a miss; **it did not here**, and that disagreement is itself a finding
+nobody has chased.
+**Done when:** `parser(X)` reaches a rule that is not a `Grokking` member, so `list` can be the
+spec it was chosen to be. **Grade:** CONFIRMED for the blocker (announced output, with a working
+control); OPEN for why the action stops. **Owner:** unassigned.
+
+### F-86 — KANT-40 in anger: a `}` inside a comment in a `code={ }` body ends the body
+**Reproduced 2026-09-17 with a three-arm A/B**, in `IncantForms/WorkingOn/parser` — which is
+checkSKIP's own subject, so the trap fired in the file written to retire it.
+
+| comment inserted in a `code={ }` body | result |
+|---|---|
+| plain prose, no braces | fine |
+| text containing `code={...}` | **breaks** — 2 × `RunRulE`, no sentinel |
+| text containing a lone `}` | **breaks** — identical |
+
+**So it is the brace, not the comment.** The body ends at the `}` inside the comment and the
+remainder parses as garbage. ⚠ **And the error names the file's FIRST entry**, never the comment —
+bear-trap #32's misdirection, which is why the cost is a bisect rather than a glance.
+**This is the worked example for `docs/checkSKIP.md`'s claim that the skip primitive "retires
+KANT-40 by construction."** Until it lands: **no `{` or `}` in a comment inside an action body.**
+**Grade:** CONFIRMED, three arms. **Owner:** unassigned — it is checkSKIP's to close.
+
 ### F-84 — ✅ CLOSED 2026-09-17 — `utilities` includes `parser`; the fixtures were FROZEN COPIES, not callers
 **⚠ THIS ROW'S OWN DIAGNOSIS WAS WRONG IN TWO PLACES AND BOTH ARE CORRECTED HERE.**
 
