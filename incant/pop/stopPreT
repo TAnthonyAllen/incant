@@ -1,35 +1,22 @@
-/*  stopPreT -- THE PARSE-DEAD GUARANTEE HAS A PRECONDITION, AND THIS IS IT.
-    Built 2026-09-17 for fixIts F-78, on Tony's ruling.
+/*  stopPreT -- stop() WORKS WITH A REFUSAL STANDING. Tony's ruling, 2026-09-17:
+    A REFUSAL'S SCOPE IS THE STATEMENT, and stop() works as intended, always.
 
-    "Everything below stop() is parse-dead and therefore unconstrained" is ratified
-    doctrine (Addendum 2, Tony 2026-08-20) and every fixit citizen's explanation prose
-    rests on it. ⚠ IT HOLDS ONLY WHILE NO REFUSAL IS OUTSTANDING.
-
-    MEASURED, three instruments agreeing:
-      an action call after a refusal DOES NOT RUN     -- a noop spliced into trigDO ran
-                                                         when called BEFORE the refusal
-                                                         and not when called after
-      stopParsingInput IS NEVER ENTERED               -- its own measureStopCaller callout
-                                                         fires once in a clean run and
-                                                         ZERO times with a refusal standing
-      plain statements KEEP RUNNING                   -- SP-1 and SP-2 both print
-    ⚠ SO stop() IS NOT DEFECTIVE. Its body carries no refused guard and works perfectly
-    when reached. It is never reached: an outstanding refusal silences ACTION AND COMMAND
-    DISPATCH, and stop() is a command. More gets parsed, not less.
+    ⚠ THIS FILE WAS BUILT THE DAY BEFORE TO PIN THE OPPOSITE, AND SAYS SO RATHER THAN
+    BEING QUIETLY REWRITTEN. SP-2 used to be a red-shaped pin -- a statement BELOW stop()
+    that ran, because an outstanding refusal silenced command dispatch and stop() was
+    never entered. The statement boundary retired that behaviour, so SP-2 flips to
+    asserting its own ABSENCE, paired with the positive fact that makes the absence
+    readable: `stop: end parsing`. docs/refusalScope.md carries the argument.
 
     THE ROWS
-      SP-1  a plain statement after the refusal still runs -- the refusal is NOT a halt
-      SP-2  ⚠ THE FINDING: a statement BELOW stop() runs, because stop() never fired
-      SP-3  the refusal itself, by message
-      SP-4  the abandonment line, by message
-    ⚠ SP-2 IS PINNED AS THE WRONG BEHAVIOUR ON PURPOSE (H7's other half). It is not a
-    green claim that this is right -- it is a pin so that the day stop() starts stopping,
-    something says so. Its header says that in terms.
-    ⚠ AND SP-1 IS SP-2'S ANTI-VACUITY SIBLING: without it, SP-2 could pass on a run where
-    everything after the refusal ran for some unrelated reason. SP-1 says execution
-    continued; SP-2 says it continued PAST A STOP.
-    There is no sentinel and no reachable stop(): the ABANDONED line is the terminal
-    marker, emitted from main after the parse returns, and a truncation cannot fake it.  */
+      SP-1  a plain statement after the refusal still runs -- a refusal is not a halt,
+            it is scoped to its statement. ⚠ This is also SP-2's ANTI-VACUITY SIBLING:
+            without it, SP-2's absence could be a file that simply died early.
+      SP-2  the statement below stop() does NOT run  -- pinned as a COUNT of 0
+      SP-3  `stop: end parsing` -- THE POSITIVE FACT. An absence alone asserts nothing;
+            this is what says the stop actually fired rather than the file ending.
+      SP-4  the refusal itself, by message -- without it the whole fixture is vacuous,
+            because a run with no refusal would pass every row above trivially.  */
 Start();
 include(unitTests);
 include(utilities);

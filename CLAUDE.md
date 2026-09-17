@@ -1317,27 +1317,6 @@ a block below `stop();` carrying an unmatched `{`, bare `:=`/`<-`/`&&`, an unter
 literal, an unclosed `/*`, a stray `%-` and a fake `code={ }` ran clean at exit 0 with the live
 region intact.
 
-⚠⚠ **AND THE GUARANTEE HAS A PRECONDITION. IT HOLDS ONLY WHILE NO REFUSAL IS OUTSTANDING.
-Measured 2026-09-17 (F-78), written down on Tony's ruling because a guarantee with an unwritten
-precondition is the shape this project keeps paying for.**
-
-**An outstanding refusal silences ACTION AND COMMAND DISPATCH — and `stop()` is a command.** So it
-is never entered, the parse does not terminate, and **the region below it is parsed as ordinary
-source.** `incant/pop/trigDO` sat that way with 425 lines of prose under its `stop()`, reporting
-`RunRulE: expected a method not THE / NEW / PARSE / FIRES` — words out of that prose — at exit 0.
-
-⚠ **`stop()` IS NOT DEFECTIVE AND THAT IS THE RULING'S ANSWER.** `stopParsingInput` carries **no
-refused guard at all** and works perfectly when reached. It is never reached. **Three instruments
-agree:** an action call spliced into trigDO ran when placed BEFORE the refusal and **not** after;
-`stopParsingInput`'s own `measureStopCaller` callout fires **once** in a clean run and **zero**
-times with a refusal standing; and plain statements keep running throughout.
-
-⚠ **SO THE FAILURE IS THE OPPOSITE OF WHAT "PARSE-DEAD" PROTECTS AGAINST — MORE GETS PARSED, NOT
-LESS**, and the hostile-text probe above becomes an active hazard rather than a curiosity: every
-unmatched brace and unterminated literal in a dead region is live source the moment a refusal is
-standing. **`incant/pop/stopPreT` pins it in thirteen lines**, with SP-2 pinned red-shaped on
-purpose so the day `stop()` starts stopping, something says so.
-
 **This retires the header comment for fixit files, and the reason is bear-trap #27:** a fixture's
 comment header is *not inert* — `incant/jitXnest`'s header killed its parse at exit 138 with zero
 bytes of output. A dead region cannot do that. **`ANCHOR` and `SENTINEL` lines stay ABOVE the stop**

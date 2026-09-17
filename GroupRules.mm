@@ -519,7 +519,7 @@ GroupItem 	*item = 0;
 		reportDefineRemoved(NewGroup,ruler->currentRegistry);
 		if ( ruler->currentRegistry )
 			ruler->currentRegistry->remove(NewGroup->groupBody->tag);
-		ruler->refused = 0;
+		clearRefusal(NewGroup);
 		}
 	return input;
 }
@@ -1169,12 +1169,22 @@ GroupItem 	*sourceFile = new GroupItem("sourceFile");
 	ruleStuff->sourceLine->addAttribute(sourceFile);
 	if ( !ruler->processingCode )
 		{
-		GroupItem 	*statement = input;
+		/*  ⚠ outcome IS DECLARED FIRST SO `statement` STAYS LAST-MENTIONED -- the bare
+		`isGROUP` and `group` below resolve against whatever was named most recently
+		(bear-trap #42), and a declaration inserted after `statement` would silently
+		re-aim them.  */
+		GroupItem *outcome = input;
+		GroupItem *statement = input;
 		if ( isGROUP(statement->groupBody->flags.data) )
 			statement = statement->getGroup();
 		ruler->lastStatement = statement;
 		if ( statement->groupBody->gMethod )
-			return statement->groupBody->gMethod(statement);
+			outcome = statement->groupBody->gMethod(statement);
+		// statementScope  A REFUSAL'S SCOPE IS THE STATEMENT -- it is cleared HERE, on the
+		// statementScope  way out, whether or not a method ran, because the refusal may have
+		// statementScope  been raised during the MATCH and never reached a method at all
+		clearRefusal(statement);
+		return outcome;
 		}
 	else
 	if ( ruler->generating )
@@ -1822,6 +1832,18 @@ extern "C" GroupItem *cOPY(GroupItem *field)
 {
 GroupItem 	*newField = new GroupItem(field);
 	return newField;
+}
+
+/*  clearRefusal -- A REFUSAL'S SCOPE IS THE STATEMENT. Tony, ruled 2026-09-17.
+    THE SINGLE WRITER of `ruler.refused = 0`, as refuse() is the single writer of the 1.
+    docs/refusalScope.md carries the argument and the three measurements behind it.  */
+extern "C" int clearRefusal(GroupItem *where)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( !ruler->refused )
+		return 0;
+	ruler->refused = 0;
+	return 1;
 }
 
 /*******************************************************************************
@@ -11582,7 +11604,7 @@ exitRunAction:
 	rather than the process.   GroupActions.runAction.refusalArm  */
 	if ( ruler->refused )
 		{
-		ruler->refused = 0;
+		clearRefusal(result);
 		result = 0;
 		}
 	return result;

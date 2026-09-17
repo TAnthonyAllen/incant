@@ -2594,99 +2594,86 @@ else
     grep -E "^DC-[0-9]" "$T/dc.e" | sed 's/^/          /'; fail=1
 fi
 
-#  ---- abandonT: an expression refusal at define time abandons the FILE -------
-#  Built 2026-09-17, fixIts F-76. A refusal is terminal for its action and BREAKS the
-#  enclosing block; the break walks outward, and the two things that CLEAR the flag --
-#  runAction's refusalArm and aCTionDefinE's refusalBoundary -- sit on paths that a
-#  refusal raised from an EXPRESSION during a definition never reaches. Measured with a
-#  probe at aCTionDefinE's tail: arBad (refused from a RULE ACTION) prints refused=1
-#  there and is reported and cleared; abBad/dcBad (refused from an EXPRESSION) produce
-#  NO tail line at all. The boundary is not missed on that path, it is STRUCTURALLY
-#  UNREACHABLE -- so nothing clears the flag and the rest of the file dies at exit 0.
+#  ---- abandonT: A REFUSAL'S SCOPE IS THE STATEMENT ---------------------------
+#  Tony, ruled 2026-09-17. aCTionStatemenT clears ruler.refused on the way out of every
+#  statement, whether or not a method ran, because the refusal may have been raised
+#  during the MATCH and never reached a method. clearRefusal is the SINGLE WRITER of the
+#  0, as refuse() is of the 1, and the define boundary and runAction both route through
+#  it. docs/refusalScope.md carries the argument.
 #
-#  ⚠ THIS FIXTURE TRUNCATES BY DESIGN AND HAS NO REACHABLE stop(). Safe under H5: a
-#  truncating run is not a HANGING run, it exits 0 promptly and cannot hold the suite.
-#  ⚠ AND ITS SENTINEL IS THE `ABANDONED` LINE, which is a better one than a print could
-#  be -- main() emits it AFTER the parse returns, so it is unreachable except through the
-#  end of the run, and a truncation cannot fake it.
-#  ⚠ AB-1 IS PINNED AS A COUNT, NOT AS AN ABSENCE. "the second marker did not run" is an
-#  absence and H4 forbids one; exactly 1 is a value. A 2 means the file was NOT abandoned
-#  and every other row here is measuring nothing.
-run2 abandonT "$T/ab.o" "$T/ab.e"; check "abandonT runs (exit 0 -- abandonment is SILENT to the shell)" 0 $?
+#  ⚠ AB-1's COUNT FLIPPED FROM 1 TO 2 AND THAT IS THE WHOLE ASSERTION. One meant the file
+#  was abandoned at the refusal; two means execution carried straight past it. A 1 here
+#  is the old behaviour returning.
+#  ⚠ AB-5 IS PINNED AT ZERO AND IS NEVER READ ALONE -- a zero is exactly what a REMOVED
+#  reporter produces. AB-4 is its non-zero sibling. And the honest state of that reporter
+#  is RECORDED, not asserted: reportRunAbandoned has NO REACHABLE CASE LEFT, five shapes
+#  tried, every one cleared at a statement boundary with refused=0 at main's tail.
+#  ⚠ THE FIXTURE DELIBERATELY USES A BARE STATEMENT, NOT A DEFINE. A refusal inside a
+#  define still truncates -- and that is NOT the flag: with the boundary in place the run
+#  reaches main reading refused=0 and truncates anyway, so it is the failed MATCH
+#  abandoning the parse. Using a define here would measure that instead.
+run2 abandonT "$T/ab.o" "$T/ab.e"; check "abandonT runs" 0 $?
 _abn=$(grep -c "^AB-1 marker ran" "$T/ab.e")
-if [ "$_abn" = 1 ]; then
-    echo "  ok    abandonT AB-1 ran EXACTLY ONCE -- the file stopped at the bad define"; green=$((green+1))
+if [ "$_abn" = 2 ]; then
+    echo "  ok    abandonT AB-1 ran TWICE -- the refusal is scoped to its statement"; green=$((green+1))
 else
-    echo "  FAIL  abandonT AB-1 ran $_abn times, want exactly 1 -- 2 means the run was NOT"
-    echo "        abandoned and the other two rows assert nothing"; fail=1
+    echo "  FAIL  abandonT AB-1 ran $_abn times, want exactly 2 -- a 1 means the refusal"
+    echo "        escaped its statement again and the file was abandoned"; fail=1
 fi
-if grep -qF "REFUSED . -- unary deref on the right of a dot is never seen by opDot" "$T/ab.e"; then
-    echo "  ok    abandonT AB-2 the expression refused, by message"; green=$((green+1))
+if grep -qF "AB-2 a plain statement after the refusal RAN" "$T/ab.e"; then
+    echo "  ok    abandonT AB-2 a plain statement after the refusal RAN"; green=$((green+1))
 else
-    echo "  FAIL  abandonT AB-2 no refusal -- the F-72 seat is gone"; fail=1
+    echo "  FAIL  abandonT AB-2 did not run -- execution did not survive the refusal"; fail=1
 fi
-if grep -qF "ABANDONED incant/pop/abandonT -- the run ended with a refusal outstanding" "$T/ab.e"; then
-    echo "  ok    abandonT AB-3 THE ABANDONMENT IS NAMED, with the file -- not silent at exit 0"; green=$((green+1))
+if grep -qF "REFUSED . -- unary deref on the right of a dot" "$T/ab.e"; then
+    echo "  ok    abandonT AB-3 the refusal fired -- without it AB-1 and AB-2 are vacuous"; green=$((green+1))
 else
-    echo "  FAIL  abandonT AB-3 the file was abandoned SILENTLY. Actual:"
-    grep -F "ABANDONED" "$T/ab.e" | sed 's/^/          /'; fail=1
+    echo "  FAIL  abandonT AB-3 NO REFUSAL -- every row above passes trivially now"; fail=1
 fi
-#  ⚠ THE DISCRIMINATOR, and without it AB-3 could pass on a line that always prints:
-#  a refusal that IS properly bounded must NOT produce it. argRetiredT refuses from a
-#  rule action, is caught by refusalBoundary, and reaches its own sentinel -- so a zero
-#  here says AB-3 is about ABANDONMENT and not merely about a refusal having happened.
-#  ⚠⚠ THIS ROW IS VACUOUS ALONE AND ITS NON-ZERO SIBLING IS AB-3. Measured, not assumed:
-#  the H7 control that removes reportRunAbandoned leaves THIS row green -- with nothing
-#  printing ABANDONED anywhere, a count of zero is what you get for free -- and reddens
-#  AB-3. The PAIR discriminates; neither half does. Never read this row on its own.
-_arb=$(grep -c "^ABANDONED" "$T/art2")
-if [ "$_arb" = 0 ]; then
-    echo "  ok    abandonT the BOUNDED refusal in argRetiredT does NOT abandon -- AB-3 discriminates"; green=$((green+1))
+if grep -q "stop: end parsing" "$T/ab.o"; then
+    echo "  ok    abandonT AB-4 the run ended properly -- stop() fired with a refusal behind it"; green=$((green+1))
 else
-    echo "  FAIL  argRetiredT ABANDONED $_arb times -- a bounded refusal is being reported as"
-    echo "        an abandonment, so AB-3 is measuring 'a refusal happened' and nothing more"; fail=1
+    echo "  FAIL  abandonT AB-4 stop() did not fire"; fail=1
+fi
+_aba=$(grep -c "^ABANDONED" "$T/ab.e")
+if [ "$_aba" = 0 ]; then
+    echo "  ok    abandonT AB-5 not abandoned (0) -- read WITH AB-4, never alone"; green=$((green+1))
+else
+    echo "  FAIL  abandonT AB-5 ABANDONED $_aba times -- a refusal reached end of file"; fail=1
 fi
 
-#  ---- stopPreT: the parse-dead guarantee has a PRECONDITION ------------------
-#  Built 2026-09-17, fixIts F-78, on Tony's ruling. "Everything below stop() is
-#  parse-dead and therefore unconstrained" is ratified doctrine (Addendum 2) and every
-#  fixit citizen's prose rests on it. ⚠ IT HOLDS ONLY WHILE NO REFUSAL IS OUTSTANDING.
-#
-#  ⚠ stop() IS NOT DEFECTIVE, AND THAT IS THE RULING'S ANSWER. stopParsingInput carries
-#  no refused guard and works perfectly when reached; it is NEVER REACHED. Measured three
-#  ways: an action call after a refusal does not run (a noop spliced into trigDO ran when
-#  called BEFORE the refusal, not after); stopParsingInput's own measureStopCaller callout
-#  fires ONCE in a clean run and ZERO times with a refusal standing; and plain statements
-#  keep running. An outstanding refusal silences ACTION AND COMMAND DISPATCH, and stop()
-#  is a command. MORE gets parsed, not less.
-#
-#  ⚠ SP-2 IS PINNED RED-SHAPED ON PURPOSE -- H7's other half. It is not a claim that this
-#  behaviour is right; it is a pin so the day stop() starts stopping, something says so.
-#  ⚠ SP-1 IS SP-2'S ANTI-VACUITY SIBLING. Without it SP-2 could pass on a run where
-#  everything after the refusal ran for an unrelated reason: SP-1 says execution
-#  continued, SP-2 says it continued PAST A STOP.
-run2 stopPreT "$T/sp.o" "$T/sp.e"; check "stopPreT runs (exit 0 -- none of this is visible to the shell)" 0 $?
-for _r in "SP-1 a plain statement after the refusal STILL RAN|execution is NOT halted by a refusal" \
-          "SP-2 a statement BELOW stop() RAN -- stop() was never entered|⚠ PINNED WRONG ON PURPOSE: the parse-dead region is PARSED"; do
-    _want=${_r%%|*}; _why=${_r##*|}
-    if grep -qF "$_want" "$T/sp.e"; then
-        echo "  ok    stopPreT ${_want%% *} -- $_why"; green=$((green+1))
-    else
-        echo "  FAIL  stopPreT ${_want%% *} MOVED -- if stop() now stops, RE-PIN WITH A"
-        echo "        SENTENCE (H6) and strike the precondition from CLAUDE.md. Actual:"
-        grep -E "^SP-" "$T/sp.e" | sed 's/^/          /'; fail=1
-    fi
-done
-if grep -qF "REFUSED . -- unary deref on the right of a dot" "$T/sp.e"; then
-    echo "  ok    stopPreT SP-3 the refusal that sets it all off, by message"; green=$((green+1))
+#  ---- stopPreT: stop() WORKS WITH A REFUSAL STANDING -------------------------
+#  Tony, ruled 2026-09-17: stop() and bail() work as intended, ALWAYS. Not working is not
+#  an option.
+#  ⚠ SP-2 FLIPPED FROM A RED-SHAPED PIN TO AN ABSENCE, AND THE ROW SAYS SO. It used to
+#  pin the WRONG behaviour on purpose -- a statement below stop() that ran, because an
+#  outstanding refusal silenced command dispatch and stop() was never entered. The
+#  statement boundary retired that, so the day arrived and this is the row saying so.
+#  ⚠ AN ABSENCE ASSERTS NOTHING ALONE (H4), so SP-2 is read with TWO positives: SP-1 says
+#  execution continued at all, and SP-3 says the stop actually FIRED rather than the file
+#  merely ending. Without SP-3, SP-2 would pass on any run that died early.
+run2 stopPreT "$T/sp.o" "$T/sp.e"; check "stopPreT runs" 0 $?
+if grep -qF "SP-1 a plain statement after the refusal STILL RAN" "$T/sp.e"; then
+    echo "  ok    stopPreT SP-1 execution is NOT halted by a refusal"; green=$((green+1))
 else
-    echo "  FAIL  stopPreT SP-3 no refusal -- the fixture asserts nothing without it"; fail=1
+    echo "  FAIL  stopPreT SP-1 did not run -- the refusal halted execution"; fail=1
 fi
-if grep -qF "ABANDONED incant/pop/stopPreT -- the run ended with a refusal outstanding" "$T/sp.e"; then
-    echo "  ok    stopPreT SP-4 the abandonment is named -- and is this file's only terminal marker"; green=$((green+1))
+_sp2=$(grep -c "^SP-2" "$T/sp.e")
+if [ "$_sp2" = 0 ]; then
+    echo "  ok    stopPreT SP-2 the statement below stop() did NOT run (0) -- stop() STOPS"; green=$((green+1))
 else
-    echo "  FAIL  stopPreT SP-4 no abandonment line. Actual:"
-    grep -F "ABANDONED" "$T/sp.e" | sed 's/^/          /'; fail=1
+    echo "  FAIL  stopPreT SP-2 ran $_sp2 times -- stop() was not entered, which is the"
+    echo "        2026-09-17 ruling broken: stop() works as intended, ALWAYS"; fail=1
+fi
+if grep -q "stop: end parsing" "$T/sp.o"; then
+    echo "  ok    stopPreT SP-3 stop() FIRED -- the positive that makes SP-2 readable"; green=$((green+1))
+else
+    echo "  FAIL  stopPreT SP-3 stop() never fired, so SP-2's zero means nothing"; fail=1
+fi
+if grep -qF "REFUSED . -- unary deref on the right of a dot" "$T/sp.e"; then
+    echo "  ok    stopPreT SP-4 the refusal was standing -- without it the fixture is vacuous"; green=$((green+1))
+else
+    echo "  FAIL  stopPreT SP-4 NO REFUSAL -- nothing here is being tested"; fail=1
 fi
 
 #  ---- opPrefixT: every operator with a prefix sibling reads as ONE term ------
@@ -3838,6 +3825,29 @@ fi
 #  DELIBERATELY NOT HERE -- rule H5, a fixture that cannot return deletes the
 #  rest of the suite.
 run1 trigDO "$T/tdo"; check "trigDO runs" 0 $?
+#  ⚠ TWO ROWS ADDED 2026-09-17 WITH THE STATEMENT-BOUNDARY RULING, AND THEY ARE ABOUT
+#  THIS FILE'S DEAD REGION RATHER THAN ITS ARMS. trigDO has stop() at line 95 and 425
+#  lines of prose below it. While an outstanding refusal silenced command dispatch, that
+#  stop() was NEVER ENTERED and the prose was parsed as source -- `RunRulE: expected a
+#  method not THE / NEW / PARSE / FIRES`, words out of the prose, at exit 0.
+#  ⚠ THE ZERO IS READ WITH THE POSITIVE, NEVER ALONE: a file that died before reaching
+#  its dead region also parses none of it. `stop: end parsing` is what says the stop
+#  actually fired. docs/refusalScope.md carries the argument.
+#  ⚠ AND THIS FIXTURE'S OTHER ROWS ARE RED BY CHOICE (F-62/F-63 family). A red row absorbs
+#  new breakage silently, which is why the dead-region facts get their OWN rows here
+#  instead of being read off the arms.
+if grep -q "stop: end parsing" "$T/tdo"; then
+    echo "  ok    trigDO stop() FIRED -- the positive that makes the next row readable"; green=$((green+1))
+else
+    echo "  FAIL  trigDO stop() never fired -- a refusal is silencing command dispatch again"; fail=1
+fi
+_tdp=$(grep -cE "RunRulE: expected a method not (THE|NEW|PARSE|FIRES)" "$T/tdo")
+if [ "$_tdp" = 0 ]; then
+    echo "  ok    trigDO its 425 lines of dead prose are NOT parsed (0) -- read WITH the row above"; green=$((green+1))
+else
+    echo "  FAIL  trigDO parsed $_tdp lines of its own dead prose as source -- stop() was"
+    echo "        not entered and the parse-dead region is live again"; fail=1
+fi
 sentinel "trigDO sentinel" "$T/tdo" "TRIG SENTINEL -- reached the foot"
 if grep -qF "LABELPROBE DO minted=DO mintedLen=2 into=Token chainTrue=1 yielded=1" "$T/tdo"; then
     echo "  ok    trigDO arm 1 GOOD: mintedLen=2 chainTrue=1 yielded=1 -- PINNED BY VALUE (the road PARSES)"; green=$((green+1))

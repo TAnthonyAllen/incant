@@ -353,7 +353,7 @@ use NewGroup
     if ruler.refused {
         reportDefineRemoved(NewGroup,currentRegistry);
         if currentRegistry  currentRegistry.remove(NewGroup.tag);
-        ruler.refused = 0; }
+        clearRefusal(NewGroup); }
     return input;
 }
 
@@ -921,10 +921,20 @@ use input
     sourceFile.text = sourceFILE.tag;
     sourceLine  +% sourceFile;
     if !processingCode {
+        /*  ⚠ outcome IS DECLARED FIRST SO `statement` STAYS LAST-MENTIONED -- the bare
+            `isGROUP` and `group` below resolve against whatever was named most recently
+            (bear-trap #42), and a declaration inserted after `statement` would silently
+            re-aim them.  */
+        GroupItem   outcome = input;
         GroupItem   statement = input;
         if isGROUP  statement = group;
         lastStatement = statement;
-        if method   return method(statement); }
+        if method   outcome = method(statement);
+        // statementScope  A REFUSAL'S SCOPE IS THE STATEMENT -- it is cleared HERE, on the
+        // statementScope  way out, whether or not a method ran, because the refusal may have
+        // statementScope  been raised during the MATCH and never reached a method at all
+        clearRefusal(statement);
+        return outcome; }
     or generating
         if !gText && isGROUP {
             GroupItem xpStatement = group;
@@ -1160,6 +1170,18 @@ GroupItem   grup;
             else        result = ExpressioN;
             appendGroup(result,FormaT,buffer); }
         else            appendGroup(grup,FormaT,buffer); }
+}
+
+
+/*  clearRefusal -- A REFUSAL'S SCOPE IS THE STATEMENT. Tony, ruled 2026-09-17.
+    THE SINGLE WRITER of `ruler.refused = 0`, as refuse() is the single writer of the 1.
+    docs/refusalScope.md carries the argument and the three measurements behind it.  */
+extern int clearRefusal(GroupItem where)
+{
+GroupRules  ruler = groupRules;
+    if !ruler.refused   return 0;
+    ruler.refused = 0;
+    return 1;
 }
 
 /*******************************************************************************

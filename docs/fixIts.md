@@ -63,6 +63,24 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-79 — a refusal inside a `define` still truncates the file, and it is NOT the refusal
+**What:** `define x = a.*b;` refuses, and every statement after that define is dropped — no
+`stop:` line, exit 0. **The statement boundary of 2026-09-17 did not fix it, and measuring that is
+what identified the cause.**
+**Evidence:** with the boundary in place, the run **reaches `main` reading `refused=0`** — the flag
+was cleared — **and truncates anyway.** Probe at `reportRunAbandoned`'s head printing the flag
+unconditionally; three statements and a `stop()` placed after the bad define, none of which ran.
+**So the cause is the failed MATCH abandoning the parse**, which is ordinary parse-failure
+truncation and has always been documented as such. The refusal is incidental.
+⚠ **THIS CORRECTS F-76's OWN DIAGNOSIS.** F-76 read the two as one mechanism — *"nothing clears
+the flag, it propagates, the file dies"* — and it looked right because before the boundary **both
+were true at once**. Only clearing the flag separated them.
+⚠ **AND IT IS WHY `abandonT` USES A BARE STATEMENT AND NEVER A DEFINE.** A define there would make
+that fixture measure this row instead of the scope it claims to measure.
+**Done when:** a failed match inside a define either reports what it abandoned, or does not abandon
+the rest of the file. **Grade:** CONFIRMED — cause isolated by a single-variable A/B (flag cleared,
+behaviour unchanged). **Owner:** unassigned. **Size:** unknown; it is parse-failure policy.
+
 ### F-77 — `incant/designDocs` has TWO `aCTionDefinE` entries under one parent
 **What:** `ruleActions -> aCTionDefinE` is defined **twice**, at `incant/designDocs:5690` and
 `:6216`, same key, same parent, same indentation. Found 2026-09-17 while placing the
@@ -79,7 +97,16 @@ not move when a child was added to the first entry. The trial's own tally in
 renamed, and it is known which one `lookuP` was returning. **Grade:** CONFIRMED — both lines read.
 **Owner:** unassigned. **Size:** small, but it needs a ruling on which children belong where.
 
-### F-78 — ✅ CLOSED 2026-09-17 — `stop()` is NOT defective; it is never entered, and the doctrine gains its precondition
+### F-78 — ✅ CLOSED 2026-09-17, THEN SUPERSEDED THE SAME DAY — `stop()` was never entered; now it always is
+⚠⚠ **THE FIX THIS ROW LANDED WAS A DOCTRINE PRECONDITION, AND TONY OVERTURNED THAT WITHIN THE
+HOUR: `stop()` and `bail()` WORK AS INTENDED, ALWAYS — NOT WORKING IS NOT AN OPTION.** The
+precondition was written into `CLAUDE.md` and **taken back out**; a refusal's scope is now the
+statement, `aCTionStatemenT` clears the flag, and `stop()` is entered every time.
+**The diagnosis below stands and is what made the ruling possible** — read it as the reason, not
+as current behaviour. `docs/refusalScope.md` carries what is true now.
+*Original closure follows for the trail.*
+
+#### F-78 (original) — `stop()` is NOT defective; it is never entered
 **Ruled by Tony: one A/B, and the answer decides between a doctrine precondition and a `stop()`
 defect.** It is the precondition.
 

@@ -916,7 +916,7 @@ exitRunAction:
         Clearing here is what makes "terminal for the action" mean the action
         rather than the process.   GroupActions.runAction.refusalArm  */
     if ruler.refused {
-        ruler.refused = 0;
+        clearRefusal(result);
         result = null; }
     return  result;
 }

@@ -1,30 +1,39 @@
-/*  abandonT -- A REFUSAL RAISED FROM AN EXPRESSION AT DEFINE TIME ABANDONS THE FILE,
-    AND NOW SAYS SO. Built 2026-09-17 for fixIts F-76.
+/*  abandonT -- A REFUSAL'S SCOPE IS THE STATEMENT. Tony, ruled 2026-09-17.
 
-    ⚠ THIS FIXTURE TRUNCATES ON PURPOSE AND HAS NO REACHABLE stop(). That is the
-    behaviour under test, not a defect in the file. It is safe under rule H5 because a
-    truncating run is not a HANGING run -- it exits 0 promptly and cannot take the suite
-    hostage.
+    ⚠ RETIRED-AND-REBUILT IN PLACE, AND THE OLD SUBJECT IS NAMED SO THE TRAIL SURVIVES.
+    Until the statement boundary landed, a refusal was cleared only by aCTionDefinE's
+    boundary or by runAction -- so one raised at statement level propagated, broke every
+    enclosing block, and ABANDONED THE FILE at exit 0. This fixture pinned that. The
+    boundary retired the behaviour, so the file pins the replacement with the same driver.
 
-    ⚠ ITS TERMINAL MARKER IS THE `ABANDONED` LINE ITSELF, and that is better than a print
-    could be: the line is emitted from main() AFTER the parse returns, so it is
-    UNREACHABLE except through the end of the run. H2 wants a sentinel that a truncated
-    run cannot fake, and a truncation cannot fake this one.
+    ⚠ AB-1's COUNT IS THE WHOLE ASSERTION AND IT FLIPPED FROM 1 TO 2. One meant the file
+    was abandoned at the refusal. Two means execution carried straight past it, which is
+    what "scoped to the statement" MEANS. A 1 here is the old behaviour returning.
 
-    THE MECHANISM, measured 2026-09-17 with a probe at aCTionDefinE's tail:
-      a refusal from a RULE ACTION during a definition reaches aCTionDefinE's
-        refusalBoundary, is reported, and is CLEARED -- incant/pop/argRetiredT
-      a refusal from an EXPRESSION during a definition produces NO tail line at all: the
-        match fails before that action ever fires, so the boundary is not missed, it is
-        STRUCTURALLY UNREACHABLE. Nothing clears the flag and the rest of the file dies.
+    ⚠ ABANDONED IS PINNED AT ZERO AND NEVER ALONE -- a zero is exactly what a REMOVED
+    reporter also produces. AB-4 (`stop: end parsing`) is its non-zero sibling: it says
+    the run reached its end properly rather than dying quietly.
+    ⚠ AND THE HONEST STATE OF THAT REPORTER IS RECORDED RATHER THAN ASSERTED:
+    reportRunAbandoned has NO REACHABLE CASE LEFT. Five shapes were tried on 2026-09-17 --
+    refusal mid-file, as the final statement, inside a define as the final statement, in
+    the last field of the last define, and this file's original shape -- and every one is
+    cleared at a statement boundary, reading refused=0 at main's tail. It stands as a NET.
+
+    ⚠ WHAT THIS FIXTURE DELIBERATELY DOES NOT USE IS A DEFINE. A refusal inside a define
+    block still truncates the file, and MEASUREMENT SHOWS THAT IS NOT THE FLAG: with the
+    boundary in place the run reaches main reading refused=0 and truncates anyway. It is
+    the failed MATCH abandoning the parse -- ordinary parse-failure truncation, which is
+    its own documented behaviour and its own row. Using a define here would make this
+    fixture measure that instead of what it claims to measure.
+    docs/refusalScope.md carries the argument.
 
     THE ROWS
-      AB-1   the marker BEFORE the bad define runs -- pinned as a COUNT of exactly 1,
-             because "the second one did not run" is an absence and H4 forbids one
-      AB-2   the REFUSED line, by message
-      AB-3   the ABANDONED line, by message, naming the file
-    AB-1 at exactly 1 is what says the run stopped where it was supposed to: a 2 means
-    the file was NOT abandoned and this whole fixture is measuring nothing.  */
+      AB-1  the marker runs TWICE -- once before the refusal, once after
+      AB-2  a plain statement after the refusal runs
+      AB-3  the refusal itself, by message -- the anti-vacuity row for everything above,
+            because a run with no refusal passes AB-1 and AB-2 trivially
+      AB-4  `stop: end parsing` -- the run ended properly
+      AB-5  ABANDONED count 0, read only with AB-4  */
 Start();
 include(unitTests);
 include(utilities);
@@ -35,9 +44,7 @@ define
     abMark code={ cerr "AB-1 marker ran":; };
     ;
 abMark(abRoot);
-define
-    abBad = abRoot.*abNope;
-    ;
+abBad := abRoot.*abNope;
 abMark(abRoot);
-cerr "AB-UNREACHED -- if this prints, the run was NOT abandoned":;
+cerr "AB-2 a plain statement after the refusal RAN":;
 stop();
