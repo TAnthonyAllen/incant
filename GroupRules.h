@@ -167,6 +167,7 @@ extern "C" GroupItem *exitFromParse(GroupItem *field);
 extern "C" GroupItem *fAIL(GroupItem *input);
 extern "C" GroupItem *fireNewParse(GroupItem *rule);
 extern "C" void flushBuffer(GroupItem *bufField);
+extern "C" GroupItem *foldDot(GroupItem *dotUxp, GroupItem *left);
 extern "C" char *foldOf(GroupItem *rule);
 extern "C" GroupItem *frameFind(GroupItem *action);
 extern "C" GroupItem *frameStak(GroupItem *action);

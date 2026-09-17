@@ -63,6 +63,29 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-80 — a FIVE-name dot chain still answers `xl1`; the fold deliberately refuses to touch it
+**What:** `a.b.c.d` is correct as of 2026-09-17. `a.b.c.d.e` is not — it answers `xl1`,
+`interpretXP`'s juxtaposition accumulator, exactly as it did before the fold.
+**Why it is a LIMIT and not a regression, and why the fold declines rather than tries:** the parse
+groups dots in **pairs**, so five names is the first chain that produces **three** terms
+(`a.b`, `.c.d`, `.e`). Folding one pair of three leaves the other orphaned, and that **truncates
+the run at exit 0 with no sentinel** — measured, two builds. A wrong value is visible; a dead run
+at exit 0 is indistinguishable from a short successful one, so the fold is gated to two-term
+chains and five names keeps the answer it always had.
+
+| chain | before | after |
+|---|---|---|
+| `a.b.c` (three names) | LEAFVAL — correct | unchanged |
+| `a.b.c.d` (four names) | **MIDVAL — wrong** | **TWIGVAL — correct** |
+| `a.b.c.d.e` (five names) | `xl1` — wrong, sentinel prints | **`xl1` — unchanged, sentinel prints** |
+
+**Where:** `interpretXP`'s `canFold` gate — `isDotUxp(token)` turns the fold off, and the comment
+at the site says what happens without it. **Done when:** a three-term chain folds without
+orphaning a term. A stack was built for this and **removed**: it produced the truncation above.
+**Grade:** CONFIRMED, two builds. **Owner:** unassigned.
+**⚠ AND THE FLEET CANNOT SEE IT** — `incant/pop/dotChainT` stops at four names because a five-name
+row would take the whole file hostage (rule H5). This row is the only record.
+
 ### F-79 — a refusal inside a `define` still truncates the file, and it is NOT the refusal
 **What:** `define x = a.*b;` refuses, and every statement after that define is dropped — no
 `stop:` line, exit 0. **The statement boundary of 2026-09-17 did not fix it, and measuring that is

@@ -55,6 +55,15 @@
                        aCTionDefinE's refusalBoundary: it TRUNCATES the file at
                        exit 0 with no sentinel. A fixture row for it would take
                        this whole file hostage, which is rule H5.
+      DC-S  ⚠ THE SEED CHECK, AND IT IS NOT DECORATION. DC-A's old wrong answer was
+            MIDVAL -- which is exactly what an unseeded dcTwig would also produce. This
+            row reads the tree stepwise through subscripts, where the answer is not in
+            doubt, so DC-A and DC-B cannot pass or fail for the wrong reason.
+      DC-A  a.b.c.d    -- FOUR names. Read MIDVAL (depth 2) until 2026-09-17
+      DC-B  a[b].c.d   -- the same chain reached through a subscript
+    ⚠ FIVE NAMES IS NOT HERE AND THAT IS DELIBERATE -- see fixIts F-80. `a.b.c.d.e`
+    TRUNCATES THE RUN at exit 0 with the chain fold in place, where before it answered
+    `xl1`. A row for it would take this whole file hostage (rule H5).
     DC-6 was `(*a).b` and is NOT here: parenthesised grouping does not parse in
     this position, measured 2026-09-16. Its question is DC-5's.
 
@@ -73,7 +82,10 @@ define
         dcM := dcRoot["dcMid"];
         *dcM +% new("dcLeaf");
         *dcM["dcLeaf"] = "LEAFVAL";
-        cerr "DC-0 seeded dcRoot -> dcMid=MIDVAL -> dcLeaf=LEAFVAL":;
+        dcL := *dcM["dcLeaf"];
+        *dcL +% new("dcTwig");
+        *dcL["dcTwig"] = "TWIGVAL";
+        cerr "DC-0 seeded dcRoot -> dcMid=MIDVAL -> dcLeaf=LEAFVAL -> dcTwig=TWIGVAL":;
         };
     dcR1 code={ dcA := dcRoot.dcMid;           cerr "DC-1 a.b        = " dcA:; };
     dcR2 code={ dcB := dcRoot.dcMid.dcLeaf;    cerr "DC-2 a.b.c      = " dcB:; };
@@ -84,10 +96,18 @@ define
     dcR7 code={ dcTouch(dcOther); dcG := .dcT; cerr "DC-7 .b afterCall = " dcG:; };
     dcR8 code={ dcI := .dcNeverSet;            cerr "DC-8 .b noLastREF = " dcI:; };
     dcR9 code={ dcJ := dcRoot.*dcMid;          cerr "DC-9 a.*b       = " dcJ:; };
+    dcSeedCk code={
+        dcQ1 := dcRoot["dcMid"];
+        dcQ2 := *dcQ1["dcLeaf"];
+        dcQ3 := *dcQ2["dcTwig"];
+        cerr "DC-S seed: mid=" *dcQ1 " leaf=" *dcQ2 " twig=" *dcQ3:; };
+    dcRA code={ dcK := dcRoot.dcMid.dcLeaf.dcTwig;      cerr "DC-A a.b.c.d    = " dcK:; };
+    dcRB code={ dcL2 := dcRoot["dcMid"].dcLeaf.dcTwig;  cerr "DC-B a[b].c.d   = " dcL2:; };
     dcRun code={
         dcSeed(dcRoot);
         dcR1(dcRoot); dcR2(dcRoot); dcR3(dcRoot); dcR4(dcRoot);
         dcR5(dcRoot); dcR7(dcRoot); dcR8(dcRoot); dcR9(dcRoot);
+        dcSeedCk(dcRoot); dcRA(dcRoot); dcRB(dcRoot);
         };
     ;
 dcRun();

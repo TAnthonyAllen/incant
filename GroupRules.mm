@@ -2875,6 +2875,72 @@ extern "C" void flushBuffer(GroupItem *bufField)
 		bufField->getBuffer()->flush();
 }
 
+/*  foldDot -- MINT ONE xdot: a dot whose left operand the parser never handed it.
+    THE ONLY PLACE AN xdot IS BUILT. Extracted from interpretXP 2026-09-17 when the fold
+    grew a stack; before that it was inline and could only ever run once.
+    docs/dotChain.md carries the argument.  */
+extern "C" GroupItem *foldDot(GroupItem *dotUxp, GroupItem *left)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*op = 0;
+GroupItem 	*operand = 0;
+GroupItem 	*innerOp = 0;
+GroupItem 	*innerLeft = 0;
+GroupItem 	*innerRight = 0;
+GroupItem 	*lower = 0;
+GroupItem 	*upper = 0;
+GroupItem 	*folded = 0;
+	op = dotUxp->groupBody->groupList->firstInList;
+	operand = dotUxp->groupBody->groupList->lastInList;
+	/*  ⚠ THE ORPHAN'S OPERAND MAY ITSELF BE A WHOLE DOT, AND THAT IS THE CHAIN CASE.
+	`TokenXP UnaryOPS? ANYorNum^ InvokeArg?` takes ONE leading unary AND ONE postfix,
+	so dots arrive in PAIRS: `a.b.c.d` is TWO terms, `a.b` and `.c.d`, not four and
+	not three. Measured with measureTokenArm 2026-09-17 -- two dot-COMPOSED arms, the
+	second carrying unary `.`. So the orphan here is `.`(c.d) and wrapping it would
+	build `(a.b).(c.d)`, handing opDot a dot node as its right operand.
+	SPLICE INSTEAD: push `left` into the INNERMOST-LEFT position, giving ((a.b).c).d.
+	docs/dotChain.md carries the argument.  */
+	// groupListFirst  listLength dereferences groupList, which is NULL on a leaf -- the
+	// groupListFirst  raw field is what the runtime itself tests before walking
+	if ( operand )
+		if ( operand->groupBody->groupList )
+			if ( operand->groupBody->groupList->listLength == 3 )
+				{
+				innerOp = operand->groupBody->groupList->firstInList;
+				// nullGuards  every one of these reads exits 139 on a null, and the two-element
+				// nullGuards  chain reaches here with an operand that has no list at all
+				if ( !innerOp )
+					goto plainFold;
+				if ( innerOp->groupBody->registry == ruler->opFields )
+					if ( ::compare(innerOp->groupBody->tag,".") == 0 )
+						{
+						innerLeft = operand->get(2);
+						innerRight = operand->groupBody->groupList->lastInList;
+						lower = new GroupItem("xdot");
+						lower->addAttribute(op);
+						lower->addAttribute(left);
+						lower->addAttribute(innerLeft);
+						lower->setMethod(::runOP);
+						lower->groupBody->flags.invoke = 1;
+						upper = new GroupItem("xdot");
+						upper->addAttribute(innerOp);
+						upper->addAttribute(lower);
+						upper->addAttribute(innerRight);
+						upper->setMethod(::runOP);
+						upper->groupBody->flags.invoke = 1;
+						return upper;
+						}
+				}
+plainFold:
+	folded = new GroupItem("xdot");
+	folded->addAttribute(op);
+	folded->addAttribute(left);
+	folded->addAttribute(operand);
+	folded->setMethod(::runOP);
+	folded->groupBody->flags.invoke = 1;
+	return folded;
+}
+
 /*******************************************************************************
     foldOf — genParseSpec §4.1's fold selection, as a reportable value.
 *******************************************************************************/
@@ -3668,11 +3734,15 @@ GroupItem 	*interp = 0;
 *******************************************************************************/
 extern "C" GroupItem *interpretXP(GroupItem *xpList)
 {
-GroupItem 	*op = 0;
-GroupItem 	*target = 0;
-GroupItem 	*arg = 0;
-GroupItem 	*xl = 0;
-GroupItem 	*token = 0;
+	/*  ⚠ canFold IS DECLARED BEFORE THE GroupItem LINE, NOT AFTER. Every bare field in the
+	loop below resolves against the MOST RECENTLY DECLARED name (bear-trap #42), and
+	`token` is the one they mean.  */
+int canFold = 0;
+GroupItem *op = 0;
+GroupItem *target = 0;
+GroupItem *arg = 0;
+GroupItem *xl = 0;
+GroupItem *token = 0;
 	if ( xpList->groupBody->groupList->listLength == 1 )
 		{
 		arg = xpList->groupBody->groupList->firstInList;
@@ -3702,22 +3772,30 @@ GroupItem 	*token = 0;
 				LEFT. `a.b.c` dumps as [uxp, Token] for exactly that reason.
 				Read that before changing anything below it.
 				ruleActions.interpretXP.dotFold  */
+				canFold = 0;
 				if ( isDotUxp(arg) )
+					canFold = 1;
+				// threeTermChainNotFolded  FIVE names is the first chain that produces THREE
+				// threeTermChainNotFolded  terms, and folding one pair of them leaves the
+				// threeTermChainNotFolded  other orphaned -- which TRUNCATES the run at exit 0.
+				// threeTermChainNotFolded  Refuse to fold and it answers `xl1` as it always
+				// threeTermChainNotFolded  has: wrong, but VISIBLE. fixIts F-80.
+				if ( isDotUxp(token) )
+					canFold = 0;
+				if ( canFold )
 					{
-					/*  THE CHAIN FOLD. An orphaned `.c` juxtaposed against a term on
-					its left is not a juxtaposition at all -- it is a dot whose
-					left operand the parser never handed it. Hand it one. Left
-					associative BY CONSTRUCTION: the left is whatever arrived.
+					/*  THE CHAIN FOLD. An orphaned `.c` juxtaposed against a term on its
+					left is not a juxtaposition at all -- it is a dot whose left
+					operand the parser never handed it. Hand it one. Left associative
+					BY CONSTRUCTION: the left is whatever arrived.
+					⚠ A CHAIN LONGER THAN TWO NEEDS A STACK, because the walk is
+					BACKWARD: `a.b.c.d` arrives as .d, then .c, then the primary, so
+					the dots are met in the OPPOSITE order to the one they apply in.
+					A dot met while another is still pending CANNOT fold yet -- its
+					left operand has not arrived -- so it is stacked, and the stack
+					unwinds LIFO onto the primary the moment a non-dot term shows up.
 					ruleActions.interpretXP.dotFold  */
-					GroupItem *dotOp = arg->groupBody->groupList->firstInList;
-					GroupItem *dotName = arg->groupBody->groupList->lastInList;
-					GroupItem *folded = new GroupItem("xdot");
-					folded->addAttribute(dotOp);
-					folded->addAttribute(token);
-					folded->addAttribute(dotName);
-					folded->setMethod(::runOP);
-					folded->groupBody->flags.invoke = 1;
-					arg = folded;
+					arg = ::foldDot(arg,token);
 					if ( xl )
 						xl = 0;
 					}
@@ -13042,7 +13120,8 @@ int 	result = 0;
 }
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
-	floor(double)
+	isDotUxp(GroupItem*)
 	measurePlusEQWrite(GroupItem*)
 	measurePlusPlusWrite(GroupItem*)
+	floor(double)
 */

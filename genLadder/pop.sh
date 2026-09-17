@@ -2541,6 +2541,34 @@ for _r in "DC-1 a.b        = MIDVAL|DC-1 a.b        =  MIDVAL" \
     fi
 done
 
+#  ---- the CHAIN: four names fold, and the seed is proven first ---------------
+#  Built 2026-09-17. `a.b.c.d` read MIDVAL -- depth 2 -- until the fold learned to
+#  SPLICE. ⚠ THE PARSE GROUPS DOTS IN PAIRS and that is the whole finding: TokenXP takes
+#  ONE leading unary and ONE postfix, so `a.b.c.d` is TWO terms (`a.b` and `.c.d`), not
+#  four. The orphan is therefore `.`(c.d), and the old fold WRAPPED it, building
+#  `(a.b).(c.d)` and handing opDot a dot node as its right operand. foldDot now pushes the
+#  left operand into the INNERMOST-LEFT position instead. docs/dotChain.md has the arms.
+#
+#  ⚠ DC-S IS THE ROW THAT MAKES DC-A AND DC-B MEAN ANYTHING. The old wrong answer was
+#  MIDVAL, which is ALSO what an unseeded dcTwig produces -- so the seed is read stepwise
+#  through subscripts, where the answer is not in doubt, before either chain row is read.
+if grep -qF "DC-S seed: mid= MIDVAL leaf= LEAFVAL twig= TWIGVAL" "$T/dc.e"; then
+    echo "  ok    dotChain DC-S the tree really is four deep -- DC-A/DC-B are not vacuous"; green=$((green+1))
+else
+    echo "  FAIL  dotChain DC-S seed is wrong, so the two rows below assert NOTHING. Actual:"
+    grep -F "DC-S" "$T/dc.e" | sed 's/^/          /'; fail=1
+fi
+for _r in "DC-A a.b.c.d  = TWIGVAL  (FOUR names)|DC-A a.b.c.d    =  TWIGVAL" \
+          "DC-B a[b].c.d = TWIGVAL  (subscript then chain)|DC-B a[b].c.d   =  TWIGVAL"; do
+    _lbl=${_r%%|*}; _want=${_r##*|}
+    if grep -qF "$_want" "$T/dc.e"; then
+        echo "  ok    dotChain $_lbl -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  dotChain $_lbl -- MOVED. A MIDVAL here is the pre-fold answer. Actual:"
+        grep -F "${_lbl%% *}" "$T/dc.e" | sed 's/^/          /'; fail=1
+    fi
+done
+
 #  ---- F-72: a.*b is REFUSED, once, and its value is unchanged ----------------
 #  Built 2026-09-17. `a.*b` never reaches opDot as a unary: it parses as TWO
 #  terms -- `a` bare and `*b` unary-only, no dot-COMPOSED arm -- and opDot then
