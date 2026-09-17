@@ -2594,6 +2594,59 @@ else
     grep -E "^DC-[0-9]" "$T/dc.e" | sed 's/^/          /'; fail=1
 fi
 
+#  ---- abandonT: an expression refusal at define time abandons the FILE -------
+#  Built 2026-09-17, fixIts F-76. A refusal is terminal for its action and BREAKS the
+#  enclosing block; the break walks outward, and the two things that CLEAR the flag --
+#  runAction's refusalArm and aCTionDefinE's refusalBoundary -- sit on paths that a
+#  refusal raised from an EXPRESSION during a definition never reaches. Measured with a
+#  probe at aCTionDefinE's tail: arBad (refused from a RULE ACTION) prints refused=1
+#  there and is reported and cleared; abBad/dcBad (refused from an EXPRESSION) produce
+#  NO tail line at all. The boundary is not missed on that path, it is STRUCTURALLY
+#  UNREACHABLE -- so nothing clears the flag and the rest of the file dies at exit 0.
+#
+#  ⚠ THIS FIXTURE TRUNCATES BY DESIGN AND HAS NO REACHABLE stop(). Safe under H5: a
+#  truncating run is not a HANGING run, it exits 0 promptly and cannot hold the suite.
+#  ⚠ AND ITS SENTINEL IS THE `ABANDONED` LINE, which is a better one than a print could
+#  be -- main() emits it AFTER the parse returns, so it is unreachable except through the
+#  end of the run, and a truncation cannot fake it.
+#  ⚠ AB-1 IS PINNED AS A COUNT, NOT AS AN ABSENCE. "the second marker did not run" is an
+#  absence and H4 forbids one; exactly 1 is a value. A 2 means the file was NOT abandoned
+#  and every other row here is measuring nothing.
+run2 abandonT "$T/ab.o" "$T/ab.e"; check "abandonT runs (exit 0 -- abandonment is SILENT to the shell)" 0 $?
+_abn=$(grep -c "^AB-1 marker ran" "$T/ab.e")
+if [ "$_abn" = 1 ]; then
+    echo "  ok    abandonT AB-1 ran EXACTLY ONCE -- the file stopped at the bad define"; green=$((green+1))
+else
+    echo "  FAIL  abandonT AB-1 ran $_abn times, want exactly 1 -- 2 means the run was NOT"
+    echo "        abandoned and the other two rows assert nothing"; fail=1
+fi
+if grep -qF "REFUSED . -- unary deref on the right of a dot is never seen by opDot" "$T/ab.e"; then
+    echo "  ok    abandonT AB-2 the expression refused, by message"; green=$((green+1))
+else
+    echo "  FAIL  abandonT AB-2 no refusal -- the F-72 seat is gone"; fail=1
+fi
+if grep -qF "ABANDONED incant/pop/abandonT -- the run ended with a refusal outstanding" "$T/ab.e"; then
+    echo "  ok    abandonT AB-3 THE ABANDONMENT IS NAMED, with the file -- not silent at exit 0"; green=$((green+1))
+else
+    echo "  FAIL  abandonT AB-3 the file was abandoned SILENTLY. Actual:"
+    grep -F "ABANDONED" "$T/ab.e" | sed 's/^/          /'; fail=1
+fi
+#  ⚠ THE DISCRIMINATOR, and without it AB-3 could pass on a line that always prints:
+#  a refusal that IS properly bounded must NOT produce it. argRetiredT refuses from a
+#  rule action, is caught by refusalBoundary, and reaches its own sentinel -- so a zero
+#  here says AB-3 is about ABANDONMENT and not merely about a refusal having happened.
+#  ⚠⚠ THIS ROW IS VACUOUS ALONE AND ITS NON-ZERO SIBLING IS AB-3. Measured, not assumed:
+#  the H7 control that removes reportRunAbandoned leaves THIS row green -- with nothing
+#  printing ABANDONED anywhere, a count of zero is what you get for free -- and reddens
+#  AB-3. The PAIR discriminates; neither half does. Never read this row on its own.
+_arb=$(grep -c "^ABANDONED" "$T/art2")
+if [ "$_arb" = 0 ]; then
+    echo "  ok    abandonT the BOUNDED refusal in argRetiredT does NOT abandon -- AB-3 discriminates"; green=$((green+1))
+else
+    echo "  FAIL  argRetiredT ABANDONED $_arb times -- a bounded refusal is being reported as"
+    echo "        an abandonment, so AB-3 is measuring 'a refusal happened' and nothing more"; fail=1
+fi
+
 #  ---- opPrefixT: every operator with a prefix sibling reads as ONE term ------
 #  Built 2026-09-16. Twenty-three registered operators have another registered
 #  operator as a strict prefix. If one were ever read as its shorter sibling the

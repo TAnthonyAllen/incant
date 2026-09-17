@@ -1,0 +1,43 @@
+/*  abandonT -- A REFUSAL RAISED FROM AN EXPRESSION AT DEFINE TIME ABANDONS THE FILE,
+    AND NOW SAYS SO. Built 2026-09-17 for fixIts F-76.
+
+    ⚠ THIS FIXTURE TRUNCATES ON PURPOSE AND HAS NO REACHABLE stop(). That is the
+    behaviour under test, not a defect in the file. It is safe under rule H5 because a
+    truncating run is not a HANGING run -- it exits 0 promptly and cannot take the suite
+    hostage.
+
+    ⚠ ITS TERMINAL MARKER IS THE `ABANDONED` LINE ITSELF, and that is better than a print
+    could be: the line is emitted from main() AFTER the parse returns, so it is
+    UNREACHABLE except through the end of the run. H2 wants a sentinel that a truncated
+    run cannot fake, and a truncation cannot fake this one.
+
+    THE MECHANISM, measured 2026-09-17 with a probe at aCTionDefinE's tail:
+      a refusal from a RULE ACTION during a definition reaches aCTionDefinE's
+        refusalBoundary, is reported, and is CLEARED -- incant/pop/argRetiredT
+      a refusal from an EXPRESSION during a definition produces NO tail line at all: the
+        match fails before that action ever fires, so the boundary is not missed, it is
+        STRUCTURALLY UNREACHABLE. Nothing clears the flag and the rest of the file dies.
+
+    THE ROWS
+      AB-1   the marker BEFORE the bad define runs -- pinned as a COUNT of exactly 1,
+             because "the second one did not run" is an absence and H4 forbids one
+      AB-2   the REFUSED line, by message
+      AB-3   the ABANDONED line, by message, naming the file
+    AB-1 at exactly 1 is what says the run stopped where it was supposed to: a 2 means
+    the file was NOT abandoned and this whole fixture is measuring nothing.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(AbandonT);
+define
+    abRoot;
+    abMark code={ cerr "AB-1 marker ran":; };
+    ;
+abMark(abRoot);
+define
+    abBad = abRoot.*abNope;
+    ;
+abMark(abRoot);
+cerr "AB-UNREACHED -- if this prints, the run was NOT abandoned":;
+stop();

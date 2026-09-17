@@ -5715,7 +5715,18 @@ define
                     raised from an EXPRESSION during a definition never arrives, so nothing
                     clears the flag, it propagates, and every statement after that
                     definition is dropped with no stop line and exit 0. fixIts F-76.
-                    Do not read that truncation as a mystery: it is a missing boundary.#);
+                    fixIts F-76.
+
+                    ⚠⚠ AND THE WORD MISSING WAS WRONG -- CORRECTED THE SAME DAY BY A PROBE AT
+                    THIS FUNCTION'S OWN TAIL. aCTionDefinE does not run at all for a field whose
+                    value expression refused: printing the tag and the flag unconditionally at
+                    the tail gives tag=arBad refused=1 for the rule-action case and NO LINE AT
+                    ALL for the expression case. The match fails before the action fires. So the
+                    boundary is not missed on that path, it is STRUCTURALLY UNREACHABLE, and
+                    giving that path a boundary is a change to parse semantics rather than a line
+                    of code. F-76 closed by naming the SILENCE instead -- reportRunAbandoned,
+                    from main, after the parse returns. Whether that path SHOULD be terminal is
+                    still unruled and is deliberately unchanged.#);
                 producerOwnsInvariant=(⚠ THE PRODUCER OWNS THE INVARIANT: EVERY LIVE RULE
                     CARRIES rStuff. Mark 3, Tony 2026-08-22.
 

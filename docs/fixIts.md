@@ -79,38 +79,66 @@ not move when a child was added to the first entry. The trial's own tally in
 renamed, and it is known which one `lookuP` was returning. **Grade:** CONFIRMED — both lines read.
 **Owner:** unassigned. **Size:** small, but it needs a ruling on which children belong where.
 
-### F-76 — a refusal raised from an EXPRESSION at define time never reaches a boundary, and the file dies at exit 0
-**What:** `aCTionDefinE`'s `refusalBoundary` is what **clears** `ruler.refused`. A refusal raised
-from a **rule action** during a definition reaches it, is reported, is cleared, and the parse
-continues. A refusal raised from an **expression** during a definition **never reaches it** — so
-nothing clears the flag, it propagates, and **every statement after that definition is dropped**,
-with no `stop:` line and **exit 0**.
+### F-78 — an outstanding refusal appears to disable `stop()`, so the parse-dead region is parsed
+**SYMPTOM REPRODUCED, CAUSE NOT DIAGNOSED — recorded per bear-trap #18's split.** Found
+2026-09-17 by the F-76 abandonment line on its first run, which named a **standing red fixture**.
+**What is measured:** `incant/pop/trigDO` has `stop();` at line 95 and **425 lines of prose below
+it**. Its run prints `TRIG SENTINEL` (line 94), then **`RunRulE: expected a method not THE` /
+`NEW` / `PARSE` / `FIRES`** — those are words from the prose — then the new
+`ABANDONED incant/pop/trigDO` line, and **`stop: end parsing` never appears**.
+**So the dead region is being parsed as statements, and `stop()` did not stop.** One refusal is
+outstanding for the whole of it.
+⚠ **THE OBVIOUS MECHANISM IS NOT RECORDED AS ONE.** The tempting story is that the outstanding
+refusal short-circuits `stop()` through one of `Instruct.rtn`'s fifteen `if ruler.refused return
+null;` guards or `runOP`'s. **That was not tested.** This project's ledger says a mechanism
+inferred from a symptom is roughly a coin flip, and F-72's own headline was wrong for exactly
+this reason a day earlier.
+⚠ **WHY IT MATTERS BEYOND trigDO:** *"everything below `stop()` is parse-dead and therefore
+unconstrained"* is ratified doctrine (Addendum 2, Tony 2026-08-20) and every fixit citizen's
+explanation prose relies on it. **If an outstanding refusal revokes it, the guarantee has a
+precondition nobody has written down.**
+**Done when:** the mechanism is isolated — one A/B: the same file with and without a refusal
+before `stop()`. **Grade:** symptom reproduced twice, cause OPEN. **Owner:** unassigned.
+**Size:** the measurement is small; the doctrine consequence may not be.
 
-**Evidence, 2026-09-17, two arms, same binary:**
+### F-76 — ✅ CLOSED 2026-09-17 — the abandonment is named; the boundary is unreachable BY DESIGN, not missing
+**⚠ THE ROW'S ORIGINAL "DONE WHEN" OFFERED TWO CURES AND MEASUREMENT REMOVED ONE OF THEM.** It
+said *"the expression path has a boundary too, **or** it is ruled that a define-time expression
+refusal should be terminal."* The first is not a line of code — it is a change to parse
+semantics — because **`aCTionDefinE` never runs at all on that path.**
 
-| refusal raised from | reaches the boundary | reaches the file's foot |
-|---|---|---|
-| a rule action (`incant/pop/argRetiredT`'s `arBad`) | **yes** — `REMOVED arBad from ArgRetired` | **yes**, sentinel prints |
-| an expression (`dcBad = dcRoot.*dcMid;` in a define block) | **no** — no `REMOVED` line | **no** — truncated, no sentinel, exit 0 |
+**MEASURED 2026-09-17 with a temporary probe at `aCTionDefinE`'s tail, printing the tag and the
+flag unconditionally:**
 
-**⚠ THIS IS THE PROJECT'S WORST-NAMED FAILURE MODE ARRIVING THROUGH A NEW DOOR.** It is
-indistinguishable from a short successful run: every assertion before the bad definition passes,
-the output it already had is flushed, and the return is 0.
+| refusal raised from | `aCTionDefinE` tail line for the bad field |
+|---|---|
+| a **rule action** (`argRetiredT`'s `arBad`) | `PROBE ... tag=arBad refused=1` → reported → **cleared** → `arAfter` continues |
+| an **expression** (`abBad = abRoot.*abNope`) | **no tail line at all** — the match fails before the action fires |
 
-**⚠ AND IT IS WHY TONY'S 2026-09-17 CERTIFICATE COULD NOT BE CASHED AS SPECIFIED.** The ruling
-asked for *"a row for `a.*b` inside a define, showing the field removed by name"* as the proof
-that the boundary work and the F-72 escalation are one stroke seen from both ends. **The field is
-not removed by name — the file truncates instead.** The two halves are certified separately:
-`argRetiredT` pins the boundary's message, `dotChainT` pins the escalation. A fixture row for
-`a.*b` in a define is **deliberately absent**, because under rule H5 it would take its whole file
-hostage.
+**So the boundary is not MISSED on that path, it is STRUCTURALLY UNREACHABLE**, and the two things
+that clear the flag — `runAction`'s refusalArm and `refusalBoundary` — both sit behind it. Nothing
+clears it, the break walks outward through `aCTionBlocK`'s refusalArm, and the file dies.
 
-**Where:** `ruleActions.rtn`, `aCTionDefinE`'s `refusalBoundary` — reached on one path and not the
-other. **Done when:** the expression path has a boundary too, or it is ruled that a define-time
-expression refusal SHOULD be terminal — in which case it owes a loud line saying the file was
-abandoned, because silence at exit 0 is not a way to be terminal.
-**Grade:** CONFIRMED, two arms with a positive control. **Owner:** unassigned — surfaced by the
-F-72 escalation, not caused by it. **Size:** unknown; it is a design question first.
+**WHAT LANDED: the silence, not the behaviour.** `reportRunAbandoned`, called from `groups.twk`'s
+`main` immediately after `boot.parse(0)` — the outermost boundary and the only place that knows
+the run is over. **Being terminal is defensible; being terminal without saying so is not.**
+⚠ **Whether that path SHOULD be terminal is still unruled and is deliberately unchanged.**
+
+**⚠ IT NEEDED THE OUT-OF-REPO MIRROR, unlike the F-72 sibling.** `groups.twk` includes
+`groups.ext`, a different include chain, so the extern is declared there too — support repo,
+committed in the same pass per the 2026-08-25 rule.
+
+**COVERAGE — `incant/pop/abandonT`, new, five rows.** It **truncates by design and has no
+reachable `stop()`**; safe under H5 because a truncating run is not a hanging one. ⚠ **Its
+sentinel is the `ABANDONED` line itself**, which is stronger than a print: `main` emits it after
+the parse returns, so it is unreachable except through the end of the run and a truncation cannot
+fake it. AB-1 is pinned as a **count of exactly 1** because *"the second marker did not run"* is
+an absence.
+**H7 control:** removing the call reddens **AB-3 alone**. ⚠ **And the control exposed a vacuity
+in the discriminator row** — argRetiredT's `ABANDONED == 0` stays **green** with the reporter
+gone, because nothing prints it anywhere. **Its non-zero sibling is AB-3; the pair discriminates
+and neither half does.** That is written into `pop.sh` beside the row.
+**Grade:** CONFIRMED, with a positive control on both sides.
 
 ### F-75 — `opDot`'s `if !argument` carries two meanings, and one of them is a lie
 **LATENT, NOT TOUCHED — banked on Tony's ruling of 2026-09-17.** One slot, one meaning.

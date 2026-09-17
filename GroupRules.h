@@ -386,6 +386,7 @@ extern "C" void reportDefineRemoved(GroupItem *field, GroupItem *intoReg);
 extern "C" int reportMaxLimit(GroupItem *field);
 extern "C" void reportNoBody(GroupItem *field);
 extern "C" int reportRepeatLimit(GroupItem *rule, int kounted, int limit);
+extern "C" void reportRunAbandoned(char *fileName);
 extern "C" GroupItem *resetField(GroupItem *argument);
 extern "C" void restoreLocalFields(GroupItem *action);
 extern "C" char *row42(GroupItem *term);

@@ -11320,6 +11320,38 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
+/*  reportRunAbandoned -- THE OUTERMOST BOUNDARY, AND THE ONLY PLACE THAT KNOWS THE RUN IS
+    OVER. Built 2026-09-17 for fixIts F-76.
+
+    A refusal is terminal for its action and it BREAKS the enclosing block (aCTionBlocK's
+    refusalArm). The break walks outward, and the two things that CLEAR the flag --
+    runAction's refusalArm and aCTionDefinE's refusalBoundary -- sit on paths a refusal
+    raised from an EXPRESSION during a definition never reaches, because the match fails
+    before aCTionDefinE's action ever fires. Measured 2026-09-17 with a probe at that
+    action's tail: `arBad` (refused from a rule action) prints `refused=1` there and is
+    reported and cleared; `dcBad` (refused from an expression) produces NO tail line at all.
+
+    ⚠ SO THE BOUNDARY IS NOT MISSED ON THAT PATH, IT IS STRUCTURALLY UNREACHABLE -- and
+    nothing clears the flag, so the rest of the FILE is abandoned. Silently. At exit 0,
+    with no `stop:` line, which is indistinguishable from a short successful run and is
+    the failure mode this project has paid for more than any other.
+
+    ⚠ THIS DOES NOT CHANGE THAT BEHAVIOUR AND IS NOT TRYING TO. Whether a define-time
+    expression refusal SHOULD be terminal is a ruling nobody has made, and giving that path
+    a boundary is a change to parse semantics rather than a line. What this removes is the
+    SILENCE: being terminal is defensible, being terminal without saying so is not.
+    ruleActions.reportRunAbandoned  */
+extern "C" void reportRunAbandoned(char *fileName)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*whichFile = "(no file)";
+	if ( !ruler->refused )
+		return;
+	if ( fileName )
+		whichFile = fileName;
+	::fprintf(stderr,"ABANDONED %s -- the run ended with a refusal outstanding. Every statement after the REFUSED line above was SKIPPED, not parsed. The exit status is still 0\n",whichFile);
+}
+
 /*****************************************************************************
     reset — incant command (bound as reset immediateAction=resetField in
     setup). Self-describing by argument: for now it knows buffers (resets the
