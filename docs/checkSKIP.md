@@ -203,7 +203,18 @@ separate defect and is measured, not fixed, by this file.
 
 ## 7. Where it sits on the docket (proposal)
 
-1. F-72, its own stroke (unchanged).
+**WHO DOES WHAT (Tony, 2026-09-17).** Tony writes the **first cut** of the incantation from this
+card; Clod comes in afterwards to help finish. ⚠ **The first cut deliberately does NOT address
+item 4** — generating a parse for a rule that already carries an action — so a first cut that
+stalls on exactly that is the plan working, not a defect. Recorded here rather than left in
+chat, because a division of labour that lives in a conversation is one nobody can check against.
+
+
+1. ~~F-72, its own stroke.~~ ✅ **CLOSED 2026-09-17**, `258a5ff`. Worth one line here
+   because it touched this card's own machinery: the refusal sits in `interpretXP`, not in
+   `opDot`, because opDot's `!argument` test cannot tell *"no right operand was written"* from
+   *"the right operand evaluated to null"* and its `lastREF` fixup destroys both operands before
+   anything can ask. Any rule here spelling a unary to the right of a dot now gets told.
 2. `a.b.c.d`, the backward walk's stack (unchanged).
 3. **DelimitText opaque scan, C++, one stroke.** Unblocks grisyDirectives without waiting for
    anything below; it is the 2026-08-02 ruling's "C++ now" half. CS-3 and CS-10 are its rows.
@@ -211,6 +222,11 @@ separate defect and is measured, not fixed, by this file.
    need a generated parse, so this file depends on it. Clod's read 2026-09-17: the gap is one
    arm upstream of `setParse` — `setActions`'s `isCoded` arm sets `method = processAction` and
    publishes no `builtinActoR`, where the other two arms publish. The card is a `setActions`
-   card first.
+   card first. ⚠ **AND THAT READ IS STRUCTURAL, NOT RUN** — three sites read (`setActions`'s
+   three arms, `fireLabelMethod`'s lazy fill, `setParseWalk`'s tail) and no fixture driven. It
+   is **one fixture from being measured**: a kant rule that is `isCoded` AND carries members,
+   put through `setParse`, and ask whether its action survives. In this project a mechanism you
+   can point at is usually right and one inferred from a symptom is a coin flip, so this is the
+   better half of that — but it is still owed a run before anyone builds on it.
 5. **checkSKIP in kant, interpreted, CS-1..CS-9 against the C++ oracle.** Correctness only.
 6. Efficiency: waits on the jitter, by Tony's own estimate. Not this card's claim.
