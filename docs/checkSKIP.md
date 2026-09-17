@@ -23,8 +23,12 @@ action bodies are kant-shaped, not kant-verified. Clod transcribes the spellings
 ```
 IndenT          [ \n\t]+;                                   -- see Q1: run, not char
 CommenT
-    BlockCommenT    "/*" BlockCommenT? commentBody="*/";    -- see Q2: nest or not
-    LineCommenT     "//" commentBody="\n";                  -- see Q3: EOF
+    BlockCommenT    "/*" EmbeddedCommenT-* commentBody="*/"};   -- nests; see below
+    LineCommenT     "//" commentBody="\n"};                      -- the whole line; Q3: EOF
+EmbeddedCommenT     commentBrace{ BlockCommenT;                  -- scan to a brace, dispatch
+commentBrace
+    OpenCommenT     "/*";                                        -- back up to hereAt, succeed
+    CloseCommenT    "*/";                                        -- back up to hereAt, FAIL
 sKIP
     DelimitText;
     QuotE;
@@ -33,9 +37,21 @@ sKIP
 checkSKIP       sKIP+;                                      -- `skipping=` label dropped, as Tony said
 ```
 
-Edits from the status text, both believed typos: the `}` after `"*/"` and `"\n"` is removed
-(it is also the KANT-40 character, so it must not appear in any body below), and
-`BlockComment?` / `Comment` are respelled `BlockCommenT?` / `CommenT`.
+**`}` and `{` are modifiers, not typos** (Tony, 2026-09-17). `commentBody="\n"}` is the whole
+line up to and including the terminator; `commentBrace{` scans to whichever brace comes first.
+The only respell from the status text is `BlockComment` / `Comment` → `BlockCommenT` / `CommenT`.
+
+**Nesting (Tony's design, 2026-09-17).** Tok nests `/* */` and kant follows. The first sketch
+(`"/*" BlockCommenT? commentBody`) nested only when the inner `/*` sat immediately after the
+outer one; `EmbeddedCommenT` fixes that by scanning to the next brace first. If it is `/*` the
+cursor backs up to `hereAt` and `BlockCommenT` runs on it; if it is `*/` the cursor backs up to
+`hereAt` and `EmbeddedCommenT` fails, which is the `-*` loop's exit, and `commentBody` then
+captures the tail from where the scan began. Two Clay additions to Tony's shape: the `-*` (one
+`?` handles one nested comment; two siblings need the loop) and the two labelled alternatives in
+place of an action asking which spelling hit (09-10 doctrine). `BlockCommenT` after
+`OpenCommenT` is required, not `?`, so an unterminated inner comment refuses with a patient.
+The back-up-on-failure is doable and **needs testing** — every non-nested block comment tests
+it, because `EmbeddedCommenT` fails on the first `*/` before `commentBody` ever runs.
 
 ## 3. The model — what a matched alternative DOES
 
@@ -84,11 +100,29 @@ In a CodE body the same arm keeps the span (the customer decides — see §4 tai
 ### aCTionBlockCommenT
 ```
 {
-    // blockComment consumed through the close; the recursion question is Q2
+    // blockComment consumed through the close; nesting was handled by the terms
     input.pos = commentBody.end;
     return labelNO;
 }
 ```
+
+### aCTionOpenCommenT / aCTionCloseCommenT  (the `commentBrace{` dispatch)
+```
+{
+    // openComment leave the cursor ON the brace so BlockCommenT can take it
+    input.pos = hereAt;
+    return labelNO;
+}
+```
+```
+{
+    // closeComment nothing embedded before the close; restore and fail
+    input.pos = hereAt;
+    return NULL;
+}
+```
+`hereAt` is the position `EmbeddedCommenT` started scanning from — whatever the C++ names it.
+The failure arm restoring the cursor is the part that needs testing (§2).
 
 ### aCTionQuotE / aCTionDelimitText  (pass-through)
 ```
@@ -145,7 +179,9 @@ CS-3   "(G03 // x)"             DelimitText opaque; // kept         both      <-
 CS-4   "\"//\" y"               stops at the quote                  both
 CS-5   "/* a\n*/ y"             close on a later line               both
 CS-6   "// x"  (no newline)     skips to end, no refusal            both      <- Q3
-CS-7   "/* /* */ x */ y"        pinned to Q2's ruling               both
+CS-7a  "/* /* */ x */ y"        nested at start                     both
+CS-7b  "/* a /* b */ c */ y"    nested mid-body                     both      <- the first sketch failed this
+CS-7c  "/* /* b */ c /* d */ e */ y"  two siblings                  both      <- needs the -* loop
 CS-8   "a\n    b\n  c\nd"       layout emits, gates up              diff of the two token streams
 CS-9   same text, gates down    no emits                            diff
 CS-10  "(G03\n\"#)"             stored value read back, once        the \\n defect, whichever side owns it
@@ -157,9 +193,8 @@ separate defect and is measured, not fixed, by this file.
 
 - **Q1** `IndenT` as a run (`+`) or one character with the loop doing the run? Layout needs the
   column, which wants the run.
-- **Q2** Do block comments nest? C++ says no; `/* a /* b */ c` then leaves nothing open. The
-  recursive term is the experiment Tony wants to try — keep it as CS-7's fixture either way,
-  but the production answer should match what the `.twk` → `.mm` road already assumes.
+- **Q2** ANSWERED 2026-09-17: block comments nest, as in Tok. The design is in §2; the
+  back-up-on-failure needs testing.
 - **Q3** Line comment at end of input with no newline: succeed (labelNO) or refuse? Draft says
   succeed.
 - **Q4** Inside DelimitText, is `\` the only escape, and does `"` count for nothing? G03's lone
@@ -172,7 +207,10 @@ separate defect and is measured, not fixed, by this file.
 2. `a.b.c.d`, the backward walk's stack (unchanged).
 3. **DelimitText opaque scan, C++, one stroke.** Unblocks grisyDirectives without waiting for
    anything below; it is the 2026-08-02 ruling's "C++ now" half. CS-3 and CS-10 are its rows.
-4. **builtinParseR** (Tony's setParse question, own card) — checkSKIP's alternatives carry
-   actions AND need a generated parse, so this file depends on it.
+4. **builtinParseR** (Tony's question, own card) — checkSKIP's alternatives carry actions AND
+   need a generated parse, so this file depends on it. Clod's read 2026-09-17: the gap is one
+   arm upstream of `setParse` — `setActions`'s `isCoded` arm sets `method = processAction` and
+   publishes no `builtinActoR`, where the other two arms publish. The card is a `setActions`
+   card first.
 5. **checkSKIP in kant, interpreted, CS-1..CS-9 against the C++ oracle.** Correctness only.
 6. Efficiency: waits on the jitter, by Tony's own estimate. Not this card's claim.
