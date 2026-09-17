@@ -3716,6 +3716,12 @@ GroupItem 	*token = 0;
 					arg->groupBody->flags.invoke = 1;
 				if ( target )
 					{
+					// dotUnaryRight  `a.*b` -- ASK HERE OR NOWHERE; opDot's lastREF fixup has
+					// dotUnaryRight  already destroyed both operands by the time it could ask.
+					// dotUnaryRight  INSIDE the target guard: the backward walk reaches the arg
+					// dotUnaryRight  block once with op set and again with target set, so a seat
+					// dotUnaryRight  above this line fires TWICE on one expression
+					refuseDotUnaryRight(op,arg);
 					xl = new GroupItem("xl2");
 					xl->addMember(op);
 					xl->addMember(target);
@@ -11130,6 +11136,51 @@ char 		*name = "(none)";
 	::fprintf(stderr,"REFUSED %s -- %s [line %s]\n",name,why,::toStringFromInt(ruler->sourceLINE));
 	ruler->refused = 1;
 	return 0;
+}
+
+/*  refuseDotUnaryRight -- `a.*b`. THE STAR IS ONLY VISIBLE HERE, AND THE REFUSAL THE
+    2026-09-16 ruling asked for COULD NOT GO WHERE IT WAS SITED.
+
+    A unary on the right of a dot never reaches opDot as a unary. Measured 2026-09-17:
+    `a.*b` parses as TWO terms, `a` (bare primary, no InvokeArg) and `*b` (unary-only) --
+    no dot-COMPOSED arm at all -- and opDot then arrives with a NULL right operand,
+    because the 09-05 star ruling makes `*b` on a non-group field yield null.
+    ⚠ THAT NULL IS INDISTINGUISHABLE FROM A LEADING DOT, so opDot's lastREF fixup fires,
+    rewrites BOTH operands, and the expression silently becomes `.a`. DOTOPERANDS reads
+    left=right=a, which is what F-72 recorded and mis-read as "no dot forms".
+    ⚠ ONE CHANNEL, TWO MEANINGS: `!argument` in opDot means BOTH "no right operand was
+    written" (a parse fact) and "the right operand evaluated to null" (a value fact). By
+    the time opDot can ask, the evidence is gone -- so the question is asked HERE, where
+    the uxp still carries its operator.
+    A dot-uxp is NOT this: that is the chain, and the fold above has already taken it.
+    ruleActions.interpretXP.dotUnaryRight  */
+extern "C" int refuseDotUnaryRight(GroupItem *op, GroupItem *arg)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*aop = 0;
+	if ( !op )
+		return 0;
+	if ( op->groupBody->registry != ruler->opFields )
+		return 0;
+	if ( ::compare(op->groupBody->tag,".") != 0 )
+		return 0;
+	if ( !arg )
+		return 0;
+	if ( ::compare(arg->groupBody->tag,"uxp") != 0 )
+		return 0;
+	aop = arg->groupBody->groupList->firstInList;
+	if ( !aop )
+		return 0;
+	if ( aop->groupBody->registry != ruler->opFields )
+		return 0;
+	if ( ::compare(aop->groupBody->tag,".") == 0 )
+		return 0;
+	/*  derefIsTheTag  NAME THE OPERATOR BY ITS REGISTRY TAG AND DO NOT RECONSTRUCT THE
+	SOURCE SPELLING -- the unary star registers as `deref` (incant/setup:115), so
+	echoing the tag into a cure produced `a[derefb]` on the first cut of this line.
+	The cure is spelled as the SHAPE, with the star as the worked example.  */
+	::fprintf(stderr,"REFUSED . -- unary %s on the right of a dot is never seen by opDot. Move the unary inside a subscript -- a[*b], not a.*b\n",aop->groupBody->tag);
+	return 1;
 }
 
 /*****************************************************************************

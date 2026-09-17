@@ -380,6 +380,7 @@ extern "C" GroupItem *quoted(GroupItem *input);
 extern "C" GroupItem *rEGISTER(GroupItem *item);
 extern "C" GroupItem *recordParse(GroupItem *argument);
 extern "C" GroupItem *refuse(GroupItem *subject, char *why);
+extern "C" int refuseDotUnaryRight(GroupItem *op, GroupItem *arg);
 extern "C" void reportCodeFail(GroupItem *field);
 extern "C" int reportMaxLimit(GroupItem *field);
 extern "C" void reportNoBody(GroupItem *field);

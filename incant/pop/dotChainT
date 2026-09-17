@@ -27,13 +27,26 @@
       DC-5  *a.b       star and dot in one term
       DC-7  .b  after a call, lastREF set
       DC-8  .b  with nothing in lastREF
-      DC-9  a.*b       a unary on the RIGHT operand. ⚠ PINNED AS AN ECHO AND
-                       NOT YET A REFUSAL -- `a.*b` never forms a dot at all
-                       (measured twice, 2026-09-16: no dot-COMPOSED arm, and
-                       DOTOPERANDS reads left=right=a), so neither opDot nor
-                       handleDot ever sees the star and neither can refuse it.
-                       The refusal is owed once the shape is diagnosed; this row
-                       exists so the day it changes, something says so.
+      DC-9  a.*b       a unary on the RIGHT operand. ⚠ NOW REFUSED (2026-09-17,
+                       F-72) AND STILL AN ECHO -- both, deliberately.
+                       ⚠ THE 09-16 READING WAS WRONG AND IS CORRECTED HERE: it
+                       said `a.*b` never forms a dot at all. It DOES -- opDot
+                       fires. What it never sees is the STAR. `a.*b` parses as
+                       TWO terms, `a` bare and `*b` unary-only with no
+                       dot-COMPOSED arm, and `*b` on a non-group field yields
+                       NULL by the 09-05 star ruling -- so opDot arrives with a
+                       null right operand, cannot tell that from a LEADING dot,
+                       and its lastREF fixup rewrites BOTH operands. That is why
+                       DOTOPERANDS read left=right=a, and why the refusal could
+                       not go where the ruling sited it: by opDot the evidence
+                       is gone. It sits in interpretXP, where the uxp still
+                       carries its operator.
+                       ⚠ THE VALUE IS UNCHANGED ON PURPOSE. This is a DIAGNOSTIC;
+                       `refuse()` proper was not used because it raises
+                       ruler.refused, which aCTionDefinE's refusalBoundary reads
+                       to REMOVE THE DEFINITION FROM THE REGISTRY. Whether a.*b
+                       should kill its enclosing define is unruled. The echo pin
+                       is what goes red the day someone escalates.
     DC-6 was `(*a).b` and is NOT here: parenthesised grouping does not parse in
     this position, measured 2026-09-16. Its question is DC-5's.
 

@@ -2529,6 +2529,50 @@ for _r in "DC-1 a.b        = MIDVAL|DC-1 a.b        =  MIDVAL" \
     fi
 done
 
+#  ---- F-72: a.*b is REFUSED, once, and its value is unchanged ----------------
+#  Built 2026-09-17. `a.*b` never reaches opDot as a unary: it parses as TWO
+#  terms -- `a` bare and `*b` unary-only, no dot-COMPOSED arm -- and opDot then
+#  arrives with a NULL right operand because `*b` on a non-group field yields
+#  null by the 09-05 star ruling. opDot's lastREF fixup cannot tell that null
+#  from a LEADING dot, so it rewrites BOTH operands and the expression silently
+#  becomes `.a`. The refusal therefore sits in interpretXP, where the uxp still
+#  carries its operator, and NOT in opDot where the ruling first sited it.
+#
+#  ⚠ THREE ROWS, AND THE COUNT IS ONE OF THEM. The refusal fires on the
+#  EXPRESSION BUILD, not per execution, so a fixture calling dcR9 twice still
+#  sees one line. And it must be exactly ONE: the backward walk reaches the arg
+#  block once with `op` set and again with `target` set, so a seat placed above
+#  the target guard fires TWICE on one expression. That was the first cut, and
+#  the count row is what would catch it coming back.
+#
+#  ⚠ THE VALUE ROW IS NOT REDUNDANT WITH THE REFUSAL ROW. This landing is a
+#  DIAGNOSTIC and deliberately changes no value -- `refuse()` proper was NOT used
+#  because it raises ruler.refused, which aCTionDefinE's refusalBoundary reads to
+#  REMOVE THE DEFINITION FROM THE REGISTRY. Whether a.*b should kill its
+#  enclosing define is a ruling nobody has made. The echo row is what will go red
+#  the day someone escalates, which is exactly when a human should look.
+if grep -qF "REFUSED . -- unary deref on the right of a dot is never seen by opDot" "$T/dc.e"; then
+    echo "  ok    dotChain DC-9 a.*b is REFUSED, by message not by absence"; green=$((green+1))
+else
+    echo "  FAIL  dotChain DC-9 a.*b -- NO REFUSAL. Actual:"
+    grep -F "REFUSED" "$T/dc.e" | sed 's/^/          /'; fail=1
+fi
+_dcn=$(grep -cF "REFUSED . -- unary deref on the right of a dot" "$T/dc.e")
+if [ "$_dcn" = 1 ]; then
+    echo "  ok    dotChain DC-9 refuses EXACTLY ONCE (seat is inside the target guard)"; green=$((green+1))
+else
+    echo "  FAIL  dotChain DC-9 refused $_dcn times, want exactly 1 -- a count of 2 means"
+    echo "        the seat drifted ABOVE interpretXP's target guard and fires on both"
+    echo "        passes of the backward walk"; fail=1
+fi
+if grep -qF "DC-9 a.*b       =  dcJ" "$T/dc.e"; then
+    echo "  ok    dotChain DC-9 value UNCHANGED (echo) -- the refusal is a diagnostic, not an abort"; green=$((green+1))
+else
+    echo "  FAIL  dotChain DC-9 value MOVED -- if this was a deliberate escalation to"
+    echo "        refuse() proper, re-pin with a sentence (H6). Actual:"
+    grep -F "DC-9" "$T/dc.e" | sed 's/^/          /'; fail=1
+fi
+
 #  ---- opPrefixT: every operator with a prefix sibling reads as ONE term ------
 #  Built 2026-09-16. Twenty-three registered operators have another registered
 #  operator as a strict prefix. If one were ever read as its shorter sibling the

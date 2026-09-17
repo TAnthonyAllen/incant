@@ -1434,6 +1434,12 @@ GroupItem   op, target, arg, xl, token;
             if arg {
                 if arg.actionType || arg.instructType   arg.invoke = true;
                 if target {
+                    // dotUnaryRight  `a.*b` -- ASK HERE OR NOWHERE; opDot's lastREF fixup has
+                    // dotUnaryRight  already destroyed both operands by the time it could ask.
+                    // dotUnaryRight  INSIDE the target guard: the backward walk reaches the arg
+                    // dotUnaryRight  block once with op set and again with target set, so a seat
+                    // dotUnaryRight  above this line fires TWICE on one expression
+                    refuseDotUnaryRight(op,arg);
                     xl  = new("xl2");
                     xl  += op;
                     xl  += target;
@@ -1475,6 +1481,44 @@ GroupItem   op;
     if op.registry != ruler.opFields    return false;
     if op.tag ne "."                    return false;
     return true;
+}
+
+
+/*  refuseDotUnaryRight -- `a.*b`. THE STAR IS ONLY VISIBLE HERE, AND THE REFUSAL THE
+    2026-09-16 ruling asked for COULD NOT GO WHERE IT WAS SITED.
+
+    A unary on the right of a dot never reaches opDot as a unary. Measured 2026-09-17:
+    `a.*b` parses as TWO terms, `a` (bare primary, no InvokeArg) and `*b` (unary-only) --
+    no dot-COMPOSED arm at all -- and opDot then arrives with a NULL right operand,
+    because the 09-05 star ruling makes `*b` on a non-group field yield null.
+    ⚠ THAT NULL IS INDISTINGUISHABLE FROM A LEADING DOT, so opDot's lastREF fixup fires,
+    rewrites BOTH operands, and the expression silently becomes `.a`. DOTOPERANDS reads
+    left=right=a, which is what F-72 recorded and mis-read as "no dot forms".
+    ⚠ ONE CHANNEL, TWO MEANINGS: `!argument` in opDot means BOTH "no right operand was
+    written" (a parse fact) and "the right operand evaluated to null" (a value fact). By
+    the time opDot can ask, the evidence is gone -- so the question is asked HERE, where
+    the uxp still carries its operator.
+    A dot-uxp is NOT this: that is the chain, and the fold above has already taken it.
+    ruleActions.interpretXP.dotUnaryRight  */
+extern int refuseDotUnaryRight(GroupItem op, GroupItem arg)
+{
+GroupRules  ruler = groupRules;
+GroupItem   aop;
+    if !op                              return 0;
+    if op.registry != ruler.opFields    return 0;
+    if op.tag ne "."                    return 0;
+    if !arg                             return 0;
+    if arg.tag ne "uxp"                 return 0;
+    aop = arg.firstInList;
+    if !aop                             return 0;
+    if aop.registry != ruler.opFields   return 0;
+    if aop.tag eq "."                   return 0;
+    /*  derefIsTheTag  NAME THE OPERATOR BY ITS REGISTRY TAG AND DO NOT RECONSTRUCT THE
+        SOURCE SPELLING -- the unary star registers as `deref` (incant/setup:115), so
+        echoing the tag into a cure produced `a[derefb]` on the first cut of this line.
+        The cure is spelled as the SHAPE, with the star as the worked example.  */
+    cerr "REFUSED . -- unary " aop.tag " on the right of a dot is never seen by opDot. Move the unary inside a subscript -- a[*b], not a.*b":;
+    return 1;
 }
 
 /*  unaryIsAccess -- THE UNARY CLASS PREDICATE, one question asked by two arms. ACCESS

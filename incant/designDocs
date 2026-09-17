@@ -6044,6 +6044,66 @@ define
                     for data. A tag test would be bear-trap 26's family, since a data-less
                     node reads back its own name and would answer yes to everything.#);
             interpretXP=(the interpret/run mode of the expression walk.#):
+                dotUnaryRight=(F-72 -- `a.*b`, and WHY THE REFUSAL COULD NOT GO WHERE
+                    THE RULING SITED IT. Ruled 2026-09-16 as a refusal in opDot
+                    "before the switch(gCount)"; diagnosed 2026-09-17 and sited here
+                    instead. The diagnosis is the whole entry.
+
+                    WHAT `a.*b` ACTUALLY PARSES AS. Two terms, not one: `a` as a bare
+                    primary with NO InvokeArg, and `*b` as a unary-only term. Measured
+                    with measureTokenArm against `a.b` in the same run -- `a.b` fires
+                    ONE dot-COMPOSED arm carrying its InvokeArg, `a.*b` fires a primary
+                    and a unary-only and no dot arm at all. The `.` is on neither term.
+
+                    ⚠ THE 09-16 RECORD SAID "a.*b NEVER FORMS A DOT AT ALL" AND THAT IS
+                    WRONG. opDot FIRES. The `.` is an Operators entry, so at expression
+                    level it is an ordinary binary op and interpretXP builds the xl2 for
+                    it. What opDot never sees is the STAR.
+
+                    WHY IT NEVER SEES IT. `*b` on a field holding no group yields NULL
+                    by Tony's star ruling of 2026-09-05 (Instruct.opDeref.starRuling).
+                    So opDot arrives with argument == null.
+
+                    ⚠⚠ AND THAT NULL IS ONE CHANNEL CARRYING TWO MEANINGS, which is this
+                    project's named family and is the actual defect. opDot's head reads
+                    `if !argument` and takes it to mean "no right operand was WRITTEN" --
+                    a PARSE fact -- and fires the lastREF fixup, which assigns
+                    argument = target and target = lastREF.group. But it also means "a
+                    right operand WAS written and EVALUATED to null" -- a VALUE fact.
+                    One test, two eras. The fixup rewrites BOTH operands, which is why
+                    DOTOPERANDS reads left = right = a, and it is why no refusal can be
+                    sited in opDot: by the time opDot can ask the question, it has
+                    already destroyed the evidence.
+
+                    SO THE QUESTION IS ASKED IN interpretXP, where the right operand is
+                    still the uxp handleUnary minted and still carries its operator as
+                    its first attribute. refuseDotUnaryRight asks exactly that, and it
+                    asks it the way isDotUxp does -- opFields MEMBERSHIP plus a tag
+                    compare, never a bare tag compare, so nothing that merely mints a
+                    node tagged `.` can answer yes. A dot-uxp is explicitly NOT this
+                    case: that is the chain, and the fold above has already taken it.
+
+                    ⚠ THE SEAT IS INSIDE THE `if target` GUARD AND THAT IS LOAD-BEARING.
+                    The walk is BACKWARD, so the arg block is reached once with `op` set
+                    and again with `target` set. A seat above the target guard fires
+                    TWICE on one expression. That was the first cut, it was measured,
+                    and pop.sh pins the count at 1 for exactly that reason -- a presence
+                    check cannot see the drift, and the control proves it: moving the
+                    seat back up leaves the MESSAGE row green and reddens only the COUNT.
+
+                    ⚠ IT IS A DIAGNOSTIC AND CHANGES NO VALUE, DELIBERATELY. `refuse()`
+                    proper raises ruler.refused, and aCTionDefinE's refusalBoundary reads
+                    that flag to REMOVE THE DEFINITION FROM THE REGISTRY -- so escalating
+                    would mean one `a.*b` anywhere in a define block silently deletes the
+                    whole field, which is trading one quiet wrong answer for another.
+                    Whether a.*b should kill its enclosing define is a ruling nobody has
+                    made. The escalation is one line when it is made.
+
+                    ⚠ AND THE MESSAGE NAMES THE OPERATOR BY ITS REGISTRY TAG, `deref`,
+                    RATHER THAN RECONSTRUCTING THE SOURCE SPELLING. The unary star
+                    registers as `deref` (incant/setup:115), so the first cut of the line
+                    echoed the tag into the cure and printed `a[derefb]`. The cure is
+                    spelled as a SHAPE with the star as the worked example.#);
                 tier3Binding=(TIER-3 BINDING, and THIS LINE IS THE TIER-3 SET.
                     2026-08-11, docs/andOrRung.md section 6; seat ruled
                     by Tony the same day.

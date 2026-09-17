@@ -146,21 +146,6 @@ run once to see it produce output; `tabs`' stale prose goes with them; `BackupXM
 **Grade:** CONFIRMED — three arms, and a census matched on the call rather than the name.
 **Size:** eight files, plus whatever the preamble's new home costs.
 
-### F-72 — `a.*b` never forms a dot at all, so nothing can refuse it
-**What:** ruling (iv) of item 6 asked for a loud refusal when the right operand of `.` carries a
-unary, sited "before the `switch(gCount)`" in `opDot`, with the cure `a[*b]` spelled. **It cannot go
-there, and it cannot go in `handleDot` either, because neither is reached.**
-**Evidence, two independent traces, 2026-09-16.** `dcRoot.*dcMid` produces **no `dot-COMPOSED`
-arm** — the arms are `primary=dRoot`, `primary=dJ`, twice — and `measureDotOperands` reads
-`right=dRoot left=dRoot`, i.e. the `.` fired as a LEADING dot off `lastREF` and the `*dcMid`
-went somewhere else entirely. The star is never an operand of the dot, so opDot cannot see it.
-**Where:** the shape is decided before `handleDot`; `aCTionTokenXP` never takes its dot arm.
-**Done when:** the parse of `a.*b` is diagnosed, and the refusal is sited where the unary is
-visible. **Grade:** OPEN — shape measured, cause not diagnosed. `incant/pop/dotChainT` DC-9 pins
-today's answer (a tag echo) **and its header says in terms that it is NOT yet a refusal**, so the
-row cannot be misread as coverage.
-**Owner:** unassigned. **Size:** unknown until the parse is read.
-
 ### F-71 — ⚠⚠ **HEADLINE WITHDRAWN 2026-09-16. `*x.flagName` IS CORRECT; THE FIXTURE'S CONTROL COMPARES THE WRONG PAIR.**
 **The withdrawal, measured by `addrOf` chain:**
 
@@ -3651,6 +3636,62 @@ built-in verification: if the retok diff is empty, the move was complete.
 ---
 
 ## CLOSED — kept one cycle for the trail
+
+### F-72 — ✅ CLOSED 2026-09-17 — `a.*b` diagnosed and refused, in interpretXP not opDot
+**⚠ THIS ROW'S OWN HEADLINE WAS WRONG AND THE CORRECTION IS THE FINDING.** It read *"`a.*b`
+never forms a dot at all"*. **It does — opDot fires.** `.` is an `Operators` entry, so at
+expression level it is an ordinary binary op and `interpretXP` builds its `xl2`. What opDot
+never sees is **the star**.
+
+**THE PARSE, measured 2026-09-17 with `measureTokenArm`, against `a.b` in the same run:**
+
+| spelling | arms |
+|---|---|
+| `a.b` | ONE `dot-COMPOSED`, carrying its `InvokeArg` |
+| `a.*b` | `primary` (bare `a`, **no InvokeArg**) **and** `unary-only` (`*b`) — **no dot arm at all** |
+
+So the `.` is on neither term, and the two operands reach opDot separately.
+
+**WHY opDot CANNOT REFUSE IT — ONE CHANNEL, TWO MEANINGS, this project's named family.**
+`*b` on a field holding no group yields **NULL** by Tony's star ruling of 2026-09-05. opDot's
+head reads `if !argument` and takes it to mean *"no right operand was WRITTEN"* — a **parse**
+fact — and fires the `lastREF` fixup, `argument = target; target = lastREF.group`. It also
+means *"a right operand WAS written and evaluated to null"* — a **value** fact. One test, two
+eras. The fixup rewrites **both** operands, which is exactly why `DOTOPERANDS` read
+`left=right=a` and why the 09-16 reading concluded no dot had formed. **By the time opDot can
+ask the question it has destroyed the evidence** — so the ruling's siting was unbuildable, not
+merely awkward.
+
+**THE LANDING.** `refuseDotUnaryRight` (`ruleActions.rtn`), called from `interpretXP` where the
+right operand is still the uxp `handleUnary` minted and still carries its operator. It asks the
+question the way `isDotUxp` does — **`opFields` membership plus a tag compare, never a bare tag
+compare** — so nothing that merely mints a node tagged `.` can answer yes. A dot-uxp is
+explicitly not this case: that is the chain, and the fold above has already taken it.
+
+**⚠ THE SEAT IS INSIDE `if target` AND THAT IS LOAD-BEARING.** The walk is BACKWARD, so the arg
+block is reached once with `op` set and again with `target` set — a seat above the target guard
+fires **twice on one expression**. That was the first cut and it was measured.
+
+**⚠ IT IS A DIAGNOSTIC AND CHANGES NO VALUE, DELIBERATELY, AND THIS IS THE ONE THING LEFT FOR
+TONY.** `refuse()` proper raises `ruler.refused`, which `aCTionDefinE`'s `refusalBoundary` reads
+to **remove the definition from the registry** — so escalating means one `a.*b` anywhere in a
+define block silently deletes the whole field, which trades one quiet wrong answer for another.
+**Whether `a.*b` should kill its enclosing define is unruled.** The escalation is one line.
+
+**COVERAGE — three rows in `pop.sh`, and the count is one of them:** the refusal by message
+(H4, presence-with-value), the count pinned at exactly 1, and the value pinned as an unchanged
+echo. **H7 negative controls, both run, both rebuilt:**
+
+| control | result |
+|---|---|
+| the call removed | refusal row RED, count row RED, **value row still green** — so the value row measures something independent |
+| the seat moved back above the target guard | **message row GREEN**, only the COUNT row red — so the count row is not redundant with presence |
+
+**CERTIFICATE:** fleet **352 → 355**, red **51 unmoved row for row**; canary **330 → 331** (one
+new extern); decodePop 14 · ddPop 5/1 · countPop 0-of-45 · formsPop 14 PASSED · frontier station
+5 · alphaLint 10, the pre-existing pair, new function in alpha order. Argument in
+`incant/designDocs` at `TokFiles.ruleActions.interpretXP.dotUnaryRight`; `incant/pop/dotChainT`'s
+DC-9 header carries the corrected reading.
 
 ### F-5 — ✅ CLOSED 2026-08-17 — all three hunks disposed, both repos clean
 **Verdicts ratified by Tony**: the May-31 dirt was old work needing closure, not fresh intent.
