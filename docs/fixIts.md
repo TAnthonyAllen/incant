@@ -63,6 +63,49 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-83 — a rule with an action gets its body RUN but its matched terms never reach it
+**The `builtinParseR` seam, measured 2026-09-17 on `incant/unitTests`' `list` — Tony's own
+example.** `list isRule entries=ANYstring+ SemI?- code={ … }` is a rule with members AND a code
+body, which is the whole case.
+
+**⚠ MY EARLIER READ OF THIS IS WITHDRAWN.** I had it that `setActions`' `isCoded` arm publishes no
+`builtinActoR`, so `setParseWalk`'s `gMethod` overwrite **erases the action**. **It does not.**
+Graded not-run at the time, and running it killed it.
+
+**THREE ARMS, one variable each, driving through `testList`:**
+
+| arm | `list`'s own body |
+|---|---|
+| bare `testList()` | **does not fire** |
+| `compile(list)` then `testList()` | **does not fire** |
+| `compile(list)` **then `setParse(list)`** then `testList()` | **FIRES** |
+
+**So `setParse` does not erase the action — it ENABLES it**, and `compile` before it is required:
+without the compiled body `parseRule` refuses by name, `REFUSED parseRule: list has a parse method
+but no compiled body`.
+
+**WHAT IS ACTUALLY MISSING is one seam further in: the matched terms do not reach the body.**
+A `dumpContents` either side of a parse:
+
+```
+list   length 6 -> 8
+    entries    entries=ANYstring group   <- UNCHANGED. Still the TERM, never matched data
+    SemI       SemI=; string
+    CodE / this / tempField / BlocK
+    argument / frameSTAK                 <- the only two the parse added
+```
+
+So `for sumGrup in entries;` fails with `nextGroup: ERROR DatA does not contain a list`. **The rule
+parses, the action runs, and the action cannot see what was parsed.**
+
+**Why this matters for the shape:** Tony's `builtinParseR` proposal — park the generated parse in
+an attribute beside `builtinActoR` and have `setParse` install from it — is aimed at exactly this
+seam, and the measurement says the seam is **label population**, not action preservation.
+**Done when:** a rule with a code body sees its matched terms in its body. **Grade:** CONFIRMED,
+three arms plus a before/after dump. **Owner:** unassigned — the shape is Tony's call.
+⚠ **Scope note: `list` is the spec.** Nothing here is shaped around what a future skip rule might
+want; the skip rule needs nothing beyond what `list` needs (Tony, 2026-09-17).
+
 ### F-82 — ⚠⚠ **HEADLINE WITHDRAWN 2026-09-17, SAME DAY. THE `^` TAKES; I PROBED THE WRONG POPULATION.**
 **What this row first said:** *"the grammar's `^` never reaches the term an `upTo` scan reads."*
 **False.** `dtext` reads `noSkip=1` with the mark correctly parked on the `//` — Tony said the
