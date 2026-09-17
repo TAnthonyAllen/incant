@@ -2647,6 +2647,48 @@ else
     echo "        an abandonment, so AB-3 is measuring 'a refusal happened' and nothing more"; fail=1
 fi
 
+#  ---- stopPreT: the parse-dead guarantee has a PRECONDITION ------------------
+#  Built 2026-09-17, fixIts F-78, on Tony's ruling. "Everything below stop() is
+#  parse-dead and therefore unconstrained" is ratified doctrine (Addendum 2) and every
+#  fixit citizen's prose rests on it. ⚠ IT HOLDS ONLY WHILE NO REFUSAL IS OUTSTANDING.
+#
+#  ⚠ stop() IS NOT DEFECTIVE, AND THAT IS THE RULING'S ANSWER. stopParsingInput carries
+#  no refused guard and works perfectly when reached; it is NEVER REACHED. Measured three
+#  ways: an action call after a refusal does not run (a noop spliced into trigDO ran when
+#  called BEFORE the refusal, not after); stopParsingInput's own measureStopCaller callout
+#  fires ONCE in a clean run and ZERO times with a refusal standing; and plain statements
+#  keep running. An outstanding refusal silences ACTION AND COMMAND DISPATCH, and stop()
+#  is a command. MORE gets parsed, not less.
+#
+#  ⚠ SP-2 IS PINNED RED-SHAPED ON PURPOSE -- H7's other half. It is not a claim that this
+#  behaviour is right; it is a pin so the day stop() starts stopping, something says so.
+#  ⚠ SP-1 IS SP-2'S ANTI-VACUITY SIBLING. Without it SP-2 could pass on a run where
+#  everything after the refusal ran for an unrelated reason: SP-1 says execution
+#  continued, SP-2 says it continued PAST A STOP.
+run2 stopPreT "$T/sp.o" "$T/sp.e"; check "stopPreT runs (exit 0 -- none of this is visible to the shell)" 0 $?
+for _r in "SP-1 a plain statement after the refusal STILL RAN|execution is NOT halted by a refusal" \
+          "SP-2 a statement BELOW stop() RAN -- stop() was never entered|⚠ PINNED WRONG ON PURPOSE: the parse-dead region is PARSED"; do
+    _want=${_r%%|*}; _why=${_r##*|}
+    if grep -qF "$_want" "$T/sp.e"; then
+        echo "  ok    stopPreT ${_want%% *} -- $_why"; green=$((green+1))
+    else
+        echo "  FAIL  stopPreT ${_want%% *} MOVED -- if stop() now stops, RE-PIN WITH A"
+        echo "        SENTENCE (H6) and strike the precondition from CLAUDE.md. Actual:"
+        grep -E "^SP-" "$T/sp.e" | sed 's/^/          /'; fail=1
+    fi
+done
+if grep -qF "REFUSED . -- unary deref on the right of a dot" "$T/sp.e"; then
+    echo "  ok    stopPreT SP-3 the refusal that sets it all off, by message"; green=$((green+1))
+else
+    echo "  FAIL  stopPreT SP-3 no refusal -- the fixture asserts nothing without it"; fail=1
+fi
+if grep -qF "ABANDONED incant/pop/stopPreT -- the run ended with a refusal outstanding" "$T/sp.e"; then
+    echo "  ok    stopPreT SP-4 the abandonment is named -- and is this file's only terminal marker"; green=$((green+1))
+else
+    echo "  FAIL  stopPreT SP-4 no abandonment line. Actual:"
+    grep -F "ABANDONED" "$T/sp.e" | sed 's/^/          /'; fail=1
+fi
+
 #  ---- opPrefixT: every operator with a prefix sibling reads as ONE term ------
 #  Built 2026-09-16. Twenty-three registered operators have another registered
 #  operator as a strict prefix. If one were ever read as its shorter sibling the

@@ -79,27 +79,45 @@ not move when a child was added to the first entry. The trial's own tally in
 renamed, and it is known which one `lookuP` was returning. **Grade:** CONFIRMED — both lines read.
 **Owner:** unassigned. **Size:** small, but it needs a ruling on which children belong where.
 
-### F-78 — an outstanding refusal appears to disable `stop()`, so the parse-dead region is parsed
-**SYMPTOM REPRODUCED, CAUSE NOT DIAGNOSED — recorded per bear-trap #18's split.** Found
-2026-09-17 by the F-76 abandonment line on its first run, which named a **standing red fixture**.
-**What is measured:** `incant/pop/trigDO` has `stop();` at line 95 and **425 lines of prose below
-it**. Its run prints `TRIG SENTINEL` (line 94), then **`RunRulE: expected a method not THE` /
-`NEW` / `PARSE` / `FIRES`** — those are words from the prose — then the new
-`ABANDONED incant/pop/trigDO` line, and **`stop: end parsing` never appears**.
-**So the dead region is being parsed as statements, and `stop()` did not stop.** One refusal is
-outstanding for the whole of it.
-⚠ **THE OBVIOUS MECHANISM IS NOT RECORDED AS ONE.** The tempting story is that the outstanding
-refusal short-circuits `stop()` through one of `Instruct.rtn`'s fifteen `if ruler.refused return
-null;` guards or `runOP`'s. **That was not tested.** This project's ledger says a mechanism
-inferred from a symptom is roughly a coin flip, and F-72's own headline was wrong for exactly
-this reason a day earlier.
-⚠ **WHY IT MATTERS BEYOND trigDO:** *"everything below `stop()` is parse-dead and therefore
-unconstrained"* is ratified doctrine (Addendum 2, Tony 2026-08-20) and every fixit citizen's
-explanation prose relies on it. **If an outstanding refusal revokes it, the guarantee has a
-precondition nobody has written down.**
-**Done when:** the mechanism is isolated — one A/B: the same file with and without a refusal
-before `stop()`. **Grade:** symptom reproduced twice, cause OPEN. **Owner:** unassigned.
-**Size:** the measurement is small; the doctrine consequence may not be.
+### F-78 — ✅ CLOSED 2026-09-17 — `stop()` is NOT defective; it is never entered, and the doctrine gains its precondition
+**Ruled by Tony: one A/B, and the answer decides between a doctrine precondition and a `stop()`
+defect.** It is the precondition.
+
+**⚠ THE A/B COULD NOT BE RUN AS SPECIFIED, AND WHY IS THE ANSWER.** The ruling asked for trigDO
+*"with the outstanding refusal cleared before `stop()`"*. **The clear cannot be written in incant**
+— an action call after the refusal does not execute, so any verb that cleared the flag would be
+silenced on its way in. That fact IS the mechanism.
+
+**MEASURED THREE WAYS, all agreeing:**
+
+| instrument | reading |
+|---|---|
+| a noop action spliced into trigDO | ran when called **before** the refusal, **did not run** when called after |
+| `stopParsingInput`'s own `measureStopCaller` | **1** in a clean run with `traceParse` armed, **0** in trigDO with a refusal standing |
+| plain `cerr` statements | **keep running** throughout, above and below the `stop()` |
+
+**So: an outstanding refusal silences ACTION AND COMMAND DISPATCH. `stop()` is a command, so it is
+never entered, the parse never terminates, and the region below it is parsed as ordinary source.**
+`stopParsingInput` carries **no refused guard at all** and works perfectly when reached — **it is
+not defective**, which closes the ruling's second branch.
+
+**⚠ THE FAILURE IS THE OPPOSITE OF WHAT "PARSE-DEAD" PROTECTS AGAINST: MORE IS PARSED, NOT LESS.**
+That makes Addendum 2's hostile-text probe an active hazard rather than a curiosity — every
+unmatched brace and unterminated literal in a dead region becomes live source the moment a refusal
+is standing.
+
+**LANDED:** the precondition is written into CLAUDE.md beside the parse-dead guarantee itself, per
+the ruling. `incant/pop/stopPreT` pins it in thirteen lines, independent of trigDO. **SP-2 is
+pinned red-shaped on purpose** (H7's other half) — not a claim the behaviour is right, a pin so
+the day `stop()` starts stopping, something says so — and **SP-1 is its anti-vacuity sibling**:
+SP-1 says execution continued, SP-2 says it continued *past a stop*.
+
+**⚠ AND IT CORRECTED MY OWN INSTRUMENT FROM THE PREVIOUS STROKE.** `reportRunAbandoned` read *"every
+statement after the REFUSED line was SKIPPED, not parsed"* — **false for half the cases**, and
+falsified by this very fixture, where SP-1 and SP-2 both ran. A refusal *inside a define* breaks
+the block and later statements are skipped; a refusal at *statement level* skips nothing and
+silences dispatch. The line now claims only what is true of both.
+**Grade:** CONFIRMED, three instruments plus a positive control on the `measureStopCaller` zero.
 
 ### F-76 — ✅ CLOSED 2026-09-17 — the abandonment is named; the boundary is unreachable BY DESIGN, not missing
 **⚠ THE ROW'S ORIGINAL "DONE WHEN" OFFERED TWO CURES AND MEASUREMENT REMOVED ONE OF THEM.** It

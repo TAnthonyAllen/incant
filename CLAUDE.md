@@ -1248,6 +1248,21 @@ string cannot carry an apostrophe or a double quote, and reaching for one is wha
 double quotes and a bare `)` are all fine — measured, and there are 27 double-quotes living inside
 `(…#)` blocks in `incant/designDocs` today.
 
+⚠⚠ **A DesignDocs ENTRY IS A STUMP MARKER. RULED 2026-09-17 (Tony).** What the stump is, why
+not to step there, **in as few words as will still stop the next reader** — and nothing else.
+
+**Reasoning that needs a paragraph goes in a `docs/` file the entry POINTS AT.** The entry is the
+marker; the doc is the argument. An entry that has grown into an essay has stopped being a marker
+and started being a place nobody finishes reading, which fails at exactly the job it exists for.
+
+**Applies to NEW entries now. Existing ones get shortened as CLEAN-AS-YOU-GO, not as a sweep** —
+the same scope discipline the comment trial above was given, and for the same reason: a sweep
+turns a standing improvement into a one-day event that nobody maintains afterwards.
+
+⚠ **THE TEST IS THE TOO-SHORT TEST TURNED AROUND.** That one asks whether a reader could break the
+invariant without the doc. This one asks whether a reader could **finish the entry** — if the
+answer is no, the argument has outgrown the marker and owes a `docs/` file.
+
 ⚠⚠ **AND `#` IS THE ONLY DELIMITER — `docs/forms.md` used to promise an escape hatch that does not
 exist, and it is corrected there with the matrix.** `@)`, `*)`, `%)`, `~)`, `/)` and `.)` all fail;
 only `#)` parses. **If a body genuinely contains `#)`, restructure the prose** — there is no second
@@ -1301,6 +1316,27 @@ no quoting, no comment markers, no brace discipline, no worrying about operators
 a block below `stop();` carrying an unmatched `{`, bare `:=`/`<-`/`&&`, an unterminated string
 literal, an unclosed `/*`, a stray `%-` and a fake `code={ }` ran clean at exit 0 with the live
 region intact.
+
+⚠⚠ **AND THE GUARANTEE HAS A PRECONDITION. IT HOLDS ONLY WHILE NO REFUSAL IS OUTSTANDING.
+Measured 2026-09-17 (F-78), written down on Tony's ruling because a guarantee with an unwritten
+precondition is the shape this project keeps paying for.**
+
+**An outstanding refusal silences ACTION AND COMMAND DISPATCH — and `stop()` is a command.** So it
+is never entered, the parse does not terminate, and **the region below it is parsed as ordinary
+source.** `incant/pop/trigDO` sat that way with 425 lines of prose under its `stop()`, reporting
+`RunRulE: expected a method not THE / NEW / PARSE / FIRES` — words out of that prose — at exit 0.
+
+⚠ **`stop()` IS NOT DEFECTIVE AND THAT IS THE RULING'S ANSWER.** `stopParsingInput` carries **no
+refused guard at all** and works perfectly when reached. It is never reached. **Three instruments
+agree:** an action call spliced into trigDO ran when placed BEFORE the refusal and **not** after;
+`stopParsingInput`'s own `measureStopCaller` callout fires **once** in a clean run and **zero**
+times with a refusal standing; and plain statements keep running throughout.
+
+⚠ **SO THE FAILURE IS THE OPPOSITE OF WHAT "PARSE-DEAD" PROTECTS AGAINST — MORE GETS PARSED, NOT
+LESS**, and the hostile-text probe above becomes an active hazard rather than a curiosity: every
+unmatched brace and unterminated literal in a dead region is live source the moment a refusal is
+standing. **`incant/pop/stopPreT` pins it in thirteen lines**, with SP-2 pinned red-shaped on
+purpose so the day `stop()` starts stopping, something says so.
 
 **This retires the header comment for fixit files, and the reason is bear-trap #27:** a fixture's
 comment header is *not inert* — `incant/jitXnest`'s header killed its parse at exit 138 with zero

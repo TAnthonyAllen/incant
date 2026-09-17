@@ -11349,7 +11349,14 @@ char 		*whichFile = "(no file)";
 		return;
 	if ( fileName )
 		whichFile = fileName;
-	::fprintf(stderr,"ABANDONED %s -- the run ended with a refusal outstanding. Every statement after the REFUSED line above was SKIPPED, not parsed. The exit status is still 0\n",whichFile);
+	/*  wordingCorrected  THE FIRST CUT OF THIS LINE SAID "every statement after the
+	wordingCorrected  REFUSED line was SKIPPED, not parsed" AND THAT IS FALSE FOR HALF
+	wordingCorrected  THE CASES -- measured 2026-09-17, F-78. A refusal inside a define
+	wordingCorrected  breaks the block and later statements ARE skipped; a refusal at
+	wordingCorrected  statement level does NOT stop plain statements, it silences ACTION
+	wordingCorrected  AND COMMAND DISPATCH -- so stop() is never entered and MORE gets
+	wordingCorrected  parsed, not less. The message now claims only what is true of both.  */
+	::fprintf(stderr,"ABANDONED %s -- the run ended with a refusal outstanding. Nothing after the REFUSED line above is reliable: action and command dispatch is silenced, so statements can be skipped AND a stop() can be missed, leaving the region below it parsed as source. The exit status is still 0\n",whichFile);
 }
 
 /*****************************************************************************
