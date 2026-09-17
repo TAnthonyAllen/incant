@@ -80,24 +80,47 @@ the problem is already solved. **Grade:** CONFIRMED — two sites read, one comm
 **Done when:** the comment states the lazy fill through `builtinActoR` and names `fireLabelMethod`
 as the writer. **Owner:** unassigned. **Size:** one comment.
 
-### F-73 — `initFORMs` is gone and nine form files still call it, silently, at exit 0
-**What:** `initFORMs` was removed from `incant/utilities` on 2026-09-17 (Tony's offline work,
-committed under the IncantForms-is-WIP ruling). **Nothing defines it anywhere in the tree.** Nine
-files under `IncantForms/Windows/` call `initFORMs();` at line 5 — `simple`, `sheet`, `fit`,
-`cards`, `tabs`, `toggles`, `scroll`, `keyStroke`, `descriptions`.
-**Evidence, one A/B, same binary, one variable, `IncantForms/Windows/simple`:** with `initFORMs`
-present the search list is built and the form parses to `simple across styleTest height=212 …` plus
-five members; with it removed the search list is `Grokking Generating bcOPs` and there is **no form
-output at all, at exit 0**. That is the truncating-parse-failure signature — every statement after
-the failing one is dropped, no `stop:` line is emitted, and the run still returns 0.
-**⚠ NO INSTRUMENT ON THE H12 CHECKLIST SEES THIS.** `formsPop` reads **14 PASSED on both arms**
-because it drives its own `displayFill` fixture, not the Windows forms. The fleet, `ddPop`,
-`countPop`, `decodePop` and the frontier are all unmoved. **This row is the only record.**
-**Done when:** either the preamble's three jobs — `search reset stack Grokking`,
-`search UnitTests Utilities list`, `changeDatA()` — have a new home the nine files call, or the nine
-files inline them. `docs/forms.md` §1 carries the same measurement and is explicitly NOT rewritten
-until then. **Grade:** CONFIRMED. **Owner:** Tony — it is his removal and his replacement.
-**Size:** unknown; depends on what replaces it.
+### F-73 — nine form files still call `initFORMs`, and the scrub is a substitution, not a deletion
+**What:** `initFORMs` was removed from `incant/utilities` on 2026-09-17 with the DatA-rule change
+that made half its job unnecessary. **Nine files under `IncantForms/Windows/` still call
+`initFORMs();` at line 5** — `simple`, `sheet`, `fit`, `cards`, `tabs`, `toggles`, `scroll`,
+`keyStroke`, `descriptions`. Tony's ruling: they get scrubbed when those forms are addressed. This
+row exists to say **what the scrub is**, because the obvious spelling of it does not work.
+
+**⚠ THE CAUSE WAS RE-MEASURED AFTER TONY NAMED IT, AND IT SPLIT IN TWO.** `initFORMs` did three
+things and only one of them died:
+
+| the line | state today |
+|---|---|
+| `changeDatA();` | **DEAD, and Tony is right.** `DelimText` moved to the FRONT of `DatA` in `incant/grammar` + `GroupMain.twk`, so the `(…#)` literal needs no runtime grammar change. `changeDatA` itself no longer exists anywhere in `incant/` |
+| `search reset stack Grokking;` | **STILL LOAD-BEARING** |
+| `search UnitTests Utilities list;` | **STILL LOAD-BEARING** |
+
+**Evidence — three arms, same binary, same file (`IncantForms/Windows/simple`), one variable each:**
+
+| arm | result |
+|---|---|
+| `initFORMs();` as written today | search list `Grokking Generating bcOPs`, **no output, exit 0** |
+| line 5 **deleted outright** | identical — **no output, exit 0** |
+| line 5 → the two `search` lines inline, **no `changeDatA()`** | search list builds; parses to `simple across styleTest height=212 width=250 …` plus five members |
+
+**So the scrub is a SUBSTITUTION.** `initFORMs();` becomes those two `search` lines, not nothing —
+and arm 2 is the row that says so. ⚠ A form scrubbed by deletion is **indistinguishable from an
+unscrubbed one**: both are dark, both exit 0, and the truncating-parse-failure signature means no
+statement after the failing one runs, no `stop:` line is emitted, and the return is still 0.
+**A form that has been scrubbed correctly PRODUCES OUTPUT** — that is the per-file check, and it
+costs one run.
+
+**⚠ NO INSTRUMENT ON THE H12 CHECKLIST SEES ANY OF THIS.** `formsPop` reads **14 PASSED on every
+arm above**, because it drives its own `displayFill` fixture rather than the Windows forms. The
+fleet, `ddPop`, `countPop`, `decodePop` and the frontier are all unmoved. This row and
+`docs/forms.md` §1 are the only record.
+
+**Done when:** the nine call sites carry the two `search` lines and each file is run once to see it
+produce output. `docs/forms.md` §1 is rewritten in the same stroke — it still documents
+`changeDatA()` as live and cites `utilities:233` for it, which is now a dangling citation.
+**Grade:** CONFIRMED, three arms. **Owner:** Tony — scheduled with the forms, not before.
+**Size:** two lines per file, nine files, plus one run each.
 
 ### F-72 — `a.*b` never forms a dot at all, so nothing can refuse it
 **What:** ruling (iv) of item 6 asked for a loud refusal when the right operand of `.` carries a
