@@ -1711,6 +1711,10 @@ Hard-won lessons. Each one has cost real debugging time.
     correctly applied bear-trap #23 flooded a JIT measurement, and the run had to be discarded and
     rebuilt bare. **A trap that tells you how to turn something ON is not a ruling that it should
     be on.**
+    ⚠⚠ **AND THAT RULING NOW EXISTS, 2026-09-17 (Tony): BARE IS THE DEFAULT STATE, and Clod
+    retoks bare before any commit and before any number, with a one-line note rather than a
+    request. See the Working Relationship section -- this entry stays the HOW and that one is
+    the WHETHER.**
 
     ⚠⚠ **AND THE 2026-08-18 HARDENING, WHICH RAISES THE STAKES: A DIRECTIVES BUILD IS
     *SEMANTICALLY DIFFERENT*, NOT MERELY INSTRUMENTED.** Everything above treats the hazard as
@@ -3033,6 +3037,25 @@ acts, and only the first is owed.**
 form attributes, created that morning, sibling of the already-tracked `docs` — was committed
 correctly and then **raised as something for Tony to rule on**. The commit was right; the flag was
 noise, and noise in a report is how the signals in it get discounted.
+
+⚠⚠ **`IncantForms/` IS WIP THAT COMMITS — THE WHOLE TREE, NOT JUST `WorkingOn/`. Tony, ruled
+2026-09-17, and it widens the two rules directly above.** Everything under `IncantForms/` is work
+in progress and it **commits under Tony's name in every kitchen pass**, exactly as `WorkingOn/`
+does. So a dirty form file is never an H8 question and never a decision for Clod to guess at — it
+is a hunk to name in the commit message. ⚠ **Its first application is the one to remember:**
+`initFORMs` gone from `incant/utilities` was read as a decision needing a verdict; it was a commit.
+
+⚠⚠ **BARE IS THE DEFAULT STATE. NO DIRECTIVES ARE IN PLACE UNLESS TONY SAYS SO. Tony, ruled
+2026-09-17.** Before any commit, and **before any number**, if a directives build is in place Clod
+**retoks bare** — no ruling needed, no permission asked, and **a one-line note in the report that
+he did so**. This is bear-trap #23's fork settled from the other end: that entry tells you how to
+turn instrumentation ON and this one says what the tree's resting state is.
+
+⚠⚠ **TONY TELLS CLOD WHEN HE INSERTS DIRECTIVES — AND HE MAY FORGET AFTER OFFLINE WORK.** When
+Clod finds an instrumented `.mm` he was not told about, he **says so plainly** — that is the fuss
+Tony asked for — **retoks bare, and carries on.** ⚠ **It is BOOKKEEPING, NOT A FINDING**, the same
+distinction the ownership sentence above draws: saying it and stopping over it are two different
+acts, and only the first is owed. The detector is a `.mm` that moved with no `.twk` behind it.
 
 ⚠ **FIXIT CITIZENS ARE NOT CLOD'S TO MINT (Rule F2, Tony, 2026-09-01).** A finding goes in the
 **seal**; whether it becomes a citizen in `incant/fixits/` is Tony's or Clay's ruling. Clod may

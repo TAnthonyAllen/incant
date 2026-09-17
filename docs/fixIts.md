@@ -63,6 +63,42 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-74 — `parseAction`'s `ownSlot` comment describes a mechanism that was measured wrong and reverted
+**What:** `Generate.rtn:42-47` still reads *"setParseWalk captures the action into actionMethod at
+its HEAD, before that overwrite, so the slot is already correct here and nothing upstream moves."*
+**It does not.** `9785324` (2026-09-15, *"the walk stops writing actionMethod"*) removed that
+capture, and the same file says so eleven lines down at `actionMethodRemoved` — *"THE WALK WRITES
+gMethod AND parseMethod, AND NOTHING ELSE."*
+**Evidence:** census of every `actionMethod` writer in `*.twk`/`*.rtn`, 2026-09-17 — the writers are
+`fireLabelMethod` (`GroupItem.twk:594`, lazily from `builtinActoR`), `GroupRules.mm:1368` and
+`ruleActions.rtn:1070`, both clears. `setParseWalk` is not among them. `9785324`'s own body records
+why the capture was removed: measured on `NamE`, visit 1 wrote NULL over the real action and visits
+2 and 3 copied the ENTRY into the ACTION slot.
+**Why it matters more than an ordinary stale comment:** it is the exact comment a reader lands on
+while asking *"how does a rule that already has an action get a generated parse"*, and it tells them
+the problem is already solved. **Grade:** CONFIRMED — two sites read, one commit body read.
+**Done when:** the comment states the lazy fill through `builtinActoR` and names `fireLabelMethod`
+as the writer. **Owner:** unassigned. **Size:** one comment.
+
+### F-73 — `initFORMs` is gone and nine form files still call it, silently, at exit 0
+**What:** `initFORMs` was removed from `incant/utilities` on 2026-09-17 (Tony's offline work,
+committed under the IncantForms-is-WIP ruling). **Nothing defines it anywhere in the tree.** Nine
+files under `IncantForms/Windows/` call `initFORMs();` at line 5 — `simple`, `sheet`, `fit`,
+`cards`, `tabs`, `toggles`, `scroll`, `keyStroke`, `descriptions`.
+**Evidence, one A/B, same binary, one variable, `IncantForms/Windows/simple`:** with `initFORMs`
+present the search list is built and the form parses to `simple across styleTest height=212 …` plus
+five members; with it removed the search list is `Grokking Generating bcOPs` and there is **no form
+output at all, at exit 0**. That is the truncating-parse-failure signature — every statement after
+the failing one is dropped, no `stop:` line is emitted, and the run still returns 0.
+**⚠ NO INSTRUMENT ON THE H12 CHECKLIST SEES THIS.** `formsPop` reads **14 PASSED on both arms**
+because it drives its own `displayFill` fixture, not the Windows forms. The fleet, `ddPop`,
+`countPop`, `decodePop` and the frontier are all unmoved. **This row is the only record.**
+**Done when:** either the preamble's three jobs — `search reset stack Grokking`,
+`search UnitTests Utilities list`, `changeDatA()` — have a new home the nine files call, or the nine
+files inline them. `docs/forms.md` §1 carries the same measurement and is explicitly NOT rewritten
+until then. **Grade:** CONFIRMED. **Owner:** Tony — it is his removal and his replacement.
+**Size:** unknown; depends on what replaces it.
+
 ### F-72 — `a.*b` never forms a dot at all, so nothing can refuse it
 **What:** ruling (iv) of item 6 asked for a loud refusal when the right operand of `.` carries a
 unary, sited "before the `switch(gCount)`" in `opDot`, with the cure `a[*b]` spelled. **It cannot go

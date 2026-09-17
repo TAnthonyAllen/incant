@@ -16,6 +16,25 @@ A form is a window-definition: a `define` block describing a tree of fields
 
 ## 1. The per-form preamble and `initFORMs`
 
+> ⚠⚠ **`initFORMs` WAS REMOVED FROM `incant/utilities` ON 2026-09-17 (Tony's offline work,
+> committed under the IncantForms-is-WIP ruling). NOTHING DEFINES IT TODAY, AND NINE FORM FILES
+> STILL CALL IT.** This section is left standing because it is the only written statement of what
+> the preamble has to accomplish, and whatever replaces `initFORMs` still has to accomplish it.
+>
+> **Measured, one A/B, same binary, one variable — `IncantForms/Windows/simple`:**
+>
+> | arm | result |
+> |---|---|
+> | `initFORMs` present | search list built, form parses, `simple across styleTest height=212 …` plus five members |
+> | `initFORMs` removed | search list is `Grokking Generating bcOPs`, **no form output at all, exit 0** |
+>
+> ⚠ **THE SECOND ROW IS THE TRUNCATING-PARSE-FAILURE SIGNATURE, NOT A QUIET RUN** — a statement
+> that fails to parse drops every statement after it, emits no `stop:` line and still returns 0.
+> So the nine files in `IncantForms/Windows/` are dark rather than broken-loudly, and **no
+> instrument on the H12 checklist sees it**: `formsPop` reads 14 PASSED on both arms because it
+> drives its own fixture. **Rewrite this section when the replacement lands, not before** — a
+> preamble documented without one would document a shape that does not run.
+
 Every form needs the runtime bootstrapped, the registries on the search list,
 and the `(…#)` literal enabled (§2) before its `define` block parses. That
 boilerplate collapses to **four top-level lines**:
