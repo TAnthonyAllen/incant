@@ -63,72 +63,46 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
-### F-82 — the grammar's `^` (noSkip) never reaches the term an `upTo` scan actually reads
-**What:** `DelimText leftParen dtext^=delimiter};` carries a `^` — noSkip — and it does not take.
-**The term the scan reads is `delimiter`, not `dtext`**, and its `noSkip` is **0**.
-**Evidence, 2026-09-17**, a temporary probe in `checkInput` printing tag/noSkip/overTo for every
-`upTo` term on one run:
+### F-82 — ⚠⚠ **HEADLINE WITHDRAWN 2026-09-17, SAME DAY. THE `^` TAKES; I PROBED THE WRONG POPULATION.**
+**What this row first said:** *"the grammar's `^` never reaches the term an `upTo` scan reads."*
+**False.** `dtext` reads `noSkip=1` with the mark correctly parked on the `//` — Tony said the
+placement was intentional and he was right.
+**How it went wrong, and it is the lesson:** the probe printed **only terms with `overTo` set**, so
+`dtext` was never in the population, and I read its absence as evidence. Nine grammar spellings
+then "confirmed" a conclusion the probe could not support. Bear-trap #19's corollary, self-inflicted
+— the search space excluded the answer.
+**What actually stands, re-measured:** the `^` lands on the **driver** and the `}` on the **scan
+target**, because `GroupMain`'s bootstrap does `modify(item,"^")`, then `item = item.group`, then
+`modify(item,"}")`. Two modifiers, two nodes. The scan target never heard about the `^`.
+**⚠ AND THE GRAMMAR LINE IS INERT FOR DelimText.** Gutting `incant/grammar`'s
+`DelimText leftParen dtext^=delimiter};` to `dtext=delimiter;` — no `^`, no `}` — changes
+**nothing**: the values still read back correctly. The live definition is the hand-built bootstrap.
+**So the `modify`/`modifyClass` split, which lives on the PARSED road, could not have fixed G03** —
+that road does not build DelimText. The split remains a real defect with its own population; it is
+simply not this one. **Grade:** CONFIRMED by a one-line gut test. **Owner:** unassigned.
 
-```
-delimiter   noSkip=0  overTo=2      <- DelimText's scan
-quoteBody   noSkip=0  overTo=2      <- QuotE's, 107 times in one run
-rightBrace  noSkip=0  overTo=2      <- SetBrackets'
-```
+### F-81 — ✅ CLOSED 2026-09-17 — DelimText is opaque in every position; one modifier character
+**The fix is one character at the delimiter's MINT SITE**, `GroupMain.twk`:
+`modify(item,"}^")` where it read `modify(item,"}")`. The scan target inherits the `^` its driver
+already carried. ⚠ **And `}^` is exactly the acceptance spelling Tony named for the modifier-class
+docket item** — the modifier string is the thing the grammar cannot yet write.
 
-**NINE grammar spellings were tried and none moved it** — `dtext^=`, `leftParen^`, `DelimText^`,
-`leftParen-`, `=delimiter}^`, `=delimiter^}`, `=^delimiter`, `^^`, `dtext^=delimiter^}`. **So the
-grammar cannot express "this scan does not skip" today**, which is what makes F-81 a C++ change
-rather than a one-line grammar edit.
-**Why it matters beyond F-81:** `^` is documented as a rule modifier and reads as though it works.
-Anything else relying on it on a labelled-target term has the same silent hole.
-**Done when:** either `^` reaches the scanning term, or the grammar gains a spelling that does.
-**Grade:** CONFIRMED — measured directly, nine spellings. **Owner:** unassigned.
+**MEASURED, seven positions, all opaque:** `//` mid, leading, after a space, trailing; `/*` mid and
+leading; and a leading `*/`. `slashLeadT` **flipped and was re-pinned with a sentence (H6)** — it
+was built red-shaped that morning with a note saying the flip would be the signal, and it was.
+`slashValT`'s mid-value controls unmoved.
 
-### F-81 — G03's blocker: a `//` at the START of a value kills the define, in BOTH spellings
-**What:** a define whose value begins with `//` breaks the parse and takes the **whole define
-block** with it. Mid-value is fine. **The `(…#)` delimited form does not help.**
+**⚠ OUT OF SCOPE AND UNCHANGED: the QUOTED form with a leading `//`.** `a="// x";` still breaks, as
+it did before. `quoteBody` is a scan target whose driver carries no modifier at all, so there is
+nothing to inherit — it needs its own decision, not this line. It is **not a regression**: measured
+broken before and after.
 
-| value | parses | reads back |
-|---|---|---|
-| `(has // a comment#)` | ✓ | `has // a comment` |
-| `"has // a comment"` | ✓ | `has // a comment` |
-| `(// a comment#)` | ✗ | — |
-| `( // a comment#)` | ✗ | — (a leading space does not help) |
-| `"// a comment"` | ✗ | — |
-
-**⚠ IT IS POSITION, NOT THE DELIMITER, AND THAT IS THE THING A READER WILL GET WRONG** — the
-first workaround anyone reaches for is the other quoting style, and `checkSKIP.md` §3 assumes
-the delimited form is opaque (*"`(G03 // anything)` … are opaque"*). **It is not, today.**
-
-**⚠ AND THE ERROR ACCUSES THE INNOCENT.** It reports `RunRulE: expected a method not <FIRST entry
-in the block>`, not the offending line — bear-trap #32's misdirection. Bisect by removing later
-entries. In the G03 repro the message named `dPlain` while the culprit was `qSlash`, two lines
-below it.
-
-**What this closes of Tony's offline report:** the two named G03 defects **do not reproduce**.
-`fromThis=(G03\n"#)` captures **byte-exact** (`G 0 3 \ n "` in, same out — no doubling, no
-interpretation), and a mid-value `//` survives. Tony's `IncantForms/WorkingOn/tester` fails for a
-**third, unrelated reason**: its define block has no `;` terminator, so `fromThis` parses as a
-statement. Measured as a 2×2 — `debug DelimText` is innocent.
-
-**SYMPTOM ONLY, cause NOT recorded** (bear-trap #18). The tempting mechanism — `checkSkip`
-consuming `//` to end of line before the value is read, which cannot happen mid-value because
-non-space content has already stopped the skip — fits Tony's own words for G03 and is **a
-hypothesis, not a finding.**
-**⚠ THE FIX IS MEASURED AND IS NOT ONE STROKE — attempted 2026-09-17 and reverted.** Gating the
-skip on `overTo` in `checkInput` makes DelimText opaque in **all eight positions** (`//` and `/*`,
-leading, mid, trailing, after a space, quoted and delimited) and **flips `slashLeadT` — `SL-NEVER`
-prints.** It also costs **22 fleet rows: 389 green → 367, red 51 → 73**, because `quoteBody` (107
-hits in one run) and `rightBrace` share that path. **So the gate needs a discriminator, and F-82
-says the grammar cannot supply one today.**
-⚠ **AND THE RULING'S OTHER QUESTION IS ANSWERED: the first-entry-named error GOES WITH IT.** Under
-the gate `slashLeadT` produced no `RunRulE` at all, so the misdirection was a consequence of the
-value scan eating the line — **not its own seat**, and it needs no name-the-patient work.
-**Done when:** the DelimitText opaque scan lands (`docs/checkSKIP.md` §7 item 3, the 2026-08-02
-ruling's "C++ now" half), with a discriminator that leaves `quoteBody` and `rightBrace` alone. **Coverage:** `incant/pop/slashValT` (controls, with values) and
-`incant/pop/slashLeadT` (the failure, **pinned red-shaped on purpose**; when the scan lands that
-row goes red and the fixture's `SL-NEVER` line starts printing — that is the win, not a
-regression). **Grade:** CONFIRMED, five shapes plus a bisect. **Owner:** unassigned.
+**THE CENSUS TONY ASKED FOR, and it is short — ONE.** Drivers carrying a Modifier that also have a
+scan target: `dtext^` → `delimiter`, and nothing else. `QuotE` puts the `}` on `quoteBody` itself
+with no driver modifier; `SetBrackets`' `leftBrace-` carries `-`, which must **not** propagate to a
+scan target. **But the dispatch's "fix the split instead" does not apply** — see F-82: the split is
+on the parsed road and the grammar line is inert for DelimText.
+**Grade:** CONFIRMED. **Fleet:** 389 → 390 green, red 51 unmoved row for row.
 
 ### F-80 — a FIVE-name dot chain still answers `xl1`; the fold deliberately refuses to touch it
 **What:** `a.b.c.d` is correct as of 2026-09-17. `a.b.c.d.e` is not — it answers `xl1`,

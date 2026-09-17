@@ -1,8 +1,14 @@
-/*  slashLeadT -- THE DEFECT HALF OF slashValT. G03's blocker, 2026-09-17.
+/*  slashLeadT -- ✅ THE DAY ARRIVED. G03's blocker, FIXED 2026-09-17, same day it was pinned.
 
-    A `//` at the START of a value kills the define block it is in. This file asserts THE
-    FAILURE, pinned red-shaped on purpose (H7's other half): it is not a claim the
-    behaviour is right, it is a pin so the day the opaque scan lands, something says so.
+    ⚠ RE-PINNED WITH A SENTENCE (H6), NOT SILENCED. This file was built hours earlier to
+    assert the FAILURE -- a `//` at the START of a value killed the define block it was in
+    -- pinned red-shaped on purpose so that the day the opaque scan landed, something would
+    say so. It said so: the row went red because the defect went away, and this is the
+    sentence that records it rather than a quiet re-pin.
+
+    THE FIX is one modifier character at the delimiter's MINT SITE -- GroupMain's hand-built
+    bootstrap, `modify(item,"}^")` -- so the scan target inherits the `^` its driver already
+    carried. docs/dotChain.md's sibling, docs/checkSKIP.md section 3.
 
     ⚠ IT IS A SEPARATE FILE BECAUSE THE FAILURE IS NOT LOCAL. It takes the whole define
     block with it, so it would delete its own controls -- which live in slashValT.
@@ -10,9 +16,10 @@
     here precisely so the name in the message is the right one for once; with a sibling
     above it, bear-trap #32's misdirection applies and the message accuses the innocent.
 
-    ASSERTED BY PRESENCE-WITH-VALUE, never by absence: the RunRulE line must be THERE.
-    A row reading "no value arrived" would pass on a run that never started.
-    docs/fixIts.md F-81; the mechanism is NOT recorded -- symptom only, bear-trap #18.  */
+    ASSERTED BY PRESENCE-WITH-VALUE: SL-NEVER must be THERE. It was named NEVER when this
+    file expected the failure, and the name is KEPT deliberately -- a reader who greps the
+    history finds the same string on both sides of the fix, which is what makes the flip
+    legible. docs/fixIts.md F-81.  */
 Start();
 include(utilities);
 search reset stack Grokking;
@@ -22,4 +29,5 @@ define
     slLead=(// a comment#);
     ;
 cerr "SL-NEVER the define survived -- if this prints, the defect is FIXED":;
+cerr "SLASHLEAD SENTINEL":;
 stop();

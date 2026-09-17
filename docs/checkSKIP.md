@@ -71,15 +71,13 @@ Two consequences worth saying once:
   different arm result: labelNO means "skipped, keep going", a non-null result means "this is
   yours, stop". The `sKIP+` loop ends on the first non-labelNO result or on a miss.
 - **Inside DelimitText nothing is interpreted but the close delimiter and the escape.**
-  ⚠⚠ **THAT IS THE SCAN'S DELIVERABLE, NOT CURRENT BEHAVIOUR — corrected 2026-09-17 (Tony's
-  ruling) after this line was measured and found false.** A `//` at the **start** of a value is
-  consumed to end of line today, in BOTH spellings, and the scan then runs on into the next line:
-  `a=(// x#);` reads back as the FOLLOWING statement's text. Mid-value is fine, because non-space
-  content stops the skip before it. `docs/fixIts.md` F-81; `incant/pop/slashValT` carries the
-  controls and `incant/pop/slashLeadT` the failure.
-  ⚠ **AND THE DELIMITED FORM IS NOT A WORKAROUND** — which is what this bullet used to imply and
-  what anyone reading it would try first.
-  When the scan lands: `(G03 // anything)` and `(G03\n"#)` are opaque. A `//` inside a `{ }` body
+  ⚠ **TRUE FOR `( )` AS OF 2026-09-17 — F-81, one modifier character at the delimiter's mint
+  site, so the scan target inherits the `^` its driver already carried.** Measured opaque in seven
+  positions: `//` mid, leading, after a space, trailing; `/*` mid and leading; a leading `*/`.
+  ⚠ **NOT YET TRUE FOR A QUOTED STRING.** `a="// x";` still breaks — `quoteBody` is a scan target
+  whose driver carries no modifier, so there is nothing for it to inherit and it needs its own
+  decision. `incant/pop/slashValT` carries the controls, `incant/pop/slashLeadT` the flip.
+  As it stands: `(G03 // anything)` and `(G03\n"#)` are opaque. A `//` inside a `{ }` body
   IS a comment (KANT-40 wants that); a `//` inside `( )` is text (directives want that). The
   delimiter kind decides, not the content.
 

@@ -2645,13 +2645,20 @@ for _r in "SV-1 delimited, // mid-value|SV-1 delimited, // mid-value  =  has // 
     fi
 done
 run2 slashLeadT "$T/sl.o" "$T/sl.e"; check "slashLeadT runs" 0 $?
-#  ⚠ PINNED RED-SHAPED ON PURPOSE. When the opaque scan lands this row goes red and the
-#  fixture's own SL-NEVER line starts printing -- that is the signal, not a regression.
-if grep -qF "RunRulE: expected a method not slLead" "$T/sl.e"; then
-    echo "  ok    slashLeadT a LEADING // still kills the define -- pinned wrong ON PURPOSE"; green=$((green+1))
+#  ⚠ RE-PINNED 2026-09-17 WITH A SENTENCE (H6). This row used to assert the FAILURE, red-
+#  shaped on purpose, with its own note saying "when the opaque scan lands this row goes red
+#  -- that is the signal, not a regression." It landed the same day and the row said so.
+#  The fix is one modifier character at the delimiter's MINT SITE (GroupMain's hand-built
+#  bootstrap, modify(item,"}^")): the scan target inherits the `^` its driver already had.
+#  ⚠ PRESENCE-WITH-VALUE, and the SENTINEL is what makes it non-vacuous: SL-NEVER alone
+#  would also be absent from a run that died before reaching it.
+sentinel "slashLeadT sentinel" "$T/sl.e" "SLASHLEAD SENTINEL"
+if grep -qF "SL-NEVER the define survived" "$T/sl.e"; then
+    echo "  ok    slashLeadT a LEADING // NO LONGER kills the define -- G03's blocker is gone"; green=$((green+1))
 else
-    echo "  FAIL  slashLeadT the leading-// define no longer fails. If the opaque scan"
-    echo "        LANDED, that is the win: re-pin with a sentence (H6) and close F-81."; fail=1
+    echo "  FAIL  slashLeadT the leading-// define is failing again -- the delimiter stopped"
+    echo "        inheriting its driver's noSkip. Actual:"
+    grep -E "RunRulE|^SL-" "$T/sl.e" | sed 's/^/          /'; fail=1
 fi
 
 #  ---- truncT / truncLitT: a failed MATCH ends the file, and now says so ------

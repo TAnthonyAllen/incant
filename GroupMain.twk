@@ -292,11 +292,29 @@ GroupRules  ruler = groupRules;
     item.setRuleStuff();
     guardSet        = new("(");
     guarded         = true;
+    /*  delimiterInheritsNoSkip  THE SCAN TARGET INHERITS ITS DRIVER'S noSkip, and the
+        delimiterInheritsNoSkip  modifier string `}^` IS the acceptance spelling for it.
+        delimiterInheritsNoSkip  G03, Tony's ruling 2026-09-17.
+        delimiterInheritsNoSkip  `^` on dtext stops the skip AFTER leftParen, which is what it
+        delimiterInheritsNoSkip  was always for and it works -- measured, dtext reads noSkip=1
+        delimiterInheritsNoSkip  with the mark parked on the `//`. But `item = item.group`
+        delimiterInheritsNoSkip  above re-points to the EMBEDDED delimiter, so the `}` lands
+        delimiterInheritsNoSkip  there and the `^` never did. The delimiter then ran its own
+        delimiterInheritsNoSkip  checkInput skip and ate a value that STARTED with a comment
+        delimiterInheritsNoSkip  marker: `a=(// x#);` took `// x#);` as a comment and the scan
+        delimiterInheritsNoSkip  ran on into the NEXT LINE. Mid-value was always fine, because
+        delimiterInheritsNoSkip  non-space content stops the skip before it.
+        delimiterInheritsNoSkip  ⚠ THE GRAMMAR CANNOT SAY THIS TODAY. `Modifier` is a
+        delimiterInheritsNoSkip  single-character set, so `dtext^=delimiter}^` is unwritable --
+        delimiterInheritsNoSkip  fourteen spellings measured, including widening Modifier to a
+        delimiterInheritsNoSkip  run. That asymmetry, `^` via Modifier and `}` via upFlags, is
+        delimiterInheritsNoSkip  the modifier-class docket item; this line is the inheritance
+        delimiterInheritsNoSkip  it stands in for.   GroupMain.bootstrapper.delimiterInheritsNoSkip  */
     item            = strap += "dtext";
     modify(item,"^");
     item.embedRule(properties/delimiter);
     item            = item.group;
-    modify(item,"}");
+    modify(item,"}^");
 
     strap           = grok += "DatA";
     setRuleStuff();
