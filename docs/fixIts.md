@@ -63,6 +63,72 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-77 — `incant/designDocs` has TWO `aCTionDefinE` entries under one parent
+**What:** `ruleActions -> aCTionDefinE` is defined **twice**, at `incant/designDocs:5690` and
+`:6216`, same key, same parent, same indentation. Found 2026-09-17 while placing the
+`refusalBoundary` child; **captured, not chased.**
+**Why it matters:** a lookup resolves one of them, so the other's children are **unreachable by
+name** — `embeddedRuleCopy` and whatever else lives under the loser. That is a silent coverage
+hole in a register whose whole purpose is that an argument can be found from its pointer, and it
+is the same shape as the dangling-key risk the 2026-09-01 comment trial deliberately did not
+build a checker for *"until there is evidence it is needed"*. **This is evidence.**
+**⚠ AND NO INSTRUMENT SEES IT.** `ddPop` reads 5 green / 1 red with the duplicate present and did
+not move when a child was added to the first entry. The trial's own tally in
+`docs/commentTrial.md` is where a followed-and-missing pointer was supposed to be logged.
+**Where:** `incant/designDocs:5690` and `:6216`. **Done when:** the two are merged, or one is
+renamed, and it is known which one `lookuP` was returning. **Grade:** CONFIRMED — both lines read.
+**Owner:** unassigned. **Size:** small, but it needs a ruling on which children belong where.
+
+### F-76 — a refusal raised from an EXPRESSION at define time never reaches a boundary, and the file dies at exit 0
+**What:** `aCTionDefinE`'s `refusalBoundary` is what **clears** `ruler.refused`. A refusal raised
+from a **rule action** during a definition reaches it, is reported, is cleared, and the parse
+continues. A refusal raised from an **expression** during a definition **never reaches it** — so
+nothing clears the flag, it propagates, and **every statement after that definition is dropped**,
+with no `stop:` line and **exit 0**.
+
+**Evidence, 2026-09-17, two arms, same binary:**
+
+| refusal raised from | reaches the boundary | reaches the file's foot |
+|---|---|---|
+| a rule action (`incant/pop/argRetiredT`'s `arBad`) | **yes** — `REMOVED arBad from ArgRetired` | **yes**, sentinel prints |
+| an expression (`dcBad = dcRoot.*dcMid;` in a define block) | **no** — no `REMOVED` line | **no** — truncated, no sentinel, exit 0 |
+
+**⚠ THIS IS THE PROJECT'S WORST-NAMED FAILURE MODE ARRIVING THROUGH A NEW DOOR.** It is
+indistinguishable from a short successful run: every assertion before the bad definition passes,
+the output it already had is flushed, and the return is 0.
+
+**⚠ AND IT IS WHY TONY'S 2026-09-17 CERTIFICATE COULD NOT BE CASHED AS SPECIFIED.** The ruling
+asked for *"a row for `a.*b` inside a define, showing the field removed by name"* as the proof
+that the boundary work and the F-72 escalation are one stroke seen from both ends. **The field is
+not removed by name — the file truncates instead.** The two halves are certified separately:
+`argRetiredT` pins the boundary's message, `dotChainT` pins the escalation. A fixture row for
+`a.*b` in a define is **deliberately absent**, because under rule H5 it would take its whole file
+hostage.
+
+**Where:** `ruleActions.rtn`, `aCTionDefinE`'s `refusalBoundary` — reached on one path and not the
+other. **Done when:** the expression path has a boundary too, or it is ruled that a define-time
+expression refusal SHOULD be terminal — in which case it owes a loud line saying the file was
+abandoned, because silence at exit 0 is not a way to be terminal.
+**Grade:** CONFIRMED, two arms with a positive control. **Owner:** unassigned — surfaced by the
+F-72 escalation, not caused by it. **Size:** unknown; it is a design question first.
+
+### F-75 — `opDot`'s `if !argument` carries two meanings, and one of them is a lie
+**LATENT, NOT TOUCHED — banked on Tony's ruling of 2026-09-17.** One slot, one meaning.
+**What:** `opDot`'s head reads `if !argument` and takes it to mean *"no right operand was
+WRITTEN"* — a **parse** fact — and fires the `lastREF` fixup, `argument = target;
+target = lastREF.group`. It also means *"a right operand WAS written and evaluated to null"* — a
+**value** fact. One test, two eras.
+**What it already cost:** the whole of F-72. `*b` on a non-group field yields null by the 09-05
+star ruling, so `a.*b` reached opDot as a null right operand, the fixup fired, and the expression
+silently became `.a` — which is why `DOTOPERANDS` read `left=right=a` and why F-72's first reading
+concluded, wrongly, that no dot had formed. **The refusal had to be sited in `interpretXP`
+precisely because by the time opDot can ask, it has destroyed the evidence.**
+**The cure is a second channel, never a cleverer test** — the parser knows whether a right operand
+was written and opDot does not, so that fact has to travel rather than be inferred from a value.
+**Done when:** a leading dot is identifiable without consulting the right operand's value.
+**Grade:** CONFIRMED — the mechanism is read and its cost is measured. **Owner:** unassigned.
+**Size:** unknown; it touches every leading-dot spelling, which `dotChainT` DC-7 and DC-8 pin.
+
 ### F-74 — `parseAction`'s `ownSlot` comment describes a mechanism that was measured wrong and reverted
 **What:** `Generate.rtn:42-47` still reads *"setParseWalk captures the action into actionMethod at
 its HEAD, before that overwrite, so the slot is already correct here and nothing upstream moves."*

@@ -5688,6 +5688,34 @@ define
                     the move is
                     accounted for in printPop.sh.#);
             aCTionDefinE=(the define statement -- where a rule is born.#):
+                refusalBoundary=(IT NAMES WHAT IT REMOVES, AND IT REPORTS BEFORE IT
+                    REMOVES. Tony's ruling, 2026-09-17. Until that day the boundary
+                    deleted a definition in perfect silence and the only symptom was that
+                    nothing later could find the field -- a whole definition gone, at
+                    exit 0, naming nothing. reportDefineRemoved is its voice.
+
+                    ⚠ THE REPORTER IS A SIBLING OF reportNoBody, NOT A REUSE OF refuse(),
+                    and it deliberately does NOT re-print the refusal's reason. Two sites,
+                    two facts: refuse() names ITS patient and why it refused; the boundary
+                    names WHAT WAS REMOVED and from where, which is the fact only the
+                    boundary holds. A reporter that re-stated another site's reason would
+                    be a witness recomputing its subject's decision.
+
+                    ⚠ THE PAIRING IS GUARANTEED RATHER THAN HOPED FOR. refuse()
+                    (GroupActions.rtn:859) is the SOLE WRITER of ruler.refused -- measured
+                    2026-09-17, one writer in source, one in the generated mm -- so the
+                    REMOVED line cannot print without a REFUSED line above it. A second
+                    writer is the moment this stops being true.
+
+                    ⚠⚠ AND THE BOUNDARY IS WHAT CLEARS THE FLAG, WHICH IS WHY ITS ABSENCE
+                    ON ANOTHER PATH IS FATAL RATHER THAN MERELY QUIET. Measured the same
+                    day with a positive control: a refusal raised from a RULE ACTION during
+                    a definition reaches here, is reported, is cleared, and the parse
+                    continues -- incant/pop/argRetiredT prints its sentinel. A refusal
+                    raised from an EXPRESSION during a definition never arrives, so nothing
+                    clears the flag, it propagates, and every statement after that
+                    definition is dropped with no stop line and exit 0. fixIts F-76.
+                    Do not read that truncation as a mystery: it is a missing boundary.#);
                 producerOwnsInvariant=(⚠ THE PRODUCER OWNS THE INVARIANT: EVERY LIVE RULE
                     CARRIES rStuff. Mark 3, Tony 2026-08-22.
 
@@ -6091,13 +6119,19 @@ define
                     check cannot see the drift, and the control proves it: moving the
                     seat back up leaves the MESSAGE row green and reddens only the COUNT.
 
-                    ⚠ IT IS A DIAGNOSTIC AND CHANGES NO VALUE, DELIBERATELY. `refuse()`
-                    proper raises ruler.refused, and aCTionDefinE's refusalBoundary reads
-                    that flag to REMOVE THE DEFINITION FROM THE REGISTRY -- so escalating
-                    would mean one `a.*b` anywhere in a define block silently deletes the
-                    whole field, which is trading one quiet wrong answer for another.
-                    Whether a.*b should kill its enclosing define is a ruling nobody has
-                    made. The escalation is one line when it is made.
+                    ⚠ ESCALATED 2026-09-17 ON TONY'S RULING -- IT IS refuse() PROPER
+                    NOW, and it rides with refusalBoundary gaining a voice, because the
+                    two are one stroke seen from both ends: this raises ruler.refused and
+                    the boundary is what turns that flag into a NAMED removal.
+                    ⚠ AND THE MEASUREMENT FOUND THE RULING'S CERTIFICATE UNCASHABLE, which
+                    is the part to keep. At RUN time the escalation behaves exactly as
+                    intended: the refusal ends the action, aCTionBlocK breaks, DC-9 prints
+                    no value. At DEFINE time it does NOT reach the boundary at all -- it
+                    truncates the file at exit 0 with no sentinel, because the boundary is
+                    what CLEARS the flag and the expression path never gets there. The
+                    positive control is argRetiredT, whose refusal comes from a RULE ACTION,
+                    reaches the boundary, is reported, is cleared, and lets the parse finish.
+                    Banked as fixIts F-76; surfaced by this escalation, not caused by it.
 
                     ⚠ AND THE MESSAGE NAMES THE OPERATOR BY ITS REGISTRY TAG, `deref`,
                     RATHER THAN RECONSTRUCTING THE SOURCE SPELLING. The unary star

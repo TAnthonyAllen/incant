@@ -382,6 +382,7 @@ extern "C" GroupItem *recordParse(GroupItem *argument);
 extern "C" GroupItem *refuse(GroupItem *subject, char *why);
 extern "C" int refuseDotUnaryRight(GroupItem *op, GroupItem *arg);
 extern "C" void reportCodeFail(GroupItem *field);
+extern "C" void reportDefineRemoved(GroupItem *field, GroupItem *intoReg);
 extern "C" int reportMaxLimit(GroupItem *field);
 extern "C" void reportNoBody(GroupItem *field);
 extern "C" int reportRepeatLimit(GroupItem *rule, int kounted, int limit);

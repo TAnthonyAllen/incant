@@ -415,6 +415,18 @@ if grep -q "REFUSED arBad -- a declared .argument. attribute is retired" "$T/art
 else
     echo "  FAIL  argRetiredT the refusal is gone or stopped naming the respell"; fail=1
 fi
+#  ⚠ THE BOUNDARY'S OWN VOICE, 2026-09-17 (Tony's ruling). Until today aCTionDefinE's
+#  refusalBoundary deleted a definition in PERFECT SILENCE and the only symptom was
+#  that nothing later could find the field. It now names what it removes WHEN it
+#  removes it, and this is the row that pins the message. The pairing with the
+#  REFUSED row above is guaranteed rather than hoped for: refuse() is the SOLE writer
+#  of ruler.refused, so this line cannot print without that one above it.
+if grep -q "REMOVED arBad from ArgRetired -- a refusal fired while it was being defined" "$T/art2"; then
+    echo "  ok    argRetiredT THE BOUNDARY NAMES WHAT IT REMOVES -- arBad, by name, from its registry"; green=$((green+1))
+else
+    echo "  FAIL  argRetiredT the boundary removed arBad SILENTLY. Actual:"
+    grep -F "REMOVED" "$T/art2" | sed 's/^/          /'; fail=1
+fi
 for _n in BEFORE AFTER; do
     if grep -q "^AR $_n ran" "$T/art2"; then
         echo "  ok    argRetiredT AR $_n ran -- the definition $_n a refusal is unharmed"; green=$((green+1))
@@ -2565,12 +2577,21 @@ else
     echo "        the seat drifted ABOVE interpretXP's target guard and fires on both"
     echo "        passes of the backward walk"; fail=1
 fi
-if grep -qF "DC-9 a.*b       =  dcJ" "$T/dc.e"; then
-    echo "  ok    dotChain DC-9 value UNCHANGED (echo) -- the refusal is a diagnostic, not an abort"; green=$((green+1))
+#  ⚠ RE-PINNED 2026-09-17 WITH A SENTENCE (H6), NOT SILENCED. The echo row above
+#  predicted its own death -- "the row that goes red the day someone escalates" -- and
+#  Tony ruled the escalation the same day. DC-9 no longer prints a value AT ALL:
+#  refuse() ends the action, aCTionBlocK breaks, and dcR9's cerr never runs.
+#  ⚠ THE COUNT IS HOW THAT IS PINNED, BECAUSE "the line is gone" IS AN ABSENCE AND H4
+#  FORBIDS ONE. Eight DC value lines is a VALUE: DC-0,1,2,3,4,5,7,8 present and DC-9
+#  absent. Nine would mean the escalation was reverted; seven would mean something
+#  ELSE stopped printing, which is a different fact and gets looked at.
+_dcv=$(grep -cE "^DC-[0-9]" "$T/dc.e")
+if [ "$_dcv" = 8 ]; then
+    echo "  ok    dotChain DC-9 ABORTS -- 8 value lines, DC-9 among the missing (escalated)"; green=$((green+1))
 else
-    echo "  FAIL  dotChain DC-9 value MOVED -- if this was a deliberate escalation to"
-    echo "        refuse() proper, re-pin with a sentence (H6). Actual:"
-    grep -F "DC-9" "$T/dc.e" | sed 's/^/          /'; fail=1
+    echo "  FAIL  dotChain expected 8 DC value lines, got $_dcv -- 9 means the F-72"
+    echo "        escalation to refuse() was reverted; fewer means a DIFFERENT row died"
+    grep -E "^DC-[0-9]" "$T/dc.e" | sed 's/^/          /'; fail=1
 fi
 
 #  ---- opPrefixT: every operator with a prefix sibling reads as ONE term ------

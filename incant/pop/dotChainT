@@ -41,12 +41,20 @@
                        not go where the ruling sited it: by opDot the evidence
                        is gone. It sits in interpretXP, where the uxp still
                        carries its operator.
-                       ⚠ THE VALUE IS UNCHANGED ON PURPOSE. This is a DIAGNOSTIC;
-                       `refuse()` proper was not used because it raises
-                       ruler.refused, which aCTionDefinE's refusalBoundary reads
-                       to REMOVE THE DEFINITION FROM THE REGISTRY. Whether a.*b
-                       should kill its enclosing define is unruled. The echo pin
-                       is what goes red the day someone escalates.
+                       ⚠ ESCALATED 2026-09-17 (Tony's ruling) -- IT IS NOW
+                       `refuse()` PROPER AND DC-9 PRINTS NO VALUE AT ALL. The
+                       refusal ends the action, aCTionBlocK breaks, and dcR9's
+                       cerr never runs. The echo pin that stood here predicted
+                       its own death and got it the same day.
+                       ⚠ THE ROW IS PINNED AS A COUNT, NOT AS AN ABSENCE: eight
+                       DC value lines, DC-9 among the missing. Nine means the
+                       escalation was reverted; seven means a DIFFERENT row died,
+                       which is a different fact and gets looked at.
+                       ⚠ AND THE DEFINE-TIME HALF IS NOT HERE, DELIBERATELY --
+                       see fixIts F-76. `a.*b` inside a define does NOT reach
+                       aCTionDefinE's refusalBoundary: it TRUNCATES the file at
+                       exit 0 with no sentinel. A fixture row for it would take
+                       this whole file hostage, which is rule H5.
     DC-6 was `(*a).b` and is NOT here: parenthesised grouping does not parse in
     this position, measured 2026-09-16. Its question is DC-5's.
 

@@ -511,9 +511,12 @@ GroupItem 	*item = 0;
 	if ( ruler->currentDefine && ruler->currentDefine->groupBody == NewGroup->groupBody )
 		ruler->currentDefine = 0;
 	input->setGroup(NewGroup);
-	// refusalBoundary
+	/*  refusalBoundary  IT NAMES WHAT IT REMOVES, AND IT REPORTS BEFORE IT REMOVES
+	refusalBoundary  so the name is read off a field that is still in the registry.
+	refusalBoundary  ruleActions.aCTionDefinE.refusalBoundary  */
 	if ( ruler->refused )
 		{
+		reportDefineRemoved(NewGroup,ruler->currentRegistry);
 		if ( ruler->currentRegistry )
 			ruler->currentRegistry->remove(NewGroup->groupBody->tag);
 		ruler->refused = 0;
@@ -11178,8 +11181,17 @@ GroupItem 	*aop = 0;
 	/*  derefIsTheTag  NAME THE OPERATOR BY ITS REGISTRY TAG AND DO NOT RECONSTRUCT THE
 	SOURCE SPELLING -- the unary star registers as `deref` (incant/setup:115), so
 	echoing the tag into a cure produced `a[derefb]` on the first cut of this line.
-	The cure is spelled as the SHAPE, with the star as the worked example.  */
-	::fprintf(stderr,"REFUSED . -- unary %s on the right of a dot is never seen by opDot. Move the unary inside a subscript -- a[*b], not a.*b\n",aop->groupBody->tag);
+	The cure is spelled as the SHAPE, with the star as the worked example.
+	⚠ THE CONCATENATION IDIOM IS setActions' -- juxtaposition allocates, so it is
+	freed after the refusal has printed it.  */
+	/*  escalated  refuse() PROPER, NOT A cerr, ON TONY'S RULING OF 2026-09-17. It rides
+	escalated  WITH the refusalBoundary report above, because the two are one stroke
+	escalated  seen from both ends: this raises ruler.refused, and the boundary is
+	escalated  what turns that flag into a named removal instead of a silent one.
+	ruleActions.interpretXP.dotUnaryRight  */
+char 		*why = ::concat(3,"unary ",aop->groupBody->tag," on the right of a dot is never seen by opDot -- move it inside a subscript: a[*b], not a.*b");
+	::refuse(op,why);
+	::free(why);
 	return 1;
 }
 
@@ -11213,6 +11225,30 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::fprintf(stderr,"ERROR processCode: %s parse failed\n",field->groupBody->tag);
 	::fprintf(stderr,"    failed at %s\n",::getDebugText(ruler->ruleSTUFF->failedAt,40));
 	::fprintf(stderr,"    on line %s\n",::toStringFromInt(ruler->sourceLINE));
+}
+
+/*  reportDefineRemoved -- THE BOUNDARY'S VOICE. A SIBLING OF reportNoBody, NOT A REUSE
+    OF refuse(). Built 2026-09-17 on Tony's ruling: aCTionDefinE's refusalBoundary names
+    what it removes WHEN it removes it, so a refusal inside a define block is loud with a
+    patient (R-2). Until today the boundary deleted a definition in perfect silence and the
+    only symptom was that nothing later could find the field.
+
+    ⚠ IT DELIBERATELY DOES NOT RE-PRINT THE REFUSAL'S REASON, AND THAT IS THE DESIGN AND
+    NOT AN OMISSION. Two sites, two facts: refuse() names ITS patient and why it refused;
+    this names WHAT WAS REMOVED and from where, which is the fact only the boundary holds.
+    A reporter that re-stated another site's reason would be a witness recomputing its
+    subject's decision, which is the drift this project has already paid for.
+
+    ⚠ AND THE PAIRING IS GUARANTEED RATHER THAN HOPED FOR: refuse() (GroupActions.rtn:859)
+    is the SOLE WRITER of ruler.refused, measured 2026-09-17, so this line cannot print
+    without a REFUSED line above it. If a second writer is ever added, that is the moment
+    this comment stops being true.   ruleActions.aCTionDefinE.refusalBoundary  */
+extern "C" void reportDefineRemoved(GroupItem *field, GroupItem *intoReg)
+{
+char 	*regName = "(no registry)";
+	if ( intoReg )
+		regName = intoReg->groupBody->tag;
+	::fprintf(stderr,"REMOVED %s from %s -- a refusal fired while it was being defined, so the definition is GONE and nothing later will find it\n",field->groupBody->tag,regName);
 }
 
 extern "C" int reportMaxLimit(GroupItem *field)
