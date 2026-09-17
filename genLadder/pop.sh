@@ -2622,6 +2622,38 @@ else
     grep -E "^DC-[0-9]" "$T/dc.e" | sed 's/^/          /'; fail=1
 fi
 
+#  ---- slashValT / slashLeadT: a leading // kills the value -------------------
+#  G03's blocker, measured 2026-09-17. A `//` at the START of a define's value breaks the
+#  parse; mid-value is fine. ⚠ IN BOTH SPELLINGS -- the `(...#)` delimited form is NOT
+#  opaque to a leading `//`, which is the thing a reader will get wrong, because the first
+#  workaround anyone reaches for is the other quoting style. A leading space does not help.
+#  ⚠ THE TWO FILES ARE SPLIT BECAUSE THE FAILURE IS NOT LOCAL: a leading-// define kills
+#  the WHOLE block, so the defect arm would delete its own controls. slashValT carries the
+#  controls WITH VALUES (a run where nothing parses cannot pass them); slashLeadT asserts
+#  the failure by PRESENCE of the RunRulE line, never by absence of a value.
+#  ⚠ SYMPTOM ONLY. The mechanism is not recorded -- bear-trap #18. docs/fixIts.md F-81.
+run2 slashValT "$T/sv.o" "$T/sv.e"; check "slashValT runs" 0 $?
+sentinel "slashValT sentinel" "$T/sv.e" "SLASHVAL SENTINEL"
+for _r in "SV-1 delimited, // mid-value|SV-1 delimited, // mid-value  =  has // a comment" \
+          "SV-2 quoted,    // mid-value|SV-2 quoted,    // mid-value  =  has // a comment"; do
+    _lbl=${_r%%|*}; _want=${_r##*|}
+    if grep -qF "$_want" "$T/sv.e"; then
+        echo "  ok    slashValT $_lbl reads back INTACT -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  slashValT $_lbl -- MOVED. Actual:"
+        grep -F "${_lbl%% *}" "$T/sv.e" | sed 's/^/          /'; fail=1
+    fi
+done
+run2 slashLeadT "$T/sl.o" "$T/sl.e"; check "slashLeadT runs" 0 $?
+#  ⚠ PINNED RED-SHAPED ON PURPOSE. When the opaque scan lands this row goes red and the
+#  fixture's own SL-NEVER line starts printing -- that is the signal, not a regression.
+if grep -qF "RunRulE: expected a method not slLead" "$T/sl.e"; then
+    echo "  ok    slashLeadT a LEADING // still kills the define -- pinned wrong ON PURPOSE"; green=$((green+1))
+else
+    echo "  FAIL  slashLeadT the leading-// define no longer fails. If the opaque scan"
+    echo "        LANDED, that is the win: re-pin with a sentence (H6) and close F-81."; fail=1
+fi
+
 #  ---- truncT / truncLitT: a failed MATCH ends the file, and now says so ------
 #  F-79, 2026-09-17. `Start` is `StatemenT+`, so a statement that fails to MATCH ends that
 #  repetition and every byte after it is never parsed -- no error, no stop: line, exit 0.

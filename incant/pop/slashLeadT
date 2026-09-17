@@ -1,0 +1,25 @@
+/*  slashLeadT -- THE DEFECT HALF OF slashValT. G03's blocker, 2026-09-17.
+
+    A `//` at the START of a value kills the define block it is in. This file asserts THE
+    FAILURE, pinned red-shaped on purpose (H7's other half): it is not a claim the
+    behaviour is right, it is a pin so the day the opaque scan lands, something says so.
+
+    ⚠ IT IS A SEPARATE FILE BECAUSE THE FAILURE IS NOT LOCAL. It takes the whole define
+    block with it, so it would delete its own controls -- which live in slashValT.
+    ⚠ AND THE ERROR NAMES THE FIRST ENTRY, NOT THE OFFENDER. `slLead` is the only entry
+    here precisely so the name in the message is the right one for once; with a sibling
+    above it, bear-trap #32's misdirection applies and the message accuses the innocent.
+
+    ASSERTED BY PRESENCE-WITH-VALUE, never by absence: the RunRulE line must be THERE.
+    A row reading "no value arrived" would pass on a run that never started.
+    docs/fixIts.md F-81; the mechanism is NOT recorded -- symptom only, bear-trap #18.  */
+Start();
+include(utilities);
+search reset stack Grokking;
+search Utilities list;
+register(SlashLeadT);
+define
+    slLead=(// a comment#);
+    ;
+cerr "SL-NEVER the define survived -- if this prints, the defect is FIXED":;
+stop();

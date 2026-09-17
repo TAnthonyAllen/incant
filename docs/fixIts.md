@@ -63,6 +63,43 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-81 — G03's blocker: a `//` at the START of a value kills the define, in BOTH spellings
+**What:** a define whose value begins with `//` breaks the parse and takes the **whole define
+block** with it. Mid-value is fine. **The `(…#)` delimited form does not help.**
+
+| value | parses | reads back |
+|---|---|---|
+| `(has // a comment#)` | ✓ | `has // a comment` |
+| `"has // a comment"` | ✓ | `has // a comment` |
+| `(// a comment#)` | ✗ | — |
+| `( // a comment#)` | ✗ | — (a leading space does not help) |
+| `"// a comment"` | ✗ | — |
+
+**⚠ IT IS POSITION, NOT THE DELIMITER, AND THAT IS THE THING A READER WILL GET WRONG** — the
+first workaround anyone reaches for is the other quoting style, and `checkSKIP.md` §3 assumes
+the delimited form is opaque (*"`(G03 // anything)` … are opaque"*). **It is not, today.**
+
+**⚠ AND THE ERROR ACCUSES THE INNOCENT.** It reports `RunRulE: expected a method not <FIRST entry
+in the block>`, not the offending line — bear-trap #32's misdirection. Bisect by removing later
+entries. In the G03 repro the message named `dPlain` while the culprit was `qSlash`, two lines
+below it.
+
+**What this closes of Tony's offline report:** the two named G03 defects **do not reproduce**.
+`fromThis=(G03\n"#)` captures **byte-exact** (`G 0 3 \ n "` in, same out — no doubling, no
+interpretation), and a mid-value `//` survives. Tony's `IncantForms/WorkingOn/tester` fails for a
+**third, unrelated reason**: its define block has no `;` terminator, so `fromThis` parses as a
+statement. Measured as a 2×2 — `debug DelimText` is innocent.
+
+**SYMPTOM ONLY, cause NOT recorded** (bear-trap #18). The tempting mechanism — `checkSkip`
+consuming `//` to end of line before the value is read, which cannot happen mid-value because
+non-space content has already stopped the skip — fits Tony's own words for G03 and is **a
+hypothesis, not a finding.**
+**Done when:** the DelimitText opaque scan lands (`docs/checkSKIP.md` §7 item 3, the 2026-08-02
+ruling's "C++ now" half). **Coverage:** `incant/pop/slashValT` (controls, with values) and
+`incant/pop/slashLeadT` (the failure, **pinned red-shaped on purpose**; when the scan lands that
+row goes red and the fixture's `SL-NEVER` line starts printing — that is the win, not a
+regression). **Grade:** CONFIRMED, five shapes plus a bisect. **Owner:** unassigned.
+
 ### F-80 — a FIVE-name dot chain still answers `xl1`; the fold deliberately refuses to touch it
 **What:** `a.b.c.d` is correct as of 2026-09-17. `a.b.c.d.e` is not — it answers `xl1`,
 `interpretXP`'s juxtaposition accumulator, exactly as it did before the fold.

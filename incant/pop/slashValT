@@ -1,0 +1,36 @@
+/*  slashValT -- A `//` AT THE START OF A VALUE BREAKS THE PARSE. G03's blocker, 2026-09-17.
+
+    ⚠ THE DELIMITED FORM DOES NOT SAVE YOU, AND THAT IS THE POINT OF THIS FIXTURE. The
+    obvious workaround for "a value needs to contain //" is the `(...#)` literal, on the
+    understanding that it is opaque. IT IS NOT OPAQUE TO A LEADING `//`. Measured five
+    ways: mid-value is fine in BOTH spellings, leading is broken in BOTH, and a leading
+    space does not help.
+
+    ⚠ IT IS POSITION, NOT THE DELIMITER. That is what a reader will get wrong, because the
+    first thing anyone tries is the other quoting style.
+
+    THE SYMPTOM ONLY. The tempting mechanism -- checkSkip consuming `//` to end of line
+    before the value is read, which cannot happen mid-value because non-space content has
+    already stopped the skip -- fits Tony's own words for G03 and is NOT recorded as a
+    cause: reproduction proves the symptom, never the cause (bear-trap #18).
+
+    ⚠ THE BROKEN ARMS ARE NOT IN THIS FILE AND CANNOT BE. A leading-`//` define kills the
+    WHOLE define block -- `RunRulE: expected a method not svMidD`, naming this file's FIRST
+    entry rather than the offender (bear-trap #32's misdirection) -- so it would delete its
+    own controls. They live in incant/pop/slashLeadT, which asserts the failure instead.
+
+    THE ROWS. SV-1 and SV-2 carry VALUES, so a run where nothing parses cannot pass them.
+    docs/fixIts.md F-81.  */
+Start();
+include(utilities);
+search reset stack Grokking;
+search Utilities list;
+register(SlashValT);
+define
+    svMidD=(has // a comment#);
+    svMidQ="has // a comment";
+    ;
+cerr "SV-1 delimited, // mid-value  = " svMidD:;
+cerr "SV-2 quoted,    // mid-value  = " svMidQ:;
+cerr "SLASHVAL SENTINEL":;
+stop();
