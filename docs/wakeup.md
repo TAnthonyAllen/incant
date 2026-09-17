@@ -1,3 +1,83 @@
+# ⚠⚠⚠ SEALED 2026-09-17, TWENTY-SECOND SESSION -- FIVE ROWS CLOSED, AND FIVE OF MY OWN
+# FINDINGS WITHDRAWN. THE DAY'S DOCTRINE IS ABOUT THE SECOND NUMBER.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-17 13:53 and `git log -1 --date=iso` 13:47. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 398 green / 51 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed.** 23 commits in Groups, one in support, one in TOK.
+#
+#   The arc: 352 (seal) -> 355 (F-72) -> 361 (F-76) -> 366 (F-78) -> 372 (the chain) -> 383
+#   (F-79) -> 389 (G03 diagnosed) -> 390 (G03 closed) -> 395 (first-use) -> 398 (parserTest).
+#   Red 51 throughout, row for row, except two deliberate flips that graduated the same day.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. CLOSED: F-72, F-76, F-78, F-79, F-81, the a.b.c.d chain, and the first-use install.**
+#   `a.*b` refuses in `interpretXP` because opDot's `!argument` destroys the evidence first.
+#   `a.b.c.d` reads TWIGVAL -- the parse groups dots in PAIRS, so the orphan is a whole dot
+#   expression and the fold must SPLICE, not wrap. A refusal's scope is the statement.
+#   `stop()`/`bail()` always work. DelimText is opaque in seven positions. A rule gets its parse
+#   at first use.
+#
+#   **b. ⚠⚠ FIVE OF MY OWN FINDINGS WERE WITHDRAWN, ALL THE SAME MOVE, AND THE DOCTRINE IS IN
+#   CLAUDE.md.** An absence is evidence only when the population was the whole tree. The five:
+#   the grammar's `^` (probed a population `dtext` was not in); "four fixtures with inert calls"
+#   (a filename grep; two were PROSE); anyOrNumT's "no-op" (it defines its own `parser`);
+#   F-62's cure "only in trigDO" (the shared copy cures it differently); and "generateParse
+#   destroys list's action" (it never reached `list`). ⚠ **Three were followed by confirming
+#   sweeps that agreed. A sweep inside a wrong population returns unanimity.**
+#
+#   **c. STATION 4 IS BLOCKED AT `parser`'s ROOT RESOLUTION, NOT AT generateParse.** The root
+#   line reads `Grokking[argument.taG]` -- the explicit-accessor spelling a prior ruling stopped,
+#   where `argument.taG` returns `argument`. `parser(Search)` works and is the control;
+#   `parser(list)` generates for a node called `argument`. ⚠ **RULED: parser takes the rule via
+#   `*argument`; registry membership stops mattering.** Tony also suspects `list` is not in the
+#   search list being read.
+#   ⚠⚠ **THE TWO-BODIES-ONE-SLOT COLLISION IS UNTESTED, NOT DISPROVED** -- generateParse has
+#   never seen `list`. **builtinParseR is sized from that first measurement, not before it.**
+#
+#   **d. `utilities` INCLUDES `parser`, AND THE FIXTURES WERE FROZEN COPIES.** `anyOrNumT` and
+#   `trigDO` each carry a COMPLETE frozen copy of the incantation by design; what broke was name
+#   COLLISION, cured by renaming to `aon*`/`td*`. `incant/pop/parserTest` is the live one's POP
+#   over three roots, **with no pinned answers** -- two of them have never run.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **398 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · frontier dies at station 5 · canary **335** · alphaLint 10 out of order
+#   (the pre-existing opIsShortCircuit/opIsOR pair) · **Groups 0/0, support 0/0, TOK 0/0.**
+#
+#   ## ⚠⚠ WAITING ON TONY
+#
+#   **1. F-85's second half is OPEN and undiagnosed:** what stops `list`'s action after a
+#   `parser(list)` that ran on the holder. The collision is not it -- that much is known.
+#   **2. The bear-trap #35 disagreement.** Its direct-subscript miss control **fired** here,
+#   where #35 says it reads 0. Nobody has chased it, and it voided two probes today.
+#   **3. `reportRunAbandoned`'s bailed-file mark** -- for a top-level bail the mark points at the
+#   file's START, so its resume text is wrong in that one case. Parked, fourth attempt.
+#
+#   ## TOMORROW, IN ORDER
+#   1. `parser` takes the rule via `*argument`. **Re-run `parser(Search)` through the new line as
+#      the control FIRST**, then `parser(list)` in parserTest.
+#   2. Read the collision. Then `builtinParseR` **if it exists**.
+#   3. Station 6, one sentence: the parse writes matched data into the label it minted.
+#   4. checkSKIP as its own campaign; `docs/checkSKIP.md` is the card.
+#
+#   ## BANKED TODAY, NOT CHASED
+#   F-86 (KANT-40 in parser's own file -- **no braces in a comment inside an action body** until
+#   checkSKIP lands) · the first-entry-named error family · the #35 disagreement · the
+#   modify/modifyClass split with `delimiter}^` as its acceptance spelling · F-83's label
+#   population · F-77's duplicate `aCTionDefinE` entry · F-80's five-name chain.
+#
+#   ## DOCTRINE EARNED TODAY
+#   A refusal's scope is the statement · `bail()` leaves nothing to report (parked at the
+#   input-level question) · DesignDocs entries are stump markers · **an absence is evidence only
+#   when the population was the whole tree** · IncantForms is WIP that commits · bare is the
+#   default state · bear-trap #54 (a governed statement starting with `*`).
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
 # ⚠⚠⚠ SEALED 2026-09-16, TWENTY-FIRST SESSION -- THE DIRECTIVES MODEL RAN ON PRODUCTION
 # CODE, THE DOT CHAIN FOLDS, AND TWO PREDICTIONS FAILED HONESTLY.
 #

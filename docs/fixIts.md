@@ -89,8 +89,13 @@ direct form `if Grokking["zzzNotARule"];` — the deliberate **miss control** �
 where the miss control passes answers nothing about the hits beside it. Bear-trap #35 says the
 direct subscript reads 0 on a miss; **it did not here**, and that disagreement is itself a finding
 nobody has chased.
-**Done when:** `parser(X)` reaches a rule that is not a `Grokking` member, so `list` can be the
-spec it was chosen to be. **Grade:** CONFIRMED for the blocker (announced output, with a working
+⚠ **RULED 2026-09-17 (Tony): `parser` takes the rule via `*argument`; registry membership stops
+mattering.** The root line's `Grokking[argument.taG]` is the explicit-accessor spelling a prior
+ruling stopped. Tony also suspects `list` is not in the search list being read.
+**Done when:** `parser(Search)` is re-run through the new line **as the control first**, then
+`parser(list)` reaches `list` in `parserTest`.
+⚠ **AND THE COLLISION IS SIZED FROM THAT MEASUREMENT, NOT BEFORE IT** — `builtinParseR` is built
+only if the two-bodies-one-slot collision is there when `generateParse` finally sees `list`. **Grade:** CONFIRMED for the blocker (announced output, with a working
 control); OPEN for why the action stops. **Owner:** unassigned.
 
 ### F-86 — KANT-40 in anger: a `}` inside a comment in a `code={ }` body ends the body

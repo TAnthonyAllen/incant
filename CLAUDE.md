@@ -3093,6 +3093,30 @@ Tony asked for — **retoks bare, and carries on.** ⚠ **It is BOOKKEEPING, NOT
 distinction the ownership sentence above draws: saying it and stopping over it are two different
 acts, and only the first is owed. The detector is a `.mm` that moved with no `.twk` behind it.
 
+⚠⚠ **AN ABSENCE IS EVIDENCE ONLY WHEN THE POPULATION WAS THE WHOLE TREE. Tony, ruled 2026-09-17
+after FIVE SIGHTINGS IN ONE DAY, every one of them the same move: a search that could not have
+contained the answer, read as proof the answer does not exist.**
+
+| the absence | the population it was read from | what it actually was |
+|---|---|---|
+| *"the grammar's `^` never reaches the scan term"* (F-82) | a probe printing only terms with `overTo` set — **`dtext` was never in it** | the `^` takes; nine spellings then "confirmed" a conclusion the probe could not support |
+| *"four fixtures have inert `parser(…)` calls"* | a **filename** grep | two of the four matched in PROSE — a comment and a `cerr` string |
+| *"`anyOrNumT`'s `parser(…)` is an unresolved no-op"* | the live registry only | it **defines its own `parser`**; it is a frozen copy, by design |
+| *"F-62's cure is only in trigDO's copy"* | looking for trigDO's inline `setParse` line | the shared copy cures it **differently** — `setParse` outside the redirect, both exits restore |
+| *"generateParse destroys `list`'s action"* | a before/after that never checked **which rule** ran | `generateParse` never reached `list` at all |
+
+⚠ **THE COMMON SHAPE IS NOT CARELESSNESS — EVERY ONE WAS A REASONABLE SEARCH.** What each lacked
+was the sentence *"and this search would have found it if it were there."* That is the rule:
+**before an absence becomes a finding, say out loud what population was searched and why the
+answer would have been in it.** Bear-trap #19's corollary said the cause often sits in a file the
+narrowing never looked at; this is its constructive half, and it is cheap — one sentence at
+writing time, and it is the sentence none of the five had.
+
+⚠ **AND THE TELL IS A CONFIRMING SWEEP.** Three of the five were followed by extra work that
+agreed — nine grammar spellings, a census, a second grep. **A sweep inside a wrong population
+returns unanimity, and unanimity reads exactly like proof.** When a search comes back clean,
+distrust it in proportion to how clean it came back.
+
 ⚠ **FIXIT CITIZENS ARE NOT CLOD'S TO MINT (Rule F2, Tony, 2026-09-01).** A finding goes in the
 **seal**; whether it becomes a citizen in `incant/fixits/` is Tony's or Clay's ruling. Clod may
 always add a **fleet row** — that is where a measurement belongs — and should, rather than reaching
