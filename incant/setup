@@ -355,7 +355,6 @@ include(grammar);
     additions to prose. Quote a spelling inline with backticks, never as an
     indented line of its own.
 
-
     1. THE INSTALL VOCABULARY -- parseMethod, parseTerms, setParse, parseClassify
 
     Promoted from incant/genScratch 2026-08-05 by Tony's ruling, and they join the
@@ -370,7 +369,6 @@ include(grammar);
     SIGSEGV. Every Scaf rule is defined inside genScratch itself, so the install
     route had only ever been exercised in the one file that defines the words it
     needs.
-
 
     2. THE BOOLEAN OPERATORS -- `||`, `&&`, `shortCircuit`, `isOR`
 

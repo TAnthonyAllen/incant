@@ -300,11 +300,11 @@ GroupRules  ruler = groupRules;
 
     strap           = grok += "DatA";
     setRuleStuff();
+    item            = strap += grok/DelimText;
     item            = strap += grok/GrouP;
     item            = strap += grok/NumbeR;
     item            = strap += grok/CodeBody;
     item            = strap += grok/SetBrackets;
-    item            = strap += grok/DelimText;
     item            = new("NotA");
     item.characterSet    = new("^ \t\r\n;");
     item            = strap += item;

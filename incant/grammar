@@ -48,11 +48,11 @@ GrouP
     QuotE;
 CodeBody            leftCurly rightCurly parseAction;
 DatA
+    DelimText       leftParen dtext^=delimiter};
     GrouP;
     NumbeR;         NumbeR is updated when setup is loaded in bootstrapper
     CodeBody;
     SetBrackets     leftBrace- rightBrace};
-    DelimText       leftParen dtext^=delimiter};
     NotA=[^ \t\r\n;]+;
 InvokE              leftParen- NamE? rightParen-;
 Limit               leftBrace- min=[0-9]+ max?=[0-9]+ rightBrace- noPrint;
