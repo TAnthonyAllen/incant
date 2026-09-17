@@ -18,7 +18,11 @@ A form is a window-definition: a `define` block describing a tree of fields
 
 > ⚠⚠ **`initFORMs` WAS REMOVED FROM `incant/utilities` ON 2026-09-17, AND SO WAS `changeDatA`.
 > THIS SECTION IS STALE AND IS KEPT ONLY UNTIL THE FORMS ARE SCRUBBED (see `docs/fixIts.md` F-73).**
-> Nine files under `IncantForms/Windows/` still call `initFORMs();` at line 5.
+> **Eight** files under `IncantForms/Windows/` still call `initFORMs();` at line 5 — and ⚠ **the
+> target shape is not a rewrite of this preamble at all.** Tony, 2026-09-17: forms will be
+> **define-only, no actions**, with `bail()` and prose below it. `IncantForms/Windows/tree` already
+> has that shape and is the reference. The `search` lines below are therefore an **interim**
+> spelling, right for a form kept alive today and wrong as a destination.
 >
 > **⚠ HALF OF WHAT THIS SECTION DOCUMENTS IS NOW DEAD AND HALF IS NOT** — measured three ways on
 > `IncantForms/Windows/simple`, same binary, one variable per arm:

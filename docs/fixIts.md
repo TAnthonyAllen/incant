@@ -80,47 +80,71 @@ the problem is already solved. **Grade:** CONFIRMED — two sites read, one comm
 **Done when:** the comment states the lazy fill through `builtinActoR` and names `fireLabelMethod`
 as the writer. **Owner:** unassigned. **Size:** one comment.
 
-### F-73 — nine form files still call `initFORMs`, and the scrub is a substitution, not a deletion
-**What:** `initFORMs` was removed from `incant/utilities` on 2026-09-17 with the DatA-rule change
-that made half its job unnecessary. **Nine files under `IncantForms/Windows/` still call
-`initFORMs();` at line 5** — `simple`, `sheet`, `fit`, `cards`, `tabs`, `toggles`, `scroll`,
-`keyStroke`, `descriptions`. Tony's ruling: they get scrubbed when those forms are addressed. This
-row exists to say **what the scrub is**, because the obvious spelling of it does not work.
+### F-73 — eight forms still call `initFORMs`, and the target shape is define-only, not a substitution
+**Owner:** Tony — scheduled with the forms, not before. Clay has a recon in flight on the same
+population; this row is its oracle, not a competing count.
 
-**⚠ THE CAUSE WAS RE-MEASURED AFTER TONY NAMED IT, AND IT SPLIT IN TWO.** `initFORMs` did three
-things and only one of them died:
+**⚠ THE COUNT IN THIS ROW'S FIRST TWO VERSIONS WAS WRONG: EIGHT CALL SITES, NOT NINE.**
+`IncantForms/Windows/tabs` carries a **prose mention in its dead region**, not a call, and a
+`grep -rn initFORMs` counts the two the same. Corrected by matching the call
+(`^\s*initFORMs();`) rather than the name. H9 exactly — a count is a value, and a wrong one
+arrives wearing the shape of a right one. The eight are `simple`, `sheet`, `fit`, `cards`,
+`toggles`, `scroll`, `keyStroke`, `descriptions`, all at line 5, all in `IncantForms/Windows/`.
 
-| the line | state today |
+**⚠ AND THE TARGET IS NOT THE SUBSTITUTION THIS ROW FIRST PRESCRIBED. Tony, 2026-09-17: FORMS WILL
+BE DEFINE-ONLY — NO ACTIONS — WITH `bail()` AND PROSE BELOW IT.** `bail()` was written for exactly
+this and only just landed, which is why no form has the shape yet. So the two `search` lines are an
+**interim spelling**, correct for a form being kept alive today and wrong as a destination: the
+whole preamble leaves the form file rather than being rewritten inside it. **Do not build the
+substitution across eight files and call it done.**
+
+**THE REFERENCE SHAPE ALREADY EXISTS IN THE TREE — `IncantForms/Windows/tree`.** No `Start()`, no
+`include()`, no `search`, no `initFORMs`: a comment block, then `register(dESCRIPTIONs); define …`,
+then `bail()` at line 56 with prose below. `IncantForms/Windows/wraplist` is the other `bail()`
+file and is part-way there — it still carries an `include()`, on an absolute path.
+
+**CENSUS, 2026-09-17, 88 files under `IncantForms/` excluding `WorkingOn/`:**
+
+| | count | files |
+|---|---|---|
+| `bail()` — the target shape | **2** | `Windows/tree` (complete), `Windows/wraplist` (partial) |
+| `stop()` + `initFORMs()` | **8** | the eight above |
+| `stop()` only, already scrubbed | 1 | `Windows/tabs` |
+| ⚠ **two `stop()` calls** | 1 | `BackupXML/oneTest` — **rule H2's exact failure**: the second silently deletes everything between |
+| neither | 76 | |
+
+**WHAT `changeDatA` COST AND WHAT IT DID NOT — measured three arms, same binary, same file
+(`Windows/simple`), one variable each:**
+
+| `initFORMs`' three lines | state today |
 |---|---|
-| `changeDatA();` | **DEAD, and Tony is right.** `DelimText` moved to the FRONT of `DatA` in `incant/grammar` + `GroupMain.twk`, so the `(…#)` literal needs no runtime grammar change. `changeDatA` itself no longer exists anywhere in `incant/` |
-| `search reset stack Grokking;` | **STILL LOAD-BEARING** |
-| `search UnitTests Utilities list;` | **STILL LOAD-BEARING** |
-
-**Evidence — three arms, same binary, same file (`IncantForms/Windows/simple`), one variable each:**
+| `changeDatA();` | **DEAD, and Tony is right.** `DelimText` moved to the FRONT of `DatA` in `incant/grammar` + `GroupMain.twk`, so the `(…#)` literal needs no runtime grammar change. `changeDatA` no longer exists anywhere in `incant/` |
+| `search reset stack Grokking;` | **still load-bearing today** |
+| `search UnitTests Utilities list;` | **still load-bearing today** |
 
 | arm | result |
 |---|---|
-| `initFORMs();` as written today | search list `Grokking Generating bcOPs`, **no output, exit 0** |
+| `initFORMs();` as written | search list `Grokking Generating bcOPs`, **no output, exit 0** |
 | line 5 **deleted outright** | identical — **no output, exit 0** |
-| line 5 → the two `search` lines inline, **no `changeDatA()`** | search list builds; parses to `simple across styleTest height=212 width=250 …` plus five members |
+| line 5 → the two `search` lines | parses to `simple across styleTest height=212 width=250 …` plus five members |
 
-**So the scrub is a SUBSTITUTION.** `initFORMs();` becomes those two `search` lines, not nothing —
-and arm 2 is the row that says so. ⚠ A form scrubbed by deletion is **indistinguishable from an
-unscrubbed one**: both are dark, both exit 0, and the truncating-parse-failure signature means no
-statement after the failing one runs, no `stop:` line is emitted, and the return is still 0.
-**A form that has been scrubbed correctly PRODUCES OUTPUT** — that is the per-file check, and it
-costs one run.
+⚠ **ARM 2 IS THE ONE TO KEEP WHATEVER SHAPE WINS: A FORM SCRUBBED BY DELETION IS
+INDISTINGUISHABLE FROM AN UNSCRUBBED ONE.** Both dark, both exit 0 — a failed statement drops every
+statement after it, emits no `stop:` line and still returns 0. **A correctly converted form PRODUCES
+OUTPUT**, and that is the per-file check, one run each. ⚠ **`formsPop` cannot do it: 14 PASSED on
+every arm above**, because it drives its own `displayFill` fixture rather than these files. No
+instrument on the H12 checklist reads them.
 
-**⚠ NO INSTRUMENT ON THE H12 CHECKLIST SEES ANY OF THIS.** `formsPop` reads **14 PASSED on every
-arm above**, because it drives its own `displayFill` fixture rather than the Windows forms. The
-fleet, `ddPop`, `countPop`, `decodePop` and the frontier are all unmoved. This row and
-`docs/forms.md` §1 are the only record.
+**Corroboration worth having: `tabs` reached the interim shape independently.** Its `search` lines
+are inline at 5-6, it runs, it produces output. Its dead-region prose still describes the
+`initFORMs()` it does not call — stale, and worth scrubbing when the file is touched.
 
-**Done when:** the nine call sites carry the two `search` lines and each file is run once to see it
-produce output. `docs/forms.md` §1 is rewritten in the same stroke — it still documents
-`changeDatA()` as live and cites `utilities:233` for it, which is now a dangling citation.
-**Grade:** CONFIRMED, three arms. **Owner:** Tony — scheduled with the forms, not before.
-**Size:** two lines per file, nine files, plus one run each.
+**Done when:** the eight are converted to the define-only shape `Windows/tree` demonstrates, each
+run once to see it produce output; `tabs`' stale prose goes with them; `BackupXML/oneTest`'s second
+`stop()` is ruled on. `docs/forms.md` §1 is rewritten in that stroke — it still documents
+`changeDatA()` as live and cites `utilities:233` for it, now dangling.
+**Grade:** CONFIRMED — three arms, and a census matched on the call rather than the name.
+**Size:** eight files, plus whatever the preamble's new home costs.
 
 ### F-72 — `a.*b` never forms a dot at all, so nothing can refuse it
 **What:** ruling (iv) of item 6 asked for a loud refusal when the right operand of `.` carries a
