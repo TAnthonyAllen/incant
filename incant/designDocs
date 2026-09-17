@@ -1728,6 +1728,23 @@ define
                     It reads flags that exist the moment a rule is built, so it has no
                     dependency on setParse having bound a parse method -- and in an
                     ordinary run setParse has never fired at all.#);
+        GroupMain=(is the twk file that hand-builds the bootstrap grammar before any incant
+                source is read.#):
+            bootstrapper=(builds the seed rules in C++.#):
+                delimiterInheritsNoSkip=(THE SCAN TARGET INHERITS ITS DRIVER'S noSkip, and
+                    the modifier string `}^` is the whole of it.
+
+                    `^` lands on dtext, then `item = item.group` re-points to the embedded
+                    delimiter, then the modifier lands there. Two modifiers, two nodes --
+                    so without the `^` on the second call the scan target skips, and
+                    checkSkip eats any value that STARTS with a comment marker.
+
+                    ⚠ DO NOT LOOK FOR THIS IN incant/grammar. That file's DelimText line is
+                    INERT -- gutting it to `dtext=delimiter;` changes nothing. This is the
+                    live definition.
+
+                    The argument, the seven measured positions and what is still broken
+                    for quoted strings: docs/fixIts.md F-81 and docs/checkSKIP.md section 3.#);
         Instruct=(is the rtn file holding the operator methods. Entries here are
                 method notes lifted out of the code under the 2026-09-01
                 convention: the inline line carries the claim, this carries the
