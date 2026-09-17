@@ -2529,6 +2529,27 @@ Hard-won lessons. Each one has cost real debugging time.
     will be produced again, because the convention makes that move routine. Same family as the
     three-languages note: confirm which language the line has landed in, not which one it came from.
 
+54. **IN TOK, A GOVERNED STATEMENT THAT STARTS WITH `*` IS SWALLOWED INTO THE CONDITION AS
+    MULTIPLICATION. IT MUST BE BRACED.** Gloss: the deref got multiplied. Tony's rule, stated
+    2026-09-17; measured the same day on the way into it.
+    ```
+    if bailing  *atRuleMark = 0;      ->   if ( bailing * ruler->atRuleMark = 0 )
+    if bailing { *atRuleMark = 0; }   ->   if ( bailing ) { *ruler->atRuleMark = 0; }
+    ```
+    There is no lexer, so tok reads `bailing *atRuleMark` as one expression and the `*` binds as
+    a binary operator. **The unbraced form is not a style choice; it is a different program.**
+    ⚠ **IT FAILS AT THE C++ COMPILE, NOT AT TOK** — `invalid operands to binary expression
+    ('int' and 'char *')` — so the canary does not move, `tok` exits clean, and the error names a
+    line in the generated `.mm` that looks nothing like what you wrote. Same misdirection family
+    as bear-traps #10, #24, #29 and #40, but **quieter than all of them**: those wipe the extern
+    block to zero, which is a standing detector. This one leaves the canary untouched.
+    ⚠ **AND THE BRACES CANNOT BE DROPPED LATER AS TIDYING.** A reader who sees a one-statement
+    arm wrapped in braces will be tempted to unwrap it; the braces are load-bearing and the site
+    says so in a comment (`Commands.stop.bracedForTheStar`).
+    **What is measured is `*`.** Any leading token that can also read as a binary operator is the
+    obvious family, and is NOT claimed here — bear-trap #18's split: reproduction proves the
+    symptom, never the cause, and only the star was run.
+
 51. **SAME NAME, TWO PROVENANCES: A KANT BODY SPELLING `false` GETS A *COPY*; THE `AND` CHAIN
     HANDS BACK THE REGISTRY NODE *ITSELF*. AN IDENTITY TEST AGAINST `falseResult` THEREFORE WORKS
     FROM ONE ROAD AND NEVER FROM THE OTHER, SILENTLY.** Gloss: one name, two provenances. Measured
