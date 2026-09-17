@@ -898,6 +898,23 @@ define
                     recursion.   Generate.setParseWalk.actionMethodRemoved#);
         GroupActions=(is the rtn file holding the action methods -- the interpreter's
             verbs. It is part of the GroupRules include chain.#):
+            runRule=(fires a rule, choosing the new parse road or the old one.#):
+                firstUseInstall=(A RULE GETS ITS PARSE AT FIRST USE. Tony, ruled 2026-09-17.
+                    compile then setParse, folded in here so the order cannot be got wrong
+                    from outside. No definition-time walk, no end-of-grammar walk.
+
+                    ⚠ THE PRECONDITION IS THE GATE, AND IT IS `isCoded`: parse install reads
+                    a grammar the OLD parse has FINISHED, so a rule not yet parsed by the old
+                    road is not installable. Ungated it fires on `define` during bootstrap --
+                    compile fails for want of a body, setParse installs anyway, parseRule
+                    refuses, exit 139 before the first statement. A rule with a body to
+                    compile is one whose definition the old road has finished.
+
+                    The refusal "has a parse method but no compiled body" stays as the guard
+                    BEHIND this, not in front of it.
+
+                    What still does not work, and it is unruled: the body runs and cannot see
+                    what was parsed. docs/fixIts.md F-83.#);
             runAction=(Runs an action. TWO ARMS THAT SHARE ALMOST NOTHING, and reading it as one path with jit conditionals is how it was misread for months. processCode if needed, lastREF, then either the JIT arm or the interpreted arm, and each returns through its own exit. REVISED 2026-09-05, Clay reviewed, Tony ruled -- the draft was lifted from incant++ rather than re-derived.#):
                 lastREF=(Written ONCE, ahead of both arms, so the two roads cannot disagree about it. ⚠ THE `argument ? argument : field` FALLBACK IS LOAD-BEARING: a call with NO argument leaves THE ACTION ITSELF in lastREF, which is what makes a bare accessor at the top of a no-argument body resolve to anything at all. Writing the argument unconditionally would put a null there. See LastRef.WriterRunAction.#);
                 jitBind=(⚠ CORRECTED 2026-09-05 BY MEASUREMENT. This entry first said THE JIT ARM BINDS NOTHING, lifted from the reviewed draft, and that is true of an EMITTED call and FALSE of an INLINED one. THERE ARE TWO JIT ROADS AND THEY BIND AT DIFFERENT TIMES. On the INLINE road the callee's body is walked HERE, at emit time, and the walk reads the argument as it goes -- so the emit-time bind is this arm's and there is nowhere else it can live; without it the inlined body answers 0 at degrade count 0 while the interpreted oracle stays correct, which is the shape of the 2026-09-05 regression. On the EMITTED road, where the JIT gives a callee its own function, jitBindArgRT binds at RUN time into the argument's home and the frame prologue loads that home into an alloca per activation. THE FIXTURES SPLIT THE SAME WAY, and neither covers the other: incant/argJitT is the INLINE road, incant/argRoundJ is the EMITTED road. The arm is otherwise: self-call gate, emit-time bind, jitInlinePush, processAction, jitInlinePop, exit. ⚠ NO SAVE, NO RESTORE, NO RETURN-SEAM CAPTURE -- the jitted arm already returns by capture and the node in flight is the value channel an enclosing assignment reads through jitData, which a fresh node would not carry.#);

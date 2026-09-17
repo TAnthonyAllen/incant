@@ -1,0 +1,35 @@
+/*  firstUseT -- A RULE GETS ITS PARSE AT FIRST USE. Tony, ruled 2026-09-17.
+
+    `runRule` finding no installed parse method compiles and installs it THEN, once --
+    compile before setParse, the order FOLDED INSIDE runRule so it cannot be got wrong
+    from outside. No definition-time walk, no end-of-grammar walk.
+
+    ⚠ THIS FIXTURE DRIVES `list` WITH NO HAND-DRIVEN compile OR setParse, and that absence
+    IS the assertion. Before the install, driving testList printed only its own line and
+    the rule's body never fired; it took `compile(list); setParse(list);` by hand, in that
+    order, to make it run. FU-2 is what says the hand-driven pair is no longer needed.
+
+    ⚠ THE PRECONDITION IS A GUARD, NOT A NOTE. Parse install reads a grammar the OLD parse
+    has FINISHED, so a rule not yet parsed by the old road is not installable. Measured:
+    with the install ungated it fires on `define` during bootstrap, compile fails for want
+    of a body, setParse installs anyway and parseRule then refuses -- exit 139 before the
+    first statement. `isCoded` is the gate: a rule with a body to compile is one whose
+    definition the old road has finished.
+
+    THE ROWS
+      FU-1  testList's own line -- the driver ran. FU-2's anti-vacuity sibling: without it
+            FU-2's absence could be a run that never started.
+      FU-2  `list tests the for statement:` -- THE RULE'S OWN BODY FIRED, at first use
+      FU-3  ⚠ PINNED WRONG ON PURPOSE (H7's other half). The body runs and CANNOT SEE WHAT
+            WAS PARSED: `entries` still holds its term definition, so the for loop dies on
+            `nextGroup: ERROR DatA does not contain a list`. That is fixIts F-83, the card's
+            second half, and it is UNRULED. This row is not a claim the behaviour is right;
+            it is a pin so the day label population lands, something says so.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search UnitTests Utilities list;
+testList();
+cerr "FIRSTUSE SENTINEL":;
+stop();

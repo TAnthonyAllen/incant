@@ -11942,6 +11942,14 @@ int 		baseStak = 0;
 	intoField = field;
 	if ( intoField && isGROUP(intoField->groupBody->flags.data) )
 		intoField = intoField->groupBody->gGroup;
+	// firstUseInstall a rule gets its parse AT FIRST USE -- compile then setParse, folded in here so the order cannot be got wrong from outside
+	// firstUseInstall parse install reads a grammar the old parse has FINISHED; a rule not yet parsed by the old road is not installable
+	if ( isCoded(rule->groupBody->flags.actionType) )
+		if ( !rule->groupBody->flags.hasNewParse )
+			{
+			::compile(rule);
+			::setParse(rule);
+			}
 	if ( rule->groupBody->flags.hasNewParse )
 		{
 		// noSilentFallthrough a flag promising a method that is not there is a SEGFAULT here, and falling through to the old parse would trade a loud crash for a quiet wrong answer   GroupActions.runRule.noSilentFallthrough

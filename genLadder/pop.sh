@@ -2622,6 +2622,44 @@ else
     grep -E "^DC-[0-9]" "$T/dc.e" | sed 's/^/          /'; fail=1
 fi
 
+#  ---- firstUseT: a rule gets its parse AT FIRST USE --------------------------
+#  Tony, ruled 2026-09-17. runRule finding no installed parse method compiles and installs
+#  it THEN, once -- compile before setParse, the order FOLDED INSIDE runRule so it cannot
+#  be got wrong from outside. No definition-time walk, no end-of-grammar walk.
+#  ⚠ THE FIXTURE DRIVES `list` WITH NO HAND-DRIVEN compile OR setParse, and that ABSENCE is
+#  the assertion. Before the install it took `compile(list); setParse(list);` by hand, in
+#  that order, or the rule's body never fired at all.
+#  ⚠ THE PRECONDITION IS A GUARD: parse install reads a grammar the OLD parse has FINISHED.
+#  Ungated it fires on `define` during bootstrap -- compile fails for want of a body,
+#  setParse installs anyway, parseRule refuses, exit 139 before the first statement.
+#  `isCoded` is the gate. Measured, not reasoned.
+run2 firstUseT "$T/fu.o" "$T/fu.e"; check "firstUseT runs" 0 $?
+sentinel "firstUseT sentinel" "$T/fu.e" "FIRSTUSE SENTINEL"
+if grep -qF "Processing testList action that runs list rule" "$T/fu.o"; then
+    echo "  ok    firstUseT FU-1 the driver ran -- FU-2's absence would otherwise mean nothing"; green=$((green+1))
+else
+    echo "  FAIL  firstUseT FU-1 testList did not run, so FU-2 asserts nothing"; fail=1
+fi
+if grep -qF "list tests the for statement:" "$T/fu.o"; then
+    echo "  ok    firstUseT FU-2 THE RULE'S OWN BODY FIRED -- at first use, nothing hand-driven"; green=$((green+1))
+else
+    echo "  FAIL  firstUseT FU-2 the rule's body did NOT fire. The first-use install is gone,"
+    echo "        or its isCoded gate stopped matching. Actual:"
+    grep -E "compile|list tests" "$T/fu.o" | sed 's/^/          /'; fail=1
+fi
+#  ⚠ FU-3 IS DOWNSTREAM OF FU-2, NOT INDEPENDENT -- measured by the H7 control, which
+#  reddens BOTH: with no install the body never runs, so it never reaches the label gap.
+#  Read FU-3 only when FU-2 is green.
+#  ⚠ FU-3 IS PINNED WRONG ON PURPOSE (H7's other half) -- fixIts F-83, and it is UNRULED.
+#  The body runs and cannot see what was parsed: `entries` still holds its term definition.
+#  When label population lands this row goes red and THAT IS THE WIN, not a regression.
+if grep -qF "nextGroup: ERROR DatA does not contain a list" "$T/fu.e"; then
+    echo "  ok    firstUseT FU-3 the body still cannot see its terms -- PINNED WRONG (F-83)"; green=$((green+1))
+else
+    echo "  FAIL  firstUseT FU-3 the label gap is GONE. If label population landed, that is"
+    echo "        the win: re-pin with a sentence (H6) and close F-83."; fail=1
+fi
+
 #  ---- slashValT / slashLeadT: a leading // kills the value -------------------
 #  G03's blocker, measured 2026-09-17. A `//` at the START of a define's value breaks the
 #  parse; mid-value is fine. ⚠ IN BOTH SPELLINGS -- the `(...#)` delimited form is NOT

@@ -1142,6 +1142,12 @@ use rule
         the leaf arm's parseR see the label itself and not the thing carrying it.  */
     intoField = field;
     if intoField && intoField.isGROUP   intoField = intoField.gGroup;
+    // firstUseInstall a rule gets its parse AT FIRST USE -- compile then setParse, folded in here so the order cannot be got wrong from outside
+    // firstUseInstall parse install reads a grammar the old parse has FINISHED; a rule not yet parsed by the old road is not installable
+    if rule.isCoded
+        if !rule.hasNewParse {
+            compile(rule);
+            setParse(rule); }
     if rule.hasNewParse {
         // noSilentFallthrough a flag promising a method that is not there is a SEGFAULT here, and falling through to the old parse would trade a loud crash for a quiet wrong answer   GroupActions.runRule.noSilentFallthrough
         if !rule.gMethod    result = refuse(rule,"runRule: hasNewParse is set but no method is installed to fire");
