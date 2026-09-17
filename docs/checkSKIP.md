@@ -70,8 +70,16 @@ Two consequences worth saying once:
 - **Between tokens the loop stops at a quote; inside a body it steps over one.** Same rule,
   different arm result: labelNO means "skipped, keep going", a non-null result means "this is
   yours, stop". The `sKIP+` loop ends on the first non-labelNO result or on a miss.
-- **Inside DelimitText nothing is interpreted but the close delimiter and the escape.** That is
-  the whole G03 fix: `(G03 // anything)` and `(G03\n"#)` are opaque. A `//` inside a `{ }` body
+- **Inside DelimitText nothing is interpreted but the close delimiter and the escape.**
+  ⚠⚠ **THAT IS THE SCAN'S DELIVERABLE, NOT CURRENT BEHAVIOUR — corrected 2026-09-17 (Tony's
+  ruling) after this line was measured and found false.** A `//` at the **start** of a value is
+  consumed to end of line today, in BOTH spellings, and the scan then runs on into the next line:
+  `a=(// x#);` reads back as the FOLLOWING statement's text. Mid-value is fine, because non-space
+  content stops the skip before it. `docs/fixIts.md` F-81; `incant/pop/slashValT` carries the
+  controls and `incant/pop/slashLeadT` the failure.
+  ⚠ **AND THE DELIMITED FORM IS NOT A WORKAROUND** — which is what this bullet used to imply and
+  what anyone reading it would try first.
+  When the scan lands: `(G03 // anything)` and `(G03\n"#)` are opaque. A `//` inside a `{ }` body
   IS a comment (KANT-40 wants that); a `//` inside `( )` is text (directives want that). The
   delimiter kind decides, not the content.
 

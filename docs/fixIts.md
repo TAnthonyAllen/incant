@@ -63,6 +63,27 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-82 — the grammar's `^` (noSkip) never reaches the term an `upTo` scan actually reads
+**What:** `DelimText leftParen dtext^=delimiter};` carries a `^` — noSkip — and it does not take.
+**The term the scan reads is `delimiter`, not `dtext`**, and its `noSkip` is **0**.
+**Evidence, 2026-09-17**, a temporary probe in `checkInput` printing tag/noSkip/overTo for every
+`upTo` term on one run:
+
+```
+delimiter   noSkip=0  overTo=2      <- DelimText's scan
+quoteBody   noSkip=0  overTo=2      <- QuotE's, 107 times in one run
+rightBrace  noSkip=0  overTo=2      <- SetBrackets'
+```
+
+**NINE grammar spellings were tried and none moved it** — `dtext^=`, `leftParen^`, `DelimText^`,
+`leftParen-`, `=delimiter}^`, `=delimiter^}`, `=^delimiter`, `^^`, `dtext^=delimiter^}`. **So the
+grammar cannot express "this scan does not skip" today**, which is what makes F-81 a C++ change
+rather than a one-line grammar edit.
+**Why it matters beyond F-81:** `^` is documented as a rule modifier and reads as though it works.
+Anything else relying on it on a labelled-target term has the same silent hole.
+**Done when:** either `^` reaches the scanning term, or the grammar gains a spelling that does.
+**Grade:** CONFIRMED — measured directly, nine spellings. **Owner:** unassigned.
+
 ### F-81 — G03's blocker: a `//` at the START of a value kills the define, in BOTH spellings
 **What:** a define whose value begins with `//` breaks the parse and takes the **whole define
 block** with it. Mid-value is fine. **The `(…#)` delimited form does not help.**
@@ -94,8 +115,17 @@ statement. Measured as a 2×2 — `debug DelimText` is innocent.
 consuming `//` to end of line before the value is read, which cannot happen mid-value because
 non-space content has already stopped the skip — fits Tony's own words for G03 and is **a
 hypothesis, not a finding.**
+**⚠ THE FIX IS MEASURED AND IS NOT ONE STROKE — attempted 2026-09-17 and reverted.** Gating the
+skip on `overTo` in `checkInput` makes DelimText opaque in **all eight positions** (`//` and `/*`,
+leading, mid, trailing, after a space, quoted and delimited) and **flips `slashLeadT` — `SL-NEVER`
+prints.** It also costs **22 fleet rows: 389 green → 367, red 51 → 73**, because `quoteBody` (107
+hits in one run) and `rightBrace` share that path. **So the gate needs a discriminator, and F-82
+says the grammar cannot supply one today.**
+⚠ **AND THE RULING'S OTHER QUESTION IS ANSWERED: the first-entry-named error GOES WITH IT.** Under
+the gate `slashLeadT` produced no `RunRulE` at all, so the misdirection was a consequence of the
+value scan eating the line — **not its own seat**, and it needs no name-the-patient work.
 **Done when:** the DelimitText opaque scan lands (`docs/checkSKIP.md` §7 item 3, the 2026-08-02
-ruling's "C++ now" half). **Coverage:** `incant/pop/slashValT` (controls, with values) and
+ruling's "C++ now" half), with a discriminator that leaves `quoteBody` and `rightBrace` alone. **Coverage:** `incant/pop/slashValT` (controls, with values) and
 `incant/pop/slashLeadT` (the failure, **pinned red-shaped on purpose**; when the scan lands that
 row goes red and the fixture's `SL-NEVER` line starts printing — that is the win, not a
 regression). **Grade:** CONFIRMED, five shapes plus a bisect. **Owner:** unassigned.
