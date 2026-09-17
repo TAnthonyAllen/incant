@@ -1,0 +1,40 @@
+/*  truncT -- A STATEMENT THAT FAILS TO MATCH ENDS THE FILE, AND NOW SAYS SO. F-79.
+
+    `Start` is `StatemenT+`. A statement that fails to MATCH ends that repetition, so every
+    byte after it is never parsed -- no error, no `stop:` line, exit 0, which is
+    indistinguishable from a short successful run. The report is sited in main() after
+    boot.parse(0) returns, the outermost boundary and the only place that knows the run is
+    over, and it reads LEFTOVER INPUT rather than the refusal flag.
+
+    ⚠ THE REFUSAL FLAG COULD NEVER HAVE NAMED THIS. Measured 2026-09-17, four shapes: a
+    refusing define and an unterminated literal BOTH truncate, and `x = @@@` and a bad
+    operator both run clean. Half the truncating cases raise no refusal at all, so the
+    discriminator is MATCH FAILURE and the instrument has to read the mark.
+
+    ⚠ THIS FILE TRUNCATES BY DESIGN AND HAS NO REACHABLE stop(). Safe under H5 -- a
+    truncating run is not a HANGING run; it exits 0 promptly and cannot hold the suite.
+    Its terminal marker is the ABANDONED line itself, emitted after the parse RETURNS, so
+    a truncation cannot fake it.
+
+    THE ROWS
+      TR-1  the statement before the bad define runs -- the anti-vacuity sibling, without
+            which TR-2's absence could just be a file that died at line one
+      TR-2  the statement AFTER it does not -- pinned as a count of 0, read with TR-1
+      TR-3  the abandonment is NAMED, with the file
+      TR-4  ⚠ THE RESUME POINT, and this is the row that makes the report a DIAGNOSIS
+            rather than an alarm: it quotes the first thing that was never parsed.
+    docs/refusalScope.md carries the argument.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(TruncT);
+define
+    trRoot;
+    ;
+cerr "TR-1 the statement before the bad define RAN":;
+define
+    trBad = trRoot.*trNope;
+    ;
+cerr "TR-2 the statement after it RAN -- it should not have":;
+stop();

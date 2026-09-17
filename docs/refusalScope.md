@@ -43,7 +43,7 @@ and `abandonT`'s original shape — and **every one is cleared at a statement bo
 `refused=0` at main's tail.** It stands as a **net**, not a live path. `abandonT` AB-5 pins it at
 zero and is never read without AB-4, because a zero is exactly what a removed reporter produces.
 
-**2. The define-case truncation was never the flag.** A refusal inside a `define` block still
+**2. The define-case truncation was never the flag — and it is not about defines either.** A refusal inside a `define` block still
 truncates the file — and with the boundary in place **the run reaches main reading `refused=0`
 and truncates anyway.** So it is the failed **match** abandoning the parse: ordinary
 parse-failure truncation, which is its own documented behaviour. `docs/fixIts.md` F-79 carries

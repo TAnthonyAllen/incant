@@ -1,0 +1,34 @@
+/*  truncLitT -- THE SAME TRUNCATION WITH NO REFUSAL ANYWHERE. F-79's second arm.
+
+    ⚠ THIS FILE IS WHY THE REPORT READS THE MARK AND NOT ruler.refused. An unterminated
+    string literal truncates exactly as a refusing define does -- and raises NO REFUSAL.
+    Measured 2026-09-17. A reporter built on the refusal flag would be silent here, which
+    is the whole reason the flag was the wrong channel.
+
+    ⚠ AND ITS RESUME TEXT NAMES THE OFFENDING LINE ITSELF, not merely the next one, because
+    the unterminated literal is what the scanner is still standing in. That is the sharpest
+    output this instrument produces and TL-3 pins it.
+
+    Truncates by design, no reachable stop(), terminal marker is the ABANDONED line. H5.
+    docs/refusalScope.md carries the argument.
+
+    THE ROWS
+      TL-1  the statement before runs -- TL-2's anti-vacuity sibling
+      TL-2  the statement after does not, count 0
+      TL-4  the resume point quotes the unterminated literal
+      TL-5  NO refusal was raised -- count 0, read WITH TL-4, and it is the row that says
+            this arm is testing a different channel from truncT rather than the same one  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(TruncLitT);
+define
+    tlRoot;
+    ;
+cerr "TL-1 the statement before the bad define RAN":;
+define
+    tlBad = "unterminated ;
+    ;
+cerr "TL-2 the statement after it RAN -- it should not have":;
+stop();

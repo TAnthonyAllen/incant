@@ -86,39 +86,46 @@ orphaning a term. A stack was built for this and **removed**: it produced the tr
 **⚠ AND THE FLEET CANNOT SEE IT** — `incant/pop/dotChainT` stops at four names because a five-name
 row would take the whole file hostage (rule H5). This row is the only record.
 
-### F-79 — a refusal inside a `define` still truncates the file, and it is NOT the refusal
-**What:** `define x = a.*b;` refuses, and every statement after that define is dropped — no
-`stop:` line, exit 0. **The statement boundary of 2026-09-17 did not fix it, and measuring that is
-what identified the cause.**
-**Evidence:** with the boundary in place, the run **reaches `main` reading `refused=0`** — the flag
-was cleared — **and truncates anyway.** Probe at `reportRunAbandoned`'s head printing the flag
-unconditionally; three statements and a `stop()` placed after the bad define, none of which ran.
-**So the cause is the failed MATCH abandoning the parse**, which is ordinary parse-failure
-truncation and has always been documented as such. The refusal is incidental.
-⚠ **THIS CORRECTS F-76's OWN DIAGNOSIS.** F-76 read the two as one mechanism — *"nothing clears
-the flag, it propagates, the file dies"* — and it looked right because before the boundary **both
-were true at once**. Only clearing the flag separated them.
-⚠ **AND IT IS WHY `abandonT` USES A BARE STATEMENT AND NEVER A DEFINE.** A define there would make
-that fixture measure this row instead of the scope it claims to measure.
-**Done when:** a failed match inside a define either reports what it abandoned, or does not abandon
-the rest of the file. **Grade:** CONFIRMED — cause isolated by a single-variable A/B (flag cleared,
-behaviour unchanged). **Owner:** unassigned. **Size:** unknown; it is parse-failure policy.
+### F-79 — ✅ CLOSED 2026-09-17 (reporting half) — a failed MATCH ends the file, and now says so
+**⚠ THE ROW'S OWN DIAGNOSIS WAS WRONG TWICE AND MEASUREMENT FIXED IT BOTH TIMES.** It was first
+filed as *"nothing clears the flag, it propagates, the file dies"* (F-76), then as *"the failed
+match abandons the parse"* with the refusal incidental. **The second is right and the first is
+not, and the third measurement sharpened it again:** four shapes, one build —
 
-### F-77 — `incant/designDocs` has TWO `aCTionDefinE` entries under one parent
-**What:** `ruleActions -> aCTionDefinE` is defined **twice**, at `incant/designDocs:5690` and
-`:6216`, same key, same parent, same indentation. Found 2026-09-17 while placing the
-`refusalBoundary` child; **captured, not chased.**
-**Why it matters:** a lookup resolves one of them, so the other's children are **unreachable by
-name** — `embeddedRuleCopy` and whatever else lives under the loser. That is a silent coverage
-hole in a register whose whole purpose is that an argument can be found from its pointer, and it
-is the same shape as the dangling-key risk the 2026-09-01 comment trial deliberately did not
-build a checker for *"until there is evidence it is needed"*. **This is evidence.**
-**⚠ AND NO INSTRUMENT SEES IT.** `ddPop` reads 5 green / 1 red with the duplicate present and did
-not move when a child was added to the first entry. The trial's own tally in
-`docs/commentTrial.md` is where a followed-and-missing pointer was supposed to be logged.
-**Where:** `incant/designDocs:5690` and `:6216`. **Done when:** the two are merged, or one is
-renamed, and it is known which one `lookuP` was returning. **Grade:** CONFIRMED — both lines read.
-**Owner:** unassigned. **Size:** small, but it needs a ruling on which children belong where.
+| define | statement after ran | refusal raised |
+|---|---|---|
+| `x = a.*b` | **no** | 1 |
+| `x = "unterminated` | **no** | **0** |
+| `x = @@@` | yes | 0 |
+| `x = a %% a` | yes | 0 |
+
+**It truncates with AND without a refusal.** `Start` is `StatemenT+`; a statement that fails to
+**match** ends the repetition and every byte after it is never parsed — no error, no `stop:` line,
+exit 0. **So `ruler.refused` was the wrong channel: half the truncating cases never raise one.**
+
+**LANDED: the reporting half, as ruled.** `reportRunAbandoned` reads **leftover input** at the
+outermost boundary — `main`, after `boot.parse(0)` returns — and **quotes the resume point**, which
+is what makes it a diagnosis rather than an alarm. For the unterminated literal it names **the
+offending line itself**, because the scanner is still standing in it.
+
+**⚠ ONE KNOWN FALSE POSITIVE, NAMED RATHER THAN HIDDEN: a top-level `bail()` legitimately leaves
+input unconsumed**, so `incant/pop/bailInc` run standalone reports abandonment. `bailT`, which
+*includes* it, is clean. **Three discriminators were tried and all failed** — `endParse` set at the
+bail (wiped by the statement action, because **bail fires during the MATCH** so the action always
+runs after it), clearing before the method call (same race), and reading `inputDiverted` after the
+pop (still true standalone; there is an input level unaccounted for). Stopped at three per the
+grinding rule. **Ruled 2026-09-17: bail will consume the rest of its input level instead**, so the
+parser has nothing left to abandon — no flag, no race. That is its own stroke.
+
+**COVERAGE:** `incant/pop/truncT` (refusal arm) and `incant/pop/truncLitT` (**no-refusal arm, and
+it is why the report reads the mark**). Both truncate by design with no reachable `stop()`; safe
+under H5 because a truncating run is not a hanging one, and their terminal marker is the ABANDONED
+line, which `main` emits after the parse returns. Each `-2` row is a count of 0 read **with** its
+`-1` sibling. **H7 control:** disabling the report reddens exactly the four report rows and leaves
+the truncation rows green.
+**⚠ AND THE CENSUS FOUND THREE FILES ALREADY TRUNCATING SILENTLY:** `incant/pop/genScratch` and
+`incant/pop/kantParse1` — **Tony's to look at** — and `baselineTests.golden`, which is a capture
+rather than source and is ignored. None are in the fleet's path.
 
 ### F-78 — ✅ CLOSED 2026-09-17, THEN SUPERSEDED THE SAME DAY — `stop()` was never entered; now it always is
 ⚠⚠ **THE FIX THIS ROW LANDED WAS A DOCTRINE PRECONDITION, AND TONY OVERTURNED THAT WITHIN THE

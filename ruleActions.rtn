@@ -1669,8 +1669,20 @@ extern void reportRunAbandoned(String fileName)
 {
 GroupRules  ruler = groupRules;
 String      whichFile = "(no file)";
-    if !ruler.refused   return;
     if fileName         whichFile = fileName;
+    /*  unconsumedInput  THE ABANDONMENT THAT ACTUALLY HAPPENS, F-79. `Start` is
+        unconsumedInput  `StatemenT+`, so a statement that FAILS TO MATCH ends the
+        unconsumedInput  repetition and every byte after it is never parsed -- no error,
+        unconsumedInput  no stop: line, exit 0. Measured 2026-09-17: a refusing define and
+        unconsumedInput  an unterminated literal both do it, and a `@@@` or a bad operator
+        unconsumedInput  do NOT, so the discriminator is MATCH FAILURE and not malformity.
+        unconsumedInput  Reading the mark is what names it; the refusal flag cannot, because
+        unconsumedInput  half these cases never raise one.   docs/refusalScope.md  */
+    if *ruler.atRuleMark {
+        cerr "ABANDONED " whichFile " -- the parse STOPPED with input left over. A statement failed to match, which ends Start's StatemenT+ repetition, so everything from here on was NEVER PARSED. The exit status is still 0. It resumes at:":;
+        cerr "    " getDebugText(ruler.atRuleMark,60):;
+        return; }
+    if !ruler.refused   return;
     /*  wordingCorrected  THE FIRST CUT OF THIS LINE SAID "every statement after the
         wordingCorrected  REFUSED line was SKIPPED, not parsed" AND THAT IS FALSE FOR HALF
         wordingCorrected  THE CASES -- measured 2026-09-17, F-78. A refusal inside a define

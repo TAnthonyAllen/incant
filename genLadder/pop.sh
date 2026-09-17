@@ -2622,6 +2622,62 @@ else
     grep -E "^DC-[0-9]" "$T/dc.e" | sed 's/^/          /'; fail=1
 fi
 
+#  ---- truncT / truncLitT: a failed MATCH ends the file, and now says so ------
+#  F-79, 2026-09-17. `Start` is `StatemenT+`, so a statement that fails to MATCH ends that
+#  repetition and every byte after it is never parsed -- no error, no stop: line, exit 0.
+#  The report sits in main() after boot.parse(0) returns and reads LEFTOVER INPUT.
+#  ⚠ IT DOES NOT READ ruler.refused, AND truncLitT IS WHY. Four shapes measured: a refusing
+#  define AND an unterminated literal both truncate; `x = @@@` and a bad operator both run
+#  clean. HALF THE TRUNCATING CASES RAISE NO REFUSAL, so the flag was the wrong channel.
+#  ⚠ BOTH FILES TRUNCATE BY DESIGN and have no reachable stop(). Safe under H5: a
+#  truncating run is not a HANGING run. Their terminal marker is the ABANDONED line, which
+#  main emits AFTER the parse returns, so a truncation cannot fake it.
+#  ⚠ EACH -2 ROW IS A COUNT OF 0 AND IS READ WITH ITS -1 SIBLING, never alone: without the
+#  sibling, "the later statement did not run" is also true of a file that died at line one.
+for _f in truncT truncLitT; do
+    pfx=TR; if [ "$_f" = truncLitT ]; then pfx=TL; fi
+    run2 "$_f" "$T/$_f.o" "$T/$_f.e"; check "$_f runs (exit 0 -- truncation is SILENT to the shell)" 0 $?
+    if grep -q "^$pfx-1 the statement before the bad define RAN" "$T/$_f.e"; then
+        echo "  ok    $_f $pfx-1 ran -- the run got as far as the bad define"; green=$((green+1))
+    else
+        echo "  FAIL  $_f $pfx-1 did not run, so $pfx-2's zero asserts nothing"; fail=1
+    fi
+    _n=$(grep -c "^$pfx-2 " "$T/$_f.e")
+    if [ "$_n" = 0 ]; then
+        echo "  ok    $_f $pfx-2 the statement AFTER did not run (0) -- read with $pfx-1"; green=$((green+1))
+    else
+        echo "  FAIL  $_f $pfx-2 ran $_n times -- the file was NOT truncated, so this fixture"
+        echo "        is measuring nothing and the report below is about something else"; fail=1
+    fi
+    if grep -qF "ABANDONED incant/pop/$_f -- the parse STOPPED with input left over" "$T/$_f.e"; then
+        echo "  ok    $_f $pfx-3 the abandonment is NAMED, with the file"; green=$((green+1))
+    else
+        echo "  FAIL  $_f $pfx-3 the file was abandoned SILENTLY. Actual:"
+        grep -F "ABANDONED" "$T/$_f.e" | sed 's/^/          /'; fail=1
+    fi
+done
+#  ⚠ THE RESUME ROWS ARE WHAT MAKE THIS A DIAGNOSIS RATHER THAN AN ALARM. truncT's quotes
+#  the first statement that was never parsed; truncLitT's quotes THE OFFENDING LINE ITSELF,
+#  because the scanner is still standing inside the unterminated literal.
+if grep -qF 'cerr "TR-2 the statement after it RAN' "$T/truncT.e"; then
+    echo "  ok    truncT TR-4 the resume point quotes the first UNPARSED statement"; green=$((green+1))
+else
+    echo "  FAIL  truncT TR-4 no resume text -- the report names no place"; fail=1
+fi
+if grep -qF '= "unterminated ;' "$T/truncLitT.e"; then
+    echo "  ok    truncLitT TL-4 the resume point quotes THE OFFENDING LINE"; green=$((green+1))
+else
+    echo "  FAIL  truncLitT TL-4 the resume text does not reach the bad line"; fail=1
+fi
+_tlr=$(grep -c "^REFUSED" "$T/truncLitT.e")
+if [ "$_tlr" = 0 ]; then
+    echo "  ok    truncLitT TL-5 NO refusal raised (0) -- read with TL-4; this arm proves"
+    echo "        the report is not built on ruler.refused"; green=$((green+1))
+else
+    echo "  FAIL  truncLitT TL-5 raised $_tlr refusals -- this arm has stopped being the"
+    echo "        no-refusal case and no longer discriminates the channel"; fail=1
+fi
+
 #  ---- abandonT: A REFUSAL'S SCOPE IS THE STATEMENT ---------------------------
 #  Tony, ruled 2026-09-17. aCTionStatemenT clears ruler.refused on the way out of every
 #  statement, whether or not a method ran, because the refusal may have been raised
