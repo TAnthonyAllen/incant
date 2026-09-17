@@ -2622,6 +2622,31 @@ else
     grep -E "^DC-[0-9]" "$T/dc.e" | sed 's/^/          /'; fail=1
 fi
 
+#  ---- parserTest: the LIVE parser incantation's own POP -----------------------
+#  Tony, ruled 2026-09-17. IncantForms/WorkingOn/parser became definitions-only so utilities
+#  could include it; this is where those definitions are measured, across three roots.
+#  ⚠ IT DOES NOT GATHER anyOrNumT's OR trigDO's CALLS, and that is a CORRECTION rather than
+#  a shortfall. Those two carry their own COMPLETE FROZEN COPIES of the incantation --
+#  generateParse, walkRules, compileRules, parser -- by design; anyOrNumT's header says so
+#  in terms. They never called the shared definitions, so there was nothing of theirs to
+#  gather. What they needed was for their frozen names to stop COLLIDING with the live
+#  ones, which is a rename (aon*/td*), not a move. Their roots are covered here against the
+#  LIVE copy, which is NEW coverage rather than relocated coverage.
+#  ⚠⚠ NO ROW PINS AN ANSWER, DELIBERATELY. Two of these roots have never run at all -- CASE
+#  2 was dead code behind a second stop() in the source file, and the live parser has never
+#  been driven at ANYorNum. Pinning a number never produced is inventing a target. What is
+#  asserted is that the run REACHES ITS FOOT, by counting markers against the sentinel.
+run2 parserTest "$T/ptst.o" "$T/ptst.e"; check "parserTest runs" 0 $?
+sentinel "parserTest sentinel" "$T/ptst.e" "PARSERTEST SENTINEL"
+_ptn=$(grep -cE "^PT-[0-9]" "$T/ptst.e")
+if [ "$_ptn" = 3 ]; then
+    echo "  ok    parserTest all 3 roots reached -- Search, DO, ANYorNum (no answers pinned)"; green=$((green+1))
+else
+    echo "  FAIL  parserTest reached $_ptn of 3 roots -- a case died before the next marker."
+    echo "        Read WITH the sentinel: a missing sentinel means the last one hung or died."
+    grep -E "^PT-" "$T/ptst.e" | sed 's/^/          /'; fail=1
+fi
+
 #  ---- firstUseT: a rule gets its parse AT FIRST USE --------------------------
 #  Tony, ruled 2026-09-17. runRule finding no installed parse method compiles and installs
 #  it THEN, once -- compile before setParse, the order FOLDED INSIDE runRule so it cannot

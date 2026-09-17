@@ -50,7 +50,7 @@ define
         printTO(0);
         //print taG "=" CodE.taG CodE:;
        };
-    walkRules code={
+    tdWalkRules code={
         tdGenerateParse(argument);
         length  = listLengtH;
         if length > 0;
@@ -61,22 +61,22 @@ define
                     tdGenerateParse(*grup);
                     continue;
                 if hasNewParsE; continue;
-                if listLengtH;  walkRules(*grup);
+                if listLengtH;  tdWalkRules(*grup);
                 else tdGenerateParse(*grup);
         };
-    compileRules code={
+    tdCompileRules code={
         compile(argument);
         length  = listLengtH;
         if length > 0;
             iterate grup on argument;
             while ++grup;
                 if hasNewParsE && isCodeD;
-                    if listLengtH;  compileRules(*grup);
+                    if listLengtH;  tdCompileRules(*grup);
                     else            compile(*grup);
         };
-    parser code={
-        walkRules(argument);
-        compileRules(argument);
+    tdParser code={
+        tdWalkRules(argument);
+        tdCompileRules(argument);
         cerr "PARSER SENTINEL -- walk complete":;
         compiledHere = 0;
         if argument.hasNewParsE;     compiledHere = 1;
@@ -93,7 +93,7 @@ cerr "=== ARM 2: BROKEN while TERM -- expect chainTrue=0 yielded=0, and NO attac
 badResult := DO("do print 1; xyzzy 0;");
 cerr "TRIG SENTINEL -- reached the foot":;
 stop();
-parser(Start);
+tdParser(Start);
 
     THE NEW PARSE FIRES. TWO SEPARATE THINGS THEN BREAK, AND ONLY ONE OF THEM IS
     THE CLOSE.
@@ -106,7 +106,7 @@ parser(Start);
     ExpressioN(), SemI() -- before anything goes wrong.
 
     THE MATRIX, six arms, one build, 2026-09-08. Two switches: WHAT IS COMPILED
-    (this file's `parser(DO);`, which compiles 39 rules, versus
+    (this file's `tdParser(DO);`, which compiles 39 rules, versus
     `tdGenerateParse(DO); compile(DO);`, which compiles one) and WHAT THE BODY
     CLOSES WITH (tdGenerateParse's `print $"return runRuleAction(this);":;`).
 
@@ -505,7 +505,7 @@ parser(Start);
 
     TO REPRODUCE THE MATRIX: copy this file, and in tdGenerateParse change the line
     `print $"return runRuleAction(this);":;` to `print $"return this;":;` or
-    delete it; and swap `parser(DO);` for `tdGenerateParse(DO);` + `compile(DO);`.
+    delete it; and swap `tdParser(DO);` for `tdGenerateParse(DO);` + `compile(DO);`.
 
     TO REPRODUCE THE 2026-09-09 ROWS: same two edits, with the close set to
     `print $"return false;":;` / `labelNO` / `null`. For readings (ii) and (iii)

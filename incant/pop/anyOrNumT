@@ -50,7 +50,7 @@ define
         @CodE;
         print taG "=" CodE:;
         };
-    walkRules code={
+    aonWalkRules code={
         if actionTypE == 0;
             length  = listLengtH;
             aonGenerateParse(argument);
@@ -61,11 +61,11 @@ define
                 while ++grup;
                     if noPrinT;     continue;
                     if binTypE;     continue;
-                    if isRule;      walkRules(*grup);
+                    if isRule;      aonWalkRules(*grup);
         else    cerr taG "already has code so no parse generated":;
         };
-    parser code={
-        walkRules(argument);
+    aonParser code={
+        aonWalkRules(argument);
         cerr "PARSER SENTINEL -- walk complete":;
         compiledHere = 0;
         if argument.hasNewParsE;     compiledHere = 1;
@@ -78,7 +78,7 @@ define
         };
     ;
 
-parser(ANYorNum);
+aonParser(ANYorNum);
 stop();
 
     anyOrNumT -- THE isGROUP POISON STAYS FIXED. Minted 2026-08-29, Tony's

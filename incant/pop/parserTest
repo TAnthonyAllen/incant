@@ -1,0 +1,43 @@
+/*  parserTest -- THE LIVE PARSER INCANTATION'S OWN POP. Tony, ruled 2026-09-17.
+
+    `IncantForms/WorkingOn/parser` became definitions-only so `utilities` could include it;
+    this is where those definitions are measured. It drives the LIVE `parser` -- the one
+    every first-use install now resolves -- across four roots.
+
+    ⚠ IT DOES NOT GATHER anyOrNumT's OR trigDO's CALLS, AND THE REASON IS A CORRECTION.
+    Those two carry their OWN COMPLETE FROZEN COPIES of the incantation -- generateParse,
+    walkRules, compileRules, parser -- by design. anyOrNumT's header says so in terms:
+    "IncantForms/WorkingOn/parser, frozen, rooted at ANYorNum, with every gate ON and no
+    probe scaffolding of any kind." They never called the shared definitions, so there was
+    nothing of theirs to gather. What they needed was for their frozen names to stop
+    COLLIDING with the live ones, which is a rename, not a move. Their roots are covered
+    here against the LIVE copy, which is new coverage rather than relocated coverage.
+
+    ⚠⚠ NO ROW CARRIES A PINNED ANSWER, DELIBERATELY. Two of these four roots have never run
+    at all -- CASE 2 was dead code behind a second stop() in the source file, and the live
+    parser has never been driven at ANYorNum or Start. Pinning a number that has never been
+    produced is inventing a target, and a target regenerated green is not a target. What is
+    asserted is only that the run REACHES ITS FOOT: each case prints a marker, the foot
+    prints a sentinel, and the rows count markers. The values come when Tony has read them.
+
+    ⚠ AND THE SENTINEL IS THE ONLY COMPLETENESS CLAIM THIS FILE MAKES. A case that hangs or
+    dies takes the sentinel with it, which is the fact worth having first.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+
+cerr "PT-1 parser(Search)":;
+parser(Search);
+Search("search list;");
+
+cerr "PT-2 parser(DO)":;
+parser(DO);
+DO("do print 1; while 0;");
+
+cerr "PT-3 parser(ANYorNum)":;
+parser(ANYorNum);
+
+cerr "PARSERTEST SENTINEL":;
+stop();

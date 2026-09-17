@@ -428,3 +428,7 @@ define
                 r += 1;
         };
     ;
+
+/*  utilitiesIncludesParser  INTERIM, ruled 2026-09-17 -- so parser and generateParse resolve
+    wherever a first-use install fires, without moving definitions while the shape settles  */
+include(parser);
