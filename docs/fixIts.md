@@ -63,6 +63,46 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
+### F-84 — making `parser` visible via `utilities` turns FOUR fixtures' inert calls live
+**PARKED, not built — the one line is reverted and the fleet is back at 395/51.** Ruled
+2026-09-17 as an interim (*"utilities includes parser … no move of definitions"*). It is not a
+one-line interim, and the measurement is why.
+
+**Preconditions found, all four real:**
+1. `parser` was not in `incant/setup`'s `fILEs`, so `include(parser)` fails silently at exit 0
+   (bear-trap #28). **Registered in this stroke.**
+2. `parser` began `Start(); include(utilities); …` — **circular** once utilities includes it.
+3. It ended with live driver statements and a `stop()`, which would fire **inside the includer**.
+4. ⚠ **It carried TWO `stop()` calls, at 85 and 91 — rule H2's exact failure.** CASE 2
+   (`parser(DO)`) was unreachable and **has never run**, in the file about to become everyone's
+   dependency. **Done in this stroke** (Tony's word): the file is definitions-only with `bail()`,
+   and both cases moved to `incant/pop/parserT`, where CASE 2 runs for the first time.
+
+**⚠ THE COST THAT PARKED IT.** With `include(parser)` in place the fleet goes **395 → 392, red
+51 → 54**, and the cause is not the collision the ruling anticipated:
+- `incant/pop/anyOrNumT:81` calls **`parser(ANYorNum);`** — until now an **unresolved no-op**.
+  Made visible, it resolves and walks the whole rule tree; the fixture truncates before its
+  sentinel.
+- **Five fixtures call `parser(` / `walkRules(` / `compileRules(`** — `anyOrNumT`, `trigDO`,
+  `acceptStartT`, `connectiveT`, and the new `parserT`. **Four are pre-existing**, and their rows
+  have been green while calling names that did nothing.
+- `oneTest` and `jsonTest` baselines each move by **two lines** — a blank and
+  `stop: ending input divert`, which is `parser`'s own `bail()` announcing its input pop. Cheap
+  re-pins with a real cause, but they are the project's two golden baselines.
+
+**⚠ AND A SEPARATE FINDING THE RULING ASKED FOR: F-62's fix is in the copy that is NOT shared.**
+Three `generateParse` definitions exist and they are **variants, not duplicates**. `trigDO`'s
+carries F-62's cure — `setParse` called BEFORE the redirect opens, with the comment explaining
+that a refusal inside a library walk aborts the action and an abort cannot restore `printTO`.
+**`IncantForms/WorkingOn/parser`'s copy does not have it.** So sharing that definition propagates
+the **unfixed** variant. **F-62's row was written against trigDO's.**
+The two fixture copies are **renamed, not retired** (`tdGenerateParse`, `aonGenerateParse`),
+because retiring a variant loses behaviour; both fixtures still run.
+
+**Done when:** it is ruled whether the four fixtures' `parser(…)` calls should become live — that
+is a change to what they assert, not a visibility detail. **Grade:** CONFIRMED, fleet measured
+either side. **Owner:** Tony — the interim's price is his to pay or decline.
+
 ### F-83 — a rule with an action gets its body RUN but its matched terms never reach it
 **The `builtinParseR` seam, measured 2026-09-17 on `incant/unitTests`' `list` — Tony's own
 example.** `list isRule entries=ANYstring+ SemI?- code={ … }` is a rule with members AND a code

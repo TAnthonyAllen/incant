@@ -11,7 +11,7 @@ define
     closeBrace="}";
     termCount;
     parseCount;
-    generateParse code={
+    tdGenerateParse code={
         cout "Generating parse code for" taG:;
         reset(codeBuffer);
         // redirectSpan  setParse is called BEFORE the redirect opens, and its refusals are
@@ -51,18 +51,18 @@ define
         //print taG "=" CodE.taG CodE:;
        };
     walkRules code={
-        generateParse(argument);
+        tdGenerateParse(argument);
         length  = listLengtH;
         if length > 0;
             iterate grup on argument;
             while ++grup;
                 if isRulE == 0; continue;
                 if binTypE;
-                    generateParse(*grup);
+                    tdGenerateParse(*grup);
                     continue;
                 if hasNewParsE; continue;
                 if listLengtH;  walkRules(*grup);
-                else generateParse(*grup);
+                else tdGenerateParse(*grup);
         };
     compileRules code={
         compile(argument);
@@ -84,7 +84,7 @@ define
         };
     ;
 
-generateParse(DO);
+tdGenerateParse(DO);
 compile(DO);
 traceParse();
 cerr "=== ARM 1: GOOD INPUT -- expect chainTrue=1 yielded=1 mintedLen=2 ===":;
@@ -107,8 +107,8 @@ parser(Start);
 
     THE MATRIX, six arms, one build, 2026-09-08. Two switches: WHAT IS COMPILED
     (this file's `parser(DO);`, which compiles 39 rules, versus
-    `generateParse(DO); compile(DO);`, which compiles one) and WHAT THE BODY
-    CLOSES WITH (generateParse's `print $"return runRuleAction(this);":;`).
+    `tdGenerateParse(DO); compile(DO);`, which compiles one) and WHAT THE BODY
+    CLOSES WITH (tdGenerateParse's `print $"return runRuleAction(this);":;`).
 
         compiled      close                          outcome
         DO alone      (no return at all)             exit 0, sentinel, prints 1
@@ -316,7 +316,7 @@ parser(Start);
     (GroupItem.twk:1314-1341) -- leaveRule's own PC-4 comment says so
     (RuleStuff.twk:777-782).
 
-    ON THE KANT ROAD THERE IS NO SUCH LOCAL AND NO SUCH `into`. generateParse
+    ON THE KANT ROAD THERE IS NO SUCH LOCAL AND NO SUCH `into`. tdGenerateParse
     emits BARE CALLS -- `if do() AND followedBy() AND ...;` -- with no label
     argument. Each bare call reaches runRule (GroupActions.rtn:1044), and a leaf
     term has no hasNewParse, so it takes `result = rule.parse(0)`
@@ -503,9 +503,9 @@ parser(Start);
     green, unmoved. NO FLEET FIXTURE REACHES parseRule AT ALL. The new parse road
     has zero standing coverage, so a green fleet says nothing whatever about it.
 
-    TO REPRODUCE THE MATRIX: copy this file, and in generateParse change the line
+    TO REPRODUCE THE MATRIX: copy this file, and in tdGenerateParse change the line
     `print $"return runRuleAction(this);":;` to `print $"return this;":;` or
-    delete it; and swap `parser(DO);` for `generateParse(DO);` + `compile(DO);`.
+    delete it; and swap `parser(DO);` for `tdGenerateParse(DO);` + `compile(DO);`.
 
     TO REPRODUCE THE 2026-09-09 ROWS: same two edits, with the close set to
     `print $"return false;":;` / `labelNO` / `null`. For readings (ii) and (iii)

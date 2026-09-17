@@ -325,6 +325,7 @@ define
     jigcorpus File='incant/jigcorpus';
     decoder File='incant/decoder';
     designDocs File='incant/designDocs';
+    parser File='IncantForms/WorkingOn/parser';
     ;
 include(grammar);
 

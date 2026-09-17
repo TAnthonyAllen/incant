@@ -1,9 +1,20 @@
+/*  The parser incantation -- DEFINITIONS ONLY, so utilities can include it.
 
-Start();
-include(utilities);
-search reset stack Grokking;
-search GroupFields Utilities;
+    ⚠ ITS OWN PREAMBLE IS GONE ON PURPOSE. It read Start(); include(utilities);
+    search ...; and the include is CIRCULAR the moment utilities includes this file.
+    An includer has already done all three.
 
+    ⚠ AND THE DRIVER IS GONE TOO, to incant/pop/parserT. It could not stay: a live
+    `parser(Search); Search(...); stop();` at the foot would fire -- and STOP the run --
+    inside whoever included this. Same split incant/directives took on 2026-09-15 and
+    for the same reason.
+    ⚠⚠ AND MOVING IT FOUND A DEAD CASE. This file carried TWO stop() calls, at 85 and
+    91, so CASE 2 (parser(DO)) was unreachable and HAS NEVER RUN -- rule H2's exact
+    failure, in the file that was about to become everyone's dependency. Both cases
+    now live in the fixture, where CASE 2 runs for the first time.
+
+    Definitions are UNMOVED, per the 2026-09-17 ruling: the shape is still settling.
+    TokFiles -> ParserIncantation carries the argument.  */
 register(Utilities);
 define
     codeBuffer buffer;
@@ -76,66 +87,4 @@ define
         };
     ;
 
-debug;
-
-
-/*  CASE 1 -- the default.  Search  search- followedBy GrouP+ SemI-;  */
-parser(Search);
-Search("search list;");
-stop();
-
-/*  CASE 2 -- DO.  DO  do- followedBy StatemenT while- ExpressioN SemI- defer;
-    Specimen taken from incant/pop/trigDO, which already drives this rule.  */
-parser(DO);
-DO("do print 1; while 0;");
-stop();
-
-/*****************************************************************************
-The following are basially explanatory comments (the stop command ends parsing so none of this is processed)
-*****************************************************************************/
-    parser -- generates a new kant parse for every rule its argument touches.
-
-    parser(rule) walks the rule and everything below it, generates a parse body
-    for each, compiles it, and closes by parsing a specimen through the rule so
-    the run reports an answer rather than a count. parser(Start) is the POP.
-
-    Three phases, two gates. Generation always runs. Activation binds the
-    generated body as the rule's parse method and is gated by activating.
-    Compilation is gated by compiling. A measuring run turns one or both off; a
-    verifying run leaves both on, because a parse method that is never bound is
-    never exercised.
-
-    Both gates are declared fields and both are tested against a value, never
-    bare. A bare test on a declared field asks whether it exists, which is
-    always true.
-
-    The witness line reports whether compile actually ran on the rule, read off
-    the hasNewParsE flag that compile sets as its last act. It exists because
-    the answer alone cannot tell the two gate positions apart: a body that was
-    never explicitly compiled still parses, because bodies compile lazily at
-    first call. So the run prints the answer AND who produced it.
-
-    The design record for this file is in DesignDocs, entry ParserIncantation. The
-    walk crib, the hang provenance and the exhibit history retired there on
-    2026-08-26 when the hang they measured stopped reproducing.
-    
-    Running parser:
-    THE BOTTOM SELECTS THE RULE AND THE INPUT, and the selector is WHERE THE stop() SITS.
-    Move it down past a case to run that case; everything below stop() is never read, so a
-    parked case cannot fire, cannot be parsed, and cannot break the run.
-
-    Each case is a PAIR and both halves name the same rule: parser(R) generates, compiles
-    and binds R's new parse body, and R(input) then drives a specimen through it, so the
-    run reports an ANSWER and not a count.
-
-    ⚠ THE PAIR STAYS AT TOP LEVEL AND MUST NOT BE WRAPPED IN AN ACTION. A rule named inside
-    an action body is an UNDECLARED name and becomes an action LOCAL (bear-trap 39), so
-    parser(Search) would be handed a fresh empty node instead of the grammar rule. The
-    selection moves; the calls do not.
-
-/*****************************************************************************
-	The following are stashed actions not currently invoked but kept if needed
-*****************************************************************************/
-    PARKED -- neither rule nor input is settled here, and Start is the campaign POP, not a case.
-parser(Start);
-if IterSource("*someName"); print "IterSource parsed compiled and ran successfully":;
+bail();

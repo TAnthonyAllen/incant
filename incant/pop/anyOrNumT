@@ -12,7 +12,7 @@ define
     compiling=1;
     activating=1;
     ruleText="maybe a test;";
-    generateParse code={
+    aonGenerateParse code={
         cerr "generating parse for " argument.taG:;
         reset(codeBuffer);
         printTO(codeBuffer);
@@ -53,7 +53,7 @@ define
     walkRules code={
         if actionTypE == 0;
             length  = listLengtH;
-            generateParse(argument);
+            aonGenerateParse(argument);
             if argument["CodE"];    compile(argument);
             else    cerr taG "has no CodE":;
             if length > 0;
