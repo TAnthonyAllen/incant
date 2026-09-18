@@ -596,6 +596,33 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > so the rung pins its outcome wrong and says why. **A green row is a claim; do not make one
 > the mechanism cannot cash.**
 >
+> ⚠⚠ **RULE H15 — RUN THE CONTROL FIRST. Tony, ruled 2026-09-18, and it was paid for twice in
+> one day before it was written down.** When a change is made to satisfy a case that does not
+> work yet, **the FIRST thing driven afterwards is a case that ALREADY WORKED**, not the case the
+> change was for.
+>
+> **H7's sibling, one step earlier in time.** H7 says a rung certifies only what fails when the
+> mechanism is removed — it is about proving a green means something. This is about proving a
+> RED means what you think: **a change that breaks the working cases produces a failure on the
+> new case that is indistinguishable from the new case being hard.**
+>
+> **BOTH INSTANCES, 2026-09-18, and they are different shapes of the same error:**
+>
+> | the change | the control | what it caught |
+> |---|---|---|
+> | `parser` takes its root via `*argument`, as ruled | `parser(Search)`, `parser(DO)`, `parser(ANYorNum)` — **three roots that already worked** | **all three broke.** Driving `parser(list)` first would have read as a `list` problem and the spelling would have shipped |
+> | respell the line-comment literal to get past a `define` | respell **one** delimiter at a time | respelling BOTH "worked" and would have left `/*` **wrongly blamed forever**. The single-variable control is what said `BlockCommenT` was never the problem |
+>
+> ⚠ **AND THE SECOND ROW IS THE ONE PEOPLE WILL UNDER-READ: A CONTROL IS ALSO ONE VARIABLE AT A
+> TIME.** A fix that changes two things and works has not told you which one was needed, and the
+> wrong half gets written into the record as a cause. That is the unmeasured-citation family
+> arriving through a *successful* change rather than a failed one.
+>
+> ⚠ **A RULING CAN STAND WHILE ITS SPELLING IS STRUCK, AND SAYING SO IS PART OF THE RULE.** Both
+> instances above were correct rulings with wrong spellings. **Report it that way** — name the
+> ruling as surviving and the spelling as struck — or the next reader throws out the ruling with
+> the spelling, which costs more than the original error.
+
 > ⚠ **MATCH THE TASK'S FAILURE LOUDNESS TO THE SEAT'S MECHANICAL STATE.** Adopted 2026-08-08, and
 > it is doctrine about the three-seat model itself rather than about the code.
 >
