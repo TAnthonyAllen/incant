@@ -1,0 +1,49 @@
+/*  emitRefT -- WHERE DOES AN EMITTED TERM CALL LAND? The control for F-89.
+
+    The emitter prints a term call as the term's TAG and nothing else. This asks, at the seat,
+    which node that tag reaches when the generated body runs -- the term's own REFERENCE inside
+    the rule, the REGISTRY rule of the same name, or a freshly minted action LOCAL.
+
+    ⚠ TWO ROOTS, AND THE SECOND IS THE CONTROL FOR THE FIRST. `Search` is a rule with NO action
+    body, so its generated parse goes into CodE and has been running since the emitter existed;
+    `list` carries an action, so its parse parks in a carrier. If the by-name call never reached
+    a rule, Search's terms say so too -- and Search has been green all along, which is the thing
+    that has to be reconciled.
+
+    ⚠ IT PRINTS THE REFERENCE AND REGISTRY ADDRESSES FIRST so the RULEDISPATCH `at=` column has
+    something to be compared against. addrOf numbers are stable within one run, which is what
+    makes them readable; the raw pointers move every run and are not pinned.
+
+    RULEDISPATCH lines come from measureRuleDispatch, behind traceParse.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(UnitTests);
+define
+    erClassify code={
+        cerr "  parseMethod and action state, the root and its term references:":;
+        parseClassify(argument);
+        iterate erCur on argument;
+        while ++erCur;
+            if noPrinT;     continue;
+            parseClassify(*erCur);
+            probeNode(*erCur);
+        };
+    ;
+parser(Search);
+parser(list);
+traceParse(0);
+
+cerr "=== ROW A -- Search, the no-action root ===":;
+Search("search list;");
+
+cerr "=== ROW B -- list, the action-carrying root ===":;
+testList();
+
+cerr "=== ROW C -- setParse's writes, read not assumed ===":;
+erClassify(UnitTests["list"]);
+erClassify(Grokking["Search"]);
+
+cerr "EMITREF SENTINEL":;
+stop();

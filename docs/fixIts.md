@@ -273,7 +273,7 @@ hostage. PT-4 generates and stops there.
 **Done when:** the spin is located. **Grade:** CONFIRMED and reproduced; mechanism OPEN.
 **Owner:** unassigned.
 
-### F-89 — ⚠⚠ HEADLINE WITHDRAWN 2026-09-19. NO EMITTED TERM CALL REACHES A RULE AT ALL
+### F-89 — ⚠⚠ HEADLINE WITHDRAWN 2026-09-18. NO EMITTED TERM CALL REACHES A RULE AT ALL
 **THE OPTIONAL TERM IS A CORRELATE AND NOT THE CAUSE, and the correction is rule H15's own
 second half biting the person who wrote it down the day before: A CONTROL IS ALSO ONE VARIABLE
 AT A TIME.** The first A/B varied the optional modifier **and the number of terms** at once.
@@ -494,7 +494,7 @@ and grows a `BlocK`. Probed before anything was built. The build is on branch
 and `if x;` on a node holding 0 reads **false** — so the carrier's existence test went dark on
 a carrier that was there. Leave it data-less and let `+%` mint it.
 
-⚠⚠ **RULING 2 IS RULED — TONY, 2026-09-19.** Generation is **explicit** via `parser(rule)`;
+⚠⚠ **RULING 2 IS RULED — TONY, 2026-09-18.** Generation is **explicit** via `parser(rule)`;
 `setParse` installs `parseMethod` **from `builtinParseR` on a coded rule, from `CodE` otherwise**,
 and **that install is the switch**; **parse first, action on the filled label**. As built on
 branch `checkinput-state`, commit `acd2d35`. **The branch merges on the buy** — it does not merge
