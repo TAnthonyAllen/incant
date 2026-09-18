@@ -9,6 +9,10 @@ define
     fireLog;
     generateParse code={
         cout "Generating parse code for" taG:;
+        // ownActionAtEntry  READ AT ENTRY. This action SETS isCodeD further down, so a later
+        //                   read says yes for every rule and would park every parse
+        ownActionAtEntry = 0;
+        if isCodeD;     ownActionAtEntry = 1;
         reset(codeBuffer);
         printTO(codeBuffer);
         print openBrace:;
@@ -32,15 +36,32 @@ define
         @argument;
         print $";";
         print :`closeBrace;
-        clear(CodE);
-        CodE = codeBuffer;
-        codeCopy := copyOf(CodE);
-        *codeCopy :. noPrinT;
-        argument +% *codeCopy;
+        // twoBodiesOneSlot  A RULE THAT ALREADY CARRIES AN ACTION BODY KEEPS ITS CodE. Its
+        //                   generated parse parks in builtinParseR -- noPrint, builtinActoR's
+        //                   shape -- because CodE is the ACTION's slot and overwriting it
+        //                   DELETES the action. fixIts F-87. No brace in this comment: F-86
+        if ownActionAtEntry == 1;
+            builtinParseR = codeBuffer;
+            bprCopy := copyOf(builtinParseR);
+            *bprCopy :. noPrinT;
+            argument +% *bprCopy;
+        if ownActionAtEntry == 0;
+            clear(CodE);
+            CodE = codeBuffer;
+            codeCopy := copyOf(CodE);
+            *codeCopy :. noPrinT;
+            argument +% *codeCopy;
         argument :. isCodeD;
-        argument :. hasNewParsE;
+        // flagPromisesInstalled  hasNewParse tells runRule A PARSE IS INSTALLED AND FIRABLE, not
+        //                        merely that one was generated. A parked carrier is generated and
+        //                        NOT installed, so raising it here is a promise nothing keeps --
+        //                        runRule then takes the gMethod arm and SPINS (fixIts F-88).
+        //                        One-variable A/B: withheld, exit 0 and the action fires; raised,
+        //                        exit 142 on the alarm with no output
+        if ownActionAtEntry == 0;   argument :. hasNewParsE;
         printTO(0);
-        print taG "=" CodE.taG CodE:;
+        if ownActionAtEntry == 1;    print taG "=" "builtinParseR" builtinParseR:;
+        if ownActionAtEntry == 0;    print taG "=" CodE.taG CodE:;
        };
     walkRules code={
         generateParse(argument);
@@ -48,6 +69,13 @@ define
         if length > 0;
             iterate grup on argument;
             while ++grup;
+                // noPrintIsTheSkip  ARTIFACTS ARE noPrint AND THEY READ isRulE 1. CodE reads
+                //                   isRulE=1 noPrinT=1, measured, so the isRulE test alone let
+                //                   the walk descend into the ACTION BODY and generate a parse
+                //                   for it -- which is how CodE moved across a walk that never
+                //                   named it. compile() has always skipped on noPrint first;
+                //                   this is the same discipline, and it skips builtinParseR too
+                if noPrinT;     continue;
                 if isRulE == 0; continue;
                 if binTypE;
                     generateParse(*grup);

@@ -66,7 +66,11 @@ cycle so the trail survives, then moves out.
 ### F-85 — ✅ CLOSED 2026-09-18 — `parser` takes its root BARE; `*argument` was the wrong mechanism
 **STATION 4 IS UNBLOCKED.** `parser(list)` generates `return entries() && SemI();` and compiles.
 
-⚠⚠ **THE RULED SPELLING FAILED ITS OWN CONTROL, AND THAT IS THE FINDING.** The 2026-09-17
+⚠⚠ **RULING CORRECTION, TONY 2026-09-18: THE RULING STANDS AND THE `*` IS STRUCK.** *`parser`
+takes the rule; registry membership stops mattering* is unchanged and is what landed. Only the
+**spelling** `*argument` is struck, and the reason is the addrOf reading below.
+
+⚠⚠ **IT FAILED ITS OWN CONTROL, AND THAT IS HOW THE SPELLING WAS CAUGHT.** The 2026-09-17
 ruling said *"`parser` takes the rule via `*argument`"*. Driven, `*argument` broke **all three**
 already-working roots: `parser(Search)`, `parser(DO)` and `parser(ANYorNum)` each generated for a
 node called `argument` and refused. **Running the control FIRST is what caught it** — the
@@ -96,7 +100,7 @@ produce output identical to the `Grokking[argument.taG]` baseline on **both stre
 Grokking, so the old single-registry lookup could never have reached it:
 `Grokking["list"]` **0** · `UnitTests["list"]` **1** · a never-defined name **0**.
 
-⚠⚠ **AND THE BEAR-TRAP #35 DISAGREEMENT THIS ROW RAISED IS WITHDRAWN.** F-85 reported the
+⚠⚠ **RULING CORRECTION (b), TONY 2026-09-18: THE BEAR-TRAP #35 DISAGREEMENT THIS ROW RAISED IS WITHDRAWN**, on the hit/miss measurement below. F-85 reported the
 direct-subscript **miss control FIRING**, contradicting #35. Re-run with a hit and a miss in one
 run, **the miss reads 0 and #35 is correct.** The earlier probe read through a `<-` rebind, which
 mints a node and makes a miss unobservable — which is the *other* half of #35 and is the half
@@ -145,9 +149,40 @@ ruling stopped. Tony also suspects `list` is not in the search list being read.
 only if the two-bodies-one-slot collision is there when `generateParse` finally sees `list`. **Grade:** CONFIRMED for the blocker (announced output, with a working
 control); OPEN for why the action stops. **Owner:** unassigned.
 
-### F-87 — ⚠ CONFIRMED 2026-09-18 — TWO BODIES, ONE SLOT: `generateParse` OVERWRITES THE ACTION
-**This is the collision Clay named, and it is `builtinParseR`'s whole premise. It was UNTESTED
-until `parser(list)` could reach `list`. It is tested now.**
+### F-87 — ✅ CLOSED 2026-09-18 — the parse parks in `builtinParseR`; the rule keeps its action
+**THE FIX, and it is three changes in `generateParse`/`walkRules`, each measured on its own:**
+
+1. **A rule that already carries an action body gets its generated parse parked in a noPrint
+   `builtinParseR` attribute** — builtinActoR's shape — instead of overwriting `CodE`. A rule
+   with no action body still gets `CodE`, unchanged. The test is `isCodeD` **read at entry**,
+   because `generateParse` sets that flag itself further down and a later read says yes for
+   everything.
+2. **`walkRules` skips `noPrint` members first.** `CodE` reads **`isRulE` 1 AND `noPrinT` 1**,
+   measured, so the `isRulE` test alone let the walk **descend into the action body and generate
+   a parse for it** — which is how `CodE` moved across a walk that never named it. `compile()`
+   has always skipped on `noPrint` first; this is the same discipline, and it skips the new
+   carrier too.
+3. **`hasNewParse` is WITHHELD when the parse parks.** See F-88 — it is that row's whole cause.
+
+**CERTIFICATE, all three arms:**
+
+| row | result |
+|---|---|
+| `parser(list)` then fire → the action FIRES | ✅ `list tests the for statement:` |
+| `list`'s `CodE` unchanged across `parser(list)` | ✅ **byte-identical to what `compile(list)` alone produces**, `sumGrup` and all — the action's own local, which only the action body declares |
+| Search / DO / ANYorNum in `parserTest` unmoved | ✅ diff is a pure ADDITION of PT-4's own lines; the first 279 lines are identical |
+
+**Fixture: `incant/pop/carrierT`**, six rows, CT-5 pinned wrong on purpose at F-83's gap.
+
+⚠ **WHAT IS NOT DONE, SAID PLAINLY: `setParse` DOES NOT YET INSTALL `parseMethod` FROM THE
+CARRIER.** The dispatch asked for it and it is **not a stub** — it is the switch that makes the
+generated parse actually RUN, which is station 6's business and not this row's. The carrier is
+generated, parked and inspectable; nothing fires it. **Turning it on is the next stroke, and
+F-88 is the reason to turn it on deliberately rather than as a tidy-up.**
+
+---
+
+#### F-87's original text, kept as the reasoning trail
 
 **The mechanism is readable rather than inferred** — `generateParse` ends with
 `clear(CodE); CodE = codeBuffer;`. A rule with a code body keeps its action in `CodE`. The
@@ -175,7 +210,39 @@ write** on a source read rather than a one-variable run. It is one probe from ai
 **Grade:** CONFIRMED for the collision, GRADED for the exact write. **Owner:** Tony, the shape is
 his.
 
-### F-88 — `parser(list)` then firing `list` SPINS, and only when it is the only root
+### F-88 — ✅ CLOSED 2026-09-18 — `hasNewParse` was promising an install that had not happened
+**ONE CHANNEL, TWO MEANINGS, and it is the family's newest member.** `hasNewParse` was being read
+as *"a parse was generated"* by `walkRules` and as *"a parse is installed and firable"* by
+`runRule`. While the generated parse went into `CodE` those were the same fact. The moment it
+parks in `builtinParseR` they come apart: the flag becomes **a promise nothing keeps**, `runRule`
+takes the `gMethod` arm, and it spins.
+
+**THE FIX IS ONE LINE** — `generateParse` raises `hasNewParse` **only on the arm that writes
+`CodE`**. **ONE-VARIABLE A/B, same file, same binary, only that line changing:**
+
+| arm | result |
+|---|---|
+| withheld when the parse parks | **exit 0**, the action fires, `nextGroup: ERROR DatA does not contain a list` — F-83's gap, reached |
+| raised unconditionally | **exit 142** on a 45-second alarm, **no output at all** |
+
+⚠ **AND IT EXPLAINS THE STATE DEPENDENCE THIS ROW COULD NOT ACCOUNT FOR.** The spin appeared
+only when `parser(list)` was the file's only case, and completed inside `parserTest` after three
+other roots — because those roots had already generated for the shared sub-terms, so the road
+the false promise sent `runRule` down was differently populated. **The hypothesis this row
+recorded (`hasNewParse` on shared sub-rules) was pointing at the right flag from the wrong end.**
+
+⚠ **IT WAS NOT AN F-87 CONSEQUENCE, WHICH IS WHY IT WAS MEASURED AFTER AND NOT ASSUMED.** The
+carrier split alone left the spin standing; it took the flag as well. Had the dispatch not said
+*measured after item 1, not before*, this would have been closed as a consequence and the real
+cause would have stayed in the tree.
+
+**Fixture:** `incant/pop/carrierT` CT-6 — exit status, asserted by name, because a spin cannot be
+asserted by a diff: a killed process yields truncated output and the diff names the wrong row.
+**Grade:** CONFIRMED with a one-variable control in both directions. **Closed.**
+
+---
+
+#### F-88's original text, kept as the reasoning trail
 **100% CPU, RSS flat at 36MB, reproduced twice, exiting only to the alarm.** Flat RSS is the
 discriminator: **this is a LOOP, not unbounded recursion**, which rules out `parseSelfRecursion`
 (designDocs, `status=ruled`) whose signature is tens of thousands of frames and a guard-page
@@ -418,6 +485,33 @@ runs after it), clearing before the method call (same race), and reading `inputD
 pop (still true standalone; there is an input level unaccounted for). Stopped at three per the
 grinding rule. **Ruled 2026-09-17: bail will consume the rest of its input level instead**, so the
 parser has nothing left to abandon — no flag, no race. That is its own stroke.
+
+⚠⚠ **SECOND SIGHTING, 2026-09-18, AND IT IS A DIFFERENT FACE OF THE SAME MARK.** The first is a
+false positive — abandonment reported where none happened. This one is a **true positive whose
+resume point names the wrong line**, and it cost a bisect.
+
+`IncantForms/WorkingOn/tester` fails at `LineCommenT "//" …`, **two lines below** the line the
+report quotes:
+
+```
+It resumes at:
+    =[ \#\	]+;#    BlockCommenT    "/*" EmbeddedCommenT-* commen
+```
+
+That text is `IndenT`'s set definition — healthy, and it parses clean in isolation. Read as the
+failing line it sends the reader at a set definition and at `BlockCommenT`, which is where Tony's
+own offline read went (*"probably because the definition involves comment delimiters like `/*`"*).
+**The actual offender was `"//"`, and only a bisect by REMOVING LATER LINES found it.**
+
+⚠ **SO THE TWO FACES WANT ONE FIX AND NOT TWO:** the mark is not where the parse stopped. In
+the `bail()` case it points at the file's start; in a failed `define` it points somewhere inside
+the construct rather than at the statement that refused. **A report that quotes a resume point is
+only as good as the mark**, and this is rule H1's family aimed at a diagnostic instead of a
+harness — an instrument that lies is worse than no instrument.
+⚠ **AND THE MITIGATION UNTIL IT IS FIXED IS A SENTENCE IN THE REPORT, not a habit:** the quoted
+line is **where the parser is standing**, which is not always **what refused**. Bisect by removing
+later lines; never stare at the named one. Same discipline bear-traps #32 and #53 already demand,
+and this is the third register asking for it.
 
 **COVERAGE:** `incant/pop/truncT` (refusal arm) and `incant/pop/truncLitT` (**no-refusal arm, and
 it is why the report reads the mark**). Both truncate by design with no reachable `stop()`; safe

@@ -2655,6 +2655,46 @@ else
     grep -E "^PT-" "$T/ptst.e" | sed 's/^/          /'; fail=1
 fi
 
+#  ---- carrierT: the parse parks in builtinParseR, the rule keeps its action ---
+#  Station 4's landing, 2026-09-18. generateParse used to write the generated parse into the
+#  rule's own CodE -- where a rule with a code body keeps its ACTION -- so generating a parse
+#  DELETED the action (fixIts F-87). A rule that already carries an action body now gets its
+#  parse parked in a noPrint builtinParseR attribute, builtinActoR's shape, CodE untouched.
+#  ⚠ TWO OTHER CHANGES LANDED WITH IT, each a one-variable A/B, each load-bearing:
+#    walkRules skips noPrint -- CodE reads isRulE=1 AND noPrinT=1, so the isRulE test alone let
+#      the walk descend INTO THE ACTION BODY and generate a parse for it.
+#    hasNewParse is WITHHELD when the parse parks -- that flag says A PARSE IS INSTALLED AND
+#      FIRABLE, not merely that one was generated. Raised over a parked carrier it is a promise
+#      nothing keeps: runRule takes the gMethod arm and SPINS. fixIts F-88, closed here.
+#      A/B: withheld -> exit 0 and the action fires; raised -> exit 142 on a 45s alarm, no output.
+run2 carrierT "$T/ct.o" "$T/ct.e"; check "carrierT runs (CT-6 -- no spin)" 0 $?
+sentinel "carrierT sentinel" "$T/ct.e" "CARRIER SENTINEL"
+if grep -qF "Processing testList action that runs list rule" "$T/ct.o"; then
+    echo "  ok    carrierT CT-1 the driver ran -- anti-vacuity sibling for every row below"; green=$((green+1))
+else
+    echo "  FAIL  carrierT CT-1 testList did not run, so nothing below asserts anything"; fail=1
+fi
+for _r in "CT-2 THE ACTION FIRES after parser(list) -- F-87 closed|list tests the for statement:|o" \
+          "CT-3 sumGrup still in list CodE -- the action BODY survived, by its own local|sumGrup|o" \
+          "CT-4 builtinParseR is ON the rule -- the parse was parked, not discarded|builtinParseR        attribute  noPrint|o"; do
+    _lbl=${_r%%|*}; _rest=${_r#*|}; _want=${_rest%|*}
+    if grep -qF "$_want" "$T/ct.o"; then
+        echo "  ok    carrierT $_lbl"; green=$((green+1))
+    else
+        echo "  FAIL  carrierT $_lbl -- MOVED. Wanted: $_want"; fail=1
+    fi
+done
+#  ⚠ CT-5 IS PINNED WRONG ON PURPOSE (H7's other half) -- fixIts F-83, STATION 6's target and
+#  UNRULED. The body runs and CANNOT SEE WHAT WAS PARSED: `entries` still holds its term
+#  definition, so the for loop dies. When label population lands this row goes red and THAT IS
+#  THE WIN. ⚠ It is also what proves CT-2 reached the loop rather than stopping at statement one.
+if grep -qF "nextGroup: ERROR DatA does not contain a list" "$T/ct.e"; then
+    echo "  ok    carrierT CT-5 the body still cannot see its terms -- PINNED WRONG (F-83)"; green=$((green+1))
+else
+    echo "  FAIL  carrierT CT-5 the label gap is GONE. If label population landed, that is"
+    echo "        the win: re-pin with a sentence (H6) and close F-83."; fail=1
+fi
+
 #  ---- firstUseT: runRule GATES on hasNewParse and never installs --------------
 #  ⚠⚠ RE-PINNED 2026-09-18 AS A WITHDRAWAL, NOT A REGRESSION. Tony withdrew the 2026-09-17
 #  first-use install: runRule was compiling and installing a rule's parse on first use, and

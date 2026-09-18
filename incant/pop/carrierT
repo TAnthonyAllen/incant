@@ -1,0 +1,55 @@
+/*  carrierT -- THE PARSE PARKS IN builtinParseR AND THE RULE KEEPS ITS ACTION.
+
+    Station 4's landing, 2026-09-18. `generateParse` used to write the generated parse into
+    the rule's own CodE -- which is where a rule with a code body keeps its ACTION -- so
+    generating a parse DELETED the action. That was fixIts F-87. A rule that already carries
+    an action body now gets its parse parked in a noPrint `builtinParseR` attribute, in
+    builtinActoR's shape, and CodE is left alone.
+
+    TWO OTHER THINGS LANDED WITH IT AND BOTH ARE LOAD-BEARING, each measured as a
+    one-variable A/B:
+      walkRules skips noPrint   CodE reads isRulE=1 AND noPrinT=1, so the isRulE test alone
+                                let the walk descend INTO THE ACTION BODY and generate a parse
+                                for it. compile() has always skipped noPrint first; this is the
+                                same discipline, and it skips builtinParseR too.
+      hasNewParse withheld      when the parse parks in the carrier. That flag tells runRule A
+                                PARSE IS INSTALLED AND FIRABLE, not merely that one was
+                                generated -- one channel, two meanings. Raised over a parked
+                                carrier it is a promise nothing keeps: runRule takes the gMethod
+                                arm and SPINS. That was fixIts F-88, and it closes here.
+                                A/B: withheld, exit 0 and the action fires; raised, exit 142 on
+                                a 45-second alarm with no output at all.
+
+    THE ROWS
+      CT-1  the driver ran -- the anti-vacuity sibling for everything below
+      CT-2  THE ACTION FIRES after parser(list). This is F-87 closed, and before this stroke
+            it did not fire at all.
+      CT-3  `sumGrup` is still in list's CodE. THE ACTION BODY ITSELF survived, by a name only
+            that body declares -- presence with value, not "CodE is still there".
+      CT-4  builtinParseR is ON the rule. The parse was generated and parked, not discarded --
+            CT-2 alone would also pass if generation had simply stopped happening.
+      CT-5  ⚠ PINNED WRONG ON PURPOSE (H7's other half). The body runs and CANNOT SEE WHAT WAS
+            PARSED: `entries` still holds its term definition, so the for loop dies on
+            `nextGroup: ERROR DatA does not contain a list`. That is fixIts F-83, STATION 6's
+            target, and it is UNRULED. This row is not a claim the behaviour is right; it is a
+            pin so that the day label population lands, something says so.
+            ⚠ IT IS ALSO THE ROW THAT PROVES CT-2 REACHED THE LOOP -- an action that fired and
+            stopped at its first statement would leave CT-5 silent.
+      CT-6  exit 0. The spin is gone, and a spin cannot be asserted by a diff -- a killed
+            process yields truncated output and names the wrong row.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+
+parser(list);
+testList();
+
+cerr "CT-4 builtinParseR on list":;
+dumpContents(list);
+cerr "CT-3 list CodE":;
+dumpContents(list["CodE"]);
+
+cerr "CARRIER SENTINEL":;
+stop();
