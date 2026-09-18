@@ -14,7 +14,15 @@
 #
 #   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
 #
-#   **a. ⚠⚠ NO GENERATED BODY HAS EVER RUN ON TRUNK, AND THAT IS THE DAY'S FINDING.**
+#   **a. ⚠⚠ WITHDRAWN 2026-09-18, LATER THE SAME DAY, BY BISECT. THE SENTENCE BELOW IS WRONG.**
+#   A generated body DID run — correctly — until commit **`9785324`** (2026-09-15), where
+#   `setParseWalk`'s **`installedIsDone`** gate stopped `setParse` installing on any rule the
+#   generation walk had already flagged. **docs/fixIts.md F-90** carries the bisect, the H7
+#   control on the line, and the mechanism. ⚠ **The probe that produced the sentence below was
+#   itself wrong** — its counting marker sat ahead of `parser(Search)`, so the generation walk's
+#   own term dispatches fell inside the window. The original text follows as the trail.
+#
+#   **a. [WITHDRAWN] NO GENERATED BODY HAS EVER RUN ON TRUNK, AND THAT IS THE DAY'S FINDING.**
 #   `incant/pop/emitRefT`, two roots, one run per road. **`Search` reads IDENTICALLY on trunk and
 #   branch: no term dispatch at all** — not `isRule=1`, not `isRule=0`. `list` on the branch is
 #   the **first and only** place an emitted term call has ever been made.

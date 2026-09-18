@@ -273,6 +273,52 @@ hostage. PT-4 generates and stops there.
 **Done when:** the spin is located. **Grade:** CONFIRMED and reproduced; mechanism OPEN.
 **Owner:** unassigned.
 
+### F-90 — ⚠⚠ BISECTED: `setParseWalk`'s `installedIsDone` GATE STOPPED THE NEW PARSE AT `9785324`
+**Tony's acceptance from 2026-09-14** — `parser(Search)` then `Search("search list;")` with
+`traceParse` on shows the generated body dispatching its terms — **passed at `5f24cf3` and
+fails at HEAD.** Bisected, one build per step, bare.
+
+| | |
+|---|---|
+| **first failing commit** | **`9785324`** — *"Reland: token skip, enclosing guard, and the walk stops writing actionMethod"*, 2026-09-15 |
+| **last passing** | `0324343` — *"Recursion measured: NamE's actionMethod IS parseRule"* |
+| **the one line** | `setParseWalk`'s **`installedIsDone`** gate: `if hasNewParse { … return null; }` |
+
+**H7 CONTROL, and it names the LINE rather than the commit: removing that gate at `9785324`
+restores the acceptance** — termDispatch **0 → 3**, `isRule=1`, one build.
+
+**THE MECHANISM.** `parser` runs `walkRules` **before** `compileRules`. `walkRules`'
+`generateParse` raises `hasNewParse` on every rule it generates for. `compileRules` then calls
+`setParse`, whose walk opens with that gate — so **every rule the generation walk touched is
+already flagged and the classification ladder never runs.** Nothing is installed as a
+`parseMethod`, nothing dispatches the generated body, and no emitted term call is ever made.
+
+⚠⚠ **AND THE GATE IS NOT A MISTAKE — IT IS TONY'S OWN 2026-09-15 RULING AND IT FIXED A CRASH**
+(`trigDO` 139 → 0, walk refusals 60 → 0). **Reverting it puts the crash back**, which that
+commit's own message says in terms. So this is an ORDERING defect, not a bad gate: the flag that
+means *"a parse was generated"* is being read by a guard that means *"an install has happened"*.
+**One channel, two meanings — the same family as F-88, one seat further up.**
+
+⚠ **THE CAUSE IS NOT A SECOND `hasNewParse` WRITER**, so the 09-14 one-writer ruling does not
+name the fix and **this is reported before building**, as ruled.
+
+**⚠⚠ AND IT WITHDRAWS A SENTENCE OF MINE FROM THE THIRD SEAL OF 2026-09-18:** *"no generated
+body has ever run on trunk"* is **WRONG**. One ran, correctly, until `9785324`. The seal said the
+attribution was a SOURCE READ and not measured; measured, the source read was right about the
+line and **wrong about the history**.
+
+⚠ **AND THE MEASUREMENT ITSELF HAD TO BE REPAIRED FIRST, which is the instrument lesson.** The
+first probe put its counting marker AHEAD of `parser(Search)`, so the **generation walk's own**
+term dispatches fell inside the counting window and read as the generated body running. It
+reported PASS at both ends and would have ended the bisect before it began. The marker now sits
+**after generation and immediately before the drive**, and the two ends separate 3 / 0.
+**Doubt the instrument before the code — and doubt it hardest when it agrees with you.**
+
+**Done when:** `setParse` installs on a generated rule, without putting `trigDO`'s recursion
+back. **Blocks:** F-89 (its arm=NONE readings are all downstream of this), station 6, the merge.
+**Grade:** CONFIRMED — bisected with a passing end, a failing end, and an H7 control on the line.
+**Owner:** Tony — the gate is his ruling and the ordering is a design question.
+
 ### F-89 — ⚠⚠ HEADLINE WITHDRAWN 2026-09-18. NO EMITTED TERM CALL REACHES A RULE AT ALL
 **THE OPTIONAL TERM IS A CORRELATE AND NOT THE CAUSE, and the correction is rule H15's own
 second half biting the person who wrote it down the day before: A CONTROL IS ALSO ONE VARIABLE
