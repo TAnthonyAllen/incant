@@ -17,8 +17,12 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      156
-STATUS:   cleared        # C-156/C-156a closed; C-158..C-163 all reported; sealed 2026-09-04
+SEQ:      157
+STATUS:   working        # SEQ 157 picked up 2026-09-18; items 1-6 landing in order
+WRITTEN:  2026-09-18  -  Clay (SEQ 157, dictated via Tony; transcribed by Clod)
+          ⚠ SEQ 157 IS LIVE AND IS AT THE FOOT -- the runRule withdrawal, the
+          checkSKIP measurement, two docket cards, then the parser order.
+STATUS-156: cleared      # C-156/C-156a closed; C-158..C-163 all reported; sealed 2026-09-04
 WRITTEN:  2026-09-04  -  Clay (SEQ 156 / C-156 + C-156a, dictated via Tony; transcribed by Clod)
           ⚠ SEQ 156 IS LIVE AND IS AT THE FOOT. Step 0 + step 1 landed;
           report is docs/c156Respell.md.
@@ -7810,3 +7814,141 @@ STATUS:  cleared  -  item 4 CLOSED, C-156a bought at 0/0/2, sealed 2026-09-04
   OWED: 112 class-(a) sites, and classes (b)/(c)/(d) are read-and-report with
   nothing read yet beyond counts. (b) is 162 sites, 53 of them argument.taG,
   every one of which changes meaning under the flip.
+
+
+===================================================================
+SEQ 157  -  THE runRule WITHDRAWAL, checkSKIP MEASURED, TWO CARDS
+WRITTEN: 2026-09-18  -  Clay, dictated via Tony; transcribed by Clod
+STATUS:  working
+===================================================================
+
+  [Dispatch as received, transcribed. Tony's offline status of the same
+  morning is its premise and is not repeated here -- it is in the session
+  log and its findings are in the seal.]
+
+  KITCHEN, BEFORE ANY NUMBER. Tony's BeforeSave was not reset after the last
+  kitchen clean, so his "differences I did not make" are ours -- the runRule
+  first-use block is 395. Say so in one line, then: confirm bare (no
+  directives in GroupItem/GroupRules -- Tony made sure; you verify), retok
+  bare, POP baseline. Tony's opIN debugging change and the ruleActions.rtn
+  comment edits commit under his name in the kitchen pass. Bookkeeping, not
+  a finding.
+
+  2. runRule STROKE, ONE COMMIT. Remove the first-use block
+  (if rule.isCoded / if !rule.hasNewParse { compile; setParse }) and its two
+  comment lines. runRule gates on hasNewParse only; the door ruling and the
+  refuse-by-name-when-gMethod-null arm stay as they are. Report the
+  grammar-side and parser-side lines before/after verbatim, per standing.
+  Convert every measuring construct in runRule to measure* callouts in
+  measure.twk, one per seat, seat state as arguments, mirror lines in
+  groups.ext committed. grep -n 'measure[A-Z]' must still return instruments
+  only. Comments to convention: // slug sentence? inline, argument to
+  DesignDocs stump markers, prose out.
+  Certificate: fleet 398 unmoved row for row; codeOnly diff of GroupRules.mm
+  empty except the deleted block; canary accounted.
+  Record in fixIts: F-83 ruling 2 (first-use install in runRule) is withdrawn
+  by Tony 2026-09-18 -- generation is explicit via parser; runRule only gates.
+  Doctrine candidate for CLAUDE.md, Tony to sign: calls go down, never up --
+  kant calls C++ verbs; C++ fires installed slots; C++ never resolves an
+  incant action by name.
+
+  3. checkSKIP TESTER -- MEASURE, DON'T GUESS. Take Tony's tester
+  incantation. Run it; report the failing line and the error text verbatim.
+  Then one build each: (a) "/" "*"^ and "/" "/"^ in place of the literal
+  delimiters, (b) "*/" left alone first, changed only if it fails. Report
+  which spellings get past the BlockCommenT definition. No C++ change, no
+  quoteBody patch -- if both spellings fail, stop and report; the quoteBody
+  driver modifier is Tony's ruling to reopen, not yours to make.
+
+  4. commentDirectives -- A CARD, NOT A BUILD. docs/commentDirectives.md: the
+  store is a kant-format directives file (fromThis/insertAt, end-anchored \n,
+  second-run-inert); you apply it selectively before a run; the committed .mm
+  is bare and codeOnly.py is the check; // slug lines and DesignDocs pointers
+  stay in the .twk. Size the Tok directive format against the kant one and say
+  in one paragraph whether a one-way emitter (kant -> Tok) is a small script
+  or not. Tony rules on the format question after reading that.
+
+  ADDENDUM TO ITEM 3 [item 4 of the card], relayed same day:
+  "The // slug markers can serve double duty: as a link to DesignDocs and as a
+  directive target to match against (as in fromThis). That's the right key. It
+  closes the anchoring problem for free: a slug is unique across the tree by
+  construction (it has to resolve against DesignDocs), it's already
+  end-anchored on its own line, and it survives the alpha sort because it
+  moves with its method. Nothing else in the .twk has all three properties.
+    - The // slug line becomes the address, so the directive is insertAt after
+      it, not fromThis/toThis around code. A comment directive never names code
+      text at all, which is what makes it idempotent and inert on a second run
+      without any special casing -- code can change under it and the anchor
+      still holds.
+    - A method with no slug can't take a comment. That's a feature: it forces
+      the DesignDocs entry to exist before the prose does, which is the
+      argument-vs-description split enforced mechanically instead of by review.
+      Clod's first move on any method is mint the slug, then write the
+      directive.
+  One edge to name now: the slug's sentence half is optional and Clod edits it.
+  The match has to be on the slug token alone, not the whole line, or a
+  sentence tweak orphans every comment under it.
+  Addendum for the dispatch, item 3: the store is keyed by // slug, insertAt
+  after the matching line, match on the slug token only; a method without a
+  slug is not a valid target. Add a row to the card's certificate: apply,
+  retok, apply again -- second .mm byte-identical to the first."
+
+  5. THEN THE WAKEUP'S ORDER, UNCHANGED: parser(Search) through the *argument
+  line as control -> parser(list) in parserTest -> read the collision ->
+  builtinParseR if it exists -> station 6. Tony's suspicion that list is not
+  in the search list parser reads is the first thing to check when
+  parser(list) misses.
+
+  6. DOCKET CARD, NO BUILD: docs/fieldAddsDefinition.md -- field += <define
+  block>; grammar cost as noted (DefinE as expression, or a += arm); gated
+  behind station 6 and the JIT resume. One page, Tony's brainstorm quoted as
+  his.
+
+-------------------------------------------------------------------
+  CLOD, PROGRESS -- 2026-09-18
+-------------------------------------------------------------------
+
+  ITEM 1 KITCHEN: done. b70a6ff. Tree was ALREADY BARE (groupDirectives has
+  zero armed entries; both retoks byte-identical). BeforeSave is dated
+  Sep 15 14:55 and every diff in it is committed 09-16/09-17 work.
+  ⚠ TONY'S opIN CHANGE IS ALREADY IN THE TREE, committed 36560bf -- and that
+  commit's body MISNAMES it as opMatch's isBUFFER arm. The arm is opIN's.
+  Recorded, not rewritten. The only dirt was IncantForms/WorkingOn/parser.
+
+  ITEM 2 runRule: done, 776ccf6 + support c9456e6. Fleet 398 -> 399 green,
+  red 51 unmoved row for row; the +1 is arithmetic (FU-3 retired, a miss
+  control added). codeOnly diff of GroupRules.mm is THREE HUNKS, nothing
+  else. Canary 335 unmoved.
+  ⚠ ONE DEPARTURE FROM THE DISPATCH, NAMED: "fleet 398 unmoved row for row"
+  could not hold, because FU-2/FU-3 pinned the feature being withdrawn --
+  which is exactly the H7 control the 09-17 commit recorded. FU-2 re-pinned
+  by value, FU-3 retired with its subject.
+  ⚠ AND A MEASUREMENT: `list` LIVES IN UnitTests, NOT Grokking. Direct
+  subscripts, hit and miss controls both present. Tony's seal-day suspicion,
+  confirmed -- and it is item 5's first check, already answered.
+
+  ITEM 3 checkSKIP: done, and THE BLOCKER IS "//" NOT "/*". Four runs, one
+  variable each. Respelling LineCommenT ALONE passes; respelling BlockCommenT
+  ALONE still fails; "*/" never needed touching. The ^ is not needed to
+  PARSE. Not a Catch-22. docs/checkSKIP.md section 2a.
+  ⚠ The ABANDONED message names IndenT, TWO LINES ABOVE the offender.
+
+  ITEM 4 commentDirectives card: docs/commentDirectives.md.
+  ⚠ TWO FINDINGS THAT CHANGE THE DESIGN AND WANT TONY'S EYE.
+  (a) insertAt HAS NO ALREADY-PRESENT CHECK -- read at incant/directives:26.
+      The \n end-anchor makes replaceAt self-limiting and does NOT transfer.
+      Idempotency comes from the target being a GENERATED file: retok is the
+      reset, so the certificate row passes by construction. The failure to
+      name loudly is apply-twice-without-a-retok.
+  (b) fromThis MUST NOT CONTAIN "//" -- the standing G03 blocker. Which is a
+      second, independent reason the anchor is the SLUG TOKEN and not the
+      "// slug" line, so the addendum and the constraint agree. ⚠ But it also
+      means the PAYLOAD cannot be written with a literal // in kant source
+      today. That is the open question that decides buildable-now versus
+      parked-behind-checkSKIP, and it is one probe.
+  Sizing answer, §3: kant -> Tok is NOT a small script -- a Tok entry needs
+  the enclosing FUNCTION NAME, which no kant entry carries and which cannot
+  be derived by substitution. The cheap direction is Tok -> kant.
+
+  ITEM 6 fieldAddsDefinition card: docs/fieldAddsDefinition.md.
+

@@ -53,6 +53,66 @@ place of an action asking which spelling hit (09-10 doctrine). `BlockCommenT` af
 The back-up-on-failure is doable and **needs testing** — every non-nested block comment tests
 it, because `EmbeddedCommenT` fails on the first `*/` before `commentBody` ever runs.
 
+## 2a. MEASURED 2026-09-18 — THE DEFINITION'S BLOCKER IS `"//"`, NOT `"/*"`, AND IT IS NOT A CATCH-22
+
+Tony's offline report: *"It shits the bed and cannot get past the BlockCommenT definition,
+probably because the definition involves comment delimiters like `/*`. If that is the cause,
+we have a Catch 22 condition."* **Half right: it is a comment delimiter, and it is the other
+one.** `"/*"` and `"*/"` are both innocent, measured.
+
+**What the run says, verbatim** (`IncantForms/WorkingOn/tester`, stderr, exit 0):
+
+```
+ABANDONED IncantForms/WorkingOn/tester -- the parse STOPPED with input left over. A statement
+failed to match, which ends Start's StatemenT+ repetition, so everything from here on was
+NEVER PARSED. The exit status is still 0. It resumes at:
+    =[ \#\	]+;#    BlockCommenT    "/*" EmbeddedCommenT-* commen
+```
+
+⚠ **THE RESUME TEXT NAMES `IndenT`, TWO LINES ABOVE THE OFFENDER.** Reading it as the failing
+line is what sends you at the set definition, which is fine in isolation. Same misdirection
+family as bear-trap #32 and #53 — bisect by REMOVING LATER LINES, never by staring at the
+named one. It is the `reportRunAbandoned` mark item already standing on Tony's list.
+
+**THE BISECT, one variable per run, on a `cp` of the tester patched two lines (bear-trap #43):**
+
+| run | change | result |
+|---|---|---|
+| parent | none | **ABANDONED** at the define |
+| **A** | `"/" "*"^` **and** `"/" "/"^` | **PASSES** — the whole file parses, `skipTester()` fires |
+| **B** | `"/" "/"^` only (LineCommenT) | **PASSES** |
+| **C** | `"/" "*"^` only (BlockCommenT) | **ABANDONED**, unchanged |
+| **D** | `"/" "/"` — no `^` | **PASSES** |
+
+**So the sole blocker is the two-character literal `"//"` in `LineCommenT`.** Run B is the
+minimal fix and run C is the control that proves `"/*"` was never the problem. `"*/"` was left
+alone throughout and never needed changing — the (b) half of the dispatch is answered by not
+having to act on it.
+
+**Reduced further, outside the tester:** `LineCommenT "//" ...` fails **alone**, in a
+three-line define, with `RunRulE: expected a method not LineCommenT`. `"XX"` passes, `"/"`
+passes. It is the adjacency, not the character and not the position.
+
+**Three spellings get past it** — `"/" "/"`, `"/\/"`, `"\/\/"`. **Prefer `"/" "/"^`**: two
+one-character literals are unambiguous about what they match, where an escape inside a literal
+is a second question about how the escape is stored. The `^` is **not needed to parse** (run D)
+and is kept because it is the noSkip that stops the skipper eating between the two slashes —
+**which is a match-time claim and is NOT measured here.**
+
+⚠ **WHAT IS STILL OPEN, and it is the real question: getting past the DEFINITION is not the
+rule WORKING.** Nothing above drives `LineCommenT` against an actual `//`; the tester's
+`skipInput` carries `/* */` and no `//` at all. The next stroke is a fixture that feeds it one.
+
+⚠ **AND THE OUTPUT ON A PASSING RUN IS ITSELF A FINDING TO CHASE LATER, NOT A WIN:**
+
+```
+Did the definnition work?   "what" /* has /* embedded */ comment*/ NotSkipable
+```
+
+The value comes back **whole, comment text included**. That is `(...#)` doing its job and says
+nothing yet about whether `checkSKIP` would have skipped it — the rules are defined in
+`Grokking` but nothing has routed a skip through them.
+
 ## 3. The model — what a matched alternative DOES
 
 Two customers, one loop. The customers differ in which alternatives are armed and what happens
