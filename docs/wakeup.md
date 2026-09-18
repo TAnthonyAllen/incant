@@ -69,12 +69,21 @@
 #   − 8 (`debugAllT`'s rows leaving, two of them green) + 5 (`debugToggleT`) = **424**.
 #
 #   ## ⚠⚠ WAITING ON TONY
-#   **1. ⚠ `~/bin/gz` CANNOT BE SOURCED, AND THE STANDING NOTE THAT "`bs` STILL WORKS" IS
-#   CORRECTED.** Line 18's corruption -- `ruleTest.hitIt(rule)dH() {…}` -- **aborts the whole
-#   file**, so `bs` is never defined: a clean `zsh -c 'source ~/bin/gz; bs'` gives
-#   `command not found: bs`. Tonight's refresh ran the function by evaluating **lines 55-62 of gz
-#   itself**, so it is Tony's code and not a retyping. **Deleting the stray text is one edit and
-#   it is his file.**
+#   **1. ⚠⚠ CORRECTED WITHIN THE HOUR, AND THE CORRECTION IS THE POINT: `bs` WORKS IN TONY'S
+#   SHELL AND NOT IN CLOD'S, AND BOTH ARE TRUE.** This entry first read *"`~/bin/gz` cannot be
+#   sourced and the standing note that bs still works is corrected"* -- **which was a claim about
+#   the wrong shell.** Tony sources `gz` **interactively** when setting up the iTerm tab; zsh
+#   reports line 18's glob failure (`ruleTest.hitIt(rule)dH()`) and **carries on**, so `bs` is
+#   defined and has been all along. A **non-interactive** `source` aborts the file at that line
+#   and it is not -- which is what Clod measured and then over-read into a general claim.
+#   ⚠ **Same family as this file's own dated-measurement warnings:** the reading was real, the
+#   population was one shell, and the sentence named neither.
+#   **`~/bin/bs` NOW EXISTS as a faithful bash conversion** (Tony's word, 2026-09-18), so the
+#   refresh is runnable without sourcing `gz`. ⚠ **It does not disturb Tony's workflow: a zsh
+#   function shadows a PATH script of the same name, so in his shell the function still wins.**
+#   It copies exactly what the original did and prints a one-line summary. **`~/bin` is outside
+#   all three repos, so the script is invisible to every `git status`** -- bear-trap #11's family.
+#   **Deleting gz's stray text is still one edit and still his file.**
 #   **2. `debugToggleT` STANDS unless Tony says otherwise** (Clay). It replaces `debugAllT`,
 #   which retired with **nothing to map**.
 #   **3. `checkinput-state` is pushed and unmerged.** It merges on the buy.
@@ -88,8 +97,10 @@
 #   one run, opposite directions. · `debug ALL <rule with no component list>` prints
 #   `nextGroup: ERROR <tag> does not contain a list` -- the recursive call site guards on
 #   `groupList`, the top-level one in `aCTionDEBUG` does not. · `emitRefT`'s header claims it
-#   prints reference and registry addresses; **it no longer does.** · `bs` copies `incant/*` but
-#   **not** `incant/pop/*`, so the fleet fixtures are outside BeforeSave's cover.
+#   prints reference and registry addresses; **it no longer does.** · **`bs` copies `incant/*`
+#   but NOT `incant/pop/*`** -- they are directories and the original skipped them -- **so every
+#   fleet fixture is outside BeforeSave's cover.** Carried into `~/bin/bs` unchanged and stated
+#   in its header, because that is the original's behaviour and not Clod's to alter.
 #
 #   ## TOMORROW, IN ORDER (Clay)
 #   1. **F-89 re-read on `1bce778`+** -- every `arm=NONE` reading in it is downstream of F-90.
