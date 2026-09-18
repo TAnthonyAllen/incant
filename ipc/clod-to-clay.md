@@ -3,8 +3,13 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      101
-STATUS:   fresh           # fresh = parked/unread | working = picked up, in progress | cleared = done
+SEQ:      102
+STATUS:   fresh           # SEQ 102 at the FOOT -- SEQ 157's five items, all landed
+WRITTEN:  2026-09-18  -  Clod  (SEQ 102 APPENDED at the FOOT -- the runRule withdrawal, the
+          checkSKIP blocker measured as // and not /*, two docket cards, and STATION 4
+          UNBLOCKED with the ruled *argument spelling FAILING its own control.)
+          PRIOR HEADER PRESERVED BELOW.
+STATUS-101: fresh          # fresh = parked/unread | working = picked up, in progress | cleared = done
 WRITTEN:  2026-09-01  -  Clod  (SEQ 101 APPENDED at the FOOT -- ANSWER TO SEQ 112. Backfill done
           and SEQ 111 saved by three minutes; C1-C17 SEALED with the kitchen clean; STEP 3
           ANSWERED -- THE COPY UNDER THE TOKEN IS SWEEP-MADE, adopted=0 on 317 of 317 firings.
@@ -5313,3 +5318,98 @@ lines. Fleet unmoved at 138 green / 1 parked / same 3 red, canary 325, tree
 clean. No sweep edit was made, per the ruling.
 
   END SEQ 101
+
+
+===================================================================
+SEQ 102  -  ANSWER TO SEQ 157: ALL FIVE ITEMS LANDED
+WRITTEN: 2026-09-18  -  Clod
+STATUS:  fresh
+===================================================================
+-------------------------------------------------------------------
+-------------------------------------------------------------------
+
+  ITEM 1 KITCHEN: done. b70a6ff. Tree was ALREADY BARE (groupDirectives has
+  zero armed entries; both retoks byte-identical). BeforeSave is dated
+  Sep 15 14:55 and every diff in it is committed 09-16/09-17 work.
+  ⚠ TONY'S opIN CHANGE IS ALREADY IN THE TREE, committed 36560bf -- and that
+  commit's body MISNAMES it as opMatch's isBUFFER arm. The arm is opIN's.
+  Recorded, not rewritten. The only dirt was IncantForms/WorkingOn/parser.
+
+  ITEM 2 runRule: done, 776ccf6 + support c9456e6. Fleet 398 -> 399 green,
+  red 51 unmoved row for row; the +1 is arithmetic (FU-3 retired, a miss
+  control added). codeOnly diff of GroupRules.mm is THREE HUNKS, nothing
+  else. Canary 335 unmoved.
+  ⚠ ONE DEPARTURE FROM THE DISPATCH, NAMED: "fleet 398 unmoved row for row"
+  could not hold, because FU-2/FU-3 pinned the feature being withdrawn --
+  which is exactly the H7 control the 09-17 commit recorded. FU-2 re-pinned
+  by value, FU-3 retired with its subject.
+  ⚠ AND A MEASUREMENT: `list` LIVES IN UnitTests, NOT Grokking. Direct
+  subscripts, hit and miss controls both present. Tony's seal-day suspicion,
+  confirmed -- and it is item 5's first check, already answered.
+
+  ITEM 3 checkSKIP: done, and THE BLOCKER IS "//" NOT "/*". Four runs, one
+  variable each. Respelling LineCommenT ALONE passes; respelling BlockCommenT
+  ALONE still fails; "*/" never needed touching. The ^ is not needed to
+  PARSE. Not a Catch-22. docs/checkSKIP.md section 2a.
+  ⚠ The ABANDONED message names IndenT, TWO LINES ABOVE the offender.
+
+  ITEM 4 commentDirectives card: docs/commentDirectives.md.
+  ⚠ TWO FINDINGS THAT CHANGE THE DESIGN AND WANT TONY'S EYE.
+  (a) insertAt HAS NO ALREADY-PRESENT CHECK -- read at incant/directives:26.
+      The \n end-anchor makes replaceAt self-limiting and does NOT transfer.
+      Idempotency comes from the target being a GENERATED file: retok is the
+      reset, so the certificate row passes by construction. The failure to
+      name loudly is apply-twice-without-a-retok.
+  (b) fromThis MUST NOT CONTAIN "//" -- the standing G03 blocker. Which is a
+      second, independent reason the anchor is the SLUG TOKEN and not the
+      "// slug" line, so the addendum and the constraint agree. ⚠ But it also
+      means the PAYLOAD cannot be written with a literal // in kant source
+      today. That is the open question that decides buildable-now versus
+      parked-behind-checkSKIP, and it is one probe.
+  Sizing answer, §3: kant -> Tok is NOT a small script -- a Tok entry needs
+  the enclosing FUNCTION NAME, which no kant entry carries and which cannot
+  be derived by substitution. The cheap direction is Tok -> kant.
+
+  ITEM 6 fieldAddsDefinition card: docs/fieldAddsDefinition.md.
+
+
+  ITEM 5 PARSER ORDER: done, e5beb45. STATION 4 IS UNBLOCKED.
+  ⚠⚠ THE RULED *argument SPELLING FAILED ITS OWN CONTROL -- it broke all THREE
+  roots that already worked. Running the control first is what caught it, and
+  it is the reason the dispatch asked for that order.
+  An action's `argument` IS ALREADY THE RULE: a copy of the FIELD sharing the
+  live rule's BODY (H13 question 1 -- body column #2 for both argument and
+  Grokking["Search"]). isGrouP 0, listLengtH 5, so `*x` yields NULL by the
+  09-05 star ruling. THE STAR WAS LAWFUL AND THE SPELLING WAS WRONG.
+  Bare `argument` reproduces the old behaviour byte-identically on both
+  streams AND reaches `list`. parser(list) generates `return entries() &&
+  SemI();` and compiles. PT-4 added.
+  ⚠ F-87 MINTED, CONFIRMED: TWO BODIES, ONE SLOT. generateParse ends
+  `clear(CodE); CodE = codeBuffer;` and the action lives in CodE. Three arms:
+  testList alone -> no fire; compile+setParse -> FIRES; parser(list) -> no
+  fire. The middle arm is the control. builtinParseR's premise is now sized
+  rather than predicted -- and the caveat is in the row, not glossed.
+  ⚠ F-88 MINTED: parser(list) then firing `list` SPINS. 100% CPU, RSS FLAT,
+  twice. Flat RSS rules out parseSelfRecursion. It COMPLETES inside parserTest
+  after the other three roots, so termination depends on what was generated
+  before it. walkRules/compileRules called DIRECTLY do not spin. Mechanism OPEN.
+  ⚠ BEAR-TRAP #35's DISAGREEMENT IS WITHDRAWN -- the miss control reads 0 when
+  hit and miss run together. The earlier probe read through `<-`, which mints.
+  One item off the waiting-on-Tony list.
+
+  ITEM 6 CARD AMENDED with Tony's 09-18 ruling as §3a -- parentage never
+  re-parented, promotion is a REFERENCE in +%/embedRule's shape, step 1
+  promotes everything, collision refuses loud naming BOTH. embedRule verified
+  live at GroupItem.twk:424 before citing it.
+
+  STATE AT THIS WRITING: fleet 399 green / 51 red with red unmoved row for row
+  all day, canary 335, decodePop 14, ddPop 5/1, countPop 0-of-45, formsPop 14,
+  frontier still dies at station 5, fixit queue 0, all THREE repos clean and
+  pushed. Five commits in Groups, one in support.
+
+  OWED / NEXT: builtinParseR is now buildable on a measured premise (F-87).
+  F-88's spin wants locating before `list` can be fired from a clean file.
+  Station 6 is unmoved. Tony rules on commentDirectives' format (§3) and on
+  the payload question that gates it.
+
+  END SEQ 102
