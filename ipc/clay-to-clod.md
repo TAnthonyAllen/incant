@@ -17,8 +17,12 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      158
-STATUS:   cleared        # SEQ 158 all five items landed; sealed 2026-09-18
+SEQ:      159
+STATUS:   cleared        # SEQ 159: recon reported, try-and-buy NO BUY, resealed 2026-09-18
+WRITTEN:  2026-09-18  -  Clay (SEQ 159, dictated via Tony; transcribed by Clod)
+          ⚠ SEQ 159 IS LIVE AND IS AT THE FOOT -- frontier revision, the checkInput recon,
+          then the try-and-buy. Branch checkinput-state is pushed and UNMERGED.
+STATUS-158: cleared      # SEQ 158 all five items landed; sealed 2026-09-18
 WRITTEN:  2026-09-18  -  Clay (SEQ 158, dictated via Tony; transcribed by Clod)
           ⚠ SEQ 158 IS LIVE AND IS AT THE FOOT -- builtinParseR, F-88 after not before,
           the checkSKIP respell, the comment-store probe, then station 6.
@@ -7963,3 +7967,40 @@ STATUS:  cleared
   it touches anything outside BeforeSave, stop and report rather than run.
   ⚠ CLARIFIED BY TONY: `gz` sets up a number of zsh functions; the one that
   resets BeforeSave is `bs`. Run `bs`, not `gz`.
+
+
+===================================================================
+SEQ 159  -  STATION 6: RECON, THEN TRY-AND-BUY
+WRITTEN: 2026-09-18  -  Clay, dictated via Tony; transcribed by Clod
+STATUS:  cleared
+===================================================================
+
+  Station 6 opens with a recon, then a try-and-buy. Tony's provisional ruling
+  under test: checkInput discriminates on state, not road -- "is there an
+  activation with a bound label to write into" decides, and neither road is ever
+  asked.
+
+  1. RECON, READ-ONLY, ONE REPORT. For every checkInput caller on both roads, the
+  state at entry: rule shape (members-rule / coded / bin), enclosing activation
+  present, label bound, and what checkInput writes today. The question the table
+  answers: is there any cell where the two roads arrive in the same state and
+  want different answers. If there is, name it and stop -- the ruling is
+  falsified before the build and a split is the honest shape. If there is none,
+  item 2.
+
+  2. TRY-AND-BUY, one commit, cut from trunk. checkInput writes matched data into
+  the bound label when one exists; 0 when none, as a lawful answer, not a
+  refusal; no read of hasNewParse or any road flag anywhere in it. Re-enable
+  setParse installing parseMethod from builtinParseR -- that's the switch, and it
+  rides this stroke. Sequence ruled as parse first, action on the filled label.
+  Certificate: list under new parse fires its action with entries populated --
+  for sumGrup in entries runs and prints. Search/DO/ANYorNum unmoved. Old-road
+  fleet unmoved row for row. H7 control: restoring the road-blind zero takes
+  list's row red and nothing else. No buy: back out to clean, report the cell
+  that broke, and the split is the next stroke.
+
+  3. FRONTIER REVISION RIDES FIRST, ahead of the recon -- twin road to carrier
+  road, so station 5/6 have a station to land on.
+
+  4. DOCTRINE TO CLAUDE.md, Tony signs: run the control first. No further
+  doctrine until the buy.

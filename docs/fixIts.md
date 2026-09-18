@@ -273,6 +273,89 @@ hostage. PT-4 generates and stops there.
 **Done when:** the spin is located. **Grade:** CONFIRMED and reproduced; mechanism OPEN.
 **Owner:** unassigned.
 
+### F-89 — ⚠⚠ HEADLINE WITHDRAWN 2026-09-19. NO EMITTED TERM CALL REACHES A RULE AT ALL
+**THE OPTIONAL TERM IS A CORRELATE AND NOT THE CAUSE, and the correction is rule H15's own
+second half biting the person who wrote it down the day before: A CONTROL IS ALSO ONE VARIABLE
+AT A TIME.** The first A/B varied the optional modifier **and the number of terms** at once.
+
+**THE ONE-VARIABLE RUN, three rules, one fire each:**
+
+| shape | chain result |
+|---|---|
+| two terms, tail **optional** (`tA=ANYstring+ SemI?-`) | `result=false` |
+| two terms, tail **mandatory** (`tB=ANYstring+ SemI-`) | **`result=false` — IDENTICAL** |
+| one term (`tC=ANYstring+`) | `result=return` |
+
+**The modifier makes no difference whatever.** The discriminator is whether the body contains an
+`&&` at all.
+
+**WHAT IS ACTUALLY WRONG, measured at the seat with `measureRuleDispatch`:**
+
+```
+RULEDISPATCH tbeA at=0x1012dce80 ... isRule=0 ... arm=NONE
+RULEDISPATCH tbeB at=0x1012e12c0 ... isRule=0 ... arm=NONE
+```
+
+**Every emitted term call resolves to a freshly minted ACTION LOCAL — `isRule=0`, no arm — so
+it reaches no rule at all.** With two terms the `&&` reports the falsity; with one the body
+returns the local and the run reads `result=return`. Both are the same defect wearing different
+report lines.
+
+⚠ **AND IT SHARPENS THE 2026-09-09 FRAME RATHER THAN CONTRADICTING IT.** That finding said *the
+call carries the tag, so the reference's rStuff never reaches the generated body*. True, and the
+consequence is worse than a lost modifier: **the tag does not reach the reference OR the registry
+rule.** It is resolved inside the action's own scope, where an unknown name is minted as a local.
+
+**THE EMIT-TIME SHAPE, read at its sites:**
+`generateParse`'s term loop prints `$taG "()"` — **the tag and nothing else**. A term's modifiers
+are written by `modify` (`GroupActions.rtn:493`) into the **reference's `rStuff`**:
+`?` → `min = 0`; `*` → `min = 0, max = maxLimit, maxRepeat = repeatLimit`; `+` → `max`,
+`maxRepeat`; `-` → `noLabel`; and the rest likewise — **every modifier is an rStuff write, one
+mechanism already**. The reference node itself is a **copy sharing the registry rule's body**
+(`addrOf` reads field #1 / body #2 for the reference and field #3 / **body #2** for the registry
+rule), and `rStuff` is per-node, so the modifiers are exactly the part that does **not** cross.
+
+⚠ **WHICH DECIDES BETWEEN THE TWO CANDIDATE SHAPES BEFORE EITHER IS BUILT.** *Emit the modifier
+as an argument the call site honours* does **not** fix this — the call would still reach a local
+and there would be nothing to honour it. *Name the term by position in the rule's own member
+list*, so `argument[n]` reaches the copy **with its rStuff**, addresses the actual defect and
+carries every modifier for free, because they are all already rStuff writes. **One mechanism,
+and `?` is a row rather than a shape.**
+
+**Grade:** CONFIRMED — arm=NONE read at the seat, and the modifier ruled out by a one-variable
+control. **Blocks:** frontier station 6, F-83's acceptance line, the merge of `checkinput-state`.
+**Owner:** unassigned.
+
+---
+
+#### F-89's original text, kept as the reasoning trail — the attribution below is WITHDRAWN
+**The cell that stopped SEQ 159's try-and-buy. Found by one-variable control, 2026-09-18.**
+
+A rule's generated parse body is `return <term>() && <term>();`. When one of those terms was
+declared **optional**, the chain answers **false** and nothing is matched — so the rule's body
+runs over an empty label and `for sumGrup in entries` dies. Two rules, one run, one variable:
+
+| rule | chain result |
+|---|---|
+| `tbOpt tbeA=ANYstring+ SemI?-` | **`result=false`** |
+| `tbReq tbeB=ANYstring+` — no optional tail | `result=return` — **not false** |
+
+**The rule without an optional tail does not fail the chain.** That is the whole of the
+measurement and it names the term with confidence.
+
+⚠ **IT CONFIRMS A CANDIDATE THAT HAD BEEN STANDING UNRUN SINCE 2026-09-09** — `incant/frontier`'s
+retired prose carried *"the emitter drops the `?` modifier"*, recorded from `incant/trigRecur`
+reading `chainTrue=0` on every arm. **Nobody had driven it.** An optional term emitted as a
+mandatory call makes a miss fatal to the whole chain.
+
+⚠ **GRADE: the A/B names the TERM. The MECHANISM is still the 09-09 candidate** — bear-trap
+#18's split, reproduction proves the symptom and never the cause. What has NOT been read is the
+emitter's own handling of `Modifier`, and the obvious next step is to read it before building.
+
+**Blocks:** frontier station 6, F-83's acceptance line, and the whole of SEQ 159 item 2.
+**Where the work sits:** branch `checkinput-state`, commit `acd2d35`, **not merged**.
+**Grade:** CONFIRMED for the cell. **Owner:** unassigned.
+
 ### F-86 — KANT-40 in anger: a `}` inside a comment in a `code={ }` body ends the body
 **Reproduced 2026-09-17 with a three-arm A/B**, in `IncantForms/WorkingOn/parser` — which is
 checkSKIP's own subject, so the trap fired in the file written to retire it.
@@ -402,10 +485,25 @@ bodies, one executor.** A rule with an action needs its PARSE body run to fill t
 its ACTION body run with that label bound — in that order, in one activation. `parseRule` runs
 exactly one BlocK today.
 
+⚠⚠ **RULING 1 IS ANSWERED BY MEASUREMENT, 2026-09-18: YES, AND IT IS A SMALL BUILD.** A host
+node carrying a `CodE`-tagged child and `isCodeD` compiles in kant with verbs that already
+exist — `l1Host +% <CodE copy>; l1Host :. isCodeD; compile(l1Host)` prints *compile succeeded*
+and grows a `BlocK`. Probed before anything was built. The build is on branch
+`checkinput-state` and **moves the frontier from station 5 to station 6**.
+⚠ One spelling trap paid for on the way: `builtinParseR = 0` gives the carrier the INTEGER 0,
+and `if x;` on a node holding 0 reads **false** — so the carrier's existence test went dark on
+a carrier that was there. Leave it data-less and let `+%` mint it.
+
+⚠⚠ **RULING 2 IS RULED — TONY, 2026-09-19.** Generation is **explicit** via `parser(rule)`;
+`setParse` installs `parseMethod` **from `builtinParseR` on a coded rule, from `CodE` otherwise**,
+and **that install is the switch**; **parse first, action on the filled label**. As built on
+branch `checkinput-state`, commit `acd2d35`. **The branch merges on the buy** — it does not merge
+on the ruling.
+
 **WHAT TONY IS OWED A RULING ON, and the three are separable:**
-1. **Does the carrier get compiled** — i.e. is `builtinParseR` a CodE-shaped node with its own
+1. ~~**Does the carrier get compiled**~~ — **ANSWERED ABOVE.** Originally: — i.e. is `builtinParseR` a CodE-shaped node with its own
    `BlocK`, or does the parse text get compiled into something else?
-2. **Who runs both bodies, and in which order** — `parseRule` gaining a second fire, or a new
+2. ~~**Who runs both bodies, and in which order**~~ — **RULED, see above.** Originally: — `parseRule` gaining a second fire, or a new
    executor, or the carrier's body ending by calling the action.
 3. **Which label the terms attach into** — `checkInput`'s `label = 0` for a members-rule is
    deliberate on the tok road, so the new road either changes that condition or supplies its own

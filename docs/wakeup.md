@@ -1,3 +1,95 @@
+# ⚠⚠⚠ RESEALED 2026-09-18, SAME DAY, AFTER SEQ 159 -- THE FRONTIER MOVES TO THE CARRIER
+# ROAD, THE checkInput RULING SURVIVES ITS RECON, AND THE TRY-AND-BUY DOES NOT BUY.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-18 11:53 and `git log -1 --date=iso` 11:53. They agree.
+#
+#   ⚠⚠ THIS IS THE SECOND SEAL OF 2026-09-18 AND IT DOES NOT REPLACE THE FIRST. The session
+#   sealed at 11:18 after SEQ 158; SEQ 159 arrived after it. Read both -- the entry below this
+#   one is still current for everything it says.
+#
+#   ## THE ONE-LINE STATE: **fleet 412 green / 51 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed, BeforeSave reset.** Trunk is UNCHANGED in behaviour since the first
+#   seal; three commits, all registers and instruments.
+#
+#   ⚠ **AND ONE BRANCH EXISTS AND IS NOT MERGED: `checkinput-state`, commit `acd2d35`.** It is
+#   the try-and-buy. It is pushed so it is auditable and it must not be merged until F-89 is
+#   closed. **Trunk was rebuilt at its own source truth afterwards and re-measured at 412/51.**
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE FRONTIER IS THE CARRIER ROAD NOW, six stations, and it dies at station 5.** The
+#   nine-station twin ladder was not failing, it was **asking a retired question** -- it died at
+#   "compile the twin" and nobody is asking that. The new subject is a rule the file OWNS,
+#   `frRule`, which **could not have been the subject before this morning** because `parser`
+#   resolved its root out of Grokking.
+#
+#   **b. THE checkInput RECON FOUND NO CONFLICTING CELL. The ruling stands; a split is NOT the
+#   honest shape.** Eight callers, one function, and it reads only the rule's own state. **The
+#   two roads have DIFFERENT ATTACH SEAMS** -- old road `attachLabel` takes the parent label as
+#   a PASSED ARGUMENT, new road `exitFromParse` reads `parentStuff.label` -- and checkInput is
+#   upstream of both. Only ONE clause ever read a road flag, and the ruling **retires** it
+#   rather than generalising it: it tested for an ACTIVATION and OVERWROTE the parent's label
+#   slot; the ruling tests for a BOUND LABEL and writes INTO it.
+#
+#   **c. THE ROAD-BLIND checkInput MOVED NOTHING. 412/51 unmoved row for row.** The recon named
+#   this as the one un-covered risk and predicted it would hold, structurally, because
+#   `attachLabel` never reads `rStuff.label`. **The prediction was graded and it held.**
+#
+#   **d. THREE OF FOUR LINKS LAND. The certificate does not.** Carrier runnable (frontier 5
+#   green), parse-then-action (BLOCKRESULT 2 -> 3), label bound before the parse. The fourth --
+#   the terms actually matching -- fails, so station 6 stays red and there is **no buy**.
+#
+#   **e. ⚠⚠ F-89 IS THE CELL: THE GENERATED CHAIN ANSWERS FALSE WHEN THE RULE HAS AN OPTIONAL
+#   TERM.** One variable, two rules, one run: `tbeA=ANYstring+ SemI?-` gives `result=false`;
+#   `tbeB=ANYstring+` with no optional tail gives `result=return`. **It confirms a candidate
+#   that had stood UNRUN since 2026-09-09** -- the frontier's own retired prose said *"the
+#   emitter drops the `?` modifier"* off `trigRecur`, and nobody had driven it.
+#   ⚠ The A/B names the TERM; the MECHANISM is still that candidate. The emitter's `Modifier`
+#   handling has **not been read**, and reading it comes before building.
+#
+#   **f. F-83 RULING 1 IS ANSWERED BY MEASUREMENT: the carrier CAN be a CodE-shaped node with
+#   its own BlocK, and it is a small build.** Probed before anything was built. Rulings 2 and 3
+#   stand open.
+#
+#   **g. RULE H15 IS IN CLAUDE.md, Tony's signature: RUN THE CONTROL FIRST.** H7's sibling one
+#   step earlier in time -- H7 proves a green means something, H15 proves a RED means what you
+#   think. Both of the day's instances are in the entry, and so is the half people under-read:
+#   **a control is also ONE VARIABLE AT A TIME.**
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **412 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · **frontier dies at station 5, on the NEW six-station carrier ladder** ·
+#   canary **335** · alphaLint 10 out of order (pre-existing) · **Groups 0/0, support 0/0,
+#   TOK 0/0, BeforeSave reset.**
+#
+#   ## ⚠⚠ WAITING ON TONY
+#   **1. F-89 — the optional term.** It blocks station 6, F-83's acceptance line, and the merge
+#   of `checkinput-state`. Read the emitter's `Modifier` handling before building.
+#   **2. F-83 rulings 2 and 3** — who runs both bodies in which order (link 2 has a WORKING
+#   implementation on the branch now, so this is a ratification rather than a design), and which
+#   label the terms attach into.
+#   **3. `checkinput-state` is pushed and unmerged.** It is a decision, not a leftover.
+#   **4. `~/bin/gz` line 18 is corrupted** — `ruleTest.hitIt(rule)dH() {…}` — so sourcing it
+#   errors there and `bs` is never defined. Still standing from the first seal.
+#   **5. A DRIFT WORTH KNOWING ABOUT:** `RuleStuff.mm` carried three comment lines its `.twk`
+#   did not, so any retok silently deleted them. Restored into the `.twk` **on the branch only**
+#   — trunk still has the drift. And the same retok rewrites ~100 banner lines by one `*`,
+#   which `codeOnly.py` says is inert at 904 code lines both sides.
+#
+#   ## TOMORROW, IN ORDER
+#   1. F-89 — read the emitter's Modifier handling, then fix, then re-drive the branch.
+#   2. Merge `checkinput-state` if and only if station 6 goes green.
+#   3. Station 6 proper.
+#
+#   ## DOCTRINE EARNED TODAY (second seal)
+#   An instrument pointing at a retired question reads as a frontier and is not one · a recon
+#   that finds no conflict can still find that the STROKE'S SCOPE is wrong, and saying so is the
+#   recon working · probe the spelling before building on it.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
 # ⚠⚠⚠ SEALED 2026-09-18, TWENTY-THIRD SESSION -- STATION 4 IS UNBLOCKED, F-85/F-87/F-88 ALL
 # CLOSED, AND TWO RULED SPELLINGS TURNED OUT TO BE WRONG. THE DAY'S DOCTRINE IS THE CONTROL.
 #

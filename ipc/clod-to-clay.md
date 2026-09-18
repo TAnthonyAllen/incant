@@ -3,8 +3,13 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      103
-STATUS:   fresh           # SEQ 103 at the FOOT -- SEQ 158's five items, all landed
+SEQ:      104
+STATUS:   fresh           # SEQ 104 at the FOOT -- SEQ 159: recon clean, try-and-buy NO BUY
+WRITTEN:  2026-09-18  -  Clod  (SEQ 104 APPENDED at the FOOT -- the recon found NO conflicting
+          cell so the ruling stands, and the try-and-buy landed THREE of four links before
+          breaking on an OPTIONAL TERM. Branch checkinput-state pushed, NOT merged.)
+          PRIOR HEADER PRESERVED BELOW.
+STATUS-103: fresh         # SEQ 103 at the FOOT -- SEQ 158's five items, all landed
 WRITTEN:  2026-09-18  -  Clod  (SEQ 103 APPENDED at the FOOT -- station 4 UNBLOCKED, F-85/F-87/
           F-88 all CLOSED, the comment-store probe PASSED, and station 6 measured at three
           broken links. ⚠ TWO RULED SPELLINGS WERE WRONG AND BOTH RULINGS WERE RIGHT.)
@@ -5500,3 +5505,69 @@ STATUS:  fresh
   the comment store proper once the format is ruled.
 
   END SEQ 103
+
+
+===================================================================
+SEQ 104  -  ANSWER TO SEQ 159: RECON CLEAN, TRY-AND-BUY NO BUY
+WRITTEN: 2026-09-18  -  Clod
+STATUS:  fresh
+===================================================================
+
+  ITEM 3 FRONTIER (rode first): revised in place, 763747e. The twin ladder was
+  NOT FAILING, it was ASKING A RETIRED QUESTION. Six stations on the carrier
+  road, subject is a rule the file OWNS -- which only became possible this
+  morning, when parser stopped resolving its root out of Grokking. Dies at
+  station 5 and station 6 is behind it.
+
+  ITEM 1 RECON: 2cb2e81, docs/checkInputRecon.md. NO CONFLICTING CELL. The
+  ruling stands and a split is NOT the honest shape.
+  Eight callers, one function, reads only the rule's own state.
+  ⚠ THE TWO ROADS HAVE DIFFERENT ATTACH SEAMS and that is what the question
+  turns on: old road attachLabel takes the parent label as a PASSED ARGUMENT,
+  new road exitFromParse reads parentStuff.label. checkInput is upstream of both.
+  ⚠ ONLY ONE CLAUSE EVER READ A ROAD FLAG, and the ruling RETIRES it rather than
+  generalising it -- it tested for an ACTIVATION and OVERWROTE the parent's label
+  slot; the ruling tests for a BOUND LABEL and writes INTO it. Different test,
+  different operation, different direction.
+  ⚠ AND THE SCOPE FINDING, which is not a falsification: the certificate is not
+  reachable from checkInput. It needs THREE links and checkInput is the third.
+
+  ITEM 2 TRY-AND-BUY: NO BUY. Branch checkinput-state, acd2d35, pushed, NOT
+  merged. Trunk rebuilt at its own source truth afterwards and re-measured.
+  THREE OF FOUR LINKS LAND:
+    link 1  the carrier is RUNNABLE -- a host with a CodE child and isCodeD,
+            compiled. PROBED BEFORE BUILDING. Frontier 5 -> 6 on this alone.
+    link 2  parse first, action on the label, as ruled. BLOCKRESULT 2 -> 3.
+    link 3  ruleStuff.label = myLabel before both fires. Code landed, not yet
+            observable.
+    checkInput ROAD-BLIND -- the hasNewParse arm and its refusal are gone.
+  ⚠⚠ AND THE OLD-ROAD FLEET IS UNMOVED ROW FOR ROW, 412/51. The recon named this
+  as the ONE un-covered risk and PREDICTED it would hold, structurally, because
+  attachLabel never reads rStuff.label. Graded, and it held.
+
+  ⚠⚠ THE CELL THAT BROKE -- F-89, and it is an OPTIONAL TERM. One variable:
+    tbOpt  tbeA=ANYstring+ SemI?-   result=FALSE
+    tbReq  tbeB=ANYstring+          result=return  (not false)
+  It CONFIRMS A CANDIDATE THAT HAD STOOD UNRUN SINCE 2026-09-09 -- the frontier's
+  own retired prose said "the emitter drops the ? modifier", off trigRecur, and
+  nobody had ever driven it. The A/B names the TERM; the MECHANISM is still that
+  candidate and the emitter's Modifier handling has NOT been read.
+
+  ITEM 4 DOCTRINE: rule H15 in CLAUDE.md -- RUN THE CONTROL FIRST, with both of
+  the day's instances and the half people under-read: a control is also ONE
+  VARIABLE AT A TIME.
+
+  F-83 RULING 1 ANSWERED BY MEASUREMENT: yes, the carrier can be a CodE-shaped
+  node with its own BlocK, and it is a small build. Rulings 2 and 3 stand -- and
+  ruling 2 now has a WORKING implementation on the branch, so it is a
+  ratification rather than a design.
+
+  ⚠ A DRIFT FOUND ON THE WAY: RuleStuff.mm carried three comment lines its .twk
+  did not, so any retok silently deleted them. Restored ON THE BRANCH ONLY --
+  trunk still has the drift. The same retok rewrites ~100 banner lines by one
+  asterisk; codeOnly.py says inert at 904 code lines both sides.
+
+  OWED / NEXT: F-89 blocks station 6, F-83's acceptance line, and the merge.
+  Read the emitter's Modifier handling before building.
+
+  END SEQ 104
