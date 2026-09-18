@@ -17,8 +17,13 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      159
-STATUS:   cleared        # SEQ 159: recon reported, try-and-buy NO BUY, resealed 2026-09-18
+SEQ:      161
+STATUS:   cleared        # SEQ 160 and 161 landed as far as their gates allow; sealed 2026-09-18
+WRITTEN:  2026-09-18  -  Clay (SEQ 160 and 161, dictated via Tony; transcribed by Clod)
+          ⚠ BOTH ARRIVED HEADED 2026-09-19 AND THE HEADER WAS WRONG -- corrected by Clay,
+          rulings re-dated to 09-18 in c1ac6de.
+          ⚠ SEQ 161 IS LIVE AND IS AT THE FOOT. Item 3 is GATED on Tony's gate verdict.
+STATUS-159: cleared      # SEQ 159: recon reported, try-and-buy NO BUY, resealed 2026-09-18
 WRITTEN:  2026-09-18  -  Clay (SEQ 159, dictated via Tony; transcribed by Clod)
           ⚠ SEQ 159 IS LIVE AND IS AT THE FOOT -- frontier revision, the checkInput recon,
           then the try-and-buy. Branch checkinput-state is pushed and UNMERGED.
@@ -8004,3 +8009,86 @@ STATUS:  cleared
 
   4. DOCTRINE TO CLAUDE.md, Tony signs: run the control first. No further
   doctrine until the buy.
+
+
+===================================================================
+SEQ 160  -  F-89 READ BEFORE BUILDING; RULING 2; THE COMMENT STORE
+WRITTEN: 2026-09-18  -  Clay, dictated via Tony; transcribed by Clod
+STATUS:  cleared
+===================================================================
+
+  checkinput-state stays unmerged; nothing on it changes until F-89 is fixed and
+  the buy re-runs. Ruling 1 closed by your measurement; ruling 2 awaits Tony's
+  word.
+
+  RULED, F-83 ruling 2: generation is explicit via parser(rule); setParse
+  installs parseMethod from builtinParseR on a coded rule, from CodE otherwise,
+  and that install is the switch; parse first, action on the filled label. As
+  built on checkinput-state. F-83's row reads RULED with the branch commit; the
+  branch merges on the buy.
+
+  F-89, read before building. The emitter's Modifier handling: what a term's
+  min/max/flags are at emit time, and what the emitted call carries. Report the
+  shape in one paragraph before proposing a fix. The 09-09 finding is the frame
+  -- the call carries the tag, so the reference's rStuff never reaches the
+  generated body -- and the fix has to carry the reference, not add a ? special
+  case. Two candidate shapes to size, not build: the emitted call names the term
+  by position in the rule's own member list (so argument[n] reaches the copy with
+  its rStuff), or the emitter emits the modifier as an argument the call site
+  honours. Either way, one mechanism for every modifier, ? as the first row.
+
+  Fix, one commit on the branch, certified on the A/B you already have -- tbeA
+  reads return -- plus one row each for * and + so the mechanism is shown
+  general, not ?-shaped. Old road unmoved.
+
+  Re-run the buy. Same certificate as yesterday. Buy -> merge, seal. No buy ->
+  report the next cell, stay on the branch.
+
+  RuleStuff.mm's three comment lines go into the comment store as its first
+  entries, anchored on their methods' // slug lines (mint the slugs if absent).
+  Revert the branch's .twk restoration; the trunk drift is resolved by the next
+  retok and needs no action.
+
+  debug ALL step one waits behind item 3.
+
+
+===================================================================
+SEQ 161  -  RE-ORIENTATION, THE CONTROL, THEN THE FIX
+WRITTEN: 2026-09-18  -  Clay, dictated via Tony; transcribed by Clod
+STATUS:  cleared -- items 1 and 2 reported; item 3 GATED on Tony
+===================================================================
+
+  The previous dispatch's 09-19 header was wrong; re-date F-83 ruling 2 and H15
+  to 2026-09-18 in the same commit as item 2.
+
+  checkinput-state stays unmerged. Items 2 and 3 are gated on item 1's report;
+  nothing builds before it.
+
+  1. Re-orientation, one line each. On checkinput-state, which line installs
+  parseMethod from the carrier, and does it read builtinParseR by name or by
+  shape (a coded-rule-shaped node through the existing CodE path)? On trunk,
+  confirm builtinParseR is write-only.
+
+  2. Control, before any fix. Four rows, one run each: RULEDISPATCH on the
+  emitted terms of Search -- trunk bare, then branch -- and the same for list.
+  Report isRule and at= per term. In the same run, after parser(list): gMethod
+  and parseMethod on list's own term references, so setParse's writes are read
+  rather than assumed. Tony's question is parked on this result: if Search reads
+  isRule=1 on both, the by-name emitter never reached a rule defined outside
+  Grokking and nothing regressed; if Search reads isRule=0 on either, item 2
+  waits and the next stroke is the bisect to the commit that changed it.
+
+  3. The fix, gated on item 1. Emitted term calls name the term by position so
+  argument[n] reaches the reference copy with its own rStuff; ? is a row, not a
+  shape. Certificate as you restated it.
+
+  4. Re-run the buy, unchanged.
+
+  debug ALL step one waits behind item 3.
+
+  ADDENDUM, session boundary (Tony + Clay, same day): after debug ALL step two
+  lands, or after item 3's report if Tony holds the OK, SEAL -- fleet, canary,
+  three repos clean and pushed, bs run, branch state named. The wakeup's
+  "tomorrow in order" reads: whatever item 1 parked, then station 6 by the buy's
+  verdict, then the docket. Nothing new opened after the seal. We pick up from
+  that seal later today.

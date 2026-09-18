@@ -1,3 +1,93 @@
+# ⚠⚠⚠ SEALED 2026-09-18, THIRD SEAL OF THE DAY, AFTER SEQ 160 AND 161 -- THE PAUSE POINT.
+# F-89's HEADLINE IS WITHDRAWN BY ITS OWN AUTHOR, AND NO GENERATED BODY HAS EVER RUN ON TRUNK.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-18 13:03 and `git log -1 --date=iso` 13:03. They agree.
+#   ⚠ TWO DISPATCHES ARRIVED HEADED 2026-09-19 AND THE HEADER WAS WRONG; Clay corrected it and
+#   the rulings are re-dated to 09-18 in `c1ac6de`. **Everything in this file is one day.**
+#
+#   ⚠⚠ THIS IS A DELIBERATE PAUSE POINT, agreed with Tony: we resume later today from THIS
+#   seal and a clean kitchen. Nothing new was opened after it.
+#
+#   ## THE ONE-LINE STATE: **fleet 412 green / 51 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed, BeforeSave reset.** Trunk unchanged in behaviour all day; the
+#   branch `checkinput-state` is pushed and **UNMERGED**, and merges only on the buy.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. ⚠⚠ NO GENERATED BODY HAS EVER RUN ON TRUNK, AND THAT IS THE DAY'S FINDING.**
+#   `incant/pop/emitRefT`, two roots, one run per road. **`Search` reads IDENTICALLY on trunk and
+#   branch: no term dispatch at all** — not `isRule=1`, not `isRule=0`. `list` on the branch is
+#   the **first and only** place an emitted term call has ever been made.
+#   **Why:** `setParse` installed NOTHING, either root, any term, either road — `PC none` across
+#   the board. `parser` runs `walkRules` before `compileRules`, `generateParse` raises
+#   `hasNewParse`, and `setParseWalk`'s `installedIsDone` gate then leaves every walked rule
+#   alone, so **the classification ladder never runs.**
+#   ⚠ **It reconciles "Search has been green all along":** that is true and is a claim about the
+#   OLD road. `parserTest` asserts its roots are REACHED and **pins no answers, deliberately**.
+#   ⚠ **GRADE: the `PC` lines and dispatch counts are read AT THE SEAT. The `installedIsDone`
+#   attribution is a SOURCE READ and is NOT measured.** One probe from being settled.
+#
+#   **b. F-89's MODIFIER HEADLINE IS WITHDRAWN BY THE AUTHOR WHO WROTE IT.** One variable, three
+#   rules: two terms with an optional tail and two terms with a mandatory tail both read
+#   `result=false`; one term reads `result=return`. **The modifier makes no difference; the
+#   discriminator is whether the body contains an `&&`.** The real defect is that an emitted term
+#   call resolves to a freshly minted ACTION LOCAL — `isRule=0`, `arm=NONE`.
+#   ⚠ **The first A/B varied two things at once — rule H15's own second half, biting the person
+#   who wrote it down the day before.**
+#
+#   **c. THE EMIT-TIME SHAPE, and it decides between the two candidate fixes before either is
+#   built.** The emitter prints `$taG "()"` — the tag and nothing else. Every modifier is already
+#   an **rStuff write** by `modify`; the reference node is a **copy sharing the registry rule's
+#   body**, and rStuff is per-node, so modifiers are exactly what does not cross. **"Emit the
+#   modifier as an argument" cannot work** — the call reaches a local and there is nothing to
+#   honour it. **"Name the term by position"** reaches the reference with its rStuff and carries
+#   every modifier for free.
+#
+#   **d. F-83 RULING 2 IS RULED (Tony): generation explicit via `parser(rule)`; the install is
+#   the switch; parse first, action on the filled label.** As built on the branch.
+#   ⚠ **What was BUILT differs in seat from the ruling's wording, and it is worth knowing:**
+#   nothing installs `parseMethod` from the carrier. `setParseWalk` classifies **by shape**
+#   (`groupList → parseRule`), and `parseRule` reads the carrier **by name**, once, at
+#   `Generate.rtn:229`, at FIRE time. On trunk `builtinParseR` is **write-only** — zero reads in
+#   any executable source.
+#
+#   **e. THE COMMENT STORE EXISTS AND HAS ITS FIRST ENTRY.** `genLadder/batches/commentStore`.
+#   `RuleStuff.twk`'s six-line block is one slug line; the argument lives in the store. Its own
+#   certificate: apply/retok/apply byte-identical, codeOnly empty at 901 lines, committed `.mm`
+#   bare. ⚠ The three `enclosingActivation` lines were **not carried verbatim** — they described
+#   the refusal the ruling removed.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **412 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · **frontier dies at station 5 on trunk** (station 5 is GREEN on the
+#   branch and it dies at 6 there) · canary **335** · alphaLint 10 (pre-existing) · **Groups 0/0,
+#   support 0/0, TOK 0/0, BeforeSave reset.**
+#
+#   ## ⚠⚠ WAITING ON TONY
+#   **1. THE GATE VERDICT, and it is the one thing item 3 waits on.** The dispatch's condition
+#   was written in terms the measurement did not produce — Search reads NEITHER value, on both
+#   roads. My reading is that identical-on-both means no regression and no bisect, so item 3 is
+#   clear. **That is an interpretation of a condition, not the condition, so nothing was built.**
+#   **2. F-83 rulings 1 and 3.** Ruling 1 is answered by measurement; ruling 3 — which label the
+#   terms attach into — stands.
+#   **3. `checkinput-state` is pushed and unmerged.** A decision, not a leftover.
+#   **4. `~/bin/gz` line 18 is corrupted** — `ruleTest.hitIt(rule)dH() {…}`. Still standing.
+#
+#   ## TOMORROW, IN ORDER
+#   1. **The gate verdict** — whatever item 1 parked.
+#   2. **Station 6, by the buy's verdict** — the fix (name the term by position), then re-run
+#      the buy on the unchanged certificate.
+#   3. The docket.
+#
+#   ## DOCTRINE EARNED TODAY (third seal)
+#   Read before building, and it overturned an attribution before a line was written · a control
+#   is also ONE VARIABLE AT A TIME, and the author of that rule broke it the next day · a gate
+#   written in terms the measurement does not produce is the asker's to rule, not the measurer's.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
 # ⚠⚠⚠ RESEALED 2026-09-18, SAME DAY, AFTER SEQ 159 -- THE FRONTIER MOVES TO THE CARRIER
 # ROAD, THE checkInput RULING SURVIVES ITS RECON, AND THE TRY-AND-BUY DOES NOT BUY.
 #
