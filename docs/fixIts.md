@@ -92,6 +92,59 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-91 — ✅ CLOSED 2026-09-18 — `debug ALL` was documented and never implemented
+`wiki/BootstrapRules:337` has said *"the optional `ALL` keyword enables additional output"* for
+as long as anyone can date, and `aCTionDEBUG` had no such arm. `debug ALL X;` treated `ALL` as a
+rule name, minted a node for it, and marked that. **Tony's design: `ALL` marks the named rule's
+whole subtree, turtles all the way down.**
+
+**WHAT LANDED.** `GroupItem::setDebug()` — a two-pass recursive mark returning the count —
+plus one keyword arm in `aCTionDEBUG` matching `ALL` by text exactly as it matches `GUARD`.
+Neither keyword is in the grammar; `DEBUG "debug"- followedBy rules?=NamE+ SemI-` takes them as
+ordinary names and only this one method knows the difference.
+
+⚠ **THE MARK IS PER-WALK, AND THAT IS THE WHOLE DESIGN.** Using `debugged` as its own visited
+mark is correct within one walk and wrong across two: the flag is per-process, so a component
+marked by an earlier command stops the next walk dead at that node. `setDebug` therefore runs
+`clearDebug()` before `markDebug()`. **Tony named this hole in review, against the first cut,
+before it was built** — *"the same shape as parseWalked's per-process over-refusal on 09-14,
+arriving at a new seat."*
+
+⚠ **AND `debug ALL;` NAMING NO RULES REFUSES BY NAME** (Tony's ruling), rather than parsing and
+doing nothing. Bare `debug;` still toggles `debugAllRules` exactly as it always did.
+
+⚠ **THE FLAG HAS NO READER ON A BARE BUILD, AND THAT IS NOT A DEFECT.** Census over every `.mm`
+in the tree plus the out-of-repo `groups.ext`: `debugged` has two writes and zero reads, and so
+does `debugGuard`. Their readers were **directive-injected and culled by C-155** —
+`docs/c155Cull.md` carries all four, `aCTionDebuG` ×3 on `debugged` and a `getGuard` pair on
+`debugGuard`. So this is a **marking channel an instrumented build reads**, which is why the
+fixture asserts the count rather than the flags.
+
+```
+ATTEMPT LOG
+  1. GUARD-shaped ALL arm setting debugAllRules true, no recursion
+        -> shown in review; wrong feature. ALL marks a SUBTREE, not the global flag.
+  2. positional `rules` declaration so aCTionDEBUG could call itself
+        -> REFUSED BY READING, not built. x[n] is get(int), the nth CHILD;
+           getLabelGroup descends through GROUP wrappers. One derivation cannot
+           serve both the top-level node and a recursion that wants the container.
+  3. GroupItem::setDebug(), `debugged` as its own visited mark
+        -> correct for one walk. Tony named the per-process hole in review.
+  4. setDebug = clearDebug() then markDebug(), count returned
+        -> per-walk. DB-4 and DB-5 hold at 6 where the mark-only form reads 0.
+  5. H7 control: clearDebug() call removed, two builds
+        -> FIVE of six rows red. DB-2 4->1, DB-3 6->1, DB-4 6->0, DB-5 6->0.
+           It bites across two consecutive COMMANDS, not two sessions.
+  6. leaf guard `if !groupList return` in both passes
+        -> `nextGroup: ERROR GrouP does not contain a list` x8 -> 0.
+  7. refusal arm for `debug ALL;` naming no rules
+        -> REFUSED DEBUG -- debug ALL names no rules
+  POP: incant/pop/debugAllT + 8 rows in genLadder/pop.sh. Fleet 412 -> 420 green,
+       red 51 UNMOVED ROW FOR ROW, canary 335.
+```
+
+**Done when:** landed — the row above is the certificate. **Owner:** closed.
+
 ### F-85 — ✅ CLOSED 2026-09-18 — `parser` takes its root BARE; `*argument` was the wrong mechanism
 **STATION 4 IS UNBLOCKED.** `parser(list)` generates `return entries() && SemI();` and compiles.
 

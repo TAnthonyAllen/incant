@@ -457,6 +457,25 @@ void GroupItem::clearData()
 }
 
 /***************************************************************************
+                                clearDebug
+	Clear the debugged mark on every component below this one.
+***************************************************************************/
+void GroupItem::clearDebug()
+{
+GroupItem 	*grup = 0;
+	// debugPerWalk this pass is what makes setDebug's mark PER-WALK -- do not drop it
+	// debugLeaf  nextGroup COMPLAINS on a listless node, so a leaf is refused here, not there
+	if ( !groupBody->groupList )
+		return;
+	while ( grup = nextGroup(grup) )
+		if ( grup->groupBody->flags.debugged )
+			{
+			grup->groupBody->flags.debugged = 0;
+			grup->clearDebug();
+			}
+}
+
+/***************************************************************************
                                 clearList
 	Clear the list.
 ***************************************************************************/
@@ -1349,6 +1368,27 @@ void GroupItem::makeRegistry()
 	else	::fprintf(stderr,"%s is already a registry\n",groupBody->tag);
 }
 
+/***************************************************************************
+                                markDebug
+	Mark every component below this one debugged. Returns how many it marked.
+***************************************************************************/
+int GroupItem::markDebug()
+{
+GroupItem 	*grup = 0;
+int 		count = 0;
+	// debugCycle the grammar is CYCLIC -- without the already-marked guard this never returns
+	// debugLeaf  nextGroup COMPLAINS on a listless node, so a leaf is refused here, not there
+	if ( !groupBody->groupList )
+		return 0;
+	while ( grup = nextGroup(grup) )
+		if ( !grup->groupBody->flags.debugged )
+			{
+			grup->groupBody->flags.debugged = 1;
+			count = count + 1 + grup->markDebug();
+			}
+	return count;
+}
+
 /*****************************************************************************
                                 matches
     Returns true if this data matches data of the group passed in.
@@ -1979,6 +2019,17 @@ void GroupItem::setCount(int i)
 	if ( groupBody->flags.hasListeners )
 		updateListeners();
 	groupBody->flags.isInitialized = 1;
+}
+
+/***************************************************************************
+                                setDebug
+	Debug every component below this one. Returns how many it marked.
+***************************************************************************/
+int GroupItem::setDebug()
+{
+	// debugStale the clear pass comes FIRST so an older mark cannot truncate this walk
+	clearDebug();
+	return markDebug();
 }
 
 void GroupItem::setGroup(GroupItem *g)

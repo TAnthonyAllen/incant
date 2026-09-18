@@ -206,14 +206,26 @@ extern GroupItem aCTionDEBUG(GroupItem input)
 GroupRules  ruler = groupRules;
 GroupItem   rules:,
             GUARD,
+            ALLRULES,
             grup;
-    if rules
+int         named   = 0,
+            marked  = 0;
+    // debugKeywords  GUARD and ALL are TEXT, not grammar -- only this method knows them
+    if rules {
         while grup = rules.next(grup) {
             if grup.text eq "GUARD" {
                 GUARD   = trueResult;
                 continue; }
+            if grup.text eq "ALL" {
+                ALLRULES = trueResult;
+                continue; }
             if GUARD    debugGuard = true;
-            debugged    = true; }
+            debugged    = true;
+            named       = named + 1;
+            if ALLRULES marked = marked + grup.setDebug(); }
+        if ALLRULES {
+            if named    cerr "debug ALL marked " toStringFromInt(marked) " components":;
+            else        refuse(input,"debug ALL names no rules"); } }
     else    debugAllRules = !debugAllRules;
     return input;
 }

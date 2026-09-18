@@ -280,8 +280,13 @@ extern "C" GroupItem *aCTionDEBUG(GroupItem *input)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*rules = input->getLabelGroup("rules");
 GroupItem 	*GUARD = 0;
+GroupItem 	*ALLRULES = 0;
 GroupItem 	*grup = 0;
+int 		named = 0;
+int 		marked = 0;
+	// debugKeywords  GUARD and ALL are TEXT, not grammar -- only this method knows them
 	if ( rules )
+		{
 		while ( grup = rules->next(grup) )
 			{
 			if ( ::compare(grup->getText(),"GUARD") == 0 )
@@ -289,10 +294,25 @@ GroupItem 	*grup = 0;
 				GUARD = ruler->trueResult;
 				continue;
 				}
+			if ( ::compare(grup->getText(),"ALL") == 0 )
+				{
+				ALLRULES = ruler->trueResult;
+				continue;
+				}
 			if ( GUARD )
 				grup->groupBody->flags.debugGuard = 1;
 			grup->groupBody->flags.debugged = 1;
+			named = named + 1;
+			if ( ALLRULES )
+				marked = marked + grup->setDebug();
 			}
+		if ( ALLRULES )
+			{
+			if ( named )
+				::fprintf(stderr,"debug ALL marked %s components\n",::toStringFromInt(marked));
+			else	::refuse(input,"debug ALL names no rules");
+			}
+		}
 	else	ruler->debugAllRules = !ruler->debugAllRules;
 	return input;
 }

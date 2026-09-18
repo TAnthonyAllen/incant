@@ -285,6 +285,22 @@ void clearData()
 }
 
 /***************************************************************************
+                                clearDebug
+	Clear the debugged mark on every component below this one.
+***************************************************************************/
+void clearDebug()
+{
+GroupItem   grup;
+    // debugPerWalk this pass is what makes setDebug's mark PER-WALK -- do not drop it
+    // debugLeaf  nextGroup COMPLAINS on a listless node, so a leaf is refused here, not there
+    if !groupList   return;
+    while grup = nextGroup(grup)
+        if grup.debugged {
+            grup.debugged = false;
+            grup.clearDebug(); }
+}
+
+/***************************************************************************
                                 clearList
 	Clear the list.
 ***************************************************************************/
@@ -1004,6 +1020,24 @@ void makeRegistry()
     else cerr tag,"is already a registry":;
 }
 
+/***************************************************************************
+                                markDebug
+	Mark every component below this one debugged. Returns how many it marked.
+***************************************************************************/
+int markDebug()
+{
+GroupItem   grup;
+int         count = 0;
+    // debugCycle the grammar is CYCLIC -- without the already-marked guard this never returns
+    // debugLeaf  nextGroup COMPLAINS on a listless node, so a leaf is refused here, not there
+    if !groupList   return 0;
+    while grup = nextGroup(grup)
+        if !grup.debugged {
+            grup.debugged   = true;
+            count           = count + 1 + grup.markDebug(); }
+    return count;
+}
+
 /*****************************************************************************
                                 matches
     Returns true if this data matches data of the group passed in.
@@ -1523,6 +1557,17 @@ void setCount(int i)
     count   = i;
 	if hasListeners  updateListeners();
     isInitialized   = true;
+}
+
+/***************************************************************************
+                                setDebug
+	Debug every component below this one. Returns how many it marked.
+***************************************************************************/
+int setDebug()
+{
+    // debugStale the clear pass comes FIRST so an older mark cannot truncate this walk
+    clearDebug();
+    return markDebug();
 }
 
 void setGroup(GroupItem g)
