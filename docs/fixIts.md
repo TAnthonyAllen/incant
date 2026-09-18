@@ -98,20 +98,28 @@ as long as anyone can date, and `aCTionDEBUG` had no such arm. `debug ALL X;` tr
 rule name, minted a node for it, and marked that. **Tony's design: `ALL` marks the named rule's
 whole subtree, turtles all the way down.**
 
-**WHAT LANDED.** `GroupItem::setDebug()` — a two-pass recursive mark returning the count —
+**WHAT LANDED — TONY'S SHAPE, NOT THE ONE THIS ROW FIRST DESCRIBED.** `GroupItem::setDebug()`
 plus one keyword arm in `aCTionDEBUG` matching `ALL` by text exactly as it matches `GUARD`.
 Neither keyword is in the grammar; `DEBUG "debug"- followedBy rules?=NamE+ SemI-` takes them as
 ordinary names and only this one method knows the difference.
 
-⚠ **THE MARK IS PER-WALK, AND THAT IS THE WHOLE DESIGN.** Using `debugged` as its own visited
-mark is correct within one walk and wrong across two: the flag is per-process, so a component
-marked by an earlier command stops the next walk dead at that node. `setDebug` therefore runs
-`clearDebug()` before `markDebug()`. **Tony named this hole in review, against the first cut,
-before it was built** — *"the same shape as parseWalked's per-process over-refusal on 09-14,
-arriving at a new seat."*
+⚠⚠ **THE MARK IS A TOGGLE PROPAGATED DOWN, AND THAT IS WHY IT NEEDS NO CLEAR PASS.** `debug X`
+flips `debugged` on X; `setDebug` then flips every component whose state does not already agree
+with X's **new** state, and recurses. So the subtree ends up agreeing with the root, and **running
+the same `debug ALL X` again walks it straight back** — an involution, which is Tony's stated
+reason for the toggle: *"so I can run DEBUG twice with the same parameters to undo what the first
+run does."*
 
-⚠ **AND `debug ALL;` NAMING NO RULES REFUSES BY NAME** (Tony's ruling), rather than parsing and
-doing nothing. Bare `debug;` still toggles `debugAllRules` exactly as it always did.
+⚠ **THE PARENT'S STATE IS THE PER-WALK STAMP**, which is what makes the two-pass design
+unnecessary. Clod's first cut used `debugged` as its own visited mark — correct within one walk
+and wrong across two, because the flag is per-process — and **Tony named that hole in review,
+against the first cut, before it was built**: *"the same shape as parseWalked's per-process
+over-refusal on 09-14, arriving at a new seat."* The fix Clod built for it (`clearDebug` then
+`markDebug`) was superseded by the toggle and **`clearDebug` and `markDebug` never shipped.**
+
+⚠ **NO COUNT AND NO REFUSAL IN THE LANDED SHAPE.** Both were Clod's, both were dropped with the
+redesign: `setDebug` returns `void`, and `debug ALL;` naming no rules is once again a no-op rather
+than a refusal. Bare `debug;` still toggles `debugAllRules` exactly as it always did.
 
 ⚠ **THE FLAG HAS NO READER ON A BARE BUILD, AND THAT IS NOT A DEFECT.** Census over every `.mm`
 in the tree plus the out-of-repo `groups.ext`: `debugged` has two writes and zero reads, and so
@@ -139,11 +147,30 @@ ATTEMPT LOG
         -> `nextGroup: ERROR GrouP does not contain a list` x8 -> 0.
   7. refusal arm for `debug ALL;` naming no rules
         -> REFUSED DEBUG -- debug ALL names no rules
-  POP: incant/pop/debugAllT + 8 rows in genLadder/pop.sh. Fleet 412 -> 420 green,
-       red 51 UNMOVED ROW FOR ROW, canary 335.
+--- Tony's redesign, same session, and it replaces attempts 3 through 7 ---
+  8. setDebug becomes a TOGGLE propagated down; no count, no refusal, no clear pass
+        -> retok'd bare, canary 335, build clean, generated code read: debugStatus
+           reads THIS node's flag, debugged/debugGuard still resolve to grup, the
+           else arm still reads ruler.
+  9. clearDebug cut (orphaned by the redesign)
+        -> gone from .h, .mm and the binary. Bear-trap #16's additive mirror did
+           NOT bite: it was never in groups.ext, only setDebug was.
+ 10. debugAllT DELETED with its 8 pop.sh rows (Clay, ratified)
+        -> fleet 421 -> 419 green, red back to the sealed 51 ROW FOR ROW.
+  POP: ⚠ NONE. COVERAGE IS DROPPED, NOT MAPPED, AND THE REASON IS NAMED BELOW.
 ```
 
-**Done when:** landed — the row above is the certificate. **Owner:** closed.
+⚠⚠ **THE FIXTURE RETIRED WITH NO MAPPING, WHICH IS A COVERAGE LOSS AND IS RECORDED AS ONE.**
+`debugAllT`'s eight rows asserted a count and a refusal that the landed design does not produce,
+so there was nothing to carry out — and **no replacement is possible on a bare build**, because
+`debugged` has no reader and no `GroupFields` accessor. **`debug ALL` is therefore uncertified:
+the only thing the fleet could say about it is that a run does not complain, which is the green
+that flatters.** Closing this gap needs a `debuggeD` accessor so kant can read the flag and a
+fixture can assert the involution directly. **Open, and named so it is not mistaken for covered.**
+
+**Done:** landed in Tony's shape. **⚠ Carries one open consequence:** `debug ALL` has no fleet
+coverage and cannot have any until `debugged` is readable from kant. **Owner:** closed as a
+feature; the coverage gap is Tony's to rule on.
 
 ### F-85 — ✅ CLOSED 2026-09-18 — `parser` takes its root BARE; `*argument` was the wrong mechanism
 **STATION 4 IS UNBLOCKED.** `parser(list)` generates `return entries() && SemI();` and compiles.

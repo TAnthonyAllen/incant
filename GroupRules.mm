@@ -282,8 +282,6 @@ GroupItem 	*rules = input->getLabelGroup("rules");
 GroupItem 	*GUARD = 0;
 GroupItem 	*ALLRULES = 0;
 GroupItem 	*grup = 0;
-int 		named = 0;
-int 		marked = 0;
 	// debugKeywords  GUARD and ALL are TEXT, not grammar -- only this method knows them
 	if ( rules )
 		{
@@ -301,16 +299,9 @@ int 		marked = 0;
 				}
 			if ( GUARD )
 				grup->groupBody->flags.debugGuard = 1;
-			grup->groupBody->flags.debugged = 1;
-			named = named + 1;
+			grup->groupBody->flags.debugged = !grup->groupBody->flags.debugged;
 			if ( ALLRULES )
-				marked = marked + grup->setDebug();
-			}
-		if ( ALLRULES )
-			{
-			if ( named )
-				::fprintf(stderr,"debug ALL marked %s components\n",::toStringFromInt(marked));
-			else	::refuse(input,"debug ALL names no rules");
+				grup->setDebug();
 			}
 		}
 	else	ruler->debugAllRules = !ruler->debugAllRules;

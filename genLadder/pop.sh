@@ -1675,65 +1675,6 @@ for _arm in "DE-1 unbraced arm, flag TRUE   deN =  2" \
     fi
 done
 
-#  ⚠ debugAllT -- `debug ALL <rule>` MARKS THE RULE'S WHOLE SUBTREE, AND THE MARK
-#  IS PER-WALK. New 2026-09-18 with GroupItem::setDebug(). `ALL` is TEXT matched
-#  inside aCTionDEBUG exactly as GUARD is; the grammar has never heard of either.
-#
-#  ⚠ THE ROWS READ A COUNT, NOT THE FLAGS, AND THAT IS THE BETTER INSTRUMENT.
-#  There is no kant accessor for `debugged` -- it is a GroupBody flag with no
-#  GroupFields entry -- so the marks cannot be read directly. setDebug returns
-#  how many nodes it marked and aCTionDEBUG prints that unconditionally (H4), so
-#  the number moves only when the WALK moves. A flag read would say one node was
-#  marked; the count says the whole walk happened.
-#
-#  ⚠⚠ H7 CONTROL, RUN 2026-09-18, TWO BUILDS: setDebug with its clearDebug() call
-#  REMOVED -- which is how the method was first written -- takes FIVE of the six
-#  rows red:
-#        row    with the clear pass    without
-#        DB-1          2                  2
-#        DB-2          4                  1
-#        DB-3          6                  1
-#        DB-4          6                  0
-#        DB-5          6                  0
-#  Using `debugged` as its own visited mark is per-PROCESS, so a component marked
-#  by an EARLIER command stops the next walk dead at that node. It bites across
-#  two consecutive commands, not merely across two sessions -- DB-2 is already
-#  wrong on its first use, because DB-1 marked the shared body one line earlier.
-#  That is parseWalked's own over-refusal at a new seat, and the clear pass is
-#  what makes every walk start from the same place.
-#
-#  ⚠ DB-1..DB-3 ARE A LADDER, NOT THREE SAMPLES. dbgLeaf is flat, dbgMid holds a
-#  reference to dbgLeaf, dbgTop one to dbgMid, so the counts MUST increase -- a
-#  walk that stopped at depth 1 reads the same number three times and a
-#  presence-only check could not tell the difference.
-_dbcount () {                   # _dbcount <row-label> -> the count that row printed
-    awk -v r="=== $1 " 'index($0,r){f=1;next} f&&/debug ALL marked/{print $4; exit}' "$T/dba"
-}
-run1 debugAllT "$T/dba"; check "debugAllT runs" 0 $?
-sentinel "debugAllT sentinel (no truncation)" "$T/dba" "DEBUGALLT SENTINEL"
-for _row in "DB-1 2 flat rule" "DB-2 4 one level down" "DB-3 6 two levels down" \
-            "DB-4 6 an OUTSIDE mark must not truncate" \
-            "DB-5 6 the walk's own leftovers must not either"; do
-    _lbl=${_row%% *}; _rest=${_row#* }; _want=${_rest%% *}; _what=${_rest#* }
-    _got=$(_dbcount "$_lbl")
-    if [ "$_got" = "$_want" ]; then
-        echo "  ok    debugAllT $_lbl marked $_got -- $_what"; green=$((green+1))
-    else
-        echo "  FAIL  debugAllT $_lbl marked '$_got', wants $_want -- $_what"
-        echo "        A SMALLER number is the walk truncating: setDebug's clear pass"
-        echo "        is gone or an earlier mark survived into this walk. An EMPTY"
-        echo "        value means the row printed no count at all."
-        fail=1
-    fi
-done
-if grep -qF "debug ALL names no rules" "$T/dba"; then
-    echo "  ok    debugAllT DB-6 \`debug ALL;\` naming no rules REFUSES by name"; green=$((green+1))
-else
-    echo "  FAIL  debugAllT DB-6 -- \`debug ALL;\` no longer refuses. A spelling that"
-    echo "        parses and does nothing is the failure this refusal exists to prevent."
-    fail=1
-fi
-
 #  ⚠⚠ searchNewParseT -- TONY'S 2026-09-14 ACCEPTANCE AS A ROW, and the graduation
 #  of F-90. `parser(Search)` then `Search("search list;")` under traceParse must
 #  show the GENERATED body dispatching its terms. It passed at 5f24cf3 and read
