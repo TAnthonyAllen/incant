@@ -1,3 +1,100 @@
+# ⚠⚠⚠ SEALED 2026-09-18, AFTERNOON, FIFTH SEAL OF THE DAY -- F-90 IS CLOSED AND THE GENERATED
+# BODY RUNS AGAIN. F-89's SECOND HEADLINE GOES WITH IT, AND THE POSITION FIX LOSES ITS PREMISE.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-18 17:42 and `git log -1 --date=iso` 17:42. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 427 green / 51 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed.** Red 51 UNMOVED ROW FOR ROW from a baseline banked before the
+#   first edit of the afternoon. Branch `checkinput-state` still pushed and UNMERGED.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. F-90 IS CLOSED. THE GATE STAYED AND THE LINE IT READS WAS REPAIRED.** Two lines in
+#   `IncantForms/WorkingOn/parser`: `generateParse` no longer raises `hasNewParse`, and
+#   `walkRules`' `if hasNewParsE` becomes the carrier's presence -- `if builtinParseR` then
+#   `if isCodeD`. ⚠ **The second half is the one that is easy to under-read: the flag was ALSO
+#   the walk's cycle guard**, so removing the raise without replacing it would spin.
+#   **Tony's 2026-09-14 acceptance passes at HEAD:** four term dispatches, every one `isRule=1
+#   arm=runRule` -- `search`, `followedBy`, `GrouP`, `SemI`.
+#   ⚠ **FOUR, NOT THE CERTIFICATE'S THREE, AND THE NUMBER IS NOT RE-CITED.** `followedBy` is a
+#   term like the others; the 3 came from a differently-filtered probe. Measured before quoted.
+#   **Certificate, every line measured:** trigDO exit 0 with its refusals unmoved at 3 · walk
+#   refusals 0 before and after · old road unmoved row for row · frontier still station 5 ·
+#   `incant/pop/searchNewParseT` + 7 rows, born red and graduated on the same commit.
+#
+#   **b. THE SECOND WITNESS IS setParse's OWN CLASSIFICATION, and it is independent of the
+#   dispatch count.** Search's four terms read `PC none` before and `parseString` / `parseSet` /
+#   `parseRule` / `parseString` after. Two instruments, one answer.
+#
+#   **c. ⚠⚠ F-89's SECOND HEADLINE IS WITHDRAWN AND THE POSITION FIX LOSES ITS PREMISE.**
+#   *"No emitted term call reaches a rule at all"* was measured while F-90 stood and **nothing
+#   was installed** -- a name that reaches nothing mints a local, and that is what every
+#   `arm=NONE` reading was. **"Name the term by position" was chosen BECAUSE the call reached a
+#   local and there was nothing to honour a modifier. That sentence is false now.** The live
+#   question is **reference versus registry**, and it is H13's question 2 -- they share a body,
+#   so **the FIELD column discriminates and the body column cannot.** One `addrOf` row answers
+#   it. **It has not been run, and item 4 was NOT opened on an unmeasured premise.**
+#   ⚠ What survives: the one-variable control still refutes headline 1, but **its chain readings
+#   were taken on the broken build and are owed a re-run before being cited.**
+#
+#   **d. `debug ALL` LANDS (F-91), AND THE MARK IS PER-WALK.** `GroupItem::setDebug()` marks a
+#   rule's whole subtree and returns the count; `ALL` is TEXT-matched in `aCTionDEBUG` exactly as
+#   `GUARD` is, and the grammar has never heard of either. **`debug ALL;` naming no rules refuses
+#   by name** (Tony). ⚠ **Tony named the per-walk hole in review, against the first cut, before it
+#   was built** -- `debugged` as its own visited mark is per-PROCESS, so an earlier command's mark
+#   stops the next walk dead. The cure is the clear pass. **H7 control: five of the fixture's six
+#   rows go red without it**, and it bites across two consecutive COMMANDS, not two sessions.
+#
+#   **e. A CENSUS BANKED WITH IT: `debugged` IS WRITE-ONLY ACROSS THE TREE** -- two writes, zero
+#   reads, population every `.mm` plus the out-of-repo `groups.ext` -- **and so is `debugGuard`.**
+#   Their readers were **directive-injected and culled by C-155**; `docs/c155Cull.md` has all
+#   four. It is a marking channel an instrumented build reads, which is why `debugAllT` asserts
+#   the COUNT and not the flags.
+#
+#   **f. TWO CONVENTIONS AND ONE DOCTRINE LANDED FIRST, BEFORE ANY BUILD.** Fixit rows carry an
+#   **attempt log** -- one line per attempt, what was tried then what moved, reverts included,
+#   ending in the POP row that certifies it, **appended in the same commit as the attempt**.
+#   F-90 is the worked example and the one backfill. **Rule H16** (candidate, Clay): a probe is
+#   validated against a known-good end before its PASS is believed.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **427 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · **frontier dies at station 5** (unrevised: the edge has not moved --
+#   the carrier is still TEXT) · canary **335** · alphaLint 10 (pre-existing) · **Groups 0/0,
+#   support 0/0, TOK 0/0.** Both `.twk` retoks were BARE.
+#
+#   ## ⚠⚠ WAITING ON TONY
+#   **1. `bs` WAS NOT RUN, DELIBERATELY.** SEQ 161's addendum names it as part of the seal;
+#   `CLAUDE.md` says **never refresh BeforeSave, the refresh is Tony's call.** The two disagree
+#   and the action is irreversible, so it was left alone and flagged rather than guessed at.
+#   **2. THE POSITION FIX IS NOT OPENED.** Its premise moved this afternoon (c). The `addrOf`
+#   row is one measurement and is the honest next step; the fix is Clay's to re-argue.
+#   **3. `checkinput-state` is pushed and unmerged.** A decision, not a leftover.
+#   **4. `~/bin/gz` line 18 is still corrupted** -- `ruleTest.hitIt(rule)dH() {…}`.
+#
+#   ## ⚠ BANKED, NOT CHASED
+#   `parseRule: GrouP has a parse method but no compiled body` -- **100 times** in the anchor's
+#   own run against 2 before the repair. **Not a regression: the install now HAPPENS and the
+#   carrier is still TEXT**, which is station 5's sentence. · `SemI` classified under the `list`
+#   root moved `parseString` → `none` while under `Search` it moved `none` → `parseString` --
+#   same name, one run, opposite directions, unexplained. · `emitRefT`'s header claims it prints
+#   reference and registry addresses first; **the current file does not.**
+#
+#   ## TOMORROW, IN ORDER
+#   1. The `addrOf` row: reference versus registry, FIELD column (H13), before any fix.
+#   2. The position fix, re-argued on that reading, then the buy.
+#   3. Station 5 -- compiling the carrier -- which is what both roads are now waiting on.
+#
+#   ## DOCTRINE EARNED TODAY (fifth seal)
+#   Re-read a row on the repaired build before building on it, and it withdrew a second headline
+#   and a fix's premise in one measurement · a known-good end inside the same run is what
+#   separates a dead instrument from a red one (H16) · an irreversible step named by a dispatch
+#   and forbidden by the standing rule is flagged, not guessed.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
 # ⚠⚠⚠ SEALED 2026-09-18, CLOSE OF MORNING, FOURTH SEAL OF THE DAY -- F-90 IS BISECTED TO ONE
 # LINE IN `9785324`, AND THE GATE STAYS. NOTHING BUILT SINCE THE PAUSE POINT BUT THE FINDING.
 #
