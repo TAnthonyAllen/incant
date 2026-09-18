@@ -2655,6 +2655,45 @@ else
     grep -E "^PT-" "$T/ptst.e" | sed 's/^/          /'; fail=1
 fi
 
+#  ---- skipT: the line-comment rule can be WRITTEN; what it consumes cannot be READ ---
+#  The blocker (docs/checkSKIP.md 2a): the two-character line-comment literal kills the define
+#  it is written in -- no lexer, so the parser reads it as a comment in its own source and eats
+#  the rest of the line, closing quote and semicolon included. The block delimiters are innocent.
+#  ⚠ SK-1/SK-2 ARE WHY THE ESCAPE FORM IS PREFERRED AND THEY ARE A MEASUREMENT, NOT A TASTE.
+#  The escaped spelling yields ONE term matching both characters; the two-literal spelling yields
+#  TWO one-character terms -- and terms are skip points, so a skipper may run between them. That
+#  is a DIFFERENT rule wearing the same intent, and it is the one that accepts slash-space-slash.
+#  ⚠ SK-5 IS THE WALL: a rule driven standalone has no enclosing activation to take its label, so
+#  its terms still read their DEFINITIONS afterwards. fixIts F-83 through a second door; station 6.
+run2 skipT "$T/sk.o" "$T/sk.e"; check "skipT runs (SK-4)" 0 $?
+sentinel "skipT sentinel" "$T/sk.e" "SKIPT SENTINEL"
+if grep -qF "skIn=// a real line comment" "$T/sk.o"; then
+    echo "  ok    skipT SK-3 the input really carries a line comment -- anti-vacuity for SK-4"; green=$((green+1))
+else
+    echo "  FAIL  skipT SK-3 the input lost its comment, so SK-4 asserts nothing"; fail=1
+fi
+_sk1=$(grep -cF "GrouP=// string" "$T/sk.o")
+_sk2=$(grep -cF "GrouP=/ string" "$T/sk.o")
+if [ "$_sk1" = 2 ]; then
+    echo "  ok    skipT SK-1 escaped spelling = ONE term reading // (twice: before and after)"; green=$((green+1))
+else
+    echo "  FAIL  skipT SK-1 wanted 2 sightings of a single // term, read $_sk1"; fail=1
+fi
+if [ "$_sk2" = 2 ]; then
+    echo "  ok    skipT SK-2 two-literal spelling = TWO terms of ONE character -- a different rule"; green=$((green+1))
+else
+    echo "  FAIL  skipT SK-2 wanted 2 single-slash terms in one rule, read $_sk2"; fail=1
+fi
+#  ⚠ SK-5 IS PINNED AT THE WALL, not at a value we want. The dump of lcEsc is IDENTICAL before
+#  and after the drive -- which is what SK-1's count of 2 says -- because the matched data never
+#  reaches the terms. When label population lands this row moves and THAT IS THE WIN.
+if [ "$(grep -cF "commentBody=" "$T/sk.o")" = 3 ]; then
+    echo "  ok    skipT SK-5 terms unchanged across the drive -- PINNED AT THE WALL (F-83)"; green=$((green+1))
+else
+    echo "  FAIL  skipT SK-5 the term dump MOVED. If matched data now lands, that is the win:"
+    echo "        re-pin with a sentence (H6) and take it to F-83."; fail=1
+fi
+
 #  ---- carrierT: the parse parks in builtinParseR, the rule keeps its action ---
 #  Station 4's landing, 2026-09-18. generateParse used to write the generated parse into the
 #  rule's own CodE -- where a rule with a code body keeps its ACTION -- so generating a parse

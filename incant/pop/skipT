@@ -1,0 +1,61 @@
+/*  skipT -- THE LINE-COMMENT RULE CAN BE WRITTEN, AND WHAT IT CONSUMES CANNOT YET BE READ.
+
+    THE BLOCKER, measured 2026-09-17 (docs/checkSKIP.md section 2a): the two-character literal
+    that spells a line comment KILLS THE DEFINE IT IS WRITTEN IN. There is no lexer, so the
+    parser reads it as a comment inside its own source and eats the rest of the line, closing
+    quote and semicolon included. The rest of the checkSKIP rule set is innocent -- the block
+    delimiters are fine and were never the problem.
+
+    THE RESPELL, and it is an ESCAPE rather than two literals. Three spellings parse; SK-1 and
+    SK-2 are why one of them is preferred.
+
+    ⚠ SK-1/SK-2 ARE THE WHOLE ARGUMENT FOR THE ESCAPE FORM AND THEY ARE A MEASUREMENT, NOT A
+    TASTE. The escaped spelling yields ONE literal term matching both characters. The two-literal
+    spelling yields TWO terms of one character each -- and terms are skip points, so a skipper
+    is entitled to run between them. That is a DIFFERENT RULE wearing the same intent, and it is
+    the one that would quietly accept a slash, a space and a slash.
+
+    ⚠ AND WHAT THIS FIXTURE CANNOT ASSERT, STATED RATHER THAN OMITTED: WHAT THE RULE CONSUMES.
+    A rule driven standalone has no enclosing activation to take the label it mints -- the run
+    says so, `checkInput: no enclosing activation to take the label` -- so after the drive its
+    terms still read their own DEFINITIONS and not matched data. That is fixIts F-83 arriving
+    through a second door, and it is STATION 6's. SK-5 pins it so the day it changes, something
+    says so.
+    ⚠ Nor is anything ROUTING a skip through these rules: the live skipper is the C++
+    `checkSkip`, and `sKIP`/`checkSKIP` are Grokking rules nothing calls. This fixture certifies
+    that the rule can be WRITTEN and DRIVEN, which is the step that was blocked.
+
+    THE ROWS
+      SK-1  the escaped spelling gives ONE term reading `//`
+      SK-2  the two-literal spelling gives TWO terms reading `/` -- the contrast that picks SK-1
+      SK-3  the fixture's own input really does carry a line comment. Anti-vacuity: without it,
+            SK-4 would pass against an input with nothing in it to match
+      SK-4  driving it reaches the foot -- no crash, no spin
+      SK-5  ⚠ PINNED AT THE WALL. The terms read their DEFINITIONS after the drive. F-83.  */
+Start();
+register(Grokking);
+define
+    lcEsc     "/\/" commentBody="\n"};
+    lcTwo     "/" "/" commentBody="\n"};
+    ;
+register(TestStuff);
+define
+    skIn=(// a real line comment
+AFTER#);
+    ;
+search Grokking TestStuff list;
+
+cerr "SK-3 the input":;
+dumpContents(skIn);
+
+cerr "SK-1 escaped spelling":;
+dumpContents(lcEsc);
+cerr "SK-2 two-literal spelling":;
+dumpContents(lcTwo);
+
+lcEsc(skIn);
+cerr "SK-5 after the drive":;
+dumpContents(lcEsc);
+
+cerr "SKIPT SENTINEL":;
+stop();

@@ -113,6 +113,56 @@ The value comes back **whole, comment text included**. That is `(...#)` doing it
 nothing yet about whether `checkSKIP` would have skipped it — the rules are defined in
 `Grokking` but nothing has routed a skip through them.
 
+## 2b. LANDED 2026-09-18 — the escape form, and the wall behind it
+
+**THE SPELLING IS `"/\\/"`, AND THE ONE LINE OF WHY: it escapes only the character that has to
+stop being adjacent, and it yields a SINGLE literal term matching both characters — where two
+one-character literals yield TWO terms, and a term boundary is a skip point.**
+
+**MEASURED, not chosen** (`incant/pop/skipT`, rows SK-1 and SK-2, driven on a real line comment):
+
+| spelling | terms the rule carries |
+|---|---|
+| `"/\\/"` | **one**, reading `//` |
+| `"\\/\\/"` | one, reading `//` — identical, and escapes a character that needs no escaping |
+| `"/" "/"` | **two**, each reading `/` |
+
+**The two-literal form is not a synonym, it is a different rule.** Terms are where the skipper is
+entitled to run, so that spelling would accept a slash, a space and a slash. Nothing in the run
+distinguishes them until it does, and then it does so silently — which is why the contrast is
+pinned rather than noted.
+
+**Tony's `IncantForms/WorkingOn/tester` now runs**, with the respell on `LineCommenT` alone and
+the reasoning in its dead region.
+
+### ⚠⚠ WHAT THE DRIVE COULD NOT PIN, AND IT IS STATION 6's WALL
+
+The dispatch asked for the rule to be driven against a real `//` and **pinned on what it
+consumes**. It was driven. **What it consumes is not readable today**, and the run says why in
+its own words:
+
+```
+checkInput: no enclosing activation to take the label
+```
+
+A rule driven standalone mints a label with nowhere to go, so afterwards **its terms still read
+their own DEFINITIONS** — `commentBody` comes back as `commentBody=` plus the newline it was
+defined with, not as the comment text. **That is fixIts F-83 arriving through a second door.**
+SK-5 pins the wall: the term dump is byte-identical before and after the drive.
+
+⚠ **AND FOUR ROUTES TO AN OBSERVABLE WERE TRIED AND ALL FAILED, recorded so nobody re-walks
+them:** reading `commentBody` after the call; moving the `}` from the data to the label
+(`commentBody}="\n"` — no change, so the modifier's placement is not the issue); adding `^` to
+the literal and to the body (no change); and giving the rule a `code=` action so a match would
+announce itself — **which does not fire even after `compile` and `setParse`**, because a rule
+fired standalone never reaches the arm that runs it.
+
+⚠ **AND THE SECOND HALF OF THE WALL, which matters more for the campaign than the first: NOTHING
+ROUTES A SKIP THROUGH THESE RULES.** The live skipper is the C++ `checkSkip`; `sKIP` and
+`checkSKIP` are Grokking rules that no machinery calls. So what this fixture certifies is that
+the rule can now be **written and driven** — the step that was blocked — and not that it works.
+**No C++ `checkSkip` was touched, as ruled.**
+
 ## 3. The model — what a matched alternative DOES
 
 Two customers, one loop. The customers differ in which alternatives are armed and what happens
