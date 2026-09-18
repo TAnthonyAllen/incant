@@ -17,8 +17,12 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      161
-STATUS:   cleared        # SEQ 160 and 161 landed as far as their gates allow; sealed 2026-09-18
+SEQ:      162
+STATUS:   cleared        # SEQ 162 item 0 reported; sealed close of morning 2026-09-18
+WRITTEN:  2026-09-18  -  Clay (SEQ 162, dictated via Tony; transcribed by Clod)
+          ⚠ SEQ 162 IS LIVE AND IS AT THE FOOT. Item 0 BISECTED and reported; the repair is
+          PENDING TONY'S AFTERNOON WORD, with Clay's recommendation on the record.
+STATUS-161: cleared      # SEQ 160 and 161 landed as far as their gates allow
 WRITTEN:  2026-09-18  -  Clay (SEQ 160 and 161, dictated via Tony; transcribed by Clod)
           ⚠ BOTH ARRIVED HEADED 2026-09-19 AND THE HEADER WAS WRONG -- corrected by Clay,
           rulings re-dated to 09-18 in c1ac6de.
@@ -8092,3 +8096,74 @@ STATUS:  cleared -- items 1 and 2 reported; item 3 GATED on Tony
   "tomorrow in order" reads: whatever item 1 parked, then station 6 by the buy's
   verdict, then the docket. Nothing new opened after the seal. We pick up from
   that seal later today.
+
+
+===================================================================
+SEQ 162  -  BISECT SEARCH UNDER NEW PARSE
+WRITTEN: 2026-09-18  -  Clay, dictated via Tony; transcribed by Clod
+STATUS:  cleared -- item 0 reported; items 1-3 are the afternoon's
+===================================================================
+
+  This replaces the earlier afternoon dispatch. Item 0 is first and nothing else
+  runs until it reports.
+
+  0. BISECT SEARCH UNDER NEW PARSE. Acceptance is Tony's own from 09-14:
+  parser(Search) then Search("search list;") with traceParse on shows the
+  generated body matching its terms (term dispatch lines, isRule=1). Start at
+  5f24cf3 -- confirm it passes there; if it does not, say so and stop, because
+  then the seal was wrong and that is a different finding. Then bisect forward to
+  HEAD, one build per step, bare. Report the first failing commit, its subject,
+  and the one line in it that turns the trace off. Candidates, not guesses, in
+  date order: the 09-14 hasNewParse-to-setParseWalk's-tail move, the 09-15
+  installed-guard in setParseWalk, the 09-17 parser definitions-only/utilities
+  include, first-use install (in and out), the 09-18 builtinParseR and walkRules
+  noPrint skip. Withdraw the "never ran on trunk" sentence in the seal with the
+  commit named.
+
+  1. PIN THE ANCHOR. A parserTest row (or searchNewParseT) that asserts Search's
+  generated body dispatches its terms -- the trace line count, isRule=1, and the
+  search list reading the new value with the old-road arm shown not to have run.
+  Red today by construction; it graduates on item 2.
+
+  2. REPAIR at the named commit, one stroke, the certificate being item 1 green
+  and the old road unmoved. If the cause is the second hasNewParse writer, the
+  09-14 one-writer ruling names the fix; if it is something else, report before
+  building.
+
+  3. Then the morning's position fix and the buy, as before. debug ALL after.
+  Seal at the end.
+
+-------------------------------------------------------------------
+  CLOSE OF MORNING -- Clay, 2026-09-18
+-------------------------------------------------------------------
+
+  Seal now. Nothing built. F-90 as you wrote it; the wakeup's head names 9785324
+  and the gate's line, and says the gate stays. State the ruling as pending:
+  Tony's afternoon word on the repair, with Clay's recommendation on the record
+  -- hasNewParse = installed, one writer at setParse's tail, "generated" read
+  from the carrier's presence, parser not reordered.
+
+  ⚠ CLAY'S RECOMMENDATION, VERBATIM AND NOT YET A RULING:
+  "Your 09-15 gate is right and stays. The line it reads is wrong, and it is
+  F-88's family one seat up, which is the third time this week hasNewParse has
+  meant two things to two readers. I would give Clod a ruling to build against
+  rather than a menu, and it is the one you already made on 09-14: hasNewParse
+  means installed, written at setParse's tail, and nothing else writes it.
+  'Generated' is not a flag at all -- it is a fact readable from the carrier's
+  existence (builtinParseR or a CodE the generator wrote). So generateParse stops
+  raising it, and if walkRules needs 'already generated' it asks whether the
+  carrier is there. Reordering parser would also fix it and I would refuse it:
+  order-dependent correctness is what F-88 was."
+
+  AFTERNOON, IN ORDER:
+    1. debug ALL, both steps -- diff shown, Tony's OK, retok, roster fixture,
+       commit. FIRST, because its step one leaves an uncommitted .twk between
+       Tony's review and the retok, and that is exactly the half-state a pause
+       should not carry.
+    2. The F-90 repair per Tony's ruling. Certificate: 5f24cf3's acceptance
+       passes at HEAD (termDispatch 3, isRule=1), trigDO stays 0 (the gate's own
+       certificate), walk refusals stay 0, old road unmoved, and the Search
+       anchor row from the revised item 1 goes green.
+    3. F-89 re-read on the repaired build before anything is assumed about it.
+    4. Then the position fix if F-89 survives, and the buy.
+    5. Seal at the end of the afternoon.

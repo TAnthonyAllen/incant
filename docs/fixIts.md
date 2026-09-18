@@ -314,6 +314,20 @@ reported PASS at both ends and would have ended the bisect before it began. The 
 **after generation and immediately before the drive**, and the two ends separate 3 / 0.
 **Doubt the instrument before the code — and doubt it hardest when it agrees with you.**
 
+⚠⚠ **THE RULING IS PENDING TONY'S AFTERNOON WORD. CLAY'S RECOMMENDATION IS ON THE RECORD AND
+IS NOT YET A RULING** — recorded here so the afternoon starts from a position rather than a menu:
+
+> **`hasNewParse` MEANS INSTALLED.** One writer, at `setParse`'s tail, and nothing else writes it.
+> **"Generated" is not a flag at all** — it is a fact readable from the **carrier's existence**
+> (`builtinParseR`, or a `CodE` the generator wrote). So `generateParse` **stops raising it**, and
+> where `walkRules` needs *"already generated"* it asks whether the carrier is there.
+> ⚠ **REORDERING `parser` WOULD ALSO FIX IT AND IS REFUSED: order-dependent correctness is what
+> F-88 WAS.**
+
+⚠ **THE 09-15 GATE IS RIGHT AND STAYS.** It is the reader that is wrong about what it reads, and
+this is **the third time this week `hasNewParse` has meant two things to two readers** — F-88,
+then the ruling-2 seat question, now this.
+
 **Done when:** `setParse` installs on a generated rule, without putting `trigDO`'s recursion
 back. **Blocks:** F-89 (its arm=NONE readings are all downstream of this), station 6, the merge.
 **Grade:** CONFIRMED — bisected with a passing end, a failing end, and an H7 control on the line.

@@ -1,3 +1,76 @@
+# ⚠⚠⚠ SEALED 2026-09-18, CLOSE OF MORNING, FOURTH SEAL OF THE DAY -- F-90 IS BISECTED TO ONE
+# LINE IN `9785324`, AND THE GATE STAYS. NOTHING BUILT SINCE THE PAUSE POINT BUT THE FINDING.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-18 13:40 and `git log -1 --date=iso` 13:32. They agree.
+#
+#   ⚠⚠ **WE RESUME THIS AFTERNOON FROM THIS SEAL.** `debug ALL` goes first, deliberately: its
+#   step one leaves an uncommitted `.twk` between Tony's review and the retok, and **that is
+#   exactly the half-state a pause must not carry.** Both its steps close in one sitting.
+#
+#   ## THE ONE-LINE STATE: **fleet 412 green / 51 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed, BeforeSave reset.** Branch `checkinput-state` pushed and UNMERGED.
+#
+#   ## ⚠⚠ THE FINDING, AND IT IS ONE LINE
+#
+#   **Tony's 2026-09-14 acceptance** — `parser(Search)` then `Search("search list;")` under
+#   `traceParse` shows the generated body dispatching its terms — **passes at `5f24cf3` and
+#   fails at HEAD.**
+#
+#   | | |
+#   |---|---|
+#   | **first failing commit** | **`9785324`**, 2026-09-15 — *"Reland: token skip, enclosing guard, and the walk stops writing actionMethod"* |
+#   | **last passing** | `0324343` |
+#   | **the one line** | `setParseWalk`'s **`installedIsDone`** gate: `if hasNewParse { … return null; }` |
+#   | **H7 control** | removing that gate **at `9785324`** restores it — termDispatch **0 → 3**, `isRule=1` |
+#
+#   **`parser` runs `walkRules` before `compileRules`; `generateParse` raises `hasNewParse`;
+#   `setParse`'s walk then returns at the gate, so the classification ladder never runs.**
+#
+#   ⚠⚠ **THE GATE IS RIGHT AND IT STAYS.** It is Tony's own 09-15 ruling and it fixed a crash
+#   — `trigDO` 139 → 0, walk refusals 60 → 0 — and that commit says reverting puts the crash
+#   back. **The LINE IT READS is what is wrong.** One channel, two meanings: the flag that says
+#   *"a parse was GENERATED"* is read by a guard that means *"an INSTALL has happened"*. **Third
+#   time this week `hasNewParse` has meant two things to two readers.**
+#
+#   ## ⚠⚠ THE RULING IS PENDING TONY'S AFTERNOON WORD
+#   **Clay's recommendation is on the record and is NOT yet a ruling**, so the afternoon opens
+#   from a position rather than a menu:
+#   **`hasNewParse` means INSTALLED — one writer, at `setParse`'s tail, nothing else writes it.
+#   "Generated" is not a flag at all; it is read from the CARRIER'S PRESENCE.** `generateParse`
+#   stops raising it; `walkRules` asks whether the carrier is there.
+#   ⚠ **Reordering `parser` would also fix it and is REFUSED — order-dependent correctness is
+#   what F-88 was.**
+#
+#   ## ⚠ AND THE MEASUREMENT HAD TO BE REPAIRED BEFORE THE BISECT COULD START
+#   The first probe put its counting marker AHEAD of `parser(Search)`, so the **generation
+#   walk's own** term dispatches fell inside the window. **It reported PASS at BOTH ENDS** and
+#   would have ended the bisect before it began — and it agreed with what was expected, which is
+#   why it survived two readings. **Doubt the instrument before the code, and hardest when it
+#   agrees with you.**
+#   ⚠ It also withdrew this morning's third-seal sentence *"no generated body has ever run on
+#   trunk"*. **Wrong** — one ran, correctly, until `9785324`. The third seal's clause carries the
+#   withdrawal at its head.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **412 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · frontier dies at station 5 on trunk (station 6 on the branch) · canary
+#   **335** · alphaLint 10 (pre-existing) · **Groups 0/0, support 0/0, TOK 0/0, BeforeSave reset.**
+#
+#   ## THIS AFTERNOON, IN ORDER
+#   1. **`debug ALL`, BOTH STEPS** — diff shown, Tony's OK, retok, roster fixture, commit. It is
+#      first because its step one cannot be left across a pause.
+#   2. **The F-90 repair, per Tony's ruling.** Certificate: `5f24cf3`'s acceptance passes at HEAD
+#      (termDispatch 3, `isRule=1`) · **`trigDO` stays 0** (the gate's own certificate) · walk
+#      refusals stay 0 · old road unmoved · and the Search anchor row goes green.
+#   3. **F-89 RE-READ on the repaired build before anything is assumed about it** — every
+#      `arm=NONE` reading in it is downstream of F-90.
+#   4. The position fix if F-89 survives, then the buy.
+#   5. Seal.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
 # ⚠⚠⚠ SEALED 2026-09-18, THIRD SEAL OF THE DAY, AFTER SEQ 160 AND 161 -- THE PAUSE POINT.
 # F-89's HEADLINE IS WITHDRAWN BY ITS OWN AUTHOR, AND NO GENERATED BODY HAS EVER RUN ON TRUNK.
 #
