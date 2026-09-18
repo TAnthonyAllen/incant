@@ -273,6 +273,34 @@ hostage. PT-4 generates and stops there.
 **Done when:** the spin is located. **Grade:** CONFIRMED and reproduced; mechanism OPEN.
 **Owner:** unassigned.
 
+### F-89 — THE GENERATED CHAIN ANSWERS FALSE WHEN THE RULE HAS AN OPTIONAL TERM
+**The cell that stopped SEQ 159's try-and-buy. Found by one-variable control, 2026-09-18.**
+
+A rule's generated parse body is `return <term>() && <term>();`. When one of those terms was
+declared **optional**, the chain answers **false** and nothing is matched — so the rule's body
+runs over an empty label and `for sumGrup in entries` dies. Two rules, one run, one variable:
+
+| rule | chain result |
+|---|---|
+| `tbOpt tbeA=ANYstring+ SemI?-` | **`result=false`** |
+| `tbReq tbeB=ANYstring+` — no optional tail | `result=return` — **not false** |
+
+**The rule without an optional tail does not fail the chain.** That is the whole of the
+measurement and it names the term with confidence.
+
+⚠ **IT CONFIRMS A CANDIDATE THAT HAD BEEN STANDING UNRUN SINCE 2026-09-09** — `incant/frontier`'s
+retired prose carried *"the emitter drops the `?` modifier"*, recorded from `incant/trigRecur`
+reading `chainTrue=0` on every arm. **Nobody had driven it.** An optional term emitted as a
+mandatory call makes a miss fatal to the whole chain.
+
+⚠ **GRADE: the A/B names the TERM. The MECHANISM is still the 09-09 candidate** — bear-trap
+#18's split, reproduction proves the symptom and never the cause. What has NOT been read is the
+emitter's own handling of `Modifier`, and the obvious next step is to read it before building.
+
+**Blocks:** frontier station 6, F-83's acceptance line, and the whole of SEQ 159 item 2.
+**Where the work sits:** branch `checkinput-state`, commit `acd2d35`, **not merged**.
+**Grade:** CONFIRMED for the cell. **Owner:** unassigned.
+
 ### F-86 — KANT-40 in anger: a `}` inside a comment in a `code={ }` body ends the body
 **Reproduced 2026-09-17 with a three-arm A/B**, in `IncantForms/WorkingOn/parser` — which is
 checkSKIP's own subject, so the trap fired in the file written to retire it.
@@ -402,8 +430,17 @@ bodies, one executor.** A rule with an action needs its PARSE body run to fill t
 its ACTION body run with that label bound — in that order, in one activation. `parseRule` runs
 exactly one BlocK today.
 
+⚠⚠ **RULING 1 IS ANSWERED BY MEASUREMENT, 2026-09-18: YES, AND IT IS A SMALL BUILD.** A host
+node carrying a `CodE`-tagged child and `isCodeD` compiles in kant with verbs that already
+exist — `l1Host +% <CodE copy>; l1Host :. isCodeD; compile(l1Host)` prints *compile succeeded*
+and grows a `BlocK`. Probed before anything was built. The build is on branch
+`checkinput-state` and **moves the frontier from station 5 to station 6**.
+⚠ One spelling trap paid for on the way: `builtinParseR = 0` gives the carrier the INTEGER 0,
+and `if x;` on a node holding 0 reads **false** — so the carrier's existence test went dark on
+a carrier that was there. Leave it data-less and let `+%` mint it.
+
 **WHAT TONY IS OWED A RULING ON, and the three are separable:**
-1. **Does the carrier get compiled** — i.e. is `builtinParseR` a CodE-shaped node with its own
+1. ~~**Does the carrier get compiled**~~ — **ANSWERED ABOVE.** Originally: — i.e. is `builtinParseR` a CodE-shaped node with its own
    `BlocK`, or does the parse text get compiled into something else?
 2. **Who runs both bodies, and in which order** — `parseRule` gaining a second fire, or a new
    executor, or the carrier's body ending by calling the action.
