@@ -1,3 +1,107 @@
+# ⚠⚠⚠ SEALED 2026-09-18, TWENTY-THIRD SESSION -- STATION 4 IS UNBLOCKED, F-85/F-87/F-88 ALL
+# CLOSED, AND TWO RULED SPELLINGS TURNED OUT TO BE WRONG. THE DAY'S DOCTRINE IS THE CONTROL.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-18 11:18 and `git log -1 --date=iso` 11:16. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 412 green / 51 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed.** Nine commits in Groups, one in support.
+#
+#   The arc: 398 (seal) -> 399 (runRule withdrawn) -> 406 (builtinParseR) -> 412 (skipT).
+#   **RED 51 UNMOVED ROW FOR ROW FROM THE FIRST RUN OF THE DAY TO THE LAST**, diffed each time.
+#   Every green delta is new rows, never a repair of an old one.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. TWO RULED SPELLINGS WERE WRONG AND THE RULINGS BEHIND THEM WERE RIGHT.** That is the
+#   day's shape and it happened twice, so it is a pattern rather than an accident.
+#   `parser` takes the rule via **bare `argument`**, not `*argument` -- the argument IS the rule
+#   (a copy of the FIELD sharing the live rule's BODY, isGrouP 0), so the star lawfully yields
+#   null. And the checkSKIP blocker is **`//`, not `/*`** -- `"/*"` and `"*/"` are innocent,
+#   measured four ways. **Both rulings stand; only the spellings were struck.**
+#
+#   **b. ⚠⚠ RUNNING THE CONTROL FIRST IS WHAT CAUGHT BOTH, AND IT IS THE DAY'S DOCTRINE.**
+#   `*argument` broke ALL THREE roots that already worked. Had `parser(list)` been tried first,
+#   its failure would have read as a `list` problem and the spelling would have shipped. Same
+#   for checkSKIP: respelling BOTH delimiters would have "worked" and left `/*` wrongly blamed
+#   forever; the single-variable control is what said `BlockCommenT` was never the problem.
+#
+#   **c. runRule GATES AND NEVER GENERATES.** The first-use install is withdrawn (Tony). It was
+#   generation inside a gate -- a C++ verb reaching UP to resolve an incant action by name -- and
+#   its order was backwards besides: runRule had compile-then-setParse where `parser`'s own
+#   `compileRules` has setParse-then-compile. **Doctrine candidate, Tony to sign: calls go DOWN,
+#   never up.** Kant calls C++ verbs; C++ fires installed slots; C++ never resolves an action by
+#   name.
+#
+#   **d. THE PARSE PARKS IN `builtinParseR` AND THE RULE KEEPS ITS ACTION. F-87 CLOSED.** Three
+#   changes, each its own one-variable A/B: the carrier (tested on `isCodeD` **read at entry**,
+#   because generateParse sets that flag itself); **walkRules skips noPrint FIRST** -- `CodE`
+#   reads `isRulE` 1 AND `noPrinT` 1, so the isRulE test alone let the walk descend into the
+#   ACTION BODY; and `hasNewParse` **withheld** when the parse parks.
+#   ⚠ **A capture-then-test respell of `isRulE == 0` was tried first on bear-trap #35's advice
+#   and made it WORSE** -- every member walked. The flag was never the problem, the predicate was.
+#
+#   **e. F-88 CLOSED, AND ONLY BECAUSE IT WAS MEASURED AFTER ITEM 1 RATHER THAN ASSUMED.** The
+#   carrier split alone left the spin standing. The cause is **one channel, two meanings** --
+#   `hasNewParse` read as *"a parse was generated"* by walkRules and *"a parse is INSTALLED AND
+#   FIRABLE"* by runRule. Parked in a carrier they come apart and the flag is a promise nothing
+#   keeps. A/B: withheld -> exit 0 and the action fires; raised -> exit 142 on the alarm, no
+#   output. **Closing it as an F-87 consequence would have banked a fix that did not happen.**
+#
+#   **f. THE COMMENT STORE IS BUILDABLE TODAY -- the gating probe PASSED.** kant format only, no
+#   emitter, block-comment payloads until checkSKIP, and **the retok is the reset** so
+#   idempotency is structural. apply/retok/apply gave `8a29fa5197…` both times; codeOnly diff
+#   empty at 8273 lines; the H7 control (apply twice, no retok) doubles the payload.
+#   ⚠ **`insertAt` has NO already-present check** -- read, not assumed.
+#
+#   **g. STATION 6 HAS THREE BROKEN LINKS, NOT ONE, AND LINK 2 IS A RULING.** The body runs and
+#   its argument is an EMPTY label. The carrier is TEXT not code; the rule's `BlocK` is the
+#   ACTION so the terms are never matched; and `checkInput` sets `label = 0` for a members-rule
+#   by design. **The acceptance line is downstream of actually RUNNING the generated parse** --
+#   filling the label is not a repair to a walk that nearly works, the walk does not exist yet.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **412 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · **frontier dies at station 5** · canary **335** · alphaLint 10 out of
+#   order (the pre-existing opIsShortCircuit/opIsOR pair) · **Groups 0/0, support 0/0, TOK 0/0,
+#   BeforeSave reset.**
+#   ⚠ **THE STALENESS GUARD FIRED AT SEAL TIME AND WAS OBEYED**: the comment-store probe's
+#   retoks made `GroupRules.h` newer than the binary, so `pop.sh` printed `⚠ STALE`. Rebuilt,
+#   re-run, unchanged at 412/51. The content was identical either way; **the point is that the
+#   first run was not seal-able and was not sealed.**
+#   ⚠ **AND THE FRONTIER HAS NOT BEEN REVISED TO TODAY'S EDGE.** Station 5 is `compile twin`,
+#   which measures the TWIN road; the campaign moved to the CARRIER road today. It is an
+#   instrument pointing at a question that has been overtaken. **Revising it is owed.**
+#
+#   ## ⚠⚠ WAITING ON TONY
+#
+#   **1. STATION 6's THREE RULINGS, and they are separable.** Does the carrier get compiled --
+#   is `builtinParseR` a CodE-shaped node with its own `BlocK`? Who runs both bodies and in
+#   which order -- `parseRule` gaining a second fire, a new executor, or the carrier's body
+#   ending by calling the action? Which label do the terms attach into? docs/fixIts.md F-83.
+#   **2. `setParse` installing `parseMethod` from the carrier is DELIBERATELY UNDONE.** It is not
+#   a stub -- it is the switch that turns the parse on, and it waits on ruling 2 above.
+#   **3. The comment store's format question** (docs/commentDirectives.md §3) -- the probe says
+#   kant-only is right, and the ruling is Tony's.
+#   **4. `reportRunAbandoned`'s mark, SECOND SIGHTING.** The first is a false positive; this one
+#   is a TRUE positive whose resume point names the wrong line -- it named `IndenT`, two lines
+#   above the `"//"` that actually refused, and sent two readers at the wrong construct.
+#   **5. `~/bin/gz` line 18 is corrupted** -- `ruleTest.hitIt(rule)dH() {…}` -- so sourcing it
+#   errors at that line. `bs` still works; the stray text wants deleting.
+#
+#   ## TOMORROW, IN ORDER
+#   1. Station 6, once link 2 is ruled. `for sumGrup in entries;` is the acceptance line.
+#   2. Revise `incant/frontier` to the carrier road.
+#   3. The comment store proper, if the format is ruled.
+#
+#   ## DOCTRINE EARNED TODAY
+#   **Run the control FIRST** -- twice paid, twice it caught a wrong spelling behind a right
+#   ruling · **measure the consequence after the fix, not before** (F-88) · one channel one
+#   meaning, newest member `hasNewParse` · a ruling can stand while its spelling is struck.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
 # ⚠⚠⚠ SEALED 2026-09-17, TWENTY-SECOND SESSION -- FIVE ROWS CLOSED, AND FIVE OF MY OWN
 # FINDINGS WITHDRAWN. THE DAY'S DOCTRINE IS ABOUT THE SECOND NUMBER.
 #

@@ -17,8 +17,12 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      157
-STATUS:   working        # SEQ 157 picked up 2026-09-18; items 1-6 landing in order
+SEQ:      158
+STATUS:   cleared        # SEQ 158 all five items landed; sealed 2026-09-18
+WRITTEN:  2026-09-18  -  Clay (SEQ 158, dictated via Tony; transcribed by Clod)
+          ⚠ SEQ 158 IS LIVE AND IS AT THE FOOT -- builtinParseR, F-88 after not before,
+          the checkSKIP respell, the comment-store probe, then station 6.
+STATUS-157: cleared      # SEQ 157 all six items landed 2026-09-18
 WRITTEN:  2026-09-18  -  Clay (SEQ 157, dictated via Tony; transcribed by Clod)
           ⚠ SEQ 157 IS LIVE AND IS AT THE FOOT -- the runRule withdrawal, the
           checkSKIP measurement, two docket cards, then the parser order.
@@ -7903,3 +7907,59 @@ STATUS:  working
   block>; grammar cost as noted (DefinE as expression, or a += arm); gated
   behind station 6 and the JIT resume. One page, Tony's brainstorm quoted as
   his.
+
+
+===================================================================
+SEQ 158  -  builtinParseR, F-88, checkSKIP, THE COMMENT PROBE, STATION 6
+WRITTEN: 2026-09-18  -  Clay, dictated via Tony; transcribed by Clod
+STATUS:  cleared
+===================================================================
+
+  RULING CORRECTIONS TO RECORD FIRST, in fixIts and the checkSKIP/F-85 rows:
+  (a) parser takes the rule via bare argument -- the ruling stands, the * is
+      struck, the reason is your addrOf reading;
+  (b) bear-trap #35's disagreement withdrawn on your hit/miss measurement.
+
+  1. builtinParseR (station 4), one stroke. generateParse writes the generated
+  body to builtinParseR (noPrint artifact, builtinActoR's shape) whenever the
+  rule already carries code={…}; to CodE otherwise. setParse installs
+  parseMethod from builtinParseR when present. setActions untouched.
+  Certificate: F-87's three arms -- parser(list) then fire -> the action FIRES;
+  list's CodE byte-unchanged across parser(list); Search/DO/ANYorNum in
+  parserTest unmoved. Grammar lines before/after verbatim where any term changes.
+
+  2. F-88, measured after item 1, not before. Re-run the spin on the item-1
+  build. If it's gone, F-88 closes as an F-87 consequence with that sentence. If
+  it survives: one probe at parseLoop's entry -- cursor position per iteration on
+  the spinning term, depth-capped so it reports rather than hangs. Then find the
+  old parse's zero-advance guard and report where it lives before proposing one
+  for the new road.
+
+  3. checkSKIP tester. Respell LineCommenT with whichever escape form reads
+  better, say which and why in one line. Then drive it: a fixture with a real //
+  comment in the input, pinned on what it consumes. Report; do not touch C++
+  checkSkip.
+
+  4. Comment store -- one probe. Apply a kant insertAt directive to a bare
+  GroupRules.mm after a // slug line with a /* … */ payload, retok, apply again:
+  second .mm byte-identical, codeOnly.py diff empty. If that passes,
+  docs/commentDirectives.md records: kant format only, no emitter, retok; apply
+  is one command, block-comment payloads until checkSKIP. If it fails, the card
+  says parked-behind-checkSKIP and why.
+
+  5. Then station 6, with list as the spec: the parse writes matched data into
+  the label it minted and bound as the body's argument; for sumGrup in entries
+  is the acceptance line.
+
+  NITS, no stroke: the 36560bf message misnames opIN's arm -- leave it, it's in
+  the record here. reportRunAbandoned's mark: add a second sighting to its
+  parked row.
+
+  Seal once at the end.
+
+  ADDENDUM, kitchen, relayed same day: after the final commit and push, reset
+  Tony's BeforeSave. The seal's clean-and-pushed line gains "BeforeSave reset."
+  Read the script once before running it -- say in one line what it does, and if
+  it touches anything outside BeforeSave, stop and report rather than run.
+  ⚠ CLARIFIED BY TONY: `gz` sets up a number of zsh functions; the one that
+  resets BeforeSave is `bs`. Run `bs`, not `gz`.

@@ -3,8 +3,13 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      102
-STATUS:   fresh           # SEQ 102 at the FOOT -- SEQ 157's five items, all landed
+SEQ:      103
+STATUS:   fresh           # SEQ 103 at the FOOT -- SEQ 158's five items, all landed
+WRITTEN:  2026-09-18  -  Clod  (SEQ 103 APPENDED at the FOOT -- station 4 UNBLOCKED, F-85/F-87/
+          F-88 all CLOSED, the comment-store probe PASSED, and station 6 measured at three
+          broken links. ⚠ TWO RULED SPELLINGS WERE WRONG AND BOTH RULINGS WERE RIGHT.)
+          PRIOR HEADER PRESERVED BELOW.
+STATUS-102: fresh         # SEQ 102 at the FOOT -- SEQ 157's five items, all landed
 WRITTEN:  2026-09-18  -  Clod  (SEQ 102 APPENDED at the FOOT -- the runRule withdrawal, the
           checkSKIP blocker measured as // and not /*, two docket cards, and STATION 4
           UNBLOCKED with the ruled *argument spelling FAILING its own control.)
@@ -5413,3 +5418,85 @@ STATUS:  fresh
   the payload question that gates it.
 
   END SEQ 102
+
+
+===================================================================
+SEQ 103  -  ANSWER TO SEQ 158: ALL FIVE ITEMS LANDED
+WRITTEN: 2026-09-18  -  Clod
+STATUS:  fresh
+===================================================================
+
+  HEADLINE: station 4 is UNBLOCKED, F-85 / F-87 / F-88 all CLOSED, the comment
+  store's gating probe PASSED, and station 6 is measured at THREE broken links
+  with link 2 wanting a ruling. Fleet 412 green / 51 red, red UNMOVED ROW FOR
+  ROW from the first run of the day to the last. Nine commits in Groups, one in
+  support. All three repos clean and pushed.
+
+  ⚠⚠ THE ONE THING TO CARRY FORWARD: TWO RULED SPELLINGS WERE WRONG AND BOTH
+  RULINGS WERE RIGHT, and RUNNING THE CONTROL FIRST is what caught both.
+  `*argument` broke ALL THREE roots that already worked -- had parser(list) gone
+  first, its failure would have read as a `list` problem and the spelling would
+  have shipped. checkSKIP the same: respelling BOTH delimiters would have
+  "worked" and left /* wrongly blamed forever.
+
+  ITEM 1 builtinParseR: done, 19c6f5a. THREE changes, each its own A/B:
+    - the carrier, tested on isCodeD READ AT ENTRY (generateParse sets that flag
+      itself further down, so a later read parks every parse)
+    - walkRules SKIPS noPrint FIRST. ⚠ THE ONE NOBODY HAD LOOKED AT: CodE reads
+      isRulE=1 AND noPrinT=1, so the isRulE test alone let the walk DESCEND INTO
+      THE ACTION BODY and generate a parse for it. ⚠ A capture-then-test respell
+      of `isRulE == 0` was tried FIRST on bear-trap #35's advice and made it
+      WORSE -- every member walked. The flag was never the problem.
+    - hasNewParse withheld when the parse parks (item 2's cause)
+  Certificate: the action FIRES; CodE byte-identical to what compile alone
+  produces, sumGrup and all; the first three roots unmoved (pure addition).
+  ⚠ setParse does NOT install parseMethod from the carrier, deliberately -- it
+  is not a stub, it is the switch that turns the parse on, and it is station 6.
+
+  ITEM 2 F-88: CLOSED, and the ordering clause is why. The carrier split ALONE
+  left the spin standing. Cause is ONE CHANNEL TWO MEANINGS -- hasNewParse read
+  as "generated" by walkRules and "installed and firable" by runRule. A/B:
+  withheld -> exit 0 and the action fires; raised -> exit 142, no output.
+  It also explains the state dependence F-88 could not account for.
+  No parseLoop probe was needed; the item-2 fallback is unspent.
+
+  ITEM 3 checkSKIP: done, f842ae8. The spelling is "/\/" -- it escapes only the
+  character that must stop being adjacent and yields ONE literal term matching
+  both. ⚠ A MEASUREMENT, NOT A TASTE: "/" "/" yields TWO one-character terms,
+  and terms are skip points, so that spelling accepts slash-space-slash. Tony's
+  tester now RUNS.
+  ⚠ THE DRIVE HIT A WALL AND IT IS STATION 6's: a rule driven standalone has no
+  enclosing activation to take its label, so its terms still read their own
+  DEFINITIONS afterwards. FOUR routes to an observable were tried and all failed
+  -- recorded so nobody re-walks them. And NOTHING ROUTES A SKIP THROUGH THESE
+  RULES: the live skipper is the C++ checkSkip, untouched as ruled.
+
+  ITEM 4 comment store: PROBE PASSED, 73bc5b5. apply/retok/apply gave
+  8a29fa5197… BOTH TIMES; codeOnly diff empty at 8273 lines; H7 control (apply
+  twice, no retok) doubles the payload. kant format only, no emitter, block
+  payloads until checkSKIP, the retok is the reset.
+  ⚠ ONE SPELLING TRAP: the payload is ONE LINE with \t and \n escapes. A real
+  newline in the quotes inserted a bare `>` and nothing else -- silent wrong
+  output, not a refusal.
+
+  ITEM 5 station 6: MEASURED, 12f3309, nothing built. The body runs and its
+  argument is an EMPTY label. Three broken links: the carrier is TEXT not code;
+  the rule's BlocK is the ACTION so the terms are never matched; checkInput sets
+  label=0 for a members-rule by design. THE ACCEPTANCE LINE IS DOWNSTREAM OF
+  ACTUALLY RUNNING THE GENERATED PARSE -- the walk does not exist yet.
+  THREE RULINGS OWED and they are separable; F-83 carries them.
+
+  NITS: 36560bf left alone as ruled. reportRunAbandoned gained its SECOND
+  SIGHTING -- a TRUE positive whose resume point names the wrong line.
+
+  ⚠ KITCHEN: the staleness guard FIRED at seal time (the probe's retoks made
+  GroupRules.h newer than the binary) and was OBEYED -- rebuilt, re-run,
+  unchanged at 412/51. The first run was not seal-able and was not sealed.
+  ⚠ AND `~/bin/gz` LINE 18 IS CORRUPTED -- `ruleTest.hitIt(rule)dH() {…}` --
+  so sourcing it errors at that line. `bs` works and is what ran. Flagged.
+
+  OWED / NEXT: station 6 once link 2 is ruled; revise incant/frontier, which
+  still measures the TWIN road while the campaign moved to the CARRIER road;
+  the comment store proper once the format is ruled.
+
+  END SEQ 103
