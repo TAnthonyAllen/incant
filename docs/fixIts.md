@@ -366,6 +366,54 @@ three arms plus a before/after dump. **Owner:** unassigned — the shape is Tony
 ⚠ **Scope note: `list` is the spec.** Nothing here is shaped around what a future skip rule might
 want; the skip rule needs nothing beyond what `list` needs (Tony, 2026-09-17).
 
+⚠⚠ **STATION 6 MEASURED 2026-09-18, AND THE CHAIN HAS THREE BROKEN LINKS, NOT ONE. IT IS A
+RULING, NOT A STROKE.** `list` is the spec and `for sumGrup in entries;` is the acceptance line.
+Nothing was built; everything below was read or driven.
+
+**THE PROBE.** A rule shaped exactly like `list` — `stRule isRule entries=ANYstring+ SemI?-
+code={…}` — put through `parser(stRule)` and then driven with `stRule("alpha beta gamma;")`
+from an enclosing action, its body dumping its own `argument`:
+
+```
+ST body ran
+stRule              	no data
+```
+
+**The body runs and its argument is an EMPTY label.** Not the wrong data — no data and no list.
+
+**THE THREE LINKS, each measured or read at its site:**
+
+| # | what | state |
+|---|---|---|
+| 1 | **the carrier is TEXT, not code** | `list["builtinParseR"]` dumps as a bare `string` node, noPrint, **no list**. `compile` needs an `isCoded` node with a `CodE` attribute; the carrier is neither. **Nothing can run it.** |
+| 2 | **the rule's `BlocK` is the ACTION** | `list["BlocK"]` dumps `StatemenT=gPrinT` and `StatemenT=gFOR` — the action's own two statements. `parseRule` runs that BlocK, so **the terms are never matched at all** |
+| 3 | **`checkInput` mints NO label for this shape** | `RuleStuff.twk`: `if noLabel \|\| (hasMembers && !binType) label = 0;`. A rule with members is exactly that case. `parseRule` then mints `myLabel = new(field.tag)` **fresh** and binds THAT — which is the empty node the body sees |
+
+⚠ **SO THE ACCEPTANCE LINE IS DOWNSTREAM OF ACTUALLY RUNNING THE GENERATED PARSE, and that is
+the finding.** The body cannot see matched data because **nothing matched anything**: the parse
+body that would fire `entries()` and `SemI()` is parked as text and the executor is running the
+action instead. Filling the label is not a repair to a walk that is nearly working — the walk
+does not exist yet.
+
+⚠ **AND IT IS WHY `setParse` INSTALLING `parseMethod` FROM THE CARRIER WAS LEFT UNDONE
+DELIBERATELY** (F-87's closing note). That install is not a tidy-up; it is **the switch that
+turns the parse on**, and turning it on means answering a question nobody has ruled: **two
+bodies, one executor.** A rule with an action needs its PARSE body run to fill the label, then
+its ACTION body run with that label bound — in that order, in one activation. `parseRule` runs
+exactly one BlocK today.
+
+**WHAT TONY IS OWED A RULING ON, and the three are separable:**
+1. **Does the carrier get compiled** — i.e. is `builtinParseR` a CodE-shaped node with its own
+   `BlocK`, or does the parse text get compiled into something else?
+2. **Who runs both bodies, and in which order** — `parseRule` gaining a second fire, or a new
+   executor, or the carrier's body ending by calling the action.
+3. **Which label the terms attach into** — `checkInput`'s `label = 0` for a members-rule is
+   deliberate on the tok road, so the new road either changes that condition or supplies its own
+   label to `into` before the terms run.
+
+**Grade:** CONFIRMED for all three links, each read at its site or driven. **Owner:** Tony — the
+shape is his, and link 2 is a design question rather than a defect.
+
 ⚠⚠ **RULING 2 IS WITHDRAWN — TONY, 2026-09-18. THE FIRST-USE INSTALL IS OUT OF `runRule`.**
 The 2026-09-17 ruling folded `compile(rule); setParse(rule);` into `runRule` so a rule got its
 parse at first use. **It is removed.** `runRule` gates on `hasNewParse` and installs nothing;
