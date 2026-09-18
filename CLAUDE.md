@@ -623,6 +623,25 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > ruling as surviving and the spelling as struck — or the next reader throws out the ruling with
 > the spelling, which costs more than the original error.
 
+> ⚠⚠ **RULE H16 (CANDIDATE) — A PROBE IS VALIDATED AGAINST A KNOWN-GOOD END BEFORE ITS PASS IS
+> BELIEVED. Clay, 2026-09-18, recorded as a candidate pending Tony's word.**
+>
+> **H15 runs the control before the change; this runs the control before the INSTRUMENT.** A probe
+> is a claim that a difference is visible, and until it has been pointed at an end where the answer
+> is already known, **that claim is unmeasured** — so a PASS out of a fresh probe is not evidence,
+> it is an untested assertion that happens to agree with you.
+>
+> ⚠ **A GREEN THAT FLATTERS IS AN INSTRUMENT FAILURE, AND IT IS THE ONE NOBODY AUDITS.** That is
+> the 2026-08-05 unsurprising-green rule with a name and a step attached.
+>
+> **THE WORKED EXAMPLE IS F-90'S COUNTING-WINDOW SLIP.** The first termDispatch probe put its
+> marker AHEAD of `parser(Search)`, so the **generation walk's own** term dispatches fell inside
+> the window. It reported **PASS at both ends** — including at `5f24cf3`, where the answer was
+> known to be PASS — and **the known-good end is exactly what did not discriminate**, because a
+> probe that always says PASS agrees with the good end for free. Validation therefore needs
+> **both** ends, or one end plus a known-bad: the marker moved after generation and the two ends
+> separated **3 / 0**. Unvalidated, it would have ended the bisect before it began.
+
 > ⚠ **MATCH THE TASK'S FAILURE LOUDNESS TO THE SEAT'S MECHANICAL STATE.** Adopted 2026-08-08, and
 > it is doctrine about the three-seat model itself rather than about the code.
 >
@@ -900,7 +919,7 @@ it. Three destinations, and they are not interchangeable:
 
 | register | for | shape |
 |---|---|---|
-| **`docs/fixIts.md`** | **the default.** Something is broken or owed, and it is actionable | a row: what · where (file:line) · evidence · done-when · owner |
+| **`docs/fixIts.md`** | **the default.** Something is broken or owed, and it is actionable | a row: what · where (file:line) · evidence · done-when · owner · **and an ATTEMPT LOG** — one line per attempt, *what was tried → what moved*, reverts included as *"reverted whole, bought X"*, ending with the POP row that certifies it. **No prose, and appended in the same commit as the attempt, never reconstructed after** (Tony, 2026-09-18; `docs/fixIts.md` carries the form, and F-90 is the worked example) |
 | `docs/knownErrors.md` | a deep defect needing investigation and a **ruling** before anyone can act | long-form KE entry with measurement and discrimination |
 | `TODO.md` | design and roadmap work, organised by arc | prose under its phase |
 

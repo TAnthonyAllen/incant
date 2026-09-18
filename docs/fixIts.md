@@ -61,6 +61,35 @@ cycle so the trail survives, then moves out.
 
 ---
 
+## ⚠⚠ EVERY ROW CARRIES AN ATTEMPT LOG — TONY, RULED 2026-09-18
+
+**PROBLEM STATEMENT, THEN ONE LINE PER ATTEMPT: WHAT WAS TRIED, THEN WHAT MOVED. NO PROSE.**
+The log **ends with the POP row that certifies the close**, so the last line of a row is always
+the instrument that catches the defect coming back.
+
+⚠ **A REVERT IS AN ATTEMPT AND GETS ITS LINE** — *"reverted whole, bought X"*. An attempt that
+was thrown away still bought a measurement, and that measurement is the cheapest thing in the
+register and the first thing lost when it is not written down.
+
+⚠⚠ **APPENDED IN THE SAME COMMIT AS THE ATTEMPT, NEVER RECONSTRUCTED AFTERWARDS.** A log written
+at the end is a log written from memory, and memory keeps the attempts that worked. The value is
+in the ones that did not.
+
+**THE FORM:**
+
+```
+ATTEMPT LOG
+  1. <what was tried>  ->  <what moved>
+  2. <what was tried>  ->  <what moved>
+  POP: <the row that certifies the close>
+```
+
+⚠ **F-90 IS THE FIRST ROW IN THE FORM, AND IT IS THE ONE EXCEPTION TO "NEVER RECONSTRUCTED"** —
+backfilled from the 2026-09-18 bisect because it is the worked example, and marked as backfilled
+where it stands. Nothing else is backfilled.
+
+---
+
 ## OPEN
 
 ### F-85 — ✅ CLOSED 2026-09-18 — `parser` takes its root BARE; `*argument` was the wrong mechanism
@@ -314,24 +343,42 @@ reported PASS at both ends and would have ended the bisect before it began. The 
 **after generation and immediately before the drive**, and the two ends separate 3 / 0.
 **Doubt the instrument before the code — and doubt it hardest when it agrees with you.**
 
-⚠⚠ **THE RULING IS PENDING TONY'S AFTERNOON WORD. CLAY'S RECOMMENDATION IS ON THE RECORD AND
-IS NOT YET A RULING** — recorded here so the afternoon starts from a position rather than a menu:
+⚠⚠ **RULED BY TONY, 2026-09-18 AFTERNOON. THIS IS THE REPAIR AND IT IS NO LONGER A
+RECOMMENDATION:**
 
-> **`hasNewParse` MEANS INSTALLED.** One writer, at `setParse`'s tail, and nothing else writes it.
-> **"Generated" is not a flag at all** — it is a fact readable from the **carrier's existence**
-> (`builtinParseR`, or a `CodE` the generator wrote). So `generateParse` **stops raising it**, and
-> where `walkRules` needs *"already generated"* it asks whether the carrier is there.
-> ⚠ **REORDERING `parser` WOULD ALSO FIX IT AND IS REFUSED: order-dependent correctness is what
-> F-88 WAS.**
+> **`hasNewParse` MEANS INSTALLED.** It is written at **`setParse`'s tail and nowhere else**.
+> **"Generated" is not a flag at all** — where any walk needs *"already generated"* it reads the
+> **carrier's presence**: `builtinParseR`, or a `CodE` the generator wrote. So `generateParse`
+> **stops raising it**.
+> ⚠ **`parser` IS NOT REORDERED.** Order-dependent correctness is what F-88 was.
+> ⚠ **THE 09-15 GATE STAYS EXACTLY AS IT IS.** It is the reader that was wrong about what it
+> reads, not the gate.
 
 ⚠ **THE 09-15 GATE IS RIGHT AND STAYS.** It is the reader that is wrong about what it reads, and
 this is **the third time this week `hasNewParse` has meant two things to two readers** — F-88,
 then the ruling-2 seat question, now this.
 
+```
+ATTEMPT LOG   ⚠ BACKFILLED from the 2026-09-18 bisect — the one exception to never-reconstructed,
+              because this row is the worked example for the convention.
+  1. termDispatch probe with its counting marker AHEAD of parser(Search)
+        -> PASS at BOTH ENDS. Instrument void; the bisect could not start.
+  2. marker moved to sit after generation and immediately before the drive
+        -> the two ends separate 3 / 0. The bisect can start.
+  3. bisect 5f24cf3..HEAD, one bare build per step
+        -> first failing 9785324, last passing 0324343.
+  4. H7 control: the installedIsDone gate removed AT 9785324
+        -> termDispatch 0 -> 3, isRule=1. The LINE is named, not the commit.
+  5. revert the gate on trunk -- REFUSED BY READING, not run
+        -> 9785324's own message says the trigDO crash returns. The gate stays.
+  POP: owed on the repair -- the Search anchor row, born red and graduating on that commit.
+```
+
 **Done when:** `setParse` installs on a generated rule, without putting `trigDO`'s recursion
 back. **Blocks:** F-89 (its arm=NONE readings are all downstream of this), station 6, the merge.
 **Grade:** CONFIRMED — bisected with a passing end, a failing end, and an H7 control on the line.
-**Owner:** Tony — the gate is his ruling and the ordering is a design question.
+**Owner:** Clod — **RULED 2026-09-18 afternoon**, the design question is answered and the build
+is the only thing left.
 
 ### F-89 — ⚠⚠ HEADLINE WITHDRAWN 2026-09-18. NO EMITTED TERM CALL REACHES A RULE AT ALL
 **THE OPTIONAL TERM IS A CORRELATE AND NOT THE CAUSE, and the correction is rule H15's own
