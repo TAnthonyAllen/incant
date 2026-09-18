@@ -1,0 +1,40 @@
+/*  searchNewParseT -- TONY'S 2026-09-14 ACCEPTANCE, AS A ROW. `parser(Search)` then
+    `Search("search list;")` under traceParse shows the GENERATED body dispatching its terms.
+
+    It passed at 5f24cf3 and failed from 9785324 onward -- setParseWalk's `installedIsDone`
+    gate reads `hasNewParse`, which generateParse raised, so `parser`'s walk flagged every rule
+    it generated for and `compileRules`' setParse then left all of them alone. Nothing was
+    installed, nothing dispatched, and no emitted term call was ever made. docs/fixIts.md F-90.
+
+    ⚠⚠ THE MARKER'S POSITION IS THE INSTRUMENT AND IT IS NOT A DETAIL. The bisect's first probe
+    put its counting marker AHEAD of `parser(Search)`, so the GENERATION WALK's own term
+    dispatches fell inside the window -- it reported PASS at BOTH ENDS and would have ended the
+    bisect before it began. The marker sits after generation and immediately before the drive,
+    and the two ends then separate 3 / 0. Rule H16: a probe is validated against a known-good
+    end before its PASS is believed.
+
+    ⚠ WHAT IT ASSERTS IS PRESENCE WITH A VALUE, NOT AN ABSENCE. One row per term of
+    `Search  search- followedBy GrouP+ SemI-`, each wanting a RULEDISPATCH line carrying
+    isRule=1: FOUR terms, because `followedBy` is a term like the other three. F-90's own
+    certificate says "termDispatch 3" and that number came from a differently-filtered probe --
+    measured here, it is four, and the rows name them rather than counting them, so a partial
+    install says WHICH term is missing instead of just being short.
+
+    ⚠ SNP-0 IS THE KNOWN-GOOD END AND IT IS GREEN IN BOTH STATES, deliberately. `Search` itself
+    dispatches whether or not its generated body runs, so a run with no term dispatch at all
+    still prints it. Without that row a silent trace and a working-but-unterm-ed parse look
+    identical -- which is rule H16: a probe is validated against an end whose answer is already
+    known before its PASS is believed.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+parser(Search);
+traceParse(0);
+
+cerr "=== SNP MARKER -- generation is DONE, the drive starts HERE ===":;
+Search("search list;");
+
+print "SEARCHNEWPARSET SENTINEL -- reached the foot":;
+stop();

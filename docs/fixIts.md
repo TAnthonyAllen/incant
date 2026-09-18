@@ -355,7 +355,7 @@ hostage. PT-4 generates and stops there.
 **Done when:** the spin is located. **Grade:** CONFIRMED and reproduced; mechanism OPEN.
 **Owner:** unassigned.
 
-### F-90 — ⚠⚠ BISECTED: `setParseWalk`'s `installedIsDone` GATE STOPPED THE NEW PARSE AT `9785324`
+### F-90 — ✅ CLOSED 2026-09-18 — the gate stayed; the LINE IT READS was repaired
 **Tony's acceptance from 2026-09-14** — `parser(Search)` then `Search("search list;")` with
 `traceParse` on shows the generated body dispatching its terms — **passed at `5f24cf3` and
 fails at HEAD.** Bisected, one build per step, bare.
@@ -424,14 +424,39 @@ ATTEMPT LOG   ⚠ BACKFILLED from the 2026-09-18 bisect — the one exception to
         -> termDispatch 0 -> 3, isRule=1. The LINE is named, not the commit.
   5. revert the gate on trunk -- REFUSED BY READING, not run
         -> 9785324's own message says the trigDO crash returns. The gate stays.
-  POP: owed on the repair -- the Search anchor row, born red and graduating on that commit.
+--- the repair, 2026-09-18 afternoon, written as it went ---
+  6. anchor fixture incant/pop/searchNewParseT, marker AFTER generation
+        -> at HEAD: ZERO term dispatches. Born red, as predicted.
+  7. generateParse stops raising hasNewParse (the `:. hasNewParsE` line deleted)
+        -> the flag now has ONE writer, setParse's tail.
+  8. walkRules' `if hasNewParsE` becomes the carrier's presence --
+     `if builtinParseR` then `if isCodeD`
+        -> the cycle guard survives without the flag.
+  9. drive, alarm-bounded
+        -> FOUR term dispatches, all isRule=1, all arm=runRule:
+           search, followedBy, GrouP, SemI. The acceptance passes at HEAD.
+ 10. H7 control: parser reverted to its pre-repair text, fleet re-run
+        -> the four term rows go RED and SNP-0 stays GREEN, which is what
+           proves the instrument is alive in the red state.
+  POP: incant/pop/searchNewParseT + 7 rows in genLadder/pop.sh. Fleet 420 -> 427
+       green, red 51 UNMOVED ROW FOR ROW against the pre-F-90 baseline.
 ```
 
-**Done when:** `setParse` installs on a generated rule, without putting `trigDO`'s recursion
-back. **Blocks:** F-89 (its arm=NONE readings are all downstream of this), station 6, the merge.
-**Grade:** CONFIRMED — bisected with a passing end, a failing end, and an H7 control on the line.
-**Owner:** Clod — **RULED 2026-09-18 afternoon**, the design question is answered and the build
-is the only thing left.
+⚠⚠ **THE CERTIFICATE SAID "termDispatch 3" AND THE MEASURED ANSWER IS FOUR, so the number is
+not re-cited.** `Search  search- followedBy GrouP+ SemI-` has four terms and `followedBy` is one
+of them; the certificate's 3 came from a differently-filtered probe. The rows name the four
+rather than counting them, so a partial install says which term is missing.
+
+⚠⚠ **AND THE NEXT CELL IS ALREADY VISIBLE, BANKED NOT CHASED: `parseRule: GrouP has a parse
+method but no compiled body`, 100 times in the anchor's own run** — 2 refusals before the repair,
+100 after. That is not a regression, it is the install now HAPPENING and the carrier still being
+TEXT, which is exactly what `incant/frontier` station 5 has been saying. The fleet is unmoved and
+the frontier still dies at station 5, unchanged.
+
+**Done:** `setParse` installs on a generated rule and `trigDO` still exits 0 with its refusal
+count unmoved at 3. **Unblocks:** F-89 — every `arm=NONE` reading in it was taken on the broken
+build and is owed a re-read. **Grade:** CLOSED — bisected, ruled, repaired, and certified with an
+H7 control in both directions. **Owner:** closed.
 
 ### F-89 — ⚠⚠ HEADLINE WITHDRAWN 2026-09-18. NO EMITTED TERM CALL REACHES A RULE AT ALL
 **THE OPTIONAL TERM IS A CORRELATE AND NOT THE CAUSE, and the correction is rule H15's own

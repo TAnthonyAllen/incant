@@ -1734,6 +1734,49 @@ else
     fail=1
 fi
 
+#  ⚠⚠ searchNewParseT -- TONY'S 2026-09-14 ACCEPTANCE AS A ROW, and the graduation
+#  of F-90. `parser(Search)` then `Search("search list;")` under traceParse must
+#  show the GENERATED body dispatching its terms. It passed at 5f24cf3 and read
+#  ZERO term dispatches from 9785324 until the repair landed 2026-09-18.
+#
+#  ⚠ THE MARKER'S POSITION IS THE INSTRUMENT. The bisect's first probe counted
+#  from AHEAD of parser(Search), so the GENERATION walk's own dispatches fell in
+#  the window and it reported PASS AT BOTH ENDS -- it would have ended the bisect
+#  before it began. The fixture prints its marker after generation and immediately
+#  before the drive, and these rows count only what follows it.
+#
+#  ⚠ SNP-0 IS THE KNOWN-GOOD END (rule H16) AND IS GREEN IN BOTH STATES ON PURPOSE.
+#  `Search` dispatches whether or not its generated body runs, so it separates "the
+#  trace is silent" from "the terms did not fire" -- without it, a dead instrument
+#  and a broken parse are the same reading.
+#
+#  ⚠ FOUR TERMS, NOT THREE. `Search  search- followedBy GrouP+ SemI-` has four, and
+#  `followedBy` is one of them. F-90's certificate says three; that number came from
+#  a differently-filtered probe and is not re-cited here.
+_snprow () {                    # _snprow <tag> -> the RULEDISPATCH line for it, after the marker
+    awk -v t=" $1 " '/SNP MARKER/{f=1;next} f&&/RULEDISPATCH/&&index($0,"RULEDISPATCH"t){print;exit}' "$T/snp"
+}
+run1 searchNewParseT "$T/snp"; check "searchNewParseT runs" 0 $?
+sentinel "searchNewParseT sentinel (no truncation)" "$T/snp" "SEARCHNEWPARSET SENTINEL"
+if _snprow Search | grep -q "isRule=1"; then
+    echo "  ok    searchNewParseT SNP-0 the drive itself dispatched -- the known-good end"; green=$((green+1))
+else
+    echo "  FAIL  searchNewParseT SNP-0 -- Search itself never dispatched, so the trace is"
+    echo "        DEAD and every row below it is uninterpretable, not merely red."
+    fail=1
+fi
+for _t in search followedBy GrouP SemI; do
+    if _snprow "$_t" | grep -q "isRule=1"; then
+        echo "  ok    searchNewParseT SNP term \`$_t\` dispatched, isRule=1"; green=$((green+1))
+    else
+        echo "  FAIL  searchNewParseT SNP term \`$_t\` did NOT dispatch -- F-90 is back."
+        echo "        The generated body is not running: setParse installed nothing, or"
+        echo "        something raised hasNewParse before the walk reached it."
+        _snprow "$_t" | sed 's/^/          actual:   /'
+        fail=1
+    fi
+done
+
 #  emitLeaf's OWN target -- THE ORACLE IS THE FUNCTION BEING REPLACED. Captured
 #  while the C++ emitLeaf was still the only implementation, so a kant rewrite
 #  has something byte-exact to answer to (Minion A round 1).

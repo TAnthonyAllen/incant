@@ -52,13 +52,13 @@ define
             *codeCopy :. noPrinT;
             argument +% *codeCopy;
         argument :. isCodeD;
-        // flagPromisesInstalled  hasNewParse tells runRule A PARSE IS INSTALLED AND FIRABLE, not
-        //                        merely that one was generated. A parked carrier is generated and
-        //                        NOT installed, so raising it here is a promise nothing keeps --
-        //                        runRule then takes the gMethod arm and SPINS (fixIts F-88).
-        //                        One-variable A/B: withheld, exit 0 and the action fires; raised,
-        //                        exit 142 on the alarm with no output
-        if ownActionAtEntry == 0;   argument :. hasNewParsE;
+        // flagMeansInstalled  hasNewParse means INSTALLED, and setParse's tail is its ONE writer
+        //                     (Tony, 2026-09-18, fixIts F-90). THE GENERATOR RAISES NOTHING.
+        //                     Raised here it flagged every rule the walk touched, and setParse's
+        //                     own installedIsDone gate then left all of them alone -- generated,
+        //                     never installed, no term call ever made. The withheld half was
+        //                     already right for the parked carrier (F-88); this is the same
+        //                     sentence applied to the other arm
         printTO(0);
         if ownActionAtEntry == 1;    print taG "=" "builtinParseR" builtinParseR:;
         if ownActionAtEntry == 0;    print taG "=" CodE.taG CodE:;
@@ -80,7 +80,13 @@ define
                 if binTypE;
                     generateParse(*grup);
                     continue;
-                if hasNewParsE; continue;
+                // generatedIsCarrier  ALREADY GENERATED IS THE CARRIER'S PRESENCE, never a flag
+                //                     -- builtinParseR for an action-carrying rule, and for the
+                //                     rest the isCodeD the generator sets. hasNewParse cannot
+                //                     answer this any more: it means INSTALLED, and during this
+                //                     walk nothing is installed yet
+                if builtinParseR;   continue;
+                if isCodeD;         continue;
                 if listLengtH;  walkRules(*grup);
                 else generateParse(*grup);
         };
