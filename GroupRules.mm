@@ -11920,10 +11920,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
 GroupItem 	*intoField = 0;
 int 		baseStak = 0;
-	/*  DOOR TRACE, parseTrace-gated so it cannot move a baseline. It answers
-	the one question the gate cannot: WHICH DOOR a rule arrived through.  */
-	if ( ruler->parseTrace )
-		::fprintf(stderr,"  runRule DOOR on %s  field= %lu  fieldData= %d\n",rule->groupBody->tag,field != 0,field->groupBody->flags.data != 0);
+	// ruleDoorSeat WHICH DOOR a rule arrived through -- the one question the dispatch fork above cannot answer
+	::measureRuleDoor(field,rule);
 	if ( ruler->inputSTAK )
 		baseStak = ruler->inputSTAK->length;
 	if ( field && field->groupBody->flags.data )
@@ -11931,43 +11929,22 @@ int 		baseStak = 0;
 		ruler->divertToRule = 1;
 		ruler->pushInput(field);
 		}
-	if ( ruler->parseTrace )
-		::frameProbe(field,rule);
-	/*  runRule.unwrapTheHolder  H13 question 3, and it is hoisted above the fork
-	deliberately: a kant body forwards its one argument, and `argument`
-	resolves to the argument HOLDER whose group is the label. A holder
-	arriving where the label was owed is the carrier family, and the READER
-	dereferences -- once, here -- so BOTH the generated arm's frameParent and
-	the leaf arm's parseR see the label itself and not the thing carrying it.  */
+	// frameSeat the rule, the field, and the stuff/label chain the fork below is about to read
+	::measureFrameProbe(field,rule);
+	// unwrapTheHolder THIS LINE IS THE SINGLE DEREFERENCE OF THE CARRIER -- never add a second one below the fork
 	intoField = field;
 	if ( intoField && isGROUP(intoField->groupBody->flags.data) )
 		intoField = intoField->groupBody->gGroup;
-	// firstUseInstall a rule gets its parse AT FIRST USE -- compile then setParse, folded in here so the order cannot be got wrong from outside
-	// firstUseInstall parse install reads a grammar the old parse has FINISHED; a rule not yet parsed by the old road is not installable
-	if ( isCoded(rule->groupBody->flags.actionType) )
-		if ( !rule->groupBody->flags.hasNewParse )
-			{
-			::compile(rule);
-			::setParse(rule);
-			}
+	// gateOnlyNeverGenerate runRule GATES on hasNewParse and NEVER installs a parse -- generation is explicit, through parser
 	if ( rule->groupBody->flags.hasNewParse )
 		{
-		// noSilentFallthrough a flag promising a method that is not there is a SEGFAULT here, and falling through to the old parse would trade a loud crash for a quiet wrong answer   GroupActions.runRule.noSilentFallthrough
+		// noSilentFallthrough NEVER fall through to the old parse here -- it trades a loud crash for a quiet wrong answer
 		if ( !rule->groupBody->gMethod )
 			result = ::refuse(rule,"runRule: hasNewParse is set but no method is installed to fire");
 		else	result = rule->groupBody->gMethod(rule);
 		}
 	else {
-		/*  runRule.intoRidesArgument  ruling B, 2026-09-09: a kant-emitted body
-		forwards its one argument to every term, so a non-null argument with
-		NO DATA is the label the caller wants this term to attach into. That
-		is parseR's shape exactly -- a fresh bridge stuff per call carrying
-		`into` as its label -- and it is the tok road's mechanism reused, not
-		a second one. A field WITH data is the input-divert case above and
-		keeps the bare parse.
-		⚠ THE CELL IS EMPTY TODAY, MEASURED: 1934 leaf-arm entries over 246
-		files split 1915 field=0 and 19 field-with-data, and ZERO
-		field-without-data. So this gate adds a road and re-routes nothing.  */
+		// noDataMeansLabel a non-null field with NO DATA is the label to attach into, never an input to divert
 		if ( intoField && !intoField->groupBody->flags.data )
 			result = ::parseR(rule,intoField);
 		else	result = rule->parse(0);

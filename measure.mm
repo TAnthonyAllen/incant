@@ -289,25 +289,6 @@ int 		doEvict = 0;
 	return field;
 }
 
-/*  TEMPORARY, parseTrace-gated. ⚠ No percent-dash in the format string -- that
-    token closes passthrough (bear-trap #40).   measure.frameProbe  */
-extern "C" GroupItem *frameProbe(GroupItem *field, GroupItem *rule)
-{
-	
-	if ( GroupControl::groupController->groupRules->parseTrace )
-	::fprintf(stderr,"FRAMEPROBE rule=%s field=%p fieldTag=%s fieldParent=%p fieldStuff=%p fieldStuffLabel=%p fieldStuffLabelTag=%s ruleSTUFF=%p\n",
-	rule ? rule->groupBody->tag : "(none)",
-	(void*)field,
-	field ? field->groupBody->tag : "(none)",
-	field ? (void*)field->parent : (void*)0,
-	field ? (void*)field->rStuff : (void*)0,
-	(field && field->rStuff) ? (void*)field->rStuff->label : (void*)0,
-	(field && field->rStuff && field->rStuff->label) ? field->rStuff->label->groupBody->tag : "(none)",
-	(void*)GroupControl::groupController->groupRules->ruleSTUFF);
-	
-	return field;
-}
-
 /*  labelMinters -- HOW MANY OF THIS RULE'S SUB-TERMS WILL MINT A LABEL. The
     condition is copied from checkInput, not from the spelling.   measure.labelMinters  */
 extern "C" int labelMinters(GroupItem *rule)
@@ -445,6 +426,26 @@ extern "C" GroupItem *measureFireLabelFork(GroupItem *field, GroupItem *myLabel)
 	return field;
 }
 
+/*  THE FRAME SEAT in runRule -- the rule, the field, and the stuff/label chain the
+    fork below is about to read. parseTrace-gated, inert otherwise. ⚠ No percent-dash in the format string -- that
+    token closes passthrough (bear-trap #40).   measure.measureFrameProbe  */
+extern "C" GroupItem *measureFrameProbe(GroupItem *field, GroupItem *rule)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace )
+	::fprintf(stderr,"FRAMEPROBE rule=%s field=%p fieldTag=%s fieldParent=%p fieldStuff=%p fieldStuffLabel=%p fieldStuffLabelTag=%s ruleSTUFF=%p\n",
+	rule ? rule->groupBody->tag : "(none)",
+	(void*)field,
+	field ? field->groupBody->tag : "(none)",
+	field ? (void*)field->parent : (void*)0,
+	field ? (void*)field->rStuff : (void*)0,
+	(field && field->rStuff) ? (void*)field->rStuff->label : (void*)0,
+	(field && field->rStuff && field->rStuff->label) ? field->rStuff->label->groupBody->tag : "(none)",
+	(void*)GroupControl::groupController->groupRules->ruleSTUFF);
+	
+	return field;
+}
+
 /*  TEMPORARY, parseTrace-gated. Prints at the MINT so an outer activation's line
     brackets its inner one's: distinctness is an address comparison, survival is the
     same address appearing again at measureLabelProbe. ⚠ No percent-dash in the format
@@ -578,6 +579,29 @@ extern "C" GroupItem *measureRuleDispatch(GroupItem *op, GroupItem *target, Grou
 	: "NONE");
 	
 	return target;
+}
+
+/*  THE DOOR SEAT in runRule -- WHICH DOOR a rule arrived through, which is the one
+    question the dispatch fork above cannot answer. parseTrace-gated, inert otherwise.
+    ⚠ IT READS THE STATE IT IS HANDED AND NAMES NO ARM. measureRuleDispatch already
+    carries the re-derived `arm=` string and the warning about what that cost; this seat
+    prints the two flags the fork will read and lets the reader do the forking.
+    ⚠ Null-safe on BOTH operands, which the kant line it replaced was not: that line
+    read field.data behind a parseTrace gate, so a null field was a crash waiting for
+    somebody to turn tracing on. ⚠ No percent-dash in the format string (bear-trap #40).
+    measure.measureRuleDoor  */
+extern "C" GroupItem *measureRuleDoor(GroupItem *field, GroupItem *rule)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace )
+	::fprintf(stderr,"  runRule DOOR on %s field=%d fieldData=%d hasNewParse=%d gMethod=%d\n",
+	rule ? rule->groupBody->tag : "(none)",
+	field != 0,
+	(field && field->groupBody->flags.data) != 0,
+	(rule && rule->groupBody->flags.hasNewParse) != 0,
+	(rule && rule->groupBody->gMethod) != 0);
+	
+	return field;
 }
 
 /*  WHO ASKED THE PARSE TO STOP, and by which verb. parseTrace gated. stopParsingInput

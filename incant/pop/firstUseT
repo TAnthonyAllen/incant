@@ -1,35 +1,60 @@
-/*  firstUseT -- A RULE GETS ITS PARSE AT FIRST USE. Tony, ruled 2026-09-17.
+/*  firstUseT -- runRule GATES ON hasNewParse AND NEVER INSTALLS A PARSE.
 
-    `runRule` finding no installed parse method compiles and installs it THEN, once --
-    compile before setParse, the order FOLDED INSIDE runRule so it cannot be got wrong
-    from outside. No definition-time walk, no end-of-grammar walk.
+    ⚠⚠ RE-PINNED 2026-09-18, AND THE RE-PIN IS A WITHDRAWAL, NOT A REGRESSION. Tony
+    withdrew the first-use install ruled on 2026-09-17: runRule was compiling and installing
+    a rule's parse on first use, and that is generation happening inside the gate. Generation
+    is EXPLICIT, through `parser`. runRule only asks whether it already happened.
+    docs/fixIts.md F-83 ruling 2 carries the withdrawal; the doctrine under it is that calls
+    go DOWN and never up -- kant calls C++ verbs, C++ fires installed slots, and C++ never
+    resolves an incant action by name.
 
-    ⚠ THIS FIXTURE DRIVES `list` WITH NO HAND-DRIVEN compile OR setParse, and that absence
-    IS the assertion. Before the install, driving testList printed only its own line and
-    the rule's body never fired; it took `compile(list); setParse(list);` by hand, in that
-    order, to make it run. FU-2 is what says the hand-driven pair is no longer needed.
-
-    ⚠ THE PRECONDITION IS A GUARD, NOT A NOTE. Parse install reads a grammar the OLD parse
-    has FINISHED, so a rule not yet parsed by the old road is not installable. Measured:
-    with the install ungated it fires on `define` during bootstrap, compile fails for want
-    of a body, setParse installs anyway and parseRule then refuses -- exit 139 before the
-    first statement. `isCoded` is the gate: a rule with a body to compile is one whose
-    definition the old road has finished.
+    ⚠ WHAT THIS FIXTURE ASSERTS NOW IS THE CELL THE WITHDRAWN INSTALL USED TO ACT ON, read
+    with values rather than by absence (rule H4): after driving a rule that has a code body
+    and no generated parse, `list` reads isCodeD 1 and hasNewParsE 0. Those were exactly the
+    two flags the install forked on. It fires nothing, so nothing changes them.
 
     THE ROWS
-      FU-1  testList's own line -- the driver ran. FU-2's anti-vacuity sibling: without it
-            FU-2's absence could be a run that never started.
-      FU-2  `list tests the for statement:` -- THE RULE'S OWN BODY FIRED, at first use
-      FU-3  ⚠ PINNED WRONG ON PURPOSE (H7's other half). The body runs and CANNOT SEE WHAT
-            WAS PARSED: `entries` still holds its term definition, so the for loop dies on
-            `nextGroup: ERROR DatA does not contain a list`. That is fixIts F-83, the card's
-            second half, and it is UNRULED. This row is not a claim the behaviour is right;
-            it is a pin so the day label population lands, something says so.  */
+      FU-1  testList's own line -- the driver ran. The anti-vacuity sibling for everything
+            below: without it a quiet run would satisfy the rest by accident.
+      FU-2  isCodeD = 1. THE NON-ZERO SIBLING, and it is not decoration -- FU-2b wants a
+            zero, and a zero-expecting row that a dead read would also produce asserts
+            nothing. This one fails unless the flag read reaches a real node.
+      FU-2b hasNewParsE = 0. THE CLAIM: driving the rule did NOT install a parse.
+      FU-2c the miss control -- the same read against a name that does not exist reads 0,
+            so FU-2b's zero cannot be a lookup that silently found nothing.
+
+    ⚠ FU-3 RETIRED WITH ITS SUBJECT, 2026-09-18, NOT REGRESSED. It pinned F-83's label gap
+    -- `nextGroup: ERROR DatA does not contain a list` -- which is reachable only AFTER the
+    rule's body fires, and with the install withdrawn the body does not fire. The row's
+    subject is gone, so the row goes rather than being pinned at an absence. F-83's second
+    half is unchanged in docs/fixIts.md and the row comes back the day explicit generation
+    reaches `list`.
+
+    ⚠ AND ONE MEASUREMENT BANKED HERE BECAUSE IT WAS FOUND HERE: `list` LIVES IN UnitTests,
+    NOT IN Grokking. `Grokking["list"]` reads 0 and `UnitTests["list"]` reads 1, with a
+    never-defined name reading 0 as the control. That is Tony's own suspicion from the
+    2026-09-17 seal, measured -- and it is why the reads below name UnitTests.  */
 Start();
 include(unitTests);
 include(utilities);
 search reset stack Grokking;
 search UnitTests Utilities list;
+register(UnitTests);
+define
+    fuFlag;
+    fuReport code={
+        fuFlag = 0;
+        if UnitTests["list"].isCodeD;           fuFlag = 1;
+        cerr "FU-2  list isCodeD        = " fuFlag:;
+        fuFlag = 0;
+        if UnitTests["list"].hasNewParsE;       fuFlag = 1;
+        cerr "FU-2b list hasNewParsE    = " fuFlag:;
+        fuFlag = 0;
+        if UnitTests["zzzNotARule"].isCodeD;    fuFlag = 1;
+        cerr "FU-2c miss control isCodeD= " fuFlag:;
+        };
+    ;
 testList();
+fuReport();
 cerr "FIRSTUSE SENTINEL":;
 stop();

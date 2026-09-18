@@ -2647,43 +2647,38 @@ else
     grep -E "^PT-" "$T/ptst.e" | sed 's/^/          /'; fail=1
 fi
 
-#  ---- firstUseT: a rule gets its parse AT FIRST USE --------------------------
-#  Tony, ruled 2026-09-17. runRule finding no installed parse method compiles and installs
-#  it THEN, once -- compile before setParse, the order FOLDED INSIDE runRule so it cannot
-#  be got wrong from outside. No definition-time walk, no end-of-grammar walk.
-#  ⚠ THE FIXTURE DRIVES `list` WITH NO HAND-DRIVEN compile OR setParse, and that ABSENCE is
-#  the assertion. Before the install it took `compile(list); setParse(list);` by hand, in
-#  that order, or the rule's body never fired at all.
-#  ⚠ THE PRECONDITION IS A GUARD: parse install reads a grammar the OLD parse has FINISHED.
-#  Ungated it fires on `define` during bootstrap -- compile fails for want of a body,
-#  setParse installs anyway, parseRule refuses, exit 139 before the first statement.
-#  `isCoded` is the gate. Measured, not reasoned.
+#  ---- firstUseT: runRule GATES on hasNewParse and never installs --------------
+#  ⚠⚠ RE-PINNED 2026-09-18 AS A WITHDRAWAL, NOT A REGRESSION. Tony withdrew the 2026-09-17
+#  first-use install: runRule was compiling and installing a rule's parse on first use, and
+#  that is GENERATION HAPPENING INSIDE THE GATE. Generation is explicit, through `parser`;
+#  runRule only asks whether it already happened. docs/fixIts.md F-83 ruling 2.
+#  ⚠ THE ROWS ASSERT THE CELL THE WITHDRAWN INSTALL USED TO FORK ON, by value and never by
+#  absence (H4): after driving `list`, isCodeD reads 1 and hasNewParsE reads 0.
+#  FU-2 is the NON-ZERO SIBLING for FU-2b's zero and FU-2c is the miss control, so neither
+#  zero can be a lookup that quietly found nothing.
+#  ⚠ FU-3 RETIRED WITH ITS SUBJECT. It pinned F-83's label gap, reachable only after the
+#  rule's body fires; with the install withdrawn the body does not fire. F-83's second half
+#  is unchanged in docs/fixIts.md and the row returns when explicit generation reaches list.
+#  ⚠ THE READS NAME UnitTests BECAUSE THAT IS WHERE `list` LIVES -- Grokking["list"] reads
+#  0 and UnitTests["list"] reads 1, measured 2026-09-18. Tony's seal-day suspicion, confirmed.
 run2 firstUseT "$T/fu.o" "$T/fu.e"; check "firstUseT runs" 0 $?
 sentinel "firstUseT sentinel" "$T/fu.e" "FIRSTUSE SENTINEL"
 if grep -qF "Processing testList action that runs list rule" "$T/fu.o"; then
-    echo "  ok    firstUseT FU-1 the driver ran -- FU-2's absence would otherwise mean nothing"; green=$((green+1))
+    echo "  ok    firstUseT FU-1 the driver ran -- the anti-vacuity sibling for every row below"; green=$((green+1))
 else
-    echo "  FAIL  firstUseT FU-1 testList did not run, so FU-2 asserts nothing"; fail=1
+    echo "  FAIL  firstUseT FU-1 testList did not run, so nothing below asserts anything"; fail=1
 fi
-if grep -qF "list tests the for statement:" "$T/fu.o"; then
-    echo "  ok    firstUseT FU-2 THE RULE'S OWN BODY FIRED -- at first use, nothing hand-driven"; green=$((green+1))
-else
-    echo "  FAIL  firstUseT FU-2 the rule's body did NOT fire. The first-use install is gone,"
-    echo "        or its isCoded gate stopped matching. Actual:"
-    grep -E "compile|list tests" "$T/fu.o" | sed 's/^/          /'; fail=1
-fi
-#  ⚠ FU-3 IS DOWNSTREAM OF FU-2, NOT INDEPENDENT -- measured by the H7 control, which
-#  reddens BOTH: with no install the body never runs, so it never reaches the label gap.
-#  Read FU-3 only when FU-2 is green.
-#  ⚠ FU-3 IS PINNED WRONG ON PURPOSE (H7's other half) -- fixIts F-83, and it is UNRULED.
-#  The body runs and cannot see what was parsed: `entries` still holds its term definition.
-#  When label population lands this row goes red and THAT IS THE WIN, not a regression.
-if grep -qF "nextGroup: ERROR DatA does not contain a list" "$T/fu.e"; then
-    echo "  ok    firstUseT FU-3 the body still cannot see its terms -- PINNED WRONG (F-83)"; green=$((green+1))
-else
-    echo "  FAIL  firstUseT FU-3 the label gap is GONE. If label population landed, that is"
-    echo "        the win: re-pin with a sentence (H6) and close F-83."; fail=1
-fi
+for _r in "FU-2  isCodeD 1 -- the flag read reaches a real node (non-zero sibling)|FU-2  list isCodeD        =  1" \
+          "FU-2b hasNewParsE 0 -- DRIVING THE RULE INSTALLED NO PARSE|FU-2b list hasNewParsE    =  0" \
+          "FU-2c miss control 0 -- FU-2b's zero is not a lookup that found nothing|FU-2c miss control isCodeD=  0"; do
+    _lbl=${_r%%|*}; _want=${_r##*|}
+    if grep -qF "$_want" "$T/fu.e"; then
+        echo "  ok    firstUseT $_lbl"; green=$((green+1))
+    else
+        echo "  FAIL  firstUseT $_lbl -- MOVED. Actual:"
+        grep -E "^FU-" "$T/fu.e" | sed 's/^/          /'; fail=1
+    fi
+done
 
 #  ---- slashValT / slashLeadT: a leading // kills the value -------------------
 #  G03's blocker, measured 2026-09-17. A `//` at the START of a define's value breaks the

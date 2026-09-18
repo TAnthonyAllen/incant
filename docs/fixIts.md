@@ -191,6 +191,31 @@ three arms plus a before/after dump. **Owner:** unassigned — the shape is Tony
 ⚠ **Scope note: `list` is the spec.** Nothing here is shaped around what a future skip rule might
 want; the skip rule needs nothing beyond what `list` needs (Tony, 2026-09-17).
 
+⚠⚠ **RULING 2 IS WITHDRAWN — TONY, 2026-09-18. THE FIRST-USE INSTALL IS OUT OF `runRule`.**
+The 2026-09-17 ruling folded `compile(rule); setParse(rule);` into `runRule` so a rule got its
+parse at first use. **It is removed.** `runRule` gates on `hasNewParse` and installs nothing;
+generation is **explicit**, through the `parser` incantation.
+
+**Two reasons, and the second is the cheap one.** *One:* generation inside the gate is a C++ verb
+reaching **up** to resolve an incant action by name. *Two:* **the order was backwards.** `runRule`
+had `compile` then `setParse`; `parser`'s own `compileRules` has **`setParse` then `compile`**. Two
+roads disagreeing about the order of an install is the argument for there being one road.
+
+⚠ **DOCTRINE CANDIDATE, TONY TO SIGN: CALLS GO DOWN, NEVER UP.** Kant calls C++ verbs; C++ fires
+slots that are already installed; **C++ never resolves an incant action by name.** Not yet in
+CLAUDE.md — it is recorded here as a candidate, not as a rule in force.
+
+**What this cost and what it did not.** `incant/pop/firstUseT` FU-2 and FU-3 went red on the
+removal, which is exactly the H7 control the 2026-09-17 commit recorded. FU-2 is **re-pinned** on
+the cell the install used to fork on — `isCodeD` 1, `hasNewParsE` 0, with a miss control — and FU-3
+**retired with its subject**: it pinned the label gap below, reachable only after the body fires,
+and the body no longer fires. **The gap itself is unchanged and this row stays open.**
+
+⚠ **AND ONE MEASUREMENT THE RE-PIN TURNED UP: `list` LIVES IN `UnitTests`, NOT IN `Grokking`.**
+`Grokking["list"]` reads **0**, `UnitTests["list"]` reads **1**, a never-defined name reads **0** as
+the control — direct subscripts, hit and miss both present. That is Tony's seal-day suspicion
+measured, and it bears on station 4: `parser(list)` reads its root out of `Grokking`.
+
 ### F-82 — ⚠⚠ **HEADLINE WITHDRAWN 2026-09-17, SAME DAY. THE `^` TAKES; I PROBED THE WRONG POPULATION.**
 **What this row first said:** *"the grammar's `^` never reaches the term an `upTo` scan reads."*
 **False.** `dtext` reads `noSkip=1` with the mark correctly parked on the `//` — Tony said the

@@ -899,22 +899,43 @@ define
         GroupActions=(is the rtn file holding the action methods -- the interpreter's
             verbs. It is part of the GroupRules include chain.#):
             runRule=(fires a rule, choosing the new parse road or the old one.#):
-                firstUseInstall=(A RULE GETS ITS PARSE AT FIRST USE. Tony, ruled 2026-09-17.
-                    compile then setParse, folded in here so the order cannot be got wrong
-                    from outside. No definition-time walk, no end-of-grammar walk.
+                gateOnlyNeverGenerate=(runRule GATES on hasNewParse. It NEVER installs a parse,
+                    and the first-use install that briefly lived here -- compile then setParse,
+                    ruled 2026-09-17 -- was WITHDRAWN by Tony on 2026-09-18. Do not put it back.
 
-                    ⚠ THE PRECONDITION IS THE GATE, AND IT IS `isCoded`: parse install reads
-                    a grammar the OLD parse has FINISHED, so a rule not yet parsed by the old
-                    road is not installable. Ungated it fires on `define` during bootstrap --
-                    compile fails for want of a body, setParse installs anyway, parseRule
-                    refuses, exit 139 before the first statement. A rule with a body to
-                    compile is one whose definition the old road has finished.
+                    THE STUMP: generation happening inside the gate is a C++ verb reaching up to
+                    resolve an incant action by name. Calls go DOWN. Kant calls C++ verbs, C++
+                    fires slots that are already installed, and generation is EXPLICIT -- the
+                    parser incantation drives walkRules then compileRules, in that order, and
+                    compileRules runs setParse BEFORE compile.
 
-                    The refusal "has a parse method but no compiled body" stays as the guard
-                    BEHIND this, not in front of it.
+                    ⚠ THE ORDER HERE WAS ALSO BACKWARDS, which is the cheap half of the finding:
+                    this read compile then setParse, and the parser road is setParse then compile.
+                    Two roads disagreeing about the order of an install is the reason the install
+                    has exactly one road.
 
-                    What still does not work, and it is unruled: the body runs and cannot see
-                    what was parsed. docs/fixIts.md F-83.#);
+                    What is unchanged: the refusal below, when hasNewParse promises a method that
+                    is not there. docs/fixIts.md F-83 ruling 2 carries the withdrawal; fixture
+                    incant/pop/firstUseT re-pinned to the cell this used to fork on.#);
+                unwrapTheHolder=(ONE DEREFERENCE, HERE, AND NEVER A SECOND BELOW THE FORK.
+                    H13 question 3: a kant body forwards its one argument, so `argument` resolves
+                    to the argument HOLDER whose group is the label. A holder arriving where the
+                    label was owed is the carrier family. The READER dereferences, once, above the
+                    fork -- so the generated arm's frameParent and the leaf arm's parseR both see
+                    the label and not the thing carrying it. A second unwrap below the fork would
+                    deref a label.#);
+                noSilentFallthrough=(A FLAG PROMISING A METHOD THAT IS NOT THERE IS A SEGFAULT,
+                    and falling through to the old parse instead would trade a loud crash for a
+                    quiet wrong answer. Refuse by name. This guard sits BEHIND the gate, never in
+                    front of it.#);
+                noDataMeansLabel=(RULING B, 2026-09-09. A non-null field with NO DATA is the label
+                    the caller wants this term to attach into, so it routes to parseR; a field WITH
+                    data is the input-divert case above and keeps the bare parse.
+                    ⚠ THE CELL IS EMPTY TODAY, MEASURED: 1934 leaf-arm entries over 246 files split
+                    1915 field=0 and 19 field-with-data, and ZERO field-without-data. So this gate
+                    adds a road and re-routes nothing -- which is a thing to know before reading a
+                    behaviour change into it. Generate.parseRule.intoRidesArgument is the mint side
+                    of the same ruling and is a DIFFERENT claim; do not read one for the other.#);
             runAction=(Runs an action. TWO ARMS THAT SHARE ALMOST NOTHING, and reading it as one path with jit conditionals is how it was misread for months. processCode if needed, lastREF, then either the JIT arm or the interpreted arm, and each returns through its own exit. REVISED 2026-09-05, Clay reviewed, Tony ruled -- the draft was lifted from incant++ rather than re-derived.#):
                 lastREF=(Written ONCE, ahead of both arms, so the two roads cannot disagree about it. ⚠ THE `argument ? argument : field` FALLBACK IS LOAD-BEARING: a call with NO argument leaves THE ACTION ITSELF in lastREF, which is what makes a bare accessor at the top of a no-argument body resolve to anything at all. Writing the argument unconditionally would put a null there. See LastRef.WriterRunAction.#);
                 jitBind=(⚠ CORRECTED 2026-09-05 BY MEASUREMENT. This entry first said THE JIT ARM BINDS NOTHING, lifted from the reviewed draft, and that is true of an EMITTED call and FALSE of an INLINED one. THERE ARE TWO JIT ROADS AND THEY BIND AT DIFFERENT TIMES. On the INLINE road the callee's body is walked HERE, at emit time, and the walk reads the argument as it goes -- so the emit-time bind is this arm's and there is nowhere else it can live; without it the inlined body answers 0 at degrade count 0 while the interpreted oracle stays correct, which is the shape of the 2026-09-05 regression. On the EMITTED road, where the JIT gives a callee its own function, jitBindArgRT binds at RUN time into the argument's home and the frame prologue loads that home into an alloca per activation. THE FIXTURES SPLIT THE SAME WAY, and neither covers the other: incant/argJitT is the INLINE road, incant/argRoundJ is the EMITTED road. The arm is otherwise: self-call gate, emit-time bind, jitInlinePush, processAction, jitInlinePop, exit. ⚠ NO SAVE, NO RESTORE, NO RETURN-SEAM CAPTURE -- the jitted arm already returns by capture and the node in flight is the value channel an enclosing assignment reads through jitData, which a fresh node would not carry.#);
@@ -4566,7 +4587,11 @@ define
 
                 MOVED HERE FROM Generate.rtn 2026-09-04, cleanup arc stroke 4. The method is
                 unchanged; only its home and its comment moved.#);
-            frameProbe=(frameProbe -- LOOK 1 of the handover brief. TEMPORARY, parseTrace gated.
+            measureFrameProbe=(RENAMED FROM frameProbe 2026-09-18 so the reserved prefix census
+                -- grep -n "measure[A-Z]" -- returns every instrument and nothing else. It was the
+                one witness in the tree wearing no prefix. Its caller gate went with the rename:
+                runRule now calls it unconditionally and it gates itself, which is the ruled
+                callout shape. LOOK 1 of the handover brief. TEMPORARY, parseTrace gated.
 
                 Question: at a bare sub-rule call, does runRule's `field` argument reach the
                 INVOKING body's in-flight label? If it does, runRule can resolve the frame
