@@ -458,7 +458,71 @@ count unmoved at 3. **Unblocks:** F-89 — every `arm=NONE` reading in it was ta
 build and is owed a re-read. **Grade:** CLOSED — bisected, ruled, repaired, and certified with an
 H7 control in both directions. **Owner:** closed.
 
-### F-89 — ⚠⚠ HEADLINE WITHDRAWN 2026-09-18. NO EMITTED TERM CALL REACHES A RULE AT ALL
+### F-89 — ⚠⚠ RE-READ 2026-09-18 ON THE REPAIRED BUILD. **THE SECOND HEADLINE IS WITHDRAWN TOO**
+**EMITTED TERM CALLS DO REACH RULES. `parser(Search)` then the drive gives four term dispatches,
+every one `isRule=1 arm=runRule`:** `search`, `followedBy`, `GrouP`, `SemI`. The `arm=NONE`
+readings this row was built on were all taken while F-90 stood, when **nothing was installed** —
+so the call had nothing to reach and minting a local is what a name does when it reaches nothing.
+
+**SECOND WITNESS, INDEPENDENT OF THE DISPATCH COUNT.** `setParse`'s own classification of the
+same four terms, read through `parseClassify` in `incant/pop/emitRefT`:
+
+| term | before the repair | after |
+|---|---|---|
+| `search` | `PC none` | **`PC parseString`** |
+| `followedBy` | `PC none` | **`PC parseSet`** |
+| `GrouP` | `PC none` | **`PC parseRule`** |
+| `SemI` | `PC none` | **`PC parseString`** |
+
+⚠⚠ **AND THE CANDIDATE FIX LOSES ITS PREMISE, WHICH IS THE POINT OF RE-READING BEFORE BUILDING.**
+*"Name the term by position"* was chosen over *"emit the modifier as an argument"* because the
+call **reached a local and there was nothing to honour a modifier**. That sentence is now false.
+The live question is one step further in and it is **reference versus registry**: the term
+reference carries the modifiers in its own `rStuff`, the registry rule does not, and both share
+one body. **Nothing here answers which one the call reached.**
+
+⚠ **THE MEASUREMENT THAT WOULD ANSWER IT IS ONE ROW, AND RULE H13 NAMES THE COLUMN.** `addrOf`
+on Search's term reference and on the registry rule of the same name, compared against
+`RULEDISPATCH`'s `at=`. They **share a body**, so this is H13's question 2 and **the FIELD column
+is the discriminator; the body column cannot see it.**
+
+**WHAT SURVIVES UNCHANGED.** The one-variable control — an optional tail and a mandatory tail
+both read `result=false`, one term reads `result=return`, so **the modifier is not the
+discriminator** — is still the correct refutation of the FIRST headline. ⚠ But its chain-result
+readings were taken on the broken build and are **owed a re-run before they are cited again.**
+The emit-time shape is a source read and is untouched: the emitter prints `$taG "()"`, every
+modifier is an `rStuff` write by `modify`, and the reference is a copy sharing the registry
+rule's body.
+
+**`list` IS UNMOVED AND ITS BLOCKER IS NOW NAMED.** Still no term dispatch on the action-carrying
+root, still `PC none` on `list` and `entries`. That is **not** a name reaching a local: it is the
+carrier still being TEXT with nothing compiling it, which is what `incant/frontier` station 5 has
+said all along.
+
+```
+ATTEMPT LOG
+  1. HEADLINE 1, WITHDRAWN: "the generated chain answers false when the rule has an
+     optional term"
+        -> the first A/B varied the modifier AND the term count at once. One variable,
+           three rules: optional tail and mandatory tail both read result=false.
+           H15's own second half, biting the day after it was written down.
+  2. HEADLINE 2, WITHDRAWN 2026-09-18 by the F-90 repair: "no emitted term call
+     reaches a rule at all"
+        -> measured while nothing was installed. Four terms now dispatch isRule=1.
+  3. re-read on the repaired build, emitRefT, both arms, no build
+        -> Search 0 -> 4 term dispatches; setParse's PC column none -> parseString /
+           parseSet / parseRule / parseString; list unmoved at PC none.
+  POP: incant/pop/searchNewParseT covers the Search half (7 rows). The list half is
+       station 5's and is not this row's.
+```
+
+⚠ **BANKED, NOT CHASED — ONE ANOMALY IN THE SAME RUN.** `SemI` classified under the **`list`**
+root moved `parseString` → **`none`**, while `SemI` under the **`Search`** root moved `none` →
+`parseString`. Same rule name, two blocks of one run, opposite directions. It is consistent with
+the two blocks reaching different NODES — which is the reference-versus-registry question above
+arriving by a second door — but **nothing here measures that**, and it is recorded rather than
+explained.
+
 **THE OPTIONAL TERM IS A CORRELATE AND NOT THE CAUSE, and the correction is rule H15's own
 second half biting the person who wrote it down the day before: A CONTROL IS ALSO ONE VARIABLE
 AT A TIME.** The first A/B varied the optional modifier **and the number of terms** at once.
