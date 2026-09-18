@@ -1,0 +1,40 @@
+/*  commentStore -- THE COMMENT STORE. Long argument lives here; the .twk keeps the slug.
+
+    THE CONTRACT, from docs/commentDirectives.md and its gating probe:
+      the anchor is the SLUG TOKEN, never the whole `// slug sentence` line -- the sentence
+        half is optional and gets edited, and a fromThis may not contain `//` or a quote
+      the payload is a BLOCK comment, because a `//` cannot be written into a kant value today
+      the payload is ONE LINE with \t and \n escapes -- a real newline in the quotes inserts a
+        bare `>` and nothing else, which is silent wrong output rather than a refusal
+      a method with NO slug is not a valid target. Mint the slug first
+      the RETOK IS THE RESET, so idempotency is structural: apply / retok / apply again is
+        byte-identical. ⚠ APPLY TWICE WITHOUT A RETOK AND EVERY COMMENT DOUBLES -- insertAt has
+        no already-present check. The harness retoks FIRST, unconditionally
+      entries go in FILE ORDER per source, because the mark only advances
+
+    HOW TO RUN IT:  tok <the .twk>   then   ~/bin/incant genLadder/batches/commentStore
+    ⚠ NEVER COMMIT A .mm THIS HAS TOUCHED. Bare is the default state (Tony, 2026-09-17), and
+    codeOnly.py is the check -- it reads identical against the bare .mm, because the store only
+    ever inserts comments.
+
+    ⚠⚠ THE FIRST ENTRIES, AND WHAT THEY REPLACE. RuleStuff.mm carried three comment lines that
+    RuleStuff.twk did not, so every retok silently deleted them -- found 2026-09-18. They were
+    the `enclosingActivation` prose, and it described the REFUSAL that ruling 2026-09-18 made
+    lawful and removed. So it is NOT carried verbatim: it is superseded, it is in git history,
+    and what stands in its place is the argument for the arm as it exists now. The drift itself
+    needs no action -- the next retok resolves it.  */
+Start();
+include(directives);
+
+register(Directives);
+define
+    source="RuleStuff.mm";
+    cs01 source fromThis="boundLabelOrZero" toThis="\t/*  boundLabelOrZero -- ROAD-BLIND, ruled 2026-09-18. THE STATE DECIDES AND THE ROAD IS\n\t    NEVER ASKED: this arm read hasNewParse, the only road flag that has ever been in this\n\t    function. Hand the label UP when there is an activation to take it; when there is not,\n\t    do NOTHING. A top-level rule's parent is the REGISTRY and having no activation is\n\t    LAWFUL, so the refusal that stood here retires with the flag.\n\t    Supersedes the three enclosingActivation lines that lived in the .mm and never in the\n\t    .twk -- they described that refusal.  */\n" where=after;
+    ;
+
+getFile(source);
+insertAt(cs01);
+closeFile(source);
+
+cerr "COMMENTSTORE SENTINEL":;
+stop();

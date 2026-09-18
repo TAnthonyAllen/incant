@@ -1214,12 +1214,7 @@ GroupItem 	*field = rule;
 			else	label->groupBody->flags.fLAG = 0;
 			if ( !label->getRStuff() || ::compare(ruleName,field->groupBody->tag) != 0 )
 				label->setRStuff(this);
-			// boundLabelOrZero  ROAD-BLIND, ruled 2026-09-18. THE STATE DECIDES AND THE ROAD IS
-			// boundLabelOrZero  NEVER ASKED: this arm read hasNewParse, the only road flag that
-			// boundLabelOrZero  has ever been in this function. Hand the label UP when there is
-			// boundLabelOrZero  an activation to take it; when there is not, do NOTHING. A
-			// boundLabelOrZero  top-level rule's parent is the REGISTRY and having no activation
-			// boundLabelOrZero  is LAWFUL, so the refusal that stood here retires with the flag
+			// boundLabelOrZero  ROAD-BLIND -- never add a road flag to this arm
 			if ( isMember(field->options.affiliation) )
 				if ( field->parent && field->parent->getRStuff() )
 					field->parent->getRStuff()->label = label;

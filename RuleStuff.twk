@@ -204,12 +204,7 @@ GroupItem   field = rule;
                 label.isLabel   = true; }
             else label.fLAG     = false;
             if !label.rStuff || ruleName ne tag label.setRStuff(this);
-            // boundLabelOrZero  ROAD-BLIND, ruled 2026-09-18. THE STATE DECIDES AND THE ROAD IS
-            // boundLabelOrZero  NEVER ASKED: this arm read hasNewParse, the only road flag that
-            // boundLabelOrZero  has ever been in this function. Hand the label UP when there is
-            // boundLabelOrZero  an activation to take it; when there is not, do NOTHING. A
-            // boundLabelOrZero  top-level rule's parent is the REGISTRY and having no activation
-            // boundLabelOrZero  is LAWFUL, so the refusal that stood here retires with the flag
+            // boundLabelOrZero  ROAD-BLIND -- never add a road flag to this arm
             if isMember
                 if parent && parent.rStuff  parent.rStuff.label = label; }
 checkFailed:
