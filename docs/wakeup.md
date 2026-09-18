@@ -1,3 +1,113 @@
+# ⚠⚠⚠ SEALED 2026-09-18, SHUTDOWN, SIXTH AND LAST SEAL OF THE DAY -- `debug ALL` LANDS IN TONY'S
+# TOGGLE SHAPE AND IS CERTIFIED, F-90 IS CLOSED, AND F-89 HAS LOST ITS SECOND HEADLINE.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-18 18:31 and `git log -1 --date=iso` 18:28. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 424 green / 51 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed, BeforeSave refreshed.** Red 51 UNMOVED ROW FOR ROW all afternoon.
+#   Branch `checkinput-state` still pushed and UNMERGED; it merges on the buy.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. F-90 IS CLOSED. THE GATE STAYED; THE LINE IT READS WAS REPAIRED (`1bce778`).**
+#   `generateParse` no longer raises `hasNewParse` -- **the flag means INSTALLED and setParse's
+#   tail is its one writer** -- and `walkRules` now asks the carrier's presence (`builtinParseR`,
+#   then `isCodeD`). ⚠ **The second half is the one that is easy to under-read: the flag was ALSO
+#   the walk's cycle guard.** Tony's 09-14 acceptance passes at HEAD: **four** term dispatches,
+#   every one `isRule=1 arm=runRule`. ⚠ **FOUR, NOT THE CERTIFICATE'S THREE** -- `followedBy` is
+#   a term like the others and the 3 came from a differently-filtered probe. **Measured before
+#   quoted.** `incant/pop/searchNewParseT` carries it, born red and graduated on that commit.
+#
+#   **b. `debug ALL` LANDS IN TONY'S SHAPE: A TOGGLE PROPAGATED DOWN, AND AN INVOLUTION.**
+#   `debug X` flips `debugged`; `GroupItem::setDebug` flips every component not already agreeing
+#   with X's NEW state and recurses; **the same command twice walks it straight back.** Tony's
+#   reason, his words: *"so I can run DEBUG twice with the same parameters to undo what the first
+#   run does."* ⚠ **The parent's state IS the per-walk stamp**, which is why no clear pass is
+#   needed. Clod's two-pass `clearDebug`/`markDebug` design was superseded and **never shipped**;
+#   `clearDebug` is cut. ⚠ **Tony named the per-process hole in review, against the first cut,
+#   before it was built.**
+#
+#   **c. `debuggeD` IS AN INSTRUMENT, NOT A FIX, AND IT EXISTS BECAUSE THE QUESTION WAS
+#   OTHERWISE UNASKABLE.** GroupFields 44 / opDot case 44, **read-only, no write half**, in the
+#   `isGrouP` shape. ⚠ **THE TWO ABSENCES ARE NOT THE SAME RULE and the site says so:** `isGrouP`
+#   has none because `isGROUP` is a data-enum value rather than a flag; `debuggeD` has none
+#   because **the DEBUG rule is its only writer**, and a write half would let a fixture set the
+#   flag it is trying to observe. `groups.ext` needed no line and was not touched -- **canary 335
+#   throughout is what says so.**
+#
+#   **d. THE CENSUS UNDER ALL OF IT: `debugged` HAS NO READER IN THE TREE** -- two writes, zero
+#   reads, population every `.mm` plus the out-of-repo `groups.ext` -- **and neither does
+#   `debugGuard`.** Their consumers were **directive-injected and culled by C-155**
+#   (`docs/c155Cull.md` carries all four). So on a bare build `debug ALL X` is **invisible**, and
+#   before the accessor the only available check was that nothing complained.
+#
+#   **e. ⚠⚠ F-89's SECOND HEADLINE IS WITHDRAWN AND THE POSITION FIX LOST ITS PREMISE.**
+#   *"No emitted term call reaches a rule at all"* was measured while F-90 stood and **nothing
+#   was installed**; a name that reaches nothing mints a local, and that is what every `arm=NONE`
+#   reading was. **"Name the term by position" was chosen BECAUSE the call reached a local.**
+#   The live question is **reference versus registry** -- H13's question 2, they share a body, so
+#   **the FIELD column discriminates and the body column cannot.** One `addrOf` row answers it.
+#   **Not run. Item 4 was NOT opened on an unmeasured premise.**
+#
+#   **f. `debug ALL;` NAMING NO RULES IS A SILENT NO-OP AND TONY RULED IT ACCEPTABLE** -- exit 0,
+#   nothing printed. Clod's refusal arm went with the redesign and is **not owed back**. ⚠ Do not
+#   re-open it as *"a spelling that parses and does nothing"*: **that family is about the fleet
+#   lying to US.**
+#
+#   **g. TWO CONVENTIONS AND ONE DOCTRINE LANDED BEFORE ANY BUILD.** Fixit rows carry an
+#   **attempt log** -- one line per attempt, what was tried then what moved, reverts included,
+#   ending in the POP row, **appended in the same commit as the attempt**. F-90 is the worked
+#   example and the only backfill. **Rule H16** (candidate): a probe is validated against a
+#   known-good end before its PASS is believed.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **424 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · **frontier dies at station 5** (unrevised -- the edge has not moved, the
+#   carrier is still TEXT) · canary **335** · alphaLint 10 (pre-existing) · **Groups 0/0, support
+#   0/0, TOK 0/0** · **BeforeSave refreshed at shutdown.** Every retok BARE.
+#   ⚠ **The fleet arithmetic, so nobody reads a drop as a regression:** 427 at the fifth seal
+#   − 8 (`debugAllT`'s rows leaving, two of them green) + 5 (`debugToggleT`) = **424**.
+#
+#   ## ⚠⚠ WAITING ON TONY
+#   **1. ⚠ `~/bin/gz` CANNOT BE SOURCED, AND THE STANDING NOTE THAT "`bs` STILL WORKS" IS
+#   CORRECTED.** Line 18's corruption -- `ruleTest.hitIt(rule)dH() {…}` -- **aborts the whole
+#   file**, so `bs` is never defined: a clean `zsh -c 'source ~/bin/gz; bs'` gives
+#   `command not found: bs`. Tonight's refresh ran the function by evaluating **lines 55-62 of gz
+#   itself**, so it is Tony's code and not a retyping. **Deleting the stray text is one edit and
+#   it is his file.**
+#   **2. `debugToggleT` STANDS unless Tony says otherwise** (Clay). It replaces `debugAllT`,
+#   which retired with **nothing to map**.
+#   **3. `checkinput-state` is pushed and unmerged.** It merges on the buy.
+#   **4. THE MEASURING-MODEL PROSE STAYS PARKED, NO DATE** (Clay).
+#
+#   ## ⚠ BANKED, NOT CHASED
+#   `parseRule: GrouP has a parse method but no compiled body` -- **100 times** in the anchor's
+#   run against 2 before the repair. **Not a regression: the install now HAPPENS and the carrier
+#   is still TEXT**, which is station 5's sentence. · `SemI` classified under the `list` root
+#   moved `parseString` → `none` while under `Search` it moved `none` → `parseString`, same name,
+#   one run, opposite directions. · `debug ALL <rule with no component list>` prints
+#   `nextGroup: ERROR <tag> does not contain a list` -- the recursive call site guards on
+#   `groupList`, the top-level one in `aCTionDEBUG` does not. · `emitRefT`'s header claims it
+#   prints reference and registry addresses; **it no longer does.** · `bs` copies `incant/*` but
+#   **not** `incant/pop/*`, so the fleet fixtures are outside BeforeSave's cover.
+#
+#   ## TOMORROW, IN ORDER (Clay)
+#   1. **F-89 re-read on `1bce778`+** -- every `arm=NONE` reading in it is downstream of F-90.
+#   2. **The position fix ONLY if F-89 survives**, and only on a measured premise.
+#   3. **The buy.**
+#   4. **`checkinput-state` merges ON THE BUY.**
+#
+#   ## DOCTRINE EARNED TODAY (sixth seal)
+#   Re-read a row on the repaired build before building on it -- it withdrew a headline and a
+#   fix's premise in one measurement · a known-good end inside the same run separates a dead
+#   instrument from a red one (H16) · an instrument nobody can read is not an instrument, and
+#   *"nothing complained"* is the green that flatters · a review catch against a first cut is
+#   worth more than any control run afterwards.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
 # ⚠⚠⚠ SEALED 2026-09-18, AFTERNOON, FIFTH SEAL OF THE DAY -- F-90 IS CLOSED AND THE GENERATED
 # BODY RUNS AGAIN. F-89's SECOND HEADLINE GOES WITH IT, AND THE POSITION FIX LOSES ITS PREMISE.
 #

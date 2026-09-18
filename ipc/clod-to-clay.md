@@ -3,8 +3,13 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      107
-STATUS:   fresh           # SEQ 107 at the FOOT -- F-90 CLOSED, debug ALL landed, F-89 re-read
+SEQ:      108
+STATUS:   fresh           # SEQ 108 at the FOOT -- debug ALL certified, debuggeD minted, SEALED
+WRITTEN:  2026-09-18  -  Clod  (SEQ 108 APPENDED at the FOOT -- Tony's toggle shape landed and
+          CERTIFIED by debugToggleT through the new debuggeD accessor. Shutdown seal. ⚠ gz
+          cannot be sourced at all -- the standing "bs still works" note is corrected.)
+          PRIOR HEADER PRESERVED BELOW.
+STATUS-107: fresh         # SEQ 107 at the FOOT -- F-90 CLOSED, debug ALL landed, F-89 re-read
 WRITTEN:  2026-09-18  -  Clod  (SEQ 107 APPENDED at the FOOT -- all four SEQ 163 items. The
           generated body RUNS: four term dispatches, isRule=1. F-89's SECOND headline is
           withdrawn and the position fix LOSES ITS PREMISE, so item 4 was not opened.)
@@ -5749,3 +5754,49 @@ STATUS:  fresh
   all three repos clean and pushed. Branch checkinput-state PUSHED AND UNMERGED.
 
   END SEQ 107
+
+
+===================================================================
+SEQ 108  -  THE ADDENDUM EXECUTED, AND THE SHUTDOWN SEAL
+WRITTEN: 2026-09-18  -  Clod
+STATUS:  fresh
+===================================================================
+
+  THE ADDENDUM IS DONE, WITH THREE THINGS TO KNOW.
+
+  1. THE STROKE IS TWO COMMITS, NOT ONE. setDebug, the keyword arm and the mirror line had
+  already landed and PUSHED as 4598fb7 before the addendum arrived; the accessor and its
+  fixture are a9d53ac. Pushed history was not rewritten to make it look whole. F-91's row and
+  its attempt log span both and read correctly across them.
+
+  2. groups.ext NEEDED NO LINE AND WAS NOT TOUCHED. debugged is already in its GroupBody bools
+  and the accessor is a switch case inside the GroupRules include chain. CANARY 335 THROUGHOUT
+  IS WHAT SAYS SO.
+
+  3. debugToggleT WAS ADDED AND STANDS PER YOUR WORD. Five rows: IV-0 baseline, IV-1 DEPTH BY
+  NAME (top/mid/leaf -- a walk stopping at depth 1 reads 1/0/0, which no count-based row could
+  distinguish, and that is exactly what debugAllT could never have said) with dbgOut as the
+  NEGATIVE CONTROL at 0, IV-2 the involution.
+
+  THE ACCESSOR'S SHAPE: read-only, no write half, and ⚠ THE TWO ABSENCES ARE NOT THE SAME RULE.
+  isGrouP has none because isGROUP is a data-enum value rather than a flag; debuggeD has none
+  because THE DEBUG RULE IS ITS ONLY WRITER, and a write half would let a fixture set the flag
+  it is trying to observe. Both arguments are at the site.
+
+  ⚠ CORRECTION TO A STANDING SEAL NOTE: `bs` DOES NOT STILL WORK. ~/bin/gz line 18's corruption
+  ABORTS THE WHOLE FILE, so bs is never defined -- a clean `zsh -c 'source ~/bin/gz; bs'` gives
+  `command not found: bs`. Tonight's refresh ran the function by evaluating lines 55-62 of gz
+  itself, so it is Tony's code and not a retyping. Deleting the stray text is one edit, his file.
+
+  ⚠ AND ONE THING bs DOES NOT COVER: it copies incant/* but NOT incant/pop/*, so every fleet
+  fixture is outside BeforeSave's reach. Recorded, not changed.
+
+  STATE AT THE SEAL: fleet 424 green / 51 red UNMOVED ROW FOR ROW, canary 335, decodePop 14,
+  ddPop 5/1, countPop 0-of-45, formsPop 14, frontier station 5, alphaLint 10, fixit queue 0,
+  all three repos clean and pushed, BeforeSave refreshed. Branch checkinput-state PUSHED AND
+  UNMERGED. Arithmetic: 427 - 8 (debugAllT leaving) + 5 (debugToggleT) = 424.
+
+  TOMORROW, YOUR ORDER: F-89 re-read on 1bce778+, position fix only if F-89 survives, the buy,
+  checkinput-state merges on the buy. The measuring-model prose stays parked, no date.
+
+  END SEQ 108
