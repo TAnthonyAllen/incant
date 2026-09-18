@@ -1,6 +1,7 @@
 # commentDirectives — long comments leave the `.twk` and live in a directives store
 
-**A docket card, 2026-09-18. Tony's proposal, Clay's key, Clod's sizing. NOTHING IS BUILT.**
+**A docket card, 2026-09-18. Tony's proposal, Clay's key, Clod's sizing. NOTHING IS BUILT — but
+the GATING PROBE HAS RUN AND PASSED (§6a), so the store is buildable today rather than parked.**
 Where a claim here was measured, it says so and names the run; everything else is design.
 
 ---
@@ -177,6 +178,42 @@ Not a proposal — this is the list, and rows 1 to 3 are Clay's addendum verbati
 6. **the fleet unmoved row for row**, because a commented `.mm` must never be measured.
 
 ---
+
+## 6a. ✅ THE GATING PROBE PASSED — MEASURED 2026-09-18. THE STORE IS BUILDABLE NOW.
+
+§7 below said the payload spelling decided buildable-now versus parked-behind-checkSKIP, and
+named it as one probe. **The probe is `genLadder/batches/commentProbe` and it passed.** It
+applies ONE block comment to the generated `GroupRules.mm`, anchored on a `// slug` line.
+
+| certificate row | result |
+|---|---|
+| the comment lands, in the right place, tab and all | ✅ immediately after the `// ruleDoorSeat` line |
+| **apply · retok · apply again → second `.mm` byte-identical** | ✅ `8a29fa5197…` both times (bare in between reads `93e7618913…`) |
+| **`codeOnly.py` diff between bare and commented is EMPTY** | ✅ 8273 code lines both sides |
+| **H7 negative control: apply twice with NO retok** | the payload appears **twice** — the failure is real, visible, and one command away |
+
+**SO THE FORM IS SETTLED, and it is what §3 argued for:**
+
+- **kant format only. No emitter.** A Tok directives file was never needed and the kant → Tok
+  emitter question is moot for this store — `insertAt`'s `source` is any file, and a `.mm` is a
+  file.
+- **The retok is the reset**, so idempotency is structural rather than a property of the
+  directive. ⚠ **And that is the whole of it: `insertAt` has no already-present check**, so the
+  harness **retoks first, unconditionally**, and never applies to a `.mm` it did not just
+  generate.
+- **Apply is one command** — `~/bin/incant genLadder/batches/<store>`.
+- **Block-comment payloads until checkSKIP.** A `//` cannot be written into a kant value today,
+  so the payload is `/* … */`. Measured: `/*` and `*/` both survive inside a quoted `toThis`.
+- ⚠ **The payload is ONE LINE with `\t` and `\n` ESCAPES.** A real newline inside the quotes
+  does not parse — first attempt inserted a bare `>` character and nothing else, which is a
+  silent-wrong-output failure rather than a refusal. Write escapes, never literal newlines.
+- **The anchor is the slug TOKEN**, for Clay's reason and the `fromThis`-may-not-contain-`//`
+  reason, which agree.
+
+⚠ **WHAT THE PROBE DID NOT TEST, so nobody reads more into it than it says:** one comment, one
+file, one anchor. Multi-entry ordering is constrained by the mark only advancing (so entries go
+in file order), and a slug that appears twice in one `.mm` is still an open question — the probe's
+anchor was verified unique first, by count, and a real store needs that check per entry.
 
 ## 7. Where it sits, and what is owed before it starts
 

@@ -1,0 +1,34 @@
+/*  commentProbe -- CAN A COMMENT LIVE IN A DIRECTIVE STORE AND LAND IN THE .mm ONLY?
+
+    The feasibility probe docs/commentDirectives.md is gated on. It applies ONE comment to the
+    generated GroupRules.mm, anchored on a `// slug` line, with a BLOCK-comment payload.
+
+    ⚠ THE ANCHOR IS THE SLUG TOKEN ALONE, and for two independent reasons that agree:
+    Clay's -- the sentence half of `// slug sentence?` is optional and gets edited, so matching
+    the whole line orphans every comment under it; and the standing one -- a fromThis may not
+    contain `//` or a quote, because checkSkip swallows comment-shaped text even inside a quoted
+    value. Two reasons, one spelling.
+
+    ⚠ THE PAYLOAD IS A BLOCK COMMENT for the same standing reason: a `//` cannot be written into
+    a kant value today. That is the constraint that decides whether this store is buildable now
+    or waits for checkSKIP, and it is what this probe is for.
+
+    ⚠ IT EDITS A GENERATED FILE AND closeFile WRITES IT BACK. The undo is `tok GroupRules.twk`,
+    which is also the idempotency mechanism: the retok discards the insert, so applying again
+    lands the same bytes. Do NOT run it twice without a retok between -- the comment doubles,
+    because insertAt has no already-present check.  */
+Start();
+include(directives);
+
+register(Directives);
+define
+    source="GroupRules.mm";
+    cp01 source fromThis="ruleDoorSeat" toThis="\t/*  commentProbe: this line came from a directive store, not from the twk  */\n" where=after;
+    ;
+
+getFile(source);
+insertAt(cp01);
+closeFile(source);
+
+cerr "COMMENTPROBE SENTINEL":;
+stop();
