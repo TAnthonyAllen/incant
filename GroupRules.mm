@@ -8316,6 +8316,24 @@ GroupItem 	*product = 0;
 				case 43:
 					if ( isGROUP(target->groupBody->flags.data) )
 						product->setCount(1);
+					/*  debuggeDNoWriteHalf  READ-ONLY, AND THE MISSING HALF IS DELIBERATE, as
+					it is for isGrouP above -- but for a different reason, so do not read
+					the two as one rule. `debugged` IS a boolean flag, so a write half
+					COULD exist; it must not. THE DEBUG RULE IS ITS ONLY WRITER --
+					aCTionDEBUG toggles it and GroupItem::setDebug propagates the toggle
+					down -- and a second writer through opSetFlag would let a fixture set
+					the very flag it is trying to observe, which is an instrument that can
+					fake its own reading.
+					⚠ IT IS AN INSTRUMENT, NOT A FIX. `debugged` has no reader anywhere in
+					the tree: its consumers were directive-injected and culled by C-155
+					(docs/c155Cull.md). So on a bare build `debug ALL X` is invisible, and
+					the only thing anyone could say about it was that nothing complained --
+					which is the green that flatters. This makes the question askable.
+					Instruct.opDot.debuggeDNoWriteHalf  */
+					break;
+				case 44:
+					if ( target->groupBody->flags.debugged )
+						product->setCount(1);
 					break;
 				case 401:
 					if ( !target->nextInParent )

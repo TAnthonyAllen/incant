@@ -157,20 +157,40 @@ ATTEMPT LOG
            NOT bite: it was never in groups.ext, only setDebug was.
  10. debugAllT DELETED with its 8 pop.sh rows (Clay, ratified)
         -> fleet 421 -> 419 green, red back to the sealed 51 ROW FOR ROW.
-  POP: ⚠ NONE. COVERAGE IS DROPPED, NOT MAPPED, AND THE REASON IS NAMED BELOW.
+ 11. `debuggeD` GroupFields accessor minted, case 44, in the isGrouP shape --
+     READ-ONLY, no write half, the absence argued at the site
+        -> the question becomes askable. `debug ALL X` was invisible on a bare
+           build, so nothing could be asserted about it but the absence of a
+           complaint.
+ 12. incant/pop/debugToggleT + 5 rows, replacing debugAllT
+        -> IV-0 0/0/0/0, IV-1 1/1/1 with outside 0, IV-2 back to 0/0/0.
+           The involution is certified and the coverage gap CLOSES.
+  POP: incant/pop/debugToggleT + 5 rows in genLadder/pop.sh. Fleet 419 -> 424
+       green, red 51 UNMOVED ROW FOR ROW, canary 335.
 ```
 
-⚠⚠ **THE FIXTURE RETIRED WITH NO MAPPING, WHICH IS A COVERAGE LOSS AND IS RECORDED AS ONE.**
-`debugAllT`'s eight rows asserted a count and a refusal that the landed design does not produce,
-so there was nothing to carry out — and **no replacement is possible on a bare build**, because
-`debugged` has no reader and no `GroupFields` accessor. **`debug ALL` is therefore uncertified:
-the only thing the fleet could say about it is that a run does not complain, which is the green
-that flatters.** Closing this gap needs a `debuggeD` accessor so kant can read the flag and a
-fixture can assert the involution directly. **Open, and named so it is not mistaken for covered.**
+⚠ **`debug ALL;` NAMING NO RULES IS A SILENT NO-OP, AND TONY RULED THAT ACCEPTABLE.** Measured:
+exit 0, nothing printed, nothing marked. Clod's refusal arm was removed with the redesign and is
+**not owed back** — *"if it does not cause an error it is a user caveat emptor solution."* ⚠ Do
+not re-open this as an instance of *"a spelling that parses and does nothing"*: that family is
+about **the fleet lying to us**, and this one costs a user a command that did not do what they
+hoped.
 
-**Done:** landed in Tony's shape. **⚠ Carries one open consequence:** `debug ALL` has no fleet
-coverage and cannot have any until `debugged` is readable from kant. **Owner:** closed as a
-feature; the coverage gap is Tony's to rule on.
+⚠ **THE COVERAGE GAP IS CLOSED, AND THE ROUTE IS WORTH KEEPING.** `debugAllT` retired with
+**nothing to map** — its rows asserted a count and a refusal the landed design does not produce —
+so the replacement is not a mapping but a **new instrument**: the `debuggeD` accessor, minted so
+kant can read a flag whose only other readers were directive-injected and culled by C-155.
+`incant/pop/debugToggleT` then asserts the involution directly, with **depth by name** (top, mid
+and leaf, because a walk that stopped at depth 1 would read 1/0/0) and **a negative control**
+(`dbgOut`, a sibling not under the root, which must stay 0 or the rows are equally satisfied by
+marking every rule in sight).
+
+⚠ **ONE ROUGH EDGE LEFT STANDING, MEASURED:** `debug ALL <rule with no component list>` prints
+`nextGroup: ERROR <tag> does not contain a list`. The recursive call site guards on `groupList`;
+the top-level call in `aCTionDEBUG` does not. One line either way, and it is Tony's.
+
+**Done:** landed in Tony's shape and **certified** — `incant/pop/debugToggleT`, five rows, with
+depth asserted by name and a negative control. **Owner:** closed.
 
 ### F-85 — ✅ CLOSED 2026-09-18 — `parser` takes its root BARE; `*argument` was the wrong mechanism
 **STATION 4 IS UNBLOCKED.** `parser(list)` generates `return entries() && SemI();` and compiles.

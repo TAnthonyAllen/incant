@@ -1675,6 +1675,43 @@ for _arm in "DE-1 unbraced arm, flag TRUE   deN =  2" \
     fi
 done
 
+#  ⚠⚠ debugToggleT -- `debug ALL X` MARKS X'S SUBTREE AND RUNNING IT AGAIN UNDOES
+#  IT. Tony's shape, 2026-09-18: debug X TOGGLES debugged, GroupItem::setDebug
+#  propagates the toggle down, and the same command twice is an involution.
+#
+#  ⚠ IT REPLACES debugAllT, WHICH WAS DELETED RATHER THAN RE-PINNED. That fixture
+#  asserted a COUNT that the toggle design does not produce. This one reads the
+#  flag directly through the `debuggeD` GroupFields accessor, minted the same day
+#  BECAUSE the question was otherwise unaskable: `debugged` has no reader in the
+#  tree -- its consumers were directive-injected and culled by C-155 -- so on a
+#  bare build `debug ALL X` is invisible and the only available check was that
+#  nothing complained, which is the green that flatters.
+#
+#  ⚠ THREE THINGS THE ROWS DO SEPARATELY, and dropping any one of them leaves a
+#  check that a wrong mechanism also passes:
+#    IV-0  the baseline. Without it IV-1 passes against a flag already set.
+#    IV-1  DEPTH BY NAME -- top, mid AND leaf. A walk that stopped at depth 1
+#          reads top=1 mid=0 leaf=0, which no count-based row could distinguish.
+#    IV-1  `outside` IS THE NEGATIVE CONTROL. dbgOut is not under dbgTop and must
+#          stay 0, or 1/1/1 is equally satisfied by marking every rule in sight.
+#    IV-2  the involution. Without the toggle this reads 1/1/1.
+run1 debugToggleT "$T/dbt"; check "debugToggleT runs" 0 $?
+sentinel "debugToggleT sentinel (no truncation)" "$T/dbt" "DEBUGTOGGLET SENTINEL"
+for _iv in "IV-0 before      top= 0 mid= 0 leaf= 0 outside= 0" \
+           "IV-1 after one   top= 1 mid= 1 leaf= 1 outside= 0" \
+           "IV-2 after two   top= 0 mid= 0 leaf= 0 outside= 0"; do
+    if grep -qF "$_iv" "$T/dbt"; then
+        echo "  ok    debugToggleT ${_iv%% *} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  debugToggleT ${_iv%% *} MOVED. Wanted: $_iv"
+        echo "        mid or leaf at 0 in IV-1 is the walk stopping at depth 1;"
+        echo "        outside at 1 is it marking rules outside the subtree;"
+        echo "        IV-2 at 1 is the toggle gone and debug ALL a one-way trip."
+        grep -F "${_iv%% *}" "$T/dbt" | sed 's/^/          actual:   /'
+        fail=1
+    fi
+done
+
 #  ⚠⚠ searchNewParseT -- TONY'S 2026-09-14 ACCEPTANCE AS A ROW, and the graduation
 #  of F-90. `parser(Search)` then `Search("search list;")` under traceParse must
 #  show the GENERATED body dispatching its terms. It passed at 5f24cf3 and read

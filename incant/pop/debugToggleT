@@ -1,0 +1,45 @@
+/*  debugToggleT -- `debug ALL X` MARKS X'S SUBTREE AND RUNNING IT AGAIN UNDOES IT.
+
+    Tony's shape: `debug X` TOGGLES `debugged` on X, and GroupItem::setDebug propagates the
+    toggle down -- every component whose state does not already agree with X's NEW state flips
+    and recurses. The subtree ends up agreeing with the root, so the same command run twice walks
+    it straight back. Tony's reason, in his words: "so I can run DEBUG twice with the same
+    parameters to undo what the first run does."
+
+    ⚠ THIS FIXTURE EXISTS BECAUSE THE QUESTION WAS UNASKABLE UNTIL 2026-09-18. `debugged` has no
+    reader anywhere in the tree -- its consumers were directive-injected and culled by C-155 --
+    so on a bare build `debug ALL X` is INVISIBLE, and the only thing the fleet could have said
+    about it is that nothing complained. The `debuggeD` GroupFields accessor was minted to make
+    it readable, read-only and with the DEBUG rule as its single writer, and this is what it was
+    minted for. Its predecessor `debugAllT` asserted a count that the toggle design does not
+    produce and was deleted rather than re-pinned.
+
+    THE ROWS, and each one is doing separate work.
+      IV-0  everything reads 0 before anything runs. The baseline, and the row that stops IV-1
+            passing against a flag that was already set.
+      IV-1  ⚠ DEPTH BY NAME, NOT BY COUNT. top, mid and leaf all read 1 after one command. A
+            walk that stopped at depth 1 would read top=1 mid=0 leaf=0 and a count-based check
+            could not tell that from a smaller tree.
+      IV-1  ⚠ AND `outside` IS THE NEGATIVE CONTROL AND IS NOT OPTIONAL. dbgOut is a sibling
+            rule that is NOT under dbgTop, and it must stay 0 -- otherwise 1/1/1 is equally
+            satisfied by a mechanism that simply marks every rule it can reach.
+      IV-2  the involution: the same command again, and every value is back to 0. Without the
+            toggle this row reads 1/1/1 and the feature is a one-way trip.  */
+Start();
+register(Grokking);
+define
+    dbgLeaf     "leafA" "leafB";
+    dbgMid      dbgLeaf "midX";
+    dbgTop      dbgMid "topY";
+    dbgOut      "outsideA" "outsideB";
+    ;
+search Grokking list;
+
+cerr "IV-0 before      top=" dbgTop.debuggeD " mid=" dbgMid.debuggeD " leaf=" dbgLeaf.debuggeD " outside=" dbgOut.debuggeD:;
+debug ALL dbgTop;
+cerr "IV-1 after one   top=" dbgTop.debuggeD " mid=" dbgMid.debuggeD " leaf=" dbgLeaf.debuggeD " outside=" dbgOut.debuggeD:;
+debug ALL dbgTop;
+cerr "IV-2 after two   top=" dbgTop.debuggeD " mid=" dbgMid.debuggeD " leaf=" dbgLeaf.debuggeD " outside=" dbgOut.debuggeD:;
+
+print "DEBUGTOGGLET SENTINEL -- reached the foot":;
+stop();

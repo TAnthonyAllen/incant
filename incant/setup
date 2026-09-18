@@ -271,6 +271,7 @@ define
     texT=4;
     listLengtH=5;
     datA=6;
+    debuggeD=44;
     hasActioN=36;
     hasAttributeS=7;
     hasMemberS=8;
