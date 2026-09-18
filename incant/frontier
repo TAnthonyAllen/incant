@@ -4,255 +4,117 @@ include(utilities);
 search reset stack Grokking UnitTests Utilities list;
 register(Frontier);
 define
-    frAny=0;
     frDead=0;
+    frRan=0;
+    frDeclared=6;
     frOk=0;
     frOk2=0;
-    frOk3=0;
-    frBuf buffer;
-    frOpen="{";
-    frClose="}";
-    frMark=987654;
-    StorE;
-    frSample width=1 height=2;
-    frTwin;
-    frLive;
-    frRan=0;
-    frDeclared=9;
     frBanner=0;
     frIncomplete=0;
-    frLiveLen=0;
-    frLiveLen2=0;
-    frTwinLen=0;
-    frTwinLen2=0;
+    frMark=987654;
     frWitness=0;
-
-    frBodyMarker code={
-        reset(frBuf);
-        printTO(frBuf);
-        print frOpen:;
-        print $"if  leftBrace() AND ExpressioN() AND rightBrace();      frWitness = " frMark ";":;
-        print $"return runRuleAction(this);":;
-        print `frClose:;
-        printTO(0);
-        clear(StorE);
-        StorE = frBuf;
+    frTermsSeen=0;
+    frLen=0;
+    frLen2=0;
+    frRule isRule frEntries=ANYstring+ SemI?- code={
+        frWitness = frMark;
+        frTermsSeen = 0;
+        if frEntries.listLengtH;
+            for frSum in frEntries;     frTermsSeen = frTermsSeen + 1;
         };
-    frBodyTrigger code={
-        reset(frBuf);
-        printTO(frBuf);
-        print frOpen:;
-        print $"frSample[width] = 251;":;
-        print `frClose:;
-        printTO(0);
-        clear(StorE);
-        StorE = frBuf;
+    frDrive code={
+        frRule("alpha beta gamma;");
         };
-    frHang code={
-        frCopy := copyOf(StorE);
-        frCopy :. noPrinT;
-        argument +% *frCopy;
-        };
-
     frStation1 code={
         fixFrontier1Here = 0;
         frRan = frRan + 1;
-        cerr :"ANCHOR frontier station 1 -- generate one body":;
-        frBodyMarker();
+        cerr :"ANCHOR frontier station 1 -- generate the parse onto a rule that has an action":;
+        frLen = frRule.listLengtH;
+        parser(frRule);
+        frLen2 = frRule.listLengtH;
+        cerr "STATION 1 rule list length was " frLen " now " frLen2:;
         frOk = 0;
-        if StorE.datA;      frOk = 1;
-        if frOk == 1;
-            cerr "STATION 1 generate body: PASS -- body text follows":;
-            cerr StorE:;
+        if frLen2 > frLen;      frOk = 1;
+        if frOk == 1;   cerr "STATION 1 generate: PASS -- the rule grew, so generation attached something":;
         if frOk == 0;
-            cerr "STATION 1 generate body: FAIL -- expected non-empty body text, read empty":;
+            cerr "STATION 1 generate: FAIL -- the rule did not grow, so generateParse attached nothing":;
             frDead = 1;
-        };
-    frTest code={
-        dumpField(*frTwin);
-        dumpField(*frLive);
-        cerr "*frTwin and *frLive are distinct copies of the same rule with distinct lists": "we just added StorE to a working rule to make sure frStation4 no longer parses??? Why?"::;
         };
     frStation2 code={
         fixFrontier2Here = 0;
         frRan = frRan + 1;
-        cerr "ANCHOR frontier station 2 -- mint the twin, BEFORE anything is hung on the live rule":;
-        frTwin := copyOf(Grokking["Braced"]);
-        frLive := Grokking["Braced"];
-        // the star reaches the HELD rule; the rotation makes `*a.b` mean `(*a).b`
-        frLiveLen = *frLive.listLengtH;
-        frTwinLen = *frTwin.listLengtH;
-        cerr "STATION 2 live list length " frLiveLen " twin list length " frTwinLen:;
+        cerr :"ANCHOR frontier station 2 -- the parse PARKED in builtinParseR":;
         frOk = 0;
-        if frTwinLen == frLiveLen;      frOk = 1;
-        if frTwinLen == 0;              frOk = 0;
-        if frOk == 1;            cerr "STATION 2 mint twin: PASS -- twin is a faithful, unfired copy":;
+        if frRule["builtinParseR"];      frOk = 1;
+        frOk2 = 0;
+        if frRule["zzzNotAnAttribute"];  frOk2 = 1;
+        cerr "STATION 2 carrier reads " frOk " and the miss control reads " frOk2:;
+        if frOk2 == 1;      frOk = 0;
+        if frOk == 1;   cerr "STATION 2 park: PASS -- builtinParseR is on the rule and the miss control is dark":;
         if frOk == 0;
-            cerr "STATION 2 mint twin: FAIL -- twin list length does not match the live rule, or is empty":;
+            cerr "STATION 2 park: FAIL -- no carrier, or the lookup answers everything":;
             frDead = 1;
         };
     frStation3 code={
         fixFrontier3Here = 0;
         frRan = frRan + 1;
-        cerr :"ANCHOR frontier station 3 -- hang the body on the LIVE rule and store it":;
-        /*  ⚠ WHAT MOVED, 2026-09-09: THIS STATION'S MECHANISM IS SUPERSEDED AND
-            ITS RED IS NOW STALE RATHER THAN INFORMATIVE. It measures frHang +
-            storeBody, and the road that landed under rulings B and (c') does not
-            use storeBody at all -- generateParse hangs the body itself
-            (`clear(CodE); CodE = <buffer>; codeCopy := copyOf(CodE);
-            argument +% *codeCopy;` then `:. isCodeD` and `:. hasNewParsE`), and
-            incant/trigDO certifies that path end to end at five green pop.sh
-            rows. So the campaign's edge is no longer "can a body be stored" --
-            it is CHAIN TRUTH: incant/trigQuotE reads chainTrue=0 on a GOOD input
-            for a leaf, and incant/trigRecur reads chainTrue=0 on every arm
-            because the emitter drops the `?` modifier.
-            ⚠ THE REVISION IS NOT DONE AND IS NAMED RATHER THAN GUESSED: pointing
-            stations 3-8 at the live hang means re-basing the whole frTwin /
-            activateBody apparatus, and storeBody's and frHang's contracts were
-            not read. Revising the campaign's own edge instrument on an unread
-            contract is the failure class this project has paid for most, so it
-            is recorded here instead of half-applied. THE NEXT READER SHOULD NOT
-            TREAT STATION 3's FAIL AS THE FRONTIER; the frontier is chain truth.  */
-        frHang(Grokking["Braced"]);
-        // WHAT MOVED, 2026-09-09: storeBody DROPPED. The (c') road hangs the body itself and never calls it -- generateParse is copyOf, noPrint, `+%`, then `:. isCodeD` and `:. hasNewParsE`, which is frHang plus two flags. This station now measures the live road's hang
-        frLiveRule := Grokking["Braced"];
-        *frLiveRule :. isCodeD;
-        *frLiveRule :. hasNewParsE;
-        frLive := Grokking["Braced"];
-        // ⚠ THE STAR, and station 2 had it all along: `*frLive.listLengtH` reaches the HELD rule, the unstarred form reads the HOLDER and returns 0. Station 3 read it unstarred and so reported `was 3 now 0` -- the rule SHRINKING -- which is not a road failure at all, it is bear-trap 35 in the instrument
-        frLiveLen2 = *frLive.listLengtH;
-        frTest();
-        cerr "STATION 3 live list length was " frLiveLen " now " frLiveLen2:;
+        cerr :"ANCHOR frontier station 3 -- the rule KEPT its own action body":;
+        frLen = frRule["CodE"].listLengtH;
+        cerr "STATION 3 the rule CodE carries " frLen " members":;
         frOk = 0;
-        if frLiveLen2 > frLiveLen;      frOk = 1;
-        if frOk == 1;            cerr "STATION 3 store body: PASS -- body hung on the live rule; census follows, pending must read 1":;
+        if frLen > 0;       frOk = 1;
+        if frOk == 1;   cerr "STATION 3 preserve: PASS -- CodE still carries the action body":;
         if frOk == 0;
-            cerr "STATION 3 store body: FAIL -- the live rule did not grow, so nothing was hung":;
+            cerr "STATION 3 preserve: FAIL -- CodE is empty, so the parse overwrote the action":;
             frDead = 1;
-        bodyCensus(frAny);
         };
     frStation4 code={
         fixFrontier4Here = 0;
         frRan = frRan + 1;
-        cerr :"ANCHOR frontier station 4 -- install on the twin via activateBody, then READ IT BACK":;
-        activateBody(frTwin);
-        // The following line will not compile because it invokes Braced which now is a bogus rule with a StorE (not quite a code attribute) in it
-        frCode := frTwin["CodE"];
-        $$frCode;
-        frTwinLen2 = frTwin.listLengtH;
-        cerr "STATION 4 twin list length was " frTwinLen " now " frTwinLen2:;
+        cerr :"ANCHOR frontier station 4 -- FIRE the rule; the witness is the verdict":;
+        frWitness = 0;
+        frDrive();
+        cerr "STATION 4 witness reads " frWitness " and must equal " frMark:;
         frOk = 0;
-        if frTwinLen2 > frTwinLen;      frOk = 1;
-        frOk2 = 0;
-        if frCode;                      frOk2 = 1;
-        if frOk2 == 0;                  frOk = 0;
-        if frOk == 1;
-            cerr "STATION 4 install on twin: PASS -- read-back follows":;
-            cerr frCode:;
+        if frWitness == frMark;     frOk = 1;
+        if frOk == 1;   cerr "STATION 4 fire: PASS -- the rule's own action ran after generation":;
         if frOk == 0;
-            cerr "STATION 4 install on twin: FAIL -- expected the twin to grow and to carry a CodE":;
+            cerr "STATION 4 fire: FAIL -- the action did not run, so generation consumed it":;
             frDead = 1;
         };
     frStation5 code={
         fixFrontier5Here = 0;
         frRan = frRan + 1;
-        cerr :"ANCHOR frontier station 5 -- compile the twin":;
-        frLive <- frTwin;
-        frTwinLen = frLive.listLengtH;
-        compile(frTwin);
-        frLive <- frTwin;
-        frTwinLen2 = frLive.listLengtH;
-        cerr "STATION 5 twin list length was " frTwinLen " now " frTwinLen2:;
+        cerr :"ANCHOR frontier station 5 -- the carrier must be RUNNABLE, not just parked":;
+        frLen = frRule["builtinParseR"].listLengtH;
+        cerr "STATION 5 the carrier carries " frLen " members; a runnable body needs a BlocK":;
         frOk = 0;
-        if frTwinLen2 > frTwinLen;      frOk = 1;
-        if frOk == 1;            cerr "STATION 5 compile twin: PASS -- the twin grew a BlocK":;
+        if frLen > 0;       frOk = 1;
+        if frOk == 1;   cerr "STATION 5 compile carrier: PASS -- the carrier has a body to run":;
         if frOk == 0;
-            cerr "STATION 5 compile twin: FAIL -- no BlocK on the twin, so the parse did not land; texture is above this line":;
+            cerr "STATION 5 compile carrier: FAIL -- the carrier is TEXT. Nothing compiles it, so the generated parse cannot run and the terms are never matched":;
             frDead = 1;
         };
     frStation6 code={
         fixFrontier6Here = 0;
         frRan = frRan + 1;
-        cerr :"ANCHOR frontier station 6 -- harvest the BlocK onto the original rule":;
-        frArt <- frTwin["BlocK"];
-        frCod <- frTwin["CodE"];
-        frLive <- Grokking["Braced"];
-        frLiveLen = frLive.listLengtH;
-        Grokking["Braced"] +% copyOf(frCod);
-        Grokking["Braced"] +% copyOf(frArt);
-        Grokking["Braced"] :. isActioN;
-        frLive <- Grokking["Braced"];
-        frLiveLen2 = frLive.listLengtH;
-        frOk2 = 0;
-        if frLive.isActioN;      frOk2 = 1;
-        cerr "STATION 6 live list length was " frLiveLen " now " frLiveLen2 " -- isActioN reads back " frOk2:;
+        cerr :"ANCHOR frontier station 6 -- the parse fills the label the body is handed":;
+        cerr "STATION 6 the body walked " frTermsSeen " terms; the input carried 3":;
         frOk = 0;
-        if frLiveLen2 > frLiveLen;      frOk = 1;
-        if frOk2 == 0;      frOk = 0;
-        if frOk == 1;            cerr "STATION 6 harvest: PASS -- artifact grew onto the live rule AND isActioN verified set":;
+        if frTermsSeen == 3;        frOk = 1;
+        if frOk == 1;   cerr "STATION 6 populate: PASS -- for frSum in frEntries ran over matched data":;
         if frOk == 0;
-            cerr "STATION 6 harvest: FAIL -- need BOTH the live rule to grow and isActioN reading back set":;
+            cerr "STATION 6 populate: FAIL -- the body's argument is an empty label, so its terms are still their own definitions":;
             frDead = 1;
         };
-    frStation7 code={
-        fixFrontier7Here = 0;
-        frRan = frRan + 1;
-        cerr :"ANCHOR frontier station 7 -- BIND the live rule's parse path to the artifact":;
-        setParse(Grokking["Braced"]);
-        cerr "STATION 7 parseClassify follows; it must read  PC parseRule Braced":;
-        parseClassify(Grokking["Braced"]);
-        frOk = 0;
-        frLive <- Grokking["Braced"];
-        if frLive.hasActioN;     frOk = 1;
-        cerr "STATION 7 actionMethod now bound " frOk " (setParse moves gMethod into it)":;
-        if frOk == 1;            cerr "STATION 7 bind: PASS -- parse path routed; the census line above is the evidence":;
-        if frOk == 0;
-            cerr "STATION 7 bind: FAIL -- setParse left actionMethod empty, so nothing was routed":;
-            frDead = 1;
-        };
-    frStation8 code={
-        fixFrontier8Here = 0;
-        frRan = frRan + 1;
-        cerr :"ANCHOR frontier station 8 -- discard the twin":;
-        clear(frTwin);
-        cerr "STATION 8 discard twin: PASS -- twin cleared; census follows, stray must read 0":;
-        bodyCensus(frAny);
-        };
-    frStation9 code={
-        fixFrontier9Here = 0;
-        frRan = frRan + 1;
-        cerr :"ANCHOR frontier station 9 -- run the original; the witness is the verdict":;
-        cerr "STATION 9 expects the witness to read " frMark " if the commissioned artifact executed":;
-        frBodyTrigger();
-        frHang(Grokking["QuotE"]);
-        storeBody(Grokking["QuotE"]);
-        frWitness = 0;
-        frFire := compileStored(Grokking["QuotE"]);
-        frOk = 0;
-        if frFire;          frOk = 1;
-        frOk2 = 0;
-        if frWitness == frMark;     frOk2 = 1;
-        cerr "STATION 9 trigger parsed " frOk " -- witness reads " frWitness " and must equal " frMark:;
-        if frOk == 0;       frDead = 1;
-        if frOk2 == 0;      frDead = 1;
-        if frOk == 0;       cerr "STATION 9 run original: FAIL -- the trigger itself would not parse, so the witness proves nothing":;
-        if frOk2 == 1;      cerr "STATION 9 run original: PASS -- the commissioned artifact EXECUTED on trigger":;
-        if frOk2 == 0;      cerr "STATION 9 run original: FAIL -- the commissioned artifact did NOT execute; the two values above are the evidence":;
-        };
-
     frRun code={
-        cerr "=== incant/frontier -- the campaign live edge, nine stations ===":;
+        cerr "=== incant/frontier -- the campaign live edge, six stations, CARRIER ROAD ===":;
         frStation1();
         if frDead == 0;     frStation2();
         if frDead == 0;     frStation3();
-        // frStation4 will not parse because the Braced rule now has a StorE attribute that is not a rule and not noPrint
-        // also if a stop(); is added here it runs and then frRun continues. That should not happen stop() should exit(0);
         if frDead == 0;     frStation4();
         if frDead == 0;     frStation5();
         if frDead == 0;     frStation6();
-        if frDead == 0;     frStation7();
-        if frDead == 0;     frStation8();
-        if frDead == 0;     frStation9();
         cerr "FRONTIER ran-census: stations that RAN " frRan " of " frDeclared " declared":;
         frOk = 0;
         if frRan == frDeclared;     frOk = 1;
@@ -264,7 +126,7 @@ define
         if frDead == 1;             frIncomplete = 0;
         if frDead == 1;     cerr "=== FRONTIER: STOPPED -- a station returned a NO verdict above. ===":;
         if frIncomplete == 1;   cerr "=== FRONTIER: INCOMPLETE -- a station never RAN. No success is claimed; see the census. ===":;
-        if frBanner == 1;   cerr "=== FRONTIER: all nine stations RAN and PASSED. ===":;
+        if frBanner == 1;   cerr "=== FRONTIER: all six stations RAN and PASSED. ===":;
         cerr "FRONTIER SENTINEL -- the ladder reached its foot":;
         stop();
         };
@@ -274,39 +136,45 @@ frRun();
 
 WHAT THIS FILE IS
 
-incant/frontier is the campaign's live edge, executable. It walks the pipeline
-one station at a time and dies at the first thing that does not work yet. That
-death is the point: the station that fails is where the campaign currently is.
+incant/frontier is the campaign's live edge, executable. It walks the pipeline one
+station at a time and dies at the first thing that does not work yet. That death
+is the point: the station that fails is where the campaign currently is.
 
 IT IS ONE FILE, REVISED IN PLACE AT EVERY SEAL, AND NEVER FORKED. There is no
 frontier2, no frontierOld. If you are looking at a copy, someone broke the
-practice. Each seal updates the dated line below and re-runs the file, and the
-seal names the first failing station.
+practice. Each seal re-runs it and names the first failing station.
 
-FRONTIER AS OF 2026-08-23: THE CAMPAIGN THIS FILE WAS BUILT FOR IS CLOSED, and
-it closed without this ladder ever needing tokenize as its subject. F-31's
-defining measurement returns null, tokenize has zero reads-through and zero
-firings, and the whole nine-station pipeline -- generate, store, activate,
-compile, harvest, bind, discard, fire -- is recorded superseded-unexecuted. It
-was proven on Braced and never fired in anger, because the dual role was retired
-instead of staged around.
+IT IS NOT A FLEET CITIZEN. It never joins pop.sh -- the fleet measures what holds
+and this measures what does not yet. A RED FRONTIER IS THE NORMAL, CORRECT STATE.
+It is not a fixit citizen either and never appears in fixitNag's count.
 
-The file stands unchanged and green as the proof that the shape worked. THE NEXT
-EDGE IS NOT NAMED HERE YET: the count now sits at 22 compiled clean of 42, and
-the 19 parse failures are ordinary content-level frontier rows with no snake in
-any of them. Whichever of those the next campaign opens on is what this file
-should be re-pointed at.
+FRONTIER AS OF 2026-09-18: THE CARRIER ROAD. REVISED IN PLACE FROM THE TWIN ROAD.
 
-IT IS NOT A FLEET CITIZEN. It never joins pop.sh -- the fleet measures what
-holds, and this measures what does not yet. It is not a fixit citizen either
-and never appears in fixitNag's count.
+The nine-station twin ladder that stood here until today measured generate,
+store, activate-on-a-twin, compile, harvest, bind, discard, fire. That road is
+retired. It was proven on Braced on 2026-08-22, all nine stations green, and the
+campaign moved off it: the live road hangs the body on the rule itself, and since
+2026-09-18 a rule that already carries an action gets its generated parse parked
+in a noPrint builtinParseR attribute instead. The old ladder was still dying at
+its own station 5 -- "compile the twin" -- which is a question nobody is asking
+any more. An instrument pointing at a retired question reads as a frontier and is
+not one. The superseded readings are in docs/frontierHistory.md, unchanged.
 
-HOW TO USE IT IN XCODE
+THE SUBJECT IS A RULE THIS FILE OWNS, not a grammar rule, and that is new:
+frRule is isRule, carries members AND a code body, and lives in the Frontier
+registry. It could not have been the subject before 2026-09-18, because parser
+resolved its root out of Grokking; it now takes the rule bare, so registry
+membership stopped mattering. The rule is `list`'s shape, which is the spec.
 
-Every station opens with a uniquely-named inert anchor -- fixFrontier1Here
-through fixFrontier8Here -- and a cerr naming the station. Set a name
-conditioned breakpoint on any anchor and you land exactly at that station with
-everything the previous stations built still in scope, ready to step.
+WHERE IT DIES TODAY: STATION 5. The carrier is TEXT -- builtinParseR holds the
+generated parse as a string and carries no BlocK, so nothing compiles it and
+nothing can run it. That is why station 6 reads an empty label: the body cannot
+see what was parsed because NOTHING MATCHED ANYTHING. Filling the label is not a
+repair to a walk that nearly works; the walk does not exist yet.
+
+THE THREE RULINGS STATION 5 AND 6 WAIT ON are in docs/fixIts.md F-83: does the
+carrier get compiled, who runs both bodies and in which order, and which label do
+the terms attach into.
 
 WHY EVERY STATION PRINTS EVEN WHEN IT PASSES
 
@@ -316,107 +184,23 @@ read, and an empty read is an answer rather than a silence. The first FAIL sets
 frDead and every later station is skipped without printing, so the failing line
 is the last verdict on screen and nothing buries it.
 
+STATION 2 CARRIES A MISS CONTROL AND IT IS NOT DECORATION. `if frRule["x"];` is
+an existence test, and a lookup that answered everything would make the carrier
+row pass without a carrier. The control asks the same question of a name that
+does not exist and must read 0.
 
-⚠⚠ READING OF RECORD v2, 2026-08-22 -- ALL NINE STATIONS RAN AND PASSED.
+TWO READING TRAPS THIS FILE WALKED INTO WHILE BEING WRITTEN, both on one line:
 
-    STATION 9 trigger parsed 1 -- witness reads 987654 and must equal 987654
-    STATION 9 run original: PASS -- the commissioned artifact EXECUTED on trigger
-    FRONTIER ran-census: stations that RAN 9 of 9 declared
-    === FRONTIER: all nine stations RAN and PASSED. ===
+1. `frCodE <- frRule["CodE"]; frLen = frCodE.listLengtH;` reads ZERO. `<-` MINTS
+   a node, so the read is of the holder and not of what was found -- bear-trap
+   #35's other half. The chained form `frRule["CodE"].listLengtH` reads 9, which
+   is correct. Do not "tidy" the chained reads into rebinds.
+2. Every station reads a flag and tests it twice rather than using if/else, per
+   the frozen bear-trap #32 shape. That is carried forward deliberately.
 
-A body that did not exist when the process started was generated, stored
-off-rule, activated on a twin, compiled, harvested onto the live rule, bound
-into its parse path, and then EXECUTED BY THE ORDINARY PARSE as Braced's own
-parse implementation -- correctly enough that the bracket it governs parsed.
-tokenize was never touched. That is the campaign's question, answered on a
-specimen.
+HOW TO USE IT IN XCODE
 
-THREE EDITS MADE IT READABLE, and each closed a hole the previous reading
-exposed rather than a defect in the mechanism:
-
-1. TRUTH-TEST DISCIPLINE EXTENDED FROM RULE-SHAPED TO METHOD-SHAPED. Stations
-   5 and 6 used to ask `if frBlock;` and `if frArt;`. A BlocK carries
-   aCTionBlocK as its gMethod, so those lines FIRED THE ARTIFACT -- bear-trap
-   #34 -- and the fired body's return then unwound the station (#37). Two traps
-   on one line. Both now assert on list-length growth and on the isActioN
-   channel: artifacts a fired action cannot fake.
-2. THE BODY IS THE GENPARSE SHAPE, not a stub. A bound parse method REPLACES
-   the interpretive walk, so a stub that matches none of Braced's terms breaks
-   every bracket written after it -- which is what killed station 9's own
-   source line in reading v1. The specimen now does the rule's work.
-3. THE FOOT CARRIES A RAN-CENSUS. Reading v1 printed "all nine stations
-   PASSED" while station 9 sat unparsed, because frDead only ever rises from a
-   station that RAN. The foot now compares stations-ran against
-   stations-declared and refuses to claim success unless they match.
-
-⚠⚠ AND WHAT THIS RUN DOES **NOT** SHOW: #37 IS STILL NOT CONFIRMED CURED, AND
-ITS RETIREMENT CLAUSE STILL DOES NOT FIRE.
-
-Station 6's verdict is INLINE again and it prints -- but read why before
-crediting containment. It prints because edit 1 removed the FIRE, not because
-the unwind was contained. No artifact runs inside station 6 any more, so the
-#37 path is not exercised here at all. Containment is proven at parseRule's
-door (minionWork/probeDecisiveV2) and nowhere else; the evaluation door --
-aCTionIF's condition fork, GroupRules.mm:857 -- is parked as a ruling with an
-H7 control attached to the gMethod-move batch. A green run that never enters
-the failing path is not evidence the path is fixed, and this file will not
-claim it is.
-
-SUPERSEDED PASSES ARE IN docs/frontierHistory.md
-
-Everything below the current reading of record used to live here -- four
-chronological passes, ~300 lines, newest on top. They are kept verbatim in
-docs/frontierHistory.md as the reasoning trail, including the readings later
-withdrawn or inverted. Nothing was deleted.
-
-WHERE THE ANALYSIS WENT, AND WHY IT IS NOT KEYED ON STATIONS
-
-This file says WHAT IT DOES. It used to also say what that MEANS, in
-chronological prose at the foot, and Tony's 2026-08-23 offline report named
-the cost: reading a station required scrolling between the analysis and the
-station code, and there was nowhere for him to answer.
-
-The meaning now lives in incant/designDocs as ProblemRecords, ONE ENTRY PER
-PROBLEM. It is deliberately NOT one entry per station. This file iterates --
-its station 4 next month is a different animal from its station 4 today -- so
-an archive keyed on station numbers goes stale the first time the ladder
-rotates, and goes stale SILENTLY. Where a problem was met is an attribute on
-the record, not its identity:
-
-    station     which station met it, in the vintage below
-    vintage     the frontier seal date the station numbers refer to
-
-Each record carries a permanent SKELETON that survives forever -- symptom,
-finding, workaround, solution, status, verdict, reviewed -- plus a sheddable
-description holding the prose. Trimming an entry means deleting the
-description and nothing else.
-
-    status      the lifecycle grade only: open, guess, ruled, remedy, baked,
-                workaround, and the two terminal flavours remedy and
-                retired-unreproduced
-    verdict     Tony's disposition -- the loud channel, where FIX THIS goes
-    reviewed    Tony's ledger, append-only while live, collapsing at trim
-
-symptom is written as what a future rematch would GREP FOR, because the
-trimmed archive is a have-we-fought-this-before surface and a rematch is
-recognised by symptom, never by name.
-
-TO LOOK ANY OF IT UP: edit the lookup line at the foot of incant/lookup and
-run it. lookuP(bt34) queries the decoder AND the problem records in one call
-and prints whichever exist, so nobody has to know which file to ask.
-tombstone(bt34) renders a record with the prose already shed, which is what a
-trim will leave. lookupIndex() prints every record with its status.
-
-⚠ THE if/else NOTE THAT USED TO SIT HERE IS RESOLVED, AND THE WORKAROUND IS
-FROZEN RATHER THAN NEEDED. Every station reads a flag and tests it twice
-because bear trap 32 recorded that a multi-statement indented if-arm followed
-by an else breaks the parse. On 2026-08-23 this file was COPIED to
-minionWork/probe32copy and eight of those pairs were converted to if/else --
-two of them producing the exact reported shape. The copy ran all nine
-stations, all PASSED, exit 0. With six earlier probe shapes that is eight
-measurements and no reproduction, and bt32 is regraded retired-unreproduced.
-THE SHAPE IN THIS FILE DOES NOT CHANGE, by ruling: the original is the closest
-surviving relative of the destroyed 2026-08-21 source, and rewriting it would
-destroy the last thing that was ever near the symptom. Tony's verdict stands
-verbatim in the record and is suspended, not withdrawn -- a second sighting
-regrades bt32 OPEN and revives it.
+Every station opens with a uniquely-named inert anchor -- fixFrontier1Here
+through fixFrontier6Here -- and a cerr naming the station. Set a name-conditioned
+breakpoint on any anchor and you land exactly there with everything the previous
+stations built still in scope, ready to step.
