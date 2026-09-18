@@ -175,6 +175,8 @@ GroupItem   code = field[CodE],
             grup,
             myLabel,
             into,
+            carrier,
+            parseBody,
             ruleArg;
 GroupItem   priorMETHOD;
 use field
@@ -216,6 +218,18 @@ use grup
             ruleArg.group = myLabel;
             priorMETHOD     = currentMETHOD;
             currentMETHOD   = field;
+            // labelIsBoundBeforeTheParse  THE TERMS ATTACH INTO THIS. checkInput sets label=0 for
+            //                             a members-rule, so without this line the terms read
+            //                             parentStuff.label as null and exitFromParse has nowhere
+            //                             to put them   Generate.parseRule.labelIsBoundBeforeTheParse
+            label = myLabel;
+            // parseThenAction  RULED 2026-09-18: parse first, action on the FILLED label. The
+            //                  carrier holds the generated parse and the rule's own BlocK holds
+            //                  its action; both run here, in that order, on one activation
+            carrier = field["builtinParseR"];
+            if carrier
+                if parseBody = carrier["BlocK"]     parseBody.gMethod(parseBody);
+use field
             /*****************************************************************
                 here the parse action in method gets run
             *****************************************************************/

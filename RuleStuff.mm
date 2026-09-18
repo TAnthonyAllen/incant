@@ -66,11 +66,11 @@ int 		ok = 0;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/*******************************************************************************
+/********************************************************************************
     True if ch is one of the characters in chars -- a guard test for baked
     guard sets. PLGset stays the default for larger sets (banked, S5.2); this
     covers the single/small-explicit-set cases in the JSONblock family.
-*******************************************************************************/
+********************************************************************************/
 extern "C" int inGuard(GroupItem *field, char *chars, char ch)
 {
 	while ( *chars )
@@ -80,7 +80,7 @@ extern "C" int inGuard(GroupItem *field, char *chars, char ch)
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
     Alternation exit. No label of its own (S2.4) -- the winning option has
     already attached (rule-reference options attach via their own leaveRule
     against the same `into`; literal options attach via litOption). Only
@@ -90,7 +90,7 @@ extern "C" int inGuard(GroupItem *field, char *chars, char ch)
     skip pass to atRuleMark BEFORE matching, so a failing lit returns false
     with the mark advanced. Until that is made non-destructive, leaveAlt
     cannot drop to (rule, ok).
-*******************************************************************************/
+********************************************************************************/
 extern "C" GroupItem *leaveAlt(GroupItem *rule, char *from, int ok)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -120,7 +120,7 @@ char 		*at = ruler->atRuleMark;
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
     Sequence exit -- Invariant R lives here and in leaveAlt, nowhere else.
     On success: attach label into `into`'s list, return the label. On failure:
     rewind atRuleMark to `from`, return null (label is simply not attached;
@@ -149,7 +149,7 @@ char 		*at = ruler->atRuleMark;
     Note the rewind is unconditional, so R cannot be "violated" here -- what
     the report carries is whether the rewind had ground to give back, which is
     the thing runScaf actually measured. Gate: GroupRules.parseTrace.
-*******************************************************************************/
+********************************************************************************/
 extern "C" GroupItem *leaveRule(GroupItem *rule, GroupItem *into, GroupItem *label, char *from, int ok)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -179,13 +179,13 @@ char 		*at = ruler->atRuleMark;
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
     genParse Step 1/2 prototype (docs/genParseSpec.md S3/S5): hand-written
     support library + the seven JSONblock methods + entry wrapper. No tok
     macros -- every primitive below is a real function, so &&/|| composition
     works natively.
-*******************************************************************************/
-/*******************************************************************************
+********************************************************************************/
+/********************************************************************************
     Match a literal string at atRuleMark (skip-set pass first). No label --
     for "-"/noLabel attribute terms (JSONblock's "{"-/"}"-,  JSONfield's ":"-,
     JSONitem's ","?-).
@@ -195,7 +195,7 @@ char 		*at = ruler->atRuleMark;
     (`lit(t1,"{")`), which is what gives every leaf frame its own identity: a
     breakpoint in here during parseJSONfield can now tell the ":" match from
     the "," one, which is the question a debugger frame usually needs answered.
-*******************************************************************************/
+********************************************************************************/
 extern "C" int lit(GroupItem *field, char *str)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -218,14 +218,14 @@ char 		*matchStr = 0;
 	return 1;
 }
 
-/*******************************************************************************
+/********************************************************************************
     Match a literal string as an alternation MEMBER (JSONtoken's "false"/
     "true"). A plain literal member is not noLabel, so on success this
     creates a label tagged with the literal text and attaches it into `into`
     directly -- leaveAlt is label-transparent by design, so literal options
     must attach themselves (rule-reference options attach via their own
     leaveRule against the same `into`).
-*******************************************************************************/
+********************************************************************************/
 extern "C" int litOption(GroupItem *field, GroupItem *into, char *str)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -249,7 +249,7 @@ char 		*matchStr = 0;
 	return 1;
 }
 
-/*******************************************************************************
+/********************************************************************************
     containerTo — CT, 2026-08-07. The generated arm's spelling of a CONTAINER
     term, and the support-library twin of testContainer.
 
@@ -279,8 +279,8 @@ char 		*matchStr = 0;
     NOTE, and it is a sibling gap rather than this one: `litTo` -- the labelled
     LITERAL spelling -- still has no implementation (genParse.rtn's own latent
     note). CT adds the labelled CONTAINER road and does not pave the literal one.
-*******************************************************************************/
-/*******************************************************************************
+********************************************************************************/
+/********************************************************************************
     ctProbe -- MEASUREMENT SCAFFOLD, rule-ladder rung two, 2026-08-24.
 
     containerTo is emitted-but-never-executed: its only caller is genParse's
@@ -292,8 +292,8 @@ char 		*matchStr = 0;
 
     ⚠ TEMPORARY. Remove with its groups.ext declaration once the answer is
     banked; it exists to make one ruling checkable, not to ship.
-*******************************************************************************/
-/*******************************************************************************
+********************************************************************************/
+/********************************************************************************
     litTo -- THE LABELLED LITERAL. `lit`'s twin, and genParse ladder rung 3.
 
     Emitted as  litTo(t0,label,"break","break")  by emitLeaf's LITTO case, so
@@ -322,7 +322,7 @@ char 		*matchStr = 0;
     the rule's own tag IS the token it matches) the two answers coincide. That
     is a coincidence of VALUES, not a special case in the code, and no branch
     here tests for it.
-*******************************************************************************/
+********************************************************************************/
 extern "C" int litTo(GroupItem *field, GroupItem *into, char *str, char *slot)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -352,12 +352,12 @@ char 		*matchStr = 0;
 	return 1;
 }
 
-/*******************************************************************************
+/********************************************************************************
     Generated per-term iteration helper for JSONblock's `JSONfield*` (min 0).
     Same treatment S5.2 already gives character-level accumulators, extended
     to group-reference iteration -- one small function per loop site rather
     than a reusable macro (S2.5).
-*******************************************************************************/
+********************************************************************************/
 extern "C" int manyJSONblockFields(GroupItem *label, GroupItem *term)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -371,9 +371,9 @@ int 		kount = 0;
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
     Generated per-term iteration helper for JSONlist's `JSONitem+` (min 1).
-*******************************************************************************/
+********************************************************************************/
 extern "C" int manyJSONlistItems(GroupItem *label, GroupItem *term)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -387,7 +387,7 @@ int 		kount = 0;
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
     Bridge to the GENERIC driver for rules genParse hasn't converted yet
     (GrouP, NumbeR -- pre-existing bootstrap rules, out of scope for this
     prototype). Builds a throwaway RuleStuff whose .label IS `into`, so
@@ -395,7 +395,7 @@ int 		kount = 0;
     where a converted callee's leaveRule/leaveAlt would have. Generated
     methods and the generic driver coexist rule by rule (S0) -- this is the
     seam.
-*******************************************************************************/
+********************************************************************************/
 extern "C" GroupItem *parseGeneric(GroupItem *into, char *ruleName)
 {
 GroupItem 	*rule = GroupControl::groupController->locate(ruleName);
@@ -404,10 +404,10 @@ RuleStuff 	*bridge = new RuleStuff(rule);
 	return rule->parse(bridge);
 }
 
-/*******************************************************************************
+/********************************************************************************
     JSONarray isRule "["- JSONlist? "]"- code={
         if JSONlist; for grup in JSONlist; grup <: grup; };
-*******************************************************************************/
+********************************************************************************/
 extern "C" GroupItem *parseJSONarray(GroupItem *rule)
 {
 GroupItem 	*into = rule->getRStuff()->parentLabel;
@@ -433,9 +433,9 @@ int 		ok = 0;
 	return ::leaveRule(rule,into,label,from,ok && label);
 }
 
-/*******************************************************************************
+/********************************************************************************
     JSONblock isRule fail "{"- JSONfield* "}"-;
-*******************************************************************************/
+********************************************************************************/
 extern "C" GroupItem *parseJSONblock(GroupItem *rule)
 {
 GroupItem 	*into = rule->getRStuff()->parentLabel;
@@ -450,7 +450,7 @@ int 		ok = 0;
 	return ::leaveRule(rule,into,label,from,ok);
 }
 
-/*******************************************************************************
+/********************************************************************************
     JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={
         token <: JSONtoken; token = JSONvalue; return token; };
 
@@ -467,7 +467,7 @@ int 		ok = 0;
     exact bug (the action received two children both tagged "GrouP" and
     could find neither "JSONtoken" nor "JSONvalue", so it silently returned
     null and the whole field's content was discarded).
-*******************************************************************************/
+********************************************************************************/
 extern "C" GroupItem *parseJSONfield(GroupItem *rule)
 {
 GroupItem 	*into = rule->getRStuff()->parentLabel;
@@ -509,13 +509,13 @@ int 		ok = 0;
 	return ::leaveRule(rule,into,label,from,ok && label);
 }
 
-/*******************************************************************************
+/********************************************************************************
     JSONitem isRule JSONtoken@ ","?-;
     @ (isTarget/promote): the child's label becomes JSONitem's own result,
     retagged. No fresh label of its own and no leaveRule call -- JSONtoken's
     own leaveAlt/leaveRule already rewinds on failure (Invariant R), so
     promotion needs nothing extra on the failure path.
-*******************************************************************************/
+********************************************************************************/
 extern "C" GroupItem *parseJSONitem(GroupItem *rule)
 {
 GroupItem 	*into = rule->getRStuff()->parentLabel;
@@ -529,9 +529,9 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ruler->trueResult;
 }
 
-/*******************************************************************************
+/********************************************************************************
     JSONlist isRule JSONitem+;
-*******************************************************************************/
+********************************************************************************/
 extern "C" GroupItem *parseJSONlist(GroupItem *rule)
 {
 GroupItem 	*into = rule->getRStuff()->parentLabel;
@@ -541,9 +541,9 @@ char 		*from = ruler->atRuleMark;
 	return ::leaveRule(rule,into,label,from,::manyJSONlistItems(label,rule->get(1)));
 }
 
-/*******************************************************************************
+/********************************************************************************
     JSONtoken isRule JSONblock; "false"; "true"; GrouP; NumbeR;
-*******************************************************************************/
+********************************************************************************/
 extern "C" GroupItem *parseJSONtoken(GroupItem *rule)
 {
 GroupItem 	*into = rule->getRStuff()->parentLabel;
@@ -557,9 +557,9 @@ char 		*from = ruler->atRuleMark;
 	return ::leaveAlt(rule,from,(::inGuard(t1,"{",*ruler->atRuleMark) && ::parseR(t1,into)) || ::litOption(t2,into,"false") || ::litOption(t3,into,"true") || ::parseR(t4,into) || ::parseR(t5,into));
 }
 
-/*******************************************************************************
+/********************************************************************************
     JSONvalue isRule JSONblock; JSONarray; JSONtoken;
-*******************************************************************************/
+********************************************************************************/
 extern "C" GroupItem *parseJSONvalue(GroupItem *rule)
 {
 GroupItem 	*into = rule->getRStuff()->parentLabel;
@@ -571,7 +571,7 @@ char 		*from = ruler->atRuleMark;
 	return ::leaveAlt(rule,from,(::inGuard(t1,"{",*ruler->atRuleMark) && ::parseR(t1,into)) || (::inGuard(t2,"[",*ruler->atRuleMark) && ::parseR(t2,into)) || ::parseR(t3,into));
 }
 
-/*******************************************************************************
+/********************************************************************************
     parseR (genParseShape S1.6) -- the set-then-call primitive for a term that
     references another rule. Two jobs the emitted `&&` chain cannot do itself:
 
@@ -612,7 +612,7 @@ char 		*from = ruler->atRuleMark;
     (S1.6's whole justification) needs an answer to that before rung 4, which
     is the first cross-method call. It does not bite rungs 1-2: Scaf/Scaf2 have
     no rule-reference terms.
-*******************************************************************************/
+********************************************************************************/
 extern "C" GroupItem *parseR(GroupItem *term, GroupItem *into)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -652,10 +652,10 @@ GroupItem 	*got = 0;
 	return got;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	This sets the data of rule to the value of a previously processed label
     with the same name as rule
-*******************************************************************************/
+********************************************************************************/
 extern "C" int setMacroValue(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
@@ -675,9 +675,9 @@ GroupItem 	*ancestor = 0;
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Process a parseAction
-*******************************************************************************/
+********************************************************************************/
 extern "C" int testAction(GroupItem *field)
 {
 	/*  installedIsTheParse  AN INSTALLED rStuff IS CALLED THROUGH ITS LEAF. Tony's ruling,
@@ -705,9 +705,9 @@ extern "C" int testAction(GroupItem *field)
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Run a wild card test on this group against current input
-*******************************************************************************/
+********************************************************************************/
 extern "C" int testAny(GroupItem *field)
 {
 int 		counter = 0;
@@ -745,9 +745,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Parse field attributes and return true if they all succeed
-*******************************************************************************/
+********************************************************************************/
 extern "C" int testAttributes(RuleStuff *stuff)
 {
 GroupItem 	*grup = 0;
@@ -765,9 +765,9 @@ int 		result = 1;
 	return result;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Run a character test on this group against current input
-*******************************************************************************/
+********************************************************************************/
 extern "C" int testCharacter(GroupItem *field)
 {
 int 		counter = 0;
@@ -805,9 +805,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Process a condition
-*******************************************************************************/
+********************************************************************************/
 extern "C" int testCondition(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
@@ -816,7 +816,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
     Registry and Container test looks for an entry that matches the input stream.
 
     LONGEST-ENTRY MATCH (Tony's finding and ruling, 2026-08-02). The greedy
@@ -836,7 +836,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 
     Same disease class as the ShortcuT `+`-merge that sank `,` as the string
     opener (2026-07-31): set-based character grouping making token decisions.
-*******************************************************************************/
+********************************************************************************/
 extern "C" int testContainer(GroupItem *field)
 {
 GroupItem 	*grup = 0;
@@ -869,9 +869,9 @@ Buffer 		*buffer = ruler->stringBUFFER;
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Process the first field member that passes its guard
-*******************************************************************************/
+********************************************************************************/
 extern "C" int testOptions(RuleStuff *stuff)
 {
 GroupItem 	*grup = 0;
@@ -887,9 +887,9 @@ GroupItem 	*grup = 0;
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Run a character set test on this group against current input
-*******************************************************************************/
+********************************************************************************/
 extern "C" int testSet(GroupItem *field)
 {
 PLGset 	*set = field->getCharacterSet();
@@ -928,9 +928,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Run a string test on this group against current input
-*******************************************************************************/
+********************************************************************************/
 extern "C" int testString(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -947,13 +947,13 @@ char 		*matchedString = ruleStuff->rule->matches(ruler->atRuleMark);
 	return 0;
 }
 
-/***************************************************************************
+/****************************************************************************
 	Capture input until it gets a match. It returns a token and the input
     stream is left pointing at the match if upTo or after the match if upToOver.
     If the current rule is a set, the set is matched against.
     If the current rule isSTRING its text is matched against. Otherwise
     the default match is against a comma.
-***************************************************************************/
+****************************************************************************/
 extern "C" int testUpTo(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -978,9 +978,9 @@ GroupItem 	*grup = isGROUP(field->groupBody->flags.data) ? field->getGroup() : f
 	grup = 0;
 	while ( counter-- )
 		{
-		/*******************************************************************
+		/********************************************************************
 		Advance atText until the rule matches
-		*******************************************************************/
+		********************************************************************/
 		for ( ; *atText; atText++, lngth++ )
 			{
 			if ( isSET(field->groupBody->flags.data) && field->getCharacterSet()->contains(*atText) )
@@ -1024,9 +1024,9 @@ GroupItem 	*grup = isGROUP(field->groupBody->flags.data) ? field->getGroup() : f
 				continue;
 			else	ruler->atRuleMark += lngth;
 			}
-		/*******************************************************************
+		/********************************************************************
 		If succeeds, update rule label and advance atRuleMark
-		*******************************************************************/
+		********************************************************************/
 		if ( matched )
 			{
 			if ( lngth )
@@ -1047,9 +1047,9 @@ GroupItem 	*grup = isGROUP(field->groupBody->flags.data) ? field->getGroup() : f
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	RuleStuff constructors.
-*******************************************************************************/
+********************************************************************************/
 RuleStuff::RuleStuff(GroupItem *grup)
 {
 	testMatch = 0;
@@ -1135,9 +1135,9 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	parentStuff = 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	checkGuard returns true if rule is unGuarded or input pointer is in guardSet
-*******************************************************************************/
+********************************************************************************/
 int RuleStuff::checkGuard(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -1153,10 +1153,10 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	checkInput sets hereAt and atRuleMark, handles input diversion, and returns
     true if current input is valid. Called by GroupItem match()
-*******************************************************************************/
+********************************************************************************/
 int RuleStuff::checkInput()
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -1170,17 +1170,17 @@ GroupItem 	*field = rule;
 	if ( *ruler->atRuleMark )
 		if ( !noSkip && ruler->skipSet->contains(*ruler->atRuleMark) )
 			ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
-	/***************************************************************************
+	/****************************************************************************
 	Check for end of input
-	***************************************************************************/
+	****************************************************************************/
 	if ( *ruler->atRuleMark )
 		if ( !noSkip && ruler->skipSet->contains(*ruler->atRuleMark) )
 			ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
 	if ( !*ruler->atRuleMark )
 		goto checkFailed;
-	/***************************************************************************
+	/****************************************************************************
 	Check the rule guard if there is one
-	***************************************************************************/
+	****************************************************************************/
 	hereAt = ruler->atRuleMark;
 	if ( guardOK )
 		{
@@ -1199,9 +1199,9 @@ GroupItem 	*field = rule;
 			sukcess = 1;
 		else	guardFAIL = 1;
 		}
-	/***************************************************************************
+	/****************************************************************************
 	Set the label
-	***************************************************************************/
+	****************************************************************************/
 	if ( sukcess )
 		if ( noLabel || (field->groupBody->flags.hasMembers && !field->groupBody->flags.binType) )
 			label = 0;
@@ -1214,24 +1214,24 @@ GroupItem 	*field = rule;
 			else	label->groupBody->flags.fLAG = 0;
 			if ( !label->getRStuff() || ::compare(ruleName,field->groupBody->tag) != 0 )
 				label->setRStuff(this);
-			// enclosingActivation this write hands the label UP to the enclosing rule's stuff,
-			// enclosingActivation and a TOP-LEVEL rule's parent is the REGISTRY, which lawfully has
-			// enclosingActivation none -- so refuse by name rather than dereference a null
-			if ( field->groupBody->flags.hasNewParse && isMember(field->options.affiliation) )
-				{
+			// boundLabelOrZero  ROAD-BLIND, ruled 2026-09-18. THE STATE DECIDES AND THE ROAD IS
+			// boundLabelOrZero  NEVER ASKED: this arm read hasNewParse, the only road flag that
+			// boundLabelOrZero  has ever been in this function. Hand the label UP when there is
+			// boundLabelOrZero  an activation to take it; when there is not, do NOTHING. A
+			// boundLabelOrZero  top-level rule's parent is the REGISTRY and having no activation
+			// boundLabelOrZero  is LAWFUL, so the refusal that stood here retires with the flag
+			if ( isMember(field->options.affiliation) )
 				if ( field->parent && field->parent->getRStuff() )
 					field->parent->getRStuff()->label = label;
-				else	::refuse(field,"checkInput: no enclosing activation to take the label");
-				}
 			}
 checkFailed:
 	return sukcess;
 }
 
-/*****************************************************************************
+/******************************************************************************
     Return the member following this group in the parent list
     Called by getWhatFollows() in RuleStuff
-*****************************************************************************/
+******************************************************************************/
 GroupItem *RuleStuff::followingMember()
 {
 	if ( rule->parent )
@@ -1245,9 +1245,9 @@ GroupItem *RuleStuff::followingMember()
 	return 0;
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Sets the fields of RuleStuff.
-*******************************************************************************/
+********************************************************************************/
 void RuleStuff::getWhatFollows()
 {
 GroupItem 	*grup = 0;
@@ -1279,9 +1279,9 @@ GroupItem 	*grup = 0;
 		setTestMatch();
 }
 
-/*******************************************************************************
+/********************************************************************************
 	Set testMatch
-*******************************************************************************/
+********************************************************************************/
 void RuleStuff::setTestMatch()
 {
 	if ( upTo(overTo) || upToOver(overTo) )

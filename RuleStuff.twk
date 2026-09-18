@@ -204,10 +204,14 @@ GroupItem   field = rule;
                 label.isLabel   = true; }
             else label.fLAG     = false;
             if !label.rStuff || ruleName ne tag label.setRStuff(this);
-            // enclosingActivation
-            if hasNewParse && isMember {
-                if parent && parent.rStuff  parent.rStuff.label = label;
-                else    refuse(field,"checkInput: no enclosing activation to take the label"); } }
+            // boundLabelOrZero  ROAD-BLIND, ruled 2026-09-18. THE STATE DECIDES AND THE ROAD IS
+            // boundLabelOrZero  NEVER ASKED: this arm read hasNewParse, the only road flag that
+            // boundLabelOrZero  has ever been in this function. Hand the label UP when there is
+            // boundLabelOrZero  an activation to take it; when there is not, do NOTHING. A
+            // boundLabelOrZero  top-level rule's parent is the REGISTRY and having no activation
+            // boundLabelOrZero  is LAWFUL, so the refusal that stood here retires with the flag
+            if isMember
+                if parent && parent.rStuff  parent.rStuff.label = label; }
 checkFailed:
     return sukcess;
 }

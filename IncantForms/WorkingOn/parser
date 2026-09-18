@@ -41,10 +41,22 @@ define
         //                   shape -- because CodE is the ACTION's slot and overwriting it
         //                   DELETES the action. fixIts F-87. No brace in this comment: F-86
         if ownActionAtEntry == 1;
-            builtinParseR = codeBuffer;
+            // carrierIsCodeShaped  THE CARRIER IS A HOST WITH A CodE CHILD, not raw text. compile
+            //                      wants an isCodeD node carrying a CodE attribute, so that is
+            //                      what it gets -- measured, and it is what makes the parse
+            //                      RUNNABLE rather than merely parked
+            bprCodE := copyOf(CodE);
+            clear(*bprCodE);
+            *bprCodE = codeBuffer;
+            *bprCodE :. noPrinT;
+            // noZeroContent  a node whose content is the INTEGER 0 reads FALSE under `if x;`,
+            //                so the carrier is left data-less and `+%` mints it
+            builtinParseR +% *bprCodE;
+            builtinParseR :. isCodeD;
             bprCopy := copyOf(builtinParseR);
             *bprCopy :. noPrinT;
             argument +% *bprCopy;
+            compile(*bprCopy);
         if ownActionAtEntry == 0;
             clear(CodE);
             CodE = codeBuffer;

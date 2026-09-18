@@ -9987,6 +9987,8 @@ GroupItem 	*result = 0;
 GroupItem 	*grup = 0;
 GroupItem 	*myLabel = 0;
 GroupItem 	*into = 0;
+GroupItem 	*carrier = 0;
+GroupItem 	*parseBody = 0;
 GroupItem 	*ruleArg = 0;
 GroupItem 	*priorMETHOD = 0;
 	// enclosingRule as parseLoop -- the enclosing rule at the moment of entry   Generate.parseRule.enclosingRule
@@ -10033,6 +10035,18 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			ruleArg->setGroup(myLabel);
 			priorMETHOD = ruler->currentMETHOD;
 			ruler->currentMETHOD = field;
+			// labelIsBoundBeforeTheParse  THE TERMS ATTACH INTO THIS. checkInput sets label=0 for
+			//                             a members-rule, so without this line the terms read
+			//                             parentStuff.label as null and exitFromParse has nowhere
+			//                             to put them   Generate.parseRule.labelIsBoundBeforeTheParse
+			ruleStuff->label = myLabel;
+			// parseThenAction  RULED 2026-09-18: parse first, action on the FILLED label. The
+			//                  carrier holds the generated parse and the rule's own BlocK holds
+			//                  its action; both run here, in that order, on one activation
+			carrier = field->get("builtinParseR");
+			if ( carrier )
+				if ( parseBody = carrier->get("BlocK") )
+					parseBody->groupBody->gMethod(parseBody);
 			/*****************************************************************
 			here the parse action in method gets run
 			*****************************************************************/
