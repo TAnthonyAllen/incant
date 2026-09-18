@@ -306,6 +306,47 @@ call carries the tag, so the reference's rStuff never reaches the generated body
 consequence is worse than a lost modifier: **the tag does not reach the reference OR the registry
 rule.** It is resolved inside the action's own scope, where an unknown name is minted as a local.
 
+⚠⚠ **THE FOUR-ROW CONTROL, 2026-09-18, `incant/pop/emitRefT`, one run per road. THE ANSWER TO
+TONY'S PARKED QUESTION IS "NEITHER", AND IT IS THE GOOD KIND.**
+
+| root | trunk (bare) | branch `checkinput-state` |
+|---|---|---|
+| **`Search`** — no action body, parse goes to `CodE` | **no term dispatch at all** | **no term dispatch at all — IDENTICAL** |
+| **`list`** — action body, parse parks in a carrier | **no term dispatch at all** | `RULEDISPATCH entries … isRule=0 … arm=NONE`, chain `result=false` |
+
+**Search reads the same on both roads: no dispatch, not `isRule=1` and not `isRule=0`.** The
+gate's two enumerated outcomes both assumed term calls were happening. **They were not.**
+**Nothing regressed, and no bisect is indicated** — there is no commit at which the behaviour
+changed, because the behaviour never existed.
+
+**WHY, read off the same run — `setParse` INSTALLED NOTHING, on either root or on any term, on
+either road:**
+
+```
+PC none Search      PA act=none hung=yes  fires=nothing-parked
+PC none search      PC none followedBy    PC none GrouP     PC none SemI
+PC none list        PA act=none hung=no   fires=nothing-parked
+PC none entries     PC parseString SemI
+```
+
+⚠ **`parser` runs `walkRules` BEFORE `compileRules`, and `walkRules`' `generateParse` raises
+`hasNewParse`.** `setParseWalk` opens with the `installedIsDone` gate — *an rStuff carrying
+hasNewParse is installed, and the walk leaves it alone* — so by the time `compileRules` calls
+`setParse`, every rule the walk touched is already flagged and **the classification ladder never
+runs**. Nothing is installed as a `parseMethod`, so no generated body is dispatched, so no
+emitted term call is ever made.
+
+⚠ **AND IT RECONCILES THE THING THAT HAD TO BE RECONCILED.** *"Search has been green all
+along"* is true and is a claim about the OLD road. `incant/pop/parserTest` asserts its roots are
+REACHED and **pins no answers, deliberately** — its header says so in terms — so nothing in the
+fleet ever claimed a generated body ran. **On the branch, `list` is the first and only place one
+ever has**, because `parseRule` fires the carrier's `BlocK` directly rather than waiting for an
+install that never happens.
+
+⚠ **GRADE:** the `PC` lines and the dispatch counts are **read at the seat**. The
+`installedIsDone` attribution is a **SOURCE READ** of that gate against `parser`'s call order —
+one probe from being measured, and **not measured here**.
+
 **THE EMIT-TIME SHAPE, read at its sites:**
 `generateParse`'s term loop prints `$taG "()"` — **the tag and nothing else**. A term's modifiers
 are written by `modify` (`GroupActions.rtn:493`) into the **reference's `rStuff`**:
