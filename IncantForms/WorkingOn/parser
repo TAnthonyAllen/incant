@@ -1,20 +1,3 @@
-/*  The parser incantation -- DEFINITIONS ONLY, so utilities can include it.
-
-    ⚠ ITS OWN PREAMBLE IS GONE ON PURPOSE. It read Start(); include(utilities);
-    search ...; and the include is CIRCULAR the moment utilities includes this file.
-    An includer has already done all three.
-
-    ⚠ AND THE DRIVER IS GONE TOO, to incant/pop/parserT. It could not stay: a live
-    `parser(Search); Search(...); stop();` at the foot would fire -- and STOP the run --
-    inside whoever included this. Same split incant/directives took on 2026-09-15 and
-    for the same reason.
-    ⚠⚠ AND MOVING IT FOUND A DEAD CASE. This file carried TWO stop() calls, at 85 and
-    91, so CASE 2 (parser(DO)) was unreachable and HAS NEVER RUN -- rule H2's exact
-    failure, in the file that was about to become everyone's dependency. Both cases
-    now live in the fixture, where CASE 2 runs for the first time.
-
-    Definitions are UNMOVED, per the 2026-09-17 ruling: the shape is still settling.
-    TokFiles -> ParserIncantation carries the argument.  */
 register(Utilities);
 define
     codeBuffer buffer;
@@ -88,3 +71,22 @@ define
     ;
 
 bail();
+
+/*****************************************************************************
+    The parser incantation -- DEFINITIONS ONLY, so utilities can include it.
+*****************************************************************************/
+    Changes made. Definitions are UNMOVED, per the 2026-09-17 ruling: the shape is still settling.
+    ⚠ ITS OWN PREAMBLE IS GONE ON PURPOSE. It read Start(); include(utilities);
+    search ...; and the include is CIRCULAR the moment utilities includes this file.
+    An includer has already done all three.
+
+    ⚠ AND THE DRIVER IS GONE TOO, to incant/pop/parserT. It could not stay: a live
+    `parser(Search); Search(...); stop();` at the foot would fire -- and STOP the run --
+    inside whoever included this. Same split incant/directives took on 2026-09-15 and
+    for the same reason.
+    ⚠⚠ AND MOVING IT FOUND A DEAD CASE. This file carried TWO stop() calls, at 85 and
+    91, so CASE 2 (parser(DO)) was unreachable and HAS NEVER RUN -- rule H2's exact
+    failure, in the file that was about to become everyone's dependency. Both cases
+    now live in the fixture, where CASE 2 runs for the first time.
+
+    TokFiles -> ParserIncantation carries the argument. Also see comment at bottom of the utilities incantation
