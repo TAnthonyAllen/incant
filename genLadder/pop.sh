@@ -2624,7 +2624,7 @@ fi
 
 #  ---- parserTest: the LIVE parser incantation's own POP -----------------------
 #  Tony, ruled 2026-09-17. IncantForms/WorkingOn/parser became definitions-only so utilities
-#  could include it; this is where those definitions are measured, across three roots.
+#  could include it; this is where those definitions are measured, across FOUR roots.
 #  ⚠ IT DOES NOT GATHER anyOrNumT's OR trigDO's CALLS, and that is a CORRECTION rather than
 #  a shortfall. Those two carry their own COMPLETE FROZEN COPIES of the incantation --
 #  generateParse, walkRules, compileRules, parser -- by design; anyOrNumT's header says so
@@ -2636,13 +2636,21 @@ fi
 #  2 was dead code behind a second stop() in the source file, and the live parser has never
 #  been driven at ANYorNum. Pinning a number never produced is inventing a target. What is
 #  asserted is that the run REACHES ITS FOOT, by counting markers against the sentinel.
+#  ⚠⚠ PT-4 ADDED 2026-09-18 -- STATION 4's ROOT, AND IT COULD NOT BE DRIVEN BEFORE. `list`
+#  lives in UnitTests, not Grokking, and `parser` read its root as Grokking[argument.taG],
+#  so parser(list) looked up a name absent from that registry and generated for a node called
+#  `argument`. The root is now taken BARE. parser(list) generates and compiles.
+#  ⚠ PT-4 DOES NOT FIRE `list`, DELIBERATELY: parser(list) followed by testList() SPINS in a
+#  file where it is the only case -- 100% CPU, RSS flat, reproduced twice. It completes HERE,
+#  after PT-1..PT-3, so the outcome depends on what was generated before it. fixIts F-87.
+#  Rule H5: a fixture must not be able to take the suite hostage.
 run2 parserTest "$T/ptst.o" "$T/ptst.e"; check "parserTest runs" 0 $?
 sentinel "parserTest sentinel" "$T/ptst.e" "PARSERTEST SENTINEL"
 _ptn=$(grep -cE "^PT-[0-9]" "$T/ptst.e")
-if [ "$_ptn" = 3 ]; then
-    echo "  ok    parserTest all 3 roots reached -- Search, DO, ANYorNum (no answers pinned)"; green=$((green+1))
+if [ "$_ptn" = 4 ]; then
+    echo "  ok    parserTest all 4 roots reached -- Search, DO, ANYorNum, list (no answers pinned)"; green=$((green+1))
 else
-    echo "  FAIL  parserTest reached $_ptn of 3 roots -- a case died before the next marker."
+    echo "  FAIL  parserTest reached $_ptn of 4 roots -- a case died before the next marker."
     echo "        Read WITH the sentinel: a missing sentinel means the last one hung or died."
     grep -E "^PT-" "$T/ptst.e" | sed 's/^/          /'; fail=1
 fi

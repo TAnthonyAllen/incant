@@ -1,8 +1,11 @@
 # fieldAddsDefinition — `field += <a field definition>`
 
-**A docket card, 2026-09-18. Tony's brainstorm; Clod's sizing. NOTHING IS BUILT AND NOTHING
-HERE IS MEASURED** — every claim below is a structural read of the grammar and the registries,
-and this project's own ledger says a structural read is usually right and is still not a run.
+**A docket card, 2026-09-18. Tony's brainstorm; Tony's ruling in §3a; Clod's sizing elsewhere.
+NOTHING IS BUILT.**
+
+⚠ **READ §3a FIRST — IT IS A RULING AND EVERYTHING ELSE IS A SIZING.** Outside §3a, nothing
+here is measured: every claim is a structural read of the grammar and the registries, and this
+project's own ledger says a structural read is usually right and is still not a run.
 
 ---
 
@@ -71,9 +74,44 @@ that probe. Do not build on this paragraph before somebody does.
    question, not an implementation detail. If the answer turns out to be that `+%` already does
    it for a group, the card gets much cheaper — **and that too is one probe.**
 
-**One open question that is genuinely open:** what does the left operand become? A registry, or a
-field with members? `registry(Grokking)` and `register(Utilities)` are different verbs today, and
-this form collapses the distinction at the call site without saying which one it means.
+**One question this section raised and §3a ANSWERS:** what does the left operand become — a
+registry, or a field with members? **Neither: it becomes the definition's PARENT, and the
+registry separately gains a REFERENCE.** `registry(Grokking)` and `register(Utilities)` are
+different verbs today and this form does not collapse them; it makes ownership and visibility two
+acts instead of one.
+
+---
+
+## 3a. ⚠⚠ RULED 2026-09-18 (TONY) — PARENTAGE, PROMOTION, AND THE COLLISION
+
+**This section is a ruling, not a sizing. It settles what the card was most likely to get wrong.**
+
+**PARENTAGE. The definition's parent is the FIELD IT WAS ADDED TO, and it is NEVER RE-PARENTED.**
+That is the whole ownership story and it does not change when the definition later becomes
+visible elsewhere. A definition belongs to the field that took it; nothing moves it afterwards.
+
+**PROMOTION IS A REFERENCE, NOT A MOVE.** Making a definition visible in the field's registry
+— `Grokking` today — **adds a reference**, in the shape `+%` and `embedRule` already have.
+`GroupItem.twk:424` is the live precedent: `embedRule` mints the one legitimate copy of an
+embedded rule, parents it to the referencing site and raises `isEmbedded`, leaving the original
+where it was. **So the registry gains a way to reach the definition; it does not take it.**
+⚠ That is what makes the parentage rule above cost nothing — promotion and ownership are
+different acts on different nodes, which is this project's one-channel-one-meaning discipline
+applied before there is a channel to confuse.
+
+**STAGING. STEP 1 PROMOTES EVERYTHING.** The later gate — **bare stays local, a modifier
+promotes** — is **one predicate at the promotion site**, and its spelling is **TBD**. Nothing in
+step 1 is designed around the gate beyond keeping the promotion to a single site, which is the
+only thing that makes the gate a one-line change later.
+
+**COLLISION AT PROMOTION REFUSES LOUD, AND NAMES BOTH** — the incoming definition and the
+resident one. ⚠ Not a silent overwrite and not a silent skip: a name arriving where a name
+already lives is exactly the case where an absence-shaped outcome is unreadable, and naming only
+one side leaves the reader to find the other.
+
+⚠ **AND THE FRAMING TONY PUT ON IT: THIS IS THE FIRST CONSTRUCT ON THE INCANT-IN-INCANT ROAD.**
+Which is why the parentage and promotion rules are worth settling before any spelling is chosen
+— the construct that carries a road is the one whose defaults everything after it inherits.
 
 ---
 

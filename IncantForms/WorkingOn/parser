@@ -63,10 +63,11 @@ define
         print "end compileRules"::;
         };
     parser code={
-        // primed BEFORE the walk on purpose -- a name first referenced after it never
-        // resolves, silently   ParserIncantation.primeBeforeWalk
-        walkRules(Grokking[argument.taG]);
-        compileRules(Grokking[argument.taG]);
+        // takesTheRuleNotTheName  the root arrives as the RULE through *argument, so REGISTRY
+        //                        MEMBERSHIP STOPS MATTERING -- the old Grokking[argument.taG]
+        //                        could only ever reach a rule living in Grokking
+        walkRules(argument);
+        compileRules(argument);
         };
     ;
 

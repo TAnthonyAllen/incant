@@ -21,7 +21,20 @@
     prints a sentinel, and the rows count markers. The values come when Tony has read them.
 
     ⚠ AND THE SENTINEL IS THE ONLY COMPLETENESS CLAIM THIS FILE MAKES. A case that hangs or
-    dies takes the sentinel with it, which is the fact worth having first.  */
+    dies takes the sentinel with it, which is the fact worth having first.
+
+    ⚠⚠ PT-4 ADDED 2026-09-18 -- STATION 4's ROOT, AND IT IS THE FIRST ONE THAT COULD NOT BE
+    DRIVEN BEFORE. `list` lives in UnitTests, not in Grokking, and `parser` used to read its
+    root as `Grokking[argument.taG]` -- so `parser(list)` looked up a name that is not in that
+    registry, got nothing, and generated for a node called `argument`. It now takes the root
+    BARE, as `argument`, which is the rule itself. `parser(list)` generates
+    `return entries() && SemI();` and compiles.
+
+    ⚠ WHAT PT-4 DOES NOT DO IS FIRE `list`, AND THAT IS DELIBERATE. `parser(list)` followed by
+    `testList()` SPINS -- 100% CPU, RSS flat, reproduced twice -- in a file where PT-4 is the
+    only case. It completes here, after PT-1..PT-3, which means the outcome depends on what was
+    generated before it. docs/fixIts.md F-87 carries the repro. A fixture must not be able to
+    take the suite hostage (rule H5), so the firing stays out until the spin is understood.  */
 Start();
 include(unitTests);
 include(utilities);
@@ -38,6 +51,9 @@ DO("do print 1; while 0;");
 
 cerr "PT-3 parser(ANYorNum)":;
 parser(ANYorNum);
+
+cerr "PT-4 parser(list)":;
+parser(list);
 
 cerr "PARSERTEST SENTINEL":;
 stop();

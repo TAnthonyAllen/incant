@@ -63,8 +63,55 @@ cycle so the trail survives, then moves out.
 
 ## OPEN
 
-### F-85 — `parser(list)` never reaches `list`; station 4's premise is not demonstrated
-**STATION 4 IS BLOCKED ON THIS, and the blocker is one line of `parser`.** Nothing was landed.
+### F-85 — ✅ CLOSED 2026-09-18 — `parser` takes its root BARE; `*argument` was the wrong mechanism
+**STATION 4 IS UNBLOCKED.** `parser(list)` generates `return entries() && SemI();` and compiles.
+
+⚠⚠ **THE RULED SPELLING FAILED ITS OWN CONTROL, AND THAT IS THE FINDING.** The 2026-09-17
+ruling said *"`parser` takes the rule via `*argument`"*. Driven, `*argument` broke **all three**
+already-working roots: `parser(Search)`, `parser(DO)` and `parser(ANYorNum)` each generated for a
+node called `argument` and refused. **Running the control FIRST is what caught it** — the
+dispatch asked for exactly that, and had `parser(list)` been tried first its failure would have
+read as a `list` problem.
+
+**WHY, MEASURED — AND THE RULING'S INTENT IS UNHARMED:** an action's `argument` **is already the
+rule**. It is a COPY OF THE FIELD SHARING THE LIVE RULE'S BODY, which is H13 question 1, so the
+body column is the one that answers:
+
+| what | field | body | isCopy |
+|---|---|---|---|
+| `argument` in `f(Search)` | #1 | **#2** | 1 |
+| `Grokking["Search"]` | #5 | **#2** | 0 |
+| `argument` in `f(list)` | #3 | **#4** | 1 |
+| `UnitTests["list"]` | #6 | **#4** | 0 |
+
+It reads `isGrouP` **0** and `listLengtH` **5** — it holds a list, not a group — and `*x` on a
+field holding no group **yields NULL by the 2026-09-05 star ruling**, re-affirmed 09-16. The star
+was lawful; the spelling was wrong. **Bare `argument` reaches the rule through the shared body,
+and registry membership stops mattering exactly as the ruling wanted.**
+
+**THE CONTROL: BYTE-IDENTICAL.** `parser(Search)`/`(DO)`/`(ANYorNum)` through the bare line
+produce output identical to the `Grokking[argument.taG]` baseline on **both streams**, diffed.
+
+⚠ **THE REGISTRY QUESTION IS ANSWERED AND TONY WAS RIGHT.** `list` lives in **UnitTests**, not
+Grokking, so the old single-registry lookup could never have reached it:
+`Grokking["list"]` **0** · `UnitTests["list"]` **1** · a never-defined name **0**.
+
+⚠⚠ **AND THE BEAR-TRAP #35 DISAGREEMENT THIS ROW RAISED IS WITHDRAWN.** F-85 reported the
+direct-subscript **miss control FIRING**, contradicting #35. Re-run with a hit and a miss in one
+run, **the miss reads 0 and #35 is correct.** The earlier probe read through a `<-` rebind, which
+mints a node and makes a miss unobservable — which is the *other* half of #35 and is the half
+that was operating. **Nothing is owed against bear-trap #35**, and one item leaves the
+waiting-on-Tony list.
+
+**Fixture:** `incant/pop/parserTest` PT-4. **Grade:** CONFIRMED, with one passing control and one
+failing one. **Closed.**
+
+⚠ **AND THE COLLISION IS NOW MEASURED — F-87, which this row said would size it.**
+
+---
+
+#### F-85's original text, kept as the reasoning trail
+**The blocker was one line of `parser`.**
 
 **`parser` resolves its root as `Grokking[argument.taG]`** — a single registry, and `.taG` read off
 the argument **holder**. Measured by what `generateParse` announces:
@@ -97,6 +144,67 @@ ruling stopped. Tony also suspects `list` is not in the search list being read.
 ⚠ **AND THE COLLISION IS SIZED FROM THAT MEASUREMENT, NOT BEFORE IT** — `builtinParseR` is built
 only if the two-bodies-one-slot collision is there when `generateParse` finally sees `list`. **Grade:** CONFIRMED for the blocker (announced output, with a working
 control); OPEN for why the action stops. **Owner:** unassigned.
+
+### F-87 — ⚠ CONFIRMED 2026-09-18 — TWO BODIES, ONE SLOT: `generateParse` OVERWRITES THE ACTION
+**This is the collision Clay named, and it is `builtinParseR`'s whole premise. It was UNTESTED
+until `parser(list)` could reach `list`. It is tested now.**
+
+**The mechanism is readable rather than inferred** — `generateParse` ends with
+`clear(CodE); CodE = codeBuffer;`. A rule with a code body keeps its action in `CodE`. The
+generated parse is written to the **same attribute**, so the action is gone.
+
+**MEASURED, three arms on `incant/unitTests`' `list`, driven through `testList()`:**
+
+| arm | what runs | `list`'s own body |
+|---|---|---|
+| A | `testList()` alone | does not fire |
+| B | `compile(list); setParse(list); testList()` | **FIRES** — `list tests the for statement:` |
+| C | `parser(list); testList()`, inside `parserTest` after PT-1..PT-3 | **does not fire** |
+
+**B is the control and it is what makes C mean anything:** the body CAN fire from this state, so
+C's silence is not *"the action was never runnable"*. The discriminator between B and C is
+`generateParse`, and `generateParse` is the thing that writes `CodE`.
+
+⚠ **THE CAVEAT, STATED RATHER THAN GLOSSED:** B and C differ by more than one call — C also
+runs `walkRules` over the components. So this names the **site** with confidence and the **exact
+write** on a source read rather than a one-variable run. It is one probe from airtight: dump
+`list`'s `CodE` either side of `generateParse`.
+
+**Done when:** a rule can carry both a generated parse and its own action. Tony's `builtinParseR`
+— park the generated parse in its own attribute beside `builtinActoR` — is aimed here.
+**Grade:** CONFIRMED for the collision, GRADED for the exact write. **Owner:** Tony, the shape is
+his.
+
+### F-88 — `parser(list)` then firing `list` SPINS, and only when it is the only root
+**100% CPU, RSS flat at 36MB, reproduced twice, exiting only to the alarm.** Flat RSS is the
+discriminator: **this is a LOOP, not unbounded recursion**, which rules out `parseSelfRecursion`
+(designDocs, `status=ruled`) whose signature is tens of thousands of frames and a guard-page
+SIGSEGV.
+
+**MINIMAL REPRO** — a file whose only case is this one:
+
+```
+Start(); include(unitTests); include(utilities);
+search reset stack Grokking; search GroupFields UnitTests Utilities list;
+parser(list);          <- completes; a marker after it prints
+testList();            <- SPINS, never returns
+stop();
+```
+
+⚠ **THE STATE DEPENDENCE IS THE INTERESTING HALF: THE SAME TWO LINES COMPLETE inside
+`incant/pop/parserTest`, after `parser(Search)`, `parser(DO)` and `parser(ANYorNum)`.** So whether
+firing a freshly generated rule terminates depends on **what was generated before it** — most
+likely on which shared sub-rules already carry `hasNewParse` and are skipped by `walkRules`'
+`if hasNewParsE; continue;`. **That is a hypothesis and it has not been run.**
+
+⚠ **`walkRules(list); compileRules(list);` CALLED DIRECTLY DOES NOT SPIN** — only
+`parser(list)`, which calls the same two through `argument`. Second discriminator, and it narrows
+the search to the argument road.
+
+**Why PT-4 does not fire `list`:** rule H5 — a fixture must not be able to take the suite
+hostage. PT-4 generates and stops there.
+**Done when:** the spin is located. **Grade:** CONFIRMED and reproduced; mechanism OPEN.
+**Owner:** unassigned.
 
 ### F-86 — KANT-40 in anger: a `}` inside a comment in a `code={ }` body ends the body
 **Reproduced 2026-09-17 with a three-arm A/B**, in `IncantForms/WorkingOn/parser` — which is
