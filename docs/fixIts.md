@@ -240,10 +240,32 @@ it runs repeatedly and correctly — this is not "the second execution fails".
 fires, `SemI(";")` reads 45 and `followedBy("x")` reads 43. They diverted, they matched, and the
 call statement after them still parses.
 
-**THE VARIABLE IS: ANY GENERATED BODY RUNNING UNDER A DIVERSION.** Not a diversion on its own, and
-**not nesting** — the first row that dies is the un-nested one.
+⚠⚠ **THE READING, CORRECTED BY TONY 2026-09-19 BEFORE IT COULD BE BANKED WRONG. WHAT IS SHOWN IS:
+`NamE`'s GENERATED BODY, ONCE RUN UNDER A DIVERSION, STOPS MATCHING ON THE FILE.**
 
-⚠⚠ **AND NESTING ADDS A SECOND, WORSE SYMPTOM THAT IS NOT THE SAME FAILURE.** `GrouP("foo")` driven
+**"Any generated body under a diversion" is NOT shown, and the ladder cannot show it, because EVERY
+ROW THAT DIED RAN `NamE`** — `NamE` directly, `GrouP` through `NamE() || QuotE()`, `Search` through
+`GrouP()`. The two surviving rows ran no generated body at all, so the ladder separates *some body*
+from *no body* and says nothing about *which*. ⚠ **It does rule out two things and those stand:** a
+diversion on its own is harmless (two no-body drives, both with anti-vacuity), and **nesting is not
+the variable** — the first row that dies is the un-nested one.
+
+⚠ **THIS IS THE STRUCTURAL/CAUSAL ASYMMETRY ARRIVING THROUGH A LADDER.** Every row was measured and
+every row is right; the SENTENCE generalised past them, on a population where one rule is present in
+all three positive cells. A ladder whose dying rows share a term has not isolated the term.
+
+**THE NEXT ATTEMPT IS NAMED AND NOT RUN (2026-09-19, shutdown):** after `parser(Search)`, drive
+**`QuotE("'x'")`** — a generated body that does NOT go through `NamE` (`tik() && quoteBody()`). Then
+run **both** a call statement (needs `NamE`) and **a `cerr` with a quoted string** (needs `QuotE`).
+
+| what happens | what it means |
+|---|---|
+| the call statement survives, the quoted `cerr` dies | **per-rule state** — a driven body poisons ITSELF |
+| the call statement dies too | **global state**, and "any generated body" earns its sentence |
+| both survive | `NamE` is special and the ladder's subject is `NamE`, not bodies |
+
+⚠⚠ **SEPARATE SYMPTOM, BANKED AND NOT CHASED: `GrouP("foo")` SEGFAULTS.** It is not the same
+failure as the abandon and is not filed as one. `GrouP("foo")` driven
 directly **SEGFAULTS — exit 139, 13 bytes of output**, `DRIVE-START` printed and `PRE` never reached,
 so the crash is inside the drive itself. It produces **no ABANDONED line**, which is the discriminator
 from rows `NamE` and `Search`. No backtrace: `script -q /dev/null` cannot wrap it in this session
@@ -294,8 +316,16 @@ ATTEMPT LOG
            this row withdrawn. traceParse names the term: NamE, via first() && nameSet().
   8. 2026-09-19  drive ladder, one drive per process, anti-vacuity on the no-body rows
         -> no drive / SemI / followedBy all PARSE after; NamE, GrouP, Search all DEAD.
-        -> the variable is ANY GENERATED BODY UNDER A DIVERSION, not nesting.
-        -> GrouP("foo") is a SEGFAULT (139, 13 bytes, no ABANDONED), a different symptom.
+        -> ⚠ READING CORRECTED BY TONY, SAME DAY, BEFORE IT WAS BANKED WRONG. What is shown
+           is that NamE's generated body, once run under a diversion, stops matching on the
+           file. "ANY generated body" is NOT shown: every row that died RAN NamE -- directly,
+           or through GrouP, or through Search->GrouP. What stands: a diversion alone is
+           harmless, and nesting is not the variable.
+        -> NEXT ATTEMPT, NAMED AND NOT RUN: drive QuotE("'x'"), a body that does not go
+           through NamE, then a call statement AND a quoted-string cerr. Separates per-rule
+           state from global state; the three outcomes are tabled above.
+        -> GrouP("foo") is a SEGFAULT (139, 13 bytes, no ABANDONED). BANKED AS A SEPARATE
+           SYMPTOM, NOT CHASED, NO BACKTRACE YET.
   POP: none yet. No row may be pinned until hole 3 is ruled -- a green here would be a target
        regenerated green, which is not a target.
 ```
