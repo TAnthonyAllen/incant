@@ -182,6 +182,83 @@ unmoved row for row and `searchNewParseT`'s `SemI` row green.
 
 **Owner:** unassigned. **Hole 3 is the gate and it is not this row's to open.**
 
+**⚠⚠ HOLE 3 SIZED, 2026-09-19 — IT IS NOT DISPATCH AND IT IS NOT NESTING. `reportRunAbandoned`
+NAMES IT, AND THIS IS THAT INSTRUMENT'S FIRST REAL CATCH.**
+
+The earlier reading in this row — *"a subsequent action call does not dispatch"* — is **WITHDRAWN.**
+It is a **PARSE** failure, and the tree already had a diagnostic for it that nobody had looked for:
+
+```
+ABANDONED <file> -- the parse STOPPED with input left over. A statement failed to match, which
+ends Start's StatemenT+ repetition, so everything from here on was NEVER PARSED. The exit status
+is still 0. It resumes at:
+    bprAct();#cerr "POST":;#stop();#
+```
+
+`reportRunAbandoned` (`ruleActions.rtn:1653`, built 2026-09-17 for F-76) prints it, and the resume
+text names the exact statement. **This is its first catch on a defect it was not built for** — F-76
+built it for a define-time expression refusal; here it names a generated-parse match failure — which
+is the argument for the instrument, not just for the row. It also explains the missing sentinel with
+no mystery left over: **`stop();` is itself a call statement, so it is never parsed either.**
+
+**THE 2×2 — install versus drive, each cell its own process, control arm on the unedited parser:**
+
+| | a. plain `cerr` | b. `bprAct()` | c. `bprAct(DO)` | d. `addrOf(SemI)` C++ |
+|---|---|---|---|---|
+| CONTROL, `parser(Search)` | ok | ok | ok | ok |
+| CONTROL, + drive | ok | ok | ok | ok |
+| EDITED, `parser(Search)` | ok | ok | ok | ok |
+| **EDITED, + drive** | **ok** | **DEAD** | **DEAD** | **DEAD** |
+
+Install alone is harmless; the drive is the variable. **The argument parse is NOT the patient** —
+the no-argument action, the with-argument action and the C++ command die together.
+
+**THE TERM THAT DID NOT MATCH IS `NamE`.** Under `traceParse`, the statement that abandons fires
+`first` and `nameSet` — **exactly the two terms of the generated `NamE = CodE { return first() &&
+nameSet(); }`** — and then abandons. One-variable A/B on the drive alone:
+
+| | `first`/`nameSet` fire | outcome |
+|---|---|---|
+| no drive | yes | `ACT-FIRED`, `POST`, exit 0, no ABANDONED |
+| after the drive | yes | **ABANDONED** |
+
+**So `NamE`'s generated body matches before the drive and fails after it**, and in the no-drive arm
+it runs repeatedly and correctly — this is not "the second execution fails".
+
+**THE DRIVE LADDER — one drive per process, `parser(Search)` first in every row:**
+
+| drive | generated body under the diversion? | call statement after | ABANDONED | exit |
+|---|---|---|---|---|
+| *(none)* | — | **parses** | no | 0 |
+| `SemI(";")` | no — takes the `datA` exit | **parses** | no | 0 |
+| `followedBy("x")` | no — takes the `datA` exit | **parses** | no | 0 |
+| **`NamE("foo")`** | **yes, not nested** | **DEAD** | **yes** | 0 |
+| **`GrouP("foo")`** | yes, nested one deep | **DEAD** | **no** | **139** |
+| `Search("search list;")` | yes, nested two deep | **DEAD** | yes | 0 |
+
+⚠ **ANTI-VACUITY: the two no-body drives really ran.** Against a no-drive baseline of 34 traced
+fires, `SemI(";")` reads 45 and `followedBy("x")` reads 43. They diverted, they matched, and the
+call statement after them still parses.
+
+**THE VARIABLE IS: ANY GENERATED BODY RUNNING UNDER A DIVERSION.** Not a diversion on its own, and
+**not nesting** — the first row that dies is the un-nested one.
+
+⚠⚠ **AND NESTING ADDS A SECOND, WORSE SYMPTOM THAT IS NOT THE SAME FAILURE.** `GrouP("foo")` driven
+directly **SEGFAULTS — exit 139, 13 bytes of output**, `DRIVE-START` printed and `PRE` never reached,
+so the crash is inside the drive itself. It produces **no ABANDONED line**, which is the discriminator
+from rows `NamE` and `Search`. No backtrace: `script -q /dev/null` cannot wrap it in this session
+(`tcgetattr/ioctl: Operation not supported on socket`), so the crash frame is unrecorded.
+⚠ **`GrouP` is reached as a sub-term inside `Search`'s drive without crashing** — the deeper row 4
+abandons rather than crashes. **Driving `GrouP` directly and reaching it as a term are different**,
+and nothing here says why.
+
+⚠⚠ **AND THE BANKED WARNING, because it invalidates the cheap check this row has been leaning on:
+A `cerr` SENTINEL IS SATISFIED BY THE ONE STATEMENT FORM THAT STILL PARSES.** `cerr` passes in every
+cell of the 2×2 while every call form dies. So a fixture whose completeness claim rests on a trailing
+`cerr` marker **cannot see this defect at all**, and the single-root greens in attempt-log lines 1-6
+do not cover it. Rule H2's sentinel must be reachable only through the last section — here it is
+reachable through a statement form the defect leaves working.
+
 ```
 ATTEMPT LOG
   1. 2026-09-19  line 88 -> *grup["builtinParseR"], alone, live file, no rebuild
@@ -210,6 +287,15 @@ ATTEMPT LOG
            lose the sentinel at exit 0.
         -> REVERTED WHOLE (both steps). Fleet 424/51 UNMOVED ROW FOR ROW, frontier station 5,
            fireSeatT fingerprint identical, canary 335, tree clean.
+  7. 2026-09-19  2x2, install vs drive, 16 cells, one process each, control arm unedited
+        -> all 8 control cells dispatch; EDITED row 1 all four dispatch; EDITED row 2 loses
+           action(), action(DO) and the C++ command while plain cerr survives.
+        -> reportRunAbandoned NAMES it: a PARSE failure, not dispatch. Previous reading in
+           this row withdrawn. traceParse names the term: NamE, via first() && nameSet().
+  8. 2026-09-19  drive ladder, one drive per process, anti-vacuity on the no-body rows
+        -> no drive / SemI / followedBy all PARSE after; NamE, GrouP, Search all DEAD.
+        -> the variable is ANY GENERATED BODY UNDER A DIVERSION, not nesting.
+        -> GrouP("foo") is a SEGFAULT (139, 13 bytes, no ABANDONED), a different symptom.
   POP: none yet. No row may be pinned until hole 3 is ruled -- a green here would be a target
        regenerated green, which is not a target.
 ```
