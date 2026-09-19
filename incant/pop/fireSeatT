@@ -1,0 +1,75 @@
+/*  fireSeatT -- THE BUY'S WITNESS, AND IT IS RED BY DESIGN ON TODAY'S BUILD.
+
+    Ruling A will feed actionMethod in setActions' isCoded arm and move parseRule's BlocK
+    fire into fireLabelMethod, ordered parse-then-action, so ONE seat fires ONCE on both
+    roads. This file is the row that says whether that happened. It was written BEFORE the
+    buy and proved RED first, because a witness only ever seen green cannot be trusted to
+    see anything -- rule H7, and it is the trap that bit this project twice on 2026-09-19.
+
+    ⚠ IT IS NOT WIRED INTO pop.sh. It is red today on purpose; wiring it is part of the
+    buy's landing, not of building the witness. Do not add it to the fleet to "fix" the red.
+
+    THE SUBJECT IS A CODED RULE, and that is the whole point. `fireLabelMethod` fires a
+    rule's action off `stuff.actionMethod`, whose only real writer is the builtinActoR
+    fallback -- and `setActions` returns on its FIRST arm, `if isCoded method = processAction;`,
+    without minting one. So a rule carrying `code={ }` has no actionMethod on either road.
+    Two rules here, one per road, because driving one rule down both in a single process
+    is the sequential-state tar baby.
+
+    ⚠ THE PROBES ARE INSIDE THE ACTION BODY, not after the drive. A post-hoc non-empty check
+    passes on an INVERTED order -- fire first, fill afterwards -- so it cannot witness the
+    claim the buy is making. The reads happen where the action reads.
+
+    THE THREE CLAIMS, and what each read on the pre-buy build (2026-09-19, canary 335):
+
+      CLAIM 1a  fill-before-fire, the VALUE:  entries has its children at the read site.
+                want FSNEW-LEN 3.   pre-buy: FSNEW-LEN 0.
+      CLAIM 1b  fill-before-fire, the ORDER:  an `attachLabel ... pRule=<rule>` line stands
+                BEFORE the action's own marker in the one stderr stream -- sequence at the
+                seat, not inferred from the outcome.
+                pre-buy NEW road: zero fill lines precede FSNEW-MARK.
+      CLAIM 2   fires ONCE:  ACTFIRE fireLabelMethod <rule> == 1 on both roads.
+                pre-buy: 0 and 0.
+
+    ⚠ CLAIM 1b's KNOWN-GOOD END IS THE OLD ROAD, IN THIS SAME FILE (rule H16). The old road
+    DOES fill -- one `attachLabel ... pRule=fsOldRule` line, before its seat -- so the
+    ordering assertion is proven able to read a fill before its red on the new road is
+    believed. Without that end, "no fill line found" and "the row cannot find fill lines"
+    are the same reading.
+
+    ⚠ CLAIM 2's PIN IS FLANKED, because a 1 between two undemonstrated numbers asserts
+    nothing. 0 is measured here on both roads. 2 is the naive-feed failure: the new road
+    ALREADY runs the body once through parseRule's BlocK (FSNEW-MARK reads 1 with ACTFIRE
+    at 0), so feeding actionMethod WITHOUT moving the fire arms fireLabelMethod as a second
+    seat -- docs/fixIts.md names it, "the rule action fires TWICE on the generated path".
+    TWO COUNTERS, NOT ONE: the MARK counts the BODY running, ACTFIRE counts the SEAT firing
+    it. One number cannot carry both facts, and telling them apart is the whole buy.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+
+register(UnitTests);
+define
+    fsOldRule isRule entries=ANYstring+ SemI?- code={
+        cerr "FSOLD-MARK action entered":;
+        cerr "FSOLD-LEN" entries.listLengtH:;
+        };
+    fsNewRule isRule entries=ANYstring+ SemI?- code={
+        cerr "FSNEW-MARK action entered":;
+        cerr "FSNEW-LEN" entries.listLengtH:;
+        };
+    ;
+traceParse(0);
+
+cerr "=== FS ROAD OLD -- no parser, GroupItem::parse ===":;
+fsOldRule("alpha beta gamma;");
+
+cerr "=== FS ROAD NEW -- parser installed, parseRule ===":;
+parser(fsNewRule);
+fsNewRule("alpha beta gamma;");
+
+cerr "=== FS ROADS DONE ===":;
+cerr "FIRESEAT SENTINEL -- reached the foot":;
+stop();
