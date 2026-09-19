@@ -92,6 +92,69 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-92 — a CODED rule's action never fires on the old road: `actionMethod` has no writer
+**Measured 2026-09-19.** `fireLabelMethod` fires a rule's action off `stuff.actionMethod`
+(`GroupItem.twk:589`, the line `stuff.label = stuff.actionMethod(stuff.label);`). Its only real
+writer is the `builtinActoR` fallback five lines above it — and `setActions` (`GroupItem.twk:1446`)
+returns on its FIRST arm, `if isCoded method = processAction;`, **without minting one**. So every
+rule carrying `code={ }` has a null slot, the guard fails on its first half, and the action never
+runs on the old road.
+
+**The population is FOUR, tree-wide:** `list` (`incant/unitTests:147`), `JSONfield` and `JSONarray`
+(`incant/utilities:95,102`), `frRule` (`incant/frontier:19`). Census 2026-09-19: **Grokking 86
+rules, 0 coded** — the grammar is untouched by this.
+
+⚠ **NO FLEET ROW CAN SEE IT.** `baselineTests` is exit-code-plus-last-line, `jsonTest` is
+exit-code only, frontier is not a fleet citizen. `baselineTests.golden` still carries `list`'s five
+tokens from a 2026-07-31 build and **pop.sh does not diff that golden**. ⚠ The golden is ALSO not
+evidence about the current design: at `b56846a` (2026-07-31) `actionMethod` does not appear in any
+`.twk`/`.rtn` — the channel is newer than the capture. The witness built for this is
+`incant/pop/fireSeatT`, six rules over three fill shapes, deliberately UNWIRED and red.
+
+⚠ **THE OLD ROAD'S FILL ALREADY WORKS AND IS NOT AT ISSUE.** `attachLabel` (`GroupItem.twk:177`)
+builds the label — promote on `isTarget`, `+%` append otherwise — and those lines demonstrably
+precede the seat (1 / 2 / 1 across fireSeatT's three shapes). Only the fire is missing.
+
+```
+ATTEMPT LOG
+  1. 2026-09-19, ruling A as dispatched: feed actionMethod, and MOVE parseRule's BlocK
+     fire into fireLabelMethod "because it is the parse, not the action"
+        -> NOT BUILT. The premise is false for the target population, measured before
+           building: list's BlocK holds its TWO action statements, Search's holds the ONE
+           generated `return ...`. For a coded rule BlocK IS the action, so the move would
+           have constructed the double fire on purpose. Reported instead of shipped.
+  2. 2026-09-19, A' as dispatched: feed actionMethod in setActions' isCoded arm, and GATE
+     parseRule's BlocK fire on !isCoded. Built, retok'd bare, canary 335, BUILD SUCCEEDED
+        -> EDIT 1 WORKS: fsOldRule went fill 1/ACTFIRE 0/MARK 0 to fill 1/ACTFIRE 1/MARK 1.
+           The old-road coded action fires ONCE, through the seat, after the fill.
+        -> EDIT 2 FAILS: new road read MARK 2 -- the double fire, present. Cause measured at
+           the seat: the node reads actionType=1, not 2, and `#define isCoded(b) (b == 2)`.
+           processCode CONSUMES the flag 2->1 when it compiles CodE into BlocK, so isCoded
+           means "has UNPROCESSED code", not "is a coded rule". Tony named the distinction
+           the same day.
+        -> REVERTED WHOLE. Two further symptoms unexplained and not chased: the run
+           truncated after the new-road drive, and FSOLD-LEN printed "access to listLengtH
+           not supported yet". Fleet deliberately NOT run against that build -- with the
+           no-double-fire witness already red it would have measured a discarded program.
+           Post-revert: rebuilt, fleet back to 424, fireSeatT back to its exact pre-buy reds.
+  NEXT: the gate needs a DURABLE discriminator and neither flag is one. actionType is
+        durable but coarse -- Search goes actionType 0 -> 1 across parser(), so after a
+        parse is generated BOTH populations "have code". The fact the gate needs is "did
+        this rule have code of its own BEFORE a parse was generated", and parser() destroys
+        it. `builtinParseR` presence is the surviving record -- setParse parks there BECAUSE
+        CodE was occupied -- and incant/frontier's stations 2 and 3 already name that split.
+        ⚠ n=1 per side; a census is owed FIRST (the attempt at one came back a bear-trap #26
+        tag echo and proved nothing).
+  POP: incant/pop/fireSeatT, unwired, red. Its shape-A value probe needs re-spelling before
+       its green is trusted: when the action DID fire, `entries.listLengtH` fell through to
+       opDot's `default:` unsupported-accessor arm (Instruct.rtn, below case 406).
+```
+
+**Done when:** the coded four fire once, through `fireLabelMethod`, after the fill, on the old
+road, with the new road no worse — and `fireSeatT` wired into `pop.sh`. **Grade:** CONFIRMED —
+cause read at the seat, Edit 1 proven and reverted only because it cannot ship alone.
+**Owner:** unassigned.
+
 ### F-91 — ✅ CLOSED 2026-09-18 — `debug ALL` was documented and never implemented
 `wiki/BootstrapRules:337` has said *"the optional `ALL` keyword enables additional output"* for
 as long as anyone can date, and `aCTionDEBUG` had no such arm. `debug ALL X;` treated `ALL` as a

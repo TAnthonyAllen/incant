@@ -1,3 +1,104 @@
+# ⚠⚠⚠ SEALED 2026-09-19, MIDDAY BREAK -- THE BUY WAS ATTEMPTED AND REVERTED WHOLE. HALF OF A'
+# IS PROVEN, THE OTHER HALF NEEDS A DISCRIMINATOR NEITHER FLAG PROVIDES.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-19 13:53 and `git log -1 --date=iso` 12:16. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 424 green / 1 parked, canary 335, fixit queue 0, all three
+#   repos clean and pushed.** Tree is byte-identical to this morning but for two doc commits
+#   and `incant/pop/fireSeatT`. Branch `checkinput-state` still pushed and UNMERGED.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. `BlocK` MEANS TWO DIFFERENT THINGS, AND THAT KILLED RULING A AS WRITTEN.** Measured:
+#   `list`'s BlocK holds its **two action statements**; `Search`'s holds the **one** generated
+#   `return ... ;`. So for a CODED rule `BlocK` is the ACTION, and A's instruction to "move
+#   parseRule's BlocK fire, it is the parse" would have built the double fire on purpose.
+#   Reported instead of shipped; A' replaced it.
+#
+#   **b. A' EDIT 1 IS PROVEN AND CANNOT SHIP ALONE.** Feeding `actionMethod` in `setActions`'
+#   isCoded arm took `fsOldRule` from `fill 1 / ACTFIRE 0 / MARK 0` to **`fill 1 / ACTFIRE 1 /
+#   MARK 1`** -- the old-road coded action fires ONCE, through the seat, after the fill. It is
+#   also exactly what ARMS the new-road double fire, so it ships with a working gate or not at
+#   all. ⚠ **`processAction` is the right callee and the reason is structural:** it takes a
+#   LABEL, recovers the rule (`if isLabel action = rule;`), and `if grup = label[result.tag]`
+#   IS the label-to-locals binder. The binding step already existed.
+#
+#   **c. A' EDIT 2 FAILED, CAUSE MEASURED: `isCoded` IS ONE-SHOT.** The new-road node reads
+#   `actionType=1`, not 2, and `#define isCoded(b) (b == 2)`. `processCode` CONSUMES the flag
+#   2 to 1 when it compiles CodE into BlocK, so **`isCoded` means "has UNPROCESSED code", not
+#   "is a coded rule"** (Tony, same day). The gate read false, `parseRule` still fired, MARK
+#   read **2**. Reverted whole; fleet back to 424 and fireSeatT back to its exact pre-buy reds.
+#
+#   **d. ⚠⚠ NEITHER FLAG IS THE GATE, AND THE FACT IT NEEDS IS DESTROYED BY `parser()`.**
+#   `actionType` is durable but coarse:
+#
+#      | | before parser() | after parser() |
+#      |---|---|---|
+#      | `list` (coded)     | actionType 1, isCodeD 1 | actionType 1, isCodeD **0** |
+#      | `Search` (grammar) | actionType **0**        | actionType **1** |
+#
+#   After a parse is generated BOTH populations "have code". The gate's real question is
+#   *whose* code is in BlocK, and the flag that answered it is spent. **`builtinParseR`
+#   presence is the surviving record** -- `setParse` parks there BECAUSE `CodE` was occupied --
+#   and `incant/frontier`'s own stations 2 and 3 already name that split. ⚠ **n=1 per side; a
+#   census is owed FIRST.** The attempt at one came back a bear-trap #26 tag echo.
+#
+#   **e. THE FLEET UNDER-COVERS THIS PATH BADLY: 5 of 75.** Only `acceptStartT`, `carrierT`,
+#   `connectiveT`, `parserTest`, `searchNewParseT` call `parser(` and can reach `parseRule` at
+#   all. "424 unmoved" was being asked to carry a claim about a path 70 of its rows cannot
+#   reach. ⚠ And the coded four have NO deep row anywhere: `baselineTests` is
+#   exit-code-plus-last-line, `jsonTest` is exit-code only. **Two witnesses, two populations,
+#   neither substituting** -- the fleet for the grammar, `fireSeatT` for the coded.
+#
+#   **f. `baselineTests.golden` IS NOT EVIDENCE ABOUT TODAY'S DESIGN.** It carries `list`'s five
+#   tokens from 2026-07-31, and at `b56846a` **`actionMethod` does not appear in any `.twk`/
+#   `.rtn`** -- the channel is newer than the capture. An earlier reading of mine attributed
+#   `list`'s darkness to `9785324`; **that attribution is WITHDRAWN** -- the removed line lived
+#   in `setParseWalk`, which never runs for `list` on the old road, and `fireLabelMethod` is
+#   byte-identical across that whole window.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **424 green / 1 parked** · decodePop 14 · ddPop 5 green / 1 red · countPop
+#   0-of-45 · formsPop 14 PASSED · **frontier dies at station 5** (carrier is TEXT -- the edge
+#   has not moved) · canary **335** · alphaLint 10 (pre-existing) · groups.ext clean, untouched
+#   · **Groups 0/0, support 0/0, TOK 0/0.** Every retok BARE.
+#
+#   ## ⚠⚠ WAITING ON TONY
+#   **1. The `builtinParseR` census, then A' Edit 2 on that gate.** Edit 1 is banked and proven
+#   and is NOT to be landed on its own.
+#   **2. `checkinput-state` is pushed and unmerged.** Unchanged.
+#   **3. `fireSeatT` is committed and DELIBERATELY UNWIRED** (`cabe363`). Wiring it is part of
+#   the buy's landing, not of building it. Do not "fix" its red by adding it to the fleet.
+#
+#   ## ⚠ BANKED, NOT CHASED
+#   `fireSeatT`'s shape-A value probe **cannot read its own green**: when the action DID fire,
+#   `entries.listLengtH` fell through to opDot's `default:` unsupported-accessor arm. Re-spell
+#   before trusting it. · Two symptoms from the reverted build, unexplained: the run truncated
+#   after the new-road drive, and that same accessor message appeared. · `JSONarray`'s body
+#   reads `JSONlist` the way fireSeatT's shape C does, so the definition-not-match confusion is
+#   available in shipped code. · Three instrument reads went VOID today and each was caught
+#   only by a known-positive control -- an `isCodeD` census returning 0 where `list` reads 1,
+#   twice, and a `builtinParseR` census returning a tag echo.
+#
+#   ## THIS AFTERNOON, IN ORDER
+#   1. **Census `builtinParseR` across both populations** -- read by direct print, with `list`
+#      and `Search` as the known-positive/known-negative pair. It is the gate or it is not.
+#   2. **A' Edit 2 on that gate**, Edit 1 re-applied with it, fireSeatT watching, buy on all.
+#   3. **Re-spell fireSeatT's shape-A value probe** before its green is read.
+#   4. Station 5 -- compiling the carrier -- which is what both roads still wait on.
+#
+#   ## DOCTRINE EARNED TODAY
+#   Read the instruction's PREMISE before its spelling -- twice today a dispatch was correct in
+#   intent and false in a load-bearing fact, and building either would have constructed the
+#   failure the witness existed to catch · a flag that is CONSUMED is not a property, and
+#   `isCoded` reads like one · **build the witness before the fix and prove it RED**, which is
+#   the only reason the double fire was visible at all · a fleet count is a claim about the
+#   rows that RUN THE PATH, and 5 of 75 is the number that mattered.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
 # ⚠⚠⚠ SEALED 2026-09-18, SHUTDOWN, SIXTH AND LAST SEAL OF THE DAY -- `debug ALL` LANDS IN TONY'S
 # TOGGLE SHAPE AND IS CERTIFIED, F-90 IS CLOSED, AND F-89 HAS LOST ITS SECOND HEADLINE.
 #
