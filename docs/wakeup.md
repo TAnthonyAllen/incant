@@ -1,3 +1,125 @@
+# ⚠⚠⚠ SEALED 2026-09-19, SHUTDOWN -- THE WALK HAS NOT DESCENDED SINCE 1bce778. BOTH EDITS ARE
+# PROVEN AND NEITHER IS LANDED, BECAUSE A THIRD HOLE SITS UNDER THEM.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-19 18:50 and `git log -1 --date=iso` 18:49. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 424 green / 51 red in 9.54s, canary 335, fixit queue 0, all
+#   three repos clean and pushed.** No code landed today; `IncantForms/WorkingOn/parser` is at
+#   HEAD and no build was made. Branch `checkinput-state` still pushed and UNMERGED.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. LINE 88's SPELLING IS STUCK ON, AND IT DATES FROM `1bce778`.**
+#   `IncantForms/WorkingOn/parser:88` reads `if builtinParseR;   continue;`. **`builtinParseR` is
+#   an ATTRIBUTE NAME, not a GroupFields accessor** -- no number in `incant/setup` -- so a bare
+#   read MINTS A LOCAL ON A MISS and tests true. The gate fires on every member and **lines 89-91
+#   are dead code.** `1bce778` created that line, replacing `if hasNewParsE; continue;` (GroupFields
+#   41, a real accessor that answered). **So the commit that closed F-90 is the commit that stopped
+#   the descent** -- silently, and nothing measured it. F-90's own certificate is about the INSTALL
+#   gate and is unaffected; it stays closed.
+#
+#   **b. `*grup["builtinParseR"]` IS CORRECT AND PROVEN.** Same loop, same run: bare reads 1 on
+#   every term, `grup[...]` reads 0 on every term, the starred form reads 1 only where a carrier
+#   really is. H7 control, only that line changed, 60s alarm: **rules walked 4 -> 145**, and in the
+#   anchor **"no compiled body" 100 -> 0**. Terms dispatch two levels deeper than they ever have.
+#
+#   **c. THE LEAF GUARD'S SPELLING IS MEASURED AND IS `if listLengtH == 0;`.** `generateParse`'s
+#   only early exit is `if datA != 0`, so a node with no list and no data reaches its `iterate` and
+#   is REFUSED -- reachable only once (b) lands. ⚠ **The spelling INVERTS bear-trap #35**: a captured
+#   `genLen == 0` is DEAD here, as are both `!` forms; the BARE `== 0` works, and it matches
+#   `walkRules`' own `if isRulE == 0;` two functions down. **Do not "fix" it to capture-then-test.**
+#   Its population is 22 takes over 17 names: fifteen keywords plus `PRINTing` and `DEFINing`, which
+#   are **parseAction leaves** rather than keywords -- the guard does two jobs, not one.
+#
+#   **d. NEITHER EDIT IS LANDED. BOTH WAIT ON HOLE 3.** Step 1 alone is proven fleet-neutral
+#   (424/51 unmoved row for row); the pair still costs three rows. Both reverted whole, fleet
+#   re-verified identical. The measured text of both lives in **F-93** so nobody re-derives it.
+#
+#   **e. HOLE 3, AND THE READING IS NARROWER THAN THE LADDER'S FIRST SENTENCE.** With both edits in,
+#   `parser(Search)` then `Search(...)` then ANY CALL STATEMENT fails -- and it is a **PARSE**
+#   failure, not dispatch. `reportRunAbandoned` names it, and **that is its first real catch**
+#   (built 2026-09-17 for F-76's define-time refusal). `stop();` is itself a call, which is why the
+#   sentinel vanishes. The term is **`NamE`**, via its generated `first() && nameSet()`.
+#   ⚠⚠ **WHAT IS SHOWN: `NamE`'s generated body, once run under a diversion, stops matching on the
+#   file. "ANY generated body" is NOT shown** -- every row that died RAN `NamE`. What stands: a
+#   diversion alone is harmless, and **nesting is not the variable.** Next attempt named in F-93:
+#   drive `QuotE("'x'")`, then a call statement AND a quoted-string cerr.
+#
+#   **f. ⚠ A `cerr` SENTINEL CANNOT SEE HOLE 3.** `cerr` passes in every cell of the 2x2 while every
+#   call form dies, so a fixture resting its completeness claim on a trailing `cerr` is blind to it.
+#   The single-root greens do not cover this.
+#
+#   **g. THE CENSUS: THE CARRIER SEPARATES THE TWO POPULATIONS, 50 ROWS OUT OF 50.** Over the
+#   repaired walk's body-emitting population, `builtinParseR` present <=> the rule carried its own
+#   `code={}` before generation; zero exceptions either way. After `parser()`, `list` and `ANYorNum`
+#   are **identical on every flag measured except the carrier** -- `processCode` consumes `isCodeD`,
+#   so it is the only survivor. ⚠ **THE OBJECTION STANDS AND IS NOT ANSWERED: `walkRules` reads the
+#   carrier as a GENERATION-TIME MEMO and `parseRule` would read it as a DURABLE CLASSIFICATION.**
+#   One channel, two meanings. Also: the positive side is **n=1** (`list` is the only pre-coded rule
+#   in all 145), and the carrier is a **per-NODE** fact where 50 nodes carry 40 distinct names.
+#   `builtinParseR` has **one writer and zero code readers** -- `setParse` installing from it is
+#   still owed (`docs/checkInputRecon.md:172`), not built.
+#
+#   **h. THE GATE RULING IS TONY'S: the carrier, the `actionMethod` record, or something else.**
+#   Nothing here chooses it.
+#
+#   **i. ⚠ THE 09-18 SEAL'S ATTRIBUTION OF THE 100 `GrouP` LINES IS WITHDRAWN.** It read them as
+#   *"the install now HAPPENS and the carrier is still TEXT"*. **False** -- repairing line 88 takes
+#   them 100 -> 0 with the carrier untouched and station 5 unmoved. They were the walk not
+#   descending. Station 5's sentence is still true; it was not what those lines were saying.
+#
+#   **j. CLAY'S WALK-2 CANDIDATE IS DEAD.** *"Walk 2 regenerates what walk 1 compiled"* -- measured,
+#   **walk 2 produces ZERO `generateParse` entries** because walk 2 never runs. Control passed: all
+#   11 walk-1 entries read `hasNewParsE=0`.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **424 green / 51 red, 9.54s** · decodePop **14 green / 6 red** (the 14 matches every
+#   prior seal) · ddPop 5 green / 1 red · countPop 0-of-45 · formsPop **14 PASSED** · **frontier
+#   dies at station 5** (the carrier is TEXT -- the edge has not moved) · canary **335** · alphaLint
+#   10 (pre-existing) · groups.ext content clean and untouched · **Groups 0/0, support 0/0, TOK
+#   0/0.** No retok and no build today, so nothing to report bare.
+#
+#   ## ⚠⚠ WAITING ON TONY
+#   **1. ⚠ `bs` WAS NOT RUN -- THE HARNESS BLOCKED IT, and this is not the 09-18 situation.** The
+#   auto-mode classifier refused `~/bin/bs` as **irreversible local destruction**, which it is: the
+#   refresh overwrites the only copy of the last clean-kitchen state. **BeforeSave therefore still
+#   holds its 2026-09-18 18:35 vintage** (261 entries). It is one line in the session to do it
+#   yourself: **`! ~/bin/bs`**. Not worked around, and flagged rather than guessed at.
+#   **2. THE GATE RULING** -- (g) and (h) above. Edit 2 stays unopened until it lands.
+#   **3. `checkinput-state` is pushed and unmerged.** Unchanged.
+#   **4. `fireSeatT` is committed and DELIBERATELY UNWIRED.** Its reds held their exact values
+#   through every arm of today's work. Do not "fix" the red by adding it to the fleet.
+#   **5. A' Edit 1 is banked and proven and MUST NOT LAND ALONE.**
+#
+#   ## ⚠ BANKED, NOT CHASED
+#   **`GrouP("foo")` driven directly SEGFAULTS** -- exit 139, 13 bytes, `DRIVE-START` printed and
+#   `PRE` never reached, **no ABANDONED line**. A SEPARATE SYMPTOM from the abandon, banked in F-93,
+#   not chased, **no backtrace**: `script -q /dev/null` cannot wrap a run in this session. ⚠ And
+#   `GrouP` is reached as a sub-term inside `Search`'s drive **without** crashing -- driving it
+#   directly and reaching it as a term differ, and nothing measured says why. · `acceptStartT`'s
+#   acceptance row prints an ASLR address and moves run to run; green throughout, but one re-pin
+#   from being an H3 wolf-crier. · `pop.sh`'s `⚠ STALE` alarm fires on `ruleActions.rtn`, whose
+#   mtime the A' revert bumped while its content is byte-identical to HEAD -- an mtime-only false
+#   positive the alarm cannot distinguish.
+#
+#   ## TOMORROW, IN ORDER
+#   1. **The `QuotE("'x'")` run** -- F-93's named next attempt, three tabled outcomes.
+#   2. **Hole 3**, then the pair lands or does not.
+#   3. **The gate ruling**, then A' Edit 2 with Edit 1 and `fireSeatT` watching.
+#   4. Station 5 -- compiling the carrier -- which is what both roads still wait on.
+#
+#   ## DOCTRINE EARNED TODAY
+#   A ladder whose dying rows share a term has not isolated the term -- every row was right and the
+#   sentence generalised past them · look for the tree's OWN named diagnostic before reading an
+#   absence of output as a mechanism (`reportRunAbandoned` was there the whole time) · an absence
+#   caused by an abort reads exactly like an absence caused by a guard, and only an instrument tells
+#   them apart · a bare name that is not an accessor is not a flag read, and it fails stuck-ON while
+#   the un-starred cursor form fails stuck-OFF, so either alone looks like a clean answer.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
 # ⚠⚠⚠ SEALED 2026-09-19, MIDDAY BREAK -- THE BUY WAS ATTEMPTED AND REVERTED WHOLE. HALF OF A'
 # IS PROVEN, THE OTHER HALF NEEDS A DISCRIMINATOR NEITHER FLAG PROVIDES.
 #
