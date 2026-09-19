@@ -92,6 +92,128 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-93 — `walkRules` has not descended since `1bce778`: line 88 is not a flag read
+
+**What.** `IncantForms/WorkingOn/parser:88` reads `if builtinParseR;   continue;`. **`builtinParseR`
+is an attribute name, not a GroupFields accessor** — it has no number in `incant/setup` — so a bare
+read of it is a NAME LOOKUP THAT MINTS A LOCAL ON A MISS, and the minted node then tests true.
+**The gate therefore fires on every member, unconditionally, and lines 89-91 — the `isCodeD` memo,
+the recursion and the leaf generate — are DEAD CODE.** `parser()` generates for its root and
+nothing else.
+
+**Where.** `IncantForms/WorkingOn/parser:88`, created by **`1bce778`** (2026-09-18, "F-90 CLOSED"),
+which replaced `if hasNewParsE; continue;` — a real accessor (GroupFields 41) that answered — with
+this one. ⚠ **So the commit that closed F-90 is the commit that stopped the descent**, and nothing
+measured it: F-90's own certificate is about the INSTALL gate and is unaffected.
+
+**Evidence, all one-variable, 2026-09-19, canary 335, no rebuild (the file is read at runtime).**
+
+| spelling, same loop, same run | `counter` (never carries) | `list` before `parser` | `list` after |
+|---|---|---|---|
+| bare `builtinParseR` | **1** | **1** | **1** — stuck ON |
+| `grup["builtinParseR"]` | 0 | 0 | **0** — stuck OFF |
+| `bsCur := *grup;` then `bsCur[…]` | 0 | 0 | **0** — stuck OFF |
+| **`*grup["builtinParseR"]`** | 0 | 0 | **1** — discriminates |
+
+H7 control, frozen copy, only line 88 changed, 60s alarm: **rules generated for 4 → 145, exit 0,
+sentinel present.** It terminates — `isCodeD` carries the memo perfectly well once reachable.
+
+**⚠ THERE ARE TWO MORE HOLES BEHIND IT, AND THEY ARE ONLY REACHABLE ONCE LINE 88 IS FIXED.**
+
+**Hole 2 — `generateParse` has no leaf guard.** Its only early exit is `if datA != 0`, so a node
+with NO list and NO data falls through to `iterate grup on argument` and is **REFUSED**. Measured:
+`REFUSED search -- iterate: the source has no list`, absent at baseline, 1 occurrence the moment
+line 88 is repaired. ⚠ **No treatment for this was ever dropped** — `generateParse` at `5f24cf3`
+has exactly the same single exit (source read, the old binary was not re-run).
+
+**The guard is built and measured and is banked here so nobody re-derives it**, beside the `datA`
+exit:
+```
+        // leafHasNothingToGenerate  a term with no list and no data is a keyword -- the iterate
+        // below REFUSES on it. printTO(0) first, the buffer is still armed
+        if listLengtH == 0;
+            printTO(0);
+            return;
+```
+⚠⚠ **THE SPELLING IS LOAD-BEARING AND IT INVERTS BEAR-TRAP #35.** At this site, measured four ways
+in one run over `Search`(5) / `search`(0) / `GrouP`(2):
+
+| form | fires on `search` (len 0)? |
+|---|---|
+| `genLen := listLengtH;` then `if genLen == 0;` | **NO — dead** |
+| `if !genLen;` (captured) | **NO — dead** |
+| `if !listLengtH;` (bare) | **NO — dead** |
+| **`if listLengtH == 0;` (bare)** | **YES** |
+| `if argument.listLengtH == 0;` | YES |
+| `if genLen;` … `else` … | YES |
+
+Bear-trap #35 says capture-then-test is the cure and bare `== 0` is the trap; **here the captured
+form is the dead one and the bare form is the working one.** The chosen spelling also matches
+`walkRules`' own `if isRulE == 0;` two functions down. **Do not "fix" it to capture-then-test.**
+
+**With the guard in: zero refusals in all five fixtures that reach `parser()`** — acceptStartT,
+carrierT, connectiveT, parserTest, searchNewParseT — all exit 0.
+
+**Guard population, enumerated over all four roots: 22 takes, 17 distinct names.**
+`print` `parse` `or` `on` `members` `iterate` `in` `if` `for` `do` `cout` `cerr` `attributes`
+`while` `search` — fifteen keywords, as expected — **plus `PRINTing` (3) and `DEFINing` (2), which
+are NOT keywords and are the finding.** Both are **parseAction/command leaves**
+(`incant/grammar:118` `PRINTing parseAction=processFlags guard='n';`, `:66` `DEFINing`): rules whose
+behaviour lives in C++ and which carry no components and no data. Skipping them is correct — there
+is nothing to generate — but **the guard is doing two jobs, not one**, and a reader should know it.
+
+**Hole 3 — THE ACTUAL BLOCKER, and it is past this row's fence.** With line 88 repaired AND the
+guard in, three fleet rows still go red, and it is **one sequential-state interaction**, reduced to
+a minimal repro:
+
+| driver | sentinel |
+|---|---|
+| `parser(Search); Search("search list;");` | present |
+| `parser(DO); DO("do print 1; while 0;");` | present |
+| **both, in one process** | **ABSENT — the run truncates at exit 0** |
+
+Each root walks and drives cleanly alone; the four roots all walk cleanly alone (39/43/6/0 bodies).
+It is the **second drive after a second walk** that dies, silently, with no refusal and no error —
+the sequential-state family `parserTest`'s own header already names for `parser(list)` + `testList()`.
+
+**Done when:** line 88 reads a spelling that discriminates, the leaf guard is in, and
+`parser(Search); Search(…); parser(DO); DO(…)` reaches its sentinel in one process — with the fleet
+unmoved row for row and `searchNewParseT`'s `SemI` row green.
+
+**Owner:** unassigned. **Hole 3 is the gate and it is not this row's to open.**
+
+```
+ATTEMPT LOG
+  1. 2026-09-19  line 88 -> *grup["builtinParseR"], alone, live file, no rebuild
+        -> "no compiled body" 100 -> 0; terms dispatch two levels deeper than ever
+           (GrouP's own NamE/first/nameSet fire for the first time); trigDO exit 0 and
+           refusals 2 -> 2; frontier still station 5; fireSeatT's reds unmoved row for row;
+           old road unmoved.
+        -> BUT fleet 424 -> 421: searchNewParseT `SemI` did NOT dispatch, parserTest sentinel
+           missing, parserTest 2 of 4 roots. Cause: hole 2, `REFUSED search -- iterate: the
+           source has no list`.
+        -> REVERTED WHOLE. Fleet re-run byte-identical to baseline row for row.
+  2. 2026-09-19  the leaf guard ALONE (captured spelling `genLen := listLengtH; if genLen == 0;`)
+        -> fleet UNMOVED row for row, 424/51. Predicted and confirmed.
+  3. 2026-09-19  line 88 restarred on top of attempt 2
+        -> fleet 424 -> 421, the SAME three rows, and the refusal SURVIVED.
+        -> ⚠ a wrong read was caught here and is worth keeping: `search` had no `= CodE` line,
+           which read as "the guard fired". It had not. The refusal aborts generateParse BEFORE
+           that print, so the absence was the refusal, not the guard. An instrument named it --
+           a marker before each iterate -- and the source read would not have.
+  4. 2026-09-19  spelling matrix at the guard site, six forms, one run
+        -> captured `== 0` and both `!` forms are DEAD; bare `== 0` works. Bear-trap #35 inverted.
+  5. 2026-09-19  guard respelled to bare `if listLengtH == 0;`, line 88 still starred
+        -> refusals 0 in all five parser() fixtures, all exit 0. Hole 2 CLOSED.
+        -> fleet still 421: the same three rows, now with NO error of any kind. Hole 3.
+  6. 2026-09-19  minimal repro of hole 3 -- each walk+drive alone passes, the two together
+           lose the sentinel at exit 0.
+        -> REVERTED WHOLE (both steps). Fleet 424/51 UNMOVED ROW FOR ROW, frontier station 5,
+           fireSeatT fingerprint identical, canary 335, tree clean.
+  POP: none yet. No row may be pinned until hole 3 is ruled -- a green here would be a target
+       regenerated green, which is not a target.
+```
+
 ### F-92 — a CODED rule's action never fires on the old road: `actionMethod` has no writer
 **Measured 2026-09-19.** `fireLabelMethod` fires a rule's action off `stuff.actionMethod`
 (`GroupItem.twk:589`, the line `stuff.label = stuff.actionMethod(stuff.label);`). Its only real

@@ -66,6 +66,11 @@ bail();
 This text is past bail(); the incant parser halts there, so it need not be wrapped in a comment.
 
 /*******************************************************************************
+                   Current state
+*******************************************************************************/
+See grislyDirectives grislyCopy.rtn and grislySample.rtn all in Groups/Tests to be out of the line of fire
+
+/*******************************************************************************
                     What Is A Directive
 *******************************************************************************/
     An incant directive is a small named field whose sub-fields describe a
