@@ -9,41 +9,69 @@
     ⚠ IT IS NOT WIRED INTO pop.sh. It is red today on purpose; wiring it is part of the
     buy's landing, not of building the witness. Do not add it to the fleet to "fix" the red.
 
-    THE SUBJECT IS A CODED RULE, and that is the whole point. `fireLabelMethod` fires a
-    rule's action off `stuff.actionMethod`, whose only real writer is the builtinActoR
-    fallback -- and `setActions` returns on its FIRST arm, `if isCoded method = processAction;`,
-    without minting one. So a rule carrying `code={ }` has no actionMethod on either road.
-    Two rules here, one per road, because driving one rule down both in a single process
-    is the sequential-state tar baby.
+    THE SUBJECT IS THE CODED-RULE POPULATION, which is FOUR rules tree-wide -- `list`
+    (unitTests), `JSONfield` and `JSONarray` (utilities), `frRule` (frontier) -- and which
+    has NO deep fleet row: baselineTests is exit-code-plus-last-line, jsonTest is exit-code
+    only, frontier is not a fleet citizen. Those four are exactly the rules the buy changes,
+    so the buy's win cannot rest on any of them.
+
+    ⚠ THREE FILL SHAPES, ON PURPOSE, so a witness on one shape cannot pass while another
+    coded fill fails:
+      A  fsOldRule / fsNewRule    labelled repetition   `entries=ANYstring+`   -- list's shape
+      B  fsFieldOld / fsFieldNew  plain rule terms      `NamE ":"- NumbeR`     -- JSONfield's
+      C  fsArrayOld / fsArrayNew  optional rule term    `fsItemsR?`            -- JSONarray's
+    Two rules per shape, one per road, because driving one rule down both roads in a single
+    process is the sequential-state tar baby.
 
     ⚠ THE PROBES ARE INSIDE THE ACTION BODY, not after the drive. A post-hoc non-empty check
     passes on an INVERTED order -- fire first, fill afterwards -- so it cannot witness the
     claim the buy is making. The reads happen where the action reads.
 
-    THE THREE CLAIMS, and what each read on the pre-buy build (2026-09-19, canary 335):
+    ⚠⚠ THE REDS ARE MEASURED; THE GREENS ARE PREDICTED, AND THE DIFFERENCE IS NOT A
+    FORMALITY. The action fires on NEITHER road today, so no green value has ever been
+    observed for any of these rows. Each `want` below is inferred from the drive string, not
+    read off a build. WHEN THE BUY LANDS, EACH GREEN GETS ESTABLISHED BY MEASUREMENT AND A
+    SENTENCE (rule H6) -- do not bless a number here because it looks plausible.
 
-      CLAIM 1a  fill-before-fire, the VALUE:  entries has its children at the read site.
-                want FSNEW-LEN 3.   pre-buy: FSNEW-LEN 0.
-      CLAIM 1b  fill-before-fire, the ORDER:  an `attachLabel ... pRule=<rule>` line stands
-                BEFORE the action's own marker in the one stderr stream -- sequence at the
-                seat, not inferred from the outcome.
-                pre-buy NEW road: zero fill lines precede FSNEW-MARK.
-      CLAIM 2   fires ONCE:  ACTFIRE fireLabelMethod <rule> == 1 on both roads.
-                pre-buy: 0 and 0.
+    THE READINGS ON THE PRE-BUY BUILD, 2026-09-19, canary 335, one run, exit 0:
 
-    ⚠ CLAIM 1b's KNOWN-GOOD END IS THE OLD ROAD, IN THIS SAME FILE (rule H16). The old road
-    DOES fill -- one `attachLabel ... pRule=fsOldRule` line, before its seat -- so the
-    ordering assertion is proven able to read a fill before its red on the new road is
-    believed. Without that end, "no fill line found" and "the row cannot find fill lines"
-    are the same reading.
+      shape  fill-before-marker   value at read site      MARK   ACTFIRE
+      A      0   (want >=1)       FSNEW-LEN  0  (want 3)   1      0  (want 1)
+      B      0   (want >=1)       FSFLDN-DATA 0 (want !=0) 1      0  (want 1)
+      C      0   (want >=1)       -- SEE BELOW, OMITTED --  1      0  (want 1)
 
-    ⚠ CLAIM 2's PIN IS FLANKED, because a 1 between two undemonstrated numbers asserts
-    nothing. 0 is measured here on both roads. 2 is the naive-feed failure: the new road
-    ALREADY runs the body once through parseRule's BlocK (FSNEW-MARK reads 1 with ACTFIRE
-    at 0), so feeding actionMethod WITHOUT moving the fire arms fireLabelMethod as a second
-    seat -- docs/fixIts.md names it, "the rule action fires TWICE on the generated path".
-    TWO COUNTERS, NOT ONE: the MARK counts the BODY running, ACTFIRE counts the SEAT firing
-    it. One number cannot carry both facts, and telling them apart is the whole buy.  */
+    ⚠⚠ SHAPE C CARRIES NO VALUE ROW, AND THAT IS THE FINDING RATHER THAN AN OMISSION.
+    Every read reachable from its body reports the TERM RULE'S OWN DEFINITION, not the match:
+    on the broken build `fsItemsR` reads len 1, mems 0, attrs 1, data 0 -- the `len 1` is its
+    single `bits` attribute, NOT a matched item. A row pinned on `len` would read 1 while
+    broken and 1 while working: it fails OPEN, and a check that cannot move is worse than no
+    check. `data`/`mems` read 0 while broken but their green end is unobservable today, so
+    pinning them would be a guess wearing a number. The value row is therefore WITHHELD until
+    the buy makes a green readable.
+    ⚠ AND THE SAME HAZARD IS IN THE SHIPPED RULE: `JSONarray`'s body reads `JSONlist` the
+    same way, and `JSONlist` is a rule carrying `JSONitem+`, so the identical
+    definition-not-match confusion is available there. Banked, not chased.
+    Shape C is still a live witness through its other three probes, all red, all validated.
+
+    ⚠ CLAIM "fill-before-marker" HAS ITS KNOWN-GOOD END IN THIS FILE, PER SHAPE (rule H16).
+    Every OLD-road rule DOES fill -- `attachLabel ... pRule=<rule>` lines, 1 / 2 / 1 for
+    A / B / C -- before reaching its seat. So each shape's fill grep is proven able to find a
+    fill before its red on the new road is believed. Without that end, "no fill line found"
+    and "this row cannot find fill lines" are the same reading.
+
+    ⚠ THE ACTFIRE PIN IS FLANKED, because a 1 between two undemonstrated numbers asserts
+    nothing. 0 is measured here on all six rules. 2 is the naive-feed failure: the new road
+    ALREADY runs the body once through parseRule's BlocK -- MARK reads 1 while ACTFIRE reads
+    0 -- so feeding actionMethod WITHOUT moving the fire arms fireLabelMethod as a second
+    seat, which docs/fixIts.md already names as "the rule action fires TWICE on the generated
+    path". TWO COUNTERS, NOT ONE: MARK counts the BODY running, ACTFIRE counts the SEAT
+    firing it. One number cannot carry both facts, and telling them apart is the whole buy.
+
+    WHY A CODED RULE HAS NO actionMethod: `setActions` returns on its FIRST arm,
+    `if isCoded method = processAction;`, without minting a builtinActoR -- and that fallback
+    in fireLabelMethod is actionMethod's only real writer. So the guard
+    `if stuff.actionMethod && stuff.label` fails on its first half, on both roads, for every
+    rule carrying `code={ }`.  */
 Start();
 include(unitTests);
 include(utilities);
@@ -60,16 +88,38 @@ define
         cerr "FSNEW-MARK action entered":;
         cerr "FSNEW-LEN" entries.listLengtH:;
         };
+    fsFieldOld isRule NamE ":"- NumbeR ","?- code={
+        cerr "FSFLDO-MARK action entered":;
+        cerr "FSFLDO-DATA" NamE.datA:;
+        };
+    fsFieldNew isRule NamE ":"- NumbeR ","?- code={
+        cerr "FSFLDN-MARK action entered":;
+        cerr "FSFLDN-DATA" NamE.datA:;
+        };
+    fsItemsR isRule bits=ANYstring+;
+    fsArrayOld isRule "arr"- fsItemsR? SemI?- code={
+        cerr "FSARRO-MARK action entered":;
+        };
+    fsArrayNew isRule "arr"- fsItemsR? SemI?- code={
+        cerr "FSARRN-MARK action entered":;
+        };
     ;
 traceParse(0);
-
-cerr "=== FS ROAD OLD -- no parser, GroupItem::parse ===":;
+cerr "=== A OLD ===":;
 fsOldRule("alpha beta gamma;");
-
-cerr "=== FS ROAD NEW -- parser installed, parseRule ===":;
+cerr "=== A NEW ===":;
 parser(fsNewRule);
 fsNewRule("alpha beta gamma;");
-
-cerr "=== FS ROADS DONE ===":;
+cerr "=== B OLD ===":;
+fsFieldOld("alpha:42");
+cerr "=== B NEW ===":;
+parser(fsFieldNew);
+fsFieldNew("alpha:42");
+cerr "=== C OLD ===":;
+fsArrayOld("arr alpha beta;");
+cerr "=== C NEW ===":;
+parser(fsArrayNew);
+fsArrayNew("arr alpha beta;");
+cerr "=== ROADS DONE ===":;
 cerr "FIRESEAT SENTINEL -- reached the foot":;
 stop();
