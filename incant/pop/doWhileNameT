@@ -1,0 +1,95 @@
+/*  doWhileNameT -- THE NEW PARSE ROAD CRASHES WHEN A DO's WHILE EXPRESSION IS NOT A
+    BARE LITERAL. Born RED on purpose, 2026-09-20, Clay's SEQ 171 step 1.
+
+    ⚠ THE ROW IS A PIN, NOT A DIAGNOSIS. What is asserted is that the run reaches its
+    foot. It does not today: the target drive dies at EXC_BAD_ACCESS in aCTionTokenXP,
+    reading a null ANYorNum label. The row goes green when the label channel lands.
+
+    ⚠ THE CONTROL ROW IS NOT DECORATION AND IT IS WHY THIS FIXTURE IS ONE FILE. Both
+    drives run under THE SAME parser of DO -- one generation, two drive strings -- so a
+    red target cannot be blamed on generation. The control returns first and prints a
+    marker, so a run that dies before reaching the target fails the control row too and
+    the pin cannot be read as satisfied by a fixture that never got started.
+
+    ⚠ THERE IS NO OLD-ROAD ORACLE FOR THE TARGET AND THAT IS A MEASUREMENT, NOT AN
+    OMISSION. Driven with no parser at all, the same statement refuses at the bump --
+    the field it names was never assigned -- prints nothing, and exits zero. So the old
+    road has no correct answer here to be compared against, and the certificate's other
+    half applies instead: name the rule where the new road now stops.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+
+cerr "DW-0 parser generates for DO":;
+parser(DO);
+
+cerr "DW-1 control -- a literal while expression":;
+DO("do print 1; while 0;");
+cerr "DW-1 CONTROL RETURNED":;
+
+cerr "DW-2 target -- a NAME in the while expression":;
+DO("do print ++result; while result < 2;");
+cerr "DW-2 TARGET RETURNED":;
+
+cerr "DOWHILENAME SENTINEL":;
+stop();
+
+This text is past stop(); the parse halts there and nothing below is read.
+
+/*****************************************************************************
+                    What DW-2 Is Pinning
+*****************************************************************************/
+    The crash, with frames, measured 2026-09-20 on a bare binary, canary 335:
+
+        EXC_BAD_ACCESS (code=1, address=0x0)
+        aCTionTokenXP(xpress=0x...) at GroupRules.mm:1265
+            if ( isGROUP(ANYtoken->groupBody->flags.data) )
+
+    Bear-trap 36 applies and the line that died is not the line that read null. The
+    PRODUCER is GroupRules.mm:1249, ruleActions.rtn:987:
+
+        GroupItem ANYtoken = xpress["ANYorNum"];
+
+    xpress is NOT null -- it carries a real address. What is missing is its ANYorNum
+    member, which is Tony's "TokenXP receives xpress with no list" said from the other
+    end. The sub-term's label never attached, so the seat reads the slot as null and
+    dereferences it two lines later.
+
+    The generated body TokenXP now carries is
+
+        return UnaryOPS() && ANYorNum() && InvokeArg();
+
+    against a grammar line whose first and third terms are OPTIONAL. The emitted body
+    carries no modifiers -- the known F-89 seam -- so two optional terms are conjuncts
+    that must succeed.
+
+/*****************************************************************************
+                    The Ladder That Named The Variable
+*****************************************************************************/
+    One run each, same parser of DO, the drive string the only thing changed, alarm
+    at sixty seconds. Exit 139 is the crash; exit 0 reached the sentinel.
+
+        A   do print 1; while 0;                 exit 0
+        B   do print 1; while 1 less 0;          exit 0
+        C   do print 1; while result less 2;     exit 139
+        D   do print ++result; while 0;          exit 0
+        E   do print ++result; while result less 2;   exit 139
+        F   do print 1; while not result less 2; exit 139
+        G   do print 1; while result;            exit 139
+        H   do print 1; while not 1;             exit 139
+        I   do print 1; while not result;        exit 139
+
+    D is the row that matters most and it is easy to miss: the bump and the name are
+    fine in the STATEMENT BODY. Only the while EXPRESSION kills it. So the variable is
+    not the bump, not the comparison, and not the name as such -- A and B pass with a
+    comparison of literals, and every row that routes the while expression through
+    TokenXP dies.
+
+    ⚠ H IS A COUNTEREXAMPLE AND IT IS RECORDED BECAUSE IT KILLS THE TIDIEST READING.
+    The obvious story is that an ABSENT optional unary returns falsy, short-circuits
+    the conjunction, and leaves ANYorNum unasked. H supplies a unary on a literal --
+    present, not absent -- and still dies. So a short-circuit at an absent UnaryOPS
+    cannot be the whole cause. What that positive cause IS has not been measured here,
+    and nothing in this file claims one.

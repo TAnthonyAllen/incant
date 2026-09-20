@@ -2801,6 +2801,32 @@ else
     grep -E "^PT-" "$T/ptst.e" | sed 's/^/          /'; fail=1
 fi
 
+#  ---- doWhileNameT: the new parse road dies on a non-literal while expression ----
+#  BORN RED ON PURPOSE, 2026-09-20, Clay's SEQ 171 step 1. Two of these three rows are
+#  the pin and they are RED until the label channel lands; the third is their control.
+#  THE CRASH, with frames: EXC_BAD_ACCESS at GroupRules.mm:1265 in aCTionTokenXP. Per
+#  bear-trap 36 the dying line is not the reading line -- the PRODUCER is :1249,
+#  ruleActions.rtn:987, `GroupItem ANYtoken = xpress["ANYorNum"]`. xpress carries a real
+#  address; what is null is its ANYorNum member, i.e. the sub-term label never attached.
+#  ⚠ DW-2 IS PINNED ON THE RUN REACHING ITS FOOT, NOT ON A VALUE, AND THE REASON IS THAT
+#  THERE IS NO ORACLE. The same statement on the OLD road (no parser call) refuses at the
+#  bump -- `result` was never assigned -- prints nothing and exits 0, measured twice,
+#  including with an explicit assignment ahead of it. So there is no correct old-road
+#  answer to diff against, and the certificate's other half applies: name where it stops.
+#  ⚠ THE CONTROL ROW IS THE ANTI-VACUITY SIBLING AND IT IS NOT OPTIONAL. Both drives run
+#  under ONE parser of DO, so the control returning proves generation is not the variable
+#  and proves the fixture got past its own preamble. A pin whose file never started would
+#  otherwise be indistinguishable from a pin that ran and failed.
+run2 doWhileNameT "$T/dwn.o" "$T/dwn.e"; check "doWhileNameT runs" 0 $?
+sentinel "doWhileNameT sentinel" "$T/dwn.e" "DOWHILENAME SENTINEL"
+if grep -qF "DW-1 CONTROL RETURNED" "$T/dwn.e"; then
+    echo "  ok    doWhileNameT control returned -- a literal while expression completes"; green=$((green+1))
+else
+    echo "  FAIL  doWhileNameT control did NOT return -- the literal while expression now"
+    echo "        dies too, so the two red rows below it are no longer about the NAME."
+    grep -E "^DW-" "$T/dwn.e" | sed 's/^/          /'; fail=1
+fi
+
 #  ---- skipT: the line-comment rule can be WRITTEN; what it consumes cannot be READ ---
 #  The blocker (docs/checkSKIP.md 2a): the two-character line-comment literal kills the define
 #  it is written in -- no lexer, so the parser reads it as a comment in its own source and eats
