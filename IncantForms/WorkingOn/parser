@@ -17,6 +17,7 @@ define
             if listLengtH; cerr "rules should not have data and a list; one or the other":;
             uncompiled +% argument;
             return;
+        if listLengtH == 0; return;;
         if hasTraitS;       conjunct = "&&";
         else                conjunct = "||";
         print `"return";
@@ -83,9 +84,10 @@ define
         };
     compileRules code={
         // setParse and compile loop recursively thru components
-        setParse(argument);
         compile(argument);
-        print "end compileRules"::;
+        print "compile ended":;
+        setParse(argument);
+        print "setParse ended and that ends compileRules"::;
         };
     parser code={
         // takesTheRuleNotTheName  the root arrives as the RULE through argument, BARE -- the
@@ -93,6 +95,7 @@ define
         //                        level BELOW the rule. Registry membership stops mattering: the
         //                        old Grokking subscript could only reach a rule living in Grokking
         walkRules(argument);
+        print "walkRules ended":;
         compileRules(argument);
         };
     ;
