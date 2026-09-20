@@ -139,13 +139,28 @@ ATTEMPT LOG
         -> The ARITY CONTROL REPRODUCES UNCHANGED on this build: one term FIRES, two
            terms DOES NOT, both on correct input. So the && chain's success value is
            still not truthOf-true and the guard was not the variable.
-        -> ⚠ AND IT COSTS A SECOND SITE THAT STEP 1 HAD JUST FIXED. parserTest goes
-           back to exit 139 -- but at a DIFFERENT crash from the pre-guard one. Not
-           parseContainer/Operators: `interpretXP` at ruleActions.rtn:1482,
-           `xpList.listLength` on a node with NO groupList, reached
-           parseRule -> exitFromParse -> fireLabelMethod -> aCTionExpressioN ->
-           interpretXP. A rule that stops succeeding by presence hands something
-           different downstream, and that site does not guard.
+        -> ⚠ AND IT COSTS A SECOND SITE THAT STEP 1 HAD JUST FIXED.
+           WHAT FAILED: `parser(DO)` -- the rule passed in is DO. PT-1 parser(Search)
+                        completes; PT-2 prints its marker and the crash is inside it.
+                        ANYorNum and list never run.
+           WHERE:       ruleActions.rtn:1482, interpretXP, `xpList.listLength` on a
+                        node with NO groupList. The rule at the three frames above it
+                        is `ExpressioN` -- its own parse and its own action.
+           ⚠ NOT the pre-guard crash. That was parseContainer/Operators; this is a
+           different site, so step 2 does not merely re-open step 1's hole.
+           THE FRAMES SAY IT IS A GENERATED BODY EXECUTING, which ties it to row 1
+           rather than making it a separate downstream accident:
+               aCTionBlocK -> aCTionBrancH -> runShortCircuit x5 -> runOP
+                 -> runRule(field=0x0, rule=ExpressioN) -> parseRule(ExpressioN)
+                 -> exitFromParse -> fireLabelMethod -> aCTionExpressioN -> interpretXP
+           aCTionBlocK/aCTionBrancH is a `return ...;` inside a code body, and the five
+           stacked runShortCircuit frames ARE the emitted `a() && b() && ...` chain. So
+           under truthOf a term inside a generated chain reaches fireLabelMethod and
+           FIRES ITS ACTION WITH AN EMPTY PAYLOAD.
+           ⚠ BANKED, NOT CHASED: `runRule(field=0x0)` means ExpressioN is invoked BY
+           BARE NAME WITH NO INPUT -- the reference-versus-registry shape linked to
+           F-89 the same day. Second bare-name term dispatch at a crash site today. No
+           claim that it is the same defect.
         -> SEVEN ROWS MOVED: CT2/CT3/CT4 red->green (the fix working), CT1
            green->red, parserTest runs/sentinel/roots green->red. Fleet 426/61 ->
            425/62.
