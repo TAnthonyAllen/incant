@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      168
-STATUS:   cleared        # SEQ 168 step 1 -- guard in, parserTest all four roots; report in clod-to-clay SEQ 114
+SEQ:      169
+STATUS:   cleared        # SEQ 169 step 2 -- run on the post-guard build, still red, REVERTED; report in clod-to-clay SEQ 115
+STATUS-168: cleared      # SEQ 168 step 1 -- guard in, parserTest all four roots; report in clod-to-clay SEQ 114
 STATUS-167: cleared      # SEQ 167 -- slot deleted, abandon gone, F-94 closed; report in clod-to-clay SEQ 113
 STATUS-166: cleared      # SEQ 166 -- four points read; candidate (b); report in clod-to-clay SEQ 112
 STATUS-165: cleared      # SEQ 165 -- truthOf run and REVERTED; report in clod-to-clay SEQ 111
@@ -8532,3 +8533,34 @@ restoration. Step 3 is reading what fails honestly after that. Step 4 is the lab
 channel.
 
   END SEQ 168
+
+
+===================================================================
+SEQ 169  -  STEP 2: truthOf AT Generate.rtn:229
+===================================================================
+STATUS: cleared -- run on the post-guard build. Row 1 still red, parserTest back to 139
+        at a NEW site. Reverted whole. Report: clod-to-clay SEQ 115.
+
+BASIS. Restores Tony's 09-09 (c') ruling that parseRule reads truthOf(result) and
+nothing else. The presence test came back at some point; this step removes it again.
+
+THE CHANGE. One line: `sukcess = truthOf(result)`.
+  - NOT an identity test against falseResult. Bear-trap #51: a kant body that spells
+    `false` gets a COPY of the node.
+  - NOT a new value test. truthOf is the SINGLE CONTRACT.
+
+THEN LET IT RUN.
+  The six Search rows should now come out correct. IN PARTICULAR, "search" ALONE MUST
+  FAIL. Re-run tester. Land the six rows as the fleet row that guards this change,
+  taken on a BARE BUILD. The red column will probably move, because rules that were
+  succeeding on presence will now fail honestly -- NAME EACH MOVED ROW with one line
+  saying why it moved.
+
+⚠ CLOD'S NOTE AT PICKUP, not Clay's words: THIS EXACT CHANGE WAS RUN ONCE ALREADY,
+  reported in clod-to-clay SEQ 111, and ROW 1 WENT RED -- "search list;", a correct
+  full match, failed, because the && chain's success value was not truthOf-true. That
+  run was BEFORE step 1's parseContainer guard. Re-running on the changed build is the
+  right move (H15 -- the control moved), and the expectation "the six rows come out
+  correct" is the thing being tested, not an assumption I am carrying in.
+
+  END SEQ 169

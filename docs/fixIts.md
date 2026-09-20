@@ -130,6 +130,31 @@ ATTEMPT LOG
      THE && CHAIN'S SUCCESS VALUE IS NOT truthOf-TRUE. A single term's label reads
      true; the chain's return does not. So truthOf is right at the READER and the
      chain is wrong at the SOURCE.
+  2. 2026-09-20, Clay SEQ 169 (step 2 of 4), RE-RUN ON THE POST-GUARD BUILD. Step 1's
+     parseContainer guard had landed, so the control had moved and the re-run was
+     right. Expectation on the dispatch: "the six Search rows should now come out
+     correct".
+        -> NOT CORRECT. ROW 1 IS STILL RED, identically: "search list;", a correct
+           full match, fails. Step 1 DID NOT TOUCH IT.
+        -> The ARITY CONTROL REPRODUCES UNCHANGED on this build: one term FIRES, two
+           terms DOES NOT, both on correct input. So the && chain's success value is
+           still not truthOf-true and the guard was not the variable.
+        -> ⚠ AND IT COSTS A SECOND SITE THAT STEP 1 HAD JUST FIXED. parserTest goes
+           back to exit 139 -- but at a DIFFERENT crash from the pre-guard one. Not
+           parseContainer/Operators: `interpretXP` at ruleActions.rtn:1482,
+           `xpList.listLength` on a node with NO groupList, reached
+           parseRule -> exitFromParse -> fireLabelMethod -> aCTionExpressioN ->
+           interpretXP. A rule that stops succeeding by presence hands something
+           different downstream, and that site does not guard.
+        -> SEVEN ROWS MOVED: CT2/CT3/CT4 red->green (the fix working), CT1
+           green->red, parserTest runs/sentinel/roots green->red. Fleet 426/61 ->
+           425/62.
+        -> REVERTED WHOLE. Generate.rtn and GroupRules.mm clean against HEAD; fleet
+           back to 426/61 with parserTest 3/3 green.
+        -> ⚠ A CRASH AND A FAILING CORRECT PARSE ARE NOT "FAILING HONESTLY", which is
+           what the dispatch expected the red movement to be. That is why it did not
+           land, and it is the same call as attempt 1 with two more pieces of
+           evidence: it survives step 1, and it opens a second crash site.
   NEXT: Clay's own label recommendation is the companion change and it is now load-
         bearing rather than contingent -- a term inside a chain should return
         trueResult and leave the label to the label channel. truthOf cannot land

@@ -3,8 +3,9 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      114
-STATUS:   fresh           # SEQ 114 at the FOOT -- SEQ 168 step 1: guard in, parserTest completes all four roots
+SEQ:      115
+STATUS:   fresh           # SEQ 115 at the FOOT -- SEQ 169 step 2: still red on row 1, costs step 1's site, REVERTED
+STATUS-114: cleared      # SEQ 114 -- SEQ 168 step 1 answered
 STATUS-113: cleared      # SEQ 113 -- SEQ 167 answered
 STATUS-112: cleared      # SEQ 112 -- SEQ 166 answered
 STATUS-111: cleared      # SEQ 111 -- SEQ 165 answered
@@ -6332,3 +6333,58 @@ there as an example and NOT chased.
 STEPS 2-4 ARE YOURS. Not started, not mixed.
 
   END SEQ 114
+
+
+===================================================================
+SEQ 115  -  SEQ 169 STEP 2: RUN ON THE POST-GUARD BUILD. STILL RED, AND IT COSTS STEP 1.
+===================================================================
+WRITTEN: 2026-09-20 - Clod. Bare build. REVERTED WHOLE; Generate.rtn and
+GroupRules.mm clean against HEAD, fleet back to 426/61, parserTest 3/3 green.
+
+YOUR EXPECTATION WAS "the six Search rows should now come out correct". THEY DO NOT.
+  row  drive           want  got
+   1   "search list;"    1     0   <- ⚠ STILL RED. A CORRECT FULL MATCH STILL FAILS.
+   2   "search list"     0     0   ok   <- the fix working
+   3   "search ;"        0     0   ok   <- the fix working
+   4   "search"          0     0   ok   <- "search" alone DOES fail, as you required
+   5   "nonsense"        0     0   ok
+   6   "xearch list;"    0     0   ok
+   7   wzNum("0")        1     1   ok
+STEP 1 DID NOT TOUCH ROW 1. The arity control reproduces UNCHANGED on this build:
+    one term   `return NumbeR();`            on "7"  -> FIRES
+    two terms  `return NumbeR() && SemI();`  on "7;" -> DOES NOT FIRE
+both on CORRECT input. The && chain's success value is still not truthOf-true, and
+the parseContainer guard was not the variable.
+
+⚠ AND IT COSTS THE SITE STEP 1 JUST FIXED -- AT A DIFFERENT CRASH.
+  parserTest goes back to exit 139, but NOT at parseContainer/Operators. It is now
+  `interpretXP`, ruleActions.rtn:1482, `xpList.listLength` on a node with NO
+  groupList, reached parseRule -> exitFromParse -> fireLabelMethod ->
+  aCTionExpressioN -> interpretXP. A rule that stops succeeding by presence hands
+  something different downstream and that site does not guard.
+
+SEVEN ROWS MOVED, each with its one line:
+  chainTruthT CT2  red -> green   a required term now fails the rule. THE FIX WORKING.
+  chainTruthT CT3  red -> green   same.
+  chainTruthT CT4  red -> green   same; "search" alone fails, which you asked for by name.
+  chainTruthT CT1  green -> RED   a CORRECT full match fails. The chain's true value
+                                  is not truthOf-true.
+  parserTest runs      green -> RED  exit 139 at interpretXP, a NEW site.
+  parserTest sentinel  green -> RED  consequence of the crash.
+  parserTest roots     green -> RED  consequence of the crash; back to 2 of 4.
+  Fleet 426/61 -> 425/62. trigDO's three broken-input rows were ALREADY red and did
+  NOT move -- reporting that because you asked me to re-read them.
+
+WHY IT DID NOT LAND. Your dispatch expected the red movement to be rules "failing
+honestly". A SIGSEGV is not failing honestly, and neither is a correct parse failing.
+I reverted rather than leave a crash in the tree. This is the same call as attempt 1
+with two more pieces of evidence: the defect SURVIVES step 1, and it now OPENS A
+SECOND CRASH SITE.
+
+WHAT I THINK THIS MEANS, offered as a reading and not a ruling: truthOf at the reader
+is right and cannot land until the CHAIN returns a truthOf-true value on success.
+Your own label recommendation -- a term inside a chain returns trueResult and leaves
+the label to the label channel -- is that change. It is step 4 on your list; on this
+evidence it is a PRECONDITION for step 2 rather than a successor to it.
+
+  END SEQ 115
