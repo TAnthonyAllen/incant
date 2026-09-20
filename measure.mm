@@ -482,6 +482,52 @@ extern "C" GroupItem *measureLabelProbe(GroupItem *field, GroupItem *myLabel, Gr
 	return field;
 }
 
+/*  THE DRIVE STRING'S EXTENT, RECORDED ONCE SO EVERY LATER POINT CAN ASK "IS THE MARK
+    STILL IN HERE". It writes ONLY to the instrument's own static and nothing the program
+    reads, so it witnesses without deciding. SEQ 166. parseTrace-gated.
+    measure.measureMarkArm  */
+extern "C" GroupItem *measureMarkArm(GroupItem *driveNode)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && driveNode )
+	{
+	gMarkDriveBase = driveNode->getText();
+	gMarkDriveLen  = gMarkDriveBase ? (long)::strlen(gMarkDriveBase) : 0;
+	::fprintf(stderr,"  MARKARM drive base=%p len=%ld text=[%s]\n",
+	(void*)gMarkDriveBase, gMarkDriveLen,
+	::getDebugText(gMarkDriveBase,20));
+	}
+	
+	return driveNode;
+}
+
+/*  atRuleMark AT A NAMED POINT: the pointer, WHICH BUFFER it is in, and the next 20
+    characters. The buffer answer is the whole point -- text that merely looks plausible
+    is not proof the mark is in the right buffer, and on this road it has been seen to
+    walk out of the diverted string entirely. SEQ 166. parseTrace-gated.
+    measure.measureMarkPoint  */
+extern "C" GroupItem *measureMarkPoint(char *where)
+{
+	
+	GroupRules *r = GroupControl::groupController->groupRules;
+	if ( r->parseTrace )
+	{
+	char *m = r->atRuleMark;
+	const char *inside = "?";
+	if ( gMarkDriveBase && m >= gMarkDriveBase && m <= gMarkDriveBase + gMarkDriveLen )
+	inside = "DRIVE-STRING";
+	else if ( m ) inside = "not-in-drive";
+	else          inside = "NULL";
+	::fprintf(stderr,"  MARKPT %s mark=%p in=%s diverted=%d level=%s text=[%s]\n",
+	where, (void*)m, inside,
+	r->inputDiverted ? 1 : 0,
+	(r->sourceFILE ? r->sourceFILE->groupBody->tag : "(none)"),
+	::getDebugText(m,20));
+	}
+	
+	return 0;
+}
+
 /*  TEMPORARY, parseTrace-gated. Which parent can a parseMethod see from the field
     handed in -- the structural one, or the per-invocation parse-time one. Prints
     both with POINTERS, because the discriminator is recursion: one structural node

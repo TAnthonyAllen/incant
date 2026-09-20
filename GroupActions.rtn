@@ -1132,7 +1132,11 @@ use ruler
     if inputSTAK    baseStak = inputSTAK.length;
     if field && field.data {
         divertToRule    = true;
-        pushInput(field); }
+        pushInput(field);
+        // markSeat SEQ 166 -- record the drive string's extent so every later point can ask
+        // markSeat whether the mark is still inside it
+        measureMarkArm(field);
+        measureMarkPoint("2a-after-push"); }
     // frameSeat the rule, the field, and the stuff/label chain the fork below is about to read
     measureFrameProbe(field,rule);
     // unwrapTheHolder THIS LINE IS THE SINGLE DEREFERENCE OF THE CARRIER -- never add a second one below the fork
@@ -1148,8 +1152,11 @@ use ruler
         if intoField && !intoField.data     result = parseR(rule,intoField);
         else                                result = rule.parse(0); }
 use ruler
+    // markSeat2 SEQ 166 point 2 -- THE KEY PAIR, either side of the pop
+    if field && field.data  measureMarkPoint("2b-before-pop");
     while field && field.data && inputSTAK && inputSTAK.length > baseStak
         popInput();
+    if field && field.data  measureMarkPoint("2c-after-pop");
     return result;
 }
 

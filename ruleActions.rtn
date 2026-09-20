@@ -921,6 +921,8 @@ extern GroupItem aCTionStatemenT(GroupItem input)
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = rStuff;
 GroupItem   sourceFile = new("sourceFile");
+    // markSeat3 SEQ 166 point 3 -- what text a StatemenT attempt starts on, and whose buffer
+    measureMarkPoint("3-StatemenT-entry");
 use input
     sourceLine  = new("sourceAt");
     sourceLine.count = sourceLINE;
@@ -1675,6 +1677,8 @@ extern void reportRunAbandoned(String fileName)
 {
 GroupRules  ruler = groupRules;
 String      whichFile = "(no file)";
+    // markSeat4 SEQ 166 point 4 -- what the REPORTER reads, and which input level it belongs to
+    measureMarkPoint("4-reportAbandoned");
     if fileName         whichFile = fileName;
     /*  unconsumedInput  THE ABANDONMENT THAT ACTUALLY HAPPENS, F-79. `Start` is
         unconsumedInput  `StatemenT+`, so a statement that FAILS TO MATCH ends the

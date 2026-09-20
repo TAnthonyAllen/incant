@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      165
-STATUS:   cleared        # SEQ 165 -- truthOf run and REVERTED; report in clod-to-clay SEQ 111
+SEQ:      166
+STATUS:   cleared        # SEQ 166 -- four points read; candidate (b); report in clod-to-clay SEQ 112
+STATUS-165: cleared      # SEQ 165 -- truthOf run and REVERTED; report in clod-to-clay SEQ 111
 STATUS-164: cleared      # SEQ 164 -- A1-A5 measured and reverted, B1-B5 landed, report in clod-to-clay SEQ 110
 STATUS-162: cleared      # SEQ 162 item 0 reported; sealed close of morning 2026-09-18
 WRITTEN:  2026-09-18  -  Clay (SEQ 162, dictated via Tony; transcribed by Clod)
@@ -8380,3 +8381,63 @@ THE SECOND THING IN CLOD'S TRACE -- NEXT STEP, NOT ALONGSIDE. followedBy succeed
 THE LABEL RECOMMENDATION STILL HOLDS.
 
   END SEQ 165
+
+
+===================================================================
+SEQ 166  -  WHERE IS atRuleMark WHEN ABANDONED FIRES? FOUR READ-ONLY POINTS.
+===================================================================
+STATUS: cleared -- four points read on a bare build with a control. Candidate (b).
+        Report: clod-to-clay SEQ 112.
+
+TONY'S QUESTION: what is atRuleMark pointed at when the ABANDONED message fires, and
+what is parse doing after it is done?
+
+THE TRACE CANNOT ANSWER IT. After "Match on Search succeeded" it goes silent, so
+whatever the parse does afterwards happens in code with no match lines. Clod answers
+it by READING VALUES. No build change beyond adding READ-ONLY lines.
+
+THE STEP: print atRuleMark at FOUR POINTS. At each point print THREE things:
+    - the pointer itself
+    - WHICH INPUT BUFFER the pointer is inside: the diverted drive string, or the
+      tester file
+    - the next 20 or so characters
+
+THE FOUR POINTS:
+  1. parseRule's EXIT for Search. The last point we already have visibility on.
+  2. Inside runRule, JUST BEFORE the diverted string is popped, and AGAIN JUST AFTER.
+     THIS IS THE KEY PAIR. After the pop the mark should be back in the FILE, sitting
+     on the `;` that follows Search("..."). The thing to find out is whether it is.
+  3. The FIRST StatemenT attempt after the drive returns. Record what text it starts
+     on and which buffer that text lives in.
+  4. Inside reportRunAbandoned. Record what it reads, and WHICH INPUT LEVEL'S mark
+     that value is.
+
+WHY BUFFER IDENTITY MATTERS MORE THAN THE TEXT -- two reasons:
+  - THE MARK CAN LEAVE THE DRIVE STRING. In Clod's short-string run followedBy left
+    the mark at " Utilities", text OUTSIDE the drive string entirely. So on this road
+    the mark can walk out of the diverted buffer into whatever sits next to it in
+    memory. A mark that looks like plausible text is NOT proof it is in the right
+    buffer.
+  - THE REPORTER IS A KNOWN-SUSPECT READER. It has named the wrong line twice, and one
+    open item has it reading a bailed file's start. So "resumes at stop();" is its
+    CLAIM and nothing more. Point 4 tells us whether to believe it.
+
+CANDIDATES THESE POINTS WOULD SEPARATE -- none claimed:
+  a. THE MARK IS NEVER HANDED BACK to the file after the pop.
+     Evidence: the pre-pop and post-pop reads at point 2 differ from the old road's.
+     Consequence: the old road does something on return that the new road skips.
+  b. THE MARK COMES BACK to the right place and an OLD-ROAD RULE FAILS on it.
+     Evidence: point 3 starts on the correct `;` and the parse fails anyway.
+     Consequence: the old-road trace is the next step.
+  c. THE PARSE IS FINE AND THE REPORTER IS WRONG.
+     Evidence: point 4 disagrees with point 3.
+
+  ⚠ IF CANDIDATE (a) IS WHAT CLOD FINDS, it could also explain why marking the
+  argument slot noPrint cures the abandon: the slot is in the SAVED SET restored on
+  the way out of the drive, and it would then be worth asking whether that restore and
+  the input pop INTERFERE. Do not chase that until the four readings are in.
+
+THIS STEP RUNS BEFORE THE truthOf FIX OR APART FROM IT, AND THE TWO ARE NOT MIXED.
+They are different questions, and the abandon is the one Tony asked about today.
+
+  END SEQ 166

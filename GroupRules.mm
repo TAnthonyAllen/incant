@@ -1174,6 +1174,8 @@ extern "C" GroupItem *aCTionStatemenT(GroupItem *input)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = input->getRStuff();
 GroupItem 	*sourceFile = new GroupItem("sourceFile");
+	// markSeat3 SEQ 166 point 3 -- what text a StatemenT attempt starts on, and whose buffer
+	::measureMarkPoint("3-StatemenT-entry");
 	ruleStuff->sourceLine = new GroupItem("sourceAt");
 	ruleStuff->sourceLine->setCount(ruler->sourceLINE);
 	sourceFile->setText(ruler->sourceFILE->groupBody->tag);
@@ -10080,6 +10082,8 @@ checkSuccess:
 		if ( result )
 			ruleStuff->sukcess = 1;
 		}
+	// markSeat1 SEQ 166 point 1 -- the last seat with visibility before the trace goes silent
+	::measureMarkPoint("1-parseRule-exit");
 	return ::exitFromParse(field);
 }
 
@@ -11474,6 +11478,8 @@ extern "C" void reportRunAbandoned(char *fileName)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*whichFile = "(no file)";
+	// markSeat4 SEQ 166 point 4 -- what the REPORTER reads, and which input level it belongs to
+	::measureMarkPoint("4-reportAbandoned");
 	if ( fileName )
 		whichFile = fileName;
 	/*  unconsumedInput  THE ABANDONMENT THAT ACTUALLY HAPPENS, F-79. `Start` is
@@ -11957,6 +11963,10 @@ int 		baseStak = 0;
 		{
 		ruler->divertToRule = 1;
 		ruler->pushInput(field);
+		// markSeat SEQ 166 -- record the drive string's extent so every later point can ask
+		// markSeat whether the mark is still inside it
+		::measureMarkArm(field);
+		::measureMarkPoint("2a-after-push");
 		}
 	// frameSeat the rule, the field, and the stuff/label chain the fork below is about to read
 	::measureFrameProbe(field,rule);
@@ -11978,8 +11988,13 @@ int 		baseStak = 0;
 			result = ::parseR(rule,intoField);
 		else	result = rule->parse(0);
 		}
+	// markSeat2 SEQ 166 point 2 -- THE KEY PAIR, either side of the pop
+	if ( field && field->groupBody->flags.data )
+		::measureMarkPoint("2b-before-pop");
 	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
 		ruler->popInput();
+	if ( field && field->groupBody->flags.data )
+		::measureMarkPoint("2c-after-pop");
 	return result;
 }
 
