@@ -92,6 +92,51 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-96 — the label channel: a term's label never attaches, so `aCTionTokenXP` reads a null `ANYorNum`
+
+**What.** On the new parse road a sub-term's label is never attached to its parent's label, so a
+seat that reads a term out of its own label gets null. `aCTionTokenXP` is where it lands first.
+
+**Where.** The **crash** is `GroupRules.mm:1265` — `if (isGROUP(ANYtoken->groupBody->flags.data))`.
+⚠ Bear-trap #36: that is the line that **died**. The **producer** is `GroupRules.mm:1249` /
+`ruleActions.rtn:987` — `GroupItem ANYtoken = xpress["ANYorNum"];`. `xpress` is **not** null; its
+`ANYorNum` member is absent.
+The **channel** is `exitFromParse` (`Generate.rtn:6`, `GroupRules.mm:2769`): it attaches with
+`parentLabel->addAttribute(label)`, and `parentLabel` is synced from `parentStuff->label`, which
+nothing binds. `checkInput` (`RuleStuff.twk:199`) deliberately sets `label = 0` for a members-rule.
+
+**Evidence.** `parser(DO); DO("do print ++dwN; while dwN < 2;")` → exit 139. Old road: exit 0,
+prints `1`. Ladder, one run each, same generated parse, drive string the only change: every drive
+whose `while` expression routes through `TokenXP` dies; a `while` of pure literals does not.
+⚠ `!1` — a **present** unary on a literal — dies too, so "an absent optional unary short-circuits
+the chain" is not the whole cause.
+
+**Done-when.** `incant/pop/doWhileNameT` reaches its sentinel at exit 0, with `parserTest` still
+at four roots and the fleet's red column unmoved row for row.
+
+**Owner.** Tony — the STOP clause fired; Clay's SEQ 171 step 2 says he walks `parseRule` in Xcode.
+
+**ATTEMPT LOG.**
+- **2026-09-20, attempt 1 — ported (a)+(b) from `checkinput-state` (minus the carrier fire).**
+  `ruleStuff.label = myLabel` before the body, plus `checkInput` made road-blind. Built bare,
+  canary 335, code-only diff exactly the two edits. → **H15 control failed: `parserTest` 4 roots →
+  2, and `doWhileNameT`'s own literal-while control stopped returning.** The target did not move.
+- **2026-09-20, attempt 2 — (a) alone**, `checkInput` reverted to HEAD. → **identical breakage**:
+  `parserTest` 2 of 4, control still dead. **So (a) is the breaker and (b) is not.** Bought the
+  attribution, which attempt 1 could not give.
+- **2026-09-20, attempt 3 — the bind BRACKETED round the body**: `priorLabel = ruleStuff.label`
+  before, `ruleStuff.label = priorLabel` after, so `exitFromParse` sees exactly what it saw
+  before. This is also Clay's (c) recursion save, tightened from the call to the body. →
+  **still breaks the control**, and the crash MOVES: `interpretXP` at `GroupRules.mm:3759`,
+  `xpList->groupBody->groupList` null. So the bind really does reshape the tree; it is not inert.
+- **Reverted whole.** Fleet back to 428 green / 62 red with the red column **identical row for
+  row**. Three attempts, so the STOP clause fired and this goes to Tony.
+
+**⚠ THE READING THAT SURVIVES ALL THREE.** `checkInput`'s `label = 0` for a members-rule is not an
+oversight to be overridden — every attempt that overrides it, in place or under a bracket, breaks
+rules that already worked. Whatever gives the terms a parent to attach into has to be a channel
+`exitFromParse` does not already read, or `exitFromParse` has to learn the difference.
+
 ### F-95 — a generated rule succeeds whenever its FIRST term matches, and `truthOf` alone does not fix it
 **Measured 2026-09-20 on a bare build, witness `incant/pop/chainTruthT`, born red.** `Search
 search- followedBy GrouP+ SemI-` reports success for the input `"search"` — three required terms

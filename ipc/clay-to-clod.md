@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      171
-STATUS:   working        # SEQ 171 -- label channel on the new parse road, Tony's ruling FIX IT; transcribed at pickup
+SEQ:      172
+STATUS:   cleared        # SEQ 172 -- oracle twin banked; step 2 read done, THREE ATTEMPTS, STOP clause fired, reverted whole
+STATUS-171: cleared      # SEQ 171 -- steps 0 and 1 landed; report answered by SEQ 172
 STATUS-170: cleared      # SEQ 170 -- string-leaf read done, returns IDENTICAL, candidate dead; session sealed
 STATUS-169: cleared      # SEQ 169 step 2 -- run post-guard, still red, REVERTED; report in clod-to-clay SEQ 115
 STATUS-168: cleared      # SEQ 168 step 1 -- guard in, parserTest all four roots; report in clod-to-clay SEQ 114
@@ -8715,3 +8716,34 @@ under parser(DO) stated; red column diffed row for row.
 
 REPORT: top lines = the command as typed, what failed, WHICH RULE. File:line and
 frames after, as evidence.
+
+
+===================================================================
+SEQ 172  -  GO ON STEP 2, READ FIRST (answers Clod's SEQ 171 report)
+===================================================================
+STATUS: working -- transcribed AT PICKUP, before the oracle twin, before any read
+        and before any build, per WT-15.
+
+GO on Step 2, read first. Step 0 accepted as measured -- compile-first is a clean
+two-pass, it stays.
+
+AMENDMENTS
+1. ORACLE. `result` is the problem, not do-while: add a declared-counter twin,
+   define dwN=0; ;   DO("do print ++dwN; while dwN < 2;")
+   old road first (no parser()) -- bank its output as the oracle; then under parser(DO).
+   Keep the `result` rows as pinned. `result = 0;` not taking at file level: one line
+   in the report, not chased -- Tony is asked.
+2. STEP 2 CERTIFICATE gains a TREE row. aCTionTokenXP reads xpress["ANYorNum"] and
+   tests isGROUP on it -- an old-road label shape (ANYtoken NamE@). Once the label
+   binds, dump xpress for the SAME expression on both roads (`dwN < 2`, `!1`, `dwN`)
+   and diff. A divergence is reported with both trees, not fixed in this stroke --
+   it is F-89's modifier seam (`@`, `?`) arriving as shape.
+3. STEP 3 re-cut. Exit status cannot discriminate while every TokenXP route dies.
+   Read DISPATCH instead: is ANYorNum asked in C (unary absent) vs H (unary present)?
+   Tony's directives trace says NOT asked in C. Run after Step 2 lands, when xpress's
+   contents answer it directly; measure only.
+4. SEAL. Bank the red LIST (names), not just the count, from this seal on -- so the
+   next 60-vs-61 is a diff.
+
+Unchanged: recursion save/restore + H19 rows; no null guard in aCTionTokenXP; three
+attempts then stop; report leads with command / failure / rule.

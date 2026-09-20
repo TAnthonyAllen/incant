@@ -1,37 +1,71 @@
 /*  doWhileNameT -- THE NEW PARSE ROAD CRASHES WHEN A DO's WHILE EXPRESSION IS NOT A
-    BARE LITERAL. Born RED on purpose, 2026-09-20, Clay's SEQ 171 step 1.
+    BARE LITERAL. Born RED on purpose, 2026-09-20, Clay's SEQ 171 step 1, oracle twin
+    added under SEQ 172 amendment 1.
 
     ⚠ THE ROW IS A PIN, NOT A DIAGNOSIS. What is asserted is that the run reaches its
-    foot. It does not today: the target drive dies at EXC_BAD_ACCESS in aCTionTokenXP,
-    reading a null ANYorNum label. The row goes green when the label channel lands.
+    foot. It does not today: the target drives die at EXC_BAD_ACCESS in aCTionTokenXP,
+    reading a null ANYorNum label. The rows go green when the label channel lands.
 
-    ⚠ THE CONTROL ROW IS NOT DECORATION AND IT IS WHY THIS FIXTURE IS ONE FILE. Both
-    drives run under THE SAME parser of DO -- one generation, two drive strings -- so a
-    red target cannot be blamed on generation. The control returns first and prints a
-    marker, so a run that dies before reaching the target fails the control row too and
-    the pin cannot be read as satisfied by a fixture that never got started.
+    ⚠⚠ THE DECLARED-COUNTER TWIN IS WHY `result` IS NOT THE VARIABLE. DW-4 uses a field
+    declared in this file and it dies exactly as DW-5 does, so the crash is not about an
+    unassigned name. DW-5 stays pinned anyway, because it is the drive string the report
+    and the ladder were measured on and a pin that quietly changes its subject is not the
+    same pin.
 
-    ⚠ THERE IS NO OLD-ROAD ORACLE FOR THE TARGET AND THAT IS A MEASUREMENT, NOT AN
-    OMISSION. Driven with no parser at all, the same statement refuses at the bump --
-    the field it names was never assigned -- prints nothing, and exits zero. So the old
-    road has no correct answer here to be compared against, and the certificate's other
-    half applies instead: name the rule where the new road now stops.  */
+    ⚠ DW-1 IS THE ORACLE AND IT MUST RUN BEFORE ANY parser CALL. Once DO carries a
+    generated parse there is no way back to the old road inside one process, so the
+    banked answer has to be taken first. It prints one line: 1.
+
+    ⚠ THE ORACLE'S VALUE IS ECHOED TO STDERR AND THAT IS LOAD-BEARING, NOT STYLE. This
+    file crashes, and a crash discards block-buffered stdout -- so the oracle's printed
+    line is GONE from the capture even though it really was produced. stderr is
+    unbuffered and survives, so the counter is read back through it. Assert the value
+    there and never from the stdout of a run that dies.
+
+    ⚠⚠ AND THE COUNTER IS READ BARE, WHICH INVERTS THE USUAL ADVICE AND IS MEASURED.
+    A capture of it -- dwCap taken with the group-set operator -- prints its own tag
+    both before and after the drive, so it carries no value and would pin nothing. The
+    BARE read answers correctly: 0 before the drive and 1 after. That is also the proof
+    that the drive string and this file share ONE node, which is the fact the row is
+    really asserting.
+
+    ⚠ AND WHAT THE ORACLE ACTUALLY SHOWS IS ONE PASS, NOT A LOOP. Driven on the old road
+    the body runs exactly once and returns, for every condition tried -- under 2, under 4,
+    and under a constant true. Whether that is do-while not iterating or a rule-drive not
+    executing a loop is NOT MEASURED and nothing here claims either. It is banked as the
+    oracle because it is what the old road does, which is all an oracle has to be.
+
+    ⚠ THE CONTROL ROW IS NOT DECORATION AND IT IS WHY THIS FIXTURE IS ONE FILE. Every
+    drive below DW-2 runs under THE SAME generated parse -- one generation, four drive
+    strings -- so a red target cannot be blamed on generation. The control returns first
+    and prints a marker, so a run that dies before reaching a target fails the control row
+    too and the pin cannot be read as satisfied by a fixture that never got started.  */
 Start();
 include(unitTests);
 include(utilities);
 search reset stack Grokking;
 search GroupFields UnitTests Utilities list;
+define dwN=0;
+    ;
 
-cerr "DW-0 parser generates for DO":;
+cerr "DW-1 oracle -- the declared-counter twin on the OLD road":;
+DO("do print ++dwN; while dwN < 2;");
+cerr "DW-1 ORACLE RETURNED dwN=" dwN:;
+
+cerr "DW-2 parser generates for DO":;
 parser(DO);
 
-cerr "DW-1 control -- a literal while expression":;
+cerr "DW-3 control -- a literal while expression":;
 DO("do print 1; while 0;");
-cerr "DW-1 CONTROL RETURNED":;
+cerr "DW-3 CONTROL RETURNED":;
 
-cerr "DW-2 target -- a NAME in the while expression":;
+cerr "DW-4 target -- the declared-counter twin on the NEW road":;
+DO("do print ++dwN; while dwN < 2;");
+cerr "DW-4 TWIN RETURNED":;
+
+cerr "DW-5 target -- an unassigned name in the while expression":;
 DO("do print ++result; while result < 2;");
-cerr "DW-2 TARGET RETURNED":;
+cerr "DW-5 TARGET RETURNED":;
 
 cerr "DOWHILENAME SENTINEL":;
 stop();
@@ -39,7 +73,7 @@ stop();
 This text is past stop(); the parse halts there and nothing below is read.
 
 /*****************************************************************************
-                    What DW-2 Is Pinning
+                    What DW-4 And DW-5 Are Pinning
 *****************************************************************************/
     The crash, with frames, measured 2026-09-20 on a bare binary, canary 335:
 
@@ -68,7 +102,7 @@ This text is past stop(); the parse halts there and nothing below is read.
 /*****************************************************************************
                     The Ladder That Named The Variable
 *****************************************************************************/
-    One run each, same parser of DO, the drive string the only thing changed, alarm
+    One run each, same generated parse, the drive string the only thing changed, alarm
     at sixty seconds. Exit 139 is the crash; exit 0 reached the sentinel.
 
         A   do print 1; while 0;                 exit 0
@@ -92,4 +126,5 @@ This text is past stop(); the parse halts there and nothing below is read.
     the conjunction, and leaves ANYorNum unasked. H supplies a unary on a literal --
     present, not absent -- and still dies. So a short-circuit at an absent UnaryOPS
     cannot be the whole cause. What that positive cause IS has not been measured here,
-    and nothing in this file claims one.
+    and nothing in this file claims one. Clay re-cut the question under SEQ 172: read
+    DISPATCH rather than exit status, once xpress survives long enough to be dumped.

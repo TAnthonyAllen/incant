@@ -2802,28 +2802,43 @@ else
 fi
 
 #  ---- doWhileNameT: the new parse road dies on a non-literal while expression ----
-#  BORN RED ON PURPOSE, 2026-09-20, Clay's SEQ 171 step 1. Two of these three rows are
-#  the pin and they are RED until the label channel lands; the third is their control.
+#  BORN RED ON PURPOSE, 2026-09-20, Clay's SEQ 171 step 1; oracle twin added under SEQ 172.
+#  Two of these four rows are the pin and they are RED until the label channel lands; the
+#  other two are their controls.
 #  THE CRASH, with frames: EXC_BAD_ACCESS at GroupRules.mm:1265 in aCTionTokenXP. Per
 #  bear-trap 36 the dying line is not the reading line -- the PRODUCER is :1249,
 #  ruleActions.rtn:987, `GroupItem ANYtoken = xpress["ANYorNum"]`. xpress carries a real
 #  address; what is null is its ANYorNum member, i.e. the sub-term label never attached.
-#  ⚠ DW-2 IS PINNED ON THE RUN REACHING ITS FOOT, NOT ON A VALUE, AND THE REASON IS THAT
-#  THERE IS NO ORACLE. The same statement on the OLD road (no parser call) refuses at the
-#  bump -- `result` was never assigned -- prints nothing and exits 0, measured twice,
-#  including with an explicit assignment ahead of it. So there is no correct old-road
-#  answer to diff against, and the certificate's other half applies: name where it stops.
-#  ⚠ THE CONTROL ROW IS THE ANTI-VACUITY SIBLING AND IT IS NOT OPTIONAL. Both drives run
-#  under ONE parser of DO, so the control returning proves generation is not the variable
-#  and proves the fixture got past its own preamble. A pin whose file never started would
-#  otherwise be indistinguishable from a pin that ran and failed.
+#  ⚠⚠ `result` WAS NEVER THE VARIABLE, AND DW-4 IS THE ROW THAT SAYS SO. It drives a
+#  counter DECLARED IN THE FIXTURE and dies exactly as DW-5's unassigned name does. DW-5
+#  stays pinned anyway: it is the string the ladder and the report were measured on, and a
+#  pin that quietly changes its subject is not the same pin.
+#  ⚠ THE ORACLE ROW IS PRESENCE-WITH-VALUE AND IT IS READ OFF STDERR. A crash discards
+#  block-buffered stdout, so the oracle's printed line is gone from the capture even though
+#  it was really produced; the counter is echoed to stderr instead, which survives. dwN
+#  reads 0 before the drive and 1 after -- a NON-ZERO sibling, so the row cannot be
+#  satisfied by a slot that merely defaults.
+#  ⚠ WHAT THE ORACLE SHOWS IS ONE PASS, NOT A LOOP: the old-road body runs exactly once
+#  for every condition tried, including a constant true. Whether that is do-while not
+#  iterating or a rule-drive not executing a loop is NOT MEASURED and nothing claims either.
+#  ⚠ THE CONTROL ROW IS THE ANTI-VACUITY SIBLING AND IT IS NOT OPTIONAL. Every drive after
+#  DW-2 runs under ONE generated parse, so the control returning proves generation is not
+#  the variable and proves the file got past its own preamble. A pin whose file never
+#  started would otherwise be indistinguishable from a pin that ran and failed.
 run2 doWhileNameT "$T/dwn.o" "$T/dwn.e"; check "doWhileNameT runs" 0 $?
 sentinel "doWhileNameT sentinel" "$T/dwn.e" "DOWHILENAME SENTINEL"
-if grep -qF "DW-1 CONTROL RETURNED" "$T/dwn.e"; then
+if grep -qF "DW-1 ORACLE RETURNED dwN= 1" "$T/dwn.e"; then
+    echo "  ok    doWhileNameT oracle = 1 -- old-road twin ran and shares the counter"; green=$((green+1))
+else
+    echo "  FAIL  doWhileNameT oracle did NOT read 1 -- the OLD road moved, so the two red"
+    echo "        rows below are no longer measured against what they were pinned against."
+    grep -E "^DW-" "$T/dwn.e" | sed 's/^/          /'; fail=1
+fi
+if grep -qF "DW-3 CONTROL RETURNED" "$T/dwn.e"; then
     echo "  ok    doWhileNameT control returned -- a literal while expression completes"; green=$((green+1))
 else
     echo "  FAIL  doWhileNameT control did NOT return -- the literal while expression now"
-    echo "        dies too, so the two red rows below it are no longer about the NAME."
+    echo "        dies too, so the red rows are no longer about the while EXPRESSION."
     grep -E "^DW-" "$T/dwn.e" | sed 's/^/          /'; fail=1
 fi
 
