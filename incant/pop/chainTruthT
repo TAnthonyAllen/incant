@@ -35,6 +35,18 @@
       5  "nonsense"       no match first term fails
       6  "xearch list;"   no match first term fails on one character
       7  wzNum("0")       MATCH    the truthOf-reads-a-zero-label hazard probe
+
+    TWO MORE, ADDED 2026-09-20 WHEN TONY RULED THAT A RULE CARRIES NO argument.
+    They exist to keep the slot from coming back unnoticed, and each fails a
+    different way if it does:
+      8  a CALL statement at FILE SCOPE after a drive must RUN. While the slot
+         existed, a drive left the file parse unable to match anything
+         identifier-initial, so this statement silently never ran -- at exit 0.
+         ⚠ A cerr would NOT do: keyword-initial statements parsed throughout.
+      9  a RE-EMIT after a drive must read `first() && nameSet()` and must NOT
+         contain `argument()`. The slot was a TERM as well as a frame member, so
+         a returning slot shows up in the emitted body before it shows up
+         anywhere else.
 */
 Start();
 include("IncantForms/WorkingOn/parser");
@@ -60,11 +72,19 @@ define
         wzNum("0");
         cerr "CT-ROWEND":;
         };
+    ctReEmit code={
+        NamE("foo");
+        cerr "CT-REEMIT":;
+        generateParse(NamE);
+        };
+    ctAfterDrive code={ cerr "CT-CALL-RAN":; };
     ;
 parser(Search);
 parser(wzNum);
 traceParse(0);
 wzRun();
+ctReEmit();
+ctAfterDrive();
 cerr "CHAINTRUTH SENTINEL":;
 stop();
 

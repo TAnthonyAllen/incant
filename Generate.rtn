@@ -174,8 +174,7 @@ GroupItem   code = field.parseBody(),
             result,
             grup,
             myLabel,
-            into,
-            ruleArg;
+            into;
 GroupItem   priorMETHOD;
 use field
     // enclosingRule as parseLoop -- the enclosing rule at the moment of entry   Generate.parseRule.enclosingRule
@@ -200,20 +199,19 @@ use grup
         if field.isAction {
             while grup = code.nextAttribute(grup)
                 if isLocal && !isRule && !noPrint && groupBody != field.groupBody clear();
-            // intoRidesArgument a FRESH MINT per invocation, one slot cannot survive recursion
+            // noArgumentOnARule A RULE CARRIES NO argument SLOT. Tony ruled it 2026-09-20 -- it
+            // noArgumentOnARule should not exist, so it needs no noPrint. The mint and both its
+            // noArgumentOnARule uses are DELETED, and the "into rides the argument" half of the
+            // noArgumentOnARule 09-09 ruling is RETIRED BY NAME with them. The other half, the
+            // noArgumentOnARule return carrying one bit, stands. fixIts F-94.
+            // labelReachesNothing THE LABEL IS MINTED AND GOES NOWHERE, which is what it did
+            // labelReachesNothing before, because the slot never had a reader. CT-5 stays open and
+            // labelReachesNothing the next stroke gives the label a real channel.
             into    = parentLabel;
             myLabel = new(field.tag);
             measureLabelMint(field,myLabel,into);
-            /*****************************************************************
-                Add argument to the field. See argumentBind and bindTheBodysOwnSlot DesignDocs entries
-            *****************************************************************/
-            ruleArg = code["argument"];
-            if !ruleArg     ruleArg = field["argument"];
-            if !ruleArg     ruleArg = field += "argument";
-            ruleArg.isArgument = true;
 
             saveLocalFields(field);
-            ruleArg.group = myLabel;
             priorMETHOD     = currentMETHOD;
             currentMETHOD   = field;
             /*****************************************************************

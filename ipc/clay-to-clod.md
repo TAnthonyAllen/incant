@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      166
-STATUS:   cleared        # SEQ 166 -- four points read; candidate (b); report in clod-to-clay SEQ 112
+SEQ:      167
+STATUS:   cleared        # SEQ 167 -- slot deleted, abandon gone, F-94 closed; report in clod-to-clay SEQ 113
+STATUS-166: cleared      # SEQ 166 -- four points read; candidate (b); report in clod-to-clay SEQ 112
 STATUS-165: cleared      # SEQ 165 -- truthOf run and REVERTED; report in clod-to-clay SEQ 111
 STATUS-164: cleared      # SEQ 164 -- A1-A5 measured and reverted, B1-B5 landed, report in clod-to-clay SEQ 110
 STATUS-162: cleared      # SEQ 162 item 0 reported; sealed close of morning 2026-09-18
@@ -8441,3 +8442,49 @@ THIS STEP RUNS BEFORE THE truthOf FIX OR APART FROM IT, AND THE TWO ARE NOT MIXE
 They are different questions, and the abandon is the one Tony asked about today.
 
   END SEQ 166
+
+
+===================================================================
+SEQ 167  -  TONY'S RULING: A RULE CARRIES NO argument. REMOVE THE SLOT.
+===================================================================
+STATUS: cleared -- slot deleted, abandon GONE, F-94 closed, bookkeeping reversed.
+        Report: clod-to-clay SEQ 113.
+
+TONY, RULED: "argument should not be anywhere in existence for a rule. It dont need
+no stinking noPrint because it should not exist."
+
+CLAY, RECORDING IT: Rules carry no argument. That closes this morning's open
+question. ⚠ IT RETIRES THE "into rides the argument" HALF OF THE 09-09 (c') RULING,
+AND THE RECORD MUST SAY SO BY NAME. The other half -- the return carries one bit --
+STAYS IN FORCE. Once the slot is gone the noPrint question goes with it.
+The removal is already shown safe: Clod's cell 3, slot never minted, read the SAME as
+the noPrint cell on every row, and the abandon was gone. So: remove the slot, run
+tester, see what happens. If the abandon is gone, the old-road trace was never
+needed. If it is still there, the trace is next and one suspect is eliminated.
+DO THE REMOVAL BEFORE THE TRACE.
+
+THE STEP FOR CLOD
+  1. Delete the mint and BOTH USES at Generate.rtn:213-216. Removing the mint alone
+     cannot run -- the next two lines dereference it.
+  2. LEAVE THE LABEL MINT AT :205 IN PLACE.
+  3. Run tester: parser(Search), the drive, stop();. EXPECTED: no abandon.
+  4. EXPECT parserTest TO FAIL DIFFERENTLY. Once the abandon stops hiding it,
+     parserTest will die in parseContainer on a field that has NO rStuff. This is
+     ALREADY KNOWN, so it is NOT a regression. It becomes the next item, and the
+     first job there is to NAME WHICH FIELD IT IS.
+  5. THE LABEL STILL REACHES NOTHING. It is minted and goes nowhere -- effectively
+     today's state, because the slot never had a reader. CT-5 STAYS OPEN. The next
+     stroke gives the label a real channel. Clay's recommendation for that channel is
+     rStuff.label, saved and restored around the body. ⚠ THAT PART IS TONY'S TO RULE
+     AND IS UNRULED FOR NOW.
+  6. ADD ONE FIXTURE ROW WHEN IT LANDS: a CALL statement after a drive, plus a
+     RE-EMIT after a drive reading `first() && nameSet()` with NO `argument()`. Cheap,
+     and it keeps the slot from coming back unnoticed.
+
+ONE BOOKKEEPING CONSEQUENCE
+  With parseRule's writer gone, runAction is AGAIN THE SINGLE WRITER of isArgument,
+  so designDocs runAction.mint is correct AS ORIGINALLY WRITTEN. Clod's A5 edit saying
+  "two writers" NEEDS REVERSING IN THE SAME COMMIT. wrapperPlan S2.3 still cites the
+  WRONG FILE, so it needs correcting whichever way the writer count comes out.
+
+  END SEQ 167

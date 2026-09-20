@@ -10018,7 +10018,6 @@ GroupItem 	*result = 0;
 GroupItem 	*grup = 0;
 GroupItem 	*myLabel = 0;
 GroupItem 	*into = 0;
-GroupItem 	*ruleArg = 0;
 GroupItem 	*priorMETHOD = 0;
 	// enclosingRule as parseLoop -- the enclosing rule at the moment of entry   Generate.parseRule.enclosingRule
 	// onlyIfFound the old guard was `if lastRule`, and lastRule was null exactly where this
@@ -10047,21 +10046,18 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			while ( grup = code->nextAttribute(grup) )
 				if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isRule && !grup->groupBody->flags.noPrint && grup->groupBody != field->groupBody )
 					grup->clear();
-			// intoRidesArgument a FRESH MINT per invocation, one slot cannot survive recursion
+			// noArgumentOnARule A RULE CARRIES NO argument SLOT. Tony ruled it 2026-09-20 -- it
+			// noArgumentOnARule should not exist, so it needs no noPrint. The mint and both its
+			// noArgumentOnARule uses are DELETED, and the "into rides the argument" half of the
+			// noArgumentOnARule 09-09 ruling is RETIRED BY NAME with them. The other half, the
+			// noArgumentOnARule return carrying one bit, stands. fixIts F-94.
+			// labelReachesNothing THE LABEL IS MINTED AND GOES NOWHERE, which is what it did
+			// labelReachesNothing before, because the slot never had a reader. CT-5 stays open and
+			// labelReachesNothing the next stroke gives the label a real channel.
 			into = ruleStuff->parentLabel;
 			myLabel = new GroupItem(field->groupBody->tag);
 			::measureLabelMint(field,myLabel,into);
-			/*****************************************************************
-			Add argument to the field. See argumentBind and bindTheBodysOwnSlot DesignDocs entries
-			*****************************************************************/
-			ruleArg = code->get("argument");
-			if ( !ruleArg )
-				ruleArg = field->get("argument");
-			if ( !ruleArg )
-				ruleArg = field->addString("argument");
-			ruleArg->groupBody->flags.isArgument = 1;
 			::saveLocalFields(field);
-			ruleArg->setGroup(myLabel);
 			priorMETHOD = ruler->currentMETHOD;
 			ruler->currentMETHOD = field;
 			/*****************************************************************

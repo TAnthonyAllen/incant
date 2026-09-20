@@ -143,7 +143,7 @@ ATTEMPT LOG
 CT2-4 go green. **Grade:** CONFIRMED — six rows, an arity control on correct input, treatment run
 and reverted. **Owner:** Clay for the chain's return contract.
 
-### F-94 — `parseRule` mints a DEAD `argument` slot onto every rule parser touches, and it lands in the frame
+### F-94 — ✅ CLOSED 2026-09-20 BY RULING — a rule carries no `argument`, and the slot is deleted
 **Measured 2026-09-20. WITH CLAY — `ipc/clod-to-clay.md` SEQ 109. Tony's words: *"I am not
 comfortable with how we are injecting argument into rules... changing what we do w/argument will
 have a blast radius."* A shape ruling is owed before anything moves.**
@@ -246,9 +246,34 @@ ATTEMPT LOG
        and belongs in the fleet once the shape is ruled.
 ```
 
-**Done when:** a rule that has been through `parser()` carries no slot nothing reads, and
-`parser(X); X("...");` leaves the file parse intact. **Grade:** CONFIRMED — chain read, treatment
-run both ways, reverted. **Owner:** Clay for the shape, then unassigned.
+⚠⚠ **TONY RULED IT, 2026-09-20:** *"argument should not be anywhere in existence for a rule. It
+dont need no stinking noPrint because it should not exist."* The mint and both its uses are
+**deleted** at `Generate.rtn`; the label mint stays. **The abandon is GONE** — `tester` runs
+`parser(Search)`, the drive and `stop();` at exit 0 with no `ABANDONED` line, and a CALL statement
+after a drive now runs.
+
+⚠ **THIS RETIRES THE "into rides the argument" HALF OF THE 09-09 RULING (c′), BY NAME.** The other
+half — the return carries one bit — **stands**. The `noPrint` question goes with the slot.
+
+**WHAT DID NOT CLOSE WITH IT.** The label is still minted and still reaches nothing, which is what
+it did before, because the slot never had a reader. **CT-5 stays open** and the next stroke gives
+the label a real channel; Clay's recommendation is `rStuff.label` saved and restored around the
+body, and **that is Tony's to rule and is unruled.**
+
+⚠ **AND IT UNCOVERED THE NEXT ITEM RATHER THAN CREATING IT.** With the abandon no longer hiding it,
+`parserTest` dies at **exit 139 in `parseContainer`** — `GroupActions.rtn` chain `runShortCircuit` →
+`runShortCircuit` → `runOP` → `parseContainer`, which derefs `rStuff` unguarded at
+`Generate.rtn:127`/`:130`. **The field is named: `Operators`**, `isRule=0`, `binType=4`
+(isREGISTRY). Ruling D1 says rStuff-less is **lawful** for a non-label node, so that site owes the
+guard `setParseWalk` already carries. Fleet 422/63 → **423/64**, the one moved row being
+`parserTest runs` going exit 0 → 139, which is this and is **not a regression**.
+
+**Bookkeeping closed with it:** `runAction` is again the **single** writer of `isArgument`
+(measured: `isArgument =` reads 1 in `GroupActions.rtn`, 0 in `Generate.rtn`), so the A5 amendment
+to designDocs `runAction.mint` is **reversed** — with the round trip recorded in place, because a
+single-writer claim is a dated measurement and not an invariant. `wrapperPlan` §2.3 corrected.
+
+**Grade:** CLOSED by ruling and removal, certified by `chainTruthT` CT8 and CT9. **Owner:** closed.
 
 ### F-93 — `walkRules` has not descended since `1bce778`: line 88 is not a flag read
 

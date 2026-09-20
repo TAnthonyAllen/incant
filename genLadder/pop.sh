@@ -1754,6 +1754,29 @@ for _r in "1:search list;:1:Search" "2:search list:0:Search" "3:search ;:0:Searc
         red=$((red+1))
     fi
 done
+#  ⚠ CT8 AND CT9 KEEP THE argument SLOT FROM COMING BACK UNNOTICED. Tony ruled
+#  2026-09-20 that a rule carries no argument, and the mint at Generate.rtn was
+#  deleted. Each of these fails a DIFFERENT way if it returns.
+#  CT8 -- a CALL statement at FILE SCOPE after a drive must RUN. While the slot
+#  existed a drive left the file parse unable to match anything identifier-initial,
+#  and the statement silently never ran, at exit 0. ⚠ A cerr would NOT do:
+#  keyword-initial statements parsed throughout.
+#  CT9 -- a RE-EMIT after a drive must carry no `argument()`. The slot was a TERM as
+#  well as a frame member, so it shows up in an emitted body first.
+if grep -q "CT-CALL-RAN" "$T/ct"; then
+    echo "  ok    chainTruthT CT8 a call statement after a drive RAN"; green=$((green+1))
+else
+    echo "  FAIL  chainTruthT CT8 a call statement after a drive did NOT run -- the file"
+    echo "        parse stopped matching identifier-initial statements. The argument slot is back."
+    red=$((red+1))
+fi
+if [ "$(grep -c 'argument()' "$T/ct")" = 0 ]; then
+    echo "  ok    chainTruthT CT9 re-emit after a drive carries no argument()"; green=$((green+1))
+else
+    echo "  FAIL  chainTruthT CT9 re-emit after a drive EMITS argument() as a term --"
+    echo "        the slot is back on the rule. fixIts F-94."
+    red=$((red+1))
+fi
 
 #  ⚠⚠ searchNewParseT -- TONY'S 2026-09-14 ACCEPTANCE AS A ROW, and the graduation
 #  of F-90. `parser(Search)` then `Search("search list;")` under traceParse must
