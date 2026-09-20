@@ -141,6 +141,56 @@ ATTEMPT LOG
         designDocs bindOrder calls the save/bind order "the interpreted callee's entire
         recursion safety", so frame membership is not incidental decoration.
         ⚠ Re-run wrapperPlan S2.3's sizing before building on it.
+  2. 2026-09-20, THE MEASUREMENT PASS (Clay SEQ 164). Nothing built; every arm
+     reverted whole and the fleet re-verified at 416/60, identical.
+     A1 CENSUS -- of 10 coded RULES tree-wide, **ZERO mention `argument`** in their
+        bodies. Population: 147 files carrying a code={ across incant/, IncantForms/,
+        genLadder/, minionWork/ and the top-level grammar files; 498 coded actions
+        also found. POSITIVE CONTROL FIRES -- the census finds all four of parser's
+        own actions including walkRules. ⚠ Clay's named aon*/td* frozen copies are
+        NOT IN THE TREE; nothing was swept under those names.
+     A2 THREE CELLS, five rows each:
+          cell 1  minted and visible   abandon YES  parserTest exit 0   roots 2/4
+          cell 2  minted and noPrint   abandon NO   parserTest exit 139
+          cell 3  not minted at all    abandon NO   parserTest exit 139
+        Cells 2 and 3 IDENTICAL on all five rows. searchNewParseT (3 dispatch / 1
+        not), F-92's three fill shapes (MARK 3 / ACTFIRE 3) and F-83's acceptance
+        line (5 terms) are UNMOVED IN ALL THREE CELLS.
+        ⚠ Cell 3 could not be run as mint-removal alone: ruleArg is deref'd unguarded
+        on the next two lines (Generate.rtn:213, :216). It was run as MINT REMOVED
+        WITH BOTH USES GUARDED, and that is what the readings are of.
+        CRASH, read one line backward per #36: producer Generate.rtn:127
+        `RuleStuff ruleStuff = rStuff;`, consumer Generate.rtn:130 `sukcess = false;`,
+        in parseContainer -- which carries no rStuff guard, unlike setParseWalk.
+     A3 TERM OR FRAME -- **IT IS BOTH, and the TERM half is now measured.** Re-emitting
+        a rule after one drive gives `return first() && nameSet() && argument();`
+        against `return first() && nameSet();` before it, in ONE process with
+        dumpContents beside it. So Clay's term reading is CONFIRMED, not a candidate.
+        ⚠ An earlier arm of this measurement said the opposite and was WRONG: it called
+        generateParse BEFORE the drive, which raises isCodeD, and actionType:2 is one
+        2-bit field, so that CLEARED isAction and parseRule never reached its mint.
+        ⚠ SECOND ANOMALY, BANKED NOT CHASED: GrouP gains a visible `argument`
+        ATTRIBUTE (length 3 -> 5, control passes) and hasTraitS stays 0 either side,
+        though addString routes through addAttribute which sets hasTraits on a
+        non-noPrint add. Cause NOT established.
+        SITE READ: the mint sits inside `if field.isAction` (Generate.rtn:200), so it
+        fires on every parseRule entry for a COMPILED rule -- not only on a drive.
+        ⚠ countRuleTerms and dumpRuleTerms are NOT REGISTERED in incant/setup; they
+        exist as externs and are unreachable from incant. Substitutes were used.
+     A4 **THE LABEL RIDES THE SLOT AND NOTHING ELSE.** Every write of myLabel in
+        parseRule: minted Generate.rtn:205, bound Generate.rtn:216 as
+        `ruleArg.group = myLabel`. It NEVER reaches rStuff.label -- so Clay's belief
+        is falsified, and removing the mint removes the label's only channel. That is
+        why cells 2 and 3 are not a clean subtraction. (`into = parentLabel` at :204
+        is read once by measureLabelMint and is then dead.)
+     A5 WRITERS RE-MEASURED whole-tree including .twk and the mirror: exactly TWO,
+        GroupActions.rtn:883 and Generate.rtn:213, zero in any .twk, and groups.ext
+        declares the flag at line 128 without writing it. designDocs runAction.mint
+        and wrapperPlan S2.3 CORRECTED this pass.
+  NEXT: unchanged -- the shape is Tony's to rule. What the decision now has that it
+        did not: the census is EMPTY, cell 3 runs clean on every row but parserTest,
+        and the label's only channel is the slot itself. So "subtraction" is not free;
+        whatever replaces the slot has to carry the label.
   POP: none yet. The reproducer is three lines -- parser(NamE); NamE("foo"); zz = 1; --
        and belongs in the fleet once the shape is ruled.
 ```

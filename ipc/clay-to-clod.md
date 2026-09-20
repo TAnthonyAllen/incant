@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      162
-STATUS:   cleared        # SEQ 162 item 0 reported; sealed close of morning 2026-09-18
+SEQ:      164
+STATUS:   cleared        # SEQ 164 -- A1-A5 measured and reverted, B1-B5 landed, report in clod-to-clay SEQ 110
+STATUS-162: cleared      # SEQ 162 item 0 reported; sealed close of morning 2026-09-18
 WRITTEN:  2026-09-18  -  Clay (SEQ 162, dictated via Tony; transcribed by Clod)
           ⚠ SEQ 162 IS LIVE AND IS AT THE FOOT. Item 0 BISECTED and reported; the repair is
           PENDING TONY'S AFTERNOON WORD, with Clay's recommendation on the record.
@@ -8167,3 +8168,157 @@ STATUS:  cleared -- item 0 reported; items 1-3 are the afternoon's
     3. F-89 re-read on the repaired build before anything is assumed about it.
     4. Then the position fix if F-89 survives, and the buy.
     5. Seal at the end of the afternoon.
+
+
+===================================================================
+SEQ 164  -  REPLY TO CLOD SEQ 109: F-94 MEASUREMENT PASS + PARSER DEAD-REGION REVIEW
+===================================================================
+STATUS: cleared -- transcribed AT PICKUP per WT-15; A1-A5 measured and reverted whole,
+        B1-B5 landed, fleet re-verified 416/60 identical. Report: clod-to-clay SEQ 110.
+⚠ SEQ 163 (2026-09-18, the four items -- F-90 closed, debug ALL landed) was
+  DISPATCHED and answered in clod-to-clay SEQ 107 but was NEVER TRANSCRIBED HERE.
+  Recorded so the gap is visible; not reconstructed.
+
+STATUS OF THE QUESTION
+  Ruled today (Tony): argument in ACTIONS is as designed. No change, and do not
+  touch runAction's mint.
+  Still open, pending Tony: can we stop minting argument onto RULES? Tony's
+  recollection is that rules never had one. The record agrees -- the 07-28 term
+  measurement shows a coded rule's tail as CodE / this / tempField / BlocK. The
+  slot arrived with 09-09 ruling (c'), when the emitted body was A(argument) AND
+  ... and the label rode it.
+  This pass is MEASUREMENT ONLY on F-94. Nothing is built; every arm reverted
+  whole. CT-5, the abandon and SemI wait behind it.
+  ⚠ Clay has NOT seen SEQ 109's text, only Clod's summary through Tony. If SEQ 109
+  offers a shape not covered here, SAY SO in the report. Do not fold it in silently.
+
+PART A -- THE argument MEASUREMENTS, IN THIS ORDER
+  A0. Control first (H15). On the bare build at 9b4d81c, bank today's readings of
+      every row A2 uses.
+  A1. Mention census. Count coded RULES (isRule, carrying code={}) whose body text
+      mentions argument. Population is the WHOLE TREE: incant/grammar, the
+      GroupMain-built rules, incant/ (unitTests, utilities, the JSON rules),
+      incant/pop/ including the frozen aon*/td* copies, IncantForms/, genLadder/,
+      minionWork/. POSITIVE CONTROL: the census must find walkRules' mentions in
+      parser -- a census that cannot see a known mention in an action cannot speak
+      about rules. Report each hit by name with its line, and for each say what the
+      body gets today when it reads argument on the OLD road, where nothing binds
+      it. A zero result: name the population that produced it.
+  A2. Three cells, one table.
+        cell 1  minted and visible (today)
+        cell 2  minted and noPrint (already run; carry or re-run if the build moved)
+        cell 3  not minted at all
+      Cell 3 method: read the site FIRST and report what the bind line does when
+      code["argument"] misses and nothing was minted. Remove the mint alone as the
+      first variable. If that cannot run, remove mint and bind together and SAY
+      WHICH YOU RAN.
+      Rows: F-93's NamE("foo") then a CALL statement (the sentinel must be a CALL --
+      cerr cannot see the abandon); record whether reportRunAbandoned's line is
+      present or absent. parserTest exit status and its own sentinel.
+      searchNewParseT's dispatch rows. F-92's three fill shapes. F-83's acceptance
+      line.
+      If cell 3 dies: take one backtrace by whatever route works; if none does, say
+      so and Tony takes it in Xcode. Read it ONE LINE BACKWARD (#36). Name the
+      reader by .rtn/.twk file:line, NEVER by .mm line.
+  A3. Term or frame? (H13: name the question first.) Candidates: (a) FRAME SET --
+      Clod's reading, the slot joins at GroupActions.rtn:1302. (b) TERM -- Clay's
+      reading, a visible attribute on a rule is by this tree's noPrint convention a
+      term, so after a drive NamE has three terms. Both candidates; neither claimed.
+      Discriminators, each run BEFORE and AFTER one drive: dumpRuleTerms(NamE) and
+      countRuleTerms; hasTraitS on an alternation root (GrouP); traceParse on the
+      first failing file statement, reporting whether argument is attempted as a
+      term. Site read: does the mint fire on EVERY parseRule entry, or only when
+      there is something to bind (a drive)? That answer is what "it takes both"
+      rests on.
+  A4. What the slot holds and who reads it. Site read with file:line: what parseRule
+      binds into argument today; where the minted label travels on the new road
+      (Clay believes rStuff.label, UNVERIFIED). Why it matters: if Tony decides yes,
+      the ruling retires the "into rides the argument" half of (c') BY NAME, and
+      that sentence must be measured before it is written.
+  A5. The isArgument writers. Re-measure over the WHOLE TREE, .twk files and the
+      groups.ext mirror INCLUDED. Then correct designDocs runAction.mint and
+      wrapperPlan S2.3 to the measured lines. THIS ONE MAY LAND -- doc repair.
+
+PART B -- REVIEW OF PARSER'S DEAD REGION
+  Checked against the live text above bail() and against the record. Everything
+  behind setParse, parseRule and the accessor trios is taken from Clod's summary,
+  not from source.
+  B1. WRONG -- correct these, measured against the live lines:
+      - "The root arrives as the rule through *argument" appears TWICE (Usage Guide
+        and the live takesTheRuleNotTheName slug). The 09-18 correction STRUCK THE
+        STAR and the live call is walkRules(argument), bare. Under the argument
+        binding, *argument reads one level BELOW the rule.
+        ⚠ The slug sits inside a code={} body -- NO BRACES in the comment (F-86).
+      - "&& when the rule has real terms, || when it does not." GrouP = NamE() ||
+        QuotE() HAS real terms. Accurate: && for a SEQUENCE, whose terms are
+        attributes; || for an ALTERNATION, whose terms are members. hasTraitS counts
+        non-noPrint ATTRIBUTES.
+      - "It walks the rule's attributes in order." iterate grup on argument; carries
+        no filter and must reach MEMBERS, or GrouP's body could not exist. It walks
+        the rule's LIST.
+      - "...means X was refused -- data-bearing, or already carrying a parse." The
+        second cause cannot produce that signature: walkRules skips a carrier-bearing
+        rule BEFORE generateParse runs, so no "Generating" line prints.
+      - "The driver lives in incant/pop/parserT." It lives in parserTest; parserT was
+        removed at 930d53c. The dated block at the foot keeps its wording.
+      - "UNCOMMITTED" vs the summary's "pushed at 9b4d81c". Which is it?
+  B2. OVERSTATED -- narrow these:
+      - "Sharing nothing." They share isCodeD on the rule, today's argument slot, and
+        the label -- and the label is CT-5. Say "no body in common".
+      - The F-90 paragraph. F-90 measured a premature RAISE. "Would hit rules
+        mid-classification" is a causal clause nobody ran. Keep the flag sentence,
+        drop that clause.
+      - "Every sub-rule reachable." Data-bearing rules, bins and tokens get no body.
+        Say "every list-bearing sub-rule".
+      - "The sequential-state tar baby." Pin it with a concrete before/after. Two
+        candidate forms: the root is never checked for an existing carrier, so a
+        second parser(X) adds a SECOND builtinParseR; or, after a drive, a visible
+        argument would be emitted as argument(). WHICH ONE IS MEASURED?
+  B3. MISSING AND LOAD-BEARING -- add a line each:
+      - The cycle guard. if *grup["builtinParseR"]; continue; is the walk's cycle
+        guard on StatemenT<->BlocK. It has no slug. One line saying that tidying it
+        makes the walk spin.
+      - isCodeD. generateParse still raises it unconditionally and the prose never
+        mentions it. One sentence saying why.
+  B4. QUESTIONS -- answer by MEASUREMENT before writing the sentence:
+      - Where does bare CodE bind in generateParse? "The rule itself carries no CodE"
+        sits beside live clear(CodE); CodE = codeBuffer;. Is that a local on the
+        action?
+      - CT-3 says list["CodE"] "is now the carrier's address". Can a subscript or a
+        bare name reach a NESTED CodE? If it can, which carrier wins, and is F-87
+        reachable through it? Certificate: dumpContents(Search) after parser, showing
+        NO top-level CodE.
+      - What happens today to F-93's 17 listless, dataless names? Yesterday they
+        reached iterate and were refused. No leaf guard is visible in the live text.
+        If they are a THIRD cause of "Generating with no = line", item 4 must list
+        them.
+      - Does the dlsym arm's builtinActoR still hold a bare method pointer? If so the
+        diagram shows one of TWO shapes and should say so.
+  B5. Item 4 (SemI) -- correct the SENTENCE only; do not chase it. "A literal rather
+      than a rule-shaped term" does not hold: search is a literal too and it
+      dispatches. The lead is 09-18's banked row -- SemI reads parseString under
+      Search and none under the list root, in one run. Its control is parser(Search)
+      alone in one process. For a later pass.
+
+LANDING
+  MAY LAND: B1-B3 and A5 (prose and comment edits).
+  HOW: full seal checklist, not the fleet alone (H12); name all three repos clean.
+  MAY NOT: everything in A1-A4 -- reverted whole, fleet re-verified identical.
+
+REPORT BACK
+  The A2 table. The A1 hits. The A3 readings. The A4 site reads with file:line.
+  Which B4 answers changed a sentence. The red column moved 51 -> 60: name the NINE
+  rows with a one-line cause each. And: frontier station 4 says "the action did not
+  run" when the fact is "the action ran without its terms" -- correct that message
+  before the next reader chases it.
+
+  TWO NOTES OUTSIDE THE DISPATCH (Clay's words):
+  - What the decision needs: A1, A2 cell 3 and A4 are the three results that bear on
+    it. If the census is empty and cell 3 runs clean, the answer is SUBTRACTION, and
+    the ruling then needs one sentence retiring the "into rides the argument" half
+    of (c').
+  - One addition Clay made: the nine-reds request rides in the report-back list. It
+    names what already moved, so Clay judged it part of this same report and not a
+    second thread. Strike it if this pass should keep to the two things asked.
+
+  END SEQ 164

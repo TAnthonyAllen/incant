@@ -79,7 +79,7 @@ define
         if frWitness == frMark;     frOk = 1;
         if frOk == 1;   cerr "STATION 4 fire: PASS -- the rule's own action ran after generation":;
         if frOk == 0;
-            cerr "STATION 4 fire: FAIL -- the action did not run, so generation consumed it":;
+            cerr "STATION 4 fire: FAIL -- the action RAN WITHOUT ITS TERMS. It is not consumed; the witness is unset because the match never reaches the body. CT-5":;
             frDead = 1;
         };
     frStation5 code={

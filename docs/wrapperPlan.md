@@ -109,7 +109,7 @@ The ruling asked. The census answers, and the answer is not "none":
 |---|---|---|
 | **the four unwrap exemptions** | `GroupActions.rtn:371` · `ruleActions.rtn:1018, 1562, 1633` | **RETIRE with the flip** |
 | **the frame-bracket schema** | `GroupActions.rtn:1061, 1611` (the `(isArgument \|\| isLocal)` walks) · `:1631` (`if !grup.isArgument` — the do-not-blank clause) · `jitEmitters.rtn:218` + `jitContext.h:295` (the jit's inherited copy) | **SURVIVE, and 1631 is already correct for bind-by-body** — it is the clause that stops an argument being blanked, which body-sharing makes mandatory rather than merely right |
-| **writer, guard, accessor** | `ruleActions.rtn:446` (the flag's only setter) · `ruleActions.rtn:897` · `Instruct.rtn:340` case 10 (an `isArgument` property exposed to incant) | **SURVIVE untouched** |
+| **writer, guard, accessor** | ⚠ **CORRECTED 2026-09-20 — `ruleActions.rtn:446` IS NOT A SETTER AND `isArgument` IS NOT WRITTEN IN `ruleActions.rtn` AT ALL.** Measured whole-tree, the writers are **two**: `GroupActions.rtn:883` (runAction's mint) and `Generate.rtn:213` (parseRule's mint onto the RULE, which arrived after this section was written). **§2.3's seven-readers-in-three-classes sizing rests on the stale single-setter line and is owed a re-run before anything is built on it.** · `ruleActions.rtn:897` · `Instruct.rtn:340` case 10 (an `isArgument` property exposed to incant) | **SURVIVE untouched** |
 
 **So `isArgument` does not retire with the exemptions.** It stops being an unwrap
 discriminator and remains a frame-population discriminator, which is a narrowing of
