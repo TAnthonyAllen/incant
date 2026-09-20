@@ -549,6 +549,23 @@ extern "C" GroupItem *measureParentProbe(GroupItem *field)
 	return field;
 }
 
+/*  WHAT parseRule's SUCCESS TEST IS ACTUALLY READING: the rule, the node the body
+    returned, and what truthOf makes of it. This settles row 1 independently of any
+    crash. parseTrace-gated. ⚠ No percent-dash in the format string (bear-trap #40).
+    measure.measureParseResult  */
+extern "C" GroupItem *measureParseResult(GroupItem *field, GroupItem *result)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace )
+	::fprintf(stderr,"  PARSERESULT rule=%s result=%p tag=%s truthOf=%d\n",
+	(field ? field->groupBody->tag : "(none)"),
+	(void*)result,
+	(result ? result->groupBody->tag : "(null)"),
+	(result ? ::truthOf(result) : -1));
+	
+	return result;
+}
+
 /*  measure.measurePlusEQWrite  */
 extern "C" GroupItem *measurePlusEQWrite(GroupItem *field)
 {

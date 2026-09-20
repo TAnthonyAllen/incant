@@ -10111,6 +10111,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		else	::reportNoBody(field);
 checkSuccess:
 		// this is just a marker for directives
+		// resultSeat what :229 is actually reading -- rule, returned node, and truthOf of it.
+		// resultSeat It settled row 1 on 2026-09-20 and stays, per the measure-callout ruling.
+		::measureParseResult(field,result);
 		if ( result )
 			ruleStuff->sukcess = 1;
 		}
