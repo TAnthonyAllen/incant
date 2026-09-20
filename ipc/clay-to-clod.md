@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      164
-STATUS:   cleared        # SEQ 164 -- A1-A5 measured and reverted, B1-B5 landed, report in clod-to-clay SEQ 110
+SEQ:      165
+STATUS:   cleared        # SEQ 165 -- truthOf run and REVERTED; report in clod-to-clay SEQ 111
+STATUS-164: cleared      # SEQ 164 -- A1-A5 measured and reverted, B1-B5 landed, report in clod-to-clay SEQ 110
 STATUS-162: cleared      # SEQ 162 item 0 reported; sealed close of morning 2026-09-18
 WRITTEN:  2026-09-18  -  Clay (SEQ 162, dictated via Tony; transcribed by Clod)
           ⚠ SEQ 162 IS LIVE AND IS AT THE FOOT. Item 0 BISECTED and reported; the repair is
@@ -8322,3 +8323,60 @@ REPORT BACK
     second thread. Strike it if this pass should keep to the two things asked.
 
   END SEQ 164
+
+
+===================================================================
+SEQ 165  -  RESTORE RULING (c'): parseRule READS truthOf, NOT PRESENCE
+===================================================================
+STATUS: cleared -- witness built bare and born red, fallout pre-registered, treatment run
+        and REVERTED WHOLE. Report: clod-to-clay SEQ 111.
+
+THIS IS NOT A NEW DESIGN QUESTION. IT RESTORES A RULING THAT ALREADY EXISTS.
+  On 09-09 Clay ruled (c'): parseRule reads truthOf(result) and nothing else. Its
+  `if result` PRESENCE test was DELETED by that ruling, and the 09-09 seal records
+  the deletion as "F-55's fifth face, retired by ruling". H20 certified the
+  mechanism: the chain hands back falseResult on a miss, and truthOf reads it as 0.
+  Generate.rtn:229 tests PRESENCE again. Clay's guess: the old test came back during
+  the September rework of parseRule. NO BLAME ATTACHED.
+
+THE FIX IS `sukcess = truthOf(result)`. TWO ALTERNATIVES LOOK EQUIVALENT AND ARE NOT:
+  - an AD-HOC VALUE TEST. truthOf is the single truth contract; the fix must not add
+    a second one beside it.
+  - an IDENTITY TEST against falseResult. Bear-trap #51 applies: a kant body that
+    spells `false` gets a COPY, so identity works on one road and silently fails on
+    the other.
+
+THIS EXPLAINS CLOD'S BARE-BUILD RESULT. Search behaves the same with and without the
+`;` because it succeeds whenever its FIRST term matches. "SemI did NOT dispatch"
+means SemI was NEVER REACHED -- the good-string trace asked it only because the three
+terms before it happened to match.
+
+THE STEP, IN THIS ORDER:
+  1. WITNESS FIRST, ON A BARE BUILD. Clod's six rows become a FLEET FIXTURE with
+     expected answers pinned, BORN RED. The directives build found the defect, but the
+     fixture's numbers have to come from the real binary.
+     ⚠ ONE EXTRA ROW: a generated rule whose term matches the text 0 -- e.g. a NumbeR
+     term. Terms return their LABEL on success, and truthOf reads a numeric node BY
+     ITS VALUE, so a label holding 0 could read as false and a CORRECT match would
+     fail its chain. Candidate only; one row decides it. If it bites, a term inside a
+     chain should return trueResult and leave the label to the label channel.
+     Clay would rather learn that now than after the fleet has been re-pinned.
+  2. ONE CHANGE. Put truthOf at Generate.rtn:229 and TOUCH NOTHING ELSE.
+  3. READ THE RESULTS. The six rows should come out correct. Re-read searchNewParseT's
+     SemI row. Re-read trigDO's broken-input rows.
+  4. PRE-REGISTER THE FALLOUT BEFORE RUNNING. Every generated rule that has been
+     succeeding by presence will now FAIL HONESTLY. Reds will probably move, and each
+     moved row gets a NAME and a ONE-LINE CAUSE. Some of the new reds will be the fix
+     doing its job.
+
+THE SECOND THING IN CLOD'S TRACE -- NEXT STEP, NOT ALONGSIDE. followedBy succeeded on
+  EXHAUSTED input and the mark landed in text OUTSIDE the drive string. That matches
+  the item open since 07-27: THE DIVERSION BOUNDARY IS NOT RESPECTED DURING A MATCH.
+  This trace is a clean, small reproducer. It is also a candidate NEIGHBOUR of the
+  abandon, because the abandon also needs a drive. After the truthOf step reports,
+  make it the next step, and do it BEFORE the old-road trace. Do not chase it
+  alongside the truthOf fix.
+
+THE LABEL RECOMMENDATION STILL HOLDS.
+
+  END SEQ 165

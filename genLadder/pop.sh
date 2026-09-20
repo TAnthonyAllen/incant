@@ -1712,6 +1712,49 @@ for _iv in "IV-0 before      top= 0 mid= 0 leaf= 0 outside= 0" \
     fi
 done
 
+#  ---- chainTruthT: a generated rule must FAIL when a required term fails -----
+#
+#  ⚠ BORN RED 2026-09-20, ON PURPOSE. Rows 2, 3 and 4 are the defect: a generated
+#  rule succeeds whenever its FIRST term matches, so every later required term can
+#  fail without failing the rule. `Search  search- followedBy GrouP+ SemI-` reports
+#  success on the input "search" alone.
+#
+#  THE RULING IT WAITS ON is (c'), 09-09 -- parseRule reads truthOf(result) and
+#  nothing else. Generate.rtn:229 tests PRESENCE again, and a kant body spelling
+#  `false` hands back falseResult, which is a real node.
+#
+#  ⚠ ROW 1 IS THE ANTI-VACUITY SIBLING AND IS NOT DECORATION. A treatment that made
+#  every rule fail would satisfy rows 2-6 and is caught only here. The 2026-09-20
+#  truthOf trial did exactly that -- rows 2-4 went green and ROW 1 WENT RED, because
+#  an && chain's success value is not truthOf-true. Reverted; see fixIts F-95.
+#
+#  ⚠ ROW 7 IS A HAZARD PROBE, NOT A REGRESSION ROW. Terms return their LABEL and
+#  truthOf reads a numeric node by VALUE, so a label holding 0 could read false. It
+#  stayed green under the trial, so the zero-label hazard did not bite -- the chain
+#  did.
+_ctrow () {                     # _ctrow <n> <probe> -> 1 if the probe is in row n's window
+    awk -v a="CT-ROW$1" -v b="CT-ROW$(( $1 + 1 ))" -v e="CT-ROWEND" -v p="$2" \
+        '$0 ~ "^"a"[ ]*$"{f=1;next} f&&($0 ~ "^"b"[ ]*$" || $0 ~ "^"e"[ ]*$"){exit}
+         f&&index($0,p){print "1";exit}' "$T/ct"
+}
+run1 chainTruthT "$T/ct"; check "chainTruthT runs" 0 $?
+sentinel "chainTruthT sentinel" "$T/ct" "CHAINTRUTH SENTINEL"
+for _r in "1:search list;:1:Search" "2:search list:0:Search" "3:search ;:0:Search" \
+          "4:search:0:Search" "5:nonsense:0:Search" "6:xearch list;:0:Search" \
+          "7:wzNum 0:1:WZNUM"; do
+    _n=${_r%%:*}; _rest=${_r#*:}; _d=${_rest%%:*}; _rest=${_rest#*:}
+    _w=${_rest%%:*}; _k=${_rest#*:}
+    if [ "$_k" = WZNUM ]; then _p="WZNUM-FIRED"; else _p="fireLabel IN  $_k"; fi
+    _g=$(_ctrow "$_n" "$_p"); [ -z "$_g" ] && _g=0
+    if [ "$_g" = "$_w" ]; then
+        echo "  ok    chainTruthT CT$_n \"$_d\" -> match=$_w"; green=$((green+1))
+    else
+        echo "  FAIL  chainTruthT CT$_n \"$_d\" -> match=$_g, want $_w"
+        echo "        A required term failed and the rule reported success. fixIts F-95."
+        red=$((red+1))
+    fi
+done
+
 #  ⚠⚠ searchNewParseT -- TONY'S 2026-09-14 ACCEPTANCE AS A ROW, and the graduation
 #  of F-90. `parser(Search)` then `Search("search list;")` under traceParse must
 #  show the GENERATED body dispatching its terms. It passed at 5f24cf3 and read

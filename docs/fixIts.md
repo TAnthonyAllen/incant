@@ -92,6 +92,57 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-95 — a generated rule succeeds whenever its FIRST term matches, and `truthOf` alone does not fix it
+**Measured 2026-09-20 on a bare build, witness `incant/pop/chainTruthT`, born red.** `Search
+search- followedBy GrouP+ SemI-` reports success for the input `"search"` — three required terms
+unmatched — with the mark landing past the drive string entirely. Six rows, one variable each:
+
+| drive | outcome |
+|---|---|
+| `"search list;"` | match — correct |
+| `"search list"` | **match** — `SemI` required and absent |
+| `"search ;"` | **match** — `GrouP+` required and absent |
+| `"search"` | **match** — three required terms absent |
+| `"nonsense"` · `"xearch list;"` | no match — the first term fails |
+
+**The rule succeeds iff its first term matches.** `GrouP` and `SemI` are not merely failing — a
+trace shows they are **never attempted**, which is also what `searchNewParseT`'s standing
+*"SemI did NOT dispatch"* row has been reporting.
+
+⚠ **THERE IS NO INTERPRETED CONTROL BY THIS ROUTE.** A bare `Search(...)` without `parser()` gives
+`RunRulE: expected a method not list` — the name does not dispatch as a rule until a parse is
+installed. Recorded rather than invented.
+
+```
+ATTEMPT LOG
+  1. 2026-09-20, Clay SEQ 165: restore ruling (c') -- `sukcess = truthOf(result);` at
+     Generate.rtn:229, nothing else touched. The presence test `if result sukcess =
+     true;` was DELETED by that 09-09 ruling and came back in the September rework.
+     Pre-registered before running, in chainTruthT's dead region.
+        -> ROWS 2, 3, 4 WENT GREEN. The fix does its job.
+        -> ⚠ ROW 1 WENT RED. "search list;" -- a CORRECT full match -- now FAILS.
+        -> Row 7, the zero-label hazard probe, STAYED GREEN. That hazard did not bite.
+        -> Fleet UNMOVED at 416/60, which says the fleet does not cover this at all.
+        -> REVERTED WHOLE. Generate.rtn and GroupRules.mm clean against HEAD after.
+  CAUSE, isolated by one control on CORRECT input both sides:
+        one term   `return NumbeR();`             on "7"   -> FIRES
+        two terms  `return NumbeR() && SemI();`   on "7;"  -> DOES NOT FIRE
+     THE && CHAIN'S SUCCESS VALUE IS NOT truthOf-TRUE. A single term's label reads
+     true; the chain's return does not. So truthOf is right at the READER and the
+     chain is wrong at the SOURCE.
+  NEXT: Clay's own label recommendation is the companion change and it is now load-
+        bearing rather than contingent -- a term inside a chain should return
+        trueResult and leave the label to the label channel. truthOf cannot land
+        without it. ⚠ The trigger was the CHAIN, not the numeric-zero label, so the
+        recommendation is right for a different reason than the one that predicted it.
+  POP: incant/pop/chainTruthT, WIRED and born red -- CT2, CT3, CT4. CT1 is the
+       anti-vacuity sibling and is what caught the trial; CT7 is the hazard probe.
+```
+
+**Done when:** a generated rule fails when any required term fails, and CT1 stays green while
+CT2-4 go green. **Grade:** CONFIRMED — six rows, an arity control on correct input, treatment run
+and reverted. **Owner:** Clay for the chain's return contract.
+
 ### F-94 — `parseRule` mints a DEAD `argument` slot onto every rule parser touches, and it lands in the frame
 **Measured 2026-09-20. WITH CLAY — `ipc/clod-to-clay.md` SEQ 109. Tony's words: *"I am not
 comfortable with how we are injecting argument into rules... changing what we do w/argument will
