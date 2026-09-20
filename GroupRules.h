@@ -376,7 +376,7 @@ extern "C" void printField(GroupItem *field, char *format, Buffer *buffer);
 extern "C" int printPlan(GroupItem *plan, char *pad);
 extern "C" GroupItem *printToBuffer(GroupItem *bufferField);
 extern "C" GroupItem *processAction(GroupItem *field);
-extern "C" int processCode(GroupItem *field);
+extern "C" int processCode(GroupItem *field, GroupItem *holder);
 extern "C" GroupItem *processFlags(GroupItem *item);
 extern "C" GroupItem *quoted(GroupItem *input);
 extern "C" GroupItem *rEGISTER(GroupItem *item);

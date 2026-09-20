@@ -561,19 +561,19 @@ GroupItem   label = field,
             action = field;
     if isLabel      action = rule;
     currentMETHOD   = action;
-    if isCoded && !processCode(action)  return null;
+    if !action.actionBlocK() && !processCode(action,action.actionHolder())  return null;
     /*************************************************************************
          if action is a rule, update local fields from label contents.
     *************************************************************************/
     if isRule {
-        code = action[CodE];
+        code = action.actionBody();
         while result = code.nextAttribute(result) {
             if result.noPrint continue;
             if grup = label[result.tag] {
                 result.group    = grup;
                 result.isLabel  = true; }
             else    result.clear(); }}
-    if result = action["BlocK"] {
+    if result = action.actionBlocK() {
         /*********************************************************************
             The following clears local fields before action runs (note isLabel
             fields are not cleared; they were set above).
@@ -600,7 +600,7 @@ use grup
 }
 
 
-extern int processCode(GroupItem field)
+extern int processCode(GroupItem field,GroupItem holder)
 {
 GroupRules  ruler = groupRules;
 GroupItem   blockRULE = grokking/BlocK,
@@ -651,7 +651,7 @@ use field
     GroupItem   *staleIR = field->get("JiT");
     if (staleIR)    staleIR->setText(::strdup(""));
     %-
-    code      = field[CodE];
+    code      = holder.getAttribute("CodE");
     if isRule action = code;
     currentMETHOD   = action;
     divertToRule    = true;
@@ -660,7 +660,7 @@ use field
     processingCode  = true;
     if result = blockRULE.parse(0) {
         result.noPrint  = true;
-        field   +% result;
+        holder.addAttribute(result);
         field.isAction = true; }
     else    reportCodeFail(field);
     if !processing  processingCode = false;
@@ -872,7 +872,7 @@ GroupItem   result = null,
             ruleArg;
 use field
     if isCoded
-        if !processCode(field)  goto exitRunAction;
+        if !processCode(field,field)  goto exitRunAction;
     // runAction.lastREF a no-argument call leaves the action in lastREF
     lastREF.group = argument ? argument : field;
     // runAction.mint argument is a runtime-minted binding slot, never a declared

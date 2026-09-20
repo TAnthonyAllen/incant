@@ -191,6 +191,41 @@ GroupItem::GroupItem(char *c)
 }
 
 /***************************************************************************
+                                actionBlocK
+    // actionBlocK the compiled body, wherever it lives -- see actionHolder
+***************************************************************************/
+GroupItem *GroupItem::actionBlocK()
+{
+GroupItem 	*holder = actionHolder();
+	return holder->getAttribute("BlocK");
+}
+
+/***************************************************************************
+                                actionBody
+    // actionBody the action's SOURCE, wherever it lives -- see actionHolder. Every reader of a
+    // actionBody rule's CodE comes through here, so the two homes are resolved in ONE place
+***************************************************************************/
+GroupItem *GroupItem::actionBody()
+{
+GroupItem 	*holder = actionHolder();
+	return holder->getAttribute("CodE");
+}
+
+/***************************************************************************
+                                actionHolder
+    // actionHolder the node that HOLDS this one's action body: the builtinActoR carrier once it
+    // actionHolder has taken CodE, and otherwise this. THE CodE's PRESENCE IS THE TEST, never the
+    // actionHolder carrier's -- an uncoded rule carries a builtinActoR holding only a method
+***************************************************************************/
+GroupItem *GroupItem::actionHolder()
+{
+GroupItem 	*carrier = getAttribute("builtinActoR");
+	if ( carrier && carrier->getAttribute("CodE") )
+		return carrier;
+	return this;
+}
+
+/***************************************************************************
                                 addAttribute
 	Add an attribute.
 ***************************************************************************/
@@ -326,6 +361,16 @@ void GroupItem::append(GroupItem *grup)
 	if ( parent )
 		parent->groupBody->groupList->lastInList = grup;
 	nextInParent = grup;
+}
+
+/***************************************************************************
+                                attachBlocK
+    // attachBlocK the compiled body is attached BESIDE the CodE it came from, never on the rule
+***************************************************************************/
+GroupItem *GroupItem::attachBlocK(GroupItem *blocK)
+{
+GroupItem 	*holder = actionHolder();
+	return holder->addAttribute(blocK);
 }
 
 /***************************************************************************
@@ -1632,6 +1677,40 @@ generatedExit:
 }
 
 /***************************************************************************
+                                parseBlocK
+    // parseBlocK the compiled GENERATED PARSE, wherever it lives -- see parseHolder
+***************************************************************************/
+GroupItem *GroupItem::parseBlocK()
+{
+GroupItem 	*holder = parseHolder();
+	return holder->getAttribute("BlocK");
+}
+
+/***************************************************************************
+                                parseBody
+    // parseBody the generated parse's SOURCE, wherever it lives -- see parseHolder
+***************************************************************************/
+GroupItem *GroupItem::parseBody()
+{
+GroupItem 	*holder = parseHolder();
+	return holder->getAttribute("CodE");
+}
+
+/***************************************************************************
+                                parseHolder
+    // parseHolder actionHolder's twin for the PARSE side. TWO CARRIERS, TWO ACCESSORS, never one
+    // parseHolder resolver with a priority -- a rule can carry an action AND a generated parse, and
+    // parseHolder a single answer to "where is the body" would have to mean two things at once
+***************************************************************************/
+GroupItem *GroupItem::parseHolder()
+{
+GroupItem 	*carrier = getAttribute("builtinParseR");
+	if ( carrier && carrier->getAttribute("CodE") )
+		return carrier;
+	return this;
+}
+
+/***************************************************************************
                                 pop
     Pop treats the list as a stack and pops off the last item.
 ***************************************************************************/
@@ -1874,7 +1953,26 @@ RuleStuff 	*ruleStuff = getRStuff();
 	if ( getAttribute("builtinActoR") )
 		return;
 	if ( isCoded(groupBody->flags.actionType) )
+		{
 		setMethod(::processAction);
+		// eagerStamp the slot is filled HERE, not at first fire -- a non-null actionMethod is the has-an-action test
+		ruleStuff->actionMethod = ::processAction;
+		// markThenAdd noPrint before the attach, as the two arms below -- addAttribute reads it to decide hasTraits (fixIts F-58)
+		GroupItem *builtinActoR = new GroupItem("builtinActoR");
+		builtinActoR->groupBody->flags.noPrint = 1;
+		builtinActoR->setRStuff(ruleStuff);
+		builtinActoR->setMethod(::processAction);
+		addAttribute(builtinActoR);
+		// bodyMoves CodE IS THE ACTION'S SLOT, so it leaves the rule -- a rule that keeps it
+		// bodyMoves carries two bodies under one name, which is what the parse generator collides with
+		GroupItem *actionCodE = getAttribute("CodE");
+		if ( actionCodE )
+			{
+			actionCodE->parent = this;
+			actionCodE->remove();
+			builtinActoR->addAttribute(actionCodE);
+			}
+		}
 	else
 	if ( !isMethod(groupBody->flags.instructType) )
 		{

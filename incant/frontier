@@ -58,14 +58,14 @@ define
     frStation3 code={
         fixFrontier3Here = 0;
         frRan = frRan + 1;
-        cerr :"ANCHOR frontier station 3 -- the rule KEPT its own action body":;
-        frLen = frRule["CodE"].listLengtH;
-        cerr "STATION 3 the rule CodE carries " frLen " members":;
+        cerr :"ANCHOR frontier station 3 -- the rule KEPT its own action body, now in builtinActoR":;
+        frLen = frRule["builtinActoR"].listLengtH;
+        cerr "STATION 3 the builtinActoR carrier carries " frLen " members":;
         frOk = 0;
         if frLen > 0;       frOk = 1;
-        if frOk == 1;   cerr "STATION 3 preserve: PASS -- CodE still carries the action body":;
+        if frOk == 1;   cerr "STATION 3 preserve: PASS -- the action body survived generation, in its carrier":;
         if frOk == 0;
-            cerr "STATION 3 preserve: FAIL -- CodE is empty, so the parse overwrote the action":;
+            cerr "STATION 3 preserve: FAIL -- the carrier is empty, so the action body was lost":;
             frDead = 1;
         };
     frStation4 code={

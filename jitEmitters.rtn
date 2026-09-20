@@ -221,7 +221,7 @@ extern int jitBuildFunction(GroupItem action)
     //  branches here, so the frame writeback and the ret exist exactly once.
     gJitEpilogueBB = llvm::BasicBlock::Create(C, "epilogue");
     if (isCoded(action->groupBody->flags.actionType))
-        ::processCode(action);
+        ::processCode(action,action->actionHolder());
 
     // ⚠ THE PROLOGUE RUNS *AFTER* processCode AND THAT PLACEMENT IS LOAD-BEARING.
     // It was written above the parse first, and the frame came out EMPTY: a local

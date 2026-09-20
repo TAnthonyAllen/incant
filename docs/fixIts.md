@@ -92,6 +92,63 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-94 — `parseRule` mints a DEAD `argument` slot onto every rule parser touches, and it lands in the frame
+**Measured 2026-09-20. WITH CLAY — `ipc/clod-to-clay.md` SEQ 109. Tony's words: *"I am not
+comfortable with how we are injecting argument into rules... changing what we do w/argument will
+have a blast radius."* A shape ruling is owed before anything moves.**
+
+**THE CHAIN, every link checked.** A generated parse body **never mentions `argument`** — zero
+occurrences across a full `parser(Search)` capture; `NamE`'s body is `return first() &&
+nameSet();`. So `parseRule`'s `ruleArg = code["argument"]` always misses for a generated parse and
+falls through `field["argument"]` to **`field += "argument"`, minting the slot on the RULE**
+(`Generate.rtn:210-213`). designDocs `bindTheBodysOwnSlot`, measured 2026-09-09, already says that
+bind *"wrote a slot nothing reads"* — so it is **dead on arrival for exactly the population
+`parser` creates**. It is stamped `isArgument` and is **not** `noPrint`, so it joins the frame set
+at `GroupActions.rtn:1302`, `(isArgument || isLocal) && !grup.noPrint`.
+
+**THE SYMPTOM IT IS BELIEVED TO CARRY — not established.** `parser(X); X("...");` leaves the FILE
+parse unable to match its next statement; `reportRunAbandoned` names it, exit stays 0. It takes
+BOTH, one variable each: drive-without-`parser()` is fine, `parser()`-without-drive is fine, the
+pair breaks. Not repeat-use — two drives back to back both complete. Keyword-initial statements
+(`cerr`, `print`) still parse; identifier-initial ones (`zz = 1;`, `dumpContents(X);`, `stop();`)
+do not, which is `NamE`'s job.
+
+⚠ **TWO REGISTERS ARE WRONG ABOUT THE WRITERS AND WILL MISLEAD THE NEXT READER.** designDocs
+`runAction.mint` says *"runAction IS THE SINGLE WRITER OF isArgument"*; `docs/wrapperPlan.md` §2.3
+cites `ruleActions.rtn:446` as *"the flag's only setter"*. **Both false today** —
+`grep -rn "isArgument = true" --include=*.rtn .` returns **two**, `GroupActions.rtn:883` (runAction)
+and `Generate.rtn:213` (parseRule), and none in `ruleActions.rtn`. wrapperPlan §2.3's
+seven-readers-in-three-classes sizing rests on that stale line, so **the blast radius has been sized
+once, on a citation that has since expired, and the sizing is owed a re-run rather than a read.**
+
+```
+ATTEMPT LOG
+  1. 2026-09-20, mark the minted argument noPrint in parseRule -- justified by
+     convention, not theory: every other artifact on a rule is noPrint, and noPrint is
+     this tree's standing "artifact, not a term" mark. Built, canary 335.
+        -> THE ABANDON DISAPPEARED. Reproducer 0, tester 0.
+        -> parserTest SEGFAULTED, exit 139. Fleet 416 -> 415.
+        -> REVERTED WHOLE, same stroke. A crash is worse than a silent truncation.
+        -> ⚠ READ IT AS A DIAGNOSIS, NOT A FAILED FIX: noPrint removes the slot from
+           the frame set, and moving it out fixes one thing and crashes another. That
+           is two-sided proof the slot is load-bearing in the frame. NO mechanism is
+           claimed for the abandon itself.
+  NEXT: RULED-pending. The question is whether parseRule should mint an `argument` slot
+        onto the rule at all. Against: designDocs runAction.mint says `argument` is "a
+        runtime-minted binding slot, never a declared attribute"; aCTionDefinE REFUSES a
+        declared one (ruleActions.rtn:295); bindTheBodysOwnSlot says the field[] bind
+        writes a slot nothing reads. For: parseRule needs somewhere to put myLabel, and
+        designDocs bindOrder calls the save/bind order "the interpreted callee's entire
+        recursion safety", so frame membership is not incidental decoration.
+        ⚠ Re-run wrapperPlan S2.3's sizing before building on it.
+  POP: none yet. The reproducer is three lines -- parser(NamE); NamE("foo"); zz = 1; --
+       and belongs in the fleet once the shape is ruled.
+```
+
+**Done when:** a rule that has been through `parser()` carries no slot nothing reads, and
+`parser(X); X("...");` leaves the file parse intact. **Grade:** CONFIRMED — chain read, treatment
+run both ways, reverted. **Owner:** Clay for the shape, then unassigned.
+
 ### F-93 — `walkRules` has not descended since `1bce778`: line 88 is not a flag read
 
 **What.** `IncantForms/WorkingOn/parser:88` reads `if builtinParseR;   continue;`. **`builtinParseR`
@@ -383,6 +440,27 @@ ATTEMPT LOG
         CodE was occupied -- and incant/frontier's stations 2 and 3 already name that split.
         ⚠ n=1 per side; a census is owed FIRST (the attempt at one came back a bear-trap #26
         tag echo and proved nothing).
+  3. 2026-09-20, THE CARRIER SHAPE instead of a gate -- Tony's ruling. builtinActoR
+     becomes a COMPLETE action definition: setActions arm 1 mints it, stamps
+     rStuff.actionMethod = processAction, and MOVES CodE under it. A rule with an
+     action carries no CodE, so A''s missing discriminator is not needed -- the
+     two bodies stop sharing a name and the collision is unconstructable.
+        -> OLD ROAD GREEN ON ALL THREE FILL SHAPES, not just shape A:
+           fsOldRule / fsFieldOld / fsArrayOld all MARK 0->1, ACTFIRE 0->1,
+           exit 0, sentinel present, 4/4 sections. Read on a fixture patched to
+           drive the old road only, because the full file truncates after A NEW.
+        -> BONUS, and bigger than the fire: F-83's acceptance line PASSES. `list`
+           driven directly prints all five matched terms through
+           `for sumGrup in entries;`. The terms reach the body.
+        -> attempt 2's Edit-2 problem returned as the DOUBLE FIRE (fsNewRule MARK 2)
+           and was killed by the resolver split, not by a gate: two accessor trios
+           (actionHolder/Body/BlocK, parseHolder/Body/BlocK), processCode taking the
+           holder as a SECOND ARGUMENT, and processAction gating on
+           `!action.actionBlocK()` instead of `if isCoded` -- the flag is spent by
+           whichever body compiles first, the BlocK is per-carrier and cannot be.
+        -> NOT CLOSED: fireSeatT is still unwired, and its shape-A value probe still
+           lands in opDot's unsupported-accessor arm. The old road is what this
+           attempt bought.
   POP: incant/pop/fireSeatT, unwired, red. Its shape-A value probe needs re-spelling before
        its green is trusted: when the action DID fire, `entries.listLengtH` fell through to
        opDot's `default:` unsupported-accessor arm (Instruct.rtn, below case 406).

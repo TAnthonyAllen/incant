@@ -170,7 +170,7 @@ RuleStuff   ruleStuff = rStuff;
 extern GroupItem parseRule(GroupItem field)
 {
 GroupRules  ruler = groupRules;
-GroupItem   code = field[CodE],
+GroupItem   code = field.parseBody(),
             result,
             grup,
             myLabel,
@@ -219,7 +219,7 @@ use grup
             /*****************************************************************
                 here the parse action in method gets run
             *****************************************************************/
-            if result = field["BlocK"] {
+            if result = field.parseBlocK() {
                 result = result.gMethod(result);
                 if result   result.isBranch = 0; }
             currentMETHOD = priorMETHOD;

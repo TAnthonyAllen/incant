@@ -1902,7 +1902,7 @@ GroupItem 	*grup = 0;
 	if ( !isCoded(field->groupBody->flags.actionType) )
 		return 0;
 	// any rule without parseRule as its method will exit here
-	code = field->get("CodE");
+	code = field->parseBody();
 	// secondRefuseInCompile
 	if ( !code )
 		return ::refuse(field,"compile: isCoded is set but there is no CodE attribute; the flag and the artifact disagree");
@@ -1929,7 +1929,7 @@ GroupItem 	*grup = 0;
 	// refusedRuleDoesNotEndRun has to continue to processCode below
 	GroupControl::groupController->groupRules->compiling = 1;
 	// so ANYtoken allows key fields
-	if ( !::processCode(field) )
+	if ( !::processCode(field,field->parseHolder()) )
 		{
 		// BOTH arms clear it -- this arm RETURNS, so the tail below never runs and compiling would stay set for the rest of the process
 		GroupControl::groupController->groupRules->compiling = 0;
@@ -2854,7 +2854,7 @@ GroupItem 	*artifact = 0;
 	shape, so the KIND is answered by looking, not by the flag.  */
 	if ( !artifact )
 		{
-		if ( rule->getAttribute("CodE") )
+		if ( rule->parseBody() )
 			{
 			if ( GroupControl::groupController->groupRules->parseTrace )
 				::fprintf(stderr,"  fireNewParse CODE ARM on %s\n",rule->groupBody->tag);
@@ -3159,11 +3159,11 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		ruler->generator = GroupControl::groupController->locate("generator");
 GroupItem 	*generate = ruler->generator->get("generatE");
 	if ( isCoded(generate->groupBody->flags.actionType) )
-		if ( !::processCode(generate) )
+		if ( !::processCode(generate,generate) )
 			return 0;
 	ruler->generating = 1;
 	if ( isCoded(field->groupBody->flags.actionType) )
-		if ( !::processCode(field) )
+		if ( !::processCode(field,field) )
 			return 0;
 	ruler->generating = 0;
 GroupItem 	*BlocK = field->getLabelGroup("BlocK");
@@ -4059,7 +4059,7 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	//  branches here, so the frame writeback and the ret exist exactly once.
 	gJitEpilogueBB = llvm::BasicBlock::Create(C, "epilogue");
 	if (isCoded(action->groupBody->flags.actionType))
-	::processCode(action);
+	::processCode(action,action->actionHolder());
 	
 	// ⚠ THE PROLOGUE RUNS *AFTER* processCode AND THAT PLACEMENT IS LOAD-BEARING.
 	// It was written above the parse first, and the frame came out EMPTY: a local
@@ -10011,7 +10011,7 @@ int 		n = 0;
 extern "C" GroupItem *parseRule(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*code = field->get("CodE");
+GroupItem 	*code = field->parseBody();
 GroupItem 	*result = 0;
 GroupItem 	*grup = 0;
 GroupItem 	*myLabel = 0;
@@ -10065,7 +10065,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			/*****************************************************************
 			here the parse action in method gets run
 			*****************************************************************/
-			if ( result = field->get("BlocK") )
+			if ( result = field->parseBlocK() )
 				{
 				result = result->groupBody->gMethod(result);
 				if ( result )
@@ -10950,14 +10950,14 @@ GroupItem 	*action = field;
 	if ( action->groupBody->flags.isLabel )
 		action = ruleStuff->rule;
 	ruler->currentMETHOD = action;
-	if ( isCoded(action->groupBody->flags.actionType) && !::processCode(action) )
+	if ( !action->actionBlocK() && !::processCode(action,action->actionHolder()) )
 		return 0;
 	/*************************************************************************
 	if action is a rule, update local fields from label contents.
 	*************************************************************************/
 	if ( action->groupBody->flags.isRule )
 		{
-		code = action->get("CodE");
+		code = action->actionBody();
 		while ( result = code->nextAttribute(result) )
 			{
 			if ( result->groupBody->flags.noPrint )
@@ -10970,7 +10970,7 @@ GroupItem 	*action = field;
 			else	result->clear();
 			}
 		}
-	if ( result = action->get("BlocK") )
+	if ( result = action->actionBlocK() )
 		{
 		/*********************************************************************
 		The following clears local fields before action runs (note isLabel
@@ -10989,7 +10989,7 @@ GroupItem 	*action = field;
 	return result;
 }
 
-extern "C" int processCode(GroupItem *field)
+extern "C" int processCode(GroupItem *field, GroupItem *holder)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*blockRULE = ruler->grokking->getMember("BlocK");
@@ -11042,7 +11042,7 @@ int 		processing = ruler->processingCode;
 	GroupItem   *staleIR = field->get("JiT");
 	if (staleIR)    staleIR->setText(::strdup(""));
 	
-	code = field->get("CodE");
+	code = holder->getAttribute("CodE");
 	if ( field->groupBody->flags.isRule )
 		action = code;
 	ruler->currentMETHOD = action;
@@ -11053,7 +11053,7 @@ int 		processing = ruler->processingCode;
 	if ( result = blockRULE->parse(0) )
 		{
 		result->groupBody->flags.noPrint = 1;
-		field->addAttribute(result);
+		holder->addAttribute(result);
 		field->groupBody->flags.actionType = 1;
 		}
 	else	reportCodeFail(field);
@@ -11672,7 +11672,7 @@ GroupItem 	*result = 0;
 GroupItem 	*capture = 0;
 GroupItem 	*ruleArg = 0;
 	if ( isCoded(field->groupBody->flags.actionType) )
-		if ( !::processCode(field) )
+		if ( !::processCode(field,field) )
 			goto exitRunAction;
 	// runAction.lastREF a no-argument call leaves the action in lastREF
 	ruler->lastREF->setGroup(argument ? argument : field);

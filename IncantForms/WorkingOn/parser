@@ -9,10 +9,6 @@ define
     fireLog;
     generateParse code={
         cout "Generating parse code for" taG:;
-        // ownActionAtEntry  READ AT ENTRY. This action SETS isCodeD further down, so a later
-        //                   read says yes for every rule and would park every parse
-        ownActionAtEntry = 0;
-        if isCodeD;     ownActionAtEntry = 1;
         reset(codeBuffer);
         printTO(codeBuffer);
         print openBrace:;
@@ -24,8 +20,7 @@ define
         if hasTraitS;       conjunct = "&&";
         else                conjunct = "||";
         print `"return";
-        // the from-nothing counter is seeded explicitly: ++ refuses an ABSENT field, and
-        // zero is a value while never-assigned is not. It stays UNDECLARED (bear-trap #39).
+        // notFirstTimeThru set to 0 here because ++ refuses an ABSENT field.
         notFirstTimeThru = 0;
         iterate grup on argument;
         while ++grup;
@@ -36,21 +31,14 @@ define
         @argument;
         print $";";
         print :`closeBrace;
-        // twoBodiesOneSlot  A RULE THAT ALREADY CARRIES AN ACTION BODY KEEPS ITS CodE. Its
-        //                   generated parse parks in builtinParseR -- noPrint, builtinActoR's
-        //                   shape -- because CodE is the ACTION's slot and overwriting it
-        //                   DELETES the action. fixIts F-87. No brace in this comment: F-86
-        if ownActionAtEntry == 1;
-            builtinParseR = codeBuffer;
-            bprCopy := copyOf(builtinParseR);
-            *bprCopy :. noPrinT;
-            argument +% *bprCopy;
-        if ownActionAtEntry == 0;
-            clear(CodE);
-            CodE = codeBuffer;
-            codeCopy := copyOf(CodE);
-            *codeCopy :. noPrinT;
-            argument +% *codeCopy;
+        clear(CodE);
+        CodE = codeBuffer;
+        codeCopy := copyOf(CodE);
+        *codeCopy :. noPrinT;
+        bprCopy := new("builtinParseR");
+        *bprCopy :. noPrinT;
+        *bprCopy +% *codeCopy;
+        argument +% *bprCopy;
         argument :. isCodeD;
         // flagMeansInstalled  hasNewParse means INSTALLED, and setParse's tail is its ONE writer
         //                     (Tony, 2026-09-18, fixIts F-90). THE GENERATOR RAISES NOTHING.
@@ -60,8 +48,7 @@ define
         //                     already right for the parked carrier (F-88); this is the same
         //                     sentence applied to the other arm
         printTO(0);
-        if ownActionAtEntry == 1;    print taG "=" "builtinParseR" builtinParseR:;
-        if ownActionAtEntry == 0;    print taG "=" CodE.taG CodE:;
+        print taG "=" CodE.taG CodE:;
        };
     walkRules code={
         generateParse(argument);
@@ -80,13 +67,7 @@ define
                 if binTypE;
                     generateParse(*grup);
                     continue;
-                // generatedIsCarrier  ALREADY GENERATED IS THE CARRIER'S PRESENCE, never a flag
-                //                     -- builtinParseR for an action-carrying rule, and for the
-                //                     rest the isCodeD the generator sets. hasNewParse cannot
-                //                     answer this any more: it means INSTALLED, and during this
-                //                     walk nothing is installed yet
-                if builtinParseR;   continue;
-                if isCodeD;         continue;
+                if *grup["builtinParseR"];   continue;
                 if listLengtH;  walkRules(*grup);
                 else generateParse(*grup);
         };
@@ -106,6 +87,178 @@ define
     ;
 
 bail();
+
+This text is past bail(); the incant parser halts there, so it need not be wrapped in a comment.
+
+/*******************************************************************************
+                    What Is parser Doing
+*******************************************************************************/
+    parser turns a rule's TERMS into a generated parse body, compiles it, and
+    installs it -- replacing the interpreted term-walk for that rule and every
+    sub-rule reachable from it.
+
+        parser(SomeRule);
+
+    Two phases, in this order, and the order is the whole design:
+
+        walkRules(argument)      GENERATE. Emit a body for the root and for
+                                 every rule under it. Installs nothing.
+        compileRules(argument)   INSTALL. setParse classifies and binds the
+                                 parse method; compile parses the emitted text
+                                 into a BlocK that can actually run.
+
+    Nothing is installed during the walk. That split is deliberate -- a walk
+    that installed as it went would hit rules mid-classification, and setParse
+    leaves an already-installed rule alone, so a premature raise silently ends
+    the job (fixIts F-90).
+
+    WHAT generateParse EMITS. It walks the rule's attributes in order, skipping
+    noPrint ones, and writes a call per term:
+
+        NamE = CodE { return first() && nameSet(); }
+        GrouP = CodE { return NamE() || QuotE(); }
+
+    The connective is chosen by hasTraitS -- && when the rule has real terms,
+    || when it does not. noPrint is this tree's standing "artifact, not a term"
+    mark, which is why CodE, builtinActoR and builtinParseR never appear in an
+    emitted body even though they are attributes like any other.
+
+    A rule carrying DATA rather than a list is refused: it is appended to the
+    uncompiled field and generation returns. A rule with both data and a list is
+    a contradiction and says so on stderr.
+
+    WHERE THE BODY GOES -- and this is the part that changed on 2026-09-20.
+    The generated parse is parked in a builtinParseR carrier, which is a noPrint
+    attribute holding its own CodE, exactly mirroring builtinActoR:
+
+        SomeRule            length 6
+            <its terms>
+            builtinActoR        noPrint            the ACTION, if it has one
+                CodE                               the action body
+            builtinParseR       noPrint            the generated PARSE
+                CodE                               the emitted text
+                BlocK                              once compiled
+
+    THE RULE ITSELF CARRIES NO CodE. That is what retired ownActionAtEntry: the
+    old code had to ask "does this rule already have an action in CodE, so that
+    writing the parse there would delete it" -- and once the action moved to its
+    own carrier that question has no instances. Two carriers, each with exactly
+    one meaning, and nothing to contest.
+
+    WHY TWO CARRIERS AND NOT ONE SLOT WITH A RULE. A rule can carry an action AND
+    a generated parse at the same time. A single "where is the body" answer would
+    have to mean two things at once, which is this project's most expensive
+    recurring shape. So GroupItem carries two accessor trios --
+    actionHolder/actionBody/actionBlocK and parseHolder/parseBody/parseBlocK --
+    and every reader names the one it means. processCode takes the holder as a
+    second argument for the same reason.
+
+    WHO FIRES WHAT, afterwards:
+        parseRule          fires builtinParseR's BlocK -- the parse
+        fireLabelMethod    fires builtinActoR's method -- the action
+    Two seats over two bodies, sharing nothing.
+
+/*******************************************************************************
+                    parser Usage Guide
+*******************************************************************************/
+    THE CALL TAKES THE RULE, NOT ITS NAME.
+
+        parser(Search);
+
+    The root arrives as the rule through *argument, so registry membership stops
+    mattering -- the old Grokking[argument.taG] spelling could only ever reach a
+    rule living in Grokking.
+
+    THIS FILE IS DEFINITIONS ONLY. It has no preamble and no driver, on purpose.
+    An includer has already done Start(), the includes and the search stack, and
+    its own preamble would be circular the moment utilities includes this file.
+    A live driver at the foot would fire -- and stop() -- inside whoever included
+    it. The driver lives in incant/pop/parserT.
+
+    WHAT A GOOD RUN LOOKS LIKE, per rule:
+
+        Generating parse code for Search
+        Search = CodE { return search() && followedBy() && GrouP() && SemI(); }
+        ...
+        compile succeeded for Search
+        end compileRules
+
+    A "Generating parse code for X" with no "X = CodE {...}" line after it means
+    X was refused -- data-bearing, or already carrying a parse.
+
+    HOW TO INSPECT THE RESULT. Pass the rule as an argument; do not name it as a
+    bare statement.
+
+        dumpContents(Search);                      the rule, carrier visible
+        dumpContents(Search["builtinParseR"]);     CodE, and BlocK once compiled
+
+    ⚠ NEVER TRUTH-TEST A RULE-SHAPED VALUE. `if someRule;` is a CALL, not a read
+    -- it fires the rule's action, and some actions clear their input. The test
+    that asked "did this work" has destroyed what it was asking about. Assert on
+    an artifact a fired action cannot fake: a subscript that finds a carrier, or
+    a list length. This is bear-trap #34 and it has bitten the investigation as
+    well as the code.
+
+    ⚠⚠ DO NOT PUT STATEMENTS AFTER A DRIVE OF A GENERATED PARSE. Today,
+    parser(X) followed by X("...") leaves the FILE parse unable to match its next
+    statement -- reportRunAbandoned says so, and the exit status is still 0. Both
+    calls really do run; what is lost is everything below them. Keep the drive as
+    the LAST statement before stop(). See Current State below; this is open.
+
+    ⚠ A SECOND generate on the same action hits the sequential-state tar baby.
+    One pass per fixture.
+
+/*******************************************************************************
+                    Current State  --  WIP
+*******************************************************************************/
+    As of 2026-09-20. Fleet 416 green / 60 red, canary 335. UNCOMMITTED.
+
+    WHAT WORKS
+        Generation walks all four roots without dying.
+        The parse parks in builtinParseR{CodE}, mirroring builtinActoR.
+        The parked parse COMPILES -- four rules on a parser(Search) run.
+        Three of Search's four terms DISPATCH through the generated parse.
+        A rule with an action keeps it: its CodE lives under builtinActoR, and
+        the action fires once, through fireLabelMethod, on all three fill shapes.
+        On the OLD road a coded rule's matched terms reach its body --
+        `for sumGrup in entries;` walks all five of them, which is F-83's
+        acceptance line and it had never passed before.
+
+    OPEN, IN ROUGH PRIORITY ORDER
+
+    1. THE argument SLOT -- WITH CLAY, ipc SEQ 109, 2026-09-20. Tony's call, and
+       nothing moves until the shape is ruled.
+       parseRule mints an `argument` attribute onto the RULE whenever code[
+       "argument"] misses -- and for a GENERATED parse it always misses, because
+       an emitted body never mentions argument. So the slot is dead on arrival
+       for exactly the population parser creates, and it is not noPrint, so it
+       joins the frame set at GroupActions.rtn:1302. Marking it noPrint removes
+       it from the frame: the abandon DISAPPEARS and parserTest SEGFAULTS. Run,
+       measured, reverted. Two-sided proof the slot is load-bearing; no mechanism
+       claimed for the abandon itself.
+       ⚠ Two registers are wrong about this and will mislead a reader: designDocs
+       runAction.mint says runAction is the SINGLE writer of isArgument, and
+       wrapperPlan S2.3 cites ruleActions.rtn:446 as the only setter. There are
+       TWO writers today -- GroupActions.rtn:883 and Generate.rtn:213 -- and none
+       in ruleActions.rtn. Re-measure before citing either.
+
+    2. THE ABANDONED FILE PARSE. parser(X) + a drive of X breaks the next
+       statement. It takes BOTH -- either alone is harmless -- and it is not
+       repeat-use; two drives back to back both complete. Keyword-initial
+       statements (cerr, print) still parse; identifier-initial ones do not.
+       Believed to be item 1 wearing a symptom, but that is not established.
+
+    3. CT-5, THE LABEL GAP. After parser(list) the action FIRES and its matched
+       terms do NOT reach it -- the body prints its first line and then nothing,
+       where the same body on the old road prints all five terms. So the seam is
+       intact before parser() and broken after it.
+
+    4. SemI DOES NOT DISPATCH. Three of four Search terms do; SemI is a literal
+       rather than a rule-shaped term and behaves differently. Unexamined.
+
+    5. CT-3 IS A RE-PIN, NOT A BUG. carrierT reads list["CodE"], which is now the
+       carrier's address. It is asserting where the body used to live. Owed a
+       sentence, per rule H6 -- do not re-pin it green silently.
 
 /*****************************************************************************
     The parser incantation -- DEFINITIONS ONLY, so utilities can include it.

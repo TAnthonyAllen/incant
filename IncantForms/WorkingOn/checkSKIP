@@ -1,0 +1,77 @@
+/*****************************************************************************
+	This is the tester incantation. It is a working file for testing new features
+    under development so it changes when there is a new feature in the works.
+
+    The feature being worked on here is checkSKIP a rewrite in kant as a rule
+    to do what the C++ checkSkip() method in GroupRules does that skips space
+    on every rule invocation. The register is Grokking so that all the definitions
+    are rules.
+*****************************************************************************/
+Start();
+
+register(Grokking);
+define
+    EmbeddedComment;
+    IndenT=[ \n\t]+;
+    BlockCommenT    "/*" EmbeddedCommenT-* commentBody="*/"};
+    LineCommenT     "/\/" commentBody="\n"};   // the escape is REQUIRED -- see below
+    CommenT
+        BlockCommenT;
+        LineCommenT;
+    commentBrace
+        OpenCommenT     "/*";
+        CloseCommenT    "*/";
+    EmbeddedCommenT     commentBrace{ BlockCommenT;
+    sKIP
+        DelimitText;
+        QuotE;
+        IndenT;
+        CommenT;
+    checkSKIP       sKIP+;;     // second ; ends the define command
+    
+register(TestStuff);
+define
+    skipInput=(  "what" /* has /* embedded */ comment*/ NotSkipable#);
+    skipTester code={
+        print "Did the definnition work?" skipInput:;
+        };
+    ;
+search Grokking TestStuff list;
+skipTester();
+stop();
+/*****************************************************************************
+	The following lines are parked here because the next time tester is needed
+    they are likely to be needed to be added right after Start(); above
+*****************************************************************************/
+include(utilities);
+search reset stack Grokking;
+search Utilities list;
+
+/*****************************************************************************
+	The following text is used for testing the checkSKIP rule defined above
+*****************************************************************************/
+
+/*****************************************************************************
+    WHY LineCommenT IS SPELLED WITH AN ESCAPE  --  Clod, 2026-09-18, measured
+
+    The bare two-character literal KILLS THIS DEFINE. There is no lexer, so the
+    parser reads it as a comment inside its own source and eats the rest of the
+    line, closing quote and semicolon included. Four runs, one variable each:
+    respelling LineCommenT ALONE fixes the file; respelling BlockCommenT ALONE
+    does not. The block delimiters were never the problem, and the terminator
+    never needed touching. So it is not a Catch-22.
+
+    The ABANDONED report names IndenT, two lines above the offender. Bisect by
+    removing later lines, never by staring at the named one.
+
+    The escape is preferred over two adjacent one-character literals, and that
+    is a measurement rather than a taste: the escaped form gives ONE term
+    matching both characters, the two-literal form gives TWO terms of one
+    character each -- and terms are skip points, so a skipper may run between
+    them. Pinned as SK-1 and SK-2 in incant/pop/skipT.
+
+    What is NOT yet readable is what the rule CONSUMES. Driven standalone it has
+    no enclosing activation to take the label it mints, so its terms still read
+    their own definitions afterwards. That is fixIts F-83 and it is station 6.
+    docs/checkSKIP.md section 2a carries the whole measurement.
+*****************************************************************************/

@@ -3,8 +3,12 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      108
-STATUS:   fresh           # SEQ 108 at the FOOT -- debug ALL certified, debuggeD minted, SEALED
+SEQ:      109
+STATUS:   fresh           # SEQ 109 at the FOOT -- the `argument` slot (SHAPE QUESTION, no patch asked) PLUS a review of parser's new dead-region documentation
+WRITTEN:  2026-09-20  -  Clod  (SEQ 109 APPENDED at the FOOT -- Tony asked for Clay by name. Two
+          registers are wrong about isArgument's writers; the brief names both.)
+          PRIOR HEADER PRESERVED BELOW.
+STATUS-108: fresh        # SEQ 108 at the FOOT -- debug ALL certified, debuggeD minted, SEALED
 WRITTEN:  2026-09-18  -  Clod  (SEQ 108 APPENDED at the FOOT -- Tony's toggle shape landed and
           CERTIFIED by debugToggleT through the new debuggeD accessor. Shutdown seal. ⚠ gz
           cannot be sourced at all -- the standing "bs still works" note is corrected.)
@@ -5800,3 +5804,134 @@ STATUS:  fresh
   checkinput-state merges on the buy. The measuring-model prose stays parked, no date.
 
   END SEQ 108
+
+
+===================================================================
+SEQ 109  -  THE `argument` SLOT parseRule MINTS ONTO RULES. TONY WANTS YOUR SEAT.
+===================================================================
+WRITTEN: 2026-09-20 - Clod. NOT a request to execute. A design question Tony raised
+by name: "I am not comfortable with how we are injecting argument into rules...
+changing what we do w/argument will have a blast radius."
+
+-- WHAT LANDED TODAY, so you can read the question in context --
+
+  1. setActions arm 1 (the isCoded arm) now MINTS a builtinActoR, stamps
+     rStuff.actionMethod = processAction, and MOVES CodE under the carrier.
+     A rule with an action no longer has CodE. F-92 closes as a side effect.
+  2. parser's generateParse lost ownActionAtEntry entirely -- the collision it
+     detected cannot occur once CodE is off the rule -- and now parks the generated
+     parse in builtinParseR{CodE}, builtinActoR's shape exactly.
+  3. GroupItem gained TWO accessor trios, deliberately NOT one resolver with a
+     priority: actionHolder/actionBody/actionBlocK and parseHolder/parseBody/
+     parseBlocK, plus attachBlocK. processCode now takes the holder as a SECOND
+     ARGUMENT so the caller names the body it means.
+  4. processAction gates on !action.actionBlocK() instead of `if isCoded`,
+     because isCoded is spent by whichever body compiles first.
+  Fleet 416 green / 60 red. Nothing committed. groups.ext carries nine mirror
+  lines plus processCode's new arity (out of repo -- it will never show in a
+  Groups git status).
+
+-- THE DEFECT, measured, no mechanism asserted --
+
+  `parser(X); X("...");` leaves the FILE parse unable to match its next statement.
+  reportRunAbandoned names it; exit stays 0.
+
+  It takes BOTH, one variable each:
+      drive NamE, no parser()          file parse fine
+      parser(NamE), no drive           file parse fine
+      parser(NamE) + drive             BROKEN
+  Not repeat-use: two drives back to back both complete.
+  Survivors say where to look -- cerr and print still parse; `zz = 1;`,
+  `dumpContents(NamE);` and `stop();` do not. Identifier-initial statements fail,
+  which is NamE's job.
+
+  STRUCTURAL: the drive adds TWO attributes to the rule --
+      frameSTAK   noPrint
+      argument    NOT noPrint      <- the only artifact on a rule without it
+
+-- THE CHAIN, and every link is checked --
+
+  a. A generated parse body NEVER mentions `argument`. Measured: zero occurrences
+     across a full parser(Search) capture. NamE's body is
+         NamE = CodE { return first() && nameSet(); }
+  b. So parseRule's `ruleArg = code["argument"]` ALWAYS misses for a generated
+     parse, and it falls through `field["argument"]` to `field += "argument"` --
+     minting the slot ON THE RULE. Generate.rtn:210-213.
+  c. designDocs `bindTheBodysOwnSlot` (measured 2026-09-09) says binding
+     field["argument"] "wrote a slot nothing reads". So the mint is DEAD on
+     arrival for the generated-parse population.
+  d. It is stamped isArgument and is not noPrint, so it joins the frame set --
+     GroupActions.rtn:1302, `(isArgument || isLocal) && !grup.noPrint`.
+  e. TREATMENT, run and REVERTED: marking that mint noPrint removes it from the
+     frame. The abandon DISAPPEARED (reproducer 0, tester 0) and parserTest
+     SEGFAULTED, exit 139. Fleet 416 -> 415. A crash is worse than a silent
+     truncation, so it came straight back out.
+     ⚠ That is a two-sided proof the slot is load-bearing in the frame, and it is
+     the whole of what we know. NO mechanism is claimed for the abandon itself.
+
+-- TWO REGISTERS ARE WRONG ABOUT THIS, and you will read them on the way in --
+
+  designDocs runAction.mint:  "runAction IS THE SINGLE WRITER OF isArgument"
+  docs/wrapperPlan.md S2.3:   "ruleActions.rtn:446 (the flag's only setter)"
+
+  BOTH FALSE TODAY. `grep -rn "isArgument = true" --include=*.rtn .` returns TWO:
+      GroupActions.rtn:883   runAction
+      Generate.rtn:213       parseRule          <- the one in question
+  And isArgument is not written in ruleActions.rtn at all any more. Re-measure
+  before citing either; this is the unmeasured-citation family, and wrapperPlan
+  S2.3's seven-readers-in-three-classes sizing rests on the same stale line.
+
+-- THE QUESTION FOR YOUR SEAT --
+
+  Should parseRule be minting an `argument` slot onto the RULE at all?
+
+  Against it, already in the tree: designDocs runAction.mint says "`argument` is a
+  runtime-minted binding slot, never a declared attribute"; aCTionDefinE REFUSES a
+  declared one (ruleActions.rtn:295); and bindTheBodysOwnSlot says the field[...]
+  bind writes a slot nothing reads.
+  For it: parseRule needs somewhere to put myLabel, and designDocs bindOrder says
+  the save/bind ORDER is the interpreted callee's entire recursion safety -- so the
+  slot's frame membership is not incidental decoration.
+
+  Blast radius Tony is worried about, and he is right to be: the frame schema
+  (GroupActions.rtn:1302 + its jit twin), the four !isArgument unwrap exemptions,
+  Instruct.rtn case 10's incant-visible property, and the ArgBinding read rule.
+  docs/wrapperPlan.md S2.3 sized this once -- on a citation that has since gone
+  stale, so the sizing is owed a re-run rather than a read.
+
+  NOT ASKED FOR: a patch. Tony wants the SHAPE ruled before anything moves.
+
+  -- ADDENDUM, same day: PARSER'S DEAD REGION NOW CARRIES ITS OWN DOCUMENTATION,
+     AND TONY WANTS YOUR REVIEW OF IT ALONGSIDE THE argument QUESTION.
+
+     IncantForms/WorkingOn/parser is 280 lines: ~88 of live definitions, the rest
+     parse-dead below bail(). Under the 2026-09-20 ruling, incantation comments go
+     BELOW bail() -- freely, unconstrained, and NOT into DesignDocs, which governs
+     .twk/.rtn methods and is a different population. Three sections:
+
+         What Is parser Doing    the two-phase shape, what generateParse emits,
+                                 the carrier layout drawn out, why there are TWO
+                                 carriers rather than one slot with a rule, and
+                                 which seat fires which body
+         parser Usage Guide      the call, why the file has no preamble or driver,
+                                 what a good run looks like, how to inspect without
+                                 destroying the subject (bear-trap #34), and the
+                                 drive-placement hazard
+         Current State -- WIP    what works, then five open items in priority order,
+                                 item 1 being the argument question and this SEQ
+
+     ⚠ THE RECOVERY COPY IS GONE, at Tony's word. The file previously carried a full
+     second copy of generateParse/walkRules below bail() as a no-git backout. It was
+     stripped in the same pass; git is the backout from here.
+
+     WHAT IS ASKED OF YOU ON THIS HALF: confirm the DESCRIPTION MATCHES THE MECHANISM.
+     The prose is written for a cold reader with none of today's session, and it makes
+     structural claims -- "the rule itself carries no CodE", "two seats over two bodies
+     sharing nothing", "generation installs nothing" -- that are true of the tree today
+     and that a reader will rely on. A wrong sentence there is worse than a missing one,
+     because it will be cited. Tony reviewed it; a second seat on the claims is wanted
+     before it is trusted.
+
+     ⚠ IT IS NOT A REQUEST TO EDIT THE FILE. Report what is wrong; Tony rules.
+
+  END SEQ 109

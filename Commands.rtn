@@ -51,7 +51,7 @@ extern GroupItem compile(GroupItem field)
 GroupItem   code,
             grup;
     if !field.isCoded       return null;    // any rule without parseRule as its method will exit here
-    code    = field["CodE"];
+    code    = field.parseBody();
     // secondRefuseInCompile
     if !code                return refuse(field,"compile: isCoded is set but there is no CodE attribute; the flag and the artifact disagree");
     grup    = 0;
@@ -74,7 +74,7 @@ GroupItem   code,
     code.replace(grup);
     // refusedRuleDoesNotEndRun has to continue to processCode below
     compiling   = true;     // so ANYtoken allows key fields
-    if !processCode(field) {
+    if !processCode(field,field.parseHolder()) {
         // BOTH arms clear it -- this arm RETURNS, so the tail below never runs and compiling would stay set for the rest of the process
         compiling   = false;
         print `code.text:;
@@ -178,7 +178,7 @@ GroupItem   artifact;
         one channel for two facts is this project's most expensive recurring
         shape, so the KIND is answered by looking, not by the flag.  */
     if !artifact {
-        if rule.getAttribute("CodE") {
+        if rule.parseBody() {
             if parseTrace   cerr "  fireNewParse CODE ARM on",rule.tag:;
             return processAction(rule); }
         cerr "fireNewParse: WRECKAGE on",rule.tag,"-- hasNewParse is set but there is neither a ParsE name nor a CodE body to fire. NOT falling through to the old parse.":;
@@ -216,11 +216,11 @@ GroupRules  ruler = groupRules;
     if !generator       generator = locate("generator");
 GroupItem   generate    = generator["generatE"];
     if generate.isCoded
-        if !processCode(generate)   return null;
+        if !processCode(generate,generate)   return null;
 use field
     generating = true;
     if isCoded
-        if !processCode(field)      return null;
+        if !processCode(field,field)      return null;
     generating = false;
 GroupItem   BlocK:;
 GroupItem   bcLIST      = new("bcLIST");

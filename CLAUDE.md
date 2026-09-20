@@ -1339,6 +1339,33 @@ argument lives in DesignDocs, **DesignDocs travels with the wakeup whenever the 
 otherwise Clay sees the claim and not the reasoning, which is exactly how a brief gets a tree
 attribution wrong.
 
+⚠⚠ **AND THE CONVENTION STOPS AT THE FILE TYPE'S EDGE: IN AN *INCANTATION*, COMMENTS GO BELOW
+`bail()`/`stop()`, FREELY, AND NEVER TO DesignDocs. Tony, ruled 2026-09-20.** Everything above
+governs `.twk`/`.rtn` **methods**. An incantation — `IncantForms/WorkingOn/parser`, `incant/*` — is
+a different population and takes the opposite shape:
+
+> **Comment an incantation willy-nilly — below the `bail()`/`stop()` line.**
+> **No inline claim, no `slug`, and no DesignDocs entry.**
+
+**The reason is that the dead region is genuinely unconstrained** (Addendum 2, 2026-08-20): the
+parse terminates at `stop();`/`bail();` and the text below is never read, so no quoting, no comment
+markers, no brace discipline, no operator or semicolon worry. **Meanwhile an INLINE comment in
+incant is parsed, not skipped** — bear-traps #4, #27, #29 and #53 are all that fact collecting — so
+the two halves of the rule point the same way: the safe place is also the free place.
+
+⚠ **A `//` DOES NOT WORK THERE EITHER, so "just comment it out" is not the fallback** — see
+bear-trap #53: a `//` ends at the line, a `(…#)` value does not, and the mismatch kills the
+enclosing `define` while naming the file's first and healthiest entry.
+
+**WHEN AN INCANTATION SETTLES, ITS SCRATCH GOES AND THE PROSE REPLACES IT.** A recovery copy parked
+below `bail()` is a no-git backout and is legitimate while the shape moves; once the file passes
+POP, **delete it and write the clarifying sections in its place.** The worked example is
+`IncantForms/WorkingOn/parser` on 2026-09-20 — three sections, *What Is parser Doing* · *parser
+Usage Guide* · *Current State — WIP* — mirroring `incant/directives`, which is the shape to copy.
+⚠ **The WIP section is the load-bearing one**: it is where a cold reader learns which claims are
+settled and which are still being fought, and without it the other two read as finished when they
+are not.
+
 ⚠ **`incant/fixits/` IS TONY'S QUEUE, NOT THE FLEET.** Nothing in it runs under `pop.sh` until it is
 promoted. The single coupling is the seal line, and that line is **generated, not remembered** —
 `genLadder/fixitNag.sh` reads the directory and prints
