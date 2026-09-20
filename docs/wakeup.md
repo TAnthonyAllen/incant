@@ -1,3 +1,147 @@
+# ⚠⚠⚠ SEALED 2026-09-20, SHUTDOWN -- THE LABEL CHANNEL GOES OFFLINE TO TONY. THREE ATTEMPTS
+# BROKE WHAT ALREADY WORKED, ALL THREE ARE REVERTED, AND THERE IS NO ATTEMPT 4.
+#
+#   ⚠⚠ FIRST, AND IT GOVERNS THE WHOLE NEXT SESSION: **LEAVE THE PARSE ROAD ALONE UNTIL TONY'S
+#   STATUS NOTE.** He is walking `parseRule` / `exitFromParse` / `checkInput` in Xcode offline.
+#   Clay, SEQ 173. **No attempt 4**, no "just one more spelling", no probe that binds a label.
+#
+#   ⚠ AND THREE THINGS IN THE TREE ARE TONY'S AND STAY, so nobody reverts them as dirt:
+#   **`compileRules` runs compile THEN setParse** · **`DEBUG debug-` and `DEF def-="define"`**
+#   in `incant/grammar` · and **`bs` IS TONY'S TO RUN** -- it was not run this session.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-20 17:34 and `git log -1 --date=iso` 17:26. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 428 green / 62 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed, binary BARE.** Two of the 62 reds are new and are **red by design**
+#   -- `doWhileNameT`, born red this session. Branch `checkinput-state` still pushed and
+#   UNMERGED; nothing from it landed.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE BINARY WAS A DIRECTIVES BUILD AT WAKEUP AND THE TREE WAS NOT.** The 15:51 binary
+#   carried `succeeded with count` and `Match container`; every `.mm` was bare. Rebuilt bare
+#   before any number was taken. **The detector is `strings ~/bin/incant | grep -c "succeeded
+#   with count"`** -- a `.mm` that moved with no `.twk` behind it is the other tell, and here
+#   even that was absent because Tony had reverted the sources and kept the binary.
+#
+#   **b. COMPILE-FIRST GIVES ZERO REFUSALS BECAUSE `compileRules` DOES NOT LOOP AT ALL.** It
+#   calls two externs and **each does its own whole-tree recursion** -- `compile()` at
+#   `Commands.rtn:86-91`, `setParseWalk()` at `Generate.rtn:391`. So the ordering is TOTAL, not
+#   interleaved: every body is parsed before any node carries `hasNewParse`, and `checkInput`'s
+#   refusal arm is never entered. **"All but the first rule" needs a per-rule loop, and there
+#   isn't one.** Measured both ways, order restored byte-identical:
+#   compile-then-setParse **0 refusals / 39 compiles / 118 generating**; setParse-then-compile
+#   **39 / 39 / 118**. ⚠ **39 refusals = 39 compiles** -- one per body `processCode` parses.
+#   The incant comment *"setParse and compile loop recursively thru components"* is what invites
+#   the wrong reading; the looping is inside the externs.
+#
+#   **c. THE CRASH, WITH FRAMES, AND THE LINE THAT DIED IS NOT THE LINE THAT READ NULL.**
+#   `parser(DO); DO("do print ++dwN; while dwN < 2;")` -> EXC_BAD_ACCESS, exit 139, rule
+#   **TokenXP**. Crash at `GroupRules.mm:1265`. **PRODUCER at `GroupRules.mm:1249` /
+#   `ruleActions.rtn:987`** -- `GroupItem ANYtoken = xpress["ANYorNum"]`. **`xpress` is NOT
+#   null**; its `ANYorNum` member is absent. Bear-trap #36.
+#   The channel: `exitFromParse` attaches with `parentLabel->addAttribute(label)`, `parentLabel`
+#   syncs from `parentStuff->label`, and nothing binds it.
+#
+#   **d. `result` WAS NEVER THE VARIABLE, AND THE LADDER SAYS WHAT IS.** A counter DECLARED in
+#   the fixture dies identically. One run each, same generated parse, drive string the only
+#   change: `while 0;` and `while 1 < 0;` PASS; `while result < 2;`, `while result;`,
+#   `while !result;`, `while !1;` all die. ⚠ **`do print ++result; while 0;` PASSES** -- the
+#   bump and the name are fine in the statement BODY; only the while EXPRESSION kills it.
+#   ⚠⚠ **`while !1;` IS A COUNTEREXAMPLE TO THE TIDY STORY.** "An ABSENT optional unary
+#   short-circuits the chain, so ANYorNum is never asked" cannot be the whole cause: `!1` has a
+#   PRESENT unary on a literal and dies the same way. No positive cause is claimed.
+#
+#   **e. THE THREE ATTEMPTS, AND ATTEMPT 2 IS THE ONE THAT BOUGHT SOMETHING.**
+#   1. (a)+(b) ported from `checkinput-state` minus the carrier fire. **H15 control first, and
+#      it fired at once**: `parserTest` 4 roots -> 2, and the fixture's own literal-while
+#      control stopped returning.
+#   2. **(a) ALONE** -- identical breakage, so **(a) is the breaker and (b) is not.** One
+#      variable at a time is what produced the attribution attempt 1 could not.
+#   3. The bind **BRACKETED** round the body (= Clay's (c) recursion save, tightened from the
+#      call to the body) so `exitFromParse` sees what it saw before. Still breaks the control,
+#      and **the crash MOVES** to `interpretXP` at `GroupRules.mm:3759`, `groupList` null. So
+#      the bind is NOT inert -- it really does reshape the tree.
+#   **Reverted whole; red column identical row for row.** F-96 carries all three with the
+#   attempt log, appended in the same commit as the attempts.
+#
+#   **f. ⚠ THE READING THAT SURVIVES ALL THREE, and it is the sentence to hand Tony.**
+#   `checkInput`'s `label = 0` for a members-rule **is not an oversight to override**. Every
+#   spelling that overrides it -- in place or under a bracket -- breaks rules that already
+#   worked. Either the terms need a channel `exitFromParse` does not already read, or
+#   `exitFromParse` has to learn the difference.
+#
+#   **g. THE ORACLE IS ONE PASS, NOT A LOOP.** Old road, no `parser()`: exit 0, prints `1`, and
+#   **it prints `1` for every condition tried -- under 2, under 4, and under a constant true.**
+#   Whether that is do-while not iterating or a rule-drive not executing a loop is **NOT
+#   MEASURED** and nothing claims either. Clay banked it: it wants a plain-statement control
+#   and its own row.
+#
+#   **h. TWO SPELLING FACTS FOR TONY, measured on the way past.** `result = 0;` at file level
+#   **does not take**, while `define dwN=0;` in the define block **does** share its node with
+#   the drive string (`dwN` reads 0 before the drive and 1 after). And **that counter must be
+#   read BARE**: a `:=` capture of it prints its own tag both before and after, so a capture
+#   would have pinned nothing.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **428 green / 62 red** · decodePop **14 green / 9 red** · ddPop 5 green / 1 red ·
+#   countPop **0 of 45** · formsPop **14 PASSED** · **frontier dies at station 4** (unrevised --
+#   nothing landed, so the edge has not moved) · canary **335** · alphaLint 10 (pre-existing) ·
+#   groups.ext untouched · **Groups 0/0, support 0/0, TOK 0/0** · binary BARE. Every number
+#   measured this stroke, none carried (H14).
+#
+#   ⚠ **THE FLEET ARITHMETIC, so nobody reads the move as a regression:** 426 green at the 13:31
+#   seal + 2 new green control rows = **428**; 60 red + 2 new red-by-design = **62**.
+#
+#   ## ⚠⚠ AN INSTRUMENT FINDING, FOUND AT THE SEAL AND WORTH MORE THAN THE NUMBERS
+#   **`genLadder/decodePop.sh` AND `formsPop.sh` ARE NOT EXECUTABLE** while `pop.sh` and
+#   `ddPop.sh` are -- so `./genLadder/decodePop.sh` is *permission denied*. **And the wrapper
+#   swallowed it: `perl -e 'alarm N; exec @ARGV'` returns EXIT 0 WHEN THE EXEC ITSELF FAILS**,
+#   so both instruments read as a clean pass with an **empty output file**. Run them as
+#   `bash ./genLadder/<name>.sh`. ⚠ **An empty capture at exit 0 is not a green** -- check that
+#   an instrument printed something before believing its status. The mode bits are left as
+#   found rather than chmod'd, because they may be deliberate; Tony's call.
+#
+#   ## ⚠⚠ WAITING ON TONY
+#   **1. THE LABEL CHANNEL, OFFLINE.** `parseRule` / `exitFromParse` / `checkInput` in Xcode.
+#   Nothing on the parse road moves until his status note. **No attempt 4.**
+#   **2. `bs` WAS NOT RUN** -- it is his to run, one line: **`! ~/bin/bs`**.
+#   **3. `checkinput-state` is pushed and unmerged.** Unchanged; nothing from it landed.
+#   **4. `doWhileNameT`'s two reds are BY DESIGN.** Do not "fix" them by re-pinning; they go
+#   green when the channel lands. The two green rows beside them are their controls.
+#   **5. The `decodePop`/`formsPop` mode bits** -- deliberate, or a chmod owed?
+#
+#   ## ⚠ BANKED, NOT CHASED
+#   The old-road `do` body running once for every condition, including a constant true (Clay
+#   banked it; wants a plain-statement control and its own row). · `generateParse` prints
+#   *"rules should not have data and a list"* for `BrancheS`; a bin's set data is derived, so it
+#   wants the `binTypE == 0` exemption -- row or ride. · Tony's landed leaf guard omits F-93's
+#   `printTO(0)`; whether that can strand the buffer is **not measured** and nothing was lost in
+#   any run this session. · Emitted bodies still carry no modifiers -- `TokenXP` emits
+#   `UnaryOPS() && ANYorNum() && InvokeArg()` against `UnaryOPS? ANYorNum^ InvokeArg?`, which is
+#   F-89's seam and is what the ladder keeps walking into.
+#
+#   ## TOMORROW, IN ORDER
+#   1. **Tony's status note from the Xcode walk.** Everything else waits on it.
+#   2. The TREE row (SEQ 172 amendment 2) -- dump `xpress` on both roads for `dwN < 2`, `!1`,
+#      `dwN` and diff. **It starts "once the label binds", so it is not owed until then.**
+#   3. Step 3 re-cut (amendment 3): read DISPATCH, not exit status -- is `ANYorNum` asked with
+#      the unary absent versus present? Also waits on `xpress` surviving.
+#   4. Station 4 -- the action still runs without its terms, CT-5.
+#
+#   ## DOCTRINE EARNED TODAY
+#   H15 paid for itself inside one build -- driving the target first would have read as "the
+#   target is hard" when the change had broken two working roots · one variable at a time is
+#   what turned "the port fails" into "(a) is the breaker and (b) is not", and it cost one build
+#   · a crash that MOVES under a treatment is evidence the treatment is live, not evidence it is
+#   wrong · **a count cannot be diffed** -- `docs/redList.md` exists because a 60-vs-61 could be
+#   stated and never explained · and an instrument that cannot be executed reports exit 0
+#   through the wrong wrapper, which is the empty-capture twin of the unsurprising green.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
 # ⚠⚠⚠ SEALED 2026-09-19, SHUTDOWN -- THE WALK HAS NOT DESCENDED SINCE 1bce778. BOTH EDITS ARE
 # PROVEN AND NEITHER IS LANDED, BECAUSE A THIRD HOLE SITS UNDER THEM.
 #

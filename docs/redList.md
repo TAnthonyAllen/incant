@@ -8,6 +8,18 @@ against a stated **61** — with Tony's edits and the new rows both controlled f
 **Regenerate at every seal:** `./genLadder/pop.sh | grep '^  FAIL' | sed 's/^  FAIL  //'`, and
 diff this file. A row that leaves without a sentence is the thing this is here to catch.
 
+⚠ **AND IT COVERS `decodePop` AND `ddPop` TOO, BECAUSE THE SAME HOLE WAS THERE.** The 09-19
+seal recorded decodePop at *14 green / 6 red* and the 09-20 seal recorded *14* with no red count
+at all; today it reads **14 green / 9 red** and there is nothing to diff it against. One
+instrument's missing list is an accident; two is the convention being too narrow.
+
+⚠⚠ **RUN THESE TWO WITH `bash`, NOT AS `./genLadder/<name>.sh`.** `decodePop.sh` and
+`formsPop.sh` are **not executable** (`pop.sh` and `ddPop.sh` are), so the bare invocation is
+*permission denied* -- and a wrapper can swallow that. Measured this seal: a
+`perl -e 'alarm N; exec @ARGV'` wrapper returns **exit 0 when the exec itself fails**, so both
+read as a clean pass with an EMPTY output file. An empty capture at exit 0 is not a green; check
+that an instrument printed something before believing its status.
+
 ## 2026-09-20, shutdown — 428 green / 62 red
 
 ```
@@ -73,4 +85,24 @@ trigDO arm 1 -- the good input did not parse and attach. Actual:
 trigDO arm 2 -- a broken term did NOT fail the parse. Actual:
 trigDO attached under DO 0 times, want exactly 1
 walkRefT row 3 = wrHeld -- THE FLIP HAS LANDED, or the binary is
+```
+
+### decodePop -- 14 green / 9 red
+
+```
+  82 of them carry a definition (got '0', want '82')
+  every term is defined (got '0', want '82')
+  decodeT recorded 5 green checks (got '4', want '5')
+  decodeT self-cert green -- expected line not produced: SELF-CERT ok
+  undefined term fails loud, by name -- expected line not produced: decode UNDEFINED TERM  notATermAnybodyMinted
+  decode line served H4 by its own words -- expected line not produced: never absence-of-message
+  decode line served H7 by its own words -- expected line not produced: measured, not inferred
+  decode line served blastRadius by its own words -- expected line not produced: every stream diffed
+  SELF-CERTIFICATION: only 14 green checks recorded, expected
+```
+
+### ddPop -- 5 green / 1 red
+
+```
+trim gate violations 32
 ```

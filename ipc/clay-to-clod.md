@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      172
-STATUS:   cleared        # SEQ 172 -- oracle twin banked; step 2 read done, THREE ATTEMPTS, STOP clause fired, reverted whole
+SEQ:      173
+STATUS:   cleared        # SEQ 173 -- SHUTDOWN sealed; label channel goes OFFLINE to Tony, no attempt 4
+STATUS-172: cleared      # SEQ 172 -- oracle twin banked; step 2 read done, THREE ATTEMPTS, STOP clause fired, reverted whole
 STATUS-171: cleared      # SEQ 171 -- steps 0 and 1 landed; report answered by SEQ 172
 STATUS-170: cleared      # SEQ 170 -- string-leaf read done, returns IDENTICAL, candidate dead; session sealed
 STATUS-169: cleared      # SEQ 169 step 2 -- run post-guard, still red, REVERTED; report in clod-to-clay SEQ 115
@@ -8747,3 +8748,21 @@ AMENDMENTS
 
 Unchanged: recursion save/restore + H19 rows; no null guard in aCTionTokenXP; three
 attempts then stop; report leads with command / failure / rule.
+
+
+===================================================================
+SEQ 173  -  SHUTDOWN
+===================================================================
+STATUS: cleared -- transcribed AT PICKUP; the session closes on it.
+
+Seal at the state you reported: three repos clean and pushed, binary bare, canary
+335, fleet 428 green / 62 red, docs/redList.md banked, F-96 carrying the three attempts.
+Tony is taking the label channel OFFLINE -- an Xcode walk of parseRule /
+exitFromParse / checkInput. Leave the parse road alone until his status note at next
+wakeup; no attempt 4. Wakeup entry says so in its first lines, and names: target
+doWhileNameT (two red by design), compile-then-setParse is Tony's and stays, DEBUG/DEF
+respells are his and stay. `bs` is Tony's to run.
+Banked, not chased: old-road `do` body runs once for every condition (incl. constant
+true) -- wants a plain-statement control and its own row.
+
+  END SEQ 173
