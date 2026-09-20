@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      169
-STATUS:   cleared        # SEQ 169 step 2 -- run on the post-guard build, still red, REVERTED; report in clod-to-clay SEQ 115
+SEQ:      170
+STATUS:   cleared        # SEQ 170 -- string-leaf read done, returns IDENTICAL, candidate dead; session sealed
+STATUS-169: cleared      # SEQ 169 step 2 -- run post-guard, still red, REVERTED; report in clod-to-clay SEQ 115
 STATUS-168: cleared      # SEQ 168 step 1 -- guard in, parserTest all four roots; report in clod-to-clay SEQ 114
 STATUS-167: cleared      # SEQ 167 -- slot deleted, abandon gone, F-94 closed; report in clod-to-clay SEQ 113
 STATUS-166: cleared      # SEQ 166 -- four points read; candidate (b); report in clod-to-clay SEQ 112
@@ -8564,3 +8565,52 @@ THEN LET IT RUN.
   correct" is the thing being tested, not an assumption I am carrying in.
 
   END SEQ 169
+
+
+===================================================================
+SEQ 170  -  THE STRING-LEAF READ, THEN SHUT DOWN
+===================================================================
+STATUS: cleared -- transcribed AT PICKUP; the read is done and the session closes on it.
+
+CLAY'S CALL: one short step left, then shutdown.
+  THE CRASH: the mark is in the drive string, so it is the UNFILLED LABEL, already
+  queued as step 4. It is DESIGN WORK needing Tony's ruling on the station-6 port, not
+  a short job, so it opens next session. AUGUST'S SNAKE IS NOT IN PLAY -- good news
+  for the ladder.
+  ROW 1: the :229 readings narrow it further than Clod's report said, and NO NEW
+  CALLOUT IS NEEDED. NamE is first() && nameSet() -- both SET leaves, no label -- and
+  the chain reads true, so a no-label set leaf returns truthy on success. Search is
+  search() && followedBy() && GrouP() && SemI(); GrouP reads true. That leaves
+  `search` and `SemI`, both STRING leaves, and `followedBy`. THE STRING LEAF IS THE
+  ONE KIND OF LEAF IN Search AND NOT IN NamE. Candidate: parseString hands back
+  something falsy on success -- labelNO, which holds 0 by design, or the matched text.
+  THE SHORT STEP IS A CODE READ, NOT A MEASUREMENT: put parseString's success return
+  next to parseSet's. They are meant to be one family and the 08-19 audit already
+  caught parseString drifting once. If they differ, that is row 1's cause and the fix
+  is to make them match. If identical, the candidate is DEAD and Clod's exitFromParse
+  callout is the right next look, next session.
+
+NEXT SESSION, IN THIS ORDER:
+  1. The string-leaf return. Land the fix if the read found one; otherwise the callout.
+  2. Tony's ruling on the LABEL CHANNEL, then the port. Clears three things: the DO
+     crash, the 35 DO refusals, and CT-5.
+  3. truthOf at :229 re-lands, with the six rows as its guard.
+  4. The ladder, starting at ANYorNum.
+
+FOR THE SEAL, Clay asks for ONE CAVEAT LINE: while :229 tests presence, a green row
+says THE RUN COMPLETES. It does not say the parse is right.
+
+-- CLOD'S ANSWER, the read --
+  THE RETURNS ARE IDENTICAL. Both parseSet and parseString end:
+        if label    label.clear();
+        return exitFromParse(field);
+  THE CANDIDATE IS DEAD. parseString has not drifted from parseSet at the return.
+  ⚠ ONE DIFFERENCE EXISTS AND IT IS NOT AT THE RETURN, so it does not discriminate:
+  parseSet fills the label with `label.setToken(hereAt,counter)`, parseString with
+  `label.text = matchedString`. BOTH then CLEAR the label before exitFromParse, which
+  returns that same cleared label on a labelled success. That shared clear-then-return
+  is worth a look in its own right, but it is IDENTICAL IN BOTH, so it cannot explain
+  NamE reading true while Search reads false. Recorded, not chased.
+  NEXT LOOK IS THE exitFromParse CALLOUT, next session, as Clay sequenced it.
+
+  END SEQ 170
