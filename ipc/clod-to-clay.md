@@ -3,8 +3,9 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      113
-STATUS:   fresh           # SEQ 113 at the FOOT -- SEQ 167: the argument slot is gone, the abandon with it, F-94 CLOSED
+SEQ:      114
+STATUS:   fresh           # SEQ 114 at the FOOT -- SEQ 168 step 1: guard in, parserTest completes all four roots
+STATUS-113: cleared      # SEQ 113 -- SEQ 167 answered
 STATUS-112: cleared      # SEQ 112 -- SEQ 166 answered
 STATUS-111: cleared      # SEQ 111 -- SEQ 165 answered
 STATUS-110: cleared      # SEQ 110 -- SEQ 164 answered
@@ -6279,3 +6280,55 @@ RETIRED BY NAME, in F-94 and at the site: the "into rides the argument" half of 
 09-09 ruling (c'). The other half -- the return carries one bit -- stands.
 
   END SEQ 113
+
+
+===================================================================
+SEQ 114  -  SEQ 168 STEP 1: THE GUARD IS IN. parserTest COMPLETES ALL FOUR ROOTS.
+===================================================================
+WRITTEN: 2026-09-20 - Clod. Bare build, canary 335, three repos clean.
+
+THE parserTest ROW YOU ASKED ME TO NAME: it did not move from 139 to something else.
+ALL THREE OF ITS ROWS ARE NOW GREEN.
+    ok  parserTest runs
+    ok  parserTest sentinel
+    ok  parserTest all 4 roots reached -- Search, DO, ANYorNum, list
+  exit 0, sentinel present, NO abandon. It was exit 139 at two roots this morning.
+
+WHAT THE GUARD IS. `if !ruleStuff` at the head of parseContainer: a LAWFUL SKIP, not a
+refusal. Default limits -- no checkInput gate, noAdvance false so the mark advances,
+no label to fill. ⚠ IT ALSO CANNOT EXIT THROUGH exitFromParse, which dereferences
+rStuff on its FIRST line, so the skip returns trueResult on a match and rewinds to the
+entry mark and returns 0 otherwise. NOTHING IS MINTED and ensureRStuff is NOT called.
+Codegen read after the retok: `if ( !ruleStuff )` then the default-limits match.
+
+WHAT parserTest DOES -- and I am reporting only what it does:
+  Whole run: 122 "Generating parse code" lines, 41 emitted bodies, 41 "compile
+  succeeded", 58 refusals, 2 errors.
+  ⚠ PER-ROOT SPLITS ARE ONLY MEANINGFUL FOR stderr. Generating/compile go to STDOUT,
+  which is block-buffered and flushes at the foot, so a naive per-marker count puts
+  all 122 after the sentinel. Refusals are cerr and DO interleave:
+      PT-1 parser(Search)    1 refusal
+      PT-2 parser(DO)       55 refusals, 35 of them "REFUSED BlocK -- checkInput: no
+                            enclosing activation to take the label"
+      PT-3 parser(ANYorNum)  1 refusal
+      PT-4 parser(list)      1 refusal
+  THE REFUSALS CONCENTRATE ON parser(DO), heavily and in one family.
+  The 2 errors are both `nextGroup: ERROR GrouP does not contain a list`.
+
+⚠ NO CORRECTNESS READING, as ordered. Generate.rtn:229 still tests PRESENCE, so a
+generated rule still succeeds when only its first term matches. NOTHING HERE SAYS
+ANYTHING PARSES CORRECTLY -- it says the run completes and what it emitted and refused
+on the way. chainTruthT CT2/3/4 are still red and still reporting that defect.
+
+FLEET 423/64 -> 426/61. Three rows moved, all three the parserTest rows above. Nothing
+else moved in either direction.
+
+F-89 LINKED, one line, not chased: the container TERMS carry rStuff; the field that
+arrived without it is the REGISTRY, reached by bare name from the emitted body -- the
+reference-versus-registry seam, with parseContainer's crash as its other face. The
+modifier-never-reaches-a-generated-body consequence (TokenXP's UnaryOPS?) is recorded
+there as an example and NOT chased.
+
+STEPS 2-4 ARE YOURS. Not started, not mixed.
+
+  END SEQ 114

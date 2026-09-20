@@ -9922,6 +9922,42 @@ int 		advance = 0;
 Buffer 		*buffer = ruler->stringBUFFER;
 RuleStuff 	*ruleStuff = field->getRStuff();
 GroupItem 	*grup = 0;
+char 		*entryMark = ruler->atRuleMark;
+int 		matched = 0;
+	/*  noStuffLawfulSkip  A REGISTRY LAWFULLY CARRIES NO rStuff (Ruling D1), and it reaches
+	noStuffLawfulSkip  here BY BARE NAME from an emitted body -- `Operators`, isRule 0,
+	noStuffLawfulSkip  binType isREGISTRY. This is a SKIP, NOT A REFUSAL: a refusal inside a
+	noStuffLawfulSkip  parse aborts the action containing it, so that option is out (Tony,
+	noStuffLawfulSkip  2026-09-20). The match runs with DEFAULT LIMITS -- no checkInput gate,
+	noStuffLawfulSkip  noAdvance false so the mark advances, no label to fill -- and it exits
+	noStuffLawfulSkip  WITHOUT exitFromParse, which dereferences rStuff at its first line.
+	noStuffLawfulSkip  ⚠ NOTHING IS MINTED ONTO THE REGISTRY and ensureRStuff is NOT called.  */
+	if ( !ruleStuff )
+		{
+		buffer->reset();
+		entryMark = ruler->atRuleMark;
+		atInput = ruler->atRuleMark;
+		while ( *atInput )
+			if ( inSet->contains(*atInput) )
+				{
+				buffer->appendChar(*atInput,0,0);
+				atInput++;
+				}
+			else	break;
+		while ( advance = buffer->length() )
+			{
+			if ( grup = field->get(buffer->string()) )
+				{
+				ruler->atRuleMark += advance;
+				matched = 1;
+				}
+			buffer->shorten(1);
+			}
+		if ( matched )
+			return ruler->trueResult;
+		ruler->atRuleMark = entryMark;
+		return 0;
+		}
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{

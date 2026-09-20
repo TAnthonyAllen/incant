@@ -1011,6 +1011,13 @@ build and is owed a re-read. **Grade:** CLOSED — bisected, ruled, repaired, an
 H7 control in both directions. **Owner:** closed.
 
 ### F-89 — ⚠⚠ RE-READ 2026-09-18 ON THE REPAIRED BUILD. **THE SECOND HEADLINE IS WITHDRAWN TOO**
+⚠ **LINKED 2026-09-20 (Clay, SEQ 168) — THIS IS THE REFERENCE-VERSUS-REGISTRY SEAM, AND
+`parseContainer`'s CRASH WAS ITS OTHER FACE.** The 09-15 reading showed the container **terms**
+carrying `rStuff`; the field that arrived at `parseContainer` with none is **the registry itself**
+(`Operators`, `isRule 0`, `binType` isREGISTRY), reached **by bare name from the emitted body**.
+One consequence, **recorded and not chased**: a **modifier on a container term never reaches a
+generated body** — `TokenXP`'s `UnaryOPS?` is the example. No correctness reading is claimed here.
+
 **EMITTED TERM CALLS DO REACH RULES. `parser(Search)` then the drive gives four term dispatches,
 every one `isRule=1 arm=runRule`:** `search`, `followedBy`, `GrouP`, `SemI`. The `arm=NONE`
 readings this row was built on were all taken while F-90 stood, when **nothing was installed** —

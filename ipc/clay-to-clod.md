@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      167
-STATUS:   cleared        # SEQ 167 -- slot deleted, abandon gone, F-94 closed; report in clod-to-clay SEQ 113
+SEQ:      168
+STATUS:   cleared        # SEQ 168 step 1 -- guard in, parserTest all four roots; report in clod-to-clay SEQ 114
+STATUS-167: cleared      # SEQ 167 -- slot deleted, abandon gone, F-94 closed; report in clod-to-clay SEQ 113
 STATUS-166: cleared      # SEQ 166 -- four points read; candidate (b); report in clod-to-clay SEQ 112
 STATUS-165: cleared      # SEQ 165 -- truthOf run and REVERTED; report in clod-to-clay SEQ 111
 STATUS-164: cleared      # SEQ 164 -- A1-A5 measured and reverted, B1-B5 landed, report in clod-to-clay SEQ 110
@@ -8488,3 +8489,46 @@ ONE BOOKKEEPING CONSEQUENCE
   WRONG FILE, so it needs correcting whichever way the writer count comes out.
 
   END SEQ 167
+
+
+===================================================================
+SEQ 168  -  STEP 1 OF 4: THE parseContainer GUARD
+===================================================================
+STATUS: cleared -- guard landed as a lawful skip; parserTest completes all four roots.
+        Report: clod-to-clay SEQ 114. Steps 2-4 remain with Clay.
+
+THE RULING. Tony gave his go today. THE GUARD IS A LAWFUL SKIP, NOT A REFUSAL. A
+registry lawfully carries no rStuff. A refusal inside a parse would ABORT THE ACTION
+THAT CONTAINS IT, so that option is out.
+
+THE CHANGE, at Generate.rtn:127-130:
+  - When the field reaching parseContainer has NO rStuff, SKIP the rStuff work and do
+    the container match WITH DEFAULT LIMITS.
+  - DO NOT call ensureRStuff. DO NOT mint anything onto the registry.
+  - THIS IS THE ONLY CHANGE IN THE STEP.
+
+THEN LET IT RUN.
+  Run parserTest. Report HOW FAR IT GETS: which roots complete, and where it stops
+  next if it stops. No new instruments are needed. If it fails in a way that is not
+  obvious, report that and we will decide what to look at.
+
+TWO NOTES FOR THE RECORD -- NEITHER IS WORK FOR THIS STEP:
+  1. F-89 LINK. The 09-15 reading showed the container TERMS with rStuff. The field
+     that arrives WITHOUT it is the REGISTRY ITSELF, reached by BARE NAME from the
+     emitted body. This is F-89's REFERENCE-VERSUS-REGISTRY SEAM. One consequence is
+     that a MODIFIER on a container term NEVER REACHES A GENERATED BODY --
+     TokenXP's `UnaryOPS?` is an example. ADD ONE LINE to F-89's row linking the two.
+     DO NOT CHASE IT.
+  2. NO CORRECTNESS READING YET. Generate.rtn:229 still tests PRESENCE, so a generated
+     rule succeeds when only its first term matches. REPORT WHAT parserTest DOES. DO
+     NOT REPORT THAT ANYTHING PARSES CORRECTLY. The truthOf restoration is STEP 2 and
+     it waits for this report.
+
+LANDING: usual routine -- bare build, canary, fleet, three repos clean. The parserTest
+row moves from 139 to whatever it does next. NAME THAT ROW in the report.
+
+STEPS 2-4 STAY WITH CLAY until this report comes back. Step 2 is the truthOf
+restoration. Step 3 is reading what fails honestly after that. Step 4 is the label
+channel.
+
+  END SEQ 168
