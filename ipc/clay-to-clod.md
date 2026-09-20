@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      170
-STATUS:   cleared        # SEQ 170 -- string-leaf read done, returns IDENTICAL, candidate dead; session sealed
+SEQ:      171
+STATUS:   working        # SEQ 171 -- label channel on the new parse road, Tony's ruling FIX IT; transcribed at pickup
+STATUS-170: cleared      # SEQ 170 -- string-leaf read done, returns IDENTICAL, candidate dead; session sealed
 STATUS-169: cleared      # SEQ 169 step 2 -- run post-guard, still red, REVERTED; report in clod-to-clay SEQ 115
 STATUS-168: cleared      # SEQ 168 step 1 -- guard in, parserTest all four roots; report in clod-to-clay SEQ 114
 STATUS-167: cleared      # SEQ 167 -- slot deleted, abandon gone, F-94 closed; report in clod-to-clay SEQ 113
@@ -8614,3 +8615,103 @@ says THE RUN COMPLETES. It does not say the parse is right.
   NEXT LOOK IS THE exitFromParse CALLOUT, next session, as Clay sequenced it.
 
   END SEQ 170
+
+
+===================================================================
+SEQ 171  -  LABEL PROCESSING ON THE NEW PARSE ROAD: TONY'S RULING, FIX IT
+===================================================================
+STATUS: working -- transcribed AT PICKUP, before any status read, any retok, any
+        commit and any edit, per WT-15. Two messages, one thread: a HEADS-UP that
+        shortens Step 0, then the dispatch proper.
+
+-------------------------------------------------------------------
+PART A -- THE HEADS-UP (Clay -> Clod, 2026-09-20, no work yet)
+-------------------------------------------------------------------
+Tony worked offline this afternoon. Expect dirt, and it is his:
+- IncantForms/WorkingOn/parser -- compileRules now runs compile THEN setParse.
+  Deliberate. Do not revert or "restore" the old order.
+- incant/grammar, if it shows dirty -- DEBUG's "debug"- unquoted, and
+  DEF "define"- respelled to def-="define". Also deliberate.
+No .twk/.rtn/.mm changed; anything he tried there he reverted. The binary may be a
+directives build -- check, retok bare before any number, one-line note.
+Bookkeeping, not findings: commit them under Tony's name in the first kitchen pass,
+respell before/after lines in the message. Wait for the dispatch before touching
+the parse road.
+
+Once the warning has gone out, Step 0 in the dispatch gets shorter:
+
+STEP 0 -- tree state is as the heads-up said (parser + grammar are Tony's, keep).
+Retok bare if a directives build is in place. Then report why compile-first gives
+ZERO refusals rather than "all but the first rule" -- Clay predicted the latter.
+
+-------------------------------------------------------------------
+PART B -- THE DISPATCH (Clay -> Clod, 2026-09-20; standalone; one thread)
+SUBJECT: label processing on the new parse road -- Tony's ruling: FIX IT
+-------------------------------------------------------------------
+WHAT TONY FOUND OFFLINE TODAY (his runs, bare unless noted)
+- parser(DO) now generates for DO's whole reach. Two grammar respells got it there:
+    DEBUG  before:  DEBUG  "debug"- followedBy rules?=NamE+ SemI-;
+           after:   DEBUG  debug- followedBy rules?=NamE+ SemI-;
+    DEF    before:  DEF    "define"- followedBy define^;
+           after:   DEF    def-="define" followedBy define^;
+  A quoted literal whose text names an existing field ("debug" = Keywords entry,
+  "define" = GroupMain rule) was emitted as GrouP() and hit the no-groupList error.
+- compileRules as setParse-then-compile gave a long list of
+  `REFUSED BlocK -- checkInput: no enclosing activation` (processCode enters
+  BlocK.parse() after setParse has put BlocK on the new road). Tony swapped it to
+  compile-then-setParse: no refusals in sight.
+- Then  DO("do print ++result; while result < 2;")  dies in aCTionTokenXP:
+  TokenXP receives `xpress` with NO LIST. Directives trace: PrinT parses
+  (label PrinT=gPrinT); last line is `UnaryOPS succeeded with count 0` on `result`
+  in the while expression; ANYorNum is never asked.
+
+STEP 0 -- tree state. `git status` on all three. If the two respells and the
+compileRules order are not in the tree, apply them as Tony's (each its own try,
+before/after lines above in the commit). Report why compile-first gives ZERO
+refusals rather than "all but the first rule" -- Clay predicted the latter.
+
+STEP 1 -- control first, then pin the target.
+  control:  parser(DO); DO("do print 1; while 0;")           expect: passes as this morning
+  target:   parser(DO); DO("do print ++result; while result < 2;")
+  oracle:   the same DO statement on the old road (no parser()) -- bank its output.
+  Pin the target as a fleet row, born red.
+
+STEP 2 -- read before build, then port (NOT merge) from `checkinput-state`:
+  a. parseRule binds the label it mints: rStuff.label = myLabel on the field being
+     parsed (frame state, never the definer), so exitFromParse's parentStuff.label
+     read has something to attach into.
+  b. checkInput road-blind: bound label -> write into it; none -> label = 0, lawful,
+     no refusal, no read of hasNewParse. (Also retires the refusal for any body
+     compiled lazily AFTER parser().)
+  c. RECURSION: by-name calls land on one field, so nested ExpressioN/StatemenT
+     would overwrite the outer's slot. Save the prior rStuff.label in a C++ local at
+     parseRule entry, restore at exit. Certificate = the 09-09 H19 rows: labels
+     distinct per activation, inner attaches under outer, outer survives inner.
+  No null guard in aCTionTokenXP -- that converts the crash into a silent wrong answer.
+
+STEP 3 -- measure only, separate stroke if it needs a fix:
+  what does parseContainer hand the && chain on the kount 0 / min 0 path? Clay's
+  candidate: labelNO, which truthOf reads as 0, so `UnaryOPS() && ...` stops at an
+  ABSENT unary while :229's presence test still fires the action. One-variable pair:
+  `while result < 2` vs `while !result < 2`. If confirmed, the fix is (c') carried
+  to terms -- a term returns trueResult/falseResult by identity, optional miss is
+  trueResult -- then truthOf at :229 with chainTruthT's rows. Agreed order stands.
+
+NOTES, no work unless trivial
+- generateParse prints "rules should not have data and a list" for BrancheS: a
+  bin's set data is derived (08-19 ruling); wants the binTypE == 0 exemption. Row or ride.
+- Tony's directive line "X succeeded with count N" reads kount >= min, and kount is
+  stale on the new road (SemI "succeeds" at `print`). His file; FYI only.
+- Emitted bodies carry no modifiers (ExpressioN = Token(), NumbeR needs FloaT()).
+  Known F-89 seam; the target drive will hit it right after the label lands
+  (`result < 2` is three Tokens). Report where it stops; do not chase.
+
+STOP: three distinct attempts on Step 2 without the target moving -> report; Tony
+walks parseRule in Xcode.
+
+CERTIFICATE: target row green against the old-road oracle, or the named rule where
+it now stops; control unmoved; CT8/CT9 green; parserTest 4 roots; refusal count
+under parser(DO) stated; red column diffed row for row.
+
+REPORT: top lines = the command as typed, what failed, WHICH RULE. File:line and
+frames after, as evidence.
