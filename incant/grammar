@@ -161,8 +161,8 @@ define
         BasicElse   else- followedBy StatemenT@ defer;
         ElseIf      or- ExpressioN SemI- StatemenT ElsE? ruleMethod=aCTionIF defer;
     WardeD
-        DEBUG       "debug"- followedBy rules?=NamE+ SemI-;
-        DEF         "define"- followedBy define^;
+        DEBUG       debug- followedBy rules?=NamE+ SemI-;
+        DEF         def-="define" followedBy define^;
         DO          do- followedBy StatemenT while- ExpressioN SemI- defer;
         IF          if- followedBy ExpressioN SemI- StatemenT ElsE? defer;
         FOR         for- followedBy Looper in- reversE?="<-" ExpressioN SemI- LoopRestrict? StatemenT defer;
