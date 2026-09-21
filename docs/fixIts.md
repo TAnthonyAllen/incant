@@ -92,6 +92,41 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-100 — `parseLoop` repeats to the limit on a refusal that consumed nothing
+
+**What.** A leaf whose parse cannot run is refused by name once per iteration, and `parseLoop`
+keeps going to `max`. A refusal consumes no input, so the repeat is pure noise: **100 identical
+lines** for a `max=100` term, 200 across two drives.
+
+```
+REFUSED parseRule: ShortcuT has a parse method but no compiled body
+    at ++result; while result < 2;              ... x100, one per iteration
+```
+
+**Where.** `Generate.rtn`, `parseLoop` — `while kount < max / if !runLeafParse(field) break;`.
+`runLeafParse` (added SEQ 186) returns `refuse(...)`, which is falsy, so the loop **does** break
+on the first one. The 100 lines are therefore **not** one loop spinning: they are 100 separate
+entries to `parseLoop` from the enclosing repetition. **Which loop repeats is NOT measured** and
+this row does not claim it.
+
+**Evidence.** Branch `holder-attribute` at `b3c06d9`, binary bare, canary 337.
+`~/bin/incant incant/pop/doWhileNameT` → exit 0, sentinel reached, `DW-5 target drive carries
+100 refusal(s)`. Row `doWhileNameT DW-8` reads the count.
+
+⚠ **THE COUNT IS THE USEFUL PART AND SHOULD NOT BE SUPPRESSED BY SILENCING THE REFUSAL.** The
+refusal is F-98's named-refusal half and is what replaced a jump to address 0. A fix that quietens
+it must keep the naming; deduplicating the *print* is not the same as fixing the *repeat*.
+
+**Done-when.** One refusal per drive, or a stated reason why a consumed-nothing refusal should be
+retried at all.
+
+**Owner.** Unassigned — banked under SEQ 187 at Clay's instruction.
+
+**ATTEMPT LOG.**
+- **2026-09-21, found while certifying SEQ 186.** No attempt made.
+
+---
+
 ### F-99 — `jsonTest` and `oneTest` baselines carry lines that are PRE-EXISTING ON TRUNK
 
 **What.** Two fleet baselines have been red since before the holder-attribute work and were
