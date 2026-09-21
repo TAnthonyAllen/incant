@@ -508,11 +508,11 @@ GroupItem 	*item = 0;
 			NewGroup->setRStuff(new RuleStuff(NewGroup));
 		NewGroup->setActions();
 		}
-	// embeddedRuleCopy embedRule() copies an embedded RULE
+	// holderAttribute a completing field whose group carries a LIST takes that rule as an ATTRIBUTE; a data group still goes to embedRule
+	NewGroup->embedAttribute(NewGroup->groupBody->gGroup);
 	if ( NewGroup->groupBody->flags.isRule && NewGroup->groupBody->groupList )
 		while ( item = NewGroup->nextAttribute(item) )
-			if ( isGROUP(item->groupBody->flags.data) )
-				item->embedRule(item->groupBody->gGroup);
+			item->embedAttribute(item->groupBody->gGroup);
 	input->clearList();
 	NewGroup->groupBody->flags.isInitialized = 1;
 	if ( NewGroup->groupBody->registry && !NewGroup->parent )

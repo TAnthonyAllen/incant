@@ -58,6 +58,7 @@ GroupItem *dQ();
 GroupItem *definingRule();
 void dispatch();
 void dumpField();
+void embedAttribute(GroupItem *g);
 void embedRule(GroupItem *g);
 PLGset *ensureGuard();
 RuleStuff *ensureRStuff();

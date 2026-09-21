@@ -2868,8 +2868,12 @@ else
     echo "        block header. Do not re-pin to ${_dw4:-<absent>}."; fail=1
 fi
 _dw3r=$(awk '/DW-3 control/{f=1} /DW-3 CONTROL RETURNED/{f=0} f' "$T/dwn.e" | grep -c "REFUSED parseRule:")
-echo "  ..    doWhileNameT DW-7 reads REFUSED parseRule inside the DW-3 window = $_dw3r (want 0)"
-if [ "$_dw3r" = 0 ]; then
+_dw3end=$(grep -c "DW-3 CONTROL RETURNED" "$T/dwn.e")
+echo "  ..    doWhileNameT DW-7 reads REFUSED parseRule inside the DW-3 window = $_dw3r, window closed = $_dw3end (want 0 and 1)"
+if [ "$_dw3end" != 1 ]; then
+    echo "  FAIL  doWhileNameT DW-7 the DW-3 window NEVER CLOSED -- its RETURNED marker is"
+    echo "        absent, so the window is EMPTY and a zero count asserts nothing."; fail=1
+elif [ "$_dw3r" = 0 ]; then
     echo "  ok    doWhileNameT DW-7 control drive refuses nothing"; green=$((green+1))
 else
     echo "  FAIL  doWhileNameT DW-7 control drive carries $_dw3r refusal(s), want 0 -- BORN RED"
@@ -2877,8 +2881,12 @@ else
     awk '/DW-3 control/{f=1} /DW-3 CONTROL RETURNED/{f=0} f' "$T/dwn.e" | grep -A1 "REFUSED parseRule:" | sed 's/^/          /'; fail=1
 fi
 _dw5r=$(awk '/DW-5 target/{f=1} /DW-5 TARGET RETURNED/{f=0} f' "$T/dwn.e" | grep -c "REFUSED parseRule:")
-echo "  ..    doWhileNameT DW-8 reads REFUSED parseRule inside the DW-5 window = $_dw5r (want 0)"
-if [ "$_dw5r" = 0 ]; then
+_dw5end=$(grep -c "DW-5 TARGET RETURNED" "$T/dwn.e")
+echo "  ..    doWhileNameT DW-8 reads REFUSED parseRule inside the DW-5 window = $_dw5r, window closed = $_dw5end (want 0 and 1)"
+if [ "$_dw5end" != 1 ]; then
+    echo "  FAIL  doWhileNameT DW-8 the DW-5 window NEVER CLOSED -- its RETURNED marker is"
+    echo "        absent, so the window is EMPTY and a zero count asserts nothing."; fail=1
+elif [ "$_dw5r" = 0 ]; then
     echo "  ok    doWhileNameT DW-8 target drive refuses nothing"; green=$((green+1))
 else
     echo "  FAIL  doWhileNameT DW-8 target drive carries $_dw5r refusal(s), want 0 -- BORN RED"
