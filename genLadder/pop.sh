@@ -2841,6 +2841,50 @@ else
     echo "        dies too, so the red rows are no longer about the while EXPRESSION."
     grep -E "^DW-" "$T/dwn.e" | sed 's/^/          /'; fail=1
 fi
+#  ---- DW-6/7/8: the THREE VALUE ROWS. Minted 2026-09-21, SEQ 176 step A, BORN RED.
+#  WHY THEY EXIST: the four rows above went GREEN on 2026-09-21 and the green was HOLLOW.
+#  They assert that each drive RETURNED, and a drive that parses nothing returns fastest of
+#  all. Measured under SEQ 175: dwN is 1 before DW-4 and 1 after, so the twin never bumps it;
+#  a traceParse window across DW-4 dispatches 20 rules and TokenXP is not one of them; and
+#  PARSERESULT reads `rule=DO ... truthOf=0`, i.e. the drive FAILED and said RETURNED.
+#  ⚠ THE CONTROL WAS HOLLOW TOO, which is why DW-3 gets a row of its own: the literal-while
+#  control carries the same `REFUSED parseRule: stuff` line as both targets. A control that
+#  is broken in the same way as its targets discriminates nothing.
+#  DW-6 IS PRESENCE-WITH-VALUE WITH A NON-ZERO SIBLING BUILT IN (rule H4): the pre-drive
+#  value is 1, so 2 is the only reading a drive that did nothing cannot produce. A row
+#  pinned at 1 would be satisfied by the oracle's bump alone.
+#  DW-7/DW-8 COUNT AND COMPARE, they do not grep for an absence (rule H4): the count is
+#  echoed on every run, so deleting the code that emits the refusal breaks the row instead
+#  of satisfying it.
+#  These three go GREEN when the generated road actually parses. They are NOT to be re-pinned
+#  to the values they read today; that is precisely the hollow green they were minted against.
+_dw4=$(grep -F "DW-4 dwN AFTER =" "$T/dwn.e" | sed 's/.*= *//' | tr -d ' ')
+echo "  ..    doWhileNameT DW-6 reads dwN after the DW-4 drive = ${_dw4:-<absent>} (want 2)"
+if [ "$_dw4" = 2 ]; then
+    echo "  ok    doWhileNameT DW-6 dwN == 2 -- the twin bumped the shared counter"; green=$((green+1))
+else
+    echo "  FAIL  doWhileNameT DW-6 dwN == ${_dw4:-<absent>}, want 2 -- BORN RED 2026-09-21."
+    echo "        The DW-4 drive returns without executing its body. RED BY DESIGN; see the"
+    echo "        block header. Do not re-pin to ${_dw4:-<absent>}."; fail=1
+fi
+_dw3r=$(awk '/DW-3 control/{f=1} /DW-3 CONTROL RETURNED/{f=0} f' "$T/dwn.e" | grep -c "REFUSED parseRule:")
+echo "  ..    doWhileNameT DW-7 reads REFUSED parseRule inside the DW-3 window = $_dw3r (want 0)"
+if [ "$_dw3r" = 0 ]; then
+    echo "  ok    doWhileNameT DW-7 control drive refuses nothing"; green=$((green+1))
+else
+    echo "  FAIL  doWhileNameT DW-7 control drive carries $_dw3r refusal(s), want 0 -- BORN RED"
+    echo "        2026-09-21. The anti-vacuity CONTROL is broken the same way as its targets."
+    awk '/DW-3 control/{f=1} /DW-3 CONTROL RETURNED/{f=0} f' "$T/dwn.e" | grep -A1 "REFUSED parseRule:" | sed 's/^/          /'; fail=1
+fi
+_dw5r=$(awk '/DW-5 target/{f=1} /DW-5 TARGET RETURNED/{f=0} f' "$T/dwn.e" | grep -c "REFUSED parseRule:")
+echo "  ..    doWhileNameT DW-8 reads REFUSED parseRule inside the DW-5 window = $_dw5r (want 0)"
+if [ "$_dw5r" = 0 ]; then
+    echo "  ok    doWhileNameT DW-8 target drive refuses nothing"; green=$((green+1))
+else
+    echo "  FAIL  doWhileNameT DW-8 target drive carries $_dw5r refusal(s), want 0 -- BORN RED"
+    echo "        2026-09-21."
+    awk '/DW-5 target/{f=1} /DW-5 TARGET RETURNED/{f=0} f' "$T/dwn.e" | grep -A1 "REFUSED parseRule:" | sed 's/^/          /'; fail=1
+fi
 
 #  ---- skipT: the line-comment rule can be WRITTEN; what it consumes cannot be READ ---
 #  The blocker (docs/checkSKIP.md 2a): the two-character line-comment literal kills the define

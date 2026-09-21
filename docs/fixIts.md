@@ -92,6 +92,46 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-97 — a generated ALTERNATION reads true above a failing arm: `WardeD` succeeds while `PrinT` and `DO` fail
+
+**What.** In one `PARSERESULT` sequence from a single drive, `stuff` returns null, `PrinT` reads
+`truthOf=0`, and then `WardeD` and `StatemenT` — both of which reached that failure through
+`PrinT` — read `truthOf=1`. `DO`, the outermost, reads `0`. So the two rules in the middle of the
+chain report success over a failure, and the chain still ends in failure. **Banked, not chased.**
+
+**Where.** The reading seat is `measureParseResult` (`measure.mm:556`), printed under `traceParse`.
+`WardeD` is an ALTERNATION, so its emitted body is `DEBUG() || DEF() || DO() || IF() || … ||
+PrinT() || …` — the `||` arm of `generateParse` (`IncantForms/WorkingOn/parser`). The candidate
+mechanism is F-95's family — a generated rule succeeding on a term that matched — but F-95 is
+about the FIRST term of a sequence and this is an alternation, so **it is not the same row and
+nothing here claims it is.**
+
+**Evidence.** `incant/pop/doWhileNameT`, `traceParse('on')` armed across the DW-4 drive only,
+2026-09-21, branch `group-descent`, binary bare, canary 335. Verbatim, in order:
+
+```
+PARSERESULT rule=stuff     result=0x0   tag=(null)  truthOf=-1
+PARSERESULT rule=PrinT     result=...   tag=false   truthOf=0
+PARSERESULT rule=WardeD    result=...   tag=true    truthOf=1
+PARSERESULT rule=StatemenT result=...   tag=true    truthOf=1
+PARSERESULT rule=DO        result=...   tag=false   truthOf=0
+```
+
+⚠ **NOT MEASURED, and the row must not be read as claiming it:** which arm of `WardeD` produced
+the `true`, and whether `StatemenT`'s `true` is its own reading or `WardeD`'s carried up. Both need
+a per-arm read, not an exit status.
+
+**Done-when.** Either a measurement names the arm that returns true and the behaviour is ruled
+correct, or `WardeD` reads `truthOf=0` when every arm it tried failed. Wants a fleet row either way.
+
+**Owner.** Unassigned — banked under SEQ 176 step A at Clay's instruction, from a SEQ 175 reading.
+
+**ATTEMPT LOG.**
+- **2026-09-21, found.** Surfaced while answering "is TokenXP entered" and recorded without
+  investigation, per capture-do-not-chase. No attempt made.
+
+---
+
 ### F-96 — the label channel: a term's label never attaches, so `aCTionTokenXP` reads a null `ANYorNum`
 
 **What.** On the new parse road a sub-term's label is never attached to its parent's label, so a
