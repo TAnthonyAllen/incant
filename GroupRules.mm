@@ -3713,6 +3713,26 @@ extern "C" int hasRepeatClass(char *modifier)
 	return 0;
 }
 
+/*******************************************************************************
+    installParseMethod -- PARK THE CLASSIFICATION ON THE DEFINER.
+    // definerHoldsTheMethod as runLeafParse; the definer is where every face reads it
+    // callNotDeclaration frameStak's discipline -- a call, so setParseWalk introduces no
+    // callNotDeclaration declaration and every bare field below it still resolves as before
+    // faceKeepsItsOwn MIN AND MAX ARE NOT MOVED. They stay on the face's own rStuff, which is
+    // faceKeepsItsOwn what a repetition is about; only the METHOD is a fact about the shape.
+*******************************************************************************/
+extern "C" void installParseMethod(GroupItem *field)
+{
+GroupItem 	*definer = field->definingRule();
+RuleStuff 	*faceStuff = field->getRStuff();
+RuleStuff 	*defStuff = 0;
+	if ( !definer || definer == field )
+		return;
+	defStuff = definer->getRStuff();
+	if ( defStuff && faceStuff )
+		defStuff->parseMethod = faceStuff->parseMethod;
+}
+
 /*****************************************************************************
     interpretMethod — binds a bytecode op's interpret handler. Unlike
     operateMethod (which binds the op's own operat slot, then vanishes as a
@@ -9988,9 +10008,6 @@ int 		matched = 0;
 	return ::exitFromParse(field);
 }
 
-/*******************************************************************************
-	Process a loop (max > 1)
-*******************************************************************************/
 extern "C" GroupItem *parseLoop(GroupItem *field)
 {
 	// enclosingRule currentMETHOD is the rule whose body is executing, kept under parseRule's own priorMETHOD bracket. MEASURED at both re-resolve sites: it tracks lastRule exactly -- GrouP/Search, NamE/GrouP   Generate.parseLoop.enclosingRule
@@ -10002,7 +10019,7 @@ extern "C" GroupItem *parseLoop(GroupItem *field)
 RuleStuff *ruleStuff = field->getRStuff();
 	ruleStuff->kount = 0;
 	while ( ruleStuff->kount < ruleStuff->max )
-		if ( !ruleStuff->parseMethod(field) )
+		if ( !::runLeafParse(field) )
 			break;
 		else	ruleStuff->kount++;
 	if ( ruleStuff->sukcess )
@@ -11772,6 +11789,30 @@ exitRunAction:
 	return result;
 }
 
+/*******************************************************************************
+	Process a loop (max > 1)
+*******************************************************************************/
+/*******************************************************************************
+    runLeafParse -- FIRE A LEAF'S PARSE METHOD THROUGH ITS DEFINER.
+    // definerHoldsTheMethod parseMethod is a fact about the rule's SHAPE, so it is READ from
+    // definerHoldsTheMethod definingRule(); a face that setParseWalk turned away at the installed
+    // definerHoldsTheMethod gate carries none of its own. F-98.
+    // refuseNeverCall A MISSING METHOD IS A NAMED REFUSAL, never a call -- parseLoop used to fire
+    // refuseNeverCall the slot unguarded and jumped to address 0, and a BARE guard would only trade
+    // refuseNeverCall the crash for a silent wrong answer. runRule refuses the sibling case by name.
+    // callNotDeclaration frameStak's discipline -- a call, so parseLoop introduces no declaration
+*******************************************************************************/
+extern "C" GroupItem *runLeafParse(GroupItem *field)
+{
+GroupItem 	*definer = field->definingRule();
+RuleStuff 	*defStuff = 0;
+	if ( definer )
+		defStuff = definer->getRStuff();
+	if ( defStuff && defStuff->parseMethod )
+		return defStuff->parseMethod(field);
+	return ::refuse(field,"parseLoop: no parse method is installed on the defining rule");
+}
+
 extern "C" GroupItem *runOP(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -12429,6 +12470,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( field->groupBody->gMethod )
 		ruleStuff->parseMethod = ::parseAction;
 	else	ruleStuff->parseMethod = ::parseString;
+	::installParseMethod(field);
 	if ( field->groupBody->flags.hasTraits || field->groupBody->flags.hasMembers )
 		{
 		GroupItem 	*grup = 0;
