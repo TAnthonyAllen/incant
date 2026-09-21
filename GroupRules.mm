@@ -12433,6 +12433,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		}
 	field->groupBody->flags.parseWalked = 1;
 	//  actionMethodRemoved  THE WALK WRITES gMethod AND parseMethod, AND NOTHING ELSE.
+	// realTermNotAList "has a list" means "has a REAL term": hasTraits and hasMembers ignore noPrint artifacts, groupList does not
 	if ( upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo) )
 		ruleStuff->parseMethod = ::parseUpTo;
 	else
@@ -12445,7 +12446,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( parseACTION(field->groupBody->flags.methodType) )
 		ruleStuff->parseMethod = ::parseAction;
 	else
-	if ( field->groupBody->groupList )
+	if ( field->groupBody->flags.hasTraits || field->groupBody->flags.hasMembers )
 		ruleStuff->parseMethod = ::parseRule;
 	else
 	if ( field->groupBody->flags.data )

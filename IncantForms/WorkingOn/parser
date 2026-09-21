@@ -14,7 +14,7 @@ define
         print openBrace:;
         if datA != 0;
             printTO(0);
-            if listLengtH; cerr "rules should not have data and a list; one or the other":;
+            if hasTraitS || hasMemberS; cerr "rules should not have data and a list; one or the other":;
             uncompiled +% argument;
             return;
         if listLengtH == 0; return;;

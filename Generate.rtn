@@ -407,11 +407,12 @@ RuleStuff   ruleStuff = rStuff;
         return null; }
     parseWalked = true;
     //  actionMethodRemoved  THE WALK WRITES gMethod AND parseMethod, AND NOTHING ELSE.
+    // realTermNotAList "has a list" means "has a REAL term": hasTraits and hasMembers ignore noPrint artifacts, groupList does not
     if upTo || upToOver     parseMethod = parseUpTo;
     or isBIN || isREGISTRY  parseMethod = parseContainer;
     or isCondition          parseMethod = parseCondition;
     or parseACTION          parseMethod = parseAction;
-    or groupList            parseMethod = parseRule;
+    or hasTraits || hasMembers  parseMethod = parseRule;
     or data switch(data) {
         case isANY:         parseMethod = parseAny;
         case isCHAR:        parseMethod = parseCharacter;

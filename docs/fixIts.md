@@ -92,6 +92,48 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-101 — `aCTionQuotE` dereferences a null on the NEW road: exit 139 at `GroupRules.mm:1005`
+
+**What.** A quoted literal driven through a generated parse crashes in `aCTionQuotE`. **Pre-existing
+at HEAD** — not caused by any conversion work — and **exposed** by F-98's fix, which let the parse
+get far enough to reach it.
+
+**Where.** `GroupRules.mm:1005`, the line `if ( *tik->groupBody->gText != '"' )`. Two lines above,
+`quoteBody = input->getLabelGroup("quoteBody")` and `body = quoteBody->getText()`; `input->clear()`
+and `quoteBody->clear()` then run before the read. ⚠ Bear-trap #36: the line that dies is not
+necessarily the line that read null — the producers are `getLabelGroup("tik")` and
+`getLabelGroup("quoteBody")` at `:1000-1001`, and which of them is empty is **not measured**.
+
+**Evidence, with its control.** Branch `holder-attribute`, binary bare, canary 337.
+
+```
+~/bin/incant <quoteCtl>          EXIT 139
+  QC-1 ORACLE RETURNED           old road, prints `alpha`
+  QC-2 parser generates for StatemenT
+  QC-3 target -- the same drive, NEW road      <- dies here, nothing after it
+
+frame #0  aCTionQuotE            GroupRules.mm:1005
+frame #1  fireLabelMethod        GroupItem.mm:953
+frame #2  exitFromParse          GroupRules.mm:2784
+frame #3  parseRule              GroupRules.mm:10139
+frame #4  runRule :12059  #5 runOP :11998  #6 runShortCircuit :12184  #7 aCTionBrancH :148
+```
+
+⚠ **THE CONTROL IS WHAT MAKES THIS A ROW RATHER THAN A REGRESSION REPORT.** The SEQ 187 try was
+reverted and the tree rebuilt at HEAD, and `quoteCtl` **still exits 139 with the same frames**. So
+the crash belongs to HEAD, not to the try that was running when it was found.
+
+**Done-when.** `quoteCtl` reaches `QC-3 TARGET RETURNED` and prints `bravo`, with `parserTest` still
+at four roots.
+
+**Owner.** Unassigned — banked under SEQ 188 at Clay's instruction. Not chased.
+
+**ATTEMPT LOG.**
+- **2026-09-21, found while certifying the SEQ 187 try; controlled at HEAD the same hour.** No
+  attempt made.
+
+---
+
 ### F-100 — `parseLoop` repeats to the limit on a refusal that consumed nothing
 
 **What.** A leaf whose parse cannot run is refused by name once per iteration, and `parseLoop`
