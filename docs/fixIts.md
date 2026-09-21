@@ -92,6 +92,52 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-99 — `jsonTest` and `oneTest` baselines carry lines that are PRE-EXISTING ON TRUNK
+
+**What.** Two fleet baselines have been red since before the holder-attribute work and were
+repeatedly mis-attributed to it. `jsonTest` carries two extra lines; `oneTest` carries three.
+**Neither is caused by the conversion.**
+
+```
+jsonTest   0a1,2
+           > nextGroup: ERROR JSONlist does not contain a list
+           > nextGroup: ERROR JSONlist does not contain a list
+oneTest    47a48,50
+           > AUDIT TERM     list [5] builtinActoR -- rule TERM, not isRule, has rStuff
+           > AUDIT TERM     JSONarray [6] builtinActoR -- rule TERM, not isRule, has rStuff
+           > AUDIT TERM     JSONfield [7] builtinActoR -- rule TERM, not isRule, has rStuff
+```
+
+**Where.** The `jsonTest` emitter is `aCTionFOR` — `for grup in JSONlist;` at
+`incant/utilities:104`, guarded only by `if JSONlist;`, an existence test where project memory
+wants `if JSONlist.listLengtH;`. `pop.sh`'s own prose at the baseline rows already recorded both
+populations before this branch existed.
+
+**Evidence, and it is the control that settles it.** Sources checked out at `9475ae0` — the
+branch's setup commit, trunk plus carried rows, **with no conversion code in the tree at all** —
+built bare, canary 335: `oneTest` and `jsonTest` produce the **identical** diffs, 4 and 3 lines.
+Confirmed twice over: the branch-baseline `pop.sh` capture taken before any conversion was
+written already shows both rows FAIL with these exact lines.
+
+⚠ **Four sequences of attribution were spent on this and every one was wrong** — first named as
+movers of the holder-attribute change, then attributed to `compile()`'s `this` being converted,
+then bisected to GroupMain's two born-converted sites. Each step's controls said "still differs",
+which was read as "not the cause" when it meant "the diff was never yours". **The control that
+ends it — rebuild at the pre-change commit — was available from the first hour and was not run.**
+
+**Done-when.** Either the `JSONlist` guard becomes a length test and the two lines stop, or the
+lines are pinned into `jsonTest.base` with a sentence. `jsonTest baseline` is PARKED as of
+2026-09-21 by Tony's ruling — out of the line of fire until fonts — and parking is not skipping:
+`parkdiff` still runs it and goes loud if it starts passing.
+
+**Owner.** Tony — parked until fonts.
+
+**ATTEMPT LOG.**
+- **2026-09-21, mis-attributed three times, then controlled.** No fix attempted; the row records
+  the attribution failure so the next reader does not repeat it.
+
+---
+
 ### F-98 — `parseLoop` calls a null `parseMethod` unguarded, where `runRule` refuses the same class by name
 
 **What.** `parseLoop` fires `ruleStuff->parseMethod(field)` with no null check. `runRule` guards the

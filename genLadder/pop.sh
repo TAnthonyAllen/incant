@@ -4095,7 +4095,18 @@ fi
 #  slot index drops by one. Nothing else in the baseline moved, which is the useful half --
 #  the removal is visible here and invisible everywhere it should be.
 diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
-diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
+#  ⚠⚠ PARKED 2026-09-21, SEQ 185, TONY'S RULING: jsonTest is out of the line of fire
+#  until fonts. DATE 2026-09-21 · REASON the two `nextGroup: ERROR JSONlist does not
+#  contain a list` lines, which the answer has not been chosen for · ORIGIN SLOT this
+#  line, diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn".
+#  ⚠ PARKED IS NOT SKIPPED: parkdiff still runs the fixture, still prints its real
+#  state, and goes LOUD with WOKE if it starts passing. Do not convert it to a skip.
+#  ⚠⚠ AND THE CAUSE IS **PRE-EXISTING ON TRUNK**, which is the correction that closed
+#  four sequences of wrong attribution. The two lines are present on a build with the
+#  holder-attribute conversion ENTIRELY ABSENT -- sources at 9475ae0, measured live on
+#  2026-09-21, not inferred. They were red at the branch baseline too, in the very
+#  capture that was used to call them movers. docs/fixIts.md F-99.
+parkdiff "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 
 #  ===========================================================================
 #  THE genParse ODOMETER, wired in 2026-08-24 once its first baseline existed.
