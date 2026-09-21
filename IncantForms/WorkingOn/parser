@@ -5,24 +5,26 @@ define
     closeBrace="}";
     termCount;
     parseCount;
-    uncompiled;
     fireLog;
     generateParse code={
         cout "Generating parse code for" taG:;
         reset(codeBuffer);
         printTO(codeBuffer);
         print openBrace:;
+        notFirstTimeThru = 0;
         if datA != 0;
             printTO(0);
-            if listLengtH; cerr "rules should not have data and a list; one or the other":;
-            uncompiled +% argument;
-            return;
+            if listLengtH;  cerr "rules should not have data and a list; one or the other":;
+            or isGrouP;
+                generateParse(*argument);
+                print $taG "()";
+                ++notFirstTimeThru;
+            if notFirstTimeThru == 0;    return;
         if listLengtH == 0; return;;
         if hasTraitS;       conjunct = "&&";
         else                conjunct = "||";
         print `"return";
         // notFirstTimeThru set to 0 here because ++ refuses an ABSENT field.
-        notFirstTimeThru = 0;
         iterate grup on argument;
         while ++grup;
             if noPrinT;     continue;
@@ -141,8 +143,7 @@ This text is past bail(); the incant parser halts there, so it need not be wrapp
     builtinActoR and builtinParseR never appear in an emitted body even though they
     are attributes like any other.
 
-    A rule carrying DATA rather than a list is refused: it is appended to the
-    uncompiled field and generation returns. A rule with both data and a list is
+    A rule carrying DATA rather than a list is refused: A rule with both data and a list is
     a contradiction and says so on stderr.
 
     WHERE THE BODY GOES -- and this is the part that changed on 2026-09-20.
@@ -223,7 +224,7 @@ This text is past bail(); the incant parser halts there, so it need not be wrapp
     A "Generating parse code for X" with no "X = CodE {...}" line after it means X
     got no body, and there are TWO causes, both leaf-shaped. Measured on parser(Search):
     ELEVEN Generating lines, FOUR bodies.
-        data-bearing        the datA arm appends X to `uncompiled` and returns
+        data-bearing with a list       the datA arm complains and returns
         listless AND dataless  X reaches `iterate` with nothing to walk and is
                             REFUSED at run time -- "REFUSED X -- iterate: the source
                             has no list". F-93's population.

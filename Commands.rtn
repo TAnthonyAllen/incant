@@ -85,10 +85,12 @@ endCompile:
 use field
     grup = 0;
     if hasTraits || hasMembers
-        while grup = field.next(grup) {
-            grup.parent  = field;    // because if field is a copy grup.parent is not field
+        while grup = field.next(grup)
             if grup.noPrint continue;
-            else compile(grup); }
+            else {
+                grup.parent  = field;    // because if field is a copy grup.parent is not field
+                compile(grup);
+                grup.parentStuff = field.rStuff; }
     return field;
 }
 

@@ -1944,13 +1944,14 @@ endCompile:
 	grup = 0;
 	if ( field->groupBody->flags.hasTraits || field->groupBody->flags.hasMembers )
 		while ( grup = field->next(grup) )
-			{
-			grup->parent = field;
-			// because if field is a copy grup.parent is not field
 			if ( grup->groupBody->flags.noPrint )
 				continue;
-			else	::compile(grup);
-			}
+			else {
+				grup->parent = field;
+				// because if field is a copy grup.parent is not field
+				::compile(grup);
+				grup->getRStuff()->parentStuff = field->getRStuff();
+				}
 	return field;
 }
 
@@ -12420,7 +12421,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 				ruleStuff->parseMethod = ::parseSet;
 				break;
 			case 6:
-				ruleStuff->parseMethod = 0;
+				ruleStuff->parseMethod = ::parseRule;
 				break;
 			default:
 				ruleStuff->parseMethod = ::parseString;
