@@ -679,7 +679,9 @@ RuleStuff 	*cstuff = 0;
 			}
 		return;
 		}
-	if ( !g || !g->groupBody->flags.isRule || !g->groupBody->groupList )
+	// artifactsAreNoPrint a holder is a TERM; compile()'s `this` and tempField are ARTIFACTS and
+	// artifactsAreNoPrint noPrint is their standing classifier, so they keep trunk's embedRule behaviour
+	if ( groupBody->flags.noPrint || !g || !g->groupBody->flags.isRule || !g->groupBody->groupList )
 		{
 		embedRule(g);
 		return;

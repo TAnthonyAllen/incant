@@ -481,7 +481,9 @@ RuleStuff   stuff = rStuff,
             stuff.onGroup  = 0;
             stuff.followed = false; }
         return; }
-    if !g || !g.isRule || !g.groupList {
+    // artifactsAreNoPrint a holder is a TERM; compile()'s `this` and tempField are ARTIFACTS and
+    // artifactsAreNoPrint noPrint is their standing classifier, so they keep trunk's embedRule behaviour
+    if noPrint || !g || !g.isRule || !g.groupList {
         embedRule(g);
         return; }
     // oneCopyOnly addGroup re-copies anything that already has a parent, so the parent is NOT set here and the RETURN is taken -- this is InitiatE's spelling in GroupMain
