@@ -1,3 +1,122 @@
+# ⚠⚠⚠ SEALED 2026-09-21, MIDDAY -- THE HOLDER CONVERSION AND F-98 ARE MERGED TO TRUNK.
+# THE DRIVES NOW REACH TokenXP, AND THE LABEL CHANNEL IS WHAT IS IN FRONT.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-21 12:44 and `git log -1 --date=iso` 12:42. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 429 green / 63 red / 2 parked, canary 337, fixit queue 0,
+#   all three repos clean and pushed, binary BARE.** Two merges landed on
+#   `jit-unified-emit-wip`. Only TWO reds are not on the 09-20 list, both born red by design.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE HOLDER CONVERSION, AND ITS ONE SITE.** A field whose group carries a list -- a
+#   HOLDER, e.g. `stuff=PrintXP+` -- now takes that rule as an **ATTRIBUTE** instead of in its
+#   group slot. `GroupItem.embedAttribute` does it; the ONE call site is **aCTionDefinE's loop,
+#   `ruleActions.rtn:348`**, widened to convert `NewGroup` ITSELF as well as its attributes,
+#   because `Attributes=TraiT+` and `Looper=ANYtoken` are rule-level holders that the
+#   attribute walk cannot reach.
+#   ⚠ **ONE COPY, AND THE DUPLICATE WAS A TRAP:** `addGroup` does `if group.parent group =
+#   new(group)`, so setting `copy.parent` before `addAttribute` minted a SECOND copy and left
+#   the first orphaned at affiliation 3. The parent is NOT set and the RETURN is taken --
+#   `item = strap +% grok/RunRulE` in GroupMain is the model, and `InitiatE` is the exemplar.
+#
+#   **b. GroupMain :366 (`Attributes`) AND :407 (`define.definitions`) ARE BORN CONVERTED, AND
+#   THE REASON IS NOT TIDINESS.** `definitions` is converted **from inside its own live
+#   `parse()` activation** -- measured, frame #4 is `parse(this="definitions")` while frame #0
+#   converts it -- and the grammar road then stops matching part-way through the file that
+#   redefines it. Born-converted in the bootstrapper, the problem does not exist.
+#   ⚠ **DO NOT CALL THE CONVERSION AT GroupMain's `embedRule` SITES.** All five read the copy
+#   BACK through the group slot (`item = item.group`) to land their modifier; clearing the slot
+#   there loses the `+`.
+#
+#   **c. THE noPrint SKIP.** `compile()`'s `this` carries `group = field` and is an ARTIFACT,
+#   not a term. The conversion skips any noPrint field and routes it to `embedRule`, which is
+#   exactly what trunk does with it. Without the skip, `this` gets a copy of the whole rule.
+#
+#   **d. F-98 IS CLOSED, AND THE RULING IS: parseMethod IS A FACT ABOUT THE RULE'S SHAPE.** It
+#   is installed on and read from `definingRule()`. `parse()`'s fork already did this
+#   (`GroupItem.twk:1281-82`); `setParseWalk` wrote the FACE and `parseLoop` fired the FACE, and
+#   that gap was the crash. `installParseMethod` parks it on the definer, `runLeafParse` fires
+#   through the definer, and a missing method is a **NAMED REFUSAL, never a call and never a
+#   bare guard** -- a bare guard trades the crash for a silent wrong answer.
+#   ⚠ **MIN AND MAX STAY PER FACE.** Only the METHOD moved.
+#
+#   **e. THE FIELD-SIDE REAL-TERMS TEST, AND WHY THE CONVERSION PREDICATE WAS NOT CHANGED.**
+#   `setParseWalk`'s shape arm and `generateParse`'s data-and-a-list check both ask
+#   `hasTraits || hasMembers` -- a field whose only entries are noPrint artifacts is a DATA
+#   rule. ⚠ **`hasTraitS` ALONE IS WRONG**: `PrintXP` and `ScopeField` are ALTERNATIONS, so
+#   `hasTraitS=0` and `hasMemberS=1`, and a hasTraits-only test breaks all four `stuff` holders.
+#   ⚠⚠ **`embedAttribute`'s PREDICATE STILL ASKS THE GROUP'S REAL `groupList`, AND MUST.**
+#   Changing it admitted three fields it should not have -- `ANYstring`, `ShortcuT`,
+#   `FormaT.flags` -- because their group `DatA` reads `groupLen = -1` (NO list at all) while
+#   its body carries the flags SET. **The flag and the list disagree on one node. That is F-102
+#   and it is unexplained.**
+#
+#   **f. THE doWhileNameT GREEN WAS HOLLOW, AND THREE VALUE ROWS REPLACED IT.** Four rows said
+#   each drive RETURNED, and a drive that parses nothing returns fastest of all: `dwN` read 1
+#   before the drive and 1 after, a traceParse window dispatched 20 rules with TokenXP not among
+#   them, and PARSERESULT read `rule=DO ... truthOf=0`. **DW-6** pins `dwN == 2` (the pre-drive
+#   value is 1, so 2 is the one reading a do-nothing drive cannot produce); **DW-7/DW-8** count
+#   `REFUSED parseRule:` in their window, compared to 0, **and each requires its window's own
+#   RETURNED marker so an EMPTY window cannot pass**. That last clause was added after an empty
+#   window counted zero and went green.
+#
+#   **g. ⚠⚠ oneTest AND jsonTest WERE MIS-ATTRIBUTED FOUR TIMES. DO NOT START AGAIN.** Their
+#   extra lines -- three `AUDIT TERM list/JSONarray/JSONfield` and two `nextGroup: ERROR
+#   JSONlist does not contain a list` -- are **PRE-EXISTING ON TRUNK**. Measured: sources at
+#   `9475ae0`, no conversion code in the tree, both fixtures produce the IDENTICAL diffs. They
+#   were called movers, then blamed on `this`, then bisected to GroupMain's two sites; every
+#   intermediate control said "still differs", which was read as "not the cause" when it meant
+#   **"the diff was never yours"**. The control that ends it -- rebuild at the pre-change commit
+#   -- was on disk from the first hour. **F-99 carries it so nobody repeats it.**
+#
+#   **h. jsonTest baseline is PARKED** by Tony's ruling, out of the line of fire until fonts.
+#   `parkdiff`, not skipped: it still runs and goes loud with WOKE if it starts passing.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **429 green / 63 red / 2 parked** · decodePop 14 green / 9 red · ddPop 5 green /
+#   1 red · countPop 47 of 47, foot reached · formsPop **14 PASSED** · **frontier dies at
+#   station 4** · canary **337** · alphaLint 11 (10 pre-existing + `installParseMethod` after
+#   `runLeafParse`, report tier) · groups.ext committed and clean · **Groups 0/0, support 0/0,
+#   TOK 0/0** · binary BARE. Every number measured this stroke, none carried (H14).
+#
+#   ⚠ **THE RED ARITHMETIC CLOSES EXACTLY AND docs/redList.md CARRIES THE LIST:**
+#   62 at the 09-20 shutdown, **minus `jsonTest baseline`** (parked, not fixed), **plus
+#   `doWhileNameT DW-6` and `DW-8`** (born red by design, now reading real values instead of
+#   truncation artifacts) = **63**. Nothing else moved.
+#
+#   ## ⚠⚠ WHAT IS IN FRONT: THE LABEL CHANNEL, REACHED FROM THE FLEET
+#   `incant/pop/doWhileNameT` exits 139 at **the 09-20 site**, and it gets there now because the
+#   `ShortcuT` misclassification that was stopping it short is gone:
+#
+#       frame #0  aCTionTokenXP    GroupRules.mm:1265
+#       frame #1  fireLabelMethod  GroupItem.mm:953
+#       frame #2  exitFromParse    GroupRules.mm:2784
+#       frame #3  parseRule        GroupRules.mm:10139
+#       frame #4  runRule :12059   #5 runOP :11998   #6/#7 runShortCircuit :12184/:12204
+#
+#   Per bear-trap #36 the dying line is not the reading line: the PRODUCER is
+#   `GroupRules.mm:1249` / `ruleActions.rtn:987`, `GroupItem ANYtoken = xpress["ANYorNum"]`.
+#   `xpress` is NOT null; its `ANYorNum` member is absent. **`parserTest` is at 4 ROOTS and the
+#   bare load is clean underneath it**, which is new -- the channel is now the only thing there.
+#
+#   ## THREE BRANCHES KEPT AS RECORDS, ALL PUSHED AND UNMERGED
+#   **`group-descent`** (`7e24fbe`) -- the list-predicate no-buy. ⚠ **TONY'S `compile`
+#   parentStuff STAMP IS PARKED HERE** along with his `setParseWalk isGROUP -> parseRule`; the
+#   bisect measured that the stamp alone fixes nothing and `setParseWalk` alone was the fixer.
+#   **`holder-attribute`** (`caf4e8f`) -- its `dfd73ee` is merged; the tip is the SEQ 188 try
+#   that moved six re-pinned rows and was never signed. F-101 was re-banked on trunk's line so
+#   it is not stranded there.
+#   **`checkinput-state`** -- unchanged, nothing from it has landed.
+#
+#   ## ⚠ WAITING ON TONY
+#   **1. `bs` IS HIS TO RUN** -- one line: **`! ~/bin/bs`**. Not run this session.
+#   **2. F-102**, the flag/list disagreement on the `DatA` label under `ShortcuT`, is the thing
+#   under the conversion predicate and is unexplained.
+#   **3. `testAction` (`RuleStuff.twk:382-83`) still reads the FACE's parseMethod.** It cannot
+#   call a null so it is not F-98; its divergence carries Tony's own 2026-09-15 ruling and was
+#   reported rather than changed.
+#
 # ⚠⚠⚠ SEALED 2026-09-20, SHUTDOWN -- THE LABEL CHANNEL GOES OFFLINE TO TONY. THREE ATTEMPTS
 # BROKE WHAT ALREADY WORKED, ALL THREE ARE REVERTED, AND THERE IS NO ATTEMPT 4.
 #
