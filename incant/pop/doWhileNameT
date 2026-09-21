@@ -61,6 +61,7 @@ cerr "DW-3 CONTROL RETURNED":;
 
 cerr "DW-4 target -- the declared-counter twin on the NEW road":;
 DO("do print ++dwN; while dwN < 2;");
+cerr "DW-4 dwN AFTER =" dwN:;
 cerr "DW-4 TWIN RETURNED":;
 
 cerr "DW-5 target -- an unassigned name in the while expression":;
