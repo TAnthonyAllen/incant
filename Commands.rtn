@@ -90,7 +90,9 @@ use field
             else {
                 grup.parent  = field;    // because if field is a copy grup.parent is not field
                 compile(grup);
-                grup.parentStuff = field.rStuff; }
+                grup.parentStuff = field.rStuff;
+                if grup.isGROUP && grup.gGroup && grup.gGroup.groupList   compile(grup.gGroup); }
+use field
     return field;
 }
 

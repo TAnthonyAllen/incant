@@ -1951,6 +1951,8 @@ endCompile:
 				// because if field is a copy grup.parent is not field
 				::compile(grup);
 				grup->getRStuff()->parentStuff = field->getRStuff();
+				if ( isGROUP(grup->groupBody->flags.data) && grup->groupBody->gGroup && grup->groupBody->gGroup->groupBody->groupList )
+					::compile(grup->groupBody->gGroup);
 				}
 	return field;
 }
@@ -12393,6 +12395,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		}
 	field->groupBody->flags.parseWalked = 1;
 	//  actionMethodRemoved  THE WALK WRITES gMethod AND parseMethod, AND NOTHING ELSE.
+	// listPredicate an isGROUP field takes parseRule only when ITS GROUP CARRIES A LIST; isRule cannot decide this
 	if ( upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo) )
 		ruleStuff->parseMethod = ::parseUpTo;
 	else
@@ -12408,6 +12411,12 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( field->groupBody->groupList )
 		ruleStuff->parseMethod = ::parseRule;
 	else
+	if ( isGROUP(field->groupBody->flags.data) && field->groupBody->gGroup && field->groupBody->gGroup->groupBody->groupList )
+		ruleStuff->parseMethod = ::parseRule;
+	else
+	if ( isGROUP(field->groupBody->flags.data) )
+		ruleStuff->parseMethod = 0;
+	else
 	if ( field->groupBody->flags.data )
 		switch (field->groupBody->flags.data)
 			{
@@ -12419,9 +12428,6 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 				break;
 			case 3:
 				ruleStuff->parseMethod = ::parseSet;
-				break;
-			case 6:
-				ruleStuff->parseMethod = ::parseRule;
 				break;
 			default:
 				ruleStuff->parseMethod = ::parseString;
@@ -12439,7 +12445,11 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			// if field is a copy grup.parent is not field
 			if ( grup->groupBody->flags.noPrint )
 				continue;
-			else	::setParseWalk(grup);
+			else {
+				::setParseWalk(grup);
+				if ( isGROUP(grup->groupBody->flags.data) && grup->groupBody->gGroup && grup->groupBody->gGroup->groupBody->groupList )
+					::setParseWalk(grup->groupBody->gGroup);
+				}
 			}
 		}
 	if ( ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3) )

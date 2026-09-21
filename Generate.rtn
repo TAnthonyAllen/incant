@@ -370,16 +370,18 @@ RuleStuff   ruleStuff = rStuff;
         return null; }
     parseWalked = true;
     //  actionMethodRemoved  THE WALK WRITES gMethod AND parseMethod, AND NOTHING ELSE.
+    // listPredicate an isGROUP field takes parseRule only when ITS GROUP CARRIES A LIST; isRule cannot decide this
     if upTo || upToOver     parseMethod = parseUpTo;
     or isBIN || isREGISTRY  parseMethod = parseContainer;
     or isCondition          parseMethod = parseCondition;
     or parseACTION          parseMethod = parseAction;
     or groupList            parseMethod = parseRule;
+    or isGROUP && gGroup && gGroup.groupList    parseMethod = parseRule;
+    or isGROUP              parseMethod = null;
     or data switch(data) {
         case isANY:         parseMethod = parseAny;
         case isCHAR:        parseMethod = parseCharacter;
         case isSET:         parseMethod = parseSet;
-        case isGROUP:       parseMethod = parseRule;
         default:            parseMethod = parseString; }
     or method               parseMethod = parseAction;
     else                    parseMethod = parseString;
@@ -388,7 +390,10 @@ RuleStuff   ruleStuff = rStuff;
         while grup = field.next(grup) {
             parent  = field;    // if field is a copy grup.parent is not field
             if grup.noPrint continue;
-            else setParseWalk(grup); }}
+            else {
+                setParseWalk(grup);
+                if grup.isGROUP && grup.gGroup && grup.gGroup.groupList   setParseWalk(grup.gGroup); }}}
+use field
     if max > 1 && (!data || data > 3) field.method = parseLoop;
     else    field.method = parseMethod;
     // flagFollowsInstall hasNewParse says A METHOD IS THERE TO FIRE, so it is raised HERE and never at entry: parseMethod is null for the isGROUP case and the head cannot know   Generate.setParse.flagFollowsInstall
