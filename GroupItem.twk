@@ -489,6 +489,8 @@ RuleStuff   stuff = rStuff,
     copy.isEmbedded = true;
     setGroup(0);
     addAttribute(copy);
+    // affiliationIsTerm the copy is a TERM of its holder, not an embedded group
+    copy.isAttribute = true;
     if stuff {
         stuff.onGroup  = 0;
         stuff.followed = false; }

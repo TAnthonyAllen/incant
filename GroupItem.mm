@@ -689,6 +689,8 @@ RuleStuff 	*cstuff = 0;
 	copy->options.affiliation = 3;
 	setGroup(0);
 	addAttribute(copy);
+	// affiliationIsTerm the copy is a TERM of its holder, not an embedded group
+	copy->options.affiliation = 1;
 	if ( stuff )
 		{
 		stuff->onGroup = 0;
