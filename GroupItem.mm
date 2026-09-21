@@ -684,11 +684,10 @@ RuleStuff 	*cstuff = 0;
 		embedRule(g);
 		return;
 		}
+	// oneCopyOnly addGroup re-copies anything that already has a parent, so the parent is NOT set here and the RETURN is taken -- this is InitiatE's spelling in GroupMain
 	copy = new GroupItem(g);
-	copy->parent = this;
-	copy->options.affiliation = 3;
 	setGroup(0);
-	addAttribute(copy);
+	copy = addAttribute(copy);
 	// affiliationIsTerm the copy is a TERM of its holder, not an embedded group
 	copy->options.affiliation = 1;
 	if ( stuff )

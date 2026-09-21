@@ -351,8 +351,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::modify(item,"@");
 	strap = grok->addString("Attributes");
 	strap->setRuleStuff();
-	strap->embedRule(grok->getMember("TraiT"));
-	item = strap->groupBody->gGroup;
+	// bornConverted the TERM goes in the LIST, InitiatE's spelling -- no group slot is ever written
+	item = strap->addAttribute(grok->getMember("TraiT"));
 	::modify(item,"+");
 	strap = grok->addString("MemberS");
 	strap->setRuleStuff();
@@ -389,8 +389,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item = new GroupItem("definitions");
 	item = strap->addAttribute(item);
 	item->setRuleStuff();
-	item->embedRule(stuff);
-	item = item->groupBody->gGroup;
+	// bornConverted as Attributes above -- the DefinE term goes in definitions' LIST
+	item = item->addAttribute(stuff);
 	::modify(item,"+");
 	item = grok->getMember("DEFINing");
 	item = strap->addAttribute(item);

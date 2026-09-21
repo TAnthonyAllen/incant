@@ -363,8 +363,8 @@ GroupRules  ruler = groupRules;
 
     strap           = grok += "Attributes";
     setRuleStuff();
-    strap.embedRule(grok/TraiT);
-    item            = gGroup;
+    // bornConverted the TERM goes in the LIST, InitiatE's spelling -- no group slot is ever written
+    item            = strap +% grok/TraiT;
     modify(item,"+");
 
     strap           = grok += "MemberS";
@@ -404,8 +404,8 @@ GroupRules  ruler = groupRules;
     item            = new("definitions");
     item            = strap +% item;
     item.setRuleStuff();
-    item.embedRule(stuff);
-    item            = item.gGroup;
+    // bornConverted as Attributes above -- the DefinE term goes in definitions' LIST
+    item            = item +% stuff;
     modify(item,"+");
     item            = grok/DEFINing;
     item            = strap +% item;
