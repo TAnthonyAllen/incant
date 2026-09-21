@@ -92,6 +92,186 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-100 — `parseLoop` repeats to the limit on a refusal that consumed nothing
+
+**What.** A leaf whose parse cannot run is refused by name once per iteration, and `parseLoop`
+keeps going to `max`. A refusal consumes no input, so the repeat is pure noise: **100 identical
+lines** for a `max=100` term, 200 across two drives.
+
+```
+REFUSED parseRule: ShortcuT has a parse method but no compiled body
+    at ++result; while result < 2;              ... x100, one per iteration
+```
+
+**Where.** `Generate.rtn`, `parseLoop` — `while kount < max / if !runLeafParse(field) break;`.
+`runLeafParse` (added SEQ 186) returns `refuse(...)`, which is falsy, so the loop **does** break
+on the first one. The 100 lines are therefore **not** one loop spinning: they are 100 separate
+entries to `parseLoop` from the enclosing repetition. **Which loop repeats is NOT measured** and
+this row does not claim it.
+
+**Evidence.** Branch `holder-attribute` at `b3c06d9`, binary bare, canary 337.
+`~/bin/incant incant/pop/doWhileNameT` → exit 0, sentinel reached, `DW-5 target drive carries
+100 refusal(s)`. Row `doWhileNameT DW-8` reads the count.
+
+⚠ **THE COUNT IS THE USEFUL PART AND SHOULD NOT BE SUPPRESSED BY SILENCING THE REFUSAL.** The
+refusal is F-98's named-refusal half and is what replaced a jump to address 0. A fix that quietens
+it must keep the naming; deduplicating the *print* is not the same as fixing the *repeat*.
+
+**Done-when.** One refusal per drive, or a stated reason why a consumed-nothing refusal should be
+retried at all.
+
+**Owner.** Unassigned — banked under SEQ 187 at Clay's instruction.
+
+**ATTEMPT LOG.**
+- **2026-09-21, found while certifying SEQ 186.** No attempt made.
+
+---
+
+### F-99 — `jsonTest` and `oneTest` baselines carry lines that are PRE-EXISTING ON TRUNK
+
+**What.** Two fleet baselines have been red since before the holder-attribute work and were
+repeatedly mis-attributed to it. `jsonTest` carries two extra lines; `oneTest` carries three.
+**Neither is caused by the conversion.**
+
+```
+jsonTest   0a1,2
+           > nextGroup: ERROR JSONlist does not contain a list
+           > nextGroup: ERROR JSONlist does not contain a list
+oneTest    47a48,50
+           > AUDIT TERM     list [5] builtinActoR -- rule TERM, not isRule, has rStuff
+           > AUDIT TERM     JSONarray [6] builtinActoR -- rule TERM, not isRule, has rStuff
+           > AUDIT TERM     JSONfield [7] builtinActoR -- rule TERM, not isRule, has rStuff
+```
+
+**Where.** The `jsonTest` emitter is `aCTionFOR` — `for grup in JSONlist;` at
+`incant/utilities:104`, guarded only by `if JSONlist;`, an existence test where project memory
+wants `if JSONlist.listLengtH;`. `pop.sh`'s own prose at the baseline rows already recorded both
+populations before this branch existed.
+
+**Evidence, and it is the control that settles it.** Sources checked out at `9475ae0` — the
+branch's setup commit, trunk plus carried rows, **with no conversion code in the tree at all** —
+built bare, canary 335: `oneTest` and `jsonTest` produce the **identical** diffs, 4 and 3 lines.
+Confirmed twice over: the branch-baseline `pop.sh` capture taken before any conversion was
+written already shows both rows FAIL with these exact lines.
+
+⚠ **Four sequences of attribution were spent on this and every one was wrong** — first named as
+movers of the holder-attribute change, then attributed to `compile()`'s `this` being converted,
+then bisected to GroupMain's two born-converted sites. Each step's controls said "still differs",
+which was read as "not the cause" when it meant "the diff was never yours". **The control that
+ends it — rebuild at the pre-change commit — was available from the first hour and was not run.**
+
+**Done-when.** Either the `JSONlist` guard becomes a length test and the two lines stop, or the
+lines are pinned into `jsonTest.base` with a sentence. `jsonTest baseline` is PARKED as of
+2026-09-21 by Tony's ruling — out of the line of fire until fonts — and parking is not skipping:
+`parkdiff` still runs it and goes loud if it starts passing.
+
+**Owner.** Tony — parked until fonts.
+
+**ATTEMPT LOG.**
+- **2026-09-21, mis-attributed three times, then controlled.** No fix attempted; the row records
+  the attribution failure so the next reader does not repeat it.
+
+---
+
+### F-98 — `parseLoop` calls a null `parseMethod` unguarded, where `runRule` refuses the same class by name
+
+**What.** `parseLoop` fires `ruleStuff->parseMethod(field)` with no null check. `runRule` guards the
+sibling case and **refuses out loud**. One of the two dispatch doors has the guard and the other
+does not, so the same missing-method condition is a named refusal down one road and a jump to
+address 0 down the other.
+
+```
+Generate.rtn:185      if !parseMethod(field) break;            <- no guard
+GroupActions.rtn:1148 if !rule.gMethod  result = refuse(rule,"runRule: hasNewParse is set
+                                        but no method is installed to fire");
+```
+
+⚠ **The two doors do not even read the same slot, which is why `runRule`'s guard cannot cover
+this.** `gMethod` and `hasNewParse` live on the **GroupBody**, which faces SHARE. `parseMethod`
+lives on **`rStuff`**, which is **per field** (Ruling D). So a face can carry `gMethod =
+parseLoop` inherited from the shared body while its own `rStuff->parseMethod` is null — a
+combination `runRule`'s `!rule.gMethod` test reads as healthy.
+
+**Where.** `Generate.rtn:185`, in `parseLoop`. The producing gate is `Generate.rtn:365`,
+`if hasNewParse { ... return null; }` in `setParseWalk` — it returns **before** the tail that would
+set this face's `parseMethod`, and `parseWalked` (`GroupBody.twk:95`) is on the body too, so the
+same thing happens within a single walk.
+
+**Evidence.** Branch `group-descent` at `4191dc2`, binary bare, canary 335, SEQ 177 recon.
+`~/bin/incant incant/pop/doWhileNameT` → exit 139.
+
+```
+frame #0  0x0000000000000000
+frame #1  parseLoop(field=PrintXP)  GroupRules.mm:10008   ruleStuff->parseMethod(field)
+frame #2  runRule :12021   frame #3 runOP :11960   frame #4 aCTionBrancH :148
+frame #5  aCTionBlocK :60  frame #6 parseRule :10107
+```
+
+Four `PrintXP` faces reach `setParseWalk`, all sharing **body #147**, each with its own `rStuff`.
+Read off an instrumented `setParseWalk` (`addrOf` plus a gate marker, reverted after):
+
+| face | gate reached | own `rStuff->parseMethod` |
+|---|---|---|
+| field #146 | **tail — INSTALLED** | `parseRule` |
+| field #255 | `hasNewParse` gate | **0** |
+| field #265 | `hasNewParse` gate | **0** |
+| field #275 | `hasNewParse` gate | **0** |
+
+All four read `gMethod = parseLoop` and `hasNewParse = 1` off the shared body.
+
+**Done-when.** `parseLoop` cannot reach address 0 — either it refuses by name the way `runRule`
+does, or the condition is made unconstructable. ⚠ **A guard alone changes a crash into a silent
+wrong answer**, which is what `GroupActions.rtn`'s own `noSilentFallthrough` comment forbids one
+line above the sibling refusal, so a bare `if parseMethod` is not the fix.
+
+**Owner.** Unassigned — banked under SEQ 177 item 6. **Not chased and not fixed;** the recon was
+read-only and the tree is byte-identical to `4191dc2`.
+
+**ATTEMPT LOG.**
+- **2026-09-21, found and measured.** No attempt made.
+
+---
+
+### F-97 — a generated ALTERNATION reads true above a failing arm: `WardeD` succeeds while `PrinT` and `DO` fail
+
+**What.** In one `PARSERESULT` sequence from a single drive, `stuff` returns null, `PrinT` reads
+`truthOf=0`, and then `WardeD` and `StatemenT` — both of which reached that failure through
+`PrinT` — read `truthOf=1`. `DO`, the outermost, reads `0`. So the two rules in the middle of the
+chain report success over a failure, and the chain still ends in failure. **Banked, not chased.**
+
+**Where.** The reading seat is `measureParseResult` (`measure.mm:556`), printed under `traceParse`.
+`WardeD` is an ALTERNATION, so its emitted body is `DEBUG() || DEF() || DO() || IF() || … ||
+PrinT() || …` — the `||` arm of `generateParse` (`IncantForms/WorkingOn/parser`). The candidate
+mechanism is F-95's family — a generated rule succeeding on a term that matched — but F-95 is
+about the FIRST term of a sequence and this is an alternation, so **it is not the same row and
+nothing here claims it is.**
+
+**Evidence.** `incant/pop/doWhileNameT`, `traceParse('on')` armed across the DW-4 drive only,
+2026-09-21, branch `group-descent`, binary bare, canary 335. Verbatim, in order:
+
+```
+PARSERESULT rule=stuff     result=0x0   tag=(null)  truthOf=-1
+PARSERESULT rule=PrinT     result=...   tag=false   truthOf=0
+PARSERESULT rule=WardeD    result=...   tag=true    truthOf=1
+PARSERESULT rule=StatemenT result=...   tag=true    truthOf=1
+PARSERESULT rule=DO        result=...   tag=false   truthOf=0
+```
+
+⚠ **NOT MEASURED, and the row must not be read as claiming it:** which arm of `WardeD` produced
+the `true`, and whether `StatemenT`'s `true` is its own reading or `WardeD`'s carried up. Both need
+a per-arm read, not an exit status.
+
+**Done-when.** Either a measurement names the arm that returns true and the behaviour is ruled
+correct, or `WardeD` reads `truthOf=0` when every arm it tried failed. Wants a fleet row either way.
+
+**Owner.** Unassigned — banked under SEQ 176 step A at Clay's instruction, from a SEQ 175 reading.
+
+**ATTEMPT LOG.**
+- **2026-09-21, found.** Surfaced while answering "is TokenXP entered" and recorded without
+  investigation, per capture-do-not-chase. No attempt made.
+
+---
+
 ### F-96 — the label channel: a term's label never attaches, so `aCTionTokenXP` reads a null `ANYorNum`
 
 **What.** On the new parse road a sub-term's label is never attached to its parent's label, so a

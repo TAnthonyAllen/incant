@@ -342,10 +342,11 @@ use NewGroup
         if isRule && !parseACTION && !isREGISTRY {
             if !rStuff          rStuff = new(NewGroup);
             NewGroup.setActions(); }
-    // embeddedRuleCopy embedRule() copies an embedded RULE
+    // holderAttribute a completing field whose group carries a LIST takes that rule as an ATTRIBUTE; a data group still goes to embedRule
+    NewGroup.embedAttribute(NewGroup.gGroup);
     if isRule && groupList
         while item = NewGroup.nextAttribute(item)
-            if item.isGROUP item.embedRule(item.gGroup);
+            item.embedAttribute(item.gGroup);
 use NewGroup
     input.clearList();
     isInitialized   = true;

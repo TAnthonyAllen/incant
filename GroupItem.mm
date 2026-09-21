@@ -655,6 +655,54 @@ GroupItem 	*grup = 0;
 }
 
 /***************************************************************************
+                                embedAttribute
+    embedAttribute -- A COMPLETING FIELD WHOSE GROUP CARRIES A LIST TAKES THAT
+    RULE AS AN ATTRIBUTE, not in its group slot. Tony ruled it 2026-09-21.
+    // notFromBootstrap NEVER call this from GroupMain's embedRule sites: each of
+    // notFromBootstrap them reads the copy back through the group slot to land its
+    // notFromBootstrap modifier, and this clears that slot.   GroupItem.embedAttribute
+    // staleOnGroup THE FIRST ARM IS NOT A NO-OP. Two faces share one body, so a
+    // staleOnGroup second face arrives already converted and its OWN rStuff still
+    // staleOnGroup carries the old group as onGroup.   GroupItem.embedAttribute
+***************************************************************************/
+void GroupItem::embedAttribute(GroupItem *g)
+{
+GroupItem 	*copy = 0;
+RuleStuff 	*stuff = getRStuff();
+RuleStuff 	*cstuff = 0;
+	if ( !isGROUP(groupBody->flags.data) )
+		{
+		if ( stuff )
+			{
+			stuff->onGroup = 0;
+			stuff->followed = 0;
+			}
+		return;
+		}
+	// artifactsAreNoPrint a holder is a TERM; compile()'s `this` and tempField are ARTIFACTS and
+	// artifactsAreNoPrint noPrint is their standing classifier, so they keep trunk's embedRule behaviour
+	if ( groupBody->flags.noPrint || !g || !g->groupBody->flags.isRule || !g->groupBody->groupList )
+		{
+		embedRule(g);
+		return;
+		}
+	// oneCopyOnly addGroup re-copies anything that already has a parent, so the parent is NOT set here and the RETURN is taken -- this is InitiatE's spelling in GroupMain
+	copy = new GroupItem(g);
+	setGroup(0);
+	copy = addAttribute(copy);
+	// affiliationIsTerm the copy is a TERM of its holder, not an embedded group
+	copy->options.affiliation = 1;
+	if ( stuff )
+		{
+		stuff->onGroup = 0;
+		stuff->followed = 0;
+		}
+	cstuff = copy->getRStuff();
+	if ( cstuff && cstuff->max == 1 )
+		cstuff->isTarget = 1;
+}
+
+/***************************************************************************
                                 embedRule
     embedRule -- THE ONE LEGITIMATE COPY OF AN EMBEDDED RULE, AND THE SOLE WRITER
     OF isEmbedded.   GroupItem.embedRule

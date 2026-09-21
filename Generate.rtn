@@ -172,6 +172,43 @@ use field
 /*******************************************************************************
 	Process a loop (max > 1)
 *******************************************************************************/
+/*******************************************************************************
+    runLeafParse -- FIRE A LEAF'S PARSE METHOD THROUGH ITS DEFINER.
+    // definerHoldsTheMethod parseMethod is a fact about the rule's SHAPE, so it is READ from
+    // definerHoldsTheMethod definingRule(); a face that setParseWalk turned away at the installed
+    // definerHoldsTheMethod gate carries none of its own. F-98.
+    // refuseNeverCall A MISSING METHOD IS A NAMED REFUSAL, never a call -- parseLoop used to fire
+    // refuseNeverCall the slot unguarded and jumped to address 0, and a BARE guard would only trade
+    // refuseNeverCall the crash for a silent wrong answer. runRule refuses the sibling case by name.
+    // callNotDeclaration frameStak's discipline -- a call, so parseLoop introduces no declaration
+*******************************************************************************/
+extern GroupItem runLeafParse(GroupItem field)
+{
+GroupItem   definer = field.definingRule();
+RuleStuff   defStuff;
+    if definer      defStuff = definer.rStuff;
+    if defStuff && defStuff.parseMethod     return defStuff.parseMethod(field);
+    return refuse(field,"parseLoop: no parse method is installed on the defining rule");
+}
+
+/*******************************************************************************
+    installParseMethod -- PARK THE CLASSIFICATION ON THE DEFINER.
+    // definerHoldsTheMethod as runLeafParse; the definer is where every face reads it
+    // callNotDeclaration frameStak's discipline -- a call, so setParseWalk introduces no
+    // callNotDeclaration declaration and every bare field below it still resolves as before
+    // faceKeepsItsOwn MIN AND MAX ARE NOT MOVED. They stay on the face's own rStuff, which is
+    // faceKeepsItsOwn what a repetition is about; only the METHOD is a fact about the shape.
+*******************************************************************************/
+extern void installParseMethod(GroupItem field)
+{
+GroupItem   definer = field.definingRule();
+RuleStuff   faceStuff = field.rStuff,
+            defStuff;
+    if !definer || definer == field     return;
+    defStuff = definer.rStuff;
+    if defStuff && faceStuff    defStuff.parseMethod = faceStuff.parseMethod;
+}
+
 extern GroupItem parseLoop(GroupItem field)
 {
     // enclosingRule currentMETHOD is the rule whose body is executing, kept under parseRule's own priorMETHOD bracket. MEASURED at both re-resolve sites: it tracks lastRule exactly -- GrouP/Search, NamE/GrouP   Generate.parseLoop.enclosingRule
@@ -182,7 +219,7 @@ extern GroupItem parseLoop(GroupItem field)
 RuleStuff   ruleStuff = rStuff;
     kount = 0;
     while kount < max
-        if !parseMethod(field) break;
+        if !runLeafParse(field) break;
         else kount++;
     if sukcess  return trueResult;
     return 0;
@@ -383,6 +420,7 @@ RuleStuff   ruleStuff = rStuff;
         default:            parseMethod = parseString; }
     or method               parseMethod = parseAction;
     else                    parseMethod = parseString;
+    installParseMethod(field);
     if hasTraits || hasMembers {
         GroupItem grup;
         while grup = field.next(grup) {

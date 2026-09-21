@@ -147,15 +147,22 @@ PLAN TraiTdata
   REFUSE Modifier -- inline group / structural data isSET (named future kind)
   REFUSE rule TraiTdata -- term Modifier unclassified
 PLAN Attributes
-  REFUSE rule Attributes -- rule-level data isGROUP (§4.1 rule-as-data, rung 5)
+  SEQ Attributes
+    label=Attributes
+    MANY TraiT
+      at=1
+      min=1
+      site=Attributes1
+      CALL TraiT
+        at=1
 PLAN NewGroup
   SEQ NewGroup
     label=NewGroup
     CALL TraiT
       at=2
 PLAN DefinE
-  REFUSE Attributes -- inline group / structural data isGROUP (named future kind)
-  REFUSE rule DefinE -- term Attributes unclassified
+  REFUSE endDefine -- inline group / structural data isSET (named future kind)
+  REFUSE rule DefinE -- term endDefine unclassified
 PLAN debug
   plan: REFUSING debug -- not a rule; locate finds a non-rule in registry Keywords
 PLAN DEBUG

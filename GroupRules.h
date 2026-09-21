@@ -185,6 +185,7 @@ extern "C" GroupItem *handleDot(GroupItem *xpress, GroupItem *unary, GroupItem *
 extern "C" GroupItem *handleSubscript(GroupItem *xpress, GroupItem *unary, GroupItem *ANYtoken, GroupItem *InvokeArg);
 extern "C" GroupItem *handleUnary(GroupItem *xpress, GroupItem *unary, GroupItem *ANYtoken);
 extern "C" int hasRepeatClass(char *modifier);
+extern "C" void installParseMethod(GroupItem *field);
 extern "C" GroupItem *interpretMethod(GroupItem *input);
 extern "C" GroupItem *interpretXP(GroupItem *xpList);
 extern "C" int isDotUxp(GroupItem *node);
@@ -396,6 +397,7 @@ extern "C" GroupItem *ruleMethod(GroupItem *input);
 extern "C" char *ruleNameArg(GroupItem *argument);
 extern "C" GroupItem *ruleOrRefuse(char *name, char *who);
 extern "C" GroupItem *runAction(GroupItem *argument, GroupItem *field);
+extern "C" GroupItem *runLeafParse(GroupItem *field);
 extern "C" GroupItem *runOP(GroupItem *field);
 extern "C" GroupItem *runRule(GroupItem *field, GroupItem *rule);
 extern "C" GroupItem *runShortCircuit(GroupItem *field);

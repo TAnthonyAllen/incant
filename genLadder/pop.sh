@@ -1356,6 +1356,9 @@ grep -v "^getRStuff" "$T/cen" | sed -n '/^PLAN /,$p' | grep -vE "^Search list:|^
 #  aimed parseR at the phantom master a0524c8 named, which has NO rStuff; a literal is what
 #  a literal should emit. The 09-10 note above records the opposite move and is kept as the
 #  trail -- read the two together, they are one predicate doing two jobs.
+#  ⚠ RE-PINNED 2026-09-21, SEQ 184 step 2, Tony's signature on the drafted sentence:
+#  `Attributes` and `Looper` leave the frontier because a rule-level isGROUP holder is
+#  now a SEQ with a MANY term; `DefinE`'s row moves to its next blocker, `endDefine`.
 diffcheck "census.target" genLadder/census.target "$T/cenp"
 
 #  parseClass -- WHICH setParse ARM CLAIMS EACH FIELD, over the whole grammar.
@@ -1621,11 +1624,16 @@ fi
 #  renumbering: a count says something moved, the names say WHAT.
 run1 traitFlagsT "$T/tf"; check "traitFlagsT runs" 0 $?
 sentinel "traitFlagsT sentinel (no truncation)" "$T/tf" "TRAITFLAGS SENTINEL"
+#  ⚠ RE-PINNED 2026-09-21, SEQ 184 step 2, Tony's signature on the drafted sentence:
+#  TF-2/3/4 +2 and TF-6 -2 because `Attributes` and `Looper`, the only two converted
+#  holders that are direct Grokking children, went from a group slot and no attributes
+#  to one attribute each; TF-1 and TF-5 are unmoved, so the population and the
+#  disagreement are unchanged.
 for _arm in "TF-1 rules seen                   =  86" \
-            "TF-2 carrying hasAttributeS       =  49" \
-            "TF-3 carrying hasTraitS           =  47" \
-            "TF-4 carrying BOTH                =  47" \
-            "TF-6 no attributes                =  37" \
+            "TF-2 carrying hasAttributeS       =  51" \
+            "TF-3 carrying hasTraitS           =  49" \
+            "TF-4 carrying BOTH                =  49" \
+            "TF-6 no attributes                =  35" \
             "TF-5 the two flags DISAGREE on    =  2"; do
     if grep -qF "$_arm" "$T/tf"; then
         echo "  ok    traitFlagsT ${_arm} -- PINNED BY VALUE"; green=$((green+1))
@@ -2841,6 +2849,58 @@ else
     echo "        dies too, so the red rows are no longer about the while EXPRESSION."
     grep -E "^DW-" "$T/dwn.e" | sed 's/^/          /'; fail=1
 fi
+#  ---- DW-6/7/8: the THREE VALUE ROWS. Minted 2026-09-21, SEQ 176 step A, BORN RED.
+#  WHY THEY EXIST: the four rows above went GREEN on 2026-09-21 and the green was HOLLOW.
+#  They assert that each drive RETURNED, and a drive that parses nothing returns fastest of
+#  all. Measured under SEQ 175: dwN is 1 before DW-4 and 1 after, so the twin never bumps it;
+#  a traceParse window across DW-4 dispatches 20 rules and TokenXP is not one of them; and
+#  PARSERESULT reads `rule=DO ... truthOf=0`, i.e. the drive FAILED and said RETURNED.
+#  ⚠ THE CONTROL WAS HOLLOW TOO, which is why DW-3 gets a row of its own: the literal-while
+#  control carries the same `REFUSED parseRule: stuff` line as both targets. A control that
+#  is broken in the same way as its targets discriminates nothing.
+#  DW-6 IS PRESENCE-WITH-VALUE WITH A NON-ZERO SIBLING BUILT IN (rule H4): the pre-drive
+#  value is 1, so 2 is the only reading a drive that did nothing cannot produce. A row
+#  pinned at 1 would be satisfied by the oracle's bump alone.
+#  DW-7/DW-8 COUNT AND COMPARE, they do not grep for an absence (rule H4): the count is
+#  echoed on every run, so deleting the code that emits the refusal breaks the row instead
+#  of satisfying it.
+#  These three go GREEN when the generated road actually parses. They are NOT to be re-pinned
+#  to the values they read today; that is precisely the hollow green they were minted against.
+_dw4=$(grep -F "DW-4 dwN AFTER =" "$T/dwn.e" | sed 's/.*= *//' | tr -d ' ')
+echo "  ..    doWhileNameT DW-6 reads dwN after the DW-4 drive = ${_dw4:-<absent>} (want 2)"
+if [ "$_dw4" = 2 ]; then
+    echo "  ok    doWhileNameT DW-6 dwN == 2 -- the twin bumped the shared counter"; green=$((green+1))
+else
+    echo "  FAIL  doWhileNameT DW-6 dwN == ${_dw4:-<absent>}, want 2 -- BORN RED 2026-09-21."
+    echo "        The DW-4 drive returns without executing its body. RED BY DESIGN; see the"
+    echo "        block header. Do not re-pin to ${_dw4:-<absent>}."; fail=1
+fi
+_dw3r=$(awk '/DW-3 control/{f=1} /DW-3 CONTROL RETURNED/{f=0} f' "$T/dwn.e" | grep -c "REFUSED parseRule:")
+_dw3end=$(grep -c "DW-3 CONTROL RETURNED" "$T/dwn.e")
+echo "  ..    doWhileNameT DW-7 reads REFUSED parseRule inside the DW-3 window = $_dw3r, window closed = $_dw3end (want 0 and 1)"
+if [ "$_dw3end" != 1 ]; then
+    echo "  FAIL  doWhileNameT DW-7 the DW-3 window NEVER CLOSED -- its RETURNED marker is"
+    echo "        absent, so the window is EMPTY and a zero count asserts nothing."; fail=1
+elif [ "$_dw3r" = 0 ]; then
+    echo "  ok    doWhileNameT DW-7 control drive refuses nothing"; green=$((green+1))
+else
+    echo "  FAIL  doWhileNameT DW-7 control drive carries $_dw3r refusal(s), want 0 -- BORN RED"
+    echo "        2026-09-21. The anti-vacuity CONTROL is broken the same way as its targets."
+    awk '/DW-3 control/{f=1} /DW-3 CONTROL RETURNED/{f=0} f' "$T/dwn.e" | grep -A1 "REFUSED parseRule:" | sed 's/^/          /'; fail=1
+fi
+_dw5r=$(awk '/DW-5 target/{f=1} /DW-5 TARGET RETURNED/{f=0} f' "$T/dwn.e" | grep -c "REFUSED parseRule:")
+_dw5end=$(grep -c "DW-5 TARGET RETURNED" "$T/dwn.e")
+echo "  ..    doWhileNameT DW-8 reads REFUSED parseRule inside the DW-5 window = $_dw5r, window closed = $_dw5end (want 0 and 1)"
+if [ "$_dw5end" != 1 ]; then
+    echo "  FAIL  doWhileNameT DW-8 the DW-5 window NEVER CLOSED -- its RETURNED marker is"
+    echo "        absent, so the window is EMPTY and a zero count asserts nothing."; fail=1
+elif [ "$_dw5r" = 0 ]; then
+    echo "  ok    doWhileNameT DW-8 target drive refuses nothing"; green=$((green+1))
+else
+    echo "  FAIL  doWhileNameT DW-8 target drive carries $_dw5r refusal(s), want 0 -- BORN RED"
+    echo "        2026-09-21."
+    awk '/DW-5 target/{f=1} /DW-5 TARGET RETURNED/{f=0} f' "$T/dwn.e" | grep -A1 "REFUSED parseRule:" | sed 's/^/          /'; fail=1
+fi
 
 #  ---- skipT: the line-comment rule can be WRITTEN; what it consumes cannot be READ ---
 #  The blocker (docs/checkSKIP.md 2a): the two-character line-comment literal kills the define
@@ -4035,7 +4095,18 @@ fi
 #  slot index drops by one. Nothing else in the baseline moved, which is the useful half --
 #  the removal is visible here and invisible everywhere it should be.
 diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
-diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
+#  ⚠⚠ PARKED 2026-09-21, SEQ 185, TONY'S RULING: jsonTest is out of the line of fire
+#  until fonts. DATE 2026-09-21 · REASON the two `nextGroup: ERROR JSONlist does not
+#  contain a list` lines, which the answer has not been chosen for · ORIGIN SLOT this
+#  line, diffcheck "jsonTest baseline" genLadder/jsonTest.base "$T/jsn".
+#  ⚠ PARKED IS NOT SKIPPED: parkdiff still runs the fixture, still prints its real
+#  state, and goes LOUD with WOKE if it starts passing. Do not convert it to a skip.
+#  ⚠⚠ AND THE CAUSE IS **PRE-EXISTING ON TRUNK**, which is the correction that closed
+#  four sequences of wrong attribution. The two lines are present on a build with the
+#  holder-attribute conversion ENTIRELY ABSENT -- sources at 9475ae0, measured live on
+#  2026-09-21, not inferred. They were red at the branch baseline too, in the very
+#  capture that was used to call them movers. docs/fixIts.md F-99.
+parkdiff "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
 
 #  ===========================================================================
 #  THE genParse ODOMETER, wired in 2026-08-24 once its first baseline existed.
@@ -4156,7 +4227,12 @@ bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
 #  ⚠ AND THE RATCHET DID NOT FIRE, which is the distinction that makes this a re-pin rather
 #  than a stop-the-line: `ratchet 0 previously-green rules regressed`. Neither rule is on
 #  genLadder/odometer.green's 18-rule protected list.
-diffcheck "genParse odometer (26 green / 36 red of 62 -- RED BY DESIGN, pinned; ratchet monotone)" \
+#  ⚠ RE-PINNED 2026-09-21, SEQ 184 step 2, Tony's signature on the drafted sentence:
+#  `Attributes` and `Looper` leave the frontier because a rule-level isGROUP holder is
+#  now a SEQ with a MANY term; `DefinE`'s row moves to its next blocker, `endDefine`.
+#  GREEN WENT UP, 26 -> 28, and genLadder/odometer.green's protected list is
+#  BYTE-UNCHANGED (md5 checked at the re-pin).
+diffcheck "genParse odometer (28 green / 34 red of 62 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
 #  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------

@@ -21,7 +21,6 @@ define
         if hasTraitS;       conjunct = "&&";
         else                conjunct = "||";
         print `"return";
-        // notFirstTimeThru set to 0 here because ++ refuses an ABSENT field.
         notFirstTimeThru = 0;
         iterate grup on argument;
         while ++grup;
@@ -40,19 +39,7 @@ define
         *bprCopy :. noPrinT;
         *bprCopy +% *codeCopy;
         argument +% *bprCopy;
-        // isCodeDForCompile RAISED UNCONDITIONALLY, and it is compile's ENTRY GATE --
-        //                   compile returns null on a rule that is not isCoded, so without
-        //                   this the parked parse is never compiled. It is spent by the first
-        //                   compile (processCode overwrites actionType, 2 -> 1), which is why
-        //                   processAction gates on the BlocK's presence and not on this flag.
         argument :. isCodeD;
-        // flagMeansInstalled  hasNewParse means INSTALLED, and setParse's tail is its ONE writer
-        //                     (Tony, 2026-09-18, fixIts F-90). THE GENERATOR RAISES NOTHING.
-        //                     Raised here it flagged every rule the walk touched, and setParse's
-        //                     own installedIsDone gate then left all of them alone -- generated,
-        //                     never installed, no term call ever made. The withheld half was
-        //                     already right for the parked carrier (F-88); this is the same
-        //                     sentence applied to the other arm
         printTO(0);
         print taG "=" CodE.taG CodE:;
        };
@@ -62,38 +49,22 @@ define
         if length > 0;
             iterate grup on argument;
             while ++grup;
-                // noPrintIsTheSkip  ARTIFACTS ARE noPrint AND THEY READ isRulE 1. CodE reads
-                //                   isRulE=1 noPrinT=1, measured, so the isRulE test alone let
-                //                   the walk descend into the ACTION BODY and generate a parse
-                //                   for it -- which is how CodE moved across a walk that never
-                //                   named it. compile() has always skipped on noPrint first;
-                //                   this is the same discipline, and it skips builtinParseR too
                 if noPrinT;     continue;
                 if isRulE == 0; continue;
                 if binTypE;
                     generateParse(*grup);
                     continue;
-                // cycleGuard THE WALK'S ONLY CYCLE GUARD, and the grammar is cyclic --
-                //            StatemenT contains BlocK contains StatemenT. A rule that already
-                //            carries a parse is SKIPPED HERE, before generateParse runs, which
-                //            is why an already-generated rule prints no Generating line at all.
-                //            Tidy this away and the walk spins.
                 if *grup["builtinParseR"];   continue;
                 if listLengtH;  walkRules(*grup);
                 else generateParse(*grup);
         };
     compileRules code={
-        // setParse and compile loop recursively thru components
         compile(argument);
         print "compile ended":;
         setParse(argument);
         print "setParse ended and that ends compileRules"::;
         };
     parser code={
-        // takesTheRuleNotTheName  the root arrives as the RULE through argument, BARE -- the
-        //                        09-18 correction struck the star, and a star here would read one
-        //                        level BELOW the rule. Registry membership stops mattering: the
-        //                        old Grokking subscript could only reach a rule living in Grokking
         walkRules(argument);
         print "walkRules ended":;
         compileRules(argument);
@@ -355,3 +326,62 @@ This text is past bail(); the incant parser halts there, so it need not be wrapp
     now live in the fixture, where CASE 2 runs for the first time.
 
     TokFiles -> ParserIncantation carries the argument. Also see comment at bottom of the utilities incantation
+
+/*****************************************************************************
+                    Comments
+*****************************************************************************/
+    The claims that used to sit inline in the live region. Moved below bail() on
+    2026-09-21 under SEQ 176 step 2 and redone here against trunk, wording verbatim,
+    keyed by the action they were written against. Nothing above bail() carries a
+    comment any more.
+
+
+    generateParse
+
+        notFirstTimeThru
+            set to 0 here because ++ refuses an ABSENT field.
+
+        isCodeDForCompile
+            RAISED UNCONDITIONALLY, and it is compile's ENTRY GATE --
+            compile returns null on a rule that is not isCoded, so without
+            this the parked parse is never compiled. It is spent by the first
+            compile (processCode overwrites actionType, 2 -> 1), which is why
+            processAction gates on the BlocK's presence and not on this flag.
+
+        flagMeansInstalled
+            hasNewParse means INSTALLED, and setParse's tail is its ONE writer
+            (Tony, 2026-09-18, fixIts F-90). THE GENERATOR RAISES NOTHING.
+            Raised here it flagged every rule the walk touched, and setParse's
+            own installedIsDone gate then left all of them alone -- generated,
+            never installed, no term call ever made. The withheld half was
+            already right for the parked carrier (F-88); this is the same
+            sentence applied to the other arm
+
+    walkRules
+
+        noPrintIsTheSkip
+            ARTIFACTS ARE noPrint AND THEY READ isRulE 1. CodE reads
+            isRulE=1 noPrinT=1, measured, so the isRulE test alone let
+            the walk descend into the ACTION BODY and generate a parse
+            for it -- which is how CodE moved across a walk that never
+            named it. compile() has always skipped on noPrint first;
+            this is the same discipline, and it skips builtinParseR too
+
+        cycleGuard
+            THE WALK'S ONLY CYCLE GUARD, and the grammar is cyclic --
+            StatemenT contains BlocK contains StatemenT. A rule that already
+            carries a parse is SKIPPED HERE, before generateParse runs, which
+            is why an already-generated rule prints no Generating line at all.
+            Tidy this away and the walk spins.
+
+    compileRules
+
+            setParse and compile loop recursively thru components
+
+    parser
+
+        takesTheRuleNotTheName
+            the root arrives as the RULE through argument, BARE -- the
+            09-18 correction struck the star, and a star here would read one
+            level BELOW the rule. Registry membership stops mattering: the
+            old Grokking subscript could only reach a rule living in Grokking
