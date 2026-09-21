@@ -1356,6 +1356,9 @@ grep -v "^getRStuff" "$T/cen" | sed -n '/^PLAN /,$p' | grep -vE "^Search list:|^
 #  aimed parseR at the phantom master a0524c8 named, which has NO rStuff; a literal is what
 #  a literal should emit. The 09-10 note above records the opposite move and is kept as the
 #  trail -- read the two together, they are one predicate doing two jobs.
+#  ⚠ RE-PINNED 2026-09-21, SEQ 184 step 2, Tony's signature on the drafted sentence:
+#  `Attributes` and `Looper` leave the frontier because a rule-level isGROUP holder is
+#  now a SEQ with a MANY term; `DefinE`'s row moves to its next blocker, `endDefine`.
 diffcheck "census.target" genLadder/census.target "$T/cenp"
 
 #  parseClass -- WHICH setParse ARM CLAIMS EACH FIELD, over the whole grammar.
@@ -1621,11 +1624,16 @@ fi
 #  renumbering: a count says something moved, the names say WHAT.
 run1 traitFlagsT "$T/tf"; check "traitFlagsT runs" 0 $?
 sentinel "traitFlagsT sentinel (no truncation)" "$T/tf" "TRAITFLAGS SENTINEL"
+#  ⚠ RE-PINNED 2026-09-21, SEQ 184 step 2, Tony's signature on the drafted sentence:
+#  TF-2/3/4 +2 and TF-6 -2 because `Attributes` and `Looper`, the only two converted
+#  holders that are direct Grokking children, went from a group slot and no attributes
+#  to one attribute each; TF-1 and TF-5 are unmoved, so the population and the
+#  disagreement are unchanged.
 for _arm in "TF-1 rules seen                   =  86" \
-            "TF-2 carrying hasAttributeS       =  49" \
-            "TF-3 carrying hasTraitS           =  47" \
-            "TF-4 carrying BOTH                =  47" \
-            "TF-6 no attributes                =  37" \
+            "TF-2 carrying hasAttributeS       =  51" \
+            "TF-3 carrying hasTraitS           =  49" \
+            "TF-4 carrying BOTH                =  49" \
+            "TF-6 no attributes                =  35" \
             "TF-5 the two flags DISAGREE on    =  2"; do
     if grep -qF "$_arm" "$T/tf"; then
         echo "  ok    traitFlagsT ${_arm} -- PINNED BY VALUE"; green=$((green+1))
@@ -4208,7 +4216,12 @@ bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
 #  ⚠ AND THE RATCHET DID NOT FIRE, which is the distinction that makes this a re-pin rather
 #  than a stop-the-line: `ratchet 0 previously-green rules regressed`. Neither rule is on
 #  genLadder/odometer.green's 18-rule protected list.
-diffcheck "genParse odometer (26 green / 36 red of 62 -- RED BY DESIGN, pinned; ratchet monotone)" \
+#  ⚠ RE-PINNED 2026-09-21, SEQ 184 step 2, Tony's signature on the drafted sentence:
+#  `Attributes` and `Looper` leave the frontier because a rule-level isGROUP holder is
+#  now a SEQ with a MANY term; `DefinE`'s row moves to its next blocker, `endDefine`.
+#  GREEN WENT UP, 26 -> 28, and genLadder/odometer.green's protected list is
+#  BYTE-UNCHANGED (md5 checked at the re-pin).
+diffcheck "genParse odometer (28 green / 34 red of 62 -- RED BY DESIGN, pinned; ratchet monotone)" \
           genLadder/odometer.base "$T/odo"
 
 #  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------
