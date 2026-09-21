@@ -407,11 +407,12 @@ RuleStuff   ruleStuff = rStuff;
         return null; }
     parseWalked = true;
     //  actionMethodRemoved  THE WALK WRITES gMethod AND parseMethod, AND NOTHING ELSE.
+    // realTermNotAList a FIELD with nothing but noPrint artifacts is a DATA rule: hasTraits and hasMembers ignore artifacts, groupList does not. The CONVERSION predicate is NOT this test -- it still asks the group's real groupList.
     if upTo || upToOver     parseMethod = parseUpTo;
     or isBIN || isREGISTRY  parseMethod = parseContainer;
     or isCondition          parseMethod = parseCondition;
     or parseACTION          parseMethod = parseAction;
-    or groupList            parseMethod = parseRule;
+    or hasTraits || hasMembers  parseMethod = parseRule;
     or data switch(data) {
         case isANY:         parseMethod = parseAny;
         case isCHAR:        parseMethod = parseCharacter;

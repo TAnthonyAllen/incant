@@ -92,6 +92,82 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-102 — a parse-time `DatA` label under `ShortcuT` has `hasTraits`/`hasMembers` set with NO `groupList`
+
+**What.** A node tagged `DatA`, parented to `ShortcuT`, carries the term flags of a rule that has
+terms while having **no list at all**. The flag and the list disagree on one node, so a test written
+on `groupList` and a test written on `hasTraits || hasMembers` give **opposite answers about the
+same field**.
+
+**Where.** Found through `REFUSED parseRule: DatA has a parse method but no compiled body`. It is
+**not** the registry rule `DatA` and **not** a holder's group slot:
+
+```
+the refused field   field 0x…2764c0  body 0x…c84780   isLabel=1  listLengtH=0  datA=3 (isSET)
+                    rStuff 0x…211000, ruleName = SetBrackets, parent = ShortcuT, definingRule = itself
+registry rule DatA  field 0x…20ec40  body 0x…20fcd0   listLengtH=7   rStuff 0x…20d630
+```
+
+Different field, different body, different rStuff. ⚠ **It is a parse-time LABEL wearing the rule's
+tag, and its rStuff names a DIFFERENT rule — `SetBrackets`.** Ruling D2 makes a label's `rStuff`
+part of its birth, so a label whose `rStuff` names someone else is the thing to explain.
+
+**Evidence.** Measured from the other side too: with the CONVERSION predicate reading
+`hasTraits || hasMembers`, three fields whose group is `DatA` convert with **`groupLen = -1`** — the
+group has no `groupList` whatsoever while its body carries the flags set. Those three are
+`ANYstring`, `ShortcuT` and `FormaT.flags`.
+
+⚠ **THIS IS WHY THE CONVERSION PREDICATE WAS NOT CHANGED.** SEQ 189 narrowed the try to the two
+FIELD-side tests and left `embedAttribute` asking the group's real `groupList`, exactly as bought.
+The flag/list disagreement is the reason that split matters, and it is unexplained.
+
+**Done-when.** Either the node carries a list consistent with its flags, or the flags are not set on
+a listless node, or a ruling says which of the two a reader should believe.
+
+**Owner.** Unassigned — banked under SEQ 189 at Clay's instruction. Not chased.
+
+**ATTEMPT LOG.**
+- **2026-09-21, found while attributing the SEQ 188 fleet move.** No attempt made.
+
+---
+
+### F-101 — `aCTionQuotE` dereferences a null on the NEW road: exit 139 at `GroupRules.mm:1005`
+
+**What.** A quoted literal driven through a generated parse crashes in `aCTionQuotE`. **Pre-existing
+at HEAD** — not caused by any conversion work — and **exposed** by F-98's fix, which let the parse
+get far enough to reach it.
+
+**Where.** `GroupRules.mm:1005`, `if ( *tik->groupBody->gText != '"' )`. Two lines above,
+`quoteBody = input->getLabelGroup("quoteBody")` and `body = quoteBody->getText()`; `input->clear()`
+and `quoteBody->clear()` run before the read. ⚠ Bear-trap #36 — the producers are the two
+`getLabelGroup` calls at `:1000-1001`, and which of them is empty is **not measured**.
+
+**Evidence, with its control.** Binary bare, canary 337.
+
+```
+QC-1 ORACLE RETURNED               old road, prints `alpha`
+QC-2 parser generates for StatemenT
+QC-3 target -- the same drive, NEW road     <- dies here, nothing after it   EXIT 139
+
+frame #0  aCTionQuotE      GroupRules.mm:1005      #1 fireLabelMethod  GroupItem.mm:953
+frame #2  exitFromParse    GroupRules.mm:2784      #3 parseRule        GroupRules.mm:10139
+frame #4  runRule :12059   #5 runOP :11998   #6 runShortCircuit :12184   #7 aCTionBrancH :148
+```
+
+⚠ **THE CONTROL IS WHAT MAKES THIS A ROW AND NOT A REGRESSION REPORT.** The SEQ 187 try was
+reverted and the tree rebuilt, and `quoteCtl` **still exits 139 with the same frames**.
+
+**Done-when.** `quoteCtl` reaches `QC-3 TARGET RETURNED` and prints `bravo`, `parserTest` still at
+four roots.
+
+**Owner.** Unassigned — banked under SEQ 188, re-banked on trunk's line under SEQ 189 because the
+original sits on the unmerged `holder-attribute` at `caf4e8f`. Not chased.
+
+**ATTEMPT LOG.**
+- **2026-09-21, found while certifying the SEQ 187 try; controlled at HEAD the same hour.** None.
+
+---
+
 ### F-100 — `parseLoop` repeats to the limit on a refusal that consumed nothing
 
 **What.** A leaf whose parse cannot run is refused by name once per iteration, and `parseLoop`
