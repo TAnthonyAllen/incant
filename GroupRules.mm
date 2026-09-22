@@ -321,6 +321,12 @@ GroupItem 	*result = 0;
 		{
 		 return jitEmitDO(input); 
 		}
+	// loopRefuseLoudly as aCTionIF -- a loop whose body label never attached refuses by name, never calls a null
+	if ( !StatemenT )
+		{
+		::fprintf(stderr,"aCTionDO: REFUSING -- the loop parsed but its body StatemenT is MISSING from the label\n");
+		return GroupControl::groupController->groupRules->falseResult;
+		}
 	do	{
 		result = StatemenT->groupBody->gMethod(StatemenT);
 		if ( result->groupBody->flags.isBranch )
@@ -344,7 +350,7 @@ GroupItem 	*result = 0;
 			break;
 			}
 		}
-	while ( ExpressioN->groupBody->gMethod(ExpressioN) );
+	while ( ::loopCondition(ExpressioN) );
 	// labelNO, not falseResult: this construct executed NO statement, so it has no
 	// labelNoNotFalse value -- and 0 is a value
 	if ( !result )
@@ -1176,10 +1182,14 @@ RuleStuff 	*ruleStuff = input->getRStuff();
 GroupItem 	*sourceFile = new GroupItem("sourceFile");
 	// markSeat3 SEQ 166 point 3 -- what text a StatemenT attempt starts on, and whose buffer
 	::measureMarkPoint("3-StatemenT-entry");
-	ruleStuff->sourceLine = new GroupItem("sourceAt");
-	ruleStuff->sourceLine->setCount(ruler->sourceLINE);
-	sourceFile->setText(ruler->sourceFILE->groupBody->tag);
-	ruleStuff->sourceLine->addAttribute(sourceFile);
+	// noStuffNoLine a statement whose action already fired in fireLabelMethod can arrive with no rStuff
+	if ( ruleStuff )
+		{
+		ruleStuff->sourceLine = new GroupItem("sourceAt");
+		ruleStuff->sourceLine->setCount(ruler->sourceLINE);
+		sourceFile->setText(ruler->sourceFILE->groupBody->tag);
+		ruleStuff->sourceLine->addAttribute(sourceFile);
+		}
 	if ( !ruler->processingCode )
 		{
 		/*  ⚠ outcome IS DECLARED FIRST SO `statement` STAYS LAST-MENTIONED -- the bare
@@ -1191,8 +1201,7 @@ GroupItem 	*sourceFile = new GroupItem("sourceFile");
 		if ( isGROUP(statement->groupBody->flags.data) )
 			statement = statement->getGroup();
 		ruler->lastStatement = statement;
-		if ( statement->groupBody->gMethod )
-			outcome = statement->groupBody->gMethod(statement);
+		// firedInLabel the statement's action already ran in fireLabelMethod -- running it here would run it twice
 		// statementScope  A REFUSAL'S SCOPE IS THE STATEMENT -- it is cleared HERE, on the
 		// statementScope  way out, whether or not a method ran, because the refusal may have
 		// statementScope  been raised during the MATCH and never reached a method at all
@@ -1437,7 +1446,13 @@ GroupItem 	*result = 0;
 		{
 		 return jitEmitWHILE(input); 
 		}
-	while ( looper = ExpressioN->groupBody->gMethod(ExpressioN) )
+	// loopRefuseLoudly as aCTionIF -- a loop whose body label never attached refuses by name, never calls a null
+	if ( !StatemenT )
+		{
+		::fprintf(stderr,"aCTionWhilE: REFUSING -- the loop parsed but its body StatemenT is MISSING from the label\n");
+		return GroupControl::groupController->groupRules->falseResult;
+		}
+	while ( looper = ::loopCondition(ExpressioN) )
 		{
 		if ( looper->groupBody->flags.isIterator )
 			looper = looper->getGroup();
@@ -7497,6 +7512,22 @@ GroupItem 	*hit = 0;
 			if ( hit )
 				return hit;
 			}
+	return 0;
+}
+
+/*******************************************************************************
+    A loop's condition, for DO and WhilE. A method-bearing condition is called
+    exactly as before; a bare value -- `while 0;` -- has no method and is tested
+    by truthOf, as aCTionIF already does.
+*******************************************************************************/
+extern "C" GroupItem *loopCondition(GroupItem *cond)
+{
+	if ( !cond )
+		return 0;
+	if ( cond->groupBody->gMethod )
+		return cond->groupBody->gMethod(cond);
+	if ( ::truthOf(cond) )
+		return cond;
 	return 0;
 }
 
