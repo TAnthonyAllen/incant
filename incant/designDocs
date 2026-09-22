@@ -6082,6 +6082,9 @@ define
                 The name-side Modifier is the author writing about the TRAIT, so both classes
                 apply there; what rides up from TraiTdata is FLAGS ONLY, because its repetitions
                 belong to the data and are already on it.#);
+                wideValueRepeats=(A REPEATED VALUE WIDER THAN A CHARACTER REPEATS ON THE TRAIT. It went flat
+                    through setContent and lost DatA's max, so the handed-up repeat is applied
+                    here. Not a double: the DatA copy of it did not survive.#);
             aCTionTraiTdata="Immediate method for the TraiTdata rule":
                 modifierRidesUp=(REPETITION AND Limit LAND ON THE DATA; FLAGS ARE SET ASIDE FOR THE TRAIT.
                     Ruled 2026-09-10. `numberSet=[0-9]+` means the SET repeats, and applying
@@ -6095,9 +6098,12 @@ define
                     and filled oneTest with `AUDIT TERM ... Modifier -- rule TERM, not isRule`.
                     noPrint is this tree's standing "artifact, not a term" mark, as builtinParsE and
                     CodE already use.#);
-                scalarRepeat=(REPETITION AFTER SCALAR DATA REFUSES LOUD. A literal is one token; there is
-                    nothing for a `+` or `*` to repeat, and stamping max on it silently produces a
-                    rule that looks defined and matches wrong.#);
+                valueRepeats=(A VALUE MAY CARRY + OR *. Tony, 2026-09-22 -- the old scalarRepeat refusal is
+                    gone. `one-="ab"+` matches abab. setParseWalk decides where it repeats: data up
+                    to isBUFFER repeats in its scanner, anything wider goes through parseLoop.#);
+                scannerKeepsDatA=(A REPEATED CHARACTER OR SET STAYS A GROUP. setContent copies data and
+                    drops rStuff, and DatA's rStuff is where the max is. A literal WITHOUT a
+                    repetition still goes flat, so a flags-only labelled literal is unchanged.#);
                 upMarkNoRstuff=(upMark CARRIES NO rStuff. noPrint alone keeps it out of the PARSE; the AUDIT
                     walks by `isRule`/`rStuff` and reported four `AUDIT TERM ... Modifier -- rule
                     TERM, not isRule, has rStuff` lines in oneTest until this line. An artifact must

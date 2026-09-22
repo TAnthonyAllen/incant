@@ -1069,6 +1069,8 @@ GroupItem   upFlags,
     // traitTakesOwnFlags BOTH modifier classes apply AFTER this line -- setContent discards flags
     if Modifier     modify(trait,Modifier.text);
     if upFlags      modifyClass(trait,upFlags.text,0);
+    // wideValueRepeats a repeated value wider than a character lost its max in setContent, so the repetition lands on the trait
+    if upFlags && TraiTdata.data > 3 && !TraiTdata.isGROUP     modifyClass(trait,upFlags.text,1);
     if Limit        setLimits(trait,Limit);
     input.group     = trait;
     return input;
@@ -1079,7 +1081,7 @@ GroupItem   upFlags,
 *******************************************************************************/
 extern GroupItem aCTionTraiTdata(GroupItem input)
 {
-int         tdBad = 0;
+int         repeated = 0;
 GroupItem   upMark,
             Modifier:,
             Limit:,
@@ -1095,18 +1097,19 @@ GroupItem   upMark,
         if Modifier modifyClass(DatA,Modifier.text,1);
         if Limit    setLimits(DatA,Limit);
         isRule      = true; }
-    // scalarRepeat a repetition after scalar data REFUSES -- a literal is one token and has nothing to repeat
-    tdBad = 0;
-    if Modifier
-        if DatA.isLiteral   tdBad = hasRepeatClass(Modifier.text);
-    if tdBad == 1   refuse(input,"a repetition modifier after scalar data -- a literal is one token and has nothing to repeat");
+    // valueRepeats a value may carry + or *; a character or set repeats in its scanner, anything wider repeats on the trait
+    repeated = 0;
+    if Modifier     repeated = hasRepeatClass(Modifier.text);
+    if Limit        repeated = 1;
     // modifierRidesUp the flags ride up as a noPrint ARTIFACT, never as a term
     if Modifier     input +% Modifier;
     if Modifier     upMark = input["Modifier"];
     if upMark       upMark.noPrint = true;
     // upMarkNoRstuff THIS LINE hides the packet from the AUDIT; noPrint alone only hides it from the PARSE
     if upMark       upMark.rStuff = 0;
-    if (isRule && !isLiteral) || registry == opFields    input.group = DatA;
+    // scannerKeepsDatA a repeated character or set stays a group so DatA's rStuff -- its max -- survives
+    if (DatA.isRule && (!DatA.isLiteral || (repeated == 1 && DatA.data <= 3))) || DatA.registry == opFields
+        input.group = DatA;
     else input.setContent(DatA);
     return  input;
 }

@@ -10,9 +10,9 @@ include("IncantForms/WorkingOn/parser");
 // Clod you can change this incantation as needed
 
 define
-    optT isRule one-="a" two?-="b" ;
+    optT isRule one-='a'+ two?-="b" ;
     msOptOld  code={ cerr "MS-1 optT OLD":;    optT("a");  cerr "MS-1-BACK":; };
-    msOptOldB code={ cerr "MS-1b optTab OLD":; optT("ab"); cerr "MS-1b-BACK":; };
+    msOptOldB code={ cerr "MS-1b optTab OLD":; optT("aab"); cerr "MS-1b-BACK":; };
     ;
 dumpContents(optT);
 debug TraiT GrouP QuotE;

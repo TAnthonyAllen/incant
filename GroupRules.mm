@@ -1364,6 +1364,9 @@ GroupItem 	*trait = input->get(1);
 		::modify(trait,Modifier->getText());
 	if ( upFlags )
 		::modifyClass(trait,upFlags->getText(),0);
+	// wideValueRepeats a repeated value wider than a character lost its max in setContent, so the repetition lands on the trait
+	if ( upFlags && TraiTdata->groupBody->flags.data > 3 && !isGROUP(TraiTdata->groupBody->flags.data) )
+		::modifyClass(trait,upFlags->getText(),1);
 	if ( Limit )
 		::setLimits(trait,Limit);
 	input->setGroup(trait);
@@ -1375,7 +1378,7 @@ GroupItem 	*trait = input->get(1);
 *******************************************************************************/
 extern "C" GroupItem *aCTionTraiTdata(GroupItem *input)
 {
-int 		tdBad = 0;
+int 		repeated = 0;
 GroupItem 	*upMark = 0;
 GroupItem 	*Modifier = input->getLabelGroup("Modifier");
 GroupItem 	*Limit = input->getLabelGroup("Limit");
@@ -1397,13 +1400,12 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 			::setLimits(DatA,Limit);
 		DatA->groupBody->flags.isRule = 1;
 		}
-	// scalarRepeat a repetition after scalar data REFUSES -- a literal is one token and has nothing to repeat
-	tdBad = 0;
+	// valueRepeats a value may carry + or *; a character or set repeats in its scanner, anything wider repeats on the trait
+	repeated = 0;
 	if ( Modifier )
-		if ( DatA->groupBody->flags.isLiteral )
-			tdBad = ::hasRepeatClass(Modifier->getText());
-	if ( tdBad == 1 )
-		::refuse(input,"a repetition modifier after scalar data -- a literal is one token and has nothing to repeat");
+		repeated = ::hasRepeatClass(Modifier->getText());
+	if ( Limit )
+		repeated = 1;
 	// modifierRidesUp the flags ride up as a noPrint ARTIFACT, never as a term
 	if ( Modifier )
 		input->addAttribute(Modifier);
@@ -1414,7 +1416,8 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 	// upMarkNoRstuff THIS LINE hides the packet from the AUDIT; noPrint alone only hides it from the PARSE
 	if ( upMark )
 		upMark->setRStuff((RuleStuff*)0);
-	if ( (DatA->groupBody->flags.isRule && !DatA->groupBody->flags.isLiteral) || DatA->groupBody->registry == GroupControl::groupController->groupRules->opFields )
+	// scannerKeepsDatA a repeated character or set stays a group so DatA's rStuff -- its max -- survives
+	if ( (DatA->groupBody->flags.isRule && (!DatA->groupBody->flags.isLiteral || (repeated == 1 && DatA->groupBody->flags.data <= 3))) || DatA->groupBody->registry == GroupControl::groupController->groupRules->opFields )
 		input->setGroup(DatA);
 	else	input->setContent(DatA);
 	return input;
