@@ -92,6 +92,82 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-104 — a LABELLED term chain that fails part-way exits 139 at `GroupItem::parse` with `pStuff=0`
+
+**What.** A rule spelled with labelled terms and a MANDATORY second term crashes when the drive
+satisfies the first term and not the second. It does not report a failed parse; the process dies.
+
+**Where.** `GroupItem::parse`, `GroupItem.mm:1704`, with `pStuff=0x0000000000000000`. Single
+`lldb` frame; the unwinder gives nothing above it.
+
+**Evidence.** Measured 2026-09-22 on a bare build, canary 337, as the H7 negative control for
+`modSeamT`'s `?` rows — which is why it was found at all:
+
+```
+ctlT isRule one-="a" two-="b" ;      <- the SAME root as modSeamT's optT, ? removed
+ctlT("a")   ->  CAPFIRE fireLabelMethod one     (the first term matches)
+                NO CAPFIRE for ctlT             (the rule correctly refuses to win)
+                exit 139
+ctlT("ab")  ->  never reached
+optT("")    ->  does NOT crash: `one` fails at position 0, the run exits 0
+```
+
+⚠ **THE DISCRIMINATOR IS "MATCHED PART-WAY, THEN FAILED", NOT "FAILED".** `optT("")` fails at the
+FIRST term and exits cleanly; `ctlT("a")` matches the first and fails the second and dies. So it is
+not simply the refusal path.
+
+⚠ **IT IS A DIFFERENT SITE FROM F-103's**, which is `getText()` on a null `this` at
+`GroupItem.mm:1322`. Two distinct crashes; do not merge the rows.
+
+⚠ **AND IT IS WHY THE `?` ROWS CARRY NO IN-FLEET NEGATIVE CONTROL.** The H7 control for
+`modSeamT` MS-1/MS-3 is exactly this spelling, and installing it would let one fixture take the
+rest of the suite down with it (rule H5). The control is RECORDED in `incant/pop/modSeamT`'s dead
+region and run by hand; that is the most it can be until this row closes.
+
+**Done-when.** A labelled chain that fails a mandatory term after matching an earlier one returns
+a refusal instead of crashing, and `modSeamT`'s dead-region control can be promoted to a row.
+
+**Owner.** Unassigned.
+
+**ATTEMPT LOG.**
+- **2026-09-22, Clod, SEQ 193.** Found while building Part A's negative control; reproduced, site
+  taken with `lldb`, and separated from F-103 by site. No attempt made — capture, not chase.
+
+---
+
+### F-103 — a LABELLED repetition (`repT isRule "a"+ ;`) exits 139 on both roads
+
+**What.** `repT("aaa")` dies. `"a"+-` — the same repetition marked `noLabel` — does not.
+
+**Where.** `GroupItem::getText()` on a null `this`, `GroupItem.mm:1322`, reached through
+`ACTFIRE fireLabelMethod GrouP`.
+
+**Evidence.** Measured 2026-09-22 on a bare build, canary 337, and **measured PRE-EXISTING at
+`b5e1557`** — the seal immediately before the `attachLabel` conversion — where it exits 139 too,
+with `optT`'s four cells reading identically. The control was run because SEQ 191's identity guard
+sits immediately above `attachLabel`'s labelled-repetition branch, which is this exact shape.
+
+⚠ **IT IS NOT THE MODIFIER SEAM AND MUST NOT BE RE-ATTRIBUTED TO IT.** The seam is closed and was
+a spelling fault (SEQ 193 ruling); this crash is older than the conversion and independent of it.
+It has its own row for that reason.
+
+⚠ **IT IS ALSO WHY `modSeamT` CANNOT ASSERT A GENERATED BODY.** `generateParse` prints to cout,
+which is block buffered and flushed at exit; MS-5 crashes before that flush, so **no** body reaches
+that fixture's capture — `optT`'s included, though `optT` is generated long before the crash. The
+bodies are read in `IncantForms/WorkingOn/tester`, which stops cleanly.
+
+**Done-when.** `repT("aaa")` returns instead of crashing; `modSeamT` MS-5 is re-pinned with a
+sentence (H6) and MS-6/MS-7 and its sentinel stop being unreachable.
+
+**Owner.** Unassigned.
+
+**ATTEMPT LOG.**
+- **2026-09-22, Clod, SEQ 193.** Split out of the modifier-seam work at Tony's instruction so the
+  crash is not re-attributed to the seam. Site re-confirmed with `lldb` on the bare build. No
+  attempt made.
+
+---
+
 ### F-102 — a parse-time `DatA` label under `ShortcuT` has `hasTraits`/`hasMembers` set with NO `groupList`
 
 **What.** A node tagged `DatA`, parented to `ShortcuT`, carries the term flags of a rule that has
@@ -534,6 +610,47 @@ ATTEMPT LOG
      on checkInput's true. A NARROWED clear -- one that only fires where a body actually
      ran and answered -- has not been tried and is the next thing to try. NOT attempted
      this stroke: the H15 control had already broken, which is a stop.
+  4. 2026-09-22, Clod, SEQ 193. THE NARROWED CLEAR WAS NOT BUILT, AND THE REASON IS
+     THAT ITS PREMISE MEASURED FALSE. The dispatch's premise was that "a false chain
+     at the exit is now purely about what sukcess should read", so the narrowing
+     would be "clear sukcess from the result only where a real chain ran and
+     reported false". Two readings off `measureParseResult` kill it.
+     READING 1 -- THE RESULT CHANNEL CARRIES NO DISCRIMINATION FOR Search AT ALL.
+     All four chainTruthT drives return THE SAME NODE, by pointer:
+         CT-ROW1 "search list;"  PARSERESULT rule=Search result=0x104949300 tag=false truthOf=0
+         CT-ROW2 "search list"   PARSERESULT rule=Search result=0x104949300 tag=false truthOf=0
+         CT-ROW3 "search ;"      PARSERESULT rule=Search result=0x104949300 tag=false truthOf=0
+         CT-ROW4 "search"        PARSERESULT rule=Search result=0x104949300 tag=false truthOf=0
+     One address, four drives, one of them CORRECT. That is `falseResult` itself,
+     handed back by the AND chain (bear-trap #51's second row). A clear read off
+     this channel takes CT1 red for the same reason it takes CT2/3/4 green, which
+     is exactly what attempts 1, 2 and 3 measured -- and it is now explained rather
+     than merely reproduced.
+     ⚠ READING 2 IS THE ONE THAT REFUSES THE NARROWING SPECIFICALLY, and it comes
+     from SEQ 193's own new specimen. A FALSE CHAIN DOES NOT MEAN A FAILED PARSE:
+         optT isRule one-="a" two?-="b" ;   ->   return one() && two();
+         optT("ab")  both terms match          PARSERESULT tag=true  truthOf=1   WINS
+         optT("a")   the OPTIONAL is absent    PARSERESULT tag=false truthOf=0   WINS, CORRECTLY
+     optT("a") HAS a real term chain, the chain RAN, and it REPORTED FALSE -- and
+     the parse is right, because `two` has min 0. So the narrowing as specified
+     fires on it and would take incant/pop/modSeamT's MS-1 and MS-3 red. Those are
+     the two rows that read the `?` at all.
+     ⚠ AND THE UPSTREAM DEFECT IS NOW LOCATED, which is what this stroke buys.
+     On the CORRECT input "search list;" the trace reads, in order:
+         CAPFIRE search . CAPFIRE followedBy .
+         PARSERESULT rule=GrouP result=0x104949340 tag=true truthOf=1 . CAPFIRE GrouP
+         PARSERESULT rule=Search result=0x104949300 tag=false truthOf=0
+     `Search = CodE { return search() && followedBy() && GrouP() && SemI(); }`, and
+     SemI IS NEVER DISPATCHED. So GrouP SUCCEEDED at its own seat and still
+     short-circuited its enclosing chain. THE LOSS IS BETWEEN parseRule's result and
+     WHAT THE TERM'S CALL HANDS BACK TO THE CHAIN -- not in what parseRule computes,
+     and not in how the exit reads it. That also independently confirms
+     searchNewParseT's standing "SemI did NOT dispatch" row.
+  ⚠ SO THE FIX IS THE COMPANION CHANGE THIS LOG ALREADY NAMES AND NOT A SPELLING OF
+     THE CLEAR: a term inside a chain should return trueResult and leave the label to
+     the label channel. Every clear at the exit -- blanket or narrowed -- reads a
+     channel that is wrong at the source. Four entries now; do not make it five with
+     another exit-side spelling.
 ```
 
 **Done when:** a generated rule fails when any required term fails, and CT1 stays green while

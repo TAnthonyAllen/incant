@@ -1,92 +1,151 @@
-/*  modSeamT -- THE MODIFIER SEAM, TWO SCAFFOLD ROOTS, BOTH ROADS.
+/*  modSeamT -- THE MODIFIER SEAM. IT IS CLOSED, AND IT WAS A SPELLING FAULT.
 
-    Commissioned by Tony, SEQ 192, 2026-09-22. The question is whether a term's
-    MODIFIER survives generation, and the instrument is THE CURSOR, not the
-    verdict -- a parse that dropped a modifier can still report WIN.
+    Commissioned by Tony, SEQ 192, 2026-09-22. Re-rooted SEQ 193, same day, on
+    Tony's Xcode walk. The question was whether a term's MODIFIER survives
+    generation. It does. What did not survive was the SPELLING the fixture was
+    first written in, and the fixture was measuring that instead.
 
-    THE TWO ROOTS, and they are the smallest steppable thing:
-        optT isRule "a"- "b"?- ;      drive optT("a")     does the ? survive
-        repT isRule "a"+ ;            drive repT("aaa")   how many does it consume
+    ⚠⚠ THE TWO SPELLING FAULTS, RULED BY TONY 2026-09-22 (SEQ 193).
+    A bare `"a"-` in an isRule rule STEALS `GrouP` as its tag, and the tag is
+    then promoted to a rule -- so the member is both label and rule and is NOT
+    grammar's GrouP. That is where `optT = CodE { return GrouP() && GrouP(); }`
+    came from: two DIFFERENT literals emitting the SAME call, neither carrying
+    its own text. And the MODIFIER BELONGS ON THE LABEL, not on the value:
+    `one="a"-` refuses, `one-="a"` and `two?-="b"` do not.
+    ⚠ THERE IS NO generateParse MODIFIER-DROP DEFECT. Recorded beside
+    generateParse in `incant/designDocs`.
 
-    NO CODE BODIES, DELIBERATELY. An earlier cut gave each root a code={} marker
-    for its verdict; the body is PARSED INSIDE THE DRIVE on first fire, which
-    walks the mark out of the drive string and destroys the very reading this
-    fixture exists to take. The verdict observable is `CAPFIRE fireLabelMethod
-    <rule>`, which prints on both roads and ONLY on success -- fireLabelMethod is
-    reached under `if sukcess` in parse() and in exitFromParse alike -- so no
-    action is needed for it.
+    THE ROOT, as Tony walked it:
+        optT isRule one-="a" two?-="b" ;
+    and the body it generates, verbatim, on this binary:
+        optT = CodE {
+            return one() && two();
+            }
+    The labels ARE the terms now, and they carry their own data -- dumpContents
+    reads `one=a string` and `two=b string`.
 
-    THE CURSOR OBSERVABLE IS `MARKPT 2b-before-pop`, paired with `MARKARM drive
-    base=`. MARKARM records the drive string's base and length at push; 2b reads
-    atRuleMark immediately before the divert pops, which is the last instant the
-    drive's own cursor exists. Both are parseTrace-gated and both fire on BOTH
-    ROADS, which is what makes this a two-road comparison rather than two
-    separate measurements.
-    ⚠ CONSUMED IS AN OFFSET, NOT AN ADDRESS -- `mark - base` -- because the
-    addresses move every run under ASLR and a pinned address would be rule H3's
-    exact prohibition: an assertion that moves for reasons unrelated to
-    correctness. The `in=` field carries the other half: DRIVE-STRING means the
-    mark is still inside the drive, not-in-drive means it left it entirely.
+    ⚠⚠ THE `?` IS ASSERTED BY A PAIR OF DRIVES, NOT BY READING THE BODY. The
+    modifier is nowhere in the emitted text: `two()` is spelled identically
+    whether two is optional or mandatory, because the modifier lives in two's
+    own rStuff min/max and the call site never mentions it. So the only honest
+    assertion is behavioural, and it takes two drives:
 
-    ⚠⚠ MS-5 IS TERMINAL AND EVERYTHING BELOW IT IS UNREACHABLE. `repT("aaa")` on
-    the OLD road EXITS 139 -- `GroupItem::getText()` on a null `this`,
-    GroupItem.mm:1322, reached through `ACTFIRE fireLabelMethod GrouP`. So the
-    sentinel and the MS-6/MS-7 rows cannot be reached, and they are pinned
-    UNREACHABLE rather than pinned to a value: a row behind a crash asserts
-    nothing, and pinning it to its absent reading would be an absence check
-    wearing a diff's clothes.
-    ⚠ MEASURED PRE-EXISTING, NOT CAUSED BY SEQ 191. Built at b5e1557 -- the seal
-    immediately before the attachLabel conversion -- and `repT("aaa")` exits 139
-    there too, with optT's four cells reading identically. The control was run
-    because SEQ 191's identity guard sits immediately above attachLabel's
-    labelled-repetition branch, which is exactly this shape.
-    ⚠ AND THE OLD-ROAD DRIVE MUST COME FIRST OR IT IS NOT THE OLD ROAD, so the
-    ordering is forced: parser() is a one-way door. repT's generated body and its
-    new-road cursor reading therefore CANNOT live in this file beside its
-    old-road drive. They are measured in tester, which Tony steps.
+        optT("a")   optional ABSENT   -- must WIN, and `two` must NOT fire
+        optT("ab")  optional PRESENT  -- must WIN, `two` MUST fire, consumed 2
+
+    ⚠ THE FIRST ROW IS THE ONE THAT READS THE `?`. A rule that stopped
+    processing the optional -- min left at 1 -- would FAIL optT("a"). The
+    second row is its anti-vacuity sibling: a rule that dropped `two` from the
+    chain ENTIRELY would pass the first row and leave `b` uneaten in the second.
+    Neither row alone certifies anything; the pair does.
+    ⚠ AND THE PAIR IS ALSO THE ZERO/NON-ZERO PAIR THE FLEET RULES ASK FOR --
+    "two did not fire" is a zero-expecting row and cannot stand alone.
+
+    THE CURSOR IS STILL THE SECOND INSTRUMENT AND STILL NOT THE VERDICT. Both
+    roads report WIN on every cell here; the verdict alone separates nothing.
+    `MARKARM drive base=` is the zero point, `MARKPT 2b-before-pop` is the last
+    instant the drive's own cursor exists, and CONSUMED IS AN OFFSET, `mark -
+    base`, NEVER AN ADDRESS -- the addresses move every run under ASLR and a
+    pinned one would be rule H3's exact prohibition. `in=` carries the other
+    half: DRIVE-STRING means the mark is still inside the drive, not-in-drive
+    means it left it entirely, which is what a fully-consumed 1-char drive does.
+
+    ⚠⚠ MS-3's BORN-RED ROW IS RETIRED, AND IT IS A SUBJECT CHANGE RATHER THAN A
+    ROW THAT STARTED PASSING. The 2026-09-22 pin read `NEW road consumed 0, want
+    1` and was measured on the BARE-LITERAL root, which the ruling above names
+    as a spelling fault -- so the thing it was pinned against no longer exists.
+    Under the labelled root the two roads AGREE completely, cell for cell:
+        optT("a")    OLD  WIN, two silent, in=not-in-drive
+        optT("a")    NEW  WIN, two silent, in=not-in-drive
+        optT("ab")   OLD  WIN, two fired,  in=DRIVE-STRING consumed 2
+        optT("ab")   NEW  WIN, two fired,  in=DRIVE-STRING consumed 2
+    That agreement is the seam being closed. It is NOT a re-pin to silence a
+    red: the old row's root is gone from this file.
+
+    ⚠⚠ MS-5 IS TERMINAL AND EVERYTHING BELOW IT IS UNREACHABLE. `repT("aaa")`
+    EXITS 139 -- `GroupItem::getText()` on a null `this`, GroupItem.mm:1322,
+    reached through `ACTFIRE fireLabelMethod GrouP`. MEASURED PRE-EXISTING at
+    b5e1557, the seal before the attachLabel conversion, where it exits 139 too
+    with optT's cells reading identically. `"a"+-` (noLabel) does NOT crash; the
+    LABELLED repetition does. It is NOT the modifier seam and it carries its own
+    row, `docs/fixIts.md` F-103, so it is not re-attributed here.
+    ⚠ The sentinel and MS-6/MS-7 are pinned UNREACHABLE rather than pinned to a
+    value: a row behind a crash asserts nothing, and pinning it to its absent
+    reading would be an absence check wearing a diff's clothes.
+    ⚠ AND THE OLD-ROAD DRIVES MUST COME FIRST OR THEY ARE NOT THE OLD ROAD --
+    `parser()` is a one-way door -- so repT's new-road reading CANNOT live here
+    beside its old-road drive. It is measured in `tester`, which Tony steps.
 
     ROWS
-      MS-1  optT OLD   verdict WIN, mark leaves the drive string      pinned
-      MS-3  optT NEW   verdict WIN, and CONSUMED 0                    born red
-      MS-5  repT OLD   exit 139                                       pinned as the defect
-      MS-6  repT NEW   unreachable
-      SENT  unreachable
+      MS-5   repT OLD    exit 139                                pinned defect
+      MS-1   optT("a")  OLD  WIN, two silent, not-in-drive       the `?` row
+      MS-1b  optT("ab") OLD  WIN, two fired,  consumed 2         anti-vacuity
+      MS-3   optT("a")  NEW  WIN, two silent, not-in-drive       the `?` row
+      MS-3b  optT("ab") NEW  WIN, two fired,  consumed 2         anti-vacuity
+      MS-6 / MS-7 / SENT                                         unreachable
 
-    ⚠ NEITHER GENERATED BODY IS ASSERTED HERE, AND THE REASON IS THE TRUNCATION
-    RATHER THAN A CHOICE. generateParse prints the body to cout, which is block
-    buffered and flushed at exit; MS-5 crashes before that flush, so NO body
-    reaches this file's capture at all -- optT's included, even though optT was
-    generated long before the crash. A row greping for it could only ever fail.
-    The bodies are read in tester, which stops cleanly, and they are:
-        optT = CodE { return GrouP() && GrouP(); }
-        repT = CodE { return GrouP(); }
-    Do not add a body row here until MS-5 stops crashing.
-
-    ⚠ MS-3 IS THE WHOLE POINT AND IT IS THE ANTI-VACUITY PAIR TO MS-1. Both roads
-    say WIN. Only the cursor separates them, and it separates them completely:
-    old road leaves the drive string, new road has not moved off its base. A
-    fixture that read the verdict alone would be green on both and would be
-    measuring nothing.  */
+    ⚠ NO GENERATED BODY IS ASSERTED HERE, AND THE REASON IS THE TRUNCATION
+    RATHER THAN A CHOICE. generateParse prints to cout, which is block buffered
+    and flushed at exit; MS-5 crashes before that flush, so NO body reaches this
+    file's capture at all -- optT's included, though optT is generated long
+    before the crash. A row greping for it could only ever fail. The body is
+    read in `tester`, which stops cleanly. Do not add a body row here until MS-5
+    stops crashing.  */
 Start();
 include(unitTests);
 include(utilities);
 search reset stack Grokking;
 search GroupFields UnitTests Utilities list;
 define
-    optT isRule "a"- "b"?- ;
+    optT isRule one-="a" two?-="b" ;
     repT isRule "a"+ ;
-    msOptOld code={ cerr "MS-1 optT OLD":; traceParse("on"); optT("a"); traceParse("off"); cerr "MS-1-BACK":; };
-    msOptNew code={ cerr "MS-3 optT NEW":; traceParse("on"); optT("a"); traceParse("off"); cerr "MS-3-BACK":; };
-    msRepOld code={ cerr "MS-5 repT OLD":; traceParse("on"); repT("aaa"); traceParse("off"); cerr "MS-5-BACK":; };
-    msRepNew code={ cerr "MS-7 repT NEW":; traceParse("on"); repT("aaa"); traceParse("off"); cerr "MS-7-BACK":; };
+    msOptOld  code={ cerr "MS-1 optT OLD":;    traceParse("on"); optT("a");    traceParse("off"); cerr "MS-1-BACK":; };
+    msOptOldB code={ cerr "MS-1b optTab OLD":; traceParse("on"); optT("ab");   traceParse("off"); cerr "MS-1b-BACK":; };
+    msOptNew  code={ cerr "MS-3 optT NEW":;    traceParse("on"); optT("a");    traceParse("off"); cerr "MS-3-BACK":; };
+    msOptNewB code={ cerr "MS-3b optTab NEW":; traceParse("on"); optT("ab");   traceParse("off"); cerr "MS-3b-BACK":; };
+    msRepOld  code={ cerr "MS-5 repT OLD":;    traceParse("on"); repT("aaa");  traceParse("off"); cerr "MS-5-BACK":; };
+    msRepNew  code={ cerr "MS-7 repT NEW":;    traceParse("on"); repT("aaa");  traceParse("off"); cerr "MS-7-BACK":; };
     ;
 msOptOld();
+msOptOldB();
 cerr "MS-2 generate optT":;
 parser(optT);
 msOptNew();
+msOptNewB();
 msRepOld();
 cerr "MS-6 generate repT":;
 parser(repT);
 msRepNew();
 cerr "MODSEAM SENTINEL":;
 stop();
+
+/***************************************************************************
+    MEASURED AND DELIBERATELY NOT INSTALLED -- two negative controls and one
+    unexpressible drive. All three were run on this binary, 2026-09-22.
+
+    1. THE H7 NEGATIVE CONTROL FOR THE `?`, AND IT CRASHES RATHER THAN LOSING.
+       Drop the modifier -- ctlT isRule one-="a" two-="b" ; -- and drive
+       ctlT("a"). `one` fires, `ctlT` NEVER fires (no WIN, which is the
+       discriminator the `?` rows need), and the process then EXITS 139 at
+       GroupItem::parse with pStuff=0x0, GroupItem.mm:1704.
+       ⚠ THAT IS A DIFFERENT SITE FROM MS-5's, which is getText() on a null
+       this at GroupItem.mm:1322. Two distinct crashes, not one.
+       It is not installed because a fixture must not be able to delete the
+       rest of the suite (rule H5) and this one would take the sentinel with
+       it. The control is RECORDED rather than run: the `?` rows above mean
+       something because this run shows the no-`?` spelling refusing to win.
+       It carries its own row, docs/fixIts.md F-104.
+
+    2. THE EMPTY DRIVE IS NOT EXPRESSIBLE, so optT("") is not a third row.
+       Kant has no empty strings (bear-trap #28, reclassified as doctrine): a
+       literal with no characters carries no data and a field with no data
+       returns its own TAG. Measured -- optT("") reads
+           MARKARM drive base=0x1048a9626 len=9 text=[quoteBody]
+       so it drives the nine-character string `quoteBody`, `one` fails on `q`,
+       optT does not fire, and the run exits 0 having tested nothing. A row
+       here would be a row about the word quoteBody.
+
+    3. repT's NEW-ROAD CELL cannot live in this file. parser() is a one-way
+       door and MS-5 crashes before it, so the generated repT body and its
+       new-road cursor reading are taken in tester.
+***************************************************************************/

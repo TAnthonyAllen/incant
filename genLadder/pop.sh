@@ -2902,107 +2902,139 @@ else
     awk '/DW-5 target/{f=1} /DW-5 TARGET RETURNED/{f=0} f' "$T/dwn.e" | grep -A1 "REFUSED parseRule:" | sed 's/^/          /'; fail=1
 fi
 
-#  ---- modSeamT: does a term's MODIFIER survive generation? THE CURSOR IS THE
-#  ---- INSTRUMENT, NOT THE VERDICT ------------------------------------------
+#  ---- modSeamT: THE MODIFIER SEAM IS CLOSED, AND IT WAS A SPELLING FAULT ----
 #
-#  Commissioned by Tony, SEQ 192, 2026-09-22. Two scaffold roots:
-#      optT isRule "a"- "b"?- ;   drive optT("a")
-#      repT isRule "a"+ ;         drive repT("aaa")
+#  Commissioned SEQ 192, re-rooted SEQ 193 on Tony's Xcode walk, both 2026-09-22.
+#  The root is now the LABELLED, LABEL-MODIFIER spelling:
+#      optT isRule one-="a" two?-="b" ;   ->   optT = CodE { return one() && two(); }
+#  A bare `"a"-` steals `GrouP` as its tag and the tag is promoted to a rule, which
+#  is where the old `return GrouP() && GrouP();` came from -- two different literals
+#  emitting the same call. And the modifier belongs on the LABEL: `one="a"-` refuses.
+#  ⚠ THERE IS NO generateParse MODIFIER-DROP DEFECT.
 #
-#  ⚠ MS-1 AND MS-3 ARE AN ANTI-VACUITY PAIR AND THE PAIR IS THE WHOLE FIXTURE.
-#  BOTH ROADS REPORT WIN -- `CAPFIRE fireLabelMethod optT` prints on each, and it
-#  prints only on success. A fixture that read the verdict alone would be green
-#  on both and would be measuring nothing. Only the CURSOR separates them, and
-#  it separates them completely: the old road's mark has left the drive string,
-#  the new road's has not moved off its base.
+#  ⚠⚠ THE `?` IS ASSERTED BY A PAIR OF DRIVES, NEVER BY READING THE BODY. `two()`
+#  is spelled identically whether two is optional or mandatory -- the modifier lives
+#  in two's own rStuff min/max and the call site never mentions it. So:
+#      optT("a")   optional ABSENT   must WIN and `two` must NOT fire
+#      optT("ab")  optional PRESENT  must WIN, `two` MUST fire, consumed 2
+#  THE FIRST ROW READS THE `?`: a rule whose min stayed at 1 would FAIL optT("a").
+#  THE SECOND IS ITS ANTI-VACUITY SIBLING: a rule that dropped `two` from the chain
+#  entirely passes the first and leaves `b` uneaten in the second. It is also the
+#  zero/non-zero pair -- "two did not fire" cannot stand alone.
 #
-#  CONSUMED IS AN OFFSET, `mark - base`, never an address -- the addresses move
-#  every run under ASLR and a pinned one would be rule H3's exact prohibition.
-#  `MARKARM drive base=` is the zero point, `MARKPT 2b-before-pop` is the last
-#  instant the drive's own cursor exists. Both parseTrace-gated, both on BOTH
-#  roads, which is what makes this one comparison rather than two measurements.
+#  ⚠ MS-3's BORN-RED ROW IS RETIRED AS A SUBJECT CHANGE, NOT AS A ROW THAT STARTED
+#  PASSING. Its pin (`NEW consumed 0, want 1`) was measured on the bare-literal root,
+#  which the ruling names as a spelling fault -- the thing it was pinned against is
+#  gone from the fixture. Under the labelled root the two roads agree cell for cell,
+#  and THAT AGREEMENT is the seam closing.
+#
+#  CONSUMED IS AN OFFSET, `mark - base`, NEVER AN ADDRESS -- addresses move every run
+#  under ASLR and a pinned one is rule H3's exact prohibition. It is read ONLY where
+#  `in=DRIVE-STRING`; on a fully-consumed 1-char drive the mark leaves the drive
+#  arena entirely and the two numbers are not comparable, so those cells assert
+#  `in=not-in-drive` instead. `MARKARM drive base=` is the zero point and
+#  `MARKPT 2b-before-pop` the last instant the drive's own cursor exists; both are
+#  parseTrace-gated and both fire on BOTH roads, which is what makes this one
+#  comparison rather than two measurements.
 #
 #  ⚠ EVERY ROW GUARDS ITS OWN WINDOW FIRST. A window whose MARKARM or 2b line is
 #  ABSENT reports UNREADABLE by name and fails -- it never reports "consumed 0",
-#  because a missing line and a zero offset are the same string to a shell and
-#  only one of them is a measurement (rule H4).
+#  because a missing line and a zero offset are the same string to a shell and only
+#  one of them is a measurement (rule H4).
 #
-#  ⚠⚠ MS-5 IS PINNED AS A CRASH AND IT IS PRE-EXISTING. `repT("aaa")` on the OLD
-#  road exits 139 -- getText() on a null `this`, GroupItem.mm:1322, through
-#  `ACTFIRE fireLabelMethod GrouP`. MEASURED AT b5e1557, the seal before the
-#  attachLabel conversion, and it exits 139 there too with optT's cells reading
-#  identically. The control was run because SEQ 191's identity guard sits
-#  immediately above attachLabel's labelled-repetition branch, which is this
-#  exact shape. If this row ever stops reading 139, RE-PIN IT WITH A SENTENCE
-#  (H6) -- a pin that silently starts passing is how a known defect becomes a
-#  forgotten one.
+#  ⚠⚠ MS-5 IS PINNED AS A CRASH AND IT IS PRE-EXISTING. `repT("aaa")` exits 139 --
+#  getText() on a null `this`, GroupItem.mm:1322, through `ACTFIRE fireLabelMethod
+#  GrouP`. MEASURED AT b5e1557, the seal before the attachLabel conversion, where it
+#  exits 139 too with optT's cells reading identically. `"a"+-` (noLabel) does NOT
+#  crash; the LABELLED repetition does. IT IS NOT THE MODIFIER SEAM -- docs/fixIts.md
+#  F-103 carries it. If this row ever stops reading 139, RE-PIN IT WITH A SENTENCE
+#  (H6): a pin that silently starts passing is how a known defect becomes a forgotten
+#  one, and MS-6/MS-7 and the sentinel stop being unreachable and want real values.
+#
+#  ⚠ THE H7 NEGATIVE CONTROL IS RECORDED IN THE FIXTURE'S DEAD REGION, NOT RUN HERE.
+#  Dropping the `?` (`two-="b"`) makes ctlT("a") refuse to fire -- which is the
+#  discriminator these rows need -- and then EXITS 139 at GroupItem::parse with
+#  pStuff=0x0, GroupItem.mm:1704, a DIFFERENT site from MS-5's. Installing it would
+#  let one fixture delete the rest of the suite (rule H5). docs/fixIts.md F-104.
 _mswin () {                     # _mswin <startMarker> <endMarker> <field> -> value or empty
     awk -v a="$1" -v b="$2" -v f="$3" \
         '$0 ~ "^"a"[ ]*$"{n=1;next} n&&($0 ~ "^"b"[ ]*$"){exit}
          n&&index($0,"MARKARM drive base=")&&f=="base"{sub(/.*base=/,"");sub(/ .*/,"");print;exit}
          n&&index($0,"2b-before-pop")&&f=="mark"{sub(/.*mark=/,"");sub(/ .*/,"");print;exit}
-         n&&index($0,"2b-before-pop")&&f=="in"{sub(/.*in=/,"");sub(/ .*/,"");print;exit}
-         n&&index($0,"CAPFIRE fireLabelMethod "b2)&&f=="fired"{print "1";exit}' "$T/mst"
+         n&&index($0,"2b-before-pop")&&f=="in"{sub(/.*in=/,"");sub(/ .*/,"");print;exit}' "$T/mst"
 }
-_msfired () {                   # _msfired <startMarker> <endMarker> <rule>
+_msfired () {                   # _msfired <startMarker> <endMarker> <rule> -> 1 or empty
     awk -v a="$1" -v b="$2" -v r="CAPFIRE fireLabelMethod $3 " \
         '$0 ~ "^"a"[ ]*$"{n=1;next} n&&($0 ~ "^"b"[ ]*$"){exit}
          n&&index($0,r){print "1";exit}' "$T/mst"
 }
+#  _mscell <start> <end> <label> <want-in> -- the four optT cells share one shape.
+#  <want-in> is not-in-drive (optional ABSENT, 1-char drive fully consumed) or
+#  DRIVE-STRING (optional PRESENT, and then consumed must read 2).
+_mscell () {
+    _cs="$1"; _ce="$2"; _cl="$3"; _cw="$4"
+    _cb=$(_mswin "$_cs" "$_ce" base); _cm=$(_mswin "$_cs" "$_ce" mark)
+    _ci=$(_mswin "$_cs" "$_ce" in)
+    _cf=$(_msfired "$_cs" "$_ce" optT); _ct=$(_msfired "$_cs" "$_ce" two)
+    if [ -z "$_cb" ] || [ -z "$_cm" ]; then
+        echo "  FAIL  modSeamT $_cl window UNREADABLE -- MARKARM or 2b-before-pop absent."
+        echo "        Not 'consumed 0': the trace did not report, so nothing is measured."
+        fail=1; return
+    fi
+    if [ "$_cf" = 1 ]; then
+        echo "  ok    modSeamT $_cl WINS -- fireLabelMethod optT reached"; green=$((green+1))
+    else echo "  FAIL  modSeamT $_cl did NOT win, want WIN"; fail=1; fi
+    if [ "$_cw" = not-in-drive ]; then
+        #  the `?` row: the optional is ABSENT, so two must be SILENT.
+        if [ -z "$_ct" ]; then
+            echo "  ok    modSeamT $_cl the OPTIONAL was skipped -- \`two\` never fired, and the"
+            echo "        rule still won. THIS IS THE ROW THAT READS THE \`?\`: min 0 is honoured."
+            green=$((green+1))
+        else
+            echo "  FAIL  modSeamT $_cl \`two\` FIRED on a drive with no \"b\" in it. The optional"
+            echo "        is not optional -- the \`?\` is being read as something else."; fail=1
+        fi
+        echo "  ..    modSeamT $_cl cursor in=$_ci (want not-in-drive: a 1-char drive fully consumed)"
+        if [ "$_ci" = not-in-drive ]; then
+            echo "  ok    modSeamT $_cl mark LEFT the drive string"; green=$((green+1))
+        else echo "  FAIL  modSeamT $_cl mark in=$_ci, want not-in-drive"; fail=1; fi
+    else
+        #  the anti-vacuity sibling: the optional is PRESENT and must be eaten.
+        if [ "$_ct" = 1 ]; then
+            echo "  ok    modSeamT $_cl the OPTIONAL was TAKEN -- \`two\` fired. Non-zero sibling"
+            echo "        to the min-0 row: a chain that dropped \`two\` would pass that and fail this."
+            green=$((green+1))
+        else
+            echo "  FAIL  modSeamT $_cl \`two\` did NOT fire on a drive carrying \"b\". The optional"
+            echo "        term is gone from the chain, not merely optional."; fail=1
+        fi
+        if [ "$_ci" != DRIVE-STRING ]; then
+            echo "  ..    modSeamT $_cl cursor in=$_ci (want DRIVE-STRING, consumed 2)"
+            echo "  FAIL  modSeamT $_cl mark in=$_ci -- consumed is unreadable across arenas,"
+            echo "        so it is NOT reported as a number. H3: an offset, never an address."; fail=1
+        else
+            _cc=$(( _cm - _cb ))
+            echo "  ..    modSeamT $_cl cursor in=$_ci consumed=$_cc (want 2)"
+            if [ "$_cc" = 2 ]; then
+                echo "  ok    modSeamT $_cl consumed 2 -- both \"a\" and the optional \"b\" were eaten"
+                green=$((green+1))
+            else echo "  FAIL  modSeamT $_cl consumed $_cc, want 2"; fail=1; fi
+        fi
+    fi
+}
 run1 modSeamT "$T/mst"; _msec=$?
 if [ "$_msec" = 139 ]; then
-    echo "  ok    modSeamT MS-5 repT(\"aaa\") OLD road exits 139 -- PINNED DEFECT, pre-existing"
-    echo "        at b5e1557. getText() on a null this, GroupItem.mm:1322."; green=$((green+1))
+    echo "  ok    modSeamT MS-5 repT(\"aaa\") exits 139 -- PINNED DEFECT, pre-existing at"
+    echo "        b5e1557. getText() on a null this, GroupItem.mm:1322. fixIts F-103."; green=$((green+1))
 else
     echo "  FAIL  modSeamT MS-5 exit $_msec, pinned 139. If the crash is FIXED this is good"
     echo "        news and still a FAILURE here: re-pin with a sentence (H6), and the"
     echo "        MS-6/MS-7 rows below it stop being unreachable and want real values."; fail=1
 fi
-#  MS-1 -- optT on the OLD road.
-_msb=$(_mswin "MS-1 optT OLD" "MS-1-BACK" base)
-_msm=$(_mswin "MS-1 optT OLD" "MS-1-BACK" mark)
-_msi=$(_mswin "MS-1 optT OLD" "MS-1-BACK" in)
-_msf=$(_msfired "MS-1 optT OLD" "MS-1-BACK" optT)
-if [ -z "$_msb" ] || [ -z "$_msm" ]; then
-    echo "  FAIL  modSeamT MS-1 window UNREADABLE -- MARKARM or 2b-before-pop absent."
-    echo "        Not 'consumed 0': the trace did not report, so nothing is measured."; fail=1
-else
-    if [ "$_msf" = 1 ]; then
-        echo "  ok    modSeamT MS-1 optT(\"a\") OLD road WINS -- fireLabelMethod optT reached"
-        green=$((green+1))
-    else echo "  FAIL  modSeamT MS-1 optT(\"a\") OLD road did NOT win, want WIN"; fail=1; fi
-    echo "  ..    modSeamT MS-1 OLD cursor in=$_msi (want not-in-drive: a 1-char drive fully consumed)"
-    if [ "$_msi" = not-in-drive ]; then
-        echo "  ok    modSeamT MS-1 OLD road mark LEFT the drive string"; green=$((green+1))
-    else echo "  FAIL  modSeamT MS-1 OLD road mark in=$_msi, want not-in-drive"; fail=1; fi
-fi
-#  MS-3 -- optT on the NEW road. BORN RED 2026-09-22: the verdict matches the old
-#  road and the cursor does not move at all.
-_msb3=$(_mswin "MS-3 optT NEW" "MS-3-BACK" base)
-_msm3=$(_mswin "MS-3 optT NEW" "MS-3-BACK" mark)
-_msi3=$(_mswin "MS-3 optT NEW" "MS-3-BACK" in)
-_msf3=$(_msfired "MS-3 optT NEW" "MS-3-BACK" optT)
-if [ -z "$_msb3" ] || [ -z "$_msm3" ]; then
-    echo "  FAIL  modSeamT MS-3 window UNREADABLE -- MARKARM or 2b-before-pop absent."
-    echo "        Not 'consumed 0': the trace did not report, so nothing is measured."; fail=1
-else
-    _mscon=$(( _msm3 - _msb3 ))
-    if [ "$_msf3" = 1 ]; then
-        echo "  ok    modSeamT MS-3 optT(\"a\") NEW road reports WIN -- the anti-vacuity half"
-        green=$((green+1))
-    else echo "  FAIL  modSeamT MS-3 optT(\"a\") NEW road did not report WIN"; fail=1; fi
-    echo "  ..    modSeamT MS-3 NEW cursor in=$_msi3 consumed=$_mscon (want 1)"
-    if [ "$_mscon" = 1 ]; then
-        echo "  ok    modSeamT MS-3 NEW road consumed 1 -- the mandatory \"a\" was eaten"
-        green=$((green+1))
-    else
-        echo "  FAIL  modSeamT MS-3 NEW road consumed $_mscon, want 1 -- BORN RED 2026-09-22."
-        echo "        The rule reports WIN while its mark has not moved off the drive"
-        echo "        string's base. THE VERDICT AND THE CURSOR DISAGREE, which is the"
-        echo "        whole reason this fixture reads the cursor. Do not re-pin to 0."
-        fail=1
-    fi
-fi
+_mscell "MS-1 optT OLD"     "MS-1-BACK"  "MS-1  optT(\"a\")  OLD"  not-in-drive
+_mscell "MS-1b optTab OLD"  "MS-1b-BACK" "MS-1b optT(\"ab\") OLD"  DRIVE-STRING
+_mscell "MS-3 optT NEW"     "MS-3-BACK"  "MS-3  optT(\"a\")  NEW"  not-in-drive
+_mscell "MS-3b optTab NEW"  "MS-3b-BACK" "MS-3b optT(\"ab\") NEW"  DRIVE-STRING
 
 #  ---- skipT: the line-comment rule can be WRITTEN; what it consumes cannot be READ ---
 #  The blocker (docs/checkSKIP.md 2a): the two-character line-comment literal kills the define

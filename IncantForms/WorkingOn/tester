@@ -7,25 +7,26 @@ include(utilities);
 search reset stack Grokking;
 include("IncantForms/WorkingOn/parser");
 
-// Clod you can replace the following two lines as needed
-//  SEQ 192 -- THE MODIFIER SEAM. Two scaffold roots, smallest steppable thing.
-//      optT isRule "a"- "b"?- ;   drive optT("a")     does the ? survive
-//      repT isRule "a"+ ;         drive repT("aaa")   how many does it consume
-//  THE CURSOR IS THE INSTRUMENT, NOT THE VERDICT -- both roads report WIN.
-//  Read `MARKARM drive base=` and `MARKPT 2b-before-pop mark=`; consumed is
-//  mark - base, and `in=` says whether the mark is still inside the drive.
-//  No code bodies on the roots, deliberately: a body is PARSED INSIDE THE DRIVE
-//  on first fire and walks the mark out of the drive string, which destroys the
-//  reading. The verdict observable is `CAPFIRE fireLabelMethod <rule>`, which
-//  prints on both roads and only on success, so no body is needed for it.
+// Clod you can change this incantation as needed
+
 define
-    optT isRule "a"- "b"?- ;
-    repT isRule "a"+ ;
-    msOptOld code={ cerr "MS-1 optT OLD":; traceParse("on"); optT("a"); traceParse("off"); cerr "MS-1-BACK":; };
-    msOptNew code={ cerr "MS-3 optT NEW":; traceParse("on"); optT("a"); traceParse("off"); cerr "MS-3-BACK":; };
-    msRepNew code={ cerr "MS-7 repT NEW":; traceParse("on"); repT("aaa"); traceParse("off"); cerr "MS-7-BACK":; };
+    optT isRule one-="a" two?-="b" ;
+    msOptOld  code={ cerr "MS-1 optT OLD":;    optT("a");  cerr "MS-1-BACK":; };
+    msOptOldB code={ cerr "MS-1b optTab OLD":; optT("ab"); cerr "MS-1b-BACK":; };
     ;
+dumpContents(optT);
+debug TraiT GrouP QuotE;
 msOptOld();
+msOptOldB();
+parser(optT);
+msOptOld();
+msOptOldB();
+stop();
+
+/***************************************************************************
+    Everything below is left here for cut and paste modifications as needed
+***************************************************************************/
+
 parser(optT);
 msOptNew();
 parser(repT);
@@ -38,7 +39,6 @@ parser(repT);
 //  incant/pop/modSeamT is the fleet copy and drives repT on the OLD road, which
 //  exits 139 at the same site. Both roads crash; measured pre-existing at b5e1557.
 msRepNew();
-stop();
 
 include("IncantForms/WorkingOn/parser");
 parser(Search);
@@ -63,3 +63,40 @@ define
     ;
 debug checkSKIP sKIP  CommenT IndenT QuotE BlockCommenT;
 checkSKIP(skipInput);
+
+define
+    optT isRule "a"- "b"?- ;
+    repT isRule "a"+ ;
+    msOptOld code={ cerr "MS-1 optT OLD":; traceParse("on"); optT("a"); traceParse("off"); cerr "MS-1-BACK":; };
+    msOptNew code={ cerr "MS-3 optT NEW":; traceParse("on"); optT("a"); traceParse("off"); cerr "MS-3-BACK":; };
+    msRepNew code={ cerr "MS-7 repT NEW":; traceParse("on"); repT("aaa"); traceParse("off"); cerr "MS-7-BACK":; };
+    ;
+
+/*  SEQ 193 -- WHAT THE TWO DRIVES ARE FOR.
+
+    The optional cannot be read out of the generated body: `two()` is spelled
+    the same whether two is optional or mandatory, because the modifier lives
+    in two's own rStuff min/max and the call site never mentions it. So the
+    `?` is asserted behaviourally, by a PAIR:
+
+        optT("a")   optional ABSENT   wins, and `two` never fires
+        optT("ab")  optional PRESENT  wins, `two` fires, both chars eaten
+
+    The first row is the one that reads the `?` -- a min left at 1 would make
+    optT("a") FAIL. The second is its anti-vacuity sibling -- a chain that
+    dropped `two` altogether would pass the first and leave `b` uneaten.
+
+    The body, verbatim on this binary:
+
+        optT = CodE {
+            return one() && two();
+            }
+
+    and dumpContents reads `one=a string` / `two=b string`, so the labels ARE
+    the terms and they carry their own text. The bare-literal spelling did not:
+    `"a"-` steals `GrouP` as its tag, both literals emitted `GrouP()`, and
+    neither carried its value. The modifier goes on the LABEL -- `one="a"-`
+    refuses, `one-="a"` and `two?-="b"` do not.
+
+    `incant/pop/modSeamT` is the fleet copy and pins all four cells (both
+    drives, both roads). It stays red on MS-5 only.  */
