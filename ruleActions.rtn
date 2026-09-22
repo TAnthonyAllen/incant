@@ -377,6 +377,19 @@ GroupItem   grup = dtext.firstInList;
 }
 
 /*******************************************************************************
+    A loop's condition, for DO and WhilE. A method-bearing condition is called
+    exactly as before; a bare value -- `while 0;` -- has no method and is tested
+    by truthOf, as aCTionIF already does.
+*******************************************************************************/
+extern GroupItem loopCondition(GroupItem cond)
+{
+    if !cond            return null;
+    if cond.gMethod     return cond.gMethod(cond);
+    if truthOf(cond)    return cond;
+    return null;
+}
+
+/*******************************************************************************
 	Sets the operator method in a do statement
         DO      do- BLOCKing StatemenT while- ExpressioN SemI-;
 *******************************************************************************/
@@ -388,6 +401,10 @@ GroupItem   StatemenT:,
     if jitting {
         -% return jitEmitDO(input); %-
     }
+    // loopRefuseLoudly as aCTionIF -- a loop whose body label never attached refuses by name, never calls a null
+    if !StatemenT {
+        cerr "aCTionDO: REFUSING -- the loop parsed but its body StatemenT is MISSING from the label":;
+        return falseResult; }
     do {
         result = StatemenT.gMethod(StatemenT);
         if isBranch {
@@ -403,7 +420,7 @@ GroupItem   StatemenT:,
             result.isBranch = 0;
             if result.registry == keyWords  result = 0;
             break; }}
-    while ExpressioN.gMethod(ExpressioN);
+    while loopCondition(ExpressioN);
     // labelNO, not falseResult: this construct executed NO statement, so it has no
     // labelNoNotFalse value -- and 0 is a value
     if !result  result = labelNO;
@@ -925,10 +942,12 @@ GroupItem   sourceFile = new("sourceFile");
     // markSeat3 SEQ 166 point 3 -- what text a StatemenT attempt starts on, and whose buffer
     measureMarkPoint("3-StatemenT-entry");
 use input
-    sourceLine  = new("sourceAt");
-    sourceLine.count = sourceLINE;
-    sourceFile.text = sourceFILE.tag;
-    sourceLine  +% sourceFile;
+    // noStuffNoLine a statement whose action already fired in fireLabelMethod can arrive with no rStuff
+    if ruleStuff {
+        sourceLine  = new("sourceAt");
+        sourceLine.count = sourceLINE;
+        sourceFile.text = sourceFILE.tag;
+        sourceLine  +% sourceFile; }
     if !processingCode {
         /*  ⚠ outcome IS DECLARED FIRST SO `statement` STAYS LAST-MENTIONED -- the bare
             `isGROUP` and `group` below resolve against whatever was named most recently
@@ -938,7 +957,7 @@ use input
         GroupItem   statement = input;
         if isGROUP  statement = group;
         lastStatement = statement;
-        if method   outcome = method(statement);
+        // firedInLabel the statement's action already ran in fireLabelMethod -- running it here would run it twice
         // statementScope  A REFUSAL'S SCOPE IS THE STATEMENT -- it is cleared HERE, on the
         // statementScope  way out, whether or not a method ran, because the refusal may have
         // statementScope  been raised during the MATCH and never reached a method at all
@@ -1127,7 +1146,11 @@ GroupItem   looper,
     if jitting {
         -% return jitEmitWHILE(input); %-
     }
-    while looper = ExpressioN.gMethod(ExpressioN) {
+    // loopRefuseLoudly as aCTionIF -- a loop whose body label never attached refuses by name, never calls a null
+    if !StatemenT {
+        cerr "aCTionWhilE: REFUSING -- the loop parsed but its body StatemenT is MISSING from the label":;
+        return falseResult; }
+    while looper = loopCondition(ExpressioN) {
         if looper.isIterator    looper = looper.group;
         if result = StatemenT.gMethod(StatemenT) {
             if isBranch {

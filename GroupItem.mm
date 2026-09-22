@@ -611,6 +611,26 @@ GroupItem 	*stuff = 0;
 }
 
 /***************************************************************************
+                                deferredAbove
+    True when a deferred action must WAIT: code is being compiled, or some
+    enclosing rule is itself deferred and will run this one when it runs.
+***************************************************************************/
+int GroupItem::deferredAbove(RuleStuff *stuff)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*up = stuff->parentStuff;
+	if ( ruler->processingCode )
+		return 1;
+	while ( up )
+		{
+		if ( up->rule && up->rule->groupBody->flags.deferred )
+			return 1;
+		up = up->parentStuff;
+		}
+	return 0;
+}
+
+/***************************************************************************
                                 definingRule
     // definingRule the definer is the first child's PARENT, by pointer, with no name lookup -- and the test
     // definingRule discriminates, which is why it is unguarded on purpose
@@ -926,6 +946,7 @@ GroupItem 	*group = this;
 void GroupItem::fireLabelMethod(RuleStuff *stuff)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		held = deferredAbove(stuff);
 	if ( !stuff->actionMethod )
 		{
 		GroupItem 	*builtinActoR = getAttribute("builtinActoR");
@@ -941,7 +962,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::measureFireLabelFork(this,stuff->label);
 	if ( stuff->actionMethod && stuff->label )
 		{
-		if ( groupBody->flags.deferred )
+		// heldAbove a deferred action waits only if a DEFERRED ANCESTOR will run it; with none above, nobody else ever will
+		if ( groupBody->flags.deferred && held )
 			{
 			stuff->label->setMethod(stuff->actionMethod);
 			stuff->label->groupBody->flags.deferred = 1;
