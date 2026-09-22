@@ -23,6 +23,8 @@ RuleStuff   ruleStuff = rStuff;
                 return label; }
             else    return trueResult; }}
     atRuleMark  = hereAt;
+    // minZeroIsSatisfied a term whose MINIMUM IS ZERO is satisfied by not matching, so it owes the chain a success and not a null -- parseLoop owns max>1, this owns the max=1 optional that never enters it
+    if max <= 1 && !min && !field.isCondition   return trueResult;
     return 0;
 }
 

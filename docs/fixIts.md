@@ -293,6 +293,15 @@ retried at all.
   **Nothing here says the over-repeat is fixed** — it says the instrument that measured it
   no longer reaches it. ⚠ **DO NOT READ THE ZERO AS A CURE.** The row needs a drive that
   survives to DW-5 before it can be graded at all, and finding one is its own work.
+- **2026-09-22, Clod, SEQ 196 — THE DRIVE SURVIVES TO DW-5 FOR THE FIRST TIME, AND THE
+  COUNT IS ZERO.** The min-0 return (F-95 attempt 6) stopped `doWhileNameT` crashing, so
+  `DW-5` now runs in the unmodified fixture: exit 0, sentinel printed, **`DW-8`'s window
+  closes**, and the row reads **0 refusals** where this entry was opened on 100.
+  ⚠ **THIS IS NOT YET A CLOSE, AND THE DISTINCTION IS THE WHOLE POINT.** Zero refusals can
+  mean the over-repeat was fixed, OR that the refusing seat is simply no longer reached on
+  this path because a satisfied-by-min term now returns before it. **Those are different
+  facts and nothing measured here separates them.** What changed is that the row is
+  **gradeable** for the first time since it was opened. Grading it is its own work.
 
 ---
 
@@ -709,6 +718,56 @@ ATTEMPT LOG
      max=1/min=0 case BEFORE the exit-side truth read lands, or modSeamT MS-1 and MS-3 --
      the only two rows that read a `?` at all -- go red. That is the next stroke's shape
      and it is one site, not two.
+  6. 2026-09-22, Clod, SEQ 196, TRY-AND-BUY on branch `seq196-optional-min0`. THE
+     PREREQUISITE THE LINE ABOVE NAMED. Tony's note: the OLD road needed this same fix
+     when it was first made to work.
+        THE SEAT IS exitFromParse's FAILURE TAIL, not runRule and not the parse*
+        methods, and the two guards each name a measured population:
+            atRuleMark = hereAt;
+          + if max <= 1 && !min && !field.isCondition   return trueResult;
+            return 0;
+        `max <= 1` -- repetitions belong to parseLoop (attempt 5). INCLUDING THEM HERE
+        WOULD SPIN THE LOOP: parseLoop breaks on a FALSY runLeafParse, so returning true
+        from a satisfied attempt's failure tail removes the break and runs it to max.
+        `!field.isCondition` -- parseCondition reads `min` as a CONDITION VALUE
+        (`if min sukcess = true; else sukcess = false;`), not as a repetition bound, so
+        the count reading does not apply there and would invert its false case. THAT
+        GUARD IS REASONED, NOT MEASURED: no isCondition rule appeared in the corpus swept.
+     THE SPELLING IS `!min` AND NOT `kount >= min`, AND THE REASON IS A MEASUREMENT.
+        Attempt 5's shape was copied to this seat and then checked: at exitFromParse's
+        failure tail for `two`, kount reads 1, not 0. A max=1 term never maintains
+        kount -- nothing zeroes it, parseLoop is the only writer -- so `kount >= min`
+        would have answered correctly here BY ACCIDENT OF A STALE SLOT. Read the fact
+        that is actually written.
+     THE CONTROL THAT LICENSES THE GUARD, swept across the Search chain, one row per term:
+            search, followedBy, first, NamE, SemI, Search   min=1 max=1
+            nameSet (a star)                                min=0 max=100  -> parseLoop
+            GrouP   (a plus)                                min=1 max=100  -> parseLoop
+            two     (a question)                            min=0 max=1    -> THIS LINE
+        NO MANDATORY TERM HAS min=0, so the population this line touches is exactly the
+        question-marked term.
+     THE ACCEPTANCE, at the seat, with the exit-side channel UNTOUCHED -- what `two()`
+     hands the enclosing chain on optT("a"), the lawfully-absent optional:
+            before   the chain returned falseResult; optT PARSERESULT tag=false truthOf=0
+            after    arg = 0x1001e9340 tag="true" truthOf=1, and trueResult IS
+                     0x1001e9340 -- the same pointer, so it is trueResult ITSELF
+            after    optT PARSERESULT tag=true truthOf=1
+        optT("ab"), the optional PRESENT, is unchanged at tag=true truthOf=1.
+        So MS-1 and MS-3 now hold on the optional's OWN RETURN and no longer on
+        parseRule's presence test. That is the acceptance, and it is not visible as a
+        fleet move because both rows were already green.
+        -> Fleet 443/62 -> 446/59. CT1-CT4 unmoved, searchNewParseT SemI still green,
+           parserTest 4 roots unmoved, MS-1/MS-2/MS-3/MS-4 unmoved.
+        -> UNEXPECTED AND REPORTED RATHER THAN BURIED: doWhileNameT STOPPED CRASHING.
+           `runs` and `sentinel` green, exit 0, every window closes. THE CRASH IS GONE
+           AND THE DEFECT IS NOT -- DW-6 still reads dwN == 1 against a wanted 2, so the
+           NEW-road drive still does not execute the body. A null optional inside TokenXP
+           was what the seat dereferenced; it is now a true. DO NOT READ THE GREEN ROWS AS
+           THE LABEL CHANNEL CLOSING.
+  F-95 STILL NOT CLOSED, AND ITS PREREQUISITE IS NOW MET. The exit-side truth read
+     (parseRule presence -> truth) is the remaining half and CT2/3/4 close there. It was
+     unsafe until this stroke because it would have taken MS-1/MS-3 with it; it is safe
+     now, and nothing else about it has been tried.
 ```
 
 **Done when:** a generated rule fails when any required term fails, and CT1 stays green while

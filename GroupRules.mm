@@ -2794,6 +2794,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			}
 		}
 	ruler->atRuleMark = ruleStuff->hereAt;
+	// minZeroIsSatisfied a term whose MINIMUM IS ZERO is satisfied by not matching, so it owes the chain a success and not a null -- parseLoop owns max>1, this owns the max=1 optional that never enters it
+	if ( ruleStuff->max <= 1 && !ruleStuff->min && !field->groupBody->flags.isCondition )
+		return ruler->trueResult;
 	return 0;
 }
 
