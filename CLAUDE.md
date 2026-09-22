@@ -3101,12 +3101,23 @@ Everything else: do the needful.
 **Clay** (Claude at claude.ai) — design, reasoning, architecture, HWF navigation.
 **Clod** (Claude Code) — execution, file edits, GitHub, build verification.
 
-⚠ **`IncantForms/WorkingOn/tester` IS UNTRACKED, AND CLOD READS IT ANYWAY (Tony, 2026-09-01).**
-It is Tony's live testing incantation and it "will change randomly depending on what I am
-testing" — which is why it is gitignored (SEQ 105 R4), the same move as `incant++`. **But
-untracked is not invisible: LOOK IN ON IT WHEN IT CHANGES, because it is the cheapest signal of
-what Tony is working on, and he will answer questions about it.** Other than that, no worries —
-it never needs reconciling, it is never a finding, and it never blocks a clean kitchen.
+⚠⚠ **`IncantForms/WorkingOn/tester` IS TRACKED, IT COMMITS WITH ROUTINE WORK, AND CLOD MAY
+WRITE IN IT. Tony, 2026-09-22: "tester can be committed when you are committing."** This
+**reverses SEQ 105 R4 (2026-09-01)**, which gitignored it; the ignore entry is **removed**, not
+commented, because an ignore line and a rule that the file commits cannot both be true.
+~~It is gitignored because it "will change randomly depending on what I am testing", the same
+move as `incant++`.~~
+⚠ **WHAT SURVIVES THE REVERSAL is the reason it was worth reading, and tracking makes it
+stronger: LOOK IN ON IT WHEN IT CHANGES, because it is the cheapest signal of what Tony is
+working on, and he will answer questions about it.** Tracked, that signal is in the history
+rather than only on disk.
+⚠ **AND CLOD WRITES IN IT NOW, under standing authorization (Clay, SEQ 192): the scaffold for a
+specimen goes in `tester`, written the way Tony runs it in Xcode. Add rules and a driver; leave
+his existing driver lines and declarations alone.** He marks the lines he is done with — the
+2026-09-22 file carried `// Clod you can replace the following two lines as needed` — and that
+marker is the invitation, not a general licence over the file.
+⚠ **SO `incant++` IS THE ONLY SCRATCH FILE LEFT**, which is the 2026-09-16 ruling with its one
+remaining exception removed.
 ⚠⚠ **`IncantForms/WorkingOn/parser` COMMITS WITH ROUTINE WORK, WIP OR NOT — AND IS NEVER LEFT
 DIRTY ACROSS A SEAL (Tony, 2026-09-05).** It stays tracked; it is WIP with an end date, not a
 scratch pad. **"WIP" describes its CONTENT, not its git status.** Same standing rule
@@ -3122,9 +3133,13 @@ two-named-files clause bought for its predecessors. ⚠ **An exception in a base
 nobody re-examines.**
 
 ⚠ **IT DOES NOT EXTEND TO ITS NEIGHBOURS, and the distinction is what the rule turns on:**
-`incant++` is a scratchpad and `tester` changes with whatever Tony is testing, so both stay
-**untracked and gitignored**. `parser` is work with an end date. Scratch stays out of git;
-unfinished work goes in.
+`incant++` is a scratchpad and stays **untracked and gitignored**. `parser` is work with an end
+date. Scratch stays out of git; unfinished work goes in.
+⚠ **`tester` WAS NAMED HERE AS UNTRACKED AND IS NOT ANY MORE** — Tony tracked it again on
+2026-09-22, so the population of this sentence is **one file**. Struck rather than rewritten,
+because the reasoning it shared with `incant++` is what the reversal had to overcome: a file that
+churns by design is a standing exception in the cleanliness instrument, and Tony ruled the churn
+acceptable rather than the exception.
 
 ⚠⚠ **`WorkingOn/` IS NOT SCRATCH. `incant++` IS THE ONLY SCRATCH FILE. Tony, 2026-09-16, and it
 narrows the sentence directly above.** Everything else under `IncantForms/WorkingOn/` is work —

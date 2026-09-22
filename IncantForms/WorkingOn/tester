@@ -1,0 +1,65 @@
+/*****************************************************************************
+	This is the tester incantation. It is a working file for testing new features
+    under development so it changes when there is a new feature in the works.
+*****************************************************************************/
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+
+// Clod you can replace the following two lines as needed
+//  SEQ 192 -- THE MODIFIER SEAM. Two scaffold roots, smallest steppable thing.
+//      optT isRule "a"- "b"?- ;   drive optT("a")     does the ? survive
+//      repT isRule "a"+ ;         drive repT("aaa")   how many does it consume
+//  THE CURSOR IS THE INSTRUMENT, NOT THE VERDICT -- both roads report WIN.
+//  Read `MARKARM drive base=` and `MARKPT 2b-before-pop mark=`; consumed is
+//  mark - base, and `in=` says whether the mark is still inside the drive.
+//  No code bodies on the roots, deliberately: a body is PARSED INSIDE THE DRIVE
+//  on first fire and walks the mark out of the drive string, which destroys the
+//  reading. The verdict observable is `CAPFIRE fireLabelMethod <rule>`, which
+//  prints on both roads and only on success, so no body is needed for it.
+define
+    optT isRule "a"- "b"?- ;
+    repT isRule "a"+ ;
+    msOptOld code={ cerr "MS-1 optT OLD":; traceParse("on"); optT("a"); traceParse("off"); cerr "MS-1-BACK":; };
+    msOptNew code={ cerr "MS-3 optT NEW":; traceParse("on"); optT("a"); traceParse("off"); cerr "MS-3-BACK":; };
+    msRepNew code={ cerr "MS-7 repT NEW":; traceParse("on"); repT("aaa"); traceParse("off"); cerr "MS-7-BACK":; };
+    ;
+msOptOld();
+parser(optT);
+msOptNew();
+parser(repT);
+//  ⚠ THE NEXT LINE EXITS 139 -- getText() on a null this, GroupItem.mm:1322,
+//  reached through ACTFIRE fireLabelMethod GrouP. That is the destination if you
+//  are walking the repT root. COMMENT IT OUT to reach the stop() cleanly and let
+//  cout flush the two generated bodies, which are:
+//      optT = CodE { return GrouP() && GrouP(); }
+//      repT = CodE { return GrouP(); }
+//  incant/pop/modSeamT is the fleet copy and drives repT on the OLD road, which
+//  exits 139 at the same site. Both roads crash; measured pre-existing at b5e1557.
+msRepNew();
+stop();
+
+include("IncantForms/WorkingOn/parser");
+parser(Search);
+Search("search Utilities list");
+
+parser(DO);
+debug;
+DO("do print ++result; while result < 2;");
+
+parser(PrinT);
+PrinT("print ++result;");
+
+include("IncantForms/WorkingOn/checkSKIP");
+// Note: in checkSKIP the search list is set to: Grokking Utilities and TestStuff
+
+register(TestStuff);
+define
+    skipInput=(  "what" /* has /* embedded */ comment*/ NotSkipable#);
+    skipTester code={
+        print "Did the definition work?" skipInput:;
+        };
+    ;
+debug checkSKIP sKIP  CommenT IndenT QuotE BlockCommenT;
+checkSKIP(skipInput);
