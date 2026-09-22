@@ -426,6 +426,10 @@ GroupItem 	*lab = stuff->label;
 		// rung2bRed never park it in the grandparent's subtree
 		return;
 		}
+	// alreadyIsParentLabel this label IS the parent's label already, so there is nothing to attach and the
+	// alreadyIsParentLabel lines below would attach it to itself
+	if ( lab == pStuff->label )
+		return;
 	if ( promote && isGROUP(lab->groupBody->flags.data) && stuff->max > 1 )
 		{
 		pStuff->label->addAttribute(lab->getGroup());

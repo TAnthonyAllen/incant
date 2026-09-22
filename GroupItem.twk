@@ -260,6 +260,9 @@ GroupItem   lab = stuff.label;
         // rung2bRed reachable is not correct -- an alternation must YIELD its winning option's label upward,
         // rung2bRed never park it in the grandparent's subtree
         return; }
+    // alreadyIsParentLabel this label IS the parent's label already, so there is nothing to attach and the
+    // alreadyIsParentLabel lines below would attach it to itself
+    if lab == pStuff.label  return;
     if promote && lab.isGROUP && stuff.max > 1 {
         pStuff.label    +% lab.group;
         lab.clear();

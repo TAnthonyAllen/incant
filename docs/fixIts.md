@@ -388,6 +388,31 @@ at four roots and the fleet's red column unmoved row for row.
 - **Reverted whole.** Fleet back to 428 green / 62 red with the red column **identical row for
   row**. Three attempts, so the STOP clause fired and this goes to Tony.
 
+- **2026-09-22, attempt 4 — TONY'S EDIT, AND IT TOOK. `exitFromParse` calls `attachLabel` instead
+  of hand-rolling its own `addAttribute`** (`Generate.rtn:21`), with an identity guard added to
+  `attachLabel` (`GroupItem.twk:263`). Bare build, canary **337** unmoved. → **the label channel
+  fills.** Trace, `parser(PrinT)`: `attachLabel lab=PrintField promote=1 isTarget=1 pLabel=0
+  pRule=PrintXP` — **PrintXP holds a label at exit**, which is the row Tony's dispatch asked for.
+  Fleet **429 green / 63 red, red column identical row for row** against a capture banked before
+  the first edit.
+- ⚠ **`promote=0` WAS TRIED FIRST, per the 08-07 IT-ruling note, AND IT IS INERT HERE. The value
+  it took is 1.** The promote arm reads `(promote || !pStuff.label) && stuff.isTarget`, so at
+  `promote=0` it needs an EMPTY parent slot — and `checkInput`'s `enclosingActivation` arm
+  (`RuleStuff.twk:208`) has **already filled that slot by hand, unretagged**, for any
+  `hasNewParse` member. The disjunct is false in exactly the cell where the retag is owed.
+  Measured, one variable, same fixture: at `promote=0` the trace reads `attachLabel lab=ANYtoken
+  … pRule=TokenXP`, so **TokenXP's label carried a member named `ANYtoken`** and
+  `xpress["ANYorNum"]` found nothing; at `promote=1` the same line reads `lab=ANYorNum`. **The
+  missing half was never the attach — it was the RETAG**, `lab.tag = pStuff.ruleName`, which is
+  the promote arm's second statement and the thing a hand-rolled `+%` cannot do.
+- ⚠ **THE DONE-WHEN IS NOT MET AND THE ROW STAYS OPEN.** `doWhileNameT` still exits 139 at the
+  **same code site** (`GroupRules.mm:1265`, confirmed by backtrace), but the parse now reaches
+  **further into the input** — the mark moves from `[; while dwN < 2;]` to `[dwN < 2;]`, i.e. the
+  body parses and the death is now inside the `while` EXPRESSION. **The mechanism there is
+  different and it is F-95's, not this row's**: `PARSERESULT rule=TokenXP tag=false truthOf=0`
+  followed by `fireLabelMethod TokenXP` — a rule whose chain FAILED firing its label method on an
+  empty label. One site per stroke; handed on.
+
 **⚠ THE READING THAT SURVIVES ALL THREE.** `checkInput`'s `label = 0` for a members-rule is not an
 oversight to be overridden — every attempt that overrides it, in place or under a bracket, breaks
 rules that already worked. Whatever gives the terms a parent to attach into has to be a channel
@@ -478,6 +503,30 @@ ATTEMPT LOG
         recommendation is right for a different reason than the one that predicted it.
   POP: incant/pop/chainTruthT, WIRED and born red -- CT2, CT3, CT4. CT1 is the
        anti-vacuity sibling and is what caught the trial; CT7 is the hazard probe.
+  3. 2026-09-22, Clod, RE-RUN ON THE POST-LABEL-CHANNEL BUILD (F-96 attempt 4 landed,
+     canary 337). Reached by walking into it: the DW-4 crash had moved forward into the
+     while expression and the trace named this row's mechanism at the seat --
+     `PARSERESULT rule=TokenXP tag=false truthOf=0` followed by `fireLabelMethod TokenXP`.
+        -> REPRODUCES ROW FOR ROW. `sukcess = truthOf(result);` takes CT2/CT3/CT4 GREEN
+           and CT1 RED, exactly as attempts 1 and 2. The label channel was not the
+           variable and this row is untouched by it.
+        -> SECOND SITE REPRODUCES: parserTest 4 roots -> 2, exit 139, and doWhileNameT's
+           own literal-while control stops returning. Fleet 429 -> 426.
+        -> REVERTED WHOLE. Red column identical row for row afterwards.
+  ⚠ NEW, AND IT NARROWS THE SPELLING: THE TEST IS INERT, ONLY THE ASSIGN MOVES ANYTHING.
+     `if truthOf(result) sukcess = true;` was built, bare, and driven on its own --
+     fleet 429/63 IDENTICAL row for row, doWhileNameT unchanged at the same site. It
+     buys NOTHING, because `sukcess` is already 1 by then: `parseRule` writes
+     `sukcess = 0` and then calls `checkInput()`, which SETS it true (RuleStuff.twk:186
+     onward), and a set-only result test can never CLEAR it. So the presence-vs-truthOf
+     swap is not the defect at all -- the defect is that nothing on this road writes
+     FALSE -- and every future attempt here must be an ASSIGN, never a test.
+  ⚠ AND THAT IS ALSO WHY THE ASSIGN COSTS ROW 1 AND parserTest: it clears `sukcess` for
+     every arm that reaches the seat with a null or falsy `result`, INCLUDING the
+     `else reportNoBody(field)` arm and any non-action rule, which previously rode out
+     on checkInput's true. A NARROWED clear -- one that only fires where a body actually
+     ran and answered -- has not been tried and is the next thing to try. NOT attempted
+     this stroke: the H15 control had already broken, which is a stop.
 ```
 
 **Done when:** a generated rule fails when any required term fails, and CT1 stays green while

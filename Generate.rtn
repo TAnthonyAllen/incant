@@ -18,13 +18,8 @@ RuleStuff   ruleStuff = rStuff;
         fireLabelMethod(ruleStuff);
         if sukcess {
             if label && !noLabel {
-                if parentLabel && parentLabel != label
-                    if label.isGROUP && max > 1 {
-                        parentLabel     +% label.group;
-                        label.clear(); }
-                    else {
-                        parentLabel +% label;
-                        label   = new(tag); }
+                // oneAttach ONE ATTACH, through attachLabel, and the promote value is 1 -- promote=0 cannot RETAG here, and the retag is the half a members rule needs
+                attachLabel(ruleStuff,parentStuff,1);
                 return label; }
             else    return trueResult; }}
     atRuleMark  = hereAt;

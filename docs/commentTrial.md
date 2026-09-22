@@ -1142,3 +1142,31 @@ followed and the entry is absent, log it and move on.* This is that log.
 **THE TALLY LINE THE TRIAL ASKED FOR: entries written 2, pointers followed 2, pointers found dangling 1.** The dangling-pointer fleet row is *"obviously buildable and waits for evidence it is needed"* — this is one instance, not yet evidence, and it is recorded rather than acted on.
 
 ⚠ **ONE FINDING, CAPTURED NOT CHASED: the inline `//` keys in `Commands.rtn` and `ruleActions.rtn` carry DOTTED PATHS, which the 2026-09-15 ruling forbids.** The ruled inline form is `// slug sentence?` — slug required, sentence optional, **path never inline** — and both lines read `// <sentence>   <File.method.slug>`. They were written on 2026-09-15, the same day as the ruling, so this is drift at birth rather than an old spelling. Not fixed here: the dispatch scoped this stroke to correcting one comment's *claim*, and a spelling sweep across two files is a separate decision. ⚠ **It is worth noting that the ruled form would have made the dangling pointer above unconstructable** — a bare `// twoVerbs` names no parent and so cannot name the wrong one.
+
+## 2026-09-22 — TWO ENTRIES FOR THE LABEL-CHANNEL EDIT, AND A SECOND DANGLING POINTER
+
+| key | entry |
+|---|---|
+| `Generate.exitFromParse.oneAttach` | **written** — new `exitFromParse` parent under `Generate`, in its alpha slot ahead of `parseAny`. Holds the argument for calling `attachLabel` and for `promote=1`, including the measured `promote=0` no-buy |
+| `GroupItem.attachLabel.alreadyIsParentLabel` | **written** — child of the existing `attachLabel` entry. Why the identity guard exists and why it is inert on the old road |
+
+Both were written the way the trial asks: the inline line carries the **claim**
+(`// oneAttach ONE ATTACH, through attachLabel, and the promote value is 1 -- promote=0 cannot
+RETAG here, and the retag is the half a members rule needs`) and the entry carries the argument —
+the trace lines, the two-statement promote arm, the `checkInput` interaction. First draft had the
+whole argument inline, on one line, which is precisely the case the convention exists for.
+
+⚠ **AND FOLLOWING THE PARENT FOUND A SECOND DANGLER: `Generate.exitFromParse.parentLabelSync` is
+cited in `Generate.rtn:15` and `GroupRules.mm:2779`, and there was NO `exitFromParse` entry at all
+until this stroke.** Found the same way as the 09-16 one — by going to write a sibling and
+discovering the parent absent. The new parent now makes that pointer resolvable to a parent, but
+`parentLabelSync` itself is still not written as a child; its argument lives in a block comment at
+the site. **Logged, not chased** — the dispatch scoped this stroke to one parse site, and moving a
+working block comment is a separate decision.
+
+**TALLY: entries written 2, pointers followed 2, pointers found dangling 1 (parent absent).**
+⚠ **That is the second dangling pointer in two sessions, both found by following rather than by a
+checker, and both of the same shape — a key naming a parent that does not exist.** The trial said
+the dangling-pointer fleet row "waits for evidence it is needed". Two instances is not yet a
+population, but the *shape* has now repeated, and the cheap form is a row that asserts every
+inline slug's PARENT resolves — which is what both instances would have caught.

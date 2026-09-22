@@ -2786,16 +2786,8 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			{
 			if ( ruleStuff->label && !ruleStuff->noLabel )
 				{
-				if ( ruleStuff->parentLabel && ruleStuff->parentLabel != ruleStuff->label )
-					if ( isGROUP(ruleStuff->label->groupBody->flags.data) && ruleStuff->max > 1 )
-						{
-						ruleStuff->parentLabel->addAttribute(ruleStuff->label->getGroup());
-						ruleStuff->label->clear();
-						}
-					else {
-						ruleStuff->parentLabel->addAttribute(ruleStuff->label);
-						ruleStuff->label = new GroupItem(field->groupBody->tag);
-						}
+				// oneAttach ONE ATTACH, through attachLabel, and the promote value is 1 -- promote=0 cannot RETAG here, and the retag is the half a members rule needs
+				field->attachLabel(ruleStuff,ruleStuff->parentStuff,1);
 				return ruleStuff->label;
 				}
 			else	return ruler->trueResult;

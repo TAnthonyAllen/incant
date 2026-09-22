@@ -733,6 +733,14 @@ define
                     and answered with three RunRulE complaints. setup carries its
                     commentary in an ordinary trailing comment block instead.#);
         Generate="is an rtn file that gets included into GroupRules.twk when it gets tokked. The text for these entries needs to be reviewed to see if they are still relevant. They were relevant once but things change and no one has been going thru comments to keep them up to date. The comments cluttered up code. Now they do not. They are here and the same relevancy question applies.":
+            exitFromParse=(THE COMMON EXIT FOR EVERY NEW-ROAD PARSE METHOD. It syncs parentLabel from parentStuff, fires the label method, and attaches the label upward. Every parse* function in this file returns through it.#):
+                oneAttach=(ONE ATTACH, THROUGH attachLabel, AND THE promote VALUE IS 1 -- Tony's dispatch, built and measured 2026-09-22. Until then this function hand-rolled its own addAttribute, which is why a members rule yielded nothing to its caller.
+
+                    WHAT THE HAND-ROLLED ATTACH COULD NOT DO WAS RETAG. attachLabel's promote arm is two statements, pStuff.label = lab AND lab.tag = pStuff.ruleName, and the second one is what makes an alternation's winning option arrive under the ENCLOSING rule's name. The old road passes promote=1 and gets both; this road did neither.
+
+                    promote=0 WAS TRIED FIRST, per the IT-ruling note of 08-07, AND IT IS INERT HERE. The promote arm reads (promote || !pStuff.label) && stuff.isTarget, so with promote=0 it needs an EMPTY parent slot -- and checkInput's enclosingActivation arm has already filled that slot by hand, unretagged, for any hasNewParse member. So the disjunct is false in exactly the cell where the retag is owed. Measured: with promote=0 the trace reads attachLabel lab=ANYtoken pRule=TokenXP, so TokenXP's label carried a member called ANYtoken and aCTionTokenXP's xpress subscript of ANYorNum found nothing. With promote=1 the same line reads lab=ANYorNum, and PrintField promotes into PrintXP.
+
+                    THE IDENTITY GUARD IN attachLabel IS PART OF THIS EDIT, not a separate one. See GroupItem.attachLabel.alreadyIsParentLabel.#);
             parseAny=(THE LABEL WRITE IS GUARDED IN ALL FOUR OF THESE, and until 2026-08-18 it
                 was guarded in only one. parseSet had `if label` and parseAny,
                 parseCharacter and parseString wrote through it bare, so a rule matched
@@ -1224,6 +1232,11 @@ define
                     grandparent's subtree. Reachable is not the same as correct, and the
                     frame having somewhere to put a node is not evidence that it is the
                     right somewhere.#);
+                alreadyIsParentLabel=(A LABEL THAT ALREADY IS THE PARENT'S LABEL HAS NOTHING TO ATTACH, and the lines below would attach it to itself. Added 2026-09-22 with exitFromParse's one-attach conversion.
+
+                    checkInput's enclosingActivation arm writes parent.rStuff.label = label at ENTRY for any hasNewParse member, so on the new road pStuff.label and lab are routinely the SAME NODE by the time the exit runs. The promote arm above handles that case correctly -- the assign is a no-op and the retag is the whole point -- but a stuff with isTarget 0 falls past it, and the tail would then addAttribute a node into itself.
+
+                    IT IS INERT ON THE OLD ROAD. parse()'s fork reaches here through pStuff passed down the call, never through checkInput's hand-fill, so the two are never the same node there. The fleet is unmoved row for row with this guard in place.#);
                 dropSiteProbe=(SEQ 59 RUNG 2 -- THE FRAME PROBE AT THE DROP SITE. Gated on the
                     standing parse-trace flag, so no baseline can move. It asks one
                     thing: at the instant an option's label is dropped, is there a
