@@ -1821,7 +1821,12 @@ for _t in search followedBy GrouP SemI; do
     if _snprow "$_t" | grep -q "isRule=1"; then
         echo "  ok    searchNewParseT SNP term \`$_t\` dispatched, isRule=1"; green=$((green+1))
     else
-        echo "  FAIL  searchNewParseT SNP term \`$_t\` did NOT dispatch -- F-90 is back."
+        echo "  FAIL  searchNewParseT SNP term \`$_t\` did NOT dispatch. ⚠ THIS ROW USED TO SAY"
+        echo "        \"F-90 is back\" AND THAT WAS A GUESS. Measured 2026-09-22 (SEQ 194/195):"
+        echo "        SemI was unreachable because parseLoop handed the enclosing && a NULL for"
+        echo "        a repetition that had satisfied its min, so the chain short-circuited"
+        echo "        before it. Fixed by the count read in parseLoop. Suspect a term's RETURN"
+        echo "        before you suspect the dispatch gate."
         echo "        The generated body is not running: setParse installed nothing, or"
         echo "        something raised hasNewParse before the walk reached it."
         _snprow "$_t" | sed 's/^/          actual:   /'

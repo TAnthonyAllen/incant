@@ -10016,6 +10016,9 @@ RuleStuff *ruleStuff = field->getRStuff();
 		else	ruleStuff->kount++;
 	if ( ruleStuff->sukcess )
 		return GroupControl::groupController->groupRules->trueResult;
+	// countNotFlag the LAST attempt of a repetition is always the failing one that ends it, so sukcess is never the loop's verdict -- read the COUNT, and do not write the flag
+	if ( ruleStuff->kount >= ruleStuff->min )
+		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
 }
 

@@ -276,6 +276,23 @@ retried at all.
 
 **ATTEMPT LOG.**
 - **2026-09-21, found while certifying SEQ 186.** No attempt made.
+- **2026-09-22, Clod, SEQ 195 — MEASURED TWO-SIDED AS INDEPENDENT OF F-95's FIX, AND
+  CURRENTLY UNREACHABLE.** Asked because SEQ 195 changed `parseLoop`'s return and the two
+  rows live in one function. Probe: `incant/pop/doWhileNameT` copied and patched to SKIP
+  DW-4, which crashes before DW-5 can be reached (bear-trap #43 — copy then patch, never
+  retype). Both arms built bare, canary 337, one build each:
+
+  | arm | DW-5 window | total refusals | exit |
+  |---|---|---|---|
+  | **without** the count read | 0 | **0** | 139 |
+  | **with** the count read | 0 | **0** | 139 |
+
+  ⚠ **IDENTICAL, SO THE CHANGE IS NOT THE VARIABLE — AND THE SYMPTOM IS GONE FOR SOME
+  OTHER REASON.** The 100 refusals this row was opened on, measured at `b3c06d9`, do not
+  reproduce on either arm: the drive now **crashes before emitting a single refusal**.
+  **Nothing here says the over-repeat is fixed** — it says the instrument that measured it
+  no longer reaches it. ⚠ **DO NOT READ THE ZERO AS A CURE.** The row needs a drive that
+  survives to DW-5 before it can be graded at all, and finding one is its own work.
 
 ---
 
@@ -651,6 +668,47 @@ ATTEMPT LOG
      the label channel. Every clear at the exit -- blanket or narrowed -- reads a
      channel that is wrong at the source. Four entries now; do not make it five with
      another exit-side spelling.
+  5. 2026-09-22, Clod, SEQ 195. THE FIRST ATTEMPT THAT LANDED, AND IT IS AT THE SOURCE.
+     Located SEQ 194 by lldb on the `search list;` drive: the last `&&` in Search's
+     emitted chain read target=NULL, so it returned falseResult at GroupRules.mm:12190
+     and SemI was never entered. The null came from `parseLoop`, which reported the LAST
+     ATTEMPT's verdict -- and the last attempt of a repetition is ALWAYS the failing one
+     that ends it. Measured at the seat: GrouP+ kount=1 min=1 max=100 sukcess=0, so
+     `if sukcess return trueResult; return 0;` returned 0 on a repetition that had
+     satisfied its minimum. `kount >= min` was in the frame and nothing read it.
+        THE EDIT, Generate.rtn parseLoop, one statement, no flag write:
+            if kount >= min     return trueResult;
+        placed before the existing `return 0`. It READS the count and RETURNS; it does
+        NOT set `sukcess`, which keeps parseLoop off the two-meanings channel. NO
+        DOWNSTREAM READER WAS FOUND THAT NEEDS THE FLAG SET for the min-satisfied case,
+        so none is named and none was written.
+        -> searchNewParseT `SemI did NOT dispatch` FLIPPED GREEN. SemI now dispatches.
+        -> THE RESULT CHANNEL NOW DISCRIMINATES, which it did not before. Before:
+           all four drives returned ONE node, tag=false truthOf=0. After:
+               CT-ROW1 "search list;"  tag=true  truthOf=1
+               CT-ROW2 "search list"   tag=false truthOf=0
+               CT-ROW3 "search ;"      tag=false truthOf=0
+               CT-ROW4 "search"        tag=false truthOf=0
+           SemI dispatches on rows 1 and 2 and correctly does not on 3 and 4.
+        -> Fleet 442/63 -> 443/62. EXACTLY ONE ROW MOVED and it is the predicted one.
+           modSeamT MS-1/MS-3 unmoved, which is the control: optT has no repetition, so
+           a move there would have meant the fix reached past the loop.
+  ⚠⚠ F-95 IS NOT CLOSED. CT2/CT3/CT4 ARE STILL RED AND THE TAIL IS NAMED.
+     `parseRule`'s `if result sukcess = true;` is a PRESENCE test and falseResult is
+     NON-NULL, so a failed chain still reports success. The truth read is now WORTH
+     TRYING FOR THE FIRST TIME -- CT1 reads truthOf=1, which is what killed attempts
+     1, 2 and 3 -- but it is NOT yet safe, and the blocker is measured:
+     ⚠ AN OPTIONAL TERM THAT IS LAWFULLY ABSENT STILL RETURNS FALSY, AND THE MIN-0 CASE
+     IS CURRENTLY CARRIED BY THE PRESENCE-TEST BUG ITSELF. In `optT isRule one-="a"
+     two?-="b"`, driving optT("a") the `&&` reads left=1 from one() and then
+     truthOf(two())=0 and returns falseResult -- measured at the seat. optT WINS only
+     because parseRule's presence test reads that non-null falseResult as success. `two?`
+     is max=1, so it never enters parseLoop and this stroke's count read does not reach
+     it.
+     SO THE ORDER IS FORCED: the term-level min-satisfied return must cover the
+     max=1/min=0 case BEFORE the exit-side truth read lands, or modSeamT MS-1 and MS-3 --
+     the only two rows that read a `?` at all -- go red. That is the next stroke's shape
+     and it is one site, not two.
 ```
 
 **Done when:** a generated rule fails when any required term fails, and CT1 stays green while
