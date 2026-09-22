@@ -419,6 +419,13 @@ rules that already worked. Whatever gives the terms a parent to attach into has 
 `exitFromParse` does not already read, or `exitFromParse` has to learn the difference.
 
 ### F-95 — a generated rule succeeds whenever its FIRST term matches, and `truthOf` alone does not fix it
+
+⚠ **BANKED BESIDE THIS ROW, 2026-09-22 (Tony, SEQ 192), NOT CHASED.** `checkInput`'s
+`enclosingActivation` arm and `attachLabel`'s promote arm are **two writers of the parent's label
+slot**, and SEQ 191's `alreadyIsParentLabel` guard is the tell — the guard exists only because the
+two writers can reach the same node. It is a one-channel-one-meaning question and it belongs to
+**whenever the exit is reworked**, which is this row's work. Recorded here so it is found then.
+
 **Measured 2026-09-20 on a bare build, witness `incant/pop/chainTruthT`, born red.** `Search
 search- followedBy GrouP+ SemI-` reports success for the input `"search"` — three required terms
 unmatched — with the mark landing past the drive string entirely. Six rows, one variable each:

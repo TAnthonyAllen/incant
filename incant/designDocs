@@ -740,7 +740,11 @@ define
 
                     promote=0 WAS TRIED FIRST, per the IT-ruling note of 08-07, AND IT IS INERT HERE. The promote arm reads (promote || !pStuff.label) && stuff.isTarget, so with promote=0 it needs an EMPTY parent slot -- and checkInput's enclosingActivation arm has already filled that slot by hand, unretagged, for any hasNewParse member. So the disjunct is false in exactly the cell where the retag is owed. Measured: with promote=0 the trace reads attachLabel lab=ANYtoken pRule=TokenXP, so TokenXP's label carried a member called ANYtoken and aCTionTokenXP's xpress subscript of ANYorNum found nothing. With promote=1 the same line reads lab=ANYorNum, and PrintField promotes into PrintXP.
 
-                    THE IDENTITY GUARD IN attachLabel IS PART OF THIS EDIT, not a separate one. See GroupItem.attachLabel.alreadyIsParentLabel.#);
+                    THE IDENTITY GUARD IN attachLabel IS PART OF THIS EDIT, not a separate one. See GroupItem.attachLabel.alreadyIsParentLabel.
+
+                    ⚠⚠ RULED 2026-09-22 (Tony, SEQ 192): THE RETAG STAYS ON THE NEW ROAD, and promote=1 is the landed shape rather than a measurement that happened to work. THE 08-07 IT NOTE IS AMENDED BY NAME -- it read "the generated arm passes promote=0 to attachLabel, attach-under always, it never consults isTarget", and a members rule on the new road now PROMOTES AND RETAGS, as measured in SEQ 191. PC-1 is not thereby repealed; what is withdrawn is the claim that promote=0 is this road's value.
+
+                    ⚠ BANKED, NOT CHASED (same ruling): checkInput's enclosingActivation arm and this promote arm are TWO WRITERS OF THE PARENT'S LABEL SLOT, and the alreadyIsParentLabel guard is the tell -- the guard exists only because the two writers can reach the same node. That is a one-channel-one-meaning question for whenever the exit is reworked, and it sits beside fixIts F-95. Not now.#);
             parseAny=(THE LABEL WRITE IS GUARDED IN ALL FOUR OF THESE, and until 2026-08-18 it
                 was guarded in only one. parseSet had `if label` and parseAny,
                 parseCharacter and parseString wrote through it bare, so a rule matched

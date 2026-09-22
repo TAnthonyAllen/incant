@@ -2902,6 +2902,108 @@ else
     awk '/DW-5 target/{f=1} /DW-5 TARGET RETURNED/{f=0} f' "$T/dwn.e" | grep -A1 "REFUSED parseRule:" | sed 's/^/          /'; fail=1
 fi
 
+#  ---- modSeamT: does a term's MODIFIER survive generation? THE CURSOR IS THE
+#  ---- INSTRUMENT, NOT THE VERDICT ------------------------------------------
+#
+#  Commissioned by Tony, SEQ 192, 2026-09-22. Two scaffold roots:
+#      optT isRule "a"- "b"?- ;   drive optT("a")
+#      repT isRule "a"+ ;         drive repT("aaa")
+#
+#  ⚠ MS-1 AND MS-3 ARE AN ANTI-VACUITY PAIR AND THE PAIR IS THE WHOLE FIXTURE.
+#  BOTH ROADS REPORT WIN -- `CAPFIRE fireLabelMethod optT` prints on each, and it
+#  prints only on success. A fixture that read the verdict alone would be green
+#  on both and would be measuring nothing. Only the CURSOR separates them, and
+#  it separates them completely: the old road's mark has left the drive string,
+#  the new road's has not moved off its base.
+#
+#  CONSUMED IS AN OFFSET, `mark - base`, never an address -- the addresses move
+#  every run under ASLR and a pinned one would be rule H3's exact prohibition.
+#  `MARKARM drive base=` is the zero point, `MARKPT 2b-before-pop` is the last
+#  instant the drive's own cursor exists. Both parseTrace-gated, both on BOTH
+#  roads, which is what makes this one comparison rather than two measurements.
+#
+#  ⚠ EVERY ROW GUARDS ITS OWN WINDOW FIRST. A window whose MARKARM or 2b line is
+#  ABSENT reports UNREADABLE by name and fails -- it never reports "consumed 0",
+#  because a missing line and a zero offset are the same string to a shell and
+#  only one of them is a measurement (rule H4).
+#
+#  ⚠⚠ MS-5 IS PINNED AS A CRASH AND IT IS PRE-EXISTING. `repT("aaa")` on the OLD
+#  road exits 139 -- getText() on a null `this`, GroupItem.mm:1322, through
+#  `ACTFIRE fireLabelMethod GrouP`. MEASURED AT b5e1557, the seal before the
+#  attachLabel conversion, and it exits 139 there too with optT's cells reading
+#  identically. The control was run because SEQ 191's identity guard sits
+#  immediately above attachLabel's labelled-repetition branch, which is this
+#  exact shape. If this row ever stops reading 139, RE-PIN IT WITH A SENTENCE
+#  (H6) -- a pin that silently starts passing is how a known defect becomes a
+#  forgotten one.
+_mswin () {                     # _mswin <startMarker> <endMarker> <field> -> value or empty
+    awk -v a="$1" -v b="$2" -v f="$3" \
+        '$0 ~ "^"a"[ ]*$"{n=1;next} n&&($0 ~ "^"b"[ ]*$"){exit}
+         n&&index($0,"MARKARM drive base=")&&f=="base"{sub(/.*base=/,"");sub(/ .*/,"");print;exit}
+         n&&index($0,"2b-before-pop")&&f=="mark"{sub(/.*mark=/,"");sub(/ .*/,"");print;exit}
+         n&&index($0,"2b-before-pop")&&f=="in"{sub(/.*in=/,"");sub(/ .*/,"");print;exit}
+         n&&index($0,"CAPFIRE fireLabelMethod "b2)&&f=="fired"{print "1";exit}' "$T/mst"
+}
+_msfired () {                   # _msfired <startMarker> <endMarker> <rule>
+    awk -v a="$1" -v b="$2" -v r="CAPFIRE fireLabelMethod $3 " \
+        '$0 ~ "^"a"[ ]*$"{n=1;next} n&&($0 ~ "^"b"[ ]*$"){exit}
+         n&&index($0,r){print "1";exit}' "$T/mst"
+}
+run1 modSeamT "$T/mst"; _msec=$?
+if [ "$_msec" = 139 ]; then
+    echo "  ok    modSeamT MS-5 repT(\"aaa\") OLD road exits 139 -- PINNED DEFECT, pre-existing"
+    echo "        at b5e1557. getText() on a null this, GroupItem.mm:1322."; green=$((green+1))
+else
+    echo "  FAIL  modSeamT MS-5 exit $_msec, pinned 139. If the crash is FIXED this is good"
+    echo "        news and still a FAILURE here: re-pin with a sentence (H6), and the"
+    echo "        MS-6/MS-7 rows below it stop being unreachable and want real values."; fail=1
+fi
+#  MS-1 -- optT on the OLD road.
+_msb=$(_mswin "MS-1 optT OLD" "MS-1-BACK" base)
+_msm=$(_mswin "MS-1 optT OLD" "MS-1-BACK" mark)
+_msi=$(_mswin "MS-1 optT OLD" "MS-1-BACK" in)
+_msf=$(_msfired "MS-1 optT OLD" "MS-1-BACK" optT)
+if [ -z "$_msb" ] || [ -z "$_msm" ]; then
+    echo "  FAIL  modSeamT MS-1 window UNREADABLE -- MARKARM or 2b-before-pop absent."
+    echo "        Not 'consumed 0': the trace did not report, so nothing is measured."; fail=1
+else
+    if [ "$_msf" = 1 ]; then
+        echo "  ok    modSeamT MS-1 optT(\"a\") OLD road WINS -- fireLabelMethod optT reached"
+        green=$((green+1))
+    else echo "  FAIL  modSeamT MS-1 optT(\"a\") OLD road did NOT win, want WIN"; fail=1; fi
+    echo "  ..    modSeamT MS-1 OLD cursor in=$_msi (want not-in-drive: a 1-char drive fully consumed)"
+    if [ "$_msi" = not-in-drive ]; then
+        echo "  ok    modSeamT MS-1 OLD road mark LEFT the drive string"; green=$((green+1))
+    else echo "  FAIL  modSeamT MS-1 OLD road mark in=$_msi, want not-in-drive"; fail=1; fi
+fi
+#  MS-3 -- optT on the NEW road. BORN RED 2026-09-22: the verdict matches the old
+#  road and the cursor does not move at all.
+_msb3=$(_mswin "MS-3 optT NEW" "MS-3-BACK" base)
+_msm3=$(_mswin "MS-3 optT NEW" "MS-3-BACK" mark)
+_msi3=$(_mswin "MS-3 optT NEW" "MS-3-BACK" in)
+_msf3=$(_msfired "MS-3 optT NEW" "MS-3-BACK" optT)
+if [ -z "$_msb3" ] || [ -z "$_msm3" ]; then
+    echo "  FAIL  modSeamT MS-3 window UNREADABLE -- MARKARM or 2b-before-pop absent."
+    echo "        Not 'consumed 0': the trace did not report, so nothing is measured."; fail=1
+else
+    _mscon=$(( _msm3 - _msb3 ))
+    if [ "$_msf3" = 1 ]; then
+        echo "  ok    modSeamT MS-3 optT(\"a\") NEW road reports WIN -- the anti-vacuity half"
+        green=$((green+1))
+    else echo "  FAIL  modSeamT MS-3 optT(\"a\") NEW road did not report WIN"; fail=1; fi
+    echo "  ..    modSeamT MS-3 NEW cursor in=$_msi3 consumed=$_mscon (want 1)"
+    if [ "$_mscon" = 1 ]; then
+        echo "  ok    modSeamT MS-3 NEW road consumed 1 -- the mandatory \"a\" was eaten"
+        green=$((green+1))
+    else
+        echo "  FAIL  modSeamT MS-3 NEW road consumed $_mscon, want 1 -- BORN RED 2026-09-22."
+        echo "        The rule reports WIN while its mark has not moved off the drive"
+        echo "        string's base. THE VERDICT AND THE CURSOR DISAGREE, which is the"
+        echo "        whole reason this fixture reads the cursor. Do not re-pin to 0."
+        fail=1
+    fi
+fi
+
 #  ---- skipT: the line-comment rule can be WRITTEN; what it consumes cannot be READ ---
 #  The blocker (docs/checkSKIP.md 2a): the two-character line-comment literal kills the define
 #  it is written in -- no lexer, so the parser reads it as a comment in its own source and eats

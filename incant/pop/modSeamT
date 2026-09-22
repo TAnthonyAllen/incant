@@ -1,0 +1,92 @@
+/*  modSeamT -- THE MODIFIER SEAM, TWO SCAFFOLD ROOTS, BOTH ROADS.
+
+    Commissioned by Tony, SEQ 192, 2026-09-22. The question is whether a term's
+    MODIFIER survives generation, and the instrument is THE CURSOR, not the
+    verdict -- a parse that dropped a modifier can still report WIN.
+
+    THE TWO ROOTS, and they are the smallest steppable thing:
+        optT isRule "a"- "b"?- ;      drive optT("a")     does the ? survive
+        repT isRule "a"+ ;            drive repT("aaa")   how many does it consume
+
+    NO CODE BODIES, DELIBERATELY. An earlier cut gave each root a code={} marker
+    for its verdict; the body is PARSED INSIDE THE DRIVE on first fire, which
+    walks the mark out of the drive string and destroys the very reading this
+    fixture exists to take. The verdict observable is `CAPFIRE fireLabelMethod
+    <rule>`, which prints on both roads and ONLY on success -- fireLabelMethod is
+    reached under `if sukcess` in parse() and in exitFromParse alike -- so no
+    action is needed for it.
+
+    THE CURSOR OBSERVABLE IS `MARKPT 2b-before-pop`, paired with `MARKARM drive
+    base=`. MARKARM records the drive string's base and length at push; 2b reads
+    atRuleMark immediately before the divert pops, which is the last instant the
+    drive's own cursor exists. Both are parseTrace-gated and both fire on BOTH
+    ROADS, which is what makes this a two-road comparison rather than two
+    separate measurements.
+    ⚠ CONSUMED IS AN OFFSET, NOT AN ADDRESS -- `mark - base` -- because the
+    addresses move every run under ASLR and a pinned address would be rule H3's
+    exact prohibition: an assertion that moves for reasons unrelated to
+    correctness. The `in=` field carries the other half: DRIVE-STRING means the
+    mark is still inside the drive, not-in-drive means it left it entirely.
+
+    ⚠⚠ MS-5 IS TERMINAL AND EVERYTHING BELOW IT IS UNREACHABLE. `repT("aaa")` on
+    the OLD road EXITS 139 -- `GroupItem::getText()` on a null `this`,
+    GroupItem.mm:1322, reached through `ACTFIRE fireLabelMethod GrouP`. So the
+    sentinel and the MS-6/MS-7 rows cannot be reached, and they are pinned
+    UNREACHABLE rather than pinned to a value: a row behind a crash asserts
+    nothing, and pinning it to its absent reading would be an absence check
+    wearing a diff's clothes.
+    ⚠ MEASURED PRE-EXISTING, NOT CAUSED BY SEQ 191. Built at b5e1557 -- the seal
+    immediately before the attachLabel conversion -- and `repT("aaa")` exits 139
+    there too, with optT's four cells reading identically. The control was run
+    because SEQ 191's identity guard sits immediately above attachLabel's
+    labelled-repetition branch, which is exactly this shape.
+    ⚠ AND THE OLD-ROAD DRIVE MUST COME FIRST OR IT IS NOT THE OLD ROAD, so the
+    ordering is forced: parser() is a one-way door. repT's generated body and its
+    new-road cursor reading therefore CANNOT live in this file beside its
+    old-road drive. They are measured in tester, which Tony steps.
+
+    ROWS
+      MS-1  optT OLD   verdict WIN, mark leaves the drive string      pinned
+      MS-3  optT NEW   verdict WIN, and CONSUMED 0                    born red
+      MS-5  repT OLD   exit 139                                       pinned as the defect
+      MS-6  repT NEW   unreachable
+      SENT  unreachable
+
+    ⚠ NEITHER GENERATED BODY IS ASSERTED HERE, AND THE REASON IS THE TRUNCATION
+    RATHER THAN A CHOICE. generateParse prints the body to cout, which is block
+    buffered and flushed at exit; MS-5 crashes before that flush, so NO body
+    reaches this file's capture at all -- optT's included, even though optT was
+    generated long before the crash. A row greping for it could only ever fail.
+    The bodies are read in tester, which stops cleanly, and they are:
+        optT = CodE { return GrouP() && GrouP(); }
+        repT = CodE { return GrouP(); }
+    Do not add a body row here until MS-5 stops crashing.
+
+    ⚠ MS-3 IS THE WHOLE POINT AND IT IS THE ANTI-VACUITY PAIR TO MS-1. Both roads
+    say WIN. Only the cursor separates them, and it separates them completely:
+    old road leaves the drive string, new road has not moved off its base. A
+    fixture that read the verdict alone would be green on both and would be
+    measuring nothing.  */
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+define
+    optT isRule "a"- "b"?- ;
+    repT isRule "a"+ ;
+    msOptOld code={ cerr "MS-1 optT OLD":; traceParse("on"); optT("a"); traceParse("off"); cerr "MS-1-BACK":; };
+    msOptNew code={ cerr "MS-3 optT NEW":; traceParse("on"); optT("a"); traceParse("off"); cerr "MS-3-BACK":; };
+    msRepOld code={ cerr "MS-5 repT OLD":; traceParse("on"); repT("aaa"); traceParse("off"); cerr "MS-5-BACK":; };
+    msRepNew code={ cerr "MS-7 repT NEW":; traceParse("on"); repT("aaa"); traceParse("off"); cerr "MS-7-BACK":; };
+    ;
+msOptOld();
+cerr "MS-2 generate optT":;
+parser(optT);
+msOptNew();
+msRepOld();
+cerr "MS-6 generate repT":;
+parser(repT);
+msRepNew();
+cerr "MODSEAM SENTINEL":;
+stop();
