@@ -6,6 +6,20 @@
     foot. It does not today: the target drives die at EXC_BAD_ACCESS in aCTionTokenXP,
     reading a null ANYorNum label. The rows go green when the label channel lands.
 
+    ⚠⚠ AMENDED 2026-09-22 (SEQ 196), AND THE PARAGRAPH ABOVE IS NOW DATED RATHER THAN
+    WRONG -- IT WAS TRUE WHEN WRITTEN. THE CRASH IS GONE AND THE DEFECT IS NOT. This
+    file now runs to its foot at exit 0 with its sentinel printed, and DW-8's window
+    closes for the first time. What did NOT change is the answer: DW-6 still reads
+    dwN == 1 against a wanted 2, so the NEW-road drive still does not execute the
+    body -- it merely stops dereferencing a null on the way past.
+    ⚠ THE CAUSE WAS NOT THE LABEL CHANNEL AND THE LABEL CHANNEL HAS NOT LANDED. The
+    variable was `exitFromParse` learning to return trueResult for a term whose min is
+    ZERO -- an absent optional used to hand back a NULL, and a null optional inside
+    TokenXP is what the seat was dereferencing. So read the frames below as the
+    HISTORY of a crash rather than as today's reading, and do not take the green
+    `runs` and `sentinel` rows as evidence the label channel is closed. DW-6 is the
+    row that says whether it is, and DW-6 is still red.
+
     ⚠⚠ THE DECLARED-COUNTER TWIN IS WHY `result` IS NOT THE VARIABLE. DW-4 uses a field
     declared in this file and it dies exactly as DW-5 does, so the crash is not about an
     unassigned name. DW-5 stays pinned anyway, because it is the drive string the report
