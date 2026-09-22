@@ -1,3 +1,134 @@
+# ⚠⚠⚠ SEALED 2026-09-22, MIDDAY -- THE LABEL CHANNEL IS FIXED AND THE MISSING HALF WAS
+# THE RETAG. THE MODIFIER SEAM NOW HAS A SPECIMEN, AND ITS BODY EMITS `GrouP()`.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-22 10:52 and `git log -1 --date=iso` 10:48. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 433 green / 64 red / 2 parked, canary 337, fixit queue 0,
+#   all three repos clean and pushed, binary BARE.** Two landings, four commits, and the red
+#   column moved by **exactly one row, born red by design**.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE LABEL CHANNEL IS CLOSED. `exitFromParse` CALLS `attachLabel` AT promote=1.** It
+#   hand-rolled its own `addAttribute` until 2026-09-22; now there is ONE attach on both roads
+#   (`Generate.rtn:21`), plus an identity guard in `attachLabel` (`GroupItem.twk:263`).
+#   ⚠ **THE MISSING HALF WAS NEVER THE ATTACH -- IT WAS THE RETAG.** `attachLabel`'s promote
+#   arm is TWO statements, `pStuff.label = lab` **and** `lab.tag = pStuff.ruleName`, and the
+#   second is what makes an alternation's winning option arrive under the ENCLOSING rule's name.
+#   A hand-rolled `+%` cannot do it. Measured: at promote=0 the trace reads
+#   `attachLabel lab=ANYtoken ... pRule=TokenXP`, so TokenXP's label carried a member named
+#   **ANYtoken** and `xpress["ANYorNum"]` found nothing; at promote=1 the same line reads
+#   `lab=ANYorNum`, and `PrintField` promotes into `PrintXP`.
+#
+#   **b. promote=0 WAS TRIED FIRST AND IS INERT HERE. DO NOT RE-TRY IT.** The promote arm reads
+#   `(promote || !pStuff.label) && stuff.isTarget`, so at promote=0 it needs an EMPTY parent
+#   slot -- and `checkInput`'s `enclosingActivation` arm (`RuleStuff.twk:208`) has **already
+#   filled that slot by hand, unretagged**, for any `hasNewParse` member. The disjunct is false
+#   in exactly the cell where the retag is owed.
+#   ⚠ **RULED 2026-09-22 (Tony, SEQ 192): THE RETAG STAYS, promote=1 IS THE LANDED SHAPE, AND
+#   THE 08-07 IT NOTE IS AMENDED BY NAME** -- it read *"the generated arm passes promote=0,
+#   attach-under always"*. PC-1 is not repealed; what is withdrawn is promote=0 as this road's
+#   value. Recorded in `incant/designDocs` -> `Generate.exitFromParse.oneAttach`.
+#
+#   **c. BANKED, NOT CHASED (same ruling), AND IT SITS BESIDE F-95.** `checkInput`'s
+#   `enclosingActivation` arm and `attachLabel`'s promote arm are **two writers of the parent's
+#   label slot**; the `alreadyIsParentLabel` guard exists only because they can reach the same
+#   node. One-channel-one-meaning question, for whenever the exit is reworked.
+#
+#   **d. F-95 WAS RE-MEASURED AND THE SPELLING IS NARROWED. `sukcess` IS SET-ONLY, AND THAT IS
+#   THE DEFECT -- NOT THE PRESENCE TEST.** `parseRule` writes `sukcess = 0`, then calls
+#   `checkInput()`, **which sets it true**, and the result test only ever SETS. So
+#   `if truthOf(result) sukcess = true;` -- built, bare, driven -- **buys NOTHING**, fleet
+#   identical row for row. Only the ASSIGN moves anything, and `sukcess = truthOf(result);`
+#   takes `chainTruthT` CT2/CT3/CT4 **green** and **CT1 red** plus `parserTest` to 2 of 4 roots,
+#   because it also clears the `reportNoBody` arm and every non-action rule. **Reverted whole.**
+#   A NARROWED clear -- one that fires only where a body actually ran and answered -- has NOT
+#   been tried and is the next thing. Three attempts now on F-95's log; do not make it four
+#   with the blanket assign.
+#
+#   **e. ⚠⚠ THE SEQ 192 SPECIMEN, AND THE EXPECTATION IN THE DISPATCH WAS WRONG.** The bodies:
+#
+#       optT isRule "a"- "b"?- ;    ->   optT = CodE { return GrouP() && GrouP(); }
+#       repT isRule "a"+ ;         ->   repT = CodE { return GrouP(); }
+#
+#   The modifiers are gone as expected. **The term is not `lit("a")` -- it is `GrouP()`**, the
+#   tag of the rule that parsed the quote, so optT's two DIFFERENT literals emit the SAME call
+#   and neither carries its own text. `generateParse` emits `print $taG "()"` per non-noPrint
+#   member and consults neither data nor modifier. **The literal VALUE is absent from the body.**
+#
+#   **f. THE CURSOR IS THE INSTRUMENT AND IT WORKS ON BOTH ROADS.** `MARKARM drive base=` is the
+#   zero point, `MARKPT 2b-before-pop` is the last instant the drive's own cursor exists, and
+#   **consumed is `mark - base`, never an address** (H3: addresses move under ASLR). The `in=`
+#   field says DRIVE-STRING or not-in-drive. Verdict is `CAPFIRE fireLabelMethod <rule>`, which
+#   prints on both roads and ONLY on success, so no action body is needed for it -- and
+#   **a body must NOT be added**, because it is parsed INSIDE the drive on first fire and walks
+#   the mark out of the drive string, destroying the reading.
+#
+#   **g. BOTH ROADS SAY WIN; ONLY THE CURSOR SEPARATES THEM.**
+#       `optT("a")`   OLD  WIN, mark `in=not-in-drive` -- left the 1-char drive entirely
+#       `optT("a")`   NEW  WIN, mark `in=DRIVE-STRING`, **CONSUMED 0**
+#   That is why `modSeamT` MS-1 and MS-3 are an anti-vacuity PAIR. A fixture reading the verdict
+#   alone would be green on both and measuring nothing.
+#
+#   **h. `repT isRule "a"+ ;` EXITS 139 ON BOTH ROADS, AND IT IS PRE-EXISTING.**
+#   `GroupItem::getText()` on a null `this`, `GroupItem.mm:1322`, through
+#   `ACTFIRE fireLabelMethod GrouP`. **Built at `b5e1557`** -- the seal before the attachLabel
+#   conversion -- **and it exits 139 there too, with optT's four cells reading identically.**
+#   The control was run because SEQ 191's identity guard sits immediately above `attachLabel`'s
+#   labelled-repetition branch, which is this exact shape. `"a"+-` (noLabel) does NOT crash; the
+#   LABELLED repetition does.
+#   ⚠ **AND THE OLD-ROAD DRIVE MUST COME FIRST OR IT IS NOT THE OLD ROAD** -- `parser()` is a
+#   one-way door -- so repT's body and its new-road cursor reading CANNOT live in `modSeamT`
+#   beside its old-road drive. They live in `tester`.
+#
+#   **i. NEITHER BODY IS ASSERTED IN `modSeamT`, AND THE REASON IS TRUNCATION.** `generateParse`
+#   prints to cout, which is block buffered and flushed at exit; MS-5 crashes before that flush,
+#   so **no body reaches that capture at all** -- optT's included, though optT was generated long
+#   before the crash. A row greping for it could only ever fail. **Do not add one until MS-5
+#   stops crashing.**
+#
+#   **j. `tester` IS TRACKED AGAIN (Tony, 2026-09-22), REVERSING SEQ 105 R4.** The `.gitignore`
+#   entry is REMOVED, not commented -- an ignore line and a rule that the file commits cannot
+#   both be true. `CLAUDE.md`'s two paragraphs went in the same commit. **`incant++` is now the
+#   ONLY scratch file.** Clod writes in `tester` under Clay's SEQ 192 authorization, and the
+#   narrow reading is recorded: **Tony marks the lines he is done with** -- the 09-22 file
+#   carried `// Clod you can replace the following two lines as needed` -- **and that marker is
+#   the invitation, not a general licence over the file.**
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **433 green / 64 red / 2 parked** · decodePop 14 green / 9 red · ddPop 5 green /
+#   1 red · countPop 47 of 47, foot reached · formsPop **14 PASSED** · **frontier dies at
+#   station 4** · canary **337** · groups.ext untouched and clean · **Groups 0/0, support 0/0,
+#   TOK 0/0** · binary BARE (directives detector 0). Every number measured this stroke (H14).
+#
+#   ⚠ **THE RED ARITHMETIC CLOSES EXACTLY AND `docs/redList.md` CARRIES THE LIST:** 63 at the
+#   09-21 seal **plus `modSeamT MS-3`** (born red by design) = **64**. Nothing else moved, row
+#   for row, across BOTH landings -- each diffed against a capture banked before its first edit.
+#
+#   ⚠ **THE FRONTIER WAS RUN AND NOT REVISED, DELIBERATELY.** It still dies at **station 4**
+#   (*"the action RAN WITHOUT ITS TERMS"*, CT-5) and the edge did not move: the label channel
+#   landing is upstream of it and the specimen is a measurement rather than a station. Adding
+#   stations below a failing one would be ceremony -- they cannot be reached.
+#
+#   ## ⚠⚠ WHAT IS IN FRONT
+#   **1. THE MODIFIER SEAM, AND TONY WALKS IT.** Two things the Xcode walk settles so Clod does
+#   not: **does the emitted call reach the TERM (with its rStuff min/max) or the DEFINER by
+#   name**, and **where the modifier would have to be read**. The specimen is in two homes --
+#   `IncantForms/WorkingOn/tester` and `incant/pop/modSeamT`, one grammar.
+#   **2. F-95's NARROWED CLEAR**, which waits on that walk: the specimen says what a false chain
+#   MEANS at the exit before anyone changes what the exit DOES with it.
+#   **3. THE repT 139**, unattributed beyond "pre-existing and not the conversion".
+#
+#   ## ⚠ WAITING ON TONY
+#   **1. `bs` IS HIS TO RUN.** He ran it at the head of this session; not run since.
+#   **2. `checkSKIP` NEEDS A WAY TO TURN `checkSkip` OFF** before it can be tested -- a toggle
+#   command. His docket, deferred, no fixit row, banked from his own offline note.
+#   **3. F-102**, the flag/list disagreement on the `DatA` label under `ShortcuT`, still
+#   unexplained and carried forward from the 09-21 seal.
+#
+#   ## TONY'S FIXIT INCANTATIONS WAITING: **0**
+#   Generated by `genLadder/fixitNag.sh`, not typed. An empty queue is a READING, not an absence.
+#
 # ⚠⚠⚠ SEALED 2026-09-21, MIDDAY -- THE HOLDER CONVERSION AND F-98 ARE MERGED TO TRUNK.
 # THE DRIVES NOW REACH TokenXP, AND THE LABEL CHANNEL IS WHAT IS IN FRONT.
 #
