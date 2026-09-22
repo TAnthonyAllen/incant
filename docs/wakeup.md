@@ -1,3 +1,126 @@
+# ⚠⚠⚠ SEALED 2026-09-22, AFTERNOON -- THE CHAIN NOW TELLS THE TRUTH. F-95's SOURCE HALF
+# IS FIXED IN TWO LINES; ITS EXIT HALF IS OPEN AND IS A SMALL QUESTION NOW.
+# THE LABEL CHANNEL IS THE ONLY THING IN FRONT, AND IT NO LONGER CRASHES.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-22 13:32 and `git log -1 --date=iso` 13:29. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 446 green / 59 red / 2 parked, canary 337, fixit queue 0,
+#   all three repos clean and pushed, binary BARE.** Five strokes, four landings, and the
+#   red column fell by five with every mover named.
+#
+#   ## ⚠⚠⚠ WHAT IS IN FRONT -- ONE THING, AND IT IS TONY'S XCODE WALK
+#
+#   **THE LABEL CHANNEL, AND THE WALK IS NOW A COMPLETING RUN RATHER THAN A SEGFAULT.**
+#   `incant/pop/doWhileNameT` runs to its foot at **exit 0** with its sentinel printed and
+#   every window closed. **The crash is gone and the defect is not.**
+#
+#   | what | reads |
+#   |---|---|
+#   | `DW-6` after the NEW-road drive | **`dwN == 1`, want 2** -- the body DOES NOT EXECUTE |
+#   | the 09-20 site | `ANYtoken = xpress["ANYorNum"]` -- **live and NON-CRASHING** |
+#   | producer / consumer | `ruleActions.rtn:988` / `GroupRules.mm:1265` (bear-trap #36) |
+#
+#   ⚠ **WHY IT STOPPED CRASHING, so nobody reads the green rows as the channel closing:**
+#   SEQ 196 made a lawfully-absent optional return `trueResult` instead of a null, and **a
+#   null optional inside `TokenXP` was what that seat was dereferencing.** The slot is now
+#   a true. Nothing about the label channel changed. **`DW-6` is the row that answers
+#   whether it has, and `DW-6` is still red.** The fixture's header is date-stamped to say
+#   so and its crash frames are now HISTORY, not today's reading.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. F-95 WAS NEVER AN EXIT-SIDE DEFECT. IT WAS THE TERM'S RETURN, AND IT IS FIXED IN
+#   TWO LINES.** Three attempts (SEQ 165, 169, and 2026-09-22) aimed at `parseRule`'s exit
+#   and all three took CT1 -- a CORRECT parse -- red. The reason, located by `lldb` at the
+#   `&&` seat: **the chain was being handed a NULL by a term that had succeeded.**
+#       - **SEQ 195, `parseLoop`:** a repetition ends by FAILING -- that is what ends it --
+#         so the last attempt always leaves `sukcess` at 0 and the loop was reporting THAT
+#         as its verdict. `GrouP+` read **kount=1 min=1 max=100 sukcess=0** and returned 0.
+#         Fix: `if kount >= min return trueResult;`. **`SemI` dispatches for the first time.**
+#       - **SEQ 196, `exitFromParse`'s failure tail:** a term whose **minimum is ZERO** is
+#         SATISFIED by not matching, so it owes the chain a success. Fix:
+#         `if max <= 1 && !min && !field.isCondition return trueResult;`.
+#   ⚠ **BOTH READ A FACT AND NEITHER WRITES `sukcess`** -- that flag already carries two
+#   meanings (*did THIS attempt match* / *did the TERM succeed*) and neither line joins it.
+#
+#   **b. THE RESULT CHANNEL DISCRIMINATES NOW, WHICH IT NEVER DID BEFORE.** Before SEQ 195
+#   all four `chainTruthT` drives returned **one node**, `tag=false truthOf=0`, the correct
+#   drive included -- so nothing at the exit could ever have told them apart, and that is
+#   why the first three attempts could not have worked. Today:
+#       CT-ROW1 "search list;"  tag=true  truthOf=1    SemI dispatches
+#       CT-ROW2 "search list"   tag=false truthOf=0    SemI dispatches
+#       CT-ROW3 "search ;"      tag=false truthOf=0    correctly does not
+#       CT-ROW4 "search"        tag=false truthOf=0    correctly does not
+#
+#   **c. ⚠⚠ F-95's EXIT HALF IS OPEN, AND THE SPELLING IS AN *ASSIGN*, NEVER A TEST.**
+#   SEQ 197 built `if truthOf(result) sukcess = true;` bare and **it is INERT** -- fleet
+#   identical row for row -- and **reverted it**. The seat read says why:
+#   **`sukcess` IS ALREADY 1 ON ARRIVAL**, failing drives included, because `parseRule`
+#   writes `sukcess = 0` and then calls `checkInput()`, **which sets it**. A set-only test
+#   cannot move anything. ⚠ **F-95's own log had recorded exactly this, dated, one screen
+#   away, and it was not checked before building** -- the unmeasured-citation family
+#   arriving through this project's own register.
+#   ⚠ **THE REMAINING QUESTION IS NOW SMALL, AND ITS BLAST RADIUS IS MEASURED.** The assign
+#   `sukcess = truthOf(result);` broke `parserTest` to 2 of 4 at SEQ 191 -- **but that was
+#   measured before the two fixes above, when every chain returned false and the assign
+#   therefore cleared nearly everything.** Re-read at the seat this stroke, WITHOUT
+#   building it: on `parserTest`, **16 arrivals, 15 with truthOf=1 across 13 rules, and
+#   exactly ONE with truthOf=0 -- a rule tagged `Token`.** So the assign would clear one
+#   rule, not the wholesale clear of 09-20. **That is a blast-radius reading and NOT a
+#   prediction that it is safe:** whether clearing `Token` is right is unmeasured, and the
+#   `reportNoBody` arm was not swept. **Measure that one rule, then build the assign.**
+#   CT2/3/4 close there and nowhere else.
+#
+#   **d. THE MODIFIER SEAM IS CLOSED AND IT WAS A SPELLING FAULT, NOT A DEFECT.** Tony's
+#   ruling, SEQ 193, out of his Xcode walk. A bare `"a"-` in an `isRule` rule **steals
+#   `GrouP` as its tag** and the tag is promoted to a rule, which is where
+#   `return GrouP() && GrouP();` came from -- two different literals emitting one call,
+#   neither carrying its value. And **the modifier belongs on the LABEL**: `one="a"-`
+#   refuses, `one-="a"` and `two?-="b"` do not. **There is no `generateParse`
+#   modifier-drop defect.** `incant/pop/modSeamT` now asserts the `?` behaviourally with a
+#   PAIR of drives on both roads, because the modifier is nowhere in the emitted text.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **446 green / 59 red / 2 parked** · decodePop 14 green / 9 red · ddPop 5 green /
+#   1 red · countPop 47 of 47, foot reached · formsPop **14 PASSED** · **frontier dies at
+#   station 4** · canary **337** · groups.ext untouched and clean · **Groups 0/0, support
+#   0/0, TOK 0/0** · binary BARE (directives detector 3/3, the genuine source hits). Every
+#   number measured this stroke (H14).
+#
+#   ⚠ **THE RED ARITHMETIC CLOSES AND EVERY MOVER IS NAMED.** 64 at the 09-22 midday seal.
+#   **-1** `modSeamT` MS-3 (retired as a SUBJECT CHANGE, SEQ 193 -- its bare-literal root is
+#   gone from the fixture, not a row that started passing). **-1** `searchNewParseT` SemI
+#   (SEQ 195). **-3** `doWhileNameT` runs / sentinel / DW-8 (SEQ 196). **= 59.** Nothing
+#   else moved, row for row, across four landings, each diffed against a capture banked
+#   before its first edit.
+#
+#   ## ⚠ BANKED, NOT CHASED -- listed so nothing is lost across the pause
+#   **1. F-100 IS GRADEABLE FOR THE FIRST TIME AND IS UN-GRADED.** `DW-5` survives now and
+#   reads **0 refusals** where the row was opened on 100. ⚠ **Zero is AMBIGUOUS**: it can
+#   mean the over-repeat was fixed, or that the refusing seat is no longer reached because a
+#   satisfied-by-min term returns before it. **Nothing measured separates them.**
+#   **2. THE BARE-LITERAL-IN-`isRule` REFUSAL + GRAMMAR RESPELL CAMPAIGN** -- ruled;
+#   ordering is Tony's.
+#   **3. THE EXIT-SIDE TWO-WRITERS NOTE beside `parseRule`** -- `checkInput`'s
+#   `enclosingActivation` arm and `attachLabel`'s promote arm are two writers of the
+#   parent's label slot; the `alreadyIsParentLabel` guard exists only because they can reach
+#   the same node. One-channel-one-meaning, for whenever the exit is reworked.
+#   **4. F-103 / F-104, THE TWO LABELLED 139s**, and they are DIFFERENT SITES:
+#   F-103 `repT isRule "a"+ ;` -> `getText()` on a null `this`, `GroupItem.mm:1322`,
+#   measured pre-existing at `b5e1557`; F-104 a labelled chain that matches part-way then
+#   fails a MANDATORY term -> `GroupItem::parse` with `pStuff=0`, `GroupItem.mm:1704`.
+#   F-104 is the H7 negative control for `modSeamT`'s `?` rows, which is why those rows
+#   carry no in-fleet control -- installing it would take the suite down (H5).
+#
+#   ## ⚠ WAITING ON TONY
+#   **1. `bs` IS HIS TO RUN.** Not run this session.
+#   **2. THE LABEL CHANNEL XCODE WALK** -- the one thing in front; see the top of this seal.
+#   **3. `checkSKIP` NEEDS A WAY TO TURN `checkSkip` OFF** before it can be tested.
+#   **4. F-102**, the flag/list disagreement on the `DatA` label under `ShortcuT`.
+#
+#   ## TONY'S FIXIT INCANTATIONS WAITING: **0**
+#   Generated by `genLadder/fixitNag.sh`, not typed. An empty queue is a READING, not an absence.
+#
 # ⚠⚠⚠ SEALED 2026-09-22, MIDDAY -- THE LABEL CHANNEL IS FIXED AND THE MISSING HALF WAS
 # THE RETAG. THE MODIFIER SEAM NOW HAS A SPECIMEN, AND ITS BODY EMITS `GrouP()`.
 #

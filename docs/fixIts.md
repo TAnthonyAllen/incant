@@ -768,6 +768,39 @@ ATTEMPT LOG
      (parseRule presence -> truth) is the remaining half and CT2/3/4 close there. It was
      unsafe until this stroke because it would have taken MS-1/MS-3 with it; it is safe
      now, and nothing else about it has been tried.
+  7. 2026-09-22, Clod, SEQ 197. `if truthOf(result) sukcess = true;` BUILT, BARE, DRIVEN,
+     AND REVERTED. IT IS INERT, AND THIS LOG HAD ALREADY SAID SO.
+        -> FLEET IDENTICAL ROW FOR ROW, 446/59. CT2/3/4 unmoved, nothing else moved.
+     THE SEAT READ THAT EXPLAINS IT, and it is the thing to keep: `sukcess` IS ALREADY 1
+     ON ARRIVAL AT THE RESULT TEST, in every case, failing drives included --
+            CT-ROW1 "search list;"  Search  sukcess_on_arrival=1  truthOf(result)=1
+            CT-ROW2 "search list"   Search  sukcess_on_arrival=1  truthOf(result)=0
+            CT-ROW4 "search"        Search  sukcess_on_arrival=1  truthOf(result)=0
+     -- because parseRule writes sukcess=0 and then calls checkInput(), WHICH SETS IT.
+     So a SET-ONLY test cannot move anything, whether it reads presence or truth. The
+     discriminator is finally correct (1/0/0, for the first time, thanks to attempts 5
+     and 6) and the seat does not consult it.
+     ⚠ THE NOTE UNDER ATTEMPT 3 SAID EXACTLY THIS -- "the test is inert, only the ASSIGN
+     moves anything ... every future attempt here must be an ASSIGN, never a test" -- and
+     the dispatch specified a test. IT WAS NOT CHECKED AGAINST THE LOG BEFORE BUILDING.
+     That is this project's unmeasured-citation family arriving through its own register:
+     the answer was written down, dated, and one screen away.
+     ⚠ REVERTED RATHER THAN LANDED, DELIBERATELY. An inert edit that cannot fail when
+     removed certifies nothing (rule H7), and landing it in a commit naming F-95 would
+     read to the next reader as a tail that had been fixed.
+  ⚠⚠ WHAT THE NEXT STROKE NEEDS, AND IT IS NOW A SMALL QUESTION RATHER THAN A BIG ONE.
+     The ASSIGN -- `sukcess = truthOf(result);` -- is the only spelling that can move
+     this seat. It broke parserTest to 2 of 4 at SEQ 191, but THAT WAS MEASURED BEFORE
+     ATTEMPTS 5 AND 6, when every chain returned false and the assign therefore cleared
+     nearly everything. ITS BLAST RADIUS WAS RE-READ THIS STROKE, at the seat, on a bare
+     build, WITHOUT BUILDING THE ASSIGN:
+            parserTest: 16 arrivals at the result seat
+                        15 with truthOf(result)=1, across 13 distinct rules
+                         1 with truthOf(result)=0, ONE rule, tagged `Token`
+     So the assign would clear EXACTLY ONE rule on parserTest, not the wholesale clear of
+     2026-09-20. ⚠ THAT IS A BLAST-RADIUS READING AND NOT A PREDICTION THAT IT IS SAFE:
+     whether clearing `Token` is correct is unmeasured, and the reportNoBody arm was not
+     swept. Measure that one rule before building, then build the assign.
 ```
 
 **Done when:** a generated rule fails when any required term fails, and CT1 stays green while
