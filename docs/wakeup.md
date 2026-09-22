@@ -1,3 +1,51 @@
+# ⚠⚠⚠ SEALED 2026-09-22, EVENING -- PrinT(...) FIRES ON THE COMMAND LINE (on a branch), AND THE
+# LABEL CHANNEL IS LOCATED: AN ALTERNATIVE OF A `||` RULE NEVER GETS ITS OWN parentLabel.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-22 19:52 and `git log -1 --date=iso` 18:32 before this commit.
+#
+#   ## THE FULL STORY IS IN `IncantForms/WorkingOn/tester`, section *Current Status*. Read that first.
+#   This seal is only the numbers and the pointers.
+#
+#   ## THE ONE-LINE STATE: **main line `jit-unified-emit-wip` -- fleet 446 green / 59 red / 2 parked,
+#   row-for-row identical to the afternoon seal; canary 337; fixit queue 0; all three repos clean and
+#   pushed; binary BARE and built at this tree.**
+#
+#   | what | where | state |
+#   |---|---|---|
+#   | a value may carry `+`/`*` (`one-='a'+`, `one-="ab"+`) | `ffa850f`, main line | **LANDED** |
+#   | a deferred action fires when nothing above it defers | branch **`try-fire-root`** (`ce046dc`) | **NOT merged** -- fleet 442 |
+#   | the label channel, new road | measured only | **Tony, with Clay's input** |
+#
+#   ## ⚠⚠ WHAT IS IN FRONT -- TONY'S, AND HE WANTS CLAY ON IT BEFORE parentLabel SETTING CHANGES
+#   On the new road every **alternative of a `||` rule** (children of `Token`, `PrintXP`, `ANYorNum`)
+#   mints with `parentLabel` **(none)**, and its own children attach to the alternation **above** it --
+#   `ANYorNum` lands in `Token`, not `TokenXP`. A **bin** (`UnaryOPS`) fires a label that is never
+#   minted or attached. One pattern, four symptoms: the dropped `++`, the 09-20 null `ANYorNum` in
+#   `aCTionTokenXP`, `while dwN < 2` arriving as `xl1` with no method, and `trigDO`'s empty `DO`
+#   label. The table is in tester. **Where to look:** where the new road sets a child's
+#   `parentLabel` -- the generated call sites and `parseRule`'s `parentRepair` (`Generate.rtn:252`,
+#   from `currentMETHOD.rStuff`). Tony's intent was *set it once and do not pooch it after*.
+#
+#   ## WHY try-fire-root IS NOT MERGED
+#   The old road is right on it and several HEAD defects go away (`if 0` no longer runs its body; a
+#   direct `DO` loops; `while 0;` no longer calls a null). **Every missing fleet row is
+#   `doWhileNameT`**: DW-4 (new road) now LOOPS FOREVER, killed at 90s, because its truncated `xl1`
+#   condition is truthy. That closes with the label channel, not before. Merge after it.
+#   ⚠ `aCTionStatemenT` no longer executes anything on that branch -- statements fire in
+#   `fireLabelMethod` (gate `deferredAbove`). That is the design change to review, not a side detail.
+#
+#   ## BANKED, NOT CHASED
+#   **1.** A STRING repetition loses its last match when the next attempt fails at END OF INPUT
+#   (`"ab"+` on `"ab"` returns true, mark unmoved) -- predates today; the name-side spelling does it too.
+#   **2.** A top-level `do x = x + 1; while x < 3;` exits 139 on HEAD.
+#   **3.** Limit on a string value is dropped -- Tony never uses Limit; recorded, leave it.
+#   **4.** Everything in the afternoon seal's banked list below still stands.
+#
+#   ## CHECKLIST, measured at this tree (H14)
+#   `pop.sh` 446 / 59 / 2 parked (diff vs the afternoon capture: empty) · decodePop 14/9 · ddPop 5/1 ·
+#   countPop 47 of 47, foot reached · frontier dies at station 4 · canary 337 · groups.ext untouched ·
+#   Groups, support, TOK clean and pushed.
+
 # ⚠⚠⚠ SEALED 2026-09-22, AFTERNOON -- THE CHAIN NOW TELLS THE TRUTH. F-95's SOURCE HALF
 # IS FIXED IN TWO LINES; ITS EXIT HALF IS OPEN AND IS A SMALL QUESTION NOW.
 # THE LABEL CHANNEL IS THE ONLY THING IN FRONT, AND IT NO LONGER CRASHES.
