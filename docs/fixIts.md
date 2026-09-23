@@ -92,7 +92,7 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-109 — trigDO's arm-1/arm-2 rows pin a `LABELPROBE` line that nothing prints any more
+### F-109 — ✅ CLOSED 2026-09-23 (`79b7f30`) — trigDO's arm-1/arm-2 rows pin a `LABELPROBE` line that nothing prints any more
 
 **What.** `genLadder/pop.sh` pins `LABELPROBE DO minted=DO mintedLen=2 ...` (arm 1) and
 `... mintedLen=1 ...` (arm 2). `measureLabelProbe` has **no caller** in any `.rtn`/`.twk`/`.mm`;
@@ -105,7 +105,10 @@ green whatever the road does**; their "Actual:" line prints empty.
 called again from `parseRule`. **Owner.** Tony (a re-pin is a ruling).
 ```
 ATTEMPT LOG
-  (none)
+  1. 79b7f30 (Clay's merge dispatch, Tony's ruling): both rows RETIRED BY MAPPING in pop.sh --
+     arm 1 -> doWhileNameT DW-6 + DW-8; arm 2 -> trigDO's kept attach-count row (RED today:
+     StatemenT has no compiled body in trigDO, so arm 2's home is not a green one)
+  POP: trunk 447 green unmoved, FAIL lines 58 -> 56 (the two retired rows)
 ```
 
 ### F-108 — on the NEW road `Operators` matches but attaches nothing: `dwN < 2` arrives as `xl1 [dwN, 2]`, and DW-4 loops forever
