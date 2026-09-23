@@ -92,6 +92,91 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-109 — trigDO's arm-1/arm-2 rows pin a `LABELPROBE` line that nothing prints any more
+
+**What.** `genLadder/pop.sh` pins `LABELPROBE DO minted=DO mintedLen=2 ...` (arm 1) and
+`... mintedLen=1 ...` (arm 2). `measureLabelProbe` has **no caller** in any `.rtn`/`.twk`/`.mm`;
+`git log -S` puts the last caller's removal at `5f24cf3`/`2fc1cfe`. So those two rows **cannot go
+green whatever the road does**; their "Actual:" line prints empty.
+**Where.** `genLadder/pop.sh` trigDO block (`LABELPROBE` greps); `measure.twk:486`.
+**Evidence.** 2026-09-23, `grep -rn 'measureLabelProbe(' --include=*.rtn --include=*.twk --include=*.mm`
+→ the extern alone. trigDO run on `3da00e0`: 0 `LABELPROBE` lines.
+**Done when.** The rows are re-pinned to a live instrument (with a sentence, H6), or the probe is
+called again from `parseRule`. **Owner.** Tony (a re-pin is a ruling).
+```
+ATTEMPT LOG
+  (none)
+```
+
+### F-108 — on the NEW road `Operators` matches but attaches nothing: `dwN < 2` arrives as `xl1 [dwN, 2]`, and DW-4 loops forever
+
+**What.** On `try-fire-root` rebased onto `3da00e0`, `doWhileNameT` DW-4 still never returns.
+The `deferredAbove` gate is NOT misjudging: the DO fires from `exitFromParse` → `fireLabelMethod`
+(nothing defers above a top-level drive), runs its body, and loops because its condition is truthy.
+DO's label reads `StatemenT=gPrinT`, `ExpressioN=xl1` holding `dwN` and `Token=2` — **the `<` is
+gone**, so `interpretXP` juxtaposes the two terms, `xl1` has no method, and `loopCondition` takes
+`truthOf` = 1.
+**Where (candidate, pointed at, NOT probed).** `parseContainer`'s `!ruleStuff` arm
+(`Generate.rtn`, `noStuffLawfulSkip`): `Token`'s body ends `|| Operators()`, `Operators` is a
+registry with no rStuff, and that arm matches, advances the mark and returns `trueResult` with
+*"no label to fill"*. That is the UnaryOPS drop (fixed `3da00e0`) one arm over.
+**Evidence.** lldb, process interrupted mid-hang: `aCTionDO` at `GroupRules.mm:353`, `cond` tag
+`xl1`, `gMethod` 0, `truthOf` 1; `dumpContents(input)` as above. Output counts `3 4 5 … 57…`
+(DW-1 leaves `dwN=2`).
+**Done when.** DW-4 terminates on the rebased branch and DW-4's `dwN AFTER` reads 3 (one pass from 2).
+**Owner.** Tony/Clay — the arm is a ruled lawful skip (Tony, 2026-09-20), so giving it a label is a ruling.
+```
+ATTEMPT LOG
+  (none)
+```
+
+### F-107 — `measureLabelMint` reads `parentLabel`, which the attach ignores (nit — but it misled the 09-22 table)
+
+**What.** `LABELMINT ... into=` prints `parentLabel`. On the new road the attach runs through
+`parentStuff` (`attachLabel(ruleStuff,parentStuff,1)` in `exitFromParse`), so `into=` reports a slot
+nothing reads — and reports it with a **tag** that can be stale (see F-105). The 09-22 evening
+table read `(none)` rows off it and concluded the attach was wrong; the attach column agreed with
+the old road on every row but UnaryOPS.
+**Where.** `measure.twk:470` (`measureLabelMint`); call site `Generate.rtn` in `parseRule`.
+**Done when.** It prints `parentStuff.ruleName` and `parentStuff.label` (the attach channel), or its
+header says in one line that it reads `parentLabel` and the attach does not. **Owner.** Clod.
+```
+ATTEMPT LOG
+  (none)
+```
+
+### F-106 — `parseContainer` keeps shortening after a hit (wrong-if-live, needs a specimen)
+
+**What.** The match loop `while advance = length() { if grup = get(string()) {… advance mark …} shorten(1); }`
+has no `break` after a hit, so a shorter prefix that is also an entry matches again and advances the
+mark a second time. A bin holding both `--` and `-` would move the mark 3 on `--x`.
+**Where.** `Generate.rtn` `parseContainer`, both arms (the `!ruleStuff` registry arm has the same shape).
+**Evidence.** Read only, 2026-09-23. `UnaryOPS` holds `--`, `-`, `++` (no bare `+`), so `++pN` is
+unaffected — which is why the drive that found F-105/F-108 cannot see it.
+**Done when.** A specimen drive of `--x` on the new road shows the mark after `--`, not after `--x`'s
+`x` — or shows it already does, and this row closes as not-a-defect. **Owner.** Clod.
+```
+ATTEMPT LOG
+  (none)
+```
+
+### F-105 — `parentRepair` syncs `parentLabel` only when `parentStuff` CHANGED (latent: harmless while unread)
+
+**What.** `if currentMETHOD && currentMETHOD.rStuff != parentStuff { parentStuff = …; parentLabel = parentStuff.label; }`
+— when the constructor already set the same `parentStuff`, `parentLabel` keeps whatever label that
+stuff held at construction, i.e. a label from an EARLIER parse.
+**Where.** `Generate.rtn:252` (`parseRule`), and the copy in `parseContainer` (`binParentRepair`, `3da00e0`).
+**Evidence.** 2026-09-23, `print ++pN;` new road: ANYorNum's `LABELMINT into=Token intoLen=3`
+(`0x…bf40`, a pre-existing node) while lldb at the same entry reads TokenXP's live slot as
+`0x…b7c0` tagged `TokenXP`. Harmless today: on the new road nothing reads `parentLabel` except
+`measureLabelMint` (F-107); `exitFromParse` re-syncs it unconditionally.
+**Done when.** The sync runs whenever `parentStuff` is set, or `parentLabel` is retired from the
+new road. **Owner.** Clod, when something starts reading it.
+```
+ATTEMPT LOG
+  (none)
+```
+
 ### F-104 — a LABELLED term chain that fails part-way exits 139 at `GroupItem::parse` with `pStuff=0`
 
 **What.** A rule spelled with labelled terms and a MANDATORY second term crashes when the drive

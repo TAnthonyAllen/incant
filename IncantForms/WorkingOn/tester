@@ -101,6 +101,14 @@ msOptOldB();
     Current Status
 ***************************************************************************/
 
+    2026-09-23, morning. UPDATE, Clod -- read this before section 3 below.
+    Section 3's table read the LABELMINT into= column, which is parentLabel; the attach uses parentStuff, and nothing on the new road reads parentLabel.
+    Read by the attach column (attachLabel pRule=), the new road agreed with the old road on every row EXCEPT UnaryOPS.
+    UnaryOPS is a bin reached from runOP, never through parseRule, so its parentStuff was nil and attachLabel dropped it; parseContainer also cleared the label on success.
+    Fixed in 3da00e0 (two builds): TOKENARM unary=++ on the new road, DW-6 green, fleet 446 -> 447.
+    trigDO's DO label is still empty: StatemenT refuses "has a parse method but no compiled body" -- not the label channel.
+    try-fire-root rebased onto 3da00e0 is branch try-fire-root-rebased (NOT merged): DW-4 still loops. The gate is right; the while condition arrives as xl1 [dwN, 2] with the < dropped -- fixIts F-108, likely the Operators registry arm of parseContainer.
+
     2026-09-22, evening. Written by Clod at shutdown.
 
     WHERE THINGS STAND IN ONE PARAGRAPH.
