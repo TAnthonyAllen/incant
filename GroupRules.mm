@@ -10153,6 +10153,10 @@ int 		matched = 0;
 GroupItem 	*hit = 0;
 GroupItem 	*freeLab = 0;
 RuleStuff 	*freeStuff = 0;
+	// faceReresolve a bin or registry reached BY NAME is re-resolved to the calling rule's own face, as parseRule does -- the face carries the term's rStuff (its modifiers and label slot)
+	if ( ruler->currentMETHOD && ruler->currentMETHOD->get(field->groupBody->tag) )
+		field = ruler->currentMETHOD->get(field->groupBody->tag);
+	ruleStuff = field->getRStuff();
 	/*  noStuffLawfulSkip  A REGISTRY LAWFULLY CARRIES NO rStuff (Ruling D1), and it reaches
 	noStuffLawfulSkip  here BY BARE NAME from an emitted body -- `Operators`, isRule 0,
 	noStuffLawfulSkip  binType isREGISTRY. This is a SKIP, NOT A REFUSAL: a refusal inside a

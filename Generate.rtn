@@ -129,6 +129,10 @@ GroupItem   hit,
             freeLab;
 RuleStuff   freeStuff;
 use field
+    // faceReresolve a bin or registry reached BY NAME is re-resolved to the calling rule's own face, as parseRule does -- the face carries the term's rStuff (its modifiers and label slot)
+    if currentMETHOD && currentMETHOD.get(field.tag)    field = currentMETHOD.get(field.tag);
+    ruleStuff   = field.rStuff;
+use field
     /*  noStuffLawfulSkip  A REGISTRY LAWFULLY CARRIES NO rStuff (Ruling D1), and it reaches
         noStuffLawfulSkip  here BY BARE NAME from an emitted body -- `Operators`, isRule 0,
         noStuffLawfulSkip  binType isREGISTRY. This is a SKIP, NOT A REFUSAL: a refusal inside a
