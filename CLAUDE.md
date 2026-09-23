@@ -2710,6 +2710,22 @@ Hard-won lessons. Each one has cost real debugging time.
     lives in a BUILD, reading the switch is not reading the system.** Rebuild, then measure — the
     order in bear-trap #31's closing line, aimed one layer down.
 
+55. **TWO `:=`-CAPTURED VALUES COMPARED UNSTARRED READ UNEQUAL EVEN WHEN THEY ARE EQUAL.
+    `vc == vl` IS NOT A VALUE COMPARE. STAR BOTH, OR COMPARE PRINTED VALUES IN SHELL.** Gloss:
+    captures compare as holders. Measured 2026-09-23 (conversation step 2, step 0) in **kant**,
+    one run, two captures read off one field with `vc := *v["length"]; vl := *v["consumed"];`:
+    | spelling | 11 against 11 | 11 against 6 |
+    |---|---|---|
+    | `if vc == vl;` | **0 -- wrong** | 0 |
+    | `if *vc == *vl;` | **1** | **0** |
+    ⚠ **THE DANGER IS THE USUAL ONE: THE WRONG SPELLING STILL ANSWERS**, and a zero is exactly what
+    an "unequal" row wants, so a row asserting inequality passes on it forever. **Pair it with the
+    equal case** (H4's non-zero sibling) or it certifies nothing.
+    **Two cures:** star both sides, or print both numbers unconditionally and let the harness compare
+    them. `convDriveT` does the second -- `pop.sh` compares CD-1's and CD-3's consumed and length in
+    shell -- because a shell compare cannot mis-spell a capture. Sibling of bear-trap #41 (the
+    capture itself needs `:=`) and #35 (read into a local, never in a condition).
+
 ⚠⚠ **THE RULE-LADDER SELECTION CRITERION — TWO CLAUSES, AND THE SECOND WAS PAID FOR.** Tony,
 2026-08-24.
 
