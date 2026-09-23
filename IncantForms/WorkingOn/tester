@@ -20,9 +20,9 @@ include("IncantForms/WorkingOn/parser");
 define
     wR    isRule w-="w";
     wDup  isRule wR+ s-="s" wR;
-    wDup2 isRule wR s-="s" wR+;
-    e1 code={ cerr "E1 wDup  on w w s w w (want consumed 7)":; traceParse("on"); wDup("w w s w w"); traceParse("off"); cerr "E1-BACK":; };
-    e2 code={ cerr "E2 wDup2 on w s w w   (want consumed 7)":; traceParse("on"); wDup2("w s w w"); traceParse("off"); cerr "E2-BACK":; };
+    wDup2 isRule wR s-="s" two=wR+;
+    e1 code={ cerr "E1 wDup  on w w s w w (want consumed 7)":; wDup("w w s w w"); cerr "E1-BACK":; };
+    e2 code={ cerr "E2 wDup2 on w s w w   (want consumed 7)":; wDup2("w s w w"); cerr "E2-BACK":; };
     ;
 cerr "F110 OLD ROAD":; e1(); e2();
 parser(wDup); parser(wDup2);
@@ -39,33 +39,15 @@ stop();
     Everything below is left here for cut and paste modifications as needed
 ***************************************************************************/
 
-parser(optT);
-msOptNew();
-parser(repT);
-//  ⚠ THE NEXT LINE EXITS 139 -- getText() on a null this, GroupItem.mm:1322,
-//  reached through ACTFIRE fireLabelMethod GrouP. That is the destination if you
-//  are walking the repT root. COMMENT IT OUT to reach the stop() cleanly and let
-//  cout flush the two generated bodies, which are:
-//      optT = CodE { return GrouP() && GrouP(); }
-//      repT = CodE { return GrouP(); }
-//  incant/pop/modSeamT is the fleet copy and drives repT on the OLD road, which
-//  exits 139 at the same site. Both roads crash; measured pre-existing at b5e1557.
-msRepNew();
-
 include("IncantForms/WorkingOn/parser");
 parser(Search);
 Search("search Utilities list");
-
-parser(DO);
-debug;
-DO("do print ++result; while result < 2;");
 
 parser(PrinT);
 PrinT("print ++result;");
 
 include("IncantForms/WorkingOn/checkSKIP");
 // Note: in checkSKIP the search list is set to: Grokking Utilities and TestStuff
-
 register(TestStuff);
 define
     skipInput=(  "what" /* has /* embedded */ comment*/ NotSkipable#);
@@ -75,48 +57,6 @@ define
     ;
 debug checkSKIP sKIP  CommenT IndenT QuotE BlockCommenT;
 checkSKIP(skipInput);
-
-define
-    optT isRule one-='a'+ two?-="b" ;
-    msOptOld  code={ cerr "MS-1 optT OLD":;    optT("a");  cerr "MS-1-BACK":; };
-    msOptOldB code={ cerr "MS-1b optTab OLD":; optT("aab"); cerr "MS-1b-BACK":; };
-    ;
-dumpContents(optT);
-debug TraiT GrouP QuotE;
-msOptOld();
-msOptOldB();
-parser(optT);
-msOptOld();
-msOptOldB();
-
-/*  SEQ 193 -- WHAT THE TWO DRIVES ARE FOR.
-
-    The optional cannot be read out of the generated body: `two()` is spelled
-    the same whether two is optional or mandatory, because the modifier lives
-    in two's own rStuff min/max and the call site never mentions it. So the
-    `?` is asserted behaviourally, by a PAIR:
-
-        optT("a")   optional ABSENT   wins, and `two` never fires
-        optT("ab")  optional PRESENT  wins, `two` fires, both chars eaten
-
-    The first row is the one that reads the `?` -- a min left at 1 would make
-    optT("a") FAIL. The second is its anti-vacuity sibling -- a chain that
-    dropped `two` altogether would pass the first and leave `b` uneaten.
-
-    The body, verbatim on this binary:
-
-        optT = CodE {
-            return one() && two();
-            }
-
-    and dumpContents reads `one=a string` / `two=b string`, so the labels ARE
-    the terms and they carry their own text. The bare-literal spelling did not:
-    `"a"-` steals `GrouP` as its tag, both literals emitted `GrouP()`, and
-    neither carried its value. The modifier goes on the LABEL -- `one="a"-`
-    refuses, `one-="a"` and `two?-="b"` do not.
-
-    `incant/pop/modSeamT` is the fleet copy and pins all four cells (both
-    drives, both roads). It stays red on MS-5 only.  */
 
 /***************************************************************************
     Current Status
@@ -144,65 +84,3 @@ msOptOldB();
     trigDO's DO label is still empty: StatemenT refuses "has a parse method but no compiled body" -- not the label channel.
     try-fire-root rebased onto 3da00e0 is branch try-fire-root-rebased (NOT merged): DW-4 still loops. The gate is right; the while condition arrives as xl1 [dwN, 2] with the < dropped -- fixIts F-108, likely the Operators registry arm of parseContainer.
 
-    2026-09-22, evening. Written by Clod at shutdown.
-
-    WHERE THINGS STAND IN ONE PARAGRAPH.
-    Three things happened today.
-    A value may now carry + or * (committed, ffa850f, on jit-unified-emit-wip).
-    A deferred statement now fires when nothing above it defers, so PrinT(...) on the command line runs (branch try-fire-root, NOT merged).
-    And the new road's remaining trouble is now located: labels of the alternatives of a || rule, and of bins, do not reach their parent (the label channel, measured, not fixed).
-
-    1. VALUE REPETITION -- LANDED, ffa850f.
-    one-='a'+ and one-="ab"+ now repeat; the scalarRepeat refusal is gone.
-    A repeated character or set keeps DatA as a group so its max survives; anything wider hands the repeat up to the trait, which then gets parseLoop.
-    Measured: 'a'+ eats all of aaaab, stops at [cd] in aabcd, fails on b; "ab"+ on ababx eats all.
-    Fleet 446 / 59, unmoved.
-    Recorded, not fixed: a string repetition loses its last match when the next attempt fails at END OF INPUT ("ab"+ on "ab" returns true with the mark unmoved; the name-side one+-="ab" does the same, so it predates today).
-    Limit on a string value is still dropped the same way; Tony never uses Limit, leave it for now.
-
-    2. DEFERRED STATEMENTS FIRE AT THE ROOT -- branch try-fire-root, uncommitted on main line.
-    The finding: PrinT("...") on the command line has never fired, on either road.
-    fireLabelMethod deferred unconditionally, and the only thing that ran a deferred label was aCTionStatemenT's !processingCode arm -- which a direct drive never passes through.
-    That same arm ran NESTED statements at parse time, which is why a direct DO made one pass and never looped, and why `if 0; print x;` printed.
-
-    What is on the branch, four changes, each driven old road first:
-      a. GroupItem.deferredAbove + the gate in fireLabelMethod: a deferred action WAITS only if processingCode, or some enclosing rule (walking stuff.parentStuff) is itself deferred.
-         With nothing deferred above it, nobody else will ever run it, so it fires now.
-         (The first try, "parentStuff is null", was too narrow -- a top-level statement sits under Start.)
-      b. aCTionStatemenT: the !processingCode execution arm is removed (it would now run statements twice), and its sourceLine preamble is guarded on rStuff.
-      c. loopCondition, used by aCTionDO and aCTionWhilE: a condition with a method is called exactly as before; a bare value (`while 0;`) is tested by truthOf, as aCTionIF does. Before this, a literal while condition called a null method, on BOTH roads.
-      d. aCTionDO / aCTionWhilE refuse by name when the body StatemenT is missing from the label, as aCTionIF already did.
-
-    Old road, measured against HEAD:
-      PrinT("print \"x\";") on the command line   nothing   ->  fires
-      PrinT from inside an action                  nothing   ->  fires
-      top-level print / cerr / x = 5;              once      ->  once
-      if 0; print "BAD";  (top level and IF(...))  PRINTED   ->  nothing
-      DO("do print ++n; while n < 3;")             one pass  ->  1 2 3
-      doWhileNameT DW-1 oracle                     1         ->  2
-      while 0; in DO / WhilE                       139       ->  once / never
-    Fleet on the branch: 442, against 446 at ffa850f.
-    Every missing row is doWhileNameT: DW-4 (new road) now LOOPS FOREVER and is killed at 90s -- its while condition arrives truncated (see 3) and a one-element list is truthy.
-    trigDO refuses by name where it used to crash; its arms were already red.
-    This is why the branch is not merged: the old road is right, the new road needs the label channel first.
-
-    3. THE LABEL CHANNEL, NEW ROAD -- measured tonight, not touched.
-    Drive: print ++pN; on the new road.  LABELMINT ... into= shows where each label attaches:
-      stuff -> PrinT ok, PrintXP -> stuff ok,
-      PrintField -> (none)            WRONG, should be PrintXP
-      ExpressioN -> PrintXP           WRONG, skips PrintField
-      Token -> ExpressioN ok,
-      TokenXP -> (none)               WRONG, should be Token
-      ANYorNum -> Token               WRONG, skips TokenXP
-      ANYtoken -> (none)              WRONG, NamE -> ANYtoken ok
-      UnaryOPS (a bin)                fires with a label, then NO mint and NO attach at all
-    The pattern: every ALTERNATIVE of a || rule (Token, PrintXP, ANYorNum are all alternations) gets parentLabel (none), and ITS children then attach to the alternation above it.
-    The old road attaches the same labels correctly (attachLabel lab=ANYorNum ... pRule=TokenXP).
-    This one pattern explains: the dropped ++ (TOKENARM unary=(none)), the 09-20 null ANYorNum in aCTionTokenXP, `while dwN < 2` arriving as xl1 with no method, and trigDO's empty DO label.
-    Where to look: where the new road sets a child's parentLabel -- the generated call sites and parseRule's parentRepair (Generate.rtn:252), which takes it from currentMETHOD.rStuff.
-    Tony's intent was to set parentLabel once and not pooch it after; this says it is being set from the wrong frame for an alternation's alternatives.
-    Tony wants Clay's input before changing how parentLabel is set.
-
-    Two HEAD quirks noticed on the way, NOT caused by today: a top-level `do x = x + 1; while x < 3;` exits 139 on HEAD, and a probe that prints its own mark shows "end of input" when exactly one character is left.
-
-    TO PICK UP try-fire-root:  git checkout try-fire-root, then rebuild TOK Groups (the .mm ride with the branch). Back: git checkout jit-unified-emit-wip and rebuild.
