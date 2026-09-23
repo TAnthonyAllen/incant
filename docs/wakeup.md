@@ -1,3 +1,83 @@
+# ⚠⚠⚠ SEALED 2026-09-23, MIDDAY -- DO PARSES END TO END ON THE NEW ROAD, F-95 IS CLOSED, AND
+# THE JITTER RECON SAYS THE JIT CAN EMIT NOTHING OF A GENERATED BODY YET. THAT IS WHAT IS IN FRONT.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-23 12:22 and `git log -1 --date=iso` 11:59 (1f3b13a). They agree.
+#
+#   ## THE ONE-LINE STATE: **trunk `jit-unified-emit-wip` at 1f3b13a -- fleet 465 green / 2 parked
+#   (54 FAIL lines); canary 344; fixit queue 0; Groups, support and TOK clean and pushed; binary BARE
+#   and built at the tree.** `bs` is Tony's to run -- not run this session.
+#
+#   ## ⚠⚠⚠ IN FRONT: THE JITTER. THE RECON, IN FULL (measure only, nothing built)
+#   **How it was run.** parser(DO), stop under lldb (breakpoint on stopParsingInput CONDITIONED on DO
+#   having its builtinParseR -- stopParsingInput also serves bail()), then jitRunAction on each
+#   generated body, ONE PROCESS PER RULE (65 runs), INCANT_JIT_DUMP=1 on 16 of them for the IR.
+#   ⚠ Three traps met on the way, each a void reading if believed:
+#     - the unit is the rule's **builtinParseR carrier**, not the rule: DO is actionType 1 (aCTionDO),
+#       so testing(DO) routes to jitRunIfTest and jitRunAction(DO) returns -2 "no result emitted";
+#     - kant cannot probe DO: naming the rule inside an action FIRES it and the refusal aborts the action;
+#     - jitRunAction called twice in one process returns -3 (addIRModule/lookup failed,
+#       jitEmitters.rtn:2690/2768 -- symbol collision), so every rule needs its own process.
+#   **THE RESULT: all 65 bodies compile, and EVERY ONE compiles to the same empty function** --
+#       define i32 @jit_builtinParseR() { entry: br %epilogue ... epilogue: store i32 0; ret i32 0 }
+#   no `call` instruction anywhere. Per construct:
+#     | term call `X()`                  | NOT EMITTED -- runs interpreted at emit time (per the degrade text; not measured separately) |
+#     | `&&` / `||` with a term call left | DEGRADE: `AND/OR LEFT operand produced no value -- not JIT-supported yet, running INTERPRETED: Token` (51 rules) |
+#     | endDef's body                    | DEGRADE: `bare read of a LIST -- parts must be classified by the caller ... Token` |
+#     | `return X();`, a single term     | ⚠ SILENT -- no value, NO degrade line; the epilogue stores constant 0 (13 rules) |
+#   **The term call, hop by hop:** chain operand -> jitEmitShortCircuit (jitEmitters.rtn:1511) emits
+#   only an isMethod+invoke node; a term call is a `Token`, so it goes to jitEmitBareRead, which emits
+#   nothing, and the degrade fires at :1524. Single-term return -> aCTionBrancH's return arm
+#   (ruleActions.rtn:113-116) sends it to the same bare read, silently, and jitEmitReturn closes to the
+#   epilogue. handleCall (ruleActions.rtn:1357), runOP, runRule, driveStep and parseRule have NO
+#   jitting arm: the call is neither inlined nor emitted as a call-through.
+#   **Per-rule verdict.** 52 NOT JITTABLE, first failing construct the && / || left term call (endDef:
+#   the list bare read) -- DO, StatemenT, BlocK, WardeD, Token, IF, FOR, WhilE, PrinT, Search, TokenXP,
+#   NumbeR, define, and the rest. 13 COMPILE TO A CONSTANT 0 at degrade count 0 -- ExpressioN, ANYtoken,
+#   rules, Looper, the four `stuff` faces, scopeList, definitions, NewGroup, Attributes, formatWIDTH --
+#   which is WORSE than a degrade: a silent wrong answer. So the degrade counter cannot certify a
+#   jitter; its rows must assert VALUES (consumed and verdict, jitted against interpreted).
+#   **Candidate first subject:** a single-term body -- `ExpressioN = { return Token(); }` or
+#   `ANYtoken = { return NamE(); }`. It lacks exactly ONE construct: a term call emitted as a real call
+#   whose truth feeds the return. That same emitter then answers the && / || operand for the other 52.
+#   ⚠ The jitted function takes no arguments (`i32 @jit_builtinParseR()`), and a parse needs the drive's
+#   mark and frame -- so the likely first shape is a CALL-THROUGH to runRule/driveStep, not an inline.
+#   **Floor check:** not run -- nothing jits. By the IR alone every jitted body returns 0, so it would
+#   disagree with the interpreted parse on any matching input.
+#
+#   ## TODAY'S CLOSURES (all on trunk, all pushed)
+#   - **The input floor and hereAt** (e5c0dcb, b618a0b): a drive's own message is the floor, so an
+#     end-of-message failure no longer pops into the sender; checkInput sets hereAt before its
+#     end-of-input exit. convLeakT green. modSeamT MS-1/MS-3 re-pinned to consumed 1.
+#   - **The parseContainer re-resolve and F-108 retired** (3ac7aed, da38bbb): a bin or registry reached
+#     by name lands on the calling rule's face; 5136e05's free-standing label is gone, the skip stays.
+#   - **The duplicate-face refusal** (3deff25, 3f872c4, dupCensus 352527c): generateParse refuses a rule
+#     with two faces carrying one tag, and a refused root stops parser(). It found **define** (labelled
+#     endDef, 328afa8) and **Limit** (a stray re-add in GroupMain, f97227d); the complete census then
+#     found only the three JSON rules (F-112). ⚠ The first census stripped comments and missed define --
+#     an absence is evidence only when the population was the whole tree.
+#   - **The road check** (b347078): parserTest PT-2 and doWhileNameT DW-9 assert the DO drive reaches
+#     parseRule. Both were born red -- DO had silently run the OLD road since 3f872c4 -- and are green.
+#   - **Terms return truth** (de29e38): a successful term returns trueResult; a label carrying a matched
+#     0 had read as a failed `||` alternative (Token on `while 0`).
+#   - **F-95 closed** (1f3b13a): `sukcess = truthOf(result)` at parseRule's seat; chainTruthT CT2-CT4
+#     green; a rule no longer succeeds on its first term alone.
+#   - **Conversation line** built and PARKED: the floor, driveStep, tell and the verdict (convDriveT
+#     CD-1/CD-3/CD-5 green). **Resume at the fire verb**; CD-4 waits on it and the default handler.
+#
+#   ## OPEN
+#   **F-111** tell into a generated root is refused (driveStep hands parseRule the registry's own
+#   definition). **F-112** JSONfield/JSONarray/JSONblock have two GrouP faces -- wait on the bare-literal
+#   respell campaign and on JSON leaving the parking lot. **F-113** a standalone Limit fails at `min`
+#   straight after `[`, on both roads, and has never parsed.
+#
+#   ## CHECKLIST, measured at this tree (H14)
+#   pop.sh 465 green / 2 parked · decodePop 14 green · ddPop 5 / 1 · countPop 47 of 47, foot reached ·
+#   frontier dies at station 4 (fire) · canary 344 · groups.ext committed · Groups, support, TOK clean
+#   and pushed · `bs` is Tony's to run.
+#
+#   ## TONY'S FIXIT INCANTATIONS WAITING: **0**
+#   Generated by `genLadder/fixitNag.sh`, not typed.
+
 # ⚠⚠⚠ SEALED 2026-09-22, EVENING -- PrinT(...) FIRES ON THE COMMAND LINE (on a branch), AND THE
 # LABEL CHANNEL IS LOCATED: AN ALTERNATIVE OF A `||` RULE NEVER GETS ITS OWN parentLabel.
 #
