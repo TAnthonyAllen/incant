@@ -2840,10 +2840,15 @@ fi
 #  started would otherwise be indistinguishable from a pin that ran and failed.
 run2 doWhileNameT "$T/dwn.o" "$T/dwn.e"; check "doWhileNameT runs" 0 $?
 sentinel "doWhileNameT sentinel" "$T/dwn.e" "DOWHILENAME SENTINEL"
-if grep -qF "DW-1 ORACLE RETURNED dwN= 1" "$T/dwn.e"; then
-    echo "  ok    doWhileNameT oracle = 1 -- old-road twin ran and shares the counter"; green=$((green+1))
+#  ⚠ RE-PINNED 1 -> 2, 2026-09-23 (Clay, Tony's merge ruling): A DIRECT DO NOW LOOPS; ONE PASS WAS
+#  THE OLD ROAD'S DEFECT. try-fire-root moved statement execution into fireLabelMethod (gated by
+#  deferredAbove), so a do-while driven directly runs 0 -> 1 -> 2 and stops. The fixture now
+#  resets dwN = 0 before DW-1 and before DW-4, so no row reads another row's leftover. The
+#  "ONE PASS, NOT A LOOP" paragraph above is the pre-merge reading and stands as history.
+if grep -qF "DW-1 ORACLE RETURNED dwN= 2" "$T/dwn.e"; then
+    echo "  ok    doWhileNameT oracle = 2 -- old-road twin LOOPED and shares the counter"; green=$((green+1))
 else
-    echo "  FAIL  doWhileNameT oracle did NOT read 1 -- the OLD road moved, so the two red"
+    echo "  FAIL  doWhileNameT oracle did NOT read 2 -- the OLD road moved, so the two red"
     echo "        rows below are no longer measured against what they were pinned against."
     grep -E "^DW-" "$T/dwn.e" | sed 's/^/          /'; fail=1
 fi
@@ -2866,6 +2871,9 @@ fi
 #  DW-6 IS PRESENCE-WITH-VALUE WITH A NON-ZERO SIBLING BUILT IN (rule H4): the pre-drive
 #  value is 1, so 2 is the only reading a drive that did nothing cannot produce. A row
 #  pinned at 1 would be satisfied by the oracle's bump alone.
+#  ⚠ AMENDED 2026-09-23: the pre-drive value is now 0 (dwN is reset before DW-4), so 2 is
+#  the only reading that neither a drive that did nothing (0) nor a one-pass drive (1) can
+#  produce -- the row now discriminates LOOPING, which it could not before.
 #  DW-7/DW-8 COUNT AND COMPARE, they do not grep for an absence (rule H4): the count is
 #  echoed on every run, so deleting the code that emits the refusal breaks the row instead
 #  of satisfying it.
@@ -4519,18 +4527,17 @@ else
     echo "        not entered and the parse-dead region is live again"; fail=1
 fi
 sentinel "trigDO sentinel" "$T/tdo" "TRIG SENTINEL -- reached the foot"
-if grep -qF "LABELPROBE DO minted=DO mintedLen=2 into=Token chainTrue=1 yielded=1" "$T/tdo"; then
-    echo "  ok    trigDO arm 1 GOOD: mintedLen=2 chainTrue=1 yielded=1 -- PINNED BY VALUE (the road PARSES)"; green=$((green+1))
-else
-    echo "  FAIL  trigDO arm 1 -- the good input did not parse and attach. Actual:"; fail=1
-    grep -F "LABELPROBE" "$T/tdo" | sed -n '1p' | sed 's/^/          /'
-fi
-if grep -qF "LABELPROBE DO minted=DO mintedLen=1 into=Token chainTrue=0 yielded=0" "$T/tdo"; then
-    echo "  ok    trigDO arm 2 BROKEN: chainTrue=0 yielded=0 -- the anti-vacuity partner"; green=$((green+1))
-else
-    echo "  FAIL  trigDO arm 2 -- a broken term did NOT fail the parse. Actual:"; fail=1
-    grep -F "LABELPROBE" "$T/tdo" | sed -n '2p' | sed 's/^/          /'
-fi
+#  ⚠ ARM 1 / ARM 2 LABELPROBE ROWS RETIRED BY MAPPING, 2026-09-23 (F-109). measureLabelProbe has
+#  had no caller since 5f24cf3, so both rows were red by construction and asserted nothing.
+#    arm 1 (good DO input parses, the chain is true, DO's label holds its terms)
+#        -> doWhileNameT DW-6: a new-road DO parses, aCTionDO finds StatemenT AND ExpressioN in
+#           its label (it refuses by name otherwise), and the loop reads 2 -- a real value.
+#        -> DW-8: the new-road drive refuses nothing.
+#    arm 2 (a broken while term fails and does NOT attach)
+#        -> the attach-count row below, KEPT: exactly one attach under DO, so arm 2 did not.
+#           ⚠ That row is RED today (0 attaches: StatemenT "has a parse method but no compiled
+#           body" in this fixture), so arm 2's half has a home but not a green one. No DW row
+#           drives a broken term.
 tdoAttach=$(grep -c "attachLabel lab=DO " "$T/tdo")
 if [ "$tdoAttach" = "1" ]; then
     echo "  ok    trigDO attached under DO exactly once -- arm 2 did NOT attach"; green=$((green+1))

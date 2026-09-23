@@ -284,6 +284,7 @@ extern "C" void loadRegistryFromString(char *name, char *content);
 extern "C" GroupItem *locateManier();
 extern "C" GroupItem *locateRule(char *name);
 extern "C" GroupItem *locateSpeller();
+extern "C" GroupItem *loopCondition(GroupItem *cond);
 extern "C" GroupItem *makeDataType(GroupItem *target, GroupItem *argument);
 extern "C" GroupItem *makeNew(GroupItem *input);
 extern "C" int manyKant(GroupItem *manier, GroupItem *node);

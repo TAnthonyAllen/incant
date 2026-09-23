@@ -55,6 +55,7 @@ void copyData(GroupItem *item);
 void copyListFrom(GroupItem *grup);
 void copyListTo(GroupItem *grup);
 GroupItem *dQ();
+int deferredAbove(RuleStuff *stuff);
 GroupItem *definingRule();
 void dispatch();
 void dumpField();
