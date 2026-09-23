@@ -163,6 +163,7 @@ extern "C" GroupItem *dumpPlanTally(GroupItem *argument);
 extern "C" GroupItem *dumpRulePlans(GroupItem *argument);
 extern "C" GroupItem *dumpRuleTerms(GroupItem *argument);
 extern "C" GroupItem *dumpSpellings(GroupItem *argument);
+extern "C" GroupItem *dupCensus(GroupItem *argument);
 extern "C" GroupItem *dupTermRefusal(GroupItem *rule);
 extern "C" char *emitLeaf(GroupItem *node, char *local, char *sink);
 extern "C" int emitMany(GroupItem *node);

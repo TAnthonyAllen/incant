@@ -91,6 +91,7 @@ define
     TOKENize immediateAction=processFlags noPrint;
     traceParse immediateAction;
     dupTermRefusal immediateAction;
+    dupCensus immediateAction;
     unary immediateAction=processFlags noPrint;
     unWrap immediateAction;
     window immediateAction=markWindow noPrint;

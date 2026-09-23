@@ -2042,6 +2042,60 @@ int         refused = 0;
     return null;
 }
 
+/*******************************************************************************
+    dupCensus -- the COMPLETE two-faces census (Clay, 2026-09-23). Every node reachable
+    through groupList from every registry is visited ONCE -- a visited list of node
+    pointers, and an explicit worklist instead of recursion, because the grammar is
+    cyclic and a recursive walk overflowed the stack. Each rule-flagged node with a list
+    is asked dupTermRefusal, the very question generateParse asks, so the census and the
+    refusal cannot disagree about what a duplicate is. Prints one DUPCENSUS line per
+    offender and a summary with the visit count. Returns trueResult if it found any.
+*******************************************************************************/
+extern GroupItem dupCensus(GroupItem argument)
+{
+GroupRules  ruler = groupRules;
+int         found = 0;
+    /*  seenByScan  the visited mark is a plain pointer array, scanned: DoubleLinkList::getLink
+        returns non-null on an EMPTY list (measured 2026-09-23), so it cannot be the mark, and
+        DoubleLink is incomplete here. The start is always ruler.registries -- a command called
+        with no argument still receives a node (the command itself), so the argument is no root.  */
+    -%
+    int visited = 0, checked = 0, nSeen = 0, capSeen = 1024, head = 0, nWork = 0, capWork = 1024;
+    GroupItem **seen = (GroupItem **)::malloc(capSeen * sizeof(GroupItem *));
+    GroupItem **work = (GroupItem **)::malloc(capWork * sizeof(GroupItem *));
+    if ( ruler->registries ) work[nWork++] = ruler->registries;
+    while ( head < nWork ) {
+        GroupItem *g = work[head++];
+        if ( !g ) continue;
+        int already = 0;
+        for ( int i = 0; i < nSeen; i++ )
+            if ( seen[i] == g ) { already = 1; break; }
+        if ( already ) continue;
+        if ( nSeen == capSeen ) { capSeen *= 2; seen = (GroupItem **)::realloc(seen, capSeen * sizeof(GroupItem *)); }
+        seen[nSeen++] = g;
+        visited++;
+        GroupList *kids = g->groupBody->groupList;
+        if ( !kids ) continue;
+        if ( g->groupBody->flags.isRule ) {
+            checked++;
+            if ( ::dupTermRefusal(g) ) {
+                ::fprintf(stderr,"DUPCENSUS offender %s\n",g->groupBody->tag);
+                found++;
+                }
+            }
+        for ( GroupItem *c = kids->firstInList; c; c = c->nextInParent ) {
+            if ( nWork == capWork ) { capWork *= 2; work = (GroupItem **)::realloc(work, capWork * sizeof(GroupItem *)); }
+            work[nWork++] = c;
+            }
+        }
+    ::free(seen);
+    ::free(work);
+    ::fprintf(stderr,"DUPCENSUS visited %d nodes, checked %d rules, offenders %d\n",visited,checked,found);
+    %-
+    if found    return trueResult;
+    return null;
+}
+
 
 extern GroupItem treeOf(GroupItem argument)
 {
