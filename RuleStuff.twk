@@ -51,6 +51,9 @@ include groupIncludes
       - nothing reaches it by name. SEQ 38 stands: locate is prohibited, not
         provided. The one named dispatch site receives the field as its first
         parameter and walks pointers from there.
+    ⚠⚠ SUPERSEDED 2026-09-23 (Tony): the slot is now `int (GroupItem)` -- UNIFORM
+    i32(ptr), the pointer being the field the body runs on. The named seam below
+    was paid in jitter station 1's stroke. Kept for the reasoning trail:
     ⚠ NULLARY ON PURPOSE, and it is the one place this diverges from
     parseMethod's signature: jitRunAction emits `i32 ()`. Fields are reached
     through BAKED ADDRESSES in the emitted IR, never through an argument, so
@@ -101,7 +104,7 @@ RuleStuff   parentStuff;
 int         &testMatch(GroupItem);
 GroupItem   &actionMethod(GroupItem);
 GroupItem   &parseMethod(GroupItem);
-int         &jitMethod();
+int         &jitMethod(GroupItem);
 boolean
     banged
     doNothing

@@ -149,7 +149,12 @@ inline bool gJitEmitted;
 // the compiled function returning a baked constant -- right answer, wrong
 // universe, exit 0 throughout. If the second fire tracks an input changed AFTER
 // emission, the computation happened at RUN time. Nothing else proves it.
-inline int (*gJitLastFn)() = nullptr;
+class GroupItem;
+inline int (*gJitLastFn)(GroupItem*) = nullptr;
+// What the last compiled body runs on is RE-READ at every fire, never cached:
+// an action's argument changes between fires, which is the whole point of a
+// refire. jitBodyField (jitEmitters.rtn) does the reading.
+inline GroupItem *gJitLastAction = nullptr;
 
 // Degrade count as a readable global rather than a function-local static, so a
 // rung can ASSERT it. Zero is the claim "this rung's constructs are all covered

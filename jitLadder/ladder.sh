@@ -1056,7 +1056,11 @@ runcap "JS IR dump" jitSelfFn "$T/js.ir" "INCANT_JIT_DUMP=1"
 #  and not merely the name.
 jsdrv=$(sed -n 's/^=== IR \(jit_[A-Za-z0-9_]*\) (post-mem2reg) ===.*/\1/p' "$T/js.ir" | head -1)
 #  The driver's own define block, and nothing else's.
-awk -v d="define i32 @$jsdrv()" '$0 ~ d {f=1} f{print} f && /^}/{exit}' "$T/js.ir" > "$T/js.drv"
+#  ⚠ RE-PINNED 2026-09-23: every pattern here ends at the OPEN PAREN, not at `()`.
+#  The i32(ptr) signature (jitter station 1) made the text `@jit_x(ptr %field)`;
+#  the old literal `()` made the never-call row below pass BY ABSENCE and the
+#  callee-name extraction come back empty. Name-then-paren matches either shape.
+awk -v d="define i32 @$jsdrv[(]" '$0 ~ d {f=1} f{print} f && /^}/{exit}' "$T/js.ir" > "$T/js.drv"
 #  ⚠ VACUITY GUARD FIRST, H4's other half. A "does not contain" assertion passes
 #  trivially against an empty file, and an absence check that can pass by having
 #  nothing to look at is theatre. So: the driver must be NAMED, and its block
@@ -1067,8 +1071,8 @@ if [ -z "$jsdrv" ] || [ ! -s "$T/js.drv" ]; then
     echo "        having nothing to read. Nothing here is interpretable."; fail=1
 else
     echo "  ok    JS R3 driver function named ($jsdrv) and its IR captured"; green=$((green+1))
-    if grep -q "call i32 @$jsdrv()" "$T/js.drv"; then
-        echo "  FAIL  JS R3 THE DRIVER CALLS ITSELF -- call i32 @$jsdrv() inside"
+    if grep -q "call i32 @$jsdrv(" "$T/js.drv"; then
+        echo "  FAIL  JS R3 THE DRIVER CALLS ITSELF -- call i32 @$jsdrv(...) inside"
         echo "        @$jsdrv. That IS the defect: an inlined callee's self-call"
         echo "        targeting the enclosing function. Every recursion replays"
         echo "        the driver's preamble."; fail=1
@@ -1084,9 +1088,9 @@ fi
 #  AND THE POSITIVE HALF: the callee's own function DOES call itself. Recursion
 #  is still real; S3 moved WHERE the call lands, it did not remove the call.
 if [ -n "$jsdrv" ] && grep -E "^define i32 @jit_" "$T/js.ir" | grep -qv "@$jsdrv"; then
-    jscal=$(sed -n 's/^define i32 @\(jit_[A-Za-z0-9_]*\)().*/\1/p' "$T/js.ir" | grep -v "^$jsdrv$" | head -1)
-    awk -v d="define i32 @$jscal()" '$0 ~ d {f=1} f{print} f && /^}/{exit}' "$T/js.ir" > "$T/js.cal"
-    if [ -s "$T/js.cal" ] && grep -q "call i32 @$jscal()" "$T/js.cal"; then
+    jscal=$(sed -n 's/^define i32 @\(jit_[A-Za-z0-9_]*\)(.*/\1/p' "$T/js.ir" | grep -v "^$jsdrv$" | head -1)
+    awk -v d="define i32 @$jscal[(]" '$0 ~ d {f=1} f{print} f && /^}/{exit}' "$T/js.ir" > "$T/js.cal"
+    if [ -s "$T/js.cal" ] && grep -q "call i32 @$jscal(" "$T/js.cal"; then
         echo "  ok    JS R3 the CALLEE's function calls ITSELF ($jscal) -- recursion is real"; green=$((green+1))
     else
         echo "  FAIL  JS R3 the callee's function does not recurse into itself"; fail=1; fi

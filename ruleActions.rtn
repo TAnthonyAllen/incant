@@ -116,7 +116,10 @@ GroupItem   arg = ExpressioN;
         if BrancheS.tag == 'c'          jitEmitContinue();
         or BrancheS.tag == 'r' {
             // branchReturnPosition
-            if ExpressioN && !isMethod  jitEmitBareRead(ExpressioN);
+            if ExpressioN && !isMethod {
+                // returnValueInFlight an operand that already emitted its value (a term call-through) is not read again
+                -% if (!gJitResult) ::jitEmitBareRead(ExpressioN); %-
+            }
             // returnOperandSilent a return WITH an operand that emitted nothing degrades by name, never stores the slot's 0
             if ExpressioN {
                 -% if (!gJitResult) ::jitDegrade("return operand produced no value", ExpressioN); %-

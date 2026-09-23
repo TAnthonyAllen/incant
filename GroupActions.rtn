@@ -1094,7 +1094,13 @@ GroupItem   result,
     // generated body takes it, a bin included   GroupActions.runOP.doorIsHasNewParse
     if op.isOperator    result = op.operat(arg,target);
     or op.isMethod      result = op.method(target);
-    or isRule           result = runRule(arg,target);
+    or isRule {
+        // termCallThrough under jitting a rule is NOT parsed at emit time; a call to the interpreted road is emitted instead
+        -%
+        if ( ruler->jitting )   result = ::jitEmitTermCall(field);
+        else                    result = ::runRule(arg,target);
+        %-
+    }
     or actionType       result = runAction(arg,target);
     or isMethod {
         if !arg arg = target;

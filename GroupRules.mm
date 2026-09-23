@@ -176,7 +176,10 @@ GroupItem 	*arg = ExpressioN;
 			{
 			// branchReturnPosition
 			if ( ExpressioN && !isMethod(arg->groupBody->flags.instructType) )
-				::jitEmitBareRead(ExpressioN);
+				{
+				// returnValueInFlight an operand that already emitted its value (a term call-through) is not read again
+				 if (!gJitResult) ::jitEmitBareRead(ExpressioN); 
+				}
 			// returnOperandSilent a return WITH an operand that emitted nothing degrades by name, never stores the slot's 0
 			if ( ExpressioN )
 				{
@@ -4218,6 +4221,18 @@ GroupItem 	*ruleArg = 0;
 	return arg;
 }
 
+/*  jitBodyField -- THE FIELD A JITTED BODY RUNS ON (i32(ptr), ruled 2026-09-23):
+    what the action's `argument` binding holds right now, or null. No emitter reads
+    the parameter yet; station 4's door passes a parse carrier's frame through it.  */
+extern "C" GroupItem *jitBodyField(GroupItem *action)
+{
+	
+	if (!action) return nullptr;
+	GroupItem *a = action->get((char*)"argument");
+	return a ? a->getGroup() : nullptr;
+	
+}
+
 /*******************************************************************************
     jitBuildFunction -- ONE FUNCTION, START TO FINISH. It owns the shell, entry
     block, result alloca, frame prologue, body walk, frame epilogue, ret,
@@ -4307,9 +4322,14 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	"action already exists in this module ===\n", fnName);
 	fflush(stderr);
 	return -9; }
+	//  ⚠ UNIFORM i32(ptr), RULED 2026-09-23 (Tony): the pointer is the field the
+	//  body runs on -- an action's argument, a parse carrier's frame. One layout
+	//  change for every jitted body; an ordinary action simply does not read it.
+	//  The named seam in RuleStuff.twk's jitMethod header, paid.
 	llvm::Function *fn = llvm::Function::Create(
-	llvm::FunctionType::get(i32, false),
+	llvm::FunctionType::get(i32, {llvm::PointerType::getUnqual(C)}, false),
 	llvm::Function::ExternalLinkage, fnName, gJitModule);
+	fn->getArg(0)->setName("field");
 	B.SetInsertPoint(llvm::BasicBlock::Create(C, "entry", fn));
 	
 	gJitBuilder = &B;
@@ -5581,6 +5601,7 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	//  jitBindArgRT does the same bind with it at run time. The flag is cleared
 	//  because this is the consumer.   jitEmitters.jitEmitSelfCall.runtimeArg
 	llvm::Value *argVal = nullptr;
+	llvm::Value *selfArg = nullptr;
 	if (!argument && gJitLastIsNode && gJitResultNode) {
 	argVal = gJitResultNode;
 	gJitLastIsNode = false; }
@@ -5595,7 +5616,8 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	llvm::Value *bindFn = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitBindArgRT), ptr, "bindFn");
 	llvm::FunctionType *bindTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
-	b->CreateCall(bindTy, bindFn, {argAddr, fldAddr}, "bindArg"); }
+	b->CreateCall(bindTy, bindFn, {argAddr, fldAddr}, "bindArg");
+	selfArg = argAddr; }
 	//  ⚠ THE FRAME BRACKET, in runAction's OWN ORDER: bind, save, body, restore.
 	//  (GroupActions.rtn -- the gate at :705-707, bind :708-711, save :713, body
 	//  :721, restore :725 as of 2026-08-05. The earlier :670/:677/:685/:689 in
@@ -5621,7 +5643,11 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	b->CreateCall(frameTy, saveFn, {calleeAddr});
 	//  ⚠ `target`, NOT gJitCurrentFn. See the four-arm decision above -- the
 	//  whole of S3 is the difference between those two expressions.
-	llvm::Value *v = b->CreateCall(target, {}, "selfcall");
+	//  i32(ptr): the callee runs on the argument it was just bound to, or on
+	//  nothing when the call carries none.
+	llvm::Value *callField = selfArg ? selfArg
+	: (llvm::Value*)llvm::ConstantPointerNull::get(llvm::PointerType::getUnqual(ctx));
+	llvm::Value *v = b->CreateCall(target, {callField}, "selfcall");
 	llvm::Value *restoreFn = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitRestoreFrameRT), ptr, "restoreFn");
 	b->CreateCall(frameTy, restoreFn, {calleeAddr});
@@ -5716,6 +5742,27 @@ extern "C" GroupItem *jitEmitStringPlusEQ(GroupItem *argument, GroupItem *target
 extern "C" GroupItem *jitEmitSub(GroupItem *argument, GroupItem *target)
 {
 	 return jitEmitBinary(argument, target, jitSub); 
+}
+
+extern "C" GroupItem *jitEmitTermCall(GroupItem *field)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b || !field) return nullptr;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	llvm::Value *fieldAddr = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)field), ptr, "termNode");
+	llvm::Value *fn = b->CreateIntToPtr(
+	llvm::ConstantInt::get(i64, (uint64_t)(void*)&jitTermCallRT), ptr, "termFn");
+	llvm::FunctionType *ty = llvm::FunctionType::get(i32, {ptr}, false);
+	gJitResult     = b->CreateCall(ty, fn, {fieldAddr}, "termCall");
+	gJitEmitted    = true;
+	gJitLastIsNode = false;
+	return new GroupItem((char*)"jitTerm");
+	
 }
 
 /*******************************************************************************
@@ -5909,7 +5956,7 @@ extern "C" GroupItem *jitFieldMethod(GroupItem *field)
 	
 	/*  PATH 1 -- THE SLOT. This is the only dispatch in the function. */
 	if (stuff && stuff->jitMethod) {
-	int r = stuff->jitMethod();
+	int r = stuff->jitMethod(jitBodyField(definer));
 	printf("=== jitFieldMethod: %s THROUGH THE SLOT, result = %d ===\n", name, r);
 	//  Both counters on EVERY fire, with their values. The slot path cannot
 	//  raise the degrade count (it re-enters no emitter), and printing it
@@ -6552,6 +6599,52 @@ extern "C" void jitPrintProbe(GroupItem *node, int phase)
 }
 
 /*******************************************************************************
+    jitProbeDrive -- THE STATION CERTIFICATE'S DRIVE, jitted against interpreted.
+    driveStep's own lines (push the message, raise the floor, fire, read the mark
+    as an OFFSET, pop) with ONE difference, the fire: jitted=0 fires the rule's
+    installed method exactly as driveStep does; jitted=1 fires the rule's
+    builtinParseR carrier COMPILED -- jitRunAction on first use (which compiles
+    AND fires, so it must be inside the push), gJitLastFn after. Prints one
+    PROBE line; the verdict is truthOf the interpreted result or the jitted i32.
+    ⚠ Driven from lldb until the door exists (station 4): a carrier is not
+    isCoded, so testing() cannot reach it.
+*******************************************************************************/
+extern "C" int jitProbeDrive(GroupItem *rule, char *msg, int jitted)
+{
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	if (!rule || !msg) return -1;
+	GroupItem *m = new GroupItem((char*)"probeMsg");
+	m->setText(::strdup(msg));
+	if (!m->groupBody->flags.data) { printf("PROBE REFUSED: message carries no data\n"); fflush(stdout); return -1; }
+	int baseStak = ruler->inputSTAK ? ruler->inputSTAK->length : 0;
+	ruler->divertToRule = 1;
+	ruler->pushInput(m);
+	char *driveBase  = ruler->atRuleMark;
+	int   priorFloor = ruler->inputFloor;
+	ruler->inputFloor = ruler->inputSTAK->length;
+	int verdict = -9;
+	if (jitted) {
+	GroupItem *carrier = rule->get((char*)"builtinParseR");
+	if (!carrier)                                          verdict = -8;
+	else if (gJitLastFn && gJitLastAction == carrier)      verdict = gJitLastFn(::jitBodyField(carrier));
+	else                                                   verdict = ::jitRunAction(carrier); }
+	else {
+	GroupItem *r = rule->groupBody->gMethod ? rule->groupBody->gMethod(rule) : 0;
+	verdict = ::truthOf(r); }
+	int len = (int)::strlen(driveBase), consumed = -1;
+	if (ruler->atRuleMark >= driveBase && ruler->atRuleMark <= driveBase + len)
+	consumed = (int)(ruler->atRuleMark - driveBase);
+	ruler->inputFloor = priorFloor;
+	while (ruler->inputSTAK && ruler->inputSTAK->length > baseStak) ruler->popInput();
+	printf("PROBE %s %s msg=\"%s\" verdict=%d consumed=%d length=%d\n",
+	rule->groupBody->tag, jitted ? "JITTED" : "INTERP", msg, verdict, consumed, len);
+	fflush(stdout);
+	return verdict;
+	
+}
+
+/*******************************************************************************
     jitRefire -- FIRE THE LAST COMPILED FUNCTION AGAIN, without recompiling.
     Returns trueResult on a fire, null if nothing has been compiled yet -- LOUD,
     because a silent no-op would make a rung green for the wrong reason.
@@ -6566,7 +6659,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	printf("=== jitRefire: NOTHING COMPILED YET (call testing() first) ===\n");
 	fflush(stdout);
 	return 0; }
-	int r = gJitLastFn();
+	int r = gJitLastFn(jitBodyField(gJitLastAction));
 	printf("=== jitRefire result = %d ===\n", r); fflush(stdout);
 	
 	return ruler->trueResult;
@@ -6824,9 +6917,10 @@ extern "C" int jitRunAction(GroupItem *action)
 	auto sym = jit->lookup(fnName);
 	if (!sym) { llvm::consumeError(sym.takeError());
 	printf("=== JIT lookup failed ===\n"); fflush(stdout); return -4; }
-	int (*fp)() = sym->toPtr<int(*)()>();
-	gJitLastFn = fp;          // keep it: the ladder fires it again, uncompiled
-	int r = fp();
+	int (*fp)(GroupItem*) = sym->toPtr<int(*)(GroupItem*)>();
+	gJitLastFn     = fp;      // keep it: the ladder fires it again, uncompiled
+	gJitLastAction = action;  // and what it runs on is re-read at each refire
+	int r = fp(jitBodyField(action));
 	printf("=== jitRunAction result = %d ===\n", r); fflush(stdout);
 	//  Reported UNCONDITIONALLY and with its value, so a rung can assert it.
 	//  A presence-with-value line cannot pass by being deleted, which an
@@ -7198,6 +7292,25 @@ extern "C" void jitStoreResult()
 	else if (v->getType() != i32)              return;
 	b->CreateStore(v, gJitResultSlot);
 	gJitEmitted = true;
+	
+}
+
+/*******************************************************************************
+    jitEmitTermCall / jitTermCallRT -- THE TERM CALL-THROUGH (jitter station 1,
+    2026-09-23). A rule invoked as a term -- `Token()` in a generated body --
+    used to be PARSED AT EMIT TIME by runOP's isRule arm, against whatever input
+    was live, and emit nothing. Now runOP's arm emits a call to jitTermCallRT,
+    which at RUN time runs runOP on the same node the interpreted way and returns
+    truthOf the result. One spelling on both roads: the run-time helper IS the
+    interpreted dispatch. Inline comes later and is diffed against this.
+    ⚠ It returns a FRESH node, never the xpress node or a sentinel: aCTionBrancH
+    stamps isBranch on whatever comes back, and a stamp on the parse tree or on
+    trueResult would outlive the compile (bear-trap #22).
+*******************************************************************************/
+extern "C" int jitTermCallRT(GroupItem *field)
+{
+	
+	return ::truthOf(::runOP(field));
 	
 }
 
@@ -12365,7 +12478,13 @@ GroupItem 	*target = field->get(2);
 		result = op->groupBody->gMethod(target);
 	else
 	if ( target->groupBody->flags.isRule )
-		result = ::runRule(arg,target);
+		{
+		// termCallThrough under jitting a rule is NOT parsed at emit time; a call to the interpreted road is emitted instead
+		
+		if ( ruler->jitting )   result = ::jitEmitTermCall(field);
+		else                    result = ::runRule(arg,target);
+		
+		}
 	else
 	if ( target->groupBody->flags.actionType )
 		result = ::runAction(arg,target);
