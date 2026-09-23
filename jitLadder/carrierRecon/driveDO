@@ -1,0 +1,7 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+parser(DO);
+cerr "J2 SENTINEL":;
+stop();
