@@ -3228,6 +3228,14 @@ agreed — nine grammar spellings, a census, a second grep. **A sweep inside a w
 returns unanimity, and unanimity reads exactly like proof.** When a search comes back clean,
 distrust it in proportion to how clean it came back.
 
+⚠⚠ **BISECTS RUN IN A CLONE OUTSIDE DROPBOX. Standing, 2026-09-23 (Tony, via the jitter
+dispatch).** Paid for the same day: an in-place bisect of 08-21..09-02 made git OVERWRITE and then
+DELETE `groupDirectives` and `IncantForms/WorkingOn/incant++` — ignored now, tracked before
+`f702489` — and raced Dropbox sync into "conflicted copy" debris under `minionWork/`. Restored from
+Time Machine. **Git overwrites an ignored file without warning when a checkout needs its path.**
+Before ANY build of an older commit, list what it tracks that HEAD ignores:
+`comm -23 <(git ls-tree -r --name-only <old> | sort) <(git ls-tree -r --name-only HEAD | sort) | git check-ignore --stdin`.
+
 ⚠ **FIXIT CITIZENS ARE NOT CLOD'S TO MINT (Rule F2, Tony, 2026-09-01).** A finding goes in the
 **seal**; whether it becomes a citizen in `incant/fixits/` is Tony's or Clay's ruling. Clod may
 always add a **fleet row** — that is where a measurement belongs — and should, rather than reaching

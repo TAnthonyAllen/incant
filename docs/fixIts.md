@@ -5923,6 +5923,13 @@ is the whole reason rung JD asserts the emitted IR instead of a count. `jitJR` d
 assignment under jit correctly, so the discriminator is the **walk body**, not assignment.
 **Done when:** a counter incremented inside a jitted walk agrees with the interpreter by value.
 **Owner:** unassigned. **Size:** unknown — likely the same family as F-52.
+**Located 2026-09-23 (jitter station 1 rider, measured, not fixed):** NO writer skips the slot —
+the jitted IR stores `add` into the field's count cell every iteration. The field is DATA-LESS
+(`jdCount;` in the define block), and a baked-address scalar store writes the number without
+marking the field as holding a count, so it goes on echoing its tag (bear-trap #26). A one-line
+patched copy that sets `jdCount = 7;` interpreted first reads jitted **3 / 4** against the oracle's
+4 (the 7 overwritten at run time). The writer to fix is the jitted scalar store to a data-less
+global: it owes the field its data type, as setContent gives it on the interpreted road.
 
 ### F-53 — SUPERSEDED HEADING, kept so the row above keeps its number
 
