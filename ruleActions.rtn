@@ -98,6 +98,10 @@ extern GroupItem aCTionBrancH(GroupItem input)
 GroupItem   BrancheS:,
             ExpressioN:;
 GroupItem   arg = ExpressioN;
+    // returnOperandFresh nothing may be in flight before the operand emits, or a stale value answers for it
+    if jitting && ExpressioN {
+        -% gJitResult = nullptr; %-
+    }
     if !arg         arg = BrancheS;
     or isMethod     arg = arg.gMethod(arg);
     // ke3NullOperand under jitting that method is an emitter and a null arg means I REFUSED
@@ -113,6 +117,10 @@ GroupItem   arg = ExpressioN;
         or BrancheS.tag == 'r' {
             // branchReturnPosition
             if ExpressioN && !isMethod  jitEmitBareRead(ExpressioN);
+            // returnOperandSilent a return WITH an operand that emitted nothing degrades by name, never stores the slot's 0
+            if ExpressioN {
+                -% if (!gJitResult) ::jitDegrade("return operand produced no value", ExpressioN); %-
+            }
             if jitEmitReturn() < 0  jitDegrade("return REFUSED -- no builder, no epilogue block, or  inlining with no frame. A mis-sequenced caller", input); }
         else    jitDegrade("break under jit -- no emitter yet", input); }
     return arg;

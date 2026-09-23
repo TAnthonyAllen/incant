@@ -141,6 +141,11 @@ extern "C" GroupItem *aCTionBrancH(GroupItem *input)
 GroupItem 	*BrancheS = input->getLabelGroup("BrancheS");
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 GroupItem 	*arg = ExpressioN;
+	// returnOperandFresh nothing may be in flight before the operand emits, or a stale value answers for it
+	if ( GroupControl::groupController->groupRules->jitting && ExpressioN )
+		{
+		 gJitResult = nullptr; 
+		}
 	if ( !arg )
 		arg = BrancheS;
 	else
@@ -172,6 +177,11 @@ GroupItem 	*arg = ExpressioN;
 			// branchReturnPosition
 			if ( ExpressioN && !isMethod(arg->groupBody->flags.instructType) )
 				::jitEmitBareRead(ExpressioN);
+			// returnOperandSilent a return WITH an operand that emitted nothing degrades by name, never stores the slot's 0
+			if ( ExpressioN )
+				{
+				 if (!gJitResult) ::jitDegrade("return operand produced no value", ExpressioN); 
+				}
 			if ( ::jitEmitReturn() < 0 )
 				::jitDegrade("return REFUSED -- no builder, no epilogue block, or  inlining with no frame. A mis-sequenced caller",input);
 			}
@@ -4256,15 +4266,30 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	//  outside [A-Za-z0-9_] becomes '_'; the `jit_` prefix keeps emitted names in
 	//  one namespace and out of the way of the runtime symbols the IR already
 	//  calls into by address.
+	//  ⚠ A CARRIER IS NAMED FROM ITS HOLDER. Every generated parse body lives in
+	//  a noPrint carrier tagged builtinParseR, so naming from the action's own
+	//  tag gave all of them jit_builtinParseR -- and the SECOND compile in a
+	//  process failed addIRModule with "duplicate definition of symbol
+	//  '_jit_builtinParseR'" (measured 2026-09-23). The holder's tag is the rule's
+	//  name, stable across incarnations, so the persistence premise above holds:
+	//  jit_ExpressioN_builtinParseR. An ordinary action is not noPrint and keeps
+	//  jit_<tag> exactly as before.
 	char fnName[128];
 	{
 	const char *tag = action->groupBody->tag;
 	if (!tag || !*tag) tag = "anon";
+	const char *holder = 0;
+	if (action->groupBody->flags.noPrint && action->parent)
+	holder = action->parent->groupBody->tag;
 	size_t n = 0;
 	fnName[n++] = 'j'; fnName[n++] = 'i'; fnName[n++] = 't'; fnName[n++] = '_';
-	for (const char *p = tag; *p && n < sizeof(fnName) - 1; p++)
+	for (int part = 0; part < 2; part++) {
+	const char *src = part ? tag : holder;
+	if (!src || !*src) continue;
+	if (part && holder && *holder && n < sizeof(fnName) - 1) fnName[n++] = '_';
+	for (const char *p = src; *p && n < sizeof(fnName) - 1; p++)
 	fnName[n++] = ((*p >= 'A' && *p <= 'Z') || (*p >= 'a' && *p <= 'z') ||
-	(*p >= '0' && *p <= '9') || *p == '_') ? *p : '_';
+	(*p >= '0' && *p <= '9') || *p == '_') ? *p : '_'; }
 	fnName[n] = 0;
 	}
 	//  ⚠ COLLISION-FREE PER COMPILE IS STILL REQUIRED and is now CHECKED rather
@@ -6747,9 +6772,12 @@ extern "C" int jitRunAction(GroupItem *action)
 	
 	if (auto err = jit->addIRModule(
 	llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
-	llvm::consumeError(std::move(err));
+	//  LLVM'S OWN TEXT, NOT A SWALLOWED ERROR. A bare -3 said only that the
+	//  add failed; the text says WHY -- a duplicate symbol reads differently
+	//  from a malformed module, and the recon had to guess between them.
+	std::string why = llvm::toString(std::move(err));
 	gJitCtx = nullptr; gJitModule = nullptr;
-	printf("=== JIT addIRModule failed ===\n"); fflush(stdout); return -3; }
+	printf("=== JIT addIRModule failed: %s ===\n", why.c_str()); fflush(stdout); return -3; }
 	//  BOTH ARE DEAD THE INSTANT THE MOVE ABOVE COMPLETES -- the JIT owns them
 	//  now. Nulling is not tidiness: a stale gJitModule is a pointer into a
 	//  freed module, and jitBuildFunction's own no-context guard would happily
