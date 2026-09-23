@@ -1725,7 +1725,8 @@ matchFailed:
 debugHere:
 		if ( !*ruler->atRuleMark && ruler->inputDiverted )
 			{
-			while ( ruler->inputDiverted && !*ruler->atRuleMark )
+			// inputFloor a drive's own message is below the floor -- an end-of-message failure fails THERE and never pops out into the sender (0 outside a drive, so nothing else changes)
+			while ( ruler->inputDiverted && !*ruler->atRuleMark && ruler->inputSTAK->length > ruler->inputFloor )
 				{
 				ruler->lastIndent = 0;
 				ruler->popInput();

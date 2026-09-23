@@ -1332,7 +1332,8 @@ matchFailed:
         if !sukcess && kount >= min sukcess = true;
 debugHere:
         if !*atRuleMark && inputDiverted {
-            while inputDiverted && !*atRuleMark {
+            // inputFloor a drive's own message is below the floor -- an end-of-message failure fails THERE and never pops out into the sender (0 outside a drive, so nothing else changes)
+            while inputDiverted && !*atRuleMark && inputSTAK.length > inputFloor {
                 lastIndent = 0;
                 popInput(); }
             if sukcess && *atRuleMark   goto continueHere; }

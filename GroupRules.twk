@@ -64,6 +64,7 @@ class GroupRules
                 inputSTAK;
     int         chanBinds,
                 chanSame,
+                inputFloor,
                 lastIndent,
                 refused,
                 rulesParsed,

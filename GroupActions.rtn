@@ -1124,7 +1124,8 @@ extern GroupItem runRule(GroupItem field,GroupItem rule)
 GroupRules  ruler = groupRules;
 GroupItem   result;
 GroupItem   intoField;
-int         baseStak = 0;
+int         baseStak = 0,
+            priorFloor = 0;
 use rule
     // ruleDoorSeat WHICH DOOR a rule arrived through -- the one question the dispatch fork above cannot answer
     measureRuleDoor(field,rule);
@@ -1133,6 +1134,9 @@ use ruler
     if field && field.data {
         divertToRule    = true;
         pushInput(field);
+        // inputFloor the message is the floor for the whole drive; a nested drive raises it and restores it
+        priorFloor      = inputFloor;
+        inputFloor      = inputSTAK.length;
         // markSeat SEQ 166 -- record the drive string's extent so every later point can ask
         // markSeat whether the mark is still inside it
         measureMarkArm(field);
@@ -1154,6 +1158,7 @@ use ruler
 use ruler
     // markSeat2 SEQ 166 point 2 -- THE KEY PAIR, either side of the pop
     if field && field.data  measureMarkPoint("2b-before-pop");
+    if field && field.data  inputFloor = priorFloor;
     while field && field.data && inputSTAK && inputSTAK.length > baseStak
         popInput();
     if field && field.data  measureMarkPoint("2c-after-pop");

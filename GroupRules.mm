@@ -12088,6 +12088,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*result = 0;
 GroupItem 	*intoField = 0;
 int 		baseStak = 0;
+int 		priorFloor = 0;
 	// ruleDoorSeat WHICH DOOR a rule arrived through -- the one question the dispatch fork above cannot answer
 	::measureRuleDoor(field,rule);
 	if ( ruler->inputSTAK )
@@ -12096,6 +12097,9 @@ int 		baseStak = 0;
 		{
 		ruler->divertToRule = 1;
 		ruler->pushInput(field);
+		// inputFloor the message is the floor for the whole drive; a nested drive raises it and restores it
+		priorFloor = ruler->inputFloor;
+		ruler->inputFloor = ruler->inputSTAK->length;
 		// markSeat SEQ 166 -- record the drive string's extent so every later point can ask
 		// markSeat whether the mark is still inside it
 		::measureMarkArm(field);
@@ -12124,6 +12128,8 @@ int 		baseStak = 0;
 	// markSeat2 SEQ 166 point 2 -- THE KEY PAIR, either side of the pop
 	if ( field && field->groupBody->flags.data )
 		::measureMarkPoint("2b-before-pop");
+	if ( field && field->groupBody->flags.data )
+		ruler->inputFloor = priorFloor;
 	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
 		ruler->popInput();
 	if ( field && field->groupBody->flags.data )
@@ -13023,6 +13029,7 @@ GroupRules::GroupRules()
 	inputSTAK = 0;
 	chanBinds = 0;
 	chanSame = 0;
+	inputFloor = 0;
 	refused = 0;
 	lastIndent = 0;
 	rulesParsed = 0;

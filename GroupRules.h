@@ -53,6 +53,7 @@ Stak *bufferSTAK;
 Stak *inputSTAK;
 int chanBinds;
 int chanSame;
+int inputFloor;
 int refused;
 int lastIndent;
 int rulesParsed;
