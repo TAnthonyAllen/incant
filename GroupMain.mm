@@ -392,9 +392,12 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	// bornConverted as Attributes above -- the DefinE term goes in definitions' LIST
 	item = item->addAttribute(stuff);
 	::modify(item,"+");
-	item = grok->getMember("DEFINing");
+	// endDefLabel the closing DEFINing is LABELLED endDef (Tony, 2026-09-23, F-110): two unlabelled DEFINing faces made generateParse refuse define, so parser(DO) installed nothing -- same spelling as definitions above
+	item = new GroupItem("endDef");
 	item = strap->addAttribute(item);
 	item->setRuleStuff();
+	::modify(item,"-");
+	item = item->addAttribute(grok->getMember("DEFINing"));
 	item = strap->addAttribute(grok->getMember("SemI"));
 	::modify(item,"-");
 	strap = grok->addString("InvokE");

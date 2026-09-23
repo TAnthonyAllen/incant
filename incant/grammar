@@ -63,7 +63,7 @@ TraiT               NamE Modifier* Limit? TraiTdata?;
 Attributes=TraiT+;
 NewGroup            TraiT@;
 DefinE              NewGroup Attributes? MemberS endDefine-=[;>];
-define              DEFINing-^ definitions=DefinE+ DEFINing- ';'-;
+define              DEFINing-^ definitions=DefinE+ endDef-=DEFINing ';'-;
 RunRulE             NamE InvokE? ';'-?;
 InitiatE RunRulE+;
 
