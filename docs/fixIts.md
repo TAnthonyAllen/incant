@@ -161,6 +161,34 @@ non-null in `parseContainer`), and the free-standing arm is either unreachable f
 or retired. **Owner.** Tony/Clay (design).
 ```
 ATTEMPT LOG
+  1. step 0, read-only, 2026-09-23 (tester carries the specimen)  ->  NARROWER THAN FILED.
+     A single reference term's ? and + survive the new road: parseRule and parseLoop
+     re-resolve the called name to the parent's own face (field = currentMETHOD.get(tag),
+     Generate.rtn). wOpt/wMan agree across roads; wRepEnd = s wR+ consumes 5 and
+     wOneEnd = s wR consumes 3 on BOTH roads (consumed read off the mark trace).
+     WHAT REPRODUCES: the same rule referenced TWICE in one rule. get(tag) finds the FIRST
+     face, so the second call borrows its modifier: wDup = wR+ s wR on "w w s w w" OLD 7
+     NEW 9; wDup2 = wR s wR+ on "w s w w" OLD 7 NEW 5. Grokking population of that shape: 0.
+     Not re-resolved at all: parseContainer (bins and registries), which is where the
+     Operators() case lives.
+     Confound recorded, NOT F-110: on the new road a rule succeeds once its FIRST term
+     matches (lOne = w s-literal on "w y" reads true) -- F-95's exit half, still open.
+```
+
+### F-111 — `tell` into a GENERATED root is refused: driveStep hands parseRule the registry's own definition
+
+**What.** `tell("refOpt x")` after `parser(refOpt)` prints `REFUSED refOpt -- checkInput: no enclosing
+activation to take the label` and the enclosing action is aborted, so no verdict comes back. A direct
+call `refOpt("x")` from an action is not refused.
+**Where.** `aCTionTell` (`GroupActions.rtn`) finds the target with `locate()`, which returns the
+registry member -- its parent is `Utilities`, which lawfully has no rStuff -- and `checkInput`'s
+enclosingActivation arm (`RuleStuff.twk`) refuses it. A direct call reaches `parseRule` with a node
+whose parent is `Token`. Measured with lldb, 2026-09-23.
+**Done when.** `tell` into a generated root returns a verdict. convDriveT's lamp is OLD road only,
+which is why its rows did not see this. **Owner.** Tony/Clay -- whether the verb should drive a face,
+or the arm should lawfully skip a top-level root, is a ruling.
+```
+ATTEMPT LOG
   (none)
 ```
 

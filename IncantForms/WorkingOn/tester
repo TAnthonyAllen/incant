@@ -9,16 +9,25 @@ include("IncantForms/WorkingOn/parser");
 
 // Clod you can change this incantation as needed
 
-// THE LEAK, from incant/pop/convLeakT -- a drive failing at end of message. Exits 139 today.
-// Walk it: break in GroupItem::parse at the matchFailed end-of-input pop, and watch
-// ruler.atRuleMark -- the pop leaves the message, then the rewind writes a null hereAt.
+// F-110 SPECIMEN -- the SAME rule referenced TWICE in one rule, with different modifiers.
+// Both bodies emit `return wR() && s() && wR();`; on the NEW road the second wR() is
+// re-resolved by currentMETHOD.get("wR"), which finds the FIRST face, so it borrows the
+// first occurrence's modifier. Consumed is read off traceParse's MARKARM base and
+// 2b-before-pop mark. Measured 2026-09-23:
+//     wDup  = wR+ s wR   on "w w s w w"   OLD 7   NEW 9  (the second wR repeats)
+//     wDup2 = wR s wR+   on "w s w w"     OLD 7   NEW 5  (the second wR stops at one)
+// Walk it: break in parseRule on the SECOND wR and read the face `field` becomes.
 define
-    thermo isRule defer
-        setT  isRule s-="set" n=NumbeR defer code={ cerr "   >>> thermo set FIRED":; };
+    wR    isRule w-="w";
+    wDup  isRule wR+ s-="s" wR;
+    wDup2 isRule wR s-="s" wR+;
+    e1 code={ cerr "E1 wDup  on w w s w w (want consumed 7)":; traceParse("on"); wDup("w w s w w"); traceParse("off"); cerr "E1-BACK":; };
+    e2 code={ cerr "E2 wDup2 on w s w w   (want consumed 7)":; traceParse("on"); wDup2("w s w w"); traceParse("off"); cerr "E2-BACK":; };
     ;
-cerr "TESTER driving thermo(set)":;
-thermo("set");
-cerr "TESTER AFTER the failing drive":;
+cerr "F110 OLD ROAD":; e1(); e2();
+parser(wDup); parser(wDup2);
+cerr "F110 NEW ROAD":; e1(); e2();
+cerr "F110 SENTINEL":;
 stop();
 
 debug;
