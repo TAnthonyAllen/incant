@@ -149,6 +149,10 @@ use field
         if matched  return trueResult;
         ruler.atRuleMark = entryMark;
         return 0; }
+    // binParentRepair a bin is reached from runOP, never through parseRule, so nothing else gives it the asker's stuff and attachLabel would drop its label at !pStuff
+    if currentMETHOD && currentMETHOD.rStuff != ruleStuff.parentStuff {
+        ruleStuff.parentStuff = currentMETHOD.rStuff;
+        if ruleStuff.parentStuff && ruleStuff.parentLabel != ruleStuff.parentStuff.label  ruleStuff.parentLabel = ruleStuff.parentStuff.label; }
     sukcess = false;
     if checkInput() {
         reset();
@@ -162,7 +166,8 @@ use field
                 if label    label.group = grup;
                 sukcess     = true; }
             shorten(1); }}
-    if label    label.clear();
+    // keepTheMatch clear only on failure -- on success the label carries the matched entry to attachLabel, and clearing it first handed TokenXP an empty unary
+    if label && !ruleStuff.sukcess  label.clear();
     return exitFromParse(field);
 }
 

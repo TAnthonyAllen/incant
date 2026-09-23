@@ -115,7 +115,7 @@ msOptOldB();
     Measured: 'a'+ eats all of aaaab, stops at [cd] in aabcd, fails on b; "ab"+ on ababx eats all.
     Fleet 446 / 59, unmoved.
     Recorded, not fixed: a string repetition loses its last match when the next attempt fails at END OF INPUT ("ab"+ on "ab" returns true with the mark unmoved; the name-side one+-="ab" does the same, so it predates today).
-    Limit on a string value is still dropped the same way; Tony never uses Limit, leave it.
+    Limit on a string value is still dropped the same way; Tony never uses Limit, leave it for now.
 
     2. DEFERRED STATEMENTS FIRE AT THE ROOT -- branch try-fire-root, uncommitted on main line.
     The finding: PrinT("...") on the command line has never fired, on either road.

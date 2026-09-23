@@ -9976,6 +9976,13 @@ int 		matched = 0;
 		ruler->atRuleMark = entryMark;
 		return 0;
 		}
+	// binParentRepair a bin is reached from runOP, never through parseRule, so nothing else gives it the asker's stuff and attachLabel would drop its label at !pStuff
+	if ( ruler->currentMETHOD && ruler->currentMETHOD->getRStuff() != ruleStuff->parentStuff )
+		{
+		ruleStuff->parentStuff = ruler->currentMETHOD->getRStuff();
+		if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
+			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
+		}
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
@@ -10001,7 +10008,8 @@ int 		matched = 0;
 			buffer->shorten(1);
 			}
 		}
-	if ( ruleStuff->label )
+	// keepTheMatch clear only on failure -- on success the label carries the matched entry to attachLabel, and clearing it first handed TokenXP an empty unary
+	if ( ruleStuff->label && !ruleStuff->sukcess )
 		ruleStuff->label->clear();
 	return ::exitFromParse(field);
 }
