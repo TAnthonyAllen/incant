@@ -2923,9 +2923,16 @@ direction the campaign might take, it is a state the machinery must report as a 
 > *"which instrument reads what I touched, and did I run it."* When the honest answer is *none of
 > them*, that is a coverage finding, not a clean bill.
 >
-> **The checklist, and all of it every time:** `pop.sh` · `decodePop.sh` · `ddPop.sh` ·
+> **The checklist, and all of it every time:** `pop.sh` · **`jitLadder/ladder.sh`, its line
+> recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·
 > `countPop.sh` · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
+>
+> ⚠⚠ **THE JIT LADDER JOINED THE SEAL 2026-09-23 (Tony, via the jitter dispatch), AND IT WAS
+> PAID FOR:** it had been red at HEAD for weeks -- JC since 2026-09-01, JXD-1/JXD-3 since
+> 2026-09-10 -- while every seal recorded pop.sh alone, because pop.sh does not read the jit
+> road. The 09-10 respell that broke JXD ran the fleet and nothing else. H12's own sentence,
+> collected: **a green fleet is evidence only about what the fleet reads.**
 >
 > ⚠⚠ **THREE, NOT TWO — CORRECTED 2026-09-15 (Tony), AND THE THIRD HAD BEEN INVISIBLE FOR
 > ELEVEN DAYS.** `InProcess/TOK` is a git repo and has been since `644fe89` (2026-09-04,
