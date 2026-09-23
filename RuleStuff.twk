@@ -179,11 +179,12 @@ GroupItem   field = rule;
     ****************************************************************************/
     if *atRuleMark
         if !noSkip && skipSet.contains(*atRuleMark) atRuleMark = checkSkip(atRuleMark);
+    // hereAtFirst set BEFORE the end-of-input exit -- a term failing at end of input is rewound to hereAt, and an unset one wrote a null mark (convLeakT)
+    hereAt  = atRuleMark;
     if !*atRuleMark     goto checkFailed;
     /****************************************************************************
         Check the rule guard if there is one
     ****************************************************************************/
-    hereAt  = atRuleMark;
     if guardOK {
         guardOK = false;
         sukcess = true; }

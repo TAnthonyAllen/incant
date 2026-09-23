@@ -3030,7 +3030,8 @@ _msfired () {                   # _msfired <startMarker> <endMarker> <rule> -> 1
          n&&index($0,r){print "1";exit}' "$T/mst"
 }
 #  _mscell <start> <end> <label> <want-in> -- the four optT cells share one shape.
-#  <want-in> is not-in-drive (optional ABSENT, 1-char drive fully consumed) or
+#  <want-in> selects the cell: not-in-drive means optional ABSENT (the NAME is historical --
+#  since 2026-09-23 that cell asserts consumed 1, see the re-pin below), or
 #  DRIVE-STRING (optional PRESENT, and then consumed must read 2).
 _mscell () {
     _cs="$1"; _ce="$2"; _cl="$3"; _cw="$4"
@@ -3055,10 +3056,22 @@ _mscell () {
             echo "  FAIL  modSeamT $_cl \`two\` FIRED on a drive with no \"b\" in it. The optional"
             echo "        is not optional -- the \`?\` is being read as something else."; fail=1
         fi
-        echo "  ..    modSeamT $_cl cursor in=$_ci (want not-in-drive: a 1-char drive fully consumed)"
-        if [ "$_ci" = not-in-drive ]; then
-            echo "  ok    modSeamT $_cl mark LEFT the drive string"; green=$((green+1))
-        else echo "  FAIL  modSeamT $_cl mark in=$_ci, want not-in-drive"; fail=1; fi
+        #  ⚠ RE-PINNED 2026-09-23 (Tony): not-in-drive -> CONSUMED 1 (mark - base == drive length).
+        #  MS-1: the old reading pinned the leak -- matchFailed had already popped the drive's
+        #  input when two? failed at end of input. MS-3: the old reading pinned a stale rewind --
+        #  checkInput left hereAt unset at end of input, and exitFromParse rewound to an earlier
+        #  drive's position (measured: mark 0x...d4e1 BELOW its own drive base 0x...de00).
+        if [ "$_ci" != DRIVE-STRING ]; then
+            echo "  ..    modSeamT $_cl cursor in=$_ci (want DRIVE-STRING, consumed 1)"
+            echo "  FAIL  modSeamT $_cl mark in=$_ci -- the mark left its own drive, so consumed"
+            echo "        is unreadable across arenas and is NOT reported as a number."; fail=1
+        else
+            _cc=$(( _cm - _cb ))
+            echo "  ..    modSeamT $_cl cursor in=$_ci consumed=$_cc (want 1)"
+            if [ "$_cc" = 1 ]; then
+                echo "  ok    modSeamT $_cl consumed 1 -- the 1-char drive was fully consumed"; green=$((green+1))
+            else echo "  FAIL  modSeamT $_cl consumed $_cc, want 1"; fail=1; fi
+        fi
     else
         #  the anti-vacuity sibling: the optional is PRESENT and must be eaten.
         if [ "$_ct" = 1 ]; then

@@ -1,5 +1,5 @@
 class GroupItem;
-/*******************************************************************************
+/********************************************************************************
 	RuleStuff is used to stash data used by the parse
 
     parentLabel (genParseShape S1.2) -- the `into` a generated parse method
@@ -78,7 +78,7 @@ class GroupItem;
     in-process and costs a compile, so compile-on-first-fire is the ruling
     (Clay SEQ 27 v2). The prohibition and this divergence are about two
     different costs, not two readings of one rule.
-*******************************************************************************/
+********************************************************************************/
 
 class RuleStuff
 {
