@@ -125,6 +125,37 @@ registry with no rStuff, and that arm matches, advances the mark and returns `tr
 (DW-1 leaves `dwN=2`).
 **Done when.** DW-4 terminates on the rebased branch and DW-4's `dwN AFTER` reads 3 (one pass from 2).
 **Owner.** Tony/Clay — the arm is a ruled lawful skip (Tony, 2026-09-20), so giving it a label is a ruling.
+**RULED 2026-09-23 (Tony):** the 09-20 skip stands in both halves (no refusal, no rStuff on the
+registry); on success the arm mints a free-standing label and attaches it into `currentMETHOD.rStuff`.
+```
+ATTEMPT LOG
+  1. step 0, read-only (try-fire-root-rebased binary)  ->  old road: Operators label minted,
+     attachLabel ... pRule=Token, interpretXP gets ExpressioN len 3 [dwN, <, Token=2];
+     new road: no label, no fireLabelMethod, interpretXP gets len 2 [dwN, Token=2]
+  2. 5136e05: registry arm mints a label (tag Operators, group = matched entry) on a TRANSIENT
+     RuleStuff, attachLabel promote=1 into currentMETHOD.rStuff  ->  new road prints
+     attachLabel lab=Operators promote=1 isTarget=1 pLabel=0 pRule=Token (== old road);
+     interpretXP len 3 [dwN, <, Token=2] verbatim on both roads; main fleet 447 unmoved
+  3. 5136e05 cherry-picked onto try-fire-root-rebased  ->  DW-4 TERMINATES, exit 0, dwN AFTER = 3
+     (from the oracle's 2); like-for-like scratch drive from dwN=0 reads 2 on BOTH roads
+  POP: on main, none moved (DW-4's hang is branch-only). On the branch, doWhileNameT runs to its
+     sentinel; its oracle (want 1) and DW-6 (want 2) pins are keyed to main's ONE-PASS old road and
+     read 2 / 3 there -- re-pin owed at the try-fire-root merge, with that sentence (H6).
+  Closes on main by 5136e05; the DW-4 half certifies only on try-fire-root-rebased (not merged).
+```
+
+### F-110 — the emitted `Operators()` reaches the REGISTRY, not the term in `Token`'s list (F-89's seam; F-108 does NOT close it)
+
+**What.** `Token`'s generated body calls `Operators()` by bare name, and that resolves to the
+registry (`isRule 0`, binType isREGISTRY, no rStuff) rather than to the `Operators` TERM in `Token`'s
+member list, which carries its own rStuff (min/max/isTarget, and any modifier). F-108's
+free-standing label is the narrow fix: it gives the match a label on a transient stuff, so a
+modifier or limit on that term still never reaches the generated body.
+**Where.** Emission of term calls in `IncantForms/WorkingOn/parser` / `generateParse`; the landing
+site is `parseContainer`'s `noStuffLawfulSkip` arm (`Generate.rtn`). See F-89 (the 09-20 link).
+**Done when.** A generated body's container call reaches the term (rStuff present, `ruleStuff`
+non-null in `parseContainer`), and the free-standing arm is either unreachable from emitted bodies
+or retired. **Owner.** Tony/Clay (design).
 ```
 ATTEMPT LOG
   (none)
