@@ -2706,6 +2706,40 @@ char 		*piece = 0;
 }
 
 /*******************************************************************************
+    dupTermRefusal -- F-110, shape B (Tony, 2026-09-23). A generated body calls
+    each term BY NAME, and parseRule re-resolves the name with
+    currentMETHOD.get(tag), which finds the FIRST face carrying that tag -- so a
+    rule holding two faces with one tag hands the second call the first one's
+    modifiers (wR+ s wR consumed 9 where the old road reads 7). generateParse asks
+    here first and emits nothing for such a rule. Returns trueResult when it
+    refused, null otherwise. The walk is raw sibling pointers: a nested next()
+    would share its cursor with the outer one.
+*******************************************************************************/
+extern "C" GroupItem *dupTermRefusal(GroupItem *rule)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		refused = 0;
+	
+	GroupList *terms = rule ? rule->groupBody->groupList : 0;
+	for ( GroupItem *a = terms ? terms->firstInList : 0; a && !refused; a = a->nextInParent ) {
+	if ( a->groupBody->flags.noPrint ) continue;
+	for ( GroupItem *b = a->nextInParent; b; b = b->nextInParent ) {
+	if ( b->groupBody->flags.noPrint ) continue;
+	if ( ::strcmp(a->groupBody->tag,b->groupBody->tag) == 0 ) {
+	::fprintf(stderr,"REFUSED %s -- generateParse: two terms are both %s, and a call by name reaches only the first; label one (again=%s)\n",
+	rule->groupBody->tag,a->groupBody->tag,a->groupBody->tag);
+	refused = 1;
+	break;
+	}
+	}
+	}
+	
+	if ( refused )
+		return ruler->trueResult;
+	return 0;
+}
+
+/*******************************************************************************
     // leafIsTarget  one plan node -> one leaf expression string; everything here is about the TARGET and nothing about the rule, which is the whole reason the seam exists
 *******************************************************************************/
 extern "C" char *emitLeaf(GroupItem *node, char *local, char *sink)

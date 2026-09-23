@@ -90,6 +90,7 @@ define
     testing immediateAction;
     TOKENize immediateAction=processFlags noPrint;
     traceParse immediateAction;
+    dupTermRefusal immediateAction;
     unary immediateAction=processFlags noPrint;
     unWrap immediateAction;
     window immediateAction=markWindow noPrint;

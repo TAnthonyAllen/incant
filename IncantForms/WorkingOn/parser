@@ -9,6 +9,7 @@ define
     fireLog;
     generateParse code={
         cout "Generating parse code for" taG:;
+        if dupTermRefusal(argument);    return;
         reset(codeBuffer);
         printTO(codeBuffer);
         print openBrace:;
