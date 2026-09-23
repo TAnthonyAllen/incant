@@ -1,6 +1,15 @@
 register(Utilities);
 define
     /***************************************************************************
+        tell -- the one door into a field's grammar: tell("thermo set 5").
+        The first word names the target field, the rest of the line is the
+        message. aCTionTell (GroupActions.rtn) drives the target with the
+        input floor and returns a verdict: matched, consumed, length,
+        stoppedAt, known, and reply (a copy of the parked label). Read it
+        inside an action as  v := tell("..."); vc := *v["consumed"];
+    ***************************************************************************/
+    tell isRule target=[a-zA-Z0-9]+ message?=[^\n]+ ruleMethod=aCTionTell;
+    /***************************************************************************
         dumpField — print a field as tag=value, then an indented list of the
         child tags (or a no-list note). Incant-side cousin of dumpContents.
     ***************************************************************************/

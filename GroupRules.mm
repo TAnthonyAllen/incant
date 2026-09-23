@@ -1241,6 +1241,81 @@ Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTA
 	return ::opString(stuff,buffer);
 }
 
+/***************************************************************************
+    aCTionTell -- the tell rule's action, the one door into a field's grammar.
+        tell isRule target=[a-zA-Z0-9]+ message?=[^\n]+ ruleMethod=aCTionTell;
+    Looks the target up through the search list, drives it with the message
+    through driveStep (so the input floor holds), and returns a verdict:
+        matched   1 if the target's grammar matched (a prefix counts)
+        consumed  characters of the message the match used (0 on failure)
+        length    characters in the message
+        stoppedAt offset where the parse stopped: consumed on a match, the
+                  furthest point reached (failedAt) on a failure
+        known     0 if no field has the target's name
+        reply     attribute holding a COPY of the parked label, on a match --
+                  a copy, so a second tell cannot overwrite the first reply
+    An unknown target is a VERDICT, never a refuse(): this action runs inside
+    tell's own parse, and a refusal there aborts the action containing it.
+***************************************************************************/
+extern "C" GroupItem *aCTionTell(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*target = input->getLabelGroup("target");
+GroupItem 	*message = input->getLabelGroup("message");
+GroupItem 	*who = 0;
+GroupItem 	*said = 0;
+GroupItem 	*raw = 0;
+GroupItem 	*got = 0;
+GroupItem 	*result = 0;
+GroupItem 	*reply = 0;
+GroupItem 	*verdict = new GroupItem("verdict");
+int 		matched = 0;
+int 		known = 0;
+int 		msgLen = 0;
+int 		markAt = -1;
+int 		failAt = -1;
+int 		consumed = 0;
+int 		stoppedAt = 0;
+	if ( target )
+		who = GroupControl::groupController->locate(target->getText());
+	if ( who )
+		known = 1;
+	if ( who && message )
+		{
+		said = new GroupItem("message");
+		said->setText(message->getText());
+		raw = new GroupItem("driveReport");
+		result = ::driveStep(said,who,raw);
+		if ( got = raw->get("length") )
+			msgLen = got->getCount();
+		if ( got = raw->get("mark") )
+			markAt = got->getCount();
+		if ( got = raw->get("failedAt") )
+			failAt = got->getCount();
+		if ( result && result != ruler->falseResult )
+			matched = 1;
+		if ( matched && markAt > 0 )
+			consumed = markAt;
+		if ( matched )
+			stoppedAt = consumed;
+		else
+		if ( failAt > 0 )
+			stoppedAt = failAt;
+		}
+	::verdictCount(verdict,"matched",matched);
+	::verdictCount(verdict,"consumed",consumed);
+	::verdictCount(verdict,"length",msgLen);
+	::verdictCount(verdict,"stoppedAt",stoppedAt);
+	::verdictCount(verdict,"known",known);
+	if ( matched && result != ruler->labelNO && result != ruler->trueResult )
+		{
+		reply = new GroupItem("reply");
+		reply->setGroup(::copyOf(result));
+		verdict->addAttribute(reply);
+		}
+	return verdict;
+}
+
 /*******************************************************************************
 	TokenXP returns a token or a token expression.
 
@@ -13005,6 +13080,16 @@ int 		n = 0;
 		i++;
 		}
 	return n;
+}
+
+/***************************************************************************
+    verdictCount -- add one named count to a verdict
+***************************************************************************/
+extern "C" void verdictCount(GroupItem *verdict, char *name, int value)
+{
+GroupItem 	*num = new GroupItem(name);
+	num->setCount(value);
+	verdict->addAttribute(num);
 }
 
 /***************************************************************************

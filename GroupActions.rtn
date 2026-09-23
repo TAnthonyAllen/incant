@@ -1209,6 +1209,77 @@ extern GroupItem runRule(GroupItem field,GroupItem rule)
     return driveStep(field,rule,null);
 }
 
+/***************************************************************************
+    verdictCount -- add one named count to a verdict
+***************************************************************************/
+extern void verdictCount(GroupItem verdict,String name,int value)
+{
+GroupItem   num = new(name);
+    num.count   = value;
+    verdict.addAttribute(num);
+}
+
+/***************************************************************************
+    aCTionTell -- the tell rule's action, the one door into a field's grammar.
+        tell isRule target=[a-zA-Z0-9]+ message?=[^\n]+ ruleMethod=aCTionTell;
+    Looks the target up through the search list, drives it with the message
+    through driveStep (so the input floor holds), and returns a verdict:
+        matched   1 if the target's grammar matched (a prefix counts)
+        consumed  characters of the message the match used (0 on failure)
+        length    characters in the message
+        stoppedAt offset where the parse stopped: consumed on a match, the
+                  furthest point reached (failedAt) on a failure
+        known     0 if no field has the target's name
+        reply     attribute holding a COPY of the parked label, on a match --
+                  a copy, so a second tell cannot overwrite the first reply
+    An unknown target is a VERDICT, never a refuse(): this action runs inside
+    tell's own parse, and a refusal there aborts the action containing it.
+***************************************************************************/
+extern GroupItem aCTionTell(GroupItem input)
+{
+GroupRules  ruler = groupRules;
+GroupItem   target:,
+            message:,
+            who,
+            said,
+            raw,
+            got,
+            result,
+            reply,
+            verdict = new("verdict");
+int         matched = 0,
+            known = 0,
+            msgLen = 0,
+            markAt = -1,
+            failAt = -1,
+            consumed = 0,
+            stoppedAt = 0;
+    if target   who = locate(target.getText());
+    if who      known = 1;
+    if who && message {
+        said        = new("message");
+        said.text   = message.getText();
+        raw         = new("driveReport");
+        result      = driveStep(said,who,raw);
+        if got = raw["length"]      msgLen = got.count;
+        if got = raw["mark"]        markAt = got.count;
+        if got = raw["failedAt"]    failAt = got.count;
+        if result && result != falseResult  matched = 1;
+        if matched && markAt > 0    consumed = markAt;
+        if matched                  stoppedAt = consumed;
+        or failAt > 0               stoppedAt = failAt; }
+    verdictCount(verdict,"matched",matched);
+    verdictCount(verdict,"consumed",consumed);
+    verdictCount(verdict,"length",msgLen);
+    verdictCount(verdict,"stoppedAt",stoppedAt);
+    verdictCount(verdict,"known",known);
+    if matched && result != labelNO && result != trueResult {
+        reply       = new("reply");
+        reply.group = copyOf(result);
+        verdict.addAttribute(reply); }
+    return verdict;
+}
+
 
 /***************************************************************************
     runOP fires off a field that might be an action, a rule, a method,
