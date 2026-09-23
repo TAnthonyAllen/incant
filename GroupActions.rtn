@@ -1245,6 +1245,7 @@ GroupItem   target:,
             raw,
             got,
             result,
+            replyFrom,
             reply,
             verdict = new("verdict");
 int         matched = 0,
@@ -1273,9 +1274,12 @@ int         matched = 0,
     verdictCount(verdict,"length",msgLen);
     verdictCount(verdict,"stoppedAt",stoppedAt);
     verdictCount(verdict,"known",known);
-    if matched && result != labelNO && result != trueResult {
+    // replyFromSlot the new road returns trueResult (its label is attached), so the label is read where it lives: the root's own slot
+    replyFrom = result;
+    if result == trueResult && who && who.rStuff    replyFrom = who.rStuff.label;
+    if matched && replyFrom && replyFrom != labelNO && replyFrom != trueResult {
         reply       = new("reply");
-        reply.group = copyOf(result);
+        reply.group = copyOf(replyFrom);
         verdict.addAttribute(reply); }
     return verdict;
 }

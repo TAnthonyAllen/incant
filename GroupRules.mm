@@ -1267,6 +1267,7 @@ GroupItem 	*said = 0;
 GroupItem 	*raw = 0;
 GroupItem 	*got = 0;
 GroupItem 	*result = 0;
+GroupItem 	*replyFrom = 0;
 GroupItem 	*reply = 0;
 GroupItem 	*verdict = new GroupItem("verdict");
 int 		matched = 0;
@@ -1307,10 +1308,14 @@ int 		stoppedAt = 0;
 	::verdictCount(verdict,"length",msgLen);
 	::verdictCount(verdict,"stoppedAt",stoppedAt);
 	::verdictCount(verdict,"known",known);
-	if ( matched && result != ruler->labelNO && result != ruler->trueResult )
+	// replyFromSlot the new road returns trueResult (its label is attached), so the label is read where it lives: the root's own slot
+	replyFrom = result;
+	if ( result == ruler->trueResult && who && who->getRStuff() )
+		replyFrom = who->getRStuff()->label;
+	if ( matched && replyFrom && replyFrom != ruler->labelNO && replyFrom != ruler->trueResult )
 		{
 		reply = new GroupItem("reply");
-		reply->setGroup(::copyOf(result));
+		reply->setGroup(::copyOf(replyFrom));
 		verdict->addAttribute(reply);
 		}
 	return verdict;
@@ -3038,7 +3043,8 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 				{
 				// oneAttach ONE ATTACH, through attachLabel, and the promote value is 1 -- promote=0 cannot RETAG here, and the retag is the half a members rule needs
 				field->attachLabel(ruleStuff,ruleStuff->parentStuff,1);
-				return ruleStuff->label;
+				// oneBitReturn a successful term returns its TRUTH, never its label -- the label is already attached above, and a label carrying a matched 0 read as a failed alternative in a || chain (Tony, 2026-09-23, restoring ruling c')
+				return ruler->trueResult;
 				}
 			else	return ruler->trueResult;
 			}

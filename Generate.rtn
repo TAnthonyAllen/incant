@@ -20,7 +20,8 @@ RuleStuff   ruleStuff = rStuff;
             if label && !noLabel {
                 // oneAttach ONE ATTACH, through attachLabel, and the promote value is 1 -- promote=0 cannot RETAG here, and the retag is the half a members rule needs
                 attachLabel(ruleStuff,parentStuff,1);
-                return label; }
+                // oneBitReturn a successful term returns its TRUTH, never its label -- the label is already attached above, and a label carrying a matched 0 read as a failed alternative in a || chain (Tony, 2026-09-23, restoring ruling c')
+                return trueResult; }
             else    return trueResult; }}
     atRuleMark  = hereAt;
     // minZeroIsSatisfied a term whose MINIMUM IS ZERO is satisfied by not matching, so it owes the chain a success and not a null -- parseLoop owns max>1, this owns the max=1 optional that never enters it
