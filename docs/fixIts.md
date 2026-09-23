@@ -92,6 +92,38 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-113 — a standalone `Limit` has never parsed: it fails at `min` straight after the `[`, on both roads
+
+**What.** Driving `Limit` directly on `[1 2]`, `[1 2]]`, `[1]`, `[1]]`, `[12]` or `[12]]` fails every time
+with consumed 0 -- before and after f97227d removed its stray second `rightBrace`, so the braces were
+never the issue. (Its brackets are `[ ]`, per GroupMain.twk's own note, not `{ }`.)
+**Where.** `Limit`'s C++ construction, GroupMain.twk (the `min` term: `item = new("min"); ...
+item.embedRule(grok/counter); item = item.group; modify(item,"+");`). Mirror: incant/grammar:58.
+**Evidence.** 2026-09-23, traceParse window of the `[1 2]` drive: `CAPFIRE fireLabelMethod leftBrace`
+is the last success line; the next term, `min`, prints none, and the mark reads the drive's base at the
+2b-before-pop seat. Read BY POSITION -- the trace carries no failure line -- but every term that
+succeeds prints CAPFIRE, the noLabel `leftBrace` included, so `min`'s silence is a failure.
+**Done when.** A standalone Limit on `[1 2]` wins and consumes 5, or Tony rules Limit is only meant
+to parse inside TraiT and pins that instead. **Owner.** Tony (Limit is in every define term).
+```
+ATTEMPT LOG
+  (none)
+```
+
+### F-112 — three JSON rules have two `GrouP` faces: JSONfield, JSONarray, JSONblock
+
+**What.** dupCensus (352527c), run to completion (987 nodes, 195 rules), names three offenders, each
+"two terms are both GrouP": `JSONfield isRule JSONtoken ":"- JSONvalue ","?-` (incant/utilities:104),
+`JSONarray isRule "["- JSONlist? "]"-` (:111), `JSONblock isRule fail "{"- JSONfield* "}"-` (:116).
+**Why.** The 09-22 bare-literal spelling fault: a bare `"x"-` in an isRule rule takes `GrouP` as its tag,
+so two literals are two GrouP faces, and generateParse refuses the rule (F-110 shape B).
+**Done when.** They are respelled with labelled literals. **Owner.** Tony -- they WAIT on the ruled
+bare-literal respell campaign and on JSON leaving the parking lot. None is in DO's reach.
+```
+ATTEMPT LOG
+  (none)
+```
+
 ### F-109 — ✅ CLOSED 2026-09-23 (`79b7f30`) — trigDO's arm-1/arm-2 rows pin a `LABELPROBE` line that nothing prints any more
 
 **What.** `genLadder/pop.sh` pins `LABELPROBE DO minted=DO mintedLen=2 ...` (arm 1) and
