@@ -6,14 +6,21 @@ search GroupFields UnitTests Utilities list;
 define
     lamp isRule defer
         ask   isRule q-="value?" defer code={ cerr "   >>> lamp ask FIRED":; };
-    cdMatch  code={ v = 0; if lamp("value?"); v = 1; cerr "CD-1 match verdict = " v:; };
+    cdSay code={
+        v := tell(argument);
+        m := *v["matched"]; c := *v["consumed"]; l := *v["length"]; k := *v["known"];
+        cerr "   verdict matched= " m " consumed= " c " length= " l " known= " k:;
+        };
     cdFail   code={ v = 0; if lamp("fly"); v = 1; cerr "CD-2 failure verdict = " v:; };
-    cdPrefix code={ v = 0; if lamp("value? junk"); v = 1; cerr "CD-3 prefix verdict = " v:; };
     ;
-cdMatch();
+cerr "CD-1 tell lamp value?":;
+cdSay("lamp value?");
 cdFail();
 cerr "CD-4 window closed after the failed drive":;
-cdPrefix();
+cerr "CD-3 tell lamp value? junk":;
+cdSay("lamp value? junk");
+cerr "CD-5 tell nobody value?":;
+cdSay("nobody value?");
 cerr "CONVDRIVE SENTINEL":;
 stop();
 
@@ -38,5 +45,11 @@ Rows, read by genLadder/pop.sh:
   CD-4  RED BY DESIGN  the failed drive must produce a named "does not understand" line.
         Today a failure is silent. Goes green with step 3, the default handler.
 
-Each verdict is read with `if lamp(...)` INSIDE an action. A top-level `x := lamp(...)`
+⚠ 2026-09-23, step 2: CD-1, CD-3 and CD-5 now drive through tell and print the
+verdict unconditionally: matched, consumed, length, known. pop.sh compares the numbers
+(consumed == length for CD-1, consumed < length for CD-3, known 0 for CD-5). Read inside
+an action as  v := tell("..."); c := *v["consumed"];  -- the star is load-bearing, and
+comparing two captures in kant needs *a == *b (measured). CD-2 keeps the truth-test form.
+
+Each truth-test verdict is read with `if lamp(...)` INSIDE an action. A top-level `x := lamp(...)`
 capture is void (x ends up data-less and *x reads whatever was referenced last).

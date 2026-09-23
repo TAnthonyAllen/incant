@@ -2920,28 +2920,40 @@ fi
 #  lamp is a rule whose members are its vocabulary; root and member are marked defer, so a
 #  matching member's action PARKS on the returned label. The fixture's dead region carries the
 #  measurement. TWO CONTROLS GREEN, TWO PINS RED BY DESIGN:
-#    CD-3 goes green with step 2 (the verdict's consumed length),
+#    CD-3 goes green with step 2 (the verdict's consumed length) -- GREEN 2026-09-23,
 #    CD-4 goes green with step 3 (the default handler's "does not understand" line).
 #  CD-1b IS A COUNT, and it is not vacuous: with defer removed from the member the same file
 #  fires ask twice (run by hand 2026-09-23, rule H7).
 run2 convDriveT "$T/cdt.o" "$T/cdt.e"; check "convDriveT runs" 0 $?
 sentinel "convDriveT sentinel" "$T/cdt.e" "CONVDRIVE SENTINEL"
-_cd1=$(grep -F "CD-1 match verdict" "$T/cdt.e" | sed 's/.*= *//' | tr -d ' ')
+#  _cdv <header> <field> -- a number from the verdict line that follows a CD header.
+#  Step 2 (2026-09-23): CD-1/CD-3/CD-5 drive through tell and print the verdict
+#  unconditionally; the comparisons are made HERE, on printed numbers, because comparing
+#  two captures in kant needs *a == *b and a shell compare cannot mis-spell it.
+_cdv () { awk -v h="$1" -v f="$2" 'index($0,h)==1{n=1;next} n&&index($0,"verdict "){
+          sub(".*"f"= *","");sub(" .*","");print;exit}' "$T/cdt.e"; }
+_c1c=$(_cdv "CD-1 tell" consumed); _c1l=$(_cdv "CD-1 tell" length); _c1m=$(_cdv "CD-1 tell" matched)
+_c3c=$(_cdv "CD-3 tell" consumed); _c3l=$(_cdv "CD-3 tell" length); _c3m=$(_cdv "CD-3 tell" matched)
+_c5k=$(_cdv "CD-5 tell" known)
 _cd2=$(grep -F "CD-2 failure verdict" "$T/cdt.e" | sed 's/.*= *//' | tr -d ' ')
-_cd3=$(grep -F "CD-3 prefix verdict" "$T/cdt.e" | sed 's/.*= *//' | tr -d ' ')
 _cdf=$(grep -c "lamp ask FIRED" "$T/cdt.e")
-_cd4=$(awk '/CD-1 match verdict/{f=1} /CD-4 window closed/{f=0} f' "$T/cdt.e" | grep -c "does not understand")
+_cd4=$(awk '/CD-1 tell/{f=1} /CD-4 window closed/{f=0} f' "$T/cdt.e" | grep -c "does not understand")
 _cd4end=$(grep -c "CD-4 window closed" "$T/cdt.e")
-echo "  ..    convDriveT reads CD-1=${_cd1:-<absent>} CD-2=${_cd2:-<absent>} CD-3=${_cd3:-<absent>} fired=$_cdf CD-4 count=$_cd4 window closed=$_cd4end"
-if [ "$_cd1" = 1 ]; then echo "  ok    convDriveT CD-1 lamp(\"value?\") matches (verdict 1)"; green=$((green+1))
-else echo "  FAIL  convDriveT CD-1 match verdict ${_cd1:-<absent>}, want 1"; fail=1; fi
+echo "  ..    convDriveT reads CD-1 matched=${_c1m:-?} consumed=${_c1c:-?} length=${_c1l:-?}  CD-3 matched=${_c3m:-?} consumed=${_c3c:-?} length=${_c3l:-?}  CD-5 known=${_c5k:-?}  CD-2=${_cd2:-?} fired=$_cdf CD-4 count=$_cd4"
+if [ "$_c1m" = 1 ]; then echo "  ok    convDriveT CD-1 tell(\"lamp value?\") matches (matched 1)"; green=$((green+1))
+else echo "  FAIL  convDriveT CD-1 matched ${_c1m:-<absent>}, want 1"; fail=1; fi
+if [ -n "$_c1c" ] && [ "$_c1c" = "$_c1l" ] && [ "$_c1c" != 0 ]; then
+    echo "  ok    convDriveT CD-1 consumed == length ($_c1c) -- the whole message was understood"; green=$((green+1))
+else echo "  FAIL  convDriveT CD-1 consumed ${_c1c:-<absent>}, length ${_c1l:-<absent>}, want equal and non-zero"; fail=1; fi
 if [ "$_cdf" = 0 ]; then echo "  ok    convDriveT CD-1b no member action fired during any drive -- they PARK"; green=$((green+1))
 else echo "  FAIL  convDriveT CD-1b $_cdf member action(s) fired during the drives, want 0 -- parking broke"; fail=1; fi
 if [ "$_cd2" = 0 ]; then echo "  ok    convDriveT CD-2 lamp(\"fly\") fails (verdict 0)"; green=$((green+1))
 else echo "  FAIL  convDriveT CD-2 failure verdict ${_cd2:-<absent>}, want 0"; fail=1; fi
-if [ "$_cd3" = 0 ]; then echo "  ok    convDriveT CD-3 a prefix-only message is NOT a full match"; green=$((green+1))
-else echo "  FAIL  convDriveT CD-3 prefix verdict ${_cd3:-<absent>}, want 0 -- BORN RED 2026-09-23."
-     echo "        Only a prefix has to match today; green with step 2 (consumed length)."; fail=1; fi
+if [ -n "$_c3c" ] && [ -n "$_c3l" ] && [ "$_c3c" -lt "$_c3l" ] && [ "$_c3c" != 0 ]; then
+    echo "  ok    convDriveT CD-3 a prefix-only message fails on CONSUMED ($_c3c of $_c3l)"; green=$((green+1))
+else echo "  FAIL  convDriveT CD-3 consumed ${_c3c:-<absent>} of ${_c3l:-<absent>}, want 0 < consumed < length"; fail=1; fi
+if [ "$_c5k" = 0 ]; then echo "  ok    convDriveT CD-5 tell to an unknown target reads known 0"; green=$((green+1))
+else echo "  FAIL  convDriveT CD-5 known ${_c5k:-<absent>}, want 0"; fail=1; fi
 if [ "$_cd4end" != 1 ]; then
     echo "  FAIL  convDriveT CD-4 its window never closed, so a zero count asserts nothing"; fail=1
 elif [ "$_cd4" = 1 ]; then echo "  ok    convDriveT CD-4 the failed drive says it does not understand"; green=$((green+1))
