@@ -4724,6 +4724,24 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	llvm::FunctionType *ty = llvm::FunctionType::get(nptr, {nptr, nptr}, false);
 	nb->CreateCall(ty, fn, {gJitResultNode, tgtAddr}, "assignNode");
 	gJitFieldResident.insert((void*)target->groupBody);
+	//  ⚠ A FRAME LOCAL'S READS LOAD ITS SLOT, NOT ITS FIELD. The helper wrote
+	//  the FIELD; the slot still held the prologue's value, so every later
+	//  read saw the stale one and the epilogue wrote it back OVER the
+	//  assignment. Reload the home into the slot, so the frame agrees with
+	//  the field from here on. Keyed on either home, because the data type
+	//  the prologue saw may not be the one the helper just wrote.
+	//  Measured on rung JC 2026-09-23: `length = listLengtH;` then
+	//  `if length > 0` compared the prologue's %prolog, and the walk stopped
+	//  at the root.   jitEmitters.jitEmitAssign.frameSlotReload
+	{
+	GroupBody    *tb = target->groupBody;
+	JitFrameSlot *fs = jitFrameFind((void*)&(tb->gCount));
+	if (!fs)      fs = jitFrameFind((void*)&(tb->gNumber));
+	if (fs) {
+	llvm::Value *home = nb->CreateIntToPtr(
+	llvm::ConstantInt::get(ni64, (uint64_t)fs->home), nptr, "assignHome");
+	nb->CreateStore(nb->CreateLoad(fs->ty, home, "assignReload"), fs->slot); }
+	}
 	return target;
 	}
 	// ⚠ THE SEED GATE (F-47, Tony SEQ 134) -- jitEmitUnary's own guard, copied.
@@ -5554,11 +5572,23 @@ extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action)
 	//  Adding a real parameter would change the compiled signature -- and
 	//  rStuff.jitMethod with it, a layout change -- while the body would still
 	//  read the field, so the parameter would carry nothing anyone reads.
-	if (argument) {
+	//  ⚠ A RUN-TIME ARGUMENT IS BOUND TOO. `callee(*cursor)` -- the class (e)
+	//  spelling since 2026-09-04 -- has no node at emit time: the star emits a
+	//  run-time deref and publishes its SSA node on gJitResultNode, so runAction
+	//  hands this function a null argument. The old `if (argument)` then bound
+	//  NOTHING, silently, and every depth walked the caller's argument again --
+	//  rung JC recursed until the stack died. Bind the published node instead;
+	//  jitBindArgRT does the same bind with it at run time. The flag is cleared
+	//  because this is the consumer.   jitEmitters.jitEmitSelfCall.runtimeArg
+	llvm::Value *argVal = nullptr;
+	if (!argument && gJitLastIsNode && gJitResultNode) {
+	argVal = gJitResultNode;
+	gJitLastIsNode = false; }
+	if (argument || argVal) {
 	llvm::LLVMContext &ctx = b->getContext();
 	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
 	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
-	llvm::Value *argAddr = b->CreateIntToPtr(
+	llvm::Value *argAddr = argVal ? argVal : b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)argument), ptr, "callArg");
 	llvm::Value *fldAddr = b->CreateIntToPtr(
 	llvm::ConstantInt::get(i64, (uint64_t)(void*)action), ptr, "callee");
@@ -5619,7 +5649,8 @@ GroupItem 	*op = field->get(1);
 GroupItem 	*target = field->get(2);
 GroupItem 	*arg = field->get(3);
 int 		isAND = 0;
-	if ( ::compare(op->groupBody->tag,"AND") == 0 )
+	// skipByRegistration the direction is the operator's isOR registration, never its spelling -- `op.tag eq "AND"` stood here until 2026-09-23 and read `&&` as OR
+	if ( !::opIsOR(op) )
 		isAND = 1;
 	if ( isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
 		target->groupBody->gMethod(target);
