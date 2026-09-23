@@ -1098,7 +1098,7 @@ GroupItem   result,
         // termCallThrough under jitting a rule is NOT parsed at emit time; a call to the interpreted road is emitted instead
         -%
         if ( ruler->jitting )   result = ::jitEmitTermCall(field);
-        else                    result = ::runRule(arg,target);
+        else                  { ++gTermCallCount; result = ::runRule(arg,target); }
         %-
     }
     or actionType       result = runAction(arg,target);

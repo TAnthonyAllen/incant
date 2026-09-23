@@ -155,6 +155,27 @@ inline int (*gJitLastFn)(GroupItem*) = nullptr;
 // an action's argument changes between fires, which is the whole point of a
 // refire. jitBodyField (jitEmitters.rtn) does the reading.
 inline GroupItem *gJitLastAction = nullptr;
+// THE PROBE DOOR (jitter station 2, 2026-09-23). Armed only inside jitProbeDrive:
+// while gJitProbeCarrier is set, parseRule fires THAT carrier's compiled body in
+// place of its BlocK -- the one line the door will change -- and everything
+// around it (checkInput, frame, currentMETHOD, sukcess, exitFromParse) stays the
+// interpreted road's. Null everywhere else, so an ordinary run cannot reach it.
+inline GroupItem *gJitProbeCarrier = nullptr;
+inline int (*gJitProbeFn)(GroupItem*) = nullptr;
+// The door WATCHES the carrier on both roads -- counting how often that rule fired
+// and how often it succeeded -- and FIRES the compiled body only when gJitProbeFn is
+// set. A rule is judged by its own fires, wherever in the drive they happen.
+inline int gProbeRuleFires = 0, gProbeRuleTrue = 0;
+// jitRunAction compiles WITHOUT firing while this is set: a probe must never fire
+// a parse body against whatever input happens to be live.
+inline int gJitCompileOnly = 0;
+// TERM CALLS, counted at runOP's rule arm, which BOTH roads pass at run time (the
+// jitted one through jitTermCallRT). Only a count shows a skipped arm: values can
+// agree while a right operand runs anyway.
+inline int gTermCallCount = 0;
+// jitProbeDrive's last reading, for an lldb driver to read back.
+inline int gProbeVerdict = -9, gProbeConsumed = -9, gProbeLength = -9, gProbeTerms = -9;
+inline int gProbeFires = -9, gProbeTrue = -9;
 
 // Degrade count as a readable global rather than a function-local static, so a
 // rung can ASSERT it. Zero is the claim "this rung's constructs are all covered

@@ -262,7 +262,7 @@ extern "C" void jitPrintNode(GroupItem *FormaT);
 extern "C" GroupItem *jitPrintNodeRT(GroupItem *node, GroupItem *FormaT, Buffer *buffer);
 extern "C" void jitPrintOpen(GroupItem *input);
 extern "C" void jitPrintProbe(GroupItem *node, int phase);
-extern "C" int jitProbeDrive(GroupItem *rule, char *msg, int jitted);
+extern "C" int jitProbeDrive(GroupItem *rule, GroupItem *armed, char *msg, int jitted);
 extern "C" GroupItem *jitRefire(GroupItem *input);
 extern "C" void jitRestoreFrameRT(GroupItem *field);
 extern "C" int jitRunAction(GroupItem *action);

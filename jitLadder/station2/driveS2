@@ -1,0 +1,12 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    s2N=0;
+    s2Y=0;
+    s2L aa bb cc;
+    ;
+parser(DO);
+cerr "S2 SENTINEL":;
+stop();

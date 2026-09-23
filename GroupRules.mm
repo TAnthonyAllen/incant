@@ -6601,19 +6601,35 @@ extern "C" void jitPrintProbe(GroupItem *node, int phase)
 /*******************************************************************************
     jitProbeDrive -- THE STATION CERTIFICATE'S DRIVE, jitted against interpreted.
     driveStep's own lines (push the message, raise the floor, fire, read the mark
-    as an OFFSET, pop) with ONE difference, the fire: jitted=0 fires the rule's
-    installed method exactly as driveStep does; jitted=1 fires the rule's
-    builtinParseR carrier COMPILED -- jitRunAction on first use (which compiles
-    AND fires, so it must be inside the push), gJitLastFn after. Prints one
-    PROBE line; the verdict is truthOf the interpreted result or the jitted i32.
+    as an OFFSET, pop). BOTH roads drive `rule` through parseRule and WATCH
+    `armed` (default: rule) at the door, counting its fires and successes; jitted=1
+    compiles armed's carrier first (compile only, outside the push) and has the
+    door fire that compiled body in place of its BlocK -- nothing else changes.
+    ⚠ `rule` is a ROOT, not the rule under test: a top-level drive of a member
+    rule (DO, IF, PrinT ...) REFUSES "no enclosing activation to take the label"
+    on the interpreted road, so they are reached nested, as the door will reach
+    them. `refused` is cleared either side of the drive and reported. (Station 1 fired the body BARE, which skipped parseRule's
+    frame, faces and exit -- a harness difference that would read as a body one.)
+    Prints one PROBE line with the term-call count; the reading is also left in
+    gProbe* for an lldb driver.
     ⚠ Driven from lldb until the door exists (station 4): a carrier is not
     isCoded, so testing() cannot reach it.
 *******************************************************************************/
-extern "C" int jitProbeDrive(GroupItem *rule, char *msg, int jitted)
+extern "C" int jitProbeDrive(GroupItem *rule, GroupItem *armed, char *msg, int jitted)
 {
 	
 	GroupRules *ruler = GroupControl::groupController->groupRules;
+	gProbeVerdict = gProbeConsumed = gProbeLength = gProbeTerms = gProbeFires = gProbeTrue = -9;
 	if (!rule || !msg) return -1;
+	if (!armed) armed = rule;
+	GroupItem *carrier = armed->get((char*)"builtinParseR");
+	if (!carrier) { printf("PROBE REFUSED: %s has no carrier\n", armed->groupBody->tag); fflush(stdout); return -8; }
+	//  COMPILE OUTSIDE THE PUSH AND WITHOUT FIRING -- the fire belongs to the door.
+	if (jitted && !(gJitLastFn && gJitLastAction == carrier)) {
+	gJitCompileOnly = 1;
+	int c = ::jitRunAction(carrier);
+	gJitCompileOnly = 0;
+	if (c < 0 || gJitLastAction != carrier) { printf("PROBE REFUSED: compile of %s returned %d\n", armed->groupBody->tag, c); fflush(stdout); return -7; } }
 	GroupItem *m = new GroupItem((char*)"probeMsg");
 	m->setText(::strdup(msg));
 	if (!m->groupBody->flags.data) { printf("PROBE REFUSED: message carries no data\n"); fflush(stdout); return -1; }
@@ -6623,22 +6639,29 @@ extern "C" int jitProbeDrive(GroupItem *rule, char *msg, int jitted)
 	char *driveBase  = ruler->atRuleMark;
 	int   priorFloor = ruler->inputFloor;
 	ruler->inputFloor = ruler->inputSTAK->length;
-	int verdict = -9;
-	if (jitted) {
-	GroupItem *carrier = rule->get((char*)"builtinParseR");
-	if (!carrier)                                          verdict = -8;
-	else if (gJitLastFn && gJitLastAction == carrier)      verdict = gJitLastFn(::jitBodyField(carrier));
-	else                                                   verdict = ::jitRunAction(carrier); }
-	else {
+	//  BOTH ROADS FIRE `rule` THROUGH parseRule and WATCH `armed` at the door; the
+	//  jitted road also fires armed's COMPILED body there. Every other rule runs the
+	//  interpreted road either way.
+	gJitProbeCarrier = carrier;
+	gJitProbeFn      = jitted ? gJitLastFn : nullptr;
+	gProbeRuleFires = gProbeRuleTrue = 0;
+	gTermCallCount = 0;
+	ruler->refused = 0;
 	GroupItem *r = rule->groupBody->gMethod ? rule->groupBody->gMethod(rule) : 0;
-	verdict = ::truthOf(r); }
+	int terms = gTermCallCount, fires = gProbeRuleFires, trues = gProbeRuleTrue, refused = ruler->refused;
+	gJitProbeCarrier = nullptr; gJitProbeFn = nullptr;
+	ruler->refused = 0;
+	int verdict = ::truthOf(r);
 	int len = (int)::strlen(driveBase), consumed = -1;
 	if (ruler->atRuleMark >= driveBase && ruler->atRuleMark <= driveBase + len)
 	consumed = (int)(ruler->atRuleMark - driveBase);
 	ruler->inputFloor = priorFloor;
 	while (ruler->inputSTAK && ruler->inputSTAK->length > baseStak) ruler->popInput();
-	printf("PROBE %s %s msg=\"%s\" verdict=%d consumed=%d length=%d\n",
-	rule->groupBody->tag, jitted ? "JITTED" : "INTERP", msg, verdict, consumed, len);
+	gProbeVerdict = verdict; gProbeConsumed = consumed; gProbeLength = len; gProbeTerms = terms;
+	gProbeFires = fires; gProbeTrue = trues;
+	printf("PROBE %s via %s %s msg=\"%s\" verdict=%d consumed=%d length=%d terms=%d fires=%d true=%d refused=%d\n",
+	armed->groupBody->tag, rule->groupBody->tag, jitted ? "JITTED" : "INTERP", msg,
+	verdict, consumed, len, terms, fires, trues, refused);
 	fflush(stdout);
 	return verdict;
 	
@@ -6920,7 +6943,7 @@ extern "C" int jitRunAction(GroupItem *action)
 	int (*fp)(GroupItem*) = sym->toPtr<int(*)(GroupItem*)>();
 	gJitLastFn     = fp;      // keep it: the ladder fires it again, uncompiled
 	gJitLastAction = action;  // and what it runs on is re-read at each refire
-	int r = fp(jitBodyField(action));
+	int r = gJitCompileOnly ? 0 : fp(jitBodyField(action));
 	printf("=== jitRunAction result = %d ===\n", r); fflush(stdout);
 	//  Reported UNCONDITIONALLY and with its value, so a rung can assert it.
 	//  A presence-with-value line cannot pass by being deleted, which an
@@ -10572,7 +10595,16 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			*****************************************************************/
 			if ( result = field->parseBlocK() )
 				{
+				// probeDoor armed only inside jitProbeDrive: fire the COMPILED body in place of this BlocK, nothing else changes
+				
+				if ( gJitProbeCarrier && field->get((char*)"builtinParseR") == gJitProbeCarrier ) {
+				++gProbeRuleFires;
+				if ( gJitProbeFn )  result = gJitProbeFn(::jitBodyField(gJitProbeCarrier)) ? ruler->trueResult : ruler->falseResult;
+				else                result = result->groupBody->gMethod(result);
+				if ( ::truthOf(result) )    ++gProbeRuleTrue; }
+				else
 				result = result->groupBody->gMethod(result);
+				
 				if ( result )
 					result->groupBody->flags.isBranch = 0;
 				}
@@ -12482,7 +12514,7 @@ GroupItem 	*target = field->get(2);
 		// termCallThrough under jitting a rule is NOT parsed at emit time; a call to the interpreted road is emitted instead
 		
 		if ( ruler->jitting )   result = ::jitEmitTermCall(field);
-		else                    result = ::runRule(arg,target);
+		else                  { ++gTermCallCount; result = ::runRule(arg,target); }
 		
 		}
 	else

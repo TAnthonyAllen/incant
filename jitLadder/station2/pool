@@ -1,0 +1,103 @@
+do print 1; while 1 < 0;
+do s2Y = 1; while 1 < 0;
+do { s2Y = 1; } while 1 < 0;
+if s2N; s2Y = 1;
+if 1 < 0; s2Y = 1; else s2Y = 2;
+else s2Y = 2;
+else if 1 < 0; s2Y = 1;
+while 1 < 0; s2Y = 1;
+for s2C in s2L; s2Y = 1;
+iterate s2C on s2L;
+iterate s2C attributes on s2L;
+print 1;
+print "hi";
+print s2N "and" s2Y:;
+cerr 1;
+cerr "hi":;
+cout 1;
+search Utilities list
+search Utilities list;
+{ s2Y = 1; }
+s2Y = 1;
+s2Y;
+;
+break;
+debug NamE;
+def s2Z;
+define\n  aa isRule;\n  ;
+define aa isRule; ;
+aa isRule;
+aa isRule bb;
+aa isRule bb+;
+aa isRule bb{1,3};
+aa isRule tt="q";
+aa isRule tt=[a-z]+;
+: bb cc
+abc
+aa
+42
+42 rest
+1.5
+1.5e3
+e+3
+.5
+'q'
+[a-z]
+[^a-z]
+{1,3}
+{ }
+{}
+(1)
+s2L(1)
+s2L.aa
+*s2L
+-1
+!s2N
+s2L[1]
+1 + 1
+s2N + 2 * 3
+s2N == 0 && s2Y
+#5.2d
+#-5s
+5
+aa bb
+on s2L
+attributes on s2L
+where s2N
+in s2L
+@
+}
+=1
+="q"
+=[a-z]
++
+*
+?
+!
+aa:
+code={ s2Y; }
+::
+%
+do print 1; wile 1 < 0;
+do print 1;
+if 1 < 0 s2Y = 1;
+while 1 < 0 s2Y = 1;
+for s2C s2L;
+print ;
+cerr ;
+search ;
+debug ;
+{ s2Y = 1;
+aa isRule tt=;
+'q
+[a-z
+{1,
+do print 1;
+if 1 < 0
+while 1 < 0
+print
+for s2C
+iterate s2C
+{ }
+else
+'q

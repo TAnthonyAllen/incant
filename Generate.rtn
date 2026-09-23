@@ -289,7 +289,16 @@ use grup
                 here the parse action in method gets run
             *****************************************************************/
             if result = field.parseBlocK() {
-                result = result.gMethod(result);
+                // probeDoor armed only inside jitProbeDrive: fire the COMPILED body in place of this BlocK, nothing else changes
+                -%
+                if ( gJitProbeCarrier && field->get((char*)"builtinParseR") == gJitProbeCarrier ) {
+                    ++gProbeRuleFires;
+                    if ( gJitProbeFn )  result = gJitProbeFn(::jitBodyField(gJitProbeCarrier)) ? ruler->trueResult : ruler->falseResult;
+                    else                result = result->groupBody->gMethod(result);
+                    if ( ::truthOf(result) )    ++gProbeRuleTrue; }
+                else
+                    result = result->groupBody->gMethod(result);
+                %-
                 if result   result.isBranch = 0; }
             currentMETHOD = priorMETHOD;
             restoreLocalFields(field); }

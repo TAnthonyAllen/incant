@@ -92,6 +92,35 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-114 — a new-road drive of ExpressioN on `)`, `#` or `"` crashes in `interpretXP`
+
+**What.** Driving `ExpressioN` on the NEW road (after `parser(DO)`) with the single-character message
+`)`, `#` or `"` dies at EXC_BAD_ACCESS, address 0x10. `}` and `;` refuse cleanly (verdict 0, consumed
+0) and `@` matches, so it is those three characters, not single characters in general.
+**Where.** `interpretXP`, GroupRules.mm:4043 on the 2026-09-23 build (frame 0 of the crash). Interpreted
+road -- no jitted code is involved.
+**Evidence.** 2026-09-23, jitter station 1: `jitProbeDrive(ExpressioN, ")", 0)` under lldb with
+`expr -u false`, one process per character. Station 2's calibration meets the same 0x10 signature on
+statement-shaped inputs across many rules; not yet shown to be this site.
+**Widened 2026-09-23 (jitter station 2), measured, one process per input, frame 0 by lldb:** the
+new road SEGFAULTS WHERE A PARSE SHOULD FAIL. 40 inputs driven from the two roots (StatemenT,
+ExpressioN) with `jitProbeDrive(root, root, msg, 0)`; **38 crash at THREE sites, 2 hang**:
+
+| site | fault | inputs |
+|---|---|---|
+| `interpretXP`, GroupRules.mm:4043 | null+0x10 | **29** -- every near-miss statement through StatemenT: `if 1 < 0`, `if 1 < 0;`, `if ;`, `if 1 < 0 s2Y = 1;`, `while 1 < 0`, `while 1 < 0;`, `while 1 < 0 s2Y = 1;`, `print`, `print ;`, `print }`, `print 1`, `search ;`, `search Utilities list`, `search Utilities list;`, `else`, `else s2Y = 2;`, `else if 1 < 0; s2Y = 1;`, `for s2C s2L;`, `(1)`, `#5.2d`, `#-5s`; and through ExpressioN: `)`, `#`, `"`, `print 1;`, `if s2N; s2Y = 1;`, `if 1 < 0; s2Y = 1; else s2Y = 2;`, `while 1 < 0; s2Y = 1;`, `for s2C in s2L; s2Y = 1;` |
+| `aCTionQuotE`, GroupRules.mm:1024 | null+0x0 | **7** -- every quoted input: `'q'`, `'q`, `="q"`, `aa isRule tt="q";`, `cerr "hi":;`, `print "hi";`, `print s2N "and" s2Y:;` |
+| `aCTionTokenXP`, GroupRules.mm:1367 | null+0x0 | **2** -- a leading unary: `-1`, `.5` |
+| HANG (90s alarm) | -- | `s2L(1)`, `s2L[1]` |
+
+⚠ **THE IF/WhilE/PrinT REJECTS IN THE STATION 2 CERTIFICATE ARE BLOCKED HERE**: every near-miss that
+makes those rules fire and fail lands on the first row. The fields are declared (`s2N`, `s2Y`, `s2L` in
+`jitLadder/station2/driveS2`), so none of this is an undefined name. Three sites is likely three fixits,
+not one -- split on Tony's word. Inputs, harness and list: `jitLadder/station2/` (crashpairs, pairs).
+**Done when (widened).** Each input above fails its parse cleanly with consumed 0 -- a parse that should
+fail must fail, not segfault. **Owner.** Tony opens 2026-09-24 on it; the full jitter sweep waits.
+**Attempt log.** none -- filed, not chased.
+
 ### F-113 — a standalone `Limit` has never parsed: it fails at `min` straight after the `[`, on both roads
 
 **What.** Driving `Limit` directly on `[1 2]`, `[1 2]]`, `[1]`, `[1]]`, `[12]` or `[12]]` fails every time

@@ -1078,6 +1078,16 @@ else
         echo "        the driver's preamble."; fail=1
     else
         echo "  ok    JS R3 the driver does NOT call itself"; green=$((green+1)); fi
+    #  ⚠ THE BAN'S POSITIVE PARTNER (station 2 rider, 2026-09-23). The ban above passes by
+    #  ABSENCE, and on 2026-09-23 it did exactly that when the signature changed and its
+    #  `@x()` pattern stopped matching anything. This row uses the SAME name-then-paren
+    #  shape against the driver's own definition line, which is always there -- so a
+    #  pattern that has drifted fails HERE instead of letting the ban pass silently.
+    if grep -q "^define i32 @$jsdrv(" "$T/js.drv"; then
+        echo "  ok    JS R3 the ban's pattern matches the driver's own definition line"; green=$((green+1))
+    else
+        echo "  FAIL  JS R3 the name-then-paren pattern does not match @$jsdrv's own"
+        echo "        definition -- the ban above can no longer see a self-call"; fail=1; fi
     #  PRESENCE, so R3 cannot be satisfied by a driver that calls nothing at all.
     if grep -q "call i32 @jit_" "$T/js.drv"; then
         echo "  ok    JS R3 the driver DOES call another function (the callee's own)"; green=$((green+1))
