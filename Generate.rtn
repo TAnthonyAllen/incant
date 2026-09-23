@@ -125,9 +125,6 @@ RuleStuff   ruleStuff = rStuff;
 GroupItem   grup;
 String      entryMark = atRuleMark;
 int         matched;
-GroupItem   hit,
-            freeLab;
-RuleStuff   freeStuff;
 use field
     // faceReresolve a bin or registry reached BY NAME is re-resolved to the calling rule's own face, as parseRule does -- the face carries the term's rStuff (its modifiers and label slot)
     if currentMETHOD && currentMETHOD.get(field.tag)    field = currentMETHOD.get(field.tag);
@@ -151,18 +148,8 @@ use field
         while advance = buffer.length() {
             if grup = field.get(buffer.string()) {
                 ruler.atRuleMark += advance;
-                if !hit hit = grup;
                 matched = 1; }
             buffer.shorten(1); }
-        // freeStandingLabel on a match the registry mints a label and attaches it into the asker, on a TRANSIENT stuff -- nothing is installed on the registry, no ensureRStuff, no exitFromParse (Tony, 2026-09-23, F-108)
-        if matched && currentMETHOD && currentMETHOD.rStuff {
-            freeLab         = new(field.tag);
-            freeLab.isLabel = true;
-            freeLab.setGroup(hit);
-            freeStuff           = new RuleStuff(field);
-            freeStuff.isTarget  = true;
-            freeStuff.label     = freeLab;
-            field.attachLabel(freeStuff,currentMETHOD.rStuff,1); }
         if matched  return trueResult;
         ruler.atRuleMark = entryMark;
         return 0; }
@@ -170,8 +157,6 @@ use field
     if currentMETHOD && currentMETHOD.rStuff != ruleStuff.parentStuff {
         ruleStuff.parentStuff = currentMETHOD.rStuff;
         if ruleStuff.parentStuff && ruleStuff.parentLabel != ruleStuff.parentStuff.label  ruleStuff.parentLabel = ruleStuff.parentStuff.label; }
-    // bareFieldRepoint the free-standing label's locals above would otherwise capture the bare names below
-use ruleStuff
     sukcess = false;
     if checkInput() {
         reset();

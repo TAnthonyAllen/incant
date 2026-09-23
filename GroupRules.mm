@@ -10150,9 +10150,6 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 GroupItem 	*grup = 0;
 char 		*entryMark = ruler->atRuleMark;
 int 		matched = 0;
-GroupItem 	*hit = 0;
-GroupItem 	*freeLab = 0;
-RuleStuff 	*freeStuff = 0;
 	// faceReresolve a bin or registry reached BY NAME is re-resolved to the calling rule's own face, as parseRule does -- the face carries the term's rStuff (its modifiers and label slot)
 	if ( ruler->currentMETHOD && ruler->currentMETHOD->get(field->groupBody->tag) )
 		field = ruler->currentMETHOD->get(field->groupBody->tag);
@@ -10182,22 +10179,9 @@ RuleStuff 	*freeStuff = 0;
 			if ( grup = field->get(buffer->string()) )
 				{
 				ruler->atRuleMark += advance;
-				if ( !hit )
-					hit = grup;
 				matched = 1;
 				}
 			buffer->shorten(1);
-			}
-		// freeStandingLabel on a match the registry mints a label and attaches it into the asker, on a TRANSIENT stuff -- nothing is installed on the registry, no ensureRStuff, no exitFromParse (Tony, 2026-09-23, F-108)
-		if ( matched && ruler->currentMETHOD && ruler->currentMETHOD->getRStuff() )
-			{
-			freeLab = new GroupItem(field->groupBody->tag);
-			freeLab->groupBody->flags.isLabel = 1;
-			freeLab->setGroup(hit);
-			freeStuff = new RuleStuff(field);
-			freeStuff->isTarget = 1;
-			freeStuff->label = freeLab;
-			field->attachLabel(freeStuff,ruler->currentMETHOD->getRStuff(),1);
 			}
 		if ( matched )
 			return ruler->trueResult;
@@ -10211,7 +10195,6 @@ RuleStuff 	*freeStuff = 0;
 		if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
 			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
 		}
-	// bareFieldRepoint the free-standing label's locals above would otherwise capture the bare names below
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{

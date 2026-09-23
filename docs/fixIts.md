@@ -111,7 +111,7 @@ ATTEMPT LOG
   POP: trunk 447 green unmoved, FAIL lines 58 -> 56 (the two retired rows)
 ```
 
-### F-108 — on the NEW road `Operators` matches but attaches nothing: `dwN < 2` arrives as `xl1 [dwN, 2]`, and DW-4 loops forever
+### F-108 — ✅ CLOSED 2026-09-23 (workaround RETIRED; the cause fixed by the parseContainer re-resolve) — on the NEW road `Operators` matches but attaches nothing: `dwN < 2` arrives as `xl1 [dwN, 2]`, and DW-4 loops forever
 
 **What.** On `try-fire-root` rebased onto `3da00e0`, `doWhileNameT` DW-4 still never returns.
 The `deferredAbove` gate is NOT misjudging: the DO fires from `exitFromParse` → `fireLabelMethod`
@@ -145,6 +145,15 @@ ATTEMPT LOG
      sentinel; its oracle (want 1) and DW-6 (want 2) pins are keyed to main's ONE-PASS old road and
      read 2 / 3 there -- re-pin owed at the try-fire-root merge, with that sentence (H6).
   Closes on main by 5136e05; the DW-4 half certifies only on try-fire-root-rebased (not merged).
+  4. 3ac7aed (F-110, Tony's ruling): parseContainer re-resolves a registry reached by name
+     to the calling rule's face; Operators at `<` reaches Token's face, rStuff non-null, and
+     the ORDINARY bin arm attaches the label -- noStuffLawfulSkip is no longer reached for it
+  5. THIS COMMIT: 5136e05's minting arm REMOVED from noStuffLawfulSkip -- the free-standing
+     label was a workaround and it is RETIRED. The skip itself stays (no rStuff on the
+     registry, as ruled 09-20).  ->  interpretXP [dwN, <, Token=2] on both roads, DW-4 2,
+     fleet 459 unmoved. One-variable control (step-2 try, 2026-09-23): arm bypassed WITHOUT
+     the re-resolve drops the `<` again and DW-4 loops -- the re-resolve is what replaces it.
+  POP: doWhileNameT DW-6 (dwN == 2) and the dwN < 2 interpretXP read.
 ```
 
 ### F-110 — the emitted `Operators()` reaches the REGISTRY, not the term in `Token`'s list (F-89's seam; F-108 does NOT close it)
