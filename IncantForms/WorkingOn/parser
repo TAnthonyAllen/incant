@@ -7,9 +7,11 @@ define
     parseCount;
     uncompiled;
     fireLog;
+    parseRefused;
     generateParse code={
         cout "Generating parse code for" taG:;
-        if dupTermRefusal(argument);    return;
+        if dupTermRefusal(argument);    parseRefused = 1;
+        if parseRefused == 1;           return;
         reset(codeBuffer);
         printTO(codeBuffer);
         print openBrace:;
@@ -46,10 +48,12 @@ define
        };
     walkRules code={
         generateParse(argument);
+        if parseRefused == 1;   return;
         length  = listLengtH;
         if length > 0;
             iterate grup on argument;
             while ++grup;
+                if parseRefused == 1;   return;
                 if noPrinT;     continue;
                 if isRulE == 0; continue;
                 if binTypE;
@@ -66,7 +70,9 @@ define
         print "setParse ended and that ends compileRules"::;
         };
     parser code={
+        parseRefused = 0;
         walkRules(argument);
+        if parseRefused == 1;   return;
         print "walkRules ended":;
         compileRules(argument);
         };
