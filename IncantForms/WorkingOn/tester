@@ -9,6 +9,18 @@ include("IncantForms/WorkingOn/parser");
 
 // Clod you can change this incantation as needed
 
+// THE LEAK, from incant/pop/convLeakT -- a drive failing at end of message. Exits 139 today.
+// Walk it: break in GroupItem::parse at the matchFailed end-of-input pop, and watch
+// ruler.atRuleMark -- the pop leaves the message, then the rewind writes a null hereAt.
+define
+    thermo isRule defer
+        setT  isRule s-="set" n=NumbeR defer code={ cerr "   >>> thermo set FIRED":; };
+    ;
+cerr "TESTER driving thermo(set)":;
+thermo("set");
+cerr "TESTER AFTER the failing drive":;
+stop();
+
 debug;
 parser(PrinT);
 PrinT("print ++result;");

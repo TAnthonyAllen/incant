@@ -1,0 +1,42 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+define
+    lamp isRule defer
+        ask   isRule q-="value?" defer code={ cerr "   >>> lamp ask FIRED":; };
+    cdMatch  code={ v = 0; if lamp("value?"); v = 1; cerr "CD-1 match verdict = " v:; };
+    cdFail   code={ v = 0; if lamp("fly"); v = 1; cerr "CD-2 failure verdict = " v:; };
+    cdPrefix code={ v = 0; if lamp("value? junk"); v = 1; cerr "CD-3 prefix verdict = " v:; };
+    ;
+cdMatch();
+cdFail();
+cerr "CD-4 window closed after the failed drive":;
+cdPrefix();
+cerr "CONVDRIVE SENTINEL":;
+stop();
+
+convDriveT -- a field parses a message against its own small grammar. Born 2026-09-23,
+Clay's conversation step 1, Tony's ruling that this comes ahead of F-110.
+
+lamp is a rule whose members are its vocabulary; driving lamp("...") parses the text
+against lamp's grammar only. Root AND member are marked defer, so a matching member's
+action PARKS on the returned label instead of firing during the drive. That parking is
+measured, 2026-09-23: runRule hands back ask's label retagged lamp, deferred=1, gMethod
+processAction, text "gask". The gate is fireLabelMethod's `deferred && held`: a deferred
+root alone does NOT park an undeferred member, which fires during the drive.
+
+Rows, read by genLadder/pop.sh:
+  CD-1  control  lamp("value?") matches -> verdict 1, and ask does NOT fire (parked).
+        Negative control, run by hand 2026-09-23: with defer removed from the member,
+        ask fires twice in this file (match and prefix) instead of zero times.
+  CD-2  control  lamp("fly") fails -> verdict 0. CD-1's non-zero sibling.
+  CD-3  RED BY DESIGN  lamp("value? junk") must NOT read as a full match. Today it does
+        (verdict 1): only a prefix has to match and the junk is dropped silently. Goes
+        green with step 2, the verdict's consumed length.
+  CD-4  RED BY DESIGN  the failed drive must produce a named "does not understand" line.
+        Today a failure is silent. Goes green with step 3, the default handler.
+
+Each verdict is read with `if lamp(...)` INSIDE an action. A top-level `x := lamp(...)`
+capture is void (x ends up data-less and *x reads whatever was referenced last).

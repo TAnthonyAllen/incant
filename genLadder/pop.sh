@@ -2915,6 +2915,54 @@ else
     awk '/DW-5 target/{f=1} /DW-5 TARGET RETURNED/{f=0} f' "$T/dwn.e" | grep -A1 "REFUSED parseRule:" | sed 's/^/          /'; fail=1
 fi
 
+#  ---- convDriveT: A FIELD PARSES A MESSAGE AGAINST ITS OWN GRAMMAR (conversation step 1) ----
+#  Born 2026-09-23, Clay's conversation dispatch, Tony's ruling that it comes ahead of F-110.
+#  lamp is a rule whose members are its vocabulary; root and member are marked defer, so a
+#  matching member's action PARKS on the returned label. The fixture's dead region carries the
+#  measurement. TWO CONTROLS GREEN, TWO PINS RED BY DESIGN:
+#    CD-3 goes green with step 2 (the verdict's consumed length),
+#    CD-4 goes green with step 3 (the default handler's "does not understand" line).
+#  CD-1b IS A COUNT, and it is not vacuous: with defer removed from the member the same file
+#  fires ask twice (run by hand 2026-09-23, rule H7).
+run2 convDriveT "$T/cdt.o" "$T/cdt.e"; check "convDriveT runs" 0 $?
+sentinel "convDriveT sentinel" "$T/cdt.e" "CONVDRIVE SENTINEL"
+_cd1=$(grep -F "CD-1 match verdict" "$T/cdt.e" | sed 's/.*= *//' | tr -d ' ')
+_cd2=$(grep -F "CD-2 failure verdict" "$T/cdt.e" | sed 's/.*= *//' | tr -d ' ')
+_cd3=$(grep -F "CD-3 prefix verdict" "$T/cdt.e" | sed 's/.*= *//' | tr -d ' ')
+_cdf=$(grep -c "lamp ask FIRED" "$T/cdt.e")
+_cd4=$(awk '/CD-1 match verdict/{f=1} /CD-4 window closed/{f=0} f' "$T/cdt.e" | grep -c "does not understand")
+_cd4end=$(grep -c "CD-4 window closed" "$T/cdt.e")
+echo "  ..    convDriveT reads CD-1=${_cd1:-<absent>} CD-2=${_cd2:-<absent>} CD-3=${_cd3:-<absent>} fired=$_cdf CD-4 count=$_cd4 window closed=$_cd4end"
+if [ "$_cd1" = 1 ]; then echo "  ok    convDriveT CD-1 lamp(\"value?\") matches (verdict 1)"; green=$((green+1))
+else echo "  FAIL  convDriveT CD-1 match verdict ${_cd1:-<absent>}, want 1"; fail=1; fi
+if [ "$_cdf" = 0 ]; then echo "  ok    convDriveT CD-1b no member action fired during any drive -- they PARK"; green=$((green+1))
+else echo "  FAIL  convDriveT CD-1b $_cdf member action(s) fired during the drives, want 0 -- parking broke"; fail=1; fi
+if [ "$_cd2" = 0 ]; then echo "  ok    convDriveT CD-2 lamp(\"fly\") fails (verdict 0)"; green=$((green+1))
+else echo "  FAIL  convDriveT CD-2 failure verdict ${_cd2:-<absent>}, want 0"; fail=1; fi
+if [ "$_cd3" = 0 ]; then echo "  ok    convDriveT CD-3 a prefix-only message is NOT a full match"; green=$((green+1))
+else echo "  FAIL  convDriveT CD-3 prefix verdict ${_cd3:-<absent>}, want 0 -- BORN RED 2026-09-23."
+     echo "        Only a prefix has to match today; green with step 2 (consumed length)."; fail=1; fi
+if [ "$_cd4end" != 1 ]; then
+    echo "  FAIL  convDriveT CD-4 its window never closed, so a zero count asserts nothing"; fail=1
+elif [ "$_cd4" = 1 ]; then echo "  ok    convDriveT CD-4 the failed drive says it does not understand"; green=$((green+1))
+else echo "  FAIL  convDriveT CD-4 'does not understand' lines = $_cd4, want 1 -- BORN RED 2026-09-23."
+     echo "        A failed drive is silent today; green with step 3 (the default handler)."; fail=1; fi
+
+#  ---- convLeakT: A DRIVE THAT FAILS AT END OF MESSAGE CORRUPTS THE SENDER'S INPUT ----
+#  Born RED 2026-09-23. ITS OWN FIXTURE ON PURPOSE: the defect truncates whatever file it is
+#  in (exit 139 today), so a row sharing the file would be silently deleted (rule H5's cousin).
+#  Mechanism, measured with an lldb watchpoint and recorded in the fixture's dead region:
+#  matchFailed's end-of-input branch pops the drive's own input, then the failure rewind
+#  writes a null hereAt. Goes green with the floor.
+#  ⚠ CL-2 IS UNREACHABLE WHILE CL-1 STANDS -- CL-1 kills the file first.
+run2 convLeakT "$T/clt.o" "$T/clt.e"; check "convLeakT runs" 0 $?
+for _cl in "CL-1 AFTER the failing drive" "CL-2 AFTER the failing drive"; do
+    if grep -qF "$_cl" "$T/clt.e"; then echo "  ok    convLeakT '$_cl' printed"; green=$((green+1))
+    else echo "  FAIL  convLeakT '$_cl' MISSING -- the failing drive took the sender's input down. BORN RED"
+         echo "        2026-09-23; green with the floor."; fail=1; fi
+done
+sentinel "convLeakT sentinel" "$T/clt.e" "CONVLEAK SENTINEL"
+
 #  ---- modSeamT: THE MODIFIER SEAM IS CLOSED, AND IT WAS A SPELLING FAULT ----
 #
 #  Commissioned SEQ 192, re-rooted SEQ 193 on Tony's Xcode walk, both 2026-09-22.

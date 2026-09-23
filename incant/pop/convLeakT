@@ -1,0 +1,38 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+define
+    thermo isRule defer
+        setT  isRule s-="set" n=NumbeR defer code={ cerr "   >>> thermo set FIRED":; };
+    ;
+cerr "CL-1 drive thermo(set), failing at end of message":;
+thermo("set");
+cerr "CL-1 AFTER the failing drive":;
+cerr "CL-2 drive DO, failing at end of message":;
+DO("do print 1; while");
+cerr "CL-2 AFTER the failing drive":;
+cerr "CONVLEAK SENTINEL":;
+stop();
+
+convLeakT -- A DRIVE THAT FAILS AT THE END OF ITS MESSAGE CORRUPTS THE SENDER'S INPUT.
+Born RED 2026-09-23, Clay's conversation step 1. Its own file, because the defect
+truncates whatever file it is in and would silently delete any row sharing it.
+
+Measured 2026-09-23 with an lldb watchpoint on ruler.atRuleMark, drive thermo("set"):
+  1. runRule pushInput: input stack 1 -> 2, mark into the message.
+  2. set matches to the end of the message; NumbeR then fails at end of input.
+  3. GroupItem::parse matchFailed, end-of-input branch, POPS the drive's own input:
+     stack 2 -> 1, the mark is back in THIS file. That is the leak.
+  4. The failure rewind `atRuleMark = hereAt` writes NULL: checkInput jumps to
+     checkFailed on end of input BEFORE it sets hereAt (RuleStuff.twk 182 vs 186).
+  5. The next frame out dereferences the null mark at the head of matchFailed: exit 139.
+Without defer on the members the same drive leaked TEXT instead -- RunRulE: expected a
+method not set -- and abandoned the file at exit 0 (the 2026-09-23 design read).
+
+⚠ CL-2 CANNOT BE MEASURED WHILE CL-1 STANDS: CL-1 kills the file first. Run alone the
+DO drive crashes at the same site (GroupItem.mm matchFailed head, pStuff=0).
+
+Expected today: exit 139, both AFTER lines and the sentinel missing. Pinned red.
+Goes green with the floor: the drive may not pop below the depth it entered at.
