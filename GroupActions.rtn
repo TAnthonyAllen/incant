@@ -1116,16 +1116,21 @@ GroupItem   result,
 
 
 /***************************************************************************
-    Immediate method called from rule expressions and RunRulE. If there is a
-    field argument, input is diverted to its content before running the rule.
+    driveStep -- runRule's body, and the one drive both runRule and tell use.
+    If there is a field argument, input is diverted to its content before
+    running the rule. A non-null report receives the drive's numbers as
+    OFFSETS into the message, never addresses (H3): length, mark (the mark at
+    the 2b-before-pop seat, -1 if it left the message) and failedAt (-1 if
+    unset or outside the message). runRule passes no report.
 ***************************************************************************/
-extern GroupItem runRule(GroupItem field,GroupItem rule)
+extern GroupItem driveStep(GroupItem field,GroupItem rule,GroupItem report)
 {
 GroupRules  ruler = groupRules;
 GroupItem   result;
 GroupItem   intoField;
 int         baseStak = 0,
             priorFloor = 0;
+String      driveBase;
 use rule
     // ruleDoorSeat WHICH DOOR a rule arrived through -- the one question the dispatch fork above cannot answer
     measureRuleDoor(field,rule);
@@ -1134,6 +1139,7 @@ use ruler
     if field && field.data {
         divertToRule    = true;
         pushInput(field);
+        driveBase       = atRuleMark;
         // inputFloor the message is the floor for the whole drive; a nested drive raises it and restores it
         priorFloor      = inputFloor;
         inputFloor      = inputSTAK.length;
@@ -1158,11 +1164,49 @@ use ruler
 use ruler
     // markSeat2 SEQ 166 point 2 -- THE KEY PAIR, either side of the pop
     if field && field.data  measureMarkPoint("2b-before-pop");
+    // reportSeat the ONE moment consumed is readable -- after the parse, before the pop below puts the mark back in the sender
+    if report && driveBase  reportDrive(report,rule,driveBase);
+use ruler
     if field && field.data  inputFloor = priorFloor;
     while field && field.data && inputSTAK && inputSTAK.length > baseStak
         popInput();
     if field && field.data  measureMarkPoint("2c-after-pop");
     return result;
+}
+
+/***************************************************************************
+    reportDrive -- driveStep's report: three counts, offsets into the message
+***************************************************************************/
+extern void reportDrive(GroupItem report,GroupItem rule,String driveBase)
+{
+GroupRules  ruler = groupRules;
+RuleStuff   stuff = rule.rStuff;
+GroupItem   num;
+String      failed;
+int         driveLen = strlen(driveBase),
+            atOffset = -1,
+            failOffset = -1;
+    if ruler.atRuleMark >= driveBase && ruler.atRuleMark <= driveBase + driveLen    atOffset = (int)(ruler.atRuleMark - driveBase);
+    if stuff    failed = stuff.failedAt;
+    if failed && failed >= driveBase && failed <= driveBase + driveLen  failOffset = (int)(failed - driveBase);
+    num         = new("length");
+    num.count   = driveLen;
+    report.addAttribute(num);
+    num         = new("mark");
+    num.count   = atOffset;
+    report.addAttribute(num);
+    num         = new("failedAt");
+    num.count   = failOffset;
+    report.addAttribute(num);
+}
+
+/***************************************************************************
+    Immediate method called from rule expressions and RunRulE. It is the
+    drive step with no report.
+***************************************************************************/
+extern GroupItem runRule(GroupItem field,GroupItem rule)
+{
+    return driveStep(field,rule,null);
 }
 
 

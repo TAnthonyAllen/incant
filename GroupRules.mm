@@ -2332,6 +2332,74 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return field;
 }
 
+/***************************************************************************
+    driveStep -- runRule's body, and the one drive both runRule and tell use.
+    If there is a field argument, input is diverted to its content before
+    running the rule. A non-null report receives the drive's numbers as
+    OFFSETS into the message, never addresses (H3): length, mark (the mark at
+    the 2b-before-pop seat, -1 if it left the message) and failedAt (-1 if
+    unset or outside the message). runRule passes no report.
+***************************************************************************/
+extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*result = 0;
+GroupItem 	*intoField = 0;
+int 		baseStak = 0;
+int 		priorFloor = 0;
+char 		*driveBase = 0;
+	// ruleDoorSeat WHICH DOOR a rule arrived through -- the one question the dispatch fork above cannot answer
+	::measureRuleDoor(field,rule);
+	if ( ruler->inputSTAK )
+		baseStak = ruler->inputSTAK->length;
+	if ( field && field->groupBody->flags.data )
+		{
+		ruler->divertToRule = 1;
+		ruler->pushInput(field);
+		driveBase = ruler->atRuleMark;
+		// inputFloor the message is the floor for the whole drive; a nested drive raises it and restores it
+		priorFloor = ruler->inputFloor;
+		ruler->inputFloor = ruler->inputSTAK->length;
+		// markSeat SEQ 166 -- record the drive string's extent so every later point can ask
+		// markSeat whether the mark is still inside it
+		::measureMarkArm(field);
+		::measureMarkPoint("2a-after-push");
+		}
+	// frameSeat the rule, the field, and the stuff/label chain the fork below is about to read
+	::measureFrameProbe(field,rule);
+	// unwrapTheHolder THIS LINE IS THE SINGLE DEREFERENCE OF THE CARRIER -- never add a second one below the fork
+	intoField = field;
+	if ( intoField && isGROUP(intoField->groupBody->flags.data) )
+		intoField = intoField->groupBody->gGroup;
+	// gateOnlyNeverGenerate runRule GATES on hasNewParse and NEVER installs a parse -- generation is explicit, through parser
+	if ( rule->groupBody->flags.hasNewParse )
+		{
+		// noSilentFallthrough NEVER fall through to the old parse here -- it trades a loud crash for a quiet wrong answer
+		if ( !rule->groupBody->gMethod )
+			result = ::refuse(rule,"runRule: hasNewParse is set but no method is installed to fire");
+		else	result = rule->groupBody->gMethod(rule);
+		}
+	else {
+		// noDataMeansLabel a non-null field with NO DATA is the label to attach into, never an input to divert
+		if ( intoField && !intoField->groupBody->flags.data )
+			result = ::parseR(rule,intoField);
+		else	result = rule->parse(0);
+		}
+	// markSeat2 SEQ 166 point 2 -- THE KEY PAIR, either side of the pop
+	if ( field && field->groupBody->flags.data )
+		::measureMarkPoint("2b-before-pop");
+	// reportSeat the ONE moment consumed is readable -- after the parse, before the pop below puts the mark back in the sender
+	if ( report && driveBase )
+		reportDrive(report,rule,driveBase);
+	if ( field && field->groupBody->flags.data )
+		ruler->inputFloor = priorFloor;
+	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
+		ruler->popInput();
+	if ( field && field->groupBody->flags.data )
+		::measureMarkPoint("2c-after-pop");
+	return result;
+}
+
 /*******************************************************************************
 	Debug: setColor a field then print its resulting RGB components (0.0-1.0),
     to verify setColor's hex parse + scale. POP tool, not called from
@@ -11493,6 +11561,35 @@ char 	*regName = "(no registry)";
 	::fprintf(stderr,"REMOVED %s from %s -- a refusal fired while it was being defined, so the definition is GONE and nothing later will find it\n",field->groupBody->tag,regName);
 }
 
+/***************************************************************************
+    reportDrive -- driveStep's report: three counts, offsets into the message
+***************************************************************************/
+extern "C" void reportDrive(GroupItem *report, GroupItem *rule, char *driveBase)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+RuleStuff 	*stuff = rule->getRStuff();
+GroupItem 	*num = 0;
+char 		*failed = 0;
+int 		driveLen = ::strlen(driveBase);
+int 		atOffset = -1;
+int 		failOffset = -1;
+	if ( ruler->atRuleMark >= driveBase && ruler->atRuleMark <= driveBase + driveLen )
+		atOffset = (int)(ruler->atRuleMark - driveBase);
+	if ( stuff )
+		failed = stuff->failedAt;
+	if ( failed && failed >= driveBase && failed <= driveBase + driveLen )
+		failOffset = (int)(failed - driveBase);
+	num = new GroupItem("length");
+	num->setCount(driveLen);
+	report->addAttribute(num);
+	num = new GroupItem("mark");
+	num->setCount(atOffset);
+	report->addAttribute(num);
+	num = new GroupItem("failedAt");
+	num->setCount(failOffset);
+	report->addAttribute(num);
+}
+
 extern "C" int reportMaxLimit(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -12079,62 +12176,12 @@ GroupItem 	*target = field->get(2);
 }
 
 /***************************************************************************
-    Immediate method called from rule expressions and RunRulE. If there is a
-    field argument, input is diverted to its content before running the rule.
+    Immediate method called from rule expressions and RunRulE. It is the
+    drive step with no report.
 ***************************************************************************/
 extern "C" GroupItem *runRule(GroupItem *field, GroupItem *rule)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*result = 0;
-GroupItem 	*intoField = 0;
-int 		baseStak = 0;
-int 		priorFloor = 0;
-	// ruleDoorSeat WHICH DOOR a rule arrived through -- the one question the dispatch fork above cannot answer
-	::measureRuleDoor(field,rule);
-	if ( ruler->inputSTAK )
-		baseStak = ruler->inputSTAK->length;
-	if ( field && field->groupBody->flags.data )
-		{
-		ruler->divertToRule = 1;
-		ruler->pushInput(field);
-		// inputFloor the message is the floor for the whole drive; a nested drive raises it and restores it
-		priorFloor = ruler->inputFloor;
-		ruler->inputFloor = ruler->inputSTAK->length;
-		// markSeat SEQ 166 -- record the drive string's extent so every later point can ask
-		// markSeat whether the mark is still inside it
-		::measureMarkArm(field);
-		::measureMarkPoint("2a-after-push");
-		}
-	// frameSeat the rule, the field, and the stuff/label chain the fork below is about to read
-	::measureFrameProbe(field,rule);
-	// unwrapTheHolder THIS LINE IS THE SINGLE DEREFERENCE OF THE CARRIER -- never add a second one below the fork
-	intoField = field;
-	if ( intoField && isGROUP(intoField->groupBody->flags.data) )
-		intoField = intoField->groupBody->gGroup;
-	// gateOnlyNeverGenerate runRule GATES on hasNewParse and NEVER installs a parse -- generation is explicit, through parser
-	if ( rule->groupBody->flags.hasNewParse )
-		{
-		// noSilentFallthrough NEVER fall through to the old parse here -- it trades a loud crash for a quiet wrong answer
-		if ( !rule->groupBody->gMethod )
-			result = ::refuse(rule,"runRule: hasNewParse is set but no method is installed to fire");
-		else	result = rule->groupBody->gMethod(rule);
-		}
-	else {
-		// noDataMeansLabel a non-null field with NO DATA is the label to attach into, never an input to divert
-		if ( intoField && !intoField->groupBody->flags.data )
-			result = ::parseR(rule,intoField);
-		else	result = rule->parse(0);
-		}
-	// markSeat2 SEQ 166 point 2 -- THE KEY PAIR, either side of the pop
-	if ( field && field->groupBody->flags.data )
-		::measureMarkPoint("2b-before-pop");
-	if ( field && field->groupBody->flags.data )
-		ruler->inputFloor = priorFloor;
-	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
-		ruler->popInput();
-	if ( field && field->groupBody->flags.data )
-		::measureMarkPoint("2c-after-pop");
-	return result;
+	return ::driveStep(field,rule,0);
 }
 
 /***************************************************************************
