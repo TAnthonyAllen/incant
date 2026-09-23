@@ -9973,6 +9973,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 GroupItem 	*grup = 0;
 char 		*entryMark = ruler->atRuleMark;
 int 		matched = 0;
+GroupItem 	*hit = 0;
+GroupItem 	*freeLab = 0;
+RuleStuff 	*freeStuff = 0;
 	/*  noStuffLawfulSkip  A REGISTRY LAWFULLY CARRIES NO rStuff (Ruling D1), and it reaches
 	noStuffLawfulSkip  here BY BARE NAME from an emitted body -- `Operators`, isRule 0,
 	noStuffLawfulSkip  binType isREGISTRY. This is a SKIP, NOT A REFUSAL: a refusal inside a
@@ -9998,9 +10001,22 @@ int 		matched = 0;
 			if ( grup = field->get(buffer->string()) )
 				{
 				ruler->atRuleMark += advance;
+				if ( !hit )
+					hit = grup;
 				matched = 1;
 				}
 			buffer->shorten(1);
+			}
+		// freeStandingLabel on a match the registry mints a label and attaches it into the asker, on a TRANSIENT stuff -- nothing is installed on the registry, no ensureRStuff, no exitFromParse (Tony, 2026-09-23, F-108)
+		if ( matched && ruler->currentMETHOD && ruler->currentMETHOD->getRStuff() )
+			{
+			freeLab = new GroupItem(field->groupBody->tag);
+			freeLab->groupBody->flags.isLabel = 1;
+			freeLab->setGroup(hit);
+			freeStuff = new RuleStuff(field);
+			freeStuff->isTarget = 1;
+			freeStuff->label = freeLab;
+			field->attachLabel(freeStuff,ruler->currentMETHOD->getRStuff(),1);
 			}
 		if ( matched )
 			return ruler->trueResult;
@@ -10014,6 +10030,7 @@ int 		matched = 0;
 		if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
 			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
 		}
+	// bareFieldRepoint the free-standing label's locals above would otherwise capture the bare names below
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
