@@ -708,7 +708,7 @@ oversight to be overridden — every attempt that overrides it, in place or unde
 rules that already worked. Whatever gives the terms a parent to attach into has to be a channel
 `exitFromParse` does not already read, or `exitFromParse` has to learn the difference.
 
-### F-95 — a generated rule succeeds whenever its FIRST term matches, and `truthOf` alone does not fix it
+### F-95 — ✅ CLOSED 2026-09-23 (the assign, on a term that returns one bit) — a generated rule succeeds whenever its FIRST term matches, and `truthOf` alone does not fix it
 
 ⚠ **BANKED BESIDE THIS ROW, 2026-09-22 (Tony, SEQ 192), NOT CHASED.** `checkInput`'s
 `enclosingActivation` arm and `attachLabel`'s promote arm are **two writers of the parent's label
@@ -989,6 +989,23 @@ ATTEMPT LOG
      2026-09-20. ⚠ THAT IS A BLAST-RADIUS READING AND NOT A PREDICTION THAT IT IS SAFE:
      whether clearing `Token` is correct is unmeasured, and the reportNoBody arm was not
      swept. Measure that one rule before building, then build the assign.
+  8. 2026-09-23, step 0 re-run once DO was back on the new road (f97227d) -> Token's 0 is a
+     SUCCESS REPORTED AS FALSE: on `while 0` NumbeR matches the 0 and attaches into Token, but
+     the LABEL it returns carries the value 0, so Token's `||` chain read it as a failed
+     alternative and returned false (PT-2, DW-3). The assign would have broken those drives.
+     STOPPED, not built. reportNoBody: reached by nothing on these drives.
+  9. de29e38 (Tony, option A, restoring ruling c'): exitFromParse's successful exit returns
+     trueResult -- a term returns ONE BIT, its label is already attached. aCTionTell reads the
+     label from the root's slot instead. -> Token reads truthOf 1 on `while 0`; fleet 462
+     unmoved row for row. Step 0 re-run: parserTest 16 arrivals / doWhileNameT 57, ZERO zeros,
+     reportNoBody 0; chainTruthT's only zeros are CT2-CT4's Search -- REAL failures.
+ 10. THIS COMMIT: `sukcess = truthOf(result);` at parseRule's seat (Generate.rtn, checkSuccess),
+     nothing else. Pre-registered: CT2, CT3, CT4 red -> green, nothing else.
+        -> EXACTLY THAT: CT2 "search list", CT3 "search ;", CT4 "search" now match=0; fleet
+           462 -> 465, no other row moved. lOne isRule w-="w" done-="x" on the new road:
+           "w x" wins, consumed 3; "w y" FAILS, consumed 0 (mark rewound). DW-4/6/9, the
+           road checks, PT-2, convDriveT and interpretXP [dwN, <, Token=2] unmoved.
+  POP: chainTruthT CT2-CT4.
 ```
 
 **Done when:** a generated rule fails when any required term fails, and CT1 stays green while
