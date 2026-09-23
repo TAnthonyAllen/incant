@@ -43,6 +43,7 @@ search GroupFields UnitTests Utilities list;
 
 cerr "PT-1 parser(Search)":;
 parser(Search);
+traceParse();
 Search("search list;");
 
 cerr "PT-2 parser(DO)":;

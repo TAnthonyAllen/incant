@@ -2813,6 +2813,21 @@ else
     echo "        Read WITH the sentinel: a missing sentinel means the last one hung or died."
     grep -E "^PT-" "$T/ptst.e" | sed 's/^/          /'; fail=1
 fi
+#  ---- THE ROAD CHECK (Clay's dispatch, 2026-09-23). A drive that is meant for the NEW road
+#  must reach parseRule; one that silently falls back to the OLD road reads the same answer
+#  and was invisible to every row above. Counted from measureParseResult's PARSERESULT lines
+#  (parseTrace, switched on in the fixture after parser(Search)), printed every run (H4).
+#  PT-1 is the NON-ZERO SIBLING: Search reaches parseRule, so the instrument can see an arrival.
+#  PT-2 was BORN RED: since 3f872c4 parser(DO) is refused through define (two DEFINing faces,
+#  incant/grammar:66) and installs nothing, so DO("...") ran the old road.
+_pt1r=$(awk '/^PT-1 /{f=1} /^PT-2 /{f=0} f' "$T/ptst.e" | grep -c "PARSERESULT")
+_pt2r=$(awk '/^PT-2 /{f=1} /^PT-3 /{f=0} f' "$T/ptst.e" | grep -c "PARSERESULT")
+echo "  ..    parserTest parseRule arrivals: PT-1 Search = $_pt1r, PT-2 DO = $_pt2r (want each > 0)"
+if [ "$_pt1r" -gt 0 ]; then echo "  ok    parserTest PT-1 road check -- the Search drive reached parseRule"; green=$((green+1))
+else echo "  FAIL  parserTest PT-1 road check -- 0 arrivals; the instrument cannot see the new road"; fail=1; fi
+if [ "$_pt2r" -gt 0 ]; then echo "  ok    parserTest PT-2 road check -- the DO drive reached parseRule (NEW road)"; green=$((green+1))
+else echo "  FAIL  parserTest PT-2 road check -- 0 arrivals: the DO drive ran the OLD road. BORN RED 2026-09-23"
+     echo "        (parser(DO) refused through define); green when define is labelled."; fail=1; fi
 
 #  ---- doWhileNameT: the new parse road dies on a non-literal while expression ----
 #  BORN RED ON PURPOSE, 2026-09-20, Clay's SEQ 171 step 1; oracle twin added under SEQ 172.
@@ -2879,6 +2894,14 @@ fi
 #  of satisfying it.
 #  These three go GREEN when the generated road actually parses. They are NOT to be re-pinned
 #  to the values they read today; that is precisely the hollow green they were minted against.
+#  DW-9, THE ROAD CHECK (2026-09-23): the DW-4 drive must reach parseRule. A fall back to the
+#  old road reads dwN 2 all the same, so DW-6 alone cannot tell. BORN RED: parser(DO) is
+#  refused through define since 3f872c4. parseTrace is on from just before DW-4.
+_dw4r=$(awk '/^DW-4 target/{f=1} /^DW-4 TWIN RETURNED/{f=0} f' "$T/dwn.e" | grep -c "PARSERESULT")
+echo "  ..    doWhileNameT DW-9 parseRule arrivals in the DW-4 window = $_dw4r (want > 0)"
+if [ "$_dw4r" -gt 0 ]; then echo "  ok    doWhileNameT DW-9 road check -- the DW-4 drive ran the NEW road"; green=$((green+1))
+else echo "  FAIL  doWhileNameT DW-9 road check -- 0 arrivals: DW-4 ran the OLD road. BORN RED 2026-09-23"
+     echo "        (parser(DO) refused through define); green when define is labelled."; fail=1; fi
 _dw4=$(grep -F "DW-4 dwN AFTER =" "$T/dwn.e" | sed 's/.*= *//' | tr -d ' ')
 echo "  ..    doWhileNameT DW-6 reads dwN after the DW-4 drive = ${_dw4:-<absent>} (want 2)"
 if [ "$_dw4" = 2 ]; then

@@ -74,6 +74,7 @@ cerr "DW-3 control -- a literal while expression":;
 DO("do print 1; while 0;");
 cerr "DW-3 CONTROL RETURNED":;
 
+traceParse();
 cerr "DW-4 target -- the declared-counter twin on the NEW road":;
 dwN = 0;
 DO("do print ++dwN; while dwN < 2;");
