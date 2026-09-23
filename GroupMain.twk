@@ -173,7 +173,6 @@ GroupRules  ruler = groupRules;
     modify(item,"*");
     item            = strap +% grok/rightBrace;
     modify(item,"-");
-    item            = strap +% item;
 
     strap           = grok += new("Any");
     isANY           = true;

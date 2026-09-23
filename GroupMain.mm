@@ -178,7 +178,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::modify(item,"*");
 	item = strap->addAttribute(grok->getMember("rightBrace"));
 	::modify(item,"-");
-	item = strap->addAttribute(item);
 	strap = grok->addMember(new GroupItem("Any"));
 	strap->groupBody->flags.data = 1;
 	strap->setRuleStuff();
