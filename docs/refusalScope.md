@@ -14,6 +14,15 @@ method at all.
 
 **`stop()` and `bail()` work as intended, always. Not working is not an option.**
 
+### What the scope silences, and the path it did not reach until 2026-09-24
+
+A standing refusal silences **operators** (`runOP` returns null) and **action and command dispatch**. It did **not**
+silence a print whose item is a plain value: a primary never reaches `runOP`, it goes straight into
+`appendPrintXP`. Found through F-117: `print .5;` refused by name on the old road and **still printed `5`**.
+**Since `03cf875`, the scope covers print's value path.** `appendPrintXP`, the one print walk (print, cerr, cout,
+StringXP), stops at a raised refusal, so a refused statement prints nothing on either road. Pinned by `dotNumT`
+(old road) and `unaryNatT`'s `unPrDot` (new road).
+
 ## What it replaced, and why the replacement was needed
 
 Before it, the only clearers were `aCTionDefinE`'s boundary and `runAction`. A refusal raised at
@@ -56,4 +65,5 @@ the boundary both were true at once.
 |---|---|
 | `incant/pop/abandonT` | the scope itself — AB-1's count **flipped 1 → 2**, which is the whole assertion. It uses a **bare statement, never a define**, so it cannot accidentally measure F-79 instead. |
 | `incant/pop/stopPreT` | `stop()` fires with a refusal standing. SP-2 flipped from a red-shaped pin to an absence, read with **two** positives: SP-1 (execution continued at all) and SP-3 (the stop actually fired rather than the file merely ending). |
+| `incant/pop/dotNumT`, `unaryNatT` unPrDot | print's value path: a refused `print .5;` prints nothing on either road (2026-09-24). |
 | `incant/pop/argRetiredT` | unmoved — the define boundary still reports and removes, and `AR BEFORE`/`AR AFTER` still run. |
