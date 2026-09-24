@@ -21,3 +21,9 @@ carrier reachable from DO except the stuff faces (their naming key is pending), 
 jitLadder/station2/pairs, picks up to two accepts and two rejects by pick.py's rule, and certifies JITTED against
 INTERPRETED, two fires each, one compile. A carrier AGREES when every picked input agrees on verdict, consumed,
 term calls, fires and successes, both fires.
+
+A FLEET ROW SINCE 2026-09-24 (Tony). It was not one while two defects stood: F-123 (jitted Token succeeded without
+consuming, exit 139 at carrier 28) and F-125 (two define drives leaked lastIndent and defining into this file, which
+was then ABANDONED after the sweep returned -- the certificate lines printed and the sentinel did not). pop.sh pins
+the exact-line sentinel, SWEEP END's certified=45 agree=45 diff=0, every carrier's degrade=0, and no degrade line.
+Coverage is 45 of the 61 carriers not skipped: the 16 with no pick are named in docs/fixIts.md F-114.

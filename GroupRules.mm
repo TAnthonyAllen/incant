@@ -2481,6 +2481,7 @@ char 		*driveBase = 0;
 	
 	ParseActivation driveFloor = { 0, gParseActive, 1 };
 	int floorPushed = 0;
+	int priorIndent = ruler->lastIndent, priorDefining = ruler->defining;
 	if ( field && field->groupBody->flags.data ) { gParseActive = &driveFloor; floorPushed = 1; }
 	
 	if ( field && field->groupBody->flags.data )
@@ -2527,6 +2528,10 @@ char 		*driveBase = 0;
 		reportDrive(report,rule,driveBase);
 	if ( field && field->groupBody->flags.data )
 		ruler->inputFloor = priorFloor;
+	// driveOwnsIndent a drive's message is its own input: its indentation and an unterminated define end with it -- restore the caller's lastIndent and defining (F-125; each alone leaked)
+	
+	if ( field && field->groupBody->flags.data ) { ruler->lastIndent = priorIndent; ruler->defining = priorDefining; }
+	
 	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
 		ruler->popInput();
 	if ( field && field->groupBody->flags.data )
@@ -6694,6 +6699,7 @@ extern "C" int jitProbeDrive(GroupItem *rule, GroupItem *armed, char *msg, int j
 	char *driveBase  = ruler->atRuleMark;
 	int   priorFloor = ruler->inputFloor;
 	ruler->inputFloor = ruler->inputSTAK->length;
+	int priorIndent = ruler->lastIndent, priorDefining = ruler->defining;
 	//  BOTH ROADS FIRE `rule` THROUGH parseRule and WATCH `armed` at the door; the
 	//  jitted road also fires armed's COMPILED body there. Every other rule runs the
 	//  interpreted road either way.
@@ -6711,6 +6717,7 @@ extern "C" int jitProbeDrive(GroupItem *rule, GroupItem *armed, char *msg, int j
 	if (ruler->atRuleMark >= driveBase && ruler->atRuleMark <= driveBase + len)
 	consumed = (int)(ruler->atRuleMark - driveBase);
 	ruler->inputFloor = priorFloor;
+	ruler->lastIndent = priorIndent; ruler->defining = priorDefining;     //  driveStep's own restore (F-125)
 	while (ruler->inputSTAK && ruler->inputSTAK->length > baseStak) ruler->popInput();
 	gProbeVerdict = verdict; gProbeConsumed = consumed; gProbeLength = len; gProbeTerms = terms;
 	gProbeFires = fires; gProbeTrue = trues;
@@ -12810,8 +12817,7 @@ GroupItem 	*target = field->get(2);
 	GroupActions.runOP.unknownOperatorRefusal  */
 	// which node the NAME reached, and which arm the fork will take   measure.measureRuleDispatch
 	::measureRuleDispatch(op,target,arg);
-	// ruled 2026-09-10: the door is hasNewParse, not isRule -- anything carrying a
-	// generated body takes it, a bin included   GroupActions.runOP.doorIsHasNewParse
+	// doorByRoad INTERPRETED: runRule for isRule only -- a bin with a generated parse (hasNewParse, isRule 0: Operators) takes the isMethod arm below (5f24cf3, 2026-09-14, reversing 09-10's hasNewParse door). JITTING: a term call for isRule OR hasNewParse, so no bin is parsed at emit time (F-123, 2026-09-24)
 	if ( isOperator(op->groupBody->flags.instructType) )
 		result = op->groupBody->gOp(arg,target);
 	else

@@ -3098,6 +3098,26 @@ _tjd=$(grep -c '=== jitDegrade count = 0 ===' "$T/tj.o"); _tjc=$(grep -c 'jitDeg
 if [ "$_tjc" -gt 0 ] && [ "$_tjd" -eq "$_tjc" ]; then echo "  ok    tokJitT $_tjc compile(s), degrade 0"; green=$((green+1))
 else echo "  FAIL  tokJitT degrade: $_tjd of $_tjc compiles at 0"; fail=1; fi
 
+#  ---- driveLeakT: F-125 -- a drive restores the caller's lastIndent and defining (2026-09-24) ----
+#  H7, measured at landing: with neither restore, DL RETURNED and the sentinel are both missing (ABANDONED at exit 0).
+run2 driveLeakT "$T/dl.o" "$T/dl.e"; check "driveLeakT runs" 0 $?
+if grep -qxE 'DL RETURNED ?' "$T/dl.e" && grep -qxE 'DRIVELEAK SENTINEL ?' "$T/dl.e"; then echo "  ok    driveLeakT the caller continues after an indented drive and an unterminated define (exact lines)"; green=$((green+1))
+else echo "  FAIL  driveLeakT the caller was abandoned after the drives (F-125)"; fail=1; fi
+
+#  ---- sweepT: JITTER STATION 2, THE ONE-PROCESS SWEEP (Tony, 2026-09-24) ----
+#  Every carrier reachable from DO but the stuff faces, calibrated interpreted over pairs.sweep, picked, and certified
+#  JITTED against INTERPRETED, two fires each, one compile. Coverage 45 of 61 (16 carriers pick nothing; named in
+#  fixIts F-114). Sentinel FIRST and exact: before F-125 the certificate printed and the file was then abandoned.
+run2 sweepT "$T/sw.o" "$T/sw.e"; check "sweepT runs" 0 $?
+if grep -qxE 'SWEEP SENTINEL ?' "$T/sw.e"; then echo "  ok    sweepT sentinel (exact line)"; green=$((green+1)); else echo "  FAIL  sweepT sentinel missing -- the file was abandoned or truncated"; fail=1; fi
+if grep -q '^SWEEP END .* certified=45 agree=45 diff=0$' "$T/sw.e"; then echo "  ok    sweepT certified=45 agree=45 diff=0"; green=$((green+1))
+else echo "  FAIL  sweepT MOVED: $(grep '^SWEEP END' "$T/sw.e")"; fail=1; fi
+_swr=$(grep -c '^SWEEP RESULT .* AGREE degrade=0$' "$T/sw.e"); _swa=$(grep -c '^SWEEP RESULT ' "$T/sw.e")
+if [ "$_swa" -eq 45 ] && [ "$_swr" -eq 45 ]; then echo "  ok    sweepT 45 carrier results, every one AGREE at degrade 0"; green=$((green+1))
+else echo "  FAIL  sweepT $_swr of $_swa carrier results AGREE at degrade 0 (want 45 of 45)"; fail=1; fi
+if [ "$(grep -c 'JIT DEGRADE' "$T/sw.e" "$T/sw.o" | awk -F: '{n+=$2} END{print n}')" -eq 0 ] && grep -q '^SWEEP ROW .* J fire2 ' "$T/sw.e"; then echo "  ok    sweepT no degrade line anywhere (and jitted rows ran)"; green=$((green+1))
+else echo "  FAIL  sweepT a degrade line appeared, or no jitted row ran"; fail=1; fi
+
 #  ---- stmtRejT: F-121 -- a REJECTED new-road StatemenT drive no longer abandons its caller ----
 #  One process per input. EXACT-LINE ran-marker and sentinel (the ABANDONED message quotes the rest of the file,
 #  and a substring check once matched it). The caller's old-road Xpress flag after the drive must read 1.

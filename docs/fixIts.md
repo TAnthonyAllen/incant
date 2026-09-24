@@ -92,21 +92,29 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-125 — OPEN 2026-09-24 — TWO `define aa isRule` DRIVES in one process ABANDON the file that ran the sweep
+### F-125 — ✅ CLOSED 2026-09-24 — TWO `define aa isRule` DRIVES in one process ABANDONED the file that ran the sweep
 
-**What.** After F-123 the one-process sweep (incant/pop/sweepT) completes -- `SWEEP END carriers=65 skipped=4 nopick=16
-certified=45 agree=45 diff=0`, exit 0, no degrade line -- but the file's next statement (`cerr "SW END":;`) fails to
-match and the rest is ABANDONED, so the sentinel never prints. Minimised over pairs.sweep: the two pairs
-`ExpressioN|define\n  aa isRule;\n  ;` and `StatemenT|define aa isRule; ;`. Either ALONE: sentinel prints. BOTH, in
-either order: abandoned. F-121's shape (a drive leaves the caller's input state such that its next statement cannot
-parse), reached through inputs that DEFINE a rule in the live process.
-**Where.** Not located. Not an engine difference: the certificate rows agree.
-**Evidence.** 2026-09-24, c20a866, bare. Single-variable controls: set {1} ok, {2} ok, {1,2} abandoned, {2,1} abandoned.
-**Done when.** sweepT reaches its sentinel on the full pairs.sweep, and the two-pair repro reaches it too.
-**Owner.** Unassigned. The sweep's own certificate is readable without it; sweepT's sentinel is not.
+**What.** After F-123 the one-process sweep (incant/pop/sweepT) completed -- certified=45 agree=45 diff=0 -- but the
+file's next statement failed to match and the rest was ABANDONED at exit 0, so its sentinel never printed. Minimised
+to two pairs, `ExpressioN|define\n  aa isRule;\n  ;` and `StatemenT|define aa isRule; ;`; either alone was fine.
+**Where.** driveStep (GroupActions.rtn), and jitProbeDrive which copies its lines: a drive restored inputFloor at its
+pop but not lastIndent or defining. The ExpressioN drive over an indented message left lastIndent 2; the StatemenT drive
+stopped before the define's closing `;` and left defining 1 (processFlags case D toggles it). The caller breaks only
+with BOTH set.
+**Done when.** Met: sweepT reaches its exact-line sentinel in one process on the full pairs.sweep; sweepT is a fleet row.
+**Owner.** Closed.
 ```
 ATTEMPT LOG
-  (none yet)
+  0. 2026-09-24 direct repro, no sweep: probeDrive(fxE); probeDrive(fxS); abandons; E alone, S alone, E E and S S do not.
+     Both drives report exactly as they do alone. A temporary state witness after each drive (currentDefine,
+     registry, defining, divert, stak, floor, block, gParseActive, lastIndent, mark, search list): E leaves indent=2;
+     S leaves defining=1; S S toggles it back to 0; only E then S leaves both.
+  1. restore lastIndent and defining at the drive's pop, in driveStep and jitProbeDrive. H15, one variable at a time on
+     the repro and on the two-pair sweep: neither -> abandoned; lastIndent only -> ok; defining only -> ok; both -> ok.
+     Each was a real leak (the witness shows each value leaving the drive) and each alone was sufficient here; both kept.
+     -> sweepT: SWEEP END carriers=65 skipped=4 nopick=16 certified=45 agree=45 diff=0, SW END and SWEEP SENTINEL as exact
+     lines, no degrade line, every carrier degrade=0. Rows: driveLeakT (the repro) and sweepT (4 rows). Fleet 650 (643 + 7),
+     reds identical to HEAD; jitLadder 214 PASSED; decodePop 14, ddPop 5/1, countPop 47/47, frontier station 4; canary 358.
 ```
 
 ### F-123 — ✅ CLOSED 2026-09-24 — JITTED Token SUCCEEDED WITHOUT CONSUMING on an input it cannot start, and ran to 100 fires

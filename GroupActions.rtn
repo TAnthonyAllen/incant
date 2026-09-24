@@ -1090,8 +1090,7 @@ GroupItem   result,
             GroupActions.runOP.unknownOperatorRefusal  */
     // which node the NAME reached, and which arm the fork will take   measure.measureRuleDispatch
     measureRuleDispatch(op,target,arg);
-    // ruled 2026-09-10: the door is hasNewParse, not isRule -- anything carrying a
-    // generated body takes it, a bin included   GroupActions.runOP.doorIsHasNewParse
+    // doorByRoad INTERPRETED: runRule for isRule only -- a bin with a generated parse (hasNewParse, isRule 0: Operators) takes the isMethod arm below (5f24cf3, 2026-09-14, reversing 09-10's hasNewParse door). JITTING: a term call for isRule OR hasNewParse, so no bin is parsed at emit time (F-123, 2026-09-24)
     if op.isOperator    result = op.operat(arg,target);
     or op.isMethod      result = op.method(target);
     or isRule || (jitting && hasNewParse) {
@@ -1147,6 +1146,7 @@ use ruler
     -%
     ParseActivation driveFloor = { 0, gParseActive, 1 };
     int floorPushed = 0;
+    int priorIndent = ruler->lastIndent, priorDefining = ruler->defining;
     if ( field && field->groupBody->flags.data ) { gParseActive = &driveFloor; floorPushed = 1; }
     %-
     if field && field.data {
@@ -1184,6 +1184,10 @@ use ruler
     if report && driveBase  reportDrive(report,rule,driveBase);
 use ruler
     if field && field.data  inputFloor = priorFloor;
+    // driveOwnsIndent a drive's message is its own input: its indentation and an unterminated define end with it -- restore the caller's lastIndent and defining (F-125; each alone leaked)
+    -%
+    if ( field && field->groupBody->flags.data ) { ruler->lastIndent = priorIndent; ruler->defining = priorDefining; }
+    %-
     while field && field.data && inputSTAK && inputSTAK.length > baseStak
         popInput();
     if field && field.data  measureMarkPoint("2c-after-pop");

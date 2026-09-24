@@ -725,6 +725,7 @@ extern int jitProbeDrive(GroupItem rule,GroupItem armed,String msg,int jitted)
     char *driveBase  = ruler->atRuleMark;
     int   priorFloor = ruler->inputFloor;
     ruler->inputFloor = ruler->inputSTAK->length;
+    int priorIndent = ruler->lastIndent, priorDefining = ruler->defining;
     //  BOTH ROADS FIRE `rule` THROUGH parseRule and WATCH `armed` at the door; the
     //  jitted road also fires armed's COMPILED body there. Every other rule runs the
     //  interpreted road either way.
@@ -742,6 +743,7 @@ extern int jitProbeDrive(GroupItem rule,GroupItem armed,String msg,int jitted)
     if (ruler->atRuleMark >= driveBase && ruler->atRuleMark <= driveBase + len)
         consumed = (int)(ruler->atRuleMark - driveBase);
     ruler->inputFloor = priorFloor;
+    ruler->lastIndent = priorIndent; ruler->defining = priorDefining;     //  driveStep's own restore (F-125)
     while (ruler->inputSTAK && ruler->inputSTAK->length > baseStak) ruler->popInput();
     gProbeVerdict = verdict; gProbeConsumed = consumed; gProbeLength = len; gProbeTerms = terms;
     gProbeFires = fires; gProbeTrue = trues;

@@ -1,0 +1,31 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    s2N=0;
+    s2Y=0;
+    s2C=0;
+    s2L aa bb cc;
+    fxE root="ExpressioN" msg=(define
+  aa isRule;
+  ;#) jitted=0;
+    fxS root="StatemenT" msg=(define aa isRule; ;#) jitted=0;
+    ;
+parser(DO);
+cerr "DL BEGIN":;
+probeDrive(fxE);
+probeDrive(fxS);
+cerr "DL RETURNED":;
+cerr "DRIVELEAK SENTINEL":;
+stop();
+
+driveLeakT -- F-125, A DRIVE'S MESSAGE MUST NOT LEAVE ITS INDENTATION OR AN OPEN define IN THE CALLER (2026-09-24).
+fxE drives ExpressioN over an indented message ("define", then "  aa isRule;"), which leaves lastIndent at 2. fxS drives
+StatemenT over "define aa isRule; ;", which stops before the closing ; and leaves defining at 1 (processFlags case D
+toggles it). Either alone, the caller continues; both, and the caller's next statement fails to match and the rest of
+this file is ABANDONED at exit 0. driveStep (and jitProbeDrive, which copies its lines) now restore the caller's
+lastIndent and defining at the pop, as they already restored inputFloor.
+
+pop.sh asserts EXACT lines: DL RETURNED and the sentinel. H7, measured at landing: with neither restore, both lines
+are missing; with EITHER restore alone they print -- so both leaks were real and each was sufficient here.
