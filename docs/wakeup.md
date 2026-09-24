@@ -31,6 +31,11 @@
 #   **FIRE-TIME KEYWORD CHECK:** ANYtoken still decides during the parse and ALSO re-runs today's test at
 #   replay, after NamE has resolved; a keyword used as a name refuses loudly there.
 #
+#   **SHAPE-REWRITE ITEM (Tony, 2026-09-24):** `field[whatever]` becomes `opGet field whatever` in the ExpressioN
+#   rewrite, beside `A += B` -> `+= A B`; opGet picks its method per fire by the key's kind. Preserve: unary binds to
+#   the primary (`*a[0]` = `(*a)[0]`), subscript stops at the element. Retires TokenXP's subscript arm (and the
+#   subscript meaning of fLAG, plant 4). Full entry in the branch's pause docket.
+#
 #   ## STEP 1 ON THE BRANCH -- the engine, the plants, the fixes
 #   Engine: fireLabelMethod RECORDS an ordinary fire or hold inside a top-level statement (ptfRecord); the
 #   top StatemenT's fire REPLAYS the records reachable from its label tree, in record order (ptfStatementEnd).
