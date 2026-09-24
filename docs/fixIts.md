@@ -92,6 +92,20 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-116 — `cerr "hi":;` driven on the NEW road prints no trailing newline
+
+**What.** A StatemenT drive of `cerr "hi":;` prints `hi ` to stderr and the NEXT stderr line runs on
+after it (`hi QN RETURNED`). `print "hi";` and `print s2N "and" s2Y:;` on the same road end their line.
+**Where.** Not located. The `:` is the newline marker in a print list; the cerr sink on the new road
+(aCTionCerR -> opCerr) is where to look first.
+**Evidence.** 2026-09-24, incant/pop/quoteNatT's qnCe copy, native, after 22da97b.
+**Done when.** qnCe's cerr ends its line, pinned by a value row beside quoteNatT's print rows.
+**Owner.** Unassigned.
+```
+ATTEMPT LOG
+  (none)
+```
+
 ### F-115 — END OF INPUT eats a repetition's last match: one family, two spellings
 
 **What.** A repetition whose NEXT attempt meets end of input loses the match it already has.
@@ -239,6 +253,19 @@ ATTEMPT LOG
      `(1)` ON THE OLD ROAD, measured with a valid control (GroupItem::parse driven directly: abc 1/3,
      42 rest 1/7, `}` 0/0): `(1)` 0/0, `(1) + 2` 0/0. Not legal on either road -- the new road's
      0/0 agrees, and nothing further is owed on it.
+  10. SITE 3 IS NOT SITE 2's MECHANISM -- IT IS THE 09-20 SHAPE, AND THE CAUSE IS A FACT ONLY THE OLD
+     ROAD COMPUTES. Native `-1`, lldb armed at the drive: TokenXP's label holds two children, UnaryOPS and
+     one tagged **NumbeR** -- no `ANYorNum` -- so `xpress->get("ANYorNum")` is null and GroupRules.mm:1373
+     dereferences it. Trace: NumbeR attaches into ANYorNum with isTarget=0 (so no promote, no retag), and
+     ANYorNum then hands a NumbeR-tagged label up to TokenXP. isTarget is set only by getWhatFollows
+     (RuleStuff.twk:238: a member of a non-bin parent is a target), which is called only from getStuff,
+     which only the OLD road's GroupItem::parse calls. Measured at the drive: ANYorNum's NumbeR face
+     followed=0 isTarget=0 -- the old road never visits it while parsing the file, because numbers take
+     Token's NumbeR first -- while ANYorNum's ANYtoken face, which it does visit, reads 1/1. `42` is fine
+     because Token reaches NumbeR before TokenXP. Not fixed: WHERE the new road should compute what
+     getWhatFollows computes is a ruling.
+  11. SIBLING CENSUS of Generate.rtn's parse* methods, read-only, 2026-09-24 -- the table is in the
+     2026-09-24 report and in docs/parseSiblings.md. Nothing fixed from it.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.

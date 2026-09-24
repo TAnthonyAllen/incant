@@ -1,0 +1,22 @@
+# Generate.rtn parse* siblings — behaviour census
+
+Read-only, 2026-09-24, at `dc1dd53`. Tony asked for it after this family diverged twice: the 08-19 template audit, then `keepTheMatch` (F-114 site 2). **Nothing here is fixed.** A cell names what the method does; `—` means the behaviour doesn't apply.
+
+| behaviour | Action | Any | Character | Condition | Container | Loop | Rule | Set | String | UpTo |
+|---|---|---|---|---|---|---|---|---|---|---|
+| clears `sukcess` before the gate | yes | yes | yes | assigns from `min` | yes | **never writes it** | yes | yes | yes | yes |
+| `checkInput` gate | **no** | yes | yes | **no** | yes | **no** (its leaves do) | yes | yes | yes | yes |
+| clears `sukcess` again after a gate pass (`gateIsNotAMatch`) | — | yes | yes | — | yes | — | **no**: overwritten by `truthOf(result)` only when a body runs; the `reportNoBody` path keeps the gate's TRUE, so **a bodiless rule succeeds** | yes | yes | yes |
+| clears the label only on failure (`keepTheMatch`) | **no: clears unconditionally after a successful `actionMethod`** | yes | yes | — | yes | — | — | yes | yes | yes |
+| writes the match into the label | `label = actionMethod(...)` | `setToken` | `setToken` | no | `label.group = entry` | no | **no**: `myLabel` is minted and goes nowhere (CT-5) | `setToken` | `label.text` | via `testUpTo`, **only when the match length > 0**: a zero-length match succeeds with no label text |
+| min gate | — | `counter && counter >= min`, so **a zero count never succeeds, even at min 0** (F-115) | same | `min` only | none | `kount >= min` | none | same as Any | none | none |
+| reaching max | — | `reportMaxLimit`, and **the term FAILS** unless `limitsSet` or max 1 (the else-if) | same | — | none | stops silently | — | same | — | — |
+| advances the mark | — | directly | directly | no | only if `!noAdvance` (**its own check**, on top of `exitFromParse`'s) | through its leaves | through its body | directly | `matches(&)`, by reference | `testUpTo` |
+| rewinds on failure | through `exitFromParse` | same | same | same | same, except the no-rStuff branch, which rewinds itself | **no rewind**: a run below min keeps what it consumed and never reaches `exitFromParse` | same as Action | same | same | same |
+| exits through `exitFromParse` | yes, except the refuse path | yes | yes | yes | yes, except the no-rStuff branch | **no** | yes | yes | yes | yes |
+| re-resolves the face (`currentMETHOD.get(tag)`) | no | no | no | no | yes | yes | yes | no | no | no |
+| repairs `parentStuff` from `currentMETHOD` | no | no | no | no | yes (`binParentRepair`) | no | yes (`parentRepair`) | no | no | no |
+| runs `getWhatFollows` (`isTarget`, `onFail`, `onGroup`, `hasMacro`) | **no** | **no** | **no** | **no** | **no** | **no** | **no** | **no** | **no** | **no** — only the OLD road's `GroupItem::parse`, through `getStuff`. **This is F-114 site 3.** |
+| reads `sukcess` as a verdict after its work | — | — | — | — | — | **yes**: `if sukcess return trueResult` sits above the count check, although its own comment (`countNotFlag`) says to read the count | — | — | — | — |
+
+Checked, not reproduced: the zero-length `testUpTo` case does not crash an empty quote. Natively, `""` and `print "";` both return.
