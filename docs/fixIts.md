@@ -361,6 +361,10 @@ item.embedRule(grok/counter); item = item.group; modify(item,"+");`). Mirror: in
 is the last success line; the next term, `min`, prints none, and the mark reads the drive's base at the
 2b-before-pop seat. Read BY POSITION -- the trace carries no failure line -- but every term that
 succeeds prints CAPFIRE, the noLabel `leftBrace` included, so `min`'s silence is a failure.
+**Met again 2026-09-24 (F-114 follow-up, parseLoop's missing rewind):** `{2,3}` fails in `define` on BOTH a
+member line (`lpA{2,3};`) and an attribute (`lpS isRule lpA{2,3};`) -- `RunRulE: expected a method not <rule>`,
+ABANDONED at exit 0. So no source can create a min >= 2 face, and parseLoop's shortfall rewind stays
+unreachable until this closes (docs/parseSiblings.md).
 **Done when.** A standalone Limit on `[1 2]` wins and consumes 5, or Tony rules Limit is only meant
 to parse inside TraiT and pins that instead. **Owner.** Tony (Limit is in every define term).
 ```

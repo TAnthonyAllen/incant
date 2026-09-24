@@ -40,3 +40,12 @@ SEQ 195 added `if kount >= min return trueResult;` **below** the existing `if su
 **Caveat (H16):** the probe was never seen to fire. It is compiled in, but nothing known triggers it. The only mechanism I can name is a stale `sukcess` on the face, left by an attempt that returned 0 without writing it (for example a refusal inside `runLeafParse`); the stale flag would then turn a short run into a success.
 
 **Not changed.** No row can go red on it today. The probe was removed; the tree is back at `692acab`.
+
+## parseLoop's missing rewind when a run falls short of min: unreachable, measured 2026-09-24 (after 535ad20)
+
+The input position can be left advanced only when some attempts succeed and the run still stops short, which needs **min ≥ 2**. With `+` (min 1), a shortfall means no successes and nothing consumed. It also only changes an answer when something **in the same body** carries on from the advanced position, i.e. an alternation (members) with the looping term as one member. In an `&&` chain the enclosing rule's own `exitFromParse` rewinds on failure.
+
+- **The grammar has no such face.** Walked 372 Grokking nodes after `parser(DO)`: 0 faces with min ≥ 2.
+- **A fixture can't make one.** `lpT isRule` with members `lpA{2,3};` and `lpAB;` kills the `define` at the member line (`RunRulE: expected a method not lpT`, ABANDONED at exit 0). On an attribute, `lpS isRule lpA{2,3};` fails the same way. A limit doesn't parse anywhere in `define` today, which is **F-113**, met from a second direction.
+
+So no row can go red on the rewind until F-113 lets `{n,m}` be written. **Not changed.**
