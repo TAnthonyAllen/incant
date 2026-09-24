@@ -92,6 +92,21 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-120 — the `$` print shortcut does nothing on the NEW road
+
+**What.** `print $ "a" "b";` prints `ab` on the old road (`$` flips useDefaultSpace) and `a b` on the new road --
+the toggle never takes effect, and no `$` is printed either. Not caused by deferredAbove: under ruling (b)
+ShortcuT reads held=1 inside the drive and the output is unchanged.
+**Where.** Not located. The toggle lives in GroupActions.rtn appendGroup's isShortcut arm; the question is
+whether the new road's PrintXP item for `$` arrives there carrying isShortcut.
+**Evidence.** 2026-09-24, native, both roads, one process each (F-114 entry 17).
+**Done when.** `print $ "a" "b";` prints `ab` on the new road, pinned by a value row -- which also makes
+deferNatT's dfLeak/dfLeakW rows discriminating. **Owner.** Unassigned.
+```
+ATTEMPT LOG
+  (none)
+```
+
 ### F-117 — `print .5;` on the NEW road prints NOTHING (ranked above the old road's crash on it)
 
 **What.** A StatemenT drive of `print .5;` returns at exit 0 and prints nothing -- a silent wrong answer
@@ -377,6 +392,17 @@ ATTEMPT LOG
      body skips parseRule, so it must push/pop its activation itself or the frame model must replace it.
      (ii) UNMEASURED: a drive started from INSIDE a new-road action (the floor would then hide new-road
      activations below it); no fixture reaches it.
+  17. RULING (b) REFINED (Tony, 2026-09-24): a fire walks the activation list whenever an activation sits
+     above the drive floor, EITHER road, and parentStuff otherwise. The one-shot road flag is gone -- the
+     rule no longer needs the road. Discriminating fixture, run first: `if 0; print $ "a" "b";` (and
+     `while 0;`) then `print "c" "d";` in one drive process prints `c d` -- NO LEAK SEEN, but NON-
+     DISCRIMINATING: `$` has no effect on the new road at all (old road `ab`, new road `a b`) -- banked as
+     F-120. -> ShortcuT inside the print drives reads walk=list held=1 (was held=0); the tripwire (a chain
+     walk inside a drive on a rule with an action) is GREEN at 0 over 356 in-drive fires. FLEET: the
+     ShortcuT held=1 row, dfLeak/dfLeakW value rows (labelled non-discriminating), deferNatT's rows re-pinned
+     from `road=` to `walk=` because the witness's format changed with the rule. H7: rebuilt at ruling (a)
+     -> ShortcuT reads held=0 inDrive=1 and its row goes red (the tripwire row itself would read a vacuous 0
+     there, since (a)'s witness prints road=, not walk=). Restored .mm/.h byte-identical.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.

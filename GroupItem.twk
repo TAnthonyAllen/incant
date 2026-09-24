@@ -411,17 +411,15 @@ GroupItem   entry;
 ***************************************************************************/
 int deferredAbove(RuleStuff stuff)
 {
-    // twoRoads a NEW-road fire walks the activation list (who is active above) to the drive floor, skipping itself; an OLD-road fire keeps the parentStuff walk (where it attaches) -- ruling (a), Tony 2026-09-24
+    // twoWalks an activation above the drive floor means WHO IS ACTIVE ABOVE is on the list -- walk it, skipping self; with none, walk parentStuff (where it attaches) -- ruling (b) refined, Tony 2026-09-24
     -%
-    int newRoad = gFireFromNewRoad;
-    gFireFromNewRoad = 0;
     int inDrive = gParseActive && !gParseActive->floor;
     if ( GroupControl::groupController->groupRules->processingCode )
-        { ::measureDeferredAbove(stuff,newRoad,1,3,inDrive); return 1; }
-    if ( newRoad )
+        { ::measureDeferredAbove(stuff,inDrive,1,3,inDrive); return 1; }
+    if ( inDrive )
         {
         ParseActivation *a = gParseActive;
-        if ( a && !a->floor && a->stuff == stuff ) a = a->prev;
+        if ( a->stuff == stuff ) a = a->prev;
         for ( ; a && !a->floor; a = a->prev )
             if ( a->stuff && a->stuff->rule && a->stuff->rule->groupBody->flags.deferred )
                 { ::measureDeferredAbove(stuff,1,1,2,inDrive); return 1; }

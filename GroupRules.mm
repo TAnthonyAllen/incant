@@ -3064,8 +3064,6 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
 		if ( ruleStuff->noAdvance )
 			ruler->atRuleMark = ruleStuff->hereAt;
-		// newRoadFire tell deferredAbove this fire is the NEW road's -- it consumes the flag on read
-		 gFireFromNewRoad = 1; 
 		field->fireLabelMethod(ruleStuff);
 		if ( ruleStuff->sukcess )
 			{
@@ -8208,8 +8206,8 @@ int 		made = 0;
 	return made;
 }
 
-// measureDeferredAbove witness: which road a fire took, its answer, and where the walk ended -- new road: list to floor/empty/deferred; old road: whether it fired inside a new-road drive and carries an action (the (b) tripwire). parseTrace-gated
-extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int newRoad, int held, int endKind, int inDrive)
+// measureDeferredAbove witness: which walk a fire took (the activation list, or the parentStuff chain), its answer, where the walk ended, whether it fired inside a drive and whether it carries an action -- the (b) tripwire counts chain walks inside a drive. parseTrace-gated
+extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int listWalk, int held, int endKind, int inDrive)
 {
 	
 	if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->rule )
@@ -8217,8 +8215,8 @@ extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int newRoad, int he
 	GroupItem *r = stuff->rule;
 	int action = (stuff->actionMethod || r->groupBody->flags.actionType || r->getAttribute((char*)"builtinActoR")) ? 1 : 0;
 	const char *end = endKind == 1 ? "floor" : endKind == 2 ? "deferred" : endKind == 3 ? "processingCode" : "empty";
-	::fprintf(stderr,"  DEFERABOVE rule=%s road=%s held=%d end=%s inDrive=%d action=%d\n",
-	r->groupBody->tag, newRoad ? "new" : "old", held, end, inDrive, action);
+	::fprintf(stderr,"  DEFERABOVE rule=%s walk=%s held=%d end=%s inDrive=%d action=%d\n",
+	r->groupBody->tag, listWalk ? "list" : "chain", held, end, inDrive, action);
 	}
 	
 	return 0;

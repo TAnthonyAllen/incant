@@ -10,6 +10,9 @@ define
     dfCall="s2L(1)";
     dfPrint=(print s2L[1];#);
     dfAbc="abc";
+    dfIf0=(if 0; print $ "a" "b";#);
+    dfWh0=(while 0; print $ "a" "b";#);
+    dfPlain=(print "c" "d";#);
     ;
 parser(DO);
 traceParse();
@@ -31,3 +34,10 @@ The rows: each copy exits 0 and returns. dfPrint drives `print s2L[1];` -- PrinT
 NumbeR, reached THROUGH the same-face recursion inside the subscript, must read held=1 end=deferred. PrinT,
 directly under the drive's root, must read end=floor: the walk stopped at the drive's marker. And it prints aa.
 H7, measured at minting: the change set removed, dfSub and dfCall hang again (killed by the alarm).
+
+RULING (b) REFINED (Tony, 2026-09-24): a fire walks the list whenever an activation sits above the floor,
+either road, and parentStuff otherwise. So ShortcuT -- an OLD-road rule with an action, fired inside a
+new-road print drive -- now sees PrinT's defer (held=1), where it read held=0 before.
+dfLeak and dfLeakW drive a `$` print under `if 0;` / `while 0;` and then a plain print in the same process,
+and the plain print must print `c d`. ⚠ NON-DISCRIMINATING TODAY: `$` has no effect on the new road at all
+(`print $ "a" "b";` prints `a b`, where the old road prints `ab`) -- F-120 -- so a leak could not show.
