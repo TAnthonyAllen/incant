@@ -10548,10 +10548,7 @@ int 		n = 0;
 	return 0;
 }
 
-/*****************************************************************************
-     Parse a rule. Assumes processCode was run on field already.
-        See bareFieldRepoint DesignDocs entry
-*****************************************************************************/
+// parseRule -- parse a rule; processCode has already run on field. A new declaration re-points every bare field below it (bear-trap #42): diff the generated .mm against HEAD after any edit here   Generate.parseRule.bareFieldRepoint
 extern "C" GroupItem *parseRule(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10561,18 +10558,12 @@ GroupItem 	*grup = 0;
 GroupItem 	*myLabel = 0;
 GroupItem 	*into = 0;
 GroupItem 	*priorMETHOD = 0;
-	// enclosingRule as parseLoop -- the enclosing rule at the moment of entry   Generate.parseRule.enclosingRule
-	// onlyIfFound the old guard was `if lastRule`, and lastRule was null exactly where this
-	// lookup finds nothing; currentMETHOD is set more often, so an unfound tag would overwrite
-	// field with NULL and parseRule would deref it. Tested on the lookup, not on the source.
+	// enclosingRule re-resolve to the enclosing rule's own face, tested on the lookup so an unfound tag never overwrites field with null (the old `if lastRule` guard missed that)
 	if ( ruler->currentMETHOD && ruler->currentMETHOD->get(field->groupBody->tag) )
 		field = ruler->currentMETHOD->get(field->groupBody->tag);
 RuleStuff 	*ruleStuff = field->getRStuff();
 	::measureParentProbe(field);
-	/*  parentRepair  this is NOT part of the lastRule bracket, it only lived inside its
-	guard: it re-points parentStuff at the ENCLOSING rule's stuff and syncs parentLabel.
-	Sourced from currentMETHOD now, which was measured to track lastRule exactly at both
-	re-resolve sites.   Generate.parseRule.parentRepair  */
+	// parentRepair re-point parentStuff at the ENCLOSING rule's stuff and sync parentLabel, sourced from currentMETHOD (measured to track lastRule exactly)
 	if ( ruler->currentMETHOD && ruler->currentMETHOD->getRStuff() != ruleStuff->parentStuff )
 		{
 		ruleStuff->parentStuff = ruler->currentMETHOD->getRStuff();
@@ -10588,23 +10579,15 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			while ( grup = code->nextAttribute(grup) )
 				if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isRule && !grup->groupBody->flags.noPrint && grup->groupBody != field->groupBody )
 					grup->clear();
-			// noArgumentOnARule A RULE CARRIES NO argument SLOT. Tony ruled it 2026-09-20 -- it
-			// noArgumentOnARule should not exist, so it needs no noPrint. The mint and both its
-			// noArgumentOnARule uses are DELETED, and the "into rides the argument" half of the
-			// noArgumentOnARule 09-09 ruling is RETIRED BY NAME with them. The other half, the
-			// noArgumentOnARule return carrying one bit, stands. fixIts F-94.
-			// labelReachesNothing THE LABEL IS MINTED AND GOES NOWHERE, which is what it did
-			// labelReachesNothing before, because the slot never had a reader. CT-5 stays open and
-			// labelReachesNothing the next stroke gives the label a real channel.
+			// noArgumentOnARule a rule carries no argument slot (Tony, 2026-09-20; F-94) -- the return carries one bit
+			// labelReachesNothing myLabel is minted and goes nowhere until CT-5 gives it a channel
 			into = ruleStuff->parentLabel;
 			myLabel = new GroupItem(field->groupBody->tag);
 			::measureLabelMint(field,myLabel,into);
 			::saveLocalFields(field);
 			priorMETHOD = ruler->currentMETHOD;
 			ruler->currentMETHOD = field;
-			/*****************************************************************
-			here the parse action in method gets run
-			*****************************************************************/
+			// here the parse action in method gets run
 			if ( result = field->parseBlocK() )
 				{
 				// probeDoor armed only inside jitProbeDrive: fire the COMPILED body in place of this BlocK, nothing else changes
@@ -10626,10 +10609,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		else	::reportNoBody(field);
 checkSuccess:
 		// this is just a marker for directives
-		// resultSeat what :229 is actually reading -- rule, returned node, and truthOf of it.
-		// resultSeat It settled row 1 on 2026-09-20 and stays, per the measure-callout ruling.
+		// resultSeat the rule, the returned node and its truthOf -- a standing callout (measure-callout ruling)
 		::measureParseResult(field,result);
-		// chainTruth the rule succeeds when its chain is TRUE -- not when the chain returned something. F-95's exit half (Tony, ruled 2026-09-22, built 2026-09-23); a term returns one bit since de29e38
+		// chainTruth the rule succeeds when its chain is TRUE, not when it returned something (F-95, Tony 2026-09-22)
 		ruleStuff->sukcess = ::truthOf(result);
 		}
 	// markSeat1 SEQ 166 point 1 -- the last seat with visibility before the trace goes silent
