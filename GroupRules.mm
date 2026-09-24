@@ -38,6 +38,8 @@ GroupItem 	*token = 0;
 	else	token = input;
 	// keywordNeutrality both answers, today's and a direct lookup, witnessed at the decision (C-form census)
 	 ::measureKeywordDecision(input,token); 
+	// kwDirectSwitch the C-form outcome census, off unless KW_DIRECT is set
+	 { int kwd = ::kwDirectRefuses(input); if ( kwd == 1 ) return 0; if ( kwd == 0 ) return input; } 
 	if ( !GroupControl::groupController->groupRules->compiling && token && token->groupBody->registry == GroupControl::groupController->groupRules->keyWords && !token->groupBody->flags.noPrint )
 		return 0;
 	return input;
@@ -7636,6 +7638,24 @@ GroupItem 	*inner = 0;
 	return leaf;
 }
 
+// kwDirectRefuses C-FORM, SWITCHED (KW_DIRECT=1, outcome census only): ANYtoken's keyword decision by a direct lookup of the matched text in Keywords, no read of NamE's resolution. -1 = switch off (use today's test), 1 = refuse, 0 = accept
+extern "C" int kwDirectRefuses(GroupItem *input)
+{
+	
+	if ( !::getenv("KW_DIRECT") ) return -1;
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	RuleStuff *st = ruler->ruleSTUFF;
+	if ( ruler->compiling || !input || !st || !st->hereAt || !ruler->atRuleMark || ruler->atRuleMark < st->hereAt ) return 0;
+	char word[128];
+	const char *p = st->hereAt;
+	int n = 0;
+	while ( p < ruler->atRuleMark && n < 127 && (::isalnum((unsigned char)*p) || *p == '_') ) word[n++] = *p++;
+	word[n] = 0;
+	GroupItem *kw = n ? ruler->keyWords->get(word) : 0;
+	return kw && !kw->groupBody->flags.noPrint ? 1 : 0;
+	
+}
+
 extern "C" void limitWriteCheck(GroupItem *target, int priorLimit)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -8328,8 +8348,11 @@ extern "C" GroupItem *measureKeywordDecision(GroupItem *input, GroupItem *token)
 	FILE *f = ::fopen(logPath,"a");
 	if ( f )
 	{
-	::fprintf(f,"KWDEC %s word=[%s] today=%d direct=%d compiling=%d isGROUP=%d\n",today == direct ? "agree" : "DISAGREE",
-	word,today,direct,(int)ruler->compiling,isGROUP(input->groupBody->flags.data) ? 1 : 0);
+	GroupItem *rreg = token ? token->groupBody->registry : 0;
+	::fprintf(f,"KWDEC %s word=[%s] today=%d direct=%d compiling=%d isGROUP=%d res=%s/%s file=%s\n",today == direct ? "agree" : "DISAGREE",
+	word,today,direct,(int)ruler->compiling,isGROUP(input->groupBody->flags.data) ? 1 : 0,
+	token && token->groupBody->tag ? token->groupBody->tag : "-",rreg && rreg->groupBody->tag ? rreg->groupBody->tag : "-",
+	ruler->sourceFILE && ruler->sourceFILE->groupBody->tag ? ruler->sourceFILE->groupBody->tag : "-");
 	::fclose(f);
 	}
 	}
