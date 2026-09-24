@@ -689,4 +689,14 @@ static inline void reportCompileCensus(void)
         ::exit(1);
 }
 
+// ParseActivation -- the NEW road's activation list: WHO IS ACTIVE ABOVE. parseRule pushes one on the C++ stack and pops it
+// before its single return; a drive (a field carrying data) pushes a FLOOR the walk stops at. parentStuff stays and means
+// WHERE TO ATTACH. deferredAbove walks this list for new-road fires only (Tony, 2026-09-24; F-114 hangs, option 1, ruling (a)).
+class RuleStuff;
+struct ParseActivation { RuleStuff *stuff; ParseActivation *prev; int floor; };
+inline ParseActivation *gParseActive = nullptr;
+// gFireFromNewRoad -- one-shot: exitFromParse raises it immediately before its fire and deferredAbove CONSUMES it on read,
+// so a nested old-road fire can never inherit it.
+inline int gFireFromNewRoad = 0;
+
 #endif // JITCONTEXT_H

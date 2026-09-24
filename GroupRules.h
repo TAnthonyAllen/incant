@@ -302,6 +302,7 @@ extern "C" int manyScafC1(GroupItem *label, GroupItem *term);
 extern "C" GroupItem *markWindow(GroupItem *input);
 extern "C" int materialiseRegistry(GroupItem *registry);
 extern "C" int materialiseTerms(GroupItem *rule);
+extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int newRoad, int held, int endKind, int inDrive);
 extern "C" GroupItem *measureLoopVerdict(GroupItem *field);
 extern "C" GroupItem *measureParseClass(GroupItem *field);
 extern "C" GroupItem *measureTargetAgree(RuleStuff *stuff, int computed);

@@ -15,6 +15,8 @@ RuleStuff   ruleStuff = rStuff;
             Generate.exitFromParse.parentLabelSync  */
         if parentStuff && parentLabel != parentStuff.label  parentLabel = parentStuff.label;
         if noAdvance    atRuleMark = hereAt;
+        // newRoadFire tell deferredAbove this fire is the NEW road's -- it consumes the flag on read
+        -% gFireFromNewRoad = 1; %-
         fireLabelMethod(ruleStuff);
         if sukcess {
             if label && !noLabel {
@@ -262,6 +264,8 @@ RuleStuff   ruleStuff = rStuff;
     RuleStuff *callParentStuff = ruleStuff ? ruleStuff->parentStuff : 0;
     char *callHereAt = ruleStuff ? ruleStuff->hereAt : 0;
     int callKount = ruleStuff ? ruleStuff->kount : 0;
+    ParseActivation callActive = { ruleStuff, gParseActive, 0 };
+    gParseActive = &callActive;
     %-
     measureParentProbe(field);
     // parentRepair re-point parentStuff at the ENCLOSING rule's stuff and sync parentLabel, sourced from currentMETHOD (measured to track lastRule exactly)
@@ -310,6 +314,8 @@ checkSuccess:   // this is just a marker for directives
     // markSeat1 SEQ 166 point 1 -- the last seat with visibility before the trace goes silent
     measureMarkPoint("1-parseRule-exit");
     result = exitFromParse(field);
+    // activeList pop this call's activation -- AFTER exitFromParse, so its own fire saw itself on top and skipped it
+    -% gParseActive = callActive.prev; %-
     // callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it
     -%
     if ( ruleStuff ) {
@@ -410,6 +416,22 @@ extern GroupItem setParse(GroupItem field)
     // perWalkNotPerProcess the mark breaks the cyclic grammar WITHIN one walk and must not outlive it, or a second legitimate root over shared nodes is refused instead of classified   Generate.setParse.perWalkNotPerProcess
     clearWalked(field);
     return setParseWalk(field);
+}
+
+// measureDeferredAbove witness: which road a fire took, its answer, and where the walk ended -- new road: list to floor/empty/deferred; old road: whether it fired inside a new-road drive and carries an action (the (b) tripwire). parseTrace-gated
+extern GroupItem measureDeferredAbove(RuleStuff stuff, int newRoad, int held, int endKind, int inDrive)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->rule )
+        {
+        GroupItem *r = stuff->rule;
+        int action = (stuff->actionMethod || r->groupBody->flags.actionType || r->getAttribute((char*)"builtinActoR")) ? 1 : 0;
+        const char *end = endKind == 1 ? "floor" : endKind == 2 ? "deferred" : endKind == 3 ? "processingCode" : "empty";
+        ::fprintf(stderr,"  DEFERABOVE rule=%s road=%s held=%d end=%s inDrive=%d action=%d\n",
+            r->groupBody->tag, newRoad ? "new" : "old", held, end, inDrive, action);
+        }
+    %-
+    return null;
 }
 
 // measureLoopVerdict witness: at parseLoop's verdict, the success flag beside the count -- DISAGREE is the only case the removed flag read would have decided (a stale flag, count short of min); parseTrace-gated, pinned at 0

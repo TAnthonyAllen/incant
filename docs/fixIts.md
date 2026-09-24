@@ -355,6 +355,28 @@ ATTEMPT LOG
      statement, any `defer` rule above) is gone from the chain, so deferredAbove cannot see a deferred
      ancestor there. The chain is not the activation stack whenever a face recurses.
      NOT FIXED -- where the parent chain lives is a ruling. Options named in the 2026-09-24 report.
+  16. THE HANGS FIXED (Tony, 2026-09-24: option 1, ruling (a)). jitContext.h holds a ParseActivation list
+     (WHO IS ACTIVE ABOVE). parseRule pushes its activation in the bracket's passthrough and pops it right
+     after exitFromParse, before its single return; driveStep pushes a FLOOR around a real drive (a field
+     carrying data). deferredAbove: a NEW-road fire (exitFromParse raises a one-shot gFireFromNewRoad, which
+     deferredAbove consumes on read) walks the list to the floor, skipping its own top entry; an OLD-road
+     fire keeps the parentStuff walk. parentStuff is unchanged and means WHERE TO ATTACH -- both sites say so.
+     Measured before building: today's walk at a top-level drive ended at the drive root (ExpressioN ->
+     null), so the floor preserves it; deferredAbove's one caller, fireLabelMethod, serves BOTH roads.
+     -> s2L[1], s2L(1) exit 0 natively; `print s2L[1];` prints aa, and its NumbeR, reached THROUGH the
+     same-face Token recursion, reads held=1 end=deferred (PrinT); PrinT under the drive root reads
+     end=floor. FLEET: deferNatT (4 copies + through-recursion, floor and value rows). H7: the change set
+     removed and rebuilt -> dfSub, dfCall, dfPrint hang again (alarm, 142), dfAbc returns. Restored .mm/.h
+     byte-identical.
+     ⚠ THE (b) TRIPWIRE IS BORN RED, AND IT RETRACTS A CLAIM IN THE 2026-09-24 REPORT. I said ShortcuT, the
+     one old-road rule the new road dispatches mid-drive, had no action -- read off actionType=0 alone. It
+     HAS one, aCTionShortcuT (ruleActions.rtn:942), and it fires inside the print drives with the old-road
+     answer held=0 end=empty, while the same rule under PrinT in the file's own parse reads held=1. Outputs
+     are still right (print drives print 0 and 0 and hi). The row fails with Tony's message: rule on (b).
+     DEBTS: (i) THE INLINE RUNG inherits the activation list as well as the bracket -- an inlined parse
+     body skips parseRule, so it must push/pop its activation itself or the frame model must replace it.
+     (ii) UNMEASURED: a drive started from INSIDE a new-road action (the floor would then hide new-road
+     activations below it); no fixture reaches it.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.

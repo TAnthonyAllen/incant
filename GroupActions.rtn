@@ -1142,6 +1142,12 @@ use rule
     measureRuleDoor(field,rule);
 use ruler
     if inputSTAK    baseStak = inputSTAK.length;
+    // driveFloor a drive pushes a FLOOR on the new road's activation list; deferredAbove stops there (Tony, 2026-09-24)
+    -%
+    ParseActivation driveFloor = { 0, gParseActive, 1 };
+    int floorPushed = 0;
+    if ( field && field->groupBody->flags.data ) { gParseActive = &driveFloor; floorPushed = 1; }
+    %-
     if field && field.data {
         divertToRule    = true;
         pushInput(field);
@@ -1177,6 +1183,8 @@ use ruler
     while field && field.data && inputSTAK && inputSTAK.length > baseStak
         popInput();
     if field && field.data  measureMarkPoint("2c-after-pop");
+    // driveFloor pop the floor before the single return
+    -% if ( floorPushed ) gParseActive = driveFloor.prev; %-
     return result;
 }
 

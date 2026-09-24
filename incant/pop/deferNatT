@@ -1,0 +1,33 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    s2N=0;
+    s2Y=0;
+    s2L aa bb cc;
+    dfSub="s2L[1]";
+    dfCall="s2L(1)";
+    dfPrint=(print s2L[1];#);
+    dfAbc="abc";
+    ;
+parser(DO);
+traceParse();
+cerr "DF BEGIN":;
+DFDRIVE;
+cerr "DF RETURNED":;
+cerr "DEFERNAT SENTINEL":;
+stop();
+
+deferNatT -- A TEMPLATE, NEVER RUN AS IT STANDS. genLadder/pop.sh replaces DFDRIVE, one process per copy.
+
+F-114 THE HANGS. `s2L[1]` and `s2L(1)` hung in deferredAbove: it walked rStuff.parentStuff, and a same-face
+recursion (Token > ExpressioN > Braced|Parens > InvokeArg > TokenXP > Token) made that chain a CYCLE. The fix
+(Tony, 2026-09-24, option 1, ruling (a)): parseRule pushes an ACTIVATION onto a list on the C++ stack and pops
+it before its single return; a drive pushes a FLOOR; a NEW-road fire walks that list to the floor, skipping
+itself. An OLD-road fire keeps the parentStuff walk. parentStuff still means where to attach.
+
+The rows: each copy exits 0 and returns. dfPrint drives `print s2L[1];` -- PrinT is `defer` -- and its
+NumbeR, reached THROUGH the same-face recursion inside the subscript, must read held=1 end=deferred. PrinT,
+directly under the drive's root, must read end=floor: the walk stopped at the drive's marker. And it prints aa.
+H7, measured at minting: the change set removed, dfSub and dfCall hang again (killed by the alarm).

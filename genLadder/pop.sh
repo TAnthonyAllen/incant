@@ -2908,6 +2908,36 @@ else echo "  FAIL  quoteNatT qnPr value -- print \"hi\"; did not print hi"; fail
 if grep -qE '^0 and 0 ?$' "$T/qnPs.o"; then echo "  ok    quoteNatT qnPs value -- print s2N \"and\" s2Y printed 0 and 0"; green=$((green+1))
 else echo "  FAIL  quoteNatT qnPs value -- print s2N \"and\" s2Y did not print 0 and 0"; fail=1; fi
 
+#  ---- deferNatT: F-114 THE HANGS -- deferredAbove walks the activation list on the new road ----
+#  H7, measured at minting: the change set removed and rebuilt, dfSub and dfCall hang again.
+for _df in "dfSub ExpressioN" "dfCall ExpressioN" "dfPrint StatemenT" "dfAbc ExpressioN"; do
+    set -- $_df
+    sed "s/^DFDRIVE;\$/$2($1);/" incant/pop/deferNatT > "$T/$1.twk"
+    $B "$T/$1.twk" > "$T/$1.o" 2> "$T/$1.e" & _cap "deferNatT $1"; check "deferNatT $1 ($2) runs" 0 $?
+    sentinel "deferNatT $1 sentinel" "$T/$1.e" "DEFERNAT SENTINEL"
+done
+_dfw() { awk '/^DF BEGIN/{f=1} /^DF RETURNED/{f=0} f' "$T/dfPrint.e"; }
+if _dfw | grep -q "DEFERABOVE rule=NumbeR road=new held=1 end=deferred"; then echo "  ok    deferNatT through the recursion: NumbeR inside s2L[1] sees PrinT's defer"; green=$((green+1))
+else echo "  FAIL  deferNatT through the recursion: NumbeR did not read held=1 end=deferred"; _dfw | grep "DEFERABOVE rule=NumbeR" | sed 's/^/          /'; fail=1; fi
+if _dfw | grep -q "DEFERABOVE rule=PrinT road=new held=0 end=floor"; then echo "  ok    deferNatT drive floor: PrinT's walk stops at the drive's floor"; green=$((green+1))
+else echo "  FAIL  deferNatT drive floor: PrinT's walk did not end at the floor"; _dfw | grep "DEFERABOVE rule=PrinT" | sed 's/^/          /'; fail=1; fi
+if grep -qE '^aa ?$' "$T/dfPrint.o"; then echo "  ok    deferNatT dfPrint value -- print s2L[1]; printed aa"; green=$((green+1))
+else echo "  FAIL  deferNatT dfPrint value -- print s2L[1]; did not print aa"; fail=1; fi
+#  THE (b) TRIPWIRE (Tony, 2026-09-24): an OLD-road fire inside a NEW-road drive, on a rule that carries an
+#  action, reads the parentStuff chain -- which stops at the drive -- so it cannot see a deferred ancestor.
+#  ⚠ BORN RED: ShortcuT (aCTionShortcuT) does this in the print drives, reading held=0 under PrinT.
+_twt=0; _twa=0
+for _f in "$T"/nn*.e "$T"/un*.e "$T"/qn*.e "$T"/df*.e "$T"/dwn.e; do
+    [ -f "$_f" ] || continue
+    _twt=$((_twt + $(grep -c "DEFERABOVE.*road=old.*inDrive=1" "$_f"))); _twa=$((_twa + $(grep -c "DEFERABOVE.*road=old.*inDrive=1 action=1" "$_f")))
+done
+echo "  ..    (b) tripwire: old-road fires inside a new-road drive = $_twt, carrying an action = $_twa"
+if [ "$_twt" -gt 0 ]; then echo "  ok    (b) tripwire anti-vacuity: $_twt old-road fires inside drives witnessed"; green=$((green+1))
+else echo "  FAIL  (b) tripwire anti-vacuity: no old-road fire inside a drive was witnessed"; fail=1; fi
+if [ "$_twa" -eq 0 ]; then echo "  ok    (b) tripwire: no old-road action fires inside a new-road drive"; green=$((green+1))
+else echo "  FAIL  an old-road action now fires inside a new-road drive; deferredAbove cannot see its ancestors; rule on (b)"
+     grep -h "DEFERABOVE.*road=old.*inDrive=1 action=1" "$T"/nn*.e "$T"/un*.e "$T"/qn*.e "$T"/df*.e "$T"/dwn.e 2>/dev/null | sort | uniq -c | sed 's/^/          /'; fail=1; fi
+
 #  ---- loopVerdict: parseLoop decides on the COUNT; the flag read is gone (Tony, 2026-09-24; SEQ 195) ----
 #  measureLoopVerdict prints the flag beside the count at every traced parseLoop verdict. DISAGREE is
 #  the one case the removed `if sukcess return trueResult` would have decided: a STALE flag and a run

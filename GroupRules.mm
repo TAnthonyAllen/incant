@@ -2451,6 +2451,12 @@ char 		*driveBase = 0;
 	::measureRuleDoor(field,rule);
 	if ( ruler->inputSTAK )
 		baseStak = ruler->inputSTAK->length;
+	// driveFloor a drive pushes a FLOOR on the new road's activation list; deferredAbove stops there (Tony, 2026-09-24)
+	
+	ParseActivation driveFloor = { 0, gParseActive, 1 };
+	int floorPushed = 0;
+	if ( field && field->groupBody->flags.data ) { gParseActive = &driveFloor; floorPushed = 1; }
+	
 	if ( field && field->groupBody->flags.data )
 		{
 		ruler->divertToRule = 1;
@@ -2496,6 +2502,8 @@ char 		*driveBase = 0;
 		ruler->popInput();
 	if ( field && field->groupBody->flags.data )
 		::measureMarkPoint("2c-after-pop");
+	// driveFloor pop the floor before the single return
+	 if ( floorPushed ) gParseActive = driveFloor.prev; 
 	return result;
 }
 
@@ -3056,6 +3064,8 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
 		if ( ruleStuff->noAdvance )
 			ruler->atRuleMark = ruleStuff->hereAt;
+		// newRoadFire tell deferredAbove this fire is the NEW road's -- it consumes the flag on read
+		 gFireFromNewRoad = 1; 
 		field->fireLabelMethod(ruleStuff);
 		if ( ruleStuff->sukcess )
 			{
@@ -8198,6 +8208,22 @@ int 		made = 0;
 	return made;
 }
 
+// measureDeferredAbove witness: which road a fire took, its answer, and where the walk ended -- new road: list to floor/empty/deferred; old road: whether it fired inside a new-road drive and carries an action (the (b) tripwire). parseTrace-gated
+extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int newRoad, int held, int endKind, int inDrive)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->rule )
+	{
+	GroupItem *r = stuff->rule;
+	int action = (stuff->actionMethod || r->groupBody->flags.actionType || r->getAttribute((char*)"builtinActoR")) ? 1 : 0;
+	const char *end = endKind == 1 ? "floor" : endKind == 2 ? "deferred" : endKind == 3 ? "processingCode" : "empty";
+	::fprintf(stderr,"  DEFERABOVE rule=%s road=%s held=%d end=%s inDrive=%d action=%d\n",
+	r->groupBody->tag, newRoad ? "new" : "old", held, end, inDrive, action);
+	}
+	
+	return 0;
+}
+
 // measureLoopVerdict witness: at parseLoop's verdict, the success flag beside the count -- DISAGREE is the only case the removed flag read would have decided (a stale flag, count short of min); parseTrace-gated, pinned at 0
 extern "C" GroupItem *measureLoopVerdict(GroupItem *field)
 {
@@ -10615,6 +10641,8 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	RuleStuff *callParentStuff = ruleStuff ? ruleStuff->parentStuff : 0;
 	char *callHereAt = ruleStuff ? ruleStuff->hereAt : 0;
 	int callKount = ruleStuff ? ruleStuff->kount : 0;
+	ParseActivation callActive = { ruleStuff, gParseActive, 0 };
+	gParseActive = &callActive;
 	
 	::measureParentProbe(field);
 	// parentRepair re-point parentStuff at the ENCLOSING rule's stuff and sync parentLabel, sourced from currentMETHOD (measured to track lastRule exactly)
@@ -10671,6 +10699,8 @@ checkSuccess:
 	// markSeat1 SEQ 166 point 1 -- the last seat with visibility before the trace goes silent
 	::measureMarkPoint("1-parseRule-exit");
 	result = ::exitFromParse(field);
+	// activeList pop this call's activation -- AFTER exitFromParse, so its own fire saw itself on top and skipped it
+	 gParseActive = callActive.prev; 
 	// callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it
 	
 	if ( ruleStuff ) {
