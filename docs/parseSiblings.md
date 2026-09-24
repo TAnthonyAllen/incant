@@ -20,3 +20,9 @@ Read-only, 2026-09-24, at `dc1dd53`. Tony asked for it after this family diverge
 | reads `sukcess` as a verdict after its work | — | — | — | — | — | **yes**: `if sukcess return trueResult` sits above the count check, although its own comment (`countNotFlag`) says to read the count | — | — | — | — |
 
 Checked, not reproduced: the zero-length `testUpTo` case does not crash an empty quote. Natively, `""` and `print "";` both return.
+
+## Reachability of parseAction, measured 2026-09-24 (after c7c9e6c)
+
+**No face on the new road uses it.** Walked from the Grokking registry after `parser(DO)`: 372 nodes, and none has `rStuff.parseMethod == parseAction`. That population is where one would show up, because `setParseWalk` installs a parse method on every face it walks, and it walks from DO, which is inside Grokking.
+
+`PRINTing` is the only rule the grammar names with `parseAction=`, and it's reachable through PrinT, CerR and CouT. But `parseAction=processFlags` binds **`processFlags` itself** as its parse method and `gMethod` (the addresses are identical), and `setParseWalk` skips the face as already installed. So `Generate.rtn`'s `parseAction`, and its clear-after-success, never run. No row can go red on it until something routes a face there.
