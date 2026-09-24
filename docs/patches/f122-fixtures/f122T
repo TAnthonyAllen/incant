@@ -1,0 +1,41 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+define
+    s2Y=0;
+    s2C=0;
+    s2L aa bb cc;
+    ;
+s2Y = 0;
+do s2Y = s2Y + 1; while s2Y < 3;
+cerr "F122 fDo s2Y=" s2Y:;
+s2Y = 0;
+if 1 < 0; s2Y = 5; else s2Y = 7;
+cerr "F122 fIfElse s2Y=" s2Y:;
+s2Y = 0;
+for s2C in s2L; s2Y = s2Y + 1;
+cerr "F122 fFor s2Y=" s2Y:;
+s2Y = 0;
+if 1 < 0; s2Y = 5;
+cerr "F122 fIfNo s2Y=" s2Y:;
+s2Y = 0;
+if 1 > 0; s2Y = 9;
+cerr "F122 fIfYes s2Y=" s2Y:;
+s2Y = 0;
+do { s2Y = s2Y + 1; } while s2Y < 3;
+cerr "F122 fBraced s2Y=" s2Y:;
+s2Y = 0;
+do print 1; while 1 < 0;
+cerr "F122 fPrint s2Y=" s2Y:;
+s2Y = 0;
+s2Y = 4;
+cerr "F122 fTop s2Y=" s2Y:;
+cerr "F122OLD SENTINEL":;
+stop();
+
+f122T -- F-122 ON THE OLD ROAD. A control statement whose body is a BARE ASSIGNMENT used to crash (its action called a null body
+method) or run the assignment at PARSE time (`if 1 < 0; s2Y = 5;` left 5). Tony's ruling (2026-09-24): Xpress is
+`defer`, so under a deferred ancestor its action is bound and its owner runs it; a bound Xpress hands its owner the
+expression's value; and DO/WhilE/FOR/IF return their OWN label, never the body's result (IF passes a branch signal
+through). All eight run in ONE process, in sequence, each after `s2Y = 0;`.
+Expected: fDo 3, fIfElse 7, fFor 3, fIfNo 0, fIfYes 9, fBraced 3, fPrint 0 and prints 1, fTop 4.

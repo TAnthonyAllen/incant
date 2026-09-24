@@ -1,0 +1,71 @@
+diff --git a/incant/grammar b/incant/grammar
+index 6fbf55e..1c87db3 100644
+--- a/incant/grammar
++++ b/incant/grammar
+@@ -173,7 +173,7 @@ define
+         Search      search- followedBy GrouP+ SemI-;
+         BrancH      BrancheS ExpressioN? SemI- defer;
+         ScopeXP     colon-=":" scopeList=ScopeField+ SemI- defer;
+-    Xpress          ExpressioN SemI-;
++    Xpress          ExpressioN SemI- defer;
+     StatemenT
+         SemI;
+         BlocK;
+diff --git a/ruleActions.rtn b/ruleActions.rtn
+index 887b6df..91b4d87 100644
+--- a/ruleActions.rtn
++++ b/ruleActions.rtn
+@@ -439,7 +439,8 @@ GroupItem   StatemenT:,
+     // labelNO, not falseResult: this construct executed NO statement, so it has no
+     // labelNoNotFalse value -- and 0 is a value
+     if !result  result = labelNO;
+-    return result;
++    // ownLabel a loop returns its OWN label, never its body's result -- fireLabelMethod adopts what an action returns as its label, and a body's value can be a live field (Tony, 2026-09-24, F-122 ruling (a)); a return signal already left above
++    return input;
+ }
+ 
+ /*******************************************************************************
+@@ -543,7 +544,8 @@ int         restrict;
+             lastREF.gGroup  = LoopRestrict;
+             lastREF.isGROUP = true; }
+         else                    lastREF.clear();
+-    return result;
++    // ownLabel a loop returns its OWN label, never its body's result -- fireLabelMethod adopts what an action returns as its label, and a body's value can be a live field (Tony, 2026-09-24, F-122 ruling (a)); a return signal already left above
++    return input;
+ }
+ 
+ /*******************************************************************************
+@@ -573,7 +575,9 @@ GroupItem   result = ExpressioN;
+     or ElsE     result = ElsE.gMethod(ElsE);
+     // labelNoNotFalse if this executed NO statement, it has no value, hence labelNO
+     if !result  result = labelNO;
+-    return result;
++    // ownLabel IF returns its OWN label, never its arm's result, unless that result carries a branch signal (a return inside the arm) -- F-122 ruling (a), Tony 2026-09-24
++    if result && result.isBranch    return result;
++    return input;
+ }
+ 
+ /*******************************************************************************
+@@ -1209,7 +1213,8 @@ GroupItem   looper,
+     // labelNO, not falseResult: this construct executed NO statement, so it has no
+     // labelNoNotFalse value -- and 0 is a value
+     if !result  result = labelNO;
+-    return result;
++    // ownLabel a loop returns its OWN label, never its body's result -- fireLabelMethod adopts what an action returns as its label, and a body's value can be a live field (Tony, 2026-09-24, F-122 ruling (a)); a return signal already left above
++    return input;
+ }
+ 
+ /*******************************************************************************
+@@ -1219,7 +1224,11 @@ extern GroupItem aCTionXpress(GroupItem input)
+ {
+ GroupRules  ruler = groupRules;
+ GroupItem   ExpressioN:;
+-    if !processingCode && method    ExpressioN = method(ExpressioN);
++    if !processingCode && method {
++        ExpressioN = method(ExpressioN);
++        // deferredValue run by its owner (bound under a deferred ancestor -- Xpress is `defer` since F-122), a statement's value is the expression's; a null keeps the label so a loop never dereferences nothing
++        -% if ( input->groupBody->flags.deferred && ExpressioN ) return ExpressioN; %-
++        }
+     or ExpressioN {
+         input.clear();
+         input.group = ExpressioN; }

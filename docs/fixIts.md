@@ -133,6 +133,16 @@ ATTEMPT LOG
   STOPPED FOR A RULING: what a statement run by its owner hands back as its value (its label, its value, or a
   holder), given that loop/block actions pass their body's result up and fireLabelMethod adopts it as the
   label. Attempts 2-4 saved as docs/patches/f122-xpressDefer-2026-09-24.patch; tree at HEAD.
+  5. Tony's ruling (a) built on attempt 2 (Xpress `defer`, a deferred Xpress returns its value) with DO/WhilE/FOR
+     returning their own label and IF its own label unless the arm's result carries a branch signal. -> ALL EIGHT
+     CASES RIGHT IN ONE PROCESS, IN SEQUENCE, ON BOTH ROADS (do 3, if/else 7, for 3, if-false 0, if-true 9, braced 3,
+     print control prints 1, top-level 4). Fleet unchanged (601; bare return yields 44). BUT jitLadder's JV rung
+     goes red: it pins that an action ENDING in a loop/branch is worth 0 when nothing ran (A: while never runs, B:
+     if with no arm) or the body's value when it did (C: do yields 4), on BOTH engines. Under (a) the interpreted
+     values become the labels (gWhilE, gIF, gDO) while the jitted engine keeps 0/0/4. STOPPED FOR A RULING.
+     Proposed refinement: return the own label only when FIRED DIRECTLY (fireLabelMethod adopts the return), the
+     value when RUN BY AN OWNER (the input carries `deferred`, as aCTionXpress already reads). Build saved as
+     docs/patches/f122-rulingA-2026-09-24.patch, fixtures f122T/f122NatT in docs/patches/f122-fixtures; tree at HEAD.
 ```
 
 ### F-121 — ✅ CLOSED 2026-09-24 — a REJECTED `StatemenT` drive on the NEW road abandons the file that ran it
