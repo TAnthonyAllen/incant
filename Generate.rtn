@@ -501,6 +501,8 @@ extern String ptfClass(GroupItem field, RuleStuff stuff)
     if ( ruler->defining ) return (char *)"define";
     const char *t = field->groupBody->tag;
     if ( t && ::strcmp(t,"NewGroup") == 0 ) return (char *)"define";
+    // nameAtParseDiagnostic PTF_NAME_AT_PARSE=1 lets NamE fire during the parse -- an ATTRIBUTION instrument for plant 2 (a parse decision reading NamE's resolution), not the fix
+    if ( t && ::strcmp(t,"NamE") == 0 && ::getenv("PTF_NAME_AT_PARSE") ) return (char *)"diagnostic";
     for ( int i = 0; t && decides[i]; i++ )
         if ( ::strcmp(t,decides[i]) == 0 ) return (char *)"decides";
     return (char *)"ORDINARY";
@@ -545,6 +547,27 @@ extern GroupItem measureParseFire(GroupItem field, RuleStuff stuff)
     return null;
 }
 
+// ptfNoteAttach records an attach that placed a label WHOLE while a statement is recording, so the replay can re-ask attachLabel's unwrap predicate with the same max and promote
+extern GroupItem ptfNoteAttach(GroupItem label, RuleStuff stuff, int promote)
+{
+    -%
+    if ( ptfOn() && label && stuff && gPtfN )
+        {
+        if ( gPtfAttN == gPtfAttCap )
+            {
+            int cap = gPtfAttCap ? gPtfAttCap * 2 : 64;
+            PtfAttach *grown = (PtfAttach*)GC_malloc(sizeof(PtfAttach) * cap);
+            if ( gPtfAttN ) ::memcpy(grown,gPtfAtt,sizeof(PtfAttach) * gPtfAttN);
+            gPtfAtt = grown;
+            gPtfAttCap = cap;
+            }
+        PtfAttach *a = &gPtfAtt[gPtfAttN++];
+        a->label = label; a->max = stuff->max; a->promote = promote;
+        }
+    %-
+    return null;
+}
+
 // ptfRecord the hold half: returns 1 when this fire (or hold) is recorded for the statement-end replay instead of acted on
 extern int ptfRecord(GroupItem field, RuleStuff stuff, int held)
 {
@@ -577,6 +600,9 @@ extern GroupItem ptfStatementEnd(GroupItem field, RuleStuff stuff)
     PtfRec *recs = gPtfRecs;
     int n = gPtfN;
     gPtfRecs = 0; gPtfN = 0; gPtfCap = 0;
+    PtfAttach *atts = gPtfAtt;
+    int attN = gPtfAttN;
+    gPtfAtt = 0; gPtfAttN = 0; gPtfAttCap = 0;
     GroupItem *root = stuff->label;
     int reachCap = 256, reachN = 0, top = 0;
     GroupItem **reach = (GroupItem**)GC_malloc(sizeof(GroupItem*) * reachCap);
@@ -637,21 +663,33 @@ extern GroupItem ptfStatementEnd(GroupItem field, RuleStuff stuff)
         ::measureFireLabelActionOut(r->rule,ret);
         r->stuff->label = saved;
         if ( !ret && ptfTraceOn() ) ::fprintf(stderr,"PTF NULLRET rule=%s tag=%s -- on trunk this return FAILS the parse\n",r->rule->groupBody->tag,r->origTag);
-        if ( ret == L ) continue;
-        subFrom[subN] = L; subTo[subN] = ret; subN++;
-        if ( ret && ret != ruler->labelNO && L->groupBody->tag && ::strcmp(L->groupBody->tag,r->origTag) != 0 )
+        if ( ret != L )
             {
-            if ( ptfTraceOn() ) ::fprintf(stderr,"PTF RETAGCARRY rule=%s %s -> %s\n",r->rule->groupBody->tag,r->origTag,L->groupBody->tag);
-            ret->groupBody->tag = L->groupBody->tag;
+            subFrom[subN] = L; subTo[subN] = ret; subN++;
+            if ( ret && ret != ruler->labelNO && L->groupBody->tag && ::strcmp(L->groupBody->tag,r->origTag) != 0 )
+                {
+                if ( ptfTraceOn() ) ::fprintf(stderr,"PTF RETAGCARRY rule=%s %s -> %s\n",r->rule->groupBody->tag,r->origTag,L->groupBody->tag);
+                ret->groupBody->tag = L->groupBody->tag;
+                }
             }
         GroupItem *pa = L->parent;
+        // unwrapReplay attachLabel's unwrap arm, asked of the SAME predicate with the max and promote of the attach that placed L whole, after the action has written what it reads (ruling A)
+        int attMax = 0, attPromote = 0;
+        for ( int k = attN - 1; k >= 0; k-- ) if ( atts[k].label == L ) { attMax = atts[k].max; attPromote = atts[k].promote; break; }
+        int unwrap = ret && ret != ruler->labelNO && pa && ret->unwrapsOnAttach(attMax,attPromote);
+        if ( ret == L && !unwrap ) continue;
         if ( !pa ) continue;
         GroupItem *prior = L->priorInParent;
         L->remove();
         if ( !ret || ret == ruler->labelNO ) continue;
-        if ( ptfTraceOn() && isGROUP(ret->groupBody->flags.data) && r->max > 1 )
-            ::fprintf(stderr,"PTF LATEGROUP rule=%s -- trunk attaches this label's group, not the label\n",r->rule->groupBody->tag);
-        GroupItem *put = pa->addAttribute(ret);
+        GroupItem *what = unwrap ? ret->getGroup() : ret;
+        GroupItem *put = pa->addAttribute(what);
+        if ( unwrap )
+            {
+            if ( ptfTraceOn() ) ::fprintf(stderr,"PTF UNWRAP rule=%s -> %s\n",r->rule->groupBody->tag,what && what->groupBody->tag ? what->groupBody->tag : "(null)");
+            ret->clear();
+            ret->groupBody->flags.fLAG = 1;
+            }
         if ( !put ) continue;
         put->remove();
         if ( prior ) prior->insertAfter(put);

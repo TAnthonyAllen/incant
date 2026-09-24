@@ -144,6 +144,7 @@ void setText(char *s);
 void setToken(char *s, int length);
 void sort(int (*comparisor)(GroupItem *, GroupItem *));
 void sortByAttribute(char *attributeName);
+int unwrapsOnAttach(int max, int promote);
 void updateContentFlags();
 void updateDispatch();
 void updateListeners();

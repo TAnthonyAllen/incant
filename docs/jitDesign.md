@@ -1149,6 +1149,19 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
   The output is a RANKED LIST OF WHAT TO SPLIT, by kind or by phase. Already at the top: the per-kind `+=` split,
   with its kind probe first. Whether it is a simplification depends on how large the executing class is -- Tony's
   guess is most of them. Record only; no work until the pause.
+- **PARSE-THEN-FIRE STEP-2 CENSUS -- named rules and readings from step 1 (branch `parse-then-fire`, 2026-09-24).**
+  - **RULE C (Tony, 2026-09-24): ATTACHING NEVER READS WHAT AN ACTION WROTE.** The label tree must be decidable from
+    the parse alone. Step 1's first plant: `attachLabel` chose "attach the label or its group" from `isGROUP`, which
+    NamE's action writes. Unwrapping a resolved name into its group is the PARENT ACTION's decision at fire time.
+    Step 1 carries it by replaying the one predicate (`GroupItem::unwrapsOnAttach`, ruling A); step 2 removes the read.
+  - **ITS SECOND MEMBER, same shape through an exemption:** `aCTionANYtoken` (parse-deciding, so it fires during the
+    parse) refuses keywords by reading `input.group`, which NamE's action writes (`ANYtoken NamE@`). A matcher reading
+    an action's output. Step-2 form: the keyword test is the matcher's own lookup, not a read of NamE's resolution.
+  - **THE BOOTSTRAP BOUNDARY IS MEASURED, NOT RULED:** thousands of `class=outside` fires -- the setup and grammar
+    defines are not parsed under StatemenT, so step 1 never touched them. Keep beside the `Start()` idea when the
+    defines hunch is tested.
+  - The action-vs-parse overlap census (both directions) is `docs/overlapCensus.md`; a step-1 plant not in it is a
+    census gap.
 - **C++-ESCAPE RECON AND REMOVAL (Tony: not before a jitting pause).** Every `-%` block in Tony's tok code, jit methods
   excluded. For each site: what it does, why tok could not express it, and a REMEDY CLASS -- (a) tok can already;
   (b) move to a jit, measure or support helper; (c) needs a tok feature (name it). It prices the parseRule bracket and

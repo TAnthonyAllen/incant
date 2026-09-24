@@ -430,13 +430,15 @@ GroupItem 	*lab = stuff->label;
 	// alreadyIsParentLabel lines below would attach it to itself
 	if ( lab == pStuff->label )
 		return;
-	if ( promote && isGROUP(lab->groupBody->flags.data) && stuff->max > 1 )
+	if ( lab->unwrapsOnAttach(stuff->max,promote) )
 		{
 		pStuff->label->addAttribute(lab->getGroup());
 		lab->clear();
 		lab->groupBody->flags.fLAG = 1;
 		return;
 		}
+	// ptfNoteAttach placed WHOLE -- the parse-then-fire replay re-asks unwrapsOnAttach with this max once the label's action has run
+	 ::ptfNoteAttach(lab,stuff,promote); 
 	pStuff->label->addAttribute(lab);
 }
 
@@ -2447,6 +2449,18 @@ char 	*saveText = getText();
 	setText(attributeName);
 	sort(::compareAttribute);
 	setText(saveText);
+}
+
+/*******************************************************************************
+                                unwrapsOnAttach
+    // onePredicate true when attaching this label puts its GROUP in the parent, not the label -- attachLabel and the
+    // onePredicate parse-then-fire replay both ask HERE, so the two engines cannot drift (ruling A, 2026-09-24)
+*******************************************************************************/
+int GroupItem::unwrapsOnAttach(int max, int promote)
+{
+	if ( promote && isGROUP(groupBody->flags.data) && max > 1 )
+		return 1;
+	return 0;
 }
 
 /*******************************************************************************

@@ -263,11 +263,13 @@ GroupItem   lab = stuff.label;
     // alreadyIsParentLabel this label IS the parent's label already, so there is nothing to attach and the
     // alreadyIsParentLabel lines below would attach it to itself
     if lab == pStuff.label  return;
-    if promote && lab.isGROUP && stuff.max > 1 {
+    if lab.unwrapsOnAttach(stuff.max,promote) {
         pStuff.label    +% lab.group;
         lab.clear();
         lab.fLAG        = true;
         return; }
+    // ptfNoteAttach placed WHOLE -- the parse-then-fire replay re-asks unwrapsOnAttach with this max once the label's action has run
+    -% ::ptfNoteAttach(lab,stuff,promote); %-
     pStuff.label +% lab;
 }
 
@@ -1940,6 +1942,17 @@ String  saveText = text;
     text = attributeName;
     sort(compareAttribute);
     text = saveText;
+}
+
+/*******************************************************************************
+                                unwrapsOnAttach
+    // onePredicate true when attaching this label puts its GROUP in the parent, not the label -- attachLabel and the
+    // onePredicate parse-then-fire replay both ask HERE, so the two engines cannot drift (ruling A, 2026-09-24)
+*******************************************************************************/
+int unwrapsOnAttach(int max, int promote)
+{
+    if promote && isGROUP && max > 1    return true;
+    return false;
 }
 
 /*******************************************************************************

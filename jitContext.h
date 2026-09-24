@@ -705,6 +705,11 @@ extern "C" void *GC_malloc_atomic(size_t);
 struct PtfRec { GroupItem *rule; RuleStuff *stuff; GroupItem *label; GroupItem *(*method)(GroupItem *); int held; int max; char *origTag; };
 inline PtfRec *gPtfRecs = nullptr;
 inline int gPtfN = 0, gPtfCap = 0, gPtfMode = -1, gPtfTrace = -1;
+// ptfAttach the attach that placed a label WHOLE, with the max and promote it asked the unwrap predicate with --
+// the replay asks the same predicate with the same arguments once the action has written what it reads
+struct PtfAttach { GroupItem *label; int max; int promote; };
+inline PtfAttach *gPtfAtt = nullptr;
+inline int gPtfAttN = 0, gPtfAttCap = 0;
 inline int ptfOn()
 {
     if ( gPtfMode < 0 ) { const char *e = ::getenv("PTF"); gPtfMode = (e && *e == '0') ? 0 : 1; }
