@@ -8360,6 +8360,16 @@ extern "C" GroupItem *measureKeywordDecision(GroupItem *input, GroupItem *token)
 	return 0;
 }
 
+// measureLabelReuse witness: checkInput is RECYCLING a label (its fLAG was set) that still has a PARENT -- i.e. it is still in some tree. aCTionBraced sets the same bit to mean "subscript", so this counts the two meanings colliding. PTF_TRACE-armed, reads only
+extern "C" GroupItem *measureLabelReuse(GroupItem *label)
+{
+	
+	if ( ptfTraceOn() && label && label->parent )
+	::fprintf(stderr,"PTF LABELREUSE label=%s stillParented=%s\n",label->groupBody->tag ? label->groupBody->tag : "?",label->parent->groupBody->tag ? label->parent->groupBody->tag : "?");
+	
+	return 0;
+}
+
 // measureLoopVerdict witness: at parseLoop's verdict, the success flag beside the count -- DISAGREE is the only case the removed flag read would have decided (a stale flag, count short of min); parseTrace-gated, pinned at 0
 extern "C" GroupItem *measureLoopVerdict(GroupItem *field)
 {
@@ -12155,7 +12165,14 @@ extern "C" int ptfRecord(GroupItem *field, RuleStuff *stuff, int held)
 	
 	if ( !ptfOn() || !field || !stuff || !stuff->label ) return 0;
 	if ( !held && parseACTION(field->groupBody->flags.methodType) ) return 0;
-	if ( ::strcmp(::ptfClass(field,stuff),"ORDINARY") != 0 ) return 0;
+	// fireTimeKeyword ANYtoken still decides DURING the parse (exempt), and ALSO leaves a RECHECK record: at replay NamE has resolved, so today's test sees what trunk saw and a keyword used as a name refuses loudly (Tony, 2026-09-24)
+	int recheck = 0;
+	const char *cls = ::ptfClass(field,stuff);
+	if ( ::strcmp(cls,"ORDINARY") != 0 )
+	{
+	if ( !held && ::strcmp(cls,"decides") == 0 && field->groupBody->tag && ::strcmp(field->groupBody->tag,"ANYtoken") == 0 ) recheck = 1;
+	else return 0;
+	}
 	if ( gPtfN == gPtfCap )
 	{
 	int cap = gPtfCap ? gPtfCap * 2 : 64;
@@ -12166,8 +12183,8 @@ extern "C" int ptfRecord(GroupItem *field, RuleStuff *stuff, int held)
 	}
 	PtfRec *r = &gPtfRecs[gPtfN++];
 	r->rule = field; r->stuff = stuff; r->label = stuff->label; r->method = stuff->actionMethod;
-	r->held = held; r->max = stuff->max; r->origTag = ptfDup(stuff->label->groupBody->tag);
-	return 1;
+	r->held = recheck ? 2 : held; r->max = stuff->max; r->origTag = ptfDup(stuff->label->groupBody->tag);
+	return recheck ? 0 : 1;
 	
 }
 
@@ -12224,7 +12241,10 @@ extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
 	for ( int i = 0; i < n; i++ )
 	{
 	PtfRec *r = &recs[i];
-	if ( !ptfInSet(reach,reachN,r->label) )
+	// reachByBody attaching a PARENTED label attaches a copy that SHARES its body -- the action writes the body, so a record whose body is in the tree is in the tree
+	int inTree = ptfInSet(reach,reachN,r->label);
+	for ( int k = 0; !inTree && k < reachN; k++ ) if ( reach[k]->groupBody == r->label->groupBody ) inTree = 1;
+	if ( !inTree )
 	{
 	if ( ptfTraceOn() )
 	{
@@ -12250,6 +12270,17 @@ extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
 	if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DEADLABEL rule=%s tag=%s\n",r->rule->groupBody->tag,r->origTag);
 	continue;
 	}
+	if ( r->held == 2 )
+	{
+	ruler->ruleSTUFF = r->stuff;
+	if ( !r->method(L) )
+	{
+	GroupItem *kw = isGROUP(L->groupBody->flags.data) ? L->getGroup() : L;
+	if ( ptfTraceOn() ) ::fprintf(stderr,"PTF RECHECK rule=%s REFUSES %s\n",r->rule->groupBody->tag,kw && kw->groupBody->tag ? kw->groupBody->tag : "?");
+	::refuse(kw,(char *)"a KEYWORD used as a name -- the parse let it through before NamE resolved it; refused at fire time (parse-then-fire)");
+	}
+	continue;
+	}
 	if ( r->held )
 	{
 	::measureFireOrder(r->rule,L,1,1,r->origTag);
@@ -12269,6 +12300,7 @@ extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
 	gPtfRecs = 0; gPtfN = 0; gPtfCap = 0; gPtfAtt = 0; gPtfAttN = 0; gPtfAttCap = 0;
 	GroupItem *ret = r->method(L);
 	if ( gPtfN && ptfTraceOn() ) ::fprintf(stderr,"PTF FRAMELEAK rule=%s left=%d -- discarded\n",r->rule->groupBody->tag,gPtfN);
+	if ( gPtfN && ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"FRAMELEAK rule=%s left=%d\n",r->rule->groupBody->tag,gPtfN); ::fclose(lf); } }
 	gPtfRecs = frRecs; gPtfN = frN; gPtfCap = frCap; gPtfAtt = frAtt; gPtfAttN = frAttN; gPtfAttCap = frAttCap;
 	::measureAdoption(r->rule,L,ret);
 	::measureFireLabelActionOut(r->rule,ret);
@@ -12298,8 +12330,8 @@ extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
 	if ( unwrap )
 	{
 	if ( ptfTraceOn() ) ::fprintf(stderr,"PTF UNWRAP rule=%s -> %s\n",r->rule->groupBody->tag,what && what->groupBody->tag ? what->groupBody->tag : "(null)");
+	// noLateReuse NOT fLAG: it tells the parse to RECYCLE this shell for the next repetition, and at replay that repetition is over -- set here, the next statement's parse reused a label still parented in this tree
 	ret->clear();
-	ret->groupBody->flags.fLAG = 1;
 	}
 	if ( !put ) continue;
 	put->remove();
@@ -12332,15 +12364,25 @@ extern "C" int ptfStmtAbove(RuleStuff *stuff)
 	for ( ; a && !a->floor; a = a->prev )
 	{
 	for ( int w = 0; w < gPtfWalkingN; w++ ) if ( gPtfWalking[w] == a->stuff ) return 0;
-	if ( a->stuff && ::ptfIsStmt(a->stuff->rule) ) return 1;
+	if ( a->stuff && ::ptfIsStmt(a->stuff->rule) )
+	{
+	if ( ptfTraceOn() && ::ptfIsStmt(stuff->rule) ) ::fprintf(stderr,"PTF STMTABOVE via=list above=%p self=%p\n",(void*)a->stuff,(void*)stuff);
+	return 1;
+	}
 	}
 	return 0;
 	}
-	for ( RuleStuff *up = stuff->parentStuff; up; up = up->parentStuff )
+	int hops = 0;
+	for ( RuleStuff *up = stuff->parentStuff; up; up = up->parentStuff, hops++ )
 	{
 	// replayFloor a statement being replayed is ABOVE any parse its actions start -- the search stops there
 	for ( int w = 0; w < gPtfWalkingN; w++ ) if ( gPtfWalking[w] == up ) return 0;
-	if ( ::ptfIsStmt(up->rule) ) return 1;
+	if ( ::ptfIsStmt(up->rule) )
+	{
+	if ( ptfTraceOn() && ::ptfIsStmt(stuff->rule) )
+	::fprintf(stderr,"PTF STMTABOVE via=chain hops=%d floorTop=%d above=%p self=%p\n",hops,gParseActive ? gParseActive->floor : -1,(void*)up,(void*)stuff);
+	return 1;
+	}
 	}
 	return 0;
 	

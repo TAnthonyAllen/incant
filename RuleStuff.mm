@@ -1212,7 +1212,11 @@ GroupItem 	*field = rule;
 				label = new GroupItem(field->groupBody->tag);
 				label->groupBody->flags.isLabel = 1;
 				}
-			else	label->groupBody->flags.fLAG = 0;
+			else {
+				// reuseWitness a recycled label that is still parented is still in some tree
+				 ::measureLabelReuse(label); 
+				label->groupBody->flags.fLAG = 0;
+				}
 			if ( !label->getRStuff() || ::compare(ruleName,field->groupBody->tag) != 0 )
 				label->setRStuff(this);
 			// enclosingActivation

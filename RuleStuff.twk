@@ -206,7 +206,10 @@ GroupItem   field = rule;
             if !label || !label.fLAG {
                 label           = new(tag);
                 label.isLabel   = true; }
-            else label.fLAG     = false;
+            else {
+                // reuseWitness a recycled label that is still parented is still in some tree
+                -% ::measureLabelReuse(label); %-
+                label.fLAG     = false; }
             if !label.rStuff || ruleName ne tag label.setRStuff(this);
             // enclosingActivation
             if hasNewParse && isMember {

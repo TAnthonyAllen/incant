@@ -307,6 +307,7 @@ extern "C" GroupItem *measureAdoption(GroupItem *field, GroupItem *handed, Group
 extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int listWalk, int held, int endKind, int inDrive);
 extern "C" GroupItem *measureFireOrder(GroupItem *field, GroupItem *label, int held, int phase, char *origTag);
 extern "C" GroupItem *measureKeywordDecision(GroupItem *input, GroupItem *token);
+extern "C" GroupItem *measureLabelReuse(GroupItem *label);
 extern "C" GroupItem *measureLoopVerdict(GroupItem *field);
 extern "C" GroupItem *measureOldFireFlag(GroupItem *field, RuleStuff *stuff);
 extern "C" GroupItem *measureParseClass(GroupItem *field);
