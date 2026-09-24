@@ -1,0 +1,60 @@
+# 59 inputs; the first 28 are the banked crashpairs
+ 0 StatemenT  "else if 1 < 0; s2Y = 1;"            rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+ 1 StatemenT  "search Utilities list;"             rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+ 2 StatemenT  "else s2Y = 2;"                      rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+ 3 ExpressioN "if s2N; s2Y = 1;"                   rc=0 ran=Y sentinel=Y  v=0
+ 4 ExpressioN "if 1 < 0; s2Y = 1; else s2Y = 2;"   rc=0 ran=Y sentinel=Y  v=0
+ 5 StatemenT  "search Utilities list"              rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+ 6 StatemenT  "s2L[1]"                             rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+ 7 StatemenT  "s2L(1)"                             rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+ 8 StatemenT  "print s2N \"and\" s2Y:;"            rc=0 ran=Y sentinel=Y  v=1
+ 9 StatemenT  "print \"hi\";"                      rc=0 ran=Y sentinel=Y  v=1
+10 StatemenT  "if 1 < 0 s2Y = 1;"                  rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+11 StatemenT  "cerr \"hi\":;"                      rc=0 ran=Y sentinel=Y  v=1
+12 StatemenT  "aa isRule tt=\"q\";"                rc=0 ran=Y sentinel=Y  v=1
+13 StatemenT  "=\"q\""                             rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+14 StatemenT  "#5.2d"                              rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+15 StatemenT  "#-5s"                               rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+16 StatemenT  "(1)"                                rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+17 StatemenT  "'q'"                                rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+18 StatemenT  ".5"                                 rc=0 ran=N sentinel=N FILE-ABANDONED  v=0 REFUSED:`.5` is not a number -- a number needs a leading digit;
+19 StatemenT  "-1"                                 rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+20 ExpressioN "while 1 < 0; s2Y = 1;"              rc=0 ran=Y sentinel=Y  v=0
+21 ExpressioN "print 1;"                           rc=0 ran=Y sentinel=Y  v=0
+22 ExpressioN "for s2C in s2L; s2Y = 1;"           rc=0 ran=Y sentinel=Y  v=0
+23 StatemenT  "while 1 < 0 s2Y = 1;"               rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+24 StatemenT  "search ;"                           rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+25 StatemenT  "print ;"                            rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+26 StatemenT  "for s2C s2L;"                       rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+27 StatemenT  "'q"                                 rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+28 ExpressioN ")"                                  rc=0 ran=Y sentinel=Y  v=0
+29 ExpressioN "#"                                  rc=0 ran=Y sentinel=Y  v=0
+30 ExpressioN "\""                                 rc=0 ran=Y sentinel=Y  v=0
+31 StatemenT  "if 1 < 0"                           rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+32 StatemenT  "if 1 < 0;"                          rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+33 StatemenT  "if ;"                               rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+34 StatemenT  "while 1 < 0"                        rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+35 StatemenT  "while 1 < 0;"                       rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+36 StatemenT  "print"                              rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+37 StatemenT  "print }"                            rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+38 StatemenT  "print 1"                            rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+39 StatemenT  "else"                               rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+40 ExpressioN "#5d"                                rc=0 ran=Y sentinel=Y  v=1
+41 ExpressioN "#5d s2N"                            rc=0 ran=Y sentinel=Y  v=1
+42 StatemenT  "#5d;"                               rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+43 ExpressioN "d"                                  rc=0 ran=Y sentinel=Y  v=0
+44 ExpressioN "5d"                                 rc=0 ran=Y sentinel=Y  v=1
+45 StatemenT  "do print 1; whale 1 < 0;"           rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+46 StatemenT  "do print 1; xhale 1 < 0;"           rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+47 ExpressioN "abc"                                rc=0 ran=Y sentinel=Y  v=1
+48 ExpressioN "}"                                  rc=0 ran=Y sentinel=Y  v=?
+49 ExpressioN "42 rest"                            rc=0 ran=Y sentinel=Y  v=1
+50 StatemenT  "print 1;"                           rc=0 ran=Y sentinel=Y  v=1
+51 StatemenT  "do print 1; while 1 < 0;"           rc=0 ran=Y sentinel=Y  v=1
+52 StatemenT  "if 1 < 0; s2Y = 1;"                 rc=0 ran=Y sentinel=Y  v=1
+53 StatemenT  "while 1 < 0; s2Y = 1;"              rc=0 ran=Y sentinel=Y  v=1
+54 StatemenT  "do print 1;"                        rc=0 ran=N sentinel=N FILE-ABANDONED  v=0
+55 ExpressioN "-1"                                 rc=0 ran=Y sentinel=Y  v=1
+56 ExpressioN ".5"                                 rc=0 ran=Y sentinel=Y  v=1 REFUSED:`.5` is not a number -- a number needs a leading digit;
+57 ExpressioN "s2L(1)"                             rc=0 ran=Y sentinel=Y  v=1
+58 ExpressioN "s2L[1]"                             rc=0 ran=Y sentinel=Y  v=1

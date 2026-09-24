@@ -92,6 +92,24 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-121 — a REJECTED `StatemenT` drive on the NEW road abandons the file that ran it
+
+**What.** Driving `StatemenT(x)` natively, where x fails to parse, returns, but the calling file's NEXT statement
+then fails to match (`RunRulE: expected a method not cerr`) and the file is ABANDONED at exit 0 -- no ran-marker,
+no sentinel. 31 of 31 rejected StatemenT drives do it; accepted StatemenT drives and rejected ExpressioN drives
+do not. THE OLD ROAD RECOVERS: the same drives (`else s2Y = 2;`, `if ;`) without `parser(DO)` return and reach
+the sentinel.
+**Where.** Not located. The failed new-road StatemenT leaves the parser's input state (divert stack, floor, or
+mark) such that the caller's statement stream no longer parses. driveStep's pop loop and inputFloor are the
+first places to read.
+**Evidence.** 2026-09-24 native re-measure, jitLadder/station2/nativeRemeasure-2026-09-24.results (F-114 entry 19).
+**Done when.** A rejected StatemenT drive returns and the calling file continues, as on the old road, pinned
+by a row with a line-exact ran-marker and sentinel. **Owner.** Unassigned.
+```
+ATTEMPT LOG
+  (none)
+```
+
 ### F-120 — ✅ CLOSED 2026-09-24 — the `$` print shortcut does nothing on the NEW road
 
 **What.** `print $ "a" "b";` prints `ab` on the old road (`$` flips useDefaultSpace) and `a b` on the new road --
@@ -432,6 +450,17 @@ ATTEMPT LOG
   18. THE (b) TRIPWIRE ROW HAS NO WORKING NEGATIVE CONTROL OF ITS OWN (Tony, 2026-09-24). Under ruling (a) the
      witness printed `road=`, not `walk=`, so rebuilt at (a) the tripwire's grep reads a vacuous 0. The
      ShortcuT held=1 row carries the control instead: at (a) it reads held=0 and goes red.
+  19. NATIVE RE-MEASURE OF THE CRASH CENSUS (2026-09-24, Tony: the lldb drive gave false readings). All 28 banked
+     crashpairs plus F-114's originals, 59 inputs, one native process each, define-held `(…#)` input, line-exact
+     ran-marker and sentinel, alarm 30s. Results: jitLadder/station2/nativeRemeasure-2026-09-24.results.
+       CRASHES 0, HANGS 0 (this morning: 38 crashes over three sites + 2 hangs). Every site-1/2/3 input and
+       both hang inputs now exit 0.
+       REFUSES: `.5`, by name, on both roots (F-117).
+       ⚠ NEW: 31 of 31 REJECTED StatemenT drives ABANDON THE CALLING FILE -- the drive returns, then the file's
+       next statement fails to match and the run ends at exit 0 with no sentinel. New road only (the old road
+       recovers). Banked as F-121. Rejected ExpressioN drives are clean.
+       ⚠ INSTRUMENT NOTE: the first grading was void -- its sentinel check matched the words inside the
+       ABANDONED message's resume text. Every check is line-exact now.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.
