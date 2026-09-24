@@ -3041,6 +3041,28 @@ _s1d=$(grep -c '=== jitDegrade count = 0 ===' "$T/s1r.o"); _s1c=$(grep -c 'jitDe
 if [ "$_s1c" -gt 0 ] && [ "$_s1d" -eq "$_s1c" ]; then echo "  ok    site1RoadsT $_s1c compiles, every one degrade 0"; green=$((green+1))
 else echo "  FAIL  site1RoadsT degrade: $_s1d of $_s1c compiles at 0"; fail=1; fi
 
+#  ---- F-122: a control statement whose body is a BARE ASSIGNMENT (Tony's ruling, 2026-09-24) ----
+#  Xpress is `defer`; a bound Xpress returns its value; DO/WhilE/FOR/IF return their own label when FIRED DIRECTLY
+#  (a yield) and the value when RUN BY AN OWNER (the label carries `deferred`). f122T (old road) and f122NatT (new
+#  road) run the eight cases in ONE process, in sequence. yieldT is the discriminator pair. H7, measured at landing:
+#  forced to always return the value, yieldT's DIRECT reads the tag s2Y; forced to always the label, OWNER reads gDO.
+for _fx in f122T f122NatT; do
+    run2 $_fx "$T/$_fx.o" "$T/$_fx.e"; check "$_fx runs" 0 $?
+    if grep -qE '^F122(OLD|NEW) SENTINEL ?$' "$T/$_fx.e"; then echo "  ok    $_fx sentinel"; green=$((green+1)); else echo "  FAIL  $_fx sentinel missing"; fail=1; fi
+    for _cv in "fDo 3" "fIfElse 7" "fFor 3" "fIfNo 0" "fIfYes 9" "fBraced 3" "fPrint 0" "fTop 4"; do
+        set -- $_cv
+        if grep -qE "^F122 $1 s2Y= ?$2 ?$" "$T/$_fx.e"; then echo "  ok    $_fx $1 s2Y = $2"; green=$((green+1))
+        else echo "  FAIL  $_fx $1 -- want s2Y = $2: $(grep "^F122 $1 " "$T/$_fx.e")"; fail=1; fi
+    done
+    if grep -qxE '1 ?' "$T/$_fx.o"; then echo "  ok    $_fx fPrint control printed 1"; green=$((green+1)); else echo "  FAIL  $_fx fPrint control did not print 1"; fail=1; fi
+done
+run2 yieldT "$T/yt.o" "$T/yt.e"; check "yieldT runs" 0 $?
+sentinel "yieldT sentinel" "$T/yt.e" "YIELD SENTINEL"
+if grep -qE '^YT DIRECT s2Y= ?3 ?$' "$T/yt.e"; then echo "  ok    yieldT DIRECT: a directly fired loop yields its label -- s2Y reads 3"; green=$((green+1))
+else echo "  FAIL  yieldT DIRECT: $(grep '^YT DIRECT' "$T/yt.e")"; fail=1; fi
+if grep -qE '^YT OWNER value= ?3 ?$' "$T/yt.e"; then echo "  ok    yieldT OWNER: an owner-run loop returns its value -- 3"; green=$((green+1))
+else echo "  FAIL  yieldT OWNER: $(grep '^YT OWNER' "$T/yt.e")"; fail=1; fi
+
 #  ---- stmtRejT: F-121 -- a REJECTED new-road StatemenT drive no longer abandons its caller ----
 #  One process per input. EXACT-LINE ran-marker and sentinel (the ABANDONED message quotes the rest of the file,
 #  and a substring check once matched it). The caller's old-road Xpress flag after the drive must read 1.

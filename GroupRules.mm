@@ -374,7 +374,10 @@ GroupItem 	*result = 0;
 	// labelNoNotFalse value -- and 0 is a value
 	if ( !result )
 		result = GroupControl::groupController->groupRules->labelNO;
-	return result;
+	// yieldOrValue ONE RETURN, TWO MEANINGS, TOLD APART BY deferred: direct fire = YIELD (own label -- fireLabelMethod adopts it, and a body's value can be a live field); owner-run = VALUE, as before. The clean split waits for the crossover (Tony, 2026-09-24, F-122)
+	if ( input->groupBody->flags.deferred )
+		return result;
+	return input;
 }
 
 /*******************************************************************************
@@ -683,7 +686,10 @@ int 		restrict = 0;
 			ruler->lastREF->groupBody->flags.data = 6;
 			}
 		else	ruler->lastREF->clear();
-	return result;
+	// yieldOrValue ONE RETURN, TWO MEANINGS, TOLD APART BY deferred: direct fire = YIELD (own label -- fireLabelMethod adopts it, and a body's value can be a live field); owner-run = VALUE, as before. The clean split waits for the crossover (Tony, 2026-09-24, F-122)
+	if ( input->groupBody->flags.deferred )
+		return result;
+	return input;
 }
 
 /*******************************************************************************
@@ -737,7 +743,12 @@ GroupItem 	*result = ExpressioN;
 	// labelNoNotFalse if this executed NO statement, it has no value, hence labelNO
 	if ( !result )
 		result = GroupControl::groupController->groupRules->labelNO;
-	return result;
+	// yieldOrValue ONE RETURN, TWO MEANINGS, TOLD APART BY deferred: direct fire = YIELD (own label, unless the arm's result carries a branch signal); owner-run = VALUE, as before. The clean split waits for the crossover (Tony, 2026-09-24, F-122)
+	if ( input->groupBody->flags.deferred )
+		return result;
+	if ( result && result->groupBody->flags.isBranch )
+		return result;
+	return input;
 }
 
 /*******************************************************************************
@@ -1590,7 +1601,10 @@ GroupItem 	*result = 0;
 	// labelNoNotFalse value -- and 0 is a value
 	if ( !result )
 		result = GroupControl::groupController->groupRules->labelNO;
-	return result;
+	// yieldOrValue ONE RETURN, TWO MEANINGS, TOLD APART BY deferred: direct fire = YIELD (own label -- fireLabelMethod adopts it, and a body's value can be a live field); owner-run = VALUE, as before. The clean split waits for the crossover (Tony, 2026-09-24, F-122)
+	if ( input->groupBody->flags.deferred )
+		return result;
+	return input;
 }
 
 /*******************************************************************************
@@ -1601,7 +1615,11 @@ extern "C" GroupItem *aCTionXpress(GroupItem *input)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 	if ( !ruler->processingCode && ExpressioN->groupBody->gMethod )
+		{
 		ExpressioN = ExpressioN->groupBody->gMethod(ExpressioN);
+		// deferredValue run by its owner (bound under a deferred ancestor -- Xpress is `defer` since F-122), a statement's value is the expression's; a null keeps the label so a loop never dereferences nothing
+		 if ( input->groupBody->flags.deferred && ExpressioN ) return ExpressioN; 
+		}
 	else
 	if ( ExpressioN )
 		{

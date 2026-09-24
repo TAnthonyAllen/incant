@@ -1,0 +1,35 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(YieldT);
+define
+    s2Y=0;
+    dxN=0;
+    dxOut;
+    dxOwn code={
+        do
+            dxN = dxN + 1;
+        while dxN < 3;
+        };
+    ;
+s2Y = 0;
+do s2Y = s2Y + 1; while s2Y < 3;
+cerr "YT DIRECT s2Y=" s2Y:;
+dxN = 0;
+dxOut = dxOwn();
+cerr "YT OWNER value=" dxOut:;
+cerr "YIELD SENTINEL":;
+stop();
+
+yieldT -- ONE RETURN, TWO MEANINGS (F-122, Tony 2026-09-24). A loop or IF fired DIRECTLY by fireLabelMethod YIELDS its
+own label -- fireLabelMethod adopts the return as the label, and a body's value can be a live field; one run by an
+OWNER (its label carries `deferred`) returns the VALUE, as before. Told apart by `deferred`; the clean split waits
+for the crossover.
+The pair, one process, both read by value: DIRECT -- a top-level do-while (unbraced: a braced body cannot sit inside code={ }, whose box closes at the first }); s2Y must read 3 (a value-return
+here hands the live s2Y up to be adopted as DO's label, and s2Y loses its data). OWNER -- the same do-while as an
+action's last statement; the action's value must read 3 (a label-return here gives gDO).
+H7, measured at landing: forced to always return the value, DIRECT reads the tag s2Y; forced to always return the
+label, OWNER reads gDO.

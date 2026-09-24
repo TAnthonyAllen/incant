@@ -439,7 +439,9 @@ GroupItem   StatemenT:,
     // labelNO, not falseResult: this construct executed NO statement, so it has no
     // labelNoNotFalse value -- and 0 is a value
     if !result  result = labelNO;
-    return result;
+    // yieldOrValue ONE RETURN, TWO MEANINGS, TOLD APART BY deferred: direct fire = YIELD (own label -- fireLabelMethod adopts it, and a body's value can be a live field); owner-run = VALUE, as before. The clean split waits for the crossover (Tony, 2026-09-24, F-122)
+    if input.deferred   return result;
+    return input;
 }
 
 /*******************************************************************************
@@ -543,7 +545,9 @@ int         restrict;
             lastREF.gGroup  = LoopRestrict;
             lastREF.isGROUP = true; }
         else                    lastREF.clear();
-    return result;
+    // yieldOrValue ONE RETURN, TWO MEANINGS, TOLD APART BY deferred: direct fire = YIELD (own label -- fireLabelMethod adopts it, and a body's value can be a live field); owner-run = VALUE, as before. The clean split waits for the crossover (Tony, 2026-09-24, F-122)
+    if input.deferred   return result;
+    return input;
 }
 
 /*******************************************************************************
@@ -573,7 +577,10 @@ GroupItem   result = ExpressioN;
     or ElsE     result = ElsE.gMethod(ElsE);
     // labelNoNotFalse if this executed NO statement, it has no value, hence labelNO
     if !result  result = labelNO;
-    return result;
+    // yieldOrValue ONE RETURN, TWO MEANINGS, TOLD APART BY deferred: direct fire = YIELD (own label, unless the arm's result carries a branch signal); owner-run = VALUE, as before. The clean split waits for the crossover (Tony, 2026-09-24, F-122)
+    if input.deferred               return result;
+    if result && result.isBranch    return result;
+    return input;
 }
 
 /*******************************************************************************
@@ -1209,7 +1216,9 @@ GroupItem   looper,
     // labelNO, not falseResult: this construct executed NO statement, so it has no
     // labelNoNotFalse value -- and 0 is a value
     if !result  result = labelNO;
-    return result;
+    // yieldOrValue ONE RETURN, TWO MEANINGS, TOLD APART BY deferred: direct fire = YIELD (own label -- fireLabelMethod adopts it, and a body's value can be a live field); owner-run = VALUE, as before. The clean split waits for the crossover (Tony, 2026-09-24, F-122)
+    if input.deferred   return result;
+    return input;
 }
 
 /*******************************************************************************
@@ -1219,7 +1228,11 @@ extern GroupItem aCTionXpress(GroupItem input)
 {
 GroupRules  ruler = groupRules;
 GroupItem   ExpressioN:;
-    if !processingCode && method    ExpressioN = method(ExpressioN);
+    if !processingCode && method {
+        ExpressioN = method(ExpressioN);
+        // deferredValue run by its owner (bound under a deferred ancestor -- Xpress is `defer` since F-122), a statement's value is the expression's; a null keeps the label so a loop never dereferences nothing
+        -% if ( input->groupBody->flags.deferred && ExpressioN ) return ExpressioN; %-
+        }
     or ExpressioN {
         input.clear();
         input.group = ExpressioN; }

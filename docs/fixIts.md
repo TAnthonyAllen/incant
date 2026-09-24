@@ -92,7 +92,7 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-122 — a control statement whose body is a BARE ASSIGNMENT crashes: its action calls a null body method
+### F-122 — ✅ CLOSED 2026-09-24 — a control statement whose body is a BARE ASSIGNMENT crashes: its action calls a null body method
 
 **What.** `do s2Y = 1; while 1 < 0;` exits 139 on BOTH roads (top-level old road, and a native new-road drive);
 `if 1 < 0; s2Y = 1; else s2Y = 2;` and `for s2C in s2L; s2Y = 1;` crash the same way on the new road. The same
@@ -143,6 +143,12 @@ ATTEMPT LOG
      Proposed refinement: return the own label only when FIRED DIRECTLY (fireLabelMethod adopts the return), the
      value when RUN BY AN OWNER (the input carries `deferred`, as aCTionXpress already reads). Build saved as
      docs/patches/f122-rulingA-2026-09-24.patch, fixtures f122T/f122NatT in docs/patches/f122-fixtures; tree at HEAD.
+  6. THE REFINEMENT, RULED (Tony): ONE RETURN, TWO MEANINGS, TOLD APART BY `deferred` -- a loop or IF FIRED DIRECTLY
+     yields its own label (IF still passes a branch signal through); RUN BY AN OWNER it returns the value, as before.
+     The clean split waits for the crossover. -> the eight cases right in ONE process on BOTH roads (f122T, f122NatT);
+     JV green, both engines 0/0/4; bare return unchanged. DISCRIMINATOR PAIR (incant/pop/yieldT): the same do-while
+     fired directly (s2Y reads 3) and as an action's last statement (value 3). H7: forced to always the value, DIRECT
+     reads the tag s2Y; forced to always the label, OWNER reads gDO. Fleet 627 (+26), jitLadder 214 PASSED.
 ```
 
 ### F-121 — ✅ CLOSED 2026-09-24 — a REJECTED `StatemenT` drive on the NEW road abandons the file that ran it
