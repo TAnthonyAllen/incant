@@ -36,6 +36,8 @@ GroupItem 	*token = 0;
 	if ( isGROUP(input->groupBody->flags.data) )
 		token = input->getGroup();
 	else	token = input;
+	// keywordNeutrality both answers, today's and a direct lookup, witnessed at the decision (C-form census)
+	 ::measureKeywordDecision(input,token); 
 	if ( !GroupControl::groupController->groupRules->compiling && token && token->groupBody->registry == GroupControl::groupController->groupRules->keyWords && !token->groupBody->flags.noPrint )
 		return 0;
 	return input;
@@ -8301,6 +8303,35 @@ extern "C" GroupItem *measureFireOrder(GroupItem *field, GroupItem *label, int h
 	::fprintf(stderr,"PTF1 %s rule=%s tag=%s %s kids=%s",phase ? "walk " : "parse",field->groupBody->tag,lt,held ? "held " : "fired",kids);
 	if ( origTag && ::strcmp(origTag,lt) != 0 ) ::fprintf(stderr," retag=%s",origTag);
 	::fprintf(stderr,"\n");
+	}
+	
+	return 0;
+}
+
+// measureKeywordDecision witness: at ANYtoken's keyword refusal, TODAY's answer (from NamE's resolution: registry keyWords, not noPrint) beside a DIRECT lookup of the matched text in keyWords -- C-form's neutrality census (Tony, 2026-09-24). KW_LOG=<file> arms it; one appended line per decision; reads only
+extern "C" GroupItem *measureKeywordDecision(GroupItem *input, GroupItem *token)
+{
+	
+	const char *logPath = ::getenv("KW_LOG");
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	RuleStuff *st = ruler->ruleSTUFF;
+	if ( logPath && input && st && st->hereAt && ruler->atRuleMark && ruler->atRuleMark >= st->hereAt )
+	{
+	char word[128];
+	const char *p = st->hereAt;
+	int n = 0;
+	while ( p < ruler->atRuleMark && n < 127 && (::isalnum((unsigned char)*p) || *p == '_') ) word[n++] = *p++;
+	word[n] = 0;
+	int today = token && token->groupBody->registry == ruler->keyWords && !token->groupBody->flags.noPrint;
+	GroupItem *kw = n ? ruler->keyWords->get(word) : 0;
+	int direct = kw && !kw->groupBody->flags.noPrint;
+	FILE *f = ::fopen(logPath,"a");
+	if ( f )
+	{
+	::fprintf(f,"KWDEC %s word=[%s] today=%d direct=%d compiling=%d isGROUP=%d\n",today == direct ? "agree" : "DISAGREE",
+	word,today,direct,(int)ruler->compiling,isGROUP(input->groupBody->flags.data) ? 1 : 0);
+	::fclose(f);
+	}
 	}
 	
 	return 0;
