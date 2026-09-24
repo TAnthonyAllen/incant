@@ -49,3 +49,5 @@ The input position can be left advanced only when some attempts succeed and the 
 - **A fixture can't make one.** `lpT isRule` with members `lpA{2,3};` and `lpAB;` kills the `define` at the member line (`RunRulE: expected a method not lpT`, ABANDONED at exit 0). On an attribute, `lpS isRule lpA{2,3};` fails the same way. A limit doesn't parse anywhere in `define` today, which is **F-113**, met from a second direction.
 
 So no row can go red on the rewind until F-113 lets `{n,m}` be written. **Not changed.**
+
+⚠ **WITHDRAWN THE SAME DAY: the second bullet tested the wrong spelling.** Limit is `[min max]`, not `{n,m}`, and `lpA[2 3]` / `lpA[2]` parse in `define` on both a member line and an attribute. So a min ≥ 2 face probably *can* be written (whether it sets min 2 was not measured), and the rewind was not shown unreachable. The first bullet (no such face in the grammar) stands. The question lapses with Limit's removal (Tony, 2026-09-24).
