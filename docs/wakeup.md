@@ -24,6 +24,8 @@
 #      a second pass does the work.
 #   2. **Station 3 onward**, after the cheap coverage lines (pairs.sweep, ~50 of 61), F-126, F-127, and a road-parity
 #      sweep.
+#   **3. Tony's cleanup items, pending, addressed on wake-up AFTER the docket items** (Tony, 2026-09-24). He has not
+#      run bs yet (read as the BeforeSave refresh), so BeforeSave still holds the previous clean-kitchen state.
 #   Rulings owed at the pause: the yield channel (F-122 entry 7; the (b) guard stays unarmed, adoptT pins the
 #   live-field count at 1) and parseLoop's silent success at max (F-114 entry 24).
 #
