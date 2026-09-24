@@ -1,0 +1,52 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    s2N=0;
+    s2Y=0;
+    s2C=0;
+    s2L aa bb cc;
+    tjPctJ root="ExpressioN" armed="Token" msg=(%#) jitted=1;
+    tjPctI root="ExpressioN" armed="Token" msg=(%#) jitted=0;
+    tjColJ root="ExpressioN" armed="Token" msg=(: bb cc#) jitted=1;
+    tjColI root="ExpressioN" armed="Token" msg=(: bb cc#) jitted=0;
+    tjAbcJ root="ExpressioN" armed="Token" msg=(abc#) jitted=1;
+    tjAbcI root="ExpressioN" armed="Token" msg=(abc#) jitted=0;
+    tj42J root="ExpressioN" armed="Token" msg=(42 rest#) jitted=1;
+    tj42I root="ExpressioN" armed="Token" msg=(42 rest#) jitted=0;
+    tjItJ root="ExpressioN" armed="Token" msg=(iterate s2C attributes on s2L;#) jitted=1;
+    tjItI root="ExpressioN" armed="Token" msg=(iterate s2C attributes on s2L;#) jitted=0;
+    ;
+parser(DO);
+cerr "TJ BEGIN":;
+probeDrive(tjAbcJ);
+probeDrive(tjAbcI);
+probeDrive(tj42J);
+probeDrive(tj42I);
+probeDrive(tjItJ);
+probeDrive(tjItI);
+probeDrive(tjPctJ);
+probeDrive(tjPctJ);
+probeDrive(tjPctI);
+probeDrive(tjColJ);
+probeDrive(tjColJ);
+probeDrive(tjColI);
+cerr "TJ RETURNED":;
+cerr "TOKJIT SENTINEL":;
+stop();
+
+tokJitT -- F-123, JITTED Token ON AN INPUT IT CANNOT START (2026-09-24). Token's generated body is
+return QuotE() || NumbeR() || StringXP() || TokenXP() || Operators(); and Operators is a bin that carries a generated
+parse but is not isRule (isRule 0, hasNewParse 1, binType 4). runOP's term call-through under jitting covered only
+isRule, so Operators fell to the isMethod arm and was PARSED AT EMIT TIME: it left no value, the OR degraded (count 1,
+"AND/OR RIGHT operand produced no value") and still closed, reading TRUE at consumed 0. ExpressioN's Token+ then ran
+to max (100 fires; parseLoop has no no-progress stop), and in the one-process sweep the same fire was exit 139.
+
+The fix widens the jitting arm to hasNewParse; interpreted dispatch is unchanged, so the call-through runs the same
+isMethod arm at run time that the interpreted road runs.
+
+Controls first (the three inputs Token can start), then the two subjects, each jitted TWICE (the jitted fire must
+hold on the second call) against interpreted. pop.sh asserts every pair agrees on every field, the subjects' values
+(% accepts 1 of 1, : bb cc rejects at 0), fires 1, and every compile at degrade 0. H7, measured at landing: with the
+arm back at isRule alone, % reads JITTED consumed 0 fires 100 and : bb cc reads JITTED verdict 1.

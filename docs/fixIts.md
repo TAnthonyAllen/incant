@@ -92,22 +92,53 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-123 — OPEN 2026-09-24 — JITTED Token SUCCEEDS WITHOUT CONSUMING on an input it cannot start, and runs to 100 fires
+### F-123 — ✅ CLOSED 2026-09-24 — JITTED Token SUCCEEDED WITHOUT CONSUMING on an input it cannot start, and ran to 100 fires
 
-**What.** Driven through the door (probeDrive, root ExpressioN, armed Token), one process per input, J J vs I I:
-`%` interpreted consumed=1 terms=6 fires=1; JITTED consumed=0 terms=402 fires=100 true=100. `: bb cc` interpreted
-REJECTS (verdict=0, fires=1 true=0); JITTED ACCEPTS (verdict=1, consumed=0, fires=100 true=100). Inputs Token can
-start agree exactly (`abc`, `42 rest`, `iterate s2C attributes on s2L;`). Alone it is a wrong answer at exit 0; in
-the one-process sweep, after the interpreted calibration of 28 carriers, the same jitted fire is exit 139 in
-interpretXP on an ExpressioN label with no groupList (fireLabelMethod -> aCTionExpressioN, under a generated body).
-**Where.** Not located. The jitted Token body reports success on a zero-width match; the 100 reads as a cap on a
-repetition that makes no progress, not located either.
-**Evidence.** 2026-09-24, bare HEAD dd3e7fa: incant/pop/sweepT dies at SWEEP CARRIER 28 Token after 19 carriers
-AGREE with degrade 0 (DO through ExpressioN). Delta-minimising pairs.sweep to keep the crash gave ONE pair,
-`ExpressioN|%`; without both `%` pairs it gave ONE pair again, `ExpressioN|: bb cc`. Both then diverge solo as above.
-**Done when.** Jitted Token on `%` and `: bb cc` agrees with interpreted (verdict, consumed, terms, fires, true), both
-fires, and sweepT gets past carrier 28.
-**Owner.** Unassigned -- it blocks the one-process station-2 sweep at Token.
+**What.** Driven through the door (probeDrive, root ExpressioN, armed Token): `%` interpreted consumed=1 fires=1;
+JITTED consumed=0 terms=402 fires=100. `: bb cc` interpreted REJECTS; JITTED ACCEPTS at consumed 0, fires 100. Inputs
+Token can start agreed. In the one-process sweep the same jitted fire was exit 139 in interpretXP.
+**Where.** runOP's (GroupActions.rtn) term call-through under jitting tested `isRule` only. Token's body is
+`return QuotE() || NumbeR() || StringXP() || TokenXP() || Operators();`, and Operators is a bin that carries a
+generated parse but is not a rule (isRule 0, hasNewParse 1, binType 4). It fell to the `isMethod(target)` arm and was
+PARSED AT EMIT TIME; it left no value, jitEmitShortCircuit degraded ("AND/OR RIGHT operand produced no value", count 1)
+and still closed the OR, whose slot then read TRUE.
+**Done when.** Met: `%` and `: bb cc` agree jitted against interpreted on every field, both fires; the three controls
+unchanged; the sweep passes carrier 28.
+**Owner.** Closed.
+```
+ATTEMPT LOG
+  0. 2026-09-24 FIRST MEASUREMENT, a temporary probe in runRule (the seat both roads' rule terms pass): QuotE, NumbeR,
+     StringXP, TokenXP all fail at moved 0 on BOTH roads; Token then reads true moved 1 interpreted on `%`, true moved 0
+     jitted. The last term, Operators, is not a runRule call on either road; jitted term calls run 402/100 = 4 per fire,
+     so Operators NEVER reached jitTermCallRT. measureRuleDispatch: Operators isRule=0 hasNewParse=1 binType=4
+     isMethod=1; the generated arm tests target.isRule, so it took isMethod. The solo jitted run's degrade line names it.
+     THE DOOR HISTORY, read not assumed: 822e149 (09-10) made the door hasNewParse; Tony's 5f24cf3 (09-14, the
+     hasNewParse split) returned it to isRule; e3001a9 (station 1) added the jitting call-through to the isRule arm only.
+     The comment above the arm still cites the 09-10 ruling and is stale for the interpreted road.
+  1. NO-PROGRESS STOPS: parseLoop runs `while kount < max` with none -- it stops silently at max (100 for `+`) and
+     succeeds; the old road's parse loops to maxRepeat with none and names it (reportRepeatLimit). The leaf loops (Any,
+     Character, Set) advance the mark on every pass, so only those two can repeat without progress. Recorded in
+     docs/parseSiblings.md. Not changed.
+  2. `or isRule || (jitting && hasNewParse)` -- interpreted dispatch unchanged; under jitting a bin with a generated parse
+     emits a term call, and jitTermCallRT's runOP then takes the same isMethod arm at run time the interpreted road takes.
+     -> `%` and `: bb cc` agree on every field, both jitted fires, degrade 0; abc, 42 rest, the iterate line unchanged.
+     (First try put the comment between two `or` arms: tok 139, canary 0 -- bear-trap #29; moved inside the arm.)
+     H7: arm back at isRule alone -> `%` JITTED consumed 0 fires 100, `: bb cc` JITTED verdict 1, degrade 1. Certified by
+     incant/pop/tokJitT (12 pop.sh rows). Fleet 643 (627 + 16 new), reds identical to HEAD; jitLadder 214 PASSED.
+```
+
+### F-124 — OPEN 2026-09-24 — a two-character operator ADVANCES THE MARK PAST ITS OWN TEXT: parseContainer keeps matching after a hit
+
+**What.** Driven through the door (root ExpressioN, armed Token), `==`, `<=` and `+=` each read consumed=-1 (the mark
+left the message) on BOTH engines; `=` alone reads consumed=1. Found while reading the loops for F-123; not chased.
+**Where.** parseContainer (Generate.rtn), both lookup loops -- the no-rStuff registry branch (`ruler.atRuleMark +=
+advance; matched = 1;`) and the main branch (`atRuleMark += advance; sukcess = true;`): neither breaks after a hit,
+and `shorten(1)` then finds the one-character prefix (`=` after `==`) and advances again. Mechanism read from source,
+consistent with the -1; not yet confirmed by a mark reading.
+**Evidence.** 2026-09-24, bare tree after F-123: four probeDrive runs, J and I agree on every field.
+**Done when.** `==`, `<=`, `+=` read consumed=2 of 2 on both engines, pinned, and a statement using them (`if a == b;`)
+is unchanged in value.
+**Owner.** Unassigned. Not blocking the sweep (the engines agree).
 ```
 ATTEMPT LOG
   (none yet)
@@ -177,9 +208,14 @@ ATTEMPT LOG
      and not isLabel). HITS EVERYWHERE, so the guard is not armed: fleet 314 lines (CerR->StatemenT 126, PrinT->
      StatemenT 77, CerR->true 57, PrinT->true 45, list->true 4, tell->verdict 3, JSONarray->labelNO 2, wzNum->true 1,
      JSONfield->JSONtoken 2); ladder 275 (PrinT->StatemenT 225, PrinT->true 50); sweepT 155 (Iterate->s2C 62,
-     BlocK->s2Y 33, CouT->StatemenT 29, PrinT->StatemenT 29, BrancH->break 1, CerR->true 1). THREE SHAPES: the
-     grammar rule StatemenT (a pROPERTIEs node), the trueResult sentinel, and LIVE FIELDS (s2C, s2Y, verdict,
-     JSONtoken) -- the last is attempt 4's hazard, adopted today on the new road. The probe's stderr cost four
+     BlocK->s2Y 33, CouT->StatemenT 29, PrinT->StatemenT 29, BrancH->break 1, CerR->true 1). SHAPES: pROPERTIEs
+     nodes (StatemenT, true, labelNO), a keyword (break), and LIVE FIELDS (s2C, s2Y, verdict, JSONtoken) -- the last is
+     attempt 4's hazard, adopted today on the new road. ⚠ CORRECTED THE SAME DAY: the StatemenT that PrinT/CerR/CouT
+     hand back is the pROPERTIEs node, NOT the grammar rule -- measured isRule 0, hasNewParse 0 by measureAdoption. The
+     first write-up and commit 830f125 called it the grammar rule from its tag alone.
+     A RULING IS OWED AT A PAUSE (Tony, 2026-09-24): what the yield channel may receive. The (b) guard stays UNARMED.
+     Standing visibility: measureAdoption (Generate.rtn, parseTrace-gated) at the adoption seat, and pop.sh's adoptT
+     rows pin the live-field count at 1 (Iterate -> s2C) with PROPERTY as the non-zero sibling. The probe's stderr cost four
      captured rows (manyScratch.target, convDriveT CD-1/3/5); bare HEAD reads 627 again.
 ```
 

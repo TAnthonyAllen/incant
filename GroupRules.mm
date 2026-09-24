@@ -8239,6 +8239,22 @@ int 		made = 0;
 	return made;
 }
 
+// measureAdoption witness: at fireLabelMethod's adoption (the yield channel), a return that is not the label handed in and not a label, by kind -- RULE (isRule or hasNewParse), PROPERTY (the pROPERTIEs registry: StatemenT, true, labelNO -- measured isRule 0, not the grammar rule), FIELD (anything else: a live field). F-122's (b) census; visibility, not refusal. parseTrace-gated, reads only
+extern "C" GroupItem *measureAdoption(GroupItem *field, GroupItem *handed, GroupItem *adopted)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && field && adopted && adopted != handed && !adopted->groupBody->flags.isLabel )
+	{
+	GroupItem *reg = adopted->groupBody->registry;
+	const char *rt = reg && reg->groupBody->tag ? reg->groupBody->tag : "-";
+	const char *kind = (adopted->groupBody->flags.isRule || adopted->groupBody->flags.hasNewParse) ? "RULE"
+	: ::strcmp(rt,"pROPERTIEs") == 0 ? "PROPERTY" : "FIELD";
+	::fprintf(stderr,"  ADOPTION kind=%s rule=%s returned=%s registry=%s\n",kind,field->groupBody->tag,adopted->groupBody->tag,rt);
+	}
+	
+	return 0;
+}
+
 // measureDeferredAbove witness: which walk a fire took (the activation list, or the parentStuff chain), its answer, where the walk ended, whether it fired inside a drive and whether it carries an action -- the (b) tripwire counts chain walks inside a drive. parseTrace-gated
 extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int listWalk, int held, int endKind, int inDrive)
 {
@@ -12802,8 +12818,9 @@ GroupItem 	*target = field->get(2);
 	if ( isMethod(op->groupBody->flags.instructType) )
 		result = op->groupBody->gMethod(target);
 	else
-	if ( target->groupBody->flags.isRule )
+	if ( target->groupBody->flags.isRule || (ruler->jitting && target->groupBody->flags.hasNewParse) )
 		{
+		// binTermCall under jitting a bin carrying a generated parse (Operators: isRule 0, hasNewParse 1) is a term call too -- falling to isMethod parsed it at EMIT time and the OR read true (F-123); interpreted dispatch is unchanged
 		// termCallThrough under jitting a rule is NOT parsed at emit time; a call to the interpreted road is emitted instead
 		
 		if ( ruler->jitting )   result = ::jitEmitTermCall(field);

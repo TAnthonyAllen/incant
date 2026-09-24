@@ -443,6 +443,22 @@ extern GroupItem measureOldFireFlag(GroupItem field, RuleStuff stuff)
     return null;
 }
 
+// measureAdoption witness: at fireLabelMethod's adoption (the yield channel), a return that is not the label handed in and not a label, by kind -- RULE (isRule or hasNewParse), PROPERTY (the pROPERTIEs registry: StatemenT, true, labelNO -- measured isRule 0, not the grammar rule), FIELD (anything else: a live field). F-122's (b) census; visibility, not refusal. parseTrace-gated, reads only
+extern GroupItem measureAdoption(GroupItem field, GroupItem handed, GroupItem adopted)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace && field && adopted && adopted != handed && !adopted->groupBody->flags.isLabel )
+        {
+        GroupItem *reg = adopted->groupBody->registry;
+        const char *rt = reg && reg->groupBody->tag ? reg->groupBody->tag : "-";
+        const char *kind = (adopted->groupBody->flags.isRule || adopted->groupBody->flags.hasNewParse) ? "RULE"
+                         : ::strcmp(rt,"pROPERTIEs") == 0 ? "PROPERTY" : "FIELD";
+        ::fprintf(stderr,"  ADOPTION kind=%s rule=%s returned=%s registry=%s\n",kind,field->groupBody->tag,adopted->groupBody->tag,rt);
+        }
+    %-
+    return null;
+}
+
 // measureLoopVerdict witness: at parseLoop's verdict, the success flag beside the count -- DISAGREE is the only case the removed flag read would have decided (a stale flag, count short of min); parseTrace-gated, pinned at 0
 extern GroupItem measureLoopVerdict(GroupItem field)
 {

@@ -17,6 +17,7 @@ Read-only, 2026-09-24, at `dc1dd53`. Tony asked for it after this family diverge
 | re-resolves the face (`currentMETHOD.get(tag)`) | no | no | no | no | yes | yes | yes | no | no | no |
 | repairs `parentStuff` from `currentMETHOD` | no | no | no | no | yes (`binParentRepair`) | no | yes (`parentRepair`) | no | no | no |
 | runs `getWhatFollows` (`isTarget`, `onFail`, `onGroup`, `hasMacro`) | **no** | **no** | **no** | **no** | **no** | **no** | **no** | **no** | **no** | **no** — only the OLD road's `GroupItem::parse`, through `getStuff`. **This is F-114 site 3.** |
+| stops a repetition that makes NO PROGRESS (measured 2026-09-24, F-123) | — | the loop advances the mark every pass | same | — | — (no repetition) | **none**: runs to `max` (100 for `+`) and succeeds, silently | — | same as Any | — | — |
 | reads `sukcess` as a verdict after its work | — | — | — | — | — | **yes**: `if sukcess return trueResult` sits above the count check, although its own comment (`countNotFlag`) says to read the count | — | — | — | — |
 
 Checked, not reproduced: the zero-length `testUpTo` case does not crash an empty quote. Natively, `""` and `print "";` both return.
@@ -51,3 +52,10 @@ The input position can be left advanced only when some attempts succeed and the 
 So no row can go red on the rewind until F-113 lets `{n,m}` be written. **Not changed.**
 
 ⚠ **WITHDRAWN THE SAME DAY: the second bullet tested the wrong spelling.** Limit is `[min max]`, not `{n,m}`, and `lpA[2 3]` / `lpA[2]` parse in `define` on both a member line and an attribute. So a min ≥ 2 face probably *can* be written (whether it sets min 2 was not measured), and the rewind was not shown unreachable. The first bullet (no such face in the grammar) stands. The question lapses with Limit's removal (Tony, 2026-09-24).
+
+## No-progress stops, measured 2026-09-24 (F-123)
+
+A term that succeeds without consuming, inside a repetition, repeats until the limit. On the new road only `parseLoop` repeats a term, and it has no no-progress stop: it runs to `max` (100 for `+`) and returns success, with nothing reported. The old road's `GroupItem::parse` repeats to `maxRepeat` with no no-progress stop either, but names the limit (`reportRepeatLimit`). The leaf loops (Any, Character, Set) advance the mark on every pass, so they can't stall. F-123 was a jitted zero-width success meeting this loop; the fix went into runOP, not the loop, and the loop is **not changed**.
+
+⚠ Also read while here: `parseContainer`'s two lookup loops keep matching after a hit, so a two-character operator advances past its own text (F-124, captured, not fixed).
+

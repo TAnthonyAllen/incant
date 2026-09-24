@@ -725,7 +725,10 @@ int         held = deferredAbove(stuff);
             // replacementReturn IN and OUT are two seats -- one read after the fire
             // cannot tell a replacement from a pass-through
             measureFireLabelActionIn(this,stuff.label);
+            -% GroupItem *adoptHanded = stuff->label; %-
             stuff.label = stuff.actionMethod(stuff.label);
+            // adoptionSeat what the yield channel received, by kind -- F-122's (b) census as a standing witness
+            -% ::measureAdoption(this,adoptHanded,stuff->label); %-
             measureFireLabelActionOut(this,stuff.label);
             if !stuff.label   stuff.sukcess = false; }}
 }

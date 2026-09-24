@@ -1,0 +1,35 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    s2N=0;
+    s2Y=0;
+    s2C=0;
+    s2L aa bb cc;
+    adIter root="StatemenT" msg=(iterate s2C attributes on s2L;#) jitted=0;
+    adBlock root="StatemenT" msg=(do { s2Y = s2Y + 1; } while s2Y < 3;#) jitted=0;
+    adPrint root="StatemenT" msg=(print 1;#) jitted=0;
+    ;
+parser(DO);
+traceParse();
+cerr "AD BEGIN":;
+probeDrive(adIter);
+probeDrive(adBlock);
+probeDrive(adPrint);
+cerr "AD RETURNED":;
+cerr "ADOPT SENTINEL":;
+stop();
+
+adoptT -- F-122's (b) CENSUS AS A STANDING TRACE ROW (Tony, 2026-09-24). fireLabelMethod's adoption line,
+stuff.label = stuff.actionMethod(stuff.label), is the yield channel: what an action returns becomes the label.
+The census found two kinds arriving there that are not labels -- a pROPERTIEs node (StatemenT, true, labelNO; the
+StatemenT is NOT the grammar rule, measured isRule 0) and a LIVE FIELD (s2C, s2Y, verdict, JSONtoken). The last is F-122 attempt 4's hazard. The (b) guard that
+would refuse a non-label is NOT armed; this row is visibility, not refusal. measureAdoption (Generate.rtn) prints one
+ADOPTION line per non-label adoption, by kind, under traceParse.
+
+Three interpreted drives through the door: an iterate (Iterate hands back its cursor s2C), a braced do-while (BlocK
+hands back s2Y), and a print (PrinT hands back the pROPERTIEs StatemenT). pop.sh pins the FIELD count (Iterate -> s2C; the braced
+do adopts nothing here, though the sweep saw BlocK -> s2Y) and the PROPERTY count as its non-zero sibling; the
+fixture's own cerr lines run under traceParse and are part of that count. A moved FIELD count means something now adopts more or fewer live fields; that is
+the ruling owed at a pause (docs/fixIts.md F-122 entry 7), not a regression by itself.

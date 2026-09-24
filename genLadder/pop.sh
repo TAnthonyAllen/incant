@@ -3063,6 +3063,41 @@ else echo "  FAIL  yieldT DIRECT: $(grep '^YT DIRECT' "$T/yt.e")"; fail=1; fi
 if grep -qE '^YT OWNER value= ?3 ?$' "$T/yt.e"; then echo "  ok    yieldT OWNER: an owner-run loop returns its value -- 3"; green=$((green+1))
 else echo "  FAIL  yieldT OWNER: $(grep '^YT OWNER' "$T/yt.e")"; fail=1; fi
 
+#  ---- adoptT: F-122's (b) census as a standing TRACE row (Tony, 2026-09-24) -- visibility, NOT refusal ----
+#  measureAdoption prints one ADOPTION line per non-label return adopted at fireLabelMethod (the yield channel), by
+#  kind. The (b) guard stays unarmed; the ruling on what that channel may receive is owed at a pause (fixIts F-122
+#  entry 7). FIELD pinned at today's value, 1 (Iterate hands back its cursor s2C); PROPERTY is the non-zero sibling
+#  (pROPERTIEs StatemenT/true from PrinT and the fixture's own cerr lines under traceParse). A moved FIELD count means
+#  something now adopts more or fewer live fields -- re-pin with a sentence, never silently.
+run2 adoptT "$T/ad.o" "$T/ad.e"; check "adoptT runs" 0 $?
+sentinel "adoptT sentinel" "$T/ad.e" "ADOPT SENTINEL"
+_adf=$(grep -c 'ADOPTION kind=FIELD ' "$T/ad.e"); _adp=$(grep -c 'ADOPTION kind=PROPERTY ' "$T/ad.e")
+echo "  info  adoptT live-field adoptions = $_adf, property adoptions = $_adp"
+if [ "$_adf" -eq 1 ] && grep -q 'ADOPTION kind=FIELD rule=Iterate returned=s2C ' "$T/ad.e"; then echo "  ok    adoptT FIELD adoptions = 1 (Iterate -> s2C), pinned 2026-09-24"; green=$((green+1))
+else echo "  FAIL  adoptT FIELD adoptions MOVED: $_adf, want 1 -- $(grep 'kind=FIELD' "$T/ad.e" | tr '\n' ';')"; fail=1; fi
+if [ "$_adp" -gt 0 ]; then echo "  ok    adoptT PROPERTY adoptions = $_adp (non-zero sibling: the witness is live)"; green=$((green+1))
+else echo "  FAIL  adoptT PROPERTY adoptions = 0 -- the witness saw nothing, so FIELD proves nothing"; fail=1; fi
+
+#  ---- tokJitT: F-123 -- JITTED Token on an input it cannot start (2026-09-24) ----
+#  Operators (a bin: isRule 0, hasNewParse 1) was parsed at EMIT time by runOP's isMethod arm; the OR degraded and read
+#  TRUE at consumed 0, and Token+ ran to 100 fires. runOP's jitting term call-through now covers hasNewParse.
+#  H7, measured at landing: with the arm back at isRule alone, % reads JITTED consumed 0 fires 100 and : bb cc JITTED
+#  verdict 1. Controls (abc, 42 rest, the iterate line) first; subjects jitted twice.
+run2 tokJitT "$T/tj.o" "$T/tj.e"; check "tokJitT runs" 0 $?
+sentinel "tokJitT sentinel" "$T/tj.e" "TOKJIT SENTINEL"
+_tjl() { grep "^PROBEDRIVE root=ExpressioN armed=Token $1 " "$T/tj.e" | sed -n "${2}p" | sed 's/.* ret=[0-9]* //'; }
+for _tp in "1 1 abc" "2 2 42rest" "3 3 iterate" "4 4 %-fire1" "5 4 %-fire2" "6 5 colon-fire1" "7 5 colon-fire2"; do
+    set -- $_tp
+    _j=$(_tjl JITTED $1); _i=$(_tjl INTERP $2)
+    if [ -n "$_j" ] && [ "$_j" = "$_i" ]; then echo "  ok    tokJitT $3 jitted = interpreted: $_j"; green=$((green+1))
+    else echo "  FAIL  tokJitT $3 jitted [$_j] vs interpreted [$_i]"; fail=1; fi
+done
+if [ "$(_tjl INTERP 4)" = "verdict=1 consumed=1 length=1 terms=6 fires=1 true=1" ]; then echo "  ok    tokJitT % accepts 1 of 1 in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT % reads $(_tjl INTERP 4)"; fail=1; fi
+if [ "$(_tjl INTERP 5)" = "verdict=0 consumed=0 length=7 terms=6 fires=1 true=0" ]; then echo "  ok    tokJitT : bb cc rejects in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT : bb cc reads $(_tjl INTERP 5)"; fail=1; fi
+_tjd=$(grep -c '=== jitDegrade count = 0 ===' "$T/tj.o"); _tjc=$(grep -c 'jitDegrade count' "$T/tj.o")
+if [ "$_tjc" -gt 0 ] && [ "$_tjd" -eq "$_tjc" ]; then echo "  ok    tokJitT $_tjc compile(s), degrade 0"; green=$((green+1))
+else echo "  FAIL  tokJitT degrade: $_tjd of $_tjc compiles at 0"; fail=1; fi
+
 #  ---- stmtRejT: F-121 -- a REJECTED new-road StatemenT drive no longer abandons its caller ----
 #  One process per input. EXACT-LINE ran-marker and sentinel (the ABANDONED message quotes the rest of the file,
 #  and a substring check once matched it). The caller's old-road Xpress flag after the drive must read 1.

@@ -1094,7 +1094,8 @@ GroupItem   result,
     // generated body takes it, a bin included   GroupActions.runOP.doorIsHasNewParse
     if op.isOperator    result = op.operat(arg,target);
     or op.isMethod      result = op.method(target);
-    or isRule {
+    or isRule || (jitting && hasNewParse) {
+        // binTermCall under jitting a bin carrying a generated parse (Operators: isRule 0, hasNewParse 1) is a term call too -- falling to isMethod parsed it at EMIT time and the OR read true (F-123); interpreted dispatch is unchanged
         // termCallThrough under jitting a rule is NOT parsed at emit time; a call to the interpreted road is emitted instead
         -%
         if ( ruler->jitting )   result = ::jitEmitTermCall(field);
