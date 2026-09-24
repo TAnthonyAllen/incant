@@ -1,0 +1,12 @@
+diff --git a/Include/groups.ext b/Include/groups.ext
+index 5906ec3..91f0f13 100755
+--- a/Include/groups.ext
++++ b/Include/groups.ext
+@@ -678,7 +678,6 @@ external GroupRules.h
+     extern int          setCompiledMethod(GroupItem block,String name);
+     extern GroupItem    setParse(GroupItem field);
+     extern GroupItem    setInternalType(GroupItem grup);
+-    extern void         setLimits(GroupItem rule,GroupItem limits);
+     extern GroupItem    setMark(GroupItem argument);
+     extern GroupItem    setRuleAction(GroupItem block);
+     extern int          statementMatches(GroupItem a,GroupItem b);

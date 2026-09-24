@@ -403,6 +403,9 @@ ATTEMPT LOG
      from `road=` to `walk=` because the witness's format changed with the rule. H7: rebuilt at ruling (a)
      -> ShortcuT reads held=0 inDrive=1 and its row goes red (the tripwire row itself would read a vacuous 0
      there, since (a)'s witness prints road=, not walk=). Restored .mm/.h byte-identical.
+  18. THE (b) TRIPWIRE ROW HAS NO WORKING NEGATIVE CONTROL OF ITS OWN (Tony, 2026-09-24). Under ruling (a) the
+     witness printed `road=`, not `walk=`, so rebuilt at (a) the tripwire's grep reads a vacuous 0. The
+     ShortcuT held=1 row carries the control instead: at (a) it reads held=0 and goes red.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.
@@ -428,6 +431,17 @@ source can create a min >= 2 face.~~ ⚠ **WITHDRAWN THE SAME DAY: `{2,3}` IS NO
 spelling PARSES in define: `lpS isRule lpA[2 3];`, `lpS isRule lpA[2];`, and a member line `lpA[2 3];` all
 reach a clean sentinel. So F-113 is only the STANDALONE Limit drive. Whether `[2 3]` actually sets min 2 on
 the face was not measured (dumpRuleTerms printed nothing for it).
+**Removal attempted 2026-09-24 (Tony: remove Limit from the grammar) -- NOT LANDED, it breaks subscripts.**
+Census clean (no live `name[n m]` term anywhere). The removal (grammar, GroupMain bootstrap, aCTionTraiT/
+aCTionTraiTdata, setLimits + its groups.ext line) built, but `print s2L[1];` then CRASHES the old road (exit
+139; HEAD prints `aa`) and prints NOTHING on the new road (HEAD `aa`, deferNatT dfPrint red). Bisected to the
+two `Limit?` terms in GroupMain's bootstrap TraiT/TraiTdata alone; the rule itself and its construction are
+innocent. Restoring the bootstrap's side effects on the SHARED leftBrace/rightBrace/counter (reached through
+`+%` aliases) did NOT fix it; a dump of every Grokking rule's terms differs only in Limit/TraiT/TraiTdata.
+Mechanism NOT found. Fleet rows it moved, named: census.target, traitFlagsT TF-1..4 (TF-5 moved),
+paReachT 124 -> 121 faces, groups.ext names 334 -> 333, shadowCensus 86 -> 85, genParse odometer, deferNatT
+floor + dfPrint value. Tree restored to HEAD; the change is saved as docs/patches/limitRemoval-2026-09-24.patch
+and limitRemoval-groupsext-2026-09-24.patch. NEXT: a native backtrace of the old-road 139 with the patch applied.
 **Done when.** A standalone Limit on `[1 2]` wins and consumes 5, or Tony rules Limit is only meant
 to parse inside TraiT and pins that instead. **Owner.** Tony (Limit is in every define term).
 ```

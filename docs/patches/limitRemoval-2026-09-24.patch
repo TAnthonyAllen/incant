@@ -1,0 +1,363 @@
+diff --git a/GroupActions.rtn b/GroupActions.rtn
+index afee6ea..0e9404d 100644
+--- a/GroupActions.rtn
++++ b/GroupActions.rtn
+@@ -1474,26 +1474,6 @@ void*       methodAddress;
+ }
+ 
+ 
+-/*****************************************************************************
+-	setLimits() checks field passed in for limits (min and max).
+-*****************************************************************************/
+-extern void setLimits(GroupItem rule,GroupItem limits)
+-{
+-RuleStuff   ruleStuff = rule.rStuff;
+-GroupItem   maximum = limits%"max";
+-GroupItem   minimum = limits%"min";
+-    min             = minimum.count;
+-    /*  limitsSet IS THE DISCRIMINATOR reportMaxLimit needs, and it was
+-        already declared and already mirrored in groups.ext -- it had simply
+-        never been written by anything. It answers "did the grammar ask for
+-        this max, or is it the maxLimit ceiling", which is the question that
+-        separates a truncation worth refusing from a limit doing its job.
+-        Stamped only where a maximum was actually supplied.  */
+-    if maximum {
+-        max         = maximum.count;
+-        maxRepeat   = maximum.count;
+-        limitsSet   = true; }
+-}
+ 
+ 
+ /***************************************************************************
+diff --git a/GroupMain.mm b/GroupMain.mm
+index 3a28e05..99d4eba 100644
+--- a/GroupMain.mm
++++ b/GroupMain.mm
+@@ -159,24 +159,10 @@ initialize punctuation fields (so they have a label needed for parsing)
+ 	strap->setRuleStuff();
+ 	strap = grok->addMember(strap);
+ 	strap->setCharacterSet(new PLGset("-~+?!%&|*@_<^{}$"));
+-	strap = new GroupItem("Limit");
+-	strap->setRuleStuff();
+-	strap = grok->addMember(strap);
+-	item = strap->addAttribute(grok->getMember("leftBrace"));
++	// limitSideEffects the removed Limit construction reached the SHARED leftBrace and rightBrace through +% (an alias, not a copy) and marked them noLabel; kept explicitly so removing Limit changes nothing else (2026-09-24)
++	item = grok->getMember("leftBrace");
+ 	::modify(item,"-");
+-	item = new GroupItem("min");
+-	item = strap->addAttribute(item);
+-	item->setRuleStuff();
+-	item->embedRule(grok->getMember("counter"));
+-	item = item->getGroup();
+-	::modify(item,"+");
+-	item = new GroupItem("max");
+-	item = strap->addAttribute(item);
+-	item->setRuleStuff();
+-	item->embedRule(grok->getMember("counter"));
+-	item = item->getGroup();
+-	::modify(item,"*");
+-	item = strap->addAttribute(grok->getMember("rightBrace"));
++	item = grok->getMember("rightBrace");
+ 	::modify(item,"-");
+ 	strap = grok->addMember(new GroupItem("Any"));
+ 	strap->groupBody->flags.data = 1;
+@@ -313,9 +299,6 @@ initialize punctuation fields (so they have a label needed for parsing)
+ 	item = grok->getMember("Modifier");
+ 	item = strap->addAttribute(item);
+ 	::modify(item,"*");
+-	item = grok->getMember("Limit");
+-	item = strap->addAttribute(item);
+-	::modify(item,"?");
+ 	/*************************************************************************
+ 	DefinE stub to be added to a little further down
+ 	*************************************************************************/
+@@ -336,9 +319,6 @@ initialize punctuation fields (so they have a label needed for parsing)
+ 	item = grok->getMember("Modifier");
+ 	item = strap->addAttribute(item);
+ 	::modify(item,"*");
+-	item = grok->getMember("Limit");
+-	item = strap->addAttribute(item);
+-	::modify(item,"?");
+ 	item = grok->getMember("TraiTdata");
+ 	item = strap->addAttribute(item);
+ 	::modify(item,"?");
+diff --git a/GroupMain.twk b/GroupMain.twk
+index 86be8aa..9705fa3 100644
+--- a/GroupMain.twk
++++ b/GroupMain.twk
+@@ -154,24 +154,10 @@ GroupRules  ruler = groupRules;
+     strap           = grok += strap;
+     characterSet    = new("-~+?!%&|*@_<^{}$");
+ 
+-    strap           = new("Limit");
+-    setRuleStuff();
+-    strap           = grok += strap;
+-    item            = strap +% grok/leftBrace;
++    // limitSideEffects the removed Limit construction reached the SHARED leftBrace and rightBrace through +% (an alias, not a copy) and marked them noLabel; kept explicitly so removing Limit changes nothing else (2026-09-24)
++    item            = grok/leftBrace;
+     modify(item,"-");
+-    item            = new("min");
+-    item            = strap +% item;
+-    item.setRuleStuff();
+-    item.embedRule(grok/counter);
+-    item            = item.group;
+-    modify(item,"+");
+-    item            = new("max");
+-    item            = strap +% item;
+-    item.setRuleStuff();
+-    item.embedRule(grok/counter);
+-    item            = item.group;
+-    modify(item,"*");
+-    item            = strap +% grok/rightBrace;
++    item            = grok/rightBrace;
+     modify(item,"-");
+ 
+     strap           = grok += new("Any");
+@@ -320,9 +306,6 @@ GroupRules  ruler = groupRules;
+     item            = grok/Modifier;
+     item            = strap +% item;
+     modify(item,"*");
+-    item            = grok/Limit;
+-    item            = strap +% item;
+-    modify(item,"?");
+     
+     /*************************************************************************
+         DefinE stub to be added to a little further down
+@@ -346,9 +329,6 @@ GroupRules  ruler = groupRules;
+     item            = grok/Modifier;
+     item            = strap +% item;
+     modify(item,"*");
+-    item            = grok/Limit;
+-    item            = strap +% item;
+-    modify(item,"?");
+     item            = grok/TraiTdata;
+     item            = strap +% item;
+     modify(item,"?");
+diff --git a/GroupRules.h b/GroupRules.h
+index d4c9d47..d0b97e4 100644
+--- a/GroupRules.h
++++ b/GroupRules.h
+@@ -422,7 +422,6 @@ extern "C" int setCompiledMethod(GroupItem *block, char *name);
+ extern "C" void setFile(GroupItem *bufField, char *name);
+ extern "C" GroupItem *setFileOp(GroupItem *argument, GroupItem *target);
+ extern "C" GroupItem *setInternalType(GroupItem *grup);
+-extern "C" void setLimits(GroupItem *rule, GroupItem *limits);
+ extern "C" GroupItem *setMark(GroupItem *argument);
+ extern "C" GroupItem *setParse(GroupItem *field);
+ extern "C" int setParseMethod(RuleStuff *stuff, char *name);
+diff --git a/GroupRules.mm b/GroupRules.mm
+index a0e4950..ce85583 100644
+--- a/GroupRules.mm
++++ b/GroupRules.mm
+@@ -1433,24 +1433,24 @@ furthest point reached (failedAt) on a failure
+ 
+ /*******************************************************************************
+ 	Immediate method for the TraiT rule that defines an attribute. It can be
+-        TraiTdata="="       DatA Modifier? Limit?;
+-        TraiT               NamE@ Modifier? Limit? TraiTdata? TraiTlist?;
++        TraiTdata="="       DatA Modifier?;
++        TraiT               NamE@ Modifier? TraiTdata? TraiTlist?;
++    // limitRemoved Limit ([min max]) was removed from the grammar 2026-09-24 (Tony); repetition comes from modifiers only
+ *******************************************************************************/
+ extern "C" GroupItem *aCTionTraiT(GroupItem *input)
+ {
+ GroupItem 	*upFlags = 0;
+ GroupItem 	*Modifier = input->getLabelGroup("Modifier");
+-GroupItem 	*Limit = input->getLabelGroup("Limit");
+ GroupItem 	*TraiTdata = input->get("TraiTdata");
+ GroupItem 	*trait = input->get(1);
+ 	/***************************************************************************
+-	A trait value can be a group or a literal. Limit and Modifier are passed
++	A trait value can be a group or a literal. Modifier is passed
+ 	to trait to be handled in DefinE. Same applies to TraiTdata.
+ 	***************************************************************************/
+ 	input->clearList();
+ 	if ( isGROUP(trait->groupBody->flags.data) )
+ 		trait = trait->getGroup();
+-	if ( Modifier || Limit )
++	if ( Modifier )
+ 		{
+ 		trait->options.affiliation = 1;
+ 		if ( trait->getRStuff() )
+@@ -1475,8 +1475,6 @@ furthest point reached (failedAt) on a failure
+ 	// wideValueRepeats a repeated value wider than a character lost its max in setContent, so the repetition lands on the trait
+ 	if ( upFlags && TraiTdata->groupBody->flags.data > 3 && !isGROUP(TraiTdata->groupBody->flags.data) )
+ 		::modifyClass(trait,upFlags->getText(),1);
+-	if ( Limit )
+-		::setLimits(trait,Limit);
+ 	input->setGroup(trait);
+ 	return input;
+ }
+@@ -1489,10 +1487,9 @@ furthest point reached (failedAt) on a failure
+ int 		repeated = 0;
+ GroupItem 	*upMark = 0;
+ GroupItem 	*Modifier = input->getLabelGroup("Modifier");
+-GroupItem 	*Limit = input->getLabelGroup("Limit");
+ GroupItem 	*DatA = input->getLabelGroup("DatA");
+ 	input->clear();
+-	if ( Modifier || Limit )
++	if ( Modifier )
+ 		{
+ 		DatA->options.affiliation = 1;
+ 		if ( DatA->getRStuff() )
+@@ -1504,16 +1501,12 @@ furthest point reached (failedAt) on a failure
+ 		// modifierRidesUp repetition lands on the DATA only; applying it to the trait as well repeats TWICE
+ 		if ( Modifier )
+ 			::modifyClass(DatA,Modifier->getText(),1);
+-		if ( Limit )
+-			::setLimits(DatA,Limit);
+ 		DatA->groupBody->flags.isRule = 1;
+ 		}
+ 	// valueRepeats a value may carry + or *; a character or set repeats in its scanner, anything wider repeats on the trait
+ 	repeated = 0;
+ 	if ( Modifier )
+ 		repeated = ::hasRepeatClass(Modifier->getText());
+-	if ( Limit )
+-		repeated = 1;
+ 	// modifierRidesUp the flags ride up as a noPrint ARTIFACT, never as a term
+ 	if ( Modifier )
+ 		input->addAttribute(Modifier);
+@@ -12887,29 +12880,6 @@ arm and returned truthOf(arg). That is the whole of why `true || false` read
+ 	return 0;
+ }
+ 
+-/*****************************************************************************
+-	setLimits() checks field passed in for limits (min and max).
+-*****************************************************************************/
+-extern "C" void setLimits(GroupItem *rule, GroupItem *limits)
+-{
+-RuleStuff 	*ruleStuff = rule->getRStuff();
+-GroupItem 	*maximum = limits->getAttribute("max");
+-GroupItem 	*minimum = limits->getAttribute("min");
+-	ruleStuff->min = minimum->getCount();
+-	/*  limitsSet IS THE DISCRIMINATOR reportMaxLimit needs, and it was
+-	already declared and already mirrored in groups.ext -- it had simply
+-	never been written by anything. It answers "did the grammar ask for
+-	this max, or is it the maxLimit ceiling", which is the question that
+-	separates a truncation worth refusing from a limit doing its job.
+-	Stamped only where a maximum was actually supplied.  */
+-	if ( maximum )
+-		{
+-		ruleStuff->max = maximum->getCount();
+-		ruleStuff->maxRepeat = maximum->getCount();
+-		ruleStuff->limitsSet = 1;
+-		}
+-}
+-
+ /*****************************************************************************
+     The argument passed in to getMarkLineAt must have source and markOffset
+     attributes. The source must contain a buffer and markOffset must contain
+diff --git a/RuleStuff.h b/RuleStuff.h
+index 2feb0d8..85fe1a8 100644
+--- a/RuleStuff.h
++++ b/RuleStuff.h
+@@ -2,6 +2,10 @@ class GroupItem;
+ /********************************************************************************
+ 	RuleStuff is used to stash data used by the parse
+ 
++    limitsSet -- NO WRITER after 2026-09-24. Its only writer was setLimits, removed with Limit (Tony).
++    Its readers still gate reportMaxLimit/reportRepeatLimit on `!limitsSet`, which is now always true.
++    Removing the field is a LAYOUT change (groups.ext mirror + tokall) -- batch it with the next one.
++
+     parentLabel (genParseShape S1.2) -- the `into` a generated parse method
+     attaches to, made direct and named. NOT new state: parse() already reached
+     the same value two hops away through parentStuff.label in its attachment
+diff --git a/RuleStuff.twk b/RuleStuff.twk
+index 7db7107..58f110a 100644
+--- a/RuleStuff.twk
++++ b/RuleStuff.twk
+@@ -4,6 +4,10 @@ include groupIncludes
+ /********************************************************************************
+ 	RuleStuff is used to stash data used by the parse
+ 
++    limitsSet -- NO WRITER after 2026-09-24. Its only writer was setLimits, removed with Limit (Tony).
++    Its readers still gate reportMaxLimit/reportRepeatLimit on `!limitsSet`, which is now always true.
++    Removing the field is a LAYOUT change (groups.ext mirror + tokall) -- batch it with the next one.
++
+     parentLabel (genParseShape S1.2) -- the `into` a generated parse method
+     attaches to, made direct and named. NOT new state: parse() already reached
+     the same value two hops away through parentStuff.label in its attachment
+diff --git a/incant/grammar b/incant/grammar
+index 6fbf55e..cddfe24 100644
+--- a/incant/grammar
++++ b/incant/grammar
+@@ -55,11 +55,10 @@ DatA
+     SetBrackets     leftBrace- rightBrace};
+     NotA=[^ \t\r\n;]+;
+ InvokE              leftParen- NamE? rightParen-;
+-Limit               leftBrace- min=[0-9]+ max?=[0-9]+ rightBrace- noPrint;
+ MemberS             ':'- MEMBERs- Mlist=DefinE+;
+ Modifier=[-~+?!%&|*@_<^{}$] noPrint;
+-TraiTdata           '='- DatA Modifier* Limit?;
+-TraiT               NamE Modifier* Limit? TraiTdata?;
++TraiTdata           '='- DatA Modifier*;
++TraiT               NamE Modifier* TraiTdata?;
+ Attributes=TraiT+;
+ NewGroup            TraiT@;
+ DefinE              NewGroup Attributes? MemberS endDefine-=[;>];
+diff --git a/ruleActions.rtn b/ruleActions.rtn
+index 2180c37..e603019 100644
+--- a/ruleActions.rtn
++++ b/ruleActions.rtn
+@@ -1073,23 +1073,23 @@ endToken:
+ 
+ /*******************************************************************************
+ 	Immediate method for the TraiT rule that defines an attribute. It can be
+-        TraiTdata="="       DatA Modifier? Limit?;
+-        TraiT               NamE@ Modifier? Limit? TraiTdata? TraiTlist?;
++        TraiTdata="="       DatA Modifier?;
++        TraiT               NamE@ Modifier? TraiTdata? TraiTlist?;
++    // limitRemoved Limit ([min max]) was removed from the grammar 2026-09-24 (Tony); repetition comes from modifiers only
+ *******************************************************************************/
+ extern GroupItem aCTionTraiT(GroupItem input)
+ {
+ GroupItem   upFlags,
+             Modifier:,
+-            Limit:,
+             TraiTdata = input["TraiTdata"],
+             trait = input[1];
+     /***************************************************************************
+-        A trait value can be a group or a literal. Limit and Modifier are passed
++        A trait value can be a group or a literal. Modifier is passed
+         to trait to be handled in DefinE. Same applies to TraiTdata.
+     ***************************************************************************/
+     input.clearList();
+     if isGROUP      trait = group;
+-    if Modifier || Limit {
++    if Modifier {
+         isAttribute = true;
+         if rStuff   trait = new(trait);
+         else        setRuleStuff(); }
+@@ -1105,7 +1105,6 @@ GroupItem   upFlags,
+     if upFlags      modifyClass(trait,upFlags.text,0);
+     // wideValueRepeats a repeated value wider than a character lost its max in setContent, so the repetition lands on the trait
+     if upFlags && TraiTdata.data > 3 && !TraiTdata.isGROUP     modifyClass(trait,upFlags.text,1);
+-    if Limit        setLimits(trait,Limit);
+     input.group     = trait;
+     return input;
+ }
+@@ -1118,10 +1117,9 @@ extern GroupItem aCTionTraiTdata(GroupItem input)
+ int         repeated = 0;
+ GroupItem   upMark,
+             Modifier:,
+-            Limit:,
+             DatA:;
+     input.clear();
+-    if Modifier || Limit {
++    if Modifier {
+         isAttribute = true;
+         if rStuff {
+             DatA = new(DatA);
+@@ -1129,12 +1127,10 @@ GroupItem   upMark,
+         else        setRuleStuff();
+         // modifierRidesUp repetition lands on the DATA only; applying it to the trait as well repeats TWICE
+         if Modifier modifyClass(DatA,Modifier.text,1);
+-        if Limit    setLimits(DatA,Limit);
+         isRule      = true; }
+     // valueRepeats a value may carry + or *; a character or set repeats in its scanner, anything wider repeats on the trait
+     repeated = 0;
+     if Modifier     repeated = hasRepeatClass(Modifier.text);
+-    if Limit        repeated = 1;
+     // modifierRidesUp the flags ride up as a noPrint ARTIFACT, never as a term
+     if Modifier     input +% Modifier;
+     if Modifier     upMark = input["Modifier"];
