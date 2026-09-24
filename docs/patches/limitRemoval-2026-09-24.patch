@@ -30,10 +30,10 @@ index afee6ea..0e9404d 100644
  
  /***************************************************************************
 diff --git a/GroupMain.mm b/GroupMain.mm
-index 3a28e05..99d4eba 100644
+index 3a28e05..3da22fd 100644
 --- a/GroupMain.mm
 +++ b/GroupMain.mm
-@@ -159,24 +159,10 @@ initialize punctuation fields (so they have a label needed for parsing)
+@@ -159,25 +159,6 @@ initialize punctuation fields (so they have a label needed for parsing)
  	strap->setRuleStuff();
  	strap = grok->addMember(strap);
  	strap->setCharacterSet(new PLGset("-~+?!%&|*@_<^{}$"));
@@ -41,9 +41,7 @@ index 3a28e05..99d4eba 100644
 -	strap->setRuleStuff();
 -	strap = grok->addMember(strap);
 -	item = strap->addAttribute(grok->getMember("leftBrace"));
-+	// limitSideEffects the removed Limit construction reached the SHARED leftBrace and rightBrace through +% (an alias, not a copy) and marked them noLabel; kept explicitly so removing Limit changes nothing else (2026-09-24)
-+	item = grok->getMember("leftBrace");
- 	::modify(item,"-");
+-	::modify(item,"-");
 -	item = new GroupItem("min");
 -	item = strap->addAttribute(item);
 -	item->setRuleStuff();
@@ -57,11 +55,11 @@ index 3a28e05..99d4eba 100644
 -	item = item->getGroup();
 -	::modify(item,"*");
 -	item = strap->addAttribute(grok->getMember("rightBrace"));
-+	item = grok->getMember("rightBrace");
- 	::modify(item,"-");
+-	::modify(item,"-");
  	strap = grok->addMember(new GroupItem("Any"));
  	strap->groupBody->flags.data = 1;
-@@ -313,9 +299,6 @@ initialize punctuation fields (so they have a label needed for parsing)
+ 	strap->setRuleStuff();
+@@ -313,9 +294,6 @@ initialize punctuation fields (so they have a label needed for parsing)
  	item = grok->getMember("Modifier");
  	item = strap->addAttribute(item);
  	::modify(item,"*");
@@ -71,7 +69,7 @@ index 3a28e05..99d4eba 100644
  	/*************************************************************************
  	DefinE stub to be added to a little further down
  	*************************************************************************/
-@@ -336,9 +319,6 @@ initialize punctuation fields (so they have a label needed for parsing)
+@@ -336,9 +314,6 @@ initialize punctuation fields (so they have a label needed for parsing)
  	item = grok->getMember("Modifier");
  	item = strap->addAttribute(item);
  	::modify(item,"*");
@@ -82,10 +80,10 @@ index 3a28e05..99d4eba 100644
  	item = strap->addAttribute(item);
  	::modify(item,"?");
 diff --git a/GroupMain.twk b/GroupMain.twk
-index 86be8aa..9705fa3 100644
+index 86be8aa..ea264b6 100644
 --- a/GroupMain.twk
 +++ b/GroupMain.twk
-@@ -154,24 +154,10 @@ GroupRules  ruler = groupRules;
+@@ -154,25 +154,6 @@ GroupRules  ruler = groupRules;
      strap           = grok += strap;
      characterSet    = new("-~+?!%&|*@_<^{}$");
  
@@ -93,9 +91,7 @@ index 86be8aa..9705fa3 100644
 -    setRuleStuff();
 -    strap           = grok += strap;
 -    item            = strap +% grok/leftBrace;
-+    // limitSideEffects the removed Limit construction reached the SHARED leftBrace and rightBrace through +% (an alias, not a copy) and marked them noLabel; kept explicitly so removing Limit changes nothing else (2026-09-24)
-+    item            = grok/leftBrace;
-     modify(item,"-");
+-    modify(item,"-");
 -    item            = new("min");
 -    item            = strap +% item;
 -    item.setRuleStuff();
@@ -109,11 +105,11 @@ index 86be8aa..9705fa3 100644
 -    item            = item.group;
 -    modify(item,"*");
 -    item            = strap +% grok/rightBrace;
-+    item            = grok/rightBrace;
-     modify(item,"-");
+-    modify(item,"-");
  
      strap           = grok += new("Any");
-@@ -320,9 +306,6 @@ GroupRules  ruler = groupRules;
+     isANY           = true;
+@@ -320,9 +301,6 @@ GroupRules  ruler = groupRules;
      item            = grok/Modifier;
      item            = strap +% item;
      modify(item,"*");
@@ -123,7 +119,7 @@ index 86be8aa..9705fa3 100644
      
      /*************************************************************************
          DefinE stub to be added to a little further down
-@@ -346,9 +329,6 @@ GroupRules  ruler = groupRules;
+@@ -346,9 +324,6 @@ GroupRules  ruler = groupRules;
      item            = grok/Modifier;
      item            = strap +% item;
      modify(item,"*");

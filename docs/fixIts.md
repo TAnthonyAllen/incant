@@ -431,17 +431,27 @@ source can create a min >= 2 face.~~ ⚠ **WITHDRAWN THE SAME DAY: `{2,3}` IS NO
 spelling PARSES in define: `lpS isRule lpA[2 3];`, `lpS isRule lpA[2];`, and a member line `lpA[2 3];` all
 reach a clean sentinel. So F-113 is only the STANDALONE Limit drive. Whether `[2 3]` actually sets min 2 on
 the face was not measured (dumpRuleTerms printed nothing for it).
-**Removal attempted 2026-09-24 (Tony: remove Limit from the grammar) -- NOT LANDED, it breaks subscripts.**
-Census clean (no live `name[n m]` term anywhere). The removal (grammar, GroupMain bootstrap, aCTionTraiT/
-aCTionTraiTdata, setLimits + its groups.ext line) built, but `print s2L[1];` then CRASHES the old road (exit
-139; HEAD prints `aa`) and prints NOTHING on the new road (HEAD `aa`, deferNatT dfPrint red). Bisected to the
-two `Limit?` terms in GroupMain's bootstrap TraiT/TraiTdata alone; the rule itself and its construction are
-innocent. Restoring the bootstrap's side effects on the SHARED leftBrace/rightBrace/counter (reached through
-`+%` aliases) did NOT fix it; a dump of every Grokking rule's terms differs only in Limit/TraiT/TraiTdata.
-Mechanism NOT found. Fleet rows it moved, named: census.target, traitFlagsT TF-1..4 (TF-5 moved),
-paReachT 124 -> 121 faces, groups.ext names 334 -> 333, shadowCensus 86 -> 85, genParse odometer, deferNatT
-floor + dfPrint value. Tree restored to HEAD; the change is saved as docs/patches/limitRemoval-2026-09-24.patch
-and limitRemoval-groupsext-2026-09-24.patch. NEXT: a native backtrace of the old-road 139 with the patch applied.
+**Removal attempted 2026-09-24 (Tony: remove Limit from the grammar) -- NOT LANDED: it breaks `print s2L[1];` on
+the NEW road.** Census clean (no live `name[n m]` term anywhere). The removal (grammar, GroupMain bootstrap,
+aCTionTraiT/aCTionTraiTdata, setLimits + its groups.ext line) builds at canary 352.
+- **What breaks:** the new-road drive `print s2L[1];` prints NOTHING (HEAD prints `aa`; deferNatT's floor and
+  dfPrint value rows go red): after `stuff` succeeds the mark sits at `];`, so PrinT's SemI fails. Bisected to the
+  two `Limit?` terms in GroupMain's bootstrap TraiT/TraiTdata alone.
+- ⚠ **CORRECTED: THE OLD ROAD IS FINE.** An earlier entry here said the old road CRASHES (139). That reading was
+  taken on a build carrying MY OWN bisect lines -- a direct `modify(grok/rightBrace,"-")` meant to restore Limit's
+  side effects. It marked the shared rightBrace noLabel, emptied SetBrackets' label, and crashed startup in
+  aCTionSetBrackets on `hexSet=[0-9a-fA-F];` (incant/setup:200). With the clean removal the old road prints `aa`.
+  It also settles the alias question: Limit's `strap +% grok/rightBrace` must have COPIED -- a real alias would
+  have crashed HEAD at startup the same way.
+- **The bounded pass (Tony, 2026-09-24), none of which names the mechanism:** (1) backtrace -- no crash remains to
+  trace; (2) positional reads in aCTionTraiT/aCTionTraiTdata -- one, `trait = input[1]`, which the removal does not
+  move; the rest read by name; (3) the fixture's defined fields -- `s2L` (in Utilities, attributes aa bb cc)
+  dumps IDENTICAL in both builds but for its address; a dump of every Grokking rule's terms differs only in
+  Limit, TraiT and TraiTdata.
+- Moved fleet rows, named: census.target, traitFlagsT TF-1..4 (TF-5 moved), paReachT 124 -> 121 faces,
+  groups.ext names 334 -> 333, shadowCensus 86 -> 85, genParse odometer, deferNatT floor + dfPrint value.
+- **Limit stays in place; the tree is at HEAD.** The clean change is docs/patches/limitRemoval-2026-09-24.patch
+  (+ -groupsext-). The min=/max= amendment waits with it.
 **Done when.** A standalone Limit on `[1 2]` wins and consumes 5, or Tony rules Limit is only meant
 to parse inside TraiT and pins that instead. **Owner.** Tony (Limit is in every define term).
 ```
