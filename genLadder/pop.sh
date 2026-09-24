@@ -2910,7 +2910,7 @@ else echo "  FAIL  quoteNatT qnPs value -- print s2N \"and\" s2Y did not print 0
 
 #  ---- deferNatT: F-114 THE HANGS -- deferredAbove walks the activation list on the new road ----
 #  H7, measured at minting: the change set removed and rebuilt, dfSub and dfCall hang again.
-for _df in "dfSub ExpressioN" "dfCall ExpressioN" "dfPrint StatemenT" "dfAbc ExpressioN" "dfLeak StatemenT dfIf0" "dfLeakW StatemenT dfWh0"; do
+for _df in "dfSub ExpressioN" "dfCall ExpressioN" "dfPrint StatemenT" "dfAbc ExpressioN" "dfLeak StatemenT dfIf0" "dfLeakW StatemenT dfWh0" "dfLeak1 StatemenT dfIf1"; do
     set -- $_df
     if [ -n "$3" ]; then sed "s/^DFDRIVE;\$/$2($3);\
 $2(dfPlain);/" incant/pop/deferNatT > "$T/$1.twk"
@@ -2943,12 +2943,18 @@ else echo "  FAIL  an old-road action now fires inside a new-road drive; deferre
 #  sees PrinT's defer. H7: under ruling (a) it read held=0, so this row goes red with (b) removed.
 if grep -qE "DEFERABOVE rule=ShortcuT .*held=1 .*inDrive=1" "$T/qnPs.e"; then echo "  ok    (b) ShortcuT inside a print drive reads held=1"; green=$((green+1))
 else echo "  FAIL  (b) ShortcuT inside a print drive does NOT read held=1"; grep -h "DEFERABOVE rule=ShortcuT" "$T/qnPs.e" | sort | uniq -c | sed 's/^/          /'; fail=1; fi
-#  THE LEAK VALUE ROWS -- NON-DISCRIMINATING TODAY: `$` is inert on the new road (F-120), so no leak can show.
+#  THE LEAK VALUE ROWS -- DISCRIMINATING since the F-120 fix (2026-09-24): `$` now applies on the new road, so a
+#  `$` print run under a false guard would print `ab`. dfLeak1 is the positive control: under `if 1;` it prints.
+_dfout() { grep -vE '^(compile|Generating|setParse|walkRules|stop:)|= CodE|^[[:space:]]|^$' "$T/$1.o" | tr -d '\n'; }
 for _lk in dfLeak dfLeakW; do
-    if [ "$(grep -vE '^(compile|Generating|setParse|walkRules|stop:)|= CodE|^[[:space:]]|^$' "$T/$_lk.o" | tr -d '\n')" = "c d " ]; then
-         echo "  ok    deferNatT $_lk value -- the plain print after a \$ print under a false guard printed c d (non-discriminating: F-120)"; green=$((green+1))
-    else echo "  FAIL  deferNatT $_lk value -- expected exactly 'c d ': $(grep -vE '^(compile|Generating|setParse|walkRules|stop:)|= CodE|^[[:space:]]|^$' "$T/$_lk.o" | tr '\n' '|')"; fail=1; fi
+    if [ "$(_dfout $_lk)" = "c d " ]; then echo "  ok    deferNatT $_lk value -- a \$ print under a false guard printed nothing; the plain print printed c d"; green=$((green+1))
+    else echo "  FAIL  deferNatT $_lk value -- expected exactly 'c d ': [$(_dfout $_lk)]"; fail=1; fi
 done
+if [ "$(_dfout dfLeak1)" = "abc d " ]; then echo "  ok    deferNatT dfLeak1 positive control -- under if 1 the \$ print ran and applied: abc d (F-120)"; green=$((green+1))
+else echo "  FAIL  deferNatT dfLeak1 positive control -- expected 'abc d ': [$(_dfout dfLeak1)]"; fail=1; fi
+#  F-116 VALUE ROW: `cerr "hi":;` driven on the new road ends its line.
+if grep -qxE 'hi ?' "$T/qnCe.e"; then echo "  ok    quoteNatT qnCe value -- cerr \"hi\":; ended its line (F-116)"; green=$((green+1))
+else echo "  FAIL  quoteNatT qnCe value -- cerr \"hi\":; did not end its line: $(grep -m1 '^hi' "$T/qnCe.e")"; fail=1; fi
 
 #  ---- loopVerdict: parseLoop decides on the COUNT; the flag read is gone (Tony, 2026-09-24; SEQ 195) ----
 #  measureLoopVerdict prints the flag beside the count at every traced parseLoop verdict. DISAGREE is

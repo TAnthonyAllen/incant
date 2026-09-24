@@ -2488,7 +2488,10 @@ char 		*driveBase = 0;
 		// noDataMeansLabel a non-null field with NO DATA is the label to attach into, never an input to divert
 		if ( intoField && !intoField->groupBody->flags.data )
 			result = ::parseR(rule,intoField);
-		else	result = rule->parse(0);
+		else {
+			// oldRoadAttach an old-road rule called from INSIDE a new-road activation attaches into that activation -- with parse(0) attachLabel dropped its label, and every print shortcut vanished (F-120, F-116); a real drive has pushed its floor, so it still passes 0
+			 result = rule->parse((gParseActive && !gParseActive->floor) ? gParseActive->stuff : 0); 
+			}
 		}
 	// markSeat2 SEQ 166 point 2 -- THE KEY PAIR, either side of the pop
 	if ( field && field->groupBody->flags.data )

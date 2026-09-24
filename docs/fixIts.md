@@ -92,7 +92,7 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-120 — the `$` print shortcut does nothing on the NEW road
+### F-120 — ✅ CLOSED 2026-09-24 — the `$` print shortcut does nothing on the NEW road
 
 **What.** `print $ "a" "b";` prints `ab` on the old road (`$` flips useDefaultSpace) and `a b` on the new road --
 the toggle never takes effect, and no `$` is printed either. Not caused by deferredAbove: under ruling (b)
@@ -104,7 +104,14 @@ whether the new road's PrintXP item for `$` arrives there carrying isShortcut.
 deferNatT's dfLeak/dfLeakW rows discriminating. **Owner.** Unassigned.
 ```
 ATTEMPT LOG
-  (none)
+  1. 2026-09-24, one mechanism with F-120/F-116: on the new road EVERY print shortcut was dropped -- `$` `_` `::`
+     backtick, and `:` on cerr. ShortcuT is the one rule the new road hands to the old road mid-drive, and
+     driveStep called rule.parse(0): no parent stuff, so attachLabel returned at `!pStuff` and ShortcuT's
+     isShortcut label never reached PrintXP. driveStep's old-road fallback now passes the enclosing activation's
+     stuff (top of the activation list, when it is not a floor); a real drive has pushed its floor and still
+     passes 0. -> all six shortcut cases print as the old road does; cerr ends its line.
+  POP: deferNatT dfLeak1 (if 1: `abc d `) and quoteNatT qnCe (`hi` ends its line); dfLeak/dfLeakW now
+     discriminate. H7: the fix removed -> dfLeak1 prints `a b c d `, qnCe's line does not end.
 ```
 
 ### F-117 — `print .5;` on the NEW road prints NOTHING (ranked above the old road's crash on it)
@@ -152,7 +159,7 @@ ATTEMPT LOG
   (none)
 ```
 
-### F-116 — `cerr "hi":;` driven on the NEW road prints no trailing newline
+### F-116 — ✅ CLOSED 2026-09-24 — `cerr "hi":;` driven on the NEW road prints no trailing newline
 
 **What.** A StatemenT drive of `cerr "hi":;` prints `hi ` to stderr and the NEXT stderr line runs on
 after it (`hi QN RETURNED`). `print "hi";` and `print s2N "and" s2Y:;` on the same road end their line.
@@ -163,7 +170,14 @@ after it (`hi QN RETURNED`). `print "hi";` and `print s2N "and" s2Y:;` on the sa
 **Owner.** Unassigned.
 ```
 ATTEMPT LOG
-  (none)
+  1. 2026-09-24, one mechanism with F-120/F-116: on the new road EVERY print shortcut was dropped -- `$` `_` `::`
+     backtick, and `:` on cerr. ShortcuT is the one rule the new road hands to the old road mid-drive, and
+     driveStep called rule.parse(0): no parent stuff, so attachLabel returned at `!pStuff` and ShortcuT's
+     isShortcut label never reached PrintXP. driveStep's old-road fallback now passes the enclosing activation's
+     stuff (top of the activation list, when it is not a floor); a real drive has pushed its floor and still
+     passes 0. -> all six shortcut cases print as the old road does; cerr ends its line.
+  POP: deferNatT dfLeak1 (if 1: `abc d `) and quoteNatT qnCe (`hi` ends its line); dfLeak/dfLeakW now
+     discriminate. H7: the fix removed -> dfLeak1 prints `a b c d `, qnCe's line does not end.
 ```
 
 ### F-115 — END OF INPUT eats a repetition's last match: one family, two spellings

@@ -12,6 +12,7 @@ define
     dfAbc="abc";
     dfIf0=(if 0; print $ "a" "b";#);
     dfWh0=(while 0; print $ "a" "b";#);
+    dfIf1=(if 1; print $ "a" "b";#);
     dfPlain=(print "c" "d";#);
     ;
 parser(DO);
@@ -39,5 +40,6 @@ RULING (b) REFINED (Tony, 2026-09-24): a fire walks the list whenever an activat
 either road, and parentStuff otherwise. So ShortcuT -- an OLD-road rule with an action, fired inside a
 new-road print drive -- now sees PrinT's defer (held=1), where it read held=0 before.
 dfLeak and dfLeakW drive a `$` print under `if 0;` / `while 0;` and then a plain print in the same process,
-and the plain print must print `c d`. ⚠ NON-DISCRIMINATING TODAY: `$` has no effect on the new road at all
-(`print $ "a" "b";` prints `a b`, where the old road prints `ab`) -- F-120 -- so a leak could not show.
+and the plain print must print `c d`. DISCRIMINATING since 2026-09-24's F-120 fix (old-road rules called inside
+a new-road activation now attach their label, so `$` applies): a print wrongly run under the false guard would
+show up as `ab`. dfLeak1 is the positive control -- the same drive under `if 1;` must print `abc d `.
