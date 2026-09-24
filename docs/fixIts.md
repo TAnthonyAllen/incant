@@ -92,6 +92,27 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-123 — OPEN 2026-09-24 — JITTED Token SUCCEEDS WITHOUT CONSUMING on an input it cannot start, and runs to 100 fires
+
+**What.** Driven through the door (probeDrive, root ExpressioN, armed Token), one process per input, J J vs I I:
+`%` interpreted consumed=1 terms=6 fires=1; JITTED consumed=0 terms=402 fires=100 true=100. `: bb cc` interpreted
+REJECTS (verdict=0, fires=1 true=0); JITTED ACCEPTS (verdict=1, consumed=0, fires=100 true=100). Inputs Token can
+start agree exactly (`abc`, `42 rest`, `iterate s2C attributes on s2L;`). Alone it is a wrong answer at exit 0; in
+the one-process sweep, after the interpreted calibration of 28 carriers, the same jitted fire is exit 139 in
+interpretXP on an ExpressioN label with no groupList (fireLabelMethod -> aCTionExpressioN, under a generated body).
+**Where.** Not located. The jitted Token body reports success on a zero-width match; the 100 reads as a cap on a
+repetition that makes no progress, not located either.
+**Evidence.** 2026-09-24, bare HEAD dd3e7fa: incant/pop/sweepT dies at SWEEP CARRIER 28 Token after 19 carriers
+AGREE with degrade 0 (DO through ExpressioN). Delta-minimising pairs.sweep to keep the crash gave ONE pair,
+`ExpressioN|%`; without both `%` pairs it gave ONE pair again, `ExpressioN|: bb cc`. Both then diverge solo as above.
+**Done when.** Jitted Token on `%` and `: bb cc` agrees with interpreted (verdict, consumed, terms, fires, true), both
+fires, and sweepT gets past carrier 28.
+**Owner.** Unassigned -- it blocks the one-process station-2 sweep at Token.
+```
+ATTEMPT LOG
+  (none yet)
+```
+
 ### F-122 — ✅ CLOSED 2026-09-24 — a control statement whose body is a BARE ASSIGNMENT crashes: its action calls a null body method
 
 **What.** `do s2Y = 1; while 1 < 0;` exits 139 on BOTH roads (top-level old road, and a native new-road drive);
@@ -149,6 +170,17 @@ ATTEMPT LOG
      JV green, both engines 0/0/4; bare return unchanged. DISCRIMINATOR PAIR (incant/pop/yieldT): the same do-while
      fired directly (s2Y reads 3) and as an action's last statement (value 3). H7: forced to always the value, DIRECT
      reads the tag s2Y; forced to always the label, OWNER reads gDO. Fleet 627 (+26), jitLadder 214 PASSED.
+     (The fixtures named in 5 as docs/patches/f122-fixtures are committed as incant/pop/f122T and f122NatT; the
+     byte-identical copies were deleted 2026-09-24.)
+  7. THE (b) GUARD CENSUS, NOT ARMED (2026-09-24, dd3e7fa, temporary uncommitted probe at fireLabelMethod's adoption
+     `stuff.label = stuff.actionMethod(stuff.label)`, printing when the return is non-null, not the label handed in,
+     and not isLabel). HITS EVERYWHERE, so the guard is not armed: fleet 314 lines (CerR->StatemenT 126, PrinT->
+     StatemenT 77, CerR->true 57, PrinT->true 45, list->true 4, tell->verdict 3, JSONarray->labelNO 2, wzNum->true 1,
+     JSONfield->JSONtoken 2); ladder 275 (PrinT->StatemenT 225, PrinT->true 50); sweepT 155 (Iterate->s2C 62,
+     BlocK->s2Y 33, CouT->StatemenT 29, PrinT->StatemenT 29, BrancH->break 1, CerR->true 1). THREE SHAPES: the
+     grammar rule StatemenT (a pROPERTIEs node), the trueResult sentinel, and LIVE FIELDS (s2C, s2Y, verdict,
+     JSONtoken) -- the last is attempt 4's hazard, adopted today on the new road. The probe's stderr cost four
+     captured rows (manyScratch.target, convDriveT CD-1/3/5); bare HEAD reads 627 again.
 ```
 
 ### F-121 — ✅ CLOSED 2026-09-24 — a REJECTED `StatemenT` drive on the NEW road abandons the file that ran it
