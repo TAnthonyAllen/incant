@@ -342,6 +342,19 @@ ATTEMPT LOG
      injection -- flag preset to 1 and the first Token attempt made to fail without writing it -- and
      printed `LOOPVERDICT rule=Token flag=1 kount=0 min=1 DISAGREE`. That validates the instrument, not
      the row, and the row's comment and label say so.
+  15. THE HANGS ARE ONE MECHANISM: A CYCLE IN THE parentStuff CHAIN (2026-09-24, native, lldb attached to
+     the hung process). `s2L[1]` and `s2L(1)` spin in GroupItem::deferredAbove, which walks
+     stuff->parentStuff upward until null. The chain, read in the live process:
+         numberSet > NumbeR > Token > ExpressioN > Braced (Parens) > InvokeArg > TokenXP > Token > ...
+     -- the SAME Token rStuff revisited, forever. The inner Token call (inside the subscript) runs on the
+     same face as the outer one, and parseRule's parentRepair points that shared rStuff's parentStuff at
+     the INNER ExpressioN for the length of the inner call. The bracket restores it at exit, but the walk
+     happens during. Stack depth is only ~87: a loop, not runaway recursion.
+     ⚠ A SECOND DEFECT RIDES WITH IT, and a cycle guard alone would not fix it: once Token's parentStuff
+     points at the inner ExpressioN, every activation OUTSIDE the recursion (the outer ExpressioN, the
+     statement, any `defer` rule above) is gone from the chain, so deferredAbove cannot see a deferred
+     ancestor there. The chain is not the activation stack whenever a face recurses.
+     NOT FIXED -- where the parent chain lives is a ruling. Options named in the 2026-09-24 report.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.
