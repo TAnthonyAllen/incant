@@ -111,7 +111,28 @@ Same item as the 2026-09-22 seal's banked "top-level `do x = x + 1; while x < 3;
 **Owner.** Unassigned -- it blocks the one-process station-2 sweep.
 ```
 ATTEMPT LOG
-  (none)
+  0. 2026-09-24 reads before building. try-fire-root (ce046dc) is ALREADY MERGED as 24d6e9c (heldAbove,
+     firedInLabel, loopCondition, loopRefuseLoudly all in HEAD); its loopCondition fixed a bare WHILE CONDITION,
+     not a null BODY method, so it does not address F-122. DW-4's runaway is gone on today's tree (doWhileNameT
+     green: DW-6 dwN == 2, DW-9 new road).
+  1. FIRST MEASUREMENT, one run, aCTionDO's body node: `print 1;` -> a StatemenT label whose gMethod IS its
+     action (aCTionPrinT, bound); `s2Y = 1;` -> a StatemenT label with gMethod NULL while its rStuff.actionMethod
+     is set: a label WAITING ON AN ACTION IT NEVER GOT. Cause: fireLabelMethod binds an action for later only
+     when the rule is `defer` AND something above defers (held); PrinT is `defer`, Xpress is NOT -- so under
+     DO/IF/FOR the assignment ran ONCE AT PARSE TIME and handed its owner nothing to run. Measured wrong value,
+     old road: `if 1 < 0; s2Y = 5;` leaves s2Y = 5.
+  2. `Xpress ExpressioN SemI- defer;` (incant/grammar, runtime-read). -> all eight F-122 cases RIGHT on both
+     roads (do 3, if/else 7, for 3, if-false 0, if-true 9, braced 3, print control prints 1, top-level 4) when
+     each runs alone. But the fleet moved one row and the ladder one (bare return yields the prior statement's
+     value; JV C's interpreted oracle): a BOUND Xpress returned its LABEL, not the expression's value.
+  3. aCTionXpress returns the value when run deferred -> fleet and ladder restored exactly (601 / 214), BUT the
+     value can be a LIVE FIELD (an assignment returns its target): run in sequence, `s2Y` LOST ITS DATA (tag echo).
+  4. Return it in a fresh holder -> unbraced cases right; the BRACED do still wipes s2Y: aCTionBlocK unwraps a
+     group-holding result (result = result.gGroup, which bare return relies on), aCTionDO returns it, and
+     fireLabelMethod's `label = actionMethod(label)` ADOPTS the live field as DO's label and attaches/retags it.
+  STOPPED FOR A RULING: what a statement run by its owner hands back as its value (its label, its value, or a
+  holder), given that loop/block actions pass their body's result up and fireLabelMethod adopts it as the
+  label. Attempts 2-4 saved as docs/patches/f122-xpressDefer-2026-09-24.patch; tree at HEAD.
 ```
 
 ### F-121 — ✅ CLOSED 2026-09-24 — a REJECTED `StatemenT` drive on the NEW road abandons the file that ran it

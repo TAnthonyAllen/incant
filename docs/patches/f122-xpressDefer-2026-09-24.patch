@@ -1,0 +1,30 @@
+diff --git a/incant/grammar b/incant/grammar
+index 6fbf55e..1c87db3 100644
+--- a/incant/grammar
++++ b/incant/grammar
+@@ -173,7 +173,7 @@ define
+         Search      search- followedBy GrouP+ SemI-;
+         BrancH      BrancheS ExpressioN? SemI- defer;
+         ScopeXP     colon-=":" scopeList=ScopeField+ SemI- defer;
+-    Xpress          ExpressioN SemI-;
++    Xpress          ExpressioN SemI- defer;
+     StatemenT
+         SemI;
+         BlocK;
+diff --git a/ruleActions.rtn b/ruleActions.rtn
+index 887b6df..141ff11 100644
+--- a/ruleActions.rtn
++++ b/ruleActions.rtn
+@@ -1219,7 +1219,11 @@ extern GroupItem aCTionXpress(GroupItem input)
+ {
+ GroupRules  ruler = groupRules;
+ GroupItem   ExpressioN:;
+-    if !processingCode && method    ExpressioN = method(ExpressioN);
++    if !processingCode && method {
++        ExpressioN = method(ExpressioN);
++        // deferredValue run by its owner (bound under a deferred ancestor -- Xpress is `defer` since F-122), the statement's value is the expression's, handed back in a FRESH HOLDER: the value can be a live field (an assignment returns its target) and a consumer that treats a statement value as a disposable label would clear it; a null keeps the label so a loop never dereferences nothing
++        -% if ( input->groupBody->flags.deferred && ExpressioN ) { GroupItem *xpValue = new GroupItem((char*)"xpValue"); xpValue->setGroup(ExpressioN); return xpValue; } %-
++        }
+     or ExpressioN {
+         input.clear();
+         input.group = ExpressioN; }
