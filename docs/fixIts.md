@@ -92,6 +92,23 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-125 — OPEN 2026-09-24 — TWO `define aa isRule` DRIVES in one process ABANDON the file that ran the sweep
+
+**What.** After F-123 the one-process sweep (incant/pop/sweepT) completes -- `SWEEP END carriers=65 skipped=4 nopick=16
+certified=45 agree=45 diff=0`, exit 0, no degrade line -- but the file's next statement (`cerr "SW END":;`) fails to
+match and the rest is ABANDONED, so the sentinel never prints. Minimised over pairs.sweep: the two pairs
+`ExpressioN|define\n  aa isRule;\n  ;` and `StatemenT|define aa isRule; ;`. Either ALONE: sentinel prints. BOTH, in
+either order: abandoned. F-121's shape (a drive leaves the caller's input state such that its next statement cannot
+parse), reached through inputs that DEFINE a rule in the live process.
+**Where.** Not located. Not an engine difference: the certificate rows agree.
+**Evidence.** 2026-09-24, c20a866, bare. Single-variable controls: set {1} ok, {2} ok, {1,2} abandoned, {2,1} abandoned.
+**Done when.** sweepT reaches its sentinel on the full pairs.sweep, and the two-pair repro reaches it too.
+**Owner.** Unassigned. The sweep's own certificate is readable without it; sweepT's sentinel is not.
+```
+ATTEMPT LOG
+  (none yet)
+```
+
 ### F-123 — ✅ CLOSED 2026-09-24 — JITTED Token SUCCEEDED WITHOUT CONSUMING on an input it cannot start, and ran to 100 fires
 
 **What.** Driven through the door (probeDrive, root ExpressioN, armed Token): `%` interpreted consumed=1 fires=1;
