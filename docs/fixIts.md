@@ -486,6 +486,14 @@ ATTEMPT LOG
        recovers). Banked as F-121. Rejected ExpressioN drives are clean.
        ⚠ INSTRUMENT NOTE: the first grading was void -- its sentinel check matched the words inside the
        ABANDONED message's resume text. Every check is line-exact now.
+  20. THE NATIVE JITTED DRIVE (Tony, 2026-09-24). probeDrive (jitEmitters.rtn, registered in incant/setup) wraps
+     jitProbeDrive from incant: one argument whose attributes name root, armed, msg and jitted; the rules are
+     found BY NAME STRING (bear-trap #34). CONTROL (incant/pop/probeDoorT, fleet rows): the interpreted arm
+     reproduces the certified native readings (abc 1/3, 42 rest 1/7, print 1/8, DO 1/24, IF 1/18, WhilE 1/21,
+     the stmtRejT rejects 0/0) and the jitted arm station 2's jitted rows -- every pair agrees on EVERY field.
+     ⚠ ONE MOVE, NAMED, NOT EXPLAINED: DO accept's term count reads 53 on BOTH roads where station 2 certified 54
+     on 2026-09-23. A shared change today, not the door; the absolute count is left unpinned until explained.
+     FROM HERE THE lldb PROBE (jitLadder/station2/probe.py) IS FOR DEBUGGING ONLY.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.

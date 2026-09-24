@@ -2986,6 +2986,8 @@ else echo "  FAIL  quoteNatT qnCe value -- cerr \"hi\":; did not end its line: $
 #  drives (nestNatT, unaryNatT) stay green. So the row now pins DISAGREE > 0: the witness firing in the fleet is
 #  its positive control, and it says why the flag read must stay removed. H7: F-121's sukcess bracket removed ->
 #  DISAGREE returns to 0.
+#  Since 10921da the flag is stale by construction: this row now shows the COUNT deciding, and the value rows on
+#  the same drives (nestNatT, unaryNatT) are the guard (Tony, 2026-09-24).
 _lvt=0; _lvd=0
 for _f in "$T"/nn*.e "$T"/un*.e "$T"/qn*.e; do
     [ -f "$_f" ] || continue
@@ -2996,6 +2998,27 @@ if [ "$_lvt" -gt 0 ]; then echo "  ok    loopVerdict anti-vacuity: $_lvt verdict
 else echo "  FAIL  loopVerdict anti-vacuity: no LOOPVERDICT lines -- the instrument saw nothing"; fail=1; fi
 if [ "$_lvd" -gt 0 ]; then echo "  ok    loopVerdict positive control: $_lvd stale-flag short runs witnessed -- the count, not the flag, decided each"; green=$((green+1))
 else echo "  FAIL  loopVerdict positive control: DISAGREE = 0 -- is sukcess still in parseRule's bracket (F-121)?"; fail=1; fi
+
+#  ---- probeDoorT: THE NATIVE JITTED DRIVE'S CONTROL (Tony, 2026-09-24) ----
+#  probeDrive wraps jitProbeDrive so a jitted drive runs from incant; the lldb probe is for debugging only. Pairs
+#  are JITTED then INTERP on one armed carrier (one compile). Rows: every pair agrees on EVERY field (verdict,
+#  consumed, terms, fires, true); the certified verdict/consumed hold; the rejects stay 0/0.
+#  ⚠ DO accept's term count reads 53 on both roads where station 2 certified 54 (2026-09-23) -- moved by a
+#  shared change today, NOT YET EXPLAINED, so the absolute term count is deliberately not pinned here.
+run2 probeDoorT "$T/pd.o" "$T/pd.e"; check "probeDoorT runs" 0 $?
+sentinel "probeDoorT sentinel" "$T/pd.e" "PROBEDOOR SENTINEL"
+_pdl() { grep "^PROBEDRIVE root=$1 armed=$2 $3 " "$T/pd.e" | sed -n "${4}p" | sed 's/.* ret=[0-9]* //'; }
+for _pp in "ExpressioN ExpressioN 1" "StatemenT StatemenT 1" "StatemenT PrinT 1" "StatemenT DO 1" "StatemenT DO 2" "StatemenT IF 1" "StatemenT WhilE 1"; do
+    set -- $_pp
+    _j=$(_pdl $1 $2 JITTED $3); _i=$(_pdl $1 $2 INTERP $3)
+    if [ -n "$_j" ] && [ "$_j" = "$_i" ]; then echo "  ok    probeDoorT $2 #$3 jitted = interpreted: $_j"; green=$((green+1))
+    else echo "  FAIL  probeDoorT $2 #$3 jitted [$_j] vs interpreted [$_i]"; fail=1; fi
+done
+_pdv() { if grep -q "^PROBEDRIVE root=$1 armed=$2 INTERP .* verdict=$3 consumed=$4 " "$T/pd.e"; then echo "  ok    probeDoorT $2 on '$5' reads $3/$4"; green=$((green+1)); else echo "  FAIL  probeDoorT $2 on '$5' does not read $3/$4"; fail=1; fi; }
+_pdv ExpressioN ExpressioN 1 3 "abc"; _pdv ExpressioN ExpressioN 1 7 "42 rest"; _pdv StatemenT PrinT 1 8 "print 1;"
+_pdv StatemenT DO 1 24 "do ... while"; _pdv StatemenT IF 1 18 "if ..."; _pdv StatemenT WhilE 1 21 "while ..."
+if [ "$(grep -c '^PROBEDRIVE root=StatemenT armed=StatemenT INTERP .* verdict=0 consumed=0 ' "$T/pd.e")" -ge 3 ]; then echo "  ok    probeDoorT the three stmtRejT rejects read 0/0"; green=$((green+1))
+else echo "  FAIL  probeDoorT the stmtRejT rejects do not all read 0/0"; fail=1; fi
 
 #  ---- stmtRejT: F-121 -- a REJECTED new-road StatemenT drive no longer abandons its caller ----
 #  One process per input. EXACT-LINE ran-marker and sentinel (the ABANDONED message quotes the rest of the file,

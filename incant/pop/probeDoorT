@@ -1,0 +1,54 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    s2N=0;
+    s2Y=0;
+    s2L aa bb cc;
+    pdAbcJ root="ExpressioN" msg=(abc#) jitted=1;
+    pdAbcI root="ExpressioN" msg=(abc#) jitted=0;
+    pd42I root="ExpressioN" msg=(42 rest#) jitted=0;
+    pdPrJ root="StatemenT" armed="PrinT" msg=(print 1;#) jitted=1;
+    pdPrI root="StatemenT" armed="PrinT" msg=(print 1;#) jitted=0;
+    pdStJ root="StatemenT" msg=(print 1;#) jitted=1;
+    pdStI root="StatemenT" msg=(print 1;#) jitted=0;
+    pdDoJ root="StatemenT" armed="DO" msg=(do print 1; while 1 < 0;#) jitted=1;
+    pdDoI root="StatemenT" armed="DO" msg=(do print 1; while 1 < 0;#) jitted=0;
+    pdDoRJ root="StatemenT" armed="DO" msg=(do print 1;#) jitted=1;
+    pdDoRI root="StatemenT" armed="DO" msg=(do print 1;#) jitted=0;
+    pdIfJ root="StatemenT" armed="IF" msg=(if 1 < 0; s2Y = 1;#) jitted=1;
+    pdIfI root="StatemenT" armed="IF" msg=(if 1 < 0; s2Y = 1;#) jitted=0;
+    pdWhJ root="StatemenT" armed="WhilE" msg=(while 1 < 0; s2Y = 1;#) jitted=1;
+    pdWhI root="StatemenT" armed="WhilE" msg=(while 1 < 0; s2Y = 1;#) jitted=0;
+    pdElseI root="StatemenT" msg=(else s2Y = 2;#) jitted=0;
+    pdIfRI root="StatemenT" msg=(if ;#) jitted=0;
+    pdSubI root="StatemenT" msg=(s2L[1]#) jitted=0;
+    ;
+parser(DO);
+cerr "PD BEGIN":;
+probeDrive(pdAbcJ);
+probeDrive(pdAbcI);
+probeDrive(pd42I);
+probeDrive(pdStJ);
+probeDrive(pdStI);
+probeDrive(pdPrJ);
+probeDrive(pdPrI);
+probeDrive(pdDoJ);
+probeDrive(pdDoI);
+probeDrive(pdDoRJ);
+probeDrive(pdDoRI);
+probeDrive(pdIfJ);
+probeDrive(pdIfI);
+probeDrive(pdWhJ);
+probeDrive(pdWhI);
+probeDrive(pdElseI);
+probeDrive(pdIfRI);
+probeDrive(pdSubI);
+cerr "PD END":;
+cerr "PROBEDOOR SENTINEL":;
+stop();
+
+probeDoorT -- THE NATIVE JITTED DRIVE'S CONTROL (Tony, 2026-09-24). probeDrive wraps jitProbeDrive so a jitted
+drive runs from incant, not lldb. Its interpreted arm must reproduce the certified native readings, and its jitted
+arm station 2's certified jitted rows; after that the lldb probe is for debugging only.

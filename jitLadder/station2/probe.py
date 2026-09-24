@@ -1,4 +1,5 @@
 # lldb module: jitter station 2's sweep. Stops after parser(DO) (the lldb script
+# ⚠ DEBUGGING ONLY since 2026-09-24: measurements use the native probeDrive command (incant/pop/probeDoorT).
 # sets that breakpoint), walks the carriers reachable from DO exactly as
 # carrierRecon/walk.py does, then CALIBRATES (interpreted only) or CERTIFIES
 # (jitted first, then the oracle) one carrier.

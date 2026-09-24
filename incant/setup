@@ -57,6 +57,7 @@ define
     isList immediateAction=processFlags noPrint;
     isRule immediateAction=processFlags noPrint;
     jitRefire immediateAction=jitRefire;
+    probeDrive immediateAction=probeDrive;
     jitFieldMethod immediateAction=jitFieldMethod;
     jitShowRecord immediateAction=jitShowRecord;
     jitTrace immediateAction=jitTrace;

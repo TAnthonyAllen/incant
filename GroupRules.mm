@@ -6693,13 +6693,6 @@ extern "C" int jitProbeDrive(GroupItem *rule, GroupItem *armed, char *msg, int j
 	
 }
 
-/*******************************************************************************
-    jitRefire -- FIRE THE LAST COMPILED FUNCTION AGAIN, without recompiling.
-    Returns trueResult on a fire, null if nothing has been compiled yet -- LOUD,
-    because a silent no-op would make a rung green for the wrong reason.
-
-    // rightAnswerWrongUniverse  why a compile-fire-check POP proves nothing on its own, and what a second fire settles
-*******************************************************************************/
 extern "C" GroupItem *jitRefire(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -11581,6 +11574,42 @@ debugHere:
 		}
 	else	::fprintf(stderr,"printToBuffer: ignored\n");
 	return GroupControl::groupController->groupRules->trueResult;
+}
+
+/*******************************************************************************
+    jitRefire -- FIRE THE LAST COMPILED FUNCTION AGAIN, without recompiling.
+    Returns trueResult on a fire, null if nothing has been compiled yet -- LOUD,
+    because a silent no-op would make a rung green for the wrong reason.
+
+    // rightAnswerWrongUniverse  why a compile-fire-check POP proves nothing on its own, and what a second fire settles
+*******************************************************************************/
+// probeDrive -- THE NATIVE JITTED DRIVE (Tony, 2026-09-24): jitProbeDrive from incant, so the lldb probe is for debugging only. The argument's attributes name root, armed (default root), msg and jitted; rules are found BY NAME STRING in Grokking, never handed in as rule-shaped values (bear-trap #34: a truth test fires them). Prints one PROBEDRIVE line; returns trueResult (bear-trap #33)
+extern "C" GroupItem *probeDrive(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	
+	GroupItem *spec = input;
+	if ( spec && isGROUP(spec->groupBody->flags.data) ) spec = spec->groupBody->gGroup;
+	GroupItem *g = GroupControl::groupController->getRegistry((char*)"Grokking");
+	GroupItem *rootN = spec ? spec->get((char*)"root")   : 0;
+	GroupItem *armN  = spec ? spec->get((char*)"armed")  : 0;
+	GroupItem *msgN  = spec ? spec->get((char*)"msg")    : 0;
+	GroupItem *jitN  = spec ? spec->get((char*)"jitted") : 0;
+	char *rootS = rootN ? rootN->getText() : 0;
+	char *armS  = armN  ? armN->getText()  : rootS;
+	char *msgS  = msgN  ? msgN->getText()  : 0;
+	int jitted  = (jitN && isCOUNT(jitN->groupBody->flags.data)) ? (int)jitN->groupBody->gCount : 0;
+	GroupItem *root  = (g && rootS) ? g->get(rootS) : 0;
+	GroupItem *armed = (g && armS)  ? g->get(armS)  : 0;
+	if ( !root || !armed || !msgS ) {
+	::fprintf(stderr,"PROBEDRIVE REFUSED: root=%s armed=%s msg=%s -- a name did not resolve in Grokking, or no msg\n",
+	rootS ? rootS : "(none)", armS ? armS : "(none)", msgS ? "given" : "(none)");
+	return ruler->trueResult; }
+	int r = ::jitProbeDrive(root, armed, msgS, jitted);
+	::fprintf(stderr,"PROBEDRIVE root=%s armed=%s %s ret=%d verdict=%d consumed=%d length=%d terms=%d fires=%d true=%d\n",
+	rootS, armS, jitted ? "JITTED" : "INTERP", r, gProbeVerdict, gProbeConsumed, gProbeLength, gProbeTerms, gProbeFires, gProbeTrue);
+	
+	return ruler->trueResult;
 }
 
 /*  ⚠ THE ARGUMENT IS EXEMPT, and it is what lets the declaration go.
