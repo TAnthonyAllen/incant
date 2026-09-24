@@ -92,6 +92,28 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-122 — a control statement whose body is a BARE ASSIGNMENT crashes: its action calls a null body method
+
+**What.** `do s2Y = 1; while 1 < 0;` exits 139 on BOTH roads (top-level old road, and a native new-road drive);
+`if 1 < 0; s2Y = 1; else s2Y = 2;` and `for s2C in s2L; s2Y = 1;` crash the same way on the new road. The same
+statements with a `print` body, or with the body in braces (`do { s2Y = 1; } while 1 < 0;`), are fine, and so is
+`if 1 < 0; s2Y = 1;` alone. Frame 0 is address 0 called from aCTionDO / aCTionIF: `StatemenT->groupBody->gMethod`
+is NULL on the body's label.
+⚠ STATE-DEPENDENT: `if s2N; s2Y = 1;` passes when driven alone, one process per input, but crashes in aCTionIF when
+the station-2 sweep reaches it after other drives in the same process. So excluding inputs cannot make a
+one-process sweep safe.
+**Where.** Not located. The body label is the StatemenT that wraps `s2Y = 1;` (an Xpress); whatever should set its
+gMethod (the statement's action, via fireLabelMethod's `label = actionMethod(label)`) does not, or it is lost.
+**Evidence.** 2026-09-24: the old-road top-level repro; the native prescan of jitLadder/station2/pairs (3 of 177
+crash, jitLadder/station2/pairs.sweep.excluded); the sweep's crash at carrier StatemenT, pair `if s2N; s2Y = 1;`.
+Same item as the 2026-09-22 seal's banked "top-level `do x = x + 1; while x < 3;` exits 139 on HEAD".
+**Done when.** The three statements run on both roads, and a one-process sweep gets past `if s2N; s2Y = 1;`.
+**Owner.** Unassigned -- it blocks the one-process station-2 sweep.
+```
+ATTEMPT LOG
+  (none)
+```
+
 ### F-121 — ✅ CLOSED 2026-09-24 — a REJECTED `StatemenT` drive on the NEW road abandons the file that ran it
 
 **What.** Driving `StatemenT(x)` natively, where x fails to parse, returns, but the calling file's NEXT statement
@@ -504,6 +526,13 @@ ATTEMPT LOG
      door recompiled a carrier whenever the armed one changed back, and a carrier's symbol can be defined once
      (20 drives refused, duplicate _jit_StatemenT_builtinParseR); the door now keeps one compiled function per
      carrier. The debt below is discharged for the site-1 rejects.
+  22. THE ONE-PROCESS SWEEP IS BLOCKED BY F-122 (2026-09-24). probeSweep (jitEmitters.rtn, registered) walks the 65
+     carriers from DO, skips the 4 stuff faces, calibrates interpreted over the pairs, picks as pick.py does and
+     certifies jitted against interpreted. Prescan of the 177 pairs natively, one process each: 3 crash (F-122's
+     assignment-body family) and 1 returns without its sentinel (the multi-line define), so
+     jitLadder/station2/pairs.sweep keeps 173. The sweep then certified DO -- AGREE, degrade 0 -- and crashed at
+     carrier StatemenT on `if s2N; s2Y = 1;`, which PASSED the one-process-per-pair prescan: F-122 is
+     state-dependent, so input exclusion cannot make a one-process sweep safe. Stopped there.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.

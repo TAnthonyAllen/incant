@@ -2659,6 +2659,99 @@ GroupRules  ruler = groupRules;
     return trueResult;
 }
 
+// probeSweep -- THE STATION-2 SWEEP, NATIVE, IN ONE PROCESS (Tony, 2026-09-24). Every carrier reachable from DO (walked as jitLadder/station2/probe.py walks them), except those whose tag is in `skip` (default: stuff -- its naming key is pending). Per carrier: calibrate INTERPRETED over the `pairs` file, pick up to two accepts and two rejects by pick.py's rule, then certify JITTED against INTERPRETED, two fires each, one compile. Prints SWEEP lines on stderr; returns trueResult
+extern GroupItem probeSweep(GroupItem input)
+{
+GroupRules  ruler = groupRules;
+    -%
+    GroupItem *spec = input;
+    if ( spec && isGROUP(spec->groupBody->flags.data) ) spec = spec->groupBody->gGroup;
+    GroupItem *pN = spec ? spec->get((char*)"pairs") : 0, *sN = spec ? spec->get((char*)"skip") : 0;
+    const char *pairsPath = pN ? pN->getText() : "jitLadder/station2/pairs";
+    const char *skip = sN ? sN->getText() : "stuff";
+    GroupItem *g = GroupControl::groupController->getRegistry((char*)"Grokking");
+    GroupItem *root0 = g ? g->get((char*)"DO") : 0;
+    if ( !root0 ) { ::fprintf(stderr,"SWEEP REFUSED: no DO in Grokking\n"); return ruler->trueResult; }
+    // the pairs
+    static char *pRoot[512]; static char *pMsg[512]; int np = 0;
+    FILE *pf = ::fopen(pairsPath,"r");
+    if ( !pf ) { ::fprintf(stderr,"SWEEP REFUSED: cannot open %s\n",pairsPath); return ruler->trueResult; }
+    char line[4096];
+    while ( np < 512 && ::fgets(line,sizeof line,pf) ) {
+        size_t L = ::strlen(line); while ( L && (line[L-1]=='\n' || line[L-1]=='\r') ) line[--L] = 0;
+        char *bar = ::strchr(line,'|'); if ( !bar ) continue;
+        *bar = 0; pRoot[np] = ::strdup(line);
+        char *m = ::strdup(bar+1), *w = m;
+        for ( char *r = m; *r; r++ ) { if ( r[0]=='\\' && r[1]=='n' ) { *w++ = '\n'; r++; } else *w++ = *r; }
+        *w = 0; pMsg[np++] = m; }
+    ::fclose(pf);
+    // the carriers, walked as probe.py walks them
+    static GroupItem *cNode[256]; int nc = 0;
+    static GroupItem *seen[4096]; int ns = 0;
+    static GroupItem *cSeen[256]; int ncs = 0;
+    static GroupItem *stk[4096]; int sp = 0;
+    stk[sp++] = root0;
+    while ( sp ) {
+        GroupItem *n = stk[--sp];
+        int dup = 0; for ( int i = 0; i < ns; i++ ) if ( seen[i] == n ) { dup = 1; break; }
+        if ( dup || ns >= 4096 ) continue;
+        seen[ns++] = n;
+        GroupItem *c = n->get((char*)"builtinParseR");
+        if ( c ) { int cd = 0; for ( int i = 0; i < ncs; i++ ) if ( cSeen[i] == c ) { cd = 1; break; }
+                   if ( !cd && nc < 256 ) { cSeen[ncs++] = c; cNode[nc++] = n; } }
+        GroupItem *kids[256]; int nk = 0; GroupItem *k = 0;
+        while ( (k = n->next(k)) && nk < 256 ) {
+            if ( k->groupBody->flags.noPrint ) continue;
+            if ( !k->groupBody->flags.isRule ) continue;
+            kids[nk++] = k; }
+        for ( int i = nk - 1; i >= 0 && sp < 4096; i-- ) stk[sp++] = kids[i]; }
+    ::fprintf(stderr,"SWEEP BEGIN carriers=%d pairs=%d skip=%s\n",nc,np,skip);
+    int certified = 0, agreeAll = 0, diffAll = 0, nopick = 0, skipped = 0;
+    for ( int ci = 0; ci < nc; ci++ ) {
+        GroupItem *armed = cNode[ci];
+        const char *tag = armed->groupBody->tag;
+        if ( ::strcmp(tag,skip) == 0 ) { ::fprintf(stderr,"SWEEP SKIP %d %s\n",ci,tag); skipped++; continue; }
+        // calibrate, interpreted
+        int cv[512], cc[512], ct[512], cfi[512], ctr[512];
+        for ( int i = 0; i < np; i++ ) {
+            GroupItem *root = g->get(pRoot[i]);
+            if ( !root ) { cfi[i] = -1; continue; }
+            ::jitProbeDrive(root, armed, pMsg[i], 0);
+            cv[i] = gProbeVerdict; cc[i] = gProbeConsumed; ct[i] = gProbeTerms; cfi[i] = gProbeFires; ctr[i] = gProbeTrue; }
+        // pick: accepts (fired, all succeeded) by consumed desc then terms desc; a second accept with a different consumed; rejects (fired, none) by terms desc
+        int acc[512], na = 0, rej[512], nr = 0;
+        for ( int i = 0; i < np; i++ ) {
+            if ( cfi[i] > 0 && ctr[i] == cfi[i] ) acc[na++] = i;
+            else if ( cfi[i] > 0 && ctr[i] == 0 ) rej[nr++] = i; }
+        for ( int a = 0; a < na; a++ ) for ( int b = a+1; b < na; b++ )
+            if ( cc[acc[b]] > cc[acc[a]] || (cc[acc[b]] == cc[acc[a]] && ct[acc[b]] > ct[acc[a]]) ) { int t = acc[a]; acc[a] = acc[b]; acc[b] = t; }
+        for ( int a = 0; a < nr; a++ ) for ( int b = a+1; b < nr; b++ )
+            if ( ct[rej[b]] > ct[rej[a]] ) { int t = rej[a]; rej[a] = rej[b]; rej[b] = t; }
+        int pick[4], npk = 0;
+        if ( na ) { pick[npk++] = acc[0]; int other = -1; for ( int a = 1; a < na; a++ ) if ( cc[acc[a]] != cc[acc[0]] ) other = acc[a]; if ( other >= 0 ) pick[npk++] = other; }
+        for ( int r = 0; r < nr && r < 2; r++ ) pick[npk++] = rej[r];
+        ::fprintf(stderr,"SWEEP CARRIER %d %s accepts=%d rejects=%d picked=%d\n",ci,tag,na,nr,npk);
+        if ( !npk ) { nopick++; continue; }
+        // certify: jitted first (one compile), then the oracle; two fires each
+        int before = gJitDegradeCount;
+        int rv[2][4][2], rc[2][4][2], rt[2][4][2], rf[2][4][2], rtr[2][4][2], refused = 0;
+        for ( int jt = 1; jt >= 0; jt-- ) for ( int p = 0; p < npk; p++ ) for ( int f = 0; f < 2; f++ ) {
+            int i = pick[p];
+            int r = ::jitProbeDrive(g->get(pRoot[i]), armed, pMsg[i], jt);
+            if ( r == -7 || r == -8 ) refused = 1;
+            rv[jt][p][f] = gProbeVerdict; rc[jt][p][f] = gProbeConsumed; rt[jt][p][f] = gProbeTerms; rf[jt][p][f] = gProbeFires; rtr[jt][p][f] = gProbeTrue;
+            ::fprintf(stderr,"SWEEP ROW %s %s fire%d %s|%s v=%d c=%d t=%d fires=%d true=%d\n",tag,jt?"J":"I",f+1,pRoot[i],pMsg[i],gProbeVerdict,gProbeConsumed,gProbeTerms,gProbeFires,gProbeTrue); }
+        int degr = gJitDegradeCount - before;
+        int agree = !refused;
+        for ( int p = 0; p < npk; p++ ) for ( int f = 0; f < 2; f++ )
+            if ( rv[1][p][f]!=rv[0][p][f] || rc[1][p][f]!=rc[0][p][f] || rt[1][p][f]!=rt[0][p][f] || rf[1][p][f]!=rf[0][p][f] || rtr[1][p][f]!=rtr[0][p][f] ) agree = 0;
+        ::fprintf(stderr,"SWEEP RESULT %s %s degrade=%d%s\n",tag,agree?"AGREE":"DIFF",degr,refused?" REFUSED":"");
+        certified++; if ( agree ) agreeAll++; else diffAll++; }
+    ::fprintf(stderr,"SWEEP END carriers=%d skipped=%d nopick=%d certified=%d agree=%d diff=%d\n",nc,skipped,nopick,certified,agreeAll,diffAll);
+    %-
+    return trueResult;
+}
+
 extern GroupItem jitRefire(GroupItem input)
 {
 GroupRules  ruler = groupRules;

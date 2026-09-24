@@ -1,0 +1,173 @@
+StatemenT|do print 1; while 1 < 0;
+ExpressioN|do print 1; while 1 < 0;
+ExpressioN|do s2Y = 1; while 1 < 0;
+StatemenT|do { s2Y = 1; } while 1 < 0;
+ExpressioN|do { s2Y = 1; } while 1 < 0;
+StatemenT|if s2N; s2Y = 1;
+ExpressioN|else s2Y = 2;
+ExpressioN|else if 1 < 0; s2Y = 1;
+StatemenT|while 1 < 0; s2Y = 1;
+StatemenT|iterate s2C on s2L;
+ExpressioN|iterate s2C on s2L;
+StatemenT|iterate s2C attributes on s2L;
+ExpressioN|iterate s2C attributes on s2L;
+StatemenT|print 1;
+ExpressioN|print "hi";
+ExpressioN|print s2N "and" s2Y:;
+StatemenT|cerr 1;
+ExpressioN|cerr 1;
+ExpressioN|cerr "hi":;
+StatemenT|cout 1;
+ExpressioN|cout 1;
+ExpressioN|search Utilities list
+ExpressioN|search Utilities list;
+StatemenT|{ s2Y = 1; }
+ExpressioN|{ s2Y = 1; }
+StatemenT|s2Y = 1;
+ExpressioN|s2Y = 1;
+StatemenT|s2Y;
+ExpressioN|s2Y;
+StatemenT|;
+ExpressioN|;
+StatemenT|break;
+ExpressioN|break;
+StatemenT|debug NamE;
+ExpressioN|debug NamE;
+StatemenT|def s2Z;
+ExpressioN|def s2Z;
+ExpressioN|define\n  aa isRule;\n  ;
+StatemenT|define aa isRule; ;
+ExpressioN|define aa isRule; ;
+StatemenT|aa isRule;
+ExpressioN|aa isRule;
+StatemenT|aa isRule bb;
+ExpressioN|aa isRule bb;
+StatemenT|aa isRule bb+;
+ExpressioN|aa isRule bb+;
+StatemenT|aa isRule bb{1,3};
+ExpressioN|aa isRule bb{1,3};
+ExpressioN|aa isRule tt="q";
+StatemenT|aa isRule tt=[a-z]+;
+ExpressioN|aa isRule tt=[a-z]+;
+StatemenT|: bb cc
+ExpressioN|: bb cc
+StatemenT|abc
+ExpressioN|abc
+StatemenT|aa
+ExpressioN|aa
+StatemenT|42
+ExpressioN|42
+StatemenT|42 rest
+ExpressioN|42 rest
+StatemenT|1.5
+ExpressioN|1.5
+StatemenT|1.5e3
+ExpressioN|1.5e3
+StatemenT|e+3
+ExpressioN|e+3
+ExpressioN|.5
+ExpressioN|'q'
+StatemenT|[a-z]
+ExpressioN|[a-z]
+StatemenT|[^a-z]
+ExpressioN|[^a-z]
+StatemenT|{1,3}
+ExpressioN|{1,3}
+StatemenT|{ }
+ExpressioN|{ }
+StatemenT|{}
+ExpressioN|{}
+ExpressioN|(1)
+ExpressioN|s2L(1)
+StatemenT|s2L.aa
+ExpressioN|s2L.aa
+StatemenT|*s2L
+ExpressioN|*s2L
+ExpressioN|-1
+StatemenT|!s2N
+ExpressioN|!s2N
+ExpressioN|s2L[1]
+StatemenT|1 + 1
+ExpressioN|1 + 1
+StatemenT|s2N + 2 * 3
+ExpressioN|s2N + 2 * 3
+StatemenT|s2N == 0 && s2Y
+ExpressioN|s2N == 0 && s2Y
+ExpressioN|#5.2d
+ExpressioN|#-5s
+StatemenT|5
+ExpressioN|5
+StatemenT|aa bb
+ExpressioN|aa bb
+StatemenT|on s2L
+ExpressioN|on s2L
+StatemenT|attributes on s2L
+ExpressioN|attributes on s2L
+StatemenT|where s2N
+ExpressioN|where s2N
+StatemenT|in s2L
+ExpressioN|in s2L
+StatemenT|@
+ExpressioN|@
+StatemenT|}
+ExpressioN|}
+StatemenT|=1
+ExpressioN|=1
+ExpressioN|="q"
+StatemenT|=[a-z]
+ExpressioN|=[a-z]
+StatemenT|+
+ExpressioN|+
+StatemenT|*
+ExpressioN|*
+StatemenT|?
+ExpressioN|?
+StatemenT|!
+ExpressioN|!
+StatemenT|aa:
+ExpressioN|aa:
+StatemenT|code={ s2Y; }
+ExpressioN|code={ s2Y; }
+StatemenT|::
+ExpressioN|::
+StatemenT|%
+ExpressioN|%
+StatemenT|do print 1; wile 1 < 0;
+ExpressioN|do print 1; wile 1 < 0;
+StatemenT|do print 1;
+ExpressioN|do print 1;
+ExpressioN|if 1 < 0 s2Y = 1;
+ExpressioN|while 1 < 0 s2Y = 1;
+ExpressioN|for s2C s2L;
+ExpressioN|print ;
+StatemenT|cerr ;
+ExpressioN|cerr ;
+ExpressioN|search ;
+StatemenT|debug ;
+ExpressioN|debug ;
+StatemenT|{ s2Y = 1;
+ExpressioN|{ s2Y = 1;
+StatemenT|aa isRule tt=;
+ExpressioN|aa isRule tt=;
+ExpressioN|'q
+StatemenT|[a-z
+ExpressioN|[a-z
+StatemenT|{1,
+ExpressioN|{1,
+StatemenT|do print 1;
+ExpressioN|do print 1;
+StatemenT|if 1 < 0
+ExpressioN|if 1 < 0
+StatemenT|while 1 < 0
+ExpressioN|while 1 < 0
+StatemenT|print
+ExpressioN|print
+StatemenT|for s2C
+ExpressioN|for s2C
+StatemenT|iterate s2C
+ExpressioN|iterate s2C
+StatemenT|{ }
+ExpressioN|{ }
+StatemenT|else
+ExpressioN|else
+ExpressioN|'q

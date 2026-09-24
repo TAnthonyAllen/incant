@@ -1,0 +1,23 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    s2N=0;
+    s2Y=0;
+    s2C=0;
+    s2L aa bb cc;
+    swSpec pairs="jitLadder/station2/pairs.sweep" skip="stuff";
+    ;
+parser(DO);
+cerr "SW BEGIN":;
+probeSweep(swSpec);
+cerr "SW END":;
+cerr "SWEEP SENTINEL":;
+stop();
+
+sweepT -- JITTER STATION 2, THE FULL SWEEP, NATIVE AND IN ONE PROCESS (Tony, 2026-09-24). probeSweep walks every
+carrier reachable from DO except the stuff faces (their naming key is pending), calibrates each interpreted over
+jitLadder/station2/pairs, picks up to two accepts and two rejects by pick.py's rule, and certifies JITTED against
+INTERPRETED, two fires each, one compile. A carrier AGREES when every picked input agrees on verdict, consumed,
+term calls, fires and successes, both fires.
