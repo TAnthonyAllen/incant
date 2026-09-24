@@ -464,6 +464,9 @@ aCTionTraiT/aCTionTraiTdata, setLimits + its groups.ext line) builds at canary 3
   Limit, TraiT and TraiTdata.
 - Moved fleet rows, named: census.target, traitFlagsT TF-1..4 (TF-5 moved), paReachT 124 -> 121 faces,
   groups.ext names 334 -> 333, shadowCensus 86 -> 85, genParse odometer, deferNatT floor + dfPrint value.
+- **Re-run 2026-09-24 on top of 0e52f8b** (old-road rules inside a new-road activation now attach into it): the
+  patch applies cleanly and builds; the new road's `print s2L[1];` STILL prints nothing, the old road still `aa`.
+  So that fix is not the missing piece.
 - **Limit stays in place; the tree is at HEAD.** The clean change is docs/patches/limitRemoval-2026-09-24.patch
   (+ -groupsext-). The min=/max= amendment waits with it.
 **Done when.** A standalone Limit on `[1 2]` wins and consumes 5, or Tony rules Limit is only meant
