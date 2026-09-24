@@ -26,3 +26,17 @@ Checked, not reproduced: the zero-length `testUpTo` case does not crash an empty
 **No face on the new road uses it.** Walked from the Grokking registry after `parser(DO)`: 372 nodes, and none has `rStuff.parseMethod == parseAction`. That population is where one would show up, because `setParseWalk` installs a parse method on every face it walks, and it walks from DO, which is inside Grokking.
 
 `PRINTing` is the only rule the grammar names with `parseAction=`, and it's reachable through PrinT, CerR and CouT. But `parseAction=processFlags` binds **`processFlags` itself** as its parse method and `gMethod` (the addresses are identical), and `setParseWalk` skips the face as already installed. So `Generate.rtn`'s `parseAction`, and its clear-after-success, never run. No row can go red on it until something routes a face there.
+
+## parseLoop reads the flag before the count: never decisive, measured 2026-09-24 (after 692acab)
+
+SEQ 195 added `if kount >= min return trueResult;` **below** the existing `if sukcess return trueResult;` and left the flag read in place. The two answers differ only when `sukcess` is true and `kount < min`. In every other case both return true, or both fall through to `return 0`. When a loop ends by reaching max, `kount == max >= min`, so the count agrees.
+
+**Probe:** a temporary, uncommitted build printed `LOOPFLAGDIFF` in exactly that case, unconditionally.
+
+**Population:** all 171 `pop.sh` captures (kept by a scratch copy of the harness, because pop.sh deletes `$T` at exit, and the first run was void for that reason), `jitLadder/ladder.sh`, and 52 station-2 drives (`jitLadder/station2/f114site1` plus the seven accepting controls).
+
+**Result:** zero, everywhere. The fleet was unchanged at 517 and the ladder PASSED.
+
+**Caveat (H16):** the probe was never seen to fire. It is compiled in, but nothing known triggers it. The only mechanism I can name is a stale `sukcess` on the face, left by an attempt that returned 0 without writing it (for example a refusal inside `runLeafParse`); the stale flag would then turn a short run into a success.
+
+**Not changed.** No row can go red on it today. The probe was removed; the tree is back at `692acab`.
