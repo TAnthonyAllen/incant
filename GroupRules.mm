@@ -12184,6 +12184,8 @@ extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
 	PtfAttach *atts = gPtfAtt;
 	int attN = gPtfAttN;
 	gPtfAtt = 0; gPtfAttN = 0; gPtfAttCap = 0;
+	if ( gPtfWalkingN < 64 ) gPtfWalking[gPtfWalkingN] = stuff;
+	gPtfWalkingN++;
 	GroupItem *root = stuff->label;
 	int reachCap = 256, reachN = 0, top = 0;
 	GroupItem **reach = (GroupItem**)GC_malloc(sizeof(GroupItem*) * reachCap);
@@ -12191,6 +12193,18 @@ extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
 	while ( top < reachN )
 	{
 	GroupItem *x = reach[top++];
+	// reachGroup a label can hang in the tree through its GROUP pointer as well as its list
+	GroupItem *viaGroup = isGROUP(x->groupBody->flags.data) ? x->getGroup() : 0;
+	if ( viaGroup && !ptfInSet(reach,reachN,viaGroup) )
+	{
+	if ( reachN == reachCap )
+	{
+	GroupItem **g = (GroupItem**)GC_malloc(sizeof(GroupItem*) * reachCap * 2);
+	::memcpy(g,reach,sizeof(GroupItem*) * reachN);
+	reach = g; reachCap *= 2;
+	}
+	reach[reachN++] = viaGroup;
+	}
 	if ( !x->groupBody->groupList ) continue;
 	for ( GroupItem *c = x->groupBody->groupList->firstInList; c; c = c->nextInParent )
 	{
@@ -12212,7 +12226,17 @@ extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
 	PtfRec *r = &recs[i];
 	if ( !ptfInSet(reach,reachN,r->label) )
 	{
-	if ( ptfTraceOn() ) ::fprintf(stderr,"PTF UNREACHED rule=%s tag=%s %s\n",r->rule->groupBody->tag,r->origTag,r->held ? "held" : "fired");
+	if ( ptfTraceOn() )
+	{
+	::fprintf(stderr,"PTF UNREACHED rule=%s tag=%s %s chain=",r->rule->groupBody->tag,r->origTag,r->held ? "held" : "fired");
+	int hops = 0;
+	for ( GroupItem *up = r->label->parent; up && hops < 8; up = up->parent, hops++ )
+	::fprintf(stderr,"%s%s",hops ? "<" : "",up->groupBody->tag ? up->groupBody->tag : "?");
+	if ( !r->label->parent ) ::fprintf(stderr,"(no parent)");
+	int anc = 0;
+	for ( GroupItem *up = r->label->parent; up; up = up->parent ) if ( up == root ) { anc = 1; break; }
+	::fprintf(stderr," root=%s rootIsAncestor=%d walkDepth=%d recs=%d\n",root && root->groupBody->tag ? root->groupBody->tag : "(null)",anc,gPtfWalkingN,n);
+	}
 	continue;
 	}
 	GroupItem *L = r->label;
@@ -12239,7 +12263,13 @@ extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
 	r->stuff->label = L;
 	::measureFireOrder(r->rule,L,0,1,r->origTag);
 	::measureFireLabelActionIn(r->rule,L);
+	// replayFrame a parse this action starts records into its OWN set; whatever it leaves unflushed is discarded here, never leaked to the next statement
+	PtfRec *frRecs = gPtfRecs; int frN = gPtfN, frCap = gPtfCap;
+	PtfAttach *frAtt = gPtfAtt; int frAttN = gPtfAttN, frAttCap = gPtfAttCap;
+	gPtfRecs = 0; gPtfN = 0; gPtfCap = 0; gPtfAtt = 0; gPtfAttN = 0; gPtfAttCap = 0;
 	GroupItem *ret = r->method(L);
+	if ( gPtfN && ptfTraceOn() ) ::fprintf(stderr,"PTF FRAMELEAK rule=%s left=%d -- discarded\n",r->rule->groupBody->tag,gPtfN);
+	gPtfRecs = frRecs; gPtfN = frN; gPtfCap = frCap; gPtfAtt = frAtt; gPtfAttN = frAttN; gPtfAttCap = frAttCap;
 	::measureAdoption(r->rule,L,ret);
 	::measureFireLabelActionOut(r->rule,ret);
 	r->stuff->label = saved;
@@ -12283,6 +12313,7 @@ extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
 	found = 0;
 	for ( int k = subN - 1; k >= 0; k-- ) if ( subFrom[k] == fin ) { fin = subTo[k]; found = 1; break; }
 	}
+	gPtfWalkingN--;
 	stuff->label = fin;
 	if ( !fin ) stuff->sukcess = 0;
 	
@@ -12299,11 +12330,18 @@ extern "C" int ptfStmtAbove(RuleStuff *stuff)
 	ParseActivation *a = gParseActive;
 	if ( a->stuff == stuff ) a = a->prev;
 	for ( ; a && !a->floor; a = a->prev )
+	{
+	for ( int w = 0; w < gPtfWalkingN; w++ ) if ( gPtfWalking[w] == a->stuff ) return 0;
 	if ( a->stuff && ::ptfIsStmt(a->stuff->rule) ) return 1;
+	}
 	return 0;
 	}
 	for ( RuleStuff *up = stuff->parentStuff; up; up = up->parentStuff )
+	{
+	// replayFloor a statement being replayed is ABOVE any parse its actions start -- the search stops there
+	for ( int w = 0; w < gPtfWalkingN; w++ ) if ( gPtfWalking[w] == up ) return 0;
 	if ( ::ptfIsStmt(up->rule) ) return 1;
+	}
 	return 0;
 	
 }

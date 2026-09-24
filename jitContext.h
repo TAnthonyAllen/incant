@@ -710,6 +710,10 @@ inline int gPtfN = 0, gPtfCap = 0, gPtfMode = -1, gPtfTrace = -1;
 struct PtfAttach { GroupItem *label; int max; int promote; };
 inline PtfAttach *gPtfAtt = nullptr;
 inline int gPtfAttN = 0, gPtfAttCap = 0;
+// ptfFrame the statements being REPLAYED, innermost last -- a nested parse started by a replayed action stops its
+// statement-above search at the first of these, so its own top StatemenT flushes its own records (reentrant replay)
+inline RuleStuff *gPtfWalking[64];
+inline int gPtfWalkingN = 0;
 inline int ptfOn()
 {
     if ( gPtfMode < 0 ) { const char *e = ::getenv("PTF"); gPtfMode = (e && *e == '0') ? 0 : 1; }
