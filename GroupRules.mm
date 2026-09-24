@@ -10330,7 +10330,8 @@ int 		more = 0;
 			ruleStuff->sukcess = 1;
 			}
 		}
-	if ( ruleStuff->label )
+	// keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
+	if ( ruleStuff->label && !ruleStuff->sukcess )
 		ruleStuff->label->clear();
 	return ::exitFromParse(field);
 }
@@ -10385,7 +10386,8 @@ int 		more = 0;
 			ruleStuff->sukcess = 1;
 			}
 		}
-	if ( ruleStuff->label )
+	// keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
+	if ( ruleStuff->label && !ruleStuff->sukcess )
 		ruleStuff->label->clear();
 	return ::exitFromParse(field);
 }
@@ -10853,7 +10855,8 @@ int 		more = 0;
 			ruleStuff->sukcess = 1;
 			}
 		}
-	if ( ruleStuff->label )
+	// keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
+	if ( ruleStuff->label && !ruleStuff->sukcess )
 		ruleStuff->label->clear();
 	return ::exitFromParse(field);
 }
@@ -10878,7 +10881,8 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			ruleStuff->sukcess = 1;
 			}
 		}
-	if ( ruleStuff->label )
+	// keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
+	if ( ruleStuff->label && !ruleStuff->sukcess )
 		ruleStuff->label->clear();
 	return ::exitFromParse(field);
 }
@@ -10922,7 +10926,8 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		if ( ::testUpTo(field) )
 			ruleStuff->sukcess = 1;
 		}
-	if ( ruleStuff->label )
+	// keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
+	if ( ruleStuff->label && !ruleStuff->sukcess )
 		ruleStuff->label->clear();
 	return ::exitFromParse(field);
 }

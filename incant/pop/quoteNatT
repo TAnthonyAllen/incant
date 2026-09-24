@@ -25,9 +25,11 @@ quoteNatT -- A TEMPLATE, NEVER RUN AS IT STANDS. genLadder/pop.sh replaces the Q
 one drive per generated copy, because a crashing drive kills its process and every drive queued
 behind it. One input, one process -- the same reason station 2 ran one process per input.
 
-F-114 SITE 2, NATIVE, BORN RED 2026-09-24. Every quoted input crashes natively at aCTionQuotE
-(GroupRules.mm:1030, quoteBody null) at exit 139 -- plain, under MallocScribble=1, and traced.
-The rows go green when a quoted drive returns.
+F-114 SITE 2, NATIVE, BORN RED 2026-09-24, GREEN THE SAME DAY. Every quoted input crashed
+natively in aCTionQuotE at exit 139 -- plain, under MallocScribble=1, and traced. The term labels
+reached the action EMPTY: five leaf parse methods cleared their label after writing the match into
+it, so exitFromParse attached a blank. keepTheMatch (clear only on failure, as parseContainer
+already did) is the fix, and the two value rows in pop.sh read what the print drives print.
 
 THE INPUTS LIVE IN define FIELDS AND THAT IS LOAD-BEARING. A drive spelled with an inline literal,
 ExpressioN(("hi"#)), does not parse as a statement: the file is ABANDONED at exit 0 and the drive

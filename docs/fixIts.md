@@ -211,6 +211,23 @@ ATTEMPT LOG
      NOT built: a direct H19 row (outer label survives an inner same-rule call) -- nestNatT witnesses it
      by crash/no-crash only; and the self-container control row -- no rule with itself as container is
      known, so the row needs a shape ruled first.
+  7. Rulings, 2026-09-24: the -% deviation in entry 6 is ACCEPTED. The self-container control row is
+     DROPPED -- that edge (a rule whose container is itself, where a put-back after exitFromParse could
+     undo a promotion) is COVERED BY H7: the bracket-removed rebuild is the only control it gets.
+     `(1)`'s "consumes 3" is RETRACTED (Clay's error, carried from entry 6); measure (1) only if it is
+     legal on the old road, with a control that scores abc correctly.
+  8. SITE 2 FIXED -- THE TERM LABELS ARRIVED EMPTY. Measured natively, lldb breakpoints armed at the
+     drive: the node QuotE's terms attach into and the label aCTionQuotE fires on are the SAME node
+     (and body), and it carries both children -- but both have data 0, so `*tik.gText` is a null read
+     (GroupRules.mm:1030). Five leaves -- parseAny, parseCharacter, parseSet, parseString, parseUpTo
+     (Generate.rtn) -- wrote the match into their label and then ran an unconditional `label.clear()`
+     before exitFromParse attached it. parseContainer already carried keepTheMatch; the five now clear
+     only on failure. -> `"hi"` 1/4, `print "hi";` 1/11 and prints hi; `print s2N "and" s2Y:;` prints
+     0 and 0. Station 2's accepting controls unmoved. Fleet: only the ten quoteNatT runs/sentinel rows
+     moved (red -> green), plus two new value rows; jitLadder 214. H7 = the preceding build (identical
+     but for the five conditions), where those rows were red at 139.
+     Seen, not chased: `cerr "hi":;` on the new road prints hi with no trailing newline.
+     NOT the frontier's station 4 (CT-5) -- it still fails identically.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.

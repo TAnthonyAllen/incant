@@ -2862,6 +2862,13 @@ for _qn in "qnHi ExpressioN" "qnPr StatemenT" "qnCe StatemenT" "qnPs StatemenT" 
     else echo "  FAIL  quoteNatT $1 road check -- 0 arrivals: no new-road drive happened"; fail=1; fi
 done
 
+#  quoteNatT VALUE ROWS (2026-09-24): returning is not being right. The two print drives must
+#  print what they were given -- a quoted literal and a mixed list -- read off stdout.
+if grep -qE '^hi ?$' "$T/qnPr.o"; then echo "  ok    quoteNatT qnPr value -- print \"hi\"; printed hi"; green=$((green+1))
+else echo "  FAIL  quoteNatT qnPr value -- print \"hi\"; did not print hi"; fail=1; fi
+if grep -qE '^0 and 0 ?$' "$T/qnPs.o"; then echo "  ok    quoteNatT qnPs value -- print s2N \"and\" s2Y printed 0 and 0"; green=$((green+1))
+else echo "  FAIL  quoteNatT qnPs value -- print s2N \"and\" s2Y did not print 0 and 0"; fail=1; fi
+
 #  ---- doWhileNameT: the new parse road dies on a non-literal while expression ----
 #  BORN RED ON PURPOSE, 2026-09-20, Clay's SEQ 171 step 1; oracle twin added under SEQ 172.
 #  Two of these four rows are the pin and they are RED until the label channel lands; the

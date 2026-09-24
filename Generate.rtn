@@ -75,7 +75,8 @@ int         more;
         or counter && counter >= min {
             if label    label.setToken(hereAt,counter);
             sukcess     = true; }}
-    if label    label.clear();
+    // keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
+    if label && !sukcess    label.clear();
     return exitFromParse(field);
 }
 
@@ -101,7 +102,8 @@ int         more;
         or counter && counter >= min {
             if label    label.setToken(hereAt,counter);
             sukcess     = true; }}
-    if label    label.clear();
+    // keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
+    if label && !sukcess    label.clear();
     return exitFromParse(field);
 }
 
@@ -340,7 +342,8 @@ int         more;
         or counter && counter >= min {
             if label    label.setToken(hereAt,counter);
             sukcess     = true; }}
-    if label    label.clear();
+    // keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
+    if label && !sukcess    label.clear();
     return exitFromParse(field);
 }
 
@@ -359,7 +362,8 @@ RuleStuff   ruleStuff = rStuff;
         if matchedString {
             if label    label.text  = matchedString;
             sukcess     = true; }}
-    if label    label.clear();
+    // keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
+    if label && !sukcess    label.clear();
     return exitFromParse(field);
 }
 
@@ -374,7 +378,8 @@ RuleStuff   ruleStuff = rStuff;
         // gateIsNotAMatch as the other leaves
         sukcess = false;
         if testUpTo(field)  sukcess = true; }
-    if label    label.clear();
+    // keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
+    if label && !sukcess    label.clear();
     return exitFromParse(field);
 }
 
