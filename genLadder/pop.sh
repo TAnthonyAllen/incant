@@ -2848,7 +2848,7 @@ else echo "  FAIL  paReachT: something now reaches parseAction -- apply clear-on
 #  setTargetFlag (2026-09-24) gives the new road the isTarget only getWhatFollows computed. Without it
 #  ANYorNum's NumbeR is never retagged and aCTionTokenXP reads a null ANYorNum at 139.
 #  H7, measured at minting: the call removed, unNeg and unDot exit 139; unAbc stays green.
-for _un in "unNeg ExpressioN" "unDot ExpressioN" "unSet StatemenT" "unAbc ExpressioN"; do
+for _un in "unNeg ExpressioN" "unDot ExpressioN" "unSet StatemenT" "unAbc ExpressioN" "unPrDot StatemenT" "unPr05 StatemenT"; do
     set -- $_un
     sed "s/^UNDRIVE;\$/$2($1);/" incant/pop/unaryNatT > "$T/$1.twk"
     $B "$T/$1.twk" > "$T/$1.o" 2> "$T/$1.e" & _cap "unaryNatT $1"; check "unaryNatT $1 ($2) runs" 0 $?
@@ -2860,6 +2860,25 @@ for _un in "unNeg ExpressioN" "unDot ExpressioN" "unSet StatemenT" "unAbc Expres
 done
 if grep -qE '^UN S2Y= ?-7 ?$' "$T/unSet.e"; then echo "  ok    unaryNatT unSet value -- s2Y = -7 stored -7"; green=$((green+1))
 else echo "  FAIL  unaryNatT unSet value -- s2Y is not -7: $(grep '^UN S2Y=' "$T/unSet.e")"; fail=1; fi
+
+#  F-117 (Tony's ruling (a), 2026-09-24): A NUMBER NEEDS A LEADING DIGIT. `.5` is refused BY NAME on both roads and
+#  its print prints nothing; 0.5 is the control. H7, measured at landing: the refusal removed, the old road dies in
+#  opDot (139) and the new road prints nothing with no REFUSED line.
+_unout() { grep -vE '^(compile|Generating|setParse|walkRules|stop:)|= CodE|^[[:space:]]|^$' "$T/$1.o" | tr -d '\n'; }
+for _f in unDot unPrDot; do
+    if grep -q 'REFUSED .*`\.5` is not a number.*write 0\.5' "$T/$_f.e"; then echo "  ok    unaryNatT $_f refuses .5 by name"; green=$((green+1))
+    else echo "  FAIL  unaryNatT $_f did not refuse .5 by name"; fail=1; fi
+done
+if [ -z "$(_unout unPrDot)" ]; then echo "  ok    unaryNatT unPrDot value -- the refused print printed nothing"; green=$((green+1))
+else echo "  FAIL  unaryNatT unPrDot value -- the refused print printed [$(_unout unPrDot)]"; fail=1; fi
+if [ "$(_unout unPr05)" = "0.5 " ]; then echo "  ok    unaryNatT unPr05 control -- print 0.5; printed 0.5"; green=$((green+1))
+else echo "  FAIL  unaryNatT unPr05 control -- expected '0.5 ': [$(_unout unPr05)]"; fail=1; fi
+run2 dotNumT "$T/dn.o" "$T/dn.e"; check "dotNumT runs" 0 $?
+sentinel "dotNumT sentinel" "$T/dn.e" "DOTNUM SENTINEL"
+if grep -q 'REFUSED .*`\.5` is not a number.*write 0\.5' "$T/dn.e"; then echo "  ok    dotNumT old road refuses .5 by name"; green=$((green+1))
+else echo "  FAIL  dotNumT old road did not refuse .5 by name"; fail=1; fi
+if [ "$(grep -vE '^(compile|Generating|stop:)|^$' "$T/dn.o" | tr -d '\n')" = "0.5 " ]; then echo "  ok    dotNumT value -- only 0.5 printed"; green=$((green+1))
+else echo "  FAIL  dotNumT value -- expected only '0.5 ': [$(grep -vE '^(compile|Generating|stop:)|^$' "$T/dn.o" | tr '\n' '|')]"; fail=1; fi
 
 #  ---- nestNatT: F-114 site-1 residue, a nested call of the SAME rule, driven natively ----
 #  parseRule's call bracket (2026-09-24) is what these certify: without it the outer ExpressioN

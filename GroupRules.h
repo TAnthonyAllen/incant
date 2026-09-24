@@ -398,6 +398,7 @@ extern "C" GroupItem *rEGISTER(GroupItem *item);
 extern "C" GroupItem *recordParse(GroupItem *argument);
 extern "C" GroupItem *refuse(GroupItem *subject, char *why);
 extern "C" int refuseDotUnaryRight(GroupItem *op, GroupItem *arg);
+extern "C" int refuseLeadingDotNumber(GroupItem *unary, GroupItem *token);
 extern "C" void reportCodeFail(GroupItem *field);
 extern "C" void reportDefineRemoved(GroupItem *field, GroupItem *intoReg);
 extern "C" void reportDrive(GroupItem *report, GroupItem *rule, char *driveBase);

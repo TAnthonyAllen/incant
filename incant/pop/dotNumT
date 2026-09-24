@@ -1,0 +1,13 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+cerr "DN BEGIN":;
+print .5;
+print 0.5;
+cerr "DOTNUM SENTINEL":;
+stop();
+
+dotNumT -- F-117 ON THE OLD ROAD (Tony's ruling (a), 2026-09-24): A NUMBER NEEDS A LEADING DIGIT. `.5` is refused by
+name -- REFUSED ... `.5` is not a number ... write 0.5 -- and its print statement prints nothing; `print 0.5;` is the
+control and prints 0.5. Before the ruling the old road read `.5` as a leading-dot accessor with no target and died
+in opDot at exit 139. The new-road twin is unaryNatT's unPrDot and unPr05 copies.

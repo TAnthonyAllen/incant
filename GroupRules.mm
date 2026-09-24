@@ -1372,6 +1372,12 @@ GroupItem 	*ANYtoken = xpress->get("ANYorNum");
 	xpress->clear();
 	if ( isGROUP(ANYtoken->groupBody->flags.data) )
 		ANYtoken = ANYtoken->getGroup();
+	// leadingDotNumber `.5` is refused by name and the term stays a harmless primary, so the statement is silenced rather than the file abandoned (F-117)
+	if ( UnaryOPS && !InvokeArg && ::refuseLeadingDotNumber(UnaryOPS,ANYtoken) )
+		{
+		xpress->setGroup(ANYtoken);
+		goto endToken;
+		}
 	if ( !InvokeArg )
 		{
 		// unaryOnlyArm  the ONE arm with no callout until 2026-09-16, which is why
@@ -1867,6 +1873,8 @@ extern "C" void appendPrintXP(GroupItem *stuff, Buffer *buffer)
 GroupItem 	*grup = 0;
 	while ( grup = stuff->nextAttribute(grup) )
 		{
+		// refusedPrintsNothing a refusal raised while the items were parsed silences the print: a primary never reaches runOP, where operators already stop (F-117)
+		 if ( GroupControl::groupController->groupRules->refused ) break; 
 		if ( grup->groupBody->flags.noPrint )
 			continue;
 		GroupItem *FormaT = grup->getLabelGroup("FormaT");
@@ -11959,6 +11967,32 @@ GroupItem 	*aop = 0;
 	ruleActions.interpretXP.dotUnaryRight  */
 char 		*why = ::concat(3,"unary ",aop->groupBody->tag," on the right of a dot is never seen by opDot -- move it inside a subscript: a[*b], not a.*b");
 	::refuse(op,why);
+	::free(why);
+	return 1;
+}
+
+/*  refuseLeadingDotNumber -- A NUMBER NEEDS A LEADING DIGIT (Tony, ruled 2026-09-24, F-117 option (a)). `.5` is
+    not a number and not an accessor: a leading `.` on a LITERAL number is refused by name, suggesting 0.5. A leading
+    `.` on a field (`.x`, the accessor road through lastREF) is untouched. Before this the old road read `.5` as an
+    accessor with no target and crashed in opDot; the new road printed nothing.
+    ⚠ A HAND, NOT A WITNESS -- no measure prefix.   ruleActions.aCTionTokenXP.leadingDotNumber  */
+extern "C" int refuseLeadingDotNumber(GroupItem *unary, GroupItem *token)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( !unary )
+		return 0;
+	if ( unary->groupBody->registry != ruler->opFields )
+		return 0;
+	if ( ::compare(unary->groupBody->tag,".") != 0 )
+		return 0;
+	if ( !token )
+		return 0;
+	if ( token->groupBody->registry == ruler->groupFields )
+		return 0;
+	if ( !isCOUNT(token->groupBody->flags.data) && !isNUMBER(token->groupBody->flags.data) )
+		return 0;
+char 		*why = ::concat(4,"`.",token->getText(),"` is not a number -- a number needs a leading digit; write 0.",token->getText());
+	::refuse(token,why);
 	::free(why);
 	return 1;
 }

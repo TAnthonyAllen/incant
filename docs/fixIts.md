@@ -114,7 +114,7 @@ ATTEMPT LOG
      discriminate. H7: the fix removed -> dfLeak1 prints `a b c d `, qnCe's line does not end.
 ```
 
-### F-117 — `print .5;` on the NEW road prints NOTHING (ranked above the old road's crash on it)
+### F-117 — ✅ CLOSED 2026-09-24 — `print .5;` on the NEW road prints NOTHING (ranked above the old road's crash on it)
 
 **What.** A StatemenT drive of `print .5;` returns at exit 0 and prints nothing -- a silent wrong answer
 on valid input. The OLD road crashes on the same statement at top level (exit 139). Ranked ABOVE the
@@ -127,7 +127,19 @@ twin `print .5;` in a plain file exits 139. `ExpressioN(".5")` returns at exit 0
 value row. **Owner.** Unassigned.
 ```
 ATTEMPT LOG
-  (none)
+  1. 2026-09-24, Tony's ruling (a): A NUMBER NEEDS A LEADING DIGIT; `.5` is not a number. Located first: the old
+     road read `.5` as a leading-dot ACCESSOR on 5 with no target and died in opDot (GroupRules.mm:8754,
+     `target->get` unguarded); the new road took the same path and printed nothing. refuseLeadingDotNumber
+     (ruleActions.rtn), called from aCTionTokenXP's unary-only arm, refuses a leading `.` on a LITERAL number by
+     name -- REFUSED ANYorNum -- `.5` is not a number -- a number needs a leading digit; write 0.5 -- and leaves
+     the term a harmless primary so the statement is silenced, not the file abandoned. A `.` on a FIELD (the
+     accessor road) is untouched: every lastREF row unchanged.
+  2. The old road then refused AND printed `5`: a refusal stops runOP (operators) but a primary goes straight to
+     appendPrintXP. appendPrintXP -- the one print walk -- now stops at a raised refusal, so a refused statement
+     prints nothing on either road.
+  POP: unaryNatT unDot/unPrDot (refuse by name, print nothing), unPr05 (control, 0.5), dotNumT (old road:
+     refuses, only 0.5 printed, sentinel). H7: both changes removed -> dotNumT exits 139 with no sentinel, and
+     the new road prints nothing with no REFUSED line.
 ```
 
 ### F-118 — `print -1;` prints `1` on BOTH roads: `-` is a print-list ShortcuT (language design, Tony)

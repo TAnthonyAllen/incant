@@ -1004,6 +1004,26 @@ Buffer      buffer = bufferSTAK.pop();
     return opString(stuff,buffer);
 }
 
+/*  refuseLeadingDotNumber -- A NUMBER NEEDS A LEADING DIGIT (Tony, ruled 2026-09-24, F-117 option (a)). `.5` is
+    not a number and not an accessor: a leading `.` on a LITERAL number is refused by name, suggesting 0.5. A leading
+    `.` on a field (`.x`, the accessor road through lastREF) is untouched. Before this the old road read `.5` as an
+    accessor with no target and crashed in opDot; the new road printed nothing.
+    ⚠ A HAND, NOT A WITNESS -- no measure prefix.   ruleActions.aCTionTokenXP.leadingDotNumber  */
+extern int refuseLeadingDotNumber(GroupItem unary, GroupItem token)
+{
+GroupRules  ruler = groupRules;
+    if !unary                               return 0;
+    if unary.registry != ruler.opFields     return 0;
+    if unary.tag ne "."                     return 0;
+    if !token                               return 0;
+    if token.registry == ruler.groupFields  return 0;
+    if !token.isCOUNT && !token.isNUMBER    return 0;
+    String  why = "`." token.text "` is not a number -- a number needs a leading digit; write 0." token.text;
+    refuse(token,why);
+    free(why);
+    return 1;
+}
+
 /*******************************************************************************
 	TokenXP returns a token or a token expression.
 
@@ -1032,6 +1052,10 @@ GroupItem   swap,
         return xpress; }
     xpress.clear();
     if isGROUP  ANYtoken = group;
+    // leadingDotNumber `.5` is refused by name and the term stays a harmless primary, so the statement is silenced rather than the file abandoned (F-117)
+    if UnaryOPS && !InvokeArg && refuseLeadingDotNumber(UnaryOPS,ANYtoken) {
+        xpress.group = ANYtoken;
+        goto endToken; }
     if !InvokeArg {
         // unaryOnlyArm  the ONE arm with no callout until 2026-09-16, which is why
         // unaryOnlyArm  bear-trap 52 read "no arm" for a term that fires handleUnary
@@ -1211,6 +1235,8 @@ extern void appendPrintXP(GroupItem stuff, Buffer buffer)
 {
 GroupItem   grup;
     while grup = stuff.nextAttribute(grup) {
+        // refusedPrintsNothing a refusal raised while the items were parsed silences the print: a primary never reaches runOP, where operators already stop (F-117)
+        -% if ( GroupControl::groupController->groupRules->refused ) break; %-
         if noPrint  continue;
         GroupItem   FormaT:,
                     result,

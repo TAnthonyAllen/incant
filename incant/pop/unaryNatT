@@ -10,6 +10,8 @@ define
     unDot=".5";
     unSet=(s2Y = -7;#);
     unAbc="abc";
+    unPrDot=(print .5;#);
+    unPr05=(print 0.5;#);
     ;
 parser(DO);
 traceParse();
@@ -32,6 +34,9 @@ setTargetFlag computes isTarget at generation, over every face, on the new road 
 The rows: each copy exits 0, UN RETURNED prints, the sentinel prints, the drive reached parseRule;
 unSet's value row reads s2Y = -7 after `s2Y = -7;` driven through StatemenT. unAbc is the control.
 H7, measured at minting: setTargetFlag's call removed, unNeg and unDot go back to 139.
+
+F-117 (Tony's ruling (a), 2026-09-24): a number needs a leading digit. unDot and unPrDot must refuse `.5` BY NAME
+(`.5` is not a number ... write 0.5), and unPrDot prints nothing; unPr05 is the control and prints 0.5.
 
 NOT asserted, and why: `print -1;` prints 1 on BOTH roads -- `-` is a ShortcuT in a print list, so
 the sign never reaches the value. `print .5;` crashes the OLD road (139) and prints nothing on the new.
