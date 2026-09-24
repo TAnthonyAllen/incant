@@ -1160,6 +1160,11 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
   - **THE BOOTSTRAP BOUNDARY IS MEASURED, NOT RULED:** thousands of `class=outside` fires -- the setup and grammar
     defines are not parsed under StatemenT, so step 1 never touched them. Keep beside the `Start()` idea when the
     defines hunch is tested.
+  - **SHAPE-REWRITE ITEM (Tony, 2026-09-24): `field[whatever]` BECOMES `opGet field whatever`** in the ExpressioN
+    rewrite, alongside `A += B` -> `+= A B`. opGet chooses its method PER FIRE by the key's kind (never cached on the
+    node, as `+=`). **Preserve:** a unary binds to the PRIMARY (`*a[0]` is `(*a)[0]`, bear-trap #48's structural half),
+    and a subscript stops at the element. **Retires** aCTionTokenXP's subscript arm (handleSubscript, and with it the
+    InvokeArg `fLAG` marker -- the "subscript" meaning of fLAG that collides with checkInput's "recycle", plant 4).
   - The action-vs-parse overlap census (both directions) is `docs/overlapCensus.md`; a step-1 plant not in it is a
     census gap.
 - **C++-ESCAPE RECON AND REMOVAL (Tony: not before a jitting pause).** Every `-%` block in Tony's tok code, jit methods
