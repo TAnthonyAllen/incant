@@ -2829,6 +2829,24 @@ if [ "$_pt2r" -gt 0 ]; then echo "  ok    parserTest PT-2 road check -- the DO d
 else echo "  FAIL  parserTest PT-2 road check -- 0 arrivals: the DO drive ran the OLD road. BORN RED 2026-09-23"
      echo "        (parser(DO) refused through define); green when define is labelled."; fail=1; fi
 
+#  ---- quoteNatT: F-114 site 2, quoted input driven NATIVELY, one process per input ----
+#  BORN RED 2026-09-24: every quoted drive dies at aCTionQuotE (quoteBody null), exit 139, plain,
+#  under MallocScribble and traced alike. The template's dead region says why the inputs live in
+#  define fields: an inline literal abandons the file at exit 0 and drives nothing.
+#  PRESENCE-WITH-VALUE (H4): QN RETURNED and the sentinel must print, and the road count must be
+#  non-zero. The abc copy is the anti-vacuity sibling -- green today, so a template that silently
+#  stopped driving anything would turn it red with the rest.
+for _qn in "qnHi ExpressioN" "qnPr StatemenT" "qnCe StatemenT" "qnPs StatemenT" "qnEq ExpressioN" "qnAbc ExpressioN"; do
+    set -- $_qn
+    sed "s/^QNDRIVE;\$/$2($1);/" incant/pop/quoteNatT > "$T/$1.twk"
+    $B "$T/$1.twk" > "$T/$1.o" 2> "$T/$1.e" & _cap "quoteNatT $1"; check "quoteNatT $1 ($2) runs" 0 $?
+    sentinel "quoteNatT $1 sentinel" "$T/$1.e" "QUOTENAT SENTINEL"
+    _qr=$(awk '/^QN BEGIN/{f=1} /^QN RETURNED/{f=0} f' "$T/$1.e" | grep -c "PARSERESULT")
+    echo "  ..    quoteNatT $1 parseRule arrivals in the drive = $_qr (want > 0)"
+    if [ "$_qr" -gt 0 ]; then echo "  ok    quoteNatT $1 road check -- the drive reached parseRule"; green=$((green+1))
+    else echo "  FAIL  quoteNatT $1 road check -- 0 arrivals: no new-road drive happened"; fail=1; fi
+done
+
 #  ---- doWhileNameT: the new parse road dies on a non-literal while expression ----
 #  BORN RED ON PURPOSE, 2026-09-20, Clay's SEQ 171 step 1; oracle twin added under SEQ 172.
 #  Two of these four rows are the pin and they are RED until the label channel lands; the

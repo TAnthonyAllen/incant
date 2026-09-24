@@ -176,6 +176,22 @@ ATTEMPT LOG
      taken directly): `"hi"`, `print "hi";`, `cerr "hi":;`, `print s2N "and" s2Y:;` all exit 0 with
      QuotE firing once. So the seven quote "crashes" belong to jitProbeDrive-under-lldb; nothing
      landed. Site 3 (`-1`, `.5`) and `#5d` DO crash natively (139) -- those rows stand.
+  5. ⚠ ENTRY 4 IS VOID, AND SITE 2 IS REOPENED (2026-09-24, same day). The native drives it cites
+     were spelled `ExpressioN(("hi"#));` -- an inline literal that does NOT parse as a statement. The
+     file was ABANDONED at exit 0 and the drive never ran; the "after" marker I counted matched the
+     text inside the ABANDONED message's resume line. So "exit 0, QuotE fired once" measured nothing.
+     Re-driven with the input held in a define field (`qnHi=("hi"#); ExpressioN(qnHi);`), every quoted
+     input CRASHES natively at aCTionQuotE (GroupRules.mm:1030, quoteBody null), exit 139 -- plain,
+     under MallocScribble=1, and traced -- deterministic, not a scribble-exposed read. Native stack at
+     the crash: QuotE > Token > ExpressioN, no rule twice, so it is NOT the re-entrancy and does not
+     wait on the bracket. One QuotE fire in the drive; the trace shows both terms attach into QuotE's
+     label (pLabel=1 pRule=QuotE), yet the label that fires has no list. Lead, not a cause: under lldb,
+     tik's attached `lab` was a grammar-range node, not a minted label (fireLabelMethod's
+     `label = actionMethod(label)` returned the rule node).
+     What survives of entry 4: under the lldb jitProbeDrive the crash DOES vanish when a breakpoint
+     stops or traceParse is on -- measured, unexplained, and a reason to trust native rows over lldb ones.
+     FLEET: genLadder/pop.sh quoteNatT -- five inputs born red (qnHi qnPr qnCe qnPs qnEq), one process
+     each, road checks green; qnAbc is the green control.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.
