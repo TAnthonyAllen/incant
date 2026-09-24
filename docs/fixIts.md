@@ -107,7 +107,19 @@ first places to read.
 by a row with a line-exact ran-marker and sentinel. **Owner.** Unassigned.
 ```
 ATTEMPT LOG
-  (none)
+  1. 2026-09-24, measured (lldb breakpoint callbacks on a native run), no code changed:
+     - Clay's hypothesis on StatemenT's rStuff: FALSIFIED as stated. The caller's old-road StatemenT activation
+       has its OWN rStuff (not the drive's); its sukcess reads 1 before and after, nothing moves.
+     - Input state at driveStep's return is IDENTICAL for a rejecting and an accepting drive (stack 1, floor 0,
+       mark at the caller's next statement), so the pop loop and inputFloor are not it.
+     - driveStep returns NULL for a rejected drive on BOTH roads; the old road's caller survives it.
+     - THE FLIP, read off every old-road GroupItem::parse frame on the stack: the caller's XPRESS activation
+       goes sukcess 1 -> 0 across the rejecting drive, NEW ROAD ONLY (old road stays 1). The drive tried
+       StatemenT's alternatives, Xpress among them, and the failed attempt wrote sukcess=0 into the rStuff the
+       caller's in-progress Xpress holds. The caller reads its own flag as failed, retries the statement (a
+       SECOND drive of the same field), and the file is abandoned. So it IS Clay's mechanism, on Xpress.
+     Fix location is a ruling: the drive boundary cannot see the caller's old-road rStuffs (they are not on the
+     activation list); options in the 2026-09-24 report.
 ```
 
 ### F-120 — ✅ CLOSED 2026-09-24 — the `$` print shortcut does nothing on the NEW road
