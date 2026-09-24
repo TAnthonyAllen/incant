@@ -1149,11 +1149,24 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
   The output is a RANKED LIST OF WHAT TO SPLIT, by kind or by phase. Already at the top: the per-kind `+=` split,
   with its kind probe first. Whether it is a simplification depends on how large the executing class is -- Tony's
   guess is most of them. Record only; no work until the pause.
+- **C++-ESCAPE RECON AND REMOVAL (Tony: not before a jitting pause).** Every `-%` block in Tony's tok code, jit methods
+  excluded. For each site: what it does, why tok could not express it, and a REMEDY CLASS -- (a) tok can already;
+  (b) move to a jit, measure or support helper; (c) needs a tok feature (name it). It prices the parseRule bracket and
+  the ParseActivation list. **Run it together with the actions-and-ops census** -- both touch the same code.
+- **Move the `measure*` methods from Generate.rtn to measure.twk**, with the translation-unit checks already specified:
+  global linkage; the groups.ext declarations relocated to the measure.h block; trace-row values unchanged.
 - **The yield channel's ruling** -- what fireLabelMethod's adoption may receive (fixIts F-122 entry 7; the (b) guard
   stays unarmed; `adoptT` pins the live-field count).
 - **parseLoop's silent success at max** -- report or refuse a zero-progress pass (fixIts F-114 entry 24).
 - **Limit removal and the min=/max= amendment** (fixIts F-113).
 - **The DO-accept term count 54 -> 53 bisect** (fixIts F-114, the probeDoorT note).
+
+**Queued cheaply before the next station (not pause work):**
+- **Five more carriers for almost nothing:** add `if ... else`, `if ... or` and `for ... attributes` lines, and a
+  DelimText line (`\n`-escaped, in the pairs file), to `jitLadder/station2/pairs.sweep` -- coverage 45 of 61 to about
+  50. sweepT's pin moves with it, re-pinned with a sentence.
+- **F-126** formatted print rejected on the new road -- fix before FormaT and Precision can be certified.
+- **F-127** define drives stop short of their `;` -- seven carriers held out of the sweep.
 
 ---
 

@@ -92,6 +92,41 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-127 — OPEN 2026-09-24 — a `define` driven on the NEW road stops SHORT OF ITS CLOSING `;`
+
+**What.** Driven through `tell` (convDriveT's shape), StatemenT on `define xq isRule; ;` consumes 17 of 19 and on
+`define xq=5; ;` 12 of 14 on the new road; the old road consumes 19 of 19 and 14 of 14. Through the door, the define
+family's terms never fire even when the input carries their construct: Limit, TraiTdata, DatA, Attributes (verdict 1,
+the carrier never fires), CodeBody, SetBrackets, MemberS (verdict 0). A grammar-changing statement, so its failure
+leaves process state behind: the unterminated define is what left `defining` set in F-125.
+**Where.** Not located. `define  DEFINing-^ definitions=DefinE+ endDef-=DEFINing ';'-;` -- the trailing `endDef`/`;`
+is where the new road stops.
+**Evidence.** 2026-09-24, ca3a4ff: the tell pair above, both roads; F-114 entry 23's per-carrier drives.
+**Done when.** Both defines consume their whole message on the new road, as on the old; the seven carriers fire and
+enter the sweep.
+**Owner.** Unassigned. Holds seven carriers out of station 2.
+```
+ATTEMPT LOG
+  (none yet)
+```
+
+### F-126 — OPEN 2026-09-24 — a FORMATTED print is rejected on the NEW road
+
+**What.** `print s2N#5d;` is valid input: the old road consumes it whole through `tell` (13 of 13), and a plain
+`print s2N;` passes on both roads (10 of 10). On the new road the formatted form fails -- through the door StatemenT
+reads verdict 0, consumed 0 (and `print s2N#5.2f;` the same), and through `tell` the calling statement prints NOTHING.
+The same class as today's print pass (valid input rejected on the new road).
+**Where.** Not located. PrintField is `ExpressioN FormaT?`; FormaT and Precision never fire, so the failure is at or
+before the `#`.
+**Evidence.** 2026-09-24, ca3a4ff: the tell pair both roads; F-114 entry 23.
+**Done when.** `print s2N#5d;` and `print s2N#5.2f;` pass on the new road with the old road's output, and FormaT and
+Precision fire in the sweep.
+**Owner.** Unassigned. Blocks certifying FormaT and Precision.
+```
+ATTEMPT LOG
+  (none yet)
+```
+
 ### F-125 — ✅ CLOSED 2026-09-24 — TWO `define aa isRule` DRIVES in one process ABANDONED the file that ran the sweep
 
 **What.** After F-123 the one-process sweep (incant/pop/sweepT) completed -- certified=45 agree=45 diff=0 -- but the
