@@ -8,6 +8,7 @@ define
     s2L aa bb cc;
     pdAbcJ root="ExpressioN" msg=(abc#) jitted=1;
     pdAbcI root="ExpressioN" msg=(abc#) jitted=0;
+    pd42J root="ExpressioN" msg=(42 rest#) jitted=1;
     pd42I root="ExpressioN" msg=(42 rest#) jitted=0;
     pdPrJ root="StatemenT" armed="PrinT" msg=(print 1;#) jitted=1;
     pdPrI root="StatemenT" armed="PrinT" msg=(print 1;#) jitted=0;
@@ -29,6 +30,7 @@ parser(DO);
 cerr "PD BEGIN":;
 probeDrive(pdAbcJ);
 probeDrive(pdAbcI);
+probeDrive(pd42J);
 probeDrive(pd42I);
 probeDrive(pdStJ);
 probeDrive(pdStI);

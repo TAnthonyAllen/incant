@@ -493,7 +493,17 @@ ATTEMPT LOG
      the stmtRejT rejects 0/0) and the jitted arm station 2's jitted rows -- every pair agrees on EVERY field.
      ⚠ ONE MOVE, NAMED, NOT EXPLAINED: DO accept's term count reads 53 on BOTH roads where station 2 certified 54
      on 2026-09-23. A shared change today, not the door; the absolute count is left unpinned until explained.
+     SINGLE-CHANGE TEST (Tony, 2026-09-24): only 5cbe369's leaf sukcess reset removed -> DO accept reads 55 on both
+     roads (DO reject 1053: the Token+ zero-width spin the reset stops). So the reset is -2 and something else today
+     +1; neither 54 nor 53. BISECT PARKED for a jitting pause -- verdict, consumed and engine agreement unaffected.
      FROM HERE THE lldb PROBE (jitLadder/station2/probe.py) IS FOR DEBUGGING ONLY.
+  21. THE SITE-1 BOTH-ROADS COMPARISON, PAID (2026-09-24). incant/pop/site1RoadsT drives the 29 site-1 rejects (the
+     27 plus #5.2d and #-5s) through the native door, each armed on its root carrier and, where it opens with a
+     keyword, on IF/WhilE/PrinT/Search/ElsE/FOR: 47 jitted/interpreted pairs, ALL AGREE on every field, EVERY
+     verdict 0, 8 compiles each degrade 0. First run found an instrument limit, not an engine difference: the
+     door recompiled a carrier whenever the armed one changed back, and a carrier's symbol can be defined once
+     (20 drives refused, duplicate _jit_StatemenT_builtinParseR); the door now keeps one compiled function per
+     carrier. The debt below is discharged for the site-1 rejects.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.

@@ -700,11 +700,22 @@ extern int jitProbeDrive(GroupItem rule,GroupItem armed,String msg,int jitted)
     GroupItem *carrier = armed->get((char*)"builtinParseR");
     if (!carrier) { printf("PROBE REFUSED: %s has no carrier\n", armed->groupBody->tag); fflush(stdout); return -8; }
     //  COMPILE OUTSIDE THE PUSH AND WITHOUT FIRING -- the fire belongs to the door.
-    if (jitted && !(gJitLastFn && gJitLastAction == carrier)) {
-        gJitCompileOnly = 1;
-        int c = ::jitRunAction(carrier);
-        gJitCompileOnly = 0;
-        if (c < 0 || gJitLastAction != carrier) { printf("PROBE REFUSED: compile of %s returned %d\n", armed->groupBody->tag, c); fflush(stdout); return -7; } }
+    //  ONE COMPILE PER CARRIER PER PROCESS (2026-09-24): a carrier's symbol can be defined only once, so switching the
+    //  armed carrier away and back used to recompile and fail with a duplicate definition. The door remembers each
+    //  carrier's compiled function and reuses it.
+    static GroupItem *pcCarrier[256];
+    static int (*pcFn[256])(GroupItem*);
+    static int pcN = 0;
+    int (*probeFn)(GroupItem*) = nullptr;
+    if (jitted) {
+        for (int i = 0; i < pcN; i++) if (pcCarrier[i] == carrier) { probeFn = pcFn[i]; break; }
+        if (!probeFn) {
+            gJitCompileOnly = 1;
+            int c = ::jitRunAction(carrier);
+            gJitCompileOnly = 0;
+            if (c < 0 || gJitLastAction != carrier) { printf("PROBE REFUSED: compile of %s returned %d\n", armed->groupBody->tag, c); fflush(stdout); return -7; }
+            probeFn = gJitLastFn;
+            if (pcN < 256) { pcCarrier[pcN] = carrier; pcFn[pcN] = probeFn; pcN++; } } }
     GroupItem *m = new GroupItem((char*)"probeMsg");
     m->setText(::strdup(msg));
     if (!m->groupBody->flags.data) { printf("PROBE REFUSED: message carries no data\n"); fflush(stdout); return -1; }
@@ -718,7 +729,7 @@ extern int jitProbeDrive(GroupItem rule,GroupItem armed,String msg,int jitted)
     //  jitted road also fires armed's COMPILED body there. Every other rule runs the
     //  interpreted road either way.
     gJitProbeCarrier = carrier;
-    gJitProbeFn      = jitted ? gJitLastFn : nullptr;
+    gJitProbeFn      = jitted ? probeFn : nullptr;
     gProbeRuleFires = gProbeRuleTrue = 0;
     gTermCallCount = 0;
     ruler->refused = 0;

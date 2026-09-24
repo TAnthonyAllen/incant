@@ -3004,11 +3004,14 @@ else echo "  FAIL  loopVerdict positive control: DISAGREE = 0 -- is sukcess stil
 #  are JITTED then INTERP on one armed carrier (one compile). Rows: every pair agrees on EVERY field (verdict,
 #  consumed, terms, fires, true); the certified verdict/consumed hold; the rejects stay 0/0.
 #  ⚠ DO accept's term count reads 53 on both roads where station 2 certified 54 (2026-09-23) -- moved by a
-#  shared change today, NOT YET EXPLAINED, so the absolute term count is deliberately not pinned here.
+#  shared change today, NOT YET EXPLAINED, so the absolute term count is deliberately not pinned here. Single-change
+#  test (Tony): with only 5cbe369's leaf sukcess reset removed it reads 55 (and the DO reject 1053, the Token+ spin
+#  the reset stops) -- so the reset accounts for -2 and another change today for +1. Bisect PARKED for a jitting
+#  pause: verdict, consumed and engine agreement are unaffected.
 run2 probeDoorT "$T/pd.o" "$T/pd.e"; check "probeDoorT runs" 0 $?
 sentinel "probeDoorT sentinel" "$T/pd.e" "PROBEDOOR SENTINEL"
 _pdl() { grep "^PROBEDRIVE root=$1 armed=$2 $3 " "$T/pd.e" | sed -n "${4}p" | sed 's/.* ret=[0-9]* //'; }
-for _pp in "ExpressioN ExpressioN 1" "StatemenT StatemenT 1" "StatemenT PrinT 1" "StatemenT DO 1" "StatemenT DO 2" "StatemenT IF 1" "StatemenT WhilE 1"; do
+for _pp in "ExpressioN ExpressioN 1" "ExpressioN ExpressioN 2" "StatemenT StatemenT 1" "StatemenT PrinT 1" "StatemenT DO 1" "StatemenT DO 2" "StatemenT IF 1" "StatemenT WhilE 1"; do
     set -- $_pp
     _j=$(_pdl $1 $2 JITTED $3); _i=$(_pdl $1 $2 INTERP $3)
     if [ -n "$_j" ] && [ "$_j" = "$_i" ]; then echo "  ok    probeDoorT $2 #$3 jitted = interpreted: $_j"; green=$((green+1))
@@ -3019,6 +3022,24 @@ _pdv ExpressioN ExpressioN 1 3 "abc"; _pdv ExpressioN ExpressioN 1 7 "42 rest"; 
 _pdv StatemenT DO 1 24 "do ... while"; _pdv StatemenT IF 1 18 "if ..."; _pdv StatemenT WhilE 1 21 "while ..."
 if [ "$(grep -c '^PROBEDRIVE root=StatemenT armed=StatemenT INTERP .* verdict=0 consumed=0 ' "$T/pd.e")" -ge 3 ]; then echo "  ok    probeDoorT the three stmtRejT rejects read 0/0"; green=$((green+1))
 else echo "  FAIL  probeDoorT the stmtRejT rejects do not all read 0/0"; fail=1; fi
+
+#  ---- site1RoadsT: F-114's 29 site-1 rejects, JITTED AGAINST INTERPRETED through the native door ----
+#  Owed since the failed-return fix, which was interpreted-only. Each input armed on its root carrier and, where it
+#  opens with a keyword, on that rule's carrier. H7 for the door's carrier cache, measured when it was added: without
+#  it, re-arming a carrier recompiled it and 20 jitted drives were refused (duplicate symbol).
+run2 site1RoadsT "$T/s1r.o" "$T/s1r.e"; check "site1RoadsT runs" 0 $?
+sentinel "site1RoadsT sentinel" "$T/s1r.e" "SITE1ROADS SENTINEL"
+if [ "$(grep -c 'PROBE REFUSED' "$T/s1r.o")" -eq 0 ]; then echo "  ok    site1RoadsT no jitted drive refused"; green=$((green+1))
+else echo "  FAIL  site1RoadsT $(grep -c 'PROBE REFUSED' "$T/s1r.o") jitted drives refused"; fail=1; fi
+_s1=$(grep '^PROBEDRIVE root=' "$T/s1r.e" | sed 's/ ret=[^ ]* / /' | awk '{t=$4; sub(/^[^ ]* [^ ]* [^ ]* [^ ]* /,""); if (t=="JITTED") j=$0; else {n++; if (j==$0) a++; if ($1!="verdict=0") nz++}} END{printf "%d %d %d", n, a, nz}')
+set -- $_s1
+if [ "$1" -eq 47 ] && [ "$2" -eq 47 ]; then echo "  ok    site1RoadsT 47 of 47 jitted/interpreted pairs agree on every field"; green=$((green+1))
+else echo "  FAIL  site1RoadsT pairs=$1 agreeing=$2 (want 47/47)"; fail=1; fi
+if [ "$3" -eq 0 ]; then echo "  ok    site1RoadsT every reject reads verdict 0 on both engines"; green=$((green+1))
+else echo "  FAIL  site1RoadsT $3 pairs with a non-zero verdict"; fail=1; fi
+_s1d=$(grep -c '=== jitDegrade count = 0 ===' "$T/s1r.o"); _s1c=$(grep -c 'jitDegrade count' "$T/s1r.o")
+if [ "$_s1c" -gt 0 ] && [ "$_s1d" -eq "$_s1c" ]; then echo "  ok    site1RoadsT $_s1c compiles, every one degrade 0"; green=$((green+1))
+else echo "  FAIL  site1RoadsT degrade: $_s1d of $_s1c compiles at 0"; fail=1; fi
 
 #  ---- stmtRejT: F-121 -- a REJECTED new-road StatemenT drive no longer abandons its caller ----
 #  One process per input. EXACT-LINE ran-marker and sentinel (the ABANDONED message quotes the rest of the file,
