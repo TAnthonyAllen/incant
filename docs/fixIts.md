@@ -331,6 +331,17 @@ ATTEMPT LOG
      no reader anywhere, either road. onGroup and hasMacro are read only by the old road's GroupItem::parse
      (GroupItem.twk:1309, 1315, 1318). The one new-road-side reader is dumpRuleTerms (genParse.rtn:361,
      387), a diagnostic print -- so its "onGroup=NONE" reflects which faces the old road happened to visit.
+  14. parseLoop DECIDES ON THE COUNT (Tony, 2026-09-24; SEQ 195's countNotFlag). `if sukcess return
+     trueResult;` is REMOVED. Evidence that no measured row could move: a temporary probe for the only
+     case where it decided anything -- flag set, kount < min -- fired 0 times over 171 pop.sh captures,
+     the jit ladder and 52 station-2 drives (docs/parseSiblings.md). A permanent trace-only witness,
+     measureLoopVerdict, prints the flag beside the count at every verdict; pop.sh's loopVerdict row pins
+     DISAGREE at 0 over 48 witnessed verdicts in the native drives, with the total as anti-vacuity.
+     ⚠ THE ROW IS UNCONTROLLED UNTIL REACHABLE (the kant8N precedent): no fixture produces a stale flag
+     with a short run, so no fixture can make the row go red. The WITNESS itself was validated by lldb
+     injection -- flag preset to 1 and the first Token attempt made to fail without writing it -- and
+     printed `LOOPVERDICT rule=Token flag=1 kount=0 min=1 DISAGREE`. That validates the instrument, not
+     the row, and the row's comment and label say so.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.

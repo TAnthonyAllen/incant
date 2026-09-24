@@ -8198,6 +8198,20 @@ int 		made = 0;
 	return made;
 }
 
+// measureLoopVerdict witness: at parseLoop's verdict, the success flag beside the count -- DISAGREE is the only case the removed flag read would have decided (a stale flag, count short of min); parseTrace-gated, pinned at 0
+extern "C" GroupItem *measureLoopVerdict(GroupItem *field)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && field && field->rStuff )
+	{
+	RuleStuff *st = field->rStuff;
+	::fprintf(stderr,"  LOOPVERDICT rule=%s flag=%d kount=%d min=%d %s\n",field->groupBody->tag,
+	(int)st->sukcess,st->kount,st->min,(st->sukcess && st->kount < st->min) ? "DISAGREE" : "agree");
+	}
+	
+	return 0;
+}
+
 // measureParseClass witness: which parse method setParseWalk just installed on this face -- parseTrace-gated; the fleet pins the parseAction count at 0 (docs/parseSiblings.md)
 extern "C" GroupItem *measureParseClass(GroupItem *field)
 {
@@ -10542,9 +10556,8 @@ RuleStuff *ruleStuff = field->getRStuff();
 		if ( !::runLeafParse(field) )
 			break;
 		else	ruleStuff->kount++;
-	if ( ruleStuff->sukcess )
-		return GroupControl::groupController->groupRules->trueResult;
-	// countNotFlag the LAST attempt of a repetition is always the failing one that ends it, so sukcess is never the loop's verdict -- read the COUNT, and do not write the flag
+	// countNotFlag the verdict is the COUNT, never the flag -- the last attempt is the failing one that ends the run, and a stale flag would pass a short run; the flag read is removed (Tony, 2026-09-24; SEQ 195)
+	measureLoopVerdict(field);
 	if ( ruleStuff->kount >= ruleStuff->min )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;

@@ -2908,6 +2908,26 @@ else echo "  FAIL  quoteNatT qnPr value -- print \"hi\"; did not print hi"; fail
 if grep -qE '^0 and 0 ?$' "$T/qnPs.o"; then echo "  ok    quoteNatT qnPs value -- print s2N \"and\" s2Y printed 0 and 0"; green=$((green+1))
 else echo "  FAIL  quoteNatT qnPs value -- print s2N \"and\" s2Y did not print 0 and 0"; fail=1; fi
 
+#  ---- loopVerdict: parseLoop decides on the COUNT; the flag read is gone (Tony, 2026-09-24; SEQ 195) ----
+#  measureLoopVerdict prints the flag beside the count at every traced parseLoop verdict. DISAGREE is
+#  the one case the removed `if sukcess return trueResult` would have decided: a STALE flag and a run
+#  short of min. Pinned at 0 over every traced native drive above; the total is the anti-vacuity row.
+#  ⚠ UNCONTROLLED UNTIL REACHABLE (the kant8N precedent, docs/kantCorpus.md): no fixture reaches a stale
+#  flag. The WITNESS was validated 2026-09-24 by lldb injection -- flag preset to 1 and the first Token
+#  attempt made to fail without writing it -- and printed `flag=1 kount=0 min=1 DISAGREE`. That validates
+#  the instrument, not this row.
+_lvt=0; _lvd=0
+for _f in "$T"/nn*.e "$T"/un*.e "$T"/qn*.e; do
+    [ -f "$_f" ] || continue
+    _lvt=$((_lvt + $(grep -c "LOOPVERDICT" "$_f"))); _lvd=$((_lvd + $(grep -c "LOOPVERDICT.*DISAGREE" "$_f")))
+done
+echo "  ..    loopVerdict parseLoop verdicts witnessed = $_lvt, of them DISAGREE = $_lvd"
+if [ "$_lvt" -gt 0 ]; then echo "  ok    loopVerdict anti-vacuity: $_lvt verdicts witnessed"; green=$((green+1))
+else echo "  FAIL  loopVerdict anti-vacuity: no LOOPVERDICT lines -- the instrument saw nothing"; fail=1; fi
+if [ "$_lvd" -eq 0 ]; then echo "  ok    loopVerdict DISAGREE = 0 (UNCONTROLLED until reachable -- see the block comment)"; green=$((green+1))
+else echo "  FAIL  loopVerdict: a stale flag met a short run -- the removed flag read would have passed it. Now reachable: give this row its positive control"
+     grep -h "LOOPVERDICT.*DISAGREE" "$T"/nn*.e "$T"/un*.e "$T"/qn*.e 2>/dev/null | sed 's/^/          /'; fail=1; fi
+
 #  ---- doWhileNameT: the new parse road dies on a non-literal while expression ----
 #  BORN RED ON PURPOSE, 2026-09-20, Clay's SEQ 171 step 1; oracle twin added under SEQ 172.
 #  Two of these four rows are the pin and they are RED until the label channel lands; the
