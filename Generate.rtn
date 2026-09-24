@@ -254,6 +254,13 @@ use field
     // enclosingRule re-resolve to the enclosing rule's own face, tested on the lookup so an unfound tag never overwrites field with null (the old `if lastRule` guard missed that)
     if currentMETHOD && currentMETHOD.get(field.tag)    field = currentMETHOD.get(field.tag);
 RuleStuff   ruleStuff = rStuff;
+    // callBracket lift this call's own rStuff state into C++ locals -- the C++ stack is the frame stack, and a nested call of the same rule would otherwise overwrite it (Tony, 2026-09-24; F-114). Passthrough, so tok sees no declaration (bear-trap #42)
+    -%
+    GroupItem *callLabel = ruleStuff ? ruleStuff->label : 0, *callParentLabel = ruleStuff ? ruleStuff->parentLabel : 0;
+    RuleStuff *callParentStuff = ruleStuff ? ruleStuff->parentStuff : 0;
+    char *callHereAt = ruleStuff ? ruleStuff->hereAt : 0;
+    int callKount = ruleStuff ? ruleStuff->kount : 0;
+    %-
     measureParentProbe(field);
     // parentRepair re-point parentStuff at the ENCLOSING rule's stuff and sync parentLabel, sourced from currentMETHOD (measured to track lastRule exactly)
     if currentMETHOD && currentMETHOD.rStuff != parentStuff {
@@ -300,7 +307,14 @@ checkSuccess:   // this is just a marker for directives
         }
     // markSeat1 SEQ 166 point 1 -- the last seat with visibility before the trace goes silent
     measureMarkPoint("1-parseRule-exit");
-    return exitFromParse(field);
+    result = exitFromParse(field);
+    // callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it
+    -%
+    if ( ruleStuff ) {
+        ruleStuff->label = callLabel;  ruleStuff->parentLabel = callParentLabel;  ruleStuff->parentStuff = callParentStuff;
+        ruleStuff->hereAt = callHereAt;  ruleStuff->kount = callKount; }
+    %-
+    return result;
 }
 
 /*******************************************************************************

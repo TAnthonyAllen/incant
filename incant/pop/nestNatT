@@ -1,0 +1,34 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    s2N=0;
+    s2Y=0;
+    s2L aa bb cc;
+    nnFmt="#5d";
+    nnFmtN="#5d s2N";
+    nnFmtS="#5.2d";
+    nnAbc="abc";
+    ;
+parser(DO);
+traceParse();
+cerr "NN BEGIN":;
+NNDRIVE;
+cerr "NN RETURNED":;
+cerr "NESTNAT SENTINEL":;
+stop();
+
+nestNatT -- A TEMPLATE, NEVER RUN AS IT STANDS. genLadder/pop.sh replaces the NNDRIVE line with one
+drive per generated copy, one process each, because a crashing drive kills everything queued behind it.
+
+F-114 SITE 1 RESIDUE -- A NESTED CALL OF THE SAME RULE. `#5d` is ExpressioN > Token > StringXP >
+PrintField > ExpressioN: the inner ExpressioN used to mint into the outer one's rStuff slot, so the
+outer fired on an empty list and crashed in interpretXP (exit 139). parseRule now lifts its own
+rStuff state -- label, parentLabel, parentStuff, hereAt, kount -- into C++ locals at entry and puts
+it back after exitFromParse (Tony's ruling, 2026-09-24).
+
+The rows: each copy exits 0, NN RETURNED prints, the sentinel prints, and a PARSERESULT falls inside
+the drive (the NEW road ran). nnAbc is the control -- no nesting, green with or without the bracket.
+H7 control, measured when the rows were minted: bracket removed, the three nested copies go back
+to exit 139 and the control stays green.

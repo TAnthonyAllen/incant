@@ -192,6 +192,25 @@ ATTEMPT LOG
      stops or traceParse is on -- measured, unexplained, and a reason to trust native rows over lldb ones.
      FLEET: genLadder/pop.sh quoteNatT -- five inputs born red (qnHi qnPr qnCe qnPs qnEq), one process
      each, road checks green; qnAbc is the green control.
+  6. THE CALL BRACKET (Tony's ruling, 2026-09-24). parseRule lifts its OWN rStuff state -- label,
+     parentLabel, parentStuff, hereAt, kount -- into C++ locals at entry and puts it back after
+     exitFromParse, before its single return. sukcess and the guards stay out; the container's
+     label is NOT bracketed (checkInput:1222's handoff is deliberate). The locals are declared in a
+     `-% %-` passthrough, not a separate function: every existing passthrough lives inside a function,
+     so a file-scope struct would have needed a new header (bear-trap #5); tok never sees a passthrough
+     declaration, so #42 cannot fire -- the generated diff against HEAD is the two blocks and nothing else.
+     -> `#5.2d`, `#-5s` fail cleanly (v=0 c=0); `#5d` 1/2; `#5d s2N` 1/2 (the `d` is F-115).
+     CONTROLS unmoved: abc 1/3, 42 rest 1/7, print 1; 1/8, DO 1/24, IF 1/18, WhilE 1/21.
+     FLEET: genLadder/pop.sh nestNatT -- nnFmt, nnFmtN, nnFmtS green, nnAbc the control; native, one
+     process each. H7, bracket removed and rebuilt: the three nested copies exit 139, nnAbc stays green.
+     NOT cleared, measured: `s2L[1]`, `s2L(1)` still hang (native, killed by alarm at 30s, 3 arrivals).
+     `(1)` reads v=0 c=0 on the new road. ⚠ The "(1) should consume 3" in entry 5's residue note was
+     MINE and UNMEASURED: the grammar has Parens only as an InvokeArg (a postfix), so a bare `(1)` may
+     not be an expression on either road. An old-road reading was attempted and is VOID (H16): the lldb
+     replica of the drive read abc 0/0.
+     NOT built: a direct H19 row (outer label survives an inner same-rule call) -- nestNatT witnesses it
+     by crash/no-crash only; and the self-container control row -- no rule with itself as container is
+     known, so the row needs a shape ruled first.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.

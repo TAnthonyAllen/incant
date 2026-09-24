@@ -10562,6 +10562,13 @@ GroupItem 	*priorMETHOD = 0;
 	if ( ruler->currentMETHOD && ruler->currentMETHOD->get(field->groupBody->tag) )
 		field = ruler->currentMETHOD->get(field->groupBody->tag);
 RuleStuff 	*ruleStuff = field->getRStuff();
+	// callBracket lift this call's own rStuff state into C++ locals -- the C++ stack is the frame stack, and a nested call of the same rule would otherwise overwrite it (Tony, 2026-09-24; F-114). Passthrough, so tok sees no declaration (bear-trap #42)
+	
+	GroupItem *callLabel = ruleStuff ? ruleStuff->label : 0, *callParentLabel = ruleStuff ? ruleStuff->parentLabel : 0;
+	RuleStuff *callParentStuff = ruleStuff ? ruleStuff->parentStuff : 0;
+	char *callHereAt = ruleStuff ? ruleStuff->hereAt : 0;
+	int callKount = ruleStuff ? ruleStuff->kount : 0;
+	
 	::measureParentProbe(field);
 	// parentRepair re-point parentStuff at the ENCLOSING rule's stuff and sync parentLabel, sourced from currentMETHOD (measured to track lastRule exactly)
 	if ( ruler->currentMETHOD && ruler->currentMETHOD->getRStuff() != ruleStuff->parentStuff )
@@ -10616,7 +10623,14 @@ checkSuccess:
 		}
 	// markSeat1 SEQ 166 point 1 -- the last seat with visibility before the trace goes silent
 	::measureMarkPoint("1-parseRule-exit");
-	return ::exitFromParse(field);
+	result = ::exitFromParse(field);
+	// callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it
+	
+	if ( ruleStuff ) {
+	ruleStuff->label = callLabel;  ruleStuff->parentLabel = callParentLabel;  ruleStuff->parentStuff = callParentStuff;
+	ruleStuff->hereAt = callHereAt;  ruleStuff->kount = callKount; }
+	
+	return result;
 }
 
 /*******************************************************************************

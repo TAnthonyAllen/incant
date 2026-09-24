@@ -2829,6 +2829,21 @@ if [ "$_pt2r" -gt 0 ]; then echo "  ok    parserTest PT-2 road check -- the DO d
 else echo "  FAIL  parserTest PT-2 road check -- 0 arrivals: the DO drive ran the OLD road. BORN RED 2026-09-23"
      echo "        (parser(DO) refused through define); green when define is labelled."; fail=1; fi
 
+#  ---- nestNatT: F-114 site-1 residue, a nested call of the SAME rule, driven natively ----
+#  parseRule's call bracket (2026-09-24) is what these certify: without it the outer ExpressioN
+#  fires on an empty list and dies in interpretXP at 139. nnAbc is the no-nesting control.
+#  H7, measured at minting: bracket removed -> the three nested copies exit 139, nnAbc stays green.
+for _nn in "nnFmt ExpressioN" "nnFmtN ExpressioN" "nnFmtS StatemenT" "nnAbc ExpressioN"; do
+    set -- $_nn
+    sed "s/^NNDRIVE;\$/$2($1);/" incant/pop/nestNatT > "$T/$1.twk"
+    $B "$T/$1.twk" > "$T/$1.o" 2> "$T/$1.e" & _cap "nestNatT $1"; check "nestNatT $1 ($2) runs" 0 $?
+    sentinel "nestNatT $1 sentinel" "$T/$1.e" "NESTNAT SENTINEL"
+    _nr=$(awk '/^NN BEGIN/{f=1} /^NN RETURNED/{f=0} f' "$T/$1.e" | grep -c "PARSERESULT")
+    echo "  ..    nestNatT $1 parseRule arrivals in the drive = $_nr (want > 0)"
+    if [ "$_nr" -gt 0 ]; then echo "  ok    nestNatT $1 road check -- the drive reached parseRule"; green=$((green+1))
+    else echo "  FAIL  nestNatT $1 road check -- 0 arrivals: no new-road drive happened"; fail=1; fi
+done
+
 #  ---- quoteNatT: F-114 site 2, quoted input driven NATIVELY, one process per input ----
 #  BORN RED 2026-09-24: every quoted drive dies at aCTionQuotE (quoteBody null), exit 139, plain,
 #  under MallocScribble and traced alike. The template's dead region says why the inputs live in
