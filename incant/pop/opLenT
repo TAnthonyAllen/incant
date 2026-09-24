@@ -1,0 +1,64 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    s2Y=0;
+    s2N=2;
+    olEqJ root="ExpressioN" armed="Token" msg=(==#) jitted=1;
+    olEqI root="ExpressioN" armed="Token" msg=(==#) jitted=0;
+    olLeJ root="ExpressioN" armed="Token" msg=(<=#) jitted=1;
+    olLeI root="ExpressioN" armed="Token" msg=(<=#) jitted=0;
+    olPeJ root="ExpressioN" armed="Token" msg=(+=#) jitted=1;
+    olPeI root="ExpressioN" armed="Token" msg=(+=#) jitted=0;
+    olAsJ root="ExpressioN" armed="Token" msg=(=#) jitted=1;
+    olAsI root="ExpressioN" armed="Token" msg=(=#) jitted=0;
+    oEq=(if s2N == 2; s2Y = 5;#);
+    oEqNo=(if s2N == 3; s2Y = 5;#);
+    oLe=(if s2N <= 1; s2Y = 5;#);
+    oPe=(s2Y += 4;#);
+    oAs=(s2Y = 6;#);
+    ;
+parser(DO);
+cerr "OL BEGIN":;
+probeDrive(olEqJ);
+probeDrive(olEqJ);
+probeDrive(olEqI);
+probeDrive(olLeJ);
+probeDrive(olLeJ);
+probeDrive(olLeI);
+probeDrive(olPeJ);
+probeDrive(olPeJ);
+probeDrive(olPeI);
+probeDrive(olAsJ);
+probeDrive(olAsJ);
+probeDrive(olAsI);
+s2Y = 0;
+StatemenT(oEq);
+cerr "OV oEq s2Y=" s2Y " s2N=" s2N:;
+s2Y = 0;
+StatemenT(oEqNo);
+cerr "OV oEqNo s2Y=" s2Y " s2N=" s2N:;
+s2Y = 0;
+StatemenT(oLe);
+cerr "OV oLe s2Y=" s2Y " s2N=" s2N:;
+s2Y = 1;
+StatemenT(oPe);
+cerr "OV oPe s2Y=" s2Y:;
+s2Y = 0;
+StatemenT(oAs);
+cerr "OV oAs s2Y=" s2Y:;
+cerr "OPLEN SENTINEL":;
+stop();
+
+opLenT -- F-124, A TWO-CHARACTER OPERATOR CONSUMES EXACTLY ITS OWN LENGTH (2026-09-24). parseContainer's lookup loops
+kept going after a hit: `==` hit `==` (advance 2), then shorten(1) found `=` and advanced again and relabelled the
+match as `=`. So the mark passed the end of the message (consumed -1), and on the NEW road `if s2N == 3; ...` ASSIGNED
+3 to s2N and ran the arm, and `s2Y += 4;` did nothing. The old road was right throughout. Measured by a hit probe in
+both loops before the fix: the main branch took the second hit; the no-rStuff registry branch has the same shape and
+got the same one-word fix, though these inputs do not reach it.
+
+pop.sh asserts: ==, <= and += read consumed 2 of 2 and = reads 1 of 1, jitted twice and interpreted, all agreeing; no
+drive reads consumed -1; and the five statements give the old road's values on the new road (oEq 5/2, oEqNo 0/2,
+oLe 0/2, oPe 5, oAs 6). H7, measured at landing: without the break, the consumed rows read -1 and oEqNo reads s2Y 5
+s2N 3, oPe 1.

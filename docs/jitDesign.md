@@ -1131,6 +1131,30 @@ Persistence remains the next arc and starts when Tony fires it.
 - **Performance.** No jitted-vs-interpreted timing has ever been taken, and under §0 it is not
   the point.
 
+## THE PAUSE DOCKET — work parked for a jitting pause, gathered in one place (started 2026-09-24)
+
+Items parked "for a jitting pause" were scattered through `docs/fixIts.md`; they are listed here so a pause starts
+from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT FOUND in the tree** (searched `docs/`,
+`TODO.md`, `ipc/`, and commit messages since 2026-09-20) -- it is owed a line here by whoever holds it.
+
+- **PAUSE CENSUS: actions and ops, toward one method per case (Tony, 2026-09-24).** *The direction it is read
+  against:* the parse builds a pure label tree per statement, and a second pass does the work. Tony's goal is for
+  rule actions and op methods to be short enough to INLINE once the jit runs end to end -- one method, one case, no
+  data-kind switch, no `if jitting` gate. For every `aCTion*` and `op*` method, report: its line count; how many
+  data-kind arms it has; how many `if jitting` gates; and its PHASE CLASS --
+  **parse-deciding** (can fail the parse or change what it builds),
+  **grammar-changing** (define, registries, search; runs at the statement boundary),
+  **executing** (can move to a second pass over the label tree, and is a candidate for a `code={}` action compiled
+  by the jit).
+  The output is a RANKED LIST OF WHAT TO SPLIT, by kind or by phase. Already at the top: the per-kind `+=` split,
+  with its kind probe first. Whether it is a simplification depends on how large the executing class is -- Tony's
+  guess is most of them. Record only; no work until the pause.
+- **The yield channel's ruling** -- what fireLabelMethod's adoption may receive (fixIts F-122 entry 7; the (b) guard
+  stays unarmed; `adoptT` pins the live-field count).
+- **parseLoop's silent success at max** -- report or refuse a zero-progress pass (fixIts F-114 entry 24).
+- **Limit removal and the min=/max= amendment** (fixIts F-113).
+- **The DO-accept term count 54 -> 53 bisect** (fixIts F-114, the probeDoorT note).
+
 ---
 
 # PART VI — WHAT TO BUILD NEXT, AND WHY IN THIS ORDER

@@ -3118,6 +3118,26 @@ else echo "  FAIL  sweepT $_swr of $_swa carrier results AGREE at degrade 0 (wan
 if [ "$(grep -c 'JIT DEGRADE' "$T/sw.e" "$T/sw.o" | awk -F: '{n+=$2} END{print n}')" -eq 0 ] && grep -q '^SWEEP ROW .* J fire2 ' "$T/sw.e"; then echo "  ok    sweepT no degrade line anywhere (and jitted rows ran)"; green=$((green+1))
 else echo "  FAIL  sweepT a degrade line appeared, or no jitted row ran"; fail=1; fi
 
+#  ---- opLenT: F-124 -- a two-character operator consumes exactly its own length (2026-09-24) ----
+#  parseContainer's lookup loops kept matching after a hit (== then =), overran the message and relabelled the match;
+#  on the new road `==` assigned and `+=` did nothing. H7, measured at landing: without the break, consumed reads -1,
+#  oEqNo reads s2Y 5 s2N 3 and oPe reads 1.
+run2 opLenT "$T/ol.o" "$T/ol.e"; check "opLenT runs" 0 $?
+sentinel "opLenT sentinel" "$T/ol.e" "OPLEN SENTINEL"
+_oll() { grep "^PROBEDRIVE root=ExpressioN armed=Token" "$T/ol.e" | sed -n "${1}p" | sed 's/.* ret=[0-9]* //'; }
+for _op in "1 2 3 == 2" "4 5 6 <= 2" "7 8 9 += 2" "10 11 12 = 1"; do
+    set -- $_op
+    _a=$(_oll $1); _b=$(_oll $2); _c=$(_oll $3); _w="verdict=1 consumed=$5 length=$5 terms=6 fires=1 true=1"
+    if [ "$_a" = "$_w" ] && [ "$_b" = "$_w" ] && [ "$_c" = "$_w" ]; then echo "  ok    opLenT '$4' consumes $5 of $5, jitted twice and interpreted"; green=$((green+1))
+    else echo "  FAIL  opLenT '$4' want [$_w]: J1 [$_a] J2 [$_b] I [$_c]"; fail=1; fi
+done
+if [ "$(grep -c '^PROBEDRIVE .* consumed=-1 ' "$T/ol.e")" -eq 0 ] && [ "$(grep -c '^PROBEDRIVE ' "$T/ol.e")" -eq 12 ]; then echo "  ok    opLenT no drive's mark passes the end of its message (12 drives)"; green=$((green+1))
+else echo "  FAIL  opLenT a mark passed the end, or drives went missing: $(grep -c '^PROBEDRIVE ' "$T/ol.e") drives"; fail=1; fi
+for _ov in "oEq s2Y= ?5 s2N= ?2" "oEqNo s2Y= ?0 s2N= ?2" "oLe s2Y= ?0 s2N= ?2" "oPe s2Y= ?5" "oAs s2Y= ?6"; do
+    if grep -qE "^OV $_ov ?$" "$T/ol.e"; then echo "  ok    opLenT new road $(echo $_ov | tr -d '?')"; green=$((green+1))
+    else echo "  FAIL  opLenT want $(echo $_ov | tr -d '?'): $(grep "^OV ${_ov%% *} " "$T/ol.e")"; fail=1; fi
+done
+
 #  ---- stmtRejT: F-121 -- a REJECTED new-road StatemenT drive no longer abandons its caller ----
 #  One process per input. EXACT-LINE ran-marker and sentinel (the ABANDONED message quotes the rest of the file,
 #  and a substring check once matched it). The caller's old-road Xpress flag after the drive must read 1.

@@ -152,21 +152,28 @@ ATTEMPT LOG
      incant/pop/tokJitT (12 pop.sh rows). Fleet 643 (627 + 16 new), reds identical to HEAD; jitLadder 214 PASSED.
 ```
 
-### F-124 — OPEN 2026-09-24 — a two-character operator ADVANCES THE MARK PAST ITS OWN TEXT: parseContainer keeps matching after a hit
+### F-124 — ✅ CLOSED 2026-09-24 — a two-character operator ADVANCED THE MARK PAST ITS OWN TEXT, and on the new road `==` ASSIGNED
 
-**What.** Driven through the door (root ExpressioN, armed Token), `==`, `<=` and `+=` each read consumed=-1 (the mark
-left the message) on BOTH engines; `=` alone reads consumed=1. Found while reading the loops for F-123; not chased.
-**Where.** parseContainer (Generate.rtn), both lookup loops -- the no-rStuff registry branch (`ruler.atRuleMark +=
-advance; matched = 1;`) and the main branch (`atRuleMark += advance; sukcess = true;`): neither breaks after a hit,
-and `shorten(1)` then finds the one-character prefix (`=` after `==`) and advances again. Mechanism read from source,
-consistent with the -1; not yet confirmed by a mark reading.
-**Evidence.** 2026-09-24, bare tree after F-123: four probeDrive runs, J and I agree on every field.
-**Done when.** `==`, `<=`, `+=` read consumed=2 of 2 on both engines, pinned, and a statement using them (`if a == b;`)
-is unchanged in value.
-**Owner.** Unassigned. Not blocking the sweep (the engines agree).
+**What.** Driven through the door, `==`, `<=` and `+=` read consumed=-1 (the mark left the message) on both engines;
+`=` read 1 of 1. On the NEW road it was a wrong VALUE, not just a wrong mark: `if s2N == 3; s2Y = 5;` set s2N to 3 and
+ran the arm, and `s2Y += 4;` did nothing (s2Y 1 where the old road gives 5). The old road was right throughout.
+**Where.** parseContainer (Generate.rtn), both lookup loops: neither stopped after a hit, so `shorten(1)` found the
+one-character prefix and advanced again -- and in the main branch `label.group = grup` then relabelled `==` as `=`.
+**Done when.** Met: ==, <= and += consume exactly 2 of 2 on both engines, = unchanged, no mark past the end, and the
+new road's values match the old road's.
+**Owner.** Closed.
 ```
 ATTEMPT LOG
-  (none yet)
+  0. 2026-09-24 MECHANISM MEASURED BEFORE FIXING, a temporary hit probe in both loops: `==` -> main branch hit `==`
+     advance 2, then hit `=` advance 1, mark past the end; `<=` -> `<=` then `<`; `+=` -> `+=` then `+`; `=` one hit;
+     `== b` -> the second hit eats the space. The no-rStuff registry branch has the same shape and was not reached by
+     these inputs. Baseline values, same file both roads: new road oEqNo s2Y 5 s2N 3, oPe 1; old road 0/2 and 5.
+  1. `break` after the first (longest) hit in both loops. Controls first (H15): f122NatT, tokJitT, probeDoorT unchanged.
+     -> ==, <=, += consume 2 of 2 jitted twice and interpreted; = 1 of 1; new road oEq 5/2, oEqNo 0/2, oLe 0/2, oPe 5,
+     oAs 6 = the old road. `= b`, `+ b` and `== b` all consume the operator and its space and fail on `b`: uniform,
+     not this defect. H7: without the break, opLenT reads consumed -1 on all nine two-character drives, oEqNo 5/3, oPe 1.
+     Certified by incant/pop/opLenT (12 rows). Fleet 662 (650 + 12), reds identical to HEAD; jitLadder 214 PASSED;
+     decodePop 14, ddPop 5/1, countPop 47/47, frontier station 4; canary 358.
 ```
 
 ### F-122 — ✅ CLOSED 2026-09-24 — a control statement whose body is a BARE ASSIGNMENT crashes: its action calls a null body method
@@ -668,6 +675,28 @@ ATTEMPT LOG
      taken through the same lldb drive: re-measure it natively before any row is believed.
   OWED BY THE INLINE RUNG: the parseRule bracket (ruled 2026-09-24) lives in parseRule; an inlined
      parse body skips parseRule, so the bracket must then be EMITTED, or replaced by the frame model.
+  23. STATION 2's COVERAGE IS 45 OF 61, NOT 45 OF 45 (2026-09-24, after F-123/F-125; aad2b46). The sweep walks 65 carriers,
+     skips 4 stuff faces, certifies 45 (all AGREE) and picks NOTHING on 16. Each of the 16 has ZERO fires across all 169
+     calibration drives; all 16 are installed as parseRule (measureParseClass; CodeBody printed no install line), so the
+     door could see them -- nothing reached them. Each then driven alone, interpreted, armed, with an input built to reach it:
+       PAIRS GAP (reachable, pairs.sweep has no such input): ElsE, BasicElse (`if 1 < 0; s2Y = 5; else s2Y = 7;` fires 1/1),
+         ElseIf (`if 1 < 0; s2Y = 5; or 1 > 0; s2Y = 7;` 1/1), LoopRestrict (`for s2C in s2L; attributes s2Y = 1;` 1/1).
+         pairs.sweep's else lines are all bare `else ...`, which no root reaches.
+       FORMATTED PRINT REJECTED on the new road: FormaT, Precision -- `print s2N#5d;` and `print s2N#5.2f;` read verdict 0,
+         consumed 0, so the print fails before FormaT is tried. Not chased.
+       NOT A GROKKING NAME: formatWIDTH (`formatWIDTH?=NumbeR`, an attribute-named term of FormaT) and endDef
+         (`endDef-=DEFINing`, of define) -- probeDrive refuses to arm them by name; reachable only through FormaT and
+         define, which do not fire their terms here.
+       THE DEFINE FAMILY DOES NOT REACH ITS TERMS on the new road: Limit (`define xq[2 3]; ;` consumed 15 of 17), TraiTdata
+         and DatA (`define xq=5; ;` 12 of 14), Attributes (`define xq isRule; ;` 17 of 19) -- verdict 1, the carrier never
+         fires; CodeBody (`define xq={ }; ;`), SetBrackets (`define xq=[a-z]; ;`), MemberS (`define xq: yq; ;`) -- verdict 0.
+         Every define drive stops short of its closing `;`, which is also what left `defining` set in F-125. Not chased.
+       HARNESS: DelimText -- its input needs `(hi#)` inside a `(...#)` message, and `#)` ends the define value early; the
+         repro file was abandoned, so no reading. Needs a pairs-file line (probeSweep reads `\n`-escaped text) instead.
+  24. A RULING OWED AT A PAUSE (Tony, 2026-09-24): parseLoop's silent success at max. A term that succeeds without
+     consuming repeats to max (100 for `+`) and the loop returns success with nothing said -- F-123's 100 fires were this.
+     The old road names the limit (reportRepeatLimit). The choice: REPORT a zero-progress pass, or REFUSE it. Not changed;
+     docs/parseSiblings.md carries the measurement.
 ```
 Inputs and results: `jitLadder/station2/f114site1` (pairs) and `f114site1.results`.
 

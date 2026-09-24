@@ -10582,8 +10582,10 @@ int 		matched = 0;
 			{
 			if ( grup = field->get(buffer->string()) )
 				{
+				// longestHitOnly the first hit is the longest -- stop, or shorten(1) finds its prefix (= after ==) and advances again (F-124)
 				ruler->atRuleMark += advance;
 				matched = 1;
+				break;
 				}
 			buffer->shorten(1);
 			}
@@ -10617,11 +10619,13 @@ int 		matched = 0;
 			{
 			if ( grup = field->get(buffer->string()) )
 				{
+				// longestHitOnly the first hit is the longest -- stop, or shorten(1) finds its prefix (= after ==), advances again and relabels (F-124)
 				if ( !ruleStuff->noAdvance )
 					ruler->atRuleMark += advance;
 				if ( ruleStuff->label )
 					ruleStuff->label->setGroup(grup);
 				ruleStuff->sukcess = 1;
+				break;
 				}
 			buffer->shorten(1);
 			}
