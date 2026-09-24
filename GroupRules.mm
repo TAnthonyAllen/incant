@@ -8197,6 +8197,20 @@ int 		made = 0;
 	return made;
 }
 
+// measureTargetAgree witness: on a face the old road already visited (followed), does the new road's isTarget agree with what getWhatFollows wrote -- parseTrace-gated, reads only
+extern "C" GroupItem *measureTargetAgree(RuleStuff *stuff, int computed)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->rule )
+	::fprintf(stderr,"  TARGETAGREE rule=%s parent=%s followed=%d old=%d new=%d %s\n",
+	stuff->rule->groupBody->tag,
+	stuff->rule->parent ? stuff->rule->parent->groupBody->tag : "(none)",
+	(int)stuff->followed, (int)stuff->isTarget, computed,
+	!stuff->followed ? "unvisited" : ((int)stuff->isTarget == computed ? "agree" : "DISAGREE"));
+	
+	return 0;
+}
+
 /*  modifierIsRepeat -- THE MODIFIER CLASS PREDICATE, one question, no list here.
     A FLAG DESCRIBES A TERM; A REPETITION CHANGES WHAT THE TERM IS, and only the
     repetition class carries `repeatClass` in incant/setup's Modifiers registry, so
@@ -12911,6 +12925,8 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			}
 		return ::refuse(field,"setParse: the field passed in has no rStuff");
 		}
+	// newRoadTarget every face with rStuff, before the installed and re-entry exits -- isTarget is what promotes and RETAGS a member's label (09-22 retag ruling, SEQ 192)
+	::setTargetFlag(ruleStuff);
 	/***************************************************************************
 	Set the parseMethod
 	***************************************************************************/
@@ -13029,6 +13045,22 @@ char 		*name = 0;
 		}
 	else	::fprintf(stderr,"setRuleAction: could not set action target\n");
 	return item;
+}
+
+// setTargetFlag the NEW road's isTarget and nothing else: getWhatFollows' target rule, never its onFail/onGroup/hasMacro/testMatch and never the parent min (retired SEQ 152). Run at generation over every face -- Tony, 2026-09-24, F-114 site 3
+extern "C" void setTargetFlag(RuleStuff *stuff)
+{
+	
+	if ( !stuff || !stuff->rule ) return;
+	GroupItem *r = stuff->rule;
+	int computed = 0;
+	if ( isMember(r->options.affiliation) && r->parent && !r->parent->groupBody->flags.binType )
+	computed = 1;
+	else if ( isEmbedded(r->options.affiliation) )
+	{ if ( (r->groupBody->flags.data && r->groupBody->flags.data < 4) || stuff->max == 1 ) computed = 1; }
+	::measureTargetAgree(stuff, computed);
+	if ( computed ) stuff->isTarget = 1;
+	
 }
 
 /*******************************************************************************

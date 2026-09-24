@@ -266,6 +266,26 @@ ATTEMPT LOG
      getWhatFollows computes is a ruling.
   11. SIBLING CENSUS of Generate.rtn's parse* methods, read-only, 2026-09-24 -- the table is in the
      2026-09-24 report and in docs/parseSiblings.md. Nothing fixed from it.
+  12. SITE 3 FIXED (Tony's ruling, 2026-09-24). setTargetFlag (Generate.rtn) is a NEW-road function that
+     computes isTarget and nothing else -- getWhatFollows' target rule, never its onFail/onGroup/hasMacro/
+     testMatch -- called from setParseWalk on every face with rStuff, before the installed/re-entry exits.
+     getWhatFollows is called at neither time. §7.1 CHECKED: getWhatFollows NO LONGER writes the parent's
+     rStuff.min = 0 -- that promotion was retired 2026-09-03 (SEQ 152, RuleStuff.getWhatFollows.
+     promotionRetired), so there was nothing to leave out.
+     AGREEMENT, via the parseTrace-gated witness measureTargetAgree at generation (driveS2 + traceParse):
+     201 faces -- 129 agree, 69 the old road never visited, 3 differ old=1 new=0: TraiT under NewGroup,
+     NamE under ANYtoken, StatemenT under BasicElse. All three are `@` in the grammar -- the modifier set
+     the flag, not getWhatFollows, and setTargetFlag never clears -- so it agrees with getWhatFollows on
+     every visited face. Known positive: ANYorNum's ANYtoken 1/1. ANYorNum's NumbeR goes 0 -> 1.
+     -> `-1`, `.5`, `-s2N` exit 0 natively; TokenXP's label carries UnaryOPS and ANYorNum. `s2Y = -7;` via
+     StatemenT stores -7. FLEET: unaryNatT (unNeg, unDot, unSet + value, unAbc control). H7: the call
+     removed and rebuilt -> unNeg, unDot, unSet exit 139, unAbc green. Restored .mm byte-identical.
+     Seen, not chased: `print -1;` prints 1 on BOTH roads (`-` is a ShortcuT in a print list), and
+     `print .5;` crashes the OLD road (139) while printing nothing on the new.
+  13. CENSUS, read-only: new-road readers of onFail, onGroup, hasMacro. NONE on the parse path. onFail has
+     no reader anywhere, either road. onGroup and hasMacro are read only by the old road's GroupItem::parse
+     (GroupItem.twk:1309, 1315, 1318). The one new-road-side reader is dumpRuleTerms (genParse.rtn:361,
+     387), a diagnostic print -- so its "onGroup=NONE" reflects which faces the old road happened to visit.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.

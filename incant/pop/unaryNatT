@@ -1,0 +1,37 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    s2N=0;
+    s2Y=0;
+    s2L aa bb cc;
+    unNeg="-1";
+    unDot=".5";
+    unSet=(s2Y = -7;#);
+    unAbc="abc";
+    ;
+parser(DO);
+traceParse();
+cerr "UN BEGIN":;
+UNDRIVE;
+cerr "UN RETURNED":;
+cerr "UN S2Y=" s2Y:;
+cerr "UNARYNAT SENTINEL":;
+stop();
+
+unaryNatT -- A TEMPLATE, NEVER RUN AS IT STANDS. genLadder/pop.sh replaces the UNDRIVE line with one
+drive per generated copy, one process each.
+
+F-114 SITE 3 -- A LEADING UNARY. `-1` is Token > TokenXP (UnaryOPS ANYorNum^ InvokeArg?), and
+ANYorNum's NumbeR face arrived with isTarget 0, because only the OLD road's getWhatFollows computes
+it and the old road never visits that face. NumbeR was not promoted or retagged, so TokenXP's label
+carried a child tagged NumbeR and no ANYorNum, and aCTionTokenXP read null (exit 139).
+setTargetFlag computes isTarget at generation, over every face, on the new road (2026-09-24).
+
+The rows: each copy exits 0, UN RETURNED prints, the sentinel prints, the drive reached parseRule;
+unSet's value row reads s2Y = -7 after `s2Y = -7;` driven through StatemenT. unAbc is the control.
+H7, measured at minting: setTargetFlag's call removed, unNeg and unDot go back to 139.
+
+NOT asserted, and why: `print -1;` prints 1 on BOTH roads -- `-` is a ShortcuT in a print list, so
+the sign never reaches the value. `print .5;` crashes the OLD road (139) and prints nothing on the new.

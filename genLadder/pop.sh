@@ -2829,6 +2829,23 @@ if [ "$_pt2r" -gt 0 ]; then echo "  ok    parserTest PT-2 road check -- the DO d
 else echo "  FAIL  parserTest PT-2 road check -- 0 arrivals: the DO drive ran the OLD road. BORN RED 2026-09-23"
      echo "        (parser(DO) refused through define); green when define is labelled."; fail=1; fi
 
+#  ---- unaryNatT: F-114 site 3, a LEADING UNARY, driven natively ----
+#  setTargetFlag (2026-09-24) gives the new road the isTarget only getWhatFollows computed. Without it
+#  ANYorNum's NumbeR is never retagged and aCTionTokenXP reads a null ANYorNum at 139.
+#  H7, measured at minting: the call removed, unNeg and unDot exit 139; unAbc stays green.
+for _un in "unNeg ExpressioN" "unDot ExpressioN" "unSet StatemenT" "unAbc ExpressioN"; do
+    set -- $_un
+    sed "s/^UNDRIVE;\$/$2($1);/" incant/pop/unaryNatT > "$T/$1.twk"
+    $B "$T/$1.twk" > "$T/$1.o" 2> "$T/$1.e" & _cap "unaryNatT $1"; check "unaryNatT $1 ($2) runs" 0 $?
+    sentinel "unaryNatT $1 sentinel" "$T/$1.e" "UNARYNAT SENTINEL"
+    _ur=$(awk '/^UN BEGIN/{f=1} /^UN RETURNED/{f=0} f' "$T/$1.e" | grep -c "PARSERESULT")
+    echo "  ..    unaryNatT $1 parseRule arrivals in the drive = $_ur (want > 0)"
+    if [ "$_ur" -gt 0 ]; then echo "  ok    unaryNatT $1 road check -- the drive reached parseRule"; green=$((green+1))
+    else echo "  FAIL  unaryNatT $1 road check -- 0 arrivals: no new-road drive happened"; fail=1; fi
+done
+if grep -qE '^UN S2Y= ?-7 ?$' "$T/unSet.e"; then echo "  ok    unaryNatT unSet value -- s2Y = -7 stored -7"; green=$((green+1))
+else echo "  FAIL  unaryNatT unSet value -- s2Y is not -7: $(grep '^UN S2Y=' "$T/unSet.e")"; fail=1; fi
+
 #  ---- nestNatT: F-114 site-1 residue, a nested call of the SAME rule, driven natively ----
 #  parseRule's call bracket (2026-09-24) is what these certify: without it the outer ExpressioN
 #  fires on an empty list and dies in interpretXP at 139. nnAbc is the no-nesting control.
