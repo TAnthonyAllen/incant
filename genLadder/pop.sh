@@ -2842,6 +2842,13 @@ for _nn in "nnFmt ExpressioN" "nnFmtN ExpressioN" "nnFmtS StatemenT" "nnAbc Expr
     echo "  ..    nestNatT $1 parseRule arrivals in the drive = $_nr (want > 0)"
     if [ "$_nr" -gt 0 ]; then echo "  ok    nestNatT $1 road check -- the drive reached parseRule"; green=$((green+1))
     else echo "  FAIL  nestNatT $1 road check -- 0 arrivals: no new-road drive happened"; fail=1; fi
+    #  THE DIRECT ROW (2026-09-24): the OUTERMOST ExpressioN fires last, and its label must still
+    #  carry its child after the inner same-rule call. H7, measured: bracket removed -> nnFmt's last
+    #  fire reads n=0 (then 139), nnAbc still 1 -- so on nnAbc this row is the control, not the claim.
+    _nk=$(awk '/^NN BEGIN/{f=1} /^NN RETURNED/{f=0} f' "$T/$1.e" | grep 'LABELKIDS ExpressioN' | tail -1 | sed 's/.*n=//')
+    echo "  ..    nestNatT $1 outer ExpressioN label children at its fire = ${_nk:-none} (want >= 1)"
+    if [ -n "$_nk" ] && [ "$_nk" -ge 1 ]; then echo "  ok    nestNatT $1 outer label survived the inner call"; green=$((green+1))
+    else echo "  FAIL  nestNatT $1 outer label EMPTY at its fire -- an inner same-rule call took it"; fail=1; fi
 done
 
 #  ---- quoteNatT: F-114 site 2, quoted input driven NATIVELY, one process per input ----

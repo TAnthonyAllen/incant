@@ -103,6 +103,9 @@ fails at `if !*atRuleMark goto checkFailed` (RuleStuff.twk checkInput), and exit
 min-zero rescue (`Generate.rtn`, minZeroIsSatisfied) covers only `max <= 1`, so a `*` set at end of
 input returns 0. (1) is not traced; same family by symptom, not yet by mechanism.
 **Evidence.** new road, lldb station-2 drive, one process per input; `jitLadder/station2/f114site1`.
+**Widened 2026-09-24, and it is NEW-ROAD ONLY:** `x + 1` reads 1/5 on the OLD road (GroupItem::parse
+driven directly, abc 1/3 as control) and 0/0 on the NEW road -- so a one-character name fails MID-input
+too, not only at end of input, and the old road does not share it. `xy + 1` is 1/6 on the new road.
 **Done when.** `d` matches 1/1 and `5d` consumes 2 on the new road, and `"ab"+` on `"ab"` advances
 the mark -- each driven, both roads compared. **Owner.** Tony (a min-zero rule at end of input is a
 ruling on what `*` means there).
@@ -228,6 +231,14 @@ ATTEMPT LOG
      but for the five conditions), where those rows were red at 139.
      Seen, not chased: `cerr "hi":;` on the new road prints hi with no trailing newline.
      NOT the frontier's station 4 (CT-5) -- it still fails identically.
+  9. THE DIRECT OUTER-LABEL ROW. measureFireLabelActionIn now also prints `LABELKIDS <rule> n=<k>` --
+     the child count of the label the action receives, at the fire (parseTrace-gated; no pinned
+     target moved). nestNatT asserts the LAST ExpressioN fire in each drive -- the outermost -- has
+     n >= 1. H7, bracket removed and rebuilt: nnFmt's last fire reads n=0 and then exits 139; nnAbc
+     reads 1 either way, so on nnAbc the row is the control. Restored .mm byte-identical.
+     `(1)` ON THE OLD ROAD, measured with a valid control (GroupItem::parse driven directly: abc 1/3,
+     42 rest 1/7, `}` 0/0): `(1)` 0/0, `(1) + 2` 0/0. Not legal on either road -- the new road's
+     0/0 agrees, and nothing further is owed on it.
   OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
      so engine agreement there is a reading, not a measurement. And the station-2 crash census was
      taken through the same lldb drive: re-measure it natively before any row is believed.

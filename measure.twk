@@ -376,6 +376,9 @@ extern GroupItem measureFireLabelActionIn(GroupItem field, GroupItem myLabel)
             field->groupBody->tag,
             (myLabel && myLabel->groupBody->flags.isLabel) ? 1 : 0);
         ::fprintf(stderr,"  ACTFIRE fireLabelMethod %s\n",field->groupBody->tag);
+        // labelKids how many children the label carries AT THE FIRE -- the direct witness that a nested call of the same rule left the outer label intact (F-114)
+        ::fprintf(stderr,"    LABELKIDS %s n=%d\n",field->groupBody->tag,
+            (myLabel && myLabel->groupBody->groupList) ? myLabel->groupBody->groupList->listLength : 0);
         }
     %-
     return field;
