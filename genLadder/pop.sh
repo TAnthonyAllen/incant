@@ -2976,13 +2976,16 @@ if grep -qxE 'hi ?' "$T/qnCe.e"; then echo "  ok    quoteNatT qnCe value -- cerr
 else echo "  FAIL  quoteNatT qnCe value -- cerr \"hi\":; did not end its line: $(grep -m1 '^hi' "$T/qnCe.e")"; fail=1; fi
 
 #  ---- loopVerdict: parseLoop decides on the COUNT; the flag read is gone (Tony, 2026-09-24; SEQ 195) ----
-#  measureLoopVerdict prints the flag beside the count at every traced parseLoop verdict. DISAGREE is
-#  the one case the removed `if sukcess return trueResult` would have decided: a STALE flag and a run
-#  short of min. Pinned at 0 over every traced native drive above; the total is the anti-vacuity row.
-#  ⚠ UNCONTROLLED UNTIL REACHABLE (the kant8N precedent, docs/kantCorpus.md): no fixture reaches a stale
-#  flag. The WITNESS was validated 2026-09-24 by lldb injection -- flag preset to 1 and the first Token
-#  attempt made to fail without writing it -- and printed `flag=1 kount=0 min=1 DISAGREE`. That validates
-#  the instrument, not this row.
+#  measureLoopVerdict prints the flag beside the count at every traced parseLoop verdict. DISAGREE is the case
+#  the removed `if sukcess return trueResult` would have decided: a STALE flag and a run short of min.
+#  ⚠ RE-PINNED 2026-09-24 WITH A SENTENCE, AND THE "UNCONTROLLED UNTIL REACHABLE" LABEL IS RETIRED: since F-121's
+#  fix, parseRule's bracket restores sukcess after every call, so the flag a loop sees afterwards is its PRE-LOOP
+#  value -- stale by construction. DISAGREE became reachable at once (13 in the fleet: NamE, Token and PrintXP
+#  loops that matched nothing, kount=0, while the restored flag reads 1). Every one of them would have been a
+#  FALSE SUCCESS under the removed read; parseLoop returns the count's verdict, and the value rows on those same
+#  drives (nestNatT, unaryNatT) stay green. So the row now pins DISAGREE > 0: the witness firing in the fleet is
+#  its positive control, and it says why the flag read must stay removed. H7: F-121's sukcess bracket removed ->
+#  DISAGREE returns to 0.
 _lvt=0; _lvd=0
 for _f in "$T"/nn*.e "$T"/un*.e "$T"/qn*.e; do
     [ -f "$_f" ] || continue
@@ -2991,9 +2994,24 @@ done
 echo "  ..    loopVerdict parseLoop verdicts witnessed = $_lvt, of them DISAGREE = $_lvd"
 if [ "$_lvt" -gt 0 ]; then echo "  ok    loopVerdict anti-vacuity: $_lvt verdicts witnessed"; green=$((green+1))
 else echo "  FAIL  loopVerdict anti-vacuity: no LOOPVERDICT lines -- the instrument saw nothing"; fail=1; fi
-if [ "$_lvd" -eq 0 ]; then echo "  ok    loopVerdict DISAGREE = 0 (UNCONTROLLED until reachable -- see the block comment)"; green=$((green+1))
-else echo "  FAIL  loopVerdict: a stale flag met a short run -- the removed flag read would have passed it. Now reachable: give this row its positive control"
-     grep -h "LOOPVERDICT.*DISAGREE" "$T"/nn*.e "$T"/un*.e "$T"/qn*.e 2>/dev/null | sed 's/^/          /'; fail=1; fi
+if [ "$_lvd" -gt 0 ]; then echo "  ok    loopVerdict positive control: $_lvd stale-flag short runs witnessed -- the count, not the flag, decided each"; green=$((green+1))
+else echo "  FAIL  loopVerdict positive control: DISAGREE = 0 -- is sukcess still in parseRule's bracket (F-121)?"; fail=1; fi
+
+#  ---- stmtRejT: F-121 -- a REJECTED new-road StatemenT drive no longer abandons its caller ----
+#  One process per input. EXACT-LINE ran-marker and sentinel (the ABANDONED message quotes the rest of the file,
+#  and a substring check once matched it). The caller's old-road Xpress flag after the drive must read 1.
+#  H7, measured at landing: sukcess taken out of parseRule's bracket -> every rejecting copy loses its ran-marker
+#  and sentinel, and the Xpress flag reads 0.
+for _sr in srElse srIf srPrint srDo srSub srDot srOk; do
+    sed "s/SRDRIVE/$_sr/" incant/pop/stmtRejT > "$T/$_sr.twk"
+    $B "$T/$_sr.twk" > "$T/$_sr.o" 2> "$T/$_sr.e" & _cap "stmtRejT $_sr"; check "stmtRejT $_sr runs" 0 $?
+    if grep -qxE 'SR RETURNED ?' "$T/$_sr.e" && grep -qxE 'STMTREJ SENTINEL ?' "$T/$_sr.e"; then
+         echo "  ok    stmtRejT $_sr -- the drive returned and the file reached its sentinel (exact lines)"; green=$((green+1))
+    else echo "  FAIL  stmtRejT $_sr -- the file did not continue past the drive (F-121)"; fail=1; fi
+    if awk '/^SR BEGIN/{f=1} f' "$T/$_sr.e" | grep -q "OLDFIREFLAG rule=Xpress sukcess=1"; then
+         echo "  ok    stmtRejT $_sr -- the caller's Xpress flag reads 1 after the drive"; green=$((green+1))
+    else echo "  FAIL  stmtRejT $_sr -- the caller's Xpress flag was overwritten: $(awk '/^SR BEGIN/{f=1} f' "$T/$_sr.e" | grep 'OLDFIREFLAG rule=Xpress' | head -1)"; fail=1; fi
+done
 
 #  ---- doWhileNameT: the new parse road dies on a non-literal while expression ----
 #  BORN RED ON PURPOSE, 2026-09-20, Clay's SEQ 171 step 1; oracle twin added under SEQ 172.

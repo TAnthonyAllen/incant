@@ -1718,6 +1718,8 @@ continueHere:
 		Success. Fire label method if there is one.
 		*******************************************************************/
 		fireLabelMethod(ruleStuff);
+		// oldFireFlag the flag this activation reads next -- a nested new-road drive used to overwrite it (F-121)
+		 ::measureOldFireFlag(this,ruleStuff); 
 		if ( ruleStuff->sukcess )
 			{
 			ruleStuff->kount++;

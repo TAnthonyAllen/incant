@@ -8247,6 +8247,16 @@ extern "C" GroupItem *measureLoopVerdict(GroupItem *field)
 	return 0;
 }
 
+// measureOldFireFlag witness: an OLD-road activation's own success flag right after its action fired -- the flag a nested new-road drive used to overwrite (F-121). parseTrace-gated, reads only
+extern "C" GroupItem *measureOldFireFlag(GroupItem *field, RuleStuff *stuff)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && field && stuff )
+	::fprintf(stderr,"  OLDFIREFLAG rule=%s sukcess=%d\n",field->groupBody->tag,(int)stuff->sukcess);
+	
+	return 0;
+}
+
 // measureParseClass witness: which parse method setParseWalk just installed on this face -- parseTrace-gated; the fleet pins the parseAction count at 0 (docs/parseSiblings.md)
 extern "C" GroupItem *measureParseClass(GroupItem *field)
 {
@@ -10650,6 +10660,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	RuleStuff *callParentStuff = ruleStuff ? ruleStuff->parentStuff : 0;
 	char *callHereAt = ruleStuff ? ruleStuff->hereAt : 0;
 	int callKount = ruleStuff ? ruleStuff->kount : 0;
+	int callSukcess = ruleStuff ? ruleStuff->sukcess : 0;
 	ParseActivation callActive = { ruleStuff, gParseActive, 0 };
 	gParseActive = &callActive;
 	
@@ -10710,11 +10721,11 @@ checkSuccess:
 	result = ::exitFromParse(field);
 	// activeList pop this call's activation -- AFTER exitFromParse, so its own fire saw itself on top and skipped it
 	 gParseActive = callActive.prev; 
-	// callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it
+	// callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it; sukcess joined 2026-09-24 (F-121): a failed inner call wrote 0 into an rStuff an old-road caller was holding, and no post-return reader decides on it (census)
 	
 	if ( ruleStuff ) {
 	ruleStuff->label = callLabel;  ruleStuff->parentLabel = callParentLabel;  ruleStuff->parentStuff = callParentStuff;
-	ruleStuff->hereAt = callHereAt;  ruleStuff->kount = callKount; }
+	ruleStuff->hereAt = callHereAt;  ruleStuff->kount = callKount;  ruleStuff->sukcess = callSukcess; }
 	
 	return result;
 }

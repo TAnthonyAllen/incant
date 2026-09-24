@@ -92,7 +92,7 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-121 — a REJECTED `StatemenT` drive on the NEW road abandons the file that ran it
+### F-121 — ✅ CLOSED 2026-09-24 — a REJECTED `StatemenT` drive on the NEW road abandons the file that ran it
 
 **What.** Driving `StatemenT(x)` natively, where x fails to parse, returns, but the calling file's NEXT statement
 then fails to match (`RunRulE: expected a method not cerr`) and the file is ABANDONED at exit 0 -- no ran-marker,
@@ -120,6 +120,19 @@ ATTEMPT LOG
        SECOND drive of the same field), and the file is abandoned. So it IS Clay's mechanism, on Xpress.
      Fix location is a ruling: the drive boundary cannot see the caller's old-road rStuffs (they are not on the
      activation list); options in the 2026-09-24 report.
+  2. Tony's ruling: option 1, gated on a census. CENSUS of post-return sukcess reads: exitFromParse, the leaves,
+     checkInput read their own flag INSIDE the call; runRule/driveStep/jitProbeDrive/jitted bodies read the
+     RETURNED value; parse() has no new-road fork; the old road's GroupItem::parse reads its OWN activation's flag
+     -- the victims, not dependents. The one post-return reader is measureLoopVerdict, a witness whose question IS
+     the flag, exempt by purpose. -> sukcess joined parseRule's per-call bracket with the other five.
+  POP: stmtRejT, seven copies (six rejecting + srOk) -- exact-line ran-marker and sentinel, and the caller's
+     Xpress flag via the new measureOldFireFlag witness (OLDFIREFLAG rule=Xpress sukcess=1). All 59 re-measure
+     inputs: rc 0, ran-marker and sentinel on every one, no verdict changed
+     (jitLadder/station2/nativeRemeasure-2026-09-24-afterF121.results). Old road unchanged.
+     loopVerdict RE-PINNED WITH A SENTENCE: the bracket makes the post-loop flag stale by construction, so
+     DISAGREE became reachable (13 zero-match loops reading a restored 1) -- its positive control; the count
+     decides, and the value rows on those drives stay green. H7: sukcess out of the bracket -> srElse loses its
+     ran-marker and sentinel, the Xpress flag reads 0, loopVerdict DISAGREE returns to 0.
 ```
 
 ### F-120 — ✅ CLOSED 2026-09-24 — the `$` print shortcut does nothing on the NEW road

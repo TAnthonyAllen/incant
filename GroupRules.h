@@ -304,6 +304,7 @@ extern "C" int materialiseRegistry(GroupItem *registry);
 extern "C" int materialiseTerms(GroupItem *rule);
 extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int listWalk, int held, int endKind, int inDrive);
 extern "C" GroupItem *measureLoopVerdict(GroupItem *field);
+extern "C" GroupItem *measureOldFireFlag(GroupItem *field, RuleStuff *stuff);
 extern "C" GroupItem *measureParseClass(GroupItem *field);
 extern "C" GroupItem *measureTargetAgree(RuleStuff *stuff, int computed);
 extern "C" int modifierIsRepeat(char *modifier);

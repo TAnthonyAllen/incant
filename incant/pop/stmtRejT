@@ -1,0 +1,34 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    s2N=0;
+    s2Y=0;
+    s2L aa bb cc;
+    srElse=(else s2Y = 2;#);
+    srIf=(if ;#);
+    srPrint=(print ;#);
+    srDo=(do print 1;#);
+    srSub=(s2L[1]#);
+    srDot=(.5#);
+    srOk=(print 1;#);
+    ;
+parser(DO);
+traceParse();
+cerr "SR BEGIN":;
+StatemenT(SRDRIVE);
+cerr "SR RETURNED":;
+cerr "STMTREJ SENTINEL":;
+stop();
+
+stmtRejT -- A TEMPLATE, NEVER RUN AS IT STANDS. genLadder/pop.sh replaces SRDRIVE with one input per copy.
+
+F-121: a REJECTED new-road StatemenT drive abandoned the file that ran it. The failed attempt at Xpress wrote
+sukcess=0 into the rStuff the caller's own in-progress OLD-road Xpress activation was holding; the caller read
+its flag as failed, retried the statement (a second drive) and the file was abandoned at exit 0. parseRule's
+per-call bracket now restores sukcess with the other five fields (2026-09-24).
+
+The rows: each copy prints SR RETURNED and the sentinel on lines of their own (exact-line, never a substring --
+the ABANDONED message quotes the rest of the file and a substring check matched it), and the caller's Xpress
+flag after the drive reads OLDFIREFLAG rule=Xpress sukcess=1. srOk is the accepting control.
