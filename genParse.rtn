@@ -358,6 +358,7 @@ int         i = 1;
     if !rule.isRule     cerr "     NOT isRule":;
     if rule.registry    cerr "     registry " rule.registry.tag:;
     cerr "     rule.data=" dataName(rule.data):;
+    // visitDependent onGroup is written only by the OLD road's getWhatFollows, so "onGroup=NONE" here and on the terms below means "the old road never visited this face", not "no onGroup" (F-119)
     if ruleStuff && ruleStuff.onGroup   cerr "     rule.onGroup=" ruleStuff.onGroup.tag:;
     if !ruleStuff                       cerr "     rule has NO rStuff":;
     or !ruleStuff.onGroup               cerr "     rule.onGroup=NONE":;

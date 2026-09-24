@@ -1,0 +1,21 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+traceParse();
+cerr "PA BEGIN":;
+parser(DO);
+cerr "PA END":;
+cerr "PAREACH SENTINEL":;
+stop();
+
+paReachT -- NOTHING ON THE NEW ROAD REACHES parseAction, AND THIS PINS IT (Tony, 2026-09-24).
+
+Generate.rtn's parseAction still clears its label after a SUCCESSFUL action -- the one parse* sibling
+left without clear-only-on-failure (docs/parseSiblings.md). It is neither fixed nor deleted, because
+no face reaches it: the only rule the grammar names with parseAction=, PRINTing, has processFlags
+bound directly as its parse method, and setParseWalk skips it as installed.
+
+measureParseClass prints one PARSECLASS line per face setParseWalk classifies during parser(DO).
+pop.sh asserts the parseAction count is 0 and, as the anti-vacuity sibling, that the total is not.
+When the count leaves 0, the row says what is owed: clear-only-on-failure, and a value row.

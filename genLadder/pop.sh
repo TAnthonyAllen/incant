@@ -2829,6 +2829,21 @@ if [ "$_pt2r" -gt 0 ]; then echo "  ok    parserTest PT-2 road check -- the DO d
 else echo "  FAIL  parserTest PT-2 road check -- 0 arrivals: the DO drive ran the OLD road. BORN RED 2026-09-23"
      echo "        (parser(DO) refused through define); green when define is labelled."; fail=1; fi
 
+#  ---- paReachT: nothing on the new road reaches parseAction (pinned at 0, Tony 2026-09-24) ----
+#  parseAction still clears its label after a successful action; it is left alone ONLY because no
+#  face reaches it. The total PARSECLASS count is the anti-vacuity sibling: a zero from an
+#  instrument that printed nothing would otherwise pass.
+run2 paReachT "$T/par.o" "$T/par.e"; check "paReachT runs" 0 $?
+sentinel "paReachT sentinel" "$T/par.e" "PAREACH SENTINEL"
+_pat=$(awk '/^PA BEGIN/{f=1} /^PA END/{f=0} f' "$T/par.e" | grep -c "PARSECLASS")
+_paa=$(awk '/^PA BEGIN/{f=1} /^PA END/{f=0} f' "$T/par.e" | grep -c "PARSECLASS.*method=parseAction")
+echo "  ..    paReachT faces classified = $_pat, of them parseAction = $_paa"
+if [ "$_pat" -gt 0 ]; then echo "  ok    paReachT anti-vacuity: generation classified $_pat faces"; green=$((green+1))
+else echo "  FAIL  paReachT anti-vacuity: no PARSECLASS lines -- the instrument saw nothing"; fail=1; fi
+if [ "$_paa" -eq 0 ]; then echo "  ok    paReachT parseAction faces = 0"; green=$((green+1))
+else echo "  FAIL  paReachT: something now reaches parseAction -- apply clear-only-on-failure (docs/parseSiblings.md) and add a value row"
+     awk '/^PA BEGIN/{f=1} /^PA END/{f=0} f' "$T/par.e" | grep "method=parseAction" | sed 's/^/          /'; fail=1; fi
+
 #  ---- unaryNatT: F-114 site 3, a LEADING UNARY, driven natively ----
 #  setTargetFlag (2026-09-24) gives the new road the isTarget only getWhatFollows computed. Without it
 #  ANYorNum's NumbeR is never retagged and aCTionTokenXP reads a null ANYorNum at 139.

@@ -412,6 +412,23 @@ extern GroupItem setParse(GroupItem field)
     return setParseWalk(field);
 }
 
+// measureParseClass witness: which parse method setParseWalk just installed on this face -- parseTrace-gated; the fleet pins the parseAction count at 0 (docs/parseSiblings.md)
+extern GroupItem measureParseClass(GroupItem field)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace && field && field->rStuff )
+        {
+        void *m = (void*)field->rStuff->parseMethod;
+        const char *name = !m ? "none" : m == (void*)parseAction ? "parseAction" : m == (void*)parseRule ? "parseRule"
+            : m == (void*)parseContainer ? "parseContainer" : m == (void*)parseString ? "parseString" : m == (void*)parseSet ? "parseSet"
+            : m == (void*)parseAny ? "parseAny" : m == (void*)parseCharacter ? "parseCharacter" : m == (void*)parseUpTo ? "parseUpTo"
+            : m == (void*)parseCondition ? "parseCondition" : "other";
+        ::fprintf(stderr,"  PARSECLASS rule=%s method=%s\n",field->groupBody->tag,name);
+        }
+    %-
+    return null;
+}
+
 // measureTargetAgree witness: on a face the old road already visited (followed), does the new road's isTarget agree with what getWhatFollows wrote -- parseTrace-gated, reads only
 extern GroupItem measureTargetAgree(RuleStuff stuff, int computed)
 {
@@ -486,6 +503,7 @@ RuleStuff   ruleStuff = rStuff;
     or method               parseMethod = parseAction;
     else                    parseMethod = parseString;
     installParseMethod(field);
+    measureParseClass(field);
     if hasTraits || hasMembers {
         GroupItem grup;
         while grup = field.next(grup) {

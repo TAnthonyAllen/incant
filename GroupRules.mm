@@ -2632,6 +2632,7 @@ int 		i = 1;
 	if ( rule->groupBody->registry )
 		::fprintf(stderr,"     registry %s\n",rule->groupBody->registry->groupBody->tag);
 	::fprintf(stderr,"     rule.data=%s\n",::dataName(rule->groupBody->flags.data));
+	// visitDependent onGroup is written only by the OLD road's getWhatFollows, so "onGroup=NONE" here and on the terms below means "the old road never visited this face", not "no onGroup" (F-119)
 	if ( ruleStuff && ruleStuff->onGroup )
 		::fprintf(stderr,"     rule.onGroup=%s\n",ruleStuff->onGroup->groupBody->tag);
 	if ( !ruleStuff )
@@ -8197,6 +8198,23 @@ int 		made = 0;
 	return made;
 }
 
+// measureParseClass witness: which parse method setParseWalk just installed on this face -- parseTrace-gated; the fleet pins the parseAction count at 0 (docs/parseSiblings.md)
+extern "C" GroupItem *measureParseClass(GroupItem *field)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && field && field->rStuff )
+	{
+	void *m = (void*)field->rStuff->parseMethod;
+	const char *name = !m ? "none" : m == (void*)parseAction ? "parseAction" : m == (void*)parseRule ? "parseRule"
+	: m == (void*)parseContainer ? "parseContainer" : m == (void*)parseString ? "parseString" : m == (void*)parseSet ? "parseSet"
+	: m == (void*)parseAny ? "parseAny" : m == (void*)parseCharacter ? "parseCharacter" : m == (void*)parseUpTo ? "parseUpTo"
+	: m == (void*)parseCondition ? "parseCondition" : "other";
+	::fprintf(stderr,"  PARSECLASS rule=%s method=%s\n",field->groupBody->tag,name);
+	}
+	
+	return 0;
+}
+
 // measureTargetAgree witness: on a face the old road already visited (followed), does the new road's isTarget agree with what getWhatFollows wrote -- parseTrace-gated, reads only
 extern "C" GroupItem *measureTargetAgree(RuleStuff *stuff, int computed)
 {
@@ -12986,6 +13004,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		ruleStuff->parseMethod = ::parseAction;
 	else	ruleStuff->parseMethod = ::parseString;
 	::installParseMethod(field);
+	::measureParseClass(field);
 	if ( field->groupBody->flags.hasTraits || field->groupBody->flags.hasMembers )
 		{
 		GroupItem 	*grup = 0;

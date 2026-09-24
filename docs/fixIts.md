@@ -92,6 +92,51 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-117 — `print .5;` on the NEW road prints NOTHING (ranked above the old road's crash on it)
+
+**What.** A StatemenT drive of `print .5;` returns at exit 0 and prints nothing -- a silent wrong answer
+on valid input. The OLD road crashes on the same statement at top level (exit 139). Ranked ABOVE the
+crash, because a crash announces itself and an empty print does not.
+**Where.** Not located. `.5` is TokenXP with the `.` unary and NumbeR `5`; the value never reaches the
+print sink. Check whether `.` is being read as the leading-dot accessor rather than a number.
+**Evidence.** 2026-09-24, native, after c7c9e6c: `StatemenT((print .5;#))` prints no line; the old-road
+twin `print .5;` in a plain file exits 139. `ExpressioN(".5")` returns at exit 0 (unaryNatT unDot).
+**Done when.** `print .5;` prints 0.5 (or what Tony rules `.5` means) on the new road, pinned by a
+value row. **Owner.** Unassigned.
+```
+ATTEMPT LOG
+  (none)
+```
+
+### F-118 — `print -1;` prints `1` on BOTH roads: `-` is a print-list ShortcuT (language design, Tony)
+
+**What.** `print -1;` prints `1` and `print -s2Y;` prints the positive value, old road and new alike.
+`s2Y = -7;` stores -7, so negation itself works; inside a print list the `-` is taken first.
+**Where.** incant/grammar: `ShortcuT=[-+~`$_:,]+;` and `PrintXP ShortcuT; PrintField ExpressioN FormaT?;`
+-- the ShortcuT alternative comes first and consumes the `-`.
+**Evidence.** 2026-09-24, native, both roads (see F-114 entry 12).
+**Done when.** Tony rules what `print -1;` means. This is a language-design question, not a defect
+until ruled. **Owner.** Tony.
+```
+ATTEMPT LOG
+  (none)
+```
+
+### F-119 — `dumpRuleTerms` reports `onGroup` by visit history, not by grammar
+
+**What.** `onGroup` is written only by the old road's getWhatFollows (lazily, on the faces the old road
+parses through), and nothing on the new road writes it. So `dumpRuleTerms`'s `onGroup=NONE` means "the
+old road never visited this face" and can change with what a fixture happened to parse first.
+**Where.** genParse.rtn dumpRuleTerms (the rule line and each term's line); noted at the instrument
+with a one-line comment (`visitDependent`).
+**Evidence.** 2026-09-24 census (F-114 entry 13): onGroup has no new-road reader on the parse path.
+**Done when.** The dump reads a grammar fact or labels the field as visit-dependent in its output.
+Low priority: dumpRuleTerms is diagnostic. **Owner.** Unassigned.
+```
+ATTEMPT LOG
+  (none)
+```
+
 ### F-116 — `cerr "hi":;` driven on the NEW road prints no trailing newline
 
 **What.** A StatemenT drive of `cerr "hi":;` prints `hi ` to stderr and the NEXT stderr line runs on
