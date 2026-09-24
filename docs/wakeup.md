@@ -1,3 +1,98 @@
+# ⚠⚠⚠ SEALED 2026-09-24, SHUTDOWN -- PARSE-THEN-FIRE STEP 1 (TRY-AND-BUY) REACHES 660 / 662 ON ITS BRANCH.
+# EVERY PLANT SO FAR IS ONE OF TWO CAUSES; THE NEXT SESSION DECIDES GO / NO-GO ON STEP 2.
+#
+#   ## THE ONE-LINE STATE: **trunk `jit-unified-emit-wip` at bf7182f + this seal, installed and BARE -- fleet
+#   662 / 2 · jitLadder 214 ok, PASSED · canary 358 · fixit queue 0 · no incant process left. Branch
+#   `parse-then-fire` at 0f77486, pushed: PTF=1 660 / 2, PTF=0 662 / 2 from the same binary.**
+#
+#   ## THE MODEL AND ITS RULINGS (Tony, 2026-09-24, via Fearless)
+#   A parse builds a pure label tree and fires no ordinary actions; when a statement has parsed, its root
+#   label's action fires, and each action decides whether, when and how often its components fire -- the
+#   actions ARE the walker; a BlocK is a statement whose action fires its children.
+#   1. The parse builds the tree; actions fire afterward, top-down, parent-driven, per statement.
+#   2. A rule with content and no action gets a default: fire the components in order, yield the last value.
+#   3. Only two kinds may run during a parse: parse-changing effects (immediateAction/parseAction -- define,
+#      include, search) and SHAPE actions confined to their own subtree (ExpressioN's `+= A B` rewrite).
+#   4. defer retires -- all actions are deferred -- at STEP 2, not step 1.
+#   5. A field is typed once (at define, or by its first value) and never retyped; `+=` picks its method
+#      per fire from the target's kind (or the argument's when empty), never cached on the node.
+#   6. `:.` sets flags only; naming a data kind refuses by name (supersedes "opSetFlag clears data").
+#   7. Both roads share one firing pass; the jitter compiles generated parse bodies as pure matchers.
+#   Direction, not ruled: GroupFields entries carry a getter (and optional setter) that `.` calls.
+#   **AMENDMENT (after Clod's Part 0):** premise "action bodies already work this way" withdrawn as written --
+#   code bodies are parse-with-shape-and-a-few-effect-actions, then fire. PARSE-DECIDING code belongs to the
+#   parse (a null return failing it, aCTionCodE moving the mark) and is exempt in step 1; NewGroup/MEMBERs are
+#   define-family, exempt; step 1 covers TOP-LEVEL statements only (processCode untouched); the walk REPLAYS
+#   fireLabelMethod's own fire-or-hold decisions and never recomputes deferral; the adoption channel stays.
+#   **THE Start() BOUNDARY IS MEASURED, NOT RULED:** thousands of `class=outside` fires -- the setup and
+#   grammar defines are not parsed under StatemenT, so step 1 never touched them.
+#   **RULE C: ATTACHING NEVER READS WHAT AN ACTION WROTE.** The label tree must be decidable from the parse
+#   alone. Step-2 rule; recorded in the branch's pause docket (docs/jitDesign.md).
+#   **FIRE-TIME KEYWORD CHECK:** ANYtoken still decides during the parse and ALSO re-runs today's test at
+#   replay, after NamE has resolved; a keyword used as a name refuses loudly there.
+#
+#   ## STEP 1 ON THE BRANCH -- the engine, the plants, the fixes
+#   Engine: fireLabelMethod RECORDS an ordinary fire or hold inside a top-level statement (ptfRecord); the
+#   top StatemenT's fire REPLAYS the records reachable from its label tree, in record order (ptfStatementEnd).
+#   Switches: PTF=0 is trunk behaviour from the same binary; PTF_TRACE=1 arms M1 (measureFireOrder) and M2
+#   (measureParseFire). M2 on kant8T: ORDINARY parse-time fires 553 at PTF=0, **0 at PTF=1**.
+#   | # | plant | fix | fleet |
+#   |---|---|---|---|
+#   | 1 | attachLabel's unwrap (`promote && isGROUP && max>1`) reads isGROUP, which NamE's action writes -- `search A B;` attached bare GrouP labels | ruling A: ONE predicate `GroupItem::unwrapsOnAttach`, asked again at replay with the max/promote of the attach that placed the label WHOLE (GrouP's, not NamE's) | 598 -> 656 |
+#   | 2 | aCTionANYtoken (exempt) refuses keywords by reading NamE's resolution -- `if ;` parsed as an expression | the fire-time keyword check | refuses loudly |
+#   | 3 | MY replay set fLAG on an unwrapped label; fLAG = "recycle this shell", so the next statement reused a still-parented label (doWhileNameT `dwN= Token`) | replay clears, never sets fLAG | +1 |
+#   | 4 | fLAG's SECOND meaning: aCTionBraced sets it for "subscript"; checkInput reads it as "recycle" -- a Braced label still in a code body's cached tree is reused, attached as a body-sharing COPY, and the record held the original (deferNatT dfPrint) | reachability by groupBody | 660 |
+#   ⚠ **Plant 4 exists ON TRUNK**: `measureLabelReuse` fires at PTF=0 (a recycled label still parented). Latent
+#   trunk defect, exposed by step 1, not caused by it. One channel, two meanings.
+#   Measured and NOT needed: the parse-entry record frame (a drive during replay flushes itself). The replay
+#   frame stays and logs FRAMELEAK (37, all near-miss drives in site1RoadsT/probeDoorT).
+#   C-FORM (ANYtoken asking Keywords directly) measured NOT NEUTRAL: 327 decision disagreements at trunk timing
+#   (define 227 -> the define rule, new 58 -> the new command, this 1 -> no registry, in a CodE parse); the
+#   fleet run with it (killed) moved chainTruthT, searchNewParseT, dotChainT/testPrecedence (exit 139), opRoadT,
+#   directives. Switch KW_DIRECT kept; recorded as not neutral.
+#
+#   ## THE ERROR-DIFF, trunk vs branch (every mover named)
+#   | row | trunk | branch | why |
+#   |---|---|---|---|
+#   | `if ;` `do print 1;` `else s2Y = 2;` | ABANDONED -- the rest of the file never parses | `REFUSED <kw> -- a KEYWORD used as a name`, the statement refused, the file continues | late refusal, by design |
+#   | probeDoorT stmtRejT, site1RoadsT (22 pairs), DO #2 verdict 0 -> 1 | the parse rejects the near-miss | the parse accepts; the refusal comes at fire time | same, by design -- these rows pin PARSE verdicts |
+#   | tripwire 413 -> 420, loopVerdict 13 -> 12 (green rows) | -- | -- | **NOT ATTRIBUTED** |
+#   Step-1 certificate items NOT yet run: M1 identity trunk vs branch on a named list (oneTest, jsonTest, f122T,
+#   doWhileNameT, dotChainT, adoptT, fireSeatT, convDriveT); station 2's fires column (predicted unmoved -- it
+#   counts generated parse-body runs at parseRule's door, i.e. DURING the parse); jitLadder on the branch.
+#
+#   ## THE OVERLAP CENSUS -- docs/overlapCensus.md (ON THE BRANCH), 55 overlaps, 8 causes
+#   label `group` / name resolution 9 · label shape at attach (retag, reuse, hold stamps, null yield) 9 ·
+#   define and registry state 14 (exempt) · input-stream state 10 · method/frame context 6 · refusal 3 ·
+#   misc 3 · step 1's own globals 1. **EVERY PLANT LIVES IN THE FIRST TWO** -- both are rule C.
+#
+#   ## GO / NO-GO -- what the next session decides
+#   GO needs all three: (1) step 1's certificate met with every divergence named and ACCEPTED (the error-diff
+#   above, plus the two unattributed value moves attributed); (2) fixes still clustering in the two families;
+#   (3) step 2's retirements -- defer, deferredAbove, the yield channel -- confirmed deletable in principle.
+#
+#   ## PARKED
+#   deferNatT's stale parent -- ANSWERED: it was plant 4, and it exists on trunk (fLAG's two meanings) ·
+#   gParseActive at replay (unbuilt; the activations are gone by then, so it needs snapshots) · the Keywords
+#   tidy-up for new/this (the two readers, GroupItem.twk:1853 and aCTionBlocK's bare return, need neither) ·
+#   the per-word KW_DIRECT split (single fixture under an alarm, never the fleet) · the pause docket's other
+#   items · station 3 · the two owed rulings (the yield channel, parseLoop's silent success at max) · Tony's
+#   cleanup items (bs not run; BeforeSave still holds the previous clean kitchen).
+#
+#   ## FINDING AT SEAL, not chased: decodePop is RED AT TRUNK
+#   5 red rows -- "82 of them carry a definition (got '0')", self-cert and the H4/H7 decode lines absent --
+#   on bf7182f built from its own committed .mm. This morning's seal records decodePop 14 green on the same
+#   tree. Either the morning number was carried (H14) or something outside the tree moved. One run of
+#   incant/decodeT with its output read is the next step.
+#
+#   ## CHECKLIST, measured at this tree (H12, H14) -- date checked, 2026-09-24 18:16
+#   pop.sh 662 / 2 · jitLadder 214 ok, PASSED · **decodePop FAILED (5 red, above)** · ddPop 5 / 1 ·
+#   countPop 47 of 47 attempted, foot reached · frontier dies at station 4 (fire) · canary 358 · retok bare ·
+#   groups.ext untouched · Groups, support, TOK clean and pushed · no incant process · fixit queue 0.
+#
+#   ## TONY'S FIXIT INCANTATIONS WAITING: **0**
+#   Generated by `genLadder/fixitNag.sh`, not typed.
+
 # ⚠⚠⚠ SEALED 2026-09-24, PAUSE -- JITTER STATION 2 CERTIFIED IN ONE PROCESS: 45 CARRIERS AGREE, DEGRADE 0,
 # PINNED IN THE FLEET (sweepT). THE JITTING PAUSE IS HERE; THE DOCKET IS IN docs/jitDesign.md.
 #
