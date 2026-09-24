@@ -1,3 +1,39 @@
+# ⚠⚠⚠ SEALED 2026-09-24, PAUSE -- JITTER STATION 2 CERTIFIED IN ONE PROCESS: 45 CARRIERS AGREE, DEGRADE 0,
+# PINNED IN THE FLEET (sweepT). THE JITTING PAUSE IS HERE; THE DOCKET IS IN docs/jitDesign.md.
+#
+#   ## THE ONE-LINE STATE: **trunk at e87f194 + this seal -- fleet 662 green / 2 parked, red set unmoved all day ·
+#   jitLadder 214 ok, PASSED · canary 358 · fixit queue 0 · binary BARE · no stale incant process.**
+#
+#   ## WHAT CLOSED TODAY (each with its control; docs/fixIts.md carries every attempt log)
+#   F-114 (sites 1-3 and the hangs; parseRule's per-call bracket) · F-116 · F-117 (`.5` refused by name) · F-120 ·
+#   F-121 · F-122 (Xpress `defer`; loops and IF yield their label fired directly, their value owner-run) ·
+#   F-123 (runOP's jitting term call covers a bin with a generated parse -- Operators was parsed at emit time) ·
+#   F-124 (container lookup stops at its longest hit -- on the new road `==` ASSIGNED and `+=` did nothing) ·
+#   F-125 (a drive restores the caller's lastIndent and defining). Fleet 465 -> 662 green.
+#
+#   ## STATION 2
+#   `SWEEP END carriers=65 skipped=4 nopick=16 certified=45 agree=45 diff=0`, exact-line sentinel, no degrade line.
+#   **Coverage is 45 of 61**, not 45 of 45: the 16 unpicked carriers are named with measured reasons in F-114 entry
+#   23 -- four are a pairs gap (if/else, if/or, for/attributes), two wait on F-126, seven on F-127, two are not
+#   Grokking names, one (DelimText) needs a pairs-file line.
+#
+#   ## NEXT SESSION -- TWO OPENINGS, THE PAUSE FIRST (Clay's lean)
+#   1. **The pause work** (docs/jitDesign.md, THE PAUSE DOCKET): the actions-and-ops census toward one method per
+#      case (the per-kind `+=` split at its top), run TOGETHER with the C++-escape recon, and the measure* move from
+#      Generate.rtn to measure.twk. Read against Tony's direction: the parse builds a pure label tree per statement,
+#      a second pass does the work.
+#   2. **Station 3 onward**, after the cheap coverage lines (pairs.sweep, ~50 of 61), F-126, F-127, and a road-parity
+#      sweep.
+#   Rulings owed at the pause: the yield channel (F-122 entry 7; the (b) guard stays unarmed, adoptT pins the
+#   live-field count at 1) and parseLoop's silent success at max (F-114 entry 24).
+#
+#   ## CHECKLIST, measured at this tree (H12, H14) -- date checked against the last commit, 2026-09-24 13:51
+#   pop.sh 662 / 2 parked, reds identical to the start-of-day capture · jitLadder 214 ok, PASSED · decodePop 14 ·
+#   ddPop 5 / 1 · countPop 47 of 47 (standing) · frontier dies at station 4 (fire) · canary 358 (+1 today:
+#   measureAdoption) · retok bare · groups.ext untouched · Groups, support, TOK clean and pushed · fixit queue 0 ·
+#   **stale processes killed**: this session's hung `nat5` probe (4 h) and an F-122-era `f122NatT` run (1 h).
+#
+
 # ⚠⚠⚠ SEALED 2026-09-23, SHUTDOWN -- JITTER STATION 2 ON THE FIRST FIVE: DO CERTIFIED BOTH SIDES,
 # FOUR ACCEPTING SIDES; THE REJECTS ARE BLOCKED ON THE INTERPRETER, WHICH SEGFAULTS WHERE A PARSE
 # SHOULD FAIL. TOMORROW OPENS ON THAT CRASH (F-114). THE FULL SWEEP WAITS ON IT.
