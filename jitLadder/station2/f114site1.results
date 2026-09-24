@@ -1,0 +1,44 @@
+ROW ExpressioN|) v=0 c=0
+ROW ExpressioN|# v=0 c=0
+ROW ExpressioN|" v=0 c=0
+ROW ExpressioN|print 1; v=0 c=0
+ROW ExpressioN|if s2N; s2Y = 1; v=0 c=0
+ROW ExpressioN|if 1 < 0; s2Y = 1; else s2Y = 2; v=0 c=0
+ROW ExpressioN|while 1 < 0; s2Y = 1; v=0 c=0
+ROW ExpressioN|for s2C in s2L; s2Y = 1; v=0 c=0
+ROW StatemenT|if 1 < 0 v=0 c=0
+ROW StatemenT|if 1 < 0; v=0 c=0
+ROW StatemenT|if ; v=0 c=0
+ROW StatemenT|if 1 < 0 s2Y = 1; v=0 c=0
+ROW StatemenT|while 1 < 0 v=0 c=0
+ROW StatemenT|while 1 < 0; v=0 c=0
+ROW StatemenT|while 1 < 0 s2Y = 1; v=0 c=0
+ROW StatemenT|print v=0 c=0
+ROW StatemenT|print ; v=0 c=0
+ROW StatemenT|print } v=0 c=0
+ROW StatemenT|print 1 v=0 c=0
+ROW StatemenT|search ; v=0 c=0
+ROW StatemenT|search Utilities list v=0 c=0
+ROW StatemenT|search Utilities list; v=0 c=0
+ROW StatemenT|else v=0 c=0
+ROW StatemenT|else s2Y = 2; v=0 c=0
+ROW StatemenT|else if 1 < 0; s2Y = 1; v=0 c=0
+ROW StatemenT|for s2C s2L; v=0 c=0
+ROW StatemenT|(1) v=0 c=0
+ROW CRASH StatemenT|#5.2d error: Expression execution was interrupted: EXC_BAD_ACCESS (code=1, address=0x1
+ROW CRASH StatemenT|#-5s error: Expression execution was interrupted: EXC_BAD_ACCESS (code=1, address=0x1
+ROW CRASH ExpressioN|#5d error: Expression execution was interrupted: EXC_BAD_ACCESS (code=1, address=0x1
+ROW CRASH ExpressioN|#5d s2N error: Expression execution was interrupted: EXC_BAD_ACCESS (code=1, address=0x1
+ROW CRASH StatemenT|#5d; error: Expression execution was interrupted: EXC_BAD_ACCESS (code=1, address=0x1
+ROW ExpressioN|d v=0 c=0
+ROW ExpressioN|5d v=1 c=1
+ROW StatemenT|do print 1; whale 1 < 0; v=1 c=11
+ROW StatemenT|do print 1; xhale 1 < 0; v=1 c=11
+ROW ExpressioN|abc v=1 c=3
+ROW ExpressioN|} v=0 c=0
+ROW ExpressioN|42 rest v=1 c=7
+ROW StatemenT|print 1; v=1 c=8
+ROW StatemenT|do print 1; while 1 < 0; v=1 c=24
+ROW StatemenT|if 1 < 0; s2Y = 1; v=1 c=18
+ROW StatemenT|while 1 < 0; s2Y = 1; v=1 c=21
+ROW StatemenT|do print 1; v=1 c=11

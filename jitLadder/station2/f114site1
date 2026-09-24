@@ -1,0 +1,44 @@
+ExpressioN|)
+ExpressioN|#
+ExpressioN|"
+ExpressioN|print 1;
+ExpressioN|if s2N; s2Y = 1;
+ExpressioN|if 1 < 0; s2Y = 1; else s2Y = 2;
+ExpressioN|while 1 < 0; s2Y = 1;
+ExpressioN|for s2C in s2L; s2Y = 1;
+StatemenT|if 1 < 0
+StatemenT|if 1 < 0;
+StatemenT|if ;
+StatemenT|if 1 < 0 s2Y = 1;
+StatemenT|while 1 < 0
+StatemenT|while 1 < 0;
+StatemenT|while 1 < 0 s2Y = 1;
+StatemenT|print
+StatemenT|print ;
+StatemenT|print }
+StatemenT|print 1
+StatemenT|search ;
+StatemenT|search Utilities list
+StatemenT|search Utilities list;
+StatemenT|else
+StatemenT|else s2Y = 2;
+StatemenT|else if 1 < 0; s2Y = 1;
+StatemenT|for s2C s2L;
+StatemenT|(1)
+StatemenT|#5.2d
+StatemenT|#-5s
+ExpressioN|#5d
+ExpressioN|#5d s2N
+StatemenT|#5d;
+ExpressioN|d
+ExpressioN|5d
+StatemenT|do print 1; whale 1 < 0;
+StatemenT|do print 1; xhale 1 < 0;
+ExpressioN|abc
+ExpressioN|}
+ExpressioN|42 rest
+StatemenT|print 1;
+StatemenT|do print 1; while 1 < 0;
+StatemenT|if 1 < 0; s2Y = 1;
+StatemenT|while 1 < 0; s2Y = 1;
+StatemenT|do print 1;

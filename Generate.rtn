@@ -64,6 +64,8 @@ int         counter;
 int         more;
     sukcess = false;
     if checkInput() {
+        // gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
+        sukcess = false;
         while *atRuleMark {
             if counter >= max { more = true; break; }
             counter++;
@@ -88,6 +90,8 @@ int         counter;
 int         more;
     sukcess = false;
     if checkInput() {
+        // gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
+        sukcess = false;
         while *atRuleMark == character {
             if counter >= max { more = true; break; }
             counter++;
@@ -160,6 +164,8 @@ use field
         if ruleStuff.parentStuff && ruleStuff.parentLabel != ruleStuff.parentStuff.label  ruleStuff.parentLabel = ruleStuff.parentStuff.label; }
     sukcess = false;
     if checkInput() {
+        // gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
+        sukcess = false;
         reset();
         atInput = atRuleMark;
         while *atInput
@@ -327,6 +333,8 @@ int         counter;
 int         more;
     sukcess = false;
     if checkInput() {
+        // gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
+        sukcess = false;
         while set.contains(*atRuleMark) {
             if counter >= max { more = true; break; }
             counter++;
@@ -349,6 +357,8 @@ GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = rStuff;
     sukcess = false;
     if checkInput() {
+        // gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
+        sukcess = false;
         String  matchedString = rule.matches(atRuleMark);
         if matchedString {
             if label    label.text  = matchedString;
@@ -364,8 +374,10 @@ extern GroupItem parseUpTo(GroupItem field)
 {
 RuleStuff   ruleStuff = rStuff;
     sukcess = false;
-    if checkInput()
-        if testUpTo(field)  sukcess = true;
+    if checkInput() {
+        // gateIsNotAMatch as the other leaves
+        sukcess = false;
+        if testUpTo(field)  sukcess = true; }
     if label    label.clear();
     return exitFromParse(field);
 }

@@ -95,6 +95,7 @@ GroupItem ExpressioN:;
 *******************************************************************************/
 extern GroupItem aCTionBrancH(GroupItem input)
 {
+GroupRules  ruler = groupRules;
 GroupItem   BrancheS:,
             ExpressioN:;
 GroupItem   arg = ExpressioN;
@@ -105,7 +106,10 @@ GroupItem   arg = ExpressioN;
     if !arg         arg = BrancheS;
     or isMethod     arg = arg.gMethod(arg);
     // ke3NullOperand under jitting that method is an emitter and a null arg means I REFUSED
-    if !arg         arg = BrancheS;
+    // failedOperandIsFalse interpreted, a null operand FAILED -- the signal rides falseResult, never the truthy keyword node (F-114)
+    if !arg {
+        if jitting  arg = BrancheS;
+        else        arg = ruler.falseResult; }
     switch(*BrancheS.tag) {
         case 'b':   isBreak     = true;
         case 'c':   isContinue  = true;

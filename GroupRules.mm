@@ -138,11 +138,12 @@ GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 *******************************************************************************/
 extern "C" GroupItem *aCTionBrancH(GroupItem *input)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*BrancheS = input->getLabelGroup("BrancheS");
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 GroupItem 	*arg = ExpressioN;
 	// returnOperandFresh nothing may be in flight before the operand emits, or a stale value answers for it
-	if ( GroupControl::groupController->groupRules->jitting && ExpressioN )
+	if ( ruler->jitting && ExpressioN )
 		{
 		 gJitResult = nullptr; 
 		}
@@ -152,8 +153,13 @@ GroupItem 	*arg = ExpressioN;
 	if ( isMethod(arg->groupBody->flags.instructType) )
 		arg = arg->groupBody->gMethod(arg);
 	// ke3NullOperand under jitting that method is an emitter and a null arg means I REFUSED
+	// failedOperandIsFalse interpreted, a null operand FAILED -- the signal rides falseResult, never the truthy keyword node (F-114)
 	if ( !arg )
-		arg = BrancheS;
+		{
+		if ( ruler->jitting )
+			arg = BrancheS;
+		else	arg = ruler->falseResult;
+		}
 	switch (*BrancheS->groupBody->tag)
 		{
 		case 'b':
@@ -167,7 +173,7 @@ GroupItem 	*arg = ExpressioN;
 		}
 	// branchesUnderJit break and return DEGRADE LOUDLY here rather than emitting nothing, and the tag
 	// returnEmitNow
-	if ( GroupControl::groupController->groupRules->jitting )
+	if ( ruler->jitting )
 		{
 		if ( *BrancheS->groupBody->tag == 'c' )
 			::jitEmitContinue();
@@ -10300,6 +10306,8 @@ int 		more = 0;
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
+		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
+		ruleStuff->sukcess = 0;
 		while ( *ruler->atRuleMark )
 			{
 			if ( counter >= ruleStuff->max )
@@ -10353,6 +10361,8 @@ int 		more = 0;
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
+		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
+		ruleStuff->sukcess = 0;
 		while ( *ruler->atRuleMark == field->getCharacter() )
 			{
 			if ( counter >= ruleStuff->max )
@@ -10454,6 +10464,8 @@ int 		matched = 0;
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
+		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
+		ruleStuff->sukcess = 0;
 		buffer->reset();
 		atInput = ruler->atRuleMark;
 		while ( *atInput )
@@ -10821,6 +10833,8 @@ int 		more = 0;
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
+		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
+		ruleStuff->sukcess = 0;
 		while ( set->contains(*ruler->atRuleMark) )
 			{
 			if ( counter >= ruleStuff->max )
@@ -10858,7 +10872,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
-		char 	*matchedString = ruleStuff->rule->matches(ruler->atRuleMark);
+		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
+		ruleStuff->sukcess = 0;
+		char *matchedString = ruleStuff->rule->matches(ruler->atRuleMark);
 		if ( matchedString )
 			{
 			if ( ruleStuff->label )
@@ -10904,8 +10920,12 @@ extern "C" GroupItem *parseUpTo(GroupItem *field)
 RuleStuff 	*ruleStuff = field->getRStuff();
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
+		{
+		// gateIsNotAMatch as the other leaves
+		ruleStuff->sukcess = 0;
 		if ( ::testUpTo(field) )
 			ruleStuff->sukcess = 1;
+		}
 	if ( ruleStuff->label )
 		ruleStuff->label->clear();
 	return ::exitFromParse(field);

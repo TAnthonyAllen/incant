@@ -119,7 +119,37 @@ makes those rules fire and fail lands on the first row. The fields are declared 
 not one -- split on Tony's word. Inputs, harness and list: `jitLadder/station2/` (crashpairs, pairs).
 **Done when (widened).** Each input above fails its parse cleanly with consumed 0 -- a parse that should
 fail must fail, not segfault. **Owner.** Tony opens 2026-09-24 on it; the full jitter sweep waits.
-**Attempt log.** none -- filed, not chased.
+**Site 1 residue, 2026-09-24 -- SAME-RULE RE-ENTRANCY, and it is a ruling, not a fix.** A rule's label
+lives in its rStuff -- one per rule, not one per activation -- so a nested activation of the SAME rule
+mints into the outer one's slot and the outer fires on an empty list. Traced on `#5d` (ExpressioN ->
+StringXP -> PrintField -> ExpressioN): the second inner ExpressioN's Token mints `into=ExpressioN
+intoAt=<the first inner's slot>`. Predicted and confirmed: `(1)` FAILS on the new road (v=0; should match
+3), and `s2L[1]`/`s2L(1)` still hang. Where per-activation parse state lives is the frames question
+(docs/jit.md §0) -- Tony's.
+```
+ATTEMPT LOG
+  1. aCTionBrancH (ruleActions.rtn): a null `return` operand substituted the `return` KEYWORD NODE --
+     truthy -- so `return Token();` with Token failed read as a MATCH and the rule's action fired on an
+     empty list. Interpreted road now substitutes ruler.falseResult (the flag still rides it, as it
+     already rides trueResult); jitting keeps BrancheS (KE-3). -> 27 of site 1's 29 fail cleanly (v=0 c=0).
+  2. checkInput (RuleStuff.twk) stops writing sukcess, reports via a local -> fleet 465 -> 28 green:
+     the OLD road's GroupItem::parse relies on the gate's write for rules with no match arm.
+     REVERTED WHOLE; bought the fact that the fix belongs in the new-road leaves.
+  3. The six new-road leaves (Generate.rtn: parseAny, parseCharacter, parseContainer, parseSet,
+     parseString, parseUpTo) clear sukcess after the gate passes. checkInput sets it TRUE on a guard
+     pass and a leaf set it only on a match, so a guard-passing MISS was a success: `do print 1;
+     whale 1 < 0;` was accepted in full (24) like `while`; now 11, same as `xhale`. `d` no longer
+     matches zero-width through Operators (and Token+ no longer spins 9999 times on it).
+  CONTROLS (jitted-free, one process per input): abc 1/3, 42 rest 1/7, print 1; 1/8, DO 1/24,
+     IF 1/18, WhilE 1/21 -- station 2's certified numbers, unmoved through both fixes.
+  POP: pop.sh 465 green / 2 parked, rows identical; jitLadder 214 ok, PASSED; canary 348.
+  STILL CRASHING at site 1: `#5.2d`, `#-5s` (and `#5d`, `#5d s2N`, `#5d;`) -- the re-entrancy above.
+  NEW, not chased: a TRAILING ONE-CHARACTER NAME is not consumed -- `d` fails, `5d` consumes 1.
+     `first` takes the character, then `nameSet*` meets end of input, checkInput fails, and
+     exitFromParse's min-zero rescue covers only max <= 1.
+  Sites 2 (aCTionQuotE) and 3 (aCTionTokenXP): not started.
+```
+Inputs and results: `jitLadder/station2/f114site1` (pairs) and `f114site1.results`.
 
 ### F-113 — a standalone `Limit` has never parsed: it fails at `min` straight after the `[`, on both roads
 
