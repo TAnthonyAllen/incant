@@ -92,6 +92,25 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-115 — END OF INPUT eats a repetition's last match: one family, two spellings
+
+**What.** A repetition whose NEXT attempt meets end of input loses the match it already has.
+(1) 2026-09-22 seal, banked: `"ab"+` on `"ab"` returns true with the mark unmoved; the name-side
+spelling does it too. (2) 2026-09-24, F-114 site 1: a trailing ONE-CHARACTER name is not consumed --
+`ExpressioN` on `d` fails, on `5d` consumes 1, on `5 d` consumes 2, while `ab` consumes 2.
+**Where.** (2) is traced: NamE's `first` takes the character, `nameSet*` then runs checkInput, which
+fails at `if !*atRuleMark goto checkFailed` (RuleStuff.twk checkInput), and exitFromParse's
+min-zero rescue (`Generate.rtn`, minZeroIsSatisfied) covers only `max <= 1`, so a `*` set at end of
+input returns 0. (1) is not traced; same family by symptom, not yet by mechanism.
+**Evidence.** new road, lldb station-2 drive, one process per input; `jitLadder/station2/f114site1`.
+**Done when.** `d` matches 1/1 and `5d` consumes 2 on the new road, and `"ab"+` on `"ab"` advances
+the mark -- each driven, both roads compared. **Owner.** Tony (a min-zero rule at end of input is a
+ruling on what `*` means there).
+```
+ATTEMPT LOG
+  (none)
+```
+
 ### F-114 — a new-road drive of ExpressioN on `)`, `#` or `"` crashes in `interpretXP`
 
 **What.** Driving `ExpressioN` on the NEW road (after `parser(DO)`) with the single-character message
@@ -148,6 +167,20 @@ ATTEMPT LOG
      `first` takes the character, then `nameSet*` meets end of input, checkInput fails, and
      exitFromParse's min-zero rescue covers only max <= 1.
   Sites 2 (aCTionQuotE) and 3 (aCTionTokenXP): not started.
+  4. 2026-09-24 SITE 2 IS THE INSTRUMENT, NOT THE PARSER (H16). No rule re-enters on the crash stack
+     (StatemenT > WardeD > PrinT > stuff > PrintXP > PrintField > ExpressioN > Token > QuotE), so it
+     was checked as independent -- and then it would not hold still: the crash VANISHES under a
+     breakpoint stop at aCTionQuotE, under a conditional breakpoint, and under traceParse, and the
+     label that fires has its children in those runs and none in the crashing one. GC_DONT_GC=1
+     does not change it. NATIVE drives (no lldb, `DO("...")`-style, one process each, exit status
+     taken directly): `"hi"`, `print "hi";`, `cerr "hi":;`, `print s2N "and" s2Y:;` all exit 0 with
+     QuotE firing once. So the seven quote "crashes" belong to jitProbeDrive-under-lldb; nothing
+     landed. Site 3 (`-1`, `.5`) and `#5d` DO crash natively (139) -- those rows stand.
+  OWED AT THE SWEEP: compare both roads on the 27 site-1 rejects -- fix 1 was interpreted-only,
+     so engine agreement there is a reading, not a measurement. And the station-2 crash census was
+     taken through the same lldb drive: re-measure it natively before any row is believed.
+  OWED BY THE INLINE RUNG: the parseRule bracket (ruled 2026-09-24) lives in parseRule; an inlined
+     parse body skips parseRule, so the bracket must then be EMITTED, or replaced by the frame model.
 ```
 Inputs and results: `jitLadder/station2/f114site1` (pairs) and `f114site1.results`.
 
