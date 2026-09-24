@@ -463,6 +463,213 @@ extern GroupItem measureAdoption(GroupItem field, GroupItem handed, GroupItem ad
     return null;
 }
 
+// ptfEngine PARSE-THEN-FIRE, STEP 1 (branch parse-then-fire, 2026-09-24): an ordinary label action inside a top-level statement is RECORDED at fireLabelMethod with its fire-or-hold decision, and the statement's end REPLAYS the records in order -- same actions, same order, later. State and switches live in jitContext.h (ptfState)
+extern int ptfIsStmt(GroupItem field)
+{
+    -%
+    return field && field->groupBody->tag && ::strcmp(field->groupBody->tag,"StatemenT") == 0;
+    %-
+}
+
+// ptfStmtAbove is a StatemenT activation above this one -- the activation list inside a drive, the parentStuff chain outside, as deferredAbove walks them
+extern int ptfStmtAbove(RuleStuff stuff)
+{
+    -%
+    if ( !stuff ) return 0;
+    if ( gParseActive && !gParseActive->floor )
+        {
+        ParseActivation *a = gParseActive;
+        if ( a->stuff == stuff ) a = a->prev;
+        for ( ; a && !a->floor; a = a->prev )
+            if ( a->stuff && ::ptfIsStmt(a->stuff->rule) ) return 1;
+        return 0;
+        }
+    for ( RuleStuff *up = stuff->parentStuff; up; up = up->parentStuff )
+        if ( ::ptfIsStmt(up->rule) ) return 1;
+    return 0;
+    %-
+}
+
+// ptfClass the step-1 class of a fire: code (processCode's own parse), outside (no statement around it), define and decides (the ruled exemptions), or ORDINARY -- the only class step 1 relocates
+extern String ptfClass(GroupItem field, RuleStuff stuff)
+{
+    -%
+    static const char *decides[] = { "ANYtoken", "DelimText", "ShortcuT", "CheckFor", "CodE", 0 };
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    if ( ruler->processingCode ) return (char *)"code";
+    if ( !::ptfIsStmt(field) && !::ptfStmtAbove(stuff) ) return (char *)"outside";
+    if ( ruler->defining ) return (char *)"define";
+    const char *t = field->groupBody->tag;
+    if ( t && ::strcmp(t,"NewGroup") == 0 ) return (char *)"define";
+    for ( int i = 0; t && decides[i]; i++ )
+        if ( ::strcmp(t,decides[i]) == 0 ) return (char *)"decides";
+    return (char *)"ORDINARY";
+    %-
+}
+
+// measureFireOrder witness M1: one line per label action at its FIRE (or its hold) -- rule identity, the label's tag at that instant, fired or held, the label's children; phase says whether it came from fireLabelMethod (parse) or the statement-end replay (walk). PTF_TRACE-armed, reads only
+extern GroupItem measureFireOrder(GroupItem field, GroupItem label, int held, int phase, String origTag)
+{
+    -%
+    if ( ptfTraceOn() && field )
+        {
+        char kids[256];
+        int kn = 0, used = 0;
+        kids[0] = 0;
+        if ( label && label->groupBody->groupList )
+            for ( GroupItem *c = label->groupBody->groupList->firstInList; c && kn < 8; c = c->nextInParent, kn++ )
+                {
+                const char *t = c->groupBody->tag ? c->groupBody->tag : "?";
+                int len = (int)::strlen(t);
+                if ( used + len + 2 >= (int)sizeof(kids) ) break;
+                if ( used ) kids[used++] = ',';
+                ::strcpy(kids + used,t);
+                used += len;
+                }
+        const char *lt = label && label->groupBody->tag ? label->groupBody->tag : "(null)";
+        ::fprintf(stderr,"PTF1 %s rule=%s tag=%s %s kids=%s",phase ? "walk " : "parse",field->groupBody->tag,lt,held ? "held " : "fired",kids);
+        if ( origTag && ::strcmp(origTag,lt) != 0 ) ::fprintf(stderr," retag=%s",origTag);
+        ::fprintf(stderr,"\n");
+        }
+    %-
+    return null;
+}
+
+// measureParseFire witness M2: an action firing from fireLabelMethod itself, i.e. DURING the parse, by class -- ORDINARY is what step 1 relocates (the branch must read none), define/decides are the ruled exemptions, outside is a fire with no statement around it, code is processCode's own parse. PTF_TRACE-armed, reads only
+extern GroupItem measureParseFire(GroupItem field, RuleStuff stuff)
+{
+    -%
+    if ( ptfTraceOn() && field )
+        ::fprintf(stderr,"PTF2 rule=%s class=%s\n",field->groupBody->tag,::ptfClass(field,stuff));
+    %-
+    return null;
+}
+
+// ptfRecord the hold half: returns 1 when this fire (or hold) is recorded for the statement-end replay instead of acted on
+extern int ptfRecord(GroupItem field, RuleStuff stuff, int held)
+{
+    -%
+    if ( !ptfOn() || !field || !stuff || !stuff->label ) return 0;
+    if ( !held && parseACTION(field->groupBody->flags.methodType) ) return 0;
+    if ( ::strcmp(::ptfClass(field,stuff),"ORDINARY") != 0 ) return 0;
+    if ( gPtfN == gPtfCap )
+        {
+        int cap = gPtfCap ? gPtfCap * 2 : 64;
+        PtfRec *grown = (PtfRec*)GC_malloc(sizeof(PtfRec) * cap);
+        if ( gPtfN ) ::memcpy(grown,gPtfRecs,sizeof(PtfRec) * gPtfN);
+        gPtfRecs = grown;
+        gPtfCap = cap;
+        }
+    PtfRec *r = &gPtfRecs[gPtfN++];
+    r->rule = field; r->stuff = stuff; r->label = stuff->label; r->method = stuff->actionMethod;
+    r->held = held; r->max = stuff->max; r->origTag = ptfDup(stuff->label->groupBody->tag);
+    return 1;
+    %-
+}
+
+// ptfStatementEnd the replay half: at a TOP-LEVEL StatemenT's fire, walk every record reachable from its label tree in record order (post-order), replay the hold or fire, and put each returned node back in its child's place as attachLabel would have
+extern GroupItem ptfStatementEnd(GroupItem field, RuleStuff stuff)
+{
+    -%
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    if ( !ptfOn() || ruler->processingCode || !::ptfIsStmt(field) || ::ptfStmtAbove(stuff) ) return 0;
+    if ( !gPtfN ) return 0;
+    PtfRec *recs = gPtfRecs;
+    int n = gPtfN;
+    gPtfRecs = 0; gPtfN = 0; gPtfCap = 0;
+    GroupItem *root = stuff->label;
+    int reachCap = 256, reachN = 0, top = 0;
+    GroupItem **reach = (GroupItem**)GC_malloc(sizeof(GroupItem*) * reachCap);
+    if ( root ) reach[reachN++] = root;
+    while ( top < reachN )
+        {
+        GroupItem *x = reach[top++];
+        if ( !x->groupBody->groupList ) continue;
+        for ( GroupItem *c = x->groupBody->groupList->firstInList; c; c = c->nextInParent )
+            {
+            if ( ptfInSet(reach,reachN,c) ) continue;
+            if ( reachN == reachCap )
+                {
+                GroupItem **g = (GroupItem**)GC_malloc(sizeof(GroupItem*) * reachCap * 2);
+                ::memcpy(g,reach,sizeof(GroupItem*) * reachN);
+                reach = g; reachCap *= 2;
+                }
+            reach[reachN++] = c;
+            }
+        }
+    GroupItem **subFrom = (GroupItem**)GC_malloc(sizeof(GroupItem*) * n);
+    GroupItem **subTo   = (GroupItem**)GC_malloc(sizeof(GroupItem*) * n);
+    int subN = 0;
+    for ( int i = 0; i < n; i++ )
+        {
+        PtfRec *r = &recs[i];
+        if ( !ptfInSet(reach,reachN,r->label) )
+            {
+            if ( ptfTraceOn() ) ::fprintf(stderr,"PTF UNREACHED rule=%s tag=%s %s\n",r->rule->groupBody->tag,r->origTag,r->held ? "held" : "fired");
+            continue;
+            }
+        GroupItem *L = r->label;
+        for ( int hop = 0, found = 1; found && hop < n; hop++ )
+            {
+            found = 0;
+            for ( int k = subN - 1; k >= 0; k-- ) if ( subFrom[k] == L ) { L = subTo[k]; found = 1; break; }
+            }
+        if ( !L || L == ruler->labelNO )
+            {
+            if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DEADLABEL rule=%s tag=%s\n",r->rule->groupBody->tag,r->origTag);
+            continue;
+            }
+        if ( r->held )
+            {
+            ::measureFireOrder(r->rule,L,1,1,r->origTag);
+            L->setMethod(r->method);
+            L->groupBody->flags.deferred = 1;
+            if ( !L->groupBody->flags.data ) L->setText(::concat(2,"g",r->rule->groupBody->tag));
+            continue;
+            }
+        GroupItem *saved = r->stuff->label;
+        ruler->ruleSTUFF = r->stuff;
+        r->stuff->label = L;
+        ::measureFireOrder(r->rule,L,0,1,r->origTag);
+        ::measureFireLabelActionIn(r->rule,L);
+        GroupItem *ret = r->method(L);
+        ::measureAdoption(r->rule,L,ret);
+        ::measureFireLabelActionOut(r->rule,ret);
+        r->stuff->label = saved;
+        if ( !ret && ptfTraceOn() ) ::fprintf(stderr,"PTF NULLRET rule=%s tag=%s -- on trunk this return FAILS the parse\n",r->rule->groupBody->tag,r->origTag);
+        if ( ret == L ) continue;
+        subFrom[subN] = L; subTo[subN] = ret; subN++;
+        if ( ret && ret != ruler->labelNO && L->groupBody->tag && ::strcmp(L->groupBody->tag,r->origTag) != 0 )
+            {
+            if ( ptfTraceOn() ) ::fprintf(stderr,"PTF RETAGCARRY rule=%s %s -> %s\n",r->rule->groupBody->tag,r->origTag,L->groupBody->tag);
+            ret->groupBody->tag = L->groupBody->tag;
+            }
+        GroupItem *pa = L->parent;
+        if ( !pa ) continue;
+        GroupItem *prior = L->priorInParent;
+        L->remove();
+        if ( !ret || ret == ruler->labelNO ) continue;
+        if ( ptfTraceOn() && isGROUP(ret->groupBody->flags.data) && r->max > 1 )
+            ::fprintf(stderr,"PTF LATEGROUP rule=%s -- trunk attaches this label's group, not the label\n",r->rule->groupBody->tag);
+        GroupItem *put = pa->addAttribute(ret);
+        if ( !put ) continue;
+        put->remove();
+        if ( prior ) prior->insertAfter(put);
+        else         pa->insertGroup(put);
+        pa->groupBody->flags.hasAttributes = 1;
+        }
+    GroupItem *fin = root;
+    for ( int hop = 0, found = 1; found && hop < n; hop++ )
+        {
+        found = 0;
+        for ( int k = subN - 1; k >= 0; k-- ) if ( subFrom[k] == fin ) { fin = subTo[k]; found = 1; break; }
+        }
+    stuff->label = fin;
+    if ( !fin ) stuff->sukcess = 0;
+    %-
+    return null;
+}
+
 // measureLoopVerdict witness: at parseLoop's verdict, the success flag beside the count -- DISAGREE is the only case the removed flag read would have decided (a stale flag, count short of min); parseTrace-gated, pinned at 0
 extern GroupItem measureLoopVerdict(GroupItem field)
 {

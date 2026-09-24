@@ -972,9 +972,12 @@ int 		held = deferredAbove(stuff);
 	::measureFireLabelFork(this,stuff->label);
 	if ( stuff->actionMethod && stuff->label )
 		{
+		// ptfHold inside a top-level statement an ordinary fire or hold is RECORDED, and the statement's end replays it (parse-then-fire step 1)
+		 if ( ::ptfRecord(this,stuff,groupBody->flags.deferred && held) ) { ::ptfStatementEnd(this,stuff); return; } 
 		// heldAbove a deferred action waits only if a DEFERRED ANCESTOR will run it; with none above, nobody else ever will
 		if ( groupBody->flags.deferred && held )
 			{
+			 ::measureFireOrder(this,stuff->label,1,0,0); 
 			stuff->label->setMethod(stuff->actionMethod);
 			stuff->label->groupBody->flags.deferred = 1;
 			if ( !stuff->label->groupBody->flags.data )
@@ -985,6 +988,7 @@ int 		held = deferredAbove(stuff);
 			{
 			// replacementReturn IN and OUT are two seats -- one read after the fire
 			// cannot tell a replacement from a pass-through
+			 ::measureFireOrder(this,stuff->label,0,0,0); ::measureParseFire(this,stuff); 
 			::measureFireLabelActionIn(this,stuff->label);
 			 GroupItem *adoptHanded = stuff->label; 
 			stuff->label = stuff->actionMethod(stuff->label);
@@ -995,6 +999,8 @@ int 		held = deferredAbove(stuff);
 				stuff->sukcess = 0;
 			}
 		}
+	// ptfReplay a top-level StatemenT's fire is where the statement's records replay
+	 ::ptfStatementEnd(this,stuff); 
 }
 
 /***************************************************************************

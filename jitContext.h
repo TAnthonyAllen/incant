@@ -697,4 +697,35 @@ class RuleStuff;
 struct ParseActivation { RuleStuff *stuff; ParseActivation *prev; int floor; };
 inline ParseActivation *gParseActive = nullptr;
 
+// ptfState parse-then-fire step 1 (branch parse-then-fire, 2026-09-24): the statement's record list and its two
+// switches. PTF=0 restores trunk behaviour; PTF_TRACE=1 arms the witnesses. The list is GC-allocated so the labels
+// it holds stay reachable between record and replay.
+extern "C" void *GC_malloc(size_t);
+extern "C" void *GC_malloc_atomic(size_t);
+struct PtfRec { GroupItem *rule; RuleStuff *stuff; GroupItem *label; GroupItem *(*method)(GroupItem *); int held; int max; char *origTag; };
+inline PtfRec *gPtfRecs = nullptr;
+inline int gPtfN = 0, gPtfCap = 0, gPtfMode = -1, gPtfTrace = -1;
+inline int ptfOn()
+{
+    if ( gPtfMode < 0 ) { const char *e = ::getenv("PTF"); gPtfMode = (e && *e == '0') ? 0 : 1; }
+    return gPtfMode;
+}
+inline int ptfTraceOn()
+{
+    if ( gPtfTrace < 0 ) { const char *e = ::getenv("PTF_TRACE"); gPtfTrace = (e && *e && *e != '0') ? 1 : 0; }
+    return gPtfTrace;
+}
+inline char *ptfDup(const char *s)
+{
+    if ( !s ) s = "";
+    char *d = (char *)GC_malloc_atomic(::strlen(s) + 1);
+    ::strcpy(d,s);
+    return d;
+}
+inline int ptfInSet(GroupItem **set, int n, GroupItem *x)
+{
+    for ( int i = 0; i < n; i++ ) if ( set[i] == x ) return 1;
+    return 0;
+}
+
 #endif // JITCONTEXT_H
