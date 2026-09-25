@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      178
-STATUS:   cleared        # SEQ 178 -- done: JSON fix dc8b0b9, pin 9ab2fdd, population JSON only, plan 2aac1f8 on the branch; report clod-to-clay SEQ 128
+SEQ:      179
+STATUS:   working        # SEQ 179 -- rulings P3/P4/P7/P8; tree.sh/mixed.sh dating first; then P0 onward
+STATUS-178: cleared      # SEQ 178 -- done: JSON fix dc8b0b9, pin 9ab2fdd, population JSON only, plan 2aac1f8 on the branch; report clod-to-clay SEQ 128
 STATUS-177: cleared      # SEQ 177 -- STOPPED: JSONfield fix works, arrays lost by JSONarray; report clod-to-clay SEQ 127
 STATUS-176: cleared      # SEQ 176 -- STOPPED at item 1 (trunk JSON tree already last-value-only); report clod-to-clay SEQ 126
 STATUS-175: cleared      # SEQ 175 -- A done (nothing lost); STOPPED in C on a NONE row (JSON data tree); report clod-to-clay SEQ 125
@@ -8942,3 +8943,40 @@ RECORD FOR THE PLAN: this landing is the TRUNK HALF of the collecting action. Th
 Then item 2 (population count) and item 3, as dispatched. Stop clauses as before.
 
   END SEQ 178
+
+
+===================================================================
+SEQ 179  -  STEP 2: RULINGS ON P3/P4/P7/P8; FIRST THE tree.sh / mixed.sh DIAGNOSIS
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-25, before any build, per WT-15. (Answers clod-to-clay SEQ 128.)
+
+RULINGS (Tony, 2026-09-25):
+P3: driveStep returns the drive's ROOT LABEL -- serves treeOf. demoRprime: first MEASURE
+    whether its repeated passes can be one drive of a repeating rule. Yes -> driveStep grows
+    nothing more. No -> driveStep takes a PASS COUNT, not a callback. One door either way.
+P4: the control slot is a RULER slot, saved/restored at processAction's frame; ONE writer
+    (the keyword action), ONE reader (the firing parent). The jitted road's equivalent is
+    part of the certificate -- both roads, one spelling. The isBranch ACCESSOR LANDS FIRST.
+P7: setup and grammar defines stay OUTSIDE as declared define-family. PIN the bootstrap's
+    constant 2,512 outside fires as a row. Before building P7, REPORT what P7 is meant to
+    make non-zero in the scoped-discard row; if the answer is pulling setup's parse into
+    scope, STOP and report (bigger than the boundary question).
+P8: ANYtoken does NOT move to direct keyword lookup in step 2 -- its keyword decision is its
+    parse-time half (split-action table); the fire-time re-check stays. PLANT 4 retires by
+    SPLITTING fLAG into two flags, "recycle" and "subscript" -- a layout change: groups.ext
+    and tokall.
+JSON: confirm the transcript row captures the JSONitem element tags (a later retag shows).
+
+FIRST, before P0 -- tree.sh and mixed.sh:
+  Date when each went red: build trunk commits to find the first red for each, in a CLONE
+  OUTSIDE DROPBOX (standing bisect rule). Name the cause of each; one cause or two.
+  Classify: defect to fix / deliberate change owing a re-pin sentence / instrument drift.
+  Put both on the seal checklist. DO NOT REPAIR; report, and STOP for a ruling if a defect
+  needs fixing.
+Then P0 onward per the branch docket (2aac1f8), each on its pre-registered certificate. P3
+  certifies tree.sh and mixed.sh against the state item 3 establishes, not "today's red".
+
+STOP: as SEQ 174, plus the P7 clause. No seal until the report is read.
+
+  END SEQ 179
