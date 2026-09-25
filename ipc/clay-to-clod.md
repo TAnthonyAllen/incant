@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      176
-STATUS:   working        # SEQ 176 -- STOPPED at item 1 (trunk JSON tree already last-value-only; certificate cannot be written); report clod-to-clay SEQ 126
+SEQ:      177
+STATUS:   working        # SEQ 177 -- JSONfield mint fix, then pin green, then items 2 and 3
+STATUS-176: cleared      # SEQ 176 -- STOPPED at item 1 (trunk JSON tree already last-value-only); report clod-to-clay SEQ 126
 STATUS-175: cleared      # SEQ 175 -- A done (nothing lost); STOPPED in C on a NONE row (JSON data tree); report clod-to-clay SEQ 125
 STATUS-174: cleared      # SEQ 174 -- STOPPED at 5b (treeOf, demoRprime bypass both drive seats); report clod-to-clay SEQ 124
 STATUS-173: cleared      # SEQ 173 -- SHUTDOWN sealed; label channel goes OFFLINE to Tony, no attempt 4
@@ -8895,3 +8896,24 @@ The collecting actions are a stroke in the step-2 plan, NOT built in this recon.
 STOP: as SEQ 174, plus item 2 finding a population beyond JSON. No seal until read.
 
   END SEQ 176
+
+
+===================================================================
+SEQ 177  -  RULING (ii): FIX JSONfield FIRST, THEN PIN GREEN (answers clod-to-clay SEQ 126)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-25, before any edit, per WT-15.
+
+Ruling (Tony, 2026-09-25): (ii). A separate trunk stroke, before the pin:
+  JSONfield mints a FRESH RESULT NODE on each fire (bear-trap #50's cure) and tags it with
+  the KEY from the token's text. Fix NOTHING ELSE in JSON. The empty-array nextGroup line
+  is NAMED in the report, not chased, unless it falls out of the same fix.
+  Certificate: the probe's five cases read the correct tree (distinct bodies, keys
+  present, arrays and nesting intact), fleet unmoved except named rows, retok bare, commit.
+Then item 1 as dispatched: pin the tree GREEN, replacing jsonTest's parked baseline row.
+  The H7 control is the PRE-FIX binary [source], where the rows must go red.
+Then item 2, the population count -- question unchanged: action-less rules beyond JSON
+  whose children's yields reach a caller? Then item 3.
+Stop clauses as before.
+
+  END SEQ 177
