@@ -2744,11 +2744,12 @@ Hard-won lessons. Each one has cost real debugging time.
     right and every arm row stayed green. It surfaced only when the hand-back was removed. **A
     witness placed after a delegation cannot see the delegation.**
     **THE SHAPE THAT AVOIDS BOTH:** leave the entry's attributes where they are, and hang the
-    members off a SECOND mention of the entry, as the LAST entry of the same `define`, restating no
-    attribute (`incant/setup` section 9). Naming an entry again reopens it rather than minting a
-    new one, and going last makes the closing `;` the define's own. Measured: `'+='` binds
-    `opPlusEQ`, each member its own method, pop row for row. (A separate reopening `define` also
-    works and was the first fix; Tony's simplification removed it.)
+    members off a SECOND mention of the entry, restating no attribute, with NO `;` line after the
+    members (`incant/setup` section 9). Naming an entry again reopens it rather than minting a new
+    one, and the member block ends by dedent, so it may sit anywhere in the block -- the next entry,
+    attributes and all, binds its own method (Tony, measured 2026-09-25: `'!='` after the block
+    bound `opNotEQ`). An intermediate version required the entry to be LAST; that was a constraint
+    read into a wording, not a measurement, and it is withdrawn.
     ⚠ **The first correction (member block fine mid-block, extra `;` to blame) was half right and
     was certified by a masked witness** -- one arm firing for the one kind it was meant for is not
     evidence that nothing else was bound to it. Cause of hazard 2 NOT isolated (label reuse is the
