@@ -380,7 +380,10 @@ GroupItem 	*result = 0;
 		result = GroupControl::groupController->groupRules->labelNO;
 	// yieldOrValue ONE RETURN, TWO MEANINGS, TOLD APART BY deferred: direct fire = YIELD (own label -- fireLabelMethod adopts it, and a body's value can be a live field); owner-run = VALUE, as before. The clean split waits for the crossover (Tony, 2026-09-24, F-122)
 	if ( input->groupBody->flags.deferred )
+		{
+		measureRetire("deferEarly",input);
 		return result;
+		}
 	return input;
 }
 
@@ -692,7 +695,10 @@ int 		restrict = 0;
 		else	ruler->lastREF->clear();
 	// yieldOrValue ONE RETURN, TWO MEANINGS, TOLD APART BY deferred: direct fire = YIELD (own label -- fireLabelMethod adopts it, and a body's value can be a live field); owner-run = VALUE, as before. The clean split waits for the crossover (Tony, 2026-09-24, F-122)
 	if ( input->groupBody->flags.deferred )
+		{
+		measureRetire("deferEarly",input);
 		return result;
+		}
 	return input;
 }
 
@@ -749,7 +755,10 @@ GroupItem 	*result = ExpressioN;
 		result = GroupControl::groupController->groupRules->labelNO;
 	// yieldOrValue ONE RETURN, TWO MEANINGS, TOLD APART BY deferred: direct fire = YIELD (own label, unless the arm's result carries a branch signal); owner-run = VALUE, as before. The clean split waits for the crossover (Tony, 2026-09-24, F-122)
 	if ( input->groupBody->flags.deferred )
+		{
+		measureRetire("deferEarly",input);
 		return result;
+		}
 	if ( result && result->groupBody->flags.isBranch )
 		return result;
 	return input;
@@ -1607,7 +1616,10 @@ GroupItem 	*result = 0;
 		result = GroupControl::groupController->groupRules->labelNO;
 	// yieldOrValue ONE RETURN, TWO MEANINGS, TOLD APART BY deferred: direct fire = YIELD (own label -- fireLabelMethod adopts it, and a body's value can be a live field); owner-run = VALUE, as before. The clean split waits for the crossover (Tony, 2026-09-24, F-122)
 	if ( input->groupBody->flags.deferred )
+		{
+		measureRetire("deferEarly",input);
 		return result;
+		}
 	return input;
 }
 
@@ -1622,7 +1634,7 @@ GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 		{
 		ExpressioN = ExpressioN->groupBody->gMethod(ExpressioN);
 		// deferredValue run by its owner (bound under a deferred ancestor -- Xpress is `defer` since F-122), a statement's value is the expression's; a null keeps the label so a loop never dereferences nothing
-		 if ( input->groupBody->flags.deferred && ExpressioN ) return ExpressioN; 
+		 if ( input->groupBody->flags.deferred && ExpressioN ) { ::measureRetire((char*)"deferEarly",input); return ExpressioN; } 
 		}
 	else
 	if ( ExpressioN )
@@ -8499,6 +8511,16 @@ extern "C" GroupItem *measureParseFire(GroupItem *field, RuleStuff *stuff)
 	return 0;
 }
 
+// measureRetire witness: the step-2 retirement census (GO/NO-GO, 2026-09-25) -- one line each time a read of defer, deferredAbove or the yield channel DECIDES something: a held fire (not fired), a deferred early return, a yield that replaced or removed the label. PTF_RETIRE-armed, inert otherwise, reads only
+extern "C" GroupItem *measureRetire(char *what, GroupItem *field)
+{
+	
+	if ( ::getenv("PTF_RETIRE") )
+	::fprintf(stderr,"RETIRE %s rule=%s\n",what ? what : "?",field && field->groupBody->tag ? field->groupBody->tag : "?");
+	
+	return 0;
+}
+
 // measureTargetAgree witness: on a face the old road already visited (followed), does the new road's isTarget agree with what getWhatFollows wrote -- parseTrace-gated, reads only
 extern "C" GroupItem *measureTargetAgree(RuleStuff *stuff, int computed)
 {
@@ -12446,6 +12468,7 @@ extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
 	}
 	if ( r->held )
 	{
+	::measureRetire((char*)"heldReplay",r->rule);
 	::measureFireOrder(r->rule,L,1,1,r->origTag);
 	L->setMethod(r->method);
 	L->groupBody->flags.deferred = 1;
@@ -12471,6 +12494,7 @@ extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
 	if ( !ret && ptfTraceOn() ) ::fprintf(stderr,"PTF NULLRET rule=%s tag=%s -- on trunk this return FAILS the parse\n",r->rule->groupBody->tag,r->origTag);
 	if ( ret != L )
 	{
+	::measureRetire((char*)(ret ? "yieldReplay" : "yieldReplayNull"),r->rule);
 	subFrom[subN] = L; subTo[subN] = ret; subN++;
 	if ( ret && ret != ruler->labelNO && L->groupBody->tag && ::strcmp(L->groupBody->tag,r->origTag) != 0 )
 	{
@@ -14618,13 +14642,23 @@ int 	result = 0;
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
 	isDotUxp(GroupItem*)
+	measurePlusPlusWrite(GroupItem*)
+	measurePlusPlusWrite(GroupItem*)
+	measureKindArm(char*,GroupItem*)
 	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
+	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
+	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
+	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
+	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
-	measureKindArm(char*,GroupItem*)
-	measurePlusPlusWrite(GroupItem*)
+	measurePlusEQWrite(GroupItem*)
+	measurePlusEQWrite(GroupItem*)
+	measureRetire(char*,GroupItem*)
+	measureRetire(char*,GroupItem*)
+	measureRetire(char*,GroupItem*)
 	floor(double)
 */

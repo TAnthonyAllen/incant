@@ -1007,7 +1007,7 @@ int 		held = deferredAbove(stuff);
 		// heldAbove a deferred action waits only if a DEFERRED ANCESTOR will run it; with none above, nobody else ever will
 		if ( groupBody->flags.deferred && held )
 			{
-			 ::measureFireOrder(this,stuff->label,1,0,0); 
+			 ::measureRetire((char*)"heldTrunk",this); ::measureFireOrder(this,stuff->label,1,0,0); 
 			stuff->label->setMethod(stuff->actionMethod);
 			stuff->label->groupBody->flags.deferred = 1;
 			if ( !stuff->label->groupBody->flags.data )
@@ -1022,6 +1022,7 @@ int 		held = deferredAbove(stuff);
 			::measureFireLabelActionIn(this,stuff->label);
 			 GroupItem *adoptHanded = stuff->label; 
 			stuff->label = stuff->actionMethod(stuff->label);
+			 if ( stuff->label != adoptHanded ) ::measureRetire((char*)(stuff->label ? "yieldTrunk" : "yieldTrunkNull"),this); 
 			// adoptionSeat what the yield channel received, by kind -- F-122's (b) census as a standing witness
 			 ::measureAdoption(this,adoptHanded,stuff->label); 
 			::measureFireLabelActionOut(this,stuff->label);

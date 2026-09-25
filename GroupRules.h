@@ -314,6 +314,7 @@ extern "C" GroupItem *measureLoopVerdict(GroupItem *field);
 extern "C" GroupItem *measureOldFireFlag(GroupItem *field, RuleStuff *stuff);
 extern "C" GroupItem *measureParseClass(GroupItem *field);
 extern "C" GroupItem *measureParseFire(GroupItem *field, RuleStuff *stuff);
+extern "C" GroupItem *measureRetire(char *what, GroupItem *field);
 extern "C" GroupItem *measureTargetAgree(RuleStuff *stuff, int computed);
 extern "C" int modifierIsRepeat(char *modifier);
 extern "C" void modify(GroupItem *field, char *modifier);

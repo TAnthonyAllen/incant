@@ -447,6 +447,16 @@ extern GroupItem measureOldFireFlag(GroupItem field, RuleStuff stuff)
     return null;
 }
 
+// measureRetire witness: the step-2 retirement census (GO/NO-GO, 2026-09-25) -- one line each time a read of defer, deferredAbove or the yield channel DECIDES something: a held fire (not fired), a deferred early return, a yield that replaced or removed the label. PTF_RETIRE-armed, inert otherwise, reads only
+extern GroupItem measureRetire(String what, GroupItem field)
+{
+    -%
+    if ( ::getenv("PTF_RETIRE") )
+        ::fprintf(stderr,"RETIRE %s rule=%s\n",what ? what : "?",field && field->groupBody->tag ? field->groupBody->tag : "?");
+    %-
+    return null;
+}
+
 // measureAdoption witness: at fireLabelMethod's adoption (the yield channel), a return that is not the label handed in and not a label, by kind -- RULE (isRule or hasNewParse), PROPERTY (the pROPERTIEs registry: StatemenT, true, labelNO -- measured isRule 0, not the grammar rule), FIELD (anything else: a live field). F-122's (b) census; visibility, not refusal. parseTrace-gated, reads only
 extern GroupItem measureAdoption(GroupItem field, GroupItem handed, GroupItem adopted)
 {
@@ -709,6 +719,7 @@ extern GroupItem ptfStatementEnd(GroupItem field, RuleStuff stuff)
             }
         if ( r->held )
             {
+            ::measureRetire((char*)"heldReplay",r->rule);
             ::measureFireOrder(r->rule,L,1,1,r->origTag);
             L->setMethod(r->method);
             L->groupBody->flags.deferred = 1;
@@ -734,6 +745,7 @@ extern GroupItem ptfStatementEnd(GroupItem field, RuleStuff stuff)
         if ( !ret && ptfTraceOn() ) ::fprintf(stderr,"PTF NULLRET rule=%s tag=%s -- on trunk this return FAILS the parse\n",r->rule->groupBody->tag,r->origTag);
         if ( ret != L )
             {
+            ::measureRetire((char*)(ret ? "yieldReplay" : "yieldReplayNull"),r->rule);
             subFrom[subN] = L; subTo[subN] = ret; subN++;
             if ( ret && ret != ruler->labelNO && L->groupBody->tag && ::strcmp(L->groupBody->tag,r->origTag) != 0 )
                 {
