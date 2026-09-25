@@ -3,8 +3,9 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      121
-STATUS:   fresh           # SEQ 121 at the FOOT -- PART A STOPPED (parse-in-progress has two readings); PART B the yield brief
+SEQ:      122
+STATUS:   fresh           # SEQ 122 at the FOOT -- ruling A BUILT; the 275 left are REJECTED drives, srDot one of them -- a question
+STATUS-121: fresh        # SEQ 121 -- Part A stopped; the yield brief
 STATUS-120: fresh        # SEQ 120 -- GO / NO-GO ROUND 2
 STATUS-119: fresh        # SEQ 119 -- GO / NO-GO EVIDENCE (round 1)
 STATUS-118: fresh        # SEQ 118 -- string-leaf returns IDENTICAL, candidate dead; SHUTDOWN SEAL
@@ -6867,4 +6868,57 @@ B -- THE YIELD BRIEF (F-122 entry 7), SELF-CONTAINED
   removed.
 
 STATE: trunk reinstalled (fleet below), branch untouched at df73ad6.
+
+===================================================================
+SEQ 122  --  2026-09-25  --  Clod
+RULINGS A, B, C (Tony, 2026-09-25) -- what landed, and one question A raised
+===================================================================
+
+C -- LANDED ON TRUNK. The "g"+tag stamp is gone from fireLabelMethod's held arm; the
+     replay's twin went with A on the branch. Fleet 740/2 row for row, jitLadder 215,
+     canary 368.
+B -- RECORDED on F-122 entry 7 (docs/fixIts.md), marked as landing with step 2; nothing
+     changed now.
+
+A -- BUILT on parse-then-fire (a9d637b), as ruled: one fact (gPtfScope, jitContext.h),
+     one writer pair (ptfScopeOpen / ptfScopeClose, called only from driveStep), the old
+     road pushing nothing. A drive opens a scope when a replay is running above the
+     innermost open scope's parse; at its end the drive's records replay from its own root
+     label through the replay core (ptfReplayRecords, split out of ptfStatementEnd with the
+     gate untouched) and are truncated.
+
+  CERTIFICATE -- PARTIAL, and the part that is missing is a question, not a defect:
+    FRAMELEAK at PTF=1   37 events / 289 records  ->  34 / 275
+    H7 (PTF_NOSCOPE=1)   back to 37 / 289
+    M1, the eight        UNCHANGED at PTF=1 -- none of them drives from a replay
+    fleet PTF=1          737/2 row for row with the pre-build capture
+    fleet PTF=0          740/2 row for row with trunk
+      one named move, both settings: the already-red `raw ->rStuff reads` census, 34 ->
+      36 -- ptfScopeClose reads rule->rStuff twice (a source-text count)
+    jitLadder            215 at both settings
+    canary               380 -> 383 (ptfReplayRecords, ptfScopeOpen, ptfScopeClose)
+    srDot row            STILL RED on the branch
+
+  WHY 275 ARE LEFT, MEASURED ON srDot WITH lldb: the scope OPENS (scoped=1, replay depth 1)
+  and at the drive's end holds its three records -- but the drive's parse returns NULL. It
+  is a REJECTED drive: srDot drives `.5` with no `;`, and Xpress is `ExpressioN SemI-`. It
+  is rejected on BOTH roads -- stmtRejT's rows read verdict 0/0 at PTF=0 as well. At PTF=0
+  the refusal prints anyway because TokenXP's action fires DURING the parse, before the
+  parse fails. At PTF=1 the refusal is one of the records of a parse that failed, and a
+  failed parse builds no tree, so the scope correctly fires nothing.
+  The 09-24 seal called the 37 events "near-miss drives" -- that half was right; they are
+  rejects. The 3 events caught today are ACCEPTED drives, now replayed.
+
+  THE QUESTION FOR TONY -- the ruling as written does not reach it:
+    Should a REJECTED parse's recorded fires ever fire? Under the model, no (no tree, no
+    fires). But then a refusal raised by a matcher-shaped check inside a failed parse --
+    the `.5` refusal is exactly that -- vanishes, where trunk shows it. Two shapes:
+      (i)  the check is PARSE-DECIDING: refuseLeadingDotNumber's refusal moves into the
+           exempt class (it is a verdict about the input, like ANYtoken's keyword test),
+           so it fires during the parse on both roads, rejected or not; or
+      (ii) a rejected parse fires nothing, and the srDot row is re-pinned to that --
+           the refusal is lost by design, with the drive's verdict (0) as the only signal.
+    The srDot row stays red on the branch until one of these is ruled.
+
+STATE: branch parse-then-fire a9d637b, pushed. Trunk reinstalled: 740/2, canary 368.
 
