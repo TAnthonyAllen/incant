@@ -1,0 +1,69 @@
+=== the two-line leftover: empty array, then a two-element array === 
+ok  : {"a":[]} 
+JT ROOT len= 1 
+JT   MEMBER a len= 0 value= JSONvalue 
+ok  : {"a":["x","y"]} 
+JT ROOT len= 1 
+JT   MEMBER a len= 2 value= a 
+JT     KID JSONitem len= 0 value= x 
+JT     KID JSONitem len= 0 value= y 
+=== two members: distinct bodies, keys present === 
+ok  : {"a":"b","c":"d"} 
+JT ROOT len= 2 
+JT   MEMBER a len= 0 value= b 
+JT   MEMBER c len= 0 value= d 
+=== nesting beside a sibling === 
+ok  : {"a":{"b":"c","d":"e"},"f":"g"} 
+JT ROOT len= 2 
+JT   MEMBER a len= 2 value= a 
+JT     KID b len= 0 value= c 
+JT     KID d len= 0 value= e 
+JT   MEMBER f len= 0 value= g 
+=== baseline === 
+ok  : {"a":"b"} 
+JT ROOT len= 1 
+JT   MEMBER a len= 0 value= b 
+ok  : {"a":"url://example.com/path#fragment"} 
+JT ROOT len= 1 
+JT   MEMBER a len= 0 value= url://example.com/path#fragment 
+ok  : {"a":"1.0","b":"hello"} 
+JT ROOT len= 2 
+JT   MEMBER a len= 0 value= 1.0 
+JT   MEMBER b len= 0 value= hello 
+=== arrays === 
+ok  : {"a":[1,2,3]} 
+JT ROOT len= 1 
+JT   MEMBER a len= 3 value= a 
+JT     KID JSONitem len= 0 value= 1 
+JT     KID JSONitem len= 0 value= 2 
+JT     KID JSONitem len= 0 value= 3 
+=== nested objects === 
+ok  : {"a":{}} 
+JT ROOT len= 1 
+JT   MEMBER a len= 0 value= JSONvalue 
+ok  : {"a":{"b":"c"}} 
+JT ROOT len= 1 
+JT   MEMBER a len= 1 value= a 
+JT     KID b len= 0 value= c 
+ok  : {"a":{"b":"c","d":"e"}} 
+JT ROOT len= 1 
+JT   MEMBER a len= 2 value= a 
+JT     KID b len= 0 value= c 
+JT     KID d len= 0 value= e 
+=== single Google Fonts item shape (files nested obj + variants array) === 
+ok  : {"family":"EB Garamond","variants":["regular","700"],"files":{"regular":"https://fonts.gstatic.com/foo.ttf","700":"https://fonts.gstatic.com/bar.ttf"}} 
+JT ROOT len= 3 
+JT   MEMBER family len= 0 value= EB Garamond 
+JT   MEMBER variants len= 2 value= variants 
+JT     KID JSONitem len= 0 value= regular 
+JT     KID JSONitem len= 0 value= 700 
+JT   MEMBER files len= 2 value= files 
+JT     KID regular len= 0 value= https://fonts.gstatic.com/foo.ttf 
+JT     KID 700 len= 0 value= https://fonts.gstatic.com/bar.ttf 
+=== full webfonts-list shape: items is an array of objects === 
+ok  : {"kind":"webfonts#webfontList","items":[{"family":"ABeeZee","variants":["regular","italic"],"subsets":["latin"],"version":"v22","files":{"regular":"http://fonts.gstatic.com/s/abeezee/v22/a.ttf","italic":"http://fonts.gstatic.com/s/abeezee/v22/b.ttf"},"category":"sans-serif"},{"family":"Roboto","variants":["regular","700"],"subsets":["latin","cyrillic"],"version":"v30","files":{"regular":"http://fonts.gstatic.com/s/roboto/v30/c.ttf","700":"http://fonts.gstatic.com/s/roboto/v30/d.ttf"},"category":"sans-serif"}]} 
+JT ROOT len= 2 
+JT   MEMBER kind len= 0 value= webfonts#webfontList 
+JT   MEMBER items len= 2 value= items 
+JT     KID JSONitem len= 6 value= JSONitem 
+JT     KID JSONitem len= 6 value= JSONitem 

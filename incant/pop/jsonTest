@@ -2,40 +2,86 @@ Start();
 include(unitTests);
 include(utilities);
 search reset stack Grokking UnitTests Utilities list;
-
-/*****************************************************************************
-	JSON grammar test fixture. testJSON runs a JSON string through JSONblock
-	and reports ok (field returned) or FAIL (null).
-*****************************************************************************/
 define
+    jtKid code={
+        print "JT     KID" argument.taG "len=" argument.listLengtH "value=" argument:;
+        addrOf(argument);
+        };
+    jtKids code={
+        iterate jtK on argument;
+        while ++jtK;
+            jtKid(*jtK);
+        };
+    jtMember code={
+        print "JT   MEMBER" argument.taG "len=" argument.listLengtH "value=" argument:;
+        addrOf(argument);
+        jtN := argument.listLengtH;
+        if *jtN > 0;
+            jtKids(argument);
+        };
     testJSON code={
         clear(listed);
         field = JSONblock(argument);
         if field;   print "  ok  :" argument:;
         else        print "  FAIL:" argument:;
+        print "JT ROOT len=" field.listLengtH:;
+        iterate jtC on field;
+        while ++jtC;
+            jtMember(*jtC);
         };
     ;
 
+print "=== the two-line leftover: empty array, then a two-element array ===":;
 testJSON('{"a":[]}');
 testJSON('{"a":["x","y"]}');
 
-print "=== baseline (must stay green) ===":;
+print "=== two members: distinct bodies, keys present ===":;
+testJSON('{"a":"b","c":"d"}');
+
+print "=== nesting beside a sibling ===":;
+testJSON('{"a":{"b":"c","d":"e"},"f":"g"}');
+
+print "=== baseline ===":;
 testJSON('{"a":"b"}');
 testJSON('{"a":"url://example.com/path#fragment"}');
 testJSON('{"a":"1.0","b":"hello"}');
 
-print "=== arrays (2026-07-02: re-verified green, comment below was stale) ===":;
-testJSON('{"a":[]}');
-testJSON('{"a":["x","y"]}');
+print "=== arrays ===":;
 testJSON('{"a":[1,2,3]}');
 
-print "=== nested objects (2026-07-02: re-verified green, comment below was stale) ===":;
+print "=== nested objects ===":;
 testJSON('{"a":{}}');
 testJSON('{"a":{"b":"c"}}');
 testJSON('{"a":{"b":"c","d":"e"}}');
 
 print "=== single Google Fonts item shape (files nested obj + variants array) ===":;
 testJSON('{"family":"EB Garamond","variants":["regular","700"],"files":{"regular":"https://fonts.gstatic.com/foo.ttf","700":"https://fonts.gstatic.com/bar.ttf"}}');
+
+print "=== full webfonts-list shape: items is an array of objects ===":;
+testJSON('{"kind":"webfonts#webfontList","items":[{"family":"ABeeZee","variants":["regular","italic"],"subsets":["latin"],"version":"v22","files":{"regular":"http://fonts.gstatic.com/s/abeezee/v22/a.ttf","italic":"http://fonts.gstatic.com/s/abeezee/v22/b.ttf"},"category":"sans-serif"},{"family":"Roboto","variants":["regular","700"],"subsets":["latin","cyrillic"],"version":"v30","files":{"regular":"http://fonts.gstatic.com/s/roboto/v30/c.ttf","700":"http://fonts.gstatic.com/s/roboto/v30/d.ttf"},"category":"sans-serif"}]}');
+print "JSONTEST SENTINEL":;
+stop();
+
+jsonTest -- THE JSON TREE, PINNED BY VALUE (SEQ 176/178, 2026-09-25)
+
+testJSON drives JSONblock and prints the tree it hands back, two levels deep: the root's
+member count, then each member's tag (the KEY), member count and value, then each member's
+own members. addrOf prints each node's field and body number, so pop.sh can ask whether two
+members are two nodes or one.
+
+Why it prints the tree instead of ok/FAIL: until dc8b0b9 JSONfield returned its action
+local (bear-trap #50) -- every member of every object shared ONE body, read back as N copies
+of the last value, with no key -- and JSONarray yielded its last element in place of the
+array. ok/FAIL could not see either: a wrong tree is still non-null. The pop.sh rows now
+assert keys, values, counts and distinct bodies, and the old parked baseline row is retired
+into them.
+
+The empty-array case is pinned AS IT STANDS: it prints "nextGroup: ERROR JSONlist does not
+contain a list" (JSONarray's `if JSONlist;` is an existence test that passes on the rule
+itself -- bear-traps #26/#34, docs/fixIts.md F-99). Not chased; its row names it.
+
+The collecting-action stroke of parse-then-fire step 2 moves JSONfield and JSONarray onto
+the value-yield model; its certificate is that these rows stay green.
 
 /*****************************************************************************
 	2026-07-02 Google-fonts probe (M3, Fearless marching orders). The real
@@ -51,6 +97,5 @@ testJSON('{"family":"EB Garamond","variants":["regular","700"],"files":{"regular
 	that chokes. Grammar fix (NOT done here - out of scope for this probe):
 	add JSONblock as a JSONtoken option so array elements can be objects.
 *****************************************************************************/
-print "=== full webfonts-list shape: items is an array of objects (KNOWN TO FAIL) ===":;
-testJSON('{"kind":"webfonts#webfontList","items":[{"family":"ABeeZee","variants":["regular","italic"],"subsets":["latin"],"version":"v22","files":{"regular":"http://fonts.gstatic.com/s/abeezee/v22/a.ttf","italic":"http://fonts.gstatic.com/s/abeezee/v22/b.ttf"},"category":"sans-serif"},{"family":"Roboto","variants":["regular","700"],"subsets":["latin","cyrillic"],"version":"v30","files":{"regular":"http://fonts.gstatic.com/s/roboto/v30/c.ttf","700":"http://fonts.gstatic.com/s/roboto/v30/d.ttf"},"category":"sans-serif"}]}');
-stop();
+The webfonts-list shape, items being an array of objects, now parses: JSONtoken carries a
+JSONblock option. The note above is kept as history.
