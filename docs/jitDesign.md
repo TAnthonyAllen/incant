@@ -1173,6 +1173,118 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
     InvokeArg `fLAG` marker -- the "subscript" meaning of fLAG that collides with checkInput's "recycle", plant 4).
   - The action-vs-parse overlap census (both directions) is `docs/overlapCensus.md`; a step-1 plant not in it is a
     census gap.
+- **PARSE-THEN-FIRE STEP 2 -- THE PLAN (recon SEQ 174-178, 2026-09-25; read-only but for the two JSON strokes, which
+  landed on trunk).** Stroke order below. **Every certificate** carries, beyond its own rows: PTF=0 equal to trunk row
+  for row; fleet and jitLadder unmoved at both PTF settings except the rows named; canary read off the tree (H14); retok
+  bare. Baselines at recon time: trunk 751 / 1, red list 57 (docs/redList.md form); branch at 860047e PTF=0 742 / 2
+  (57 red, the same), PTF=1 740 / 2 (59 red = those + `probeDoorT stmtRejT`, `site1RoadsT`); jitLadder 215 both.
+  ⚠ **`genLadder/tree.sh` and `genLadder/mixed.sh` are RED ON TRUNK TODAY and on no checklist** -- tree.sh "TREE FIXTURE
+  MOVED", mixed.sh "WOKE -- NO VARIANT LOSES THE CHILD ANY MORE". Found by this recon, not chased. Any stroke naming
+  them certifies "byte-identical to today's red", and their state is Tony's to rule on separately.
+  - **P0 -- merge trunk into the branch.** Brings dc8b0b9/9ab2fdd (JSON) and the nullAccessorDeref guard. Cert: PTF=0 ==
+    trunk; movers: the nine `jsonTest JT-*` rows join, and are PREDICTED GREEN AT PTF=1 as well (the JSON drives are
+    class=outside, which step 1 never records); `jsonTest baseline` parked row leaves (retired on trunk).
+  - **P1 -- the drive census row (SEQ 175 item B), on trunk and branch.** codeOnly.py-stripped, enclosing function of
+    every `pushInput(` in top-level .twk/.rtn, pinned as the sorted set of 7: loadInputFromFile, demoRprime, treeOf,
+    driveStep, processCode, bootstrapper, jitProbeDrive. Fails on an unknown caller (named) and on an EMPTY set. H7: a
+    copy of genParse.rtn with one extra caller -> red by name. Cert: +1 green; nothing else moves. (Without codeOnly
+    the census reads 8 -- a comment at GroupActions.rtn:1101 lands in runOP.)
+  - **P2 -- the conservation row and the explicit failed-alternative discard (SEQ 174 item 5a).** First the ROW, pinned
+    as today reads: FRAMELEAK 0 + DISCARD 12,410 + UNREACHED 932 = **13,342** at PTF=1, full fleet, PTF_LEAKLOG. ⚠ Its
+    sentence: SEQ 123's 13,339 predates pop.sh's own srDot sub-run (pop.sh `PTF_TRACE=1 $B "$T/srDot.twk"`), which
+    discards exactly 3 records and landed in the same commit (860047e). Then the DISCARD: the 932 are failed
+    alternatives (840 under a DO that matched its body and failed at `while`; sweepT 828, s1r 92, pd 8, srDo 4, every
+    one rootIsAncestor=0). A gPtfN mark per pass at parse()'s `continueHere` (GroupItem.twk ~1353), truncated at
+    `matchFailed` when the pass fails; the new road's twin at exitFromParse's failure return (Generate.rtn:26-28);
+    logged `DISCARD failed alternative`, apart from the rejected-parse discard. Cert: 0 + 12,410 + 932 + UNREACHED 0 =
+    13,342; UNREACHED pinned 0; fleet unmoved at both settings (the 932 never fired). H7: remove the truncation ->
+    UNREACHED back to 932.
+  - **P3 -- route treeOf and demoRprime through driveStep (Tony, SEQ 175).** ⚠ **RULING NEEDED FIRST: the shape of
+    driveStep's growth.** treeOf needs the raw tree (driveStep returns a verdict; the tree is readable at the root's
+    `rStuff.label`, as aCTionTell's reply already reads it); demoRprime needs a TERM driven repeatedly into a caller's
+    label inside ONE divert, with its own mark rewinds -- driveStep's no-data arm has `parseR(rule,intoField)` but no
+    divert. Opens with a FIXTURE: a Scaf-shaped rule given an ORDINARY action, driven through both entries from a
+    top-level statement, one accepted and one rejected pass; asserts the fire count (equal at PTF=0 and PTF=1) and the
+    door (measureRuleDoor's line for each drive, presence-with-value). ⚠ **Its scoped-discard row reads 0 records at
+    step 1 BY DESIGN** -- these drives' roots are not StatemenT, so step 1 records nothing inside them (SEQ 125 A: zero
+    fires inside either drive, both settings). The same row must read NON-ZERO in P7; that is its H7 pair, and it is
+    written now so P7 cannot pass without it. Movers: P1's row 7 -> 5; genScratch's rows, `tree.sh`, `mixed.sh`
+    PREDICTED BYTE-IDENTICAL (a move there is driveStep's bracket -- floor, inputFloor, lastIndent/defining restore --
+    not the scope).
+  - **P4 -- retire the control signal stamped on the returned value.** Today aCTionBrancH generates
+    `arg->groupBody->flags.isBranch = 1/2/3` on its return operand, which can be `falseResult` (a shared singleton),
+    the keyword node, or a LIVE FIELD (`return x;` stamps x). The ruled control channel (F-122 entry 7): aCTionBrancH
+    writes kind+value to a control slot; BlocK (ruleActions.rtn:55-58), DO (:429), FOR (:533), WhilE (:1212), IF (:592)
+    read it after each child; the action boundary consumes a return (GroupActions.rtn:596, Generate.rtn:307).
+    Trunk-landable, independent of PTF. ⚠ **RULING NEEDED: where the slot lives** -- recommend a ruler slot saved and
+    restored at processAction's frame (so a callee's return cannot leak into the caller's loop). Fixture `ctlStampT`:
+    after `return x;` x's isBranch reads 0 with its non-zero sibling (the returned value reads x's value); after a
+    return whose operand fails, falseResult's isBranch reads 0. ⚠ isBranch has no GroupFields accessor today -- the
+    fixture needs one (or a measure callout) first. H7: restore the stamp -> the x row red. Movers: none in the fleet
+    (the stamp is invisible unless read); every break/continue/return row must stay green; jitLadder unmoved (the jit
+    emits branches through jitEmitContinue/jitEmitReturn, not the stamp).
+  - **P5 -- JSON's collecting actions onto the value-yield model (Tony, SEQ 176/178).** The TRUNK HALF LANDED
+    (dc8b0b9: JSONfield and JSONarray mint a fresh result node per fire; 9ab2fdd: jsonTest pins the tree by value). This
+    stroke only moves the two rules onto the value model -- they hand JSONblock/JSONfield values and JSONblock gains its
+    collecting action. **Certificate: the pinned JT rows stay green**, at both PTF settings. Item-2 population count
+    (SEQ 178): JSONblock is the ONLY action-less rule whose children's yields reach a caller -- bins pass through to
+    parents with actions; lamp/thermo's members are `defer` (held, never yielded); Start and BasicElse read truth or a
+    single child; tell has its own action (a fresh verdict node). Option (c) stays parked.
+  - **P6 -- THE CORE: retire defer, deferredAbove and the held fires; parent-driven firing; the value rulings.**
+    Top-level statements only (step 1's scope). Ruling 2's default for an action-less rule with content; a construct
+    hands its parent a VALUE; the tree never holds a field; an unrun IF hands back nothing (today: labelNO owner-run,
+    its own label direct, ruleActions.rtn:586-593). Deleted: the `d` modifier's write (Commands.rtn:576) and `defer`'s
+    registration (setup:44) with the 15 grammar uses; deferredAbove (GroupItem.twk:433) and ptfStmtAbove; the held arm
+    (GroupItem.twk:743-746) and the replay's twin; the five yieldOrValue splits (ruleActions.rtn DO :447, FOR :555, IF
+    :589, WhilE :1230, Xpress :1246); the replay's `ret != L` substitution and unwrap; attachLabel's unwrap read
+    (plants A1/A3/A4/A5 -- the parent unwraps at fire); **attachLabel's `lab == labelNO` skip, which the value handoff
+    retires** (with no action firing before the attach, a label at attach time is the parse's own; labelNO only ever
+    arrived as an action's return). KEPT: the null-fails-the-parse arm for the exempt class only (below). Movers named
+    in advance: `adoptT FIELD` 1 -> 0 and `adoptT PROPERTY` -> 0 (the row needs a new non-zero sibling BEFORE the
+    stroke); `yieldT DIRECT` (reads s2Y -- predicted unchanged) and `yieldT OWNER`; deferNatT's `through the
+    recursion` and `drive floor` rows (their DEFERABOVE lines vanish -- retire by mapping); convDriveT CD-1b and
+    convLeakT (their members' `defer`); printFamilyNew's two `defer` grafts; f122T/f122NatT; the retire-witness counts.
+    A new fixture for the unrun IF.
+  - **P7 -- scope beyond top-level statements (SEQ 174 item 3, measured, traced fleet, PTF=1, 143 runs).**
+    (a) ACTION BODIES (processCode): 74,476 fires during the parse today -- NamE 14,903, ANYtoken 14,903, TokenXP
+    14,419, Parens 9,472, ExpressioN 8,546, StatemenT 8,358. What depends on them: the CACHED BlocK's shape
+    (interpretXP's runOP/runShortCircuit nodes, TokenXP's handle* arms, Braced's fLAG) and NamE minting action locals
+    at compile (bear-trap #39); the jit walks that BlocK. So the shape half stays at compile -- see the split table.
+    (b) BOOTSTRAP: 2,512 outside fires PER RUN, constant (359,216 of 361,506): NamE 779, TraiT 679, NewGroup 330,
+    DefinE 330, TraiTdata 222, QuotE 103, NumbeR 42, RunRulE 20 -- the grammar and registries themselves. ⚠ **RULING
+    NEEDED: the Start() boundary** -- either setup parses under StatemenT, or outside-while-defining classes as define.
+    (c) OTHER OUTSIDE: ~2,290 (an estimate by per-file remainder), sweepT 1,949 -- probe drives of non-StatemenT roots;
+    their counters and verdicts depend on the fires. (d) NESTED DRIVES: 2,621 rejected, 12,410 records discarded; 0
+    DRIVEREPLAY. Cert: the conservation row; the M1 per-rule fire multiset unchanged on the eight M1 fixtures plus
+    jsonTest; P3's scoped-discard row goes NON-ZERO (its H7 pair); frontier's station unchanged.
+  - **P8 -- Rule C's remaining sites (SEQ 174 item 4, against docs/overlapCensus.md direction 1).** A1, A3, A4, A5
+    (unwrap at attach): retired in P6. A2 (ANYtoken reads NamE's resolution): ⚠ **RULING NEEDED -- C-form** (a direct
+    text lookup in Keywords) was measured NOT neutral 2026-09-24. A6: no live instance. A7 (Braced's fLAG read by
+    checkInput -- plant 4, fLAG's two meanings): NOT retired by step 2 -- its own stroke, either a second bit for
+    "subscript" or the opGet shape rewrite (docket item 2), which retires Braced's subscript arm outright; ⚠ **Tony's
+    choice of which**. A8 (the yield channel into sukcess/attach): P6. A9/A10 (refusals raised by ordinary actions,
+    read by the parse): P6 with ruling (ii) -- an ordinary refusal no longer runs during the parse. A11 (search) and
+    A19 (kant ops on rule nodes): between statements, decidable -- statement-end firing precedes the next parse.
+    A13/A15: bracketed / compilation, decidable. A14: `blockSTAK` is not restored by processCode's bracket -- a small
+    stroke. A12, A16, A17: the drive and code scopes, P3 and P7. One site the census lists under shape and is a Rule C
+    read inside the shape class: **interpretXP reads the token's `registry == opFields` and `actionType ||
+    instructType`, which NamE's resolution decides** -- the registry test can be answered by which Token alternative
+    matched (a parse fact); the `invoke` marking moves to fire time.
+  - **THE SPLIT-ACTION TABLE (SEQ 175 C, a measurement of the parked parse-time action slot; nothing built).**
+    | row | parse-time half | walk-time half | the split falls at |
+    |---|---|---|---|
+    | ANYtoken (null fails the parse) | the keyword test -- but only as a TEXT lookup (C-form); today it reads `input.group` | none (returns its input) | ruleActions.rtn:7-8, `token = input.group` |
+    | NamE (ordinary; its write is what A1/A2 read) | resolve against scope and, under processCode, MINT the local (a declaration: frame shape) | bind the label: `input.group = result` | ruleActions.rtn:663, the `endName:` write |
+    | ShortcuT | whole action: `gCount == 2 && opFields[text]` is a registry lookup on matched text | none | -- (no split needed) |
+    | CodE | whole action: it moves the mark | none | -- (needs its whole action at parse time) |
+    | CheckFor | whole action: a parse stopper | none | -- |
+    | DelimText | whole action: a shape rewrite of its own label | none | -- |
+    | processAction's null (compile failure fails the parse) | ensure-compiled (`processCode`) | run the BlocK | GroupActions.rtn:564 -- compiling at define or first parse makes the null a parse fact again |
+    | ExpressioN / interpretXP (shape) | build the runOP/runShortCircuit shape from which Token alternatives matched | `invoke` from `actionType || instructType` | ruleActions.rtn:1626, the invoke stamp |
+    | define family (DefinE, NewGroup, TraiT, TraiTdata, SetBrackets, processFlags) | whole action (they build what the next statement parses against) | none | -- |
+    Verdict for the parked slot: **two specimens need it (NamE, and interpretXP's invoke stamp); ANYtoken needs a
+    different predicate, not a split; the rest are whole-action parse-time.** Not a population that argues for a
+    general slot yet.
 - **C++-ESCAPE RECON AND REMOVAL (Tony: not before a jitting pause).** Every `-%` block in Tony's tok code, jit methods
   excluded. For each site: what it does, why tok could not express it, and a REMEDY CLASS -- (a) tok can already;
   (b) move to a jit, measure or support helper; (c) needs a tok feature (name it). It prices the parseRule bracket and
