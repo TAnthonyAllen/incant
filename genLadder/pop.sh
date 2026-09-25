@@ -5215,7 +5215,8 @@ kindRow "kindLiftT stak depth before each fire J1 J2 I1 I2" "$(klStak "$T/klift"
 #  THE ARMS -- pinned per batch. Batch 1: isCOUNT, isNUMBER, isSTRING (+isTOKEN) --
 #  the number and the string leave the switch, and BOTH list rows (4a onto the
 #  empty field, A onto the string) name the string member.
-KLA="isCOUNT isNUMBER isSTRING PS PS isCOUNT PC PC isSTRING isSTRING "
+#  Batch 2: + isBUFFER, isSTAK -- the switch is empty of every armed kind.
+KLA="isCOUNT isNUMBER isSTRING isBUFFER isSTAK isCOUNT PC PC isSTRING isSTRING "
 kindRow "kindLiftT arms jit fire 1"      "$(klArms "$T/klift" J1)" "$KLA"
 kindRow "kindLiftT arms jit fire 2"      "$(klArms "$T/klift" J2)" "$KLA"
 kindRow "kindLiftT arms interpreted 1"   "$(klArms "$T/klift" I1)" "$KLA"

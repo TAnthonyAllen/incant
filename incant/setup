@@ -172,6 +172,8 @@ define
         '+=isNUMBER' operateMethod=opPlusEQisNUMBER;
         '+=isSTRING' operateMethod=opPlusEQisSTRING;
         '+=isTOKEN'  operateMethod=opPlusEQisSTRING;
+        '+=isBUFFER' operateMethod=opPlusEQisBUFFER;
+        '+=isSTAK'   operateMethod=opPlusEQisSTAK;
     ;
 /*******************************************************************************
 	bcOPs — bytecode opcodes (control flow + stack ops). A SEPARATE registry,
