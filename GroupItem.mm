@@ -1723,11 +1723,14 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 	//  genParseRuleAccess
 	definer = definingRule();
 	defStuff = definer->getRStuff();
+	// passMark the record count at the start of the current pass -- a pass that fails discards what it recorded
+	 int ptfPassMark = 0, ptfPassAtt = 0; 
 	// bindReadSeamProbe
 	while ( !ruleStuff->isOK && ruleStuff->kount < ruleStuff->maxRepeat )
 		{
 continueHere:
 		ruleStuff->sukcess = 0;
+		 ptfPassMark = gPtfN; ptfPassAtt = gPtfAttN; 
 		if ( !ruleStuff->checkInput() )
 			goto matchFailed;
 		if ( ruleStuff->hasMacro )
@@ -1771,6 +1774,8 @@ continueHere:
 matchFailed:
 	if ( !ruleStuff->sukcess )
 		{
+		// failedPassDiscard the failed pass's records are discarded before anything else reads them
+		 ::ptfDiscardFailedPass(this,ptfPassMark,ptfPassAtt); 
 		if ( !ruleStuff->sukcess && ruleStuff->kount >= ruleStuff->min )
 			ruleStuff->sukcess = 1;
 debugHere:

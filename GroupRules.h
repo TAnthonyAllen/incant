@@ -414,6 +414,7 @@ extern "C" GroupItem *processAction(GroupItem *field);
 extern "C" int processCode(GroupItem *field, GroupItem *holder);
 extern "C" GroupItem *processFlags(GroupItem *item);
 extern "C" char *ptfClass(GroupItem *field, RuleStuff *stuff);
+extern "C" int ptfDiscardFailedPass(GroupItem *rule, int mark, int attMark);
 extern "C" int ptfIsStmt(GroupItem *field);
 extern "C" GroupItem *ptfNoteAttach(GroupItem *label, RuleStuff *stuff, int promote);
 extern "C" int ptfRecord(GroupItem *field, RuleStuff *stuff, int held);

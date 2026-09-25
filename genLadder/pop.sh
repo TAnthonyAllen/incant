@@ -3174,8 +3174,12 @@ done
 _srRef='REFUSED ANYorNum -- `.5` is not a number -- a number needs a leading digit; write 0.5'
 if nm -gU "$(readlink "$B" || echo "$B")" 2>/dev/null | grep -q '_ptfScopeOpen$' && [ "${PTF:-1}" != 0 ]; then
     PTF_TRACE=1 $B "$T/srDot.twk" > "$T/srDotT.e" 2>&1
-    if grep -qF 'PTF DISCARD rejected parse rule=StatemenT records=3' "$T/srDotT.e" && ! grep -qF "$_srRef" "$T/srDotT.e"; then
-         echo "  ok    stmtRejT srDot -- rejected drive DISCARDED its 3 records and refused nothing (parse-then-fire)"; green=$((green+1))
+    #  ⚠ RE-PINNED (Tony, P2 (i), SEQ 180): the SAME event, counted at the failing rule. The 3
+    #  records are discarded where Xpress's generated pass fails (no `;`), before the drive's
+    #  scope closes -- so the scope's "rejected parse" line, which this row used to read, no
+    #  longer appears. That scope line is now a tripwire pinned at 0 by the conservation row.
+    if grep -qF 'PTF DISCARD failed alternative rule=Xpress records=3' "$T/srDotT.e" && ! grep -qF "$_srRef" "$T/srDotT.e"; then
+         echo "  ok    stmtRejT srDot -- rejected drive DISCARDED its 3 records at the failing rule and refused nothing (parse-then-fire)"; green=$((green+1))
     else echo "  FAIL  stmtRejT srDot -- want the 3-record discard and no refusal: $(grep -F 'PTF DISCARD' "$T/srDotT.e" | head -1)"; fail=1; fi
 elif grep -qF "$_srRef" "$T/srDot.e"; then
      echo "  ok    stmtRejT srDot -- the bare .5 statement REFUSED BY NAME (the parse fires as it goes)"; green=$((green+1))
@@ -5367,10 +5371,15 @@ naRow "lasT" 0; naRow "lasT on a list" 1
 naRow "firstMembeR" 0; naRow "firstMembeR on a list" 1
 
 #  ⚑ THE CONSERVATION ROW (P2). Records made and never fired, whole fleet, PTF=1:
-#  FRAMELEAK + DISCARD + UNREACHED. Pinned at 13,342 with its sentence: ipc SEQ 123 measured
-#  13,339 BEFORE pop.sh's own srDot sub-run existed (the `PTF_TRACE=1 $B "$T/srDot.twk"` row), and
-#  that run discards exactly 3 records -- they landed in the same commit, 860047e. FRAMELEAK is
-#  pinned at 0 (the recording scope). ⚠ THE TOTAL MOVES WHEN THE FLEET GAINS OR LOSES A FIXTURE
+#  FRAMELEAK + DISCARD + UNREACHED. First pinned at 13,342: ipc SEQ 123 measured 13,339 BEFORE
+#  pop.sh's own srDot sub-run existed (the `PTF_TRACE=1 $B "$T/srDot.twk"` row), which discards
+#  exactly 3 records, landed in the same commit, 860047e.
+#  ⚠ RE-PINNED 13,342 -> 13,349 (Tony, P2 (i), SEQ 180): the rule-level discard counts the 7
+#  records of tlFail's rejected top-level statement, which were ORPHANED AT EXIT before -- never
+#  fired and never counted. ONE CATEGORY now: every record discards at its rule's per-pass failure
+#  exit (failed-alternative), UNREACHED is 0, and the scope's REJECTED column is a TRIPWIRE pinned
+#  at 0. H7, measured: the rule-level discard removed -> rejected 12,410, UNREACHED 932.
+#  FRAMELEAK is pinned at 0 (the recording scope). ⚠ THE TOTAL MOVES WHEN THE FLEET GAINS OR LOSES A FIXTURE
 #  THAT RECORDS -- a move owes a sentence naming the fixture, not a re-pin by arithmetic.
 if [ $_ptfLedger = 1 ]; then
     _fl=$(awk '/^FRAMELEAK/{split($3,a,"=");n+=a[2]} END{print n+0}' "$PTF_LEAKLOG")
@@ -5378,10 +5387,10 @@ if [ $_ptfLedger = 1 ]; then
     _da=$(awk '/^DISCARD/&&/failedAlt=/{split($3,a,"=");n+=a[2]} END{print n+0}' "$PTF_LEAKLOG")
     _ur=$(grep -c '^UNREACHED' "$PTF_LEAKLOG")
     _tot=$((_fl + _dr + _da + _ur))
-    if [ "$_tot" = 13342 ] && [ "$_fl" = 0 ]; then
-        echo "  ok    ptf conservation: FRAMELEAK $_fl + rejected $_dr + failed-alternative $_da + UNREACHED $_ur = 13342"; green=$((green+1))
+    if [ "$_tot" = 13349 ] && [ "$_fl" = 0 ] && [ "$_dr" = 0 ] && [ "$_ur" = 0 ]; then
+        echo "  ok    ptf conservation: FRAMELEAK $_fl + rejected $_dr + failed-alternative $_da + UNREACHED $_ur = 13349"; green=$((green+1))
     else
-        echo "  FAIL  ptf conservation: FRAMELEAK $_fl + rejected $_dr + failed-alternative $_da + UNREACHED $_ur = $_tot, want 13342 with FRAMELEAK 0"; fail=1
+        echo "  FAIL  ptf conservation: FRAMELEAK $_fl + rejected $_dr + failed-alternative $_da + UNREACHED $_ur = $_tot, want 13349 = 0 + 0 + 13349 + 0"; fail=1
     fi
 fi
 

@@ -1346,10 +1346,13 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
     //  genParseRuleAccess
     definer = definingRule();
     defStuff = definer.rStuff;
+    // passMark the record count at the start of the current pass -- a pass that fails discards what it recorded
+    -% int ptfPassMark = 0, ptfPassAtt = 0; %-
     // bindReadSeamProbe
     while !isOK && kount < maxRepeat {
 continueHere:
         sukcess     = false;
+        -% ptfPassMark = gPtfN; ptfPassAtt = gPtfAttN; %-
         if !checkInput()    goto matchFailed;
         if hasMacro         setMacroValue(this);
         /*******************************************************************
@@ -1376,6 +1379,8 @@ continueHere:
     if kount >= maxRepeat && maxRepeat > 1 && !limitsSet   reportRepeatLimit(rule,kount,maxRepeat);
 matchFailed:
     if !sukcess {
+        // failedPassDiscard the failed pass's records are discarded before anything else reads them
+        -% ::ptfDiscardFailedPass(this,ptfPassMark,ptfPassAtt); %-
         if !sukcess && kount >= min sukcess = true;
 debugHere:
         if !*atRuleMark && inputDiverted {

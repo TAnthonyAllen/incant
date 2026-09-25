@@ -10943,6 +10943,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	int callSukcess = ruleStuff ? ruleStuff->sukcess : 0;
 	ParseActivation callActive = { ruleStuff, gParseActive, 0 };
 	gParseActive = &callActive;
+	int ptfCallMark = gPtfN, ptfCallAtt = gPtfAttN;
 	
 	::measureParentProbe(field);
 	// parentRepair re-point parentStuff at the ENCLOSING rule's stuff and sync parentLabel, sourced from currentMETHOD (measured to track lastRule exactly)
@@ -10999,6 +11000,8 @@ checkSuccess:
 	// markSeat1 SEQ 166 point 1 -- the last seat with visibility before the trace goes silent
 	::measureMarkPoint("1-parseRule-exit");
 	result = ::exitFromParse(field);
+	// failedCallDiscard the new road's twin of parse()'s failedPassDiscard: a generated rule that failed discards what its call recorded (Tony, P2 (i): ONE category -- a rejected drive is a failed alternative at its innermost failing rule)
+	 if ( !result ) ::ptfDiscardFailedPass(field,ptfCallMark,ptfCallAtt); 
 	// activeList pop this call's activation -- AFTER exitFromParse, so its own fire saw itself on top and skipped it
 	 gParseActive = callActive.prev; 
 	// callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it; sukcess joined 2026-09-24 (F-121): a failed inner call wrote 0 into an rStuff an old-road caller was holding, and no post-return reader decides on it (census)
@@ -12321,6 +12324,21 @@ extern "C" char *ptfClass(GroupItem *field, RuleStuff *stuff)
 	
 }
 
+// ptfDiscardFailedPass A FAILED PASS FIRES NOTHING (P2, Tony's ruling (i), SEQ 180): the records a pass made before it failed are DISCARDED at the rule's per-pass failure exit, on both roads, and counted -- ONE category; before this they were dropped as UNREACHED or orphaned at exit. ptfScopeClose's rejected-parse discard is now a TRIPWIRE pinned at 0
+extern "C" int ptfDiscardFailedPass(GroupItem *rule, int mark, int attMark)
+{
+	
+	if ( !ptfOn() || gPtfN <= mark ) return 0;
+	int n = gPtfN - mark;
+	gPtfN = mark;
+	if ( gPtfAttN > attMark ) gPtfAttN = attMark;
+	const char *t = rule && rule->groupBody->tag ? rule->groupBody->tag : "?";
+	if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DISCARD failed alternative rule=%s records=%d\n",t,n);
+	if ( ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"DISCARD rule=%s failedAlt=%d\n",t,n); ::fclose(lf); } }
+	return n;
+	
+}
+
 // ptfEngine PARSE-THEN-FIRE, STEP 1 (branch parse-then-fire, 2026-09-24): an ordinary label action inside a top-level statement is RECORDED at fireLabelMethod with its fire-or-hold decision, and the statement's end REPLAYS the records in order -- same actions, same order, later. State and switches live in jitContext.h (ptfState)
 extern "C" int ptfIsStmt(GroupItem *field)
 {
@@ -12561,7 +12579,7 @@ extern "C" GroupItem *ptfScopeClose(GroupItem *rule, GroupItem *result)
 	gPtfAttN = sc.attBase < gPtfAttN ? sc.attBase : gPtfAttN;
 	GroupRules *ruler = GroupControl::groupController->groupRules;
 	if ( !n ) return result;
-	// rejectedParse A REJECTED PARSE FIRES NOTHING (Tony, 2026-09-25): no tree, no fires. Its records are DISCARDED here, explicitly, and counted apart from FRAMELEAK -- the rejection is the report
+	// rejectedParse A REJECTED PARSE FIRES NOTHING (Tony, 2026-09-25): no tree, no fires. Since P2 (i) the failing rule has already discarded them (ptfDiscardFailedPass), so anything counted HERE is a TRIPWIRE -- pop.sh pins the column at 0
 	if ( !result || result == ruler->falseResult || !rule || !rule->rStuff )
 	{
 	if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DISCARD rejected parse rule=%s records=%d\n",rule && rule->groupBody->tag ? rule->groupBody->tag : "?",n);
