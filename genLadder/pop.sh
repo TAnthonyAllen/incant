@@ -5170,17 +5170,26 @@ kindRow "kindSRT degrade count"  "$(grep -o 'jitDegrade count = [0-9]*' "$T/ksr"
 #  PINNED AS THEY BEHAVE TODAY by the branch witness: node onto an empty field
 #  (F), node and count onto a bin (C). Re-pins to the structural member's name
 #  when it lands; the lengths must not move.
+klArms () {                     # klArms <file> <region> -> arm per fire, in walk order
+    awk -v r="$2" '$0 ~ "^MARK "r" begin" {on=1; next} $0 ~ "^MARK "r" end" {on=0}
+        on && /^KINDARM / { a=$2; sub(/^opPlusEQ/,"",a); printf "%s ", a }
+        on && /^PEQBRANCH / { printf "P%s ", $2 }' "$1"
+}
 peqBranch () {                  # peqBranch <file> <region> -> branch letters
     awk -v r="$2" '$0 ~ "^MARK "r" begin" {on=1; next} $0 ~ "^MARK "r" end" {on=0}
         on && /^PEQBRANCH / {printf "%s", $2}' "$1"
 }
-export INCANT_PEQ_PROBE=1
+export INCANT_PEQ_PROBE=1 INCANT_KIND_PROBE=1
 run1 kindCellsT "$T/kcel";   check "kindCellsT runs" 0 $?
-unset INCANT_PEQ_PROBE
+unset INCANT_PEQ_PROBE INCANT_KIND_PROBE
 sentinel "kindCellsT sentinel" "$T/kcel" "KINDCELLST SENTINEL"
-kindRow "kindCellsT C4 node onto EMPTY: branch, length" "$(peqBranch "$T/kcel" C4) $(grep '^C4 length' "$T/kcel" | awk '{print $NF}')" "F 1"
-kindRow "kindCellsT C1n node onto BIN: branch, length" "$(peqBranch "$T/kcel" C1n) $(grep '^C1n length' "$T/kcel" | awk '{print $NF}')" "C 2"
-kindRow "kindCellsT C1c count onto BIN: branch, length" "$(peqBranch "$T/kcel" C1c) $(grep '^C1c length' "$T/kcel" | awk '{print $NF}')" "C 3"
+#  ⚠ RE-PINNED 2026-09-25 (FINISH += batch 3): the three cells reach the structural
+#  member by name -- C4 through pick step 4c (a dataless node onto an EMPTY field),
+#  C1n and C1c through step 1 (a bin). The branch letter goes blank because opPlusEQ
+#  is no longer reached; THE LENGTHS DID NOT MOVE, which is the claim.
+kindRow "kindCellsT C4 node onto EMPTY: branch, arm, length" "[$(peqBranch "$T/kcel" C4)] $(klArms "$T/kcel" C4)$(grep '^C4 length' "$T/kcel" | awk '{print $NF}')" "[] struct 1"
+kindRow "kindCellsT C1n node onto BIN: branch, arm, length" "[$(peqBranch "$T/kcel" C1n)] $(klArms "$T/kcel" C1n)$(grep '^C1n length' "$T/kcel" | awk '{print $NF}')" "[] struct 2"
+kindRow "kindCellsT C1c count onto BIN: branch, arm, length" "[$(peqBranch "$T/kcel" C1c)] $(klArms "$T/kcel" C1c)$(grep '^C1c length' "$T/kcel" | awk '{print $NF}')" "[] struct 3"
 
 
 #  ---------------------------------------------------------------------------
@@ -5216,12 +5225,24 @@ kindRow "kindLiftT stak depth before each fire J1 J2 I1 I2" "$(klStak "$T/klift"
 #  the number and the string leave the switch, and BOTH list rows (4a onto the
 #  empty field, A onto the string) name the string member.
 #  Batch 2: + isBUFFER, isSTAK -- the switch is empty of every armed kind.
-KLA="isCOUNT isNUMBER isSTRING isBUFFER isSTAK isCOUNT PC PC isSTRING isSTRING "
+#  Batch 3: + struct -- the field with MEMBERS (step 3) and the BIN (step 1) name
+#  the structural member. No opPlusEQ branch letter is left in the walk.
+KLA="isCOUNT isNUMBER isSTRING isBUFFER isSTAK isCOUNT struct struct isSTRING isSTRING "
 kindRow "kindLiftT arms jit fire 1"      "$(klArms "$T/klift" J1)" "$KLA"
 kindRow "kindLiftT arms jit fire 2"      "$(klArms "$T/klift" J2)" "$KLA"
 kindRow "kindLiftT arms interpreted 1"   "$(klArms "$T/klift" I1)" "$KLA"
 kindRow "kindLiftT arms interpreted 2"   "$(klArms "$T/klift" I2)" "$KLA"
 kindRow "kindLiftT degrade count"        "$(grep -o 'jitDegrade count = [0-9]*' "$T/klift" | awk '{print $NF}')" "0"
+
+
+#  ---------------------------------------------------------------------------
+#  THE GRAFT (FINISH += Amendment 2): `WardeD += PfCoutGraft;` -- a RULE with no
+#  data but with members -- reaches the structural member by pick step 3 and
+#  appends, exactly as branch F did. printPop pins its OUTPUT; this row pins the
+#  ARM, twice (cout and cerr grafts). Interpreted only: the graft is a top-level
+#  statement, so it has no jitted body to compile.
+INCANT_KIND_PROBE=1 $B "$(ip printFamilyNew)" > "$T/pfn" 2>&1; check "printFamilyNew runs (graft arm)" 0 $?
+kindRow "printFamilyNew graft: arms on WardeD" "$(grep '^KINDARM ' "$T/pfn" | grep 'tag=WardeD ' | awk '{print $2}' | tr '\n' ' ')" "opPlusEQstruct opPlusEQstruct "
 
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
