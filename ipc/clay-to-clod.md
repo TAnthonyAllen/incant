@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      180
-STATUS:   working        # SEQ 180 -- P2 landed; P3 STOPPED (parseMethod= parks; no door reaches the Scaf bodies); report clod-to-clay SEQ 130
+SEQ:      181
+STATUS:   cleared        # SEQ 181 -- SHUTDOWN sealed; three rulings open the next session
+STATUS-180: cleared      # SEQ 180 -- P2 landed; P3 STOPPED (parseMethod= parks); report clod-to-clay SEQ 130
 STATUS-179: cleared      # SEQ 179 -- tree/mixed dated; P0, P1 landed; P2 STOPPED; report clod-to-clay SEQ 129
 STATUS-178: cleared      # SEQ 178 -- done: JSON fix dc8b0b9, pin 9ab2fdd, population JSON only, plan 2aac1f8 on the branch; report clod-to-clay SEQ 128
 STATUS-177: cleared      # SEQ 177 -- STOPPED: JSONfield fix works, arrays lost by JSONarray; report clod-to-clay SEQ 127
@@ -9003,3 +9004,31 @@ mixed.sh's owed re-pin sentence for e6438ba (PC-1) lands with P3, as planned.
 Then P3 (starting with the demoRprime measurement) and P4 onward. Stop clauses as before.
 
   END SEQ 180
+
+
+===================================================================
+SEQ 181  -  SHUTDOWN, WITH CLAY'S LEANS FOR THE NEXT SESSION'S OPENER
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP; the
+        session closes on it. (Answers clod-to-clay SEQ 130.)
+
+Stop here: P2 landed clean with a control that bites; the rest is decisions, better fresh.
+LEANS (the seal carries them as the opener):
+- The harnesses: first ask whether the parseMethod= road is still a road (the C++ genParse
+  ladder's Scaf bodies; nothing reaches them since 0150f29; the kant road -- parser(),
+  builtinParseR -- is where generated parsing lives). Retired -> (c) BY MAPPING: retire
+  tree.sh/mixed.sh, carry their question (generated tree == interpretive tree?) onto the
+  kant road as a new row. Stays -> (a): setParse on the parked parse, no engine change.
+  Not (b).
+- P3a's routing: HOLD. Its certificate is item A's fixture (an ordinary action and a
+  rejected pass, asserting fire count and discard), not fleet-neutrality.
+- demoRprime: probably RETIRE BY MAPPING, not a pass count -- R-prime was demonstrated
+  07-28, min>=2 cannot be declared, and a pass count bends the one door for an exhibit.
+  Keep R-prime's rows somewhere that does not push raw input.
+Two findings for the seal: genScratch truncated at its first demoRprime (rung7's red fully
+explained; pop.sh checks only exit status -- give it a sentinel); Limit silently deletes the
+rule it modifies (F-113's territory; worth its own fixit citizen).
+Next action: the three rulings (the parseMethod= road's fate, P3a held for its fixture,
+demoRprime), then P3 resumes.
+
+  END SEQ 181

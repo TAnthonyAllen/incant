@@ -1,3 +1,66 @@
+# ⚠⚠⚠ SEALED 2026-09-25, SHUTDOWN -- STEP-2 RECON DONE, THE PLAN IS ON THE BRANCH, P0-P2 LANDED. P3 IS STOPPED
+# ON THREE RULINGS, AND THE NEXT SESSION OPENS WITH THEM.
+#
+#   ## THE ONE-LINE STATE: **trunk `jit-unified-emit-wip` installed and BARE -- fleet 752 / 1 · red 57 (banked
+#   by name, docs/redList.md) · jitLadder 215 PASSED · printPop PASSED · canary 368 · fixit queue 1 · no incant
+#   process. Branch `parse-then-fire` at 5e30f2a, pushed: PTF=1 751 / 1, PTF=0 752 / 1 (red == trunk's),
+#   jitLadder 215 at both, canary 384.**
+#
+#   ## THE OPENER -- THREE RULINGS, THEN P3 RESUMES (Clay's leans, SEQ 181, carried here verbatim in substance)
+#   1. **Is the `parseMethod=` road still a road?** Since 0150f29 (09-07) nothing reaches a `parseMethod=`-bound
+#      body: the binder PARKS it (setParseMethod + parkParse) and raises no hasNewParse; the removed fork in
+#      parse() was the parked address's only reader. The kant road (parser(), builtinParseR) is where generated
+#      parsing lives now. **Clay leans:** road retired -> (c) BY MAPPING: retire tree.sh and mixed.sh and carry
+#      their question (does the generated tree agree with the interpretive one?) onto the kant road as a new row.
+#      Road stays -> (a): the fixtures call setParse on the parked parse, no engine change. **Not (b)** (the
+#      binder raising hasNewParse): an engine change reopening every parseMethod= fixture for a road nobody drives.
+#   2. **P3a's routing (treeOf through driveStep): HOLD.** Built, fleet-neutral, reverted (diff not in tree).
+#      Fleet-neutral is not its certificate: it lands WITH item A's fixture -- a drive carrying an ordinary action
+#      and a rejected pass, asserting the fire count and the discard. Its design stands: driveStep returns the
+#      root label (a generated root's read from rStuff.label, as tell's reply does); runRule maps it back to one
+#      bit (ruling c').
+#   3. **demoRprime: probably RETIRE BY MAPPING, not a pass count.** It compares two rewind disciplines to show
+#      R-prime, demonstrated 07-28; its min>=2 case cannot be declared (see Limit below); a pass count would bend
+#      the one door to serve an exhibit. Keep R-prime's rows somewhere that does not push raw input.
+#
+#   ## LANDED TODAY (this session, after the 13:06 seal)
+#   - **JSON (trunk dc8b0b9):** JSONfield and JSONarray mint a fresh result node per fire -- JSONfield had
+#     returned its action LOCAL (bear-trap #50: every member of every object shared ONE body, no key), JSONarray
+#     its last element. **The pin (9ab2fdd):** jsonTest prints the tree; nine JT rows by value replace the parked
+#     non-null baseline row (retired by mapping). H7 (pre-fix utilities): six rows red, JT-OK green -- the retired
+#     row's blindness in one line. This is the TRUNK HALF of the collecting action (Tony, SEQ 178).
+#   - **The step-2 plan (branch docs/jitDesign.md, 2aac1f8):** P0-P8 with pre-registered certificates, the
+#     split-action table, Rule C classified against overlapCensus.md. Item-2 population: JSON only, (b) stands.
+#   - **tree.sh and mixed.sh joined the seal checklist (a757874), both VOID since 0150f29**, dated by clone bisect
+#     outside Dropbox (three repos at one date, pbxproj rewritten; pre-09-04 builds use TOK 644fe89 with
+#     measure.mm stubbed). mixed.sh also moved at e6438ba (08-13, PC-1 narrow) -- its re-pin sentence lands with P3.
+#   - **P0** merge trunk into the branch (2b0faaf). **P1** the drive census row -- pushInput's callers pinned by
+#     name, 7 (trunk 26f499c, branch 939d040). **P2** the conservation row and ONE discard category (Tony (i)):
+#     a failed pass discards its records at the rule's own failure exit, both roads; the scope's rejected column
+#     is a TRIPWIRE at 0; conservation re-pinned 13,349 (+7 = tlFail's orphaned-at-exit records); srDot re-pinned
+#     to the failed-alternative line (branch e2b1e6c, 5e30f2a).
+#
+#   ## FINDINGS FOR TONY (reported, NOT minted -- rule F2)
+#   - **genScratch is TRUNCATED at its first `demoRprime` call, silently, at exit 0.** demoRprime pushes input
+#     without raising inputFloor, so its end-of-message pop takes the file's own input. Everything after it is
+#     dead (the second demo, RUNG 6/7 runtime calls, the trailing genParse pair) and **rung7.target's red is fully
+#     explained**: untruncated, it matches exactly. pop.sh checks only genScratch's exit status -- it should gain
+#     a SENTINEL (H2).
+#   - **`Limit` (`[min max]`) SILENTLY DELETES THE RULE IT MODIFIES** -- `ScafA[2]` and `ScafA[2 9]` leave the rule
+#     undefined (tell: known=0) with no error. Nothing in the tree uses Limit today. F-113's territory; **Clay
+#     recommends its own fixit citizen** so it points at your foot -- yours to mint.
+#   - **P7, re-read:** what remains is the bootstrap pin (2,512 outside fires per run), non-StatemenT drive roots
+#     becoming firing roots, and nothing for action bodies beyond P8's split. It does not touch setup's parse.
+#
+#   ## CHECKLIST, measured at this tree (H12, H14) -- date checked, 2026-09-25 17:28
+#   pop.sh 752 / 1 · jitLadder 215 ok, PASSED · decodePop FAILED, the KE-1 rows as this morning · ddPop 5 / 1 ·
+#   countPop FAILED, 0 crashed, 47 "missing" (unchanged) · printPop PASSED · **tree.sh red, void (0150f29)** ·
+#   **mixed.sh red, void (0150f29)** · frontier dies at station 4 (fire) · canary 368 · retok bare ·
+#   groups.ext committed (untouched today) · Groups, support, TOK clean and pushed · no incant process.
+#
+#   ## TONY'S FIXIT INCANTATIONS WAITING: **1** (oldest: refireSkipsDegraded, since 2026-09-25)
+#   Generated by `genLadder/fixitNag.sh`, not typed.
+
 # ⚠⚠⚠ SEALED 2026-09-25, PAUSE -- PARSE-THEN-FIRE IS GO FOR STEP 2. += FINISHED. THE countPop CRASH FIXED AND DATED.
 #
 #   ## THE ONE-LINE STATE: **trunk `jit-unified-emit-wip`, installed and BARE -- fleet 742 / 2 · jitLadder 215,
