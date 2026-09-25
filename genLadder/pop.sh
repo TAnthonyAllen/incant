@@ -5033,6 +5033,234 @@ else
     echo "        was parsed and its failure abandoned the run."; fail=1
 fi
 
+
+#  ---------------------------------------------------------------------------
+#  kindT / kindJitT -- THE PER-KIND += SPLIT. Minted 2026-09-25 with the first
+#  member, '+=isCOUNT' -> opPlusEQisCOUNT, picked per fire by checkOP in runOP.
+#  The fork is value-transparent by construction, so EVERY ROW ASSERTS THE ARM
+#  BY NAME AS WELL AS THE VALUE: the tags of the KINDARM lines between a row's
+#  own MARK pair, compared as a string. A missing arm reads as "" and fails the
+#  rows that want one; R2a wants "" and is paired with R2b, which wants kE.
+#  Armed by INCANT_KIND_PROBE (measureKindArm), for these two runs only.
+#  H7, measured on the fixture alone 2026-09-25: with the member unregistered
+#  every KINDARM goes and every value stays the same.
+kindArms () {                   # kindArms <file> <region>  -> tags, space-joined
+    awk -v r="$2" '$0 ~ "^MARK "r" begin" {on=1; next} $0 ~ "^MARK "r" end" {on=0}
+        on && /^KINDARM / { sub(/^.*tag=/,""); sub(/ .*/,""); t = t (t==""?"":" ") $0 }
+        END {print t}' "$1"
+}
+kindRow () {                    # kindRow <label> <got> <want>
+    if [ "$2" = "$3" ]; then echo "  ok    $1 = [$3]"; green=$((green+1))
+    else echo "  FAIL  $1 -- got [$2] want [$3]"; fail=1; fi
+}
+export INCANT_KIND_PROBE=1
+run1 kindT "$T/kind";        check "kindT runs" 0 $?
+run1 kindJitT "$T/kindj";    check "kindJitT runs" 0 $?
+unset INCANT_KIND_PROBE
+sentinel "kindT sentinel" "$T/kind" "KINDT SENTINEL"
+sentinel "kindJitT sentinel" "$T/kindj" "KINDJITT SENTINEL"
+#  ⚠ RE-PINNED 2026-09-25 (FINISH += batch 1): the string member '+=isSTRING' now
+#  takes kB, so every member of the mixed walk names an arm -- one per member, per
+#  pass. kindLiftT carries WHICH member by name; this row reads the tags.
+kindRow "kindT R1 mixed-kind walk: arms"     "$(kindArms "$T/kind" R1)"  "kA kB kC"
+kindRow "kindT R1 mixed-kind walk: values"   "$(grep '^R1 value' "$T/kind" | awk '{print $3}' | tr '\n' ' ')" "3 x2 5 "
+#  ⚠ RE-PINNED 2026-09-25 (FINISH +=): the count member now handles an EMPTY target
+#  itself -- pick step 4b, the argument's kind -- instead of handing it back to
+#  opPlusEQ, so the first fire names its arm. The value row below is unmoved.
+kindRow "kindT R2a empty target, 1st fire: arms" "$(kindArms "$T/kind" R2a)" "kE"
+kindRow "kindT R2a empty target, 1st fire: value" "$(grep '^R2a value' "$T/kind" | awk '{print $3}')" "4"
+kindRow "kindT R2b now-typed, 2nd fire: arms"    "$(kindArms "$T/kind" R2b)" "kE"
+kindRow "kindT R2b now-typed, 2nd fire: value"   "$(grep '^R2b value' "$T/kind" | awk '{print $3}')" "10"
+kindRow "kindT R4 no-space +=: arms"         "$(kindArms "$T/kind" R4)"  "kR4"
+kindRow "kindT R4 no-space +=: value"        "$(grep '^R4 value' "$T/kind" | awk '{print $3}')" "9"
+kindRow "kindJitT R3 values jit1 jit2 oracle" "$(grep '^R3 ' "$T/kindj" | awk '{print $NF}' | tr '\n' ' ')" "8 17 8 "
+#  ⚠ RE-PINNED 2026-09-25: the pick runs at RUN time, so the arm fires once per
+#  FIRE -- jit, refire, oracle -- where it used to fire once at EMIT and never on
+#  a refire ("kjN kjN "). That is ruling 5's "per fire" now true on both roads.
+kindRow "kindJitT R3 arms (jit, refire, oracle)" "$(grep '^KINDARM ' "$T/kindj" | sed 's/^.*tag=//; s/ .*//' | tr '\n' ' ')" "kjN kjN kjN "
+kindRow "kindJitT R3 degrade count"          "$(grep -o 'jitDegrade count = [0-9]*' "$T/kindj" | awk '{print $NF}')" "0"
+
+
+#  ---------------------------------------------------------------------------
+#  kindHolderT / kindHolderJitT -- += ON A HOLDER: THE REFUSAL STANDS (Tony,
+#  2026-09-25). checkOP asks getDataType, which refuses on a group holder;
+#  opPlusEQ then answers from its default arm. Each row COUNTS a named line
+#  inside its own MARK region, so a vanished line reads 0 and fails (H4).
+#  The jitted road now refuses once per FIRE, as the interpreted road does (the
+#  run-time call-through, 2026-09-25); it refused once per COMPILE before that.
+#  H7, measured 2026-09-25: with the member unregistered, hasMembers is false,
+#  checkOP never runs, and every refusal row goes red while the arm rows hold.
+kindCount () {                  # kindCount <file> <region> <fixed text> -> count
+    awk -v r="$2" -v t="$3" '$0 ~ "^MARK "r" begin" {on=1; next} $0 ~ "^MARK "r" end" {on=0}
+        on && index($0,t) {n++} END {print n+0}' "$1"
+}
+KREF="ERROR getDataType on kH -- holds a group; say *"
+KARM="ERROR Operator += failed on kH"
+KDEG="+= on an unhandled datA"
+export INCANT_KIND_PROBE=1
+run1 kindHolderT "$T/kho";       check "kindHolderT runs" 0 $?
+run1 kindHolderJitT "$T/khj";    check "kindHolderJitT runs" 0 $?
+unset INCANT_KIND_PROBE
+sentinel "kindHolderT sentinel" "$T/kho" "KINDHOLDERT SENTINEL"
+sentinel "kindHolderJitT sentinel" "$T/khj" "KINDHOLDERJITT SENTINEL"
+kindRow "kindHolderT fire 1: refusal, opPlusEQ default arm" "$(kindCount "$T/kho" H1 "$KREF") $(kindCount "$T/kho" H1 "$KARM")" "1 1"
+kindRow "kindHolderT fire 2: refusal, opPlusEQ default arm" "$(kindCount "$T/kho" H2 "$KREF") $(kindCount "$T/kho" H2 "$KARM")" "1 1"
+kindRow "kindHolderT values after fires 1 and 2 (holder source)" "$(grep '^H[12] holder' "$T/kho" | awk '{print $3, $5}' | tr '\n' ' ')" "5 5 5 5 "
+#  ⚠ RE-PINNED 2026-09-25, Tony's ruling (+= per fire on the jitted road, no
+#  degrade): the pick is fired at RUN time through jitOpFireRT, so the refusal
+#  and opPlusEQ's default arm print once per FIRE -- compile-fire and refire
+#  alike -- matching the interpreted road, and nothing degrades. These two rows
+#  read "1 1 / 0 1" while the jitted road refused once per COMPILE.
+kindRow "kindHolderJitT jit fire 1: refusal, arm, degrade" "$(kindCount "$T/khj" HJ1 "$KREF") $(kindCount "$T/khj" HJ1 "$KARM") $(kindCount "$T/khj" HJ1 "$KDEG")" "1 1 0"
+kindRow "kindHolderJitT refire: refusal, arm, nothing-compiled" "$(kindCount "$T/khj" HJ2 "$KREF") $(kindCount "$T/khj" HJ2 "$KARM") $(kindCount "$T/khj" HJ2 "NOTHING COMPILED YET")" "1 1 0"
+kindRow "kindHolderJitT oracle: refusal, opPlusEQ default arm" "$(kindCount "$T/khj" HI "$KREF") $(kindCount "$T/khj" HI "$KARM")" "1 1"
+kindRow "kindHolderJitT values jit1 jit2 oracle (holder)" "$(grep -E '^H(J1|J2|I) holder' "$T/khj" | awk '{print $3}' | tr '\n' ' ')" "5 5 5 "
+
+
+#  ---------------------------------------------------------------------------
+#  kindJ1T / kindJ2T -- += ON THE JITTED ROAD, PER FIRE (Tony's ruling,
+#  2026-09-25). Each body is compiled ONCE and fired twice, jitted beside
+#  interpreted; every pass is asserted by value AND by arm, and degrade is 0.
+#  J1 is the row a baked pick fails: the kind changes within one compiled body.
+#  J2 is compiled while its target is empty.
+export INCANT_KIND_PROBE=1
+run1 kindJ1T "$T/kj1";   check "kindJ1T runs" 0 $?
+run1 kindJ2T "$T/kj2";   check "kindJ2T runs" 0 $?
+unset INCANT_KIND_PROBE
+sentinel "kindJ1T sentinel" "$T/kj1" "KINDJ1T SENTINEL"
+sentinel "kindJ2T sentinel" "$T/kj2" "KINDJ2T SENTINEL"
+kjv () { awk -v h="$2" '$0 ~ "^"h"( |$)" {on=1; next} /^J1 (jit|interp)/ {on=0} on && /^J1 value/ {printf "%s ", $3}' "$1"; }
+kindRow "kindJ1T jit fire 1: values"   "$(kjv "$T/kj1" 'J1 jit fire 1')"      "3 x2 5 "
+kindRow "kindJ1T jit fire 2: values"   "$(kjv "$T/kj1" 'J1 jit fire 2')"      "5 x22 7 "
+kindRow "kindJ1T interpreted 1 and 2: values" "$(kjv "$T/kj1" 'J1 interpreted 1')/$(kjv "$T/kj1" 'J1 interpreted 2')" "3 x2 5 /5 x22 7 "
+#  ⚠ RE-PINNED 2026-09-25 (FINISH += batch 1): the string member now takes kjB/kjiB on
+#  both roads, so each pass names all three; values unmoved.
+kindRow "kindJ1T arms jit1 jit2 int1 int2" "$(kindArms "$T/kj1" J1jit1)/$(kindArms "$T/kj1" J1jit2)/$(kindArms "$T/kj1" J1int1)/$(kindArms "$T/kj1" J1int2)" "kjA kjB kjC/kjA kjB kjC/kjiA kjiB kjiC/kjiA kjiB kjiC"
+kindRow "kindJ1T degrade count"         "$(grep -o 'jitDegrade count = [0-9]*' "$T/kj1" | awk '{print $NF}')" "0"
+kindRow "kindJ2T values jit1 jit2 int1 int2" "$(grep -E '^J2 (jit fire|interpreted) [12]' "$T/kj2" | awk '{print $NF}' | tr '\n' ' ')" "4 10 4 10 "
+#  ⚠ RE-PINNED 2026-09-25 (FINISH +=): the empty-target first fire now names the
+#  count member on both roads (pick step 4b); values 4 10 4 10 unmoved.
+kindRow "kindJ2T arms jit1 jit2 int1 int2" "$(kindArms "$T/kj2" J2jit1)/$(kindArms "$T/kj2" J2jit2)/$(kindArms "$T/kj2" J2int1)/$(kindArms "$T/kj2" J2int2)" "kjE/kjE/kjI/kjI"
+kindRow "kindJ2T degrade count"         "$(grep -o 'jitDegrade count = [0-9]*' "$T/kj2" | awk '{print $NF}')" "0"
+kindRow "kindHolderJitT degrade count"  "$(grep -o 'jitDegrade count = [0-9]*' "$T/khj" | awk '{print $NF}')" "0"
+
+
+#  ---------------------------------------------------------------------------
+#  kindSRT -- STORE-THEN-READ ACROSS THE += CALL-THROUGH (2026-09-25). Compiled
+#  once, fired twice, jitted beside interpreted. The LOCAL row is the one that
+#  found the frame-slot KIND gap (jitted read 2 on fire 1 where interpreted read
+#  7 -- that run is its negative control); gJitFrameAssigned is the fix.
+#  ⚠ THE EMPTY ROW IS PINNED AS A MEASURED DIVERGENCE, NOT A CLAIM (H7's other
+#  half): a jitted action local keeps its value across fires where the
+#  interpreted road clears it, with or without +=. Jitted 2 4, interpreted 2 2.
+#  If the frame model is fixed this row goes red and re-pins to "2 2 / 2 2".
+export INCANT_KIND_PROBE=1
+run1 kindSRT "$T/ksr";   check "kindSRT runs" 0 $?
+unset INCANT_KIND_PROBE
+sentinel "kindSRT sentinel" "$T/ksr" "KINDSRT SENTINEL"
+ksr () { grep "^SR $2 " "$1" | awk -v c="$3" '{for(i=1;i<=NF;i++) if ($i==c) print $(i+1)}'; }
+kindRow "kindSRT local: jit1 jit2 / int1 int2"  "$(ksr "$T/ksr" 'jit 1' local) $(ksr "$T/ksr" 'jit 2' local) / $(ksr "$T/ksr" 'int 1' local) $(ksr "$T/ksr" 'int 2' local)" "7 12 / 7 12"
+kindRow "kindSRT field: jit1 jit2 / int1 int2"  "$(ksr "$T/ksr" 'jit 1' field) $(ksr "$T/ksr" 'jit 2' field) / $(ksr "$T/ksr" 'int 1' field) $(ksr "$T/ksr" 'int 2' field)" "7 9 / 7 9"
+kindRow "kindSRT EMPTY local (PINNED DIVERGENCE): jit / int" "$(ksr "$T/ksr" 'jit 1' empty) $(ksr "$T/ksr" 'jit 2' empty) / $(ksr "$T/ksr" 'int 1' empty) $(ksr "$T/ksr" 'int 2' empty)" "2 4 / 2 2"
+kindRow "kindSRT degrade count"  "$(grep -o 'jitDegrade count = [0-9]*' "$T/ksr" | awk '{print $NF}')" "0"
+
+
+#  ---------------------------------------------------------------------------
+#  kindCellsT -- the two += cells no fixture reached (Amendment 2, 2026-09-25),
+#  PINNED AS THEY BEHAVE TODAY by the branch witness: node onto an empty field
+#  (F), node and count onto a bin (C). Re-pins to the structural member's name
+#  when it lands; the lengths must not move.
+klArms () {                     # klArms <file> <region> -> arm per fire, in walk order
+    awk -v r="$2" '$0 ~ "^MARK "r" begin" {on=1; next} $0 ~ "^MARK "r" end" {on=0}
+        on && /^KINDARM / { a=$2; sub(/^opPlusEQ/,"",a); printf "%s ", a }
+        on && /^PEQBRANCH / { printf "P%s ", $2 }' "$1"
+}
+peqBranch () {                  # peqBranch <file> <region> -> branch letters
+    awk -v r="$2" '$0 ~ "^MARK "r" begin" {on=1; next} $0 ~ "^MARK "r" end" {on=0}
+        on && /^PEQBRANCH / {printf "%s", $2}' "$1"
+}
+export INCANT_PEQ_PROBE=1 INCANT_KIND_PROBE=1
+run1 kindCellsT "$T/kcel";   check "kindCellsT runs" 0 $?
+unset INCANT_PEQ_PROBE INCANT_KIND_PROBE
+sentinel "kindCellsT sentinel" "$T/kcel" "KINDCELLST SENTINEL"
+#  ⚠ RE-PINNED 2026-09-25 (FINISH += batch 3): the three cells reach the structural
+#  member by name -- C4 through pick step 4c (a dataless node onto an EMPTY field),
+#  C1n and C1c through step 1 (a bin). The branch letter goes blank because opPlusEQ
+#  is no longer reached; THE LENGTHS DID NOT MOVE, which is the claim.
+kindRow "kindCellsT C4 node onto EMPTY: branch, arm, length" "[$(peqBranch "$T/kcel" C4)] $(klArms "$T/kcel" C4)$(grep '^C4 length' "$T/kcel" | awk '{print $NF}')" "[] struct 1"
+kindRow "kindCellsT C1n node onto BIN: branch, arm, length" "[$(peqBranch "$T/kcel" C1n)] $(klArms "$T/kcel" C1n)$(grep '^C1n length' "$T/kcel" | awk '{print $NF}')" "[] struct 2"
+kindRow "kindCellsT C1c count onto BIN: branch, arm, length" "[$(peqBranch "$T/kcel" C1c)] $(klArms "$T/kcel" C1c)$(grep '^C1c length' "$T/kcel" | awk '{print $NF}')" "[] struct 3"
+
+
+#  ---------------------------------------------------------------------------
+#  kindLiftT -- FINISH += (Tony, 2026-09-25). Every kind in one walk, jitted
+#  (compiled once, fired twice) beside interpreted (twice). VALUES are pinned and
+#  must never move; ARMS are the member each target reached (its name) or the
+#  opPlusEQ branch letter (P+letter) -- they move from letters to names as each
+#  batch registers, and nowhere else. Stak depth is read before each fire.
+klVals () {                     # klVals <file> <fire> -> value per member
+    awk -v f="$2" '$0=="KL SHOW "f" " || $0=="KL SHOW "f {on=1; next} /^MARK |^KL LIST|^KL SHOW/ {on=0}
+        on && /^KL value/ { v=$3; if (index($0,"toString")) v="stak"; if ($NF>0) v="len" $NF; printf "%s ", v }' "$1"
+}
+klArms () {                     # klArms <file> <region> -> arm per fire, in walk order
+    awk -v r="$2" '$0 ~ "^MARK "r" begin" {on=1; next} $0 ~ "^MARK "r" end" {on=0}
+        on && /^KINDARM / { a=$2; sub(/^opPlusEQ/,"",a); printf "%s ", a }
+        on && /^PEQBRANCH / { printf "P%s ", $2 }' "$1"
+}
+klStak () { awk -v r="$2" '$0 ~ "^MARK "r" begin" {on=1; next} $0 ~ "^MARK "r" end" {on=0}
+        on && /K data=|tag=k[ij]K / { for(i=1;i<=NF;i++) if ($i ~ /^sdepth=/) {sub(/sdepth=/,"",$i); print $i} }' "$1"; }
+export INCANT_KIND_PROBE=1 INCANT_PEQ_PROBE=1
+run1 kindLiftT "$T/klift";   check "kindLiftT runs" 0 $?
+unset INCANT_KIND_PROBE INCANT_PEQ_PROBE
+sentinel "kindLiftT sentinel" "$T/klift" "KINDLIFTT SENTINEL"
+KLV1="3 3.5 s2 2 stak 2 len2 len2 "
+KLV2="5 5.5 s22 22 stak 4 len3 len3 "
+kindRow "kindLiftT values jit fire 1"    "$(klVals "$T/klift" J1)" "$KLV1"
+kindRow "kindLiftT values jit fire 2"    "$(klVals "$T/klift" J2)" "$KLV2"
+kindRow "kindLiftT values interpreted 1" "$(klVals "$T/klift" I1)" "$KLV1"
+kindRow "kindLiftT values interpreted 2" "$(klVals "$T/klift" I2)" "$KLV2"
+kindRow "kindLiftT list args jit1 jit2 int1 int2" "$(grep '^KL LIST' "$T/klift" | sed 's/^KL LIST [JI][12] *//' | tr -s ' ' | tr '\n' '|')" "a b c / s a b |a b c a b c / s a b a b |a b c / s a b |a b c a b c / s a b a b |"
+kindRow "kindLiftT stak depth before each fire J1 J2 I1 I2" "$(klStak "$T/klift" J1) $(klStak "$T/klift" J2) $(klStak "$T/klift" I1) $(klStak "$T/klift" I2)" "0 1 0 1"
+#  THE ARMS -- pinned per batch. Batch 1: isCOUNT, isNUMBER, isSTRING (+isTOKEN) --
+#  the number and the string leave the switch, and BOTH list rows (4a onto the
+#  empty field, A onto the string) name the string member.
+#  Batch 2: + isBUFFER, isSTAK -- the switch is empty of every armed kind.
+#  Batch 3: + struct -- the field with MEMBERS (step 3) and the BIN (step 1) name
+#  the structural member. No opPlusEQ branch letter is left in the walk.
+KLA="isCOUNT isNUMBER isSTRING isBUFFER isSTAK isCOUNT struct struct isSTRING isSTRING "
+kindRow "kindLiftT arms jit fire 1"      "$(klArms "$T/klift" J1)" "$KLA"
+kindRow "kindLiftT arms jit fire 2"      "$(klArms "$T/klift" J2)" "$KLA"
+kindRow "kindLiftT arms interpreted 1"   "$(klArms "$T/klift" I1)" "$KLA"
+kindRow "kindLiftT arms interpreted 2"   "$(klArms "$T/klift" I2)" "$KLA"
+kindRow "kindLiftT degrade count"        "$(grep -o 'jitDegrade count = [0-9]*' "$T/klift" | awk '{print $NF}')" "0"
+
+
+#  ---------------------------------------------------------------------------
+#  THE GRAFT (FINISH += Amendment 2): `WardeD += PfCoutGraft;` -- a RULE with no
+#  data but with members -- reaches the structural member by pick step 3 and
+#  appends, exactly as branch F did. printPop pins its OUTPUT; this row pins the
+#  ARM, twice (cout and cerr grafts). Interpreted only: the graft is a top-level
+#  statement, so it has no jitted body to compile.
+INCANT_KIND_PROBE=1 $B "$(ip printFamilyNew)" > "$T/pfn" 2>&1; check "printFamilyNew runs (graft arm)" 0 $?
+kindRow "printFamilyNew graft: arms on WardeD" "$(grep '^KINDARM ' "$T/pfn" | grep 'tag=WardeD ' | awk '{print $2}' | tr '\n' ' ')" "opPlusEQstruct opPlusEQstruct "
+
+
+#  ---------------------------------------------------------------------------
+#  nullAccessT -- the seven accessors that lawfully answer NULL (nullAccessorDeref,
+#  2026-09-25). Before the guard each segfaulted on opDot's tail (born fb9e4de,
+#  2026-09-08); the sentinel sits after all seven, so ANY one crashing takes every
+#  later row and the sentinel with it -- a fix for nexT alone cannot pass.
+#  H7, measured: guard removed -> exit 139, rows gone; restored -> all green.
+run1 nullAccessT "$T/nacc";   check "nullAccessT runs (a lawful null does not crash)" 0 $?
+sentinel "nullAccessT sentinel (all seven survived)" "$T/nacc" "NULLACCESST SENTINEL"
+naRow () { kindRow "nullAccessT $1" "$(grep -E "^NA $1 +[0-9]+ *\$" "$T/nacc" | awk '{print $NF}')" "$2"; }
+naRow "parenT" 0; naRow "registrY" 0
+naRow "nexT on the LAST term" 0; naRow "nexT on the FIRST term" 1
+naRow "prioR on the FIRST term" 0; naRow "prioR on the LAST term" 1
+naRow "firsT" 0; naRow "firsT on a list" 1
+naRow "lasT" 0; naRow "lasT on a list" 1
+naRow "firstMembeR" 0; naRow "firstMembeR on a list" 1
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi

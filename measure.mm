@@ -4,6 +4,7 @@
 #include "OCroutines.h"
 #include "StringRoutines.h"
 #include "GroupItem.h"
+#include "Stak.h"
 #include "GroupRules.h"
 #include "GroupControl.h"
 #include "GroupList.h"
@@ -445,6 +446,25 @@ extern "C" GroupItem *measureFrameProbe(GroupItem *field, GroupItem *rule)
 	(field && field->rStuff) ? (void*)field->rStuff->label : (void*)0,
 	(field && field->rStuff && field->rStuff->label) ? field->rStuff->label->groupBody->tag : "(none)",
 	(void*)GroupControl::groupController->groupRules->ruleSTUFF);
+	
+	return field;
+}
+
+/*  THE PER-KIND ARM WITNESS. Names the kind-specific operator method that ran and the
+    target it ran on, so a fixture can count the fork -- which is value-transparent by
+    construction, so nothing but a count can see it. Armed by INCANT_KIND_PROBE, inert
+    otherwise. Reads what it is handed; re-derives nothing.
+    measure.measureKindArm  */
+extern "C" GroupItem *measureKindArm(char *arm, GroupItem *field)
+{
+int 	sdepth = -1;
+	if ( field && isSTAK(field->groupBody->flags.data) && field->getStak() )
+		sdepth = field->getStak()->length;
+	
+	if ( ::getenv("INCANT_KIND_PROBE") && field )
+	::fprintf(stderr,"KINDARM %s tag=%s data=%s sdepth=%d\n",
+	arm, field->groupBody->tag ? field->groupBody->tag : "(untagged)",
+	::dataName(field->groupBody->flags.data), sdepth);
 	
 	return field;
 }

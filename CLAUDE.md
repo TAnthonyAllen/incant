@@ -2726,6 +2726,35 @@ Hard-won lessons. Each one has cost real debugging time.
     shell -- because a shell compare cannot mis-spell a capture. Sibling of bear-trap #41 (the
     capture itself needs `:=`) and #35 (read into a local, never in a condition).
 
+
+56. **A MEMBER BLOCK UNDER A `define` ENTRY HAS TWO HAZARDS, AND THE SECOND ONE IS SILENT: A `;`
+    LINE AFTER IT CLOSES THE WHOLE `define`, AND THE BLOCK ITSELF CORRUPTS THE ENTRY'S OWN
+    `name=value` ATTRIBUTE.** Gloss: the members overwrite the parent. Measured 2026-09-25 (**kant**,
+    `incant/setup`), in three passes on one day, and two of them wrote down a wrong cause.
+    **Hazard 1 -- the closer.** A member block ends by dedent. A lone `;` line after it closes the
+    **define**, every later entry parses as a statement, and setup is abandoned with no stderr: the
+    first symptom is a segfault in `GroupMain::bootstrapper` at `item->setBuffer(ruler->stringBUFFER)`
+    with `this=0x0`.
+    **Hazard 2 -- the attribute.** Mid-block, with no `;` line, it parses -- and when the define
+    processes the parent's own `operateMethod=`, that attribute's TEXT READS THE MEMBER'S VALUE.
+    `'+='` was bound to `opPlusEQisCOUNT` instead of `opPlusEQ`. Bare flags (`itTrunk itAttrOne`)
+    have no value to overwrite, which is why the precedent never showed it.
+    ⚠ **IT HID BEHIND A MASK FOR THE WHOLE DAY:** the wrongly-bound method handed every non-count
+    target back to `opPlusEQ`, and its arm witness sat AFTER the hand-back, so every value stayed
+    right and every arm row stayed green. It surfaced only when the hand-back was removed. **A
+    witness placed after a delegation cannot see the delegation.**
+    **THE SHAPE THAT AVOIDS BOTH:** leave the entry's attributes where they are, and hang the
+    members off a SECOND mention of the entry, restating no attribute, with NO `;` line after the
+    members (`incant/setup` section 9). Naming an entry again reopens it rather than minting a new
+    one, and the member block ends by dedent, so it may sit anywhere in the block -- the next entry,
+    attributes and all, binds its own method (Tony, measured 2026-09-25: `'!='` after the block
+    bound `opNotEQ`). An intermediate version required the entry to be LAST; that was a constraint
+    read into a wording, not a measurement, and it is withdrawn.
+    ⚠ **The first correction (member block fine mid-block, extra `;` to blame) was half right and
+    was certified by a masked witness** -- one arm firing for the one kind it was meant for is not
+    evidence that nothing else was bound to it. Cause of hazard 2 NOT isolated (label reuse is the
+    obvious suspect, `measureLabelReuse` / plant 4); symptom recorded, per bear-trap #18's split.
+
 ⚠⚠ **THE RULE-LADDER SELECTION CRITERION — TWO CLAUSES, AND THE SECOND WAS PAID FOR.** Tony,
 2026-08-24.
 
@@ -2925,8 +2954,13 @@ direction the campaign might take, it is a state the machinery must report as a 
 >
 > **The checklist, and all of it every time:** `pop.sh` · **`jitLadder/ladder.sh`, its line
 > recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·
-> `countPop.sh` · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
+> `countPop.sh` · **`printPop.sh`** · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
+>
+> ⚠⚠ **`printPop.sh` JOINED THE SEAL 2026-09-25 (Tony), countPop's pattern exactly:** an
+> instrument nobody had read since August. It was red on two `printToBuffer:` trace lines that
+> Tony moved out of the source into parked directive entries on 2026-08-18 (`4ab72dd`); the
+> targets were never re-pinned, and nothing on the checklist could see it.
 >
 > ⚠⚠ **THE JIT LADDER JOINED THE SEAL 2026-09-23 (Tony, via the jitter dispatch), AND IT WAS
 > PAID FOR:** it had been red at HEAD for weeks -- JC since 2026-09-01, JXD-1/JXD-3 since
@@ -3235,6 +3269,15 @@ DELETE `groupDirectives` and `IncantForms/WorkingOn/incant++` — ignored now, t
 Time Machine. **Git overwrites an ignored file without warning when a checkout needs its path.**
 Before ANY build of an older commit, list what it tracks that HEAD ignores:
 `comm -23 <(git ls-tree -r --name-only <old> | sort) <(git ls-tree -r --name-only HEAD | sort) | git check-ignore --stdin`.
+⚠ **THE CLONE RECIPE, paid for 2026-09-25 (dating `nullAccessorDeref`):** clone ALL THREE repos at one
+date -- Groups, `InProcess/TOK`, and the support repo, whose top level is `data/support`, NOT
+`InProcess/Include` (Include, Frame and KeyTable are symlinks into it). **`TOK.xcodeproj` carries ~50
+ABSOLUTE `/Users/anthony/Dropbox/data/InProcess/...` paths**, so a plain clone build compiles old `.mm`
+against TODAY's headers -- rewrite them in the clone's `project.pbxproj` to the clone root. Link
+`Parse` and `Tokf` (separate repos, header paths only) live, and say so. **Build from the committed
+`.mm`; do not retok** -- `GroupRules.twk` includes the `.rtn` files by absolute live path, so a retok
+in the clone reads the live tree. Run fixtures from INSIDE the clone's Groups (setup loads by relative
+path), with a `-derivedDataPath` per clone, and check the build log for live Groups paths (want 0).
 
 ⚠ **FIXIT CITIZENS ARE NOT CLOD'S TO MINT (Rule F2, Tony, 2026-09-01).** A finding goes in the
 **seal**; whether it becomes a citizen in `incant/fixits/` is Tony's or Clay's ruling. Clod may

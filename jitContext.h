@@ -272,6 +272,14 @@ inline bool gJitLastIsNode = false;
 // the print consults it. One channel, one meaning; a set rather than a JitData
 // bit because that would be a layout change for a fact the emitter owns.
 inline std::set<void*> gJitFieldResident;
+// ⚠ A FRAME SLOT CARRIES A VALUE, NEVER A KIND (2026-09-25). The jitted `=` stores
+// the SSA into the slot; the interpreted `=` also gives the local the source's KIND.
+// Nothing read a local's kind inside compiled code until jitOpFireRT, which hands the
+// FIELD to a helper that picks by kind. So the scalar `=` records here which frame
+// homes it has written this compile, in emission order, and the op-fire flush stamps
+// the kind (setCount/setNumber) only for those -- a never-assigned local stays EMPTY,
+// so it still picks by the argument's kind, as it does interpreted.
+inline std::set<void*> gJitFrameAssigned;
 
 // Nodes seeded with JitData during the current compile. JitData is transient (one
 // compile, into a per-run LLVMContext that jitRunAction destroys), but the field/

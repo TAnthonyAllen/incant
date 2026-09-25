@@ -1,0 +1,96 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(KindLiftT);
+define
+    klArg=2;
+    kjLe;
+    kjLs="s";
+    kiLe;
+    kiLs="s";
+    kjWalk code={
+        iterate g members on kjList;
+        while ++g
+            *g += klArg;
+        kjLe += "a" "b" "c";
+        kjLs += "a" "b";
+        };
+    kiWalk code={
+        iterate g members on kiList;
+        while ++g
+            *g += klArg;
+        kiLe += "a" "b" "c";
+        kiLs += "a" "b";
+        };
+    klShow code={
+        iterate h members on argument;
+        while ++h
+            klOne(*h);
+        };
+    klOne code={
+        hl := argument.listLengtH;
+        cerr "KL value " argument " length " hl:;
+        };
+    kjList
+        kjC=1;
+        kjN=1.5;
+        kjS="s";
+        kjB buffer;
+        kjK stack;
+        kjE;
+        kjG
+            kjGm;
+        kjBin bin
+            kjBm;
+    kiList
+        kiC=1;
+        kiN=1.5;
+        kiS="s";
+        kiB buffer;
+        kiK stack;
+        kiE;
+        kiG
+            kiGm;
+        kiBin bin
+            kiBm;
+    ;
+cerr "MARK J1 begin":;
+testing(kjWalk);
+cerr "MARK J1 end":;
+cerr "KL SHOW J1":;
+klShow(kjList);
+cerr "KL LIST J1 " kjLe " / " kjLs:;
+cerr "MARK J2 begin":;
+jitRefire();
+cerr "MARK J2 end":;
+cerr "KL SHOW J2":;
+klShow(kjList);
+cerr "KL LIST J2 " kjLe " / " kjLs:;
+cerr "MARK I1 begin":;
+kiWalk();
+cerr "MARK I1 end":;
+cerr "KL SHOW I1":;
+klShow(kiList);
+cerr "KL LIST I1 " kiLe " / " kiLs:;
+cerr "MARK I2 begin":;
+kiWalk();
+cerr "MARK I2 end":;
+cerr "KL SHOW I2":;
+klShow(kiList);
+cerr "KL LIST I2 " kiLe " / " kiLs:;
+cerr "KINDLIFTT SENTINEL":;
+stop();
+
+kindLiftT -- FINISH +=: every kind, one walk, both roads (Tony, 2026-09-25).
+A list of count, number, string, Buffer, Stak, an EMPTY field, a field with
+MEMBERS and a BIN is walked with `*g += 2`, then a list argument is added onto
+an empty field (pick step 4a) and onto a string. The jitted walk (kjList) is
+compiled ONCE and fired twice; the interpreted walk (kiList) runs twice on a twin
+list. Run with INCANT_KIND_PROBE=1 and INCANT_PEQ_PROBE=1: every fire names the
+member that ran (KINDARM) or the opPlusEQ branch that took it (PEQBRANCH), so as
+the members land the arms move from branch letters to member names while the
+values stay exactly where they are. A Stak cannot print its contents, so its
+value is its DEPTH before each fire, read by whichever witness sees it: 0 then 1.

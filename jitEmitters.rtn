@@ -11,23 +11,6 @@ GroupItem   carrier = new("jitPrintValue");
 }
 
 
-/* concatEQ  the runtime helper the string-+= JIT call lands on. All the member
-   work (getText/setText) and the variadic concat happen here as ordinary C++ —
-   this IS the interpreter's isSTRING += body (cf. GroupRules.mm string-concat
-   site). Two real GroupItem pointers in, target (mutated in place) out. Its
-   address is stable and directly addressable, so jitEmitStringPlusEQ can bake it
-   as a constant callee — no variadic IR, no member-function-pointer IR. (One-arg
-   parts-walking `concatenate` is the general primitive to follow; the += write-
-   back needs target by identity, which two explicit pointers give for free.) */
-extern GroupItem concatEQ(GroupItem target,GroupItem argument)
-{
-    -%
-    target->setText(::concat(2, target->getText(), argument->getText()));
-    return target;
-    %-
-}
-
-
 /* displayFill  the incant-facing drawing command. THE GATE IS THE WHOLE POINT,
    and it is jitTrace's: under jitting, EMIT A CALL; otherwise DO THE WORK NOW.
 
@@ -650,6 +633,12 @@ extern GroupItem jitEmitAssign(GroupItem argument,GroupItem target)
     // Plain `=`: pure store-back of the source operand's SSA value into the
     // target's slot. No arithmetic.
     b->CreateStore(argument->jitData->jitValue, target->jitData->jitSlot);
+    //  frameKind a scalar = into a FRAME slot is recorded, so the op-fire flush can stamp the kind the interpreted = would have given
+    {
+        GroupBody *tb = target->groupBody;
+        if (JitFrameSlot *fs = jitFrameFind((void*)&(tb->gCount))) gJitFrameAssigned.insert(fs->home);
+        else if (JitFrameSlot *fs2 = jitFrameFind((void*)&(tb->gNumber))) gJitFrameAssigned.insert(fs2->home);
+    }
     // Compound (+= *= ...) is NOT a second branch here — it is the composition
     // done by the opMethod gate: jitEmitBinary(argument,target,<jitOp>) first,
     // which writes the result into target->jitData->jitValue, then a store-back
@@ -755,6 +744,126 @@ extern int jitProbeDrive(GroupItem rule,GroupItem armed,String msg,int jitted)
     %-
 }
 
+
+/*******************************************************************************
+    jitEmitOpFire / jitOpFireRT -- AN OPERATOR WITH MEMBERS, FIRED AT RUN TIME
+    (Tony's ruling 2026-09-25: += answers on the jitted road for every target the
+    interpreted road handles, per fire, no degrade, no fallback). The emitted code
+    calls jitOpFireRT with the LIVE operands; it runs pickKindOP -- the same pick
+    runOP makes -- and fires the chosen method. Nothing about an operand's kind is
+    baked, so a cursor over mixed kinds and a target typed by its first fire both
+    answer as the interpreted road does.
+    OPERANDS ARE PRODUCED AT RUN TIME, one class each:
+      a NULL operand with a node in flight -- `*cursor` -- is jitDerefRT's node;
+      a literal is baked by address (it carries its value);
+      a field is baked by address, its FRAME SLOT flushed to the field first and,
+        for the target, reloaded after, so compiled reads agree with the helper;
+      an ARGUMENT whose live value is only in SSA (an inner result) is stored into
+        a scratch node baked at emit -- a plain store, per fire.
+    Anything else REFUSES BY NAME, counted, rather than guessing.
+*******************************************************************************/
+/*  the op-fire flush for a frame slot a scalar `=` has written: the VALUE and the
+    KIND, through the setters, as the interpreted `=` would have left the local.  */
+extern void jitFlushCountRT(GroupItem field,int value)
+{
+    -% if (field) field->setCount(value); %-
+}
+
+extern void jitFlushNumberRT(GroupItem field,double value)
+{
+    -% if (field) field->setNumber(value); %-
+}
+
+extern GroupItem jitOpFireRT(GroupItem op,GroupItem arg,GroupItem target)
+{
+    -%
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    if ( ruler->refused || !op ) return 0;
+    if ( target && target->groupBody->flags.isVirtual )   target = ::copyOf(target);
+    GroupItem *pick = ::pickKindOP(op,target,arg);
+    if ( !pick->groupBody->gOp ) return 0;
+    return pick->groupBody->gOp(arg,target);
+    %-
+}
+
+extern GroupItem jitEmitOpFire(GroupItem op,GroupItem arg,GroupItem target)
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    if (!b || !op) return nullptr;
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+    llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+    llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+    auto bake = [&](void *p, const char *nm) {
+        return b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)p), ptr, nm); };
+    //  flush a frame slot to its field before the call. A slot a scalar `=` wrote
+    //  this compile gets its KIND too (gJitFrameAssigned); any other stays as it is.
+    auto flush = [&](GroupItem *g, JitFrameSlot *fs, const char *nm) {
+        llvm::Value *v = b->CreateLoad(fs->ty, fs->slot, nm);
+        if (gJitFrameAssigned.count(fs->home)) {
+            bool num = fs->ty->isDoubleTy();
+            llvm::FunctionType *fty = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, fs->ty}, false);
+            b->CreateCall(fty, bake(num ? (void*)&jitFlushNumberRT : (void*)&jitFlushCountRT, "opFireFlushFn"),
+                          {bake((void*)g, "opFireFlushField"), v}); }
+        else b->CreateStore(v, bake(fs->home, "opFireHome")); };
+    auto frameOf = [&](GroupItem *g) -> JitFrameSlot* {
+        JitFrameSlot *fs = jitFrameFind((void*)&(g->groupBody->gCount));
+        if (!fs)      fs = jitFrameFind((void*)&(g->groupBody->gNumber));
+        return fs; };
+    bool nodeTaken = false;
+    llvm::Value *tgtV = nullptr, *argV = nullptr;
+    //  TARGET -- identity is the point: the fire writes INTO it.
+    if (!target) {
+        if (gJitLastIsNode && gJitResultNode) { tgtV = gJitResultNode; nodeTaken = true; }
+        }
+    else {
+        if (JitFrameSlot *fs = frameOf(target)) flush(target, fs, "opFireFlushT");
+        tgtV = bake((void*)target, "opFireTgt");
+        }
+    //  ARGUMENT -- its VALUE is the point.
+    if (!arg) {
+        if (!nodeTaken && gJitLastIsNode && gJitResultNode) { argV = gJitResultNode; nodeTaken = true; }
+        }
+    else if (arg->groupBody->flags.isLiteral || !arg->jitData || !arg->jitData->jitValue) {
+        if (JitFrameSlot *fs = frameOf(arg)) flush(arg, fs, "opFireFlushA");
+        argV = bake((void*)arg, "opFireArg");
+        }
+    else {
+        llvm::Value *v = arg->jitData->jitValue;
+        GroupItem *box = new GroupItem((char*)"jitOpFireBox");
+        if (v->getType()->isDoubleTy()) {
+            box->setNumber(0.0);
+            b->CreateStore(v, bake((void*)&(box->groupBody->gNumber), "opFireBoxN")); }
+        else if (v->getType()->isIntegerTy()) {
+            if (!v->getType()->isIntegerTy(32)) v = b->CreateZExtOrTrunc(v, i32, "opFireBoxW");
+            box->setCount(0);
+            b->CreateStore(v, bake((void*)&(box->groupBody->gCount), "opFireBoxC")); }
+        else box = nullptr;
+        if (box) argV = bake((void*)box, "opFireArgBox");
+        }
+    if (!tgtV || !argV) {
+        ::jitDegrade((char*)(!tgtV ? "operator-with-members: TARGET has no run-time producer -- REFUSED"
+                                   : "operator-with-members: ARGUMENT has no run-time producer -- REFUSED"), target);
+        return nullptr; }
+    if (nodeTaken) gJitLastIsNode = false;
+    llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {ptr, ptr, ptr}, false);
+    llvm::Value *res = b->CreateCall(ty, bake((void*)&jitOpFireRT, "opFireFn"),
+                                     {bake((void*)op, "opFireOp"), argV, tgtV}, "opFire");
+    gJitStmtCanRefuse = true;
+    //  the fire wrote the FIELD: a frame target's slot is reloaded from it, and
+    //  prints read the field (gJitFieldResident), as jitEmitAssign's node arm does.
+    if (target) {
+        if (JitFrameSlot *fs = frameOf(target))
+            b->CreateStore(b->CreateLoad(fs->ty, bake(fs->home, "opFireHomeR"), "opFireReload"), fs->slot);
+        gJitFieldResident.insert((void*)target->groupBody);
+        }
+    gJitResultNode = res;
+    gJitResult     = nullptr;
+    gJitEmitted    = true;
+    return new GroupItem((char*)"jitOpFire");
+    %-
+}
 
 /*******************************************************************************
     jitEmitTermCall / jitTermCallRT -- THE TERM CALL-THROUGH (jitter station 1,
@@ -1731,40 +1840,6 @@ int         isAND   = 0;
 }
 
 
-/* jitEmitStringPlusEQ  the FIRST CreateCall in the JIT layer, and the proof-of-
-   concept for jitEmitCall. Bakes target's and argument's stable GroupItem
-   addresses as constant ptrs (jitSeedField pattern), then emits a single call to
-   concatEQ (callee baked by address) — GroupItem(GroupItem,GroupItem). The +=
-   side effect (setText through to target's real storage) is the payload; the
-   i32() driver can't ret a pointer, so cap gJitResult with a constant 0 and verify
-   by reading target's text back in interpreted incant (the jitAssign readback
-   pattern). The call is left untagged (NOT readnone) so LLVM can't DCE a callee it
-   can't see into. */
-extern GroupItem jitEmitStringPlusEQ(GroupItem argument,GroupItem target)
-{
-    -%
-    llvm::IRBuilder<> *b = gJitBuilder;
-    llvm::LLVMContext &ctx = b->getContext();
-    llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
-    llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
-    llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
-
-    llvm::Value *targetAddr = b->CreateIntToPtr(
-        llvm::ConstantInt::get(i64, (uint64_t)target), ptr);
-    llvm::Value *argAddr = b->CreateIntToPtr(
-        llvm::ConstantInt::get(i64, (uint64_t)argument), ptr);
-
-    llvm::FunctionType *fnTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
-    llvm::Value *callee = b->CreateIntToPtr(
-        llvm::ConstantInt::get(i64, (uint64_t)&concatEQ), ptr);
-    b->CreateCall(fnTy, callee, {targetAddr, argAddr});
-
-    gJitResult = llvm::ConstantInt::get(i32, 0);
-    return target;
-    %-
-}
-
-
 extern GroupItem jitEmitSub(GroupItem argument,GroupItem target)
 {
     -% return jitEmitBinary(argument, target, jitSub); %-
@@ -2030,6 +2105,7 @@ extern void jitFlushTransient()
     for (GroupItem *seeded : gJitSeeded) seeded->jitData = nullptr;
     gJitSeeded.clear();
     gJitFrame.clear();
+    gJitFrameAssigned.clear();
     gJitResult     = nullptr;
     gJitResultNode = nullptr;
     gJitPrintBuf   = nullptr;

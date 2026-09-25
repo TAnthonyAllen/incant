@@ -522,11 +522,22 @@ echo "-- JPd THE DEGRADE CITIZEN -- the rung that expects a NON-ZERO count"
 $B "$(ip jitJPd)" > "$T/jpd" 2>&1
 check "JPd runs" 0 $?
 sentinel "JPd sentinel (no truncation)" "$T/jpd" "JPD SENTINEL"
-if grep -q "JIT DEGRADE #1: += on a Buffer target" "$T/jpd"; then
+#  ⚠⚠ RE-PINNED 2026-09-25 (Tony: += per fire on the jitted road, no degrade).
+#  The Buffer += stopped degrading, so the citizen's SUBJECT moved to a cerr,
+#  which has no emitter; its JOB -- a counter seen to move -- is unchanged. The
+#  Buffer += is kept beside it as a VALUE row, jitted against interpreted.
+if grep -q "JIT DEGRADE #1: cerr under jit" "$T/jpd"; then
     echo "  ok    JPd degrade FIRED and was counted (the zeros above are falsifiable)"; green=$((green+1))
 else
     echo "  FAIL  JPd no degrade -- the arms stopped firing, and every"
     echo "        'degrade count = 0' in this file is unfalsifiable again"; fail=1
+fi
+jpdJ=$(grep '^JPD jit [12] ' "$T/jpd" | sed 's/^JPD jit //' | tr '\n' '|')
+jpdI=$(grep '^JPD int [12] ' "$T/jpd" | sed 's/^JPD int //' | tr '\n' '|')
+if [ -n "$jpdJ" ] && [ "$jpdJ" = "$jpdI" ] && grep -q '^JPD jit 2 \[ xx \]' "$T/jpd" && ! grep -q 'JIT DEGRADE.*Buffer' "$T/jpd"; then
+    echo "  ok    JPd Buffer += per fire, no degrade: jitted = interpreted ($jpdJ)"; green=$((green+1))
+else
+    echo "  FAIL  JPd Buffer += -- jitted [$jpdJ] interpreted [$jpdI]"; fail=1
 fi
 
 #  JPl -- A DIFFERENT ARM, and the reason it is a separate check. JPd covers a
@@ -540,10 +551,14 @@ fi
 $B "$(ip jitJPl)" > "$T/jpl" 2>&1
 check "JPl runs" 0 $?
 sentinel "JPl sentinel (no truncation)" "$T/jpl" "JPL SENTINEL"
-if grep -q "JIT DEGRADE #1: += list-concat into a string target" "$T/jpl"; then
-    echo "  ok    JPl the arms ABOVE the switch degrade too (coverage is exhaustive)"; green=$((green+1))
+#  ⚠⚠ RE-PINNED 2026-09-25: the list-concat arm no longer degrades -- += is fired
+#  at RUN time -- so the row asserts the VALUE per fire, jitted beside interpreted.
+jplJ=$(grep '^JPL jit [12] ' "$T/jpl" | sed 's/^JPL jit //' | tr '\n' '|')
+jplI=$(grep '^JPL int [12] ' "$T/jpl" | sed 's/^JPL int //' | tr '\n' '|')
+if [ -n "$jplJ" ] && [ "$jplJ" = "$jplI" ] && grep -q '^JPL jit 2 \[ a b c  a b c  \]' "$T/jpl" && ! grep -q 'JIT DEGRADE' "$T/jpl"; then
+    echo "  ok    JPl list-concat += per fire, no degrade: jitted = interpreted ($jplJ)"; green=$((green+1))
 else
-    echo "  FAIL  JPl an above-the-switch arm fell through SILENTLY"; fail=1
+    echo "  FAIL  JPl list-concat += -- jitted [$jplJ] interpreted [$jplI]"; fail=1
 fi
 
 echo "-- J-R  RECURSION. THE FRAME MODEL'S DEFINITION OF DONE."

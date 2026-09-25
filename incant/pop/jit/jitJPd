@@ -15,6 +15,14 @@
     zeros are load-bearing rather than decorative. If this ever reports 0, the
     degrade arms stopped firing and every `degrade count = 0` in the fleet went
     back to being unfalsifiable.
+    ⚠⚠ RE-PINNED 2026-09-25 (Tony's ruling: += answers on the jitted road per
+    fire, no degrade, no fallback). The Buffer += no longer degrades -- an operator
+    with members is fired at RUN time through jitOpFireRT, and a Buffer target is
+    answered by opPlusEQ's own arm, x then xx, exactly as the interpreted road.
+    So the citizen's SUBJECT moved and its JOB did not: the counter must still be
+    seen to move, or every zero in the ladder is vacuous again. The body now also
+    carries a cerr, which has no emitter and degrades by name. The Buffer += stays
+    in the same body as a VALUE row, jitted beside interpreted.
 *****************************************************************************/
 Start();
 include(unitTests);
@@ -27,10 +35,19 @@ search Generating UnitTests bcOPs Utilities list;
 register(JitLadder);
 define
     jpBuf buffer;
-    jitJPd code={ jpBuf += "x"; };
+    jpBufI buffer;
+    jitJPd code={ jpBuf += "x"; cerr "JPD emit-time sink":; };
+    jitJPdI code={ jpBufI += "x"; };
     ;
 
-print "JPD jitting a Buffer += (no emitter -- must DEGRADE):":;
+print "JPD jitting a body whose cerr has no emitter (must DEGRADE) beside a Buffer += (must NOT):":;
 testing(jitJPd);
+cerr "JPD jit 1 [" jpBuf "]":;
+jitRefire();
+cerr "JPD jit 2 [" jpBuf "]":;
+jitJPdI();
+cerr "JPD int 1 [" jpBufI "]":;
+jitJPdI();
+cerr "JPD int 2 [" jpBufI "]":;
 print "JPD SENTINEL":;
 stop();

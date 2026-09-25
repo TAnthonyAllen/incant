@@ -1,0 +1,33 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(KindHolderT);
+define
+    kN=5;
+    kRun code={
+        kH := kN;
+        cerr "MARK H1 begin":;
+        kH += 3;
+        cerr "MARK H1 end":;
+        cerr "H1 holder " kH " source " kN:;
+        cerr "MARK H2 begin":;
+        kH += 3;
+        cerr "MARK H2 end":;
+        cerr "H2 holder " kH " source " kN:;
+        };
+    ;
+kRun();
+cerr "KINDHOLDERT SENTINEL":;
+stop();
+
+kindHolderT -- PLUS-EQUALS ON A HOLDER, INTERPRETED ROAD. Minted 2026-09-25 for
+Tony's ruling that the refusal stands: checkOP asks getDataType for the
+receiver's kind name, and getDataType refuses on a field that holds a group.
+
+kH is made a holder of kN, then plus-equals fires on it twice. Each fire, between
+its MARK pair, must print exactly one getDataType refusal (once per fire, by its
+text) and then opPlusEQ's own answer, its default arm, which names itself
+"ERROR Operator += failed". Nothing is written: holder and source both stay 5.
+
+The jitted road is kindHolderJitT, a separate process by bear-trap 25.

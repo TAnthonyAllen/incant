@@ -1,0 +1,76 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(NullAccessT);
+define
+    naEmpty;
+    naV=0;
+    naList
+        naA=1;
+        naB=2;
+        naC=3;
+    naRun code={
+        naV = 0;
+        if copyOf(naEmpty).parenT;       naV = 1;
+        cerr "NA parenT " naV:;
+        naV = 0;
+        if new("naOrphan").registrY;     naV = 1;
+        cerr "NA registrY " naV:;
+        naV = 0;
+        if naList["naC"].nexT;   naV = 1;
+        cerr "NA nexT on the LAST term " naV:;
+        naV = 0;
+        if naList["naA"].nexT;   naV = 1;
+        cerr "NA nexT on the FIRST term " naV:;
+        naV = 0;
+        if naList["naA"].prioR;  naV = 1;
+        cerr "NA prioR on the FIRST term " naV:;
+        naV = 0;
+        if naList["naC"].prioR;  naV = 1;
+        cerr "NA prioR on the LAST term " naV:;
+        naV = 0;
+        if naEmpty.firsT;        naV = 1;
+        cerr "NA firsT " naV:;
+        naV = 0;
+        if naEmpty.lasT;         naV = 1;
+        cerr "NA lasT " naV:;
+        naV = 0;
+        if naEmpty.firstMembeR;  naV = 1;
+        cerr "NA firstMembeR " naV:;
+        naV = 0;
+        if naList.firsT;        naV = 1;
+        cerr "NA firsT on a list " naV:;
+        naV = 0;
+        if naList.lasT;         naV = 1;
+        cerr "NA lasT on a list " naV:;
+        naV = 0;
+        if naList.firstMembeR;  naV = 1;
+        cerr "NA firstMembeR on a list " naV:;
+        };
+    ;
+naRun();
+cerr "NULLACCESST SENTINEL":;
+stop();
+
+nullAccessT -- THE SEVEN ACCESSORS THAT LAWFULLY ANSWER NULL, each driven to its
+"nothing there", interpreted. Minted 2026-09-25 with the nullAccessorDeref guard.
+
+opDot's accessor switch answers null for parenT with no parent (a fresh copyOf,
+which nobody has adopted), registrY with no registry (the same), nexT on the LAST
+term, prioR on the FIRST, and firsT, lasT and firstMembeR on a field with no list.
+Before the guard every one of them segfaulted on the line after the switch, which
+read product.data without asking whether product existed -- born fb9e4de,
+2026-09-08. Each row wants its truth value: a null reads FALSE, so 0 for each
+single accessor, over naList's
+three members, subscripted: nexT on the LAST term and prioR on the FIRST are the
+nulls; nexT on the FIRST and prioR on the LAST are their non-null siblings and
+must read 1. ⚠ NOT A WALK WITH A BARE nexT: a bare accessor reads lastREF, so in
+the original repro (`knN = knN + 1; if nexT;`) and in f31 it asked about the
+COUNTER, not the member -- the crash was the counter having no next entry.
+firsT, lasT and firstMembeR each have a non-null sibling on naList, which must read
+1. parenT and registrY have none that can read true here -- a parent or registry
+holding no data is falsy under truthOf -- so their claim is the run surviving to the
+sentinel, and H7 (the guard removed: exit 139) is what makes that claim mean anything.
+The sentinel sits after all seven, so a crash on any row takes every later row
+with it and the sentinel too.

@@ -589,6 +589,25 @@ extern GroupItem measureParentProbe(GroupItem field)
 }
 
 
+/*  THE PER-KIND ARM WITNESS. Names the kind-specific operator method that ran and the
+    target it ran on, so a fixture can count the fork -- which is value-transparent by
+    construction, so nothing but a count can see it. Armed by INCANT_KIND_PROBE, inert
+    otherwise. Reads what it is handed; re-derives nothing.
+    measure.measureKindArm  */
+extern GroupItem measureKindArm(String arm,GroupItem field)
+{
+int     sdepth = -1;
+    if field && field.isSTAK && field.stak  sdepth = field.stak.length;
+    -%
+    if ( ::getenv("INCANT_KIND_PROBE") && field )
+        ::fprintf(stderr,"KINDARM %s tag=%s data=%s sdepth=%d\n",
+            arm, field->groupBody->tag ? field->groupBody->tag : "(untagged)",
+            ::dataName(field->groupBody->flags.data), sdepth);
+    %-
+    return field;
+}
+
+
 /*  measure.measurePlusEQWrite  */
 extern GroupItem measurePlusEQWrite(GroupItem field)
 {

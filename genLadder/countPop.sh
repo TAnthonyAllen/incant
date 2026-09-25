@@ -36,7 +36,9 @@ echo "rules:  $nrules (derived live from Grokking)"
 
 ok=0; bad=0; crash=0; ghost=0
 while read -r rule; do
-  python3 genLadder/mkProbeOne.py "$rule" "$T/probeOne"
+  if ! python3 genLadder/mkProbeOne.py "$rule" "$T/probeOne"; then
+    echo "  FAIL  the probe generator failed for $rule -- an INSTRUMENT fault, every row below is void"; exit 1
+  fi
   out=$("$INCANT" "$T/probeOne" 2>&1); st=$?
   #  ⚠ `ok` IS SCORED ON THE COMPILE CENSUS, NOT ON TARGETDONE, and that is the
   #  difference between an assertion and a decoration. Measured 2026-08-28 with
@@ -75,4 +77,12 @@ if [ "$attempted" -ne "$nrules" ]; then
   echo "  FAIL  attempted $attempted but the population is $nrules -- the run did not cover its input"
   exit 1
 fi
-echo "COUNTPOP SENTINEL -- $attempted of $nrules attempted, foot reached"
+#  ⚠ COMPLETED, NEVER ATTEMPTED (2026-09-25). "47 of 47 attempted, foot reached"
+#  was true for two weeks while all 47 probes crashed on a missing file. A
+#  crashed or truncated probe did not run, so it is not a result of any kind.
+if [ "$crash" -ne 0 ]; then
+  echo "  FAIL  $crash of $nrules probe(s) crashed or truncated -- they did not RUN,"
+  echo "        so the count above describes $((nrules-crash)) probes, not $nrules"
+  exit 1
+fi
+echo "COUNTPOP SENTINEL -- $((ok+bad)) of $nrules probes COMPLETED (exit 0 each): $ok clean, $bad parse-failed"

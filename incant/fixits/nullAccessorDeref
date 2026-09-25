@@ -1,0 +1,79 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(NullAccessorDeref);
+define
+    naN=0;
+    naControl code={
+        iterate naT on argument;
+        while ++naT;
+            naN = naN + 1;
+        };
+    naCrash code={
+        iterate naT on argument;
+        while ++naT;
+            naN = naN + 1;
+            if nexT;    cerr "NA a next member exists":;
+        };
+    ;
+cerr "== the CONTROL: the same walk with no nexT -- pinned: 3 terms, exit 0 ==":;
+naControl(Grokking["NumbeR"]);
+cerr "NA control walked " naN " terms":;
+naN = 0;
+cerr "== the DEFECT: nexT on the LAST term dies here, exit 139 -- nothing below prints ==":;
+fixNullAccessorHere = 0;
+naCrash(Grokking["NumbeR"]);
+cerr "NA defect walked " naN " terms -- if you can read this, the crash is FIXED":;
+cerr "SENTINEL nullAccessorDeref reached the foot":;
+stop();
+
+LANE:  runtime
+BLAST: DISJOINT
+
+nullAccessorDeref -- A BARE ACCESSOR THAT LAWFULLY ANSWERS NULL SEGFAULTS INSTEAD.
+
+Minted 2026-09-25 by Clay's dispatch (date the countPop crash), which authorised the
+mint. Found because countPop's repaired instrument showed all 47 probes dying.
+
+THE MECHANISM, measured. opDot's accessor switch has seven cases that answer null when
+there is nothing to answer with: parenT with no parent, registrY with no registry, nexT
+on the LAST member, prioR on the FIRST, firsT and lasT on an empty list, and the first
+member (405) with none. Null is the right answer in every one. After the switch opDot
+runs `if !product.data product.count = 0;` -- WITHOUT asking whether product exists --
+and dereferences the null. The very next line, `if product && !product.parent`, does
+ask. One guard present, one missing, side by side (Instruct.rtn, opDot's tail).
+
+WHERE IT WAS BORN, measured by a two-point bisect in clones outside Dropbox, three repos
+at one date (Groups, TOK 644fe89, support c670466), bare builds from committed .mm:
+  e0000a4  (parent)   repro exit 0, 3 terms      control exit 0, 3 terms
+  fb9e4de  2026-09-08 repro exit 139             control exit 0, 3 terms
+FIRST BAD COMMIT: fb9e4de "bareIfTruth: aCTionIF answers by truthOf". It added the
+unguarded line. The probe discriminated at both ends and its control passed at both, so
+the pass at the good end is evidence and not a probe that always passes (H16).
+
+WHAT IT COST: incant/pop/f31 (fbGen's `if nexT; print _fbJoin;`), countPop's 47 probes
+which are f31, and incant/pop/bisectQ all exit 139 on it -- none of them fleet rows, so
+nothing on the checklist saw it for seventeen days. It is the LANGUAGE, not the probe
+generator: the repro above is ordinary kant.
+
+NEXT: REMEDY -- BEHAVIOUR. LANDED 2026-09-25.
+  THE FIX: opDot's tail reads `if product && !product.data product.count = 0;` --
+  guarded the way the line beneath it always was (Instruct.rtn, opDot).
+  SITE: Instruct.rtn opDot, the line keyed `nullIsLawful`.
+  TAKEN: this file prints "NA defect walked 3 terms" and its sentinel, exit 0.
+  NOT TAKEN: exit 139 right after the DEFECT banner, nothing below it.
+  Both measured on one tree: the live binary (guarded) and a side build with the
+  guard removed. The fleet row is incant/pop/nullAccessT -- all seven accessors on
+  their lawful null, each with a non-null sibling where one can read true; guard
+  removed it exits 139 with no rows, restored all green.
+  ATTRIBUTIONS, measured the same way (crash unguarded, survive guarded): f31 and
+  bisectQ. doWhileNameT, trigDO, baselineTests, spellScratch, dumpContents on
+  GroupFields, a bare for over Grokking and GrouP("foo") exit 0 on BOTH binaries,
+  so their old 139s were other causes. f31 and bisectQ now reach other failures
+  (f31: fbSkipIt parse failed x37; bisectQ: QuotE compile refusal) -- separate.
+  ⚠ AND ONE CORRECTION TO THE MECHANISM TEXT ABOVE: a BARE nexT reads lastREF, so
+  in this file's crash arm, as in f31, it asked about the COUNTER just referenced,
+  not the walked member. The null was real and the crash was this one; the member
+  was never the subject. nullAccessT asks each accessor of an explicit target.
+  Discharge: run this file, bless the TAKEN signature, retire.

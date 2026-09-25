@@ -30,6 +30,7 @@ extern "C" GroupItem *measureFireLabelActionOut(GroupItem *field, GroupItem *myL
 extern "C" GroupItem *measureFireLabelEntry(GroupItem *field);
 extern "C" GroupItem *measureFireLabelFork(GroupItem *field, GroupItem *myLabel);
 extern "C" GroupItem *measureFrameProbe(GroupItem *field, GroupItem *rule);
+extern "C" GroupItem *measureKindArm(char *arm, GroupItem *field);
 extern "C" GroupItem *measureLabelMint(GroupItem *field, GroupItem *myLabel, GroupItem *into);
 extern "C" GroupItem *measureLabelProbe(GroupItem *field, GroupItem *myLabel, GroupItem *into, GroupItem *result, int yielded);
 extern "C" GroupItem *measureMarkArm(GroupItem *driveNode);

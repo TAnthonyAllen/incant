@@ -151,6 +151,14 @@ define
     '$$'    unary ruleMethod=opDebug;
     '-'     operateMethod=opMinus  jitEmitter=jitEmitSub;
     '+='    operateMethod=opPlusEQ;
+    '+='    // reopened for its members -- an attribute here would be overwritten by theirs (section 9)
+        '+=isCOUNT'  operateMethod=opPlusEQisCOUNT;
+        '+=isNUMBER' operateMethod=opPlusEQisNUMBER;
+        '+=isSTRING' operateMethod=opPlusEQisSTRING;
+        '+=isTOKEN'  operateMethod=opPlusEQisSTRING;
+        '+=isBUFFER' operateMethod=opPlusEQisBUFFER;
+        '+=isSTAK'   operateMethod=opPlusEQisSTAK;
+        '+=struct'   operateMethod=opPlusEQstruct;
     '++'    unary ruleMethod=opPlusPlus;
     '+*'    operateMethod=opAddPointer;
     '+%'    operateMethod=opAddAttribute;
@@ -547,4 +555,24 @@ include(grammar);
     deleted at cc2fd2d and nothing has included it since. A registered includable
     naming a file that is gone fails at exit zero with nothing saying why, which is
     bear-trap 28's fourth row.
+
+    9. THE PLUS-EQUALS MEMBERS HANG OFF A SECOND MENTION OF THE ENTRY
+
+    Plus-equals keeps its own operateMethod on its first line, written plain. Its
+    members -- one per data kind, picked per fire by pickKindOP -- hang off a
+    SECOND mention of plus-equals directly below it, which restates no attribute.
+    Naming an entry again in the same define reopens it; it does not mint a new
+    one. The member block ends by DEDENT: the next entry at the outer indent
+    follows as usual, and it may carry attributes of its own (the next one,
+    plus-plus, does).
+    ⚠ MEASURED 2026-09-25, CORRECTING TWO EARLIER VERSIONS OF THIS SECTION FROM THE
+    SAME DAY. A member block written under an entry that HAS a name=value
+    attribute corrupts that attribute: by the time the define processes the
+    entry's own operateMethod, its text reads the MEMBER's value. Plus-equals was
+    bound to opPlusEQisCOUNT from the moment its member went under it, and nothing
+    showed it -- that method handed every non-count target back to opPlusEQ, and
+    its witness sat after the hand-back. Hence the second, attribute-free mention.
+    A lone semicolon line after a member block closes the WHOLE define -- which is
+    why no such line is written here. The entry does NOT have to be last (Tony,
+    measured: mid-block, the entry after it binds its own method). Bear-trap 56.
 *******************************************************************************/

@@ -1,0 +1,66 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(RefireSkips);
+define
+    rsN=0;
+    rsRun code={
+        rsN = rsN + 1;
+        cerr "RS SINK FIRED":;
+        };
+    ;
+cerr "== fire 1: compile and run. Expect one RS SINK FIRED and rsN 1 ==":;
+testing(rsRun);
+cerr "ANCHOR after fire 1: rsN=" rsN " (pinned 1)":;
+cerr "== fire 2: jitRefire. The interpreted road would print RS SINK FIRED again ==":;
+jitRefire();
+cerr "ANCHOR after refire: rsN=" rsN " (pinned 2) -- count the RS SINK FIRED lines above: the interpreted road says 2":;
+fixRefireSkipsHere = 0;
+cerr "SENTINEL refireSkipsDegraded reached the foot":;
+stop();
+
+LANE:  jit
+BLAST: OVERLAPS
+
+refireSkipsDegraded -- A REFIRE SILENTLY SKIPS EVERY STATEMENT THAT DEGRADED AT COMPILE.
+
+Minted 2026-09-25 by Tony's dispatch (the per-kind += follow-ups: "a refire must never
+silently return a stale value; if it is general, bank it as a fixit citizen").
+
+THE MECHANISM. A construct with no emitter degrades: jitDegrade announces it and the
+construct RUNS AT EMIT TIME, once, while the function is being built. The compiled
+function does not contain it. So a refire runs the compiled code WITHOUT it. Two shapes:
+  alone      nothing else emitted, so nothing is compiled; jitRefire prints NOTHING
+             COMPILED YET and runs nothing at all, and the caller reads whatever the
+             fields held before.
+  beside a   the sibling compiles and runs per fire; the degraded construct ran once at
+  sibling    emit and never again. This file is that shape: rsN goes 1 then 2 while
+             RS SINK FIRED prints once where the interpreted road prints it twice.
+
+THE COUNT, measured 2026-09-25 over the degrading constructs with an observable effect,
+each alone and beside a sibling, compiled once and refired:
+  cerr     degrades; runs at emit only, in both shapes              SKIPPED ON REFIRE
+  search   degrades; runs at emit only, in both shapes              SKIPPED ON REFIRE
+           (the effect is invisible there; the count of fires is not)
+  FOR      degrades BY NAME, yet the refire DOES run it -- jmF 2 then 4, correct
+  +=       was the fourth, until the run-time call-through: J2 read 4 then 4 where the
+           interpreted road read 4 then 10. Fixed 2026-09-25, and the reason this was asked.
+  a string expression row was VOID -- the probe's own spelling failed to parse on the
+  interpreted road too -- and is not graded.
+So it is GENERAL: two of the three measured degrading constructs are skipped on refire,
+and FOR shows that a degrade line alone does not say which kind a construct is. That is
+the 2026-08-08 rule collecting again: a degrade asserts that a fallback OCCURRED, never
+that it was sound.
+
+NEXT: OPEN -- the fix is not chosen, and it is Tony's. What would generate a candidate:
+  a census of every jitDegrade site classified by what its construct does at emit time
+  (runs once / runs nothing / is re-run by the compiled code, like FOR), so the
+  population of skipped-on-refire constructs is named rather than sampled; and a reading
+  of why FOR is re-run -- whatever carries it may be the general shape. The two shapes of
+  answer the dispatch already named for += apply here too: a run-time call-through per
+  construct, or a named refusal that stops the compile rather than degrading it.
+  Until then, the degrade-zero rows in the fleet are the guard: every ladder rung asserts
+  degrade 0, so no certified rung is exposed to this.
