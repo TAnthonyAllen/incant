@@ -3,8 +3,9 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      122
-STATUS:   fresh           # SEQ 122 at the FOOT -- ruling A BUILT; the 275 left are REJECTED drives, srDot one of them -- a question
+SEQ:      123
+STATUS:   fresh           # SEQ 123 at the FOOT -- ruling (ii) BUILT; FRAMELEAK 0; the loss accounting closes; go/no-go re-read
+STATUS-122: fresh        # SEQ 122 -- rulings A, B, C; the rejected-drive question (answered: (ii))
 STATUS-121: fresh        # SEQ 121 -- Part A stopped; the yield brief
 STATUS-120: fresh        # SEQ 120 -- GO / NO-GO ROUND 2
 STATUS-119: fresh        # SEQ 119 -- GO / NO-GO EVIDENCE (round 1)
@@ -6921,4 +6922,63 @@ A -- BUILT on parse-then-fire (a9d637b), as ruled: one fact (gPtfScope, jitConte
     The srDot row stays red on the branch until one of these is ruled.
 
 STATE: branch parse-then-fire a9d637b, pushed. Trunk reinstalled: 740/2, canary 368.
+
+===================================================================
+SEQ 123  --  2026-09-25  --  Clod
+RULING (ii) BUILT -- a rejected parse fires nothing -- and the go/no-go re-read
+===================================================================
+
+WHAT LANDED (branch parse-then-fire, pushed; the two rows also on trunk)
+  - ptfScopeClose DISCARDS a failed drive's records, counted as "discarded: rejected
+    parse", apart from FRAMELEAK.
+  - jitProbeDrive (probeDrive) is a drive and never went through driveStep -- so its drives
+    were never scoped. It now uses the same scope: one writer pair, two drive seats.
+  - The replay core now COUNTS the records its tree cannot reach (they were only traced).
+
+⚠ A CORRECTION TO SEQ 122 FIRST: it said the 3 events the scope caught were ACCEPTED drives,
+  now replayed. WRONG -- an inference I did not measure. They were REJECTED drives. No drive's
+  records replay through the scope at all: an accepted drive's records already replay
+  through its own root's statement end.
+
+CERTIFICATE -- the dispatch's arithmetic, and why it read differently
+  FRAMELEAK at PTF=1           289 -> 0                                   MET
+  replayed + discarded = 289   NOT AS WRITTEN: 289 was only the VISIBLE share. Measured,
+                               records NOT fired, full fleet, PTF=1:
+      scope disabled   FRAMELEAK 289 + UNREACHED 13050                     = 13339
+      scope enabled    FRAMELEAK   0 + DISCARDED 12407 + UNREACHED 932     = 13339
+    THE TOTAL IS CONSERVED EXACTLY -- nothing gained, nothing lost. The scope turned 289 frame
+    leaks PLUS 12118 records that were dropped SILENTLY (swept into a later statement end's
+    replay, unreachable from its tree) into explicit rejected-parse discards. The 932 still
+    unreachable are failed alternatives inside statements that DID parse -- the same ruling,
+    one level down, counted and named.
+  srDot row                    re-pinned, by engine; GREEN on the branch and on trunk.
+                               Branch: the rejected drive discards its 3 records BY VALUE
+                               and refuses nothing. H7: PTF_NOSCOPE=1 -> RED.
+  top-level failure row        NEW, green on both: `.5` with no `;` at the top of a file
+                               reports ABANDONED, naming what was left. At PTF=1 the refusal
+                               is gone and the ABANDONED report stays -- the rejection is
+                               the report.
+  fleet                        branch PTF=1 737 -> 740, PTF=0 740 -> 742; trunk 740 -> 742;
+                               every other row identical. jitLadder 215 at both settings.
+                               Canary: branch 383, trunk 368.
+
+THE GO / NO-GO CONDITIONS, RE-READ
+  1. EVERY DIVERGENCE NAMED ................ MET
+     srDot is now by design (ruling (ii)), and the trunk-vs-branch difference -- the refusal
+     printed on trunk, not on the branch -- joins the by-design error-diff. Station 2's 13
+     messages were attributed in SEQ 120 (pick shifts from near-misses now accepted). Every
+     row in the error-diff is tagged BY-DESIGN.
+  2. FIXES STILL CLUSTERING ................ MET for the PLANTS, with one thing to see
+     The four language plants stand in the census's first two causes, unchanged. Today's
+     fixes -- the recording scope and the probe-drive seat -- are to STEP 1'S OWN MACHINERY
+     (the census's "step 1's own globals" cause), not plants in the language. I read that as
+     consistent with the condition, but it is the one place a reader could disagree.
+  3. RETIREMENTS DELETABLE IN PRINCIPLE ... MET
+     Every channel's jobs now have a step-2 home: defer, deferredAbove and the held fires
+     retire into parent-driven firing; the yield channel's value jobs into "the parent takes
+     values by return" (ruled); break/continue/return into their own control channel
+     (ruled); parse verdicts stay exempt; the "g"+tag stamp is retired. No NONE row is left.
+
+PARKED, NOT ADVANCED: Rule C; parseLoop's silent success at max (F-114 entry 24); C-form.
+STATE: branch pushed; trunk reinstalled at 742/2, canary 368, no incant process.
 
