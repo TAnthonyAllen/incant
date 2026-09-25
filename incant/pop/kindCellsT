@@ -1,0 +1,45 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(KindCellsT);
+define
+    kcEmpty;
+    kcNode;
+    kcAdd=3;
+    kcRun code={
+        cerr "MARK C4 begin":;
+        kcEmpty += kcNode;
+        cerr "MARK C4 end":;
+        kcL := kcEmpty.listLengtH;
+        cerr "C4 length " kcL:;
+        cerr "MARK C1n begin":;
+        kcBin += kcNode;
+        cerr "MARK C1n end":;
+        kcB := kcBin.listLengtH;
+        cerr "C1n length " kcB:;
+        cerr "MARK C1c begin":;
+        kcBin += kcAdd;
+        cerr "MARK C1c end":;
+        kcC := kcBin.listLengtH;
+        cerr "C1c length " kcC:;
+        };
+    kcBin bin
+        kcM1;
+    ;
+kcRun();
+cerr "KINDCELLST SENTINEL":;
+stop();
+
+kindCellsT -- THE TWO += CELLS NO FIXTURE HAD REACHED, PINNED AS THEY BEHAVE TODAY
+(Amendment 2 to FINISH +=, 2026-09-25). Run with INCANT_PEQ_PROBE=1 so each fire
+names the opPlusEQ branch it took; the rows read that name between the MARK pair.
+
+C4   a dataless NODE += onto an EMPTY field (pick step 4): branch F, the node is
+     appended -- length 1.
+C1n  a node += onto a BIN (pick step 1): branch C, appended -- length 2.
+C1c  a COUNT += onto the same bin: branch C again, appended -- length 3. A bin
+     carries isSET, its DERIVED set, and it does not count as a data kind.
+
+When the structural member lands, the branch column stops reading C/F and these
+rows re-pin to the member's name; the lengths must not move.

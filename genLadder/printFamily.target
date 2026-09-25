@@ -7,8 +7,6 @@ PF ==== 2. string / UNARMED ====
 [ PF-S-U-doljoined ] 
 [ PF-S-U-und spaced ] 
 PF ==== 3. ARMING DIVERSION ==== 
-printToBuffer: diverting print output to divBuf
-printToBuffer: stopping print to buffer (buffer not reset)
 PF ==== 4. DIVERSION RELEASED ==== 
 [ PF-S-A-und spaced ] 
 PF-P-R-def 1 2 3 

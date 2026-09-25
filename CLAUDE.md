@@ -2943,8 +2943,13 @@ direction the campaign might take, it is a state the machinery must report as a 
 >
 > **The checklist, and all of it every time:** `pop.sh` · **`jitLadder/ladder.sh`, its line
 > recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·
-> `countPop.sh` · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
+> `countPop.sh` · **`printPop.sh`** · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
+>
+> ⚠⚠ **`printPop.sh` JOINED THE SEAL 2026-09-25 (Tony), countPop's pattern exactly:** an
+> instrument nobody had read since August. It was red on two `printToBuffer:` trace lines that
+> Tony moved out of the source into parked directive entries on 2026-08-18 (`4ab72dd`); the
+> targets were never re-pinned, and nothing on the checklist could see it.
 >
 > ⚠⚠ **THE JIT LADDER JOINED THE SEAL 2026-09-23 (Tony, via the jitter dispatch), AND IT WAS
 > PAID FOR:** it had been red at HEAD for weeks -- JC since 2026-09-01, JXD-1/JXD-3 since

@@ -5154,6 +5154,24 @@ kindRow "kindSRT field: jit1 jit2 / int1 int2"  "$(ksr "$T/ksr" 'jit 1' field) $
 kindRow "kindSRT EMPTY local (PINNED DIVERGENCE): jit / int" "$(ksr "$T/ksr" 'jit 1' empty) $(ksr "$T/ksr" 'jit 2' empty) / $(ksr "$T/ksr" 'int 1' empty) $(ksr "$T/ksr" 'int 2' empty)" "2 4 / 2 2"
 kindRow "kindSRT degrade count"  "$(grep -o 'jitDegrade count = [0-9]*' "$T/ksr" | awk '{print $NF}')" "0"
 
+
+#  ---------------------------------------------------------------------------
+#  kindCellsT -- the two += cells no fixture reached (Amendment 2, 2026-09-25),
+#  PINNED AS THEY BEHAVE TODAY by the branch witness: node onto an empty field
+#  (F), node and count onto a bin (C). Re-pins to the structural member's name
+#  when it lands; the lengths must not move.
+peqBranch () {                  # peqBranch <file> <region> -> branch letters
+    awk -v r="$2" '$0 ~ "^MARK "r" begin" {on=1; next} $0 ~ "^MARK "r" end" {on=0}
+        on && /^PEQBRANCH / {printf "%s", $2}' "$1"
+}
+export INCANT_PEQ_PROBE=1
+run1 kindCellsT "$T/kcel";   check "kindCellsT runs" 0 $?
+unset INCANT_PEQ_PROBE
+sentinel "kindCellsT sentinel" "$T/kcel" "KINDCELLST SENTINEL"
+kindRow "kindCellsT C4 node onto EMPTY: branch, length" "$(peqBranch "$T/kcel" C4) $(grep '^C4 length' "$T/kcel" | awk '{print $NF}')" "F 1"
+kindRow "kindCellsT C1n node onto BIN: branch, length" "$(peqBranch "$T/kcel" C1n) $(grep '^C1n length' "$T/kcel" | awk '{print $NF}')" "C 2"
+kindRow "kindCellsT C1c count onto BIN: branch, length" "$(peqBranch "$T/kcel" C1c) $(grep '^C1c length' "$T/kcel" | awk '{print $NF}')" "C 3"
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi
