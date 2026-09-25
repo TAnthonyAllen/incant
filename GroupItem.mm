@@ -461,26 +461,53 @@ int 		spanLen = 0;
 	spanLen = (int)(spanTo - spanFrom);
 	if ( spanLen < 0 )
 		return;
-	
 	// oracleBeforeWrite the comparator samples the product BEFORE the write below, or it compares this function
 	// oracleBeforeWrite to itself and reads MATCH forever
-	if ( GroupControl::groupController->groupRules->parseTrace )
-	{
-	int   shipLen  = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gCount : -1;
-	char *shipFrom = isTOKEN(label->groupBody->flags.data) ? label->groupBody->gText : 0;
-	const char *verdict;
-	if ( !shipFrom )                                   verdict = "ORACLE-ABSENT";
-	else if ( shipLen <= 0 && spanLen <= 0 )           verdict = "VOID-bothEmpty";
-	else if ( shipLen != spanLen )                     verdict = "DIVERGE-len";
-	else if ( ::strncmp(shipFrom,spanFrom,spanLen) )   verdict = "DIVERGE-bytes";
-	else                                               verdict = "MATCH";
-	::fprintf(stderr,"CAPTURE %s rule=%s shipLen=%d spanLen=%d ship=[%.*s] span=[%.*s]\n",
-	verdict, groupBody->tag ? groupBody->tag : "?", shipLen, spanLen,
-	shipLen > 0 ? shipLen : 0, shipFrom ? shipFrom : "",
-	spanLen > 0 ? spanLen : 0, spanFrom);
-	}
-	
+	if (ruler->parseTrace)
+		{
+		int 	shipLen = isTOKEN(label->groupBody->flags.data) ? label->getCount() : -1;
+		char 	*shipFrom = isTOKEN(label->groupBody->flags.data) ? (char*)label->getText() : (char*)0;
+		char 	*verdict = 0;
+		if (!shipFrom)
+			verdict = "ORACLE-ABSENT";
+		else
+		if ( shipLen <= 0 && spanLen <= 0 )
+			verdict = "VOID-bothEmpty";
+		else
+		if ( shipLen != spanLen )
+			verdict = "DIVERGE-len";
+		else
+		if ( ::strncmp(shipFrom,spanFrom,spanLen) )
+			verdict = "DIVERGE-bytes";
+		else	verdict = "MATCH";
+		
+		::fprintf(stderr,"CAPTURE %s rule=%s shipLen=%d spanLen=%d ship=[%.*s] span=[%.*s]\n",
+		verdict, groupBody->tag ? groupBody->tag : "?", shipLen, spanLen,
+		shipLen > 0 ? shipLen : 0, shipFrom ? shipFrom : "",
+		spanLen > 0 ? spanLen : 0, spanFrom);
+		
+		}
 	label->setToken(spanFrom,spanLen);
+}
+
+/*******************************************************************************
+        checkOP looks for a data specific version of the op passed in and
+        returns it if found, otherwise returns the op passed in
+*******************************************************************************/
+GroupItem *GroupItem::checkOP(GroupItem *op)
+{
+GroupItem 	*dataOP = 0;
+	if ( !op->groupBody->groupList )
+		return op;
+	// nameOnStack the member name is built on the stack, never in stringBUFFER -- an op fires while other code is mid-fill
+	
+	char    name[128];
+	::snprintf(name,sizeof name,"%s%s",op->groupBody->tag,groupBody->flags.data ? ::dataName(groupBody->flags.data) : "list");
+	dataOP = op->getMember(name);
+	
+	if ( dataOP )
+		return dataOP;
+	return op;
 }
 
 /******************************************************************************

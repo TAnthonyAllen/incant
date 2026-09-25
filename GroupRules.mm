@@ -12702,6 +12702,15 @@ GroupItem 	*target = field->get(2);
 	hand the list operators a COPY.   GroupActions.runOP.listOperand  */
 	if ( target && target->groupBody->flags.isVirtual )
 		target = ::copyOf(target);
+	// perKindPick ruling 5: the kind-specific member is picked PER FIRE into this local op and NEVER written back to field; ahead of the jit slot fork so both roads share it
+	if ( op->groupBody->groupList )
+		{
+		if ( target && target->groupBody->flags.data )
+			op = target->checkOP(op);
+		else
+		if ( arg )
+			op = arg->checkOP(op);
+		}
 	/*  The seed gate must cover BOTH dispatch arms below, not just the
 	isOperator one. Unary operators are registered `unary ruleMethod=`
 	(incant/setup:104-150) -- isUnary and isMethod, NOT isOperator -- so

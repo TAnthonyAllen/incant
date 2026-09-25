@@ -47,6 +47,7 @@ void append(GroupItem *grup);
 GroupItem *attachBlocK(GroupItem *blocK);
 void attachLabel(RuleStuff *stuff, RuleStuff *pStuff, int promote);
 void captureSpan(RuleStuff *stuff);
+GroupItem *checkOP(GroupItem *op);
 void clear();
 void clearData();
 void clearList();
