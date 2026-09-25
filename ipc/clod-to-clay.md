@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 124 at the FOOT -- STEP-2 RECON STOPPED at 5b: two drive seats bypass both known seats (treeOf, demoRprime)
+STATUS:   fresh           # SEQ 125 at the FOOT -- A: nothing lost; STOPPED in item C on a NONE row (JSON: the yield channel builds the data tree)
+# prior: SEQ 124 -- STEP-2 RECON STOPPED at 5b: two drive seats bypass both known seats (treeOf, demoRprime)
 # prior: SEQ 123 -- ruling (ii) BUILT; FRAMELEAK 0; the loss accounting closes; go/no-go re-read
 STATUS-122: fresh        # SEQ 122 -- rulings A, B, C; the rejected-drive question (answered: (ii))
 STATUS-121: fresh        # SEQ 121 -- Part A stopped; the yield brief
@@ -7086,3 +7087,125 @@ NOT DONE: item 3 (no PTF_TRACE run -- the branch binary was never built), item 4
   item 6 (no plan written to jitDesign.md). The stop fired before the build, by design.
 STATE: trunk jit-unified-emit-wip, installed binary untouched (trunk bare), branch untouched.
   Only ipc/ edited.
+
+===================================================================
+SEQ 125  --  2026-09-25  --  Clod
+STEP-2 RECON RESUMED (clay-to-clod SEQ 175) -- A MEASURED, NOTHING LOST;
+STOPPED IN ITEM C ON A NONE ROW
+Branch built for measurement (parse-then-fire 860047e, committed .mm, no retok), then
+trunk checked out and REBUILT BARE: fleet 742 / 2, red list 57 rows (identical, row for
+row, to the branch at PTF=0), canary 368, installed binary carries no _ptfScopeOpen.
+No source or doc edited on either branch. jitDesign.md NOT written (E not reached).
+===================================================================
+
+THE STOP -- ITEM C, A NONE ROW: THE YIELD CHANNEL BUILDS A DATA TREE, AND RULING 2's
+DEFAULT HAS NO PLACE FOR IT
+  incant/utilities:104  JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={
+                            token <: JSONtoken; token = *JSONvalue; return token; };
+  A CODED rule (processAction path, GroupActions.rtn:550-599) returns a LIVE FIELD, which
+  the yield channel puts IN PLACE OF ITS LABEL -- so JSONblock's label ends up holding one
+  keyed field per member. That tree IS what JSONblock(...) hands back to its caller
+  (incant/pop/jsonTest's testJSON: `field = JSONblock(argument);`). Siblings on the same
+  road: JSONarray (:111, its body's last value), unitTests `list` (:147), convDrive's
+  `tell`. Measured, traced fleet at PTF=1 (PTF_RETIRE): yieldTrunk JSONfield 39,
+  JSONarray 11, list 4, tell 3 -- all TRUNK, i.e. outside step 1's scope today, because
+  the JSON drive's root is not a StatemenT (class=outside). Step 2's scope extension
+  (item 3) is exactly what brings them in.
+  UNDER STEP 2 AS RULED: JSONfield hands its parent a VALUE (the field); JSONblock has NO
+  action, so ruling 2's default fires the components and YIELDS THE LAST VALUE -- the
+  object's other members are lost, and "the label tree never holds a field" forbids the
+  current shape outright. The job -- a parse whose actions' values ARE the structure it
+  returns -- has no home: not value-to-parent (last only), not control, not exempt.
+  ⚠ THE FLEET CANNOT SEE IT: jsonTest asserts only non-null ("ok"/"FAIL"), so JSONblock
+  returning its last member reads green. No row pins the JSON tree's shape.
+  CANDIDATE HOMES (for the ruling, not built): (a) the default for a rule with content and
+  no action COLLECTS its children's values into its own label (the label is the value);
+  (b) JSONblock/JSONarray gain explicit actions that collect; (c) a declared "builder"
+  role. Each moves different rows; the shape-pinning row is owed first either way.
+
+A -- THE PREDICTION: HELD, AND THE FIXTURES CANNOT SHOW A LOSS
+  treeScratch, genScratch, branch binary, PTF=0 and PTF=1, PTF_TRACE + PTF_LEAKLOG:
+    every run exit 0; NO leak-log event at all (no FRAMELEAK, DISCARD, UNREACHED)
+    per-rule fire counts (rule x fired/held): IDENTICAL across settings, both files
+      (treeScratch 2698 fires, genScratch 3222)
+    PTF=1 class split: treeScratch 2512 outside / 106 define / 11 decides + 69 walk;
+      genScratch 2512 outside / 259 define / 114 code / 41 decides + 276 walk
+    user-visible output: identical but for trace-line order and addresses
+  INSIDE THE DRIVES: ZERO action fires at either setting. treeOf's ScafOUT/ScafALT/Scaf*
+  carry no actions; demoRprime's per-pass GrouP fires reach fireLabelMethod with label=0,
+  so nothing fires. The prediction said "outside"; the truth is "nothing to fire".
+  ⚠ SO A CANNOT DISCRIMINATE: a loss is impossible in these drives, scoped or not. The
+  routing stroke's certificate needs a fixture whose treeOf/demoRprime drive carries an
+  ORDINARY action (and a rejected pass), or it certifies nothing (H7).
+
+B -- THE PERMANENT DRIVE CENSUS ROW (specified, NOT installed)
+  WHERE: pop.sh, beside the "raw ->rStuff reads" source-census row (a source-text census,
+  no binary run).
+  HOW: for every top-level *.twk and *.rtn, strip comments with genLadder/codeOnly.py,
+  then name the ENCLOSING FUNCTION of every `pushInput(` call (definition line excluded).
+  Pin the sorted set:
+    Commands.rtn loadInputFromFile · genParse.rtn demoRprime · genParse.rtn treeOf ·
+    GroupActions.rtn driveStep · GroupActions.rtn processCode · GroupMain.twk bootstrapper ·
+    jitEmitters.rtn jitProbeDrive                                            -- 7 today
+  A caller not in the set goes RED by name, with its class to be stated (drive / divert /
+  compile / bootstrap). After the routing stroke, demoRprime and treeOf LEAVE the set.
+  WHY codeOnly IS LOAD-BEARING: without it the census reads 8 -- a pushInput( inside the
+  comment at GroupActions.rtn:1101 lands in runOP. Measured on trunk: 8 raw, 7 stripped.
+  H7 CONTROL: append a scratch extern calling pushInput to a COPY of genParse.rtn and point
+  the row at the copy -- it must go red naming that extern. Anti-vacuity: the row also
+  fails if the set is EMPTY (a broken extractor reads zero).
+
+1 / C -- WHAT RAN BEFORE THE STOP
+  processAction's returns (GroupActions.rtn:550-599): null when processCode fails (a COMPILE
+  failure fails the parse -- parse-deciding, exempt); otherwise the action BlocK's value
+  (last statement, or a `return`'s operand, isBranch cleared on it at :596). Coded rules in
+  the population (incant/, IncantForms/, attic and BackupXML excluded): unitTests list;
+  utilities JSONfield, JSONarray; frontier frRule; chainTruthT wzNum; convDriveT ask;
+  convLeakT setT; fireSeatT six. All but JSONfield/JSONarray yield a value nobody reads
+  (cerr/print property nodes, counters). Retire-witness ranks, whole traced fleet:
+  deferEarly StatemenT 185061, ElsE 4455 · heldTrunk BlocK 3567, BrancH 3327, Xpress 2331,
+  IF 952, PrinT 779, CerR 267, WhilE 145, Iterate 138, CouT 47 · yieldTrunkNull ANYtoken
+  1482, ShortcuT 5 · yieldReplay CerR 278, PrinT 201, Iterate 143, CouT 71, BlocK 65 ·
+  yieldTrunk StringXP 164, JSONfield 39, JSONarray 11, list 4, tell 3.
+  THE SPLIT-ACTION MEASUREMENT was not done (stopped first).
+
+3 -- SCOPE BEYOND TOP-LEVEL STATEMENTS (measured, traced fleet, PTF=1, 143 runs)
+  fires DURING the parse by class: outside 361506 · define 108728 · code 74476 · decides
+  8696. Replayed (walk) 30477; held 12085.
+  a. BOOTSTRAP (setup + grammar defines): 2512 outside fires PER RUN, constant (a one-line
+     file reads exactly 2512) -- 143 runs = 359216 of the 361506. NamE 779, TraiT 679,
+     NewGroup 330, DefinE 330, TraiTdata 222, QuotE 103, NumbeR 42, RunRulE 20 per run.
+     DEPENDS: the grammar and registries themselves -- every later statement parses
+     against what these fires built, so they cannot wait for a statement end.
+  b. NON-BOOTSTRAP OUTSIDE: ~2290 fires (an estimate by per-file remainder), 1949 of them
+     in sweepT (probe drives of non-StatemenT carriers), the rest Scaf-style rule calls and
+     the JSON drives. DEPENDS: jitProbeDrive's counters (gProbeRuleFires/True) and
+     sweepT's verdicts; JSONblock's returned tree (the stop above).
+  c. ACTION BODIES (processCode, class=code): 74476 -- NamE 14903, ANYtoken 14903, TokenXP
+     14419, Parens 9472, ExpressioN 8546, StatemenT 8358, QuotE 1507, ShortcuT 1201,
+     NumbeR 1016, Braced 151. DEPENDS: the CACHED BlocK's shape -- ExpressioN's runOP /
+     runShortCircuit nodes (interpretXP), TokenXP's handle* arms, Braced's fLAG, and
+     NamE minting action LOCALS at compile (bear-trap #39). The jit walks that BlocK.
+  d. NESTED DRIVES: 2621 rejected drives, 12410 records DISCARDED (ruling (ii)); 0
+     DRIVEREPLAY -- an accepted drive replays through its own root's statement end.
+
+5a -- THE 932
+  932 UNREACHED, reproduced exactly. By file: sweepT 828, s1r 92, pd 8, srDo 4. By rule:
+  NumbeR 250, ExpressioN 226, StatemenT 210, PrinT (held) 210, NamE 16, ANYtoken (recheck)
+  12, TokenXP 8. Chains: 840 of 932 under a DO (DO / StatemenT<DO / PrintXP<stuff<
+  StatemenT<DO), the rest under WhilE, IF, FOR, Search -- every one rootIsAncestor=0.
+  THEY ARE FAILED ALTERNATIVES: `do print 1;`-shaped near-misses -- DO matched its body,
+  failed at `while`, and the statement then parsed another way.
+  WHERE AN EXPLICIT DISCARD SITS: the rule's failure exit -- a gPtfN mark taken per pass
+  at parse()'s continueHere (GroupItem.twk ~1350) and truncated at matchFailed when the
+  pass fails; the new road's twin at exitFromParse's failure return (Generate.rtn:26-28).
+  Counted as "DISCARD failed alternative", apart from the rejected-parse discard.
+  CONSERVATION ROW: FRAMELEAK 0 + DISCARD 12410 + UNREACHED 932 = 13342. ⚠ NOT 13339: the
+  +3 is pop.sh's own srDot sub-run (pop.sh:3168, `PTF DISCARD rejected parse
+  rule=StatemenT records=3`), which landed in the same commit as the 13339 measurement.
+  The row pins 13342, and after the discard stroke: 0 + 12410 + 932 + 0 unreached.
+
+NOT DONE: C's split-action measurement, 4 (Rule C audit), E (the plan). The stop fired
+first, by design.
+STATE: trunk jit-unified-emit-wip, installed and BARE, fleet 742 / 2, canary 368.
+  Branch untouched at 860047e. Only ipc/ edited.

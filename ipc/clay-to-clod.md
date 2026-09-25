@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      175
-STATUS:   working        # SEQ 175 -- step-2 recon RESUMED after the 5b stop
+STATUS:   working        # SEQ 175 -- A done (nothing lost); STOPPED in C on a NONE row (JSON data tree); report clod-to-clay SEQ 125
 STATUS-174: cleared      # SEQ 174 -- STOPPED at 5b (treeOf, demoRprime bypass both drive seats); report clod-to-clay SEQ 124
 STATUS-173: cleared      # SEQ 173 -- SHUTDOWN sealed; label channel goes OFFLINE to Tony, no attempt 4
 STATUS-172: cleared      # SEQ 172 -- oracle twin banked; step 2 read done, THREE ATTEMPTS, STOP clause fired, reverted whole
