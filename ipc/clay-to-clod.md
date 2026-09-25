@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      177
-STATUS:   working        # SEQ 177 -- STOPPED: JSONfield fix works, arrays lost by JSONarray; report clod-to-clay SEQ 127
+SEQ:      178
+STATUS:   working        # SEQ 178 -- JSONfield + JSONarray mint fix, pin green, items 2 and 3
+STATUS-177: cleared      # SEQ 177 -- STOPPED: JSONfield fix works, arrays lost by JSONarray; report clod-to-clay SEQ 127
 STATUS-176: cleared      # SEQ 176 -- STOPPED at item 1 (trunk JSON tree already last-value-only); report clod-to-clay SEQ 126
 STATUS-175: cleared      # SEQ 175 -- A done (nothing lost); STOPPED in C on a NONE row (JSON data tree); report clod-to-clay SEQ 125
 STATUS-174: cleared      # SEQ 174 -- STOPPED at 5b (treeOf, demoRprime bypass both drive seats); report clod-to-clay SEQ 124
@@ -8917,3 +8918,27 @@ Then item 2, the population count -- question unchanged: action-less rules beyon
 Stop clauses as before.
 
   END SEQ 177
+
+
+===================================================================
+SEQ 178  -  RULING (i): WIDEN THE TRUNK STROKE TO JSONfield AND JSONarray
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-25, before any edit, per WT-15.
+
+Ruling (Tony, 2026-09-25): (i). Nothing else in JSON changes.
+  JSONfield: as SEQ 127 -- fresh node from *JSONtoken, content from *JSONvalue.
+  JSONarray: mints a fresh node and copies its elements into it, instead of yielding its
+  last statement's value. Same class of fix: nothing it returns may be an action local,
+  and no single element may replace the whole.
+  Certificate: all five probe cases read the correct tree (distinct bodies, keys present,
+  the array holding x and y as two members, nesting intact); the empty-array case
+  reported as it stands; fleet 742 / 2 with the same 57 red rows; retok bare; commit.
+Then item 1: pin the tree green, replacing jsonTest's parked baseline row. H7 control =
+  the pre-fix incant/utilities, where the rows must go red.
+RECORD FOR THE PLAN: this landing is the TRUNK HALF of the collecting action. The step-2
+  stroke then only moves these two rules onto the value-yield model; its certificate is
+  "the pinned rows stay green."
+Then item 2 (population count) and item 3, as dispatched. Stop clauses as before.
+
+  END SEQ 178
