@@ -3,8 +3,9 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      118
-STATUS:   fresh           # SEQ 118 at the FOOT -- string-leaf returns IDENTICAL, candidate dead; SHUTDOWN SEAL
+SEQ:      119
+STATUS:   fresh           # SEQ 119 at the FOOT -- PARSE-THEN-FIRE STEP 2: GO / NO-GO EVIDENCE
+STATUS-118: fresh        # SEQ 118 -- string-leaf returns IDENTICAL, candidate dead; SHUTDOWN SEAL
 STATUS-117: fresh        # SEQ 117 -- possibility 2; arity reading falsified; SEQ 116 corrected
 STATUS-116: fresh        # SEQ 116 -- read SEQ 117 with it; its "inside parser(DO)" is corrected there
 STATUS-115: fresh        # SEQ 115 -- SEQ 169 step 2 report; read SEQ 116 with it
@@ -6526,3 +6527,108 @@ clears the DO crash, the 35 DO refusals and CT-5 -- truthOf at :229 with the six
 as its guard -- then the ladder from ANYorNum.
 
   END SEQ 118
+
+===================================================================
+SEQ 119  --  2026-09-25  --  Clod
+GO / NO-GO EVIDENCE -- PARSE-THEN-FIRE STEP 2   (answering Clay's SEQ of 2026-09-25)
+MEASURE ONLY. Nothing of step 2 was built. The decision is Tony's.
+===================================================================
+
+SUMMARY
+  Condition 1  every divergence named ............ PARTIAL  (two UNEXPLAINED)
+  Condition 2  fixes still clustering ............. MET
+  Condition 3  retirements deletable in principle . NOT MET (every channel still decides)
+
+STEP 0 -- THE BRANCH BROUGHT UP TO TODAY
+  Merge commit 3ead6a9 on parse-then-fire (trunk b949f8e merged in), pushed.
+  One conflict, docs/jitDesign.md, both hunks kept. NO conflict in fireLabelMethod,
+  attachLabel or runOP; all source auto-merged. Generated .mm/.h retokked bare from the
+  merged source: BYTE-IDENTICAL to the textual merge. Canary 379.
+  PTF=0 == trunk 739/2 ROW FOR ROW.
+  PTF=1 = 737/2. Red set = PTF=0's plus exactly two rows (probeDoorT stmtRejT,
+  site1RoadsT) -- the 09-24 seal's 660/2 pair, the arithmetic agreeing (660 + today's 77
+  trunk rows = 737).
+
+STEP 1 -- THE CERTIFICATE ITEMS
+  a. M1 fire-order identity (branch binary, PTF=0 vs PTF=1, PTF_TRACE=1), on oneTest,
+     jsonTest, f122T, doWhileNameT, dotChainT, adoptT, fireSeatT, convDriveT:
+     SAME FIRES on all eight -- equal counts, identical multiset of (rule, children).
+     The ORDER differs, first at fire 2513 (the first statement parsed under StatemenT),
+     and EVERY moved fire is one of NamE (ordinary), ANYtoken or ShortcuT -- the latter
+     two on the branch's own `decides` exemption list. So: exempt parse-deciding fires stay
+     in the parse, ordinary NamE fires replay at statement end. BY-DESIGN.
+     The "tag at fire" column also differs -- a label is fired after its parent retagged
+     it -- which M1 already carries as retag=. Timing, not content.
+  b. Station 2's fires column: PREDICTION FAILED. sweepT's own verdict holds
+     (certified=45 agree=45 diff=0 at both), but the PROBE lines move: 16 probe keys fire
+     once more at the same count, 78 keys are probed a different number of times. Behind
+     them, 15 messages:
+       BY-DESIGN  `do print 1;`, `do print 1; wile 1 < 0;` -- verdict 0 -> 1, the
+                  near-miss the parse now accepts and refuses at fire time.
+       UNEXPLAINED 13 others (`for s2C`, `if 1 < 0`, `while 1 < 0`, `else`, `::`,
+                  `#-5s`, `#5.2d`, `define aa isRule; ;`, ...): verdict VALUES unchanged,
+                  but probe counts shift by 4-12 and some keys fire +1. Not attributed.
+  c. jitLadder at PTF=1: 215 ok, PASSED; row for row with PTF=0.
+  d. ATTRIBUTED. Both unexplained moves come from ONE drive, unaryNatT unPrDot --
+     StatemenT("print .5;"): tripwire 9 -> 16 there (+7), loopVerdict DISAGREE 1 -> 0.
+     At PTF=0 the `.5` refusal fires DURING the parse: PrintXP matches nothing (kount=0,
+     DISAGREE) and the statement fails part-way. At PTF=1 the refusal is an ordinary action
+     and waits: the parse accepts the whole statement -- PrintField, PrintXP, stuff, SemI,
+     PrinT, WardeD, StatemenT all attach, the seven extra DEFERABOVE lines -- PrintXP agrees,
+     and the refusal lands at fire (the value row, "printed nothing", still passes).
+     BY-DESIGN (a parse verdict moving to fire time). Today's merge dissolved neither.
+
+STEP 2 -- THE THREE CONDITIONS
+  1. EVERY DIVERGENCE NAMED -- PARTIAL. The full error-diff, trunk vs branch, from every
+     fleet output kept at both settings (249 files each):
+       BY-DESIGN    the fire-time keyword refusal ("a KEYWORD used as a name ... refused
+                    at fire time") in pd, s1r, srDo, srElse, srIf, srPrint, sw (plant 2)
+       BY-DESIGN    probeDoorT stmtRejT, site1RoadsT, probeDoorT DO #2 (verdict to fire)
+       BY-DESIGN    tripwire 413->420, loopVerdict 13->12 (unPrDot, above)
+       BY-DESIGN    M1 reorder (exempt vs ordinary, above)
+       UNEXPLAINED  ⚠ srDot -- StatemenT(".5"): at PTF=0 it REFUSES BY NAME ("`.5` is not a
+                    number"); at PTF=1 there is NO refusal at all, the drive returns and the
+                    sentinel prints. A refusal LOST, not moved -- unPrDot's `print .5;` still
+                    refuses, so it is the bare statement. Inference, NOT measured: the refusal
+                    is an ordinary action and the replay fires only records reachable from the
+                    statement's label tree. Every srDot row is green at both settings, so no
+                    row asserts the refusal -- a coverage hole as well as a divergence.
+       UNEXPLAINED  Station 2's 13 messages (1b).
+     Acceptance is Tony's; this proposes the BY-DESIGN tags only.
+  2. FIXES STILL CLUSTERING -- MET. Since 0f77486 the branch has one commit, a docs item;
+     no new plant or fix. The four plants stand in the census's first two causes: 1 and 2
+     label/name resolution (attachLabel's isGROUP read; ANYtoken reading NamE's resolution),
+     3 and 4 label shape at attach (replay setting fLAG; fLAG's two meanings). ⚠ srDot's lost
+     refusal is not yet classified; if it is the reachability inference above, it is a
+     third cause (a record the replay never reaches) -- which is why condition 1 is PARTIAL.
+  3. RETIREMENTS DELETABLE IN PRINCIPLE -- NOT MET. Writers / readers:
+       defer (flags.deferred): WRITTEN by the grammar's `defer` modifier (Commands.rtn:576),
+         fireLabelMethod's held arm (GroupItem.twk:746), the replay (Generate.rtn:714).
+         READ by deferredAbove (GroupItem.twk:445,451), fireLabelMethod (:741,:743), and
+         five early returns (ruleActions.rtn 447, 553, 585, 1224, 1238).
+       deferredAbove: itself (GroupItem.twk:433); read once, fireLabelMethod:729 (held).
+       yield channel: every action's return; read at fireLabelMethod's adoption and the
+         replay's `ret != L` substitution.
+     Reads that DECIDE an outcome under PTF=1, full fleet (new witness measureRetire,
+     PTF_RETIRE-armed, branch commit 0512109, inert when disarmed -- fleet row for row):
+       deferEarly     185170   (StatemenT 180816, ElsE 4354)
+       heldTrunk       11389   (BlocK, BrancH, Xpress, IF, PrinT, CerR, WhilE, Iterate)
+       heldReplay        483   (Xpress, PrinT, BlocK)
+       yieldReplay       755   (CerR, PrinT, Iterate, CouT, BlocK)
+       yieldTrunk        222   (StringXP 164)
+       yieldTrunkNull   1487   (ANYtoken 1482)
+     Zero would mean deletable in principle; none is zero. ⚠ READ THE TRUNK ROWS WITH THE
+     09-24 BOUNDARY: heldTrunk and yieldTrunk are fires OUTSIDE top-level statements (the
+     setup and grammar defines, processCode's bodies), which step 1 never relocated -- they
+     measure the scope step 2 would have to take on, not a failure of step 1.
+
+PARKED, NOT ADVANCED
+  Rule C (attaching never reads what an action wrote) -- open.
+  The two owed rulings: the yield channel (F-122 entry 7) and parseLoop's silent success
+  at max (F-114 entry 24) -- open.
+  C-form (ANYtoken asking Keywords directly) -- measured not neutral 09-24, open.
+
+STATE
+  Branch parse-then-fire at 0512109, pushed. Trunk b949f8e checked out and INSTALLED,
+  canary 368, fleet 739/2 row for row. No incant process.
+
