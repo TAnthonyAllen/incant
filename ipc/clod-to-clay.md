@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 125 at the FOOT -- A: nothing lost; STOPPED in item C on a NONE row (JSON: the yield channel builds the data tree)
+STATUS:   fresh           # SEQ 126 at the FOOT -- STOPPED at item 1: trunk's JSON tree is ALREADY last-value-only, so the H7 control cannot discriminate
+# prior: SEQ 125 -- A: nothing lost; STOPPED in item C on a NONE row (JSON: the yield channel builds the data tree)
 # prior: SEQ 124 -- STEP-2 RECON STOPPED at 5b: two drive seats bypass both known seats (treeOf, demoRprime)
 # prior: SEQ 123 -- ruling (ii) BUILT; FRAMELEAK 0; the loss accounting closes; go/no-go re-read
 STATUS-122: fresh        # SEQ 122 -- rulings A, B, C; the rejected-drive question (answered: (ii))
@@ -7209,3 +7210,61 @@ NOT DONE: C's split-action measurement, 4 (Rule C audit), E (the plan). The stop
 first, by design.
 STATE: trunk jit-unified-emit-wip, installed and BARE, fleet 742 / 2, canary 368.
   Branch untouched at 860047e. Only ipc/ edited.
+
+===================================================================
+SEQ 126  --  2026-09-25  --  Clod
+SEQ 176 ITEM 1 -- STOPPED BEFORE INSTALLING: THE JSON TREE ON TRUNK IS ALREADY WRONG,
+AND IT IS ALREADY "LAST VALUE ONLY" -- SO THE CERTIFICATE CANNOT BE WRITTEN
+Nothing installed, nothing edited but ipc/. Trunk installed and BARE, never rebuilt.
+Items 2 and 3 not started.
+===================================================================
+
+THE COMMAND: a probe (scratchpad, not in tree) with jsonTest's own preamble --
+  `jpF = JSONblock(argument);` then iterate the members of jpF, printing each member's
+  taG, listLengtH, value, and addrOf. Trunk binary, exit 0, sentinel reached.
+WHAT FAILED: JSONfield (incant/utilities:104) -- every member it yields is THE SAME NODE.
+
+  input                               root len   members as read back
+  {"a":"b","c":"d"}                   2          JSONtoken=d, JSONtoken=d
+  {"a":"b"}                           1          JSONtoken=b
+  {"a":["x","y"]}                     1          JSONtoken=y  len 0   (the array is gone)
+  {"a":[]}                            1          value echoes its own tag (#26), plus
+                                                 "nextGroup: ERROR JSONlist does not
+                                                 contain a list"
+  {"a":{"b":"c","d":"e"},"f":"g"}     2          JSONtoken=a len 0; JSONtoken=g len 2
+
+  addrOf: every top-level member, across ALL FIVE CALLS, reads body=#2 -- one body. Only
+  the nested object's member reads a different body (#8). No member carries its key: the
+  tag is JSONtoken throughout, so `token <: JSONtoken` is not keying anything we can read.
+
+THE MECHANISM, read not measured: JSONfield's `return token;` hands back its ACTION
+LOCAL. That is bear-trap #50 exactly -- a local published into the persistent tree
+shares its body with the local, and every later fire (and the frame restore) writes that
+one body. So each JSONblock ends up holding N handles onto the LAST value written.
+
+WHY THIS STOPS ITEM 1
+  The H7 control the dispatch specifies -- "JSONfield's yield kept to the last value only;
+  the rows must go red" -- IS TODAY'S BEHAVIOUR. Rows pinned by value to trunk's output
+  would pin the defect, and the control could not turn them red. Rows pinned to the
+  CORRECT tree are born red on trunk (five of five cases above). Either way the
+  certificate as written ("rows green, control red") cannot be met before a build --
+  SEQ 174's stop clause.
+  ⚠ And it moves the ruling's premise: "the yield channel builds the JSON tree today" is
+  only half true -- it builds the tree's SKELETON (the member count is right) with
+  every member aliased to one body and no key. Step 2 does not break a working JSON
+  tree; there is none to break.
+
+THE QUESTION, for Tony: which order?
+  (i) PIN BORN RED: rows asserting the CORRECT tree (keys, counts, values, nesting,
+      empty array), red on trunk by design with their sentence, replacing jsonTest's
+      parked baseline row; the collecting-actions stroke turns them green. No H7 run now
+      (the rows are already red for the control's reason).
+  (ii) FIX FIRST, THEN PIN GREEN: a separate stroke mints JSONfield's result per fire
+      (#50's cure: `:=` onto a fresh mint, keyed from JSONtoken's text) and the pin lands
+      green with the dispatch's H7 control intact. That is a JSON fix on trunk, outside
+      this dispatch's one allowed install.
+  The fixture itself is ready to write either way; only its expected column and its
+  colour depend on the answer.
+
+STATE: trunk jit-unified-emit-wip, installed and BARE (not rebuilt this round), fleet
+742 / 2 as of SEQ 125. Only ipc/ edited.

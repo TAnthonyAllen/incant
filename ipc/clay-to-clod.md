@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      176
-STATUS:   working        # SEQ 176 -- JSON shape pin (install) + population count + rest of recon
+STATUS:   working        # SEQ 176 -- STOPPED at item 1 (trunk JSON tree already last-value-only; certificate cannot be written); report clod-to-clay SEQ 126
 STATUS-175: cleared      # SEQ 175 -- A done (nothing lost); STOPPED in C on a NONE row (JSON data tree); report clod-to-clay SEQ 125
 STATUS-174: cleared      # SEQ 174 -- STOPPED at 5b (treeOf, demoRprime bypass both drive seats); report clod-to-clay SEQ 124
 STATUS-173: cleared      # SEQ 173 -- SHUTDOWN sealed; label channel goes OFFLINE to Tony, no attempt 4
