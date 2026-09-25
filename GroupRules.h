@@ -242,6 +242,8 @@ extern "C" GroupItem *jitEmitter(GroupItem *input);
 extern "C" void *jitEngine();
 extern "C" GroupItem *jitExecBlock(GroupItem *input);
 extern "C" GroupItem *jitFieldMethod(GroupItem *field);
+extern "C" void jitFlushCountRT(GroupItem *field, int value);
+extern "C" void jitFlushNumberRT(GroupItem *field, double value);
 extern "C" void jitFlushTransient();
 extern "C" void jitForceInclude();
 extern "C" void jitIfBegin();

@@ -4828,6 +4828,12 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	// Plain `=`: pure store-back of the source operand's SSA value into the
 	// target's slot. No arithmetic.
 	b->CreateStore(argument->jitData->jitValue, target->jitData->jitSlot);
+	//  frameKind a scalar = into a FRAME slot is recorded, so the op-fire flush can stamp the kind the interpreted = would have given
+	{
+	GroupBody *tb = target->groupBody;
+	if (JitFrameSlot *fs = jitFrameFind((void*)&(tb->gCount))) gJitFrameAssigned.insert(fs->home);
+	else if (JitFrameSlot *fs2 = jitFrameFind((void*)&(tb->gNumber))) gJitFrameAssigned.insert(fs2->home);
+	}
 	// Compound (+= *= ...) is NOT a second branch here — it is the composition
 	// done by the opMethod gate: jitEmitBinary(argument,target,<jitOp>) first,
 	// which writes the result into target->jitData->jitValue, then a store-back
@@ -5389,6 +5395,16 @@ extern "C" GroupItem *jitEmitOpFire(GroupItem *op, GroupItem *arg, GroupItem *ta
 	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
 	auto bake = [&](void *p, const char *nm) {
 	return b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)p), ptr, nm); };
+	//  flush a frame slot to its field before the call. A slot a scalar `=` wrote
+	//  this compile gets its KIND too (gJitFrameAssigned); any other stays as it is.
+	auto flush = [&](GroupItem *g, JitFrameSlot *fs, const char *nm) {
+	llvm::Value *v = b->CreateLoad(fs->ty, fs->slot, nm);
+	if (gJitFrameAssigned.count(fs->home)) {
+	bool num = fs->ty->isDoubleTy();
+	llvm::FunctionType *fty = llvm::FunctionType::get(llvm::Type::getVoidTy(ctx), {ptr, fs->ty}, false);
+	b->CreateCall(fty, bake(num ? (void*)&jitFlushNumberRT : (void*)&jitFlushCountRT, "opFireFlushFn"),
+	{bake((void*)g, "opFireFlushField"), v}); }
+	else b->CreateStore(v, bake(fs->home, "opFireHome")); };
 	auto frameOf = [&](GroupItem *g) -> JitFrameSlot* {
 	JitFrameSlot *fs = jitFrameFind((void*)&(g->groupBody->gCount));
 	if (!fs)      fs = jitFrameFind((void*)&(g->groupBody->gNumber));
@@ -5400,8 +5416,7 @@ extern "C" GroupItem *jitEmitOpFire(GroupItem *op, GroupItem *arg, GroupItem *ta
 	if (gJitLastIsNode && gJitResultNode) { tgtV = gJitResultNode; nodeTaken = true; }
 	}
 	else {
-	if (JitFrameSlot *fs = frameOf(target))
-	b->CreateStore(b->CreateLoad(fs->ty, fs->slot, "opFireFlushT"), bake(fs->home, "opFireHomeT"));
+	if (JitFrameSlot *fs = frameOf(target)) flush(target, fs, "opFireFlushT");
 	tgtV = bake((void*)target, "opFireTgt");
 	}
 	//  ARGUMENT -- its VALUE is the point.
@@ -5409,8 +5424,7 @@ extern "C" GroupItem *jitEmitOpFire(GroupItem *op, GroupItem *arg, GroupItem *ta
 	if (!nodeTaken && gJitLastIsNode && gJitResultNode) { argV = gJitResultNode; nodeTaken = true; }
 	}
 	else if (arg->groupBody->flags.isLiteral || !arg->jitData || !arg->jitData->jitValue) {
-	if (JitFrameSlot *fs = frameOf(arg))
-	b->CreateStore(b->CreateLoad(fs->ty, fs->slot, "opFireFlushA"), bake(fs->home, "opFireHomeA"));
+	if (JitFrameSlot *fs = frameOf(arg)) flush(arg, fs, "opFireFlushA");
 	argV = bake((void*)arg, "opFireArg");
 	}
 	else {
@@ -6129,6 +6143,35 @@ extern "C" GroupItem *jitFieldMethod(GroupItem *field)
 }
 
 /*******************************************************************************
+    jitEmitOpFire / jitOpFireRT -- AN OPERATOR WITH MEMBERS, FIRED AT RUN TIME
+    (Tony's ruling 2026-09-25: += answers on the jitted road for every target the
+    interpreted road handles, per fire, no degrade, no fallback). The emitted code
+    calls jitOpFireRT with the LIVE operands; it runs pickKindOP -- the same pick
+    runOP makes -- and fires the chosen method. Nothing about an operand's kind is
+    baked, so a cursor over mixed kinds and a target typed by its first fire both
+    answer as the interpreted road does.
+    OPERANDS ARE PRODUCED AT RUN TIME, one class each:
+      a NULL operand with a node in flight -- `*cursor` -- is jitDerefRT's node;
+      a literal is baked by address (it carries its value);
+      a field is baked by address, its FRAME SLOT flushed to the field first and,
+        for the target, reloaded after, so compiled reads agree with the helper;
+      an ARGUMENT whose live value is only in SSA (an inner result) is stored into
+        a scratch node baked at emit -- a plain store, per fire.
+    Anything else REFUSES BY NAME, counted, rather than guessing.
+*******************************************************************************/
+/*  the op-fire flush for a frame slot a scalar `=` has written: the VALUE and the
+    KIND, through the setters, as the interpreted `=` would have left the local.  */
+extern "C" void jitFlushCountRT(GroupItem *field, int value)
+{
+	 if (field) field->setCount(value); 
+}
+
+extern "C" void jitFlushNumberRT(GroupItem *field, double value)
+{
+	 if (field) field->setNumber(value); 
+}
+
+/*******************************************************************************
     jitFlushTransient -- THE TRANSIENT-STATE FLUSH, ONE MECHANISM, TWO CALL
     SITES. S3 rider R1, Tony 2026-08-05.
 
@@ -6144,6 +6187,7 @@ extern "C" void jitFlushTransient()
 	for (GroupItem *seeded : gJitSeeded) seeded->jitData = nullptr;
 	gJitSeeded.clear();
 	gJitFrame.clear();
+	gJitFrameAssigned.clear();
 	gJitResult     = nullptr;
 	gJitResultNode = nullptr;
 	gJitPrintBuf   = nullptr;
@@ -6390,23 +6434,6 @@ extern "C" int jitNodeInFlight()
 	 return gJitResultNode ? 1 : 0; 
 }
 
-/*******************************************************************************
-    jitEmitOpFire / jitOpFireRT -- AN OPERATOR WITH MEMBERS, FIRED AT RUN TIME
-    (Tony's ruling 2026-09-25: += answers on the jitted road for every target the
-    interpreted road handles, per fire, no degrade, no fallback). The emitted code
-    calls jitOpFireRT with the LIVE operands; it runs pickKindOP -- the same pick
-    runOP makes -- and fires the chosen method. Nothing about an operand's kind is
-    baked, so a cursor over mixed kinds and a target typed by its first fire both
-    answer as the interpreted road does.
-    OPERANDS ARE PRODUCED AT RUN TIME, one class each:
-      a NULL operand with a node in flight -- `*cursor` -- is jitDerefRT's node;
-      a literal is baked by address (it carries its value);
-      a field is baked by address, its FRAME SLOT flushed to the field first and,
-        for the target, reloaded after, so compiled reads agree with the helper;
-      an ARGUMENT whose live value is only in SSA (an inner result) is stored into
-        a scratch node baked at emit -- a plain store, per fire.
-    Anything else REFUSES BY NAME, counted, rather than guessing.
-*******************************************************************************/
 extern "C" GroupItem *jitOpFireRT(GroupItem *op, GroupItem *arg, GroupItem *target)
 {
 	

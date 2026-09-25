@@ -5134,6 +5134,26 @@ kindRow "kindJ2T arms jit1 jit2 int1 int2" "$(kindArms "$T/kj2" J2jit1)/$(kindAr
 kindRow "kindJ2T degrade count"         "$(grep -o 'jitDegrade count = [0-9]*' "$T/kj2" | awk '{print $NF}')" "0"
 kindRow "kindHolderJitT degrade count"  "$(grep -o 'jitDegrade count = [0-9]*' "$T/khj" | awk '{print $NF}')" "0"
 
+
+#  ---------------------------------------------------------------------------
+#  kindSRT -- STORE-THEN-READ ACROSS THE += CALL-THROUGH (2026-09-25). Compiled
+#  once, fired twice, jitted beside interpreted. The LOCAL row is the one that
+#  found the frame-slot KIND gap (jitted read 2 on fire 1 where interpreted read
+#  7 -- that run is its negative control); gJitFrameAssigned is the fix.
+#  ⚠ THE EMPTY ROW IS PINNED AS A MEASURED DIVERGENCE, NOT A CLAIM (H7's other
+#  half): a jitted action local keeps its value across fires where the
+#  interpreted road clears it, with or without +=. Jitted 2 4, interpreted 2 2.
+#  If the frame model is fixed this row goes red and re-pins to "2 2 / 2 2".
+export INCANT_KIND_PROBE=1
+run1 kindSRT "$T/ksr";   check "kindSRT runs" 0 $?
+unset INCANT_KIND_PROBE
+sentinel "kindSRT sentinel" "$T/ksr" "KINDSRT SENTINEL"
+ksr () { grep "^SR $2 " "$1" | awk -v c="$3" '{for(i=1;i<=NF;i++) if ($i==c) print $(i+1)}'; }
+kindRow "kindSRT local: jit1 jit2 / int1 int2"  "$(ksr "$T/ksr" 'jit 1' local) $(ksr "$T/ksr" 'jit 2' local) / $(ksr "$T/ksr" 'int 1' local) $(ksr "$T/ksr" 'int 2' local)" "7 12 / 7 12"
+kindRow "kindSRT field: jit1 jit2 / int1 int2"  "$(ksr "$T/ksr" 'jit 1' field) $(ksr "$T/ksr" 'jit 2' field) / $(ksr "$T/ksr" 'int 1' field) $(ksr "$T/ksr" 'int 2' field)" "7 9 / 7 9"
+kindRow "kindSRT EMPTY local (PINNED DIVERGENCE): jit / int" "$(ksr "$T/ksr" 'jit 1' empty) $(ksr "$T/ksr" 'jit 2' empty) / $(ksr "$T/ksr" 'int 1' empty) $(ksr "$T/ksr" 'int 2' empty)" "2 4 / 2 2"
+kindRow "kindSRT degrade count"  "$(grep -o 'jitDegrade count = [0-9]*' "$T/ksr" | awk '{print $NF}')" "0"
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi

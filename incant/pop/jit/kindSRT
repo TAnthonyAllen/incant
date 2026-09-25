@@ -1,0 +1,70 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(KindSRT);
+define
+    srIn=5;
+    srOutL=0;
+    srG=5;
+    srGy=0;
+    srInI=5;
+    srOutLI=0;
+    srGI=5;
+    srGyI=0;
+    srOutE=0;
+    srOutEI=0;
+    srRun code={
+        srL = srIn;
+        srL += 2;
+        srOutL = srL;
+        srG += 2;
+        srGy = srG;
+        srE += 2;
+        srOutE = srE;
+        };
+    srRunI code={
+        srLI = srInI;
+        srLI += 2;
+        srOutLI = srLI;
+        srGI += 2;
+        srGyI = srGI;
+        srEI += 2;
+        srOutEI = srEI;
+        };
+    ;
+testing(srRun);
+cerr "SR jit 1 local " srOutL " field " srGy " empty " srOutE:;
+srIn = 10;
+jitRefire();
+cerr "SR jit 2 local " srOutL " field " srGy " empty " srOutE:;
+srRunI();
+cerr "SR int 1 local " srOutLI " field " srGyI " empty " srOutEI:;
+srInI = 10;
+srRunI();
+cerr "SR int 2 local " srOutLI " field " srGyI " empty " srOutEI:;
+cerr "KINDSRT SENTINEL":;
+stop();
+
+kindSRT -- STORE-THEN-READ ACROSS THE += CALL-THROUGH, compiled once, fired twice,
+jitted beside interpreted (Clay's close-out, 2026-09-25).
+
+local   srL is an action LOCAL -- a frame slot on the jitted road. It is assigned by
+        `=`, then +=, then read: 7 then 12.
+field   srG is a define-block field, stored through at its baked address: 7 then 9.
+empty   srE is a local NEVER assigned before its +=, so it is EMPTY and picks by the
+        argument's kind. Interpreted: 2 on every fire. JITTED: 2 then 4 -- PINNED AS A
+        MEASURED DIVERGENCE, NOT A CLAIM. It is not the call-through: a jitted action
+        LOCAL keeps its value across fires where the interpreted road clears it on
+        every invocation. With no += at all, `ctL = ctL + 1` reads 1 2 3 jitted and
+        0 0 0 interpreted (measured 2026-09-25). A frame-model finding, reported.
+
+THE ROW THAT FOUND SOMETHING: before the fix the jitted LOCAL read 2 on fire 1 where
+the interpreted road read 7. A frame slot carries a value, never a kind; the jitted `=`
+put the count in the slot but gave the local no kind, so the call-through saw an EMPTY
+target and copied the argument in. The fix is gJitFrameAssigned: a scalar `=` into a
+frame slot is recorded, and the op-fire flush stamps the kind (setCount/setNumber) for
+those slots only. The EMPTY row is its other half -- a local no `=` has written must
+stay empty, and stamping every slot would type it as a count.
