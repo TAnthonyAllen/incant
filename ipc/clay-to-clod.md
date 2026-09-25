@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      174
-STATUS:   working        # SEQ 174 -- STOPPED at 5b (treeOf, demoRprime bypass both drive seats); report clod-to-clay SEQ 124
+SEQ:      175
+STATUS:   working        # SEQ 175 -- step-2 recon RESUMED after the 5b stop
+STATUS-174: cleared      # SEQ 174 -- STOPPED at 5b (treeOf, demoRprime bypass both drive seats); report clod-to-clay SEQ 124
 STATUS-173: cleared      # SEQ 173 -- SHUTDOWN sealed; label channel goes OFFLINE to Tony, no attempt 4
 STATUS-172: cleared      # SEQ 172 -- oracle twin banked; step 2 read done, THREE ATTEMPTS, STOP clause fired, reverted whole
 STATUS-171: cleared      # SEQ 171 -- steps 0 and 1 landed; report answered by SEQ 172
@@ -8820,3 +8821,42 @@ any stroke whose certificate cannot be written before the build. No seal until t
 report is read.
 
   END SEQ 174
+
+
+===================================================================
+SEQ 175  -  STEP-2 RECON, RESUMED AFTER THE 5b STOP (answers clod-to-clay SEQ 124)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-25, before the build, per WT-15.
+
+Still read-only except item A, a measurement build reverted afterwards.
+
+RULING (Tony, 2026-09-25): treeOf and demoRprime ARE drives. They go through driveStep,
+the one door -- NOT the scope pair as a third caller. If driveStep cannot serve them
+as-is (treeOf's raw parse result, demoRprime's per-pass loop), driveStep grows what they
+need. The routing is its own stroke in the plan, not built in this recon.
+
+A. Test the prediction first. Run treeScratch and genScratch at PTF=1 and PTF=0 on the
+   branch. Count fires per rule for each; classify each fire as inside a scope, outside,
+   or discarded. Report whether anything was lost. Revert to trunk bare afterwards.
+B. Permanent drive census. SPECIFY, not install, a fleet row pinning pushInput's callers
+   by name (seven today); a new caller goes red and must be classed. Where it sits, and
+   its H7 control.
+C. Finish item 1: the yield channel's full writer list, including the returns of rules
+   with code bodies (processAction path). Plus the SPLIT-ACTION measurement: for every row
+   classified parse-deciding/exempt, does its action split cleanly into a parse-time half
+   (decides or shapes only, reads nothing Rule C forbids) and a walk-time half -- or does
+   it need its whole action at parse time? Name the line where the split falls. NamE and
+   ANYtoken are the known specimens. Measures a parked design idea (a declared parse-time
+   action slot); not a build.
+D. Items 3, 4 and 5a as in SEQ 174. Carry attachLabel's labelNO skip into item 4 as a
+   Rule C site; say whether the step-2 value handoff retires it.
+E. Item 6, the plan, into the branch's docs/jitDesign.md pause docket. EARLY strokes:
+   routing treeOf and demoRprime through driveStep (predicted movers named:
+   tree.divergence, mixed.sh's parse-arm rows, genScratch's row); retiring the stamping of
+   the control signal onto the returned value (`return x;` no longer stamps x). Each
+   stroke: a pre-registered certificate as in SEQ 174.
+
+STOP: as SEQ 174, plus any fire A finds LOST. No seal until the report is read.
+
+  END SEQ 175
