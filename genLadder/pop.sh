@@ -3154,15 +3154,33 @@ for _sr in srElse srIf srPrint srDo srSub srDot srOk; do
     else echo "  FAIL  stmtRejT $_sr -- the caller's Xpress flag was overwritten: $(awk '/^SR BEGIN/{f=1} f' "$T/$_sr.e" | grep 'OLDFIREFLAG rule=Xpress' | head -1)"; fail=1; fi
 done
 
-#  srDot -- A BARE `.5` STATEMENT REFUSES BY NAME (F-117), PINNED TO THE OLD ROAD'S
-#  BEHAVIOUR, 2026-09-25. No row asserted the refusal until parse-then-fire lost it:
-#  at PTF=1 the drive runs inside a replayed action, its three ordinary fires are
-#  recorded into that action's frame, and the frame is discarded at the action's
-#  return (FRAMELEAK) -- the refusal never fires. RED ON THE parse-then-fire BRANCH
-#  BY DESIGN until the mechanism is ruled; green wherever the parse fires as it goes.
-if grep -qF 'REFUSED ANYorNum -- `.5` is not a number -- a number needs a leading digit; write 0.5' "$T/srDot.e"; then
-     echo "  ok    stmtRejT srDot -- the bare .5 statement REFUSED BY NAME"; green=$((green+1))
-else echo "  FAIL  stmtRejT srDot -- the bare .5 statement was NOT refused (a lost refusal: see the note above)"; fail=1; fi
+#  srDot -- A BARE `.5` DRIVE, AND WHAT A REJECTED PARSE REPORTS. The drive has no `;`, so
+#  it is REJECTED on both engines. RULED 2026-09-25 (Tony, ipc SEQ 122 (ii)): A REJECTED
+#  PARSE FIRES NOTHING -- actions fire from a tree, a failed parse builds none. So:
+#    a parse that FIRES AS IT GOES (trunk, or the branch at PTF=0): TokenXP's action runs
+#      before the parse fails, and the refusal prints.
+#    parse-then-fire (the branch at PTF=1): the refusal is a record of a failed parse; the
+#      recording scope DISCARDS it, counted, and the drive's verdict (0) is the whole report.
+#  The engine is read off the binary (ptfScopeOpen), never assumed. The branch row asserts
+#  the discard BY VALUE beside the refusal's absence, so the absence never stands alone (H4).
+_srRef='REFUSED ANYorNum -- `.5` is not a number -- a number needs a leading digit; write 0.5'
+if nm -gU "$(readlink "$B" || echo "$B")" 2>/dev/null | grep -q '_ptfScopeOpen$' && [ "${PTF:-1}" != 0 ]; then
+    PTF_TRACE=1 $B "$T/srDot.twk" > "$T/srDotT.e" 2>&1
+    if grep -qF 'PTF DISCARD rejected parse rule=StatemenT records=3' "$T/srDotT.e" && ! grep -qF "$_srRef" "$T/srDotT.e"; then
+         echo "  ok    stmtRejT srDot -- rejected drive DISCARDED its 3 records and refused nothing (parse-then-fire)"; green=$((green+1))
+    else echo "  FAIL  stmtRejT srDot -- want the 3-record discard and no refusal: $(grep -F 'PTF DISCARD' "$T/srDotT.e" | head -1)"; fail=1; fi
+elif grep -qF "$_srRef" "$T/srDot.e"; then
+     echo "  ok    stmtRejT srDot -- the bare .5 statement REFUSED BY NAME (the parse fires as it goes)"; green=$((green+1))
+else echo "  FAIL  stmtRejT srDot -- the bare .5 statement was NOT refused"; fail=1; fi
+
+#  A TOP-LEVEL STATEMENT WHOSE PARSE FAILS STILL SAYS SO, LOUDLY (Tony, 2026-09-25, with the
+#  rejected-parse ruling): the rejection IS the report, so it must never go quiet. `.5` with
+#  no `;` at the top of a file: the ABANDONED report names the file and the text left over.
+printf 'Start();\ninclude(utilities);\nsearch reset stack Grokking;\ncerr "TL BEFORE":;\n.5\ncerr "TL AFTER":;\ncerr "TL SENTINEL":;\nstop();\n' > "$T/tlFail.twk"
+$B "$T/tlFail.twk" > "$T/tlFail.e" 2>&1; check "top-level failed statement runs (exit 0)" 0 $?
+if grep -q '^TL BEFORE' "$T/tlFail.e" && grep -q 'ABANDONED .*tlFail.twk -- the parse STOPPED' "$T/tlFail.e" && grep -q '^    \.5#' "$T/tlFail.e"; then
+     echo "  ok    a top-level statement whose parse fails reports ABANDONED, naming what was left (.5)"; green=$((green+1))
+else echo "  FAIL  a top-level parse failure went QUIET -- no ABANDONED report naming .5"; fail=1; fi
 
 #  ---- doWhileNameT: the new parse road dies on a non-literal while expression ----
 #  BORN RED ON PURPOSE, 2026-09-20, Clay's SEQ 171 step 1; oracle twin added under SEQ 172.

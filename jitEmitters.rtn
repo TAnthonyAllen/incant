@@ -723,7 +723,10 @@ extern int jitProbeDrive(GroupItem rule,GroupItem armed,String msg,int jitted)
     gProbeRuleFires = gProbeRuleTrue = 0;
     gTermCallCount = 0;
     ruler->refused = 0;
+    //  probeScope a probe drive is a drive: entered while firing, it is its own recording scope (ptfScopeOpen/Close -- the same one writer pair driveStep calls)
+    int scoped = ::ptfScopeOpen();
     GroupItem *r = rule->groupBody->gMethod ? rule->groupBody->gMethod(rule) : 0;
+    if ( scoped ) r = ::ptfScopeClose(rule,r);
     int terms = gTermCallCount, fires = gProbeRuleFires, trues = gProbeRuleTrue, refused = ruler->refused;
     gJitProbeCarrier = nullptr; gJitProbeFn = nullptr;
     ruler->refused = 0;

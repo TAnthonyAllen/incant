@@ -6805,7 +6805,10 @@ extern "C" int jitProbeDrive(GroupItem *rule, GroupItem *armed, char *msg, int j
 	gProbeRuleFires = gProbeRuleTrue = 0;
 	gTermCallCount = 0;
 	ruler->refused = 0;
+	//  probeScope a probe drive is a drive: entered while firing, it is its own recording scope (ptfScopeOpen/Close -- the same one writer pair driveStep calls)
+	int scoped = ::ptfScopeOpen();
 	GroupItem *r = rule->groupBody->gMethod ? rule->groupBody->gMethod(rule) : 0;
+	if ( scoped ) r = ::ptfScopeClose(rule,r);
 	int terms = gTermCallCount, fires = gProbeRuleFires, trues = gProbeRuleTrue, refused = ruler->refused;
 	gJitProbeCarrier = nullptr; gJitProbeFn = nullptr;
 	ruler->refused = 0;
@@ -12432,6 +12435,8 @@ extern "C" GroupItem *ptfReplayRecords(RuleStuff *stuff)
 	for ( int k = 0; !inTree && k < reachN; k++ ) if ( reach[k]->groupBody == r->label->groupBody ) inTree = 1;
 	if ( !inTree )
 	{
+	// unreachedCount a record the statement's tree cannot reach is dropped here -- counted, so a silent loss path is not silent
+	if ( ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"UNREACHED rule=%s dropped=1\n",r->rule->groupBody->tag); ::fclose(lf); } }
 	if ( ptfTraceOn() )
 	{
 	::fprintf(stderr,"PTF UNREACHED rule=%s tag=%s %s chain=",r->rule->groupBody->tag,r->origTag,r->held ? "held" : "fired");
@@ -12555,7 +12560,14 @@ extern "C" GroupItem *ptfScopeClose(GroupItem *rule, GroupItem *result)
 	gPtfN = sc.base < gPtfN ? sc.base : gPtfN;
 	gPtfAttN = sc.attBase < gPtfAttN ? sc.attBase : gPtfAttN;
 	GroupRules *ruler = GroupControl::groupController->groupRules;
-	if ( !n || !rule || !result || result == ruler->falseResult || !rule->rStuff ) return result;
+	if ( !n ) return result;
+	// rejectedParse A REJECTED PARSE FIRES NOTHING (Tony, 2026-09-25): no tree, no fires. Its records are DISCARDED here, explicitly, and counted apart from FRAMELEAK -- the rejection is the report
+	if ( !result || result == ruler->falseResult || !rule || !rule->rStuff )
+	{
+	if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DISCARD rejected parse rule=%s records=%d\n",rule && rule->groupBody->tag ? rule->groupBody->tag : "?",n);
+	if ( ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"DISCARD rule=%s rejected=%d\n",rule && rule->groupBody->tag ? rule->groupBody->tag : "?",n); ::fclose(lf); } }
+	return result;
+	}
 	// the enclosing scope's records are set aside while the drive's replay runs, then put back
 	PtfRec *outRecs = gPtfRecs; int outN = gPtfN, outCap = gPtfCap;
 	PtfAttach *outAtt = gPtfAtt; int outAttN = gPtfAttN, outAttCap = gPtfAttCap;
@@ -12564,6 +12576,7 @@ extern "C" GroupItem *ptfScopeClose(GroupItem *rule, GroupItem *result)
 	RuleStuff *st = rule->rStuff;
 	st->label = result;
 	if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DRIVEREPLAY rule=%s records=%d\n",rule->groupBody->tag,n);
+	if ( ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"REPLAY rule=%s replayed=%d\n",rule->groupBody->tag,n); ::fclose(lf); } }
 	::ptfReplayRecords(st);
 	GroupItem *fin = st->label;
 	gPtfRecs = outRecs; gPtfN = outN; gPtfCap = outCap;
@@ -12572,7 +12585,7 @@ extern "C" GroupItem *ptfScopeClose(GroupItem *rule, GroupItem *result)
 	
 }
 
-// ptfScopeOpen / ptfScopeClose THE RECORDING SCOPE (Tony, 2026-09-25, on ipc SEQ 121): a drive entered while FIRING -- a replay running above the innermost open scope's parse -- is its own root; a drive entered while a parse is in progress records into the enclosing scope, unchanged. ONE WRITER PAIR (these two, called only from driveStep); gPtfScope is read nowhere else
+// ptfScopeOpen / ptfScopeClose THE RECORDING SCOPE (Tony, 2026-09-25, on ipc SEQ 121): a drive entered while FIRING -- a replay running above the innermost open scope's parse -- is its own root; a drive entered while a parse is in progress records into the enclosing scope, unchanged. ONE WRITER PAIR (these two, called only from the two drive seats: driveStep and jitProbeDrive); gPtfScope is read nowhere else
 extern "C" int ptfScopeOpen()
 {
 	
