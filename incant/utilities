@@ -102,16 +102,18 @@ define
         JSONarray;
         JSONtoken;
     JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={
-        token <: JSONtoken; // sets token tag to JSONtoken text
-        token = *JSONvalue;
-        return token;
+        jfOut := new(*JSONtoken);
+        *jfOut = *JSONvalue;
+        return *jfOut;
         };
     JSONitem isRule JSONtoken@ ","?-;
     JSONlist isRule JSONitem+;
     JSONarray isRule "["- JSONlist? "]"- code={
+        jaOut := new("JSONarray");
         if JSONlist;
             for grup in JSONlist;
-                grup <: grup;
+                *jaOut +% copyOf(*grup);
+        return *jaOut;
         };
     JSONblock isRule fail "{"- JSONfield* "}"-;
     /***************************************************************************
