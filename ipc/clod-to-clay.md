@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 128 at the FOOT -- SEQ 178 DONE: JSON fix + pin landed on trunk; population = JSON only; plan written (branch 2aac1f8), four rulings flagged
+STATUS:   fresh           # SEQ 129 at the FOOT -- tree/mixed dated (two causes, no defect); P0, P1 landed; P2 STOPPED: its certificate's two categories are one
+# prior: SEQ 128 -- SEQ 178 DONE: JSON fix + pin landed on trunk; population = JSON only; plan written (branch 2aac1f8), four rulings flagged
 # prior: SEQ 127 -- JSONfield fix WORKS and is fleet-neutral, NOT landed: arrays stay broken by JSONarray's own yield (outside 'fix nothing else')
 # prior: SEQ 126 -- STOPPED at item 1: trunk's JSON tree is ALREADY last-value-only, so the H7 control cannot discriminate
 # prior: SEQ 125 -- A: nothing lost; STOPPED in item C on a NONE row (JSON: the yield channel builds the data tree)
@@ -7405,3 +7406,91 @@ FINDINGS, not chased:
 STATE: trunk jit-unified-emit-wip at 9ab2fdd (+ this ipc commit), installed and BARE, fleet
 751 / 1, red 57, canary 368. Branch parse-then-fire at 2aac1f8 (docs only), pushed.
 No seal: the report is to be read first.
+
+===================================================================
+SEQ 129  --  2026-09-25  --  Clod
+SEQ 179: tree.sh / mixed.sh DATED; P0 and P1 LANDED; P2 HALF-LANDED AND STOPPED --
+its pre-registered certificate names two discard categories the build shows are ONE.
+===================================================================
+
+JSON: CONFIRMED -- genLadder/jsonTest.tree carries 9 `JT     KID JSONitem` lines, so a later
+element retag moves JT-TREE.
+
+1. tree.sh AND mixed.sh -- DATED BY CLONE BISECT, TWO CAUSES, NO DEFECT
+   Method: three repos cloned at one date outside Dropbox, pbxproj's absolute paths rewritten
+   to the clone, built from committed .mm (no retok), fixtures run inside the clone. Commits
+   before 2026-09-04 build against TOK's first commit 644fe89 with measure.mm STUBBED EMPTY
+   (measure.twk arrived 09-04; the script says so per build). Good end validated first (H16):
+   3207f87, the 08-09 seal that last recorded both green, reads tree=0 mixed=0. The first
+   hypothesis (c206607, SEQ 191's retag) was tested and FALSIFIED -- both already red at its
+   parent.
+
+   tree.sh   last green 502c9de · FIRST RED 0150f29 (2026-09-07 21:57)
+   mixed.sh  last green ca606ee · FIRST RED e6438ba (2026-08-13) · second move at 0150f29
+
+   CAUSE A (tree.sh; mixed.sh's second move) -- 0150f29, "Two noPrint-blindness bugs ...
+   Also in this commit: Tony's working set -- the genParse fork stripped out of GroupItem
+   parse()". It removed parse()'s `if defStuff && defStuff.parseMethod { ... goto
+   generatedExit; }`. treeOf drives with rule.parse(0), so the generated Scaf bodies are
+   compiled in and NEVER ENTERED. Measured with lldb breakpoints on parseScafOUT/parseScafALT:
+   two hits per tree at 502c9de, ZERO today. Both harnesses now compare the interpretive tree
+   with ITSELF: tree.sh's "MOVED" is a divergence vanishing because one side stopped running;
+   mixed.sh's "WOKE -- no variant loses the child" is every variant (even "all") reading the
+   interpretive ScafALT. CLASS: INSTRUMENT DRIFT caused by a deliberate change -- the
+   harnesses are VOID, not reporting news. The re-aim is P3 (treeOf through driveStep's
+   hasNewParse door, which runs the generated body).
+   CAUSE B (mixed.sh only) -- e6438ba, SEQ 61 "PC-1 ruled -- narrow spelling landed": the
+   `leaf` variant stopped losing the child (pinned ' leaf alt', read ' alt'). CLASS:
+   DELIBERATE CHANGE OWING A RE-PIN SENTENCE, never re-pinned because mixed.sh was on no
+   checklist. It is moot until cause A is undone: re-measure after P3.
+   NO DEFECT NEEDS FIXING, so no stop. BOTH JOINED THE SEAL CHECKLIST (CLAUDE.md H12,
+   a757874) recorded as "red, void (0150f29)".
+
+2. P0 -- MERGE TRUNK INTO THE BRANCH, 2b0faaf, CERTIFIED
+   No source conflict, no source change, nothing to retok. PTF=0 751 / 1, red list == trunk
+   row for row; PTF=1 749 / 1 = those + exactly probeDoorT stmtRejT and site1RoadsT. All nine
+   JT rows green at BOTH settings (predicted). jitLadder 215 at both. Canary 383.
+
+3. P1 -- THE DRIVE CENSUS ROW, branch 939d040, trunk 26f499c, CERTIFIED
+   +1 green on each (trunk 751 -> 752, branch PTF=1 749 -> 750), nothing else moves.
+   H7: an extra `sneakDrive` caller in a copy -> RED naming it; an empty directory -> RED
+   "the extractor read nothing". First run failed on sort collation (fixed: LC_ALL=C).
+
+4. P2 -- FIRST HALF LANDED (e2b1e6c), SECOND HALF BUILT, MEASURED, REVERTED. STOP.
+   THE ROW: pop.sh exports PTF_LEAKLOG for its own run and sums it -- FRAMELEAK 0 + rejected
+   12,410 + failed-alternative 0 + UNREACHED 932 = 13,342, with the srDot sentence. +1 at PTF=1,
+   inert at PTF=0, nothing else moves.
+   THE DISCARD (diff saved in the scratchpad, 70 lines; not in the tree):
+     old road only -- a gPtfN mark per pass in parse(), truncated at matchFailed:
+       failed-alternative 7, UNREACHED 932 UNMOVED, total 13,349. The 7 are tlFail's
+       top-level `.5` with no `;` (Xpress fails; the file ends ABANDONED) -- records that were
+       ORPHANED AT EXIT, never fired, never counted. A silent loss path the ledger could not
+       see. Red list otherwise unchanged.
+     + new-road twin -- mark at parseRule entry, discard when exitFromParse returns 0:
+       UNREACHED 932 -> 0 (the 932 are generated-DO failures). BUT rejected 12,410 -> 0 and
+       failed-alternative 13,349: every rejected drive's records are discarded at the
+       INNERMOST failing generated rule (srDot: `PTF DISCARD failed alternative rule=Xpress
+       records=3`), before the drive's scope closes. stmtRejT srDot goes RED -- it is keyed to
+       "rejected parse rule=StatemenT records=3". Behaviour identical (no refusal printed).
+       Exempting a drive's root did NOT help: the failure is not at the root.
+   WHY IT STOPS: the certificate I pre-registered -- "0 + 12,410 + 932 + UNREACHED 0 = 13,342,
+   fleet unmoved" -- names two categories (rejected, failed alternative) that are ONE event
+   seen at two depths, and misses tlFail's 7. It cannot be met.
+   THE QUESTION: a rejected drive IS a failed alternative at its innermost failing rule.
+     (i) accept one category -- the discard lands, srDot's row re-pins to the failed-
+         alternative line with its sentence, the conservation row re-pins to 13,349 =
+         FRAMELEAK 0 + discarded 13,349 + UNREACHED 0 (the +7 is tlFail, named);
+     (ii) keep two categories -- the discard defers to an open scope (records made under a
+         scope are left to it), which keeps srDot green and puts the 932 and the 7 in
+         failed-alternative; not yet built or measured;
+     (iii) land the old-road half only (the 7) and leave the 932 as UNREACHED for now.
+
+NOT REACHED (the stop came first): P3's demoRprime measurement, P4 onward.
+P7's PRE-BUILD QUESTION, answered by reading so it is on file: what P7 must make non-zero in
+P3's scoped-discard row is a rejected pass inside a drive whose ROOT IS NOT StatemenT (the
+Scaf-style drives) -- P7(c)'s "other outside" scope. It does NOT need setup's parse pulled
+into scope. The P7 stop clause would not fire on this answer.
+
+STATE: trunk jit-unified-emit-wip at 26f499c, installed and BARE (trunk build), fleet
+752 / 1, red 57, jitLadder 215, canary 368. Branch parse-then-fire at e2b1e6c, pushed.
+All three repos clean. No seal: the report is to be read first.

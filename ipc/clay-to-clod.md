@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      179
-STATUS:   working        # SEQ 179 -- rulings P3/P4/P7/P8; tree.sh/mixed.sh dating first; then P0 onward
+STATUS:   working        # SEQ 179 -- tree/mixed dated; P0, P1 landed; P2 STOPPED (one discard category, not two); report clod-to-clay SEQ 129
 STATUS-178: cleared      # SEQ 178 -- done: JSON fix dc8b0b9, pin 9ab2fdd, population JSON only, plan 2aac1f8 on the branch; report clod-to-clay SEQ 128
 STATUS-177: cleared      # SEQ 177 -- STOPPED: JSONfield fix works, arrays lost by JSONarray; report clod-to-clay SEQ 127
 STATUS-176: cleared      # SEQ 176 -- STOPPED at item 1 (trunk JSON tree already last-value-only); report clod-to-clay SEQ 126
