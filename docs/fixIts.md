@@ -281,6 +281,14 @@ ATTEMPT LOG
      hand back is the pROPERTIEs node, NOT the grammar rule -- measured isRule 0, hasNewParse 0 by measureAdoption. The
      first write-up and commit 830f125 called it the grammar rule from its tag alone.
      A RULING IS OWED AT A PAUSE (Tony, 2026-09-24): what the yield channel may receive. The (b) guard stays UNARMED.
+     ⚠⚠ RULED 2026-09-25 (Tony, on ipc SEQ 121's seven cases). LANDS WITH PARSE-THEN-FIRE STEP 2; NOTHING CHANGES NOW.
+       1-5  A construct hands its parent a VALUE. The label tree never holds a field, a property node, or a stand-in
+            label. An IF whose arms did not run hands back nothing (labelNO's meaning). adoptT's FIELD pin goes 1 -> 0
+            at step 2 -- and its PROPERTY sibling with it, so that row needs a new non-zero sibling then.
+       6    break / continue / return are CONTROL, on a channel of their own: the keyword action writes it, the action
+            firing children reads it after each child. NEVER on the value channel.
+       7    Unchanged: a parse-deciding null return fails the parse; exempt.
+     The (b) guard is not armed and will not need to be: ruling 1-5 makes the hazard unconstructable.
      Standing visibility: measureAdoption (Generate.rtn, parseTrace-gated) at the adoption seat, and pop.sh's adoptT
      rows pin the live-field count at 1 (Iterate -> s2C) with PROPERTY as the non-zero sibling. The probe's stderr cost four
      captured rows (manyScratch.target, convDriveT CD-1/3/5); bare HEAD reads 627 again.

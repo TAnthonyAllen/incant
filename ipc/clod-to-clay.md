@@ -3,8 +3,11 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      118
-STATUS:   fresh           # SEQ 118 at the FOOT -- string-leaf returns IDENTICAL, candidate dead; SHUTDOWN SEAL
+SEQ:      121
+STATUS:   fresh           # SEQ 121 at the FOOT -- PART A STOPPED (parse-in-progress has two readings); PART B the yield brief
+STATUS-120: fresh        # SEQ 120 -- GO / NO-GO ROUND 2
+STATUS-119: fresh        # SEQ 119 -- GO / NO-GO EVIDENCE (round 1)
+STATUS-118: fresh        # SEQ 118 -- string-leaf returns IDENTICAL, candidate dead; SHUTDOWN SEAL
 STATUS-117: fresh        # SEQ 117 -- possibility 2; arity reading falsified; SEQ 116 corrected
 STATUS-116: fresh        # SEQ 116 -- read SEQ 117 with it; its "inside parser(DO)" is corrected there
 STATUS-115: fresh        # SEQ 115 -- SEQ 169 step 2 report; read SEQ 116 with it
@@ -6526,3 +6529,342 @@ clears the DO crash, the 35 DO refusals and CT-5 -- truthOf at :229 with the six
 as its guard -- then the ladder from ANYorNum.
 
   END SEQ 118
+
+===================================================================
+SEQ 119  --  2026-09-25  --  Clod
+GO / NO-GO EVIDENCE -- PARSE-THEN-FIRE STEP 2   (answering Clay's SEQ of 2026-09-25)
+MEASURE ONLY. Nothing of step 2 was built. The decision is Tony's.
+===================================================================
+
+SUMMARY
+  Condition 1  every divergence named ............ PARTIAL  (two UNEXPLAINED)
+  Condition 2  fixes still clustering ............. MET
+  Condition 3  retirements deletable in principle . NOT MET (every channel still decides)
+
+STEP 0 -- THE BRANCH BROUGHT UP TO TODAY
+  Merge commit 3ead6a9 on parse-then-fire (trunk b949f8e merged in), pushed.
+  One conflict, docs/jitDesign.md, both hunks kept. NO conflict in fireLabelMethod,
+  attachLabel or runOP; all source auto-merged. Generated .mm/.h retokked bare from the
+  merged source: BYTE-IDENTICAL to the textual merge. Canary 379.
+  PTF=0 == trunk 739/2 ROW FOR ROW.
+  PTF=1 = 737/2. Red set = PTF=0's plus exactly two rows (probeDoorT stmtRejT,
+  site1RoadsT) -- the 09-24 seal's 660/2 pair, the arithmetic agreeing (660 + today's 77
+  trunk rows = 737).
+
+STEP 1 -- THE CERTIFICATE ITEMS
+  a. M1 fire-order identity (branch binary, PTF=0 vs PTF=1, PTF_TRACE=1), on oneTest,
+     jsonTest, f122T, doWhileNameT, dotChainT, adoptT, fireSeatT, convDriveT:
+     SAME FIRES on all eight -- equal counts, identical multiset of (rule, children).
+     The ORDER differs, first at fire 2513 (the first statement parsed under StatemenT),
+     and EVERY moved fire is one of NamE (ordinary), ANYtoken or ShortcuT -- the latter
+     two on the branch's own `decides` exemption list. So: exempt parse-deciding fires stay
+     in the parse, ordinary NamE fires replay at statement end. BY-DESIGN.
+     The "tag at fire" column also differs -- a label is fired after its parent retagged
+     it -- which M1 already carries as retag=. Timing, not content.
+  b. Station 2's fires column: PREDICTION FAILED. sweepT's own verdict holds
+     (certified=45 agree=45 diff=0 at both), but the PROBE lines move: 16 probe keys fire
+     once more at the same count, 78 keys are probed a different number of times. Behind
+     them, 15 messages:
+       BY-DESIGN  `do print 1;`, `do print 1; wile 1 < 0;` -- verdict 0 -> 1, the
+                  near-miss the parse now accepts and refuses at fire time.
+       UNEXPLAINED 13 others (`for s2C`, `if 1 < 0`, `while 1 < 0`, `else`, `::`,
+                  `#-5s`, `#5.2d`, `define aa isRule; ;`, ...): verdict VALUES unchanged,
+                  but probe counts shift by 4-12 and some keys fire +1. Not attributed.
+  c. jitLadder at PTF=1: 215 ok, PASSED; row for row with PTF=0.
+  d. ATTRIBUTED. Both unexplained moves come from ONE drive, unaryNatT unPrDot --
+     StatemenT("print .5;"): tripwire 9 -> 16 there (+7), loopVerdict DISAGREE 1 -> 0.
+     At PTF=0 the `.5` refusal fires DURING the parse: PrintXP matches nothing (kount=0,
+     DISAGREE) and the statement fails part-way. At PTF=1 the refusal is an ordinary action
+     and waits: the parse accepts the whole statement -- PrintField, PrintXP, stuff, SemI,
+     PrinT, WardeD, StatemenT all attach, the seven extra DEFERABOVE lines -- PrintXP agrees,
+     and the refusal lands at fire (the value row, "printed nothing", still passes).
+     BY-DESIGN (a parse verdict moving to fire time). Today's merge dissolved neither.
+
+STEP 2 -- THE THREE CONDITIONS
+  1. EVERY DIVERGENCE NAMED -- PARTIAL. The full error-diff, trunk vs branch, from every
+     fleet output kept at both settings (249 files each):
+       BY-DESIGN    the fire-time keyword refusal ("a KEYWORD used as a name ... refused
+                    at fire time") in pd, s1r, srDo, srElse, srIf, srPrint, sw (plant 2)
+       BY-DESIGN    probeDoorT stmtRejT, site1RoadsT, probeDoorT DO #2 (verdict to fire)
+       BY-DESIGN    tripwire 413->420, loopVerdict 13->12 (unPrDot, above)
+       BY-DESIGN    M1 reorder (exempt vs ordinary, above)
+       UNEXPLAINED  ⚠ srDot -- StatemenT(".5"): at PTF=0 it REFUSES BY NAME ("`.5` is not a
+                    number"); at PTF=1 there is NO refusal at all, the drive returns and the
+                    sentinel prints. A refusal LOST, not moved -- unPrDot's `print .5;` still
+                    refuses, so it is the bare statement. Inference, NOT measured: the refusal
+                    is an ordinary action and the replay fires only records reachable from the
+                    statement's label tree. Every srDot row is green at both settings, so no
+                    row asserts the refusal -- a coverage hole as well as a divergence.
+       UNEXPLAINED  Station 2's 13 messages (1b).
+     Acceptance is Tony's; this proposes the BY-DESIGN tags only.
+  2. FIXES STILL CLUSTERING -- MET. Since 0f77486 the branch has one commit, a docs item;
+     no new plant or fix. The four plants stand in the census's first two causes: 1 and 2
+     label/name resolution (attachLabel's isGROUP read; ANYtoken reading NamE's resolution),
+     3 and 4 label shape at attach (replay setting fLAG; fLAG's two meanings). ⚠ srDot's lost
+     refusal is not yet classified; if it is the reachability inference above, it is a
+     third cause (a record the replay never reaches) -- which is why condition 1 is PARTIAL.
+  3. RETIREMENTS DELETABLE IN PRINCIPLE -- NOT MET. Writers / readers:
+       defer (flags.deferred): WRITTEN by the grammar's `defer` modifier (Commands.rtn:576),
+         fireLabelMethod's held arm (GroupItem.twk:746), the replay (Generate.rtn:714).
+         READ by deferredAbove (GroupItem.twk:445,451), fireLabelMethod (:741,:743), and
+         five early returns (ruleActions.rtn 447, 553, 585, 1224, 1238).
+       deferredAbove: itself (GroupItem.twk:433); read once, fireLabelMethod:729 (held).
+       yield channel: every action's return; read at fireLabelMethod's adoption and the
+         replay's `ret != L` substitution.
+     Reads that DECIDE an outcome under PTF=1, full fleet (new witness measureRetire,
+     PTF_RETIRE-armed, branch commit 0512109, inert when disarmed -- fleet row for row):
+       deferEarly     185170   (StatemenT 180816, ElsE 4354)
+       heldTrunk       11389   (BlocK, BrancH, Xpress, IF, PrinT, CerR, WhilE, Iterate)
+       heldReplay        483   (Xpress, PrinT, BlocK)
+       yieldReplay       755   (CerR, PrinT, Iterate, CouT, BlocK)
+       yieldTrunk        222   (StringXP 164)
+       yieldTrunkNull   1487   (ANYtoken 1482)
+     Zero would mean deletable in principle; none is zero. ⚠ READ THE TRUNK ROWS WITH THE
+     09-24 BOUNDARY: heldTrunk and yieldTrunk are fires OUTSIDE top-level statements (the
+     setup and grammar defines, processCode's bodies), which step 1 never relocated -- they
+     measure the scope step 2 would have to take on, not a failure of step 1.
+
+PARKED, NOT ADVANCED
+  Rule C (attaching never reads what an action wrote) -- open.
+  The two owed rulings: the yield channel (F-122 entry 7) and parseLoop's silent success
+  at max (F-114 entry 24) -- open.
+  C-form (ANYtoken asking Keywords directly) -- measured not neutral 09-24, open.
+
+STATE
+  Branch parse-then-fire at 0512109, pushed. Trunk b949f8e checked out and INSTALLED,
+  canary 368, fleet 739/2 row for row. No incant process.
+
+===================================================================
+SEQ 120  --  2026-09-25  --  Clod
+GO / NO-GO ROUND 2 -- srDot, THE CHANNEL JOB TABLE, STATION 2's 13
+MEASURE AND READ ONLY, on parse-then-fire. Nothing of step 2 built; nothing in the
+replay fixed. No STOP condition fired.
+===================================================================
+
+ITEM 1 -- THE LOST srDot REFUSAL: STRUCTURAL.  Not reachability, and not Rule C.
+  a. PTF=0: TokenXP's action (aCTionTokenXP -> refuseLeadingDotNumber, ruleActions.rtn)
+     raises it, on the TokenXP label (children UnaryOPS, ANYorNum; subject ANYorNum).
+     That label IS attached under the drive's root: TokenXP -> Token -> ExpressioN ->
+     Xpress -> StatemenT. The drive's ORDINARY fires are three: NumbeR, TokenXP,
+     ExpressioN.
+  b. PTF=1: none of the three fires, and the trace reads
+       PTF FRAMELEAK rule=Xpress left=3 -- discarded
+     THEY ARE RECORDED AND NEVER REPLAYED. srDot's drive runs DURING the replay of the
+     outer statement `StatemenT(srDot);` -- inside the Xpress action the replay fires.
+     The replay gives that action its own record frame (replayFrame, Generate.rtn); the
+     drive's fires record into it; the drive's statement is not top-level, so it reaches
+     no statement end; and when the action returns the frame is DISCARDED. They are never
+     tested for reachability at all -- the reachability guess was wrong.
+  c. STRUCTURAL: every parse started by a firing action (a drive) loses its ordinary
+     fires. SIZE OF THE HOLE, full fleet at PTF=1 (PTF_LEAKLOG): 37 FRAMELEAK events,
+     289 RECORDED FIRES NEVER FIRED, all in rule=Xpress. At PTF=0: 0.
+     ⚠ This falsifies a 09-24 seal line: "the parse-entry record frame -- measured and
+     NOT needed (a drive during replay flushes itself)". It does not; its 37 FRAMELEAKs
+     were read as near-miss noise. srDot is the first of the 289 shown to carry a
+     refusal, and no row asserted it.
+     THE RULE IT BREAKS is NOT Rule C (attaching reads what an action wrote). It is a
+     scope rule: ONLY A TOP-LEVEL STATEMENT'S END REPLAYS RECORDS, so a statement parsed
+     inside a fire has no replay. The remedy is Tony's; stopped there.
+  d. ROW LANDED: pop.sh "stmtRejT srDot -- the bare .5 statement REFUSED BY NAME",
+     pinned by its text to PTF=0. Branch: green at PTF=0 (740), RED at PTF=1 -- by
+     design until ruled (commit on parse-then-fire). Trunk: green (740/2), which also
+     closes the coverage hole there.
+
+ITEM 2 -- CONDITION 3 AS A JOB TABLE
+  (counts from SEQ 119 are context only)
+
+  ROW 1  defer -- the grammar modifier, RULE-level flags.deferred
+    JOB   a construct's action must NOT run where it is parsed; an owner runs it (a
+          loop body runs when the loop runs, not when it is read). 17 rules carry it
+          (BlocK, IF, DO, FOR, WhilE, PrinT, CerR, CouT, BrancH, ScopeXP, Xpress,
+          Iterate, StringXP, BasicElse, ElseIf, ...). Shown: deferNatT (dfPrint: NumbeR
+          inside s2L[1] sees PrinT's defer), and every loop fixture.
+    WRITERS Commands.rtn:576 (the `d` modifier)
+    READERS GroupItem.twk:445,451 (deferredAbove), :741,:743 (fireLabelMethod)
+    STEP 2  PARENT-DRIVEN FIRING. Every action waits by default; the parent fires its
+          children. The rule flag's job becomes the model. Retires.
+
+  ROW 2  deferredAbove
+    JOB   decide whether a deferred action must WAIT: yes if code is being compiled or a
+          deferred ancestor (in the drive, or up parentStuff) will run it; otherwise it
+          fires now. Shown: deferNatT (DEFERABOVE held=1 end=deferred / held=0 end=floor).
+    WRITERS GroupItem.twk:433 (itself)       READERS GroupItem.twk:729 (`held`)
+    STEP 2  NONE NEEDED -- the question "will anyone above run me?" always answers yes
+          (the statement root fires). Retires.
+
+  ROW 3  held fires -- label-level flags.deferred, the method on the label, the "g" text
+    JOB A a held label CARRIES ITS ACTION for its owner to run later (owner-run).
+          Shown: every loop/IF/BlocK fixture (heldTrunk 11389, heldReplay 483).
+    JOB B ⚠ SECOND JOB, SAME CHANNEL: label.deferred CHOOSES WHAT A LOOP'S RETURN MEANS.
+          ruleActions.rtn DO:447 / FOR:555 / IF:589 / WhilE:1230 / Xpress:1246 -- "ONE
+          RETURN, TWO MEANINGS, TOLD APART BY deferred: direct fire = YIELD (own label,
+          adopted); owner-run = VALUE" (F-122). One channel, two meanings.
+    JOB C ⚠ THIRD JOB: the held arm stamps text "g"+tag when the label has no data --
+          GroupItem.twk:747, and the replay's twin Generate.rtn:726. It is the BYTECODE
+          GENERATOR's dispatch key: incant/generate's runGenerated does generator[argument]
+          and the handlers are gIF, gBlocK, ... POSSIBLY DEAD: NO FIXTURE SHOWS IT --
+          the generator rows were quarantined to incant/generating (Tony, 2026-08-16) and
+          that file was DELETED 2026-09-11 (24c1dde). Not deleted here.
+    WRITERS GroupItem.twk:744-747 (held arm), Generate.rtn:723-726 (replay held arm)
+    READERS the owner's firing (the label's method), the five early returns above,
+          runGenerated (text)
+    STEP 2  JOB A: PARENT-DRIVEN FIRING -- every label is held by construction.
+          JOB B: NONE until the YIELD-CHANNEL RULING (F-122 entry 7, owed) -- the flag is
+          the only thing that tells a loop whether its return is a value or a yield.
+          JOB C: NONE named (the key could come from the label's rule, but nothing does
+          that today); moot if the generator campaign stays dead.
+
+  ROW 4  the yield channel -- `stuff.label = actionMethod(label)` (GroupItem.twk:752) and
+         the replay's `ret != L` substitution (Generate.rtn:735ff)
+    JOB A VALUE AS LABEL: an action's return REPLACES its label in the tree (NamE's
+          resolution, the unwrap to a group, RETAGCARRY). Shown: adoptT; yieldReplay 755.
+    JOB B PARSE VERDICT: a null return FAILS the parse (yieldTrunkNull 1487, ANYtoken
+          1482 -- the keyword refusal). Shown: the keyword fixtures (srIf, srElse, s1r).
+    JOB C DIRECT-FIRE YIELD: a deferred construct fired directly yields its own label or
+          a live field (F-122). Shown: adoptT pins the live-field count at 1.
+    WRITERS every action's return         READERS the two sites above
+    STEP 2  JOB A: the parent TAKES CHILD VALUES BY RETURN -- the model's own rule; the
+          tree is no longer rewritten (Rule C).
+          JOB B: the PARSE-DECIDING EXEMPTION (ruling 3) keeps it at parse time.
+          JOB C: NONE until the YIELD-CHANNEL RULING (F-122 entry 7, owed).
+
+  THE NONE ROWS, which are the real blockers:
+    - Row 3 job B and row 4 job C are ONE question: what a construct's return means when
+      nobody owns it. It waits on the owed yield-channel ruling (F-122 entry 7).
+    - Row 3 job C (the generator key) has no fixture and no step-2 home: possibly dead.
+  parseLoop's silent success at max (F-114 entry 24) touches no channel row.
+
+ITEM 3 -- STATION 2's 13 MESSAGES: CONFIRMED, all 13.
+  Calibration changes in exactly six carriers (StatemenT, ExpressioN, Token, TokenXP,
+  ANYorNum, Xpress), ACCEPTS UP and REJECTS DOWN in every one -- near-misses the parse now
+  accepts. Each of the 13 messages' whole probe-count shift is a PICK SHIFT (certified
+  rows gained or lost: +12, -8, -12, +8, ...), its calibration probes UNCHANGED -- the
+  sweep picks two accepts and two rejects per carrier from calibration, so when the
+  verdict set moves, different messages get certified. The keyword-led three (if 1 < 0,
+  for s2C, while 1 < 0) also fire once more on a probe: the keyword is carried as a name
+  and refused later. The expected cause, confirmed; nothing chased.
+
+STATE
+  parse-then-fire pushed (the srDot row on top of 0512109). Trunk reinstalled: fleet
+  740/2, row for row plus the new srDot row (green). Canary 368.
+
+===================================================================
+SEQ 121  --  2026-09-25  --  Clod
+A: STEP-1 SCOPE REPAIR -- STOPPED BEFORE BUILDING, by its own clause
+B: THE YIELD BRIEF -- for Tony's ruling, case by case
+===================================================================
+
+A -- WHY NOTHING WAS BUILT
+  The ruling needs "parse in progress" as ONE fact read in ONE place. It does not exist
+  today, and what exists is read two ways -- the STOP clause, in its own words.
+  1. THE CANDIDATE, gParseActive (jitContext.h:706), is one stack with TWO WRITER SITES:
+     parseRule's per-activation bracket (Generate.rtn:271 push, :321 pop) and runRule's
+     drive floor (GroupActions.rtn:1191 push, :1236 pop).
+  2. IT ONLY SEES THE NEW ROAD. Measured with lldb at srDot's drive start, PTF=1, while the
+     file's own statement is mid-replay: the top of gParseActive is a FLOOR, the entry below
+     it another floor, and NO statement activation anywhere on the list -- the old road's
+     parse(), which the file's statements go through, pushes nothing. Old-road activity is
+     visible only through the parentStuff chain.
+  3. SO "PARSE IN PROGRESS" IS READ DIFFERENTLY IN TWO PLACES ALREADY: ptfStmtAbove
+     (Generate.rtn) and deferredAbove (GroupItem.twk:433) each have two modes -- walk the
+     activation list inside a drive, walk parentStuff outside one -- and replay-in-progress
+     is a third structure, gPtfWalking (Generate.rtn:640/786). A scope test built on any one
+     of them would answer differently for an old-road and a new-road parse.
+  4. AND THE HOOK IS MISSING, not merely mis-tested: a drive's ROOT never reaches
+     ptfStatementEnd, because the only trigger is fireLabelMethod on a StatemenT label and a
+     drive's root does not fire its own label -- it returns its verdict to runRule. So the
+     repair needs a replay seat at the drive's END (runRule's floor pop, GroupActions.rtn
+     :1236), which is outside fireLabelMethod.
+  WHAT WOULD UNBLOCK IT, offered not built: ONE NEW FACT with ONE writer pair -- a recording
+  scope stack, pushed where a scope starts (a top-level statement, and runRule's drive when
+  no scope is open or the open one is replaying) and popped where it ends -- read only by
+  ptfRecord and the new drive-end replay. Whether the old road should push activations
+  instead (one list for both roads) is the larger ruling and is Tony's.
+  NOTHING CHANGED: the branch is untouched this round (parse-then-fire df73ad6).
+
+B -- THE YIELD BRIEF (F-122 entry 7), SELF-CONTAINED
+
+  ENTRY 7, VERBATIM IN SUBSTANCE (docs/fixIts.md, F-122): a probe at fireLabelMethod's
+  adoption `stuff.label = stuff.actionMethod(stuff.label)`, printing a return that is
+  non-null, not the label handed in, and not isLabel, HIT EVERYWHERE -- fleet 314 lines,
+  ladder 275, sweepT 155 -- so the (b) guard is NOT ARMED. Shapes: pROPERTIEs nodes
+  (StatemenT, true, labelNO), a keyword (break), and LIVE FIELDS (s2C, s2Y, verdict,
+  JSONtoken). The StatemenT the print family hands back is the pROPERTIEs node, NOT the
+  grammar rule (measured isRule 0). "A RULING IS OWED AT A PAUSE (Tony, 2026-09-24): what
+  the yield channel may receive." Standing visibility: measureAdoption (parseTrace-gated),
+  and pop.sh's adoptT rows pin the live-field count at 1 (Iterate -> s2C), PROPERTY as the
+  non-zero sibling.
+
+  THE MECHANISM IN ONE LINE: one return, two meanings, told apart by the label's deferred
+  flag -- a construct fired DIRECTLY yields (its return replaces its label in the tree),
+  one run by its OWNER returns a value (ruleActions.rtn DO:447, FOR:555, IF:589,
+  WhilE:1230, Xpress:1246).
+
+  THE CASES -- each measured on the branch binary, both PTF settings AGREE on every one:
+  CASE 1  A LOOP (DO, FOR, WhilE)
+    today     DIRECT (top-level `do s2Y = s2Y + 1; while s2Y < 3;`): the fire yields; its
+              return stands in for the label. OWNER-run (inside an action): returns the
+              VALUE of its last body statement, or labelNO if the body never ran.
+    fixture   incant/pop/yieldT -- "YT DIRECT s2Y= 3", "YT OWNER value= 3" (pop.sh rows
+              "yieldT DIRECT" and "yieldT OWNER"); both roads identical.
+    step 2    the parent fires the loop and TAKES ITS RETURN AS A VALUE -- the owner-run
+              meaning, always. No tree substitution.
+    if ruled  the DIRECT meaning disappears; a top-level loop's return goes to the
+              statement root, which discards or keeps it as the ruling says. yieldT DIRECT
+              keeps its value (it reads s2Y, not the label); rows that read a loop's
+              adopted LABEL would move -- adoptT's FIELD row when the body yields a field
+              (census: BlocK -> s2Y, 33 in sweepT).
+  CASE 2  AN IF (and ElseIf)
+    today     same split at aCTionIF:589. Measured through the adoption witness: an IF,
+              IF/ELSE driven directly adopts NO non-label return on either road -- it hands
+              back its own label (or nothing).
+    fixture   new probe (not committed): probeDrive of `if 1 < 2; s2Y = 5;` and
+              `if 1 > 2; s2Y = 5; else s2Y = 6;` under the witness -- zero adoptions.
+    step 2    the value of the arm that ran.
+    if ruled  nothing adopts today, so no adoption row moves; a caller that reads an IF's
+              value would get the arm's value instead of the label.
+  CASE 3  AN EXPRESSION STATEMENT (Xpress)
+    today     owner-run returns its ExpressioN (Xpress:1246); direct: its label. Witness:
+              `s2Y = 7;` driven directly -- zero non-label adoptions.
+    step 2    the expression's value.
+    if ruled  no adoption row moves.
+  CASE 4  THE PRINT FAMILY (PrinT, CerR, CouT)
+    today     returns the pROPERTIEs node StatemenT (or `true`), which is ADOPTED in place
+              of the label. Witness: `cout 1;` -> kind=PROPERTY rule=CouT returned=StatemenT;
+              adoptT: CerR -> StatemenT x2, CerR -> true, PrinT -> StatemenT.
+    step 2    a value (the property node or true) handed to the parent, not a tree edit.
+    if ruled  adoptT's PROPERTY count (the non-zero sibling) goes to 0 -- that row needs a
+              new sibling; the fleet's 314 / ladder's 275 lines are this case.
+  CASE 5  A LIVE FIELD (Iterate's cursor, a BlocK body's field)
+    today     Iterate hands back its cursor field s2C; BlocK can hand back s2Y. The field
+              is ADOPTED INTO THE LABEL TREE -- "attempt 4's hazard, adopted today on the new
+              road". Witness: adoptT, kind=FIELD rule=Iterate returned=s2C (pinned at 1).
+    step 2    the field as a VALUE to the parent; the tree never holds a live field.
+    if ruled  adoptT's FIELD row goes 1 -> 0. This is the case the (b) guard was built to
+              refuse; ruling it closes the hazard by construction rather than by guard.
+  CASE 6  A KEYWORD (BrancH -> break)
+    today     the branch signal travels as the returned keyword node (census: BrancH ->
+              break, 1 in sweepT); `while 1 < 2; break;` driven directly adopts nothing
+              non-label here.
+    step 2    ⚠ NOT A VALUE -- a control signal. The model's "parent takes the child's
+              return" would carry a branch signal on the value channel, which is the
+              one-channel-two-meanings pattern this project has paid for four times.
+    if ruled  needs its own answer, not the value rule.
+  CASE 7  A PARSE VERDICT (ANYtoken -> null)
+    today     a null return fails the parse (1482 of the 1487 null yields, SEQ 119).
+    step 2    stays at parse time -- the parse-deciding exemption (ruling 3). Not a yield.
+
+  THE (b) GUARD: unarmed by entry 7's ruling. Every case above that adopts a non-label
+  (4 and 5) is what it would refuse; ruling "the parent takes values by return" makes the
+  guard unnecessary rather than armed.
+
+  THE "g"+tag STAMP -- READER CENSUS: ZERO LIVE READERS. Its only reader in code is
+  incant/generate's runGenerated (`generator[argument]`), reached only through generateCode
+  / generateAction; the fixture calls to those are in incant/pop/oneTest BELOW its operative
+  stop() (the 08-16 quarantine's dead region), incant/generating was deleted 2026-09-11, and
+  no pop.sh fixture calls them. None of the 23 pinned targets/baselines contains a g-prefixed
+  rule name. RETIREMENT CANDIDATE: GroupItem.twk:747 and Generate.rtn:726 -- listed, not
+  removed.
+
+STATE: trunk reinstalled (fleet below), branch untouched at df73ad6.
+

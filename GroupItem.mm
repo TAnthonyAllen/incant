@@ -1010,8 +1010,6 @@ int 		held = deferredAbove(stuff);
 			 ::measureRetire((char*)"heldTrunk",this); ::measureFireOrder(this,stuff->label,1,0,0); 
 			stuff->label->setMethod(stuff->actionMethod);
 			stuff->label->groupBody->flags.deferred = 1;
-			if ( !stuff->label->groupBody->flags.data )
-				stuff->label->setText(::concat(2,"g",groupBody->tag));
 			}
 		else
 		if ( !parseACTION(groupBody->flags.methodType) )

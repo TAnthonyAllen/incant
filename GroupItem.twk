@@ -743,8 +743,7 @@ int         held = deferredAbove(stuff);
         if deferred && held {
             -% ::measureRetire((char*)"heldTrunk",this); ::measureFireOrder(this,stuff->label,1,0,0); %-
             stuff.label.method    = actionMethod;
-            stuff.label.deferred  = true;
-            if !stuff.label.data  stuff.label.text = "g" tag; }
+            stuff.label.deferred  = true; }
         or !parseACTION {
             // replacementReturn IN and OUT are two seats -- one read after the fire
             // cannot tell a replacement from a pass-through
