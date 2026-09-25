@@ -49,6 +49,7 @@
 #   - **`Limit` (`[min max]`) SILENTLY DELETES THE RULE IT MODIFIES** -- `ScafA[2]` and `ScafA[2 9]` leave the rule
 #     undefined (tell: known=0) with no error. Nothing in the tree uses Limit today. F-113's territory; **Clay
 #     recommends its own fixit citizen** so it points at your foot -- yours to mint.
+#     ⚠ **TONY, AT SHUTDOWN: the Limit rule gets REMOVED once the environment is stable -- no citizen.**
 #   - **P7, re-read:** what remains is the bootstrap pin (2,512 outside fires per run), non-StatemenT drive roots
 #     becoming firing roots, and nothing for action bodies beyond P8's split. It does not touch setup's parse.
 #
