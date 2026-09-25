@@ -1,0 +1,66 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(KindJ1T);
+define
+    kjList
+        kjA=1;
+        kjB="x";
+        kjC=3;
+    kjiList
+        kjiA=1;
+        kjiB="x";
+        kjiC=3;
+    kjWalk code={
+        iterate g members on kjList;
+        while ++g
+            *g += 2;
+        };
+    kjWalkI code={
+        iterate g members on kjiList;
+        while ++g
+            *g += 2;
+        };
+    kjShow code={
+        iterate h members on argument;
+        while ++h
+            cerr "J1 value " *h:;
+        };
+    ;
+cerr "MARK J1jit1 begin":;
+testing(kjWalk);
+cerr "MARK J1jit1 end":;
+cerr "J1 jit fire 1":;
+kjShow(kjList);
+cerr "MARK J1jit2 begin":;
+jitRefire();
+cerr "MARK J1jit2 end":;
+cerr "J1 jit fire 2":;
+kjShow(kjList);
+cerr "MARK J1int1 begin":;
+kjWalkI();
+cerr "MARK J1int1 end":;
+cerr "J1 interpreted 1":;
+kjShow(kjiList);
+cerr "MARK J1int2 begin":;
+kjWalkI();
+cerr "MARK J1int2 end":;
+cerr "J1 interpreted 2":;
+kjShow(kjiList);
+cerr "KINDJ1T SENTINEL":;
+stop();
+
+kindJ1T -- J1: A CURSOR OVER MIXED KINDS, += IN ONE COMPILED BODY. Tony's ruling
+2026-09-25: += answers on the jitted road per fire, with no degrade and no
+fallback. The body walks kjList (a count, a string, a count) and adds 2 through
+the cursor. It is compiled ONCE and fired twice, and an identical walk over
+kjiList runs interpreted twice beside it.
+
+The kind changes WITHIN one compiled body, so a pick baked at emit time cannot
+be right here. The emitted code calls jitOpFireRT with the live cursor node,
+from jitDerefRT, and pickKindOP picks per pass: arms kjA and kjC, never kjB. It
+crashed before the call-through -- the emit-time read of the cursor was null.
+Values: 3 x2 5, then 5 x22 7, on both roads.

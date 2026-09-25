@@ -5378,6 +5378,77 @@ extern "C" GroupItem *jitEmitNE(GroupItem *argument, GroupItem *target)
 	 return jitEmitCompare(argument, target, jitNE); 
 }
 
+extern "C" GroupItem *jitEmitOpFire(GroupItem *op, GroupItem *arg, GroupItem *target)
+{
+	
+	llvm::IRBuilder<> *b = gJitBuilder;
+	if (!b || !op) return nullptr;
+	llvm::LLVMContext &ctx = b->getContext();
+	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+	auto bake = [&](void *p, const char *nm) {
+	return b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)p), ptr, nm); };
+	auto frameOf = [&](GroupItem *g) -> JitFrameSlot* {
+	JitFrameSlot *fs = jitFrameFind((void*)&(g->groupBody->gCount));
+	if (!fs)      fs = jitFrameFind((void*)&(g->groupBody->gNumber));
+	return fs; };
+	bool nodeTaken = false;
+	llvm::Value *tgtV = nullptr, *argV = nullptr;
+	//  TARGET -- identity is the point: the fire writes INTO it.
+	if (!target) {
+	if (gJitLastIsNode && gJitResultNode) { tgtV = gJitResultNode; nodeTaken = true; }
+	}
+	else {
+	if (JitFrameSlot *fs = frameOf(target))
+	b->CreateStore(b->CreateLoad(fs->ty, fs->slot, "opFireFlushT"), bake(fs->home, "opFireHomeT"));
+	tgtV = bake((void*)target, "opFireTgt");
+	}
+	//  ARGUMENT -- its VALUE is the point.
+	if (!arg) {
+	if (!nodeTaken && gJitLastIsNode && gJitResultNode) { argV = gJitResultNode; nodeTaken = true; }
+	}
+	else if (arg->groupBody->flags.isLiteral || !arg->jitData || !arg->jitData->jitValue) {
+	if (JitFrameSlot *fs = frameOf(arg))
+	b->CreateStore(b->CreateLoad(fs->ty, fs->slot, "opFireFlushA"), bake(fs->home, "opFireHomeA"));
+	argV = bake((void*)arg, "opFireArg");
+	}
+	else {
+	llvm::Value *v = arg->jitData->jitValue;
+	GroupItem *box = new GroupItem((char*)"jitOpFireBox");
+	if (v->getType()->isDoubleTy()) {
+	box->setNumber(0.0);
+	b->CreateStore(v, bake((void*)&(box->groupBody->gNumber), "opFireBoxN")); }
+	else if (v->getType()->isIntegerTy()) {
+	if (!v->getType()->isIntegerTy(32)) v = b->CreateZExtOrTrunc(v, i32, "opFireBoxW");
+	box->setCount(0);
+	b->CreateStore(v, bake((void*)&(box->groupBody->gCount), "opFireBoxC")); }
+	else box = nullptr;
+	if (box) argV = bake((void*)box, "opFireArgBox");
+	}
+	if (!tgtV || !argV) {
+	::jitDegrade((char*)(!tgtV ? "operator-with-members: TARGET has no run-time producer -- REFUSED"
+	: "operator-with-members: ARGUMENT has no run-time producer -- REFUSED"), target);
+	return nullptr; }
+	if (nodeTaken) gJitLastIsNode = false;
+	llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {ptr, ptr, ptr}, false);
+	llvm::Value *res = b->CreateCall(ty, bake((void*)&jitOpFireRT, "opFireFn"),
+	{bake((void*)op, "opFireOp"), argV, tgtV}, "opFire");
+	gJitStmtCanRefuse = true;
+	//  the fire wrote the FIELD: a frame target's slot is reloaded from it, and
+	//  prints read the field (gJitFieldResident), as jitEmitAssign's node arm does.
+	if (target) {
+	if (JitFrameSlot *fs = frameOf(target))
+	b->CreateStore(b->CreateLoad(fs->ty, bake(fs->home, "opFireHomeR"), "opFireReload"), fs->slot);
+	gJitFieldResident.insert((void*)target->groupBody);
+	}
+	gJitResultNode = res;
+	gJitResult     = nullptr;
+	gJitEmitted    = true;
+	return new GroupItem((char*)"jitOpFire");
+	
+}
+
 /*******************************************************************************
     jitEmitRefusedCheck -- A3, THE PER-STATEMENT REFUSAL CHECK, EMITTED. Tony's
     ruling 2026-09-05.
@@ -6317,6 +6388,35 @@ extern "C" void jitLoopEnd()
 extern "C" int jitNodeInFlight()
 {
 	 return gJitResultNode ? 1 : 0; 
+}
+
+/*******************************************************************************
+    jitEmitOpFire / jitOpFireRT -- AN OPERATOR WITH MEMBERS, FIRED AT RUN TIME
+    (Tony's ruling 2026-09-25: += answers on the jitted road for every target the
+    interpreted road handles, per fire, no degrade, no fallback). The emitted code
+    calls jitOpFireRT with the LIVE operands; it runs pickKindOP -- the same pick
+    runOP makes -- and fires the chosen method. Nothing about an operand's kind is
+    baked, so a cursor over mixed kinds and a target typed by its first fire both
+    answer as the interpreted road does.
+    OPERANDS ARE PRODUCED AT RUN TIME, one class each:
+      a NULL operand with a node in flight -- `*cursor` -- is jitDerefRT's node;
+      a literal is baked by address (it carries its value);
+      a field is baked by address, its FRAME SLOT flushed to the field first and,
+        for the target, reloaded after, so compiled reads agree with the helper;
+      an ARGUMENT whose live value is only in SSA (an inner result) is stored into
+        a scratch node baked at emit -- a plain store, per fire.
+    Anything else REFUSES BY NAME, counted, rather than guessing.
+*******************************************************************************/
+extern "C" GroupItem *jitOpFireRT(GroupItem *op, GroupItem *arg, GroupItem *target)
+{
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	if ( ruler->refused || !op ) return 0;
+	if ( target && target->groupBody->flags.isVirtual )   target = ::copyOf(target);
+	GroupItem *pick = ::pickKindOP(op,target,arg);
+	if ( !pick->groupBody->gOp ) return 0;
+	return pick->groupBody->gOp(arg,target);
+	
 }
 
 /*******************************************************************************
@@ -11217,6 +11317,27 @@ char 		*at = 0;
 }
 
 /*******************************************************************************
+    pickKindOP -- THE PER-KIND PICK, ONE SPELLING FOR BOTH ROADS (Tony's ruling
+    2026-09-25). An operator with members hands back the member for the
+    receiver's kind, or itself: the receiver is the target when it holds data,
+    the argument when the target is EMPTY -- never when it is MISSING. runOP calls
+    it on the interpreted road; jitOpFireRT calls it at RUN time on the emitted
+    road, so the pick is per fire on both.
+*******************************************************************************/
+extern "C" GroupItem *pickKindOP(GroupItem *op, GroupItem *target, GroupItem *arg)
+{
+	if ( !op || !target )
+		return op;
+	if ( !op->groupBody->flags.hasMembers )
+		return op;
+	if ( target->groupBody->flags.data )
+		return target->checkOP(op);
+	if ( arg )
+		return arg->checkOP(op);
+	return op;
+}
+
+/*******************************************************************************
     planRule — the §4.1 fold, then one plan node per real term. NULL means the
     whole rule is refused: a plan that is missing a term is worse than no plan.
 *******************************************************************************/
@@ -12731,15 +12852,12 @@ GroupItem 	*target = field->get(2);
 	hand the list operators a COPY.   GroupActions.runOP.listOperand  */
 	if ( target && target->groupBody->flags.isVirtual )
 		target = ::copyOf(target);
-	// perKindPick ruling 5: the kind-specific member is picked PER FIRE into this local op and NEVER written back to field; ahead of the jit slot fork so both roads share it
-	// missingIsNotEmpty a NULL target picks nothing -- the argument's kind types an EMPTY target, never a missing one (a jitted *cursor is null at emit)
-	if ( op->groupBody->flags.hasMembers && target )
+	// perKindPick ONE spelling, pickKindOP, on both roads; under jitting the pick is EMITTED as a run-time call-through and never made here -- nothing about an operand's kind is baked (Tony, 2026-09-25)
+	if ( op->groupBody->flags.hasMembers )
 		{
-		if ( target->groupBody->flags.data )
-			op = target->checkOP(op);
-		else
-		if ( arg )
-			op = arg->checkOP(op);
+		if ( ruler->jitting )
+			return jitEmitOpFire(op,arg,target);
+		op = ::pickKindOP(op,target,arg);
 		}
 	/*  The seed gate must cover BOTH dispatch arms below, not just the
 	isOperator one. Unary operators are registered `unary ruleMethod=`

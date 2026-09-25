@@ -1,0 +1,47 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(KindJ2T);
+define
+    kjE;
+    kjAdd;
+    kjI;
+    kjRun code={
+        kjE += kjAdd;
+        };
+    kjRunI code={
+        kjI += kjAdd;
+        };
+    ;
+kjAdd = 4;
+cerr "MARK J2jit1 begin":;
+testing(kjRun);
+cerr "MARK J2jit1 end":;
+cerr "J2 jit fire 1 " kjE:;
+kjAdd = 6;
+cerr "MARK J2jit2 begin":;
+jitRefire();
+cerr "MARK J2jit2 end":;
+cerr "J2 jit fire 2 " kjE:;
+kjAdd = 4;
+cerr "MARK J2int1 begin":;
+kjRunI();
+cerr "MARK J2int1 end":;
+cerr "J2 interpreted 1 " kjI:;
+kjAdd = 6;
+cerr "MARK J2int2 begin":;
+kjRunI();
+cerr "MARK J2int2 end":;
+cerr "J2 interpreted 2 " kjI:;
+cerr "KINDJ2T SENTINEL":;
+stop();
+
+kindJ2T -- J2: A TARGET COMPILED EMPTY, TYPED BY ITS FIRST +=. Compiled ONCE
+while kjE holds nothing and fired twice. The first fire picks by the ARGUMENT's
+kind (the target is empty, not missing) and hands back to opPlusEQ, which types
+the target: 4, no arm. The second fire picks by the now-typed TARGET: arm kjE,
+10. The interpreted twin kjI does the same. Before the call-through the jitted
+road degraded, compiled nothing, and the refire ran nothing: 4 then 4.

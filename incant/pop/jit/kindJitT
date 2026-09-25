@@ -31,8 +31,8 @@ kindJitT -- THE PER-KIND += SPLIT, JITTED ROAD, against the interpreted oracle.
 Jitted half FIRST and the oracle LAST, by bear-trap 25. Run with
 INCANT_KIND_PROBE=1.
 
-The count method is picked at the SAME seat on both roads -- checkOP in runOP,
-ahead of the jit slot fork -- so the jitted add is emitted by the member
-method. Its KINDARM prints once at emit time and once for the interpreted
-oracle; a refire runs the compiled code and calls back into nothing, so it
-prints none. Values 8, 17 and 8, degrade count 0, KINDARM exactly twice on kjN.
+The count method is picked AT RUN TIME on this road, by the same pickKindOP
+that runOP calls: the compiled body calls jitOpFireRT with the live operands
+(2026-09-25). So the KINDARM prints once per FIRE -- the compile-fire, the
+refire and the interpreted oracle -- three times on kjN. Values 8, 17 and 8,
+degrade count 0.

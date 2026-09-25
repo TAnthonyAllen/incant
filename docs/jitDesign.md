@@ -1149,6 +1149,12 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
   The output is a RANKED LIST OF WHAT TO SPLIT, by kind or by phase. Already at the top: the per-kind `+=` split,
   with its kind probe first. Whether it is a simplification depends on how large the executing class is -- Tony's
   guess is most of them. Record only; no work until the pause.
+  **The per-kind `+=` split LANDED 2026-09-25, and the jitted pick is NOT baked.** An operator with members is
+  fired at RUN time through `jitOpFireRT`, which calls `pickKindOP` -- the same pick runOP makes -- on the live
+  operands; a `*cursor` operand arrives through `jitDerefRT`. That is what makes it sound when the kind changes
+  between fires (kindJ1T: a cursor over mixed kinds in one compiled body) or is set by the first fire (kindJ2T).
+  A known-kind inline fast path waits for proof that a kind cannot change. Found alongside it and banked as
+  `incant/fixits/refireSkipsDegraded`: a refire silently skips every statement that degraded at compile.
 - **C++-ESCAPE RECON AND REMOVAL (Tony: not before a jitting pause).** Every `-%` block in Tony's tok code, jit methods
   excluded. For each site: what it does, why tok could not express it, and a REMEDY CLASS -- (a) tok can already;
   (b) move to a jit, measure or support helper; (c) needs a tok feature (name it). It prices the parseRule bracket and

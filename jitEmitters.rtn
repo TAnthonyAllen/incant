@@ -757,6 +757,106 @@ extern int jitProbeDrive(GroupItem rule,GroupItem armed,String msg,int jitted)
 
 
 /*******************************************************************************
+    jitEmitOpFire / jitOpFireRT -- AN OPERATOR WITH MEMBERS, FIRED AT RUN TIME
+    (Tony's ruling 2026-09-25: += answers on the jitted road for every target the
+    interpreted road handles, per fire, no degrade, no fallback). The emitted code
+    calls jitOpFireRT with the LIVE operands; it runs pickKindOP -- the same pick
+    runOP makes -- and fires the chosen method. Nothing about an operand's kind is
+    baked, so a cursor over mixed kinds and a target typed by its first fire both
+    answer as the interpreted road does.
+    OPERANDS ARE PRODUCED AT RUN TIME, one class each:
+      a NULL operand with a node in flight -- `*cursor` -- is jitDerefRT's node;
+      a literal is baked by address (it carries its value);
+      a field is baked by address, its FRAME SLOT flushed to the field first and,
+        for the target, reloaded after, so compiled reads agree with the helper;
+      an ARGUMENT whose live value is only in SSA (an inner result) is stored into
+        a scratch node baked at emit -- a plain store, per fire.
+    Anything else REFUSES BY NAME, counted, rather than guessing.
+*******************************************************************************/
+extern GroupItem jitOpFireRT(GroupItem op,GroupItem arg,GroupItem target)
+{
+    -%
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    if ( ruler->refused || !op ) return 0;
+    if ( target && target->groupBody->flags.isVirtual )   target = ::copyOf(target);
+    GroupItem *pick = ::pickKindOP(op,target,arg);
+    if ( !pick->groupBody->gOp ) return 0;
+    return pick->groupBody->gOp(arg,target);
+    %-
+}
+
+extern GroupItem jitEmitOpFire(GroupItem op,GroupItem arg,GroupItem target)
+{
+    -%
+    llvm::IRBuilder<> *b = gJitBuilder;
+    if (!b || !op) return nullptr;
+    llvm::LLVMContext &ctx = b->getContext();
+    llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
+    llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
+    llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
+    auto bake = [&](void *p, const char *nm) {
+        return b->CreateIntToPtr(llvm::ConstantInt::get(i64, (uint64_t)p), ptr, nm); };
+    auto frameOf = [&](GroupItem *g) -> JitFrameSlot* {
+        JitFrameSlot *fs = jitFrameFind((void*)&(g->groupBody->gCount));
+        if (!fs)      fs = jitFrameFind((void*)&(g->groupBody->gNumber));
+        return fs; };
+    bool nodeTaken = false;
+    llvm::Value *tgtV = nullptr, *argV = nullptr;
+    //  TARGET -- identity is the point: the fire writes INTO it.
+    if (!target) {
+        if (gJitLastIsNode && gJitResultNode) { tgtV = gJitResultNode; nodeTaken = true; }
+        }
+    else {
+        if (JitFrameSlot *fs = frameOf(target))
+            b->CreateStore(b->CreateLoad(fs->ty, fs->slot, "opFireFlushT"), bake(fs->home, "opFireHomeT"));
+        tgtV = bake((void*)target, "opFireTgt");
+        }
+    //  ARGUMENT -- its VALUE is the point.
+    if (!arg) {
+        if (!nodeTaken && gJitLastIsNode && gJitResultNode) { argV = gJitResultNode; nodeTaken = true; }
+        }
+    else if (arg->groupBody->flags.isLiteral || !arg->jitData || !arg->jitData->jitValue) {
+        if (JitFrameSlot *fs = frameOf(arg))
+            b->CreateStore(b->CreateLoad(fs->ty, fs->slot, "opFireFlushA"), bake(fs->home, "opFireHomeA"));
+        argV = bake((void*)arg, "opFireArg");
+        }
+    else {
+        llvm::Value *v = arg->jitData->jitValue;
+        GroupItem *box = new GroupItem((char*)"jitOpFireBox");
+        if (v->getType()->isDoubleTy()) {
+            box->setNumber(0.0);
+            b->CreateStore(v, bake((void*)&(box->groupBody->gNumber), "opFireBoxN")); }
+        else if (v->getType()->isIntegerTy()) {
+            if (!v->getType()->isIntegerTy(32)) v = b->CreateZExtOrTrunc(v, i32, "opFireBoxW");
+            box->setCount(0);
+            b->CreateStore(v, bake((void*)&(box->groupBody->gCount), "opFireBoxC")); }
+        else box = nullptr;
+        if (box) argV = bake((void*)box, "opFireArgBox");
+        }
+    if (!tgtV || !argV) {
+        ::jitDegrade((char*)(!tgtV ? "operator-with-members: TARGET has no run-time producer -- REFUSED"
+                                   : "operator-with-members: ARGUMENT has no run-time producer -- REFUSED"), target);
+        return nullptr; }
+    if (nodeTaken) gJitLastIsNode = false;
+    llvm::FunctionType *ty = llvm::FunctionType::get(ptr, {ptr, ptr, ptr}, false);
+    llvm::Value *res = b->CreateCall(ty, bake((void*)&jitOpFireRT, "opFireFn"),
+                                     {bake((void*)op, "opFireOp"), argV, tgtV}, "opFire");
+    gJitStmtCanRefuse = true;
+    //  the fire wrote the FIELD: a frame target's slot is reloaded from it, and
+    //  prints read the field (gJitFieldResident), as jitEmitAssign's node arm does.
+    if (target) {
+        if (JitFrameSlot *fs = frameOf(target))
+            b->CreateStore(b->CreateLoad(fs->ty, bake(fs->home, "opFireHomeR"), "opFireReload"), fs->slot);
+        gJitFieldResident.insert((void*)target->groupBody);
+        }
+    gJitResultNode = res;
+    gJitResult     = nullptr;
+    gJitEmitted    = true;
+    return new GroupItem((char*)"jitOpFire");
+    %-
+}
+
+/*******************************************************************************
     jitEmitTermCall / jitTermCallRT -- THE TERM CALL-THROUGH (jitter station 1,
     2026-09-23). A rule invoked as a term -- `Token()` in a generated body --
     used to be PARSED AT EMIT TIME by runOP's isRule arm, against whatever input

@@ -5068,7 +5068,10 @@ kindRow "kindT R2b now-typed, 2nd fire: value"   "$(grep '^R2b value' "$T/kind" 
 kindRow "kindT R4 no-space +=: arms"         "$(kindArms "$T/kind" R4)"  "kR4"
 kindRow "kindT R4 no-space +=: value"        "$(grep '^R4 value' "$T/kind" | awk '{print $3}')" "9"
 kindRow "kindJitT R3 values jit1 jit2 oracle" "$(grep '^R3 ' "$T/kindj" | awk '{print $NF}' | tr '\n' ' ')" "8 17 8 "
-kindRow "kindJitT R3 arms (emit + oracle)"   "$(grep '^KINDARM ' "$T/kindj" | sed 's/^.*tag=//; s/ .*//' | tr '\n' ' ')" "kjN kjN "
+#  ⚠ RE-PINNED 2026-09-25: the pick runs at RUN time, so the arm fires once per
+#  FIRE -- jit, refire, oracle -- where it used to fire once at EMIT and never on
+#  a refire ("kjN kjN "). That is ruling 5's "per fire" now true on both roads.
+kindRow "kindJitT R3 arms (jit, refire, oracle)" "$(grep '^KINDARM ' "$T/kindj" | sed 's/^.*tag=//; s/ .*//' | tr '\n' ' ')" "kjN kjN kjN "
 kindRow "kindJitT R3 degrade count"          "$(grep -o 'jitDegrade count = [0-9]*' "$T/kindj" | awk '{print $NF}')" "0"
 
 
@@ -5077,8 +5080,8 @@ kindRow "kindJitT R3 degrade count"          "$(grep -o 'jitDegrade count = [0-9
 #  2026-09-25). checkOP asks getDataType, which refuses on a group holder;
 #  opPlusEQ then answers from its default arm. Each row COUNTS a named line
 #  inside its own MARK region, so a vanished line reads 0 and fails (H4).
-#  The jitted road is pinned AS MEASURED: the refusal prints once per COMPILE,
-#  because opPlusEQ degrades and nothing is compiled -- reported, not ruled.
+#  The jitted road now refuses once per FIRE, as the interpreted road does (the
+#  run-time call-through, 2026-09-25); it refused once per COMPILE before that.
 #  H7, measured 2026-09-25: with the member unregistered, hasMembers is false,
 #  checkOP never runs, and every refusal row goes red while the arm rows hold.
 kindCount () {                  # kindCount <file> <region> <fixed text> -> count
@@ -5097,10 +5100,39 @@ sentinel "kindHolderJitT sentinel" "$T/khj" "KINDHOLDERJITT SENTINEL"
 kindRow "kindHolderT fire 1: refusal, opPlusEQ default arm" "$(kindCount "$T/kho" H1 "$KREF") $(kindCount "$T/kho" H1 "$KARM")" "1 1"
 kindRow "kindHolderT fire 2: refusal, opPlusEQ default arm" "$(kindCount "$T/kho" H2 "$KREF") $(kindCount "$T/kho" H2 "$KARM")" "1 1"
 kindRow "kindHolderT values after fires 1 and 2 (holder source)" "$(grep '^H[12] holder' "$T/kho" | awk '{print $3, $5}' | tr '\n' ' ')" "5 5 5 5 "
-kindRow "kindHolderJitT compile: refusal, degrade (ONCE PER COMPILE)" "$(kindCount "$T/khj" HJ1 "$KREF") $(kindCount "$T/khj" HJ1 "$KDEG")" "1 1"
-kindRow "kindHolderJitT refire: refusal, nothing compiled" "$(kindCount "$T/khj" HJ2 "$KREF") $(kindCount "$T/khj" HJ2 "NOTHING COMPILED YET")" "0 1"
+#  ⚠ RE-PINNED 2026-09-25, Tony's ruling (+= per fire on the jitted road, no
+#  degrade): the pick is fired at RUN time through jitOpFireRT, so the refusal
+#  and opPlusEQ's default arm print once per FIRE -- compile-fire and refire
+#  alike -- matching the interpreted road, and nothing degrades. These two rows
+#  read "1 1 / 0 1" while the jitted road refused once per COMPILE.
+kindRow "kindHolderJitT jit fire 1: refusal, arm, degrade" "$(kindCount "$T/khj" HJ1 "$KREF") $(kindCount "$T/khj" HJ1 "$KARM") $(kindCount "$T/khj" HJ1 "$KDEG")" "1 1 0"
+kindRow "kindHolderJitT refire: refusal, arm, nothing-compiled" "$(kindCount "$T/khj" HJ2 "$KREF") $(kindCount "$T/khj" HJ2 "$KARM") $(kindCount "$T/khj" HJ2 "NOTHING COMPILED YET")" "1 1 0"
 kindRow "kindHolderJitT oracle: refusal, opPlusEQ default arm" "$(kindCount "$T/khj" HI "$KREF") $(kindCount "$T/khj" HI "$KARM")" "1 1"
 kindRow "kindHolderJitT values jit1 jit2 oracle (holder)" "$(grep -E '^H(J1|J2|I) holder' "$T/khj" | awk '{print $3}' | tr '\n' ' ')" "5 5 5 "
+
+
+#  ---------------------------------------------------------------------------
+#  kindJ1T / kindJ2T -- += ON THE JITTED ROAD, PER FIRE (Tony's ruling,
+#  2026-09-25). Each body is compiled ONCE and fired twice, jitted beside
+#  interpreted; every pass is asserted by value AND by arm, and degrade is 0.
+#  J1 is the row a baked pick fails: the kind changes within one compiled body.
+#  J2 is compiled while its target is empty.
+export INCANT_KIND_PROBE=1
+run1 kindJ1T "$T/kj1";   check "kindJ1T runs" 0 $?
+run1 kindJ2T "$T/kj2";   check "kindJ2T runs" 0 $?
+unset INCANT_KIND_PROBE
+sentinel "kindJ1T sentinel" "$T/kj1" "KINDJ1T SENTINEL"
+sentinel "kindJ2T sentinel" "$T/kj2" "KINDJ2T SENTINEL"
+kjv () { awk -v h="$2" '$0 ~ "^"h"( |$)" {on=1; next} /^J1 (jit|interp)/ {on=0} on && /^J1 value/ {printf "%s ", $3}' "$1"; }
+kindRow "kindJ1T jit fire 1: values"   "$(kjv "$T/kj1" 'J1 jit fire 1')"      "3 x2 5 "
+kindRow "kindJ1T jit fire 2: values"   "$(kjv "$T/kj1" 'J1 jit fire 2')"      "5 x22 7 "
+kindRow "kindJ1T interpreted 1 and 2: values" "$(kjv "$T/kj1" 'J1 interpreted 1')/$(kjv "$T/kj1" 'J1 interpreted 2')" "3 x2 5 /5 x22 7 "
+kindRow "kindJ1T arms jit1 jit2 int1 int2" "$(kindArms "$T/kj1" J1jit1)/$(kindArms "$T/kj1" J1jit2)/$(kindArms "$T/kj1" J1int1)/$(kindArms "$T/kj1" J1int2)" "kjA kjC/kjA kjC/kjiA kjiC/kjiA kjiC"
+kindRow "kindJ1T degrade count"         "$(grep -o 'jitDegrade count = [0-9]*' "$T/kj1" | awk '{print $NF}')" "0"
+kindRow "kindJ2T values jit1 jit2 int1 int2" "$(grep -E '^J2 (jit fire|interpreted) [12]' "$T/kj2" | awk '{print $NF}' | tr '\n' ' ')" "4 10 4 10 "
+kindRow "kindJ2T arms jit1 jit2 int1 int2" "$(kindArms "$T/kj2" J2jit1)/$(kindArms "$T/kj2" J2jit2)/$(kindArms "$T/kj2" J2int1)/$(kindArms "$T/kj2" J2int2)" "/kjE//kjI"
+kindRow "kindJ2T degrade count"         "$(grep -o 'jitDegrade count = [0-9]*' "$T/kj2" | awk '{print $NF}')" "0"
+kindRow "kindHolderJitT degrade count"  "$(grep -o 'jitDegrade count = [0-9]*' "$T/khj" | awk '{print $NF}')" "0"
 
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"

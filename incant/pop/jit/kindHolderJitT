@@ -31,11 +31,10 @@ stop();
 kindHolderJitT -- PLUS-EQUALS ON A HOLDER, JITTED ROAD beside the interpreted.
 Jitted half first, oracle last (bear-trap 25).
 
-MEASURED 2026-09-25 AND PINNED AS MEASURED, NOT AS RULED: on this road the
-refusal prints ONCE PER COMPILE, not once per fire. At emit, checkOP asks
-getDataType, which refuses; opPlusEQ then degrades, "+= on an unhandled datA",
-so nothing is compiled, and jitRefire reports NOTHING COMPILED YET and runs
-nothing. Fire 2 therefore prints no refusal at all. That is the per-fire versus
-per-compile question arriving from a second direction; it is reported, not
-reconciled. The interpreted oracle prints one refusal and opPlusEQ's default
-arm. Values agree: holder and source 5 throughout.
+RE-PINNED 2026-09-25 by Tony's ruling that += answers on the jitted road per
+fire, with no degrade and no fallback. An operator with members is now fired at
+RUN time through jitOpFireRT, which makes the same pick runOP makes. So each
+fire -- the compile-fire, the refire and the interpreted oracle alike -- prints
+one getDataType refusal and then opPlusEQ's default arm, and nothing degrades.
+Before the call-through this road refused ONCE PER COMPILE: opPlusEQ degraded,
+nothing was compiled, and the refire ran nothing. Values agree: 5 throughout.

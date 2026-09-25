@@ -922,6 +922,23 @@ exitRunAction:
 }
 
 
+/*******************************************************************************
+    pickKindOP -- THE PER-KIND PICK, ONE SPELLING FOR BOTH ROADS (Tony's ruling
+    2026-09-25). An operator with members hands back the member for the
+    receiver's kind, or itself: the receiver is the target when it holds data,
+    the argument when the target is EMPTY -- never when it is MISSING. runOP calls
+    it on the interpreted road; jitOpFireRT calls it at RUN time on the emitted
+    road, so the pick is per fire on both.
+*******************************************************************************/
+extern GroupItem pickKindOP(GroupItem op,GroupItem target,GroupItem arg)
+{
+    if !op || !target               return op;
+    if !op.hasMembers               return op;
+    if target.data                  return target.checkOP(op);
+    if arg                          return arg.checkOP(op);
+    return op;
+}
+
 extern GroupItem runOP(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -972,11 +989,10 @@ GroupItem   result,
         /*  ⚠ A LIST OPERAND IS DELIBERATELY NOT RESOLVED HERE -- doing it would
             hand the list operators a COPY.   GroupActions.runOP.listOperand  */
     if target && target.isVirtual               target = copyOf(target);
-    // perKindPick ruling 5: the kind-specific member is picked PER FIRE into this local op and NEVER written back to field; ahead of the jit slot fork so both roads share it
-    // missingIsNotEmpty a NULL target picks nothing -- the argument's kind types an EMPTY target, never a missing one (a jitted *cursor is null at emit)
-    if op.hasMembers && target {
-        if target.data              op = target.checkOP(op);
-        or arg                      op = arg.checkOP(op); }
+    // perKindPick ONE spelling, pickKindOP, on both roads; under jitting the pick is EMITTED as a run-time call-through and never made here -- nothing about an operand's kind is baked (Tony, 2026-09-25)
+    if op.hasMembers {
+        if jitting      return jitEmitOpFire(op,arg,target);
+        op = pickKindOP(op,target,arg); }
     /*  The seed gate must cover BOTH dispatch arms below, not just the
         isOperator one. Unary operators are registered `unary ruleMethod=`
         (incant/setup:104-150) -- isUnary and isMethod, NOT isOperator -- so
