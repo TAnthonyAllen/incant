@@ -1026,63 +1026,17 @@ GroupRules  ruler = groupRules;
     if ruler.refused    return null;
 use target
     measurePlusEQWrite(target);
-    if argument.isLIST && (!data || isSTRING || isTOKEN) {
-        measurePlusEQBranch("A",target,argument);
-        if jitting  jitDegrade("+= list-concat into a string target",target);
-        Buffer  concatBuf = bufferSTAK.pop();
-        if !concatBuf   concatBuf = new("concat buffer");
-        if data     appendGroup(target,0,concatBuf);
-        appendGroup(argument,0,concatBuf);
-        return opString(target,concatBuf); }
-    if argument.isLIST {
-        measurePlusEQBranch("B",target,argument);
-        if jitting  jitDegrade("+= copyListTo a list argument",target);
-        argument.copyListTo(target); }
-    or !isRule && !actionType && (binType || groupList) {
-        measurePlusEQBranch("C",target,argument);
-        if jitting  jitDegrade("+= structural append (binType/groupList)",target);
-        target += argument; }
-    or argument.data
-        if data {
-            measurePlusEQBranch("S",target,argument);
-            switch(data) {
-                case isCOUNT:
-                    if jitting {
-                        -% jitEmitBinary(argument, target, jitAdd);
-                           return jitEmitAssign(target, target); %-
-                        }
-                    tempField.number = number + argument.number;
-                    gCount  = tempField.count;
-                case isNUMBER:
-                    if jitting {
-                        -% jitEmitBinary(argument, target, jitAdd);
-                           return jitEmitAssign(target, target); %-
-                        }
-                    gNumber += argument.number;
-                case isSTRING:
-                case isTOKEN:
-                    if jitting  return jitEmitStringPlusEQ(argument,target);
-                    text    += argument.text;
-                case isBUFFER:
-                    if jitting  jitDegrade("+= on a Buffer target",target);
-                    buffer  += argument.text;
-                    // if buffer mark is set, argument is inserted into buffer at mark
-                    // otherwise it is appended at end of buffer. mark is left as is
-                case isSTAK:
-                    if jitting  jitDegrade("+= on a Stak target",target);
-                    gStak.push(argument);
-                default:
-                    if jitting  jitDegrade("+= on an unhandled datA",target);
-                    else cerr "ERROR Operator += failed on",tag,"and",argument.tag:; }
-            }
-        else {
-            measurePlusEQBranch("E",target,argument);
-            if jitting  jitDegrade("+= into a target with no datA",target);
-            target.copyData(argument); }
-    else {
-        measurePlusEQBranch("F",target,argument);
-        if jitting  jitDegrade("+= with a dataless argument",target);
-        target += argument; }
+    /*  WHAT IS LEFT OF opPlusEQ (FINISH +=, 2026-09-25): THE NAMED REFUSAL, and
+        nothing else. Every kind it used to handle is a member of '+=', picked by
+        pickKindOP on both roads; this is the answer for a pick with no member --
+        a holder, a set, a map, any kind nobody armed.
+        ⚠ THE ONE `if jitting` LINE IS KEPT, deliberately, after a read: it is the
+        only thing that would announce opPlusEQ being reached AT EMIT TIME, which
+        happens only if '+=' has NO members (runOP's call-through is gated on
+        hasMembers, a fact of setup registration). Every other jitting branch left
+        with the arm that carried it.   */
+    if jitting  jitDegrade("+= on an unhandled datA",target);
+    else cerr "ERROR Operator += failed on",tag,"and",argument.tag:;
     return target;
 }
 

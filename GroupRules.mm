@@ -9902,94 +9902,18 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( ruler->refused )
 		return 0;
 	measurePlusEQWrite(target);
-	if ( isLIST(argument->groupBody->flags.binType) && (!target->groupBody->flags.data || isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) )
-		{
-		measurePlusEQBranch("A",target,argument);
-		if ( ruler->jitting )
-			::jitDegrade("+= list-concat into a string target",target);
-		Buffer *concatBuf = (Buffer*)ruler->bufferSTAK->pop();
-		if ( !concatBuf )
-			concatBuf = new Buffer("concat buffer");
-		if ( target->groupBody->flags.data )
-			::appendGroup(target,0,concatBuf);
-		::appendGroup(argument,0,concatBuf);
-		return ::opString(target,concatBuf);
-		}
-	if ( isLIST(argument->groupBody->flags.binType) )
-		{
-		measurePlusEQBranch("B",target,argument);
-		if ( ruler->jitting )
-			::jitDegrade("+= copyListTo a list argument",target);
-		argument->copyListTo(target);
-		}
-	else
-	if ( !target->groupBody->flags.isRule && !target->groupBody->flags.actionType && (target->groupBody->flags.binType || target->groupBody->groupList) )
-		{
-		measurePlusEQBranch("C",target,argument);
-		if ( ruler->jitting )
-			::jitDegrade("+= structural append (binType/groupList)",target);
-		target->addMember(argument);
-		}
-	else
-	if ( argument->groupBody->flags.data )
-		if ( target->groupBody->flags.data )
-			{
-			measurePlusEQBranch("S",target,argument);
-			switch (target->groupBody->flags.data)
-				{
-				case 5:
-					if ( ruler->jitting )
-						{
-						 jitEmitBinary(argument, target, jitAdd);
-						return jitEmitAssign(target, target); 
-						}
-					ruler->tempField->setNumber(target->getNumber() + argument->getNumber());
-					target->groupBody->gCount = ruler->tempField->getCount();
-					break;
-				case 9:
-					if ( ruler->jitting )
-						{
-						 jitEmitBinary(argument, target, jitAdd);
-						return jitEmitAssign(target, target); 
-						}
-					target->groupBody->gNumber += argument->getNumber();
-					break;
-				case 13:
-				case 14:
-					if ( ruler->jitting )
-						return jitEmitStringPlusEQ(argument,target);
-					target->setText(::concat(2,target->getText(),argument->getText()));
-					break;
-				case 4:
-					if ( ruler->jitting )
-						::jitDegrade("+= on a Buffer target",target);
-					target->getBuffer()->appendString(argument->getText(),0,0);
-					// if buffer mark is set, argument is inserted into buffer at mark
-					// otherwise it is appended at end of buffer. mark is left as is
-					break;
-				case 12:
-					if ( ruler->jitting )
-						::jitDegrade("+= on a Stak target",target);
-					target->groupBody->gStak->push(argument);
-					break;
-				default:
-					if ( ruler->jitting )
-						::jitDegrade("+= on an unhandled datA",target);
-					else	::fprintf(stderr,"ERROR Operator += failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
-				}
-			}
-		else {
-			measurePlusEQBranch("E",target,argument);
-			if ( ruler->jitting )
-				::jitDegrade("+= into a target with no datA",target);
-			target->copyData(argument);
-			}
-	else {
-		measurePlusEQBranch("F",target,argument);
-		if ( ruler->jitting )
-			::jitDegrade("+= with a dataless argument",target);
-		target->addMember(argument);
-		}
+	/*  WHAT IS LEFT OF opPlusEQ (FINISH +=, 2026-09-25): THE NAMED REFUSAL, and
+	nothing else. Every kind it used to handle is a member of '+=', picked by
+	pickKindOP on both roads; this is the answer for a pick with no member --
+	a holder, a set, a map, any kind nobody armed.
+	⚠ THE ONE `if jitting` LINE IS KEPT, deliberately, after a read: it is the
+	only thing that would announce opPlusEQ being reached AT EMIT TIME, which
+	happens only if '+=' has NO members (runOP's call-through is gated on
+	hasMembers, a fact of setup registration). Every other jitting branch left
+	with the arm that carried it.   */
+	if ( ruler->jitting )
+		::jitDegrade("+= on an unhandled datA",target);
+	else	::fprintf(stderr,"ERROR Operator += failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
 	return target;
 }
 
@@ -14407,12 +14331,6 @@ int 	result = 0;
 	measureKindArm(char*,GroupItem*)
 	measureKindArm(char*,GroupItem*)
 	measureKindArm(char*,GroupItem*)
-	measurePlusEQBranch(char*,GroupItem*,GroupItem*)
-	measurePlusEQBranch(char*,GroupItem*,GroupItem*)
-	measurePlusEQBranch(char*,GroupItem*,GroupItem*)
-	measurePlusEQBranch(char*,GroupItem*,GroupItem*)
-	measurePlusEQBranch(char*,GroupItem*,GroupItem*)
-	measurePlusEQBranch(char*,GroupItem*,GroupItem*)
 	measurePlusPlusWrite(GroupItem*)
 	floor(double)
 */
