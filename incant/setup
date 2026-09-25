@@ -150,6 +150,8 @@ define
 
     '$$'    unary ruleMethod=opDebug;
     '-'     operateMethod=opMinus  jitEmitter=jitEmitSub;
+    '+='    operateMethod=opPlusEQ
+        '+=isCOUNT'  operateMethod=opPlusEQisCOUNT;
     '++'    unary ruleMethod=opPlusPlus;
     '+*'    operateMethod=opAddPointer;
     '+%'    operateMethod=opAddAttribute;
@@ -162,8 +164,6 @@ define
     '%'     operateMethod=opRem;
     '!='    operateMethod=opNotEQ  interpretMethod=runNotEQ  jitEmitter=jitEmitNE;
     '!'     unary ruleMethod=opNOT;
-    '+='    operateMethod=opPlusEQ
-        '+=isCOUNT'  operateMethod=opPlusEQisCOUNT;
     ;
 /*******************************************************************************
 	bcOPs — bytecode opcodes (control flow + stack ops). A SEPARATE registry,
@@ -549,18 +549,23 @@ include(grammar);
     naming a file that is gone fails at exit zero with nothing saying why, which is
     bear-trap 28's fourth row.
 
-    9. THE PLUS-EQUALS ENTRY IS LAST IN Operators ON PURPOSE, AND MUST STAY LAST
+    9. A MEMBER BLOCK ENDS BY DEDENT -- A SEMICOLON LINE AFTER IT CLOSES THE define
 
-    It carries the first per-kind member, the one named plus-equals isCOUNT, which
-    runOP's checkOP seat picks per fire when the target holds a count. An indented
-    member block CLOSES THE WHOLE define IT SITS IN: its closing semicolon is the
-    define's, so every entry written after it is parsed as a statement and setup is
-    abandoned, silently, with no line of stderr. The first symptom is a segfault in
-    bootstrapper setting the stringBUFFER link, because the parse never reached the
-    stringBUFFER entry. Measured 2026-09-25: a member under ANY entry in the middle
-    of a define block did this, in Operators and in pROPERTIEs alike, and the same
-    member on the LAST entry parsed clean. UnaryOPS works for the same reason -- it
-    is the last entry of its block. Position in Operators does not change which
-    operator matches (section 7), so moving the entry here cost nothing. A second
-    operator with members needs a define block of its own.
+    The plus-equals entry carries the first per-kind member, the one named
+    plus-equals isCOUNT, which runOP's checkOP seat picks per fire when the target
+    holds a count. The member is indented under its entry and the block ENDS BY
+    DEDENT: the next entry at the outer indent simply follows, mid-block, exactly
+    as jitIterTwice's itTrunk does.
+    A lone semicolon line after the member block is NOT the entry's closer. It is
+    the define's, so every entry written after it is parsed as a statement and
+    setup is abandoned, silently, with no line of stderr. The first symptom is a
+    segfault in bootstrapper setting the stringBUFFER link, because the parse never
+    reached the stringBUFFER entry. UnaryOPS ends in such a line only because it is
+    the last entry of its block, where that line is the define's own close.
+    CORRECTED 2026-09-25, the same day it was first written: the first version of
+    this note said a member block closes the define and moved plus-equals to the
+    end of Operators to survive it. The member was never the trigger; the extra
+    semicolon line written after it was. Measured by one variable: the member
+    mid-block with no closing line parses clean and picks its arm. Plus-equals is
+    back in its longest-first place.
 *******************************************************************************/

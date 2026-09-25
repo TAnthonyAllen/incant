@@ -12732,9 +12732,10 @@ GroupItem 	*target = field->get(2);
 	if ( target && target->groupBody->flags.isVirtual )
 		target = ::copyOf(target);
 	// perKindPick ruling 5: the kind-specific member is picked PER FIRE into this local op and NEVER written back to field; ahead of the jit slot fork so both roads share it
-	if ( op->groupBody->flags.hasMembers )
+	// missingIsNotEmpty a NULL target picks nothing -- the argument's kind types an EMPTY target, never a missing one (a jitted *cursor is null at emit)
+	if ( op->groupBody->flags.hasMembers && target )
 		{
-		if ( target && target->groupBody->flags.data )
+		if ( target->groupBody->flags.data )
 			op = target->checkOP(op);
 		else
 		if ( arg )

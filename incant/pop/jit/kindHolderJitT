@@ -1,0 +1,41 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+register(KindHolderJitT);
+define
+    kN=5;
+    kH;
+    kHRun code={
+        kH += 3;
+        };
+    ;
+kH := kN;
+cerr "MARK HJ1 begin":;
+testing(kHRun);
+cerr "MARK HJ1 end":;
+cerr "HJ1 holder " kH " source " kN:;
+cerr "MARK HJ2 begin":;
+jitRefire();
+cerr "MARK HJ2 end":;
+cerr "HJ2 holder " kH " source " kN:;
+cerr "MARK HI begin":;
+kHRun();
+cerr "MARK HI end":;
+cerr "HI holder " kH " source " kN:;
+cerr "KINDHOLDERJITT SENTINEL":;
+stop();
+
+kindHolderJitT -- PLUS-EQUALS ON A HOLDER, JITTED ROAD beside the interpreted.
+Jitted half first, oracle last (bear-trap 25).
+
+MEASURED 2026-09-25 AND PINNED AS MEASURED, NOT AS RULED: on this road the
+refusal prints ONCE PER COMPILE, not once per fire. At emit, checkOP asks
+getDataType, which refuses; opPlusEQ then degrades, "+= on an unhandled datA",
+so nothing is compiled, and jitRefire reports NOTHING COMPILED YET and runs
+nothing. Fire 2 therefore prints no refusal at all. That is the per-fire versus
+per-compile question arriving from a second direction; it is reported, not
+reconciled. The interpreted oracle prints one refusal and opPlusEQ's default
+arm. Values agree: holder and source 5 throughout.

@@ -2726,6 +2726,24 @@ Hard-won lessons. Each one has cost real debugging time.
     shell -- because a shell compare cannot mis-spell a capture. Sibling of bear-trap #41 (the
     capture itself needs `:=`) and #35 (read into a local, never in a condition).
 
+
+56. **A `;` LINE AFTER AN INDENTED MEMBER BLOCK CLOSES THE WHOLE `define`, NOT THE ENTRY -- AND
+    SETUP DIES SILENTLY.** Gloss: the closer belongs to the define. Measured 2026-09-25 (**kant**,
+    `incant/setup`). A member block ends by **dedent**; the next entry at the outer indent simply
+    follows, mid-block (`jitIterTwice`'s `itTrunk` is the working example). Write a lone `;` line
+    after the members, copying `UnaryOPS`, and it closes the **define** -- `UnaryOPS` gets away with
+    it only because it is the last entry of its block.
+    **SYMPTOM TO RECOGNISE:** every run segfaults with zero output, in `GroupMain::bootstrapper` at
+    `item->setBuffer(ruler->stringBUFFER)` with `this=0x0` -- the parse was abandoned before it
+    reached the `stringBUFFER` entry, so `properties["stringBUFFER"]` is null. No stderr line at all.
+    ⚠ **THE COST WAS A WRONG FINDING, WRITTEN DOWN AND ACTED ON THE SAME DAY.** The first reading
+    blamed the member block itself, moved `'+='` to the end of Operators to survive it, and recorded
+    that in `incant/setup` section 9. Every variant had carried the extra `;` line, so the variable
+    was never varied (H15's second row). One run with the member mid-block and no closing line
+    parsed clean and picked its arm. **Site:** `incant/setup` section 9, corrected; `'+='` is back
+    in its longest-first place. The owed ruling ("one define block per operator with members?")
+    is moot -- members mid-block work.
+
 ⚠⚠ **THE RULE-LADDER SELECTION CRITERION — TWO CLAUSES, AND THE SECOND WAS PAID FOR.** Tony,
 2026-08-24.
 

@@ -5071,6 +5071,37 @@ kindRow "kindJitT R3 values jit1 jit2 oracle" "$(grep '^R3 ' "$T/kindj" | awk '{
 kindRow "kindJitT R3 arms (emit + oracle)"   "$(grep '^KINDARM ' "$T/kindj" | sed 's/^.*tag=//; s/ .*//' | tr '\n' ' ')" "kjN kjN "
 kindRow "kindJitT R3 degrade count"          "$(grep -o 'jitDegrade count = [0-9]*' "$T/kindj" | awk '{print $NF}')" "0"
 
+
+#  ---------------------------------------------------------------------------
+#  kindHolderT / kindHolderJitT -- += ON A HOLDER: THE REFUSAL STANDS (Tony,
+#  2026-09-25). checkOP asks getDataType, which refuses on a group holder;
+#  opPlusEQ then answers from its default arm. Each row COUNTS a named line
+#  inside its own MARK region, so a vanished line reads 0 and fails (H4).
+#  The jitted road is pinned AS MEASURED: the refusal prints once per COMPILE,
+#  because opPlusEQ degrades and nothing is compiled -- reported, not ruled.
+#  H7, measured 2026-09-25: with the member unregistered, hasMembers is false,
+#  checkOP never runs, and every refusal row goes red while the arm rows hold.
+kindCount () {                  # kindCount <file> <region> <fixed text> -> count
+    awk -v r="$2" -v t="$3" '$0 ~ "^MARK "r" begin" {on=1; next} $0 ~ "^MARK "r" end" {on=0}
+        on && index($0,t) {n++} END {print n+0}' "$1"
+}
+KREF="ERROR getDataType on kH -- holds a group; say *"
+KARM="ERROR Operator += failed on kH"
+KDEG="+= on an unhandled datA"
+export INCANT_KIND_PROBE=1
+run1 kindHolderT "$T/kho";       check "kindHolderT runs" 0 $?
+run1 kindHolderJitT "$T/khj";    check "kindHolderJitT runs" 0 $?
+unset INCANT_KIND_PROBE
+sentinel "kindHolderT sentinel" "$T/kho" "KINDHOLDERT SENTINEL"
+sentinel "kindHolderJitT sentinel" "$T/khj" "KINDHOLDERJITT SENTINEL"
+kindRow "kindHolderT fire 1: refusal, opPlusEQ default arm" "$(kindCount "$T/kho" H1 "$KREF") $(kindCount "$T/kho" H1 "$KARM")" "1 1"
+kindRow "kindHolderT fire 2: refusal, opPlusEQ default arm" "$(kindCount "$T/kho" H2 "$KREF") $(kindCount "$T/kho" H2 "$KARM")" "1 1"
+kindRow "kindHolderT values after fires 1 and 2 (holder source)" "$(grep '^H[12] holder' "$T/kho" | awk '{print $3, $5}' | tr '\n' ' ')" "5 5 5 5 "
+kindRow "kindHolderJitT compile: refusal, degrade (ONCE PER COMPILE)" "$(kindCount "$T/khj" HJ1 "$KREF") $(kindCount "$T/khj" HJ1 "$KDEG")" "1 1"
+kindRow "kindHolderJitT refire: refusal, nothing compiled" "$(kindCount "$T/khj" HJ2 "$KREF") $(kindCount "$T/khj" HJ2 "NOTHING COMPILED YET")" "0 1"
+kindRow "kindHolderJitT oracle: refusal, opPlusEQ default arm" "$(kindCount "$T/khj" HI "$KREF") $(kindCount "$T/khj" HI "$KARM")" "1 1"
+kindRow "kindHolderJitT values jit1 jit2 oracle (holder)" "$(grep -E '^H(J1|J2|I) holder' "$T/khj" | awk '{print $3}' | tr '\n' ' ')" "5 5 5 "
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi
