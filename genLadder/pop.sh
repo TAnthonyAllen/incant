@@ -5244,6 +5244,23 @@ kindRow "kindLiftT degrade count"        "$(grep -o 'jitDegrade count = [0-9]*' 
 INCANT_KIND_PROBE=1 $B "$(ip printFamilyNew)" > "$T/pfn" 2>&1; check "printFamilyNew runs (graft arm)" 0 $?
 kindRow "printFamilyNew graft: arms on WardeD" "$(grep '^KINDARM ' "$T/pfn" | grep 'tag=WardeD ' | awk '{print $2}' | tr '\n' ' ')" "opPlusEQstruct opPlusEQstruct "
 
+
+#  ---------------------------------------------------------------------------
+#  nullAccessT -- the seven accessors that lawfully answer NULL (nullAccessorDeref,
+#  2026-09-25). Before the guard each segfaulted on opDot's tail (born fb9e4de,
+#  2026-09-08); the sentinel sits after all seven, so ANY one crashing takes every
+#  later row and the sentinel with it -- a fix for nexT alone cannot pass.
+#  H7, measured: guard removed -> exit 139, rows gone; restored -> all green.
+run1 nullAccessT "$T/nacc";   check "nullAccessT runs (a lawful null does not crash)" 0 $?
+sentinel "nullAccessT sentinel (all seven survived)" "$T/nacc" "NULLACCESST SENTINEL"
+naRow () { kindRow "nullAccessT $1" "$(grep -E "^NA $1 +[0-9]+ *\$" "$T/nacc" | awk '{print $NF}')" "$2"; }
+naRow "parenT" 0; naRow "registrY" 0
+naRow "nexT on the LAST term" 0; naRow "nexT on the FIRST term" 1
+naRow "prioR on the FIRST term" 0; naRow "prioR on the LAST term" 1
+naRow "firsT" 0; naRow "firsT on a list" 1
+naRow "lasT" 0; naRow "lasT on a list" 1
+naRow "firstMembeR" 0; naRow "firstMembeR on a list" 1
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi

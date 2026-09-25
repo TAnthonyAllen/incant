@@ -57,12 +57,23 @@ which are f31, and incant/pop/bisectQ all exit 139 on it -- none of them fleet r
 nothing on the checklist saw it for seventeen days. It is the LANGUAGE, not the probe
 generator: the repro above is ordinary kant.
 
-NEXT: BEST GUESS -- guard the line: `if product && !product.data product.count = 0;`,
-mirroring the line beneath it. Grade: strong candidate. It is one missing guard beside a
-present one, the crash frame is that line, and every null the switch produces is
-lawful, so nothing upstream wants to change. What would promote it to REMEDY: the build,
-with this file then printing "NA defect walked 3 terms" and its sentinel, at exit 0,
-and a fleet row for each of the seven null-answering accessors on a miss -- a row per
-case, because a guard that fixes nexT and not prioR is the half-fix this file exists to
-prevent. What would kill it: a null-answering case that is SUPPOSED to be a refusal
-rather than a lawful empty -- that is a ruling about the accessor, not the guard.
+NEXT: REMEDY -- BEHAVIOUR. LANDED 2026-09-25.
+  THE FIX: opDot's tail reads `if product && !product.data product.count = 0;` --
+  guarded the way the line beneath it always was (Instruct.rtn, opDot).
+  SITE: Instruct.rtn opDot, the line keyed `nullIsLawful`.
+  TAKEN: this file prints "NA defect walked 3 terms" and its sentinel, exit 0.
+  NOT TAKEN: exit 139 right after the DEFECT banner, nothing below it.
+  Both measured on one tree: the live binary (guarded) and a side build with the
+  guard removed. The fleet row is incant/pop/nullAccessT -- all seven accessors on
+  their lawful null, each with a non-null sibling where one can read true; guard
+  removed it exits 139 with no rows, restored all green.
+  ATTRIBUTIONS, measured the same way (crash unguarded, survive guarded): f31 and
+  bisectQ. doWhileNameT, trigDO, baselineTests, spellScratch, dumpContents on
+  GroupFields, a bare for over Grokking and GrouP("foo") exit 0 on BOTH binaries,
+  so their old 139s were other causes. f31 and bisectQ now reach other failures
+  (f31: fbSkipIt parse failed x37; bisectQ: QuotE compile refusal) -- separate.
+  ⚠ AND ONE CORRECTION TO THE MECHANISM TEXT ABOVE: a BARE nexT reads lastREF, so
+  in this file's crash arm, as in f31, it asked about the COUNTER just referenced,
+  not the walked member. The null was real and the crash was this one; the member
+  was never the subject. nullAccessT asks each accessor of an explicit target.
+  Discharge: run this file, bless the TAKEN signature, retire.

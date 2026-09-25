@@ -445,7 +445,8 @@ use argument
                 // unsupportedAccessor  every gCount with no case of its own lands here and
                 // unsupportedAccessor  SAYS SO, rather than answering with a silent null
                 default:    product.text    = "access to " tag " not supported yet"; }
-            if !product.data product.count  = 0;
+            // nullIsLawful seven accessors answer null for 'nothing there' -- guard the read, as the next line does (nullAccessorDeref, born fb9e4de)
+            if product && !product.data product.count  = 0;
             if product && !product.parent   product.parent = target; }}
     return product;
 }

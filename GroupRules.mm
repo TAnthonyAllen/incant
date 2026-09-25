@@ -9096,7 +9096,8 @@ GroupItem 	*product = 0;
 				default:
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));
 				}
-			if ( !product->groupBody->flags.data )
+			// nullIsLawful seven accessors answer null for 'nothing there' -- guard the read, as the next line does (nullAccessorDeref, born fb9e4de)
+			if ( product && !product->groupBody->flags.data )
 				product->setCount(0);
 			if ( product && !product->parent )
 				product->parent = target;

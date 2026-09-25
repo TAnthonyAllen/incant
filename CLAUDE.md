@@ -3269,6 +3269,15 @@ DELETE `groupDirectives` and `IncantForms/WorkingOn/incant++` — ignored now, t
 Time Machine. **Git overwrites an ignored file without warning when a checkout needs its path.**
 Before ANY build of an older commit, list what it tracks that HEAD ignores:
 `comm -23 <(git ls-tree -r --name-only <old> | sort) <(git ls-tree -r --name-only HEAD | sort) | git check-ignore --stdin`.
+⚠ **THE CLONE RECIPE, paid for 2026-09-25 (dating `nullAccessorDeref`):** clone ALL THREE repos at one
+date -- Groups, `InProcess/TOK`, and the support repo, whose top level is `data/support`, NOT
+`InProcess/Include` (Include, Frame and KeyTable are symlinks into it). **`TOK.xcodeproj` carries ~50
+ABSOLUTE `/Users/anthony/Dropbox/data/InProcess/...` paths**, so a plain clone build compiles old `.mm`
+against TODAY's headers -- rewrite them in the clone's `project.pbxproj` to the clone root. Link
+`Parse` and `Tokf` (separate repos, header paths only) live, and say so. **Build from the committed
+`.mm`; do not retok** -- `GroupRules.twk` includes the `.rtn` files by absolute live path, so a retok
+in the clone reads the live tree. Run fixtures from INSIDE the clone's Groups (setup loads by relative
+path), with a `-derivedDataPath` per clone, and check the build log for live Groups paths (want 0).
 
 ⚠ **FIXIT CITIZENS ARE NOT CLOD'S TO MINT (Rule F2, Tony, 2026-09-01).** A finding goes in the
 **seal**; whether it becomes a citizen in `incant/fixits/` is Tony's or Clay's ruling. Clod may
