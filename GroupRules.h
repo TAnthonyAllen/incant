@@ -145,7 +145,6 @@ extern "C" void clearWalked(GroupItem *field);
 extern "C" int closeFile(GroupItem *bufField);
 extern "C" GroupItem *compile(GroupItem *field);
 extern "C" GroupItem *compileStored(GroupItem *rule);
-extern "C" GroupItem *concatEQ(GroupItem *target, GroupItem *argument);
 extern "C" GroupItem *copyOf(GroupItem *grup);
 extern "C" int countRuleTerms(GroupItem *rule);
 extern "C" char *dataName(int d);
@@ -232,7 +231,6 @@ extern "C" GroupItem *jitEmitRem(GroupItem *argument, GroupItem *target, GroupIt
 extern "C" int jitEmitReturn();
 extern "C" int jitEmitSelfCall(GroupItem *argument, GroupItem *action);
 extern "C" GroupItem *jitEmitShortCircuit(GroupItem *field);
-extern "C" GroupItem *jitEmitStringPlusEQ(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *jitEmitSub(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *jitEmitTermCall(GroupItem *field);
 extern "C" void jitEmitTrace(GroupItem *field);

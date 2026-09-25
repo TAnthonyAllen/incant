@@ -163,7 +163,7 @@ define
     '%'     operateMethod=opRem;
     '!='    operateMethod=opNotEQ  interpretMethod=runNotEQ  jitEmitter=jitEmitNE;
     '!'     unary ruleMethod=opNOT;
-    '+='
+    '+='    // keep this entry LAST: its members' closing ; closes the define (section 9)
         '+=isCOUNT'  operateMethod=opPlusEQisCOUNT;
         '+=isNUMBER' operateMethod=opPlusEQisNUMBER;
         '+=isSTRING' operateMethod=opPlusEQisSTRING;

@@ -2143,22 +2143,6 @@ GroupItem 	*out = 0;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/* concatEQ  the runtime helper the string-+= JIT call lands on. All the member
-   work (getText/setText) and the variadic concat happen here as ordinary C++ —
-   this IS the interpreter's isSTRING += body (cf. GroupRules.mm string-concat
-   site). Two real GroupItem pointers in, target (mutated in place) out. Its
-   address is stable and directly addressable, so jitEmitStringPlusEQ can bake it
-   as a constant callee — no variadic IR, no member-function-pointer IR. (One-arg
-   parts-walking `concatenate` is the general primitive to follow; the += write-
-   back needs target by identity, which two explicit pointers give for free.) */
-extern "C" GroupItem *concatEQ(GroupItem *target, GroupItem *argument)
-{
-	
-	target->setText(::concat(2, target->getText(), argument->getText()));
-	return target;
-	
-}
-
 /*******************************************************************************
 	copyOf() makes a copy of the field passed in. The copy groupBody is a copy.
     if the source isVirtual the copy will share the same list as grup (the source).
@@ -5838,39 +5822,6 @@ int 		isAND = 0;
 	
 	jitScEnd(field);
 	return field;
-}
-
-/* jitEmitStringPlusEQ  the FIRST CreateCall in the JIT layer, and the proof-of-
-   concept for jitEmitCall. Bakes target's and argument's stable GroupItem
-   addresses as constant ptrs (jitSeedField pattern), then emits a single call to
-   concatEQ (callee baked by address) — GroupItem(GroupItem,GroupItem). The +=
-   side effect (setText through to target's real storage) is the payload; the
-   i32() driver can't ret a pointer, so cap gJitResult with a constant 0 and verify
-   by reading target's text back in interpreted incant (the jitAssign readback
-   pattern). The call is left untagged (NOT readnone) so LLVM can't DCE a callee it
-   can't see into. */
-extern "C" GroupItem *jitEmitStringPlusEQ(GroupItem *argument, GroupItem *target)
-{
-	
-	llvm::IRBuilder<> *b = gJitBuilder;
-	llvm::LLVMContext &ctx = b->getContext();
-	llvm::Type *ptr = llvm::PointerType::getUnqual(ctx);
-	llvm::Type *i32 = llvm::Type::getInt32Ty(ctx);
-	llvm::Type *i64 = llvm::Type::getInt64Ty(ctx);
-	
-	llvm::Value *targetAddr = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)target), ptr);
-	llvm::Value *argAddr = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)argument), ptr);
-	
-	llvm::FunctionType *fnTy = llvm::FunctionType::get(ptr, {ptr, ptr}, false);
-	llvm::Value *callee = b->CreateIntToPtr(
-	llvm::ConstantInt::get(i64, (uint64_t)&concatEQ), ptr);
-	b->CreateCall(fnTy, callee, {targetAddr, argAddr});
-	
-	gJitResult = llvm::ConstantInt::get(i32, 0);
-	return target;
-	
 }
 
 extern "C" GroupItem *jitEmitSub(GroupItem *argument, GroupItem *target)
@@ -9848,51 +9799,14 @@ extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target)
 }
 
 /***************************************************************************
-	Rule action for the += operator.
+	Rule action for the += operator -- NOW ONLY THE NAMED REFUSAL.
 
-    ⚠⚠ THE TABLE-ARC PROBE (T1, 2026-08-01): SHARED DISPATCH, FORKED LEAVES.
-    This op is the worked example for the whole table arc, so the shape matters
-    more than the op does.
-
-    WHAT CHANGED: the `if jitting` gate USED TO SIT AT THE TOP OF THE FUNCTION
-    and re-decide isSTRING/isTOKEN/isCOUNT/isNUMBER -- the very question the
-    switch below already answers from the carried `datA`. Two decisions, one
-    fact, and they can disagree. That disagreement is not hypothetical: it is
-    exactly why jit.md S3.5 can list SEVEN ops whose gate fires assuming a
-    numeric target, and why the same list called the compound family
-    "list-blind" -- the top gate never saw the list arms above the switch.
-
-    NOW: ONE dispatch tree, and each LEAF forks do-vs-emit. A forked leaf cannot
-    disagree with itself, because there is only one place the type is read.
-
-    THE THREE LEAF KINDS, per T1:
-      scalar  count/number  -> emit (jitEmitBinary + store-back)
-              string/token  -> emit (jitEmitStringPlusEQ, the ruled two-arg
-                               exception and the layer's only CreateCall)
-      fallback / uncovered  -> DEGRADE LOUDLY. Buffer, Stak and the default arm
-                               call jitDegrade and then RUN THE INTERPRETED BODY.
-    ⚠ THE DEGRADE ARMS ARE THE POINT, not decoration. jitDegrade had ZERO call
-    sites after the iterator rework, so every ladder rung's `degrade count = 0`
-    was VACUOUS -- true, but unable to move. These are its first real citizens:
-    the counter can now be moved by a construct, so the assertion means something
-    again.
-
-    ⚠ THE DEGRADE IS NOW EXHAUSTIVE, and that is what turns it into a guarantee.
-    The first cut covered only the switch's leaves and left the three arms ABOVE
-    it (35a list-concat, copyListTo, the `binType || groupList` append) plus the
-    two tail arms silent. They are list/structure shaped, have no emitter, and
-    under jitting would EXECUTE AT EMIT TIME -- the side effect happening once at
-    compile time while the compiled code does nothing, which is the "it appears
-    to work and it lies" failure. The old top gate HID that by returning before
-    them for scalar targets; it never fixed it.
-    EVERY arm of this function now either EMITS or DEGRADES LOUDLY. A partial
-    guarantee is not one: with any arm left silent, "no degrade fired" would mean
-    "covered OR silently fell through", which is precisely the ambiguity T1 was
-    written to remove.
-    ⚠ NOTE WHAT A DEGRADE ON A SIDE-EFFECTING ARM ACTUALLY BUYS. It does not make
-    emit-time execution correct -- it makes it COUNTED. That is S0's crossover
-    policy exactly: degrade to the oracle LOUDLY. The divergence is still
-    divergence; it is no longer invisible.
+    FINISH += (Tony, 2026-09-25): every kind this op used to handle is a MEMBER
+    of '+=' (opPlusEQisCOUNT ... opPlusEQstruct, below), picked per fire by
+    pickKindOP on both roads. This is the answer for a pick with no member.
+    The T1 dispatch tree that lived here -- shared dispatch, forked leaves,
+    exhaustive degrades -- is retired; its reasoning is in git history (and the
+    degrade citizen it created moved to a cerr: jitLadder rung JPd).
 ***************************************************************************/
 extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target)
 {
