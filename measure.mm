@@ -585,6 +585,26 @@ extern "C" GroupItem *measureParseResult(GroupItem *field, GroupItem *result)
 	return result;
 }
 
+/*  WHICH BRANCH OF opPlusEQ A FIRE TOOK, with the target's kind and shape and the
+    argument's. The census instrument for the per-kind += split: it is the before-
+    picture of every pre-switch branch, and it goes silent as members take them.
+    Armed by INCANT_PEQ_PROBE, inert otherwise. Reads what it is handed.
+    measure.measurePlusEQBranch  */
+extern "C" GroupItem *measurePlusEQBranch(char *branch, GroupItem *target, GroupItem *argument)
+{
+	
+	if ( ::getenv("INCANT_PEQ_PROBE") && target )
+	::fprintf(stderr,"PEQBRANCH %s tkind=%s tstruct=%d tRule=%d tag=%s akind=%s aList=%d\n",
+	branch, ::dataName(target->groupBody->flags.data),
+	(target->groupBody->flags.binType || target->groupBody->groupList) ? 1 : 0,
+	(target->groupBody->flags.isRule || target->groupBody->flags.actionType) ? 1 : 0,
+	target->groupBody->tag ? target->groupBody->tag : "(untagged)",
+	argument ? ::dataName(argument->groupBody->flags.data) : "(null)",
+	(argument && isLIST(argument->groupBody->flags.binType)) ? 1 : 0);
+	
+	return target;
+}
+
 /*  measure.measurePlusEQWrite  */
 extern "C" GroupItem *measurePlusEQWrite(GroupItem *field)
 {

@@ -37,6 +37,7 @@ extern "C" GroupItem *measureMarkArm(GroupItem *driveNode);
 extern "C" GroupItem *measureMarkPoint(char *where);
 extern "C" GroupItem *measureParentProbe(GroupItem *field);
 extern "C" GroupItem *measureParseResult(GroupItem *field, GroupItem *result);
+extern "C" GroupItem *measurePlusEQBranch(char *branch, GroupItem *target, GroupItem *argument);
 extern "C" GroupItem *measurePlusEQWrite(GroupItem *field);
 extern "C" GroupItem *measurePlusPlusWrite(GroupItem *field);
 extern "C" GroupItem *measureRuleDispatch(GroupItem *op, GroupItem *target, GroupItem *arg);

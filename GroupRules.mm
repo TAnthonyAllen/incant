@@ -9904,6 +9904,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	measurePlusEQWrite(target);
 	if ( isLIST(argument->groupBody->flags.binType) && (!target->groupBody->flags.data || isSTRING(target->groupBody->flags.data) || isTOKEN(target->groupBody->flags.data)) )
 		{
+		measurePlusEQBranch("A",target,argument);
 		if ( ruler->jitting )
 			::jitDegrade("+= list-concat into a string target",target);
 		Buffer *concatBuf = (Buffer*)ruler->bufferSTAK->pop();
@@ -9916,6 +9917,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		}
 	if ( isLIST(argument->groupBody->flags.binType) )
 		{
+		measurePlusEQBranch("B",target,argument);
 		if ( ruler->jitting )
 			::jitDegrade("+= copyListTo a list argument",target);
 		argument->copyListTo(target);
@@ -9923,6 +9925,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	else
 	if ( !target->groupBody->flags.isRule && !target->groupBody->flags.actionType && (target->groupBody->flags.binType || target->groupBody->groupList) )
 		{
+		measurePlusEQBranch("C",target,argument);
 		if ( ruler->jitting )
 			::jitDegrade("+= structural append (binType/groupList)",target);
 		target->addMember(argument);
@@ -9930,6 +9933,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	else
 	if ( argument->groupBody->flags.data )
 		if ( target->groupBody->flags.data )
+			{
+			measurePlusEQBranch("S",target,argument);
 			switch (target->groupBody->flags.data)
 				{
 				case 5:
@@ -9972,12 +9977,15 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 						::jitDegrade("+= on an unhandled datA",target);
 					else	::fprintf(stderr,"ERROR Operator += failed on %s and %s\n",target->groupBody->tag,argument->groupBody->tag);
 				}
+			}
 		else {
+			measurePlusEQBranch("E",target,argument);
 			if ( ruler->jitting )
 				::jitDegrade("+= into a target with no datA",target);
 			target->copyData(argument);
 			}
 	else {
+		measurePlusEQBranch("F",target,argument);
 		if ( ruler->jitting )
 			::jitDegrade("+= with a dataless argument",target);
 		target->addMember(argument);
@@ -14255,6 +14263,12 @@ int 	result = 0;
 	isDotUxp(GroupItem*)
 	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
+	measurePlusEQBranch(char*,GroupItem*,GroupItem*)
+	measurePlusEQBranch(char*,GroupItem*,GroupItem*)
+	measurePlusEQBranch(char*,GroupItem*,GroupItem*)
+	measurePlusEQBranch(char*,GroupItem*,GroupItem*)
+	measurePlusEQBranch(char*,GroupItem*,GroupItem*)
+	measurePlusEQBranch(char*,GroupItem*,GroupItem*)
 	measurePlusPlusWrite(GroupItem*)
 	floor(double)
 */

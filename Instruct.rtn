@@ -1027,6 +1027,7 @@ GroupRules  ruler = groupRules;
 use target
     measurePlusEQWrite(target);
     if argument.isLIST && (!data || isSTRING || isTOKEN) {
+        measurePlusEQBranch("A",target,argument);
         if jitting  jitDegrade("+= list-concat into a string target",target);
         Buffer  concatBuf = bufferSTAK.pop();
         if !concatBuf   concatBuf = new("concat buffer");
@@ -1034,13 +1035,16 @@ use target
         appendGroup(argument,0,concatBuf);
         return opString(target,concatBuf); }
     if argument.isLIST {
+        measurePlusEQBranch("B",target,argument);
         if jitting  jitDegrade("+= copyListTo a list argument",target);
         argument.copyListTo(target); }
     or !isRule && !actionType && (binType || groupList) {
+        measurePlusEQBranch("C",target,argument);
         if jitting  jitDegrade("+= structural append (binType/groupList)",target);
         target += argument; }
     or argument.data
-        if data
+        if data {
+            measurePlusEQBranch("S",target,argument);
             switch(data) {
                 case isCOUNT:
                     if jitting {
@@ -1070,10 +1074,13 @@ use target
                 default:
                     if jitting  jitDegrade("+= on an unhandled datA",target);
                     else cerr "ERROR Operator += failed on",tag,"and",argument.tag:; }
+            }
         else {
+            measurePlusEQBranch("E",target,argument);
             if jitting  jitDegrade("+= into a target with no datA",target);
             target.copyData(argument); }
     else {
+        measurePlusEQBranch("F",target,argument);
         if jitting  jitDegrade("+= with a dataless argument",target);
         target += argument; }
     return target;
