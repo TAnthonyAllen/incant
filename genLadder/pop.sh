@@ -4975,6 +4975,28 @@ else
     fail=1
 fi
 
+#  ⚑ THE DRIVE CENSUS (SEQ 175 item B, installed SEQ 179 P1) -- EVERY CALLER OF pushInput, BY
+#  NAME. A drive is a parse run over diverted input, and pushInput (GroupRules.twk) is the one
+#  writer of inputSTAK, so its callers ARE the drive seats. probeDrive bypassing driveStep was
+#  found by accident (ipc SEQ 123) and treeOf/demoRprime by a census (SEQ 124); this row is what
+#  finds the next one. A caller not in the list goes RED BY NAME, to be classed: drive (it must
+#  go through driveStep, Tony 2026-09-25), divert (include), compile (processCode) or bootstrap.
+#  ⚠ codeOnly.py IS LOAD-BEARING: without it the census reads 8 -- a pushInput( inside a
+#  COMMENT at GroupActions.rtn's runOP counts as a caller. An EMPTY set fails too (a broken
+#  extractor reads zero). H7: DRIVE_CENSUS_DIR pointed at a copy with one extra caller goes red
+#  naming it. When P3 routes treeOf and demoRprime through driveStep they LEAVE this list.
+_dcDir=${DRIVE_CENSUS_DIR:-.}
+_dcGot=$(for _f in "$_dcDir"/*.twk "$_dcDir"/*.rtn; do python3 genLadder/codeOnly.py "$_f" 2>/dev/null | awk -v F="$(basename "$_f")" '/^(extern |[A-Za-z]+ +)?[A-Za-z*]+ +[A-Za-z_]+\(.*\)[ \t]*$/ && !/;/ {fn=$0} /pushInput\(/ && !/int pushInput/ {sub(/\(.*/,"",fn); n=split(fn,a," "); print F":"a[n]}'; done | LC_ALL=C sort -u | tr "\n" " ")
+_dcWant="Commands.rtn:loadInputFromFile GroupActions.rtn:driveStep GroupActions.rtn:processCode GroupMain.twk:bootstrapper genParse.rtn:demoRprime genParse.rtn:treeOf jitEmitters.rtn:jitProbeDrive "
+if [ -n "$_dcGot" ] && [ "$_dcGot" = "$_dcWant" ]; then
+    echo "  ok    drive census: pushInput's callers are the 7 named seats"; green=$((green+1))
+else
+    echo "  FAIL  drive census MOVED -- pushInput's callers are not the 7 named seats; class every newcomer"
+    echo "          actual:   ${_dcGot:-(none -- the extractor read nothing)}"
+    echo "          expected: $_dcWant"
+    fail=1
+fi
+
 #  ⚑ trigDO -- THE NEW PARSE ROAD'S FIRST STANDING COVERAGE. Until 2026-09-09
 #  NO FLEET FIXTURE REACHED parseRule AT ALL: the 09-08 H7 control forced
 #  ruleAsLabel to 1, refusing EVERY generated parse, and the fleet stayed at 243
