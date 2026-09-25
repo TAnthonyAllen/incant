@@ -1189,6 +1189,8 @@ use ruler
     int floorPushed = 0;
     int priorIndent = ruler->lastIndent, priorDefining = ruler->defining;
     if ( field && field->groupBody->flags.data ) { gParseActive = &driveFloor; floorPushed = 1; }
+    // driveScope a drive entered while FIRING is its own recording scope (parse-then-fire, 2026-09-25)
+    int scoped = ( field && field->groupBody->flags.data ) ? ::ptfScopeOpen() : 0;
     %-
     if field && field.data {
         divertToRule    = true;
@@ -1233,6 +1235,7 @@ use ruler
         popInput();
     if field && field.data  measureMarkPoint("2c-after-pop");
     // driveFloor pop the floor before the single return
+    -% if ( scoped ) result = ::ptfScopeClose(rule,result); %-
     -% if ( floorPushed ) gParseActive = driveFloor.prev; %-
     return result;
 }

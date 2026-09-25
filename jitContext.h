@@ -722,6 +722,11 @@ inline int gPtfAttN = 0, gPtfAttCap = 0;
 // statement-above search at the first of these, so its own top StatemenT flushes its own records (reentrant replay)
 inline RuleStuff *gPtfWalking[64];
 inline int gPtfWalkingN = 0;
+// THE RECORDING SCOPE STACK (2026-09-25): a drive entered while firing opens one; its end replays the
+// records made since, from the drive's own root. Written only by ptfScopeOpen / ptfScopeClose (driveStep).
+struct PtfScope { int base; int attBase; int walkMark; };
+inline PtfScope gPtfScope[64];
+inline int gPtfScopeN = 0;
 inline int ptfOn()
 {
     if ( gPtfMode < 0 ) { const char *e = ::getenv("PTF"); gPtfMode = (e && *e == '0') ? 0 : 1; }

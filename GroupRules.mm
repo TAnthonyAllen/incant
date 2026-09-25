@@ -2483,6 +2483,8 @@ char 		*driveBase = 0;
 	int floorPushed = 0;
 	int priorIndent = ruler->lastIndent, priorDefining = ruler->defining;
 	if ( field && field->groupBody->flags.data ) { gParseActive = &driveFloor; floorPushed = 1; }
+	// driveScope a drive entered while FIRING is its own recording scope (parse-then-fire, 2026-09-25)
+	int scoped = ( field && field->groupBody->flags.data ) ? ::ptfScopeOpen() : 0;
 	
 	if ( field && field->groupBody->flags.data )
 		{
@@ -2537,6 +2539,7 @@ char 		*driveBase = 0;
 	if ( field && field->groupBody->flags.data )
 		::measureMarkPoint("2c-after-pop");
 	// driveFloor pop the floor before the single return
+	 if ( scoped ) result = ::ptfScopeClose(rule,result); 
 	 if ( floorPushed ) gParseActive = driveFloor.prev; 
 	return result;
 }
@@ -12373,13 +12376,11 @@ extern "C" int ptfRecord(GroupItem *field, RuleStuff *stuff, int held)
 	
 }
 
-// ptfStatementEnd the replay half: at a TOP-LEVEL StatemenT's fire, walk every record reachable from its label tree in record order (post-order), replay the hold or fire, and put each returned node back in its child's place as attachLabel would have
-extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
+// ptfReplayRecords the replay CORE, shared by a top-level statement's end and a drive's end (the recording scope): replay every record in the current set reachable from stuff's label, in record order, then write the substituted root back to stuff
+extern "C" GroupItem *ptfReplayRecords(RuleStuff *stuff)
 {
 	
 	GroupRules *ruler = GroupControl::groupController->groupRules;
-	if ( !ptfOn() || ruler->processingCode || !::ptfIsStmt(field) || ::ptfStmtAbove(stuff) ) return 0;
-	if ( !gPtfN ) return 0;
 	PtfRec *recs = gPtfRecs;
 	int n = gPtfN;
 	gPtfRecs = 0; gPtfN = 0; gPtfCap = 0;
@@ -12472,7 +12473,6 @@ extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
 	::measureFireOrder(r->rule,L,1,1,r->origTag);
 	L->setMethod(r->method);
 	L->groupBody->flags.deferred = 1;
-	if ( !L->groupBody->flags.data ) L->setText(::concat(2,"g",r->rule->groupBody->tag));
 	continue;
 	}
 	GroupItem *saved = r->stuff->label;
@@ -12537,6 +12537,64 @@ extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
 	if ( !fin ) stuff->sukcess = 0;
 	
 	return 0;
+}
+
+extern "C" GroupItem *ptfScopeClose(GroupItem *rule, GroupItem *result)
+{
+	
+	if ( !gPtfScopeN ) return result;
+	PtfScope sc = gPtfScope[--gPtfScopeN];
+	int n = gPtfN - sc.base, an = gPtfAttN - sc.attBase;
+	if ( n < 0 ) n = 0;
+	if ( an < 0 ) an = 0;
+	// the drive's own records, lifted out; nothing of them survives the drive
+	PtfRec *mine = n ? (PtfRec*)GC_malloc(sizeof(PtfRec) * n) : 0;
+	if ( n ) ::memcpy(mine,gPtfRecs + sc.base,sizeof(PtfRec) * n);
+	PtfAttach *mineAtt = an ? (PtfAttach*)GC_malloc(sizeof(PtfAttach) * an) : 0;
+	if ( an ) ::memcpy(mineAtt,gPtfAtt + sc.attBase,sizeof(PtfAttach) * an);
+	gPtfN = sc.base < gPtfN ? sc.base : gPtfN;
+	gPtfAttN = sc.attBase < gPtfAttN ? sc.attBase : gPtfAttN;
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	if ( !n || !rule || !result || result == ruler->falseResult || !rule->rStuff ) return result;
+	// the enclosing scope's records are set aside while the drive's replay runs, then put back
+	PtfRec *outRecs = gPtfRecs; int outN = gPtfN, outCap = gPtfCap;
+	PtfAttach *outAtt = gPtfAtt; int outAttN = gPtfAttN, outAttCap = gPtfAttCap;
+	gPtfRecs = mine; gPtfN = n; gPtfCap = n;
+	gPtfAtt = mineAtt; gPtfAttN = an; gPtfAttCap = an;
+	RuleStuff *st = rule->rStuff;
+	st->label = result;
+	if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DRIVEREPLAY rule=%s records=%d\n",rule->groupBody->tag,n);
+	::ptfReplayRecords(st);
+	GroupItem *fin = st->label;
+	gPtfRecs = outRecs; gPtfN = outN; gPtfCap = outCap;
+	gPtfAtt = outAtt; gPtfAttN = outAttN; gPtfAttCap = outAttCap;
+	return fin ? fin : ruler->falseResult;
+	
+}
+
+// ptfScopeOpen / ptfScopeClose THE RECORDING SCOPE (Tony, 2026-09-25, on ipc SEQ 121): a drive entered while FIRING -- a replay running above the innermost open scope's parse -- is its own root; a drive entered while a parse is in progress records into the enclosing scope, unchanged. ONE WRITER PAIR (these two, called only from driveStep); gPtfScope is read nowhere else
+extern "C" int ptfScopeOpen()
+{
+	
+	if ( !ptfOn() || ::getenv("PTF_NOSCOPE") ) return 0;
+	int mark = gPtfScopeN ? gPtfScope[gPtfScopeN-1].walkMark : 0;
+	if ( gPtfWalkingN <= mark ) return 0;
+	if ( gPtfScopeN >= 64 ) return 0;
+	PtfScope *sc = &gPtfScope[gPtfScopeN++];
+	sc->base = gPtfN; sc->attBase = gPtfAttN; sc->walkMark = gPtfWalkingN;
+	return 1;
+	
+}
+
+// ptfStatementEnd the replay half: at a TOP-LEVEL StatemenT's fire, walk every record reachable from its label tree in record order (post-order), replay the hold or fire, and put each returned node back in its child's place as attachLabel would have
+extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
+{
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	if ( !ptfOn() || ruler->processingCode || !::ptfIsStmt(field) || ::ptfStmtAbove(stuff) ) return 0;
+	if ( !gPtfN ) return 0;
+	return ::ptfReplayRecords(stuff);
+	
 }
 
 // ptfStmtAbove is a StatemenT activation above this one -- the activation list inside a drive, the parentStuff chain outside, as deferredAbove walks them
