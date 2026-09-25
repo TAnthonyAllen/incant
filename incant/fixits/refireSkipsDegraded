@@ -22,6 +22,9 @@ fixRefireSkipsHere = 0;
 cerr "SENTINEL refireSkipsDegraded reached the foot":;
 stop();
 
+LANE:  jit
+BLAST: OVERLAPS
+
 refireSkipsDegraded -- A REFIRE SILENTLY SKIPS EVERY STATEMENT THAT DEGRADED AT COMPILE.
 
 Minted 2026-09-25 by Tony's dispatch (the per-kind += follow-ups: "a refire must never
