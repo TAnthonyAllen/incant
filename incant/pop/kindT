@@ -1,0 +1,67 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(KindT);
+define
+    kE;
+    kR4=5;
+    kFour=4;
+    kWalk code={
+        iterate kCur on argument;
+        while ++kCur;
+            *kCur += 2;
+        };
+    kShow code={
+        iterate kShC on argument;
+        while ++kShC;
+            cerr "R1 value " *kShC:;
+        };
+    kRun code={
+        cerr "MARK R1 begin":;
+        kWalk(kList);
+        cerr "MARK R1 end":;
+        kShow(kList);
+        cerr "MARK R2a begin":;
+        kE += 4;
+        cerr "MARK R2a end":;
+        cerr "R2a value " kE:;
+        cerr "MARK R2b begin":;
+        kE += 6;
+        cerr "MARK R2b end":;
+        cerr "R2b value " kE:;
+        cerr "MARK R4 begin":;
+        kR4 +=kFour;
+        cerr "MARK R4 end":;
+        cerr "R4 value " kR4:;
+        };
+    kList
+        kA=1;
+        kB="x";
+        kC=3;
+    ;
+kRun();
+cerr "KINDT SENTINEL -- reached the foot":;
+stop();
+
+kindT -- THE PER-KIND += SPLIT, INTERPRETED ROAD. Minted 2026-09-25 with the
+first per-kind member, the one named plus-equals isCOUNT on the plus-equals
+operator, picked per fire by the checkOP seat in runOP.
+
+Run it with INCANT_KIND_PROBE=1 so measureKindArm prints a KINDARM line naming
+the method and its target each time the count method runs. Every row reads
+the KINDARM lines between its own MARK pair, so a row names which arm fired as
+well as the value it produced.
+
+R1  an iterate cursor walks a MIXED-kind list and adds 2 to each member. The
+    count members pick the member method, the string member does not, all in
+    one walk: arms kA kC, values 3 x2 5. This is the row a build-time pick
+    fails, because one node sees three kinds.
+R2  an EMPTY target typed by its first plus-equals. The first fire picks by
+    the ARGUMENT's kind, lands in the member method and is handed back to
+    opPlusEQ whole because the target is not a count yet: no arm, value 4. The
+    second fire picks by the now-typed target: arm kE, value 10.
+R4  plus-equals written against its argument with no space. The tokenizer
+    still reads plus-equals: arm kR4, value 9.
+
+The jitted road is kindJitT, a separate process by bear-trap 25.

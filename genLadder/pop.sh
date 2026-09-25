@@ -5033,6 +5033,44 @@ else
     echo "        was parsed and its failure abandoned the run."; fail=1
 fi
 
+
+#  ---------------------------------------------------------------------------
+#  kindT / kindJitT -- THE PER-KIND += SPLIT. Minted 2026-09-25 with the first
+#  member, '+=isCOUNT' -> opPlusEQisCOUNT, picked per fire by checkOP in runOP.
+#  The fork is value-transparent by construction, so EVERY ROW ASSERTS THE ARM
+#  BY NAME AS WELL AS THE VALUE: the tags of the KINDARM lines between a row's
+#  own MARK pair, compared as a string. A missing arm reads as "" and fails the
+#  rows that want one; R2a wants "" and is paired with R2b, which wants kE.
+#  Armed by INCANT_KIND_PROBE (measureKindArm), for these two runs only.
+#  H7, measured on the fixture alone 2026-09-25: with the member unregistered
+#  every KINDARM goes and every value stays the same.
+kindArms () {                   # kindArms <file> <region>  -> tags, space-joined
+    awk -v r="$2" '$0 ~ "^MARK "r" begin" {on=1; next} $0 ~ "^MARK "r" end" {on=0}
+        on && /^KINDARM / { sub(/^.*tag=/,""); sub(/ .*/,""); t = t (t==""?"":" ") $0 }
+        END {print t}' "$1"
+}
+kindRow () {                    # kindRow <label> <got> <want>
+    if [ "$2" = "$3" ]; then echo "  ok    $1 = [$3]"; green=$((green+1))
+    else echo "  FAIL  $1 -- got [$2] want [$3]"; fail=1; fi
+}
+export INCANT_KIND_PROBE=1
+run1 kindT "$T/kind";        check "kindT runs" 0 $?
+run1 kindJitT "$T/kindj";    check "kindJitT runs" 0 $?
+unset INCANT_KIND_PROBE
+sentinel "kindT sentinel" "$T/kind" "KINDT SENTINEL"
+sentinel "kindJitT sentinel" "$T/kindj" "KINDJITT SENTINEL"
+kindRow "kindT R1 mixed-kind walk: arms"     "$(kindArms "$T/kind" R1)"  "kA kC"
+kindRow "kindT R1 mixed-kind walk: values"   "$(grep '^R1 value' "$T/kind" | awk '{print $3}' | tr '\n' ' ')" "3 x2 5 "
+kindRow "kindT R2a empty target, 1st fire: arms" "$(kindArms "$T/kind" R2a)" ""
+kindRow "kindT R2a empty target, 1st fire: value" "$(grep '^R2a value' "$T/kind" | awk '{print $3}')" "4"
+kindRow "kindT R2b now-typed, 2nd fire: arms"    "$(kindArms "$T/kind" R2b)" "kE"
+kindRow "kindT R2b now-typed, 2nd fire: value"   "$(grep '^R2b value' "$T/kind" | awk '{print $3}')" "10"
+kindRow "kindT R4 no-space +=: arms"         "$(kindArms "$T/kind" R4)"  "kR4"
+kindRow "kindT R4 no-space +=: value"        "$(grep '^R4 value' "$T/kind" | awk '{print $3}')" "9"
+kindRow "kindJitT R3 values jit1 jit2 oracle" "$(grep '^R3 ' "$T/kindj" | awk '{print $NF}' | tr '\n' ' ')" "8 17 8 "
+kindRow "kindJitT R3 arms (emit + oracle)"   "$(grep '^KINDARM ' "$T/kindj" | sed 's/^.*tag=//; s/ .*//' | tr '\n' ' ')" "kjN kjN "
+kindRow "kindJitT R3 degrade count"          "$(grep -o 'jitDegrade count = [0-9]*' "$T/kindj" | awk '{print $NF}')" "0"
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi
