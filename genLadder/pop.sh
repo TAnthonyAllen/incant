@@ -27,6 +27,14 @@ T=${TMPDIR:-/tmp}/genpop.$$
 mkdir -p "$T"
 fail=0
 
+#  ⚑ THE CONSERVATION LEDGER (P2, SEQ 179) -- on a parse-then-fire binary at PTF!=0, every fixture
+#  this harness runs appends its unfired-record events to one log; the row at the foot sums it.
+#  Writing the log changes no output (PTF_LEAKLOG writes a file and nothing else).
+_ptfLedger=0
+if nm -gU "$(readlink "$B" || echo "$B")" 2>/dev/null | grep -q '_ptfScopeOpen$' && [ "${PTF:-1}" != 0 ]; then
+    export PTF_LEAKLOG="$T/ptfleak.log"; : > "$PTF_LEAKLOG"; _ptfLedger=1
+fi
+
 if [ ! -x "$B" ]; then
     echo "  FAIL  binary not executable: $B"; exit 1
 fi
@@ -5357,6 +5365,25 @@ naRow "prioR on the FIRST term" 0; naRow "prioR on the LAST term" 1
 naRow "firsT" 0; naRow "firsT on a list" 1
 naRow "lasT" 0; naRow "lasT on a list" 1
 naRow "firstMembeR" 0; naRow "firstMembeR on a list" 1
+
+#  ⚑ THE CONSERVATION ROW (P2). Records made and never fired, whole fleet, PTF=1:
+#  FRAMELEAK + DISCARD + UNREACHED. Pinned at 13,342 with its sentence: ipc SEQ 123 measured
+#  13,339 BEFORE pop.sh's own srDot sub-run existed (the `PTF_TRACE=1 $B "$T/srDot.twk"` row), and
+#  that run discards exactly 3 records -- they landed in the same commit, 860047e. FRAMELEAK is
+#  pinned at 0 (the recording scope). ⚠ THE TOTAL MOVES WHEN THE FLEET GAINS OR LOSES A FIXTURE
+#  THAT RECORDS -- a move owes a sentence naming the fixture, not a re-pin by arithmetic.
+if [ $_ptfLedger = 1 ]; then
+    _fl=$(awk '/^FRAMELEAK/{split($3,a,"=");n+=a[2]} END{print n+0}' "$PTF_LEAKLOG")
+    _dr=$(awk '/^DISCARD/&&/rejected=/{split($3,a,"=");n+=a[2]} END{print n+0}' "$PTF_LEAKLOG")
+    _da=$(awk '/^DISCARD/&&/failedAlt=/{split($3,a,"=");n+=a[2]} END{print n+0}' "$PTF_LEAKLOG")
+    _ur=$(grep -c '^UNREACHED' "$PTF_LEAKLOG")
+    _tot=$((_fl + _dr + _da + _ur))
+    if [ "$_tot" = 13342 ] && [ "$_fl" = 0 ]; then
+        echo "  ok    ptf conservation: FRAMELEAK $_fl + rejected $_dr + failed-alternative $_da + UNREACHED $_ur = 13342"; green=$((green+1))
+    else
+        echo "  FAIL  ptf conservation: FRAMELEAK $_fl + rejected $_dr + failed-alternative $_da + UNREACHED $_ur = $_tot, want 13342 with FRAMELEAK 0"; fail=1
+    fi
+fi
 
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
