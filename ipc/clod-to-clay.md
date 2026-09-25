@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 126 at the FOOT -- STOPPED at item 1: trunk's JSON tree is ALREADY last-value-only, so the H7 control cannot discriminate
+STATUS:   fresh           # SEQ 127 at the FOOT -- JSONfield fix WORKS and is fleet-neutral, NOT landed: arrays stay broken by JSONarray's own yield (outside 'fix nothing else')
+# prior: SEQ 126 -- STOPPED at item 1: trunk's JSON tree is ALREADY last-value-only, so the H7 control cannot discriminate
 # prior: SEQ 125 -- A: nothing lost; STOPPED in item C on a NONE row (JSON: the yield channel builds the data tree)
 # prior: SEQ 124 -- STEP-2 RECON STOPPED at 5b: two drive seats bypass both known seats (treeOf, demoRprime)
 # prior: SEQ 123 -- ruling (ii) BUILT; FRAMELEAK 0; the loss accounting closes; go/no-go re-read
@@ -7268,3 +7269,55 @@ THE QUESTION, for Tony: which order?
 
 STATE: trunk jit-unified-emit-wip, installed and BARE (not rebuilt this round), fleet
 742 / 2 as of SEQ 125. Only ipc/ edited.
+
+===================================================================
+SEQ 127  --  2026-09-25  --  Clod
+SEQ 177 STROKE 1 (JSONfield mints per fire) -- THE FIX WORKS, THE CERTIFICATE DOES NOT:
+ARRAYS ARE LOST BY JSONarray, WHICH THE RULING SAYS NOT TO TOUCH. NOT LANDED.
+incant/utilities restored to HEAD (md5 8f62a482... both sides). No build, no retok needed
+(runtime incant only). Items 1-pin, 2, 3 not started.
+===================================================================
+
+THE FIX (tried, fleet-run, reverted -- one paste from landing):
+    JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={
+        jfOut := new(*JSONtoken);
+        *jfOut = *JSONvalue;
+        return *jfOut;
+        };
+  replacing `token <: JSONtoken; token = *JSONvalue; return token;`. The KEY comes from
+  *JSONtoken: `<: JSONtoken` read the LABEL's .text, which has no data and echoes its own
+  tag (#26) -- that is why every key read "JSONtoken".
+
+THE PROBE, same five cases, fix in place:
+  {"a":"b","c":"d"}               a=b, c=d            distinct bodies #2/#4   CORRECT
+  {"a":"b"}                       a=b                                         CORRECT
+  {"a":{"b":"c","d":"e"},"f":"g"} a (len 2), f=g      distinct bodies        CORRECT (nesting
+                                                                             intact, was len 0)
+  {"a":["x","y"]}                 a=y, len 0                                 WRONG
+  {"a":[]}                        a, no data; "nextGroup: ERROR JSONlist does not contain
+                                  a list" STILL PRINTS -- named, not chased; it did not
+                                  fall out of this fix
+  Every member across all five calls reads a DISTINCT body (#2, #4, #6 ... #14).
+
+WHY THE ARRAY STAYS WRONG -- measured inside JSONfield (addrOf + dumpContents on
+JSONvalue): JSONvalue ALREADY HOLDS THE STRING "y" when JSONfield fires. JSONarray's body
+(`if JSONlist; for grup in JSONlist; grup <: grup;`) yields its LAST STATEMENT'S VALUE --
+the last element -- in place of its label. Same defect class as JSONfield (a construct's
+value standing in for the structure), one rule over. Pre-fix it also read `y`, so the fix
+neither caused nor can cure it.
+
+FLEET WITH THE FIX IN PLACE: 742 / 2, red list IDENTICAL row for row (57). jsonTest runs
+green; its parked baseline row unchanged (still parked on the two nextGroup lines).
+So the fix is fleet-neutral -- which also says no row pins the JSON tree today.
+
+THE QUESTION, for Tony -- the certificate ("arrays intact") and the scope ("fix nothing
+else in JSON") cannot both hold:
+  (i) widen stroke 1 to JSONarray: it mints a fresh node and copies its elements in
+      (arguably the first half of the ruled collecting action, landed early on trunk);
+  (ii) land JSONfield alone and certify four cases, the array row PINNED RED with its
+      sentence until the collecting-actions stroke, the pin's H7 control still the
+      pre-fix source;
+  (iii) hold everything for the step-2 collecting-actions stroke.
+
+STATE: trunk jit-unified-emit-wip, installed and BARE, fleet 742 / 2, tree clean but
+ipc/. Probe files in scratchpad only.
