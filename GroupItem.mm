@@ -497,12 +497,13 @@ int 		spanLen = 0;
 GroupItem *GroupItem::checkOP(GroupItem *op)
 {
 GroupItem 	*dataOP = 0;
-	if ( !op->groupBody->groupList )
+	// membersGate an op with attributes but no members has nothing to pick; groupList alone is true for nearly every operator
+	if ( !op->groupBody->flags.hasMembers )
 		return op;
 	// nameOnStack the member name is built on the stack, never in stringBUFFER -- an op fires while other code is mid-fill
 	
 	char    name[128];
-	::snprintf(name,sizeof name,"%s%s",op->groupBody->tag,groupBody->flags.data ? ::dataName(groupBody->flags.data) : "list");
+	::snprintf(name,sizeof name,"%s%s",op->groupBody->tag,groupBody->flags.data ? getDataType() : "list");
 	dataOP = op->getMember(name);
 	
 	if ( dataOP )
@@ -1201,16 +1202,17 @@ int GroupItem::getCount()
 	return 0;
 }
 
-int GroupItem::getDataType()
+char *GroupItem::getDataType()
 {
+	// oneTable the kind NAME, from dataName -- the one data->name table; never a copy (Tony, 2026-09-25: was the integer)
 	if ( isGROUP(groupBody->flags.data) )
 		if ( getGroup() == this )
-			return 0;
+			return dataName(0);
 		else {
 			::fprintf(stderr,"ERROR getDataType on %s -- holds a group; say *\n",groupBody->tag);
-			return 0;
+			return dataName(0);
 			}
-	return groupBody->flags.data;
+	return dataName(groupBody->flags.data);
 }
 
 /***************************************************************************
@@ -2596,4 +2598,6 @@ GroupItem 	*group = 0;
 }
 /*	Warning: the following methods were referenced but not declared
 	floor(double)
+	dataName(int)
+	dataName(unsigned int)
 */

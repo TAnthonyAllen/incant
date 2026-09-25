@@ -79,7 +79,7 @@ Buffer *getBuffer();
 char getCharacter();
 PLGset *getCharacterSet();
 int getCount();
-int getDataType();
+char *getDataType();
 GroupItem *getFromList(char *name);
 GroupItem *getGroup();
 PLGset *getGuard();

@@ -83,7 +83,7 @@ String getCellText(GroupItem item)
 {
 GroupItem   group;
 String      text;
-int         dataType = item.getDataType();
+int         dataType = item.getDataType();   // getDataType returned the integer when this was written; it returns the kind NAME as of 2026-09-25 -- reference only, not updated
 Details     detail = item.getDetail();
     if !detail
         {

@@ -973,7 +973,7 @@ GroupItem   result,
             hand the list operators a COPY.   GroupActions.runOP.listOperand  */
     if target && target.isVirtual               target = copyOf(target);
     // perKindPick ruling 5: the kind-specific member is picked PER FIRE into this local op and NEVER written back to field; ahead of the jit slot fork so both roads share it
-    if op.groupList {
+    if op.hasMembers {
         if target && target.data    op = target.checkOP(op);
         or arg                      op = arg.checkOP(op); }
     /*  The seed gate must cover BOTH dispatch arms below, not just the
