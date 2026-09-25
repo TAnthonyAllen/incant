@@ -3,8 +3,9 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      120
-STATUS:   fresh           # SEQ 120 at the FOOT -- GO / NO-GO ROUND 2: srDot STRUCTURAL; job table has NONE rows
+SEQ:      121
+STATUS:   fresh           # SEQ 121 at the FOOT -- PART A STOPPED (parse-in-progress has two readings); PART B the yield brief
+STATUS-120: fresh        # SEQ 120 -- GO / NO-GO ROUND 2
 STATUS-119: fresh        # SEQ 119 -- GO / NO-GO EVIDENCE (round 1)
 STATUS-118: fresh        # SEQ 118 -- string-leaf returns IDENTICAL, candidate dead; SHUTDOWN SEAL
 STATUS-117: fresh        # SEQ 117 -- possibility 2; arity reading falsified; SEQ 116 corrected
@@ -6746,4 +6747,124 @@ ITEM 3 -- STATION 2's 13 MESSAGES: CONFIRMED, all 13.
 STATE
   parse-then-fire pushed (the srDot row on top of 0512109). Trunk reinstalled: fleet
   740/2, row for row plus the new srDot row (green). Canary 368.
+
+===================================================================
+SEQ 121  --  2026-09-25  --  Clod
+A: STEP-1 SCOPE REPAIR -- STOPPED BEFORE BUILDING, by its own clause
+B: THE YIELD BRIEF -- for Tony's ruling, case by case
+===================================================================
+
+A -- WHY NOTHING WAS BUILT
+  The ruling needs "parse in progress" as ONE fact read in ONE place. It does not exist
+  today, and what exists is read two ways -- the STOP clause, in its own words.
+  1. THE CANDIDATE, gParseActive (jitContext.h:706), is one stack with TWO WRITER SITES:
+     parseRule's per-activation bracket (Generate.rtn:271 push, :321 pop) and runRule's
+     drive floor (GroupActions.rtn:1191 push, :1236 pop).
+  2. IT ONLY SEES THE NEW ROAD. Measured with lldb at srDot's drive start, PTF=1, while the
+     file's own statement is mid-replay: the top of gParseActive is a FLOOR, the entry below
+     it another floor, and NO statement activation anywhere on the list -- the old road's
+     parse(), which the file's statements go through, pushes nothing. Old-road activity is
+     visible only through the parentStuff chain.
+  3. SO "PARSE IN PROGRESS" IS READ DIFFERENTLY IN TWO PLACES ALREADY: ptfStmtAbove
+     (Generate.rtn) and deferredAbove (GroupItem.twk:433) each have two modes -- walk the
+     activation list inside a drive, walk parentStuff outside one -- and replay-in-progress
+     is a third structure, gPtfWalking (Generate.rtn:640/786). A scope test built on any one
+     of them would answer differently for an old-road and a new-road parse.
+  4. AND THE HOOK IS MISSING, not merely mis-tested: a drive's ROOT never reaches
+     ptfStatementEnd, because the only trigger is fireLabelMethod on a StatemenT label and a
+     drive's root does not fire its own label -- it returns its verdict to runRule. So the
+     repair needs a replay seat at the drive's END (runRule's floor pop, GroupActions.rtn
+     :1236), which is outside fireLabelMethod.
+  WHAT WOULD UNBLOCK IT, offered not built: ONE NEW FACT with ONE writer pair -- a recording
+  scope stack, pushed where a scope starts (a top-level statement, and runRule's drive when
+  no scope is open or the open one is replaying) and popped where it ends -- read only by
+  ptfRecord and the new drive-end replay. Whether the old road should push activations
+  instead (one list for both roads) is the larger ruling and is Tony's.
+  NOTHING CHANGED: the branch is untouched this round (parse-then-fire df73ad6).
+
+B -- THE YIELD BRIEF (F-122 entry 7), SELF-CONTAINED
+
+  ENTRY 7, VERBATIM IN SUBSTANCE (docs/fixIts.md, F-122): a probe at fireLabelMethod's
+  adoption `stuff.label = stuff.actionMethod(stuff.label)`, printing a return that is
+  non-null, not the label handed in, and not isLabel, HIT EVERYWHERE -- fleet 314 lines,
+  ladder 275, sweepT 155 -- so the (b) guard is NOT ARMED. Shapes: pROPERTIEs nodes
+  (StatemenT, true, labelNO), a keyword (break), and LIVE FIELDS (s2C, s2Y, verdict,
+  JSONtoken). The StatemenT the print family hands back is the pROPERTIEs node, NOT the
+  grammar rule (measured isRule 0). "A RULING IS OWED AT A PAUSE (Tony, 2026-09-24): what
+  the yield channel may receive." Standing visibility: measureAdoption (parseTrace-gated),
+  and pop.sh's adoptT rows pin the live-field count at 1 (Iterate -> s2C), PROPERTY as the
+  non-zero sibling.
+
+  THE MECHANISM IN ONE LINE: one return, two meanings, told apart by the label's deferred
+  flag -- a construct fired DIRECTLY yields (its return replaces its label in the tree),
+  one run by its OWNER returns a value (ruleActions.rtn DO:447, FOR:555, IF:589,
+  WhilE:1230, Xpress:1246).
+
+  THE CASES -- each measured on the branch binary, both PTF settings AGREE on every one:
+  CASE 1  A LOOP (DO, FOR, WhilE)
+    today     DIRECT (top-level `do s2Y = s2Y + 1; while s2Y < 3;`): the fire yields; its
+              return stands in for the label. OWNER-run (inside an action): returns the
+              VALUE of its last body statement, or labelNO if the body never ran.
+    fixture   incant/pop/yieldT -- "YT DIRECT s2Y= 3", "YT OWNER value= 3" (pop.sh rows
+              "yieldT DIRECT" and "yieldT OWNER"); both roads identical.
+    step 2    the parent fires the loop and TAKES ITS RETURN AS A VALUE -- the owner-run
+              meaning, always. No tree substitution.
+    if ruled  the DIRECT meaning disappears; a top-level loop's return goes to the
+              statement root, which discards or keeps it as the ruling says. yieldT DIRECT
+              keeps its value (it reads s2Y, not the label); rows that read a loop's
+              adopted LABEL would move -- adoptT's FIELD row when the body yields a field
+              (census: BlocK -> s2Y, 33 in sweepT).
+  CASE 2  AN IF (and ElseIf)
+    today     same split at aCTionIF:589. Measured through the adoption witness: an IF,
+              IF/ELSE driven directly adopts NO non-label return on either road -- it hands
+              back its own label (or nothing).
+    fixture   new probe (not committed): probeDrive of `if 1 < 2; s2Y = 5;` and
+              `if 1 > 2; s2Y = 5; else s2Y = 6;` under the witness -- zero adoptions.
+    step 2    the value of the arm that ran.
+    if ruled  nothing adopts today, so no adoption row moves; a caller that reads an IF's
+              value would get the arm's value instead of the label.
+  CASE 3  AN EXPRESSION STATEMENT (Xpress)
+    today     owner-run returns its ExpressioN (Xpress:1246); direct: its label. Witness:
+              `s2Y = 7;` driven directly -- zero non-label adoptions.
+    step 2    the expression's value.
+    if ruled  no adoption row moves.
+  CASE 4  THE PRINT FAMILY (PrinT, CerR, CouT)
+    today     returns the pROPERTIEs node StatemenT (or `true`), which is ADOPTED in place
+              of the label. Witness: `cout 1;` -> kind=PROPERTY rule=CouT returned=StatemenT;
+              adoptT: CerR -> StatemenT x2, CerR -> true, PrinT -> StatemenT.
+    step 2    a value (the property node or true) handed to the parent, not a tree edit.
+    if ruled  adoptT's PROPERTY count (the non-zero sibling) goes to 0 -- that row needs a
+              new sibling; the fleet's 314 / ladder's 275 lines are this case.
+  CASE 5  A LIVE FIELD (Iterate's cursor, a BlocK body's field)
+    today     Iterate hands back its cursor field s2C; BlocK can hand back s2Y. The field
+              is ADOPTED INTO THE LABEL TREE -- "attempt 4's hazard, adopted today on the new
+              road". Witness: adoptT, kind=FIELD rule=Iterate returned=s2C (pinned at 1).
+    step 2    the field as a VALUE to the parent; the tree never holds a live field.
+    if ruled  adoptT's FIELD row goes 1 -> 0. This is the case the (b) guard was built to
+              refuse; ruling it closes the hazard by construction rather than by guard.
+  CASE 6  A KEYWORD (BrancH -> break)
+    today     the branch signal travels as the returned keyword node (census: BrancH ->
+              break, 1 in sweepT); `while 1 < 2; break;` driven directly adopts nothing
+              non-label here.
+    step 2    ⚠ NOT A VALUE -- a control signal. The model's "parent takes the child's
+              return" would carry a branch signal on the value channel, which is the
+              one-channel-two-meanings pattern this project has paid for four times.
+    if ruled  needs its own answer, not the value rule.
+  CASE 7  A PARSE VERDICT (ANYtoken -> null)
+    today     a null return fails the parse (1482 of the 1487 null yields, SEQ 119).
+    step 2    stays at parse time -- the parse-deciding exemption (ruling 3). Not a yield.
+
+  THE (b) GUARD: unarmed by entry 7's ruling. Every case above that adopts a non-label
+  (4 and 5) is what it would refuse; ruling "the parent takes values by return" makes the
+  guard unnecessary rather than armed.
+
+  THE "g"+tag STAMP -- READER CENSUS: ZERO LIVE READERS. Its only reader in code is
+  incant/generate's runGenerated (`generator[argument]`), reached only through generateCode
+  / generateAction; the fixture calls to those are in incant/pop/oneTest BELOW its operative
+  stop() (the 08-16 quarantine's dead region), incant/generating was deleted 2026-09-11, and
+  no pop.sh fixture calls them. None of the 23 pinned targets/baselines contains a g-prefixed
+  rule name. RETIREMENT CANDIDATE: GroupItem.twk:747 and Generate.rtn:726 -- listed, not
+  removed.
+
+STATE: trunk reinstalled (fleet below), branch untouched at df73ad6.
 
