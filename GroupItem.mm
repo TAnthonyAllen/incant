@@ -1005,8 +1005,6 @@ int 		held = deferredAbove(stuff);
 			{
 			stuff->label->setMethod(stuff->actionMethod);
 			stuff->label->groupBody->flags.deferred = 1;
-			if ( !stuff->label->groupBody->flags.data )
-				stuff->label->setText(::concat(2,"g",groupBody->tag));
 			}
 		else
 		if ( !parseACTION(groupBody->flags.methodType) )

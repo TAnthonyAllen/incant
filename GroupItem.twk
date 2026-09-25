@@ -738,8 +738,7 @@ int         held = deferredAbove(stuff);
         // heldAbove a deferred action waits only if a DEFERRED ANCESTOR will run it; with none above, nobody else ever will
         if deferred && held {
             stuff.label.method    = actionMethod;
-            stuff.label.deferred  = true;
-            if !stuff.label.data  stuff.label.text = "g" tag; }
+            stuff.label.deferred  = true; }
         or !parseACTION {
             // replacementReturn IN and OUT are two seats -- one read after the fire
             // cannot tell a replacement from a pass-through
