@@ -5061,7 +5061,10 @@ sentinel "kindT sentinel" "$T/kind" "KINDT SENTINEL"
 sentinel "kindJitT sentinel" "$T/kindj" "KINDJITT SENTINEL"
 kindRow "kindT R1 mixed-kind walk: arms"     "$(kindArms "$T/kind" R1)"  "kA kC"
 kindRow "kindT R1 mixed-kind walk: values"   "$(grep '^R1 value' "$T/kind" | awk '{print $3}' | tr '\n' ' ')" "3 x2 5 "
-kindRow "kindT R2a empty target, 1st fire: arms" "$(kindArms "$T/kind" R2a)" ""
+#  ⚠ RE-PINNED 2026-09-25 (FINISH +=): the count member now handles an EMPTY target
+#  itself -- pick step 4b, the argument's kind -- instead of handing it back to
+#  opPlusEQ, so the first fire names its arm. The value row below is unmoved.
+kindRow "kindT R2a empty target, 1st fire: arms" "$(kindArms "$T/kind" R2a)" "kE"
 kindRow "kindT R2a empty target, 1st fire: value" "$(grep '^R2a value' "$T/kind" | awk '{print $3}')" "4"
 kindRow "kindT R2b now-typed, 2nd fire: arms"    "$(kindArms "$T/kind" R2b)" "kE"
 kindRow "kindT R2b now-typed, 2nd fire: value"   "$(grep '^R2b value' "$T/kind" | awk '{print $3}')" "10"
@@ -5130,7 +5133,9 @@ kindRow "kindJ1T interpreted 1 and 2: values" "$(kjv "$T/kj1" 'J1 interpreted 1'
 kindRow "kindJ1T arms jit1 jit2 int1 int2" "$(kindArms "$T/kj1" J1jit1)/$(kindArms "$T/kj1" J1jit2)/$(kindArms "$T/kj1" J1int1)/$(kindArms "$T/kj1" J1int2)" "kjA kjC/kjA kjC/kjiA kjiC/kjiA kjiC"
 kindRow "kindJ1T degrade count"         "$(grep -o 'jitDegrade count = [0-9]*' "$T/kj1" | awk '{print $NF}')" "0"
 kindRow "kindJ2T values jit1 jit2 int1 int2" "$(grep -E '^J2 (jit fire|interpreted) [12]' "$T/kj2" | awk '{print $NF}' | tr '\n' ' ')" "4 10 4 10 "
-kindRow "kindJ2T arms jit1 jit2 int1 int2" "$(kindArms "$T/kj2" J2jit1)/$(kindArms "$T/kj2" J2jit2)/$(kindArms "$T/kj2" J2int1)/$(kindArms "$T/kj2" J2int2)" "/kjE//kjI"
+#  ⚠ RE-PINNED 2026-09-25 (FINISH +=): the empty-target first fire now names the
+#  count member on both roads (pick step 4b); values 4 10 4 10 unmoved.
+kindRow "kindJ2T arms jit1 jit2 int1 int2" "$(kindArms "$T/kj2" J2jit1)/$(kindArms "$T/kj2" J2jit2)/$(kindArms "$T/kj2" J2int1)/$(kindArms "$T/kj2" J2int2)" "kjE/kjE/kjI/kjI"
 kindRow "kindJ2T degrade count"         "$(grep -o 'jitDegrade count = [0-9]*' "$T/kj2" | awk '{print $NF}')" "0"
 kindRow "kindHolderJitT degrade count"  "$(grep -o 'jitDegrade count = [0-9]*' "$T/khj" | awk '{print $NF}')" "0"
 
@@ -5171,6 +5176,44 @@ sentinel "kindCellsT sentinel" "$T/kcel" "KINDCELLST SENTINEL"
 kindRow "kindCellsT C4 node onto EMPTY: branch, length" "$(peqBranch "$T/kcel" C4) $(grep '^C4 length' "$T/kcel" | awk '{print $NF}')" "F 1"
 kindRow "kindCellsT C1n node onto BIN: branch, length" "$(peqBranch "$T/kcel" C1n) $(grep '^C1n length' "$T/kcel" | awk '{print $NF}')" "C 2"
 kindRow "kindCellsT C1c count onto BIN: branch, length" "$(peqBranch "$T/kcel" C1c) $(grep '^C1c length' "$T/kcel" | awk '{print $NF}')" "C 3"
+
+
+#  ---------------------------------------------------------------------------
+#  kindLiftT -- FINISH += (Tony, 2026-09-25). Every kind in one walk, jitted
+#  (compiled once, fired twice) beside interpreted (twice). VALUES are pinned and
+#  must never move; ARMS are the member each target reached (its name) or the
+#  opPlusEQ branch letter (P+letter) -- they move from letters to names as each
+#  batch registers, and nowhere else. Stak depth is read before each fire.
+klVals () {                     # klVals <file> <fire> -> value per member
+    awk -v f="$2" '$0=="KL SHOW "f" " || $0=="KL SHOW "f {on=1; next} /^MARK |^KL LIST|^KL SHOW/ {on=0}
+        on && /^KL value/ { v=$3; if (index($0,"toString")) v="stak"; if ($NF>0) v="len" $NF; printf "%s ", v }' "$1"
+}
+klArms () {                     # klArms <file> <region> -> arm per fire, in walk order
+    awk -v r="$2" '$0 ~ "^MARK "r" begin" {on=1; next} $0 ~ "^MARK "r" end" {on=0}
+        on && /^KINDARM / { a=$2; sub(/^opPlusEQ/,"",a); printf "%s ", a }
+        on && /^PEQBRANCH / { printf "P%s ", $2 }' "$1"
+}
+klStak () { awk -v r="$2" '$0 ~ "^MARK "r" begin" {on=1; next} $0 ~ "^MARK "r" end" {on=0}
+        on && /K data=|tag=k[ij]K / { for(i=1;i<=NF;i++) if ($i ~ /^sdepth=/) {sub(/sdepth=/,"",$i); print $i} }' "$1"; }
+export INCANT_KIND_PROBE=1 INCANT_PEQ_PROBE=1
+run1 kindLiftT "$T/klift";   check "kindLiftT runs" 0 $?
+unset INCANT_KIND_PROBE INCANT_PEQ_PROBE
+sentinel "kindLiftT sentinel" "$T/klift" "KINDLIFTT SENTINEL"
+KLV1="3 3.5 s2 2 stak 2 len2 len2 "
+KLV2="5 5.5 s22 22 stak 4 len3 len3 "
+kindRow "kindLiftT values jit fire 1"    "$(klVals "$T/klift" J1)" "$KLV1"
+kindRow "kindLiftT values jit fire 2"    "$(klVals "$T/klift" J2)" "$KLV2"
+kindRow "kindLiftT values interpreted 1" "$(klVals "$T/klift" I1)" "$KLV1"
+kindRow "kindLiftT values interpreted 2" "$(klVals "$T/klift" I2)" "$KLV2"
+kindRow "kindLiftT list args jit1 jit2 int1 int2" "$(grep '^KL LIST' "$T/klift" | sed 's/^KL LIST [JI][12] *//' | tr -s ' ' | tr '\n' '|')" "a b c / s a b |a b c a b c / s a b a b |a b c / s a b |a b c a b c / s a b a b |"
+kindRow "kindLiftT stak depth before each fire J1 J2 I1 I2" "$(klStak "$T/klift" J1) $(klStak "$T/klift" J2) $(klStak "$T/klift" I1) $(klStak "$T/klift" I2)" "0 1 0 1"
+#  THE ARMS -- pinned per batch. Batch 0: only +=isCOUNT registered.
+KLA="isCOUNT PS PS PS PS isCOUNT PC PC PA PA "
+kindRow "kindLiftT arms jit fire 1"      "$(klArms "$T/klift" J1)" "$KLA"
+kindRow "kindLiftT arms jit fire 2"      "$(klArms "$T/klift" J2)" "$KLA"
+kindRow "kindLiftT arms interpreted 1"   "$(klArms "$T/klift" I1)" "$KLA"
+kindRow "kindLiftT arms interpreted 2"   "$(klArms "$T/klift" I2)" "$KLA"
+kindRow "kindLiftT degrade count"        "$(grep -o 'jitDegrade count = [0-9]*' "$T/klift" | awk '{print $NF}')" "0"
 
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"

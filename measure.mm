@@ -4,6 +4,7 @@
 #include "OCroutines.h"
 #include "StringRoutines.h"
 #include "GroupItem.h"
+#include "Stak.h"
 #include "GroupRules.h"
 #include "GroupControl.h"
 #include "GroupList.h"
@@ -456,11 +457,14 @@ extern "C" GroupItem *measureFrameProbe(GroupItem *field, GroupItem *rule)
     measure.measureKindArm  */
 extern "C" GroupItem *measureKindArm(char *arm, GroupItem *field)
 {
+int 	sdepth = -1;
+	if ( field && isSTAK(field->groupBody->flags.data) && field->getStak() )
+		sdepth = field->getStak()->length;
 	
 	if ( ::getenv("INCANT_KIND_PROBE") && field )
-	::fprintf(stderr,"KINDARM %s tag=%s data=%s\n",
+	::fprintf(stderr,"KINDARM %s tag=%s data=%s sdepth=%d\n",
 	arm, field->groupBody->tag ? field->groupBody->tag : "(untagged)",
-	::dataName(field->groupBody->flags.data));
+	::dataName(field->groupBody->flags.data), sdepth);
 	
 	return field;
 }
@@ -592,15 +596,18 @@ extern "C" GroupItem *measureParseResult(GroupItem *field, GroupItem *result)
     measure.measurePlusEQBranch  */
 extern "C" GroupItem *measurePlusEQBranch(char *branch, GroupItem *target, GroupItem *argument)
 {
+int 	sdepth = -1;
+	if ( target && isSTAK(target->groupBody->flags.data) && target->getStak() )
+		sdepth = target->getStak()->length;
 	
 	if ( ::getenv("INCANT_PEQ_PROBE") && target )
-	::fprintf(stderr,"PEQBRANCH %s tkind=%s tstruct=%d tRule=%d tag=%s akind=%s aList=%d\n",
+	::fprintf(stderr,"PEQBRANCH %s tkind=%s tstruct=%d tRule=%d tag=%s akind=%s aList=%d sdepth=%d\n",
 	branch, ::dataName(target->groupBody->flags.data),
 	(target->groupBody->flags.binType || target->groupBody->groupList) ? 1 : 0,
 	(target->groupBody->flags.isRule || target->groupBody->flags.actionType) ? 1 : 0,
 	target->groupBody->tag ? target->groupBody->tag : "(untagged)",
 	argument ? ::dataName(argument->groupBody->flags.data) : "(null)",
-	(argument && isLIST(argument->groupBody->flags.binType)) ? 1 : 0);
+	(argument && isLIST(argument->groupBody->flags.binType)) ? 1 : 0, sdepth);
 	
 	return target;
 }

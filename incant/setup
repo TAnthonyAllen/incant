@@ -150,8 +150,7 @@ define
 
     '$$'    unary ruleMethod=opDebug;
     '-'     operateMethod=opMinus  jitEmitter=jitEmitSub;
-    '+='    operateMethod=opPlusEQ
-        '+=isCOUNT'  operateMethod=opPlusEQisCOUNT;
+    '+='    operateMethod=opPlusEQ;
     '++'    unary ruleMethod=opPlusPlus;
     '+*'    operateMethod=opAddPointer;
     '+%'    operateMethod=opAddAttribute;
@@ -164,6 +163,12 @@ define
     '%'     operateMethod=opRem;
     '!='    operateMethod=opNotEQ  interpretMethod=runNotEQ  jitEmitter=jitEmitNE;
     '!'     unary ruleMethod=opNOT;
+    ;
+/*  THE += MEMBERS, in a define of their own that REOPENS '+=' without restating
+    its attribute. See section 9 at the foot.  */
+define
+    '+='
+        '+=isCOUNT'  operateMethod=opPlusEQisCOUNT;
     ;
 /*******************************************************************************
 	bcOPs — bytecode opcodes (control flow + stack ops). A SEPARATE registry,
@@ -549,23 +554,19 @@ include(grammar);
     naming a file that is gone fails at exit zero with nothing saying why, which is
     bear-trap 28's fourth row.
 
-    9. A MEMBER BLOCK ENDS BY DEDENT -- A SEMICOLON LINE AFTER IT CLOSES THE define
+    9. THE PLUS-EQUALS MEMBERS LIVE IN A define OF THEIR OWN, WHICH REOPENS THE ENTRY
 
-    The plus-equals entry carries the first per-kind member, the one named
-    plus-equals isCOUNT, which runOP's checkOP seat picks per fire when the target
-    holds a count. The member is indented under its entry and the block ENDS BY
-    DEDENT: the next entry at the outer indent simply follows, mid-block, exactly
-    as jitIterTwice's itTrunk does.
-    A lone semicolon line after the member block is NOT the entry's closer. It is
-    the define's, so every entry written after it is parsed as a statement and
-    setup is abandoned, silently, with no line of stderr. The first symptom is a
-    segfault in bootstrapper setting the stringBUFFER link, because the parse never
-    reached the stringBUFFER entry. UnaryOPS ends in such a line only because it is
-    the last entry of its block, where that line is the define's own close.
-    CORRECTED 2026-09-25, the same day it was first written: the first version of
-    this note said a member block closes the define and moved plus-equals to the
-    end of Operators to survive it. The member was never the trigger; the extra
-    semicolon line written after it was. Measured by one variable: the member
-    mid-block with no closing line parses clean and picks its arm. Plus-equals is
-    back in its longest-first place.
+    Plus-equals keeps its own operateMethod in the Operators block, written plain.
+    Its members -- one per data kind, picked per fire by pickKindOP -- are added in a
+    SECOND define that reopens the plus-equals entry WITHOUT restating its attribute.
+    ⚠ MEASURED 2026-09-25, AND IT CORRECTS THIS SECTION'S TWO EARLIER VERSIONS OF THE
+    SAME DAY. A member block written under an entry that has a name=value attribute
+    CORRUPTS THAT ATTRIBUTE: by the time the define processes the entry's own
+    operateMethod, its text reads the MEMBER's value. Plus-equals was bound to the
+    count member's method, opPlusEQisCOUNT, from the moment the member went mid-block,
+    and nothing showed it -- that method handed every non-count target back to
+    opPlusEQ, and its witness sat after the hand-back. It surfaced only when the
+    hand-back was removed. A lone semicolon line after a member block also closes the
+    whole define (the first version of this note, which blamed the member block
+    itself). Both hazards are avoided by the shape used here. Bear-trap 56.
 *******************************************************************************/

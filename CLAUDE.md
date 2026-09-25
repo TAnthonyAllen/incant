@@ -2727,22 +2727,29 @@ Hard-won lessons. Each one has cost real debugging time.
     capture itself needs `:=`) and #35 (read into a local, never in a condition).
 
 
-56. **A `;` LINE AFTER AN INDENTED MEMBER BLOCK CLOSES THE WHOLE `define`, NOT THE ENTRY -- AND
-    SETUP DIES SILENTLY.** Gloss: the closer belongs to the define. Measured 2026-09-25 (**kant**,
-    `incant/setup`). A member block ends by **dedent**; the next entry at the outer indent simply
-    follows, mid-block (`jitIterTwice`'s `itTrunk` is the working example). Write a lone `;` line
-    after the members, copying `UnaryOPS`, and it closes the **define** -- `UnaryOPS` gets away with
-    it only because it is the last entry of its block.
-    **SYMPTOM TO RECOGNISE:** every run segfaults with zero output, in `GroupMain::bootstrapper` at
-    `item->setBuffer(ruler->stringBUFFER)` with `this=0x0` -- the parse was abandoned before it
-    reached the `stringBUFFER` entry, so `properties["stringBUFFER"]` is null. No stderr line at all.
-    ⚠ **THE COST WAS A WRONG FINDING, WRITTEN DOWN AND ACTED ON THE SAME DAY.** The first reading
-    blamed the member block itself, moved `'+='` to the end of Operators to survive it, and recorded
-    that in `incant/setup` section 9. Every variant had carried the extra `;` line, so the variable
-    was never varied (H15's second row). One run with the member mid-block and no closing line
-    parsed clean and picked its arm. **Site:** `incant/setup` section 9, corrected; `'+='` is back
-    in its longest-first place. The owed ruling ("one define block per operator with members?")
-    is moot -- members mid-block work.
+56. **A MEMBER BLOCK UNDER A `define` ENTRY HAS TWO HAZARDS, AND THE SECOND ONE IS SILENT: A `;`
+    LINE AFTER IT CLOSES THE WHOLE `define`, AND THE BLOCK ITSELF CORRUPTS THE ENTRY'S OWN
+    `name=value` ATTRIBUTE.** Gloss: the members overwrite the parent. Measured 2026-09-25 (**kant**,
+    `incant/setup`), in three passes on one day, and two of them wrote down a wrong cause.
+    **Hazard 1 -- the closer.** A member block ends by dedent. A lone `;` line after it closes the
+    **define**, every later entry parses as a statement, and setup is abandoned with no stderr: the
+    first symptom is a segfault in `GroupMain::bootstrapper` at `item->setBuffer(ruler->stringBUFFER)`
+    with `this=0x0`.
+    **Hazard 2 -- the attribute.** Mid-block, with no `;` line, it parses -- and when the define
+    processes the parent's own `operateMethod=`, that attribute's TEXT READS THE MEMBER'S VALUE.
+    `'+='` was bound to `opPlusEQisCOUNT` instead of `opPlusEQ`. Bare flags (`itTrunk itAttrOne`)
+    have no value to overwrite, which is why the precedent never showed it.
+    ⚠ **IT HID BEHIND A MASK FOR THE WHOLE DAY:** the wrongly-bound method handed every non-count
+    target back to `opPlusEQ`, and its arm witness sat AFTER the hand-back, so every value stayed
+    right and every arm row stayed green. It surfaced only when the hand-back was removed. **A
+    witness placed after a delegation cannot see the delegation.**
+    **THE SHAPE THAT AVOIDS BOTH:** keep the entry's attributes in its own block; add the members
+    in a SECOND `define` that reopens the entry WITHOUT restating any attribute (`incant/setup`
+    section 9). Measured: `'+='` binds `opPlusEQ`, the member binds its own method.
+    ⚠ **The first correction (member block fine mid-block, extra `;` to blame) was half right and
+    was certified by a masked witness** -- one arm firing for the one kind it was meant for is not
+    evidence that nothing else was bound to it. Cause of hazard 2 NOT isolated (label reuse is the
+    obvious suspect, `measureLabelReuse` / plant 4); symptom recorded, per bear-trap #18's split.
 
 ⚠⚠ **THE RULE-LADDER SELECTION CRITERION — TWO CLAUSES, AND THE SECOND WAS PAID FOR.** Tony,
 2026-08-24.

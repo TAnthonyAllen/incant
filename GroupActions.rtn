@@ -923,20 +923,40 @@ exitRunAction:
 
 
 /*******************************************************************************
-    pickKindOP -- THE PER-KIND PICK, ONE SPELLING FOR BOTH ROADS (Tony's ruling
-    2026-09-25). An operator with members hands back the member for the
-    receiver's kind, or itself: the receiver is the target when it holds data,
-    the argument when the target is EMPTY -- never when it is MISSING. runOP calls
-    it on the interpreted road; jitOpFireRT calls it at RUN time on the emitted
-    road, so the pick is per fire on both.
+    pickKindOP -- THE WHOLE += PICK, ONE PLACE, BOTH ROADS (Tony, Amendments 1-3 to
+    FINISH +=, 2026-09-25). Members are keyed on the TARGET (ruling 5):
+      1. target is a bin or registry (binType)   -> the structural member
+      2. target has data                         -> its data kind's member
+      3. no data, HAS MEMBERS (rules and actions
+         included -- a grammar graft)            -> the structural member
+      4. no data, no members -- EMPTY:
+         4a. argument is a list (branch A's test) -> the string member: the empty
+             field becomes a string holding the concatenation (the 35a ruling)
+         4b. argument has data                   -> the ARGUMENT's kind picks
+         4c. otherwise, a dataless node          -> the structural member
+    No member for the pick -> the op itself, and opPlusEQ refuses by name.
+    // structuralIsMembers structural is hasMembers, NEVER groupList -- attributes live on the list
+    // tagsBuiltHere the structural and 4a tags are built here, not through getDataType: an empty field and a structural one both read "none"
 *******************************************************************************/
 extern GroupItem pickKindOP(GroupItem op,GroupItem target,GroupItem arg)
 {
     if !op || !target               return op;
     if !op.hasMembers               return op;
-    if target.data                  return target.checkOP(op);
-    if arg                          return arg.checkOP(op);
-    return op;
+    -%
+    auto member = [&](const char *suffix) -> GroupItem* {
+        char name[128];
+        ::snprintf(name,sizeof name,"%s%s",op->groupBody->tag,suffix);
+        GroupItem *m = op->getMember(name);
+        return m ? m : op; };
+    GroupBody *tb = target->groupBody;
+    if ( tb->flags.binType )                                    return member("struct");
+    if ( tb->flags.data )                                       return target->checkOP(op);
+    if ( tb->flags.hasMembers )                                 return member("struct");
+    if ( !arg )                                                 return op;
+    if ( isLIST(arg->groupBody->flags.binType) )                return member("isSTRING");
+    if ( arg->groupBody->flags.data )                           return arg->checkOP(op);
+    return member("struct");
+    %-
 }
 
 extern GroupItem runOP(GroupItem field)

@@ -9993,32 +9993,130 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return target;
 }
 
-/***************************************************************************
-    opPlusEQisCOUNT -- the first per-kind member, '+=isCOUNT' on '+=', picked
-    per fire by runOP's checkOP seat. It is opPlusEQ's isCOUNT arm LIFTED, not
-    rewritten. Every case the arm's gates in opPlusEQ would not reach goes back
-    to opPlusEQ whole: a list or dataless argument, a structural target, and a
-    target that is not a count (the empty target picked by its ARGUMENT's kind).
-***************************************************************************/
+extern "C" GroupItem *opPlusEQisBUFFER(GroupItem *argument, GroupItem *target)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( ruler->refused )
+		return 0;
+	measurePlusEQWrite(target);
+	measureKindArm("opPlusEQisBUFFER",target);
+	if ( !target->groupBody->flags.data )
+		{
+		target->copyData(argument);
+		return target;
+		}
+	if ( isLIST(argument->groupBody->flags.binType) || !argument->groupBody->flags.data )
+		return ::plusEQshapeRefusal("isBUFFER",argument,target);
+	// if buffer mark is set, argument is inserted into buffer at mark
+	// otherwise it is appended at end of buffer. mark is left as is
+	target->getBuffer()->appendString(argument->getText(),0,0);
+	return target;
+}
+
 extern "C" GroupItem *opPlusEQisCOUNT(GroupItem *argument, GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	// refusedFirst the store ruling is asked BEFORE any gate reads argument -- a refused rhs arrives as null
 	if ( ruler->refused )
 		return 0;
-	if ( !isCOUNT(target->groupBody->flags.data) || isLIST(argument->groupBody->flags.binType) || !argument->groupBody->flags.data )
-		return ::opPlusEQ(argument,target);
-	if ( !target->groupBody->flags.isRule && !target->groupBody->flags.actionType && (target->groupBody->flags.binType || target->groupBody->groupList) )
-		return ::opPlusEQ(argument,target);
 	measurePlusEQWrite(target);
 	measureKindArm("opPlusEQisCOUNT",target);
-	if ( ruler->jitting )
+	if ( !target->groupBody->flags.data )
 		{
-		 jitEmitBinary(argument, target, jitAdd);
-		return jitEmitAssign(target, target); 
+		target->copyData(argument);
+		return target;
 		}
+	if ( isLIST(argument->groupBody->flags.binType) || !argument->groupBody->flags.data )
+		return ::plusEQshapeRefusal("isCOUNT",argument,target);
 	ruler->tempField->setNumber(target->getNumber() + argument->getNumber());
 	target->groupBody->gCount = ruler->tempField->getCount();
+	return target;
+}
+
+extern "C" GroupItem *opPlusEQisNUMBER(GroupItem *argument, GroupItem *target)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( ruler->refused )
+		return 0;
+	measurePlusEQWrite(target);
+	measureKindArm("opPlusEQisNUMBER",target);
+	if ( !target->groupBody->flags.data )
+		{
+		target->copyData(argument);
+		return target;
+		}
+	if ( isLIST(argument->groupBody->flags.binType) || !argument->groupBody->flags.data )
+		return ::plusEQshapeRefusal("isNUMBER",argument,target);
+	target->groupBody->gNumber += argument->getNumber();
+	return target;
+}
+
+extern "C" GroupItem *opPlusEQisSTAK(GroupItem *argument, GroupItem *target)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( ruler->refused )
+		return 0;
+	measurePlusEQWrite(target);
+	measureKindArm("opPlusEQisSTAK",target);
+	if ( !target->groupBody->flags.data )
+		{
+		target->copyData(argument);
+		return target;
+		}
+	if ( isLIST(argument->groupBody->flags.binType) || !argument->groupBody->flags.data )
+		return ::plusEQshapeRefusal("isSTAK",argument,target);
+	target->groupBody->gStak->push(argument);
+	return target;
+}
+
+/*  ONE METHOD, TWO REGISTRATIONS: '+=isSTRING' and '+=isTOKEN'. It absorbs branch
+    A -- a list argument concatenates into a string target, or into an EMPTY one
+    (pick step 4a, the 35a ruling).  */
+extern "C" GroupItem *opPlusEQisSTRING(GroupItem *argument, GroupItem *target)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( ruler->refused )
+		return 0;
+	measurePlusEQWrite(target);
+	measureKindArm("opPlusEQisSTRING",target);
+	if ( isLIST(argument->groupBody->flags.binType) )
+		{
+		Buffer 	*concatBuf = (Buffer*)ruler->bufferSTAK->pop();
+		if ( !concatBuf )
+			concatBuf = new Buffer("concat buffer");
+		if ( target->groupBody->flags.data )
+			::appendGroup(target,0,concatBuf);
+		::appendGroup(argument,0,concatBuf);
+		return ::opString(target,concatBuf);
+		}
+	if ( !target->groupBody->flags.data )
+		{
+		target->copyData(argument);
+		return target;
+		}
+	if ( !argument->groupBody->flags.data )
+		return ::plusEQshapeRefusal("isSTRING",argument,target);
+	target->setText(::concat(2,target->getText(),argument->getText()));
+	return target;
+}
+
+/*  THE STRUCTURAL MEMBER, '+=struct' -- branches C and F, and B. A bin or
+    registry, a field with MEMBERS (rules and actions included: a grammar graft),
+    or an EMPTY field given a dataless node. A list argument is copied in
+    (copyListTo); anything else is appended.  */
+extern "C" GroupItem *opPlusEQstruct(GroupItem *argument, GroupItem *target)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( ruler->refused )
+		return 0;
+	measurePlusEQWrite(target);
+	measureKindArm("opPlusEQstruct",target);
+	if ( isLIST(argument->groupBody->flags.binType) )
+		{
+		argument->copyListTo(target);
+		return target;
+		}
+	target->addMember(argument);
 	return target;
 }
 
@@ -11352,12 +11450,20 @@ char 		*at = 0;
 }
 
 /*******************************************************************************
-    pickKindOP -- THE PER-KIND PICK, ONE SPELLING FOR BOTH ROADS (Tony's ruling
-    2026-09-25). An operator with members hands back the member for the
-    receiver's kind, or itself: the receiver is the target when it holds data,
-    the argument when the target is EMPTY -- never when it is MISSING. runOP calls
-    it on the interpreted road; jitOpFireRT calls it at RUN time on the emitted
-    road, so the pick is per fire on both.
+    pickKindOP -- THE WHOLE += PICK, ONE PLACE, BOTH ROADS (Tony, Amendments 1-3 to
+    FINISH +=, 2026-09-25). Members are keyed on the TARGET (ruling 5):
+      1. target is a bin or registry (binType)   -> the structural member
+      2. target has data                         -> its data kind's member
+      3. no data, HAS MEMBERS (rules and actions
+         included -- a grammar graft)            -> the structural member
+      4. no data, no members -- EMPTY:
+         4a. argument is a list (branch A's test) -> the string member: the empty
+             field becomes a string holding the concatenation (the 35a ruling)
+         4b. argument has data                   -> the ARGUMENT's kind picks
+         4c. otherwise, a dataless node          -> the structural member
+    No member for the pick -> the op itself, and opPlusEQ refuses by name.
+    // structuralIsMembers structural is hasMembers, NEVER groupList -- attributes live on the list
+    // tagsBuiltHere the structural and 4a tags are built here, not through getDataType: an empty field and a structural one both read "none"
 *******************************************************************************/
 extern "C" GroupItem *pickKindOP(GroupItem *op, GroupItem *target, GroupItem *arg)
 {
@@ -11365,11 +11471,21 @@ extern "C" GroupItem *pickKindOP(GroupItem *op, GroupItem *target, GroupItem *ar
 		return op;
 	if ( !op->groupBody->flags.hasMembers )
 		return op;
-	if ( target->groupBody->flags.data )
-		return target->checkOP(op);
-	if ( arg )
-		return arg->checkOP(op);
-	return op;
+	
+	auto member = [&](const char *suffix) -> GroupItem* {
+	char name[128];
+	::snprintf(name,sizeof name,"%s%s",op->groupBody->tag,suffix);
+	GroupItem *m = op->getMember(name);
+	return m ? m : op; };
+	GroupBody *tb = target->groupBody;
+	if ( tb->flags.binType )                                    return member("struct");
+	if ( tb->flags.data )                                       return target->checkOP(op);
+	if ( tb->flags.hasMembers )                                 return member("struct");
+	if ( !arg )                                                 return op;
+	if ( isLIST(arg->groupBody->flags.binType) )                return member("isSTRING");
+	if ( arg->groupBody->flags.data )                           return arg->checkOP(op);
+	return member("struct");
+	
 }
 
 /*******************************************************************************
@@ -11719,6 +11835,29 @@ int 		labelled = 0;
 		}
 	::fprintf(stderr,"  REFUSE %s -- repetition shape min %s max %s has no kind\n",term->groupBody->tag,::toStringFromInt(rs->min),::toStringFromInt(rs->max));
 	return 0;
+}
+
+/***************************************************************************
+    THE += MEMBERS -- one method per kind, picked by pickKindOP on both roads
+    (Tony, FINISH +=, 2026-09-25). Each is opPlusEQ's arm for its kind LIFTED,
+    not rewritten, and each handles its own argument shapes:
+      an EMPTY target (a data member picked by its ARGUMENT's kind, step 4b)
+        takes the argument's data -- branch E, copyData;
+      a LIST argument onto a data kind refuses by name (branch B was reached by
+        nothing in 175 files, and B belongs to the structural member alone) --
+        except the string member, which absorbs branch A and concatenates;
+      a DATALESS argument onto a data kind refuses by name, the same way.
+    No `if jitting` branch is carried: the jitted road reaches these only at
+    RUN time, through jitOpFireRT.
+***************************************************************************/
+//  shapeRefusal through refuse(), which prints REFUSED and never ERROR -- pop.sh's ERROR ratchet
+extern "C" GroupItem *plusEQshapeRefusal(char *kind, GroupItem *argument, GroupItem *target)
+{
+	
+	char why[160];
+	::snprintf(why,sizeof why,"+= of a list or dataless argument onto %s -- no member takes that shape",kind ? kind : "?");
+	return ::refuse(target,why);
+	
 }
 
 /*******************************************************************************
@@ -14262,6 +14401,11 @@ int 	result = 0;
 	read(int,char*,long)
 	isDotUxp(GroupItem*)
 	measurePlusEQWrite(GroupItem*)
+	measureKindArm(char*,GroupItem*)
+	measureKindArm(char*,GroupItem*)
+	measureKindArm(char*,GroupItem*)
+	measureKindArm(char*,GroupItem*)
+	measureKindArm(char*,GroupItem*)
 	measureKindArm(char*,GroupItem*)
 	measurePlusEQBranch(char*,GroupItem*,GroupItem*)
 	measurePlusEQBranch(char*,GroupItem*,GroupItem*)

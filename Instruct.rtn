@@ -1088,28 +1088,130 @@ use target
 
 
 /***************************************************************************
-    opPlusEQisCOUNT -- the first per-kind member, '+=isCOUNT' on '+=', picked
-    per fire by runOP's checkOP seat. It is opPlusEQ's isCOUNT arm LIFTED, not
-    rewritten. Every case the arm's gates in opPlusEQ would not reach goes back
-    to opPlusEQ whole: a list or dataless argument, a structural target, and a
-    target that is not a count (the empty target picked by its ARGUMENT's kind).
+    THE += MEMBERS -- one method per kind, picked by pickKindOP on both roads
+    (Tony, FINISH +=, 2026-09-25). Each is opPlusEQ's arm for its kind LIFTED,
+    not rewritten, and each handles its own argument shapes:
+      an EMPTY target (a data member picked by its ARGUMENT's kind, step 4b)
+        takes the argument's data -- branch E, copyData;
+      a LIST argument onto a data kind refuses by name (branch B was reached by
+        nothing in 175 files, and B belongs to the structural member alone) --
+        except the string member, which absorbs branch A and concatenates;
+      a DATALESS argument onto a data kind refuses by name, the same way.
+    No `if jitting` branch is carried: the jitted road reaches these only at
+    RUN time, through jitOpFireRT.
 ***************************************************************************/
+//  shapeRefusal through refuse(), which prints REFUSED and never ERROR -- pop.sh's ERROR ratchet
+extern GroupItem plusEQshapeRefusal(String kind,GroupItem argument,GroupItem target)
+{
+    -%
+    char why[160];
+    ::snprintf(why,sizeof why,"+= of a list or dataless argument onto %s -- no member takes that shape",kind ? kind : "?");
+    return ::refuse(target,why);
+    %-
+}
+
 extern GroupItem opPlusEQisCOUNT(GroupItem argument,GroupItem target)
 {
 GroupRules  ruler = groupRules;
     // refusedFirst the store ruling is asked BEFORE any gate reads argument -- a refused rhs arrives as null
     if ruler.refused    return null;
 use target
-    if !isCOUNT || argument.isLIST || !argument.data    return opPlusEQ(argument,target);
-    if !isRule && !actionType && (binType || groupList) return opPlusEQ(argument,target);
     measurePlusEQWrite(target);
     measureKindArm("opPlusEQisCOUNT",target);
-    if jitting {
-        -% jitEmitBinary(argument, target, jitAdd);
-           return jitEmitAssign(target, target); %-
-        }
+    if !data {
+        target.copyData(argument);
+        return target; }
+    if argument.isLIST || !argument.data    return plusEQshapeRefusal("isCOUNT",argument,target);
     tempField.number = number + argument.number;
     gCount  = tempField.count;
+    return target;
+}
+
+extern GroupItem opPlusEQisNUMBER(GroupItem argument,GroupItem target)
+{
+GroupRules  ruler = groupRules;
+    if ruler.refused    return null;
+use target
+    measurePlusEQWrite(target);
+    measureKindArm("opPlusEQisNUMBER",target);
+    if !data {
+        target.copyData(argument);
+        return target; }
+    if argument.isLIST || !argument.data    return plusEQshapeRefusal("isNUMBER",argument,target);
+    gNumber += argument.number;
+    return target;
+}
+
+/*  ONE METHOD, TWO REGISTRATIONS: '+=isSTRING' and '+=isTOKEN'. It absorbs branch
+    A -- a list argument concatenates into a string target, or into an EMPTY one
+    (pick step 4a, the 35a ruling).  */
+extern GroupItem opPlusEQisSTRING(GroupItem argument,GroupItem target)
+{
+GroupRules  ruler = groupRules;
+    if ruler.refused    return null;
+use target
+    measurePlusEQWrite(target);
+    measureKindArm("opPlusEQisSTRING",target);
+    if argument.isLIST {
+        Buffer  concatBuf = bufferSTAK.pop();
+        if !concatBuf   concatBuf = new("concat buffer");
+        if data     appendGroup(target,0,concatBuf);
+        appendGroup(argument,0,concatBuf);
+        return opString(target,concatBuf); }
+    if !data {
+        target.copyData(argument);
+        return target; }
+    if !argument.data   return plusEQshapeRefusal("isSTRING",argument,target);
+    text    += argument.text;
+    return target;
+}
+
+extern GroupItem opPlusEQisBUFFER(GroupItem argument,GroupItem target)
+{
+GroupRules  ruler = groupRules;
+    if ruler.refused    return null;
+use target
+    measurePlusEQWrite(target);
+    measureKindArm("opPlusEQisBUFFER",target);
+    if !data {
+        target.copyData(argument);
+        return target; }
+    if argument.isLIST || !argument.data    return plusEQshapeRefusal("isBUFFER",argument,target);
+    // if buffer mark is set, argument is inserted into buffer at mark
+    // otherwise it is appended at end of buffer. mark is left as is
+    buffer  += argument.text;
+    return target;
+}
+
+extern GroupItem opPlusEQisSTAK(GroupItem argument,GroupItem target)
+{
+GroupRules  ruler = groupRules;
+    if ruler.refused    return null;
+use target
+    measurePlusEQWrite(target);
+    measureKindArm("opPlusEQisSTAK",target);
+    if !data {
+        target.copyData(argument);
+        return target; }
+    if argument.isLIST || !argument.data    return plusEQshapeRefusal("isSTAK",argument,target);
+    gStak.push(argument);
+    return target;
+}
+
+/*  THE STRUCTURAL MEMBER, '+=struct' -- branches C and F, and B. A bin or
+    registry, a field with MEMBERS (rules and actions included: a grammar graft),
+    or an EMPTY field given a dataless node. A list argument is copied in
+    (copyListTo); anything else is appended.  */
+extern GroupItem opPlusEQstruct(GroupItem argument,GroupItem target)
+{
+GroupRules  ruler = groupRules;
+    if ruler.refused    return null;
+    measurePlusEQWrite(target);
+    measureKindArm("opPlusEQstruct",target);
+    if argument.isLIST {
+        argument.copyListTo(target);
+        return target; }
+    target += argument;
     return target;
 }
 
