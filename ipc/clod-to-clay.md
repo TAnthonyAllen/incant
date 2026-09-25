@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 129 at the FOOT -- tree/mixed dated (two causes, no defect); P0, P1 landed; P2 STOPPED: its certificate's two categories are one
+STATUS:   fresh           # SEQ 130 at the FOOT -- P2 LANDED (one category); P3 STOPPED: the re-aim cannot happen -- parseMethod= PARKS, nothing raises hasNewParse
+# prior: SEQ 129 -- tree/mixed dated (two causes, no defect); P0, P1 landed; P2 STOPPED: its certificate's two categories are one
 # prior: SEQ 128 -- SEQ 178 DONE: JSON fix + pin landed on trunk; population = JSON only; plan written (branch 2aac1f8), four rulings flagged
 # prior: SEQ 127 -- JSONfield fix WORKS and is fleet-neutral, NOT landed: arrays stay broken by JSONarray's own yield (outside 'fix nothing else')
 # prior: SEQ 126 -- STOPPED at item 1: trunk's JSON tree is ALREADY last-value-only, so the H7 control cannot discriminate
@@ -7494,3 +7495,81 @@ into scope. The P7 stop clause would not fire on this answer.
 STATE: trunk jit-unified-emit-wip at 26f499c, installed and BARE (trunk build), fleet
 752 / 1, red 57, jitLadder 215, canary 368. Branch parse-then-fire at e2b1e6c, pushed.
 All three repos clean. No seal: the report is to be read first.
+
+===================================================================
+SEQ 130  --  2026-09-25  --  Clod
+SEQ 180: P2 LANDED. P7 RE-READ. P3 STOPPED ON ITS OWN CERTIFICATE -- routing treeOf
+through driveStep cannot re-aim tree.sh/mixed.sh, because parseMethod= PARKS the
+generated body and nothing raises hasNewParse. Two findings on the way.
+===================================================================
+
+1. P2 -- LANDED, branch 5e30f2a, ONE CATEGORY
+   Both halves: parse() discards a failed pass's records at matchFailed (a gPtfN mark per
+   pass); parseRule discards when exitFromParse returns 0. The scope's rejected-parse
+   discard is a TRIPWIRE. Re-pins with their sentences: conservation 13,342 -> 13,349
+   (= FRAMELEAK 0 + rejected 0 + failed-alternative 13,349 + UNREACHED 0; +7 = tlFail's
+   orphaned-at-exit records); srDot -> `PTF DISCARD failed alternative rule=Xpress
+   records=3`. Branch PTF=1 751, PTF=0 752, both red lists identical to P0's; jitLadder 215
+   both; canary 384. H7 (both call sites removed in the .mm, rebuilt, restored): rejected
+   12,410, UNREACHED 932, conservation and srDot RED; restored green.
+
+2. P7 RE-READ against the tripwire meaning (nothing built)
+   Its old goal -- make P3's scoped-discard row non-zero -- is OBSOLETE: the scope column is
+   0 by design now. What remains of P7:
+     (a) THE BOOTSTRAP PIN: a row asserting 2,512 outside fires per run (setup + grammar
+         defines, declared define-family, stay outside -- Tony, SEQ 179).
+     (b) A drive whose ROOT IS NOT StatemenT (sweepT's carriers, the Scaf drives, JSON)
+         becomes a firing root: its ordinary fires record and replay at the drive's scope
+         end, and a rejected pass discards at its failing rule. ~2,290 fires today.
+     (c) Action bodies (processCode): nothing beyond P8's split (NamE's local-minting,
+         interpretXP's invoke stamp) -- their fires are compile, not execution.
+   It does not touch setup's parse. The P7 stop clause does not fire.
+
+3. P3 -- THE demoRprime MEASUREMENT: NO, not as one drive of a repeating rule today.
+   `ScafA+` DOES drive as one drive through tell (aab: matched, consumed 2 of 3, stoppedAt 2 --
+   the failed pass rewinds cleanly). But min >= 2 CANNOT BE DECLARED: the grammar's `Limit`
+   (`[min max]`) exists and NOTHING in the tree uses it, and every spelling of it --
+   `ScafA[2]`, `ScafA[2 9]` -- SILENTLY DELETES THE RULE: tell reports known=0, no error.
+   (`{2 9}` and `+[2 9]` fail the define outright.) So per the ruling: a PASS COUNT.
+   ⚠ BUT A PASS COUNT INSIDE driveStep MAKES driveStep PICK ONE REWIND DISCIPLINE, and
+   demoRprime exists to COMPARE two (entry-saved vs per-pass). Under one door the comparison
+   collapses -- which of its three blocks survives, and what they print, is a design
+   question, not a build. Not built.
+
+4. FINDING -- demoRprime TRUNCATES genScratch AT ITS FIRST CALL, AND THAT IS WHY
+   rung7.target IS RED. Reproduced in a nine-line file: after `demoRprime('a')` the file
+   silently ends -- no ABANDONED line, exit 0. Mechanism (read, consistent with the repro):
+   demoRprime pushes input WITHOUT raising inputFloor, so when its second ScafA pass reaches
+   the end of the message, parse()'s end-of-message pop unwinds to floor 0 and takes the
+   FILE's input with it. driveStep raises the floor; a one-door routing cures this by
+   construction. Measured: genScratch with the demoRprime lines removed runs to the end and
+   rung7.target MATCHES EXACTLY -- so rung7's standing red is the truncation and nothing
+   else. Everything after the first demoRprime in genScratch (the second demo call, the
+   RUNG 6 and RUNG 7 runtime calls, the trailing genParse pair) has been dead, and pop.sh
+   asserts only "genScratch runs" (exit 0) -- no sentinel. H2's hole.
+
+5. P3a (treeOf through driveStep) -- BUILT, FLEET-NEUTRAL, CERTIFICATE ROW FAILED, REVERTED
+   Built as ruled: driveStep returns the root label (a generated root's label read from its
+   rStuff.label, as tell's reply already does); runRule maps it back to one bit for the kant
+   caller (ruling c' untouched); treeOf calls driveStep; the census row 7 -> 6. Fleet at
+   both settings UNMOVED, red lists identical, census green at 6. (Diff saved, 69 lines.)
+   THE FAILED ROW: "the generated Scaf bodies are entered again" -- lldb, ZERO hits. tree.sh
+   and mixed.sh read exactly as before.
+   WHY: the `parseMethod=` binder (genParse.rtn parseRuleMethod) calls setParseMethod and
+   parkParse -- it PARKS the body -- and raises NO hasNewParse. hasNewParse is raised only by
+   setParseAction / setParse ("generation is explicit, through parser"). The removed fork in
+   parse() was the ONLY reader of the parked address; driveStep's door reads hasNewParse. So
+   after 0150f29 NO DOOR reaches a parseMethod=-bound body, and routing cannot change that.
+   THE QUESTION -- how the harnesses go live again:
+     (a) treeScratch and mixed.sh's variants activate the parked parse explicitly
+         (setParse on each bound rule) -- a fixture change, engine untouched;
+     (b) the parseMethod= binder raises hasNewParse -- an engine change, and it re-opens
+         every parseMethod= fixture (kantParse1, bindSeamB, bracedK, genScratch, termScratch,
+         parseCode) at once;
+     (c) retire tree.sh and mixed.sh as instruments of the removed fork.
+   And separately: land P3a's routing now (ruled, fleet-neutral) or hold it until the
+   harnesses can certify it?
+
+STATE: trunk jit-unified-emit-wip installed and BARE (trunk build), fleet 752 / 1, canary
+368. Branch parse-then-fire at 5e30f2a, pushed. Three repos clean. P3a's diff, P2's
+superseded diff and the probes are in the scratchpad only. No seal until this is read.

@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      180
-STATUS:   working        # SEQ 180 -- P2 (i) land both halves; P7 re-read; then P3 and P4 onward
+STATUS:   working        # SEQ 180 -- P2 landed; P3 STOPPED (parseMethod= parks; no door reaches the Scaf bodies); report clod-to-clay SEQ 130
 STATUS-179: cleared      # SEQ 179 -- tree/mixed dated; P0, P1 landed; P2 STOPPED; report clod-to-clay SEQ 129
 STATUS-178: cleared      # SEQ 178 -- done: JSON fix dc8b0b9, pin 9ab2fdd, population JSON only, plan 2aac1f8 on the branch; report clod-to-clay SEQ 128
 STATUS-177: cleared      # SEQ 177 -- STOPPED: JSONfield fix works, arrays lost by JSONarray; report clod-to-clay SEQ 127
