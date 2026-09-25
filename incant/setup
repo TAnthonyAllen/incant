@@ -169,6 +169,9 @@ define
 define
     '+='
         '+=isCOUNT'  operateMethod=opPlusEQisCOUNT;
+        '+=isNUMBER' operateMethod=opPlusEQisNUMBER;
+        '+=isSTRING' operateMethod=opPlusEQisSTRING;
+        '+=isTOKEN'  operateMethod=opPlusEQisSTRING;
     ;
 /*******************************************************************************
 	bcOPs — bytecode opcodes (control flow + stack ops). A SEPARATE registry,

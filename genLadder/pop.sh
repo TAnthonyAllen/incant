@@ -5059,7 +5059,10 @@ run1 kindJitT "$T/kindj";    check "kindJitT runs" 0 $?
 unset INCANT_KIND_PROBE
 sentinel "kindT sentinel" "$T/kind" "KINDT SENTINEL"
 sentinel "kindJitT sentinel" "$T/kindj" "KINDJITT SENTINEL"
-kindRow "kindT R1 mixed-kind walk: arms"     "$(kindArms "$T/kind" R1)"  "kA kC"
+#  ⚠ RE-PINNED 2026-09-25 (FINISH += batch 1): the string member '+=isSTRING' now
+#  takes kB, so every member of the mixed walk names an arm -- one per member, per
+#  pass. kindLiftT carries WHICH member by name; this row reads the tags.
+kindRow "kindT R1 mixed-kind walk: arms"     "$(kindArms "$T/kind" R1)"  "kA kB kC"
 kindRow "kindT R1 mixed-kind walk: values"   "$(grep '^R1 value' "$T/kind" | awk '{print $3}' | tr '\n' ' ')" "3 x2 5 "
 #  ⚠ RE-PINNED 2026-09-25 (FINISH +=): the count member now handles an EMPTY target
 #  itself -- pick step 4b, the argument's kind -- instead of handing it back to
@@ -5130,7 +5133,9 @@ kjv () { awk -v h="$2" '$0 ~ "^"h"( |$)" {on=1; next} /^J1 (jit|interp)/ {on=0} 
 kindRow "kindJ1T jit fire 1: values"   "$(kjv "$T/kj1" 'J1 jit fire 1')"      "3 x2 5 "
 kindRow "kindJ1T jit fire 2: values"   "$(kjv "$T/kj1" 'J1 jit fire 2')"      "5 x22 7 "
 kindRow "kindJ1T interpreted 1 and 2: values" "$(kjv "$T/kj1" 'J1 interpreted 1')/$(kjv "$T/kj1" 'J1 interpreted 2')" "3 x2 5 /5 x22 7 "
-kindRow "kindJ1T arms jit1 jit2 int1 int2" "$(kindArms "$T/kj1" J1jit1)/$(kindArms "$T/kj1" J1jit2)/$(kindArms "$T/kj1" J1int1)/$(kindArms "$T/kj1" J1int2)" "kjA kjC/kjA kjC/kjiA kjiC/kjiA kjiC"
+#  ⚠ RE-PINNED 2026-09-25 (FINISH += batch 1): the string member now takes kjB/kjiB on
+#  both roads, so each pass names all three; values unmoved.
+kindRow "kindJ1T arms jit1 jit2 int1 int2" "$(kindArms "$T/kj1" J1jit1)/$(kindArms "$T/kj1" J1jit2)/$(kindArms "$T/kj1" J1int1)/$(kindArms "$T/kj1" J1int2)" "kjA kjB kjC/kjA kjB kjC/kjiA kjiB kjiC/kjiA kjiB kjiC"
 kindRow "kindJ1T degrade count"         "$(grep -o 'jitDegrade count = [0-9]*' "$T/kj1" | awk '{print $NF}')" "0"
 kindRow "kindJ2T values jit1 jit2 int1 int2" "$(grep -E '^J2 (jit fire|interpreted) [12]' "$T/kj2" | awk '{print $NF}' | tr '\n' ' ')" "4 10 4 10 "
 #  ⚠ RE-PINNED 2026-09-25 (FINISH +=): the empty-target first fire now names the
@@ -5207,8 +5212,10 @@ kindRow "kindLiftT values interpreted 1" "$(klVals "$T/klift" I1)" "$KLV1"
 kindRow "kindLiftT values interpreted 2" "$(klVals "$T/klift" I2)" "$KLV2"
 kindRow "kindLiftT list args jit1 jit2 int1 int2" "$(grep '^KL LIST' "$T/klift" | sed 's/^KL LIST [JI][12] *//' | tr -s ' ' | tr '\n' '|')" "a b c / s a b |a b c a b c / s a b a b |a b c / s a b |a b c a b c / s a b a b |"
 kindRow "kindLiftT stak depth before each fire J1 J2 I1 I2" "$(klStak "$T/klift" J1) $(klStak "$T/klift" J2) $(klStak "$T/klift" I1) $(klStak "$T/klift" I2)" "0 1 0 1"
-#  THE ARMS -- pinned per batch. Batch 0: only +=isCOUNT registered.
-KLA="isCOUNT PS PS PS PS isCOUNT PC PC PA PA "
+#  THE ARMS -- pinned per batch. Batch 1: isCOUNT, isNUMBER, isSTRING (+isTOKEN) --
+#  the number and the string leave the switch, and BOTH list rows (4a onto the
+#  empty field, A onto the string) name the string member.
+KLA="isCOUNT isNUMBER isSTRING PS PS isCOUNT PC PC isSTRING isSTRING "
 kindRow "kindLiftT arms jit fire 1"      "$(klArms "$T/klift" J1)" "$KLA"
 kindRow "kindLiftT arms jit fire 2"      "$(klArms "$T/klift" J2)" "$KLA"
 kindRow "kindLiftT arms interpreted 1"   "$(klArms "$T/klift" I1)" "$KLA"
