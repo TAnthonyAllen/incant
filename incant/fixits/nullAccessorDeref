@@ -1,0 +1,68 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(NullAccessorDeref);
+define
+    naN=0;
+    naControl code={
+        iterate naT on argument;
+        while ++naT;
+            naN = naN + 1;
+        };
+    naCrash code={
+        iterate naT on argument;
+        while ++naT;
+            naN = naN + 1;
+            if nexT;    cerr "NA a next member exists":;
+        };
+    ;
+cerr "== the CONTROL: the same walk with no nexT -- pinned: 3 terms, exit 0 ==":;
+naControl(Grokking["NumbeR"]);
+cerr "NA control walked " naN " terms":;
+naN = 0;
+cerr "== the DEFECT: nexT on the LAST term dies here, exit 139 -- nothing below prints ==":;
+fixNullAccessorHere = 0;
+naCrash(Grokking["NumbeR"]);
+cerr "NA defect walked " naN " terms -- if you can read this, the crash is FIXED":;
+cerr "SENTINEL nullAccessorDeref reached the foot":;
+stop();
+
+LANE:  runtime
+BLAST: DISJOINT
+
+nullAccessorDeref -- A BARE ACCESSOR THAT LAWFULLY ANSWERS NULL SEGFAULTS INSTEAD.
+
+Minted 2026-09-25 by Clay's dispatch (date the countPop crash), which authorised the
+mint. Found because countPop's repaired instrument showed all 47 probes dying.
+
+THE MECHANISM, measured. opDot's accessor switch has seven cases that answer null when
+there is nothing to answer with: parenT with no parent, registrY with no registry, nexT
+on the LAST member, prioR on the FIRST, firsT and lasT on an empty list, and the first
+member (405) with none. Null is the right answer in every one. After the switch opDot
+runs `if !product.data product.count = 0;` -- WITHOUT asking whether product exists --
+and dereferences the null. The very next line, `if product && !product.parent`, does
+ask. One guard present, one missing, side by side (Instruct.rtn, opDot's tail).
+
+WHERE IT WAS BORN, measured by a two-point bisect in clones outside Dropbox, three repos
+at one date (Groups, TOK 644fe89, support c670466), bare builds from committed .mm:
+  e0000a4  (parent)   repro exit 0, 3 terms      control exit 0, 3 terms
+  fb9e4de  2026-09-08 repro exit 139             control exit 0, 3 terms
+FIRST BAD COMMIT: fb9e4de "bareIfTruth: aCTionIF answers by truthOf". It added the
+unguarded line. The probe discriminated at both ends and its control passed at both, so
+the pass at the good end is evidence and not a probe that always passes (H16).
+
+WHAT IT COST: incant/pop/f31 (fbGen's `if nexT; print _fbJoin;`), countPop's 47 probes
+which are f31, and incant/pop/bisectQ all exit 139 on it -- none of them fleet rows, so
+nothing on the checklist saw it for seventeen days. It is the LANGUAGE, not the probe
+generator: the repro above is ordinary kant.
+
+NEXT: BEST GUESS -- guard the line: `if product && !product.data product.count = 0;`,
+mirroring the line beneath it. Grade: strong candidate. It is one missing guard beside a
+present one, the crash frame is that line, and every null the switch produces is
+lawful, so nothing upstream wants to change. What would promote it to REMEDY: the build,
+with this file then printing "NA defect walked 3 terms" and its sentinel, at exit 0,
+and a fleet row for each of the seven null-answering accessors on a miss -- a row per
+case, because a guard that fixes nexT and not prioR is the half-fix this file exists to
+prevent. What would kill it: a null-answering case that is SUPPOSED to be a refusal
+rather than a lawful empty -- that is a ruling about the accessor, not the guard.
