@@ -163,10 +163,6 @@ define
     '%'     operateMethod=opRem;
     '!='    operateMethod=opNotEQ  interpretMethod=runNotEQ  jitEmitter=jitEmitNE;
     '!'     unary ruleMethod=opNOT;
-    ;
-/*  THE += MEMBERS, in a define of their own that REOPENS '+=' without restating
-    its attribute. See section 9 at the foot.  */
-define
     '+='
         '+=isCOUNT'  operateMethod=opPlusEQisCOUNT;
         '+=isNUMBER' operateMethod=opPlusEQisNUMBER;
@@ -560,11 +556,14 @@ include(grammar);
     naming a file that is gone fails at exit zero with nothing saying why, which is
     bear-trap 28's fourth row.
 
-    9. THE PLUS-EQUALS MEMBERS LIVE IN A define OF THEIR OWN, WHICH REOPENS THE ENTRY
+    9. THE PLUS-EQUALS MEMBERS REOPEN THE ENTRY, AT THE END OF THE BLOCK
 
-    Plus-equals keeps its own operateMethod in the Operators block, written plain.
-    Its members -- one per data kind, picked per fire by pickKindOP -- are added in a
-    SECOND define that reopens the plus-equals entry WITHOUT restating its attribute.
+    Plus-equals keeps its own operateMethod where it sits, written plain. Its
+    members -- one per data kind, picked per fire by pickKindOP -- hang off a SECOND
+    mention of plus-equals, the LAST entry of the block, which restates no
+    attribute. Naming an entry again in the same define reopens it; it does not
+    mint a second one. Tony's simplification, 2026-09-25, measured: the separate
+    define that first carried the members was not needed.
     ⚠ MEASURED 2026-09-25, AND IT CORRECTS THIS SECTION'S TWO EARLIER VERSIONS OF THE
     SAME DAY. A member block written under an entry that has a name=value attribute
     CORRUPTS THAT ATTRIBUTE: by the time the define processes the entry's own
@@ -574,5 +573,6 @@ include(grammar);
     opPlusEQ, and its witness sat after the hand-back. It surfaced only when the
     hand-back was removed. A lone semicolon line after a member block also closes the
     whole define (the first version of this note, which blamed the member block
-    itself). Both hazards are avoided by the shape used here. Bear-trap 56.
+    itself) -- which is why the reopening mention goes LAST, where that semicolon
+    is the define's own close. Both hazards are avoided by this shape. Bear-trap 56.
 *******************************************************************************/
