@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 127 at the FOOT -- JSONfield fix WORKS and is fleet-neutral, NOT landed: arrays stay broken by JSONarray's own yield (outside 'fix nothing else')
+STATUS:   fresh           # SEQ 128 at the FOOT -- SEQ 178 DONE: JSON fix + pin landed on trunk; population = JSON only; plan written (branch 2aac1f8), four rulings flagged
+# prior: SEQ 127 -- JSONfield fix WORKS and is fleet-neutral, NOT landed: arrays stay broken by JSONarray's own yield (outside 'fix nothing else')
 # prior: SEQ 126 -- STOPPED at item 1: trunk's JSON tree is ALREADY last-value-only, so the H7 control cannot discriminate
 # prior: SEQ 125 -- A: nothing lost; STOPPED in item C on a NONE row (JSON: the yield channel builds the data tree)
 # prior: SEQ 124 -- STEP-2 RECON STOPPED at 5b: two drive seats bypass both known seats (treeOf, demoRprime)
@@ -7321,3 +7322,86 @@ else in JSON") cannot both hold:
 
 STATE: trunk jit-unified-emit-wip, installed and BARE, fleet 742 / 2, tree clean but
 ipc/. Probe files in scratchpad only.
+
+===================================================================
+SEQ 128  --  2026-09-25  --  Clod
+SEQ 178 DONE. No stop clause fired. JSON fix and pin LANDED ON TRUNK; item 2 = JSON
+only, (b) stands; item 3 done; the plan is in the branch's docs/jitDesign.md (2aac1f8).
+===================================================================
+
+1. THE JSON STROKE -- dc8b0b9 (trunk, pushed)
+   JSONfield: `jfOut := new(*JSONtoken); *jfOut = *JSONvalue; return *jfOut;`
+   JSONarray: mints jaOut and attaches `copyOf(*grup)` per element with `+%`, returns
+   *jaOut. Two measured wrong turns on the way, both in the commit: `copyOf(grup)` refuses
+   (grup holds a group -- say *), and `+=` onto the empty mint takes the ARGUMENT's kind and
+   concatenated "xy" -- `+%` is the structural attach. The old `grup <: grup` element retag
+   goes with it: array elements now read tag JSONitem.
+   CERTIFICATE: all five cases correct (a=b,c=d distinct bodies; a=b; a holds x and y as two
+   members; nesting a{b=c,d=e} beside f=g). Empty array AS IT STANDS: `a`, no data (value
+   column is the JSONvalue tag echo), and ONE "nextGroup: ERROR JSONlist does not contain a
+   list" per empty array -- not fallen out, not chased (F-99). Fleet 742 / 2, red list
+   identical (57); canary 368; runtime incant only, nothing to retok.
+
+2. THE PIN -- 9ab2fdd (trunk, pushed)
+   jsonTest's testJSON prints the tree two levels deep with addrOf per node, ends on
+   JSONTEST SENTINEL. Nine rows: JT-0 sentinel, JT-1 keys+values, JT-2 35 nodes / 35 distinct
+   bodies, JT-3 array, JT-4 nesting, JT-5 empty array as it stands, JT-5b its nextGroup line
+   = 1, JT-OK 13 parse / 0 FAIL, JT-TREE the filtered transcript (genLadder/jsonTest.tree).
+   The parked `jsonTest baseline` row RETIRES INTO THEM by mapping (in the commit);
+   genLadder/jsonTest.base deleted. Fleet 742 / 2 -> 751 / 1; red list identical.
+   H7 CONTROL (incant/utilities at dc8b0b9^): JT-1, JT-2 (43 nodes, 7 bodies), JT-3, JT-4,
+   JT-5, JT-TREE RED; JT-OK and JT-5b green -- JT-OK green is the retired row's blindness.
+
+3. ITEM 2 -- THE POPULATION: JSON ONLY. (b) STANDS.
+   Searched: every coded rule (isRule with code=) in incant/ and IncantForms/ (attic and
+   BackupXML excluded) -- 13 -- and each one's parent; every built-in yielder's parent in
+   incant/grammar; the fleet's measured yields (SEQ 125, PTF_RETIRE: yieldTrunk StringXP,
+   JSONfield, JSONarray, list, tell; yieldReplay CerR, PrinT, Iterate, CouT, BlocK).
+   Only JSONblock is action-less with multiple yielding children whose result a caller
+   reads. Excluded, each with its reason: bins (Token, WardeD, ElsE, JSONvalue) pass through
+   to parents with actions; lamp/thermo -- their members are `defer`, held not yielded,
+   single member; Start reads truth only; BasicElse has one child and IF reads it; frRule,
+   wzNum, fireSeatT's six, list are roots with actions; tell has its own action and already
+   returns a fresh verdict node; IncantForms' drawing/fonting rules have no yielding
+   children.
+
+4. ITEM 3 -- in the plan (docs/jitDesign.md on parse-then-fire, 2aac1f8):
+   - the split-action table: two specimens need a parse-time half -- NamE (split at
+     ruleActions.rtn:663, `input.group = result` is walk-time; lookup + local-minting is
+     parse-time) and interpretXP's `invoke` stamp; ANYtoken needs a DIFFERENT PREDICATE
+     (a text lookup), not a split; CodE, CheckFor, ShortcuT, DelimText and the define
+     family need their whole action at parse time; processAction's compile-failure null
+     splits at GroupActions.rtn:564.
+   - Rule C against overlapCensus.md direction 1, every row classified. attachLabel's
+     labelNO skip IS retired by the value handoff (P6). One new site: interpretXP reads the
+     token's registry and actionType, which NamE's resolution decides.
+   - Nine strokes, P0-P8, each with a pre-registered certificate and named movers; the JSON
+     collecting stroke (P5) certified by the JT rows; the routing stroke (P3) opening with
+     the ordinary-action + rejected-pass fixture; the conservation row at 13,342 with its
+     srDot sentence (P2).
+
+RULINGS FLAGGED IN THE PLAN (a stroke cannot start without its answer):
+   P3  driveStep's growth -- treeOf's raw tree (read at the root's rStuff.label, as tell
+       does?) and demoRprime's term-repeated-into-a-label inside one divert
+   P4  where the control slot lives (recommended: a ruler slot saved/restored at
+       processAction's frame)
+   P7  the Start() boundary -- setup under StatemenT, or outside-while-defining = define
+   P8  C-form for ANYtoken (measured not neutral 09-24); plant 4's route (a second bit, or
+       the opGet shape rewrite)
+
+⚠ CERTIFICATE CAVEAT, named rather than hidden: P3's scoped-discard row reads 0 at step 1
+BY DESIGN (the drives' roots are not StatemenT; SEQ 125 A saw zero fires inside them). It
+is written now and must read non-zero in P7 -- that is its H7 pair.
+
+FINDINGS, not chased:
+   - genLadder/tree.sh and genLadder/mixed.sh are RED ON TRUNK and on no seal checklist:
+     tree.sh "TREE FIXTURE MOVED", mixed.sh "WOKE -- NO VARIANT LOSES THE CHILD ANY MORE".
+     They are P3's named movers, so P3 certifies "byte-identical to today's red".
+   - isBranch has no GroupFields accessor; P4's fixture needs one (or a callout) first.
+   - A coded helper called for the first time from inside JSONfield's body during the
+     JSON drive failed to compile ("ERROR processCode: jfDump parse failed"), in a
+     probe only -- the same helper compiled fine at top level. Not chased.
+
+STATE: trunk jit-unified-emit-wip at 9ab2fdd (+ this ipc commit), installed and BARE, fleet
+751 / 1, red 57, canary 368. Branch parse-then-fire at 2aac1f8 (docs only), pushed.
+No seal: the report is to be read first.

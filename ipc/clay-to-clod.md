@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      178
-STATUS:   working        # SEQ 178 -- JSONfield + JSONarray mint fix, pin green, items 2 and 3
+STATUS:   cleared        # SEQ 178 -- done: JSON fix dc8b0b9, pin 9ab2fdd, population JSON only, plan 2aac1f8 on the branch; report clod-to-clay SEQ 128
 STATUS-177: cleared      # SEQ 177 -- STOPPED: JSONfield fix works, arrays lost by JSONarray; report clod-to-clay SEQ 127
 STATUS-176: cleared      # SEQ 176 -- STOPPED at item 1 (trunk JSON tree already last-value-only); report clod-to-clay SEQ 126
 STATUS-175: cleared      # SEQ 175 -- A done (nothing lost); STOPPED in C on a NONE row (JSON data tree); report clod-to-clay SEQ 125
