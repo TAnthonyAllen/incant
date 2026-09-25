@@ -9859,6 +9859,35 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 }
 
 /***************************************************************************
+    opPlusEQisCOUNT -- the first per-kind member, '+=isCOUNT' on '+=', picked
+    per fire by runOP's checkOP seat. It is opPlusEQ's isCOUNT arm LIFTED, not
+    rewritten. Every case the arm's gates in opPlusEQ would not reach goes back
+    to opPlusEQ whole: a list or dataless argument, a structural target, and a
+    target that is not a count (the empty target picked by its ARGUMENT's kind).
+***************************************************************************/
+extern "C" GroupItem *opPlusEQisCOUNT(GroupItem *argument, GroupItem *target)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	// refusedFirst the store ruling is asked BEFORE any gate reads argument -- a refused rhs arrives as null
+	if ( ruler->refused )
+		return 0;
+	if ( !isCOUNT(target->groupBody->flags.data) || isLIST(argument->groupBody->flags.binType) || !argument->groupBody->flags.data )
+		return ::opPlusEQ(argument,target);
+	if ( !target->groupBody->flags.isRule && !target->groupBody->flags.actionType && (target->groupBody->flags.binType || target->groupBody->groupList) )
+		return ::opPlusEQ(argument,target);
+	measurePlusEQWrite(target);
+	measureKindArm("opPlusEQisCOUNT",target);
+	if ( ruler->jitting )
+		{
+		 jitEmitBinary(argument, target, jitAdd);
+		return jitEmitAssign(target, target); 
+		}
+	ruler->tempField->setNumber(target->getNumber() + argument->getNumber());
+	target->groupBody->gCount = ruler->tempField->getCount();
+	return target;
+}
+
+/***************************************************************************
 	Rule action for ++ operator
 ***************************************************************************/
 extern "C" GroupItem *opPlusPlus(GroupItem *result)
@@ -14079,6 +14108,7 @@ int 	result = 0;
 	read(int,char*,long)
 	isDotUxp(GroupItem*)
 	measurePlusEQWrite(GroupItem*)
+	measureKindArm(char*,GroupItem*)
 	measurePlusPlusWrite(GroupItem*)
 	floor(double)
 */

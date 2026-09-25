@@ -449,6 +449,22 @@ extern "C" GroupItem *measureFrameProbe(GroupItem *field, GroupItem *rule)
 	return field;
 }
 
+/*  THE PER-KIND ARM WITNESS. Names the kind-specific operator method that ran and the
+    target it ran on, so a fixture can count the fork -- which is value-transparent by
+    construction, so nothing but a count can see it. Armed by INCANT_KIND_PROBE, inert
+    otherwise. Reads what it is handed; re-derives nothing.
+    measure.measureKindArm  */
+extern "C" GroupItem *measureKindArm(char *arm, GroupItem *field)
+{
+	
+	if ( ::getenv("INCANT_KIND_PROBE") && field )
+	::fprintf(stderr,"KINDARM %s tag=%s data=%s\n",
+	arm, field->groupBody->tag ? field->groupBody->tag : "(untagged)",
+	::dataName(field->groupBody->flags.data));
+	
+	return field;
+}
+
 /*  TEMPORARY, parseTrace-gated. Prints at the MINT so an outer activation's line
     brackets its inner one's: distinctness is an address comparison, survival is the
     same address appearing again at measureLabelProbe. ⚠ No percent-dash in the format

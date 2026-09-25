@@ -150,7 +150,6 @@ define
 
     '$$'    unary ruleMethod=opDebug;
     '-'     operateMethod=opMinus  jitEmitter=jitEmitSub;
-    '+='    operateMethod=opPlusEQ;
     '++'    unary ruleMethod=opPlusPlus;
     '+*'    operateMethod=opAddPointer;
     '+%'    operateMethod=opAddAttribute;
@@ -163,6 +162,8 @@ define
     '%'     operateMethod=opRem;
     '!='    operateMethod=opNotEQ  interpretMethod=runNotEQ  jitEmitter=jitEmitNE;
     '!'     unary ruleMethod=opNOT;
+    '+='    operateMethod=opPlusEQ
+        '+=isCOUNT'  operateMethod=opPlusEQisCOUNT;
     ;
 /*******************************************************************************
 	bcOPs — bytecode opcodes (control flow + stack ops). A SEPARATE registry,
@@ -547,4 +548,19 @@ include(grammar);
     deleted at cc2fd2d and nothing has included it since. A registered includable
     naming a file that is gone fails at exit zero with nothing saying why, which is
     bear-trap 28's fourth row.
+
+    9. THE PLUS-EQUALS ENTRY IS LAST IN Operators ON PURPOSE, AND MUST STAY LAST
+
+    It carries the first per-kind member, the one named plus-equals isCOUNT, which
+    runOP's checkOP seat picks per fire when the target holds a count. An indented
+    member block CLOSES THE WHOLE define IT SITS IN: its closing semicolon is the
+    define's, so every entry written after it is parsed as a statement and setup is
+    abandoned, silently, with no line of stderr. The first symptom is a segfault in
+    bootstrapper setting the stringBUFFER link, because the parse never reached the
+    stringBUFFER entry. Measured 2026-09-25: a member under ANY entry in the middle
+    of a define block did this, in Operators and in pROPERTIEs alike, and the same
+    member on the LAST entry parsed clean. UnaryOPS works for the same reason -- it
+    is the last entry of its block. Position in Operators does not change which
+    operator matches (section 7), so moving the entry here cost nothing. A second
+    operator with members needs a define block of its own.
 *******************************************************************************/

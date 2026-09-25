@@ -1081,6 +1081,33 @@ use target
 
 
 /***************************************************************************
+    opPlusEQisCOUNT -- the first per-kind member, '+=isCOUNT' on '+=', picked
+    per fire by runOP's checkOP seat. It is opPlusEQ's isCOUNT arm LIFTED, not
+    rewritten. Every case the arm's gates in opPlusEQ would not reach goes back
+    to opPlusEQ whole: a list or dataless argument, a structural target, and a
+    target that is not a count (the empty target picked by its ARGUMENT's kind).
+***************************************************************************/
+extern GroupItem opPlusEQisCOUNT(GroupItem argument,GroupItem target)
+{
+GroupRules  ruler = groupRules;
+    // refusedFirst the store ruling is asked BEFORE any gate reads argument -- a refused rhs arrives as null
+    if ruler.refused    return null;
+use target
+    if !isCOUNT || argument.isLIST || !argument.data    return opPlusEQ(argument,target);
+    if !isRule && !actionType && (binType || groupList) return opPlusEQ(argument,target);
+    measurePlusEQWrite(target);
+    measureKindArm("opPlusEQisCOUNT",target);
+    if jitting {
+        -% jitEmitBinary(argument, target, jitAdd);
+           return jitEmitAssign(target, target); %-
+        }
+    tempField.number = number + argument.number;
+    gCount  = tempField.count;
+    return target;
+}
+
+
+/***************************************************************************
 	Rule action for ++ operator
 ***************************************************************************/
 extern GroupItem opPlusPlus(GroupItem result)

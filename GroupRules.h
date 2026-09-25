@@ -347,6 +347,7 @@ extern "C" GroupItem *opNotEQ(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opOR(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opPlus(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opPlusEQ(GroupItem *argument, GroupItem *target);
+extern "C" GroupItem *opPlusEQisCOUNT(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opPlusPlus(GroupItem *result);
 extern "C" GroupItem *opPointer(GroupItem *field);
 extern "C" GroupItem *opPrint(GroupItem *target, Buffer *buffer);
