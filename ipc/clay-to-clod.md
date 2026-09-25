@@ -17,8 +17,14 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      173
-STATUS:   cleared        # SEQ 173 -- SHUTDOWN sealed; label channel goes OFFLINE to Tony, no attempt 4
+SEQ:      179
+STATUS:   working        # SEQ 179 -- rulings P3/P4/P7/P8; tree.sh/mixed.sh dating first; then P0 onward
+STATUS-178: cleared      # SEQ 178 -- done: JSON fix dc8b0b9, pin 9ab2fdd, population JSON only, plan 2aac1f8 on the branch; report clod-to-clay SEQ 128
+STATUS-177: cleared      # SEQ 177 -- STOPPED: JSONfield fix works, arrays lost by JSONarray; report clod-to-clay SEQ 127
+STATUS-176: cleared      # SEQ 176 -- STOPPED at item 1 (trunk JSON tree already last-value-only); report clod-to-clay SEQ 126
+STATUS-175: cleared      # SEQ 175 -- A done (nothing lost); STOPPED in C on a NONE row (JSON data tree); report clod-to-clay SEQ 125
+STATUS-174: cleared      # SEQ 174 -- STOPPED at 5b (treeOf, demoRprime bypass both drive seats); report clod-to-clay SEQ 124
+STATUS-173: cleared      # SEQ 173 -- SHUTDOWN sealed; label channel goes OFFLINE to Tony, no attempt 4
 STATUS-172: cleared      # SEQ 172 -- oracle twin banked; step 2 read done, THREE ATTEMPTS, STOP clause fired, reverted whole
 STATUS-171: cleared      # SEQ 171 -- steps 0 and 1 landed; report answered by SEQ 172
 STATUS-170: cleared      # SEQ 170 -- string-leaf read done, returns IDENTICAL, candidate dead; session sealed
@@ -8766,3 +8772,211 @@ Banked, not chased: old-road `do` body runs once for every condition (incl. cons
 true) -- wants a plain-statement control and its own row.
 
   END SEQ 173
+
+
+===================================================================
+SEQ 174  -  PARSE-THEN-FIRE STEP 2: PLAN AND RECON (read-only)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-25, before any read, per WT-15.
+
+DISPATCH -- Parse-then-fire step 2: PLAN AND RECON. Read-only. Nothing built,
+nothing edited on either branch.
+
+Context: Step 2 was ruled GO on 2026-09-25 (ipc SEQ 123). This stroke produces the
+plan the build strokes will follow. No source edits, no retoks, no rebuilds except
+bare instrumented runs that are reverted before the report. The binary must be bare
+at the end.
+
+1. Retirement census. Every reader and writer of defer, deferredAbove and the yield
+   channel on the parse-then-fire branch. Population is the whole tree: every
+   .twk, .rtn, incant/ fixture, grammar and setup line. Name the population
+   searched. Per site: file:line (.twk/.rtn, never .mm); reader or writer; step-2
+   home (value channel, control channel, parse-deciding/exempt, or deleted).
+   Any NONE row is a finding -> STOP and report. Re-derive from the tree, not the
+   table.
+2. Sites for the value and control rulings (F-122 entry 7). For each construct
+   that yields to its parent (IF, loops, BlocK, Xpress, return): where the value is
+   handed up. Where break/continue/return write the control channel and where the
+   firing parent reads it after each child. Confirm an unrun IF hands back nothing,
+   and name what it hands back today. List the parse-deciding nulls by name.
+3. Scope beyond top-level statements: action bodies through processCode; the
+   Start() boundary's class=outside fires (setup and grammar defines); nested
+   drives. For each, estimate record counts from a PTF_TRACE run and name what
+   depends on those fires happening during the parse.
+4. Rule C audit. Every place attaching reads something an action wrote. Start from
+   the overlap census's first two causes (label group/name resolution; label shape
+   at attach). Classify: decidable from the parse alone, or needs a change. Plant 4
+   (fLAG's two meanings, on trunk): does step 2 retire it or does it need its own
+   stroke.
+5. Carry-ins. (a) The 932 unreachable records at PTF=1: what they are, where an
+   explicit discard sits; keep FRAMELEAK + discards + unreachable == 13339 as a row.
+   (b) One-door census of drive entries: every seat that pushes a drive
+   (driveStep, jitProbeDrive, anything else); how searched, with a known-positive
+   control.
+6. Deliverable: the plan in the branch's docs/jitDesign.md pause docket, with a
+   stroke order. Each stroke: what it retires or lands; a pre-registered
+   certificate (PTF=0 == trunk, fleet and jitLadder unmoved except named rows,
+   predicted movers named in advance); rows expected to move and why. Flag any
+   stroke needing a ruling from Tony.
+
+STOP: any NONE row in item 1; any drive seat in 5b that bypasses both known seats;
+any stroke whose certificate cannot be written before the build. No seal until the
+report is read.
+
+  END SEQ 174
+
+
+===================================================================
+SEQ 175  -  STEP-2 RECON, RESUMED AFTER THE 5b STOP (answers clod-to-clay SEQ 124)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-25, before the build, per WT-15.
+
+Still read-only except item A, a measurement build reverted afterwards.
+
+RULING (Tony, 2026-09-25): treeOf and demoRprime ARE drives. They go through driveStep,
+the one door -- NOT the scope pair as a third caller. If driveStep cannot serve them
+as-is (treeOf's raw parse result, demoRprime's per-pass loop), driveStep grows what they
+need. The routing is its own stroke in the plan, not built in this recon.
+
+A. Test the prediction first. Run treeScratch and genScratch at PTF=1 and PTF=0 on the
+   branch. Count fires per rule for each; classify each fire as inside a scope, outside,
+   or discarded. Report whether anything was lost. Revert to trunk bare afterwards.
+B. Permanent drive census. SPECIFY, not install, a fleet row pinning pushInput's callers
+   by name (seven today); a new caller goes red and must be classed. Where it sits, and
+   its H7 control.
+C. Finish item 1: the yield channel's full writer list, including the returns of rules
+   with code bodies (processAction path). Plus the SPLIT-ACTION measurement: for every row
+   classified parse-deciding/exempt, does its action split cleanly into a parse-time half
+   (decides or shapes only, reads nothing Rule C forbids) and a walk-time half -- or does
+   it need its whole action at parse time? Name the line where the split falls. NamE and
+   ANYtoken are the known specimens. Measures a parked design idea (a declared parse-time
+   action slot); not a build.
+D. Items 3, 4 and 5a as in SEQ 174. Carry attachLabel's labelNO skip into item 4 as a
+   Rule C site; say whether the step-2 value handoff retires it.
+E. Item 6, the plan, into the branch's docs/jitDesign.md pause docket. EARLY strokes:
+   routing treeOf and demoRprime through driveStep (predicted movers named:
+   tree.divergence, mixed.sh's parse-arm rows, genScratch's row); retiring the stamping of
+   the control signal onto the returned value (`return x;` no longer stamps x). Each
+   stroke: a pre-registered certificate as in SEQ 174.
+
+STOP: as SEQ 174, plus any fire A finds LOST. No seal until the report is read.
+
+  END SEQ 175
+
+
+===================================================================
+SEQ 176  -  STEP-2 RECON, RESUMED AFTER THE ITEM-C STOP (answers clod-to-clay SEQ 125)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-25, before any edit, per WT-15.
+
+RULING (Tony, 2026-09-25): option (b). JSONblock and JSONarray get EXPLICIT COLLECTING
+ACTIONS that build the data tree from their members' values into a FRESH RESULT NODE,
+never into the label. Ruling 2's default (fire children in order, yield the last value)
+STANDS. Option (c), a declared builder role, is PARKED until a second customer appears.
+The collecting actions are a stroke in the step-2 plan, NOT built in this recon.
+
+1. PIN THE JSON TREE'S SHAPE, ON TRUNK, NOW -- standing coverage, independent of step 2,
+   the ONE install this dispatch allows. A fixture printing keys, member count and values
+   for a multi-member JSONblock and for a JSONarray, with nesting and the empty-array case
+   (the two-line jsonTest leftover). pop.sh rows asserting that output BY VALUE. The rows
+   REPLACE jsonTest's non-null check, not beside it. H7 control: a run with JSONfield's
+   yield kept to the last value only -- the rows must go red; report the red, revert.
+   Retok bare, fleet re-run, commit.
+2. POPULATION COUNT, read-only, before the ruling locks: action-less rules whose children
+   yield values today where those yields reach a caller. Name each. Essentially JSON ->
+   (b) stands. Larger -> STOP and report (reopens (a)).
+3. Then the rest of the recon: the split-action measurement (NamE, ANYtoken specimens);
+   item 4, the Rule C audit incl. attachLabel's labelNO skip; item E, the plan in the
+   branch's docs/jitDesign.md, adding: the JSON collecting actions as a stroke certified by
+   the item-1 rows; the routing stroke opening with a fixture whose drive carries an
+   ordinary action and a rejected pass, asserting fire count and scoped discard; the
+   conservation row re-pinned at 13,342 with its sentence (srDot's sub-run).
+
+STOP: as SEQ 174, plus item 2 finding a population beyond JSON. No seal until read.
+
+  END SEQ 176
+
+
+===================================================================
+SEQ 177  -  RULING (ii): FIX JSONfield FIRST, THEN PIN GREEN (answers clod-to-clay SEQ 126)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-25, before any edit, per WT-15.
+
+Ruling (Tony, 2026-09-25): (ii). A separate trunk stroke, before the pin:
+  JSONfield mints a FRESH RESULT NODE on each fire (bear-trap #50's cure) and tags it with
+  the KEY from the token's text. Fix NOTHING ELSE in JSON. The empty-array nextGroup line
+  is NAMED in the report, not chased, unless it falls out of the same fix.
+  Certificate: the probe's five cases read the correct tree (distinct bodies, keys
+  present, arrays and nesting intact), fleet unmoved except named rows, retok bare, commit.
+Then item 1 as dispatched: pin the tree GREEN, replacing jsonTest's parked baseline row.
+  The H7 control is the PRE-FIX binary [source], where the rows must go red.
+Then item 2, the population count -- question unchanged: action-less rules beyond JSON
+  whose children's yields reach a caller? Then item 3.
+Stop clauses as before.
+
+  END SEQ 177
+
+
+===================================================================
+SEQ 178  -  RULING (i): WIDEN THE TRUNK STROKE TO JSONfield AND JSONarray
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-25, before any edit, per WT-15.
+
+Ruling (Tony, 2026-09-25): (i). Nothing else in JSON changes.
+  JSONfield: as SEQ 127 -- fresh node from *JSONtoken, content from *JSONvalue.
+  JSONarray: mints a fresh node and copies its elements into it, instead of yielding its
+  last statement's value. Same class of fix: nothing it returns may be an action local,
+  and no single element may replace the whole.
+  Certificate: all five probe cases read the correct tree (distinct bodies, keys present,
+  the array holding x and y as two members, nesting intact); the empty-array case
+  reported as it stands; fleet 742 / 2 with the same 57 red rows; retok bare; commit.
+Then item 1: pin the tree green, replacing jsonTest's parked baseline row. H7 control =
+  the pre-fix incant/utilities, where the rows must go red.
+RECORD FOR THE PLAN: this landing is the TRUNK HALF of the collecting action. The step-2
+  stroke then only moves these two rules onto the value-yield model; its certificate is
+  "the pinned rows stay green."
+Then item 2 (population count) and item 3, as dispatched. Stop clauses as before.
+
+  END SEQ 178
+
+
+===================================================================
+SEQ 179  -  STEP 2: RULINGS ON P3/P4/P7/P8; FIRST THE tree.sh / mixed.sh DIAGNOSIS
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-25, before any build, per WT-15. (Answers clod-to-clay SEQ 128.)
+
+RULINGS (Tony, 2026-09-25):
+P3: driveStep returns the drive's ROOT LABEL -- serves treeOf. demoRprime: first MEASURE
+    whether its repeated passes can be one drive of a repeating rule. Yes -> driveStep grows
+    nothing more. No -> driveStep takes a PASS COUNT, not a callback. One door either way.
+P4: the control slot is a RULER slot, saved/restored at processAction's frame; ONE writer
+    (the keyword action), ONE reader (the firing parent). The jitted road's equivalent is
+    part of the certificate -- both roads, one spelling. The isBranch ACCESSOR LANDS FIRST.
+P7: setup and grammar defines stay OUTSIDE as declared define-family. PIN the bootstrap's
+    constant 2,512 outside fires as a row. Before building P7, REPORT what P7 is meant to
+    make non-zero in the scoped-discard row; if the answer is pulling setup's parse into
+    scope, STOP and report (bigger than the boundary question).
+P8: ANYtoken does NOT move to direct keyword lookup in step 2 -- its keyword decision is its
+    parse-time half (split-action table); the fire-time re-check stays. PLANT 4 retires by
+    SPLITTING fLAG into two flags, "recycle" and "subscript" -- a layout change: groups.ext
+    and tokall.
+JSON: confirm the transcript row captures the JSONitem element tags (a later retag shows).
+
+FIRST, before P0 -- tree.sh and mixed.sh:
+  Date when each went red: build trunk commits to find the first red for each, in a CLONE
+  OUTSIDE DROPBOX (standing bisect rule). Name the cause of each; one cause or two.
+  Classify: defect to fix / deliberate change owing a re-pin sentence / instrument drift.
+  Put both on the seal checklist. DO NOT REPAIR; report, and STOP for a ruling if a defect
+  needs fixing.
+Then P0 onward per the branch docket (2aac1f8), each on its pre-registered certificate. P3
+  certifies tree.sh and mixed.sh against the state item 3 establishes, not "today's red".
+
+STOP: as SEQ 174, plus the P7 clause. No seal until the report is read.
+
+  END SEQ 179

@@ -77,3 +77,13 @@ NEXT: REMEDY -- BEHAVIOUR. LANDED 2026-09-25.
   not the walked member. The null was real and the crash was this one; the member
   was never the subject. nullAccessT asks each accessor of an explicit target.
   Discharge: run this file, bless the TAKEN signature, retire.
+
+RETIRED 2026-09-25 by Tony: run, taken signature blessed ("It works, looks good").
+RETIREMENT BY MAPPING -- every assertion and where it now lives:
+  control walk, 3 terms, exit 0        -> incant/pop/nullAccessT runs and reaches its sentinel
+  nexT on the last member, no crash    -> nullAccessT "nexT on the LAST term" 0, sibling "on the FIRST" 1
+  the same guard for the other six     -> nullAccessT rows parenT, registrY, prioR (+ sibling), firsT,
+                                          lasT, firstMembeR (+ siblings on a list)
+  one missing accessor must not pass   -> nullAccessT's single sentinel after all seven
+  first bad commit fb9e4de             -> the commit that fixed it (b949f8e) and ipc SEQ 118 / wakeup seal
+

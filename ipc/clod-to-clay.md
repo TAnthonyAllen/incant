@@ -3,8 +3,15 @@
   Clod writes this file. Clay reads it, acts, then clears it.
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
-SEQ:      121
-STATUS:   fresh           # SEQ 121 at the FOOT -- PART A STOPPED (parse-in-progress has two readings); PART B the yield brief
+SEQ:      123
+STATUS:   fresh           # SEQ 128 at the FOOT -- SEQ 178 DONE: JSON fix + pin landed on trunk; population = JSON only; plan written (branch 2aac1f8), four rulings flagged
+# prior: SEQ 127 -- JSONfield fix WORKS and is fleet-neutral, NOT landed: arrays stay broken by JSONarray's own yield (outside 'fix nothing else')
+# prior: SEQ 126 -- STOPPED at item 1: trunk's JSON tree is ALREADY last-value-only, so the H7 control cannot discriminate
+# prior: SEQ 125 -- A: nothing lost; STOPPED in item C on a NONE row (JSON: the yield channel builds the data tree)
+# prior: SEQ 124 -- STEP-2 RECON STOPPED at 5b: two drive seats bypass both known seats (treeOf, demoRprime)
+# prior: SEQ 123 -- ruling (ii) BUILT; FRAMELEAK 0; the loss accounting closes; go/no-go re-read
+STATUS-122: fresh        # SEQ 122 -- rulings A, B, C; the rejected-drive question (answered: (ii))
+STATUS-121: fresh        # SEQ 121 -- Part A stopped; the yield brief
 STATUS-120: fresh        # SEQ 120 -- GO / NO-GO ROUND 2
 STATUS-119: fresh        # SEQ 119 -- GO / NO-GO EVIDENCE (round 1)
 STATUS-118: fresh        # SEQ 118 -- string-leaf returns IDENTICAL, candidate dead; SHUTDOWN SEAL
@@ -6868,3 +6875,533 @@ B -- THE YIELD BRIEF (F-122 entry 7), SELF-CONTAINED
 
 STATE: trunk reinstalled (fleet below), branch untouched at df73ad6.
 
+===================================================================
+SEQ 122  --  2026-09-25  --  Clod
+RULINGS A, B, C (Tony, 2026-09-25) -- what landed, and one question A raised
+===================================================================
+
+C -- LANDED ON TRUNK. The "g"+tag stamp is gone from fireLabelMethod's held arm; the
+     replay's twin went with A on the branch. Fleet 740/2 row for row, jitLadder 215,
+     canary 368.
+B -- RECORDED on F-122 entry 7 (docs/fixIts.md), marked as landing with step 2; nothing
+     changed now.
+
+A -- BUILT on parse-then-fire (a9d637b), as ruled: one fact (gPtfScope, jitContext.h),
+     one writer pair (ptfScopeOpen / ptfScopeClose, called only from driveStep), the old
+     road pushing nothing. A drive opens a scope when a replay is running above the
+     innermost open scope's parse; at its end the drive's records replay from its own root
+     label through the replay core (ptfReplayRecords, split out of ptfStatementEnd with the
+     gate untouched) and are truncated.
+
+  CERTIFICATE -- PARTIAL, and the part that is missing is a question, not a defect:
+    FRAMELEAK at PTF=1   37 events / 289 records  ->  34 / 275
+    H7 (PTF_NOSCOPE=1)   back to 37 / 289
+    M1, the eight        UNCHANGED at PTF=1 -- none of them drives from a replay
+    fleet PTF=1          737/2 row for row with the pre-build capture
+    fleet PTF=0          740/2 row for row with trunk
+      one named move, both settings: the already-red `raw ->rStuff reads` census, 34 ->
+      36 -- ptfScopeClose reads rule->rStuff twice (a source-text count)
+    jitLadder            215 at both settings
+    canary               380 -> 383 (ptfReplayRecords, ptfScopeOpen, ptfScopeClose)
+    srDot row            STILL RED on the branch
+
+  WHY 275 ARE LEFT, MEASURED ON srDot WITH lldb: the scope OPENS (scoped=1, replay depth 1)
+  and at the drive's end holds its three records -- but the drive's parse returns NULL. It
+  is a REJECTED drive: srDot drives `.5` with no `;`, and Xpress is `ExpressioN SemI-`. It
+  is rejected on BOTH roads -- stmtRejT's rows read verdict 0/0 at PTF=0 as well. At PTF=0
+  the refusal prints anyway because TokenXP's action fires DURING the parse, before the
+  parse fails. At PTF=1 the refusal is one of the records of a parse that failed, and a
+  failed parse builds no tree, so the scope correctly fires nothing.
+  The 09-24 seal called the 37 events "near-miss drives" -- that half was right; they are
+  rejects. The 3 events caught today are ACCEPTED drives, now replayed.
+
+  THE QUESTION FOR TONY -- the ruling as written does not reach it:
+    Should a REJECTED parse's recorded fires ever fire? Under the model, no (no tree, no
+    fires). But then a refusal raised by a matcher-shaped check inside a failed parse --
+    the `.5` refusal is exactly that -- vanishes, where trunk shows it. Two shapes:
+      (i)  the check is PARSE-DECIDING: refuseLeadingDotNumber's refusal moves into the
+           exempt class (it is a verdict about the input, like ANYtoken's keyword test),
+           so it fires during the parse on both roads, rejected or not; or
+      (ii) a rejected parse fires nothing, and the srDot row is re-pinned to that --
+           the refusal is lost by design, with the drive's verdict (0) as the only signal.
+    The srDot row stays red on the branch until one of these is ruled.
+
+STATE: branch parse-then-fire a9d637b, pushed. Trunk reinstalled: 740/2, canary 368.
+
+===================================================================
+SEQ 123  --  2026-09-25  --  Clod
+RULING (ii) BUILT -- a rejected parse fires nothing -- and the go/no-go re-read
+===================================================================
+
+WHAT LANDED (branch parse-then-fire, pushed; the two rows also on trunk)
+  - ptfScopeClose DISCARDS a failed drive's records, counted as "discarded: rejected
+    parse", apart from FRAMELEAK.
+  - jitProbeDrive (probeDrive) is a drive and never went through driveStep -- so its drives
+    were never scoped. It now uses the same scope: one writer pair, two drive seats.
+  - The replay core now COUNTS the records its tree cannot reach (they were only traced).
+
+⚠ A CORRECTION TO SEQ 122 FIRST: it said the 3 events the scope caught were ACCEPTED drives,
+  now replayed. WRONG -- an inference I did not measure. They were REJECTED drives. No drive's
+  records replay through the scope at all: an accepted drive's records already replay
+  through its own root's statement end.
+
+CERTIFICATE -- the dispatch's arithmetic, and why it read differently
+  FRAMELEAK at PTF=1           289 -> 0                                   MET
+  replayed + discarded = 289   NOT AS WRITTEN: 289 was only the VISIBLE share. Measured,
+                               records NOT fired, full fleet, PTF=1:
+      scope disabled   FRAMELEAK 289 + UNREACHED 13050                     = 13339
+      scope enabled    FRAMELEAK   0 + DISCARDED 12407 + UNREACHED 932     = 13339
+    THE TOTAL IS CONSERVED EXACTLY -- nothing gained, nothing lost. The scope turned 289 frame
+    leaks PLUS 12118 records that were dropped SILENTLY (swept into a later statement end's
+    replay, unreachable from its tree) into explicit rejected-parse discards. The 932 still
+    unreachable are failed alternatives inside statements that DID parse -- the same ruling,
+    one level down, counted and named.
+  srDot row                    re-pinned, by engine; GREEN on the branch and on trunk.
+                               Branch: the rejected drive discards its 3 records BY VALUE
+                               and refuses nothing. H7: PTF_NOSCOPE=1 -> RED.
+  top-level failure row        NEW, green on both: `.5` with no `;` at the top of a file
+                               reports ABANDONED, naming what was left. At PTF=1 the refusal
+                               is gone and the ABANDONED report stays -- the rejection is
+                               the report.
+  fleet                        branch PTF=1 737 -> 740, PTF=0 740 -> 742; trunk 740 -> 742;
+                               every other row identical. jitLadder 215 at both settings.
+                               Canary: branch 383, trunk 368.
+
+THE GO / NO-GO CONDITIONS, RE-READ
+  1. EVERY DIVERGENCE NAMED ................ MET
+     srDot is now by design (ruling (ii)), and the trunk-vs-branch difference -- the refusal
+     printed on trunk, not on the branch -- joins the by-design error-diff. Station 2's 13
+     messages were attributed in SEQ 120 (pick shifts from near-misses now accepted). Every
+     row in the error-diff is tagged BY-DESIGN.
+  2. FIXES STILL CLUSTERING ................ MET for the PLANTS, with one thing to see
+     The four language plants stand in the census's first two causes, unchanged. Today's
+     fixes -- the recording scope and the probe-drive seat -- are to STEP 1'S OWN MACHINERY
+     (the census's "step 1's own globals" cause), not plants in the language. I read that as
+     consistent with the condition, but it is the one place a reader could disagree.
+  3. RETIREMENTS DELETABLE IN PRINCIPLE ... MET
+     Every channel's jobs now have a step-2 home: defer, deferredAbove and the held fires
+     retire into parent-driven firing; the yield channel's value jobs into "the parent takes
+     values by return" (ruled); break/continue/return into their own control channel
+     (ruled); parse verdicts stay exempt; the "g"+tag stamp is retired. No NONE row is left.
+
+PARKED, NOT ADVANCED: Rule C; parseLoop's silent success at max (F-114 entry 24); C-form.
+STATE: branch pushed; trunk reinstalled at 742/2, canary 368, no incant process.
+
+
+===================================================================
+SEQ 124  --  2026-09-25  --  Clod
+STEP-2 PLAN AND RECON (clay-to-clod SEQ 174) -- STOPPED AT 5b BY ITS OWN CLAUSE
+READ-ONLY. Nothing built, nothing retokked, no source or doc edited on either branch.
+The installed binary is trunk bare, never replaced this stroke. jitDesign.md NOT written.
+===================================================================
+
+THE STOP: TWO DRIVE SEATS BYPASS BOTH KNOWN SEATS (driveStep, jitProbeDrive)
+  genParse.rtn:2102  treeOf      pushInput(argument); result = rule.parse(0);  (ScafOUT)
+                                 registered in incant/pop/treeScratch:20, reached by
+                                 genLadder/tree.sh and mixed.sh
+  genParse.rtn:231   demoRprime  pushInput(argument) three times, each followed by
+                                 while parseR(term,label)  (ScafC's first term)
+                                 registered in incant/pop/genScratch:24, called :130-131,
+                                 so it runs in pop.sh's "genScratch runs" row
+  Neither calls ptfScopeOpen/Close. Both are immediateAction commands called from a
+  top-level statement, so at PTF=1 they run DURING that statement's replay: entered while
+  firing, the exact case the scope was ruled for.
+  PREDICTED IMPACT NIL, NOT MEASURED: ScafOUT/ScafC are scaffold grammars with no StatemenT
+  under them, so ptfStmtAbove stops at the walking floor and ptfClass answers "outside" --
+  their fires would run during the parse as on trunk, and nothing records or leaks. The
+  prediction is a reading of Generate.rtn ptfClass/ptfStmtAbove, not a run. A rejected
+  parse in either would still not be a scoped discard.
+  THE QUESTION: are these drives? Either (a) they route through driveStep or take the
+  scope pair (a third caller of ptfScopeOpen/Close breaks "one writer pair, two seats" as
+  written), or (b) the drive definition excludes scaffold demos and the census row says
+  why. Tony's.
+
+5b -- THE CENSUS, AS FAR AS IT RAN (population: every .twk, .rtn and hand-written .h on
+  the branch -- ../src.txt, 58 files, GUI/ and Tests/ excluded as not in the TOK Groups
+  build)
+  THE DOOR: a drive diverts input, and pushInput (GroupRules.twk:266) is the ONLY writer of
+  inputSTAK (its .push at :277 is inside it). Alternate spellings searched and absent:
+  inputSTAK.push elsewhere, divertToRule = true without pushInput, setInput.
+  pushInput callers (EVERY one):
+    GroupActions.rtn:1197  driveStep             KNOWN SEAT 1 (runRule, tell)     scoped
+    jitEmitters.rtn:713    jitProbeDrive         KNOWN SEAT 2 (probeDrive, sweep) scoped
+    genParse.rtn:249/264/283 demoRprime          BYPASS (above)
+    genParse.rtn:2111      treeOf                BYPASS (above)
+    GroupActions.rtn:658   processCode           action-body compile; its parse runs under
+                                                 processingCode, ptfClass "code" -- item 3's
+                                                 scope, not a drive seat
+    Commands.rtn:453       loadInputFromFile     include: pushes, parses NOTHING itself --
+                                                 the enclosing Start loop reads on. A divert,
+                                                 not a drive
+    GroupMain.twk:466      bootstrap setup       before any statement; not while firing
+  KNOWN-POSITIVE CONTROL: both known seats are in the list, and probeDrive (the accident)
+  is found through its call chain setup:60 -> jitEmitters.rtn:2736 -> jitProbeDrive.
+  Parses that push nothing (RuleStuff.twk:920/1069 term/rule.parse(bridge), runRule's
+  no-data arm GroupActions.rtn:1218) read the CURRENT input and are not drives.
+
+1 -- RETIREMENT CENSUS, PARTIAL (stopped mid-way; no NONE row found so far, but the
+  writer side of the yield channel is NOT fully enumerated: every isCoded rule's return
+  through processAction, GroupActions.rtn:596, is one writer population and was not read)
+  Population searched: ../pop.txt -- 384 files: every .twk/.rtn (GUI/, Tests/ excluded),
+  jitContext.h, measure.h, all of incant/, IncantForms/, jitLadder/, genLadder/; case-
+  insensitive "defer". Also groups.ext (out of repo). GUI's `deferredAction` is a
+  DIFFERENT flag, not on GroupBody, not in the build -- excluded by name.
+  defer (flags.deferred)
+    W  Commands.rtn:576 processFlags 'd'; setup:44 registers `defer`; grammar:117,141,
+       161,162,166-172,174-176,181 (15 rules); fixtures convDriveT:7-8, convLeakT:7-8,
+       printFamilyNew:106-107                           -> deleted (all actions wait)
+    W  GroupItem.twk:746 held arm; Generate.rtn:791 replay held arm   -> deleted
+    R  GroupItem.twk:445,451 deferredAbove              -> deleted with it
+    R  GroupItem.twk:741 (ptfRecord's held arg), :743 held arm        -> deleted
+    R  ruleActions.rtn:447 DO, 555 FOR, 589 IF, 1230 WhilE, 1246 Xpress -- the one-return-
+       two-meanings split                               -> value channel (always VALUE)
+    R  measure.twk:441, Generate.rtn:425 witnesses      -> deleted
+  deferredAbove
+    W  GroupItem.twk:433 (itself)   R GroupItem.twk:729 -> deleted
+    sibling walk Generate.rtn ptfStmtAbove (same two-mode walk)       -> deleted with step 1
+  yield channel -- READERS (complete)
+    GroupItem.twk:753  fireLabelMethod adoption          -> value channel (parent takes it)
+    GroupItem.twk:758  null return -> sukcess=false       -> parse-deciding, exempt
+    Generate.rtn ptfReplayRecords ret != L substitution + unwrap      -> deleted
+    Generate.rtn:50-51 parseAction label = action(...)   -> parse-deciding, exempt
+    RuleStuff.twk:394-395 testAction truth of return     -> parse-deciding, exempt
+    GroupItem.twk:226  attachLabel `!lab || lab == labelNO` skip -- ATTACH READS THE
+                       YIELD (Rule C). Home: the skip moves to the parent's fire (labelNO =
+                       no value); flagged for item 4, not NONE
+  yield channel -- WRITERS read so far (returns other than the input)
+    BlocK (result), BrancH (arg), CerR/CouT/PrinT/StringXP (op* -> property node / string),
+    Iterate (the cursor field), CodE (label), DO/FOR/IF/WhilE/Xpress (deferred arm)
+                                                         -> value channel
+    ANYtoken, CheckFor, ShortcuT (null)                  -> parse-deciding, exempt
+    isCoded rules via processAction                      -> NOT ENUMERATED (see above)
+
+2 -- ONE FINDING WORTH HAVING BEFORE THE PLAN, from the read
+  THE CONTROL SIGNAL IS STAMPED ON THE VALUE NODE ITSELF. aCTionBrancH (ruleActions.rtn:
+  117-120) generates arg->groupBody->flags.isBranch = 1/2/3, and arg is the return operand:
+  falseResult (a SHARED SINGLETON, on a null operand), the BrancheS keyword node (a
+  registry node), or a LIVE FIELD (`return x;` stamps x). Readers: BlocK:55-58, DO:429-439,
+  FOR:533-543, WhilE:1212-1222, IF:592; consumed at the action boundary GroupActions.rtn:596
+  and Generate.rtn:307. So the ruled control channel is not only a split -- today's channel
+  writes onto nodes other code owns.
+  UNRUN IF, today: owner-run hands back labelNO (ruleActions.rtn:586); direct fire hands back
+  its own label (input). The ruling says nothing.
+
+NOT DONE: item 3 (no PTF_TRACE run -- the branch binary was never built), item 4, item 5a,
+  item 6 (no plan written to jitDesign.md). The stop fired before the build, by design.
+STATE: trunk jit-unified-emit-wip, installed binary untouched (trunk bare), branch untouched.
+  Only ipc/ edited.
+
+===================================================================
+SEQ 125  --  2026-09-25  --  Clod
+STEP-2 RECON RESUMED (clay-to-clod SEQ 175) -- A MEASURED, NOTHING LOST;
+STOPPED IN ITEM C ON A NONE ROW
+Branch built for measurement (parse-then-fire 860047e, committed .mm, no retok), then
+trunk checked out and REBUILT BARE: fleet 742 / 2, red list 57 rows (identical, row for
+row, to the branch at PTF=0), canary 368, installed binary carries no _ptfScopeOpen.
+No source or doc edited on either branch. jitDesign.md NOT written (E not reached).
+===================================================================
+
+THE STOP -- ITEM C, A NONE ROW: THE YIELD CHANNEL BUILDS A DATA TREE, AND RULING 2's
+DEFAULT HAS NO PLACE FOR IT
+  incant/utilities:104  JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={
+                            token <: JSONtoken; token = *JSONvalue; return token; };
+  A CODED rule (processAction path, GroupActions.rtn:550-599) returns a LIVE FIELD, which
+  the yield channel puts IN PLACE OF ITS LABEL -- so JSONblock's label ends up holding one
+  keyed field per member. That tree IS what JSONblock(...) hands back to its caller
+  (incant/pop/jsonTest's testJSON: `field = JSONblock(argument);`). Siblings on the same
+  road: JSONarray (:111, its body's last value), unitTests `list` (:147), convDrive's
+  `tell`. Measured, traced fleet at PTF=1 (PTF_RETIRE): yieldTrunk JSONfield 39,
+  JSONarray 11, list 4, tell 3 -- all TRUNK, i.e. outside step 1's scope today, because
+  the JSON drive's root is not a StatemenT (class=outside). Step 2's scope extension
+  (item 3) is exactly what brings them in.
+  UNDER STEP 2 AS RULED: JSONfield hands its parent a VALUE (the field); JSONblock has NO
+  action, so ruling 2's default fires the components and YIELDS THE LAST VALUE -- the
+  object's other members are lost, and "the label tree never holds a field" forbids the
+  current shape outright. The job -- a parse whose actions' values ARE the structure it
+  returns -- has no home: not value-to-parent (last only), not control, not exempt.
+  ⚠ THE FLEET CANNOT SEE IT: jsonTest asserts only non-null ("ok"/"FAIL"), so JSONblock
+  returning its last member reads green. No row pins the JSON tree's shape.
+  CANDIDATE HOMES (for the ruling, not built): (a) the default for a rule with content and
+  no action COLLECTS its children's values into its own label (the label is the value);
+  (b) JSONblock/JSONarray gain explicit actions that collect; (c) a declared "builder"
+  role. Each moves different rows; the shape-pinning row is owed first either way.
+
+A -- THE PREDICTION: HELD, AND THE FIXTURES CANNOT SHOW A LOSS
+  treeScratch, genScratch, branch binary, PTF=0 and PTF=1, PTF_TRACE + PTF_LEAKLOG:
+    every run exit 0; NO leak-log event at all (no FRAMELEAK, DISCARD, UNREACHED)
+    per-rule fire counts (rule x fired/held): IDENTICAL across settings, both files
+      (treeScratch 2698 fires, genScratch 3222)
+    PTF=1 class split: treeScratch 2512 outside / 106 define / 11 decides + 69 walk;
+      genScratch 2512 outside / 259 define / 114 code / 41 decides + 276 walk
+    user-visible output: identical but for trace-line order and addresses
+  INSIDE THE DRIVES: ZERO action fires at either setting. treeOf's ScafOUT/ScafALT/Scaf*
+  carry no actions; demoRprime's per-pass GrouP fires reach fireLabelMethod with label=0,
+  so nothing fires. The prediction said "outside"; the truth is "nothing to fire".
+  ⚠ SO A CANNOT DISCRIMINATE: a loss is impossible in these drives, scoped or not. The
+  routing stroke's certificate needs a fixture whose treeOf/demoRprime drive carries an
+  ORDINARY action (and a rejected pass), or it certifies nothing (H7).
+
+B -- THE PERMANENT DRIVE CENSUS ROW (specified, NOT installed)
+  WHERE: pop.sh, beside the "raw ->rStuff reads" source-census row (a source-text census,
+  no binary run).
+  HOW: for every top-level *.twk and *.rtn, strip comments with genLadder/codeOnly.py,
+  then name the ENCLOSING FUNCTION of every `pushInput(` call (definition line excluded).
+  Pin the sorted set:
+    Commands.rtn loadInputFromFile · genParse.rtn demoRprime · genParse.rtn treeOf ·
+    GroupActions.rtn driveStep · GroupActions.rtn processCode · GroupMain.twk bootstrapper ·
+    jitEmitters.rtn jitProbeDrive                                            -- 7 today
+  A caller not in the set goes RED by name, with its class to be stated (drive / divert /
+  compile / bootstrap). After the routing stroke, demoRprime and treeOf LEAVE the set.
+  WHY codeOnly IS LOAD-BEARING: without it the census reads 8 -- a pushInput( inside the
+  comment at GroupActions.rtn:1101 lands in runOP. Measured on trunk: 8 raw, 7 stripped.
+  H7 CONTROL: append a scratch extern calling pushInput to a COPY of genParse.rtn and point
+  the row at the copy -- it must go red naming that extern. Anti-vacuity: the row also
+  fails if the set is EMPTY (a broken extractor reads zero).
+
+1 / C -- WHAT RAN BEFORE THE STOP
+  processAction's returns (GroupActions.rtn:550-599): null when processCode fails (a COMPILE
+  failure fails the parse -- parse-deciding, exempt); otherwise the action BlocK's value
+  (last statement, or a `return`'s operand, isBranch cleared on it at :596). Coded rules in
+  the population (incant/, IncantForms/, attic and BackupXML excluded): unitTests list;
+  utilities JSONfield, JSONarray; frontier frRule; chainTruthT wzNum; convDriveT ask;
+  convLeakT setT; fireSeatT six. All but JSONfield/JSONarray yield a value nobody reads
+  (cerr/print property nodes, counters). Retire-witness ranks, whole traced fleet:
+  deferEarly StatemenT 185061, ElsE 4455 · heldTrunk BlocK 3567, BrancH 3327, Xpress 2331,
+  IF 952, PrinT 779, CerR 267, WhilE 145, Iterate 138, CouT 47 · yieldTrunkNull ANYtoken
+  1482, ShortcuT 5 · yieldReplay CerR 278, PrinT 201, Iterate 143, CouT 71, BlocK 65 ·
+  yieldTrunk StringXP 164, JSONfield 39, JSONarray 11, list 4, tell 3.
+  THE SPLIT-ACTION MEASUREMENT was not done (stopped first).
+
+3 -- SCOPE BEYOND TOP-LEVEL STATEMENTS (measured, traced fleet, PTF=1, 143 runs)
+  fires DURING the parse by class: outside 361506 · define 108728 · code 74476 · decides
+  8696. Replayed (walk) 30477; held 12085.
+  a. BOOTSTRAP (setup + grammar defines): 2512 outside fires PER RUN, constant (a one-line
+     file reads exactly 2512) -- 143 runs = 359216 of the 361506. NamE 779, TraiT 679,
+     NewGroup 330, DefinE 330, TraiTdata 222, QuotE 103, NumbeR 42, RunRulE 20 per run.
+     DEPENDS: the grammar and registries themselves -- every later statement parses
+     against what these fires built, so they cannot wait for a statement end.
+  b. NON-BOOTSTRAP OUTSIDE: ~2290 fires (an estimate by per-file remainder), 1949 of them
+     in sweepT (probe drives of non-StatemenT carriers), the rest Scaf-style rule calls and
+     the JSON drives. DEPENDS: jitProbeDrive's counters (gProbeRuleFires/True) and
+     sweepT's verdicts; JSONblock's returned tree (the stop above).
+  c. ACTION BODIES (processCode, class=code): 74476 -- NamE 14903, ANYtoken 14903, TokenXP
+     14419, Parens 9472, ExpressioN 8546, StatemenT 8358, QuotE 1507, ShortcuT 1201,
+     NumbeR 1016, Braced 151. DEPENDS: the CACHED BlocK's shape -- ExpressioN's runOP /
+     runShortCircuit nodes (interpretXP), TokenXP's handle* arms, Braced's fLAG, and
+     NamE minting action LOCALS at compile (bear-trap #39). The jit walks that BlocK.
+  d. NESTED DRIVES: 2621 rejected drives, 12410 records DISCARDED (ruling (ii)); 0
+     DRIVEREPLAY -- an accepted drive replays through its own root's statement end.
+
+5a -- THE 932
+  932 UNREACHED, reproduced exactly. By file: sweepT 828, s1r 92, pd 8, srDo 4. By rule:
+  NumbeR 250, ExpressioN 226, StatemenT 210, PrinT (held) 210, NamE 16, ANYtoken (recheck)
+  12, TokenXP 8. Chains: 840 of 932 under a DO (DO / StatemenT<DO / PrintXP<stuff<
+  StatemenT<DO), the rest under WhilE, IF, FOR, Search -- every one rootIsAncestor=0.
+  THEY ARE FAILED ALTERNATIVES: `do print 1;`-shaped near-misses -- DO matched its body,
+  failed at `while`, and the statement then parsed another way.
+  WHERE AN EXPLICIT DISCARD SITS: the rule's failure exit -- a gPtfN mark taken per pass
+  at parse()'s continueHere (GroupItem.twk ~1350) and truncated at matchFailed when the
+  pass fails; the new road's twin at exitFromParse's failure return (Generate.rtn:26-28).
+  Counted as "DISCARD failed alternative", apart from the rejected-parse discard.
+  CONSERVATION ROW: FRAMELEAK 0 + DISCARD 12410 + UNREACHED 932 = 13342. ⚠ NOT 13339: the
+  +3 is pop.sh's own srDot sub-run (pop.sh:3168, `PTF DISCARD rejected parse
+  rule=StatemenT records=3`), which landed in the same commit as the 13339 measurement.
+  The row pins 13342, and after the discard stroke: 0 + 12410 + 932 + 0 unreached.
+
+NOT DONE: C's split-action measurement, 4 (Rule C audit), E (the plan). The stop fired
+first, by design.
+STATE: trunk jit-unified-emit-wip, installed and BARE, fleet 742 / 2, canary 368.
+  Branch untouched at 860047e. Only ipc/ edited.
+
+===================================================================
+SEQ 126  --  2026-09-25  --  Clod
+SEQ 176 ITEM 1 -- STOPPED BEFORE INSTALLING: THE JSON TREE ON TRUNK IS ALREADY WRONG,
+AND IT IS ALREADY "LAST VALUE ONLY" -- SO THE CERTIFICATE CANNOT BE WRITTEN
+Nothing installed, nothing edited but ipc/. Trunk installed and BARE, never rebuilt.
+Items 2 and 3 not started.
+===================================================================
+
+THE COMMAND: a probe (scratchpad, not in tree) with jsonTest's own preamble --
+  `jpF = JSONblock(argument);` then iterate the members of jpF, printing each member's
+  taG, listLengtH, value, and addrOf. Trunk binary, exit 0, sentinel reached.
+WHAT FAILED: JSONfield (incant/utilities:104) -- every member it yields is THE SAME NODE.
+
+  input                               root len   members as read back
+  {"a":"b","c":"d"}                   2          JSONtoken=d, JSONtoken=d
+  {"a":"b"}                           1          JSONtoken=b
+  {"a":["x","y"]}                     1          JSONtoken=y  len 0   (the array is gone)
+  {"a":[]}                            1          value echoes its own tag (#26), plus
+                                                 "nextGroup: ERROR JSONlist does not
+                                                 contain a list"
+  {"a":{"b":"c","d":"e"},"f":"g"}     2          JSONtoken=a len 0; JSONtoken=g len 2
+
+  addrOf: every top-level member, across ALL FIVE CALLS, reads body=#2 -- one body. Only
+  the nested object's member reads a different body (#8). No member carries its key: the
+  tag is JSONtoken throughout, so `token <: JSONtoken` is not keying anything we can read.
+
+THE MECHANISM, read not measured: JSONfield's `return token;` hands back its ACTION
+LOCAL. That is bear-trap #50 exactly -- a local published into the persistent tree
+shares its body with the local, and every later fire (and the frame restore) writes that
+one body. So each JSONblock ends up holding N handles onto the LAST value written.
+
+WHY THIS STOPS ITEM 1
+  The H7 control the dispatch specifies -- "JSONfield's yield kept to the last value only;
+  the rows must go red" -- IS TODAY'S BEHAVIOUR. Rows pinned by value to trunk's output
+  would pin the defect, and the control could not turn them red. Rows pinned to the
+  CORRECT tree are born red on trunk (five of five cases above). Either way the
+  certificate as written ("rows green, control red") cannot be met before a build --
+  SEQ 174's stop clause.
+  ⚠ And it moves the ruling's premise: "the yield channel builds the JSON tree today" is
+  only half true -- it builds the tree's SKELETON (the member count is right) with
+  every member aliased to one body and no key. Step 2 does not break a working JSON
+  tree; there is none to break.
+
+THE QUESTION, for Tony: which order?
+  (i) PIN BORN RED: rows asserting the CORRECT tree (keys, counts, values, nesting,
+      empty array), red on trunk by design with their sentence, replacing jsonTest's
+      parked baseline row; the collecting-actions stroke turns them green. No H7 run now
+      (the rows are already red for the control's reason).
+  (ii) FIX FIRST, THEN PIN GREEN: a separate stroke mints JSONfield's result per fire
+      (#50's cure: `:=` onto a fresh mint, keyed from JSONtoken's text) and the pin lands
+      green with the dispatch's H7 control intact. That is a JSON fix on trunk, outside
+      this dispatch's one allowed install.
+  The fixture itself is ready to write either way; only its expected column and its
+  colour depend on the answer.
+
+STATE: trunk jit-unified-emit-wip, installed and BARE (not rebuilt this round), fleet
+742 / 2 as of SEQ 125. Only ipc/ edited.
+
+===================================================================
+SEQ 127  --  2026-09-25  --  Clod
+SEQ 177 STROKE 1 (JSONfield mints per fire) -- THE FIX WORKS, THE CERTIFICATE DOES NOT:
+ARRAYS ARE LOST BY JSONarray, WHICH THE RULING SAYS NOT TO TOUCH. NOT LANDED.
+incant/utilities restored to HEAD (md5 8f62a482... both sides). No build, no retok needed
+(runtime incant only). Items 1-pin, 2, 3 not started.
+===================================================================
+
+THE FIX (tried, fleet-run, reverted -- one paste from landing):
+    JSONfield isRule JSONtoken ":"- JSONvalue ","?- code={
+        jfOut := new(*JSONtoken);
+        *jfOut = *JSONvalue;
+        return *jfOut;
+        };
+  replacing `token <: JSONtoken; token = *JSONvalue; return token;`. The KEY comes from
+  *JSONtoken: `<: JSONtoken` read the LABEL's .text, which has no data and echoes its own
+  tag (#26) -- that is why every key read "JSONtoken".
+
+THE PROBE, same five cases, fix in place:
+  {"a":"b","c":"d"}               a=b, c=d            distinct bodies #2/#4   CORRECT
+  {"a":"b"}                       a=b                                         CORRECT
+  {"a":{"b":"c","d":"e"},"f":"g"} a (len 2), f=g      distinct bodies        CORRECT (nesting
+                                                                             intact, was len 0)
+  {"a":["x","y"]}                 a=y, len 0                                 WRONG
+  {"a":[]}                        a, no data; "nextGroup: ERROR JSONlist does not contain
+                                  a list" STILL PRINTS -- named, not chased; it did not
+                                  fall out of this fix
+  Every member across all five calls reads a DISTINCT body (#2, #4, #6 ... #14).
+
+WHY THE ARRAY STAYS WRONG -- measured inside JSONfield (addrOf + dumpContents on
+JSONvalue): JSONvalue ALREADY HOLDS THE STRING "y" when JSONfield fires. JSONarray's body
+(`if JSONlist; for grup in JSONlist; grup <: grup;`) yields its LAST STATEMENT'S VALUE --
+the last element -- in place of its label. Same defect class as JSONfield (a construct's
+value standing in for the structure), one rule over. Pre-fix it also read `y`, so the fix
+neither caused nor can cure it.
+
+FLEET WITH THE FIX IN PLACE: 742 / 2, red list IDENTICAL row for row (57). jsonTest runs
+green; its parked baseline row unchanged (still parked on the two nextGroup lines).
+So the fix is fleet-neutral -- which also says no row pins the JSON tree today.
+
+THE QUESTION, for Tony -- the certificate ("arrays intact") and the scope ("fix nothing
+else in JSON") cannot both hold:
+  (i) widen stroke 1 to JSONarray: it mints a fresh node and copies its elements in
+      (arguably the first half of the ruled collecting action, landed early on trunk);
+  (ii) land JSONfield alone and certify four cases, the array row PINNED RED with its
+      sentence until the collecting-actions stroke, the pin's H7 control still the
+      pre-fix source;
+  (iii) hold everything for the step-2 collecting-actions stroke.
+
+STATE: trunk jit-unified-emit-wip, installed and BARE, fleet 742 / 2, tree clean but
+ipc/. Probe files in scratchpad only.
+
+===================================================================
+SEQ 128  --  2026-09-25  --  Clod
+SEQ 178 DONE. No stop clause fired. JSON fix and pin LANDED ON TRUNK; item 2 = JSON
+only, (b) stands; item 3 done; the plan is in the branch's docs/jitDesign.md (2aac1f8).
+===================================================================
+
+1. THE JSON STROKE -- dc8b0b9 (trunk, pushed)
+   JSONfield: `jfOut := new(*JSONtoken); *jfOut = *JSONvalue; return *jfOut;`
+   JSONarray: mints jaOut and attaches `copyOf(*grup)` per element with `+%`, returns
+   *jaOut. Two measured wrong turns on the way, both in the commit: `copyOf(grup)` refuses
+   (grup holds a group -- say *), and `+=` onto the empty mint takes the ARGUMENT's kind and
+   concatenated "xy" -- `+%` is the structural attach. The old `grup <: grup` element retag
+   goes with it: array elements now read tag JSONitem.
+   CERTIFICATE: all five cases correct (a=b,c=d distinct bodies; a=b; a holds x and y as two
+   members; nesting a{b=c,d=e} beside f=g). Empty array AS IT STANDS: `a`, no data (value
+   column is the JSONvalue tag echo), and ONE "nextGroup: ERROR JSONlist does not contain a
+   list" per empty array -- not fallen out, not chased (F-99). Fleet 742 / 2, red list
+   identical (57); canary 368; runtime incant only, nothing to retok.
+
+2. THE PIN -- 9ab2fdd (trunk, pushed)
+   jsonTest's testJSON prints the tree two levels deep with addrOf per node, ends on
+   JSONTEST SENTINEL. Nine rows: JT-0 sentinel, JT-1 keys+values, JT-2 35 nodes / 35 distinct
+   bodies, JT-3 array, JT-4 nesting, JT-5 empty array as it stands, JT-5b its nextGroup line
+   = 1, JT-OK 13 parse / 0 FAIL, JT-TREE the filtered transcript (genLadder/jsonTest.tree).
+   The parked `jsonTest baseline` row RETIRES INTO THEM by mapping (in the commit);
+   genLadder/jsonTest.base deleted. Fleet 742 / 2 -> 751 / 1; red list identical.
+   H7 CONTROL (incant/utilities at dc8b0b9^): JT-1, JT-2 (43 nodes, 7 bodies), JT-3, JT-4,
+   JT-5, JT-TREE RED; JT-OK and JT-5b green -- JT-OK green is the retired row's blindness.
+
+3. ITEM 2 -- THE POPULATION: JSON ONLY. (b) STANDS.
+   Searched: every coded rule (isRule with code=) in incant/ and IncantForms/ (attic and
+   BackupXML excluded) -- 13 -- and each one's parent; every built-in yielder's parent in
+   incant/grammar; the fleet's measured yields (SEQ 125, PTF_RETIRE: yieldTrunk StringXP,
+   JSONfield, JSONarray, list, tell; yieldReplay CerR, PrinT, Iterate, CouT, BlocK).
+   Only JSONblock is action-less with multiple yielding children whose result a caller
+   reads. Excluded, each with its reason: bins (Token, WardeD, ElsE, JSONvalue) pass through
+   to parents with actions; lamp/thermo -- their members are `defer`, held not yielded,
+   single member; Start reads truth only; BasicElse has one child and IF reads it; frRule,
+   wzNum, fireSeatT's six, list are roots with actions; tell has its own action and already
+   returns a fresh verdict node; IncantForms' drawing/fonting rules have no yielding
+   children.
+
+4. ITEM 3 -- in the plan (docs/jitDesign.md on parse-then-fire, 2aac1f8):
+   - the split-action table: two specimens need a parse-time half -- NamE (split at
+     ruleActions.rtn:663, `input.group = result` is walk-time; lookup + local-minting is
+     parse-time) and interpretXP's `invoke` stamp; ANYtoken needs a DIFFERENT PREDICATE
+     (a text lookup), not a split; CodE, CheckFor, ShortcuT, DelimText and the define
+     family need their whole action at parse time; processAction's compile-failure null
+     splits at GroupActions.rtn:564.
+   - Rule C against overlapCensus.md direction 1, every row classified. attachLabel's
+     labelNO skip IS retired by the value handoff (P6). One new site: interpretXP reads the
+     token's registry and actionType, which NamE's resolution decides.
+   - Nine strokes, P0-P8, each with a pre-registered certificate and named movers; the JSON
+     collecting stroke (P5) certified by the JT rows; the routing stroke (P3) opening with
+     the ordinary-action + rejected-pass fixture; the conservation row at 13,342 with its
+     srDot sentence (P2).
+
+RULINGS FLAGGED IN THE PLAN (a stroke cannot start without its answer):
+   P3  driveStep's growth -- treeOf's raw tree (read at the root's rStuff.label, as tell
+       does?) and demoRprime's term-repeated-into-a-label inside one divert
+   P4  where the control slot lives (recommended: a ruler slot saved/restored at
+       processAction's frame)
+   P7  the Start() boundary -- setup under StatemenT, or outside-while-defining = define
+   P8  C-form for ANYtoken (measured not neutral 09-24); plant 4's route (a second bit, or
+       the opGet shape rewrite)
+
+⚠ CERTIFICATE CAVEAT, named rather than hidden: P3's scoped-discard row reads 0 at step 1
+BY DESIGN (the drives' roots are not StatemenT; SEQ 125 A saw zero fires inside them). It
+is written now and must read non-zero in P7 -- that is its H7 pair.
+
+FINDINGS, not chased:
+   - genLadder/tree.sh and genLadder/mixed.sh are RED ON TRUNK and on no seal checklist:
+     tree.sh "TREE FIXTURE MOVED", mixed.sh "WOKE -- NO VARIANT LOSES THE CHILD ANY MORE".
+     They are P3's named movers, so P3 certifies "byte-identical to today's red".
+   - isBranch has no GroupFields accessor; P4's fixture needs one (or a callout) first.
+   - A coded helper called for the first time from inside JSONfield's body during the
+     JSON drive failed to compile ("ERROR processCode: jfDump parse failed"), in a
+     probe only -- the same helper compiled fine at top level. Not chased.
+
+STATE: trunk jit-unified-emit-wip at 9ab2fdd (+ this ipc commit), installed and BARE, fleet
+751 / 1, red 57, canary 368. Branch parse-then-fire at 2aac1f8 (docs only), pushed.
+No seal: the report is to be read first.

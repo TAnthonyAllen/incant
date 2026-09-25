@@ -2954,9 +2954,17 @@ direction the campaign might take, it is a state the machinery must report as a 
 >
 > **The checklist, and all of it every time:** `pop.sh` · **`jitLadder/ladder.sh`, its line
 > recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·
-> `countPop.sh` · **`printPop.sh`** · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
+> `countPop.sh` · **`printPop.sh`** · **`tree.sh`** · **`mixed.sh`** · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
 >
+> ⚠⚠ **`tree.sh` AND `mixed.sh` JOINED THE SEAL 2026-09-25 (Tony, SEQ 179), and both were VOID when
+> they joined.** Dated by clone bisect: `0150f29` (2026-09-07) stripped the genParse fork out of
+> `parse()`, so `rule.parse(0)` -- treeOf's door -- never runs a generated body, and both harnesses
+> have compared the interpretive tree with ITSELF since. tree.sh reads "MOVED" and mixed.sh "WOKE";
+> neither is news about the parse. mixed.sh had also moved once before, at `e6438ba` (2026-08-13, PC-1
+> narrow, `leaf` stopped losing the child) and was never re-pinned. The re-aim is P3 -- treeOf through
+> driveStep's `hasNewParse` door. **Until then a seal records them as "red, void (0150f29)", and a
+> change in their output is still a finding.**
 > ⚠⚠ **`printPop.sh` JOINED THE SEAL 2026-09-25 (Tony), countPop's pattern exactly:** an
 > instrument nobody had read since August. It was red on two `printToBuffer:` trace lines that
 > Tony moved out of the source into parked directive entries on 2026-08-18 (`4ab72dd`); the

@@ -4702,7 +4702,54 @@ diffcheck "oneTest baseline"  genLadder/oneTest.base  "$T/one"
 #  holder-attribute conversion ENTIRELY ABSENT -- sources at 9475ae0, measured live on
 #  2026-09-21, not inferred. They were red at the branch baseline too, in the very
 #  capture that was used to call them movers. docs/fixIts.md F-99.
-parkdiff "jsonTest baseline" genLadder/jsonTest.base "$T/jsn"
+#  ⚠⚠ RETIRED 2026-09-25 (SEQ 176/178, Tony's ruling): the parked `jsonTest baseline` row
+#  that stood here asserted only ok/FAIL per input -- NON-NULL -- and a wrong tree is still
+#  non-null. Until dc8b0b9 every member of every JSONblock shared ONE body with no key, and
+#  it read "ok" throughout. RETIREMENT BY MAPPING, what it asserted and where it lives now:
+#    ok-per-input (13 inputs)      -> JT-OK: 13 "ok" lines, 0 "FAIL"
+#    the section headers, in order -> JT-TREE: the filtered transcript diff below
+#    the two nextGroup lines       -> JT-5: the leftover now runs the empty array ONCE, so
+#                                     ONE line, pinned as it stands (F-99, not chased)
+#    "stop:" lines                 -> JT-0's sentinel, which can only print after the last case
+#  H7 CONTROL, run by hand 2026-09-25: incant/utilities at dc8b0b9^ (the pre-fix JSONfield/
+#  JSONarray) -- JT-1, JT-2 (43 nodes, 7 distinct bodies), JT-3, JT-4, JT-5 and JT-TREE go
+#  RED; JT-OK and JT-5b stay green. JT-OK staying green IS the retired row's blindness.
+jtcase () {                     # jtcase <label> <input> <expected block>
+    _got=$(awk -v k="ok  : $2 " '$0==k{on=1;next} on&&/^JT/{print;next} on{exit}' "$T/jsn")
+    if [ "$_got" = "$3" ]; then echo "  ok    $1"; green=$((green+1))
+    else echo "  FAIL  $1 -- got:"; printf '%s\n' "$_got" | sed 's/^/          /'; fail=1; fi
+}
+sentinel "jsonTest JT-0 sentinel (no truncation)" "$T/jsn" "JSONTEST SENTINEL"
+jtcase "jsonTest JT-1 two members: keys and values" '{"a":"b","c":"d"}' 'JT ROOT len= 2 
+JT   MEMBER a len= 0 value= b 
+JT   MEMBER c len= 0 value= d '
+jtcase "jsonTest JT-3 array holds x and y as two members" '{"a":["x","y"]}' 'JT ROOT len= 1 
+JT   MEMBER a len= 2 value= a 
+JT     KID JSONitem len= 0 value= x 
+JT     KID JSONitem len= 0 value= y '
+jtcase "jsonTest JT-4 nesting beside a sibling" '{"a":{"b":"c","d":"e"},"f":"g"}' 'JT ROOT len= 2 
+JT   MEMBER a len= 2 value= a 
+JT     KID b len= 0 value= c 
+JT     KID d len= 0 value= e 
+JT   MEMBER f len= 0 value= g '
+#  JT-5 AS IT STANDS: an empty array reads back with no data -- the value column is the
+#  JSONvalue tag echo (#26) -- and JSONarray's `if JSONlist;` still walks a listless node.
+jtcase "jsonTest JT-5 empty array, as it stands" '{"a":[]}' 'JT ROOT len= 1 
+JT   MEMBER a len= 0 value= JSONvalue '
+_jtng=$(grep -c 'nextGroup: ERROR JSONlist does not contain a list' "$T/jsn")
+if [ "$_jtng" = 1 ]; then echo "  ok    jsonTest JT-5b the empty-array nextGroup line, as it stands = 1"; green=$((green+1))
+else echo "  FAIL  jsonTest JT-5b nextGroup lines = $_jtng, want 1 (F-99; moved -- say why)"; fail=1; fi
+#  JT-2 ONE NODE PER MEMBER: every addrOf in the run names a DIFFERENT body. Pre-fix, every
+#  top-level member read body #2. The count is pinned beside it so a run that printed no
+#  addrOf at all cannot pass (anti-vacuity).
+_jta=$(grep -c '^ADDROF ' "$T/jsn"); _jtu=$(grep '^ADDROF ' "$T/jsn" | sed 's/.*body=\(#[0-9]*\).*/\1/' | sort -u | wc -l | tr -d ' ')
+if [ "$_jta" = 35 ] && [ "$_jtu" = 35 ]; then echo "  ok    jsonTest JT-2 35 JSON nodes, 35 distinct bodies"; green=$((green+1))
+else echo "  FAIL  jsonTest JT-2 $_jta nodes, $_jtu distinct bodies -- want 35 and 35"; fail=1; fi
+_jtok=$(grep -c '^ok  :' "$T/jsn"); _jtf=$(grep -c '^FAIL:' "$T/jsn")
+if [ "$_jtok" = 13 ] && [ "$_jtf" = 0 ]; then echo "  ok    jsonTest JT-OK 13 inputs parse, 0 FAIL"; green=$((green+1))
+else echo "  FAIL  jsonTest JT-OK ok=$_jtok FAIL=$_jtf -- want 13 and 0"; fail=1; fi
+grep '^JT \|^ok  :\|^FAIL:\|^===' "$T/jsn" > "$T/jsn.tree"
+diffcheck "jsonTest JT-TREE every case's tree, by value" genLadder/jsonTest.tree "$T/jsn.tree"
 
 #  ===========================================================================
 #  THE genParse ODOMETER, wired in 2026-08-24 once its first baseline existed.
