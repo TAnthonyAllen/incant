@@ -3154,6 +3154,16 @@ for _sr in srElse srIf srPrint srDo srSub srDot srOk; do
     else echo "  FAIL  stmtRejT $_sr -- the caller's Xpress flag was overwritten: $(awk '/^SR BEGIN/{f=1} f' "$T/$_sr.e" | grep 'OLDFIREFLAG rule=Xpress' | head -1)"; fail=1; fi
 done
 
+#  srDot -- A BARE `.5` STATEMENT REFUSES BY NAME (F-117), PINNED TO THE OLD ROAD'S
+#  BEHAVIOUR, 2026-09-25. No row asserted the refusal until parse-then-fire lost it:
+#  at PTF=1 the drive runs inside a replayed action, its three ordinary fires are
+#  recorded into that action's frame, and the frame is discarded at the action's
+#  return (FRAMELEAK) -- the refusal never fires. RED ON THE parse-then-fire BRANCH
+#  BY DESIGN until the mechanism is ruled; green wherever the parse fires as it goes.
+if grep -qF 'REFUSED ANYorNum -- `.5` is not a number -- a number needs a leading digit; write 0.5' "$T/srDot.e"; then
+     echo "  ok    stmtRejT srDot -- the bare .5 statement REFUSED BY NAME"; green=$((green+1))
+else echo "  FAIL  stmtRejT srDot -- the bare .5 statement was NOT refused (a lost refusal: see the note above)"; fail=1; fi
+
 #  ---- doWhileNameT: the new parse road dies on a non-literal while expression ----
 #  BORN RED ON PURPOSE, 2026-09-20, Clay's SEQ 171 step 1; oracle twin added under SEQ 172.
 #  Two of these four rows are the pin and they are RED until the label channel lands; the
