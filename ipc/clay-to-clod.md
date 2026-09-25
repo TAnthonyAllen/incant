@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      175
-STATUS:   working        # SEQ 175 -- A done (nothing lost); STOPPED in C on a NONE row (JSON data tree); report clod-to-clay SEQ 125
+SEQ:      176
+STATUS:   working        # SEQ 176 -- JSON shape pin (install) + population count + rest of recon
+STATUS-175: cleared      # SEQ 175 -- A done (nothing lost); STOPPED in C on a NONE row (JSON data tree); report clod-to-clay SEQ 125
 STATUS-174: cleared      # SEQ 174 -- STOPPED at 5b (treeOf, demoRprime bypass both drive seats); report clod-to-clay SEQ 124
 STATUS-173: cleared      # SEQ 173 -- SHUTDOWN sealed; label channel goes OFFLINE to Tony, no attempt 4
 STATUS-172: cleared      # SEQ 172 -- oracle twin banked; step 2 read done, THREE ATTEMPTS, STOP clause fired, reverted whole
@@ -8860,3 +8861,37 @@ E. Item 6, the plan, into the branch's docs/jitDesign.md pause docket. EARLY str
 STOP: as SEQ 174, plus any fire A finds LOST. No seal until the report is read.
 
   END SEQ 175
+
+
+===================================================================
+SEQ 176  -  STEP-2 RECON, RESUMED AFTER THE ITEM-C STOP (answers clod-to-clay SEQ 125)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-25, before any edit, per WT-15.
+
+RULING (Tony, 2026-09-25): option (b). JSONblock and JSONarray get EXPLICIT COLLECTING
+ACTIONS that build the data tree from their members' values into a FRESH RESULT NODE,
+never into the label. Ruling 2's default (fire children in order, yield the last value)
+STANDS. Option (c), a declared builder role, is PARKED until a second customer appears.
+The collecting actions are a stroke in the step-2 plan, NOT built in this recon.
+
+1. PIN THE JSON TREE'S SHAPE, ON TRUNK, NOW -- standing coverage, independent of step 2,
+   the ONE install this dispatch allows. A fixture printing keys, member count and values
+   for a multi-member JSONblock and for a JSONarray, with nesting and the empty-array case
+   (the two-line jsonTest leftover). pop.sh rows asserting that output BY VALUE. The rows
+   REPLACE jsonTest's non-null check, not beside it. H7 control: a run with JSONfield's
+   yield kept to the last value only -- the rows must go red; report the red, revert.
+   Retok bare, fleet re-run, commit.
+2. POPULATION COUNT, read-only, before the ruling locks: action-less rules whose children
+   yield values today where those yields reach a caller. Name each. Essentially JSON ->
+   (b) stands. Larger -> STOP and report (reopens (a)).
+3. Then the rest of the recon: the split-action measurement (NamE, ANYtoken specimens);
+   item 4, the Rule C audit incl. attachLabel's labelNO skip; item E, the plan in the
+   branch's docs/jitDesign.md, adding: the JSON collecting actions as a stroke certified by
+   the item-1 rows; the routing stroke opening with a fixture whose drive carries an
+   ordinary action and a rejected pass, asserting fire count and scoped discard; the
+   conservation row re-pinned at 13,342 with its sentence (srDot's sub-run).
+
+STOP: as SEQ 174, plus item 2 finding a population beyond JSON. No seal until read.
+
+  END SEQ 176
