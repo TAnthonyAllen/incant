@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 123 at the FOOT -- ruling (ii) BUILT; FRAMELEAK 0; the loss accounting closes; go/no-go re-read
+STATUS:   fresh           # SEQ 124 at the FOOT -- STEP-2 RECON STOPPED at 5b: two drive seats bypass both known seats (treeOf, demoRprime)
+# prior: SEQ 123 -- ruling (ii) BUILT; FRAMELEAK 0; the loss accounting closes; go/no-go re-read
 STATUS-122: fresh        # SEQ 122 -- rulings A, B, C; the rejected-drive question (answered: (ii))
 STATUS-121: fresh        # SEQ 121 -- Part A stopped; the yield brief
 STATUS-120: fresh        # SEQ 120 -- GO / NO-GO ROUND 2
@@ -6982,3 +6983,106 @@ THE GO / NO-GO CONDITIONS, RE-READ
 PARKED, NOT ADVANCED: Rule C; parseLoop's silent success at max (F-114 entry 24); C-form.
 STATE: branch pushed; trunk reinstalled at 742/2, canary 368, no incant process.
 
+
+===================================================================
+SEQ 124  --  2026-09-25  --  Clod
+STEP-2 PLAN AND RECON (clay-to-clod SEQ 174) -- STOPPED AT 5b BY ITS OWN CLAUSE
+READ-ONLY. Nothing built, nothing retokked, no source or doc edited on either branch.
+The installed binary is trunk bare, never replaced this stroke. jitDesign.md NOT written.
+===================================================================
+
+THE STOP: TWO DRIVE SEATS BYPASS BOTH KNOWN SEATS (driveStep, jitProbeDrive)
+  genParse.rtn:2102  treeOf      pushInput(argument); result = rule.parse(0);  (ScafOUT)
+                                 registered in incant/pop/treeScratch:20, reached by
+                                 genLadder/tree.sh and mixed.sh
+  genParse.rtn:231   demoRprime  pushInput(argument) three times, each followed by
+                                 while parseR(term,label)  (ScafC's first term)
+                                 registered in incant/pop/genScratch:24, called :130-131,
+                                 so it runs in pop.sh's "genScratch runs" row
+  Neither calls ptfScopeOpen/Close. Both are immediateAction commands called from a
+  top-level statement, so at PTF=1 they run DURING that statement's replay: entered while
+  firing, the exact case the scope was ruled for.
+  PREDICTED IMPACT NIL, NOT MEASURED: ScafOUT/ScafC are scaffold grammars with no StatemenT
+  under them, so ptfStmtAbove stops at the walking floor and ptfClass answers "outside" --
+  their fires would run during the parse as on trunk, and nothing records or leaks. The
+  prediction is a reading of Generate.rtn ptfClass/ptfStmtAbove, not a run. A rejected
+  parse in either would still not be a scoped discard.
+  THE QUESTION: are these drives? Either (a) they route through driveStep or take the
+  scope pair (a third caller of ptfScopeOpen/Close breaks "one writer pair, two seats" as
+  written), or (b) the drive definition excludes scaffold demos and the census row says
+  why. Tony's.
+
+5b -- THE CENSUS, AS FAR AS IT RAN (population: every .twk, .rtn and hand-written .h on
+  the branch -- ../src.txt, 58 files, GUI/ and Tests/ excluded as not in the TOK Groups
+  build)
+  THE DOOR: a drive diverts input, and pushInput (GroupRules.twk:266) is the ONLY writer of
+  inputSTAK (its .push at :277 is inside it). Alternate spellings searched and absent:
+  inputSTAK.push elsewhere, divertToRule = true without pushInput, setInput.
+  pushInput callers (EVERY one):
+    GroupActions.rtn:1197  driveStep             KNOWN SEAT 1 (runRule, tell)     scoped
+    jitEmitters.rtn:713    jitProbeDrive         KNOWN SEAT 2 (probeDrive, sweep) scoped
+    genParse.rtn:249/264/283 demoRprime          BYPASS (above)
+    genParse.rtn:2111      treeOf                BYPASS (above)
+    GroupActions.rtn:658   processCode           action-body compile; its parse runs under
+                                                 processingCode, ptfClass "code" -- item 3's
+                                                 scope, not a drive seat
+    Commands.rtn:453       loadInputFromFile     include: pushes, parses NOTHING itself --
+                                                 the enclosing Start loop reads on. A divert,
+                                                 not a drive
+    GroupMain.twk:466      bootstrap setup       before any statement; not while firing
+  KNOWN-POSITIVE CONTROL: both known seats are in the list, and probeDrive (the accident)
+  is found through its call chain setup:60 -> jitEmitters.rtn:2736 -> jitProbeDrive.
+  Parses that push nothing (RuleStuff.twk:920/1069 term/rule.parse(bridge), runRule's
+  no-data arm GroupActions.rtn:1218) read the CURRENT input and are not drives.
+
+1 -- RETIREMENT CENSUS, PARTIAL (stopped mid-way; no NONE row found so far, but the
+  writer side of the yield channel is NOT fully enumerated: every isCoded rule's return
+  through processAction, GroupActions.rtn:596, is one writer population and was not read)
+  Population searched: ../pop.txt -- 384 files: every .twk/.rtn (GUI/, Tests/ excluded),
+  jitContext.h, measure.h, all of incant/, IncantForms/, jitLadder/, genLadder/; case-
+  insensitive "defer". Also groups.ext (out of repo). GUI's `deferredAction` is a
+  DIFFERENT flag, not on GroupBody, not in the build -- excluded by name.
+  defer (flags.deferred)
+    W  Commands.rtn:576 processFlags 'd'; setup:44 registers `defer`; grammar:117,141,
+       161,162,166-172,174-176,181 (15 rules); fixtures convDriveT:7-8, convLeakT:7-8,
+       printFamilyNew:106-107                           -> deleted (all actions wait)
+    W  GroupItem.twk:746 held arm; Generate.rtn:791 replay held arm   -> deleted
+    R  GroupItem.twk:445,451 deferredAbove              -> deleted with it
+    R  GroupItem.twk:741 (ptfRecord's held arg), :743 held arm        -> deleted
+    R  ruleActions.rtn:447 DO, 555 FOR, 589 IF, 1230 WhilE, 1246 Xpress -- the one-return-
+       two-meanings split                               -> value channel (always VALUE)
+    R  measure.twk:441, Generate.rtn:425 witnesses      -> deleted
+  deferredAbove
+    W  GroupItem.twk:433 (itself)   R GroupItem.twk:729 -> deleted
+    sibling walk Generate.rtn ptfStmtAbove (same two-mode walk)       -> deleted with step 1
+  yield channel -- READERS (complete)
+    GroupItem.twk:753  fireLabelMethod adoption          -> value channel (parent takes it)
+    GroupItem.twk:758  null return -> sukcess=false       -> parse-deciding, exempt
+    Generate.rtn ptfReplayRecords ret != L substitution + unwrap      -> deleted
+    Generate.rtn:50-51 parseAction label = action(...)   -> parse-deciding, exempt
+    RuleStuff.twk:394-395 testAction truth of return     -> parse-deciding, exempt
+    GroupItem.twk:226  attachLabel `!lab || lab == labelNO` skip -- ATTACH READS THE
+                       YIELD (Rule C). Home: the skip moves to the parent's fire (labelNO =
+                       no value); flagged for item 4, not NONE
+  yield channel -- WRITERS read so far (returns other than the input)
+    BlocK (result), BrancH (arg), CerR/CouT/PrinT/StringXP (op* -> property node / string),
+    Iterate (the cursor field), CodE (label), DO/FOR/IF/WhilE/Xpress (deferred arm)
+                                                         -> value channel
+    ANYtoken, CheckFor, ShortcuT (null)                  -> parse-deciding, exempt
+    isCoded rules via processAction                      -> NOT ENUMERATED (see above)
+
+2 -- ONE FINDING WORTH HAVING BEFORE THE PLAN, from the read
+  THE CONTROL SIGNAL IS STAMPED ON THE VALUE NODE ITSELF. aCTionBrancH (ruleActions.rtn:
+  117-120) generates arg->groupBody->flags.isBranch = 1/2/3, and arg is the return operand:
+  falseResult (a SHARED SINGLETON, on a null operand), the BrancheS keyword node (a
+  registry node), or a LIVE FIELD (`return x;` stamps x). Readers: BlocK:55-58, DO:429-439,
+  FOR:533-543, WhilE:1212-1222, IF:592; consumed at the action boundary GroupActions.rtn:596
+  and Generate.rtn:307. So the ruled control channel is not only a split -- today's channel
+  writes onto nodes other code owns.
+  UNRUN IF, today: owner-run hands back labelNO (ruleActions.rtn:586); direct fire hands back
+  its own label (input). The ruling says nothing.
+
+NOT DONE: item 3 (no PTF_TRACE run -- the branch binary was never built), item 4, item 5a,
+  item 6 (no plan written to jitDesign.md). The stop fired before the build, by design.
+STATE: trunk jit-unified-emit-wip, installed binary untouched (trunk bare), branch untouched.
+  Only ipc/ edited.

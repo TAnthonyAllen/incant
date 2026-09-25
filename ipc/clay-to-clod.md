@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      173
-STATUS:   cleared        # SEQ 173 -- SHUTDOWN sealed; label channel goes OFFLINE to Tony, no attempt 4
+SEQ:      174
+STATUS:   working        # SEQ 174 -- STOPPED at 5b (treeOf, demoRprime bypass both drive seats); report clod-to-clay SEQ 124
+STATUS-173: cleared      # SEQ 173 -- SHUTDOWN sealed; label channel goes OFFLINE to Tony, no attempt 4
 STATUS-172: cleared      # SEQ 172 -- oracle twin banked; step 2 read done, THREE ATTEMPTS, STOP clause fired, reverted whole
 STATUS-171: cleared      # SEQ 171 -- steps 0 and 1 landed; report answered by SEQ 172
 STATUS-170: cleared      # SEQ 170 -- string-leaf read done, returns IDENTICAL, candidate dead; session sealed
@@ -8766,3 +8767,56 @@ Banked, not chased: old-road `do` body runs once for every condition (incl. cons
 true) -- wants a plain-statement control and its own row.
 
   END SEQ 173
+
+
+===================================================================
+SEQ 174  -  PARSE-THEN-FIRE STEP 2: PLAN AND RECON (read-only)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-25, before any read, per WT-15.
+
+DISPATCH -- Parse-then-fire step 2: PLAN AND RECON. Read-only. Nothing built,
+nothing edited on either branch.
+
+Context: Step 2 was ruled GO on 2026-09-25 (ipc SEQ 123). This stroke produces the
+plan the build strokes will follow. No source edits, no retoks, no rebuilds except
+bare instrumented runs that are reverted before the report. The binary must be bare
+at the end.
+
+1. Retirement census. Every reader and writer of defer, deferredAbove and the yield
+   channel on the parse-then-fire branch. Population is the whole tree: every
+   .twk, .rtn, incant/ fixture, grammar and setup line. Name the population
+   searched. Per site: file:line (.twk/.rtn, never .mm); reader or writer; step-2
+   home (value channel, control channel, parse-deciding/exempt, or deleted).
+   Any NONE row is a finding -> STOP and report. Re-derive from the tree, not the
+   table.
+2. Sites for the value and control rulings (F-122 entry 7). For each construct
+   that yields to its parent (IF, loops, BlocK, Xpress, return): where the value is
+   handed up. Where break/continue/return write the control channel and where the
+   firing parent reads it after each child. Confirm an unrun IF hands back nothing,
+   and name what it hands back today. List the parse-deciding nulls by name.
+3. Scope beyond top-level statements: action bodies through processCode; the
+   Start() boundary's class=outside fires (setup and grammar defines); nested
+   drives. For each, estimate record counts from a PTF_TRACE run and name what
+   depends on those fires happening during the parse.
+4. Rule C audit. Every place attaching reads something an action wrote. Start from
+   the overlap census's first two causes (label group/name resolution; label shape
+   at attach). Classify: decidable from the parse alone, or needs a change. Plant 4
+   (fLAG's two meanings, on trunk): does step 2 retire it or does it need its own
+   stroke.
+5. Carry-ins. (a) The 932 unreachable records at PTF=1: what they are, where an
+   explicit discard sits; keep FRAMELEAK + discards + unreachable == 13339 as a row.
+   (b) One-door census of drive entries: every seat that pushes a drive
+   (driveStep, jitProbeDrive, anything else); how searched, with a known-positive
+   control.
+6. Deliverable: the plan in the branch's docs/jitDesign.md pause docket, with a
+   stroke order. Each stroke: what it retires or lands; a pre-registered
+   certificate (PTF=0 == trunk, fleet and jitLadder unmoved except named rows,
+   predicted movers named in advance); rows expected to move and why. Flag any
+   stroke needing a ruling from Tony.
+
+STOP: any NONE row in item 1; any drive seat in 5b that bypasses both known seats;
+any stroke whose certificate cannot be written before the build. No seal until the
+report is read.
+
+  END SEQ 174
