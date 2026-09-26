@@ -1358,6 +1358,23 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
     H4. **(4) HOLDS:** PTF=0 763 / 1, 54 red == trunk row for row, on the P6 binary.
     ⚠ Instrument note: an earlier "switch off" column was void -- zsh does not word-split an unquoted `$cfg`, so
     `env $cfg` set PTF to "1 PTF_NOCLASSHOLD=1" and never set the switch. Re-run with the variables spelled out.
+    ⚠⚠ **SEQ 200 -- P6 WAITS (its own terms: "if not, P6 waits"). Work on `p6-held-class` (da782ce), NOT merged.**
+    **(1) THE ROOT WITNESS IS BUILT AND THE ROW AS WRITTEN CANNOT BE CASHED.** `measureRootValue` (PTF_TRACE gated,
+    reads what it is handed) reports, at a top-level statement's root, the value its construct handed back. Switch on:
+    an unrun `if uiF; uiN = 1;` hands back **`uiF` -- its CONDITION's value**, not labelNO (a run IF hands back `uiN`).
+    aCTionIF seeds `result` from the condition and nothing overwrites it when no arm runs, so the plan's parenthetical
+    "today: labelNO owner-run" is wrong. Switch off (control): every root reads `value=StatemenT fired=0`.
+    **(2) THE CANDIDATE IS NOT CONFIRMED -- the residual has a different cause.** Inside `probeDrive(adPrint)` PrinT is
+    NOT held (`DEFERABOVE inDrive=1 held=0`, `walk rule=PrinT fired`): the drive's own scope applies step 1's rule, so
+    its `true` is a direct-fire yield, not a held-class fire under ruling A. **The StatemenT -> true move is a TAG:**
+    opPrint (and CerR) always return the shared `trueResult`; step 1's replay RETAGCARRY writes the label's tag onto the
+    returned node -- `RETAGCARRY rule=CerR CerR -> StatemenT` -- so before P6 the first top-level `cerr` RENAMED THE
+    SINGLETON "StatemenT" for the rest of the run. Under P6 the root fires those statements, no retag, and `true` keeps
+    its name. The same line retags live fields: `RETAGCARRY rule=Iterate Iterate -> StatemenT` renames s2C.
+    **(3)** not built (the presence pair waits on the landing).
+    **THE OPEN QUESTION, verbatim for the next session:** *Does P6 carry "an unrun IF hands back nothing" as a change to
+    aCTionIF (today it hands back its condition's value), gated so PTF=0 stays trunk-equal -- and is step 1's RETAGCARRY
+    renaming a shared singleton and a live field a defect for P6 to stop, or for the value-node stroke?*
   - **P7 -- scope beyond top-level statements (SEQ 174 item 3, measured, traced fleet, PTF=1, 143 runs).**
     (a) ACTION BODIES (processCode): 74,476 fires during the parse today -- NamE 14,903, ANYtoken 14,903, TokenXP
     14,419, Parens 9,472, ExpressioN 8,546, StatemenT 8,358. What depends on them: the CACHED BlocK's shape
