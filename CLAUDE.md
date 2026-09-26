@@ -2954,7 +2954,7 @@ direction the campaign might take, it is a state the machinery must report as a 
 >
 > **The checklist, and all of it every time:** `pop.sh` · **`jitLadder/ladder.sh`, its line
 > recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·
-> `countPop.sh` · **`printPop.sh`** · **`tree.sh`** · **`mixed.sh`** · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
+> `countPop.sh` · **`printPop.sh`** · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
 >
 > ⚠⚠ **`tree.sh` AND `mixed.sh` JOINED THE SEAL 2026-09-25 (Tony, SEQ 179), and both were VOID when
@@ -2965,6 +2965,13 @@ direction the campaign might take, it is a state the machinery must report as a 
 > narrow, `leaf` stopped losing the child) and was never re-pinned. The re-aim is P3 -- treeOf through
 > driveStep's `hasNewParse` door. **Until then a seal records them as "red, void (0150f29)", and a
 > change in their output is still a finding.**
+> ⚠⚠ **AND BOTH LEFT THE SEAL 2026-09-26 (Tony, SEQ 183-186), RETIRED BY MAPPING -- their question
+> now lives in `pop.sh` as the `treeRowT` rows.** Ruling 1 retired the `parseMethod=` road they
+> drove; `incant/pop/treeRowT` asks the same thing on the kant road -- section 2.4's retag case,
+> an OLD arm and a `parser()`'d NEW arm, both read through driveStep (the drive floor now carries
+> a generated root's label) and printed by `labelTree`, with a row proving each arm took its road.
+> It reads **AGREE**. H7: `promote=0` in exitFromParse turns it red. The scripts and
+> `treeScratch` stay in the tree as history; they are simply no longer run at a seal.
 > ⚠⚠ **`printPop.sh` JOINED THE SEAL 2026-09-25 (Tony), countPop's pattern exactly:** an
 > instrument nobody had read since August. It was red on two `printToBuffer:` trace lines that
 > Tony moved out of the source into parked directive entries on 2026-08-18 (`4ab72dd`); the

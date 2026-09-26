@@ -9143,3 +9143,22 @@ NEXT STROKE: (i) RULED -- the drive floor carries the root's label. driveStep's 
 Report: at top item A's four rows and the fleet; evidence after.
 
   END SEQ 185
+
+
+===================================================================
+SEQ 186  -  GO ON (i): THE DRIVE FLOOR CARRIES THE ROOT'S LABEL
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+Build as specified in SEQ 185: driveStep's floor activation gets a label slot; checkInput
+  writes a generated root's label there instead of refusing; driveStep returns it, and
+  tell's reply reads the same place.
+Add a row to driveDoorT: the label handed back by a generated root is non-null on accept
+  and null on reject.
+Then the tree row, then retire tree.sh and mixed.sh.
+The bracket's label restore is F-114's recursion guard; it stays untouched.
+Report: at top what driveStep hands back on accept and reject, the tree row's agree or
+  diverge, and the fleet; evidence after.
+
+  END SEQ 186

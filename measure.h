@@ -24,6 +24,7 @@ extern "C" GroupItem *canonOf(GroupItem *argument);
 extern "C" GroupItem *chanReport(GroupItem *input);
 extern "C" GroupItem *evictAction(GroupItem *field);
 extern "C" int labelMinters(GroupItem *rule);
+extern "C" GroupItem *labelTree(GroupItem *field);
 extern "C" GroupItem *measureAdoption(GroupItem *field, GroupItem *handed, GroupItem *adopted);
 extern "C" GroupItem *measureBlockResult(GroupItem *input, GroupItem *result, int stopped);
 extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int listWalk, int held, int endKind, int inDrive);

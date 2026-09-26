@@ -1338,10 +1338,8 @@ int 		stoppedAt = 0;
 	::verdictCount(verdict,"length",msgLen);
 	::verdictCount(verdict,"stoppedAt",stoppedAt);
 	::verdictCount(verdict,"known",known);
-	// replyFromSlot the new road returns trueResult (its label is attached), so the label is read where it lives: the root's own slot
+	// replyFromFloor driveStep hands back a generated root's label from the drive floor -- the reply reads that, never the root's slot, which the call bracket has restored
 	replyFrom = result;
-	if ( result == ruler->trueResult && who && who->getRStuff() )
-		replyFrom = who->getRStuff()->label;
 	if ( matched && replyFrom && replyFrom != ruler->labelNO && replyFrom != ruler->trueResult )
 		{
 		reply = new GroupItem("reply");
@@ -2437,6 +2435,18 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return field;
 }
 
+// driveFloorLabel a generated DRIVE ROOT's label is parked on the drive's floor, the activation just below the root's own -- one writer (checkInput), one reader (driveStep); returns 1 when it took the label (Tony, 2026-09-26, SEQ 185 (i))
+extern "C" int driveFloorLabel(RuleStuff *stuff, GroupItem *label)
+{
+	
+	if ( !stuff || !gParseActive || gParseActive->stuff != stuff ) return 0;
+	ParseActivation *below = gParseActive->prev;
+	if ( !below || !below->floor ) return 0;
+	below->label = label;
+	return 1;
+	
+}
+
 /***************************************************************************
     driveStep -- runRule's body, and the one drive both runRule and tell use.
     If there is a field argument, input is diverted to its content before
@@ -2500,6 +2510,8 @@ char 		*driveBase = 0;
 			 result = rule->parse((gParseActive && !gParseActive->floor) ? gParseActive->stuff : 0); 
 			}
 		}
+	// floorLabel a generated root that SUCCEEDED hands back the label its floor holds (trueResult when it parked none); a failure hands back what the fire did
+	 if ( floorPushed && rule->groupBody->flags.hasNewParse && result && result != ruler->falseResult && driveFloor.label ) result = driveFloor.label; 
 	// markSeat2 SEQ 166 point 2 -- THE KEY PAIR, either side of the pop
 	if ( field && field->groupBody->flags.data )
 		::measureMarkPoint("2b-before-pop");
@@ -12889,7 +12901,12 @@ GroupItem 	*target = field->get(2);
 ***************************************************************************/
 extern "C" GroupItem *runRule(GroupItem *field, GroupItem *rule)
 {
-	return ::driveStep(field,rule,0);
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*result = ::driveStep(field,rule,0);
+	// oneBit a generated root hands driveStep its LABEL; the kant caller still gets the chain's truth (ruling c')
+	if ( rule->groupBody->flags.hasNewParse && result && result != ruler->falseResult )
+		return ruler->trueResult;
+	return result;
 }
 
 /***************************************************************************

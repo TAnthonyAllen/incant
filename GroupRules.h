@@ -154,6 +154,7 @@ extern "C" void debugText(GroupItem *debugStuff, int flag);
 extern "C" GroupItem *demoRprime(GroupItem *argument);
 extern "C" void dispatcher(void *stuff);
 extern "C" GroupItem *displayFill(GroupItem *field);
+extern "C" int driveFloorLabel(RuleStuff *stuff, GroupItem *label);
 extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report);
 extern "C" void dumpColorRGB(GroupItem *field);
 extern "C" GroupItem *dumpContents(GroupItem *stuff);
