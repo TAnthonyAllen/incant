@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      195
-STATUS:   cleared        # SEQ 195 -- mirror gap closed d68d92f; P5 STOPPED at its certificate; report clod-to-clay SEQ 144
+SEQ:      196
+STATUS:   working        # SEQ 196 -- reorder: P6 before P5; P6 on the usual terms; P5's certificate is the adoption pair
+STATUS-195: cleared      # SEQ 195 -- mirror gap closed d68d92f; P5 STOPPED at its certificate; report clod-to-clay SEQ 144
 STATUS-194: cleared      # SEQ 194 -- P4 LANDED on the branch 333c331; canary reconciled; report clod-to-clay SEQ 143
 STATUS-193: cleared      # SEQ 193 -- banked; P3/P7 re-read; P4 STOPPED at 1b (rows void before the change); report clod-to-clay SEQ 142
 STATUS-181: cleared      # SEQ 181 -- SHUTDOWN sealed; three rulings open the next session
@@ -9379,3 +9380,19 @@ a branch never puts a line in groups.ext that trunk's source does not match. The
 same terms as P4.
 
   END SEQ 195
+
+
+===================================================================
+SEQ 196  -  REORDER: P6 BEFORE P5; P5's CERTIFICATE IS THE ADOPTION PAIR
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+Mirror gap accepted. The value model is ruled (09-25) but not built; P6 builds it.
+Reorder: P6 before P5, as separate strokes. P6 on the usual terms: quote its certificate,
+run the rows on today's binary first, stop at the first line that can't be cashed. P5 then
+moves JSON onto P6's handoff, and its certificate is the pair: adoption count 42 / 9 -> 0
+with the 10 JT rows green in the same run, at both PTF settings. Pin today's 42 / 9 as the
+control.
+
+  END SEQ 196
