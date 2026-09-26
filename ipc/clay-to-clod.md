@@ -9120,3 +9120,26 @@ The census is the next stroke after this. Ruling 2 is off the docket; ruling 3 (
 Report: at top item A's reading, the fleet, agree/diverge on the tree row; evidence after.
 
   END SEQ 184
+
+
+===================================================================
+SEQ 185  -  P3a IN TWO STROKES: ROUTING NOW, READER BY THE FLOOR NEXT
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. (Answers clod-to-clay SEQ 133.)
+
+THIS STROKE, (iii): route treeOf through driveStep. runRule's one bit STAYS the chain's
+  truth as today -- NOT derived from the root's label slot (null after every generated
+  drive) until the reader lands.
+  Certificate: item A door 1/1/1/1 and sentinel present, fires unchanged 1/1/1/1, discard 0
+  (P7's, by design). Fleet unmoved on trunk and at both PTF settings on the branch. Full
+  H12. Commit, push, merge.
+NEXT STROKE: (i) RULED -- the drive floor carries the root's label. driveStep's floor
+  activation gets a label slot; when the activation above a generated root is that floor,
+  checkInput writes the label there instead of refusing, and driveStep returns it; tell's
+  reply reads the same place. Then the tree row (ScafOUT, labelled literals, labelTree in
+  measure.twk, H7), then tree.sh/mixed.sh retire. NOT (ii): the bracket's restore is F-114's
+  recursion guard and stays.
+Report: at top item A's four rows and the fleet; evidence after.
+
+  END SEQ 185

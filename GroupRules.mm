@@ -13587,18 +13587,13 @@ extern "C" GroupItem *treeOf(GroupItem *argument)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*rule = ::locateRule("ScafOUT");
 GroupItem 	*result = 0;
-int 		baseStak = 0;
 	if ( !rule )
 		{
 		::fprintf(stderr,"treeOf: no ScafOUT on the search list\n");
 		return 0;
 		}
-	if ( ruler->inputSTAK )
-		baseStak = ruler->inputSTAK->length;
-	ruler->pushInput(argument);
-	result = rule->parse(0);
-	while ( ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
-		ruler->popInput();
+	// oneDoor a drive goes through driveStep -- its floor keeps a failed pass off the caller's input (P3a routing, SEQ 185)
+	result = ::driveStep(argument,rule,0);
 	::fprintf(stderr,"TREE %s\n",argument->getText());
 	if ( result )
 		::showTree(result,"    ");
