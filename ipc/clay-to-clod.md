@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      193
-STATUS:   working        # SEQ 193 -- bank refireSkipsDegraded/ShRep/named gap; step 2 P3/P7 re-read, P4 onward
+STATUS:   cleared        # SEQ 193 -- banked; P3/P7 re-read; P4 STOPPED at 1b (rows void before the change); report clod-to-clay SEQ 142
 STATUS-181: cleared      # SEQ 181 -- SHUTDOWN sealed; three rulings open the next session
 STATUS-180: cleared      # SEQ 180 -- P2 landed; P3 STOPPED (parseMethod= parks); report clod-to-clay SEQ 130
 STATUS-179: cleared      # SEQ 179 -- tree/mixed dated; P0, P1 landed; P2 STOPPED; report clod-to-clay SEQ 129
@@ -9292,8 +9292,8 @@ Report: at top the subdirectory check, the fleet and the DesignDocs verdicts; ev
 ===================================================================
 SEQ 193  -  BANK THREE; STEP 2 RESUMES AT P4 ON parse-then-fire
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26 afternoon, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26 afternoon, before any edit, per WT-15. STOPPED at 1b; clod-to-clay SEQ 142.
 
 0. Bank first. No builds for these.
   refireSkipsDegraded: stays OPEN. Tony ran it at 16:18.
