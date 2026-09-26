@@ -1259,7 +1259,17 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
     (SEQ 178): JSONblock is the ONLY action-less rule whose children's yields reach a caller -- bins pass through to
     parents with actions; lamp/thermo's members are `defer` (held, never yielded); Start and BasicElse read truth or a
     single child; tell has its own action (a fresh verdict node). Option (c) stays parked.
-  - **P6 -- THE CORE: retire defer, deferredAbove and the held fires; parent-driven firing; the value rulings.**
+    ⚠⚠ **STOPPED 2026-09-26 AT ITS CERTIFICATE (SEQ 195): "the pinned JT rows stay green" CANNOT CERTIFY THE MOVE.**
+    Run on today's branch binary (0c8c582) BEFORE any change: all 10 jsonTest rows ok, 0 fail, at PTF=0 and PTF=1 -- so
+    they are green with the stroke undone, and certify nothing about it (H7; P4's first rows failed the same way).
+    **A candidate discriminating row, measured, not adopted:** the yield channel's FIELD adoptions during jsonTest
+    (measureAdoption, traceParse armed on a one-line-delta copy, sentinel present): **JSONfield 42, JSONarray 9** at both
+    settings. If P5 means the JSON rules stop leaning on the yield channel, that count goes to 0 while the JT rows stay
+    green -- the pair would certify it. Its other end is unmeasured (H16) until something reads 0.
+    **And a premise for Tony, from the plan's own order:** before P6 builds the value handoff, the only way JSONblock's
+    collecting action can receive its children's values is the adoption channel P6 retires. So either P5 is P6's first
+    customer (land it with or after P6's handoff), or "the value model" in P5 means something available today -- which?
+ parent-driven firing; the value rulings.**
     Top-level statements only (step 1's scope). Ruling 2's default for an action-less rule with content; a construct
     hands its parent a VALUE; the tree never holds a field; an unrun IF hands back nothing (today: labelNO owner-run,
     its own label direct, ruleActions.rtn:586-593). Deleted: the `d` modifier's write (Commands.rtn:576) and `defer`'s
