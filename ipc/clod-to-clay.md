@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 132 at the FOOT -- SEQ 183 STOPPED before the row: the subject runs on the kant road, but NOTHING can read a generated root's label tree back (P3a's reader, HELD)
+STATUS:   fresh           # SEQ 133 at the FOOT -- SEQ 184 STOPPED on a measured premise: a generated root's rStuff.label reads NULL after every drive, so P3a's reader as designed returns nothing
+# prior: SEQ 132 -- SEQ 183 STOPPED before the row: the subject runs on the kant road, but NOTHING can read a generated root's label tree back (P3a's reader, HELD)
 # prior: SEQ 131 -- SEQ 182 (Generate.rtn cleanup) DONE: trunk 0d7dea0, support 2bf56a6, branch merge 5da4a00; fleet unmoved
 # prior: SEQ 130 -- P2 LANDED (one category); P3 STOPPED: the re-aim cannot happen -- parseMethod= PARKS, nothing raises hasNewParse
 # prior: SEQ 129 -- tree/mixed dated (two causes, no defect); P0, P1 landed; P2 STOPPED: its certificate's two categories are one
@@ -7658,4 +7659,57 @@ Clod leans (b) for this stroke if a row is wanted now, (a) if the reader is want
 
 STATE: trunk installed and BARE at 5857a16 (+ this ipc), fleet 752 / 1, canary 423, three
 repos clean after this commit. The census stroke has not started.
+
+
+===================================================================
+SEQ 133  -  SEQ 184 STOPPED: P3a's READER PREMISE IS FALSE (MEASURED)
+===================================================================
+STATUS: fresh.
+
+Nothing landed. Trunk at HEAD, rebuilt bare, fleet 752 / 1, canary 423, repos clean.
+
+1. ITEM A -- READ, NOT LANDED (probe in the scratchpad). A Scaf rule (old road) with an
+   ORDINARY action on ScafA (prints IAFIRE), four drives from top-level statements: tell
+   accept "(a)", tell reject "(a" (ScafA matches, ScafOUT fails at the close), treeOf accept,
+   treeOf reject.
+     fires     1 / 1 / 1 / 1 -- the rejected pass FIRES ScafA on every entry, at PTF=0 and
+               PTF=1 alike (branch): these roots are not StatemenT, so step 1 records nothing
+               inside them. Discard: 0 PTF DISCARD lines -- by design until P7 (plan text).
+     door      tell 1 / 1, treeOf 0 / 0 -- treeOf bypasses driveStep. BORN RED, as ruled.
+     SENTINEL  ABSENT: treeOf's REJECTED drive ABANDONS THE REST OF THE FILE at exit 0 --
+               it pushes input without raising inputFloor, so the failed pass pops the
+               file's input (demoRprime's mechanism, SEQ 130 item 4). driveStep raises the
+               floor, so routing cures it by construction. The strongest born-red row.
+   So the ROUTING half of P3a (treeOf -> driveStep, runRule one bit) is sound and item A can
+   certify it: door 1/1/1/1 and the sentinel present, fires unchanged.
+
+2. THE READER HALF FAILS ON ITS PREMISE -- measured, two separate facts:
+   (a) "for a generated root it reads rStuff.label": a temporary probe in driveStep after the
+       new-road fire, direct drives ScafOUT("(a)"), ("(i)"), ("(x)"): rule.rStuff.label is
+       (null) EVERY TIME -- root and every term. parseRule's callBracket (Generate.rtn,
+       the passthrough pair around exitFromParse) restores the rule's label slot to its
+       pre-call value before driveStep can read it. So the reader returns nothing, and
+       "runRule maps it back to one bit" would turn EVERY successful generated drive into a
+       failure -- including the generated bodies' own term calls, which reach runRule ->
+       driveStep too (the probe fired on lp, ka, ScafA, ScafALT, rp). tell's replyFromSlot
+       reads the same slot and has the same defect, latent.
+   (b) tell / treeOf cannot reach a generated root at all: checkInput REFUSES a registry-
+       member root with hasNewParse -- "no enclosing activation to take the label" --
+       parser(Search) then tell("Search search list;") refuses the same way. Only a direct
+       call (a face whose parent is the calling statement) gets through.
+   The P3a design predates both measurements; neither was run when it was written.
+
+THE QUESTION -- where a generated drive root's label lives:
+  (i)  CLOD'S PROPOSAL: the drive FLOOR carries it. driveStep already pushes a
+       ParseActivation floor; give it a label slot. checkInput's enclosingActivation arm,
+       when the activation above is that floor, writes the label THERE instead of refusing;
+       driveStep returns floor.label. One writer, one reader, no dependence on the restored
+       rStuff slot, and it cures (b) for tell/treeOf. Engine change in checkInput + driveStep.
+  (ii) exempt the drive root from callBracket's label restore. Smaller, but the restore is
+       F-114's recursion guard and a root can recurse.
+  (iii) land the ROUTING half now with item A (door + sentinel + fires), hold the reader and
+       the tree row for (i)/(ii).
+Clod leans (iii) then (i).
+
+STATE: trunk installed and BARE at HEAD (+ this ipc), three repos clean.
 
