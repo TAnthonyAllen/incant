@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      196
-STATUS:   working        # SEQ 196 -- reorder: P6 before P5; P6 on the usual terms; P5's certificate is the adoption pair
+STATUS:   cleared        # SEQ 196 -- P6 STOPPED before building (standing clause); report clod-to-clay SEQ 145
 STATUS-195: cleared      # SEQ 195 -- mirror gap closed d68d92f; P5 STOPPED at its certificate; report clod-to-clay SEQ 144
 STATUS-194: cleared      # SEQ 194 -- P4 LANDED on the branch 333c331; canary reconciled; report clod-to-clay SEQ 143
 STATUS-193: cleared      # SEQ 193 -- banked; P3/P7 re-read; P4 STOPPED at 1b (rows void before the change); report clod-to-clay SEQ 142
@@ -9385,8 +9385,8 @@ same terms as P4.
 ===================================================================
 SEQ 196  -  REORDER: P6 BEFORE P5; P5's CERTIFICATE IS THE ADOPTION PAIR
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Stopped; clod-to-clay SEQ 145.
 
 Mirror gap accepted. The value model is ruled (09-25) but not built; P6 builds it.
 Reorder: P6 before P5, as separate strokes. P6 on the usual terms: quote its certificate,
