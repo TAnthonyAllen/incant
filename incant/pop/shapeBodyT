@@ -1,0 +1,102 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    shSay code={
+        v := tell(argument);
+        m := *v["matched"]; c := *v["consumed"];
+        cerr "DRIVE " argument " matched= " m " consumed= " c:;
+        };
+    ;
+register(Ladder);
+define
+    ShLit  isRule kx-="x";
+    ShA    isRule ka-="a";
+    ShRef  isRule ShA kb-="b";
+    ShRep  isRule ShA+ kc-="c";
+    ShOpt  isRule ke-="e" ShA? kf-="f";
+    ShOptL isRule kf2-="f" kcm?-="," kg-="g";
+    ShI    isRule ki-="i";
+    ShALT  isRule
+        ShA;
+        ShI;
+    ;
+define
+    ShOUT  isRule kl-="(" ShALT kr-=")";
+    ;
+search GroupFields UnitTests Utilities Ladder list;
+traceParse(1);
+cerr "--- OLD ROAD":;
+shSay("ShLit x");
+shSay("ShLit y");
+shSay("ShRef ab");
+shSay("ShRef b");
+shSay("ShRep ac");
+shSay("ShRep aaac");
+shSay("ShRep c");
+shSay("ShOpt ef");
+shSay("ShOpt eaf");
+shSay("ShOpt ex");
+shSay("ShOptL fg");
+shSay("ShOptL f,g");
+shSay("ShOptL fx");
+shSay("ShOUT (a)");
+shSay("ShOUT (i)");
+shSay("ShOUT (x)");
+traceParse(0);
+parser(ShLit);
+parser(ShRef);
+parser(ShRep);
+parser(ShOpt);
+parser(ShOptL);
+parser(ShOUT);
+traceParse(1);
+cerr "--- NEW ROAD":;
+shSay("ShLit x");
+shSay("ShLit y");
+shSay("ShRef ab");
+shSay("ShRef b");
+shSay("ShRep ac");
+shSay("ShRep aaac");
+shSay("ShRep c");
+shSay("ShOpt ef");
+shSay("ShOpt eaf");
+shSay("ShOpt ex");
+shSay("ShOptL fg");
+shSay("ShOptL f,g");
+shSay("ShOptL fx");
+shSay("ShOUT (a)");
+shSay("ShOUT (i)");
+shSay("ShOUT (x)");
+traceParse(0);
+cerr "SHAPEBODY SENTINEL":;
+stop();
+
+shapeBodyT -- THE PER-SHAPE ROW ON THE KANT ROAD (SEQ 191 stroke 1, 2026-09-26).
+
+WHAT IT REPLACES. The C++ emitter's rung targets (rung12, rung4, rung5, rung6, rung7, driven by
+genScratch) pinned the C++ text genParse emitted for each term shape. This asks the same thing of
+the generator that is alive: parser(), the kant road.
+
+THE SHAPES, the Scaf family with LABELLED literals (a bare "x"- generates as GrouP()):
+  literal      ShLit   kx-="x"                          (rung12's Scaf)
+  reference    ShRef   ShA kb-="b"                      (rung4's ScafB)
+  repetition   ShRep   ShA+ kc-="c"                     (rung5's ScafC)
+  optional     ShOpt   ke-="e" ShA? kf-="f"             (rung6's ScafE)
+               ShOptL  kf2-="f" kcm?-="," kg-="g"       (rung6's ScafF, optional literal)
+  alternation  ShOUT   kl-="(" ShALT kr-=")"            (rung7's ScafALT inside ScafOUT)
+
+TWO HALVES, AND THE SECOND IS NOT DECORATION. The generated BODY is pinned as text. But the body
+does not carry the modifier: ShRep reads `ShA() && kc()` and ShOpt `ke() && ShA() && kf()`, the
+same as a plain reference, because + and ? live on the term's own parse state and act at run
+time. So a body pin alone cannot tell repetition or optional from reference. The DRIVES can:
+each shape is told an accepting and a rejecting input on the OLD road, then again after parser().
+
+THE READING, 2026-09-26: every body generates and compiles; every drive agrees across the roads
+EXCEPT ONE, pinned by name --
+  ShRep aaac   OLD matched 1 consumed 4   NEW matched 0 consumed 0
+A generated body does not REPEAT a repeated reference. Candidate mechanism, NOT measured: the
+body calls ShA() by name, which reaches the rule, while the + sits on ShRep's own term. Reported
+as a finding, not fixed.

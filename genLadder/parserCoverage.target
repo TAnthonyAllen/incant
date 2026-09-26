@@ -1,0 +1,63 @@
+  COMPILES  ANYtoken
+  LEAF      Any
+  COMPILES  Attributes
+  COMPILES  BasicElse
+  COMPILES  BlocK
+  COMPILES  Braced
+  COMPILES  BrancH
+  COMPILES  CerR
+  COMPILES  CodeBody
+  NOBODY    ColoN -- REFUSED ColoN -- setParse: the field passed in has no rStuff
+  COMPILES  CouT
+  COMPILES  DEBUG
+  COMPILES  DEF
+  LEAF      DEFINing
+  COMPILES  DO
+  COMPILES  DatA
+  COMPILES  DefinE
+  COMPILES  DelimText
+  COMPILES  ElseIf
+  NOBODY    EquaL -- REFUSED EquaL -- setParse: the field passed in has no rStuff
+  COMPILES  FOR
+  COMPILES  FloaT
+  COMPILES  IF
+  COMPILES  InitiatE
+  COMPILES  InvokE
+  COMPILES  IterSource
+  COMPILES  Iterate
+  COMPILES  Limit
+  COMPILES  Looper
+  COMPILES  MemberS
+  LEAF      Modifier
+  COMPILES  NewGroup
+  COMPILES  NumbeR
+  COMPILES  Parens
+  COMPILES  PoweR
+  COMPILES  PrinT
+  COMPILES  PrintField
+  COMPILES  QuotE
+  COMPILES  RunRulE
+  COMPILES  ScopeXP
+  COMPILES  Search
+  COMPILES  SetBrackets
+  LEAF      ShortcuT
+  COMPILES  Start
+  COMPILES  StringXP
+  COMPILES  TokenXP
+  COMPILES  TraiT
+  COMPILES  TraiTdata
+  COMPILES  UnaryXP
+  COMPILES  WardeD
+  COMPILES  WhilE
+  COMPILES  Xpress
+  NOBODY    break -- no body and no refusal naming it
+  NOBODY    continue -- no body and no refusal naming it
+  LEAF      followedBy
+  LEAF      leftCurly
+  LEAF      loopOnAttributes
+  LEAF      loopOnMembers
+  LEAF      nameSet
+  LEAF      numberSet
+  NOBODY    return -- no body and no refusal naming it
+  LEAF      rightCurly
+PARSER COVERAGE -- 62 rules: 46 generate a body, 46 of them compile; 11 leaves; 0 crashed

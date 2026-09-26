@@ -1,0 +1,9 @@
+ShLit: return kx();
+ShRef: return ShA() && kb();
+ShA: return ka();
+ShRep: return ShA() && kc();
+ShOpt: return ke() && ShA() && kf();
+ShOptL: return kf2() && kcm() && kg();
+ShOUT: return kl() && ShALT() && kr();
+ShALT: return ShA() || ShI();
+ShI: return ki();

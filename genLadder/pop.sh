@@ -5057,6 +5057,41 @@ if [ "$_trShape" = "TREE 1 ScafOUT|TREE 2 ScafALT|" ] && [ "$(_trArm "NEW (x)")"
     echo "  ok    treeRowT shape pinned: ScafOUT over ScafALT (the winner RETAGGED), reject hands back none"; green=$((green+1))
 else echo "  FAIL  treeRowT shape moved: accept=[$_trShape] reject=[$(_trArm "NEW (x)")]"; fail=1; fi
 
+#  ⚑ shapeBodyT -- THE PER-SHAPE ROW ON THE KANT ROAD (SEQ 191 stroke 1, 2026-09-26). Successor
+#  to the C++ emitter's rung4/5/6/7/12 targets: parser() on one small rule per term shape --
+#  literal, reference, repetition, optional (reference and literal), alternation -- with the
+#  generated BODIES pinned (genLadder/shapeBody.target). The body does not carry + or ?, so each
+#  shape is also DRIVEN through tell on both roads: old first, then after parser(). The roads agree
+#  on 15 of 16 drives; the 16th is PINNED BY NAME as a divergence -- ShRep "aaac": old matched 1
+#  consumed 4, generated matched 0 consumed 0 (a generated body does not repeat a + reference).
+#  The road row proves each arm took its road (H16). H7: a doctored generator (conjunct respelled)
+#  changes the bodies -> RED.
+run2 shapeBodyT "$T/sb.o" "$T/sb.e"; check "shapeBodyT runs" 0 $?
+sentinel "shapeBodyT sentinel" "$T/sb.e" "SHAPEBODY SENTINEL"
+awk '/ = CodE \{/{n=$1; getline b; gsub(/^[ \t]+/,"",b); print n": "b}' "$T/sb.o" > "$T/sbb"
+diffcheck "shapeBody.target (parser()'s generated body per term shape)" genLadder/shapeBody.target "$T/sbb"
+_sbOld=$(awk '/^--- OLD ROAD/{f=1} /^--- NEW ROAD/{f=0} f&&/runRule DOOR on Sh[A-Za-z]* field=1 fieldData=1 hasNewParse=0/' "$T/sb.e" | wc -l | tr -d ' ')
+_sbNew=$(awk '/^--- NEW ROAD/{f=1} f&&/runRule DOOR on Sh[A-Za-z]* field=1 fieldData=1 hasNewParse=1/' "$T/sb.e" | wc -l | tr -d ' ')
+if [ "$_sbOld/$_sbNew" = "16/16" ]; then echo "  ok    shapeBodyT roads: 16 old-road drives, 16 generated -- the comparison is not void"; green=$((green+1))
+else echo "  FAIL  shapeBodyT roads $_sbOld/$_sbNew, want 16/16"; fail=1; fi
+awk '/^--- OLD ROAD/{f=1} /^--- NEW ROAD/{f=0} f&&/^DRIVE/' "$T/sb.e" > "$T/sbo"
+awk '/^--- NEW ROAD/{f=1} f&&/^DRIVE/' "$T/sb.e" > "$T/sbn"
+_sbDiff=$(diff "$T/sbo" "$T/sbn" | grep '^[<>]' | sed 's/  */ /g' | tr "\n" "|")
+_sbWant="< DRIVE ShRep aaac matched= 1 consumed= 4 |> DRIVE ShRep aaac matched= 0 consumed= 0 |"
+if [ "$(wc -l < "$T/sbn" | tr -d ' ')" = 16 ] && [ "$_sbDiff" = "$_sbWant" ]; then
+    echo "  ok    shapeBodyT the roads agree on 15 of 16 drives; the divergence is ShRep aaac (old 1/4, generated 0/0), PINNED"; green=$((green+1))
+else echo "  FAIL  shapeBodyT the road comparison MOVED -- want only ShRep aaac to differ, got: ${_sbDiff:-<no difference>}"; fail=1; fi
+
+#  ⚑ parserCoverage -- THE KANT ROAD'S COVERAGE ROW (SEQ 191 stroke 1, 2026-09-26). Successor to
+#  the C++ emitter's odometer: for every grammar rule (the odometer's four filters, recomputed
+#  from the live registry), one process runs parser(<rule>) and reads GEN / COMPILE / LEAF /
+#  refusal. Pinned per rule in genLadder/parserCoverage.target: 62 rules, 46 generate a body and
+#  46 compile, 11 leaves, 5 no body (ColoN, EquaL refused -- no rStuff; break, continue, return
+#  print nothing -- BrancheS bin entries). H7: PCOV_PARSER at a generator with its compile
+#  removed -> 0 compile, RED.
+sh genLadder/parserCoverage.sh 2>&1 | grep -v '^  bin ' > "$T/pcov"
+diffcheck "parserCoverage.target (parser() over the whole grammar: 46 compile of 62)" genLadder/parserCoverage.target "$T/pcov"
+
 #  ⚑ trigDO -- THE NEW PARSE ROAD'S FIRST STANDING COVERAGE. Until 2026-09-09
 #  NO FLEET FIXTURE REACHED parseRule AT ALL: the 09-08 H7 control forced
 #  ruleAsLabel to 1, refusing EVERY generated parse, and the fleet stayed at 243
