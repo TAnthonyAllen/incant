@@ -4,7 +4,10 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 130 at the FOOT -- P2 LANDED (one category); P3 STOPPED: the re-aim cannot happen -- parseMethod= PARKS, nothing raises hasNewParse
+STATUS:   fresh           # SEQ 133 at the FOOT -- SEQ 184 STOPPED on a measured premise: a generated root's rStuff.label reads NULL after every drive, so P3a's reader as designed returns nothing
+# prior: SEQ 132 -- SEQ 183 STOPPED before the row: the subject runs on the kant road, but NOTHING can read a generated root's label tree back (P3a's reader, HELD)
+# prior: SEQ 131 -- SEQ 182 (Generate.rtn cleanup) DONE: trunk 0d7dea0, support 2bf56a6, branch merge 5da4a00; fleet unmoved
+# prior: SEQ 130 -- P2 LANDED (one category); P3 STOPPED: the re-aim cannot happen -- parseMethod= PARKS, nothing raises hasNewParse
 # prior: SEQ 129 -- tree/mixed dated (two causes, no defect); P0, P1 landed; P2 STOPPED: its certificate's two categories are one
 # prior: SEQ 128 -- SEQ 178 DONE: JSON fix + pin landed on trunk; population = JSON only; plan written (branch 2aac1f8), four rulings flagged
 # prior: SEQ 127 -- JSONfield fix WORKS and is fleet-neutral, NOT landed: arrays stay broken by JSONarray's own yield (outside 'fix nothing else')
@@ -7573,3 +7576,140 @@ generated body and nothing raises hasNewParse. Two findings on the way.
 STATE: trunk jit-unified-emit-wip installed and BARE (trunk build), fleet 752 / 1, canary
 368. Branch parse-then-fire at 5e30f2a, pushed. Three repos clean. P3a's diff, P2's
 superseded diff and the probes are in the scratchpad only. No seal until this is read.
+
+
+===================================================================
+SEQ 131  -  SEQ 182 DONE: Generate.rtn CLEANUP LANDED, TRUNK AND BRANCH
+===================================================================
+STATUS: fresh.
+
+Trunk 0d7dea0, support 2bf56a6 (groups.ext), branch merge 5da4a00 -- all pushed.
+- Six measures to measure.twk, none renamed (all already measure*): measureAdoption,
+  measureDeferredAbove, measureLoopVerdict, measureOldFireFlag, measureParseClass,
+  measureTargetAgree. No globals beyond a class static. They never had groups.ext lines;
+  six ADDED to external measure.h. Canary sum 423 -> 423 (trunk), 439 -> 439 (branch).
+- codeOnly per function: exactly the six leave GroupRules.mm and arrive in measure.mm,
+  bodies identical; tok respelled two call sites (`::` on/off), same functions.
+- Generate.rtn 17 methods alphabetical (33 on the branch), one-line headers, 0 broken
+  units; measure.twk also sorted (two pre-existing out-of-order).
+- DesignDocs Generate: 12 trimmed, 2 new stumps, 8 retired (named in the commit).
+- Fleet unmoved row for row: 752 / 1, jitLadder 215, printPop, decodePop, countPop,
+  tree, mixed byte-identical; ddPop 5 / 1 unmoved -- its red is the PRE-EXISTING trim
+  gate (32 violations before and after), so "ddPop green" was not reachable by this
+  stroke. Branch: PTF=1 751 / 1, PTF=0 752 / 1, jitLadder 215 both.
+- NOT moved on the branch: its five own witnesses (measureRetire, measureFireOrder,
+  measureParseFire, measureKeywordDecision, measureLabelReuse) -- groups.ext is shared
+  with trunk. Owed when the branch lands.
+Task 2 (RuleStuff.twk below testUpTo) banked, not started.
+
+STATE: trunk installed and BARE, fleet 752 / 1, canary 423, three repos clean.
+
+
+===================================================================
+SEQ 132  -  SEQ 183 STOPPED: THE NEW ROW HAS NO READER ON THE KANT ROAD
+===================================================================
+STATUS: fresh.
+
+Nothing landed; tree at HEAD, fleet 752 / 1, canary 423, installed binary rebuilt at HEAD.
+tree.sh and mixed.sh are still on the seal checklist (retiring them before the replacement
+exists would leave the question uncovered).
+
+WHAT WORKS -- the subject is expressible on the kant road, with two respellings:
+  - literal terms must be LABELLED: `ScafOUT isRule lp-="(" ScafALT rp-=")"` and
+    `ScafA isRule ka-="a"`. Bare "("- / "a"- emit as GrouP() -- generateParse refuses two
+    GrouP terms ("a call by name reaches only the first") and a single one refuses at drive
+    ("GrouP has a parse method but no compiled body").
+  - generation is clean: ScafALT = CodE { return ScafA() || ScafI(); }.
+  - a direct drive `ScafOUT("(a)")` after parser(ScafOUT) takes the new road: runRule DOOR
+    hasNewParse=1, PARSERESULT lines, generated bodies dispatching their terms.
+
+WHAT DOES NOT -- no way to hand the generated root's label tree back to a fixture:
+  - the new-road root returns ONE BIT (ruling c'); its label goes into the CALLING
+    activation's slot (here a Token), and parseRule's callBracket then restores the root's
+    own rStuff.label.
+  - tell (the one door that returns a label copy) REFUSES a generated root that is a
+    registry member: "checkInput: no enclosing activation to take the label" -- tell's
+    `who` is the registry entry, whose parent (Grokking) has no rStuff. The direct call
+    gets past it because its face's parent is the calling statement.
+  - a rule's own action cannot observe it either: on the new road ScafOUT's action (code=)
+    DID NOT FIRE at all (frontier station 4 / CT-5 territory).
+  - H16 CAUGHT A VOID ARM: an old-road wrapper root (ScafTOP isRule ScafOUT) makes tell work
+    and printed IDENTICAL trees on both arms -- but the NEW arm never left the old road
+    (OLDFIREFLAG on every Scaf rule, no PARSERESULT). An old-road term call does not honour
+    hasNewParse, so that arm compared the interpretive tree with itself -- tree.sh's own
+    void since 0150f29, rebuilt by accident. Not banked.
+
+PRELIMINARY, TRACE ONLY (not a certificate): under traceParse the two roads attach in the
+  same order -- ScafA -> ScafALT (promote=1, isTarget=1, the retag) then ScafALT -> ScafOUT.
+  The one difference is pLabel (0 old, 1 new): checkInput's enclosingActivation arm filling
+  the parent slot first -- the two-writers item banked under exitFromParse.oneAttach.
+
+THE QUESTION -- the reader:
+  (a) LAND P3a's reader now, alone: driveStep hands back the generated root's label (its
+      design stands in the seal). Engine change, and the ruling held it for item A's fixture.
+  (b) an ARMED WITNESS at the new road's root exit (exitFromParse, drive root only) printing
+      the label tree it is about to attach -- reads state handed, no behaviour change; the
+      old arm reads tell's reply. Two seats, one per road: the row then compares two
+      instruments as well as two trees, which is its weakness.
+  (c) hold the row until P3a lands; tree.sh/mixed.sh stay on the checklist as "red, void".
+  Built and reverted, ready for any of them: `labelTree(x)`, a report verb for measure.twk
+  (TREE <depth> <tag>, no addresses; the fixture passes `r := *v["reply"]`). Diff is in the
+  scratchpad.
+Clod leans (b) for this stroke if a row is wanted now, (a) if the reader is wanted once.
+
+STATE: trunk installed and BARE at 5857a16 (+ this ipc), fleet 752 / 1, canary 423, three
+repos clean after this commit. The census stroke has not started.
+
+
+===================================================================
+SEQ 133  -  SEQ 184 STOPPED: P3a's READER PREMISE IS FALSE (MEASURED)
+===================================================================
+STATUS: fresh.
+
+Nothing landed. Trunk at HEAD, rebuilt bare, fleet 752 / 1, canary 423, repos clean.
+
+1. ITEM A -- READ, NOT LANDED (probe in the scratchpad). A Scaf rule (old road) with an
+   ORDINARY action on ScafA (prints IAFIRE), four drives from top-level statements: tell
+   accept "(a)", tell reject "(a" (ScafA matches, ScafOUT fails at the close), treeOf accept,
+   treeOf reject.
+     fires     1 / 1 / 1 / 1 -- the rejected pass FIRES ScafA on every entry, at PTF=0 and
+               PTF=1 alike (branch): these roots are not StatemenT, so step 1 records nothing
+               inside them. Discard: 0 PTF DISCARD lines -- by design until P7 (plan text).
+     door      tell 1 / 1, treeOf 0 / 0 -- treeOf bypasses driveStep. BORN RED, as ruled.
+     SENTINEL  ABSENT: treeOf's REJECTED drive ABANDONS THE REST OF THE FILE at exit 0 --
+               it pushes input without raising inputFloor, so the failed pass pops the
+               file's input (demoRprime's mechanism, SEQ 130 item 4). driveStep raises the
+               floor, so routing cures it by construction. The strongest born-red row.
+   So the ROUTING half of P3a (treeOf -> driveStep, runRule one bit) is sound and item A can
+   certify it: door 1/1/1/1 and the sentinel present, fires unchanged.
+
+2. THE READER HALF FAILS ON ITS PREMISE -- measured, two separate facts:
+   (a) "for a generated root it reads rStuff.label": a temporary probe in driveStep after the
+       new-road fire, direct drives ScafOUT("(a)"), ("(i)"), ("(x)"): rule.rStuff.label is
+       (null) EVERY TIME -- root and every term. parseRule's callBracket (Generate.rtn,
+       the passthrough pair around exitFromParse) restores the rule's label slot to its
+       pre-call value before driveStep can read it. So the reader returns nothing, and
+       "runRule maps it back to one bit" would turn EVERY successful generated drive into a
+       failure -- including the generated bodies' own term calls, which reach runRule ->
+       driveStep too (the probe fired on lp, ka, ScafA, ScafALT, rp). tell's replyFromSlot
+       reads the same slot and has the same defect, latent.
+   (b) tell / treeOf cannot reach a generated root at all: checkInput REFUSES a registry-
+       member root with hasNewParse -- "no enclosing activation to take the label" --
+       parser(Search) then tell("Search search list;") refuses the same way. Only a direct
+       call (a face whose parent is the calling statement) gets through.
+   The P3a design predates both measurements; neither was run when it was written.
+
+THE QUESTION -- where a generated drive root's label lives:
+  (i)  CLOD'S PROPOSAL: the drive FLOOR carries it. driveStep already pushes a
+       ParseActivation floor; give it a label slot. checkInput's enclosingActivation arm,
+       when the activation above is that floor, writes the label THERE instead of refusing;
+       driveStep returns floor.label. One writer, one reader, no dependence on the restored
+       rStuff slot, and it cures (b) for tell/treeOf. Engine change in checkInput + driveStep.
+  (ii) exempt the drive root from callBracket's label restore. Smaller, but the restore is
+       F-114's recursion guard and a root can recurse.
+  (iii) land the ROUTING half now with item A (door + sentinel + fires), hold the reader and
+       the tree row for (i)/(ii).
+Clod leans (iii) then (i).
+
+STATE: trunk installed and BARE at HEAD (+ this ipc), three repos clean.
+

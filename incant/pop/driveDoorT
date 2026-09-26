@@ -1,0 +1,63 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+define
+    iaFires=0;
+    iaSay code={
+        v := tell(argument);
+        m := *v["matched"];
+        cerr "   tell matched= " m:;
+        };
+    ;
+registry(cOMMANDs);
+define treeOf immediateAction=treeOf; ;
+register(Ladder);
+define
+    ScafA isRule "a"- code={ cerr "IAFIRE ScafA":; };
+    ScafI isRule "i"-;
+    ScafALT isRule
+        ScafA;
+        ScafI;
+    ;
+define
+    ScafOUT isRule "("- ScafALT ")"-;
+    ;
+search GroupFields UnitTests Utilities Ladder list;
+traceParse(1);
+cerr "IA-1 tell accept":;
+iaSay("ScafOUT (a)");
+cerr "IA-2 tell reject":;
+iaSay("ScafOUT (a");
+cerr "IA-3 treeOf accept":;
+treeOf('(a)');
+cerr "IA-4 treeOf reject":;
+treeOf('(a');
+cerr "DRIVEDOOR SENTINEL":;
+stop();
+
+driveDoorT -- ITEM A, P3a's ROUTING CERTIFICATE (SEQ 184/185, 2026-09-26).
+
+ONE DOOR FOR A DRIVE. A drive is a parse run over diverted input, and driveStep is the door:
+it pushes a floor, raises inputFloor, restores lastIndent/defining, and pops back to where it
+started. treeOf used to push and parse on its own, so its drives had none of that. This file
+drives one Scaf rule four ways from top-level statements and asserts that every drive went
+through the door.
+
+THE SUBJECT. ScafOUT = "(" ScafALT ")", ScafALT = ScafA | ScafI. ScafA carries an ORDINARY
+action that prints IAFIRE ScafA (a counter cannot be used: a declared counter does not resolve
+from inside a rule's action here, and the ++ refusal aborts the whole tell). The rejected input
+"(a" matches ScafA and then fails at the close, so the rejected pass HAS an action inside it.
+
+THE ROWS, one per drive IA-1..IA-4 (tell accept, tell reject, treeOf accept, treeOf reject):
+  door      a "runRule DOOR on ScafOUT" line (traceParse) -- want 1 each. treeOf read 0 before
+            the routing: BORN RED.
+  fires     IAFIRE ScafA lines -- want 1 each, UNCHANGED by the routing. The rejected pass fires
+            ScafA at PTF=0 and PTF=1 alike: a drive root that is not StatemenT records nothing at
+            step 1. That changes in P7, not here.
+  discard   "PTF DISCARD" lines inside the drives (branch, PTF_TRACE=1) -- want 0, P7's by
+            design; the fires row is its non-zero sibling.
+  sentinel  DRIVEDOOR SENTINEL. Before the routing it was ABSENT: treeOf's rejected pass pushed
+            input without raising inputFloor, so the failed parse popped the FILE's input and
+            everything after IA-4 was abandoned at exit 0 (demoRprime's mechanism). The
+            strongest red row, and the one the door cures by construction.

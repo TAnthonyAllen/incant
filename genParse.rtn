@@ -2103,14 +2103,11 @@ extern GroupItem treeOf(GroupItem argument)
 GroupRules  ruler = groupRules;
 GroupItem   rule = locateRule("ScafOUT");
 GroupItem   result;
-int         baseStak = 0;
     if !rule {
         cerr "treeOf: no ScafOUT on the search list":;
         return null; }
-    if inputSTAK    baseStak = inputSTAK.length;
-    pushInput(argument);
-    result = rule.parse(0);
-    while inputSTAK && inputSTAK.length > baseStak      popInput();
+    // oneDoor a drive goes through driveStep -- its floor keeps a failed pass off the caller's input (P3a routing, SEQ 185)
+    result = driveStep(argument,rule,null);
     cerr "TREE " argument.text:;
     if result   showTree(result,"    ");
     else        cerr "    (parse FAILED)":;

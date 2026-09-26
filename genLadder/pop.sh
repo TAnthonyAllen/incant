@@ -4999,15 +4999,37 @@ fi
 #  naming it. When P3 routes treeOf and demoRprime through driveStep they LEAVE this list.
 _dcDir=${DRIVE_CENSUS_DIR:-.}
 _dcGot=$(for _f in "$_dcDir"/*.twk "$_dcDir"/*.rtn; do python3 genLadder/codeOnly.py "$_f" 2>/dev/null | awk -v F="$(basename "$_f")" '/^(extern |[A-Za-z]+ +)?[A-Za-z*]+ +[A-Za-z_]+\(.*\)[ \t]*$/ && !/;/ {fn=$0} /pushInput\(/ && !/int pushInput/ {sub(/\(.*/,"",fn); n=split(fn,a," "); print F":"a[n]}'; done | LC_ALL=C sort -u | tr "\n" " ")
-_dcWant="Commands.rtn:loadInputFromFile GroupActions.rtn:driveStep GroupActions.rtn:processCode GroupMain.twk:bootstrapper genParse.rtn:demoRprime genParse.rtn:treeOf jitEmitters.rtn:jitProbeDrive "
+#  RE-PINNED 7 -> 6, 2026-09-26 (SEQ 185, P3a's routing): treeOf LEFT the list -- it drives through
+#  driveStep now, so it is no longer a seat of its own. demoRprime stays until ruling 3.
+_dcWant="Commands.rtn:loadInputFromFile GroupActions.rtn:driveStep GroupActions.rtn:processCode GroupMain.twk:bootstrapper genParse.rtn:demoRprime jitEmitters.rtn:jitProbeDrive "
 if [ -n "$_dcGot" ] && [ "$_dcGot" = "$_dcWant" ]; then
-    echo "  ok    drive census: pushInput's callers are the 7 named seats"; green=$((green+1))
+    echo "  ok    drive census: pushInput's callers are the 6 named seats"; green=$((green+1))
 else
-    echo "  FAIL  drive census MOVED -- pushInput's callers are not the 7 named seats; class every newcomer"
+    echo "  FAIL  drive census MOVED -- pushInput's callers are not the 6 named seats; class every newcomer"
     echo "          actual:   ${_dcGot:-(none -- the extractor read nothing)}"
     echo "          expected: $_dcWant"
     fail=1
 fi
+
+#  ⚑ driveDoorT -- ITEM A, P3a's ROUTING CERTIFICATE (SEQ 184/185, 2026-09-26). One Scaf rule
+#  with an ORDINARY action on ScafA, driven four ways from top-level statements: IA-1 tell
+#  accept, IA-2 tell reject, IA-3 treeOf accept, IA-4 treeOf reject ("(a": ScafA matches, then
+#  the close fails). BORN RED before treeOf went through driveStep: door 1/1/0/0, and the
+#  SENTINEL ABSENT -- treeOf's rejected pass popped the FILE's input (no inputFloor) and the rest
+#  of the file was abandoned at exit 0. Fires are UNCHANGED by the routing (1 each: a non-
+#  StatemenT drive root records nothing at step 1); discard is 0, P7's by design, and the fires
+#  row is its non-zero sibling. Run with PTF_TRACE=1 so the branch can print DISCARD lines.
+( PTF_TRACE=1; export PTF_TRACE; run2 driveDoorT "$T/ddt.o" "$T/ddt.e" ); check "driveDoorT runs" 0 $?
+sentinel "driveDoorT sentinel" "$T/ddt.e" "DRIVEDOOR SENTINEL"
+_ddSeg () { awk -v w="$1" '/^IA-[1-4] /{seg=$1} index($0,w){n[seg]++} END{printf "%d/%d/%d/%d", n["IA-1"], n["IA-2"], n["IA-3"], n["IA-4"]}' "$T/ddt.e"; }
+_ddDoor=$(_ddSeg "runRule DOOR on ScafOUT"); _ddFire=$(_ddSeg "IAFIRE ScafA"); _ddDisc=$(_ddSeg "PTF DISCARD")
+echo "  ..    driveDoorT reads door=$_ddDoor fires=$_ddFire discard=$_ddDisc"
+if [ "$_ddDoor" = "1/1/1/1" ]; then echo "  ok    driveDoorT door 1/1/1/1 -- every drive, tell and treeOf, went through driveStep"; green=$((green+1))
+else echo "  FAIL  driveDoorT door $_ddDoor, want 1/1/1/1 (a 0 is a drive that bypassed driveStep)"; fail=1; fi
+if [ "$_ddFire" = "1/1/1/1" ]; then echo "  ok    driveDoorT fires 1/1/1/1 -- the rejected pass fires ScafA on both entries (step 1)"; green=$((green+1))
+else echo "  FAIL  driveDoorT fires $_ddFire, want 1/1/1/1"; fail=1; fi
+if [ "$_ddDisc" = "0/0/0/0" ]; then echo "  ok    driveDoorT discard 0/0/0/0 -- P7's by design; fires is the non-zero sibling"; green=$((green+1))
+else echo "  FAIL  driveDoorT discard $_ddDisc, want 0/0/0/0 until P7"; fail=1; fi
 
 #  ⚑ trigDO -- THE NEW PARSE ROAD'S FIRST STANDING COVERAGE. Until 2026-09-09
 #  NO FLEET FIXTURE REACHED parseRule AT ALL: the 09-08 H7 control forced
