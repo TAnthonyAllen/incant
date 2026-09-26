@@ -9270,8 +9270,8 @@ Report: per stroke, at top the fleet and what the new rows read / what left; evi
 ===================================================================
 SEQ 192  -  TASK 2: RuleStuff.twk CLEANUP
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Answered in clod-to-clay SEQ 141.
 
 Supersedes the earlier Task 2 draft; the helpers it fenced off are gone.
 First, one check: grep the generated files under GUI/, Tests/ and the other subdirectories

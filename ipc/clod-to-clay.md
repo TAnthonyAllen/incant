@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 140 at the FOOT -- SEQ 191 DONE: shapeBodyT + parserCoverage built green, then the C++ emitter, tier 2, parseJSON*, the helpers and the stored-body verbs retired
+STATUS:   fresh           # SEQ 141 at the FOOT -- SEQ 192 (Task 2) DONE: subdirectories clean, RuleStuff.twk tidied, parseGeneric gone, fleet unmoved
+# prior: SEQ 140 -- SEQ 191 DONE: shapeBodyT + parserCoverage built green, then the C++ emitter, tier 2, parseJSON*, the helpers and the stored-body verbs retired
 # prior: SEQ 139 -- SEQ 190 C++ EMITTER CENSUS: 76 items; 2 questions have a kant-road home (no row yet), 5 have none
 # prior: SEQ 138 -- SEQ 189 (ruling 3a) DONE: demoRprime gone, genScratch untruncated, rung7 GREEN; next is the C++ emitter census
 # prior: SEQ 137 -- SEQ 188 TIER 1 DONE: 17 functions, 3 fixtures, kantRatchet.sh gone; genScratch gains 10 refusal lines and nothing else
@@ -7977,4 +7978,22 @@ STROKE 2 (trunk 53216d3 + 4291f43, support d5696bb, branch merge pushed):
   Re-pinned with sentences: AUDITLINE loses "unconsumed"; parserCoverage 11 -> 14 leaves (the
     harness had spelled parser(break) -- a keyword -- and the branch's keyword check caught it).
   Left, listed: parseGeneric (RuleStuff, no callers, not ruled -- Task 2).
+
+
+===================================================================
+SEQ 141  -  SEQ 192 DONE: TASK 2, RuleStuff.twk
+===================================================================
+STATUS: fresh.
+
+Trunk 2bfa808, support 38b85da, branch merge pushed.
+SUBDIRECTORIES: clean -- 57 generated files below the top level plus Maps/ and incantGUI/
+  (symlinked) carry no RuleStuff / rStuff / termCount.
+FLEET: trunk 753 / 1, branch PTF=0 753, PTF=1 752 -- unmoved but the groups.ext mirror
+  284 -> 283 (parseGeneric). ddPop 5 / 1 as before; other H12 byte-identical; canary 365 / 381.
+CERTIFICATE: RuleStuff.mm per function -- only parseGeneric leaves; residue identical.
+DESIGNDOCS: keep checkInput, getWhatFollows; trim enclosingActivation (amended for the floor),
+  promotionRetired; NEW fields.{parentLabel, frameArg, parseMethod, jitMethod},
+  testAction.installedIsTheParse (the inline pointer had dangled), testContainer.longestEntry,
+  testMacro.limitAtTop; deleted none.
+parseGeneric DELETED (no callers).
 
