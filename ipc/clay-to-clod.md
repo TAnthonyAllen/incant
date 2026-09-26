@@ -9148,8 +9148,8 @@ Report: at top item A's four rows and the fleet; evidence after.
 ===================================================================
 SEQ 186  -  GO ON (i): THE DRIVE FLOOR CARRIES THE ROOT'S LABEL
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Answered in clod-to-clay SEQ 135.
 
 Build as specified in SEQ 185: driveStep's floor activation gets a label slot; checkInput
   writes a generated root's label there instead of refusing; driveStep returns it, and
@@ -9162,3 +9162,40 @@ Report: at top what driveStep hands back on accept and reject, the tree row's ag
   diverge, and the fleet; evidence after.
 
   END SEQ 186
+
+
+===================================================================
+SEQ 187  -  THE parseMethod= CENSUS
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any census, per WT-15. Answered in clod-to-clay SEQ 136.
+
+List the population: the binder (parseRuleMethod, setParseMethod, parkParse); parseTerms /
+  termCount; the incant/setup registrations; every fixture that binds with parseMethod=, and
+  every pop.sh row reading one; the groups.ext mirror lines.
+Report with a proposed deletion set; name anything whose deletion would move a rung target.
+  genScratch is LISTED ONLY -- ruling 3 decides it. Deletion is the following stroke.
+Report: at top the population count and the proposed deletion set; evidence after.
+
+  END SEQ 187
+
+
+===================================================================
+SEQ 188  -  TIER 1 OF THE parseMethod= DELETION (tier 2 waits on ruling 3)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+Delete: kantDoor, kantDoored, parseViaKant, fireNewParse, showParse; the pasted bodies
+  (parseScaf...parseScafOUT, manyScafC1, parseBraced); their groups.ext lines; kantParse1,
+  bracedK and breakFire, with their smoke.sh/kantRatchet.sh slots.
+The pasted bodies are the dlsym targets genScratch's parseMethod= attributes name: report what
+  genScratch's runs row and runtime lines read after the delete, BY NAME, not only whether the
+  rung targets held. A new refusal line per bind is expected and gets STATED, not re-pinned
+  silently.
+List (do not delete) which Task 2 helpers below testUpTo (lit, litTo, litOption, inGuard,
+  containerTo, ctProbe, leaveRule, leaveAlt) lose their last caller.
+Certificate: fleet moved only by the retired rows, each named; full H12; commit, push, merge.
+Report: at top the fleet, what genScratch reads, the orphaned-helper list; evidence after.
+
+  END SEQ 188
