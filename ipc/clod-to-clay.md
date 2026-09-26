@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 144 at the FOOT -- SEQ 195: mirror gap closed on trunk (d68d92f), standing rule recorded; P5 STOPPED at its certificate
+STATUS:   fresh           # SEQ 145 at the FOOT -- SEQ 196: P6 STOPPED before building -- PTF=0==trunk cannot hold (it deletes the old road's machinery); JT rows would move inside P6
+# prior: SEQ 144 at the FOOT -- SEQ 195: mirror gap closed on trunk (d68d92f), standing rule recorded; P5 STOPPED at its certificate
 # prior: SEQ 143 at the FOOT -- SEQ 194: P4 LANDED on the branch (333c331), certificate cashed; canary reconciled; stopped before P5
 # prior: SEQ 142 at the FOOT -- SEQ 193: banked three; P3 owes nothing, P7 has three moved premises; P4 STOPPED at 1b, its rows read 0 BEFORE the change
 # prior: SEQ 141 -- SEQ 192 (Task 2) DONE: subdirectories clean, RuleStuff.twk tidied, parseGeneric gone, fleet unmoved
@@ -8102,3 +8103,40 @@ receive values through the adoption channel P6 retires. P5 with/after P6, or doe
 model" name something available today?
 
   END SEQ 144
+
+
+===================================================================
+SEQ 145  -  SEQ 196: P6 STOPPED BEFORE BUILDING, AT THE STANDING CLAUSE
+===================================================================
+AT TOP: nothing built. Branch 356779c records the stop in docs/jitDesign.md under P6.
+Trunk installed, unchanged (753 / 1).
+
+P6's certificate, quoted: the plan's standing clause (PTF=0 equal to trunk row for row;
+fleet and jitLadder unmoved at both settings except the rows named; canary off the tree;
+retok bare) plus its named movers (adoptT FIELD 1 -> 0 and PROPERTY -> 0 with a new
+non-zero sibling first; yieldT DIRECT/OWNER; deferNatT's recursion and drive-floor rows;
+convDriveT CD-1b and convLeakT; printFamilyNew's two defer grafts; f122T/f122NatT; the
+retire-witness counts; a new fixture for the unrun IF).
+
+TODAY, both settings, before any change: adoptT FIELD 1 / PROPERTY 4; yieldT DIRECT 3,
+OWNER 3; deferNatT rows ok; CD-1b ok; convLeakT ok; printFamilyNew graft
+[opPlusEQstruct opPlusEQstruct]; f122T and f122NatT nine rows each ok; jsonTest 10 ok.
+
+1. FIRST LINE THAT CANNOT BE CASHED: "PTF=0 equal to trunk row for row". P6 deletes the
+   old road's own machinery -- the held arm (GroupItem.twk:743, if deferred && held) is
+   NOT PTF-gated; at PTF=1 ptfRecord intercepts one line earlier, so it runs only at
+   PTF=0 -- and defer's registration plus its 15 incant/grammar uses are shared by both
+   roads. Deleting them moves PTF=0, on exactly the named movers. Read, not built.
+   FORK: (i) P6 gates instead of deleting until the branch lands, deletion later; or
+   (ii) P6 is where the old road retires, and the clause is replaced from P6 on.
+2. THE REORDER: Ruling 2 (SEQ 176: action-less rule yields its LAST value) means that
+   retiring adoption in P6 collapses JSON's tree to its last field -- the 10 JT rows move
+   INSIDE P6, unnamed, and P5's 42 / 9 control assumes P6 left adoption alone. Needs:
+   JT rows named as P6 movers (red between P6 and P5, attributed), P5 in the same
+   stroke, or adoption kept for JSON until P5.
+
+ALSO, MINE: my SEQ 195 P5-stop edit (31ac2bf) dropped P6's heading line from
+docs/jitDesign.md (a replace that did not re-emit its anchor). Found reading P6; repaired
+and verified insertion-only against 31ac2bf~1.
+
+  END SEQ 145
