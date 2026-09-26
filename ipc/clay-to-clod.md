@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      198
-STATUS:   working        # SEQ 198 -- P6 held class = statement-level; shortCircuitT check; Rule C instance; build P6
+SEQ:      199
+STATUS:   working        # SEQ 199 -- P6 certificate restated (unrun IF, adoptT PROPERTY, deferNatT re-pin, PTF=0); land when all four hold
+STATUS-198: cleared      # SEQ 198 -- P6 built on p6-held-class, stopped on the JT line; report clod-to-clay SEQ 147
 STATUS-197: cleared      # SEQ 197 -- P6 STOPPED on parent-driven firing (measured); report clod-to-clay SEQ 146
 STATUS-196: cleared      # SEQ 196 -- P6 STOPPED before building (standing clause); report clod-to-clay SEQ 145
 STATUS-195: cleared      # SEQ 195 -- mirror gap closed d68d92f; P5 STOPPED at its certificate; report clod-to-clay SEQ 144
@@ -9426,8 +9427,8 @@ strokes is what a branch is for.)
 ===================================================================
 SEQ 198  -  P6's HELD CLASS RULED; shortCircuitT CHECK; RULE C INSTANCE; BUILD P6
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Stopped; clod-to-clay SEQ 147.
 
 Adopt the candidate, stated as the rule: P6 holds actions that control whether or how
 often their children fire (the statement-level class, the 15 defer rules under
@@ -9438,3 +9439,20 @@ class. Record the ALLHELD parse failure as a Rule C instance (NamE's action is r
 the parse). Ruling (i) and the JT-row plan stand. Then build P6.
 
   END SEQ 198
+
+
+===================================================================
+SEQ 199  -  P6's CERTIFICATE RESTATED; LAND FROM p6-held-class WHEN ALL FOUR HOLD
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+SEQ 197 and 198 conflicted; the class rule stands. Adoption retirement and the JT
+red-then-green plan move out of P6 into the value-node stroke, paired with P5. P6's
+certificate is restated: (1) new fixture, an IF whose arm never runs, where a side effect
+in the dead arm reads 0 at PTF=1, with the held-class switch off as its control; (2)
+attribute adoptT PROPERTY 4 -> 1 and pin it by value, since a loose non-zero pin is not a
+certificate; (3) deferNatT's re-pin with its sentence; (4) PTF=0 equal to trunk row for
+row. Land P6 from p6-held-class when all four hold.
+
+  END SEQ 199

@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 146 at the FOOT -- SEQ 197: ruling (i) taken; P6 STOPPED on parent-driven firing -- interpretXP/TokenXP have no fire arms (measured)
+STATUS:   fresh           # SEQ 147 at the FOOT -- SEQ 198: P6 built (p6-held-class, not merged); stopped: JSON adoption survives, JT rows stay green
+# prior: SEQ 146 at the FOOT -- SEQ 197: ruling (i) taken; P6 STOPPED on parent-driven firing -- interpretXP/TokenXP have no fire arms (measured)
 # prior: SEQ 145 at the FOOT -- SEQ 196: P6 STOPPED before building -- PTF=0==trunk cannot hold (it deletes the old road's machinery); JT rows would move inside P6
 # prior: SEQ 144 at the FOOT -- SEQ 195: mirror gap closed on trunk (d68d92f), standing rule recorded; P5 STOPPED at its certificate
 # prior: SEQ 143 at the FOOT -- SEQ 194: P4 LANDED on the branch (333c331), certificate cashed; canary reconciled; stopped before P5
@@ -8170,3 +8171,33 @@ statement-level class (the 15 defer rules, StatemenT as root) and leave the expr
 level replaying in post-order as step 1 does, until P7/P8 split NamE and interpretXP.
 
   END SEQ 146
+
+
+===================================================================
+SEQ 147  -  SEQ 198: P6 BUILT ON THE CLASS RULE; STOPPED ON THE JT LINE
+===================================================================
+AT TOP: P6 is built and measured, and NOT landed. It lives on branch p6-held-class
+(57f3e7a, pushed). parse-then-fire 8f14c9d records the stop. Trunk reinstalled, 753 / 1.
+
+PRE-CHECK: AND/OR STAY VALUE NODES. shortCircuitT's rows sit inside an action body,
+which step 1 never records, so its PTF=1 green answered nothing; the four pairs driven as
+TOP-LEVEL statements read 0/1/0/1 at both settings. No unreached arm fires.
+
+THE BUILD: at PTF=1, in a top-level statement's scope, a defer action is recorded HELD BY
+CLASS (deferredAbove not asked for a recorded fire; PTF=0 asks it where trunk does); the
+root StatemenT's own fire fires the held construct as owner and takes its value.
+Measured bare: PTF=0 763 / 1 == trunk row for row. PTF=1 761 / 1 -- the ONLY moved row
+is deferNatT "through the recursion" (named). jitLadder 215 at both (one transient
+SIGKILL on J2, not reproduced on two reruns). Controls unmoved at both settings.
+
+THE LINE: SEQ 197's "JT rows pinned red at PTF=1" cannot be cashed. Under SEQ 198's
+rule JSONfield/JSONarray are value nodes, so their adoption survives P6 -- 42 / 9 at PTF=1
+on the P6 binary -- and all 10 JT rows stay green. The two rulings disagree about whether
+P6 retires value-node adoption. NAMED BUT UNMOVED: adoptT FIELD 1, yieldT 3/3, CD-1b,
+convLeakT, printFamilyNew grafts, f122T/f122NatT. adoptT PROPERTY 4 -> 1, green only
+because its row asks for non-zero (a loose pin). Unrun-IF fixture not written.
+
+RULE C: the ALLHELD failure is recorded as a third member (NamE's action read by the
+parse), attribution by ruling; candidate mechanism A2's shape, unmeasured.
+
+  END SEQ 147
