@@ -9219,3 +9219,21 @@ Next stroke, a census only: the C++ emitter (planRule, emitPlan, the plan vocabu
 Report: at top the fleet and rung7's reading; evidence after.
 
   END SEQ 189
+
+
+===================================================================
+SEQ 190  -  THE C++ EMITTER CENSUS (census only, no deletions)
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any census, per WT-15. Answered in clod-to-clay SEQ 139.
+
+Subject: planRule, emitPlan and the plan vocabulary in genParse.rtn. List every caller. List
+  every instrument or row that reads its output: odometer, census.target, phaseA, emitAll,
+  countPop, spell.target/genEmit, gapB, recordPop, the rung targets, and anything else the
+  whole-tree search finds. For each: retires by mapping or not, and where its question would
+  go (the kant road, or nowhere). Also list what tier 2, the dead parseJSON* bodies and the
+  Task 2 helpers depend on from it.
+Report: at top the population count, what would retire, and what question would be left with
+  no home; evidence after.
+
+  END SEQ 190
