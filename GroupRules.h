@@ -285,6 +285,7 @@ extern "C" GroupItem *measureKeywordDecision(GroupItem *input, GroupItem *token)
 extern "C" GroupItem *measureLabelReuse(GroupItem *label);
 extern "C" GroupItem *measureParseFire(GroupItem *field, RuleStuff *stuff);
 extern "C" GroupItem *measureRetire(char *what, GroupItem *field);
+extern "C" GroupItem *measureRootValue(GroupItem *construct, GroupItem *value, int fired);
 extern "C" int modifierIsRepeat(char *modifier);
 extern "C" void modify(GroupItem *field, char *modifier);
 extern "C" void modifyClass(GroupItem *field, char *modifier, int wantRepeat);

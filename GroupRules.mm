@@ -1251,11 +1251,13 @@ GroupItem 	*sourceFile = new GroupItem("sourceFile");
 		ruler->lastStatement = statement;
 		// p6RootFire at the ROOT of a top-level statement (PTF=1) the held construct fires HERE, as its owner, and hands its VALUE to the statement -- which keeps its own label as its outcome (P6, SEQ 198)
 		
-		if ( gPtfRootFire && statement && isMethod(statement->groupBody->flags.instructType) )
+		if ( gPtfRootFire )
 		{
 		gPtfRootFire = 0;
-		GroupItem *rootValue = statement->groupBody->gMethod(statement);
-		(void)rootValue;
+		if ( ptfClassHold() && statement && isMethod(statement->groupBody->flags.instructType) )
+		::measureRootValue(statement,statement->groupBody->gMethod(statement),1);
+		else
+		::measureRootValue(statement,statement,0);
 		}
 		
 		// firedInLabel the statement's action already ran in fireLabelMethod -- running it here would run it twice
@@ -7244,6 +7246,21 @@ extern "C" GroupItem *measureRetire(char *what, GroupItem *field)
 	return 0;
 }
 
+// measureRootValue witness: at a top-level statement's ROOT, the construct and the value it handed the statement -- fired=1 when the root fired it as owner (P6), 0 when it arrived through the tree (step 1, or PTF_NOCLASSHOLD=1). PTF_TRACE gated, reads only what it is handed
+extern "C" GroupItem *measureRootValue(GroupItem *construct, GroupItem *value, int fired)
+{
+	
+	if ( ptfTraceOn() )
+	{
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	::fprintf(stderr,"PTF ROOTVALUE construct=%s fired=%d value=%s labelNO=%d\n",
+	construct && construct->groupBody->tag ? construct->groupBody->tag : "(null)", fired,
+	value ? (value->groupBody->tag ? value->groupBody->tag : "?") : "(null)", value && value == ruler->labelNO ? 1 : 0);
+	}
+	
+	return 0;
+}
+
 /*  modifierIsRepeat -- THE MODIFIER CLASS PREDICATE, one question, no list here.
     A FLAG DESCRIBES A TERM; A REPETITION CHANGES WHAT THE TERM IS, and only the
     repetition class carries `repeatClass` in incant/setup's Modifiers registry, so
@@ -10356,7 +10373,7 @@ extern "C" GroupItem *ptfReplayRecords(RuleStuff *stuff)
 	PtfAttach *frAtt = gPtfAtt; int frAttN = gPtfAttN, frAttCap = gPtfAttCap;
 	gPtfRecs = 0; gPtfN = 0; gPtfCap = 0; gPtfAtt = 0; gPtfAttN = 0; gPtfAttCap = 0;
 	// p6RootFire the top statement's own fire is the ROOT: its action fires the held construct under it (P6, SEQ 198)
-	int rootFire = ptfClassHold() && gPtfTopReplay && L == root && ::ptfIsStmt(r->rule);
+	int rootFire = gPtfTopReplay && L == root && ::ptfIsStmt(r->rule);
 	if ( rootFire ) gPtfRootFire = 1;
 	GroupItem *ret = r->method(L);
 	gPtfRootFire = 0;

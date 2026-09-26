@@ -1,0 +1,19 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(UnrunIfT);
+define
+    uiF = 0;
+    uiT = 1;
+    uiN = 0;
+    ;
+cerr "UI-1 an unrun IF":;
+if uiF;
+uiN = 1;
+cerr "UI-2 a run IF":;
+if uiT;
+uiN = 2;
+cerr "UI-3 the run arm ran: uiN = " uiN:;
+cerr "UNRUNIF SENTINEL":;
+stop();
