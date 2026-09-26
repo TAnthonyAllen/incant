@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      198
-STATUS:   working        # SEQ 198 -- P6 held class = statement-level; shortCircuitT check; Rule C instance; build P6
+STATUS:   cleared        # SEQ 198 -- P6 built on p6-held-class, stopped on the JT line; report clod-to-clay SEQ 147
 STATUS-197: cleared      # SEQ 197 -- P6 STOPPED on parent-driven firing (measured); report clod-to-clay SEQ 146
 STATUS-196: cleared      # SEQ 196 -- P6 STOPPED before building (standing clause); report clod-to-clay SEQ 145
 STATUS-195: cleared      # SEQ 195 -- mirror gap closed d68d92f; P5 STOPPED at its certificate; report clod-to-clay SEQ 144
@@ -9426,8 +9426,8 @@ strokes is what a branch is for.)
 ===================================================================
 SEQ 198  -  P6's HELD CLASS RULED; shortCircuitT CHECK; RULE C INSTANCE; BUILD P6
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Stopped; clod-to-clay SEQ 147.
 
 Adopt the candidate, stated as the rule: P6 holds actions that control whether or how
 often their children fire (the statement-level class, the 15 defer rules under
