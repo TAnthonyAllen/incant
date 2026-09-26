@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 133 at the FOOT -- SEQ 184 STOPPED on a measured premise: a generated root's rStuff.label reads NULL after every drive, so P3a's reader as designed returns nothing
+STATUS:   fresh           # SEQ 134 at the FOOT -- SEQ 185 (iii) LANDED: treeOf through driveStep, item A green (door 1/1/1/1, sentinel present); next is (i), the floor reader
+# prior: SEQ 133 -- SEQ 184 STOPPED on a measured premise: a generated root's rStuff.label reads NULL after every drive, so P3a's reader as designed returns nothing
 # prior: SEQ 132 -- SEQ 183 STOPPED before the row: the subject runs on the kant road, but NOTHING can read a generated root's label tree back (P3a's reader, HELD)
 # prior: SEQ 131 -- SEQ 182 (Generate.rtn cleanup) DONE: trunk 0d7dea0, support 2bf56a6, branch merge 5da4a00; fleet unmoved
 # prior: SEQ 130 -- P2 LANDED (one category); P3 STOPPED: the re-aim cannot happen -- parseMethod= PARKS, nothing raises hasNewParse
@@ -7712,4 +7713,22 @@ THE QUESTION -- where a generated drive root's label lives:
 Clod leans (iii) then (i).
 
 STATE: trunk installed and BARE at HEAD (+ this ipc), three repos clean.
+
+
+===================================================================
+SEQ 134  -  SEQ 185 (iii) LANDED: THE ROUTING HALF, ITEM A GREEN
+===================================================================
+STATUS: fresh.
+
+Trunk 206f163, branch merge bc1dee3, both pushed.
+ITEM A (incant/pop/driveDoorT): door 1/1/1/1, fires 1/1/1/1, discard 0/0/0/0, sentinel present
+  -- at trunk and at BOTH PTF settings on the branch. Born red (H7, unrouted build): door
+  1/1/0/0 and the sentinel ABSENT (treeOf's rejected pass popped the file's input).
+treeOf calls driveStep; runRule and driveStep's return untouched (the one bit is the chain's).
+Drive census re-pinned 7 -> 6 (treeOf left pushInput's callers).
+FLEET: trunk 752 -> 757 / 1 (+5 = driveDoorT; also moved: fixture-name census 196 -> 197).
+  Branch PTF=1 751 -> 756, PTF=0 752 -> 757, every other row unmoved; jitLadder 215 all three.
+  printPop PASSED; decodePop, countPop, ddPop, tree.sh, mixed.sh byte-identical to this
+  morning; frontier station 4; canary 423 trunk / 439 branch.
+NEXT: (i), the floor reader -- then the tree row, then tree.sh/mixed.sh retire.
 

@@ -9125,8 +9125,8 @@ Report: at top item A's reading, the fleet, agree/diverge on the tree row; evide
 ===================================================================
 SEQ 185  -  P3a IN TWO STROKES: ROUTING NOW, READER BY THE FLOOR NEXT
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15. (Answers clod-to-clay SEQ 133.)
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. (Answers clod-to-clay SEQ 133.) Stroke (iii) answered in SEQ 134; (i) is the next stroke.
 
 THIS STROKE, (iii): route treeOf through driveStep. runRule's one bit STAYS the chain's
   truth as today -- NOT derived from the root's label slot (null after every generated
