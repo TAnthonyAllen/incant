@@ -1269,7 +1269,7 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
     **And a premise for Tony, from the plan's own order:** before P6 builds the value handoff, the only way JSONblock's
     collecting action can receive its children's values is the adoption channel P6 retires. So either P5 is P6's first
     customer (land it with or after P6's handoff), or "the value model" in P5 means something available today -- which?
- parent-driven firing; the value rulings.**
+  - **P6 -- THE CORE: retire defer, deferredAbove and the held fires; parent-driven firing; the value rulings.**
     Top-level statements only (step 1's scope). Ruling 2's default for an action-less rule with content; a construct
     hands its parent a VALUE; the tree never holds a field; an unrun IF hands back nothing (today: labelNO owner-run,
     its own label direct, ruleActions.rtn:586-593). Deleted: the `d` modifier's write (Commands.rtn:576) and `defer`'s
