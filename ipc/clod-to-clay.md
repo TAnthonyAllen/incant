@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 131 at the FOOT -- SEQ 182 (Generate.rtn cleanup) DONE: trunk 0d7dea0, support 2bf56a6, branch merge 5da4a00; fleet unmoved
+STATUS:   fresh           # SEQ 132 at the FOOT -- SEQ 183 STOPPED before the row: the subject runs on the kant road, but NOTHING can read a generated root's label tree back (P3a's reader, HELD)
+# prior: SEQ 131 -- SEQ 182 (Generate.rtn cleanup) DONE: trunk 0d7dea0, support 2bf56a6, branch merge 5da4a00; fleet unmoved
 # prior: SEQ 130 -- P2 LANDED (one category); P3 STOPPED: the re-aim cannot happen -- parseMethod= PARKS, nothing raises hasNewParse
 # prior: SEQ 129 -- tree/mixed dated (two causes, no defect); P0, P1 landed; P2 STOPPED: its certificate's two categories are one
 # prior: SEQ 128 -- SEQ 178 DONE: JSON fix + pin landed on trunk; population = JSON only; plan written (branch 2aac1f8), four rulings flagged
@@ -7601,4 +7602,60 @@ Trunk 0d7dea0, support 2bf56a6 (groups.ext), branch merge 5da4a00 -- all pushed.
 Task 2 (RuleStuff.twk below testUpTo) banked, not started.
 
 STATE: trunk installed and BARE, fleet 752 / 1, canary 423, three repos clean.
+
+
+===================================================================
+SEQ 132  -  SEQ 183 STOPPED: THE NEW ROW HAS NO READER ON THE KANT ROAD
+===================================================================
+STATUS: fresh.
+
+Nothing landed; tree at HEAD, fleet 752 / 1, canary 423, installed binary rebuilt at HEAD.
+tree.sh and mixed.sh are still on the seal checklist (retiring them before the replacement
+exists would leave the question uncovered).
+
+WHAT WORKS -- the subject is expressible on the kant road, with two respellings:
+  - literal terms must be LABELLED: `ScafOUT isRule lp-="(" ScafALT rp-=")"` and
+    `ScafA isRule ka-="a"`. Bare "("- / "a"- emit as GrouP() -- generateParse refuses two
+    GrouP terms ("a call by name reaches only the first") and a single one refuses at drive
+    ("GrouP has a parse method but no compiled body").
+  - generation is clean: ScafALT = CodE { return ScafA() || ScafI(); }.
+  - a direct drive `ScafOUT("(a)")` after parser(ScafOUT) takes the new road: runRule DOOR
+    hasNewParse=1, PARSERESULT lines, generated bodies dispatching their terms.
+
+WHAT DOES NOT -- no way to hand the generated root's label tree back to a fixture:
+  - the new-road root returns ONE BIT (ruling c'); its label goes into the CALLING
+    activation's slot (here a Token), and parseRule's callBracket then restores the root's
+    own rStuff.label.
+  - tell (the one door that returns a label copy) REFUSES a generated root that is a
+    registry member: "checkInput: no enclosing activation to take the label" -- tell's
+    `who` is the registry entry, whose parent (Grokking) has no rStuff. The direct call
+    gets past it because its face's parent is the calling statement.
+  - a rule's own action cannot observe it either: on the new road ScafOUT's action (code=)
+    DID NOT FIRE at all (frontier station 4 / CT-5 territory).
+  - H16 CAUGHT A VOID ARM: an old-road wrapper root (ScafTOP isRule ScafOUT) makes tell work
+    and printed IDENTICAL trees on both arms -- but the NEW arm never left the old road
+    (OLDFIREFLAG on every Scaf rule, no PARSERESULT). An old-road term call does not honour
+    hasNewParse, so that arm compared the interpretive tree with itself -- tree.sh's own
+    void since 0150f29, rebuilt by accident. Not banked.
+
+PRELIMINARY, TRACE ONLY (not a certificate): under traceParse the two roads attach in the
+  same order -- ScafA -> ScafALT (promote=1, isTarget=1, the retag) then ScafALT -> ScafOUT.
+  The one difference is pLabel (0 old, 1 new): checkInput's enclosingActivation arm filling
+  the parent slot first -- the two-writers item banked under exitFromParse.oneAttach.
+
+THE QUESTION -- the reader:
+  (a) LAND P3a's reader now, alone: driveStep hands back the generated root's label (its
+      design stands in the seal). Engine change, and the ruling held it for item A's fixture.
+  (b) an ARMED WITNESS at the new road's root exit (exitFromParse, drive root only) printing
+      the label tree it is about to attach -- reads state handed, no behaviour change; the
+      old arm reads tell's reply. Two seats, one per road: the row then compares two
+      instruments as well as two trees, which is its weakness.
+  (c) hold the row until P3a lands; tree.sh/mixed.sh stay on the checklist as "red, void".
+  Built and reverted, ready for any of them: `labelTree(x)`, a report verb for measure.twk
+  (TREE <depth> <tag>, no addresses; the fixture passes `r := *v["reply"]`). Diff is in the
+  scratchpad.
+Clod leans (b) for this stroke if a row is wanted now, (a) if the reader is wanted once.
+
+STATE: trunk installed and BARE at 5857a16 (+ this ipc), fleet 752 / 1, canary 423, three
+repos clean after this commit. The census stroke has not started.
 

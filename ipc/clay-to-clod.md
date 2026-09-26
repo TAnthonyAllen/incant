@@ -9065,3 +9065,35 @@ Report: what was run and what moved/failed at the top; then renames, verdict tab
   list; evidence last.
 
   END SEQ 182
+
+
+===================================================================
+SEQ 183  -  RULING 1: THE parseMethod= ROAD RETIRES BY MAPPING
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+Ruling (Tony, 2026-09-26): nothing has reached a parseMethod=-bound body since 0150f29
+  (09-07); the kant road (parser(), builtinParseR) is where generated parsing lives.
+  NOT (b): the binder does not go back to raising hasNewParse.
+THIS STROKE, the instruments:
+  The new row FIRST: carry tree.sh/mixed.sh's question (does the generated tree agree with
+  the interpretive one?) onto the kant road. Same input through a rule twice: old road, then
+  after parser(<rule>); diff the two label trees. parser() is one-way: old-road drive first
+  in the file, or two processes -- Clod's call. Subject: tree.sh's alternation case (the
+  winner's retag, section 2.4) if expressible on the kant road, else the nearest grammar rule
+  with an alternation, and say why. Agree -> pin agreement; differ -> pin the divergence by
+  name (as tree.divergence did) so either direction goes red. H7: show red when the trees
+  are made to differ.
+  Retire tree.sh and mixed.sh from the seal checklist with a dated line naming the
+  replacement. Their fixtures stay in history; do not delete them.
+NEXT STROKE, NOT THIS ONE: the census of the parseMethod= population (binder parseRuleMethod,
+  setParseMethod, parkParse; parseTerms/termCount; incant/setup registrations; every fixture
+  binding with parseMethod=; every pop.sh row reading one) with a proposed deletion set.
+  Deletion is its own stroke.
+genScratch: leave alone in both strokes (ruling 3's territory); the census only lists it.
+Certificate: fleet unmoved except the new row, by name; full H12; commit, push, merge onto
+  parse-then-fire.
+Report: at top what was run and what the new row reads (agree/diverge); evidence after.
+
+  END SEQ 183
