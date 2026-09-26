@@ -4844,9 +4844,11 @@ else echo "  FAIL  shapeBodyT the road comparison MOVED -- want only ShRep aaac 
 #  the C++ emitter's odometer: for every grammar rule (the odometer's four filters, recomputed
 #  from the live registry), one process runs parser(<rule>) and reads GEN / COMPILE / LEAF /
 #  refusal. Pinned per rule in genLadder/parserCoverage.target: 62 rules, 46 generate a body and
-#  46 compile, 11 leaves, 5 no body (ColoN, EquaL refused -- no rStuff; break, continue, return
-#  print nothing -- BrancheS bin entries). H7: PCOV_PARSER at a generator with its compile
-#  removed -> 0 compile, RED.
+#  46 compile, 14 leaves, 2 no body (ColoN, EquaL refused -- no rStuff). H7: the parser form with
+#  its compile call removed (doctored in place, restored by checkout) -> 0 compile, RED.
+#  RE-PINNED 2026-09-26, the day it was born, 11 -> 14 leaves and 5 -> 2 no body: the harness
+#  now names each rule by SUBSCRIPT. `parser(break)` named a keyword, so break, continue and
+#  return were never reached on trunk and were REFUSED by parse-then-fire's keyword check.
 sh genLadder/parserCoverage.sh 2>&1 | grep -v '^  bin ' > "$T/pcov"
 diffcheck "parserCoverage.target (parser() over the whole grammar: 46 compile of 62)" genLadder/parserCoverage.target "$T/pcov"
 

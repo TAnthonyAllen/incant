@@ -50,14 +50,14 @@
   COMPILES  WardeD
   COMPILES  WhilE
   COMPILES  Xpress
-  NOBODY    break -- no body and no refusal naming it
-  NOBODY    continue -- no body and no refusal naming it
+  LEAF      break
+  LEAF      continue
   LEAF      followedBy
   LEAF      leftCurly
   LEAF      loopOnAttributes
   LEAF      loopOnMembers
   LEAF      nameSet
   LEAF      numberSet
-  NOBODY    return -- no body and no refusal naming it
+  LEAF      return
   LEAF      rightCurly
-PARSER COVERAGE -- 62 rules: 46 generate a body, 46 of them compile; 11 leaves; 0 crashed
+PARSER COVERAGE -- 62 rules: 46 generate a body, 46 of them compile; 14 leaves; 0 crashed

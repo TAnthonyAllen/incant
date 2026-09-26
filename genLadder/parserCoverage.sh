@@ -9,7 +9,11 @@
 #    COMPILE  "compile succeeded for <rule>"
 #    LEAF     "Generating parse code for <rule>" and no body -- a data-bearing leaf, which the
 #             generator hands to the leaf executors on purpose (not a failure)
-#  and any REFUSED / ERROR line naming the rule. ONE PROCESS PER RULE because parser() is one-way:
+#  and any REFUSED / ERROR line naming the rule. THE RULE IS REACHED BY SUBSCRIPT, parser(Grokking["x"]),
+#  never by bare name: break, continue and return are keywords, so `parser(break)` never reached them
+#  on trunk (read as "no body") and REFUSED on parse-then-fire's fire-time keyword check -- the
+#  harness's own spelling, not coverage (found 2026-09-26 at the branch merge).
+#  ONE PROCESS PER RULE because parser() is one-way:
 #  a rule already carrying a parse is skipped, so a second root in the same process would hide it.
 #
 #  THE POPULATION is recomputed from the live registry every run, never read from a file: Grokking
@@ -56,7 +60,7 @@ Start();
 include(unitTests);
 include(utilities);
 search reset stack Grokking UnitTests Utilities list;
-parser($r);
+parser(Grokking["$r"]);
 cerr "PCOV SENTINEL":;
 stop();
 KANT
