@@ -743,6 +743,14 @@ inline int ptfTraceOn()
     if ( gPtfTrace < 0 ) { const char *e = ::getenv("PTF_TRACE"); gPtfTrace = (e && *e && *e != '0') ? 1 : 0; }
     return gPtfTrace;
 }
+// ptfClassHold P6's switch (SEQ 199): 1 = the statement-level class is held by class and the root fires it;
+// PTF_NOCLASSHOLD=1 turns it off -- step 1's hold rule, the unrun-IF fixture's CONTROL
+inline int gPtfClassHold = -1;
+inline int ptfClassHold()
+{
+    if ( gPtfClassHold < 0 ) { const char *e = ::getenv("PTF_NOCLASSHOLD"); gPtfClassHold = (e && *e && *e != '0') ? 0 : 1; }
+    return gPtfClassHold;
+}
 inline char *ptfDup(const char *s)
 {
     if ( !s ) s = "";

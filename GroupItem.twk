@@ -750,7 +750,7 @@ int         held = 0;
             int ptfHeld = 0;
             if ( groupBody->flags.deferred )
                 {
-                if ( !gPtfScopeN ) ptfHeld = 1;
+                if ( !gPtfScopeN && ptfClassHold() ) ptfHeld = 1;
                 else { held = this->deferredAbove(stuff); heldKnown = 1; ptfHeld = held; }
                 }
             if ( ::ptfRecord(this,stuff,ptfHeld) ) { ::ptfStatementEnd(this,stuff); return; }

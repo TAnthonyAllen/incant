@@ -653,7 +653,7 @@ extern GroupItem ptfReplayRecords(RuleStuff stuff)
         PtfAttach *frAtt = gPtfAtt; int frAttN = gPtfAttN, frAttCap = gPtfAttCap;
         gPtfRecs = 0; gPtfN = 0; gPtfCap = 0; gPtfAtt = 0; gPtfAttN = 0; gPtfAttCap = 0;
         // p6RootFire the top statement's own fire is the ROOT: its action fires the held construct under it (P6, SEQ 198)
-        int rootFire = gPtfTopReplay && L == root && ::ptfIsStmt(r->rule);
+        int rootFire = ptfClassHold() && gPtfTopReplay && L == root && ::ptfIsStmt(r->rule);
         if ( rootFire ) gPtfRootFire = 1;
         GroupItem *ret = r->method(L);
         gPtfRootFire = 0;
