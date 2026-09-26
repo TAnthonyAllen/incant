@@ -702,7 +702,9 @@ static inline void reportCompileCensus(void)
 // WHERE TO ATTACH. deferredAbove walks this list whenever an activation sits above the floor, either road; otherwise it
 // keeps the parentStuff walk (Tony, 2026-09-24; F-114 hangs, option 1, ruling (b) refined).
 class RuleStuff;
-struct ParseActivation { RuleStuff *stuff; ParseActivation *prev; int floor; };
+// label: a drive FLOOR's slot for the generated root's label -- written by driveFloorLabel (from checkInput), read by
+// driveStep after the fire (Tony, 2026-09-26, SEQ 185 (i)). parseRule's own activations never use it.
+struct ParseActivation { RuleStuff *stuff; ParseActivation *prev; int floor; GroupItem *label; };
 inline ParseActivation *gParseActive = nullptr;
 
 // ptfState parse-then-fire step 1 (branch parse-then-fire, 2026-09-24): the statement's record list and its two

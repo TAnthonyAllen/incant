@@ -311,6 +311,30 @@ int         minters = 0;
     return minters;
 }
 
+// labelTree print a label tree as TREE <depth> <tag>, one line per node, depth-first -- unwraps holders first, prints no addresses (H3), so a fixture can pin it
+extern GroupItem labelTree(GroupItem field)
+{
+    -%
+    struct LT {
+        static void walk(GroupItem *n, int d)
+            {
+            if ( !n ) return;
+            ::fprintf(stderr,"TREE %d %s\n",d,n->groupBody->tag ? n->groupBody->tag : "(untagged)");
+            if ( n->groupBody->groupList )
+                for ( GroupItem *c = n->groupBody->groupList->firstInList; c; c = c->nextInParent )
+                    walk(c,d + 1);
+            }
+        };
+    GroupItem *n = field;
+    int hops = 0;
+    while ( n && isGROUP(n->groupBody->flags.data) && !n->groupBody->groupList && hops++ < 8 ) n = n->getGroup();
+    if ( !n ) ::fprintf(stderr,"TREE (none)\n");
+    else      LT::walk(n,1);
+    ::fflush(stderr);
+    %-
+    return trueResult;
+}
+
 // measureAdoption witness: at fireLabelMethod's adoption (the yield channel), a return that is not the label handed in and not a label, by kind -- RULE (isRule or hasNewParse), PROPERTY (the pROPERTIEs registry: StatemenT, true, labelNO -- measured isRule 0, not the grammar rule), FIELD (anything else: a live field). F-122's (b) census; visibility, not refusal. parseTrace-gated, reads only
 extern GroupItem measureAdoption(GroupItem field, GroupItem handed, GroupItem adopted)
 {

@@ -1162,6 +1162,18 @@ GroupItem   result,
 }
 
 
+// driveFloorLabel a generated DRIVE ROOT's label is parked on the drive's floor, the activation just below the root's own -- one writer (checkInput), one reader (driveStep); returns 1 when it took the label (Tony, 2026-09-26, SEQ 185 (i))
+extern int driveFloorLabel(RuleStuff stuff, GroupItem label)
+{
+    -%
+    if ( !stuff || !gParseActive || gParseActive->stuff != stuff ) return 0;
+    ParseActivation *below = gParseActive->prev;
+    if ( !below || !below->floor ) return 0;
+    below->label = label;
+    return 1;
+    %-
+}
+
 /***************************************************************************
     driveStep -- runRule's body, and the one drive both runRule and tell use.
     If there is a field argument, input is diverted to its content before
@@ -1220,6 +1232,8 @@ use ruler
             // oldRoadAttach an old-road rule called from INSIDE a new-road activation attaches into that activation -- with parse(0) attachLabel dropped its label, and every print shortcut vanished (F-120, F-116); a real drive has pushed its floor, so it still passes 0
             -% result = rule->parse((gParseActive && !gParseActive->floor) ? gParseActive->stuff : 0); %-
             } }
+    // floorLabel a generated root that SUCCEEDED hands back the label its floor holds (trueResult when it parked none); a failure hands back what the fire did
+    -% if ( floorPushed && rule->groupBody->flags.hasNewParse && result && result != ruler->falseResult && driveFloor.label ) result = driveFloor.label; %-
 use ruler
     // markSeat2 SEQ 166 point 2 -- THE KEY PAIR, either side of the pop
     if field && field.data  measureMarkPoint("2b-before-pop");
@@ -1272,7 +1286,11 @@ int         driveLen = strlen(driveBase),
 ***************************************************************************/
 extern GroupItem runRule(GroupItem field,GroupItem rule)
 {
-    return driveStep(field,rule,null);
+GroupRules  ruler = groupRules;
+GroupItem   result = driveStep(field,rule,null);
+    // oneBit a generated root hands driveStep its LABEL; the kant caller still gets the chain's truth (ruling c')
+    if rule.hasNewParse && result && result != falseResult     return trueResult;
+    return result;
 }
 
 /***************************************************************************
@@ -1340,9 +1358,8 @@ int         matched = 0,
     verdictCount(verdict,"length",msgLen);
     verdictCount(verdict,"stoppedAt",stoppedAt);
     verdictCount(verdict,"known",known);
-    // replyFromSlot the new road returns trueResult (its label is attached), so the label is read where it lives: the root's own slot
+    // replyFromFloor driveStep hands back a generated root's label from the drive floor -- the reply reads that, never the root's slot, which the call bracket has restored
     replyFrom = result;
-    if result == trueResult && who && who.rStuff    replyFrom = who.rStuff.label;
     if matched && replyFrom && replyFrom != labelNO && replyFrom != trueResult {
         reply       = new("reply");
         reply.group = copyOf(replyFrom);

@@ -62,6 +62,7 @@ define
     jitFieldMethod immediateAction=jitFieldMethod;
     jitShowRecord immediateAction=jitShowRecord;
     jitTrace immediateAction=jitTrace;
+    labelTree immediateAction;
     listenTo immediateAction noPrint;
     load immediateAction=loadDirectory noPrint;
     macro immediateAction=processFlags noPrint;

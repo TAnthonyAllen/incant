@@ -213,8 +213,10 @@ GroupItem   field = rule;
             if !label.rStuff || ruleName ne tag label.setRStuff(this);
             // enclosingActivation
             if hasNewParse && isMember {
-                if parent && parent.rStuff  parent.rStuff.label = label;
-                else    refuse(field,"checkInput: no enclosing activation to take the label"); } }
+                // driveRoot a generated DRIVE ROOT parks its label on the drive floor, where driveStep reads it
+                if !driveFloorLabel(this,label) {
+                    if parent && parent.rStuff  parent.rStuff.label = label;
+                    else    refuse(field,"checkInput: no enclosing activation to take the label"); } } }
 checkFailed:
     return sukcess;
 }

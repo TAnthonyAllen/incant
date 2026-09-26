@@ -5030,6 +5030,39 @@ if [ "$_ddFire" = "1/1/1/1" ]; then echo "  ok    driveDoorT fires 1/1/1/1 -- th
 else echo "  FAIL  driveDoorT fires $_ddFire, want 1/1/1/1"; fail=1; fi
 if [ "$_ddDisc" = "0/0/0/0" ]; then echo "  ok    driveDoorT discard 0/0/0/0 -- P7's by design; fires is the non-zero sibling"; green=$((green+1))
 else echo "  FAIL  driveDoorT discard $_ddDisc, want 0/0/0/0 until P7"; fail=1; fi
+#  IA-5/IA-6 (SEQ 186, the floor reader): a GENERATED root driven by tell hands back its label on
+#  accept (reply 1) and nothing on reject (reply 0). Before the floor carried the label both
+#  REFUSED -- "no enclosing activation to take the label" -- and read 0/0.
+_ddRep=$(awk '/^IA-5 /{s=5} /^IA-6 /{s=6} s&&/reply=/{v=$0; sub(/.*reply= */,"",v); sub(/ .*/,"",v); r[s]=v; s=0} END{printf "%s/%s", r[5], r[6]}' "$T/ddt.e")
+if [ "$_ddRep" = "1/0" ]; then echo "  ok    driveDoorT generated root: reply 1 on accept, 0 on reject -- the floor hands back its label"; green=$((green+1))
+else echo "  FAIL  driveDoorT generated root reply $_ddRep, want 1/0 (0/0 is the refusal the floor reader cured)"; fail=1; fi
+
+#  ⚑ treeRowT -- THE TREE ROW (SEQ 183-186, 2026-09-26): does the GENERATED tree agree with the
+#  INTERPRETIVE one? tree.sh/mixed.sh's question, carried onto the kant road -- they drove the
+#  parseMethod= road, which nothing has reached since 0150f29, so they compared the interpretive
+#  tree with itself. Subject: section 2.4's retag -- ScafA/ScafI must come back as ScafALT. One
+#  process, OLD arm first (parser is one-way); both arms read through tell (driveStep) and print
+#  through labelTree. Rows: the ROAD each arm took (H16 -- a probe that wrapped ScafOUT in an
+#  old-road root read identical trees because BOTH arms were interpretive); AGREEMENT per case;
+#  the pinned SHAPE, which names the depth-2 retag so two arms agreeing on a shallow or
+#  retag-less tree cannot pass. H7: promote=0 in exitFromParse -> NEW tree reads ScafA, RED.
+run2 treeRowT "$T/trr.o" "$T/trr.e"; check "treeRowT runs" 0 $?
+sentinel "treeRowT sentinel" "$T/trr.e" "TREEROW SENTINEL"
+_trArm () { awk -v h="$1" 'index($0,h)==1{f=1;next} /^(OLD|NEW) \(|TREEROW SENTINEL/{f=0} f&&/^TREE /' "$T/trr.e" | sed 's/ *$//' | tr "\n" "|"; }
+_trOld=$(awk '/^OLD \(/{f=1} /^NEW \(/{f=0} f&&/runRule DOOR on ScafOUT/&&/hasNewParse=0/' "$T/trr.e" | wc -l | tr -d ' ')
+_trNew=$(awk '/^NEW \(/{f=1} f&&/runRule DOOR on ScafOUT/&&/hasNewParse=1/' "$T/trr.e" | wc -l | tr -d ' ')
+if [ "$_trOld/$_trNew" = "3/3" ]; then echo "  ok    treeRowT roads: OLD arm interpretive (hasNewParse=0 x3), NEW arm generated (hasNewParse=1 x3)"; green=$((green+1))
+else echo "  FAIL  treeRowT roads $_trOld/$_trNew, want 3/3 -- an arm did not take its road, so the comparison is VOID"; fail=1; fi
+_trBad=""
+for _c in "(a)" "(i)" "(x)"; do
+    [ "$(_trArm "OLD $_c")" = "$(_trArm "NEW $_c")" ] || _trBad="$_trBad $_c[old=$(_trArm "OLD $_c") new=$(_trArm "NEW $_c")]"
+done
+if [ -z "$_trBad" ]; then echo "  ok    treeRowT the generated tree AGREES with the interpretive one on (a), (i) and the reject (x)"; green=$((green+1))
+else echo "  FAIL  treeRowT the trees DIVERGE:$_trBad"; fail=1; fi
+_trShape=$(_trArm "NEW (a)")
+if [ "$_trShape" = "TREE 1 ScafOUT|TREE 2 ScafALT|" ] && [ "$(_trArm "NEW (x)")" = "TREE (none)|" ]; then
+    echo "  ok    treeRowT shape pinned: ScafOUT over ScafALT (the winner RETAGGED), reject hands back none"; green=$((green+1))
+else echo "  FAIL  treeRowT shape moved: accept=[$_trShape] reject=[$(_trArm "NEW (x)")]"; fail=1; fi
 
 #  ⚑ trigDO -- THE NEW PARSE ROAD'S FIRST STANDING COVERAGE. Until 2026-09-09
 #  NO FLEET FIXTURE REACHED parseRule AT ALL: the 09-08 H7 control forced

@@ -12,6 +12,7 @@
 #include "RuleStuff.h"
 #include "PLGset.h"
 #include "Stylish.h"
+#include "measure.h"
 #include "GroupDraw.h"
 
 extern "C" int containerTo(GroupItem *term, GroupItem *into, char *slot)
@@ -1222,9 +1223,13 @@ GroupItem 	*field = rule;
 			// enclosingActivation
 			if ( field->groupBody->flags.hasNewParse && isMember(field->options.affiliation) )
 				{
-				if ( field->parent && field->parent->getRStuff() )
-					field->parent->getRStuff()->label = label;
-				else	::refuse(field,"checkInput: no enclosing activation to take the label");
+				// driveRoot a generated DRIVE ROOT parks its label on the drive floor, where driveStep reads it
+				if ( !::driveFloorLabel(this,label) )
+					{
+					if ( field->parent && field->parent->getRStuff() )
+						field->parent->getRStuff()->label = label;
+					else	::refuse(field,"checkInput: no enclosing activation to take the label");
+					}
 				}
 			}
 checkFailed:

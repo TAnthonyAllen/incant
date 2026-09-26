@@ -1,0 +1,72 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    trSay code={
+        v := tell(argument);
+        m := *v["matched"]; c := *v["consumed"];
+        cerr "   verdict matched= " m " consumed= " c:;
+        rp = 0;
+        if *v["reply"];     rp = 1;
+        if rp == 1;     labelTree(*v["reply"]);
+        if rp == 0;     cerr "TREE (none)":;
+        };
+    ;
+register(Ladder);
+define
+    ScafA isRule ka-="a";
+    ScafI isRule ki-="i";
+    ScafALT isRule
+        ScafA;
+        ScafI;
+    ;
+define
+    ScafOUT isRule lp-="(" ScafALT rp-=")";
+    ;
+search GroupFields UnitTests Utilities Ladder list;
+traceParse(1);
+cerr "OLD (a)":;
+trSay("ScafOUT (a)");
+cerr "OLD (i)":;
+trSay("ScafOUT (i)");
+cerr "OLD (x)":;
+trSay("ScafOUT (x)");
+traceParse(0);
+parser(ScafOUT);
+traceParse(1);
+cerr "NEW (a)":;
+trSay("ScafOUT (a)");
+cerr "NEW (i)":;
+trSay("ScafOUT (i)");
+cerr "NEW (x)":;
+trSay("ScafOUT (x)");
+cerr "TREEROW SENTINEL":;
+stop();
+
+treeRowT -- DOES THE GENERATED TREE AGREE WITH THE INTERPRETIVE ONE? (SEQ 183-186, 2026-09-26)
+
+THE QUESTION tree.sh and mixed.sh asked, carried onto the KANT road. Those two drove the
+parseMethod= road, and nothing has reached a parseMethod=-bound body since 0150f29 (09-07), so
+both compared the interpretive tree with ITSELF from then on. Ruling 1 retired that road.
+
+THE SUBJECT is tree.sh's own section 2.4 case: an alternation whose winning option must arrive
+RETAGGED under the enclosing rule's name -- ScafA or ScafI comes back as ScafALT. The literals
+are LABELLED (lp-="(" rather than "("-) because a bare literal generates as GrouP(), and
+generateParse refuses two of them in one rule.
+
+THE TWO ARMS, one process. parser() is one-way, so the OLD arm runs first. Both read through
+tell, i.e. through driveStep, and print through labelTree. Since the floor reader (SEQ 186) a
+generated root's label is parked on the drive floor and handed back by driveStep; before it,
+tell REFUSED a generated root outright.
+
+H16, THE ANTI-VOID ROW: traceParse is on so the harness can prove which road each arm took --
+the OLD arm's door reads hasNewParse=0, the NEW arm's hasNewParse=1. An earlier probe wrapped
+ScafOUT in an old-road root to make tell work and printed identical trees on both arms, because
+BOTH arms were interpretive. That is the failure this row exists to prevent.
+
+THE READING, 2026-09-26: the trees AGREE -- ScafOUT over ScafALT for (a) and for (i), the
+winner retagged on both roads; a reject hands back nothing on either. Pinned as agreement.
+H7: exitFromParse built with promote=0 (no retag on the new road) turns the NEW tree to ScafA
+and the row goes red.

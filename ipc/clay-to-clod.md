@@ -9125,8 +9125,8 @@ Report: at top item A's reading, the fleet, agree/diverge on the tree row; evide
 ===================================================================
 SEQ 185  -  P3a IN TWO STROKES: ROUTING NOW, READER BY THE FLOOR NEXT
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15. (Answers clod-to-clay SEQ 133.)
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. (Answers clod-to-clay SEQ 133.) Stroke (iii) answered in SEQ 134; (i) is the next stroke.
 
 THIS STROKE, (iii): route treeOf through driveStep. runRule's one bit STAYS the chain's
   truth as today -- NOT derived from the root's label slot (null after every generated
@@ -9143,3 +9143,22 @@ NEXT STROKE: (i) RULED -- the drive floor carries the root's label. driveStep's 
 Report: at top item A's four rows and the fleet; evidence after.
 
   END SEQ 185
+
+
+===================================================================
+SEQ 186  -  GO ON (i): THE DRIVE FLOOR CARRIES THE ROOT'S LABEL
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+Build as specified in SEQ 185: driveStep's floor activation gets a label slot; checkInput
+  writes a generated root's label there instead of refusing; driveStep returns it, and
+  tell's reply reads the same place.
+Add a row to driveDoorT: the label handed back by a generated root is non-null on accept
+  and null on reject.
+Then the tree row, then retire tree.sh and mixed.sh.
+The bracket's label restore is F-114's recursion guard; it stays untouched.
+Report: at top what driveStep hands back on accept and reject, the tree row's agree or
+  diverge, and the fleet; evidence after.
+
+  END SEQ 186
