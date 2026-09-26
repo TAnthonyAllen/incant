@@ -1790,45 +1790,21 @@ define
                     day); three registers said otherwise and were corrected.#);
         RuleStuff=(is the twk file holding RuleStuff, the per-node parse state.#):
             checkInput="sets hereAt and atRuleMark, handles input diversion, and returns true if current input is valid.":
-                 enclosingActivation=(this write hands the label UP to the enclosing rule's stuff, and a TOP-LEVEL rule's parent is the REGISTRY, which lawfully has none -- so refuse by name rather than dereference a null#);
+                 enclosingActivation=(this write hands the label UP to the enclosing rule's stuff. A generated DRIVE ROOT parks it on the drive floor first (driveFloorLabel, 2026-09-26); otherwise a top-level rule's parent is the REGISTRY, which lawfully has no stuff -- so refuse by name rather than dereference a null.#);
+            fields=(the per-node parse state's fields that carry an argument.#):
+                parentLabel=(the `into` a generated body attaches to, made direct and named. Not new state: parse() reached the same value through parentStuff.label. The callee lifts it into a stack local at ENTRY, which closes the recursion window.#);
+                frameArg=(MINTED AND STRIPPED 2026-09-01, kept because the reason is reusable: parentLabel's pattern moved to carry an ACTION's argument, and it could never fire -- rStuff presence is the liveness test (Ruling D) and an action is not a rule. The residence was chosen from the precedent's shape, not the customer's. An unused field in a MIRRORED struct is bear-trap #10's next victim, so it went rather than sitting inert.#);
+                parseMethod=(ONE argument, the rule: kant methods take one, so a two-argument parse method could never survive the kant handover. Widening or narrowing it is a LAYOUT change (bear-trap #10).#);
+                jitMethod=(the compiled body of a field's method -- parseMethod's shape, not a new idea: it rides the shape struct, dispatch is only through the pointer (the JiT attribute is its RECORD), and nothing reaches it by name. The slot is `int (GroupItem)`, uniform i32(ptr), since 2026-09-23. It is LAZY where parseMethod is not: compile-on-first-fire is in-process, while generating a parse means a build.#);
             getWhatFollows=(sets the fields of RuleStuff once, lazily, the first
                 time a rule is needed.#):
-                promotionRetired=(THE PARENT-min PROMOTION, RETIRED 2026-09-03 BY
-                    MEASUREMENT (Tony, SEQ 152). The retired line read
-                    `if !min && parent.min && parent.allAttributesOptional()
-                    parent.min = 0;` and meant: a rule every one of whose
-                    attributes is optional becomes optional itself. In effect
-                    `star=field*` was silently `star?=field*` one level up.
-                    ⚠ IT FIRED ZERO TIMES, AND THE PROBE THAT SHOWED THAT WAS
-                    BUILT TO BE POSITIVE BY CONSTRUCTION. A first probe printed
-                    only when the line fired and read nothing, which is an
-                    absence and asserts nothing on its own. It was replaced with
-                    one that prints THE THREE CONJUNCTS on every embedded term
-                    reaching the arm, so the instrument is demonstrably live
-                    whatever the answer. Across nine diverse drivers: 63
-                    candidates, 8 distinct term-parent pairs, 0 firings, and 0
-                    candidates with `!min` true. The FIRST conjunct fails every
-                    time -- every embedded term reaching this arm is mandatory.
-                    ⚠ AND IT CLOSED THE RECON'S OWN FLAGGED GAP. The 2026-09-03
-                    recon named three candidate rules -- debug, DEBUG, FOR --
-                    computed over `=`-labelled terms, and said explicitly that
-                    the mechanism walks nextAttribute instead and that the two
-                    sets coincide only if every `=`-labelled term is an
-                    attribute. They do not coincide. The terms that reach this
-                    arm are rule references (NamE, TraiT, DatA, PrintXP, DefinE,
-                    RunRulE, ANYtoken), all min 1, and FOR NEVER REACHES THE ARM
-                    AT ALL -- zero hits. The recon's candidate list was not the
-                    firing list, exactly as it warned.
-                    ⚠ WHY THE RETIREMENT IS SAFE TO READ AS A NO-OP: the fleet
-                    is byte-identical across it, the canary is unchanged at 332,
-                    parseClass.target's own diff is unmoved, and the frontier is
-                    unmoved. Nothing relied on the implied `?`, so no grammar
-                    entry needed one written explicitly.
-                    ⚠ ONE THING IS LEFT BEHIND DELIBERATELY: GroupItem's
-                    allAttributesOptional() now has NO CALLER. It is not deleted
-                    -- the condemned-code rule says read before deleting, and
-                    genParseSpec still cites it in two places. Recorded as
-                    callerless, which is a finding and not a task.#);
+                promotionRetired=(THE PARENT-min PROMOTION, RETIRED 2026-09-03 BY MEASUREMENT (Tony, SEQ 152). It made a rule whose every attribute was optional optional itself -- `star=field*` silently `star?=field*` one level up. It FIRED ZERO TIMES across nine drivers, measured with a probe that printed its three conjuncts on every candidate so the instrument was live whatever the answer. Fleet byte-identical across the removal. GroupItem's allAttributesOptional() is left callerless, deliberately.#);
+            testAction=(the old road's test for a parseAction rule.#):
+                installedIsTheParse=(AN INSTALLED rStuff IS CALLED THROUGH ITS LEAF (Tony, 2026-09-15). A parseAction REPLACES the parse, so it lives in parseMethod, written at definition by setParseAction -- the one writer on both roads. The fallback that copied gMethod filed the ENTRY as the action and parseAction called itself (F-61, closed by removal). hasNewParse is a groupBody flag and IS copied; rStuff is not -- the guard asks both.#);
+            testContainer=(the old road's container test.#):
+                longestEntry=(LONGEST-ENTRY MATCH (Tony, 2026-08-02). Set membership can say a character COULD belong to some entry, never that a prefix IS one, so the greedy scan is an upper bound and the buffer backs off one character at a time until it is an entry or empty. The presenting bug: `--grup;` against Operators built `--g`, an entry of nothing, because word-spelled entries put `g` in the set.#);
+            testMacro=(the shared loop of testAny, testCharacter and testSet -- a tok macro, used only in the shape tok trusts (bear-trap #18).#):
+                limitAtTop=(the ceiling is tested at the TOP of the loop, 2026-08-19, so a run CUT at max is distinguishable from one that stopped matching -- the truncation is the one thing this loop must not do silently. The report is gated `max > 1 && !limitsSet` (see reportMaxLimit). tester is substituted exactly once.#);
         jitEmitters=(is the rtn file holding the JIT emitters and the run-time helpers the
             emitted code calls. It IS part of the GroupRules include chain, so it shares a
             translation unit with GroupActions and the rest. Entries below are the WHY of

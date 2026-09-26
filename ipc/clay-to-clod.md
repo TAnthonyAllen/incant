@@ -9265,3 +9265,24 @@ Certificate (stroke 2): fleet moved only by retired rows, each named; canary dro
 Report: per stroke, at top the fleet and what the new rows read / what left; evidence after.
 
   END SEQ 191
+
+
+===================================================================
+SEQ 192  -  TASK 2: RuleStuff.twk CLEANUP
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+Supersedes the earlier Task 2 draft; the helpers it fenced off are gone.
+First, one check: grep the generated files under GUI/, Tests/ and the other subdirectories
+  tokall misses for any use of RuleStuff's layout (termCount's removal was a layout change).
+  Report clean, or name the files.
+Then the cleanup, same rules as Task 1: headers -> `// slug sentence?` one-liners, longer prose
+  to DesignDocs; chase every slug link into DesignDocs -- keep, trim or shitcan (Clod's call),
+  listing deleted slugs; fix top-comment drift incl. stacked headers; alpha order; parseGeneric
+  has no callers -- delete it, or say why not.
+Certificate: codeOnly.py diff of the .mm empty apart from parseGeneric if it goes; fleet
+  unmoved; ddPop as before or better; full H12; commit, push, merge.
+Report: at top the subdirectory check, the fleet and the DesignDocs verdicts; evidence after.
+
+  END SEQ 192

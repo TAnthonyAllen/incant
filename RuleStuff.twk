@@ -1,80 +1,7 @@
 
 include groupIncludes
 
-/********************************************************************************
-	RuleStuff is used to stash data used by the parse
-
-    parentLabel (genParseShape S1.2) -- the `into` a generated parse method
-    attaches to, made direct and named. NOT new state: parse() already reached
-    the same value two hops away through parentStuff.label in its attachment
-    block. The single writer is parse()'s S1.3 fork, which writes it on the
-    callee's OWN rStuff immediately before calling; the callee lifts it into a
-    stack local at ENTRY, before descending, which is what closes the recursion
-    window (same reasoning as genParseRuleAccess S1.5's act()).
-
-    frameArg -- MINTED AND STRIPPED THE SAME DAY, 2026-09-01 (SEQ 106 built it,
-    SEQ 107 removed it), and the note survives the field because the reason is
-    reusable. It was parentLabel's pattern transplanted to carry an ACTION's
-    argument. IT COULD NEVER FIRE: `if (field->rStuff)` is false for an
-    interpreted action -- measured at 16 of 16 action binds, every one
-    rStuff = 0x0 -- because Ruling D makes rStuff presence the LIVENESS test and
-    an action is not a rule. parentLabel's customers are RULES and have rStuff by
-    construction; the residence was chosen from the precedent's shape rather than
-    from the customer's.
-    ⚠ IT WAS STRIPPED RATHER THAN LEFT INERT because an unused field in a MIRRORED
-    struct is bear-trap #10's next victim: the layout is duplicated out of repo in
-    groups.ext, and a slot nobody writes is a slot nobody keeps in sync.
-
-    parseMethod (genParseShape S1.1) -- ONE argument, and it is the rule. kant
-    methods take one argument, so a two-argument parse method could never
-    survive the kant handover; `into` is derived from parentLabel instead of
-    passed. Widening or narrowing this signature is a LAYOUT change (bear-trap
-    #10: groups.ext sync + tokall + rebuild), not an edit.
-
-    jitMethod (Clay SEQ 27 v2, 2026-08-04) -- THE COMPILED BODY OF A FIELD'S
-    METHOD, and it is parseMethod's shape transplanted rather than a new idea.
-    Same three properties, for the same reasons:
-      - it rides the SHAPE struct, not the GroupBody, so adding it costs one
-        pointer on the nodes that carry rule shape and nothing on the rest;
-      - DISPATCH IS ONLY EVER THROUGH THE POINTER. The `JiT` attribute beside
-        CodE and BlocK is the compiled artifact's RECORD -- persistence and
-        inspection. Nothing reconstructs this pointer from it;
-      - nothing reaches it by name. SEQ 38 stands: locate is prohibited, not
-        provided. The one named dispatch site receives the field as its first
-        parameter and walks pointers from there.
-    ⚠⚠ SUPERSEDED 2026-09-23 (Tony): the slot is now `int (GroupItem)` -- UNIFORM
-    i32(ptr), the pointer being the field the body runs on. The named seam below
-    was paid in jitter station 1's stroke. Kept for the reasoning trail:
-    ⚠ NULLARY ON PURPOSE, and it is the one place this diverges from
-    parseMethod's signature: jitRunAction emits `i32 ()`. Fields are reached
-    through BAKED ADDRESSES in the emitted IR, never through an argument, so
-    there is nothing for a parameter to carry. Adding one later is a LAYOUT
-    change, exactly as it is above.
-    ⚠ THE NAMED SEAM, recorded 2026-08-05 so it arrives as a plan and not a
-    surprise: THIS SLOT'S NULLARY SIGNATURE HOLDS ONLY WHILE THE CALLER IS
-    EMITTED CODE. Two calling routes exist and they want different things:
-      - A SELF-CALL INSIDE JITTED CODE takes the FIELD ROUTE (ruled 2026-08-05).
-        The callee's body reads its argument through the `argument` field, which
-        is where every reference in it already looks, so jitBindArgRT binds the
-        field at run time and the call stays nullary. A real parameter here would
-        carry something nobody reads.
-      - POINTER-SLOT DISPATCH FROM C++ takes a REAL PARAMETER, and it is forced.
-        When a generated parse method is jitted, its caller is not emitted code
-        reading a field -- it is parse() forking on rStuff.parseMethod and calling
-        through a one-argument function-pointer signature that C++ owns. The
-        caller cannot be taught the field route, so the compiled function must
-        present the parameter.
-    That second case is decided the day the first generated method is jitted, and
-    widening this signature then is a LAYOUT change exactly as above. Named seam,
-    not debt.
-
-    ⚠ AND IT IS LAZY WHERE parseMethod IS DELIBERATELY NOT. parse()'s comment
-    forbids `if !parseMethod genParse(rule)` because generation there means
-    emitting text and running a BUILD from inside a parse. JIT compilation is
-    in-process and costs a compile, so compile-on-first-fire is the ruling
-    (Clay SEQ 27 v2). The prohibition and this divergence are about two
-    different costs, not two readings of one rule.
-********************************************************************************/
+// fields RuleStuff is the per-node parse state; parseMethod and jitMethod are LAYOUT -- widening either is groups.ext + tokall (bear-trap #10)
 class RuleStuff
 {
 String      ruleName;       // for debugging
@@ -115,9 +42,7 @@ boolean
     sukcess
     ;
 
-/********************************************************************************
-	RuleStuff constructors.
-********************************************************************************/
+// RuleStuff constructors -- min and max start at 1; the TraiT action may overwrite them
 RuleStuff(GroupItem grup)
 {
     rule        = grup;
@@ -140,9 +65,7 @@ RuleStuff(RuleStuff r)
     parentStuff = null;
 }
 
-/********************************************************************************
-	checkGuard returns true if rule is unGuarded or input pointer is in guardSet
-********************************************************************************/
+// checkGuard true when the rule is unguarded or the input character is in its guardSet
 int checkGuard(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -153,10 +76,7 @@ GroupRules  ruler = groupRules;
     return false;
 }
 
-/********************************************************************************
-	checkInput sets hereAt and atRuleMark, handles input diversion, and returns
-    true if current input is valid. Called by GroupItem match()
-********************************************************************************/
+// checkInput skip, set hereAt, pass the guard and mint the label -- true when input is valid
 int checkInput()
 {
 GroupRules  ruler = groupRules;
@@ -167,17 +87,13 @@ GroupItem   field = rule;
         goto checkFailed; }
     if *atRuleMark
         if !noSkip && skipSet.contains(*atRuleMark) atRuleMark = checkSkip(atRuleMark);
-    /****************************************************************************
-        Check for end of input
-    ****************************************************************************/
+    // end of input
     if *atRuleMark
         if !noSkip && skipSet.contains(*atRuleMark) atRuleMark = checkSkip(atRuleMark);
     // hereAtFirst set BEFORE the end-of-input exit -- a term failing at end of input is rewound to hereAt, and an unset one wrote a null mark (convLeakT)
     hereAt  = atRuleMark;
     if !*atRuleMark     goto checkFailed;
-    /****************************************************************************
-        Check the rule guard if there is one
-    ****************************************************************************/
+    // the rule guard, if there is one
     if guardOK {
         guardOK = false;
         sukcess = true; }
@@ -187,9 +103,7 @@ GroupItem   field = rule;
         if unGuarded        sukcess = true;
         or guarded && guardSet.contains(*atRuleMark) sukcess = true;
         else    guardFAIL   = true; }
-    /****************************************************************************
-        Set the label
-    ****************************************************************************/
+    // the label
     if sukcess
         if noLabel || (hasMembers && !binType)   label = 0;
         else {
@@ -208,10 +122,7 @@ checkFailed:
     return sukcess;
 }
 
-/******************************************************************************
-    Return the member following this group in the parent list
-    Called by getWhatFollows() in RuleStuff
-******************************************************************************/
+// followingMember the next member after this rule in its parent list -- getWhatFollows' onFail
 GroupItem followingMember()
 {
     if parent
@@ -224,9 +135,7 @@ GroupItem followingMember()
     return null;
 }
 
-/********************************************************************************
-	Sets the fields of RuleStuff.
-********************************************************************************/
+// getWhatFollows sets the RuleStuff fields once, lazily, the first time a rule is needed
 void getWhatFollows()
 {
 GroupItem   grup;
@@ -241,16 +150,11 @@ use rule
         if grup = followingMember() onFail = grup; }
     or isEmbedded {
         if (data && data < 4) || max == 1 isTarget = true; }
-    /*  ⚠ THE PARENT-min PROMOTION IS RETIRED HERE (Tony, SEQ 152, 2026-09-03).
-        Do not reintroduce it: it fired ZERO times and its absence is the reason
-        an optional term can no longer silently make its whole rule optional.
-        RuleStuff.getWhatFollows.promotionRetired  */
+    // promotionRetired the parent-min promotion is RETIRED -- do not reintroduce it; an optional term must not make its whole rule optional
     if !testMatch   setTestMatch();
 }
 
-/********************************************************************************
-	Set testMatch
-********************************************************************************/
+// setTestMatch picks the old road's test for this rule's shape
 void setTestMatch()
 {
     if upTo || upToOver     testMatch = testUpTo;
@@ -272,10 +176,26 @@ void setTestMatch()
 }
 }
 
-/********************************************************************************
-	This sets the data of rule to the value of a previously processed label
-    with the same name as rule
-********************************************************************************/
+// parseR parse a term into a given label: a throwaway RuleStuff whose label is into, so parse() attaches there -- driveStep's no-data arm
+extern GroupItem parseR(GroupItem term, GroupItem into)
+{
+GroupRules  ruler = groupRules;
+RuleStuff   bridge;
+GroupItem   got;
+    if !term    return null;
+    // traceGate identity-printing only, behind parseTrace -- a bare node prints an attribute count that reads like an answer
+    if parseTrace {
+        cerr "  parseR term=",term.tag," into=",into.tag:; }
+    bridge          = new(term);
+    bridge.label    = into;
+    got = term.parse(bridge);
+    if parseTrace {
+        if got  cerr "  parseR term=",term.tag," -> attached as ",got.tag," under ",into.tag:;
+        else    cerr "  parseR term=",term.tag," -> NULL (no attachment)":; }
+    return got;
+}
+
+// setMacroValue copy into the macro the data of the nearest ancestor label with the same tag
 extern int setMacroValue(GroupItem field)
 {
 RuleStuff   ruleStuff = rStuff;
@@ -292,26 +212,7 @@ GroupItem   ancestor;
     return false;
 }
 
-/********************************************************************************
-    ⚠ THE LIMIT TEST MOVED TO THE TOP OF THE LOOP, 2026-08-19, and the move is
-    what makes the ceiling REPORTABLE. Written as `if !*atRuleMark || counter >=
-    max break;` at the foot, the two exits are indistinguishable afterwards: a
-    run that ended because the input stopped matching and a run that was CUT at
-    the ceiling both leave the same state. Tested at the top, reaching
-    `counter >= max` while `tester` is still true means the next character would
-    have matched -- which is a truncation, and the one thing this loop must not
-    do silently. Character count is unchanged either way: both spellings stop
-    with exactly max consumed.
-
-    The `more` flag carries only that fact. The gate on it is
-    `max > 1 && !limitsSet`, because max is 1 by default and is whatever an
-    explicit Limit set -- see reportMaxLimit's header for why an ungated version
-    rejects every name longer than one letter.
-
-    tester is still used EXACTLY ONCE. That is deliberate: bear-trap #18 says
-    tok's macro facility is only trusted in the shape it already ships in, and a
-    twice-substituted parameter is not that shape.
-********************************************************************************/
+// limitAtTop the ceiling is tested at the TOP of the loop so a cut at max is reportable; tester is substituted exactly once (bear-trap #18)
 #testMacro(tester)-
 int         counter;
 int         more;
@@ -332,49 +233,10 @@ RuleStuff   ruleStuff = rStuff;
     if isOK return true;
     return  false;-
 
-/********************************************************************************
-	Run a wild card test on this group against current input
-********************************************************************************/
-extern int testAny(GroupItem field)
-{
-use field
-testMacro(*atRuleMark);
-}
-
-/********************************************************************************
-	Run a character test on this group against current input
-********************************************************************************/
-extern int testCharacter(GroupItem field)
-{
-use field
-testMacro(*atRuleMark == character);
-}
-
-/********************************************************************************
-	Run a character set test on this group against current input
-********************************************************************************/
-extern int testSet(GroupItem field)
-{
-use field
-PLGset  set = characterSet;
-testMacro(set.contains(*atRuleMark));
-}
-
-/********************************************************************************
-	Process a parseAction
-********************************************************************************/
+// testAction the old road's test for a parseAction rule -- an installed rule runs its leaf
 extern int testAction(GroupItem field)
 {
-    /*  installedIsTheParse  AN INSTALLED rStuff IS CALLED THROUGH ITS LEAF. Tony's ruling,
-        2026-09-15. A parseAction REPLACES the parse, so it is a leaf and lives in parseMethod
-        undisguised, written at definition by setParseAction -- the ONE writer on both roads.
-        actionMethod holds the rule's real action or null, and null at exit is a no-op.
-        ⚠ THE FALLBACK THAT STOOD HERE IS GONE AND F-61 CLOSES BY REMOVAL. It wrote by COPYING
-        gMethod, which setParseWalk overwrites with the ENTRY, so it filed the entry as the
-        action and parseAction called itself. A writer now exists at DEFINITION, which is what
-        the row asked for.
-        ⚠ hasNewParse is a groupBody flag and IS copied; rStuff is not -- the guard asks both.
-        RuleStuff.testAction.installedIsTheParse  */
+    // installedIsTheParse an installed rule runs its LEAF; hasNewParse is copied and rStuff is not, so the guard asks both
     if hasNewParse && rStuff && parseMethod
         if parseMethod(field)   return true;
         else                    return false;
@@ -386,9 +248,14 @@ extern int testAction(GroupItem field)
     return  false;
 }
 
-/********************************************************************************
-	Parse field attributes and return true if they all succeed
-********************************************************************************/
+// testAny a wild-card run against the current input
+extern int testAny(GroupItem field)
+{
+use field
+testMacro(*atRuleMark);
+}
+
+// testAttributes parse each attribute in turn; true only when all succeed
 extern int testAttributes(RuleStuff stuff)
 {
 GroupItem   grup;
@@ -402,9 +269,14 @@ int         result = true;
     return  result;
 }
 
-/********************************************************************************
-	Process a condition
-********************************************************************************/
+// testCharacter a run of one character against the current input
+extern int testCharacter(GroupItem field)
+{
+use field
+testMacro(*atRuleMark == character);
+}
+
+// testCondition a condition succeeds exactly when min is set
 extern int testCondition(GroupItem field)
 {
 RuleStuff   ruleStuff = field.rStuff;
@@ -412,27 +284,7 @@ RuleStuff   ruleStuff = field.rStuff;
     return  false;
 }
 
-/********************************************************************************
-    Registry and Container test looks for an entry that matches the input stream.
-
-    LONGEST-ENTRY MATCH (Tony's finding and ruling, 2026-08-02). The greedy
-    character scan is an UPPER BOUND, not the answer. Character-set membership
-    can only say "this character could belong to SOME entry"; it can never say
-    "this prefix IS an entry", because a set has no notion of where an entry
-    ends. So the scan runs to the end of the run, and then the buffer is backed
-    off one character at a time until it either IS an entry or is empty. The
-    longest prefix that is an actual entry wins.
-
-    THE PRESENTING BUG: `--grup;` against Operators. `negate` and `modedOP` are
-    word-spelled entries, so their letters are in the container's character set
-    -- `g` among them. The scan therefore built `--g`, which is an entry of
-    nothing, and the whole match failed. It is a design flaw and not an edge
-    case: any container holding both a symbol and a word can produce it.
-    Backing off finds `--` and advances 2, which is the answer.
-
-    Same disease class as the ShortcuT `+`-merge that sank `,` as the string
-    opener (2026-07-31): set-based character grouping making token decisions.
-********************************************************************************/
+// longestEntry the longest input prefix that IS an entry of this bin or registry -- the greedy scan is only an upper bound
 extern int testContainer(GroupItem field)
 {
 GroupItem   grup;
@@ -456,9 +308,7 @@ Buffer      buffer  = stringBUFFER;
     return false;
 }
 
-/********************************************************************************
-	Process the first field member that passes its guard
-********************************************************************************/
+// testOptions parse the first member that passes its guard
 extern int testOptions(RuleStuff stuff)
 {
 GroupItem   grup;
@@ -469,9 +319,15 @@ GroupItem   grup;
     return  false;
 }
 
-/********************************************************************************
-	Run a string test on this group against current input
-********************************************************************************/
+// testSet a run of characters from this rule's set
+extern int testSet(GroupItem field)
+{
+use field
+PLGset  set = characterSet;
+testMacro(set.contains(*atRuleMark));
+}
+
+// testString this rule's text at the current input
 extern int testString(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -483,14 +339,8 @@ String      matchedString = rule.matches(atRuleMark);
         return true; }
     return false;
 }
-    
-/****************************************************************************
-	Capture input until it gets a match. It returns a token and the input
-    stream is left pointing at the match if upTo or after the match if upToOver.
-    If the current rule is a set, the set is matched against.
-    If the current rule isSTRING its text is matched against. Otherwise
-    the default match is against a comma.
-****************************************************************************/
+
+// testUpTo capture input up to (or over) the terminator: the rule's set, its string, or a comma
 extern int testUpTo(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -546,97 +396,4 @@ use field
             if upToOver     atRuleMark += matchLength;
             return true; }}
     return false;
-}
-
-/********************************************************************************
-    parseR (genParseShape S1.6) -- the set-then-call primitive for a term that
-    references another rule. Two jobs the emitted `&&` chain cannot do itself:
-
-    1. The `into` handover is an ASSIGNMENT, and an assignment is not a term
-       (S2.5's expression-vs-statement problem in a new place). Keeping it in
-       one primitive leaves emitted text a pure boolean expression.
-    2. It routes THROUGH parse(), not directly at a generated method, so the
-       fork decides. Generation is per-rule, so a generated rule can call an
-       interpretive one and vice versa: mixed mode is free, conversion is
-       order-independent, and the interpretive walk stays the oracle for
-       everything not yet converted. The cost is an indirect call opaque to
-       LLVM's inliner -- not a correctness cost, and reversible later inside
-       this one function, with no emitted file regenerated.
-
-    No name lookup (S1.3): the term IS the thing to parse. That is a
-    CORRECTION to S1.6's stated mechanism, made against the tree rather than
-    against the design -- see the measurement in genParse.rtn's dumpRuleTerms
-    header. S1.6 writes `t2.onGroup.parentLabel = label`, but NO rule-reference
-    term is isGROUP and none has onGroup set, before or after a parse
-    (getWhatFollows gates on isGROUP). There is no onGroup there to write to.
-    What a reference term actually is: a distinct node carrying isRule and
-    SHARING the referenced rule's child list. So it parses directly, which is
-    exactly what the interpretive walk does -- testAttributes calls
-    `grup.parse(stuff)` on the term itself, never on a dereferenced target.
-    Parity with the oracle, not a parallel mechanism that can drift from it.
-
-    The handover travels as the bridge stuff's label, exactly as parseGeneric
-    already does it: parse() derives parentLabel from it on the generated path
-    and attaches through `pStuff.label +% label` on the interpretive one. ONE
-    mechanism serves both halves of mixed mode, and it is why a null pStuff is
-    never handed down (which would silently orphan the callee's result).
-
-    OPEN, and it is Tony's/Clay's call, not a coding decision -- see the seal.
-    parseMethod lives on rStuff, and rStuff is PER NODE: the term has its own,
-    separate from the registry rule's. So binding a rule's parseMethod does NOT
-    reach the term nodes that reference it, and a converted rule would be used
-    when invoked BY NAME but not when referenced from another rule. Mixed mode
-    (S1.6's whole justification) needs an answer to that before rung 4, which
-    is the first cross-method call. It does not bite rungs 1-2: Scaf/Scaf2 have
-    no rule-reference terms.
-********************************************************************************/
-extern GroupItem parseR(GroupItem term, GroupItem into)
-{
-GroupRules  ruler = groupRules;
-RuleStuff   bridge;
-GroupItem   got;
-    if !term    return null;
-    /*  FU-2', 2026-08-05 -- THE LOCALIZER, BUILT ONCE IN THE SUPPORT LAYER.
-        Instrumenting parseR rather than the emitted methods means every
-        generated method self-narrates FOR FREE and rules 13-78 inherit it
-        unwritten. A full-monty verify is a DETECTOR (corpus GM-14); this is
-        the localizer that names the fork point.
-
-        ⚠ GATED ON THE EXISTING parseTrace, not on a new flag: leaveRule above
-        already uses it, so this joins the standing debug idiom instead of
-        minting a second switch. Default OFF, and the fleet is asserted
-        byte-identical with the gate closed -- a gate that leaks is not a gate.
-
-        ⚠ IDENTITY-PRINTING ONLY -- taG and shape facts, NEVER a bare node.
-        Printing a group prints its ATTRIBUTE COUNT, which is a legal-looking
-        number in the same range as an answer and does not announce itself as
-        the wrong quantity. That near-miss is kant8T's K6c, and it nearly
-        inverted a diagnosis; this is that lesson written into an instrument.  */
-    if parseTrace {
-        cerr "  parseR term=",term.tag," into=",into.tag:; }
-    bridge          = new(term);
-    bridge.label    = into;
-    got = term.parse(bridge);
-    if parseTrace {
-        if got  cerr "  parseR term=",term.tag," -> attached as ",got.tag," under ",into.tag:;
-        else    cerr "  parseR term=",term.tag," -> NULL (no attachment)":; }
-    return got;
-}
-
-
-/********************************************************************************
-    Bridge to the GENERIC driver for rules genParse hasn't converted yet
-    (GrouP, NumbeR -- pre-existing bootstrap rules, out of scope for this
-    prototype). Builds a throwaway RuleStuff whose .label IS `into`, so
-    parse()'s own attach logic (`pStuff.label +% label;`) appends directly
-    where a converted callee's leaveRule/leaveAlt would have. Generated
-    methods and the generic driver coexist rule by rule (S0) -- this is the
-    seam.
-********************************************************************************/
-extern GroupItem parseGeneric(GroupItem into, String ruleName)
-{
-GroupItem   rule = locate(ruleName);
-RuleStuff   bridge = new(rule);
-    bridge.label = into;
-    return rule.parse(bridge);
 }
