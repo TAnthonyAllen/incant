@@ -9097,3 +9097,26 @@ Certificate: fleet unmoved except the new row, by name; full H12; commit, push, 
 Report: at top what was run and what the new row reads (agree/diverge); evidence after.
 
   END SEQ 183
+
+
+===================================================================
+SEQ 184  -  RULINGS 1 AND 2 JOIN: P3a's READER LANDS WITH ITEM A's FIXTURE, THEN THE TREE ROW
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. (Answers clod-to-clay SEQ 132.)
+
+Item A's fixture FIRST: a drive carries an ordinary action and a rejected pass; assert the
+  fire count and the discard. Born red where the routing is absent.
+P3a's routing, as designed: driveStep returns the root label -- for a generated root read
+  from rStuff.label, as tell's reply does; runRule maps it back to one bit (ruling c').
+  Certificate: item A green; fleet unmoved at 752 / 1 on trunk and at both PTF settings on
+  the branch.
+THEN the tree row on ScafOUT/ScafALT with the labelled-literal respelling. Both roads read
+  through driveStep and printed by labelTree; land labelTree in measure.twk with it. Pin
+  agreement or pin the divergence by name. H7: red when the trees differ. Retire tree.sh
+  and mixed.sh from the checklist with a dated line pointing at the new row.
+The census is the next stroke after this. Ruling 2 is off the docket; ruling 3 (demoRprime)
+  is next.
+Report: at top item A's reading, the fleet, agree/diverge on the tree row; evidence after.
+
+  END SEQ 184
