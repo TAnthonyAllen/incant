@@ -1301,6 +1301,24 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
     **Measured today, before any change, both settings (branch 50785a8 binary):** adoptT FIELD 1 / PROPERTY 4; yieldT
     DIRECT 3, OWNER 3; deferNatT through-the-recursion and drive-floor ok; convDriveT CD-1b ok; convLeakT CL-1/CL-2 ok;
     printFamilyNew graft [opPlusEQstruct opPlusEQstruct]; f122T and f122NatT all nine rows each ok; jsonTest 10 ok.
+    ⚠⚠ **SEQ 197 -- RULING (i) ADOPTED (bypass at PTF=1, delete nothing; JT rows named movers, green at PTF=0, pinned
+    red at PTF=1) -- AND P6 STOPPED AGAIN, ON "PARENT-DRIVEN FIRING" ITSELF, MEASURED.** The model (Tony 2026-09-24:
+    the root's action fires, each action fires its components, all actions deferred) was run as an ENV-GATED EXPERIMENT,
+    `PTF_ALLHELD=1`, two hunks, reverted whole after measuring: (1) ptfRecord records every ORDINARY fire as HELD;
+    (2) ptfReplayRecords fires only the root after the held replay has installed every method, and aCTionStatemenT
+    fires its held component (at the top level it only did bookkeeping -- "firedInLabel": the statement's action
+    had already run). **Result: `incant/pop/loopBranchT`'s FIRST top-level statement, `register(LoopBranch);`, fails
+    the parse and the file ends silently at exit 0.** Its chain StatemenT -> Xpress -> ExpressioN -> TokenXP -> NamE
+    is all held; Xpress is a walker (it fires ExpressioN's held method), but **interpretXP (ruleActions.rtn:1580-1664)
+    and aCTionTokenXP (:1062-1123) carry ZERO fire arms** -- they read their children's POST-fire state (`uxp` nodes,
+    `registry == opFields`, `actionType || instructType`) and never fire them. The expression level is not written as
+    walkers. **This is the model's own rule 3** (shape actions confined to their subtree still run during the parse)
+    **and the split-action table's ExpressioN/NamE rows** -- but P6 names no shape class, and step 1's exempt list
+    (code, outside, define, decides) does not contain TokenXP, ExpressioN or NamE, so under P6 as written they would be
+    held. **RULING NEEDED before P6 can be built:** which class is held (parent-driven) and which stays as today (fired
+    in post-order at the statement's end, or during the parse as shape). Candidate, NOT adopted: hold exactly the
+    statement-level class -- the 15 `defer` rules plus StatemenT as root -- and leave the expression level replaying
+    in post-order as step 1 does, until P7/P8 split NamE and interpretXP.
   - **P7 -- scope beyond top-level statements (SEQ 174 item 3, measured, traced fleet, PTF=1, 143 runs).**
     (a) ACTION BODIES (processCode): 74,476 fires during the parse today -- NamE 14,903, ANYtoken 14,903, TokenXP
     14,419, Parens 9,472, ExpressioN 8,546, StatemenT 8,358. What depends on them: the CACHED BlocK's shape
