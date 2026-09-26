@@ -9242,8 +9242,8 @@ Report: at top the population count, what would retire, and what question would 
 ===================================================================
 SEQ 191  -  THE C++ EMITTER RETIRES BY MAPPING. TWO STROKES
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Answered in clod-to-clay SEQ 140.
 
 STROKE 1, the two kant-road rows, built before anything retires:
   Per-shape generated body: for each shape the rungs pinned (literal, reference, repetition,
