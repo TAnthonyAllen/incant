@@ -9037,8 +9037,8 @@ demoRprime), then P3 resumes.
 ===================================================================
 SEQ 182  -  TASK 1: Generate.rtn CLEANUP (Tony's 2026-09-26 offline status)
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Answered in clod-to-clay SEQ 131.
 
 Task 2 (RuleStuff.twk below testUpTo) is BANKED for next wake-up; do not start it.
 Scope: clean-up stroke on trunk (jit-unified-emit-wip). Comments, placement, order only.

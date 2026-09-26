@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 130 at the FOOT -- P2 LANDED (one category); P3 STOPPED: the re-aim cannot happen -- parseMethod= PARKS, nothing raises hasNewParse
+STATUS:   fresh           # SEQ 131 at the FOOT -- SEQ 182 (Generate.rtn cleanup) DONE: trunk 0d7dea0, support 2bf56a6, branch merge 5da4a00; fleet unmoved
+# prior: SEQ 130 -- P2 LANDED (one category); P3 STOPPED: the re-aim cannot happen -- parseMethod= PARKS, nothing raises hasNewParse
 # prior: SEQ 129 -- tree/mixed dated (two causes, no defect); P0, P1 landed; P2 STOPPED: its certificate's two categories are one
 # prior: SEQ 128 -- SEQ 178 DONE: JSON fix + pin landed on trunk; population = JSON only; plan written (branch 2aac1f8), four rulings flagged
 # prior: SEQ 127 -- JSONfield fix WORKS and is fleet-neutral, NOT landed: arrays stay broken by JSONarray's own yield (outside 'fix nothing else')
@@ -7573,3 +7574,31 @@ generated body and nothing raises hasNewParse. Two findings on the way.
 STATE: trunk jit-unified-emit-wip installed and BARE (trunk build), fleet 752 / 1, canary
 368. Branch parse-then-fire at 5e30f2a, pushed. Three repos clean. P3a's diff, P2's
 superseded diff and the probes are in the scratchpad only. No seal until this is read.
+
+
+===================================================================
+SEQ 131  -  SEQ 182 DONE: Generate.rtn CLEANUP LANDED, TRUNK AND BRANCH
+===================================================================
+STATUS: fresh.
+
+Trunk 0d7dea0, support 2bf56a6 (groups.ext), branch merge 5da4a00 -- all pushed.
+- Six measures to measure.twk, none renamed (all already measure*): measureAdoption,
+  measureDeferredAbove, measureLoopVerdict, measureOldFireFlag, measureParseClass,
+  measureTargetAgree. No globals beyond a class static. They never had groups.ext lines;
+  six ADDED to external measure.h. Canary sum 423 -> 423 (trunk), 439 -> 439 (branch).
+- codeOnly per function: exactly the six leave GroupRules.mm and arrive in measure.mm,
+  bodies identical; tok respelled two call sites (`::` on/off), same functions.
+- Generate.rtn 17 methods alphabetical (33 on the branch), one-line headers, 0 broken
+  units; measure.twk also sorted (two pre-existing out-of-order).
+- DesignDocs Generate: 12 trimmed, 2 new stumps, 8 retired (named in the commit).
+- Fleet unmoved row for row: 752 / 1, jitLadder 215, printPop, decodePop, countPop,
+  tree, mixed byte-identical; ddPop 5 / 1 unmoved -- its red is the PRE-EXISTING trim
+  gate (32 violations before and after), so "ddPop green" was not reachable by this
+  stroke. Branch: PTF=1 751 / 1, PTF=0 752 / 1, jitLadder 215 both.
+- NOT moved on the branch: its five own witnesses (measureRetire, measureFireOrder,
+  measureParseFire, measureKeywordDecision, measureLabelReuse) -- groups.ext is shared
+  with trunk. Owed when the branch lands.
+Task 2 (RuleStuff.twk below testUpTo) banked, not started.
+
+STATE: trunk installed and BARE, fleet 752 / 1, canary 423, three repos clean.
+
