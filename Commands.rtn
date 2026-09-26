@@ -155,18 +155,6 @@ GroupItem   grup;
 
 
 /*******************************************************************************
-    runJSONblock (genParseSpec S5.3's entry wrapper) is RETIRED, genParseShape
-    S1.7. Generated code emits no entry wrapper: invocation is JSONblock(...)
-    through parse()'s fork, exactly as Start(). The wrapper called
-    parseJSONblock directly, so it could have passed with the binding wholly
-    unbuilt -- it exercised neither the fork, nor binding, nor dispatch, which
-    are the three things the runtime loop exists to test. Its one real service,
-    the Invariant R report, now lives in leaveRule (S1.8) where `from` and
-    atRuleMark are both in hand. Restore from git history if a direct-call
-    harness is ever wanted again; do not re-emit one.
-*******************************************************************************/
-
-/*******************************************************************************
     This is the simplified generateCode command method that leaves dirty work
     to the incant actions in the incant generate file
 *******************************************************************************/
@@ -446,45 +434,6 @@ GroupItem   form = input.parent;
         form.isWindow = true;
     else    cerr "window: should be invoked as an attribute when its parent is defined":;
     return trueResult;
-}
-
-/*******************************************************************************
-    parkParse / fireNewParse -- THE FACE-PROOF ARTIFACT ADDRESS.
-
-    Ruled 2026-08-24 on ARCHITECTURAL grounds, not evidentiary ones: a
-    generated parse body's address must be face-proof BY CONSTRUCTION. A rule
-    has many faces -- measured, three distinct reference nodes for one ScafKB,
-    each with its own RuleStuff -- and rStuff is PER NODE, so an address in it
-    is an address in one face. The shared child list is not.
-
-    So the artifact parks as a noPrint ATTRIBUTE tagged `ParsE`, which is
-    processCode's proven pattern for exactly this job (GroupActions.rtn:951 --
-    `result.noPrint = true; field +% result; field.isAction = true`), and the
-    `hasNewParse` flag is the cheap gate that says one is there.
-
-    ⚠ WHY THE MEMBER CARRIES A NAME AND NOT A POINTER. A dlsym'd C++ parse
-    method is a function pointer and there is no node to park; a GroupItem can
-    hold its NAME. So the artifact stores the name and the fire site resolves
-    it, which also means the address survives anything that copies structure
-    without copying rStuff -- which is the whole point of the move.
-*******************************************************************************/
-extern int parkParse(GroupItem rule, String name)
-{
-GroupItem   artifact;
-    if !rule    return 0;
-    artifact        = new("ParsE");
-    artifact.text   = name;
-    artifact.noPrint = true;
-    rule            +% artifact;
-    /*  ⚠ parkParse NO LONGER RAISES hasNewParse (stroke 2, 2026-09-14). It parks a
-        dlsym-able NAME for fireNewParse to resolve; it installs no gMethod. The flag's
-        one reader that fires, runRule, calls gMethod off it -- so raising it here
-        promised a method that was never installed, and `Scaf` segfaulted genScratch at
-        exit 139 with hasNewParse=1 and gMethod=0. fireNewParse, the arm that WOULD have
-        resolved the name, is reached by nothing (fixIts F-56). One channel, one meaning:
-        the flag now means setParse installed a method, and nothing else.
-        Commands.parkParse.flagNotRaised  */
-    return 1;
 }
 
 /*******************************************************************************

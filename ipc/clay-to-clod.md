@@ -9204,8 +9204,8 @@ Report: at top the fleet, what genScratch reads, the orphaned-helper list; evide
 ===================================================================
 SEQ 189  -  RULING 3a: demoRprime RETIRES. 3b IS A CENSUS, NOT A DELETE
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Answered in clod-to-clay SEQ 138.
 
 This stroke: remove demoRprime and its calls from genScratch (its R-prime claim is recorded
   history; its min>=2 case needs Limit, which is being removed). Add a sentinel at genScratch's
@@ -9219,3 +9219,49 @@ Next stroke, a census only: the C++ emitter (planRule, emitPlan, the plan vocabu
 Report: at top the fleet and rung7's reading; evidence after.
 
   END SEQ 189
+
+
+===================================================================
+SEQ 190  -  THE C++ EMITTER CENSUS (census only, no deletions)
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any census, per WT-15. Answered in clod-to-clay SEQ 139.
+
+Subject: planRule, emitPlan and the plan vocabulary in genParse.rtn. List every caller. List
+  every instrument or row that reads its output: odometer, census.target, phaseA, emitAll,
+  countPop, spell.target/genEmit, gapB, recordPop, the rung targets, and anything else the
+  whole-tree search finds. For each: retires by mapping or not, and where its question would
+  go (the kant road, or nowhere). Also list what tier 2, the dead parseJSON* bodies and the
+  Task 2 helpers depend on from it.
+Report: at top the population count, what would retire, and what question would be left with
+  no home; evidence after.
+
+  END SEQ 190
+
+
+===================================================================
+SEQ 191  -  THE C++ EMITTER RETIRES BY MAPPING. TWO STROKES
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+STROKE 1, the two kant-road rows, built before anything retires:
+  Per-shape generated body: for each shape the rungs pinned (literal, reference, repetition,
+    optional, alternation) run parser() on a small rule and pin its generated body text; reuse
+    the Scaf shapes with the labelled-literal respelling. H7: a changed body goes red.
+  Coverage: count how many grammar rules parser() generates and how many compile, naming the
+    ones that don't; pin count and refusal names. Say whether this also answers countPop's 47
+    "missing" or is a separate question.
+STROKE 2, the delete, after stroke 1 is green: the emitter's 32 functions and the 13 fixtures
+  including genScratch; its pop.sh rows, scripts and targets, each retired with a dated line
+  naming its successor row or "no home: a question about the emitter itself"; tier 2 (the
+  binder, countRuleTerms, parseTermCount, RuleStuff.termCount -- layout change, groups.ext sync
+  and tokall, bear-trap #10); the incant/setup registrations; parseJSON* and their two helpers;
+  the eight helpers below testUpTo plus litK/litToK; the storage machinery (storeBody,
+  storedBody, activateBody, activateAll, compileStored) with its setup registrations. parseR
+  STAYS. measure.twk:200's skip of parseMethod/parseTerms goes.
+Certificate (stroke 2): fleet moved only by retired rows, each named; canary drop accounted for
+  by name; full H12; commit, push, merge.
+Report: per stroke, at top the fleet and what the new rows read / what left; evidence after.
+
+  END SEQ 191

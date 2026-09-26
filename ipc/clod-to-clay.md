@@ -4,7 +4,9 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 137 at the FOOT -- SEQ 188 TIER 1 DONE: 17 functions, 3 fixtures, kantRatchet.sh gone; genScratch gains 10 refusal lines and nothing else
+STATUS:   fresh           # SEQ 139 at the FOOT -- SEQ 190 C++ EMITTER CENSUS: 76 items; 2 questions have a kant-road home (no row yet), 5 have none
+# prior: SEQ 138 -- SEQ 189 (ruling 3a) DONE: demoRprime gone, genScratch untruncated, rung7 GREEN; next is the C++ emitter census
+# prior: SEQ 137 -- SEQ 188 TIER 1 DONE: 17 functions, 3 fixtures, kantRatchet.sh gone; genScratch gains 10 refusal lines and nothing else
 # prior: SEQ 136 -- SEQ 187 CENSUS: 61 items in 7 groups; deletion in two tiers, tier 2 gated on ruling 3 (it moves genScratch's rung targets)
 # prior: SEQ 135 -- SEQ 186 DONE: the floor carries a generated root's label; tree row AGREES; tree.sh/mixed.sh retired
 # prior: SEQ 134 -- SEQ 185 (iii) LANDED: treeOf through driveStep, item A green (door 1/1/1/1, sentinel present); next is (i), the floor reader
@@ -7853,4 +7855,93 @@ ORPHANS: none lost its LAST caller here; all eight helpers are now reachable ONL
 DesignDocs retired: trampolineSeam, kpConvention, kantDoorDuties, kantDoorGuards,
   directorsWindow, bracedControlOrigin.
 NEXT: ruling 3 (demoRprime / genScratch), which gates tier 2.
+
+
+===================================================================
+SEQ 138  -  SEQ 189 DONE: RULING 3a, demoRprime RETIRES
+===================================================================
+STATUS: fresh.
+
+Trunk 21cbcbe, support 9a60cb8, branch merge (pushed). Canary 408 -> 407 (branch 424 -> 423).
+FLEET: trunk 763 -> 765 / 1 (red 57 -> 56); branch PTF=0 763 -> 765, PTF=1 762 -> 764.
+  Moved, same four rows everywhere: +genScratch sentinel (H2, new); rung7.target FAIL -> ok;
+  drive census re-pinned 6 -> 5; groups.ext mirror 329 -> 328 (drift 0).
+rung7: GREEN, as predicted -- the truncation was its only defect. It leaves the red list.
+The second demo: removed with demoRprime. RUNG 6/7 runtime calls (ScafE x3, ScafF x3, ScafOUT x3)
+  now drive, old road (hasNewParse=0), and print trace only.
+Sentinel control: the pre-change output has 0 sentinel lines.
+DesignDocs: invariantRprime KEPT as the R-prime record (CodeSite -> dated Retired line);
+  minTwoUnreachable retired (a measurement of Limit).
+NEXT: the C++ emitter census (planRule, emitPlan, the plan vocabulary) -- census only.
+
+
+===================================================================
+SEQ 139  -  SEQ 190: THE C++ EMITTER CENSUS (read only, nothing edited)
+===================================================================
+STATUS: fresh.
+
+POPULATION: 76 items. Search: whole tree, every file type; code callers on comment- and
+string-stripped .rtn/.twk; kant use by `name(` in incant/ and IncantForms/ (attic, designDocs and
+docs/ excluded -- history). NOT the kant road: IncantForms/WorkingOn/parser generates kant CodE
+through its own kant actions and calls NOTHING in this population (it uses dupTermRefusal only).
+
+A. CODE, genParse.rtn (32 functions)
+   emitter (22)     genParse (the command), planRule, planTerm, planTally, countRuleTerms,
+                    unresolvedTerms, emitPlan, emitLeaf, emitMany, spellKant, locateSpeller,
+                    spellMode, manyKant, locateManier, manyMode, printPlan, dumpRulePlans,
+                    dumpPlanTally, dumpSpellings, recordParse, ruleNameArg, ruleOrRefuse
+   kant-body emitter + kant-door shims (7) -- consume the plan, dead since kantDoor went:
+                    genKant (no caller left; kantRatchet was its user), kantLeaf, litK, litToK,
+                    parseRK, optRK, actK
+   their diagnostics (3)  dumpRuleTerms, foldOf, row42 (kantCensus.sh only)
+   STAYS, shared:   dataName (getDataType, measureKindArm), locateRule (treeOf), showTree,
+                    treeOf, traceParse, dupTermRefusal/dupCensus (the kant parser uses it)
+   FOUND BY THE SEARCH, not emitter: activateAll, activateBody, compileStored, storeBody,
+                    storedBody -- registered in setup, ZERO users anywhere. Listed only.
+B. FIXTURES (13): genScratch (LISTED ONLY), manyScratch, recordPT, recordPT2, recordPT3,
+   recordPT4, phaseA, popScratch, spellScratch, genLadder/odoPopulation; the kant speller/manier
+   the C++ emitter routes to: incant/genEmit, incant/genMany; and incant/parseCode (the kant-door
+   hand body whose only runner was kantRatchet).
+C. pop.sh ROWS (17): genScratch runs + sentinel; rung12/4/5/6/7; MANIER pin; popScratch runs;
+   census.target; spellScratch runs; spell.target (RED today); speller-is-kant pin; manyScratch
+   runs + sentinel + manyScratch.target; the odometer row (28/34 of 62, red by design, pinned).
+D. SCRIPTS (4): odometer.sh, gapB.sh (reads phaseA), kantCensus.sh (genKant, dumpRuleTerms),
+   recordPop.sh (recordPT*). None is on the seal checklist.
+E. TARGET FILES (10): rung4, rung5, rung6, rung7, rung12, census, spell, manyScratch .target;
+   odometer.base, odometer.green.
+NOT population: countPop.sh (its own f31 scaffold; shares the odometer's filter only in prose),
+   parseClass.target (setParse's classification, Generate.rtn), printPop (cites spell.target's
+   trick in prose).
+
+WHERE EACH QUESTION GOES -- retire by mapping:
+  HOME ON THE KANT ROAD, BUT NO ROW THERE YET (a new row would be owed before retiring):
+   1. per-shape emission -- rung4/5/6/7/12 + genScratch: "does the generator emit the right code
+      for literal / reference / repetition / optional / alternation?" -> parser()'s emitted CodE
+      per shape. treeRowT already generates the ALT case (ScafALT = CodE { return ScafA() ||
+      ScafI(); }) but pins its TREE, not its CodE.
+   2. coverage -- odometer (+ odoPopulation): "how many grammar rules can the generator emit?"
+      -> how many rules parser() generates AND compiles. No row counts it today.
+  NO HOME (the question belongs to the C++ emitter and dies with it):
+   3. census.target and gapB -- the PLAN layer's shape; the kant generator has no plan layer.
+   4. spell.target, the speller pin, manyScratch.target, MANIER -- the C++ emitter's routing to
+      its kant speller/manier (genEmit, genMany); an emitter-internal seam.
+   5. recordPop -- the ParsE record of emitted text (PJ-7). The kant road parks its CodE in
+      builtinParseR, inspectable by dumpContents, but nothing records it as a record.
+   6. kantCensus -- the per-rule table for the kant DOOR, deleted in tier 1.
+   7. spell.target is RED today and would retire red; say so in its mapping line.
+
+DEPENDENCIES:
+  TIER 2: parseRuleMethod calls countRuleTerms, which it SHARES with planRule -- countRuleTerms
+    goes when both do. genScratch's Scaf binds are what tier 2's commands serve, and genScratch's
+    rows are all emitter rows (1 above): retire the emitter rows with genScratch and tier 2 moves
+    no surviving target.
+  parseJSON* (7 bodies + manyJSONblockFields, manyJSONlistItems, RuleStuff.twk): they are the
+    emitter's OUTPUT, pasted, and call NOTHING in genParse.rtn -- only lit, litOption, inGuard,
+    leaveRule, leaveAlt, parseR and each other. No caller anywhere. Nothing depends on them.
+  TASK 2 HELPERS: the emitter NAMES them in generated text (lit, litTo, litOption, containerTo,
+    leaveRule, leaveAlt appear inside emitter strings; inGuard, ctProbe do not) and litK/litToK
+    CALL lit/litTo. With the emitter, the kant shims and parseJSON* gone, all eight have no
+    users. parseR STAYS -- driveStep calls it.
+
+STATE: nothing edited; trunk installed and BARE, fleet 765 / 1, canary 407, repos clean.
 

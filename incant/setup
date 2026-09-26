@@ -19,8 +19,6 @@ define
     virtual immediateAction=processFlags noPrint;
     guard immediateAction noPrint virtual;
     addrOf immediateAction;
-    activateAll immediateAction=activateAll;
-    activateBody immediateAction=activateBody;
     arrondir immediateAction=arrondir;
     assign immediateAction=processFlags noPrint;
     audit immediateAction=auditRStuff;
@@ -36,7 +34,6 @@ define
     clear immediateAction=cLEAR;
     closeFile immediateAction;
     compile immediateAction;
-    compileStored immediateAction=compileStored;
     condition immediateAction=processFlags noPrint;
     copy immediateAction=cOPY;
     copyOf immediateAction;
@@ -70,8 +67,6 @@ define
     new immediateAction=makeNew;
     openWindow immediateAction=openWindow;
     parseClassify immediateAction;
-    parseMethod immediateAction=parseRuleMethod noPrint;
-    parseTerms immediateAction=parseTermCount noPrint;
     printTO immediateAction=printToBuffer;
     probeNode immediateAction;
     quoted  immediateAction;
@@ -86,8 +81,6 @@ define
     sort immediateAction=processFlags noPrint;
     stack immediateAction=setInternalType noPrint;
     stop=stopParsingInput immediateAction;
-    storeBody immediateAction=storeBody;
-    storedBody immediateAction=storedBody;
     system immediateAction=runSystem;
     showBody immediateAction;
     testing immediateAction;
@@ -370,20 +363,12 @@ include(grammar);
     additions to prose. Quote a spelling inline with backticks, never as an
     indented line of its own.
 
-    1. THE INSTALL VOCABULARY -- parseMethod, parseTerms, setParse, parseClassify
+    1. THE INSTALL VOCABULARY -- setParse, parseClassify
 
-    Promoted from incant/genScratch 2026-08-05 by Tony's ruling, and they join the
-    isRule family deliberately: these are define-time fire-and-forget commands and
-    they must be commands WHERE THE GRAMMAR IS READ, not only inside the fixture
-    that tests them.
-
-    ⚠ WHAT IT COST TO LEARN: registered only in genScratch, a `parseMethod=parseBraced`
-    written into incant/grammar was not a command, so it was never fired and never
-    consumed -- it was parsed as an ORDINARY TERM. Braced went from 3 terms to 5
-    against a generated method indexing rule 1 through 3, and oneTest died at
-    SIGSEGV. Every Scaf rule is defined inside genScratch itself, so the install
-    route had only ever been exercised in the one file that defines the words it
-    needs.
+    Promoted from incant/genScratch 2026-08-05 by Tony's ruling: define-time
+    commands that must be commands WHERE THE GRAMMAR IS READ. parseMethod and
+    parseTerms were its other two words; they retired 2026-09-26 with the C++
+    emitter they installed for (SEQ 191).
 
     2. THE BOOLEAN OPERATORS -- `||`, `&&`, `shortCircuit`, `isOR`
 
