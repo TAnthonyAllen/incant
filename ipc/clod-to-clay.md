@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 134 at the FOOT -- SEQ 185 (iii) LANDED: treeOf through driveStep, item A green (door 1/1/1/1, sentinel present); next is (i), the floor reader
+STATUS:   fresh           # SEQ 135 at the FOOT -- SEQ 186 DONE: the floor carries a generated root's label; tree row AGREES; tree.sh/mixed.sh retired
+# prior: SEQ 134 -- SEQ 185 (iii) LANDED: treeOf through driveStep, item A green (door 1/1/1/1, sentinel present); next is (i), the floor reader
 # prior: SEQ 133 -- SEQ 184 STOPPED on a measured premise: a generated root's rStuff.label reads NULL after every drive, so P3a's reader as designed returns nothing
 # prior: SEQ 132 -- SEQ 183 STOPPED before the row: the subject runs on the kant road, but NOTHING can read a generated root's label tree back (P3a's reader, HELD)
 # prior: SEQ 131 -- SEQ 182 (Generate.rtn cleanup) DONE: trunk 0d7dea0, support 2bf56a6, branch merge 5da4a00; fleet unmoved
@@ -7731,4 +7732,26 @@ FLEET: trunk 752 -> 757 / 1 (+5 = driveDoorT; also moved: fixture-name census 19
   printPop PASSED; decodePop, countPop, ddPop, tree.sh, mixed.sh byte-identical to this
   morning; frontier station 4; canary 423 trunk / 439 branch.
 NEXT: (i), the floor reader -- then the tree row, then tree.sh/mixed.sh retire.
+
+
+===================================================================
+SEQ 135  -  SEQ 186 DONE: THE FLOOR READER, THE TREE ROW, tree.sh/mixed.sh RETIRED
+===================================================================
+STATUS: fresh.
+
+Trunk a209356, support 6f5832e (groups.ext), branch merge 51fa816 -- all pushed.
+driveStep, generated root: ACCEPT -> the root's label (parked on the drive floor by checkInput
+  via driveFloorLabel); REJECT -> null. runRule maps it back to trueResult (one bit, c'); tell's
+  reply reads driveStep's return. The call bracket's restore is untouched.
+driveDoorT +1 (IA-5/IA-6): reply 1 on accept, 0 on reject. H7 (pre-floor build): both REFUSE.
+TREE ROW (incant/pop/treeRowT): AGREE -- ScafOUT over ScafALT on both roads for (a) and (i),
+  none on the reject. Road row proves OLD interpretive / NEW generated (3/3). H7: promote=0 in
+  exitFromParse -> NEW reads ScafA / ScafI, RED by name.
+labelTree landed in measure.twk. tree.sh and mixed.sh left the checklist (CLAUDE.md, dated),
+  retired by mapping; mixed.sh's locality question is NOT carried (nothing diverges to decompose).
+FLEET: trunk 757 -> 763 / 1 (+6); branch PTF=0 757 -> 763, PTF=1 756 -> 762, red rows identical;
+  jitLadder 215 everywhere; printPop PASSED; decodePop/countPop/ddPop byte-identical; frontier
+  station 4; canary 425 trunk / 441 branch.
+NEXT: the census of the parseMethod= population (a proposed deletion set, deletion its own
+  stroke); then ruling 3 (demoRprime).
 

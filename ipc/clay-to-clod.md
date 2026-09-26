@@ -9148,8 +9148,8 @@ Report: at top item A's four rows and the fleet; evidence after.
 ===================================================================
 SEQ 186  -  GO ON (i): THE DRIVE FLOOR CARRIES THE ROOT'S LABEL
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Answered in clod-to-clay SEQ 135.
 
 Build as specified in SEQ 185: driveStep's floor activation gets a label slot; checkInput
   writes a generated root's label there instead of refusing; driveStep returns it, and
