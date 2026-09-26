@@ -11502,6 +11502,7 @@ GroupRules::GroupRules()
 	trueResult = 0;
 	skipSet = 0;
 	inputSTAK = 0;
+	branchKind = 0;
 	chanBinds = 0;
 	chanSame = 0;
 	inputFloor = 0;

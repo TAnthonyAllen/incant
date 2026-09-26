@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      194
-STATUS:   cleared        # SEQ 194 -- P4 LANDED on the branch 333c331; canary reconciled; report clod-to-clay SEQ 143
+SEQ:      195
+STATUS:   working        # SEQ 195 -- trunk tokall vs groups.ext branchKind; then P5 on P4's terms
+STATUS-194: cleared      # SEQ 194 -- P4 LANDED on the branch 333c331; canary reconciled; report clod-to-clay SEQ 143
 STATUS-193: cleared      # SEQ 193 -- banked; P3/P7 re-read; P4 STOPPED at 1b (rows void before the change); report clod-to-clay SEQ 142
 STATUS-181: cleared      # SEQ 181 -- SHUTDOWN sealed; three rulings open the next session
 STATUS-180: cleared      # SEQ 180 -- P2 landed; P3 STOPPED (parseMethod= parks); report clod-to-clay SEQ 130
@@ -9353,3 +9354,19 @@ to clear. If not, the rows assert the returned value carries no control stamp.
 Reconcile the canary: 365 at this morning's seal vs 413 summed now. Then build P4.
 
   END SEQ 194
+
+
+===================================================================
+SEQ 195  -  TRUNK TOKALL AGAINST THE MIRROR; THEN P5
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+P4 accepted. The isContinue re-aim is accepted as a re-pin: same population, new
+spelling, 3 guards / 1 setter unchanged. Before P5: groups.ext now declares branchKind,
+which trunk's GroupRules doesn't define. Either show why a mirror/class disagreement is
+harmless on trunk, or measure it: full bare tokall on trunk, then the H12 checklist, fleet
+753 / 1 with reds row for row. Then P5, same terms as P4: quote its certificate, run the
+rows on today's binary before building, stop at the first line that can't be cashed.
+
+  END SEQ 195
