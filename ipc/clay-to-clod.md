@@ -9369,4 +9369,13 @@ harmless on trunk, or measure it: full bare tokall on trunk, then the H12 checkl
 753 / 1 with reds row for row. Then P5, same terms as P4: quote its certificate, run the
 rows on today's binary before building, stop at the first line that can't be cashed.
 
+  AMENDED, same session (dictated via Tony, transcribed by Clod on receipt):
+P4 accepted. The isContinue re-aim is accepted as a re-pin: same population, new
+spelling, 3 guards / 1 setter unchanged. Before P5, close the mirror gap: add branchKind
+to trunk's GroupRules as an inert member, commented with the branch that reads it, so
+groups.ext and both GroupRules.twk agree. Full bare tokall on trunk, then the H12
+checklist: fleet 753 / 1, reds row for row, canary reported both ways. Standing from here:
+a branch never puts a line in groups.ext that trunk's source does not match. Then P5,
+same terms as P4.
+
   END SEQ 195

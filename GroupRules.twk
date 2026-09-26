@@ -62,7 +62,14 @@ class GroupRules
     Stak        blockSTAK,
                 bufferSTAK,
                 inputSTAK;
-    int         chanBinds,
+    /***************************************************************************
+        branchKind is INERT ON TRUNK: P4's control slot (break 1, continue 2,
+        return 3), written and read only on branch parse-then-fire. Declared
+        here so groups.ext's external GroupRules and both GroupRules.twk agree
+        (SEQ 195).
+    ***************************************************************************/
+    int         branchKind,
+                chanBinds,
                 chanSame,
                 inputFloor,
                 lastIndent,
