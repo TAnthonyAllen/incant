@@ -1166,6 +1166,11 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
   - **THE BOOTSTRAP BOUNDARY IS MEASURED, NOT RULED:** thousands of `class=outside` fires -- the setup and grammar
     defines are not parsed under StatemenT, so step 1 never touched them. Keep beside the `Start()` idea when the
     defines hunch is tested.
+  - **A THIRD MEMBER, recorded by ruling (SEQ 198): the ALLHELD parse failure (SEQ 197) is a Rule C instance -- NamE's
+    action is READ BY THE PARSE.** With every ORDINARY fire held (PTF_ALLHELD, reverted), `register(LoopBranch);` failed
+    the parse at exit 0. Attribution is Tony's ruling; the candidate mechanism, UNMEASURED, is plant A2's shape: the
+    ANYtoken recheck record re-runs the keyword test against `input.group`, which NamE's action writes -- and NamE was
+    held, so nothing had written it.
   - **SHAPE-REWRITE ITEM (Tony, 2026-09-24): `field[whatever]` BECOMES `opGet field whatever`** in the ExpressioN
     rewrite, alongside `A += B` -> `+= A B`. opGet chooses its method PER FIRE by the key's kind (never cached on the
     node, as `+=`). **Preserve:** a unary binds to the PRIMARY (`*a[0]` is `(*a)[0]`, bear-trap #48's structural half),
@@ -1319,6 +1324,23 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
     in post-order at the statement's end, or during the parse as shape). Candidate, NOT adopted: hold exactly the
     statement-level class -- the 15 `defer` rules plus StatemenT as root -- and leave the expression level replaying
     in post-order as step 1 does, until P7/P8 split NamE and interpretXP.
+    ⚠⚠ **SEQ 198 -- THE HELD CLASS RULED, P6 BUILT, AND STOPPED ON THE JT LINE (MEASURED).** Rule: P6 holds actions
+    that control whether or how often their children fire -- the statement-level class, the 15 `defer` rules under
+    StatemenT; pure value nodes stay on step 1's post-order replay until P7/P8, because for them replay order IS
+    evaluation order. **Pre-check (SEQ 198): AND/OR stay value nodes.** shortCircuitT's pairs driven as TOP-LEVEL
+    statements (the fixture's own rows sit inside an action body, which step 1 never records): TSC-5..8 read 0/1/0/1 at
+    PTF=0 and PTF=1 -- no unreached arm fires; the call runs under runShortCircuit at evaluation, not at replay.
+    **The build (branch `p6-held-class`, 57f3e7a, NOT merged):** inside a top-level statement's scope a `defer` action is
+    recorded HELD BY CLASS (deferredAbove is not asked for a recorded fire; PTF=0 asks it where trunk does); the root
+    StatemenT's own replayed fire fires the held construct as owner and takes its VALUE, keeping its own label as
+    outcome. Measured bare: PTF=0 763 / 1 == trunk row for row; PTF=1 761 / 1, the ONLY moved row is deferNatT
+    "through the recursion" (named); jitLadder 215 at both; controls loopBranchT and top-level short-circuit unmoved.
+    **THE LINE THAT CANNOT BE CASHED: SEQ 197's "JT rows pinned red at PTF=1".** JSONfield and JSONarray are VALUE nodes
+    under the class rule, so their adoption survives P6 -- 42 / 9 at PTF=1 on the P6 binary -- and all 10 JT rows stay
+    GREEN. SEQ 197 (P6 retires adoption; P5 repairs JSON) and SEQ 198 (value nodes keep step 1's replay, which adopts)
+    cannot both hold. Also named but UNMOVED: adoptT FIELD stays 1 (Iterate -> s2C), yieldT DIRECT/OWNER 3/3,
+    convDriveT CD-1b, convLeakT, printFamilyNew's grafts, f122T/f122NatT; adoptT PROPERTY 4 -> 1 (its row asks only for
+    non-zero, so it stays green -- a loose pin). The unrun-IF fixture is not written.
   - **P7 -- scope beyond top-level statements (SEQ 174 item 3, measured, traced fleet, PTF=1, 143 runs).**
     (a) ACTION BODIES (processCode): 74,476 fires during the parse today -- NamE 14,903, ANYtoken 14,903, TokenXP
     14,419, Parens 9,472, ExpressioN 8,546, StatemenT 8,358. What depends on them: the CACHED BlocK's shape
