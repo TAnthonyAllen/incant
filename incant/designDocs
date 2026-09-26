@@ -733,183 +733,24 @@ define
                     to. Measured 2026-09-16: prose placed under a bail in setup was PARSED,
                     and answered with three RunRulE complaints. setup carries its
                     commentary in an ordinary trailing comment block instead.#);
-        Generate="is an rtn file that gets included into GroupRules.twk when it gets tokked. The text for these entries needs to be reviewed to see if they are still relevant. They were relevant once but things change and no one has been going thru comments to keep them up to date. The comments cluttered up code. Now they do not. They are here and the same relevancy question applies.":
-            exitFromParse=(THE COMMON EXIT FOR EVERY NEW-ROAD PARSE METHOD. It syncs parentLabel from parentStuff, fires the label method, and attaches the label upward. Every parse* function in this file returns through it. ⚠ ITS FAILURE TAIL IS NOT ONLY A FAILURE: a term whose MINIMUM IS ZERO is SATISFIED by not matching, so the tail returns trueResult for it rather than a null -- an absent optional owes the enclosing chain a success. Two guards, and each names a real population. max <= 1, because a repetition belongs to parseLoop, and returning true from a satisfied attempts failure tail would remove parseLoops break and run it to max. NOT isCondition, because parseCondition reads min as a CONDITION VALUE and not as a repetition bound, so the reading does not apply and would invert its false case. The spelling is min and NOT kount >= min, which is parseLoops spelling: measured 2026-09-22, kount at this seat reads 1 for a max=1 term because nothing zeroes it outside parseLoop, so the count answer here would be right by accident of a stale slot. Control swept the same day: no mandatory term has min 0 -- search, followedBy, first, NamE, SemI and Search all read min=1 max=1 -- so the population this line touches is exactly the question-marked term. fixIts F-95 attempt 6.#):
-                oneAttach=(ONE ATTACH, THROUGH attachLabel, AND THE promote VALUE IS 1 -- Tony's dispatch, built and measured 2026-09-22. Until then this function hand-rolled its own addAttribute, which is why a members rule yielded nothing to its caller.
-
-                    WHAT THE HAND-ROLLED ATTACH COULD NOT DO WAS RETAG. attachLabel's promote arm is two statements, pStuff.label = lab AND lab.tag = pStuff.ruleName, and the second one is what makes an alternation's winning option arrive under the ENCLOSING rule's name. The old road passes promote=1 and gets both; this road did neither.
-
-                    promote=0 WAS TRIED FIRST, per the IT-ruling note of 08-07, AND IT IS INERT HERE. The promote arm reads (promote || !pStuff.label) && stuff.isTarget, so with promote=0 it needs an EMPTY parent slot -- and checkInput's enclosingActivation arm has already filled that slot by hand, unretagged, for any hasNewParse member. So the disjunct is false in exactly the cell where the retag is owed. Measured: with promote=0 the trace reads attachLabel lab=ANYtoken pRule=TokenXP, so TokenXP's label carried a member called ANYtoken and aCTionTokenXP's xpress subscript of ANYorNum found nothing. With promote=1 the same line reads lab=ANYorNum, and PrintField promotes into PrintXP.
-
-                    THE IDENTITY GUARD IN attachLabel IS PART OF THIS EDIT, not a separate one. See GroupItem.attachLabel.alreadyIsParentLabel.
-
-                    ⚠⚠ RULED 2026-09-22 (Tony, SEQ 192): THE RETAG STAYS ON THE NEW ROAD, and promote=1 is the landed shape rather than a measurement that happened to work. THE 08-07 IT NOTE IS AMENDED BY NAME -- it read "the generated arm passes promote=0 to attachLabel, attach-under always, it never consults isTarget", and a members rule on the new road now PROMOTES AND RETAGS, as measured in SEQ 191. PC-1 is not thereby repealed; what is withdrawn is the claim that promote=0 is this road's value.
-
-                    ⚠ BANKED, NOT CHASED (same ruling): checkInput's enclosingActivation arm and this promote arm are TWO WRITERS OF THE PARENT'S LABEL SLOT, and the alreadyIsParentLabel guard is the tell -- the guard exists only because the two writers can reach the same node. That is a one-channel-one-meaning question for whenever the exit is reworked, and it sits beside fixIts F-95. Not now.#);
-            parseAny=(THE LABEL WRITE IS GUARDED IN ALL FOUR OF THESE, and until 2026-08-18 it
-                was guarded in only one. parseSet had `if label` and parseAny,
-                parseCharacter and parseString wrote through it bare, so a rule matched
-                with no label in its frame stored into a null and took the process down.
-
-                IT HAD NEVER FIRED because nothing in an ordinary run binds a parse method
-                at all, so these four are reached only once a generation walk has called
-                setParse. The first walk that did reached parseString on the `if` keyword
-                and died in setText with a null receiver -- same family as F-18 one layer
-                down, and found the same way, by a backtrace after the F-18 repair did not
-                stop the crash.
-
-                parseSet is the model and it was already correct. Copy the working sibling
-                rather than inventing a fifth spelling.
-
-                ⚠⚠ AND ON 2026-08-19 THE SAME FAMILY WAS AUDITED AGAINST ITS TEMPLATES AND
-                parseSet WAS NOT THE MODEL AFTER ALL. Tony's finding: it was derived from
-                RuleStuff's testSet and kept half of it. The half it dropped is the half
-                that MOVES. testMacro, which is what testAny/testCharacter/testSet are:
-
-                    while tester
-                        counter++, atRuleMark++, break at end-of-input or counter >= max
-                    then, ONCE, if counter && counter >= min -- set the label, succeed
-
-                All three carried the tester and the label write and returned from INSIDE
-                the loop, with no atRuleMark++ and no min gate. So the match consumed NO
-                INPUT and reported success on the first character -- and a match that
-                succeeds while advancing nothing is a parse that cannot terminate. Restored
-                from testMacro. The noAdvance rewind stays in parseSetLabel, which is where
-                this family already keeps it.
-
-                parseString dropped testString's `if matchedString` guard, so it reported
-                success whenever checkInput passed, matched or not -- and it is the function
-                the F-19 backtrace named. Its `while counter++ < max` wrapper went with the
-                repair rather than gaining the guard inside it: `*` sets max to 268435457
-                (modify, GroupActions.rtn), so a guarded miss in that loop would spin, and
-                repetition on this path is parse()'s rung-6 tripwire, not this function's.
-
-                parseContainer took `atInput = atRuleMark` at DECLARATION time, before its
-                own checkInput() had run the skip pass, so the container scan could start on
-                whitespace. testContainer cannot have this bug: its caller had already
-                skipped. Re-taken inside the block. parseUpTo had no checkInput() at all,
-                for the same reason and with the same consequence.
-
-                parseAction had lost testAction's `parseACTION ||` disjunct, so a
-                parseACTION rule that happened to have a label was handed the LABEL where
-                the template hands it the FIELD.
-
-                ⚠ AND ON THE SAME DAY THE LOOP GAINED THE maxLimit CEILING REPORT. The three
-                loops above are the generated-path twins of RuleStuff's testMacro, so the
-                limit test moved to the top of each of them for the same reason and they
-                call the same reportMaxLimit. One implementer, so "both engines, same words"
-                is true by construction. See reportMaxLimit's header for why the report is
-                gated on `max > 1 && !limitsSet` -- ungated it rejects every name longer
-                than one letter.
-
-                ⚠ READ-GRADE, all of it. These are unreachable until a walk calls setParse,
-                so nothing here has been run -- the template diff is the control and the
-                Xcode walk is the measurement. What was NOT touched, and why, is in
-                docs/fixIts.md F-26.#);
-            parseLoop=(THE REPETITION EXECUTOR, AND ITS VERDICT IS THE COUNT, NEVER THE FLAG. A repetition ends by FAILING -- that is what ends it -- so the last attempt always leaves ruleStuff.sukcess at 0, and reading that flag as the loop's answer makes every satisfied +/* report failure. Measured 2026-09-22 (SEQ 194) on the correct drive "search list;": GrouP+ read kount=1 min=1 max=100 sukcess=0, returned 0, and handed the enclosing && a NULL -- so the chain short-circuited and SemI was never entered, which is what searchNewParseT's SemI-did-not-dispatch row had been reporting. The line that fixes it reads the COUNT and RETURNS; it does not write sukcess, because sukcess is already carrying two meanings -- did THIS attempt match, and did the TERM succeed -- and parseLoop stays off that channel. The old road carries the other spelling, GroupItem.twk:1314 in parse's matchFailed arm, which SETS the flag; the two roads deliberately do not match here. fixIts F-95 attempt 5.#);
-            parseRule=(THE EXECUTOR FOR A RULE CARRYING A GENERATED KANT BODY. Reached only through rStuff.parseMethod, so a specimen with no rStuff cannot arrive here -- the dispatch is the guard. It mints a fresh label per invocation, binds it as the body's one argument, runs the BlocK, and reads the chain's truth off the return. Prose moved out of Generate.rtn 2026-09-09 under the long-comments-to-DesignDocs convention; what stays at the edit site is the one claim a reader must not miss.#):
-                bareFieldRepoint=(⚠⚠ ANY DECLARATION ADDED INSIDE THIS FUNCTION OWES THE BEAR-TRAP 42 CHECK, AND IT IS A NAMED CHECK RATHER THAN A HABIT: tok resolves bare fields last-mentioned-wins, so a new local RE-POINTS EVERY BARE FIELD BELOW IT AND COMPILES CLEAN. It bit here on 2026-09-09 -- checkInput() aimed at intoStuff and the locals-clear loop cleared ruleArg instead of grup, silently. The use ruleStuff and use grup lines are the cure and are load-bearing; deleting either as noise re-opens it.
-
-                THE CHECK, one command, after every retok and BEFORE the build:
-
-                    diff <(git show HEAD:GroupRules.mm | awk '/^extern "C" GroupItem \*parseRule/{f=1} f{print} f&&/^}/{exit}' \
-                             | grep -E "checkInput|isLocal|grup->clear|atRuleMark = from") \
-                         <(awk '/^extern "C" GroupItem \*parseRule/{f=1} f{print} f&&/^}/{exit}' GroupRules.mm \
-                             | grep -E "checkInput|isLocal|grup->clear|atRuleMark = from")
-
-                ⚠ THE EXTERN CANARY CANNOT SEE THIS ONE -- it read 318 throughout. That is the whole reason the check is written down rather than left to the standing detector.#);
-                noElseHere=(RESTORED 2026-09-10, and the restoration is itself a measurement.
-                THE FLAG IDIOM IS NOT CLUMSINESS. parseRule spells `hasBody = 0; if
-                field.isAction hasBody = 1; if !hasBody reportNoBody(field);` rather than an
-                if/else, and anyone tidying that into an if/else is invited to read this first.
-
-                THE ORIGINAL ARGUMENT, bear-trap 32: a multi-statement indented arm followed
-                by an else does not parse, it fails at DEFINE time, and the error names a
-                HEALTHY function -- the first action in the file. parseRule broke exactly that
-                way the moment its arm grew, and took the canary 318 to 0.
-
-                ⚠ THIS ENTRY WAS DELETED WITH ITS INLINE POINTER IN THE 2026-09-09 COMMENT
-                MOVE, so for one day the idiom carried neither the line nor the doc -- which
-                is the one state the comment trial's own too-short test forbids: if the
-                one-line version would let someone break the invariant without reading the
-                doc, the line is too short, and no line at all is shorter than that.
-
-                ⚠⚠ AND THE MEASUREMENT THAT EARNED IT BACK IS NOT THE ONE THE TRAP DESCRIBES.
-                Stroke 4, 2026-09-10, drove both roads. In TOK the shape is fatal exactly as
-                written -- one method added to Commands.rtn, unbraced multi-statement arm then
-                else, canary 0; the same method BRACED, canary 319; restored, 318. In KANT it
-                is NOT: six arms measured, the unbraced-then-else form runs correctly in both
-                directions (2 and 9, anti-vacuity control passing) and the BRACED form is the
-                one that breaks, with the trap's own misdirection signature. parseRule is TOK,
-                so the reason this idiom is load-bearing stands on the tok reading and not on
-                the kant one. incant/fixits/danglingElse carries the kant half.
-
-                THE INLINE LINE IS TONY'S TO RESTORE, not Clod's -- the dispatch said so, and
-                the entry is restored either way so that a pointer written later resolves.#);
-                intoRidesArgument=(RULING B, 2026-09-09. The incoming `into` arrives on the frame runRule established, and the label the terms fill is a FRESH MINT PER INVOCATION -- never rStuff.label, which is one slot and cannot survive recursion. H19 measured it on incant/trigRecur: four activations of two mutually recursive rules mint four distinct addresses, each inner LABELMINT's intoAt IS the enclosing activation's at, and the outer label is unchanged at its OUT line after two nested activations.#);
-                argumentBind=(runAction's own three lines, so the body's one argument IS the label and every emitted term forwards it. Copied rather than re-derived, deliberately: the two roads must not disagree about what an argument slot is.#);
-                bindTheBodysOwnSlot=(MEASURED 2026-09-09, bear-trap 39. The emitted body's `argument` was resolved at COMPILE time, and the rule carried no argument slot then, so aCTionNamE minted an action LOCAL on the CodE and the BlocK holds that node. Binding field["argument"] therefore wrote a slot nothing reads -- measured as one shared, data-less body arriving at all six terms while the holder one line away read isGROUP with gGroup == myLabel. Bind the node the body actually holds, and bind it AFTER the clear loop, which blanks exactly this local. ⚠ THE TELL IF IT IS EVER UNDONE: every term receives ONE SHARED BODY with dataKind 0 while the holder one line away reads isGROUP with gGroup == the minted label.#);
-                currentMethod=(MEASURED 2026-09-09, and it is the whole reason the bind was invisible. parseRule runs the body by calling BlocK's gMethod DIRECTLY, so it never passes through processAction -- which is the single writer of currentMETHOD (GroupActions.rtn:511). locateInMethod resolves a body's bare name against currentMETHOD's locals first, so with the wrong currentMETHOD the emitted `argument` resolved to a data-less carrier instead of the slot bound one line above: measured as ONE SHARED BODY, dataKind 0, arriving at all six terms. Save and restore, exactly as processAction does. ⚠ ON ITS OWN IT MOVED NOTHING -- the compile-time bind above is what was actually wrong. The bracket is kept because a body resolving names against the wrong method is a defect waiting for a customer, and it is recorded here so the next reader does not re-try it as a cure.#);
-                labelOrZero=(RULING B, 2026-09-09. THE BODY'S RETURN VALUE IS NOT READ -- not by presence, not by value, not by identity. The answer is label-or-0 taken from what this invocation MINTED, exactly as leaveRule takes it from the local the emitted tok body minted. The old `if result` presence test is retired with it; it is the fifth face of the answers-by-presence family.#);
-                chainTruthOnly=(RULING (c'), Tony, 2026-09-09. The return carries ONE BIT -- the AND chain's truth -- and never a label. This is leaveRule's shape: RuleStuff.twk:776 branches on `ok` and nothing else, and `ok` is the chain (genParse.rtn:596). Measured H20: the chain hands back trueResult on a match and falseResult BY IDENTITY on a miss, and truthOf reads them 1 and 0 -- so the bit is real and a false chain is genuinely falsy, not F-55's sixth face.
-
-                ⚠ A TRUTH VALUE CARRIES NO METHOD (H16), so bear-trap 34 cannot reach this return. ruleAsLabel stays anyway, now as a GENERATOR-ERROR guard: a label in return position means the emitter is wrong, not the input.
-
-                ⚠ OBSTACLE 3 IS RETIRED STRUCTURALLY RATHER THAN GUARDED. The empty label was this road's failure case AND its crash case, because listLength decided the yield; under (c') truthOf decides, so the deref is simply GONE. Unconstructable beats guarded.
-
-                ⚠ SAME NAME, TWO PROVENANCES (bear-trap 51): a kant body SPELLING `false` gets a COPY, while the AND chain hands back the registry node ITSELF. Compare sentinels by VALUE, never by pointer, unless you can name which road minted the node you are holding.#);
-                oneAttach=(ONE ATTACH, THROUGH THE SINGLE WRITER. promote=0: this road never consults isTarget where a parent label exists -- PC-1, and the promote case would replace the into's subtree.#);
-            parseSetLabel=(THE ACTION FIRE IS GONE FROM HERE, 2026-08-25, Tony's ruling, and
-                its absence is the point rather than an omission. THE SPLIT IS:
-                    parseSetLabel   label work only -- and it stays alive as the
-                                    future glom arm
-                    runRuleAction   the action fire on the BODY road
-                    fireLabelMethod the action fire on the INTERPRETIVE road
-                ONE FIRE PER ROAD. This discharges fixIts row 1's parked design
-                call: the actionMethod channel is the one that goes.
-
-                IT COULD ONLY EVER HAVE BEEN A DOUBLE FIRE, never a sole road.
-                parse()'s fork calls parseMethod and THEN, on success, calls
-                fireLabelMethod on the same stuff with the same method -- and
-                rStuff.actionMethod has exactly one writer, setParse:521
-                `actionMethod = method`, which is that same method. So every rule
-                reachable here was fired twice with one label.
-
-                MEASURED BEFORE THE STRIP, and it is why no rule can starve: of the
-                whole grammar only THREE rules are leaf-shaped AND method-bearing
-                -- ANYtoken, NewGroup, ShortcuT -- and all three read datA 6, which
-                GroupBody.h defines as isGROUP, which setParse binds to
-                parseMethod = null. They never reach a leaf executor, so they never
-                reached this line. The fire was unreachable, not merely redundant.#);
+        Generate="is an rtn file that gets included into GroupRules.twk when it gets tokked. It holds the new-road parse executors and setParse's classification walk. Entries reviewed and trimmed 2026-09-26; the retired ones are named in that day's commit and git has their text.":
+            exitFromParse=(THE COMMON EXIT FOR EVERY NEW-ROAD PARSE METHOD: sync parentLabel, fire the label method, attach upward. Its failure tail returns trueResult for a term whose MINIMUM IS ZERO -- an absent optional owes the chain a success. Guarded max <= 1, because repetition is parseLoop's and a true here would run a loop to max; and NOT isCondition, because parseCondition reads min as a value. Spelled min, never kount >= min: kount is stale outside parseLoop. fixIts F-95 attempt 6.#):
+                oneAttach=(ONE ATTACH, THROUGH attachLabel, WITH promote=1 -- ruled 2026-09-22, SEQ 192. promote=0 is INERT here: checkInput's enclosingActivation arm has already filled the parent slot unretagged, so the retag a members rule needs never happens. ⚠ Banked, not chased: that arm and this one are two writers of the parent's label slot, and attachLabel's alreadyIsParentLabel guard exists only because of it (F-95).#);
+            parseAction=(runs the rule's ACTION as its parse. Pinned unreachable today by incant/pop/paReachT.#):
+                ownSlot=(THREE SLOTS, THREE MEANINGS (Tony, 2026-09-14): gMethod is the ENTRY, rStuff.parseMethod the LEAF, rStuff.actionMethod the ACTION. Reading gMethod here recursed until the stack was gone, because on a parseACTION node gMethod IS parseAction.#);
+            parseAny=(THE FOUR LEAVES -- parseAny, parseCharacter, parseSet, parseString -- ARE THE GENERATED-PATH TWINS OF RuleStuff's testMacro. Copy the template, never a sibling: in 2026-08 three of them had kept the tester and dropped the advance and the min gate, so a match consumed no input and could not terminate. The shape: a tester loop that advances and breaks at end of input or max, then ONCE, counter >= min sets the label and succeeds. The maxLimit report is gated max > 1 && !limitsSet -- ungated it rejects every name longer than one letter. fixIts F-26.#);
+            parseContainer=(matches the longest input prefix naming an entry of a bin or registry.#):
+                noStuffLawfulSkip=(A REGISTRY LAWFULLY CARRIES NO rStuff (Ruling D1) and reaches here by bare name from an emitted body -- Operators, for one. A SKIP, NOT A REFUSAL: a refusal inside a parse aborts the action containing it (Tony, 2026-09-20). It matches with default limits and exits WITHOUT exitFromParse, which dereferences rStuff. Nothing is minted onto the registry.#);
+            parseLoop=(THE VERDICT IS THE COUNT, NEVER THE FLAG. A repetition ends by FAILING, so the last attempt always leaves sukcess 0, and a flag read makes every satisfied + or * report failure -- measured SEQ 194 on "search list;". It reads the count and returns, and does not write sukcess, which already carries two meanings. measureLoopVerdict pins the disagreement at 0. fixIts F-95 attempt 5.#);
+            parseRule=(THE EXECUTOR FOR A RULE CARRYING A GENERATED KANT BODY. Reached only through rStuff.parseMethod, so the dispatch is its own guard against a specimen with no rStuff. A rule carries NO ARGUMENT SLOT (F-94), the label it mints goes nowhere yet (CT-5), and the return is ONE BIT.#):
+                bareFieldRepoint=(⚠ ANY DECLARATION ADDED INSIDE THIS FUNCTION RE-POINTS EVERY BARE FIELD BELOW IT AND COMPILES CLEAN -- bear-trap 42, and it bit here on 2026-09-09. The use ruleStuff and use grup lines are the cure and are load-bearing. The extern canary cannot see it, so after any retok diff this function in GroupRules.mm against HEAD before the build.#);
+                chainTruthOnly=(RULING (c'), Tony, 2026-09-09: the rule succeeds on truthOf the AND chain -- never on presence, never on a label. The chain hands back trueResult or falseResult BY IDENTITY, while a kant body spelling false gets a COPY, so compare by value (bear-trap 51).#);
+                currentMethod=(parseRule runs BlocK's gMethod directly and so bypasses processAction, the usual writer of currentMETHOD, which locateInMethod resolves bare names against. Save and restore, as processAction does. ⚠ On its own this bracket fixed nothing in 2026-09 -- do not re-try it as a cure for a name-resolution symptom.#);
             setParseWalk="Sets parseMethod. Recurses into ITSELF, never back through setParse":
-                tokenSkip=(A MEMBER WITH isRule 0 IS A TOKEN -- MATCHED, NEVER ENTERED. Tony's ruling,
-                    2026-09-15, off the parent chains: the sixty refusals this replaces were the members of
-                    Operators (52, a REGISTRY) and UnaryOPS (8, a BIN), reached LAWFULLY through the
-                    container arm below. An operator token is not a rule and never will be.
-                    ⚠ THE REFUSAL BELOW IS UNCHANGED AND STAYS LOAD-BEARING: isRule 1 with no rStuff is a
-                    WOUND, not a specimen, and refuse() names it.   Generate.setParseWalk.tokenSkip#);
-                walkGuard=(the grammar is cyclic -- StatemenT contains BlocK contains StatemenT -- so the internalized walk below cannot terminate without its OWN mark. NOT hasNewParse: parkParse is that flag's other writer. It also stops a DAG node being classified twice in one walk, which is what puts parseAction into BOTH gMethod and actionMethod#);
-                silentReEntry=(RE-ENTRY IS ROUTINE, NOT AN ERROR. The grammar is a DAG -- shared
-                    terms and StatemenT/BlocK -- so a node is legitimately reached twice inside one
-                    walk: measured 52 repeat arrivals among 207 visits on incant/pop/trigDO. It used
-                    to refuse(), and refuse() raises ruler.refused, which ABORTS THE INCANT ACTION THAT
-                    CALLED THE WALK -- that is what left generateParse's printTO redirected (F-62).
-                    Return without descending; say so only under debug.   Generate.setParseWalk.silentReEntry#);
-                installedIsDone=(AN rStuff CARRYING hasNewParse IS INSTALLED, AND THE WALK LEAVES IT
-                    ALONE. Tony's ruling, 2026-09-15. parseWalked guards the grammar CYCLE within one walk;
-                    hasNewParse guards PROPAGATION across walks. Two marks, two questions, and conflating
-                    them is what let a node be re-entered with POST-install slots and read as pre-install.
-                    ⚠ MEASURED ON NamE -- three visits of ONE field over ONE rStuff, and the middle column
-                    is the defect: visit 1 g=0 hasNewParse=0, visits 2 and 3 g=parseRule hasNewParse=1.
-                    Generate.setParseWalk.installedIsDone#);
-                actionMethodRemoved=(THE WALK WRITES gMethod AND parseMethod, AND NOTHING ELSE. Tony's
-                    ruling, 2026-09-15. `actionMethod = method;` stood here from 5f24cf3 and is REMOVED,
-                    not replaced: actionMethod is set at DEFINITION -- setActionMethod publishes
-                    builtinActoR and fireLabelMethod stamps it -- and the walk never touches it.
-                    ⚠ IT DID NOT SNAPSHOT THE ACTION, IT ERASED IT: on NamE's first visit gMethod was 0
-                    and actionMethod held the real action, so the line wrote NULL over it. On the later
-                    visits gMethod held parseRule, and copying THAT into the action slot is the unbounded
-                    recursion.   Generate.setParseWalk.actionMethodRemoved#);
+                tokenSkip=(A MEMBER WITH isRule 0 IS A TOKEN -- MATCHED, NEVER ENTERED (Tony, 2026-09-15). The members of Operators and UnaryOPS arrive here lawfully and are not rules. ⚠ The refusal below it stays load-bearing: isRule 1 with no rStuff is a WOUND, not a specimen.#);
+                silentReEntry=(RE-ENTRY IS ROUTINE, NOT AN ERROR. The grammar is cyclic and a DAG, so a node is legitimately reached twice in one walk -- 52 repeats in 207 visits on incant/pop/trigDO. It used to refuse(), which ABORTS the incant action that called the walk and left generateParse's printTO redirected (F-62).#);
+                installedIsDone=(AN rStuff CARRYING hasNewParse IS INSTALLED, AND THE WALK LEAVES IT ALONE (Tony, 2026-09-15). Two marks, two questions: parseWalked guards the cycle WITHIN one walk, hasNewParse guards propagation ACROSS walks. Conflating them re-entered a node with post-install slots and read it as pre-install.#);
+                actionMethodRemoved=(THE WALK WRITES gMethod AND parseMethod, AND NOTHING ELSE (Tony, 2026-09-15). actionMethod is set at DEFINITION. The removed `actionMethod = method;` did not snapshot the action, it ERASED it -- NULL on a first visit, parseRule on later ones, and the second is unbounded recursion.#);
         GroupActions=(is the rtn file holding the action methods -- the interpreter's
             verbs. It is part of the GroupRules include chain.#):
             runRule=(fires a rule, choosing the new parse road or the old one.#):

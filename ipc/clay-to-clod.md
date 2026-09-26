@@ -9032,3 +9032,36 @@ Next action: the three rulings (the parseMethod= road's fate, P3a held for its f
 demoRprime), then P3 resumes.
 
   END SEQ 181
+
+
+===================================================================
+SEQ 182  -  TASK 1: Generate.rtn CLEANUP (Tony's 2026-09-26 offline status)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+Task 2 (RuleStuff.twk below testUpTo) is BANKED for next wake-up; do not start it.
+Scope: clean-up stroke on trunk (jit-unified-emit-wip). Comments, placement, order only.
+  No behaviour change.
+Measures masquerading as methods move to measure.twk: every Generate.rtn method that only
+  reports and never decides. Rename to the measure* callout standard where needed; list
+  old -> new. Before each move grep the body for globals and check linkage (a file-scope
+  static in a header is per-TU and reads zero across the boundary -- chanReport). Relocate
+  (not copy) the groups.ext line into the external measure.h block. Canary = GroupRules.h
+  + Bytecode.h + measure.h, never GroupRules.h alone.
+Comments: every method top comment becomes `// slug sentence?`, longer prose to DesignDocs.
+  Chase every existing slug link from Generate.rtn into incant/designDocs; verdict each:
+  keep / trim (do it, to stump-marker length) / shitcan (subject gone or restates code).
+  Table: slug, verdict, one-line reason. Anything shitcannable that other files cite is
+  named, not deleted.
+Top-comment drift: each header sits directly on its declaration, no blank line. Name each
+  drifted header and where it had walked to. alphaLint.sh's unit check is the instrument.
+Alpha order: alphaLint.sh reads 0 out of order for this file.
+Certificate: retok bare; codeOnly.py diff of GroupRules.mm before/after shows only the moved
+  methods leaving; measure.mm shows them arriving; fleet unmoved row for row (pop.sh 752/1,
+  jitLadder 215, printPop, decodePop/countPop as this morning); ddPop green; full H12.
+  Commit Groups and groups.ext (support). Then carry onto parse-then-fire by merge, as P0.
+Report: what was run and what moved/failed at the top; then renames, verdict table, drift
+  list; evidence last.
+
+  END SEQ 182

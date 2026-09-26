@@ -1,4 +1,5 @@
 class GroupItem;
+class RuleStuff;
 
 // SEQ 166: the drive string's extent, recorded by measureMarkArm and read by
 // measureMarkPoint. Instrument-only state -- nothing in the program reads it.
@@ -23,7 +24,9 @@ extern "C" GroupItem *canonOf(GroupItem *argument);
 extern "C" GroupItem *chanReport(GroupItem *input);
 extern "C" GroupItem *evictAction(GroupItem *field);
 extern "C" int labelMinters(GroupItem *rule);
+extern "C" GroupItem *measureAdoption(GroupItem *field, GroupItem *handed, GroupItem *adopted);
 extern "C" GroupItem *measureBlockResult(GroupItem *input, GroupItem *result, int stopped);
+extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int listWalk, int held, int endKind, int inDrive);
 extern "C" GroupItem *measureDotOperands(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *measureFireLabelActionIn(GroupItem *field, GroupItem *myLabel);
 extern "C" GroupItem *measureFireLabelActionOut(GroupItem *field, GroupItem *myLabel);
@@ -33,15 +36,19 @@ extern "C" GroupItem *measureFrameProbe(GroupItem *field, GroupItem *rule);
 extern "C" GroupItem *measureKindArm(char *arm, GroupItem *field);
 extern "C" GroupItem *measureLabelMint(GroupItem *field, GroupItem *myLabel, GroupItem *into);
 extern "C" GroupItem *measureLabelProbe(GroupItem *field, GroupItem *myLabel, GroupItem *into, GroupItem *result, int yielded);
+extern "C" GroupItem *measureLoopVerdict(GroupItem *field);
 extern "C" GroupItem *measureMarkArm(GroupItem *driveNode);
 extern "C" GroupItem *measureMarkPoint(char *where);
+extern "C" GroupItem *measureOldFireFlag(GroupItem *field, RuleStuff *stuff);
 extern "C" GroupItem *measureParentProbe(GroupItem *field);
+extern "C" GroupItem *measureParseClass(GroupItem *field);
 extern "C" GroupItem *measureParseResult(GroupItem *field, GroupItem *result);
 extern "C" GroupItem *measurePlusEQWrite(GroupItem *field);
 extern "C" GroupItem *measurePlusPlusWrite(GroupItem *field);
 extern "C" GroupItem *measureRuleDispatch(GroupItem *op, GroupItem *target, GroupItem *arg);
 extern "C" GroupItem *measureRuleDoor(GroupItem *field, GroupItem *rule);
 extern "C" GroupItem *measureStopCaller(GroupItem *caller);
+extern "C" GroupItem *measureTargetAgree(RuleStuff *stuff, int computed);
 extern "C" GroupItem *measureTokenArm(char *arm, GroupItem *ANYtoken, GroupItem *InvokeArg, GroupItem *unary);
 extern "C" GroupItem *parseClassify(GroupItem *field);
 extern "C" GroupItem *probeNode(GroupItem *argument);
