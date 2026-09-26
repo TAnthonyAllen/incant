@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      197
-STATUS:   working        # SEQ 197 -- P6 on ruling (i): bypass at PTF=1, delete nothing; JT rows named movers
+SEQ:      198
+STATUS:   working        # SEQ 198 -- P6 held class = statement-level; shortCircuitT check; Rule C instance; build P6
+STATUS-197: cleared      # SEQ 197 -- P6 STOPPED on parent-driven firing (measured); report clod-to-clay SEQ 146
 STATUS-196: cleared      # SEQ 196 -- P6 STOPPED before building (standing clause); report clod-to-clay SEQ 145
 STATUS-195: cleared      # SEQ 195 -- mirror gap closed d68d92f; P5 STOPPED at its certificate; report clod-to-clay SEQ 144
 STATUS-194: cleared      # SEQ 194 -- P4 LANDED on the branch 333c331; canary reconciled; report clod-to-clay SEQ 143
@@ -9402,8 +9403,8 @@ control.
 ===================================================================
 SEQ 197  -  P6 ON RULING (i): BYPASS AT PTF=1, DELETE NOTHING; JT ROWS NAMED
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Stopped; clod-to-clay SEQ 146.
 
 SEQ 196's reorder premise was wrong: P6 retires the adoption JSON's tree depends on.
 Rulings: (i) P6 bypasses the old-road paths at PTF=1 and deletes nothing; PTF=0 stays
@@ -9420,3 +9421,20 @@ shows JSON broken without P5 and fixed by it. A branch red on named rows between
 strokes is what a branch is for.)
 
   END SEQ 197
+
+
+===================================================================
+SEQ 198  -  P6's HELD CLASS RULED; shortCircuitT CHECK; RULE C INSTANCE; BUILD P6
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+Adopt the candidate, stated as the rule: P6 holds actions that control whether or how
+often their children fire (the statement-level class, the 15 defer rules under
+StatemenT). Pure value nodes stay on step 1's post-order replay until P7/P8 split NamE and
+interpretXP, since for them replay order is evaluation order. Before building, check
+shortCircuitT's tick rows at PTF=1: if an unreached arm fires, AND/OR join the held
+class. Record the ALLHELD parse failure as a Rule C instance (NamE's action is read by
+the parse). Ruling (i) and the JT-row plan stand. Then build P6.
+
+  END SEQ 198
