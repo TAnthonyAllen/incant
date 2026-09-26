@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      194
-STATUS:   working        # SEQ 194 -- P4 certificate adopted (the two surviving stamps); canary reconcile; build P4
+STATUS:   cleared        # SEQ 194 -- P4 LANDED on the branch 333c331; canary reconciled; report clod-to-clay SEQ 143
 STATUS-193: cleared      # SEQ 193 -- banked; P3/P7 re-read; P4 STOPPED at 1b (rows void before the change); report clod-to-clay SEQ 142
 STATUS-181: cleared      # SEQ 181 -- SHUTDOWN sealed; three rulings open the next session
 STATUS-180: cleared      # SEQ 180 -- P2 landed; P3 STOPPED (parseMethod= parks); report clod-to-clay SEQ 130
@@ -9342,8 +9342,8 @@ Standing:
 ===================================================================
 SEQ 194  -  P4's CERTIFICATE ADOPTED; RECONCILE THE CANARY; BUILD P4
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. P4 landed; clod-to-clay SEQ 143.
 
 Adopt the proposal. P4's certificate is the two surviving-stamp rows: continue v; (today
 2, with the loop-ran-2 companion) and testing()-compiled return w; (today 3), both 0
