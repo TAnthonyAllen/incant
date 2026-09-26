@@ -9204,8 +9204,8 @@ Report: at top the fleet, what genScratch reads, the orphaned-helper list; evide
 ===================================================================
 SEQ 189  -  RULING 3a: demoRprime RETIRES. 3b IS A CENSUS, NOT A DELETE
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Answered in clod-to-clay SEQ 138.
 
 This stroke: remove demoRprime and its calls from genScratch (its R-prime claim is recorded
   history; its min>=2 case needs Limit, which is being removed). Add a sentinel at genScratch's

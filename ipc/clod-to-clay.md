@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 137 at the FOOT -- SEQ 188 TIER 1 DONE: 17 functions, 3 fixtures, kantRatchet.sh gone; genScratch gains 10 refusal lines and nothing else
+STATUS:   fresh           # SEQ 138 at the FOOT -- SEQ 189 (ruling 3a) DONE: demoRprime gone, genScratch untruncated, rung7 GREEN; next is the C++ emitter census
+# prior: SEQ 137 -- SEQ 188 TIER 1 DONE: 17 functions, 3 fixtures, kantRatchet.sh gone; genScratch gains 10 refusal lines and nothing else
 # prior: SEQ 136 -- SEQ 187 CENSUS: 61 items in 7 groups; deletion in two tiers, tier 2 gated on ruling 3 (it moves genScratch's rung targets)
 # prior: SEQ 135 -- SEQ 186 DONE: the floor carries a generated root's label; tree row AGREES; tree.sh/mixed.sh retired
 # prior: SEQ 134 -- SEQ 185 (iii) LANDED: treeOf through driveStep, item A green (door 1/1/1/1, sentinel present); next is (i), the floor reader
@@ -7853,4 +7854,22 @@ ORPHANS: none lost its LAST caller here; all eight helpers are now reachable ONL
 DesignDocs retired: trampolineSeam, kpConvention, kantDoorDuties, kantDoorGuards,
   directorsWindow, bracedControlOrigin.
 NEXT: ruling 3 (demoRprime / genScratch), which gates tier 2.
+
+
+===================================================================
+SEQ 138  -  SEQ 189 DONE: RULING 3a, demoRprime RETIRES
+===================================================================
+STATUS: fresh.
+
+Trunk 21cbcbe, support 9a60cb8, branch merge (pushed). Canary 408 -> 407 (branch 424 -> 423).
+FLEET: trunk 763 -> 765 / 1 (red 57 -> 56); branch PTF=0 763 -> 765, PTF=1 762 -> 764.
+  Moved, same four rows everywhere: +genScratch sentinel (H2, new); rung7.target FAIL -> ok;
+  drive census re-pinned 6 -> 5; groups.ext mirror 329 -> 328 (drift 0).
+rung7: GREEN, as predicted -- the truncation was its only defect. It leaves the red list.
+The second demo: removed with demoRprime. RUNG 6/7 runtime calls (ScafE x3, ScafF x3, ScafOUT x3)
+  now drive, old road (hasNewParse=0), and print trace only.
+Sentinel control: the pre-change output has 0 sentinel lines.
+DesignDocs: invariantRprime KEPT as the R-prime record (CodeSite -> dated Retired line);
+  minTwoUnreachable retired (a measurement of Limit).
+NEXT: the C++ emitter census (planRule, emitPlan, the plan vocabulary) -- census only.
 
