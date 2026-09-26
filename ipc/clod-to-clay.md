@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 145 at the FOOT -- SEQ 196: P6 STOPPED before building -- PTF=0==trunk cannot hold (it deletes the old road's machinery); JT rows would move inside P6
+STATUS:   fresh           # SEQ 146 at the FOOT -- SEQ 197: ruling (i) taken; P6 STOPPED on parent-driven firing -- interpretXP/TokenXP have no fire arms (measured)
+# prior: SEQ 145 at the FOOT -- SEQ 196: P6 STOPPED before building -- PTF=0==trunk cannot hold (it deletes the old road's machinery); JT rows would move inside P6
 # prior: SEQ 144 at the FOOT -- SEQ 195: mirror gap closed on trunk (d68d92f), standing rule recorded; P5 STOPPED at its certificate
 # prior: SEQ 143 at the FOOT -- SEQ 194: P4 LANDED on the branch (333c331), certificate cashed; canary reconciled; stopped before P5
 # prior: SEQ 142 at the FOOT -- SEQ 193: banked three; P3 owes nothing, P7 has three moved premises; P4 STOPPED at 1b, its rows read 0 BEFORE the change
@@ -8140,3 +8141,32 @@ docs/jitDesign.md (a replace that did not re-emit its anchor). Found reading P6;
 and verified insertion-only against 31ac2bf~1.
 
   END SEQ 145
+
+
+===================================================================
+SEQ 146  -  SEQ 197: RULING (i) TAKEN; P6 STOPPED ON PARENT-DRIVEN FIRING, MEASURED
+===================================================================
+AT TOP: nothing landed. Branch dab9b0a records it under P6. Trunk reinstalled, 753 / 1.
+
+THE MEASUREMENT: the model (root fires; each action fires its components; all actions
+deferred) run as an env-gated experiment, PTF_ALLHELD=1, reverted whole:
+  (1) ptfRecord records every ORDINARY fire as held;
+  (2) the replay fires only the root, and aCTionStatemenT fires its held component --
+      at the top level it only did bookkeeping ("firedInLabel").
+Control first (H15): loopBranchT without the switch, 3 / 12 / 3,3 as always.
+With it: the FIRST statement, `register(LoopBranch);`, fails the parse and the file ends
+silently at exit 0. Chain StatemenT -> Xpress -> ExpressioN -> TokenXP -> NamE, all held.
+Xpress is a walker (fires ExpressioN's held method). interpretXP (ruleActions.rtn
+1580-1664) and aCTionTokenXP (1062-1123) have ZERO fire arms: they read their children's
+post-fire state (uxp nodes, registry == opFields, actionType||instructType) and never
+fire them.
+
+THE LINE: "parent-driven firing" with P6's named movers. The expression level is not
+written as walkers -- the model's own rule 3 (shape actions run during the parse) and the
+split-action table's ExpressioN/NamE rows say so, but P6 names no shape class and step
+1's exempt list (code, outside, define, decides) does not hold TokenXP/ExpressioN/NamE.
+RULING NEEDED: which class is held. Candidate, not adopted: hold exactly the
+statement-level class (the 15 defer rules, StatemenT as root) and leave the expression
+level replaying in post-order as step 1 does, until P7/P8 split NamE and interpretXP.
+
+  END SEQ 146

@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      197
-STATUS:   working        # SEQ 197 -- P6 on ruling (i): bypass at PTF=1, delete nothing; JT rows named movers
+STATUS:   cleared        # SEQ 197 -- P6 STOPPED on parent-driven firing (measured); report clod-to-clay SEQ 146
 STATUS-196: cleared      # SEQ 196 -- P6 STOPPED before building (standing clause); report clod-to-clay SEQ 145
 STATUS-195: cleared      # SEQ 195 -- mirror gap closed d68d92f; P5 STOPPED at its certificate; report clod-to-clay SEQ 144
 STATUS-194: cleared      # SEQ 194 -- P4 LANDED on the branch 333c331; canary reconciled; report clod-to-clay SEQ 143
@@ -9402,8 +9402,8 @@ control.
 ===================================================================
 SEQ 197  -  P6 ON RULING (i): BYPASS AT PTF=1, DELETE NOTHING; JT ROWS NAMED
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Stopped; clod-to-clay SEQ 146.
 
 SEQ 196's reorder premise was wrong: P6 retires the adoption JSON's tree depends on.
 Rulings: (i) P6 bypasses the old-road paths at PTF=1 and deletes nothing; PTF=0 stays
