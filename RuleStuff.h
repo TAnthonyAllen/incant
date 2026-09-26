@@ -1,78 +1,5 @@
 class GroupItem;
-/********************************************************************************
-	RuleStuff is used to stash data used by the parse
-
-    parentLabel (genParseShape S1.2) -- the `into` a generated parse method
-    attaches to, made direct and named. NOT new state: parse() already reached
-    the same value two hops away through parentStuff.label in its attachment
-    block. The single writer is parse()'s S1.3 fork, which writes it on the
-    callee's OWN rStuff immediately before calling; the callee lifts it into a
-    stack local at ENTRY, before descending, which is what closes the recursion
-    window (same reasoning as genParseRuleAccess S1.5's act()).
-
-    frameArg -- MINTED AND STRIPPED THE SAME DAY, 2026-09-01 (SEQ 106 built it,
-    SEQ 107 removed it), and the note survives the field because the reason is
-    reusable. It was parentLabel's pattern transplanted to carry an ACTION's
-    argument. IT COULD NEVER FIRE: `if (field->rStuff)` is false for an
-    interpreted action -- measured at 16 of 16 action binds, every one
-    rStuff = 0x0 -- because Ruling D makes rStuff presence the LIVENESS test and
-    an action is not a rule. parentLabel's customers are RULES and have rStuff by
-    construction; the residence was chosen from the precedent's shape rather than
-    from the customer's.
-    ⚠ IT WAS STRIPPED RATHER THAN LEFT INERT because an unused field in a MIRRORED
-    struct is bear-trap #10's next victim: the layout is duplicated out of repo in
-    groups.ext, and a slot nobody writes is a slot nobody keeps in sync.
-
-    parseMethod (genParseShape S1.1) -- ONE argument, and it is the rule. kant
-    methods take one argument, so a two-argument parse method could never
-    survive the kant handover; `into` is derived from parentLabel instead of
-    passed. Widening or narrowing this signature is a LAYOUT change (bear-trap
-    #10: groups.ext sync + tokall + rebuild), not an edit.
-
-    jitMethod (Clay SEQ 27 v2, 2026-08-04) -- THE COMPILED BODY OF A FIELD'S
-    METHOD, and it is parseMethod's shape transplanted rather than a new idea.
-    Same three properties, for the same reasons:
-      - it rides the SHAPE struct, not the GroupBody, so adding it costs one
-        pointer on the nodes that carry rule shape and nothing on the rest;
-      - DISPATCH IS ONLY EVER THROUGH THE POINTER. The `JiT` attribute beside
-        CodE and BlocK is the compiled artifact's RECORD -- persistence and
-        inspection. Nothing reconstructs this pointer from it;
-      - nothing reaches it by name. SEQ 38 stands: locate is prohibited, not
-        provided. The one named dispatch site receives the field as its first
-        parameter and walks pointers from there.
-    ⚠⚠ SUPERSEDED 2026-09-23 (Tony): the slot is now `int (GroupItem)` -- UNIFORM
-    i32(ptr), the pointer being the field the body runs on. The named seam below
-    was paid in jitter station 1's stroke. Kept for the reasoning trail:
-    ⚠ NULLARY ON PURPOSE, and it is the one place this diverges from
-    parseMethod's signature: jitRunAction emits `i32 ()`. Fields are reached
-    through BAKED ADDRESSES in the emitted IR, never through an argument, so
-    there is nothing for a parameter to carry. Adding one later is a LAYOUT
-    change, exactly as it is above.
-    ⚠ THE NAMED SEAM, recorded 2026-08-05 so it arrives as a plan and not a
-    surprise: THIS SLOT'S NULLARY SIGNATURE HOLDS ONLY WHILE THE CALLER IS
-    EMITTED CODE. Two calling routes exist and they want different things:
-      - A SELF-CALL INSIDE JITTED CODE takes the FIELD ROUTE (ruled 2026-08-05).
-        The callee's body reads its argument through the `argument` field, which
-        is where every reference in it already looks, so jitBindArgRT binds the
-        field at run time and the call stays nullary. A real parameter here would
-        carry something nobody reads.
-      - POINTER-SLOT DISPATCH FROM C++ takes a REAL PARAMETER, and it is forced.
-        When a generated parse method is jitted, its caller is not emitted code
-        reading a field -- it is parse() forking on rStuff.parseMethod and calling
-        through a one-argument function-pointer signature that C++ owns. The
-        caller cannot be taught the field route, so the compiled function must
-        present the parameter.
-    That second case is decided the day the first generated method is jitted, and
-    widening this signature then is a LAYOUT change exactly as above. Named seam,
-    not debt.
-
-    ⚠ AND IT IS LAZY WHERE parseMethod IS DELIBERATELY NOT. parse()'s comment
-    forbids `if !parseMethod genParse(rule)` because generation there means
-    emitting text and running a BUILD from inside a parse. JIT compilation is
-    in-process and costs a compile, so compile-on-first-fire is the ruling
-    (Clay SEQ 27 v2). The prohibition and this divergence are about two
-    different costs, not two readings of one rule.
-********************************************************************************/
+// fields RuleStuff is the per-node parse state; parseMethod and jitMethod are LAYOUT -- widening either is groups.ext + tokall (bear-trap #10)
 
 class RuleStuff
 {
@@ -125,7 +52,6 @@ GroupItem *followingMember();
 void getWhatFollows();
 void setTestMatch();
 };
-extern "C" GroupItem *parseGeneric(GroupItem *into, char *ruleName);
 extern "C" GroupItem *parseR(GroupItem *term, GroupItem *into);
 extern "C" int setMacroValue(GroupItem *field);
 extern "C" int testAction(GroupItem *field);

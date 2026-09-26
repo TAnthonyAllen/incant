@@ -14,65 +14,7 @@
 #include "measure.h"
 #include "GroupDraw.h"
 
-/********************************************************************************
-    Bridge to the GENERIC driver for rules genParse hasn't converted yet
-    (GrouP, NumbeR -- pre-existing bootstrap rules, out of scope for this
-    prototype). Builds a throwaway RuleStuff whose .label IS `into`, so
-    parse()'s own attach logic (`pStuff.label +% label;`) appends directly
-    where a converted callee's leaveRule/leaveAlt would have. Generated
-    methods and the generic driver coexist rule by rule (S0) -- this is the
-    seam.
-********************************************************************************/
-extern "C" GroupItem *parseGeneric(GroupItem *into, char *ruleName)
-{
-GroupItem 	*rule = GroupControl::groupController->locate(ruleName);
-RuleStuff 	*bridge = new RuleStuff(rule);
-	bridge->label = into;
-	return rule->parse(bridge);
-}
-
-/********************************************************************************
-    parseR (genParseShape S1.6) -- the set-then-call primitive for a term that
-    references another rule. Two jobs the emitted `&&` chain cannot do itself:
-
-    1. The `into` handover is an ASSIGNMENT, and an assignment is not a term
-       (S2.5's expression-vs-statement problem in a new place). Keeping it in
-       one primitive leaves emitted text a pure boolean expression.
-    2. It routes THROUGH parse(), not directly at a generated method, so the
-       fork decides. Generation is per-rule, so a generated rule can call an
-       interpretive one and vice versa: mixed mode is free, conversion is
-       order-independent, and the interpretive walk stays the oracle for
-       everything not yet converted. The cost is an indirect call opaque to
-       LLVM's inliner -- not a correctness cost, and reversible later inside
-       this one function, with no emitted file regenerated.
-
-    No name lookup (S1.3): the term IS the thing to parse. That is a
-    CORRECTION to S1.6's stated mechanism, made against the tree rather than
-    against the design -- see the measurement in genParse.rtn's dumpRuleTerms
-    header. S1.6 writes `t2.onGroup.parentLabel = label`, but NO rule-reference
-    term is isGROUP and none has onGroup set, before or after a parse
-    (getWhatFollows gates on isGROUP). There is no onGroup there to write to.
-    What a reference term actually is: a distinct node carrying isRule and
-    SHARING the referenced rule's child list. So it parses directly, which is
-    exactly what the interpretive walk does -- testAttributes calls
-    `grup.parse(stuff)` on the term itself, never on a dereferenced target.
-    Parity with the oracle, not a parallel mechanism that can drift from it.
-
-    The handover travels as the bridge stuff's label, exactly as parseGeneric
-    already does it: parse() derives parentLabel from it on the generated path
-    and attaches through `pStuff.label +% label` on the interpretive one. ONE
-    mechanism serves both halves of mixed mode, and it is why a null pStuff is
-    never handed down (which would silently orphan the callee's result).
-
-    OPEN, and it is Tony's/Clay's call, not a coding decision -- see the seal.
-    parseMethod lives on rStuff, and rStuff is PER NODE: the term has its own,
-    separate from the registry rule's. So binding a rule's parseMethod does NOT
-    reach the term nodes that reference it, and a converted rule would be used
-    when invoked BY NAME but not when referenced from another rule. Mixed mode
-    (S1.6's whole justification) needs an answer to that before rung 4, which
-    is the first cross-method call. It does not bite rungs 1-2: Scaf/Scaf2 have
-    no rule-reference terms.
-********************************************************************************/
+// parseR parse a term into a given label: a throwaway RuleStuff whose label is into, so parse() attaches there -- driveStep's no-data arm
 extern "C" GroupItem *parseR(GroupItem *term, GroupItem *into)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -80,22 +22,7 @@ RuleStuff 	*bridge = 0;
 GroupItem 	*got = 0;
 	if ( !term )
 		return 0;
-	/*  FU-2', 2026-08-05 -- THE LOCALIZER, BUILT ONCE IN THE SUPPORT LAYER.
-	Instrumenting parseR rather than the emitted methods means every
-	generated method self-narrates FOR FREE and rules 13-78 inherit it
-	unwritten. A full-monty verify is a DETECTOR (corpus GM-14); this is
-	the localizer that names the fork point.
-	
-	⚠ GATED ON THE EXISTING parseTrace, not on a new flag: leaveRule above
-	already uses it, so this joins the standing debug idiom instead of
-	minting a second switch. Default OFF, and the fleet is asserted
-	byte-identical with the gate closed -- a gate that leaks is not a gate.
-	
-	⚠ IDENTITY-PRINTING ONLY -- taG and shape facts, NEVER a bare node.
-	Printing a group prints its ATTRIBUTE COUNT, which is a legal-looking
-	number in the same range as an answer and does not announce itself as
-	the wrong quantity. That near-miss is kant8T's K6c, and it nearly
-	inverted a diagnosis; this is that lesson written into an instrument.  */
+	// traceGate identity-printing only, behind parseTrace -- a bare node prints an attribute count that reads like an answer
 	if ( ruler->parseTrace )
 		{
 		::fprintf(stderr,"  parseR term= %s  into= %s\n",term->groupBody->tag,into->groupBody->tag);
@@ -112,10 +39,7 @@ GroupItem 	*got = 0;
 	return got;
 }
 
-/********************************************************************************
-	This sets the data of rule to the value of a previously processed label
-    with the same name as rule
-********************************************************************************/
+// setMacroValue copy into the macro the data of the nearest ancestor label with the same tag
 extern "C" int setMacroValue(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
@@ -135,21 +59,10 @@ GroupItem 	*ancestor = 0;
 	return 0;
 }
 
-/********************************************************************************
-	Process a parseAction
-********************************************************************************/
+// testAction the old road's test for a parseAction rule -- an installed rule runs its leaf
 extern "C" int testAction(GroupItem *field)
 {
-	/*  installedIsTheParse  AN INSTALLED rStuff IS CALLED THROUGH ITS LEAF. Tony's ruling,
-	2026-09-15. A parseAction REPLACES the parse, so it is a leaf and lives in parseMethod
-	undisguised, written at definition by setParseAction -- the ONE writer on both roads.
-	actionMethod holds the rule's real action or null, and null at exit is a no-op.
-	⚠ THE FALLBACK THAT STOOD HERE IS GONE AND F-61 CLOSES BY REMOVAL. It wrote by COPYING
-	gMethod, which setParseWalk overwrites with the ENTRY, so it filed the entry as the
-	action and parseAction called itself. A writer now exists at DEFINITION, which is what
-	the row asked for.
-	⚠ hasNewParse is a groupBody flag and IS copied; rStuff is not -- the guard asks both.
-	RuleStuff.testAction.installedIsTheParse  */
+	// installedIsTheParse an installed rule runs its LEAF; hasNewParse is copied and rStuff is not, so the guard asks both
 	if ( field->groupBody->flags.hasNewParse && field->getRStuff() && field->getRStuff()->parseMethod )
 		if ( field->getRStuff()->parseMethod(field) )
 			return 1;
@@ -165,9 +78,7 @@ extern "C" int testAction(GroupItem *field)
 	return 0;
 }
 
-/********************************************************************************
-	Run a wild card test on this group against current input
-********************************************************************************/
+// testAny a wild-card run against the current input
 extern "C" int testAny(GroupItem *field)
 {
 int 		counter = 0;
@@ -205,9 +116,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return 0;
 }
 
-/********************************************************************************
-	Parse field attributes and return true if they all succeed
-********************************************************************************/
+// testAttributes parse each attribute in turn; true only when all succeed
 extern "C" int testAttributes(RuleStuff *stuff)
 {
 GroupItem 	*grup = 0;
@@ -225,9 +134,7 @@ int 		result = 1;
 	return result;
 }
 
-/********************************************************************************
-	Run a character test on this group against current input
-********************************************************************************/
+// testCharacter a run of one character against the current input
 extern "C" int testCharacter(GroupItem *field)
 {
 int 		counter = 0;
@@ -265,9 +172,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return 0;
 }
 
-/********************************************************************************
-	Process a condition
-********************************************************************************/
+// testCondition a condition succeeds exactly when min is set
 extern "C" int testCondition(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
@@ -276,27 +181,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return 0;
 }
 
-/********************************************************************************
-    Registry and Container test looks for an entry that matches the input stream.
-
-    LONGEST-ENTRY MATCH (Tony's finding and ruling, 2026-08-02). The greedy
-    character scan is an UPPER BOUND, not the answer. Character-set membership
-    can only say "this character could belong to SOME entry"; it can never say
-    "this prefix IS an entry", because a set has no notion of where an entry
-    ends. So the scan runs to the end of the run, and then the buffer is backed
-    off one character at a time until it either IS an entry or is empty. The
-    longest prefix that is an actual entry wins.
-
-    THE PRESENTING BUG: `--grup;` against Operators. `negate` and `modedOP` are
-    word-spelled entries, so their letters are in the container's character set
-    -- `g` among them. The scan therefore built `--g`, which is an entry of
-    nothing, and the whole match failed. It is a design flaw and not an edge
-    case: any container holding both a symbol and a word can produce it.
-    Backing off finds `--` and advances 2, which is the answer.
-
-    Same disease class as the ShortcuT `+`-merge that sank `,` as the string
-    opener (2026-07-31): set-based character grouping making token decisions.
-********************************************************************************/
+// longestEntry the longest input prefix that IS an entry of this bin or registry -- the greedy scan is only an upper bound
 extern "C" int testContainer(GroupItem *field)
 {
 GroupItem 	*grup = 0;
@@ -329,9 +214,7 @@ Buffer 		*buffer = ruler->stringBUFFER;
 	return 0;
 }
 
-/********************************************************************************
-	Process the first field member that passes its guard
-********************************************************************************/
+// testOptions parse the first member that passes its guard
 extern "C" int testOptions(RuleStuff *stuff)
 {
 GroupItem 	*grup = 0;
@@ -347,9 +230,7 @@ GroupItem 	*grup = 0;
 	return 0;
 }
 
-/********************************************************************************
-	Run a character set test on this group against current input
-********************************************************************************/
+// testSet a run of characters from this rule's set
 extern "C" int testSet(GroupItem *field)
 {
 PLGset 	*set = field->getCharacterSet();
@@ -388,9 +269,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return 0;
 }
 
-/********************************************************************************
-	Run a string test on this group against current input
-********************************************************************************/
+// testString this rule's text at the current input
 extern "C" int testString(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -407,13 +286,7 @@ char 		*matchedString = ruleStuff->rule->matches(ruler->atRuleMark);
 	return 0;
 }
 
-/****************************************************************************
-	Capture input until it gets a match. It returns a token and the input
-    stream is left pointing at the match if upTo or after the match if upToOver.
-    If the current rule is a set, the set is matched against.
-    If the current rule isSTRING its text is matched against. Otherwise
-    the default match is against a comma.
-****************************************************************************/
+// testUpTo capture input up to (or over) the terminator: the rule's set, its string, or a comma
 extern "C" int testUpTo(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -507,9 +380,7 @@ GroupItem 	*grup = isGROUP(field->groupBody->flags.data) ? field->getGroup() : f
 	return 0;
 }
 
-/********************************************************************************
-	RuleStuff constructors.
-********************************************************************************/
+// RuleStuff constructors -- min and max start at 1; the TraiT action may overwrite them
 RuleStuff::RuleStuff(GroupItem *grup)
 {
 	testMatch = 0;
@@ -593,9 +464,7 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	parentStuff = 0;
 }
 
-/********************************************************************************
-	checkGuard returns true if rule is unGuarded or input pointer is in guardSet
-********************************************************************************/
+// checkGuard true when the rule is unguarded or the input character is in its guardSet
 int RuleStuff::checkGuard(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -611,10 +480,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
-/********************************************************************************
-	checkInput sets hereAt and atRuleMark, handles input diversion, and returns
-    true if current input is valid. Called by GroupItem match()
-********************************************************************************/
+// checkInput skip, set hereAt, pass the guard and mint the label -- true when input is valid
 int RuleStuff::checkInput()
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -628,9 +494,7 @@ GroupItem 	*field = rule;
 	if ( *ruler->atRuleMark )
 		if ( !noSkip && ruler->skipSet->contains(*ruler->atRuleMark) )
 			ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
-	/****************************************************************************
-	Check for end of input
-	****************************************************************************/
+	// end of input
 	if ( *ruler->atRuleMark )
 		if ( !noSkip && ruler->skipSet->contains(*ruler->atRuleMark) )
 			ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
@@ -638,9 +502,7 @@ GroupItem 	*field = rule;
 	hereAt = ruler->atRuleMark;
 	if ( !*ruler->atRuleMark )
 		goto checkFailed;
-	/****************************************************************************
-	Check the rule guard if there is one
-	****************************************************************************/
+	// the rule guard, if there is one
 	if ( guardOK )
 		{
 		guardOK = 0;
@@ -658,9 +520,7 @@ GroupItem 	*field = rule;
 			sukcess = 1;
 		else	guardFAIL = 1;
 		}
-	/****************************************************************************
-	Set the label
-	****************************************************************************/
+	// the label
 	if ( sukcess )
 		if ( noLabel || (field->groupBody->flags.hasMembers && !field->groupBody->flags.binType) )
 			label = 0;
@@ -693,10 +553,7 @@ checkFailed:
 	return sukcess;
 }
 
-/******************************************************************************
-    Return the member following this group in the parent list
-    Called by getWhatFollows() in RuleStuff
-******************************************************************************/
+// followingMember the next member after this rule in its parent list -- getWhatFollows' onFail
 GroupItem *RuleStuff::followingMember()
 {
 	if ( rule->parent )
@@ -710,9 +567,7 @@ GroupItem *RuleStuff::followingMember()
 	return 0;
 }
 
-/********************************************************************************
-	Sets the fields of RuleStuff.
-********************************************************************************/
+// getWhatFollows sets the RuleStuff fields once, lazily, the first time a rule is needed
 void RuleStuff::getWhatFollows()
 {
 GroupItem 	*grup = 0;
@@ -736,17 +591,12 @@ GroupItem 	*grup = 0;
 		if ( (rule->groupBody->flags.data && rule->groupBody->flags.data < 4) || max == 1 )
 			isTarget = 1;
 		}
-	/*  ⚠ THE PARENT-min PROMOTION IS RETIRED HERE (Tony, SEQ 152, 2026-09-03).
-	Do not reintroduce it: it fired ZERO times and its absence is the reason
-	an optional term can no longer silently make its whole rule optional.
-	RuleStuff.getWhatFollows.promotionRetired  */
+	// promotionRetired the parent-min promotion is RETIRED -- do not reintroduce it; an optional term must not make its whole rule optional
 	if ( !testMatch )
 		setTestMatch();
 }
 
-/********************************************************************************
-	Set testMatch
-********************************************************************************/
+// setTestMatch picks the old road's test for this rule's shape
 void RuleStuff::setTestMatch()
 {
 	if ( upTo(overTo) || upToOver(overTo) )

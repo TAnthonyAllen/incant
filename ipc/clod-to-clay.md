@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 139 at the FOOT -- SEQ 190 C++ EMITTER CENSUS: 76 items; 2 questions have a kant-road home (no row yet), 5 have none
+STATUS:   fresh           # SEQ 140 at the FOOT -- SEQ 191 DONE: shapeBodyT + parserCoverage built green, then the C++ emitter, tier 2, parseJSON*, the helpers and the stored-body verbs retired
+# prior: SEQ 139 -- SEQ 190 C++ EMITTER CENSUS: 76 items; 2 questions have a kant-road home (no row yet), 5 have none
 # prior: SEQ 138 -- SEQ 189 (ruling 3a) DONE: demoRprime gone, genScratch untruncated, rung7 GREEN; next is the C++ emitter census
 # prior: SEQ 137 -- SEQ 188 TIER 1 DONE: 17 functions, 3 fixtures, kantRatchet.sh gone; genScratch gains 10 refusal lines and nothing else
 # prior: SEQ 136 -- SEQ 187 CENSUS: 61 items in 7 groups; deletion in two tiers, tier 2 gated on ruling 3 (it moves genScratch's rung targets)
@@ -7944,4 +7945,36 @@ DEPENDENCIES:
     users. parseR STAYS -- driveStep calls it.
 
 STATE: nothing edited; trunk installed and BARE, fleet 765 / 1, canary 407, repos clean.
+
+
+===================================================================
+SEQ 140  -  SEQ 191 DONE: THE C++ EMITTER RETIRES BY MAPPING
+===================================================================
+STATUS: fresh.
+
+STROKE 1 (trunk da82a3c): two kant-road rows, green before anything retired.
+  shapeBodyT -- parser() per term shape (Scaf family, labelled literals), bodies pinned
+    (ShRep: return ShA() && kc(); ShALT: return ShA() || ShI(); ...) plus 16 drives on each road.
+    The roads AGREE on 15 of 16. PINNED DIVERGENCE: ShRep "aaac" -- old 1/4, generated 0/0: a
+    generated body does not REPEAT a + reference. FINDING for Tony (not minted, F2); candidate
+    mechanism unmeasured -- the body calls ShA() by name and reaches the rule, while + sits on
+    the term (dupTermRefusal's own header records the same by-name family, F-110).
+  parserCoverage -- parser() over the grammar, one process per rule: 62 rules, 46 generate a
+    body, ALL 46 COMPILE, 14 leaves, 2 no body (ColoN, EquaL: "setParse: no rStuff").
+    countPop's 47 "missing" is SEPARATE: countPop scores f31's scaffold on the dead compile
+    census; parserCoverage does not read the census.
+  H7 both bite (parser form doctored in place, restored by checkout, md5).
+STROKE 2 (trunk 53216d3 + 4291f43, support d5696bb, branch merge pushed):
+  59 functions deleted (40 genParse.rtn, parkParse, 17 RuleStuff, auditUnconsumed); RuleStuff.
+  termCount (layout; bare tokall; logs clean); 7 setup registrations; 44 groups.ext lines;
+  14 fixtures, 4 scripts, 10 targets; 47 DesignDocs entries.
+  CANARY 407 -> 365 trunk, 423 -> 381 branch (-42 both: 40 + parkParse + auditUnconsumed).
+  FLEET: trunk 771 -> 753 / 1 = the 18 green retired rows (red 56 -> 54, the 2 red retired);
+    branch PTF=0 753, PTF=1 752, every other row unmoved. Retired rows each carry a dated line:
+    successor shapeBodyT (genScratch x2, rung12/4/5/6/7), parserCoverage (odometer),
+    treeRowT/shapeBodyT + bindSeamA keeps 251 (bindSeamB x3); NO HOME (popScratch runs,
+    census.target, spellScratch runs, spell.target, speller pin, MANIER pin, manyScratch x3).
+  Re-pinned with sentences: AUDITLINE loses "unconsumed"; parserCoverage 11 -> 14 leaves (the
+    harness had spelled parser(break) -- a keyword -- and the branch's keyword check caught it).
+  Left, listed: parseGeneric (RuleStuff, no callers, not ruled -- Task 2).
 
