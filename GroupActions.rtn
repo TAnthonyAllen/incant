@@ -562,6 +562,11 @@ GroupItem   label = field,
     if isLabel      action = rule;
     currentMETHOD   = action;
     if !action.actionBlocK() && !processCode(action,action.actionHolder())  return null;
+    // branchFrame an action is a frame for the control slot: a callee's return or break is consumed here, never read by the caller's loop (P4, Tony SEQ 179)
+    -%
+    int actionBranchSave = GroupControl::groupController->groupRules->branchKind;
+    GroupControl::groupController->groupRules->branchKind = 0;
+    %-
     /*************************************************************************
          if action is a rule, update local fields from label contents.
     *************************************************************************/
@@ -593,7 +598,8 @@ use grup
                 reading back as its own tag (bear-trap #26).
                 GroupActions.processAction.argumentExempt  */
             if isLocal && !isLabel && !noPrint && !isArgument && groupBody != action.groupBody clear();
-        if result = result.gMethod(result)  result.isBranch = 0; }
+        result = result.gMethod(result); }
+    -% GroupControl::groupController->groupRules->branchKind = actionBranchSave; %-
     currentMETHOD   = priorMETHOD;
     tempField       = priorTempField;
     return result;

@@ -354,7 +354,10 @@ use grup
             // here the parse action in method gets run
             if result = field.parseBlocK() {
                 // probeDoor armed only inside jitProbeDrive: fire the COMPILED body in place of this BlocK, nothing else changes
+                // branchFrame a fire is a frame for the control slot: saved, cleared, restored, so a body's branch cannot leak to the caller (P4)
                 -%
+                int fireBranchSave = ruler->branchKind;
+                ruler->branchKind = 0;
                 if ( gJitProbeCarrier && field->get((char*)"builtinParseR") == gJitProbeCarrier ) {
                     ++gProbeRuleFires;
                     if ( gJitProbeFn )  result = gJitProbeFn(::jitBodyField(gJitProbeCarrier)) ? ruler->trueResult : ruler->falseResult;
@@ -362,8 +365,8 @@ use grup
                     if ( ::truthOf(result) )    ++gProbeRuleTrue; }
                 else
                     result = result->groupBody->gMethod(result);
-                %-
-                if result   result.isBranch = 0; }
+                ruler->branchKind = fireBranchSave;
+                %- }
             currentMETHOD = priorMETHOD;
             restoreLocalFields(field); }
         else        reportNoBody(field);

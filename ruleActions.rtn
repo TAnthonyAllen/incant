@@ -18,7 +18,7 @@ GroupItem   token;
 /*******************************************************************************
 	The BlocK rule action.
 
-    // bareReturnValue A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not the keyword's tag, and the substitution MUST re-stamp isBranch or every break and continue dies.
+    // bareReturnValue A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not the keyword's tag; the kind stays in the ruler slot, so the substitution carries no signal
 *******************************************************************************/
 extern GroupItem aCTionBlocK(GroupItem input)
 {
@@ -29,6 +29,7 @@ GroupItem   grup,
             prior;
     while grup = input.next(grup) {
         prior = result;
+        branchKind = 0;
         if grup.isMethod    result = grup.gMethod(grup);
         else                result = grup;
         /*  THE RESULT SLOT (Tony's ruling, 2026-07-31). Under jitting, every
@@ -45,17 +46,15 @@ GroupItem   grup,
             -% jitEmitRefusedCheck(); gJitStmtCanRefuse = false; %-
         }
         /*  ⚠ A REFUSAL STOPS THE BLOCK, and the jitting arm must NOT stop the
-            EMIT walk -- same era split as the isBranch check below, and the
+            EMIT walk -- same era split as the branch check below, and the
             same reason: at emit time the statements after a refusal are
             REACHABLE and must all be emitted. The emitted body does its own
             per-statement check at RUN time.   ruleActions.aCTionBlocK.refusalArm  */
         if ruler.refused
             if !jitting     broke = 1;
         if broke == 1       break;
-        if result && result.isBranch {
-            if prior && result.isBranch == 3 && result.registry == keyWords {
-                result = prior;
-                result.isBranch = 3; }
+        if result && branchKind {
+            if prior && branchKind == 3 && result.registry == keyWords  result = prior;
             // ⚠ DO NOT let this break run under jitting -- it stops the COMPILER'S walk and
             // emitWalkMustNotStop every statement after a branch vanishes from the IR
             if jitting  continue;
@@ -115,9 +114,10 @@ GroupItem   arg = ExpressioN;
         if jitting  arg = BrancheS;
         else        arg = ruler.falseResult; }
     switch(*BrancheS.tag) {
-        case 'b':   isBreak     = true;
-        case 'c':   isContinue  = true;
-        case 'r':   isReturn    = true; }
+        // controlSlot the kind goes to the ruler slot, never onto arg -- arg is the VALUE (P4, Tony SEQ 179)
+        case 'b':   branchKind  = 1;
+        case 'c':   branchKind  = 2;
+        case 'r':   branchKind  = 3; }
     // branchesUnderJit break and return DEGRADE LOUDLY here rather than emitting nothing, and the tag
     // returnEmitNow
     if jitting {
@@ -425,19 +425,21 @@ GroupItem   StatemenT:,
         cerr "aCTionDO: REFUSING -- the loop parsed but its body StatemenT is MISSING from the label":;
         return falseResult; }
     do {
+        branchKind = 0;
         result = StatemenT.gMethod(StatemenT);
-        if isBranch {
+        if branchKind {
             // ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
             // extractable: the arms are continue/return/break over THIS loop
             // trailingContinueGuard
-            if isContinue {
+            if branchKind == 2 {
+                branchKind  = 0;
                 result      = trueResult;
                 continue; }
-            or isReturn     return result;
-            // BREAK IS CONSUMED HERE -- clearing isBranch is what stops the enclosing
+            or branchKind == 3  return result;
+            // BREAK IS CONSUMED HERE -- clearing the slot is what stops the enclosing
             // breakIsConsumed block breaking too
-            result.isBranch = 0;
-            if result.registry == keyWords  result = 0;
+            branchKind = 0;
+            if result && result.registry == keyWords  result = 0;
             break; }}
     while loopCondition(ExpressioN);
     // labelNO, not falseResult: this construct executed NO statement, so it has no
@@ -528,20 +530,22 @@ int         restrict;
         if !LoopOn.byRef {
             lastREF.gGroup  = grup;
             lastREF.isGROUP = true; }
+        branchKind = 0;
         result = StatemenT.gMethod(StatemenT);
         if byRef    grup = result.priorInParent;
-        if isBranch {
+        if branchKind {
             // ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
             // extractable: the arms are continue/return/break over THIS loop
             // trailingContinueGuard
-            if isContinue {
+            if branchKind == 2 {
+                branchKind  = 0;
                 result      = trueResult;
                 continue; }
-            or isReturn     return result;
-            // BREAK IS CONSUMED HERE -- clearing isBranch is what stops the enclosing
+            or branchKind == 3  return result;
+            // BREAK IS CONSUMED HERE -- clearing the slot is what stops the enclosing
             // breakIsConsumed block breaking too
-            result.isBranch = 0;
-            if result.registry == keyWords  result = 0;
+            branchKind = 0;
+            if result && result.registry == keyWords  result = 0;
             break; }}
     // labelNO, not falseResult: this construct executed NO statement, so it has no
     // labelNoNotFalse value -- and 0 is a value
@@ -581,6 +585,7 @@ GroupItem   result = ExpressioN;
              "statement at all, or a rule named in the condition consuming the "
              "statement as its input.":;
         return falseResult; }
+    branchKind = 0;
     if truthOf(result)  result = StatemenT.gMethod(StatemenT);
     or ElsE     result = ElsE.gMethod(ElsE);
     // labelNoNotFalse if this executed NO statement, it has no value, hence labelNO
@@ -589,7 +594,7 @@ GroupItem   result = ExpressioN;
     if input.deferred {
         measureRetire("deferEarly",input);
         return result; }
-    if result && result.isBranch    return result;
+    if result && branchKind     return result;
     return input;
 }
 
@@ -1208,18 +1213,20 @@ GroupItem   looper,
         return falseResult; }
     while looper = loopCondition(ExpressioN) {
         if looper.isIterator    looper = looper.group;
+        branchKind = 0;
         if result = StatemenT.gMethod(StatemenT) {
-            if isBranch {
+            if branchKind {
                 // ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
                 // extractable: the arms are continue/return/break over THIS loop
                 // trailingContinueGuard
-                if isContinue {
+                if branchKind == 2 {
+                    branchKind  = 0;
                     result      = trueResult;
                     continue; }
-                or isReturn     return result;
-                // BREAK IS CONSUMED HERE -- clearing isBranch is what stops the
+                or branchKind == 3  return result;
+                // BREAK IS CONSUMED HERE -- clearing the slot is what stops the
                 // breakIsConsumed enclosing block breaking too
-                result.isBranch = 0;
+                branchKind = 0;
                 if result.registry == keyWords  result = 0;
                 break; }}
         else    break; }

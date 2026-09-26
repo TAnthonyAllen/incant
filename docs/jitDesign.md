@@ -1243,6 +1243,15 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
     compile has no processAction frame). **Candidate replacement rows, for Tony -- not adopted:** CAND-1 `continue v;`
     -> v's isBranch 0 (non-zero sibling: the loop ran 2); CAND-2 jit-compiled `return w;` -> w's isBranch 0; plus a
     leak row per bracket (processAction's, the emit frame's), each with its own H7. Nothing of the slot is built.
+    ✅ **LANDED 2026-09-26 (SEQ 194) -- the certificate ADOPTED as the two surviving stamps, controls pinned:**
+    `continue v;` 2 -> **0** (loop ran 2), testing()-compiled `return w;` 3 -> **0**. The slot is `ruler.branchKind`:
+    ONE writer (aCTionBrancH, both roads), read by the firing parent after each child and cleared before it (BlocK,
+    DO, FOR, WhilE, IF), saved/cleared/restored at processAction, parseRule's fire and the jit emit walk. **P4 leaves
+    NO stamp** -- zero writers of isBranch -- so the per-bracket rows assert the returned value carries none (LV-1);
+    parseRule's has no reachable position (it returns the label, not the body's value; three spellings read 0 even
+    with the stamp put back) and is carried by its slot-leak row alone. Slot-leak rows SL-1..3, each red when its
+    bracket's restore is removed. Rung `incant/pop/ctlStampT`, 10 rows. **One mover the plan did not name:** pop.sh's
+    A4 isContinue census counts the SPELLING, re-aimed to `branchKind == 2` (3 arms, 1 setter, unchanged).
   - **P5 -- JSON's collecting actions onto the value-yield model (Tony, SEQ 176/178).** The TRUNK HALF LANDED
     (dc8b0b9: JSONfield and JSONarray mint a fresh result node per fire; 9ab2fdd: jsonTest pins the tree by value). This
     stroke only moves the two rules onto the value model -- they hand JSONblock/JSONfield values and JSONblock gains its

@@ -51,6 +51,7 @@ PLGset *spaceSet;
 Stak *blockSTAK;
 Stak *bufferSTAK;
 Stak *inputSTAK;
+int branchKind;
 int chanBinds;
 int chanSame;
 int inputFloor;

@@ -333,11 +333,11 @@ extern "C" GroupItem *measureBlockResult(GroupItem *input, GroupItem *result, in
 {
 	
 	if ( GroupControl::groupController->groupRules->parseTrace )
-	::fprintf(stderr,"BLOCKRESULT items=%d stopped=%d result=%s isBranch=%d refused=%d\n",
+	::fprintf(stderr,"BLOCKRESULT items=%d stopped=%d result=%s branchKind=%d refused=%d\n",
 	(input && input->groupBody->groupList) ? (int)input->groupBody->groupList->listLength : 0,
 	stopped,
 	result ? result->groupBody->tag : "(null)",
-	result ? (int)result->groupBody->flags.isBranch : -1,
+	GroupControl::groupController->groupRules->branchKind,
 	GroupControl::groupController->groupRules->refused);
 	
 	return result;

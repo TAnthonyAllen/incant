@@ -4104,12 +4104,15 @@ fi
 #  CALLER'S loop, so a callee cannot carry them. So the three copies are
 #  permanent, and what this row protects is that a fourth does not appear
 #  unnoticed, and that one of the three does not quietly go missing.
-cont=$(grep -c "^ *if isContinue {" ruleActions.rtn | tr -d " ")
-setr=$(grep -c "isContinue  = true;" ruleActions.rtn | tr -d " ")
+#  RE-AIMED 2026-09-26 (P4, SEQ 194): the kind moved from the isBranch stamp to the ruler
+#  slot, so the arm is spelled `if branchKind == 2 {` and the setter `branchKind  = 2;`.
+#  Same question, same 3 and 1; only the spelling the count reads moved.
+cont=$(grep -c "^ *if branchKind == 2 {" ruleActions.rtn | tr -d " ")
+setr=$(grep -c "branchKind  = 2;" ruleActions.rtn | tr -d " ")
 if [ "$cont" = "3" ] && [ "$setr" = "1" ]; then
-    echo "  ok    isContinue: 3 guard arms, 1 setter -- PINNED BY VALUE"; green=$((green+1))
+    echo "  ok    continue guard (branchKind == 2): 3 guard arms, 1 setter -- PINNED BY VALUE"; green=$((green+1))
 else
-    echo "  FAIL  isContinue census moved: $cont guard arms (want 3), $setr setter (want 1)."
+    echo "  FAIL  continue-guard census moved: $cont guard arms (want 3), $setr setter (want 1)."
     echo "        A fourth arm is a fourth copy of a body that cannot be extracted -- give it"
     echo "        the ruleActions.trailingContinueGuard pointer. A missing arm is a loop form"
     echo "        that no longer consumes its trailing continue; "$(ip trailingContinueT)""
@@ -5224,6 +5227,23 @@ naRow "prioR on the FIRST term" 0; naRow "prioR on the LAST term" 1
 naRow "firsT" 0; naRow "firsT on a list" 1
 naRow "lasT" 0; naRow "lasT on a list" 1
 naRow "firstMembeR" 0; naRow "firstMembeR on a list" 1
+
+#  ⚑ ctlStampT -- P4, THE CONTROL SIGNAL LEAVES THE RETURNED VALUE (SEQ 194, 2026-09-26).
+#  aCTionBrancH used to stamp isBranch 1/2/3 on whatever it returned; the kind now rides the
+#  ruler slot branchKind (one writer; read by the firing parent; saved/restored at
+#  processAction, parseRule's fire and the jit emit walk). CERTIFICATE, controls pinned in the
+#  fixture: `continue v;` leaves v at 0 (pre-P4 2), a testing()-compiled `return w;` leaves w
+#  at 0 (pre-P4 3). SL-1..3 are the per-bracket slot-leak rows, each red when its bracket's
+#  restore is removed (H7, measured -- the fixture's notes). isBrancH is read-only (GF 45).
+run1 ctlStampT "$T/cts";   check "ctlStampT runs" 0 $?
+sentinel "ctlStampT sentinel" "$T/cts" "CTLSTAMP SENTINEL"
+ctRow () { kindRow "ctlStampT $1" "$(grep -E "^CT $1 +[0-9]+ *\$" "$T/cts" | awk '{print $NF}')" "$2"; }
+ctRow "P4-1 continue v isBranch" 0;  ctRow "P4-1s continue v loop ran" 2
+ctRow "P4-2 compiled return w isBranch" 0
+ctRow "LV-1 action returned value" 7; ctRow "LV-1 action returned x isBranch" 0
+ctRow "SL-1 loop over a returning action ran" 3
+ctRow "SL-2 loop over generated drives ran" 3
+ctRow "SL-3 statement after a compile ran" 5
 
 #  ⚑ THE CONSERVATION ROW (P2). Records made and never fired, whole fleet, PTF=1:
 #  FRAMELEAK + DISCARD + UNREACHED. First pinned at 13,342: ipc SEQ 123 measured 13,339 BEFORE

@@ -202,6 +202,11 @@ extern int jitBuildFunction(GroupItem action)
     // runOP seeding gate seeds leaves first). The interpret walk owns its traversal
     // and never re-parents live nodes — the structural cure for the by-reference
     // operand-stack corruption the deferred jitXpress path hit.
+    //  THE EMIT WALK IS A FRAME FOR THE CONTROL SLOT (P4): an emit-time break, continue or
+    //  return writes the slot and aCTionBlocK walks on past it, so the slot is saved here
+    //  and restored after the walk -- the compile cannot leave a signal for the caller.
+    int emitBranchSave = ruler->branchKind;
+    ruler->branchKind = 0;
     ruler->jitting = 1;
     ruler->generating = 0;
     //  R1's ONE MECHANISM, first of its two call sites. Between functions the
@@ -287,6 +292,7 @@ extern int jitBuildFunction(GroupItem action)
     // control flow lands via aCTionIF's jitting gate -> jitEmitGIF.
     jitExecBlock(action);
     ruler->jitting = 0;
+    ruler->branchKind = emitBranchSave;
 
     //  "DID ANYTHING EMIT" is now gJitEmitted, NOT a non-null gJitResult. The
     //  result slot falsified the old test: a bracketing emitter commits its
@@ -876,9 +882,10 @@ extern GroupItem jitEmitOpFire(GroupItem op,GroupItem arg,GroupItem target)
     which at RUN time runs runOP on the same node the interpreted way and returns
     truthOf the result. One spelling on both roads: the run-time helper IS the
     interpreted dispatch. Inline comes later and is diffed against this.
-    ⚠ It returns a FRESH node, never the xpress node or a sentinel: aCTionBrancH
-    stamps isBranch on whatever comes back, and a stamp on the parse tree or on
-    trueResult would outlive the compile (bear-trap #22).
+    ⚠ It returns a FRESH node, never the xpress node or a sentinel: a write on the
+    parse tree or on trueResult would outlive the compile (bear-trap #22). (Before
+    P4, aCTionBrancH stamped isBranch on whatever came back; the kind now rides the
+    ruler slot.)
 *******************************************************************************/
 extern int jitTermCallRT(GroupItem field)
 {

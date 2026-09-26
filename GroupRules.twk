@@ -62,7 +62,8 @@ class GroupRules
     Stak        blockSTAK,
                 bufferSTAK,
                 inputSTAK;
-    int         chanBinds,
+    int         branchKind,
+                chanBinds,
                 chanSame,
                 inputFloor,
                 lastIndent,
