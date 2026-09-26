@@ -1284,6 +1284,23 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
     recursion` and `drive floor` rows (their DEFERABOVE lines vanish -- retire by mapping); convDriveT CD-1b and
     convLeakT (their members' `defer`); printFamilyNew's two `defer` grafts; f122T/f122NatT; the retire-witness counts.
     A new fixture for the unrun IF.
+    ⚠⚠ **STOPPED 2026-09-26 BEFORE BUILDING (SEQ 196): THE FIRST LINE THAT CANNOT BE CASHED IS THE STANDING CLAUSE
+    "PTF=0 equal to trunk row for row".** P6 deletes the OLD road's own machinery: the held arm (GroupItem.twk:743,
+    `if deferred && held`) is NOT PTF-gated -- at PTF=1 `ptfRecord` intercepts the fire one line earlier, so the held arm
+    runs only at PTF=0 -- and `defer`'s registration (incant/setup) and its 15 uses in incant/grammar are shared by both
+    roads. Deleting them changes what PTF=0 does, and the rows that exercise it are the named movers themselves. A reading
+    of pointable lines, not a build. **Fork for Tony:** (i) P6 GATES rather than deletes until the branch lands (at PTF=1
+    the held/defer paths are bypassed; deletion is a later stroke when PTF=0 retires), or (ii) P6 is where the old road
+    retires, and the clause is replaced for it (e.g. "PTF=0 == PTF=1" or trunk comparison dropped from P6 on).
+    **SECOND, from the P6-before-P5 reorder (SEQ 196):** Ruling 2's default (SEQ 176: an action-less rule fires its
+    children in order and YIELDS THE LAST VALUE) means that once P6 retires the adoption that builds JSON's tree today
+    (FIELD adoptions JSONfield 42, JSONarray 9, both settings), action-less JSONblock hands back its last field -- so the
+    10 JT rows move INSIDE P6, and they are not among its named movers; and P5's control (42 / 9 still present when P5
+    starts) assumes P6 left adoption alone. Needs one of: the JT rows named as P6 movers (red on the branch between P6
+    and P5, attributed), P5 landing in the same stroke as P6, or adoption kept for JSON until P5.
+    **Measured today, before any change, both settings (branch 50785a8 binary):** adoptT FIELD 1 / PROPERTY 4; yieldT
+    DIRECT 3, OWNER 3; deferNatT through-the-recursion and drive-floor ok; convDriveT CD-1b ok; convLeakT CL-1/CL-2 ok;
+    printFamilyNew graft [opPlusEQstruct opPlusEQstruct]; f122T and f122NatT all nine rows each ok; jsonTest 10 ok.
   - **P7 -- scope beyond top-level statements (SEQ 174 item 3, measured, traced fleet, PTF=1, 143 runs).**
     (a) ACTION BODIES (processCode): 74,476 fires during the parse today -- NamE 14,903, ANYtoken 14,903, TokenXP
     14,419, Parens 9,472, ExpressioN 8,546, StatemenT 8,358. What depends on them: the CACHED BlocK's shape
