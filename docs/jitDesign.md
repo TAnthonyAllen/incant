@@ -1341,6 +1341,23 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
     cannot both hold. Also named but UNMOVED: adoptT FIELD stays 1 (Iterate -> s2C), yieldT DIRECT/OWNER 3/3,
     convDriveT CD-1b, convLeakT, printFamilyNew's grafts, f122T/f122NatT; adoptT PROPERTY 4 -> 1 (its row asks only for
     non-zero, so it stays green -- a loose pin). The unrun-IF fixture is not written.
+    ⚠⚠ **SEQ 199 -- CERTIFICATE RESTATED (unrun IF with the switch off as control; adoptT PROPERTY 4 -> 1 attributed
+    and pinned by value; deferNatT's re-pin sentence; PTF=0 == trunk). NOT LANDED -- LINE (1) CANNOT BE CASHED.**
+    The switch exists: `PTF_NOCLASSHOLD=1` (p6-held-class, WIP commit) restores step 1's hold rule and no root fire;
+    with it, adoptT's whole trace equals the pre-P6 branch's, addresses normalised -- a true control.
+    **(1) FAILS:** five dead-arm side effects at the top level -- an action call, `++`, an assignment, a braced call, a
+    print -- read **0 with the switch ON and 0 with it OFF** (live-arm sibling 1 in both). Step 1 already holds IF's
+    arm: IF is a deferred ancestor, so deferredAbove holds its children. What P6 changes for an unrun IF is the VALUE
+    it hands back (owner-run: labelNO to the statement; step 1: its own label as a yield), not whether its arm runs --
+    and at the top level the root discards that value, so no side effect can see it. **(2) CASHABLE, ONE RESIDUAL:**
+    PROPERTY reads 4 switch-off, 1 switch-on. The three top-level `cerr` statements (AD BEGIN, AD RETURNED, ADOPT
+    SENTINEL) stop adopting: the root fires them as owner and takes the value. The one that remains is the PrinT inside
+    `probeDrive(adPrint)`, still adopted -- but its returned node moved StatemenT -> true, measured and NOT explained.
+    **(3)** the moved row's line (DEFERABOVE NumbeR held=1 end=deferred) is absent because deferredAbove is no longer
+    asked for a recorded fire; "retire by mapping" needs a home for its question, and a PTF=1 absence row would break
+    H4. **(4) HOLDS:** PTF=0 763 / 1, 54 red == trunk row for row, on the P6 binary.
+    ⚠ Instrument note: an earlier "switch off" column was void -- zsh does not word-split an unquoted `$cfg`, so
+    `env $cfg` set PTF to "1 PTF_NOCLASSHOLD=1" and never set the switch. Re-run with the variables spelled out.
   - **P7 -- scope beyond top-level statements (SEQ 174 item 3, measured, traced fleet, PTF=1, 143 runs).**
     (a) ACTION BODIES (processCode): 74,476 fires during the parse today -- NamE 14,903, ANYtoken 14,903, TokenXP
     14,419, Parens 9,472, ExpressioN 8,546, StatemenT 8,358. What depends on them: the CACHED BlocK's shape
