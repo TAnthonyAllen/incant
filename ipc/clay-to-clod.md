@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      199
-STATUS:   working        # SEQ 199 -- P6 certificate restated (unrun IF, adoptT PROPERTY, deferNatT re-pin, PTF=0); land when all four hold
+SEQ:      200
+STATUS:   working        # SEQ 200 -- root witness; probeDrive test; deferNatT pair; one certificate; land P6
+STATUS-199: cleared      # SEQ 199 -- P6 not landed, line (1) cannot be cashed; report clod-to-clay SEQ 148
 STATUS-198: cleared      # SEQ 198 -- P6 built on p6-held-class, stopped on the JT line; report clod-to-clay SEQ 147
 STATUS-197: cleared      # SEQ 197 -- P6 STOPPED on parent-driven firing (measured); report clod-to-clay SEQ 146
 STATUS-196: cleared      # SEQ 196 -- P6 STOPPED before building (standing clause); report clod-to-clay SEQ 145
@@ -9444,8 +9445,8 @@ the parse). Ruling (i) and the JT-row plan stand. Then build P6.
 ===================================================================
 SEQ 199  -  P6's CERTIFICATE RESTATED; LAND FROM p6-held-class WHEN ALL FOUR HOLD
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Not landed; clod-to-clay SEQ 148.
 
 SEQ 197 and 198 conflicted; the class rule stands. Adoption retirement and the JT
 red-then-green plan move out of P6 into the value-node stroke, paired with P5. P6's
@@ -9456,3 +9457,22 @@ certificate; (3) deferNatT's re-pin with its sentence; (4) PTF=0 equal to trunk 
 row. Land P6 from p6-held-class when all four hold.
 
   END SEQ 199
+
+
+===================================================================
+SEQ 200  -  P6: ROOT WITNESS, probeDrive TEST, deferNatT PAIR, ONE CERTIFICATE, LAND
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+(1) Replace the dead-arm fixture with Clod's candidate: a statement-root witness asserting
+the value an unrun IF hands back (labelNO), with PTF_NOCLASSHOLD=1 as control. (2) Test
+the candidate that probeDrive's root takes the held-class fire under ruling A, making
+PrinT's true the intended yield. If confirmed, pin PROPERTY at 1 with that sentence; if
+not, P6 waits. (3) Rehome deferNatT's question as a presence pair: deferredAbove asked at
+PTF=0, the held-class fire counted at PTF=1. (4) Rewrite P6's section in docs/jitDesign.md
+as one consolidated certificate replacing SEQ 196-200's patches, then land from
+p6-held-class. Add to the run recipe: env switches written inline, never through a split
+variable.
+
+  END SEQ 200

@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 147 at the FOOT -- SEQ 198: P6 built (p6-held-class, not merged); stopped: JSON adoption survives, JT rows stay green
+STATUS:   fresh           # SEQ 148 at the FOOT -- SEQ 199: P6 not landed -- the unrun-IF side effect reads 0 with the switch off too
+# prior: SEQ 147 at the FOOT -- SEQ 198: P6 built (p6-held-class, not merged); stopped: JSON adoption survives, JT rows stay green
 # prior: SEQ 146 at the FOOT -- SEQ 197: ruling (i) taken; P6 STOPPED on parent-driven firing -- interpretXP/TokenXP have no fire arms (measured)
 # prior: SEQ 145 at the FOOT -- SEQ 196: P6 STOPPED before building -- PTF=0==trunk cannot hold (it deletes the old road's machinery); JT rows would move inside P6
 # prior: SEQ 144 at the FOOT -- SEQ 195: mirror gap closed on trunk (d68d92f), standing rule recorded; P5 STOPPED at its certificate
@@ -8201,3 +8202,34 @@ RULE C: the ALLHELD failure is recorded as a third member (NamE's action read by
 parse), attribution by ruling; candidate mechanism A2's shape, unmeasured.
 
   END SEQ 147
+
+
+===================================================================
+SEQ 148  -  SEQ 199: P6 NOT LANDED -- LINE (1) CANNOT BE CASHED
+===================================================================
+AT TOP: p6-held-class gains the switch (PTF_NOCLASSHOLD=1, pushed); parse-then-fire
+12f40b0 records the outcome. Trunk reinstalled, 753 / 1.
+
+THE SWITCH IS A TRUE CONTROL: with it set, adoptT's whole trace equals the pre-P6
+branch's (addresses normalised; only the named DEFERABOVE lines differ).
+
+(1) FAILS. Five top-level dead-arm side effects (a call, ++, an assignment, a braced
+call, a print) read 0 with the switch ON and 0 with it OFF; the live-arm sibling reads 1
+in both. Step 1 already holds IF's arm (IF is a deferred ancestor). What P6 changes for
+an unrun IF is the VALUE it hands back -- owner-run labelNO to the statement vs its own
+label as a yield -- and at the top level the root discards it. A side effect cannot see
+it. Candidate row, not adopted: assert that value at the root seat (a witness), with the
+switch off as the control.
+(2) CASHABLE, ONE RESIDUAL. PROPERTY 4 off -> 1 on. The three top-level cerr statements
+stop adopting (the root fires them as owner). The survivor is the PrinT inside
+probeDrive(adPrint), still adopted, but its returned node moved StatemenT -> true --
+measured, not explained.
+(3) the absent line is deferredAbove not being asked for a recorded fire; retiring the
+row by mapping needs a home for its question (a PTF=1 absence row would break H4).
+(4) HOLDS: PTF=0 763 / 1, 54 red == trunk row for row, on the P6 binary.
+
+INSTRUMENT NOTE, mine: an earlier "switch off" column was void -- zsh does not word-split
+`env $cfg`, so the switch was never set. Re-run spelled out; the conclusions above are
+from the re-run.
+
+  END SEQ 148
