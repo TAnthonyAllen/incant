@@ -153,46 +153,6 @@ GroupItem   grup;
     return trueResult;
 }
 
-extern GroupItem fireNewParse(GroupItem rule)
-{
-GroupItem   artifact;
-    if !rule    return null;
-    artifact = rule.getAttribute("ParsE");
-    /*  THE DISCRIMINATOR, and it is why this line exists rather than being
-        debug residue: with two arms live in the gate, a correct product proves
-        nothing about WHICH MACHINERY MADE IT. Gated on the standing parseTrace
-        flag so it joins the existing idiom instead of inventing a switch.  */
-    if parseTrace   cerr "  fireNewParse ARTIFACT ARM on",rule.tag,"->",artifact.text:;
-    /*  TWO ARTIFACT KINDS, ONE GATE, and the split is not an implementation
-        detail -- the two generators produce different things:
-
-          ParsE  -- a dlsym-able C++ METHOD NAME, parked by parkParse from the
-                    `parseMethod=` bind path. There is no node to park for a
-                    function pointer, so the artifact holds the name and this
-                    site resolves it.
-          CodE   -- an INCANT BODY parked by a walking generator
-                    (IncantForms/WorkingOn/parser's genParseTest is the live
-                    one), compiled in place and fired as the rule's own action.
-
-        ⚠ THE FLAG MEANS "AN ARTIFACT IS PARKED", NEVER "WHICH KIND". Reading
-        one channel for two facts is this project's most expensive recurring
-        shape, so the KIND is answered by looking, not by the flag.  */
-    if !artifact {
-        if rule.parseBody() {
-            if parseTrace   cerr "  fireNewParse CODE ARM on",rule.tag:;
-            return processAction(rule); }
-        cerr "fireNewParse: WRECKAGE on",rule.tag,"-- hasNewParse is set but there is neither a ParsE name nor a CodE body to fire. NOT falling through to the old parse.":;
-        return null; }
--%
-    void *address = ::dlsym(RTLD_DEFAULT,artifact->getText());
-    if ( !address )
-        {
-        ::fprintf(stderr,"fireNewParse: ERROR no method found %s\n",artifact->getText());
-        return 0;
-        }
-    return ((GroupItem *(*)(GroupItem *))address)(rule);
-%-
-}
 
 /*******************************************************************************
     runJSONblock (genParseSpec S5.3's entry wrapper) is RETIRED, genParseShape

@@ -21,8 +21,6 @@
 *******************************************************************************/
 
 
-
-
 /*******************************************************************************
     activateAll -- THE WHOLE-POPULATION FORM: walk the corpus and bind every
     PENDING entry to the rule it was filed against.
@@ -724,133 +722,6 @@ GroupItem   result;
 
 
 /*******************************************************************************
-    ⚠ THE DOOR CLEARS gMethod / isMethod / immediateACTION. "The method slot
-    stays empty" needs an ACTIVE CLEAR, not merely not binding -- Braced
-    arrives with gMethod already set, and left alone fireLabelMethod fires it
-    AND actK fires it. This clear is what starves the C++ arm.
-
-    // kantDoorDuties  kantDoor's three duties, lifted out of aCTionDefinE so the hunk there is three lines and the revert is one: mint kp<Tag>, hang the CodE on it, set rStuff.parseMethod = parseViaKant
-    // kantDoorGuards  two measured hazards the skeleton does not cover -- where the isCoded test must sit, and why scoping is a real conditional
-*******************************************************************************/
-extern int kantDoor(GroupItem rule, GroupItem code)
-{
-GroupRules  ruler = groupRules;
-GroupItem   kantReg;
-GroupItem   mint;
-GroupItem   grup;
-String      mintName;
-int         want;
-int         live;
-    if !code {
-        cerr "kantDoor: " rule.tag " has no CodE -- nothing to hang":;
-        return 0; }
-    /*  BOUNDS FIRST, so a stale body never reaches the slot. Scan is plain C
-        over the body text: find every "K(" and read the integer after it,
-        which covers litK(n) and parseRK(n) with one pass and no table.  */
-    live = countRuleTerms(rule);
-    want = 0;
-    -%
-    {
-    char *scan = code->getText();
-    while ( scan && *scan )
-        {
-        if ( scan[0] == 'K' && scan[1] == '(' )
-            {
-            int n = ::atoi(scan + 2);
-            if ( n > want )  want = n;
-            }
-        scan++;
-        }
-    }
-    %-
-    if want > live {
-        cerr "kantDoor: REFUSING " rule.tag " -- body names term " toStringFromInt(want)
-             " but the rule has " toStringFromInt(live):;
-        return 0; }
-    if !want    cerr "kantDoor: WARNING " rule.tag " body names no term positions":;
-    /*  THE MINT. Its own registry, in the search list, so locate() finds it
-        the way parseViaKant already looks for it -- and so the kant parse
-        methods are a countable population rather than scattered. NOT Grokking:
-        setRuleStuff turns anything whose registry isRule into a rule, and the
-        mint must not be one.  */
-    kantReg = getRegistry("KantParse");
-    if !searchList["KantParse"]     searchList += kantReg;
-    mintName    = "kp" rule.tag;
-    /*  The groupList guard is not decoration: on the FIRST kant doored rule
-        the registry has just been created and indexing an empty one prints
-        `nextGroup: ERROR ... does not contain a list`. See kantDoored below.  */
-    if kantReg.groupList    mint = kantReg[mintName];
-    if !mint    mint = kantReg += new(mintName);
-    /*  Hang the CodE, and give the mint the two hidden locals every coded body
-        is built with -- aCTionDefinE adds them to the definee, and the mint is
-        the definee now.  */
-    mint            +% code;
-    grup            = mint += "this";
-    grup.isLocal    = true;
-    grup.noPrint    = true;
-    grup.group      = mint;
-    grup            = mint += "tempField";
-    grup.isLocal    = true;
-    grup.noPrint    = true;
-    mint.isCoded    = true;
-    mint.noPrint    = true;
-use rule
-    /*  STARVE :1230. See note (2) above -- this is the clear, not an omission. */
-    method          = 0;
-    immediateACTION = false;
-    isCoded         = false;
-    /*  ⚠ ensureRStuff(), NEVER THE RAW rStuff FIELD. (Spelled getRStuff()
-        until 2026-08-31, when the getter was split into a pure read and an
-        explicit ensure; this site was always relying on the CONSTRUCTION half,
-        which is why it moved and the reasoning below is unchanged.)
-        The first cut used
-        `if !rStuff rStuff = new(rule)` and the bind SILENTLY DID NOT TAKE:
-        parse() forks on definingRule().rStuff.parseMethod, and the raw field
-        is not necessarily the materialised stuff that fork reads. The trace
-        said it plainly -- no `parseViaKant Braced` line at all, and
-        `attachLabel lab=Braced promote=1`, which is the INTERPRETED arm.
-        Meanwhile the method-slot clear HAD landed, so nothing built the
-        result and the consumer dereferenced a null.
-        parseRuleMethod -- the working parseMethod= door -- has always used
-        the same door. Copy the working door rather than inventing a second one. */
-    setParseMethod(rule.ensureRStuff(),"parseViaKant");
-    parkParse(rule,"parseViaKant");
-    cerr "kantDoor: " rule.tag " -> " mintName " via parseViaKant, "
-         toStringFromInt(live) " terms":;
-    free(mintName);
-    return 1;
-}
-
-
-/*******************************************************************************
-    kantDoored — the TRIPWIRE's question, and the census's. A rule is kant
-    doored when its mint exists. No new flag: the mint IS the record.
-*******************************************************************************/
-extern int kantDoored(GroupItem rule)
-{
-GroupItem   kantReg;
-GroupItem   mint;
-String      mintName;
-    /*  ⚠ locate, NOT getRegistry. getRegistry is a FACTORY -- it creates the
-        registry when it is missing, and the first cut of this function called
-        it on every rule that took the dlsym arm. That minted an empty
-        KantParse and then indexed it, and an empty registry has no list, so
-        oneTest's stderr grew four `nextGroup: ERROR KantParse does not contain
-        a list` lines. Caught by diffing stderr against the banked baseline
-        before landing anything -- stdout was identical throughout, so a
-        stdout-only comparison would have missed it entirely.  */
-    kantReg = locate("KantParse");
-    if !kantReg             return 0;
-    if !kantReg.groupList   return 0;
-    mintName = "kp" rule.tag;
-    mint = kantReg[mintName];
-    free(mintName);
-    if mint     return 1;
-    return 0;
-}
-
-
-/*******************************************************************************
     // refusingIsTheFeature  the kant twin of emitLeaf, spelling only the kinds the shim vocabulary HAS -- everything else returns null and the caller refuses loudly, because an emitter that guessed would parse and answer wrong
 *******************************************************************************/
 extern String kantLeaf(GroupItem node, String at)
@@ -1031,44 +902,6 @@ extern GroupItem manyMode(GroupItem argument)
 
 
 /*******************************************************************************
-    RUNTIME LOOP (Clay 2026-07-27) — close the loop ONCE on rung 1's scaffold
-    before climbing. Text-diff proves genParse emits what a human wrote; it says
-    nothing about whether the emitted code compiles, links, binds, or RUNS (the
-    invocation-blocker failure class was invisible to any source comparison).
-
-    NO ENTRY WRAPPER (genParseShape §1.7). runScaf/runScaf2 are RETIRED. The
-    invocation is `Scaf('x')`, exactly as `Start()` — which exercises emission,
-    the fork, binding and dispatch. A bespoke wrapper exercised none of them: it
-    called parseScaf directly, so it could have passed with the binding wholly
-    unbuilt, which is precisely the blind spot the runtime loop exists to close.
-    What the wrappers WERE good for — the Invariant R report — moved into
-    leaveRule (§1.8), where `from` and atRuleMark are both in hand at the moment
-    the question is asked.
-
-    parseScaf/parseScaf2 below are the VERBATIM output of genParse. They call
-    lit and leaveRule from the RuleStuff support library (cross-file via
-    groups.ext).
-*******************************************************************************/
-
-/*  === GENERATED by genParse('ScafC'), pasted verbatim (rung-5 emission) ===
-    ScafC isRule ScafA+ "c"-;  — one helper per repeated term, min baked in,
-    the term arriving as the frame's term local. Invariant R′ is structural
-    here: `from` is captured ONCE at helper entry (mark clause), and each pass
-    goes through parseR -> parse() and builds a fresh label, with no fLAG
-    anywhere (label clause).  */
-extern int manyScafC1(GroupItem label, GroupItem term)
-{
-GroupRules  ruler = groupRules;
-String      from = atRuleMark;
-int         kount;
-    while parseR(term,label)    kount++;
-    if kount >= 1   return true;
-    atRuleMark = from;
-    return false;
-}
-
-
-/*******************************************************************************
     ⚠ A BROKEN FRAME IS NOT AN ABSENT OPTIONAL, and the return values say so.
     No `into`, no `term` -> return NULL, which fails the chain loudly. Only the
     real "the optional did not match" leg answers success. One channel, one
@@ -1106,21 +939,6 @@ int         n;
     atRuleMark = from;
     if parseTrace   cerr "  optRK term=",term.tag," ABSENT -- cursor restored":;
     return trueResult;
-}
-
-
-/*******************************************************************************
-    // bracedControlOrigin  GENERATED by genParse('Braced') and pasted verbatim -- the emitter's own output, byte-identical to the recorded emission, standing as the oracle-bearing control for the bind-read seam
-*******************************************************************************/
-extern GroupItem parseBraced(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("Braced");
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-GroupItem   t3 = rule[3];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"[") && parseR(t2,label) && lit(t3,"]") );
 }
 
 
@@ -1208,138 +1026,6 @@ use input
 }
 
 
-/*  === GENERATED by genParse('Scaf'), pasted verbatim (rung-1 emission) === */
-extern GroupItem parseScaf(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("Scaf");
-GroupItem   t1 = rule[1];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"x") );
-}
-
-
-/*  === GENERATED by genParse('Scaf2'), pasted verbatim (rung-2 emission) === */
-extern GroupItem parseScaf2(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("Scaf2");
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"{") && lit(t2,"}") );
-}
-
-
-/*  === GENERATED by genParse('ScafA'), pasted verbatim (rung-4 callee) === */
-extern GroupItem parseScafA(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("ScafA");
-GroupItem   t1 = rule[1];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"a") );
-}
-
-
-extern GroupItem parseScafALT(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-String      from  = atRuleMark;
-    return leaveAlt(rule,from, parseR(t1,into) || parseR(t2,into) );
-}
-
-
-/*  === GENERATED by genParse('ScafB'), pasted verbatim (rung-4 caller) ===
-    ScafB's first term is a REFERENCE to ScafA, so the leaf is parseR, not lit.
-    This is the rung the whole ladder above 4 depends on: parseR hands the term
-    to parse(), parse() resolves parseMethod from the DEFINING rule, and
-    parseScafA runs -- reached through a reference term that was never bound
-    and has its own rStuff.  */
-extern GroupItem parseScafB(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("ScafB");
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, parseR(t1,label) && lit(t2,"b") );
-}
-
-
-extern GroupItem parseScafC(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("ScafC");
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, manyScafC1(label,t1) && lit(t2,"c") );
-}
-
-
-/*  === GENERATED by genParse('ScafE'/'ScafF'), pasted verbatim (rung-6) ===
-    ScafE isRule "e"- ScafA? "f"-;   — optional REFERENCE
-    ScafF isRule "f"- ","?- "g"-;    — optional noLabel LITERAL
-    The two shapes the census actually contains. The optional sits between two
-    MANDATORY terms deliberately: an optional that swallows a following failure
-    is the same defect as optional-as-mandatory, inverted, and only a mandatory
-    neighbour can catch it.  */
-extern GroupItem parseScafE(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("ScafE");
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-GroupItem   t3 = rule[3];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"e") && (parseR(t2,label) || 1) && lit(t3,"f") );
-}
-
-
-extern GroupItem parseScafF(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("ScafF");
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-GroupItem   t3 = rule[3];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"f") && (lit(t2,",") || 1) && lit(t3,"g") );
-}
-
-
-/*  === GENERATED by genParse, pasted verbatim (rung-7, ALT emission) ===
-    ScafALT  ScafA; ScafI;                    — the alternation
-    ScafOUT  isRule "("- ScafALT ")"-;        — reaches it as a term
-    Note what the ALT frame does NOT have: a `label` local. §2.4 — an
-    alternation builds no label of its own and passes `into` straight through,
-    so the winning option attaches to the ENCLOSING rule's label. ScafOUT hands
-    its own `label` down as that `into`.  */
-extern GroupItem parseScafI(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("ScafI");
-GroupItem   t1 = rule[1];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"i") );
-}
-
-
-extern GroupItem parseScafOUT(GroupItem rule)
-{
-GroupItem   into  = rule.rStuff.parentLabel;
-GroupItem   label = new("ScafOUT");
-GroupItem   t1 = rule[1];
-GroupItem   t2 = rule[2];
-GroupItem   t3 = rule[3];
-String      from  = atRuleMark;
-    return leaveRule(rule,into,label,from, lit(t1,"(") && parseR(t2,label) && lit(t3,")") );
-}
-
-
 /*  ⚠ parseTermCount AND parseRuleMethod ARE ONE DECISION AND MOVE TOGETHER --
     this one writes termCount, the other's refusal guard reads it. Leaving one
     on a satellite compares a count nobody wrote against a rule's live terms
@@ -1360,108 +1046,6 @@ use input
         else    cerr "parseTerms: expected a count in text":;
     else    cerr "parseTerms: should be invoked as a definition attribute":;
     return group;
-}
-
-
-/*******************************************************************************
-    ⚠ IT REFUSES RATHER THAN FALLING THROUGH. A missing or uncoded action
-    returns null, which parse() reads as "this rule did not match" -- the
-    honest answer -- and says so on stderr once. Falling back quietly to the
-    interpretive arm would make an unregistered action indistinguishable from a
-    rule that legitimately failed.
-    ⚠ ONE CHANNEL, ONE MEANING: this returns what processAction returns and
-    invents nothing, so parse()'s caller cannot tell the arms apart by shape.
-
-    // trampolineSeam  rStuff.parseMethod is a C++ function POINTER and a kant method is a GroupItem, so this stands in the slot with the existing signature and forwards -- no layout change, no groups.ext edit
-    // kpConvention  rule `Foo` is served by the kant action named `kpFoo`; v1 scaffolding, not load-bearing on the design
-*******************************************************************************/
-extern GroupItem parseViaKant(GroupItem rule)
-{
-GroupItem   action;
-GroupItem   label;
-GroupItem   result;
-String      want;
-String      from;
-String      at;
-    want    = "kp" rule.tag;
-    action  = locate(want);
-    if !action {
-        cerr "parseViaKant: no kant parse action named " want " for rule " rule.tag:;
-        return null; }
-    /*  ⚠ THE GUARD IS NOT `isCoded`, AND THE FIRST CUT'S WAS. isCoded is
-        CONSUMED BY RUNNING -- processAction compiles the body to a cached
-        BlocK and clears it -- so an isCoded test passes on fire 1 and REFUSES
-        every fire after, which is exactly what the first run of
-        incant/kantParse1 measured (row 1 dispatched, rows 2 and 4 reported
-        "carries no code"). Bear-trap #25 records the same fact from the
-        testing() side. A rule parses many times, so the guard has to hold
-        across fires: an action is runnable if it still carries source OR
-        already carries the compiled BlocK.  */
-    if !action.isCoded && !action.getAttribute("BlocK") {
-        cerr "parseViaKant: " want " carries neither code nor a compiled BlocK":;
-        return null; }
-    if parseTrace
-        cerr "    parseViaKant " rule.tag " -> " want:;
-    /*  THE FRAME. Ruled 2026-08-11 (SEQ 54, door (a)): THE MARK NEVER CROSSES.
-        A position is not a value, so it cannot travel as kant data at all; and
-        keeping it here keeps Invariant R with one writer, which RuleStuff.twk
-        says lives in leaveRule/leaveAlt and nowhere else. The kant body says
-        WHAT to match; this frame owns WHERE the input is and WHERE results go.
-
-        SAVE-AND-RESTORE IN LOCALS, NOT A GLOBAL ASSIGNMENT, because this is
-        re-entrant BY CONSTRUCTION: a kant body calls parseRK, which calls
-        parse(), which can fork straight back into this function for a nested
-        rule. The C++ call stack is the frame stack; nothing else needs to be.  */
-    from        = atRuleMark;
-    label       = new(rule.tag);
-    /*  ⚠ THE SAVE/RESTORE IS PASSTHROUGH AND IT HAS TO BE. A hand-declared C++
-        global in jitContext.h is invisible to tok's field resolution -- it
-        emits `ERROR FieldBody: could not find gKantLabel` straight into the
-        .mm, which fails at the C++ compile and names the identifier but not
-        the reason. gParseRecordArmed is the precedent and every one of ITS
-        uses is inside a passthrough too. Measured 2026-08-11.
-        The prior* locals are declared HERE in raw C++ rather than as tok
-        locals, because a tok local referenced ONLY inside passthrough is
-        pruned as unused (bear-trap #13) and the block would then reference
-        an undeclared identifier.  */
-    -%
-    GroupItem  *priorLabel = gKantLabel;
-    char       *priorFrom  = gKantFrom;
-    GroupItem  *priorRule  = gKantRule;
-    gKantLabel = label;
-    gKantFrom  = from;
-    gKantRule  = rule;
-    %-
-    result      = runAction(rule,action);
-    -%
-    gKantLabel = priorLabel;
-    gKantFrom  = priorFrom;
-    gKantRule  = priorRule;
-    %-
-    /*  leaveRule's job, done here because this IS the generated arm's exit for
-        a kant body. On success return the label and let parse() attach it
-        (PC-4: attach-under happens there, once, for every emitted method). On
-        failure rewind and return null -- and NO attach, exactly as the C++
-        twin. The trace line mirrors leaveRule's word for word so one grep
-        reads both arms.  */
-    if truthOf(result) {
-        if parseTrace   cerr "  WIN ",rule.tag," (kant)":;
-        return label; }
-    /*  ⚠ THE R LINE DISCRIMINATES, AND THE FIRST CUT'S DID NOT. It printed
-        "mark rewound" unconditionally, which is an absence-shaped assertion
-        wearing a value's clothes: it says R OK whether or not the rewind had
-        anything to give back, so the one thing a cursor fixture wants to know
-        is exactly what it cannot report. leaveRule's own line compares the
-        mark at exit against the entry mark and this mirrors it word for word,
-        so the kant arm and the C++ arm are diffable rather than merely
-        similar. Caught by writing the fixture that depends on it (H4).  */
-    at = atRuleMark;
-    atRuleMark = from;
-    if parseTrace {
-        cerr "  FAIL",rule.tag," (kant)":;
-        if at == from   cerr "       R OK   mark unmoved":;
-        else            cerr "       R OK   mark rewound":; }
-    return null;
 }
 
 
@@ -1868,27 +1452,6 @@ extern int setParseMethod(RuleStuff stuff, String name)
     stuff->parseMethod = (GroupItem *(*)(GroupItem *))address;
     return 1;
 %-
-}
-
-
-/*******************************************************************************
-    // directorsWindow  a COMMAND and not a kant action, because a rule name in expression position INVOKES the rule -- `if Braced;` exits 139, measured -- so the window comes in through the same text-and-locateRule door genParse uses
-*******************************************************************************/
-extern GroupItem showParse(GroupItem argument)
-{
-GroupItem   rule = ruleOrRefuse(ruleNameArg(argument),"showParse");
-GroupItem   record;
-    if !rule    return null;
-    record = rule["ParsE"];
-    if !record {
-        cout "showParse: " argument.text " has no ParsE record -- run genParse "
-             "with INCANT_PARSE_RECORD armed":;
-        return null; }
-    if !record.text {
-        cout "showParse: " argument.text " ParsE record is EMPTY":;
-        return null; }
-    cout record.text:;
-    return record;
 }
 
 

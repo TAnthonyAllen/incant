@@ -9178,3 +9178,24 @@ Report with a proposed deletion set; name anything whose deletion would move a r
 Report: at top the population count and the proposed deletion set; evidence after.
 
   END SEQ 187
+
+
+===================================================================
+SEQ 188  -  TIER 1 OF THE parseMethod= DELETION (tier 2 waits on ruling 3)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+Delete: kantDoor, kantDoored, parseViaKant, fireNewParse, showParse; the pasted bodies
+  (parseScaf...parseScafOUT, manyScafC1, parseBraced); their groups.ext lines; kantParse1,
+  bracedK and breakFire, with their smoke.sh/kantRatchet.sh slots.
+The pasted bodies are the dlsym targets genScratch's parseMethod= attributes name: report what
+  genScratch's runs row and runtime lines read after the delete, BY NAME, not only whether the
+  rung targets held. A new refusal line per bind is expected and gets STATED, not re-pinned
+  silently.
+List (do not delete) which Task 2 helpers below testUpTo (lit, litTo, litOption, inGuard,
+  containerTo, ctProbe, leaveRule, leaveAlt) lose their last caller.
+Certificate: fleet moved only by the retired rows, each named; full H12; commit, push, merge.
+Report: at top the fleet, what genScratch reads, the orphaned-helper list; evidence after.
+
+  END SEQ 188

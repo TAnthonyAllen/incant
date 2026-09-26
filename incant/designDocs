@@ -3290,76 +3290,6 @@ define
                 refuse-by-kind discipline that caught the ALT defect. An unexercised shim is
                 a green row nobody cashed.#):
                 CodeSite="genParse.rtn:optRK";
-            trampolineSeam=(parseViaKant -- THE TRAMPOLINE. Loop closure step 1, 2026-08-11
-                (SEQ 52).
-
-                WHAT PROBLEM THIS SOLVES, because it is not the one the shims solve.
-                rStuff.parseMethod is a C++ FUNCTION POINTER -- RuleStuff.twk:88 declares
-                `GroupItem &parseMethod(GroupItem);` -- and parse() forks on it and calls
-                through it. A kant method is NOT a function pointer: it is a GroupItem
-                carrying CodE/BlocK, reached through processAction. So a kant parse method
-                cannot be installed into the slot that dispatches parse methods, and making
-                lit/parseR/leaveRule callable FROM kant does not touch that at all. The
-                shims govern what the body may call; this governs who may call the body.
-                Two distinct costs, and only the first is the "cheap" the charter promised.
-
-                THE CHEAP DOOR, AND THE OTHER ONE. RuleStuff.twk's jitMethod block named
-                this seam on 2026-08-05 and ruled that widening the pointer's signature is a
-                LAYOUT change -- bear-trap #10's whole apparatus, groups.ext sync plus tokall
-                plus rebuild. This function is the other door: an ordinary C++ function OF
-                THE EXISTING SIGNATURE that stands in the slot and forwards. No layout
-                change, no groups.ext edit, and it binds through the existing parseMethod=
-                dlsym path with no new vocabulary.#):
-                CodeSite="genParse.rtn:parseViaKant";
-            kpConvention=(parseViaKant RESOLVES BY CONVENTION, DELIBERATELY, so that v1 adds
-                no binding verb: rule `Foo` is served by the kant action named `kpFoo`. One
-                rule, one name, derivable in both directions by a reader. If a binding
-                attribute is wanted later it can carry the node itself and this lookup goes
-                away -- the convention is v1's scaffolding and is not load-bearing on the
-                design.#):
-                CodeSite="genParse.rtn:parseViaKant";
-            kantDoorDuties=(kantDoor -- THE THREE DUTIES, lifted out of aCTionDefinE so
-                the hunk there is three lines and the revert is one. 2026-08-12, the
-                full-monty rung.
-
-                    mint kp<Tag> · hang the CodE on it · rStuff.parseMethod = parseViaKant
-
-                BOUNDS: the highest term position the body names, against the live term
-                count. Scanned from the CodE text here because there is no parseTerms
-                declaration to read -- Tony struck it. Note this is the EARLIER of two
-                checks, not the only one: litK/parseRK already refuse loudly at call time
-                naming the position, and that one cannot be bypassed. This one fails at
-                DEFINITION, before any parse happens.#):
-                CodeSite="genParse.rtn:kantDoor";
-            kantDoorGuards=(TWO THINGS kantDoor's SKELETON DOES NOT COVER, both measured,
-                both load-bearing. Read these before editing it.
-
-                (1) THE isCoded ARM CANNOT SIT UNDER `!isMethod`, WHICH IS WHERE THE dlsym
-                    LINE LIVES. Braced already carries isMethod from its ORIGINAL
-                    definition in incant/grammar (dlsym found aCTionBraced then), so on the
-                    parseCode re-definition that guard is FALSE and the whole block is
-                    skipped. That is exactly the M1b measurement of 2026-08-12 -- code{} on
-                    a Grokking rule with a C++ action is silently inert -- and the mechanism
-                    is this guard. So the caller tests isCoded ABOVE `!isMethod`, and
-                    `!isMethod` stays on the dlsym arm only, unchanged for everyone else.
-
-                (2) "THE METHOD SLOT STAYS EMPTY" REQUIRES AN ACTIVE CLEAR, NOT MERELY NOT
-                    BINDING. Braced arrives with gMethod ALREADY set to aCTionBraced. Left
-                    alone, fireLabelMethod fires it AND actK fires it -- the double fire the
-                    order says is prevented by construction. So the door clears gMethod /
-                    isMethod / immediateACTION, which is what actually starves the C++ arm.
-
-                ⚠ AND THE SCOPING IS A REAL CONDITIONAL, NOT AN ORDERING CONSEQUENCE. The
-                order says scoping falls out of ordering with no new conditionals. That holds
-                for the C++ population (aCTionIF, aCTionFOR ... are not coded, so they take
-                the else-arm untouched) but NOT for the CODED NON-GRAMMAR population, which
-                the 2026-08-12 census measured at five: list x2, JSONfield, JSONarray,
-                DelimOver -- and two of those are in incant/utilities, which every fixture
-                preamble includes. A bare `if isCoded` would take all five through the kant
-                door and break jsonTest. The caller therefore keeps the RATIFIED test --
-                registry.isRule, true only for Grokking (GroupMain.twk:16, the only live
-                site) -- exactly as specced on 08-12.#):
-                CodeSite="genParse.rtn:kantDoor";
             kantBodyNamesTerm=(THE LAW THE litK / parseRK SHIMS ESTABLISH: A KANT BODY NAMES
                 A TERM AND NOTHING ELSE. SEQ 54, step 2. Everything else -- position, label,
                 invariant -- belongs to the frame, which is SEQ 54 item 3's standing
@@ -3529,34 +3459,6 @@ define
                 question about the RULE, so it reads the same whichever emitter is downstream
                 (§4).#):
                 CodeSite="genParse.rtn:genParse";
-            directorsWindow=(showParse -- PJ-7's director's window: print a rule's recorded
-                ParsE.
-
-                    registry(cOMMANDs);
-                    define showParse immediateAction=showParse; ;
-                    showParse('Braced');
-
-                ⚠ WHY THIS IS A COMMAND AND NOT A KANT ACTION, which was the brief's first
-                preference and is not available: A RULE NAME IN INCANT EXPRESSION POSITION
-                INVOKES THE RULE. `print Braced.ParsE;` prints nothing and `if Braced;` exits
-                139 -- both measured 2026-08-06 -- because naming a rule RUNS it against the
-                current input. There is no ordinary incant statement that names a rule without
-                firing it, so the window has to come in through the same door genParse itself
-                uses: a command taking the name as TEXT and resolving it with locateRule via
-                ruleOrRefuse. That is the proven lookup, and it sidesteps the members gate that
-                makes bare lookup unreliable for a rule.
-
-                PRINTS TO STDOUT AND SAYS SO WHEN THERE IS NOTHING. An empty or absent record
-                prints a named line rather than nothing at all -- an instrument whose SILENCE
-                MEANS TWO DIFFERENT THINGS (no record / no output) is the one-channel-one-
-                meaning failure, and here the two are a gate left closed versus a genParse that
-                never ran.
-
-                NOT REGISTERED IN incant/setup, DELIBERATELY. Registering it there would add a
-                member to a base registry that pop.sh's census walks and baselines. The fixture
-                registers it, exactly as the genParse fixtures already register genParse --
-                zero baseline risk, and the same two lines.#):
-                CodeSite="genParse.rtn:showParse";
             armFromFixture=(recordParse -- GX-6: arm the ParsE record from INSIDE a fixture, so
                 a looksee needs no environment variable and no preparation.
 
@@ -3686,25 +3588,6 @@ define
                 emitting a method it knows is missing terms. A refusal is a validity question
                 about the rule, so it belongs walk-side either way.#):
                 CodeSite="genParse.rtn:unresolvedTerms";
-            bracedControlOrigin=(parseBraced -- GENERATED by genParse('Braced') and pasted
-                VERBATIM. SEQ 58, 2026-08-13. THE ORACLE-BEARING CONTROL FOR THE BIND-READ
-                SEAM: byte-identical to docs/emitted/phaseB-twelve-emitted.txt lines 2-10,
-                which docs/respellRung.md re-derived on 2026-08-11 and found unmoved, so this
-                is the emitter's OWN OUTPUT and not a hand-written imitation.
-
-                WHY IT WAS ADDED. SEQ 58 specified the C++ control as
-                `parseMethod=parseBraced` on the grounds that parseBraced has an oracle
-                (incant/bracedT). It had never been COMPILED -- `nm` showed zero hits and the
-                only parseBraced in the tree was emitted text inside two .md files. Without it
-                the control could only be run with a stand-in that fails to match, which
-                answers the seam bit but cannot ring SEQ 58 §5's bell.
-
-                It costs one extern in one in-repo file. No groups.ext edit is owed: the
-                binding door reaches it by dlsym on the name, exactly as the parseScaf family
-                is reached, so nothing needs to see a declaration. No grammar line either --
-                the bind is made from a fixture, which is the whole point of the cross-file
-                control.#):
-                CodeSite="genParse.rtn:parseBraced";
             tallyAtThreeSites=(planTally -- THE CHARTER'S TWO NUMBERS, PRINTED RATHER THAN
                 GREPPED (Tony, 2026-08-09). The charter demands two numbers at every rung, and
                 until this both were derived by grepping phaseA's output. A quantity nobody

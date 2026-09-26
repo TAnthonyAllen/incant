@@ -83,15 +83,18 @@
 #  too was duplication, not coverage. Its rows moved to parked.sh with a date and
 #  a reason rather than being deleted. bracedK is the new frontier: the kant
 #  Braced body, first live fire of parseRK.
-FRONTIER=bracedK            # slot 1: the fixture under test
-FRONTIER_WANT="sumple width is now 251"
-FRONTIER_SENT="BRACEDK SENTINEL"
+#  SLOTS 1 AND 3 SWAPPED 2026-09-26 (SEQ 188): bracedK and kantParse1 were DELETED with the
+#  parseMethod= road's tier 1 -- both drove the kant door, which nothing had reached since
+#  0150f29. The frontier is the tree row; the same-door regression is item A.
+FRONTIER=treeRowT           # slot 1: the fixture under test
+FRONTIER_WANT="TREE 2 ScafALT"
+FRONTIER_SENT="TREEROW SENTINEL"
 
 ORACLE=bindSeamA            # slot 2: its oracle
 ORACLE_WANT="sumple width is now 251"
 ORACLE_SENT="BINDSEAMA SENTINEL"
 
-REGRESS=kantParse1          # slot 3: one same-door regression
+REGRESS=driveDoorT          # slot 3: one same-door regression
 CANARY=oneTest              # slot 4: one liveness canary
 CANARY_FLOOR=300            # its documented failure is TRUNCATION at exit 0,
                             # so assert a line floor, not just exit+sentinel:
