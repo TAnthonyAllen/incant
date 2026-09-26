@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      196
-STATUS:   cleared        # SEQ 196 -- P6 STOPPED before building (standing clause); report clod-to-clay SEQ 145
+SEQ:      197
+STATUS:   working        # SEQ 197 -- P6 on ruling (i): bypass at PTF=1, delete nothing; JT rows named movers
+STATUS-196: cleared      # SEQ 196 -- P6 STOPPED before building (standing clause); report clod-to-clay SEQ 145
 STATUS-195: cleared      # SEQ 195 -- mirror gap closed d68d92f; P5 STOPPED at its certificate; report clod-to-clay SEQ 144
 STATUS-194: cleared      # SEQ 194 -- P4 LANDED on the branch 333c331; canary reconciled; report clod-to-clay SEQ 143
 STATUS-193: cleared      # SEQ 193 -- banked; P3/P7 re-read; P4 STOPPED at 1b (rows void before the change); report clod-to-clay SEQ 142
@@ -9396,3 +9397,26 @@ with the 10 JT rows green in the same run, at both PTF settings. Pin today's 42 
 control.
 
   END SEQ 196
+
+
+===================================================================
+SEQ 197  -  P6 ON RULING (i): BYPASS AT PTF=1, DELETE NOTHING; JT ROWS NAMED
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+SEQ 196's reorder premise was wrong: P6 retires the adoption JSON's tree depends on.
+Rulings: (i) P6 bypasses the old-road paths at PTF=1 and deletes nothing; PTF=0 stays
+trunk-equal throughout, and old-road deletion is a final stroke of its own after the plan
+is green at PTF=1. JSON: P6 names the 10 JT rows as movers, green at PTF=0 and pinned red
+at PTF=1 with the reason. P5 then turns PTF=1 green with adoption at 0, using P6's pinned
+red as its control. Build P6 on those terms; stop at the first line that can't be cashed.
+
+(Clay's reasoning, carried in substance: PTF=0 is the ORACLE -- one binary giving trunk's
+behaviour and the new road's side by side; deleting shared machinery in P6 would throw it
+away just as the risky strokes arrive. One cause per red: P6 breaks the JT rows at PTF=1,
+P5 repairs them, and P6's pinned red is P5's control -- stronger than 42 / 9 because it
+shows JSON broken without P5 and fixed by it. A branch red on named rows between two
+strokes is what a branch is for.)
+
+  END SEQ 197
