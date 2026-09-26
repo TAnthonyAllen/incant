@@ -20,6 +20,12 @@ instrument's missing list is an accident; two is the convention being too narrow
 read as a clean pass with an EMPTY output file. An empty capture at exit 0 is not a green; check
 that an instrument printed something before believing its status.
 
+## 2026-09-26, shutdown — 753 green / 54 red / 1 parked (trunk jit-unified-emit-wip, bare)
+
+**Unchanged from the pause: the same 54 rows, diffed row for row.** decodePop's 9 and ddPop's 1 identical. Trunk
+moved only by d68d92f (branchKind declared inert) and docs/ipc; the step-2 work (P4 landed, P6 waiting) is on
+branches, whose PTF=0 red sets were diffed against these 54 at every landing.
+
 ## 2026-09-26, pause — 753 green / 54 red / 1 parked (trunk jit-unified-emit-wip, bare)
 
 **57 - 3 = 54, every row named.** LEFT (3), none joined:

@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      200
-STATUS:   working        # SEQ 200 -- root witness; probeDrive test; deferNatT pair; one certificate; land P6
+SEQ:      201
+STATUS:   cleared        # SEQ 201 -- SHUTDOWN sealed; P6 waits on one question; report clod-to-clay SEQ 149
+STATUS-200: cleared      # SEQ 200 -- P6 waits (candidate (2) not confirmed; (1) reads the condition value)
 STATUS-199: cleared      # SEQ 199 -- P6 not landed, line (1) cannot be cashed; report clod-to-clay SEQ 148
 STATUS-198: cleared      # SEQ 198 -- P6 built on p6-held-class, stopped on the JT line; report clod-to-clay SEQ 147
 STATUS-197: cleared      # SEQ 197 -- P6 STOPPED on parent-driven firing (measured); report clod-to-clay SEQ 146
@@ -9462,8 +9463,8 @@ row. Land P6 from p6-held-class when all four hold.
 ===================================================================
 SEQ 200  -  P6: ROOT WITNESS, probeDrive TEST, deferNatT PAIR, ONE CERTIFICATE, LAND
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. P6 waits; clod-to-clay SEQ 149.
 
 (1) Replace the dead-arm fixture with Clod's candidate: a statement-root witness asserting
 the value an unrun IF hands back (labelNO), with PTF_NOCLASSHOLD=1 as control. (2) Test
@@ -9476,3 +9477,17 @@ p6-held-class. Add to the run recipe: env switches written inline, never through
 variable.
 
   END SEQ 200
+
+
+===================================================================
+SEQ 201  -  SHUTDOWN
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod on receipt,
+        2026-09-26, while SEQ 200 was running. Sealed; clod-to-clay SEQ 149.
+
+Shutdown. After SEQ 200's report, seal regardless of outcome. If P6 landed, record it and
+name P5 plus adoption retirement as next. If it stopped, record the stop and the open
+question verbatim; no rulings tonight. Trunk installed, bare, checklist measured, fixit
+line generated. Tony's forms, tester and TOK Xcode state left alone.
+
+  END SEQ 201

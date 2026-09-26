@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 148 at the FOOT -- SEQ 199: P6 not landed -- the unrun-IF side effect reads 0 with the switch off too
+STATUS:   fresh           # SEQ 149 at the FOOT -- SEQ 200: P6 waits (unrun IF hands back its condition; PrinT residual is RETAGCARRY); SEQ 201 sealed
+# prior: SEQ 148 at the FOOT -- SEQ 199: P6 not landed -- the unrun-IF side effect reads 0 with the switch off too
 # prior: SEQ 147 at the FOOT -- SEQ 198: P6 built (p6-held-class, not merged); stopped: JSON adoption survives, JT rows stay green
 # prior: SEQ 146 at the FOOT -- SEQ 197: ruling (i) taken; P6 STOPPED on parent-driven firing -- interpretXP/TokenXP have no fire arms (measured)
 # prior: SEQ 145 at the FOOT -- SEQ 196: P6 STOPPED before building -- PTF=0==trunk cannot hold (it deletes the old road's machinery); JT rows would move inside P6
@@ -8233,3 +8234,32 @@ INSTRUMENT NOTE, mine: an earlier "switch off" column was void -- zsh does not w
 from the re-run.
 
   END SEQ 148
+
+
+===================================================================
+SEQ 149  -  SEQ 200 STOPPED (P6 WAITS); SEQ 201 SEALED
+===================================================================
+AT TOP: P6 waits, on SEQ 200's own terms. p6-held-class da782ce (not merged) carries the
+switch, the root witness measureRootValue (canary +1, 382) and incant/pop/unrunIfT.
+parse-then-fire de79427 records it. Trunk sealed at 753 / 1, installed, bare.
+
+(1) THE ROOT WITNESS READS THE UNRUN IF HANDING BACK ITS CONDITION: `if uiF; uiN = 1;`
+    hands the root `uiF`, not labelNO (a run IF hands back uiN); switch off, every root
+    reads value=StatemenT fired=0. aCTionIF seeds result from the condition and nothing
+    overwrites it when no arm runs -- the plan's "today: labelNO owner-run" is wrong.
+(2) NOT CONFIRMED. PrinT inside probeDrive(adPrint) is not held (DEFERABOVE inDrive=1
+    held=0; fired in the replay) -- the drive's own scope applies step 1's rule. The
+    StatemenT -> true move is a TAG: opPrint and CerR return the shared trueResult, and
+    step 1's RETAGCARRY writes the label's tag onto it -- the first top-level cerr renamed
+    the singleton "StatemenT" for the rest of the run. P6 root-fires those statements,
+    so no retag. The same line renames the live field s2C (Iterate -> StatemenT).
+(3) not built. (4) not landed.
+
+THE OPEN QUESTION, verbatim: Does P6 carry "an unrun IF hands back nothing" as a change to
+aCTionIF (today it hands back its condition's value), gated so PTF=0 stays trunk-equal --
+and is step 1's RETAGCARRY renaming a shared singleton and a live field a defect for P6 to
+stop, or for the value-node stroke?
+
+Run recipe line added (env switches inline, never through a split variable).
+
+  END SEQ 149
