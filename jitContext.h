@@ -729,6 +729,10 @@ inline int gPtfWalkingN = 0;
 struct PtfScope { int base; int attBase; int walkMark; };
 inline PtfScope gPtfScope[64];
 inline int gPtfScopeN = 0;
+// P6 (SEQ 198): gPtfTopReplay is 1 while a TOP-LEVEL statement's records replay (ptfStatementEnd), 0 inside a
+// drive's replay; gPtfRootFire is raised for exactly the root StatemenT's own fire, so its action fires the held
+// construct under it -- the actions are the walker, and the statement-level class is what they walk
+inline int gPtfTopReplay = 0, gPtfRootFire = 0;
 inline int ptfOn()
 {
     if ( gPtfMode < 0 ) { const char *e = ::getenv("PTF"); gPtfMode = (e && *e == '0') ? 0 : 1; }

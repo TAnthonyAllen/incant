@@ -1249,6 +1249,15 @@ GroupItem 	*sourceFile = new GroupItem("sourceFile");
 		if ( isGROUP(statement->groupBody->flags.data) )
 			statement = statement->getGroup();
 		ruler->lastStatement = statement;
+		// p6RootFire at the ROOT of a top-level statement (PTF=1) the held construct fires HERE, as its owner, and hands its VALUE to the statement -- which keeps its own label as its outcome (P6, SEQ 198)
+		
+		if ( gPtfRootFire && statement && isMethod(statement->groupBody->flags.instructType) )
+		{
+		gPtfRootFire = 0;
+		GroupItem *rootValue = statement->groupBody->gMethod(statement);
+		(void)rootValue;
+		}
+		
 		// firedInLabel the statement's action already ran in fireLabelMethod -- running it here would run it twice
 		// statementScope  A REFUSAL'S SCOPE IS THE STATEMENT -- it is cleared HERE, on the
 		// statementScope  way out, whether or not a method ran, because the refusal may have
@@ -10346,7 +10355,11 @@ extern "C" GroupItem *ptfReplayRecords(RuleStuff *stuff)
 	PtfRec *frRecs = gPtfRecs; int frN = gPtfN, frCap = gPtfCap;
 	PtfAttach *frAtt = gPtfAtt; int frAttN = gPtfAttN, frAttCap = gPtfAttCap;
 	gPtfRecs = 0; gPtfN = 0; gPtfCap = 0; gPtfAtt = 0; gPtfAttN = 0; gPtfAttCap = 0;
+	// p6RootFire the top statement's own fire is the ROOT: its action fires the held construct under it (P6, SEQ 198)
+	int rootFire = gPtfTopReplay && L == root && ::ptfIsStmt(r->rule);
+	if ( rootFire ) gPtfRootFire = 1;
 	GroupItem *ret = r->method(L);
+	gPtfRootFire = 0;
 	if ( gPtfN && ptfTraceOn() ) ::fprintf(stderr,"PTF FRAMELEAK rule=%s left=%d -- discarded\n",r->rule->groupBody->tag,gPtfN);
 	if ( gPtfN && ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"FRAMELEAK rule=%s left=%d\n",r->rule->groupBody->tag,gPtfN); ::fclose(lf); } }
 	gPtfRecs = frRecs; gPtfN = frN; gPtfCap = frCap; gPtfAtt = frAtt; gPtfAttN = frAttN; gPtfAttCap = frAttCap;
@@ -10435,7 +10448,10 @@ extern "C" GroupItem *ptfScopeClose(GroupItem *rule, GroupItem *result)
 	st->label = result;
 	if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DRIVEREPLAY rule=%s records=%d\n",rule->groupBody->tag,n);
 	if ( ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"REPLAY rule=%s replayed=%d\n",rule->groupBody->tag,n); ::fclose(lf); } }
+	int topSave = gPtfTopReplay;
+	gPtfTopReplay = 0;
 	::ptfReplayRecords(st);
+	gPtfTopReplay = topSave;
 	GroupItem *fin = st->label;
 	gPtfRecs = outRecs; gPtfN = outN; gPtfCap = outCap;
 	gPtfAtt = outAtt; gPtfAttN = outAttN; gPtfAttCap = outAttCap;
@@ -10464,7 +10480,11 @@ extern "C" GroupItem *ptfStatementEnd(GroupItem *field, RuleStuff *stuff)
 	GroupRules *ruler = GroupControl::groupController->groupRules;
 	if ( !ptfOn() || ruler->processingCode || !::ptfIsStmt(field) || ::ptfStmtAbove(stuff) ) return 0;
 	if ( !gPtfN ) return 0;
-	return ::ptfReplayRecords(stuff);
+	int topSave = gPtfTopReplay;
+	gPtfTopReplay = 1;
+	::ptfReplayRecords(stuff);
+	gPtfTopReplay = topSave;
+	return nullptr;
 	
 }
 

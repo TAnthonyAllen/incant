@@ -986,7 +986,12 @@ GroupItem 	*group = this;
 void GroupItem::fireLabelMethod(RuleStuff *stuff)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-int 		held = deferredAbove(stuff);
+int 		held = 0;
+	// p6ClassHeld PTF=0 asks deferredAbove HERE, exactly as trunk; at PTF=1 a recorded fire never asks it (P6, SEQ 198)
+	
+	int heldKnown = 0;
+	if ( !ptfOn() ) { held = this->deferredAbove(stuff); heldKnown = 1; }
+	
 	if ( !stuff->actionMethod )
 		{
 		GroupItem 	*builtinActoR = getAttribute("builtinActoR");
@@ -1003,7 +1008,20 @@ int 		held = deferredAbove(stuff);
 	if ( stuff->actionMethod && stuff->label )
 		{
 		// ptfHold inside a top-level statement an ordinary fire or hold is RECORDED, and the statement's end replays it (parse-then-fire step 1)
-		 if ( ::ptfRecord(this,stuff,groupBody->flags.deferred && held) ) { ::ptfStatementEnd(this,stuff); return; } 
+		// p6ClassHeld in a top-level statement a statement-level (`defer`) action is HELD BY CLASS -- its parent fires it; inside a drive's own scope step 1's rule stands
+		
+		if ( ptfOn() )
+		{
+		int ptfHeld = 0;
+		if ( groupBody->flags.deferred )
+		{
+		if ( !gPtfScopeN ) ptfHeld = 1;
+		else { held = this->deferredAbove(stuff); heldKnown = 1; ptfHeld = held; }
+		}
+		if ( ::ptfRecord(this,stuff,ptfHeld) ) { ::ptfStatementEnd(this,stuff); return; }
+		if ( !heldKnown ) { held = this->deferredAbove(stuff); heldKnown = 1; }
+		}
+		
 		// heldAbove a deferred action waits only if a DEFERRED ANCESTOR will run it; with none above, nobody else ever will
 		if ( groupBody->flags.deferred && held )
 			{

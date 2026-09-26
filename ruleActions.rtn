@@ -994,6 +994,15 @@ use input
         GroupItem   statement = input;
         if isGROUP  statement = group;
         lastStatement = statement;
+        // p6RootFire at the ROOT of a top-level statement (PTF=1) the held construct fires HERE, as its owner, and hands its VALUE to the statement -- which keeps its own label as its outcome (P6, SEQ 198)
+        -%
+        if ( gPtfRootFire && statement && isMethod(statement->groupBody->flags.instructType) )
+            {
+            gPtfRootFire = 0;
+            GroupItem *rootValue = statement->groupBody->gMethod(statement);
+            (void)rootValue;
+            }
+        %-
         // firedInLabel the statement's action already ran in fireLabelMethod -- running it here would run it twice
         // statementScope  A REFUSAL'S SCOPE IS THE STATEMENT -- it is cleared HERE, on the
         // statementScope  way out, whether or not a method ran, because the refusal may have

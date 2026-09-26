@@ -652,7 +652,11 @@ extern GroupItem ptfReplayRecords(RuleStuff stuff)
         PtfRec *frRecs = gPtfRecs; int frN = gPtfN, frCap = gPtfCap;
         PtfAttach *frAtt = gPtfAtt; int frAttN = gPtfAttN, frAttCap = gPtfAttCap;
         gPtfRecs = 0; gPtfN = 0; gPtfCap = 0; gPtfAtt = 0; gPtfAttN = 0; gPtfAttCap = 0;
+        // p6RootFire the top statement's own fire is the ROOT: its action fires the held construct under it (P6, SEQ 198)
+        int rootFire = gPtfTopReplay && L == root && ::ptfIsStmt(r->rule);
+        if ( rootFire ) gPtfRootFire = 1;
         GroupItem *ret = r->method(L);
+        gPtfRootFire = 0;
         if ( gPtfN && ptfTraceOn() ) ::fprintf(stderr,"PTF FRAMELEAK rule=%s left=%d -- discarded\n",r->rule->groupBody->tag,gPtfN);
         if ( gPtfN && ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"FRAMELEAK rule=%s left=%d\n",r->rule->groupBody->tag,gPtfN); ::fclose(lf); } }
         gPtfRecs = frRecs; gPtfN = frN; gPtfCap = frCap; gPtfAtt = frAtt; gPtfAttN = frAttN; gPtfAttCap = frAttCap;
@@ -741,7 +745,10 @@ extern GroupItem ptfScopeClose(GroupItem rule, GroupItem result)
     st->label = result;
     if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DRIVEREPLAY rule=%s records=%d\n",rule->groupBody->tag,n);
     if ( ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"REPLAY rule=%s replayed=%d\n",rule->groupBody->tag,n); ::fclose(lf); } }
+    int topSave = gPtfTopReplay;
+    gPtfTopReplay = 0;
     ::ptfReplayRecords(st);
+    gPtfTopReplay = topSave;
     GroupItem *fin = st->label;
     gPtfRecs = outRecs; gPtfN = outN; gPtfCap = outCap;
     gPtfAtt = outAtt; gPtfAttN = outAttN; gPtfAttCap = outAttCap;
@@ -770,7 +777,11 @@ extern GroupItem ptfStatementEnd(GroupItem field, RuleStuff stuff)
     GroupRules *ruler = GroupControl::groupController->groupRules;
     if ( !ptfOn() || ruler->processingCode || !::ptfIsStmt(field) || ::ptfStmtAbove(stuff) ) return 0;
     if ( !gPtfN ) return 0;
-    return ::ptfReplayRecords(stuff);
+    int topSave = gPtfTopReplay;
+    gPtfTopReplay = 1;
+    ::ptfReplayRecords(stuff);
+    gPtfTopReplay = topSave;
+    return nullptr;
     %-
 }
 
