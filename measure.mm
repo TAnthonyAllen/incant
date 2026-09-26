@@ -313,6 +313,22 @@ int 		minters = 0;
 	return minters;
 }
 
+// measureAdoption witness: at fireLabelMethod's adoption (the yield channel), a return that is not the label handed in and not a label, by kind -- RULE (isRule or hasNewParse), PROPERTY (the pROPERTIEs registry: StatemenT, true, labelNO -- measured isRule 0, not the grammar rule), FIELD (anything else: a live field). F-122's (b) census; visibility, not refusal. parseTrace-gated, reads only
+extern "C" GroupItem *measureAdoption(GroupItem *field, GroupItem *handed, GroupItem *adopted)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && field && adopted && adopted != handed && !adopted->groupBody->flags.isLabel )
+	{
+	GroupItem *reg = adopted->groupBody->registry;
+	const char *rt = reg && reg->groupBody->tag ? reg->groupBody->tag : "-";
+	const char *kind = (adopted->groupBody->flags.isRule || adopted->groupBody->flags.hasNewParse) ? "RULE"
+	: ::strcmp(rt,"pROPERTIEs") == 0 ? "PROPERTY" : "FIELD";
+	::fprintf(stderr,"  ADOPTION kind=%s rule=%s returned=%s registry=%s\n",kind,field->groupBody->tag,adopted->groupBody->tag,rt);
+	}
+	
+	return 0;
+}
+
 /*  WHAT A BLOCK HANDS BACK, and whether the thing it hands back is a VALUE or a
     SIGNAL. parseTrace gated. ⚠ It READS the state at the foot of the walk; it does not
     re-derive which arm ended it. ⚠ No percent-dash in the format string (bear-trap
@@ -329,6 +345,22 @@ extern "C" GroupItem *measureBlockResult(GroupItem *input, GroupItem *result, in
 	GroupControl::groupController->groupRules->refused);
 	
 	return result;
+}
+
+// measureDeferredAbove witness: which walk a fire took (the activation list, or the parentStuff chain), its answer, where the walk ended, whether it fired inside a drive and whether it carries an action -- the (b) tripwire counts chain walks inside a drive. parseTrace-gated
+extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int listWalk, int held, int endKind, int inDrive)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->rule )
+	{
+	GroupItem *r = stuff->rule;
+	int action = (stuff->actionMethod || r->groupBody->flags.actionType || r->getAttribute((char*)"builtinActoR")) ? 1 : 0;
+	const char *end = endKind == 1 ? "floor" : endKind == 2 ? "deferred" : endKind == 3 ? "processingCode" : "empty";
+	::fprintf(stderr,"  DEFERABOVE rule=%s walk=%s held=%d end=%s inDrive=%d action=%d\n",
+	r->groupBody->tag, listWalk ? "list" : "chain", held, end, inDrive, action);
+	}
+	
+	return 0;
 }
 
 /*  WHAT opDot RECEIVES ON THE RIGHT. parseTrace gated. The accessor family turns on
@@ -505,6 +537,20 @@ extern "C" GroupItem *measureLabelProbe(GroupItem *field, GroupItem *myLabel, Gr
 	return field;
 }
 
+// measureLoopVerdict witness: at parseLoop's verdict, the success flag beside the count -- DISAGREE is the only case the removed flag read would have decided (a stale flag, count short of min); parseTrace-gated, pinned at 0
+extern "C" GroupItem *measureLoopVerdict(GroupItem *field)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && field && field->rStuff )
+	{
+	RuleStuff *st = field->rStuff;
+	::fprintf(stderr,"  LOOPVERDICT rule=%s flag=%d kount=%d min=%d %s\n",field->groupBody->tag,
+	(int)st->sukcess,st->kount,st->min,(st->sukcess && st->kount < st->min) ? "DISAGREE" : "agree");
+	}
+	
+	return 0;
+}
+
 /*  THE DRIVE STRING'S EXTENT, RECORDED ONCE SO EVERY LATER POINT CAN ASK "IS THE MARK
     STILL IN HERE". It writes ONLY to the instrument's own static and nothing the program
     reads, so it witnesses without deciding. SEQ 166. parseTrace-gated.
@@ -551,6 +597,16 @@ extern "C" GroupItem *measureMarkPoint(char *where)
 	return 0;
 }
 
+// measureOldFireFlag witness: an OLD-road activation's own success flag right after its action fired -- the flag a nested new-road drive used to overwrite (F-121). parseTrace-gated, reads only
+extern "C" GroupItem *measureOldFireFlag(GroupItem *field, RuleStuff *stuff)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && field && stuff )
+	::fprintf(stderr,"  OLDFIREFLAG rule=%s sukcess=%d\n",field->groupBody->tag,(int)stuff->sukcess);
+	
+	return 0;
+}
+
 /*  TEMPORARY, parseTrace-gated. Which parent can a parseMethod see from the field
     handed in -- the structural one, or the per-invocation parse-time one. Prints
     both with POINTERS, because the discriminator is recursion: one structural node
@@ -570,6 +626,23 @@ extern "C" GroupItem *measureParentProbe(GroupItem *field)
 	(field->rStuff && field->rStuff->parentLabel) ? field->rStuff->parentLabel->groupBody->tag : "(none)");
 	
 	return field;
+}
+
+// measureParseClass witness: which parse method setParseWalk just installed on this face -- parseTrace-gated; the fleet pins the parseAction count at 0 (docs/parseSiblings.md)
+extern "C" GroupItem *measureParseClass(GroupItem *field)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && field && field->rStuff )
+	{
+	void *m = (void*)field->rStuff->parseMethod;
+	const char *name = !m ? "none" : m == (void*)parseAction ? "parseAction" : m == (void*)parseRule ? "parseRule"
+	: m == (void*)parseContainer ? "parseContainer" : m == (void*)parseString ? "parseString" : m == (void*)parseSet ? "parseSet"
+	: m == (void*)parseAny ? "parseAny" : m == (void*)parseCharacter ? "parseCharacter" : m == (void*)parseUpTo ? "parseUpTo"
+	: m == (void*)parseCondition ? "parseCondition" : "other";
+	::fprintf(stderr,"  PARSECLASS rule=%s method=%s\n",field->groupBody->tag,name);
+	}
+	
+	return 0;
 }
 
 /*  WHAT parseRule's SUCCESS TEST IS ACTUALLY READING: the rule, the node the body
@@ -704,6 +777,20 @@ extern "C" GroupItem *measureStopCaller(GroupItem *caller)
 	GroupControl::groupController->groupRules->inputDiverted ? 1 : 0);
 	
 	return caller;
+}
+
+// measureTargetAgree witness: on a face the old road already visited (followed), does the new road's isTarget agree with what getWhatFollows wrote -- parseTrace-gated, reads only
+extern "C" GroupItem *measureTargetAgree(RuleStuff *stuff, int computed)
+{
+	
+	if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->rule )
+	::fprintf(stderr,"  TARGETAGREE rule=%s parent=%s followed=%d old=%d new=%d %s\n",
+	stuff->rule->groupBody->tag,
+	stuff->rule->parent ? stuff->rule->parent->groupBody->tag : "(none)",
+	(int)stuff->followed, (int)stuff->isTarget, computed,
+	!stuff->followed ? "unvisited" : ((int)stuff->isTarget == computed ? "agree" : "DISAGREE"));
+	
+	return 0;
 }
 
 /*  WHICH ARM OF aCTionTokenXP's DISPATCH A TERM TOOK, and whether the dot it carries is

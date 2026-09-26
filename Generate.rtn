@@ -1,18 +1,23 @@
 
-/*******************************************************************************
-	This is a wrapper for returning a parse result (mostly to provide a
-    common place to add a success/failure directive
-*******************************************************************************/
+// clearWalked clear the per-walk mark over a subtree -- it descends only into a node it just unmarked, so the cyclic grammar terminates
+extern void clearWalked(GroupItem field)
+{
+GroupItem   grup;
+    if !field                       return;
+    if !field.parseWalked           return;
+    field.parseWalked = false;
+    if field.hasTraits || field.hasMembers
+        while grup = field.next(grup)
+            clearWalked(grup);
+}
+
+// exitFromParse the common exit every parse method returns through: sync, fire the label method, attach; a min-zero miss owes a success
 extern GroupItem exitFromParse(GroupItem field)
 {
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = rStuff;
     if sukcess {
-        /*  parentLabelSync  the block that stood here re-derived parentStuff from lastRule
-            -- the ENCLOSING rule -- after parseRule had already closed its bracket. parentStuff
-            IS the enclosing rule's stuff, reached through this field's own rStuff, so the
-            re-derivation was a no-op and only the sync it guarded carries anything.
-            Generate.exitFromParse.parentLabelSync  */
+        // parentLabelSync parentStuff IS the enclosing rule's stuff, so only the label sync is owed here
         if parentStuff && parentLabel != parentStuff.label  parentLabel = parentStuff.label;
         if noAdvance    atRuleMark = hereAt;
         fireLabelMethod(ruleStuff);
@@ -29,20 +34,130 @@ RuleStuff   ruleStuff = rStuff;
     return 0;
 }
 
-/*******************************************************************************
-	Process a parseAction
-*******************************************************************************/
+// installParseMethod park the face's parseMethod on its defining rule; min and max stay on the face, only the method is a fact of the shape
+extern void installParseMethod(GroupItem field)
+{
+GroupItem   definer = field.definingRule();
+RuleStuff   faceStuff = field.rStuff,
+            defStuff;
+    if !definer || definer == field     return;
+    defStuff = definer.rStuff;
+    if defStuff && faceStuff    defStuff.parseMethod = faceStuff.parseMethod;
+}
+
+// kwDirectRefuses C-FORM, SWITCHED (KW_DIRECT=1, outcome census only): ANYtoken's keyword decision by a direct lookup of the matched text in Keywords, no read of NamE's resolution. -1 = switch off (use today's test), 1 = refuse, 0 = accept
+extern int kwDirectRefuses(GroupItem input)
+{
+    -%
+    if ( !::getenv("KW_DIRECT") ) return -1;
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    RuleStuff *st = ruler->ruleSTUFF;
+    if ( ruler->compiling || !input || !st || !st->hereAt || !ruler->atRuleMark || ruler->atRuleMark < st->hereAt ) return 0;
+    char word[128];
+    const char *p = st->hereAt;
+    int n = 0;
+    while ( p < ruler->atRuleMark && n < 127 && (::isalnum((unsigned char)*p) || *p == '_') ) word[n++] = *p++;
+    word[n] = 0;
+    GroupItem *kw = n ? ruler->keyWords->get(word) : 0;
+    return kw && !kw->groupBody->flags.noPrint ? 1 : 0;
+    %-
+}
+
+// measureFireOrder witness M1: one line per label action at its FIRE (or its hold) -- rule identity, the label's tag at that instant, fired or held, the label's children; phase says whether it came from fireLabelMethod (parse) or the statement-end replay (walk). PTF_TRACE-armed, reads only
+extern GroupItem measureFireOrder(GroupItem field, GroupItem label, int held, int phase, String origTag)
+{
+    -%
+    if ( ptfTraceOn() && field )
+        {
+        char kids[256];
+        int kn = 0, used = 0;
+        kids[0] = 0;
+        if ( label && label->groupBody->groupList )
+            for ( GroupItem *c = label->groupBody->groupList->firstInList; c && kn < 8; c = c->nextInParent, kn++ )
+                {
+                const char *t = c->groupBody->tag ? c->groupBody->tag : "?";
+                int len = (int)::strlen(t);
+                if ( used + len + 2 >= (int)sizeof(kids) ) break;
+                if ( used ) kids[used++] = ',';
+                ::strcpy(kids + used,t);
+                used += len;
+                }
+        const char *lt = label && label->groupBody->tag ? label->groupBody->tag : "(null)";
+        ::fprintf(stderr,"PTF1 %s rule=%s tag=%s %s kids=%s",phase ? "walk " : "parse",field->groupBody->tag,lt,held ? "held " : "fired",kids);
+        if ( origTag && ::strcmp(origTag,lt) != 0 ) ::fprintf(stderr," retag=%s",origTag);
+        ::fprintf(stderr,"\n");
+        }
+    %-
+    return null;
+}
+
+// measureKeywordDecision witness: at ANYtoken's keyword refusal, TODAY's answer (from NamE's resolution: registry keyWords, not noPrint) beside a DIRECT lookup of the matched text in keyWords -- C-form's neutrality census (Tony, 2026-09-24). KW_LOG=<file> arms it; one appended line per decision; reads only
+extern GroupItem measureKeywordDecision(GroupItem input, GroupItem token)
+{
+    -%
+    const char *logPath = ::getenv("KW_LOG");
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    RuleStuff *st = ruler->ruleSTUFF;
+    if ( logPath && input && st && st->hereAt && ruler->atRuleMark && ruler->atRuleMark >= st->hereAt )
+        {
+        char word[128];
+        const char *p = st->hereAt;
+        int n = 0;
+        while ( p < ruler->atRuleMark && n < 127 && (::isalnum((unsigned char)*p) || *p == '_') ) word[n++] = *p++;
+        word[n] = 0;
+        int today = token && token->groupBody->registry == ruler->keyWords && !token->groupBody->flags.noPrint;
+        GroupItem *kw = n ? ruler->keyWords->get(word) : 0;
+        int direct = kw && !kw->groupBody->flags.noPrint;
+        FILE *f = ::fopen(logPath,"a");
+        if ( f )
+            {
+            GroupItem *rreg = token ? token->groupBody->registry : 0;
+            ::fprintf(f,"KWDEC %s word=[%s] today=%d direct=%d compiling=%d isGROUP=%d res=%s/%s file=%s\n",today == direct ? "agree" : "DISAGREE",
+                word,today,direct,(int)ruler->compiling,isGROUP(input->groupBody->flags.data) ? 1 : 0,
+                token && token->groupBody->tag ? token->groupBody->tag : "-",rreg && rreg->groupBody->tag ? rreg->groupBody->tag : "-",
+                ruler->sourceFILE && ruler->sourceFILE->groupBody->tag ? ruler->sourceFILE->groupBody->tag : "-");
+            ::fclose(f);
+            }
+        }
+    %-
+    return null;
+}
+
+// measureLabelReuse witness: checkInput is RECYCLING a label (its fLAG was set) that still has a PARENT -- i.e. it is still in some tree. aCTionBraced sets the same bit to mean "subscript", so this counts the two meanings colliding. PTF_TRACE-armed, reads only
+extern GroupItem measureLabelReuse(GroupItem label)
+{
+    -%
+    if ( ptfTraceOn() && label && label->parent )
+        ::fprintf(stderr,"PTF LABELREUSE label=%s stillParented=%s\n",label->groupBody->tag ? label->groupBody->tag : "?",label->parent->groupBody->tag ? label->parent->groupBody->tag : "?");
+    %-
+    return null;
+}
+
+// measureParseFire witness M2: an action firing from fireLabelMethod itself, i.e. DURING the parse, by class -- ORDINARY is what step 1 relocates (the branch must read none), define/decides are the ruled exemptions, outside is a fire with no statement around it, code is processCode's own parse. PTF_TRACE-armed, reads only
+extern GroupItem measureParseFire(GroupItem field, RuleStuff stuff)
+{
+    -%
+    if ( ptfTraceOn() && field )
+        ::fprintf(stderr,"PTF2 rule=%s class=%s\n",field->groupBody->tag,::ptfClass(field,stuff));
+    %-
+    return null;
+}
+
+// measureRetire witness: the step-2 retirement census (GO/NO-GO, 2026-09-25) -- one line each time a read of defer, deferredAbove or the yield channel DECIDES something: a held fire (not fired), a deferred early return, a yield that replaced or removed the label. PTF_RETIRE-armed, inert otherwise, reads only
+extern GroupItem measureRetire(String what, GroupItem field)
+{
+    -%
+    if ( ::getenv("PTF_RETIRE") )
+        ::fprintf(stderr,"RETIRE %s rule=%s\n",what ? what : "?",field && field->groupBody->tag ? field->groupBody->tag : "?");
+    %-
+    return null;
+}
+
+// parseAction run the rule's action as its parse -- handed the field for a parseACTION rule or when there is no label, else the label
 extern GroupItem parseAction(GroupItem field)
 {
 RuleStuff   ruleStuff = rStuff;
-    /*  ownSlot  THREE SLOTS, THREE MEANINGS (Tony, 2026-09-14): gMethod is the ENTRY
-        (parseLoop for a repeating term, the leaf otherwise), rStuff.parseMethod is the
-        LEAF, and rStuff.actionMethod is the rule's ACTION. parseAction wants the ACTION
-        and used to read gMethod -- which setParseWalk's tail overwrites with the parse
-        method, so on a node classified parseACTION gMethod IS parseAction and the body
-        called itself until the stack was gone. setParseWalk captures the action into
-        actionMethod at its HEAD, before that overwrite, so the slot is already correct
-        here and nothing upstream moves.   Generate.parseAction.ownSlot  */
+    // ownSlot read actionMethod, never gMethod -- on a parseACTION node gMethod IS parseAction and the call recurses forever
     sukcess = false;
     // noNullActor the old spelling read gMethod, which setParseWalk always fills; actionMethod can be empty, and calling it would trade the self-recursion for a null call
     if !actionMethod    return refuse(field,"parseAction: no actionMethod is installed for this rule");
@@ -53,9 +168,7 @@ RuleStuff   ruleStuff = rStuff;
     return exitFromParse(field);
 }
 
-/*******************************************************************************
-	Run a wild card test on this group against current input
-*******************************************************************************/
+// parseAny the leaves are the generated-path twins of RuleStuff's testMacro: tester loop, advance, then ONE min gate -- copy the template
 extern GroupItem parseAny(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -80,9 +193,7 @@ int         more;
     return exitFromParse(field);
 }
 
-/*******************************************************************************
-	Run a character test on this group against current input
-*******************************************************************************/
+// parseCharacter match a run of one character against the current input
 extern GroupItem parseCharacter(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -107,9 +218,7 @@ int         more;
     return exitFromParse(field);
 }
 
-/*******************************************************************************
-	Process a condition
-*******************************************************************************/
+// parseCondition a condition succeeds exactly when min is set
 extern GroupItem parseCondition(GroupItem field)
 {
 RuleStuff   ruleStuff = rStuff;
@@ -118,9 +227,7 @@ RuleStuff   ruleStuff = rStuff;
     return exitFromParse(field);
 }
 
-/*******************************************************************************
-    Registry and Container test looks for a field entry that matches the input stream.
-*******************************************************************************/
+// parseContainer match the longest input prefix that names an entry of this bin or registry
 extern GroupItem parseContainer(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -137,14 +244,7 @@ use field
     if currentMETHOD && currentMETHOD.get(field.tag)    field = currentMETHOD.get(field.tag);
     ruleStuff   = field.rStuff;
 use field
-    /*  noStuffLawfulSkip  A REGISTRY LAWFULLY CARRIES NO rStuff (Ruling D1), and it reaches
-        noStuffLawfulSkip  here BY BARE NAME from an emitted body -- `Operators`, isRule 0,
-        noStuffLawfulSkip  binType isREGISTRY. This is a SKIP, NOT A REFUSAL: a refusal inside a
-        noStuffLawfulSkip  parse aborts the action containing it, so that option is out (Tony,
-        noStuffLawfulSkip  2026-09-20). The match runs with DEFAULT LIMITS -- no checkInput gate,
-        noStuffLawfulSkip  noAdvance false so the mark advances, no label to fill -- and it exits
-        noStuffLawfulSkip  WITHOUT exitFromParse, which dereferences rStuff at its first line.
-        noStuffLawfulSkip  ⚠ NOTHING IS MINTED ONTO THE REGISTRY and ensureRStuff is NOT called.  */
+    // noStuffLawfulSkip a registry has no rStuff: match with default limits and exit WITHOUT exitFromParse -- never refuse, never mint onto it
     if !ruleStuff {
         buffer.reset();
         entryMark = ruler.atRuleMark;
@@ -188,52 +288,10 @@ use field
     return exitFromParse(field);
 }
 
-/*******************************************************************************
-	Process a loop (max > 1)
-*******************************************************************************/
-/*******************************************************************************
-    runLeafParse -- FIRE A LEAF'S PARSE METHOD THROUGH ITS DEFINER.
-    // definerHoldsTheMethod parseMethod is a fact about the rule's SHAPE, so it is READ from
-    // definerHoldsTheMethod definingRule(); a face that setParseWalk turned away at the installed
-    // definerHoldsTheMethod gate carries none of its own. F-98.
-    // refuseNeverCall A MISSING METHOD IS A NAMED REFUSAL, never a call -- parseLoop used to fire
-    // refuseNeverCall the slot unguarded and jumped to address 0, and a BARE guard would only trade
-    // refuseNeverCall the crash for a silent wrong answer. runRule refuses the sibling case by name.
-    // callNotDeclaration frameStak's discipline -- a call, so parseLoop introduces no declaration
-*******************************************************************************/
-extern GroupItem runLeafParse(GroupItem field)
-{
-GroupItem   definer = field.definingRule();
-RuleStuff   defStuff;
-    if definer      defStuff = definer.rStuff;
-    if defStuff && defStuff.parseMethod     return defStuff.parseMethod(field);
-    return refuse(field,"parseLoop: no parse method is installed on the defining rule");
-}
-
-/*******************************************************************************
-    installParseMethod -- PARK THE CLASSIFICATION ON THE DEFINER.
-    // definerHoldsTheMethod as runLeafParse; the definer is where every face reads it
-    // callNotDeclaration frameStak's discipline -- a call, so setParseWalk introduces no
-    // callNotDeclaration declaration and every bare field below it still resolves as before
-    // faceKeepsItsOwn MIN AND MAX ARE NOT MOVED. They stay on the face's own rStuff, which is
-    // faceKeepsItsOwn what a repetition is about; only the METHOD is a fact about the shape.
-*******************************************************************************/
-extern void installParseMethod(GroupItem field)
-{
-GroupItem   definer = field.definingRule();
-RuleStuff   faceStuff = field.rStuff,
-            defStuff;
-    if !definer || definer == field     return;
-    defStuff = definer.rStuff;
-    if defStuff && faceStuff    defStuff.parseMethod = faceStuff.parseMethod;
-}
-
+// parseLoop run a repeating term up to max; the verdict is the COUNT against min, never the success flag
 extern GroupItem parseLoop(GroupItem field)
 {
-    // enclosingRule currentMETHOD is the rule whose body is executing, kept under parseRule's own priorMETHOD bracket. MEASURED at both re-resolve sites: it tracks lastRule exactly -- GrouP/Search, NamE/GrouP   Generate.parseLoop.enclosingRule
-    // onlyIfFound the old guard was `if lastRule`, and lastRule was null exactly where this
-    // lookup finds nothing; currentMETHOD is set more often, so an unfound tag would overwrite
-    // field with NULL and parseRule would deref it. Tested on the lookup, not on the source.
+    // enclosingRule re-resolve to the enclosing rule's own face, tested on the lookup so an unfound tag never overwrites field with null
     if currentMETHOD && currentMETHOD.get(field.tag)    field = currentMETHOD.get(field.tag);
 RuleStuff   ruleStuff = rStuff;
     kount = 0;
@@ -246,7 +304,7 @@ RuleStuff   ruleStuff = rStuff;
     return 0;
 }
 
-// parseRule -- parse a rule; processCode has already run on field. A new declaration re-points every bare field below it (bear-trap #42): diff the generated .mm against HEAD after any edit here   Generate.parseRule.bareFieldRepoint
+// parseRule run a rule's generated body; a new declaration here re-points every bare field below it (bear-trap #42)
 extern GroupItem parseRule(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -276,7 +334,7 @@ RuleStuff   ruleStuff = rStuff;
     if currentMETHOD && currentMETHOD.rStuff != parentStuff {
         parentStuff = currentMETHOD.rStuff;
         if parentStuff && parentLabel != parentStuff.label  parentLabel = parentStuff.label; }
-    // bareFieldRepoint the use lines below are load bearing
+    // bareFieldRepoint the use lines below are load bearing -- a new declaration re-points every bare field under it
 use ruleStuff
     sukcess = false;
     if checkInput() {
@@ -331,9 +389,7 @@ checkSuccess:   // this is just a marker for directives
     return result;
 }
 
-/*******************************************************************************
-	Run a character set test on this group against current input
-*******************************************************************************/
+// parseSet match a run of characters from this rule's character set
 extern GroupItem parseSet(GroupItem field)
 {
 PLGset      set = characterSet;
@@ -359,9 +415,7 @@ int         more;
     return exitFromParse(field);
 }
 
-/***************************************************************************
-	Parse method for a field w/data = isSTRING or isTOKEN
-***************************************************************************/
+// parseString match this rule's string or token text at the current input
 extern GroupItem parseString(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -379,9 +433,7 @@ RuleStuff   ruleStuff = rStuff;
     return exitFromParse(field);
 }
 
-/*******************************************************************************
-	Process an up to match
-*******************************************************************************/
+// parseUpTo match everything up to (or over) the rule's terminator, through testUpTo
 extern GroupItem parseUpTo(GroupItem field)
 {
 RuleStuff   ruleStuff = rStuff;
@@ -393,201 +445,6 @@ RuleStuff   ruleStuff = rStuff;
     // keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
     if label && !sukcess    label.clear();
     return exitFromParse(field);
-}
-
-/*******************************************************************************
-    Clear the per-walk mark over a subtree. Terminates on the cyclic grammar
-    because it only descends into a node it has just UNMARKED, so a cycle meets
-    a cleared node and returns.
-*******************************************************************************/
-extern void clearWalked(GroupItem field)
-{
-GroupItem   grup;
-    if !field                       return;
-    if !field.parseWalked           return;
-    field.parseWalked = false;
-    if field.hasTraits || field.hasMembers
-        while grup = field.next(grup)
-            clearWalked(grup);
-}
-
-/*******************************************************************************
-	Set parseMethod and label for the field passed in. For now does not handle macros
-
-    THE TOP-LEVEL ENTRY, and the only one incant calls. It resets the per-walk
-    mark and hands off to setParseWalk.
-*******************************************************************************/
-extern GroupItem setParse(GroupItem field)
-{
-    // perWalkNotPerProcess the mark breaks the cyclic grammar WITHIN one walk and must not outlive it, or a second legitimate root over shared nodes is refused instead of classified   Generate.setParse.perWalkNotPerProcess
-    clearWalked(field);
-    return setParseWalk(field);
-}
-
-// measureDeferredAbove witness: which walk a fire took (the activation list, or the parentStuff chain), its answer, where the walk ended, whether it fired inside a drive and whether it carries an action -- the (b) tripwire counts chain walks inside a drive. parseTrace-gated
-extern GroupItem measureDeferredAbove(RuleStuff stuff, int listWalk, int held, int endKind, int inDrive)
-{
-    -%
-    if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->rule )
-        {
-        GroupItem *r = stuff->rule;
-        int action = (stuff->actionMethod || r->groupBody->flags.actionType || r->getAttribute((char*)"builtinActoR")) ? 1 : 0;
-        const char *end = endKind == 1 ? "floor" : endKind == 2 ? "deferred" : endKind == 3 ? "processingCode" : "empty";
-        ::fprintf(stderr,"  DEFERABOVE rule=%s walk=%s held=%d end=%s inDrive=%d action=%d\n",
-            r->groupBody->tag, listWalk ? "list" : "chain", held, end, inDrive, action);
-        }
-    %-
-    return null;
-}
-
-// measureOldFireFlag witness: an OLD-road activation's own success flag right after its action fired -- the flag a nested new-road drive used to overwrite (F-121). parseTrace-gated, reads only
-extern GroupItem measureOldFireFlag(GroupItem field, RuleStuff stuff)
-{
-    -%
-    if ( GroupControl::groupController->groupRules->parseTrace && field && stuff )
-        ::fprintf(stderr,"  OLDFIREFLAG rule=%s sukcess=%d\n",field->groupBody->tag,(int)stuff->sukcess);
-    %-
-    return null;
-}
-
-// measureRetire witness: the step-2 retirement census (GO/NO-GO, 2026-09-25) -- one line each time a read of defer, deferredAbove or the yield channel DECIDES something: a held fire (not fired), a deferred early return, a yield that replaced or removed the label. PTF_RETIRE-armed, inert otherwise, reads only
-extern GroupItem measureRetire(String what, GroupItem field)
-{
-    -%
-    if ( ::getenv("PTF_RETIRE") )
-        ::fprintf(stderr,"RETIRE %s rule=%s\n",what ? what : "?",field && field->groupBody->tag ? field->groupBody->tag : "?");
-    %-
-    return null;
-}
-
-// ptfScopeOpen / ptfScopeClose THE RECORDING SCOPE (Tony, 2026-09-25, on ipc SEQ 121): a drive entered while FIRING -- a replay running above the innermost open scope's parse -- is its own root; a drive entered while a parse is in progress records into the enclosing scope, unchanged. ONE WRITER PAIR (these two, called only from the two drive seats: driveStep and jitProbeDrive); gPtfScope is read nowhere else
-extern int ptfScopeOpen()
-{
-    -%
-    if ( !ptfOn() || ::getenv("PTF_NOSCOPE") ) return 0;
-    int mark = gPtfScopeN ? gPtfScope[gPtfScopeN-1].walkMark : 0;
-    if ( gPtfWalkingN <= mark ) return 0;
-    if ( gPtfScopeN >= 64 ) return 0;
-    PtfScope *sc = &gPtfScope[gPtfScopeN++];
-    sc->base = gPtfN; sc->attBase = gPtfAttN; sc->walkMark = gPtfWalkingN;
-    return 1;
-    %-
-}
-
-extern GroupItem ptfScopeClose(GroupItem rule, GroupItem result)
-{
-    -%
-    if ( !gPtfScopeN ) return result;
-    PtfScope sc = gPtfScope[--gPtfScopeN];
-    int n = gPtfN - sc.base, an = gPtfAttN - sc.attBase;
-    if ( n < 0 ) n = 0;
-    if ( an < 0 ) an = 0;
-    // the drive's own records, lifted out; nothing of them survives the drive
-    PtfRec *mine = n ? (PtfRec*)GC_malloc(sizeof(PtfRec) * n) : 0;
-    if ( n ) ::memcpy(mine,gPtfRecs + sc.base,sizeof(PtfRec) * n);
-    PtfAttach *mineAtt = an ? (PtfAttach*)GC_malloc(sizeof(PtfAttach) * an) : 0;
-    if ( an ) ::memcpy(mineAtt,gPtfAtt + sc.attBase,sizeof(PtfAttach) * an);
-    gPtfN = sc.base < gPtfN ? sc.base : gPtfN;
-    gPtfAttN = sc.attBase < gPtfAttN ? sc.attBase : gPtfAttN;
-    GroupRules *ruler = GroupControl::groupController->groupRules;
-    if ( !n ) return result;
-    // rejectedParse A REJECTED PARSE FIRES NOTHING (Tony, 2026-09-25): no tree, no fires. Since P2 (i) the failing rule has already discarded them (ptfDiscardFailedPass), so anything counted HERE is a TRIPWIRE -- pop.sh pins the column at 0
-    if ( !result || result == ruler->falseResult || !rule || !rule->rStuff )
-        {
-        if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DISCARD rejected parse rule=%s records=%d\n",rule && rule->groupBody->tag ? rule->groupBody->tag : "?",n);
-        if ( ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"DISCARD rule=%s rejected=%d\n",rule && rule->groupBody->tag ? rule->groupBody->tag : "?",n); ::fclose(lf); } }
-        return result;
-        }
-    // the enclosing scope's records are set aside while the drive's replay runs, then put back
-    PtfRec *outRecs = gPtfRecs; int outN = gPtfN, outCap = gPtfCap;
-    PtfAttach *outAtt = gPtfAtt; int outAttN = gPtfAttN, outAttCap = gPtfAttCap;
-    gPtfRecs = mine; gPtfN = n; gPtfCap = n;
-    gPtfAtt = mineAtt; gPtfAttN = an; gPtfAttCap = an;
-    RuleStuff *st = rule->rStuff;
-    st->label = result;
-    if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DRIVEREPLAY rule=%s records=%d\n",rule->groupBody->tag,n);
-    if ( ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"REPLAY rule=%s replayed=%d\n",rule->groupBody->tag,n); ::fclose(lf); } }
-    ::ptfReplayRecords(st);
-    GroupItem *fin = st->label;
-    gPtfRecs = outRecs; gPtfN = outN; gPtfCap = outCap;
-    gPtfAtt = outAtt; gPtfAttN = outAttN; gPtfAttCap = outAttCap;
-    return fin ? fin : ruler->falseResult;
-    %-
-}
-
-// ptfDiscardFailedPass A FAILED PASS FIRES NOTHING (P2, Tony's ruling (i), SEQ 180): the records a pass made before it failed are DISCARDED at the rule's per-pass failure exit, on both roads, and counted -- ONE category; before this they were dropped as UNREACHED or orphaned at exit. ptfScopeClose's rejected-parse discard is now a TRIPWIRE pinned at 0
-extern int ptfDiscardFailedPass(GroupItem rule, int mark, int attMark)
-{
-    -%
-    if ( !ptfOn() || gPtfN <= mark ) return 0;
-    int n = gPtfN - mark;
-    gPtfN = mark;
-    if ( gPtfAttN > attMark ) gPtfAttN = attMark;
-    const char *t = rule && rule->groupBody->tag ? rule->groupBody->tag : "?";
-    if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DISCARD failed alternative rule=%s records=%d\n",t,n);
-    if ( ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"DISCARD rule=%s failedAlt=%d\n",t,n); ::fclose(lf); } }
-    return n;
-    %-
-}
-
-// measureAdoption witness: at fireLabelMethod's adoption (the yield channel), a return that is not the label handed in and not a label, by kind -- RULE (isRule or hasNewParse), PROPERTY (the pROPERTIEs registry: StatemenT, true, labelNO -- measured isRule 0, not the grammar rule), FIELD (anything else: a live field). F-122's (b) census; visibility, not refusal. parseTrace-gated, reads only
-extern GroupItem measureAdoption(GroupItem field, GroupItem handed, GroupItem adopted)
-{
-    -%
-    if ( GroupControl::groupController->groupRules->parseTrace && field && adopted && adopted != handed && !adopted->groupBody->flags.isLabel )
-        {
-        GroupItem *reg = adopted->groupBody->registry;
-        const char *rt = reg && reg->groupBody->tag ? reg->groupBody->tag : "-";
-        const char *kind = (adopted->groupBody->flags.isRule || adopted->groupBody->flags.hasNewParse) ? "RULE"
-                         : ::strcmp(rt,"pROPERTIEs") == 0 ? "PROPERTY" : "FIELD";
-        ::fprintf(stderr,"  ADOPTION kind=%s rule=%s returned=%s registry=%s\n",kind,field->groupBody->tag,adopted->groupBody->tag,rt);
-        }
-    %-
-    return null;
-}
-
-// ptfEngine PARSE-THEN-FIRE, STEP 1 (branch parse-then-fire, 2026-09-24): an ordinary label action inside a top-level statement is RECORDED at fireLabelMethod with its fire-or-hold decision, and the statement's end REPLAYS the records in order -- same actions, same order, later. State and switches live in jitContext.h (ptfState)
-extern int ptfIsStmt(GroupItem field)
-{
-    -%
-    return field && field->groupBody->tag && ::strcmp(field->groupBody->tag,"StatemenT") == 0;
-    %-
-}
-
-// ptfStmtAbove is a StatemenT activation above this one -- the activation list inside a drive, the parentStuff chain outside, as deferredAbove walks them
-extern int ptfStmtAbove(RuleStuff stuff)
-{
-    -%
-    if ( !stuff ) return 0;
-    if ( gParseActive && !gParseActive->floor )
-        {
-        ParseActivation *a = gParseActive;
-        if ( a->stuff == stuff ) a = a->prev;
-        for ( ; a && !a->floor; a = a->prev )
-            {
-            for ( int w = 0; w < gPtfWalkingN; w++ ) if ( gPtfWalking[w] == a->stuff ) return 0;
-            if ( a->stuff && ::ptfIsStmt(a->stuff->rule) )
-                {
-                if ( ptfTraceOn() && ::ptfIsStmt(stuff->rule) ) ::fprintf(stderr,"PTF STMTABOVE via=list above=%p self=%p\n",(void*)a->stuff,(void*)stuff);
-                return 1;
-                }
-            }
-        return 0;
-        }
-    int hops = 0;
-    for ( RuleStuff *up = stuff->parentStuff; up; up = up->parentStuff, hops++ )
-        {
-        // replayFloor a statement being replayed is ABOVE any parse its actions start -- the search stops there
-        for ( int w = 0; w < gPtfWalkingN; w++ ) if ( gPtfWalking[w] == up ) return 0;
-        if ( ::ptfIsStmt(up->rule) )
-            {
-            if ( ptfTraceOn() && ::ptfIsStmt(stuff->rule) )
-                ::fprintf(stderr,"PTF STMTABOVE via=chain hops=%d floorTop=%d above=%p self=%p\n",hops,gParseActive ? gParseActive->floor : -1,(void*)up,(void*)stuff);
-            return 1;
-            }
-        }
-    return 0;
-    %-
 }
 
 // ptfClass the step-1 class of a fire: code (processCode's own parse), outside (no statement around it), define and decides (the ruled exemptions), or ORDINARY -- the only class step 1 relocates
@@ -609,42 +466,27 @@ extern String ptfClass(GroupItem field, RuleStuff stuff)
     %-
 }
 
-// measureFireOrder witness M1: one line per label action at its FIRE (or its hold) -- rule identity, the label's tag at that instant, fired or held, the label's children; phase says whether it came from fireLabelMethod (parse) or the statement-end replay (walk). PTF_TRACE-armed, reads only
-extern GroupItem measureFireOrder(GroupItem field, GroupItem label, int held, int phase, String origTag)
+// ptfDiscardFailedPass A FAILED PASS FIRES NOTHING (P2, Tony's ruling (i), SEQ 180): the records a pass made before it failed are DISCARDED at the rule's per-pass failure exit, on both roads, and counted -- ONE category; before this they were dropped as UNREACHED or orphaned at exit. ptfScopeClose's rejected-parse discard is now a TRIPWIRE pinned at 0
+extern int ptfDiscardFailedPass(GroupItem rule, int mark, int attMark)
 {
     -%
-    if ( ptfTraceOn() && field )
-        {
-        char kids[256];
-        int kn = 0, used = 0;
-        kids[0] = 0;
-        if ( label && label->groupBody->groupList )
-            for ( GroupItem *c = label->groupBody->groupList->firstInList; c && kn < 8; c = c->nextInParent, kn++ )
-                {
-                const char *t = c->groupBody->tag ? c->groupBody->tag : "?";
-                int len = (int)::strlen(t);
-                if ( used + len + 2 >= (int)sizeof(kids) ) break;
-                if ( used ) kids[used++] = ',';
-                ::strcpy(kids + used,t);
-                used += len;
-                }
-        const char *lt = label && label->groupBody->tag ? label->groupBody->tag : "(null)";
-        ::fprintf(stderr,"PTF1 %s rule=%s tag=%s %s kids=%s",phase ? "walk " : "parse",field->groupBody->tag,lt,held ? "held " : "fired",kids);
-        if ( origTag && ::strcmp(origTag,lt) != 0 ) ::fprintf(stderr," retag=%s",origTag);
-        ::fprintf(stderr,"\n");
-        }
+    if ( !ptfOn() || gPtfN <= mark ) return 0;
+    int n = gPtfN - mark;
+    gPtfN = mark;
+    if ( gPtfAttN > attMark ) gPtfAttN = attMark;
+    const char *t = rule && rule->groupBody->tag ? rule->groupBody->tag : "?";
+    if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DISCARD failed alternative rule=%s records=%d\n",t,n);
+    if ( ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"DISCARD rule=%s failedAlt=%d\n",t,n); ::fclose(lf); } }
+    return n;
     %-
-    return null;
 }
 
-// measureParseFire witness M2: an action firing from fireLabelMethod itself, i.e. DURING the parse, by class -- ORDINARY is what step 1 relocates (the branch must read none), define/decides are the ruled exemptions, outside is a fire with no statement around it, code is processCode's own parse. PTF_TRACE-armed, reads only
-extern GroupItem measureParseFire(GroupItem field, RuleStuff stuff)
+// ptfEngine PARSE-THEN-FIRE, STEP 1 (branch parse-then-fire, 2026-09-24): an ordinary label action inside a top-level statement is RECORDED at fireLabelMethod with its fire-or-hold decision, and the statement's end REPLAYS the records in order -- same actions, same order, later. State and switches live in jitContext.h (ptfState)
+extern int ptfIsStmt(GroupItem field)
 {
     -%
-    if ( ptfTraceOn() && field )
-        ::fprintf(stderr,"PTF2 rule=%s class=%s\n",field->groupBody->tag,::ptfClass(field,stuff));
+    return field && field->groupBody->tag && ::strcmp(field->groupBody->tag,"StatemenT") == 0;
     %-
-    return null;
 }
 
 // ptfNoteAttach records an attach that placed a label WHOLE while a statement is recording, so the replay can re-ask attachLabel's unwrap predicate with the same max and promote
@@ -694,17 +536,6 @@ extern int ptfRecord(GroupItem field, RuleStuff stuff, int held)
     r->rule = field; r->stuff = stuff; r->label = stuff->label; r->method = stuff->actionMethod;
     r->held = recheck ? 2 : held; r->max = stuff->max; r->origTag = ptfDup(stuff->label->groupBody->tag);
     return recheck ? 0 : 1;
-    %-
-}
-
-// ptfStatementEnd the replay half: at a TOP-LEVEL StatemenT's fire, walk every record reachable from its label tree in record order (post-order), replay the hold or fire, and put each returned node back in its child's place as attachLabel would have
-extern GroupItem ptfStatementEnd(GroupItem field, RuleStuff stuff)
-{
-    -%
-    GroupRules *ruler = GroupControl::groupController->groupRules;
-    if ( !ptfOn() || ruler->processingCode || !::ptfIsStmt(field) || ::ptfStmtAbove(stuff) ) return 0;
-    if ( !gPtfN ) return 0;
-    return ::ptfReplayRecords(stuff);
     %-
 }
 
@@ -873,135 +704,132 @@ extern GroupItem ptfReplayRecords(RuleStuff stuff)
     return null;
 }
 
-// measureKeywordDecision witness: at ANYtoken's keyword refusal, TODAY's answer (from NamE's resolution: registry keyWords, not noPrint) beside a DIRECT lookup of the matched text in keyWords -- C-form's neutrality census (Tony, 2026-09-24). KW_LOG=<file> arms it; one appended line per decision; reads only
-extern GroupItem measureKeywordDecision(GroupItem input, GroupItem token)
+// ptfScopeClose close the scope ptfScopeOpen opened: replay the drive's own records from its root, or drop them on a rejected parse (a tripwire since P2)
+extern GroupItem ptfScopeClose(GroupItem rule, GroupItem result)
 {
     -%
-    const char *logPath = ::getenv("KW_LOG");
+    if ( !gPtfScopeN ) return result;
+    PtfScope sc = gPtfScope[--gPtfScopeN];
+    int n = gPtfN - sc.base, an = gPtfAttN - sc.attBase;
+    if ( n < 0 ) n = 0;
+    if ( an < 0 ) an = 0;
+    // the drive's own records, lifted out; nothing of them survives the drive
+    PtfRec *mine = n ? (PtfRec*)GC_malloc(sizeof(PtfRec) * n) : 0;
+    if ( n ) ::memcpy(mine,gPtfRecs + sc.base,sizeof(PtfRec) * n);
+    PtfAttach *mineAtt = an ? (PtfAttach*)GC_malloc(sizeof(PtfAttach) * an) : 0;
+    if ( an ) ::memcpy(mineAtt,gPtfAtt + sc.attBase,sizeof(PtfAttach) * an);
+    gPtfN = sc.base < gPtfN ? sc.base : gPtfN;
+    gPtfAttN = sc.attBase < gPtfAttN ? sc.attBase : gPtfAttN;
     GroupRules *ruler = GroupControl::groupController->groupRules;
-    RuleStuff *st = ruler->ruleSTUFF;
-    if ( logPath && input && st && st->hereAt && ruler->atRuleMark && ruler->atRuleMark >= st->hereAt )
+    if ( !n ) return result;
+    // rejectedParse A REJECTED PARSE FIRES NOTHING (Tony, 2026-09-25): no tree, no fires. Since P2 (i) the failing rule has already discarded them (ptfDiscardFailedPass), so anything counted HERE is a TRIPWIRE -- pop.sh pins the column at 0
+    if ( !result || result == ruler->falseResult || !rule || !rule->rStuff )
         {
-        char word[128];
-        const char *p = st->hereAt;
-        int n = 0;
-        while ( p < ruler->atRuleMark && n < 127 && (::isalnum((unsigned char)*p) || *p == '_') ) word[n++] = *p++;
-        word[n] = 0;
-        int today = token && token->groupBody->registry == ruler->keyWords && !token->groupBody->flags.noPrint;
-        GroupItem *kw = n ? ruler->keyWords->get(word) : 0;
-        int direct = kw && !kw->groupBody->flags.noPrint;
-        FILE *f = ::fopen(logPath,"a");
-        if ( f )
+        if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DISCARD rejected parse rule=%s records=%d\n",rule && rule->groupBody->tag ? rule->groupBody->tag : "?",n);
+        if ( ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"DISCARD rule=%s rejected=%d\n",rule && rule->groupBody->tag ? rule->groupBody->tag : "?",n); ::fclose(lf); } }
+        return result;
+        }
+    // the enclosing scope's records are set aside while the drive's replay runs, then put back
+    PtfRec *outRecs = gPtfRecs; int outN = gPtfN, outCap = gPtfCap;
+    PtfAttach *outAtt = gPtfAtt; int outAttN = gPtfAttN, outAttCap = gPtfAttCap;
+    gPtfRecs = mine; gPtfN = n; gPtfCap = n;
+    gPtfAtt = mineAtt; gPtfAttN = an; gPtfAttCap = an;
+    RuleStuff *st = rule->rStuff;
+    st->label = result;
+    if ( ptfTraceOn() ) ::fprintf(stderr,"PTF DRIVEREPLAY rule=%s records=%d\n",rule->groupBody->tag,n);
+    if ( ::getenv("PTF_LEAKLOG") ) { FILE *lf = ::fopen(::getenv("PTF_LEAKLOG"),"a"); if ( lf ) { ::fprintf(lf,"REPLAY rule=%s replayed=%d\n",rule->groupBody->tag,n); ::fclose(lf); } }
+    ::ptfReplayRecords(st);
+    GroupItem *fin = st->label;
+    gPtfRecs = outRecs; gPtfN = outN; gPtfCap = outCap;
+    gPtfAtt = outAtt; gPtfAttN = outAttN; gPtfAttCap = outAttCap;
+    return fin ? fin : ruler->falseResult;
+    %-
+}
+
+// ptfScopeOpen THE RECORDING SCOPE (Tony, 2026-09-25, on ipc SEQ 121): a drive entered while FIRING -- a replay running above the innermost open scope's parse -- is its own root; a drive entered while a parse is in progress records into the enclosing scope, unchanged. ONE WRITER PAIR (these two, called only from the two drive seats: driveStep and jitProbeDrive); gPtfScope is read nowhere else
+extern int ptfScopeOpen()
+{
+    -%
+    if ( !ptfOn() || ::getenv("PTF_NOSCOPE") ) return 0;
+    int mark = gPtfScopeN ? gPtfScope[gPtfScopeN-1].walkMark : 0;
+    if ( gPtfWalkingN <= mark ) return 0;
+    if ( gPtfScopeN >= 64 ) return 0;
+    PtfScope *sc = &gPtfScope[gPtfScopeN++];
+    sc->base = gPtfN; sc->attBase = gPtfAttN; sc->walkMark = gPtfWalkingN;
+    return 1;
+    %-
+}
+
+// ptfStatementEnd the replay half: at a TOP-LEVEL StatemenT's fire, walk every record reachable from its label tree in record order (post-order), replay the hold or fire, and put each returned node back in its child's place as attachLabel would have
+extern GroupItem ptfStatementEnd(GroupItem field, RuleStuff stuff)
+{
+    -%
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    if ( !ptfOn() || ruler->processingCode || !::ptfIsStmt(field) || ::ptfStmtAbove(stuff) ) return 0;
+    if ( !gPtfN ) return 0;
+    return ::ptfReplayRecords(stuff);
+    %-
+}
+
+// ptfStmtAbove is a StatemenT activation above this one -- the activation list inside a drive, the parentStuff chain outside, as deferredAbove walks them
+extern int ptfStmtAbove(RuleStuff stuff)
+{
+    -%
+    if ( !stuff ) return 0;
+    if ( gParseActive && !gParseActive->floor )
+        {
+        ParseActivation *a = gParseActive;
+        if ( a->stuff == stuff ) a = a->prev;
+        for ( ; a && !a->floor; a = a->prev )
             {
-            GroupItem *rreg = token ? token->groupBody->registry : 0;
-            ::fprintf(f,"KWDEC %s word=[%s] today=%d direct=%d compiling=%d isGROUP=%d res=%s/%s file=%s\n",today == direct ? "agree" : "DISAGREE",
-                word,today,direct,(int)ruler->compiling,isGROUP(input->groupBody->flags.data) ? 1 : 0,
-                token && token->groupBody->tag ? token->groupBody->tag : "-",rreg && rreg->groupBody->tag ? rreg->groupBody->tag : "-",
-                ruler->sourceFILE && ruler->sourceFILE->groupBody->tag ? ruler->sourceFILE->groupBody->tag : "-");
-            ::fclose(f);
+            for ( int w = 0; w < gPtfWalkingN; w++ ) if ( gPtfWalking[w] == a->stuff ) return 0;
+            if ( a->stuff && ::ptfIsStmt(a->stuff->rule) )
+                {
+                if ( ptfTraceOn() && ::ptfIsStmt(stuff->rule) ) ::fprintf(stderr,"PTF STMTABOVE via=list above=%p self=%p\n",(void*)a->stuff,(void*)stuff);
+                return 1;
+                }
+            }
+        return 0;
+        }
+    int hops = 0;
+    for ( RuleStuff *up = stuff->parentStuff; up; up = up->parentStuff, hops++ )
+        {
+        // replayFloor a statement being replayed is ABOVE any parse its actions start -- the search stops there
+        for ( int w = 0; w < gPtfWalkingN; w++ ) if ( gPtfWalking[w] == up ) return 0;
+        if ( ::ptfIsStmt(up->rule) )
+            {
+            if ( ptfTraceOn() && ::ptfIsStmt(stuff->rule) )
+                ::fprintf(stderr,"PTF STMTABOVE via=chain hops=%d floorTop=%d above=%p self=%p\n",hops,gParseActive ? gParseActive->floor : -1,(void*)up,(void*)stuff);
+            return 1;
             }
         }
+    return 0;
     %-
-    return null;
 }
 
-// kwDirectRefuses C-FORM, SWITCHED (KW_DIRECT=1, outcome census only): ANYtoken's keyword decision by a direct lookup of the matched text in Keywords, no read of NamE's resolution. -1 = switch off (use today's test), 1 = refuse, 0 = accept
-extern int kwDirectRefuses(GroupItem input)
+// runLeafParse fire a leaf's parse method through its defining rule; a missing method is a named refusal, never a call
+extern GroupItem runLeafParse(GroupItem field)
 {
-    -%
-    if ( !::getenv("KW_DIRECT") ) return -1;
-    GroupRules *ruler = GroupControl::groupController->groupRules;
-    RuleStuff *st = ruler->ruleSTUFF;
-    if ( ruler->compiling || !input || !st || !st->hereAt || !ruler->atRuleMark || ruler->atRuleMark < st->hereAt ) return 0;
-    char word[128];
-    const char *p = st->hereAt;
-    int n = 0;
-    while ( p < ruler->atRuleMark && n < 127 && (::isalnum((unsigned char)*p) || *p == '_') ) word[n++] = *p++;
-    word[n] = 0;
-    GroupItem *kw = n ? ruler->keyWords->get(word) : 0;
-    return kw && !kw->groupBody->flags.noPrint ? 1 : 0;
-    %-
+GroupItem   definer = field.definingRule();
+RuleStuff   defStuff;
+    if definer      defStuff = definer.rStuff;
+    if defStuff && defStuff.parseMethod     return defStuff.parseMethod(field);
+    return refuse(field,"parseLoop: no parse method is installed on the defining rule");
 }
 
-// measureLabelReuse witness: checkInput is RECYCLING a label (its fLAG was set) that still has a PARENT -- i.e. it is still in some tree. aCTionBraced sets the same bit to mean "subscript", so this counts the two meanings colliding. PTF_TRACE-armed, reads only
-extern GroupItem measureLabelReuse(GroupItem label)
+// setParse the top-level entry, and the only one incant calls: reset the per-walk mark, then walk
+extern GroupItem setParse(GroupItem field)
 {
-    -%
-    if ( ptfTraceOn() && label && label->parent )
-        ::fprintf(stderr,"PTF LABELREUSE label=%s stillParented=%s\n",label->groupBody->tag ? label->groupBody->tag : "?",label->parent->groupBody->tag ? label->parent->groupBody->tag : "?");
-    %-
-    return null;
+    // perWalkNotPerProcess the mark breaks the grammar's cycle WITHIN one walk; outliving it refuses a second root over shared nodes
+    clearWalked(field);
+    return setParseWalk(field);
 }
 
-// measureLoopVerdict witness: at parseLoop's verdict, the success flag beside the count -- DISAGREE is the only case the removed flag read would have decided (a stale flag, count short of min); parseTrace-gated, pinned at 0
-extern GroupItem measureLoopVerdict(GroupItem field)
-{
-    -%
-    if ( GroupControl::groupController->groupRules->parseTrace && field && field->rStuff )
-        {
-        RuleStuff *st = field->rStuff;
-        ::fprintf(stderr,"  LOOPVERDICT rule=%s flag=%d kount=%d min=%d %s\n",field->groupBody->tag,
-            (int)st->sukcess,st->kount,st->min,(st->sukcess && st->kount < st->min) ? "DISAGREE" : "agree");
-        }
-    %-
-    return null;
-}
-
-// measureParseClass witness: which parse method setParseWalk just installed on this face -- parseTrace-gated; the fleet pins the parseAction count at 0 (docs/parseSiblings.md)
-extern GroupItem measureParseClass(GroupItem field)
-{
-    -%
-    if ( GroupControl::groupController->groupRules->parseTrace && field && field->rStuff )
-        {
-        void *m = (void*)field->rStuff->parseMethod;
-        const char *name = !m ? "none" : m == (void*)parseAction ? "parseAction" : m == (void*)parseRule ? "parseRule"
-            : m == (void*)parseContainer ? "parseContainer" : m == (void*)parseString ? "parseString" : m == (void*)parseSet ? "parseSet"
-            : m == (void*)parseAny ? "parseAny" : m == (void*)parseCharacter ? "parseCharacter" : m == (void*)parseUpTo ? "parseUpTo"
-            : m == (void*)parseCondition ? "parseCondition" : "other";
-        ::fprintf(stderr,"  PARSECLASS rule=%s method=%s\n",field->groupBody->tag,name);
-        }
-    %-
-    return null;
-}
-
-// measureTargetAgree witness: on a face the old road already visited (followed), does the new road's isTarget agree with what getWhatFollows wrote -- parseTrace-gated, reads only
-extern GroupItem measureTargetAgree(RuleStuff stuff, int computed)
-{
-    -%
-    if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->rule )
-        ::fprintf(stderr,"  TARGETAGREE rule=%s parent=%s followed=%d old=%d new=%d %s\n",
-            stuff->rule->groupBody->tag,
-            stuff->rule->parent ? stuff->rule->parent->groupBody->tag : "(none)",
-            (int)stuff->followed, (int)stuff->isTarget, computed,
-            !stuff->followed ? "unvisited" : ((int)stuff->isTarget == computed ? "agree" : "DISAGREE"));
-    %-
-    return null;
-}
-
-// setTargetFlag the NEW road's isTarget and nothing else: getWhatFollows' target rule, never its onFail/onGroup/hasMacro/testMatch and never the parent min (retired SEQ 152). Run at generation over every face -- Tony, 2026-09-24, F-114 site 3
-extern void setTargetFlag(RuleStuff stuff)
-{
-    -%
-    if ( !stuff || !stuff->rule ) return;
-    GroupItem *r = stuff->rule;
-    int computed = 0;
-    if ( isMember(r->options.affiliation) && r->parent && !r->parent->groupBody->flags.binType )
-        computed = 1;
-    else if ( isEmbedded(r->options.affiliation) )
-        { if ( (r->groupBody->flags.data && r->groupBody->flags.data < 4) || stuff->max == 1 ) computed = 1; }
-    ::measureTargetAgree(stuff, computed);
-    if ( computed ) stuff->isTarget = 1;
-    %-
-}
-
-/*******************************************************************************
-	The walk proper. Recurses into ITSELF, never back through setParse, so the
-    mark is cleared once per top-level walk and not once per node.
-*******************************************************************************/
+// setParseWalk classify each face's parse method; recurses into itself, never back through setParse
 extern GroupItem setParseWalk(GroupItem field)
 {
 RuleStuff   ruleStuff = rStuff;
-    //tokenSkip  A MEMBER WITH isRule 0 IS A TOKEN -- MATCHED, NEVER ENTERED.
+    // tokenSkip a member with isRule 0 is a token -- matched, never entered; isRule 1 with no rStuff is a wound and refuses
     if !ruleStuff {
         if !isRule {
             if groupRules.debugAllRules     cerr "setParseWalk: token " tag ", not entered":;
@@ -1009,20 +837,16 @@ RuleStuff   ruleStuff = rStuff;
         return refuse(field,"setParse: the field passed in has no rStuff"); }
     // newRoadTarget every face with rStuff, before the installed and re-entry exits -- isTarget is what promotes and RETAGS a member's label (09-22 retag ruling, SEQ 192)
     setTargetFlag(ruleStuff);
-    /***************************************************************************
-        Set the parseMethod
-    ***************************************************************************/
-    // walkGuard the grammar is cyclic so parseWalked gets set
-    // silentReEntry  RE-ENTRY IS ROUTINE, NOT AN ERROR.
-    // installedIsDone  AN rStuff CARRYING hasNewParse IS INSTALLED, AND THE WALK LEAVES IT ALONE.
+    // installedIsDone an rStuff carrying hasNewParse is installed, and the walk leaves it alone
     if hasNewParse {
         if groupRules.debugAllRules     cerr "setParseWalk: already installed " tag ", leaving it alone":;
         return null; }
+    // silentReEntry the grammar is a DAG, so re-entry is routine -- return without descending, never refuse
     if parseWalked {
         if groupRules.debugAllRules     cerr "setParseWalk: re-entry on " tag ", not descending":;
         return null; }
     parseWalked = true;
-    //  actionMethodRemoved  THE WALK WRITES gMethod AND parseMethod, AND NOTHING ELSE.
+    // actionMethodRemoved the walk writes gMethod and parseMethod and NOTHING ELSE -- actionMethod is set at definition
     // realTermNotAList a FIELD with nothing but noPrint artifacts is a DATA rule: hasTraits and hasMembers ignore artifacts, groupList does not. The CONVERSION predicate is NOT this test -- it still asks the group's real groupList.
     if upTo || upToOver     parseMethod = parseUpTo;
     or isBIN || isREGISTRY  parseMethod = parseContainer;
@@ -1047,7 +871,23 @@ RuleStuff   ruleStuff = rStuff;
             else setParseWalk(grup); }}
     if max > 1 && (!data || data > 3) field.method = parseLoop;
     else    field.method = parseMethod;
-    // flagFollowsInstall hasNewParse says A METHOD IS THERE TO FIRE, so it is raised HERE and never at entry: parseMethod is null for the isGROUP case and the head cannot know   Generate.setParse.flagFollowsInstall
+    // flagFollowsInstall hasNewParse says a method is there to fire, so it is raised here and never at entry -- isGROUP installs null
     if field.gMethod    field.hasNewParse = true;
     return null;
+}
+
+// setTargetFlag the new road's isTarget and nothing else -- getWhatFollows' target rule, run over every face at generation
+extern void setTargetFlag(RuleStuff stuff)
+{
+    -%
+    if ( !stuff || !stuff->rule ) return;
+    GroupItem *r = stuff->rule;
+    int computed = 0;
+    if ( isMember(r->options.affiliation) && r->parent && !r->parent->groupBody->flags.binType )
+        computed = 1;
+    else if ( isEmbedded(r->options.affiliation) )
+        { if ( (r->groupBody->flags.data && r->groupBody->flags.data < 4) || stuff->max == 1 ) computed = 1; }
+    ::measureTargetAgree(stuff, computed);
+    if ( computed ) stuff->isTarget = 1;
+    %-
 }

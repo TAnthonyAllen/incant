@@ -94,7 +94,6 @@ extern GroupItem addrOf(GroupItem field)
     return field;
 }
 
-
 /*  the invariant is a BICONDITIONAL -- isRule IFF has rStuff -- and the summary
     prints even when clean, because an absence check passes by being deleted.
     measure.auditMissingRules  */
@@ -108,7 +107,6 @@ int         missing = 0;
             missing++; }
     return missing;
 }
-
 
 /*  a TERM of a rule carrying no rStuff. Split from MISSRULE deliberately; the two
     are not one population.   measure.auditMissingRules  */
@@ -128,7 +126,6 @@ int         missing = 0;
                 i++; }}
     return missing;
 }
-
 
 /*  A NO-ARGUMENT CALL HANDS BACK THE COMMAND NODE ITSELF -- that is the test for
     "no argument given", and it is asked of the REGISTRY, not the tag. Run it AFTER
@@ -164,7 +161,6 @@ int         unconsumed = 0;
     return argument;
 }
 
-
 /*  TERM and LOOSE are TWO populations and must not be totalled together -- only
     LOOSE is a defect.   measure.auditMissingRules  */
 extern int auditSpurious(GroupItem registry)
@@ -189,7 +185,6 @@ int         spurious = 0;
     return spurious;
 }
 
-
 /*  an install attribute found in a rule's TERM LIST proves it was never a command
     in that context. Its own check, not MISSTERM's.   measure.auditUnconsumed  */
 extern int auditUnconsumed(GroupItem registry)
@@ -208,7 +203,6 @@ int         found = 0;
                 i++; }}
     return found;
 }
-
 
 /*  prints its counts UNCONDITIONALLY (rule H4): zero pending is a reportable
     answer here, not a silence.   measure.bodyCensus  */
@@ -236,7 +230,6 @@ int         total    = 0;
          " total " toStringFromInt(total):;
     return trueResult;
 }
-
 
 /*  ⚠ definingRule() IS ASSIGNED TO A LOCAL, NEVER TESTED INLINE -- the inline
     form does not parse.   measure.canonOf  */
@@ -266,7 +259,6 @@ GroupItem   canon;
     return canon;
 }
 
-
 /*  SAME MUST EQUAL BINDS, and the row asserts a NON-ZERO total too, because 0 of 0
     is agreement between two absences. ⚠ It reads the counters through
     GroupControl::groupController->groupRules -- a class member, NOT a file static,
@@ -280,7 +272,6 @@ extern GroupItem chanReport(GroupItem input)
     %-
     return trueResult;
 }
-
 
 /*  RELOCATE-THEN-NULL IS STRUCTURAL: the null must be unreachable until the
     relocation is verified. It REFUSES rather than substitutes.   measure.evictAction  */
@@ -303,7 +294,6 @@ int         doEvict = 0;
     return field;
 }
 
-
 /*  labelMinters -- HOW MANY OF THIS RULE'S SUB-TERMS WILL MINT A LABEL. The
     condition is copied from checkInput, not from the spelling.   measure.labelMinters  */
 extern int labelMinters(GroupItem rule)
@@ -321,6 +311,21 @@ int         minters = 0;
     return minters;
 }
 
+// measureAdoption witness: at fireLabelMethod's adoption (the yield channel), a return that is not the label handed in and not a label, by kind -- RULE (isRule or hasNewParse), PROPERTY (the pROPERTIEs registry: StatemenT, true, labelNO -- measured isRule 0, not the grammar rule), FIELD (anything else: a live field). F-122's (b) census; visibility, not refusal. parseTrace-gated, reads only
+extern GroupItem measureAdoption(GroupItem field, GroupItem handed, GroupItem adopted)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace && field && adopted && adopted != handed && !adopted->groupBody->flags.isLabel )
+        {
+        GroupItem *reg = adopted->groupBody->registry;
+        const char *rt = reg && reg->groupBody->tag ? reg->groupBody->tag : "-";
+        const char *kind = (adopted->groupBody->flags.isRule || adopted->groupBody->flags.hasNewParse) ? "RULE"
+                         : ::strcmp(rt,"pROPERTIEs") == 0 ? "PROPERTY" : "FIELD";
+        ::fprintf(stderr,"  ADOPTION kind=%s rule=%s returned=%s registry=%s\n",kind,field->groupBody->tag,adopted->groupBody->tag,rt);
+        }
+    %-
+    return null;
+}
 
 /*  WHAT A BLOCK HANDS BACK, and whether the thing it hands back is a VALUE or a
     SIGNAL. parseTrace gated. ⚠ It READS the state at the foot of the walk; it does not
@@ -340,6 +345,21 @@ extern GroupItem measureBlockResult(GroupItem input, GroupItem result, int stopp
     return result;
 }
 
+// measureDeferredAbove witness: which walk a fire took (the activation list, or the parentStuff chain), its answer, where the walk ended, whether it fired inside a drive and whether it carries an action -- the (b) tripwire counts chain walks inside a drive. parseTrace-gated
+extern GroupItem measureDeferredAbove(RuleStuff stuff, int listWalk, int held, int endKind, int inDrive)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->rule )
+        {
+        GroupItem *r = stuff->rule;
+        int action = (stuff->actionMethod || r->groupBody->flags.actionType || r->getAttribute((char*)"builtinActoR")) ? 1 : 0;
+        const char *end = endKind == 1 ? "floor" : endKind == 2 ? "deferred" : endKind == 3 ? "processingCode" : "empty";
+        ::fprintf(stderr,"  DEFERABOVE rule=%s walk=%s held=%d end=%s inDrive=%d action=%d\n",
+            r->groupBody->tag, listWalk ? "list" : "chain", held, end, inDrive, action);
+        }
+    %-
+    return null;
+}
 
 /*  WHAT opDot RECEIVES ON THE RIGHT. parseTrace gated. The accessor family turns on
     one test -- `argument.registry == groupFields` -- and everything else is a
@@ -362,7 +382,6 @@ extern GroupItem measureDotOperands(GroupItem argument, GroupItem target)
     return argument;
 }
 
-
 /*  THE ACTION SEAT, BEFORE THE FIRE -- the label's isLabel bit on the way IN, then the
     fire marker itself, so the pair brackets whatever the action prints. parseTrace-gated,
     inert otherwise. ⚠ No percent-dash in the format string (bear-trap #40).
@@ -383,7 +402,6 @@ extern GroupItem measureFireLabelActionIn(GroupItem field, GroupItem myLabel)
     %-
     return field;
 }
-
 
 /*  THE ACTION SEAT, AFTER THE FIRE -- whether the node coming BACK is the node that went
     in, and whether it still carries isLabel. A NULL is printed as NULL and never as
@@ -407,7 +425,6 @@ extern GroupItem measureFireLabelActionOut(GroupItem field, GroupItem myLabel)
     return field;
 }
 
-
 /*  THE CAPTURE SEAT in GroupItem's fireLabelMethod -- printed BEFORE captureSpan, so
     the capture's own comparator line sits between this line and measureFireLabelFork's.
     parseTrace-gated, inert otherwise. ⚠ It reads the node it is handed and re-derives
@@ -423,7 +440,6 @@ extern GroupItem measureFireLabelEntry(GroupItem field)
     %-
     return field;
 }
-
 
 /*  THE FORK SEAT in GroupItem's fireLabelMethod -- the four flags the action fork below
     it reads, printed before it forks. parseTrace-gated, inert otherwise. ⚠ The label is
@@ -443,7 +459,6 @@ extern GroupItem measureFireLabelFork(GroupItem field, GroupItem myLabel)
     %-
     return field;
 }
-
 
 /*  THE FRAME SEAT in runRule -- the rule, the field, and the stuff/label chain the
     fork below is about to read. parseTrace-gated, inert otherwise. ⚠ No percent-dash in the format string -- that
@@ -465,6 +480,23 @@ extern GroupItem measureFrameProbe(GroupItem field, GroupItem rule)
     return field;
 }
 
+/*  THE PER-KIND ARM WITNESS. Names the kind-specific operator method that ran and the
+    target it ran on, so a fixture can count the fork -- which is value-transparent by
+    construction, so nothing but a count can see it. Armed by INCANT_KIND_PROBE, inert
+    otherwise. Reads what it is handed; re-derives nothing.
+    measure.measureKindArm  */
+extern GroupItem measureKindArm(String arm,GroupItem field)
+{
+int     sdepth = -1;
+    if field && field.isSTAK && field.stak  sdepth = field.stak.length;
+    -%
+    if ( ::getenv("INCANT_KIND_PROBE") && field )
+        ::fprintf(stderr,"KINDARM %s tag=%s data=%s sdepth=%d\n",
+            arm, field->groupBody->tag ? field->groupBody->tag : "(untagged)",
+            ::dataName(field->groupBody->flags.data), sdepth);
+    %-
+    return field;
+}
 
 /*  TEMPORARY, parseTrace-gated. Prints at the MINT so an outer activation's line
     brackets its inner one's: distinctness is an address comparison, survival is the
@@ -481,7 +513,6 @@ extern GroupItem measureLabelMint(GroupItem field, GroupItem myLabel, GroupItem 
     %-
     return field;
 }
-
 
 /*  ⚠ NOT TEMPORARY -- genLadder/pop.sh PINS THIS LINE BY EXACT STRING (trigDO arms
     1 and 2), so its format is a fleet target and changing it is a re-pin owed a
@@ -503,22 +534,18 @@ extern GroupItem measureLabelProbe(GroupItem field, GroupItem myLabel, GroupItem
     return field;
 }
 
-
-/*  WHAT parseRule's SUCCESS TEST IS ACTUALLY READING: the rule, the node the body
-    returned, and what truthOf makes of it. This settles row 1 independently of any
-    crash. parseTrace-gated. ⚠ No percent-dash in the format string (bear-trap #40).
-    measure.measureParseResult  */
-extern GroupItem measureParseResult(GroupItem field, GroupItem result)
+// measureLoopVerdict witness: at parseLoop's verdict, the success flag beside the count -- DISAGREE is the only case the removed flag read would have decided (a stale flag, count short of min); parseTrace-gated, pinned at 0
+extern GroupItem measureLoopVerdict(GroupItem field)
 {
     -%
-    if ( GroupControl::groupController->groupRules->parseTrace )
-        ::fprintf(stderr,"  PARSERESULT rule=%s result=%p tag=%s truthOf=%d\n",
-            (field ? field->groupBody->tag : "(none)"),
-            (void*)result,
-            (result ? result->groupBody->tag : "(null)"),
-            (result ? ::truthOf(result) : -1));
+    if ( GroupControl::groupController->groupRules->parseTrace && field && field->rStuff )
+        {
+        RuleStuff *st = field->rStuff;
+        ::fprintf(stderr,"  LOOPVERDICT rule=%s flag=%d kount=%d min=%d %s\n",field->groupBody->tag,
+            (int)st->sukcess,st->kount,st->min,(st->sukcess && st->kount < st->min) ? "DISAGREE" : "agree");
+        }
     %-
-    return result;
+    return null;
 }
 
 /*  THE DRIVE STRING'S EXTENT, RECORDED ONCE SO EVERY LATER POINT CAN ASK "IS THE MARK
@@ -567,6 +594,16 @@ extern GroupItem measureMarkPoint(String where)
     return null;
 }
 
+// measureOldFireFlag witness: an OLD-road activation's own success flag right after its action fired -- the flag a nested new-road drive used to overwrite (F-121). parseTrace-gated, reads only
+extern GroupItem measureOldFireFlag(GroupItem field, RuleStuff stuff)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace && field && stuff )
+        ::fprintf(stderr,"  OLDFIREFLAG rule=%s sukcess=%d\n",field->groupBody->tag,(int)stuff->sukcess);
+    %-
+    return null;
+}
+
 /*  TEMPORARY, parseTrace-gated. Which parent can a parseMethod see from the field
     handed in -- the structural one, or the per-invocation parse-time one. Prints
     both with POINTERS, because the discriminator is recursion: one structural node
@@ -588,25 +625,39 @@ extern GroupItem measureParentProbe(GroupItem field)
     return field;
 }
 
-
-/*  THE PER-KIND ARM WITNESS. Names the kind-specific operator method that ran and the
-    target it ran on, so a fixture can count the fork -- which is value-transparent by
-    construction, so nothing but a count can see it. Armed by INCANT_KIND_PROBE, inert
-    otherwise. Reads what it is handed; re-derives nothing.
-    measure.measureKindArm  */
-extern GroupItem measureKindArm(String arm,GroupItem field)
+// measureParseClass witness: which parse method setParseWalk just installed on this face -- parseTrace-gated; the fleet pins the parseAction count at 0 (docs/parseSiblings.md)
+extern GroupItem measureParseClass(GroupItem field)
 {
-int     sdepth = -1;
-    if field && field.isSTAK && field.stak  sdepth = field.stak.length;
     -%
-    if ( ::getenv("INCANT_KIND_PROBE") && field )
-        ::fprintf(stderr,"KINDARM %s tag=%s data=%s sdepth=%d\n",
-            arm, field->groupBody->tag ? field->groupBody->tag : "(untagged)",
-            ::dataName(field->groupBody->flags.data), sdepth);
+    if ( GroupControl::groupController->groupRules->parseTrace && field && field->rStuff )
+        {
+        void *m = (void*)field->rStuff->parseMethod;
+        const char *name = !m ? "none" : m == (void*)parseAction ? "parseAction" : m == (void*)parseRule ? "parseRule"
+            : m == (void*)parseContainer ? "parseContainer" : m == (void*)parseString ? "parseString" : m == (void*)parseSet ? "parseSet"
+            : m == (void*)parseAny ? "parseAny" : m == (void*)parseCharacter ? "parseCharacter" : m == (void*)parseUpTo ? "parseUpTo"
+            : m == (void*)parseCondition ? "parseCondition" : "other";
+        ::fprintf(stderr,"  PARSECLASS rule=%s method=%s\n",field->groupBody->tag,name);
+        }
     %-
-    return field;
+    return null;
 }
 
+/*  WHAT parseRule's SUCCESS TEST IS ACTUALLY READING: the rule, the node the body
+    returned, and what truthOf makes of it. This settles row 1 independently of any
+    crash. parseTrace-gated. ⚠ No percent-dash in the format string (bear-trap #40).
+    measure.measureParseResult  */
+extern GroupItem measureParseResult(GroupItem field, GroupItem result)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace )
+        ::fprintf(stderr,"  PARSERESULT rule=%s result=%p tag=%s truthOf=%d\n",
+            (field ? field->groupBody->tag : "(none)"),
+            (void*)result,
+            (result ? result->groupBody->tag : "(null)"),
+            (result ? ::truthOf(result) : -1));
+    %-
+    return result;
+}
 
 /*  measure.measurePlusEQWrite  */
 extern GroupItem measurePlusEQWrite(GroupItem field)
@@ -624,7 +675,6 @@ extern GroupItem measurePlusEQWrite(GroupItem field)
     %-
     return field;
 }
-
 
 /*  THE TWO STORE SEATS, printed as RAW POINTERS so they are comparable with addrOf's
     `raw` columns across instruments -- the small-integer tables are per-instrument and
@@ -654,7 +704,6 @@ extern GroupItem measurePlusPlusWrite(GroupItem field)
     %-
     return field;
 }
-
 
 /*  THE FORK ABOVE runRule, and it prints the node the NAME actually reached --
     not the node a subscript reaches. parseTrace-gated.
@@ -688,7 +737,6 @@ extern GroupItem measureRuleDispatch(GroupItem op, GroupItem target, GroupItem a
     return target;
 }
 
-
 /*  THE DOOR SEAT in runRule -- WHICH DOOR a rule arrived through, which is the one
     question the dispatch fork above cannot answer. parseTrace-gated, inert otherwise.
     ⚠ IT READS THE STATE IT IS HANDED AND NAMES NO ARM. measureRuleDispatch already
@@ -712,7 +760,6 @@ extern GroupItem measureRuleDoor(GroupItem field, GroupItem rule)
     return field;
 }
 
-
 /*  WHO ASKED THE PARSE TO STOP, and by which verb. parseTrace gated. stopParsingInput
     serves both `stop` and `bail`, and the two are told apart by the node handed in --
     so this prints that node's TAG, which is the discriminator itself, and NOT a
@@ -729,6 +776,19 @@ extern GroupItem measureStopCaller(GroupItem caller)
     return caller;
 }
 
+// measureTargetAgree witness: on a face the old road already visited (followed), does the new road's isTarget agree with what getWhatFollows wrote -- parseTrace-gated, reads only
+extern GroupItem measureTargetAgree(RuleStuff stuff, int computed)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->rule )
+        ::fprintf(stderr,"  TARGETAGREE rule=%s parent=%s followed=%d old=%d new=%d %s\n",
+            stuff->rule->groupBody->tag,
+            stuff->rule->parent ? stuff->rule->parent->groupBody->tag : "(none)",
+            (int)stuff->followed, (int)stuff->isTarget, computed,
+            !stuff->followed ? "unvisited" : ((int)stuff->isTarget == computed ? "agree" : "DISAGREE"));
+    %-
+    return null;
+}
 
 /*  WHICH ARM OF aCTionTokenXP's DISPATCH A TERM TOOK, and whether the dot it carries is
     the LEADING form. parseTrace gated. ⚠ It READS the arm it is handed rather than
@@ -748,7 +808,6 @@ extern GroupItem measureTokenArm(String arm, GroupItem ANYtoken, GroupItem Invok
     %-
     return ANYtoken;
 }
-
 
 /*  IT READS THE BOUND POINTER, it does not re-derive the arm. ⚠ `fires` is a table
     over that pointer and goes stale if a builtin ever gains a fire.
@@ -797,7 +856,6 @@ String      pcName = "other";
     return field;
 }
 
-
 /*  reports POINTERS, never names -- two faces of one rule share a tag by
     construction, so names cannot answer identity.   measure.probeNode  */
 extern GroupItem probeNode(GroupItem argument)
@@ -819,7 +877,6 @@ GroupItem   probed;
 %-
     return probed;
 }
-
 
 /*  an instrument, not a feature: every incant accessor is snapshot-by-value, so
     matching text proves text equality and never node identity.   measure.showBody  */

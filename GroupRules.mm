@@ -2018,11 +2018,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 1;
 }
 
-/*******************************************************************************
-    Clear the per-walk mark over a subtree. Terminates on the cyclic grammar
-    because it only descends into a node it has just UNMARKED, so a cycle meets
-    a cleared node and returns.
-*******************************************************************************/
+// clearWalked clear the per-walk mark over a subtree -- it descends only into a node it just unmarked, so the cyclic grammar terminates
 extern "C" void clearWalked(GroupItem *field)
 {
 GroupItem 	*grup = 0;
@@ -3082,21 +3078,14 @@ char 		dq = 34;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/*******************************************************************************
-	This is a wrapper for returning a parse result (mostly to provide a
-    common place to add a success/failure directive
-*******************************************************************************/
+// exitFromParse the common exit every parse method returns through: sync, fire the label method, attach; a min-zero miss owes a success
 extern "C" GroupItem *exitFromParse(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( ruleStuff->sukcess )
 		{
-		/*  parentLabelSync  the block that stood here re-derived parentStuff from lastRule
-		-- the ENCLOSING rule -- after parseRule had already closed its bracket. parentStuff
-		IS the enclosing rule's stuff, reached through this field's own rStuff, so the
-		re-derivation was a no-op and only the sync it guarded carries anything.
-		Generate.exitFromParse.parentLabelSync  */
+		// parentLabelSync parentStuff IS the enclosing rule's stuff, so only the label sync is owed here
 		if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
 			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
 		if ( ruleStuff->noAdvance )
@@ -4029,14 +4018,7 @@ extern "C" int hasRepeatClass(char *modifier)
 	return 0;
 }
 
-/*******************************************************************************
-    installParseMethod -- PARK THE CLASSIFICATION ON THE DEFINER.
-    // definerHoldsTheMethod as runLeafParse; the definer is where every face reads it
-    // callNotDeclaration frameStak's discipline -- a call, so setParseWalk introduces no
-    // callNotDeclaration declaration and every bare field below it still resolves as before
-    // faceKeepsItsOwn MIN AND MAX ARE NOT MOVED. They stay on the face's own rStuff, which is
-    // faceKeepsItsOwn what a repetition is about; only the METHOD is a fact about the shape.
-*******************************************************************************/
+// installParseMethod park the face's parseMethod on its defining rule; min and max stay on the face, only the method is a fact of the shape
 extern "C" void installParseMethod(GroupItem *field)
 {
 GroupItem 	*definer = field->definingRule();
@@ -8364,38 +8346,6 @@ int 		made = 0;
 	return made;
 }
 
-// measureAdoption witness: at fireLabelMethod's adoption (the yield channel), a return that is not the label handed in and not a label, by kind -- RULE (isRule or hasNewParse), PROPERTY (the pROPERTIEs registry: StatemenT, true, labelNO -- measured isRule 0, not the grammar rule), FIELD (anything else: a live field). F-122's (b) census; visibility, not refusal. parseTrace-gated, reads only
-extern "C" GroupItem *measureAdoption(GroupItem *field, GroupItem *handed, GroupItem *adopted)
-{
-	
-	if ( GroupControl::groupController->groupRules->parseTrace && field && adopted && adopted != handed && !adopted->groupBody->flags.isLabel )
-	{
-	GroupItem *reg = adopted->groupBody->registry;
-	const char *rt = reg && reg->groupBody->tag ? reg->groupBody->tag : "-";
-	const char *kind = (adopted->groupBody->flags.isRule || adopted->groupBody->flags.hasNewParse) ? "RULE"
-	: ::strcmp(rt,"pROPERTIEs") == 0 ? "PROPERTY" : "FIELD";
-	::fprintf(stderr,"  ADOPTION kind=%s rule=%s returned=%s registry=%s\n",kind,field->groupBody->tag,adopted->groupBody->tag,rt);
-	}
-	
-	return 0;
-}
-
-// measureDeferredAbove witness: which walk a fire took (the activation list, or the parentStuff chain), its answer, where the walk ended, whether it fired inside a drive and whether it carries an action -- the (b) tripwire counts chain walks inside a drive. parseTrace-gated
-extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int listWalk, int held, int endKind, int inDrive)
-{
-	
-	if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->rule )
-	{
-	GroupItem *r = stuff->rule;
-	int action = (stuff->actionMethod || r->groupBody->flags.actionType || r->getAttribute((char*)"builtinActoR")) ? 1 : 0;
-	const char *end = endKind == 1 ? "floor" : endKind == 2 ? "deferred" : endKind == 3 ? "processingCode" : "empty";
-	::fprintf(stderr,"  DEFERABOVE rule=%s walk=%s held=%d end=%s inDrive=%d action=%d\n",
-	r->groupBody->tag, listWalk ? "list" : "chain", held, end, inDrive, action);
-	}
-	
-	return 0;
-}
-
 // measureFireOrder witness M1: one line per label action at its FIRE (or its hold) -- rule identity, the label's tag at that instant, fired or held, the label's children; phase says whether it came from fireLabelMethod (parse) or the statement-end replay (walk). PTF_TRACE-armed, reads only
 extern "C" GroupItem *measureFireOrder(GroupItem *field, GroupItem *label, int held, int phase, char *origTag)
 {
@@ -8466,47 +8416,6 @@ extern "C" GroupItem *measureLabelReuse(GroupItem *label)
 	return 0;
 }
 
-// measureLoopVerdict witness: at parseLoop's verdict, the success flag beside the count -- DISAGREE is the only case the removed flag read would have decided (a stale flag, count short of min); parseTrace-gated, pinned at 0
-extern "C" GroupItem *measureLoopVerdict(GroupItem *field)
-{
-	
-	if ( GroupControl::groupController->groupRules->parseTrace && field && field->rStuff )
-	{
-	RuleStuff *st = field->rStuff;
-	::fprintf(stderr,"  LOOPVERDICT rule=%s flag=%d kount=%d min=%d %s\n",field->groupBody->tag,
-	(int)st->sukcess,st->kount,st->min,(st->sukcess && st->kount < st->min) ? "DISAGREE" : "agree");
-	}
-	
-	return 0;
-}
-
-// measureOldFireFlag witness: an OLD-road activation's own success flag right after its action fired -- the flag a nested new-road drive used to overwrite (F-121). parseTrace-gated, reads only
-extern "C" GroupItem *measureOldFireFlag(GroupItem *field, RuleStuff *stuff)
-{
-	
-	if ( GroupControl::groupController->groupRules->parseTrace && field && stuff )
-	::fprintf(stderr,"  OLDFIREFLAG rule=%s sukcess=%d\n",field->groupBody->tag,(int)stuff->sukcess);
-	
-	return 0;
-}
-
-// measureParseClass witness: which parse method setParseWalk just installed on this face -- parseTrace-gated; the fleet pins the parseAction count at 0 (docs/parseSiblings.md)
-extern "C" GroupItem *measureParseClass(GroupItem *field)
-{
-	
-	if ( GroupControl::groupController->groupRules->parseTrace && field && field->rStuff )
-	{
-	void *m = (void*)field->rStuff->parseMethod;
-	const char *name = !m ? "none" : m == (void*)parseAction ? "parseAction" : m == (void*)parseRule ? "parseRule"
-	: m == (void*)parseContainer ? "parseContainer" : m == (void*)parseString ? "parseString" : m == (void*)parseSet ? "parseSet"
-	: m == (void*)parseAny ? "parseAny" : m == (void*)parseCharacter ? "parseCharacter" : m == (void*)parseUpTo ? "parseUpTo"
-	: m == (void*)parseCondition ? "parseCondition" : "other";
-	::fprintf(stderr,"  PARSECLASS rule=%s method=%s\n",field->groupBody->tag,name);
-	}
-	
-	return 0;
-}
-
 // measureParseFire witness M2: an action firing from fireLabelMethod itself, i.e. DURING the parse, by class -- ORDINARY is what step 1 relocates (the branch must read none), define/decides are the ruled exemptions, outside is a fire with no statement around it, code is processCode's own parse. PTF_TRACE-armed, reads only
 extern "C" GroupItem *measureParseFire(GroupItem *field, RuleStuff *stuff)
 {
@@ -8523,20 +8432,6 @@ extern "C" GroupItem *measureRetire(char *what, GroupItem *field)
 	
 	if ( ::getenv("PTF_RETIRE") )
 	::fprintf(stderr,"RETIRE %s rule=%s\n",what ? what : "?",field && field->groupBody->tag ? field->groupBody->tag : "?");
-	
-	return 0;
-}
-
-// measureTargetAgree witness: on a face the old road already visited (followed), does the new road's isTarget agree with what getWhatFollows wrote -- parseTrace-gated, reads only
-extern "C" GroupItem *measureTargetAgree(RuleStuff *stuff, int computed)
-{
-	
-	if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->rule )
-	::fprintf(stderr,"  TARGETAGREE rule=%s parent=%s followed=%d old=%d new=%d %s\n",
-	stuff->rule->groupBody->tag,
-	stuff->rule->parent ? stuff->rule->parent->groupBody->tag : "(none)",
-	(int)stuff->followed, (int)stuff->isTarget, computed,
-	!stuff->followed ? "unvisited" : ((int)stuff->isTarget == computed ? "agree" : "DISAGREE"));
 	
 	return 0;
 }
@@ -10630,20 +10525,11 @@ GroupItem 	*artifact = 0;
 	return 1;
 }
 
-/*******************************************************************************
-	Process a parseAction
-*******************************************************************************/
+// parseAction run the rule's action as its parse -- handed the field for a parseACTION rule or when there is no label, else the label
 extern "C" GroupItem *parseAction(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
-	/*  ownSlot  THREE SLOTS, THREE MEANINGS (Tony, 2026-09-14): gMethod is the ENTRY
-	(parseLoop for a repeating term, the leaf otherwise), rStuff.parseMethod is the
-	LEAF, and rStuff.actionMethod is the rule's ACTION. parseAction wants the ACTION
-	and used to read gMethod -- which setParseWalk's tail overwrites with the parse
-	method, so on a node classified parseACTION gMethod IS parseAction and the body
-	called itself until the stack was gone. setParseWalk captures the action into
-	actionMethod at its HEAD, before that overwrite, so the slot is already correct
-	here and nothing upstream moves.   Generate.parseAction.ownSlot  */
+	// ownSlot read actionMethod, never gMethod -- on a parseACTION node gMethod IS parseAction and the call recurses forever
 	ruleStuff->sukcess = 0;
 	// noNullActor the old spelling read gMethod, which setParseWalk always fills; actionMethod can be empty, and calling it would trade the self-recursion for a null call
 	if ( !ruleStuff->actionMethod )
@@ -10661,9 +10547,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return ::exitFromParse(field);
 }
 
-/*******************************************************************************
-	Run a wild card test on this group against current input
-*******************************************************************************/
+// parseAny the leaves are the generated-path twins of RuleStuff's testMacro: tester loop, advance, then ONE min gate -- copy the template
 extern "C" GroupItem *parseAny(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10717,9 +10601,7 @@ char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 	return ::leaveRule(rule,into,label,from,::lit(t1,"[") && ::parseR(t2,label) && ::lit(t3,"]"));
 }
 
-/*******************************************************************************
-	Run a character test on this group against current input
-*******************************************************************************/
+// parseCharacter match a run of one character against the current input
 extern "C" GroupItem *parseCharacter(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10759,9 +10641,7 @@ int 		more = 0;
 	return ::exitFromParse(field);
 }
 
-/*******************************************************************************
-	Process a condition
-*******************************************************************************/
+// parseCondition a condition succeeds exactly when min is set
 extern "C" GroupItem *parseCondition(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
@@ -10771,9 +10651,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return ::exitFromParse(field);
 }
 
-/*******************************************************************************
-    Registry and Container test looks for a field entry that matches the input stream.
-*******************************************************************************/
+// parseContainer match the longest input prefix that names an entry of this bin or registry
 extern "C" GroupItem *parseContainer(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10789,14 +10667,7 @@ int 		matched = 0;
 	if ( ruler->currentMETHOD && ruler->currentMETHOD->get(field->groupBody->tag) )
 		field = ruler->currentMETHOD->get(field->groupBody->tag);
 	ruleStuff = field->getRStuff();
-	/*  noStuffLawfulSkip  A REGISTRY LAWFULLY CARRIES NO rStuff (Ruling D1), and it reaches
-	noStuffLawfulSkip  here BY BARE NAME from an emitted body -- `Operators`, isRule 0,
-	noStuffLawfulSkip  binType isREGISTRY. This is a SKIP, NOT A REFUSAL: a refusal inside a
-	noStuffLawfulSkip  parse aborts the action containing it, so that option is out (Tony,
-	noStuffLawfulSkip  2026-09-20). The match runs with DEFAULT LIMITS -- no checkInput gate,
-	noStuffLawfulSkip  noAdvance false so the mark advances, no label to fill -- and it exits
-	noStuffLawfulSkip  WITHOUT exitFromParse, which dereferences rStuff at its first line.
-	noStuffLawfulSkip  ⚠ NOTHING IS MINTED ONTO THE REGISTRY and ensureRStuff is NOT called.  */
+	// noStuffLawfulSkip a registry has no rStuff: match with default limits and exit WITHOUT exitFromParse -- never refuse, never mint onto it
 	if ( !ruleStuff )
 		{
 		buffer->reset();
@@ -10867,12 +10738,10 @@ int 		matched = 0;
 	return ::exitFromParse(field);
 }
 
+// parseLoop run a repeating term up to max; the verdict is the COUNT against min, never the success flag
 extern "C" GroupItem *parseLoop(GroupItem *field)
 {
-	// enclosingRule currentMETHOD is the rule whose body is executing, kept under parseRule's own priorMETHOD bracket. MEASURED at both re-resolve sites: it tracks lastRule exactly -- GrouP/Search, NamE/GrouP   Generate.parseLoop.enclosingRule
-	// onlyIfFound the old guard was `if lastRule`, and lastRule was null exactly where this
-	// lookup finds nothing; currentMETHOD is set more often, so an unfound tag would overwrite
-	// field with NULL and parseRule would deref it. Tested on the lookup, not on the source.
+	// enclosingRule re-resolve to the enclosing rule's own face, tested on the lookup so an unfound tag never overwrites field with null
 	if ( GroupControl::groupController->groupRules->currentMETHOD && GroupControl::groupController->groupRules->currentMETHOD->get(field->groupBody->tag) )
 		field = GroupControl::groupController->groupRules->currentMETHOD->get(field->groupBody->tag);
 RuleStuff *ruleStuff = field->getRStuff();
@@ -10882,7 +10751,7 @@ RuleStuff *ruleStuff = field->getRStuff();
 			break;
 		else	ruleStuff->kount++;
 	// countNotFlag the verdict is the COUNT, never the flag -- the last attempt is the failing one that ends the run, and a stale flag would pass a short run; the flag read is removed (Tony, 2026-09-24; SEQ 195)
-	measureLoopVerdict(field);
+	::measureLoopVerdict(field);
 	if ( ruleStuff->kount >= ruleStuff->min )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
@@ -10920,7 +10789,7 @@ int 		n = 0;
 	return 0;
 }
 
-// parseRule -- parse a rule; processCode has already run on field. A new declaration re-points every bare field below it (bear-trap #42): diff the generated .mm against HEAD after any edit here   Generate.parseRule.bareFieldRepoint
+// parseRule run a rule's generated body; a new declaration here re-points every bare field below it (bear-trap #42)
 extern "C" GroupItem *parseRule(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10953,7 +10822,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
 			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
 		}
-	// bareFieldRepoint the use lines below are load bearing
+	// bareFieldRepoint the use lines below are load bearing -- a new declaration re-points every bare field under it
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput() )
 		{
@@ -11196,9 +11065,7 @@ char 		*from = GroupControl::groupController->groupRules->atRuleMark;
 	return ::leaveRule(rule,into,label,from,::lit(t1,"(") && ::parseR(t2,label) && ::lit(t3,")"));
 }
 
-/*******************************************************************************
-	Run a character set test on this group against current input
-*******************************************************************************/
+// parseSet match a run of characters from this rule's character set
 extern "C" GroupItem *parseSet(GroupItem *field)
 {
 PLGset 		*set = field->getCharacterSet();
@@ -11239,9 +11106,7 @@ int 		more = 0;
 	return ::exitFromParse(field);
 }
 
-/***************************************************************************
-	Parse method for a field w/data = isSTRING or isTOKEN
-***************************************************************************/
+// parseString match this rule's string or token text at the current input
 extern "C" GroupItem *parseString(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -11290,9 +11155,7 @@ RuleStuff 	*stuff = 0;
 	return input->getGroup();
 }
 
-/*******************************************************************************
-	Process an up to match
-*******************************************************************************/
+// parseUpTo match everything up to (or over) the rule's terminator, through testUpTo
 extern "C" GroupItem *parseUpTo(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
@@ -12562,6 +12425,7 @@ extern "C" GroupItem *ptfReplayRecords(RuleStuff *stuff)
 	return 0;
 }
 
+// ptfScopeClose close the scope ptfScopeOpen opened: replay the drive's own records from its root, or drop them on a rejected parse (a tripwire since P2)
 extern "C" GroupItem *ptfScopeClose(GroupItem *rule, GroupItem *result)
 {
 	
@@ -12603,7 +12467,7 @@ extern "C" GroupItem *ptfScopeClose(GroupItem *rule, GroupItem *result)
 	
 }
 
-// ptfScopeOpen / ptfScopeClose THE RECORDING SCOPE (Tony, 2026-09-25, on ipc SEQ 121): a drive entered while FIRING -- a replay running above the innermost open scope's parse -- is its own root; a drive entered while a parse is in progress records into the enclosing scope, unchanged. ONE WRITER PAIR (these two, called only from the two drive seats: driveStep and jitProbeDrive); gPtfScope is read nowhere else
+// ptfScopeOpen THE RECORDING SCOPE (Tony, 2026-09-25, on ipc SEQ 121): a drive entered while FIRING -- a replay running above the innermost open scope's parse -- is its own root; a drive entered while a parse is in progress records into the enclosing scope, unchanged. ONE WRITER PAIR (these two, called only from the two drive seats: driveStep and jitProbeDrive); gPtfScope is read nowhere else
 extern "C" int ptfScopeOpen()
 {
 	
@@ -13279,19 +13143,7 @@ exitRunAction:
 	return result;
 }
 
-/*******************************************************************************
-	Process a loop (max > 1)
-*******************************************************************************/
-/*******************************************************************************
-    runLeafParse -- FIRE A LEAF'S PARSE METHOD THROUGH ITS DEFINER.
-    // definerHoldsTheMethod parseMethod is a fact about the rule's SHAPE, so it is READ from
-    // definerHoldsTheMethod definingRule(); a face that setParseWalk turned away at the installed
-    // definerHoldsTheMethod gate carries none of its own. F-98.
-    // refuseNeverCall A MISSING METHOD IS A NAMED REFUSAL, never a call -- parseLoop used to fire
-    // refuseNeverCall the slot unguarded and jumped to address 0, and a BARE guard would only trade
-    // refuseNeverCall the crash for a silent wrong answer. runRule refuses the sibling case by name.
-    // callNotDeclaration frameStak's discipline -- a call, so parseLoop introduces no declaration
-*******************************************************************************/
+// runLeafParse fire a leaf's parse method through its defining rule; a missing method is a named refusal, never a call
 extern "C" GroupItem *runLeafParse(GroupItem *field)
 {
 GroupItem 	*definer = field->definingRule();
@@ -13822,15 +13674,10 @@ int 		offset = markOffset->getCount();
 	return 0;
 }
 
-/*******************************************************************************
-	Set parseMethod and label for the field passed in. For now does not handle macros
-
-    THE TOP-LEVEL ENTRY, and the only one incant calls. It resets the per-walk
-    mark and hands off to setParseWalk.
-*******************************************************************************/
+// setParse the top-level entry, and the only one incant calls: reset the per-walk mark, then walk
 extern "C" GroupItem *setParse(GroupItem *field)
 {
-	// perWalkNotPerProcess the mark breaks the cyclic grammar WITHIN one walk and must not outlive it, or a second legitimate root over shared nodes is refused instead of classified   Generate.setParse.perWalkNotPerProcess
+	// perWalkNotPerProcess the mark breaks the grammar's cycle WITHIN one walk; outliving it refuses a second root over shared nodes
 	::clearWalked(field);
 	return setParseWalk(field);
 }
@@ -13854,14 +13701,11 @@ extern "C" int setParseMethod(RuleStuff *stuff, char *name)
 	
 }
 
-/*******************************************************************************
-	The walk proper. Recurses into ITSELF, never back through setParse, so the
-    mark is cleared once per top-level walk and not once per node.
-*******************************************************************************/
+// setParseWalk classify each face's parse method; recurses into itself, never back through setParse
 extern "C" GroupItem *setParseWalk(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
-	//tokenSkip  A MEMBER WITH isRule 0 IS A TOKEN -- MATCHED, NEVER ENTERED.
+	// tokenSkip a member with isRule 0 is a token -- matched, never entered; isRule 1 with no rStuff is a wound and refuses
 	if ( !ruleStuff )
 		{
 		if ( !field->groupBody->flags.isRule )
@@ -13873,19 +13717,15 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		return ::refuse(field,"setParse: the field passed in has no rStuff");
 		}
 	// newRoadTarget every face with rStuff, before the installed and re-entry exits -- isTarget is what promotes and RETAGS a member's label (09-22 retag ruling, SEQ 192)
-	::setTargetFlag(ruleStuff);
-	/***************************************************************************
-	Set the parseMethod
-	***************************************************************************/
-	// walkGuard the grammar is cyclic so parseWalked gets set
-	// silentReEntry  RE-ENTRY IS ROUTINE, NOT AN ERROR.
-	// installedIsDone  AN rStuff CARRYING hasNewParse IS INSTALLED, AND THE WALK LEAVES IT ALONE.
+	setTargetFlag(ruleStuff);
+	// installedIsDone an rStuff carrying hasNewParse is installed, and the walk leaves it alone
 	if ( field->groupBody->flags.hasNewParse )
 		{
 		if ( GroupControl::groupController->groupRules->debugAllRules )
 			::fprintf(stderr,"setParseWalk: already installed %s, leaving it alone\n",field->groupBody->tag);
 		return 0;
 		}
+	// silentReEntry the grammar is a DAG, so re-entry is routine -- return without descending, never refuse
 	if ( field->groupBody->flags.parseWalked )
 		{
 		if ( GroupControl::groupController->groupRules->debugAllRules )
@@ -13893,7 +13733,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		return 0;
 		}
 	field->groupBody->flags.parseWalked = 1;
-	//  actionMethodRemoved  THE WALK WRITES gMethod AND parseMethod, AND NOTHING ELSE.
+	// actionMethodRemoved the walk writes gMethod and parseMethod and NOTHING ELSE -- actionMethod is set at definition
 	// realTermNotAList a FIELD with nothing but noPrint artifacts is a DATA rule: hasTraits and hasMembers ignore artifacts, groupList does not. The CONVERSION predicate is NOT this test -- it still asks the group's real groupList.
 	if ( upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo) )
 		ruleStuff->parseMethod = ::parseUpTo;
@@ -13949,7 +13789,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3) )
 		field->setMethod(::parseLoop);
 	else	field->setMethod(ruleStuff->parseMethod);
-	// flagFollowsInstall hasNewParse says A METHOD IS THERE TO FIRE, so it is raised HERE and never at entry: parseMethod is null for the isGROUP case and the head cannot know   Generate.setParse.flagFollowsInstall
+	// flagFollowsInstall hasNewParse says a method is there to fire, so it is raised here and never at entry -- isGROUP installs null
 	if ( field->groupBody->gMethod )
 		field->groupBody->flags.hasNewParse = 1;
 	return 0;
@@ -13995,7 +13835,7 @@ char 		*name = 0;
 	return item;
 }
 
-// setTargetFlag the NEW road's isTarget and nothing else: getWhatFollows' target rule, never its onFail/onGroup/hasMacro/testMatch and never the parent min (retired SEQ 152). Run at generation over every face -- Tony, 2026-09-24, F-114 site 3
+// setTargetFlag the new road's isTarget and nothing else -- getWhatFollows' target rule, run over every face at generation
 extern "C" void setTargetFlag(RuleStuff *stuff)
 {
 	
