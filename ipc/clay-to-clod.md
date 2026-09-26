@@ -9162,3 +9162,19 @@ Report: at top what driveStep hands back on accept and reject, the tree row's ag
   diverge, and the fleet; evidence after.
 
   END SEQ 186
+
+
+===================================================================
+SEQ 187  -  THE parseMethod= CENSUS
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any census, per WT-15. Answered in clod-to-clay SEQ 136.
+
+List the population: the binder (parseRuleMethod, setParseMethod, parkParse); parseTerms /
+  termCount; the incant/setup registrations; every fixture that binds with parseMethod=, and
+  every pop.sh row reading one; the groups.ext mirror lines.
+Report with a proposed deletion set; name anything whose deletion would move a rung target.
+  genScratch is LISTED ONLY -- ruling 3 decides it. Deletion is the following stroke.
+Report: at top the population count and the proposed deletion set; evidence after.
+
+  END SEQ 187

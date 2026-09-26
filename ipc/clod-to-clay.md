@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 135 at the FOOT -- SEQ 186 DONE: the floor carries a generated root's label; tree row AGREES; tree.sh/mixed.sh retired
+STATUS:   fresh           # SEQ 136 at the FOOT -- SEQ 187 CENSUS: 61 items in 7 groups; deletion in two tiers, tier 2 gated on ruling 3 (it moves genScratch's rung targets)
+# prior: SEQ 135 -- SEQ 186 DONE: the floor carries a generated root's label; tree row AGREES; tree.sh/mixed.sh retired
 # prior: SEQ 134 -- SEQ 185 (iii) LANDED: treeOf through driveStep, item A green (door 1/1/1/1, sentinel present); next is (i), the floor reader
 # prior: SEQ 133 -- SEQ 184 STOPPED on a measured premise: a generated root's rStuff.label reads NULL after every drive, so P3a's reader as designed returns nothing
 # prior: SEQ 132 -- SEQ 183 STOPPED before the row: the subject runs on the kant road, but NOTHING can read a generated root's label tree back (P3a's reader, HELD)
@@ -7754,4 +7755,78 @@ FLEET: trunk 757 -> 763 / 1 (+6); branch PTF=0 757 -> 763, PTF=1 756 -> 762, red
   station 4; canary 425 trunk / 441 branch.
 NEXT: the census of the parseMethod= population (a proposed deletion set, deletion its own
   stroke); then ruling 3 (demoRprime).
+
+
+===================================================================
+SEQ 136  -  SEQ 187: THE parseMethod= CENSUS (read only, nothing edited)
+===================================================================
+STATUS: fresh.
+
+POPULATION: 61 items in 7 groups. Search: every file type, whole tree (bear-trap #47), code
+callers counted on codeOnly-stripped .rtn/.twk; docs/ are history and not counted.
+
+ 1. BINDER (3): parseRuleMethod (genParse.rtn) -> setParseMethod (dlsym into rStuff.parseMethod)
+    + parkParse (Commands.rtn, writes the ParsE name). Each has 2 callers: parseRuleMethod and
+    kantDoor. NB the rStuff.parseMethod SLOT is live (setParseWalk writes it) -- only the dlsym
+    writer goes.
+ 2. parseTerms/termCount (2): parseTermCount (genParse.rtn) and RuleStuff.termCount, read only by
+    parseRuleMethod's guard. termCount is a LAYOUT change (bear-trap #10/#16: groups.ext + tokall).
+    NOT population: the `termCount;` fields in parser, searchAcc, searchAccB, trigDO -- kant
+    fields of the same name.
+ 3. setup REGISTRATIONS (2): incant/setup:73-74, plus prose section 1 (install vocabulary),
+    which also names setParse/parseClassify -- those stay.
+ 4. SAME-ROAD DEAD CODE (17), not in the dispatch's list but reachable only through the parked
+    slot, which nothing reads since 0150f29:
+      zero code callers   kantDoor, kantDoored, parseViaKant (dlsym'd by name from kantDoor
+                          only), fireNewParse, showParse
+      pasted bodies       parseScaf, parseScaf2, parseScafA, B, C, E, F, I, ALT, OUT, manyScafC1
+                          (called by parseScafC), parseBraced -- dlsym targets of fixture binds
+ 5. FIXTURES THAT BIND (6): genScratch (13 live lines; LISTED ONLY, ruling 3), treeScratch,
+    kantParse1, bindSeamB (binds onto the REAL grammar rule Braced), bracedK, genLadder/breakFire.
+    Not binders (prose only): designDocs, parseCode.
+ 6. HARNESS ROWS (10 in pop.sh + 5 scripts):
+      genScratch (ruling 3's)  genScratch runs; rung12/4/5/6/7.target; MANIER pin
+      bindSeamB                runs; PINNED 251; "reaches Braced by the GENERATED arm" (RED today)
+      scripts                  tree.sh, mixed.sh (retired 09-26), parked.sh (bindSeamB parkrow),
+                               smoke.sh (slots: bracedK, kantParse1), kantRatchet.sh (kantParse1,
+                               bracedK, parseCode)
+    NOT population: recordPop.sh's "bind: Braced parseTerms=3 ..." -- the EMITTER's printed
+    comment (genParse.rtn:599), untouched by any binder deletion.
+ 7. groups.ext MIRROR LINES (16): 765 termCount (external RuleStuff); 814 parkParse, 815
+    fireNewParse, 835 parseRuleMethod, 836 parseTermCount, 838 kantDoor, 839 kantDoored,
+    860-868 parseScafA/B, manyScafC1, parseScafC/E/F/I/ALT/OUT (external GroupRules.h).
+
+WHAT WOULD MOVE A RUNG TARGET:
+  - Deleting the BINDER COMMANDS (group 1's parseRuleMethod, group 2's parseTermCount, group 3)
+    moves rung4/5/6/12 (and rung7, red): genScratch's Scaf rules carry parseTerms=/parseMethod=
+    attributes, and without the commands those attributes are parsed as ORDINARY TERMS -- the
+    failure setup's own prose records (Braced 3 terms -> 5). The emitted bodies change shape.
+    genScratch's own `define parseMethod immediateAction=parseRuleMethod` lines fail the same way.
+  - bindSeamB would break the REAL Braced rule the same way, so it leaves with the binder.
+  - Deleting group 4 alone is PREDICTED not to move a target: the rung targets are extracted from
+    genScratch's EMITTED output, not from the pasted copies; genScratch's binds would print a
+    "no method of that name" refusal outside the extracted ranges. Predicted, not measured.
+
+PROPOSED DELETION SET (the next stroke), in two tiers:
+  TIER 1 -- independent of ruling 3:
+    kantDoor, kantDoored, parseViaKant, fireNewParse, showParse; the pasted bodies parseScaf ...
+    parseScafOUT, manyScafC1, parseBraced; their groups.ext lines (838, 839, 815, 860-868);
+    fixtures kantParse1, bracedK, breakFire, and their slots in smoke.sh / kantRatchet.sh.
+    Certificate: fleet unmoved, rung targets byte-identical (the prediction above, measured).
+  TIER 2 -- GATED ON RULING 3 (it moves genScratch's rung targets):
+    parseRuleMethod, setParseMethod, parkParse, parseTermCount, RuleStuff.termCount (layout),
+    setup:73-74 and its prose, groups.ext 765/814/835/836; bindSeamB with its three pop.sh rows
+    and parked.sh's parkrow, retired by mapping (PINNED 251 is PC-1's statement -- it needs a
+    home or a sentence; the generated-arm row is already red and asserts the dead road).
+  KEPT BY RULING: treeScratch, tree.sh, mixed.sh stay as history (SEQ 183).
+  LISTED ONLY: genScratch and its 7 rows (ruling 3); docs/ (history).
+
+OVERLAPS, flagged not proposed:
+  - Task 2 (RuleStuff.twk below testUpTo): lit, litTo, litOption, inGuard, containerTo, ctProbe,
+    leaveRule, leaveAlt are the tok-emitted bodies' helpers -- callers in genParse.rtn (the
+    pasted bodies and the emitter's strings) and in RuleStuff itself. Tier 1 may orphan some of
+    them. parseR is LIVE (driveStep's no-data arm) and stays whatever else goes.
+  - measure.twk:200: an audit skips terms tagged parseMethod/parseTerms -- residue after tier 2.
+
+STATE: nothing edited; trunk installed and BARE, fleet 763 / 1, canary 425, repos clean.
 
