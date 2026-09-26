@@ -1567,6 +1567,13 @@ Hard-won lessons. Each one has cost real debugging time.
     current, instead of having to guess how far behind it has drifted. Before the rule it had sat
     uncommitted since 2026-08-21 carrying eleven insertions. First application: support `8100bb3`
     (twelve insertions), alongside Groups `df9f634`.
+    ⚠⚠ **AND A BRANCH NEVER PUTS A LINE IN `groups.ext` THAT TRUNK'S SOURCE DOES NOT MATCH — Tony,
+    standing from 2026-09-26 (SEQ 195 amended).** `groups.ext` is one file shared by every branch, and
+    tok's `.h` ivar list is additive against it (#16), so a branch-only member leaks into trunk's
+    generated class on trunk's next retok with no source behind it. **The cure is to make trunk agree
+    in the same stroke:** declare the member on trunk too, inert, commented with the branch that
+    reads it. First case: `branchKind` (P4, `parse-then-fire`), declared inert in trunk's
+    `GroupRules.twk`; a full bare tokall on trunk was then byte-identical and the fleet unmoved.
 
 12. **`extern "C"` name collisions link-fail silently until `Ld`** — two unrelated `extern`s
     with the same name in different `.twk` files compile clean individually (each file's own
