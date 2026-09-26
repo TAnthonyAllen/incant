@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 141 at the FOOT -- SEQ 192 (Task 2) DONE: subdirectories clean, RuleStuff.twk tidied, parseGeneric gone, fleet unmoved
+STATUS:   fresh           # SEQ 142 at the FOOT -- SEQ 193: banked three; P3 owes nothing, P7 has three moved premises; P4 STOPPED at 1b, its rows read 0 BEFORE the change
+# prior: SEQ 141 -- SEQ 192 (Task 2) DONE: subdirectories clean, RuleStuff.twk tidied, parseGeneric gone, fleet unmoved
 # prior: SEQ 140 -- SEQ 191 DONE: shapeBodyT + parserCoverage built green, then the C++ emitter, tier 2, parseJSON*, the helpers and the stored-body verbs retired
 # prior: SEQ 139 -- SEQ 190 C++ EMITTER CENSUS: 76 items; 2 questions have a kant-road home (no row yet), 5 have none
 # prior: SEQ 138 -- SEQ 189 (ruling 3a) DONE: demoRprime gone, genScratch untruncated, rung7 GREEN; next is the C++ emitter census
@@ -7997,3 +7998,48 @@ DESIGNDOCS: keep checkInput, getWhatFollows; trim enclosingActivation (amended f
   testMacro.limitAtTop; deleted none.
 parseGeneric DELETED (no callers).
 
+
+
+===================================================================
+SEQ 142  -  SEQ 193: BANKED; P3/P7 RE-READ; P4 STOPPED AT 1b
+===================================================================
+AT TOP: fleet unmoved everywhere. Branch e181681: PTF=0 753 / 1 (54 red == trunk row
+for row), PTF=1 752 / 1 (+ probeDoorT stmtRejT, site1RoadsT), jitLadder 215 at both.
+Trunk dd541b6 reinstalled for Tony's offline work, 753 / 1. Canary 413 summed across
+headers (GroupRules.h 320) on the branch.
+
+0. BANKED (trunk dd541b6). refireSkipsDegraded's dead region carries the 16:18 signature,
+   the three-window rewrite spec (2/1/1 today, 2/0/1 fixed) and the call-through as BEST
+   GUESS; the live region is untouched (Tony's, offline). ShRep and the named gap are in
+   the branch's pause docket (docs/jitDesign.md), not probed.
+
+1a. P3 OWES NOTHING OF ITS OWN. Routing landed, demoRprime retired rather than routed,
+    census 7 -> 5, tree.sh/mixed.sh/genScratch retired to treeRowT. Moved premise: the
+    root's rStuff.label read NULL after every drive; the floor slot is the reader. It
+    hands forward driveDoorT's discard 0/0/0/0, P7's H7 pair.
+    P7: THREE PREMISES MOVED. (1) the discard model: since P2 (i) rejected is 0 and
+    failed-alternative 13,349, so (d)'s 2,621 / 12,410 is the old split. (2) every count
+    in (a)-(c) predates SEQ 191 (14 fixtures, 7 setup registrations gone), so the
+    bootstrap 2,512 SEQ 179 says to pin is re-measured, never carried. (3) what P7 makes
+    non-zero, read off the plan: driveDoorT's non-StatemenT drive roots -- not setup's
+    parse, so SEQ 179's STOP clause does not trip on that reading. A reading, not a
+    measurement. Unmoved: the eight M1 fixtures, sweepT, jitProbeDrive's seat.
+
+1b. P4 STOPPED -- THE CERTIFICATE CANNOT BE CASHED AS WRITTEN. The accessor landed alone
+    (isBrancH, GroupFields 45, read-only). Driven on today's stamped binary first (H16):
+      PLAN-1 return x: x isBranch          0   (plan wants 0 after; it is 0 before)
+      PLAN-2 failed operand: false         0   (same)
+      CAND-1 continue v: v isBranch        2   (loop ran 2 -- the sibling)
+      CAND-2 testing()'d return w: w       3
+    processAction already ends `result.isBranch = 0` (GroupActions.rtn:596), so the plan
+    rows are void and its H7 cannot fire. The stamp survives where a loop consumes
+    continue without clearing the node, and where the compile has no processAction
+    frame. Proposed replacement (Tony's to rule): CAND-1 and CAND-2 read 0, plus a leak
+    row per bracket (processAction's, the emit frame's) each with its own H7. Evidence:
+    incant/ctlStampProbe (branch). Nothing of the slot is built; P5 onward not started.
+
+FINDING: the TOK repo is dirty -- Xcode rewrote project.pbxproj file references and the
+Groups scheme now runs refireSkipsDegraded (Tony's 16:18 run). Left alone; it is Tony's
+live state. No seal yet -- stopped for the ruling.
+
+  END SEQ 142
