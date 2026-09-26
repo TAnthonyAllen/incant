@@ -138,7 +138,6 @@ GroupItem   target;
 int         missRules = 0;
 int         missTerms = 0;
 int         loose = 0;
-int         unconsumed = 0;
     target = argument;
     if target.isGROUP               target = target.group;
     if target.registry == ruler.commands    target = 0;
@@ -146,18 +145,17 @@ int         unconsumed = 0;
         missRules = auditMissingRules(target);
         missTerms = auditMissingTerms(target);
         loose     = auditSpurious(target);
-        unconsumed += auditUnconsumed(target);
-        cerr "AUDIT " target.tag ": " toStringFromInt(missRules) " missing rules, " toStringFromInt(missTerms) " missing terms, " toStringFromInt(loose) " loose, " toStringFromInt(unconsumed) " unconsumed":; }
+        cerr "AUDIT " target.tag ": " toStringFromInt(missRules) " missing rules, " toStringFromInt(missTerms) " missing terms, " toStringFromInt(loose) " loose":; }
     else {
         while registry = registries.next(registry) {
             missRules += auditMissingRules(registry);
             missTerms += auditMissingTerms(registry);
             loose     += auditSpurious(registry);
-            unconsumed += auditUnconsumed(registry); }
-        /*  ⚠ REPORTED UNCONDITIONALLY AND WITH ITS VALUE (rule H4). An absence
-            check on the UNCONSUMED lines would go green the day the emitter is
-            deleted; a count that is always printed and asserted at zero cannot.  */
-        cerr "AUDIT all registries: " toStringFromInt(missRules) " missing rules, " toStringFromInt(missTerms) " missing terms, " toStringFromInt(loose) " loose, " toStringFromInt(unconsumed) " unconsumed":; }
+            }
+        /*  ⚠ REPORTED UNCONDITIONALLY AND WITH ITS VALUE (rule H4). The fourth
+            column, "unconsumed", retired 2026-09-26 with the parseMethod=/parseTerms=
+            install vocabulary it counted (SEQ 191).  */
+        cerr "AUDIT all registries: " toStringFromInt(missRules) " missing rules, " toStringFromInt(missTerms) " missing terms, " toStringFromInt(loose) " loose":; }
     return argument;
 }
 
@@ -185,24 +183,6 @@ int         spurious = 0;
     return spurious;
 }
 
-/*  an install attribute found in a rule's TERM LIST proves it was never a command
-    in that context. Its own check, not MISSTERM's.   measure.auditUnconsumed  */
-extern int auditUnconsumed(GroupItem registry)
-{
-GroupItem   entry;
-GroupItem   term;
-int         i;
-int         found = 0;
-    while entry = registry.next(entry)
-        if entry.isRule {
-            i = 1;
-            while term = entry[i] {
-                if term.tag eq "parseMethod" || term.tag eq "parseTerms" {
-                    cerr "AUDIT UNCONSUMED " entry.tag " [" toStringFromInt(i) "] " term.tag " -- install attribute survived as a TERM; it was not a command where this grammar was read":;
-                    found++; }
-                i++; }}
-    return found;
-}
 
 /*  prints its counts UNCONDITIONALLY (rule H4): zero pending is a reportable
     answer here, not a silence.   measure.bodyCensus  */

@@ -216,12 +216,9 @@ _cap () {                       # _cap <fixture> -- caller has already redirecte
 run1 () { $B "$(ip "$1")" > "$2" 2>&1      & _cap "$1"; }   # merged
 run2 () { $B "$(ip "$1")" > "$2" 2> "$3"   & _cap "$1"; }   # split
 
-run1 genScratch "$T/gen";    check "genScratch runs"  0 $?
-#  H2 (SEQ 189, ruling 3a): genScratch's foot was DEAD from its first demoRprime call until
-#  2026-09-26 -- demoRprime popped the file's input and the run ended at exit 0 with this row the
-#  only check. The sentinel is reachable only through the last statement before stop().
-sentinel "genScratch sentinel" "$T/gen" "GENSCRATCH SENTINEL"
-run1 popScratch "$T/cen"; check "popScratch runs" 0 $?
+#  RETIRED 2026-09-26 (SEQ 191, the C++ emitter retires by mapping): "genScratch runs",
+#  "genScratch sentinel" -- successor shapeBodyT (per-shape generated body on the kant road);
+#  "popScratch runs" -- no home: a question about the emitter itself (its plan layer).
 run1 oneTest "$T/one";       check "oneTest runs"     0 $?
 run1 jsonTest "$T/jsn";      check "jsonTest runs"    0 $?
 
@@ -1317,53 +1314,10 @@ else
     echo "  FAIL  roundTripT ARM 0 now MATCHES -- the carrier landed; re-pin this row"; fail=1
 fi
 
-extract () { sed -n "/^extern [A-Za-z]* $1(/,/^}/p;/^extern [A-Za-z]* $2(/,/^}/p" "$T/gen"; }
-
-extract parseScaf   parseScaf2 > "$T/r12"; diffcheck "rung12.target" genLadder/rung12.target "$T/r12"
-extract parseScafA  parseScafB > "$T/r4";  diffcheck "rung4.target"  genLadder/rung4.target  "$T/r4"
-extract manyScafC1  parseScafC > "$T/r5";  diffcheck "rung5.target"  genLadder/rung5.target  "$T/r5"
-extract parseScafE  parseScafF > "$T/r6";  diffcheck "rung6.target"  genLadder/rung6.target  "$T/r6"
-if [ -f genLadder/rung7.target ]; then
-    extract parseScafALT parseScafOUT > "$T/r7"; diffcheck "rung7.target" genLadder/rung7.target "$T/r7"
-fi
-
-grep -v "^getRStuff" "$T/cen" | sed -n '/^PLAN /,$p' | grep -vE "^Search list:|^stop:|^$" > "$T/cenp"
-#  ⚠ RE-PINNED 2026-09-07 and the sentence is the ruling: NEWGROUP NO LONGER
-#  CARRIES isGROUP. GroupMain.twk:353 adds TraiT as a term with `@` instead of
-#  embedding it, so genParse stops refusing NewGroup and PLANS it -- the row goes
-#  from `REFUSE rule NewGroup -- rule-level data isGROUP` to a real `SEQ NewGroup
-#  / CALL TraiT`. The second hunk is DefinE's blocker moving NewGroup -> Attributes,
-#  which is H9's corollary and not a regression: a refusal census names the FIRST
-#  blocker, so fixing one reveals the next. Two hunks, both explained; anything
-#  else in this diff would have been a finding.
-#  ⚠ RE-PINNED 2026-09-10 BY RULING, one line: `LITTO {` becomes `CALL leftCurly`. The
-#  modifier two-class ruling gives BlocK's leftCurly its noLabel dash, so it stops being a
-#  rule-level literal with no rStuff and becomes a term genParse can CALL. This is the
-#  same fact the odometer's 24 -> 28 records, seen in the plan rather than in the count --
-#  one line moved, and it moved from a literal-emit to a call.
-#  ⚠ RE-PINNED 2026-09-14, ONE LINE: NewGroup's `CALL TraiT` moved `at=1` -> `at=2`.
-#  planRule walks `while term = rule[i]` and skips noPrint terms from the PLAN but NOT
-#  from the INDEX, and NewGroup now carries the noPrint `builtinActoR` at slot [1] --
-#  confirmed against oneTest.base's own audit -- so every later term shifts by one.
-#  The planner is right about the tree it is looking at; the tree gained an attribute.
-#  ⚠ The LATENT hazard this exposes is banked as fixIts F-59: baked `rule[n]` on the
-#  live road (ruleActions.rtn aCTionCodE, RuleStuff.twk's seven parseJSON*) shifts the
-#  same way, and `GroupItem::get(int)` does not skip noPrint. Not bitten -- no CodE or
-#  JSON* rule carries a builtinActoR -- which is also why jsonTest never moved.
-#  ⚠⚠ RE-PINNED 2026-09-15 BY RULING, AND IT IS THE 09-10 ROW GOING BACK THE OTHER WAY.
-#  `CALL leftCurly` / `CALL rightCurly` become `LITTO { slot=leftCurly` / `LITTO }
-#  slot=rightCurly`. The TraiT transport packet came off aCTionTraiT, so leftCurly and
-#  rightCurly stop carrying a spent Modifier attribute -- and that attribute was the ONLY
-#  reason planTerm's arm 2 (`definer != term` -> CALL) fired on them. Without it they fall
-#  to arm 3 and emit a literal.
-#  ⚠ THIS IS THE CORRECT ANSWER AND THE PRIOR PIN WAS THE WRONG ONE. `CALL leftCurly`
-#  aimed parseR at the phantom master a0524c8 named, which has NO rStuff; a literal is what
-#  a literal should emit. The 09-10 note above records the opposite move and is kept as the
-#  trail -- read the two together, they are one predicate doing two jobs.
-#  ⚠ RE-PINNED 2026-09-21, SEQ 184 step 2, Tony's signature on the drafted sentence:
-#  `Attributes` and `Looper` leave the frontier because a rule-level isGROUP holder is
-#  now a SEQ with a MANY term; `DefinE`'s row moves to its next blocker, `endDefine`.
-diffcheck "census.target" genLadder/census.target "$T/cenp"
+#  RETIRED 2026-09-26 (SEQ 191): rung12.target, rung4.target, rung5.target, rung6.target,
+#  rung7.target -- successor shapeBodyT (literal, reference, repetition, optional, alternation,
+#  generated by parser() and driven on both roads). census.target -- no home: a question about
+#  the emitter itself (the PLAN layer; the kant generator has no plan).
 
 #  parseClass -- WHICH setParse ARM CLAIMS EACH FIELD, over the whole grammar.
 #  Added 2026-08-19, and it is the instrument that day did not have.
@@ -1838,82 +1792,10 @@ for _t in search followedBy GrouP SemI; do
     fi
 done
 
-#  emitLeaf's OWN target -- THE ORACLE IS THE FUNCTION BEING REPLACED. Captured
-#  while the C++ emitLeaf was still the only implementation, so a kant rewrite
-#  has something byte-exact to answer to (Minion A round 1).
-#
-#  The rung targets above DO gate emitLeaf -- it writes every term spelling
-#  inside them -- but only for the kinds the LADDER reaches, and nothing in the
-#  ladder is a labelled literal. LITTO was therefore ungated in BOTH spellings,
-#  litTo and litOption. This drives off `CodE` as well as the scaffolds, prints
-#  both sinks on every node, and includes `Limit` for the REFUSAL path, which is
-#  behaviour too and the part a rewrite is likeliest to quietly drop.
-#
-#  stderr ONLY, not 2>&1: emitted text goes to stderr unbuffered while the
-#  "Search list:" lines are buffered stdout, so a combined capture appends them
-#  wherever the exit flush lands rather than where they happened.
-run2 spellScratch "$T/spo" "$T/spe";  check "spellScratch runs" 0 $?
-sed -n '/^SPELL /,$p' "$T/spe" > "$T/sp"
-#  ⚠ LABEL CORRECTED 2026-07-29, and the correction is foreman's own. This line
-#  used to read "all 6 kinds + refusal". BOTH HALVES OVERSTATED IT:
-#    - there are FIVE plan kinds, not six (LIT LITTO CALL MANY OPT)
-#    - `Limit`'s rows are the WALK's refusal (planTerm/planRule) plus
-#      dumpSpellings' own "no plan". emitLeaf's OWN refusal branch -- the
-#      "no emission for plan kind" arm -- is NEVER REACHED by this target,
-#      because a node the walk refuses never becomes a plan node to spell.
-#  So an emitter that dropped its refusal arm entirely would pass here. Minion A
-#  round 1 flagged it about its own conversion; the label was mine.
-diffcheck "spell.target (emitLeaf: 5 kinds x 2 sinks; emitter's own refusal NOT covered)" genLadder/spell.target "$T/sp"
-
-#  WHICH IMPLEMENTATION PRODUCED IT -- and this line is the whole answer to "a
-#  green stub reads as coverage". emitLeaf's fork is silent: with no kant speller
-#  registered it is the function it always was, so spell.target is green EITHER
-#  WAY and the diff above cannot tell them apart. A Minion A round that never
-#  registered its action would read exactly like one that did.
-#
-#  PINNED, and the pin IS the acceptance test: flip `c++` to `kant` when the kant
-#  emitLeaf lands, and whoever flips it accounts for the flip. Same shape as
-#  tree.divergence flipping from asserting a divergence to asserting agreement.
-#  FLIPPED c++ -> kant, 2026-07-29, Minion A round 1. This was the acceptance
-#  test and it passed: spell.target stayed byte-identical while the implementation
-#  producing it changed language. The pin now guards the other direction -- if it
-#  ever reads c++ again, the kant speller stopped being found and the C++ body is
-#  quietly answering for it.
-SPELLER="SPELLER kant"
-if grep -qF "$SPELLER" "$T/spe"; then
-    echo "  ok    speller is kant (flipped by round 1 -- c++ here again means the kant one is not being found)"; green=$((green+1))
-else
-    echo "  FAIL  speller pin MOVED:"
-    grep "^SPELLER" "$T/spe" | sed 's/^/          actual:   /' || echo "          (no SPELLER line -- is spellMode still called from spellScratch?)"
-    echo "          expected: $SPELLER"
-    fail=1
-fi
-
-#  THE MANIER PIN -- emitMany's fork, exactly as SPELLER pins emitLeaf's, and for
-#  the same reason: THE FORK IS SILENT BY DESIGN. Absent a kant emitMany the C++
-#  body runs and every target still holds, so a round that never registered its
-#  action would be JUST AS GREEN as one that did. This line is what tells them
-#  apart. Pinned at `kant` -- if it ever reads `c++` again the kant emitMany
-#  stopped being found and the C++ body is quietly answering for it.
-MANIER="MANIER kant"
-if grep -qF "$MANIER" "$T/gen"; then
-    echo "  ok    emitMany is kant (round 2 -- c++ here again means the kant one is not found)"; green=$((green+1))
-else
-    echo "  FAIL  manier pin MOVED:"
-    grep "^MANIER" "$T/gen" | sed 's/^/          actual:   /' || echo "          (no MANIER line -- is manyMode still called from genScratch?)"
-    echo "          expected: $MANIER"
-    fail=1
-fi
-
-#  manyScratch -- THE REFUSAL ARM, which no ladder rung reaches. rung5 exercises
-#  the SUCCESS path only; the two no-site/no-min refusals and the site-but-no-min
-#  case exist nowhere else. minionA flagged this as owed and it is cheap.
-#  ⚠ SITE-BUT-NO-MIN IS THE ROW THAT EARNS IT: a single combined guard could not
-#  produce it, so it is what says the two guards are genuinely separate.
-run2 manyScratch "$T/ms.o" "$T/ms.e"; check "manyScratch runs" 0 $?
-sentinel "manyScratch sentinel (no truncation)" "$T/ms.o" "MS SENTINEL"
-diffcheck "manyScratch.target (kant emitMany: emission + both refusals)" \
-          genLadder/manyScratch.target "$T/ms.e"
+#  RETIRED 2026-09-26 (SEQ 191), all no home: a question about the emitter itself (its routing to
+#  the kant speller and manier): "spellScratch runs", spell.target (RED when retired), the
+#  speller-is-kant pin, the MANIER pin, "manyScratch runs", "manyScratch sentinel",
+#  manyScratch.target.
 
 #  rStuff audit -- PRESENCE-based, and count-PINNED on the tree.divergence pattern.
 #
@@ -2030,7 +1912,10 @@ diffcheck "manyScratch.target (kant emitMany: emission + both refusals)" \
 #  being minted as labelled rules with no rStuff. Tony's words: "leftCurly and rightCurly
 #  must not appear as attributes in the new parse, and the hand-up made the grammar say
 #  so." TWO LEFT, NONE ENTERED, and they are named by their vanished MISSRULE lines.
-AUDITLINE="AUDIT all registries: 6 missing rules, 0 missing terms, 4 loose, 0 unconsumed"
+#  RE-PINNED 2026-09-26 (SEQ 191): the "unconsumed" column is GONE -- it counted parseMethod=/
+#  parseTerms= attributes surviving as terms, and that install vocabulary was deleted with the
+#  C++ emitter. The other three columns are unchanged.
+AUDITLINE="AUDIT all registries: 6 missing rules, 0 missing terms, 4 loose"
 if grep -qF "$AUDITLINE" "$T/one"; then
     echo "  ok    bare-master population AT PIN (isRule without rStuff = 6, loose = 4)"; green=$((green+1))
 else
@@ -2254,14 +2139,11 @@ if grep -q "attachLabel lab=Braced promote=1" "$T/bindSeamA"; then
 else
     echo "  FAIL  bindSeamA -- no promote=1 Braced attach; the oracle is not on the interpreted arm"; fail=1
 fi
-branchrun bindSeamB "BINDSEAMB SENTINEL" "bindSeamB runs (IA-2 pin, generated arm)"
-valcheck  bindSeamB "sumple width is now " 251 "bindSeamB PINNED at 251 -- PC-1 restated, SEQ 61"
-if grep -q "attachLabel lab=Braced promote=0" "$T/bindSeamB"; then
-    echo "  ok    bindSeamB reaches Braced by the GENERATED arm (promote=0)"; green=$((green+1))
-else
-    echo "  FAIL  bindSeamB -- no promote=0 Braced attach; the cross-file bind is NOT being read,"
-    echo "        and the 251 above is the interpreted arm answering. See SEQ 58."; fail=1
-fi
+#  RETIRED 2026-09-26 (SEQ 191, tier 2 of the parseMethod= deletion): "bindSeamB runs", "bindSeamB
+#  PINNED at 251", "bindSeamB reaches Braced by the GENERATED arm" (RED when retired -- it asserted
+#  the road nothing had reached since 0150f29). bindSeamB bound Braced through parseMethod=, which
+#  is gone. The 251 value stays asserted on the interpreted arm by bindSeamA above; generated vs
+#  interpreted agreement now lives on the kant road in treeRowT and shapeBodyT.
 
 #  ---------------------------------------------------------------------------
 #  displayForm -- THE INTERPRETER PIN. Step 0 of the displayForm arc (Tony +
@@ -4755,132 +4637,8 @@ else echo "  FAIL  jsonTest JT-OK ok=$_jtok FAIL=$_jtf -- want 13 and 0"; fail=1
 grep '^JT \|^ok  :\|^FAIL:\|^===' "$T/jsn" > "$T/jsn.tree"
 diffcheck "jsonTest JT-TREE every case's tree, by value" genLadder/jsonTest.tree "$T/jsn.tree"
 
-#  ===========================================================================
-#  THE genParse ODOMETER, wired in 2026-08-24 once its first baseline existed.
-#
-#  ⚠ WHAT THIS ROW IS AND IS NOT. It is NOT a pass/fail on parse generation --
-#  the odometer is RED by design today (45 of 63) and a red odometer is the
-#  correct state.
-#
-#  ⚠ RE-PINNED 2026-09-01, AND THE SENTENCE IS: `tokenize` RETIRED BY RULING.
-#  It was one of the NINETEEN genParse-green rules, so green went 19 -> 18 and
-#  the population 64 -> 63 in the same stroke. The ratchet did exactly what it
-#  is for -- it called STOP-THE-LINE and named `tokenize` as RED NOW, WAS GREEN
-#  -- and the correct response was to check the cause, not to regenerate a green
-#  diff. The cause is a deliberate removal (docs/fixIts.md F-37, retired on a
-#  zero-firing measurement plus the tokened/captureSpan succession), so the
-#  greenness went with the rule. ONE rule left the population and ONE left the
-#  green set; any other arithmetic here would have been a finding. This row asserts only that the number HAS NOT MOVED WITHOUT
-#  SOMEONE SAYING SO. A moved odometer is the point of having one; it just has
-#  to be a re-pin with a sentence behind it, like every other target here.
-#
-#  The `bin` lines are filtered because H1 makes the harness echo the binary's
-#  size and mtime, which move on every rebuild for reasons that say nothing
-#  about genParse -- rule H3, assert the thing that only moves when the answer
-#  moves.
-#
-#  ⚠ AND THE NAME IS LOAD-BEARING: this is the genParse count, never the
-#  scaffold count. genLadder/countPop.sh measures incant/f31's fbGen and asks
-#  whether emitted text PARSES; this measures planRule/emitPlan/emitLeaf and
-#  asks whether a rule can be PLANNED AND EMITTED. Two numbers, two subjects,
-#  and conflating them in a citation is the failure this wording exists to
-#  prevent.
-bash genLadder/odometer.sh 2>&1 | grep -v '^  bin ' > "$T/odo"
-#  ⚠ RE-PINNED 45/63 -> 46/64, 2026-09-03, SEQ 148, and the sentence is that the
-#  grammar gained EXACTLY ONE RULE by Tony's ruling. The whole delta is one new
-#  row -- `IterSource  REFUSE ANYtoken -- inline group / structural data isGROUP`
-#  -- so the ratchet's GREEN count is UNMOVED at 18 and the red went up by the
-#  one rule that was added. A new rule arriving un-emittable is the expected
-#  state for this odometer, not a regression: nothing has taught genParse about
-#  IterSource and nothing claimed to.
-#
-#  ⚠ RE-PINNED 18/46 -> 19/45, 2026-09-07, ATCH, and the sentence is the ruling:
-#  START NO LONGER CARRIES isGROUP; THE §4.1 RULE-AS-DATA REFUSAL ON IT IS
-#  REMOVED AT THE GRAMMAR, NOT THE GENERATOR. `Start=StatemenT+` became
-#  `Start StatemenT-+`, so the terms live in the list like every other rule's
-#  and there is no embedded group left to refuse. THIS RE-PIN MOVES THE RATCHET
-#  THE OTHER WAY -- it is the first one that is an IMPROVEMENT rather than a
-#  removal or an addition, and the arithmetic is the check: green 18 -> 19, red
-#  46 -> 45, POPULATION UNMOVED AT 64. One rule crossed from red to green and
-#  none entered or left. Green rising while the population held is what makes
-#  this a rule becoming emittable rather than a rule disappearing, which is the
-#  shape the 09-01 tokenize re-pin had; any other split would have been a
-#  finding. genParse itself was not touched.
-#  ⚠ RE-PINNED 19/45 -> 22/45 -> 22/42, 2026-09-07, and the sentence is the ruling
-#  applied to its KEYSTONE: ANYTOKEN NO LONGER CARRIES isGROUP. `ANYtoken=NamE`
-#  became `ANYtoken NamE@` -- the @ modifier, which already meant "this term wears
-#  my label" (attachLabel's isTarget arm sets pStuff.label = lab and
-#  lab.tag = pStuff.ruleName). No action changed; no C++ changed.
-#  ⚠⚠ THIS RE-PIN IS THE FIRST WHERE ONE RULE CARRIED THREE, and that is the whole
-#  reason the reason column is read and not just the verdicts. ANYtoken was the
-#  INLINE blocker for four other rules, so fixing one rule-level refusal cleared
-#  four rows: ANYtoken, IterSource and UnaryXP go GREEN, and Iterate stays RED
-#  with a NEW REASON -- `REFUSE attributes -- optional labelled literal` -- which
-#  is its next blocker, not a regression. Green 19 -> 22, red 45 -> 42, POPULATION
-#  UNMOVED AT 64: three crossed, none entered or left.
-#  ⚠ AND A VERDICT-ONLY DIFF WOULD HAVE MISREAD IT. Iterate's row is present
-#  before and after and red both times; only its reason moved. H9's corollary --
-#  a refusal census reports the FIRST blocker, never the blocker set -- so a rule
-#  that stays red after its blocker is fixed has simply revealed the next one.
-#  ⚠ RE-PINNED 22/42 -> 23/41, 2026-09-07, and the sentence is the ruling reaching
-#  the BOOTSTRAP: InitiatE no longer carries isGROUP. GroupMain.twk:435 stopped
-#  embedding RunRulE as a group and adds it as a term with `+@` instead. Green
-#  22 -> 23, red 42 -> 41, POPULATION UNMOVED AT 64, and InitiatE's row is the only
-#  one that moved -- no other rule was blocked on it, unlike ANYtoken which carried
-#  three. First stroke of this ruling in C++ rather than the grammar; the inert
-#  grammar mirror at incant/grammar:68 was updated in the same commit so the file
-#  stops describing a shape the bootstrap no longer builds.
-#  ⚠ RE-PINNED 23/41 -> 24/40, 2026-09-07, same stroke and same sentence as the
-#  census.target re-pin above: NewGroup loses its group at GroupMain.twk:353.
-#  Green 23 -> 24, red 41 -> 40, POPULATION UNMOVED AT 64. DefinE stays red with a
-#  NEW REASON (term NewGroup -> term Attributes), which is the blocker behind the
-#  one just fixed.
-#  ⚠ RE-PINNED 24/40 of 64 -> 24/42 of 66, 2026-09-08, and the sentence is the same
-#  ruling as the bare-master row above: ColoN and EquaL join the grammar as labelled
-#  punctuation. Both arrive un-emittable and say so by name -- "REFUSE rule ColoN --
-#  rule-level literal but no rStuff, so LIT vs LITTO is undecidable" -- which is the
-#  expected state for a new rule, not a regression: nothing has taught genParse about
-#  them and nothing claimed to. GREEN IS UNMOVED AT 24 and the population rose by
-#  exactly two. Two rules entered the population, neither entered the green set, and
-#  no existing row moved in either direction; any other split would have been a finding.
-#  ⚠ RE-PINNED 24/42 of 66 -> 24/38 of 62, 2026-09-10, and the sentence is the same
-#  ruling as the bare-master row above: FOUR PHANTOM RULES LEAVE THE POPULATION when
-#  the noLabel dash is respelled onto the TRAIT rather than onto its DATA. leftBrace,
-#  leftParen, rightBrace and rightParen were minted as labelled rules with no rStuff
-#  because aCTionTraiT setContent's the modified DatA node onto the trait and
-#  setContent does not carry flags (bear-trap #1/#2). Each was refusing by name --
-#  "rule-level literal but no rStuff, so LIT vs LITTO is undecidable" -- so they were
-#  four rows of the FRONTIER that were never rules at all.
-#  ⚠ GREEN IS UNMOVED AT 24 and genLadder/odometer.green is BYTE-UNCHANGED at its
-#  18 names, which is what makes this a population correction and not a capability
-#  claim: four rules left the population, NONE left the green set, and no surviving
-#  row moved in either direction. Any other split would have been a finding.
-#  ⚠ leftCurly and rightCurly are STILL IN THE POPULATION ON PURPOSE -- BlocK carries
-#  the same respell and is HELD, because it alone regresses iterT1/iterT1m. When BlocK
-#  lands this row goes 62 -> 60 with green still 24, and that will be its own sentence.
-#  ⚠ RE-PINNED 24/38 -> 28/34 of 62, 2026-09-10, and the sentence is that the modifier
-#  two-class ruling made FOUR RULES EMITTABLE. POPULATION UNMOVED AT 62 and green went UP
-#  by four -- ScopeXP, StringXP, leftCurly, rightCurly. The two respelled grammar lines'
-#  flags now reach their traits, so genParse can plan them. A ratchet moving in the GREEN
-#  direction with the population still is the one motion that needs no apology; any other
-#  split would have been a finding.
-#  ⚠⚠ RE-PINNED 2026-09-15, 28 -> 26, AND THE LOSS IS ACCEPTED BY RULING RATHER THAN
-#  ABSORBED. ScopeXP and StringXP stop emitting when the TraiT packet comes off -- each
-#  falls to `REFUSE ... inline group / structural data isGROUP`, named, not silent. Tony
-#  gated the removal on one grep: are those two rows genParse-only, or does anything live
-#  read them. THEY ARE genParse-ONLY. The odometer installs nothing and fires nothing -- it
-#  greps genParse's own printed `extern GroupItem parse<rule>(` in a fresh process -- and no
-#  fixture that installs a parse method names either rule. They retire with genParse.
-#  ⚠ AND THE RATCHET DID NOT FIRE, which is the distinction that makes this a re-pin rather
-#  than a stop-the-line: `ratchet 0 previously-green rules regressed`. Neither rule is on
-#  genLadder/odometer.green's 18-rule protected list.
-#  ⚠ RE-PINNED 2026-09-21, SEQ 184 step 2, Tony's signature on the drafted sentence:
-#  `Attributes` and `Looper` leave the frontier because a rule-level isGROUP holder is
-#  now a SEQ with a MANY term; `DefinE`'s row moves to its next blocker, `endDefine`.
-#  GREEN WENT UP, 26 -> 28, and genLadder/odometer.green's protected list is
-#  BYTE-UNCHANGED (md5 checked at the re-pin).
-diffcheck "genParse odometer (28 green / 34 red of 62 -- RED BY DESIGN, pinned; ratchet monotone)" \
-          genLadder/odometer.base "$T/odo"
+#  RETIRED 2026-09-26 (SEQ 191): "genParse odometer" -- successor parserCoverage (how many grammar
+#  rules parser() generates and compiles, by name).
 
 #  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------
 #  ⚠ IT IS THE SOLE ASSERTOR THAT `DatA` DOES NOT CRASH THE COMPILER. That was

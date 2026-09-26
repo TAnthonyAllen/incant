@@ -104,7 +104,6 @@ GroupItem 	*target = 0;
 int 		missRules = 0;
 int 		missTerms = 0;
 int 		loose = 0;
-int 		unconsumed = 0;
 	target = argument;
 	if ( isGROUP(target->groupBody->flags.data) )
 		target = target->getGroup();
@@ -115,8 +114,7 @@ int 		unconsumed = 0;
 		missRules = ::auditMissingRules(target);
 		missTerms = ::auditMissingTerms(target);
 		loose = ::auditSpurious(target);
-		unconsumed += ::auditUnconsumed(target);
-		::fprintf(stderr,"AUDIT %s: %s missing rules, %s missing terms, %s loose, %s unconsumed\n",target->groupBody->tag,::toStringFromInt(missRules),::toStringFromInt(missTerms),::toStringFromInt(loose),::toStringFromInt(unconsumed));
+		::fprintf(stderr,"AUDIT %s: %s missing rules, %s missing terms, %s loose\n",target->groupBody->tag,::toStringFromInt(missRules),::toStringFromInt(missTerms),::toStringFromInt(loose));
 		}
 	else {
 		while ( registry = ruler->registries->next(registry) )
@@ -124,12 +122,11 @@ int 		unconsumed = 0;
 			missRules += ::auditMissingRules(registry);
 			missTerms += ::auditMissingTerms(registry);
 			loose += ::auditSpurious(registry);
-			unconsumed += ::auditUnconsumed(registry);
 			}
-		/*  ⚠ REPORTED UNCONDITIONALLY AND WITH ITS VALUE (rule H4). An absence
-		check on the UNCONSUMED lines would go green the day the emitter is
-		deleted; a count that is always printed and asserted at zero cannot.  */
-		::fprintf(stderr,"AUDIT all registries: %s missing rules, %s missing terms, %s loose, %s unconsumed\n",::toStringFromInt(missRules),::toStringFromInt(missTerms),::toStringFromInt(loose),::toStringFromInt(unconsumed));
+		/*  ⚠ REPORTED UNCONDITIONALLY AND WITH ITS VALUE (rule H4). The fourth
+		column, "unconsumed", retired 2026-09-26 with the parseMethod=/parseTerms=
+		install vocabulary it counted (SEQ 191).  */
+		::fprintf(stderr,"AUDIT all registries: %s missing rules, %s missing terms, %s loose\n",::toStringFromInt(missRules),::toStringFromInt(missTerms),::toStringFromInt(loose));
 		}
 	return argument;
 }
@@ -163,31 +160,6 @@ int 		spurious = 0;
 			}
 		}
 	return spurious;
-}
-
-/*  an install attribute found in a rule's TERM LIST proves it was never a command
-    in that context. Its own check, not MISSTERM's.   measure.auditUnconsumed  */
-extern "C" int auditUnconsumed(GroupItem *registry)
-{
-GroupItem 	*entry = 0;
-GroupItem 	*term = 0;
-int 		i = 0;
-int 		found = 0;
-	while ( entry = registry->next(entry) )
-		if ( entry->groupBody->flags.isRule )
-			{
-			i = 1;
-			while ( term = entry->get(i) )
-				{
-				if ( ::compare(term->groupBody->tag,"parseMethod") == 0 || ::compare(term->groupBody->tag,"parseTerms") == 0 )
-					{
-					::fprintf(stderr,"AUDIT UNCONSUMED %s [%s] %s -- install attribute survived as a TERM; it was not a command where this grammar was read\n",entry->groupBody->tag,::toStringFromInt(i),term->groupBody->tag);
-					found++;
-					}
-				i++;
-				}
-			}
-	return found;
 }
 
 /*  prints its counts UNCONDITIONALLY (rule H4): zero pending is a reportable

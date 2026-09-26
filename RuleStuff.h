@@ -23,15 +23,6 @@ class GroupItem;
     struct is bear-trap #10's next victim: the layout is duplicated out of repo in
     groups.ext, and a slot nobody writes is a slot nobody keeps in sync.
 
-    termCount (Clay SEQ 26 S3) -- how many REAL terms genParse emitted indices
-    against, recorded by the parseTerms binding attribute and checked by the
-    parseMethod one before it installs anything. Every emitted rule[n] bets the
-    list only ever mutates BEHIND the real terms; the cached BlocK appearing
-    after a rule's first parse proves the list does mutate at runtime, and
-    nothing else enforces the bet. 0 means unrecorded, which binds with a
-    warning rather than refusing -- a silent trap would be worse than an
-    unguarded one.
-
     parseMethod (genParseShape S1.1) -- ONE argument, and it is the rule. kant
     methods take one argument, so a two-argument parse method could never
     survive the kant handover; `into` is derived from parentLabel instead of
@@ -99,7 +90,6 @@ int kount;
 int max;
 int maxRepeat;
 int min;
-int termCount;
 RuleStuff *parentStuff;
 int (*testMatch)(GroupItem *);
 GroupItem *(*actionMethod)(GroupItem *);
@@ -135,24 +125,7 @@ GroupItem *followingMember();
 void getWhatFollows();
 void setTestMatch();
 };
-extern "C" int containerTo(GroupItem *term, GroupItem *into, char *slot);
-extern "C" GroupItem *ctProbe(GroupItem *term);
-extern "C" int inGuard(GroupItem *field, char *chars, char ch);
-extern "C" GroupItem *leaveAlt(GroupItem *rule, char *from, int ok);
-extern "C" GroupItem *leaveRule(GroupItem *rule, GroupItem *into, GroupItem *label, char *from, int ok);
-extern "C" int lit(GroupItem *field, char *str);
-extern "C" int litOption(GroupItem *field, GroupItem *into, char *str);
-extern "C" int litTo(GroupItem *field, GroupItem *into, char *str, char *slot);
-extern "C" int manyJSONblockFields(GroupItem *label, GroupItem *term);
-extern "C" int manyJSONlistItems(GroupItem *label, GroupItem *term);
 extern "C" GroupItem *parseGeneric(GroupItem *into, char *ruleName);
-extern "C" GroupItem *parseJSONarray(GroupItem *rule);
-extern "C" GroupItem *parseJSONblock(GroupItem *rule);
-extern "C" GroupItem *parseJSONfield(GroupItem *rule);
-extern "C" GroupItem *parseJSONitem(GroupItem *rule);
-extern "C" GroupItem *parseJSONlist(GroupItem *rule);
-extern "C" GroupItem *parseJSONtoken(GroupItem *rule);
-extern "C" GroupItem *parseJSONvalue(GroupItem *rule);
 extern "C" GroupItem *parseR(GroupItem *term, GroupItem *into);
 extern "C" int setMacroValue(GroupItem *field);
 extern "C" int testAction(GroupItem *field);
