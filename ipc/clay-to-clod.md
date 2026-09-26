@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      181
-STATUS:   cleared        # SEQ 181 -- SHUTDOWN sealed; three rulings open the next session
+SEQ:      193
+STATUS:   working        # SEQ 193 -- bank refireSkipsDegraded/ShRep/named gap; step 2 P3/P7 re-read, P4 onward
+STATUS-181: cleared      # SEQ 181 -- SHUTDOWN sealed; three rulings open the next session
 STATUS-180: cleared      # SEQ 180 -- P2 landed; P3 STOPPED (parseMethod= parks); report clod-to-clay SEQ 130
 STATUS-179: cleared      # SEQ 179 -- tree/mixed dated; P0, P1 landed; P2 STOPPED; report clod-to-clay SEQ 129
 STATUS-178: cleared      # SEQ 178 -- done: JSON fix dc8b0b9, pin 9ab2fdd, population JSON only, plan 2aac1f8 on the branch; report clod-to-clay SEQ 128
@@ -9270,8 +9271,8 @@ Report: per stroke, at top the fleet and what the new rows read / what left; evi
 ===================================================================
 SEQ 192  -  TASK 2: RuleStuff.twk CLEANUP
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Answered in clod-to-clay SEQ 141.
 
 Supersedes the earlier Task 2 draft; the helpers it fenced off are gone.
 First, one check: grep the generated files under GUI/, Tests/ and the other subdirectories
@@ -9286,3 +9287,52 @@ Certificate: codeOnly.py diff of the .mm empty apart from parseGeneric if it goe
 Report: at top the subdirectory check, the fleet and the DesignDocs verdicts; evidence after.
 
   END SEQ 192
+
+
+===================================================================
+SEQ 193  -  BANK THREE; STEP 2 RESUMES AT P4 ON parse-then-fire
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26 afternoon, before any edit, per WT-15.
+
+0. Bank first. No builds for these.
+  refireSkipsDegraded: stays OPEN. Tony ran it at 16:18.
+  Taken signature: one RS SINK FIRED line where the interpreted road prints two. rsN reads 1
+  then 2, so the anchors pass. They pin only the compiled statement.
+  The degraded cerr runs at emit time, and the compiled function contains nothing for it.
+  Fire 1's sink line comes from the compile, not the run.
+  Tony wants a rewrite for clarity before any remedy, as a phased flow with a marker at each
+  window:
+    Phase 0: interpreted oracle, run first
+    Phase 1: compile window
+    Phase 2: refire window
+  Shell rows count sink lines per window. Want 2 / 1 / 1 today, and 2 / 0 / 1 when fixed.
+  The remedy candidate goes in the citizen as BEST GUESS, not built: an emitted call-through
+  for a degraded statement, in the jitTermCallRT shape.
+  ShRep divergence: Tony's, offline. Framing: a ShA+ term must carry its own rStuff holding
+  the +, because the Grokking rule it names lawfully has none. The investigation is where the
+  + lands and whether the emitted call reaches it. Record it; do not probe.
+  Named gap, not a thread: compiling and running an action under the new parse has never been
+  tried. parser() generates for rules, and rsRun is an action. Record it in the pause docket.
+
+1. Step 2 on branch parse-then-fire.
+  1a. Re-read P3 and P7 in docs/jitDesign.md against today's tree. P3's harness question is
+      answered: the parseMethod= road is retired, and the tree row lives on the kant road as
+      treeRowT. Report what each still owes, and anything whose premise moved. Read only.
+  1b. P4. Before building, state its pre-registered certificate as written in the plan. If the
+      re-read changed it, say how and why, and stop for Tony if the change is more than wording.
+  1c. Build P4. Carry on through the plan while each step lands inside its own certificate.
+      Stop at the first step whose certificate cannot be cashed as written. Report the line;
+      do not bend it.
+
+Standing:
+  Bare builds only.
+  Every landing is measured at PTF=0 and PTF=1 from the same binary. PTF=0 must equal trunk's
+    red set, row for row.
+  Full H12 checklist on each landing, not the fleet alone.
+  Canary is the sum across headers.
+  Run the control first (H15). A red that is not attributed is not landed.
+  refused and rejected stay tripwires at 0 unless the plan says otherwise.
+  Seal once, at session end, with the fixit line generated.
+
+  END SEQ 193

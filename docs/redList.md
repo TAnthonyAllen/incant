@@ -20,6 +20,73 @@ instrument's missing list is an accident; two is the convention being too narrow
 read as a clean pass with an EMPTY output file. An empty capture at exit 0 is not a green; check
 that an instrument printed something before believing its status.
 
+## 2026-09-26, pause — 753 green / 54 red / 1 parked (trunk jit-unified-emit-wip, bare)
+
+**57 - 3 = 54, every row named.** LEFT (3), none joined:
+- **rung7.target** -- went GREEN (ruling 3a, 21cbcbe): demoRprime's truncation of genScratch was its
+  only defect; the row then RETIRED with the C++ emitter (53216d3), successor shapeBodyT.
+- **spell.target** -- retired red with the C++ emitter (53216d3): no home, a question about the emitter.
+- **bindSeamB -- no promote=0 Braced attach** -- retired red with tier 2 (53216d3): it asserted the
+  parseMethod= road nothing had reached since 0150f29.
+decodePop and ddPop are byte-identical to 09-25's capture; their lists below stand.
+
+```
+holderT 1 direct    .parenT = htWindow -- got: holderT 1 direct    .parenT = htU want htWindow 
+holderT 2 identity  .taG    = htInside -- got: holderT 2 identity  .taG    = htKid want htInside 
+holderT 3 holder    .parenT = htWindow -- got: holderT 3 holder    .parenT = htP want htWindow 
+spacingT A tight-1  = spA -- missing
+spacingT B tight-2  = spB -- missing
+spacingT C spaced   = spC -- missing
+spacingT D tight-3  = spD -- missing
+spacingT E survived -- missing
+spacingT '*' named refusal missing -- its guard stopped naming it
+spacingT '+' named refusal missing -- its guard stopped naming it
+spacingT '-' named refusal missing -- its guard stopped naming it
+spacingT '>' named refusal missing -- its guard stopped naming it
+spacingT '<' named refusal missing -- its guard stopped naming it
+spacingT '==' named refusal missing -- its guard stopped naming it
+spacingT '>=' named refusal missing -- its guard stopped naming it
+spacingT '<=' named refusal missing -- its guard stopped naming it
+spacingT F marker missing -- the operator rows did not run
+spacingT G a + **b  = spG -- got: 
+spacingT G2 a + *b  = spG2 -- got: 
+spacingT H a +* b   = 1 -- got: 
+spacingT I a+*b     = 1 -- got: 
+starT S1  *x   one-deep   = stA -- moved
+starT S3a **x  ONE-deep   = stD -- moved
+starT S6  a.b     holder   = stH -- moved
+pointerT F2 null operand = 0 -- moved
+pointerT X witness MISSING -- the star no longer binds to ptBagP
+pointerT L3 witness MISSING -- the = -then-star refusal changed
+pointerT F2 witness MISSING -- +* no longer names its refused operand
+pointerT L4e -- body=#2 not on the line after its label
+pointerT L5b -- isCopy=0 not on the line after its label
+pointerT L6a -- field=#10 not on the line after its label
+pointerT L6b -- field=#10 not on the line after its label
+pointerT L6c -- field=#6 not on the line after its label
+pointerT L6d -- field=#11 not on the line after its label
+ADDROF faSrc field=#3 body=#2 -- moved
+faceT F2 flags FORWARD  = 1 -- moved
+faceT F3 flags REVERSE  = 1 -- moved
+parseClass.target (setParse classification)
+fires=NEVER roster MOVED
+anyOrNumT census moved -- the isGROUP poison is back or generation changed
+anyOrNum.target (generated bodies + the parsed answer)
+displayForm baseline (interpreter pin)
+starIdiomT row 2 -- the star did not refuse a null by name. Either the
+convDriveT CD-4 'does not understand' lines = 0, want 1 -- BORN RED 2026-09-23.
+carrierT CT-3 sumGrup still in list CodE -- the action BODY survived, by its own local -- MOVED. Wanted: sumGrup
+carrierT CT-5 the label gap is GONE. If label population landed, that is
+firstUseT FU-2  isCodeD 1 -- the flag read reaches a real node (non-zero sibling) -- MOVED. Actual:
+oneTest baseline
+countPop runs (scaffold count; instrument integrity) (exit 1)
+countPop sentinel (no truncation) -- THE RUN TRUNCATED. A row stopped parsing and every
+countPop headline moved
+raw ->rStuff reads MOVED -- the groups.ext mirror changed codegen
+trigDO attached under DO 0 times, want exactly 1
+walkRefT row 3 = wrHeld -- THE FLIP HAS LANDED, or the binary is
+```
+
 ## 2026-09-25, shutdown — 752 green / 57 red / 1 parked (trunk jit-unified-emit-wip, bare)
 
 **Not banked since 09-22 -- three seals (09-23, 09-24, 09-25 x2) recorded counts only, which is the
