@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 143 at the FOOT -- SEQ 194: P4 LANDED on the branch (333c331), certificate cashed; canary reconciled; stopped before P5
+STATUS:   fresh           # SEQ 144 at the FOOT -- SEQ 195: mirror gap closed on trunk (d68d92f), standing rule recorded; P5 STOPPED at its certificate
+# prior: SEQ 143 at the FOOT -- SEQ 194: P4 LANDED on the branch (333c331), certificate cashed; canary reconciled; stopped before P5
 # prior: SEQ 142 at the FOOT -- SEQ 193: banked three; P3 owes nothing, P7 has three moved premises; P4 STOPPED at 1b, its rows read 0 BEFORE the change
 # prior: SEQ 141 -- SEQ 192 (Task 2) DONE: subdirectories clean, RuleStuff.twk tidied, parseGeneric gone, fleet unmoved
 # prior: SEQ 140 -- SEQ 191 DONE: shapeBodyT + parserCoverage built green, then the C++ emitter, tier 2, parseJSON*, the helpers and the stored-body verbs retired
@@ -8076,3 +8077,28 @@ NOTE: groups.ext is shared, so trunk's next GroupRules.twk retok gains the unuse
 branchKind member -- harmless, and it lands for real when the branch merges.
 
   END SEQ 143
+
+
+===================================================================
+SEQ 144  -  SEQ 195 (AMENDED): MIRROR GAP CLOSED; P5 STOPPED AT ITS CERTIFICATE
+===================================================================
+AT TOP: trunk d68d92f -- branchKind declared INERT in GroupRules.twk (block comment
+naming parse-then-fire); full bare tokall byte-identical; pop.sh 753 / 1, 54 red == banked
+row for row; jitLadder 215; decodePop reds identical; ddPop 5/1; countPop 0 crashed / 47
+missing; printPop PASSED; frontier station 4; canary 365 / 395 (three headers / all).
+Branch merged (0c8c582; GroupRules.twk conflict resolved to trunk's identical text; branch
+retok byte-identical). Standing rule recorded in CLAUDE.md at bear-trap #11. (Before the
+amendment arrived, a4c61ba had committed the mirror-forced .h/.mm on trunk under the same
+checklist; d68d92f puts the source behind it.)
+
+P5 STOPPED -- "the pinned JT rows stay green" cannot certify the move: on today's branch
+binary, before any change, all 10 jsonTest rows are ok at PTF=0 and PTF=1. Green with the
+stroke undone.
+CANDIDATE ROW (measured, not adopted): yield-channel FIELD adoptions during jsonTest --
+JSONfield 42, JSONarray 9, both settings (traceParse on a one-line-delta copy, sentinel
+present). P5 done = 0, JT rows still green. Other end unmeasured until something reads 0.
+PREMISE FOR TONY: before P6's value handoff exists, JSONblock's collecting action can only
+receive values through the adoption channel P6 retires. P5 with/after P6, or does "value
+model" name something available today?
+
+  END SEQ 144

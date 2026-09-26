@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      195
-STATUS:   working        # SEQ 195 -- trunk tokall vs groups.ext branchKind; then P5 on P4's terms
+STATUS:   cleared        # SEQ 195 -- mirror gap closed d68d92f; P5 STOPPED at its certificate; report clod-to-clay SEQ 144
 STATUS-194: cleared      # SEQ 194 -- P4 LANDED on the branch 333c331; canary reconciled; report clod-to-clay SEQ 143
 STATUS-193: cleared      # SEQ 193 -- banked; P3/P7 re-read; P4 STOPPED at 1b (rows void before the change); report clod-to-clay SEQ 142
 STATUS-181: cleared      # SEQ 181 -- SHUTDOWN sealed; three rulings open the next session
@@ -9359,8 +9359,8 @@ Reconcile the canary: 365 at this morning's seal vs 413 summed now. Then build P
 ===================================================================
 SEQ 195  -  TRUNK TOKALL AGAINST THE MIRROR; THEN P5
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. clod-to-clay SEQ 144.
 
 P4 accepted. The isContinue re-aim is accepted as a re-pin: same population, new
 spelling, 3 guards / 1 setter unchanged. Before P5: groups.ext now declares branchKind,
