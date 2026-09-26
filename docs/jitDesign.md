@@ -1211,6 +1211,12 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
     written now so P7 cannot pass without it. Movers: P1's row 7 -> 5; genScratch's rows, `tree.sh`, `mixed.sh`
     PREDICTED BYTE-IDENTICAL (a move there is driveStep's bracket -- floor, inputFloor, lastIndent/defining restore --
     not the scope).
+    ⚠ **STATUS 2026-09-26 (SEQ 193 1a re-read): P3 OWES NOTHING OF ITS OWN.** Landed as ruled: treeOf drives through
+    driveStep (driveDoorT door 1/1/1/1, fires 1/1/1/1 at both settings); demoRprime was RETIRED (ruling 3a), not routed;
+    P1's census 7 -> 5; tree.sh, mixed.sh and genScratch retired by mapping, their question now `treeRowT` (AGREE).
+    **One premise moved and is recorded:** "the tree is readable at the root's `rStuff.label`" was MEASURED NULL after
+    every drive (the call bracket restores it); the reader is the drive floor's label slot (`driveFloorLabel`). **What
+    it hands forward is P7's:** driveDoorT's discard row, pinned 0/0/0/0 "until P7", is the H7 pair P7 must turn non-zero.
   - **P4 -- retire the control signal stamped on the returned value.** Today aCTionBrancH generates
     `arg->groupBody->flags.isBranch = 1/2/3` on its return operand, which can be `falseResult` (a shared singleton),
     the keyword node, or a LIVE FIELD (`return x;` stamps x). The ruled control channel (F-122 entry 7): aCTionBrancH
@@ -1223,6 +1229,20 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
     fixture needs one (or a measure callout) first. H7: restore the stamp -> the x row red. Movers: none in the fleet
     (the stamp is invisible unless read); every break/continue/return row must stay green; jitLadder unmoved (the jit
     emits branches through jitEmitContinue/jitEmitReturn, not the stamp).
+    ⚠ **RULED (SEQ 179, Tony):** the slot is a RULER slot saved/restored at processAction's frame; ONE writer (the keyword
+    action), ONE reader (the firing parent); the jitted road's equivalent is part of the certificate -- both roads, one
+    spelling; the isBranch ACCESSOR LANDS FIRST. (Site lines have moved: parseRule's consume is Generate.rtn:366 now.)
+    ⚠⚠ **STOPPED 2026-09-26 AT 1b (SEQ 193): THE CERTIFICATE CANNOT BE CASHED AS WRITTEN.** The accessor landed
+    (`isBrancH`, GroupFields 45, read-only) and the rows were driven on TODAY's stamped binary first (H16).
+    **Both named rows read 0 BEFORE the change** -- `return x;` leaves x at 0 and a failed operand leaves falseResult at 0
+    -- because processAction already ends `result.isBranch = 0` (GroupActions.rtn:596): the action boundary clears the
+    stamp off the value it hands back. So "H7: restore the stamp -> the x row red" cannot fire. **The stamp DOES survive
+    in two other positions**, measured by `incant/ctlStampProbe`: `continue v;` leaves the live field v at **2** (a loop
+    consumes continue by replacing the result with trueResult and never clears the stamped node) and an action compiled
+    by `testing()` leaves `return w;`'s operand at **3** (under jitting aCTionBlocK `continue`s past the branch and the
+    compile has no processAction frame). **Candidate replacement rows, for Tony -- not adopted:** CAND-1 `continue v;`
+    -> v's isBranch 0 (non-zero sibling: the loop ran 2); CAND-2 jit-compiled `return w;` -> w's isBranch 0; plus a
+    leak row per bracket (processAction's, the emit frame's), each with its own H7. Nothing of the slot is built.
   - **P5 -- JSON's collecting actions onto the value-yield model (Tony, SEQ 176/178).** The TRUNK HALF LANDED
     (dc8b0b9: JSONfield and JSONarray mint a fresh result node per fire; 9ab2fdd: jsonTest pins the tree by value). This
     stroke only moves the two rules onto the value model -- they hand JSONblock/JSONfield values and JSONblock gains its
@@ -1257,6 +1277,20 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
     their counters and verdicts depend on the fires. (d) NESTED DRIVES: 2,621 rejected, 12,410 records discarded; 0
     DRIVEREPLAY. Cert: the conservation row; the M1 per-rule fire multiset unchanged on the eight M1 fixtures plus
     jsonTest; P3's scoped-discard row goes NON-ZERO (its H7 pair); frontier's station unchanged.
+    ⚠ **RULED (SEQ 179, Tony):** setup and grammar defines stay OUTSIDE as declared define-family; PIN the bootstrap's
+    constant outside fires as a row; before building, REPORT what P7 makes non-zero in the scoped-discard row, and STOP
+    if the answer is pulling setup's parse into scope.
+    ⚠ **STATUS 2026-09-26 (SEQ 193 1a re-read) -- three premises MOVED, none of them yet re-measured:**
+    (1) **The discard model.** (d)'s "2,621 rejected, 12,410 discarded" is P2's pre-(i) split. Since P2 (i) every record
+    discards at its rule's own failure exit: the conservation row reads rejected **0** (a tripwire), failed-alternative
+    **13,349**, UNREACHED 0. The certificate's "conservation row" is that row. (2) **Every count in (a)-(c) predates
+    SEQ 191**, which retired 14 fixtures and 7 incant/setup registrations -- so the bootstrap constant SEQ 179 says to
+    pin (2,512) is expected to have MOVED and is re-measured before it is pinned, never carried (H14). (3) **The
+    non-zero answer SEQ 179 asks for, as the plan reads today:** driveDoorT's drives (tell/treeOf of a Scaf rule, driven
+    from a top-level statement) have non-StatemenT roots, and extending the recording scope to them is what makes its
+    discard row non-zero -- **not** setup's parse, so the STOP clause does not trip on that reading. It is a reading, not
+    a measurement. **Unmoved:** the eight M1 fixtures all exist (oneTest, jsonTest, f122T, doWhileNameT, dotChainT,
+    adoptT, fireSeatT, convDriveT); sweepT and jitProbeDrive's seat are still there (drive census).
   - **P8 -- Rule C's remaining sites (SEQ 174 item 4, against docs/overlapCensus.md direction 1).** A1, A3, A4, A5
     (unwrap at attach): retired in P6. A2 (ANYtoken reads NamE's resolution): ⚠ **RULING NEEDED -- C-form** (a direct
     text lookup in Keywords) was measured NOT neutral 2026-09-24. A6: no live instance. A7 (Braced's fLAG read by
@@ -1285,6 +1319,12 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
     Verdict for the parked slot: **two specimens need it (NamE, and interpretXP's invoke stamp); ANYtoken needs a
     different predicate, not a split; the rest are whole-action parse-time.** Not a population that argues for a
     general slot yet.
+- **THE ShRep DIVERGENCE -- Tony's, offline (SEQ 193).** A generated body does not repeat a `+` reference:
+  shapeBodyT's ShRep = `ShA+ "c"` on "aaac", old road matched 1 consumed 4, generated 0/0. **Framing (Clay):** a `ShA+`
+  term must carry its OWN rStuff holding the `+`, because the Grokking rule it names lawfully has none; the
+  investigation is where the `+` lands and whether the emitted call reaches it. Recorded, NOT probed.
+- **NAMED GAP, not a thread (SEQ 193): compiling and running an ACTION under the new parse has never been tried.**
+  parser() generates for rules; `rsRun` (refireSkipsDegraded's subject) is an action.
 - **C++-ESCAPE RECON AND REMOVAL (Tony: not before a jitting pause).** Every `-%` block in Tony's tok code, jit methods
   excluded. For each site: what it does, why tok could not express it, and a REMEDY CLASS -- (a) tok can already;
   (b) move to a jit, measure or support helper; (c) needs a tok feature (name it). It prices the parseRule bracket and

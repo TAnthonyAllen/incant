@@ -419,6 +419,8 @@ use argument
                     which is the green that flatters. This makes the question askable.
                     Instruct.opDot.debuggeDNoWriteHalf  */
                 case 44:    if target.debugged      product.count = 1;
+                // isBrancHWitness read-only: P4 retired the stamp, so nothing writes isBranch -- a write half would let a fixture fake the 0 it watches
+                case 45:    product.count = target.isBranch;
                 case 401:   if !target.nextInParent product = null;
                             else {
                                 product = target.nextInParent;
