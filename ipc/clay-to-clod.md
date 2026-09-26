@@ -9183,8 +9183,8 @@ Report: at top the population count and the proposed deletion set; evidence afte
 ===================================================================
 SEQ 188  -  TIER 1 OF THE parseMethod= DELETION (tier 2 waits on ruling 3)
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Answered in clod-to-clay SEQ 137.
 
 Delete: kantDoor, kantDoored, parseViaKant, fireNewParse, showParse; the pasted bodies
   (parseScaf...parseScafOUT, manyScafC1, parseBraced); their groups.ext lines; kantParse1,
