@@ -3159,18 +3159,7 @@ define
                 label, so two passes attach TWO children. A recycling loop -- parse()'s
                 `isGROUP && max > 1` path, which clears the label and hands it back via the
                 fLAG handshake -- would show one.#):
-                CodeSite="genParse.rtn:demoRprime";
-            minTwoUnreachable=(WHY demoRprime IS A CONTROLLED COMPARISON AND NOT A GENERATED
-                RULE: the mark clause is only observable at min >= 2, and MIN >= 2 IS
-                CURRENTLY UNREACHABLE THROUGH THE GRAMMAR.
-
-                Measured 2026-07-28: `X[2]` is rejected outright (ERROR Operator - failed on
-                isRule and Token) and `X[2 9]` parses, prints "nextGroup: ERROR max does not
-                contain a list", and leaves min/max at 1/1 -- the limit is SILENTLY NOT
-                APPLIED. setLimits itself reads correctly, so the fault is upstream of it.
-                That makes genParseSpec §2.2's "latent until someone writes X[2]" true in a
-                stronger sense than it states.#):
-                CodeSite="genParse.rtn:demoRprime";
+                Retired="demoRprime removed 2026-09-26 (ruling 3a) -- the demonstration of 2026-07-28 stands as history; git has the code";
             kantRatchetOracle=(genKant -- EMIT A RULE'S KANT PARSE BODY FROM ITS LIVE TERMS,
                 and THE POINT OF THE WHOLE RATCHET. A hand-written body is a MANUAL RUN OF
                 THIS FUNCTION; this replaces the hand.

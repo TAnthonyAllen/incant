@@ -21,8 +21,6 @@ define parseTerms immediateAction=parseTermCount noPrint; ;
 registry(cOMMANDs);
 define traceParse immediateAction=traceParse; ;
 registry(cOMMANDs);
-define demoRprime immediateAction=demoRprime; ;
-registry(cOMMANDs);
 define manyMode immediateAction=manyMode; ;
 
 /*  THE KANT emitMany (minionA round 2). emitMany's fork routes here instead of
@@ -124,11 +122,11 @@ ScafC('aaac');
 ScafC('aax');
 ScafC('c');
 
-/*  --- INVARIANT R′, both clauses, side by side. See demoRprime: min >= 2 is
-    unreachable through the grammar today, so the mark clause is shown as a
-    controlled comparison of the two loop shapes rather than as a rule.  */
-demoRprime('a');
-demoRprime('aa');
+/*  --- INVARIANT R-PRIME: demoRprime RETIRED 2026-09-26 (ruling 3a). It demonstrated both
+    clauses on 2026-07-28 and that record stands in DesignDocs (invariantRprime); its min >= 2
+    case needs Limit, which is being removed. It was also why this file ended here: it pushed
+    input without raising inputFloor, so its failed pass popped THIS file and everything below
+    was dead at exit 0 -- rung7 included. The sentinel at the foot is the guard (H2).  */
 
 /*  --- RUNG 6: optional. ScafE has an optional REFERENCE between two mandatory
     terms; ScafF an optional noLabel LITERAL. Present, absent, and -- the case
@@ -150,4 +148,5 @@ ScafOUT('(i)');
 ScafOUT('(x)');
 genParse('ScafALT');
 genParse('ScafOUT');
+cerr "GENSCRATCH SENTINEL":;
 stop();

@@ -225,6 +225,10 @@ run1 () { $B "$(ip "$1")" > "$2" 2>&1      & _cap "$1"; }   # merged
 run2 () { $B "$(ip "$1")" > "$2" 2> "$3"   & _cap "$1"; }   # split
 
 run1 genScratch "$T/gen";    check "genScratch runs"  0 $?
+#  H2 (SEQ 189, ruling 3a): genScratch's foot was DEAD from its first demoRprime call until
+#  2026-09-26 -- demoRprime popped the file's input and the run ended at exit 0 with this row the
+#  only check. The sentinel is reachable only through the last statement before stop().
+sentinel "genScratch sentinel" "$T/gen" "GENSCRATCH SENTINEL"
 run1 popScratch "$T/cen"; check "popScratch runs" 0 $?
 run1 oneTest "$T/one";       check "oneTest runs"     0 $?
 run1 jsonTest "$T/jsn";      check "jsonTest runs"    0 $?
@@ -5001,11 +5005,12 @@ _dcDir=${DRIVE_CENSUS_DIR:-.}
 _dcGot=$(for _f in "$_dcDir"/*.twk "$_dcDir"/*.rtn; do python3 genLadder/codeOnly.py "$_f" 2>/dev/null | awk -v F="$(basename "$_f")" '/^(extern |[A-Za-z]+ +)?[A-Za-z*]+ +[A-Za-z_]+\(.*\)[ \t]*$/ && !/;/ {fn=$0} /pushInput\(/ && !/int pushInput/ {sub(/\(.*/,"",fn); n=split(fn,a," "); print F":"a[n]}'; done | LC_ALL=C sort -u | tr "\n" " ")
 #  RE-PINNED 7 -> 6, 2026-09-26 (SEQ 185, P3a's routing): treeOf LEFT the list -- it drives through
 #  driveStep now, so it is no longer a seat of its own. demoRprime stays until ruling 3.
-_dcWant="Commands.rtn:loadInputFromFile GroupActions.rtn:driveStep GroupActions.rtn:processCode GroupMain.twk:bootstrapper genParse.rtn:demoRprime jitEmitters.rtn:jitProbeDrive "
+#  RE-PINNED 6 -> 5, 2026-09-26 (SEQ 189, ruling 3a): demoRprime was DELETED.
+_dcWant="Commands.rtn:loadInputFromFile GroupActions.rtn:driveStep GroupActions.rtn:processCode GroupMain.twk:bootstrapper jitEmitters.rtn:jitProbeDrive "
 if [ -n "$_dcGot" ] && [ "$_dcGot" = "$_dcWant" ]; then
-    echo "  ok    drive census: pushInput's callers are the 6 named seats"; green=$((green+1))
+    echo "  ok    drive census: pushInput's callers are the 5 named seats"; green=$((green+1))
 else
-    echo "  FAIL  drive census MOVED -- pushInput's callers are not the 6 named seats; class every newcomer"
+    echo "  FAIL  drive census MOVED -- pushInput's callers are not the 5 named seats; class every newcomer"
     echo "          actual:   ${_dcGot:-(none -- the extractor read nothing)}"
     echo "          expected: $_dcWant"
     fail=1

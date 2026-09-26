@@ -9183,8 +9183,8 @@ Report: at top the population count and the proposed deletion set; evidence afte
 ===================================================================
 SEQ 188  -  TIER 1 OF THE parseMethod= DELETION (tier 2 waits on ruling 3)
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Answered in clod-to-clay SEQ 137.
 
 Delete: kantDoor, kantDoored, parseViaKant, fireNewParse, showParse; the pasted bodies
   (parseScaf...parseScafOUT, manyScafC1, parseBraced); their groups.ext lines; kantParse1,
@@ -9199,3 +9199,23 @@ Certificate: fleet moved only by the retired rows, each named; full H12; commit,
 Report: at top the fleet, what genScratch reads, the orphaned-helper list; evidence after.
 
   END SEQ 188
+
+
+===================================================================
+SEQ 189  -  RULING 3a: demoRprime RETIRES. 3b IS A CENSUS, NOT A DELETE
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15.
+
+This stroke: remove demoRprime and its calls from genScratch (its R-prime claim is recorded
+  history; its min>=2 case needs Limit, which is being removed). Add a sentinel at genScratch's
+  foot, asserted in pop.sh (H2). Report what the untruncated tail reads: rung7 (predicted
+  green), the second demo, and the RUNG 6/7 runtime calls; name every row that moves. The
+  drive census drops demoRprime.
+Next stroke, a census only: the C++ emitter (planRule, emitPlan, the plan vocabulary in
+  genParse.rtn) -- every caller and every instrument or row reading its output; which retire by
+  mapping and where each question would go (the kant road, or nowhere). Tier 2 and the dead
+  parseJSON* bodies ride on that answer.
+Report: at top the fleet and rung7's reading; evidence after.
+
+  END SEQ 189

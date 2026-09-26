@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 136 at the FOOT -- SEQ 187 CENSUS: 61 items in 7 groups; deletion in two tiers, tier 2 gated on ruling 3 (it moves genScratch's rung targets)
+STATUS:   fresh           # SEQ 137 at the FOOT -- SEQ 188 TIER 1 DONE: 17 functions, 3 fixtures, kantRatchet.sh gone; genScratch gains 10 refusal lines and nothing else
+# prior: SEQ 136 -- SEQ 187 CENSUS: 61 items in 7 groups; deletion in two tiers, tier 2 gated on ruling 3 (it moves genScratch's rung targets)
 # prior: SEQ 135 -- SEQ 186 DONE: the floor carries a generated root's label; tree row AGREES; tree.sh/mixed.sh retired
 # prior: SEQ 134 -- SEQ 185 (iii) LANDED: treeOf through driveStep, item A green (door 1/1/1/1, sentinel present); next is (i), the floor reader
 # prior: SEQ 133 -- SEQ 184 STOPPED on a measured premise: a generated root's rStuff.label reads NULL after every drive, so P3a's reader as designed returns nothing
@@ -7829,4 +7830,27 @@ OVERLAPS, flagged not proposed:
   - measure.twk:200: an audit skips terms tagged parseMethod/parseTerms -- residue after tier 2.
 
 STATE: nothing edited; trunk installed and BARE, fleet 763 / 1, canary 425, repos clean.
+
+
+===================================================================
+SEQ 137  -  SEQ 188 DONE: TIER 1 OF THE parseMethod= DELETION
+===================================================================
+STATUS: fresh.
+
+Trunk 1dd73d6, support bffdb14, branch merge (pushed). Canary 425 -> 408 trunk, 441 -> 424 branch.
+FLEET: 763 / 1 trunk, unchanged; branch PTF=0 763, PTF=1 762, unchanged. Moved (counts only):
+  fixture-name census 198 -> 196, groups.ext mirror 341 -> 329 (drift 0), ERROR census ratchet
+  15 -> 14 (fireNewParse's ERROR print). No pop.sh row retired -- none read the deleted fixtures.
+  Harness slots retired: kantRatchet.sh WHOLE (all its rungs were the deleted fixtures' / the
+  kant door's; it was RED before), smoke.sh slots 1 and 3 repointed to treeRowT / driveDoorT.
+GENSCRATCH, by name: runs ok; rung12/4/5/6 ok; rung7 red as before; MANIER ok. Its output gains
+  TEN refusal lines, one per bind -- "setParseMethod: REFUSING parseScaf<X> -- no method of that
+  name" for Scaf, Scaf2, ScafA, ScafB, ScafC, ScafE, ScafF, ScafI, ScafALT, ScafOUT -- and nothing
+  else: runtime door counts identical (Scaf 2, Scaf2 2, ScafB 2, ScafC 4). No row reads them.
+ORPHANS: none lost its LAST caller here; all eight helpers are now reachable ONLY through dead
+  code (seven parseJSON* bodies with no callers; litToK none; litK only from incant/parseCode,
+  which nothing runs; ctProbe was already caller-less, containerTo's one caller is ctProbe).
+DesignDocs retired: trampolineSeam, kpConvention, kantDoorDuties, kantDoorGuards,
+  directorsWindow, bracedControlOrigin.
+NEXT: ruling 3 (demoRprime / genScratch), which gates tier 2.
 
