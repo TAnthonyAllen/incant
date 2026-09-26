@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 142 at the FOOT -- SEQ 193: banked three; P3 owes nothing, P7 has three moved premises; P4 STOPPED at 1b, its rows read 0 BEFORE the change
+STATUS:   fresh           # SEQ 143 at the FOOT -- SEQ 194: P4 LANDED on the branch (333c331), certificate cashed; canary reconciled; stopped before P5
+# prior: SEQ 142 at the FOOT -- SEQ 193: banked three; P3 owes nothing, P7 has three moved premises; P4 STOPPED at 1b, its rows read 0 BEFORE the change
 # prior: SEQ 141 -- SEQ 192 (Task 2) DONE: subdirectories clean, RuleStuff.twk tidied, parseGeneric gone, fleet unmoved
 # prior: SEQ 140 -- SEQ 191 DONE: shapeBodyT + parserCoverage built green, then the C++ emitter, tier 2, parseJSON*, the helpers and the stored-body verbs retired
 # prior: SEQ 139 -- SEQ 190 C++ EMITTER CENSUS: 76 items; 2 questions have a kant-road home (no row yet), 5 have none
@@ -8043,3 +8044,35 @@ Groups scheme now runs refireSkipsDegraded (Tony's 16:18 run). Left alone; it is
 live state. No seal yet -- stopped for the ruling.
 
   END SEQ 142
+
+
+===================================================================
+SEQ 143  -  SEQ 194: P4 LANDED; CANARY RECONCILED; STOPPED BEFORE P5
+===================================================================
+AT TOP: branch 333c331 -- PTF=0 763 / 1 (+10, ctlStampT; 54 red == trunk row for row),
+PTF=1 762 / 1 (56 red == baseline), jitLadder 215 at both, conservation 13349 with
+rejected 0. Support beebcec (groups.ext: branchKind). Trunk reinstalled, 753 / 1.
+
+CERTIFICATE CASHED: continue v; 2 -> 0 (loop ran 2); testing()'d return w; 3 -> 0.
+DOES P4 LEAVE A STAMP? NO -- zero writers of isBranch remain. So the per-bracket rows
+assert the returned value carries none: LV-1 processAction (value 7, x 0). parseRule's
+has NO ROW: it returns the label, never the body's value, and three spellings read 0
+even with the stamp put back -- a row there would certify nothing. Each bracket also
+carries a SLOT-LEAK row, red when its restore is removed: SL-1 processAction (ctRun stops
+after P4-2), SL-2 parseRule 3 -> 0, SL-3 emit frame 5 -> 0. H15 control first:
+loopBranchT unchanged.
+MOVER THE PLAN SAID WOULD NOT EXIST: pop.sh's A4 isContinue census counts the spelling,
+so it went red; re-aimed to `branchKind == 2` (3 arms, 1 setter, unchanged). Attributed,
+and the reason I stopped here rather than carrying on to P5.
+
+CANARY: the seal's canary is GroupRules.h + Bytecode.h + measure.h -- the headers the
+GroupRules.twk retok produces. Trunk 304+21+40 = 365 (this morning's seal); branch
+320+21+40 = 381 (its seal; the 16 are ptf* and five branch measure witnesses). 413 sums
+EVERY header on the branch: + GroupDraw.h 7, RuleStuff.h 12, Stylish.h 11, and 2
+hand-written GC_malloc declarations in the branch's jitContext.h. Trunk's all-header
+sum is 395. P4 moved neither (a member is not an extern). Reported both ways from here.
+
+NOTE: groups.ext is shared, so trunk's next GroupRules.twk retok gains the unused
+branchKind member -- harmless, and it lands for real when the branch merges.
+
+  END SEQ 143
