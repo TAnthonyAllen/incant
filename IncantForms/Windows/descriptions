@@ -26,7 +26,7 @@ Note: The describe attribute implies text.";
     ;
 register(FORMs);
 define
-    webViewExample window closable resize width=500 height=600 x=500 y=200 fill=wall minimumHeight=100 title='WebView Test' dEBUG
+    webViewExample window closable resize width=500 height=600 x=500 y=200 fill=wall minimumHeight=100 title='Description Test'
         body
             wrap mRight=15 mBottom=15
                 first height=50 pad=5 fill=lightGreen bordered

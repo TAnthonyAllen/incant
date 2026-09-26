@@ -1,29 +1,56 @@
 /*****************************************************************************
     This file is not an incantation, just notes on form design
 *****************************************************************************/
-Here is a list form attributes along with an explanation of what each attribute does. The list is derived from attributes in old GUI forms. Some of the attributes are part of the little drawing language (see drawing incantation).
-    across          form field members will be laid out horizontally
-    align           aligns text in the frame; allowed values: left center right;
-    border          prints a rectangular border around the field; if border value is number that is used for its width;
-                    an off value says no border but that is only relevant if border is inherited and probably it should not be inheritable
-    closable        makes a window or panel closable; should only work on windows or panels
-    doNotScroll     scroll block search goes bottom up looking for a scrollable block; doNotScroll means keep searching up
-    down            form field members will be laid out vertically
-    drawPath        says the attributes that follow it are drawing commands. Needs design and fleshing out.
-    font            value is a font defined in the Fonts registry. updates current style
-    pad             not planned to be supported in layout
-    perforation     draws a perforated border on its parent using incant little drawing language
-                        depth gap perfRight perfLeft perfTop perfBottom and stride are attributes used by perforation as parameters (they have default settings)
-    radius          defines the radius used by rounded
-    resize          makes a window or panel resizeable; should only work on windows or panels
-    rounded         like border but puts up a rounded rectangle; the rounding radius should probably go into style
-    text            prints the form field text into its frame applying the current style
+The form incantations in IncantForms need to be reworked to work under kant; and the attributes referenced in those forms may need figuring out and may need a method/action written for them to work as intended.
+Here is a list form attributes along with an explanation of what each attribute does. The list is derived from attributes in old GUI forms. Some of the attributes are part of the little drawing language (see drawing incantation). Attributes defined in templates tend to be mergeContainers that contain attributes that get merged into the mergeContainers parent on definition
+
+    across              form field members will be laid out horizontally
+    action              in old GUI seems to provide an onClick functionality but action will probably not make the transition from old GUI to kant where every attribute can have a method/action and we need to figure out how and when those get fired
+    align               aligns text in the frame; allowed values: left center right;
+    border              prints a rectangular border around the field; if border value is number that is used for its width;
+                        an off value says no border but that is only relevant if border is inherited and probably it should not be inheritable
+    button              a form component that acts as a button; has to have a method/action to fire when it gets clicked on (that implies a form component action works like an onClick action)
+    cards               specifies that its parent contains cards that on display are layered on over the next with only one showing. The cards can be shuffled thru using arrow keys
+    closable            makes a window or panel closable; should only work on windows or panels
+    describe            used to link a field to its description in the dESCRIPTIONs registry. See descriptions incantation for how it works.
+    doNotScroll         scroll block search goes bottom up looking for a scrollable block; doNotScroll means keep searching up
+    down                form field members will be laid out vertically
+    drawPath            says the attributes that follow it are drawing commands. Needs design and fleshing out.
+    expander            references expandable and expanded attributes defined in templates. old GUI recon needed to figure out how expander works
+    fit                 Wraps a container around its contents. A recon into old GUI (probably in Details.twk) needed to figure out how it works, and if we decide to keep it, how do we transfer its functionality to kant. Not a simple little attribute.
+    flex                not sure what this does. Recon into old GUI needed to figure it out
+    font                value is a font defined in the Fonts registry. updates current style
+    key                 not sure what it does but it is used in layout (a forms incantation that needs figuring out)
+    keyAction           says its container field has an action fired when the field is selected and a key is entered
+    keyStroke           used to specify a keyStroke set; see keyStroke incantation. Some figuring out required.
+    image               specifies the url or fie path of an image to be loaded
+    matrix              requires an old GUI recon to figure out what it does. There are a number of matrix attributes defined in templates
+    minimums            minimumHeight and minimumWidth constrain layout when checking if a component fits in its parent
+    pad                 not planned to be supported in layout
+    panel               like window but defines a panel to be displayed
+    perforation         draws a perforated border on its parent using incant little drawing language
+                            depth gap perfRight perfLeft perfTop perfBottom and stride are attributes used by perforation as parameters (they have default settings)
+    popup               defines a popup box. How it works needs figuring. Recon into old GUI required.
+    pullDown            fires a pull down menu. How it works needs figuring. Recon into old GUI required.
+    radius              defines the radius used by rounded
+    resize              makes a window or panel resizeable; should only work on windows or panels
+    rounded             like border but puts up a rounded rectangle; the rounding radius should probably go into style
+    selectable          flags its parent (a form component) as being selectable
+    sort                takes a value that is the parent attribute to be sorted on??? Applies when multiple members involved to sort those members (the ones being displayed, not the source itself). sort will require a method/action to do the sorting. It will also require a recon thru old GUI to see how it used to work as first step to figuring out how it will work in kant.
+    table attributes    defined in templates; include: tableBody tableCell tableHead tableLabel tableRow
+    text                prints the form field text into its frame applying the current style
+    title               as in title="Some Text" an attribute but title implies a different style; how to supply that implied style (presumably when title is defined, without the text data that get applied in a later redefinition when title is added to some field as an attribute). Does title have a method/action? If so what does it do?
+    toggled             used in inspector form. recon into old GUI required to figure out what it does. May not transfer to kant.
+    trait               interacts w/source. See layout incantation reference in the Forms Needing Figuring Out section below
+    window              essentially the outermost field in a forms definition
 
 /*****************************************************************************
     Form fields (not attributes) with special meaning
 *****************************************************************************/
+    form            is defined in templates; it probably should be renamed. Its design and use is interesting. The menu incantation makes use of it and warrants a look see to work thru.
     space           form field can have a numeric value; if its parent orientation is across, the value is its width; otherwise its height.
                     Typically, has no content. If has no value, its size if determined as its share of any residual space in its parent.
+    comments        In old GUI form comments were flagged as ?text? We need a kant equivalent and can probably use normal quotes like // text
 
 /*****************************************************************************
     Design Issues
@@ -32,3 +59,17 @@ Here is a list form attributes along with an explanation of what each attribute 
     use of font: thinking only way to refer to a font is by its tag as defined in the Fonts registry. That means fontSize is not a valid attribute
     some form attributes implicitly update style
     if a form attribute has a method/action when does it fire? Methinks the default is on click; action attributes are processed in left to right order
+    pouring text into a form. A form component can have a frame and a style and a source (of text being poured in). The process:
+        form runs thru setFrame to define its shape
+        if we opt for a print driven layout (makes sense if we are printing to pdf), print form; would have to be able to draw the form, component by component as it goes, dealing with borders colors font and determining how much source text fits in the space each component provides such that first component gets a block of text from the source, all it can fit. It leaves source (which is a buffer) mark at the end of the source it draws from. The next component with the same source will read in its text starting at mark, and on we go.
+        adding a print ability to handle forms looks to be calling for a print language, a little, maybe not so little, language currently wearing a PrintXP dress like the one Cinderella was wearing before all the bippity boppity boo gets applied (bottom line: we need some little language design magic here). The print language and the drawing language may be the same thing, or interact like they are.
+        more on the print language. I think of it as a typesetting language, like Latex but simpler, kant like, and able to draw on kant capabilities. Designing the typesetting language will be lots of fun.
+
+/*****************************************************************************
+    Forms Needing Figuring Out. Recon into old GUI probably required
+*****************************************************************************/
+    draw        an old GUI form that draws but updating it to work in kant will require decisions on how the little drawing language works
+    fit         most of the figuring involves figuring out how the fit attribute does what it does
+    layout      was intended as a form to show what forms can be. It includes references to trait and key attributes that need figuring.
+    list        a form that needs some serious figuring out just to figure out what it does, much less how it does it
+    sheet       a form that builds an interactive drill down/across spread sheet

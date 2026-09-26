@@ -9,7 +9,7 @@ define
     rsN=0;
     rsRun code={
         rsN = rsN + 1;
-        cerr "RS SINK FIRED":;
+        cerr "RS SINK FIRED" rsN:;
         };
     ;
 cerr "== fire 1: compile and run. Expect one RS SINK FIRED and rsN 1 ==":;
@@ -55,7 +55,35 @@ and FOR shows that a degrade line alone does not say which kind a construct is. 
 the 2026-08-08 rule collecting again: a degrade asserts that a fallback OCCURRED, never
 that it was sound.
 
-NEXT: OPEN -- the fix is not chosen, and it is Tony's. What would generate a candidate:
+TAKEN SIGNATURE, Tony ran it 2026-09-26 16:18 (SEQ 193). STATUS STAYS OPEN.
+  One RS SINK FIRED line where the interpreted road prints two. rsN reads 1 then 2, so
+  both ANCHORs pass -- and that is the trap in this file as written: the anchors pin only
+  the COMPILED statement (rsN = rsN + 1), never the degraded one. The degraded cerr runs
+  at EMIT time and the compiled function contains nothing for it, so fire 1's sink line
+  comes from the COMPILE, not the run. Fire 1 therefore looks right for the wrong reason.
+
+THE REWRITE TONY WANTS, BEFORE ANY REMEDY (SEQ 193; owned by Tony, offline). A phased
+  flow with a marker line at the head of each window, so a shell row can count sink lines
+  per window instead of reading one undifferentiated stream:
+    Phase 0  interpreted oracle, run FIRST (bear-trap #25: jitted-first routing matters,
+             so the oracle must be a fresh action or a separate process -- say which)
+    Phase 1  the compile window: testing(rsRun)
+    Phase 2  the refire window: jitRefire()
+  Shell rows count RS SINK FIRED per window.  Want TODAY  2 / 1 / 1
+                                               Want FIXED  2 / 0 / 1
+  The middle column is the discriminator: a sink line inside the compile window is the
+  degraded statement running at emit time, and a fix that call-throughs it at run time
+  moves it out of the compile window and into the run.
+
+NEXT: BEST GUESS -- graded, not recommended, not built (SEQ 193).
+  CANDIDATE: an EMITTED CALL-THROUGH for a degraded statement, in the jitTermCallRT
+  shape -- the compile emits a call to a run-time helper handed the statement node, the
+  helper runs it interpreted at each fire, and nothing runs at emit time. Grade: shape
+  proven for terms (jitTermCallRT, jitter station 1) and for += (jitOpFireRT); UNMEASURED
+  for a whole statement. Promotes on: the rewritten file reading 2 / 0 / 1 with degrade
+  lines unchanged. Kills on: a degraded statement whose emit-time run has an effect the
+  compile depends on (then it must run at BOTH times, or refuse).
+  (Superseded grade, kept for the trail:) OPEN -- the fix is not chosen, and it is Tony's. What would generate a candidate:
   a census of every jitDegrade site classified by what its construct does at emit time
   (runs once / runs nothing / is re-run by the compiled code, like FOR), so the
   population of skipped-on-refire constructs is named rather than sampled; and a reading
