@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      207
-STATUS:   cleared        # SEQ 207 -- guess confirmed; oracle test reverted whole (rule-body * runs to max; sweepT moved) -- clod-to-clay SEQ 154
+SEQ:      208
+STATUS:   cleared        # SEQ 208 -- built, works, moves the must-not-move rows (leaf half); reverted -- clod-to-clay SEQ 155
+STATUS-207: cleared      # SEQ 207 -- guess confirmed; oracle test reverted whole (rule-body * runs to max; sweepT moved) -- clod-to-clay SEQ 154
 STATUS-206: cleared      # SEQ 206 -- (A) LANDED; re-pins; timing +3%; BlocK re-drive reported -- clod-to-clay SEQ 153
 STATUS-205: cleared      # SEQ 205 -- measured; red pair was `search Utilities list;` (valid) -- report clod-to-clay SEQ 152
 STATUS-204: cleared      # SEQ 204 -- edit committed a6a56a3; label row pinned (new road pinned as divergence -- cannot cash today)
@@ -9646,4 +9647,28 @@ name collision inside an action, and Tony's ordering choice for actions compiled
 parser().
 
   END SEQ 207
+
+
+===================================================================
+SEQ 208  -  BUILD THE LEAF-ONLY ZERO-WIDTH SUCCESS
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Reverted for a ruling; clod-to-clay SEQ 155.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+Tony rules: build the leaf-only zero-width success.
+1. Extract one predicate for "this term repeats inside parseLoop", from the install test at
+   Generate.rtn:401. The install site uses it. The tail at Generate.rtn:33 becomes:
+     !min && !isCondition && (max <= 1 || !<predicate>)
+   Show both lines before and after, verbatim.
+2. Certificate: BlocK's four inputs all consume on the new road, { x = 1; } included; sweepT
+   certified 45, unmoved; nestNatT, the (b) tripwire and loopVerdict counters unmoved; ShRep
+   1/4 in both orders, and ShA* never reaches kount 100; chainTruthT, modSeamT and DW-5
+   unmoved; pop.sh row for row, jitLadder 215, canary sum. Report which half sweepT's +2 came
+   from last time, if this run shows it. If any other row moves, revert whole and report.
+3. Add a row: BlocK { x = 1; } on the new road, consumed = all.
+4. Also add rows for Modifier* (the second census term): one input with zero modifiers and one
+   with several, both roads.
+
+  END SEQ 208
 

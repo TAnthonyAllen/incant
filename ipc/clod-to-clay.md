@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 154 at the FOOT -- SEQ 207: guess CONFIRMED; the oracle test fixes BlocK but runs rule-body * loops to max; REVERTED WHOLE (sweepT moved)
+STATUS:   fresh           # SEQ 155 at the FOOT -- SEQ 208: leaf-only built and WORKS (BlocK x, ShA* kount 2) but moves the same rows -- the LEAF half is the mover; reverted, needs a ruling
+# prior: SEQ 154 at the FOOT -- SEQ 207: guess CONFIRMED; the oracle test fixes BlocK but runs rule-body * loops to max; REVERTED WHOLE (sweepT moved)
 # prior: SEQ 153 at the FOOT -- SEQ 206: (A) LANDED 4c6c76c; timing +3%; BlocK parses two statements now -- a one-letter name is a separate bug
 # prior: SEQ 152 at the FOOT -- SEQ 205: CORRECTION -- the red pair is `search Utilities list;` (VALID); (A) is right there, the row pinned the bug
 # prior: SEQ 151 at the FOOT -- SEQ 203: ruling (A) built, measured, REVERTED WHOLE -- site1RoadsT accepts "search Utilities list" (no ;)
@@ -8557,4 +8558,51 @@ It would cover both census names (data 3). Whether sweepT's +2 comes from the le
 rule-body half is UNMEASURED; the narrower test would say.
 
   END SEQ 154
+
+
+===================================================================
+SEQ 155  -  SEQ 208: LEAF-ONLY BUILT, DOES ITS JOB, MOVES THE SAME ROWS -- REVERTED FOR A RULING
+===================================================================
+STATUS: fresh -- 2026-09-27. Reverted whole; fleet back row for row. Patch kept.
+
+TOP LINE. Ran, one variable at a time: (A) the predicate extracted, install site only; (B)
+the tail changed. Bare retok, rebuilt, pop.sh three times, the probes, sweepT per carrier on
+both builds. WHAT FAILED: the certificate's must-not-move rows moved -- sweepT certified
+45 -> 47 (red), nestNatT's parseRule arrivals, the (b) tripwire, loopVerdict -- the SAME moves
+as SEQ 207's full oracle test. Reverted per the dispatch. Rules: the census leaves (nameSet,
+Modifier) and what sits on them (NamE, ANYtoken, DEF...TraiT); not parser.
+
+THE TWO LINES, verbatim.
+  Generate.rtn:401 (install)
+    before:  if parseMethod == parseRule || (max > 1 && (!data || data > 3))    field.method = parseLoop;
+    after:   if repeatsInLoop(field)     field.method = parseLoop;
+  Generate.rtn:33 (tail)
+    before:  if max <= 1 && !min && !field.isCondition   return trueResult;
+    after:   if !min && !field.isCondition && (max <= 1 || !repeatsInLoop(field))    return trueResult;
+  new, Generate.rtn (alphabetical, before runLeafParse):
+    extern int repeatsInLoop(GroupItem field)  -- rStuff via getRStuff (the non-constructing
+    read); returns the install test verbatim.
+  Step A alone: fleet row for row identical, canary 309 -> 310 (the one extern), alphaLint 0.
+
+WHAT THE LEAF FIX DOES, measured on step B's build:
+  - BlocK's four inputs all consume on the new road: { x = 1; }, { x = 1; y = 2; }, { print 1; },
+    { xy = 1; }.
+  - ShA* inside `ShS = ShA* kc` on "aac": kount 2 -- never 100. The rule-body half is guarded.
+  - pop wall 16.6 / 15.7 / 15.8 s.
+WHICH HALF MOVED sweepT LAST TIME: THE LEAF HALF. Step B moves exactly the rows SEQ 207 moved,
+with the rule-body half guarded out. And every move is the new road ACCEPTING MORE:
+  NamE rejects 6 -> 0, ANYtoken 6 -> 0 (one-letter names parse); `define aa isRule; ;` consumed
+  19 of 19 where it was 17 (DEF, define, definitions, DefinE, NewGroup, TraiT, GrouP, 1 accept
+  where they had 0); `#5.2d` consumed 5 (was 4), `#-5s` 4 (was 3); Attributes and endDef
+  carriers gain their first accept. THE +2 CERTIFIED is those two carriers leaving nopick
+  (16 -> 14) because the sweep re-picks from the new accept sets. Engines agree throughout
+  (diff=0). nestNatT's arrivals and the tripwire/loopVerdict counters move with the same parses.
+  Not measured: the OLD road's reading of each flipped input (which would say "correct").
+Rows 3 and 4 (BlocK { x = 1; }, Modifier* zero/several) NOT added -- reverted.
+
+THE QUESTION FOR TONY: re-pin these moves as the fix working (with the old-road oracle run
+per flipped input first), or keep the rows fixed and look for why the leaf half moves them.
+The patch (predicate + tail) is kept; relanding it is one apply.
+
+  END SEQ 155
 
