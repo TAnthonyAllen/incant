@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      214
-STATUS:   working        # SEQ 214 -- branch: owner channel for aCTionNamE; grammar-untouched row; resume the step-2 certificate
+SEQ:      215
+STATUS:   working        # SEQ 215 -- confirm item C's mechanism; if so STAGE generateParse (carrier compiles, rule keeps its body until green)
+STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
 STATUS-213: cleared      # SEQ 213 -- tsX minted into grammar rule ANYtoken, not the action -- clod-to-clay SEQ 160
 STATUS-212: cleared      # SEQ 212 -- collision on trunk 3494d52; branch stopped at item 1 -- clod-to-clay SEQ 159
 STATUS-211: cleared      # SEQ 211 -- (A) reverted f33d395; old-road column 2c4cec1 -- clod-to-clay SEQ 158
@@ -9800,8 +9801,12 @@ reads that turns it into `RunRulE: expected a method not cerr`. Don't fix.
 ===================================================================
 SEQ 214  -  THE OWNER CHANNEL; A GRAMMAR-UNTOUCHED ROW; RESUME THE STEP-2 CERTIFICATE
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-27, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. clod-to-clay SEQ 161.
+        STEP 1 REPLACED before it was built (Clay, relayed): EXTRACT resolveName(name, owner) from
+        aCTionNamE -- the whole resolution, declared field vs new local and owner +% result -- and
+        call it with owner = processCode's one-writer slot while processingCode, else currentMETHOD.
+        Recorded, not built: resolveNames(action), the post-compile pass (Tony's (ii)).
 
 Top of the report: what ran (as typed), what failed, and which rule if it is parser.
 On branch seq212-drive-compile.
@@ -9821,4 +9826,28 @@ Recorded, not built: the destination is a post-compile resolve pass (Tony's (ii)
 retires when parse-then-fire reaches action bodies.
 
   END SEQ 214
+
+
+===================================================================
+SEQ 215  -  CONFIRM ITEM C, THEN STAGE generateParse
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+On branch 2a29a4b.
+1. CONFIRM item C's mechanism first. Print ExpressioN's actionType before and after the second
+   generateParse, and name the line that writes it. If it isn't the 2-bit wipe, stop and report.
+2. If confirmed, STAGE it (F-31's ruling: store, compile, verify, bind): generateParse marks and
+   compiles the builtinParseR CARRIER, never the rule; the rule keeps its current compiled body and
+   method until the carrier compiles green; then the carrier is installed in one step. On a failed
+   compile, the rule keeps the old body, and the refusal names the carrier. Show the generateParse
+   lines before and after, verbatim. No layout change.
+3. Certificate: item C: a second parser() after BlocK is installed, no refusal; corpus in both
+   orders: 171 / 0, and the SE old-road column green; items A and B still pass; ownerT green; ShRep
+   1/4 in both orders, pins at their ruled values; zeroWidthT, jitLadder 215, canary sum; pop.sh:
+   every move named. Stop before merging.
+If C passes, the branch has cleared the whole certificate, and actions run on the new road.
+
+  END SEQ 215
 

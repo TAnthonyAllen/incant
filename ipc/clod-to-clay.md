@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 160 at the FOOT -- SEQ 213: the new-road compile mints tsX into GRAMMAR RULE ANYtoken (currentMETHOD = the face), not the action
+STATUS:   fresh           # SEQ 161 at the FOOT -- SEQ 214: owner channel + resolveName built, grammar clean (7 -> 0); certificate STOPS at item C (second parser() of ExpressioN)
+# prior: SEQ 160 at the FOOT -- SEQ 213: the new-road compile mints tsX into GRAMMAR RULE ANYtoken (currentMETHOD = the face), not the action
 # prior: SEQ 159 at the FOOT -- SEQ 212: collision LANDED on trunk 3494d52; branch seq212-drive-compile STOPPED -- a new-road compile of a body with a BARE NAME abandons the top level
 # prior: SEQ 158 at the FOOT -- SEQ 211: (A) REVERTED f33d395 (root is SEQ 202 compile refusal); old-road column LANDED 2c4cec1
 # prior: SEQ 157 at the FOOT -- SEQ 210: the DO refusal was MY ORACLE (SEQ 202 compile refusal); ExpressioN refusal IS (A); only q disagrees; collision named
@@ -8880,4 +8881,74 @@ time but into the wrong owner, because aCTionNamE reads the owner from currentME
 body repoints it. Not fixed.
 
   END SEQ 160
+
+
+===================================================================
+SEQ 161  -  SEQ 214: THE OWNER CHANNEL HOLDS; THE CERTIFICATE STOPS AT ITEM C
+===================================================================
+STATUS: fresh -- 2026-09-27. Branch seq212-drive-compile 2a29a4b, pushed, NOT merged. Trunk: F-129
+        opened (docs/fixIts.md). Installed binary = trunk, fleet verified row for row.
+
+TOP LINE. Ran, on the branch: step 1 in Clay's REVISED form (resolveName extracted; it arrived before
+step 1 was built), a new grammarHolds command and the ownerT row -- proved red before the fix -- then
+SEQ 212's step-2 certificate in full, with an H15 control first. FAILED: item C -- a second parser()
+after BlocK is installed: "REFUSED parseRule: ExpressioN has a parse method but no compiled body".
+Rule: ExpressioN; not parser.
+
+(1) THE OWNER CHANNEL. jitContext.h `inline GroupItem *gCompileOwner`; ONE WRITER, processCode:
+    -% GroupItem *priorOwner = gCompileOwner; gCompileOwner = action; %-
+    result = driveStep(code,blockRULE,null);
+    -% gCompileOwner = priorOwner; %-
+  aCTionNamE BEFORE, verbatim:
+    GroupItem   action = currentMETHOD;
+    ...
+    result = locateInMethod(arg);
+    if result && result.parent == action  goto endName;
+    ... (the declared-vs-local arms, all `action +% ...`)
+  (full text: the branch's parent commit, ruleActions.rtn:642-668)
+  aCTionNamE AFTER, verbatim:
+    -%
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    GroupItem *owner = (ruler->processingCode && gCompileOwner) ? gCompileOwner : ruler->currentMETHOD;
+    input->setGroup(::resolveName(input->getText(),owner));
+    %-
+    return input;
+  resolveName(arg, owner) (ruleActions.rtn, new, alphabetical): the WHOLE resolution --
+  locateInMethod's `owner % name` half included, since it read currentMETHOD too -- transcribing
+  today's generated code with owner in place of currentMETHOD. Recorded, not built:
+  resolveNames(action), the post-compile pass (Tony's (ii)).
+(2) THE ROW. grammarHolds(name) (GroupActions.rtn, registered in setup) walks the Grokking registry
+  and every rule's terms and prints each holder and the count. ownerT: 0 before parser(); after a
+  new-road compile of owAct (owX read, owY assigned, owZ new) -- PRE-FIX 7 / 7 / 7 (ANYtoken plus the
+  six rules sharing its list), POST-FIX 0 / 0 / 0. A first kant-scan version read 0 on the broken
+  build too and was discarded (H16: it could not see a planted child either).
+  ⚠ A FINDING, not chased: called from INSIDE a pre-compiled action, the same compile does not
+  pollute (0 on the pre-fix build); only a top-level call did.
+H15 CONTROL, run first: an old-road compile called twice equals trunk -- output and the locals
+minted into the action (tsY local, tsX referenced). My first control used a body with a bare `tsX;`
+and crashed at 139 -- ON TRUNK TOO: opened as F-129 (a bare-name statement crashes an action's
+second call; aCTionXpress's null ExpressioN label).
+(3) THE CERTIFICATE:
+    A  rsRun compiled after parser(Start): rsN 1                         PASS
+    B  a two-statement action runs both (11, 22)                         PASS
+    C  a second parser() after BlocK is installed                        FAIL -- ExpressioN refuses "has a
+       parse method but no compiled body" while its REGENERATED body is compiled; the ExpressioN drive
+       then reads 0/0. Mechanism, read from the code and the refusal's own text (not traced):
+       generateParse marks the rule `:. isCodeD`, which replaces isAction in the 2-bit actionType, so
+       during the compile drive of its new body parseRule(ExpressioN) finds it not compiled
+       (Generate.rtn, parseRule's else -> reportNoBody). A rule recompiled on the new road needs its
+       own compiled body to parse its new one.
+    corpus parser(DO) 171 / 0                                             PASS
+    corpus parser(StatemenT); parser(ExpressioN)                          FAIL -- 167 of item C's refusal
+    old-road column: do green, se RED (item C)
+    ShRep 1/4 both orders; the four divergence pins at their ruled values PASS
+    zeroWidthT green; jitLadder 215 PASSED; canary 313 + 21 + 41 = 375
+    pop.sh 779 -> 783 ok, EVERY MOVE NAMED: fixture census 185 -> 186 (ownerT); loopVerdict 37/1 ->
+      310/95 (A); site1RoadsT 1/22 and shapeBodyT 16/16 + label aaac (A, ruled values); drive census
+      5 -> 4 (processCode's pushInput is a driveStep drive now); driveDoorT fires anchored (the compile
+      drive's mark trace prints the body text -- `[{ cerr "IAFIRE ScafA]` -- which the unanchored match
+      counted, 3/1/1/1; the real count is 1); oldRoad column se red (item C, NOT re-pinned).
+STOPPED before merging, as instructed.
+
+  END SEQ 161
 
