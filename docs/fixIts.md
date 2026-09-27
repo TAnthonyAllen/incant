@@ -112,7 +112,7 @@ ATTEMPT LOG
   (none yet)
 ```
 
-### F-128 — OPEN 2026-09-27 — an action COMPILED after BlocK is installed REFUSES, and the refusal has no patient
+### F-128 — ✅ CLOSED 2026-09-27 — an action COMPILED after BlocK is installed REFUSES, and the refusal has no patient
 
 **What.** Once any `parser()` call has installed BlocK's generated parse, every later compile of a coded body --
 an action's first call, or a second `parser()` call's compileRules -- refuses at `checkInput`:
@@ -128,7 +128,7 @@ enclosing parse to take the label.
 **Done when.** An action compiled after `parser(Start)` fires its body, and a second `parser()` after BlocK is
 installed completes its setParse with no refusal. Named site: processCode's parse becomes a `driveStep` drive
 (SEQ 202 item 4).
-**Owner.** Clod, SEQ 212 branch.
+**Owner.** Clod. **Closed** by the merge of seq212-drive-compile (24cd9fe); POP entry `incant/pop/driveCompileT`.
 ```
 ATTEMPT LOG
   2026-09-27 4c6c76c ruling A landed (every rule body through parseLoop) -> the refusal became VISIBLE: under a
@@ -148,6 +148,13 @@ ATTEMPT LOG
              tail loop does `grup.parent = field` over the SHARED child list before recursing into each term, so
              definingRule() drifts to whichever face compile() visited last (measured: the second parser leaves
              ExpressioN's list pointing at a Token-side face that setParse never installed).
+  2026-09-27 branch seq212 2bc15f9 (SEQ 216): compile() and setParseWalk stop re-pointing the shared list ->
+             definingRule() answers the registry's entry (definerT); the certificate clears in both orders.
+  2026-09-27 24cd9fe MERGED to trunk (SEQ 217, merge commit): trunk == branch row for row, 787 ok; jitLadder 215;
+             old-road column green in both orders. Pre-merge check: checkInput's enclosing-activation branch is
+             reached 61,332 times across the fleet.
+  POP  incant/pop/driveCompileT -- A rsRun compiled after parser(Start) fires once (rsN 1); B a two-statement
+             action runs both (11/22); C a second parser(ExpressioN) after BlocK: no refusal, ExpressioN still 1/5.
 ```
 
 ### F-127 — OPEN 2026-09-24 — a `define` driven on the NEW road stops SHORT OF ITS CLOSING `;`

@@ -4990,6 +4990,20 @@ _dfn=$(grep -c '^DEFINERS ExpressioN occurrences=11 registry=11 others=0' "$T/df
 if [ "$_dfn" -eq 3 ]; then echo "  ok    definerT all 11 ExpressioN occurrences answer the registry's entry -- before parser(), after parser(Start), after a second parser()"; green=$((green+1))
 else echo "  FAIL  definerT: $(grep '^DEFINERS' "$T/df.e" | tr '\n' ' ')"; fail=1; fi
 
+#  ⚑ driveCompileT -- AN ACTION COMPILED AFTER parser() RUNS ON THE NEW ROAD (F-128's POP entry, closed 2026-09-27).
+#  processCode's compile is a driveStep drive (the merge of seq212-drive-compile). A: rsRun first called after
+#  parser(Start) fires once, rsN 1. B: a two-statement action runs both, 11 / 22. C: a second parser(ExpressioN)
+#  after BlocK is installed completes with NO refusal and ExpressioN still parses, 1/5. H7 measured: pre-merge trunk
+#  A reads 0 with the refusal; a426178 C reads the ExpressioN refusal and 0/0.
+run2 driveCompileT "$T/dc.o" "$T/dc.e"; check "driveCompileT runs" 0 $?
+sentinel "driveCompileT sentinel" "$T/dc.e" "DRIVECOMPILE SENTINEL"
+if grep -qE '^A rsN= +1 ?$' "$T/dc.e" && [ "$(grep -c '^RS SINK FIRED' "$T/dc.e")" -eq 1 ]; then echo "  ok    driveCompileT A rsRun compiled after parser(Start) fires once: rsN 1"; green=$((green+1))
+else echo "  FAIL  driveCompileT A: $(grep -E '^A |^RS SINK' "$T/dc.e" | tr '\n' ' ')"; fail=1; fi
+if grep -qE '^B tsX= +11 tsY= +22 ?$' "$T/dc.e"; then echo "  ok    driveCompileT B a two-statement action runs both: 11 / 22"; green=$((green+1))
+else echo "  FAIL  driveCompileT B: $(grep '^B ' "$T/dc.e")"; fail=1; fi
+if [ "$(grep -c '^EXDRIVE m= *1 c= *5' "$T/dc.e")" -eq 2 ] && ! grep -q 'REFUSED' "$T/dc.e"; then echo "  ok    driveCompileT C a second parser() after BlocK: no refusal, and ExpressioN still reads 1/5"; green=$((green+1))
+else echo "  FAIL  driveCompileT C: $(grep -E '^EXDRIVE|REFUSED' "$T/dc.e" | tr '\n' ' ')"; fail=1; fi
+
 #  ⚑ parserCoverage -- THE KANT ROAD'S COVERAGE ROW (SEQ 191 stroke 1, 2026-09-26). Successor to
 #  the C++ emitter's odometer: for every grammar rule (the odometer's four filters, recomputed
 #  from the live registry), one process runs parser(<rule>) and reads GEN / COMPILE / LEAF /
