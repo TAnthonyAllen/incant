@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      216
-STATUS:   cleared        # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
+SEQ:      217
+STATUS:   working        # SEQ 217 -- one check, then MERGE seq212-drive-compile; close F-128; trunk into parse-then-fire; then SEAL (Tony)
+STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
 STATUS-213: cleared      # SEQ 213 -- tsX minted into grammar rule ANYtoken, not the action -- clod-to-clay SEQ 160
@@ -9873,4 +9874,27 @@ On branch a426178.
    jitLadder 215, canary sum; pop.sh: every move named. Stop before merging.
 
   END SEQ 216
+
+
+===================================================================
+SEQ 217  -  MERGE THE DRIVE-COMPILE BRANCH, AFTER ONE CHECK; THEN SEAL
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+Tony rules: merge seq212-drive-compile into trunk, after one check.
+1. Count arrivals at checkInput's enclosing-activation branch (RuleStuff.twk:119) across the fleet.
+   If it is 0, add a row that drives it and reads where the label lands (the grammar's ExpressioN
+   entry). Show the row failing with the two parent writers put back.
+2. Merge with a merge commit (no squash). The five commits are F-128's attempt log. After the merge:
+   pop.sh row for row against the branch; jitLadder 215; canary sum; old-road column green in both
+   orders.
+3. Close F-128 with its POP entry. F-129 stays open.
+4. Merge trunk into parse-then-fire (GroupActions.rtn's cleanup plus this). Report the branch's PTF=0
+   and PTF=1 fleets. Stop there.
+TONY (Haps), with it: if it lands we are at a good pause point -- seal clean kitchen and stop in good
+shape.
+
+  END SEQ 217
 
