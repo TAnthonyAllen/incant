@@ -92,6 +92,33 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-128 — OPEN 2026-09-27 — an action COMPILED after BlocK is installed REFUSES, and the refusal has no patient
+
+**What.** Once any `parser()` call has installed BlocK's generated parse, every later compile of a coded body --
+an action's first call, or a second `parser()` call's compileRules -- refuses at `checkInput`:
+`REFUSED BlocK -- checkInput: no enclosing activation to take the label`. The refusal is thrown on the old road,
+inside the compile's own parse, so it ends whatever activation is running: an action's body never runs (rsRun,
+SEQ 202), and a second `parser()` loses its `setParse` mid-walk.
+**Where.** `GroupActions.rtn` processCode, `blockRULE.parse(0)` -- the compile runs BlocK on the OLD road while
+BlocK carries `hasNewParse`, so `RuleStuff.twk` checkInput's enclosingActivation arm finds no drive floor and no
+enclosing parse to take the label.
+**Evidence.** 2026-09-27: rsRun compiled after `parser(BlocK)` or `parser(Start)` -- rsN stays 0 (SEQ 202);
+`parser(DO); parser(ExpressioN)` -- 13 corpus readings, 160 ExpressioN refusals under ruling A (SEQ 211);
+`parser(StatemenT)` alone and `parser(ExpressioN); parser(StatemenT)` -- 171 / 0.
+**Done when.** An action compiled after `parser(Start)` fires its body, and a second `parser()` after BlocK is
+installed completes its setParse with no refusal. Named site: processCode's parse becomes a `driveStep` drive
+(SEQ 202 item 4).
+**Owner.** Clod, SEQ 212 branch.
+```
+ATTEMPT LOG
+  2026-09-27 4c6c76c ruling A landed (every rule body through parseLoop) -> the refusal became VISIBLE: under a
+             second parser() it aborted compileRules mid-walk and left ExpressioN's children pointing at a stray
+             occurrence, which definingRule() then returned. It was a refusal with no patient.
+  2026-09-27 f33d395 ruling A REVERTED on that finding -- no clean fix at the definer; the root is this row.
+  2026-09-27 (this commit) the enclosing-face lookup moved off currentMETHOD onto gParseActive (Generate.rtn,
+             enclosingFace) -- fleet row for row; a prerequisite for the driveStep change, not the fix.
+```
+
 ### F-127 — OPEN 2026-09-24 — a `define` driven on the NEW road stops SHORT OF ITS CLOSING `;`
 
 **What.** Driven through `tell` (convDriveT's shape), StatemenT on `define xq isRule; ;` consumes 17 of 19 and on

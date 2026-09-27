@@ -2347,6 +2347,15 @@ int 		refused = 0;
 	return 0;
 }
 
+// enclosingFace the face of this term in the ENCLOSING RULE BODY, through the enclosing parse activation -- a drive floors it, so a drive root has none; never through currentMETHOD, which inside an action is the action and finds its own compiled BlocK (SEQ 212)
+extern "C" GroupItem *enclosingFace(GroupItem *field)
+{
+	
+	if ( !field || !gParseActive || gParseActive->floor || !gParseActive->stuff || !gParseActive->stuff->rule ) return 0;
+	return gParseActive->stuff->rule->get(field->groupBody->tag);
+	
+}
+
 // exitFromParse the common exit every parse method returns through: sync, fire the label method, attach; a min-zero miss owes a success
 extern "C" GroupItem *exitFromParse(GroupItem *field)
 {
@@ -9054,9 +9063,8 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 GroupItem 	*grup = 0;
 char 		*entryMark = ruler->atRuleMark;
 int 		matched = 0;
-	// faceReresolve a bin or registry reached BY NAME is re-resolved to the calling rule's own face, as parseRule does -- the face carries the term's rStuff (its modifiers and label slot)
-	if ( ruler->currentMETHOD && ruler->currentMETHOD->get(field->groupBody->tag) )
-		field = ruler->currentMETHOD->get(field->groupBody->tag);
+	// faceReresolve a bin or registry reached BY NAME is re-resolved to the calling rule's own face, as parseRule does, through the enclosing parse activation -- the face carries the term's rStuff (its modifiers and label slot)
+	 { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } 
 	ruleStuff = field->getRStuff();
 	// noStuffLawfulSkip a registry has no rStuff: match with default limits and exit WITHOUT exitFromParse -- never refuse, never mint onto it
 	if ( !ruleStuff )
@@ -9132,9 +9140,8 @@ int 		matched = 0;
 // parseLoop run a repeating term up to max; the verdict is the COUNT against min, never the success flag
 extern "C" GroupItem *parseLoop(GroupItem *field)
 {
-	// enclosingRule re-resolve to the enclosing rule's own face, tested on the lookup so an unfound tag never overwrites field with null
-	if ( GroupControl::groupController->groupRules->currentMETHOD && GroupControl::groupController->groupRules->currentMETHOD->get(field->groupBody->tag) )
-		field = GroupControl::groupController->groupRules->currentMETHOD->get(field->groupBody->tag);
+	// enclosingRule re-resolve to the enclosing rule body's own face, through the ENCLOSING PARSE ACTIVATION -- a drive floors it, so a drive root keeps the rule it was handed (SEQ 212)
+	 { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } 
 RuleStuff *ruleStuff = field->getRStuff();
 	ruleStuff->kount = 0;
 	while ( ruleStuff->kount < ruleStuff->max )
@@ -9158,9 +9165,8 @@ GroupItem 	*grup = 0;
 GroupItem 	*myLabel = 0;
 GroupItem 	*into = 0;
 GroupItem 	*priorMETHOD = 0;
-	// enclosingRule re-resolve to the enclosing rule's own face, tested on the lookup so an unfound tag never overwrites field with null (the old `if lastRule` guard missed that)
-	if ( ruler->currentMETHOD && ruler->currentMETHOD->get(field->groupBody->tag) )
-		field = ruler->currentMETHOD->get(field->groupBody->tag);
+	// enclosingRule re-resolve to the enclosing rule body's own face, through the ENCLOSING PARSE ACTIVATION -- a drive floors it, so a drive root keeps the rule it was handed (SEQ 212)
+	 { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } 
 RuleStuff 	*ruleStuff = field->getRStuff();
 	// callBracket lift this call's own rStuff state into C++ locals -- the C++ stack is the frame stack, and a nested call of the same rule would otherwise overwrite it (Tony, 2026-09-24; F-114). Passthrough, so tok sees no declaration (bear-trap #42)
 	
