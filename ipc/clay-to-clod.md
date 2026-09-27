@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      206
-STATUS:   cleared        # SEQ 206 -- (A) LANDED; re-pins; timing +3%; BlocK re-drive reported -- clod-to-clay SEQ 153
+SEQ:      207
+STATUS:   cleared        # SEQ 207 -- guess confirmed; oracle test reverted whole (rule-body * runs to max; sweepT moved) -- clod-to-clay SEQ 154
+STATUS-206: cleared      # SEQ 206 -- (A) LANDED; re-pins; timing +3%; BlocK re-drive reported -- clod-to-clay SEQ 153
 STATUS-205: cleared      # SEQ 205 -- measured; red pair was `search Utilities list;` (valid) -- report clod-to-clay SEQ 152
 STATUS-204: cleared      # SEQ 204 -- edit committed a6a56a3; label row pinned (new road pinned as divergence -- cannot cash today)
 STATUS-203: cleared      # SEQ 203 -- (A) built, measured, REVERTED WHOLE (site1RoadsT); report clod-to-clay SEQ 151
@@ -9618,4 +9619,31 @@ still writes a derived fact there -- a second writer to an installed slot. (A)'s
 9x parseLoop entries: worth a number, not a veto.)
 
   END SEQ 206
+
+
+===================================================================
+SEQ 207  -  MEASURE THE ZERO-WIDTH LEAF; FIX exitFromParse ONLY IF THE GUESS HOLDS
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Measured; fix reverted whole; clod-to-clay SEQ 154.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+MEASURE, then fix only if the guess holds.
+1. Drive BlocK on `{ x = 1; }`. At nameSet's exit on the zero-width match, print: min, max,
+   data, kount, which arm it took, and the file:line that returns failure. Confirm or kill
+   the guess. Is it leaf-only, and does it bypass parseLoop?
+2. Census, fleet-wide, before any edit: the terms that reach exitFromParse's failure tail
+   with min 0 and max > 1. Report the count and the names. For each, say whether its min was
+   written by the grammar or zeroed at run time (getWhatFollows, section 7.1).
+3. If 1 confirms the guess: change Generate.rtn:33 to the oracle's test, dropping `max <= 1`
+   and keeping `!min && !isCondition`. Certificate: BlocK's four inputs all consume on the
+   new road; pop.sh row for row; chainTruthT and modSeamT unmoved; doWhileNameT DW-5's
+   refusal count, reported (F-100's ambiguous zero); jitLadder 215; canary sum. If any other
+   row moves, revert whole and report.
+4. Add a row: BlocK `{ x = 1; }` on the new road, consumed = all.
+After this, the processCode -> driveStep line has two items left in front of it: the BlocK
+name collision inside an action, and Tony's ordering choice for actions compiled before
+parser().
+
+  END SEQ 207
 

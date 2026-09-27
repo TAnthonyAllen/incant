@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 153 at the FOOT -- SEQ 206: (A) LANDED 4c6c76c; timing +3%; BlocK parses two statements now -- a one-letter name is a separate bug
+STATUS:   fresh           # SEQ 154 at the FOOT -- SEQ 207: guess CONFIRMED; the oracle test fixes BlocK but runs rule-body * loops to max; REVERTED WHOLE (sweepT moved)
+# prior: SEQ 153 at the FOOT -- SEQ 206: (A) LANDED 4c6c76c; timing +3%; BlocK parses two statements now -- a one-letter name is a separate bug
 # prior: SEQ 152 at the FOOT -- SEQ 205: CORRECTION -- the red pair is `search Utilities list;` (VALID); (A) is right there, the row pinned the bug
 # prior: SEQ 151 at the FOOT -- SEQ 203: ruling (A) built, measured, REVERTED WHOLE -- site1RoadsT accepts "search Utilities list" (no ;)
 # prior: SEQ 150 at the FOOT -- SEQ 202 RECON: a coded action NEVER takes the new road; after parser(BlocK) or parser(Start) every later compile REFUSES
@@ -8502,4 +8503,58 @@ is parseLoop's"), and leaves (data 1-3, nameSet is a set) never enter parseLoop.
 confirm it: nameSet's own exit on the zero-width match. Not fixed.
 
   END SEQ 153
+
+
+===================================================================
+SEQ 154  -  SEQ 207: GUESS CONFIRMED; THE ORACLE'S TEST FIXES BlocK AND BREAKS * RULE BODIES; REVERTED
+===================================================================
+STATUS: fresh -- 2026-09-27. Fix reverted whole; fleet back row for row. Nothing landed.
+
+TOP LINE. Ran: two temporary env-armed witnesses (ZEROTAIL at exitFromParse's failure tail;
+SETARM on parseSet's failing arm), bare build, BlocK `{ x = 1; }` from top level; the fleet
+census through the counting wrapper; then Generate.rtn:33 changed to `if !min &&
+!field.isCondition return trueResult;`, rebuilt, certificate run. WHAT FAILED: the change runs
+a `*` RULE BODY's loop to max (measured below), and sweepT went red (certified 45 -> 47) with
+counters moving elsewhere. Reverted whole per the dispatch. Rules: nameSet and Modifier (leaves),
+ShA* (a rule body); not parser.
+
+(1) CONFIRMED. nameSet at the zero-width match: min 0, max 100, data 3 (isSET -> parseSet),
+kount 1 (stale; leaves do not keep kount), arm GUARDFAIL (checkInput's guard rejects the space
+after x, counter 0), into exitFromParse's tail, where `max <= 1` blocks the min-zero pass: it
+returns 0 at Generate.rtn:34. No LOOPENTRY for nameSet -- it is a leaf and never enters
+parseLoop. ⚠ Instrument note: SETARM's first placement landed in parseAny (my anchor comment
+occurs there first) and read silent; moved into parseSet, it fired. Its silence was never
+evidence.
+
+(2) CENSUS, fleet-wide (pop.sh through the wrapper), before any edit: 185301 tail arrivals;
+with min 0 and max > 1 exactly TWO terms, both set leaves, both returning 0 at :34:
+    nameSet   829   `NamE first-=[a-zA-Z] nameSet-^*`         grammar:45
+    Modifier  102   `Modifier*` in TraiT and TraiTdata         grammar:61-62
+Fixtures: sweepT 909, site1RoadsT 12, nnFmt/nnFmtN/nnFmtS 3 each, driveLeakT 1. BOTH MINS ARE
+GRAMMAR-WRITTEN: the `*` through modify() (GroupActions.rtn:482). No run-time zeroing -- the
+section 7.1 parent-min promotion is retired (RuleStuff.twk, promotionRetired).
+
+(3) THE CHANGE, AND WHY IT DID NOT LAND.
+  Good half: BlocK's four inputs all consume on the new road -- { x = 1; }, { x = 1; y = 2; },
+  { print 1; }, { xy = 1; } -- and no drive in them loops to max.
+  Bad half, the risk DesignDocs exitFromParse names ("a true here would run a loop to max"),
+  MEASURED: since (A) a rule body under * runs inside parseLoop; when its body fails, the tail
+  now answers true and parseLoop counts it. ShS = `ShA* kc` drove ShA to kount=100 on "c" and on
+  "aac" (2 real matches + 98 zero-width). Before the change it stopped at 2. The drive's answer
+  was still right (end of input), so no value row sees it.
+  Fleet: sweepT red (SWEEP END certified 47 agree 47, want 45/45); counters moved in nestNatT
+  (parseRule arrivals 27 -> 14, 27 -> 19, 30 -> 17), the (b) tripwire (413 -> 429) and
+  loopVerdict (355/152 -> 310/95). chainTruthT and modSeamT unmoved. doWhileNameT DW-5 refusal
+  count 0, window closed 1, before and after. pop wall 16.3 s. jitLadder and canary not reached.
+  Reverted: Generate.rtn back to HEAD, retok bare, rebuilt, pop.sh row for row = post-(A).
+(4) Row not added -- with the fix reverted it would pin today's failure.
+
+A NARROWER CANDIDATE, NOT BUILT, for Tony's ruling: drop `max <= 1` for LEAVES ONLY -- the
+guard exists because repetition of a rule body is parseLoop's, and leaves never enter
+parseLoop, so they are the only terms nobody owns:
+    if !min && !field.isCondition && (max <= 1 || (data && data < 4))   return trueResult;
+It would cover both census names (data 3). Whether sweepT's +2 comes from the leaf half or the
+rule-body half is UNMEASURED; the narrower test would say.
+
+  END SEQ 154
 
