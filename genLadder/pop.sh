@@ -4842,6 +4842,21 @@ _sbWant="< DRIVE ShRep aaac matched= 1 consumed= 4 |> DRIVE ShRep aaac matched= 
 if [ "$(wc -l < "$T/sbn" | tr -d ' ')" = 16 ] && [ "$_sbDiff" = "$_sbWant" ]; then
     echo "  ok    shapeBodyT the roads agree on 15 of 16 drives; the divergence is ShRep aaac (old 1/4, generated 0/0), PINNED -- cause: generation order"; green=$((green+1))
 else echo "  FAIL  shapeBodyT the road comparison MOVED -- want only ShRep aaac to differ, got: ${_sbDiff:-<no difference>}"; fail=1; fi
+#  ⚑ shapeBodyT LABEL ROW (SEQ 204, Tony's ruling 2026-09-27: TOKENize stays, and ShRep "aaac"'s
+#  label text READS aaac ON BOTH ROADS). shSay prints `LABEL <drive> text=[...]` from the verdict's
+#  reply (the label's data, starred; a label with no data would echo its tag). TODAY THE NEW ROAD
+#  CANNOT CASH THE RULING: its ShRep "aaac" drive fails 0/0 (generation order -- the pin above), so it
+#  has no label, and the row pins that reading BY NAME. When ruling (A) lands the new-road cell must
+#  read aaac, this row goes red, and the re-pin's sentence is "the ruled value, now cashed".
+#  CONTROL (H16): ShRep "ac" reads ac on BOTH roads, so the new-road read is live, not void.
+_sbLab() { awk -v road="$1" -v drv="$2" '/^--- OLD ROAD/{r="OLD"} /^--- NEW ROAD/{r="NEW"} r==road && index($0,"LABEL  " drv " ")==1 {sub("LABEL  " drv " ",""); gsub(/ +/," "); sub(/ $/,""); print; exit}' "$T/sb.e"; }
+_sbLo=$(_sbLab OLD "ShRep aaac"); _sbLn=$(_sbLab NEW "ShRep aaac"); _sbCo=$(_sbLab OLD "ShRep ac"); _sbCn=$(_sbLab NEW "ShRep ac")
+if [ "$_sbCo" = "text=[ ac ]" ] && [ "$_sbCn" = "text=[ ac ]" ]; then echo "  ok    shapeBodyT label control: ShRep \"ac\" reads ac on both roads -- the new-road label read is live"; green=$((green+1))
+else echo "  FAIL  shapeBodyT label control: ShRep \"ac\" old [$_sbCo] new [$_sbCn], want text=[ ac ] on both"; fail=1; fi
+if [ "$_sbLo" = "text=[ aaac ]" ]; then echo "  ok    shapeBodyT label: ShRep \"aaac\" OLD road reads aaac -- PINNED BY VALUE (Tony, TOKENize stays)"; green=$((green+1))
+else echo "  FAIL  shapeBodyT label: ShRep \"aaac\" OLD road reads [$_sbLo], want text=[ aaac ]"; fail=1; fi
+if [ "$_sbLn" = "(none)" ]; then echo "  ok    shapeBodyT label: ShRep \"aaac\" NEW road has NO label -- PINNED DIVERGENCE (generation order); the ruled value is aaac"; green=$((green+1))
+else echo "  FAIL  shapeBodyT label: ShRep \"aaac\" NEW road MOVED to [$_sbLn] -- if it reads text=[ aaac ] the ruling is cashed: re-pin to aaac"; fail=1; fi
 
 #  ⚑ parserCoverage -- THE KANT ROAD'S COVERAGE ROW (SEQ 191 stroke 1, 2026-09-26). Successor to
 #  the C++ emitter's odometer: for every grammar rule (the odometer's four filters, recomputed

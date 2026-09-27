@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      204
-STATUS:   working        # SEQ 204 -- KITCHEN: TOKENize stays; commit Tony's shapeBodyT edit; pin the label row
+STATUS:   cleared        # SEQ 204 -- edit committed a6a56a3; label row pinned (new road pinned as divergence -- cannot cash today)
 STATUS-203: cleared      # SEQ 203 -- (A) built, measured, REVERTED WHOLE (site1RoadsT); report clod-to-clay SEQ 151
 STATUS-202: cleared      # SEQ 202 -- RECON done, nothing built; report clod-to-clay SEQ 150
 STATUS-201: cleared      # SEQ 201 -- SHUTDOWN sealed; P6 waits on one question; report clod-to-clay SEQ 149
@@ -9558,8 +9558,10 @@ if both statements parse, the driveStep change for actions is unblocked.
 ===================================================================
 SEQ 204  -  KITCHEN: TOKENize STAYS; THE shapeBodyT LABEL ROW
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-27, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Edit a6a56a3; label row landed -- the NEW-road
+        cell cannot read aaac until ruling (A) lands (its drive fails 0/0), so it is pinned as
+        the divergence, with the ruled value named.
 
 KITCHEN (add to SEQ 204): Tony rules TOKENize stays. Commit his shapeBodyT edit under his
 name, with the grammar lines before and after, verbatim. Add the label row: ShRep "aaac"

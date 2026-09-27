@@ -8,6 +8,11 @@ define
         v := tell(argument);
         m := *v["matched"]; c := *v["consumed"];
         cerr "DRIVE " argument " matched= " m " consumed= " c:;
+        rp = 0;
+        if *v["reply"];     rp = 1;
+        if rp == 1;     lt := *v["reply"];
+        if rp == 1;     cerr "LABEL " argument " text=[" *lt "]":;
+        if rp == 0;     cerr "LABEL " argument " (none)":;
         };
     ;
 register(Ladder);
