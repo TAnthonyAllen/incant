@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      203
-STATUS:   cleared        # SEQ 203 -- (A) built, measured, REVERTED WHOLE (site1RoadsT); report clod-to-clay SEQ 151
+SEQ:      204
+STATUS:   working        # SEQ 204 -- KITCHEN: TOKENize stays; commit Tony's shapeBodyT edit; pin the label row
+STATUS-203: cleared      # SEQ 203 -- (A) built, measured, REVERTED WHOLE (site1RoadsT); report clod-to-clay SEQ 151
 STATUS-202: cleared      # SEQ 202 -- RECON done, nothing built; report clod-to-clay SEQ 150
 STATUS-201: cleared      # SEQ 201 -- SHUTDOWN sealed; P6 waits on one question; report clod-to-clay SEQ 149
 STATUS-200: cleared      # SEQ 200 -- P6 waits (candidate (2) not confirmed; (1) reads the condition value)
@@ -9552,4 +9553,17 @@ If any row moves unexplained, revert whole and report. Do not tune. Item 6 is th
 if both statements parse, the driveStep change for actions is unblocked.
 
   END SEQ 203
+
+
+===================================================================
+SEQ 204  -  KITCHEN: TOKENize STAYS; THE shapeBodyT LABEL ROW
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15.
+
+KITCHEN (add to SEQ 204): Tony rules TOKENize stays. Commit his shapeBodyT edit under his
+name, with the grammar lines before and after, verbatim. Add the label row: ShRep "aaac"
+label text reads aaac on both roads. Pin it.
+
+  END SEQ 204
 

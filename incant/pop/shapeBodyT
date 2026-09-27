@@ -14,10 +14,10 @@ register(Ladder);
 define
     ShLit  isRule kx-="x";
     ShA    isRule ka-="a";
-    ShRef  isRule ShA kb-="b";
-    ShRep  isRule ShA+ kc-="c";
-    ShOpt  isRule ke-="e" ShA? kf-="f";
-    ShOptL isRule kf2-="f" kcm?-="," kg-="g";
+    ShRef  isRule ShA kb-="b" TOKENize;
+    ShRep  isRule ShA+ kc-="c" TOKENize;
+    ShOpt  isRule ke-="e" ShA? kf-="f" TOKENize;
+    ShOptL isRule kf2-="f" kcm?-="," kg-="g" TOKENize;
     ShI    isRule ki-="i";
     ShALT  isRule
         ShA;
