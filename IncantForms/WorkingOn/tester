@@ -5,29 +5,35 @@
 Start();
 include(utilities);
 search reset stack Grokking;
-include("IncantForms/WorkingOn/parser");
+search Utilities list;
 
 // Clod you can change this incantation as needed
-
-// F-110 SPECIMEN -- the SAME rule referenced TWICE in one rule, with different modifiers.
-// Both bodies emit `return wR() && s() && wR();`; on the NEW road the second wR() is
-// re-resolved by currentMETHOD.get("wR"), which finds the FIRST face, so it borrows the
-// first occurrence's modifier. Consumed is read off traceParse's MARKARM base and
-// 2b-before-pop mark. Measured 2026-09-23:
-//     wDup  = wR+ s wR   on "w w s w w"   OLD 7   NEW 9  (the second wR repeats)
-//     wDup2 = wR s wR+   on "w s w w"     OLD 7   NEW 5  (the second wR stops at one)
-// Walk it: break in parseRule on the SECOND wR and read the face `field` becomes.
+register(TESTing);
 define
-    wR    isRule w-="w";
-    wDup  isRule wR+ s-="s" wR;
-    wDup2 isRule wR s-="s" two=wR+;
-    e1 code={ cerr "E1 wDup  on w w s w w (want consumed 7)":; wDup("w w s w w"); cerr "E1-BACK":; };
-    e2 code={ cerr "E2 wDup2 on w s w w   (want consumed 7)":; wDup2("w s w w"); cerr "E2-BACK":; };
+    shSay code={
+        v := tell(argument);
+        m := *v["matched"]; c := *v["consumed"];
+        cerr "DRIVE " argument " matched= " m " consumed= " c:;
+        };
+    ShA    isRule ka-="a";
+    ShRep  isRule ShA+ kc-="c" TOKENize;
+    rsN=0;
+    rsRun code={
+        rsN = rsN + 1;
+        cerr "RS SINK FIRED" rsN:;
+        };
     ;
-cerr "F110 OLD ROAD":; e1(); e2();
-parser(wDup); parser(wDup2);
-cerr "F110 NEW ROAD":; e1(); e2();
-cerr "F110 SENTINEL":;
+cerr "--- OLD ROAD":;
+ShRep("aaac");
+parser(ShRep);
+cerr "--- NEW ROAD":;
+debug ShRep tell;
+ShRep("aaac");
+shSay("ShRep aaac");
+cerr ::"Running retireSkipsDegraded test":;
+rsRun(rsN);
+rsRun(rsN);
+rsRun(rsN);
 stop();
 
 debug;
@@ -61,26 +67,4 @@ checkSKIP(skipInput);
 /***************************************************************************
     Current Status
 ***************************************************************************/
-
-    2026-09-23, afternoon. THE CONVERSATION LINE IS PARKED (Tony), Clod.
-    Built: the input floor (e5c0dcb), hereAt at its source (b618a0b), driveStep (c6f2cf7), tell and the verdict (be9d03d).
-    tell("thermo set 5") -- the first word names the target field, the rest of the line is the message; the verdict holds matched, consumed, length, stoppedAt, known, and reply (a copy of the parked label).
-    Green in incant/pop/convDriveT: CD-1 (a full match, consumed == length), CD-3 (a prefix-only message fails on consumed), CD-5 (an unknown target reads known 0).
-    Red by design: CD-4 -- a failed drive is silent; it waits on the fire verb and the default handler in kant.
-    Unmeasured: whether kant can reach the parked action through reply.
-    Resume at: the fire verb.
-
-    2026-09-23, late morning. MERGED, Clod.
-    try-fire-root-rebased is merged to trunk (dd9ce97, Tony's ruling): statements fire in fireLabelMethod, gated by deferredAbove; aCTionStatemenT no longer executes them.
-    F-108 landed first (5136e05): the Operators registry arm mints a free-standing label into the asker, so `dwN < 2` reaches interpretXP whole on the new road.
-    DW-4 terminates; doWhileNameT resets dwN before each counter drive, the oracle reads 2 (re-pinned from 1: a direct DO now loops), DW-6 reads 2.
-    Trunk fleet 447 green. The original try-fire-root is kept as the record. Open next: F-110 (Operators() reaches the registry, not the term; F-89's seam).
-
-    2026-09-23, morning. UPDATE, Clod -- read this before section 3 below.
-    Section 3's table read the LABELMINT into= column, which is parentLabel; the attach uses parentStuff, and nothing on the new road reads parentLabel.
-    Read by the attach column (attachLabel pRule=), the new road agreed with the old road on every row EXCEPT UnaryOPS.
-    UnaryOPS is a bin reached from runOP, never through parseRule, so its parentStuff was nil and attachLabel dropped it; parseContainer also cleared the label on success.
-    Fixed in 3da00e0 (two builds): TOKENARM unary=++ on the new road, DW-6 green, fleet 446 -> 447.
-    trigDO's DO label is still empty: StatemenT refuses "has a parse method but no compiled body" -- not the label channel.
-    try-fire-root rebased onto 3da00e0 is branch try-fire-root-rebased (NOT merged): DW-4 still loops. The gate is right; the while condition arrives as xl1 [dwN, 2] with the < dropped -- fixIts F-108, likely the Operators registry arm of parseContainer.
 

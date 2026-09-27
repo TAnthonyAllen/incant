@@ -70,9 +70,7 @@ define
         print "setParse ended and that ends compileRules"::;
         };
     parser code={
-        parseRefused = 0;
         walkRules(argument);
-        if parseRefused == 1;   return;
         print "walkRules ended":;
         compileRules(argument);
         };

@@ -64,6 +64,7 @@ Here is a list form attributes along with an explanation of what each attribute 
         if we opt for a print driven layout (makes sense if we are printing to pdf), print form; would have to be able to draw the form, component by component as it goes, dealing with borders colors font and determining how much source text fits in the space each component provides such that first component gets a block of text from the source, all it can fit. It leaves source (which is a buffer) mark at the end of the source it draws from. The next component with the same source will read in its text starting at mark, and on we go.
         adding a print ability to handle forms looks to be calling for a print language, a little, maybe not so little, language currently wearing a PrintXP dress like the one Cinderella was wearing before all the bippity boppity boo gets applied (bottom line: we need some little language design magic here). The print language and the drawing language may be the same thing, or interact like they are.
         more on the print language. I think of it as a typesetting language, like Latex but simpler, kant like, and able to draw on kant capabilities. Designing the typesetting language will be lots of fun.
+    thinking to change print grammar to a form like: print reset? this to there; where the default for there is stdout and there could be a buffer, a buffer possibly linked to a window or an html file or a pdf file. The to there would be picked up by the next print and you need to add reset as the first field on a print line to turn it off
 
 /*****************************************************************************
     Forms Needing Figuring Out. Recon into old GUI probably required
@@ -73,3 +74,31 @@ Here is a list form attributes along with an explanation of what each attribute 
     layout      was intended as a form to show what forms can be. It includes references to trait and key attributes that need figuring.
     list        a form that needs some serious figuring out just to figure out what it does, much less how it does it
     sheet       a form that builds an interactive drill down/across spread sheet
+
+/*****************************************************************************
+    Clay comments to be folded in
+*****************************************************************************/
+This is a solid inventory. The most useful thing it does is separate "we know what this does" from "needs old-GUI recon," and that split is most of what a charter needs. A few things stood out.
+
+1. When a form attribute fires is the central question, and parse-then-fire has already answered its shape. You ask when a form attribute's method fires. The parse campaign's answer maps over almost directly: definition builds a tree and fires nothing, then later passes fire parent-driven, and each action decides whether its components fire. For forms that looks like three moments:
+
+Define time: templates, mergeContainers merging into the parent. This is the define-family exemption again.
+Layout time: setFrame, fit, space, minimums, across/down.
+Event time: button, action, keyAction, selectable, sort.
+
+If every attribute on your list gets a column saying which moment it belongs to, "when does it fire" becomes a table lookup instead of a design question each time. Most of your list sorts cleanly. The ones that won't sort are exactly the recon items.
+
+2. "Some attributes implicitly update style" collides with the stream model. The display design ruled output a forward-only stream: a named style replaces state wholesale, and there is no restore by construction. So font on one child changes the current style for everything after it, siblings included. You need either scoping (a component's style ends at its frame) or an explicit rule that style attributes only ever name whole styles. title implying a different style points toward the second: title's definition carries a named style, and the text arrives later as data. That fits "style is a slot, replaced wholesale."
+
+3. Pouring text is the parser's mark problem again. A source buffer with a mark, each component taking what fits and leaving the mark for the next: that's the input cursor, with "fits in the frame" in place of "matches the rule." The Buffer mark already exists. It's the one the parse notes flagged as a false friend for atRuleMark, which makes it the right friend here. It's worth checking before designing anything new.
+
+4. Inheritance needs its own column. border already raises it ("off only matters if inherited, and probably shouldn't be inheritable"). font, align and doNotScroll all carry an implicit inherit-or-not answer. Make that explicit per attribute now, or it gets decided accidentally by whichever implementation lands first.
+
+5. The recon items could be one charter. fit, flex, expander, matrix, popup, pullDown, toggled, key, trait, plus the list and layout forms, all start with reading old GUI (Details.twk and friends). That's a single read-only minion task: for each attribute, what it did, where, and whether it earns a place in kant. It's the kind of fenced recon that has gone well before. I'd guess flex and valueless space may turn out to be the same mechanism, but that's a guess, not a finding.
+
+Two smaller notes:
+
+// text for comments is fine. The standing caution still applies: no braces inside a comment in an action body until checkSKIP lands.
+Dropping vertical align in favour of a space field is consistent with space taking residual space. I agree.
+
+The typesetting language is a lovely destination. Points 1 and 2 are the parts that shape everything before it.
