@@ -102,7 +102,6 @@ use field
     grup = 0;
     if hasTraits || hasMembers
         while grup = field.next(grup) {
-            grup.parent  = field;    // because if field is a copy grup.parent is not field
             if grup.noPrint continue;
             else compile(grup); }
     return field;

@@ -147,6 +147,7 @@ extern "C" char *dataName(int d);
 extern "C" GroupItem *debugOnGuard(GroupItem *input);
 extern "C" void debugRuleNamed(char *name);
 extern "C" void debugText(GroupItem *debugStuff, int flag);
+extern "C" GroupItem *definersOf(GroupItem *input);
 extern "C" void dispatcher(void *stuff);
 extern "C" GroupItem *displayFill(GroupItem *field);
 extern "C" int driveFloorLabel(RuleStuff *stuff, GroupItem *label);

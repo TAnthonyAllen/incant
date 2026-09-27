@@ -34,12 +34,12 @@ define
     clear immediateAction=cLEAR;
     closeFile immediateAction;
     compile immediateAction;
-    grammarHolds immediateAction;
     condition immediateAction=processFlags noPrint;
     copy immediateAction=cOPY;
     copyOf immediateAction;
     debugGuard immediateAction=debugOnGuard noPrint;
     defer immediateAction=processFlags noPrint;
+    definersOf immediateAction;
     dumpContents immediateAction;
     evictAction immediateAction;
     exit immediateAction=processFlags;
@@ -50,6 +50,7 @@ define
     getFile immediateAction;
     getLine immediateAction=getMarkLineAt;
     getType immediateAction;
+    grammarHolds immediateAction;
     index immediateAction=processFlags noPrint;
     interpretBC immediateAction=interpretBC;
     isList immediateAction=processFlags noPrint;

@@ -1877,8 +1877,6 @@ endCompile:
 	if ( field->groupBody->flags.hasTraits || field->groupBody->flags.hasMembers )
 		while ( grup = field->next(grup) )
 			{
-			grup->parent = field;
-			// because if field is a copy grup.parent is not field
 			if ( grup->groupBody->flags.noPrint )
 				continue;
 			else	::compile(grup);
@@ -2069,6 +2067,33 @@ int 	length = 0;
 	::printf("\t%s",tagText);
 	if ( flag )
 		::printf("\n");
+}
+
+// definersOf every occurrence of a rule -- the registry entry and each term carrying its tag -- and whether definingRule() answers the REGISTRY's entry, as the shared-children invariant says it must (SEQ 216); prints the counts unconditionally
+extern "C" GroupItem *definersOf(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	
+	const char *want = input ? input->groupBody->tag : 0;
+	int seen = 0, toRegistry = 0;
+	GroupItem *reg = GroupControl::groupController->getRegistry((char*)"Grokking");
+	GroupItem *regEntry = (want && reg) ? reg->get((char*)want) : 0;
+	GroupItem *r = 0;
+	while ( want && regEntry && (r = reg->next(r)) ) {
+	GroupItem *t = 0;
+	if ( ::strcmp(r->groupBody->tag,want) == 0 ) { seen++; if ( r->definingRule() == regEntry ) toRegistry++;
+	else ::fprintf(stderr,"  DEFINER %s registry entry answers %p, not itself\n",want,r->definingRule()); }
+	while ( (t = r->next(t)) )
+	if ( ::strcmp(t->groupBody->tag,want) == 0 ) {
+	seen++;
+	GroupItem *d = t->definingRule();
+	if ( d == regEntry ) toRegistry++;
+	else ::fprintf(stderr,"  DEFINER %s term of rule %s answers %s@%p (parent %s), not the registry's\n",want,r->groupBody->tag,
+	d ? d->groupBody->tag : "-",d,(d && d->parent) ? d->parent->groupBody->tag : "-"); }
+	}
+	::fprintf(stderr,"DEFINERS %s occurrences=%d registry=%d others=%d\n",want ? want : "(none)",seen,toRegistry,seen - toRegistry);
+	
+	return ruler->trueResult;
 }
 
 // dispatcher run a listener, disguised as a void*, against its notifier -- a stub that says it needs rewriting
@@ -10624,14 +10649,12 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		GroupItem 	*grup = 0;
 		while ( grup = field->next(grup) )
 			{
-			grup->parent = field;
-			// if field is a copy grup.parent is not field
 			if ( grup->groupBody->flags.noPrint )
 				continue;
 			else	::setParseWalk(grup);
 			}
 		}
-	// loopPerOccurrence ⚠ the loop choice is made from the FIRST occurrence walked, into a slot every occurrence shares, so a bare reference generated first stops a later + from repeating (ShRef/ShRep, DatA's GrouP / Search's GrouP+). Ruling A (every rule body through parseLoop) fixed it and was REVERTED 2026-09-27 (SEQ 211): under it a second parser() after BlocK is installed leaves a definer with no method -- blocked on SEQ 202's compile refusal
+	// loopPerOccurrence a rule body's method slot is SHARED by every occurrence, so every rule body goes through parseLoop and each occurrence loops to its OWN max (ruling A -- reverted on trunk 2026-09-27 for want of this branch's staged compile and definer fix, SEQ 211-216)
 	if ( ::repeatsInLoop(field) )
 		field->setMethod(::parseLoop);
 	else	field->setMethod(ruleStuff->parseMethod);

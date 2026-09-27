@@ -123,6 +123,34 @@ extern int closeFile(GroupItem bufField)
 }
 
 
+// definersOf every occurrence of a rule -- the registry entry and each term carrying its tag -- and whether definingRule() answers the REGISTRY's entry, as the shared-children invariant says it must (SEQ 216); prints the counts unconditionally
+extern GroupItem definersOf(GroupItem input)
+{
+GroupRules  ruler = groupRules;
+    -%
+    const char *want = input ? input->groupBody->tag : 0;
+    int seen = 0, toRegistry = 0;
+    GroupItem *reg = GroupControl::groupController->getRegistry((char*)"Grokking");
+    GroupItem *regEntry = (want && reg) ? reg->get((char*)want) : 0;
+    GroupItem *r = 0;
+    while ( want && regEntry && (r = reg->next(r)) ) {
+        GroupItem *t = 0;
+        if ( ::strcmp(r->groupBody->tag,want) == 0 ) { seen++; if ( r->definingRule() == regEntry ) toRegistry++;
+            else ::fprintf(stderr,"  DEFINER %s registry entry answers %p, not itself\n",want,r->definingRule()); }
+        while ( (t = r->next(t)) )
+            if ( ::strcmp(t->groupBody->tag,want) == 0 ) {
+                seen++;
+                GroupItem *d = t->definingRule();
+                if ( d == regEntry ) toRegistry++;
+                else ::fprintf(stderr,"  DEFINER %s term of rule %s answers %s@%p (parent %s), not the registry's\n",want,r->groupBody->tag,
+                    d ? d->groupBody->tag : "-",d,(d && d->parent) ? d->parent->groupBody->tag : "-"); }
+        }
+    ::fprintf(stderr,"DEFINERS %s occurrences=%d registry=%d others=%d\n",want ? want : "(none)",seen,toRegistry,seen - toRegistry);
+    %-
+    return trueResult;
+}
+
+
 // dispatcher run a listener, disguised as a void*, against its notifier -- a stub that says it needs rewriting
 extern void dispatcher(void* stuff)
 {

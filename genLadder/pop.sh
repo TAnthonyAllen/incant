@@ -4979,6 +4979,17 @@ for _on in owY owZ; do
     else echo "  FAIL  ownerT $_on: $(grep "^GRAMMARHOLDS $_on" "$T/ow.e") -- a name from the action body landed in the grammar"; fail=1; fi
 done
 
+#  ⚑ definerT -- EVERY OCCURRENCE ANSWERS THE REGISTRY'S ENTRY AS ITS DEFINER (SEQ 216, 2026-09-27). A rule's child list
+#  is shared, and definingRule() reads its owner off the first child's parent; compile() and setParseWalk used to write
+#  `parent = field` over it (5f24cf3), so the definer drifted to whichever occurrence was visited last. definersOf(name)
+#  counts occurrences and how many answer the registry's entry. H7, measured with the two writers restored: after
+#  parser(Start) all 11 ExpressioN occurrences answer someone else -> RED.
+run2 definerT "$T/df.o" "$T/df.e"; check "definerT runs" 0 $?
+sentinel "definerT sentinel" "$T/df.e" "DEFINER SENTINEL"
+_dfn=$(grep -c '^DEFINERS ExpressioN occurrences=11 registry=11 others=0' "$T/df.e")
+if [ "$_dfn" -eq 3 ]; then echo "  ok    definerT all 11 ExpressioN occurrences answer the registry's entry -- before parser(), after parser(Start), after a second parser()"; green=$((green+1))
+else echo "  FAIL  definerT: $(grep '^DEFINERS' "$T/df.e" | tr '\n' ' ')"; fail=1; fi
+
 #  ⚑ parserCoverage -- THE KANT ROAD'S COVERAGE ROW (SEQ 191 stroke 1, 2026-09-26). Successor to
 #  the C++ emitter's odometer: for every grammar rule (the odometer's four filters, recomputed
 #  from the live registry), one process runs parser(<rule>) and reads GEN / COMPILE / LEAF /
