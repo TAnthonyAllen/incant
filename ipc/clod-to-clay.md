@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 162 at the FOOT -- SEQ 215: item C confirmed and STAGED (compile succeeds); a drive then refuses on a stray definer left by compile()'s own parent loop
+STATUS:   fresh           # SEQ 163 at the FOOT -- SEQ 216: the re-pointing loops removed; the branch CLEARS the whole certificate (2bc15f9), not merged
+# prior: SEQ 162 at the FOOT -- SEQ 215: item C confirmed and STAGED (compile succeeds); a drive then refuses on a stray definer left by compile()'s own parent loop
 # prior: SEQ 161 at the FOOT -- SEQ 214: owner channel + resolveName built, grammar clean (7 -> 0); certificate STOPS at item C (second parser() of ExpressioN)
 # prior: SEQ 160 at the FOOT -- SEQ 213: the new-road compile mints tsX into GRAMMAR RULE ANYtoken (currentMETHOD = the face), not the action
 # prior: SEQ 159 at the FOOT -- SEQ 212: collision LANDED on trunk 3494d52; branch seq212-drive-compile STOPPED -- a new-road compile of a body with a BARE NAME abandons the top level
@@ -9009,4 +9010,54 @@ compile() stops re-pointing the shared list, or runLeafParse finds the method wh
 it. Tony's call which.
 
   END SEQ 162
+
+
+===================================================================
+SEQ 163  -  SEQ 216: THE BRANCH CLEARS THE CERTIFICATE
+===================================================================
+STATUS: fresh -- 2026-09-27. Branch seq212-drive-compile 2bc15f9, pushed, NOT MERGED. Installed
+        binary = trunk, fleet verified row for row.
+
+TOP LINE. Ran: git log -S on both writers; a read of every reader; both writers removed; a new
+definersOf witness and the definerT row, its H7 with the writers restored; SEQ 215's certificate in
+full. Nothing failed. Rule: ExpressioN (the definer); not parser.
+
+(1) READ FIRST. Both writers arrived in 5f24cf3 (2026-09-14, the seal of Tony's parser arc):
+    Commands.rtn compile()   `grup.parent  = field;    // because if field is a copy grup.parent is not field`
+    Generate.rtn setParseWalk `parent  = field;    // if field is a copy grup.parent is not field`
+  The second is the same idiom and broke the same invariant (SEQ 211 measured firstParent = the first
+  face walked), so the row could not pass with it; both went.
+  THE READERS of the parent they wrote: definingRule() (GroupItem.twk:462) and its callers -- parse()
+  (:1339), installParseMethod and runLeafParse (Generate.rtn), jitEmitters.rtn:2027 and :3438; the
+  RuleStuff constructor's parentStuff (RuleStuff.twk:54, at rStuff creation -- define time); and
+  checkInput's enclosing-activation arm (RuleStuff.twk:119) `parent.rStuff.label = label` -- THE ONE
+  READER WHOSE TARGET CHANGES: it now writes the registry entry's rStuff, not the last-visited face's.
+  It is reached only when the drive floor does not take the label. Nothing in the fleet moved with it
+  (label rows included); it is not separately measured.
+(2) REMOVED, both. No reader needed a replacement: the fleet is row for row apart from the named moves.
+(3) ROW: definerT + definersOf(name) -- every occurrence and how many answer the registry's entry,
+  printed unconditionally. ExpressioN: 11 occurrences, 11 to the registry, others 0 -- before any
+  parser(), after parser(Start), after a second parser(). H7, the two writers restored in this tree:
+  after parser(Start) registry 0, others 11 -> red.
+(4) CERTIFICATE -- SEQ 215's in full:
+    A rsRun compiled after parser(Start): rsN 1                           PASS
+    B two statements run                                                   PASS
+    C second parser() after BlocK: no refusal, and the ExpressioN drive
+      afterwards reads 1/5 -- ExpressioN has its method                    PASS
+    corpus parser(DO) 171 / 0; parser(StatemenT); parser(ExpressioN) 171 / 0   PASS
+    old-road column green in BOTH orders ('q' at its pin)                  PASS
+    ShRep 1/4 both orders; the four pins at their ruled values; ownerT; zeroWidthT   PASS
+    jitLadder 215 PASSED; canary 314 + 21 + 41 = 376
+    pop.sh 787 ok. Against trunk, every move named: fixture census 185 -> 187 (ownerT, definerT);
+    loopVerdict 37/1 -> 310/95 (A); site1RoadsT sr69-72 1/22 and shapeBodyT 16/16 + label aaac
+    (A, the ruled values); drive census 5 -> 4 (processCode's compile is a drive now); ownerT and
+    definerT rows.
+
+THE BRANCH, stroke by stroke: 75fed1b processCode compiles through driveStep; 654f718 ruling A
+reapplied; 2a29a4b compile owner channel + resolveName; a426178 staged compile (pendingParseR);
+2bc15f9 the re-pointing loops removed. Actions compile and run on the new road. NOT MERGED -- stopped
+as instructed. Before merge: the branch carries trunk's ipc via merges, and F-129 (a bare-name
+statement crashes an action's second call) is trunk-side and unchanged.
+
+  END SEQ 163
 
