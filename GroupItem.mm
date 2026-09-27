@@ -432,6 +432,7 @@ GroupItem 	*lab = stuff->label;
 		return;
 	if ( promote && isGROUP(lab->groupBody->flags.data) && stuff->max > 1 )
 		{
+		 ::measureAttachRepeat(stuff,lab); 
 		pStuff->label->addAttribute(lab->getGroup());
 		lab->clear();
 		lab->groupBody->flags.fLAG = 1;
