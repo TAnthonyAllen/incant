@@ -1813,10 +1813,17 @@ extern "C" GroupItem *compile(GroupItem *field)
 {
 GroupItem 	*code = 0;
 GroupItem 	*grup = 0;
-	if ( !isCoded(field->groupBody->flags.actionType) )
+GroupItem 	*pending = 0;
+GroupItem 	*holder = 0;
+	// stagedCompile a regenerated body arrives as a PENDING carrier: compile it, and install it only when green -- the rule keeps its current body and isAction until then (SEQ 215, F-31's store-compile-verify-bind)
+	pending = field->get("pendingParseR");
+	if ( !pending && !isCoded(field->groupBody->flags.actionType) )
 		return 0;
 	// any rule without parseRule as its method will exit here
-	code = field->parseBody();
+	if ( pending )
+		holder = pending;
+	else	holder = field->parseHolder();
+	code = holder->getAttribute("CodE");
 	// secondRefuseInCompile
 	if ( !code )
 		return ::refuse(field,"compile: isCoded is set but there is no CodE attribute; the flag and the artifact disagree");
@@ -1827,7 +1834,7 @@ GroupItem 	*grup = 0;
 		else
 		if ( grup->groupBody->flags.isRule )
 			code->addAttribute(grup);
-	// compileAddTempFields this and tempField
+	// compileAddTempFields this and tempField -- named on grup, not bare: a declaration above re-points bare names (bear-trap #42)
 	grup = new GroupItem("this");
 	grup->groupBody->flags.isLocal = 1;
 	grup->groupBody->flags.noPrint = 1;
@@ -1843,14 +1850,27 @@ GroupItem 	*grup = 0;
 	// refusedRuleDoesNotEndRun has to continue to processCode below
 	GroupControl::groupController->groupRules->compiling = 1;
 	// so ANYtoken allows key fields
-	if ( !::processCode(field,field->parseHolder()) )
+	if ( !::processCode(field,holder) )
 		{
 		// BOTH arms clear it -- this arm RETURNS, so the tail below never runs and compiling would stay set for the rest of the process
 		GroupControl::groupController->groupRules->compiling = 0;
 		::printf("\t%s\n",code->getText());
+		// failedPendingNamesCarrier a pending carrier that will not compile is DETACHED: the rule keeps its old body, and the refusal names the carrier and the rule
+		if ( pending )
+			{
+			pending->remove();
+			 { char zWhy[224]; ::snprintf(zWhy,sizeof zWhy,"compile: the pending carrier for %s would not parse -- %s keeps its current body; the message above names the position",field->groupBody->tag,field->groupBody->tag); return ::refuse(pending,zWhy); } 
+			}
 		return ::refuse(field,"compile: processCode would not parse the generated body; its message above names the position");
 		}
 	else	::printf("compile succeeded for %s\n",field->groupBody->tag);
+	// installInOneStep the green pending carrier replaces builtinParseR in one step: detached, retagged, and swapped in by replace()
+	if ( pending )
+		{
+		pending->remove();
+		 pending->groupBody->tag = ::strdup("builtinParseR"); 
+		field->replace(pending);
+		}
 	GroupControl::groupController->groupRules->compiling = 0;
 endCompile:
 	grup = 0;

@@ -38,11 +38,10 @@ define
         CodE = codeBuffer;
         codeCopy := copyOf(CodE);
         *codeCopy :. noPrinT;
-        bprCopy := new("builtinParseR");
+        bprCopy := new("pendingParseR");
         *bprCopy :. noPrinT;
         *bprCopy +% *codeCopy;
         argument +% *bprCopy;
-        argument :. isCodeD;
         printTO(0);
         print taG "=" CodE.taG CodE:;
        };
@@ -60,6 +59,7 @@ define
                     generateParse(*grup);
                     continue;
                 if *grup["builtinParseR"];   continue;
+                if *grup["pendingParseR"];   continue;
                 if listLengtH;  walkRules(*grup);
                 else generateParse(*grup);
         };
