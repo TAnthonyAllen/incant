@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 149 at the FOOT -- SEQ 200: P6 waits (unrun IF hands back its condition; PrinT residual is RETAGCARRY); SEQ 201 sealed
+STATUS:   fresh           # SEQ 150 at the FOOT -- SEQ 202 RECON: a coded action NEVER takes the new road; after parser(BlocK) or parser(Start) every later compile REFUSES
+# prior: SEQ 149 at the FOOT -- SEQ 200: P6 waits (unrun IF hands back its condition; PrinT residual is RETAGCARRY); SEQ 201 sealed
 # prior: SEQ 148 at the FOOT -- SEQ 199: P6 not landed -- the unrun-IF side effect reads 0 with the switch off too
 # prior: SEQ 147 at the FOOT -- SEQ 198: P6 built (p6-held-class, not merged); stopped: JSON adoption survives, JT rows stay green
 # prior: SEQ 146 at the FOOT -- SEQ 197: ruling (i) taken; P6 STOPPED on parent-driven firing -- interpretXP/TokenXP have no fire arms (measured)
@@ -8263,3 +8264,84 @@ stop, or for the value-node stroke?
 Run recipe line added (env switches inline, never through a split variable).
 
   END SEQ 149
+
+
+===================================================================
+SEQ 150  -  SEQ 202 RECON: WHERE A CODED ACTION PARSES (rsRun) -- IT NEVER TAKES THE NEW ROAD
+===================================================================
+STATUS: fresh -- 2026-09-27. Recon only; nothing built. Bare build (fbc30ce).
+
+TOP LINE. Ran one probe fixture in three arms, separate processes: (none) no parser; (BlocK)
+parser(ShRep); parser(BlocK); (Start) parser(ShRep); parser(Start). Each: a ShRep drive as
+the positive control, then rsRun's first call, both windows under traceParse(1).
+WHAT FAILED: with parser(BlocK) OR parser(Start), rsRun's compile REFUSES --
+    REFUSED BlocK -- checkInput: no enclosing activation to take the label
+-- and rsRun's body never runs (rsN stays 0). The rule is BlocK; the site is checkInput's
+enclosingActivation arm (RuleStuff.twk:116). The NEXT coded action compiled after it
+(a dumper) fails outright: ERROR processCode: zzDump parse failed. So today parser(BlocK)
+or parser(Start) BREAKS every coded action compiled afterwards.
+
+(1) THE PATH. runOP (GroupActions.rtn:879, RULEDISPATCH arm=runAction) -> runAction
+(:808; `if isCoded` -> processCode at :811) -> processCode (:604) -> blockRULE =
+grokking/BlocK, pushInput(code), blockRULE.parse(0) (:632) -> GroupItem::parse
+(GroupItem.twk:1326). processAction (:580) is the other caller, on a later call when no
+BlocK is cached. CLAY'S LEAD IS STALE: parse() HAS NO hasNewParse FORK -- 0150f29
+(2026-09-07) removed it. parse() is the interpretive loop, whole. The only thing below it
+that consults hasNewParse is testAction (RuleStuff.twk:240), for parseAction rules only.
+The one live door into a generated body is driveStep (GroupActions.rtn:189,
+`if rule.hasNewParse -> rule.method(rule)`), reached from runRule and tell -- never from
+processCode.
+
+(2) THE CONDITION. Taken literally: BlocK needs a generated body (hasNewParse + gMethod),
+installed by parser(BlocK) -- or by parser(Start), which reaches BlocK through StatemenT
+(grammar:179, :183); the refusal is identical in both arms, which is the measurement that
+says Start reaches it. BUT THE CONDITION IS NOT SUFFICIENT: processCode never asks the
+flag, so installing it changes no road -- it only arms the refusal below.
+
+(3) THE MEASUREMENT. Instrument: parseRule's exit point, MARKPT 1-parseRule-exit
+(Generate.rtn:268). Validated first (H16), both ends:
+                        control drive ShRep aaac   rsRun's compile   rsN after
+    none                       0                        0                1
+    parser(BlocK)              5                        0                0  REFUSED BlocK
+    parser(Start)              5                        0                0  REFUSED BlocK
+Zero parseRule exits in rsRun's compile in every arm: the old road answered each time,
+and with BlocK installed it answered with a refusal. Both arms attach a BlocK of length 2
+at the top level. THE DEEPER BlocK DIFF IS VOID: my dumper's spelling walked the wrong
+nodes in the control arm, and in the parser arm the dumper itself could not compile. Not
+graded.
+AND ONE READING OF THE GENERATED BODY, because it matters for (4): parser(BlocK) prints
+    BlocK = CodE { return leftCurly() && StatemenT() && rightCurly(); }
+-- StatemenT+ has LOST ITS +. It is the same shape as the ShRep finding reported this
+morning (an ordinary + reference repeats once on the new road), so a generated BlocK would
+parse ONE statement of a multi-statement body.
+
+(4) WHERE IT IS SUPPOSED TO HAPPEN. One site: processCode's parse call,
+GroupActions.rtn:632. The smallest change: make the compile a DRIVE --
+    result = driveStep(code, blockRULE, null);
+in place of pushInput(code) / blockRULE.parse(0) / popInput(). driveStep already forks on
+hasNewParse, already pushes the floor that checkInput's enclosingActivation arm needs (the
+refusal's own cause), and falls back to rule->parse(0) with the input diverted when BlocK
+is not installed -- so the uninstalled road is unchanged in shape. Not built. Three things
+it owes before it can land, stated not measured: (i) the lost + above -- a generated BlocK
+must repeat StatemenT or every multi-statement body truncates; (ii) processCode's own
+brackets -- lastIndent=0 before the parse and processingCode -- stay in processCode around
+the call (driveStep restores lastIndent after, but does not zero it before); (iii) what a
+generated root hands back is its floor label, and processCode attaches `result` as the
+BlocK -- whether that label is a runnable BlocK is unmeasured.
+On the branch it buys (5b) for free: the drive seat is where the recording scope opens.
+
+(5a) An action first called BEFORE parser() keeps its cached old-road BlocK and runs after
+parser(BlocK) with no refusal (rsN 1 -> 2, 0 parseRule exits). Nothing re-parses it:
+processAction:580 only calls processCode when no BlocK is cached, and processCode sets
+isAction, which consumes isCoded. So the refusal hits exactly the actions compiled
+after the install.
+(5b) Branch parse-then-fire (de79427): processCode still calls blockRULE.parse(0) directly
+and is OUTSIDE the recording scope -- ptfScopeOpen/Close are called only from the two
+drive seats, driveStep and jitProbeDrive (Generate.rtn:752). Unchanged from step 1.
+
+BOOKKEEPING. refireSkipsDegraded is stamped `OWNER: Clod` (jitter lane, Tony's ruling), and
+fixitNag.sh now splits its headline by owner, both lines always printed: measured
+before -> Tony 1 / Clod 0, after -> Tony 0 / Clod 1. The fixit still runs to its sentinel.
+
+  END SEQ 150
+

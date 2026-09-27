@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      201
-STATUS:   cleared        # SEQ 201 -- SHUTDOWN sealed; P6 waits on one question; report clod-to-clay SEQ 149
+SEQ:      202
+STATUS:   cleared        # SEQ 202 -- RECON done, nothing built; report clod-to-clay SEQ 150
+STATUS-201: cleared      # SEQ 201 -- SHUTDOWN sealed; P6 waits on one question; report clod-to-clay SEQ 149
 STATUS-200: cleared      # SEQ 200 -- P6 waits (candidate (2) not confirmed; (1) reads the condition value)
 STATUS-199: cleared      # SEQ 199 -- P6 not landed, line (1) cannot be cashed; report clod-to-clay SEQ 148
 STATUS-198: cleared      # SEQ 198 -- P6 built on p6-held-class, stopped on the JT line; report clod-to-clay SEQ 147
@@ -9491,3 +9492,36 @@ question verbatim; no rulings tonight. Trunk installed, bare, checklist measured
 line generated. Tony's forms, tester and TOK Xcode state left alone.
 
   END SEQ 201
+
+
+===================================================================
+SEQ 202  -  RECON: A CODED ACTION ON THE NEW PARSE ROAD (rsRun)
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any reading, per WT-15. Recon done; clod-to-clay SEQ 150.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+Tony wants to parse and compile a regular action (rsRun) through the new parse flow. Show
+him where that happens today; if it does not, name where it is supposed to. RECON FIRST --
+do not build until Tony has read the answer.
+(1) THE PATH: first call of a coded action to its cached BlocK, each hop with file:line
+(runAction, processAction, compile/processCode, the parse() call); the rule processCode
+parses the body with, and which arm of parse()'s fork it takes.
+(2) THE CONDITION: what must be true for that parse to take the new road -- generated body
+installed on which rule, reached by which parser() call? Does parser(Start) reach it?
+Does anything else need to run first?
+(3) THE MEASUREMENT, bare build, one fixture: parser(<step 2's rule>); then define and call
+rsRun. Count parseRule door entries during rsRun's compile (zero = old road answered).
+Diff rsRun's BlocK against the same action compiled without parser(). Read the value.
+(4) IF IT DOES NOT TAKE THE NEW ROAD, name the one site where it is supposed to and the
+smallest change that makes it. Do not build it -- Tony's call.
+(5) Report, not fix: (a) an action first called BEFORE parser() caches an old-road BlocK --
+does anything ever re-parse it? (b) parse-then-fire: is processCode inside the recording
+scope on the branch, or still outside it as step 1 left it?
+Bookkeeping: refireSkipsDegraded is a jitter defect and is Clod's fixit, not Tony's.
+Clay's lead (a reading of old stack frames, not a measurement): processCode calls parse()
+with the BlocK rule, and parse() forks on whether the defining rule has an installed
+generated parse.
+
+  END SEQ 202
+
