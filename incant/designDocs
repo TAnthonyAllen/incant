@@ -752,8 +752,28 @@ define
                 installedIsDone=(AN rStuff CARRYING hasNewParse IS INSTALLED, AND THE WALK LEAVES IT ALONE (Tony, 2026-09-15). Two marks, two questions: parseWalked guards the cycle WITHIN one walk, hasNewParse guards propagation ACROSS walks. Conflating them re-entered a node with post-install slots and read it as pre-install.#);
                 actionMethodRemoved=(THE WALK WRITES gMethod AND parseMethod, AND NOTHING ELSE (Tony, 2026-09-15). actionMethod is set at DEFINITION. The removed `actionMethod = method;` did not snapshot the action, it ERASED it -- NULL on a first visit, parseRule on later ones, and the second is unbounded recursion.#);
         GroupActions=(is the rtn file holding the action methods -- the interpreter's
-            verbs. It is part of the GroupRules include chain.#):
-            runRule=(fires a rule, choosing the new parse road or the old one.#):
+            verbs. It is part of the GroupRules include chain. Entries reviewed and put in
+            alphabetical order 2026-09-27; saveLocalFields and restoreLocalFields moved here
+            from the GroupItem node, where they had been filed by mistake.#):
+            aCTionTell=(the tell rule's action. The verdict it returns: matched (a prefix
+                counts), consumed (0 on failure), length, stoppedAt (consumed on a match, the
+                furthest point reached on a failure), known (0 if no field has the target's
+                name), and reply -- a COPY of the parked label, so a second tell cannot
+                overwrite the first. AN UNKNOWN TARGET IS A VERDICT, NEVER A refuse(): this
+                runs inside tell's own parse, and a refusal there aborts the action
+                containing it.#);
+            appendGroup=(prints a field, or runs its print shortcuts, into a buffer.#):
+                nullIsRefusal=(A REFUSING OPERATOR HANDS THIS A NULL -- F-36's crash, fixed
+                    2026-09-01. A binary op that cannot apply prints its own named error and
+                    returns null, and appendPrintXP passes the result straight here, so every
+                    refusal in a print item list died on the isShortcut read. The error is
+                    already named, so the item is skipped quietly. The reported `* *x` was a
+                    red herring: with a space the leading star is BINARY MULTIPLY against the
+                    item before it.#);
+            driveStep=(runRule's body, and the one drive runRule and tell share. A non-null
+                report receives the drive's numbers as OFFSETS into the message, never
+                addresses (H3). Its children moved here from runRule 2026-09-27 -- the code
+                they describe lives in driveStep.#):
                 gateOnlyNeverGenerate=(runRule GATES on hasNewParse. It NEVER installs a parse,
                     and the first-use install that briefly lived here -- compile then setParse,
                     ruled 2026-09-17 -- was WITHDRAWN by Tony on 2026-09-18. Do not put it back.
@@ -791,6 +811,110 @@ define
                     adds a road and re-routes nothing -- which is a thing to know before reading a
                     behaviour change into it. Generate.parseRule.intoRidesArgument is the mint side
                     of the same ruling and is a DIFFERENT claim; do not read one for the other.#);
+            frameStak=(the frame bracket's save-stack lives on a noPrint child of the action.#):
+                secondChannel=(ONE CHANNEL, ONE MEANING. saveLocalFields used to write the stack
+                    into the action's own DATA slot, and for a field carrying BOTH data and a
+                    code block -- `lefty=3 code={ lefty += 43; }` -- that slot holds the VALUE,
+                    so the bracket destroyed it (measured 2026-08-30). It read as KANT-8's tag
+                    echo, which is why it hid. A repair, not a semantics change: the bracket
+                    touches only minted scratch. A SEPARATE FUNCTION on purpose -- a declaration
+                    inside a declared-field tok function re-binds every bare name in scope,
+                    lines above it included.#);
+            limitWriteGuard=(F-27's ruling: a bad write to maxLimit or repeatLimit is refused AT
+                THE WRITE, and the assignment does not take.#):
+                theSiteIsTheRuling=(Tony, 2026-08-19: one write site is cheaper than a million
+                    silent zero-matches at parse time, so this is NOT in modify() -- by then the
+                    poisoned count has got away. TWO FUNCTIONS because refusing needs the value
+                    the write destroys: the guard runs before opAssign's setContent and returns
+                    the prior count, and its non-zero return doubles as the is-this-a-limit
+                    test. limitWriteCheck TESTS THE DATA TYPE, NOT ONLY THE COUNT: `maxLimit =
+                    "big"` is an isSTRING whose count overlaps the text pointer and reads large,
+                    so only an isCOUNT or isNUMBER above zero is a usable limit.#);
+            materialiseTerms=(rStuff at DEFINE TIME, not lazily (Clay, SEQ 27) -- rStuff is
+                SHAPE, one per rule, knowable at definition.#):
+                bootstrapGap=(Terms defined from incant source already materialise, because
+                    modify calls setRuleStuff. The gap is the BOOTSTRAPPER, which hand-builds
+                    rules in C++: GroupMain's Limit adds the brackets with no modify() call, so
+                    the grammar's dash on the closing bracket was never applied. It USES
+                    setRuleStuff, WHICH ALSO SETS isRule (Tony, 2026-07-28), so a bootstrap term
+                    ends in exactly the state an incant-defined one does. isRule matters: a
+                    reference term shares the referenced rule's members, and isRule with
+                    hasMembers is how parse() dispatches into a referenced alternation.#);
+            modifierIsRepeat=(the modifier class predicate.#):
+                modifierClass=(A FLAG DESCRIBES A TERM; A REPETITION CHANGES WHAT THE TERM IS.
+                    Only the repetition class carries repeatClass in incant/setup's Modifiers
+                    registry, so the test is presence and the default is flag. modifyClass
+                    applies through modify() rather than re-implementing its switch, so exactly
+                    one place knows what a modifier DOES and one knows what CLASS it is. A hand,
+                    not a witness -- no measure prefix.#);
+            pickKindOP=(THE WHOLE += PICK, ONE PLACE, BOTH ROADS (Tony, Amendments 1-3 to
+                FINISH +=, 2026-09-25). Members are keyed on the TARGET (ruling 5), in this
+                order: a bin or registry takes the structural member; a target with data takes
+                its data kind's member; no data but members -- rules and actions included, a
+                grammar graft -- takes the structural member; an EMPTY target takes the string
+                member when the argument is a list (the 35a ruling: it becomes a string holding
+                the concatenation), else the ARGUMENT's kind when it has data, else the
+                structural member. No member for the pick hands back the op itself, and
+                opPlusEQ refuses by name.#);
+            processAction=(runs a cached BlocK for an action or a rule, clearing its locals at entry so each activation starts blank.#):
+                argumentExempt=(⚠ THE ARGUMENT IS EXEMPT FROM THE ENTRY CLEAR, AND THE EXEMPTION IS WHAT LETS THE DECLARATION GO. The clear takes every attribute that is isLocal and not isLabel and not noPrint. runAction binds the argument slot BEFORE calling here, so an entry clear that includes it wipes the bind. A DECLARED `argument` escaped this for free, because aCTionDefinE flagged it isArgument and never isLocal -- the two flags were mutually exclusive and nobody had to think about it. A MINTED one does not: with no declaration, aCTionNamE creates the name as an action LOCAL, so the field is isLocal AND isArgument at once and lands squarely in this walk. MEASURED 2026-09-05: without the clause the declaration sweep took the fleet 185 to 147, with every argument reading back as its own tag, which is bear-trap #26 wearing the shape of data. ⚠ IT IS BEHAVIOUR-NEUTRAL WHILE ANY DECLARATION SURVIVES -- fleet byte-identical with it in and declarations present -- so it cannot certify itself and did not; the sweep is what exercises it. See runAction.mint for the two-flag fact and ArgBinding for the rule the flag serves.#);
+            processCode=(parses an action's CodE into its BlocK.#):
+                d2Tripwire=(Ruling D2 (Tony, 2026-08-22): isLabel IMPLIES live rStuff, because
+                    only a live parse mints a label. An rStuff-less label is WRECKAGE, not a
+                    specimen, so this refuses LOUD, here where it became visible -- compile
+                    calls processCode. The guard it replaced asked isLabel (in groupBody, which
+                    is copied) before dereferencing rStuff (never copied): the question posed
+                    to the wrong oracle.#);
+                staleIR=(PJ-8, the interpreting half of the lifecycle: re-parsing CodE attaches
+                    a fresh BlocK, so IR emitted against the old one is invalid. It fires ONCE
+                    per action -- `field.isAction = true` consumes isCoded, so a later
+                    interpreted call, a ladder oracle included, does not re-enter (bear-trap #25
+                    from the testing() side). setText with an empty string, never clear(): a
+                    dataless field reads back as its tag, JiT.#);
+            refuse=(THE ONE FUNNEL. A refusal ENDS THE ACTIVATION THAT RAISED IT (Tony,
+                2026-09-05, on f31's 2,808,029 lines): the action returns null, the testable
+                nothing, and nothing after the refusing statement runs. runAction clears the
+                arm at the activation's exit (runAction.refusalArm).#):
+                theLine=(sourceLINE is where the PARSER is, stale for a re-executed cached body
+                    -- f31 prints one number for all 43 of its refusals. The statement's own line
+                    was tried 2026-09-05 and does not exist in a usable form: rStuff.sourceLine
+                    is stamped per statement but is not the writer's file line. So the stale
+                    number stays. Do not chase it (bear-trap #36's family).#);
+            reportCodeFail=(where a code body failed to parse.#):
+                notNewMachinery=(aCTionFailed already reports rule, position and line, but it
+                    is gated on notifyFail, which the BlocK rule a code body is parsed with does
+                    not carry -- so this reads the same accessors. ONE IMPLEMENTER BY INTENT: if
+                    parse-error reporting is ever made good, this, reportNoBody, reportMaxLimit
+                    and aCTionFailed converge here. All four refusals print on cerr, because a
+                    code body can be processed with print diverted.#);
+            reportMaxLimit=(a match hit the maxLimit ceiling with input still matching.#):
+                refuseNotTruncate=(Returning the first N characters of a longer token is
+                    parse-succeeded-with-wrong-content, the worst failure genre on the books, so
+                    it refuses. ONE IMPLEMENTER: testMacro and the generated leaves both call it.
+                    NOT ALLOWED TO FIRE ON max 1 (the default) or an explicit Limit, which reach
+                    counter >= max in a correct parse -- so callers gate on max > 1 &&
+                    !limitsSet, true only for the ceiling modify() stamps.#);
+            reportNoBody=(a rule reached through a bound parse method with no compiled body. A
+                SIBLING, NOT A REUSE: reportCodeFail would name processCode for a rule
+                processCode never touched. It repeats once per attempt, by intent.#);
+            reportRepeatLimit=(a rule repeated to its repeatLimit and parse() stopped -- silent
+                until 2026-08-19, when a rule cut short there dropped every statement after the
+                cut at exit 0. IT REPORTS AND DOES NOT FAIL: the matches were correct, what is
+                wrong is that there may be more. THE COUNTS ARE PASSED IN, because parse() may
+                run on a reentrancy clone and rule.rStuff could be another frame's.#);
+            restoreLocalFields=(restores what saveLocalFields banked, at the end of a nested
+                call. REWRITTEN 2026-09-06.#):
+                identityPair=(WALKS THE STACK, NOT THE FIELD LIST, and applies no filter of its
+                    own -- it restores exactly what was saved, to the field it came from, and
+                    stops at the frame floor. The filter now lives in ONE place (save), which
+                    is what makes a mid-body flag change unable to move anything.
+
+                    See saveLocalFields.identityPair for the defect and saveLocalFields.frameFloor
+                    for the bound. The full discharge, with M2's original reading, is in
+                    docs/kantCorpus.md, which is the LEDGER OF RECORD.#);
+                nullArm=(REAL, not defensive: restore is reached on paths where save never
+                    ran -- the jit bracket among them. With the stack on a child, no frame child
+                    is a state, and it means what a zero-length stack means: nothing saved.#);
             runAction=(Runs an action. TWO ARMS THAT SHARE ALMOST NOTHING, and reading it as one path with jit conditionals is how it was misread for months. processCode if needed, lastREF, then either the JIT arm or the interpreted arm, and each returns through its own exit. REVISED 2026-09-05, Clay reviewed, Tony ruled -- the draft was lifted from incant++ rather than re-derived.#):
                 lastREF=(Written ONCE, ahead of both arms, so the two roads cannot disagree about it. ⚠ THE `argument ? argument : field` FALLBACK IS LOAD-BEARING: a call with NO argument leaves THE ACTION ITSELF in lastREF, which is what makes a bare accessor at the top of a no-argument body resolve to anything at all. Writing the argument unconditionally would put a null there. See LastRef.WriterRunAction.#);
                 jitBind=(⚠ CORRECTED 2026-09-05 BY MEASUREMENT. This entry first said THE JIT ARM BINDS NOTHING, lifted from the reviewed draft, and that is true of an EMITTED call and FALSE of an INLINED one. THERE ARE TWO JIT ROADS AND THEY BIND AT DIFFERENT TIMES. On the INLINE road the callee's body is walked HERE, at emit time, and the walk reads the argument as it goes -- so the emit-time bind is this arm's and there is nowhere else it can live; without it the inlined body answers 0 at degrade count 0 while the interpreted oracle stays correct, which is the shape of the 2026-09-05 regression. On the EMITTED road, where the JIT gives a callee its own function, jitBindArgRT binds at RUN time into the argument's home and the frame prologue loads that home into an alloca per activation. THE FIXTURES SPLIT THE SAME WAY, and neither covers the other: incant/argJitT is the INLINE road, incant/argRoundJ is the EMITTED road. The arm is otherwise: self-call gate, emit-time bind, jitInlinePush, processAction, jitInlinePop, exit. ⚠ NO SAVE, NO RESTORE, NO RETURN-SEAM CAPTURE -- the jitted arm already returns by capture and the node in flight is the value channel an enclosing assignment reads through jitData, which a fresh node would not carry.#);
@@ -800,35 +924,38 @@ define
                 chanCount=(The chanBinds/chanSame pair chanT reads. In passthrough because the check is POINTER IDENTITY and `==` is numeric. ⚠ THE PAIR RE-PINNED 3 TO 4 with this revision and the cause is the revision itself: the old runAction bound only when a declared `argument` was found, so an action that declared none never bound. Minting means every call binds, and the population grew by exactly the actions that never declared one -- in chanT that is ctRun. `same` tracked to 4 as well, which is what made the re-pin safe: the invariant asserted is SAME == BINDS and it held. A 4/3 would have been F-46's shape and would not have been re-pinned.#);
                 escapes=(The -% %- escapes around the jit calls are GONE, and the reason generalises. tok resolves an extern BY NAME, so jitEmitSelfCall, jitInlinePush and jitInlinePop need no passthrough -- being named in groups.ext is enough. See GroupsExtMirror. Passthrough survives only where the CODE needs C++, which here is the pointer-identity comparison in chanCount.#);
                 channelGone=(WHAT LEFT WITH THIS REVISION, so nobody hunts for it: the union tripwire and its ARGCHANNEL REFUSED message, the chanPrevGroup/chanPrevData save-and-restore around processAction, and chanAbort. The tripwire guarded a union that could hold foreign data because the argument attribute was USER-DECLARED and might carry anything. Now runAction mints the slot, so the union is ours by construction and the failure is unconstructable rather than guarded -- which is the family this project prefers. ⚠ IT NEVER FIRED AND HAD NO NEGATIVE CONTROL, so nothing measured is lost with it.#);
-            processAction=(runs a cached BlocK for an action or a rule, clearing its locals at entry so each activation starts blank.#):
-                argumentExempt=(⚠ THE ARGUMENT IS EXEMPT FROM THE ENTRY CLEAR, AND THE EXEMPTION IS WHAT LETS THE DECLARATION GO. The clear takes every attribute that is isLocal and not isLabel and not noPrint. runAction binds the argument slot BEFORE calling here, so an entry clear that includes it wipes the bind. A DECLARED `argument` escaped this for free, because aCTionDefinE flagged it isArgument and never isLocal -- the two flags were mutually exclusive and nobody had to think about it. A MINTED one does not: with no declaration, aCTionNamE creates the name as an action LOCAL, so the field is isLocal AND isArgument at once and lands squarely in this walk. MEASURED 2026-09-05: without the clause the declaration sweep took the fleet 185 to 147, with every argument reading back as its own tag, which is bear-trap #26 wearing the shape of data. ⚠ IT IS BEHAVIOUR-NEUTRAL WHILE ANY DECLARATION SURVIVES -- fleet byte-identical with it in and declarations present -- so it cannot certify itself and did not; the sweep is what exercises it. See runAction.mint for the two-flag fact and ArgBinding for the rule the flag serves.#);
-            storeRuling=(THE STORE RULING -- AN ARMED STATEMENT STORES NOTHING. Tony,
-                2026-09-05. ⚠ ONE SHARED ENTRY FOR NINETEEN SITES ACROSS THREE FILES: sixteen in
-                Instruct.rtn, one in GroupActions.rtn, two in jitEmitters.rtn. Every one of them
-                is the same rule at a different writer, which is why it is written once.
-
-                THE RULE: when the refusal arm is set, a statement must not commit its value. A
-                refused right-hand side is NULL, and an assignment that runs anyway writes that
-                null -- BLANKING ITS OWN TARGET. Measured as sentinelT ST-1: stRead came back as
-                its OWN TAG instead of the 111 it went in with, because the store took.
-
-                ⚠ AND THE CHECK HAS TO BE AT THE STORE, NOT AT runOP's ENTRY, which is where it
-                was first put and where it does not work. MEASURED: an assignment DISPATCHES
-                BEFORE ITS OWN RIGHT-HAND SIDE -- a STORECAM trace reads `op== refused=0` and
-                only then `op=+*`, with the refusal firing later still, inside the +* dispatch.
-                So the enclosing operator is entered while the arm is CLEAR, and an entry check
-                can never see its own operand refuse.
-
-                ⚠ THE ERA SPLIT, and it is the same one aCTionBlocK makes: the interpreted road
-                consults the arm at runOP; the EMITTED road consults it in the assign helpers
-                instead, because at EMIT time the statements after a refusal are REACHABLE and
-                must all be emitted -- stopping the walk would delete them from the IR.
-
-                Fourteen writers consult the arm; incant/storeT certifies eleven. `++` and `--`
-                cannot be certified because they are unary and nothing to their left can arm
-                first.#):
-                CodeSite="GroupActions.rtn:runOP";
-            runOP=(the operator dispatch hub.#):
+                refusalArm=(THE ARM IS ACTIVATION-SCOPED. A refusal ends the action that raised
+                    it and NOT its caller, so the caller gets a testable null and decides.
+                    Clearing here is what makes terminal-for-the-action mean the action rather
+                    than the process.#);
+            runOP=(the operator dispatch hub. Cut to one screen 2026-09-27: its four passthrough
+                blocks are hands now -- refuseArgRebind, followArgument, jitSeedOperands,
+                jitSlotTaken, refuseUnknownOperator -- and the generated code is otherwise
+                byte-identical.#):
+                argBinding=(argument is a BINDING, not a field. The rebind refusal is tested
+                    BEFORE the follow, which destroys the evidence. The follow serves BOTH
+                    ROADS because it is upstream of jitSeedField and every dispatch arm. It is
+                    what is left of the flip: runOP's two legacy auto-unwraps were deleted with
+                    gNoUnwrap on 2026-09-05. See ArgBinding.ArgBindingSites.#);
+                virtualFork=(BEAR COUNTRY. The isVirtual copyOf is INTENTIONALLY UNGATED -- the
+                    safety net for operating on a virtual prototype (bcPushLit, bcPushField)
+                    outside a defining context. Gate it on defining and the bytecode emit path
+                    mutates the shared prototype. It runs hot: debug it with a directive, never
+                    a permanent ruler.#);
+                seedBothArms=(Unary operators are registered as unary ruleMethod -- isUnary and
+                    isMethod, NOT isOperator -- so a seed gate on isOperator alone left every
+                    unary operand unseeded and jitEmitUnary dereferenced a null jitData:
+                    SIGSEGV, measured 2026-08-03. isUnary is the precise widening; isMethod
+                    would seed an operand for every rule method.#);
+                slotFork=(THE PRESENCE-GATED FORK. Slot installed, the emitter fires and runOP is
+                    done; slot absent, control falls to the interpreter dispatch exactly as
+                    before, so an unmigrated op cannot tell. THERE IS NO DEFAULT EMITTER AND
+                    THERE MUST NEVER BE ONE -- it would make every unmigrated op look migrated
+                    at degrade count zero. jitSlotTaken COUNTS AT THE FORK, never in the shims,
+                    so no shim author can forget. A UNARY SLOT IS REFUSED loudly and countably
+                    until its specimen lands; retire guard, counter and rung row together
+                    (docs/jitSlotMigration.md, parked section). Passthrough because tok renders
+                    the null test as op->jitEmitter, which GroupItem does not carry.#);
                 unknownOperatorRefusal=(A TOKEN REGISTERED IN Operators WITH NO
                     operateMethod USED TO CHANGE NOTHING AND SAY NOTHING. Ruled and landed
                     2026-09-11. Such a token fell through every arm of runOP's dispatch
@@ -873,11 +1000,10 @@ define
                     so it must stay methodless or the fixture wants a re-pin with a
                     sentence.
 
-                    ⚠ THE PROSE ABOVE THE CHAIN IS NOT A STYLE CHOICE. This comment sat in
-                    the gap between the last `or` arm and the new `else` on the first
-                    attempt and took the extern canary 328 to 0 -- bear-trap #29, measured
-                    again here by accident. The cure was the one the trap names: put the
-                    prose above the whole chain.#);
+                    ⚠ KEEP THE PROSE ABOVE THE WHOLE CHAIN, never in the gap between two
+                    arms: a comment there took the extern canary 328 to 0 on the first attempt
+                    (bear-trap #29). Since 2026-09-27 the refusal itself lives in
+                    refuseUnknownOperator, and the else arm is one line.#);
                 listOperand=(⚠ A LIST OPERAND IS DELIBERATELY NOT RESOLVED IN runOP, and the
                     function that used to do it -- resolveList -- was RETIRED 2026-09-04,
                     cleanup arc stroke 8. Its rationale is kept here because the condemned
@@ -899,9 +1025,29 @@ define
                     RETIREMENT EVIDENCE: zero call sites anywhere in InProcess or
                     ~/data/support -- the only reference in the tree was the commented-out
                     line itself -- and the symbol is gone from the binary.#);
-        GroupItem=(is the twk file for the core tree node. Entries here are method notes
-                lifted out of the code under the 2026-09-01 convention: the inline line
-                carries the claim, this carries the argument.#):
+            runRule=(the drive step with no report. A generated root hands driveStep its
+                label and runRule maps it back to one bit (ruling c'). Its old children --
+                gateOnlyNeverGenerate, unwrapTheHolder, noSilentFallthrough, noDataMeansLabel
+                -- are under driveStep, where their code is.#);
+            runShortCircuit=(TIER 3, the evaluation-controlling arm (docs/andOrRung.md sections
+                1a and 6; ruling SEQ 32).#):
+                notAHandler=(runOP resolves BOTH operands before it dispatches, so an AND
+                    entered from there has already fired the right arm, side effects included.
+                    It is reachable here because an unresolved operand is still an UNFIRED
+                    METHOD. A SIBLING OF runOP, NOT A BRANCH IN IT (Tony, 2026-08-11): a binary
+                    has no node until interpretXP builds the tree, so the category is decided
+                    there once per expression, and runOP stays the strict dispatcher and nothing
+                    else. The operand contract is truthOf's alone, so the engines cannot drift.
+                    THE TIER-3 SET IS CLOSED -- if, AND/OR, iteration -- and widening it is a
+                    ruling, named at its binding site in interpretXP.#);
+                phaseGate=(Emit time never enters a run-time handler for its value, and the floor
+                    is a REFUSAL: promoting AND/OR once replaced a 139 with a silent wrong answer
+                    at degrade count 0 (jitXand2, jitXor). Refusing restores the loudness,
+                    because every rung asserts degrade zero.#);
+                skipByRegistration=(The skip direction is read off the registration, opIsOR,
+                    never the tag. Until 2026-09-10 the lines tested the tags AND and OR, so
+                    `||` -- same operateMethod as OR -- matched neither, and `true || false`
+                    read FALSE.#);
             saveLocalFields=(saves an action's argument and locals before a nested call,
                 so each activation starts from its own state. REWRITTEN 2026-09-06.#):
                 identityPair=(THE FIELD TRAVELS WITH ITS BODY. Before this, save pushed a body
@@ -958,16 +1104,35 @@ define
                     anyOrNumT, iterT1, iterT1m and displayFormT all TIMED OUT at POPCAP and
                     pop.sh read 184. argRoundT is the oracle: depth 3 stayed correct while
                     depths 2 and 1 came back as TAG ECHOES.#);
-            restoreLocalFields=(restores what saveLocalFields banked, at the end of a nested
-                call. REWRITTEN 2026-09-06.#):
-                identityPair=(WALKS THE STACK, NOT THE FIELD LIST, and applies no filter of its
-                    own -- it restores exactly what was saved, to the field it came from, and
-                    stops at the frame floor. The filter now lives in ONE place (save), which
-                    is what makes a mid-body flag change unable to move anything.
+            storeRuling=(THE STORE RULING -- AN ARMED STATEMENT STORES NOTHING. Tony,
+                2026-09-05. ⚠ ONE SHARED ENTRY FOR NINETEEN SITES ACROSS THREE FILES: sixteen in
+                Instruct.rtn, one in GroupActions.rtn, two in jitEmitters.rtn. Every one of them
+                is the same rule at a different writer, which is why it is written once.
 
-                    See saveLocalFields.identityPair for the defect and saveLocalFields.frameFloor
-                    for the bound. The full discharge, with M2's original reading, is in
-                    docs/kantCorpus.md, which is the LEDGER OF RECORD.#);
+                THE RULE: when the refusal arm is set, a statement must not commit its value. A
+                refused right-hand side is NULL, and an assignment that runs anyway writes that
+                null -- BLANKING ITS OWN TARGET. Measured as sentinelT ST-1: stRead came back as
+                its OWN TAG instead of the 111 it went in with, because the store took.
+
+                ⚠ AND THE CHECK HAS TO BE AT THE STORE, NOT AT runOP's ENTRY, which is where it
+                was first put and where it does not work. MEASURED: an assignment DISPATCHES
+                BEFORE ITS OWN RIGHT-HAND SIDE -- a STORECAM trace reads `op== refused=0` and
+                only then `op=+*`, with the refusal firing later still, inside the +* dispatch.
+                So the enclosing operator is entered while the arm is CLEAR, and an entry check
+                can never see its own operand refuse.
+
+                ⚠ THE ERA SPLIT, and it is the same one aCTionBlocK makes: the interpreted road
+                consults the arm at runOP; the EMITTED road consults it in the assign helpers
+                instead, because at EMIT time the statements after a refusal are REACHABLE and
+                must all be emitted -- stopping the walk would delete them from the IR.
+
+                Fourteen writers consult the arm; incant/storeT certifies eleven. `++` and `--`
+                cannot be certified because they are unary and nothing to their left can arm
+                first.#):
+                CodeSite="GroupActions.rtn:runOP";
+        GroupItem=(is the twk file for the core tree node. Entries here are method notes
+                lifted out of the code under the 2026-09-01 convention: the inline line
+                carries the claim, this carries the argument.#):
             getGuard=(PURE READ OF THE GUARD SET. Builds nothing. Split out of the
                 constructing body 2026-09-01 by Tony's ruling -- the same cure applied to
                 getRStuff the day before.
