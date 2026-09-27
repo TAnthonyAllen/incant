@@ -92,6 +92,26 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-129 — OPEN 2026-09-27 — an action whose body holds a BARE-NAME statement crashes on its SECOND call
+
+**What.** `oneA code={ tsX; };` called twice: the first call runs, the second dies at exit 139 in `aCTionXpress`
+-- its `ExpressioN` label is null. Old road, trunk. Bodies without a bare-name statement (`tsY = 2;`,
+`cerr tsX:;`) run twice cleanly; `tsX; tsY = 2;` crashes like `tsX;`.
+**Where.** `aCTionXpress` (ruleActions.rtn), `input->getLabelGroup("ExpressioN")` read and dereferenced with no
+null check (GroupRules.mm:1577 in that build) -- the SECOND run of the cached BlocK finds no ExpressioN label under
+the Xpress statement. Not located further; bear-trap #22's family (a first run changing its own parse tree) is the
+obvious suspect and is unmeasured.
+**Evidence.** 2026-09-27, clone of trunk f228702 (also branch 442d0d4): the four bodies above, each called twice
+from top level -- `tsX;` 139, `tsY = 2;` 0, `tsX; tsY = 2;` 139, `cerr tsX:;` 0. lldb: EXC_BAD_ACCESS address 0x0,
+frame #0 aCTionXpress. Found running SEQ 214's H15 control.
+**Done when.** A bare-name statement in an action body runs on every call, and a fixture pins it (two calls, both
+run, same answer).
+**Owner.** Unassigned.
+```
+ATTEMPT LOG
+  (none yet)
+```
+
 ### F-128 — OPEN 2026-09-27 — an action COMPILED after BlocK is installed REFUSES, and the refusal has no patient
 
 **What.** Once any `parser()` call has installed BlocK's generated parse, every later compile of a coded body --

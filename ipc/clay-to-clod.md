@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      214
-STATUS:   working        # SEQ 214 -- branch: owner channel for aCTionNamE; grammar-untouched row; resume the step-2 certificate
+STATUS:   cleared        # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
 STATUS-213: cleared      # SEQ 213 -- tsX minted into grammar rule ANYtoken, not the action -- clod-to-clay SEQ 160
 STATUS-212: cleared      # SEQ 212 -- collision on trunk 3494d52; branch stopped at item 1 -- clod-to-clay SEQ 159
 STATUS-211: cleared      # SEQ 211 -- (A) reverted f33d395; old-road column 2c4cec1 -- clod-to-clay SEQ 158
@@ -9800,8 +9800,12 @@ reads that turns it into `RunRulE: expected a method not cerr`. Don't fix.
 ===================================================================
 SEQ 214  -  THE OWNER CHANNEL; A GRAMMAR-UNTOUCHED ROW; RESUME THE STEP-2 CERTIFICATE
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-27, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. clod-to-clay SEQ 161.
+        STEP 1 REPLACED before it was built (Clay, relayed): EXTRACT resolveName(name, owner) from
+        aCTionNamE -- the whole resolution, declared field vs new local and owner +% result -- and
+        call it with owner = processCode's one-writer slot while processingCode, else currentMETHOD.
+        Recorded, not built: resolveNames(action), the post-compile pass (Tony's (ii)).
 
 Top of the report: what ran (as typed), what failed, and which rule if it is parser.
 On branch seq212-drive-compile.
