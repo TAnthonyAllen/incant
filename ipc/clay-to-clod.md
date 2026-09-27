@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      213
-STATUS:   working        # SEQ 213 -- MEASURE ONLY on the branch: snapshots around an old- and a new-road compile of `tsX;`
+STATUS:   cleared        # SEQ 213 -- tsX minted into grammar rule ANYtoken, not the action -- clod-to-clay SEQ 160
 STATUS-212: cleared      # SEQ 212 -- collision on trunk 3494d52; branch stopped at item 1 -- clod-to-clay SEQ 159
 STATUS-211: cleared      # SEQ 211 -- (A) reverted f33d395; old-road column 2c4cec1 -- clod-to-clay SEQ 158
 STATUS-210: cleared      # SEQ 210 -- measured; DO refusal was my oracle; ExpressioN refusal is (A) -- clod-to-clay SEQ 157
@@ -9779,8 +9779,10 @@ The three items are circular: (A) needs the processCode -> driveStep change; dri
 ===================================================================
 SEQ 213  -  MEASURE ONLY: WHAT A NEW-ROAD COMPILE OF A BARE NAME LEAVES BEHIND
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-27, before any build, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any build, per WT-15. Measured; clod-to-clay SEQ 160.
+        TONY'S RULING, relayed mid-stroke: an action body's names become locals at COMPILE time,
+        once; fire-time minting only if exactly once; the jitter's frame walk needs them at compile.
 
 Top of the report: what ran (as typed), what failed, and which rule if it is parser.
 MEASURE ONLY, on branch seq212-drive-compile. Compile oneA (body: tsX;) twice: on the old road,
