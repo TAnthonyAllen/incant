@@ -1,0 +1,30 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+define
+    owX=0;
+    owY=0;
+    owAct code={ owX; owY = 2; owZ = 3; grammarHolds(owX); grammarHolds(owY); grammarHolds(owZ); };
+    ;
+grammarHolds(owX);
+parser(Start);
+cerr "--- AFTER a new-road compile":;
+owAct();
+cerr "OWNER SENTINEL":;
+stop();
+
+ownerT -- NO GRAMMAR RULE GAINS A CHILD FROM AN ACTION BODY (SEQ 214, 2026-09-27).
+
+On the new road an action's body is compiled by a DRIVE of BlocK's generated parse, and the NamE
+action gives every name the body mentions an OWNER. aCTionNamE took that owner from currentMETHOD --
+and inside a generated body parseRule has set currentMETHOD to the rule it is parsing, so the names
+landed in the GRAMMAR: under ANYtoken and, through its shared list, under the six rules that use it as
+a term. The next top-level statement that read such a name tried the stray child as a TERM and the
+file was abandoned (SEQ 213).
+
+grammarHolds(name) walks the Grokking registry and each rule's terms and prints every holder plus a
+count, unconditionally. owAct's body names owX (declared, read), owY (declared, assigned) and owZ
+(undeclared -- a new local); the scans run INSIDE owAct, after its own compile, because a polluted
+grammar breaks the parse of any later top-level name. The count before parser() is the zero control.
+H7, measured on the pre-fix branch build: each of the three reads 7 -- ANYtoken plus six holders.

@@ -656,29 +656,12 @@ GroupItem   source;
 *******************************************************************************/
 extern GroupItem aCTionNamE(GroupItem input)
 {
-GroupRules  ruler = groupRules;
-GroupItem   action = currentMETHOD;
-GroupItem   grup;
-GroupItem   result;
-String      arg = input.text;
-    result = locateInMethod(arg);
-    if result && result.parent == action  goto endName;
-    if defining && result && result.isVirtual    result = copyOf(result);
-    grup    = new(arg);
-    if alphaSet.contains(*arg) && processingCode
-        if !result || (!isArgument && !isLocal)
-            if !(result && registry == opFields)
-                if result
-                    if action.isRule && isRule {
-                        result  = action +% grup;
-                        isLocal = true; }
-                    else    result = action +% result;
-                else {
-                    result  = action +% grup;
-                    isLocal = true; }
-    if !result  result = grup;
-endName:
-    input.group = result;
+    // compileOwner while processingCode the owner is the action processCode is compiling, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213)
+    -%
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    GroupItem *owner = (ruler->processingCode && gCompileOwner) ? gCompileOwner : ruler->currentMETHOD;
+    input->setGroup(::resolveName(input->getText(),owner));
+    %-
     return input;
 }
 
@@ -1803,6 +1786,33 @@ String      whichFile = "(no file)";
     cerr "ABANDONED " whichFile " -- the run ended with a refusal outstanding. Nothing after the REFUSED line above is reliable: action and command dispatch is silenced, so statements can be skipped AND a stop() can be missed, leaving the region below it parsed as source. The exit status is still 0":;
 }
 
+
+// resolveName THE WHOLE RESOLUTION of a name in an action body, against an OWNER: already the owner's, a declared field referenced into the owner, or a new local minted there (SEQ 214). aCTionNamE calls it; the post-compile resolveNames pass will call it with owner = the action (Tony's (ii))
+extern GroupItem resolveName(String arg, GroupItem owner)
+{
+    -%
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    GroupItem *grup = 0, *result = 0;
+    if ( ruler->processingCode && owner )   result = owner->getAttribute(arg);
+    if ( !result )                          result = GroupControl::groupController->locate(arg);
+    if ( result && result->parent == owner )    return result;
+    if ( ruler->defining && result && result->groupBody->flags.isVirtual )  result = ::copyOf(result);
+    grup = new GroupItem(arg);
+    if ( ruler->alphaSet->contains(*arg) && ruler->processingCode && owner )
+        if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
+            if ( !(result && result->groupBody->registry == ruler->opFields) ) {
+                if ( result ) {
+                    if ( owner->groupBody->flags.isRule && result->groupBody->flags.isRule ) {
+                        result = owner->addAttribute(grup);
+                        result->groupBody->flags.isLocal = 1; }
+                    else    result = owner->addAttribute(result); }
+                else {
+                    result = owner->addAttribute(grup);
+                    result->groupBody->flags.isLocal = 1; } }
+    if ( !result )  result = grup;
+    return result;
+    %-
+}
 
 /*  unaryIsAccess -- THE UNARY CLASS PREDICATE, one question asked by two arms. ACCESS
     class binds to the PRIMARY, before the postfix chain; VALUE class binds to the

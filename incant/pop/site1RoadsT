@@ -208,3 +208,7 @@ site1RoadsT -- F-114's 29 site-1 reject inputs (the 27 fixed by the failed-retur
 measurement. Each input is armed on its root carrier and, where it opens with a keyword, on that rule's carrier too.
 Pairs run JITTED then INTERP on one armed carrier (one compile). pop.sh: every pair agrees on every field, and every
 verdict is 0.
+RE-PINNED 2026-09-27 (SEQ 206, ruling A): sr69-sr72, `search Utilities list;`, is a VALID statement and now reads
+verdict 1 consumed 22 -- the old 0 held only because DatA's bare GrouP was generated before Search's GrouP+. F-114's
+list was 29 crash sites, not 29 wrong inputs. Every other drive still reads 0.
+RULING A REVERTED 2026-09-27 (SEQ 211): sr69-sr72 read 0 again, pinned as the divergence; the ruled value is 1/22.

@@ -27,3 +27,6 @@ consuming, exit 139 at carrier 28) and F-125 (two define drives leaked lastInden
 was then ABANDONED after the sweep returned -- the certificate lines printed and the sentinel did not). pop.sh pins
 the exact-line sentinel, SWEEP END's certified=45 agree=45 diff=0, every carrier's degrade=0, and no degrade line.
 Coverage is 45 of the 61 carriers not skipped: the 16 with no pick are named in docs/fixIts.md F-114.
+RE-PINNED 2026-09-27 (SEQ 209): 47 of 61, 14 with no pick -- new road now agrees with the old road; the old pin
+held a zero-width leaf failure (nameSet*/Modifier*). `define aa isRule; ;` now reads 1/19 on both roads, which gives
+Attributes and endDef their first accept.

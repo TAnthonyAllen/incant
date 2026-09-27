@@ -325,6 +325,16 @@ extern "C" GroupItem *measureAdoption(GroupItem *field, GroupItem *handed, Group
 	return 0;
 }
 
+// measureAttachRepeat witness: attachLabel's labelled-repetition branch fired -- the occurrence's max and tag, so a max-1 term arriving there is visible (SEQ 203). Armed by INCANT_COUNT_LOOPS in the environment or parseTrace; reads only
+extern "C" GroupItem *measureAttachRepeat(RuleStuff *stuff, GroupItem *lab)
+{
+	
+	if ( (::getenv("INCANT_COUNT_LOOPS") || GroupControl::groupController->groupRules->parseTrace) && stuff && lab )
+	::fprintf(stderr,"  ATTACHREPEAT rule=%s max=%d lab=%s\n",stuff->ruleName ? stuff->ruleName : "(none)",stuff->max,lab->groupBody->tag);
+	
+	return 0;
+}
+
 /*  WHAT A BLOCK HANDS BACK, and whether the thing it hands back is a VALUE or a
     SIGNAL. parseTrace gated. ⚠ It READS the state at the foot of the walk; it does not
     re-derive which arm ended it. ⚠ No percent-dash in the format string (bear-trap
@@ -533,10 +543,12 @@ extern "C" GroupItem *measureLabelProbe(GroupItem *field, GroupItem *myLabel, Gr
 	return field;
 }
 
-// measureLoopVerdict witness: at parseLoop's verdict, the success flag beside the count -- DISAGREE is the only case the removed flag read would have decided (a stale flag, count short of min); parseTrace-gated, pinned at 0
+// measureLoopVerdict witness: at parseLoop's verdict (its only exit, so INCANT_COUNT_LOOPS's LOOPENTRY line counts entries), the success flag beside the count -- DISAGREE is the only case the removed flag read would have decided (a stale flag, count short of min); parseTrace-gated, pinned at 0
 extern "C" GroupItem *measureLoopVerdict(GroupItem *field)
 {
 	
+	if ( ::getenv("INCANT_COUNT_LOOPS") && field )
+	::fprintf(stderr,"  LOOPENTRY rule=%s\n",field->groupBody->tag);
 	if ( GroupControl::groupController->groupRules->parseTrace && field && field->rStuff )
 	{
 	RuleStuff *st = field->rStuff;

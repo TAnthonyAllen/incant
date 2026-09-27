@@ -92,6 +92,71 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-129 — OPEN 2026-09-27 — an action whose body holds a BARE-NAME statement crashes on its SECOND call
+
+**What.** `oneA code={ tsX; };` called twice: the first call runs, the second dies at exit 139 in `aCTionXpress`
+-- its `ExpressioN` label is null. Old road, trunk. Bodies without a bare-name statement (`tsY = 2;`,
+`cerr tsX:;`) run twice cleanly; `tsX; tsY = 2;` crashes like `tsX;`.
+**Where.** `aCTionXpress` (ruleActions.rtn), `input->getLabelGroup("ExpressioN")` read and dereferenced with no
+null check (GroupRules.mm:1577 in that build) -- the SECOND run of the cached BlocK finds no ExpressioN label under
+the Xpress statement. Not located further; bear-trap #22's family (a first run changing its own parse tree) is the
+obvious suspect and is unmeasured.
+**Evidence.** 2026-09-27, clone of trunk f228702 (also branch 442d0d4): the four bodies above, each called twice
+from top level -- `tsX;` 139, `tsY = 2;` 0, `tsX; tsY = 2;` 139, `cerr tsX:;` 0. lldb: EXC_BAD_ACCESS address 0x0,
+frame #0 aCTionXpress. Found running SEQ 214's H15 control.
+**Done when.** A bare-name statement in an action body runs on every call, and a fixture pins it (two calls, both
+run, same answer).
+**Owner.** Unassigned.
+```
+ATTEMPT LOG
+  (none yet)
+```
+
+### F-128 — ✅ CLOSED 2026-09-27 — an action COMPILED after BlocK is installed REFUSES, and the refusal has no patient
+
+**What.** Once any `parser()` call has installed BlocK's generated parse, every later compile of a coded body --
+an action's first call, or a second `parser()` call's compileRules -- refuses at `checkInput`:
+`REFUSED BlocK -- checkInput: no enclosing activation to take the label`. The refusal is thrown on the old road,
+inside the compile's own parse, so it ends whatever activation is running: an action's body never runs (rsRun,
+SEQ 202), and a second `parser()` loses its `setParse` mid-walk.
+**Where.** `GroupActions.rtn` processCode, `blockRULE.parse(0)` -- the compile runs BlocK on the OLD road while
+BlocK carries `hasNewParse`, so `RuleStuff.twk` checkInput's enclosingActivation arm finds no drive floor and no
+enclosing parse to take the label.
+**Evidence.** 2026-09-27: rsRun compiled after `parser(BlocK)` or `parser(Start)` -- rsN stays 0 (SEQ 202);
+`parser(DO); parser(ExpressioN)` -- 13 corpus readings, 160 ExpressioN refusals under ruling A (SEQ 211);
+`parser(StatemenT)` alone and `parser(ExpressioN); parser(StatemenT)` -- 171 / 0.
+**Done when.** An action compiled after `parser(Start)` fires its body, and a second `parser()` after BlocK is
+installed completes its setParse with no refusal. Named site: processCode's parse becomes a `driveStep` drive
+(SEQ 202 item 4).
+**Owner.** Clod. **Closed** by the merge of seq212-drive-compile (24cd9fe); POP entry `incant/pop/driveCompileT`.
+```
+ATTEMPT LOG
+  2026-09-27 4c6c76c ruling A landed (every rule body through parseLoop) -> the refusal became VISIBLE: under a
+             second parser() it aborted compileRules mid-walk and left ExpressioN's children pointing at a stray
+             occurrence, which definingRule() then returned. It was a refusal with no patient.
+  2026-09-27 f33d395 ruling A REVERTED on that finding -- no clean fix at the definer; the root is this row.
+  2026-09-27 (this commit) the enclosing-face lookup moved off currentMETHOD onto gParseActive (Generate.rtn,
+             enclosingFace) -- fleet row for row; a prerequisite for the driveStep change, not the fix.
+  2026-09-27 branch seq212 2a29a4b: processCode compiles through driveStep + the compile owner channel -> an action
+             compiled after parser(Start) runs (rsN 1, both statements). Stopped at a second parser(): generateParse's
+             `:. isCodeD` wiped the rule's isAction, so its own recompile found it uncompiled.
+  2026-09-27 branch seq212 (SEQ 215): the compile is STAGED -- generateParse builds a pendingParseR carrier and no
+             longer marks the rule; compile() compiles the carrier and installs it in one step when green, or drops it
+             and names it. -> the second parser()'s compile SUCCEEDS. What remains is NOT this row's: a drive
+             afterwards refuses at runLeafParse because definingRule() returns a stray face.
+             ⚠ CORRECTION to the first log line: the stray face is NOT left by the aborted compile. compile()'s own
+             tail loop does `grup.parent = field` over the SHARED child list before recursing into each term, so
+             definingRule() drifts to whichever face compile() visited last (measured: the second parser leaves
+             ExpressioN's list pointing at a Token-side face that setParse never installed).
+  2026-09-27 branch seq212 2bc15f9 (SEQ 216): compile() and setParseWalk stop re-pointing the shared list ->
+             definingRule() answers the registry's entry (definerT); the certificate clears in both orders.
+  2026-09-27 24cd9fe MERGED to trunk (SEQ 217, merge commit): trunk == branch row for row, 787 ok; jitLadder 215;
+             old-road column green in both orders. Pre-merge check: checkInput's enclosing-activation branch is
+             reached 61,332 times across the fleet.
+  POP  incant/pop/driveCompileT -- A rsRun compiled after parser(Start) fires once (rsN 1); B a two-statement
+             action runs both (11/22); C a second parser(ExpressioN) after BlocK: no refusal, ExpressioN still 1/5.
+```
+
 ### F-127 — OPEN 2026-09-24 — a `define` driven on the NEW road stops SHORT OF ITS CLOSING `;`
 
 **What.** Driven through `tell` (convDriveT's shape), StatemenT on `define xq isRule; ;` consumes 17 of 19 and on

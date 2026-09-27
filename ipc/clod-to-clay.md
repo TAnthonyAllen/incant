@@ -4,7 +4,24 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 146 at the FOOT -- SEQ 197: ruling (i) taken; P6 STOPPED on parent-driven firing -- interpretXP/TokenXP have no fire arms (measured)
+STATUS:   fresh           # SEQ 163 at the FOOT -- SEQ 216: the re-pointing loops removed; the branch CLEARS the whole certificate (2bc15f9), not merged
+# prior: SEQ 162 at the FOOT -- SEQ 215: item C confirmed and STAGED (compile succeeds); a drive then refuses on a stray definer left by compile()'s own parent loop
+# prior: SEQ 161 at the FOOT -- SEQ 214: owner channel + resolveName built, grammar clean (7 -> 0); certificate STOPS at item C (second parser() of ExpressioN)
+# prior: SEQ 160 at the FOOT -- SEQ 213: the new-road compile mints tsX into GRAMMAR RULE ANYtoken (currentMETHOD = the face), not the action
+# prior: SEQ 159 at the FOOT -- SEQ 212: collision LANDED on trunk 3494d52; branch seq212-drive-compile STOPPED -- a new-road compile of a body with a BARE NAME abandons the top level
+# prior: SEQ 158 at the FOOT -- SEQ 211: (A) REVERTED f33d395 (root is SEQ 202 compile refusal); old-road column LANDED 2c4cec1
+# prior: SEQ 157 at the FOOT -- SEQ 210: the DO refusal was MY ORACLE (SEQ 202 compile refusal); ExpressioN refusal IS (A); only q disagrees; collision named
+# prior: SEQ 156 at the FOOT -- SEQ 209: leaf-only zero-width LANDED f095a05; all 6 moved inputs equal the old road
+# prior: SEQ 155 at the FOOT -- SEQ 208: leaf-only built and WORKS (BlocK x, ShA* kount 2) but moves the same rows -- the LEAF half is the mover; reverted, needs a ruling
+# prior: SEQ 154 at the FOOT -- SEQ 207: guess CONFIRMED; the oracle test fixes BlocK but runs rule-body * loops to max; REVERTED WHOLE (sweepT moved)
+# prior: SEQ 153 at the FOOT -- SEQ 206: (A) LANDED 4c6c76c; timing +3%; BlocK parses two statements now -- a one-letter name is a separate bug
+# prior: SEQ 152 at the FOOT -- SEQ 205: CORRECTION -- the red pair is `search Utilities list;` (VALID); (A) is right there, the row pinned the bug
+# prior: SEQ 151 at the FOOT -- SEQ 203: ruling (A) built, measured, REVERTED WHOLE -- site1RoadsT accepts "search Utilities list" (no ;)
+# prior: SEQ 150 at the FOOT -- SEQ 202 RECON: a coded action NEVER takes the new road; after parser(BlocK) or parser(Start) every later compile REFUSES
+# prior: SEQ 149 at the FOOT -- SEQ 200: P6 waits (unrun IF hands back its condition; PrinT residual is RETAGCARRY); SEQ 201 sealed
+# prior: SEQ 148 at the FOOT -- SEQ 199: P6 not landed -- the unrun-IF side effect reads 0 with the switch off too
+# prior: SEQ 147 at the FOOT -- SEQ 198: P6 built (p6-held-class, not merged); stopped: JSON adoption survives, JT rows stay green
+# prior: SEQ 146 at the FOOT -- SEQ 197: ruling (i) taken; P6 STOPPED on parent-driven firing -- interpretXP/TokenXP have no fire arms (measured)
 # prior: SEQ 145 at the FOOT -- SEQ 196: P6 STOPPED before building -- PTF=0==trunk cannot hold (it deletes the old road's machinery); JT rows would move inside P6
 # prior: SEQ 144 at the FOOT -- SEQ 195: mirror gap closed on trunk (d68d92f), standing rule recorded; P5 STOPPED at its certificate
 # prior: SEQ 143 at the FOOT -- SEQ 194: P4 LANDED on the branch (333c331), certificate cashed; canary reconciled; stopped before P5
@@ -8170,3 +8187,877 @@ statement-level class (the 15 defer rules, StatemenT as root) and leave the expr
 level replaying in post-order as step 1 does, until P7/P8 split NamE and interpretXP.
 
   END SEQ 146
+
+
+===================================================================
+SEQ 147  -  SEQ 198: P6 BUILT ON THE CLASS RULE; STOPPED ON THE JT LINE
+===================================================================
+AT TOP: P6 is built and measured, and NOT landed. It lives on branch p6-held-class
+(57f3e7a, pushed). parse-then-fire 8f14c9d records the stop. Trunk reinstalled, 753 / 1.
+
+PRE-CHECK: AND/OR STAY VALUE NODES. shortCircuitT's rows sit inside an action body,
+which step 1 never records, so its PTF=1 green answered nothing; the four pairs driven as
+TOP-LEVEL statements read 0/1/0/1 at both settings. No unreached arm fires.
+
+THE BUILD: at PTF=1, in a top-level statement's scope, a defer action is recorded HELD BY
+CLASS (deferredAbove not asked for a recorded fire; PTF=0 asks it where trunk does); the
+root StatemenT's own fire fires the held construct as owner and takes its value.
+Measured bare: PTF=0 763 / 1 == trunk row for row. PTF=1 761 / 1 -- the ONLY moved row
+is deferNatT "through the recursion" (named). jitLadder 215 at both (one transient
+SIGKILL on J2, not reproduced on two reruns). Controls unmoved at both settings.
+
+THE LINE: SEQ 197's "JT rows pinned red at PTF=1" cannot be cashed. Under SEQ 198's
+rule JSONfield/JSONarray are value nodes, so their adoption survives P6 -- 42 / 9 at PTF=1
+on the P6 binary -- and all 10 JT rows stay green. The two rulings disagree about whether
+P6 retires value-node adoption. NAMED BUT UNMOVED: adoptT FIELD 1, yieldT 3/3, CD-1b,
+convLeakT, printFamilyNew grafts, f122T/f122NatT. adoptT PROPERTY 4 -> 1, green only
+because its row asks for non-zero (a loose pin). Unrun-IF fixture not written.
+
+RULE C: the ALLHELD failure is recorded as a third member (NamE's action read by the
+parse), attribution by ruling; candidate mechanism A2's shape, unmeasured.
+
+  END SEQ 147
+
+
+===================================================================
+SEQ 148  -  SEQ 199: P6 NOT LANDED -- LINE (1) CANNOT BE CASHED
+===================================================================
+AT TOP: p6-held-class gains the switch (PTF_NOCLASSHOLD=1, pushed); parse-then-fire
+12f40b0 records the outcome. Trunk reinstalled, 753 / 1.
+
+THE SWITCH IS A TRUE CONTROL: with it set, adoptT's whole trace equals the pre-P6
+branch's (addresses normalised; only the named DEFERABOVE lines differ).
+
+(1) FAILS. Five top-level dead-arm side effects (a call, ++, an assignment, a braced
+call, a print) read 0 with the switch ON and 0 with it OFF; the live-arm sibling reads 1
+in both. Step 1 already holds IF's arm (IF is a deferred ancestor). What P6 changes for
+an unrun IF is the VALUE it hands back -- owner-run labelNO to the statement vs its own
+label as a yield -- and at the top level the root discards it. A side effect cannot see
+it. Candidate row, not adopted: assert that value at the root seat (a witness), with the
+switch off as the control.
+(2) CASHABLE, ONE RESIDUAL. PROPERTY 4 off -> 1 on. The three top-level cerr statements
+stop adopting (the root fires them as owner). The survivor is the PrinT inside
+probeDrive(adPrint), still adopted, but its returned node moved StatemenT -> true --
+measured, not explained.
+(3) the absent line is deferredAbove not being asked for a recorded fire; retiring the
+row by mapping needs a home for its question (a PTF=1 absence row would break H4).
+(4) HOLDS: PTF=0 763 / 1, 54 red == trunk row for row, on the P6 binary.
+
+INSTRUMENT NOTE, mine: an earlier "switch off" column was void -- zsh does not word-split
+`env $cfg`, so the switch was never set. Re-run spelled out; the conclusions above are
+from the re-run.
+
+  END SEQ 148
+
+
+===================================================================
+SEQ 149  -  SEQ 200 STOPPED (P6 WAITS); SEQ 201 SEALED
+===================================================================
+AT TOP: P6 waits, on SEQ 200's own terms. p6-held-class da782ce (not merged) carries the
+switch, the root witness measureRootValue (canary +1, 382) and incant/pop/unrunIfT.
+parse-then-fire de79427 records it. Trunk sealed at 753 / 1, installed, bare.
+
+(1) THE ROOT WITNESS READS THE UNRUN IF HANDING BACK ITS CONDITION: `if uiF; uiN = 1;`
+    hands the root `uiF`, not labelNO (a run IF hands back uiN); switch off, every root
+    reads value=StatemenT fired=0. aCTionIF seeds result from the condition and nothing
+    overwrites it when no arm runs -- the plan's "today: labelNO owner-run" is wrong.
+(2) NOT CONFIRMED. PrinT inside probeDrive(adPrint) is not held (DEFERABOVE inDrive=1
+    held=0; fired in the replay) -- the drive's own scope applies step 1's rule. The
+    StatemenT -> true move is a TAG: opPrint and CerR return the shared trueResult, and
+    step 1's RETAGCARRY writes the label's tag onto it -- the first top-level cerr renamed
+    the singleton "StatemenT" for the rest of the run. P6 root-fires those statements,
+    so no retag. The same line renames the live field s2C (Iterate -> StatemenT).
+(3) not built. (4) not landed.
+
+THE OPEN QUESTION, verbatim: Does P6 carry "an unrun IF hands back nothing" as a change to
+aCTionIF (today it hands back its condition's value), gated so PTF=0 stays trunk-equal --
+and is step 1's RETAGCARRY renaming a shared singleton and a live field a defect for P6 to
+stop, or for the value-node stroke?
+
+Run recipe line added (env switches inline, never through a split variable).
+
+  END SEQ 149
+
+
+===================================================================
+SEQ 150  -  SEQ 202 RECON: WHERE A CODED ACTION PARSES (rsRun) -- IT NEVER TAKES THE NEW ROAD
+===================================================================
+STATUS: fresh -- 2026-09-27. Recon only; nothing built. Bare build (fbc30ce).
+
+TOP LINE. Ran one probe fixture in three arms, separate processes: (none) no parser; (BlocK)
+parser(ShRep); parser(BlocK); (Start) parser(ShRep); parser(Start). Each: a ShRep drive as
+the positive control, then rsRun's first call, both windows under traceParse(1).
+WHAT FAILED: with parser(BlocK) OR parser(Start), rsRun's compile REFUSES --
+    REFUSED BlocK -- checkInput: no enclosing activation to take the label
+-- and rsRun's body never runs (rsN stays 0). The rule is BlocK; the site is checkInput's
+enclosingActivation arm (RuleStuff.twk:116). The NEXT coded action compiled after it
+(a dumper) fails outright: ERROR processCode: zzDump parse failed. So today parser(BlocK)
+or parser(Start) BREAKS every coded action compiled afterwards.
+
+(1) THE PATH. runOP (GroupActions.rtn:879, RULEDISPATCH arm=runAction) -> runAction
+(:808; `if isCoded` -> processCode at :811) -> processCode (:604) -> blockRULE =
+grokking/BlocK, pushInput(code), blockRULE.parse(0) (:632) -> GroupItem::parse
+(GroupItem.twk:1326). processAction (:580) is the other caller, on a later call when no
+BlocK is cached. CLAY'S LEAD IS STALE: parse() HAS NO hasNewParse FORK -- 0150f29
+(2026-09-07) removed it. parse() is the interpretive loop, whole. The only thing below it
+that consults hasNewParse is testAction (RuleStuff.twk:240), for parseAction rules only.
+The one live door into a generated body is driveStep (GroupActions.rtn:189,
+`if rule.hasNewParse -> rule.method(rule)`), reached from runRule and tell -- never from
+processCode.
+
+(2) THE CONDITION. Taken literally: BlocK needs a generated body (hasNewParse + gMethod),
+installed by parser(BlocK) -- or by parser(Start), which reaches BlocK through StatemenT
+(grammar:179, :183); the refusal is identical in both arms, which is the measurement that
+says Start reaches it. BUT THE CONDITION IS NOT SUFFICIENT: processCode never asks the
+flag, so installing it changes no road -- it only arms the refusal below.
+
+(3) THE MEASUREMENT. Instrument: parseRule's exit point, MARKPT 1-parseRule-exit
+(Generate.rtn:268). Validated first (H16), both ends:
+                        control drive ShRep aaac   rsRun's compile   rsN after
+    none                       0                        0                1
+    parser(BlocK)              5                        0                0  REFUSED BlocK
+    parser(Start)              5                        0                0  REFUSED BlocK
+Zero parseRule exits in rsRun's compile in every arm: the old road answered each time,
+and with BlocK installed it answered with a refusal. Both arms attach a BlocK of length 2
+at the top level. THE DEEPER BlocK DIFF IS VOID: my dumper's spelling walked the wrong
+nodes in the control arm, and in the parser arm the dumper itself could not compile. Not
+graded.
+AND ONE READING OF THE GENERATED BODY, because it matters for (4): parser(BlocK) prints
+    BlocK = CodE { return leftCurly() && StatemenT() && rightCurly(); }
+-- StatemenT+ has LOST ITS +. It is the same shape as the ShRep finding reported this
+morning (an ordinary + reference repeats once on the new road), so a generated BlocK would
+parse ONE statement of a multi-statement body.
+
+(4) WHERE IT IS SUPPOSED TO HAPPEN. One site: processCode's parse call,
+GroupActions.rtn:632. The smallest change: make the compile a DRIVE --
+    result = driveStep(code, blockRULE, null);
+in place of pushInput(code) / blockRULE.parse(0) / popInput(). driveStep already forks on
+hasNewParse, already pushes the floor that checkInput's enclosingActivation arm needs (the
+refusal's own cause), and falls back to rule->parse(0) with the input diverted when BlocK
+is not installed -- so the uninstalled road is unchanged in shape. Not built. Three things
+it owes before it can land, stated not measured: (i) the lost + above -- a generated BlocK
+must repeat StatemenT or every multi-statement body truncates; (ii) processCode's own
+brackets -- lastIndent=0 before the parse and processingCode -- stay in processCode around
+the call (driveStep restores lastIndent after, but does not zero it before); (iii) what a
+generated root hands back is its floor label, and processCode attaches `result` as the
+BlocK -- whether that label is a runnable BlocK is unmeasured.
+On the branch it buys (5b) for free: the drive seat is where the recording scope opens.
+
+(5a) An action first called BEFORE parser() keeps its cached old-road BlocK and runs after
+parser(BlocK) with no refusal (rsN 1 -> 2, 0 parseRule exits). Nothing re-parses it:
+processAction:580 only calls processCode when no BlocK is cached, and processCode sets
+isAction, which consumes isCoded. So the refusal hits exactly the actions compiled
+after the install.
+(5b) Branch parse-then-fire (de79427): processCode still calls blockRULE.parse(0) directly
+and is OUTSIDE the recording scope -- ptfScopeOpen/Close are called only from the two
+drive seats, driveStep and jitProbeDrive (Generate.rtn:752). Unchanged from step 1.
+
+BOOKKEEPING. refireSkipsDegraded is stamped `OWNER: Clod` (jitter lane, Tony's ruling), and
+fixitNag.sh now splits its headline by owner, both lines always printed: measured
+before -> Tony 1 / Clod 0, after -> Tony 0 / Clod 1. The fixit still runs to its sentinel.
+
+  END SEQ 150
+
+
+===================================================================
+SEQ 151  -  SEQ 203: RULING (A) BUILT, MEASURED, AND REVERTED WHOLE
+===================================================================
+STATUS: fresh -- 2026-09-27. Fix reverted; fleet back to its before state row for row.
+
+TOP LINE. Built (A) at Generate.rtn:401 as
+    if parseMethod == parseRule || (max > 1 && (!data || data > 3))    field.method = parseLoop;
+("referenceable rule" read as a rule BODY -- parseMethod parseRule, the shared slot; leaves,
+conditions, containers and upTo keep today's test). Rebuilt bare, ran the certificate.
+WHAT FAILED: site1RoadsT, "every reject reads verdict 0 on both engines" -> 2 pairs non-zero.
+Both are the input `search Utilities list` (no terminating ;), root StatemenT, armed on
+StatemenT and on Search: it was REJECTED and now reads verdict 1 consumed 22 of 22, on both
+engines (the 47/47 agreement row stays green). chainTruthT's one-name `search list` still
+reads 0, so it is not simply "SemI no longer required". Not explained -> reverted whole, per
+the dispatch; no tuning. The diff is kept for the retry.
+Rule: Search (a rule; not parser).
+
+THE CERTIFICATE AS MEASURED (before -> after, bare builds):
+1. new-road ShRep "aaac": ShRef-first 0/0 -> 1/4; ShRep-first 1/4 -> 1/4. ShRef "aa": fails
+   (0/0) both roads before and after; parseLoop's own verdict for its ShA reads kount=1 (and
+   ShRep's ShA kount=3). The verdict's stoppedAt cannot show "consumes 1" on the new road:
+   it reads 0 there on every failure where the old road reads 1 (the new road does not set
+   failedAt) -- a finding, reported not fixed.
+2. modSeamT and chainTruthT: unmoved row for row.
+3. treeRowT green. ShLab (one=ShA kb, labelled max-1) tree ShLab > one, identical before and
+   after on both roads. The labelled-repetition branch never fired for it (0 lab=one), and
+   the full set of branch firings is byte-identical before/after in every probe process. The
+   STOP condition did not trip. (Witness: measureAttachRepeat, below. ShLabR's `many` does not
+   reach that branch at all, so it is NOT a positive control; the preamble's 1030 TraiT/DefinE
+   firings are.)
+4. parseLoop entries over the fleet (pop.sh, INCANT_COUNT_LOOPS wrapper, separate pass):
+   23798 -> 214204. Branch firings 256863 -> 256875.
+5. pop.sh: three rows moved -- loopVerdict's counts (45/13 -> 355/152; explained, every rule
+   body now enters parseLoop; its checks stay green), shapeBodyT's pinned divergence gone
+   (explained, the fix), site1RoadsT red (NOT explained). jitLadder 215 PASSED. Canary
+   GroupRules.h 309, Bytecode.h 21, measure.h 41 (+1 for the witness).
+6. parser(BlocK), driven from TOP LEVEL (see below): the generated BlocK consumes NOTHING --
+   one statement or two, before and after. The lost + was not what stopped it. After (A) its
+   alternation options read LOOPVERDICT flag=1 kount=0 DISAGREE. So the driveStep change for
+   actions is NOT unblocked.
+   Why top level: driven from inside an action (tell from shSay), BlocK REFUSES "has a parse
+   method but no compiled body" -- parseRule's enclosing-rule lookup (Generate.rtn:211,
+   currentMETHOD.get(field.tag)) finds the ACTION's own cached body, which is also tagged
+   BlocK, and that is not isAction (the else at :260). F-110's lookup meeting the artifact's
+   name. Reported, not fixed.
+
+KITCHEN, per the revised SEQ 203: tester committed under Tony's name (b7051a2). The
+TOKENize edit had already been reverted when the revision arrived; it is RESTORED
+byte-identical (blob a8c900c) and UNCOMMITTED. b7051a2's pop.sh pin carries the measured
+cause (generation order) and stands.
+THE FOUR LABEL READINGS (ShRep "aaac", ShRep generated alone so both roads match 1/4; the
+starred read is the label's data, the bare holder read echoes the tag in every cell):
+    without TOKENize   old: text = tag echo ShRep (NO DATA) · children ShA ShA ShA
+                       new: the same
+    with TOKENize      old: text = aaac · children ShA ShA ShA
+                       new: the same
+kc never appears under the label (its dash). In the fixture's order (ShRef first) the new
+road has no label at all before (A). Nothing pinned; the shapeBodyT row is NOT added --
+with (A) reverted it would read "none" on the new road, and the file carries Tony's hunk.
+
+LANDED: 8af0067 (the two env-armed witnesses, inert disarmed, fleet row for row except the
+groups.ext mirror count 283 -> 284) and support 6046cc4 (groups.ext line).
+
+  END SEQ 151
+
+
+===================================================================
+SEQ 152  -  SEQ 205: THE RED PAIR WAS MIS-NAMED -- AND UNDER (A) IT IS A CORRECT PARSE
+===================================================================
+STATUS: fresh -- 2026-09-27. Measure only; (A) and the witness reverted; fleet back row for row.
+
+⚠ CORRECTION TO SEQ 151, FIRST. The two site1RoadsT pairs that went red under (A) are
+sr69-sr72, msg `search Utilities list;` -- WITH the semicolon, length 22. SEQ 151 named the
+no-semicolon form (sr65-sr68, the rows just above), which I read off neighbouring lines instead
+of mapping drive order to fixture rows. SEQ 205 was built on that wrong premise. Measured
+this time by pasting the fixture's probeDrive order against its PROBEDRIVE lines.
+Under (A), `search Utilities list` (no ;) is still REJECTED: verdict 0, consumed 0.
+
+TOP LINE. Ran: the saved (A) diff plus a LOOPEXIT callout in parseLoop (tag, kount, min, max,
+isCondition, the value parseLoop actually returned, mark), bare build, INCANT_COUNT_LOOPS=1;
+a minimal delta of site1RoadsT driving only sr69J then sr70I. Then the same without (A).
+Nothing failed as a defect. The rule is Search (grammar:173, `search- followedBy GrouP+ SemI-`),
+not parser.
+
+(1) THE EXITS, sr70I under (A) (every other exit reads kount=0 returned=0):
+    NamE    kount=1 min=1 max=1   returned true  mark=[ list;]
+    NamE    kount=1 min=1 max=1   returned true  mark=[;]
+    GrouP   kount=2 min=1 max=100 returned true  mark=[;]
+    Search  kount=1 min=1 max=1   returned true  mark=[]
+    WardeD, StatemenT likewise -> verdict 1 consumed 22 of 22.
+(2) NO EXIT REPORTS SUCCESS ON A FAILED MATCH. Every true exit is a real match and the mark
+    advances past it; isCondition is 0 throughout and no min is zeroed. The input is VALID by
+    the grammar -- GrouP+ takes Utilities and list, SemI takes the ;. (A) is right here.
+(3) WITHOUT (A): NamE matches once (Utilities); GrouP never passes through parseLoop, because
+    its method was installed PLAIN by the first occurrence walked -- DatA's bare `GrouP;`
+    (grammar:52, reached StatemenT -> WardeD -> DEF -> DefinE -> TraiT), generated before
+    Search -- and Search's GrouP+ then meets "already installed". Search's body
+    `return search() && followedBy() && GrouP() && SemI();` gets GrouP once, SemI fails at
+    " list;", and the rule fails through exitFromParse's tail, Generate.rtn:34 `return 0;`.
+    Verdict 0, consumed 0. The ShRef/ShRep mechanism exactly, on a real grammar rule.
+
+SO THE ROW PINNED THE BUG. docs/fixIts.md:478 lists F-114's 29 inputs as CRASH sites
+(interpretXP null+0x10); site1RoadsT then asserted every one of them reads verdict 0. For 28
+that holds; `search Utilities list;` is a valid statement that read 0 only because of the
+order bug. Under (A) -- or the upgrade-only retry, which upgrades GrouP when Search's GrouP+
+is walked -- sr69-sr72 should read verdict 1 consumed 22, and the row owes a re-pin with that
+sentence rather than a revert.
+
+Reverted: Generate.rtn back to HEAD, retok bare, rebuilt; pop.sh row for row identical to the
+post-SEQ-204 capture.
+
+  END SEQ 152
+
+
+===================================================================
+SEQ 153  -  SEQ 206: RULING (A) LANDED; BlocK PARSES TWO STATEMENTS; ONE SEPARATE BUG LEFT
+===================================================================
+STATUS: fresh -- 2026-09-27. Landed 4c6c76c, pushed. Nothing failed.
+
+TOP LINE. Ran: the saved (A) diff as built, bare retok, rebuilt; pop.sh three times before
+and three after; the re-pins; jitLadder; the SEQ 203 probe; the fleet counting pass; then
+top-level drives of the generated BlocK. Nothing failed. The rule in the open item is NamE
+(its nameSet term), not parser.
+
+TIMING (pop.sh wall, three runs each): before 15.9 / 15.7 / 15.7 s, after 16.3 / 15.8 /
+16.8 s -- about +3%, not noticeably slower. (A) stands; upgrade-only not needed.
+
+RE-PINS, each with its sentence in pop.sh: site1RoadsT sr69-sr72 `search Utilities list;`
+verdict 1 consumed 22, checked BY FIXTURE NAME (order pasted against probeDrive order), every
+other drive (90) verdict 0; shapeBodyT roads agree on all 16 and ShRep "aaac" new-road label
+reads aaac (the ruled value, cashed); loopVerdict counts 45/13 -> 355/152 recorded (rows pin
+> 0, unmoved).
+CERTIFICATE: pop.sh 756 -> 757 ok, only the re-pinned rows moved; jitLadder 215 PASSED;
+canary 309 + 21 + 41 = 371, unchanged by (A); ShRep "aaac" 1/4 in both orders; fleet
+parseLoop entries 23798 -> 214204.
+
+BlocK, REPORT ONLY, generated BlocK driven from top level (remaining input at the pop):
+    { print 1; }            OLD end of input   NEW end of input   <- consumes it all now
+    { xy = 1; yz = 2; }     NEW end of input   <- two statements parse
+    { xy = 1; }             NEW end of input
+    { x = 1; }              NEW whole message left -- still consumes nothing
+So BlocK was mostly the same bug (the lost + on StatemenT). What is left is SEPARATE, and it is
+a one-letter name. The first term that fails is NamE's `nameSet` (NamE is
+`first-=[a-zA-Z] nameSet-^*`): `first` matches x (NamE's exit mark reads [ = 1; }]), nameSet
+is entered where it must match ZERO characters, and NamE's body returns false; every rule
+above it then fails in turn (ANYtoken, TokenXP, Token, ExpressioN, Xpress, StatemenT, BlocK).
+With a two-letter name nameSet matches one character and everything parses.
+CANDIDATE, UNMEASURED: a max > 1 LEAF with min 0 has no owner for its zero-width success on the
+new road -- exitFromParse's min-zero tail is guarded `max <= 1` (Generate.rtn:33, "repetition
+is parseLoop's"), and leaves (data 1-3, nameSet is a set) never enter parseLoop. What would
+confirm it: nameSet's own exit on the zero-width match. Not fixed.
+
+  END SEQ 153
+
+
+===================================================================
+SEQ 154  -  SEQ 207: GUESS CONFIRMED; THE ORACLE'S TEST FIXES BlocK AND BREAKS * RULE BODIES; REVERTED
+===================================================================
+STATUS: fresh -- 2026-09-27. Fix reverted whole; fleet back row for row. Nothing landed.
+
+TOP LINE. Ran: two temporary env-armed witnesses (ZEROTAIL at exitFromParse's failure tail;
+SETARM on parseSet's failing arm), bare build, BlocK `{ x = 1; }` from top level; the fleet
+census through the counting wrapper; then Generate.rtn:33 changed to `if !min &&
+!field.isCondition return trueResult;`, rebuilt, certificate run. WHAT FAILED: the change runs
+a `*` RULE BODY's loop to max (measured below), and sweepT went red (certified 45 -> 47) with
+counters moving elsewhere. Reverted whole per the dispatch. Rules: nameSet and Modifier (leaves),
+ShA* (a rule body); not parser.
+
+(1) CONFIRMED. nameSet at the zero-width match: min 0, max 100, data 3 (isSET -> parseSet),
+kount 1 (stale; leaves do not keep kount), arm GUARDFAIL (checkInput's guard rejects the space
+after x, counter 0), into exitFromParse's tail, where `max <= 1` blocks the min-zero pass: it
+returns 0 at Generate.rtn:34. No LOOPENTRY for nameSet -- it is a leaf and never enters
+parseLoop. ⚠ Instrument note: SETARM's first placement landed in parseAny (my anchor comment
+occurs there first) and read silent; moved into parseSet, it fired. Its silence was never
+evidence.
+
+(2) CENSUS, fleet-wide (pop.sh through the wrapper), before any edit: 185301 tail arrivals;
+with min 0 and max > 1 exactly TWO terms, both set leaves, both returning 0 at :34:
+    nameSet   829   `NamE first-=[a-zA-Z] nameSet-^*`         grammar:45
+    Modifier  102   `Modifier*` in TraiT and TraiTdata         grammar:61-62
+Fixtures: sweepT 909, site1RoadsT 12, nnFmt/nnFmtN/nnFmtS 3 each, driveLeakT 1. BOTH MINS ARE
+GRAMMAR-WRITTEN: the `*` through modify() (GroupActions.rtn:482). No run-time zeroing -- the
+section 7.1 parent-min promotion is retired (RuleStuff.twk, promotionRetired).
+
+(3) THE CHANGE, AND WHY IT DID NOT LAND.
+  Good half: BlocK's four inputs all consume on the new road -- { x = 1; }, { x = 1; y = 2; },
+  { print 1; }, { xy = 1; } -- and no drive in them loops to max.
+  Bad half, the risk DesignDocs exitFromParse names ("a true here would run a loop to max"),
+  MEASURED: since (A) a rule body under * runs inside parseLoop; when its body fails, the tail
+  now answers true and parseLoop counts it. ShS = `ShA* kc` drove ShA to kount=100 on "c" and on
+  "aac" (2 real matches + 98 zero-width). Before the change it stopped at 2. The drive's answer
+  was still right (end of input), so no value row sees it.
+  Fleet: sweepT red (SWEEP END certified 47 agree 47, want 45/45); counters moved in nestNatT
+  (parseRule arrivals 27 -> 14, 27 -> 19, 30 -> 17), the (b) tripwire (413 -> 429) and
+  loopVerdict (355/152 -> 310/95). chainTruthT and modSeamT unmoved. doWhileNameT DW-5 refusal
+  count 0, window closed 1, before and after. pop wall 16.3 s. jitLadder and canary not reached.
+  Reverted: Generate.rtn back to HEAD, retok bare, rebuilt, pop.sh row for row = post-(A).
+(4) Row not added -- with the fix reverted it would pin today's failure.
+
+A NARROWER CANDIDATE, NOT BUILT, for Tony's ruling: drop `max <= 1` for LEAVES ONLY -- the
+guard exists because repetition of a rule body is parseLoop's, and leaves never enter
+parseLoop, so they are the only terms nobody owns:
+    if !min && !field.isCondition && (max <= 1 || (data && data < 4))   return trueResult;
+It would cover both census names (data 3). Whether sweepT's +2 comes from the leaf half or the
+rule-body half is UNMEASURED; the narrower test would say.
+
+  END SEQ 154
+
+
+===================================================================
+SEQ 155  -  SEQ 208: LEAF-ONLY BUILT, DOES ITS JOB, MOVES THE SAME ROWS -- REVERTED FOR A RULING
+===================================================================
+STATUS: fresh -- 2026-09-27. Reverted whole; fleet back row for row. Patch kept.
+
+TOP LINE. Ran, one variable at a time: (A) the predicate extracted, install site only; (B)
+the tail changed. Bare retok, rebuilt, pop.sh three times, the probes, sweepT per carrier on
+both builds. WHAT FAILED: the certificate's must-not-move rows moved -- sweepT certified
+45 -> 47 (red), nestNatT's parseRule arrivals, the (b) tripwire, loopVerdict -- the SAME moves
+as SEQ 207's full oracle test. Reverted per the dispatch. Rules: the census leaves (nameSet,
+Modifier) and what sits on them (NamE, ANYtoken, DEF...TraiT); not parser.
+
+THE TWO LINES, verbatim.
+  Generate.rtn:401 (install)
+    before:  if parseMethod == parseRule || (max > 1 && (!data || data > 3))    field.method = parseLoop;
+    after:   if repeatsInLoop(field)     field.method = parseLoop;
+  Generate.rtn:33 (tail)
+    before:  if max <= 1 && !min && !field.isCondition   return trueResult;
+    after:   if !min && !field.isCondition && (max <= 1 || !repeatsInLoop(field))    return trueResult;
+  new, Generate.rtn (alphabetical, before runLeafParse):
+    extern int repeatsInLoop(GroupItem field)  -- rStuff via getRStuff (the non-constructing
+    read); returns the install test verbatim.
+  Step A alone: fleet row for row identical, canary 309 -> 310 (the one extern), alphaLint 0.
+
+WHAT THE LEAF FIX DOES, measured on step B's build:
+  - BlocK's four inputs all consume on the new road: { x = 1; }, { x = 1; y = 2; }, { print 1; },
+    { xy = 1; }.
+  - ShA* inside `ShS = ShA* kc` on "aac": kount 2 -- never 100. The rule-body half is guarded.
+  - pop wall 16.6 / 15.7 / 15.8 s.
+WHICH HALF MOVED sweepT LAST TIME: THE LEAF HALF. Step B moves exactly the rows SEQ 207 moved,
+with the rule-body half guarded out. And every move is the new road ACCEPTING MORE:
+  NamE rejects 6 -> 0, ANYtoken 6 -> 0 (one-letter names parse); `define aa isRule; ;` consumed
+  19 of 19 where it was 17 (DEF, define, definitions, DefinE, NewGroup, TraiT, GrouP, 1 accept
+  where they had 0); `#5.2d` consumed 5 (was 4), `#-5s` 4 (was 3); Attributes and endDef
+  carriers gain their first accept. THE +2 CERTIFIED is those two carriers leaving nopick
+  (16 -> 14) because the sweep re-picks from the new accept sets. Engines agree throughout
+  (diff=0). nestNatT's arrivals and the tripwire/loopVerdict counters move with the same parses.
+  Not measured: the OLD road's reading of each flipped input (which would say "correct").
+Rows 3 and 4 (BlocK { x = 1; }, Modifier* zero/several) NOT added -- reverted.
+
+THE QUESTION FOR TONY: re-pin these moves as the fix working (with the old-road oracle run
+per flipped input first), or keep the rows fixed and look for why the leaf half moves them.
+The patch (predicate + tail) is kept; relanding it is one apply.
+
+  END SEQ 155
+
+
+===================================================================
+SEQ 156  -  SEQ 209: LEAF-ONLY ZERO-WIDTH SUCCESS LANDED; THE ORACLE AGREES ON ALL SIX
+===================================================================
+STATUS: fresh -- 2026-09-27. Landed f095a05, pushed. Nothing failed.
+
+TOP LINE. Ran: the SEQ 208 patch relanded; the whole jitLadder/station2/pairs corpus (172 unique
+root|input) driven through tell in three processes -- old road, new road before, new road after
+-- generated with parser(DO) as sweepT does; pop.sh's own trace files kept on both builds for
+per-file attribution; a new fixture; the certificate. Nothing failed. Rules: nameSet and
+Modifier (leaves); not parser.
+
+(1) THE TABLE -- every input whose new-road reading moved (6 of 172):
+    idx  root|input                        old road   new before   new after
+    042  StatemenT|define aa isRule; ;       1/19       1/17         1/19
+    054  ExpressioN|aa isRule tt=[a-z]+;     1/17       1/14         1/17
+    070  ExpressioN|e+3                      1/3        0/0          1/3
+    099  ExpressioN|#5.2d                    1/5        1/4          1/5
+    100  ExpressioN|#-5s                     1/4        1/3          1/4
+    121  ExpressioN|=[a-z]                   1/5        1/2          1/5
+(2) After == old road on all six. No stop. Re-pinned with the ruled sentence.
+(3) CARRIED ROWS, each tied to its input:
+    sweepT 45 -> 47 (nopick 16 -> 14): 042 `define aa isRule; ;` gives Attributes and endDef
+      their first accept, so both leave nopick. (The carrier-level NamE/ANYtoken reject counts
+      in the sweep are these same inputs re-counted per carrier.)
+    nestNatT arrivals, the (b) tripwire 413 -> 429, loopVerdict 355/152 -> 310/95: ALL from
+      nnFmt / nnFmtN / nnFmtS (`#5d`, `#5d s2N`, `#5.2d` -- the 099/100 family), measured per
+      trace file on both builds; every other nn/un/qn/df/dwn file identical.
+(4) ROWS, incant/pop/zeroWidthT (8 green): BlocK { x = 1; } consumes all on the new road and on
+    the old (its oracle); TraiT `abc` (zero modifiers) 1/3 and `abc+?!` (several) 1/6, both
+    roads. H7 on the pre-fix build: NEW BlocK leaves the whole message; NEW `TraiT abc` 0/0.
+(5) CERTIFIED: ShA* kount 0 on "c" and 2 on "aac", never 100; ShRep "aaac" 1/4 in both
+    orders; chainTruthT, modSeamT, DW-5 unmoved; pop.sh 757 -> 765 ok with only the rows above
+    moving (and the fixture-name census 184 -> 185); jitLadder 215 PASSED; canary 310 + 21 + 41
+    = 372 (+1, repeatsInLoop).
+
+FINDINGS, reported not fixed:
+- Two corpus inputs disagree with the old road on the new road, unchanged by this fix (so
+  pre-existing): `do print 1; while 1 < 0;` (StatemenT) -- old 1/24, new REFUSES;
+  `'q'` (ExpressioN) -- old 1/3, new 0/0.
+- `parser(StatemenT); parser(ExpressioN);` (instead of parser(DO)) leaves ExpressioN refusing
+  "parseLoop: no parse method is installed on the defining rule" on 160 of 172 drives, starting
+  right after the first `for` statement is driven. My first oracle run used it; the numbers
+  above are all from parser(DO).
+
+The processCode -> driveStep line now has two items in front of it: the BlocK name collision
+inside an action, and Tony's ordering choice for actions compiled before parser().
+
+  END SEQ 156
+
+
+===================================================================
+SEQ 157  -  SEQ 210: ONE REFUSAL WAS MY INSTRUMENT, ONE IS (A); ONE REAL DISAGREEMENT; THE COLLISION
+===================================================================
+STATUS: fresh -- 2026-09-27. Measure only; nothing built. Clone builds outside Dropbox.
+
+TOP LINE. Ran: clone builds of 3aefb72 (station 2, 09-23), 4656409 (09-26 seal), 9b64e25 (before
+(A)), 4c6c76c ((A)) -- three repos at one date, pbxproj rewritten, committed .mm, no retok, 0 live
+Groups paths in every build log; the script is genLadder/cloneBuild.sh. At each: the DO input
+alone, then the whole pairs corpus under parser(DO) and under parser(StatemenT);
+parser(ExpressioN), with the probe action CALLED ONCE BEFORE parser(). Failed: the ExpressioN
+refusal (item 2). Rules: ExpressioN, BlocK; not parser.
+
+⚠ CORRECTION TO SEQ 156, FIRST. `do print 1; while 1 < 0;` does NOT refuse on the new road. My
+SEQ 209 oracle ran parser(DO) BEFORE its probe action's first call, so the action compiled after
+the install and its first drive -- key 000, which is the DO input -- took SEQ 202's compile
+refusal (REFUSED BlocK -- checkInput: no enclosing activation). Warm the action first and the DO
+input reads 1/24 at 09-23, 09-26, before (A), at (A) and at HEAD. The SEQ 209 table is unaffected
+(its six inputs are keys 042-121, all read in both columns).
+
+(1) THE DO INPUT: 1/24 on the new road at every commit, standalone and in the corpus. Station 2's
+    certificate holds today. H16: the 09-23 clone reads the certified 1/24, so the probe reads a
+    known-good end correctly. Nothing to date.
+(2) ExpressioN "no parse method is installed on the defining rule": YES, IT IS (A).
+        commit                parser(StatemenT); parser(ExpressioN)      parser(DO)
+        4656409 (09-26)       171 readings, 0 refusals                  171, 0
+        9b64e25 (before A)    171, 0                                    171, 0
+        4c6c76c (A)           12 readings, 161 ExpressioN refusals      171, 0
+        HEAD                  13, 160                                   171, 0
+    (3aefb72 abandons the file after 9 readings -- the F-121-era "rejected StatemenT drive
+    abandons the file" -- so it cannot answer.) The refusals start at the FIRST drive after
+    parser(), not after the `for` drive as SEQ 156 said -- that was the same compile artifact.
+    Site: runLeafParse (Generate.rtn), which asks the DEFINING rule for its parse method. Before
+    (A) a max-1 rule body ran parseRule directly and never asked; under (A) every rule body goes
+    parseLoop -> runLeafParse, so a defining rule without a parseMethod now refuses. Which of its
+    three conditions fails (no definer / no rStuff / no parseMethod) is NOT discriminated.
+    Only this generation order shows it; parser(DO) is clean.
+    AND THE CORPUS, warm, parser(DO): the new road disagrees with the old road on exactly ONE
+    input of 172 at HEAD -- 072 `'q'` (old 1/3, new 0/0), the same at 09-26, before (A) and at
+    (A): pre-existing. At the older commits the six leaf inputs also disagree (7); HEAD: 1.
+(3) PROPOSAL, not built -- an old-road column beside sweepT. sweepT's own rows are per carrier and
+    the old road has no carriers, so the column is per INPUT: a generated fixture over
+    pairs.sweep (sweepT's corpus), two processes from one file -- old road, and new road under
+    parser(DO) -- with the probe action called once BEFORE parser() (the lesson above). Rows:
+    every input read in both columns (count, plus the sentinel); new == old on all but the pinned
+    ones; `'q'` pinned BY NAME at old 1/3 / new 0/0; any other disagreement FAILS and prints the
+    input and both readings. The DO input is NOT pinned -- it agrees. ~2 s.
+(4) THE COLLISION. The lookup is GroupItem::get(tag) on currentMETHOD (GroupItem.twk:792 -- first
+    child with that tag, attributes included, no filter), at THREE sites: Generate.rtn:136
+    (parseContainer), :187 (parseLoop), :211 (parseRule). Inside a generated body parseRule has set
+    currentMETHOD to the rule being parsed, so the lookup finds that rule's own term -- the
+    intended face. At a DRIVE ROOT called from an action, currentMETHOD is the ACTION, and its
+    children include its compiled body, tagged BlocK -- and any local or argument that happens to
+    share a rule's tag.
+    WHAT IT SHOULD RESOLVE THROUGH: the enclosing PARSE activation, not the executing method --
+    gParseActive, which parseRule pushes per call and a drive floors, so a drive root has no
+    enclosing rule and nothing to re-resolve. currentMETHOD answers "who is executing", which is
+    the interpreter's question, not the parser's.
+    SMALLEST CHANGE: guard all three sites on the method being a rule --
+        if currentMETHOD && currentMETHOD.isRule && currentMETHOD.get(field.tag) ...
+    one token at each of the three lines. Not built. Residue, unmeasured: a rule with its own
+    code={} action carries a BlocK artifact too, and isRule does not exclude it; the
+    gParseActive form would.
+
+  END SEQ 157
+
+
+===================================================================
+SEQ 158  -  SEQ 211: (A) REVERTED -- ITS REGRESSION IS SEQ 202'S; THE OLD-ROAD COLUMN LANDED
+===================================================================
+STATUS: fresh -- 2026-09-27. f33d395 (revert) and 2c4cec1 (column), pushed.
+
+TOP LINE. Ran: temporary witnesses on runLeafParse's refusal and on setParseWalk for ExpressioN
+faces (removed), the corpus under four generation orders, then the revert and its certificate,
+then the old-road column and its H7 on a 09-26 clone. FAILED: no clean fix at the definer exists,
+so (A) is reverted per the dispatch. Rule: ExpressioN (and BlocK, the compile); not parser.
+
+(1) THE (A) REGRESSION.
+  DEFINER: a FACE of ExpressioN whose parent is Token -- NOT the registry's ExpressioN (different
+  node). REASON THREE: it has rStuff; its parseMethod is null (so is every face's, and the
+  registry entry's).
+  CAUSE, measured: the second parser() call's compile hits SEQ 202's refusal -- REFUSED BlocK --
+  checkInput: no enclosing activation -- because the first call installed BlocK. The refusal ends
+  compileRules before setParse (stdout: "compile succeeded for ExpressioN", then nothing), and
+  leaves the shared list's first child pointing at that stray face, which definingRule() then
+  returns. Controls: parser(StatemenT) alone 171/0; parser(ExpressioN); parser(StatemenT) 171/0;
+  parser(DO); parser(ExpressioN) 13 readings / 160 refusals / 1 BlocK compile refusal. So ANY
+  second parser() after BlocK is installed does it.
+  Before (A) the same stray state was SILENT -- a max-1 rule body ran parseRule directly and never
+  asked the definer. (A) routes every rule body through parseLoop -> runLeafParse, which asks.
+  NOT CLEAN AT THE DEFINER: the root is SEQ 202's compile refusal, and its fix (processCode ->
+  driveStep) is its own stroke. So (A) came out.
+  THE REVERT (f33d395): repeatsInLoop loses (A)'s `parseMethod == parseRule ||` clause and is the
+  pre-(A) test again; install site and zero-width tail still ask it, so the LEAF-ONLY FIX STANDS.
+  Re-pinned back to named divergences, ruled values stated: site1RoadsT sr69-sr72 verdict 0
+  (ruled 1/22); shapeBodyT ShRep aaac old 1/4 vs generated 0/0; new-road label none (ruled aaac);
+  loopVerdict 310/95 -> 37/1 recorded.
+  Certificate: pop.sh 765 ok and against the post-f095a05 capture ONLY those four rows moved (the
+  leaf fix's sweepT 47 and zeroWidthT, BlocK { x = 1; } included, hold without (A)); corpus 171 /
+  0 refusals under BOTH parser(DO) and parser(StatemenT); parser(ExpressioN); jitLadder 215;
+  canary 310 + 21 + 41 = 372. ShRep 1/4 in both orders does NOT hold without (A) -- that is the
+  order bug, pinned again.
+(2) THE OLD-ROAD COLUMN (2c4cec1), 14 rows, green: genLadder/oldRoadOracle.py, pairs.sweep's 168
+  unique inputs, three processes -- OLD, DO, SE -- probe warmed before parser(). Every column
+  complete and at its foot; old road reads a verdict on 166; in BOTH orders the new road equals
+  the old on 167 of 168; 'q' PINNED BY NAME at old 1/3, new 0/0. Any other disagreement fails with
+  the input and both readings. H7 on a 4656409 clone: six more disagreements (the SEQ 209 table)
+  -> red, each named. pop.sh 765 -> 779.
+(3) Noted for the next stroke: the collision resolves through gParseActive, not the isRule guard
+  (coded rules carry a BlocK).
+
+THE ORDER BUG IS OPEN AGAIN, and now has a known blocker: (A) fixes it, and (A) needs SEQ 202's
+compile refusal gone first -- the processCode -> driveStep change.
+
+  END SEQ 158
+
+
+===================================================================
+SEQ 159  -  SEQ 212: COLLISION ON TRUNK; THE DRIVE-COMPILE BRANCH STOPS AT CERTIFICATE ITEM 1
+===================================================================
+STATUS: fresh -- 2026-09-27. Trunk 3494d52 (collision + F-128). Branch seq212-drive-compile
+        75fed1b, 654f718, pushed, NOT merged. Installed binary = trunk, fleet verified.
+
+TOP LINE. Ran: (1) enclosingFace at the three sites, a temporary witness comparing both lookups
+fleet-wide, the trunk certificate; (2) on the branch, processCode -> driveStep alone, then (A)
+reapplied, a certificate probe and five discriminator runs. FAILED: branch certificate item 1 --
+rsRun compiled after parser(Start) fires its body, and then the TOP-LEVEL FILE IS ABANDONED
+("RunRulE: expected a method not cerr"). Rule: the top-level StatemenT parse, broken by a
+new-road compile; not parser.
+
+(1) COLLISION -- LANDED ON TRUNK, 3494d52. One helper, enclosingFace (Generate.rtn): the face of the
+  term in the enclosing rule body, through gParseActive->stuff->rule; a drive floors it, so a drive
+  root keeps the rule it was handed. The three sites (parseContainer, parseLoop, parseRule) each
+  call it in one passthrough line. MEASURED before landing, witness comparing both lookups on every
+  call: 279,567 lookups over pop.sh, 11 differ -- every one a drive from INSIDE AN ACTION on a
+  drive floor (wzRun, ctReEmit, msOptNew/B, testList): the new lookup finds nothing, the old one
+  found a same-named node inside the action. Certificate: pop.sh row for row (779 ok), old-road
+  column green both orders, jitLadder 215, corpus 171/0 both orders, canary 311 + 21 + 41,
+  alphaLint 0. (3) F-128 opened in docs/fixIts.md with the attempt log and your line.
+
+(2) THE BRANCH -- STOPPED, per the dispatch.
+  Step 1, processCode -> driveStep alone (75fed1b): the compile is `driveStep(code,blockRULE,null)`,
+  lastIndent zeroed before (pushInput never touches it) and processingCode bracketed around it.
+  rsRun compiled after parser(Start) FIRES (RS SINK FIRED 1) -- F-128's refusal is gone -- and then
+  the rest of the file is abandoned. Step 2, (A) reapplied (654f718): identical.
+  DISCRIMINATORS, each one run, after parser(Start) unless named:
+    compile drive on the OLD road (parser(ExpressioN): BlocK not installed)  file continues
+    compile(oneA) alone, no execution                                        ABANDONS -- compile, not run
+    the same text through tell ("BlocK { tsX = 1; }", "StatemenT ...")       file continues
+    one-line body `tsX = 1;`                                                 ABANDONS -- not the indentation
+    result node handed back                                                  a FRESH BlocK label, no parent,
+                                                                             no registry -- not processCode's
+                                                                             attach ripping a grammar node
+    bodies:  `5 + 1;`  continues   `cerr 5:;` continues (and prints 5)
+             `tsX;`  ABANDONS      `cerr tsX:;` ABANDONS      `zzNew = 3;` ABANDONS
+  SO: A NEW-ROAD COMPILE OF A BODY WITH A BARE NAME leaves the old-road top level unable to parse the
+  next statement. Name-free bodies compile and execute correctly. The same text driven through tell
+  is harmless, so it is processCode's context -- processingCode (locateInMethod resolves names in
+  the action while it is set; ruleActions.rtn:653, :973, :1231, :1417 read it) and/or
+  currentMETHOD = the action -- meeting the name path on the new road. What state it leaves behind
+  is NOT isolated. The remaining certificate items were not run.
+
+WHAT THIS MEANS FOR THE CIRCLE: the collision is out of it. processCode -> driveStep works for the
+compile itself but has one more dependency -- the new road's name path under processingCode.
+
+  END SEQ 159
+
+
+===================================================================
+SEQ 160  -  SEQ 213: THE NAME IS MINTED INTO THE GRAMMAR, NOT THE ACTION
+===================================================================
+STATUS: fresh -- 2026-09-27. Measure only, on branch seq212-drive-compile (restored to 654f718
+        after). Installed binary = trunk, fleet verified row for row.
+
+TOP LINE. Ran: temporary SNAP witnesses before and after processCode's compile (processingCode,
+currentMETHOD, lastREF, input depth, inputFloor, gParseActive depth, defining, lastIndent,
+refused, next input, the action's children), an OLDPARSE trace on old-road rule exits after the
+compile, and a scan of the grammar registry for a child tagged tsX. Two processes, one file, oneA
+code={ tsX; } called once, the old road vs after parser(Start). FAILED: the next top-level
+statement, `cerr "=== after tsX= " tsX:;`. Rule: ANYtoken (then everything above it); not parser.
+
+⚠ A REFINEMENT OF SEQ 159 FIRST: the abandon needs the next top-level statement to READ A NAME THE
+COMPILE SAW. With `cerr "=== after":;` the new-road file runs clean, armed or not. Every abandoning
+file read one (tsX, rsN, oneA).
+
+THE TABLE (the scalars are identical before and after on both roads):
+    field                      before        after-old            after-new
+    processingCode             1             1                    1
+    currentMETHOD              oneA          oneA (same node)     oneA (same node)
+    lastREF                    lastREF/-     unchanged            unchanged (reads /Start before, from parser(Start))
+    inputDepth / inputFloor    1 / 0         1 / 0                1 / 0
+    gParseActive depth         0             0                    0
+    defining / lastIndent      0 / 0         0 / 0                0 / 0
+    refused                    0             0                    0
+    oneA's children            CodE this tempField               + tsX        (none added)
+    grammar holds tsX          --            no                   YES, under ANYtoken (local 0, isRule 0)
+
+THE FIELD THAT DIFFERS is where tsX lands -- and the answer to Tony's question: THE NEW-ROAD COMPILE
+DID NOT MINT tsX INTO THE ACTION. Its owner is GRAMMAR RULE ANYtoken. The old road minted it into
+the action oneA, at compile time -- as a reference, not isLocal, because tsX is a declared field
+(an undeclared name takes the isLocal arm). THE LINE: ruleActions.rtn:660 in aCTionNamE,
+`result = action +% result;`, with `action = currentMETHOD` (:645). On the old road currentMETHOD is
+still the action (processCode set it); on the new road the NamE action fires inside a generated
+body, and parseRule has set currentMETHOD to the face being parsed (Generate.rtn:253,
+`currentMETHOD = field;`) -- here ANYtoken. The scalar SNAP cannot see it because parseRule
+restores currentMETHOD (:252 priorMETHOD) before the drive returns.
+
+WHAT THE NEXT STATEMENT READS: old-road parse of ANYtoken on `tsX:;` -- NamE matches tsX, then the
+stray child is tried AS A TERM (OLDPARSE rule=tsX sukcess=0 on ":;"), so ANYtoken fails, then
+ANYorNum, TokenXP, Token, ExpressioN, PrintField, SemI, CerR -- and RunRulE falls to
+`expected a method not cerr`. The unregisteredIsATerm family: a child in a rule's list is a term.
+
+TONY'S RULING, recorded 2026-09-27: an action body's names become locals at COMPILE time, once.
+Fire-time minting is acceptable only if exactly once; the jitter's emit-time frame walk needs the
+locals present, so compile time is the target. The old road meets it; the new road mints at compile
+time but into the wrong owner, because aCTionNamE reads the owner from currentMETHOD and a generated
+body repoints it. Not fixed.
+
+  END SEQ 160
+
+
+===================================================================
+SEQ 161  -  SEQ 214: THE OWNER CHANNEL HOLDS; THE CERTIFICATE STOPS AT ITEM C
+===================================================================
+STATUS: fresh -- 2026-09-27. Branch seq212-drive-compile 2a29a4b, pushed, NOT merged. Trunk: F-129
+        opened (docs/fixIts.md). Installed binary = trunk, fleet verified row for row.
+
+TOP LINE. Ran, on the branch: step 1 in Clay's REVISED form (resolveName extracted; it arrived before
+step 1 was built), a new grammarHolds command and the ownerT row -- proved red before the fix -- then
+SEQ 212's step-2 certificate in full, with an H15 control first. FAILED: item C -- a second parser()
+after BlocK is installed: "REFUSED parseRule: ExpressioN has a parse method but no compiled body".
+Rule: ExpressioN; not parser.
+
+(1) THE OWNER CHANNEL. jitContext.h `inline GroupItem *gCompileOwner`; ONE WRITER, processCode:
+    -% GroupItem *priorOwner = gCompileOwner; gCompileOwner = action; %-
+    result = driveStep(code,blockRULE,null);
+    -% gCompileOwner = priorOwner; %-
+  aCTionNamE BEFORE, verbatim:
+    GroupItem   action = currentMETHOD;
+    ...
+    result = locateInMethod(arg);
+    if result && result.parent == action  goto endName;
+    ... (the declared-vs-local arms, all `action +% ...`)
+  (full text: the branch's parent commit, ruleActions.rtn:642-668)
+  aCTionNamE AFTER, verbatim:
+    -%
+    GroupRules *ruler = GroupControl::groupController->groupRules;
+    GroupItem *owner = (ruler->processingCode && gCompileOwner) ? gCompileOwner : ruler->currentMETHOD;
+    input->setGroup(::resolveName(input->getText(),owner));
+    %-
+    return input;
+  resolveName(arg, owner) (ruleActions.rtn, new, alphabetical): the WHOLE resolution --
+  locateInMethod's `owner % name` half included, since it read currentMETHOD too -- transcribing
+  today's generated code with owner in place of currentMETHOD. Recorded, not built:
+  resolveNames(action), the post-compile pass (Tony's (ii)).
+(2) THE ROW. grammarHolds(name) (GroupActions.rtn, registered in setup) walks the Grokking registry
+  and every rule's terms and prints each holder and the count. ownerT: 0 before parser(); after a
+  new-road compile of owAct (owX read, owY assigned, owZ new) -- PRE-FIX 7 / 7 / 7 (ANYtoken plus the
+  six rules sharing its list), POST-FIX 0 / 0 / 0. A first kant-scan version read 0 on the broken
+  build too and was discarded (H16: it could not see a planted child either).
+  ⚠ A FINDING, not chased: called from INSIDE a pre-compiled action, the same compile does not
+  pollute (0 on the pre-fix build); only a top-level call did.
+H15 CONTROL, run first: an old-road compile called twice equals trunk -- output and the locals
+minted into the action (tsY local, tsX referenced). My first control used a body with a bare `tsX;`
+and crashed at 139 -- ON TRUNK TOO: opened as F-129 (a bare-name statement crashes an action's
+second call; aCTionXpress's null ExpressioN label).
+(3) THE CERTIFICATE:
+    A  rsRun compiled after parser(Start): rsN 1                         PASS
+    B  a two-statement action runs both (11, 22)                         PASS
+    C  a second parser() after BlocK is installed                        FAIL -- ExpressioN refuses "has a
+       parse method but no compiled body" while its REGENERATED body is compiled; the ExpressioN drive
+       then reads 0/0. Mechanism, read from the code and the refusal's own text (not traced):
+       generateParse marks the rule `:. isCodeD`, which replaces isAction in the 2-bit actionType, so
+       during the compile drive of its new body parseRule(ExpressioN) finds it not compiled
+       (Generate.rtn, parseRule's else -> reportNoBody). A rule recompiled on the new road needs its
+       own compiled body to parse its new one.
+    corpus parser(DO) 171 / 0                                             PASS
+    corpus parser(StatemenT); parser(ExpressioN)                          FAIL -- 167 of item C's refusal
+    old-road column: do green, se RED (item C)
+    ShRep 1/4 both orders; the four divergence pins at their ruled values PASS
+    zeroWidthT green; jitLadder 215 PASSED; canary 313 + 21 + 41 = 375
+    pop.sh 779 -> 783 ok, EVERY MOVE NAMED: fixture census 185 -> 186 (ownerT); loopVerdict 37/1 ->
+      310/95 (A); site1RoadsT 1/22 and shapeBodyT 16/16 + label aaac (A, ruled values); drive census
+      5 -> 4 (processCode's pushInput is a driveStep drive now); driveDoorT fires anchored (the compile
+      drive's mark trace prints the body text -- `[{ cerr "IAFIRE ScafA]` -- which the unanchored match
+      counted, 3/1/1/1; the real count is 1); oldRoad column se red (item C, NOT re-pinned).
+STOPPED before merging, as instructed.
+
+  END SEQ 161
+
+
+===================================================================
+SEQ 162  -  SEQ 215: ITEM C STAGED; THE NEXT WALL IS compile()'S OWN PARENT LOOP
+===================================================================
+STATUS: fresh -- 2026-09-27. Branch seq212-drive-compile a426178, pushed, NOT merged. Installed
+        binary = trunk, fleet verified row for row.
+
+TOP LINE. Ran: item C's flags read around the second walkRules/compileRules (kant flag reads
+isCodeD / isActioN); the staging; a runaway (killed) and its cause; the certificate; a temporary
+witness on runLeafParse's refusal and on ExpressioN's first-child parent inside compile() (removed).
+FAILED: certificate item C's second half -- after the second parser(), an ExpressioN drive refuses
+"parseLoop: no parse method is installed on the defining rule". Rule: ExpressioN; not parser.
+
+(1) CONFIRMED, measured on ExpressioN:
+        after parser(Start)                         isCodeD 0   isActioN 1
+        after the second walkRules (generateParse)  isCodeD 1   isActioN 0
+        after the second compileRules (refused)     isCodeD 1   isActioN 0
+    The 2-bit actionType wipe, written by generateParse's `argument :. isCodeD;`
+    (IncantForms/WorkingOn/parser) through opSetFlag case 40 (Instruct.rtn). Nothing rolled it back.
+(2) STAGED. generateParse, verbatim:
+        before:  bprCopy := new("builtinParseR"); ... argument +% *bprCopy;  argument :. isCodeD;
+        after:   bprCopy := new("pendingParseR"); ... argument +% *bprCopy;   (no :. isCodeD)
+    compile(): a pending carrier, when present, is the holder it compiles; green -> detached,
+    retagged builtinParseR, swapped in by replace() in ONE step; red -> detached, the rule keeps its
+    body, the refusal names the carrier and the rule. No layout change.
+    Two things the staging needed, both measured: walkRules' cycle guard is the builtinParseR TAG, so
+    it now also skips pendingParseR -- without it the walk ran away (BlocK -> StatemenT -> BlocK, 10
+    minutes, killed). And compile()'s bare names were re-pointed at the new `holder` declaration
+    (bear-trap #42) -- spelled on grup; the codeOnly diff of compile() is exactly the change.
+(3) CERTIFICATE:
+    A rsRun after parser(Start): rsN 1                                   PASS
+    B two statements                                                     PASS
+    C second parser() after BlocK: the compile SUCCEEDS, no refusal      PASS (the half that was C)
+      ...and ExpressioN has its method                                   FAIL -- a drive refuses at
+      runLeafParse: definingRule() returns a STRAY ExpressioN face whose parent is Token; its
+      parseMethod is null (and so is the registry entry's).
+    corpus parser(DO) 171 / 0                                            PASS
+    corpus parser(StatemenT); parser(ExpressioN)                         FAIL, 13 / 160 refusals (the stray)
+    ShRep 1/4 both orders; pins at ruled values; ownerT; zeroWidthT      PASS
+    jitLadder 215; canary 313 + 21 + 41 = 375
+    pop.sh against 2a29a4b: only the SE old-road column moved (its failure is now the stray definer;
+    'q' reads REFUSED there), 783 -> 782.
+
+⚠ AND A CORRECTION TO SEQ 211 AND F-128'S FIRST LOG LINE: the stray definer is NOT left by the aborted
+compile. Measured this time with the compile SUCCEEDING: compile()'s own tail loop (Commands.rtn,
+endCompile) does `grup.parent = field` over each child BEFORE recursing into it, and a rule's child
+list is SHARED by every place it is used -- so each compile(face) on the way down re-points
+ExpressioN's list at the face it is visiting, and definingRule() (first child's parent) returns
+whichever face compile() reached last. After the first parser() that is a face the walk installed;
+after the second it is a Token-side face setParse never touched. Before (A) nothing asked the definer,
+so the drift was silent. F-128's log carries the correction.
+THE NEXT WALL, not built: the definer must not be "whichever face was compiled last" -- either
+compile() stops re-pointing the shared list, or runLeafParse finds the method where setParse installed
+it. Tony's call which.
+
+  END SEQ 162
+
+
+===================================================================
+SEQ 163  -  SEQ 216: THE BRANCH CLEARS THE CERTIFICATE
+===================================================================
+STATUS: fresh -- 2026-09-27. Branch seq212-drive-compile 2bc15f9, pushed, NOT MERGED. Installed
+        binary = trunk, fleet verified row for row.
+
+TOP LINE. Ran: git log -S on both writers; a read of every reader; both writers removed; a new
+definersOf witness and the definerT row, its H7 with the writers restored; SEQ 215's certificate in
+full. Nothing failed. Rule: ExpressioN (the definer); not parser.
+
+(1) READ FIRST. Both writers arrived in 5f24cf3 (2026-09-14, the seal of Tony's parser arc):
+    Commands.rtn compile()   `grup.parent  = field;    // because if field is a copy grup.parent is not field`
+    Generate.rtn setParseWalk `parent  = field;    // if field is a copy grup.parent is not field`
+  The second is the same idiom and broke the same invariant (SEQ 211 measured firstParent = the first
+  face walked), so the row could not pass with it; both went.
+  THE READERS of the parent they wrote: definingRule() (GroupItem.twk:462) and its callers -- parse()
+  (:1339), installParseMethod and runLeafParse (Generate.rtn), jitEmitters.rtn:2027 and :3438; the
+  RuleStuff constructor's parentStuff (RuleStuff.twk:54, at rStuff creation -- define time); and
+  checkInput's enclosing-activation arm (RuleStuff.twk:119) `parent.rStuff.label = label` -- THE ONE
+  READER WHOSE TARGET CHANGES: it now writes the registry entry's rStuff, not the last-visited face's.
+  It is reached only when the drive floor does not take the label. Nothing in the fleet moved with it
+  (label rows included); it is not separately measured.
+(2) REMOVED, both. No reader needed a replacement: the fleet is row for row apart from the named moves.
+(3) ROW: definerT + definersOf(name) -- every occurrence and how many answer the registry's entry,
+  printed unconditionally. ExpressioN: 11 occurrences, 11 to the registry, others 0 -- before any
+  parser(), after parser(Start), after a second parser(). H7, the two writers restored in this tree:
+  after parser(Start) registry 0, others 11 -> red.
+(4) CERTIFICATE -- SEQ 215's in full:
+    A rsRun compiled after parser(Start): rsN 1                           PASS
+    B two statements run                                                   PASS
+    C second parser() after BlocK: no refusal, and the ExpressioN drive
+      afterwards reads 1/5 -- ExpressioN has its method                    PASS
+    corpus parser(DO) 171 / 0; parser(StatemenT); parser(ExpressioN) 171 / 0   PASS
+    old-road column green in BOTH orders ('q' at its pin)                  PASS
+    ShRep 1/4 both orders; the four pins at their ruled values; ownerT; zeroWidthT   PASS
+    jitLadder 215 PASSED; canary 314 + 21 + 41 = 376
+    pop.sh 787 ok. Against trunk, every move named: fixture census 185 -> 187 (ownerT, definerT);
+    loopVerdict 37/1 -> 310/95 (A); site1RoadsT sr69-72 1/22 and shapeBodyT 16/16 + label aaac
+    (A, the ruled values); drive census 5 -> 4 (processCode's compile is a drive now); ownerT and
+    definerT rows.
+
+THE BRANCH, stroke by stroke: 75fed1b processCode compiles through driveStep; 654f718 ruling A
+reapplied; 2a29a4b compile owner channel + resolveName; a426178 staged compile (pendingParseR);
+2bc15f9 the re-pointing loops removed. Actions compile and run on the new road. NOT MERGED -- stopped
+as instructed. Before merge: the branch carries trunk's ipc via merges, and F-129 (a bare-name
+statement crashes an action's second call) is trunk-side and unchanged.
+
+  END SEQ 163
+

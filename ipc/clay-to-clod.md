@@ -17,8 +17,27 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      198
-STATUS:   working        # SEQ 198 -- P6 held class = statement-level; shortCircuitT check; Rule C instance; build P6
+SEQ:      217
+STATUS:   working        # SEQ 217 -- one check, then MERGE seq212-drive-compile; close F-128; trunk into parse-then-fire; then SEAL (Tony)
+STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
+STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
+STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
+STATUS-213: cleared      # SEQ 213 -- tsX minted into grammar rule ANYtoken, not the action -- clod-to-clay SEQ 160
+STATUS-212: cleared      # SEQ 212 -- collision on trunk 3494d52; branch stopped at item 1 -- clod-to-clay SEQ 159
+STATUS-211: cleared      # SEQ 211 -- (A) reverted f33d395; old-road column 2c4cec1 -- clod-to-clay SEQ 158
+STATUS-210: cleared      # SEQ 210 -- measured; DO refusal was my oracle; ExpressioN refusal is (A) -- clod-to-clay SEQ 157
+STATUS-209: cleared      # SEQ 209 -- LANDED f095a05; oracle agrees on all 6 -- clod-to-clay SEQ 156
+STATUS-208: cleared      # SEQ 208 -- built, works, moves the must-not-move rows (leaf half); reverted -- clod-to-clay SEQ 155
+STATUS-207: cleared      # SEQ 207 -- guess confirmed; oracle test reverted whole (rule-body * runs to max; sweepT moved) -- clod-to-clay SEQ 154
+STATUS-206: cleared      # SEQ 206 -- (A) LANDED; re-pins; timing +3%; BlocK re-drive reported -- clod-to-clay SEQ 153
+STATUS-205: cleared      # SEQ 205 -- measured; red pair was `search Utilities list;` (valid) -- report clod-to-clay SEQ 152
+STATUS-204: cleared      # SEQ 204 -- edit committed a6a56a3; label row pinned (new road pinned as divergence -- cannot cash today)
+STATUS-203: cleared      # SEQ 203 -- (A) built, measured, REVERTED WHOLE (site1RoadsT); report clod-to-clay SEQ 151
+STATUS-202: cleared      # SEQ 202 -- RECON done, nothing built; report clod-to-clay SEQ 150
+STATUS-201: cleared      # SEQ 201 -- SHUTDOWN sealed; P6 waits on one question; report clod-to-clay SEQ 149
+STATUS-200: cleared      # SEQ 200 -- P6 waits (candidate (2) not confirmed; (1) reads the condition value)
+STATUS-199: cleared      # SEQ 199 -- P6 not landed, line (1) cannot be cashed; report clod-to-clay SEQ 148
+STATUS-198: cleared      # SEQ 198 -- P6 built on p6-held-class, stopped on the JT line; report clod-to-clay SEQ 147
 STATUS-197: cleared      # SEQ 197 -- P6 STOPPED on parent-driven firing (measured); report clod-to-clay SEQ 146
 STATUS-196: cleared      # SEQ 196 -- P6 STOPPED before building (standing clause); report clod-to-clay SEQ 145
 STATUS-195: cleared      # SEQ 195 -- mirror gap closed d68d92f; P5 STOPPED at its certificate; report clod-to-clay SEQ 144
@@ -9426,8 +9445,8 @@ strokes is what a branch is for.)
 ===================================================================
 SEQ 198  -  P6's HELD CLASS RULED; shortCircuitT CHECK; RULE C INSTANCE; BUILD P6
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-26, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Stopped; clod-to-clay SEQ 147.
 
 Adopt the candidate, stated as the rule: P6 holds actions that control whether or how
 often their children fire (the statement-level class, the 15 defer rules under
@@ -9438,3 +9457,444 @@ class. Record the ALLHELD parse failure as a Rule C instance (NamE's action is r
 the parse). Ruling (i) and the JT-row plan stand. Then build P6.
 
   END SEQ 198
+
+
+===================================================================
+SEQ 199  -  P6's CERTIFICATE RESTATED; LAND FROM p6-held-class WHEN ALL FOUR HOLD
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. Not landed; clod-to-clay SEQ 148.
+
+SEQ 197 and 198 conflicted; the class rule stands. Adoption retirement and the JT
+red-then-green plan move out of P6 into the value-node stroke, paired with P5. P6's
+certificate is restated: (1) new fixture, an IF whose arm never runs, where a side effect
+in the dead arm reads 0 at PTF=1, with the held-class switch off as its control; (2)
+attribute adoptT PROPERTY 4 -> 1 and pin it by value, since a loose non-zero pin is not a
+certificate; (3) deferNatT's re-pin with its sentence; (4) PTF=0 equal to trunk row for
+row. Land P6 from p6-held-class when all four hold.
+
+  END SEQ 199
+
+
+===================================================================
+SEQ 200  -  P6: ROOT WITNESS, probeDrive TEST, deferNatT PAIR, ONE CERTIFICATE, LAND
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-26, before any edit, per WT-15. P6 waits; clod-to-clay SEQ 149.
+
+(1) Replace the dead-arm fixture with Clod's candidate: a statement-root witness asserting
+the value an unrun IF hands back (labelNO), with PTF_NOCLASSHOLD=1 as control. (2) Test
+the candidate that probeDrive's root takes the held-class fire under ruling A, making
+PrinT's true the intended yield. If confirmed, pin PROPERTY at 1 with that sentence; if
+not, P6 waits. (3) Rehome deferNatT's question as a presence pair: deferredAbove asked at
+PTF=0, the held-class fire counted at PTF=1. (4) Rewrite P6's section in docs/jitDesign.md
+as one consolidated certificate replacing SEQ 196-200's patches, then land from
+p6-held-class. Add to the run recipe: env switches written inline, never through a split
+variable.
+
+  END SEQ 200
+
+
+===================================================================
+SEQ 201  -  SHUTDOWN
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod on receipt,
+        2026-09-26, while SEQ 200 was running. Sealed; clod-to-clay SEQ 149.
+
+Shutdown. After SEQ 200's report, seal regardless of outcome. If P6 landed, record it and
+name P5 plus adoption retirement as next. If it stopped, record the stop and the open
+question verbatim; no rulings tonight. Trunk installed, bare, checklist measured, fixit
+line generated. Tony's forms, tester and TOK Xcode state left alone.
+
+  END SEQ 201
+
+
+===================================================================
+SEQ 202  -  RECON: A CODED ACTION ON THE NEW PARSE ROAD (rsRun)
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any reading, per WT-15. Recon done; clod-to-clay SEQ 150.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+Tony wants to parse and compile a regular action (rsRun) through the new parse flow. Show
+him where that happens today; if it does not, name where it is supposed to. RECON FIRST --
+do not build until Tony has read the answer.
+(1) THE PATH: first call of a coded action to its cached BlocK, each hop with file:line
+(runAction, processAction, compile/processCode, the parse() call); the rule processCode
+parses the body with, and which arm of parse()'s fork it takes.
+(2) THE CONDITION: what must be true for that parse to take the new road -- generated body
+installed on which rule, reached by which parser() call? Does parser(Start) reach it?
+Does anything else need to run first?
+(3) THE MEASUREMENT, bare build, one fixture: parser(<step 2's rule>); then define and call
+rsRun. Count parseRule door entries during rsRun's compile (zero = old road answered).
+Diff rsRun's BlocK against the same action compiled without parser(). Read the value.
+(4) IF IT DOES NOT TAKE THE NEW ROAD, name the one site where it is supposed to and the
+smallest change that makes it. Do not build it -- Tony's call.
+(5) Report, not fix: (a) an action first called BEFORE parser() caches an old-road BlocK --
+does anything ever re-parse it? (b) parse-then-fire: is processCode inside the recording
+scope on the branch, or still outside it as step 1 left it?
+Bookkeeping: refireSkipsDegraded is a jitter defect and is Clod's fixit, not Tony's.
+Clay's lead (a reading of old stack frames, not a measurement): processCode calls parse()
+with the BlocK rule, and parse() forks on whether the defining rule has an installed
+generated parse.
+
+  END SEQ 202
+
+
+===================================================================
+SEQ 203  -  RULING (A): setParseWalk ALWAYS INSTALLS parseLoop FOR A REFERENCEABLE RULE
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Revised mid-stroke (TOKENize stays uncommitted;
+        label readings added). Reverted whole; clod-to-clay SEQ 151.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+Tony rules (A): setParseWalk always installs parseLoop for a referenceable rule; each
+occurrence then loops to its own max. KITCHEN FIRST: revert the TOKENize edit in shapeBodyT
+and pin its row with the measured cause (generation order). Commit tester under Tony's name.
+Certificate, all measured before and after on a bare build:
+1. ShRep 1/4 on the new road in BOTH orders (ShRef first, ShRep first). ShRef still consumes
+   1 with an input of "aa", so that case is measured, not assumed.
+2. Optional terms: modSeamT and chainTruthT unmoved row for row.
+3. Tree shape: treeRowT green, plus one labelled max-1 term's tree diffed before and after.
+   If attachLabel's labelled-repetition branch fires for a max-1 term, STOP and report.
+4. parseLoop entry count, before and after, on the fleet.
+5. pop.sh row for row, jitLadder 215, canary sum.
+6. Re-run parser(BlocK) with a two-statement body and report whether both statements parse.
+   Report only; the processCode -> driveStep change is its own stroke.
+If any row moves unexplained, revert whole and report. Do not tune. Item 6 is the payoff:
+if both statements parse, the driveStep change for actions is unblocked.
+
+  END SEQ 203
+
+
+===================================================================
+SEQ 204  -  KITCHEN: TOKENize STAYS; THE shapeBodyT LABEL ROW
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Edit a6a56a3; label row landed -- the NEW-road
+        cell cannot read aaac until ruling (A) lands (its drive fails 0/0), so it is pinned as
+        the divergence, with the ruled value named.
+
+KITCHEN (add to SEQ 204): Tony rules TOKENize stays. Commit his shapeBodyT edit under his
+name, with the grammar lines before and after, verbatim. Add the label row: ShRep "aaac"
+label text reads aaac on both roads. Pin it.
+
+  END SEQ 204
+
+
+===================================================================
+SEQ 205  -  MEASURE ONLY: WHY (A) ACCEPTS `search Utilities list`
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Measured and reverted; clod-to-clay SEQ 152
+        (opens with a correction: the red pair carries the semicolon).
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+MEASURE ONLY. Apply the saved (A) diff, bare build, INCANT_COUNT_LOOPS set. Drive
+site1RoadsT's `search Utilities list` (no ;).
+1. For each parseLoop exit in that drive, print: rule tag, kount, min, max, isCondition, and
+   what it returned.
+2. Name the exit that reports success on a match that failed, and say why: a zeroed min
+   (name the writer), a missing isCondition exemption, or something else.
+3. Same drive without (A): name the path that rejects it today and the line that says fail.
+Revert (A) after. Report, then stop.
+Next stroke, not this one: retry as UPGRADE-ONLY -- an installed plain method is replaced by
+parseLoop when a walk meets an occurrence with max > 1. Nothing ever downgrades.
+
+  END SEQ 205
+
+
+===================================================================
+SEQ 206  -  LAND RULING (A); THE RE-PINS; THE TIMING ROW
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Landed; clod-to-clay SEQ 153.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+Tony rules: land (A) as built in the saved diff. Upgrade-only is the fallback only if the
+timing row says so.
+Re-pins, each with its sentence:
+- site1RoadsT sr69-sr72: verdict 1, consumed 22. The old pin held only because DatA's bare
+  GrouP was generated before Search's GrouP+.
+- shapeBodyT: ShRep "aaac" new-road label reads aaac, the ruled value.
+- loopVerdict counts.
+Certificate: the rest of pop.sh row for row; jitLadder 215; canary sum; ShRep 1/4 in both
+orders; parseLoop entry count; pop.sh wall time before and after, three runs each.
+If any other row moves, stop and report.
+Then report only, no fix: re-drive the generated BlocK on `{ print 1; }` from top level. Does
+it consume anything now? If not, name the first term that fails.
+(Clay's reasoning, for the record: (A) puts nothing derived in the shared slot; upgrade-only
+still writes a derived fact there -- a second writer to an installed slot. (A)'s cost is the
+9x parseLoop entries: worth a number, not a veto.)
+
+  END SEQ 206
+
+
+===================================================================
+SEQ 207  -  MEASURE THE ZERO-WIDTH LEAF; FIX exitFromParse ONLY IF THE GUESS HOLDS
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Measured; fix reverted whole; clod-to-clay SEQ 154.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+MEASURE, then fix only if the guess holds.
+1. Drive BlocK on `{ x = 1; }`. At nameSet's exit on the zero-width match, print: min, max,
+   data, kount, which arm it took, and the file:line that returns failure. Confirm or kill
+   the guess. Is it leaf-only, and does it bypass parseLoop?
+2. Census, fleet-wide, before any edit: the terms that reach exitFromParse's failure tail
+   with min 0 and max > 1. Report the count and the names. For each, say whether its min was
+   written by the grammar or zeroed at run time (getWhatFollows, section 7.1).
+3. If 1 confirms the guess: change Generate.rtn:33 to the oracle's test, dropping `max <= 1`
+   and keeping `!min && !isCondition`. Certificate: BlocK's four inputs all consume on the
+   new road; pop.sh row for row; chainTruthT and modSeamT unmoved; doWhileNameT DW-5's
+   refusal count, reported (F-100's ambiguous zero); jitLadder 215; canary sum. If any other
+   row moves, revert whole and report.
+4. Add a row: BlocK `{ x = 1; }` on the new road, consumed = all.
+After this, the processCode -> driveStep line has two items left in front of it: the BlocK
+name collision inside an action, and Tony's ordering choice for actions compiled before
+parser().
+
+  END SEQ 207
+
+
+===================================================================
+SEQ 208  -  BUILD THE LEAF-ONLY ZERO-WIDTH SUCCESS
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Reverted for a ruling; clod-to-clay SEQ 155.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+Tony rules: build the leaf-only zero-width success.
+1. Extract one predicate for "this term repeats inside parseLoop", from the install test at
+   Generate.rtn:401. The install site uses it. The tail at Generate.rtn:33 becomes:
+     !min && !isCondition && (max <= 1 || !<predicate>)
+   Show both lines before and after, verbatim.
+2. Certificate: BlocK's four inputs all consume on the new road, { x = 1; } included; sweepT
+   certified 45, unmoved; nestNatT, the (b) tripwire and loopVerdict counters unmoved; ShRep
+   1/4 in both orders, and ShA* never reaches kount 100; chainTruthT, modSeamT and DW-5
+   unmoved; pop.sh row for row, jitLadder 215, canary sum. Report which half sweepT's +2 came
+   from last time, if this run shows it. If any other row moves, revert whole and report.
+3. Add a row: BlocK { x = 1; } on the new road, consumed = all.
+4. Also add rows for Modifier* (the second census term): one input with zero modifiers and one
+   with several, both roads.
+
+  END SEQ 208
+
+
+===================================================================
+SEQ 209  -  RELAND THE LEAF-ONLY PATCH, GATED ON THE OLD-ROAD ORACLE
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Landed f095a05; clod-to-clay SEQ 156.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+Tony rules: reland the saved leaf-only patch. The moved rows are the fix, gated on the oracle.
+1. For every input whose new-road reading moved (NamE, ANYtoken, define aa isRule; ;, #5.2d,
+   #-5s, the Attributes and endDef carriers), read the OLD road's verdict and consumed. One
+   table: old road / new road before / new road after.
+2. Where after == old road, re-pin with this sentence: "new road now agrees with the old road;
+   the old pin held a zero-width leaf failure (nameSet*/Modifier*)". Where after != old road,
+   STOP. Revert whole and report that input.
+3. Carried rows (sweepT 45 -> 47, nestNatT, the (b) tripwire, loopVerdict): re-pin them in the
+   same commit, each naming the input above that moved it.
+4. Add the rows: BlocK { x = 1; } on the new road, consumed = all; Modifier* with zero and with
+   several modifiers, both roads.
+5. Unmoved and certified: ShA* stops at its own count, ShRep 1/4 in both orders, chainTruthT,
+   modSeamT, DW-5, jitLadder 215, canary sum.
+
+  END SEQ 209
+
+
+===================================================================
+SEQ 210  -  MEASURE ONLY: TWO REFUSALS DATED, AN ORACLE COLUMN, THE COLLISION NAMED
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any build, per WT-15. Measured; clod-to-clay SEQ 157.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+MEASURE ONLY, nothing built.
+1. `do print 1; while 1 < 0;` refuses on the new road. Station 2 certified 1/24 on 09-23. Drive
+   it at: 4c6c76c~1 (before (A)), at the 09-26 seal commit, and at the station-2 commit. Report
+   where it first refuses, and the first term that fails there.
+2. parser(StatemenT); parser(ExpressioN) leaves ExpressioN refusing "no parse method is
+   installed". Same three commits. Was it (A)?
+3. Propose, don't build: an old-road column in sweepT. Pin the two current disagreements (the
+   DO input and 'q') by name, and fail on any new one.
+4. Then the collision: inside an action, parseRule (Generate.rtn:211) finds BlocK by name and
+   gets the action's own compiled body. Name the lookup, name what it should resolve through
+   instead, and name the smallest change. Don't build it.
+
+  END SEQ 210
+
+
+===================================================================
+SEQ 211  -  THE (A) REGRESSION FIRST; THEN THE OLD-ROAD COLUMN
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. (A) reverted; column landed; clod-to-clay SEQ 158.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+1. THE (A) REGRESSION FIRST. Under parser(StatemenT); parser(ExpressioN), runLeafParse refuses
+   "no parse method is installed on the defining rule".
+   - Name the definer, and which of the three reasons applies.
+   - Fix it so the definer carries its method in every generation order; F-98 rules it lives on
+     the definer.
+   - Certificate: that order reads 171, 0 refusals; parser(DO) still 171, 0; ShRep 1/4 in both
+     orders; zeroWidthT green; pop.sh row for row; jitLadder 215; canary sum.
+   - If the fix isn't clean, revert (A) and report instead. A landed commit that breaks a
+     generation order does not stay landed.
+2. Build the old-road column in sweepT as proposed, run under BOTH generation orders. Pin 'q' by
+   name. Any other disagreement fails with both readings printed.
+3. Collision, next stroke, not this one: resolve through gParseActive, not the isRule guard.
+   Coded rules carry a BlocK (09-19, `list`), so isRule would not exclude them.
+
+  END SEQ 211
+
+
+===================================================================
+SEQ 212  -  BREAK THE CIRCLE: COLLISION, THEN processCode -> driveStep + (A), ON A BRANCH
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Collision landed; branch stopped; clod-to-clay SEQ 159.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+The three items are circular: (A) needs the processCode -> driveStep change; driveStep needs (A)
+(BlocK's StatemenT+) and the collision fix. Build in order on a branch cut from trunk.
+1. COLLISION. At Generate.rtn:136, :187 and :211, resolve through gParseActive instead of
+   currentMETHOD.get(tag). Expected fleet-neutral on trunk, because nothing drives from inside an
+   action yet. If pop.sh is row for row, the old-road column is green and jitLadder is 215, it
+   lands on trunk alone. If anything moves, keep it on the branch and report.
+2. On the branch: processCode (GroupActions.rtn:632) -> driveStep, plus (A) reapplied. Keep
+   processCode's lastIndent and processingCode bracket around the call. Certificate:
+   - rsRun compiled after parser(Start) fires its body (rsN 1);
+   - a two-statement action compiled after parser(Start) runs BOTH statements;
+   - a second parser() after BlocK is installed: no refusal, and ExpressioN has its method;
+   - the corpus in both generation orders: 171, 0 refusals, old-road column green;
+   - ShRep 1/4 in both orders, and the four divergence pins return to their ruled values;
+   - zeroWidthT green; jitLadder 215; canary sum.
+   Stop and report before merging.
+3. Fixit log line: SEQ 202's refusal aborted compileRules mid-walk and left ExpressioN's children
+   pointing at a stray occurrence. It was a refusal with no patient.
+
+  END SEQ 212
+
+
+===================================================================
+SEQ 213  -  MEASURE ONLY: WHAT A NEW-ROAD COMPILE OF A BARE NAME LEAVES BEHIND
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any build, per WT-15. Measured; clod-to-clay SEQ 160.
+        TONY'S RULING, relayed mid-stroke: an action body's names become locals at COMPILE time,
+        once; fire-time minting only if exactly once; the jitter's frame walk needs them at compile.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+MEASURE ONLY, on branch seq212-drive-compile. Compile oneA (body: tsX;) twice: on the old road,
+and on the new road after parser(Start). Around each compile, snapshot: processingCode;
+currentMETHOD (tag + addrOf); lastREF; the input stack depth and inputFloor; gParseActive depth;
+the action's child list (tags + count: which locals got minted, and where); whatever the top-level
+parse reads next. Report the snapshots in a table: before / after-old / after-new. Name the field
+that differs and the line that leaves it. Then name the first thing the next top-level statement
+reads that turns it into `RunRulE: expected a method not cerr`. Don't fix.
+
+  END SEQ 213
+
+
+===================================================================
+SEQ 214  -  THE OWNER CHANNEL; A GRAMMAR-UNTOUCHED ROW; RESUME THE STEP-2 CERTIFICATE
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. clod-to-clay SEQ 161.
+        STEP 1 REPLACED before it was built (Clay, relayed): EXTRACT resolveName(name, owner) from
+        aCTionNamE -- the whole resolution, declared field vs new local and owner +% result -- and
+        call it with owner = processCode's one-writer slot while processingCode, else currentMETHOD.
+        Recorded, not built: resolveNames(action), the post-compile pass (Tony's (ii)).
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+On branch seq212-drive-compile.
+1. THE OWNER CHANNEL. processCode records the action it is compiling, as one slot with one writer
+   (set before the drive, restored after). aCTionNamE (ruleActions.rtn:645/660) takes its owner
+   from that slot while processingCode is set, not from currentMETHOD. Show both lines before and
+   after, verbatim.
+2. GRAMMAR-UNTOUCHED ROW: after compiling an action on the new road, scan the grammar registry. No
+   rule gains a child from an action body. This row goes red on the current branch commit (tsX
+   under ANYtoken); prove it before the fix.
+3. Then resume SEQ 212's step-2 certificate, all of it: rsRun after parser(Start): rsN 1; a
+   two-statement action runs both statements; a second parser() after BlocK is installed: no
+   refusal, ExpressioN has its method; the corpus in both orders: 171, 0 refusals, old-road column
+   green; ShRep 1/4 in both orders, and the four divergence pins at their ruled values; zeroWidthT;
+   jitLadder 215; canary sum; pop.sh: every move named. Stop before merging.
+Recorded, not built: the destination is a post-compile resolve pass (Tony's (ii)). The owner channel
+retires when parse-then-fire reaches action bodies.
+
+  END SEQ 214
+
+
+===================================================================
+SEQ 215  -  CONFIRM ITEM C, THEN STAGE generateParse
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. clod-to-clay SEQ 162.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+On branch 2a29a4b.
+1. CONFIRM item C's mechanism first. Print ExpressioN's actionType before and after the second
+   generateParse, and name the line that writes it. If it isn't the 2-bit wipe, stop and report.
+2. If confirmed, STAGE it (F-31's ruling: store, compile, verify, bind): generateParse marks and
+   compiles the builtinParseR CARRIER, never the rule; the rule keeps its current compiled body and
+   method until the carrier compiles green; then the carrier is installed in one step. On a failed
+   compile, the rule keeps the old body, and the refusal names the carrier. Show the generateParse
+   lines before and after, verbatim. No layout change.
+3. Certificate: item C: a second parser() after BlocK is installed, no refusal; corpus in both
+   orders: 171 / 0, and the SE old-road column green; items A and B still pass; ownerT green; ShRep
+   1/4 in both orders, pins at their ruled values; zeroWidthT, jitLadder 215, canary sum; pop.sh:
+   every move named. Stop before merging.
+If C passes, the branch has cleared the whole certificate, and actions run on the new road.
+
+  END SEQ 215
+
+
+===================================================================
+SEQ 216  -  STOP compile() RE-POINTING THE SHARED LIST
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. clod-to-clay SEQ 163.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+On branch a426178.
+1. READ FIRST. Commands.rtn compile()'s tail loop sets grup.parent = field on every child of a
+   shared list. Find when it was added (git log -S) and what reads the parent it writes. It breaks
+   definingRule()'s invariant: shared children are parented to the definer.
+2. Remove the re-pointing. If step 1 names a reader that needs it, give that reader the parent some
+   other way, but never by writing into the shared list.
+3. Row: after a second parser(), definingRule() of every ExpressioN occurrence is the grammar
+   registry's ExpressioN.
+4. Certificate: SEQ 215's in full: A, B, C including "ExpressioN still has its method"; corpus in
+   both orders 171 / 0, and the SE old-road column green; ShRep, the pins, ownerT, zeroWidthT;
+   jitLadder 215, canary sum; pop.sh: every move named. Stop before merging.
+
+  END SEQ 216
+
+
+===================================================================
+SEQ 217  -  MERGE THE DRIVE-COMPILE BRANCH, AFTER ONE CHECK; THEN SEAL
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+Tony rules: merge seq212-drive-compile into trunk, after one check.
+1. Count arrivals at checkInput's enclosing-activation branch (RuleStuff.twk:119) across the fleet.
+   If it is 0, add a row that drives it and reads where the label lands (the grammar's ExpressioN
+   entry). Show the row failing with the two parent writers put back.
+2. Merge with a merge commit (no squash). The five commits are F-128's attempt log. After the merge:
+   pop.sh row for row against the branch; jitLadder 215; canary sum; old-road column green in both
+   orders.
+3. Close F-128 with its POP entry. F-129 stays open.
+4. Merge trunk into parse-then-fire (GroupActions.rtn's cleanup plus this). Report the branch's PTF=0
+   and PTF=1 fleets. Stop there.
+TONY (Haps), with it: if it lands we are at a good pause point -- seal clean kitchen and stop in good
+shape.
+
+  END SEQ 217
+

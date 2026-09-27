@@ -1,0 +1,41 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+define
+    zwSay code={
+        v := tell(argument);
+        m := *v["matched"]; c := *v["consumed"]; n := *v["length"];
+        cerr "ZWDRIVE " argument " matched= " m " consumed= " c " length= " n:;
+        };
+    ;
+traceParse(1);
+cerr "--- OLD BLOCK":;
+BlocK("{ x = 1; }");
+traceParse(0);
+cerr "--- OLD":;
+zwSay("TraiT abc");
+zwSay("TraiT abc+?!");
+parser(DO);
+cerr "--- NEW":;
+zwSay("TraiT abc");
+zwSay("TraiT abc+?!");
+traceParse(1);
+cerr "--- NEW BLOCK":;
+BlocK("{ x = 1; }");
+traceParse(0);
+cerr "ZEROWIDTH SENTINEL":;
+stop();
+
+zeroWidthT -- A ZERO-WIDTH LEAF ON THE NEW ROAD (SEQ 208-209, 2026-09-27).
+
+A max > 1 LEAF with min 0 -- nameSet* in NamE, Modifier* in TraiT and TraiTdata -- never enters
+parseLoop, so before SEQ 209 nothing owned its zero-width match: exitFromParse's min-zero tail was
+guarded max <= 1 and answered 0. The fix asks repeatsInLoop and lets a leaf succeed on zero width.
+
+BlocK { x = 1; } is the nameSet case: a one-letter name leaves nameSet nothing to match. It is driven
+at TOP LEVEL because a drive from inside an action refuses -- parseRule's enclosing-rule lookup finds
+the action's own cached body, which is also tagged BlocK. Read off the drive's 2b-before-pop mark:
+the remaining input, which must be the end of input.
+TraiT abc / TraiT abc+?! are the Modifier* case, zero modifiers and several, both roads.
+Generated with parser(DO), as sweepT does.

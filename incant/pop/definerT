@@ -1,0 +1,29 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+cerr "--- BEFORE any parser()":;
+definersOf(ExpressioN);
+parser(Start);
+cerr "--- AFTER parser(Start)":;
+definersOf(ExpressioN);
+parser(ExpressioN);
+cerr "--- AFTER a second parser(ExpressioN)":;
+definersOf(ExpressioN);
+cerr "DEFINER SENTINEL":;
+stop();
+
+definerT -- EVERY OCCURRENCE OF A RULE ANSWERS THE REGISTRY'S ENTRY AS ITS DEFINER (SEQ 216, 2026-09-27).
+
+A rule's child list is SHARED by every place the rule is used, and definingRule() reads the owner of
+that list off the first child's parent -- so the invariant is that shared children stay parented to the
+REGISTRY's entry. Two loops broke it, both added in 5f24cf3 (2026-09-14): compile() and setParseWalk
+each wrote `parent = field` on every child before recursing into it, so definingRule() drifted to
+whichever occurrence was compiled or walked last. Under ruling A every rule body asks its definer for
+its parse method (runLeafParse), and after a second parser() the drift landed on a Token-side face that
+setParse never installed: "no parse method is installed on the defining rule" on 160 of 171 drives.
+
+definersOf(name) walks the Grokking registry and every rule's terms, finds each occurrence of the tag,
+and counts how many answer the registry's entry. It prints the counts unconditionally. All three
+readings must show others=0.
+H7, measured on a426178 (the loops still writing): the second reading's others is non-zero.

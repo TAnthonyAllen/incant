@@ -264,6 +264,7 @@ GroupItem   lab = stuff.label;
     // alreadyIsParentLabel lines below would attach it to itself
     if lab == pStuff.label  return;
     if lab.unwrapsOnAttach(stuff.max,promote) {
+        -% ::measureAttachRepeat(stuff,lab); %-
         pStuff.label    +% lab.group;
         lab.clear();
         lab.fLAG        = true;

@@ -2775,6 +2775,9 @@ if [ "$(grep -vE '^(compile|Generating|stop:)|^$' "$T/dn.o" | tr -d '\n')" = "0.
 else echo "  FAIL  dotNumT value -- expected only '0.5 ': [$(grep -vE '^(compile|Generating|stop:)|^$' "$T/dn.o" | tr '\n' '|')]"; fail=1; fi
 
 #  ---- nestNatT: F-114 site-1 residue, a nested call of the SAME rule, driven natively ----
+#  COUNTS MOVED 2026-09-27 (SEQ 209): the parseRule arrivals for nnFmt / nnFmtN / nnFmtS (`#5d`, `#5d s2N`, `#5.2d`)
+#  went 27 / 27 / 30 -> 14 / 19 / 17 -- new road now agrees with the old road; the old pin held a zero-width leaf failure (nameSet*/Modifier*), so the format drives stop backtracking round
+#  a failed zero-width match. Same family as the pairs inputs `#5.2d` and `#-5s`. The rows pin > 0 and did not move.
 #  parseRule's call bracket (2026-09-24) is what these certify: without it the outer ExpressioN
 #  fires on an empty list and dies in interpretXP at 139. nnAbc is the no-nesting control.
 #  H7, measured at minting: bracket removed -> the three nested copies exit 139, nnAbc stays green.
@@ -2841,6 +2844,8 @@ else echo "  FAIL  deferNatT dfPrint value -- print s2L[1]; did not print aa"; f
 #  THE (b) TRIPWIRE (Tony, 2026-09-24), after ruling (b) refined: a fire INSIDE a drive that took the
 #  parentStuff CHAIN walk, on a rule that carries an action, could not see its ancestors. Pinned at 0.
 #  Born red under ruling (a) (ShortcuT, held=0); green once every in-drive fire walks the list.
+#  COUNT MOVED 2026-09-27 (SEQ 209) 413 -> 429, all of it from nnFmt / nnFmtN / nnFmtS (14/14/17 -> 17/24/20 in-drive
+#  fires; every other trace file unmoved): new road now agrees with the old road; the old pin held a zero-width leaf failure (nameSet*/Modifier*). The chain-walk count stays 0.
 _twt=0; _twa=0
 for _f in "$T"/nn*.e "$T"/un*.e "$T"/qn*.e "$T"/df*.e "$T"/dwn.e; do
     [ -f "$_f" ] || continue
@@ -2882,6 +2887,13 @@ else echo "  FAIL  quoteNatT qnCe value -- cerr \"hi\":; did not end its line: $
 #  DISAGREE returns to 0.
 #  Since 10921da the flag is stale by construction: this row now shows the COUNT deciding, and the value rows on
 #  the same drives (nestNatT, unaryNatT) are the guard (Tony, 2026-09-24).
+#  COUNTS MOVED 2026-09-27 (SEQ 206, ruling A) 45 / 13 -> 355 / 152, WITH ITS SENTENCE: every rule body now enters
+#  through parseLoop, not only the occurrences with max > 1, so these drives witness many more verdicts. The rows pin
+#  > 0 and did not move; the numbers are recorded here so the next reader knows they are expected.
+#  AND AGAIN 2026-09-27 (SEQ 209) 355 / 152 -> 310 / 95, all of it from nnFmt / nnFmtN / nnFmtS (verdicts 41/41/47 ->
+#  23/32/29): new road now agrees with the old road; the old pin held a zero-width leaf failure (nameSet*/Modifier*). Every other trace file unmoved.
+#  AND 37 / 1 -> 310 / 95 on the BRANCH seq212-drive-compile (SEQ 214): ruling A reapplied on top of the driveStep compile and the owner channel.
+#  AND 310 / 95 -> 37 / 1 (SEQ 211): RULING A REVERTED 2026-09-27 (SEQ 211): under it a second parser() after BlocK is installed leaves a definer with no method (SEQ 202's compile refusal is the root), so rule bodies no longer all enter parseLoop.
 _lvt=0; _lvd=0
 for _f in "$T"/nn*.e "$T"/un*.e "$T"/qn*.e; do
     [ -f "$_f" ] || continue
@@ -2929,8 +2941,25 @@ _s1=$(grep '^PROBEDRIVE root=' "$T/s1r.e" | sed 's/ ret=[^ ]* / /' | awk '{t=$4;
 set -- $_s1
 if [ "$1" -eq 47 ] && [ "$2" -eq 47 ]; then echo "  ok    site1RoadsT 47 of 47 jitted/interpreted pairs agree on every field"; green=$((green+1))
 else echo "  FAIL  site1RoadsT pairs=$1 agreeing=$2 (want 47/47)"; fail=1; fi
-if [ "$3" -eq 0 ]; then echo "  ok    site1RoadsT every reject reads verdict 0 on both engines"; green=$((green+1))
-else echo "  FAIL  site1RoadsT $3 pairs with a non-zero verdict"; fail=1; fi
+#  ⚠ RE-PINNED 2026-09-27 (SEQ 206, ruling A), WITH ITS SENTENCE: `search Utilities list;` (sr69-sr72) is a VALID
+#  statement -- Search is `search- followedBy GrouP+ SemI-` -- and now reads verdict 1 consumed 22 on both engines.
+#  The old all-zero pin held only because DatA's bare GrouP was generated before Search's GrouP+, so GrouP got the
+#  non-loop method and matched one name. F-114's list (fixIts.md:478) was 29 CRASH sites, never 29 wrong inputs.
+#  So the rows are split BY FIXTURE NAME (drive order pasted against the fixture's probeDrive order -- SEQ 151
+#  mis-named this pair by reading neighbouring lines): sr69-sr72 read 1/22, every other drive reads verdict 0.
+grep '^probeDrive(' "$(ip site1RoadsT)" | sed 's/^probeDrive(\(.*\));.*/\1/' > "$T/s1rNames"
+grep '^PROBEDRIVE root=' "$T/s1r.e" > "$T/s1rDrives"
+_s1map=$(paste -d' ' "$T/s1rNames" "$T/s1rDrives")
+_s1n=$(printf '%s\n' "$_s1map" | grep -c 'PROBEDRIVE')
+_s1ok=$(printf '%s\n' "$_s1map" | grep -E '^sr(69J|70I|71J|72I) ' | grep -c ' verdict=1 consumed=22 length=22 ')
+_s1nz=$(printf '%s\n' "$_s1map" | grep -vE '^sr(69J|70I|71J|72I) ' | grep -vc ' verdict=0 ')
+#  RULING A REVERTED 2026-09-27 (SEQ 211): under it a second parser() after BlocK is installed leaves a definer with no method (SEQ 202's compile refusal is the root) -- so sr69-sr72 are back to verdict 0, PINNED AS THE DIVERGENCE: the ruled value
+#  is verdict 1 consumed 22, and the 0 is the generation-order bug (DatA's bare GrouP generated before Search's GrouP+).
+#  BRANCH seq212-drive-compile (SEQ 214): ruling A reapplied on top of the driveStep compile and the owner channel -- the ruled value 1/22, cashed again.
+if [ "$_s1n" -eq 94 ] && [ "$_s1ok" -eq 4 ]; then echo "  ok    site1RoadsT sr69-sr72 \`search Utilities list;\` (valid) reads verdict 1 consumed 22 on both engines -- PINNED BY VALUE"; green=$((green+1))
+else echo "  FAIL  site1RoadsT sr69-sr72 read verdict 1 consumed 22 on $_s1ok of 4 drives (mapped $_s1n of 94)"; fail=1; fi
+if [ "$_s1n" -eq 94 ] && [ "$_s1nz" -eq 0 ]; then echo "  ok    site1RoadsT every other drive (90) reads verdict 0 on both engines"; green=$((green+1))
+else echo "  FAIL  site1RoadsT $_s1nz of the other drives read a non-zero verdict (mapped $_s1n of 94)"; fail=1; fi
 _s1d=$(grep -c '=== jitDegrade count = 0 ===' "$T/s1r.o"); _s1c=$(grep -c 'jitDegrade count' "$T/s1r.o")
 if [ "$_s1c" -gt 0 ] && [ "$_s1d" -eq "$_s1c" ]; then echo "  ok    site1RoadsT $_s1c compiles, every one degrade 0"; green=$((green+1))
 else echo "  FAIL  site1RoadsT degrade: $_s1d of $_s1c compiles at 0"; fail=1; fi
@@ -3002,15 +3031,59 @@ else echo "  FAIL  driveLeakT the caller was abandoned after the drives (F-125)"
 #  Every carrier reachable from DO but the stuff faces, calibrated interpreted over pairs.sweep, picked, and certified
 #  JITTED against INTERPRETED, two fires each, one compile. Coverage 45 of 61 (16 carriers pick nothing; named in
 #  fixIts F-114). Sentinel FIRST and exact: before F-125 the certificate printed and the file was then abandoned.
+#  ⚠ RE-PINNED 2026-09-27 (SEQ 209) 45 -> 47, nopick 16 -> 14: new road now agrees with the old road; the old pin held a zero-width leaf failure (nameSet*/Modifier*). The
+#  sweep re-picks from each carrier's accepts, and `define aa isRule; ;` (pairs, root StatemenT) now reads 1/19 on the
+#  new road as on the old (was 1/17) -- which gives Attributes and endDef their first accept, so both leave nopick and
+#  certify. The other flips under it (old road = new road after, all six): `aa isRule tt=[a-z]+;` 1/17, `e+3` 1/3,
+#  `#5.2d` 1/5, `#-5s` 1/4, `=[a-z]` 1/5. Engines agree throughout (diff=0).
 run2 sweepT "$T/sw.o" "$T/sw.e"; check "sweepT runs" 0 $?
 if grep -qxE 'SWEEP SENTINEL ?' "$T/sw.e"; then echo "  ok    sweepT sentinel (exact line)"; green=$((green+1)); else echo "  FAIL  sweepT sentinel missing -- the file was abandoned or truncated"; fail=1; fi
-if grep -q '^SWEEP END .* certified=45 agree=45 diff=0$' "$T/sw.e"; then echo "  ok    sweepT certified=45 agree=45 diff=0"; green=$((green+1))
+if grep -q '^SWEEP END .* certified=47 agree=47 diff=0$' "$T/sw.e"; then echo "  ok    sweepT certified=47 agree=47 diff=0"; green=$((green+1))
 else echo "  FAIL  sweepT MOVED: $(grep '^SWEEP END' "$T/sw.e")"; fail=1; fi
 _swr=$(grep -c '^SWEEP RESULT .* AGREE degrade=0$' "$T/sw.e"); _swa=$(grep -c '^SWEEP RESULT ' "$T/sw.e")
-if [ "$_swa" -eq 45 ] && [ "$_swr" -eq 45 ]; then echo "  ok    sweepT 45 carrier results, every one AGREE at degrade 0"; green=$((green+1))
-else echo "  FAIL  sweepT $_swr of $_swa carrier results AGREE at degrade 0 (want 45 of 45)"; fail=1; fi
+if [ "$_swa" -eq 47 ] && [ "$_swr" -eq 47 ]; then echo "  ok    sweepT 47 carrier results, every one AGREE at degrade 0"; green=$((green+1))
+else echo "  FAIL  sweepT $_swr of $_swa carrier results AGREE at degrade 0 (want 47 of 47)"; fail=1; fi
 if [ "$(grep -c 'JIT DEGRADE' "$T/sw.e" "$T/sw.o" | awk -F: '{n+=$2} END{print n}')" -eq 0 ] && grep -q '^SWEEP ROW .* J fire2 ' "$T/sw.e"; then echo "  ok    sweepT no degrade line anywhere (and jitted rows ran)"; green=$((green+1))
 else echo "  FAIL  sweepT a degrade line appeared, or no jitted row ran"; fail=1; fi
+
+#  ---- sweepT's OLD-ROAD COLUMN (SEQ 211, 2026-09-27) ----
+#  sweepT certifies JITTED against INTERPRETED; both are the NEW road, so an input both engines read wrong reads
+#  green. This column asks the old road. genLadder/oldRoadOracle.py drives every unique input of pairs.sweep through
+#  tell, one process per column: OLD (no parser), DO (parser(DO), sweepT's order) and SE (parser(StatemenT);
+#  parser(ExpressioN), the second order -- ruling A's revert was about exactly that order). A refusing drive prints
+#  no line and reads REFUSED. Rows: every column complete and at its foot; the new road equals the old on every
+#  input in BOTH orders but the pinned ones; any other disagreement FAILS and prints the input and both readings.
+#  PINNED BY NAME: 'q' (ExpressioN) -- old 1/3, new 0/0 in both orders, pre-existing at 09-26 (SEQ 210).
+#  H7, measured on a clone of 4656409 (09-26, before the leaf-only fix): both new-road columns disagree with the old
+#  road on SIX more inputs -- define aa isRule; ;  aa isRule tt=[a-z]+;  e+3  #5.2d  #-5s  =[a-z] -- so the rows go RED
+#  and name each one. That is SEQ 209's table, found again by the column rather than by hand.
+_orcN=$(sort -u jitLadder/station2/pairs.sweep | grep -c .)
+if grep -q '#)' jitLadder/station2/pairs.sweep; then echo "  FAIL  oldRoad column: pairs.sweep carries #) -- a (...#) literal cannot hold it"; fail=1; fi
+for _om in old do se; do
+    python3 genLadder/oldRoadOracle.py jitLadder/station2/pairs.sweep $_om "$T/orc_$_om.twk" "$T/orcKeys"
+    $B "$T/orc_$_om.twk" > "$T/orc_$_om.o" 2> "$T/orc_$_om.e" & _cap "oldRoad $_om"; check "oldRoad column $_om runs" 0 $?
+    sentinel "oldRoad column $_om sentinel" "$T/orc_$_om.e" "ORACLE SENTINEL"
+    awk '/^KEY /{if(k!="" && k!="warm") print k" REFUSED"; k=$2; next} /^ORC /{if(k!="warm") print k" "$3"/"$5; k=""} /^ORACLE SENTINEL/{if(k!="" && k!="warm") print k" REFUSED"; k=""}' "$T/orc_$_om.e" > "$T/orc_$_om.v"
+    _on=$(grep -c . "$T/orc_$_om.v")
+    if [ "$_on" -eq "$_orcN" ]; then echo "  ok    oldRoad column $_om complete: $_on of $_orcN inputs read"; green=$((green+1))
+    else echo "  FAIL  oldRoad column $_om read $_on of $_orcN inputs"; fail=1; fi
+done
+_orcReal=$(grep -vc ' REFUSED$' "$T/orc_old.v")
+if [ "$_orcReal" -gt 150 ]; then echo "  ok    oldRoad column anti-vacuity: the old road reads a verdict on $_orcReal inputs"; green=$((green+1))
+else echo "  FAIL  oldRoad column anti-vacuity: the old road read only $_orcReal verdicts"; fail=1; fi
+for _om in do se; do
+    _obad=""; _oagree=0; _opin=""
+    while read _ok _ov; do
+        _nv=$(grep "^$_ok " "$T/orc_$_om.v" | cut -d' ' -f2); _oin=$(grep "^$_ok|" "$T/orcKeys" | cut -d'|' -f2-)
+        if [ "$_ov" = "$_nv" ]; then _oagree=$((_oagree+1))
+        elif [ "$_oin" = "ExpressioN|'q'" ]; then _opin="old=$_ov new=$_nv"
+        else _obad="$_obad [$_oin old=$_ov new=$_nv]"; fi
+    done < "$T/orc_old.v"
+    if [ -z "$_obad" ]; then echo "  ok    oldRoad column $_om: the new road equals the old road on $_oagree of $_orcN inputs, all but the pinned"; green=$((green+1))
+    else echo "  FAIL  oldRoad column $_om: new road != old road on:$_obad"; fail=1; fi
+    if [ "$_opin" = "old=1/3 new=0/0" ]; then echo "  ok    oldRoad column $_om: 'q' PINNED DIVERGENCE -- old 1/3, new 0/0"; green=$((green+1))
+    else echo "  FAIL  oldRoad column $_om: 'q' MOVED -- ${_opin:-it now agrees} (if new reads 1/3 the defect is fixed: re-pin)"; fail=1; fi
+done
 
 #  ---- opLenT: F-124 -- a two-character operator consumes exactly its own length (2026-09-24) ----
 #  parseContainer's lookup loops kept matching after a hit (== then =), overran the message and relabelled the match;
@@ -4767,11 +4840,13 @@ _dcGot=$(for _f in "$_dcDir"/*.twk "$_dcDir"/*.rtn; do python3 genLadder/codeOnl
 #  RE-PINNED 7 -> 6, 2026-09-26 (SEQ 185, P3a's routing): treeOf LEFT the list -- it drives through
 #  driveStep now, so it is no longer a seat of its own. demoRprime stays until ruling 3.
 #  RE-PINNED 6 -> 5, 2026-09-26 (SEQ 189, ruling 3a): demoRprime was DELETED.
-_dcWant="Commands.rtn:loadInputFromFile GroupActions.rtn:driveStep GroupActions.rtn:processCode GroupMain.twk:bootstrapper jitEmitters.rtn:jitProbeDrive "
+#  RE-PINNED 5 -> 4, BRANCH seq212-drive-compile (SEQ 214): ruling A reapplied on top of the driveStep compile and the owner channel: processCode LEFT the list -- a compile is a driveStep drive now
+#  (F-128), so it is no longer a seat of its own.
+_dcWant="Commands.rtn:loadInputFromFile GroupActions.rtn:driveStep GroupMain.twk:bootstrapper jitEmitters.rtn:jitProbeDrive "
 if [ -n "$_dcGot" ] && [ "$_dcGot" = "$_dcWant" ]; then
-    echo "  ok    drive census: pushInput's callers are the 5 named seats"; green=$((green+1))
+    echo "  ok    drive census: pushInput's callers are the 4 named seats"; green=$((green+1))
 else
-    echo "  FAIL  drive census MOVED -- pushInput's callers are not the 5 named seats; class every newcomer"
+    echo "  FAIL  drive census MOVED -- pushInput's callers are not the 4 named seats; class every newcomer"
     echo "          actual:   ${_dcGot:-(none -- the extractor read nothing)}"
     echo "          expected: $_dcWant"
     fail=1
@@ -4788,7 +4863,11 @@ fi
 ( PTF_TRACE=1; export PTF_TRACE; run2 driveDoorT "$T/ddt.o" "$T/ddt.e" ); check "driveDoorT runs" 0 $?
 sentinel "driveDoorT sentinel" "$T/ddt.e" "DRIVEDOOR SENTINEL"
 _ddSeg () { awk -v w="$1" '/^IA-[1-4] /{seg=$1} index($0,w){n[seg]++} END{printf "%d/%d/%d/%d", n["IA-1"], n["IA-2"], n["IA-3"], n["IA-4"]}' "$T/ddt.e"; }
-_ddDoor=$(_ddSeg "runRule DOOR on ScafOUT"); _ddFire=$(_ddSeg "IAFIRE ScafA"); _ddDisc=$(_ddSeg "PTF DISCARD")
+#  FIRES ARE COUNTED ON THE FIRE LINE ITSELF (anchored), BRANCH seq212-drive-compile (SEQ 214): ruling A reapplied on top of the driveStep compile and the owner channel: a compile is a drive now, and under
+#  traceParse the drive's mark callouts print its TEXT -- `[{ cerr "IAFIRE ScafA]` -- which an unanchored match
+#  counted as two more fires (3/1/1/1). The real count is unchanged.
+_ddFireSeg () { awk -v w="$1" '/^IA-[1-4] /{seg=$1} index($0,w)==1{n[seg]++} END{printf "%d/%d/%d/%d", n["IA-1"], n["IA-2"], n["IA-3"], n["IA-4"]}' "$T/ddt.e"; }
+_ddDoor=$(_ddSeg "runRule DOOR on ScafOUT"); _ddFire=$(_ddFireSeg "IAFIRE ScafA"); _ddDisc=$(_ddSeg "PTF DISCARD")
 echo "  ..    driveDoorT reads door=$_ddDoor fires=$_ddFire discard=$_ddDisc"
 if [ "$_ddDoor" = "1/1/1/1" ]; then echo "  ok    driveDoorT door 1/1/1/1 -- every drive, tell and treeOf, went through driveStep"; green=$((green+1))
 else echo "  FAIL  driveDoorT door $_ddDoor, want 1/1/1/1 (a 0 is a drive that bypassed driveStep)"; fail=1; fi
@@ -4835,8 +4914,11 @@ else echo "  FAIL  treeRowT shape moved: accept=[$_trShape] reject=[$(_trArm "NE
 #  literal, reference, repetition, optional (reference and literal), alternation -- with the
 #  generated BODIES pinned (genLadder/shapeBody.target). The body does not carry + or ?, so each
 #  shape is also DRIVEN through tell on both roads: old first, then after parser(). The roads agree
-#  on 15 of 16 drives; the 16th is PINNED BY NAME as a divergence -- ShRep "aaac": old matched 1
-#  consumed 4, generated matched 0 consumed 0 (a generated body does not repeat a + reference).
+#  on all 16 since ruling A (2026-09-27); until then the 16th was PINNED BY NAME as a divergence -- ShRep "aaac": old matched 1
+#  consumed 4, generated matched 0 consumed 0. CAUSE MEASURED 2026-09-27 (SEQ 202-203): GENERATION
+#  ORDER. setParseWalk decides loop-or-not ONCE, from the first ShA occurrence it walks, into the
+#  slot every occurrence shares; parser(ShRef) walks the bare ShA first, so ShRep's ShA+ gets the
+#  non-loop method ("already installed ShA, leaving it alone"). parser(ShRep) first -> 1/4.
 #  The road row proves each arm took its road (H16). H7: a doctored generator (conjunct respelled)
 #  changes the bodies -> RED.
 run2 shapeBodyT "$T/sb.o" "$T/sb.e"; check "shapeBodyT runs" 0 $?
@@ -4850,10 +4932,92 @@ else echo "  FAIL  shapeBodyT roads $_sbOld/$_sbNew, want 16/16"; fail=1; fi
 awk '/^--- OLD ROAD/{f=1} /^--- NEW ROAD/{f=0} f&&/^DRIVE/' "$T/sb.e" > "$T/sbo"
 awk '/^--- NEW ROAD/{f=1} f&&/^DRIVE/' "$T/sb.e" > "$T/sbn"
 _sbDiff=$(diff "$T/sbo" "$T/sbn" | grep '^[<>]' | sed 's/  */ /g' | tr "\n" "|")
-_sbWant="< DRIVE ShRep aaac matched= 1 consumed= 4 |> DRIVE ShRep aaac matched= 0 consumed= 0 |"
-if [ "$(wc -l < "$T/sbn" | tr -d ' ')" = 16 ] && [ "$_sbDiff" = "$_sbWant" ]; then
-    echo "  ok    shapeBodyT the roads agree on 15 of 16 drives; the divergence is ShRep aaac (old 1/4, generated 0/0), PINNED"; green=$((green+1))
-else echo "  FAIL  shapeBodyT the road comparison MOVED -- want only ShRep aaac to differ, got: ${_sbDiff:-<no difference>}"; fail=1; fi
+#  ⚠ RULING A (SEQ 206) made the roads agree on all 16; RULING A REVERTED 2026-09-27 (SEQ 211): under it a second parser() after BlocK is installed leaves a definer with no method (SEQ 202's compile refusal is the root). So the ShRep "aaac" divergence
+#  is PINNED again, its cause the generation order.
+#  BRANCH seq212-drive-compile (SEQ 214): ruling A reapplied on top of the driveStep compile and the owner channel -- the roads agree on all 16 again.
+if [ "$(wc -l < "$T/sbn" | tr -d ' ')" = 16 ] && [ -z "$_sbDiff" ]; then
+    echo "  ok    shapeBodyT the roads agree on all 16 drives (ShRep aaac 1/4 on both, ruling A)"; green=$((green+1))
+else echo "  FAIL  shapeBodyT the road comparison MOVED -- want no difference, got: ${_sbDiff:-<no difference>}"; fail=1; fi
+#  ⚑ shapeBodyT LABEL ROW (SEQ 204, Tony's ruling 2026-09-27: TOKENize stays, and ShRep "aaac"'s
+#  label text READS aaac ON BOTH ROADS). shSay prints `LABEL <drive> text=[...]` from the verdict's
+#  reply (the label's data, starred; a label with no data would echo its tag). TODAY THE NEW ROAD
+#  CANNOT CASH THE RULING: its ShRep "aaac" drive fails 0/0 (generation order -- the pin above), so it
+#  has no label, and the row pins that reading BY NAME. When ruling (A) lands the new-road cell must
+#  read aaac, this row goes red, and the re-pin's sentence is "the ruled value, now cashed".
+#  CONTROL (H16): ShRep "ac" reads ac on BOTH roads, so the new-road read is live, not void.
+_sbLab() { awk -v road="$1" -v drv="$2" '/^--- OLD ROAD/{r="OLD"} /^--- NEW ROAD/{r="NEW"} r==road && index($0,"LABEL  " drv " ")==1 {sub("LABEL  " drv " ",""); gsub(/ +/," "); sub(/ $/,""); print; exit}' "$T/sb.e"; }
+_sbLo=$(_sbLab OLD "ShRep aaac"); _sbLn=$(_sbLab NEW "ShRep aaac"); _sbCo=$(_sbLab OLD "ShRep ac"); _sbCn=$(_sbLab NEW "ShRep ac")
+if [ "$_sbCo" = "text=[ ac ]" ] && [ "$_sbCn" = "text=[ ac ]" ]; then echo "  ok    shapeBodyT label control: ShRep \"ac\" reads ac on both roads -- the new-road label read is live"; green=$((green+1))
+else echo "  FAIL  shapeBodyT label control: ShRep \"ac\" old [$_sbCo] new [$_sbCn], want text=[ ac ] on both"; fail=1; fi
+if [ "$_sbLo" = "text=[ aaac ]" ]; then echo "  ok    shapeBodyT label: ShRep \"aaac\" OLD road reads aaac -- PINNED BY VALUE (Tony, TOKENize stays)"; green=$((green+1))
+else echo "  FAIL  shapeBodyT label: ShRep \"aaac\" OLD road reads [$_sbLo], want text=[ aaac ]"; fail=1; fi
+#  Ruling A cashed the ruled value aaac (SEQ 206); RULING A REVERTED 2026-09-27 (SEQ 211): under it a second parser() after BlocK is installed leaves a definer with no method (SEQ 202's compile refusal is the root) -- so the new road has no label again, PINNED.
+#  BRANCH seq212-drive-compile (SEQ 214): ruling A reapplied on top of the driveStep compile and the owner channel -- the ruled value aaac, cashed again.
+if [ "$_sbLn" = "text=[ aaac ]" ]; then echo "  ok    shapeBodyT label: ShRep \"aaac\" NEW road reads aaac -- PINNED BY VALUE, the ruled value"; green=$((green+1))
+else echo "  FAIL  shapeBodyT label: ShRep \"aaac\" NEW road reads [$_sbLn], want text=[ aaac ]"; fail=1; fi
+
+#  ⚑ zeroWidthT -- A ZERO-WIDTH LEAF ON THE NEW ROAD (SEQ 209, 2026-09-27). nameSet* and Modifier* are max > 1 LEAVES
+#  with min 0: they never enter parseLoop, and until SEQ 209 exitFromParse's min-zero tail (guarded max <= 1) answered
+#  0 for their zero-width match. BlocK `{ x = 1; }` is the nameSet case (a one-letter name), driven at TOP LEVEL --
+#  inside an action the enclosing-rule lookup finds the action's own cached body, also tagged BlocK. Read off the
+#  drive's 2b-before-pop mark. TraiT `abc` / `abc+?!` are Modifier* with zero and several modifiers, both roads.
+#  H7, measured before the fix: NEW BlocK leaves the whole message and NEW `TraiT abc` reads 0/0 -> both rows RED.
+run2 zeroWidthT "$T/zw.o" "$T/zw.e"; check "zeroWidthT runs" 0 $?
+sentinel "zeroWidthT sentinel" "$T/zw.e" "ZEROWIDTH SENTINEL"
+_zwBlk=$(awk '/^--- NEW BLOCK/{f=1} f&&/2b-before-pop/{sub(/.*text=/,""); print; exit}' "$T/zw.e" | sed 's/ *$//')
+if [ "$_zwBlk" = "[:reached end of input]" ]; then echo "  ok    zeroWidthT BlocK { x = 1; } on the NEW road consumes it all"; green=$((green+1))
+else echo "  FAIL  zeroWidthT BlocK { x = 1; } NEW road leaves $_zwBlk"; fail=1; fi
+_zwOBlk=$(awk '/^--- OLD BLOCK/{f=1} f&&/2b-before-pop/{sub(/.*text=/,""); print; exit}' "$T/zw.e" | sed 's/ *$//')
+if [ "$_zwOBlk" = "[:reached end of input]" ]; then echo "  ok    zeroWidthT BlocK { x = 1; } on the OLD road consumes it all (the oracle)"; green=$((green+1))
+else echo "  FAIL  zeroWidthT BlocK { x = 1; } OLD road leaves $_zwOBlk"; fail=1; fi
+_zw() { awk -v road="$1" -v drv="$2" '/^--- OLD$|^--- OLD /{r="OLD"} /^--- NEW$|^--- NEW /{r="NEW"} r==road && index($0,"ZWDRIVE  " drv " ")==1 {x=substr($0,length("ZWDRIVE  " drv " ")+1); gsub(/ +/," ",x); sub(/ $/,"",x); print x; exit}' "$T/zw.e"; }
+for _zc in "OLD|TraiT abc|matched= 1 consumed= 3 length= 3" "NEW|TraiT abc|matched= 1 consumed= 3 length= 3" \
+           "OLD|TraiT abc+?!|matched= 1 consumed= 6 length= 6" "NEW|TraiT abc+?!|matched= 1 consumed= 6 length= 6"; do
+    _zr=${_zc%%|*}; _zd=${_zc#*|}; _zw1=${_zd#*|}; _zd=${_zd%%|*}
+    _zg=$(_zw "$_zr" "$_zd")
+    if [ "$_zg" = "$_zw1" ]; then echo "  ok    zeroWidthT Modifier* $_zr road \"$_zd\": $_zg"; green=$((green+1))
+    else echo "  FAIL  zeroWidthT Modifier* $_zr road \"$_zd\": got [$_zg], want [$_zw1]"; fail=1; fi
+done
+
+#  ⚑ ownerT -- NO GRAMMAR RULE GAINS A CHILD FROM AN ACTION BODY (SEQ 214, 2026-09-27). A new-road compile (processCode
+#  drives BlocK's generated parse) used to mint the body's names into whatever currentMETHOD a generated body had made
+#  current -- ANYtoken, and through its shared list six rules more -- and the next top-level statement reading the
+#  name was abandoned (SEQ 213). aCTionNamE now takes its owner from gCompileOwner, processCode's one-writer slot.
+#  grammarHolds(name) scans the Grokking registry and every rule's terms. H7, measured on the pre-fix branch build:
+#  owX, owY and owZ each read 7 -> RED.
+run2 ownerT "$T/ow.o" "$T/ow.e"; check "ownerT runs" 0 $?
+sentinel "ownerT sentinel" "$T/ow.e" "OWNER SENTINEL"
+if [ "$(grep -c '^GRAMMARHOLDS owX = 0' "$T/ow.e")" -eq 2 ]; then echo "  ok    ownerT owX in the grammar: 0 before parser(), 0 after a new-road compile"; green=$((green+1))
+else echo "  FAIL  ownerT owX: $(grep '^GRAMMARHOLDS owX' "$T/ow.e" | tr '\n' ' ')"; fail=1; fi
+for _on in owY owZ; do
+    if grep -q "^GRAMMARHOLDS $_on = 0" "$T/ow.e"; then echo "  ok    ownerT $_on in the grammar after a new-road compile: 0"; green=$((green+1))
+    else echo "  FAIL  ownerT $_on: $(grep "^GRAMMARHOLDS $_on" "$T/ow.e") -- a name from the action body landed in the grammar"; fail=1; fi
+done
+
+#  ⚑ definerT -- EVERY OCCURRENCE ANSWERS THE REGISTRY'S ENTRY AS ITS DEFINER (SEQ 216, 2026-09-27). A rule's child list
+#  is shared, and definingRule() reads its owner off the first child's parent; compile() and setParseWalk used to write
+#  `parent = field` over it (5f24cf3), so the definer drifted to whichever occurrence was visited last. definersOf(name)
+#  counts occurrences and how many answer the registry's entry. H7, measured with the two writers restored: after
+#  parser(Start) all 11 ExpressioN occurrences answer someone else -> RED.
+run2 definerT "$T/df.o" "$T/df.e"; check "definerT runs" 0 $?
+sentinel "definerT sentinel" "$T/df.e" "DEFINER SENTINEL"
+_dfn=$(grep -c '^DEFINERS ExpressioN occurrences=11 registry=11 others=0' "$T/df.e")
+if [ "$_dfn" -eq 3 ]; then echo "  ok    definerT all 11 ExpressioN occurrences answer the registry's entry -- before parser(), after parser(Start), after a second parser()"; green=$((green+1))
+else echo "  FAIL  definerT: $(grep '^DEFINERS' "$T/df.e" | tr '\n' ' ')"; fail=1; fi
+
+#  ⚑ driveCompileT -- AN ACTION COMPILED AFTER parser() RUNS ON THE NEW ROAD (F-128's POP entry, closed 2026-09-27).
+#  processCode's compile is a driveStep drive (the merge of seq212-drive-compile). A: rsRun first called after
+#  parser(Start) fires once, rsN 1. B: a two-statement action runs both, 11 / 22. C: a second parser(ExpressioN)
+#  after BlocK is installed completes with NO refusal and ExpressioN still parses, 1/5. H7 measured: pre-merge trunk
+#  A reads 0 with the refusal; a426178 C reads the ExpressioN refusal and 0/0.
+run2 driveCompileT "$T/dc.o" "$T/dc.e"; check "driveCompileT runs" 0 $?
+sentinel "driveCompileT sentinel" "$T/dc.e" "DRIVECOMPILE SENTINEL"
+if grep -qE '^A rsN= +1 ?$' "$T/dc.e" && [ "$(grep -c '^RS SINK FIRED' "$T/dc.e")" -eq 1 ]; then echo "  ok    driveCompileT A rsRun compiled after parser(Start) fires once: rsN 1"; green=$((green+1))
+else echo "  FAIL  driveCompileT A: $(grep -E '^A |^RS SINK' "$T/dc.e" | tr '\n' ' ')"; fail=1; fi
+if grep -qE '^B tsX= +11 tsY= +22 ?$' "$T/dc.e"; then echo "  ok    driveCompileT B a two-statement action runs both: 11 / 22"; green=$((green+1))
+else echo "  FAIL  driveCompileT B: $(grep '^B ' "$T/dc.e")"; fail=1; fi
+if [ "$(grep -c '^EXDRIVE m= *1 c= *5' "$T/dc.e")" -eq 2 ] && ! grep -q 'REFUSED' "$T/dc.e"; then echo "  ok    driveCompileT C a second parser() after BlocK: no refusal, and ExpressioN still reads 1/5"; green=$((green+1))
+else echo "  FAIL  driveCompileT C: $(grep -E '^EXDRIVE|REFUSED' "$T/dc.e" | tr '\n' ' ')"; fail=1; fi
 
 #  ⚑ parserCoverage -- THE KANT ROAD'S COVERAGE ROW (SEQ 191 stroke 1, 2026-09-26). Successor to
 #  the C++ emitter's odometer: for every grammar rule (the odometer's four filters, recomputed

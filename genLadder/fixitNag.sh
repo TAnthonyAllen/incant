@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #  fixitNag.sh -- the seal's standing line about Tony's fixit queue.
 #
 #  GENERATED, NOT REMEMBERED, which is the whole point. A seal line that has to
@@ -20,16 +20,33 @@ if [ "$n" = 0 ]; then echo "Tony's fixit incantations waiting: 0"; exit 0; fi
 #  the ADD commit; a file with no add commit yet is brand new, so it sorts last
 #  under the 9999 sentinel and can never be named oldest while a committed one
 #  exists.
-row=$(for f in "$D"/*; do
+#  ⚠ OWNER SPLIT, added 2026-09-27 (SEQ 202, Tony's lane ruling): a citizen stamped
+#  `OWNER: Clod` is Clod's to discharge, not Tony's, so it leaves Tony's headline and gets
+#  its own line. BOTH lines always print, zeros included -- the split may never make the
+#  queue quieter, only route it (see CLAUDE.md, the loaded-gun note).
+oldestOf() {
+    for f in "$@"; do
+        [ -e "$f" ] || continue
+        d=$(git log --diff-filter=A -1 --format=%ad --date=short -- "$f" 2>/dev/null)
+        [ -z "$d" ] && d="9999-99-99"
+        echo "$d $(basename "$f")"
+    done | sort | head -1
+}
+tony=(); clod=()
+for f in "$D"/*; do
     [ -e "$f" ] || continue
-    d=$(git log --diff-filter=A -1 --format=%ad --date=short -- "$f" 2>/dev/null)
-    [ -z "$d" ] && d="9999-99-99"
-    echo "$d $(basename "$f")"
-done | sort | head -1)
-since=${row%% *}
-oldest=${row#* }
-[ "$since" = "9999-99-99" ] && since="uncommitted"
-echo "Tony's fixit incantations waiting: $n (oldest: $oldest, since $since)"
+    if grep -q '^OWNER:[ 	]*Clod' "$f" 2>/dev/null; then clod+=("$f"); else tony+=("$f"); fi
+done
+line() {   # $1 label, rest the files
+    local who="$1"; shift
+    if [ "$#" = 0 ]; then echo "$who waiting: 0"; return; fi
+    local row since oldest
+    row=$(oldestOf "$@"); since=${row%% *}; oldest=${row#* }
+    [ "$since" = "9999-99-99" ] && since="uncommitted"
+    echo "$who waiting: $# (oldest: $oldest, since $since)"
+}
+line "Tony's fixit incantations" "${tony[@]}"
+line "Clod's fixit incantations" "${clod[@]}"
 #  ⚠ THE LANE LINE, added 2026-08-30. It exists so the queue can be ROUTED at a
 #  glance instead of read file by file, and it is GENERATED for the same reason
 #  the count is: a routing table maintained by hand disagrees with the queue the

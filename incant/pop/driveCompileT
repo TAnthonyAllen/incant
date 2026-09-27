@@ -1,0 +1,49 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+define
+    rsN=0;
+    tsX=0;
+    tsY=0;
+    rsRun code={
+        rsN = rsN + 1;
+        cerr "RS SINK FIRED" rsN:;
+        };
+    tsA code={
+        tsX = 11;
+        tsY = 22;
+        };
+    exSay code={
+        v := tell(argument);
+        m := *v["matched"]; c := *v["consumed"];
+        cerr "EXDRIVE m= " m " c= " c:;
+        };
+    ;
+exSay("ExpressioN 1 + 2");
+parser(Start);
+cerr "=== A rsRun compiled after parser(Start)":;
+rsRun(rsN);
+cerr "A rsN= " rsN:;
+cerr "=== B two statements compiled after parser(Start)":;
+tsA();
+cerr "B tsX= " tsX " tsY= " tsY:;
+cerr "=== C second parser() after BlocK is installed":;
+parser(ExpressioN);
+exSay("ExpressioN 1 + 2");
+cerr "DRIVECOMPILE SENTINEL":;
+stop();
+
+driveCompileT -- AN ACTION COMPILED AFTER parser() RUNS ON THE NEW ROAD (F-128, closed 2026-09-27).
+
+processCode compiles an action's body as a DRIVE of BlocK (driveStep): BlocK's generated parse when it
+carries one, the old road otherwise. Before F-128 closed, a compile after BlocK was installed REFUSED
+("checkInput: no enclosing activation to take the label") and the action's body never ran; and a second
+parser() lost its setParse mid-walk.
+A  rsRun, first called after parser(Start), fires its body once: rsN 1.
+B  a two-statement action compiled after parser(Start) runs both: tsX 11, tsY 22.
+C  a second parser(ExpressioN) after BlocK is installed completes with no refusal, and ExpressioN still
+   parses: its drive reads matched 1 consumed 5, as it did before parser(Start).
+exSay is called once BEFORE parser(), so its own compile runs on the old road.
+H7, measured 2026-09-27: on the pre-merge trunk (SEQ 202) A reads rsN 0 with the refusal line; on
+the branch before its last stroke (a426178) C reads the ExpressioN refusal and 0/0.

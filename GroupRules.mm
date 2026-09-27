@@ -845,35 +845,12 @@ GroupItem 	*source = 0;
 *******************************************************************************/
 extern "C" GroupItem *aCTionNamE(GroupItem *input)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*action = ruler->currentMETHOD;
-GroupItem 	*grup = 0;
-GroupItem 	*result = 0;
-char 		*arg = input->getText();
-	result = GroupControl::groupController->locateInMethod(arg);
-	if ( result && result->parent == action )
-		goto endName;
-	if ( ruler->defining && result && result->groupBody->flags.isVirtual )
-		result = ::copyOf(result);
-	grup = new GroupItem(arg);
-	if ( ruler->alphaSet->contains(*arg) && ruler->processingCode )
-		if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
-			if ( !(result && result->groupBody->registry == ruler->opFields) )
-				if ( result )
-					if ( action->groupBody->flags.isRule && result->groupBody->flags.isRule )
-						{
-						result = action->addAttribute(grup);
-						result->groupBody->flags.isLocal = 1;
-						}
-					else	result = action->addAttribute(result);
-				else {
-					result = action->addAttribute(grup);
-					result->groupBody->flags.isLocal = 1;
-					}
-	if ( !result )
-		result = grup;
-endName:
-	input->setGroup(result);
+	// compileOwner while processingCode the owner is the action processCode is compiling, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213)
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	GroupItem *owner = (ruler->processingCode && gCompileOwner) ? gCompileOwner : ruler->currentMETHOD;
+	input->setGroup(::resolveName(input->getText(),owner));
+	
 	return input;
 }
 
@@ -1289,22 +1266,7 @@ Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTA
 	return ::opString(stuff,buffer);
 }
 
-/***************************************************************************
-    aCTionTell -- the tell rule's action, the one door into a field's grammar.
-        tell isRule target=[a-zA-Z0-9]+ message?=[^\n]+ ruleMethod=aCTionTell;
-    Looks the target up through the search list, drives it with the message
-    through driveStep (so the input floor holds), and returns a verdict:
-        matched   1 if the target's grammar matched (a prefix counts)
-        consumed  characters of the message the match used (0 on failure)
-        length    characters in the message
-        stoppedAt offset where the parse stopped: consumed on a match, the
-                  furthest point reached (failedAt) on a failure
-        known     0 if no field has the target's name
-        reply     attribute holding a COPY of the parked label, on a match --
-                  a copy, so a second tell cannot overwrite the first reply
-    An unknown target is a VERDICT, never a refuse(): this action runs inside
-    tell's own parse, and a refusal there aborts the action containing it.
-***************************************************************************/
+// aCTionTell the tell rule's action, the one door into a field's grammar: drive the target with the message and return a verdict; an unknown target is a verdict, never a refuse()
 extern "C" GroupItem *aCTionTell(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -1334,7 +1296,7 @@ int 		stoppedAt = 0;
 		said = new GroupItem("message");
 		said->setText(message->getText());
 		raw = new GroupItem("driveReport");
-		result = ::driveStep(said,who,raw);
+		result = driveStep(said,who,raw);
 		if ( got = raw->get("length") )
 			msgLen = got->getCount();
 		if ( got = raw->get("mark") )
@@ -1351,11 +1313,11 @@ int 		stoppedAt = 0;
 		if ( failAt > 0 )
 			stoppedAt = failAt;
 		}
-	::verdictCount(verdict,"matched",matched);
-	::verdictCount(verdict,"consumed",consumed);
-	::verdictCount(verdict,"length",msgLen);
-	::verdictCount(verdict,"stoppedAt",stoppedAt);
-	::verdictCount(verdict,"known",known);
+	verdictCount(verdict,"matched",matched);
+	verdictCount(verdict,"consumed",consumed);
+	verdictCount(verdict,"length",msgLen);
+	verdictCount(verdict,"stoppedAt",stoppedAt);
+	verdictCount(verdict,"known",known);
 	// replyFromFloor driveStep hands back a generated root's label from the drive floor -- the reply reads that, never the root's slot, which the call bracket has restored
 	replyFrom = result;
 	if ( matched && replyFrom && replyFrom != ruler->labelNO && replyFrom != ruler->trueResult )
@@ -1650,9 +1612,7 @@ GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 	return input;
 }
 
-/*******************************************************************************
-	Print the field passed in to the buffer passed in
-*******************************************************************************/
+// appendGroup print the field passed in to the buffer passed in, or run its print shortcuts
 extern "C" GroupItem *appendGroup(GroupItem *input, GroupItem *FormaT, Buffer *buffer)
 {
 char 		*atText = 0;
@@ -1662,20 +1622,7 @@ int 		indenting = 0;
 GroupItem 	*grup = 0;
 GroupItem 	*field = 0;
 	field = input;
-	/*  ⚠ A REFUSING OPERATOR HANDS THIS A NULL, AND DEREFERENCING IT WAS F-36's
-	CRASH. Fixed 2026-09-01. A binary op that cannot apply prints its own
-	named error and returns NULL -- opMultiply does exactly that
-	(`ERROR Operator * failed on <a> and <b>`) and so do opPlus, opMinus and
-	the rest. appendPrintXP then runs the expression and passes the result
-	straight here, so every such refusal inside a `print`/`cerr` item list
-	arrived as a null and died on the isShortcut read two lines below.
-	⚠ THE REPORTED SYMPTOM WAS `* *x` AT EXIT 139 WITH NO SENTINEL, and the
-	star was a red herring: with a SPACE the leading `*` is BINARY MULTIPLY
-	against the preceding item, not a second unary. So the crash was never
-	about composing unwraps -- it is every refusing binary operator in print
-	position, and `*` was merely the one somebody typed.
-	THE ERROR IS ALREADY NAMED BY THE OPERATOR, so this returns quietly
-	rather than printing a second time. Skipping the item is the refusal.  */
+	// nullIsRefusal a refusing operator hands this a NULL and its error is already named -- skip the item quietly, never dereference it (F-36)
 	if ( !field )
 		return 0;
 	if ( FormaT )
@@ -1693,10 +1640,7 @@ GroupItem 	*field = 0;
 				::printField(grup,format,buffer);
 		else	::printField(field,format,buffer);
 	else {
-		/*******************************************************************
-		The following treats field text as a string of print short cuts,
-		each then gets processed to implement the short cut
-		*******************************************************************/
+		// shortcuts the field text is a string of print shortcuts, each processed in turn
 		for ( atText = field->getText(); *atText; atText++ )
 			switch (*atText)
 				{
@@ -1799,9 +1743,7 @@ extern "C" GroupItem *arrondir(GroupItem *field)
 	return GroupControl::groupController->groupRules->tempField;
 }
 
-/*  BOTH ROADS CALL THIS -- the interpreted `=` reaches it from opAssign, the
-    emitted `=` through jitAssignNodeRT. One spelling, so they cannot drift.
-    jitEmitters.jitAssignNodeRT  */
+// assignFieldCore BOTH ROADS CALL THIS -- the interpreted = from opAssign, the emitted = through jitAssignNodeRT -- one spelling, so they cannot drift
 extern "C" int assignFieldCore(GroupItem *source, GroupItem *target)
 {
 	
@@ -1875,12 +1817,7 @@ GroupItem 	*grup = 0;
 			::clearWalked(grup);
 }
 
-/***************************************************************************
-    Close the file associated with the buffer. If no file has been set,
-    fall back to using the field's tag as the filename — the tag is a
-    handle the user already controls and serves no other purpose in this
-    context, so it's a reasonable default destination.
-***************************************************************************/
+// closeFile close the buffer's file; with no file set, the field's tag is the filename
 extern "C" int closeFile(GroupItem *bufField)
 {
 	if ( isBUFFER(bufField->groupBody->flags.data) )
@@ -1899,10 +1836,17 @@ extern "C" GroupItem *compile(GroupItem *field)
 {
 GroupItem 	*code = 0;
 GroupItem 	*grup = 0;
-	if ( !isCoded(field->groupBody->flags.actionType) )
+GroupItem 	*pending = 0;
+GroupItem 	*holder = 0;
+	// stagedCompile a regenerated body arrives as a PENDING carrier: compile it, and install it only when green -- the rule keeps its current body and isAction until then (SEQ 215, F-31's store-compile-verify-bind)
+	pending = field->get("pendingParseR");
+	if ( !pending && !isCoded(field->groupBody->flags.actionType) )
 		return 0;
 	// any rule without parseRule as its method will exit here
-	code = field->parseBody();
+	if ( pending )
+		holder = pending;
+	else	holder = field->parseHolder();
+	code = holder->getAttribute("CodE");
 	// secondRefuseInCompile
 	if ( !code )
 		return ::refuse(field,"compile: isCoded is set but there is no CodE attribute; the flag and the artifact disagree");
@@ -1913,7 +1857,7 @@ GroupItem 	*grup = 0;
 		else
 		if ( grup->groupBody->flags.isRule )
 			code->addAttribute(grup);
-	// compileAddTempFields this and tempField
+	// compileAddTempFields this and tempField -- named on grup, not bare: a declaration above re-points bare names (bear-trap #42)
 	grup = new GroupItem("this");
 	grup->groupBody->flags.isLocal = 1;
 	grup->groupBody->flags.noPrint = 1;
@@ -1929,22 +1873,33 @@ GroupItem 	*grup = 0;
 	// refusedRuleDoesNotEndRun has to continue to processCode below
 	GroupControl::groupController->groupRules->compiling = 1;
 	// so ANYtoken allows key fields
-	if ( !::processCode(field,field->parseHolder()) )
+	if ( !::processCode(field,holder) )
 		{
 		// BOTH arms clear it -- this arm RETURNS, so the tail below never runs and compiling would stay set for the rest of the process
 		GroupControl::groupController->groupRules->compiling = 0;
 		::printf("\t%s\n",code->getText());
+		// failedPendingNamesCarrier a pending carrier that will not compile is DETACHED: the rule keeps its old body, and the refusal names the carrier and the rule
+		if ( pending )
+			{
+			pending->remove();
+			 { char zWhy[224]; ::snprintf(zWhy,sizeof zWhy,"compile: the pending carrier for %s would not parse -- %s keeps its current body; the message above names the position",field->groupBody->tag,field->groupBody->tag); return ::refuse(pending,zWhy); } 
+			}
 		return ::refuse(field,"compile: processCode would not parse the generated body; its message above names the position");
 		}
 	else	::printf("compile succeeded for %s\n",field->groupBody->tag);
+	// installInOneStep the green pending carrier replaces builtinParseR in one step: detached, retagged, and swapped in by replace()
+	if ( pending )
+		{
+		pending->remove();
+		 pending->groupBody->tag = ::strdup("builtinParseR"); 
+		field->replace(pending);
+		}
 	GroupControl::groupController->groupRules->compiling = 0;
 endCompile:
 	grup = 0;
 	if ( field->groupBody->flags.hasTraits || field->groupBody->flags.hasMembers )
 		while ( grup = field->next(grup) )
 			{
-			grup->parent = field;
-			// because if field is a copy grup.parent is not field
 			if ( grup->groupBody->flags.noPrint )
 				continue;
 			else	::compile(grup);
@@ -2137,14 +2092,34 @@ int 	length = 0;
 		::printf("\n");
 }
 
-/*****************************************************************************
-	The dispatcher is designed to take a group argument disguised as a void*
-    The group argument is on the listener notifyLIST. The notifier is the
-    notifyLIST parent. dispatcher then runs grup(notifier) in a separate thread.
+// definersOf every occurrence of a rule -- the registry entry and each term carrying its tag -- and whether definingRule() answers the REGISTRY's entry, as the shared-children invariant says it must (SEQ 216); prints the counts unconditionally
+extern "C" GroupItem *definersOf(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	
+	const char *want = input ? input->groupBody->tag : 0;
+	int seen = 0, toRegistry = 0;
+	GroupItem *reg = GroupControl::groupController->getRegistry((char*)"Grokking");
+	GroupItem *regEntry = (want && reg) ? reg->get((char*)want) : 0;
+	GroupItem *r = 0;
+	while ( want && regEntry && (r = reg->next(r)) ) {
+	GroupItem *t = 0;
+	if ( ::strcmp(r->groupBody->tag,want) == 0 ) { seen++; if ( r->definingRule() == regEntry ) toRegistry++;
+	else ::fprintf(stderr,"  DEFINER %s registry entry answers %p, not itself\n",want,r->definingRule()); }
+	while ( (t = r->next(t)) )
+	if ( ::strcmp(t->groupBody->tag,want) == 0 ) {
+	seen++;
+	GroupItem *d = t->definingRule();
+	if ( d == regEntry ) toRegistry++;
+	else ::fprintf(stderr,"  DEFINER %s term of rule %s answers %s@%p (parent %s), not the registry's\n",want,r->groupBody->tag,
+	d ? d->groupBody->tag : "-",d,(d && d->parent) ? d->parent->groupBody->tag : "-"); }
+	}
+	::fprintf(stderr,"DEFINERS %s occurrences=%d registry=%d others=%d\n",want ? want : "(none)",seen,toRegistry,seen - toRegistry);
+	
+	return ruler->trueResult;
+}
 
-            if !grup(notifier)  cerr "dispatcher:",grup.tag "(" notifier.tag ") failed":;
-            else cout "dispatcher:",grup.tag "(" notifier.tag ") succeeded":;
-*****************************************************************************/
+// dispatcher run a listener, disguised as a void*, against its notifier -- a stub that says it needs rewriting
 extern "C" void dispatcher(void *stuff)
 {
 GroupItem 	*grup = (GroupItem*)stuff;
@@ -2190,14 +2165,7 @@ extern "C" int driveFloorLabel(RuleStuff *stuff, GroupItem *label)
 	
 }
 
-/***************************************************************************
-    driveStep -- runRule's body, and the one drive both runRule and tell use.
-    If there is a field argument, input is diverted to its content before
-    running the rule. A non-null report receives the drive's numbers as
-    OFFSETS into the message, never addresses (H3): length, mark (the mark at
-    the 2b-before-pop seat, -1 if it left the message) and failedAt (-1 if
-    unset or outside the message). runRule passes no report.
-***************************************************************************/
+// driveStep runRule's body and the one drive runRule and tell share: divert input to the field's content, run the rule, and report OFFSETS into the message, never addresses (H3)
 extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -2427,6 +2395,15 @@ int 		refused = 0;
 	return 0;
 }
 
+// enclosingFace the face of this term in the ENCLOSING RULE BODY, through the enclosing parse activation -- a drive floors it, so a drive root has none; never through currentMETHOD, which inside an action is the action and finds its own compiled BlocK (SEQ 212)
+extern "C" GroupItem *enclosingFace(GroupItem *field)
+{
+	
+	if ( !field || !gParseActive || gParseActive->floor || !gParseActive->stuff || !gParseActive->stuff->rule ) return 0;
+	return gParseActive->stuff->rule->get(field->groupBody->tag);
+	
+}
+
 // exitFromParse the common exit every parse method returns through: sync, fire the label method, attach; a min-zero miss owes a success
 extern "C" GroupItem *exitFromParse(GroupItem *field)
 {
@@ -2453,16 +2430,13 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			}
 		}
 	ruler->atRuleMark = ruleStuff->hereAt;
-	// minZeroIsSatisfied a term whose MINIMUM IS ZERO is satisfied by not matching, so it owes the chain a success and not a null -- parseLoop owns max>1, this owns the max=1 optional that never enters it
-	if ( ruleStuff->max <= 1 && !ruleStuff->min && !field->groupBody->flags.isCondition )
+	// minZeroIsSatisfied a term whose MINIMUM IS ZERO is satisfied by not matching, so it owes the chain a success and not a null -- parseLoop owns what repeats inside it; this owns the max=1 optional and a max>1 LEAF (nameSet*, Modifier*), which never enters it (SEQ 208)
+	if ( !ruleStuff->min && !field->groupBody->flags.isCondition && (ruleStuff->max <= 1 || !repeatsInLoop(field)) )
 		return ruler->trueResult;
 	return 0;
 }
 
-/***************************************************************************
-	The fAIL method expects to have the name of the fail method passed in as
-    text of the FAIL attribute.
-***************************************************************************/
+// fAIL bind the fail method named in the FAIL attribute's text
 extern "C" GroupItem *fAIL(GroupItem *input)
 {
 char 	*name = input->getText();
@@ -2560,47 +2534,23 @@ plainFold:
 	return folded;
 }
 
-/*****************************************************************************
-	frameFind -- read-only twin. Returns null when no frame child exists, so
-	restore can tell "never saved" from "saved nothing" without minting one.
-*****************************************************************************/
+// followArgument argument is a BINDING, not a field: an isArgument operand holding a group yields what it holds
+extern "C" GroupItem *followArgument(GroupItem *operand)
+{
+	
+	if ( operand && operand->groupBody->flags.isArgument && isGROUP(operand->groupBody->flags.data) )
+	return operand->getGroup();
+	return operand;
+	
+}
+
+// frameFind read-only twin of frameStak -- null when no frame child exists, so restore can tell never saved from saved nothing without minting one
 extern "C" GroupItem *frameFind(GroupItem *action)
 {
 	return action->get("frameSTAK");
 }
 
-/*****************************************************************************
-	frameStak -- THE FRAME BRACKET'S SAVE-STACK LIVES ON A noPrint CHILD OF THE
-	ACTION, NEVER IN THE ACTION'S OWN DATA SLOT.
-
-	THE DEFECT THIS REPAIRS, measured 2026-08-30. saveLocalFields opened with
-	`action.stak = recurseSTAK`, which writes the action node's DATA slot. For
-	an ordinary action that slot is empty and the write is free. For a field
-	that carries BOTH DATA AND A CODE BLOCK -- `lefty=3 code={ lefty += 43; }`,
-	the shape incant/unitTests documents as incant's distinguishing feature --
-	that slot holds the VALUE, and the bracket destroyed it. Measured directly:
-
-	    SLFENTRY action=spSelf data=5  text=3        <- the field holds 3
-	    SLFAFTER action=spSelf data=12 text=spSelf   <- data 12 = isSTAK, value gone
-
-	It read as CLAIM KANT-8's own symptom -- a field answering with its own tag
-	-- which is why it hid: the KANT-8 family is green on every row while this
-	is broken, because no K-row uses a data-carrying action.
-
-	ONE CHANNEL, ONE MEANING. The node's data slot was carrying the FIELD'S
-	VALUE and the FRAME'S SAVE-STACK. The cure is the standing one: a second
-	channel, not a cleverer test.
-
-	⚠ IT IS A REPAIR, NOT A SEMANTICS CHANGE, and rung B stands whole. The law
-	is that the bracket touches exactly MINTED SCRATCH; a defined field's value
-	was never its business. The recursive gates stay SHUT -- they are set at
-	parse time BY IDENTITY so mutual recursion never sets them, and cleared at
-	run time so behaviour follows invocation history. Both diseases documented.
-
-	SEPARATE FUNCTION on purpose: a declaration introduced into a declared-field
-	tok function re-binds every bare member name in scope, INCLUDING LINES ABOVE
-	IT. A call introduces no declaration. Same shape as parkOnMaster/frameParent.
-*****************************************************************************/
+// frameStak the frame bracket's save-stack lives on a noPrint CHILD, never in the action's own data slot, which may hold the field's VALUE
 extern "C" GroupItem *frameStak(GroupItem *action)
 {
 GroupItem 	*frame = action->get("frameSTAK");
@@ -2944,6 +2894,26 @@ GroupItem 	*types = GroupControl::groupController->locate("types");
 	return type;
 }
 
+// grammarHolds report every grammar rule, and every term of one, holding a child tagged like the argument -- an action body's name must never land there (SEQ 214, ownerT); prints the count unconditionally
+extern "C" GroupItem *grammarHolds(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	
+	const char *want = input ? input->groupBody->tag : 0;
+	int held = 0;
+	GroupItem *reg = GroupControl::groupController->getRegistry((char*)"Grokking");
+	GroupItem *r = 0;
+	while ( want && reg && (r = reg->next(r)) ) {
+	if ( r->get((char*)want) ) { held++; ::fprintf(stderr,"  GRAMMARHOLDS %s under rule %s\n",want,r->groupBody->tag); }
+	GroupItem *t = 0;
+	while ( (t = r->next(t)) )
+	if ( t->get((char*)want) ) { held++; ::fprintf(stderr,"  GRAMMARHOLDS %s under term %s of rule %s\n",want,t->groupBody->tag,r->groupBody->tag); }
+	}
+	::fprintf(stderr,"GRAMMARHOLDS %s = %d\n",want ? want : "(none)",held);
+	
+	return ruler->trueResult;
+}
+
 /*******************************************************************************
 	guard command should be run as a rule attribute to specify a guard for
     a rule that has not been guarded.
@@ -3157,10 +3127,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return xpress;
 }
 
-/*  modifyClass -- modify(), filtered to ONE class. `wantRepeat` selects which.
-    It applies through modify() itself rather than re-implementing the switch, so
-    there is exactly one place that knows what a modifier DOES and exactly one
-    place that knows what CLASS it is.   GroupActions.modify.modifierClass  */
+// hasRepeatClass 1 when any character of the modifier is in the repetition class
 extern "C" int hasRepeatClass(char *modifier)
 {
 	
@@ -3187,13 +3154,7 @@ RuleStuff 	*defStuff = 0;
 		defStuff->parseMethod = faceStuff->parseMethod;
 }
 
-/*****************************************************************************
-    interpretMethod — binds a bytecode op's interpret handler. Unlike
-    operateMethod (which binds the op's own operat slot, then vanishes as a
-    setter), this creates a PERSISTENT `interpret` child on the op and binds
-    the named C++ handler as that child's method, so interpretBC can dispatch
-    it in place via grup.interpret(grup). The op's own flags/slots stay clear.
-*****************************************************************************/
+// interpretMethod bind a bytecode op's handler on a PERSISTENT interpret child, so interpretBC dispatches it in place; the op's own slots stay clear
 extern "C" GroupItem *interpretMethod(GroupItem *input)
 {
 char 		*name = input->getText();
@@ -6553,6 +6514,21 @@ extern "C" GroupItem *jitSeedLiteral(GroupItem *token)
 	
 }
 
+// jitSeedOperands seed both operands for the emitter -- a literal as a constant, anything else as a field
+extern "C" void jitSeedOperands(GroupItem *target, GroupItem *arg)
+{
+	
+	if (target && !target->jitData) {
+	if (target->groupBody->flags.isLiteral) jitSeedLiteral(target);
+	else                                    jitSeedField(target);
+	}
+	if (arg && !arg->jitData) {
+	if (arg->groupBody->flags.isLiteral)    jitSeedLiteral(arg);
+	else                                    jitSeedField(arg);
+	}
+	
+}
+
 /*******************************************************************************
     jitShowRecord -- READ-ONLY. Print what is CORESIDENT on a field's canonical
     node: every attribute by name, with its size, INCLUDING the noPrint ones.
@@ -6588,6 +6564,25 @@ extern "C" GroupItem *jitShowRecord(GroupItem *field)
 	printf("=== RECORD %s: %d attributes ===\n", definer->groupBody->tag, kount);
 	fflush(stdout);
 	return ruler->trueResult;
+	
+}
+
+// jitSlotTaken 1 when a jitting op carries an emitter slot to fire -- counted HERE so no shim can forget; a unary slot refuses out loud and runs interpreted
+extern "C" int jitSlotTaken(GroupItem *op)
+{
+	
+	if ( !GroupControl::groupController->groupRules->jitting || !op->groupBody->gJitEmitter ) return 0;
+	if ( op->groupBody->flags.isUnary ) {
+	++gJitSlotUnaryRefused;
+	::fprintf(stderr,
+	"=== JIT SLOT REFUSED #%d: unary op '%s' carries a jitEmitter, "
+	"but the unary specimen has not landed -- running INTERPRETED ===\n",
+	gJitSlotUnaryRefused, op->groupBody->tag ? op->groupBody->tag : "(unnamed)");
+	::fflush(stderr);
+	return 0;
+	}
+	++gJitSlotCount;
+	return 1;
 	
 }
 
@@ -6711,6 +6706,7 @@ extern "C" int kwDirectRefuses(GroupItem *input)
 	
 }
 
+// limitWriteCheck after the write: a bad maxLimit or repeatLimit is refused and the prior count put back (F-27)
 extern "C" void limitWriteCheck(GroupItem *target, int priorLimit)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -6732,66 +6728,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	ruler->maxLimit->setCount(priorLimit);
 }
 
-/*****************************************************************************
-    reportMaxLimit -- THE THIRD REFUSAL, and it states a fact neither sibling
-    can. reportCodeFail says a body was parsed and the parse failed;
-    reportNoBody says a rule was reached with no compiled body. This one says
-    a match ran into the maxLimit ceiling with input still matching, so what
-    was about to be returned is a TRUNCATION.
-
-    ⚠ IT REFUSES RATHER THAN TRUNCATING, and that is the whole point of it.
-    Silently returning the first N characters of a longer token is
-    parse-succeeded-with-wrong-content, which is the worst failure genre on
-    this project's books -- every downstream reader believes a token that was
-    never in the input. A limit hit means either a defect or a genuinely large
-    token, and both deserve to be named at the moment they happen.
-
-    ⚠ ONE IMPLEMENTER, WHICH IS HOW THE TWO ENGINES ARE KEPT HONEST. The
-    interpretive loop (testMacro, RuleStuff.twk) and the generated-parse loops
-    (parseAny/parseCharacter/parseSet, Generate.rtn) both call THIS function,
-    so "same behaviour, same words" is true by construction rather than by two
-    copies being carefully matched. The convergence note on reportCodeFail
-    applies to all three.
-
-    ⚠ WHAT IT IS NOT ALLOWED TO FIRE ON. max is not only the ceiling: it is 1
-    by default and it is whatever an explicit [min max] Limit sets. Both of
-    those hit `counter >= max` in the ordinary course of a correct parse -- a
-    one-character rule followed by another matching character reaches it on
-    every single match. So the callers gate on `max > 1 && !limitsSet`, which
-    is true only for the ceiling modify() stamps. Ungated, this would reject
-    every name longer than one letter.
-
-    cerr for its siblings' reason: a refusal that vanishes into a diverted
-    print buffer is not loud.
-*****************************************************************************/
-/*****************************************************************************
-    limitWriteGuard / limitWriteCheck -- F-27's ruling: a bad write to maxLimit
-    is refused AT THE WRITE, and the assignment does not take.
-
-    ⚠ THE SITE IS THE RULING. Tony, 2026-08-19: catching a bad limit at its one
-    write site is cheaper than diagnosing a million silent zero-matches at parse
-    time, and a stamped max = 0 is the succeed-without-advancing family wearing a
-    configuration costume. So this does NOT live in modify() -- by the time
-    modify() reads a poisoned count the write has already got away, and every
-    rule defined since carries it.
-
-    ⚠ WHY IT IS TWO FUNCTIONS AND NOT ONE. Refusing requires the value the write
-    is about to destroy, so half of it has to run BEFORE opAssign's setContent
-    and half after. The guard returns the prior count and doubles as the "is this
-    even maxLimit" test: a non-zero return means both "this write is to maxLimit"
-    and "here is what to put back", so opAssign pays one int test on every other
-    assignment in the system and nothing else.
-
-    ⚠ THE TEST IS ON THE DATA TYPE, NOT ONLY ON THE COUNT, and that is not
-    belt-and-braces. `maxLimit = "big"` leaves an isSTRING, and getCount reads
-    `count` straight out of the union for an isSTRING -- which overlaps the text
-    pointer, so it comes back LARGE and non-zero rather than 0. A count-only test
-    would wave that through and stamp a garbage ceiling. Only a genuine isCOUNT
-    or isNUMBER above zero is a usable limit.
-
-    The message names all three things the ruling asked for: the rejected value,
-    the retained value, and that repetition limits are unchanged.
-*****************************************************************************/
+// limitWriteGuard before the write: the prior count when the target is maxLimit or repeatLimit, else 0 -- one int test on every other assignment
 extern "C" int limitWriteGuard(GroupItem *target)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -6918,10 +6855,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ruler->falseResult;
 }
 
-/*******************************************************************************
-	Load a registry (create it if necessary) from a string. It does not deal
-    w/attributes, just loads any field of non-space characters.
-*******************************************************************************/
+// loadRegistryFromString load a registry, creating it if needed, with every run of non-space characters; attributes are not handled
 extern "C" void loadRegistryFromString(char *name, char *content)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -6986,10 +6920,7 @@ extern "C" GroupItem *loopCondition(GroupItem *cond)
 	return 0;
 }
 
-/***************************************************************************
-    makeDataType sets target to the data type specified in argument.
-    It is invoked in setInternalType
-***************************************************************************/
+// makeDataType set target to the data type the argument names -- called from setInternalType
 extern "C" GroupItem *makeDataType(GroupItem *target, GroupItem *argument)
 {
 GroupItem 	*fILE = 0;
@@ -7074,6 +7005,7 @@ GroupItem 	*form = input->parent;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
+// materialiseRegistry materialise the rStuff of every rule in a registry; returns how many were made
 extern "C" int materialiseRegistry(GroupItem *registry)
 {
 GroupItem 	*rule = 0;
@@ -7083,46 +7015,7 @@ int 		made = 0;
 	return made;
 }
 
-/*****************************************************************************
-    materialiseTerms — rStuff at DEFINE TIME, not lazily on first access
-    (Clay SEQ 27). By genParseSpec §7.4's taxonomy rStuff is SHAPE: one per
-    rule, knowable at definition. Lazy materialisation was a cache for something
-    that was never in doubt.
-
-    MEASURED FIRST, and it narrows the job considerably. Terms defined FROM
-    INCANT SOURCE already materialise at definition — `modify` calls
-    setRuleStuff, and even an unmodified term comes back with rStuff. The gap is
-    the BOOTSTRAPPER, which hand-builds rules in C++: GroupMain's `Limit` adds
-    "[" and "]" with no modify() call at all, and applies its `+`/`*` to
-    `item.group` (the shared counter rule) rather than to the min/max terms. So
-    those terms had no rStuff to hold anything.
-
-    That is also why `Limit`'s `']'-` looked like a term whose modifier had
-    nowhere to live: THE MODIFIER WAS NEVER APPLIED. incant/grammar:52 lists
-    `Limit '['- min=[0-9]+ max?=[0-9]+ ']'- noPrint;` — with the `-` — and the
-    bootstrapper adds "[" and "]" with no modify() call at all. A real
-    divergence between the documented grammar and the built one, and
-    materialisation is what makes it visible instead of unknown.
-
-    CodE is NOT such a case, and the distinction is worth keeping: incant/
-    grammar:42 lists `CodE "{" "}" parseAction;` with no modifiers, so its terms
-    planning as LITTO rather than LIT is the listing being followed, not
-    departed from.
-
-    USES setRuleStuff, WHICH ALSO SETS isRule — Tony's ruling, 2026-07-28:
-    setRuleStuff only ever applies to rules anyway, so the propagation is
-    correct rather than a side effect to be worked around. It is also what keeps
-    this to ONE implementer: `modify` already calls setRuleStuff on every
-    modified term, so a bootstrap term materialised here ends up in exactly the
-    same state as an incant-defined one instead of a near-miss of it.
-
-    Worth knowing why the isRule propagation matters, since it looks cosmetic: a
-    reference term SHARES the referenced rule's member list, so `isRule &&
-    hasMembers` on that term is precisely how parse() dispatches into a
-    referenced alternation (GroupItem.twk:1062), and how checkInput knows to
-    suppress its label (RuleStuff.twk:139). Terms defined from incant source
-    already get it via modify; this closes the gap for the hand-built ones.
-*****************************************************************************/
+// materialiseTerms rStuff at DEFINE TIME, for the rule and each term -- it closes the gap the bootstrapper's hand-built rules leave
 extern "C" int materialiseTerms(GroupItem *rule)
 {
 GroupItem 	*term = 0;
@@ -7235,11 +7128,7 @@ extern "C" GroupItem *measureRetire(char *what, GroupItem *field)
 	return 0;
 }
 
-/*  modifierIsRepeat -- THE MODIFIER CLASS PREDICATE, one question, no list here.
-    A FLAG DESCRIBES A TERM; A REPETITION CHANGES WHAT THE TERM IS, and only the
-    repetition class carries `repeatClass` in incant/setup's Modifiers registry, so
-    this is a presence test and the default is flag.
-    ⚠ A HAND, NOT A WITNESS -- no measure prefix.   GroupActions.modify.modifierClass  */
+// modifierIsRepeat THE MODIFIER CLASS PREDICATE: a presence test for repeatClass in the Modifiers registry, default flag -- a hand, not a witness
 extern "C" int modifierIsRepeat(char *modifier)
 {
 	
@@ -7255,9 +7144,7 @@ extern "C" int modifierIsRepeat(char *modifier)
 	return 0;
 }
 
-/*****************************************************************************
-	modify processes modifiers for field passed in updating the field RuleStuff
-*****************************************************************************/
+// modify process the modifiers for the field passed in, updating its RuleStuff
 extern "C" void modify(GroupItem *field, char *modifier)
 {
 	field->setRuleStuff();
@@ -7313,6 +7200,7 @@ extern "C" void modify(GroupItem *field, char *modifier)
 			}
 }
 
+// modifyClass modify(), filtered to ONE class -- one place knows what a modifier DOES, one place knows what CLASS it is
 extern "C" void modifyClass(GroupItem *field, char *modifier, int wantRepeat)
 {
 	
@@ -9365,9 +9253,8 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 GroupItem 	*grup = 0;
 char 		*entryMark = ruler->atRuleMark;
 int 		matched = 0;
-	// faceReresolve a bin or registry reached BY NAME is re-resolved to the calling rule's own face, as parseRule does -- the face carries the term's rStuff (its modifiers and label slot)
-	if ( ruler->currentMETHOD && ruler->currentMETHOD->get(field->groupBody->tag) )
-		field = ruler->currentMETHOD->get(field->groupBody->tag);
+	// faceReresolve a bin or registry reached BY NAME is re-resolved to the calling rule's own face, as parseRule does, through the enclosing parse activation -- the face carries the term's rStuff (its modifiers and label slot)
+	 { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } 
 	ruleStuff = field->getRStuff();
 	// noStuffLawfulSkip a registry has no rStuff: match with default limits and exit WITHOUT exitFromParse -- never refuse, never mint onto it
 	if ( !ruleStuff )
@@ -9443,9 +9330,8 @@ int 		matched = 0;
 // parseLoop run a repeating term up to max; the verdict is the COUNT against min, never the success flag
 extern "C" GroupItem *parseLoop(GroupItem *field)
 {
-	// enclosingRule re-resolve to the enclosing rule's own face, tested on the lookup so an unfound tag never overwrites field with null
-	if ( GroupControl::groupController->groupRules->currentMETHOD && GroupControl::groupController->groupRules->currentMETHOD->get(field->groupBody->tag) )
-		field = GroupControl::groupController->groupRules->currentMETHOD->get(field->groupBody->tag);
+	// enclosingRule re-resolve to the enclosing rule body's own face, through the ENCLOSING PARSE ACTIVATION -- a drive floors it, so a drive root keeps the rule it was handed (SEQ 212)
+	 { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } 
 RuleStuff *ruleStuff = field->getRStuff();
 	ruleStuff->kount = 0;
 	while ( ruleStuff->kount < ruleStuff->max )
@@ -9469,9 +9355,8 @@ GroupItem 	*grup = 0;
 GroupItem 	*myLabel = 0;
 GroupItem 	*into = 0;
 GroupItem 	*priorMETHOD = 0;
-	// enclosingRule re-resolve to the enclosing rule's own face, tested on the lookup so an unfound tag never overwrites field with null (the old `if lastRule` guard missed that)
-	if ( ruler->currentMETHOD && ruler->currentMETHOD->get(field->groupBody->tag) )
-		field = ruler->currentMETHOD->get(field->groupBody->tag);
+	// enclosingRule re-resolve to the enclosing rule body's own face, through the ENCLOSING PARSE ACTIVATION -- a drive floors it, so a drive root keeps the rule it was handed (SEQ 212)
+	 { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } 
 RuleStuff 	*ruleStuff = field->getRStuff();
 	// callBracket lift this call's own rStuff state into C++ locals -- the C++ stack is the frame stack, and a nested call of the same rule would otherwise overwrite it (Tony, 2026-09-24; F-114). Passthrough, so tok sees no declaration (bear-trap #42)
 	
@@ -9637,22 +9522,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return ::exitFromParse(field);
 }
 
-/*******************************************************************************
-    pickKindOP -- THE WHOLE += PICK, ONE PLACE, BOTH ROADS (Tony, Amendments 1-3 to
-    FINISH +=, 2026-09-25). Members are keyed on the TARGET (ruling 5):
-      1. target is a bin or registry (binType)   -> the structural member
-      2. target has data                         -> its data kind's member
-      3. no data, HAS MEMBERS (rules and actions
-         included -- a grammar graft)            -> the structural member
-      4. no data, no members -- EMPTY:
-         4a. argument is a list (branch A's test) -> the string member: the empty
-             field becomes a string holding the concatenation (the 35a ruling)
-         4b. argument has data                   -> the ARGUMENT's kind picks
-         4c. otherwise, a dataless node          -> the structural member
-    No member for the pick -> the op itself, and opPlusEQ refuses by name.
-    // structuralIsMembers structural is hasMembers, NEVER groupList -- attributes live on the list
-    // tagsBuiltHere the structural and 4a tags are built here, not through getDataType: an empty field and a structural one both read "none"
-*******************************************************************************/
+// pickKindOP THE WHOLE += PICK, ONE PLACE, BOTH ROADS -- members keyed on the TARGET; no member for the pick hands back the op, and opPlusEQ refuses by name
+// structuralIsMembers structural is hasMembers, NEVER groupList -- attributes live on the list
+// tagsBuiltHere the structural and 4a tags are built here, not through getDataType: an empty field and a structural one both read "none"
 extern "C" GroupItem *pickKindOP(GroupItem *op, GroupItem *target, GroupItem *arg)
 {
 	if ( !op || !target )
@@ -9699,9 +9571,7 @@ extern "C" GroupItem *plusEQshapeRefusal(char *kind, GroupItem *argument, GroupI
 	
 }
 
-/*******************************************************************************
-	Print the field passed in to the buffer passed in
-*******************************************************************************/
+// printField print the field passed in to the buffer passed in, in its data type's default format
 extern "C" void printField(GroupItem *field, char *format, Buffer *buffer)
 {
 	if ( isMethod(field->groupBody->flags.instructType) )
@@ -9891,17 +9761,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ruler->trueResult;
 }
 
-/*  ⚠ THE ARGUMENT IS EXEMPT, and it is what lets the declaration go.
-                runAction binds the argument slot BEFORE calling here, so an
-                entry clear that includes it wipes the bind. The DECLARED
-                attribute escaped this for free -- aCTionDefinE flagged it
-                isArgument and never isLocal. A MINTED one does not: with no
-                declaration, aCTionNamE creates the name as an action LOCAL
-                (ruleActions.rtn, isLocal = true), which lands it squarely in
-                this walk. MEASURED 2026-09-05: without this clause the
-                declaration sweep took the fleet 185 -> 147, every argument
-                reading back as its own tag (bear-trap #26).
-                GroupActions.processAction.argumentExempt  */
+// processAction run a cached BlocK for an action, or for a rule with its label's contents bound to its locals; locals are cleared at entry
 extern "C" GroupItem *processAction(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -9923,9 +9783,7 @@ GroupItem 	*action = field;
 	int actionBranchSave = GroupControl::groupController->groupRules->branchKind;
 	GroupControl::groupController->groupRules->branchKind = 0;
 	
-	/*************************************************************************
-	if action is a rule, update local fields from label contents.
-	*************************************************************************/
+	// labelToLocals a rule's locals take the label's contents; isLabel fields are not cleared below
 	if ( action->groupBody->flags.isRule )
 		{
 		code = action->actionBody();
@@ -9943,12 +9801,9 @@ GroupItem 	*action = field;
 		}
 	if ( result = action->actionBlocK() )
 		{
-		/*********************************************************************
-		The following clears local fields before action runs (note isLabel
-		fields are not cleared; they were set above).
-		*********************************************************************/
 		if ( action->groupBody->flags.isRule )
 			action = code;
+		// argumentExempt the argument is exempt from the entry clear -- runAction bound it before calling here
 		while ( grup = action->nextAttribute(grup) )
 			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isLabel && !grup->groupBody->flags.noPrint && !grup->groupBody->flags.isArgument && grup->groupBody != action->groupBody )
 				grup->clear();
@@ -9960,6 +9815,7 @@ GroupItem 	*action = field;
 	return result;
 }
 
+// processCode parse an action's CodE into a BlocK and attach it; the field is made an action FIRST, or a recursive call would complain
 extern "C" int processCode(GroupItem *field, GroupItem *holder)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -9970,25 +9826,7 @@ GroupItem 	*priorMETHOD = ruler->currentMETHOD;
 GroupItem 	*action = field;
 int 		indenter = ruler->lastIndent;
 int 		processing = ruler->processingCode;
-	/*  ⚠ THE D2 TRIPWIRE. NOT a tolerance guard -- a refuse-loud trap, and
-	the difference is the whole ruling. Tony, 2026-08-22.
-	
-	D1 says an isRule-class groupBody flag means RULE-SHAPED and that
-	rStuff-less is LAWFUL, because that is what a specimen is. D2 says
-	isLabel is different in kind: a label exists ONLY as the result of a
-	live parse, and its rStuff.rule link is part of that birth. So
-	isLabel IMPLIES live rStuff, always. An rStuff-less label is not a
-	specimen -- it is WRECKAGE: something upstream broke, copied, or
-	hand-built what only a parse may mint.
-	
-	SO THIS SPEAKS RATHER THAN SHRUGS, and it speaks HERE even though the
-	defect happened somewhere else. This is where it became visible, and
-	silence here would let wreckage travel down the specimen path --
-	compile calls processCode, which is station 5's road.
-	
-	The guard it replaces asked isLabel (groupBody, COPIED) before
-	dereferencing rStuff (never copied): a question posed to the wrong
-	oracle, and one flag away from firing.  */
+	// d2Tripwire an rStuff-less label is WRECKAGE, not a specimen (Ruling D2) -- refuse loud here, where it became visible
 	if ( field->groupBody->flags.isLabel && !field->getRStuff() )
 		{
 		::fprintf(stderr,"processCode: REFUSING %s -- isLabel with no rStuff. Only a live parse mints a label (Ruling D2), so this node is wreckage, not a specimen; look upstream at whatever copied or hand-built it.\n",field->groupBody->tag);
@@ -9996,19 +9834,7 @@ int 		processing = ruler->processingCode;
 		}
 	if ( field->groupBody->flags.isLabel )
 		field = field->getRStuff()->rule;
-	/*  PJ-8, THE INTERPRETING HALF OF THE LIFECYCLE. An action's IR record is
-	cleared whenever the action is COMPILED, and this is the compile for
-	interpreting: the lines below re-parse CodE and attach a fresh BlocK,
-	so any IR emitted against the previous one is invalid from here.
-	THIS FIRES EXACTLY ONCE PER ACTION, which is why it cannot erase a
-	record it should keep: the `field.isAction = true` below overwrites
-	actionType, consuming isCoded, and processAction's call site is
-	`if isCoded && !processCode(action)`. So a later interpreted call --
-	including a ladder fixture's oracle call after a jit compile -- does
-	NOT re-enter here. Verified at GroupActions.rtn:549 and :603; the same
-	consumption is what bear-trap #25 documents from the testing() side.
-	setText("") rather than clear(): a field with no data returns its TAG
-	from getText(), so a clear()ed record reads back as "JiT".  */
+	// staleIR re-parsing invalidates the action's IR record -- setText, never clear(), or it reads back as its tag
 	
 	GroupItem   *staleIR = field->get("JiT");
 	if (staleIR)    staleIR->setText(::strdup(""));
@@ -10017,11 +9843,14 @@ int 		processing = ruler->processingCode;
 	if ( field->groupBody->flags.isRule )
 		action = code;
 	ruler->currentMETHOD = action;
-	ruler->divertToRule = 1;
-	ruler->pushInput(code);
 	ruler->lastIndent = 0;
 	ruler->processingCode = 1;
-	if ( result = blockRULE->parse(0) )
+	// compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
+	// compileOwner the ONE writer of gCompileOwner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214)
+	 GroupItem *priorOwner = gCompileOwner; gCompileOwner = action; 
+	result = ::driveStep(code,blockRULE,0);
+	 gCompileOwner = priorOwner; 
+	if ( result )
 		{
 		result->groupBody->flags.noPrint = 1;
 		holder->addAttribute(result);
@@ -10031,7 +9860,6 @@ int 		processing = ruler->processingCode;
 	if ( !processing )
 		ruler->processingCode = 0;
 	ruler->lastIndent = indenter;
-	ruler->popInput();
 	ruler->currentMETHOD = priorMETHOD;
 	if ( result )
 		return 1;
@@ -10560,33 +10388,33 @@ char 		*name = item->groupBody->flags.data ? item->getText() : (char*)0;
 	return ruler->trueResult;
 }
 
-/*******************************************************************************
-    refuse -- THE ONE FUNNEL. Print the line, arm the unwind, hand back null.
-    A refusal ENDS THE ACTIVATION THAT RAISED IT (Tony, 2026-09-05, on f31's
-    2,808,029 lines). The action returns null to its caller -- the testable
-    nothing -- and nothing after the refusing statement runs.
-    GroupActions.refuse
-*******************************************************************************/
+// refuse THE ONE FUNNEL: print the line, arm the unwind, hand back null -- a refusal ends the activation that raised it
 extern "C" GroupItem *refuse(GroupItem *subject, char *why)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*name = "(none)";
 	if ( subject )
 		name = subject->groupBody->tag;
-	/*  ⚠ THE LINE IS THE PARSER'S AND IT IS APPROXIMATE. sourceLINE is where the
-	PARSER is, which for a re-executed cached body is stale: f31 prints the
-	same number for all 43 of its refusals.
-	⚠⚠ THE STATEMENT'S OWN LINE WAS TRIED AND DOES NOT EXIST IN A USABLE
-	FORM (2026-09-05). rStuff.sourceLine is real, stamped per statement by
-	aCTionStatemenT -- but its count is NOT the writer's file line: argBindT
-	reported 10 for statements at 16 and 17, and f31 reported 11 for an
-	iterate at 45. Nor is sourceLINE: tester reads 8, 9, 10 for definitions
-	at 9, 19, 29. NEITHER SOURCE GIVES THE LINE A READER WOULD LOOK AT, so
-	the stale-but-plausible number stays and this comment says what it is.
-	Do not chase it (bear-trap #36's family).   GroupActions.refuse.theLine  */
+	// theLine sourceLINE is where the PARSER is, stale for a cached body -- no usable per-statement line exists; do not chase it
 	::fprintf(stderr,"REFUSED %s -- %s [line %s]\n",name,why,::toStringFromInt(ruler->sourceLINE));
 	ruler->refused = 1;
 	return 0;
+}
+
+// refuseArgRebind a := or <- on the argument refuses by name, tested BEFORE the follow, which destroys the evidence; 1 when it refused
+extern "C" int refuseArgRebind(GroupItem *op, GroupItem *target)
+{
+	
+	if ( !op || !target || !target->groupBody->flags.isArgument ) return 0;
+	void *gop = (void*)op->groupBody->gOp;
+	if ( gop != (void*)&opSetGroup && gop != (void*)&opRebind ) return 0;
+	char why[192];
+	::snprintf(why,sizeof(why),
+	"`%s` on argument -- argument is a BINDING, not a field; rebind is the caller's job",
+	op->groupBody->tag);
+	::refuse(target,why);
+	return 1;
+	
 }
 
 /*  refuseDotUnaryRight -- `a.*b`. THE STAR IS ONLY VISIBLE HERE, AND THE REFUSAL THE
@@ -10669,30 +10497,32 @@ char 		*why = ::concat(4,"`.",token->getText(),"` is not a number -- a number ne
 	return 1;
 }
 
-/*****************************************************************************
-    Parse an action. Note: the coded field is made an action before its
-    code is parsed otherwise a recursive call will complain
-*****************************************************************************/
-/*****************************************************************************
-    reportCodeFail -- WHERE THE CODE BODY ACTUALLY FAILED TO PARSE.
+// refuseUnknownOperator an operator registered in Operators with no operateMethod refuses by name; a rule, action or value reaching the foot is untouched
+extern "C" GroupItem *refuseUnknownOperator(GroupItem *op, GroupItem *target)
+{
+	
+	if ( !op || op->groupBody->registry != GroupControl::groupController->groupRules->opFields ) return 0;
+	char why[224];
+	GroupItem *who = target ? target : op;
+	::snprintf(why,sizeof(why),
+	"operator '%s' has no road -- the token is registered in Operators with no operateMethod, so this statement would change nothing",
+	op->groupBody->tag ? op->groupBody->tag : "(unnamed)");
+	return ::refuse(who,why);
+	
+}
 
-    A bare "parse failed" is a diagnostic that costs more than it gives. It sent
-    a whole session reverse-engineering six hypotheses about 53 failures, five
-    of which died on measurement, because nothing said which token or line.
+// repeatsInLoop the ONE test for "this term repeats inside parseLoop": every rule body, and max > 1 when not a leaf -- leaves (data 1-3) loop inside their own method. The install site and exitFromParse's zero-width tail both ask it (SEQ 208). Its first clause is ruling A -- every rule body (SEQ 203; reverted SEQ 211, back with the drive-compile merge, SEQ 217)
+extern "C" int repeatsInLoop(GroupItem *field)
+{
+RuleStuff 	*ruleStuff = field->getRStuff();
+	if ( !ruleStuff )
+		return 0;
+	if ( ruleStuff->parseMethod == ::parseRule || (ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3)) )
+		return 1;
+	return 0;
+}
 
-    ⚠ THIS IS NOT NEW MACHINERY. aCTionFailed already reports rule, position,
-    line and last-parsed-statement, and it works -- it is simply gated on the
-    rStuff notifyFail flag, which processFlags sets PER RULE, and the BlocK rule
-    a code body is parsed with does not carry it. So the report never fires for
-    processCode. This reads the same accessors rather than flagging a shared
-    grammar rule mid-flight.
-
-    ONE IMPLEMENTER BY INTENT. If parse-error reporting is ever made good --
-    and the standing complaint is that it points at the next county rather than
-    the error -- this and aCTionFailed should converge here, not diverge.
-
-    cerr, not cout: a code body can be processed with print diverted.
-*****************************************************************************/
+// reportCodeFail WHERE a code body failed to parse -- rule, position and line, on cerr because print may be diverted
 extern "C" void reportCodeFail(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10725,9 +10555,7 @@ char 	*regName = "(no registry)";
 	::fprintf(stderr,"REMOVED %s from %s -- a refusal fired while it was being defined, so the definition is GONE and nothing later will find it\n",field->groupBody->tag,regName);
 }
 
-/***************************************************************************
-    reportDrive -- driveStep's report: three counts, offsets into the message
-***************************************************************************/
+// reportDrive driveStep's report: three counts, offsets into the message
 extern "C" void reportDrive(GroupItem *report, GroupItem *rule, char *driveBase)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10754,6 +10582,7 @@ int 		failOffset = -1;
 	report->addAttribute(num);
 }
 
+// reportMaxLimit a match hit the maxLimit ceiling with input still matching -- REFUSE rather than truncate; callers gate on max > 1 && !limitsSet
 extern "C" int reportMaxLimit(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10764,28 +10593,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return 0;
 }
 
-/*****************************************************************************
-    reportNoBody -- the OTHER refusal, and it is a different fact from the one
-    above. reportCodeFail says a body was parsed and the parse failed.
-    reportNoBody says a rule was reached through a bound parse method and has
-    no compiled body to run, so the parse cannot proceed and is refusing.
-
-    A SIBLING RATHER THAN A REUSE, DELIBERATELY. Calling reportCodeFail here
-    would print "ERROR processCode: X parse failed" for a rule that processCode
-    never touched -- an instrument naming the wrong mechanism, which is the
-    failure this project spends most of its time paying for. The convergence
-    note above still applies to both: if parse-error reporting is ever made
-    good, these two and aCTionFailed converge here.
-
-    cerr for the same reason as its sibling: a code body can be processed with
-    print diverted, and a refusal that vanishes into a buffer is not loud.
-
-    ⚠ IT CAN REPEAT, and that is intended rather than overlooked. A refusing
-    rule refuses on every attempt, so a walk that binds a parse method without
-    compiling will print once per attempt. Nothing reaches this in an ordinary
-    run -- no ordinary path binds a parse method at all -- so the only way to
-    see a flood is to be doing exactly the work the flood is about.
-*****************************************************************************/
+// reportNoBody a rule reached through a bound parse method has no compiled body -- a sibling of reportCodeFail, never a reuse of it
 extern "C" void reportNoBody(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10793,27 +10601,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::fprintf(stderr,"    at %s\n",::getDebugText(ruler->atRuleMark,40));
 }
 
-/*****************************************************************************
-    reportRepeatLimit -- THE FOURTH REFUSAL, and the one that had no voice.
-
-    reportMaxLimit says a MATCH ran into the token ceiling. This says a RULE ran
-    into the repetition ceiling: it matched its limit of times and parse() then
-    stopped, which until 2026-08-19 happened in total silence. That silence is
-    what made the shared-ceiling arrangement dangerous -- a rule cut short here
-    simply stops and the statements after the cut are never parsed, at exit 0.
-
-    ⚠ IT REPORTS AND DOES NOT FAIL, and that is deliberate rather than timid.
-    The character loop refuses because a truncated TOKEN is wrong content. A
-    rule that repeated to its ceiling has matched everything it matched
-    correctly; what is wrong is that there may be more. Failing the match would
-    discard correct work and change parse outcomes wholesale. So the fact gets
-    named and the existing kount >= min semantics are left alone.
-
-    ⚠ THE COUNTS ARE PASSED, NOT RE-DERIVED. rStuff is per node and parse() may
-    be running on a REENTRANCY CLONE (docs/rstuff-chokepoint.md), so reading
-    rule.rStuff here could report a different frame's numbers than the loop that
-    hit the ceiling. The caller has the live frame; it hands over the values.
-*****************************************************************************/
+// reportRepeatLimit a rule repeated to its ceiling -- REPORTS and does not fail; the counts are passed in because rStuff may be a reentrancy clone's
 extern "C" int reportRepeatLimit(GroupItem *rule, int kounted, int limit)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10891,9 +10679,34 @@ Buffer 	*buff = argument->getBuffer();
 	return 0;
 }
 
-/*****************************************************************************
-	Restore local fields after a recursive call.
-*****************************************************************************/
+// resolveName THE WHOLE RESOLUTION of a name in an action body, against an OWNER: already the owner's, a declared field referenced into the owner, or a new local minted there (SEQ 214). aCTionNamE calls it; the post-compile resolveNames pass will call it with owner = the action (Tony's (ii))
+extern "C" GroupItem *resolveName(char *arg, GroupItem *owner)
+{
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	GroupItem *grup = 0, *result = 0;
+	if ( ruler->processingCode && owner )   result = owner->getAttribute(arg);
+	if ( !result )                          result = GroupControl::groupController->locate(arg);
+	if ( result && result->parent == owner )    return result;
+	if ( ruler->defining && result && result->groupBody->flags.isVirtual )  result = ::copyOf(result);
+	grup = new GroupItem(arg);
+	if ( ruler->alphaSet->contains(*arg) && ruler->processingCode && owner )
+	if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
+	if ( !(result && result->groupBody->registry == ruler->opFields) ) {
+	if ( result ) {
+	if ( owner->groupBody->flags.isRule && result->groupBody->flags.isRule ) {
+	result = owner->addAttribute(grup);
+	result->groupBody->flags.isLocal = 1; }
+	else    result = owner->addAttribute(result); }
+	else {
+	result = owner->addAttribute(grup);
+	result->groupBody->flags.isLocal = 1; } }
+	if ( !result )  result = grup;
+	return result;
+	
+}
+
+// restoreLocalFields restore what saveLocalFields banked, at the end of a nested call
 extern "C" void restoreLocalFields(GroupItem *action)
 {
 Stak 		*recurseSTAK = 0;
@@ -10903,14 +10716,8 @@ GroupItem 	*grup = 0;
 	frame = ::frameFind(action);
 	if ( frame )
 		recurseSTAK = frame->getStak();
-	/*  RESTORE PAIRS BY IDENTITY, NEVER BY POSITION -- the loop below walks
-	the STACK, not the field list, and applies no filter of its own.
-	GroupActions.restoreLocalFields.identityPair  */
-	/*  THE NULL ARM IS REAL, not defensive. restore is reached on paths where
-	save never ran -- the jit bracket among them -- and before this repair
-	`action.stak` answered on any node, so the question could not arise.
-	With the stack on a child, "no frame child" is a state, and it means
-	exactly what a zero-length stack means: nothing was saved.  */
+	// identityPair restore pairs by identity, never by position -- walk the STACK, not the field list, with no filter of its own
+	// nullArm restore is reached where save never ran (the jit bracket among them); no frame child means nothing was saved
 	if ( !recurseSTAK )
 		action->groupBody->flags.recursive = 0;
 	else
@@ -10925,10 +10732,7 @@ GroupItem 	*grup = 0;
 		}
 }
 
-/*****************************************************************************
-    Uses dsym to look for a matching method in internal symbols. Uses group
-    text for the name to match.
-*****************************************************************************/
+// ruleMethod bind the method the attribute's text names, found with dlsym -- as the parent's method for ruleMethod, else as its operator
 extern "C" GroupItem *ruleMethod(GroupItem *input)
 {
 char 	*name = input->getText();
@@ -10957,9 +10761,7 @@ char 	*name = input->getText();
 	return input->getGroup();
 }
 
-/*******************************************************************************
-	Run an action that may need code processing.
-*******************************************************************************/
+// runAction run an action that may need code processing -- two arms, the jit arm and the interpreted one, each returning through its own exit
 extern "C" GroupItem *runAction(GroupItem *argument, GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10969,11 +10771,9 @@ GroupItem 	*ruleArg = 0;
 	if ( isCoded(field->groupBody->flags.actionType) )
 		if ( !::processCode(field,field) )
 			goto exitRunAction;
-	// runAction.lastREF a no-argument call leaves the action in lastREF
+	// lastREF a no-argument call leaves the action in lastREF
 	ruler->lastREF->setGroup(argument ? argument : field);
-	// runAction.mint argument is a runtime-minted binding slot, never a declared
-	// attribute -- and this sits ABOVE the jitting gate because BOTH ROADS need
-	// the slot to exist and to carry the flag. Only the interpreted arm BINDS it
+	// mint argument is a runtime-minted binding slot, never a declared attribute -- above the jitting gate because BOTH ROADS need it flagged
 	ruleArg = field->get("argument");
 	if ( !ruleArg )
 		ruleArg = field->addString("argument");
@@ -10985,22 +10785,17 @@ GroupItem 	*ruleArg = 0;
 			result = field;
 			goto exitRunAction;
 			}
-		// runAction.jitBind THE EMITTED CALL is jitBindArgRT's at RUN time. But an
-		// INLINED callee is walked HERE, at emit time, and the walk reads the
-		// argument as it goes -- so the emit-time bind is this arm's, and the two
-		// are different roads rather than one duplicated line
+		// jitBind an INLINED callee is walked here at emit time, so the emit-time bind is this arm's; an emitted call binds in jitBindArgRT
 		ruleArg->setGroup(argument);
 		::jitInlinePush(field);
 		result = ::processAction(field);
 		::jitInlinePop(result);
 		goto exitRunAction;
 		}
-	// runAction.bindOrder save before bind so the outer activation gets its slot back
+	// bindOrder save before bind so the outer activation gets its slot back
 	::saveLocalFields(field);
 	ruleArg->setGroup(argument);
-	// runAction.chanCount chanT's daily row reads this pair, and SAME MUST EQUAL
-	// BINDS -- a gap is a bind that did not store the field it was handed. In
-	// passthrough because the check is pointer identity, which `==` is not
+	// chanCount chanT's pair, SAME MUST EQUAL BINDS -- passthrough because the check is pointer identity, which == is not
 	
 	GroupControl::groupController->groupRules->chanBinds++;
 	if ( ruleArg->groupBody->gGroup == argument ) GroupControl::groupController->groupRules->chanSame++;
@@ -11014,10 +10809,7 @@ GroupItem 	*ruleArg = 0;
 		}
 	::restoreLocalFields(field);
 exitRunAction:
-	/*  THE ARM IS ACTIVATION-SCOPED. A refusal ends the action that raised it
-	and NOT its caller, so the caller gets a testable null and decides.
-	Clearing here is what makes "terminal for the action" mean the action
-	rather than the process.   GroupActions.runAction.refusalArm  */
+	// refusalArm activation-scoped: a refusal ends the action that raised it and NOT its caller, which gets a testable null
 	if ( ruler->refused )
 		{
 		clearRefusal(result);
@@ -11038,6 +10830,7 @@ RuleStuff 	*defStuff = 0;
 	return ::refuse(field,"parseLoop: no parse method is installed on the defining rule");
 }
 
+// runOP the operator dispatch hub: follow the argument, honour the arm, resolve the operands, then fire the op, a rule, an action or a method
 extern "C" GroupItem *runOP(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -11045,41 +10838,12 @@ GroupItem 	*result = 0;
 GroupItem 	*op = field->get(1);
 GroupItem 	*arg = field->get(3);
 GroupItem 	*target = field->get(2);
-	/*  ⚠ THE ARGUMENT FOLLOW, and it is what is LEFT of the flip. runOP's two
-	legacy auto-unwraps stood here behind one gate; they were dead the day the
-	trunk became the flip and were deleted with the switch on 2026-09-05.
-	What survives is the rule that replaced them: an isArgument operand
-	yields what it holds.   ArgBinding.ArgBindingSites  */
-	// argument is a BINDING: an isArgument operand yields what it holds, and a
-	// REBIND of it refuses by name -- tested BEFORE the follow, which destroys
-	// the evidence. This funnel serves BOTH ROADS   ArgBinding.ArgBindingSites
-	
-	if ( op && target && target->groupBody->flags.isArgument ) {
-	void *gop = (void*)op->groupBody->gOp;
-	if ( gop == (void*)&opSetGroup || gop == (void*)&opRebind ) {
-	char why[192];
-	::snprintf(why,sizeof(why),
-	"`%s` on argument -- argument is a BINDING, not a field; rebind is the caller's job",
-	op->groupBody->tag);
-	return ::refuse(target,why);
-	}
-	}
-	if ( target && target->groupBody->flags.isArgument && isGROUP(target->groupBody->flags.data) )
-	target = target->getGroup();
-	if ( arg && arg->groupBody->flags.isArgument && isGROUP(arg->groupBody->flags.data) )
-	arg = arg->getGroup();
-	
-	/*  ⚠ THE STORE RULING (Tony, 2026-09-05). AN ARMED STATEMENT DISPATCHES
-	NOTHING FURTHER, STORES INCLUDED. Without this, a refusal raised inside
-	an expression still lets the enclosing `=` run, and the assignment
-	writes the refusal's null -- BLANKING ITS OWN TARGET. Measured as
-	sentinelT ST-1: stRead came back as its own tag instead of the 111 it
-	went in with, because the store took.
-	⚠ INTERPRETED ONLY, and the era split is the same one aCTionBlocK makes
-	three lines below its own arm check: at EMIT time the statements after a
-	refusal are REACHABLE and must all be emitted, so stopping the walk here
-	would delete them from the IR. The emitted road consults the arm in the
-	assign helpers instead.   GroupActions.runOP.storeRuling  */
+	// argBinding argument is a BINDING: a rebind of it refuses, then an isArgument operand yields what it holds
+	if ( ::refuseArgRebind(op,target) )
+		return 0;
+	target = ::followArgument(target);
+	arg = ::followArgument(arg);
+	// storeRuling an armed statement dispatches nothing further, stores included -- interpreted only, emit time must reach every statement
 	if ( ruler->refused )
 		if ( !ruler->jitting )
 			return 0;
@@ -11088,137 +10852,25 @@ GroupItem 	*target = field->get(2);
 	if ( arg )
 		if ( isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
 			arg = arg->groupBody->gMethod(arg);
-	/*  ⚠ A LIST OPERAND IS DELIBERATELY NOT RESOLVED HERE -- doing it would
-	hand the list operators a COPY.   GroupActions.runOP.listOperand  */
+	// listOperand a list operand is never resolved here -- that would hand the list operators a copy
+	// virtualFork UNGATED ON PURPOSE -- gated on defining, the bytecode emit path would mutate the shared prototype
 	if ( target && target->groupBody->flags.isVirtual )
 		target = ::copyOf(target);
-	// perKindPick ONE spelling, pickKindOP, on both roads; under jitting the pick is EMITTED as a run-time call-through and never made here -- nothing about an operand's kind is baked (Tony, 2026-09-25)
+	// perKindPick one spelling, pickKindOP, on both roads; under jitting the pick is EMITTED as a run-time call-through, never made here
 	if ( op->groupBody->flags.hasMembers )
 		{
 		if ( ruler->jitting )
 			return jitEmitOpFire(op,arg,target);
 		op = ::pickKindOP(op,target,arg);
 		}
-	/*  The seed gate must cover BOTH dispatch arms below, not just the
-	isOperator one. Unary operators are registered `unary ruleMethod=`
-	(incant/setup:104-150) -- isUnary and isMethod, NOT isOperator -- so
-	they reach `or op.isMethod` at the foot of this method. Gating seeding
-	on isOperator alone left every unary operand unseeded, and jitEmitUnary
-	dereferences target->jitData unconditionally: SIGSEGV, not a wrong
-	answer. Measured 2026-08-03: gJitSeeded.size()==0 at the crash, with
-	gJitBuilder/gJitCurrentFn/gJitResultSlot all live -- so the emit context
-	was fine and it was only ever the seeding. isUnary is the precise gate:
-	widening to isMethod would seed an operand for every rule method.  */
+	// seedBothArms a unary is isUnary and isMethod, never isOperator -- seed on isOperator alone and jitEmitUnary segfaults
 	if ( ruler->jitting && (isOperator(op->groupBody->flags.instructType) || op->groupBody->flags.isUnary) )
-		{
-		
-		if (target && !target->jitData) {
-		if (target->groupBody->flags.isLiteral) jitSeedLiteral(target);
-		else                                    jitSeedField(target);
-		}
-		if (arg && !arg->jitData) {
-		if (arg->groupBody->flags.isLiteral)    jitSeedLiteral(arg);
-		else                                    jitSeedField(arg);
-		}
-		
-		}
-	/*  STEP 2, THE PRESENCE-GATED FORK. Inside the seed gate above by design --
-	no new gate was added, because the seeding this fork depends on is done
-	by that gate and only that gate. Slot installed, the emitter is called
-	and runOP is done; slot absent, control falls through to the interpreter
-	dispatch below EXACTLY as before, untouched. That is the whole migration
-	contract: an op is either migrated or it is not, and an unmigrated op
-	cannot tell the difference.
-	⚠ THERE IS NO DEFAULT EMITTER AND THERE MUST NEVER BE ONE. A jitCantEmit
-	that delegated to operat would make every unmigrated op look migrated, at
-	degrade count zero -- a silent identity default, forbidden in every window.
-	The null slot IS the refusal, and it refuses by doing nothing.  */
-	/*  Passthrough for the same reason setOperat is: tok resolves the CALL
-	`op.jitEmitter(...)` through groupBody correctly but renders the bare
-	null TEST as `op->jitEmitter`, and GroupItem carries no such member --
-	it is a GroupBody slot reached by alias. Written out here so both halves
-	name the same thing, and caught by reading the generated .mm rather than
-	by the compiler, which is the cheaper end of that lesson.  */
-	/*  ⚠ THE SLOT COUNT IS INCREMENTED HERE, AT THE FORK, AND NOT IN THE SHIMS.
-	Moved here at op two, deliberately and before there were thirteen of
-	them. Every slot dispatch passes through this one line, so a new shim
-	author CANNOT forget to count -- counting is not their job. The
-	alternative, one ++ per shim, is a discipline that has to be re-applied
-	by everyone who ever adds an op, and this project's ledger on
-	copy-the-idiom-lose-the-helper is three instances deep. Prefer the
-	structure that makes the omission unconstructable.  */
-	/*  ⚠ THE UNARY EDGE IS REFUSED, LOUDLY AND COUNTABLY, UNTIL ITS SPECIMEN
-	LANDS. This fork accepts any node carrying a slot, and the seed gate
-	above spans isOperator AND isUnary -- so a unary op handed a jitEmitter
-	would go live down a path nothing has certified, with only convention
-	stopping it. Convention is not a gate.
-	KE-4 POSTURE: the refusal is COUNTED and SAID. A quiet decline would be
-	indistinguishable from a guard that was never reached. Falling through
-	to the interpreter arm below is the safe answer and is what happens.
-	Retire guard, counter and rung row together when unary opens -- see
-	docs/jitSlotMigration.md, parked section.  */
-	
-	if (GroupControl::groupController->groupRules->jitting && op->groupBody->gJitEmitter) {
-	if (op->groupBody->flags.isUnary) {
-	++gJitSlotUnaryRefused;
-	::fprintf(stderr,
-	"=== JIT SLOT REFUSED #%d: unary op '%s' carries a jitEmitter, "
-	"but the unary specimen has not landed -- running INTERPRETED ===\n",
-	gJitSlotUnaryRefused, op->groupBody->tag ? op->groupBody->tag : "(unnamed)");
-	::fflush(stderr);
-	}
-	else {
-	++gJitSlotCount;
-	return op->groupBody->gJitEmitter(arg,target);
-	}
-	}
-	
-	/*  OPTION B, 2026-08-24 -- THE OP-POSITION RULE ARM. Ruled by Tony,
-	scoped to the ARGUMENTED case.
-	
-	A rule invoked in expression position -- `NamE("maybe a test;")` --
-	arrives here as `op`. It never reached the `or isRule` arm below,
-	because that arm tests BARE isRule, which under this method's `use`
-	resolves to `field`, not to `op`. So a rule in op position had no arm
-	at all, and fell to `or op.isMethod` one line down, since 32 of the 60
-	rules in Grokking are BOTH rule-shaped and method-bearing.
-	
-	THE CONSEQUENCE WAS NOT A WRONG ANSWER BUT A MISSING DIVERT. runRule is
-	the ONLY thing that pushes an argument as input (`if field && field.data
-	{ divertToRule = true; pushInput(field); }`), so without it the rule
-	parsed against the CALL SITE TEXT. checkInput stamped hereAt on
-	`NamE("maybe a test;");` itself, and captureSpan then had a label with
-	nothing in it -- which is how this was found.
-	
-	⚠ THE FALL-THROUGH BELOW IS DELIBERATE AND SCOPED. A dual-flag rule in
-	op position with NO argument still falls to the isMethod arm; only the
-	argumented case is ruled, because only the argumented case has anything
-	to divert. The bare-case contract is under measurement and is recorded
-	rather than assumed -- today a bare invocation parses against the live
-	input stream and consumes it.  */
-	/*  THE UNKNOWN-OPERATOR REFUSAL at the foot of this chain, Tony's ruling 2026-09-11.
-	A token registered in Operators with NO operateMethod falls through every arm
-	below and returns null, so the statement parses, changes nothing and says
-	nothing. FOUR MEASURED CASUALTIES: `eq` (never registered, answered truthy 3 of
-	3), `&&` (known, no road, silent), `AND` (retired, still answers and answers
-	WRONG), and `+/` (registered token, no road -- banked silent at length 0 the day
-	before it gained one). Ten tokens sit in that state today:
-	| ^ ? >> << :> :< :- & +/
-	⚠ THE PREDICATE IS THE REGISTRY, NOT THE FALL-THROUGH. Reaching the foot is
-	legitimate for plenty of nodes; what is never legitimate is an OPERATOR that
-	cannot operate. So the arm asks whether op lives in Operators and refuses only
-	then -- a rule, an action or a bare value reaching the foot is untouched.
-	⚠ THE SUBJECT FALLS BACK TO op WHEN target IS NULL, and that is not defensive
-	padding: a methodless operator on a SUBSCRIPTED target arrives here with a null
-	target and `refuse(null,...)` is an exit 139. Found 2026-09-11 by testPrecedence
-	within the hour of this gate landing -- the crash was in the gate, not in the
-	thing it was reporting. Refusing against op keeps it loud rather than silent,
-	which is the whole point of the arm.
-	⚠ No percent-dash in the format string (bear-trap #40).
-	GroupActions.runOP.unknownOperatorRefusal  */
-	// which node the NAME reached, and which arm the fork will take   measure.measureRuleDispatch
+		::jitSeedOperands(target,arg);
+	// slotFork an op with an emitter slot is migrated, one without cannot tell -- there is no default emitter, ever
+	 if ( ::jitSlotTaken(op) ) return op->groupBody->gJitEmitter(arg,target); 
+	// dispatchSeat which node the name reached, and which arm the fork will take
 	::measureRuleDispatch(op,target,arg);
-	// doorByRoad INTERPRETED: runRule for isRule only -- a bin with a generated parse (hasNewParse, isRule 0: Operators) takes the isMethod arm below (5f24cf3, 2026-09-14, reversing 09-10's hasNewParse door). JITTING: a term call for isRule OR hasNewParse, so no bin is parsed at emit time (F-123, 2026-09-24)
+	// doorByRoad interpreted, runRule for isRule only; jitting, a term call for isRule OR hasNewParse, so no bin is parsed at emit time (F-123)
 	if ( isOperator(op->groupBody->flags.instructType) )
 		result = op->groupBody->gOp(arg,target);
 	else
@@ -11227,8 +10879,6 @@ GroupItem 	*target = field->get(2);
 	else
 	if ( target->groupBody->flags.isRule || (ruler->jitting && target->groupBody->flags.hasNewParse) )
 		{
-		// binTermCall under jitting a bin carrying a generated parse (Operators: isRule 0, hasNewParse 1) is a term call too -- falling to isMethod parsed it at EMIT time and the OR read true (F-123); interpreted dispatch is unchanged
-		// termCallThrough under jitting a rule is NOT parsed at emit time; a call to the interpreted road is emitted instead
 		
 		if ( ruler->jitting )   result = ::jitEmitTermCall(field);
 		else                  { ++gTermCallCount; result = ::runRule(arg,target); }
@@ -11244,25 +10894,11 @@ GroupItem 	*target = field->get(2);
 			arg = target;
 		result = target->groupBody->gMethod(arg);
 		}
-	else {
-		
-		if ( op && op->groupBody->registry == GroupControl::groupController->groupRules->opFields ) {
-		char why[224];
-		GroupItem *who = target ? target : op;
-		::snprintf(why,sizeof(why),
-		"operator '%s' has no road -- the token is registered in Operators with no operateMethod, so this statement would change nothing",
-		op->groupBody->tag ? op->groupBody->tag : "(unnamed)");
-		return ::refuse(who,why);
-		}
-		
-		}
+	else	result = ::refuseUnknownOperator(op,target);
 	return result;
 }
 
-/***************************************************************************
-    Immediate method called from rule expressions and RunRulE. It is the
-    drive step with no report.
-***************************************************************************/
+// runRule the drive step with no report; a generated root hands back its label, and the kant caller gets one bit
 extern "C" GroupItem *runRule(GroupItem *field, GroupItem *rule)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -11273,132 +10909,27 @@ GroupItem 	*result = ::driveStep(field,rule,0);
 	return result;
 }
 
-/***************************************************************************
-    runOP fires off a field that might be an action, a rule, a method,
-    or an operator
-
-    BEAR COUNTRY: the `target.isVirtual -> copyOf(target)` line below is a
-    virtual fork that is INTENTIONALLY UNGATED — it is the safety net for
-    operating on a virtual prototype (e.g. the bytecode bcOPs: bcPushLit /
-    bcPushField are virtual) outside a defining context. Do NOT gate it on
-    `defining`: that removes the net and the bytecode emit path would mutate
-    the shared prototype instead of a fork. Huge blast radius; runs hot (do
-    not add a permanent `ruler` here — use a directive if you need one to
-    debug). Break only in emergency. See the wakeup bear-trap log and the
-    aCTionNamE companion note.
-
-    THE isIterator EXEMPTION on the target unwrap (2026-07-29, Tony at the Xcode
-    seat). An iterator is a HANDLE, and runOP must not dereference a handle --
-    the same reason isPointer is already in that test, which is why this is one
-    more term there rather than a special case for ++/--.
-    The bug it fixes: pass 1 of `while ++grup` worked because a fresh iterator
-    has no position, so isGROUP was false and opPlusPlus received the iterator.
-    On pass 2 the cursor is set, isGROUP is true, runOP unwrapped to the CURRENT
-    ENTRY, and opPlusPlus got a node with no isIterator flag -- so ++ fell
-    through to the numeric path and the loop never terminated.
-    Gating on the OPERAND rather than on ++/-- also covers `:=`, which is the
-    iterator's only reset: unwrap first and := rebinds the current entry while
-    the cursor sits untouched, which fails silently.
-    The `arg` unwrap one line below is deliberately NOT exempted, and the split
-    is the useful part: an iterator in TARGET position stays the handle, in
-    ARGUMENT position it derefs to the current entry.
-***************************************************************************/
-/***************************************************************************
-    runShortCircuit -- TIER 3, THE EVALUATION-CONTROLLING ARM.
-    Built 2026-08-11 (docs/andOrRung.md sections 1a and 6; ruling SEQ 32).
-
-    ⚠ WHY THIS IS NOT AN OPERATOR HANDLER, which is the whole finding
-    behind the rung: runOP resolves BOTH operands before it dispatches, so
-    an opAND/opOR entered from there has already paid for the right arm --
-    side effects included. Short-circuit is therefore unreachable at the
-    handler position AT ALL. It is reachable HERE, because an unresolved
-    operand is still an UNFIRED METHOD: the `arg.isMethod && arg.invoke`
-    line in runOP is the firing, and this function simply does not run it
-    on the arm the ruling says to skip.
-
-    ⚠ WHY THIS IS A SIBLING OF runOP AND NOT A BRANCH INSIDE IT (Tony,
-    2026-08-11). The seat was moved here from the top of runOP on his
-    ruling, and the reasoning generalises past this rung:
-
-      - The natural first guess is TokenXP, where unaries are handled.
-        That works for a UNARY because the grammar production
-        `TokenXP  UnaryOPS? ANYorNum^ InvokeArg?` GROUPS a unary with its
-        operand -- the pairing is a parse fact, so there is a node to
-        intercept. A BINARY has no such node: `ExpressioN  Token+` is a
-        FLAT sequence with `Operators` as one Token alternative, so at
-        that seat `AND` has no arms and no precedence yet.
-      - The binary structure first exists in interpretXP, which builds the
-        left-associative tree. So THE CATEGORY DECISION BELONGS AT TREE
-        BUILD, where it is paid ONCE per expression, and not on every
-        dispatch.
-      - And it keeps runOP what section 6 says it is: "the interpreter's
-        strict-operator dispatcher AND NOTHING ELSE." A tier-3 test in the
-        strict dispatcher's hot path is a category error wearing a
-        conditional.
-
-    So AND/OR keep their operator REGISTRATION -- parser, precedence walk
-    and Operators table all untouched -- and are promoted out of the
-    operator CATEGORY by the method interpretXP binds. The promotion is a
-    dispatch-binding change, not a grammar change.
-
-    ⚠ THE OPERAND CONTRACT IS truthOf's AND ONLY truthOf's. Both arms of
-    both words go through it, so the interpreted and jitted engines cannot
-    drift apart by one of them growing its own idea of truth.
-
-    THE TIER-3 SET IS CLOSED AND NAMED AT ITS BINDING SITE in interpretXP,
-    deliberately in one place: section 6 rules "tier 3 stays small -- if,
-    AND/OR, iteration -- then the door closes." Widening it is a ruling,
-    so widening it should cost an edit to a line that says so.
-***************************************************************************/
+// runShortCircuit TIER 3: AND/OR/|| skip the right arm, which runOP would already have fired -- a sibling of runOP, bound at tree build by interpretXP
 extern "C" GroupItem *runShortCircuit(GroupItem *field)
 {
 GroupItem 	*op = field->get(1);
 GroupItem 	*target = field->get(2);
 GroupItem 	*arg = field->get(3);
 int 		leftIsTrue = 0;
-	/*  THE PHASE GATE (section 6): emit time never enters a runtime handler
-	for its value. Everything BELOW this line is run time.
-	
-	⚠ AND THE FLOOR IS A REFUSAL, NOT A FALL-THROUGH, because of what
-	was measured the moment the interpreted arm landed: promoting
-	AND/OR fixed the `AND`-under-jit 139 and REPLACED IT WITH THE
-	SILENT WRONG ANSWER -- jitXand2 and jitXor both want 1 on fire 2
-	and returned 0, at DEGRADE COUNT 0. That is a trade of a loud
-	failure for the exact shape docs/andOrRung.md section 2 calls "the
-	dangerous one ... the shape that survives review".
-	Refusing here restores the loudness: the degrade counter is
-	asserted at zero by every ladder rung, so an un-emitted AND/OR now
-	fails a rung instead of quietly folding its value at emit time.  */
+	// phaseGate emit time never enters a run-time handler for its value -- and the floor is a REFUSAL, never a fall-through
 	if ( GroupControl::groupController->groupRules->jitting )
 		{
 		 return jitEmitShortCircuit(field); 
 		}
-	/*  runShortCircuit's half of the flip. Measured NEVER to fire in this
-	corpus -- 31 entries, zero isGROUP arrivals -- and gated anyway, because
-	a divergence between `&&` and `+` is exactly the class nothing is aimed
-	at, and it becomes real the day someone writes `if a.group && b`.  */
-	
-	
 	if ( op->groupBody->flags.instructType && isMethod(target->groupBody->flags.instructType) && target->groupBody->flags.invoke )
 		target = target->groupBody->gMethod(target);
 	leftIsTrue = ::truthOf(target);
-	/*  THE SKIP ITSELF. The right arm is never touched on these two paths
-	-- not resolved, not unwrapped, not fired -- which is the entire
-	behavioural claim of the rung and is what part 6's TICK count
-	exists to prove. A value assertion cannot prove it: a right arm
-	that runs anyway still produces the right ANSWER in most shapes,
-	so only COUNTING shows it was skipped.  */
-	/*  ⚠ THE SKIP DIRECTION IS A REGISTRATION, NOT A SPELLING. These two lines read
-	`op.tag eq "AND"` and `op.tag eq "OR"` until 2026-09-10, so `||` -- same
-	operateMethod as OR -- matched NEITHER, fell past both skips, evaluated the right
-	arm and returned truthOf(arg). That is the whole of why `true || false` read
-	FALSE the first time `||` was given this handler.   GroupActions.runShortCircuit.skipByRegistration  */
+	// theSkip the right arm is never touched on these two paths -- only COUNTING proves it, a value assertion cannot
+	// skipByRegistration the skip direction is a REGISTRATION (opIsOR), never a spelling -- `||` matched neither tag test
 	if ( !::opIsOR(op) && !leftIsTrue )
 		return GroupControl::groupController->groupRules->falseResult;
 	if ( ::opIsOR(op) && leftIsTrue )
 		return GroupControl::groupController->groupRules->trueResult;
-	
-	
 	if ( arg && isMethod(arg->groupBody->flags.instructType) && arg->groupBody->flags.invoke )
 		arg = arg->groupBody->gMethod(arg);
 	if ( ::truthOf(arg) )
@@ -11424,9 +10955,7 @@ int 	status = 0;
 	return GroupControl::groupController->groupRules->falseResult;
 }
 
-/*****************************************************************************
-	Save action fields before a recursive call.
-*****************************************************************************/
+// saveLocalFields save an action's argument and locals before a nested call, so each activation starts from its own state
 extern "C" void saveLocalFields(GroupItem *action)
 {
 Stak 		*recurseSTAK = 0;
@@ -11460,9 +10989,7 @@ GroupItem 	*grup = 0;
 			}
 }
 
-/***************************************************************************
-	Set method for the block passed by passing the block and method name to dlsym
-***************************************************************************/
+// setCompiledMethod set the block's method by passing the method name to dlsym
 extern "C" int setCompiledMethod(GroupItem *block, char *name)
 {
 void 	*methodAddress = 0;
@@ -11515,21 +11042,13 @@ extern "C" GroupItem *setInternalType(GroupItem *grup)
 	return 0;
 }
 
-/*****************************************************************************
-	setLimits() checks field passed in for limits (min and max).
-*****************************************************************************/
+// setLimits set a rule's min and max from its limits; limitsSet marks a max the grammar asked for, which is what reportMaxLimit gates on
 extern "C" void setLimits(GroupItem *rule, GroupItem *limits)
 {
 RuleStuff 	*ruleStuff = rule->getRStuff();
 GroupItem 	*maximum = limits->getAttribute("max");
 GroupItem 	*minimum = limits->getAttribute("min");
 	ruleStuff->min = minimum->getCount();
-	/*  limitsSet IS THE DISCRIMINATOR reportMaxLimit needs, and it was
-	already declared and already mirrored in groups.ext -- it had simply
-	never been written by anything. It answers "did the grammar ask for
-	this max, or is it the maxLimit ceiling", which is the question that
-	separates a truncation worth refusing from a limit doing its job.
-	Stamped only where a maximum was actually supplied.  */
 	if ( maximum )
 		{
 		ruleStuff->max = maximum->getCount();
@@ -11648,14 +11167,13 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		GroupItem 	*grup = 0;
 		while ( grup = field->next(grup) )
 			{
-			grup->parent = field;
-			// if field is a copy grup.parent is not field
 			if ( grup->groupBody->flags.noPrint )
 				continue;
 			else	::setParseWalk(grup);
 			}
 		}
-	if ( ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3) )
+	// loopPerOccurrence a rule body's method slot is SHARED by every occurrence, so every rule body goes through parseLoop and each occurrence loops to its OWN max (ruling A -- reverted on trunk 2026-09-27 for want of this branch's staged compile and definer fix, SEQ 211-216)
+	if ( ::repeatsInLoop(field) )
 		field->setMethod(::parseLoop);
 	else	field->setMethod(ruleStuff->parseMethod);
 	// flagFollowsInstall hasNewParse says a method is there to fire, so it is raised here and never at entry -- isGROUP installs null
@@ -11664,12 +11182,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return 0;
 }
 
-/***************************************************************************
-	Link an action referenced by the block passed in and set its method type.
-    If the block passed in is a method type attribute and names a rule in its
-    text, the action is set on the rule, otherwise it is set on the block.
-    Returns the rule upon which the action is set.
-***************************************************************************/
+// setRuleAction link the action the block references and set its method type -- on the rule the block names, else on the block; returns the rule
 extern "C" GroupItem *setRuleAction(GroupItem *block)
 {
 GroupItem 	*item = block ? block->parent : (GroupItem*)0;
@@ -11743,10 +11256,7 @@ char 		*deeper = 0;
 	return 1;
 }
 
-/***************************************************************************
-	Statement equivalence test. v1: top-level GroupItem.matches (tag, data,
-	content equality at the root node). v2 candidate: recursive AST walk.
-***************************************************************************/
+// statementMatches statement equivalence: v1 is a top-level GroupItem.matches; a recursive walk is the v2 candidate
 extern "C" int statementMatches(GroupItem *a, GroupItem *b)
 {
 	return a->matches(b);
@@ -11943,9 +11453,7 @@ GroupItem 	*reg = 0;
 	return 0;
 }
 
-/***************************************************************************
-    verdictCount -- add one named count to a verdict
-***************************************************************************/
+// verdictCount add one named count to a verdict
 extern "C" void verdictCount(GroupItem *verdict, char *name, int value)
 {
 GroupItem 	*num = new GroupItem(name);
@@ -11953,24 +11461,7 @@ GroupItem 	*num = new GroupItem(name);
 	verdict->addAttribute(num);
 }
 
-/***************************************************************************
-	tokenize -- RETIRED 2026-09-01, and this is its obituary rather than a gap.
-
-	It glommed a parent label's components into one token. Its successor is the
-	`tokened` BIT: GroupMain builds NamE and NumbeR with `tokened = true` and no
-	tokenize term, processFlags sets the same bit for rules the grammar defines,
-	and GroupItem.twk:1142 reads it -- `if tokened captureSpan(stuff);`.
-	captureSpan writes the span this used to glom.
-
-	Measured before removal: ZERO firings across the fleet, oneTest, parseClass's
-	237-row census, a names-and-numbers-heavy fixture, and a fixture defining a
-	rule that literally spelled the term -- with an unconditional
-	probe-installed marker on every run, so zero was distinguishable from a
-	missing instrument. See docs/fixIts.md F-37.
-***************************************************************************/
-/***************************************************************************
-	wrapped is used when printing to supply quotes around output text
-***************************************************************************/
+// wrapped quote output text for printing when it holds a space
 extern "C" char *wrapped(GroupItem *input)
 {
 char 	*junkText = input->getText();

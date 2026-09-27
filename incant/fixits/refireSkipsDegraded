@@ -24,6 +24,7 @@ stop();
 
 LANE:  jit
 BLAST: OVERLAPS
+OWNER: Clod     (jitter lane -- Tony, 2026-09-27, SEQ 202: "I do not do jitter fixes")
 
 refireSkipsDegraded -- A REFIRE SILENTLY SKIPS EVERY STATEMENT THAT DEGRADED AT COMPILE.
 
