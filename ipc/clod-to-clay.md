@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 157 at the FOOT -- SEQ 210: the DO refusal was MY ORACLE (SEQ 202 compile refusal); ExpressioN refusal IS (A); only q disagrees; collision named
+STATUS:   fresh           # SEQ 158 at the FOOT -- SEQ 211: (A) REVERTED f33d395 (root is SEQ 202 compile refusal); old-road column LANDED 2c4cec1
+# prior: SEQ 157 at the FOOT -- SEQ 210: the DO refusal was MY ORACLE (SEQ 202 compile refusal); ExpressioN refusal IS (A); only q disagrees; collision named
 # prior: SEQ 156 at the FOOT -- SEQ 209: leaf-only zero-width LANDED f095a05; all 6 moved inputs equal the old road
 # prior: SEQ 155 at the FOOT -- SEQ 208: leaf-only built and WORKS (BlocK x, ShA* kount 2) but moves the same rows -- the LEAF half is the mover; reverted, needs a ruling
 # prior: SEQ 154 at the FOOT -- SEQ 207: guess CONFIRMED; the oracle test fixes BlocK but runs rule-body * loops to max; REVERTED WHOLE (sweepT moved)
@@ -8723,4 +8724,54 @@ input reads 1/24 at 09-23, 09-26, before (A), at (A) and at HEAD. The SEQ 209 ta
     gParseActive form would.
 
   END SEQ 157
+
+
+===================================================================
+SEQ 158  -  SEQ 211: (A) REVERTED -- ITS REGRESSION IS SEQ 202'S; THE OLD-ROAD COLUMN LANDED
+===================================================================
+STATUS: fresh -- 2026-09-27. f33d395 (revert) and 2c4cec1 (column), pushed.
+
+TOP LINE. Ran: temporary witnesses on runLeafParse's refusal and on setParseWalk for ExpressioN
+faces (removed), the corpus under four generation orders, then the revert and its certificate,
+then the old-road column and its H7 on a 09-26 clone. FAILED: no clean fix at the definer exists,
+so (A) is reverted per the dispatch. Rule: ExpressioN (and BlocK, the compile); not parser.
+
+(1) THE (A) REGRESSION.
+  DEFINER: a FACE of ExpressioN whose parent is Token -- NOT the registry's ExpressioN (different
+  node). REASON THREE: it has rStuff; its parseMethod is null (so is every face's, and the
+  registry entry's).
+  CAUSE, measured: the second parser() call's compile hits SEQ 202's refusal -- REFUSED BlocK --
+  checkInput: no enclosing activation -- because the first call installed BlocK. The refusal ends
+  compileRules before setParse (stdout: "compile succeeded for ExpressioN", then nothing), and
+  leaves the shared list's first child pointing at that stray face, which definingRule() then
+  returns. Controls: parser(StatemenT) alone 171/0; parser(ExpressioN); parser(StatemenT) 171/0;
+  parser(DO); parser(ExpressioN) 13 readings / 160 refusals / 1 BlocK compile refusal. So ANY
+  second parser() after BlocK is installed does it.
+  Before (A) the same stray state was SILENT -- a max-1 rule body ran parseRule directly and never
+  asked the definer. (A) routes every rule body through parseLoop -> runLeafParse, which asks.
+  NOT CLEAN AT THE DEFINER: the root is SEQ 202's compile refusal, and its fix (processCode ->
+  driveStep) is its own stroke. So (A) came out.
+  THE REVERT (f33d395): repeatsInLoop loses (A)'s `parseMethod == parseRule ||` clause and is the
+  pre-(A) test again; install site and zero-width tail still ask it, so the LEAF-ONLY FIX STANDS.
+  Re-pinned back to named divergences, ruled values stated: site1RoadsT sr69-sr72 verdict 0
+  (ruled 1/22); shapeBodyT ShRep aaac old 1/4 vs generated 0/0; new-road label none (ruled aaac);
+  loopVerdict 310/95 -> 37/1 recorded.
+  Certificate: pop.sh 765 ok and against the post-f095a05 capture ONLY those four rows moved (the
+  leaf fix's sweepT 47 and zeroWidthT, BlocK { x = 1; } included, hold without (A)); corpus 171 /
+  0 refusals under BOTH parser(DO) and parser(StatemenT); parser(ExpressioN); jitLadder 215;
+  canary 310 + 21 + 41 = 372. ShRep 1/4 in both orders does NOT hold without (A) -- that is the
+  order bug, pinned again.
+(2) THE OLD-ROAD COLUMN (2c4cec1), 14 rows, green: genLadder/oldRoadOracle.py, pairs.sweep's 168
+  unique inputs, three processes -- OLD, DO, SE -- probe warmed before parser(). Every column
+  complete and at its foot; old road reads a verdict on 166; in BOTH orders the new road equals
+  the old on 167 of 168; 'q' PINNED BY NAME at old 1/3, new 0/0. Any other disagreement fails with
+  the input and both readings. H7 on a 4656409 clone: six more disagreements (the SEQ 209 table)
+  -> red, each named. pop.sh 765 -> 779.
+(3) Noted for the next stroke: the collision resolves through gParseActive, not the isRule guard
+  (coded rules carry a BlocK).
+
+THE ORDER BUG IS OPEN AGAIN, and now has a known blocker: (A) fixes it, and (A) needs SEQ 202's
+compile refusal gone first -- the processCode -> driveStep change.
+
+  END SEQ 158
 

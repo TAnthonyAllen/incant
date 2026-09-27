@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      210
-STATUS:   cleared        # SEQ 210 -- measured; DO refusal was my oracle; ExpressioN refusal is (A) -- clod-to-clay SEQ 157
+SEQ:      211
+STATUS:   cleared        # SEQ 211 -- (A) reverted f33d395; old-road column 2c4cec1 -- clod-to-clay SEQ 158
+STATUS-210: cleared      # SEQ 210 -- measured; DO refusal was my oracle; ExpressioN refusal is (A) -- clod-to-clay SEQ 157
 STATUS-209: cleared      # SEQ 209 -- LANDED f095a05; oracle agrees on all 6 -- clod-to-clay SEQ 156
 STATUS-208: cleared      # SEQ 208 -- built, works, moves the must-not-move rows (leaf half); reverted -- clod-to-clay SEQ 155
 STATUS-207: cleared      # SEQ 207 -- guess confirmed; oracle test reverted whole (rule-body * runs to max; sweepT moved) -- clod-to-clay SEQ 154
@@ -9719,4 +9720,28 @@ MEASURE ONLY, nothing built.
    instead, and name the smallest change. Don't build it.
 
   END SEQ 210
+
+
+===================================================================
+SEQ 211  -  THE (A) REGRESSION FIRST; THEN THE OLD-ROAD COLUMN
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. (A) reverted; column landed; clod-to-clay SEQ 158.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+1. THE (A) REGRESSION FIRST. Under parser(StatemenT); parser(ExpressioN), runLeafParse refuses
+   "no parse method is installed on the defining rule".
+   - Name the definer, and which of the three reasons applies.
+   - Fix it so the definer carries its method in every generation order; F-98 rules it lives on
+     the definer.
+   - Certificate: that order reads 171, 0 refusals; parser(DO) still 171, 0; ShRep 1/4 in both
+     orders; zeroWidthT green; pop.sh row for row; jitLadder 215; canary sum.
+   - If the fix isn't clean, revert (A) and report instead. A landed commit that breaks a
+     generation order does not stay landed.
+2. Build the old-road column in sweepT as proposed, run under BOTH generation orders. Pin 'q' by
+   name. Any other disagreement fails with both readings printed.
+3. Collision, next stroke, not this one: resolve through gParseActive, not the isRule guard.
+   Coded rules carry a BlocK (09-19, `list`), so isRule would not exclude them.
+
+  END SEQ 211
 
