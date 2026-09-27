@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      212
-STATUS:   cleared        # SEQ 212 -- collision on trunk 3494d52; branch stopped at item 1 -- clod-to-clay SEQ 159
+SEQ:      213
+STATUS:   working        # SEQ 213 -- MEASURE ONLY on the branch: snapshots around an old- and a new-road compile of `tsX;`
+STATUS-212: cleared      # SEQ 212 -- collision on trunk 3494d52; branch stopped at item 1 -- clod-to-clay SEQ 159
 STATUS-211: cleared      # SEQ 211 -- (A) reverted f33d395; old-road column 2c4cec1 -- clod-to-clay SEQ 158
 STATUS-210: cleared      # SEQ 210 -- measured; DO refusal was my oracle; ExpressioN refusal is (A) -- clod-to-clay SEQ 157
 STATUS-209: cleared      # SEQ 209 -- LANDED f095a05; oracle agrees on all 6 -- clod-to-clay SEQ 156
@@ -9773,4 +9774,22 @@ The three items are circular: (A) needs the processCode -> driveStep change; dri
    pointing at a stray occurrence. It was a refusal with no patient.
 
   END SEQ 212
+
+
+===================================================================
+SEQ 213  -  MEASURE ONLY: WHAT A NEW-ROAD COMPILE OF A BARE NAME LEAVES BEHIND
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any build, per WT-15.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+MEASURE ONLY, on branch seq212-drive-compile. Compile oneA (body: tsX;) twice: on the old road,
+and on the new road after parser(Start). Around each compile, snapshot: processingCode;
+currentMETHOD (tag + addrOf); lastREF; the input stack depth and inputFloor; gParseActive depth;
+the action's child list (tags + count: which locals got minted, and where); whatever the top-level
+parse reads next. Report the snapshots in a table: before / after-old / after-new. Name the field
+that differs and the line that leaves it. Then name the first thing the next top-level statement
+reads that turns it into `RunRulE: expected a method not cerr`. Don't fix.
+
+  END SEQ 213
 
