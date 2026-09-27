@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      215
-STATUS:   working        # SEQ 215 -- confirm item C's mechanism; if so STAGE generateParse (carrier compiles, rule keeps its body until green)
+SEQ:      216
+STATUS:   working        # SEQ 216 -- compile()'s parent re-pointing: date it, find its reader, remove it; definer row; SEQ 215 certificate
+STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
 STATUS-213: cleared      # SEQ 213 -- tsX minted into grammar rule ANYtoken, not the action -- clod-to-clay SEQ 160
 STATUS-212: cleared      # SEQ 212 -- collision on trunk 3494d52; branch stopped at item 1 -- clod-to-clay SEQ 159
@@ -9831,8 +9832,8 @@ retires when parse-then-fire reaches action bodies.
 ===================================================================
 SEQ 215  -  CONFIRM ITEM C, THEN STAGE generateParse
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-27, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. clod-to-clay SEQ 162.
 
 Top of the report: what ran (as typed), what failed, and which rule if it is parser.
 On branch 2a29a4b.
@@ -9850,4 +9851,26 @@ On branch 2a29a4b.
 If C passes, the branch has cleared the whole certificate, and actions run on the new road.
 
   END SEQ 215
+
+
+===================================================================
+SEQ 216  -  STOP compile() RE-POINTING THE SHARED LIST
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+On branch a426178.
+1. READ FIRST. Commands.rtn compile()'s tail loop sets grup.parent = field on every child of a
+   shared list. Find when it was added (git log -S) and what reads the parent it writes. It breaks
+   definingRule()'s invariant: shared children are parented to the definer.
+2. Remove the re-pointing. If step 1 names a reader that needs it, give that reader the parent some
+   other way, but never by writing into the shared list.
+3. Row: after a second parser(), definingRule() of every ExpressioN occurrence is the grammar
+   registry's ExpressioN.
+4. Certificate: SEQ 215's in full: A, B, C including "ExpressioN still has its method"; corpus in
+   both orders 171 / 0, and the SE old-road column green; ShRep, the pins, ownerT, zeroWidthT;
+   jitLadder 215, canary sum; pop.sh: every move named. Stop before merging.
+
+  END SEQ 216
 

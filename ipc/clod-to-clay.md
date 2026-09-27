@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 161 at the FOOT -- SEQ 214: owner channel + resolveName built, grammar clean (7 -> 0); certificate STOPS at item C (second parser() of ExpressioN)
+STATUS:   fresh           # SEQ 162 at the FOOT -- SEQ 215: item C confirmed and STAGED (compile succeeds); a drive then refuses on a stray definer left by compile()'s own parent loop
+# prior: SEQ 161 at the FOOT -- SEQ 214: owner channel + resolveName built, grammar clean (7 -> 0); certificate STOPS at item C (second parser() of ExpressioN)
 # prior: SEQ 160 at the FOOT -- SEQ 213: the new-road compile mints tsX into GRAMMAR RULE ANYtoken (currentMETHOD = the face), not the action
 # prior: SEQ 159 at the FOOT -- SEQ 212: collision LANDED on trunk 3494d52; branch seq212-drive-compile STOPPED -- a new-road compile of a body with a BARE NAME abandons the top level
 # prior: SEQ 158 at the FOOT -- SEQ 211: (A) REVERTED f33d395 (root is SEQ 202 compile refusal); old-road column LANDED 2c4cec1
@@ -8951,4 +8952,61 @@ second call; aCTionXpress's null ExpressioN label).
 STOPPED before merging, as instructed.
 
   END SEQ 161
+
+
+===================================================================
+SEQ 162  -  SEQ 215: ITEM C STAGED; THE NEXT WALL IS compile()'S OWN PARENT LOOP
+===================================================================
+STATUS: fresh -- 2026-09-27. Branch seq212-drive-compile a426178, pushed, NOT merged. Installed
+        binary = trunk, fleet verified row for row.
+
+TOP LINE. Ran: item C's flags read around the second walkRules/compileRules (kant flag reads
+isCodeD / isActioN); the staging; a runaway (killed) and its cause; the certificate; a temporary
+witness on runLeafParse's refusal and on ExpressioN's first-child parent inside compile() (removed).
+FAILED: certificate item C's second half -- after the second parser(), an ExpressioN drive refuses
+"parseLoop: no parse method is installed on the defining rule". Rule: ExpressioN; not parser.
+
+(1) CONFIRMED, measured on ExpressioN:
+        after parser(Start)                         isCodeD 0   isActioN 1
+        after the second walkRules (generateParse)  isCodeD 1   isActioN 0
+        after the second compileRules (refused)     isCodeD 1   isActioN 0
+    The 2-bit actionType wipe, written by generateParse's `argument :. isCodeD;`
+    (IncantForms/WorkingOn/parser) through opSetFlag case 40 (Instruct.rtn). Nothing rolled it back.
+(2) STAGED. generateParse, verbatim:
+        before:  bprCopy := new("builtinParseR"); ... argument +% *bprCopy;  argument :. isCodeD;
+        after:   bprCopy := new("pendingParseR"); ... argument +% *bprCopy;   (no :. isCodeD)
+    compile(): a pending carrier, when present, is the holder it compiles; green -> detached,
+    retagged builtinParseR, swapped in by replace() in ONE step; red -> detached, the rule keeps its
+    body, the refusal names the carrier and the rule. No layout change.
+    Two things the staging needed, both measured: walkRules' cycle guard is the builtinParseR TAG, so
+    it now also skips pendingParseR -- without it the walk ran away (BlocK -> StatemenT -> BlocK, 10
+    minutes, killed). And compile()'s bare names were re-pointed at the new `holder` declaration
+    (bear-trap #42) -- spelled on grup; the codeOnly diff of compile() is exactly the change.
+(3) CERTIFICATE:
+    A rsRun after parser(Start): rsN 1                                   PASS
+    B two statements                                                     PASS
+    C second parser() after BlocK: the compile SUCCEEDS, no refusal      PASS (the half that was C)
+      ...and ExpressioN has its method                                   FAIL -- a drive refuses at
+      runLeafParse: definingRule() returns a STRAY ExpressioN face whose parent is Token; its
+      parseMethod is null (and so is the registry entry's).
+    corpus parser(DO) 171 / 0                                            PASS
+    corpus parser(StatemenT); parser(ExpressioN)                         FAIL, 13 / 160 refusals (the stray)
+    ShRep 1/4 both orders; pins at ruled values; ownerT; zeroWidthT      PASS
+    jitLadder 215; canary 313 + 21 + 41 = 375
+    pop.sh against 2a29a4b: only the SE old-road column moved (its failure is now the stray definer;
+    'q' reads REFUSED there), 783 -> 782.
+
+⚠ AND A CORRECTION TO SEQ 211 AND F-128'S FIRST LOG LINE: the stray definer is NOT left by the aborted
+compile. Measured this time with the compile SUCCEEDING: compile()'s own tail loop (Commands.rtn,
+endCompile) does `grup.parent = field` over each child BEFORE recursing into it, and a rule's child
+list is SHARED by every place it is used -- so each compile(face) on the way down re-points
+ExpressioN's list at the face it is visiting, and definingRule() (first child's parent) returns
+whichever face compile() reached last. After the first parser() that is a face the walk installed;
+after the second it is a Token-side face setParse never touched. Before (A) nothing asked the definer,
+so the drift was silent. F-128's log carries the correction.
+THE NEXT WALL, not built: the definer must not be "whichever face was compiled last" -- either
+compile() stops re-pointing the shared list, or runLeafParse finds the method where setParse installed
+it. Tony's call which.
+
+  END SEQ 162
 
