@@ -9953,7 +9953,7 @@ extern "C" int repeatsInLoop(GroupItem *field)
 RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( !ruleStuff )
 		return 0;
-	if ( ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3) )
+	if ( ruleStuff->parseMethod == ::parseRule || (ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3)) )
 		return 1;
 	return 0;
 }

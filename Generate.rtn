@@ -350,7 +350,7 @@ extern int repeatsInLoop(GroupItem field)
 {
 RuleStuff   ruleStuff = field.rStuff;
     if !ruleStuff   return 0;
-    if max > 1 && (!field.data || field.data > 3)   return 1;
+    if parseMethod == parseRule || (max > 1 && (!field.data || field.data > 3))   return 1;
     return 0;
 }
 
