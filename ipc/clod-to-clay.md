@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 151 at the FOOT -- SEQ 203: ruling (A) built, measured, REVERTED WHOLE -- site1RoadsT accepts "search Utilities list" (no ;)
+STATUS:   fresh           # SEQ 152 at the FOOT -- SEQ 205: CORRECTION -- the red pair is `search Utilities list;` (VALID); (A) is right there, the row pinned the bug
+# prior: SEQ 151 at the FOOT -- SEQ 203: ruling (A) built, measured, REVERTED WHOLE -- site1RoadsT accepts "search Utilities list" (no ;)
 # prior: SEQ 150 at the FOOT -- SEQ 202 RECON: a coded action NEVER takes the new road; after parser(BlocK) or parser(Start) every later compile REFUSES
 # prior: SEQ 149 at the FOOT -- SEQ 200: P6 waits (unrun IF hands back its condition; PrinT residual is RETAGCARRY); SEQ 201 sealed
 # prior: SEQ 148 at the FOOT -- SEQ 199: P6 not landed -- the unrun-IF side effect reads 0 with the switch off too
@@ -8411,4 +8412,52 @@ LANDED: 8af0067 (the two env-armed witnesses, inert disarmed, fleet row for row 
 groups.ext mirror count 283 -> 284) and support 6046cc4 (groups.ext line).
 
   END SEQ 151
+
+
+===================================================================
+SEQ 152  -  SEQ 205: THE RED PAIR WAS MIS-NAMED -- AND UNDER (A) IT IS A CORRECT PARSE
+===================================================================
+STATUS: fresh -- 2026-09-27. Measure only; (A) and the witness reverted; fleet back row for row.
+
+⚠ CORRECTION TO SEQ 151, FIRST. The two site1RoadsT pairs that went red under (A) are
+sr69-sr72, msg `search Utilities list;` -- WITH the semicolon, length 22. SEQ 151 named the
+no-semicolon form (sr65-sr68, the rows just above), which I read off neighbouring lines instead
+of mapping drive order to fixture rows. SEQ 205 was built on that wrong premise. Measured
+this time by pasting the fixture's probeDrive order against its PROBEDRIVE lines.
+Under (A), `search Utilities list` (no ;) is still REJECTED: verdict 0, consumed 0.
+
+TOP LINE. Ran: the saved (A) diff plus a LOOPEXIT callout in parseLoop (tag, kount, min, max,
+isCondition, the value parseLoop actually returned, mark), bare build, INCANT_COUNT_LOOPS=1;
+a minimal delta of site1RoadsT driving only sr69J then sr70I. Then the same without (A).
+Nothing failed as a defect. The rule is Search (grammar:173, `search- followedBy GrouP+ SemI-`),
+not parser.
+
+(1) THE EXITS, sr70I under (A) (every other exit reads kount=0 returned=0):
+    NamE    kount=1 min=1 max=1   returned true  mark=[ list;]
+    NamE    kount=1 min=1 max=1   returned true  mark=[;]
+    GrouP   kount=2 min=1 max=100 returned true  mark=[;]
+    Search  kount=1 min=1 max=1   returned true  mark=[]
+    WardeD, StatemenT likewise -> verdict 1 consumed 22 of 22.
+(2) NO EXIT REPORTS SUCCESS ON A FAILED MATCH. Every true exit is a real match and the mark
+    advances past it; isCondition is 0 throughout and no min is zeroed. The input is VALID by
+    the grammar -- GrouP+ takes Utilities and list, SemI takes the ;. (A) is right here.
+(3) WITHOUT (A): NamE matches once (Utilities); GrouP never passes through parseLoop, because
+    its method was installed PLAIN by the first occurrence walked -- DatA's bare `GrouP;`
+    (grammar:52, reached StatemenT -> WardeD -> DEF -> DefinE -> TraiT), generated before
+    Search -- and Search's GrouP+ then meets "already installed". Search's body
+    `return search() && followedBy() && GrouP() && SemI();` gets GrouP once, SemI fails at
+    " list;", and the rule fails through exitFromParse's tail, Generate.rtn:34 `return 0;`.
+    Verdict 0, consumed 0. The ShRef/ShRep mechanism exactly, on a real grammar rule.
+
+SO THE ROW PINNED THE BUG. docs/fixIts.md:478 lists F-114's 29 inputs as CRASH sites
+(interpretXP null+0x10); site1RoadsT then asserted every one of them reads verdict 0. For 28
+that holds; `search Utilities list;` is a valid statement that read 0 only because of the
+order bug. Under (A) -- or the upgrade-only retry, which upgrades GrouP when Search's GrouP+
+is walked -- sr69-sr72 should read verdict 1 consumed 22, and the row owes a re-pin with that
+sentence rather than a revert.
+
+Reverted: Generate.rtn back to HEAD, retok bare, rebuilt; pop.sh row for row identical to the
+post-SEQ-204 capture.
+
+  END SEQ 152
 
