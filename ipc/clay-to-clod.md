@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      208
-STATUS:   cleared        # SEQ 208 -- built, works, moves the must-not-move rows (leaf half); reverted -- clod-to-clay SEQ 155
+SEQ:      209
+STATUS:   cleared        # SEQ 209 -- LANDED f095a05; oracle agrees on all 6 -- clod-to-clay SEQ 156
+STATUS-208: cleared      # SEQ 208 -- built, works, moves the must-not-move rows (leaf half); reverted -- clod-to-clay SEQ 155
 STATUS-207: cleared      # SEQ 207 -- guess confirmed; oracle test reverted whole (rule-body * runs to max; sweepT moved) -- clod-to-clay SEQ 154
 STATUS-206: cleared      # SEQ 206 -- (A) LANDED; re-pins; timing +3%; BlocK re-drive reported -- clod-to-clay SEQ 153
 STATUS-205: cleared      # SEQ 205 -- measured; red pair was `search Utilities list;` (valid) -- report clod-to-clay SEQ 152
@@ -9671,4 +9672,28 @@ Tony rules: build the leaf-only zero-width success.
    with several, both roads.
 
   END SEQ 208
+
+
+===================================================================
+SEQ 209  -  RELAND THE LEAF-ONLY PATCH, GATED ON THE OLD-ROAD ORACLE
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Landed f095a05; clod-to-clay SEQ 156.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+Tony rules: reland the saved leaf-only patch. The moved rows are the fix, gated on the oracle.
+1. For every input whose new-road reading moved (NamE, ANYtoken, define aa isRule; ;, #5.2d,
+   #-5s, the Attributes and endDef carriers), read the OLD road's verdict and consumed. One
+   table: old road / new road before / new road after.
+2. Where after == old road, re-pin with this sentence: "new road now agrees with the old road;
+   the old pin held a zero-width leaf failure (nameSet*/Modifier*)". Where after != old road,
+   STOP. Revert whole and report that input.
+3. Carried rows (sweepT 45 -> 47, nestNatT, the (b) tripwire, loopVerdict): re-pin them in the
+   same commit, each naming the input above that moved it.
+4. Add the rows: BlocK { x = 1; } on the new road, consumed = all; Modifier* with zero and with
+   several modifiers, both roads.
+5. Unmoved and certified: ShA* stops at its own count, ShRep 1/4 in both orders, chainTruthT,
+   modSeamT, DW-5, jitLadder 215, canary sum.
+
+  END SEQ 209
 

@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 155 at the FOOT -- SEQ 208: leaf-only built and WORKS (BlocK x, ShA* kount 2) but moves the same rows -- the LEAF half is the mover; reverted, needs a ruling
+STATUS:   fresh           # SEQ 156 at the FOOT -- SEQ 209: leaf-only zero-width LANDED f095a05; all 6 moved inputs equal the old road
+# prior: SEQ 155 at the FOOT -- SEQ 208: leaf-only built and WORKS (BlocK x, ShA* kount 2) but moves the same rows -- the LEAF half is the mover; reverted, needs a ruling
 # prior: SEQ 154 at the FOOT -- SEQ 207: guess CONFIRMED; the oracle test fixes BlocK but runs rule-body * loops to max; REVERTED WHOLE (sweepT moved)
 # prior: SEQ 153 at the FOOT -- SEQ 206: (A) LANDED 4c6c76c; timing +3%; BlocK parses two statements now -- a one-letter name is a separate bug
 # prior: SEQ 152 at the FOOT -- SEQ 205: CORRECTION -- the red pair is `search Utilities list;` (VALID); (A) is right there, the row pinned the bug
@@ -8605,4 +8606,54 @@ per flipped input first), or keep the rows fixed and look for why the leaf half 
 The patch (predicate + tail) is kept; relanding it is one apply.
 
   END SEQ 155
+
+
+===================================================================
+SEQ 156  -  SEQ 209: LEAF-ONLY ZERO-WIDTH SUCCESS LANDED; THE ORACLE AGREES ON ALL SIX
+===================================================================
+STATUS: fresh -- 2026-09-27. Landed f095a05, pushed. Nothing failed.
+
+TOP LINE. Ran: the SEQ 208 patch relanded; the whole jitLadder/station2/pairs corpus (172 unique
+root|input) driven through tell in three processes -- old road, new road before, new road after
+-- generated with parser(DO) as sweepT does; pop.sh's own trace files kept on both builds for
+per-file attribution; a new fixture; the certificate. Nothing failed. Rules: nameSet and
+Modifier (leaves); not parser.
+
+(1) THE TABLE -- every input whose new-road reading moved (6 of 172):
+    idx  root|input                        old road   new before   new after
+    042  StatemenT|define aa isRule; ;       1/19       1/17         1/19
+    054  ExpressioN|aa isRule tt=[a-z]+;     1/17       1/14         1/17
+    070  ExpressioN|e+3                      1/3        0/0          1/3
+    099  ExpressioN|#5.2d                    1/5        1/4          1/5
+    100  ExpressioN|#-5s                     1/4        1/3          1/4
+    121  ExpressioN|=[a-z]                   1/5        1/2          1/5
+(2) After == old road on all six. No stop. Re-pinned with the ruled sentence.
+(3) CARRIED ROWS, each tied to its input:
+    sweepT 45 -> 47 (nopick 16 -> 14): 042 `define aa isRule; ;` gives Attributes and endDef
+      their first accept, so both leave nopick. (The carrier-level NamE/ANYtoken reject counts
+      in the sweep are these same inputs re-counted per carrier.)
+    nestNatT arrivals, the (b) tripwire 413 -> 429, loopVerdict 355/152 -> 310/95: ALL from
+      nnFmt / nnFmtN / nnFmtS (`#5d`, `#5d s2N`, `#5.2d` -- the 099/100 family), measured per
+      trace file on both builds; every other nn/un/qn/df/dwn file identical.
+(4) ROWS, incant/pop/zeroWidthT (8 green): BlocK { x = 1; } consumes all on the new road and on
+    the old (its oracle); TraiT `abc` (zero modifiers) 1/3 and `abc+?!` (several) 1/6, both
+    roads. H7 on the pre-fix build: NEW BlocK leaves the whole message; NEW `TraiT abc` 0/0.
+(5) CERTIFIED: ShA* kount 0 on "c" and 2 on "aac", never 100; ShRep "aaac" 1/4 in both
+    orders; chainTruthT, modSeamT, DW-5 unmoved; pop.sh 757 -> 765 ok with only the rows above
+    moving (and the fixture-name census 184 -> 185); jitLadder 215 PASSED; canary 310 + 21 + 41
+    = 372 (+1, repeatsInLoop).
+
+FINDINGS, reported not fixed:
+- Two corpus inputs disagree with the old road on the new road, unchanged by this fix (so
+  pre-existing): `do print 1; while 1 < 0;` (StatemenT) -- old 1/24, new REFUSES;
+  `'q'` (ExpressioN) -- old 1/3, new 0/0.
+- `parser(StatemenT); parser(ExpressioN);` (instead of parser(DO)) leaves ExpressioN refusing
+  "parseLoop: no parse method is installed on the defining rule" on 160 of 172 drives, starting
+  right after the first `for` statement is driven. My first oracle run used it; the numbers
+  above are all from parser(DO).
+
+The processCode -> driveStep line now has two items in front of it: the BlocK name collision
+inside an action, and Tony's ordering choice for actions compiled before parser().
+
+  END SEQ 156
 
