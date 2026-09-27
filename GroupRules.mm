@@ -9943,13 +9943,13 @@ extern "C" GroupItem *refuseUnknownOperator(GroupItem *op, GroupItem *target)
 	
 }
 
-// repeatsInLoop the ONE test for "this term repeats inside parseLoop": every rule body (ruling A), and any other term with max > 1 that is not a leaf -- leaves (data 1-3) loop inside their own method. The install site and exitFromParse's zero-width tail both ask it (SEQ 208)
+// repeatsInLoop the ONE test for "this term repeats inside parseLoop": max > 1 and not a leaf -- leaves (data 1-3) loop inside their own method. The install site and exitFromParse's zero-width tail both ask it (SEQ 208). Ruling A's "every rule body" clause is REVERTED (SEQ 211): see loopPerOccurrence
 extern "C" int repeatsInLoop(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( !ruleStuff )
 		return 0;
-	if ( ruleStuff->parseMethod == ::parseRule || (ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3)) )
+	if ( ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3) )
 		return 1;
 	return 0;
 }
@@ -10579,7 +10579,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			else	::setParseWalk(grup);
 			}
 		}
-	// loopPerOccurrence a rule body's method slot is SHARED by every occurrence, so it always gets parseLoop and each occurrence loops to its OWN max (ruling A, SEQ 203) -- chosen from the first occurrence walked, ShRef's bare ShA stopped ShRep's ShA+ repeating
+	// loopPerOccurrence ⚠ the loop choice is made from the FIRST occurrence walked, into a slot every occurrence shares, so a bare reference generated first stops a later + from repeating (ShRef/ShRep, DatA's GrouP / Search's GrouP+). Ruling A (every rule body through parseLoop) fixed it and was REVERTED 2026-09-27 (SEQ 211): under it a second parser() after BlocK is installed leaves a definer with no method -- blocked on SEQ 202's compile refusal
 	if ( ::repeatsInLoop(field) )
 		field->setMethod(::parseLoop);
 	else	field->setMethod(ruleStuff->parseMethod);

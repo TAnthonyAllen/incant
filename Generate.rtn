@@ -336,12 +336,12 @@ RuleStuff   ruleStuff = rStuff;
     return exitFromParse(field);
 }
 
-// repeatsInLoop the ONE test for "this term repeats inside parseLoop": every rule body (ruling A), and any other term with max > 1 that is not a leaf -- leaves (data 1-3) loop inside their own method. The install site and exitFromParse's zero-width tail both ask it (SEQ 208)
+// repeatsInLoop the ONE test for "this term repeats inside parseLoop": max > 1 and not a leaf -- leaves (data 1-3) loop inside their own method. The install site and exitFromParse's zero-width tail both ask it (SEQ 208). Ruling A's "every rule body" clause is REVERTED (SEQ 211): see loopPerOccurrence
 extern int repeatsInLoop(GroupItem field)
 {
 RuleStuff   ruleStuff = field.rStuff;
     if !ruleStuff   return 0;
-    if parseMethod == parseRule || (max > 1 && (!field.data || field.data > 3))   return 1;
+    if max > 1 && (!field.data || field.data > 3)   return 1;
     return 0;
 }
 
@@ -407,7 +407,7 @@ RuleStuff   ruleStuff = rStuff;
             parent  = field;    // if field is a copy grup.parent is not field
             if grup.noPrint continue;
             else setParseWalk(grup); }}
-    // loopPerOccurrence a rule body's method slot is SHARED by every occurrence, so it always gets parseLoop and each occurrence loops to its OWN max (ruling A, SEQ 203) -- chosen from the first occurrence walked, ShRef's bare ShA stopped ShRep's ShA+ repeating
+    // loopPerOccurrence ⚠ the loop choice is made from the FIRST occurrence walked, into a slot every occurrence shares, so a bare reference generated first stops a later + from repeating (ShRef/ShRep, DatA's GrouP / Search's GrouP+). Ruling A (every rule body through parseLoop) fixed it and was REVERTED 2026-09-27 (SEQ 211): under it a second parser() after BlocK is installed leaves a definer with no method -- blocked on SEQ 202's compile refusal
     if repeatsInLoop(field)     field.method = parseLoop;
     else    field.method = parseMethod;
     // flagFollowsInstall hasNewParse says a method is there to fire, so it is raised here and never at entry -- isGROUP installs null

@@ -2884,6 +2884,7 @@ else echo "  FAIL  quoteNatT qnCe value -- cerr \"hi\":; did not end its line: $
 #  > 0 and did not move; the numbers are recorded here so the next reader knows they are expected.
 #  AND AGAIN 2026-09-27 (SEQ 209) 355 / 152 -> 310 / 95, all of it from nnFmt / nnFmtN / nnFmtS (verdicts 41/41/47 ->
 #  23/32/29): new road now agrees with the old road; the old pin held a zero-width leaf failure (nameSet*/Modifier*). Every other trace file unmoved.
+#  AND 310 / 95 -> 37 / 1 (SEQ 211): RULING A REVERTED 2026-09-27 (SEQ 211): under it a second parser() after BlocK is installed leaves a definer with no method (SEQ 202's compile refusal is the root), so rule bodies no longer all enter parseLoop.
 _lvt=0; _lvd=0
 for _f in "$T"/nn*.e "$T"/un*.e "$T"/qn*.e; do
     [ -f "$_f" ] || continue
@@ -2943,8 +2944,11 @@ _s1map=$(paste -d' ' "$T/s1rNames" "$T/s1rDrives")
 _s1n=$(printf '%s\n' "$_s1map" | grep -c 'PROBEDRIVE')
 _s1ok=$(printf '%s\n' "$_s1map" | grep -E '^sr(69J|70I|71J|72I) ' | grep -c ' verdict=1 consumed=22 length=22 ')
 _s1nz=$(printf '%s\n' "$_s1map" | grep -vE '^sr(69J|70I|71J|72I) ' | grep -vc ' verdict=0 ')
-if [ "$_s1n" -eq 94 ] && [ "$_s1ok" -eq 4 ]; then echo "  ok    site1RoadsT sr69-sr72 \`search Utilities list;\` (valid) reads verdict 1 consumed 22 on both engines -- PINNED BY VALUE"; green=$((green+1))
-else echo "  FAIL  site1RoadsT sr69-sr72 read verdict 1 consumed 22 on $_s1ok of 4 drives (mapped $_s1n of 94)"; fail=1; fi
+#  RULING A REVERTED 2026-09-27 (SEQ 211): under it a second parser() after BlocK is installed leaves a definer with no method (SEQ 202's compile refusal is the root) -- so sr69-sr72 are back to verdict 0, PINNED AS THE DIVERGENCE: the ruled value
+#  is verdict 1 consumed 22, and the 0 is the generation-order bug (DatA's bare GrouP generated before Search's GrouP+).
+_s1zero=$(printf '%s\n' "$_s1map" | grep -E '^sr(69J|70I|71J|72I) ' | grep -c ' verdict=0 ')
+if [ "$_s1n" -eq 94 ] && [ "$_s1zero" -eq 4 ]; then echo "  ok    site1RoadsT sr69-sr72 \`search Utilities list;\` (valid) reads verdict 0 -- PINNED DIVERGENCE (generation order); the ruled value is 1/22"; green=$((green+1))
+else echo "  FAIL  site1RoadsT sr69-sr72 MOVED: verdict 0 on $_s1zero of 4 drives (mapped $_s1n of 94) -- if they read 1/22 the order bug is fixed: re-pin"; fail=1; fi
 if [ "$_s1n" -eq 94 ] && [ "$_s1nz" -eq 0 ]; then echo "  ok    site1RoadsT every other drive (90) reads verdict 0 on both engines"; green=$((green+1))
 else echo "  FAIL  site1RoadsT $_s1nz of the other drives read a non-zero verdict (mapped $_s1n of 94)"; fail=1; fi
 _s1d=$(grep -c '=== jitDegrade count = 0 ===' "$T/s1r.o"); _s1c=$(grep -c 'jitDegrade count' "$T/s1r.o")
@@ -4867,12 +4871,12 @@ else echo "  FAIL  shapeBodyT roads $_sbOld/$_sbNew, want 16/16"; fail=1; fi
 awk '/^--- OLD ROAD/{f=1} /^--- NEW ROAD/{f=0} f&&/^DRIVE/' "$T/sb.e" > "$T/sbo"
 awk '/^--- NEW ROAD/{f=1} f&&/^DRIVE/' "$T/sb.e" > "$T/sbn"
 _sbDiff=$(diff "$T/sbo" "$T/sbn" | grep '^[<>]' | sed 's/  */ /g' | tr "\n" "|")
-#  ⚠ RE-PINNED 2026-09-27 (SEQ 206, ruling A): THE ROADS AGREE ON ALL 16. The ShRep "aaac" divergence is gone
-#  because setParseWalk now installs parseLoop for every rule body, so each occurrence loops to its own max and
-#  generation order no longer decides it. H7: the pre-(A) build reads old 1/4, generated 0/0 on that one drive.
-if [ "$(wc -l < "$T/sbn" | tr -d ' ')" = 16 ] && [ -z "$_sbDiff" ]; then
-    echo "  ok    shapeBodyT the roads agree on all 16 drives (ShRep aaac 1/4 on both since ruling A)"; green=$((green+1))
-else echo "  FAIL  shapeBodyT the road comparison MOVED -- want no difference, got: ${_sbDiff:-<no difference>}"; fail=1; fi
+#  ⚠ RULING A (SEQ 206) made the roads agree on all 16; RULING A REVERTED 2026-09-27 (SEQ 211): under it a second parser() after BlocK is installed leaves a definer with no method (SEQ 202's compile refusal is the root). So the ShRep "aaac" divergence
+#  is PINNED again, its cause the generation order.
+_sbWant="< DRIVE ShRep aaac matched= 1 consumed= 4 |> DRIVE ShRep aaac matched= 0 consumed= 0 |"
+if [ "$(wc -l < "$T/sbn" | tr -d ' ')" = 16 ] && [ "$_sbDiff" = "$_sbWant" ]; then
+    echo "  ok    shapeBodyT the roads agree on 15 of 16 drives; the divergence is ShRep aaac (old 1/4, generated 0/0), PINNED -- cause: generation order"; green=$((green+1))
+else echo "  FAIL  shapeBodyT the road comparison MOVED -- want only ShRep aaac to differ, got: ${_sbDiff:-<no difference>}"; fail=1; fi
 #  ⚑ shapeBodyT LABEL ROW (SEQ 204, Tony's ruling 2026-09-27: TOKENize stays, and ShRep "aaac"'s
 #  label text READS aaac ON BOTH ROADS). shSay prints `LABEL <drive> text=[...]` from the verdict's
 #  reply (the label's data, starred; a label with no data would echo its tag). TODAY THE NEW ROAD
@@ -4886,9 +4890,9 @@ if [ "$_sbCo" = "text=[ ac ]" ] && [ "$_sbCn" = "text=[ ac ]" ]; then echo "  ok
 else echo "  FAIL  shapeBodyT label control: ShRep \"ac\" old [$_sbCo] new [$_sbCn], want text=[ ac ] on both"; fail=1; fi
 if [ "$_sbLo" = "text=[ aaac ]" ]; then echo "  ok    shapeBodyT label: ShRep \"aaac\" OLD road reads aaac -- PINNED BY VALUE (Tony, TOKENize stays)"; green=$((green+1))
 else echo "  FAIL  shapeBodyT label: ShRep \"aaac\" OLD road reads [$_sbLo], want text=[ aaac ]"; fail=1; fi
-#  RE-PINNED 2026-09-27 (SEQ 206): the ruled value, now cashed -- ruling A gave the new road its ShRep "aaac" match.
-if [ "$_sbLn" = "text=[ aaac ]" ]; then echo "  ok    shapeBodyT label: ShRep \"aaac\" NEW road reads aaac -- PINNED BY VALUE, the ruled value"; green=$((green+1))
-else echo "  FAIL  shapeBodyT label: ShRep \"aaac\" NEW road reads [$_sbLn], want text=[ aaac ]"; fail=1; fi
+#  Ruling A cashed the ruled value aaac (SEQ 206); RULING A REVERTED 2026-09-27 (SEQ 211): under it a second parser() after BlocK is installed leaves a definer with no method (SEQ 202's compile refusal is the root) -- so the new road has no label again, PINNED.
+if [ "$_sbLn" = "(none)" ]; then echo "  ok    shapeBodyT label: ShRep \"aaac\" NEW road has NO label -- PINNED DIVERGENCE (generation order); the ruled value is aaac"; green=$((green+1))
+else echo "  FAIL  shapeBodyT label: ShRep \"aaac\" NEW road MOVED to [$_sbLn] -- if it reads text=[ aaac ] the ruling is cashed: re-pin to aaac"; fail=1; fi
 
 #  ⚑ zeroWidthT -- A ZERO-WIDTH LEAF ON THE NEW ROAD (SEQ 209, 2026-09-27). nameSet* and Modifier* are max > 1 LEAVES
 #  with min 0: they never enter parseLoop, and until SEQ 209 exitFromParse's min-zero tail (guarded max <= 1) answered
