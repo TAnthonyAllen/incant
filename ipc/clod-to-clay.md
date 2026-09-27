@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 150 at the FOOT -- SEQ 202 RECON: a coded action NEVER takes the new road; after parser(BlocK) or parser(Start) every later compile REFUSES
+STATUS:   fresh           # SEQ 151 at the FOOT -- SEQ 203: ruling (A) built, measured, REVERTED WHOLE -- site1RoadsT accepts "search Utilities list" (no ;)
+# prior: SEQ 150 at the FOOT -- SEQ 202 RECON: a coded action NEVER takes the new road; after parser(BlocK) or parser(Start) every later compile REFUSES
 # prior: SEQ 149 at the FOOT -- SEQ 200: P6 waits (unrun IF hands back its condition; PrinT residual is RETAGCARRY); SEQ 201 sealed
 # prior: SEQ 148 at the FOOT -- SEQ 199: P6 not landed -- the unrun-IF side effect reads 0 with the switch off too
 # prior: SEQ 147 at the FOOT -- SEQ 198: P6 built (p6-held-class, not merged); stopped: JSON adoption survives, JT rows stay green
@@ -8344,4 +8345,70 @@ fixitNag.sh now splits its headline by owner, both lines always printed: measure
 before -> Tony 1 / Clod 0, after -> Tony 0 / Clod 1. The fixit still runs to its sentinel.
 
   END SEQ 150
+
+
+===================================================================
+SEQ 151  -  SEQ 203: RULING (A) BUILT, MEASURED, AND REVERTED WHOLE
+===================================================================
+STATUS: fresh -- 2026-09-27. Fix reverted; fleet back to its before state row for row.
+
+TOP LINE. Built (A) at Generate.rtn:401 as
+    if parseMethod == parseRule || (max > 1 && (!data || data > 3))    field.method = parseLoop;
+("referenceable rule" read as a rule BODY -- parseMethod parseRule, the shared slot; leaves,
+conditions, containers and upTo keep today's test). Rebuilt bare, ran the certificate.
+WHAT FAILED: site1RoadsT, "every reject reads verdict 0 on both engines" -> 2 pairs non-zero.
+Both are the input `search Utilities list` (no terminating ;), root StatemenT, armed on
+StatemenT and on Search: it was REJECTED and now reads verdict 1 consumed 22 of 22, on both
+engines (the 47/47 agreement row stays green). chainTruthT's one-name `search list` still
+reads 0, so it is not simply "SemI no longer required". Not explained -> reverted whole, per
+the dispatch; no tuning. The diff is kept for the retry.
+Rule: Search (a rule; not parser).
+
+THE CERTIFICATE AS MEASURED (before -> after, bare builds):
+1. new-road ShRep "aaac": ShRef-first 0/0 -> 1/4; ShRep-first 1/4 -> 1/4. ShRef "aa": fails
+   (0/0) both roads before and after; parseLoop's own verdict for its ShA reads kount=1 (and
+   ShRep's ShA kount=3). The verdict's stoppedAt cannot show "consumes 1" on the new road:
+   it reads 0 there on every failure where the old road reads 1 (the new road does not set
+   failedAt) -- a finding, reported not fixed.
+2. modSeamT and chainTruthT: unmoved row for row.
+3. treeRowT green. ShLab (one=ShA kb, labelled max-1) tree ShLab > one, identical before and
+   after on both roads. The labelled-repetition branch never fired for it (0 lab=one), and
+   the full set of branch firings is byte-identical before/after in every probe process. The
+   STOP condition did not trip. (Witness: measureAttachRepeat, below. ShLabR's `many` does not
+   reach that branch at all, so it is NOT a positive control; the preamble's 1030 TraiT/DefinE
+   firings are.)
+4. parseLoop entries over the fleet (pop.sh, INCANT_COUNT_LOOPS wrapper, separate pass):
+   23798 -> 214204. Branch firings 256863 -> 256875.
+5. pop.sh: three rows moved -- loopVerdict's counts (45/13 -> 355/152; explained, every rule
+   body now enters parseLoop; its checks stay green), shapeBodyT's pinned divergence gone
+   (explained, the fix), site1RoadsT red (NOT explained). jitLadder 215 PASSED. Canary
+   GroupRules.h 309, Bytecode.h 21, measure.h 41 (+1 for the witness).
+6. parser(BlocK), driven from TOP LEVEL (see below): the generated BlocK consumes NOTHING --
+   one statement or two, before and after. The lost + was not what stopped it. After (A) its
+   alternation options read LOOPVERDICT flag=1 kount=0 DISAGREE. So the driveStep change for
+   actions is NOT unblocked.
+   Why top level: driven from inside an action (tell from shSay), BlocK REFUSES "has a parse
+   method but no compiled body" -- parseRule's enclosing-rule lookup (Generate.rtn:211,
+   currentMETHOD.get(field.tag)) finds the ACTION's own cached body, which is also tagged
+   BlocK, and that is not isAction (the else at :260). F-110's lookup meeting the artifact's
+   name. Reported, not fixed.
+
+KITCHEN, per the revised SEQ 203: tester committed under Tony's name (b7051a2). The
+TOKENize edit had already been reverted when the revision arrived; it is RESTORED
+byte-identical (blob a8c900c) and UNCOMMITTED. b7051a2's pop.sh pin carries the measured
+cause (generation order) and stands.
+THE FOUR LABEL READINGS (ShRep "aaac", ShRep generated alone so both roads match 1/4; the
+starred read is the label's data, the bare holder read echoes the tag in every cell):
+    without TOKENize   old: text = tag echo ShRep (NO DATA) · children ShA ShA ShA
+                       new: the same
+    with TOKENize      old: text = aaac · children ShA ShA ShA
+                       new: the same
+kc never appears under the label (its dash). In the fixture's order (ShRef first) the new
+road has no label at all before (A). Nothing pinned; the shapeBodyT row is NOT added --
+with (A) reverted it would read "none" on the new road, and the file carries Tony's hunk.
+
+LANDED: 8af0067 (the two env-armed witnesses, inert disarmed, fleet row for row except the
+groups.ext mirror count 283 -> 284) and support 6046cc4 (groups.ext line).
+
+  END SEQ 151
 

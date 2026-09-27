@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      203
-STATUS:   working        # SEQ 203 -- ruling (A): setParseWalk always installs parseLoop; kitchen first
+STATUS:   cleared        # SEQ 203 -- (A) built, measured, REVERTED WHOLE (site1RoadsT); report clod-to-clay SEQ 151
 STATUS-202: cleared      # SEQ 202 -- RECON done, nothing built; report clod-to-clay SEQ 150
 STATUS-201: cleared      # SEQ 201 -- SHUTDOWN sealed; P6 waits on one question; report clod-to-clay SEQ 149
 STATUS-200: cleared      # SEQ 200 -- P6 waits (candidate (2) not confirmed; (1) reads the condition value)
@@ -9530,8 +9530,9 @@ generated parse.
 ===================================================================
 SEQ 203  -  RULING (A): setParseWalk ALWAYS INSTALLS parseLoop FOR A REFERENCEABLE RULE
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-27, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Revised mid-stroke (TOKENize stays uncommitted;
+        label readings added). Reverted whole; clod-to-clay SEQ 151.
 
 Top of the report: what ran (as typed), what failed, and which rule if it is parser.
 Tony rules (A): setParseWalk always installs parseLoop for a referenceable rule; each
