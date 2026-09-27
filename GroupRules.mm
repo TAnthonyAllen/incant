@@ -2373,8 +2373,8 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			}
 		}
 	ruler->atRuleMark = ruleStuff->hereAt;
-	// minZeroIsSatisfied a term whose MINIMUM IS ZERO is satisfied by not matching, so it owes the chain a success and not a null -- parseLoop owns max>1, this owns the max=1 optional that never enters it
-	if ( ruleStuff->max <= 1 && !ruleStuff->min && !field->groupBody->flags.isCondition )
+	// minZeroIsSatisfied a term whose MINIMUM IS ZERO is satisfied by not matching, so it owes the chain a success and not a null -- parseLoop owns what repeats inside it; this owns the max=1 optional and a max>1 LEAF (nameSet*, Modifier*), which never enters it (SEQ 208)
+	if ( !ruleStuff->min && !field->groupBody->flags.isCondition && (ruleStuff->max <= 1 || !repeatsInLoop(field)) )
 		return ruler->trueResult;
 	return 0;
 }
@@ -9943,6 +9943,17 @@ extern "C" GroupItem *refuseUnknownOperator(GroupItem *op, GroupItem *target)
 	
 }
 
+// repeatsInLoop the ONE test for "this term repeats inside parseLoop": every rule body (ruling A), and any other term with max > 1 that is not a leaf -- leaves (data 1-3) loop inside their own method. The install site and exitFromParse's zero-width tail both ask it (SEQ 208)
+extern "C" int repeatsInLoop(GroupItem *field)
+{
+RuleStuff 	*ruleStuff = field->getRStuff();
+	if ( !ruleStuff )
+		return 0;
+	if ( ruleStuff->parseMethod == ::parseRule || (ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3)) )
+		return 1;
+	return 0;
+}
+
 // reportCodeFail WHERE a code body failed to parse -- rule, position and line, on cerr because print may be diverted
 extern "C" void reportCodeFail(GroupItem *field)
 {
@@ -10569,7 +10580,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			}
 		}
 	// loopPerOccurrence a rule body's method slot is SHARED by every occurrence, so it always gets parseLoop and each occurrence loops to its OWN max (ruling A, SEQ 203) -- chosen from the first occurrence walked, ShRef's bare ShA stopped ShRep's ShA+ repeating
-	if ( ruleStuff->parseMethod == ::parseRule || (ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3)) )
+	if ( ::repeatsInLoop(field) )
 		field->setMethod(::parseLoop);
 	else	field->setMethod(ruleStuff->parseMethod);
 	// flagFollowsInstall hasNewParse says a method is there to fire, so it is raised here and never at entry -- isGROUP installs null

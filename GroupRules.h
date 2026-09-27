@@ -365,6 +365,7 @@ extern "C" int refuseArgRebind(GroupItem *op, GroupItem *target);
 extern "C" int refuseDotUnaryRight(GroupItem *op, GroupItem *arg);
 extern "C" int refuseLeadingDotNumber(GroupItem *unary, GroupItem *token);
 extern "C" GroupItem *refuseUnknownOperator(GroupItem *op, GroupItem *target);
+extern "C" int repeatsInLoop(GroupItem *field);
 extern "C" void reportCodeFail(GroupItem *field);
 extern "C" void reportDefineRemoved(GroupItem *field, GroupItem *intoReg);
 extern "C" void reportDrive(GroupItem *report, GroupItem *rule, char *driveBase);

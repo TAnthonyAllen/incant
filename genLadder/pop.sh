@@ -2767,6 +2767,9 @@ if [ "$(grep -vE '^(compile|Generating|stop:)|^$' "$T/dn.o" | tr -d '\n')" = "0.
 else echo "  FAIL  dotNumT value -- expected only '0.5 ': [$(grep -vE '^(compile|Generating|stop:)|^$' "$T/dn.o" | tr '\n' '|')]"; fail=1; fi
 
 #  ---- nestNatT: F-114 site-1 residue, a nested call of the SAME rule, driven natively ----
+#  COUNTS MOVED 2026-09-27 (SEQ 209): the parseRule arrivals for nnFmt / nnFmtN / nnFmtS (`#5d`, `#5d s2N`, `#5.2d`)
+#  went 27 / 27 / 30 -> 14 / 19 / 17 -- new road now agrees with the old road; the old pin held a zero-width leaf failure (nameSet*/Modifier*), so the format drives stop backtracking round
+#  a failed zero-width match. Same family as the pairs inputs `#5.2d` and `#-5s`. The rows pin > 0 and did not move.
 #  parseRule's call bracket (2026-09-24) is what these certify: without it the outer ExpressioN
 #  fires on an empty list and dies in interpretXP at 139. nnAbc is the no-nesting control.
 #  H7, measured at minting: bracket removed -> the three nested copies exit 139, nnAbc stays green.
@@ -2833,6 +2836,8 @@ else echo "  FAIL  deferNatT dfPrint value -- print s2L[1]; did not print aa"; f
 #  THE (b) TRIPWIRE (Tony, 2026-09-24), after ruling (b) refined: a fire INSIDE a drive that took the
 #  parentStuff CHAIN walk, on a rule that carries an action, could not see its ancestors. Pinned at 0.
 #  Born red under ruling (a) (ShortcuT, held=0); green once every in-drive fire walks the list.
+#  COUNT MOVED 2026-09-27 (SEQ 209) 413 -> 429, all of it from nnFmt / nnFmtN / nnFmtS (14/14/17 -> 17/24/20 in-drive
+#  fires; every other trace file unmoved): new road now agrees with the old road; the old pin held a zero-width leaf failure (nameSet*/Modifier*). The chain-walk count stays 0.
 _twt=0; _twa=0
 for _f in "$T"/nn*.e "$T"/un*.e "$T"/qn*.e "$T"/df*.e "$T"/dwn.e; do
     [ -f "$_f" ] || continue
@@ -2877,6 +2882,8 @@ else echo "  FAIL  quoteNatT qnCe value -- cerr \"hi\":; did not end its line: $
 #  COUNTS MOVED 2026-09-27 (SEQ 206, ruling A) 45 / 13 -> 355 / 152, WITH ITS SENTENCE: every rule body now enters
 #  through parseLoop, not only the occurrences with max > 1, so these drives witness many more verdicts. The rows pin
 #  > 0 and did not move; the numbers are recorded here so the next reader knows they are expected.
+#  AND AGAIN 2026-09-27 (SEQ 209) 355 / 152 -> 310 / 95, all of it from nnFmt / nnFmtN / nnFmtS (verdicts 41/41/47 ->
+#  23/32/29): new road now agrees with the old road; the old pin held a zero-width leaf failure (nameSet*/Modifier*). Every other trace file unmoved.
 _lvt=0; _lvd=0
 for _f in "$T"/nn*.e "$T"/un*.e "$T"/qn*.e; do
     [ -f "$_f" ] || continue
@@ -3011,13 +3018,18 @@ else echo "  FAIL  driveLeakT the caller was abandoned after the drives (F-125)"
 #  Every carrier reachable from DO but the stuff faces, calibrated interpreted over pairs.sweep, picked, and certified
 #  JITTED against INTERPRETED, two fires each, one compile. Coverage 45 of 61 (16 carriers pick nothing; named in
 #  fixIts F-114). Sentinel FIRST and exact: before F-125 the certificate printed and the file was then abandoned.
+#  ⚠ RE-PINNED 2026-09-27 (SEQ 209) 45 -> 47, nopick 16 -> 14: new road now agrees with the old road; the old pin held a zero-width leaf failure (nameSet*/Modifier*). The
+#  sweep re-picks from each carrier's accepts, and `define aa isRule; ;` (pairs, root StatemenT) now reads 1/19 on the
+#  new road as on the old (was 1/17) -- which gives Attributes and endDef their first accept, so both leave nopick and
+#  certify. The other flips under it (old road = new road after, all six): `aa isRule tt=[a-z]+;` 1/17, `e+3` 1/3,
+#  `#5.2d` 1/5, `#-5s` 1/4, `=[a-z]` 1/5. Engines agree throughout (diff=0).
 run2 sweepT "$T/sw.o" "$T/sw.e"; check "sweepT runs" 0 $?
 if grep -qxE 'SWEEP SENTINEL ?' "$T/sw.e"; then echo "  ok    sweepT sentinel (exact line)"; green=$((green+1)); else echo "  FAIL  sweepT sentinel missing -- the file was abandoned or truncated"; fail=1; fi
-if grep -q '^SWEEP END .* certified=45 agree=45 diff=0$' "$T/sw.e"; then echo "  ok    sweepT certified=45 agree=45 diff=0"; green=$((green+1))
+if grep -q '^SWEEP END .* certified=47 agree=47 diff=0$' "$T/sw.e"; then echo "  ok    sweepT certified=47 agree=47 diff=0"; green=$((green+1))
 else echo "  FAIL  sweepT MOVED: $(grep '^SWEEP END' "$T/sw.e")"; fail=1; fi
 _swr=$(grep -c '^SWEEP RESULT .* AGREE degrade=0$' "$T/sw.e"); _swa=$(grep -c '^SWEEP RESULT ' "$T/sw.e")
-if [ "$_swa" -eq 45 ] && [ "$_swr" -eq 45 ]; then echo "  ok    sweepT 45 carrier results, every one AGREE at degrade 0"; green=$((green+1))
-else echo "  FAIL  sweepT $_swr of $_swa carrier results AGREE at degrade 0 (want 45 of 45)"; fail=1; fi
+if [ "$_swa" -eq 47 ] && [ "$_swr" -eq 47 ]; then echo "  ok    sweepT 47 carrier results, every one AGREE at degrade 0"; green=$((green+1))
+else echo "  FAIL  sweepT $_swr of $_swa carrier results AGREE at degrade 0 (want 47 of 47)"; fail=1; fi
 if [ "$(grep -c 'JIT DEGRADE' "$T/sw.e" "$T/sw.o" | awk -F: '{n+=$2} END{print n}')" -eq 0 ] && grep -q '^SWEEP ROW .* J fire2 ' "$T/sw.e"; then echo "  ok    sweepT no degrade line anywhere (and jitted rows ran)"; green=$((green+1))
 else echo "  FAIL  sweepT a degrade line appeared, or no jitted row ran"; fail=1; fi
 
@@ -4877,6 +4889,29 @@ else echo "  FAIL  shapeBodyT label: ShRep \"aaac\" OLD road reads [$_sbLo], wan
 #  RE-PINNED 2026-09-27 (SEQ 206): the ruled value, now cashed -- ruling A gave the new road its ShRep "aaac" match.
 if [ "$_sbLn" = "text=[ aaac ]" ]; then echo "  ok    shapeBodyT label: ShRep \"aaac\" NEW road reads aaac -- PINNED BY VALUE, the ruled value"; green=$((green+1))
 else echo "  FAIL  shapeBodyT label: ShRep \"aaac\" NEW road reads [$_sbLn], want text=[ aaac ]"; fail=1; fi
+
+#  ⚑ zeroWidthT -- A ZERO-WIDTH LEAF ON THE NEW ROAD (SEQ 209, 2026-09-27). nameSet* and Modifier* are max > 1 LEAVES
+#  with min 0: they never enter parseLoop, and until SEQ 209 exitFromParse's min-zero tail (guarded max <= 1) answered
+#  0 for their zero-width match. BlocK `{ x = 1; }` is the nameSet case (a one-letter name), driven at TOP LEVEL --
+#  inside an action the enclosing-rule lookup finds the action's own cached body, also tagged BlocK. Read off the
+#  drive's 2b-before-pop mark. TraiT `abc` / `abc+?!` are Modifier* with zero and several modifiers, both roads.
+#  H7, measured before the fix: NEW BlocK leaves the whole message and NEW `TraiT abc` reads 0/0 -> both rows RED.
+run2 zeroWidthT "$T/zw.o" "$T/zw.e"; check "zeroWidthT runs" 0 $?
+sentinel "zeroWidthT sentinel" "$T/zw.e" "ZEROWIDTH SENTINEL"
+_zwBlk=$(awk '/^--- NEW BLOCK/{f=1} f&&/2b-before-pop/{sub(/.*text=/,""); print; exit}' "$T/zw.e" | sed 's/ *$//')
+if [ "$_zwBlk" = "[:reached end of input]" ]; then echo "  ok    zeroWidthT BlocK { x = 1; } on the NEW road consumes it all"; green=$((green+1))
+else echo "  FAIL  zeroWidthT BlocK { x = 1; } NEW road leaves $_zwBlk"; fail=1; fi
+_zwOBlk=$(awk '/^--- OLD BLOCK/{f=1} f&&/2b-before-pop/{sub(/.*text=/,""); print; exit}' "$T/zw.e" | sed 's/ *$//')
+if [ "$_zwOBlk" = "[:reached end of input]" ]; then echo "  ok    zeroWidthT BlocK { x = 1; } on the OLD road consumes it all (the oracle)"; green=$((green+1))
+else echo "  FAIL  zeroWidthT BlocK { x = 1; } OLD road leaves $_zwOBlk"; fail=1; fi
+_zw() { awk -v road="$1" -v drv="$2" '/^--- OLD$|^--- OLD /{r="OLD"} /^--- NEW$|^--- NEW /{r="NEW"} r==road && index($0,"ZWDRIVE  " drv " ")==1 {x=substr($0,length("ZWDRIVE  " drv " ")+1); gsub(/ +/," ",x); sub(/ $/,"",x); print x; exit}' "$T/zw.e"; }
+for _zc in "OLD|TraiT abc|matched= 1 consumed= 3 length= 3" "NEW|TraiT abc|matched= 1 consumed= 3 length= 3" \
+           "OLD|TraiT abc+?!|matched= 1 consumed= 6 length= 6" "NEW|TraiT abc+?!|matched= 1 consumed= 6 length= 6"; do
+    _zr=${_zc%%|*}; _zd=${_zc#*|}; _zw1=${_zd#*|}; _zd=${_zd%%|*}
+    _zg=$(_zw "$_zr" "$_zd")
+    if [ "$_zg" = "$_zw1" ]; then echo "  ok    zeroWidthT Modifier* $_zr road \"$_zd\": $_zg"; green=$((green+1))
+    else echo "  FAIL  zeroWidthT Modifier* $_zr road \"$_zd\": got [$_zg], want [$_zw1]"; fail=1; fi
+done
 
 #  ⚑ parserCoverage -- THE KANT ROAD'S COVERAGE ROW (SEQ 191 stroke 1, 2026-09-26). Successor to
 #  the C++ emitter's odometer: for every grammar rule (the odometer's four filters, recomputed
