@@ -266,6 +266,27 @@ GroupItem   frame = action["frameSTAK"];
 }
 
 
+// grammarHolds report every grammar rule, and every term of one, holding a child tagged like the argument -- an action body's name must never land there (SEQ 214, ownerT); prints the count unconditionally
+extern GroupItem grammarHolds(GroupItem input)
+{
+GroupRules  ruler = groupRules;
+    -%
+    const char *want = input ? input->groupBody->tag : 0;
+    int held = 0;
+    GroupItem *reg = GroupControl::groupController->getRegistry((char*)"Grokking");
+    GroupItem *r = 0;
+    while ( want && reg && (r = reg->next(r)) ) {
+        if ( r->get((char*)want) ) { held++; ::fprintf(stderr,"  GRAMMARHOLDS %s under rule %s\n",want,r->groupBody->tag); }
+        GroupItem *t = 0;
+        while ( (t = r->next(t)) )
+            if ( t->get((char*)want) ) { held++; ::fprintf(stderr,"  GRAMMARHOLDS %s under term %s of rule %s\n",want,t->groupBody->tag,r->groupBody->tag); }
+        }
+    ::fprintf(stderr,"GRAMMARHOLDS %s = %d\n",want ? want : "(none)",held);
+    %-
+    return trueResult;
+}
+
+
 // hasRepeatClass 1 when any character of the modifier is in the repetition class
 extern int hasRepeatClass(String modifier)
 {
@@ -628,7 +649,11 @@ use field
     lastIndent      = 0;
     processingCode  = true;
     // compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
-    if result = driveStep(code,blockRULE,null) {
+    // compileOwner the ONE writer of gCompileOwner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214)
+    -% GroupItem *priorOwner = gCompileOwner; gCompileOwner = action; %-
+    result = driveStep(code,blockRULE,null);
+    -% gCompileOwner = priorOwner; %-
+    if result {
         result.noPrint  = true;
         holder.addAttribute(result);
         field.isAction = true; }

@@ -827,35 +827,12 @@ GroupItem 	*source = 0;
 *******************************************************************************/
 extern "C" GroupItem *aCTionNamE(GroupItem *input)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*action = ruler->currentMETHOD;
-GroupItem 	*grup = 0;
-GroupItem 	*result = 0;
-char 		*arg = input->getText();
-	result = GroupControl::groupController->locateInMethod(arg);
-	if ( result && result->parent == action )
-		goto endName;
-	if ( ruler->defining && result && result->groupBody->flags.isVirtual )
-		result = ::copyOf(result);
-	grup = new GroupItem(arg);
-	if ( ruler->alphaSet->contains(*arg) && ruler->processingCode )
-		if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
-			if ( !(result && result->groupBody->registry == ruler->opFields) )
-				if ( result )
-					if ( action->groupBody->flags.isRule && result->groupBody->flags.isRule )
-						{
-						result = action->addAttribute(grup);
-						result->groupBody->flags.isLocal = 1;
-						}
-					else	result = action->addAttribute(result);
-				else {
-					result = action->addAttribute(grup);
-					result->groupBody->flags.isLocal = 1;
-					}
-	if ( !result )
-		result = grup;
-endName:
-	input->setGroup(result);
+	// compileOwner while processingCode the owner is the action processCode is compiling, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213)
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	GroupItem *owner = (ruler->processingCode && gCompileOwner) ? gCompileOwner : ruler->currentMETHOD;
+	input->setGroup(::resolveName(input->getText(),owner));
+	
 	return input;
 }
 
@@ -2844,6 +2821,26 @@ GroupItem 	*types = GroupControl::groupController->locate("types");
 			type = types->get("GroupItem*");
 		}
 	return type;
+}
+
+// grammarHolds report every grammar rule, and every term of one, holding a child tagged like the argument -- an action body's name must never land there (SEQ 214, ownerT); prints the count unconditionally
+extern "C" GroupItem *grammarHolds(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	
+	const char *want = input ? input->groupBody->tag : 0;
+	int held = 0;
+	GroupItem *reg = GroupControl::groupController->getRegistry((char*)"Grokking");
+	GroupItem *r = 0;
+	while ( want && reg && (r = reg->next(r)) ) {
+	if ( r->get((char*)want) ) { held++; ::fprintf(stderr,"  GRAMMARHOLDS %s under rule %s\n",want,r->groupBody->tag); }
+	GroupItem *t = 0;
+	while ( (t = r->next(t)) )
+	if ( t->get((char*)want) ) { held++; ::fprintf(stderr,"  GRAMMARHOLDS %s under term %s of rule %s\n",want,t->groupBody->tag,r->groupBody->tag); }
+	}
+	::fprintf(stderr,"GRAMMARHOLDS %s = %d\n",want ? want : "(none)",held);
+	
+	return ruler->trueResult;
 }
 
 /*******************************************************************************
@@ -9646,7 +9643,11 @@ int 		processing = ruler->processingCode;
 	ruler->lastIndent = 0;
 	ruler->processingCode = 1;
 	// compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
-	if ( result = ::driveStep(code,blockRULE,0) )
+	// compileOwner the ONE writer of gCompileOwner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214)
+	 GroupItem *priorOwner = gCompileOwner; gCompileOwner = action; 
+	result = ::driveStep(code,blockRULE,0);
+	 gCompileOwner = priorOwner; 
+	if ( result )
 		{
 		result->groupBody->flags.noPrint = 1;
 		holder->addAttribute(result);
@@ -10113,6 +10114,33 @@ Buffer 	*buff = argument->getBuffer();
 	if ( buff )
 		buff->reset();
 	return 0;
+}
+
+// resolveName THE WHOLE RESOLUTION of a name in an action body, against an OWNER: already the owner's, a declared field referenced into the owner, or a new local minted there (SEQ 214). aCTionNamE calls it; the post-compile resolveNames pass will call it with owner = the action (Tony's (ii))
+extern "C" GroupItem *resolveName(char *arg, GroupItem *owner)
+{
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	GroupItem *grup = 0, *result = 0;
+	if ( ruler->processingCode && owner )   result = owner->getAttribute(arg);
+	if ( !result )                          result = GroupControl::groupController->locate(arg);
+	if ( result && result->parent == owner )    return result;
+	if ( ruler->defining && result && result->groupBody->flags.isVirtual )  result = ::copyOf(result);
+	grup = new GroupItem(arg);
+	if ( ruler->alphaSet->contains(*arg) && ruler->processingCode && owner )
+	if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
+	if ( !(result && result->groupBody->registry == ruler->opFields) ) {
+	if ( result ) {
+	if ( owner->groupBody->flags.isRule && result->groupBody->flags.isRule ) {
+	result = owner->addAttribute(grup);
+	result->groupBody->flags.isLocal = 1; }
+	else    result = owner->addAttribute(result); }
+	else {
+	result = owner->addAttribute(grup);
+	result->groupBody->flags.isLocal = 1; } }
+	if ( !result )  result = grup;
+	return result;
+	
 }
 
 // restoreLocalFields restore what saveLocalFields banked, at the end of a nested call

@@ -34,6 +34,7 @@ define
     clear immediateAction=cLEAR;
     closeFile immediateAction;
     compile immediateAction;
+    grammarHolds immediateAction;
     condition immediateAction=processFlags noPrint;
     copy immediateAction=cOPY;
     copyOf immediateAction;
