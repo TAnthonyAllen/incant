@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 156 at the FOOT -- SEQ 209: leaf-only zero-width LANDED f095a05; all 6 moved inputs equal the old road
+STATUS:   fresh           # SEQ 157 at the FOOT -- SEQ 210: the DO refusal was MY ORACLE (SEQ 202 compile refusal); ExpressioN refusal IS (A); only q disagrees; collision named
+# prior: SEQ 156 at the FOOT -- SEQ 209: leaf-only zero-width LANDED f095a05; all 6 moved inputs equal the old road
 # prior: SEQ 155 at the FOOT -- SEQ 208: leaf-only built and WORKS (BlocK x, ShA* kount 2) but moves the same rows -- the LEAF half is the mover; reverted, needs a ruling
 # prior: SEQ 154 at the FOOT -- SEQ 207: guess CONFIRMED; the oracle test fixes BlocK but runs rule-body * loops to max; REVERTED WHOLE (sweepT moved)
 # prior: SEQ 153 at the FOOT -- SEQ 206: (A) LANDED 4c6c76c; timing +3%; BlocK parses two statements now -- a one-letter name is a separate bug
@@ -8656,4 +8657,70 @@ The processCode -> driveStep line now has two items in front of it: the BlocK na
 inside an action, and Tony's ordering choice for actions compiled before parser().
 
   END SEQ 156
+
+
+===================================================================
+SEQ 157  -  SEQ 210: ONE REFUSAL WAS MY INSTRUMENT, ONE IS (A); ONE REAL DISAGREEMENT; THE COLLISION
+===================================================================
+STATUS: fresh -- 2026-09-27. Measure only; nothing built. Clone builds outside Dropbox.
+
+TOP LINE. Ran: clone builds of 3aefb72 (station 2, 09-23), 4656409 (09-26 seal), 9b64e25 (before
+(A)), 4c6c76c ((A)) -- three repos at one date, pbxproj rewritten, committed .mm, no retok, 0 live
+Groups paths in every build log; the script is genLadder/cloneBuild.sh. At each: the DO input
+alone, then the whole pairs corpus under parser(DO) and under parser(StatemenT);
+parser(ExpressioN), with the probe action CALLED ONCE BEFORE parser(). Failed: the ExpressioN
+refusal (item 2). Rules: ExpressioN, BlocK; not parser.
+
+⚠ CORRECTION TO SEQ 156, FIRST. `do print 1; while 1 < 0;` does NOT refuse on the new road. My
+SEQ 209 oracle ran parser(DO) BEFORE its probe action's first call, so the action compiled after
+the install and its first drive -- key 000, which is the DO input -- took SEQ 202's compile
+refusal (REFUSED BlocK -- checkInput: no enclosing activation). Warm the action first and the DO
+input reads 1/24 at 09-23, 09-26, before (A), at (A) and at HEAD. The SEQ 209 table is unaffected
+(its six inputs are keys 042-121, all read in both columns).
+
+(1) THE DO INPUT: 1/24 on the new road at every commit, standalone and in the corpus. Station 2's
+    certificate holds today. H16: the 09-23 clone reads the certified 1/24, so the probe reads a
+    known-good end correctly. Nothing to date.
+(2) ExpressioN "no parse method is installed on the defining rule": YES, IT IS (A).
+        commit                parser(StatemenT); parser(ExpressioN)      parser(DO)
+        4656409 (09-26)       171 readings, 0 refusals                  171, 0
+        9b64e25 (before A)    171, 0                                    171, 0
+        4c6c76c (A)           12 readings, 161 ExpressioN refusals      171, 0
+        HEAD                  13, 160                                   171, 0
+    (3aefb72 abandons the file after 9 readings -- the F-121-era "rejected StatemenT drive
+    abandons the file" -- so it cannot answer.) The refusals start at the FIRST drive after
+    parser(), not after the `for` drive as SEQ 156 said -- that was the same compile artifact.
+    Site: runLeafParse (Generate.rtn), which asks the DEFINING rule for its parse method. Before
+    (A) a max-1 rule body ran parseRule directly and never asked; under (A) every rule body goes
+    parseLoop -> runLeafParse, so a defining rule without a parseMethod now refuses. Which of its
+    three conditions fails (no definer / no rStuff / no parseMethod) is NOT discriminated.
+    Only this generation order shows it; parser(DO) is clean.
+    AND THE CORPUS, warm, parser(DO): the new road disagrees with the old road on exactly ONE
+    input of 172 at HEAD -- 072 `'q'` (old 1/3, new 0/0), the same at 09-26, before (A) and at
+    (A): pre-existing. At the older commits the six leaf inputs also disagree (7); HEAD: 1.
+(3) PROPOSAL, not built -- an old-road column beside sweepT. sweepT's own rows are per carrier and
+    the old road has no carriers, so the column is per INPUT: a generated fixture over
+    pairs.sweep (sweepT's corpus), two processes from one file -- old road, and new road under
+    parser(DO) -- with the probe action called once BEFORE parser() (the lesson above). Rows:
+    every input read in both columns (count, plus the sentinel); new == old on all but the pinned
+    ones; `'q'` pinned BY NAME at old 1/3 / new 0/0; any other disagreement FAILS and prints the
+    input and both readings. The DO input is NOT pinned -- it agrees. ~2 s.
+(4) THE COLLISION. The lookup is GroupItem::get(tag) on currentMETHOD (GroupItem.twk:792 -- first
+    child with that tag, attributes included, no filter), at THREE sites: Generate.rtn:136
+    (parseContainer), :187 (parseLoop), :211 (parseRule). Inside a generated body parseRule has set
+    currentMETHOD to the rule being parsed, so the lookup finds that rule's own term -- the
+    intended face. At a DRIVE ROOT called from an action, currentMETHOD is the ACTION, and its
+    children include its compiled body, tagged BlocK -- and any local or argument that happens to
+    share a rule's tag.
+    WHAT IT SHOULD RESOLVE THROUGH: the enclosing PARSE activation, not the executing method --
+    gParseActive, which parseRule pushes per call and a drive floors, so a drive root has no
+    enclosing rule and nothing to re-resolve. currentMETHOD answers "who is executing", which is
+    the interpreter's question, not the parser's.
+    SMALLEST CHANGE: guard all three sites on the method being a rule --
+        if currentMETHOD && currentMETHOD.isRule && currentMETHOD.get(field.tag) ...
+    one token at each of the three lines. Not built. Residue, unmeasured: a rule with its own
+    code={} action carries a BlocK artifact too, and isRule does not exclude it; the
+    gParseActive form would.
+
+  END SEQ 157
 

@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      209
-STATUS:   cleared        # SEQ 209 -- LANDED f095a05; oracle agrees on all 6 -- clod-to-clay SEQ 156
+SEQ:      210
+STATUS:   cleared        # SEQ 210 -- measured; DO refusal was my oracle; ExpressioN refusal is (A) -- clod-to-clay SEQ 157
+STATUS-209: cleared      # SEQ 209 -- LANDED f095a05; oracle agrees on all 6 -- clod-to-clay SEQ 156
 STATUS-208: cleared      # SEQ 208 -- built, works, moves the must-not-move rows (leaf half); reverted -- clod-to-clay SEQ 155
 STATUS-207: cleared      # SEQ 207 -- guess confirmed; oracle test reverted whole (rule-body * runs to max; sweepT moved) -- clod-to-clay SEQ 154
 STATUS-206: cleared      # SEQ 206 -- (A) LANDED; re-pins; timing +3%; BlocK re-drive reported -- clod-to-clay SEQ 153
@@ -9696,4 +9697,26 @@ Tony rules: reland the saved leaf-only patch. The moved rows are the fix, gated 
    modSeamT, DW-5, jitLadder 215, canary sum.
 
   END SEQ 209
+
+
+===================================================================
+SEQ 210  -  MEASURE ONLY: TWO REFUSALS DATED, AN ORACLE COLUMN, THE COLLISION NAMED
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any build, per WT-15. Measured; clod-to-clay SEQ 157.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+MEASURE ONLY, nothing built.
+1. `do print 1; while 1 < 0;` refuses on the new road. Station 2 certified 1/24 on 09-23. Drive
+   it at: 4c6c76c~1 (before (A)), at the 09-26 seal commit, and at the station-2 commit. Report
+   where it first refuses, and the first term that fails there.
+2. parser(StatemenT); parser(ExpressioN) leaves ExpressioN refusing "no parse method is
+   installed". Same three commits. Was it (A)?
+3. Propose, don't build: an old-road column in sweepT. Pin the two current disagreements (the
+   DO input and 'q') by name, and fail on any new one.
+4. Then the collision: inside an action, parseRule (Generate.rtn:211) finds BlocK by name and
+   gets the action's own compiled body. Name the lookup, name what it should resolve through
+   instead, and name the smallest change. Don't build it.
+
+  END SEQ 210
 
