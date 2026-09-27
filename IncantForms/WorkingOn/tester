@@ -16,6 +16,7 @@ define
         cerr "DRIVE " argument " matched= " m " consumed= " c:;
         };
     ShA    isRule ka-="a";
+    ShRef  isRule ShA kb-="b" TOKENize;
     ShRep  isRule ShA+ kc-="c" TOKENize;
     rsN=0;
     rsRun code={
@@ -24,10 +25,13 @@ define
         };
     ;
 cerr "--- OLD ROAD":;
+ShRef("ab");
 ShRep("aaac");
+parser(ShRef);
 parser(ShRep);
+debug ShRef ShRep ShA tell;
 cerr "--- NEW ROAD":;
-debug ShRep tell;
+ShRef("ab");
 ShRep("aaac");
 shSay("ShRep aaac");
 cerr ::"Running retireSkipsDegraded test":;

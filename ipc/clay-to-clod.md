@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      202
-STATUS:   cleared        # SEQ 202 -- RECON done, nothing built; report clod-to-clay SEQ 150
+SEQ:      203
+STATUS:   working        # SEQ 203 -- ruling (A): setParseWalk always installs parseLoop; kitchen first
+STATUS-202: cleared      # SEQ 202 -- RECON done, nothing built; report clod-to-clay SEQ 150
 STATUS-201: cleared      # SEQ 201 -- SHUTDOWN sealed; P6 waits on one question; report clod-to-clay SEQ 149
 STATUS-200: cleared      # SEQ 200 -- P6 waits (candidate (2) not confirmed; (1) reads the condition value)
 STATUS-199: cleared      # SEQ 199 -- P6 not landed, line (1) cannot be cashed; report clod-to-clay SEQ 148
@@ -9524,4 +9525,30 @@ with the BlocK rule, and parse() forks on whether the defining rule has an insta
 generated parse.
 
   END SEQ 202
+
+
+===================================================================
+SEQ 203  -  RULING (A): setParseWalk ALWAYS INSTALLS parseLoop FOR A REFERENCEABLE RULE
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+Tony rules (A): setParseWalk always installs parseLoop for a referenceable rule; each
+occurrence then loops to its own max. KITCHEN FIRST: revert the TOKENize edit in shapeBodyT
+and pin its row with the measured cause (generation order). Commit tester under Tony's name.
+Certificate, all measured before and after on a bare build:
+1. ShRep 1/4 on the new road in BOTH orders (ShRef first, ShRep first). ShRef still consumes
+   1 with an input of "aa", so that case is measured, not assumed.
+2. Optional terms: modSeamT and chainTruthT unmoved row for row.
+3. Tree shape: treeRowT green, plus one labelled max-1 term's tree diffed before and after.
+   If attachLabel's labelled-repetition branch fires for a max-1 term, STOP and report.
+4. parseLoop entry count, before and after, on the fleet.
+5. pop.sh row for row, jitLadder 215, canary sum.
+6. Re-run parser(BlocK) with a two-statement body and report whether both statements parse.
+   Report only; the processCode -> driveStep change is its own stroke.
+If any row moves unexplained, revert whole and report. Do not tune. Item 6 is the payoff:
+if both statements parse, the driveStep change for actions is unblocked.
+
+  END SEQ 203
 

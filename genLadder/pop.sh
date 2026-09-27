@@ -4821,7 +4821,10 @@ else echo "  FAIL  treeRowT shape moved: accept=[$_trShape] reject=[$(_trArm "NE
 #  generated BODIES pinned (genLadder/shapeBody.target). The body does not carry + or ?, so each
 #  shape is also DRIVEN through tell on both roads: old first, then after parser(). The roads agree
 #  on 15 of 16 drives; the 16th is PINNED BY NAME as a divergence -- ShRep "aaac": old matched 1
-#  consumed 4, generated matched 0 consumed 0 (a generated body does not repeat a + reference).
+#  consumed 4, generated matched 0 consumed 0. CAUSE MEASURED 2026-09-27 (SEQ 202-203): GENERATION
+#  ORDER. setParseWalk decides loop-or-not ONCE, from the first ShA occurrence it walks, into the
+#  slot every occurrence shares; parser(ShRef) walks the bare ShA first, so ShRep's ShA+ gets the
+#  non-loop method ("already installed ShA, leaving it alone"). parser(ShRep) first -> 1/4.
 #  The road row proves each arm took its road (H16). H7: a doctored generator (conjunct respelled)
 #  changes the bodies -> RED.
 run2 shapeBodyT "$T/sb.o" "$T/sb.e"; check "shapeBodyT runs" 0 $?
@@ -4837,7 +4840,7 @@ awk '/^--- NEW ROAD/{f=1} f&&/^DRIVE/' "$T/sb.e" > "$T/sbn"
 _sbDiff=$(diff "$T/sbo" "$T/sbn" | grep '^[<>]' | sed 's/  */ /g' | tr "\n" "|")
 _sbWant="< DRIVE ShRep aaac matched= 1 consumed= 4 |> DRIVE ShRep aaac matched= 0 consumed= 0 |"
 if [ "$(wc -l < "$T/sbn" | tr -d ' ')" = 16 ] && [ "$_sbDiff" = "$_sbWant" ]; then
-    echo "  ok    shapeBodyT the roads agree on 15 of 16 drives; the divergence is ShRep aaac (old 1/4, generated 0/0), PINNED"; green=$((green+1))
+    echo "  ok    shapeBodyT the roads agree on 15 of 16 drives; the divergence is ShRep aaac (old 1/4, generated 0/0), PINNED -- cause: generation order"; green=$((green+1))
 else echo "  FAIL  shapeBodyT the road comparison MOVED -- want only ShRep aaac to differ, got: ${_sbDiff:-<no difference>}"; fail=1; fi
 
 #  ⚑ parserCoverage -- THE KANT ROAD'S COVERAGE ROW (SEQ 191 stroke 1, 2026-09-26). Successor to
