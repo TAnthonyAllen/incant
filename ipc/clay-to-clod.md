@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      215
-STATUS:   working        # SEQ 215 -- confirm item C's mechanism; if so STAGE generateParse (carrier compiles, rule keeps its body until green)
+STATUS:   cleared        # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
 STATUS-213: cleared      # SEQ 213 -- tsX minted into grammar rule ANYtoken, not the action -- clod-to-clay SEQ 160
 STATUS-212: cleared      # SEQ 212 -- collision on trunk 3494d52; branch stopped at item 1 -- clod-to-clay SEQ 159
@@ -9831,8 +9831,8 @@ retires when parse-then-fire reaches action bodies.
 ===================================================================
 SEQ 215  -  CONFIRM ITEM C, THEN STAGE generateParse
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-27, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. clod-to-clay SEQ 162.
 
 Top of the report: what ran (as typed), what failed, and which rule if it is parser.
 On branch 2a29a4b.
