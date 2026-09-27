@@ -625,18 +625,16 @@ use field
     code      = holder.getAttribute("CodE");
     if isRule action = code;
     currentMETHOD   = action;
-    divertToRule    = true;
-    pushInput(code);
     lastIndent      = 0;
     processingCode  = true;
-    if result = blockRULE.parse(0) {
+    // compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
+    if result = driveStep(code,blockRULE,null) {
         result.noPrint  = true;
         holder.addAttribute(result);
         field.isAction = true; }
     else    reportCodeFail(field);
     if !processing  processingCode = false;
     lastIndent      = indenter;
-    popInput();
     currentMETHOD   = priorMETHOD;
     if result       return true;
     return false;

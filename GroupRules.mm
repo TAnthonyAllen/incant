@@ -9643,11 +9643,10 @@ int 		processing = ruler->processingCode;
 	if ( field->groupBody->flags.isRule )
 		action = code;
 	ruler->currentMETHOD = action;
-	ruler->divertToRule = 1;
-	ruler->pushInput(code);
 	ruler->lastIndent = 0;
 	ruler->processingCode = 1;
-	if ( result = blockRULE->parse(0) )
+	// compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
+	if ( result = ::driveStep(code,blockRULE,0) )
 		{
 		result->groupBody->flags.noPrint = 1;
 		holder->addAttribute(result);
@@ -9657,7 +9656,6 @@ int 		processing = ruler->processingCode;
 	if ( !processing )
 		ruler->processingCode = 0;
 	ruler->lastIndent = indenter;
-	ruler->popInput();
 	ruler->currentMETHOD = priorMETHOD;
 	if ( result )
 		return 1;
