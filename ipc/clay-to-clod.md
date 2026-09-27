@@ -17,8 +17,11 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      211
-STATUS:   cleared        # SEQ 211 -- (A) reverted f33d395; old-road column 2c4cec1 -- clod-to-clay SEQ 158
+SEQ:      214
+STATUS:   working        # SEQ 214 -- branch: owner channel for aCTionNamE; grammar-untouched row; resume the step-2 certificate
+STATUS-213: cleared      # SEQ 213 -- tsX minted into grammar rule ANYtoken, not the action -- clod-to-clay SEQ 160
+STATUS-212: cleared      # SEQ 212 -- collision on trunk 3494d52; branch stopped at item 1 -- clod-to-clay SEQ 159
+STATUS-211: cleared      # SEQ 211 -- (A) reverted f33d395; old-road column 2c4cec1 -- clod-to-clay SEQ 158
 STATUS-210: cleared      # SEQ 210 -- measured; DO refusal was my oracle; ExpressioN refusal is (A) -- clod-to-clay SEQ 157
 STATUS-209: cleared      # SEQ 209 -- LANDED f095a05; oracle agrees on all 6 -- clod-to-clay SEQ 156
 STATUS-208: cleared      # SEQ 208 -- built, works, moves the must-not-move rows (leaf half); reverted -- clod-to-clay SEQ 155
@@ -9744,4 +9747,78 @@ Top of the report: what ran (as typed), what failed, and which rule if it is par
    Coded rules carry a BlocK (09-19, `list`), so isRule would not exclude them.
 
   END SEQ 211
+
+
+===================================================================
+SEQ 212  -  BREAK THE CIRCLE: COLLISION, THEN processCode -> driveStep + (A), ON A BRANCH
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Collision landed; branch stopped; clod-to-clay SEQ 159.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+The three items are circular: (A) needs the processCode -> driveStep change; driveStep needs (A)
+(BlocK's StatemenT+) and the collision fix. Build in order on a branch cut from trunk.
+1. COLLISION. At Generate.rtn:136, :187 and :211, resolve through gParseActive instead of
+   currentMETHOD.get(tag). Expected fleet-neutral on trunk, because nothing drives from inside an
+   action yet. If pop.sh is row for row, the old-road column is green and jitLadder is 215, it
+   lands on trunk alone. If anything moves, keep it on the branch and report.
+2. On the branch: processCode (GroupActions.rtn:632) -> driveStep, plus (A) reapplied. Keep
+   processCode's lastIndent and processingCode bracket around the call. Certificate:
+   - rsRun compiled after parser(Start) fires its body (rsN 1);
+   - a two-statement action compiled after parser(Start) runs BOTH statements;
+   - a second parser() after BlocK is installed: no refusal, and ExpressioN has its method;
+   - the corpus in both generation orders: 171, 0 refusals, old-road column green;
+   - ShRep 1/4 in both orders, and the four divergence pins return to their ruled values;
+   - zeroWidthT green; jitLadder 215; canary sum.
+   Stop and report before merging.
+3. Fixit log line: SEQ 202's refusal aborted compileRules mid-walk and left ExpressioN's children
+   pointing at a stray occurrence. It was a refusal with no patient.
+
+  END SEQ 212
+
+
+===================================================================
+SEQ 213  -  MEASURE ONLY: WHAT A NEW-ROAD COMPILE OF A BARE NAME LEAVES BEHIND
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any build, per WT-15. Measured; clod-to-clay SEQ 160.
+        TONY'S RULING, relayed mid-stroke: an action body's names become locals at COMPILE time,
+        once; fire-time minting only if exactly once; the jitter's frame walk needs them at compile.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+MEASURE ONLY, on branch seq212-drive-compile. Compile oneA (body: tsX;) twice: on the old road,
+and on the new road after parser(Start). Around each compile, snapshot: processingCode;
+currentMETHOD (tag + addrOf); lastREF; the input stack depth and inputFloor; gParseActive depth;
+the action's child list (tags + count: which locals got minted, and where); whatever the top-level
+parse reads next. Report the snapshots in a table: before / after-old / after-new. Name the field
+that differs and the line that leaves it. Then name the first thing the next top-level statement
+reads that turns it into `RunRulE: expected a method not cerr`. Don't fix.
+
+  END SEQ 213
+
+
+===================================================================
+SEQ 214  -  THE OWNER CHANNEL; A GRAMMAR-UNTOUCHED ROW; RESUME THE STEP-2 CERTIFICATE
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+On branch seq212-drive-compile.
+1. THE OWNER CHANNEL. processCode records the action it is compiling, as one slot with one writer
+   (set before the drive, restored after). aCTionNamE (ruleActions.rtn:645/660) takes its owner
+   from that slot while processingCode is set, not from currentMETHOD. Show both lines before and
+   after, verbatim.
+2. GRAMMAR-UNTOUCHED ROW: after compiling an action on the new road, scan the grammar registry. No
+   rule gains a child from an action body. This row goes red on the current branch commit (tsX
+   under ANYtoken); prove it before the fix.
+3. Then resume SEQ 212's step-2 certificate, all of it: rsRun after parser(Start): rsN 1; a
+   two-statement action runs both statements; a second parser() after BlocK is installed: no
+   refusal, ExpressioN has its method; the corpus in both orders: 171, 0 refusals, old-road column
+   green; ShRep 1/4 in both orders, and the four divergence pins at their ruled values; zeroWidthT;
+   jitLadder 215; canary sum; pop.sh: every move named. Stop before merging.
+Recorded, not built: the destination is a post-compile resolve pass (Tony's (ii)). The owner channel
+retires when parse-then-fire reaches action bodies.
+
+  END SEQ 214
 
