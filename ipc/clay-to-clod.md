@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   working        # SEQ 217 -- one check, then MERGE seq212-drive-compile; close F-128; trunk into parse-then-fire; then SEAL (Tony)
+STATUS:   cleared        # SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -9879,8 +9879,8 @@ On branch a426178.
 ===================================================================
 SEQ 217  -  MERGE THE DRIVE-COMPILE BRANCH, AFTER ONE CHECK; THEN SEAL
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-27, before any edit, per WT-15.
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Merged and sealed; clod-to-clay SEQ 164.
 
 Top of the report: what ran (as typed), what failed, and which rule if it is parser.
 Tony rules: merge seq212-drive-compile into trunk, after one check.

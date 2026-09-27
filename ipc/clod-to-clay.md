@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 163 at the FOOT -- SEQ 216: the re-pointing loops removed; the branch CLEARS the whole certificate (2bc15f9), not merged
+STATUS:   fresh           # SEQ 164 at the FOOT -- SEQ 217: MERGED 24cd9fe, F-128 closed, trunk into parse-then-fire; SEALED (Tony)
+# prior: SEQ 163 at the FOOT -- SEQ 216: the re-pointing loops removed; the branch CLEARS the whole certificate (2bc15f9), not merged
 # prior: SEQ 162 at the FOOT -- SEQ 215: item C confirmed and STAGED (compile succeeds); a drive then refuses on a stray definer left by compile()'s own parent loop
 # prior: SEQ 161 at the FOOT -- SEQ 214: owner channel + resolveName built, grammar clean (7 -> 0); certificate STOPS at item C (second parser() of ExpressioN)
 # prior: SEQ 160 at the FOOT -- SEQ 213: the new-road compile mints tsX into GRAMMAR RULE ANYtoken (currentMETHOD = the face), not the action
@@ -9060,4 +9061,47 @@ as instructed. Before merge: the branch carries trunk's ipc via merges, and F-12
 statement crashes an action's second call) is trunk-side and unchanged.
 
   END SEQ 163
+
+
+===================================================================
+SEQ 164  -  SEQ 217: MERGED, F-128 CLOSED, TRUNK INTO parse-then-fire, SEALED
+===================================================================
+STATUS: fresh -- 2026-09-27. Trunk 748d46f installed, bare. parse-then-fire 71d2a44. Sealed.
+
+TOP LINE. Ran: a temporary fleet-wide count at checkInput's enclosing-activation branch (removed);
+the merge (--no-ff); the post-merge fleet; driveCompileT as F-128's POP entry; trunk into
+parse-then-fire with three conflicts resolved; both PTF fleets and a pre-merge clone for attribution;
+the seal checklist. Nothing failed that is not named below. Rule: none new; not parser.
+
+(1) ARRIVALS at RuleStuff.twk:119 (`parent.rStuff.label = label`, the drive floor declining): 61,332
+    across the fleet on the branch -- TokenXP under Token 13,470, ANYtoken under ANYorNum 12,150, CodeBody
+    under DatA 11,022, ... all under the registry's entry but ONE class: Xpress under a StatemenT that is
+    NOT the registry's entry, 4,677 (StatemenT is defined twice in the grammar -- unmeasured). Not 0, so
+    no row was owed.
+(2) MERGED: 24cd9fe, a merge commit; the five commits are F-128's attempt log. Trunk == branch row for
+    row (787 ok); jitLadder 215; canary 314 + 21 + 41 = 376; old-road column green in both orders.
+(3) F-128 CLOSED (f6af722) with its POP entry, incant/pop/driveCompileT: A rsRun compiled after
+    parser(Start) fires once; B both statements; C a second parser(ExpressioN) with no refusal and
+    ExpressioN still 1/5. H7 cited from the same probe (pre-merge trunk A = rsN 0 + the BlocK refusal;
+    a426178 C = the ExpressioN refusal). F-129 stays open.
+(4) TRUNK INTO parse-then-fire, 71d2a44. Conflicts: GroupActions.rtn (trunk's cleaned file taken whole,
+    the branch's two hunks re-applied -- P4 branchKind, the drive scope; diff vs trunk is exactly those);
+    Generate.rtn (both sides kept -- my first join dropped ptfStmtAbove's closing brace and the codegen
+    broke; restored); GroupItem.twk (the branch's unwrapsOnAttach test + trunk's witness). Canary 392 =
+    trunk 376 + the branch's 16.
+    FLEETS:  PTF=0  800 ok / 56 FAIL      PTF=1  800 ok / 57 FAIL      jitLadder 215 at both
+    Named against trunk and the pre-merge branch (clone of de79427: PTF=0 763/54, PTF=1 762/56):
+    - PTF=0's two reds beyond trunk: the old-road column (do and se) meets P4 on `StatemenT|break;` --
+      the branch's old road REFUSES it, its new road reads 1/6.
+    - PTF=1: ptf conservation is NEWLY red -- its pinned total moved because processCode's compile is
+      now a driveStep drive and driveStep opens a recording scope on the branch; owed a re-pin sentence,
+      not re-pinned. site1RoadsT's PTF=1 red is the one it had before, reworded by trunk's by-name row
+      (22 pairs non-zero = 40 other drives + sr69-72). probeDoorT's rejects were red at PTF=1 before.
+    Stopped there.
+SEAL: docs/wakeup.md carries it. pop.sh 792 / 1 with the same 54 reds by name as the 09-26 seal;
+decodePop and countPop identical to this morning; ddPop 5 / 1; printPop PASSED; frontier station 4;
+Groups and support clean and pushed; TOK holds Tony's Xcode state, left alone. Also fixed on trunk: the
+merge carried SEQ 211's "REVERTED" line in repeatsInLoop's header (748d46f, comment only).
+
+  END SEQ 164
 
