@@ -2874,6 +2874,9 @@ else echo "  FAIL  quoteNatT qnCe value -- cerr \"hi\":; did not end its line: $
 #  DISAGREE returns to 0.
 #  Since 10921da the flag is stale by construction: this row now shows the COUNT deciding, and the value rows on
 #  the same drives (nestNatT, unaryNatT) are the guard (Tony, 2026-09-24).
+#  COUNTS MOVED 2026-09-27 (SEQ 206, ruling A) 45 / 13 -> 355 / 152, WITH ITS SENTENCE: every rule body now enters
+#  through parseLoop, not only the occurrences with max > 1, so these drives witness many more verdicts. The rows pin
+#  > 0 and did not move; the numbers are recorded here so the next reader knows they are expected.
 _lvt=0; _lvd=0
 for _f in "$T"/nn*.e "$T"/un*.e "$T"/qn*.e; do
     [ -f "$_f" ] || continue
@@ -2921,8 +2924,22 @@ _s1=$(grep '^PROBEDRIVE root=' "$T/s1r.e" | sed 's/ ret=[^ ]* / /' | awk '{t=$4;
 set -- $_s1
 if [ "$1" -eq 47 ] && [ "$2" -eq 47 ]; then echo "  ok    site1RoadsT 47 of 47 jitted/interpreted pairs agree on every field"; green=$((green+1))
 else echo "  FAIL  site1RoadsT pairs=$1 agreeing=$2 (want 47/47)"; fail=1; fi
-if [ "$3" -eq 0 ]; then echo "  ok    site1RoadsT every reject reads verdict 0 on both engines"; green=$((green+1))
-else echo "  FAIL  site1RoadsT $3 pairs with a non-zero verdict"; fail=1; fi
+#  ⚠ RE-PINNED 2026-09-27 (SEQ 206, ruling A), WITH ITS SENTENCE: `search Utilities list;` (sr69-sr72) is a VALID
+#  statement -- Search is `search- followedBy GrouP+ SemI-` -- and now reads verdict 1 consumed 22 on both engines.
+#  The old all-zero pin held only because DatA's bare GrouP was generated before Search's GrouP+, so GrouP got the
+#  non-loop method and matched one name. F-114's list (fixIts.md:478) was 29 CRASH sites, never 29 wrong inputs.
+#  So the rows are split BY FIXTURE NAME (drive order pasted against the fixture's probeDrive order -- SEQ 151
+#  mis-named this pair by reading neighbouring lines): sr69-sr72 read 1/22, every other drive reads verdict 0.
+grep '^probeDrive(' "$(ip site1RoadsT)" | sed 's/^probeDrive(\(.*\));.*/\1/' > "$T/s1rNames"
+grep '^PROBEDRIVE root=' "$T/s1r.e" > "$T/s1rDrives"
+_s1map=$(paste -d' ' "$T/s1rNames" "$T/s1rDrives")
+_s1n=$(printf '%s\n' "$_s1map" | grep -c 'PROBEDRIVE')
+_s1ok=$(printf '%s\n' "$_s1map" | grep -E '^sr(69J|70I|71J|72I) ' | grep -c ' verdict=1 consumed=22 length=22 ')
+_s1nz=$(printf '%s\n' "$_s1map" | grep -vE '^sr(69J|70I|71J|72I) ' | grep -vc ' verdict=0 ')
+if [ "$_s1n" -eq 94 ] && [ "$_s1ok" -eq 4 ]; then echo "  ok    site1RoadsT sr69-sr72 \`search Utilities list;\` (valid) reads verdict 1 consumed 22 on both engines -- PINNED BY VALUE"; green=$((green+1))
+else echo "  FAIL  site1RoadsT sr69-sr72 read verdict 1 consumed 22 on $_s1ok of 4 drives (mapped $_s1n of 94)"; fail=1; fi
+if [ "$_s1n" -eq 94 ] && [ "$_s1nz" -eq 0 ]; then echo "  ok    site1RoadsT every other drive (90) reads verdict 0 on both engines"; green=$((green+1))
+else echo "  FAIL  site1RoadsT $_s1nz of the other drives read a non-zero verdict (mapped $_s1n of 94)"; fail=1; fi
 _s1d=$(grep -c '=== jitDegrade count = 0 ===' "$T/s1r.o"); _s1c=$(grep -c 'jitDegrade count' "$T/s1r.o")
 if [ "$_s1c" -gt 0 ] && [ "$_s1d" -eq "$_s1c" ]; then echo "  ok    site1RoadsT $_s1c compiles, every one degrade 0"; green=$((green+1))
 else echo "  FAIL  site1RoadsT degrade: $_s1d of $_s1c compiles at 0"; fail=1; fi
@@ -4820,7 +4837,7 @@ else echo "  FAIL  treeRowT shape moved: accept=[$_trShape] reject=[$(_trArm "NE
 #  literal, reference, repetition, optional (reference and literal), alternation -- with the
 #  generated BODIES pinned (genLadder/shapeBody.target). The body does not carry + or ?, so each
 #  shape is also DRIVEN through tell on both roads: old first, then after parser(). The roads agree
-#  on 15 of 16 drives; the 16th is PINNED BY NAME as a divergence -- ShRep "aaac": old matched 1
+#  on all 16 since ruling A (2026-09-27); until then the 16th was PINNED BY NAME as a divergence -- ShRep "aaac": old matched 1
 #  consumed 4, generated matched 0 consumed 0. CAUSE MEASURED 2026-09-27 (SEQ 202-203): GENERATION
 #  ORDER. setParseWalk decides loop-or-not ONCE, from the first ShA occurrence it walks, into the
 #  slot every occurrence shares; parser(ShRef) walks the bare ShA first, so ShRep's ShA+ gets the
@@ -4838,10 +4855,12 @@ else echo "  FAIL  shapeBodyT roads $_sbOld/$_sbNew, want 16/16"; fail=1; fi
 awk '/^--- OLD ROAD/{f=1} /^--- NEW ROAD/{f=0} f&&/^DRIVE/' "$T/sb.e" > "$T/sbo"
 awk '/^--- NEW ROAD/{f=1} f&&/^DRIVE/' "$T/sb.e" > "$T/sbn"
 _sbDiff=$(diff "$T/sbo" "$T/sbn" | grep '^[<>]' | sed 's/  */ /g' | tr "\n" "|")
-_sbWant="< DRIVE ShRep aaac matched= 1 consumed= 4 |> DRIVE ShRep aaac matched= 0 consumed= 0 |"
-if [ "$(wc -l < "$T/sbn" | tr -d ' ')" = 16 ] && [ "$_sbDiff" = "$_sbWant" ]; then
-    echo "  ok    shapeBodyT the roads agree on 15 of 16 drives; the divergence is ShRep aaac (old 1/4, generated 0/0), PINNED -- cause: generation order"; green=$((green+1))
-else echo "  FAIL  shapeBodyT the road comparison MOVED -- want only ShRep aaac to differ, got: ${_sbDiff:-<no difference>}"; fail=1; fi
+#  ⚠ RE-PINNED 2026-09-27 (SEQ 206, ruling A): THE ROADS AGREE ON ALL 16. The ShRep "aaac" divergence is gone
+#  because setParseWalk now installs parseLoop for every rule body, so each occurrence loops to its own max and
+#  generation order no longer decides it. H7: the pre-(A) build reads old 1/4, generated 0/0 on that one drive.
+if [ "$(wc -l < "$T/sbn" | tr -d ' ')" = 16 ] && [ -z "$_sbDiff" ]; then
+    echo "  ok    shapeBodyT the roads agree on all 16 drives (ShRep aaac 1/4 on both since ruling A)"; green=$((green+1))
+else echo "  FAIL  shapeBodyT the road comparison MOVED -- want no difference, got: ${_sbDiff:-<no difference>}"; fail=1; fi
 #  ⚑ shapeBodyT LABEL ROW (SEQ 204, Tony's ruling 2026-09-27: TOKENize stays, and ShRep "aaac"'s
 #  label text READS aaac ON BOTH ROADS). shSay prints `LABEL <drive> text=[...]` from the verdict's
 #  reply (the label's data, starred; a label with no data would echo its tag). TODAY THE NEW ROAD
@@ -4855,8 +4874,9 @@ if [ "$_sbCo" = "text=[ ac ]" ] && [ "$_sbCn" = "text=[ ac ]" ]; then echo "  ok
 else echo "  FAIL  shapeBodyT label control: ShRep \"ac\" old [$_sbCo] new [$_sbCn], want text=[ ac ] on both"; fail=1; fi
 if [ "$_sbLo" = "text=[ aaac ]" ]; then echo "  ok    shapeBodyT label: ShRep \"aaac\" OLD road reads aaac -- PINNED BY VALUE (Tony, TOKENize stays)"; green=$((green+1))
 else echo "  FAIL  shapeBodyT label: ShRep \"aaac\" OLD road reads [$_sbLo], want text=[ aaac ]"; fail=1; fi
-if [ "$_sbLn" = "(none)" ]; then echo "  ok    shapeBodyT label: ShRep \"aaac\" NEW road has NO label -- PINNED DIVERGENCE (generation order); the ruled value is aaac"; green=$((green+1))
-else echo "  FAIL  shapeBodyT label: ShRep \"aaac\" NEW road MOVED to [$_sbLn] -- if it reads text=[ aaac ] the ruling is cashed: re-pin to aaac"; fail=1; fi
+#  RE-PINNED 2026-09-27 (SEQ 206): the ruled value, now cashed -- ruling A gave the new road its ShRep "aaac" match.
+if [ "$_sbLn" = "text=[ aaac ]" ]; then echo "  ok    shapeBodyT label: ShRep \"aaac\" NEW road reads aaac -- PINNED BY VALUE, the ruled value"; green=$((green+1))
+else echo "  FAIL  shapeBodyT label: ShRep \"aaac\" NEW road reads [$_sbLn], want text=[ aaac ]"; fail=1; fi
 
 #  ⚑ parserCoverage -- THE KANT ROAD'S COVERAGE ROW (SEQ 191 stroke 1, 2026-09-26). Successor to
 #  the C++ emitter's odometer: for every grammar rule (the odometer's four filters, recomputed

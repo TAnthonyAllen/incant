@@ -398,7 +398,8 @@ RuleStuff   ruleStuff = rStuff;
             parent  = field;    // if field is a copy grup.parent is not field
             if grup.noPrint continue;
             else setParseWalk(grup); }}
-    if max > 1 && (!data || data > 3) field.method = parseLoop;
+    // loopPerOccurrence a rule body's method slot is SHARED by every occurrence, so it always gets parseLoop and each occurrence loops to its OWN max (ruling A, SEQ 203) -- chosen from the first occurrence walked, ShRef's bare ShA stopped ShRep's ShA+ repeating
+    if parseMethod == parseRule || (max > 1 && (!data || data > 3))    field.method = parseLoop;
     else    field.method = parseMethod;
     // flagFollowsInstall hasNewParse says a method is there to fire, so it is raised here and never at entry -- isGROUP installs null
     if field.gMethod    field.hasNewParse = true;

@@ -10568,7 +10568,8 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			else	::setParseWalk(grup);
 			}
 		}
-	if ( ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3) )
+	// loopPerOccurrence a rule body's method slot is SHARED by every occurrence, so it always gets parseLoop and each occurrence loops to its OWN max (ruling A, SEQ 203) -- chosen from the first occurrence walked, ShRef's bare ShA stopped ShRep's ShA+ repeating
+	if ( ruleStuff->parseMethod == ::parseRule || (ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3)) )
 		field->setMethod(::parseLoop);
 	else	field->setMethod(ruleStuff->parseMethod);
 	// flagFollowsInstall hasNewParse says a method is there to fire, so it is raised here and never at entry -- isGROUP installs null
