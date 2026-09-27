@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      213
-STATUS:   cleared        # SEQ 213 -- tsX minted into grammar rule ANYtoken, not the action -- clod-to-clay SEQ 160
+SEQ:      214
+STATUS:   working        # SEQ 214 -- branch: owner channel for aCTionNamE; grammar-untouched row; resume the step-2 certificate
+STATUS-213: cleared      # SEQ 213 -- tsX minted into grammar rule ANYtoken, not the action -- clod-to-clay SEQ 160
 STATUS-212: cleared      # SEQ 212 -- collision on trunk 3494d52; branch stopped at item 1 -- clod-to-clay SEQ 159
 STATUS-211: cleared      # SEQ 211 -- (A) reverted f33d395; old-road column 2c4cec1 -- clod-to-clay SEQ 158
 STATUS-210: cleared      # SEQ 210 -- measured; DO refusal was my oracle; ExpressioN refusal is (A) -- clod-to-clay SEQ 157
@@ -9794,4 +9795,30 @@ that differs and the line that leaves it. Then name the first thing the next top
 reads that turns it into `RunRulE: expected a method not cerr`. Don't fix.
 
   END SEQ 213
+
+
+===================================================================
+SEQ 214  -  THE OWNER CHANNEL; A GRAMMAR-UNTOUCHED ROW; RESUME THE STEP-2 CERTIFICATE
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+On branch seq212-drive-compile.
+1. THE OWNER CHANNEL. processCode records the action it is compiling, as one slot with one writer
+   (set before the drive, restored after). aCTionNamE (ruleActions.rtn:645/660) takes its owner
+   from that slot while processingCode is set, not from currentMETHOD. Show both lines before and
+   after, verbatim.
+2. GRAMMAR-UNTOUCHED ROW: after compiling an action on the new road, scan the grammar registry. No
+   rule gains a child from an action body. This row goes red on the current branch commit (tsX
+   under ANYtoken); prove it before the fix.
+3. Then resume SEQ 212's step-2 certificate, all of it: rsRun after parser(Start): rsN 1; a
+   two-statement action runs both statements; a second parser() after BlocK is installed: no
+   refusal, ExpressioN has its method; the corpus in both orders: 171, 0 refusals, old-road column
+   green; ShRep 1/4 in both orders, and the four divergence pins at their ruled values; zeroWidthT;
+   jitLadder 215; canary sum; pop.sh: every move named. Stop before merging.
+Recorded, not built: the destination is a post-compile resolve pass (Tony's (ii)). The owner channel
+retires when parse-then-fire reaches action bodies.
+
+  END SEQ 214
 
