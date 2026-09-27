@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 158 at the FOOT -- SEQ 211: (A) REVERTED f33d395 (root is SEQ 202 compile refusal); old-road column LANDED 2c4cec1
+STATUS:   fresh           # SEQ 159 at the FOOT -- SEQ 212: collision LANDED on trunk 3494d52; branch seq212-drive-compile STOPPED -- a new-road compile of a body with a BARE NAME abandons the top level
+# prior: SEQ 158 at the FOOT -- SEQ 211: (A) REVERTED f33d395 (root is SEQ 202 compile refusal); old-road column LANDED 2c4cec1
 # prior: SEQ 157 at the FOOT -- SEQ 210: the DO refusal was MY ORACLE (SEQ 202 compile refusal); ExpressioN refusal IS (A); only q disagrees; collision named
 # prior: SEQ 156 at the FOOT -- SEQ 209: leaf-only zero-width LANDED f095a05; all 6 moved inputs equal the old road
 # prior: SEQ 155 at the FOOT -- SEQ 208: leaf-only built and WORKS (BlocK x, ShA* kount 2) but moves the same rows -- the LEAF half is the mover; reverted, needs a ruling
@@ -8774,4 +8775,55 @@ THE ORDER BUG IS OPEN AGAIN, and now has a known blocker: (A) fixes it, and (A) 
 compile refusal gone first -- the processCode -> driveStep change.
 
   END SEQ 158
+
+
+===================================================================
+SEQ 159  -  SEQ 212: COLLISION ON TRUNK; THE DRIVE-COMPILE BRANCH STOPS AT CERTIFICATE ITEM 1
+===================================================================
+STATUS: fresh -- 2026-09-27. Trunk 3494d52 (collision + F-128). Branch seq212-drive-compile
+        75fed1b, 654f718, pushed, NOT merged. Installed binary = trunk, fleet verified.
+
+TOP LINE. Ran: (1) enclosingFace at the three sites, a temporary witness comparing both lookups
+fleet-wide, the trunk certificate; (2) on the branch, processCode -> driveStep alone, then (A)
+reapplied, a certificate probe and five discriminator runs. FAILED: branch certificate item 1 --
+rsRun compiled after parser(Start) fires its body, and then the TOP-LEVEL FILE IS ABANDONED
+("RunRulE: expected a method not cerr"). Rule: the top-level StatemenT parse, broken by a
+new-road compile; not parser.
+
+(1) COLLISION -- LANDED ON TRUNK, 3494d52. One helper, enclosingFace (Generate.rtn): the face of the
+  term in the enclosing rule body, through gParseActive->stuff->rule; a drive floors it, so a drive
+  root keeps the rule it was handed. The three sites (parseContainer, parseLoop, parseRule) each
+  call it in one passthrough line. MEASURED before landing, witness comparing both lookups on every
+  call: 279,567 lookups over pop.sh, 11 differ -- every one a drive from INSIDE AN ACTION on a
+  drive floor (wzRun, ctReEmit, msOptNew/B, testList): the new lookup finds nothing, the old one
+  found a same-named node inside the action. Certificate: pop.sh row for row (779 ok), old-road
+  column green both orders, jitLadder 215, corpus 171/0 both orders, canary 311 + 21 + 41,
+  alphaLint 0. (3) F-128 opened in docs/fixIts.md with the attempt log and your line.
+
+(2) THE BRANCH -- STOPPED, per the dispatch.
+  Step 1, processCode -> driveStep alone (75fed1b): the compile is `driveStep(code,blockRULE,null)`,
+  lastIndent zeroed before (pushInput never touches it) and processingCode bracketed around it.
+  rsRun compiled after parser(Start) FIRES (RS SINK FIRED 1) -- F-128's refusal is gone -- and then
+  the rest of the file is abandoned. Step 2, (A) reapplied (654f718): identical.
+  DISCRIMINATORS, each one run, after parser(Start) unless named:
+    compile drive on the OLD road (parser(ExpressioN): BlocK not installed)  file continues
+    compile(oneA) alone, no execution                                        ABANDONS -- compile, not run
+    the same text through tell ("BlocK { tsX = 1; }", "StatemenT ...")       file continues
+    one-line body `tsX = 1;`                                                 ABANDONS -- not the indentation
+    result node handed back                                                  a FRESH BlocK label, no parent,
+                                                                             no registry -- not processCode's
+                                                                             attach ripping a grammar node
+    bodies:  `5 + 1;`  continues   `cerr 5:;` continues (and prints 5)
+             `tsX;`  ABANDONS      `cerr tsX:;` ABANDONS      `zzNew = 3;` ABANDONS
+  SO: A NEW-ROAD COMPILE OF A BODY WITH A BARE NAME leaves the old-road top level unable to parse the
+  next statement. Name-free bodies compile and execute correctly. The same text driven through tell
+  is harmless, so it is processCode's context -- processingCode (locateInMethod resolves names in
+  the action while it is set; ruleActions.rtn:653, :973, :1231, :1417 read it) and/or
+  currentMETHOD = the action -- meeting the name path on the new road. What state it leaves behind
+  is NOT isolated. The remaining certificate items were not run.
+
+WHAT THIS MEANS FOR THE CIRCLE: the collision is out of it. processCode -> driveStep works for the
+compile itself but has one more dependency -- the new road's name path under processingCode.
+
+  END SEQ 159
 

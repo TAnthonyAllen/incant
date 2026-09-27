@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      211
-STATUS:   cleared        # SEQ 211 -- (A) reverted f33d395; old-road column 2c4cec1 -- clod-to-clay SEQ 158
+SEQ:      212
+STATUS:   cleared        # SEQ 212 -- collision on trunk 3494d52; branch stopped at item 1 -- clod-to-clay SEQ 159
+STATUS-211: cleared      # SEQ 211 -- (A) reverted f33d395; old-road column 2c4cec1 -- clod-to-clay SEQ 158
 STATUS-210: cleared      # SEQ 210 -- measured; DO refusal was my oracle; ExpressioN refusal is (A) -- clod-to-clay SEQ 157
 STATUS-209: cleared      # SEQ 209 -- LANDED f095a05; oracle agrees on all 6 -- clod-to-clay SEQ 156
 STATUS-208: cleared      # SEQ 208 -- built, works, moves the must-not-move rows (leaf half); reverted -- clod-to-clay SEQ 155
@@ -9744,4 +9745,32 @@ Top of the report: what ran (as typed), what failed, and which rule if it is par
    Coded rules carry a BlocK (09-19, `list`), so isRule would not exclude them.
 
   END SEQ 211
+
+
+===================================================================
+SEQ 212  -  BREAK THE CIRCLE: COLLISION, THEN processCode -> driveStep + (A), ON A BRANCH
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Collision landed; branch stopped; clod-to-clay SEQ 159.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+The three items are circular: (A) needs the processCode -> driveStep change; driveStep needs (A)
+(BlocK's StatemenT+) and the collision fix. Build in order on a branch cut from trunk.
+1. COLLISION. At Generate.rtn:136, :187 and :211, resolve through gParseActive instead of
+   currentMETHOD.get(tag). Expected fleet-neutral on trunk, because nothing drives from inside an
+   action yet. If pop.sh is row for row, the old-road column is green and jitLadder is 215, it
+   lands on trunk alone. If anything moves, keep it on the branch and report.
+2. On the branch: processCode (GroupActions.rtn:632) -> driveStep, plus (A) reapplied. Keep
+   processCode's lastIndent and processingCode bracket around the call. Certificate:
+   - rsRun compiled after parser(Start) fires its body (rsN 1);
+   - a two-statement action compiled after parser(Start) runs BOTH statements;
+   - a second parser() after BlocK is installed: no refusal, and ExpressioN has its method;
+   - the corpus in both generation orders: 171, 0 refusals, old-road column green;
+   - ShRep 1/4 in both orders, and the four divergence pins return to their ruled values;
+   - zeroWidthT green; jitLadder 215; canary sum.
+   Stop and report before merging.
+3. Fixit log line: SEQ 202's refusal aborted compileRules mid-walk and left ExpressioN's children
+   pointing at a stray occurrence. It was a refusal with no patient.
+
+  END SEQ 212
 
