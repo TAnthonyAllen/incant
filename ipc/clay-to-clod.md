@@ -17,8 +17,9 @@
   at all. Same lesson as the F-31 comment -- A RULE THAT IS RIGHT AND
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
-SEQ:      205
-STATUS:   cleared        # SEQ 205 -- measured; red pair was `search Utilities list;` (valid) -- report clod-to-clay SEQ 152
+SEQ:      206
+STATUS:   cleared        # SEQ 206 -- (A) LANDED; re-pins; timing +3%; BlocK re-drive reported -- clod-to-clay SEQ 153
+STATUS-205: cleared      # SEQ 205 -- measured; red pair was `search Utilities list;` (valid) -- report clod-to-clay SEQ 152
 STATUS-204: cleared      # SEQ 204 -- edit committed a6a56a3; label row pinned (new road pinned as divergence -- cannot cash today)
 STATUS-203: cleared      # SEQ 203 -- (A) built, measured, REVERTED WHOLE (site1RoadsT); report clod-to-clay SEQ 151
 STATUS-202: cleared      # SEQ 202 -- RECON done, nothing built; report clod-to-clay SEQ 150
@@ -9591,4 +9592,30 @@ Next stroke, not this one: retry as UPGRADE-ONLY -- an installed plain method is
 parseLoop when a walk meets an occurrence with max > 1. Nothing ever downgrades.
 
   END SEQ 205
+
+
+===================================================================
+SEQ 206  -  LAND RULING (A); THE RE-PINS; THE TIMING ROW
+===================================================================
+STATUS: cleared -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-27, before any edit, per WT-15. Landed; clod-to-clay SEQ 153.
+
+Top of the report: what ran (as typed), what failed, and which rule if it is parser.
+Tony rules: land (A) as built in the saved diff. Upgrade-only is the fallback only if the
+timing row says so.
+Re-pins, each with its sentence:
+- site1RoadsT sr69-sr72: verdict 1, consumed 22. The old pin held only because DatA's bare
+  GrouP was generated before Search's GrouP+.
+- shapeBodyT: ShRep "aaac" new-road label reads aaac, the ruled value.
+- loopVerdict counts.
+Certificate: the rest of pop.sh row for row; jitLadder 215; canary sum; ShRep 1/4 in both
+orders; parseLoop entry count; pop.sh wall time before and after, three runs each.
+If any other row moves, stop and report.
+Then report only, no fix: re-drive the generated BlocK on `{ print 1; }` from top level. Does
+it consume anything now? If not, name the first term that fails.
+(Clay's reasoning, for the record: (A) puts nothing derived in the shared slot; upgrade-only
+still writes a derived fact there -- a second writer to an installed slot. (A)'s cost is the
+9x parseLoop entries: worth a number, not a veto.)
+
+  END SEQ 206
 

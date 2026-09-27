@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 152 at the FOOT -- SEQ 205: CORRECTION -- the red pair is `search Utilities list;` (VALID); (A) is right there, the row pinned the bug
+STATUS:   fresh           # SEQ 153 at the FOOT -- SEQ 206: (A) LANDED 4c6c76c; timing +3%; BlocK parses two statements now -- a one-letter name is a separate bug
+# prior: SEQ 152 at the FOOT -- SEQ 205: CORRECTION -- the red pair is `search Utilities list;` (VALID); (A) is right there, the row pinned the bug
 # prior: SEQ 151 at the FOOT -- SEQ 203: ruling (A) built, measured, REVERTED WHOLE -- site1RoadsT accepts "search Utilities list" (no ;)
 # prior: SEQ 150 at the FOOT -- SEQ 202 RECON: a coded action NEVER takes the new road; after parser(BlocK) or parser(Start) every later compile REFUSES
 # prior: SEQ 149 at the FOOT -- SEQ 200: P6 waits (unrun IF hands back its condition; PrinT residual is RETAGCARRY); SEQ 201 sealed
@@ -8460,4 +8461,45 @@ Reverted: Generate.rtn back to HEAD, retok bare, rebuilt; pop.sh row for row ide
 post-SEQ-204 capture.
 
   END SEQ 152
+
+
+===================================================================
+SEQ 153  -  SEQ 206: RULING (A) LANDED; BlocK PARSES TWO STATEMENTS; ONE SEPARATE BUG LEFT
+===================================================================
+STATUS: fresh -- 2026-09-27. Landed 4c6c76c, pushed. Nothing failed.
+
+TOP LINE. Ran: the saved (A) diff as built, bare retok, rebuilt; pop.sh three times before
+and three after; the re-pins; jitLadder; the SEQ 203 probe; the fleet counting pass; then
+top-level drives of the generated BlocK. Nothing failed. The rule in the open item is NamE
+(its nameSet term), not parser.
+
+TIMING (pop.sh wall, three runs each): before 15.9 / 15.7 / 15.7 s, after 16.3 / 15.8 /
+16.8 s -- about +3%, not noticeably slower. (A) stands; upgrade-only not needed.
+
+RE-PINS, each with its sentence in pop.sh: site1RoadsT sr69-sr72 `search Utilities list;`
+verdict 1 consumed 22, checked BY FIXTURE NAME (order pasted against probeDrive order), every
+other drive (90) verdict 0; shapeBodyT roads agree on all 16 and ShRep "aaac" new-road label
+reads aaac (the ruled value, cashed); loopVerdict counts 45/13 -> 355/152 recorded (rows pin
+> 0, unmoved).
+CERTIFICATE: pop.sh 756 -> 757 ok, only the re-pinned rows moved; jitLadder 215 PASSED;
+canary 309 + 21 + 41 = 371, unchanged by (A); ShRep "aaac" 1/4 in both orders; fleet
+parseLoop entries 23798 -> 214204.
+
+BlocK, REPORT ONLY, generated BlocK driven from top level (remaining input at the pop):
+    { print 1; }            OLD end of input   NEW end of input   <- consumes it all now
+    { xy = 1; yz = 2; }     NEW end of input   <- two statements parse
+    { xy = 1; }             NEW end of input
+    { x = 1; }              NEW whole message left -- still consumes nothing
+So BlocK was mostly the same bug (the lost + on StatemenT). What is left is SEPARATE, and it is
+a one-letter name. The first term that fails is NamE's `nameSet` (NamE is
+`first-=[a-zA-Z] nameSet-^*`): `first` matches x (NamE's exit mark reads [ = 1; }]), nameSet
+is entered where it must match ZERO characters, and NamE's body returns false; every rule
+above it then fails in turn (ANYtoken, TokenXP, Token, ExpressioN, Xpress, StatemenT, BlocK).
+With a two-letter name nameSet matches one character and everything parses.
+CANDIDATE, UNMEASURED: a max > 1 LEAF with min 0 has no owner for its zero-width success on the
+new road -- exitFromParse's min-zero tail is guarded `max <= 1` (Generate.rtn:33, "repetition
+is parseLoop's"), and leaves (data 1-3, nameSet is a set) never enter parseLoop. What would
+confirm it: nameSet's own exit on the zero-width match. Not fixed.
+
+  END SEQ 153
 
