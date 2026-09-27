@@ -123,6 +123,34 @@ extern int closeFile(GroupItem bufField)
 }
 
 
+// definersOf every occurrence of a rule -- the registry entry and each term carrying its tag -- and whether definingRule() answers the REGISTRY's entry, as the shared-children invariant says it must (SEQ 216); prints the counts unconditionally
+extern GroupItem definersOf(GroupItem input)
+{
+GroupRules  ruler = groupRules;
+    -%
+    const char *want = input ? input->groupBody->tag : 0;
+    int seen = 0, toRegistry = 0;
+    GroupItem *reg = GroupControl::groupController->getRegistry((char*)"Grokking");
+    GroupItem *regEntry = (want && reg) ? reg->get((char*)want) : 0;
+    GroupItem *r = 0;
+    while ( want && regEntry && (r = reg->next(r)) ) {
+        GroupItem *t = 0;
+        if ( ::strcmp(r->groupBody->tag,want) == 0 ) { seen++; if ( r->definingRule() == regEntry ) toRegistry++;
+            else ::fprintf(stderr,"  DEFINER %s registry entry answers %p, not itself\n",want,r->definingRule()); }
+        while ( (t = r->next(t)) )
+            if ( ::strcmp(t->groupBody->tag,want) == 0 ) {
+                seen++;
+                GroupItem *d = t->definingRule();
+                if ( d == regEntry ) toRegistry++;
+                else ::fprintf(stderr,"  DEFINER %s term of rule %s answers %s@%p (parent %s), not the registry's\n",want,r->groupBody->tag,
+                    d ? d->groupBody->tag : "-",d,(d && d->parent) ? d->parent->groupBody->tag : "-"); }
+        }
+    ::fprintf(stderr,"DEFINERS %s occurrences=%d registry=%d others=%d\n",want ? want : "(none)",seen,toRegistry,seen - toRegistry);
+    %-
+    return trueResult;
+}
+
+
 // dispatcher run a listener, disguised as a void*, against its notifier -- a stub that says it needs rewriting
 extern void dispatcher(void* stuff)
 {
@@ -263,6 +291,27 @@ GroupItem   frame = action["frameSTAK"];
     frame = action += "frameSTAK";
     frame.noPrint = true;
     return frame;
+}
+
+
+// grammarHolds report every grammar rule, and every term of one, holding a child tagged like the argument -- an action body's name must never land there (SEQ 214, ownerT); prints the count unconditionally
+extern GroupItem grammarHolds(GroupItem input)
+{
+GroupRules  ruler = groupRules;
+    -%
+    const char *want = input ? input->groupBody->tag : 0;
+    int held = 0;
+    GroupItem *reg = GroupControl::groupController->getRegistry((char*)"Grokking");
+    GroupItem *r = 0;
+    while ( want && reg && (r = reg->next(r)) ) {
+        if ( r->get((char*)want) ) { held++; ::fprintf(stderr,"  GRAMMARHOLDS %s under rule %s\n",want,r->groupBody->tag); }
+        GroupItem *t = 0;
+        while ( (t = r->next(t)) )
+            if ( t->get((char*)want) ) { held++; ::fprintf(stderr,"  GRAMMARHOLDS %s under term %s of rule %s\n",want,t->groupBody->tag,r->groupBody->tag); }
+        }
+    ::fprintf(stderr,"GRAMMARHOLDS %s = %d\n",want ? want : "(none)",held);
+    %-
+    return trueResult;
 }
 
 
@@ -625,18 +674,20 @@ use field
     code      = holder.getAttribute("CodE");
     if isRule action = code;
     currentMETHOD   = action;
-    divertToRule    = true;
-    pushInput(code);
     lastIndent      = 0;
     processingCode  = true;
-    if result = blockRULE.parse(0) {
+    // compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
+    // compileOwner the ONE writer of gCompileOwner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214)
+    -% GroupItem *priorOwner = gCompileOwner; gCompileOwner = action; %-
+    result = driveStep(code,blockRULE,null);
+    -% gCompileOwner = priorOwner; %-
+    if result {
         result.noPrint  = true;
         holder.addAttribute(result);
         field.isAction = true; }
     else    reportCodeFail(field);
     if !processing  processingCode = false;
     lastIndent      = indenter;
-    popInput();
     currentMETHOD   = priorMETHOD;
     if result       return true;
     return false;

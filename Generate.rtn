@@ -350,7 +350,7 @@ extern int repeatsInLoop(GroupItem field)
 {
 RuleStuff   ruleStuff = field.rStuff;
     if !ruleStuff   return 0;
-    if max > 1 && (!field.data || field.data > 3)   return 1;
+    if parseMethod == parseRule || (max > 1 && (!field.data || field.data > 3))   return 1;
     return 0;
 }
 
@@ -413,10 +413,9 @@ RuleStuff   ruleStuff = rStuff;
     if hasTraits || hasMembers {
         GroupItem grup;
         while grup = field.next(grup) {
-            parent  = field;    // if field is a copy grup.parent is not field
             if grup.noPrint continue;
             else setParseWalk(grup); }}
-    // loopPerOccurrence ⚠ the loop choice is made from the FIRST occurrence walked, into a slot every occurrence shares, so a bare reference generated first stops a later + from repeating (ShRef/ShRep, DatA's GrouP / Search's GrouP+). Ruling A (every rule body through parseLoop) fixed it and was REVERTED 2026-09-27 (SEQ 211): under it a second parser() after BlocK is installed leaves a definer with no method -- blocked on SEQ 202's compile refusal
+    // loopPerOccurrence a rule body's method slot is SHARED by every occurrence, so every rule body goes through parseLoop and each occurrence loops to its OWN max (ruling A -- reverted on trunk 2026-09-27 for want of this branch's staged compile and definer fix, SEQ 211-216)
     if repeatsInLoop(field)     field.method = parseLoop;
     else    field.method = parseMethod;
     // flagFollowsInstall hasNewParse says a method is there to fire, so it is raised here and never at entry -- isGROUP installs null

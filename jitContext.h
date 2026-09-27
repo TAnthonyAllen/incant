@@ -706,5 +706,10 @@ class RuleStuff;
 // driveStep after the fire (Tony, 2026-09-26, SEQ 185 (i)). parseRule's own activations never use it.
 struct ParseActivation { RuleStuff *stuff; ParseActivation *prev; int floor; GroupItem *label; };
 inline ParseActivation *gParseActive = nullptr;
+// THE COMPILE OWNER (SEQ 214): the action processCode is compiling. ONE WRITER -- processCode, set before the
+// drive and restored after. aCTionNamE reads it while processingCode is set, because a generated body repoints
+// currentMETHOD to a grammar face and a name minted there lands in the grammar (SEQ 213). Retires when
+// parse-then-fire reaches action bodies; the destination is a post-compile resolveNames pass (Tony's (ii)).
+inline GroupItem *gCompileOwner = nullptr;
 
 #endif // JITCONTEXT_H

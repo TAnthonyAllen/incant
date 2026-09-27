@@ -137,6 +137,17 @@ ATTEMPT LOG
   2026-09-27 f33d395 ruling A REVERTED on that finding -- no clean fix at the definer; the root is this row.
   2026-09-27 (this commit) the enclosing-face lookup moved off currentMETHOD onto gParseActive (Generate.rtn,
              enclosingFace) -- fleet row for row; a prerequisite for the driveStep change, not the fix.
+  2026-09-27 branch seq212 2a29a4b: processCode compiles through driveStep + the compile owner channel -> an action
+             compiled after parser(Start) runs (rsN 1, both statements). Stopped at a second parser(): generateParse's
+             `:. isCodeD` wiped the rule's isAction, so its own recompile found it uncompiled.
+  2026-09-27 branch seq212 (SEQ 215): the compile is STAGED -- generateParse builds a pendingParseR carrier and no
+             longer marks the rule; compile() compiles the carrier and installs it in one step when green, or drops it
+             and names it. -> the second parser()'s compile SUCCEEDS. What remains is NOT this row's: a drive
+             afterwards refuses at runLeafParse because definingRule() returns a stray face.
+             ⚠ CORRECTION to the first log line: the stray face is NOT left by the aborted compile. compile()'s own
+             tail loop does `grup.parent = field` over the SHARED child list before recursing into each term, so
+             definingRule() drifts to whichever face compile() visited last (measured: the second parser leaves
+             ExpressioN's list pointing at a Token-side face that setParse never installed).
 ```
 
 ### F-127 — OPEN 2026-09-24 — a `define` driven on the NEW road stops SHORT OF ITS CLOSING `;`

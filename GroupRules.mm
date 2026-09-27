@@ -827,35 +827,12 @@ GroupItem 	*source = 0;
 *******************************************************************************/
 extern "C" GroupItem *aCTionNamE(GroupItem *input)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*action = ruler->currentMETHOD;
-GroupItem 	*grup = 0;
-GroupItem 	*result = 0;
-char 		*arg = input->getText();
-	result = GroupControl::groupController->locateInMethod(arg);
-	if ( result && result->parent == action )
-		goto endName;
-	if ( ruler->defining && result && result->groupBody->flags.isVirtual )
-		result = ::copyOf(result);
-	grup = new GroupItem(arg);
-	if ( ruler->alphaSet->contains(*arg) && ruler->processingCode )
-		if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
-			if ( !(result && result->groupBody->registry == ruler->opFields) )
-				if ( result )
-					if ( action->groupBody->flags.isRule && result->groupBody->flags.isRule )
-						{
-						result = action->addAttribute(grup);
-						result->groupBody->flags.isLocal = 1;
-						}
-					else	result = action->addAttribute(result);
-				else {
-					result = action->addAttribute(grup);
-					result->groupBody->flags.isLocal = 1;
-					}
-	if ( !result )
-		result = grup;
-endName:
-	input->setGroup(result);
+	// compileOwner while processingCode the owner is the action processCode is compiling, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213)
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	GroupItem *owner = (ruler->processingCode && gCompileOwner) ? gCompileOwner : ruler->currentMETHOD;
+	input->setGroup(::resolveName(input->getText(),owner));
+	
 	return input;
 }
 
@@ -1836,10 +1813,17 @@ extern "C" GroupItem *compile(GroupItem *field)
 {
 GroupItem 	*code = 0;
 GroupItem 	*grup = 0;
-	if ( !isCoded(field->groupBody->flags.actionType) )
+GroupItem 	*pending = 0;
+GroupItem 	*holder = 0;
+	// stagedCompile a regenerated body arrives as a PENDING carrier: compile it, and install it only when green -- the rule keeps its current body and isAction until then (SEQ 215, F-31's store-compile-verify-bind)
+	pending = field->get("pendingParseR");
+	if ( !pending && !isCoded(field->groupBody->flags.actionType) )
 		return 0;
 	// any rule without parseRule as its method will exit here
-	code = field->parseBody();
+	if ( pending )
+		holder = pending;
+	else	holder = field->parseHolder();
+	code = holder->getAttribute("CodE");
 	// secondRefuseInCompile
 	if ( !code )
 		return ::refuse(field,"compile: isCoded is set but there is no CodE attribute; the flag and the artifact disagree");
@@ -1850,7 +1834,7 @@ GroupItem 	*grup = 0;
 		else
 		if ( grup->groupBody->flags.isRule )
 			code->addAttribute(grup);
-	// compileAddTempFields this and tempField
+	// compileAddTempFields this and tempField -- named on grup, not bare: a declaration above re-points bare names (bear-trap #42)
 	grup = new GroupItem("this");
 	grup->groupBody->flags.isLocal = 1;
 	grup->groupBody->flags.noPrint = 1;
@@ -1866,22 +1850,33 @@ GroupItem 	*grup = 0;
 	// refusedRuleDoesNotEndRun has to continue to processCode below
 	GroupControl::groupController->groupRules->compiling = 1;
 	// so ANYtoken allows key fields
-	if ( !::processCode(field,field->parseHolder()) )
+	if ( !::processCode(field,holder) )
 		{
 		// BOTH arms clear it -- this arm RETURNS, so the tail below never runs and compiling would stay set for the rest of the process
 		GroupControl::groupController->groupRules->compiling = 0;
 		::printf("\t%s\n",code->getText());
+		// failedPendingNamesCarrier a pending carrier that will not compile is DETACHED: the rule keeps its old body, and the refusal names the carrier and the rule
+		if ( pending )
+			{
+			pending->remove();
+			 { char zWhy[224]; ::snprintf(zWhy,sizeof zWhy,"compile: the pending carrier for %s would not parse -- %s keeps its current body; the message above names the position",field->groupBody->tag,field->groupBody->tag); return ::refuse(pending,zWhy); } 
+			}
 		return ::refuse(field,"compile: processCode would not parse the generated body; its message above names the position");
 		}
 	else	::printf("compile succeeded for %s\n",field->groupBody->tag);
+	// installInOneStep the green pending carrier replaces builtinParseR in one step: detached, retagged, and swapped in by replace()
+	if ( pending )
+		{
+		pending->remove();
+		 pending->groupBody->tag = ::strdup("builtinParseR"); 
+		field->replace(pending);
+		}
 	GroupControl::groupController->groupRules->compiling = 0;
 endCompile:
 	grup = 0;
 	if ( field->groupBody->flags.hasTraits || field->groupBody->flags.hasMembers )
 		while ( grup = field->next(grup) )
 			{
-			grup->parent = field;
-			// because if field is a copy grup.parent is not field
 			if ( grup->groupBody->flags.noPrint )
 				continue;
 			else	::compile(grup);
@@ -2072,6 +2067,33 @@ int 	length = 0;
 	::printf("\t%s",tagText);
 	if ( flag )
 		::printf("\n");
+}
+
+// definersOf every occurrence of a rule -- the registry entry and each term carrying its tag -- and whether definingRule() answers the REGISTRY's entry, as the shared-children invariant says it must (SEQ 216); prints the counts unconditionally
+extern "C" GroupItem *definersOf(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	
+	const char *want = input ? input->groupBody->tag : 0;
+	int seen = 0, toRegistry = 0;
+	GroupItem *reg = GroupControl::groupController->getRegistry((char*)"Grokking");
+	GroupItem *regEntry = (want && reg) ? reg->get((char*)want) : 0;
+	GroupItem *r = 0;
+	while ( want && regEntry && (r = reg->next(r)) ) {
+	GroupItem *t = 0;
+	if ( ::strcmp(r->groupBody->tag,want) == 0 ) { seen++; if ( r->definingRule() == regEntry ) toRegistry++;
+	else ::fprintf(stderr,"  DEFINER %s registry entry answers %p, not itself\n",want,r->definingRule()); }
+	while ( (t = r->next(t)) )
+	if ( ::strcmp(t->groupBody->tag,want) == 0 ) {
+	seen++;
+	GroupItem *d = t->definingRule();
+	if ( d == regEntry ) toRegistry++;
+	else ::fprintf(stderr,"  DEFINER %s term of rule %s answers %s@%p (parent %s), not the registry's\n",want,r->groupBody->tag,
+	d ? d->groupBody->tag : "-",d,(d && d->parent) ? d->parent->groupBody->tag : "-"); }
+	}
+	::fprintf(stderr,"DEFINERS %s occurrences=%d registry=%d others=%d\n",want ? want : "(none)",seen,toRegistry,seen - toRegistry);
+	
+	return ruler->trueResult;
 }
 
 // dispatcher run a listener, disguised as a void*, against its notifier -- a stub that says it needs rewriting
@@ -2844,6 +2866,26 @@ GroupItem 	*types = GroupControl::groupController->locate("types");
 			type = types->get("GroupItem*");
 		}
 	return type;
+}
+
+// grammarHolds report every grammar rule, and every term of one, holding a child tagged like the argument -- an action body's name must never land there (SEQ 214, ownerT); prints the count unconditionally
+extern "C" GroupItem *grammarHolds(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	
+	const char *want = input ? input->groupBody->tag : 0;
+	int held = 0;
+	GroupItem *reg = GroupControl::groupController->getRegistry((char*)"Grokking");
+	GroupItem *r = 0;
+	while ( want && reg && (r = reg->next(r)) ) {
+	if ( r->get((char*)want) ) { held++; ::fprintf(stderr,"  GRAMMARHOLDS %s under rule %s\n",want,r->groupBody->tag); }
+	GroupItem *t = 0;
+	while ( (t = r->next(t)) )
+	if ( t->get((char*)want) ) { held++; ::fprintf(stderr,"  GRAMMARHOLDS %s under term %s of rule %s\n",want,t->groupBody->tag,r->groupBody->tag); }
+	}
+	::fprintf(stderr,"GRAMMARHOLDS %s = %d\n",want ? want : "(none)",held);
+	
+	return ruler->trueResult;
 }
 
 /*******************************************************************************
@@ -9643,11 +9685,14 @@ int 		processing = ruler->processingCode;
 	if ( field->groupBody->flags.isRule )
 		action = code;
 	ruler->currentMETHOD = action;
-	ruler->divertToRule = 1;
-	ruler->pushInput(code);
 	ruler->lastIndent = 0;
 	ruler->processingCode = 1;
-	if ( result = blockRULE->parse(0) )
+	// compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
+	// compileOwner the ONE writer of gCompileOwner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214)
+	 GroupItem *priorOwner = gCompileOwner; gCompileOwner = action; 
+	result = ::driveStep(code,blockRULE,0);
+	 gCompileOwner = priorOwner; 
+	if ( result )
 		{
 		result->groupBody->flags.noPrint = 1;
 		holder->addAttribute(result);
@@ -9657,7 +9702,6 @@ int 		processing = ruler->processingCode;
 	if ( !processing )
 		ruler->processingCode = 0;
 	ruler->lastIndent = indenter;
-	ruler->popInput();
 	ruler->currentMETHOD = priorMETHOD;
 	if ( result )
 		return 1;
@@ -9955,7 +9999,7 @@ extern "C" int repeatsInLoop(GroupItem *field)
 RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( !ruleStuff )
 		return 0;
-	if ( ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3) )
+	if ( ruleStuff->parseMethod == ::parseRule || (ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3)) )
 		return 1;
 	return 0;
 }
@@ -10115,6 +10159,33 @@ Buffer 	*buff = argument->getBuffer();
 	if ( buff )
 		buff->reset();
 	return 0;
+}
+
+// resolveName THE WHOLE RESOLUTION of a name in an action body, against an OWNER: already the owner's, a declared field referenced into the owner, or a new local minted there (SEQ 214). aCTionNamE calls it; the post-compile resolveNames pass will call it with owner = the action (Tony's (ii))
+extern "C" GroupItem *resolveName(char *arg, GroupItem *owner)
+{
+	
+	GroupRules *ruler = GroupControl::groupController->groupRules;
+	GroupItem *grup = 0, *result = 0;
+	if ( ruler->processingCode && owner )   result = owner->getAttribute(arg);
+	if ( !result )                          result = GroupControl::groupController->locate(arg);
+	if ( result && result->parent == owner )    return result;
+	if ( ruler->defining && result && result->groupBody->flags.isVirtual )  result = ::copyOf(result);
+	grup = new GroupItem(arg);
+	if ( ruler->alphaSet->contains(*arg) && ruler->processingCode && owner )
+	if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
+	if ( !(result && result->groupBody->registry == ruler->opFields) ) {
+	if ( result ) {
+	if ( owner->groupBody->flags.isRule && result->groupBody->flags.isRule ) {
+	result = owner->addAttribute(grup);
+	result->groupBody->flags.isLocal = 1; }
+	else    result = owner->addAttribute(result); }
+	else {
+	result = owner->addAttribute(grup);
+	result->groupBody->flags.isLocal = 1; } }
+	if ( !result )  result = grup;
+	return result;
+	
 }
 
 // restoreLocalFields restore what saveLocalFields banked, at the end of a nested call
@@ -10578,14 +10649,12 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		GroupItem 	*grup = 0;
 		while ( grup = field->next(grup) )
 			{
-			grup->parent = field;
-			// if field is a copy grup.parent is not field
 			if ( grup->groupBody->flags.noPrint )
 				continue;
 			else	::setParseWalk(grup);
 			}
 		}
-	// loopPerOccurrence ⚠ the loop choice is made from the FIRST occurrence walked, into a slot every occurrence shares, so a bare reference generated first stops a later + from repeating (ShRef/ShRep, DatA's GrouP / Search's GrouP+). Ruling A (every rule body through parseLoop) fixed it and was REVERTED 2026-09-27 (SEQ 211): under it a second parser() after BlocK is installed leaves a definer with no method -- blocked on SEQ 202's compile refusal
+	// loopPerOccurrence a rule body's method slot is SHARED by every occurrence, so every rule body goes through parseLoop and each occurrence loops to its OWN max (ruling A -- reverted on trunk 2026-09-27 for want of this branch's staged compile and definer fix, SEQ 211-216)
 	if ( ::repeatsInLoop(field) )
 		field->setMethod(::parseLoop);
 	else	field->setMethod(ruleStuff->parseMethod);
