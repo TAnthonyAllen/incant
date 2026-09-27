@@ -3037,6 +3037,45 @@ else echo "  FAIL  sweepT $_swr of $_swa carrier results AGREE at degrade 0 (wan
 if [ "$(grep -c 'JIT DEGRADE' "$T/sw.e" "$T/sw.o" | awk -F: '{n+=$2} END{print n}')" -eq 0 ] && grep -q '^SWEEP ROW .* J fire2 ' "$T/sw.e"; then echo "  ok    sweepT no degrade line anywhere (and jitted rows ran)"; green=$((green+1))
 else echo "  FAIL  sweepT a degrade line appeared, or no jitted row ran"; fail=1; fi
 
+#  ---- sweepT's OLD-ROAD COLUMN (SEQ 211, 2026-09-27) ----
+#  sweepT certifies JITTED against INTERPRETED; both are the NEW road, so an input both engines read wrong reads
+#  green. This column asks the old road. genLadder/oldRoadOracle.py drives every unique input of pairs.sweep through
+#  tell, one process per column: OLD (no parser), DO (parser(DO), sweepT's order) and SE (parser(StatemenT);
+#  parser(ExpressioN), the second order -- ruling A's revert was about exactly that order). A refusing drive prints
+#  no line and reads REFUSED. Rows: every column complete and at its foot; the new road equals the old on every
+#  input in BOTH orders but the pinned ones; any other disagreement FAILS and prints the input and both readings.
+#  PINNED BY NAME: 'q' (ExpressioN) -- old 1/3, new 0/0 in both orders, pre-existing at 09-26 (SEQ 210).
+#  H7, measured on a clone of 4656409 (09-26, before the leaf-only fix): both new-road columns disagree with the old
+#  road on SIX more inputs -- define aa isRule; ;  aa isRule tt=[a-z]+;  e+3  #5.2d  #-5s  =[a-z] -- so the rows go RED
+#  and name each one. That is SEQ 209's table, found again by the column rather than by hand.
+_orcN=$(sort -u jitLadder/station2/pairs.sweep | grep -c .)
+if grep -q '#)' jitLadder/station2/pairs.sweep; then echo "  FAIL  oldRoad column: pairs.sweep carries #) -- a (...#) literal cannot hold it"; fail=1; fi
+for _om in old do se; do
+    python3 genLadder/oldRoadOracle.py jitLadder/station2/pairs.sweep $_om "$T/orc_$_om.twk" "$T/orcKeys"
+    $B "$T/orc_$_om.twk" > "$T/orc_$_om.o" 2> "$T/orc_$_om.e" & _cap "oldRoad $_om"; check "oldRoad column $_om runs" 0 $?
+    sentinel "oldRoad column $_om sentinel" "$T/orc_$_om.e" "ORACLE SENTINEL"
+    awk '/^KEY /{if(k!="" && k!="warm") print k" REFUSED"; k=$2; next} /^ORC /{if(k!="warm") print k" "$3"/"$5; k=""} /^ORACLE SENTINEL/{if(k!="" && k!="warm") print k" REFUSED"; k=""}' "$T/orc_$_om.e" > "$T/orc_$_om.v"
+    _on=$(grep -c . "$T/orc_$_om.v")
+    if [ "$_on" -eq "$_orcN" ]; then echo "  ok    oldRoad column $_om complete: $_on of $_orcN inputs read"; green=$((green+1))
+    else echo "  FAIL  oldRoad column $_om read $_on of $_orcN inputs"; fail=1; fi
+done
+_orcReal=$(grep -vc ' REFUSED$' "$T/orc_old.v")
+if [ "$_orcReal" -gt 150 ]; then echo "  ok    oldRoad column anti-vacuity: the old road reads a verdict on $_orcReal inputs"; green=$((green+1))
+else echo "  FAIL  oldRoad column anti-vacuity: the old road read only $_orcReal verdicts"; fail=1; fi
+for _om in do se; do
+    _obad=""; _oagree=0; _opin=""
+    while read _ok _ov; do
+        _nv=$(grep "^$_ok " "$T/orc_$_om.v" | cut -d' ' -f2); _oin=$(grep "^$_ok|" "$T/orcKeys" | cut -d'|' -f2-)
+        if [ "$_ov" = "$_nv" ]; then _oagree=$((_oagree+1))
+        elif [ "$_oin" = "ExpressioN|'q'" ]; then _opin="old=$_ov new=$_nv"
+        else _obad="$_obad [$_oin old=$_ov new=$_nv]"; fi
+    done < "$T/orc_old.v"
+    if [ -z "$_obad" ]; then echo "  ok    oldRoad column $_om: the new road equals the old road on $_oagree of $_orcN inputs, all but the pinned"; green=$((green+1))
+    else echo "  FAIL  oldRoad column $_om: new road != old road on:$_obad"; fail=1; fi
+    if [ "$_opin" = "old=1/3 new=0/0" ]; then echo "  ok    oldRoad column $_om: 'q' PINNED DIVERGENCE -- old 1/3, new 0/0"; green=$((green+1))
+    else echo "  FAIL  oldRoad column $_om: 'q' MOVED -- ${_opin:-it now agrees} (if new reads 1/3 the defect is fixed: re-pin)"; fail=1; fi
+done
+
 #  ---- opLenT: F-124 -- a two-character operator consumes exactly its own length (2026-09-24) ----
 #  parseContainer's lookup loops kept matching after a hit (== then =), overran the message and relabelled the match;
 #  on the new road `==` assigned and `+=` did nothing. H7, measured at landing: without the break, consumed reads -1,
