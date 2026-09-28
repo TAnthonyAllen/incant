@@ -891,8 +891,6 @@ int 		noMoreAttributes = 0;
 				{
 				if ( noMoreAttributes )
 					break;
-				if ( item->groupBody->flags.noPrint )
-					continue;
 				itemGuard = item->ensureGuard();
 				if ( isAttribute(item->options.affiliation) )
 					if ( noMoreAttributes )

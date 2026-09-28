@@ -631,7 +631,6 @@ use guardSet
         if hasAttributes
             while item = nextAttribute(item) {
                 if noMoreAttributes     break;
-                if item.noPrint         continue;
                 itemGuard       = item.ensureGuard();
                 if item.isAttribute
                     if noMoreAttributes             continue;
