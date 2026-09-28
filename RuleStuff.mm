@@ -407,6 +407,9 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	isOption = 0;
 	isTarget = 0;
 	limitsSet = 0;
+	modPercent = 0;
+	modPointer = 0;
+	modUnGuarded = 0;
 	noAdvance = 0;
 	noLabel = 0;
 	noSkip = 0;
@@ -452,6 +455,9 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	isOption = 0;
 	isTarget = 0;
 	limitsSet = 0;
+	modPercent = 0;
+	modPointer = 0;
+	modUnGuarded = 0;
 	noAdvance = 0;
 	noLabel = 0;
 	noSkip = 0;
@@ -468,6 +474,8 @@ RuleStuff::RuleStuff(RuleStuff *r)
 int RuleStuff::checkGuard(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( field->isUnGuarded() )
+		return 1;
 	if ( guardInProcess(field->groupBody->flags.guarding) )
 		field->groupBody->flags.guarding = 0;
 	if ( !field->groupBody->flags.guarding )
@@ -508,6 +516,9 @@ GroupItem 	*field = rule;
 		guardOK = 0;
 		sukcess = 1;
 		}
+	else
+	if ( field->isUnGuarded() )
+		sukcess = 1;
 	else {
 		if ( guardInProcess(field->groupBody->flags.guarding) )
 			field->groupBody->flags.guarding = 0;

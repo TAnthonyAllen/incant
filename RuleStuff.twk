@@ -34,6 +34,9 @@ boolean
     isOption
     isTarget
     limitsSet
+    modPercent
+    modPointer
+    modUnGuarded
     noAdvance
     noLabel
     noSkip
@@ -69,6 +72,7 @@ RuleStuff(RuleStuff r)
 int checkGuard(GroupItem field)
 {
 GroupRules  ruler = groupRules;
+    if field.isUnGuarded()  return true;
     if guardInProcess   guarding = 0;
     if !guarding        ensureGuard();
     if unGuarded        return true;
@@ -97,6 +101,7 @@ GroupItem   field = rule;
     if guardOK {
         guardOK = false;
         sukcess = true; }
+    or field.isUnGuarded()  sukcess = true;
     else {
         if guardInProcess   guarding = 0;
         if !guarding        ensureGuard();

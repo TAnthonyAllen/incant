@@ -5377,6 +5377,27 @@ naRow "firsT" 0; naRow "firsT on a list" 1
 naRow "lasT" 0; naRow "lasT on a list" 1
 naRow "firstMembeR" 0; naRow "firstMembeR on a list" 1
 
+
+#  ---------------------------------------------------------------------------
+#  omModT -- OBJECT MODEL STROKE 1 (docs/objectModel.md): A MATCH MODIFIER IS A FACT ABOUT ONE
+#  REFERENCE. `_ { }` `%` `&` used to land on the BODY every reference shares with its rule, so
+#  SetBrackets' `rightBrace}` unguarded Braced's and Limit's rightBrace too. Born RED on the
+#  instrument commit (every rightBrace and every OmA reference read isUnGuarded 1, OmA's body
+#  pct 1 ptr 1). isUnGuarded is the predicate the guard test calls, so the rows read what the
+#  parser reads. H7: revert modify()'s instance writes alone and OM-1/OM-2 go red.
+run2 omModT "$T/om.o" "$T/om.e"; check "omModT runs" 0 $?
+sentinel "omModT sentinel" "$T/om.e" "OMMODT SENTINEL"
+omv () { grep "^MODSOF $1 in $2 " "$T/om.e" | sed -n "s/.* $3=\([0-9-]*\).*/\1/p" | head -1; }
+kindRow "omModT OM-1 SetBrackets' rightBrace} is unguarded on its own instance" "$(omv rightBrace SetBrackets modUnGuarded)/$(omv rightBrace SetBrackets isUnGuarded)" "1/1"
+kindRow "omModT OM-1 Braced's rightBrace is NOT unguarded (no leak)" "$(omv rightBrace Braced isUnGuarded)" "0"
+kindRow "omModT OM-1 Limit's rightBrace is NOT unguarded (no leak)" "$(omv rightBrace Limit isUnGuarded)" "0"
+kindRow "omModT OM-2 OmA% : modPercent on the instance, body pct untouched" "$(omv OmA OmP modPercent)/$(omv OmA OmP pct)" "1/0"
+kindRow "omModT OM-2 OmA& : modPointer on the instance, body ptr untouched" "$(omv OmA OmQ modPointer)/$(omv OmA OmQ ptr)" "1/0"
+kindRow "omModT OM-2 OmA_ : modUnGuarded on the instance, and isUnGuarded reads it" "$(omv OmA OmU modUnGuarded)/$(omv OmA OmU isUnGuarded)" "1/1"
+kindRow "omModT OM-2 plain OmA in OmN carries none of the three" "$(omv OmA OmN isUnGuarded)/$(omv OmA OmN pct)/$(omv OmA OmN ptr)" "0/0/0"
+omd () { grep "^OMDRIVE  $1 matched=" "$T/om.e" | awk '{print $5"/"$7}'; }
+kindRow "omModT OM-3 drives OmP ap / OmQ aq / OmU au / OmN an / OmN xn" "$(omd 'OmP ap') $(omd 'OmQ aq') $(omd 'OmU au') $(omd 'OmN an') $(omd 'OmN xn')" "1/2 1/2 1/2 1/2 0/0"
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi

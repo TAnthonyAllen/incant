@@ -51,6 +51,7 @@ extern "C" GroupItem *measureRuleDoor(GroupItem *field, GroupItem *rule);
 extern "C" GroupItem *measureStopCaller(GroupItem *caller);
 extern "C" GroupItem *measureTargetAgree(RuleStuff *stuff, int computed);
 extern "C" GroupItem *measureTokenArm(char *arm, GroupItem *ANYtoken, GroupItem *InvokeArg, GroupItem *unary);
+extern "C" GroupItem *modsOf(GroupItem *field);
 extern "C" GroupItem *parseClassify(GroupItem *field);
 extern "C" GroupItem *probeNode(GroupItem *argument);
 extern "C" GroupItem *showBody(GroupItem *field);

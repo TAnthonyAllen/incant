@@ -35,6 +35,9 @@ struct
 	unsigned int isOption:1;
 	unsigned int isTarget:1;
 	unsigned int limitsSet:1;
+	unsigned int modPercent:1;
+	unsigned int modPointer:1;
+	unsigned int modUnGuarded:1;
 	unsigned int noAdvance:1;
 	unsigned int noLabel:1;
 	unsigned int noSkip:1;

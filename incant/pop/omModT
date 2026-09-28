@@ -1,0 +1,62 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+define
+    omSay code={
+        v := tell(argument);
+        m := *v["matched"]; c := *v["consumed"];
+        cerr "OMDRIVE " argument " matched= " m " consumed= " c:;
+        };
+    omOne code={
+        r := Grokking[argument];
+        x := *r["rightBrace"];
+        modsOf(*x);
+        };
+    omTwo code={
+        r := OmMod[argument];
+        x := *r["OmA"];
+        modsOf(*x);
+        };
+    ;
+register(OmMod);
+define
+    OmA    isRule ka-="a";
+    OmP    isRule OmA% kp-="p";
+    OmQ    isRule OmA& kq-="q";
+    OmU    isRule OmA_ ku-="u";
+    OmN    isRule OmA kn-="n";
+    ;
+search GroupFields UnitTests Utilities OmMod list;
+cerr "OM-1 rightBrace: three references, one shared body":;
+omOne("SetBrackets");
+omOne("Braced");
+omOne("Limit");
+cerr "OM-2 OmA referenced four ways":;
+omTwo("OmP");
+omTwo("OmQ");
+omTwo("OmU");
+omTwo("OmN");
+cerr "OM-3 the scratch rules still parse":;
+omSay("OmP ap");
+omSay("OmQ aq");
+omSay("OmU au");
+omSay("OmN an");
+omSay("OmN xn");
+cerr "OMMODT SENTINEL":;
+stop();
+
+omModT -- OBJECT MODEL STROKE 1: A MATCH MODIFIER IS A FACT ABOUT ONE REFERENCE, NOT ABOUT THE RULE.
+
+Before stroke 1, modify() wrote `_` `{ }` (unGuarded), `%` (isPercent) and `&` (isPointer) onto the
+BODY, which every reference to a rule shares with the rule itself. So SetBrackets' `rightBrace}` put
+unGuarded on the body Braced and Limit also read, and `OmA%` in OmP marks OmA's body for every rule
+that names OmA. After stroke 1 the fact lands on the reference's own rStuff (modUnGuarded, modPercent,
+modPointer) and the body keeps only its own meanings.
+
+OM-1  modsOf on rightBrace in SetBrackets, Braced, Limit. isUnGuarded is the predicate the guard test
+      itself calls (instance, then rule), so the row reads what the parser reads.
+      want: SetBrackets 1 (declared `}`), Braced 0, Limit 0.
+OM-2  OmA referenced with % & _ and plain, then OmA itself.
+      want: each fact on its own reference's instance bits, none on the body; OmN and OmA read 0.
+OM-3  the scratch rules drive and match as before (values pinned both sides of the stroke).
