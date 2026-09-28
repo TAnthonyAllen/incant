@@ -9970,3 +9970,15 @@ Stroke 3: rule lists plus artifacts only; locals stay where they are. Before bui
   grammar text, not through the accessor under test.
 
   END SEQ 219
+
+  AMENDMENT (Tony, "Fearless", same afternoon, transcribed at pickup):
+  R2 revised: quoteBody}=tik$ is an exhibit, not load-bearing. Replace (b) with a QuotE respell to two
+  members, one for double-quoted strings and one for single-quoted strings. Once the respell is green,
+  strip isMacro from the rule side as originally ruled. Order: after stroke 3, time permitting.
+  Before the respell: census every reader of the matched quote character. Operators' '++', where
+  single quotes mean a tag that isn't a NamE, must keep working, and the member that matched has to
+  answer the question tik answers today. Pre-register: F-O25 (QuotE 'abc' 0/0 on the new road) goes
+  green with the respell. If it doesn't, report it rather than chasing it.
+  Certificate: fleet unmoved, and "it's" still ends at ". Then the strip: rule-side census reads zero,
+  fleet unmoved.
+  -- Stroke 3a landed 8a4eeab, sealed 44a7796 (definerT named, F-O32).
