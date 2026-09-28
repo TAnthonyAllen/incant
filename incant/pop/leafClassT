@@ -1,0 +1,48 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    lcSay code={
+        v := tell(argument);
+        m := *v["matched"]; c := *v["consumed"];
+        cerr "LCDRIVE " argument " matched= " m " consumed= " c:;
+        };
+    lcClass code={
+        r := Grokking[argument];
+        modsOf(*r);
+        };
+    ;
+cerr "LC OLD ROAD":;
+lcSay("SetBrackets [abc]");
+lcSay("SetBrackets []");
+lcSay("Braced [1]");
+lcSay("QuotE 'abc'");
+parser(DO);
+cerr "LC NEW ROAD":;
+lcClass("rightBrace");
+lcSay("SetBrackets [abc]");
+lcSay("SetBrackets []");
+lcSay("Braced [1]");
+lcSay("QuotE 'abc'");
+cerr "LEAFCLASST SENTINEL":;
+stop();
+
+leafClassT -- OBJECT MODEL STROKE 1b (F-O23): A LEAF'S PARSE METHOD IS WHAT THE RULE IMPLIES, NOT WHAT
+THE FIRST REFERENCE WALKED SAYS.
+
+setParseWalk used to classify a leaf from the reference it happened to reach first -- reading that
+reference's { } (rStuff.overTo) -- and install the answer on the rule's SHARED body, where every other
+reference then used it. With Limit's plain `rightBrace-` walked first, SetBrackets' `rightBrace}` lost
+its up-to on the new road ([abc] 0/0); with Limit gone, Braced's `rightBrace` gained one ([1] 1/2).
+After the stroke the rule's method is rule-level (rightBrace is a literal: parseString), and the
+dispatch (driveStep, runLeafParse) asks the REFERENCE first: its own { } means parse up-to.
+
+LC OLD ROAD   the four drives on the interpretive parse -- the answers the new road must equal.
+LC NEW ROAD   after parser(DO): rightBrace's classification, then the same four drives.
+              want: rightBrace's bodyMethod parseString; SetBrackets [abc] 1/5, [] 1/2; Braced [1] 1/3; QuotE 'abc' 1/5.
+QuotE's `quoteBody}=tik` is the other case: an inline DEFINITION whose own { } is the rule's fact, so
+its classification keeps parseUpTo.
+H7: restore the walk's instance read (drop `&& !field.isCopy`) and SetBrackets [abc] goes red again.
+The Limit control: the same rows, identical with Limit and without it (branch retire-limit).

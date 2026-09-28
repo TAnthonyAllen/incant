@@ -5400,6 +5400,23 @@ kindRow "omModT OM-2 plain OmA in OmN carries none of the three" "$(omv OmA OmN 
 omd () { grep "^OMDRIVE  $1 matched=" "$T/om.e" | awk '{print $5"/"$7}'; }
 kindRow "omModT OM-3 drives OmP ap / OmQ aq / OmU au / OmN an / OmN xn" "$(omd 'OmP ap') $(omd 'OmQ aq') $(omd 'OmU au') $(omd 'OmN an') $(omd 'OmN xn')" "1/2 1/2 1/2 1/2 0/0"
 
+#  ---------------------------------------------------------------------------
+#  leafClassT -- OBJECT MODEL STROKE 1b (F-O23): A LEAF'S PARSE METHOD IS WHAT THE RULE IMPLIES. The walk
+#  used to classify a leaf from the FIRST reference it reached (its { }) and install that on the shared
+#  body, so which reference was walked first decided every reference's parse. Born RED on trunk:
+#  SetBrackets [abc] read 0/0 on the new road (Limit's plain rightBrace- walked first); with Limit gone,
+#  Braced [1] read 1/2 instead. H7: drop `&& !field.isCopy` in setParseWalk and LC-2 goes red.
+run2 leafClassT "$T/lc.o" "$T/lc.e"; check "leafClassT runs" 0 $?
+sentinel "leafClassT sentinel" "$T/lc.e" "LEAFCLASST SENTINEL"
+lcd () { awk -v want="$1" '/^LC NEW ROAD/{nr=1} /^LCDRIVE/ { line=$0; sub(/^LCDRIVE  /,"",line); split(line,a," matched="); if (a[1]==want) { if (nr) nw=$(NF-2)"/"$NF; else od=$(NF-2)"/"$NF } } END { print od" "nw }' "$T/lc.e"; }
+kindRow "leafClassT LC-1 rightBrace's shared body method is the rule's: a literal" "$(grep -oE 'MODSOF rightBrace in Grokking .*bodyMethod=[a-zA-Z]+' "$T/lc.e" | sed 's/.*bodyMethod=//')" "parseString"
+kindRow "leafClassT LC-2 SetBrackets [abc]: old road / new road (rightBrace} parses up-to)" "$(lcd 'SetBrackets [abc]')" "1/5 1/5"
+kindRow "leafClassT LC-3 SetBrackets []: old road / new road" "$(lcd 'SetBrackets []')" "1/2 1/2"
+kindRow "leafClassT LC-4 Braced [1]: old road / new road (plain rightBrace keeps its ])" "$(lcd 'Braced [1]')" "1/3 1/3"
+#  LC-5 PINNED AT A KNOWN DIVERGENCE, not a pass: QuotE 'abc' reads 0/0 on the new road and did so on trunk
+#  before stroke 1b too (F-O25, 2026-09-28) -- a move here in EITHER direction is news.
+kindRow "leafClassT LC-5 QuotE 'abc': old road / new road -- PINNED DIVERGENCE (F-O25)" "$(lcd "QuotE 'abc'")" "1/5 0/0"
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi
