@@ -274,7 +274,8 @@ use NewGroup
             parent      = null; }
         if currentRegistry {
             if currentRegistry.isRule {
-                NewGroup = currentRegistry += NewGroup;
+                // noSatellite a later definition of an entry ALREADY in this registry fills the entry itself -- re-adding a parented node mints a copy that put() never lists, and the terms would be parented to it (F-O32)
+                if NewGroup.parent != currentRegistry   NewGroup = currentRegistry += NewGroup;
                 if !binType     isRule = true;
                 if !rStuff      rStuff = new(NewGroup);
                 // ⚠ THE PRODUCER OWNS THE INVARIANT: every live rule carries rStuff. Assert here,
@@ -282,7 +283,7 @@ use NewGroup
                 if !rStuff  cerr "REGISTER: INVARIANT BROKEN -- " NewGroup.tag " promoted to a rule in registry " currentRegistry.tag " but carries no rStuff. Every live rule must carry rStuff (Mark 3); downstream guards will now read this broken rule as a lawful specimen.":; }
             or registry != currentRegistry
                 if currentDefine == NewGroup ||  !currentDefine || !currentDefine.addingMembers
-                    NewGroup = currentRegistry += NewGroup; }}
+                    if NewGroup.parent != currentRegistry   NewGroup = currentRegistry += NewGroup; }}
         if !isRule  rStuff = 0;
        /***********************************************************************
             Process Attributes.
