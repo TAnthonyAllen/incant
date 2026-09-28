@@ -472,3 +472,50 @@ rule-side `isMacro` is a match modifier, live on every string literal in every r
 RR1 (to `onGroup = grup;` unconditionally), RR2 and RR3 removed, rebuilt bare: **`pop.sh` 815 -> 36
 green**; `oneTest`, `jsonTest`, `baselineTests` and nearly every fixture **exit 139**. Reverted and
 rebuilt: 815 / 1, row for row (one heap address in `acceptStartT` differs); canary 313 + 21 + 42.
+
+---
+
+## 13. Stroke 3 pre-build checks (2026-09-28, trunk `8a4eeab`, SEQ 219)
+
+Instrument: `incant/pop/actorOrderT`'s walk (every Grokking entry, its children in list order), run at
+rest and again after `parser(Start)`; classified in shell by tag, because a captured `noPrinT` in kant
+compares as a holder (bear-trap 55) and printing it echoes a tag (41).
+
+### 13.1 `tempField` is a LOCAL, and it never sits on a rule list
+
+Two writers, both `isLocal` + `noPrint`: `compile` (`Commands.rtn:75-80`) puts `this` and `tempField` on
+the generated **`CodE`** (inside the carrier), and `aCTionDefinE` (`ruleActions.rtn:334-341`) puts them
+on the **action**. Both are frame slots the body's names resolve against. The global `ruler.tempField`
+(arithmetic scratch; `processAction` saves and restores it) is a third thing with the same name. **No
+Grokking rule list carries `tempField` or `this`** at rest or after `parser(Start)`. Under "rule lists
+plus artifacts only; locals stay", `tempField` stays where it is.
+
+### 13.2 What is on rule lists
+
+| | at rest | after `parser(Start)` |
+|---|---|---|
+| children on the 85 Grokking entries | 280 | 336 |
+| `builtinActoR` | 33 | 33 |
+| `builtinParseR` | 0 | **56** (the only change) |
+| `BlocK` | 1 -- a **real term** (see 13.3) | 1 |
+| `CodE`, `pendingParseR`, `frameSTAK`, `tempField`, `this` | 0 | 0 |
+
+`CodE`, `BlocK` and the locals sit one level down, inside the carriers. `frameSTAK` appears only
+after an action compile (recon 9.3: 19 rules, via `driveCompileT`), which this walk does not drive.
+
+### 13.3 Collision census: ONE, and it is `BlocK`
+
+`BlocK` is a grammar rule (`incant/grammar:116`) and a real term of `StatemenT` (`:178`), and it is
+also the artifact name `attachBlocK` writes. `CodE` has no grammar twin. **The live hazard:**
+`actionHolder()` returns the rule itself when its actor carries no `CodE` -- true for every rule whose
+action is a C function, `StatemenT` included -- so `actionBlocK()` on `StatemenT` is
+`getAttribute("BlocK")` on a list that holds the grammar term. After the split, a term-first `get()`
+would still answer the term. **So artifact accessors (`actionBlocK`, `parseBlocK`, `actionBody`,
+`parseBody`, the two holders, `attachBlocK`) must read the property list only**, not the shared `get()`.
+
+### 13.4 The 317 oracle is not yet independent
+
+317 (and 792) came from recon 9's lldb walker, which descends into inline sub-terms and stops at
+shared bodies. This walk's top-level population is 280 at rest, of which 33 actors, so **247 top-level
+terms**. A count "from the grammar text" needs a text parse of `incant/grammar` plus the `GroupMain`
+bootstrap (whose rules have inert mirror lines in the text). It is not built.
