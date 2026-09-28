@@ -25,7 +25,6 @@
   COMPILES  InvokE
   COMPILES  IterSource
   COMPILES  Iterate
-  COMPILES  Limit
   COMPILES  Looper
   COMPILES  MemberS
   LEAF      Modifier
@@ -60,4 +59,4 @@
   LEAF      numberSet
   LEAF      return
   LEAF      rightCurly
-PARSER COVERAGE -- 62 rules: 46 generate a body, 46 of them compile; 14 leaves; 0 crashed
+PARSER COVERAGE -- 61 rules: 45 generate a body, 45 of them compile; 14 leaves; 0 crashed

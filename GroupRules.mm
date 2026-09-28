@@ -1410,24 +1410,23 @@ endToken:
 
 /*******************************************************************************
 	Immediate method for the TraiT rule that defines an attribute. It can be
-        TraiTdata="="       DatA Modifier? Limit?;
-        TraiT               NamE@ Modifier? Limit? TraiTdata? TraiTlist?;
+        TraiTdata="="       DatA Modifier?;
+        TraiT               NamE@ Modifier? TraiTdata? TraiTlist?;
 *******************************************************************************/
 extern "C" GroupItem *aCTionTraiT(GroupItem *input)
 {
 GroupItem 	*upFlags = 0;
 GroupItem 	*Modifier = input->getLabelGroup("Modifier");
-GroupItem 	*Limit = input->getLabelGroup("Limit");
 GroupItem 	*TraiTdata = input->get("TraiTdata");
 GroupItem 	*trait = input->get(1);
 	/***************************************************************************
-	A trait value can be a group or a literal. Limit and Modifier are passed
+	A trait value can be a group or a literal. Modifier is passed
 	to trait to be handled in DefinE. Same applies to TraiTdata.
 	***************************************************************************/
 	input->clearList();
 	if ( isGROUP(trait->groupBody->flags.data) )
 		trait = trait->getGroup();
-	if ( Modifier || Limit )
+	if ( Modifier )
 		{
 		trait->options.affiliation = 1;
 		if ( trait->getRStuff() )
@@ -1452,8 +1451,6 @@ GroupItem 	*trait = input->get(1);
 	// wideValueRepeats a repeated value wider than a character lost its max in setContent, so the repetition lands on the trait
 	if ( upFlags && TraiTdata->groupBody->flags.data > 3 && !isGROUP(TraiTdata->groupBody->flags.data) )
 		::modifyClass(trait,upFlags->getText(),1);
-	if ( Limit )
-		::setLimits(trait,Limit);
 	input->setGroup(trait);
 	return input;
 }
@@ -1466,10 +1463,9 @@ extern "C" GroupItem *aCTionTraiTdata(GroupItem *input)
 int 		repeated = 0;
 GroupItem 	*upMark = 0;
 GroupItem 	*Modifier = input->getLabelGroup("Modifier");
-GroupItem 	*Limit = input->getLabelGroup("Limit");
 GroupItem 	*DatA = input->getLabelGroup("DatA");
 	input->clear();
-	if ( Modifier || Limit )
+	if ( Modifier )
 		{
 		DatA->options.affiliation = 1;
 		if ( DatA->getRStuff() )
@@ -1481,16 +1477,12 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 		// modifierRidesUp repetition lands on the DATA only; applying it to the trait as well repeats TWICE
 		if ( Modifier )
 			::modifyClass(DatA,Modifier->getText(),1);
-		if ( Limit )
-			::setLimits(DatA,Limit);
 		DatA->groupBody->flags.isRule = 1;
 		}
 	// valueRepeats a value may carry + or *; a character or set repeats in its scanner, anything wider repeats on the trait
 	repeated = 0;
 	if ( Modifier )
 		repeated = ::hasRepeatClass(Modifier->getText());
-	if ( Limit )
-		repeated = 1;
 	// modifierRidesUp the flags ride up as a noPrint ARTIFACT, never as a term
 	if ( Modifier )
 		input->addAttribute(Modifier);
@@ -9031,7 +9023,7 @@ int 		more = 0;
 			if ( !*ruler->atRuleMark )
 				break;
 			}
-		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+		if ( more && ruleStuff->max > 1 )
 			::reportMaxLimit(field);
 		else
 		if ( counter && counter >= ruleStuff->min )
@@ -9071,7 +9063,7 @@ int 		more = 0;
 			if ( !*ruler->atRuleMark )
 				break;
 			}
-		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+		if ( more && ruleStuff->max > 1 )
 			::reportMaxLimit(field);
 		else
 		if ( counter && counter >= ruleStuff->min )
@@ -9315,7 +9307,7 @@ int 		more = 0;
 			if ( !*ruler->atRuleMark )
 				break;
 			}
-		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+		if ( more && ruleStuff->max > 1 )
 			::reportMaxLimit(field);
 		else
 		if ( counter && counter >= ruleStuff->min )
@@ -10068,7 +10060,7 @@ int 		failOffset = -1;
 	report->addAttribute(num);
 }
 
-// reportMaxLimit a match hit the maxLimit ceiling with input still matching -- REFUSE rather than truncate; callers gate on max > 1 && !limitsSet
+// reportMaxLimit a match hit the maxLimit ceiling with input still matching -- REFUSE rather than truncate; callers gate on max > 1
 extern "C" int reportMaxLimit(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -10529,21 +10521,6 @@ extern "C" GroupItem *setInternalType(GroupItem *grup)
 		::fprintf(stderr,"ERROR setInternalType: failed for %s\n",grup->groupBody->tag);
 	else	::fprintf(stderr,"ERROR setInternalType: failed because no argument provided\n");
 	return 0;
-}
-
-// setLimits set a rule's min and max from its limits; limitsSet marks a max the grammar asked for, which is what reportMaxLimit gates on
-extern "C" void setLimits(GroupItem *rule, GroupItem *limits)
-{
-RuleStuff 	*ruleStuff = rule->getRStuff();
-GroupItem 	*maximum = limits->getAttribute("max");
-GroupItem 	*minimum = limits->getAttribute("min");
-	ruleStuff->min = minimum->getCount();
-	if ( maximum )
-		{
-		ruleStuff->max = maximum->getCount();
-		ruleStuff->maxRepeat = maximum->getCount();
-		ruleStuff->limitsSet = 1;
-		}
 }
 
 /*****************************************************************************

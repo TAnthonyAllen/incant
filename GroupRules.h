@@ -391,7 +391,6 @@ extern "C" int setCompiledMethod(GroupItem *block, char *name);
 extern "C" void setFile(GroupItem *bufField, char *name);
 extern "C" GroupItem *setFileOp(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *setInternalType(GroupItem *grup);
-extern "C" void setLimits(GroupItem *rule, GroupItem *limits);
 extern "C" GroupItem *setMark(GroupItem *argument);
 extern "C" GroupItem *setParse(GroupItem *field);
 extern "C" GroupItem *setParseWalk(GroupItem *field);

@@ -159,25 +159,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	strap->setRuleStuff();
 	strap = grok->addMember(strap);
 	strap->setCharacterSet(new PLGset("-~+?!%&|*@_<^{}$"));
-	strap = new GroupItem("Limit");
-	strap->setRuleStuff();
-	strap = grok->addMember(strap);
-	item = strap->addAttribute(grok->getMember("leftBrace"));
-	::modify(item,"-");
-	item = new GroupItem("min");
-	item = strap->addAttribute(item);
-	item->setRuleStuff();
-	item->embedRule(grok->getMember("counter"));
-	item = item->getGroup();
-	::modify(item,"+");
-	item = new GroupItem("max");
-	item = strap->addAttribute(item);
-	item->setRuleStuff();
-	item->embedRule(grok->getMember("counter"));
-	item = item->getGroup();
-	::modify(item,"*");
-	item = strap->addAttribute(grok->getMember("rightBrace"));
-	::modify(item,"-");
 	strap = grok->addMember(new GroupItem("Any"));
 	strap->groupBody->flags.data = 1;
 	strap->setRuleStuff();
@@ -313,9 +294,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item = grok->getMember("Modifier");
 	item = strap->addAttribute(item);
 	::modify(item,"*");
-	item = grok->getMember("Limit");
-	item = strap->addAttribute(item);
-	::modify(item,"?");
 	/*************************************************************************
 	DefinE stub to be added to a little further down
 	*************************************************************************/
@@ -336,9 +314,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	item = grok->getMember("Modifier");
 	item = strap->addAttribute(item);
 	::modify(item,"*");
-	item = grok->getMember("Limit");
-	item = strap->addAttribute(item);
-	::modify(item,"?");
 	item = grok->getMember("TraiTdata");
 	item = strap->addAttribute(item);
 	::modify(item,"?");
@@ -428,7 +403,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	/*************************************************************************
 	The hand-built bootstrap rules above never go through aCTionDefinE, so
 	they never get its define-time materialisation. Several of them add
-	terms with no modify() call at all (Limit's "[" and "]"), which is why
+	terms with no modify() call at all (the retired Limit's "[" and "]"), which is why
 	those terms had no rStuff and genParse refused them. One pass here, over
 	the rules built above, before setup is parsed -- rules defined IN setup
 	come through aCTionDefinE and are already covered.

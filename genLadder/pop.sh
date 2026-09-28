@@ -1587,10 +1587,13 @@ sentinel "traitFlagsT sentinel (no truncation)" "$T/tf" "TRAITFLAGS SENTINEL"
 #  holders that are direct Grokking children, went from a group slot and no attributes
 #  to one attribute each; TF-1 and TF-5 are unmoved, so the population and the
 #  disagreement are unchanged.
-for _arm in "TF-1 rules seen                   =  86" \
-            "TF-2 carrying hasAttributeS       =  51" \
-            "TF-3 carrying hasTraitS           =  49" \
-            "TF-4 carrying BOTH                =  49" \
+#  RE-PINNED 2026-09-28 (the Limit retirement): TF-1 86 -> 85 and TF-2/3/4 each -1 -- Limit was a Grokking
+#  rule carrying attributes and traits (leftBrace, min, max, rightBrace), and it is gone; TF-5 and TF-6 are
+#  unmoved, so no other rule changed shape.
+for _arm in "TF-1 rules seen                   =  85" \
+            "TF-2 carrying hasAttributeS       =  50" \
+            "TF-3 carrying hasTraitS           =  48" \
+            "TF-4 carrying BOTH                =  48" \
             "TF-6 no attributes                =  35" \
             "TF-5 the two flags DISAGREE on    =  2"; do
     if grep -qF "$_arm" "$T/tf"; then
@@ -5014,7 +5017,9 @@ else echo "  FAIL  driveCompileT C: $(grep -E '^EXDRIVE|REFUSED' "$T/dc.e" | tr 
 #  now names each rule by SUBSCRIPT. `parser(break)` named a keyword, so break, continue and
 #  return were never reached on trunk and were REFUSED by parse-then-fire's keyword check.
 sh genLadder/parserCoverage.sh 2>&1 | grep -v '^  bin ' > "$T/pcov"
-diffcheck "parserCoverage.target (parser() over the whole grammar: 46 compile of 62)" genLadder/parserCoverage.target "$T/pcov"
+#  RE-PINNED 2026-09-28 (the Limit retirement): 62 -> 61 rules and 46 -> 45 compiling bodies -- the one line
+#  gone is `COMPILES  Limit`; every other rule reads exactly as before.
+diffcheck "parserCoverage.target (parser() over the whole grammar: 45 compile of 61)" genLadder/parserCoverage.target "$T/pcov"
 
 #  ⚑ trigDO -- THE NEW PARSE ROAD'S FIRST STANDING COVERAGE. Until 2026-09-09
 #  NO FLEET FIXTURE REACHED parseRule AT ALL: the 09-08 H7 control forced
@@ -5390,7 +5395,9 @@ sentinel "omModT sentinel" "$T/om.e" "OMMODT SENTINEL"
 omv () { grep "^MODSOF $1 in $2 " "$T/om.e" | sed -n "s/.* $3=\([0-9-]*\).*/\1/p" | head -1; }
 kindRow "omModT OM-1 SetBrackets' rightBrace} is unguarded on its own instance" "$(omv rightBrace SetBrackets modUnGuarded)/$(omv rightBrace SetBrackets isUnGuarded)" "1/1"
 kindRow "omModT OM-1 Braced's rightBrace is NOT unguarded (no leak)" "$(omv rightBrace Braced isUnGuarded)" "0"
-kindRow "omModT OM-1 Limit's rightBrace is NOT unguarded (no leak)" "$(omv rightBrace Limit isUnGuarded)" "0"
+#  RETIRED 2026-09-28 with the Limit rule itself: "omModT OM-1 Limit's rightBrace is NOT unguarded (no
+#  leak)" -- the reference no longer exists. Its assertion lives on in the Braced row above, which asks the
+#  same question of the other non-declaring reference to the same shared body.
 kindRow "omModT OM-2 OmA% : modPercent on the instance, body pct untouched" "$(omv OmA OmP modPercent)/$(omv OmA OmP pct)" "1/0"
 kindRow "omModT OM-2 OmA& : modPointer on the instance, body ptr untouched" "$(omv OmA OmQ modPointer)/$(omv OmA OmQ ptr)" "1/0"
 kindRow "omModT OM-2 OmA_ : modUnGuarded on the instance, and isUnGuarded reads it" "$(omv OmA OmU modUnGuarded)/$(omv OmA OmU isUnGuarded)" "1/1"

@@ -776,7 +776,7 @@ int         driveLen = strlen(driveBase),
 }
 
 
-// reportMaxLimit a match hit the maxLimit ceiling with input still matching -- REFUSE rather than truncate; callers gate on max > 1 && !limitsSet
+// reportMaxLimit a match hit the maxLimit ceiling with input still matching -- REFUSE rather than truncate; callers gate on max > 1
 extern int reportMaxLimit(GroupItem field)
 {
 GroupRules  ruler = groupRules;
@@ -1024,20 +1024,6 @@ void*       methodAddress;
         else cerr :`"setCompiledMethod: ERROR no method found",name;
     cerr :`"setCompiledMethod: failed for",block.tag:;
     return false;
-}
-
-
-// setLimits set a rule's min and max from its limits; limitsSet marks a max the grammar asked for, which is what reportMaxLimit gates on
-extern void setLimits(GroupItem rule,GroupItem limits)
-{
-RuleStuff   ruleStuff = rule.rStuff;
-GroupItem   maximum = limits%"max";
-GroupItem   minimum = limits%"min";
-    min             = minimum.count;
-    if maximum {
-        max         = maximum.count;
-        maxRepeat   = maximum.count;
-        limitsSet   = true; }
 }
 
 

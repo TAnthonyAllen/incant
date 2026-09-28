@@ -85,7 +85,7 @@ int         more;
             counter++;
             atRuleMark++;
             if !*atRuleMark break; }
-        if more && max > 1 && !limitsSet   reportMaxLimit(field);
+        if more && max > 1  reportMaxLimit(field);
         or counter && counter >= min {
             if label    label.setToken(hereAt,counter);
             sukcess     = true; }}
@@ -110,7 +110,7 @@ int         more;
             counter++;
             atRuleMark++;
             if !*atRuleMark break; }
-        if more && max > 1 && !limitsSet   reportMaxLimit(field);
+        if more && max > 1  reportMaxLimit(field);
         or counter && counter >= min {
             if label    label.setToken(hereAt,counter);
             sukcess     = true; }}
@@ -304,7 +304,7 @@ int         more;
             counter++;
             atRuleMark++;
             if !*atRuleMark break; }
-        if more && max > 1 && !limitsSet   reportMaxLimit(field);
+        if more && max > 1  reportMaxLimit(field);
         or counter && counter >= min {
             if label    label.setToken(hereAt,counter);
             sukcess     = true; }}
