@@ -423,3 +423,52 @@ Zero `GroupBody` references in `GUI/`, `GUI/Stuff/`, `Tests/` generated files; *
 ### 11.7 Expected line-count delta -- THE PREDICTION
 
 **On the 39-function parse metric: ≈ −1** -- of the retiring skippers only `testAttributes`' line is on the list; `get()` and the other skippers are not. **Stroke 3 will not visibly shrink the metric**, because its savings live outside the functions the metric counts. **Tree-wide:** −9 to −11 tok skipper lines and ≈ −20 kant lines, against the property list's own cost (a `GroupBody` list field, `get()` searching two lists, accessors: ≈ +10-15) -- **net ≈ −15 to −20 tree-wide.** If the stroke is to be judged by shrinkage, the metric needs a second column that covers the skippers.
+
+---
+
+## 12. Stroke A step 0: the `isMacro` census (2026-09-28, trunk `e680c77`, SEQ 218)
+
+Measured, not read: a temporary build (every site logs to a scratch file; reverted, the retok came back
+byte-identical to HEAD) run across the whole `pop.sh` fleet, **253 processes**. Each site logs its
+first arrival per process as a positive control, then every hit.
+
+### 12.1 Writers
+
+| # | site | meaning | fleet |
+|---|---|---|---|
+| W1 | `modify()`'s `$` arm, `GroupActions.rtn:549` | a reference's `$` modifier | **253 -- once per process**: the bootstrap `modify(item,"$")`, `GroupMain.twk:205`, on QuotE's inner `tik` (grammar line `QuotE tik=['"] quoteBody}=tik$@;`) |
+| W2 | the `macro` flag command, `Commands.rtn:513` | a macro definition | **0** |
+
+### 12.2 Readers
+
+| # | site | class | arrivals | hits |
+|---|---|---|---|---|
+| RR1 | `getWhatFollows`, `RuleStuff.twk:151` -- `if grup.isMacro hasMacro = true; else onGroup = grup;` | **rule** | 253 | **253 -- one per process** (quoteBody, whose group datum is the `$`-marked `tik`) |
+| RR2 | `setTestMatch`, `RuleStuff.twk:176` -- `or isMacro testMatch = setMacroValue;` | **rule** | 253 | **0** |
+| RR3 | `parse()`, `GroupItem.twk:1366` -- `if hasMacro setMacroValue(this);` (the `isMacro` meaning carried in `RuleStuff.hasMacro`, whose only writer is RR1) | **rule** | 253 | **37,200** |
+| -- | `setMacroValue`, `RuleStuff.twk:204` -- copies the nearest ancestor label's same-tag data into the macro | rule (the consumer of RR2/RR3) | -- | -- |
+| NR1 | `aCTionDefinE`, `ruleActions.rtn:312` -- attributes of a macro definition are `noPrint` | non-rule | -- | **0** |
+| NR2 | `aCTionDefinE`, `ruleActions.rtn:343` -- a macro's `CodE` kept as text | non-rule | -- | **0** |
+| NR3 | `aCTionDefinE`, `ruleActions.rtn:350` -- "a macro definition must have code" | non-rule | not instrumented | needs a define-time `isMacro`, and W2 fired 0 |
+| K | `incant/setup:301` `isMacrO` | kant accessor | **unnumbered** (no `opDot` case), no kant reader | -- |
+
+**Rule side 3 live readers (RR1 253, RR3 37,200), non-rule 3 (0 hits).**
+
+### 12.3 The 07-28 count, re-taken
+
+The 07-28 census classified terms by `setTestMatch` arm and read **0** in the `isMacro` row. Re-taken
+today: **RR2 still reads 0.** But that census could not see the live specimen: the `$` sits on
+quoteBody's **group datum** (`tik`), not on a term, so it is read by RR1, not RR2.
+
+### 12.4 What `$` does in the grammar: a back-reference
+
+`quoteBody}=tik$` means *up to and over a `tik` that matches the SAME character the opening `tik`
+matched*. RR1 raises `hasMacro` on quoteBody; RR3 calls `setMacroValue` on every iteration, which copies
+the opening quote's label data into the closing `tik`, so `"it's"` ends at `"` and not at `'`. **So the
+rule-side `isMacro` is a match modifier, live on every string literal in every run.**
+
+### 12.5 The strip, measured and reverted
+
+RR1 (to `onGroup = grup;` unconditionally), RR2 and RR3 removed, rebuilt bare: **`pop.sh` 815 -> 36
+green**; `oneTest`, `jsonTest`, `baselineTests` and nearly every fixture **exit 139**. Reverted and
+rebuilt: 815 / 1, row for row (one heap address in `acceptStartT` differs); canary 313 + 21 + 42.
