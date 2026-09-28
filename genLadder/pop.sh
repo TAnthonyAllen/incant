@@ -1778,6 +1778,10 @@ else
     echo "        DEAD and every row below it is uninterpretable, not merely red."
     fail=1
 fi
+#  RE-AIMED 2026-09-28 (object model stroke 2): RULEDISPATCH's `isRule=` now prints isRuleTerm() -- the
+#  instance's rule-term fact, else the body's isRule -- because after stroke 2 the keyword master `search`
+#  no longer carries isRule on its body, while the reference being dispatched still takes part as a rule
+#  term. The row asks the dispatch question, so it reads the predicate the dispatch reads.
 for _t in search followedBy GrouP SemI; do
     if _snprow "$_t" | grep -q "isRule=1"; then
         echo "  ok    searchNewParseT SNP term \`$_t\` dispatched, isRule=1"; green=$((green+1))
@@ -1918,9 +1922,16 @@ done
 #  RE-PINNED 2026-09-26 (SEQ 191): the "unconsumed" column is GONE -- it counted parseMethod=/
 #  parseTerms= attributes surviving as terms, and that install vocabulary was deleted with the
 #  C++ emitter. The other three columns are unchanged.
-AUDITLINE="AUDIT all registries: 6 missing rules, 0 missing terms, 4 loose"
+#  RE-PINNED 2026-09-28 (object model stroke 2): loose 4 -> 22, and this is the STROKE'S INTENDED EFFECT.
+#  The nine keyword masters Keywords/debug, do, else, for, if, or, print, search, while read isRule only
+#  because a rule's COPY of each had written it onto the body they share; stroke 2 puts that fact on the
+#  copy's rStuff (ruleTerm), so each master now reads "not a rule, not a rule term, has rStuff" -- counted
+#  twice, as a registry entry and as a Keywords member: 4 + 18 = 22. The audit's term tests read
+#  isRuleTerm(), so a rule's references to them (IF [1] if, ...) are rule terms and are NOT counted.
+#  Missing rules (6: ColoN, EquaL, break, continue, return, SearchList/Grokking) is unchanged.
+AUDITLINE="AUDIT all registries: 6 missing rules, 0 missing terms, 22 loose"
 if grep -qF "$AUDITLINE" "$T/one"; then
-    echo "  ok    bare-master population AT PIN (isRule without rStuff = 6, loose = 4)"; green=$((green+1))
+    echo "  ok    bare-master population AT PIN (isRule without rStuff = 6, loose = 22)"; green=$((green+1))
 else
     echo "  FAIL  bare-master population MOVED (row pinned 2026-09-01, NOT a defect count):"
     grep "^AUDIT all registries" "$T/one" | sed 's/^/          actual:   /' || echo "          (no AUDIT summary at all -- is audit() still called from oneTest?)"
@@ -5421,6 +5432,19 @@ kindRow "leafClassT LC-4 Braced [1]: old road / new road (plain rightBrace keeps
 #  LC-5 PINNED AT A KNOWN DIVERGENCE, not a pass: QuotE 'abc' reads 0/0 on the new road and did so on trunk
 #  before stroke 1b too (F-O25, 2026-09-28) -- a move here in EITHER direction is news.
 kindRow "leafClassT LC-5 QuotE 'abc': old road / new road -- PINNED DIVERGENCE (F-O25)" "$(lcd "QuotE 'abc'")" "1/5 0/0"
+
+#  ---------------------------------------------------------------------------
+#  ruleTermT -- OBJECT MODEL STROKE 2: "this term takes part as a rule term" is the REFERENCE'S fact (rStuff
+#  ruleTerm), never the shared body's. Born RED on the writers-reverted build (the three copy-writers put
+#  isRule back on the body): RT-1 and RT-2's masters read bodyIsRule 1. RT-3 is 0/0 on both builds.
+run2 ruleTermT "$T/rt.o" "$T/rt.e"; check "ruleTermT runs" 0 $?
+sentinel "ruleTermT sentinel" "$T/rt.e" "RULETERMT SENTINEL"
+rtv () { grep "^MODSOF $1 in $2 " "$T/rt.e" | sed -n 's/.* bodyIsRule=\([0-9]*\) isRuleTerm=\([0-9]*\).*/\1\/\2/p' | head -1; }
+kindRow "ruleTermT RT-1 Keywords/if's body (through IF's reference): bodyIsRule/isRuleTerm" "$(rtv if IF)" "0/1"
+kindRow "ruleTermT RT-2 RtL's master is not made a rule by RtR referencing it" "$(rtv RtL RtReg)" "0/0"
+kindRow "ruleTermT RT-2 RtR's reference to RtL takes part as a rule term" "$(rtv RtL RtR)" "0/1"
+kindRow "ruleTermT RT-3 RtN, referenced by nothing (negative control)" "$(rtv RtN RtReg)" "0/0"
+kindRow "ruleTermT RT-4 leftBrace is a rule by REGISTRATION (no punctuation master was this leak's subject)" "$(rtv leftBrace Grokking)" "1/1"
 
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"

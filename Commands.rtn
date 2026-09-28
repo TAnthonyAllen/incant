@@ -63,7 +63,7 @@ GroupItem   code,
     grup    = 0;
     while grup = field.next(grup)
         if grup.noPrint     continue;
-        or grup.isRule      code +% grup;
+        or grup.isRuleTerm()      code +% grup;
     // compileAddTempFields this and tempField -- named on grup, not bare: a declaration above re-points bare names (bear-trap #42)
     grup                = new("this");
     grup.isLocal        = true;

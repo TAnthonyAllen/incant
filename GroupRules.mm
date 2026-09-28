@@ -471,9 +471,18 @@ GroupItem 	*item = 0;
 				if ( NewGroup->groupBody->flags.isMacro )
 					item->groupBody->flags.noPrint = 1;
 				item->groupBody->flags.isInitialized = 1;
-				if ( NewGroup->groupBody->flags.isRule && !item->groupBody->flags.binType && !item->groupBody->flags.isRule )
-					item->groupBody->flags.isRule = 1;
-				if ( item->groupBody->flags.isRule )
+				// memberIsATerm a propagated COPY takes part as a rule term on its own rStuff, never the shared body (stroke 2)
+				if ( NewGroup->groupBody->flags.isRule && !item->groupBody->flags.binType && !item->isRuleTerm() )
+					{
+					if ( item->options.isCopy )
+						{
+						if ( !item->getRStuff() )
+							item->setRStuff(new RuleStuff(item));
+						item->getRStuff()->ruleTerm = 1;
+						}
+					else	item->groupBody->flags.isRule = 1;
+					}
+				if ( item->isRuleTerm() )
 					if ( !item->getRStuff() )
 						item->setRStuff(new RuleStuff(item));
 					else {
@@ -522,7 +531,7 @@ GroupItem 	*item = 0;
 		while ( item = MemberS->next(item) )
 			{
 			GroupItem 	*newMember = NewGroup->addMember(item);
-			if ( newMember->groupBody->flags.isRule && newMember->getRStuff() && (!newMember->groupBody->flags.data || newMember->groupBody->flags.data > 3) )
+			if ( newMember->isRuleTerm() && newMember->getRStuff() && (!newMember->groupBody->flags.data || newMember->groupBody->flags.data > 3) )
 				if ( newMember->getRStuff()->max != 1 || newMember->getRStuff()->min != 1 )
 					{
 					RuleStuff 	*fresh = new RuleStuff(newMember);
@@ -1047,7 +1056,7 @@ GroupItem 	*rule = input->get(1);
 			if ( argument = InvokE->get(1) )
 				if ( isGROUP(argument->groupBody->flags.data) )
 					argument = argument->getGroup();
-		if ( !rule->groupBody->flags.isRule )
+		if ( !rule->isRuleTerm() )
 			{
 			input->addMember(rule);
 			if ( isMethod(rule->groupBody->flags.instructType) )
@@ -1477,7 +1486,9 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 		// modifierRidesUp repetition lands on the DATA only; applying it to the trait as well repeats TWICE
 		if ( Modifier )
 			::modifyClass(DatA,Modifier->getText(),1);
-		DatA->groupBody->flags.isRule = 1;
+		if ( DatA->options.isCopy )
+			DatA->getRStuff()->ruleTerm = 1;
+		else	DatA->groupBody->flags.isRule = 1;
 		}
 	// valueRepeats a value may carry + or *; a character or set repeats in its scanner, anything wider repeats on the trait
 	repeated = 0;
@@ -1494,7 +1505,7 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 	if ( upMark )
 		upMark->setRStuff((RuleStuff*)0);
 	// scannerKeepsDatA a repeated character or set stays a group so DatA's rStuff -- its max -- survives
-	if ( (DatA->groupBody->flags.isRule && (!DatA->groupBody->flags.isLiteral || (repeated == 1 && DatA->groupBody->flags.data <= 3))) || DatA->groupBody->registry == GroupControl::groupController->groupRules->opFields )
+	if ( (DatA->isRuleTerm() && (!DatA->groupBody->flags.isLiteral || (repeated == 1 && DatA->groupBody->flags.data <= 3))) || DatA->groupBody->registry == GroupControl::groupController->groupRules->opFields )
 		input->setGroup(DatA);
 	else	input->setContent(DatA);
 	return input;
@@ -1824,7 +1835,7 @@ GroupItem 	*holder = 0;
 		if ( grup->groupBody->flags.noPrint )
 			continue;
 		else
-		if ( grup->groupBody->flags.isRule )
+		if ( grup->isRuleTerm() )
 			code->addAttribute(grup);
 	// compileAddTempFields this and tempField -- named on grup, not bare: a declaration above re-points bare names (bear-trap #42)
 	grup = new GroupItem("this");
@@ -2310,7 +2321,7 @@ int 		found = 0;
 	visited++;
 	GroupList *kids = g->groupBody->groupList;
 	if ( !kids ) continue;
-	if ( g->groupBody->flags.isRule ) {
+	if ( g->isRuleTerm() ) {
 	checked++;
 	if ( ::dupTermRefusal(g) ) {
 	::fprintf(stderr,"DUPCENSUS offender %s\n",g->groupBody->tag);
@@ -7529,7 +7540,7 @@ GroupItem 	*product = 0;
 						product->setCount(1);
 					break;
 				case 23:
-					if ( target->groupBody->flags.isRule )
+					if ( target->isRuleTerm() )
 						product->setCount(1);
 					break;
 				case 24:
@@ -9231,7 +9242,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		if ( isAction(field->groupBody->flags.actionType) )
 			{
 			while ( grup = code->nextAttribute(grup) )
-				if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isRule && !grup->groupBody->flags.noPrint && grup->groupBody != field->groupBody )
+				if ( grup->groupBody->flags.isLocal && !grup->isRuleTerm() && !grup->groupBody->flags.noPrint && grup->groupBody != field->groupBody )
 					grup->clear();
 			// noArgumentOnARule a rule carries no argument slot (Tony, 2026-09-20; F-94) -- the return carries one bit
 			// labelReachesNothing myLabel is minted and goes nowhere until CT-5 gives it a channel
@@ -9554,7 +9565,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	GroupItem *kids[256]; int nk = 0; GroupItem *k = 0;
 	while ( (k = n->next(k)) && nk < 256 ) {
 	if ( k->groupBody->flags.noPrint ) continue;
-	if ( !k->groupBody->flags.isRule ) continue;
+	if ( !k->isRuleTerm() ) continue;
 	kids[nk++] = k; }
 	for ( int i = nk - 1; i >= 0 && sp < 4096; i-- ) stk[sp++] = kids[i]; }
 	::fprintf(stderr,"SWEEP BEGIN carriers=%d pairs=%d skip=%s\n",nc,np,skip);
@@ -10172,7 +10183,7 @@ extern "C" GroupItem *resolveName(char *arg, GroupItem *owner)
 	if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
 	if ( !(result && result->groupBody->registry == ruler->opFields) ) {
 	if ( result ) {
-	if ( owner->groupBody->flags.isRule && result->groupBody->flags.isRule ) {
+	if ( owner->isRuleTerm() && result->isRuleTerm() ) {
 	result = owner->addAttribute(grup);
 	result->groupBody->flags.isLocal = 1; }
 	else    result = owner->addAttribute(result); }
@@ -10358,7 +10369,7 @@ GroupItem 	*target = field->get(2);
 	if ( isMethod(op->groupBody->flags.instructType) )
 		result = op->groupBody->gMethod(target);
 	else
-	if ( target->groupBody->flags.isRule || (ruler->jitting && target->groupBody->flags.hasNewParse) )
+	if ( target->isRuleTerm() || (ruler->jitting && target->groupBody->flags.hasNewParse) )
 		{
 		
 		if ( ruler->jitting )   result = ::jitEmitTermCall(field);
@@ -10562,7 +10573,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	// tokenSkip a member with isRule 0 is a token -- matched, never entered; isRule 1 with no rStuff is a wound and refuses
 	if ( !ruleStuff )
 		{
-		if ( !field->groupBody->flags.isRule )
+		if ( !field->isRuleTerm() )
 			{
 			if ( GroupControl::groupController->groupRules->debugAllRules )
 				::fprintf(stderr,"setParseWalk: token %s, not entered\n",field->groupBody->tag);

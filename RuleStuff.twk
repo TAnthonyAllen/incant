@@ -41,6 +41,7 @@ boolean
     noSkip
     notifyFail
     overTo:2[upTo upToOver]
+    ruleTerm
     sukcess
     ;
 

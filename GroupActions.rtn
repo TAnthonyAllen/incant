@@ -935,7 +935,7 @@ GroupItem   result,
     // doorByRoad interpreted, runRule for isRule only; jitting, a term call for isRule OR hasNewParse, so no bin is parsed at emit time (F-123)
     if op.isOperator                result = op.operat(arg,target);
     or op.isMethod                  result = op.method(target);
-    or target.isRule || (jitting && target.hasNewParse) {
+    or target.isRuleTerm() || (jitting && target.hasNewParse) {
         -%
         if ( ruler->jitting )   result = ::jitEmitTermCall(field);
         else                  { ++gTermCallCount; result = ::runRule(arg,target); }
