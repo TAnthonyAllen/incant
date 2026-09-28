@@ -5464,6 +5464,22 @@ kindRow "actorOrderT AO-1 rules carrying a builtinActoR (non-zero sibling)" "${A
 AOB=${AO#*/}
 kindRow "actorOrderT AO-2 rules with a real term AFTER their builtinActoR (names follow if any)" "$AOB" "0"
 
+#  ---------------------------------------------------------------------------
+#  termCountT -- OBJECT MODEL STROKE 3: artifacts no longer change a rule's term count. Every Grokking
+#  rule's list walked at rest and again after parser(Start) + a compiled action; counted in shell.
+#  Born RED on 0733d44 (56 rules move; Braced/Parens/QuotE read 4/4/3 at rest against the grammar's 3/3/2).
+run2 termCountT "$T/tc.o" "$T/tc.e"; check "termCountT runs" 0 $?
+sentinel "termCountT sentinel" "$T/tc.o" "TERMCOUNT SENTINEL"
+tcCount () { awk -v want="$1" '/^TCPHASE/{p=$2;next} /^TCR /{r=$2;n[p" "r]+=0;next} /^TCC /{n[p" "r]++; tot[p]++}
+ END{ if(want=="differ"){d=0;for(k in n){split(k,a," "); if(a[1]=="rest" && n["after "a[2]]!=n[k]) d++}; print d}
+      else if(want=="total") print tot["rest"]+0
+      else print n["rest "want]+0 "/" n["after "want]+0 }' "$T/tc.e"; }
+kindRow "termCountT TC-0 children counted at rest (non-zero sibling)" "$( [ "$(tcCount total)" -gt 0 ] && echo nonzero || echo zero )" "nonzero"
+kindRow "termCountT TC-1 rules whose count moves between rest and after parser(Start) + a compile" "$(tcCount differ)" "0"
+kindRow "termCountT TC-2 Braced at rest / after (grammar: leftBrace ExpressioN rightBrace)" "$(tcCount Braced)" "3/3"
+kindRow "termCountT TC-3 Parens at rest / after (grammar: leftParen ExpressioN? rightParen)" "$(tcCount Parens)" "3/3"
+kindRow "termCountT TC-4 QuotE at rest / after (grammar: tik quoteBody; carries an action)" "$(tcCount QuotE)" "2/2"
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi
