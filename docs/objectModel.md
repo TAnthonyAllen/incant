@@ -1,6 +1,6 @@
 # The Object Model — target shape, stroke ledger, findings
 
-**Status:** DRAFT, 2026-09-28 (Clay). Part 1 becomes the target of record once Tony signs it.
+**Status:** Part 1 is the **target of record, signed by Tony 2026-09-28** (drafted by Clay; verified against the headers by Clod). It changes only by a dated ruling in §1.5.
 **Evidence:** `docs/objectModelRecon.md` (Clod, `2463cea`; §9 in `04c4cd4`; §10 header check in `68fa8c7`), measured on trunk `836c763`.
 
 ## How this document works
@@ -44,17 +44,17 @@ Every seam defect in the record is a field on the wrong side of that split (`isR
 
 ### 1.3 Field table
 
-⚠ **PARTLY VERIFIED — every "today" cell now checked against the headers (`GroupItem.h`, `GroupBody.h`, `RuleStuff.h`, `jitContext.h:707`) at `68fa8c7`, 2026-09-28; still open: F-O13, F-O15, F-O16, F-O17 await Tony.** Both directions checked: every header field appears below (as a row or inside a named group), and every row exists in a header.
+✅ **VERIFIED against headers at `5754742`, 2026-09-28; target signed 2026-09-28.** Every "today" cell checked against `GroupItem.h`, `GroupBody.h`, `RuleStuff.h` and `jitContext.h:707`, both directions: every header field appears below, and every row exists in a header.
 
 **GroupItem** (`GroupItem.h`: 6 members + `options`)
 
 | field | today | target | stroke |
 |---|---|---|---|
 | `groupBody` | pointer to the body; shared by every face (copy ctor, `GroupItem.twk:44`) | pointer to its rule's body (unchanged in kind) | — |
-| `options.isCopy` | bit; set only by the copy ctor, **no engine reader** (6 readers, all in `measure.twk`) | replaced by the instance → rule link; **form not yet ruled** (see §1.6) | 4 |
+| `options.isCopy` | bit; set only by the copy ctor, **no engine reader** (6 readers, all in `measure.twk`) | replaced by the instance → rule link: a **new `GroupItem` field** (O-1, ruled 2026-09-28) | 4 |
 | `options.affiliation` | 2 bits (isAttribute / isMember / isEmbedded) | unchanged (instance) | — |
 | `parent`, `nextInParent`, `priorInParent` | per node | unchanged (instance) | — |
-| `rStuff` | per-node `RuleStuff *`; **copied** by the copy ctor (`*rStuff = *grup.rStuff`, then `rule = this`); absent on 109 of 350 grammar terms (lazy, recon §9) | instance facts only | 4, 5 |
+| `rStuff` | per-node `RuleStuff *`; **copied** by the copy ctor (`*rStuff = *grup.rStuff`, then `rule = this`); absent on 109 of 350 grammar terms (lazy, recon §9) | instance facts only; `rule` retires or stays as a cache, decided in stroke 4 | 4, 5 |
 | `jitData` | per-node `JitData *` | unchanged | — |
 
 **GroupBody** (`GroupBody.h`: 4 fields, 3 unions, `gJitEmitter`, `flags`)
@@ -64,42 +64,43 @@ Every seam defect in the record is a field on the wrong side of that split (`isR
 | `tag` | shared | unchanged (rule) | — |
 | `groupList` | shared; terms **and** artifacts (`builtinParseR`, `builtinActoR`, `frameSTAK`; recon §9.3) | **terms only** | 3 |
 | *(new)* property list | — | rule-level artifacts and properties | 3 |
-| `registry` | shared; the registry the definition sits in | *not addressed in the target; see F-O17* | — |
-| `guardSet` | shared; a bin's guard characters | *not addressed; see F-O17* | — |
-| `gMethod` / `gOp` (one union) | shared; the rule action or operator binding | unchanged (rule) | — |
-| `gJitEmitter` | shared; the JIT emitter slot, beside the union | *not addressed; see F-O17* | — |
-| `gText` / `gPointer` (one union) | shared; text or raw pointer | *not addressed; see F-O17* | — |
+| `registry` | shared; the registry the definition sits in | unchanged (rule) — F-O17, ruled 2026-09-28 | — |
+| `guardSet` | shared; a bin's guard characters | unchanged (rule) — F-O17, ruled 2026-09-28 | — |
+| `gMethod` / `gOp` (one union) | shared; the rule action or operator binding | unchanged (rule) — `gOp` confirmed by F-O17 | — |
+| `gJitEmitter` | shared; the JIT emitter slot, beside the union | unchanged (rule) — F-O17, ruled 2026-09-28 | — |
+| `gText` / `gPointer` (one union) | shared; text or raw pointer | unchanged (rule) — F-O17, ruled 2026-09-28 | — |
 | data union (`gBuffer`, `gCharacter`, `gCharacterSet`, `gCount`, `gGroup`, `gItem`, `gMap`, `gNumber`, `gObject`, `gRegex`, `gStak`) | shared | unchanged (rule) | — |
 | `flags.isRule` | shared; written through faces (8 sites, recon §4) | written only at definition, on the rule | 2 |
-| `isPointer`, `isPercent`, `isMacro`, `guarding` (the body bits `modify()` sets for `& % $` and `_ { }`) | shared; each has a **second meaning** besides the modifier (raw-pointer data `GroupItem.twk:349,1003`; print format `:1071`; define-time `ruleActions.rtn:312,338`; bin/registry guarding `Commands.rtn:291-323`) | **bits stay** for their second meaning; `modify()` **stops writing them** — the modifier fact moves to the instance's `RuleStuff` | 1 |
-| other flags (44, listed below) | shared | classified in verification: rule-level stay, instance-level move to `RuleStuff` | ? |
+| `isPointer`, `isPercent`, `isMacro`, `guarding` (the body bits `modify()` sets for `& % $` and `_ { }`) | shared; each has a **second meaning** besides the modifier (raw-pointer data `GroupItem.twk:349,1003`; print format `:1071`; define-time `ruleActions.rtn:312,338`; bin/registry guarding `Commands.rtn:291-323`) | **bits stay** for their second meaning; `modify()` **stops writing them** — the modifier fact moves to the instance's `RuleStuff`. `$` is a per-reference fact; the `macro` command stays rule-level (F-O13) | 1 |
+| other flags (44, listed below) | shared | rule-level **stay**; instance-level: none found (F-O14); activation-level and dead: **per row below** (F-O15, F-O16) | per row below |
 
 **The other 44 flags** (`struct bools`, 49 entries in all, multi-bit fields counted once; the four above and `isRule` are in their own rows). Level = what the flag *means*: a fact about the definition (**rule**), about one reference site (**instance**), or about one execution (**activation**). All live in the shared body today.
 
-| level | flags |
-|---|---|
-| **rule** — node kind / shape | `isLabel` (set at mint, `RuleStuff.twk:112`), `invoke` (Xpress node kind, `ruleActions.rtn:1071`), `actionType`, `binType`, `fileType`, `instructType`, `methodType`, `isSorted`, `hasAttributes`, `hasMembers`, `hasTraits`, `isCondition`, `isIndexed`, `isLiteral`, `isShortcut`, `isSingleton`, `isUnary`, `isVirtual`, `isWindow`, `mergeOn`, `reversePrint`, `deferred` (read by the activation walk, but a property of the action) |
-| **rule** — value / data state | `data` (5 bits, value kind), `byRef`, `altered` (stak cache dirty), `isInitialized`, `hasListeners` |
-| **rule** — action-frame declaration | `isLocal`, `isArgument`, `isIterator` |
-| **rule** — generation bookkeeping | `tokened`, `hasNewParse`, `parseWalked` |
-| **rule** — debugging | `debugged`, `debugGuard` |
-| **rule, with a second use** | `noPrint` — presentation, **and** the de facto "I am an artifact" marker (#50); stroke 3's property list retires the second use |
-| **activation** | `isBranch` (2 bits; the control signal of one execution — P4 moved it to `branchKind` on the paused branch) |
-| **activation?** | `fLAG` (two meanings, ledgered), `addingMembers` (transient state *of a definition in progress*: set by the MEMBERs command, cleared by DefinE, `ruleActions.rtn:369`), `recursive` (declares an action recursive, but **cleared at run time** by `restoreLocalFields`, bear-trap #25) |
-| **dead** (no reader) | `isToggle`, `isXP` (no source reference beyond the declaration); `negate` (the *flag* is never read or written — every `negate` in source is the operator's name); `isAssign` (write-only, `Commands.rtn:493`) |
+| level | flags | target (stroke) |
+|---|---|---|
+| **rule** — node kind / shape | `isLabel` (set at mint, `RuleStuff.twk:112`), `invoke` (Xpress node kind, `ruleActions.rtn:1071`), `actionType`, `binType`, `fileType`, `instructType`, `methodType`, `isSorted`, `hasAttributes`, `hasMembers`, `hasTraits`, `isCondition`, `isIndexed`, `isLiteral`, `isShortcut`, `isSingleton`, `isUnary`, `isVirtual`, `isWindow`, `mergeOn`, `reversePrint`, `deferred` (read by the activation walk, but a property of the action) | stay (—) |
+| **rule** — value / data state | `data` (5 bits, value kind), `byRef`, `altered` (stak cache dirty), `isInitialized`, `hasListeners` | stay (—) |
+| **rule** — action-frame declaration | `isLocal`, `isArgument`, `isIterator` | stay (—) |
+| **rule** — generation bookkeeping | `tokened`, `hasNewParse`, `parseWalked` | stay (—) |
+| **rule** — debugging | `debugged`, `debugGuard` | stay (—) |
+| **rule, with a second use** | `noPrint` — presentation, **and** the de facto "I am an artifact" marker (#50); stroke 3's property list retires the second use | stay (—) |
+| **activation** | `isBranch` (2 bits; the control signal of one execution — P4 moved it to `branchKind` on the paused branch) | → `ParseActivation` (5) |
+| **vestigial** | `recursive` (declares an action recursive, **cleared at run time** by `restoreLocalFields`, bear-trap #25) | **deleted** — vestigial since KANT-8's repair (3: it is a `GroupBody` flag) |
+| **out of scope** | `fLAG` (two meanings, ledgered) — its split is its own item; `addingMembers` (transient state *of a definition in progress*: set by the MEMBERs command, cleared by DefinE, `ruleActions.rtn:369`) — define-time state, stays put | unchanged here; see §1.4 |
+| **dead** (no reader) | `isToggle`, `isXP` (no source reference beyond the declaration); `negate` (the *flag* is never read or written — every `negate` in source is the operator's name); `isAssign` (write-only, `Commands.rtn:493`) | **deleted**, certificate = zero-reader census (3) |
 
-(`guarding`'s three values split three ways: `guarded` rule, `unGuarded` rule when defined and instance when set by `_ { }` (stroke 1), `guardInProcess` activation.)
+(`guarding`'s three values split three ways: `guarded` rule; `unGuarded` rule when defined and instance when set by `_ { }` (stroke 1); `guardInProcess` activation → `ParseActivation` (stroke 5, F-O15).)
 
 **RuleStuff** (`RuleStuff.h`: 18 members + 17 bitfields = 35). Recon classification, **corrected against the header: 8 rule-level, 13 instance-level, 10 activation-level** (recon §2 said 9 — F-O12), `parentStuff` mixed, 3 dead or unclear. 8 + 13 + 10 + 1 + 3 = 35.
 
 | group | fields | target home | stroke |
 |---|---|---|---|
-| rule-level 8 (7 here, `rule` below) | `ruleName`, `sourceLine`, `testMatch`, `parseMethod`, `actionMethod`, `jitMethod`, `hasMacro` (copied from the body's `isMacro` when the `RuleStuff` is built, `RuleStuff.twk:146`; see F-O13) | the rule, read through the instance pointer | 4 |
-| `rule` | exists; the copy constructor aims it at the **face itself**, not the rule | candidate carrier for the instance → rule link (see §1.6) | 4 |
+| rule-level 8 (7 here, `rule` below) | `ruleName`, `sourceLine`, `testMatch`, `parseMethod`, `actionMethod`, `jitMethod`, `hasMacro` (copied from the body's `isMacro` when the `RuleStuff` is built, `RuleStuff.twk:146`) | the rule, read through the instance pointer; **except `hasMacro`**, which becomes the instance's `$` fact (F-O13) | 4 (`hasMacro`: 1) |
+| `rule` | exists; the copy constructor aims it at the **face itself**, not the rule | **not** the link (O-1 chose a new `GroupItem` field); retires or stays as a cache, decided in stroke 4 | 4 |
 | instance-level 13 | `min`, `max`, `maxRepeat`, `limitsSet`, `banged`, `noAdvance`, `noLabel`, `noSkip`, `isTarget` (also computed, `max == 1`), `overTo` (`upTo`/`upToOver`), `notifyFail`, `followed` + `onGroup` (per position in the parent: `getWhatFollows`, `embedAttribute`) | stay in the instance's `RuleStuff` | 1 (adds the `unGuarded` fact; `%`/`&`/`$` rerouted) |
 | activation-level 10 | `label`, `parentLabel`, `kount`, `sukcess`, `isOK`, `hereAt`, `failedAt`, `inProcess`, `guardOK`, `guardFAIL` | `ParseActivation` (today `{stuff, prev, floor, label}` — `label` already has a slot) | 5 |
 | `parentStuff` | set at construction from the grammar parent (instance), read at parse time for `parentLabel` and walked by `deferredAbove` (activation) | split: instance part stays, activation part moves | 5 |
-| dead / unclear 3 | `onFail` — written by `getWhatFollows` (`RuleStuff.twk:150`), **no reader**; `doNothing` — one write (`= 0`, `ruleActions.rtn:977`), **no reader**; `isOption` — declared, **no reference** at all | ruling per field: delete or classify | ? |
+| dead / unclear 3 | `onFail` — written by `getWhatFollows` (`RuleStuff.twk:150`), **no reader**; `doNothing` — one write (`= 0`, `ruleActions.rtn:977`), **no reader**; `isOption` — declared, **no reference** at all | **deleted**, certificate = zero-reader census (F-O16) | 5 |
 
 ### 1.4 Out of scope for strokes 1–5 (later phases, not part of this target)
 
@@ -107,15 +108,14 @@ Every seam defect in the record is a field on the wrong side of that split (`isR
 - `RuleStuff` as attributes.
 - Removing bitfields.
 - Parse in kant, including the permanent C++ kernel (recon sketch: input machinery, leaf matchers, rewritten bootstrap, about 600 lines).
+- Splitting `fLAG`'s two meanings into two channels (F-O15, ruled 2026-09-28).
+- `addingMembers`: define-time state, stays where it is (F-O15, ruled 2026-09-28).
 
 Each of these gets its own ruling and its own target section after stroke 5. They are listed so the summary does not absorb them along the way.
 
 ### 1.5a Rulings owed before the target is signed
 
-| # | question | options |
-|---|---|---|
-| O-1 | How does an instance point at its rule? (stroke 4) | **(a)** a new `GroupItem` field — a layout change, `groups.ext` plus full `tokall`; **(b)** re-aim the existing `RuleStuff.rule` at the rule and give every term an `rStuff` up front (109 terms have none today) |
-| O-2 | Delegation recorded as its own ruling (§1.2), or implied by step 0? | — |
+None. O-1 and O-2 were ruled 2026-09-28 (§1.5).
 
 ### 1.5 Rulings of record
 
@@ -125,6 +125,13 @@ Each of these gets its own ruling and its own target section after stroke 5. The
 | 2026-09-28 | Step 0: parse-then-fire pauses at P6's open question. F-129 is independent and can be fixed on trunk when ruled in. |
 | 2026-09-28 | A grammar change must reach the instances defined from it. |
 | 2026-09-28 | Restructure the field in C++ first; decide the kant climb after. |
+| 2026-09-28 | **O-1:** the instance → rule link is a **new `GroupItem` field** (option a). Stroke 4 is a layout stroke; `RuleStuff.rule` retires or stays as a cache, decided in the stroke. |
+| 2026-09-28 | **O-2:** delegation with three levels (§1.2) is a ruling of record. |
+| 2026-09-28 | **F-O13:** `$` at a reference is a per-reference (instance) fact; the `macro` command stays rule-level. Stroke 1 reroutes `$` with `%` and `&` (dormant). |
+| 2026-09-28 | **F-O15:** `isBranch` and `guardInProcess` move to `ParseActivation` in stroke 5. `recursive` is deleted (vestigial since KANT-8's repair) in the stroke that owns its struct — stroke 3, since it is a `GroupBody` flag. `fLAG`'s split and `addingMembers` are out of scope for strokes 1–5 (§1.4). |
+| 2026-09-28 | **F-O16:** dead fields are deleted, certificate = a zero-reader census: the four dead body flags in stroke 3, the three dead `RuleStuff` fields in stroke 5. |
+| 2026-09-28 | **F-O17:** `registry`, `guardSet`, `gJitEmitter`, the `gText`/`gPointer` union and `gOp`: target "unchanged (rule)". |
+| 2026-09-28 | **Target signed** (all six "as recommended"). |
 
 ---
 
@@ -134,11 +141,11 @@ Every stroke: its own try-and-buy branch cut from trunk; full seal checklist; li
 
 | # | stroke | GroupItem | GroupBody | RuleStuff / ParseActivation | layout | certificate | status |
 |---|---|---|---|---|---|---|---|
-| 1 | shared-body modifiers move to the instance | — | `modify()` stops writing the four bits; the bits stay for their second meanings | one new bit for `unGuarded`; `%`/`&`/`$` rerouted (dormant: no grammar reference carries them) | yes (one `RuleStuff` bit) | new row: `rightBrace}`'s `unGuarded` no longer reaches `Braced`/`Limit`; any other fleet movement is a finding | planned |
+| 1 | shared-body modifiers move to the instance | — | `modify()` stops writing the four bits; the bits stay for their second meanings | one new bit for `unGuarded`; `%`/`&`/`$` rerouted (dormant: no grammar reference carries them); `hasMacro` becomes the instance's `$` fact, the `macro` command keeps the body's `isMacro` | yes (one `RuleStuff` bit) | new row: `rightBrace}`'s `unGuarded` no longer reaches `Braced`/`Limit`; any other fleet movement is a finding | planned |
 | 2 | `isRule` not written through faces | — | `isRule` written at definition only | — | no | `literalMasterIsRule` audit pin (10) moves; re-pinned with its sentence | planned |
-| 3 | terms and properties separate | — | property list added; artifacts leave `groupList` | — | yes | term counts equal the grammar's (recon: 317, not 792); `countRuleTerms` and the `noPrint` term gates retire; **bear-trap #10 subdirectory check** (`GUI/`, `Tests/` — `tokall` does not reach them) | planned |
-| 4 | instance pointer | per O-1: new field **or** none | — | per O-1: none **or** `RuleStuff.rule` re-aimed and every term gets `rStuff`; rule-level fields read through the link | yes if O-1(a) | the 13 `definingRule()` callers switch one at a time | **blocked on O-1** |
-| 5 | activation consolidates | — | — | activation fields added to `ParseActivation` (plain C++ struct, no tok layout; already has a `label` slot) and **removed from `RuleStuff`** (the layout change); getStuff's running copy retires | yes (`RuleStuff` side only) | recursion rows (K-rows, A→B→A) through the new home | planned |
+| 3 | terms and properties separate | — | property list added; artifacts leave `groupList`; **dead flags `isToggle`, `isXP`, `negate`, `isAssign` and `recursive` deleted** | — | yes | term counts equal the grammar's (recon: 317, not 792); `countRuleTerms` and the `noPrint` term gates retire; **zero-reader census** for the five deleted flags; **bear-trap #10 subdirectory check** (`GUI/`, `Tests/` — `tokall` does not reach them) | planned |
+| 4 | instance pointer | **new field: the instance → rule link** (O-1); replaces `options.isCopy` | — | rule-level fields read through the link; `RuleStuff.rule` retires or stays as a cache (decided in the stroke) | **yes** (`GroupItem`: `groups.ext` + full `tokall`) | the 13 `definingRule()` callers switch one at a time | planned |
+| 5 | activation consolidates | — | **`isBranch` and the `guardInProcess` value leave the body** for `ParseActivation` | the 10 activation fields plus `isBranch` and `guardInProcess` added to `ParseActivation` (plain C++ struct, no tok layout; already has a `label` slot); the 10 **removed from `RuleStuff`**; **dead `onFail`, `doNothing`, `isOption` deleted**; getStuff's running copy retires | **yes** (`RuleStuff`, and `GroupBody` for `isBranch`: `groups.ext` + full `tokall` + the #10 subdirectory check) | recursion rows (K-rows, A→B→A) through the new home; **zero-reader census** for the three deleted fields | planned |
 
 `parse()` + helpers line count — **baseline before stroke 1: 905 lines in 37 functions** (`68fa8c7`, 2026-09-28; each counted from signature through its closing column-0 `}`, comments inside included):
 `GroupItem.twk` parse 62 · attachLabel 53 · fireLabelMethod 29 · embedAttribute 27 · deferredAbove 24 · getStuff 13 · setRuleStuff 11 · embedRule 10 · the copy ctor `GroupItem(GroupItem)` 10 · definingRule 8 · ensureRStuff 7 · getRStuff 4 —
@@ -163,11 +170,12 @@ Every stroke: its own try-and-buy branch cut from trunk; full seal checklist; li
 | F-O7 | 2026-09-28 | Rule-level vs instance-level reads per parse: **not measured** (needs `measure*` counters). Deferred; correctness decides this design, not read cost. | open, low priority |
 | F-O8 | 2026-09-28 | The four body bits `modify()` writes each carry a second meaning (`isPointer` raw-pointer data, `isPercent` print format, `isMacro` definition processing, `guarding` registry property), so stroke 1 re-routes the modifier and keeps the bits. | applied to §1.3 and stroke 1 |
 | F-O9 | 2026-09-28 | Stroke 1's live population is `unGuarded` alone: none of the 158 references carries `%`, `&` or `$`; `hasMacro` and `overTo` already live in `RuleStuff`. | applied to stroke 1 |
-| F-O10 | 2026-09-28 | `RuleStuff.rule` already exists but the copy constructor aims it at the face, not the rule; 109 terms have no `rStuff`, so it cannot carry the link as things stand. | ruling O-1 |
+| F-O10 | 2026-09-28 | `RuleStuff.rule` already exists but the copy constructor aims it at the face, not the rule; 109 terms have no `rStuff`, so it cannot carry the link as things stand. | ruled 2026-09-28: O-1(a), a new `GroupItem` field |
 | F-O11 | 2026-09-28 | `ParseActivation` is a plain C++ struct: adding fields needs no `groups.ext` or `tokall`. | applied to stroke 5 |
 | F-O12 | 2026-09-28 | Recon §2 counted **9** activation-level `RuleStuff` fields; the header gives **10** (`guardOK` and `guardFAIL` are both activation). Totals now reconcile with the header: 8 + 13 + 10 + 1 + 3 = 35. `termCount`, named in the old rule-level row, **does not exist** (retired 2026-09-26, SEQ 191). No target or stroke changes: all ten go to stroke 5. | applied to §1.3 |
-| F-O13 | 2026-09-28 | `hasMacro` is rule-derived today (copied from the body's `isMacro` when a `RuleStuff` is built, `RuleStuff.twk:146`), and `isMacro` has two writers: the `macro` flag command (definition, `Commands.rtn:513`) and the `$` modifier (reference, `GroupActions.rtn:547`). The old §1.3 put `hasMacro` in the instance group; the header puts it in the rule group. **Question: is `$` a per-reference fact (then stroke 1 makes `hasMacro` instance-level) or a per-rule one (then `$` should not be rerouted)?** Dormant either way: no grammar reference carries `$` (F-O9). | **awaits Tony** |
+| F-O13 | 2026-09-28 | `hasMacro` is rule-derived today (copied from the body's `isMacro` when a `RuleStuff` is built, `RuleStuff.twk:146`), and `isMacro` has two writers: the `macro` flag command (definition, `Commands.rtn:513`) and the `$` modifier (reference, `GroupActions.rtn:547`). The old §1.3 put `hasMacro` in the instance group; the header puts it in the rule group. **Question: is `$` a per-reference fact (then stroke 1 makes `hasMacro` instance-level) or a per-rule one (then `$` should not be rerouted)?** Dormant either way: no grammar reference carries `$` (F-O9). | **ruled 2026-09-28** (§1.5) |
 | F-O14 | 2026-09-28 | Instance-level flags other than the stroke-1 modifier bits: **none found.** Every body flag outside the stroke-1 four is rule-level, activation-level, or dead. So the "other flags … move to `RuleStuff`" half of that row has an empty population. | informs F-O15 |
-| F-O15 | 2026-09-28 | **Activation-level body flags have no target home.** Part 1 says where rule-level flags go (stay) and instance-level (to `RuleStuff`), but not activation-level: `isBranch`, `guarding`'s `guardInProcess` value, and the three `?` rows (`fLAG`, `addingMembers`, `recursive`). They are the stroke-5 family in the body; stroke 5 covers only `RuleStuff`. | **awaits Tony** |
-| F-O16 | 2026-09-28 | **Dead fields.** Body flags `isToggle`, `isXP`, `negate` (no reader or writer) and `isAssign` (write-only); `RuleStuff` `onFail`, `doNothing` (write-only) and `isOption` (unreferenced). The `RuleStuff` three have a target row ("ruling per field: delete or classify"); the four body flags have none. | **awaits Tony** |
-| F-O17 | 2026-09-28 | Four `GroupBody` fields were missing from §1.3 and are now rows with **no target**: `registry`, `guardSet`, `gJitEmitter`, the `gText`/`gPointer` union. §1.2 implies "unchanged (rule)" for all four, but that is Clod's inference, not a ruling, so the target cell says "not addressed". Also split out of the old `gMethod`, `instructType` row: `gOp` (union partner of `gMethod`, added) and `instructType` (a flag, now in the flags list). | **awaits Tony** |
+| F-O15 | 2026-09-28 | **Activation-level body flags have no target home.** Part 1 says where rule-level flags go (stay) and instance-level (to `RuleStuff`), but not activation-level: `isBranch`, `guarding`'s `guardInProcess` value, and the three `?` rows (`fLAG`, `addingMembers`, `recursive`). They are the stroke-5 family in the body; stroke 5 covers only `RuleStuff`. | **ruled 2026-09-28** (§1.5) |
+| F-O16 | 2026-09-28 | **Dead fields.** Body flags `isToggle`, `isXP`, `negate` (no reader or writer) and `isAssign` (write-only); `RuleStuff` `onFail`, `doNothing` (write-only) and `isOption` (unreferenced). The `RuleStuff` three have a target row ("ruling per field: delete or classify"); the four body flags have none. | **ruled 2026-09-28** (§1.5) |
+| F-O17 | 2026-09-28 | Four `GroupBody` fields were missing from §1.3 and are now rows with **no target**: `registry`, `guardSet`, `gJitEmitter`, the `gText`/`gPointer` union. §1.2 implies "unchanged (rule)" for all four, but that is Clod's inference, not a ruling, so the target cell says "not addressed". Also split out of the old `gMethod`, `instructType` row: `gOp` (union partner of `gMethod`, added) and `instructType` (a flag, now in the flags list). | **ruled 2026-09-28** (§1.5) |
+| F-O18 | 2026-09-28 | **Rule-level data written outside definition.** `ensureGuard` (`GroupItem.twk:575`; since the split, `getGuard` is a pure read, bear-trap #30) computes a rule's guard set the first time it is asked and, for a member, **merges it into the parent's `guardSet`** (`GroupItem.twk:657`: `if isMember && parent.guardSet  parent.guardSet += guardSet;`). It also sets `guarded`/`unGuarded` on its own body at that first computation. Both are rule-level fields, written lazily from the parse rather than at definition. | noted, no change (ruled 2026-09-28) |
