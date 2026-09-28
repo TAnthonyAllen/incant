@@ -5446,6 +5446,24 @@ kindRow "ruleTermT RT-2 RtR's reference to RtL takes part as a rule term" "$(rtv
 kindRow "ruleTermT RT-3 RtN, referenced by nothing (negative control)" "$(rtv RtN RtReg)" "0/0"
 kindRow "ruleTermT RT-4 leftBrace is a rule by REGISTRATION (no punctuation master was this leak's subject)" "$(rtv leftBrace Grokking)" "1/1"
 
+#  ---------------------------------------------------------------------------
+#  actorOrderT -- OBJECT MODEL STROKE 3a: a rule's builtinActoR FOLLOWS its real terms. Born RED on
+#  trunk e680c77 (12 rules: the bootstrap called setActions() before adding terms, and forward
+#  definitions got their actor before the later definition added terms). Counted here in shell from
+#  the printed child order, never through an accessor (bear-trap 55). "actors" is the non-zero sibling.
+run2 actorOrderT "$T/ao.o" "$T/ao.e"; check "actorOrderT runs" 0 $?
+sentinel "actorOrderT sentinel" "$T/ao.o" "ACTORORDER SENTINEL"
+aoCount () { awk '
+/^AORULE /{r=$2; seen=0; next}
+/^AOCHILD /{t=$2; if(t=="builtinActoR"){seen=1; act[r]=1; next}
+ if(t ~ /^(builtinParseR|pendingParseR|CodE|BlocK|frameSTAK|tempField|this)$/) next;
+ if(seen) bad[r]=1}
+END{na=0;nb=0;names="";for(k in act)na++; for(k in bad){nb++; names=names " " k}; print na "/" nb names}' "$T/ao.e"; }
+AO=$(aoCount)
+kindRow "actorOrderT AO-1 rules carrying a builtinActoR (non-zero sibling)" "${AO%%/*}" "33"
+AOB=${AO#*/}
+kindRow "actorOrderT AO-2 rules with a real term AFTER their builtinActoR (names follow if any)" "$AOB" "0"
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi

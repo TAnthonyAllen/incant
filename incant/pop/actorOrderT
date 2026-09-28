@@ -1,0 +1,40 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(ActorOrder);
+define
+    aoChild code={
+        cerr "AOCHILD " taG:;
+        };
+    aoRule code={
+        cerr "AORULE " taG:;
+        iterate aoCur on argument;
+        while ++aoCur;
+            aoChild(*aoCur);
+        };
+    aoWalk code={
+        iterate aoR on Grokking;
+        while ++aoR;
+            aoRule(*aoR);
+        };
+    ;
+aoWalk();
+print "ACTORORDER SENTINEL -- reached the foot":;
+stop();
+
+WHAT THIS IS
+
+Object-model stroke 3a's witness (SEQ 219). It prints every Grokking rule and its children in list
+order. pop.sh reads the output in shell (a shell compare cannot mis-spell a capture, bear-trap 55) and
+asserts two numbers: how many rules carry a builtinActoR (non-zero, the anti-vacuity sibling), and how
+many rules have a REAL term after their builtinActoR (the stroke's claim: zero).
+
+Born red on trunk e680c77: the bootstrap called setActions() before adding terms, so builtinActoR sat
+at index 1 in twelve rules (recon 11.4). Stroke 3a moves the actor after the terms.
+
+An artifact, for this count, is a child whose tag is one of the minted names (builtinActoR,
+builtinParseR, pendingParseR, CodE, BlocK, frameSTAK, tempField, this). Everything else is a term.

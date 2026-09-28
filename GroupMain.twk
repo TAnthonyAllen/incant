@@ -190,7 +190,6 @@ GroupRules  ruler = groupRules;
 
     strap           = grok += "QuotE";
     setRuleStuff();
-    strap.setActions();
     item            = new("tik");
     item.characterSet    = new("'\"");
     item            = strap +% item;
@@ -203,10 +202,12 @@ GroupRules  ruler = groupRules;
     group           = item;
     item            = gGroup;
     modify(item,"$");
+    // actorAfterTerms the actor follows the rule's real terms (stroke 3a); strap is quoteBody here, so name the rule
+    item            = grok/QuotE;
+    item.setActions();
 
     strap           = grok += "NamE";
     setRuleStuff();
-    strap.setActions();
     /*  TOKENize's BOOTSTRAP ARM. NamE is built here in C++, not by
         aCTionDefinE, and its grammar-file line is inert -- measured, with a
         live line as the control. So its constitution is written at its
@@ -220,6 +221,7 @@ GroupRules  ruler = groupRules;
     item            = grok["nameSet"];
     item            = strap +% item;
     modify(item,"-^*");
+    strap.setActions();
     
     strap           = grok += "NumbeR";
     setRuleStuff();
@@ -231,12 +233,12 @@ GroupRules  ruler = groupRules;
         this way since the beginning, which is why NamE was immune to the
         persistence the glom used to sweep up. Labels are for readers.  */
     modify(item,"-+");
-    strap.setActions();
-    immediateACTION = true;
-    tokened         = true;
+    strap.immediateACTION = true;
+    strap.tokened   = true;
     item            = grok/FloaT;
     item            = strap +% item;
     modify(item,"-?");
+    strap.setActions();
 
     strap           = grok += "GrouP";
     setRuleStuff();
@@ -246,11 +248,11 @@ GroupRules  ruler = groupRules;
 
     strap           = grok += "SetBrackets";
     setRuleStuff();
-    strap.setActions();
     item            = strap +% grok/leftBrace;
     modify(item,"-");
     item            = strap +% grok/rightBrace;
     modify(item,"}");
+    strap.setActions();
 
     strap           = grok += new("CodeBody");
     setRuleStuff();
@@ -266,7 +268,6 @@ GroupRules  ruler = groupRules;
 
     strap           = grok += "DelimText";
     setRuleStuff();
-    strap.setActions();
     item            = strap +% grok/leftParen;
     item.setRuleStuff();
     guardSet        = new("(");
@@ -277,6 +278,7 @@ GroupRules  ruler = groupRules;
     item.embedRule(properties/delimiter);
     item            = item.group;
     modify(item,"}^");
+    strap.setActions();
 
     strap           = grok += "DatA";
     setRuleStuff();
@@ -292,7 +294,6 @@ GroupRules  ruler = groupRules;
 
     strap           = grok += "TraiTdata";
     setRuleStuff();
-    strap.setActions();
     item            = strap +% grok/EquaL;
     modify(item,"-");
     item            = grok/DatA;
@@ -300,13 +301,13 @@ GroupRules  ruler = groupRules;
     item            = grok/Modifier;
     item            = strap +% item;
     modify(item,"*");
+    strap.setActions();
     
     /*************************************************************************
         DefinE stub to be added to a little further down
     *************************************************************************/
     stuff           = grok += "DefinE";
     stuff.setRuleStuff();
-    stuff.setActions();
 
     strap           = grok += "DEFINing";
     setRuleStuff();
@@ -316,8 +317,7 @@ GroupRules  ruler = groupRules;
 
     strap           = grok += "TraiT";
     setRuleStuff();
-    strap.setActions();
-    immediateACTION = true;
+    strap.immediateACTION = true;
     item            = grok/GrouP;
     item            = strap +% item;
     item            = grok/Modifier;
@@ -326,13 +326,14 @@ GroupRules  ruler = groupRules;
     item            = grok/TraiTdata;
     item            = strap +% item;
     modify(item,"?");
+    strap.setActions();
 
     strap           = grok += "NewGroup";
     setRuleStuff();
-    strap.setActions();
-    immediateACTION = true;
+    strap.immediateACTION = true;
     item            = strap +% grok/TraiT;
     modify(item,"@");
+    strap.setActions();
 
     strap           = grok += "Attributes";
     setRuleStuff();
@@ -365,6 +366,7 @@ GroupRules  ruler = groupRules;
     item.characterSet    = new(";>");
     item            = strap +% item;
     modify(item,"-");
+    strap.setActions();
 
     /*************************************************************************
         The define command (stuff is DefinE at this point).
@@ -401,8 +403,7 @@ GroupRules  ruler = groupRules;
 
     strap           = grok += "RunRulE";
     setRuleStuff();
-    strap.setActions();
-    immediateACTION = true;
+    strap.immediateACTION = true;
     item            = grok/NamE;
     item            = strap +% item;
     item            = grok/InvokE;
@@ -410,6 +411,7 @@ GroupRules  ruler = groupRules;
     modify(item,"?");
     item            = strap +% grok/SemI;
     modify(item,"-?");
+    strap.setActions();
 
     strap           = grok += "InitiatE";
     setRuleStuff();
