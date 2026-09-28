@@ -154,26 +154,6 @@ GroupRules  ruler = groupRules;
     strap           = grok += strap;
     characterSet    = new("-~+?!%&|*@_<^{}$");
 
-    strap           = new("Limit");
-    setRuleStuff();
-    strap           = grok += strap;
-    item            = strap +% grok/leftBrace;
-    modify(item,"-");
-    item            = new("min");
-    item            = strap +% item;
-    item.setRuleStuff();
-    item.embedRule(grok/counter);
-    item            = item.group;
-    modify(item,"+");
-    item            = new("max");
-    item            = strap +% item;
-    item.setRuleStuff();
-    item.embedRule(grok/counter);
-    item            = item.group;
-    modify(item,"*");
-    item            = strap +% grok/rightBrace;
-    modify(item,"-");
-
     strap           = grok += new("Any");
     isANY           = true;
     setRuleStuff();
@@ -320,9 +300,6 @@ GroupRules  ruler = groupRules;
     item            = grok/Modifier;
     item            = strap +% item;
     modify(item,"*");
-    item            = grok/Limit;
-    item            = strap +% item;
-    modify(item,"?");
     
     /*************************************************************************
         DefinE stub to be added to a little further down
@@ -346,9 +323,6 @@ GroupRules  ruler = groupRules;
     item            = grok/Modifier;
     item            = strap +% item;
     modify(item,"*");
-    item            = grok/Limit;
-    item            = strap +% item;
-    modify(item,"?");
     item            = grok/TraiTdata;
     item            = strap +% item;
     modify(item,"?");
@@ -447,7 +421,7 @@ GroupRules  ruler = groupRules;
     /*************************************************************************
         The hand-built bootstrap rules above never go through aCTionDefinE, so
         they never get its define-time materialisation. Several of them add
-        terms with no modify() call at all (Limit's "[" and "]"), which is why
+        terms with no modify() call at all (the retired Limit's "[" and "]"), which is why
         those terms had no rStuff and genParse refused them. One pass here, over
         the rules built above, before setup is parsed -- rules defined IN setup
         come through aCTionDefinE and are already covered.

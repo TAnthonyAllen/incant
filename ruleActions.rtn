@@ -1087,23 +1087,22 @@ endToken:
 
 /*******************************************************************************
 	Immediate method for the TraiT rule that defines an attribute. It can be
-        TraiTdata="="       DatA Modifier? Limit?;
-        TraiT               NamE@ Modifier? Limit? TraiTdata? TraiTlist?;
+        TraiTdata="="       DatA Modifier?;
+        TraiT               NamE@ Modifier? TraiTdata? TraiTlist?;
 *******************************************************************************/
 extern GroupItem aCTionTraiT(GroupItem input)
 {
 GroupItem   upFlags,
             Modifier:,
-            Limit:,
             TraiTdata = input["TraiTdata"],
             trait = input[1];
     /***************************************************************************
-        A trait value can be a group or a literal. Limit and Modifier are passed
+        A trait value can be a group or a literal. Modifier is passed
         to trait to be handled in DefinE. Same applies to TraiTdata.
     ***************************************************************************/
     input.clearList();
     if isGROUP      trait = group;
-    if Modifier || Limit {
+    if Modifier {
         isAttribute = true;
         if rStuff   trait = new(trait);
         else        setRuleStuff(); }
@@ -1119,7 +1118,6 @@ GroupItem   upFlags,
     if upFlags      modifyClass(trait,upFlags.text,0);
     // wideValueRepeats a repeated value wider than a character lost its max in setContent, so the repetition lands on the trait
     if upFlags && TraiTdata.data > 3 && !TraiTdata.isGROUP     modifyClass(trait,upFlags.text,1);
-    if Limit        setLimits(trait,Limit);
     input.group     = trait;
     return input;
 }
@@ -1132,10 +1130,9 @@ extern GroupItem aCTionTraiTdata(GroupItem input)
 int         repeated = 0;
 GroupItem   upMark,
             Modifier:,
-            Limit:,
             DatA:;
     input.clear();
-    if Modifier || Limit {
+    if Modifier {
         isAttribute = true;
         if rStuff {
             DatA = new(DatA);
@@ -1143,12 +1140,10 @@ GroupItem   upMark,
         else        setRuleStuff();
         // modifierRidesUp repetition lands on the DATA only; applying it to the trait as well repeats TWICE
         if Modifier modifyClass(DatA,Modifier.text,1);
-        if Limit    setLimits(DatA,Limit);
         isRule      = true; }
     // valueRepeats a value may carry + or *; a character or set repeats in its scanner, anything wider repeats on the trait
     repeated = 0;
     if Modifier     repeated = hasRepeatClass(Modifier.text);
-    if Limit        repeated = 1;
     // modifierRidesUp the flags ride up as a noPrint ARTIFACT, never as a term
     if Modifier     input +% Modifier;
     if Modifier     upMark = input["Modifier"];

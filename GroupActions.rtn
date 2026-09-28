@@ -1025,20 +1025,6 @@ void*       methodAddress;
 }
 
 
-// setLimits set a rule's min and max from its limits; limitsSet marks a max the grammar asked for, which is what reportMaxLimit gates on
-extern void setLimits(GroupItem rule,GroupItem limits)
-{
-RuleStuff   ruleStuff = rule.rStuff;
-GroupItem   maximum = limits%"max";
-GroupItem   minimum = limits%"min";
-    min             = minimum.count;
-    if maximum {
-        max         = maximum.count;
-        maxRepeat   = maximum.count;
-        limitsSet   = true; }
-}
-
-
 // setRuleAction link the action the block references and set its method type -- on the rule the block names, else on the block; returns the rule
 extern GroupItem setRuleAction(GroupItem block)
 {

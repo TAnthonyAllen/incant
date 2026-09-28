@@ -5390,7 +5390,9 @@ sentinel "omModT sentinel" "$T/om.e" "OMMODT SENTINEL"
 omv () { grep "^MODSOF $1 in $2 " "$T/om.e" | sed -n "s/.* $3=\([0-9-]*\).*/\1/p" | head -1; }
 kindRow "omModT OM-1 SetBrackets' rightBrace} is unguarded on its own instance" "$(omv rightBrace SetBrackets modUnGuarded)/$(omv rightBrace SetBrackets isUnGuarded)" "1/1"
 kindRow "omModT OM-1 Braced's rightBrace is NOT unguarded (no leak)" "$(omv rightBrace Braced isUnGuarded)" "0"
-kindRow "omModT OM-1 Limit's rightBrace is NOT unguarded (no leak)" "$(omv rightBrace Limit isUnGuarded)" "0"
+#  RETIRED 2026-09-28 with the Limit rule itself: "omModT OM-1 Limit's rightBrace is NOT unguarded (no
+#  leak)" -- the reference no longer exists. Its assertion lives on in the Braced row above, which asks the
+#  same question of the other non-declaring reference to the same shared body.
 kindRow "omModT OM-2 OmA% : modPercent on the instance, body pct untouched" "$(omv OmA OmP modPercent)/$(omv OmA OmP pct)" "1/0"
 kindRow "omModT OM-2 OmA& : modPointer on the instance, body ptr untouched" "$(omv OmA OmQ modPointer)/$(omv OmA OmQ ptr)" "1/0"
 kindRow "omModT OM-2 OmA_ : modUnGuarded on the instance, and isUnGuarded reads it" "$(omv OmA OmU modUnGuarded)/$(omv OmA OmU isUnGuarded)" "1/1"

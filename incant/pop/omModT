@@ -31,7 +31,6 @@ search GroupFields UnitTests Utilities OmMod list;
 cerr "OM-1 rightBrace: three references, one shared body":;
 omOne("SetBrackets");
 omOne("Braced");
-omOne("Limit");
 cerr "OM-2 OmA referenced four ways":;
 omTwo("OmP");
 omTwo("OmQ");
@@ -54,9 +53,9 @@ unGuarded on the body Braced and Limit also read, and `OmA%` in OmP marks OmA's 
 that names OmA. After stroke 1 the fact lands on the reference's own rStuff (modUnGuarded, modPercent,
 modPointer) and the body keeps only its own meanings.
 
-OM-1  modsOf on rightBrace in SetBrackets, Braced, Limit. isUnGuarded is the predicate the guard test
+OM-1  modsOf on rightBrace in SetBrackets and Braced (Limit, the third reference, was retired 2026-09-28). isUnGuarded is the predicate the guard test
       itself calls (instance, then rule), so the row reads what the parser reads.
-      want: SetBrackets 1 (declared `}`), Braced 0, Limit 0.
+      want: SetBrackets 1 (declared `}`), Braced 0.
 OM-2  OmA referenced with % & _ and plain, then OmA itself.
       want: each fact on its own reference's instance bits, none on the body; OmN and OmA read 0.
 OM-3  the scratch rules drive and match as before (values pinned both sides of the stroke).

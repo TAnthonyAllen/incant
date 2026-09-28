@@ -55,11 +55,10 @@ DatA
     SetBrackets     leftBrace- rightBrace};
     NotA=[^ \t\r\n;]+;
 InvokE              leftParen- NamE? rightParen-;
-Limit               leftBrace- min=[0-9]+ max?=[0-9]+ rightBrace- noPrint;
 MemberS             ':'- MEMBERs- Mlist=DefinE+;
 Modifier=[-~+?!%&|*@_<^{}$] noPrint;
-TraiTdata           '='- DatA Modifier* Limit?;
-TraiT               NamE Modifier* Limit? TraiTdata?;
+TraiTdata           '='- DatA Modifier*;
+TraiT               NamE Modifier* TraiTdata?;
 Attributes=TraiT+;
 NewGroup            TraiT@;
 DefinE              NewGroup Attributes? MemberS endDefine-=[;>];
