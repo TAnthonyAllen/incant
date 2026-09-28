@@ -9601,7 +9601,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( !cd && nc < 256 ) { cSeen[ncs++] = c; cNode[nc++] = n; } }
 	GroupItem *kids[256]; int nk = 0; GroupItem *k = 0;
 	while ( (k = n->next(k)) && nk < 256 ) {
-	if ( k->groupBody->flags.noPrint ) continue;
 	if ( !k->isRuleTerm() ) continue;
 	kids[nk++] = k; }
 	for ( int i = nk - 1; i >= 0 && sp < 4096; i-- ) stk[sp++] = kids[i]; }
