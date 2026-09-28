@@ -800,7 +800,66 @@ GroupItem   entry;
             if listLength
                 while entry = next(entry)
                     if entry.tag eq name return entry; }
+    // termsThenProperties a plain name lookup searches the terms, then the properties (stroke 3)
+    return getProperty(name);
+}
+
+// addProperty an artifact goes on the property list beside the terms, never among them (object-model stroke 3)
+GroupItem addProperty(GroupItem grup)
+{
+GroupItem   last;
+    if !grup    return null;
+    if grup.parent  grup = new(grup);
+    if !propList    propList = new GroupList();
+    last                = propList.lastInList;
+    grup.parent         = this;
+    grup.isAttribute    = true;
+    grup.priorInParent  = last;
+    grup.nextInParent   = null;
+    if last     last.nextInParent = grup;
+    else        propList.firstInList = grup;
+    propList.lastInList = grup;
+    propList.listLength = propList.listLength + 1;
+    return grup;
+}
+
+// getProperty a name lookup on the property list only -- the artifact accessors ask here and nowhere else (stroke 3)
+GroupItem getProperty(String name)
+{
+GroupItem   entry;
+    if !name || !propList   return null;
+    entry = propList.firstInList;
+    while entry {
+        if entry.tag eq name    return entry;
+        entry = entry.nextInParent; }
     return null;
+}
+
+// nextProperty walks the property list: null starts it, null ends it
+GroupItem nextProperty(GroupItem entry)
+{
+    if entry    return entry.nextInParent;
+    if propList return propList.firstInList;
+    return null;
+}
+
+// removeProperty unlinks grup when it is on this node's property list; answers whether it was
+int removeProperty(GroupItem grup)
+{
+GroupItem   entry;
+    if !grup || !propList   return 0;
+    entry = propList.firstInList;
+    while entry && entry != grup    entry = entry.nextInParent;
+    if !entry   return 0;
+    if grup.priorInParent   grup.priorInParent.nextInParent = grup.nextInParent;
+    else                    propList.firstInList = grup.nextInParent;
+    if grup.nextInParent    grup.nextInParent.priorInParent = grup.priorInParent;
+    else                    propList.lastInList = grup.priorInParent;
+    grup.nextInParent   = null;
+    grup.priorInParent  = null;
+    grup.parent         = null;
+    propList.listLength = propList.listLength - 1;
+    return 1;
 }
 
 /*****************************************************************************
@@ -1559,6 +1618,8 @@ void put(GroupItem grup)
 *****************************************************************************/
 GroupItem remove()
 {
+    // propertiesFirst a property is unlinked from its owner's property list, never its term list (stroke 3)
+    if parent && parent.removeProperty(this)   return this;
     if parent && parent.groupList
         {
         GroupItem   grup;
