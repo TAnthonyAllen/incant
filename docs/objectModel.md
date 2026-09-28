@@ -71,7 +71,7 @@ Every seam defect in the record is a field on the wrong side of that split (`isR
 | `gText` / `gPointer` (one union) | shared; text or raw pointer | unchanged (rule) — F-O17, ruled 2026-09-28 | — |
 | data union (`gBuffer`, `gCharacter`, `gCharacterSet`, `gCount`, `gGroup`, `gItem`, `gMap`, `gNumber`, `gObject`, `gRegex`, `gStak`) | shared | unchanged (rule) | — |
 | `flags.isRule` | shared; written through faces (8 sites, recon §4) | written only at definition, on the rule | 2 |
-| `isPointer`, `isPercent`, `isMacro`, `guarding` (the body bits `modify()` sets for `& % $` and `_ { }`) | shared; each has a **second meaning** besides the modifier (raw-pointer data `GroupItem.twk:349,1003`; print format `:1071`; define-time `ruleActions.rtn:312,338`; bin/registry guarding `Commands.rtn:291-323`) | **bits stay** for their second meaning; `modify()` **stops writing them** — the modifier fact moves to the instance's `RuleStuff`. `$` is a per-reference fact; the `macro` command stays rule-level (F-O13) | 1 |
+| `isPointer`, `isPercent`, `isMacro`, `guarding` (the body bits `modify()` sets for `& % $` and `_ { }`) | shared; each has a **second meaning** besides the modifier (raw-pointer data `GroupItem.twk:349,1003`; print format `:1071`; define-time `ruleActions.rtn:312,338`; bin/registry guarding `Commands.rtn:291-323`) | **bits stay** for their second meaning; `modify()` **stops writing them** — the modifier fact moves to the instance's `RuleStuff`. **`$` / `isMacro` excluded: see the revised ruling in §1.5 and §1.4** | 1 (`_ { } % &`) |
 | other flags (44, listed below) | shared | rule-level **stay**; instance-level: none found (F-O14); activation-level and dead: **per row below** (F-O15, F-O16) | per row below |
 
 **The other 44 flags** (`struct bools`, 49 entries in all, multi-bit fields counted once; the four above and `isRule` are in their own rows). Level = what the flag *means*: a fact about the definition (**rule**), about one reference site (**instance**), or about one execution (**activation**). All live in the shared body today.
@@ -95,9 +95,9 @@ Every seam defect in the record is a field on the wrong side of that split (`isR
 
 | group | fields | target home | stroke |
 |---|---|---|---|
-| rule-level 8 (7 here, `rule` below) | `ruleName`, `sourceLine`, `testMatch`, `parseMethod`, `actionMethod`, `jitMethod`, `hasMacro` (copied from the body's `isMacro` when the `RuleStuff` is built, `RuleStuff.twk:146`) | the rule, read through the instance pointer; **except `hasMacro`**, which becomes the instance's `$` fact (F-O13) | 4 (`hasMacro`: 1) |
+| rule-level 8 (7 here, `rule` below) | `ruleName`, `sourceLine`, `testMatch`, `parseMethod`, `actionMethod`, `jitMethod`, `hasMacro` (copied from the body's `isMacro` when the `RuleStuff` is built, `RuleStuff.twk:146`) | the rule, read through the instance pointer (`hasMacro`: unchanged, `$` is out of scope — revised ruling) | 4 |
 | `rule` | exists; the copy constructor aims it at the **face itself**, not the rule | **not** the link (O-1 chose a new `GroupItem` field); retires or stays as a cache, decided in stroke 4 | 4 |
-| instance-level 13 | `min`, `max`, `maxRepeat`, `limitsSet`, `banged`, `noAdvance`, `noLabel`, `noSkip`, `isTarget` (also computed, `max == 1`), `overTo` (`upTo`/`upToOver`), `notifyFail`, `followed` + `onGroup` (per position in the parent: `getWhatFollows`, `embedAttribute`) | stay in the instance's `RuleStuff` | 1 (adds the `unGuarded` fact; `%`/`&`/`$` rerouted) |
+| instance-level 13 | `min`, `max`, `maxRepeat`, `limitsSet`, `banged`, `noAdvance`, `noLabel`, `noSkip`, `isTarget` (also computed, `max == 1`), `overTo` (`upTo`/`upToOver`), `notifyFail`, `followed` + `onGroup` (per position in the parent: `getWhatFollows`, `embedAttribute`) | stay in the instance's `RuleStuff` | 1 (adds `modUnGuarded`, `modPercent`, `modPointer`) |
 | activation-level 10 | `label`, `parentLabel`, `kount`, `sukcess`, `isOK`, `hereAt`, `failedAt`, `inProcess`, `guardOK`, `guardFAIL` | `ParseActivation` (today `{stuff, prev, floor, label}` — `label` already has a slot) | 5 |
 | `parentStuff` | set at construction from the grammar parent (instance), read at parse time for `parentLabel` and walked by `deferredAbove` (activation) | split: instance part stays, activation part moves | 5 |
 | dead / unclear 3 | `onFail` — written by `getWhatFollows` (`RuleStuff.twk:150`), **no reader**; `doNothing` — one write (`= 0`, `ruleActions.rtn:977`), **no reader**; `isOption` — declared, **no reference** at all | **deleted**, certificate = zero-reader census (F-O16) | 5 |
@@ -110,6 +110,7 @@ Every seam defect in the record is a field on the wrong side of that split (`isR
 - Parse in kant, including the permanent C++ kernel (recon sketch: input machinery, leaf matchers, rewritten bootstrap, about 600 lines).
 - Splitting `fLAG`'s two meanings into two channels (F-O15, ruled 2026-09-28).
 - `addingMembers`: define-time state, stays where it is (F-O15, ruled 2026-09-28).
+- **`$`, the listener binding** (revised ruling 2026-09-28). Owed before anything touches it: trace which path `field=$anotherField` takes (`modify()`'s `$` arm, the `macro` command, or other); find where the listener list lives (`runNotified`? `GroupItem.twk:1562`?; `incant/setup` registers `listenTo`); place the listening side and the notifying side in the three-level model; **pin the behaviour with a fixture first.**
 
 Each of these gets its own ruling and its own target section after stroke 5. They are listed so the summary does not absorb them along the way.
 
@@ -132,6 +133,8 @@ None. O-1 and O-2 were ruled 2026-09-28 (§1.5).
 | 2026-09-28 | **F-O16:** dead fields are deleted, certificate = a zero-reader census: the four dead body flags in stroke 3, the three dead `RuleStuff` fields in stroke 5. |
 | 2026-09-28 | **F-O17:** `registry`, `guardSet`, `gJitEmitter`, the `gText`/`gPointer` union and `gOp`: target "unchanged (rule)". |
 | 2026-09-28 | **Target signed** (all six "as recommended"). |
+| 2026-09-28 | **REVISED, supersedes F-O13:** `$` is **excluded from stroke 1**. It is a listener binding (`field=$anotherField`: the field listens to `anotherField` and receives its data on change — how form fields stay in sync), not a match modifier. Every `$` write and read stays exactly as today; `hasMacro` does **not** become the `$` fact. `$` moves to §1.4 as its own item. |
+| 2026-09-28 | Stroke 1: the dual read is approved as the model's instance-then-rule read; `ensureGuard`'s early return (`GroupItem.twk:583`) stays body-only; the 609/640 spread is null-safe on a term with no `rStuff`. Names `modUnGuarded` / `modPercent` / `modPointer`. |
 
 ---
 
@@ -141,7 +144,7 @@ Every stroke: its own try-and-buy branch cut from trunk; full seal checklist; li
 
 | # | stroke | GroupItem | GroupBody | RuleStuff / ParseActivation | layout | certificate | status |
 |---|---|---|---|---|---|---|---|
-| 1 | shared-body modifiers move to the instance | — | `modify()` stops writing the four bits; the bits stay for their second meanings | one new bit for `unGuarded`; `%`/`&`/`$` rerouted (dormant: no grammar reference carries them); `hasMacro` becomes the instance's `$` fact, the `macro` command keeps the body's `isMacro` | yes (one `RuleStuff` bit) | new row: `rightBrace}`'s `unGuarded` no longer reaches `Braced`/`Limit`; any other fleet movement is a finding | planned |
+| 1 | shared-body modifiers move to the instance | — | `modify()` stops writing `isPercent`, `isPointer`, `guarding` for `% & _ { }`; the bits keep their second meanings; `$` untouched (revised ruling) | three new bits `modUnGuarded`, `modPercent`, `modPointer`; readers ask `GroupItem.isUnGuarded()` (instance, then rule); the guard test asks the instance **first** | yes (`RuleStuff` + `GroupItem` method; `groups.ext` support `b0ce596`) | `incant/pop/omModT`: born red `e9985e5`, green `f7e0f49`; H7 (writes reverted alone) red; fleet 802 / 1, reds identical to trunk's 54; checklist identical | **landed** `f7e0f49` (merged to trunk), 2026-09-28 |
 | 2 | `isRule` not written through faces | — | `isRule` written at definition only | — | no | `literalMasterIsRule` audit pin (10) moves; re-pinned with its sentence | planned |
 | 3 | terms and properties separate | — | property list added; artifacts leave `groupList`; **dead flags `isToggle`, `isXP`, `negate`, `isAssign` and `recursive` deleted** | — | yes | term counts equal the grammar's (recon: 317, not 792); `countRuleTerms` and the `noPrint` term gates retire; **zero-reader census** for the five deleted flags; **bear-trap #10 subdirectory check** (`GUI/`, `Tests/` — `tokall` does not reach them) | planned |
 | 4 | instance pointer | **new field: the instance → rule link** (O-1); replaces `options.isCopy` | — | rule-level fields read through the link; `RuleStuff.rule` retires or stays as a cache (decided in the stroke) | **yes** (`GroupItem`: `groups.ext` + full `tokall`) | the 13 `definingRule()` callers switch one at a time | planned |
@@ -154,6 +157,11 @@ Every stroke: its own try-and-buy branch cut from trunk; full seal checklist; li
 `GroupActions.rtn` driveStep 68 · modify 25 · materialiseTerms 15 · modifyClass 11 · driveFloorLabel 10 · runRule 8 —
 `Generate.rtn` parseRule 80 · parseContainer 59 · exitFromParse 21 · parseLoop 14 · runLeafParse 8 · repeatsInLoop 7.
 **Every later count uses this same list**; a function a stroke deletes counts 0, and a function a stroke adds joins the list with a note.
+
+| after stroke | lines | functions | what moved |
+|---|---|---|---|
+| baseline | 905 | 37 | — |
+| **1** (`f7e0f49`) | **912** | 38 | `checkInput` 44 → 45 and `checkGuard` 9 → 10 (instance-first reorder); **`isUnGuarded` joins at 5**. A correctness stroke: the count rose by 7, and says so. |
 
 ---
 
@@ -179,3 +187,7 @@ Every stroke: its own try-and-buy branch cut from trunk; full seal checklist; li
 | F-O16 | 2026-09-28 | **Dead fields.** Body flags `isToggle`, `isXP`, `negate` (no reader or writer) and `isAssign` (write-only); `RuleStuff` `onFail`, `doNothing` (write-only) and `isOption` (unreferenced). The `RuleStuff` three have a target row ("ruling per field: delete or classify"); the four body flags have none. | **ruled 2026-09-28** (§1.5) |
 | F-O17 | 2026-09-28 | Four `GroupBody` fields were missing from §1.3 and are now rows with **no target**: `registry`, `guardSet`, `gJitEmitter`, the `gText`/`gPointer` union. §1.2 implies "unchanged (rule)" for all four, but that is Clod's inference, not a ruling, so the target cell says "not addressed". Also split out of the old `gMethod`, `instructType` row: `gOp` (union partner of `gMethod`, added) and `instructType` (a flag, now in the flags list). | **ruled 2026-09-28** (§1.5) |
 | F-O18 | 2026-09-28 | **Rule-level data written outside definition.** `ensureGuard` (`GroupItem.twk:575`; since the split, `getGuard` is a pure read, bear-trap #30) computes a rule's guard set the first time it is asked and, for a member, **merges it into the parent's `guardSet`** (`GroupItem.twk:657`: `if isMember && parent.guardSet  parent.guardSet += guardSet;`). It also sets `guarded`/`unGuarded` on its own body at that first computation. Both are rule-level fields, written lazily from the parse rather than at definition. | noted, no change (ruled 2026-09-28) |
+| F-O19 | 2026-09-28 | **Stroke 1's census misclassified `ensureGuard`'s early return (`GroupItem.twk:583`, `if guarding goto returnGuard`).** It also reads the modifier meaning: a term declared unguarded never has a guard computed for it. The first stroke-1 build (dual read *after* `ensureGuard`) crashed 139 computing a guard for `QuotE`'s inline `quoteBody}=tik`. Resolved **without touching 583**: `checkInput`/`checkGuard` ask the instance first and compute the rule's guard only when the reference is not declared unguarded, which is the model's instance-then-rule read and exactly the old behaviour for a declared term. | resolved in stroke 1 |
+| F-O20 | 2026-09-28 | **Latent null in `ensureGuard`'s group-data arm** (`GroupItem.twk:607-610`): `guardSet += itemGuard` with no null test, where the held group's guard can come back null (it did, for `tik` via `quoteBody`). Pre-existing; unreachable again after F-O19's reorder, but reachable by any path that computes a guard for an inline group-data term. | reported, not fixed (F2) |
+| F-O21 | 2026-09-28 | **The `&` raw-pointer hazard, removed by stroke 1.** Before the stroke, `&` on any reference set `isPointer` on the rule's shared body, and `GroupItem.twk:349` (`if !isPointer gText = 0`) and `:1003` (`if isPointer return pointer`) would then read that rule's text as a raw pointer. Measured on the born-red run: `OmA&` in `OmQ` put `ptr=1` on the body all four `OmA` references share. Dormant in the grammar (no `&` anywhere). | removed, stroke 1 |
+| F-O22 | 2026-09-28 | **Correction to Clod's own claim:** `groups.ext` carries a **full** `RuleStuff` field mirror (lines 743–789), not only forward declarations; Clod had read only the two forward declarations. So a new `RuleStuff` field is a `groups.ext` edit (bear-trap #16). Caught by Tony mid-stroke; applied in support `b0ce596`. | applied |
