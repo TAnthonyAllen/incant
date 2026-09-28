@@ -3452,6 +3452,17 @@ extern GroupItem jitShowRecord(GroupItem field)
                att->groupBody->flags.noPrint ? 1 : 0,
                x ? ::strlen(x) : (size_t)0);
         kount++; }
+    /*  THE PROPERTY LIST IS HALF THE RECORD SINCE OBJECT-MODEL STROKE 3: CodE and
+        BlocK moved there, JiT did not, and coresidence asks about all three.  */
+    att = 0;
+    while ((att = definer->nextProperty(att))) {
+        char *t = att->groupBody->tag;
+        char *x = att->getText();
+        printf("  %s  noPrint=%d  %zu bytes\n",
+               t ? t : "(untagged)",
+               att->groupBody->flags.noPrint ? 1 : 0,
+               x ? ::strlen(x) : (size_t)0);
+        kount++; }
     printf("=== RECORD %s: %d attributes ===\n", definer->groupBody->tag, kount);
     fflush(stdout);
     return ruler->trueResult;

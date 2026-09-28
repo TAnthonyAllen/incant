@@ -1525,7 +1525,10 @@ diffcheck "anyOrNum.target (generated bodies + the parsed answer)" genLadder/any
 #  because a silent cap reads as coverage.
 run2 connectiveT "$T/ct.o" "$T/ct.e"; check "connectiveT runs" 0 $?
 sentinel "connectiveT sentinel (no truncation)" "$T/ct.e" "CONNECTIVE SENTINEL"
-CT_REMEDY="rule  StatemenT hasAttributeS  1 hasTraitS  0"
+#  RE-PINNED 2026-09-28 WITH STROKE 3 (sentence, H6): StatemenT's one attribute was its builtinActoR, which is
+#  now a property, so hasAttributeS 1 -> 0. The 08-26 defect (an artifact setting hasTraitS) is now
+#  UNCONSTRUCTABLE: no artifact is added to a term list, so neither flag can hear one.
+CT_REMEDY="rule  StatemenT hasAttributeS  0 hasTraitS  0"
 CT_CONTROL="rule  BlocK hasAttributeS  1 hasTraitS  1"
 if grep -qF "$CT_REMEDY" "$T/ct.e"; then
     echo "  ok    connectiveT: StatemenT after setParse reads hasAttributeS 1 hasTraitS 0"; green=$((green+1))
@@ -1587,15 +1590,19 @@ sentinel "traitFlagsT sentinel (no truncation)" "$T/tf" "TRAITFLAGS SENTINEL"
 #  holders that are direct Grokking children, went from a group slot and no attributes
 #  to one attribute each; TF-1 and TF-5 are unmoved, so the population and the
 #  disagreement are unchanged.
+#  RE-PINNED 2026-09-28 WITH STROKE 3 (sentence, H6): TF-5 2 -> 0 is the direction its own note above
+#  predicted -- "something took builtinActoR off": the actor moved to the property list, so ShortcuT and
+#  StatemenT, whose only attribute it was, lose hasAttributeS (TF-2 50 -> 48, TF-6 35 -> 37). TF-4 at 48 stays
+#  the non-zero sibling. TF-7's name rows RETIRE with their population: TF-5 = 0 pins the empty set by value.
 #  RE-PINNED 2026-09-28 (the Limit retirement): TF-1 86 -> 85 and TF-2/3/4 each -1 -- Limit was a Grokking
 #  rule carrying attributes and traits (leftBrace, min, max, rightBrace), and it is gone; TF-5 and TF-6 are
 #  unmoved, so no other rule changed shape.
 for _arm in "TF-1 rules seen                   =  85" \
-            "TF-2 carrying hasAttributeS       =  50" \
+            "TF-2 carrying hasAttributeS       =  48" \
             "TF-3 carrying hasTraitS           =  48" \
             "TF-4 carrying BOTH                =  48" \
-            "TF-6 no attributes                =  35" \
-            "TF-5 the two flags DISAGREE on    =  2"; do
+            "TF-6 no attributes                =  37" \
+            "TF-5 the two flags DISAGREE on    =  0"; do
     if grep -qF "$_arm" "$T/tf"; then
         echo "  ok    traitFlagsT ${_arm} -- PINNED BY VALUE"; green=$((green+1))
     else
@@ -1604,13 +1611,6 @@ for _arm in "TF-1 rules seen                   =  85" \
         echo "        sentence saying which direction and why (H6)."
         grep -F "$(echo "$_arm" | cut -c1-4)" "$T/tf" | sed 's/^/          actual:   /'
         fail=1
-    fi
-done
-for _rule in ShortcuT StatemenT; do
-    if grep -qE "^	${_rule}  " "$T/tf"; then
-        echo "  ok    traitFlagsT TF-7 names ${_rule} -- PRESENCE WITH VALUE"; green=$((green+1))
-    else
-        echo "  FAIL  traitFlagsT TF-7 no longer names ${_rule}"; fail=1
     fi
 done
 
@@ -3531,7 +3531,7 @@ else
 fi
 for _r in "CT-2 THE ACTION FIRES after parser(list) -- F-87 closed|list tests the for statement:|o" \
           "CT-3 sumGrup still in list CodE -- the action BODY survived, by its own local|sumGrup|o" \
-          "CT-4 builtinParseR is ON the rule -- the parse was parked, not discarded|builtinParseR        attribute  noPrint|o"; do
+          "CT-4 builtinParseR is ON the rule, by lookup -- the parse was parked, not discarded (stroke 3: a property now, read by lookup with a miss control)|CT-4 carrier present  1 miss control  0|e"; do
     _lbl=${_r%%|*}; _rest=${_r#*|}; _want=${_rest%|*}
     if grep -qF "$_want" "$T/ct.o"; then
         echo "  ok    carrierT $_lbl"; green=$((green+1))
@@ -3929,6 +3929,9 @@ sentinel "artifactSkipT sentinel (no truncation)" "$T/ask" "ARTIFACTSKIP SENTINE
 #  noPrinT 1, so the walker skips it structurally". Its surviving sibling below,
 #  builtinActoR, asserts exactly that fact on the artifact that IS still minted, so
 #  the structural claim keeps a live witness and the census is 1 1 0 rather than 1 1 0 0.
+#  STROKE 3 (2026-09-28, sentence, H6): the actor is a PROPERTY now, so the walk no longer meets it; the
+#  fixture probes it by lookup (asAct := NumbeR["builtinActoR"]) and the pinned line is unchanged. The skip
+#  it certified has nothing left to skip on this rule -- termCountT asserts that.
 for _r in "term numberSet    is a rule|child  numberSet isRulE  1 noPrinT  0" \
           "term FloaT        is a rule|child  FloaT isRulE  1 noPrinT  0" \
           "artifact builtinActoR is NOT|child  builtinActoR isRulE  0 noPrinT  1"; do
@@ -5453,16 +5456,18 @@ kindRow "ruleTermT RT-4 leftBrace is a rule by REGISTRATION (no punctuation mast
 #  the printed child order, never through an accessor (bear-trap 55). "actors" is the non-zero sibling.
 run2 actorOrderT "$T/ao.o" "$T/ao.e"; check "actorOrderT runs" 0 $?
 sentinel "actorOrderT sentinel" "$T/ao.o" "ACTORORDER SENTINEL"
+#  RESPELLED 2026-09-28 WITH STROKE 3 (sentence, H6): the actor left the term list for the property list, so
+#  AO-1 counts actors FOUND BY LOOKUP (33, unchanged in value) and AO-2 counts rules with a builtinActoR
+#  anywhere in their child walk (3a's "after the terms" generalised to "not among them"; 0).
 aoCount () { awk '
-/^AORULE /{r=$2; seen=0; next}
-/^AOCHILD /{t=$2; if(t=="builtinActoR"){seen=1; act[r]=1; next}
- if(t ~ /^(builtinParseR|pendingParseR|CodE|BlocK|frameSTAK|tempField|this)$/) next;
- if(seen) bad[r]=1}
+/^AORULE /{r=$2; next}
+/^AOACTOR /{act[$2]=1; next}
+/^AOCHILD /{if($2=="builtinActoR") bad[r]=1}
 END{na=0;nb=0;names="";for(k in act)na++; for(k in bad){nb++; names=names " " k}; print na "/" nb names}' "$T/ao.e"; }
 AO=$(aoCount)
-kindRow "actorOrderT AO-1 rules carrying a builtinActoR (non-zero sibling)" "${AO%%/*}" "33"
+kindRow "actorOrderT AO-1 rules whose builtinActoR is found by lookup (non-zero sibling)" "${AO%%/*}" "33"
 AOB=${AO#*/}
-kindRow "actorOrderT AO-2 rules with a real term AFTER their builtinActoR (names follow if any)" "$AOB" "0"
+kindRow "actorOrderT AO-2 rules with a builtinActoR AMONG their children (names follow if any)" "$AOB" "0"
 
 #  ---------------------------------------------------------------------------
 #  termCountT -- OBJECT MODEL STROKE 3: artifacts no longer change a rule's term count. Every Grokking
