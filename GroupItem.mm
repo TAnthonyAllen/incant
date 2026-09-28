@@ -830,7 +830,7 @@ int 		noMoreAttributes = 0;
 					itemGuard = item->ensureGuard();
 					if ( guardInProcess(item->groupBody->flags.guarding) )
 						goto returnGuard;
-					if ( unGuarded(item->groupBody->flags.guarding) )
+					if ( item->isUnGuarded() )
 						groupBody->flags.guarding = 2;
 					else	groupBody->guardSet->set(itemGuard);
 					if ( item->getRStuff() && item->getRStuff()->min )
@@ -880,7 +880,7 @@ int 		noMoreAttributes = 0;
 					else
 					if ( guarded(item->groupBody->flags.guarding) && item->getRStuff()->min )
 						noMoreAttributes = 1;
-				if ( unGuarded(item->groupBody->flags.guarding) )
+				if ( item->isUnGuarded() )
 					groupBody->flags.guarding = 2;
 				if ( itemGuard )
 					groupBody->guardSet->set(itemGuard);

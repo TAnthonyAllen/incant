@@ -534,16 +534,16 @@ extern void modify(GroupItem field,String modifier)
             case '?':   min     = 0;
             case '!':   banged  = true;
             case '<':   noAdvance   = true;
-            case '%':   isPercent   = true;
-            case '&':   isPointer   = true;
+            case '%':   modPercent  = true;
+            case '&':   modPointer  = true;
             case '@':   isTarget    = true;
             case '-':   noLabel     = true;
-            case '_':   unGuarded   = true;
+            case '_':   modUnGuarded = true;
             case '^':   noSkip      = true;
             case '{':   upTo        = true;
-                        unGuarded   = true;
+                        modUnGuarded = true;
             case '}':   upToOver    = true;
-                        unGuarded   = true;
+                        modUnGuarded = true;
             case '$':   isMacro     = true; }
 }
 

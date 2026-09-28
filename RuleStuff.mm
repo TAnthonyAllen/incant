@@ -474,6 +474,8 @@ RuleStuff::RuleStuff(RuleStuff *r)
 int RuleStuff::checkGuard(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( field->isUnGuarded() )
+		return 1;
 	if ( guardInProcess(field->groupBody->flags.guarding) )
 		field->groupBody->flags.guarding = 0;
 	if ( !field->groupBody->flags.guarding )
@@ -514,6 +516,9 @@ GroupItem 	*field = rule;
 		guardOK = 0;
 		sukcess = 1;
 		}
+	else
+	if ( field->isUnGuarded() )
+		sukcess = 1;
 	else {
 		if ( guardInProcess(field->groupBody->flags.guarding) )
 			field->groupBody->flags.guarding = 0;

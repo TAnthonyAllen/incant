@@ -7026,10 +7026,10 @@ extern "C" void modify(GroupItem *field, char *modifier)
 				field->getRStuff()->noAdvance = 1;
 				break;
 			case '%':
-				field->groupBody->flags.isPercent = 1;
+				field->getRStuff()->modPercent = 1;
 				break;
 			case '&':
-				field->groupBody->flags.isPointer = 1;
+				field->getRStuff()->modPointer = 1;
 				break;
 			case '@':
 				field->getRStuff()->isTarget = 1;
@@ -7038,18 +7038,18 @@ extern "C" void modify(GroupItem *field, char *modifier)
 				field->getRStuff()->noLabel = 1;
 				break;
 			case '_':
-				field->groupBody->flags.guarding = 2;
+				field->getRStuff()->modUnGuarded = 1;
 				break;
 			case '^':
 				field->getRStuff()->noSkip = 1;
 				break;
 			case '{':
 				field->getRStuff()->overTo = 1;
-				field->groupBody->flags.guarding = 2;
+				field->getRStuff()->modUnGuarded = 1;
 				break;
 			case '}':
 				field->getRStuff()->overTo = 2;
-				field->groupBody->flags.guarding = 2;
+				field->getRStuff()->modUnGuarded = 1;
 				break;
 			case '$':
 				field->groupBody->flags.isMacro = 1;

@@ -606,7 +606,7 @@ use guardSet
                     item = group;
                     itemGuard           = item.ensureGuard();
                     if item.guardInProcess  goto returnGuard;
-                    if item.unGuarded   unGuarded = true;
+                    if item.isUnGuarded()   unGuarded = true;
                     else                guardSet += itemGuard;
                     if item.rStuff && item.min  goto endSetGuard;
                 case isANY:
@@ -637,7 +637,7 @@ use guardSet
                     if noMoreAttributes             continue;
                     or item.guardInProcess          goto returnGuard;
                     or item.guarded && item.min     noMoreAttributes = true;
-                if item.unGuarded   unGuarded = true;
+                if item.isUnGuarded()   unGuarded = true;
                 if itemGuard        guardSet += itemGuard;
                 if unGuarded    break; }
         item = 0;
