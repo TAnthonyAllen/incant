@@ -9987,8 +9987,7 @@ Stroke 3: rule lists plus artifacts only; locals stay where they are. Before bui
 ===================================================================
 SEQ 220  -  STROKE 3 GO: F-O32 MEASUREMENT FIRST; ACCESSORS PROPERTIES-ONLY; SELF-PINNED ORACLE
 ===================================================================
-STATUS: working -- STOPPED at the F-O32 measurement (material: the registry entry's parseMethod
-        is null post-3a; the method lands on the second node's rStuff). Awaiting a ruling.
+STATUS: cleared -- stopped at the F-O32 measurement (material); ruled option (1) in SEQ 221.
 
 Go on stroke 3, with:
 First, the F-O32 measurement. For every definingRule() caller that ran on ExpressioN and StatemenT,
@@ -10004,3 +10003,24 @@ Rationale (Clay): stroke 3 makes F-O32 permanent -- once the actor leaves the te
 child is always a real term; the fleet unmoved is evidence only about what the fleet reads (H12).
 
   END SEQ 220
+
+
+===================================================================
+SEQ 221  -  F-O32 OPTION (1), TIMEBOXED; THEN STROKE 3 IF IT CAN START BY 17:00; LEDGER LAYOUT
+===================================================================
+STATUS: working -- F-O32 fixed and certified (om-fo32); stroke 3 next.
+
+F-O32 option (1), timeboxed. Find where a later definition's terms get parented to a node other than
+the surviving registry entry; aCTionDefinE's merge is the lead -- confirm by measurement before
+editing. Population first (H11): census every rule declared and then filled later, not only
+ExpressioN and StatemenT (JSONblock isRule;, JSONarray isRule; are in it). Report the count before
+the fix. Fix so the terms are parented to the registry entry. Certificate: definerT green; across the
+census population, rules whose first term's parent is not the registry entry = 0; the registry
+entry's parseMethod non-null on every runLeafParse call for those rules (null count 0); actorOrderT
+still 0; fleet otherwise unmoved row for row; canary unchanged. Timebox: not found and certified by
+~16:30 -> stop, record in F-O32, fall back to (3) known red until stroke 4, don't grind.
+Then stroke 3 as SEQ 220 if it can start by ~17:00.
+After whichever stroke seals last (docs only): Part 2's stroke ledger becomes one section per stroke
+-- heading = stroke number and name, each former column a labelled line. Layout only.
+
+  END SEQ 221

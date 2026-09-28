@@ -422,7 +422,9 @@ GroupItem 	*item = 0;
 			{
 			if ( ruler->currentRegistry->groupBody->flags.isRule )
 				{
-				NewGroup = ruler->currentRegistry->addMember(NewGroup);
+				// noSatellite a later definition of an entry ALREADY in this registry fills the entry itself -- re-adding a parented node mints a copy that put() never lists, and the terms would be parented to it (F-O32)
+				if ( NewGroup->parent != ruler->currentRegistry )
+					NewGroup = ruler->currentRegistry->addMember(NewGroup);
 				if ( !NewGroup->groupBody->flags.binType )
 					NewGroup->groupBody->flags.isRule = 1;
 				if ( !NewGroup->getRStuff() )
@@ -435,7 +437,8 @@ GroupItem 	*item = 0;
 			else
 			if ( NewGroup->groupBody->registry != ruler->currentRegistry )
 				if ( ruler->currentDefine == NewGroup || !ruler->currentDefine || !ruler->currentDefine->groupBody->flags.addingMembers )
-					NewGroup = ruler->currentRegistry->addMember(NewGroup);
+					if ( NewGroup->parent != ruler->currentRegistry )
+						NewGroup = ruler->currentRegistry->addMember(NewGroup);
 			}
 		}
 	if ( !NewGroup->groupBody->flags.isRule )
