@@ -348,3 +348,27 @@ read-only pass. A static proxy from §2 (refs in generated code): activation fie
 (`label` 92, `sukcess` 56), then instance (`min`/`max`/modifiers ~100 combined), then rule
 (`parseMethod` 25, `actionMethod` 17, `rule` 28). That counts sites, not executions, and says
 nothing about the hot path. **Owed if the chain-walk cost becomes the deciding question.**
+
+---
+
+## 10. Header check of Clay's five-stroke table (2026-09-28, read-only)
+
+Clay's per-stroke table was written from the seal record. Checked against `GroupItem.h`,
+`RuleStuff.h`, `GroupBody.twk` and `jitContext.h`, with every reader of the stroke-1 bits read by
+line.
+
+**Headers as they stand.**
+- `GroupItem`: `groupBody`, `parent`, `nextInParent`, `priorInParent`, `rStuff`, `jitData`,
+  `options` {`affiliation`:2, `isCopy`}.
+- `RuleStuff`: 18 members + 17 bitfields, exactly the §2 rows.
+- `ParseActivation` (`jitContext.h:707`) is a **plain C++ struct**, not a tok class:
+  `{stuff, prev, floor, label}`, and it **already has `label`**.
+
+| stroke | correction |
+|---|---|
+| **1** | **The four body bits each carry a second, non-modifier meaning, so they cannot be removed.** `isPointer` is a value-kind bit (`GroupItem.twk:349,1003`: the `gPointer` union; `Instruct.rtn:803`; `Stylish.twk:180`). `isPercent` is a print format (`GroupItem.twk:1071`). `isMacro` is read at define time (`ruleActions.rtn:312,338`; the `macro` flag command writes it). `guarding` is a bin/registry property (`GroupList`, `GroupStak`, `Commands.rtn:291-323`) and `unGuarded` has body-level writers (`GroupItem.twk:586`, `Commands.rtn:311`). **So stroke 1 is a one-channel-one-meaning SPLIT:** `modify()` stops writing the body, and the reference-site fact goes to `rStuff`. The body bits stay. |
+| **1, population** | **Only `unGuarded` is live at a reference.** The §9 census found 0 of 158 references with a `%`, `&` or `$` bit on their body; the only reference-site body bits are `unGuarded` (from `_ { }`). `hasMacro` and `overTo` already live in `RuleStuff`. So stroke 1 is probably **one new `RuleStuff` bit** (instance `unGuarded`) plus rerouting `%` `&` `$` (dormant, no live specimen). |
+| **4** | `isCopy` is in **GroupItem.options**, not GroupBody. **An instance→rule pointer already exists and is aimed at SELF:** `RuleStuff.rule`, which the copy ctor sets to `this` (`GroupItem.twk:47`). But 109 terms have no `rStuff` at all (lazy, §9), so it can't carry the link as is. The two shapes: a new `GroupItem` field (layout: `groups.ext` `external GroupItem` + tokall), or re-aim `rStuff.rule` and make `rStuff` eager. That choice is the stroke's design question. |
+| **5** | `ParseActivation` is not tok-generated, so adding fields there is **no `groups.ext`/tokall**. **Removing** the activation fields from `RuleStuff` is the layout change. `label` already has a slot. |
+| **3** | A property list on `GroupBody` is a GroupBody layout change. Beyond `groups.ext` + tokall, it owes the bear-trap #10 subdirectory check (`GUI/*.twk`, `GUI/Stuff/*.twk`, `Tests/*.twk` are unswept by tokall). |
+| **2** | No layout change, confirmed. The 8 write sites are §4's list. |
