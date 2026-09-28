@@ -372,3 +372,54 @@ line.
 | **5** | `ParseActivation` is not tok-generated, so adding fields there is **no `groups.ext`/tokall**. **Removing** the activation fields from `RuleStuff` is the layout change. `label` already has a slot. |
 | **3** | A property list on `GroupBody` is a GroupBody layout change. Beyond `groups.ext` + tokall, it owes the bear-trap #10 subdirectory check (`GUI/*.twk`, `GUI/Stuff/*.twk`, `Tests/*.twk` are unswept by tokall). |
 | **2** | No layout change, confirmed. The 8 write sites are §4's list. |
+
+---
+
+## 11. Stroke 3 step 0: terms and properties (2026-09-28, trunk `4f69c7b`, read-only)
+
+**Scope note first:** artifacts sit on **action** lists as well as rule term lists (`CodE`, `tempField`, `frameSTAK` on actions), so "separate terms from properties" is a `GroupBody` change for every field that carries artifacts, not a grammar-only change.
+
+### 11.1 Writers (≈ 12 sites)
+
+| site | writes | onto |
+|---|---|---|
+| `setActions` (`GroupItem.twk:1649/1666/1677`) | `builtinActoR` (three shapes), and moves the action's `CodE` into it (`:1660`) | the rule |
+| `aCTionDefinE` (`ruleActions.rtn:306-349`) | `CodE` (noPrint), `tempField` | the action being defined |
+| `compile` (`Commands.rtn:56-97`) | `tempField`; the staged `pendingParseR`, retagged `builtinParseR` when green | the field |
+| `attachBlocK` (`GroupItem.twk`) | `BlocK` | the action or parse holder |
+| `frameStak` (`GroupActions.rtn:293`) | `frameSTAK` | the action |
+| kant generator (`IncantForms/WorkingOn/parser:37-46`) | a `pendingParseR` carrier holding a `copyOf(CodE)` | the rule |
+
+The "binding attributes" named in the dispatch (`builtinParsE`) no longer exist in source.
+
+### 11.2 Name lookups: ONE mechanism
+
+Every name read of an artifact goes through **`get(String)`**, which walks the single `groupList`. `getAttribute(name)` calls `get(name)`, and kant's `x["name"]` is `opGet` -> `get(name)`. Readers: **tok ≈ 20** (`actionBlocK`, `actionBody`, `actionHolder` ×2, `fireLabelMethod`, `parseBlocK`, `parseBody`, `parseHolder` ×2, `setActions` ×2, `compile` ×3, `frameFind`, `frameStak`, `processCode`, `parseRule`, `jitProbeDrive`, `probeSweep`); **kant 12** (the generator 4, `incant/frontier` 5, fixtures 3). **So one function decides whether every lookup still works:** if `get(name)` searches terms and then properties, no name reader changes.
+
+### 11.3 Skippers
+
+| class | sites |
+|---|---|
+| **retire** (skips artifacts on a rule/term list) | `ensureGuard` `GroupItem.twk:634`, `testAttributes` `RuleStuff.twk:269`, `setParseWalk` `Generate.rtn:419`, `dupTermRefusal` `genParse.rtn:110,112`, `compile` `Commands.rtn:65,105`, `probeSweep` `jitEmitters.rtn:2782`, `labelMinters` `measure.twk:286` -- **9 lines** |
+| **retire if action lists split too** | `processAction` `GroupActions.rtn:636`, `jitBuildFunction` `jitEmitters.rtn:269` -- 2 |
+| **stay** (presentation `noPrint`, printing) | `aCTionPrinT` `ruleActions.rtn:732,753`, `appendPrintXP` `:1237`, `next()`'s `ignoreNoPrint` option -- 4 |
+| **unclear** | `setDebug` `GroupItem.twk:1750` (artifacts and noPrint commands alike) -- 1 |
+| **kant** | 20 lines in 13 files: the generator 2, `incant/utilities` 1, fixtures/instruments 17 |
+
+`countRuleTerms` no longer exists.
+
+### 11.4 Positional: THE PREMISE IS REFUTED
+
+**12 of 63 rules have an artifact BEFORE a real term** -- `builtinActoR` at index 1 (`NumbeR`: index 2, between terms), because the bootstrap calls `setActions()` before adding terms: `DefinE`, `DelimText`, `ExpressioN`, `NamE`, `NewGroup`, `NumbeR`, `QuotE`, `RunRulE`, `SetBrackets`, `StatemenT`, `TraiT`, `TraiTdata` (same at rest and after `parser(Start)`). **The split shifts those rules' real-term indices by one.** Positional readers of rule lists: `definingRule()` (`get(1)`, the first child's parent -- lands on the same owner either way), `materialiseTerms` (`rule[i]`, walks artifacts too), `aCTionCodE` (`rule[1]`/`rule[2]` on `CodeBody`, not among the 12), and the audit's `entry[i]` walks (instruments). Generated bodies call by NAME, never by index; kant has no positional rule reads. The other positional reads (`input[1]`, `field[1..3]`, `InvokE[1]`, ...) index LABEL and expression trees, not rule lists -- though label trees carry a `noPrint` artifact of their own (TraiTdata's Modifier packet), outside stroke 3.
+
+### 11.5 Instance vs rule
+
+**`groupList` lives in `GroupBody`, so everything on a list is shared by construction -- no artifact can sit per-reference** (a face has no list of its own). One finding: **`frameSTAK` is ACTIVATION data (an action's frame stack) stored in rule substance** -- stroke 5's territory, next to NO HUNT.
+
+### 11.6 Subdirectory reach
+
+Zero `GroupBody` references in `GUI/`, `GUI/Stuff/`, `Tests/` generated files; **no `GUI/` or `Tests/` `.mm` is in the Groups target's Sources** (`GUI/Groups.mm` and `GUI/Control.mm` are file references only; the compiled `Layout.mm` is top-level). A `GroupBody` layout change reaches nothing unswept.
+
+### 11.7 Expected line-count delta -- THE PREDICTION
+
+**On the 39-function parse metric: ≈ −1** -- of the retiring skippers only `testAttributes`' line is on the list; `get()` and the other skippers are not. **Stroke 3 will not visibly shrink the metric**, because its savings live outside the functions the metric counts. **Tree-wide:** −9 to −11 tok skipper lines and ≈ −20 kant lines, against the property list's own cost (a `GroupBody` list field, `get()` searching two lists, accessors: ≈ +10-15) -- **net ≈ −15 to −20 tree-wide.** If the stroke is to be judged by shrinkage, the metric needs a second column that covers the skippers.
