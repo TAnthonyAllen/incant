@@ -360,6 +360,8 @@ extern GroupItem runLeafParse(GroupItem field)
 GroupItem   definer = field.definingRule();
 RuleStuff   defStuff;
     if definer      defStuff = definer.rStuff;
+    // instanceFirst the reference's own { } before the rule's method -- the same read as driveStep's (F-O23)
+    if field.rStuff && field.rStuff.overTo  return parseUpTo(field);
     if defStuff && defStuff.parseMethod     return defStuff.parseMethod(field);
     return refuse(field,"parseLoop: no parse method is installed on the defining rule");
 }
@@ -395,7 +397,8 @@ RuleStuff   ruleStuff = rStuff;
     parseWalked = true;
     // actionMethodRemoved the walk writes gMethod and parseMethod and NOTHING ELSE -- actionMethod is set at definition
     // realTermNotAList a FIELD with nothing but noPrint artifacts is a DATA rule: hasTraits and hasMembers ignore artifacts, groupList does not. The CONVERSION predicate is NOT this test -- it still asks the group's real groupList.
-    if upTo || upToOver     parseMethod = parseUpTo;
+    // upToIsTheReferences a reference's { } is ITS fact, never the rule's -- only an inline definition (not a copy) classifies from its own overTo (F-O23)
+    if (upTo || upToOver) && !field.isCopy  parseMethod = parseUpTo;
     or isBIN || isREGISTRY  parseMethod = parseContainer;
     or isCondition          parseMethod = parseCondition;
     or parseACTION          parseMethod = parseAction;

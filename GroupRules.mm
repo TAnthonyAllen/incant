@@ -2185,8 +2185,12 @@ char 		*driveBase = 0;
 	if ( rule->groupBody->flags.hasNewParse )
 		{
 		// noSilentFallthrough NEVER fall through to the old parse here -- it trades a loud crash for a quiet wrong answer
+		// instanceFirst the reference's own { } before the rule's method -- the same read as runLeafParse's (F-O23)
 		if ( !rule->groupBody->gMethod )
 			result = ::refuse(rule,"runRule: hasNewParse is set but no method is installed to fire");
+		else
+		if ( rule->getRStuff() && rule->getRStuff()->overTo )
+			result = ::parseUpTo(rule);
 		else	result = rule->groupBody->gMethod(rule);
 		}
 	else {
@@ -10307,6 +10311,9 @@ GroupItem 	*definer = field->definingRule();
 RuleStuff 	*defStuff = 0;
 	if ( definer )
 		defStuff = definer->getRStuff();
+	// instanceFirst the reference's own { } before the rule's method -- the same read as driveStep's (F-O23)
+	if ( field->getRStuff() && field->getRStuff()->overTo )
+		return ::parseUpTo(field);
 	if ( defStuff && defStuff->parseMethod )
 		return defStuff->parseMethod(field);
 	return ::refuse(field,"parseLoop: no parse method is installed on the defining rule");
@@ -10605,7 +10612,8 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	field->groupBody->flags.parseWalked = 1;
 	// actionMethodRemoved the walk writes gMethod and parseMethod and NOTHING ELSE -- actionMethod is set at definition
 	// realTermNotAList a FIELD with nothing but noPrint artifacts is a DATA rule: hasTraits and hasMembers ignore artifacts, groupList does not. The CONVERSION predicate is NOT this test -- it still asks the group's real groupList.
-	if ( upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo) )
+	// upToIsTheReferences a reference's { } is ITS fact, never the rule's -- only an inline definition (not a copy) classifies from its own overTo (F-O23)
+	if ( (upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo)) && !field->options.isCopy )
 		ruleStuff->parseMethod = ::parseUpTo;
 	else
 	if ( isBIN(field->groupBody->flags.binType) || isREGISTRY(field->groupBody->flags.binType) )
