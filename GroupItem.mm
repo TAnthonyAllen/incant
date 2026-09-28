@@ -1769,7 +1769,7 @@ continueHere:
 			}
 		else	break;
 		}
-	if ( ruleStuff->kount >= ruleStuff->maxRepeat && ruleStuff->maxRepeat > 1 && !ruleStuff->limitsSet )
+	if ( ruleStuff->kount >= ruleStuff->maxRepeat && ruleStuff->maxRepeat > 1 )
 		::reportRepeatLimit(ruleStuff->rule,ruleStuff->kount,ruleStuff->maxRepeat);
 matchFailed:
 	if ( !ruleStuff->sukcess )

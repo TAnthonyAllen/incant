@@ -9023,7 +9023,7 @@ int 		more = 0;
 			if ( !*ruler->atRuleMark )
 				break;
 			}
-		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+		if ( more && ruleStuff->max > 1 )
 			::reportMaxLimit(field);
 		else
 		if ( counter && counter >= ruleStuff->min )
@@ -9063,7 +9063,7 @@ int 		more = 0;
 			if ( !*ruler->atRuleMark )
 				break;
 			}
-		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+		if ( more && ruleStuff->max > 1 )
 			::reportMaxLimit(field);
 		else
 		if ( counter && counter >= ruleStuff->min )
@@ -9307,7 +9307,7 @@ int 		more = 0;
 			if ( !*ruler->atRuleMark )
 				break;
 			}
-		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+		if ( more && ruleStuff->max > 1 )
 			::reportMaxLimit(field);
 		else
 		if ( counter && counter >= ruleStuff->min )
@@ -10060,7 +10060,7 @@ int 		failOffset = -1;
 	report->addAttribute(num);
 }
 
-// reportMaxLimit a match hit the maxLimit ceiling with input still matching -- REFUSE rather than truncate; callers gate on max > 1 && !limitsSet
+// reportMaxLimit a match hit the maxLimit ceiling with input still matching -- REFUSE rather than truncate; callers gate on max > 1
 extern "C" int reportMaxLimit(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;

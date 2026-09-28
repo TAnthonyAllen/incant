@@ -100,7 +100,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			if ( !*ruler->atRuleMark )
 				break;
 			}
-		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+		if ( more && ruleStuff->max > 1 )
 			return ::reportMaxLimit(field);
 		if ( counter && counter >= ruleStuff->min )
 			{
@@ -156,7 +156,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			if ( !*ruler->atRuleMark )
 				break;
 			}
-		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+		if ( more && ruleStuff->max > 1 )
 			return ::reportMaxLimit(field);
 		if ( counter && counter >= ruleStuff->min )
 			{
@@ -253,7 +253,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			if ( !*ruler->atRuleMark )
 				break;
 			}
-		if ( more && ruleStuff->max > 1 && !ruleStuff->limitsSet )
+		if ( more && ruleStuff->max > 1 )
 			return ::reportMaxLimit(field);
 		if ( counter && counter >= ruleStuff->min )
 			{
@@ -406,7 +406,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	isOK = 0;
 	isOption = 0;
 	isTarget = 0;
-	limitsSet = 0;
 	modPercent = 0;
 	modPointer = 0;
 	modUnGuarded = 0;
@@ -454,7 +453,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	isOK = 0;
 	isOption = 0;
 	isTarget = 0;
-	limitsSet = 0;
 	modPercent = 0;
 	modPointer = 0;
 	modUnGuarded = 0;

@@ -33,7 +33,6 @@ boolean
     isOK
     isOption
     isTarget
-    limitsSet
     modPercent
     modPointer
     modUnGuarded
@@ -230,7 +229,7 @@ RuleStuff   ruleStuff = rStuff;
             counter++;
             atRuleMark++;
             if !*atRuleMark break; }
-        if more && max > 1 && !limitsSet   return reportMaxLimit(field);
+        if more && max > 1  return reportMaxLimit(field);
         if counter && counter >= min {
             if noAdvance    atRuleMark = hereAt;
             if label        label.setToken(hereAt,counter);

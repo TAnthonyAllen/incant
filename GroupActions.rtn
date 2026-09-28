@@ -776,7 +776,7 @@ int         driveLen = strlen(driveBase),
 }
 
 
-// reportMaxLimit a match hit the maxLimit ceiling with input still matching -- REFUSE rather than truncate; callers gate on max > 1 && !limitsSet
+// reportMaxLimit a match hit the maxLimit ceiling with input still matching -- REFUSE rather than truncate; callers gate on max > 1
 extern int reportMaxLimit(GroupItem field)
 {
 GroupRules  ruler = groupRules;

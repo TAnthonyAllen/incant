@@ -1375,7 +1375,7 @@ continueHere:
             kount++;
             attachLabel(ruleStuff,pStuff,1); }
         else break; }
-    if kount >= maxRepeat && maxRepeat > 1 && !limitsSet   reportRepeatLimit(rule,kount,maxRepeat);
+    if kount >= maxRepeat && maxRepeat > 1  reportRepeatLimit(rule,kount,maxRepeat);
 matchFailed:
     if !sukcess {
         if !sukcess && kount >= min sukcess = true;
