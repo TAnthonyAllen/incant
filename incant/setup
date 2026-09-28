@@ -66,6 +66,7 @@ define
     load immediateAction=loadDirectory noPrint;
     macro immediateAction=processFlags noPrint;
     merge immediateAction=processFlags noPrint;
+    modsOf immediateAction;
     new immediateAction=makeNew;
     openWindow immediateAction=openWindow;
     parseClassify immediateAction;

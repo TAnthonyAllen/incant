@@ -34,6 +34,9 @@ boolean
     isOption
     isTarget
     limitsSet
+    modPercent
+    modPointer
+    modUnGuarded
     noAdvance
     noLabel
     noSkip

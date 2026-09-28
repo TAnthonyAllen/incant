@@ -407,6 +407,9 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	isOption = 0;
 	isTarget = 0;
 	limitsSet = 0;
+	modPercent = 0;
+	modPointer = 0;
+	modUnGuarded = 0;
 	noAdvance = 0;
 	noLabel = 0;
 	noSkip = 0;
@@ -452,6 +455,9 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	isOption = 0;
 	isTarget = 0;
 	limitsSet = 0;
+	modPercent = 0;
+	modPointer = 0;
+	modUnGuarded = 0;
 	noAdvance = 0;
 	noLabel = 0;
 	noSkip = 0;

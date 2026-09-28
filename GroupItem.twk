@@ -1118,6 +1118,16 @@ GroupItem insertGroup(GroupItem grup)
 }
 
 /***************************************************************************
+                                isUnGuarded
+    // instanceThenRule the modifier fact on this instance, else the rule's own guard state
+***************************************************************************/
+int isUnGuarded()
+{
+    if rStuff && rStuff.modUnGuarded    return true;
+    return unGuarded;
+}
+
+/***************************************************************************
                                 makeRegistry
     Makes the group passed in a registry
 ***************************************************************************/

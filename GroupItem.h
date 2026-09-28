@@ -96,6 +96,7 @@ RuleStuff *getStuff(RuleStuff *pStuff);
 char *getText();
 void insertAfter(GroupItem *grup);
 GroupItem *insertGroup(GroupItem *grup);
+int isUnGuarded();
 void makeRegistry();
 int matches(GroupItem *arg);
 char *matches(char *&atString);

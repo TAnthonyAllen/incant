@@ -1478,6 +1478,17 @@ GroupItem *GroupItem::insertGroup(GroupItem *grup)
 }
 
 /***************************************************************************
+                                isUnGuarded
+    // instanceThenRule the modifier fact on this instance, else the rule's own guard state
+***************************************************************************/
+int GroupItem::isUnGuarded()
+{
+	if ( getRStuff() && getRStuff()->modUnGuarded )
+		return 1;
+	return unGuarded(groupBody->flags.guarding);
+}
+
+/***************************************************************************
                                 makeRegistry
     Makes the group passed in a registry
 ***************************************************************************/

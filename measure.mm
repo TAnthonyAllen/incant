@@ -820,6 +820,30 @@ extern "C" GroupItem *measureTokenArm(char *arm, GroupItem *ANYtoken, GroupItem 
 	return ANYtoken;
 }
 
+// modsOf print a term's four modifier facts on its BODY and on its INSTANCE, and isUnGuarded's answer -- it calls the readers' predicate, never re-derives it
+extern "C" GroupItem *modsOf(GroupItem *field)
+{
+	if ( !field )
+		{
+		::fprintf(stderr,"modsOf: no field\n");
+		return 0;
+		}
+	
+	{
+	RuleStuff *s = field->rStuff;
+	GroupItem *up = field->parent;
+	::fprintf(stderr,"MODSOF %s in %s  body guarding=%d pct=%d ptr=%d  inst rStuff=%d modUnGuarded=%d modPercent=%d modPointer=%d  isUnGuarded=%d\n",
+	field->groupBody->tag ? field->groupBody->tag : "(untagged)",
+	(up && up->groupBody && up->groupBody->tag) ? up->groupBody->tag : "(no parent)",
+	(int)field->groupBody->flags.guarding, (int)field->groupBody->flags.isPercent, (int)field->groupBody->flags.isPointer,
+	s ? 1 : 0, s ? (int)s->modUnGuarded : 0, s ? (int)s->modPercent : 0, s ? (int)s->modPointer : 0,
+	field->isUnGuarded() ? 1 : 0);
+	::fflush(stderr);
+	}
+	
+	return field;
+}
+
 /*  IT READS THE BOUND POINTER, it does not re-derive the arm. ⚠ `fires` is a table
     over that pointer and goes stale if a builtin ever gains a fire.
     measure.parseClassify  */
