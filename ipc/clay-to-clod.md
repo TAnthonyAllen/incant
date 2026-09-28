@@ -9903,8 +9903,8 @@ shape.
 ===================================================================
 SEQ 218  -  RULINGS R1-R4; isMacro CENSUS AND RULE-SIDE STRIP; THEN STROKE 3
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
-        2026-09-28, before any edit, per WT-15.
+STATUS: cleared -- R1-R4 recorded e680c77; stroke A STOPPED at step 0 (census 0496c36,
+        F-O31: the rule side is live); re-ruled in SEQ 219.
 
 RULINGS (Tony, 2026-09-28)
 
@@ -9951,3 +9951,22 @@ Then stroke 3.
   If it does, R1 fires, the migration becomes stroke 3's first step, and stop and report before
   continuing. Build to the entry's certificate, with an H7 control: one fixture born red and green
   after the stroke. Seal.
+
+
+===================================================================
+SEQ 219  -  R2 (a); STROKE 3a BOOTSTRAP ORDER; STROKE 3 PRE-BUILD CHECKS, THEN BUILD
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-28, before any edit, per WT-15.
+
+R2: (a) today -- the rule side stays and nothing is stripped. Record F-O31; queue (b) as a named
+stroke. Tony will rule later whether the back-reference and the listener meaning are one mechanism.
+Stroke 3a (first, tiny): fix the bootstrap order so builtinActoR follows the real terms. Certificate:
+fleet unmoved, and any mover is a named position-dependent row. Seal.
+Stroke 3: rule lists plus artifacts only; locals stay where they are. Before building:
+  Resolve tempField -- is it a local or an artifact? It's in both lists.
+  Run a collision census: names present as both a term and a property on one node (CodE first).
+  Then build to the touch list, with the 317-vs-792 H7 fixture. Confirm that 317 is counted from the
+  grammar text, not through the accessor under test.
+
+  END SEQ 219
