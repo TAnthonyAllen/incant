@@ -153,16 +153,77 @@ None. O-1 and O-2 were ruled 2026-09-28 (§1.5).
 
 Every stroke: its own try-and-buy branch cut from trunk; full seal checklist; line count of `parse()` and its helpers recorded before and after -- **a record of cost, not a measure of success** (R4, 2026-09-28: the strokes are judged on correctness, then mirrorability; the earlier "is it simpler" framing is withdrawn). A layout stroke updates `groups.ext` and runs a full `tokall`.
 
-| # | stroke | GroupItem | GroupBody | RuleStuff / ParseActivation | layout | certificate | status |
-|---|---|---|---|---|---|---|---|
-| 1 | shared-body modifiers move to the instance | — | `modify()` stops writing `isPercent`, `isPointer`, `guarding` for `% & _ { }`; the bits keep their second meanings; `$` untouched (revised ruling) | three new bits `modUnGuarded`, `modPercent`, `modPointer`; readers ask `GroupItem.isUnGuarded()` (instance, then rule); the guard test asks the instance **first** | yes (`RuleStuff` + `GroupItem` method; `groups.ext` support `b0ce596`) | `incant/pop/omModT`: born red `e9985e5`, green `f7e0f49`; H7 (writes reverted alone) red; fleet 802 / 1, reds identical to trunk's 54; checklist identical | **landed** `f7e0f49` (merged to trunk), 2026-09-28 |
-| 1b | leaf classification is rule-level (F-O23) | — | `setParseWalk` reads a reference's `{ }` only on an inline definition (`!isCopy`), so a shared body's method is what the rule implies | the dispatch asks the reference first: `driveStep` and `runLeafParse` fire `parseUpTo` when the reference's own `overTo` is set, else the rule's method; no reference stores a method | no | `incant/pop/leafClassT`: born red on trunk (`SetBrackets [abc]` 0/0 on the new road); green; **Limit control** identical with and without Limit; H7 split per half (F-O26); fleet 809 / 1, reds == 54 | **landed** (merged to trunk), 2026-09-28 |
-| 2 | `isRule` not written through faces | — | `isRule` written at definition only | the three copy-writers (`setRuleStuff`'s parent arm, member propagation, TraiTdata's `DatA`) write `RuleStuff.ruleTerm` on the copy; `GroupItem.isRuleTerm()` = instance, then body; readers source-classified RULE read the body, every other reader the dual read | yes (`RuleStuff` bit + `GroupItem` method; support `aa63475`) | `incant/pop/ruleTermT` born red on the writers-reverted build, green; H7 (#3 body-only) 815 -> 780, 39 rows named; audit re-pinned 4 -> 22 loose (the nine keyword masters); fleet 815 / 1, reds == 54 | **landed** `21d6fb4`, 2026-09-28 |
-| 2b | QuotE respelled to two members; then `isMacro` off the rule side (R2 revised, SEQ 219) | — | `isMacro` leaves the rule side once the respell is green | QuotE: one member for `"…"`, one for `'…'`; the matched member answers what `tik` answers today; `getWhatFollows`/`setTestMatch`/`parse()` stop reading `isMacro` | no (expected) | respell: fleet unmoved, `"it's"` ends at `"`, F-O25 pre-registered green; strip: recon §12 census re-run reads 0 on the rule side, fleet unmoved | **queued after stroke 3** |
-| 3a | `builtinActoR` follows the real terms (SEQ 219) | — | — | the bootstrap calls `setActions()` after each rule's terms (10 rules, `GroupMain.twk`); `setActions` moves an existing actor behind terms a later definition added (forward-defined `ExpressioN`, `StatemenT`) | no | `incant/pop/actorOrderT` born red on trunk (AO-2 12 rules), green (0); AO-1 33 both builds; H7 per half: bootstrap alone leaves 2 (`ExpressioN StatemenT`), `setActions` alone leaves 8; decodePop, ddPop, countPop, frontier identical to trunk-built; **one mover, named: `definerT` (F-O32)** | **landed** (merged to trunk), 2026-09-28 |
-| 3 | terms and properties separate | — | **`propList` added beside `groupList`** (declared BEFORE it -- see F-O36); artifacts leave the term list; **dead flags `isToggle`, `isXP`, `negate`, `isAssign` and `recursive` deleted** with their writers (the `assign` flag command and its two uses, `recursive`'s three writes, the `negatE` accessor) | — | yes (`GroupBody` field + four `GroupItem` methods; `groups.ext`; full bare `tokall`; subdirectory check: no `GUI/`/`Tests/` generated file references `GroupBody`) | **`incant/pop/termCountT`**: every Grokking rule's list walked at rest and after `parser(Start)` + a compiled action; born red (TC-1 56 rules move; anchors Braced 4/5, Parens 4/5, QuotE 3/4 against the grammar's 3/3/2), green (TC-1 0, anchors 3/3, 3/3, 2/2). Writers moved: `setActions` (actor, action `CodE`), `processCode` (`BlocK`), `attachBlocK`, `frameStak`, `aCTionDefinE` (`code=` -> `CodE`), `compile` (moves the kant generator's `+%` carrier and its `CodE` on arrival; installs by `addProperty`). The eight artifact accessors read `getProperty` only; `get(name)` searches terms then properties. **Zero-reader census 0** on the five flags. Movers, each with its sentence: `connectiveT`, `traitFlagsT` TF-2/5/6 (TF-7 retired with its population), `carrierT` CT-4, `artifactSkipT`, `actorOrderT` (respelled), jitLadder JA (instrument `jitShowRecord` walks properties), `frontier` stations 1/3/5, `countPop` population 46 -> 45. Fleet 824 / 1, red set unchanged; jitLadder, printPop passed; decodePop, ddPop identical; canary 313 + 21 + 42. **Not done: skipper retirement (F-O35).** | **landed**, 2026-09-28 |
-| 4 | instance pointer | **new field: the instance → rule link** (O-1); replaces `options.isCopy` | — | rule-level fields read through the link; `RuleStuff.rule` retires or stays as a cache (decided in the stroke) | **yes** (`GroupItem`: `groups.ext` + full `tokall`) | the 13 `definingRule()` callers switch one at a time | planned |
-| 5 | activation consolidates | — | **`isBranch` and the `guardInProcess` value leave the body** for `ParseActivation` | the 10 activation fields plus `isBranch` and `guardInProcess` added to `ParseActivation` (plain C++ struct, no tok layout; already has a `label` slot); the 10 **removed from `RuleStuff`**; **dead `onFail`, `doNothing`, `isOption` deleted**; getStuff's running copy retires | **yes** (`RuleStuff`, and `GroupBody` for `isBranch`: `groups.ext` + full `tokall` + the #10 subdirectory check) | recursion rows (K-rows, A→B→A) through the new home; **zero-reader census** for the three deleted fields; **NO HUNT census reads ZERO** (baseline below) | planned |
+### Stroke 1 — shared-body modifiers move to the instance
+
+- **GroupItem:** —
+- **GroupBody:** `modify()` stops writing `isPercent`, `isPointer`, `guarding` for `% & _ { }`; the bits keep their second meanings; `$` untouched (revised ruling)
+- **RuleStuff / ParseActivation:** three new bits `modUnGuarded`, `modPercent`, `modPointer`; readers ask `GroupItem.isUnGuarded()` (instance, then rule); the guard test asks the instance **first**
+- **layout:** yes (`RuleStuff` + `GroupItem` method; `groups.ext` support `b0ce596`)
+- **certificate:** `incant/pop/omModT`: born red `e9985e5`, green `f7e0f49`; H7 (writes reverted alone) red; fleet 802 / 1, reds identical to trunk's 54; checklist identical
+- **status:** **landed** `f7e0f49` (merged to trunk), 2026-09-28
+
+### Stroke 1b — leaf classification is rule-level (F-O23)
+
+- **GroupItem:** —
+- **GroupBody:** `setParseWalk` reads a reference's `{ }` only on an inline definition (`!isCopy`), so a shared body's method is what the rule implies
+- **RuleStuff / ParseActivation:** the dispatch asks the reference first: `driveStep` and `runLeafParse` fire `parseUpTo` when the reference's own `overTo` is set, else the rule's method; no reference stores a method
+- **layout:** no
+- **certificate:** `incant/pop/leafClassT`: born red on trunk (`SetBrackets [abc]` 0/0 on the new road); green; **Limit control** identical with and without Limit; H7 split per half (F-O26); fleet 809 / 1, reds == 54
+- **status:** **landed** (merged to trunk), 2026-09-28
+
+### Stroke 2 — `isRule` not written through faces
+
+- **GroupItem:** —
+- **GroupBody:** `isRule` written at definition only
+- **RuleStuff / ParseActivation:** the three copy-writers (`setRuleStuff`'s parent arm, member propagation, TraiTdata's `DatA`) write `RuleStuff.ruleTerm` on the copy; `GroupItem.isRuleTerm()` = instance, then body; readers source-classified RULE read the body, every other reader the dual read
+- **layout:** yes (`RuleStuff` bit + `GroupItem` method; support `aa63475`)
+- **certificate:** `incant/pop/ruleTermT` born red on the writers-reverted build, green; H7 (#3 body-only) 815 -> 780, 39 rows named; audit re-pinned 4 -> 22 loose (the nine keyword masters); fleet 815 / 1, reds == 54
+- **status:** **landed** `21d6fb4`, 2026-09-28
+
+### Stroke 2b — QuotE respelled to two members; then `isMacro` off the rule side (R2 revised, SEQ 219)
+
+- **GroupItem:** —
+- **GroupBody:** `isMacro` leaves the rule side once the respell is green
+- **RuleStuff / ParseActivation:** QuotE: one member for `"…"`, one for `'…'`; the matched member answers what `tik` answers today; `getWhatFollows`/`setTestMatch`/`parse()` stop reading `isMacro`
+- **layout:** no (expected)
+- **certificate:** respell: fleet unmoved, `"it's"` ends at `"`, F-O25 pre-registered green; strip: recon §12 census re-run reads 0 on the rule side, fleet unmoved
+- **status:** **queued after stroke 3**
+
+### Stroke 3a — `builtinActoR` follows the real terms (SEQ 219)
+
+- **GroupItem:** —
+- **GroupBody:** —
+- **RuleStuff / ParseActivation:** the bootstrap calls `setActions()` after each rule's terms (10 rules, `GroupMain.twk`); `setActions` moves an existing actor behind terms a later definition added (forward-defined `ExpressioN`, `StatemenT`)
+- **layout:** no
+- **certificate:** `incant/pop/actorOrderT` born red on trunk (AO-2 12 rules), green (0); AO-1 33 both builds; H7 per half: bootstrap alone leaves 2 (`ExpressioN StatemenT`), `setActions` alone leaves 8; decodePop, ddPop, countPop, frontier identical to trunk-built; **one mover, named: `definerT` (F-O32)**
+- **status:** **landed** (merged to trunk), 2026-09-28
+
+### Stroke 3 — terms and properties separate
+
+- **GroupItem:** —
+- **GroupBody:** **`propList` added beside `groupList`** (declared BEFORE it -- see F-O36); artifacts leave the term list; **dead flags `isToggle`, `isXP`, `negate`, `isAssign` and `recursive` deleted** with their writers (the `assign` flag command and its two uses, `recursive`'s three writes, the `negatE` accessor)
+- **RuleStuff / ParseActivation:** —
+- **layout:** yes (`GroupBody` field + four `GroupItem` methods; `groups.ext`; full bare `tokall`; subdirectory check: no `GUI/`/`Tests/` generated file references `GroupBody`)
+- **certificate:** **`incant/pop/termCountT`**: every Grokking rule's list walked at rest and after `parser(Start)` + a compiled action; born red (TC-1 56 rules move; anchors Braced 4/5, Parens 4/5, QuotE 3/4 against the grammar's 3/3/2), green (TC-1 0, anchors 3/3, 3/3, 2/2). Writers moved: `setActions` (actor, action `CodE`), `processCode` (`BlocK`), `attachBlocK`, `frameStak`, `aCTionDefinE` (`code=` -> `CodE`), `compile` (moves the kant generator's `+%` carrier and its `CodE` on arrival; installs by `addProperty`). The eight artifact accessors read `getProperty` only; `get(name)` searches terms then properties. **Zero-reader census 0** on the five flags. Movers, each with its sentence: `connectiveT`, `traitFlagsT` TF-2/5/6 (TF-7 retired with its population), `carrierT` CT-4, `artifactSkipT`, `actorOrderT` (respelled), jitLadder JA (instrument `jitShowRecord` walks properties), `frontier` stations 1/3/5, `countPop` population 46 -> 45. Fleet 824 / 1, red set unchanged; jitLadder, printPop passed; decodePop, ddPop identical; canary 313 + 21 + 42. **Not done: skipper retirement (F-O35).**
+- **status:** **landed**, 2026-09-28
+
+### Stroke 4 — instance pointer
+
+- **GroupItem:** **new field: the instance → rule link** (O-1); replaces `options.isCopy`
+- **GroupBody:** —
+- **RuleStuff / ParseActivation:** rule-level fields read through the link; `RuleStuff.rule` retires or stays as a cache (decided in the stroke)
+- **layout:** **yes** (`GroupItem`: `groups.ext` + full `tokall`)
+- **certificate:** the 13 `definingRule()` callers switch one at a time
+- **status:** planned
+
+### Stroke 5 — activation consolidates
+
+- **GroupItem:** —
+- **GroupBody:** **`isBranch` and the `guardInProcess` value leave the body** for `ParseActivation`
+- **RuleStuff / ParseActivation:** the 10 activation fields plus `isBranch` and `guardInProcess` added to `ParseActivation` (plain C++ struct, no tok layout; already has a `label` slot); the 10 **removed from `RuleStuff`**; **dead `onFail`, `doNothing`, `isOption` deleted**; getStuff's running copy retires
+- **layout:** **yes** (`RuleStuff`, and `GroupBody` for `isBranch`: `groups.ext` + full `tokall` + the #10 subdirectory check)
+- **certificate:** recursion rows (K-rows, A→B→A) through the new home; **zero-reader census** for the three deleted fields; **NO HUNT census reads ZERO** (baseline below)
+- **status:** planned
 
 **NO HUNT baseline** (trunk `b8a4ffb`, 2026-09-28) -- every site that SEARCHES for `parentStuff`/`parentLabel` rather than taking one pointer step. **Stroke 5's certificate: this reads zero.**
 
