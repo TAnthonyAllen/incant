@@ -1,0 +1,73 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+define
+    rtFace code={
+        r := Grokking[argument];
+        x := *r["if"];
+        modsOf(*x);
+        };
+    rtOwn code={
+        r := RtReg[argument];
+        modsOf(*r);
+        };
+    rtTerm code={
+        r := RtReg[argument];
+        x := *r["RtL"];
+        modsOf(*x);
+        };
+    rtGrok code={
+        r := Grokking[argument];
+        modsOf(*r);
+        };
+    ;
+register(RtReg);
+define
+    RtL="l";
+    RtN="n";
+    RtR    isRule RtL kz-="z";
+    ;
+search GroupFields UnitTests Utilities RtReg list;
+cerr "RT-1 the keyword master `if`, read through IF's reference (they share one body)":;
+rtFace("IF");
+cerr "RT-2 a literal RtL referenced by the rule RtR -- its master, and RtR's reference":;
+rtOwn("RtL");
+rtTerm("RtR");
+cerr "RT-3 a literal RtN referenced by nothing -- negative control":;
+rtOwn("RtN");
+cerr "RT-4 a punctuation master -- a rule by REGISTRATION in Grokking":;
+rtGrok("leftBrace");
+cerr "RULETERMT SENTINEL":;
+stop();
+
+ruleTermT -- OBJECT MODEL STROKE 2: "THIS TERM TAKES PART AS A RULE TERM" IS A FACT ABOUT THE REFERENCE, NOT
+THE RULE.
+
+Attaching a copy under a rule used to set isRule on the BODY the copy shares with its master, so the keyword
+masters in Keywords (if, do, while, ...) read as defined rules because some rule mentioned them. After stroke 2
+the copy's own rStuff carries ruleTerm; the body's isRule is written at definition only; readers that ask the
+instance meaning ask isRuleTerm() (instance, then body -- today's union), rule readers read the body.
+
+RT-1  IF's reference to `if` -- one body with the Keywords/if master: want bodyIsRule 0 (trunk 1, the leak),
+      isRuleTerm 1 (it still takes part as a rule term).
+RT-2  RtL's master: bodyIsRule 0 (trunk 1). RtR's reference to RtL: bodyIsRule 0, isRuleTerm 1.
+RT-3  RtN, referenced by nothing: 0 and 0 on both builds (negative control).
+RT-4 a punctuation master -- a rule by REGISTRATION in Grokking":;
+rtGrok("leftBrace");
+cerr "RULETERMT SENTINEL":;
+stop();
+
+ruleTermT -- OBJECT MODEL STROKE 2: "THIS TERM TAKES PART AS A RULE TERM" IS A FACT ABOUT THE REFERENCE, NOT
+THE RULE.
+
+Attaching a copy under a rule used to set isRule on the BODY the copy shares with its master, so the keyword
+masters in Keywords (if, do, while, ...) read as defined rules because some rule mentioned them. After stroke 2
+the copy's own rStuff carries ruleTerm; the body's isRule is written at definition only; readers that ask the
+instance meaning ask isRuleTerm() (instance, then body -- today's union), rule readers read the body.
+
+RT-1  Keywords/if's BODY: want bodyIsRule 0 (trunk read 1 -- the leak).
+RT-2  IF's reference to `if`: want bodyIsRule 0 and isRuleTerm 1 -- it still takes part as a rule term.
+RT-3  Keywords/new, attached to no rule: 0 and 0 on both builds (negative control).
+RT-4  Grokking/leftBrace: bodyIsRule 1 -- punctuation masters are rules by REGISTRATION, so none of them was
+      ever this leak's subject (measured: no Grokking entry's isRule moved).

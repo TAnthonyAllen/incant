@@ -241,7 +241,7 @@ use ruleStuff
 use grup
         if field.isAction {
             while grup = code.nextAttribute(grup)
-                if isLocal && !isRule && !noPrint && groupBody != field.groupBody clear();
+                if isLocal && !grup.isRuleTerm() && !noPrint && groupBody != field.groupBody clear();
             // noArgumentOnARule a rule carries no argument slot (Tony, 2026-09-20; F-94) -- the return carries one bit
             // labelReachesNothing myLabel is minted and goes nowhere until CT-5 gives it a channel
             into    = parentLabel;
@@ -380,7 +380,7 @@ extern GroupItem setParseWalk(GroupItem field)
 RuleStuff   ruleStuff = rStuff;
     // tokenSkip a member with isRule 0 is a token -- matched, never entered; isRule 1 with no rStuff is a wound and refuses
     if !ruleStuff {
-        if !isRule {
+        if !field.isRuleTerm() {
             if groupRules.debugAllRules     cerr "setParseWalk: token " tag ", not entered":;
             return null; }
         return refuse(field,"setParse: the field passed in has no rStuff"); }

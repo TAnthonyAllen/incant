@@ -42,6 +42,7 @@ struct
 	unsigned int noSkip:1;
 	unsigned int notifyFail:1;
 	unsigned int overTo:2;
+	unsigned int ruleTerm:1;
 	unsigned int sukcess:1;
 	};
 #define upTo(button) (button == 1)

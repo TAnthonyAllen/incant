@@ -157,7 +157,7 @@ int         found = 0;
         visited++;
         GroupList *kids = g->groupBody->groupList;
         if ( !kids ) continue;
-        if ( g->groupBody->flags.isRule ) {
+        if ( g->isRuleTerm() ) {
             checked++;
             if ( ::dupTermRefusal(g) ) {
                 ::fprintf(stderr,"DUPCENSUS offender %s\n",g->groupBody->tag);

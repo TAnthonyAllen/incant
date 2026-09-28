@@ -311,8 +311,13 @@ use item
                         refuse(NewGroup,"a declared `argument` attribute is retired -- delete it; runAction mints the binding slot");
                     if NewGroup.isMacro     noPrint = true;
                     isInitialized  = true;
-                    if NewGroup.isRule && !item.binType && !item.isRule item.isRule = true;
-                    if isRule
+                    // memberIsATerm a propagated COPY takes part as a rule term on its own rStuff, never the shared body (stroke 2)
+                    if NewGroup.isRule && !item.binType && !item.isRuleTerm() {
+                        if item.isCopy {
+                            if !item.rStuff     item.rStuff = new(item);
+                            item.rStuff.ruleTerm = true; }
+                        else    item.isRule = true; }
+                    if item.isRuleTerm()
                         if !rStuff rStuff = new(item);
                         else {
                             rStuff = new(rStuff);
@@ -349,7 +354,7 @@ use NewGroup
         if MemberS
             while item = MemberS.next(item) {
                 GroupItem newMember = NewGroup += item;
-                if isRule && rStuff && (!data || data > 3)
+                if newMember.isRuleTerm() && rStuff && (!data || data > 3)
                     if max != 1 || min != 1 {
                         RuleStuff   fresh = new(newMember);
                         newMember.setRStuff(fresh); }}
@@ -832,7 +837,7 @@ GroupItem   argument,
         if InvokE
             if argument = InvokE[1]
                 if argument.isGROUP argument = argument.group;
-        if !isRule
+        if !rule.isRuleTerm()
             {
             input   += rule;
             if rule.isMethod    input.method = rule.method;
@@ -1140,7 +1145,8 @@ GroupItem   upMark,
         else        setRuleStuff();
         // modifierRidesUp repetition lands on the DATA only; applying it to the trait as well repeats TWICE
         if Modifier modifyClass(DatA,Modifier.text,1);
-        isRule      = true; }
+        if DatA.isCopy      DatA.rStuff.ruleTerm = true;
+        else                DatA.isRule = true; }
     // valueRepeats a value may carry + or *; a character or set repeats in its scanner, anything wider repeats on the trait
     repeated = 0;
     if Modifier     repeated = hasRepeatClass(Modifier.text);
@@ -1151,7 +1157,7 @@ GroupItem   upMark,
     // upMarkNoRstuff THIS LINE hides the packet from the AUDIT; noPrint alone only hides it from the PARSE
     if upMark       upMark.rStuff = 0;
     // scannerKeepsDatA a repeated character or set stays a group so DatA's rStuff -- its max -- survives
-    if (DatA.isRule && (!DatA.isLiteral || (repeated == 1 && DatA.data <= 3))) || DatA.registry == opFields
+    if (DatA.isRuleTerm() && (!DatA.isLiteral || (repeated == 1 && DatA.data <= 3))) || DatA.registry == opFields
         input.group = DatA;
     else input.setContent(DatA);
     return  input;
@@ -1778,7 +1784,7 @@ extern GroupItem resolveName(String arg, GroupItem owner)
         if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
             if ( !(result && result->groupBody->registry == ruler->opFields) ) {
                 if ( result ) {
-                    if ( owner->groupBody->flags.isRule && result->groupBody->flags.isRule ) {
+                    if ( owner->isRuleTerm() && result->isRuleTerm() ) {
                         result = owner->addAttribute(grup);
                         result->groupBody->flags.isLocal = 1; }
                     else    result = owner->addAttribute(result); }

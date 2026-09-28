@@ -744,7 +744,7 @@ RuleStuff 	*cstuff = 0;
 		}
 	// artifactsAreNoPrint a holder is a TERM; compile()'s `this` and tempField are ARTIFACTS and
 	// artifactsAreNoPrint noPrint is their standing classifier, so they keep trunk's embedRule behaviour
-	if ( groupBody->flags.noPrint || !g || !g->groupBody->flags.isRule || !g->groupBody->groupList )
+	if ( groupBody->flags.noPrint || !g || !g->isRuleTerm() || !g->groupBody->groupList )
 		{
 		embedRule(g);
 		return;
@@ -773,7 +773,7 @@ RuleStuff 	*cstuff = 0;
 void GroupItem::embedRule(GroupItem *g)
 {
 GroupItem 	*copy = 0;
-	if ( !g || !g->groupBody->flags.isRule )
+	if ( !g || !g->isRuleTerm() )
 		setGroup(g);
 	else {
 		copy = new GroupItem(g);
@@ -1478,6 +1478,17 @@ GroupItem *GroupItem::insertGroup(GroupItem *grup)
 }
 
 /***************************************************************************
+                                isRuleTerm
+    // ruleTermDual the instance's "I take part as a rule term", else the rule's own isRule -- the union today's body flag held (stroke 2)
+***************************************************************************/
+int GroupItem::isRuleTerm()
+{
+	if ( getRStuff() && getRStuff()->ruleTerm )
+		return 1;
+	return groupBody->flags.isRule;
+}
+
+/***************************************************************************
                                 isUnGuarded
     // instanceThenRule the modifier fact on this instance, else the rule's own guard state
 ***************************************************************************/
@@ -1739,7 +1750,7 @@ continueHere:
 		Run the matches that determine if this rule succeeds
 		//runParseMatches
 		*******************************************************************/
-		if ( groupBody->flags.isRule && groupBody->flags.hasMembers && !groupBody->flags.data )
+		if ( isRuleTerm() && groupBody->flags.hasMembers && !groupBody->flags.data )
 			ruleStuff->sukcess = ::testOptions(ruleStuff);
 		else
 		if ( ruleStuff->testMatch || ruleStuff->onGroup || groupBody->flags.hasAttributes )
@@ -2371,13 +2382,19 @@ void GroupItem::setRegex(PLGrgx *v)
 *******************************************************************************/
 void GroupItem::setRuleStuff()
 {
+int 	asTerm = 0;
+	// copyIsATerm attached under a rule, a COPY takes part as a rule term -- that fact is the instance's, never the shared body's (stroke 2)
 	if ( !groupBody->flags.isRule )
 		if ( groupBody->registry && groupBody->registry->groupBody->flags.isRule )
 			groupBody->flags.isRule = 1;
 		else
-		if ( parent && parent->groupBody->flags.isRule )
+		if ( parent && parent->isRuleTerm() )
 			if ( !groupBody->registry || groupBody->registry == GroupControl::groupController->groupRules->keyWords )
-				groupBody->flags.isRule = 1;
+				{
+				if ( options.isCopy )
+					asTerm = 1;
+				else	groupBody->flags.isRule = 1;
+				}
 	if ( !getRStuff() )
 		setRStuff(new RuleStuff(this));
 	else
@@ -2386,6 +2403,8 @@ void GroupItem::setRuleStuff()
 		setRStuff(new RuleStuff(getRStuff()));
 		getRStuff()->rule = this;
 		}
+	if ( asTerm )
+		getRStuff()->ruleTerm = 1;
 }
 
 void GroupItem::setStak(Stak *s)

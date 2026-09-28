@@ -536,7 +536,7 @@ RuleStuff   stuff = rStuff,
         return; }
     // artifactsAreNoPrint a holder is a TERM; compile()'s `this` and tempField are ARTIFACTS and
     // artifactsAreNoPrint noPrint is their standing classifier, so they keep trunk's embedRule behaviour
-    if noPrint || !g || !g.isRule || !g.groupList {
+    if noPrint || !g || !g.isRuleTerm() || !g.groupList {
         embedRule(g);
         return; }
     // oneCopyOnly addGroup re-copies anything that already has a parent, so the parent is NOT set here and the RETURN is taken -- this is InitiatE's spelling in GroupMain
@@ -560,7 +560,7 @@ RuleStuff   stuff = rStuff,
 void embedRule(GroupItem g)
 {
 GroupItem   copy;
-    if !g || !g.isRule  setGroup(g);
+    if !g || !g.isRuleTerm()  setGroup(g);
     else {
         copy            = new(g);
         copy.parent     = this;
@@ -1118,6 +1118,16 @@ GroupItem insertGroup(GroupItem grup)
 }
 
 /***************************************************************************
+                                isRuleTerm
+    // ruleTermDual the instance's "I take part as a rule term", else the rule's own isRule -- the union today's body flag held (stroke 2)
+***************************************************************************/
+int isRuleTerm()
+{
+    if rStuff && rStuff.ruleTerm    return true;
+    return isRule;
+}
+
+/***************************************************************************
                                 isUnGuarded
     // instanceThenRule the modifier fact on this instance, else the rule's own guard state
 ***************************************************************************/
@@ -1358,7 +1368,7 @@ continueHere:
             Run the matches that determine if this rule succeeds
             //runParseMatches
         *******************************************************************/
-        if isRule && hasMembers && !data                            sukcess = testOptions(ruleStuff);
+        if isRuleTerm() && hasMembers && !data                      sukcess = testOptions(ruleStuff);
         or testMatch || onGroup || hasAttributes {
             if testMatch                                            sukcess = testMatch(this);
             if !parseACTION {
@@ -1869,14 +1879,19 @@ void setRStuff(RuleStuff stuff)
 *******************************************************************************/
 void setRuleStuff()
 {
+int         asTerm = false;
+    // copyIsATerm attached under a rule, a COPY takes part as a rule term -- that fact is the instance's, never the shared body's (stroke 2)
     if !isRule
         if registry && registry.isRule              isRule = true;
-        or parent && parent.isRule
-            if !registry || registry == keyWords    isRule = true;
+        or parent && parent.isRuleTerm()
+            if !registry || registry == keyWords {
+                if isCopy   asTerm = true;
+                else        isRule = true; }
     if !rStuff  rStuff = new(this);
     or rule != this {
         rStuff  = new(rStuff);
         rule    = this; }
+    if asTerm   rStuff.ruleTerm = true;
 }
 
 void setStak(Stak s)

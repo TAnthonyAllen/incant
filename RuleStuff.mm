@@ -414,6 +414,7 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	noSkip = 0;
 	notifyFail = 0;
 	overTo = 0;
+	ruleTerm = 0;
 	sukcess = 0;
 	rule = grup;
 	ruleName = grup->groupBody->tag;
@@ -461,6 +462,7 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	noSkip = 0;
 	notifyFail = 0;
 	overTo = 0;
+	ruleTerm = 0;
 	*this = *r;
 	label = 0;
 	sukcess = 0;

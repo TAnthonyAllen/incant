@@ -141,7 +141,7 @@ int 		i = 0;
 int 		spurious = 0;
 	while ( entry = registry->next(entry) )
 		{
-		if ( !entry->groupBody->flags.isRule && entry->getRStuff() )
+		if ( !entry->isRuleTerm() && entry->getRStuff() )
 			{
 			::fprintf(stderr,"AUDIT LOOSE    %s/%s -- not a rule, not a rule term, has rStuff\n",registry->groupBody->tag,entry->groupBody->tag);
 			spurious++;
@@ -149,7 +149,7 @@ int 		spurious = 0;
 		i = 1;
 		while ( term = entry->get(i) )
 			{
-			if ( !term->groupBody->flags.isRule && term->getRStuff() )
+			if ( !term->isRuleTerm() && term->getRStuff() )
 				if ( entry->groupBody->flags.isRule )
 					::fprintf(stderr,"AUDIT TERM     %s [%s] %s -- rule TERM, not isRule, has rStuff\n",entry->groupBody->tag,::toStringFromInt(i),term->groupBody->tag);
 				else {
@@ -731,7 +731,7 @@ extern "C" GroupItem *measureRuleDispatch(GroupItem *op, GroupItem *target, Grou
 	target->groupBody->tag,
 	(void*)target,
 	(void*)target->groupBody,
-	target->groupBody->flags.isRule,
+	target->isRuleTerm(),
 	target->groupBody->flags.binType,
 	target->groupBody->flags.hasNewParse,
 	target->groupBody->flags.actionType,
@@ -835,12 +835,12 @@ extern "C" GroupItem *modsOf(GroupItem *field)
 	GroupItem *(*bm)(GroupItem *) = field->groupBody->gMethod;
 	const char *bodyMethod = !bm ? "none" : bm == ::parseString ? "parseString" : bm == ::parseUpTo ? "parseUpTo"
 	: bm == ::parseLoop ? "parseLoop" : bm == ::parseRule ? "parseRule" : "other";
-	::fprintf(stderr,"MODSOF %s in %s  body guarding=%d pct=%d ptr=%d  inst rStuff=%d modUnGuarded=%d modPercent=%d modPointer=%d  isUnGuarded=%d  bodyMethod=%s\n",
+	::fprintf(stderr,"MODSOF %s in %s  body guarding=%d pct=%d ptr=%d  inst rStuff=%d modUnGuarded=%d modPercent=%d modPointer=%d  isUnGuarded=%d  bodyMethod=%s  bodyIsRule=%d isRuleTerm=%d\n",
 	field->groupBody->tag ? field->groupBody->tag : "(untagged)",
 	(up && up->groupBody && up->groupBody->tag) ? up->groupBody->tag : "(no parent)",
 	(int)field->groupBody->flags.guarding, (int)field->groupBody->flags.isPercent, (int)field->groupBody->flags.isPointer,
 	s ? 1 : 0, s ? (int)s->modUnGuarded : 0, s ? (int)s->modPercent : 0, s ? (int)s->modPointer : 0,
-	field->isUnGuarded() ? 1 : 0, bodyMethod);
+	field->isUnGuarded() ? 1 : 0, bodyMethod, (int)field->groupBody->flags.isRule, field->isRuleTerm() ? 1 : 0);
 	::fflush(stderr);
 	}
 	
