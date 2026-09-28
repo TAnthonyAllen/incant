@@ -2987,9 +2987,6 @@ GroupItem 	*op = 0;
 GroupItem 	*arg = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	op = ruler->falseResult;
-	if ( ruler->processingCode )
-		if ( ANYtoken->groupBody == ruler->currentMETHOD->groupBody )
-			ruler->currentMETHOD->groupBody->flags.recursive = 1;
 	if ( isGROUP(InvokeArg->groupBody->flags.data) )
 		arg = InvokeArg->getGroup();
 	// emptyParens an EMPTY () carries nothing and is NOT an argument -- hand on no third operand
@@ -9775,10 +9772,6 @@ GroupItem 	*target = item->groupBody->flags.fLAG ? item->parent : item;
 	if ( item )
 		switch (*command)
 			{
-			case 'a':
-				if ( ::compare(command,"assign") == 0 )
-					target->groupBody->flags.isAssign = 1;
-				break;
 			case 'b':
 				target->groupBody->flags.binType = 1;
 				if ( !target->groupBody->guardSet )
@@ -10247,18 +10240,13 @@ GroupItem 	*grup = 0;
 		recurseSTAK = frame->getStak();
 	// identityPair restore pairs by identity, never by position -- walk the STACK, not the field list, with no filter of its own
 	// nullArm restore is reached where save never ran (the jit bracket among them); no frame child means nothing was saved
-	if ( !recurseSTAK )
-		action->groupBody->flags.recursive = 0;
-	else
-	if ( !recurseSTAK->length )
-		action->groupBody->flags.recursive = 0;
-	else
-	while ( body = (GroupBody*)recurseSTAK->pop() )
-		{
-		grup = (GroupItem*)recurseSTAK->pop();
-		*grup->groupBody = *body;
-		body = 0;
-		}
+	if ( recurseSTAK && recurseSTAK->length )
+		while ( body = (GroupBody*)recurseSTAK->pop() )
+			{
+			grup = (GroupItem*)recurseSTAK->pop();
+			*grup->groupBody = *body;
+			body = 0;
+			}
 }
 
 // ruleMethod bind the method the attribute's text names, found with dlsym -- as the parent's method for ruleMethod, else as its operator

@@ -33,7 +33,6 @@ struct bools
 	unsigned int hasListeners:1;
 	unsigned int hasMembers:1;
 	unsigned int isArgument:1;
-	unsigned int isAssign:1;
 	unsigned int isCondition:1;
 	unsigned int isIndexed:1;
 	unsigned int isInitialized:1;
@@ -45,14 +44,10 @@ struct bools
 	unsigned int isPointer:1;
 	unsigned int isShortcut:1;
 	unsigned int isSingleton:1;
-	unsigned int isToggle:1;
 	unsigned int isUnary:1;
 	unsigned int isVirtual:1;
 	unsigned int isWindow:1;
-	unsigned int isXP:1;
 	unsigned int mergeOn:1;
-	unsigned int negate:1;
-	unsigned int recursive:1;
 	unsigned int reversePrint:1;
 	unsigned int tokened:1;
 	unsigned int hasNewParse:1;

@@ -1401,8 +1401,6 @@ GroupItem   op,
             arg;
 GroupRules  ruler = groupRules;
     op = falseResult;
-    if ruler.processingCode
-        if ANYtoken.groupBody == ruler.currentMETHOD.groupBody   ruler.currentMETHOD.recursive = true;
     if InvokeArg.isGROUP    arg = InvokeArg.group;
     // emptyParens an EMPTY () carries nothing and is NOT an argument -- hand on no third operand
     if !arg

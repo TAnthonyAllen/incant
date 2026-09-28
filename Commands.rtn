@@ -503,8 +503,6 @@ String      command = tag;
 GroupItem   target  = item.fLAG ? item.parent : item;
     if item
         switch(*command) {
-            case 'a':
-                if command eq "assign"    isAssign    = true;
             case 'b':   isBIN = true;
                         if !guardSet {
                             guardSet    = new;

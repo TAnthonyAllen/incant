@@ -20,7 +20,6 @@ define
     guard immediateAction noPrint virtual;
     addrOf immediateAction;
     arrondir immediateAction=arrondir;
-    assign immediateAction=processFlags noPrint;
     audit immediateAction=auditRStuff;
     bail=stopParsingInput immediateAction;
     bin immediateAction=processFlags noPrint;
@@ -122,14 +121,14 @@ define
     '=='    operateMethod=opEQ  interpretMethod=runEQ  jitEmitter=jitEmitEQ;
     '=['    operateMethod=opGet;
     '=]'    operateMethod=opEnd;
-    '=/'    assign operateMethod=opGetMember;
+    '=/'    operateMethod=opGetMember;
     '=%'    operateMethod=opGetAttribute;
     '='     operateMethod=opAssign;
 
     '<='    operateMethod=opLE  interpretMethod=runLE  jitEmitter=jitEmitLE;
     '<<';
     '<:'    operateMethod=opSetTag;
-    '<-'    assign operateMethod=opRebind;
+    '<-'    operateMethod=opRebind;
     '<'     operateMethod=opLT  interpretMethod=runLT  jitEmitter=jitEmitLT;
 
     ':>';
@@ -308,7 +307,6 @@ define
     isShortcuT=24;
     isVirtuaL=25;
     mergeON=26;
-    negatE;
     noLabeL=28;
     noPrinT=29;
     noSkiP;

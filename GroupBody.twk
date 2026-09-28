@@ -70,7 +70,6 @@ boolean bools {
     hasListeners
     hasMembers
     isArgument
-    isAssign
     isCondition
     isIndexed
     isInitialized
@@ -82,14 +81,10 @@ boolean bools {
     isPointer
     isShortcut
     isSingleton
-    isToggle
     isUnary
     isVirtual
     isWindow
-    isXP
     mergeOn
-    negate
-    recursive
     reversePrint
     tokened
     hasNewParse
