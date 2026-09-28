@@ -642,6 +642,21 @@ target. Phase Bytecode proceeds via the command-line C++ compiler path.
 > **both** ends, or one end plus a known-bad: the marker moved after generation and the two ends
 > separated **3 / 0**. Unvalidated, it would have ended the bisect before it began.
 
+> ⚠⚠ **RULE H17 — A CONTROL MUST RUN WHERE THE THING UNDER TEST IS NOT MASKED. A CONTROL THAT
+> CANNOT GO RED ON THE BUILD IT RUNS ON CERTIFIES NOTHING.** Tony, ruled 2026-09-28. (Not to be
+> confused with the 2026-09-09 campaign's "H17-H20", which were measurement labels, not rules.)
+>
+> **H7 asks for the run that goes red when the mechanism is removed; this asks WHERE that run
+> happens.** The worked example is F-O26 (`docs/objectModel.md`): stroke 1b's dispatched H7 restored
+> the walk's instance read and expected red -- and on trunk it stayed GREEN, because the Limit rule's
+> plain `rightBrace-` was walked first and baked the right answer anyway. **The bug under test was
+> masking its own control.** The certificate that held split the control per half and ran each where
+> nothing hid it: the dispatch half on trunk, the walk half on the Limit-less build. Both went red.
+>
+> ⚠ **THE TELL IS A CONTROL THAT STAYS GREEN.** An H7 control that does not go red is not "the
+> mechanism was unnecessary" until you have asked what else on that build produces the same answer.
+> Name the masker, move the control to a build without it, and record both runs.
+
 > ⚠ **MATCH THE TASK'S FAILURE LOUDNESS TO THE SEAT'S MECHANICAL STATE.** Adopted 2026-08-08, and
 > it is doctrine about the three-seat model itself rather than about the code.
 >
@@ -3335,6 +3350,14 @@ standing rules follow from that:
    it's trivial. One specific line citing the SEQ number is enough — e.g.
    "picked up SEQ 9, starting the macro library" — since he can see you're
    busy but not always on what.
+
+⚠⚠ **A FORWARDED DISPATCH RULES EXACTLY WHAT ITS `RULINGS` BLOCK SAYS. Tony, standing, 2026-09-28.**
+Every dispatch opens with a `RULINGS` block, **one ruling per line**. **Nothing in the body counts as
+ruled unless it is listed there**, and `RULINGS: none` means the dispatch rules nothing. Tony edits a
+dispatch before forwarding it if he disagrees, so a forwarded block is his word as written. ⚠ **The
+failure it closes:** a dispatch whose body said "Rulings (Tony, date)" while its preamble said "if you
+agree" -- Clod could not tell ruled from proposed, and had to either guess or stop. A body sentence
+that reads like a ruling and is not in the block is a **proposal**; say so rather than act on it.
 
 **Poll the file when you finish a unit of work.** Messages have sat `fresh`
 unread across session boundaries more than once (a SEQ 2 from 2026-07-02, three
