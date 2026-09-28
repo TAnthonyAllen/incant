@@ -139,13 +139,17 @@ None. O-1 and O-2 were ruled 2026-09-28 (§1.5).
 | 2026-09-28 | **REVISED, supersedes F-O13:** `$` is **excluded from stroke 1**. It is a listener binding (`field=$anotherField`: the field listens to `anotherField` and receives its data on change — how form fields stay in sync), not a match modifier. Every `$` write and read stays exactly as today; `hasMacro` does **not** become the `$` fact. `$` moves to §1.4 as its own item. |
 | 2026-09-28 | **F-O23 as recommended, with Fearless's refinement:** a shared body's parse method is what the RULE implies; a reference's `{ }` stays in its `rStuff` and the dispatch asks the reference first; no reference stores a method (stroke 4's `parseMethod` stays rule-level). Stroke 1b. |
 | 2026-09-28 | **Part 1 amendment: `limitsSet` is deleted with Limit** (its only writer, `setLimits`, goes with Limit; F-O16's dead-field rule applies). It leaves the instance-level list when the Limit retirement lands. |
+| 2026-09-28 | **R1 (SEQ 218): no new field tok cannot see.** A field referenced from tok is declared in tok and mirrored in `groups.ext`. **`ParseActivation`'s migration into tok is PARKED** and becomes its own stroke the first time a stroke needs to touch `ParseActivation` -- so stroke 5 opens with it (standing, CLAUDE.md). |
+| 2026-09-28 | **R2 (SEQ 218), Part 1 amendment, refines the `$` revision above:** `$` as a modifier **sets `isMacro`, and `modify()` keeps writing it.** `isMacro` is **stripped from rule-related code** (the parse road's readers: census in recon §12). Listener triggering is **parked to forms/WSS**. The define-time `macro` readers (`aCTionDefinE`) are not rule code and stay. |
+| 2026-09-28 | **R3 (SEQ 218):** `doNothing` **stays until the `groupDirectives` no-op lines that use it have a replacement Tony picks.** Stroke 5's dead-field list keeps `doNothing` gated on that. |
+| 2026-09-28 | **R4 (SEQ 218):** this document **stops claiming the strokes make the parser simpler.** The goal is **correctness now; mirrorability next.** The first mirror candidate is **`setParse`**, with **`parseClass`** as its oracle. The line count stays as a record of cost, not as a measure of success. |
 | 2026-09-28 | Stroke 1: the dual read is approved as the model's instance-then-rule read; `ensureGuard`'s early return (`GroupItem.twk:583`) stays body-only; the 609/640 spread is null-safe on a term with no `rStuff`. Names `modUnGuarded` / `modPercent` / `modPointer`. |
 
 ---
 
 ## Part 2 — Stroke ledger
 
-Every stroke: its own try-and-buy branch cut from trunk; full seal checklist; line count of `parse()` and its helpers recorded before and after (the running "is it simpler" metric). A layout stroke updates `groups.ext` and runs a full `tokall`.
+Every stroke: its own try-and-buy branch cut from trunk; full seal checklist; line count of `parse()` and its helpers recorded before and after -- **a record of cost, not a measure of success** (R4, 2026-09-28: the strokes are judged on correctness, then mirrorability; the earlier "is it simpler" framing is withdrawn). A layout stroke updates `groups.ext` and runs a full `tokall`.
 
 | # | stroke | GroupItem | GroupBody | RuleStuff / ParseActivation | layout | certificate | status |
 |---|---|---|---|---|---|---|---|

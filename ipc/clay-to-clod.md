@@ -9898,3 +9898,56 @@ shape.
 
   END SEQ 217
 
+
+
+===================================================================
+SEQ 218  -  RULINGS R1-R4; isMacro CENSUS AND RULE-SIDE STRIP; THEN STROKE 3
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP,
+        2026-09-28, before any edit, per WT-15.
+
+RULINGS (Tony, 2026-09-28)
+
+R1. No new field Tok cannot see. Fields referenced from Tok must be declared in Tok and mirrored in
+groups.ext; a C++ escape to reach a field is the smell. ParseActivation's migration is PARKED and
+becomes its own stroke the first time a stroke needs to touch ParseActivation. Record in CLAUDE.md
+as standing.
+R2. $ as a modifier sets isMacro, and modify() keeps it. isMacro is stripped from rule-related code.
+Listener triggering is parked to forms/WSS. Record as a Part 1 amendment in objectModel.md.
+R3. doNothing is not removed until the no-op lines in groupDirectives that use it have a
+replacement. Tony picks the replacement.
+R4. objectModel.md stops claiming the strokes make the parser simpler. The goal is correctness now;
+mirrorability next. First mirror candidate is setParse, oracle parseClass, with C++ untouched until
+the mirror agrees.
+
+WORK
+
+Record R1-R4 (CLAUDE.md, objectModel.md 1.5), dated.
+isMacro census: every reader, classified as rule code or non-rule code, each named. Report it before
+any edit.
+The strip, rule side only. Certificate: the census re-run reads zero on the rule side and non-rule
+unchanged; fleet unmoved row for row; canary unmoved. A mover is reported, not re-pinned.
+Then stroke 3.
+
+  END SEQ 218
+
+  REVISION (Tony, "Fearless", same afternoon; supersedes the text above where they differ;
+  transcribed at pickup):
+  R1. No new field Tok cannot see. A field referenced from Tok is declared in Tok and mirrored in
+  groups.ext. ParseActivation's migration is PARKED; it becomes its own stroke the first time a
+  stroke needs to touch ParseActivation. Record in CLAUDE.md as standing.
+  R2. $ as a modifier sets isMacro; modify() keeps it. isMacro is stripped from rule-related code.
+  Listener triggering is parked to forms/WSS. Part 1 amendment in objectModel.md.
+  R3. doNothing stays until the groupDirectives no-op lines that use it have a replacement Tony picks.
+  R4. objectModel.md drops the simplicity claim. The goal is correctness now, mirrorability next;
+  first mirror candidate is setParse, with parseClass as its oracle.
+  STROKE A -- isMacro off the rule side. Record R1-R4, dated. isMacro census: every reader named and
+  classed as rule code or non-rule code; include the rule-side count re-taken from the 07-28 census,
+  which read 0 terms. Report before editing. Strip the rule side. Certificate: census re-run reads 0
+  on the rule side, non-rule unchanged; fleet unmoved row for row; canary unmoved; any mover reported,
+  not re-pinned. Seal.
+  STROKE 3 -- terms and properties separate. Read Part 2's stroke-3 entry and report the touch list
+  before building. Name every field and writer it moves, and say whether it touches ParseActivation.
+  If it does, R1 fires, the migration becomes stroke 3's first step, and stop and report before
+  continuing. Build to the entry's certificate, with an H7 control: one fixture born red and green
+  after the stroke. Seal.

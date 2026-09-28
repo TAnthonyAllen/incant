@@ -152,6 +152,13 @@ bible's TAWK Known Issues table):
 - Re-tawk drops `#include` lines and include guards in `.h` — re-add manually
 - `extern "C"` blocks get clobbered on re-tawk — keep C-linkage in hand-written files
 
+⚠⚠ **NO NEW FIELD TOK CANNOT SEE. Tony, ruled 2026-09-28 (SEQ 218, R1), standing.** A field that
+tok source references is **declared in tok** (a `.twk` class) **and mirrored in `groups.ext`**.
+The one existing exception is `ParseActivation` (a plain C++ struct in `jitContext.h`):
+its migration into tok is **PARKED**, and it becomes **its own stroke the first time any stroke needs
+to touch `ParseActivation`** — so object-model stroke 5, which moves activation fields there, opens
+with that migration rather than adding fields to the C++ struct.
+
 ---
 
 ## Core Architecture
