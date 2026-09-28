@@ -26,6 +26,8 @@ define
         cerr "ARTIFACTSKIP -- children of NumbeR after setParse":;
         setParse(NumbeR);
         asWalk(NumbeR);
+        asAct := NumbeR["builtinActoR"];
+        asProbe(*asAct);
         fixArtifactSkipHere = 0;
         };
     ;

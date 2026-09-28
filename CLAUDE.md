@@ -2784,6 +2784,16 @@ Hard-won lessons. Each one has cost real debugging time.
     evidence that nothing else was bound to it. Cause of hazard 2 NOT isolated (label reuse is the
     obvious suspect, `measureLabelReuse` / plant 4); symptom recorded, per bear-trap #18's split.
 
+57. **A SECOND FIELD OF THE SAME CLASS TYPE, DECLARED AFTER THE FIRST, CAPTURES THE FIRST'S BARE
+    NAMES -- SILENTLY, CANARY UNMOVED, tok EXIT 0.** Gloss: the newer twin wins. Measured 2026-09-28
+    (**tok**, object-model stroke 3). `GroupList propList;` added to `GroupBody` AFTER `groupList` made every
+    bare `firstInList`, `lastInList` and `listLength` in `GroupItem`, `GroupRules`, `GroupStak` and
+    `Bytecode` resolve to `propList` -- 190 generated lines re-aimed, extern canary 313 throughout. Declared
+    BEFORE `groupList`, the only generated change was the field itself. Same resolution family as
+    bear-trap #42 (last-mentioned wins), reached through a class declaration instead of a function body.
+    **The detector is a full-tree diff, not the canary:** copy every `.mm`/`.h`, `tokall`, `cmp` each, and
+    read every changed file whose change you did not intend.
+
 ⚠⚠ **THE RULE-LADDER SELECTION CRITERION — TWO CLAUSES, AND THE SECOND WAS PAID FOR.** Tony,
 2026-08-24.
 

@@ -1,0 +1,51 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests bcOPs Utilities list;
+
+register(TermCount);
+define
+    tcN=0;
+    tcSink code={
+        tcN = tcN + 1;
+        };
+    tcChild code={
+        cerr "TCC " taG:;
+        };
+    tcRule code={
+        cerr "TCR " taG:;
+        iterate tcCur on argument;
+        while ++tcCur;
+            tcChild(*tcCur);
+        };
+    tcWalk code={
+        iterate tcR on Grokking;
+        while ++tcR;
+            tcRule(*tcR);
+        };
+    ;
+cerr "TCPHASE rest":;
+tcWalk();
+parser(Start);
+tcSink(tcN);
+cerr "TCPHASE after":;
+tcWalk();
+print "TERMCOUNT SENTINEL -- reached the foot":;
+stop();
+
+WHAT THIS IS
+
+Object-model stroke 3's certificate (SEQ 220). It walks every Grokking rule's list twice -- at rest,
+and again after parser(Start) plus one compiled action (tcSink) -- and prints each child's tag. pop.sh
+counts in shell, never through a kant accessor (bear-trap 55).
+
+THE CLAIM IS AN INVARIANT: artifacts no longer change a rule's term count, so the count at rest equals
+the count after. Born red on trunk 0733d44: builtinParseR lands on 56 rules' lists at parser(Start),
+and builtinActoR is on 33 at rest.
+
+THE ANCHORS stop a walker that miscounts the same way twice from passing. Counted by hand from the
+grammar lines: Braced 3 (leftBrace ExpressioN rightBrace, incant/grammar:130), Parens 3 (leftParen
+ExpressioN? rightParen, :131), QuotE 2 (tik quoteBody, :44 -- and it carries an action, so today it
+reads 3 at rest).

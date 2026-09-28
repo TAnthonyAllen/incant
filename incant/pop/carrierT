@@ -43,8 +43,21 @@ include(utilities);
 search reset stack Grokking;
 search GroupFields UnitTests Utilities list;
 
+register(CarrierPark);
+define
+    ctOk=0;
+    ctMiss=0;
+    ctPark code={
+        ctOk = 0;
+        if list["builtinParseR"];       ctOk = 1;
+        ctMiss = 0;
+        if list["zzzNotAnArtifact"];    ctMiss = 1;
+        print "CT-4 carrier present " ctOk " miss control " ctMiss:;
+        };
+    ;
 parser(list);
 testList();
+ctPark();
 
 cerr "CT-4 builtinParseR on list":;
 dumpContents(list);

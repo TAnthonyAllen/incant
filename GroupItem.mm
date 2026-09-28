@@ -197,7 +197,7 @@ GroupItem::GroupItem(char *c)
 GroupItem *GroupItem::actionBlocK()
 {
 GroupItem 	*holder = actionHolder();
-	return holder->getAttribute("BlocK");
+	return holder->getProperty("BlocK");
 }
 
 /***************************************************************************
@@ -208,7 +208,7 @@ GroupItem 	*holder = actionHolder();
 GroupItem *GroupItem::actionBody()
 {
 GroupItem 	*holder = actionHolder();
-	return holder->getAttribute("CodE");
+	return holder->getProperty("CodE");
 }
 
 /***************************************************************************
@@ -219,8 +219,8 @@ GroupItem 	*holder = actionHolder();
 ***************************************************************************/
 GroupItem *GroupItem::actionHolder()
 {
-GroupItem 	*carrier = getAttribute("builtinActoR");
-	if ( carrier && carrier->getAttribute("CodE") )
+GroupItem 	*carrier = getProperty("builtinActoR");
+	if ( carrier && carrier->getProperty("CodE") )
 		return carrier;
 	return this;
 }
@@ -311,6 +311,29 @@ GroupItem *GroupItem::addMember(GroupItem *grup)
 	return grup;
 }
 
+// addProperty an artifact goes on the property list beside the terms, never among them (object-model stroke 3)
+GroupItem *GroupItem::addProperty(GroupItem *grup)
+{
+GroupItem 	*last = 0;
+	if ( !grup )
+		return 0;
+	if ( grup->parent )
+		grup = new GroupItem(grup);
+	if ( !groupBody->propList )
+		groupBody->propList = new GroupList();
+	last = groupBody->propList->lastInList;
+	grup->parent = this;
+	grup->options.affiliation = 1;
+	grup->priorInParent = last;
+	grup->nextInParent = 0;
+	if ( last )
+		last->nextInParent = grup;
+	else	groupBody->propList->firstInList = grup;
+	groupBody->propList->lastInList = grup;
+	groupBody->propList->listLength = groupBody->propList->listLength + 1;
+	return grup;
+}
+
 /***************************************************************************
                                 addString
 	Adds an attribute, or if this is a container (binType), adds a member.
@@ -370,7 +393,7 @@ void GroupItem::append(GroupItem *grup)
 GroupItem *GroupItem::attachBlocK(GroupItem *blocK)
 {
 GroupItem 	*holder = actionHolder();
-	return holder->addAttribute(blocK);
+	return holder->addProperty(blocK);
 }
 
 /***************************************************************************
@@ -1084,7 +1107,8 @@ GroupItem 	*entry = 0;
 					if ( ::compare(entry->groupBody->tag,name) == 0 )
 						return entry;
 			}
-	return 0;
+	// termsThenProperties a plain name lookup searches the terms, then the properties (stroke 3)
+	return getProperty(name);
 }
 
 /*****************************************************************************
@@ -1326,6 +1350,22 @@ void *GroupItem::getPointer()
 {
 	if ( groupBody->flags.isPointer )
 		return groupBody->gPointer;
+	return 0;
+}
+
+// getProperty a name lookup on the property list only -- the artifact accessors ask here and nowhere else (stroke 3)
+GroupItem *GroupItem::getProperty(char *name)
+{
+GroupItem 	*entry = 0;
+	if ( !name || !groupBody->propList )
+		return 0;
+	entry = groupBody->propList->firstInList;
+	while ( entry )
+		{
+		if ( ::compare(entry->groupBody->tag,name) == 0 )
+			return entry;
+		entry = entry->nextInParent;
+		}
 	return 0;
 }
 
@@ -1718,6 +1758,16 @@ GroupItem *GroupItem::nextMember(GroupItem *current)
 	return current;
 }
 
+// nextProperty walks the property list: null starts it, null ends it
+GroupItem *GroupItem::nextProperty(GroupItem *entry)
+{
+	if ( entry )
+		return entry->nextInParent;
+	if ( groupBody->propList )
+		return groupBody->propList->firstInList;
+	return 0;
+}
+
 /***************************************************************************
                                 parse
     Treat this field as a rule and match it against the input stream.
@@ -1823,7 +1873,7 @@ generatedExit:
 GroupItem *GroupItem::parseBlocK()
 {
 GroupItem 	*holder = parseHolder();
-	return holder->getAttribute("BlocK");
+	return holder->getProperty("BlocK");
 }
 
 /***************************************************************************
@@ -1833,7 +1883,7 @@ GroupItem 	*holder = parseHolder();
 GroupItem *GroupItem::parseBody()
 {
 GroupItem 	*holder = parseHolder();
-	return holder->getAttribute("CodE");
+	return holder->getProperty("CodE");
 }
 
 /***************************************************************************
@@ -1844,8 +1894,8 @@ GroupItem 	*holder = parseHolder();
 ***************************************************************************/
 GroupItem *GroupItem::parseHolder()
 {
-GroupItem 	*carrier = getAttribute("builtinParseR");
-	if ( carrier && carrier->getAttribute("CodE") )
+GroupItem 	*carrier = getProperty("builtinParseR");
+	if ( carrier && carrier->getProperty("CodE") )
 		return carrier;
 	return this;
 }
@@ -1989,6 +2039,9 @@ void GroupItem::put(GroupItem *grup)
 *****************************************************************************/
 GroupItem *GroupItem::remove()
 {
+	// propertiesFirst a property is unlinked from its owner's property list, never its term list (stroke 3)
+	if ( parent && parent->removeProperty(this) )
+		return this;
 	if ( parent && parent->groupBody->groupList )
 		{
 		GroupItem 	*grup = 0;
@@ -2036,6 +2089,30 @@ GroupItem 	*group = getFromList(name);
 	if ( group )
 		group->remove();
 	return group;
+}
+
+// removeProperty unlinks grup when it is on this node's property list; answers whether it was
+int GroupItem::removeProperty(GroupItem *grup)
+{
+GroupItem 	*entry = 0;
+	if ( !grup || !groupBody->propList )
+		return 0;
+	entry = groupBody->propList->firstInList;
+	while ( entry && entry != grup )
+		entry = entry->nextInParent;
+	if ( !entry )
+		return 0;
+	if ( grup->priorInParent )
+		grup->priorInParent->nextInParent = grup->nextInParent;
+	else	groupBody->propList->firstInList = grup->nextInParent;
+	if ( grup->nextInParent )
+		grup->nextInParent->priorInParent = grup->priorInParent;
+	else	groupBody->propList->lastInList = grup->priorInParent;
+	grup->nextInParent = 0;
+	grup->priorInParent = 0;
+	grup->parent = 0;
+	groupBody->propList->listLength = groupBody->propList->listLength - 1;
+	return 1;
 }
 
 /*****************************************************************************
@@ -2090,17 +2167,9 @@ GroupItem 	*action = 0;
 void GroupItem::setActions()
 {
 RuleStuff 	*ruleStuff = getRStuff();
-GroupItem 	*actor = getAttribute("builtinActoR");
-	// actorAfterTerms a later definition of a forward-defined rule adds terms AFTER its actor, so a second call moves the actor back behind them (stroke 3a)
-	if ( actor )
-		{
-		if ( actor->nextInParent )
-			{
-			actor->remove();
-			addAttribute(actor);
-			}
+	// actorIsAProperty the actor lives on the property list, so a later definition's terms can never land behind it (stroke 3; 3a's reorder retired with it)
+	if ( getProperty("builtinActoR") )
 		return;
-		}
 	if ( isCoded(groupBody->flags.actionType) )
 		{
 		setMethod(::processAction);
@@ -2111,15 +2180,15 @@ GroupItem 	*actor = getAttribute("builtinActoR");
 		builtinActoR->groupBody->flags.noPrint = 1;
 		builtinActoR->setRStuff(ruleStuff);
 		builtinActoR->setMethod(::processAction);
-		addAttribute(builtinActoR);
+		addProperty(builtinActoR);
 		// bodyMoves CodE IS THE ACTION'S SLOT, so it leaves the rule -- a rule that keeps it
 		// bodyMoves carries two bodies under one name, which is what the parse generator collides with
-		GroupItem *actionCodE = getAttribute("CodE");
+		GroupItem *actionCodE = getProperty("CodE");
 		if ( actionCodE )
 			{
 			actionCodE->parent = this;
 			actionCodE->remove();
-			builtinActoR->addAttribute(actionCodE);
+			builtinActoR->addProperty(actionCodE);
 			}
 		}
 	else
@@ -2134,7 +2203,7 @@ GroupItem 	*actor = getAttribute("builtinActoR");
 			builtinActoR->groupBody->flags.noPrint = 1;
 			builtinActoR->setRStuff(ruleStuff);
 			builtinActoR->setMethod((GroupItem*(*)(GroupItem*))methodAddress);
-			addAttribute(builtinActoR);
+			addProperty(builtinActoR);
 			}
 		::free(methodName);
 		if ( groupBody->gMethod )
@@ -2150,7 +2219,7 @@ GroupItem 	*actor = getAttribute("builtinActoR");
 		builtinActoR->groupBody->flags.noPrint = 1;
 		builtinActoR->setRStuff(ruleStuff);
 		builtinActoR->setMethod((GroupItem*(*)(GroupItem*))actorAddress);
-		addAttribute(builtinActoR);
+		addProperty(builtinActoR);
 		}
 }
 

@@ -57,7 +57,7 @@ GroupItem(GroupItem grup)
 GroupItem actionBlocK()
 {
 GroupItem   holder = actionHolder();
-    return holder.getAttribute("BlocK");
+    return holder.getProperty("BlocK");
 }
 
 /***************************************************************************
@@ -68,7 +68,7 @@ GroupItem   holder = actionHolder();
 GroupItem actionBody()
 {
 GroupItem   holder = actionHolder();
-    return holder.getAttribute("CodE");
+    return holder.getProperty("CodE");
 }
 
 /***************************************************************************
@@ -79,8 +79,8 @@ GroupItem   holder = actionHolder();
 ***************************************************************************/
 GroupItem actionHolder()
 {
-GroupItem   carrier = getAttribute("builtinActoR");
-    if carrier && carrier.getAttribute("CodE")   return carrier;
+GroupItem   carrier = getProperty("builtinActoR");
+    if carrier && carrier.getProperty("CodE")   return carrier;
     return this;
 }
 
@@ -210,7 +210,7 @@ void append(GroupItem grup)
 GroupItem attachBlocK(GroupItem blocK)
 {
 GroupItem   holder = actionHolder();
-    return holder.addAttribute(blocK);
+    return holder.addProperty(blocK);
 }
 
 /***************************************************************************
@@ -800,7 +800,66 @@ GroupItem   entry;
             if listLength
                 while entry = next(entry)
                     if entry.tag eq name return entry; }
+    // termsThenProperties a plain name lookup searches the terms, then the properties (stroke 3)
+    return getProperty(name);
+}
+
+// addProperty an artifact goes on the property list beside the terms, never among them (object-model stroke 3)
+GroupItem addProperty(GroupItem grup)
+{
+GroupItem   last;
+    if !grup    return null;
+    if grup.parent  grup = new(grup);
+    if !propList    propList = new GroupList();
+    last                = propList.lastInList;
+    grup.parent         = this;
+    grup.isAttribute    = true;
+    grup.priorInParent  = last;
+    grup.nextInParent   = null;
+    if last     last.nextInParent = grup;
+    else        propList.firstInList = grup;
+    propList.lastInList = grup;
+    propList.listLength = propList.listLength + 1;
+    return grup;
+}
+
+// getProperty a name lookup on the property list only -- the artifact accessors ask here and nowhere else (stroke 3)
+GroupItem getProperty(String name)
+{
+GroupItem   entry;
+    if !name || !propList   return null;
+    entry = propList.firstInList;
+    while entry {
+        if entry.tag eq name    return entry;
+        entry = entry.nextInParent; }
     return null;
+}
+
+// nextProperty walks the property list: null starts it, null ends it
+GroupItem nextProperty(GroupItem entry)
+{
+    if entry    return entry.nextInParent;
+    if propList return propList.firstInList;
+    return null;
+}
+
+// removeProperty unlinks grup when it is on this node's property list; answers whether it was
+int removeProperty(GroupItem grup)
+{
+GroupItem   entry;
+    if !grup || !propList   return 0;
+    entry = propList.firstInList;
+    while entry && entry != grup    entry = entry.nextInParent;
+    if !entry   return 0;
+    if grup.priorInParent   grup.priorInParent.nextInParent = grup.nextInParent;
+    else                    propList.firstInList = grup.nextInParent;
+    if grup.nextInParent    grup.nextInParent.priorInParent = grup.priorInParent;
+    else                    propList.lastInList = grup.priorInParent;
+    grup.nextInParent   = null;
+    grup.priorInParent  = null;
+    grup.parent         = null;
+    propList.listLength = propList.listLength - 1;
+    return 1;
 }
 
 /*****************************************************************************
@@ -1414,7 +1473,7 @@ generatedExit:
 GroupItem parseBlocK()
 {
 GroupItem   holder = parseHolder();
-    return holder.getAttribute("BlocK");
+    return holder.getProperty("BlocK");
 }
 
 /***************************************************************************
@@ -1424,7 +1483,7 @@ GroupItem   holder = parseHolder();
 GroupItem parseBody()
 {
 GroupItem   holder = parseHolder();
-    return holder.getAttribute("CodE");
+    return holder.getProperty("CodE");
 }
 
 /***************************************************************************
@@ -1435,8 +1494,8 @@ GroupItem   holder = parseHolder();
 ***************************************************************************/
 GroupItem parseHolder()
 {
-GroupItem   carrier = getAttribute("builtinParseR");
-    if carrier && carrier.getAttribute("CodE")   return carrier;
+GroupItem   carrier = getProperty("builtinParseR");
+    if carrier && carrier.getProperty("CodE")   return carrier;
     return this;
 }
 
@@ -1559,6 +1618,8 @@ void put(GroupItem grup)
 *****************************************************************************/
 GroupItem remove()
 {
+    // propertiesFirst a property is unlinked from its owner's property list, never its term list (stroke 3)
+    if parent && parent.removeProperty(this)   return this;
     if parent && parent.groupList
         {
         GroupItem   grup;
@@ -1640,13 +1701,8 @@ GroupItem action;
 void setActions()
 {
 RuleStuff   ruleStuff = rStuff;
-GroupItem   actor = getAttribute("builtinActoR");
-    // actorAfterTerms a later definition of a forward-defined rule adds terms AFTER its actor, so a second call moves the actor back behind them (stroke 3a)
-    if actor {
-        if actor.nextInParent {
-            actor.remove();
-            addAttribute(actor); }
-        return; }
+    // actorIsAProperty the actor lives on the property list, so a later definition's terms can never land behind it (stroke 3; 3a's reorder retired with it)
+    if getProperty("builtinActoR")  return;
     if isCoded {
         method                  = processAction;
         // eagerStamp the slot is filled HERE, not at first fire -- a non-null actionMethod is the has-an-action test
@@ -1656,14 +1712,14 @@ GroupItem   actor = getAttribute("builtinActoR");
         builtinActoR.noPrint    = true;
         builtinActoR.rStuff     = ruleStuff;
         builtinActoR.method     = processAction;
-        addAttribute(builtinActoR);
+        addProperty(builtinActoR);
         // bodyMoves CodE IS THE ACTION'S SLOT, so it leaves the rule -- a rule that keeps it
         // bodyMoves carries two bodies under one name, which is what the parse generator collides with
-        GroupItem actionCodE    = getAttribute("CodE");
+        GroupItem actionCodE    = getProperty("CodE");
         if actionCodE {
             actionCodE.parent   = this;
             actionCodE.remove();
-            builtinActoR.addAttribute(actionCodE); } }
+            builtinActoR.addProperty(actionCodE); } }
     or !isMethod {
         String  methodName = "aCTion" tag;
         void*   methodAddress;
@@ -1673,7 +1729,7 @@ GroupItem   actor = getAttribute("builtinActoR");
             builtinActoR.noPrint    = true;
             builtinActoR.rStuff     = ruleStuff;
             builtinActoR.method     = methodAddress;
-            addAttribute(builtinActoR); }
+            addProperty(builtinActoR); }
         free(methodName);
         if gMethod  immediateACTION = true; }
     or gMethod {
@@ -1684,7 +1740,7 @@ GroupItem   actor = getAttribute("builtinActoR");
         builtinActoR.noPrint    = true;
         builtinActoR.rStuff     = ruleStuff;
         builtinActoR.method     = actorAddress;
-        addAttribute(builtinActoR); }
+        addProperty(builtinActoR); }
 }
 
 /*****************************************************************************

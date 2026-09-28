@@ -281,17 +281,19 @@ extern GroupItem followArgument(GroupItem operand)
 // frameFind read-only twin of frameStak -- null when no frame child exists, so restore can tell never saved from saved nothing without minting one
 extern GroupItem frameFind(GroupItem action)
 {
-    return action["frameSTAK"];
+    return action.getProperty("frameSTAK");
 }
 
 
 // frameStak the frame bracket's save-stack lives on a noPrint CHILD, never in the action's own data slot, which may hold the field's VALUE
 extern GroupItem frameStak(GroupItem action)
 {
-GroupItem   frame = action["frameSTAK"];
+GroupItem   frame = action.getProperty("frameSTAK");
     if frame    return frame;
-    frame = action += "frameSTAK";
+    // frameIsAProperty the frame stack is an artifact, so it goes on the property list (stroke 3)
+    frame = new("frameSTAK");
     frame.noPrint = true;
+    frame = action.addProperty(frame);
     return frame;
 }
 
@@ -673,7 +675,7 @@ use field
     GroupItem   *staleIR = field->get("JiT");
     if (staleIR)    staleIR->setText(::strdup(""));
     %-
-    code      = holder.getAttribute("CodE");
+    code      = holder.getProperty("CodE");
     if isRule action = code;
     currentMETHOD   = action;
     lastIndent      = 0;
@@ -685,7 +687,7 @@ use field
     -% gCompileOwner = priorOwner; %-
     if result {
         result.noPrint  = true;
-        holder.addAttribute(result);
+        holder.addProperty(result);
         field.isAction = true; }
     else    reportCodeFail(field);
     if !processing  processingCode = false;
@@ -819,9 +821,7 @@ GroupItem   frame,
     if frame    recurseSTAK = frame.stak;
     // identityPair restore pairs by identity, never by position -- walk the STACK, not the field list, with no filter of its own
     // nullArm restore is reached where save never ran (the jit bracket among them); no frame child means nothing was saved
-    if !recurseSTAK             action.recursive = false;
-    or !recurseSTAK.length      action.recursive = false;
-    else
+    if recurseSTAK && recurseSTAK.length
     while body = recurseSTAK.pop() {
         grup = recurseSTAK.pop();
         *grup.groupBody = *body;

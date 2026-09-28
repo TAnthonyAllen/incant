@@ -6,6 +6,7 @@ include /Users/anthony/Dropbox/data/InProcess/Groups/groupIncludes
 class GroupBody
 {
 String          tag;
+GroupList       propList;
 GroupList       groupList;
 GroupItem       registry;
 PLGset          guardSet;
@@ -69,7 +70,6 @@ boolean bools {
     hasListeners
     hasMembers
     isArgument
-    isAssign
     isCondition
     isIndexed
     isInitialized
@@ -81,14 +81,10 @@ boolean bools {
     isPointer
     isShortcut
     isSingleton
-    isToggle
     isUnary
     isVirtual
     isWindow
-    isXP
     mergeOn
-    negate
-    recursive
     reversePrint
     tokened
     hasNewParse

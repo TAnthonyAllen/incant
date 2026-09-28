@@ -498,7 +498,10 @@ GroupItem 	*item = 0;
 							}
 						item->getRStuff()->rule = item;
 						}
-				grup = NewGroup->addAttribute(item);
+				// codeIsAProperty an action's CodE is an artifact, so it goes on the property list, never among the terms (stroke 3)
+				if ( item == CodE )
+					grup = NewGroup->addProperty(item);
+				else	grup = NewGroup->addAttribute(item);
 				}
 	/***********************************************************************
 	If there is code NewGroup is flagged as coded. The code gets processed
@@ -1826,10 +1829,27 @@ GroupItem 	*holder = 0;
 	if ( !pending && !isCoded(field->groupBody->flags.actionType) )
 		return 0;
 	// any rule without parseRule as its method will exit here
+	// pendingToProperties the kant generator attaches the carrier and its CodE with +%, which lands among the terms; they are artifacts, so they move to the property lists here (stroke 3)
+	if ( pending && !field->getProperty("pendingParseR") )
+		{
+		pending->remove();
+		pending->parent = 0;
+		pending = field->addProperty(pending);
+		}
+	if ( pending && !pending->getProperty("CodE") )
+		{
+		code = pending->getAttribute("CodE");
+		if ( code )
+			{
+			code->remove();
+			code->parent = 0;
+			pending->addProperty(code);
+			}
+		}
 	if ( pending )
 		holder = pending;
 	else	holder = field->parseHolder();
-	code = holder->getAttribute("CodE");
+	code = holder->getProperty("CodE");
 	// secondRefuseInCompile
 	if ( !code )
 		return ::refuse(field,"compile: isCoded is set but there is no CodE attribute; the flag and the artifact disagree");
@@ -1875,7 +1895,11 @@ GroupItem 	*holder = 0;
 		{
 		pending->remove();
 		 pending->groupBody->tag = ::strdup("builtinParseR"); 
-		field->replace(pending);
+		// installAsProperty the old carrier leaves and the green one arrives, both on the property list (stroke 3)
+		grup = field->getProperty("builtinParseR");
+		if ( grup )
+			grup->remove();
+		field->addProperty(pending);
 		}
 	GroupControl::groupController->groupRules->compiling = 0;
 endCompile:
@@ -2531,17 +2555,19 @@ extern "C" GroupItem *followArgument(GroupItem *operand)
 // frameFind read-only twin of frameStak -- null when no frame child exists, so restore can tell never saved from saved nothing without minting one
 extern "C" GroupItem *frameFind(GroupItem *action)
 {
-	return action->get("frameSTAK");
+	return action->getProperty("frameSTAK");
 }
 
 // frameStak the frame bracket's save-stack lives on a noPrint CHILD, never in the action's own data slot, which may hold the field's VALUE
 extern "C" GroupItem *frameStak(GroupItem *action)
 {
-GroupItem 	*frame = action->get("frameSTAK");
+GroupItem 	*frame = action->getProperty("frameSTAK");
 	if ( frame )
 		return frame;
-	frame = action->addString("frameSTAK");
+	// frameIsAProperty the frame stack is an artifact, so it goes on the property list (stroke 3)
+	frame = new GroupItem("frameSTAK");
 	frame->groupBody->flags.noPrint = 1;
+	frame = action->addProperty(frame);
 	return frame;
 }
 
@@ -2961,9 +2987,6 @@ GroupItem 	*op = 0;
 GroupItem 	*arg = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	op = ruler->falseResult;
-	if ( ruler->processingCode )
-		if ( ANYtoken->groupBody == ruler->currentMETHOD->groupBody )
-			ruler->currentMETHOD->groupBody->flags.recursive = 1;
 	if ( isGROUP(InvokeArg->groupBody->flags.data) )
 		arg = InvokeArg->getGroup();
 	// emptyParens an EMPTY () carries nothing and is NOT an argument -- hand on no third operand
@@ -6536,6 +6559,17 @@ extern "C" GroupItem *jitShowRecord(GroupItem *field)
 	att->groupBody->flags.noPrint ? 1 : 0,
 	x ? ::strlen(x) : (size_t)0);
 	kount++; }
+	/*  THE PROPERTY LIST IS HALF THE RECORD SINCE OBJECT-MODEL STROKE 3: CodE and
+	BlocK moved there, JiT did not, and coresidence asks about all three.  */
+	att = 0;
+	while ((att = definer->nextProperty(att))) {
+	char *t = att->groupBody->tag;
+	char *x = att->getText();
+	printf("  %s  noPrint=%d  %zu bytes\n",
+	t ? t : "(untagged)",
+	att->groupBody->flags.noPrint ? 1 : 0,
+	x ? ::strlen(x) : (size_t)0);
+	kount++; }
 	printf("=== RECORD %s: %d attributes ===\n", definer->groupBody->tag, kount);
 	fflush(stdout);
 	return ruler->trueResult;
@@ -9691,7 +9725,7 @@ int 		processing = ruler->processingCode;
 	GroupItem   *staleIR = field->get("JiT");
 	if (staleIR)    staleIR->setText(::strdup(""));
 	
-	code = holder->getAttribute("CodE");
+	code = holder->getProperty("CodE");
 	if ( field->groupBody->flags.isRule )
 		action = code;
 	ruler->currentMETHOD = action;
@@ -9705,7 +9739,7 @@ int 		processing = ruler->processingCode;
 	if ( result )
 		{
 		result->groupBody->flags.noPrint = 1;
-		holder->addAttribute(result);
+		holder->addProperty(result);
 		field->groupBody->flags.actionType = 1;
 		}
 	else	reportCodeFail(field);
@@ -9738,10 +9772,6 @@ GroupItem 	*target = item->groupBody->flags.fLAG ? item->parent : item;
 	if ( item )
 		switch (*command)
 			{
-			case 'a':
-				if ( ::compare(command,"assign") == 0 )
-					target->groupBody->flags.isAssign = 1;
-				break;
 			case 'b':
 				target->groupBody->flags.binType = 1;
 				if ( !target->groupBody->guardSet )
@@ -10210,18 +10240,13 @@ GroupItem 	*grup = 0;
 		recurseSTAK = frame->getStak();
 	// identityPair restore pairs by identity, never by position -- walk the STACK, not the field list, with no filter of its own
 	// nullArm restore is reached where save never ran (the jit bracket among them); no frame child means nothing was saved
-	if ( !recurseSTAK )
-		action->groupBody->flags.recursive = 0;
-	else
-	if ( !recurseSTAK->length )
-		action->groupBody->flags.recursive = 0;
-	else
-	while ( body = (GroupBody*)recurseSTAK->pop() )
-		{
-		grup = (GroupItem*)recurseSTAK->pop();
-		*grup->groupBody = *body;
-		body = 0;
-		}
+	if ( recurseSTAK && recurseSTAK->length )
+		while ( body = (GroupBody*)recurseSTAK->pop() )
+			{
+			grup = (GroupItem*)recurseSTAK->pop();
+			*grup->groupBody = *body;
+			body = 0;
+			}
 }
 
 // ruleMethod bind the method the attribute's text names, found with dlsym -- as the parent's method for ruleMethod, else as its operator
