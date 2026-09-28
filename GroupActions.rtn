@@ -216,7 +216,9 @@ use ruler
     // gateOnlyNeverGenerate runRule GATES on hasNewParse and NEVER installs a parse -- generation is explicit, through parser
     if rule.hasNewParse {
         // noSilentFallthrough NEVER fall through to the old parse here -- it trades a loud crash for a quiet wrong answer
+        // instanceFirst the reference's own { } before the rule's method -- the same read as runLeafParse's (F-O23)
         if !rule.gMethod    result = refuse(rule,"runRule: hasNewParse is set but no method is installed to fire");
+        or rule.rStuff && rule.rStuff.overTo    result = parseUpTo(rule);
         else                result = rule.method(rule); }
     else {
         // noDataMeansLabel a non-null field with NO DATA is the label to attach into, never an input to divert
