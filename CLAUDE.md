@@ -945,6 +945,12 @@ it. Three destinations, and they are not interchangeable:
 | `docs/knownErrors.md` | a deep defect needing investigation and a **ruling** before anyone can act | long-form KE entry with measurement and discrimination |
 | `TODO.md` | design and roadmap work, organised by arc | prose under its phase |
 
+⚠⚠ **CRUFT GOES ON `docs/cleanupList.md` -- A STANDING LIST (Tony, 2026-09-28).** When a stroke turns up
+something that looks deletable, **add an entry and keep going; never act on it in flight.** An entry names it and
+where (file:line), why it looks deletable, the census or measurement that would confirm it, and the date seen.
+**Tony decides the cuts, one cleanup pass at a time.** Before seeding an entry, check it still exists: two of the
+five first seeds had already been deleted.
+
 ### ⚠ AND A FOURTH REGISTER, ADOPTED 2026-08-19: `incant/fixits/` — RUNNABLE CAPTURE
 
 ⚠⚠⚠ **READ THE CULL FIRST — TWO STANDING RULES, TONY, 2026-09-01 (SEQ 104), AND THEY NARROW THIS

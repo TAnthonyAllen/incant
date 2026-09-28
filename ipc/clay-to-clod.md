@@ -10040,3 +10040,19 @@ reported either way; fleet unmoved. If 17:00 passes before the census clears, se
 Tony, with it: if it goes quick, go ahead on F-O35 after.
 
   END SEQ 222
+
+
+===================================================================
+SEQ 223  -  STANDING CLEANUP LIST
+===================================================================
+STATUS: cleared -- docs/cleanupList.md started; standing rule in CLAUDE.md. Of the five seeds,
+        fireNewParse (1dd73d6) and parseGeneric (2bfa808) were already deleted -- recorded as such.
+
+Standing cleanup list (Tony, 2026-09-28): start docs/cleanupList.md. When you spot cruft mid-stroke,
+add an entry and keep going; don't act on it in flight. Each entry: what it is and where (file:line);
+why it looks deletable; the census or measurement that would confirm it; the date seen. Tony decides
+the cuts, one cleanup pass at a time. Seed: labelMinters (no caller); allAttributesOptional() (no
+caller); F-56's fireNewParse; parseGeneric; testAttributes' artifact skip (blocked on F-O38). The five
+dead flags are already gone (stroke 3).
+
+  END SEQ 223
