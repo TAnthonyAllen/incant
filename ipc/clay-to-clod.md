@@ -9982,3 +9982,25 @@ Stroke 3: rule lists plus artifacts only; locals stay where they are. Before bui
   Certificate: fleet unmoved, and "it's" still ends at ". Then the strip: rule-side census reads zero,
   fleet unmoved.
   -- Stroke 3a landed 8a4eeab, sealed 44a7796 (definerT named, F-O32).
+
+
+===================================================================
+SEQ 220  -  STROKE 3 GO: F-O32 MEASUREMENT FIRST; ACCESSORS PROPERTIES-ONLY; SELF-PINNED ORACLE
+===================================================================
+STATUS: working -- STOPPED at the F-O32 measurement (material: the registry entry's parseMethod
+        is null post-3a; the method lands on the second node's rStuff). Awaiting a ruling.
+
+Go on stroke 3, with:
+First, the F-O32 measurement. For every definingRule() caller that ran on ExpressioN and StatemenT,
+give the answer on pre-3a trunk and on current trunk, and say whether it is a usable node for that
+caller. Everything usable -> F-O32 stays known red until stroke 4. Any caller whose answer changed
+materially -> stop and report.
+Artifact accessors read properties only (actionHolder/parseHolder, actionBlocK/parseBlocK,
+actionBody/parseBody, attachBlocK) -- this is part of stroke 3. Plain name lookups search terms,
+then properties.
+Oracle: the self-pinned invariant (at rest == after parser(Start) + an action compile), plus 2-3
+rules pinned by value from their grammar lines as anchors. ("From the grammar text" withdrawn.)
+Rationale (Clay): stroke 3 makes F-O32 permanent -- once the actor leaves the term list the first
+child is always a real term; the fleet unmoved is evidence only about what the fleet reads (H12).
+
+  END SEQ 220
