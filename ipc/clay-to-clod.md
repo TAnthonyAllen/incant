@@ -10024,3 +10024,19 @@ After whichever stroke seals last (docs only): Part 2's stroke ledger becomes on
 -- heading = stroke number and name, each former column a labelled line. Layout only.
 
   END SEQ 221
+
+
+===================================================================
+SEQ 222  -  STROKE 2b: CENSUS FIRST, THEN THE QuotE RESPELL IF BEFORE 17:00
+===================================================================
+STATUS: cleared -- census done (recon 14), every reader answerable; respell NOT started -- the member
+        label level is a design ruling. F-O37 found. F-O35 not started. Sealed (8).
+
+Stroke 2b, census first (read-only): list every reader of the matched quote character, including
+Operators' '++' path. Stop and report if any reader can't be answered by which member matched. If all
+of them can and it's before 17:00, do the two-member QuotE respell. Certificate: "it's" ends at ";
+'++' still defines a field with a tag that isn't a NamE; F-O25 pre-registered to go green, and
+reported either way; fleet unmoved. If 17:00 passes before the census clears, seal the census and stop.
+Tony, with it: if it goes quick, go ahead on F-O35 after.
+
+  END SEQ 222

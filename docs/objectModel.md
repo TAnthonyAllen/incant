@@ -187,7 +187,7 @@ Every stroke: its own try-and-buy branch cut from trunk; full seal checklist; li
 - **RuleStuff / ParseActivation:** QuotE: one member for `"…"`, one for `'…'`; the matched member answers what `tik` answers today; `getWhatFollows`/`setTestMatch`/`parse()` stop reading `isMacro`
 - **layout:** no (expected)
 - **certificate:** respell: fleet unmoved, `"it's"` ends at `"`, F-O25 pre-registered green; strip: recon §12 census re-run reads 0 on the rule side, fleet unmoved
-- **status:** **queued after stroke 3**
+- **status:** **census done (recon 14): every reader answerable; respell NOT started** -- owed a ruling on where the result lives once a member label sits between `QuotE` and `tik`/`quoteBody` (recon 14). F-O37 found on the way.
 
 ### Stroke 3a — `builtinActoR` follows the real terms (SEQ 219)
 
@@ -299,6 +299,7 @@ Every stroke: its own try-and-buy branch cut from trunk; full seal checklist; li
 | F-O34 | 2026-09-28 | **`hasAttributes` now has one meaning.** Artifacts were attributes, so a rule whose only attribute was its actor read `hasAttributeS 1 hasTraitS 0` -- `traitFlagsT`'s TF-5 "the two flags disagree" population, `ShortcuT` and `StatemenT`. With artifacts on the property list, both read 0/0 and TF-5 reads 0; the 08-26 defect `connectiveT` pinned (an artifact setting `hasTraitS`) is now unconstructable. `parse()`'s `hasAttributes` arm is unaffected for both: `StatemenT` takes the members arm first, `ShortcuT` has a `testMatch`. | recorded (stroke 3) |
 | F-O35 | 2026-09-28 | **The artifact skippers (recon 11.3, 9 lines) are NOT retired by stroke 3.** They are dead on rule lists now, but several also walk ACTION lists and the `CodE` list, which still carry `noPrint` locals (`this`, `tempField`) -- `compile`'s term copy is the example. Retiring them needs a per-site reading of which list each walks. | owed (stroke 3 follow-up) |
 | F-O36 | 2026-09-28 | **tok trap: a second field of the same class type captures the first's bare names when declared AFTER it.** `GroupList propList;` declared after `groupList` re-pointed bare `firstInList`/`listLength`/`lastInList` to `propList` in five generated files (`GroupItem.mm` 128 lines, `GroupRules.mm` 54, `GroupStak`, `Bytecode`, `GroupBody`), canary unmoved, tok clean. Declared BEFORE it, the only generated change is the field. Caught by diffing every `.mm` after the `tokall`. | applied; bear-trap #57 |
+| F-O37 | 2026-09-28 | **On the new road, any QuotE input containing a double quote CRASHES (exit 139).** After `parser(DO)`, `tell("QuotE \"abc\"")` dies; `'abc'` and `'++'` read 0/0 (F-O25). **Pre-existing:** identical on source `0733d44`, before stroke 3 (measured). No fleet row drives a double-quoted QuotE on the new road, which is why nothing saw it. Bears on stroke 2b's pre-registration. | reported, not fixed (F2) |
 
 
 ---

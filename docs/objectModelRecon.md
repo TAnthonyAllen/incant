@@ -519,3 +519,26 @@ would still answer the term. **So artifact accessors (`actionBlocK`, `parseBlocK
 shared bodies. This walk's top-level population is 280 at rest, of which 33 actors, so **247 top-level
 terms**. A count "from the grammar text" needs a text parse of `incant/grammar` plus the `GroupMain`
 bootstrap (whose rules have inert mirror lines in the text). It is not built.
+
+---
+
+## 14. Stroke 2b census: readers of the matched quote character (2026-09-28, trunk `e5eabb2`, SEQ 222)
+
+| reader | what it reads | answerable by which member matched? |
+|---|---|---|
+| `aCTionQuotE` (`ruleActions.rtn:807-826`) | `tik.gText != '"'`: double quotes give a text literal; single quotes look the body up in `opFields` (the `'++'` path: an operator name that is not a NamE), else a char or text literal | **yes** -- "single member" / "double member" |
+| `parse()` -> `setMacroValue` (old road, recon 12) | copies the opening quote into the closing `tik` | **yes** -- each member's close is fixed, so the back-reference goes away |
+| `aCTionDefinE`'s operator-naming site | `isLiteral`, which `aCTionQuotE` sets | **yes**, unchanged |
+| new-road generated body | `tik` classified `parseSet` (`parseClass.target:176`); no `macroVal` | **yes** -- fixed closes need no back-reference |
+| instruments | `termCountT` TC-4 (QuotE = 2 terms), `leafClassT` LC-5 (F-O25), `parseClass.target` | shape pins; they move by name |
+
+**Every reader is answerable. The respell was NOT started**, because the census missed one thing that is a design choice, not
+a mechanical edit: **the label level.** Measured (a temporary print in `aCTionQuotE`, reverted): today the `QuotE` label holds
+`tik` and `quoteBody` DIRECTLY, and its text is the body. A two-member QuotE puts a member label between them, so
+`aCTionQuotE`'s `tik:` binding finds nothing (and then dereferences it), and `GrouP -> QuotE -> member` is one level deeper than
+`aCTionDefinE`'s single `isGROUP` unwrap. **Which node carries the result -- the member's own action writing through to the
+QuotE label, or `aCTionQuotE` reading the member -- is the ruling owed before the respell.**
+
+**Baseline for the certificate, old road (all correct):** `"it's" tail` 1/6 (ends at the `"`), `'it"s' tail` 1/6, `'abc'` 1/5,
+`"abc"` 1/5, `'++'` 1/4. **New road after `parser(DO)`:** `'abc'` 0/0 and `'++'` 0/0 (F-O25), and **every input containing
+`"` crashes, exit 139** -- F-O37.
