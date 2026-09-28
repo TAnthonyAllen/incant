@@ -327,7 +327,9 @@ use item
                                 parentStuff = grup.rStuff;
                                 parentLabel = grup.label; }
                             rStuff.rule    = item; }
-                    grup    = NewGroup +% item; }
+                    // codeIsAProperty an action's CodE is an artifact, so it goes on the property list, never among the terms (stroke 3)
+                    if item == CodE     grup = NewGroup.addProperty(item);
+                    else                grup = NewGroup +% item; }
         /***********************************************************************
             If there is code NewGroup is flagged as coded. The code gets processed
             by processCode() the first time NewGroup is included in an expression.

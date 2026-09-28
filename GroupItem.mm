@@ -197,7 +197,7 @@ GroupItem::GroupItem(char *c)
 GroupItem *GroupItem::actionBlocK()
 {
 GroupItem 	*holder = actionHolder();
-	return holder->getAttribute("BlocK");
+	return holder->getProperty("BlocK");
 }
 
 /***************************************************************************
@@ -208,7 +208,7 @@ GroupItem 	*holder = actionHolder();
 GroupItem *GroupItem::actionBody()
 {
 GroupItem 	*holder = actionHolder();
-	return holder->getAttribute("CodE");
+	return holder->getProperty("CodE");
 }
 
 /***************************************************************************
@@ -219,8 +219,8 @@ GroupItem 	*holder = actionHolder();
 ***************************************************************************/
 GroupItem *GroupItem::actionHolder()
 {
-GroupItem 	*carrier = getAttribute("builtinActoR");
-	if ( carrier && carrier->getAttribute("CodE") )
+GroupItem 	*carrier = getProperty("builtinActoR");
+	if ( carrier && carrier->getProperty("CodE") )
 		return carrier;
 	return this;
 }
@@ -393,7 +393,7 @@ void GroupItem::append(GroupItem *grup)
 GroupItem *GroupItem::attachBlocK(GroupItem *blocK)
 {
 GroupItem 	*holder = actionHolder();
-	return holder->addAttribute(blocK);
+	return holder->addProperty(blocK);
 }
 
 /***************************************************************************
@@ -1873,7 +1873,7 @@ generatedExit:
 GroupItem *GroupItem::parseBlocK()
 {
 GroupItem 	*holder = parseHolder();
-	return holder->getAttribute("BlocK");
+	return holder->getProperty("BlocK");
 }
 
 /***************************************************************************
@@ -1883,7 +1883,7 @@ GroupItem 	*holder = parseHolder();
 GroupItem *GroupItem::parseBody()
 {
 GroupItem 	*holder = parseHolder();
-	return holder->getAttribute("CodE");
+	return holder->getProperty("CodE");
 }
 
 /***************************************************************************
@@ -1894,8 +1894,8 @@ GroupItem 	*holder = parseHolder();
 ***************************************************************************/
 GroupItem *GroupItem::parseHolder()
 {
-GroupItem 	*carrier = getAttribute("builtinParseR");
-	if ( carrier && carrier->getAttribute("CodE") )
+GroupItem 	*carrier = getProperty("builtinParseR");
+	if ( carrier && carrier->getProperty("CodE") )
 		return carrier;
 	return this;
 }
@@ -2167,17 +2167,9 @@ GroupItem 	*action = 0;
 void GroupItem::setActions()
 {
 RuleStuff 	*ruleStuff = getRStuff();
-GroupItem 	*actor = getAttribute("builtinActoR");
-	// actorAfterTerms a later definition of a forward-defined rule adds terms AFTER its actor, so a second call moves the actor back behind them (stroke 3a)
-	if ( actor )
-		{
-		if ( actor->nextInParent )
-			{
-			actor->remove();
-			addAttribute(actor);
-			}
+	// actorIsAProperty the actor lives on the property list, so a later definition's terms can never land behind it (stroke 3; 3a's reorder retired with it)
+	if ( getProperty("builtinActoR") )
 		return;
-		}
 	if ( isCoded(groupBody->flags.actionType) )
 		{
 		setMethod(::processAction);
@@ -2188,15 +2180,15 @@ GroupItem 	*actor = getAttribute("builtinActoR");
 		builtinActoR->groupBody->flags.noPrint = 1;
 		builtinActoR->setRStuff(ruleStuff);
 		builtinActoR->setMethod(::processAction);
-		addAttribute(builtinActoR);
+		addProperty(builtinActoR);
 		// bodyMoves CodE IS THE ACTION'S SLOT, so it leaves the rule -- a rule that keeps it
 		// bodyMoves carries two bodies under one name, which is what the parse generator collides with
-		GroupItem *actionCodE = getAttribute("CodE");
+		GroupItem *actionCodE = getProperty("CodE");
 		if ( actionCodE )
 			{
 			actionCodE->parent = this;
 			actionCodE->remove();
-			builtinActoR->addAttribute(actionCodE);
+			builtinActoR->addProperty(actionCodE);
 			}
 		}
 	else
@@ -2211,7 +2203,7 @@ GroupItem 	*actor = getAttribute("builtinActoR");
 			builtinActoR->groupBody->flags.noPrint = 1;
 			builtinActoR->setRStuff(ruleStuff);
 			builtinActoR->setMethod((GroupItem*(*)(GroupItem*))methodAddress);
-			addAttribute(builtinActoR);
+			addProperty(builtinActoR);
 			}
 		::free(methodName);
 		if ( groupBody->gMethod )
@@ -2227,7 +2219,7 @@ GroupItem 	*actor = getAttribute("builtinActoR");
 		builtinActoR->groupBody->flags.noPrint = 1;
 		builtinActoR->setRStuff(ruleStuff);
 		builtinActoR->setMethod((GroupItem*(*)(GroupItem*))actorAddress);
-		addAttribute(builtinActoR);
+		addProperty(builtinActoR);
 		}
 }
 
