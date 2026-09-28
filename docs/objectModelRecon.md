@@ -273,3 +273,78 @@ commands, compared with the old tree. Disposable, on its own branch. It answers 
 by measurement. **Owed before it can start:** the list-vs-attribute fall-through ruling (§6.1)
 and a decision on whether `parse-then-fire` pauses at P6's open question (Clay's lean, not yet
 ruled).
+
+---
+
+## 9. Addendum, same day: Clay's three A/B measurements
+
+**Instrument.** An lldb expression run against the stopped Debug binary (`~/bin/incant`, no
+source or build change). It walks every rule in the `Grokking` registry and descends inline
+sub-terms, but never through a term that shares its body with a registered rule. Per term it
+records: body shared with the registered rule, `rStuff` present and owned, `min`/`max`, each
+`rStuff` modifier bit, the body's `guarding`/`%`/`&`/`$` bits, and `noPrint`.
+
+- **Control (H11):** `InvokE`'s optional term reads `min 0`, so the override column is live.
+- **Instrument slip, caught:** the first post-compile run stopped at the *first*
+  `stopParsingInput`, which is inside `include(unitTests)`, before `parser(Start)` runs. It
+  reported "no artifacts". The absence was the instrument's (the population searched predated
+  the compile). The rerun skips the first hit.
+
+### 9.1 Instances per rule, and how many carry anything of their own (at rest, before any compile)
+
+63 rules, 350 term rows. **158 terms are references to a registered rule, and all 158 share
+that rule's body** (0 references with a body of their own).
+
+| refs per referenced rule | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 11 | 16 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| rules | 58 | 10 | 4 | 3 | 1 | 1 | 1 | 1 | 1 | 1 |
+
+- **81 of 158 references (51%) carry an own modifier.** By kind: repetition only 30, noLabel
+  only 30, `noLabel noAdvance noSkip` 11, repetition + noLabel 7, noSkip 2, overTo 1.
+- The heavy repeats are punctuation and it is all overrides: `SemI` 16 refs / 16 own,
+  `followedBy` 11/11. Structural rules mostly read through: `ExpressioN` 10/2, `StatemenT` 8/2,
+  `ANYtoken` 6/0, `NumbeR` 5/0.
+- **Reading for A vs B:** half the instances override, but each override is 1–3 small
+  instance-level facts (all §2's instance column). Nobody overrides shape. That is delegation's
+  profile: a short own-list over an inherited everything. Under copy, every one of the 158 would
+  duplicate its rule to change one bit.
+
+### 9.2 §4.3 is now MEASURED, not just structural: a `}` at one reference unguards every reference
+
+`SetBrackets leftBrace- rightBrace};` (`incant/grammar:55`). The `}` sets `upToOver` in
+SetBrackets' own `rStuff` (overTo=2 on that row only, correct) **and** `unGuarded` on the body
+`rightBrace` shares. Registry read: `rightBrace` body `guarding = 2` (`unGuarded`).
+`Braced` (`rightBrace-="]"`) and `Limit` (`rightBrace-`) never asked for it and read it anyway.
+Same `rStuff`/body split as §1, inside one modifier. **Behaviour impact is NOT measured**
+(guarding on a literal `]` may never matter). `leftBrace`'s `="["` in `Braced` is a restatement of
+the bootstrap value, not a leak.
+
+Other shared bodies reading `unGuarded`: `PRINTing` (3 refs), `DEFINing` (2), `define` (1). Their
+source is not yet traced.
+
+### 9.3 The artifact population in term lists (after `parser(Start)` and an action compile, `driveCompileT`)
+
+| entry at a rule's top level | rules carrying it | beneath it |
+|---|---|---|
+| `builtinParseR` (the generated-parse carrier) | 57 | `CodE` → `BlocK`, `this`, `tempField` |
+| `builtinActoR` | 33 | none |
+| `frameSTAK` | 19 | none |
+
+**59 of 63 rules end up with artifacts mixed into the list their terms live in.** A carrier adds
+four more noPrint nodes below it.
+
+⚠ **The census tripped over this itself, which is the argument in one line:** the walk's
+"real term" count went **317 → 792** after the compile. It descended into each carrier's
+compiled code and counted statements as grammar terms, because nothing structural separates a
+term from a property. Every term walker in the tree carries the noPrint gate for this reason
+(`countRuleTerms`, #50). **Clay's terms-vs-properties split holds under either option, and this
+is its population.**
+
+### 9.4 Not done: rule-level vs instance-level reads per parse
+
+This one needs a runtime count of `rStuff`/body reads, split by §2's levels. That is a `measure*`
+callout in `parse()`/`checkInput`/`attachLabel`, which is a code change, so it wasn't run in a
+read-only pass. A static proxy from §2 (refs in generated code): activation fields dominate
+(`label` 92, `sukcess` 56), then instance (`min`/`max`/modifiers ~100 combined), then rule
+(`parseMethod` 25, `actionMethod` 17, `rule` 28). That counts sites, not executions, and says
+nothing about the hot path. **Owed if the chain-walk cost becomes the deciding question.**
