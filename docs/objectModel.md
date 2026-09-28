@@ -40,6 +40,7 @@ Every seam defect in the record is a field on the wrong side of that split (`isR
 - **Writes land where they are made:** a write through an instance lands on the instance; writing the rule is explicit.
 - **Terms fall through, properties are local** (ruled 2026-09-28): the term list lives on the rule; instances carry attributes only.
 - **A grammar change reaches instances automatically** (ruled 2026-09-28), because instances read through to their rule.
+- **NO HUNT** (ruled 2026-09-28). A field reaches its parent's instance facts in **one pointer step** (`GroupItem.parent` -> its `rStuff`), and an activation reaches its parent's activation in **one pointer step** (`ParseActivation` gains a parent-activation pointer, set at creation). `parentLabel` is the parent activation's `label`. **Nothing searches for either.**
 - **Terms and properties are separate lists.** Artifacts (carriers, actors, frames, compiled CodE) never sit in the term list.
 
 ### 1.3 Field table
@@ -98,8 +99,8 @@ Every seam defect in the record is a field on the wrong side of that split (`isR
 | rule-level 8 (7 here, `rule` below) | `ruleName`, `sourceLine`, `testMatch`, `parseMethod`, `actionMethod`, `jitMethod`, `hasMacro` (copied from the body's `isMacro` when the `RuleStuff` is built, `RuleStuff.twk:146`) | the rule, read through the instance pointer (`hasMacro`: unchanged, `$` is out of scope — revised ruling) | 4 |
 | `rule` | exists; the copy constructor aims it at the **face itself**, not the rule | **not** the link (O-1 chose a new `GroupItem` field); retires or stays as a cache, decided in stroke 4 | 4 |
 | instance-level 12 (13 until `limitsSet` was deleted with Limit, `1f06c53`, per the §1.5 amendment) | `min`, `max`, `maxRepeat`, `banged`, `noAdvance`, `noLabel`, `noSkip`, `isTarget` (also computed, `max == 1`), `overTo` (`upTo`/`upToOver`), `notifyFail`, `followed` + `onGroup` (per position in the parent: `getWhatFollows`, `embedAttribute`) | stay in the instance's `RuleStuff` | 1 (adds `modUnGuarded`, `modPercent`, `modPointer`) |
-| activation-level 10 | `label`, `parentLabel`, `kount`, `sukcess`, `isOK`, `hereAt`, `failedAt`, `inProcess`, `guardOK`, `guardFAIL` | `ParseActivation` (today `{stuff, prev, floor, label}` — `label` already has a slot) | 5 |
-| `parentStuff` | set at construction from the grammar parent (instance), read at parse time for `parentLabel` and walked by `deferredAbove` (activation) | split: instance part stays, activation part moves | 5 |
+| activation-level 10 | `label`, `parentLabel`, `kount`, `sukcess`, `isOK`, `hereAt`, `failedAt`, `inProcess`, `guardOK`, `guardFAIL` | `ParseActivation` (today `{stuff, prev, floor, label}` — `label` already has a slot; **gains a parent-activation pointer, set at creation** — NO HUNT) | 5 |
+| `parentStuff` | set at construction from the grammar parent (instance), read at parse time for `parentLabel` and walked by `deferredAbove` (activation) | **split (NO HUNT):** the instance part becomes `parent.rStuff`, one pointer step; the activation part becomes `activation.parent`; `parentLabel` = the parent activation's `label`. Nothing searches for either | 5 |
 | dead / unclear 3 | `onFail` — written by `getWhatFollows` (`RuleStuff.twk:150`), **no reader**; `doNothing` — one write (`= 0`, `ruleActions.rtn:977`), **no reader**; `isOption` — declared, **no reference** at all | **deleted**, certificate = zero-reader census (F-O16) | 5 |
 
 ### 1.4 Out of scope for strokes 1–5 (later phases, not part of this target)
@@ -133,6 +134,7 @@ None. O-1 and O-2 were ruled 2026-09-28 (§1.5).
 | 2026-09-28 | **F-O16:** dead fields are deleted, certificate = a zero-reader census: the four dead body flags in stroke 3, the three dead `RuleStuff` fields in stroke 5. |
 | 2026-09-28 | **F-O17:** `registry`, `guardSet`, `gJitEmitter`, the `gText`/`gPointer` union and `gOp`: target "unchanged (rule)". |
 | 2026-09-28 | **Target signed** (all six "as recommended"). |
+| 2026-09-28 | **Part 1 amendment: NO HUNT.** A field reaches its parent's instance facts in one pointer step (`GroupItem.parent` -> its `rStuff`); an activation reaches its parent's activation in one pointer step (`ParseActivation` gains a parent-activation pointer, set at creation). `parentLabel` = the parent activation's label. `parentStuff` splits: the instance part -> `parent.rStuff`, the activation part -> `activation.parent`. Nothing searches for either. |
 | 2026-09-28 | **REVISED, supersedes F-O13:** `$` is **excluded from stroke 1**. It is a listener binding (`field=$anotherField`: the field listens to `anotherField` and receives its data on change — how form fields stay in sync), not a match modifier. Every `$` write and read stays exactly as today; `hasMacro` does **not** become the `$` fact. `$` moves to §1.4 as its own item. |
 | 2026-09-28 | **F-O23 as recommended, with Fearless's refinement:** a shared body's parse method is what the RULE implies; a reference's `{ }` stays in its `rStuff` and the dispatch asks the reference first; no reference stores a method (stroke 4's `parseMethod` stays rule-level). Stroke 1b. |
 | 2026-09-28 | **Part 1 amendment: `limitsSet` is deleted with Limit** (its only writer, `setLimits`, goes with Limit; F-O16's dead-field rule applies). It leaves the instance-level list when the Limit retirement lands. |
@@ -151,7 +153,21 @@ Every stroke: its own try-and-buy branch cut from trunk; full seal checklist; li
 | 2 | `isRule` not written through faces | — | `isRule` written at definition only | — | no | `literalMasterIsRule` audit pin (10) moves; re-pinned with its sentence | planned |
 | 3 | terms and properties separate | — | property list added; artifacts leave `groupList`; **dead flags `isToggle`, `isXP`, `negate`, `isAssign` and `recursive` deleted** | — | yes | term counts equal the grammar's (recon: 317, not 792); `countRuleTerms` and the `noPrint` term gates retire; **zero-reader census** for the five deleted flags; **bear-trap #10 subdirectory check** (`GUI/`, `Tests/` — `tokall` does not reach them) | planned |
 | 4 | instance pointer | **new field: the instance → rule link** (O-1); replaces `options.isCopy` | — | rule-level fields read through the link; `RuleStuff.rule` retires or stays as a cache (decided in the stroke) | **yes** (`GroupItem`: `groups.ext` + full `tokall`) | the 13 `definingRule()` callers switch one at a time | planned |
-| 5 | activation consolidates | — | **`isBranch` and the `guardInProcess` value leave the body** for `ParseActivation` | the 10 activation fields plus `isBranch` and `guardInProcess` added to `ParseActivation` (plain C++ struct, no tok layout; already has a `label` slot); the 10 **removed from `RuleStuff`**; **dead `onFail`, `doNothing`, `isOption` deleted**; getStuff's running copy retires | **yes** (`RuleStuff`, and `GroupBody` for `isBranch`: `groups.ext` + full `tokall` + the #10 subdirectory check) | recursion rows (K-rows, A→B→A) through the new home; **zero-reader census** for the three deleted fields | planned |
+| 5 | activation consolidates | — | **`isBranch` and the `guardInProcess` value leave the body** for `ParseActivation` | the 10 activation fields plus `isBranch` and `guardInProcess` added to `ParseActivation` (plain C++ struct, no tok layout; already has a `label` slot); the 10 **removed from `RuleStuff`**; **dead `onFail`, `doNothing`, `isOption` deleted**; getStuff's running copy retires | **yes** (`RuleStuff`, and `GroupBody` for `isBranch`: `groups.ext` + full `tokall` + the #10 subdirectory check) | recursion rows (K-rows, A→B→A) through the new home; **zero-reader census** for the three deleted fields; **NO HUNT census reads ZERO** (baseline below) | planned |
+
+**NO HUNT baseline** (trunk `b8a4ffb`, 2026-09-28) -- every site that SEARCHES for `parentStuff`/`parentLabel` rather than taking one pointer step. **Stroke 5's certificate: this reads zero.**
+
+| # | site | what it does | kind |
+|---|---|---|---|
+| 1 | `deferredAbove` (`GroupItem.twk:436-452`) | walks the `gParseActive` chain and the `parentStuff` chain | walk ×2 |
+| 2 | `enclosingFace` (`Generate.rtn:15-19`), called from `parseContainer`, `parseLoop`, `parseRule` | the enclosing activation's rule, looked up **by tag** | search |
+| 3 | `parseContainer` (`Generate.rtn:167-169`) | re-points `parentStuff` from `currentMETHOD` | global lookup + repair |
+| 4 | `parseRule` `parentRepair` (`Generate.rtn:233-236`) | the same | global lookup + repair |
+| 5 | `exitFromParse` `parentLabelSync` (`Generate.rtn:30`) | re-derives `parentLabel` from `parentStuff` | repair |
+| 6 | `parseRule`'s F-114 bracket (`Generate.rtn:224-225, 284`) | saves and restores `label`/`parentLabel`/`parentStuff` | bracket |
+| 7 | `getStuff` (`GroupItem.twk:1038-1042`) | copies `rStuff` on recursion and re-derives `parentLabel` | copy |
+
+**Baseline: 7 sites** (9 counting `enclosingFace`'s three callers). **Not counted** (one pointer step, which NO HUNT keeps): `RuleStuff(GroupItem)` and define-time (`ruleActions.rtn:319-322`) `parentStuff = parent.rStuff`; `driveFloorLabel`'s `gParseActive->prev`; `parse()`'s `parentLabel = pStuff.label`.
 
 `parse()` + helpers line count — **baseline before stroke 1: 905 lines in 37 functions** (`68fa8c7`, 2026-09-28; each counted from signature through its closing column-0 `}`, comments inside included):
 `GroupItem.twk` parse 62 · attachLabel 53 · fireLabelMethod 29 · embedAttribute 27 · deferredAbove 24 · getStuff 13 · setRuleStuff 11 · embedRule 10 · the copy ctor `GroupItem(GroupItem)` 10 · definingRule 8 · ensureRStuff 7 · getRStuff 4 —
