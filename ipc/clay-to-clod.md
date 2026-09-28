@@ -10008,7 +10008,7 @@ child is always a real term; the fleet unmoved is evidence only about what the f
 ===================================================================
 SEQ 221  -  F-O32 OPTION (1), TIMEBOXED; THEN STROKE 3 IF IT CAN START BY 17:00; LEDGER LAYOUT
 ===================================================================
-STATUS: working -- F-O32 fixed and certified (om-fo32); stroke 3 next.
+STATUS: cleared -- F-O32 fixed (717631f); stroke 3 landed (834e544); ledger layout after this seal.
 
 F-O32 option (1), timeboxed. Find where a later definition's terms get parented to a node other than
 the surviving registry entry; aCTionDefinE's merge is the lead -- confirm by measurement before
