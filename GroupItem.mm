@@ -2090,8 +2090,17 @@ GroupItem 	*action = 0;
 void GroupItem::setActions()
 {
 RuleStuff 	*ruleStuff = getRStuff();
-	if ( getAttribute("builtinActoR") )
+GroupItem 	*actor = getAttribute("builtinActoR");
+	// actorAfterTerms a later definition of a forward-defined rule adds terms AFTER its actor, so a second call moves the actor back behind them (stroke 3a)
+	if ( actor )
+		{
+		if ( actor->nextInParent )
+			{
+			actor->remove();
+			addAttribute(actor);
+			}
 		return;
+		}
 	if ( isCoded(groupBody->flags.actionType) )
 		{
 		setMethod(::processAction);
