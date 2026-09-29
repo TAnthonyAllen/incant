@@ -863,3 +863,24 @@ attributes or code); every contaminating case brings content. A spelling that tr
 definition with content as its own entry would keep all the intended cases -- but the contamination fix still has to move
 earlier than `aCTionDefinE`, to the point where the definition's own name is resolved (`aCTionNamE` under `NewGroup`, or
 `aCTionTraiT`'s write).
+
+---
+
+## 20. SEQ 230 item 1: every write to a definition's own field before `aCTionDefinE` (2026-09-29, read-only) -- STOP
+
+Read in the generated `.mm` (tok resolves bare names by last mention, so only the `.mm` says which node a write lands on).
+Between name resolution (`aCTionNamE` -> `resolveName`) and `aCTionDefinE`, the grammar runs `TraiTdata`, `TraiT`,
+`NewGroup` and, for a definition with members, `MemberS ':'- MEMBERs- Mlist=DefinE+`.
+
+| site | writes to the DEFINITION's own field? |
+|---|---|
+| `aCTionNamE` (`ruleActions.rtn:650`) | no -- `input.setGroup(resolved)`, the label only |
+| `aCTionTraiTdata` | **no -- it writes the VALUE (`DatA`)**: affiliation, `setRuleStuff`, `modifyClass`, `isRule` / `ruleTerm`. Same capture class (a value that resolves to another registry's field is written there), but not the definition's own field |
+| **`aCTionTraiT`** | **yes, all on `trait = input[1]` (the resolved node):** `affiliation = isAttribute`; `setRuleStuff()` (or a copy when it already has rStuff); `setContent(TraiTdata)`; `modify(trait, Modifier)`; `modifyClass(trait, …)` twice. **Also runs for every ATTRIBUTE trait**, which resolves and is written the same way |
+| `aCTionNewGroup` | no field write -- sets `ruler.currentDefine` to the resolved node |
+| **the `MEMBERs` flag command** (`Commands.rtn:516-517`, run at parse time by `MemberS`) | **YES: `currentDefine.addingMembers = true`** -- `currentDefine` is the resolved node, so a definition with members whose name resolved to another registry's entry sets the flag on the ORIGINAL's body. `aCTionDefinE` clears it at the end (`ruleActions.rtn:377`) on `NewGroup` -- which under copy-on-first-write would be the fresh mint, so the original's flag would stay set |
+
+**`aCTionTraiT` is not the only writer, so R1's site list is incomplete (SEQ 230's stop condition). The build (item 2) was
+not started.** The second writer is the `MEMBERs` command. Two notes for the ruling: attribute traits go through the same
+`aCTionTraiT` writes (a first-write mint there would mint an attribute's own node as well as the definition's), and
+`aCTionTraiTdata`'s writes to a resolved VALUE are the same capture on a different field.

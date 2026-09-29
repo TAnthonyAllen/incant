@@ -1,0 +1,17 @@
+#!/bin/bash
+#  capcmd -- jitLadder's per-fixture wall-clock cap (rule H5, SEQ 230 R4, 2026-09-29).
+#  ladder.sh points $B here after it has echoed the REAL binary (H1), so every one of its
+#  invocations -- rung(), the INCANT_JIT_DUMP=2 IR dumps, the piped greps, runcap -- runs under
+#  the same cap. A separate executable, never a shell function: under `sh` an env prefix on a
+#  function call (INCANT_JIT_DUMP=2 f) persists after the call and would leak into later rungs.
+#  A killed fixture exits 137 and is logged BY NAME to $JITCAPLOG, which ladder.sh reads and
+#  fails on before its summary line -- a timeout is never read as a diff (its capture is
+#  truncated). Before this, one hung rung (jitJD under a broken build) ran 27 minutes.
+"$JITREALB" "$@" &
+p=$!
+{ ( sleep "${JITCAP:-90}"; kill -9 $p 2>/dev/null ) >/dev/null 2>&1 & } 2>/dev/null
+w=$!
+wait $p; ec=$?
+{ kill $w 2>/dev/null; wait $w 2>/dev/null; } 2>/dev/null
+if [ $ec = 137 ] && [ -n "$JITCAPLOG" ]; then echo "$(basename "$1")" >> "$JITCAPLOG"; fi
+exit $ec

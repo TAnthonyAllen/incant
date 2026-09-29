@@ -162,6 +162,11 @@ runcap () {                     # runcap <label> <fixture> <outfile> [env-prefix
 if [ ! -x "$B" ]; then echo "  FAIL  binary not executable: $B"; exit 1; fi
 echo "  bin   $B"
 echo "  bin   $(ls -lL "$B" | awk '{print $5" bytes  "$6" "$7" "$8}')"
+#  H5 FOR EVERY RUNG (SEQ 230 R4): from here on $B is jitLadder/capcmd, which runs the real binary
+#  under a ${JITCAP}s wall-clock cap and logs a killed fixture by name to $JITCAPLOG. The binary
+#  was echoed ABOVE, so H1 still names the real one.
+JITREALB=$B; JITCAPLOG=$T.capped; export JITREALB JITCAP JITCAPLOG; rm -f "$JITCAPLOG"
+B=jitLadder/capcmd
 
 #  rung <file> <sentinel> <label> <want1> <want2>
 #  Asserts, in this order: exit 0 · sentinel present · fire-1 value ·
@@ -1639,6 +1644,13 @@ jdd=$(sed -n 's/.*jitDegrade count = \([0-9]*\).*/\1/p' "$T/jitJD" | tail -1)
 if [ "$jdd" = "0" ]; then echo "  ok    JD degrade count 0 (nothing fell through at emit time)"; green=$((green+1))
 else echo "  FAIL  JD degrade count = '$jdd', want 0"; fail=1; fi
 
+#  A CAPPED FIXTURE FAILS THE LADDER BY NAME, even if every row it fed happened to read green:
+#  its capture is truncated, so nothing read from it is evidence (H5).
+if [ -s "$JITCAPLOG" ]; then
+    while read _cf; do echo "  FAIL  $_cf TIMED OUT after ${JITCAP}s -- KILLED by capcmd; its capture is TRUNCATED"; done < "$JITCAPLOG"
+    fail=1
+fi
+rm -f "$JITCAPLOG"
 if [ $fail = 0 ]; then echo "jitLADDER PASSED (rungs: J1 J2 J3 J4 J5 J6 J7 JE JF JP JPd JU JA JI JPv JV JC JS JRt JXT JE2 JXN JXD-1 JXD-2 JXD-3 JD + J-R THE PROOF + SLOT: JM1 JM2)"
 else echo "jitLADDER FAILED"; fi
 rm -rf "$T"

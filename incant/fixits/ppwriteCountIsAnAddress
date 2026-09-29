@@ -1,0 +1,46 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+register(PpCount);
+define
+    pcBag   pcAlpha pcBeta;
+    pcWalk code={
+        iterate pcCur on *argument;
+        traceParse("on");
+        while ++pcCur;
+            pcN = 1;
+        traceParse("off");
+        };
+    ;
+cerr "ANCHOR ppwriteCountIsAnAddress -- read the PPWRITE line below: data=6 is a GROUP, so count= is pointer bits":;
+pcWalk(pcBag);
+fixPpwriteCountHere = 0;
+cerr "SENTINEL ppwriteCountIsAnAddress reached the foot":;
+stop();
+
+LANE:  instruments
+BLAST: DISJOINT (measure.twk only; no engine code)
+OWNER: Clod     (SEQ 230 item 3, Clay: "Log chainTruthT's nondeterministic output as a Clod fixit; do not chase it")
+
+ppwriteCountIsAnAddress -- chainTruthT'S OUTPUT DIFFERS BETWEEN IDENTICAL RUNS, AND THE CAUSE IS AN INSTRUMENT.
+
+Found 2026-09-29 bisecting the R2 try-and-buy (recon 19): three identical chainTruthT runs gave three different md5s, so
+an output compare could not be used on it (it was bisected by exit status instead). Two runs, addresses masked, differ in
+exactly two lines, both PPWRITE:
+    PPWRITE tag=grup field= body= data=6 count=9695744  ...
+    PPWRITE tag=grup field= body= data=6 count=12235264 ...
+measurePlusPlusWrite (measure.twk) prints `count=%d` from groupBody->gCount UNCONDITIONALLY. When the field's data is a
+GROUP (data=6) that union slot holds a pointer, so the "count" is the pointer's low bits -- it moves with ASLR, and the
+0x-masking every harness applies cannot see it because it is printed as a decimal.
+
+No fleet row reads it today (chainTruthT's rows assert other lines), so nothing is red. It costs an instrument: any
+output-compare of a traced run that crosses a ++ on a group-holding field is nondeterministic.
+
+Run this file twice and compare the PPWRITE count= values: they differ.
+
+NEXT: BEST GUESS -- print count only when the data is a count (isCOUNT), and otherwise print `count=-` (or the group's tag).
+Grade: mechanism read in source, symptom measured; the fix is one line in measurePlusPlusWrite (and the same check is
+worth a look in measurePlusEqWrite's PEQWRITE, which prints the same column). Promote by running this twice and
+seeing identical PPWRITE lines; kill if a reader of the raw count exists (grep PPWRITE across genLadder first).
