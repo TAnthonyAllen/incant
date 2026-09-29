@@ -319,18 +319,18 @@ GroupItem 	*last = 0;
 		return 0;
 	if ( grup->parent )
 		grup = new GroupItem(grup);
-	if ( !groupBody->propList )
-		groupBody->propList = new GroupList();
-	last = groupBody->propList->lastInList;
+	if ( !groupBody->propertyList )
+		groupBody->propertyList = new GroupList();
+	last = groupBody->propertyList->lastInList;
 	grup->parent = this;
 	grup->options.affiliation = 1;
 	grup->priorInParent = last;
 	grup->nextInParent = 0;
 	if ( last )
 		last->nextInParent = grup;
-	else	groupBody->propList->firstInList = grup;
-	groupBody->propList->lastInList = grup;
-	groupBody->propList->listLength = groupBody->propList->listLength + 1;
+	else	groupBody->propertyList->firstInList = grup;
+	groupBody->propertyList->lastInList = grup;
+	groupBody->propertyList->listLength = groupBody->propertyList->listLength + 1;
 	return grup;
 }
 
@@ -1355,9 +1355,9 @@ void *GroupItem::getPointer()
 GroupItem *GroupItem::getProperty(char *name)
 {
 GroupItem 	*entry = 0;
-	if ( !name || !groupBody->propList )
+	if ( !name || !groupBody->propertyList )
 		return 0;
-	entry = groupBody->propList->firstInList;
+	entry = groupBody->propertyList->firstInList;
 	while ( entry )
 		{
 		if ( ::compare(entry->groupBody->tag,name) == 0 )
@@ -1761,8 +1761,8 @@ GroupItem *GroupItem::nextProperty(GroupItem *entry)
 {
 	if ( entry )
 		return entry->nextInParent;
-	if ( groupBody->propList )
-		return groupBody->propList->firstInList;
+	if ( groupBody->propertyList )
+		return groupBody->propertyList->firstInList;
 	return 0;
 }
 
@@ -2093,23 +2093,23 @@ GroupItem 	*group = getFromList(name);
 int GroupItem::removeProperty(GroupItem *grup)
 {
 GroupItem 	*entry = 0;
-	if ( !grup || !groupBody->propList )
+	if ( !grup || !groupBody->propertyList )
 		return 0;
-	entry = groupBody->propList->firstInList;
+	entry = groupBody->propertyList->firstInList;
 	while ( entry && entry != grup )
 		entry = entry->nextInParent;
 	if ( !entry )
 		return 0;
 	if ( grup->priorInParent )
 		grup->priorInParent->nextInParent = grup->nextInParent;
-	else	groupBody->propList->firstInList = grup->nextInParent;
+	else	groupBody->propertyList->firstInList = grup->nextInParent;
 	if ( grup->nextInParent )
 		grup->nextInParent->priorInParent = grup->priorInParent;
-	else	groupBody->propList->lastInList = grup->priorInParent;
+	else	groupBody->propertyList->lastInList = grup->priorInParent;
 	grup->nextInParent = 0;
 	grup->priorInParent = 0;
 	grup->parent = 0;
-	groupBody->propList->listLength = groupBody->propList->listLength - 1;
+	groupBody->propertyList->listLength = groupBody->propertyList->listLength - 1;
 	return 1;
 }
 

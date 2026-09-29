@@ -98,7 +98,7 @@ class GroupBody
 {
 public:
 char *tag;
-GroupList *propList;
+GroupList *propertyList;
 GroupList *groupList;
 GroupItem *registry;
 PLGset *guardSet;

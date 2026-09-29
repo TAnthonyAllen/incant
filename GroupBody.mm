@@ -22,7 +22,7 @@
 GroupBody::GroupBody()
 {
 	gJitEmitter = 0;
-	propList = 0;
+	propertyList = 0;
 	groupList = 0;
 	registry = 0;
 	guardSet = 0;
@@ -45,7 +45,7 @@ GroupBody::GroupBody()
 GroupBody::GroupBody(char *s)
 {
 	gJitEmitter = 0;
-	propList = 0;
+	propertyList = 0;
 	groupList = 0;
 	registry = 0;
 	guardSet = 0;
