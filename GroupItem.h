@@ -11,7 +11,6 @@ class BitMAP;
 struct GroupOptions
 	{
 	unsigned int affiliation:2;
-	unsigned int isCopy:1;
 	};
 #define isAttribute(button) (button == 1)
 #define isMember(button) (button == 2)

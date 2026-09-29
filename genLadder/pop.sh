@@ -5549,6 +5549,12 @@ kindRow "ruleOfT RO-2 copies at rest > 300 (anti-vacuity for RO-1)" "$([ "${_roc
 _rol=$(grep '^RULEOF nodes' "$T/ro.e" | tail -1 | sed 's/.* labels=\([0-9]*\).*/\1/')
 kindRow "ruleOfT RO-3 labels in the walk after parser(Start) > 100 (anti-vacuity: labels were censused)" "$([ "${_rol:-0}" -gt 100 ] && echo yes || echo "no ($_rol)")" "yes"
 kindRow "ruleOfT RO-4 the 17 cross-registry copies, by name" "$(awk '/RO-PHASE rest/{f=1} /RO-PHASE tell/{f=0} f && /RULEOF XREG/ {print $3}' "$T/ro.e" | tr '\n' ' ')" "Grokking/break Grokking/continue Grokking/return Keywords/define Keywords/new Modifiers/! Modifiers/% Modifiers/& Modifiers/* Modifiers/+ Modifiers/- Modifiers/< Modifiers/? Modifiers/@ Modifiers/^ UnitTests/counter Utilities/parser "
+#  RO-5 (stroke 4.2, SEQ 228): isCopy is DELETED -- the zero-reader census. Every *.twk/*.rtn line naming isCopy, less
+#  comment lines and the three measure prints whose pinned `isCopy=%d` label now reports ruleOf (pointerT L5a/L5b), must
+#  read 0. RO-6 is its non-zero sibling: the code lines that name ruleOf (the copy constructor's write, the four switched
+#  readers, the measure prints, the census). H7: on stroke 4.1's commit RO-5 reads 12.
+kindRow "ruleOfT RO-5 isCopy code references in source (zero-reader census)" "$(cat *.twk *.rtn | grep 'isCopy' | grep -v 'isCopy=%d' | grep -vc '^[[:space:]]*//')" "0"
+kindRow "ruleOfT RO-6 ruleOf code lines in source (non-zero sibling of RO-5)" "$(cat *.twk *.rtn | grep -v '^[[:space:]]*//' | grep -c 'ruleOf')" "14"
 
 #  ---------------------------------------------------------------------------
 #  ruleTermT -- OBJECT MODEL STROKE 2: "this term takes part as a rule term" is the REFERENCE'S fact (rStuff

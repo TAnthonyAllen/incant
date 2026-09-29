@@ -171,7 +171,6 @@ GroupItem::GroupItem(GroupItem *grup)
 	rStuff = 0;
 	jitData = 0;
 	groupBody = grup->groupBody;
-	options.isCopy = 1;
 	// rootLink every copy points at the ORIGINAL -- a copy of a copy takes its source's ruleOf, never the intermediate (stroke 4.1)
 	if ( grup->ruleOf )
 		this->ruleOf = grup->ruleOf;
