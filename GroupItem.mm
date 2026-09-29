@@ -1522,6 +1522,26 @@ GroupItem *GroupItem::insertGroup(GroupItem *grup)
 }
 
 /***************************************************************************
+                                instanceRule
+    The rule this node is an instance of: its ruleOf when that is a REGISTERED
+    entry, else the node itself. An inline definition's ruleOf is the parse-time
+    node it was copied from, which is not a rule, so a registry test and not
+    isRule decides -- isRule lives on the shared body and reads the same on both.
+    The test is the holder's REGISTRY FLAG, not "its parent is the registries list":
+    a registry referenced as a term (Token's Utilities) is a copy whose parent is
+    the bin, and its entries are parented to it (stroke 4.3, recon 21).
+***************************************************************************/
+GroupItem *GroupItem::instanceRule()
+{
+GroupItem 	*holder = 0;
+	if ( ruleOf )
+		holder = ruleOf->parent;
+	if ( holder && isREGISTRY(holder->groupBody->flags.binType) )
+		return ruleOf;
+	return this;
+}
+
+/***************************************************************************
                                 isRuleTerm
     // ruleTermDual the instance's "I take part as a rule term", else the rule's own isRule -- the union today's body flag held (stroke 2)
 ***************************************************************************/

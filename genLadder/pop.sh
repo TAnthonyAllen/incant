@@ -5554,7 +5554,14 @@ kindRow "ruleOfT RO-4 the 17 cross-registry copies, by name" "$(awk '/RO-PHASE r
 #  read 0. RO-6 is its non-zero sibling: the code lines that name ruleOf (the copy constructor's write, the four switched
 #  readers, the measure prints, the census). H7: on stroke 4.1's commit RO-5 reads 12.
 kindRow "ruleOfT RO-5 isCopy code references in source (zero-reader census)" "$(cat *.twk *.rtn | grep 'isCopy' | grep -v 'isCopy=%d' | grep -vc '^[[:space:]]*//')" "0"
-kindRow "ruleOfT RO-6 ruleOf code lines in source (non-zero sibling of RO-5)" "$(cat *.twk *.rtn | grep -v '^[[:space:]]*//' | grep -c 'ruleOf')" "14"
+#  RE-PINNED 2026-09-29 (stroke 4.3 family 1): 14 -> 18 -- GroupItem.instanceRule() adds four ruleOf lines (its test and
+#  return), the reader the definingRule() callers switch onto.
+kindRow "ruleOfT RO-6 ruleOf code lines in source (non-zero sibling of RO-5)" "$(cat *.twk *.rtn | grep -v '^[[:space:]]*//' | grep -c 'ruleOf')" "18"
+#  RO-7 (stroke 4.3, SEQ 231): the definingRule() ENGINE callers still to switch. Engine callers name their result
+#  `definer`; the instruments (canonOf, definersOf) do not, and are not counted. 5 on trunk before 4.3; family 1
+#  (runLeafParse, installParseMethod -> instanceRule) leaves 3: parse(), jitFieldMethod, jitShowRecord. Pinned by value
+#  and re-pinned per family; the stroke ends when it reads 0.
+kindRow "ruleOfT RO-7 definingRule() engine callers left" "$(cat *.twk *.rtn | grep -c 'definer *= .*definingRule()')" "3"
 
 #  ---------------------------------------------------------------------------
 #  ruleTermT -- OBJECT MODEL STROKE 2: "this term takes part as a rule term" is the REFERENCE'S fact (rStuff
