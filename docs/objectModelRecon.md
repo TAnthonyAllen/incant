@@ -855,8 +855,9 @@ measuring "a local `taG` kills the walk".
 
 ### 19g. What this means for R2's shape (input, not a ruling)
 
-Seven cases need the original's CONTENT (`Operators;`, `new`, `.`, `++`, `@`, `-`, `--`, `!`, JSONtoken's two -- nine counting
-the unaries singly, plus `return`'s bare-value semantic), five need only the name, and the value-carrying captures (F-O40,
+**Eleven cases need the original's CONTENT** (`Operators;`, `Keywords/new`, `Grokking/return`'s bare-value semantic, the
+UnaryOPS `.` `++` `@` `-` `--` `!`, JSONtoken's `GrouP` and `NumbeR`); **five need only the name** (`break`, `continue`,
+`Keywords/define`, UnaryOPS `*` and `$$`); and the value-carrying captures (F-O40,
 F-O41) are written before `aCTionDefinE` can intervene. **Every content case is a bare reference** (`x;` with no value,
 attributes or code); every contaminating case brings content. A spelling that treats a bare member as a reference and a
 definition with content as its own entry would keep all the intended cases -- but the contamination fix still has to move
