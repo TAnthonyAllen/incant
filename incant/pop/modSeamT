@@ -62,7 +62,13 @@
     That agreement is the seam being closed. It is NOT a re-pin to silence a
     red: the old row's root is gone from this file.
 
-    ⚠⚠ MS-5 IS TERMINAL AND EVERYTHING BELOW IT IS UNREACHABLE. `repT("aaa")`
+    ⚠⚠ RE-PINNED 2026-09-29: F-103 IS FIXED BY TONY'S QuotE RESPELL (0f24004). repT("aaa")
+    OLD now WINS, consumed 3; MS-6 generates; MS-7 NEW refuses `GrouP has a parse method but
+    no compiled body`, consumed 0 -- the bare-literal spelling fault named above (a bare "a"
+    steals GrouP as its tag), pinned, not a defect. The sentinel is reached. The paragraph
+    below is HISTORY.
+
+    ⚠⚠ [HISTORY] MS-5 IS TERMINAL AND EVERYTHING BELOW IT IS UNREACHABLE. `repT("aaa")`
     EXITS 139 -- `GroupItem::getText()` on a null `this`, GroupItem.mm:1322,
     reached through `ACTFIRE fireLabelMethod GrouP`. MEASURED PRE-EXISTING at
     b5e1557, the seal before the attachLabel conversion, where it exits 139 too
@@ -77,12 +83,13 @@
     beside its old-road drive. It is measured in `tester`, which Tony steps.
 
     ROWS
-      MS-5   repT OLD    exit 139                                pinned defect
+      MS-5   repT OLD    WIN, consumed 3                         F-103 fixed 2026-09-29
       MS-1   optT("a")  OLD  WIN, two silent, not-in-drive       the `?` row
       MS-1b  optT("ab") OLD  WIN, two fired,  consumed 2         anti-vacuity
       MS-3   optT("a")  NEW  WIN, two silent, not-in-drive       the `?` row
       MS-3b  optT("ab") NEW  WIN, two fired,  consumed 2         anti-vacuity
-      MS-6 / MS-7 / SENT                                         unreachable
+      MS-7   repT NEW    refuses GrouP, consumed 0               pinned spelling fault
+      SENT                                                       reached
 
     ⚠ NO GENERATED BODY IS ASSERTED HERE, AND THE REASON IS THE TRUNCATION
     RATHER THAN A CHOICE. generateParse prints to cout, which is block buffered

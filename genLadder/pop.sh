@@ -1597,11 +1597,15 @@ sentinel "traitFlagsT sentinel (no truncation)" "$T/tf" "TRAITFLAGS SENTINEL"
 #  RE-PINNED 2026-09-28 (the Limit retirement): TF-1 86 -> 85 and TF-2/3/4 each -1 -- Limit was a Grokking
 #  rule carrying attributes and traits (leftBrace, min, max, rightBrace), and it is gone; TF-5 and TF-6 are
 #  unmoved, so no other rule changed shape.
-for _arm in "TF-1 rules seen                   =  85" \
-            "TF-2 carrying hasAttributeS       =  48" \
-            "TF-3 carrying hasTraitS           =  48" \
-            "TF-4 carrying BOTH                =  48" \
-            "TF-6 no attributes                =  37" \
+#  RE-PINNED 2026-09-29 (Tony's QuotE respell, stroke 2b, 0f24004): TF-1 85 -> 87 is QuotE1 and QuotE2, two
+#  new Grokking rules each carrying attributes and traits (tik, quoteBody) -- +2 on TF-2/3/4; QuotE itself is
+#  now a bin of those two members and carries no attributes -- -1 on TF-2/3/4 and +1 on TF-6. Net TF-2/3/4
+#  48 -> 49, TF-6 37 -> 38. TF-5 unmoved at 0.
+for _arm in "TF-1 rules seen                   =  87" \
+            "TF-2 carrying hasAttributeS       =  49" \
+            "TF-3 carrying hasTraitS           =  49" \
+            "TF-4 carrying BOTH                =  49" \
+            "TF-6 no attributes                =  38" \
             "TF-5 the two flags DISAGREE on    =  0"; do
     if grep -qF "$_arm" "$T/tf"; then
         echo "  ok    traitFlagsT ${_arm} -- PINNED BY VALUE"; green=$((green+1))
@@ -3044,11 +3048,13 @@ else echo "  FAIL  driveLeakT the caller was abandoned after the drives (F-125)"
 #  `#5.2d` 1/5, `#-5s` 1/4, `=[a-z]` 1/5. Engines agree throughout (diff=0).
 run2 sweepT "$T/sw.o" "$T/sw.e"; check "sweepT runs" 0 $?
 if grep -qxE 'SWEEP SENTINEL ?' "$T/sw.e"; then echo "  ok    sweepT sentinel (exact line)"; green=$((green+1)); else echo "  FAIL  sweepT sentinel missing -- the file was abandoned or truncated"; fail=1; fi
-if grep -q '^SWEEP END .* certified=47 agree=47 diff=0$' "$T/sw.e"; then echo "  ok    sweepT certified=47 agree=47 diff=0"; green=$((green+1))
+#  RE-PINNED 2026-09-29 (0f24004, Tony's QuotE respell): 47 -> 49 carriers certified -- QuotE1 and QuotE2 are two new
+#  rules the sweep reaches, and both AGREE at degrade 0; diff stays 0.
+if grep -q '^SWEEP END .* certified=49 agree=49 diff=0$' "$T/sw.e"; then echo "  ok    sweepT certified=49 agree=49 diff=0"; green=$((green+1))
 else echo "  FAIL  sweepT MOVED: $(grep '^SWEEP END' "$T/sw.e")"; fail=1; fi
 _swr=$(grep -c '^SWEEP RESULT .* AGREE degrade=0$' "$T/sw.e"); _swa=$(grep -c '^SWEEP RESULT ' "$T/sw.e")
-if [ "$_swa" -eq 47 ] && [ "$_swr" -eq 47 ]; then echo "  ok    sweepT 47 carrier results, every one AGREE at degrade 0"; green=$((green+1))
-else echo "  FAIL  sweepT $_swr of $_swa carrier results AGREE at degrade 0 (want 47 of 47)"; fail=1; fi
+if [ "$_swa" -eq 49 ] && [ "$_swr" -eq 49 ]; then echo "  ok    sweepT 49 carrier results, every one AGREE at degrade 0"; green=$((green+1))
+else echo "  FAIL  sweepT $_swr of $_swa carrier results AGREE at degrade 0 (want 49 of 49)"; fail=1; fi
 if [ "$(grep -c 'JIT DEGRADE' "$T/sw.e" "$T/sw.o" | awk -F: '{n+=$2} END{print n}')" -eq 0 ] && grep -q '^SWEEP ROW .* J fire2 ' "$T/sw.e"; then echo "  ok    sweepT no degrade line anywhere (and jitted rows ran)"; green=$((green+1))
 else echo "  FAIL  sweepT a degrade line appeared, or no jitted row ran"; fail=1; fi
 
@@ -3087,8 +3093,12 @@ for _om in do se; do
     done < "$T/orc_old.v"
     if [ -z "$_obad" ]; then echo "  ok    oldRoad column $_om: the new road equals the old road on $_oagree of $_orcN inputs, all but the pinned"; green=$((green+1))
     else echo "  FAIL  oldRoad column $_om: new road != old road on:$_obad"; fail=1; fi
-    if [ "$_opin" = "old=1/3 new=0/0" ]; then echo "  ok    oldRoad column $_om: 'q' PINNED DIVERGENCE -- old 1/3, new 0/0"; green=$((green+1))
-    else echo "  FAIL  oldRoad column $_om: 'q' MOVED -- ${_opin:-it now agrees} (if new reads 1/3 the defect is fixed: re-pin)"; fail=1; fi
+    #  RE-PINNED 2026-09-29 (H6): 'q' was F-O25 -- a single-quoted literal read 0/0 on the new road. Tony's QuotE
+    #  respell (0f24004) fixed it: the new road now reads 1/3 like the old, so the column agrees on every input and
+    #  the pin becomes a value row on the case that used to diverge.
+    _oqk=$(grep "|ExpressioN|'q'$" "$T/orcKeys" | cut -d'|' -f1); _oqn=$(grep "^$_oqk " "$T/orc_$_om.v" | cut -d' ' -f2)
+    if [ -z "$_opin" ] && [ "$_oqn" = "1/3" ]; then echo "  ok    oldRoad column $_om: 'q' (F-O25) new road reads 1/3, equal to the old"; green=$((green+1))
+    else echo "  FAIL  oldRoad column $_om: 'q' MOVED -- ${_opin:-new=$_oqn} (pinned: equal to the old road, 1/3)"; fail=1; fi
 done
 
 #  ---- opLenT: F-124 -- a two-character operator consumes exactly its own length (2026-09-24) ----
@@ -3364,7 +3374,7 @@ sentinel "convLeakT sentinel" "$T/clt.e" "CONVLEAK SENTINEL"
 #  because a missing line and a zero offset are the same string to a shell and only
 #  one of them is a measurement (rule H4).
 #
-#  ⚠⚠ MS-5 IS PINNED AS A CRASH AND IT IS PRE-EXISTING. `repT("aaa")` exits 139 --
+#  ⚠⚠ [HISTORY -- F-103 FIXED 2026-09-29, re-pinned below] MS-5 WAS PINNED AS A CRASH AND IT WAS PRE-EXISTING. `repT("aaa")` exits 139 --
 #  getText() on a null `this`, GroupItem.mm:1322, through `ACTFIRE fireLabelMethod
 #  GrouP`. MEASURED AT b5e1557, the seal before the attachLabel conversion, where it
 #  exits 139 too with optT's cells reading identically. `"a"+-` (noLabel) does NOT
@@ -3458,14 +3468,39 @@ _mscell () {
     fi
 }
 run1 modSeamT "$T/mst"; _msec=$?
-if [ "$_msec" = 139 ]; then
-    echo "  ok    modSeamT MS-5 repT(\"aaa\") exits 139 -- PINNED DEFECT, pre-existing at"
-    echo "        b5e1557. getText() on a null this, GroupItem.mm:1322. fixIts F-103."; green=$((green+1))
+#  ⚠ RE-PINNED 2026-09-29 (H6): F-103 IS FIXED BY TONY'S QuotE RESPELL (stroke 2b, 0f24004).
+#  The crash was aCTionQuotE firing on repT's `"a"` term (labelled GrouP) -- DEFERABOVE read
+#  action=1 on GrouP -- and dereferencing a tik child that label does not have (getText(null),
+#  frame #1 aCTionQuotE). With QuotE a two-member bin, GrouP reads action=0 and nothing fires.
+#  So MS-5 now WINS and consumes all 3, and MS-6/MS-7/the sentinel are reachable.
+#  MS-7 is PINNED to the bare-literal spelling fault this file's header already names: the new
+#  road refuses `GrouP has a parse method but no compiled body` and consumes 0. It is the root's
+#  spelling, not a defect -- re-root repT as `one="a"+` to ask the new road a real question.
+if [ "$_msec" = 0 ]; then
+    echo "  ok    modSeamT exit 0 -- F-103 no longer crashes (fixed by 0f24004)"; green=$((green+1))
 else
-    echo "  FAIL  modSeamT MS-5 exit $_msec, pinned 139. If the crash is FIXED this is good"
-    echo "        news and still a FAILURE here: re-pin with a sentence (H6), and the"
-    echo "        MS-6/MS-7 rows below it stop being unreachable and want real values."; fail=1
+    echo "  FAIL  modSeamT exit $_msec, want 0 (F-103 was fixed by 0f24004; 139 is its return)"; fail=1
 fi
+_r5f=$(_msfired "MS-5 repT OLD" "MS-5-BACK" repT)
+_r5b=$(_mswin "MS-5 repT OLD" "MS-5-BACK" base); _r5m=$(_mswin "MS-5 repT OLD" "MS-5-BACK" mark)
+_r5i=$(_mswin "MS-5 repT OLD" "MS-5-BACK" in)
+if [ "$_r5f" = 1 ] && [ -n "$_r5b" ] && [ "$_r5i" = DRIVE-STRING ] && [ $(( _r5m - _r5b )) = 3 ]; then
+    echo "  ok    modSeamT MS-5 repT(\"aaa\") OLD WINS, consumed 3"; green=$((green+1))
+else
+    echo "  FAIL  modSeamT MS-5 repT(\"aaa\") OLD fired=$_r5f in=$_r5i base=$_r5b mark=$_r5m, want WIN consumed 3"; fail=1
+fi
+_r7r=$(awk '/^MS-7 repT NEW/{n=1;next} n&&/^MS-7-BACK/{exit} n&&index($0,"REFUSED parseRule: GrouP has a parse method but no compiled body"){print 1;exit}' "$T/mst")
+_r7b=$(_mswin "MS-7 repT NEW" "MS-7-BACK" base); _r7m=$(_mswin "MS-7 repT NEW" "MS-7-BACK" mark)
+if [ "$_r7r" = 1 ] && [ -n "$_r7b" ] && [ $(( _r7m - _r7b )) = 0 ]; then
+    echo "  ok    modSeamT MS-7 repT NEW refuses GrouP, consumed 0 -- PINNED: the bare-literal"
+    echo "        spelling fault named in this row's header, not a defect"; green=$((green+1))
+else
+    echo "  FAIL  modSeamT MS-7 MOVED: refused=$_r7r base=$_r7b mark=$_r7m (pinned: GrouP refusal, consumed 0)."
+    echo "        Re-pin with a sentence (H6)."; fail=1
+fi
+if grep -q '^MODSEAM SENTINEL' "$T/mst"; then
+    echo "  ok    modSeamT sentinel reached"; green=$((green+1))
+else echo "  FAIL  modSeamT sentinel MISSING"; fail=1; fi
 _mscell "MS-1 optT OLD"     "MS-1-BACK"  "MS-1  optT(\"a\")  OLD"  not-in-drive
 _mscell "MS-1b optTab OLD"  "MS-1b-BACK" "MS-1b optT(\"ab\") OLD"  DRIVE-STRING
 _mscell "MS-3 optT NEW"     "MS-3-BACK"  "MS-3  optT(\"a\")  NEW"  not-in-drive
@@ -5033,7 +5068,9 @@ else echo "  FAIL  driveCompileT C: $(grep -E '^EXDRIVE|REFUSED' "$T/dc.e" | tr 
 sh genLadder/parserCoverage.sh 2>&1 | grep -v '^  bin ' > "$T/pcov"
 #  RE-PINNED 2026-09-28 (the Limit retirement): 62 -> 61 rules and 46 -> 45 compiling bodies -- the one line
 #  gone is `COMPILES  Limit`; every other rule reads exactly as before.
-diffcheck "parserCoverage.target (parser() over the whole grammar: 45 compile of 61)" genLadder/parserCoverage.target "$T/pcov"
+#  RE-PINNED 2026-09-29 (0f24004, Tony's QuotE respell): 61 -> 63 rules, 45 -> 47 compiling bodies -- the two lines
+#  added are `COMPILES  QuotE1` and `COMPILES  QuotE2`; every other rule reads exactly as before.
+diffcheck "parserCoverage.target (parser() over the whole grammar: 47 compile of 63)" genLadder/parserCoverage.target "$T/pcov"
 
 #  ⚑ trigDO -- THE NEW PARSE ROAD'S FIRST STANDING COVERAGE. Until 2026-09-09
 #  NO FLEET FIXTURE REACHED parseRule AT ALL: the 09-08 H7 control forced
@@ -5432,9 +5469,13 @@ kindRow "leafClassT LC-1 rightBrace's shared body method is the rule's: a litera
 kindRow "leafClassT LC-2 SetBrackets [abc]: old road / new road (rightBrace} parses up-to)" "$(lcd 'SetBrackets [abc]')" "1/5 1/5"
 kindRow "leafClassT LC-3 SetBrackets []: old road / new road" "$(lcd 'SetBrackets []')" "1/2 1/2"
 kindRow "leafClassT LC-4 Braced [1]: old road / new road (plain rightBrace keeps its ])" "$(lcd 'Braced [1]')" "1/3 1/3"
-#  LC-5 PINNED AT A KNOWN DIVERGENCE, not a pass: QuotE 'abc' reads 0/0 on the new road and did so on trunk
-#  before stroke 1b too (F-O25, 2026-09-28) -- a move here in EITHER direction is news.
-kindRow "leafClassT LC-5 QuotE 'abc': old road / new road -- PINNED DIVERGENCE (F-O25)" "$(lcd "QuotE 'abc'")" "1/5 0/0"
+#  LC-5 WAS PINNED AT A KNOWN DIVERGENCE (F-O25, QuotE 'abc' 0/0 on the new road). RE-PINNED 2026-09-29 (H6):
+#  Tony's QuotE respell (0f24004) fixed it -- two fixed-close members need no back-reference, and the new road
+#  now reads 1/5 like the old.
+kindRow "leafClassT LC-5 QuotE 'abc': old road / new road (F-O25 fixed by 0f24004)" "$(lcd "QuotE 'abc'")" "1/5 1/5"
+#  LC-6 (2026-09-29): a DOUBLE-quoted QuotE on the new road -- F-O37, which exited 139 until 0f24004. No row drove
+#  it before; H7: on the pre-0f24004 binary the fixture dies at this drive, the sentinel is missing, and this row reads red.
+kindRow "leafClassT LC-6 QuotE \"abc\": old road / new road (F-O37 fixed by 0f24004)" "$(lcd 'QuotE "abc"')" "1/5 1/5"
 
 #  ---------------------------------------------------------------------------
 #  ruleTermT -- OBJECT MODEL STROKE 2: "this term takes part as a rule term" is the REFERENCE'S fact (rStuff

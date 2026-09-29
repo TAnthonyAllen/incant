@@ -4,6 +4,7 @@ include(utilities);
 search reset stack Grokking;
 include("IncantForms/WorkingOn/parser");
 define
+    lcDq=(QuotE "abc"#);
     lcSay code={
         v := tell(argument);
         m := *v["matched"]; c := *v["consumed"];
@@ -19,6 +20,7 @@ lcSay("SetBrackets [abc]");
 lcSay("SetBrackets []");
 lcSay("Braced [1]");
 lcSay("QuotE 'abc'");
+lcSay(lcDq);
 parser(DO);
 cerr "LC NEW ROAD":;
 lcClass("rightBrace");
@@ -26,8 +28,13 @@ lcSay("SetBrackets [abc]");
 lcSay("SetBrackets []");
 lcSay("Braced [1]");
 lcSay("QuotE 'abc'");
+lcSay(lcDq);
 cerr "LEAFCLASST SENTINEL":;
 stop();
+
+LC-6 (2026-09-29): QuotE "abc" -- a DOUBLE-quoted input, driven last on each road. F-O37: on the new road
+every double-quoted QuotE exited 139 until Tony's two-member QuotE (0f24004); now 1/5 on both roads. It is
+last on the new road so that, if it ever crashes again, the rows above it still read (rule H5).
 
 leafClassT -- OBJECT MODEL STROKE 1b (F-O23): A LEAF'S PARSE METHOD IS WHAT THE RULE IMPLIES, NOT WHAT
 THE FIRST REFERENCE WALKED SAYS.

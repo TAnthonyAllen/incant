@@ -1069,7 +1069,7 @@ a refusal instead of crashing, and `modSeamT`'s dead-region control can be promo
 
 ---
 
-### F-103 — a LABELLED repetition (`repT isRule "a"+ ;`) exits 139 on both roads
+### F-103 — ✅ FIXED 2026-09-29 (0f24004) — a LABELLED repetition (`repT isRule "a"+ ;`) exits 139 on both roads
 
 **What.** `repT("aaa")` dies. `"a"+-` — the same repetition marked `noLabel` — does not.
 
@@ -1099,6 +1099,12 @@ sentence (H6) and MS-6/MS-7 and its sentinel stop being unreachable.
 - **2026-09-22, Clod, SEQ 193.** Split out of the modifier-seam work at Tony's instruction so the
   crash is not re-attributed to the seam. Site re-confirmed with `lldb` on the bare build. No
   attempt made.
+- **2026-09-29, Tony (offline), 0f24004 -- QuotE respelled as two fixed-close members → FIXED.**
+  The crash frame was `aCTionQuotE` (frame #1, getText(null) on a missing `tik`), fired on repT's
+  `"a"` term labelled GrouP (DEFERABOVE `action=1`). After the respell GrouP reads `action=0` and
+  `repT("aaa")` OLD wins, consumed 3. Certified by `modSeamT` MS-5 re-pinned (H6); MS-7 now reachable
+  and pinned to the bare-literal spelling fault (new road refuses GrouP, consumed 0). H7: the
+  pre-0f24004 binary turns the four new rows red.
 
 ---
 

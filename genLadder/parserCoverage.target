@@ -35,6 +35,8 @@
   COMPILES  PrinT
   COMPILES  PrintField
   COMPILES  QuotE
+  COMPILES  QuotE1
+  COMPILES  QuotE2
   COMPILES  RunRulE
   COMPILES  ScopeXP
   COMPILES  Search
@@ -59,4 +61,4 @@
   LEAF      numberSet
   LEAF      return
   LEAF      rightCurly
-PARSER COVERAGE -- 61 rules: 45 generate a body, 45 of them compile; 14 leaves; 0 crashed
+PARSER COVERAGE -- 63 rules: 47 generate a body, 47 of them compile; 14 leaves; 0 crashed
