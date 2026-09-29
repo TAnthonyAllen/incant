@@ -1,0 +1,41 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+register(McCap);
+define
+    mcRead code={
+        mcM := UnitTests["maximus"];
+        mcK := *mcM["mcKid"];
+        cerr "MC " argument ": UnitTests maximus has term mcKid: " *mcK.taG:;
+        };
+    ;
+mcRead(before);
+define
+    maximus
+        mcKid;
+    ;
+mcRead(after);
+cerr "ANCHOR membersFlagCapture -- a definition in McCap named maximus, with a member, wrote the member into UnitTests' maximus":;
+fixMembersFlagCaptureHere = 0;
+cerr "SENTINEL membersFlagCapture reached the foot":;
+stop();
+
+LANE:  define
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 231 R2)
+
+membersFlagCapture -- the MEMBERs flag lands on another registry's original.
+
+The MEMBERs flag command (Commands.rtn:516-517) runs at parse time, before aCTionDefinE, and sets
+currentDefine.addingMembers = true -- where currentDefine (aCTionNewGroup) is the RESOLVED node. For a definition whose name
+resolved to another registry's entry, the flag goes on the original's body. Today that is transient: aCTionDefinE clears it
+at the end on NewGroup, and NewGroup's copy shares the original's body, so the clear reaches the original too. It becomes a
+STUCK flag under any design that mints the definition its own node (the R2 try-and-buy, recon 19-20): the clear then hits
+the fresh node and the original keeps addingMembers set, and every later definition in that registry reads as "adding
+members". What this file shows live is the capture the flag rides on: the member mcKid lands in UnitTests' maximus.
+
+NEXT: OPEN -- what would generate a fix: a measure callout on the MEMBERs arm printing currentDefine's registry beside
+currentRegistry, run under the R2 branch's knob, to see every definition where the two differ; the fix then moves the flag
+onto whatever node the definition finally owns (om-r2-ownname already carries the currentDefine repair for the mint case).

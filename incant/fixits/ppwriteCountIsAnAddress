@@ -21,7 +21,7 @@ cerr "SENTINEL ppwriteCountIsAnAddress reached the foot":;
 stop();
 
 LANE:  instruments
-BLAST: DISJOINT (measure.twk only; no engine code)
+BLAST: DISJOINT
 OWNER: Clod     (SEQ 230 item 3, Clay: "Log chainTruthT's nondeterministic output as a Clod fixit; do not chase it")
 
 ppwriteCountIsAnAddress -- chainTruthT'S OUTPUT DIFFERS BETWEEN IDENTICAL RUNS, AND THE CAUSE IS AN INSTRUMENT.

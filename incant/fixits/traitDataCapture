@@ -1,0 +1,40 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+register(TdCap);
+define
+    tdRead code={
+        tdM := UnitTests["maximus"];
+        tdR := Grokking["NamE"];
+        cerr "TD " argument ": UnitTests maximus isRulE=" *tdM.isRulE "   control, the rule NamE isRulE=" *tdR.isRulE:;
+        };
+    ;
+tdRead(before);
+define
+    tdV=maximus+;
+    ;
+tdRead(after);
+cerr "ANCHOR traitDataCapture -- maximus is a plain field of UnitTests; after tdV=maximus+ it reads isRule 1":;
+fixTraitDataCaptureHere = 0;
+cerr "SENTINEL traitDataCapture reached the foot":;
+stop();
+
+LANE:  define
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 231 R2)
+
+traitDataCapture -- aCTionTraiTdata writes a resolved VALUE in place.
+
+A definition's value (DatA) resolves like any name. With a Modifier, aCTionTraiTdata writes the resolved node before
+anything is copied: options.affiliation = isAttribute (always, on the ORIGINAL node, even when it then copies); and when
+the node has no rStuff it runs setRuleStuff() and sets isRule = 1 on the ORIGINAL's body (a copy is made only when
+rStuff already exists). Measured here: UnitTests' plain field maximus reads isRule 0 before  in another
+registry and 1 after; the control rule NamE reads 1 throughout (the starred read is the one that discriminates).
+Not the definition's own field (recon 20) -- the same capture on the value.
+
+NEXT: BEST GUESS -- the value's writes belong to the value AS USED HERE: copy first, then write (the copy already exists
+for the rStuff case; the affiliation write precedes it, and the no-rStuff arm writes the original). Grade: mechanism read
+in the generated .mm, symptom measured. Promote by a build where the before/after lines above agree at 0; kill if a define
+relies on promoting a foreign field to a rule through its value.

@@ -1,0 +1,26 @@
+Start();
+include(unitTests);
+include(utilities);
+include(designDocs);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+cerr "ANCHOR docsOnCommands -- the stop COMMAND should carry no data; DesignDocs' stop entry wrote its prose into it":;
+print "cOMMANDs stop = [" cOMMANDs["stop"] "]":;
+print "cOMMANDs compile = [" cOMMANDs["compile"] "]":;
+fixDocsOnCommandsHere = 0;
+cerr "SENTINEL docsOnCommands reached the foot":;
+stop();
+
+LANE:  define
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 231 R2)
+
+docsOnCommands -- F-O41: DesignDocs text lands on cOMMANDs entries.
+
+A DesignDocs member named after a command (stop, compile, canonOf, ... 18 of them, recon 18c) resolves to the cOMMANDs
+entry, and its (…#) value is written into that entry's body -- the same capture as counterCapture, on the member road
+(ruleActions.rtn:359, NewGroup += item copies a parented node). The commands still dispatch (the method is in another slot),
+so nothing breaks; the command's value is the prose. Without include(designDocs) each reads its own tag (no data).
+
+NEXT: RULED -- R2 PARKED (SEQ 231); same fix site as counterCapture. Taken: both lines print the command's own tag. Not
+taken: they print the DesignDocs prose.

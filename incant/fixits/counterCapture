@@ -1,0 +1,28 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+cerr "ANCHOR counterCapture -- Grokking's counter should be the digit set [0-9]; unitTests' counter=0 overwrote it":;
+print "Grokking counter = [" Grokking["counter"] "]  (the set prints empty; 0 is the capture)":;
+fixCounterCaptureHere = 0;
+cerr "SENTINEL counterCapture reached the foot":;
+stop();
+
+LANE:  define
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 231 R2, Clay: file as fixits, owner Clod, with today's analysis)
+
+counterCapture -- F-O40: UnitTests' counter OVERWRITES the grammar's digit set.
+
+incant/unitTests:87 declares the test variable counter=0. Its name resolves (resolveName -> locate walks the search list)
+to Grokking's counter=[0-9] (incant/grammar:29, used by Precision), and aCTionTraiT writes the value 0 into THAT node
+(trait.setContent(TraiTdata), trait = the resolved node) before aCTionDefinE copies it into UnitTests. The copy shares the
+body, so the grammar's rule now holds 0. Measured: with unitTests loaded Grokking["counter"] reads 0; without, the set.
+Recon 17-20 carry the analysis; the R2 try-and-buy (branch om-r2-ownname, unmerged) showed that minting fresh at
+aCTionDefinE does NOT fix it -- the write has already happened at TraiT time -- and that the fresh entry then loses its 0.
+
+NEXT: RULED -- R2 is PARKED (SEQ 231 R1) as its own named item; candidate later home: the kant mirror of the define road.
+Nothing here is applicable yet. The fix must act where the definition's OWN name is resolved or first written (aCTionTraiT's
+setContent, and the MEMBERs flag -- see membersFlagCapture), not in aCTionDefinE (recon 19-20). Taken: this file prints the
+empty set. Not taken: it prints 0.
