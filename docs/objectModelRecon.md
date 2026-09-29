@@ -689,3 +689,26 @@ read 847 / 1 through the wrapper, as on trunk.
   it skips read `isRulE= 0`, so **line 57 (`if isRulE == 0; continue;`) already catches them** -- line 56 is redundant.
 - **line 30 removed:** pop.sh **845** -- `chainTruthT` CT7 and `carrierT` CT-2 go red (the generator emits calls to the
   locals). **Line 30 is load-bearing** as a local skipper.
+
+---
+
+## 17. Stroke 4.1's census: the 17 cross-registry copies classified (2026-09-29, SEQ 227 R2 -- reported, NOT ruled)
+
+`ruleOfCensus` (`GroupActions.rtn`, fleet fixture `incant/pop/ruleOfT`) lists each registry entry whose `ruleOf` is an entry
+of a DIFFERENT registry, with how many of the shared body's terms and properties are parented to the COPY -- i.e. were
+written by the copy's own definition into a body it shares with the original. Identical at rest, after a `tell()` and
+after `parser(Start)`.
+
+| copy <- original | written through the copy | classification |
+|---|---|---|
+| `Grokking/break`, `continue`, `return` <- `Keywords/…` | nothing | **intended instance** -- the grammar's `BrancheS bin` names the keyword masters (stroke 2's "nine keyword masters") |
+| `Keywords/define` <- `Grokking/define` | nothing | **intended instance** -- the Keywords registry lists each keyword by reference to the rule that implements it |
+| `Keywords/new` <- `cOMMANDs/new` | nothing | **intended instance** -- the same, to a command |
+| `Modifiers/! % & - < @ ^` <- `Operators/…` (7) | nothing | **accidental name capture, by shape** -- `registry(Modifiers)` defines modifier characters (`incant/setup:227-240`); each name resolved to the same-named OPERATOR and copied it |
+| `Modifiers/* + ?` <- `Operators/…` (3) | **1 term each** | **accidental, and CONTAMINATING** -- these are exactly the three setup writes as `'+' repeatClass;`, `'*' repeatClass;`, `'?' repeatClass;` (the term is the modifier's, now inside the operator's body). `Operators/?` therefore answers `definingRule()` = `Modifiers/?` (recon 16a) |
+| `UnitTests/counter` <- `Grokking/counter` | nothing listed, **but the DATA is shared** | **accidental and CONTAMINATING** -- `incant/unitTests:87` `counter=0;` is a test variable that captured the grammar's digit set `counter=[0-9]` (`incant/grammar:29`, used by `Precision`). Measured: `Grokking["counter"]` reads the value **0** with `include(unitTests)` and the set without. **F-O40.** |
+| `Utilities/parser` <- `fILEs/parser` | **2 terms, 1 property** | **accidental and CONTAMINATING -- F-O33**: the action's own definition wrote into the include-file entry's body |
+
+**Totals: 5 intended, 12 accidental; 5 of the 12 contaminate the original** (3 Modifiers, `counter`, `parser`). Nothing was
+changed; the mechanism for all 12 is the define resolving a new name to an existing entry of another registry (`addGroup`'s
+copy-if-parented). Whether a define may ever do that is the open ruling.

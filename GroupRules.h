@@ -382,6 +382,7 @@ extern "C" GroupItem *resetField(GroupItem *argument);
 extern "C" GroupItem *resolveName(char *arg, GroupItem *owner);
 extern "C" void restoreLocalFields(GroupItem *action);
 extern "C" GroupItem *ruleMethod(GroupItem *input);
+extern "C" GroupItem *ruleOfCensus(GroupItem *input);
 extern "C" GroupItem *runAction(GroupItem *argument, GroupItem *field);
 extern "C" GroupItem *runLeafParse(GroupItem *field);
 extern "C" GroupItem *runOP(GroupItem *field);

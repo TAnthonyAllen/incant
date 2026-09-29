@@ -1,0 +1,27 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+define
+    roSrc = 5;
+    roRest;
+    roSink code={
+        roN = 1;
+        };
+    roParse code={
+        roCp <- roSrc;
+        v := tell("QuotE 'abc'");
+        cerr "RO-PHASE tell":;
+        ruleOfCensus(*v);
+        };
+    ;
+cerr "RO-PHASE rest":;
+ruleOfCensus(roRest);
+roParse();
+parser(Start);
+roSink(roRest);
+cerr "RO-PHASE parser":;
+ruleOfCensus(roRest);
+cerr "RULEOF SENTINEL":;
+stop();

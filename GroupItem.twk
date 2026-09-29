@@ -6,6 +6,7 @@ include groupIncludes
 class GroupItem
 {
 GroupBody       groupBody;
+GroupItem       ruleOf;
 GroupItem	    parent,
                 nextInParent,
                 priorInParent;
@@ -43,6 +44,9 @@ GroupItem(GroupItem grup)
 {
     groupBody   = grup.groupBody;
     isCopy      = true;
+    // rootLink every copy points at the ORIGINAL -- a copy of a copy takes its source's ruleOf, never the intermediate (stroke 4.1)
+    if grup.ruleOf  this.ruleOf = grup.ruleOf;
+    else            this.ruleOf = grup;
     if grup.rStuff {
         rStuff  = new(this);
         *rStuff = *grup.rStuff;

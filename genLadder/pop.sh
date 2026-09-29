@@ -5526,6 +5526,24 @@ _msN=$(cat *.twk *.rtn | grep -c 'isMacro')
 kindRow "macroStrip MX-1 rule-side hasMacro/setMacroValue/isMacro sites in source" "$_msR" "0"
 kindRow "macroStrip MX-2 the non-rule isMacro sites that stay (anti-vacuity for MX-1)" "$_msN" "6"
 
+#  ---- ruleOfT: STROKE 4.1 -- THE INSTANCE -> RULE LINK IS WRITTEN (SEQ 227, 2026-09-29) ----
+#  GroupItem.ruleOf is set by the copy constructor on EVERY copy, aimed at the ORIGINAL (a copy of a copy takes its
+#  source's ruleOf). ruleOfCensus walks every node reachable from the registries (terms AND properties) and from its
+#  argument -- at rest, after a tell() (labels, and a <- data copy), and after parser(Start) + a compiled action.
+#  RO-1 the invariants read 0 in all three phases: ruleOf set exactly where isCopy is, never aimed at a copy, same
+#  body. RO-2/3 are their non-zero siblings: copies and labels were really in the walk. RO-4 pins the 17
+#  cross-registry copies by name -- classified in recon 17 (SEQ 227 R2), NOT ruled, nothing changed.
+#  H7: on the commit before 4.1 there is no ruleOfCensus (no RULEOF line); with the root chase removed (a copy of a
+#  copy aims at its source) RO-1 reads aimsAtCopy > 0; with the write removed, missingOnCopy == copies.
+run2 ruleOfT "$T/ro.o" "$T/ro.e"; check "ruleOfT runs" 0 $?
+sentinel "ruleOfT sentinel" "$T/ro.e" "RULEOF SENTINEL"
+kindRow "ruleOfT RO-1 invariants, three phases: set only on copies, on every copy, never on a copy's copy, same body" "$(grep -c 'setOnNonCopy=0 missingOnCopy=0 aimsAtCopy=0 bodyMismatch=0' "$T/ro.e")" "3"
+_roc=$(grep -m1 '^RULEOF nodes' "$T/ro.e" | sed 's/.* copies=\([0-9]*\).*/\1/')
+kindRow "ruleOfT RO-2 copies at rest > 300 (anti-vacuity for RO-1)" "$([ "${_roc:-0}" -gt 300 ] && echo yes || echo "no ($_roc)")" "yes"
+_rol=$(grep '^RULEOF nodes' "$T/ro.e" | tail -1 | sed 's/.* labels=\([0-9]*\).*/\1/')
+kindRow "ruleOfT RO-3 labels in the walk after parser(Start) > 100 (anti-vacuity: labels were censused)" "$([ "${_rol:-0}" -gt 100 ] && echo yes || echo "no ($_rol)")" "yes"
+kindRow "ruleOfT RO-4 the 17 cross-registry copies, by name" "$(awk '/RO-PHASE rest/{f=1} /RO-PHASE tell/{f=0} f && /RULEOF XREG/ {print $3}' "$T/ro.e" | tr '\n' ' ')" "Grokking/break Grokking/continue Grokking/return Keywords/define Keywords/new Modifiers/! Modifiers/% Modifiers/& Modifiers/* Modifiers/+ Modifiers/- Modifiers/< Modifiers/? Modifiers/@ Modifiers/^ UnitTests/counter Utilities/parser "
+
 #  ---------------------------------------------------------------------------
 #  ruleTermT -- OBJECT MODEL STROKE 2: "this term takes part as a rule term" is the REFERENCE'S fact (rStuff
 #  ruleTerm), never the shared body's. Born RED on the writers-reverted build (the three copy-writers put
