@@ -394,10 +394,17 @@ GroupItem 	*grup = 0;
 GroupItem 	*item = 0;
 	if ( isGROUP(NewGroup->groupBody->flags.data) )
 		NewGroup = NewGroup->getGroup();
-	// ownNameOnly a definition's OWN name resolves in the current registry only: an entry found in ANOTHER registry is not this definition's, so it mints fresh -- one test, ahead of both registry arms and the member road (SEQ 229 R1, try-and-buy)
-	if ( ruler->currentRegistry && NewGroup->parent && NewGroup->parent != ruler->currentRegistry )
-		if ( NewGroup->parent == ruler->registries || NewGroup->parent->parent == ruler->registries )
-			NewGroup = new GroupItem(NewGroup->groupBody->tag);
+	// ownNameOnly a definition's OWN name resolves in the current registry only: an entry found in ANOTHER registry is not this definition's, so it mints fresh (SEQ 229 R1, try-and-buy). MEASUREMENT KNOB: OMFRESHONLY="|Reg/name|..." limits the mint to those cases; unset mints every case
+	
+	{   GroupItem *omRegs = ruler->registries; const char *omOnly = ::getenv("OMFRESHONLY");
+	if ( ruler->currentRegistry && NewGroup && NewGroup->parent && NewGroup->parent != ruler->currentRegistry
+	&& (NewGroup->parent == omRegs || NewGroup->parent->parent == omRegs) ) {
+	char omKey[256]; ::snprintf(omKey,256,"|%s/%s|",ruler->currentRegistry->groupBody->tag,NewGroup->groupBody->tag);
+	if ( !omOnly || ::strstr(omOnly,omKey) ) {
+	GroupItem *omOld = NewGroup;
+	NewGroup = new GroupItem(NewGroup->groupBody->tag);
+	if ( ruler->currentDefine == omOld ) ruler->currentDefine = NewGroup; } } }
+	
 	/*  THIS IS THE OPERATOR-NAMING SITE. An operator is written in setup as a
 	quoted literal, and the swap below is what gives it its symbol as its
 	NAME, so it can be matched against the input stream by spelling.
