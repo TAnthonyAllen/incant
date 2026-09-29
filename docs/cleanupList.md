@@ -24,6 +24,13 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 - **Blocked on F-O38.** Measured 2026-09-28: it still skips `pendingParseR` 29,260 times across the fleet, because the kant generator attaches the pending carrier with `+%` (among the terms), and `compile` only moves it when it reaches that rule.
 - **Confirm:** once F-O38 is fixed, re-run the F-O35 skip log. This site must read 0 skips with arrivals present, and the fleet must be unmoved.
 - **Seen:** 2026-09-28.
+- **Re-measured 2026-09-29 (SEQ 224, F-O38 closed by `+<`):** pendingParseR 30,208 -> **0**. But the site still skips **120 locals** -- `this` 60 and `tempField` 60, on coded rules (JSONfield 42+42, JSONarray 9+9, ScafA 4+4, list 3+3, ask 2+2). **So it is NOT deletable as it stands:** it has become a LOCAL skipper, the same class as `setParseWalk`, `compile` x2 and `dupTermRefusal`, which stay by ruling. Leave the entry for Tony to strike or keep.
+
+### `compile`'s pending-carrier re-filing block
+- **What/where:** `Commands.rtn:56-68` (`pendingToProperties`): moves a `pendingParseR` carrier found among a rule's terms to its property list, and its `CodE` likewise.
+- **Why deletable:** the only writer of the carrier, `IncantForms/WorkingOn/parser:43-44`, now files both with `+<` (SEQ 224), so the carrier should always arrive on the property list and neither move should fire.
+- **Confirm:** a temporary log on each move's body across the full checklist (pop.sh, jitLadder, printPop, decodePop, ddPop, countPop, frontier) must read 0 with the enclosing `if pending` arrivals present, then removal with the fleet row for row. **Not measured yet.**
+- **Seen:** 2026-09-29.
 
 ## Seeded, already gone
 

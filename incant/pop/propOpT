@@ -1,0 +1,88 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+define
+    poHost;
+    poColl;
+    poFile code={
+        poKid := new("poKid");
+        *poKid = "KID";
+        poTerm := new("poTerm");
+        poHost +< *poKid;
+        poHost +% *poTerm;
+        poP := poHost =< "poKid";
+        poM := poHost =< "zzzNotAProperty";
+        poA := poHost =% "poKid";
+        cerr "PO-1 =< reads the filed property = " *poP:;
+        cerr "PO-2 =< a miss reads = " *poM.taG:;
+        cerr "PO-3 =% the same name = " *poA.taG:;
+        };
+    poTermOf code={
+        cerr "PO-4 term " taG:;
+        };
+    poWalk code={
+        iterate poCur on argument;
+        while ++poCur;
+            poTermOf(*poCur);
+        };
+    poCollide code={
+        poCT := new("BlocK");
+        *poCT = "TERM";
+        poCP := new("BlocK");
+        *poCP = "PROP";
+        poColl +% *poCT;
+        poColl +< *poCP;
+        poSub := poColl["BlocK"];
+        poGet := poColl =< "BlocK";
+        cerr "PO-5 host[BlocK] = " *poSub:;
+        cerr "PO-6 host =< BlocK = " *poGet:;
+        };
+    poStatement code={
+        poS := Grokking["StatemenT"];
+        poSt := *poS["BlocK"];
+        poSp := *poS =< "BlocK";
+        poSa := *poS =< "builtinActoR";
+        cerr "PO-7 StatemenT[BlocK] = " *poSt.taG:;
+        cerr "PO-8 StatemenT =< BlocK = " *poSp.taG:;
+        cerr "PO-9 StatemenT =< builtinActoR = " *poSa.taG:;
+        };
+    ;
+poFile();
+poWalk(poHost);
+poCollide();
+poStatement();
+cerr "PROPOP SENTINEL":;
+stop();
+
+propOpT -- THE PROPERTY OPERATORS +< AND =< (SEQ 224 R1, 2026-09-29).
+
++< is opAddProperty (target.addProperty(argument)); =< is opGetProperty (target.getProperty(name)). +% and =%
+stay attributes-only. This file certifies that +< files on the PROPERTY list and never among the terms, that =<
+reads it back, and that =< answers the one collision a subscript cannot.
+
+ROWS
+  PO-1  host =< "poKid" after host +< poKid        KID       the filed property, read back by value
+  PO-2  host =< "zzzNotAProperty"                  0         a miss
+  PO-3  host =% "poKid"                            poKid     FINDING, pinned: =% ALSO reads a property. opGetAttribute
+                                                             is getAttribute, which is get(name) filtered by
+                                                             isAttribute -- and get falls back to the property list
+                                                             (stroke 3) while addProperty sets isAttribute. So =%
+                                                             cannot tell a term from a property; it is not proof of
+                                                             where +< filed.
+  PO-4  walk of host's terms                       poTerm    THE groupList PROOF: only the +% child is a term, so
+                                                             +< did not land among the terms; non-empty, so the
+                                                             walk is live
+  PO-5  coll["BlocK"], coll has term AND property  TERM      a subscript searches terms first
+  PO-6  coll =< "BlocK"                            PROP      =< reads the property the subscript cannot reach
+  PO-7  StatemenT["BlocK"]                         BlocK     the real collision: the grammar term
+  PO-8  StatemenT =< "BlocK"                       0         StatemenT has NO BlocK property at rest -- its
+                                                             compiled body sits on its builtinActoR carrier
+  PO-9  StatemenT =< "builtinActoR"                builtinActoR  =< does reach StatemenT's real property
+
+PO-5/PO-6 are the collision made answerable; PO-7/PO-8 record that on the live grammar the collision is
+nominal today, because StatemenT carries no BlocK property of its own. The values TERM and PROP are the only
+discriminator: both nodes are tagged BlocK.
+
+H7 (e): on the previous commit (+< and =< unregistered) this file does not parse its first action.

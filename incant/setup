@@ -123,6 +123,7 @@ define
     '=]'    operateMethod=opEnd;
     '=/'    operateMethod=opGetMember;
     '=%'    operateMethod=opGetAttribute;
+    '=<'    operateMethod=opGetProperty;
     '='     operateMethod=opAssign;
 
     '<='    operateMethod=opLE  interpretMethod=runLE  jitEmitter=jitEmitLE;
@@ -158,6 +159,7 @@ define
     '++'    unary ruleMethod=opPlusPlus;
     '+*'    operateMethod=opAddPointer;
     '+%'    operateMethod=opAddAttribute;
+    '+<'    operateMethod=opAddProperty;
     '+/'    operateMethod=opAddMember;
     '+'     operateMethod=opPlus  interpretMethod=runPlus  jitEmitter=jitEmitAdd;
     '*='    operateMethod=opMultiplyEQ;
@@ -476,7 +478,8 @@ include(grammar);
     this file is written to avoid. So the order below is kept longest-first BY
     HAND, on purpose, and survives only because nothing re-sorts it.
 
-    Twenty-three registered operators have another registered operator as a strict
+    Twenty-three registered operators (twenty-five from 2026-09-29, with the
+    property pair +< and =<) have another registered operator as a strict
     prefix: the vertical-bar pair, the whole plus family, every compare. The table
     is written longest-first throughout, and as of 2026-09-16 it is, with no
     exceptions -- two were found and fixed that day, the vertical-bar pair and the

@@ -77,6 +77,20 @@ GroupRules  ruler = groupRules;
 
 
 /***************************************************************************
+	Rule action for the +< addProperty operator: files the argument on the
+    target's property list, never among its terms (SEQ 224)
+***************************************************************************/
+extern GroupItem opAddProperty(GroupItem argument,GroupItem target)
+{
+GroupRules  ruler = groupRules;
+    // storeRuling an armed statement stores nothing, as for +%
+    if ruler.refused    return null;
+    target.addProperty(argument);
+    return target;
+}
+
+
+/***************************************************************************
 	Rule action for the AND operator
 
     ⚠ THE SHORT-CIRCUIT DOES NOT LIVE HERE AND CANNOT. runOP evaluates
@@ -535,6 +549,17 @@ extern GroupItem opGetAttribute(GroupItem argument,GroupItem target)
 {
 String strung = argument.text;
     return getAttribute(strung);
+}
+
+
+/***************************************************************************
+	Rule action for the =< getProperty operator: reads the target's property
+    list only, so a term of the same name cannot answer (SEQ 224)
+***************************************************************************/
+extern GroupItem opGetProperty(GroupItem argument,GroupItem target)
+{
+String strung = argument.text;
+    return getProperty(strung);
 }
 
 

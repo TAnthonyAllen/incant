@@ -40,8 +40,8 @@ define
         *codeCopy :. noPrinT;
         bprCopy := new("pendingParseR");
         *bprCopy :. noPrinT;
-        *bprCopy +% *codeCopy;
-        argument +% *bprCopy;
+        *bprCopy +< *codeCopy;
+        argument +< *bprCopy;
         printTO(0);
         print taG "=" CodE.taG CodE:;
        };
