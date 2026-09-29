@@ -314,7 +314,7 @@ use item
                     isInitialized  = true;
                     // memberIsATerm a propagated COPY takes part as a rule term on its own rStuff, never the shared body (stroke 2)
                     if NewGroup.isRule && !item.binType && !item.isRuleTerm() {
-                        if item.isCopy {
+                        if item.ruleOf {
                             if !item.rStuff     item.rStuff = new(item);
                             item.rStuff.ruleTerm = true; }
                         else    item.isRule = true; }
@@ -1148,7 +1148,7 @@ GroupItem   upMark,
         else        setRuleStuff();
         // modifierRidesUp repetition lands on the DATA only; applying it to the trait as well repeats TWICE
         if Modifier modifyClass(DatA,Modifier.text,1);
-        if DatA.isCopy      DatA.rStuff.ruleTerm = true;
+        if DatA.ruleOf      DatA.rStuff.ruleTerm = true;
         else                DatA.isRule = true; }
     // valueRepeats a value may carry + or *; a character or set repeats in its scanner, anything wider repeats on the trait
     repeated = 0;

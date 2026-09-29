@@ -5537,7 +5537,13 @@ kindRow "macroStrip MX-2 the non-rule isMacro sites that stay (anti-vacuity for 
 #  copy aims at its source) RO-1 reads aimsAtCopy > 0; with the write removed, missingOnCopy == copies.
 run2 ruleOfT "$T/ro.o" "$T/ro.e"; check "ruleOfT runs" 0 $?
 sentinel "ruleOfT sentinel" "$T/ro.e" "RULEOF SENTINEL"
-kindRow "ruleOfT RO-1 invariants, three phases: set only on copies, on every copy, never on a copy's copy, same body" "$(grep -c 'setOnNonCopy=0 missingOnCopy=0 aimsAtCopy=0 bodyMismatch=0' "$T/ro.e")" "3"
+#  RE-PINNED 2026-09-29 (stroke 4.2, SEQ 228): isCopy is deleted, so RO-1 can no longer compare ruleOf with it. It
+#  asserts the ruleOf-only invariants instead: never aimed at a copy, same body as the original, and ONE ROOT PER BODY
+#  (rootConflict) -- only the copy constructor shares a body (census of `groupBody =` writes), so "set on every copy"
+#  becomes "every node on a shared body names the same original". The 4.1 form held (0 over three phases) the day
+#  before, which is what licenses the replacement. H7: root chase removed -> aimsAtCopy > 0; write removed ->
+#  rootConflict > 0 (every copy names itself as a second root).
+kindRow "ruleOfT RO-1 ruleOf-only invariants, three phases: never on a copy's copy, same body, one root per body" "$(grep -c 'aimsAtCopy=0 bodyMismatch=0 rootConflict=0' "$T/ro.e")" "3"
 _roc=$(grep -m1 '^RULEOF nodes' "$T/ro.e" | sed 's/.* copies=\([0-9]*\).*/\1/')
 kindRow "ruleOfT RO-2 copies at rest > 300 (anti-vacuity for RO-1)" "$([ "${_roc:-0}" -gt 300 ] && echo yes || echo "no ($_roc)")" "yes"
 _rol=$(grep '^RULEOF nodes' "$T/ro.e" | tail -1 | sed 's/.* labels=\([0-9]*\).*/\1/')

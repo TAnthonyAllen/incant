@@ -44,7 +44,7 @@ extern "C" GroupItem *addrOf(GroupItem *field)
 	if ( !bodyNum && seenCount < 512 ) { seenTable[seenCount++] = bodyKey; bodyNum = seenCount; }
 	::fprintf(stderr,"ADDROF %s field=#%d body=#%d  isCopy=%d  raw %p %p\n",
 	field->groupBody->tag ? field->groupBody->tag : "(untagged)",
-	nodeNum, bodyNum, (int)field->options.isCopy,
+	nodeNum, bodyNum, (field->ruleOf ? 1 : 0),
 	nodeKey, bodyKey);
 	::fflush(stderr);
 	}
@@ -681,7 +681,7 @@ extern "C" GroupItem *measurePlusEQWrite(GroupItem *field)
 	(int)field->groupBody->flags.data,
 	(int)field->groupBody->gCount,
 	(int)GroupControl::groupController->groupRules->jitting,
-	(int)field->options.isCopy,
+	(field->ruleOf ? 1 : 0),
 	(int)field->groupBody->flags.isVirtual);
 	
 	return field;
@@ -703,7 +703,7 @@ extern "C" GroupItem *measurePlusPlusWrite(GroupItem *field)
 	(int)field->groupBody->flags.data,
 	(int)field->groupBody->gCount,
 	(int)GroupControl::groupController->groupRules->jitting,
-	(int)field->options.isCopy,
+	(field->ruleOf ? 1 : 0),
 	(int)field->groupBody->flags.isVirtual);
 	if ( GroupControl::groupController->groupRules->parseTrace && field )
 	::fprintf(stderr,"PPWRITE   isIterator=%d fLAG=%d isGROUP=%d hasAttributes=%d hasMembers=%d\n",

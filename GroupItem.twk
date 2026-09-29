@@ -1949,7 +1949,7 @@ int         asTerm = false;
         if registry && registry.isRule              isRule = true;
         or parent && parent.isRuleTerm()
             if !registry || registry == keyWords {
-                if isCopy   asTerm = true;
+                if ruleOf   asTerm = true;
                 else        isRule = true; }
     if !rStuff  rStuff = new(this);
     or rule != this {

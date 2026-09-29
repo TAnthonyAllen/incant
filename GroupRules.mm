@@ -477,7 +477,7 @@ GroupItem 	*item = 0;
 				// memberIsATerm a propagated COPY takes part as a rule term on its own rStuff, never the shared body (stroke 2)
 				if ( NewGroup->groupBody->flags.isRule && !item->groupBody->flags.binType && !item->isRuleTerm() )
 					{
-					if ( item->options.isCopy )
+					if ( item->ruleOf )
 						{
 						if ( !item->getRStuff() )
 							item->setRStuff(new RuleStuff(item));
@@ -1492,7 +1492,7 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 		// modifierRidesUp repetition lands on the DATA only; applying it to the trait as well repeats TWICE
 		if ( Modifier )
 			::modifyClass(DatA,Modifier->getText(),1);
-		if ( DatA->options.isCopy )
+		if ( DatA->ruleOf )
 			DatA->getRStuff()->ruleTerm = 1;
 		else	DatA->groupBody->flags.isRule = 1;
 		}
@@ -10284,16 +10284,16 @@ char 	*name = input->getText();
 	return input->getGroup();
 }
 
-// ruleOfCensus the instance -> rule link's invariants over every node reachable from the registries (terms AND properties) and from the argument: ruleOf set exactly where isCopy is, never aimed at a copy, same body; lists the cross-registry copies with what they wrote into the shared body (stroke 4.1); prints unconditionally
+// ruleOfCensus the instance -> rule link's invariants over every node reachable from the registries (terms AND properties) and from the argument: ruleOf never aimed at a copy, same body as its original, and ONE root per body (every node sharing a body names the same original -- only the copy constructor shares a body); lists the cross-registry copies with what they wrote into the shared body (stroke 4.1; ruleOf-only since isCopy was deleted, 4.2); prints unconditionally
 extern "C" GroupItem *ruleOfCensus(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	
-	static GroupItem **seen = 0; static long cap = 0; long used = 0;
-	if ( !seen ) { cap = 1 << 20; seen = (GroupItem**)::calloc(cap,sizeof(GroupItem*)); }
-	else ::memset(seen,0,cap * sizeof(GroupItem*));
+	static GroupItem **seen = 0; static void **bodyKey = 0; static GroupItem **bodyRoot = 0; static long cap = 0; long used = 0;
+	if ( !seen ) { cap = 1 << 20; seen = (GroupItem**)::calloc(cap,sizeof(GroupItem*)); bodyKey = (void**)::calloc(cap,sizeof(void*)); bodyRoot = (GroupItem**)::calloc(cap,sizeof(GroupItem*)); }
+	else { ::memset(seen,0,cap * sizeof(GroupItem*)); ::memset(bodyKey,0,cap * sizeof(void*)); ::memset(bodyRoot,0,cap * sizeof(GroupItem*)); }
 	GroupItem **stack = (GroupItem**)::malloc(sizeof(GroupItem*) * cap); long sp = 0;
-	long labels = 0, nodes = 0, copies = 0, setNoCopy = 0, copyNoSet = 0, toCopy = 0, bodyMis = 0;
+	long labels = 0, nodes = 0, copies = 0, toCopy = 0, bodyMis = 0, rootConflict = 0;
 	GroupItem *regs = ruler->registries;
 	if ( regs ) stack[sp++] = regs;
 	if ( input ) stack[sp++] = input;
@@ -10307,15 +10307,18 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( n->groupBody->groupList ) for ( GroupItem *c = n->groupBody->groupList->firstInList; c && sp < cap; c = c->nextInParent ) stack[sp++] = c;
 	if ( n->groupBody->propertyList ) for ( GroupItem *c = n->groupBody->propertyList->firstInList; c && sp < cap; c = c->nextInParent ) stack[sp++] = c;
 	GroupItem *L = n->ruleOf;
-	if ( n->options.isCopy ) copies++;
+	if ( L ) copies++;
 	if ( n->groupBody->flags.isLabel ) labels++;
-	if ( L && !n->options.isCopy ) { setNoCopy++; if ( setNoCopy <= 5 ) ::fprintf(stderr,"  RULEOF set on a non-copy: %s@%p\n",n->groupBody->tag,n); }
-	if ( !L && n->options.isCopy ) { copyNoSet++; if ( copyNoSet <= 5 ) ::fprintf(stderr,"  RULEOF missing on a copy: %s@%p\n",n->groupBody->tag,n); }
+	{   GroupItem *root = L ? L : n; void *b = (void*)n->groupBody;
+	unsigned long k = ((unsigned long)b >> 4) & (cap - 1);
+	while ( bodyKey[k] && bodyKey[k] != b ) k = (k + 1) & (cap - 1);
+	if ( !bodyKey[k] ) { bodyKey[k] = b; bodyRoot[k] = root; }
+	else if ( bodyRoot[k] != root ) { rootConflict++; if ( rootConflict <= 5 ) ::fprintf(stderr,"  RULEOF two roots for one body: %s@%p names %p, the body's first reader named %p\n",n->groupBody->tag,n,root,bodyRoot[k]); } }
 	if ( L && L->ruleOf ) { toCopy++; if ( toCopy <= 5 ) ::fprintf(stderr,"  RULEOF aims at a copy: %s@%p -> %s@%p\n",n->groupBody->tag,n,L->groupBody->tag,L); }
 	if ( L && L->groupBody != n->groupBody ) bodyMis++;
 	}
 	::free(stack);
-	::fprintf(stderr,"RULEOF nodes=%ld labels=%ld copies=%ld setOnNonCopy=%ld missingOnCopy=%ld aimsAtCopy=%ld bodyMismatch=%ld\n",nodes,labels,copies,setNoCopy,copyNoSet,toCopy,bodyMis);
+	::fprintf(stderr,"RULEOF nodes=%ld labels=%ld copies=%ld aimsAtCopy=%ld bodyMismatch=%ld rootConflict=%ld\n",nodes,labels,copies,toCopy,bodyMis,rootConflict);
 	int xr = 0;
 	if ( regs && regs->groupBody->groupList ) for ( GroupItem *rg = regs->groupBody->groupList->firstInList; rg; rg = rg->nextInParent )
 	if ( rg->groupBody->groupList ) for ( GroupItem *e = rg->groupBody->groupList->firstInList; e; e = e->nextInParent ) {
@@ -10685,7 +10688,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	// actionMethodRemoved the walk writes gMethod and parseMethod and NOTHING ELSE -- actionMethod is set at definition
 	// realTermNotAList a FIELD with nothing but noPrint artifacts is a DATA rule: hasTraits and hasMembers ignore artifacts, groupList does not. The CONVERSION predicate is NOT this test -- it still asks the group's real groupList.
 	// upToIsTheReferences a reference's { } is ITS fact, never the rule's -- only an inline definition (not a copy) classifies from its own overTo (F-O23)
-	if ( (upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo)) && !field->options.isCopy )
+	if ( (upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo)) && !field->ruleOf )
 		ruleStuff->parseMethod = ::parseUpTo;
 	else
 	if ( isBIN(field->groupBody->flags.binType) || isREGISTRY(field->groupBody->flags.binType) )

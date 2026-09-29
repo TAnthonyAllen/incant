@@ -2472,7 +2472,7 @@ int 	asTerm = 0;
 		if ( parent && parent->isRuleTerm() )
 			if ( !groupBody->registry || groupBody->registry == GroupControl::groupController->groupRules->keyWords )
 				{
-				if ( options.isCopy )
+				if ( ruleOf )
 					asTerm = 1;
 				else	groupBody->flags.isRule = 1;
 				}
