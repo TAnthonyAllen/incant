@@ -1,0 +1,48 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+define
+    pgRow code={
+        pgR := Grokking["QuotE"];
+        pgA := *pgR["builtinActoR"];
+        pgZ := *pgR["zzzNotAProperty"];
+        pgT := *pgR["QuotE1"];
+        cerr "PG-1 property via subscript = " *pgA.taG:;
+        cerr "PG-2 absent name via subscript = " *pgZ.taG:;
+        cerr "PG-3 term via subscript = " *pgT.taG:;
+        };
+    pgTerm code={
+        cerr "PG-4 term " taG:;
+        };
+    pgWalk code={
+        iterate pgCur on argument;
+        while ++pgCur;
+            pgTerm(*pgCur);
+        };
+    ;
+pgRow();
+pgWalk(Grokking["QuotE"]);
+cerr "PROPGET SENTINEL":;
+stop();
+
+propGetT -- A KANT SUBSCRIPT READS A PROPERTY (SEQ 223 item 2, 2026-09-29).
+
+field["name"] is the =[ operator, opGet (Instruct.rtn), which calls the target's get(String). Object-model
+stroke 3 made get(name) search the terms and then the property list. This fixture measures that from kant
+rather than citing it.
+
+ROWS
+  PG-1  QuotE["builtinActoR"]      builtinActoR    the actor is a PROPERTY (stroke 3), reached by subscript
+  PG-2  QuotE["zzzNotAProperty"]   0               the miss: a subscript that found nothing reads 0
+  PG-3  QuotE["QuotE1"]            QuotE1          a TERM, the anti-vacuity sibling of PG-2
+  PG-4  walk of QuotE's terms      QuotE1 QuotE2   builtinActoR is NOT among the terms, so PG-1 came from
+                                                   the property list and nowhere else
+
+H7, run 2026-09-29 (a temporary build with get(String)'s trailing getProperty(name) returning null, reverted):
+the run printed NO PG row and no sentinel -- the fallback is load-bearing for far more than this fixture, so
+the control VOIDS the run rather than moving PG-1 alone. Recorded as such: it is red, not a clean
+discrimination of PG-1.
+Reading through a := capture and a star (*pgA.taG): the unstarred pgA.taG echoes the holder's own tag
+(bear-trap 26), and it reads the same for a hit, a miss and a term.

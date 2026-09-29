@@ -5477,6 +5477,18 @@ kindRow "leafClassT LC-5 QuotE 'abc': old road / new road (F-O25 fixed by 0f2400
 #  it before; H7: on the pre-0f24004 binary the fixture dies at this drive, the sentinel is missing, and this row reads red.
 kindRow "leafClassT LC-6 QuotE \"abc\": old road / new road (F-O37 fixed by 0f24004)" "$(lcd 'QuotE "abc"')" "1/5 1/5"
 
+#  ---- propGetT: A KANT SUBSCRIPT READS A PROPERTY (SEQ 223 item 2, 2026-09-29) ----
+#  field["name"] is opGet -> get(String), which searches terms then the property list (stroke 3). PG-1 reads
+#  QuotE's actor (a property) by subscript; PG-2 is the miss (0) and PG-3 a term, the non-zero sibling; PG-4
+#  walks QuotE's terms and must read exactly QuotE1 QuotE2, so PG-1 came from the property list.
+#  H7 (recorded in the fixture): without get's property fallback the run voids -- no PG row, no sentinel.
+run2 propGetT "$T/pg.o" "$T/pg.e"; check "propGetT runs" 0 $?
+sentinel "propGetT sentinel" "$T/pg.e" "PROPGET SENTINEL"
+kindRow "propGetT PG-1 QuotE[\"builtinActoR\"] reads the property" "$(grep '^PG-1 ' "$T/pg.e" | awk '{print $NF}')" "builtinActoR"
+kindRow "propGetT PG-2 a missing name reads 0" "$(grep '^PG-2 ' "$T/pg.e" | awk '{print $NF}')" "0"
+kindRow "propGetT PG-3 a term reads by subscript (non-zero sibling of PG-2)" "$(grep '^PG-3 ' "$T/pg.e" | awk '{print $NF}')" "QuotE1"
+kindRow "propGetT PG-4 QuotE's terms, walked" "$(grep '^PG-4 ' "$T/pg.e" | awk '{print $NF}' | tr '\n' ' ')" "QuotE1 QuotE2 "
+
 #  ---------------------------------------------------------------------------
 #  ruleTermT -- OBJECT MODEL STROKE 2: "this term takes part as a rule term" is the REFERENCE'S fact (rStuff
 #  ruleTerm), never the shared body's. Born RED on the writers-reverted build (the three copy-writers put

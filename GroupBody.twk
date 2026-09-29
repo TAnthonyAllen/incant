@@ -6,7 +6,7 @@ include /Users/anthony/Dropbox/data/InProcess/Groups/groupIncludes
 class GroupBody
 {
 String          tag;
-GroupList       propList;
+GroupList       propertyList;
 GroupList       groupList;
 GroupItem       registry;
 PLGset          guardSet;

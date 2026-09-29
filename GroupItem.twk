@@ -157,6 +157,25 @@ GroupItem addMember(GroupItem grup)
 	return grup;
 }
 
+// addProperty an artifact goes on the property list beside the terms, never among them (object-model stroke 3)
+GroupItem addProperty(GroupItem grup)
+{
+GroupItem   last;
+    if !grup    return null;
+    if grup.parent  grup = new(grup);
+    if !propertyList    propertyList = new GroupList();
+    last                = propertyList.lastInList;
+    grup.parent         = this;
+    grup.isAttribute    = true;
+    grup.priorInParent  = last;
+    grup.nextInParent   = null;
+    if last     last.nextInParent = grup;
+    else        propertyList.firstInList = grup;
+    propertyList.lastInList = grup;
+    propertyList.listLength = propertyList.listLength + 1;
+    return grup;
+}
+
 /***************************************************************************
                                 addString
 	Adds an attribute, or if this is a container (binType), adds a member.
@@ -803,64 +822,6 @@ GroupItem   entry;
     return getProperty(name);
 }
 
-// addProperty an artifact goes on the property list beside the terms, never among them (object-model stroke 3)
-GroupItem addProperty(GroupItem grup)
-{
-GroupItem   last;
-    if !grup    return null;
-    if grup.parent  grup = new(grup);
-    if !propList    propList = new GroupList();
-    last                = propList.lastInList;
-    grup.parent         = this;
-    grup.isAttribute    = true;
-    grup.priorInParent  = last;
-    grup.nextInParent   = null;
-    if last     last.nextInParent = grup;
-    else        propList.firstInList = grup;
-    propList.lastInList = grup;
-    propList.listLength = propList.listLength + 1;
-    return grup;
-}
-
-// getProperty a name lookup on the property list only -- the artifact accessors ask here and nowhere else (stroke 3)
-GroupItem getProperty(String name)
-{
-GroupItem   entry;
-    if !name || !propList   return null;
-    entry = propList.firstInList;
-    while entry {
-        if entry.tag eq name    return entry;
-        entry = entry.nextInParent; }
-    return null;
-}
-
-// nextProperty walks the property list: null starts it, null ends it
-GroupItem nextProperty(GroupItem entry)
-{
-    if entry    return entry.nextInParent;
-    if propList return propList.firstInList;
-    return null;
-}
-
-// removeProperty unlinks grup when it is on this node's property list; answers whether it was
-int removeProperty(GroupItem grup)
-{
-GroupItem   entry;
-    if !grup || !propList   return 0;
-    entry = propList.firstInList;
-    while entry && entry != grup    entry = entry.nextInParent;
-    if !entry   return 0;
-    if grup.priorInParent   grup.priorInParent.nextInParent = grup.nextInParent;
-    else                    propList.firstInList = grup.nextInParent;
-    if grup.nextInParent    grup.nextInParent.priorInParent = grup.priorInParent;
-    else                    propList.lastInList = grup.priorInParent;
-    grup.nextInParent   = null;
-    grup.priorInParent  = null;
-    grup.parent         = null;
-    propList.listLength = propList.listLength - 1;
-    return 1;
-}
-
 /*****************************************************************************
                                 get
     Return nth component if it exists. Not efficient unless this is stakked.
@@ -1060,6 +1021,18 @@ void *getPointer()
 {
     if isPointer    return pointer;
 	return 0;
+}
+
+// getProperty a name lookup on the property list only -- the artifact accessors ask here and nowhere else (stroke 3)
+GroupItem getProperty(String name)
+{
+GroupItem   entry;
+    if !name || !propertyList   return null;
+    entry = propertyList.firstInList;
+    while entry {
+        if entry.tag eq name    return entry;
+        entry = entry.nextInParent; }
+    return null;
 }
 
 PLGrgx getRegex()
@@ -1398,6 +1371,14 @@ GroupItem nextMember(GroupItem current)
     return current;
 }
 
+// nextProperty walks the property list: null starts it, null ends it
+GroupItem nextProperty(GroupItem entry)
+{
+    if entry    return entry.nextInParent;
+    if propertyList return propertyList.firstInList;
+    return null;
+}
+
 /***************************************************************************
                                 parse
     Treat this field as a rule and match it against the input stream.
@@ -1651,6 +1632,25 @@ GroupItem remove(String name)
 GroupItem   group = getFromList(name);
     if group group.remove();
     return  group;
+}
+
+// removeProperty unlinks grup when it is on this node's property list; answers whether it was
+int removeProperty(GroupItem grup)
+{
+GroupItem   entry;
+    if !grup || !propertyList   return 0;
+    entry = propertyList.firstInList;
+    while entry && entry != grup    entry = entry.nextInParent;
+    if !entry   return 0;
+    if grup.priorInParent   grup.priorInParent.nextInParent = grup.nextInParent;
+    else                    propertyList.firstInList = grup.nextInParent;
+    if grup.nextInParent    grup.nextInParent.priorInParent = grup.priorInParent;
+    else                    propertyList.lastInList = grup.priorInParent;
+    grup.nextInParent   = null;
+    grup.priorInParent  = null;
+    grup.parent         = null;
+    propertyList.listLength = propertyList.listLength - 1;
+    return 1;
 }
 
 /*****************************************************************************
