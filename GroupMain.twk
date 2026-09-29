@@ -188,23 +188,27 @@ GroupRules  ruler = groupRules;
     item            = strap +% item;
     modify(item,"-?");
 
+    strap           = grok += "QuotE1";
+    setRuleStuff();
+    item            = strap +% new("tik");
+    item.text       = "\"";
+    item            = strap +% new("quoteBody");
+    item.text       = "\"";
+    modify(item,"}");
+
+    strap           = grok += "QuotE2";
+    setRuleStuff();
+    item            = strap +% new("tik");
+    item.text       = "'";
+    item            = strap +% new("quoteBody");
+    item.text       = "'";
+    modify(item,"}");
+
     strap           = grok += "QuotE";
     setRuleStuff();
-    item            = new("tik");
-    item.characterSet    = new("'\"");
-    item            = strap +% item;
-    item.setRuleStuff();
-    item            = new("quoteBody");
-    item            = strap +% item;
-    modify(item,"}");
-    strap           = item;
-    item            = new("tik");
-    group           = item;
-    item            = gGroup;
-    modify(item,"$");
-    // actorAfterTerms the actor follows the rule's real terms (stroke 3a); strap is quoteBody here, so name the rule
-    item            = grok/QuotE;
-    item.setActions();
+    strap           += grok/QuotE1;
+    strap           += grok/QuotE2;
+    strap.setActions();
 
     strap           = grok += "NamE";
     setRuleStuff();

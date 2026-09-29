@@ -213,9 +213,9 @@ GroupItem 	*holder = actionHolder();
 
 /***************************************************************************
                                 actionHolder
-    // actionHolder the node that HOLDS this one's action body: the builtinActoR carrier once it
-    // actionHolder has taken CodE, and otherwise this. THE CodE's PRESENCE IS THE TEST, never the
-    // actionHolder carrier's -- an uncoded rule carries a builtinActoR holding only a method
+    The node that HOLDS this one's action body: the builtinActoR carrier once it
+    has taken CodE, and otherwise this. THE CodE's PRESENCE IS THE TEST, never the
+    carrier's -- an uncoded rule carries a builtinActoR holding only a method
 ***************************************************************************/
 GroupItem *GroupItem::actionHolder()
 {
