@@ -26,6 +26,15 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 - **Seen:** 2026-09-28.
 - **Re-measured 2026-09-29 (SEQ 224, F-O38 closed by `+<`):** pendingParseR 30,208 -> **0**. But the site still skips **120 locals** -- `this` 60 and `tempField` 60, on coded rules (JSONfield 42+42, JSONarray 9+9, ScafA 4+4, list 3+3, ask 2+2). **So it is NOT deletable as it stands:** it has become a LOCAL skipper, the same class as `setParseWalk`, `compile` x2 and `dupTermRefusal`, which stay by ruling. Leave the entry for Tony to strike or keep.
 
+### `parse()`'s `definer` and `defStuff`
+- **What/where:** `GroupItem.twk` parse(), `definer = instanceRule(); defStuff = definer.rStuff;` (the two locals and their
+  declarations).
+- **Why deletable:** assigned and never read -- in the .twk and in the generated `GroupItem.mm`. Stroke 4.3 family 2 switched the
+  first line from definingRule() and measured 1,227,517 changed answers across the checklist with the fleet row for row,
+  which is only possible because nothing reads it.
+- **Confirm:** delete both, retok, the generated parse() loses exactly those four lines, fleet row for row.
+- **Seen:** 2026-09-29.
+
 ## Seeded, already gone
 
 Seeded 2026-09-28 from the dispatch. A source census shows each was already deleted, so there is nothing to cut.
