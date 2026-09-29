@@ -1792,8 +1792,6 @@ continueHere:
 		ruleStuff->sukcess = 0;
 		if ( !ruleStuff->checkInput() )
 			goto matchFailed;
-		if ( ruleStuff->hasMacro )
-			::setMacroValue(this);
 		/*******************************************************************
 		Run the matches that determine if this rule succeeds
 		//runParseMatches

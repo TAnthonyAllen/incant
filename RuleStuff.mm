@@ -39,26 +39,6 @@ GroupItem 	*got = 0;
 	return got;
 }
 
-// setMacroValue copy into the macro the data of the nearest ancestor label with the same tag
-extern "C" int setMacroValue(GroupItem *field)
-{
-RuleStuff 	*ruleStuff = field->getRStuff();
-GroupItem 	*grup = 0;
-GroupItem 	*macro = field->getGroup();
-GroupItem 	*ancestor = 0;
-	if ( ruleStuff->parentStuff )
-		ancestor = ruleStuff->parentStuff->label;
-	if ( ancestor )
-		while ( grup = ancestor->next(grup) )
-			if ( ::compare(macro->groupBody->tag,grup->groupBody->tag) == 0 )
-				{
-				macro->copyData(grup);
-				return 1;
-				}
-	::fprintf(stderr,"setMacroValue: could not find macro for %s\n",field->groupBody->tag);
-	return 0;
-}
-
 // testAction the old road's test for a parseAction rule -- an installed rule runs its leaf
 extern "C" int testAction(GroupItem *field)
 {
@@ -401,7 +381,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	followed = 0;
 	guardOK = 0;
 	guardFAIL = 0;
-	hasMacro = 0;
 	inProcess = 0;
 	isOK = 0;
 	isOption = 0;
@@ -449,7 +428,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	followed = 0;
 	guardOK = 0;
 	guardFAIL = 0;
-	hasMacro = 0;
 	inProcess = 0;
 	isOK = 0;
 	isOption = 0;
@@ -580,12 +558,7 @@ void RuleStuff::getWhatFollows()
 GroupItem 	*grup = 0;
 	followed = 1;
 	if ( isGROUP(rule->groupBody->flags.data) )
-		{
-		grup = rule->getGroup();
-		if ( grup->groupBody->flags.isMacro )
-			hasMacro = 1;
-		else	onGroup = grup;
-		}
+		onGroup = rule->getGroup();
 	if ( isMember(rule->options.affiliation) && !rule->parent->groupBody->flags.binType )
 		{
 		isTarget = 1;
@@ -630,9 +603,6 @@ void RuleStuff::setTestMatch()
 			default:
 				testMatch = ::testString;
 			}
-	else
-	if ( rule->groupBody->flags.isMacro )
-		testMatch = ::setMacroValue;
 	else
 	if ( rule->groupBody->flags.isCondition )
 		testMatch = ::testCondition;

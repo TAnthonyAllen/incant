@@ -1829,23 +1829,6 @@ GroupItem 	*holder = 0;
 	if ( !pending && !isCoded(field->groupBody->flags.actionType) )
 		return 0;
 	// any rule without parseRule as its method will exit here
-	// pendingToProperties the kant generator attaches the carrier and its CodE with +%, which lands among the terms; they are artifacts, so they move to the property lists here (stroke 3)
-	if ( pending && !field->getProperty("pendingParseR") )
-		{
-		pending->remove();
-		pending->parent = 0;
-		pending = field->addProperty(pending);
-		}
-	if ( pending && !pending->getProperty("CodE") )
-		{
-		code = pending->getAttribute("CodE");
-		if ( code )
-			{
-			code->remove();
-			code->parent = 0;
-			pending->addProperty(code);
-			}
-		}
 	if ( pending )
 		holder = pending;
 	else	holder = field->parseHolder();

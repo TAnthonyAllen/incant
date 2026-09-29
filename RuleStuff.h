@@ -29,7 +29,6 @@ struct
 	unsigned int followed:1;
 	unsigned int guardOK:1;
 	unsigned int guardFAIL:1;
-	unsigned int hasMacro:1;
 	unsigned int inProcess:1;
 	unsigned int isOK:1;
 	unsigned int isOption:1;
@@ -56,7 +55,6 @@ void getWhatFollows();
 void setTestMatch();
 };
 extern "C" GroupItem *parseR(GroupItem *term, GroupItem *into);
-extern "C" int setMacroValue(GroupItem *field);
 extern "C" int testAction(GroupItem *field);
 extern "C" int testAny(GroupItem *field);
 extern "C" int testAttributes(RuleStuff *stuff);
