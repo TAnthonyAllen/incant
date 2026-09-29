@@ -98,6 +98,7 @@ RuleStuff *getStuff(RuleStuff *pStuff);
 char *getText();
 void insertAfter(GroupItem *grup);
 GroupItem *insertGroup(GroupItem *grup);
+GroupItem *instanceRule();
 int isRuleTerm();
 int isUnGuarded();
 void makeRegistry();

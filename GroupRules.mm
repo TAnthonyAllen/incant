@@ -3134,7 +3134,7 @@ extern "C" int hasRepeatClass(char *modifier)
 // installParseMethod park the face's parseMethod on its defining rule; min and max stay on the face, only the method is a fact of the shape
 extern "C" void installParseMethod(GroupItem *field)
 {
-GroupItem 	*definer = field->definingRule();
+GroupItem 	*definer = field->instanceRule();
 RuleStuff 	*faceStuff = field->getRStuff();
 RuleStuff 	*defStuff = 0;
 	if ( !definer || definer == field )
@@ -10397,7 +10397,7 @@ exitRunAction:
 // runLeafParse fire a leaf's parse method through its defining rule; a missing method is a named refusal, never a call
 extern "C" GroupItem *runLeafParse(GroupItem *field)
 {
-GroupItem 	*definer = field->definingRule();
+GroupItem 	*definer = field->instanceRule();
 RuleStuff 	*defStuff = 0;
 	if ( definer )
 		defStuff = definer->getRStuff();

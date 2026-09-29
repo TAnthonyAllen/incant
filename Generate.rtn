@@ -46,7 +46,7 @@ RuleStuff   ruleStuff = rStuff;
 // installParseMethod park the face's parseMethod on its defining rule; min and max stay on the face, only the method is a fact of the shape
 extern void installParseMethod(GroupItem field)
 {
-GroupItem   definer = field.definingRule();
+GroupItem   definer = field.instanceRule();
 RuleStuff   faceStuff = field.rStuff,
             defStuff;
     if !definer || definer == field     return;
@@ -357,7 +357,7 @@ RuleStuff   ruleStuff = field.rStuff;
 // runLeafParse fire a leaf's parse method through its defining rule; a missing method is a named refusal, never a call
 extern GroupItem runLeafParse(GroupItem field)
 {
-GroupItem   definer = field.definingRule();
+GroupItem   definer = field.instanceRule();
 RuleStuff   defStuff;
     if definer      defStuff = definer.rStuff;
     // instanceFirst the reference's own { } before the rule's method -- the same read as driveStep's (F-O23)
