@@ -39,6 +39,7 @@ define
     debugGuard immediateAction=debugOnGuard noPrint;
     defer immediateAction=processFlags noPrint;
     definersOf immediateAction;
+    ruleOfCensus immediateAction;
     dumpContents immediateAction;
     evictAction immediateAction;
     exit immediateAction=processFlags;

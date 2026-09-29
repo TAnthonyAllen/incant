@@ -123,6 +123,56 @@ extern int closeFile(GroupItem bufField)
 }
 
 
+// ruleOfCensus the instance -> rule link's invariants over every node reachable from the registries (terms AND properties) and from the argument: ruleOf set exactly where isCopy is, never aimed at a copy, same body; lists the cross-registry copies with what they wrote into the shared body (stroke 4.1); prints unconditionally
+extern GroupItem ruleOfCensus(GroupItem input)
+{
+GroupRules  ruler = groupRules;
+    -%
+    static GroupItem **seen = 0; static long cap = 0; long used = 0;
+    if ( !seen ) { cap = 1 << 20; seen = (GroupItem**)::calloc(cap,sizeof(GroupItem*)); }
+    else ::memset(seen,0,cap * sizeof(GroupItem*));
+    GroupItem **stack = (GroupItem**)::malloc(sizeof(GroupItem*) * cap); long sp = 0;
+    long labels = 0, nodes = 0, copies = 0, setNoCopy = 0, copyNoSet = 0, toCopy = 0, bodyMis = 0;
+    GroupItem *regs = ruler->registries;
+    if ( regs ) stack[sp++] = regs;
+    if ( input ) stack[sp++] = input;
+    while ( sp > 0 ) {
+        GroupItem *n = stack[--sp];
+        if ( !n ) continue;
+        unsigned long h = ((unsigned long)n >> 4) & (cap - 1);
+        while ( seen[h] && seen[h] != n ) h = (h + 1) & (cap - 1);
+        if ( seen[h] == n || used > cap / 2 ) continue;
+        seen[h] = n; used++; nodes++;
+        if ( n->groupBody->groupList ) for ( GroupItem *c = n->groupBody->groupList->firstInList; c && sp < cap; c = c->nextInParent ) stack[sp++] = c;
+        if ( n->groupBody->propertyList ) for ( GroupItem *c = n->groupBody->propertyList->firstInList; c && sp < cap; c = c->nextInParent ) stack[sp++] = c;
+        GroupItem *L = n->ruleOf;
+        if ( n->options.isCopy ) copies++;
+        if ( n->groupBody->flags.isLabel ) labels++;
+        if ( L && !n->options.isCopy ) { setNoCopy++; if ( setNoCopy <= 5 ) ::fprintf(stderr,"  RULEOF set on a non-copy: %s@%p\n",n->groupBody->tag,n); }
+        if ( !L && n->options.isCopy ) { copyNoSet++; if ( copyNoSet <= 5 ) ::fprintf(stderr,"  RULEOF missing on a copy: %s@%p\n",n->groupBody->tag,n); }
+        if ( L && L->ruleOf ) { toCopy++; if ( toCopy <= 5 ) ::fprintf(stderr,"  RULEOF aims at a copy: %s@%p -> %s@%p\n",n->groupBody->tag,n,L->groupBody->tag,L); }
+        if ( L && L->groupBody != n->groupBody ) bodyMis++;
+        }
+    ::free(stack);
+    ::fprintf(stderr,"RULEOF nodes=%ld labels=%ld copies=%ld setOnNonCopy=%ld missingOnCopy=%ld aimsAtCopy=%ld bodyMismatch=%ld\n",nodes,labels,copies,setNoCopy,copyNoSet,toCopy,bodyMis);
+    int xr = 0;
+    if ( regs && regs->groupBody->groupList ) for ( GroupItem *rg = regs->groupBody->groupList->firstInList; rg; rg = rg->nextInParent )
+        if ( rg->groupBody->groupList ) for ( GroupItem *e = rg->groupBody->groupList->firstInList; e; e = e->nextInParent ) {
+            GroupItem *L = e->ruleOf;
+            if ( !L || !L->parent || L->parent == rg || L->parent->parent != regs ) continue;
+            xr++;
+            int kids = 0, kidsOfCopy = 0, props = 0, propsOfCopy = 0;
+            if ( e->groupBody->groupList ) for ( GroupItem *c = e->groupBody->groupList->firstInList; c; c = c->nextInParent ) { kids++; if ( c->parent == e ) kidsOfCopy++; }
+            if ( e->groupBody->propertyList ) for ( GroupItem *c = e->groupBody->propertyList->firstInList; c; c = c->nextInParent ) { props++; if ( c->parent == e ) propsOfCopy++; }
+            ::fprintf(stderr,"  RULEOF XREG %s/%s <- %s/%s  terms=%d (written through the copy %d)  properties=%d (through the copy %d)  isRule=%d binType=%d instructType=%d actionType=%d\n",
+                rg->groupBody->tag,e->groupBody->tag,L->parent->groupBody->tag,L->groupBody->tag,kids,kidsOfCopy,props,propsOfCopy,
+                (int)e->groupBody->flags.isRule,(int)e->groupBody->flags.binType,(int)e->groupBody->flags.instructType,(int)e->groupBody->flags.actionType);
+            }
+    ::fprintf(stderr,"RULEOF cross-registry copies=%d\n",xr);
+    %-
+    return trueResult;
+}
+
 // definersOf every occurrence of a rule -- the registry entry and each term carrying its tag -- and whether definingRule() answers the REGISTRY's entry, as the shared-children invariant says it must (SEQ 216); prints the counts unconditionally
 extern GroupItem definersOf(GroupItem input)
 {

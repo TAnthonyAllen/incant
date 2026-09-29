@@ -145,6 +145,7 @@ int 	result = -1;
 *******************************************************************************/
 GroupItem::GroupItem()
 {
+	ruleOf = 0;
 	parent = 0;
 	nextInParent = 0;
 	priorInParent = 0;
@@ -163,6 +164,7 @@ GroupItem::GroupItem()
 ******************************************************************************/
 GroupItem::GroupItem(GroupItem *grup)
 {
+	ruleOf = 0;
 	parent = 0;
 	nextInParent = 0;
 	priorInParent = 0;
@@ -170,6 +172,10 @@ GroupItem::GroupItem(GroupItem *grup)
 	jitData = 0;
 	groupBody = grup->groupBody;
 	options.isCopy = 1;
+	// rootLink every copy points at the ORIGINAL -- a copy of a copy takes its source's ruleOf, never the intermediate (stroke 4.1)
+	if ( grup->ruleOf )
+		this->ruleOf = grup->ruleOf;
+	else	this->ruleOf = grup;
 	if ( grup->rStuff )
 		{
 		rStuff = new RuleStuff(this);
@@ -181,6 +187,7 @@ GroupItem::GroupItem(GroupItem *grup)
 
 GroupItem::GroupItem(char *c)
 {
+	ruleOf = 0;
 	parent = 0;
 	nextInParent = 0;
 	priorInParent = 0;
