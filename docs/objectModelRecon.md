@@ -770,3 +770,95 @@ incantation."*; without it each reads its own tag (no data). The command still d
 operator-side readers (`unaryIsAccess`'s `accessClass`, `shortCircuit`, `isOR`) ask by other names. **Inert as far as a
 source census can tell; not run-measured.** The reverse sharing is inert the same way: the Modifiers copies carry the
 operators' method bindings and flags, and `modifierIsRepeat` reads nothing but `repeatClass`.
+
+---
+
+## 19. R2 try-and-buy: a definition's own name resolves in the current registry (2026-09-29, SEQ 229, branch `om-r2-ownname`, NOT merged)
+
+**Built** (`974c304`, then `0332caa`): one test at the top of `aCTionDefinE`, ahead of both registry arms and the member road --
+a `NewGroup` found in ANOTHER registry mints a fresh node of its name. `0332caa` adds two things: a **repair** and a
+**measurement knob**.
+- **The repair is part of any build of R2.** `aCTionNewGroup` sets `currentDefine` to the resolved node before `aCTionDefinE`
+  runs, and the end-of-define clear compares BODIES, so a fresh node left `currentDefine` stuck and every later definition in
+  that (non-rule) registry was read as "adding members" -- every action after it did nothing. The fresh mint must take over
+  `currentDefine`. **Every run before the repair (variants A, C, D) is void** and is not reported.
+- **The knob** `OMFRESHONLY="|Registry/name|..."` limits the mint to the named cases, so each case was measured alone on one
+  binary; unset = R1 exactly as ruled.
+
+### 19a. Fleet (pop.sh against trunk's 855 / 1)
+
+| run | fresh cases | pop.sh | notes |
+|---|---|---|---|
+| **A' -- R1 exactly as ruled** | all 47 | **391 / 1** | jitLadder: `jitDfProbe`, `jitJD` hung (watchdog-killed) |
+| **E3 -- all but the 7 that need content (19b/c)** | 40 | **844 / 1** | 11 rows moved, each named below; decodePop, ddPop, countPop, printPop, frontier **identical**; jitLadder FAILED |
+
+**E3's 11 movers:** `chainTruthT` x5 (exit 2 -- `Utilities/parser`, F-O33 moved, 19d); `retProbe` bare return (`Grokking/return`);
+`testPrecedence` (`-`, `--`); `andProbe` AP-5b (`!`); `cursorReadTb` B (19f, expected); `ruleOfT` RO-4 (expected -- the 17
+cross-registry copies are now fresh; only `Keywords/new` remains); the audit's "missing rules" 6 -> 3 (the fresh
+`break`/`continue`/`return` in Grokking now carry rStuff). **jitLadder under E3:** `-` alone fails JM4; `--` alone fails JU and
+hangs JD; `!` alone passes; JR, JRt2, JA (139), JM1 fail only with the five UnaryOPS members fresh together.
+
+⚠ **Instrument note (H16):** `chainTruthT`'s output differs between three identical runs, so it was bisected by EXIT STATUS,
+which is stable; `retProbe`, `andProbe`, `testPrecedence` were checked deterministic before use. The jit ladder has no
+per-fixture wall-clock cap (pop.sh's H5 `POPCAP` does not reach it) -- `jitJD` under `--` ran 27 minutes until killed.
+
+### 19b. The 6 intended instances -- fresh works, or what breaks
+
+| case | fresh | verdict |
+|---|---|---|
+| `Grokking/break`, `continue` (BrancheS) | loops with `break`/`continue` correct; jitLadder passes | **name only** |
+| `Grokking/return` | a bare `return;` no longer yields the prior statement's value (retProbe 44 -> ''); valued returns and jitLadder fine | **content needed** (that semantic) |
+| `Keywords/define` | every probe and the fleet unmoved | **name only** |
+| `Keywords/new` | `new("x")` stops minting | **content needed** -- the command behind it |
+| Token's `Operators;` | every binary operator dies (`3 + 4` -> 0) | **content needed** -- the registry itself |
+
+### 19c. Setup's 10 member-road cases -- all 10 are intended
+
+`pROPERTIEs`' `UnaryOPS bin` members ARE the unary operators (`TokenXP UnaryOPS? …`); `Utilities`' `JSONtoken` members are the
+JSON grammar's references to Grokking's `GrouP` and `NumbeR`.
+
+| member | fresh | verdict |
+|---|---|---|
+| `*`, `$$` | unaryClassT, the canaries and the ladder unmoved | name only |
+| `.` | unaryClassT moves; `*x.taG` fails | content |
+| `++` | argRoundT, jsonTest, probeDoorT all move -- it is `iterate`'s advance | content |
+| `@` | probeDoorT moves | content |
+| `-` | testPrecedence; jitLadder JM4 | content |
+| `--` | testPrecedence; jitLadder JU, JD hangs | content |
+| `!` | andProbe AP-5b | content |
+| `JSONtoken/GrouP`, `NumbeR` | jsonTest moves | content |
+
+### 19d. F-O40 and F-O41 -- NOT fixed on the branch; F-O33 MOVES
+
+**The contamination happens before `aCTionDefinE`.** A definition's value is written by `aCTionTraiT`
+(`trait.setContent(TraiTdata)`, `trait = input[1]` -- the RESOLVED node) during the parse, so the original is already written
+when R1's test runs. Measured on the branch: `Grokking["counter"]` still reads `0`; `cOMMANDs["stop"]` still carries the
+DesignDocs prose. **And the fresh definitions LOSE their values**: `UnitTests["counter"]` reads no data (it read `0` on trunk).
+So R1 at `aCTionDefinE` cannot fix a value-carrying capture; the resolution has to be decided before TraiT writes.
+
+**F-O33 moves rather than resolves:** the Utilities action `parser` was sharing the fILEs entry's body, so its value WAS the
+include path; fresh, it shadows the file entry and `include(parser)` fails (`getFile: could not open file: parser`), which is
+chainTruthT's exit 2.
+
+### 19e. Same-registry alternation still references its rules
+
+Under E3 `definersOf` reads, exactly as on trunk: `Braced`, `Parens`, `InvokeArg`, `BrancheS` each **occurrences=2 registry=2
+others=0**; the loop / return / operator / `new` probes read 4/3, 9, 7, minted.
+
+### 19f. cursorReadTb's `taG="ENCLOSING"` arm
+
+On trunk the define-block `taG` is a **copy of the GroupFields accessor entry** (its value lands in the accessor's body): the
+walk reads `bare= 0 explicit= 1` twice, walked 2. Fresh, it is a real CursorRead field named `taG` -- what the arm says it tests
+-- and **the walk reads 0 members** (want 2): a same-registry field named `taG` shadows the accessor for that registry's
+actions, so the iterate body cannot read its cursor's tag. The arm stops measuring "both spellings shadowed" and starts
+measuring "a local `taG` kills the walk".
+
+### 19g. What this means for R2's shape (input, not a ruling)
+
+Seven cases need the original's CONTENT (`Operators;`, `new`, `.`, `++`, `@`, `-`, `--`, `!`, JSONtoken's two -- nine counting
+the unaries singly, plus `return`'s bare-value semantic), five need only the name, and the value-carrying captures (F-O40,
+F-O41) are written before `aCTionDefinE` can intervene. **Every content case is a bare reference** (`x;` with no value,
+attributes or code); every contaminating case brings content. A spelling that treats a bare member as a reference and a
+definition with content as its own entry would keep all the intended cases -- but the contamination fix still has to move
+earlier than `aCTionDefinE`, to the point where the definition's own name is resolved (`aCTionNamE` under `NewGroup`, or
+`aCTionTraiT`'s write).
