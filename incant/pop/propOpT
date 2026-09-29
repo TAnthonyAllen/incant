@@ -65,12 +65,11 @@ reads it back, and that =< answers the one collision a subscript cannot.
 ROWS
   PO-1  host =< "poKid" after host +< poKid        KID       the filed property, read back by value
   PO-2  host =< "zzzNotAProperty"                  0         a miss
-  PO-3  host =% "poKid"                            poKid     FINDING, pinned: =% ALSO reads a property. opGetAttribute
-                                                             is getAttribute, which is get(name) filtered by
-                                                             isAttribute -- and get falls back to the property list
-                                                             (stroke 3) while addProperty sets isAttribute. So =%
-                                                             cannot tell a term from a property; it is not proof of
-                                                             where +< filed.
+  PO-3  host =% "poKid"                            poKid     INTENDED (SEQ 225 R1): =% and the subscript read BY
+                                                             NAME, terms first, then properties; =< reads
+                                                             properties only. (getAttribute is get(name) filtered
+                                                             by isAttribute; addProperty sets isAttribute.) So =%
+                                                             is not proof of where +< filed -- PO-4 is.
   PO-4  walk of host's terms                       poTerm    THE groupList PROOF: only the +% child is a term, so
                                                              +< did not land among the terms; non-empty, so the
                                                              walk is live

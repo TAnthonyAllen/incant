@@ -26,12 +26,6 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 - **Seen:** 2026-09-28.
 - **Re-measured 2026-09-29 (SEQ 224, F-O38 closed by `+<`):** pendingParseR 30,208 -> **0**. But the site still skips **120 locals** -- `this` 60 and `tempField` 60, on coded rules (JSONfield 42+42, JSONarray 9+9, ScafA 4+4, list 3+3, ask 2+2). **So it is NOT deletable as it stands:** it has become a LOCAL skipper, the same class as `setParseWalk`, `compile` x2 and `dupTermRefusal`, which stay by ruling. Leave the entry for Tony to strike or keep.
 
-### `compile`'s pending-carrier re-filing block
-- **What/where:** `Commands.rtn:56-68` (`pendingToProperties`): moves a `pendingParseR` carrier found among a rule's terms to its property list, and its `CodE` likewise.
-- **Why deletable:** the only writer of the carrier, `IncantForms/WorkingOn/parser:43-44`, now files both with `+<` (SEQ 224), so the carrier should always arrive on the property list and neither move should fire.
-- **Confirm:** a temporary log on each move's body across the full checklist (pop.sh, jitLadder, printPop, decodePop, ddPop, countPop, frontier) must read 0 with the enclosing `if pending` arrivals present, then removal with the fleet row for row. **Not measured yet.**
-- **Seen:** 2026-09-29.
-
 ## Seeded, already gone
 
 Seeded 2026-09-28 from the dispatch. A source census shows each was already deleted, so there is nothing to cut.
@@ -43,4 +37,9 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 
 ## Done
 
-*(none yet)*
+### `compile`'s pending-carrier re-filing block -- DELETED 2026-09-29 (SEQ 225 item 2)
+- **Was:** `Commands.rtn:56-68` (`pendingToProperties`), moving a `pendingParseR` carrier and its `CodE` from the
+  terms to the property lists.
+- **Measured before the cut:** a temporary log across the whole checklist (pop.sh, jitLadder, decodePop, ddPop,
+  countPop, printPop, frontier): **4,307 arrivals with a carrier present, 0 carrier moves, 0 CodE moves** --
+  `parser:43-44` file both with `+<` since SEQ 224. Deleted with the fleet row for row.

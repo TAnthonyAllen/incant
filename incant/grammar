@@ -41,7 +41,6 @@ FloaT               point="." decimals=[0-9]+ PoweR?;
     tokenize term at all, so these lines no longer describe them.
 NumbeR              numberSet=[0-9]+ FloaT?;
 DefinE;
-QuotE               tik=['"] quoteBody}=tik$@;
 NamE                first-=[a-zA-Z] nameSet-^*;
 GrouP
     NamE;

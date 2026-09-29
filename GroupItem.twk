@@ -1402,7 +1402,6 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
 continueHere:
         sukcess     = false;
         if !checkInput()    goto matchFailed;
-        if hasMacro         setMacroValue(this);
         /*******************************************************************
             Run the matches that determine if this rule succeeds
             //runParseMatches

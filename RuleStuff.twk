@@ -28,7 +28,6 @@ boolean
     followed
     guardOK
     guardFAIL
-    hasMacro
     inProcess
     isOK
     isOption
@@ -146,10 +145,8 @@ void getWhatFollows()
 GroupItem   grup;
 use rule
     followed    = true;
-    if isGROUP {
-        grup    = group;
-        if grup.isMacro     hasMacro = true;
-        else    onGroup     = grup; }
+    if isGROUP
+        onGroup     = group;
     if isMember && !parent.binType {
         isTarget    = true;
         if grup = followingMember() onFail = grup; }
@@ -173,7 +170,6 @@ void setTestMatch()
             case isGROUP:   testMatch = null;
             default:        testMatch = testString;
             }
-    or isMacro              testMatch = setMacroValue;
     or isCondition          testMatch = testCondition;
     or parseACTION          testMatch = testAction;
     or !contents()
@@ -198,23 +194,6 @@ GroupItem   got;
         if got  cerr "  parseR term=",term.tag," -> attached as ",got.tag," under ",into.tag:;
         else    cerr "  parseR term=",term.tag," -> NULL (no attachment)":; }
     return got;
-}
-
-// setMacroValue copy into the macro the data of the nearest ancestor label with the same tag
-extern int setMacroValue(GroupItem field)
-{
-RuleStuff   ruleStuff = rStuff;
-GroupItem   grup,
-            macro = group;
-GroupItem   ancestor;
-    if parentStuff  ancestor = parentStuff.label;
-    if ancestor
-        while grup = ancestor.next(grup)
-            if macro.tag eq grup.tag {
-                macro.copyData(grup);
-                return true; }
-    cerr "setMacroValue: could not find macro for",field.tag:;
-    return false;
 }
 
 // limitAtTop the ceiling is tested at the TOP of the loop so a cut at max is reportable; tester is substituted exactly once (bear-trap #18)

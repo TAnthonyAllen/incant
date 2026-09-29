@@ -55,17 +55,6 @@ GroupItem   code,
     // stagedCompile a regenerated body arrives as a PENDING carrier: compile it, and install it only when green -- the rule keeps its current body and isAction until then (SEQ 215, F-31's store-compile-verify-bind)
     pending = field["pendingParseR"];
     if !pending && !field.isCoded       return null;    // any rule without parseRule as its method will exit here
-    // pendingToProperties the kant generator attaches the carrier and its CodE with +%, which lands among the terms; they are artifacts, so they move to the property lists here (stroke 3)
-    if pending && !field.getProperty("pendingParseR") {
-        pending.remove();
-        pending.parent  = null;
-        pending         = field.addProperty(pending); }
-    if pending && !pending.getProperty("CodE") {
-        code    = pending.getAttribute("CodE");
-        if code {
-            code.remove();
-            code.parent = null;
-            pending.addProperty(code); }}
     if pending  holder = pending;
     else        holder = field.parseHolder();
     code    = holder.getProperty("CodE");

@@ -5494,8 +5494,9 @@ kindRow "propGetT PG-4 QuotE's terms, walked" "$(grep '^PG-4 ' "$T/pg.e" | awk '
 #  proof (only the +% child is a term). PO-5/PO-6 make the term/property collision answerable by VALUE (both nodes
 #  are tagged BlocK). PO-7..9: on the live grammar StatemenT's BlocK is a term and StatemenT carries no BlocK
 #  property at rest (its body sits on its builtinActoR carrier), while =< does reach its builtinActoR.
-#  PO-3 is a FINDING, pinned: =% reads a property too -- getAttribute is get(name) filtered by isAttribute, get falls
-#  back to properties (stroke 3), and addProperty sets isAttribute.
+#  PO-3 is INTENDED BEHAVIOUR (SEQ 225 R1, 2026-09-29): =% and the subscript read BY NAME -- terms first, then
+#  properties -- so =% answers the property here; =< reads properties only. Writes stay explicit (+% attributes, +<
+#  properties). Mechanism: getAttribute is get(name) filtered by isAttribute, and addProperty sets isAttribute.
 #  H7: on the commit before SEQ 224 (+< and =< unregistered) the fixture's first action does not parse -- every
 #  row below is red.
 run2 propOpT "$T/po.o" "$T/po.e"; check "propOpT runs" 0 $?
@@ -5503,13 +5504,27 @@ sentinel "propOpT sentinel" "$T/po.e" "PROPOP SENTINEL"
 _po () { grep "^$1 " "$T/po.e" | awk '{print $NF}' | tr '\n' ' ' | sed 's/ $//'; }
 kindRow "propOpT PO-1 +< files, =< reads it back by value" "$(_po PO-1)" "KID"
 kindRow "propOpT PO-2 =< a miss reads 0" "$(_po PO-2)" "0"
-kindRow "propOpT PO-3 =% ALSO reads a property (finding, pinned)" "$(_po PO-3)" "poKid"
+kindRow "propOpT PO-3 =% reads by name: terms first, then properties (intended, SEQ 225 R1)" "$(_po PO-3)" "poKid"
 kindRow "propOpT PO-4 host's terms are the +% child only -- +< is not on groupList" "$(_po PO-4)" "poTerm"
 kindRow "propOpT PO-5 collision: host[BlocK] answers the TERM" "$(_po PO-5)" "TERM"
 kindRow "propOpT PO-6 collision: host =< BlocK answers the PROPERTY" "$(_po PO-6)" "PROP"
 kindRow "propOpT PO-7 StatemenT[BlocK] is the grammar term" "$(_po PO-7)" "BlocK"
 kindRow "propOpT PO-8 StatemenT =< BlocK: no BlocK property at rest" "$(_po PO-8)" "0"
 kindRow "propOpT PO-9 StatemenT =< builtinActoR reaches its real property" "$(_po PO-9)" "builtinActoR"
+
+#  ---- macroStrip: THE RULE-SIDE isMacro CENSUS, PINNED (SEQ 225, 2026-09-29) ----
+#  The rule side of isMacro is stripped: RuleStuff.hasMacro, getWhatFollows' and setTestMatch's isMacro arms,
+#  parse()'s setMacroValue call, and setMacroValue itself; incant/grammar's `$` QuotE line with them. The count
+#  was measured ZERO first -- W1 0, RR1 0/257, RR2 0/258, RR3 0/258 across the fleet (0f24004's certificate).
+#  MX-1 is the source census of the stripped names and must read 0. MX-2 is its non-zero sibling: the isMacro
+#  sites that STAY -- modify's `$` arm (Tony, 2026-09-28), the `macro` command, aCTionDefinE's three macro-
+#  definition reads, and the GroupBody flag -- so a grep that silently matched nothing cannot pass MX-1.
+#  H7: on the commit before the strip MX-1 reads 9 (7 hasMacro/setMacroValue lines + 2 isMacro arms).
+_msR=$(cat *.twk *.rtn | grep -cE 'hasMacro|setMacroValue')
+_msR=$((_msR + $(cat RuleStuff.twk GroupItem.twk | grep -c 'isMacro')))
+_msN=$(cat *.twk *.rtn | grep -c 'isMacro')
+kindRow "macroStrip MX-1 rule-side hasMacro/setMacroValue/isMacro sites in source" "$_msR" "0"
+kindRow "macroStrip MX-2 the non-rule isMacro sites that stay (anti-vacuity for MX-1)" "$_msN" "6"
 
 #  ---------------------------------------------------------------------------
 #  ruleTermT -- OBJECT MODEL STROKE 2: "this term takes part as a rule term" is the REFERENCE'S fact (rStuff
