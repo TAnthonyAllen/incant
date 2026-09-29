@@ -5489,6 +5489,28 @@ kindRow "propGetT PG-2 a missing name reads 0" "$(grep '^PG-2 ' "$T/pg.e" | awk 
 kindRow "propGetT PG-3 a term reads by subscript (non-zero sibling of PG-2)" "$(grep '^PG-3 ' "$T/pg.e" | awk '{print $NF}')" "QuotE1"
 kindRow "propGetT PG-4 QuotE's terms, walked" "$(grep '^PG-4 ' "$T/pg.e" | awk '{print $NF}' | tr '\n' ' ')" "QuotE1 QuotE2 "
 
+#  ---- propOpT: THE PROPERTY OPERATORS +< (addProperty) AND =< (getProperty) (SEQ 224, 2026-09-29) ----
+#  +< files on the property list, never among the terms; =< reads it back; a miss reads 0. PO-4 is the groupList
+#  proof (only the +% child is a term). PO-5/PO-6 make the term/property collision answerable by VALUE (both nodes
+#  are tagged BlocK). PO-7..9: on the live grammar StatemenT's BlocK is a term and StatemenT carries no BlocK
+#  property at rest (its body sits on its builtinActoR carrier), while =< does reach its builtinActoR.
+#  PO-3 is a FINDING, pinned: =% reads a property too -- getAttribute is get(name) filtered by isAttribute, get falls
+#  back to properties (stroke 3), and addProperty sets isAttribute.
+#  H7: on the commit before SEQ 224 (+< and =< unregistered) the fixture's first action does not parse -- every
+#  row below is red.
+run2 propOpT "$T/po.o" "$T/po.e"; check "propOpT runs" 0 $?
+sentinel "propOpT sentinel" "$T/po.e" "PROPOP SENTINEL"
+_po () { grep "^$1 " "$T/po.e" | awk '{print $NF}' | tr '\n' ' ' | sed 's/ $//'; }
+kindRow "propOpT PO-1 +< files, =< reads it back by value" "$(_po PO-1)" "KID"
+kindRow "propOpT PO-2 =< a miss reads 0" "$(_po PO-2)" "0"
+kindRow "propOpT PO-3 =% ALSO reads a property (finding, pinned)" "$(_po PO-3)" "poKid"
+kindRow "propOpT PO-4 host's terms are the +% child only -- +< is not on groupList" "$(_po PO-4)" "poTerm"
+kindRow "propOpT PO-5 collision: host[BlocK] answers the TERM" "$(_po PO-5)" "TERM"
+kindRow "propOpT PO-6 collision: host =< BlocK answers the PROPERTY" "$(_po PO-6)" "PROP"
+kindRow "propOpT PO-7 StatemenT[BlocK] is the grammar term" "$(_po PO-7)" "BlocK"
+kindRow "propOpT PO-8 StatemenT =< BlocK: no BlocK property at rest" "$(_po PO-8)" "0"
+kindRow "propOpT PO-9 StatemenT =< builtinActoR reaches its real property" "$(_po PO-9)" "builtinActoR"
+
 #  ---------------------------------------------------------------------------
 #  ruleTermT -- OBJECT MODEL STROKE 2: "this term takes part as a rule term" is the REFERENCE'S fact (rStuff
 #  ruleTerm), never the shared body's. Born RED on the writers-reverted build (the three copy-writers put

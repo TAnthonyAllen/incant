@@ -7231,6 +7231,20 @@ GroupItem 	*ptr = 0;
 }
 
 /***************************************************************************
+	Rule action for the +< addProperty operator: files the argument on the
+    target's property list, never among its terms (SEQ 224)
+***************************************************************************/
+extern "C" GroupItem *opAddProperty(GroupItem *argument, GroupItem *target)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	// storeRuling an armed statement stores nothing, as for +%
+	if ( ruler->refused )
+		return 0;
+	target->addProperty(argument);
+	return target;
+}
+
+/***************************************************************************
 	Rule action for the = assign operator. A byRef argument is stored BY
 	REFERENCE so the `=` does not undo the reference via setContent.
 	Everything else copies via setContent.
@@ -7866,6 +7880,16 @@ extern "C" GroupItem *opGetMember(GroupItem *argument, GroupItem *target)
 {
 char 	*strung = argument->getText();
 	return target->getMember(strung);
+}
+
+/***************************************************************************
+	Rule action for the =< getProperty operator: reads the target's property
+    list only, so a term of the same name cannot answer (SEQ 224)
+***************************************************************************/
+extern "C" GroupItem *opGetProperty(GroupItem *argument, GroupItem *target)
+{
+char 	*strung = argument->getText();
+	return target->getProperty(strung);
 }
 
 /***************************************************************************
