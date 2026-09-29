@@ -542,3 +542,41 @@ QuotE label, or `aCTionQuotE` reading the member -- is the ruling owed before th
 **Baseline for the certificate, old road (all correct):** `"it's" tail` 1/6 (ends at the `"`), `'it"s' tail` 1/6, `'abc'` 1/5,
 `"abc"` 1/5, `'++'` 1/4. **New road after `parser(DO)`:** `'abc'` 0/0 and `'++'` 0/0 (F-O25), and **every input containing
 `"` crashes, exit 139** -- F-O37.
+
+---
+
+## 15. Property operators: spelling census (2026-09-29, trunk `42007b9`, SEQ 223 item 3, read-only)
+
+Direction ruled (a pair calling addProperty / getProperty; `+%` / `=%` stay attributes-only); spelling NOT
+ruled. Candidates `+(` `=(` and `+<` `=<`. Population for (a): `incant/` (grammar and setup included,
+`attic/` excluded), `IncantForms/`, `Tests/`, unspaced `grep -F`.
+
+| | `+(` | `=(` | `+<` | `=<` |
+|---|---|---|---|---|
+| **(a) sites written today** | 0 | **610 -- every one is `name=(`, the `(…#)` define-literal opener** (define lines, plus a few in dead-region prose such as `first=(none)`); none in action/expression text | 0 | 2, both prose: `incant/pop/fireSeatT:57` (`pRule=<rule>`, dead region), `IncantForms/Notions/issues:25` (Tony's note proposing `=<`) |
+| **(b) in Operators today** (kant `*Operators["x"].taG`; controls `=%`, `+%` read back) | no | no | no | no |
+| **(c) with the pair registered** in `incant/setup` (temporary, bound to opAddAttribute / opGetAttribute; restored, md5 checked) | reads back `+(` | reads back `=(` | reads back `+<` | reads back `=<` |
+
+**(c) rows, identical registered and not, for BOTH pairs:** a `(…#)` define value (`hello there, world`); a
+`(…#)` value whose body contains `a=(b`, `c+<d`, `e=<f` and `g+(h`; a rule with a `<` noAdvance modifier,
+`ltT isRule one<-="a" two-="a"`, `tell("ltT a")` 1/1, with its control `ltN` (no `<`) 0/0. **And the whole
+fleet, row for row (834 / 1, addresses masked), under each pair** -- the 610 `=(` sites and the grammar's live
+`<` modifier (`followedBy<^-=notInNameSet`, `incant/grammar:88`) included.
+
+**Notes a reader needs, not a pick:** `+` is in the ShortcuT set (`[-+~`$_:,]+`, used only in `PrintXP`), so in
+print position ShortcuT takes the `+` of `+(` or `+<` -- exactly as it does for `+%` today. `=(` is the
+define-literal opener by spelling; registering it moved nothing, but it is the pair that shares characters with
+610 live sites. `<` is also a Modifier (`noAdvance`), so `+<` reads as two modifiers (`+` repeat, `<` noAdvance)
+in a grammar term's modifier string; no term writes that pair today.
+
+**(d) `field["<property>"]` through opGet:** yes -- `opGet` calls `target.get(String)` (read), which searches terms
+then properties (stroke 3); measured by `incant/pop/propGetT` (fleet), PG-1 `QuotE["builtinActoR"]` reads the
+actor. **Property names** (every `addProperty` writer): `builtinActoR`, `CodE`, `BlocK`, `frameSTAK`,
+`pendingParseR`, `builtinParseR`. **Collision with a term name: one -- `StatemenT` has a grammar term `BlocK`**
+(termCountT's walk of every Grokking rule's direct terms, at rest and after `parser(Start)`; nested terms are
+outside that population), so `StatemenT["BlocK"]` answers the term. No other property name is a term of any
+Grokking rule.
+
+**The F-O38 site** the build converts: `IncantForms/WorkingOn/parser:44`, `argument +% *bprCopy;` (the
+pendingParseR carrier). Line 43, `*bprCopy +% *codeCopy;`, is the carrier's CodE; compile re-files both today
+(`Commands.rtn:56-68`).
