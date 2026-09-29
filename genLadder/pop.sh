@@ -5537,12 +5537,24 @@ kindRow "macroStrip MX-2 the non-rule isMacro sites that stay (anti-vacuity for 
 #  copy aims at its source) RO-1 reads aimsAtCopy > 0; with the write removed, missingOnCopy == copies.
 run2 ruleOfT "$T/ro.o" "$T/ro.e"; check "ruleOfT runs" 0 $?
 sentinel "ruleOfT sentinel" "$T/ro.e" "RULEOF SENTINEL"
-kindRow "ruleOfT RO-1 invariants, three phases: set only on copies, on every copy, never on a copy's copy, same body" "$(grep -c 'setOnNonCopy=0 missingOnCopy=0 aimsAtCopy=0 bodyMismatch=0' "$T/ro.e")" "3"
+#  RE-PINNED 2026-09-29 (stroke 4.2, SEQ 228): isCopy is deleted, so RO-1 can no longer compare ruleOf with it. It
+#  asserts the ruleOf-only invariants instead: never aimed at a copy, same body as the original, and ONE ROOT PER BODY
+#  (rootConflict) -- only the copy constructor shares a body (census of `groupBody =` writes), so "set on every copy"
+#  becomes "every node on a shared body names the same original". The 4.1 form held (0 over three phases) the day
+#  before, which is what licenses the replacement. H7: root chase removed -> aimsAtCopy > 0; write removed ->
+#  rootConflict > 0 (every copy names itself as a second root).
+kindRow "ruleOfT RO-1 ruleOf-only invariants, three phases: never on a copy's copy, same body, one root per body" "$(grep -c 'aimsAtCopy=0 bodyMismatch=0 rootConflict=0' "$T/ro.e")" "3"
 _roc=$(grep -m1 '^RULEOF nodes' "$T/ro.e" | sed 's/.* copies=\([0-9]*\).*/\1/')
 kindRow "ruleOfT RO-2 copies at rest > 300 (anti-vacuity for RO-1)" "$([ "${_roc:-0}" -gt 300 ] && echo yes || echo "no ($_roc)")" "yes"
 _rol=$(grep '^RULEOF nodes' "$T/ro.e" | tail -1 | sed 's/.* labels=\([0-9]*\).*/\1/')
 kindRow "ruleOfT RO-3 labels in the walk after parser(Start) > 100 (anti-vacuity: labels were censused)" "$([ "${_rol:-0}" -gt 100 ] && echo yes || echo "no ($_rol)")" "yes"
 kindRow "ruleOfT RO-4 the 17 cross-registry copies, by name" "$(awk '/RO-PHASE rest/{f=1} /RO-PHASE tell/{f=0} f && /RULEOF XREG/ {print $3}' "$T/ro.e" | tr '\n' ' ')" "Grokking/break Grokking/continue Grokking/return Keywords/define Keywords/new Modifiers/! Modifiers/% Modifiers/& Modifiers/* Modifiers/+ Modifiers/- Modifiers/< Modifiers/? Modifiers/@ Modifiers/^ UnitTests/counter Utilities/parser "
+#  RO-5 (stroke 4.2, SEQ 228): isCopy is DELETED -- the zero-reader census. Every *.twk/*.rtn line naming isCopy, less
+#  comment lines and the three measure prints whose pinned `isCopy=%d` label now reports ruleOf (pointerT L5a/L5b), must
+#  read 0. RO-6 is its non-zero sibling: the code lines that name ruleOf (the copy constructor's write, the four switched
+#  readers, the measure prints, the census). H7: on stroke 4.1's commit RO-5 reads 12.
+kindRow "ruleOfT RO-5 isCopy code references in source (zero-reader census)" "$(cat *.twk *.rtn | grep 'isCopy' | grep -v 'isCopy=%d' | grep -vc '^[[:space:]]*//')" "0"
+kindRow "ruleOfT RO-6 ruleOf code lines in source (non-zero sibling of RO-5)" "$(cat *.twk *.rtn | grep -v '^[[:space:]]*//' | grep -c 'ruleOf')" "14"
 
 #  ---------------------------------------------------------------------------
 #  ruleTermT -- OBJECT MODEL STROKE 2: "this term takes part as a rule term" is the REFERENCE'S fact (rStuff

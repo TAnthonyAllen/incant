@@ -398,7 +398,7 @@ RuleStuff   ruleStuff = rStuff;
     // actionMethodRemoved the walk writes gMethod and parseMethod and NOTHING ELSE -- actionMethod is set at definition
     // realTermNotAList a FIELD with nothing but noPrint artifacts is a DATA rule: hasTraits and hasMembers ignore artifacts, groupList does not. The CONVERSION predicate is NOT this test -- it still asks the group's real groupList.
     // upToIsTheReferences a reference's { } is ITS fact, never the rule's -- only an inline definition (not a copy) classifies from its own overTo (F-O23)
-    if (upTo || upToOver) && !field.isCopy  parseMethod = parseUpTo;
+    if (upTo || upToOver) && !field.ruleOf  parseMethod = parseUpTo;
     or isBIN || isREGISTRY  parseMethod = parseContainer;
     or isCondition          parseMethod = parseCondition;
     or parseACTION          parseMethod = parseAction;

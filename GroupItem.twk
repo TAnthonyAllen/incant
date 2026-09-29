@@ -13,8 +13,7 @@ GroupItem	    parent,
 RuleStuff       rStuff;
 JitData         jitData;
 boolean GroupOptions {
-    affiliation:2[isAttribute isMember isEmbedded]
-    isCopy } options;
+    affiliation:2[isAttribute isMember isEmbedded] } options;
 #autoGetSet
 
 /*******************************************************************************
@@ -43,7 +42,6 @@ GroupItem(String c)
 GroupItem(GroupItem grup)
 {
     groupBody   = grup.groupBody;
-    isCopy      = true;
     // rootLink every copy points at the ORIGINAL -- a copy of a copy takes its source's ruleOf, never the intermediate (stroke 4.1)
     if grup.ruleOf  this.ruleOf = grup.ruleOf;
     else            this.ruleOf = grup;
@@ -1949,7 +1947,7 @@ int         asTerm = false;
         if registry && registry.isRule              isRule = true;
         or parent && parent.isRuleTerm()
             if !registry || registry == keyWords {
-                if isCopy   asTerm = true;
+                if ruleOf   asTerm = true;
                 else        isRule = true; }
     if !rStuff  rStuff = new(this);
     or rule != this {
