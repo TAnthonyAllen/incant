@@ -5137,7 +5137,7 @@ extern "C" GroupItem *jitFieldMethod(GroupItem *field)
 	GroupRules *ruler   = GroupControl::groupController->groupRules;
 	//  THE CANONICAL NODE. Everything below reads and writes THIS, never the
 	//  arriving wrapper -- see the definingRule() block in the header.
-	GroupItem  *definer = field->definingRule();
+	GroupItem  *definer = field->instanceRule();
 	RuleStuff  *stuff   = definer->rStuff;
 	char       *name    = definer->groupBody->tag;
 	
@@ -6525,7 +6525,7 @@ extern "C" GroupItem *jitShowRecord(GroupItem *field)
 {
 	
 	GroupRules *ruler   = GroupControl::groupController->groupRules;
-	GroupItem  *definer = field->definingRule();
+	GroupItem  *definer = field->instanceRule();
 	GroupItem  *att     = 0;
 	int         kount   = 0;
 	
