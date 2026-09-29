@@ -712,3 +712,61 @@ after `parser(Start)`.
 **Totals: 5 intended, 12 accidental; 5 of the 12 contaminate the original** (3 Modifiers, `counter`, `parser`). Nothing was
 changed; the mechanism for all 12 is the define resolving a new name to an existing entry of another registry (`addGroup`'s
 copy-if-parented). Whether a define may ever do that is the open ruling.
+
+---
+
+## 18. R2's design input: where a define's name resolves across registries (2026-09-29, trunk `c4d5801`, SEQ 228, read-only)
+
+Measured with a **temporary build, reverted** (retok bare byte-identical): `aCTionDefinE` logged every definition whose
+name arrived resolved to a node parented OUTSIDE the current registry, and whether it was copied, across the whole
+checklist (pop.sh, jitLadder, decodePop, ddPop, countPop, printPop, frontier): 10,233 events, **47 distinct**.
+
+### 18b. The resolution site -- one lookup, two copy points
+
+- **Resolution:** a define's name is a `NamE`, and `aCTionNamE` -> `resolveName` (`ruleActions.rtn:1774`) calls
+  `GroupControl::locate(name)` (`GroupControl.twk:95`), which tries the registry names, then `currentRegistry`, then
+  **every registry on the search list, then the base registries**. A name not yet in the current registry is found
+  wherever else it exists. **This is the one site R2 changes** -- but it is shared: the same `resolveName` resolves every
+  term reference inside a definition (where crossing registries is the point, e.g. `ExpressioN` in a rule body).
+- **Copy point 1, the registry arms of `aCTionDefinE`** (`ruleActions.rtn:279` rule registries, `:287` the others):
+  `if NewGroup.parent != currentRegistry  NewGroup = currentRegistry += NewGroup` -- `addGroup` copies a parented node.
+- **Copy point 2, the member road** (`ruleActions.rtn:359`): `NewGroup += item` for each of `MemberS`, same copy.
+
+So R2 can be written at the resolution (a define's own name looks in `currentRegistry` only, members in the entry being
+defined) or at the two copy points (a name found in another registry mints fresh instead of copying). **Either way the
+term references inside a definition must keep the search-list walk.**
+
+### 18a. The 5 intended copies (and one more) reach their original through the same fall-through
+
+| copy | spelled today | road |
+|---|---|---|
+| `Grokking/break`, `continue`, `return` | `incant/grammar:117-120`, `BrancheS bin` members `break;` `continue;` `return;` | member DefinE; the name resolves to `Keywords/…` via the search list; the RULE-registry arm copies it into Grokking (that arm ignores `addingMembers`), then the member road copies again into BrancheS |
+| `Keywords/define`, `Keywords/new` | `incant/setup:256, 261`, plain `define;` / `new;` in `registry(Keywords)` | resolves to `Grokking/define` / `cOMMANDs/new`; copy point 1 |
+| `Grokking/Operators` (not in recon 17's 17: its original is the `registries` node) | `incant/grammar:141`, the `Token` bin member `Operators;` | resolves the REGISTRY `Operators`; copy point 1. **The grammar needs this one** -- `Token` matches operators through it |
+
+**All six use exactly the fall-through R2 closes**, so each needs R2's explicit spelling or it becomes a fresh, empty entry.
+
+### 18c. Everything that would move -- 47 distinct definitions resolve outside their registry
+
+**19 copied at copy point 1:** recon 17's 17; `Grokking/Operators` (above); and **`CursorRead/taG` <- `GroupFields/taG`**
+(fixture `incant/pop/cursorReadTb:26`, `taG="ENCLOSING";` -- the fixture's own field named `taG` is a copy of the
+accessor's registry entry, and its value lands in that entry's body; same shape as F-O40, fixture-only).
+
+**28 resolve outside but take the MEMBER road (copy point 2), not copy point 1:**
+- `pROPERTIEs` members `- -- ! * @ . ++ $$` <- `Operators` (8), `Utilities` members `NumbeR`, `GrouP` <- `Grokking` (2), in
+  setup;
+- `DesignDocs` / `Decoder` entries named after commands -- `stop`, `compile`, `canonOf` (x2), `TOKENize`, `addrOf`, `arrondir`,
+  `bodyCensus`, `chanReport`, `evictAction`, `interpretBC`, `jitEmitter`, `parseAction`, `parseClassify`, `probeNode`,
+  `runByteFn`, `showBody` <- `cOMMANDs`, and `lastREF` <- `pROPERTIEs` (18).
+
+**The DesignDocs members are LIVE CONTAMINATION -- F-O41.** Measured: with `include(designDocs)`, `cOMMANDs["stop"]` reads
+*"Immediate method for the stop command."* and `cOMMANDs["compile"]` *"compiles a rule parse generated in the parser
+incantation."*; without it each reads its own tag (no data). The command still dispatches (its method is in another slot).
+
+### 18d. `repeatClass` on `Operators/* + ?` -- inert, by census
+
+`repeatClass` has **one reader**, `modifierIsRepeat` (`GroupActions.rtn:564`), and it reaches the entry through the
+**Modifiers** registry -- the copy. No source site or fixture walks an `Operators` entry's terms generically, and the
+operator-side readers (`unaryIsAccess`'s `accessClass`, `shortCircuit`, `isOR`) ask by other names. **Inert as far as a
+source census can tell; not run-measured.** The reverse sharing is inert the same way: the Modifiers copies carry the
+operators' method bindings and flags, and `modifierIsRepeat` reads nothing but `repeatClass`.
