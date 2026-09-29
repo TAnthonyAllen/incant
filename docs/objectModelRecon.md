@@ -580,3 +580,112 @@ Grokking rule.
 **The F-O38 site** the build converts: `IncantForms/WorkingOn/parser:44`, `argument +% *bprCopy;` (the
 pendingParseR carrier). Line 43, `*bprCopy +% *codeCopy;`, is the carrier's CodE; compile re-files both today
 (`Commands.rtn:56-68`).
+
+---
+
+## 16. Stroke 4 recon: the instance -> rule link (2026-09-29, trunk `6bed9a1`, SEQ 226, read-only)
+
+Nothing built. The measurements used a **temporary build, reverted** (retok bare, byte-identical to the clean copies): the
+copy constructor recorded, for every copy, its source chased to the root (a prototype of the link, `L`) and the
+function that called it (`dladdr` of the caller); a census walked every node reachable from `Grokking` through the term
+lists (379 nodes, each visited once), at rest and again after `parser(Start)` -- **identical both times.**
+
+### 16.0 Where the doc and the dispatch disagree, or the doc is stale
+
+| item | doc / dispatch says | measured today |
+|---|---|---|
+| stroke 4 certificate | "the **13** `definingRule()` callers switch one at a time" (Part 2) | **5 engine call sites** + 2 instruments (16a). The 13 is an older count. |
+| `options.isCopy` row | "no engine reader (6 readers, all in `measure.twk`)" (1.3) | **4 engine readers** today (16a) -- F-O27 added the first; stroke 2 added two more. |
+| RuleStuff rule-level row | lists `hasMacro` | deleted by SEQ 225 (row corrected in this commit) |
+| stroke 2b status | "`incant/grammar:44` still reads the `$` QuotE line" | deleted by SEQ 225 (note corrected in this commit) |
+| dispatch item 2 | parser "lines 30 and **59**" | the second skip is **line 56**. The 59 is my own miscount in the SEQ 224 report. |
+
+### 16a. READERS -- "which rule is this field an instance of?"
+
+| family | sites | what it answers |
+|---|---|---|
+| **`definingRule()`** (`GroupItem.twk:481`: `get(1).parent`, else `this`) -- this IS the positional read; **no other `get(1)`-style site exists** | engine **5**: `parse()` (`GroupItem.twk:1398`), `installParseMethod` (`Generate.rtn:49`), `runLeafParse` (`Generate.rtn:360`), `jitFieldMethod` (`jitEmitters.rtn:2027`), `jitShowRecord` (`:3437`). instruments **2**: `canonOf` (`measure.twk:222`), `definersOf` (`GroupActions.rtn:138-143`) | the node that minted the first term |
+| **`options.isCopy`** | engine **4**: `setRuleStuff` (`GroupItem.twk:1948`, copy -> `ruleTerm`), `setParseWalk` (`Generate.rtn:401`, F-O27), `aCTionDefinE` member propagation (`ruleActions.rtn:317`), TraiTdata (`ruleActions.rtn:1151`). instruments 3 prints in `measure.twk` (`addrOf`, `PEQWRITE`, `PPWRITE`); kant `isCopY` is unreadable (pointerT L5c pins that) | "am I a reference or a definition" -- no answer to *which* rule |
+| **by name** | `enclosingFace` (`Generate.rtn:15`, via 3 callers) looks the tag up in the enclosing activation's rule; `definersOf` / `grammarHolds` / probes look tags up in `Grokking` | the face in the enclosing rule (a parse-time question, NO HUNT's -- stroke 5, not stroke 4) |
+| parent walks | none found that answer "which rule"; `setRuleStuff`'s `parent.isRuleTerm()` asks the *parent's* instance fact | -- |
+
+**Disagreements on the live grammar (379 nodes: 218 copies, 161 originals):**
+
+| comparison | agree | disagree |
+|---|---|---|
+| `isCopy` vs the link exists | 379 | **0** -- one writer, the copy constructor |
+| body shared with the link's target | 218 | **0** |
+| `definingRule()` vs the link, copies | 104 | **114 -- every one a LEAF copy, where `definingRule()` answers the copy ITSELF** (`get(1)` is null): `rightBrace` in SetBrackets, `nameSet` in NamE, `EquaL` in TraiTdata, ... All 114 minted by `addGroup` |
+| `definingRule()` vs itself, originals | 160 | **1: `Operators/?` answers `Modifiers/?`** -- the original's first child is parented to its COPY (the Modifiers define added terms through the shared body) |
+| the link vs the `Grokking` entry of the same name | 152 | **8**: `break`/`continue`/`return` (in Grokking and in BrancheS) are copies of the **Keywords** entries; `Operators` (in Grokking and as a Token term) is a copy of the registry `Operators`. **58** copies have no Grokking entry of their name |
+
+### 16b. WRITERS -- where a copy is minted
+
+Every copy goes through **one constructor**, `GroupItem(GroupItem)` (`GroupItem.twk:42`). Its callers (whole setup, process-wide,
+at rest): `addGroup` **1,130** · `aCTionTraiT` 45 · `addProperty` 43 · `aCTionTraiTdata` 16 · `embedRule` 11 ·
+`embedAttribute` 8 · `copyListFrom` 6 · `cOPY` (the kant `copy` command). **`aCTionDefinE` and the bootstrap mint through
+`addGroup`** (`currentRegistry += NewGroup`, `strap += grok/X`, `+%`); neither calls the constructor directly. **All 218
+grammar copies were minted by `addGroup`.**
+
+**So the link has ONE writer: the copy constructor**, written as the prototype did -- `ruleOf = grup.ruleOf ? grup.ruleOf :
+grup` (a copy of a copy points at the root, never at the intermediate). Open question for the ruling: `addProperty`'s 43
+copies get a link too (a copied property); harmless, but they are not rule instances.
+
+**Cross-registry copies, every registry (442 entries): 17**, all via `addGroup` -- the define resolved a name to an entry in
+ANOTHER registry and copied it: `Modifiers/! % & * + - < ? @ ^` <- `Operators` (10); `Grokking/break continue return` <-
+`Keywords` (3); `Keywords/define` <- `Grokking`; `Keywords/new` <- `cOMMANDs`; `UnitTests/counter` <- `Grokking`;
+**`Utilities/parser` <- `fILEs` (F-O33).**
+
+### 16c. LAYOUT
+
+- **Field:** `GroupItem ruleOf;` on `GroupItem` -- name proposed, **Tony's to rule**. Zero collisions for `ruleOf` across
+  `*.twk *.rtn *.h groups.ext`. **Not `rule`**: `RuleStuff.rule` exists and is read bare in every `RuleStuff` method; a
+  `GroupItem` member of that name would re-aim bare reads (bear-traps #42/#57).
+- **Declaration order:** GroupItem already declares three `GroupItem` fields (`parent`, `nextInParent`, `priorInParent`).
+  Per bear-trap #57 (a second field of one type, declared after, captured bare names), declare `ruleOf` **before `parent`**
+  and run #57's detector (full-tree `.mm`/`.h` compare) -- expected change: `GroupItem.h` (one ivar) and `GroupItem.mm` (the
+  three constructors' zero-inits and the copy constructor's write).
+- **`groups.ext`:** the `external GroupItem` block (`groups.ext:229-240`) gains the line; when `isCopy` goes, its
+  `options` line loses it.
+- **tokall scope:** full bare `tokall` (top-level `*.twk`). **Subdirectories:** `GUI/*.mm` reference `GroupItem` (Bwana 136,
+  Control 80, ...), but **none of them is in the `Groups` target** (its Sources are top-level `.mm` plus
+  `Frame/OCroutines`, `Bot`, `URLservice`), so `~/bin/incant` cannot pick up a stale one.
+
+### 16d. F-O33
+
+The link makes it **answerable, not moot.** `Utilities/parser` is an `addGroup` copy of `fILEs/parser`
+(`isCopy` 1, same body); the prototype link and `definingRule()` both name the fILEs node. What the link adds is that the
+fact becomes one read -- `ruleOf.parent` is a different registry -- so the 17 cross-registry copies are a census, not a
+discovery. **The cause is upstream of the link:** `aCTionDefinE` resolving a new action's name to an existing entry in
+another registry and copying it. Whether a define may ever do that is a ruling the link cannot make.
+
+### 16e. Proposed stroke order (each step on its own branch, fleet row for row)
+
+| step | what lands | certificate row |
+|---|---|---|
+| **4.1** write the link | `ruleOf` declared (before `parent`), written by the copy constructor only; nothing reads it | a census row (a `measure*` callout, not a directives build): copies 218, `ruleOf` set exactly where `isCopy` is (mismatch 0), same body 218/218, cross-registry 17 -- **pinned by value**. H7: writer removed -> set on 0, red |
+| **4.2** isCopy readers -> the link | the 4 engine readers ask `ruleOf != null`; measure prints follow; then `options.isCopy` deleted (layout; groups.ext) | fleet row for row; `omModT`, `leafClassT`, `ruleTermT` unmoved; **zero-reader census** for `isCopy` |
+| **4.3** definingRule callers -> the link, one family at a time | (a) `runLeafParse` + `installParseMethod` -- **the family that can MOVE**: on 114 leaf copies the answer changes from the copy to the rule, so a leaf would read the rule's `parseMethod` instead of its own snapshot; (b) `parse()`'s `definer`; (c) jit: `jitFieldMethod`, `jitShowRecord`; (d) instruments `canonOf`, `definersOf` | (a) `leafClassT`, `parseClass.target`, sweepT, fleet -- **any mover named with its sentence**; (b) fleet; (c) jitLadder; (d) their own rows. Then `definingRule()` deleted, or kept as `ruleOf ? ruleOf : this` |
+| **4.4** `RuleStuff.rule` | retire, or keep as a cache (Part 1: decided in the stroke); rule-level `RuleStuff` fields (`parseMethod`, `actionMethod`, `testMatch`, `jitMethod`, `ruleName`, `sourceLine`) read through the link | its own census |
+
+`Operators/?` (16a) is the case to watch in 4.3(b): `definingRule()` answers its copy today, and the link answers itself.
+
+### 16f. The parser file's own noPrinT skips (item 2) -- `IncantForms/WorkingOn/parser` lines **30** and **56**
+
+Measured in a **clone** (`genLadder/cloneBuild.sh` at `6bed9a1`, outside Dropbox) whose copy of `parser` carried a print
+beside each skip -- Tony's file untouched. Whole checklist through a per-process stderr log (366 processes); the fleet
+read 847 / 1 through the wrapper, as on trunk.
+
+| line | where | hits | what it skips | from |
+|---|---|---|---|---|
+| **30** | `generateParse`'s term walk | **8** | `this` 4, `tempField` 4 | `parser()` on a CODED rule: chainTruthT (`wzNum`), parserTest and carrierT (`list`), frontier station 1 (`frRule`) -- the compiled action's two hidden locals |
+| **56** | `walkRules`' term walk | **8** | the same 8 | the same four processes |
+
+**No carrier is skipped at either line any more.** H16 control (the clone's parser reverted to `+%` at 43-44): line 56
+**4,310** `pendingParseR`, line 30 **5** -- so the probe sees a carrier when one is there, and today's zero is real.
+
+**For Tony's ruling, each line's removal measured in the clone:**
+- **line 56 removed:** pop.sh 847 / 1 **row for row** (bar a clone-only fixture-name count), frontier identical. The locals
+  it skips read `isRulE= 0`, so **line 57 (`if isRulE == 0; continue;`) already catches them** -- line 56 is redundant.
+- **line 30 removed:** pop.sh **845** -- `chainTruthT` CT7 and `carrierT` CT-2 go red (the generator emits calls to the
+  locals). **Line 30 is load-bearing** as a local skipper.
