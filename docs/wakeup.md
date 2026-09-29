@@ -1,3 +1,10 @@
+# ⚠⚠⚠ SEALED 2026-09-29 (8) -- STROKE 4.3 FAMILY 1 LANDED: runLeafParse + installParseMethod on instanceRule().
+#
+#   ## STATE: trunk bcae93f (support 5cae2de) installed and BARE -- fleet 856 / 1 · canary 316 · RO-7 = 3 engine callers
+#   left (parse(), jitFieldMethod, jitShowRecord). 1,925 installs now fill an EMPTY slot on 28 registered rules; none of
+#   the 12 accidental copies reached. instanceRule tests the holder's REGISTRY FLAG (recon 21 in the stroke's report).
+#   ## NEXT: family 2 (parse()), family 3 (jit).
+
 # ⚠⚠⚠ SEALED 2026-09-29 (7) -- SEQ 230: R1 (copy on first write) STOPPED AT ITEM 1; jitLadder capped (R4); PPWRITE fixit.
 #
 #   ## THE ONE-LINE STATE: **trunk `jit-unified-emit-wip` (this seal) installed and BARE -- fleet 855 / 1 · jitLadder
