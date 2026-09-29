@@ -5561,7 +5561,8 @@ kindRow "ruleOfT RO-6 ruleOf code lines in source (non-zero sibling of RO-5)" "$
 #  `definer`; the instruments (canonOf, definersOf) do not, and are not counted. 5 on trunk before 4.3; family 1
 #  (runLeafParse, installParseMethod -> instanceRule) leaves 3: parse(), jitFieldMethod, jitShowRecord. Pinned by value
 #  and re-pinned per family; the stroke ends when it reads 0.
-kindRow "ruleOfT RO-7 definingRule() engine callers left" "$(cat *.twk *.rtn | grep -c 'definer *= .*definingRule()')" "3"
+#  RE-PINNED 2026-09-29 (family 2): 3 -> 2 -- parse()'s definer reads instanceRule(); its value is never read.
+kindRow "ruleOfT RO-7 definingRule() engine callers left" "$(cat *.twk *.rtn | grep -c 'definer *= .*definingRule()')" "2"
 
 #  ---------------------------------------------------------------------------
 #  ruleTermT -- OBJECT MODEL STROKE 2: "this term takes part as a rule term" is the REFERENCE'S fact (rStuff

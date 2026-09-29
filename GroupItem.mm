@@ -1809,7 +1809,7 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 	ruleStuff->isOK = 0;
 	ruleStuff->inProcess = 1;
 	//  genParseRuleAccess
-	definer = definingRule();
+	definer = instanceRule();
 	defStuff = definer->getRStuff();
 	// bindReadSeamProbe
 	while ( !ruleStuff->isOK && ruleStuff->kount < ruleStuff->maxRepeat )

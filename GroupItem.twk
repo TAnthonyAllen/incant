@@ -1415,7 +1415,7 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
     isOK        = false;
     inProcess   = true;
     //  genParseRuleAccess
-    definer = definingRule();
+    definer = instanceRule();
     defStuff = definer.rStuff;
     // bindReadSeamProbe
     while !isOK && kount < maxRepeat {
