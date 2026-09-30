@@ -18,6 +18,8 @@ definerT -- EVERY OCCURRENCE OF A RULE ANSWERS THE REGISTRY'S ENTRY AS ITS DEFIN
 RESPELLED 2026-09-30 (stroke 4.4a): definersOf now asks instanceRule(), and definingRule() is deleted. The rows held
 row for row. instanceRule() reads ruleOf, not the first child's parent, so this fixture no longer witnesses the
 child-parenting invariant described below -- see the stroke's coverage finding.
+WATCH GIVEN BACK 2026-09-30 (SEQ 233): definersOf also prints CHILDPARENTS -- each child of the shared list against
+the list's owner -- and pop.sh row DF-2 pins it. H7: compile()'s old parent write restored turns it red.
 
 A rule's child list is SHARED by every place the rule is used, and definingRule() reads the owner of
 that list off the first child's parent -- so the invariant is that shared children stay parented to the

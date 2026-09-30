@@ -5041,6 +5041,14 @@ sentinel "definerT sentinel" "$T/df.e" "DEFINER SENTINEL"
 _dfn=$(grep -c '^DEFINERS ExpressioN occurrences=11 registry=11 others=0' "$T/df.e")
 if [ "$_dfn" -eq 3 ]; then echo "  ok    definerT all 11 ExpressioN occurrences answer the registry's entry -- before parser(), after parser(Start), after a second parser()"; green=$((green+1))
 else echo "  FAIL  definerT: $(grep '^DEFINERS' "$T/df.e" | tr '\n' ' ')"; fail=1; fi
+#  ⚑ definerT DF-2 -- THE WATCH GIVEN BACK (2026-09-30, SEQ 233). Retiring definingRule() (stroke 4.4a) left the row
+#  above green but blind: instanceRule() never reads a child's parent. definersOf now also walks the shared list and
+#  asks each child whether its parent is the list's OWNER (the registry entry). Asserted by value at all three points,
+#  children=1 as the non-zero sibling. H7, measured behind a reverted probe: compile()'s `grup.parent = field;`
+#  restored -> after parser(Start) CHILDPARENTS reads owner=0 strays=1 while the DEFINERS row above still read 11/0.
+_dfc=$(grep -c '^CHILDPARENTS ExpressioN children=1 owner=1 strays=0' "$T/df.e")
+if [ "$_dfc" -eq 3 ]; then echo "  ok    definerT DF-2 ExpressioN's shared child is parented to the list's owner -- before parser(), after parser(Start), after a second parser()"; green=$((green+1))
+else echo "  FAIL  definerT DF-2: $(grep -E '^CHILDPARENTS|CHILDPARENT ' "$T/df.e" | tr '\n' ' ')"; fail=1; fi
 
 #  ⚑ driveCompileT -- AN ACTION COMPILED AFTER parser() RUNS ON THE NEW ROAD (F-128's POP entry, closed 2026-09-27).
 #  processCode's compile is a driveStep drive (the merge of seq212-drive-compile). A: rsRun first called after

@@ -2083,7 +2083,7 @@ int 	length = 0;
 		::printf("\n");
 }
 
-// definersOf every occurrence of a rule -- the registry entry and each term carrying its tag -- and whether instanceRule() answers the REGISTRY's entry, as the shared-children invariant says it must (SEQ 216); prints the counts unconditionally
+// definersOf every occurrence of a rule -- the registry entry and each term carrying its tag -- and whether instanceRule() answers the REGISTRY's entry, as the shared-children invariant says it must (SEQ 216); prints the counts unconditionally; and whether every child of the shared list is parented to its owner
 extern "C" GroupItem *definersOf(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -2106,6 +2106,14 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	d ? d->groupBody->tag : "-",d,(d && d->parent) ? d->parent->groupBody->tag : "-"); }
 	}
 	::fprintf(stderr,"DEFINERS %s occurrences=%d registry=%d others=%d\n",want ? want : "(none)",seen,toRegistry,seen - toRegistry);
+	// childParents the shared list's children are parented to the node that OWNS the list -- the invariant definingRule() used to police, now read directly (2026-09-30)
+	int kids = 0, owned = 0;
+	GroupList *shared = regEntry ? regEntry->groupBody->groupList : 0;
+	for ( GroupItem *c = shared ? shared->firstInList : 0; c; c = c->nextInParent ) {
+	kids++;
+	if ( c->parent == regEntry ) owned++;
+	else ::fprintf(stderr,"  CHILDPARENT %s child %s parented to %s@%p, not the list's owner\n",want,c->groupBody->tag,c->parent ? c->parent->groupBody->tag : "-",(void*)c->parent); }
+	::fprintf(stderr,"CHILDPARENTS %s children=%d owner=%d strays=%d\n",want ? want : "(none)",kids,owned,kids - owned);
 	
 	return ruler->trueResult;
 }
