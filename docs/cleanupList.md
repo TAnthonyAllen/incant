@@ -35,30 +35,39 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 - **Confirm:** delete both, retok, the generated parse() loses exactly those four lines, fleet row for row.
 - **Seen:** 2026-09-29.
 
-### The Bytecode road (whole) -- `Bytecode.twk` and everything that exists only to feed it
-- **What/where:** `Bytecode.twk` (21 externs: `interpretBC`, `runByteFn`, `opStackOf`, `runBR`, `runBRZ`, `runCall`,
-  `runEQ`, `runForNext`, `runGE`, `runGT`, `runLE`, `runLT`, `runMultiply`, `runNotEQ`, `runPlus`, `runPrint`,
-  `runPushField`, `runPushLit`, `runRET`, `runStoreField`, `runString`, plus the dummy `class Bytecode` tok needs to
-  emit the file) and `Bytecode.mm`/`.h`.
-- **What it was for:** Phase Bytecode, the stack-form interpreter (2026-05-30); branch execution proven 2026-06-11.
-  Direction since then: bytecode and JIT are parallel lowerings (2026-06-17), and the JIT replaces the interpreter
-  (2026-07-29).
-- **Callers, every source (census 2026-09-30):** the handlers are reached only through `interpretBC` -> `runByteFn` ->
-  each op's `interpret` sub-attribute, bound at setup by 19 `interpretMethod=` registrations (`incant/setup`).
-  `interpretBC`'s one caller is `incant/generate`'s `generateAction`. `generateAction`'s only calls are
-  `incant/pop/oneTest:85-95`, which sit **below oneTest's `stop()`**. No other region reaches it. The population
-  searched: every `incant/` and `IncantForms/` file's region above its first `stop()`/`bail()`, plus all
-  `.twk`/`.rtn`/`genLadder`/`jitLadder` sources. **Live callers: 0.** oneTest's header says the generator now runs
-  from `incant/generating` "on demand", and that file does not exist.
-- **Cost of cutting (it is a direction ruling, not tidying):** `Bytecode.twk/.mm/.h`; 8 references in
-  `TOK.xcodeproj`; groups.ext's `external Bytecode.h` block (12 lines) and the `external Bytecode` line; the 19
-  `interpretMethod=` registrations and the `interpretBC`/`runByteFn` commands in `incant/setup`. setup is read at
-  runtime, so those go in the same stroke as the rebuild (bear-trap #31). Also `interpretMethod` in
-  `GroupActions.rtn:391`; `incant/generate`'s `generateAction` and generator; `Commands.rtn`'s `generateCode`; and
-  CLAUDE.md's Phase Bytecode sections. **The `bcOPs` registry is on 77 incant files' search lines**: keep the
-  registry empty, or edit 77 preambles.
-- **Confirm:** a run-level reachability check (a temporary breakpoint or tap on `interpretBC` across the H12 checklist
-  reading 0), then Tony's ruling on whether bytecode stays as a parallel lowering.
+### The Bytecode road -- RULED RETIRE (Tony, 2026-09-30). The cut is its own stroke on another day; this is its list.
+- **Ruling:** the Bytecode road is retired; the JIT is the one path. **`incant/generate` is KEPT** as template material
+  (interesting kant code, reference for a while) -- not deleted, not attic'd.
+- **Live callers: 0** (census 2026-09-30, first entry of this section's history): the handlers are reached only through
+  `interpretBC` -> `runByteFn` -> an op's `interpret` sub-attribute; `interpretBC`'s one caller is `incant/generate`'s
+  `generateAction`, whose only calls (`incant/pop/oneTest:85-95`) sit below oneTest's `stop()`.
+- **THE EXACT CUT LIST.**
+  1. **C++ -- `Bytecode.twk` / `.mm` / `.h` whole**: 21 externs (`interpretBC`, the dispatch loop; `runByteFn`;
+     `opStackOf`; `runBR` `runBRZ` `runCall` `runEQ` `runForNext` `runGE` `runGT` `runLE` `runLT` `runMultiply`
+     `runNotEQ` `runPlus` `runPrint` `runPushField` `runPushLit` `runRET` `runStoreField` `runString`) and the dummy
+     `class Bytecode`. `TOK.xcodeproj`: 8 references.
+  2. **`interpretMethod`** -- the attribute handler `GroupActions.rtn:399` and its bootstrap in `GroupMain.twk:54-56`.
+  3. **groups.ext**: the `external Bytecode` line (3), the `external Bytecode.h` block (16-30, 12 externs), and
+     `interpretBC` / `interpretMethod` (553-554). The canary moves by the GroupRules-chain externs only
+     (`interpretMethod`; `interpretBC` lives in Bytecode.h) -- count at cut time, per H14.
+  4. **`incant/setup`**: the `interpretBC` (:55) and `runByteFn` (:79) command lines, and the **18** `interpretMethod=`
+     clauses -- 8 on Operators (`>= > == <= < + * !=`, :118-170) and 10 on bcOPs (:185-194). (The 19 counted earlier
+     included the prose on :180.) setup is read at runtime: these go in the same stroke as the rebuild (#31).
+  5. **`bcOPs` on search lines**: `registry(bcOPs)` (:183) and its 10 entries, and `bcOPs` on the **77** incant search
+     lines. Choice at cut time: keep an empty `bcOPs` registry (77 lines untouched), or drop it and edit 77 preambles.
+  6. **generateAction's callers below oneTest's stop()**: `incant/pop/oneTest:85-95` (and the parked sections
+     beneath it that call `generateCode`/`generateAction`). `Commands.rtn`'s `generateCode` (:179) is the C++ entry
+     and goes with them.
+  7. **oneTest's header** still points at `incant/generating`, which does not exist -- fix that line when the cut lands.
+  8. **CLAUDE.md**: the Phase Bytecode sections and the `testByteCode` / `testIfElse` status text.
+- **WHAT THE CUT MUST ANSWER FIRST, ANSWERED 2026-09-30 (probe, reverted md5-identical):** does `incant/generate` still
+  load once the C++ road is gone? With `incant/setup`'s bytecode side stripped (the two command lines and all 18
+  `interpretMethod=` clauses) against today's binary, **`oneTest` -- which does `include(generate)` -- is
+  byte-identical, and pop.sh reads 861 / 1 row for row.** generate names `interpretBC` only inside `generateAction`'s
+  `code={}` body, which compiles lazily; nothing in it names a removed command at define time. **So the outcome is the
+  first one: generate stays where it is, with a header line marking it reference only, not a running road.** The
+  audit pin and oneTest's include need no re-pin. (Not yet measured: a binary with the externs actually removed; the
+  cut stroke re-runs this probe on it.)
 - **Seen:** 2026-09-30.
 
 ### `genParse.rtn` -- the file name, not its contents (a move, not a cut)
