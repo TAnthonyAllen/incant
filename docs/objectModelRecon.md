@@ -976,3 +976,232 @@ one fact to remove. It is the parse state's back-pointer to its face. The option
   not to 4.4.
 
 `definingRule()`'s retirement (respell `canonOf`, `definersOf`) does not depend on this and can go first.
+
+## 23. Stroke 5 recon: what it takes to retire `owner` by passing the node in (SEQ 233 part 2, 2026-09-30, read-only) -- stroke 5 opens from here
+
+**Provenance.** A static reading (no build, no run), done by a delegated read-only agent against trunk `f2bfb19` and filed verbatim below. Counts are recon 22b's. Four claims spot-checked by Clod before filing: `ParseActivation` is `{stuff, prev, floor, label}` (jitContext.h:707); `ruleSTUFF` has one writer (GroupItem.twk:738); `guardFAIL` has writers and no reader; `sourceLine` is written only at ruleActions.rtn:960-963. **Everything marked (inferred) is unmeasured; the hazards in item 4 are captured, not chased.**
+
+
+Read-only. No build, no run, no repo edits. Line numbers are today's `.twk`/`.rtn` (post-rename to `owner`), with the
+generated `.mm` line where the resolution matters. Counts in section A are recon 22b's measurements; anything not
+measured there is marked **(structural)** when it follows from reading the code and **(inferred)** when it is a guess.
+
+**Headline findings, up front:**
+1. **Every stuff-only reader except three is one call from a frame that already holds `owner` itself.** Old road: `getStuff` (GroupItem.twk:1057-1059) *guarantees* `stuff.owner == this` for the stuff `parse()` uses, so E6, E7, E9-E12, E15, E16 can take `this` directly. New road: every parse method uses `field.rStuff`, whose owner is `field` unless the stuff was borrowed. Parse methods never run on a borrowed stuff (labels and `builtinActoR` do not parse).
+2. **The three that do NOT read their caller's node are E1, E13 and E14.** They read *ancestors'* owners: the enclosing activation's face (E1, E13) and the `parentStuff` chain (E14). No frame on the stack is holding those nodes as locals. **Handing a node in cannot retire them. The activation has to carry the face.**
+3. **The label -> rule link that runs in the fleet does NOT go through the label.** E3 (`processAction`, 60 calls) reads `ruler.ruleSTUFF->owner`. That is the *singleton* `fireLabelMethod` sets (GroupItem.twk:738), not `label.rStuff`. The only reader of the label's own borrowed link is E4 (`processCode`), which makes **0 calls**. So `label.setRStuff(this)` currently has **no live `owner` reader**. Its only other consumers are `processCode`'s D2 presence check and `aCTionStatemenT`'s `sourceLine` write, and that write is write-only (see C3).
+4. **Latent hazards found on the way (inferred, unmeasured; capture, do not chase):**
+   (a) `parseAction` (Generate.rtn:92-94) and `testAction` (RuleStuff.twk:229-230) call `actionMethod(label)` without setting `ruleSTUFF`, so a `processAction(label)` reached that way reads a stale singleton.
+   (b) `testString`, `testMacro`, `testContainer` and `testUpTo` read `field.rStuff`, not the activation copy `getStuff` minted. On same-face recursion they write `label`, `hereAt` and `isOK` into the base stuff.
+   (c) `guardOK` is written on the callee's *base* stuff by `testOptions` (RuleStuff.twk:301). If `getStuff` then copies (inProcess), the base keeps `guardOK=1` stale.
+   (d) `aCTionFailed(owner)` reads `owner.rStuff.failedAt`, but `parse()` wrote `failedAt` on the activation copy. E16 makes 0 calls, so this is unexercised.
+   (e) `guardFAIL` has no reader (write-only, RuleStuff.twk:87,109). `sourceLine` has no reader outside its own write block.
+
+---
+
+### 23A. The 18 owner readers: function, callers, held node, owner == held?
+
+"Held" = the node the calling frame already has in a local/`this` at the call. "== owner?" answers whether that held node is the node the reader gets from `owner`.
+
+| # | reader (site) | function | caller(s) (file:line) | node the caller holds | held == owner? |
+|---|---|---|---|---|---|
+| E1 | `gParseActive->stuff->owner->get(tag)` Generate.rtn:18-19 (GroupRules.mm:2347-8) | `enclosingFace(field)` | parseContainer Generate.rtn:145; parseLoop :196; parseRule :220 | `field`, the term being called | **NO, by design.** It reads the *enclosing* activation's face, which is the `field` of the enclosing `parseRule` pushed at Generate.rtn:229 (`callActive = {ruleStuff, …}`, `ruleStuff = field.rStuff`). 401,622 / 459,508 differ from instanceRule. No frame between holds it as a local; it is reachable only via `gParseActive`. |
+| E2 | `owner.matches(atRuleMark)` Generate.rtn:325 (GroupRules.mm:9345) | `parseString(field)` | fnptr only: `rule.method(rule)` driveStep GroupActions.rtn:283; `defStuff.parseMethod(field)` runLeafParse Generate.rtn:365 (from parseLoop :200); `parseMethod(field)` testAction RuleStuff.twk:225 | `field` (`ruleStuff = field.rStuff`) | **YES, 9,276 / 9,276 measured** |
+| E3 | `action = ruleStuff->owner`, `ruleStuff = ruler.ruleSTUFF` GroupActions.rtn:684,692 (GroupRules.mm:9619,9628) | `processAction(field)`, isLabel arm | via the `actionMethod` fnptr: fireLabelMethod GroupItem.twk:752 `stuff.actionMethod(stuff.label)` (sets `ruleSTUFF = stuff` at :738); parseAction Generate.rtn:92,94; testAction RuleStuff.twk:229,230; direct: runAction GroupActions.rtn:939 (jit), :950 (interp) with field = an action | fireLabelMethod: `this` (the rule face) plus `stuff.label`. processAction itself holds only the **label** | vs the label: **NO, 60/60** (recon 22d.1). vs fireLabelMethod's `this`: **yes (structural)** on the parse() road, because `ruleSTUFF` = the `getStuff` stuff and its owner == this. On the exitFromParse road `ruleSTUFF = field.rStuff`, owner == field unless borrowed **(inferred)**. On the parseAction/testAction roads `ruleSTUFF` is whatever fired last: **unknown, possibly stale (inferred hazard 4a)** |
+| E4 | `field = field.getRStuff()->owner` GroupActions.rtn:733 (GroupRules.mm:9682) | `processCode(field,holder)`, isLabel arm | processAction GroupActions.rtn:694 (passes `action`, already de-labelled); runAction :925; Commands.rtn:83,185,189; jitEmitters.rtn:227 | the field passed, never a label in the fleet | **0 calls.** When reached, the label's borrowed stuff owner = the rule face that minted it (checkInput RuleStuff.twk:118) |
+| E5 | `r = stuff->owner` Generate.rtn:433-434 (GroupRules.mm:10743-4) | `setTargetFlag(stuff)` | setParseWalk Generate.rtn:388 (`ruleStuff = field.rStuff`, GroupRules.mm:10613) | `field` | **yes (structural)**: `field.rStuff`, and the walk never visits a borrowed stuff |
+| E6 | `stuff->owner->nextAttribute` RuleStuff.twk:247 (RuleStuff.mm:104) | `testAttributes(stuff)` | parse() GroupItem.twk:1420 | `this` | **yes (structural)**: `getStuff` forces owner == this (GroupItem.twk:1057-1059) |
+| E7 | `stuff->owner->nextMember` RuleStuff.twk:299 (RuleStuff.mm:201) | `testOptions(stuff)` | parse() GroupItem.twk:1415 | `this` | **yes (structural)**, same reason |
+| E8 | `ruleStuff->owner->matches` RuleStuff.twk:319 (RuleStuff.mm:257) | `testString(field)` | fnptr `ruleStuff.testMatch(this)` parse() GroupItem.twk:1417 (only invoker; stored by setTestMatch RuleStuff.twk:171,176) | `field` (= parse's `this`) | **YES, 239,620 / 239,620 measured**. Note: it reads `field.rStuff`, not parse's activation copy (hazard 4b) |
+| E9 | `GroupItem field = owner` RuleStuff.twk:86 (RuleStuff.mm:473); then bare `tag`, guard, `hasNewParse`, `isMember`, `parent` through `field` (:103-124) | `RuleStuff::checkInput()` | parse() GroupItem.twk:1410 (on the getStuff stuff); parseAny Generate.rtn:80, parseCharacter :105, parseContainer :171, parseRule :240, parseSet :299, parseString :322, parseUpTo :339 (each on `field.rStuff`) | `this` / `field` | **yes (structural)** at all 8 call sites |
+| E10 | `owner->parent`, `grup = owner` RuleStuff.twk:132-135 (RuleStuff.mm:544-546) | `RuleStuff::followingMember()` | getWhatFollows RuleStuff.twk:152 | none (stuff method) | ancestor frame getStuff holds `this` == owner **(structural)** |
+| E11 | `use owner` RuleStuff.twk:146; `isGROUP`/`group`/`isMember`/`parent.binType`/`isEmbedded`/`data` (RuleStuff.mm:560-571) | `RuleStuff::getWhatFollows()` | getStuff GroupItem.twk:1062 (only caller) | getStuff's `this` | **yes (structural)**, getStuff forces it |
+| E12 | bare `isBIN`/`isREGISTRY`/`data`/`isCondition`/`parseACTION`/`contents()`/`isMethod` RuleStuff.twk:163-176 (RuleStuff.mm:585-614); `upTo`/`upToOver` are the stuff's own `overTo` | `RuleStuff::setTestMatch()` | getWhatFollows RuleStuff.twk:156 (only caller) | getStuff's `this`, 2 frames up | **yes (structural)** |
+| E13 | `a->stuff->owner->…deferred` GroupItem.twk:465 (GroupItem.mm:688) | `deferredAbove(stuff)`, activation-list walk | fireLabelMethod GroupItem.twk:734 | fireLabelMethod's `this`, but the walk **skips self** (`if a->stuff == stuff a = a->prev`) | **NO, by design**: it reads ancestors' faces. Reachable only via `gParseActive` |
+| E14 | `up->owner->…deferred` GroupItem.twk:471 (GroupItem.mm:694) | `deferredAbove(stuff)`, parentStuff-chain walk | same | same | **NO, by design**: ancestors on the parentStuff chain. That chain is *dynamic* (pStuff from getStuff, the parseR `bridge`, the `onGroup.parse(ruleStuff)` pass), not `GroupItem.parent`. **(inferred)**: under `parseR`, `up` = the `bridge` whose owner = the term itself, so the walk re-reads the node's own `deferred` |
+| E15 | `reportRepeatLimit(ruleStuff->owner,…)` GroupItem.twk:1432 (GroupItem.mm:1840) | `parse()` | (self) | `this` | **YES, 39 / 39 measured** |
+| E16 | `aCTionFailed(ruleStuff->owner)` GroupItem.twk:1448 (GroupItem.mm:1868) | `parse()` | (self) | `this` | **0 calls** (notifyFail is written only by Commands.rtn:506). Would be yes (structural) |
+| I1 | `r = stuff->owner` measure.twk:365-367 | `measureDeferredAbove(stuff,…)` | deferredAbove GroupItem.twk:459,466,467,472,473 | none; fireLabelMethod's `this` 2 frames up | **yes (structural)** on the parse() road; field.rStuff on exitFromParse (inferred yes) |
+| I2 | `stuff->owner->tag/parent` measure.twk:798-801 | `measureTargetAgree(stuff,computed)` | setTargetFlag Generate.rtn:440 | none; setParseWalk's `field` 2 frames up | **yes (structural)** |
+
+**Parse entry points (callers of `GroupItem::parse`, the frame where `this` == node):** testAttributes RuleStuff.twk:249; testOptions :302; `onGroup.parse(ruleStuff)` GroupItem.twk:1419; parseR RuleStuff.twk:192; driveStep GroupActions.rtn:289; groups.twk:29; GroupMain.twk:447.
+
+---
+
+### 23B. Stuff-only readers: the chain back to the node-holding frame
+
+"Depth" counts calls between the frame holding the node and the reader. **fnptr** marks dispatch through a stored method pointer.
+
+| # | chain (node-holding frame first) | depth | where the node is | notes |
+|---|---|---|---|---|
+| E1 enclosingFace | enclosing **parseRule(field_E)** pushes `callActive{stuff=field_E.rStuff}` (Generate.rtn:229-230) -> `field_E.parseBlocK()` -> `result.gMethod(result)` (**fnptr**, interpreted generated body `return A() && B();`) -> runOP GroupActions.rtn:966 -> `runRule(arg,target)` :1001 -> driveStep -> `rule.method(rule)` :283 (**fnptr**, gMethod = parseLoop/parseRule/parseContainer) -> enclosingFace | >= 6 (inferred, through interpreted incant frames) | **only via `gParseActive`**: top activation, `->stuff->owner` | `ParseActivation` needs a face slot. The activation is the only carrier |
+| E5 setTargetFlag | setParseWalk(**field**) Generate.rtn:388 | 1 | `field` | setParseWalk is recursive (Generate.rtn:423); setParse Generate.rtn:374 is the entry |
+| E6 testAttributes | parse(**this**) GroupItem.twk:1420 | 1 | `this` | extern in the `external RuleStuff.h` block (groups.ext), so a signature change touches groups.ext |
+| E7 testOptions | parse(**this**) GroupItem.twk:1415 | 1 | `this` | same |
+| E9 checkInput | parse(**this**) :1410, or parseX(**field**) Generate.rtn:80..339 | 1 (a method call on the stuff) | `this` / `field` | 8 call sites. Its label mint needs the node's `tag` (RuleStuff.twk:115) |
+| E10 followingMember | getStuff(**this**) -> getWhatFollows -> followingMember | 2 | getStuff's `this` | parse -> getStuff is 1 more |
+| E11 getWhatFollows | getStuff(**this**) GroupItem.twk:1062 | 1 | `this` | |
+| E12 setTestMatch | getStuff(**this**) -> getWhatFollows -> setTestMatch | 2 | `this` | its product `testMatch` is a **fnptr** later invoked as `testMatch(this)` (GroupItem.twk:1417), which already passes the node |
+| E13 deferredAbove, list | fireLabelMethod(**this**) GroupItem.twk:734 -> deferredAbove | 1 to self; ancestors unreachable | ancestors only via `gParseActive` | reads `a->stuff->owner` for a != self |
+| E14 deferredAbove, chain | same | 1 to self; ancestors via `parentStuff` | ancestors only via `up->owner` | no node chain parallels `parentStuff` today. `parentStuff` is set by getStuff (pStuff), RuleStuff(GroupItem) ctor, aCTionDefinE/member propagation (ruleActions.rtn:327), parseContainer/parseRule repair (Generate.rtn:167, 232) |
+| I1 measureDeferredAbove | fireLabelMethod(**this**) -> deferredAbove -> measure | 2 | `this` | reads self's owner, not ancestors |
+| I2 measureTargetAgree | setParseWalk(**field**) -> setTargetFlag -> measure | 2 | `field` | |
+
+**fnptr dispatch in play:**
+
+| fnptr | stored by | invoked at | node passed? |
+|---|---|---|---|
+| `RuleStuff.testMatch` | setTestMatch RuleStuff.twk:162-176 | parse() GroupItem.twk:1417 `testMatch(this)` | yes |
+| `RuleStuff.parseMethod` | setParseWalk Generate.rtn:396-410; installParseMethod :64 (copies it onto the definer) | runLeafParse Generate.rtn:365 `defStuff.parseMethod(field)`; testAction RuleStuff.twk:225 | yes (the instance `field`, with the pointer taken from the **definer's** stuff) |
+| `groupBody->gMethod` (= parseLoop or the parseMethod) | setParseWalk Generate.rtn:427-428 | driveStep GroupActions.rtn:283 `rule.method(rule)` | yes |
+| `RuleStuff.actionMethod` | setActions GroupItem.twk:1713; fireLabelMethod :737 (from builtinActoR.method); ruleActions.rtn:1147 (null) | fireLabelMethod :752 `(stuff.label)`; parseAction Generate.rtn:92,94; testAction RuleStuff.twk:229-230 | **passes the LABEL, not the face.** This is why E3 needs a side channel |
+
+**Activation list:** `struct ParseActivation { RuleStuff *stuff; ParseActivation *prev; int floor; GroupItem *label; }` (jitContext.h:707), with `inline ParseActivation *gParseActive` (:708).
+- **Pushed** by parseRule, `{ruleStuff, gParseActive, 0}` on the C++ stack (Generate.rtn:229-230), popped at :280. Also by driveStep as a floor, `{0, gParseActive, 1}` (GroupActions.rtn:256-259), popped at :308.
+- **Not pushed** by `parse()`: the old road has no activation record. Its "who is above" is the `parentStuff` chain, which is why E14 exists.
+- **Readers:** enclosingFace; deferredAbove; driveFloorLabel (GroupActions.rtn:231-235, writes `below->label`); driveStep's floor label (GroupActions.rtn:292) and old-road `rule->parse(gParseActive->stuff)` (:289).
+- For every parseRule activation, `stuff->owner` == the pushing parseRule's `field` (structural: `ruleStuff = field.rStuff`). **A `face` slot written at the push is exactly equal to what E1/E13 read today.**
+
+---
+
+### 23C. The label -> rule birth link
+
+#### 23C1. Sites that mint or re-seat a label
+
+| site | what | rStuff link |
+|---|---|---|
+| **RuleStuff.twk:114-118** `checkInput` | `label = new(tag); label.isLabel = true` (tag = owner's tag); else re-use when `label.fLAG`; then `if !label.rStuff \|\| ruleName ne tag  label.setRStuff(this)` | **the ONLY birth.** Borrows the activation's RuleStuff, so `label.rStuff.owner` = the face |
+| RuleStuff.twk:120-124 | `driveFloorLabel(this,label)` (GroupActions.rtn:229) parks the label on the drive floor; else `parent.rStuff.label = label` | the park, not a mint |
+| GroupItem.twk:256-258 `attachLabel` | promote: `pStuff.label = lab; lab.tag = pStuff.ruleName`, a **retag** | keeps the child's rStuff under the parent's tag (inferred: tag and link disagree after a promote) |
+| GroupItem.twk:~290 `attachLabel` repeat arm | `lab.clear(); lab.fLAG = true`, marked for reuse by the next checkInput | reuse keeps the old `rStuff` unless `ruleName ne tag` (inferred: the kept link may be a stale getStuff copy; owner is still the same face) |
+| GroupItem.twk:752 `fireLabelMethod` | `stuff.label = stuff.actionMethod(stuff.label)`, the **adoption**; the yield may be a non-label node (`measureAdoption`) | none |
+| Generate.rtn:248 `parseRule` | `myLabel = new(field.tag)`: not flagged isLabel, "reaches nothing" | none |
+| GroupControl.twk:180 | `labelNO` sentinel | none, not isLabel |
+| GroupActions.rtn:702 `processAction` labelToLocals | `result.isLabel = true` on an action **local** bound to a label child | **no rStuff.** This is a second meaning of `isLabel` ("do not clear me", used at :709). Such a node reaching processCode would trip D2 (inferred) |
+
+#### 23C2. Sites that read a label's rule through `owner`
+
+| site | spelling | live? |
+|---|---|---|
+| processAction GroupActions.rtn:692 | `ruleSTUFF->owner`, the **singleton**, not the label | 60 calls |
+| processCode GroupActions.rtn:733 | `label.getRStuff()->owner` | **0 calls** |
+
+That is all of them. `grep owner` finds no other label-side reader.
+
+#### 23C3. RuleStuff fields label readers use through the shared (borrowed) RuleStuff
+
+| reader | field(s) | via |
+|---|---|---|
+| processCode GroupActions.rtn:730,733 | presence of `rStuff` (the D2 tripwire); `owner` | label.rStuff |
+| processAction GroupActions.rtn:684,692 | `owner` | ruleSTUFF (singleton), not the label |
+| aCTionStatemenT ruleActions.rtn:953-963 (GroupRules.mm:1203-1213) | `sourceLine`, **written** (`input` = the StatemenT label) | label.rStuff. No reader of `sourceLine` exists anywhere else, so it is write-only |
+| checkInput RuleStuff.twk:118 | presence of `label.rStuff`; `this.ruleName` vs owner's `tag` | decides whether to re-borrow |
+| attachLabel GroupItem.twk:257 | `pStuff.ruleName` (the retag) | the parent's stuff, not the label's |
+| opDot Instruct.rtn:399,404 (GroupFields 28 `noLabel`, 36 `actionMethod`) | `target.rStuff.noLabel` / `.actionMethod` | if target is a label, the rule's stuff (inferred; unmeasured) |
+| aCTionFailed ruleActions.rtn:481 | `failedAt` | on `owner`'s own rStuff, **not a label** |
+
+`builtinActoR.rStuff = ruleStuff` (GroupItem.twk:1717,1734,1745) is the second borrower. grep finds **no reader of `builtinActoR.rStuff`** (fireLabelMethod reads only `builtinActoR.method`, :737). The parseR `bridge` (RuleStuff.twk:190) is the third: `owner` = term, and it is read only as a `parentStuff` link (E14).
+
+#### 23C4. What a label-owned link must carry
+
+- **The face** (today's `owner`) is needed by E4 (processCode). E3 could use it too, if processAction stops reading the singleton.
+  - A `GroupItem` field on the label is tok-visible, so it satisfies R1. It costs a GroupItem layout change: groups.ext `external GroupItem` plus a full bare tokall plus the #10 subdirectory check.
+  - **Do not reuse `ruleOf`.** It means "copy of", aimed at the registered original. A label wants the face. That would be one channel carrying two meanings.
+- **The RuleStuff** is needed today only for `sourceLine` (write-only, a cleanupList candidate) and the D2 presence tripwire. After the activation move the tripwire can ask the new link instead ("an isLabel with no face is wreckage").
+- **So the link is ONE face pointer.** `label.rStuff` can then stop being borrowed, which also retires C1's stale-reuse question.
+- **Measure before building (H11/H7):** at E3, count `ruleSTUFF->owner == label.rStuff->owner` and `== currentMETHOD`, over all 60 calls. If the singleton and the label's link agree on 60/60, the label link is sufficient for E3 as well.
+
+---
+
+### 23D. RuleStuff fields: per-activation vs rule-level
+
+**Method.** Census of the generated `.mm` (`GroupItem`, `GroupRules`, `RuleStuff`, `measure`), matching `<stuff>->field` plus RuleStuff's own bare member uses (`checkInput`, `getWhatFollows`, `setTestMatch`, the ctors).
+- W = writers, R = readers.
+- Class: **ACT** = changes per parse attempt; **SHAPE** = same for every activation. The shape rows are split between rule and instance, following objectModel §1.3.
+- The two ctors are left out of the counts. `RuleStuff(GroupItem)` writes `owner`, `ruleName`, `max`, `maxRepeat`, `min`, `parentStuff` and `parentLabel` (RuleStuff.twk:50-58). The copy ctor resets `label`, `sukcess`, `kount` and `parentStuff` (:64-67).
+
+| field | class | W | R | writer sites | reader sites (3 examples if many) |
+|---|---|---|---|---|---|
+| ruleName | rule (name) | ctor only | 9 | RuleStuff.twk:51 | attachLabel (retag, IA2 trace), checkInput :118, reportMaxLimit, measure |
+| hereAt | **ACT** | 2 | 15 | checkInput RuleStuff.twk:97; parseRule restore Generate.rtn:283 (GroupRules.mm:9289) | parse() GroupItem.twk:1446; exitFromParse Generate.rtn:28,41; testMacro/testString; captureSpan |
+| failedAt | **ACT** | 1 | 3 | parse() GroupItem.twk:1445 | aCTionFailed ruleActions.rtn:481 (on the **base** stuff, hazard 4d); reportCodeFail; reportDrive GroupActions.rtn:826 |
+| label | **ACT** | 9 (+checkInput) | 83 | checkInput RuleStuff.twk:112,115; parse() :1447,1449; fireLabelMethod :752; attachLabel :256; parseAction Generate.rtn:92,94; parseRule restore :283; parseR RuleStuff.twk:191 | attachLabel (9), fireLabelMethod (10), every parseX leaf (4 each) |
+| onFail | dead | 1 | **0** | getWhatFollows RuleStuff.twk:152 | none (F-O16 delete) |
+| onGroup | instance | 3 | 3 | getWhatFollows :149; embedAttribute GroupItem.mm:753,773 | parse() GroupItem.twk:1416,1419 |
+| parentLabel | **ACT** | 7 | 13 | ctor; getStuff GroupItem.twk:1061; establishFrame (GroupItem.mm:952); aCTionDefinE ruleActions.rtn:328; exitFromParse Generate.rtn:30; parseContainer :168; parseRule :235,283 | attachLabel (IA2 trace); exitFromParse; parseRule :224 (callBracket); measureParentProbe |
+| sourceLine | rule (per objectModel); **write-only** | 1 | 0 real | aCTionStatemenT ruleActions.rtn:960-963 through the label's borrowed stuff | only its own +% (cleanupList candidate) |
+| owner | back-pointer | 4 + ctor | 24 (section A) | copy ctor GroupItem.twk:51; getStuff :1059; setRuleStuff :1959; member propagation ruleActions.rtn:329 | section A |
+| kount | **ACT** | 5 | 7 | parse() :1400,1429; parseLoop Generate.rtn:198,201; parseRule restore :283 | parse() loop/limit :1407,1432; parseLoop :202; parseRule bracket |
+| max / maxRepeat / min | instance | 2/2/2 (TraiT `modify`, GroupRules.mm:6992-7001) + ctor | 21 / 4 / 16 | TraiT modifiers | testMacro, parseX leaves, exitFromParse :44, repeatsInLoop, parse() :1407,1432,1438 |
+| parentStuff | **mixed** (instance at ctor/define; ACT at getStuff/repair) | 5 + ctor | 22 | ctor :57; getStuff :1060; aCTionDefinE ruleActions.rtn:327; parseContainer Generate.rtn:167; parseRule :232,283 | attachLabel, deferredAbove chain (E14), exitFromParse :30,36 |
+| testMatch | rule shape (fnptr) | setTestMatch | 3 | RuleStuff.twk:162-176 | parse() :1416-1417 |
+| actionMethod | rule (fnptr) | 3 | 14 | setActions GroupItem.twk:1713; fireLabelMethod :737; TraiTdata ruleActions.rtn:1147 | fireLabelMethod, parseAction, testAction, opDot 36 |
+| parseMethod | rule (fnptr) | 14 | 11 | setParseWalk Generate.rtn:396-410; installParseMethod :64 | runLeafParse, testAction, repeatsInLoop, measure |
+| jitMethod | rule (fnptr) | 1 | 5 | jitFieldMethod (GroupRules.mm:5134) | jitFieldMethod |
+| banged | instance | 1 | 0 | modify | none (census; not claimed dead, it may be read by name via opDot, unchecked) |
+| doNothing | dead | 1 | 0 | ruleActions.rtn:985 (`= 0`) | none (F-O16 delete) |
+| followed | instance (lazy-init flag) | 3 + getWhatFollows | 3 | copy ctor GroupItem.twk:52; embedAttribute ×2; getWhatFollows RuleStuff.twk:147 | getStuff :1062; measureTargetAgree |
+| guardOK | **ACT** (a parent-to-child hand-off) | 2 | 1 | testOptions RuleStuff.twk:301 (on **callee's base** stuff); checkInput :101 | checkInput :100 (hazard 4c) |
+| guardFAIL | **ACT, write-only** | 2 | **0** | checkInput :87,109 | none (zero-reader: delete, do not move) |
+| inProcess | **ACT** | 2 | 1 | parse() :1402,1450 | getStuff :1057 |
+| isOK | **ACT** | 8 | 4 | copy ctor :52; parse() :1401; testMacro in testAny/testCharacter/testSet (on `field.rStuff`) | parse() loop :1407; testMacro |
+| isOption | dead | 0 | 0 | none | none (F-O16) |
+| isTarget | instance (computed) | 3 + getWhatFollows | 4 | embedAttribute; TraiT modify; setTargetFlag Generate.rtn:445; getWhatFollows RuleStuff.twk:151,154 | attachLabel :255; measureTargetAgree |
+| modPercent / modPointer / modUnGuarded | instance | 1/1/3 | 1/1/2 | TraiT modify | isUnGuarded(), measure |
+| noAdvance / noLabel / noSkip | instance | 1 each | 7 / 4 / checkInput | TraiT modify | leaves, exitFromParse, checkInput :92,95,112 |
+| notifyFail | instance | 1 | 1 | Commands.rtn:506 | parse() :1448 |
+| overTo (upTo/upToOver) | instance | 2 | 5 | TraiT modify | driveStep :282, runLeafParse :363, setParseWalk :397, setTestMatch :162, testUpTo |
+| ruleTerm | instance | 3 | 1 | setRuleStuff :1961; ruleActions.rtn:319; TraiTdata :1151 | isRuleTerm() |
+| sukcess | **ACT** | 34 | 20 | parse() (6); every parseX leaf (2-3 each); fireLabelMethod :755; parseRule restore; checkInput :102-108 | parse() (10); exitFromParse :25,33; leaves |
+
+**Per-activation set: 10**, matching objectModel §1.3: `label`, `parentLabel`, `kount`, `sukcess`, `isOK`, `hereAt`, `failedAt`, `inProcess`, `guardOK`, `guardFAIL`. `parentStuff` is split, and `owner` is the back-pointer.
+- **Of the 10, `guardFAIL` has 0 readers**, so its row is a delete, not a move.
+- **`inProcess` exists only to feed getStuff's copy decision**, so it retires with the copy.
+- `guardOK` is really a **call parameter** from `testOptions` to the callee's `checkInput`. It belongs in the child activation's creation, not in any stuff.
+
+**getStuff's running copy (GroupItem.twk:1052-1064).**
+- Trigger: `stuff.owner != this || stuff.inProcess` mints `new RuleStuff(rStuff)` (copy ctor: *this = *r, then reset label/sukcess/kount/parentStuff) and sets `owner = this`.
+- 22c: 65,304 mints fleet-wide, all with owner == this afterwards. **The split between the two arms (owner-mismatch vs inProcess) is not measured.** If the owner-mismatch arm is 0, the ownership test has no spelling to replace.
+- **Consequence for readers (hazard 4b):** leaves reached through `testMatch(this)` read `field.rStuff`, the base, not this copy.
+
+**ParseActivation (jitContext.h:707).**
+
+| field | meaning | writers | readers |
+|---|---|---|---|
+| `stuff` | the activation's RuleStuff | parseRule push Generate.rtn:229 (`ruleStuff`); driveStep floor GroupActions.rtn:256 (0) | enclosingFace, deferredAbove, driveFloorLabel, driveStep :289 |
+| `prev` | the activation above ("who is active above") | the two pushes | deferredAbove, driveFloorLabel, pops |
+| `floor` | 1 = drive floor | driveStep | enclosingFace, deferredAbove, driveStep :289 |
+| `label` | a floor's slot for a generated root's label | driveFloorLabel GroupActions.rtn:234 | driveStep :292 |
+
+The new road's per-activation fields are also lifted into C++ locals by parseRule's **callBracket**: label, parentLabel, parentStuff, hereAt, kount, sukcess (Generate.rtn:224-229, restored at :283). That is a third home. objectModel F-O4 names three homes: rStuff, getStuff's copy, and ParseActivation. The callBracket is really a fourth: C++ locals.
+
+---
+
+### 23E. Proposed stroke order for stroke 5 (no build; each one certifiable)
+
+Every step lands on its own branch and keeps the fleet (pop.sh, jitLadder, printPop, countPop, ddPop, decodePop, frontier, canary) row for row. Bare tokall throughout.
+
+| step | what | touches | certificate |
+|---|---|---|---|
+| **5.1 ParseActivation into tok** (R1; opens the stroke) | declare `class ParseActivation { RuleStuff stuff; ParseActivation prev; int floor; GroupItem label; }` in a `.twk` (RuleStuff.twk is the natural home), mirrored `external ParseActivation` in groups.ext. `gParseActive` becomes tok-visible: a `GroupRules` member is one option, a tok global the other; **ruling needed**. The pushes stay stack-allocated in passthrough (`ParseActivation callActive(...)`; inferred OK under Boehm, since the stack is a root). Delete the struct from jitContext.h | jitContext.h:700-708; Generate.rtn:229-230,280; GroupActions.rtn:231-235,256-259,289,292,308; GroupItem.twk:457-473; RuleStuff.twk; groups.ext | pure move: `codeOnly.py` diff of every changed `.mm` shows only the declaration move plus spelling; fleet row for row; canary +/- only the new ctor. H7 not applicable (no mechanism changes). Pin with `treeRowT`/driveFloor rows green |
+| **5.2 the node-holding readers respell** (no signature change) | E2 `owner.matches` -> `field.matches` (Generate.rtn:325); E8 -> `field.matches` (RuleStuff.twk:319); E15/E16 -> `this` (GroupItem.twk:1432,1448) | 4 lines | measured 100% equal (9,276 / 239,620 / 39); fleet row for row; generated diff = 4 lines |
+| **5.3 ParseActivation gains `face`** | parseRule's push writes `face = field` (post-zEnc); E1 `enclosingFace` and E13 (deferredAbove list walk) read `a->face` | Generate.rtn:18-19,229; GroupItem.twk:465; the 5.1 class; groups.ext | **first**, a witness row: at every E1/E13 read print `face == stuff->owner` disagreements (want 0) beside the read count (want > 0, the H4 non-zero sibling). Then switch. H7: write `face = 0` at the push and E1 must go red (the `enclosingRule` rows / fleet parseRule tests) |
+| **5.4 hand the node to the stuff-only readers** | `checkInput(node)` (8 sites), `getWhatFollows(node)`, `followingMember(node)`, `setTestMatch(node)`, `testAttributes(stuff,node)`, `testOptions(stuff,node)`, `setTargetFlag(stuff,node)` / `measureTargetAgree(...,node)`, `deferredAbove(stuff,node)` -> `measureDeferredAbove(node,...)` | RuleStuff.twk; Generate.rtn; GroupItem.twk; measure.twk; groups.ext (the `external RuleStuff` methods and `RuleStuff.h` externs) | pre-switch witness: at each new call site count `node != stuff.owner` (want 0) with a call-count sibling. Fleet row for row. The canary moves only by changed signatures. Bear-trap #42 check: read the generated tails of checkInput (its `field =` local disappears) |
+| **5.5 the parentStuff chain (E14) onto the activation list** | `parse()` pushes a ParseActivation `{stuff, face=this, prev, floor=0, kind=old}` and pops before return. deferredAbove walks one list, and the chain walk goes away. **Scope hazard:** enclosingFace would then see old-road activations. Gate it on `kind`, or rule the re-resolution legal on both roads (**ruling needed**) | GroupItem.twk parse(), deferredAbove; Generate.rtn enclosingFace | I1 already prints walk=list/chain, held, end. Before/after census: `chain` walks go to 0 and every `held` answer is unchanged (diff the DEFERABOVE lines under parseTrace). H7: remove the parse() push and chain walks reappear / held answers move. Also the NO HUNT row #1 drops to one walk |
+| **5.6 the label's own rule link** | measure first (C4): at E3, compare `ruleSTUFF->owner` with `label.rStuff->owner` and with fireLabelMethod's `this`. Then mint a GroupItem field (e.g. `labelOf`; name is Tony's) written at checkInput's mint (RuleStuff.twk:115-118). processAction :692 and processCode :733 read it, and the `ruleSTUFF` read retires. The D2 tripwire asks `isLabel && !labelOf` | GroupItem.twk class (layout), groups.ext `external GroupItem`, tokall + the #10 subdirectory grep; RuleStuff.twk; GroupActions.rtn | E3's 60 calls green, with a row asserting the action name reached. **E4 is 0 calls, so it needs a new fleet row** (F-130 already notes two unexercised owner readers). Zero-reader census on `ruleSTUFF` if it retires. H7: blank the link, and the E3 row goes red |
+| **5.7 the ownership test gets its spelling** | measure getStuff's two arms (owner-mismatch vs inProcess) and setRuleStuff's re-mint (22c: 0 calls). If owner-mismatch is 0 fleet-wide once labels and builtinActoR no longer borrow, the test is `inProcess` alone, and setRuleStuff's arm goes to cleanupList | GroupItem.twk:1057, :1957 | census rows printed unconditionally. The first half of 5.8 retires getStuff's copy anyway |
+| **5.8 move the activation fields** (several sub-strokes, by field family) | 5.8a hereAt / failedAt / kount / sukcess / isOK; 5.8b label / parentLabel (and parentStuff's activation half -> `activation.prev`; the instance half -> `node.parent.rStuff`); 5.8c guardOK becomes a push parameter; delete guardFAIL, onFail, doNothing, isOption (zero-reader census, F-O16); inProcess and getStuff's copy retire; parseRule's callBracket retires; isBranch / guardInProcess leave GroupBody | RuleStuff.twk (layout), GroupBody.twk (layout), every parse method, attachLabel, fireLabelMethod, exitFromParse; groups.ext; tokall + #10 grep | objectModel's stroke-5 certificate: recursion rows (K-rows, A->B->A) through the new home; NO HUNT census reads 0 (baseline 7 sites); zero-reader census for the deleted fields; hazards 4b/4c/4d dissolve (write a row for each before the move so the dissolve is measured) |
+| **5.9 retire `owner`** | remaining writers (copy ctor GroupItem.twk:51, getStuff :1059, setRuleStuff :1959, ruleActions.rtn:329, ctor RuleStuff.twk:50) and the declaration RuleStuff.twk:15 + groups.ext mirror; `parseR`'s bridge no longer needs a face | RuleStuff.twk, GroupItem.twk, ruleActions.rtn, groups.ext; tokall | zero-reader census `grep -c 'owner' RuleStuff.mm GroupItem.mm GroupRules.mm measure.mm` on the RuleStuff member = 0; fleet row for row; generated diff = the field and its writes |
+
+**Order rationale:**
+- 5.2 and 5.4 are cheap and independent of the activation list. 5.2 could land *before* 5.1, but R1 says the stroke opens with the migration.
+- 5.3 and 5.5 are the only steps that give ancestors a node, and E1/E13/E14 cannot retire any other way.
+- 5.6 is independent of 5.3-5.5 and could run in parallel once measured.
+- 5.8 needs 5.5, because the old road must have an activation before its fields can move there.
+- 5.9 is last by construction.
+
+**Rulings this surfaces (not ruled):**
+1. Where `gParseActive` lives once it is tok-visible.
+2. Whether old-road activations are visible to `enclosingFace` (5.5).
+3. The label-link name, and whether it stays `GroupItem` or goes onto a property.
+4. Whether `sourceLine` and `guardFAIL` are deleted rather than moved (both have zero readers).
