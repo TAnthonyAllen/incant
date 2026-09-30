@@ -884,3 +884,95 @@ Between name resolution (`aCTionNamE` -> `resolveName`) and `aCTionDefinE`, the 
 not started.** The second writer is the `MEMBERs` command. Two notes for the ruling: attribute traits go through the same
 `aCTionTraiT` writes (a first-write mint there would mint an attribute's own node as well as the definition's), and
 `aCTionTraiTdata`'s writes to a resolved VALUE are the same capture on a different field.
+
+## 22. Stroke 4.4: `RuleStuff.rule`, retire or cache (SEQ 232 item 2, 2026-09-30, read-only) -- STOP, Tony rules
+
+**Measured with a temporary build** (a counter at every reader and writer site, dumped per process; four `.mm`
+hand-tapped, reverted, md5-identical, rebuilt bare, fleet back to 857 / 1). The instrumented binary was
+non-perturbing: pop.sh 857 / 1, jitLadder PASSED, printPop PASSED. Population: pop.sh (3,504 processes) plus
+jitLadder and printPop (624).
+
+### 22a. The premise does not hold: `RuleStuff.rule` is not what `instanceRule()` answers
+
+Every writer sets `rule` to **the node the RuleStuff is minted for** -- the face whose parse state it is. It is
+never the registered original. `instanceRule(n)` answers the registered original when `n` is a copy of one. So
+they are different facts, and they differ on almost every copy that parses. F-O10 already said this ("aimed at
+the face, not the rule"). This measurement adds the counts.
+
+### 22b. Readers, today's answer beside `instanceRule()`'s (pop.sh counts; jit run agrees in shape)
+
+"differs" = `rule != rule.instanceRule()`. In every such case `parent` differed too; the affiliation column is
+the subset where `options.affiliation` also differed. Reads of `groupBody` (shared by copies) give the same
+answer either way; reads of `parent`, `nextInParent`, `options`, or node identity do not.
+
+| # | site | hands the reader | reads | calls | differs | affil differs |
+|---|---|---|---|---|---|---|
+| E1 | `enclosingFace` (Generate.rtn:18) | stuff only | `get(tag)` -- body | 459,508 | 401,622 | 5,003 |
+| E2 | `parseString` (GroupRules.mm:9391) | node + its stuff | `matches` -- body | 9,276 | 6,793 | 742 |
+| E3 | `processAction` label arm (:9674) | **label** + `ruleSTUFF` | **identity** (currentMETHOD, action) | 60 | 60 | 5 |
+| E4 | `processCode` label arm (:9728) | **label** | identity | **0** (unexercised) | -- | -- |
+| E5 | `setTargetFlag` (Generate.rtn:433) | stuff only | **parent, affiliation** | 13,588 | 10,684 | 2,976 |
+| E6 | `testAttributes` (RuleStuff.twk:247) | stuff only | `nextAttribute` -- body | 1,193,491 | 1,173,740 | 754,064 |
+| E7 | `testOptions` (:299) | stuff only | `nextMember` -- body | 586,282 | 586,205 | 260,197 |
+| E8 | `testString` (:319) | node + its stuff | `matches` -- body | 239,620 | 191,688 | 114,238 |
+| E9 | `checkInput` (:86) | stuff only (`this`) | guard, **parent, affiliation**, label tag | 7,931,536 | 7,365,613 | 2,240,530 |
+| E10 | `followingMember` (:134) | stuff only | **parent, nextInParent** | 8,423 | 8,218 | 200 |
+| E11 | `getWhatFollows` (:146) | stuff only | **parent, affiliation**, data | 39,351 | 32,130 | 12,678 |
+| E12 | `setTestMatch` | stuff only | body flags, `contents()` | 38,397 | 31,176 | 11,724 |
+| E13 | deferred-above, activation walk (GroupItem.twk:465) | stuff only | `deferred` -- body | 456,855 | 391,701 | 8,317 |
+| E14 | deferred-above, parentStuff chain (:471) | stuff only | `deferred` -- body | 19,950,567 | 11,575,808 | 7,890,037 |
+| E15 | `parse()` `reportRepeatLimit` | node | identity (report) | 39 | 39 | 0 |
+| E16 | `parse()` `aCTionFailed` | node | identity | **0** (notifyFail never set) | -- | -- |
+| I1 | `measureDeferredAbove` (measure.twk:366) | stuff only | tag, action | 26,999 | 23,443 | 3,011 |
+| I2 | `measureTargetAgree` (:799) | stuff only | tag, **parent** | 632 | 496 | 144 |
+
+**Where the reader holds the node too** (E2, E8, E15), `rule == node` on every call (9,276 / 239,620 / 39),
+and `instanceRule(node) == rule` on only 2,483 / 47,932 / 0.
+
+### 22c. Writers -- all write the holder; none writes anything `instanceRule()` could derive
+
+| site | writes | `rule == holder` | `instanceRule(holder) == rule` |
+|---|---|---|---|
+| copy ctor (GroupItem.twk, via `*rStuff = *src`) | the copy | 410,290 / 410,290 | 149,371 |
+| `getStuff` fresh activation copy (:1073) | `this` | 65,304 / 65,304 | 0 |
+| `setRuleStuff` re-mint (GroupItem.twk, `rStuff.rule != this` arm) | `this` | **0 calls** in the fleet | -- |
+| member propagation (ruleActions.rtn:329) | the propagated copy | 28,347 / 28,347 | 6,259 |
+| `RuleStuff(GroupItem)` ctor | its argument | 453,970 / 453,970 | 188,612 |
+
+`instanceRule()` is a GroupItem method, so it can derive `rule` only for a caller that already holds the node.
+The value written is the node itself.
+
+### 22d. Readers that rely on `rule` differing from anything derivable -- FINDINGS, not retirements
+
+1. **Borrowed RuleStuff: the label's link to its rule.** `checkInput` gives each label the rule's RuleStuff
+   (`label.setRStuff(this)`), so for a label `rStuff.rule` is the rule face, not the label. E3 reads it on all 60
+   calls (`rule != holder` 60 / 60; `instanceRule(label) == rule` **0 / 60**, because a label has no `ruleOf`).
+   This is Ruling D2's birth link, and the only one there is. `builtinActoR` borrows the same way (setActions,
+   three arms). The parseR `bridge` is a third borrower (`rule` = the term, held by no node).
+2. **The ownership test.** `getStuff` and `setRuleStuff` ask `stuff.rule != this` to mean "this RuleStuff is not
+   mine" (borrowed or inherited) and mint a fresh one. That question has no other spelling today.
+3. **Stuff-only readers.** E1, E5-E7, E9-E14 and both instruments are handed a RuleStuff and no node. `rule` is
+   their only way back to the node, and E5, E9, E10, E11 and I2 read per-node facts (parent, affiliation,
+   nextInParent) through it.
+
+### 22e. Layout cost of removing the field (if ever ruled)
+
+`RuleStuff.twk:15` plus the `external RuleStuff` mirror in `groups.ext` (line 757), then a full bare tokall.
+GUI/, GUI/Stuff/ and Tests/ generated files carry no RuleStuff references, so they are not stale. The cost is
+the readers, not the layout: 18 sites (16 engine, 2 instruments) plus the bare-`rule` uses inside RuleStuff's
+own methods (`use rule`, `field = rule`). Each would need the node handed in, and the three borrowers (22d.1)
+need a new label -> rule link. Removing it is a signature change across the parse road, not a cache
+retirement.
+
+### 22f. Input for the ruling (not a ruling)
+
+Neither "retire" nor "cache" fits: it is not a cached copy of `instanceRule()`, so there is no second writer of
+one fact to remove. It is the parse state's back-pointer to its face. The options as measured:
+- **keep, and name it for what it is** (`face` or `owner`), with a DesignDocs stump saying it is not the
+  defining rule;
+- **retire by handing the node in** -- stuff-only readers get `(node, stuff)`; the label link moves to the label
+  (a `ruleOf`-like field, or a property); the ownership test gets a new spelling. This is the fieldFlavors
+  direction (rStuff dissolves into the instance's body), and it belongs to stroke 5 with the activation fields,
+  not to 4.4.
+
+`definingRule()`'s retirement (respell `canonOf`, `definersOf`) does not depend on this and can go first.
