@@ -5564,6 +5564,8 @@ kindRow "ruleOfT RO-6 ruleOf code lines in source (non-zero sibling of RO-5)" "$
 #  RE-PINNED 2026-09-29 (family 2): 3 -> 2 -- parse()'s definer reads instanceRule(); its value is never read.
 #  RE-PINNED 2026-09-29 (family 3, the last): 2 -> 0 -- jitFieldMethod and jitShowRecord read instanceRule(). STROKE 4.3's
 #  END STATE: no engine caller of definingRule() is left; the instruments canonOf and definersOf still call it.
+#  2026-09-30 (stroke 4.4a): canonOf and definersOf respelled onto instanceRule() and definingRule() DELETED; this row
+#  stays pinned at 0 as the record, and cannot move now that the method does not exist.
 kindRow "ruleOfT RO-7 definingRule() engine callers left" "$(cat *.twk *.rtn | grep -c 'definer *= .*definingRule()')" "0"
 #  RO-8, RO-7's non-zero sibling: the engine callers that now read instanceRule() -- runLeafParse, installParseMethod,
 #  parse(), jitFieldMethod, jitShowRecord. A zero in RO-7 asserts nothing unless the callers are shown to exist.

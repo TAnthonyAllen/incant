@@ -211,15 +211,14 @@ int         total    = 0;
     return trueResult;
 }
 
-/*  ⚠ definingRule() IS ASSIGNED TO A LOCAL, NEVER TESTED INLINE -- the inline
-    form does not parse.   measure.canonOf  */
+/*  canon is instanceRule() -- the registered original for a copy of one, else the node (stroke 4.4a; definingRule() retired)   measure.canonOf  */
 extern GroupItem canonOf(GroupItem argument)
 {
 GroupItem   canon;
     if !argument {
         cerr "canonOf: no field passed in":;
         return null; }
-    canon = argument.definingRule();
+    canon = argument.instanceRule();
     if !canon {
         cerr "canonOf: " argument.tag " resolved to nothing":;
         return null; }

@@ -1940,6 +1940,7 @@ GroupItem 	*block = new GroupItem();
        Assignment position is fine.
     3. A METHOD CALL CANNOT APPEAR IN AN `if` CONDITION --
        `if term.definingRule() != term` fails to parse. Assign it to a local.
+       (definingRule() was retired 2026-09-30, stroke 4.4a; the parse fact stands.)
 *******************************************************************************/
 // dataName the data-kind NAME for a data-kind number -- one table, read by getDataType and measureKindArm
 extern "C" char *dataName(int d)
@@ -2082,7 +2083,7 @@ int 	length = 0;
 		::printf("\n");
 }
 
-// definersOf every occurrence of a rule -- the registry entry and each term carrying its tag -- and whether definingRule() answers the REGISTRY's entry, as the shared-children invariant says it must (SEQ 216); prints the counts unconditionally
+// definersOf every occurrence of a rule -- the registry entry and each term carrying its tag -- and whether instanceRule() answers the REGISTRY's entry, as the shared-children invariant says it must (SEQ 216); prints the counts unconditionally
 extern "C" GroupItem *definersOf(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -2094,12 +2095,12 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	GroupItem *r = 0;
 	while ( want && regEntry && (r = reg->next(r)) ) {
 	GroupItem *t = 0;
-	if ( ::strcmp(r->groupBody->tag,want) == 0 ) { seen++; if ( r->definingRule() == regEntry ) toRegistry++;
-	else ::fprintf(stderr,"  DEFINER %s registry entry answers %p, not itself\n",want,r->definingRule()); }
+	if ( ::strcmp(r->groupBody->tag,want) == 0 ) { seen++; if ( r->instanceRule() == regEntry ) toRegistry++;
+	else ::fprintf(stderr,"  DEFINER %s registry entry answers %p, not itself\n",want,r->instanceRule()); }
 	while ( (t = r->next(t)) )
 	if ( ::strcmp(t->groupBody->tag,want) == 0 ) {
 	seen++;
-	GroupItem *d = t->definingRule();
+	GroupItem *d = t->instanceRule();
 	if ( d == regEntry ) toRegistry++;
 	else ::fprintf(stderr,"  DEFINER %s term of rule %s answers %s@%p (parent %s), not the registry's\n",want,r->groupBody->tag,
 	d ? d->groupBody->tag : "-",d,(d && d->parent) ? d->parent->groupBody->tag : "-"); }
@@ -5136,7 +5137,7 @@ extern "C" GroupItem *jitFieldMethod(GroupItem *field)
 	
 	GroupRules *ruler   = GroupControl::groupController->groupRules;
 	//  THE CANONICAL NODE. Everything below reads and writes THIS, never the
-	//  arriving wrapper -- see the definingRule() block in the header.
+	//  arriving wrapper -- instanceRule() since stroke 4.3; see DesignDocs JitFieldMethod.
 	GroupItem  *definer = field->instanceRule();
 	RuleStuff  *stuff   = definer->rStuff;
 	char       *name    = definer->groupBody->tag;

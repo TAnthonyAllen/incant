@@ -2023,7 +2023,7 @@ extern GroupItem jitFieldMethod(GroupItem field)
     -%
     GroupRules *ruler   = GroupControl::groupController->groupRules;
     //  THE CANONICAL NODE. Everything below reads and writes THIS, never the
-    //  arriving wrapper -- see the definingRule() block in the header.
+    //  arriving wrapper -- instanceRule() since stroke 4.3; see DesignDocs JitFieldMethod.
     GroupItem  *definer = field->instanceRule();
     RuleStuff  *stuff   = definer->rStuff;
     char       *name    = definer->groupBody->tag;

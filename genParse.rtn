@@ -18,6 +18,7 @@
        Assignment position is fine.
     3. A METHOD CALL CANNOT APPEAR IN AN `if` CONDITION --
        `if term.definingRule() != term` fails to parse. Assign it to a local.
+       (definingRule() was retired 2026-09-30, stroke 4.4a; the parse fact stands.)
 *******************************************************************************/
 
 
