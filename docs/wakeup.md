@@ -29,6 +29,9 @@
 #     captured (inferred, not chased): stale ruleSTUFF on parseAction/testAction; leaf tests writing base stuff on
 #     recursion; guardOK stale on the base; aCTionFailed reading failedAt off the base.
 #
+#   - **Post-seal: kant flag-access census (6e96fff, docs/fieldFlavors.md):** 27 GroupFields entries used live by kant, 21
+#     C++-only; kant writes flags on five entries only; 12 entries fall to opDot's default arm on a read.
+#
 #   ## CHECKLIST, measured at this tree (H12, H14) -- date checked, 2026-09-30 12:35
 #   pop.sh 861 / 1 · jitLadder PASSED · decodePop, ddPop (5 / 1), countPop, printPop, frontier row for row with the
 #   stroke baselines · canary 315 · retok bare · groups.ext committed · Groups, support, TOK clean and pushed ·
