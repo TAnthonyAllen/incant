@@ -92,6 +92,23 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-130 — OPEN 2026-09-30 — two `RuleStuff.owner` readers run under no fleet row (coverage)
+
+**What.** Stroke 4.4b renamed `RuleStuff.rule` to `owner` at every reader, including two that recon 22's tap measured
+at **0 calls** across pop.sh, jitLadder and printPop. The rename touched them and nothing ran them, so their
+certificate is the generated diff alone, not a run.
+**Where.** `processCode`'s label arm, `if isLabel  field = owner;` (GroupActions.rtn:725), and `parse()`'s
+`if !sukcess && notifyFail   aCTionFailed(owner);` (GroupItem.twk:1448; notifyFail is never set in the fleet).
+**Evidence.** Recon 22 (docs/objectModelRecon.md §22b, rows E4 and E16): 0 of 3,504 + 624 processes reached either.
+The 4.4b generated diff is rename-only at both (43 lines, each identical to HEAD with owner mapped back to rule).
+**Done when.** Each site has a fleet row that reaches it and prints the node it read, with an H7 control that goes
+red when the read is broken -- or Tony rules either site dead and it goes to the cleanupList.
+**Owner.** Unassigned.
+```
+ATTEMPT LOG
+  (none yet)
+```
+
 ### F-129 — OPEN 2026-09-27 — an action whose body holds a BARE-NAME statement crashes on its SECOND call
 
 **What.** `oneA code={ tsX; };` called twice: the first call runs, the second dies at exit 139 in `aCTionXpress`

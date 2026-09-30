@@ -1960,6 +1960,11 @@ define
             checkInput="sets hereAt and atRuleMark, handles input diversion, and returns true if current input is valid.":
                  enclosingActivation=(this write hands the label UP to the enclosing rule's stuff. A generated DRIVE ROOT parks it on the drive floor first (driveFloorLabel, 2026-09-26); otherwise a top-level rule's parent is the REGISTRY, which lawfully has no stuff -- so refuse by name rather than dereference a null.#);
             fields=(the per-node parse state's fields that carry an argument.#):
+                owner=(THE NODE THIS RuleStuff WAS MADE FOR, NEVER THE DEFINING RULE. Renamed from rule
+                    2026-09-30 (stroke 4.4b; recon 22). For a label it is the label's RULE -- Ruling D2's
+                    birth link, the only one there is -- because checkInput hands the label the rule's own
+                    RuleStuff; builtinActoR and the parseR bridge borrow the same way. Retires with stroke 5,
+                    when the node travels beside the RuleStuff and a label gets its own rule link.#);
                 parentLabel=(the `into` a generated body attaches to, made direct and named. Not new state: parse() reached the same value through parentStuff.label. The callee lifts it into a stack local at ENTRY, which closes the recursion window.#);
                 frameArg=(MINTED AND STRIPPED 2026-09-01, kept because the reason is reusable: parentLabel's pattern moved to carry an ACTION's argument, and it could never fire -- rStuff presence is the liveness test (Ruling D) and an action is not a rule. The residence was chosen from the precedent's shape, not the customer's. An unused field in a MIRRORED struct is bear-trap #10's next victim, so it went rather than sitting inert.#);
                 parseMethod=(ONE argument, the rule: kant methods take one, so a two-argument parse method could never survive the kant handover. Widening or narrowing it is a LAYOUT change (bear-trap #10).#);

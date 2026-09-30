@@ -12,7 +12,7 @@ GroupItem   label,
             onGroup,
             parentLabel,
             sourceLine,
-            rule;
+            owner;          // owner the node this RuleStuff was made for -- never the defining rule
 int         kount,
             max,
             maxRepeat,
@@ -47,7 +47,7 @@ boolean
 // RuleStuff constructors -- min and max start at 1; the TraiT action may overwrite them
 RuleStuff(GroupItem grup)
 {
-    rule        = grup;
+    owner       = grup;
     ruleName    = tag;
     // min and max may be overwritten by the TraiT rule action
     max         = 1;
@@ -83,7 +83,7 @@ GroupRules  ruler = groupRules;
 int checkInput()
 {
 GroupRules  ruler = groupRules;
-GroupItem   field = rule;
+GroupItem   field = owner;
     guardFAIL   = false;
     if !atRuleMark {
         cerr "checkInput: no input source":;
@@ -131,7 +131,7 @@ GroupItem followingMember()
 {
     if parent
         {
-        GroupItem   grup = rule;
+        GroupItem   grup = owner;
         while grup = grup.nextInParent
             if grup.isMember    break;
         return grup;
@@ -143,7 +143,7 @@ GroupItem followingMember()
 void getWhatFollows()
 {
 GroupItem   grup;
-use rule
+use owner
     followed    = true;
     if isGROUP
         onGroup     = group;
@@ -244,7 +244,7 @@ extern int testAttributes(RuleStuff stuff)
 {
 GroupItem   grup;
 int         result = true;
-    while grup = rule.nextAttribute(grup)
+    while grup = owner.nextAttribute(grup)
         if noPrint  continue;
         or parse(stuff) result = true;
         else {
@@ -296,7 +296,7 @@ Buffer      buffer  = stringBUFFER;
 extern int testOptions(RuleStuff stuff)
 {
 GroupItem   grup;
-    while grup = rule.nextMember(grup) {
+    while grup = owner.nextMember(grup) {
         if checkGuard(grup) {
             grup.guardOK = true;
             if parse(stuff) return true; }}
@@ -316,7 +316,7 @@ extern int testString(GroupItem field)
 {
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = field.rStuff;
-String      matchedString = rule.matches(atRuleMark);
+String      matchedString = owner.matches(atRuleMark);
     if matchedString {
         if noAdvance    atRuleMark = hereAt;
         if label        label.text = matchedString;

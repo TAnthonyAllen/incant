@@ -15,8 +15,8 @@ GroupItem   grup;
 extern GroupItem enclosingFace(GroupItem field)
 {
     -%
-    if ( !field || !gParseActive || gParseActive->floor || !gParseActive->stuff || !gParseActive->stuff->rule ) return 0;
-    return gParseActive->stuff->rule->get(field->groupBody->tag);
+    if ( !field || !gParseActive || gParseActive->floor || !gParseActive->stuff || !gParseActive->stuff->owner ) return 0;
+    return gParseActive->stuff->owner->get(field->groupBody->tag);
     %-
 }
 
@@ -322,7 +322,7 @@ RuleStuff   ruleStuff = rStuff;
     if checkInput() {
         // gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
         sukcess = false;
-        String  matchedString = rule.matches(atRuleMark);
+        String  matchedString = owner.matches(atRuleMark);
         if matchedString {
             if label    label.text  = matchedString;
             sukcess     = true; }}
@@ -430,8 +430,8 @@ RuleStuff   ruleStuff = rStuff;
 extern void setTargetFlag(RuleStuff stuff)
 {
     -%
-    if ( !stuff || !stuff->rule ) return;
-    GroupItem *r = stuff->rule;
+    if ( !stuff || !stuff->owner ) return;
+    GroupItem *r = stuff->owner;
     int computed = 0;
     if ( isMember(r->options.affiliation) && r->parent && !r->parent->groupBody->flags.binType )
         computed = 1;

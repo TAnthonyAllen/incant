@@ -101,7 +101,7 @@ extern "C" int testAttributes(RuleStuff *stuff)
 {
 GroupItem 	*grup = 0;
 int 		result = 1;
-	while ( grup = stuff->rule->nextAttribute(grup) )
+	while ( grup = stuff->owner->nextAttribute(grup) )
 		if ( grup->groupBody->flags.noPrint )
 			continue;
 		else
@@ -198,7 +198,7 @@ Buffer 		*buffer = ruler->stringBUFFER;
 extern "C" int testOptions(RuleStuff *stuff)
 {
 GroupItem 	*grup = 0;
-	while ( grup = stuff->rule->nextMember(grup) )
+	while ( grup = stuff->owner->nextMember(grup) )
 		{
 		if ( stuff->checkGuard(grup) )
 			{
@@ -254,7 +254,7 @@ extern "C" int testString(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
-char 		*matchedString = ruleStuff->rule->matches(ruler->atRuleMark);
+char 		*matchedString = ruleStuff->owner->matches(ruler->atRuleMark);
 	if ( matchedString )
 		{
 		if ( ruleStuff->noAdvance )
@@ -395,7 +395,7 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	overTo = 0;
 	ruleTerm = 0;
 	sukcess = 0;
-	rule = grup;
+	owner = grup;
 	ruleName = grup->groupBody->tag;
 	// min and max may be overwritten by the TraiT rule action
 	max = 1;
@@ -419,7 +419,7 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	onGroup = 0;
 	parentLabel = 0;
 	sourceLine = 0;
-	rule = 0;
+	owner = 0;
 	max = 0;
 	maxRepeat = 0;
 	min = 0;
@@ -470,7 +470,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 int RuleStuff::checkInput()
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*field = rule;
+GroupItem 	*field = owner;
 	guardFAIL = 0;
 	if ( !ruler->atRuleMark )
 		{
@@ -541,9 +541,9 @@ checkFailed:
 // followingMember the next member after this rule in its parent list -- getWhatFollows' onFail
 GroupItem *RuleStuff::followingMember()
 {
-	if ( rule->parent )
+	if ( owner->parent )
 		{
-		GroupItem 	*grup = rule;
+		GroupItem 	*grup = owner;
 		while ( grup = grup->nextInParent )
 			if ( isMember(grup->options.affiliation) )
 				break;
@@ -557,18 +557,18 @@ void RuleStuff::getWhatFollows()
 {
 GroupItem 	*grup = 0;
 	followed = 1;
-	if ( isGROUP(rule->groupBody->flags.data) )
-		onGroup = rule->getGroup();
-	if ( isMember(rule->options.affiliation) && !rule->parent->groupBody->flags.binType )
+	if ( isGROUP(owner->groupBody->flags.data) )
+		onGroup = owner->getGroup();
+	if ( isMember(owner->options.affiliation) && !owner->parent->groupBody->flags.binType )
 		{
 		isTarget = 1;
 		if ( grup = followingMember() )
 			onFail = grup;
 		}
 	else
-	if ( isEmbedded(rule->options.affiliation) )
+	if ( isEmbedded(owner->options.affiliation) )
 		{
-		if ( (rule->groupBody->flags.data && rule->groupBody->flags.data < 4) || max == 1 )
+		if ( (owner->groupBody->flags.data && owner->groupBody->flags.data < 4) || max == 1 )
 			isTarget = 1;
 		}
 	// promotionRetired the parent-min promotion is RETIRED -- do not reintroduce it; an optional term must not make its whole rule optional
@@ -582,11 +582,11 @@ void RuleStuff::setTestMatch()
 	if ( upTo(overTo) || upToOver(overTo) )
 		testMatch = ::testUpTo;
 	else
-	if ( isBIN(rule->groupBody->flags.binType) || isREGISTRY(rule->groupBody->flags.binType) )
+	if ( isBIN(owner->groupBody->flags.binType) || isREGISTRY(owner->groupBody->flags.binType) )
 		testMatch = ::testContainer;
 	else
-	if ( rule->groupBody->flags.data )
-		switch (rule->groupBody->flags.data)
+	if ( owner->groupBody->flags.data )
+		switch (owner->groupBody->flags.data)
 			{
 			case 1:
 				testMatch = ::testAny;
@@ -604,13 +604,13 @@ void RuleStuff::setTestMatch()
 				testMatch = ::testString;
 			}
 	else
-	if ( rule->groupBody->flags.isCondition )
+	if ( owner->groupBody->flags.isCondition )
 		testMatch = ::testCondition;
 	else
-	if ( parseACTION(rule->groupBody->flags.methodType) )
+	if ( parseACTION(owner->groupBody->flags.methodType) )
 		testMatch = ::testAction;
 	else
-	if ( !rule->contents() )
-		if ( !isMethod(rule->groupBody->flags.instructType) )
+	if ( !owner->contents() )
+		if ( !isMethod(owner->groupBody->flags.instructType) )
 			testMatch = ::testString;
 }

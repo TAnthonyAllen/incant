@@ -48,7 +48,7 @@ GroupItem(GroupItem grup)
     if grup.rStuff {
         rStuff  = new(this);
         *rStuff = *grup.rStuff;
-        rule    = this;
+        owner   = this;
         followed = isOK = sukcess = false; }
 }
 
@@ -462,13 +462,13 @@ int deferredAbove(RuleStuff stuff)
         ParseActivation *a = gParseActive;
         if ( a->stuff == stuff ) a = a->prev;
         for ( ; a && !a->floor; a = a->prev )
-            if ( a->stuff && a->stuff->rule && a->stuff->rule->groupBody->flags.deferred )
+            if ( a->stuff && a->stuff->owner && a->stuff->owner->groupBody->flags.deferred )
                 { ::measureDeferredAbove(stuff,1,1,2,inDrive); return 1; }
         ::measureDeferredAbove(stuff,1,0,a ? 1 : 0,inDrive);
         return 0;
         }
     for ( RuleStuff *up = stuff->parentStuff; up; up = up->parentStuff )
-        if ( up->rule && up->rule->groupBody->flags.deferred )
+        if ( up->owner && up->owner->groupBody->flags.deferred )
             { ::measureDeferredAbove(stuff,0,1,2,inDrive); return 1; }
     ::measureDeferredAbove(stuff,0,0,0,inDrive);
     return 0;
@@ -1054,9 +1054,9 @@ RuleStuff getStuff(RuleStuff pStuff)
     // lazyMaterialisation it asks ensureRStuff BY NAME -- a node arriving with no rStuff is the parser's design,
     // lazyMaterialisation not a mis-use to be repaired
 RuleStuff   stuff = ensureRStuff();
-    if stuff.rule != this || stuff.inProcess {
+    if stuff.owner != this || stuff.inProcess {
         stuff       = new(rStuff);
-        stuff.rule  = this; }
+        stuff.owner = this; }
     if parentStuff = pStuff
         parentLabel = parentStuff.label;
     if !followed    getWhatFollows();
@@ -1429,7 +1429,7 @@ continueHere:
             kount++;
             attachLabel(ruleStuff,pStuff,1); }
         else break; }
-    if kount >= maxRepeat && maxRepeat > 1  reportRepeatLimit(rule,kount,maxRepeat);
+    if kount >= maxRepeat && maxRepeat > 1  reportRepeatLimit(owner,kount,maxRepeat);
 matchFailed:
     if !sukcess {
         if !sukcess && kount >= min sukcess = true;
@@ -1445,7 +1445,7 @@ debugHere:
             atRuleMark  = hereAt;
             if label    label = 0; }}
 generatedExit:
-    if !sukcess && notifyFail   aCTionFailed(rule);
+    if !sukcess && notifyFail   aCTionFailed(owner);
     if sukcess && !label        label = labelNO;
     inProcess   = false;
     return label;
@@ -1954,9 +1954,9 @@ int         asTerm = false;
                 if ruleOf   asTerm = true;
                 else        isRule = true; }
     if !rStuff  rStuff = new(this);
-    or rule != this {
+    or owner != this {
         rStuff  = new(rStuff);
-        rule    = this; }
+        owner   = this; }
     if asTerm   rStuff.ruleTerm = true;
 }
 
