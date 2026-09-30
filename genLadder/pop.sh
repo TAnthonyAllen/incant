@@ -5050,6 +5050,17 @@ _dfc=$(grep -c '^CHILDPARENTS ExpressioN children=1 owner=1 strays=0' "$T/df.e")
 if [ "$_dfc" -eq 3 ]; then echo "  ok    definerT DF-2 ExpressioN's shared child is parented to the list's owner -- before parser(), after parser(Start), after a second parser()"; green=$((green+1))
 else echo "  FAIL  definerT DF-2: $(grep -E '^CHILDPARENTS|CHILDPARENT ' "$T/df.e" | tr '\n' ' ')"; fail=1; fi
 
+#  ⚑ failNotT -- F-130's FIRST HALF (SEQ 233, 2026-09-30): parse()'s aCTionFailed(owner) reader, which recon 22 measured
+#  at 0 calls. The fail flag sets notifyFail; a flagged rule that fails on the old road calls aCTionFailed(owner), which
+#  prints "Rule <tag>" / "Failed at:" on STDOUT and ENDS THE RUN (stopParsingInput) -- so there is no sentinel line and
+#  "Rule FnA" is the terminal marker: it can only appear after FN-3 ran. FN-2 is the control: a rejecting rule WITHOUT
+#  the flag prints no Rule line. The second half (processCode's label branch) has no fixture -- F-130's attempt log.
+run2 failNotT "$T/fn.o" "$T/fn.e"; check "failNotT runs" 0 $?
+if grep -q '^FN-3 fail flag, reject' "$T/fn.e" && [ "$(grep -c '^Rule FnA' "$T/fn.o")" -eq 1 ] && grep -q 'Failed at:' "$T/fn.o"; then echo "  ok    failNotT FN-3 a flagged rule that fails reaches aCTionFailed(owner): Rule FnA, once, with Failed at:"; green=$((green+1))
+else echo "  FAIL  failNotT FN-3: stdout $(grep -E '^Rule|Failed' "$T/fn.o" | tr '\n' ' ') / stderr tail $(tail -1 "$T/fn.e")"; fail=1; fi
+if grep -qE 'tell matched= +1' "$T/fn.e" && grep -qE 'tell matched= +0' "$T/fn.e" && [ "$(grep -c '^Rule ' "$T/fn.o")" -eq 1 ]; then echo "  ok    failNotT FN-1/FN-2 accept with the flag and reject without it print no Rule line (matched 1 / 0)"; green=$((green+1))
+else echo "  FAIL  failNotT FN-1/FN-2: $(grep 'matched' "$T/fn.e" | tr '\n' ' ') / Rule lines $(grep -c '^Rule ' "$T/fn.o")"; fail=1; fi
+
 #  ⚑ driveCompileT -- AN ACTION COMPILED AFTER parser() RUNS ON THE NEW ROAD (F-128's POP entry, closed 2026-09-27).
 #  processCode's compile is a driveStep drive (the merge of seq212-drive-compile). A: rsRun first called after
 #  parser(Start) fires once, rsN 1. B: a two-statement action runs both, 11 / 22. C: a second parser(ExpressioN)

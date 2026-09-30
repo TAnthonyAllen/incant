@@ -1,0 +1,39 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+define
+    fnSay code={
+        v := tell(argument);
+        m := *v["matched"];
+        cerr "   tell matched= " m:;
+        };
+    ;
+register(Ladder);
+define
+    FnA isRule fail "a"-;
+    FnB isRule "b"-;
+    ;
+search GroupFields UnitTests Utilities Ladder list;
+cerr "FN-1 fail flag, accept":;
+fnSay("FnA a");
+cerr "FN-2 no flag, reject":;
+fnSay("FnB x");
+cerr "FN-3 fail flag, reject":;
+fnSay("FnA x");
+stop();
+
+failNotT -- F-130's first half (SEQ 233, 2026-09-30): parse()'s aCTionFailed(owner) reader, reached.
+
+The fail flag (processFlags 'f') sets the rule's RuleStuff.notifyFail. When that rule fails on the old road,
+GroupItem::parse calls aCTionFailed(owner): it prints "Rule <owner's tag>" and "Failed at:" on STDOUT, then
+stopParsingInput ENDS THE RUN. So nothing can print after FN-3 and there is no sentinel line: the terminal
+marker is aCTionFailed's own "Rule FnA", which can only appear after FN-3 has run (rule H2's intent -- the
+marker is unreachable except through the last section).
+
+Rows (pop.sh): FN-1 accepts with the flag set and prints no Rule line; FN-2 rejects WITHOUT the flag and prints
+no Rule line (the control); FN-3 rejects with the flag and prints exactly one "Rule FnA" and a "Failed at:".
+What the value pins: owner is non-null, carries the rule's tag, and carries rStuff (else aCTionFailed prints
+"<unavailable ...>"). It does not distinguish the rule from its label, which shares both.
+
+The other F-130 reader, processCode's label branch, has no fixture: see docs/fixIts.md F-130's attempt log.
