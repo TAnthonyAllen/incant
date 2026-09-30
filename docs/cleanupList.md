@@ -81,15 +81,6 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 
 ## Done
 
-### `compile`'s pending-carrier re-filing block -- DELETED 2026-09-29 (SEQ 225 item 2)
-- **Was:** `Commands.rtn:56-68` (`pendingToProperties`), moving a `pendingParseR` carrier and its `CodE` from the
-  terms to the property lists.
-- **Measured before the cut:** a temporary log across the whole checklist (pop.sh, jitLadder, decodePop, ddPop,
-  countPop, printPop, frontier): **4,307 arrivals with a carrier present, 0 carrier moves, 0 CodE moves** --
-  `parser:43-44` file both with `+<` since SEQ 224. Deleted with the fleet row for row.
-
-## Cut
-
 ### `dupCensus`
 - **What/where:** `genParse.rtn:136`, registered `dupCensus immediateAction;` in `incant/setup`, and a groups.ext line.
 - **What it was for:** the complete two-faces census for F-110 (Clay, 2026-09-23). It walks every reachable node and
@@ -103,3 +94,9 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 - **CUT 2026-09-30:** extern, setup registration and groups.ext line removed; canary 316 -> 315; fleet row for row
   (the mirror-arity row counts 283 comparable names, one fewer, drift still 0).
 
+### `compile`'s pending-carrier re-filing block -- DELETED 2026-09-29 (SEQ 225 item 2)
+- **Was:** `Commands.rtn:56-68` (`pendingToProperties`), moving a `pendingParseR` carrier and its `CodE` from the
+  terms to the property lists.
+- **Measured before the cut:** a temporary log across the whole checklist (pop.sh, jitLadder, decodePop, ddPop,
+  countPop, printPop, frontier): **4,307 arrivals with a carrier present, 0 carrier moves, 0 CodE moves** --
+  `parser:43-44` file both with `+<` since SEQ 224. Deleted with the fleet row for row.
