@@ -61,17 +61,6 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   reading 0), then Tony's ruling on whether bytecode stays as a parallel lowering.
 - **Seen:** 2026-09-30.
 
-### `dupCensus`
-- **What/where:** `genParse.rtn:136`, registered `dupCensus immediateAction;` in `incant/setup`, and a groups.ext line.
-- **What it was for:** the complete two-faces census for F-110 (Clay, 2026-09-23). It walks every reachable node and
-  asks each `dupTermRefusal`.
-- **Callers:** 0 in any incant, `IncantForms`, `.sh` or `.twk`/`.rtn` file; only its own registration. Its sibling
-  `dupTermRefusal` is live (`IncantForms/WorkingOn/parser:13`, above its `bail()`) and is **not** a candidate.
-- **Cost of cutting:** the extern, the setup line and the groups.ext line, in one stroke with the rebuild (#31). It
-  loses a re-runnable instrument; F-110's record keeps the numbers it produced.
-- **Confirm:** the census above re-run at cut time; fleet row for row.
-- **Seen:** 2026-09-30.
-
 ### `genParse.rtn` -- the file name, not its contents (a move, not a cut)
 - **What/where:** the header says this is "what is left of the C++ parse-method emitter" (retired by mapping 2026-09-26).
   Every extern left in it is live: `dataName` (GroupItem.twk:908-912, measure.twk:509), `locateRule` and `showTree`
@@ -98,3 +87,19 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 - **Measured before the cut:** a temporary log across the whole checklist (pop.sh, jitLadder, decodePop, ddPop,
   countPop, printPop, frontier): **4,307 arrivals with a carrier present, 0 carrier moves, 0 CodE moves** --
   `parser:43-44` file both with `+<` since SEQ 224. Deleted with the fleet row for row.
+
+## Cut
+
+### `dupCensus`
+- **What/where:** `genParse.rtn:136`, registered `dupCensus immediateAction;` in `incant/setup`, and a groups.ext line.
+- **What it was for:** the complete two-faces census for F-110 (Clay, 2026-09-23). It walks every reachable node and
+  asks each `dupTermRefusal`.
+- **Callers:** 0 in any incant, `IncantForms`, `.sh` or `.twk`/`.rtn` file; only its own registration. Its sibling
+  `dupTermRefusal` is live (`IncantForms/WorkingOn/parser:13`, above its `bail()`) and is **not** a candidate.
+- **Cost of cutting:** the extern, the setup line and the groups.ext line, in one stroke with the rebuild (#31). It
+  loses a re-runnable instrument; F-110's record keeps the numbers it produced.
+- **Confirm:** the census above re-run at cut time; fleet row for row.
+- **Seen:** 2026-09-30.
+- **CUT 2026-09-30:** extern, setup registration and groups.ext line removed; canary 316 -> 315; fleet row for row
+  (the mirror-arity row counts 283 comparable names, one fewer, drift still 0).
+
