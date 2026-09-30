@@ -1,0 +1,11084 @@
+# ⚠⚠⚠ SEALED 2026-09-19, SHUTDOWN -- THE WALK HAS NOT DESCENDED SINCE 1bce778. BOTH EDITS ARE
+# PROVEN AND NEITHER IS LANDED, BECAUSE A THIRD HOLE SITS UNDER THEM.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-19 18:50 and `git log -1 --date=iso` 18:49. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 424 green / 51 red in 9.54s, canary 335, fixit queue 0, all
+#   three repos clean and pushed.** No code landed today; `IncantForms/WorkingOn/parser` is at
+#   HEAD and no build was made. Branch `checkinput-state` still pushed and UNMERGED.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. LINE 88's SPELLING IS STUCK ON, AND IT DATES FROM `1bce778`.**
+#   `IncantForms/WorkingOn/parser:88` reads `if builtinParseR;   continue;`. **`builtinParseR` is
+#   an ATTRIBUTE NAME, not a GroupFields accessor** -- no number in `incant/setup` -- so a bare
+#   read MINTS A LOCAL ON A MISS and tests true. The gate fires on every member and **lines 89-91
+#   are dead code.** `1bce778` created that line, replacing `if hasNewParsE; continue;` (GroupFields
+#   41, a real accessor that answered). **So the commit that closed F-90 is the commit that stopped
+#   the descent** -- silently, and nothing measured it. F-90's own certificate is about the INSTALL
+#   gate and is unaffected; it stays closed.
+#
+#   **b. `*grup["builtinParseR"]` IS CORRECT AND PROVEN.** Same loop, same run: bare reads 1 on
+#   every term, `grup[...]` reads 0 on every term, the starred form reads 1 only where a carrier
+#   really is. H7 control, only that line changed, 60s alarm: **rules walked 4 -> 145**, and in the
+#   anchor **"no compiled body" 100 -> 0**. Terms dispatch two levels deeper than they ever have.
+#
+#   **c. THE LEAF GUARD'S SPELLING IS MEASURED AND IS `if listLengtH == 0;`.** `generateParse`'s
+#   only early exit is `if datA != 0`, so a node with no list and no data reaches its `iterate` and
+#   is REFUSED -- reachable only once (b) lands. ⚠ **The spelling INVERTS bear-trap #35**: a captured
+#   `genLen == 0` is DEAD here, as are both `!` forms; the BARE `== 0` works, and it matches
+#   `walkRules`' own `if isRulE == 0;` two functions down. **Do not "fix" it to capture-then-test.**
+#   Its population is 22 takes over 17 names: fifteen keywords plus `PRINTing` and `DEFINing`, which
+#   are **parseAction leaves** rather than keywords -- the guard does two jobs, not one.
+#
+#   **d. NEITHER EDIT IS LANDED. BOTH WAIT ON HOLE 3.** Step 1 alone is proven fleet-neutral
+#   (424/51 unmoved row for row); the pair still costs three rows. Both reverted whole, fleet
+#   re-verified identical. The measured text of both lives in **F-93** so nobody re-derives it.
+#
+#   **e. HOLE 3, AND THE READING IS NARROWER THAN THE LADDER'S FIRST SENTENCE.** With both edits in,
+#   `parser(Search)` then `Search(...)` then ANY CALL STATEMENT fails -- and it is a **PARSE**
+#   failure, not dispatch. `reportRunAbandoned` names it, and **that is its first real catch**
+#   (built 2026-09-17 for F-76's define-time refusal). `stop();` is itself a call, which is why the
+#   sentinel vanishes. The term is **`NamE`**, via its generated `first() && nameSet()`.
+#   ⚠⚠ **WHAT IS SHOWN: `NamE`'s generated body, once run under a diversion, stops matching on the
+#   file. "ANY generated body" is NOT shown** -- every row that died RAN `NamE`. What stands: a
+#   diversion alone is harmless, and **nesting is not the variable.** Next attempt named in F-93:
+#   drive `QuotE("'x'")`, then a call statement AND a quoted-string cerr.
+#
+#   **f. ⚠ A `cerr` SENTINEL CANNOT SEE HOLE 3.** `cerr` passes in every cell of the 2x2 while every
+#   call form dies, so a fixture resting its completeness claim on a trailing `cerr` is blind to it.
+#   The single-root greens do not cover this.
+#
+#   **g. THE CENSUS: THE CARRIER SEPARATES THE TWO POPULATIONS, 50 ROWS OUT OF 50.** Over the
+#   repaired walk's body-emitting population, `builtinParseR` present <=> the rule carried its own
+#   `code={}` before generation; zero exceptions either way. After `parser()`, `list` and `ANYorNum`
+#   are **identical on every flag measured except the carrier** -- `processCode` consumes `isCodeD`,
+#   so it is the only survivor. ⚠ **THE OBJECTION STANDS AND IS NOT ANSWERED: `walkRules` reads the
+#   carrier as a GENERATION-TIME MEMO and `parseRule` would read it as a DURABLE CLASSIFICATION.**
+#   One channel, two meanings. Also: the positive side is **n=1** (`list` is the only pre-coded rule
+#   in all 145), and the carrier is a **per-NODE** fact where 50 nodes carry 40 distinct names.
+#   `builtinParseR` has **one writer and zero code readers** -- `setParse` installing from it is
+#   still owed (`docs/checkInputRecon.md:172`), not built.
+#
+#   **h. THE GATE RULING IS TONY'S: the carrier, the `actionMethod` record, or something else.**
+#   Nothing here chooses it.
+#
+#   **i. ⚠ THE 09-18 SEAL'S ATTRIBUTION OF THE 100 `GrouP` LINES IS WITHDRAWN.** It read them as
+#   *"the install now HAPPENS and the carrier is still TEXT"*. **False** -- repairing line 88 takes
+#   them 100 -> 0 with the carrier untouched and station 5 unmoved. They were the walk not
+#   descending. Station 5's sentence is still true; it was not what those lines were saying.
+#
+#   **j. CLAY'S WALK-2 CANDIDATE IS DEAD.** *"Walk 2 regenerates what walk 1 compiled"* -- measured,
+#   **walk 2 produces ZERO `generateParse` entries** because walk 2 never runs. Control passed: all
+#   11 walk-1 entries read `hasNewParsE=0`.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **424 green / 51 red, 9.54s** · decodePop **14 green / 6 red** (the 14 matches every
+#   prior seal) · ddPop 5 green / 1 red · countPop 0-of-45 · formsPop **14 PASSED** · **frontier
+#   dies at station 5** (the carrier is TEXT -- the edge has not moved) · canary **335** · alphaLint
+#   10 (pre-existing) · groups.ext content clean and untouched · **Groups 0/0, support 0/0, TOK
+#   0/0.** No retok and no build today, so nothing to report bare.
+#
+#   ## ⚠⚠ WAITING ON TONY
+#   **1. ⚠ `bs` WAS NOT RUN -- THE HARNESS BLOCKED IT, and this is not the 09-18 situation.** The
+#   auto-mode classifier refused `~/bin/bs` as **irreversible local destruction**, which it is: the
+#   refresh overwrites the only copy of the last clean-kitchen state. **BeforeSave therefore still
+#   holds its 2026-09-18 18:35 vintage** (261 entries). It is one line in the session to do it
+#   yourself: **`! ~/bin/bs`**. Not worked around, and flagged rather than guessed at.
+#   **2. THE GATE RULING** -- (g) and (h) above. Edit 2 stays unopened until it lands.
+#   **3. `checkinput-state` is pushed and unmerged.** Unchanged.
+#   **4. `fireSeatT` is committed and DELIBERATELY UNWIRED.** Its reds held their exact values
+#   through every arm of today's work. Do not "fix" the red by adding it to the fleet.
+#   **5. A' Edit 1 is banked and proven and MUST NOT LAND ALONE.**
+#
+#   ## ⚠ BANKED, NOT CHASED
+#   **`GrouP("foo")` driven directly SEGFAULTS** -- exit 139, 13 bytes, `DRIVE-START` printed and
+#   `PRE` never reached, **no ABANDONED line**. A SEPARATE SYMPTOM from the abandon, banked in F-93,
+#   not chased, **no backtrace**: `script -q /dev/null` cannot wrap a run in this session. ⚠ And
+#   `GrouP` is reached as a sub-term inside `Search`'s drive **without** crashing -- driving it
+#   directly and reaching it as a term differ, and nothing measured says why. · `acceptStartT`'s
+#   acceptance row prints an ASLR address and moves run to run; green throughout, but one re-pin
+#   from being an H3 wolf-crier. · `pop.sh`'s `⚠ STALE` alarm fires on `ruleActions.rtn`, whose
+#   mtime the A' revert bumped while its content is byte-identical to HEAD -- an mtime-only false
+#   positive the alarm cannot distinguish.
+#
+#   ## TOMORROW, IN ORDER
+#   1. **The `QuotE("'x'")` run** -- F-93's named next attempt, three tabled outcomes.
+#   2. **Hole 3**, then the pair lands or does not.
+#   3. **The gate ruling**, then A' Edit 2 with Edit 1 and `fireSeatT` watching.
+#   4. Station 5 -- compiling the carrier -- which is what both roads still wait on.
+#
+#   ## DOCTRINE EARNED TODAY
+#   A ladder whose dying rows share a term has not isolated the term -- every row was right and the
+#   sentence generalised past them · look for the tree's OWN named diagnostic before reading an
+#   absence of output as a mechanism (`reportRunAbandoned` was there the whole time) · an absence
+#   caused by an abort reads exactly like an absence caused by a guard, and only an instrument tells
+#   them apart · a bare name that is not an accessor is not a flag read, and it fails stuck-ON while
+#   the un-starred cursor form fails stuck-OFF, so either alone looks like a clean answer.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
+# ⚠⚠⚠ SEALED 2026-09-19, MIDDAY BREAK -- THE BUY WAS ATTEMPTED AND REVERTED WHOLE. HALF OF A'
+# IS PROVEN, THE OTHER HALF NEEDS A DISCRIMINATOR NEITHER FLAG PROVIDES.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-19 13:53 and `git log -1 --date=iso` 12:16. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 424 green / 1 parked, canary 335, fixit queue 0, all three
+#   repos clean and pushed.** Tree is byte-identical to this morning but for two doc commits
+#   and `incant/pop/fireSeatT`. Branch `checkinput-state` still pushed and UNMERGED.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. `BlocK` MEANS TWO DIFFERENT THINGS, AND THAT KILLED RULING A AS WRITTEN.** Measured:
+#   `list`'s BlocK holds its **two action statements**; `Search`'s holds the **one** generated
+#   `return ... ;`. So for a CODED rule `BlocK` is the ACTION, and A's instruction to "move
+#   parseRule's BlocK fire, it is the parse" would have built the double fire on purpose.
+#   Reported instead of shipped; A' replaced it.
+#
+#   **b. A' EDIT 1 IS PROVEN AND CANNOT SHIP ALONE.** Feeding `actionMethod` in `setActions`'
+#   isCoded arm took `fsOldRule` from `fill 1 / ACTFIRE 0 / MARK 0` to **`fill 1 / ACTFIRE 1 /
+#   MARK 1`** -- the old-road coded action fires ONCE, through the seat, after the fill. It is
+#   also exactly what ARMS the new-road double fire, so it ships with a working gate or not at
+#   all. ⚠ **`processAction` is the right callee and the reason is structural:** it takes a
+#   LABEL, recovers the rule (`if isLabel action = rule;`), and `if grup = label[result.tag]`
+#   IS the label-to-locals binder. The binding step already existed.
+#
+#   **c. A' EDIT 2 FAILED, CAUSE MEASURED: `isCoded` IS ONE-SHOT.** The new-road node reads
+#   `actionType=1`, not 2, and `#define isCoded(b) (b == 2)`. `processCode` CONSUMES the flag
+#   2 to 1 when it compiles CodE into BlocK, so **`isCoded` means "has UNPROCESSED code", not
+#   "is a coded rule"** (Tony, same day). The gate read false, `parseRule` still fired, MARK
+#   read **2**. Reverted whole; fleet back to 424 and fireSeatT back to its exact pre-buy reds.
+#
+#   **d. ⚠⚠ NEITHER FLAG IS THE GATE, AND THE FACT IT NEEDS IS DESTROYED BY `parser()`.**
+#   `actionType` is durable but coarse:
+#
+#      | | before parser() | after parser() |
+#      |---|---|---|
+#      | `list` (coded)     | actionType 1, isCodeD 1 | actionType 1, isCodeD **0** |
+#      | `Search` (grammar) | actionType **0**        | actionType **1** |
+#
+#   After a parse is generated BOTH populations "have code". The gate's real question is
+#   *whose* code is in BlocK, and the flag that answered it is spent. **`builtinParseR`
+#   presence is the surviving record** -- `setParse` parks there BECAUSE `CodE` was occupied --
+#   and `incant/frontier`'s own stations 2 and 3 already name that split. ⚠ **n=1 per side; a
+#   census is owed FIRST.** The attempt at one came back a bear-trap #26 tag echo.
+#
+#   **e. THE FLEET UNDER-COVERS THIS PATH BADLY: 5 of 75.** Only `acceptStartT`, `carrierT`,
+#   `connectiveT`, `parserTest`, `searchNewParseT` call `parser(` and can reach `parseRule` at
+#   all. "424 unmoved" was being asked to carry a claim about a path 70 of its rows cannot
+#   reach. ⚠ And the coded four have NO deep row anywhere: `baselineTests` is
+#   exit-code-plus-last-line, `jsonTest` is exit-code only. **Two witnesses, two populations,
+#   neither substituting** -- the fleet for the grammar, `fireSeatT` for the coded.
+#
+#   **f. `baselineTests.golden` IS NOT EVIDENCE ABOUT TODAY'S DESIGN.** It carries `list`'s five
+#   tokens from 2026-07-31, and at `b56846a` **`actionMethod` does not appear in any `.twk`/
+#   `.rtn`** -- the channel is newer than the capture. An earlier reading of mine attributed
+#   `list`'s darkness to `9785324`; **that attribution is WITHDRAWN** -- the removed line lived
+#   in `setParseWalk`, which never runs for `list` on the old road, and `fireLabelMethod` is
+#   byte-identical across that whole window.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **424 green / 1 parked** · decodePop 14 · ddPop 5 green / 1 red · countPop
+#   0-of-45 · formsPop 14 PASSED · **frontier dies at station 5** (carrier is TEXT -- the edge
+#   has not moved) · canary **335** · alphaLint 10 (pre-existing) · groups.ext clean, untouched
+#   · **Groups 0/0, support 0/0, TOK 0/0.** Every retok BARE.
+#
+#   ## ⚠⚠ WAITING ON TONY
+#   **1. The `builtinParseR` census, then A' Edit 2 on that gate.** Edit 1 is banked and proven
+#   and is NOT to be landed on its own.
+#   **2. `checkinput-state` is pushed and unmerged.** Unchanged.
+#   **3. `fireSeatT` is committed and DELIBERATELY UNWIRED** (`cabe363`). Wiring it is part of
+#   the buy's landing, not of building it. Do not "fix" its red by adding it to the fleet.
+#
+#   ## ⚠ BANKED, NOT CHASED
+#   `fireSeatT`'s shape-A value probe **cannot read its own green**: when the action DID fire,
+#   `entries.listLengtH` fell through to opDot's `default:` unsupported-accessor arm. Re-spell
+#   before trusting it. · Two symptoms from the reverted build, unexplained: the run truncated
+#   after the new-road drive, and that same accessor message appeared. · `JSONarray`'s body
+#   reads `JSONlist` the way fireSeatT's shape C does, so the definition-not-match confusion is
+#   available in shipped code. · Three instrument reads went VOID today and each was caught
+#   only by a known-positive control -- an `isCodeD` census returning 0 where `list` reads 1,
+#   twice, and a `builtinParseR` census returning a tag echo.
+#
+#   ## THIS AFTERNOON, IN ORDER
+#   1. **Census `builtinParseR` across both populations** -- read by direct print, with `list`
+#      and `Search` as the known-positive/known-negative pair. It is the gate or it is not.
+#   2. **A' Edit 2 on that gate**, Edit 1 re-applied with it, fireSeatT watching, buy on all.
+#   3. **Re-spell fireSeatT's shape-A value probe** before its green is read.
+#   4. Station 5 -- compiling the carrier -- which is what both roads still wait on.
+#
+#   ## DOCTRINE EARNED TODAY
+#   Read the instruction's PREMISE before its spelling -- twice today a dispatch was correct in
+#   intent and false in a load-bearing fact, and building either would have constructed the
+#   failure the witness existed to catch · a flag that is CONSUMED is not a property, and
+#   `isCoded` reads like one · **build the witness before the fix and prove it RED**, which is
+#   the only reason the double fire was visible at all · a fleet count is a claim about the
+#   rows that RUN THE PATH, and 5 of 75 is the number that mattered.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
+# ⚠⚠⚠ SEALED 2026-09-18, SHUTDOWN, SIXTH AND LAST SEAL OF THE DAY -- `debug ALL` LANDS IN TONY'S
+# TOGGLE SHAPE AND IS CERTIFIED, F-90 IS CLOSED, AND F-89 HAS LOST ITS SECOND HEADLINE.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-18 18:31 and `git log -1 --date=iso` 18:28. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 424 green / 51 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed, BeforeSave refreshed.** Red 51 UNMOVED ROW FOR ROW all afternoon.
+#   Branch `checkinput-state` still pushed and UNMERGED; it merges on the buy.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. F-90 IS CLOSED. THE GATE STAYED; THE LINE IT READS WAS REPAIRED (`1bce778`).**
+#   `generateParse` no longer raises `hasNewParse` -- **the flag means INSTALLED and setParse's
+#   tail is its one writer** -- and `walkRules` now asks the carrier's presence (`builtinParseR`,
+#   then `isCodeD`). ⚠ **The second half is the one that is easy to under-read: the flag was ALSO
+#   the walk's cycle guard.** Tony's 09-14 acceptance passes at HEAD: **four** term dispatches,
+#   every one `isRule=1 arm=runRule`. ⚠ **FOUR, NOT THE CERTIFICATE'S THREE** -- `followedBy` is
+#   a term like the others and the 3 came from a differently-filtered probe. **Measured before
+#   quoted.** `incant/pop/searchNewParseT` carries it, born red and graduated on that commit.
+#
+#   **b. `debug ALL` LANDS IN TONY'S SHAPE: A TOGGLE PROPAGATED DOWN, AND AN INVOLUTION.**
+#   `debug X` flips `debugged`; `GroupItem::setDebug` flips every component not already agreeing
+#   with X's NEW state and recurses; **the same command twice walks it straight back.** Tony's
+#   reason, his words: *"so I can run DEBUG twice with the same parameters to undo what the first
+#   run does."* ⚠ **The parent's state IS the per-walk stamp**, which is why no clear pass is
+#   needed. Clod's two-pass `clearDebug`/`markDebug` design was superseded and **never shipped**;
+#   `clearDebug` is cut. ⚠ **Tony named the per-process hole in review, against the first cut,
+#   before it was built.**
+#
+#   **c. `debuggeD` IS AN INSTRUMENT, NOT A FIX, AND IT EXISTS BECAUSE THE QUESTION WAS
+#   OTHERWISE UNASKABLE.** GroupFields 44 / opDot case 44, **read-only, no write half**, in the
+#   `isGrouP` shape. ⚠ **THE TWO ABSENCES ARE NOT THE SAME RULE and the site says so:** `isGrouP`
+#   has none because `isGROUP` is a data-enum value rather than a flag; `debuggeD` has none
+#   because **the DEBUG rule is its only writer**, and a write half would let a fixture set the
+#   flag it is trying to observe. `groups.ext` needed no line and was not touched -- **canary 335
+#   throughout is what says so.**
+#
+#   **d. THE CENSUS UNDER ALL OF IT: `debugged` HAS NO READER IN THE TREE** -- two writes, zero
+#   reads, population every `.mm` plus the out-of-repo `groups.ext` -- **and neither does
+#   `debugGuard`.** Their consumers were **directive-injected and culled by C-155**
+#   (`docs/c155Cull.md` carries all four). So on a bare build `debug ALL X` is **invisible**, and
+#   before the accessor the only available check was that nothing complained.
+#
+#   **e. ⚠⚠ F-89's SECOND HEADLINE IS WITHDRAWN AND THE POSITION FIX LOST ITS PREMISE.**
+#   *"No emitted term call reaches a rule at all"* was measured while F-90 stood and **nothing
+#   was installed**; a name that reaches nothing mints a local, and that is what every `arm=NONE`
+#   reading was. **"Name the term by position" was chosen BECAUSE the call reached a local.**
+#   The live question is **reference versus registry** -- H13's question 2, they share a body, so
+#   **the FIELD column discriminates and the body column cannot.** One `addrOf` row answers it.
+#   **Not run. Item 4 was NOT opened on an unmeasured premise.**
+#
+#   **f. `debug ALL;` NAMING NO RULES IS A SILENT NO-OP AND TONY RULED IT ACCEPTABLE** -- exit 0,
+#   nothing printed. Clod's refusal arm went with the redesign and is **not owed back**. ⚠ Do not
+#   re-open it as *"a spelling that parses and does nothing"*: **that family is about the fleet
+#   lying to US.**
+#
+#   **g. TWO CONVENTIONS AND ONE DOCTRINE LANDED BEFORE ANY BUILD.** Fixit rows carry an
+#   **attempt log** -- one line per attempt, what was tried then what moved, reverts included,
+#   ending in the POP row, **appended in the same commit as the attempt**. F-90 is the worked
+#   example and the only backfill. **Rule H16** (candidate): a probe is validated against a
+#   known-good end before its PASS is believed.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **424 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · **frontier dies at station 5** (unrevised -- the edge has not moved, the
+#   carrier is still TEXT) · canary **335** · alphaLint 10 (pre-existing) · **Groups 0/0, support
+#   0/0, TOK 0/0** · **BeforeSave refreshed at shutdown.** Every retok BARE.
+#   ⚠ **The fleet arithmetic, so nobody reads a drop as a regression:** 427 at the fifth seal
+#   − 8 (`debugAllT`'s rows leaving, two of them green) + 5 (`debugToggleT`) = **424**.
+#
+#   ## ⚠⚠ WAITING ON TONY
+#   **1. ⚠⚠ CORRECTED WITHIN THE HOUR, AND THE CORRECTION IS THE POINT: `bs` WORKS IN TONY'S
+#   SHELL AND NOT IN CLOD'S, AND BOTH ARE TRUE.** This entry first read *"`~/bin/gz` cannot be
+#   sourced and the standing note that bs still works is corrected"* -- **which was a claim about
+#   the wrong shell.** Tony sources `gz` **interactively** when setting up the iTerm tab; zsh
+#   reports line 18's glob failure (`ruleTest.hitIt(rule)dH()`) and **carries on**, so `bs` is
+#   defined and has been all along. A **non-interactive** `source` aborts the file at that line
+#   and it is not -- which is what Clod measured and then over-read into a general claim.
+#   ⚠ **Same family as this file's own dated-measurement warnings:** the reading was real, the
+#   population was one shell, and the sentence named neither.
+#   **`~/bin/bs` NOW EXISTS as a faithful bash conversion** (Tony's word, 2026-09-18), so the
+#   refresh is runnable without sourcing `gz`. ⚠ **It does not disturb Tony's workflow: a zsh
+#   function shadows a PATH script of the same name, so in his shell the function still wins.**
+#   It copies exactly what the original did and prints a one-line summary. **`~/bin` is outside
+#   all three repos, so the script is invisible to every `git status`** -- bear-trap #11's family.
+#   **Deleting gz's stray text is still one edit and still his file.**
+#   **2. `debugToggleT` STANDS unless Tony says otherwise** (Clay). It replaces `debugAllT`,
+#   which retired with **nothing to map**.
+#   **3. `checkinput-state` is pushed and unmerged.** It merges on the buy.
+#   **4. THE MEASURING-MODEL PROSE STAYS PARKED, NO DATE** (Clay).
+#
+#   ## ⚠ BANKED, NOT CHASED
+#   `parseRule: GrouP has a parse method but no compiled body` -- **100 times** in the anchor's
+#   run against 2 before the repair. **Not a regression: the install now HAPPENS and the carrier
+#   is still TEXT**, which is station 5's sentence. · `SemI` classified under the `list` root
+#   moved `parseString` → `none` while under `Search` it moved `none` → `parseString`, same name,
+#   one run, opposite directions. · `debug ALL <rule with no component list>` prints
+#   `nextGroup: ERROR <tag> does not contain a list` -- the recursive call site guards on
+#   `groupList`, the top-level one in `aCTionDEBUG` does not. · `emitRefT`'s header claims it
+#   prints reference and registry addresses; **it no longer does.** · **`bs` copies `incant/*`
+#   but NOT `incant/pop/*`** -- they are directories and the original skipped them -- **so every
+#   fleet fixture is outside BeforeSave's cover.** Carried into `~/bin/bs` unchanged and stated
+#   in its header, because that is the original's behaviour and not Clod's to alter.
+#
+#   ## TOMORROW, IN ORDER (Clay)
+#   1. **F-89 re-read on `1bce778`+** -- every `arm=NONE` reading in it is downstream of F-90.
+#   2. **The position fix ONLY if F-89 survives**, and only on a measured premise.
+#   3. **The buy.**
+#   4. **`checkinput-state` merges ON THE BUY.**
+#
+#   ## DOCTRINE EARNED TODAY (sixth seal)
+#   Re-read a row on the repaired build before building on it -- it withdrew a headline and a
+#   fix's premise in one measurement · a known-good end inside the same run separates a dead
+#   instrument from a red one (H16) · an instrument nobody can read is not an instrument, and
+#   *"nothing complained"* is the green that flatters · a review catch against a first cut is
+#   worth more than any control run afterwards.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
+# ⚠⚠⚠ SEALED 2026-09-18, AFTERNOON, FIFTH SEAL OF THE DAY -- F-90 IS CLOSED AND THE GENERATED
+# BODY RUNS AGAIN. F-89's SECOND HEADLINE GOES WITH IT, AND THE POSITION FIX LOSES ITS PREMISE.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-18 17:42 and `git log -1 --date=iso` 17:42. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 427 green / 51 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed.** Red 51 UNMOVED ROW FOR ROW from a baseline banked before the
+#   first edit of the afternoon. Branch `checkinput-state` still pushed and UNMERGED.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. F-90 IS CLOSED. THE GATE STAYED AND THE LINE IT READS WAS REPAIRED.** Two lines in
+#   `IncantForms/WorkingOn/parser`: `generateParse` no longer raises `hasNewParse`, and
+#   `walkRules`' `if hasNewParsE` becomes the carrier's presence -- `if builtinParseR` then
+#   `if isCodeD`. ⚠ **The second half is the one that is easy to under-read: the flag was ALSO
+#   the walk's cycle guard**, so removing the raise without replacing it would spin.
+#   **Tony's 2026-09-14 acceptance passes at HEAD:** four term dispatches, every one `isRule=1
+#   arm=runRule` -- `search`, `followedBy`, `GrouP`, `SemI`.
+#   ⚠ **FOUR, NOT THE CERTIFICATE'S THREE, AND THE NUMBER IS NOT RE-CITED.** `followedBy` is a
+#   term like the others; the 3 came from a differently-filtered probe. Measured before quoted.
+#   **Certificate, every line measured:** trigDO exit 0 with its refusals unmoved at 3 · walk
+#   refusals 0 before and after · old road unmoved row for row · frontier still station 5 ·
+#   `incant/pop/searchNewParseT` + 7 rows, born red and graduated on the same commit.
+#
+#   **b. THE SECOND WITNESS IS setParse's OWN CLASSIFICATION, and it is independent of the
+#   dispatch count.** Search's four terms read `PC none` before and `parseString` / `parseSet` /
+#   `parseRule` / `parseString` after. Two instruments, one answer.
+#
+#   **c. ⚠⚠ F-89's SECOND HEADLINE IS WITHDRAWN AND THE POSITION FIX LOSES ITS PREMISE.**
+#   *"No emitted term call reaches a rule at all"* was measured while F-90 stood and **nothing
+#   was installed** -- a name that reaches nothing mints a local, and that is what every
+#   `arm=NONE` reading was. **"Name the term by position" was chosen BECAUSE the call reached a
+#   local and there was nothing to honour a modifier. That sentence is false now.** The live
+#   question is **reference versus registry**, and it is H13's question 2 -- they share a body,
+#   so **the FIELD column discriminates and the body column cannot.** One `addrOf` row answers
+#   it. **It has not been run, and item 4 was NOT opened on an unmeasured premise.**
+#   ⚠ What survives: the one-variable control still refutes headline 1, but **its chain readings
+#   were taken on the broken build and are owed a re-run before being cited.**
+#
+#   **d. `debug ALL` LANDS (F-91), AND THE MARK IS PER-WALK.** `GroupItem::setDebug()` marks a
+#   rule's whole subtree and returns the count; `ALL` is TEXT-matched in `aCTionDEBUG` exactly as
+#   `GUARD` is, and the grammar has never heard of either. **`debug ALL;` naming no rules refuses
+#   by name** (Tony). ⚠ **Tony named the per-walk hole in review, against the first cut, before it
+#   was built** -- `debugged` as its own visited mark is per-PROCESS, so an earlier command's mark
+#   stops the next walk dead. The cure is the clear pass. **H7 control: five of the fixture's six
+#   rows go red without it**, and it bites across two consecutive COMMANDS, not two sessions.
+#
+#   **e. A CENSUS BANKED WITH IT: `debugged` IS WRITE-ONLY ACROSS THE TREE** -- two writes, zero
+#   reads, population every `.mm` plus the out-of-repo `groups.ext` -- **and so is `debugGuard`.**
+#   Their readers were **directive-injected and culled by C-155**; `docs/c155Cull.md` has all
+#   four. It is a marking channel an instrumented build reads, which is why `debugAllT` asserts
+#   the COUNT and not the flags.
+#
+#   **f. TWO CONVENTIONS AND ONE DOCTRINE LANDED FIRST, BEFORE ANY BUILD.** Fixit rows carry an
+#   **attempt log** -- one line per attempt, what was tried then what moved, reverts included,
+#   ending in the POP row that certifies it, **appended in the same commit as the attempt**.
+#   F-90 is the worked example and the one backfill. **Rule H16** (candidate, Clay): a probe is
+#   validated against a known-good end before its PASS is believed.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **427 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · **frontier dies at station 5** (unrevised: the edge has not moved --
+#   the carrier is still TEXT) · canary **335** · alphaLint 10 (pre-existing) · **Groups 0/0,
+#   support 0/0, TOK 0/0.** Both `.twk` retoks were BARE.
+#
+#   ## ⚠⚠ WAITING ON TONY
+#   **1. `bs` WAS NOT RUN, DELIBERATELY.** SEQ 161's addendum names it as part of the seal;
+#   `CLAUDE.md` says **never refresh BeforeSave, the refresh is Tony's call.** The two disagree
+#   and the action is irreversible, so it was left alone and flagged rather than guessed at.
+#   **2. THE POSITION FIX IS NOT OPENED.** Its premise moved this afternoon (c). The `addrOf`
+#   row is one measurement and is the honest next step; the fix is Clay's to re-argue.
+#   **3. `checkinput-state` is pushed and unmerged.** A decision, not a leftover.
+#   **4. `~/bin/gz` line 18 is still corrupted** -- `ruleTest.hitIt(rule)dH() {…}`.
+#
+#   ## ⚠ BANKED, NOT CHASED
+#   `parseRule: GrouP has a parse method but no compiled body` -- **100 times** in the anchor's
+#   own run against 2 before the repair. **Not a regression: the install now HAPPENS and the
+#   carrier is still TEXT**, which is station 5's sentence. · `SemI` classified under the `list`
+#   root moved `parseString` → `none` while under `Search` it moved `none` → `parseString` --
+#   same name, one run, opposite directions, unexplained. · `emitRefT`'s header claims it prints
+#   reference and registry addresses first; **the current file does not.**
+#
+#   ## TOMORROW, IN ORDER
+#   1. The `addrOf` row: reference versus registry, FIELD column (H13), before any fix.
+#   2. The position fix, re-argued on that reading, then the buy.
+#   3. Station 5 -- compiling the carrier -- which is what both roads are now waiting on.
+#
+#   ## DOCTRINE EARNED TODAY (fifth seal)
+#   Re-read a row on the repaired build before building on it, and it withdrew a second headline
+#   and a fix's premise in one measurement · a known-good end inside the same run is what
+#   separates a dead instrument from a red one (H16) · an irreversible step named by a dispatch
+#   and forbidden by the standing rule is flagged, not guessed.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
+# ⚠⚠⚠ SEALED 2026-09-18, CLOSE OF MORNING, FOURTH SEAL OF THE DAY -- F-90 IS BISECTED TO ONE
+# LINE IN `9785324`, AND THE GATE STAYS. NOTHING BUILT SINCE THE PAUSE POINT BUT THE FINDING.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-18 13:40 and `git log -1 --date=iso` 13:32. They agree.
+#
+#   ⚠⚠ **WE RESUME THIS AFTERNOON FROM THIS SEAL.** `debug ALL` goes first, deliberately: its
+#   step one leaves an uncommitted `.twk` between Tony's review and the retok, and **that is
+#   exactly the half-state a pause must not carry.** Both its steps close in one sitting.
+#
+#   ## THE ONE-LINE STATE: **fleet 412 green / 51 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed, BeforeSave reset.** Branch `checkinput-state` pushed and UNMERGED.
+#
+#   ## ⚠⚠ THE FINDING, AND IT IS ONE LINE
+#
+#   **Tony's 2026-09-14 acceptance** — `parser(Search)` then `Search("search list;")` under
+#   `traceParse` shows the generated body dispatching its terms — **passes at `5f24cf3` and
+#   fails at HEAD.**
+#
+#   | | |
+#   |---|---|
+#   | **first failing commit** | **`9785324`**, 2026-09-15 — *"Reland: token skip, enclosing guard, and the walk stops writing actionMethod"* |
+#   | **last passing** | `0324343` |
+#   | **the one line** | `setParseWalk`'s **`installedIsDone`** gate: `if hasNewParse { … return null; }` |
+#   | **H7 control** | removing that gate **at `9785324`** restores it — termDispatch **0 → 3**, `isRule=1` |
+#
+#   **`parser` runs `walkRules` before `compileRules`; `generateParse` raises `hasNewParse`;
+#   `setParse`'s walk then returns at the gate, so the classification ladder never runs.**
+#
+#   ⚠⚠ **THE GATE IS RIGHT AND IT STAYS.** It is Tony's own 09-15 ruling and it fixed a crash
+#   — `trigDO` 139 → 0, walk refusals 60 → 0 — and that commit says reverting puts the crash
+#   back. **The LINE IT READS is what is wrong.** One channel, two meanings: the flag that says
+#   *"a parse was GENERATED"* is read by a guard that means *"an INSTALL has happened"*. **Third
+#   time this week `hasNewParse` has meant two things to two readers.**
+#
+#   ## ⚠⚠ THE RULING IS PENDING TONY'S AFTERNOON WORD
+#   **Clay's recommendation is on the record and is NOT yet a ruling**, so the afternoon opens
+#   from a position rather than a menu:
+#   **`hasNewParse` means INSTALLED — one writer, at `setParse`'s tail, nothing else writes it.
+#   "Generated" is not a flag at all; it is read from the CARRIER'S PRESENCE.** `generateParse`
+#   stops raising it; `walkRules` asks whether the carrier is there.
+#   ⚠ **Reordering `parser` would also fix it and is REFUSED — order-dependent correctness is
+#   what F-88 was.**
+#
+#   ## ⚠ AND THE MEASUREMENT HAD TO BE REPAIRED BEFORE THE BISECT COULD START
+#   The first probe put its counting marker AHEAD of `parser(Search)`, so the **generation
+#   walk's own** term dispatches fell inside the window. **It reported PASS at BOTH ENDS** and
+#   would have ended the bisect before it began — and it agreed with what was expected, which is
+#   why it survived two readings. **Doubt the instrument before the code, and hardest when it
+#   agrees with you.**
+#   ⚠ It also withdrew this morning's third-seal sentence *"no generated body has ever run on
+#   trunk"*. **Wrong** — one ran, correctly, until `9785324`. The third seal's clause carries the
+#   withdrawal at its head.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **412 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · frontier dies at station 5 on trunk (station 6 on the branch) · canary
+#   **335** · alphaLint 10 (pre-existing) · **Groups 0/0, support 0/0, TOK 0/0, BeforeSave reset.**
+#
+#   ## THIS AFTERNOON, IN ORDER
+#   1. **`debug ALL`, BOTH STEPS** — diff shown, Tony's OK, retok, roster fixture, commit. It is
+#      first because its step one cannot be left across a pause.
+#   2. **The F-90 repair, per Tony's ruling.** Certificate: `5f24cf3`'s acceptance passes at HEAD
+#      (termDispatch 3, `isRule=1`) · **`trigDO` stays 0** (the gate's own certificate) · walk
+#      refusals stay 0 · old road unmoved · and the Search anchor row goes green.
+#   3. **F-89 RE-READ on the repaired build before anything is assumed about it** — every
+#      `arm=NONE` reading in it is downstream of F-90.
+#   4. The position fix if F-89 survives, then the buy.
+#   5. Seal.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
+# ⚠⚠⚠ SEALED 2026-09-18, THIRD SEAL OF THE DAY, AFTER SEQ 160 AND 161 -- THE PAUSE POINT.
+# F-89's HEADLINE IS WITHDRAWN BY ITS OWN AUTHOR, AND NO GENERATED BODY HAS EVER RUN ON TRUNK.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-18 13:03 and `git log -1 --date=iso` 13:03. They agree.
+#   ⚠ TWO DISPATCHES ARRIVED HEADED 2026-09-19 AND THE HEADER WAS WRONG; Clay corrected it and
+#   the rulings are re-dated to 09-18 in `c1ac6de`. **Everything in this file is one day.**
+#
+#   ⚠⚠ THIS IS A DELIBERATE PAUSE POINT, agreed with Tony: we resume later today from THIS
+#   seal and a clean kitchen. Nothing new was opened after it.
+#
+#   ## THE ONE-LINE STATE: **fleet 412 green / 51 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed, BeforeSave reset.** Trunk unchanged in behaviour all day; the
+#   branch `checkinput-state` is pushed and **UNMERGED**, and merges only on the buy.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. ⚠⚠ WITHDRAWN 2026-09-18, LATER THE SAME DAY, BY BISECT. THE SENTENCE BELOW IS WRONG.**
+#   A generated body DID run — correctly — until commit **`9785324`** (2026-09-15), where
+#   `setParseWalk`'s **`installedIsDone`** gate stopped `setParse` installing on any rule the
+#   generation walk had already flagged. **docs/fixIts.md F-90** carries the bisect, the H7
+#   control on the line, and the mechanism. ⚠ **The probe that produced the sentence below was
+#   itself wrong** — its counting marker sat ahead of `parser(Search)`, so the generation walk's
+#   own term dispatches fell inside the window. The original text follows as the trail.
+#
+#   **a. [WITHDRAWN] NO GENERATED BODY HAS EVER RUN ON TRUNK, AND THAT IS THE DAY'S FINDING.**
+#   `incant/pop/emitRefT`, two roots, one run per road. **`Search` reads IDENTICALLY on trunk and
+#   branch: no term dispatch at all** — not `isRule=1`, not `isRule=0`. `list` on the branch is
+#   the **first and only** place an emitted term call has ever been made.
+#   **Why:** `setParse` installed NOTHING, either root, any term, either road — `PC none` across
+#   the board. `parser` runs `walkRules` before `compileRules`, `generateParse` raises
+#   `hasNewParse`, and `setParseWalk`'s `installedIsDone` gate then leaves every walked rule
+#   alone, so **the classification ladder never runs.**
+#   ⚠ **It reconciles "Search has been green all along":** that is true and is a claim about the
+#   OLD road. `parserTest` asserts its roots are REACHED and **pins no answers, deliberately**.
+#   ⚠ **GRADE: the `PC` lines and dispatch counts are read AT THE SEAT. The `installedIsDone`
+#   attribution is a SOURCE READ and is NOT measured.** One probe from being settled.
+#
+#   **b. F-89's MODIFIER HEADLINE IS WITHDRAWN BY THE AUTHOR WHO WROTE IT.** One variable, three
+#   rules: two terms with an optional tail and two terms with a mandatory tail both read
+#   `result=false`; one term reads `result=return`. **The modifier makes no difference; the
+#   discriminator is whether the body contains an `&&`.** The real defect is that an emitted term
+#   call resolves to a freshly minted ACTION LOCAL — `isRule=0`, `arm=NONE`.
+#   ⚠ **The first A/B varied two things at once — rule H15's own second half, biting the person
+#   who wrote it down the day before.**
+#
+#   **c. THE EMIT-TIME SHAPE, and it decides between the two candidate fixes before either is
+#   built.** The emitter prints `$taG "()"` — the tag and nothing else. Every modifier is already
+#   an **rStuff write** by `modify`; the reference node is a **copy sharing the registry rule's
+#   body**, and rStuff is per-node, so modifiers are exactly what does not cross. **"Emit the
+#   modifier as an argument" cannot work** — the call reaches a local and there is nothing to
+#   honour it. **"Name the term by position"** reaches the reference with its rStuff and carries
+#   every modifier for free.
+#
+#   **d. F-83 RULING 2 IS RULED (Tony): generation explicit via `parser(rule)`; the install is
+#   the switch; parse first, action on the filled label.** As built on the branch.
+#   ⚠ **What was BUILT differs in seat from the ruling's wording, and it is worth knowing:**
+#   nothing installs `parseMethod` from the carrier. `setParseWalk` classifies **by shape**
+#   (`groupList → parseRule`), and `parseRule` reads the carrier **by name**, once, at
+#   `Generate.rtn:229`, at FIRE time. On trunk `builtinParseR` is **write-only** — zero reads in
+#   any executable source.
+#
+#   **e. THE COMMENT STORE EXISTS AND HAS ITS FIRST ENTRY.** `genLadder/batches/commentStore`.
+#   `RuleStuff.twk`'s six-line block is one slug line; the argument lives in the store. Its own
+#   certificate: apply/retok/apply byte-identical, codeOnly empty at 901 lines, committed `.mm`
+#   bare. ⚠ The three `enclosingActivation` lines were **not carried verbatim** — they described
+#   the refusal the ruling removed.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **412 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · **frontier dies at station 5 on trunk** (station 5 is GREEN on the
+#   branch and it dies at 6 there) · canary **335** · alphaLint 10 (pre-existing) · **Groups 0/0,
+#   support 0/0, TOK 0/0, BeforeSave reset.**
+#
+#   ## ⚠⚠ WAITING ON TONY
+#   **1. THE GATE VERDICT, and it is the one thing item 3 waits on.** The dispatch's condition
+#   was written in terms the measurement did not produce — Search reads NEITHER value, on both
+#   roads. My reading is that identical-on-both means no regression and no bisect, so item 3 is
+#   clear. **That is an interpretation of a condition, not the condition, so nothing was built.**
+#   **2. F-83 rulings 1 and 3.** Ruling 1 is answered by measurement; ruling 3 — which label the
+#   terms attach into — stands.
+#   **3. `checkinput-state` is pushed and unmerged.** A decision, not a leftover.
+#   **4. `~/bin/gz` line 18 is corrupted** — `ruleTest.hitIt(rule)dH() {…}`. Still standing.
+#
+#   ## TOMORROW, IN ORDER
+#   1. **The gate verdict** — whatever item 1 parked.
+#   2. **Station 6, by the buy's verdict** — the fix (name the term by position), then re-run
+#      the buy on the unchanged certificate.
+#   3. The docket.
+#
+#   ## DOCTRINE EARNED TODAY (third seal)
+#   Read before building, and it overturned an attribution before a line was written · a control
+#   is also ONE VARIABLE AT A TIME, and the author of that rule broke it the next day · a gate
+#   written in terms the measurement does not produce is the asker's to rule, not the measurer's.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
+# ⚠⚠⚠ RESEALED 2026-09-18, SAME DAY, AFTER SEQ 159 -- THE FRONTIER MOVES TO THE CARRIER
+# ROAD, THE checkInput RULING SURVIVES ITS RECON, AND THE TRY-AND-BUY DOES NOT BUY.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-18 11:53 and `git log -1 --date=iso` 11:53. They agree.
+#
+#   ⚠⚠ THIS IS THE SECOND SEAL OF 2026-09-18 AND IT DOES NOT REPLACE THE FIRST. The session
+#   sealed at 11:18 after SEQ 158; SEQ 159 arrived after it. Read both -- the entry below this
+#   one is still current for everything it says.
+#
+#   ## THE ONE-LINE STATE: **fleet 412 green / 51 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed, BeforeSave reset.** Trunk is UNCHANGED in behaviour since the first
+#   seal; three commits, all registers and instruments.
+#
+#   ⚠ **AND ONE BRANCH EXISTS AND IS NOT MERGED: `checkinput-state`, commit `acd2d35`.** It is
+#   the try-and-buy. It is pushed so it is auditable and it must not be merged until F-89 is
+#   closed. **Trunk was rebuilt at its own source truth afterwards and re-measured at 412/51.**
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE FRONTIER IS THE CARRIER ROAD NOW, six stations, and it dies at station 5.** The
+#   nine-station twin ladder was not failing, it was **asking a retired question** -- it died at
+#   "compile the twin" and nobody is asking that. The new subject is a rule the file OWNS,
+#   `frRule`, which **could not have been the subject before this morning** because `parser`
+#   resolved its root out of Grokking.
+#
+#   **b. THE checkInput RECON FOUND NO CONFLICTING CELL. The ruling stands; a split is NOT the
+#   honest shape.** Eight callers, one function, and it reads only the rule's own state. **The
+#   two roads have DIFFERENT ATTACH SEAMS** -- old road `attachLabel` takes the parent label as
+#   a PASSED ARGUMENT, new road `exitFromParse` reads `parentStuff.label` -- and checkInput is
+#   upstream of both. Only ONE clause ever read a road flag, and the ruling **retires** it
+#   rather than generalising it: it tested for an ACTIVATION and OVERWROTE the parent's label
+#   slot; the ruling tests for a BOUND LABEL and writes INTO it.
+#
+#   **c. THE ROAD-BLIND checkInput MOVED NOTHING. 412/51 unmoved row for row.** The recon named
+#   this as the one un-covered risk and predicted it would hold, structurally, because
+#   `attachLabel` never reads `rStuff.label`. **The prediction was graded and it held.**
+#
+#   **d. THREE OF FOUR LINKS LAND. The certificate does not.** Carrier runnable (frontier 5
+#   green), parse-then-action (BLOCKRESULT 2 -> 3), label bound before the parse. The fourth --
+#   the terms actually matching -- fails, so station 6 stays red and there is **no buy**.
+#
+#   **e. ⚠⚠ F-89 IS THE CELL: THE GENERATED CHAIN ANSWERS FALSE WHEN THE RULE HAS AN OPTIONAL
+#   TERM.** One variable, two rules, one run: `tbeA=ANYstring+ SemI?-` gives `result=false`;
+#   `tbeB=ANYstring+` with no optional tail gives `result=return`. **It confirms a candidate
+#   that had stood UNRUN since 2026-09-09** -- the frontier's own retired prose said *"the
+#   emitter drops the `?` modifier"* off `trigRecur`, and nobody had driven it.
+#   ⚠ The A/B names the TERM; the MECHANISM is still that candidate. The emitter's `Modifier`
+#   handling has **not been read**, and reading it comes before building.
+#
+#   **f. F-83 RULING 1 IS ANSWERED BY MEASUREMENT: the carrier CAN be a CodE-shaped node with
+#   its own BlocK, and it is a small build.** Probed before anything was built. Rulings 2 and 3
+#   stand open.
+#
+#   **g. RULE H15 IS IN CLAUDE.md, Tony's signature: RUN THE CONTROL FIRST.** H7's sibling one
+#   step earlier in time -- H7 proves a green means something, H15 proves a RED means what you
+#   think. Both of the day's instances are in the entry, and so is the half people under-read:
+#   **a control is also ONE VARIABLE AT A TIME.**
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **412 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · **frontier dies at station 5, on the NEW six-station carrier ladder** ·
+#   canary **335** · alphaLint 10 out of order (pre-existing) · **Groups 0/0, support 0/0,
+#   TOK 0/0, BeforeSave reset.**
+#
+#   ## ⚠⚠ WAITING ON TONY
+#   **1. F-89 — the optional term.** It blocks station 6, F-83's acceptance line, and the merge
+#   of `checkinput-state`. Read the emitter's `Modifier` handling before building.
+#   **2. F-83 rulings 2 and 3** — who runs both bodies in which order (link 2 has a WORKING
+#   implementation on the branch now, so this is a ratification rather than a design), and which
+#   label the terms attach into.
+#   **3. `checkinput-state` is pushed and unmerged.** It is a decision, not a leftover.
+#   **4. `~/bin/gz` line 18 is corrupted** — `ruleTest.hitIt(rule)dH() {…}` — so sourcing it
+#   errors there and `bs` is never defined. Still standing from the first seal.
+#   **5. A DRIFT WORTH KNOWING ABOUT:** `RuleStuff.mm` carried three comment lines its `.twk`
+#   did not, so any retok silently deleted them. Restored into the `.twk` **on the branch only**
+#   — trunk still has the drift. And the same retok rewrites ~100 banner lines by one `*`,
+#   which `codeOnly.py` says is inert at 904 code lines both sides.
+#
+#   ## TOMORROW, IN ORDER
+#   1. F-89 — read the emitter's Modifier handling, then fix, then re-drive the branch.
+#   2. Merge `checkinput-state` if and only if station 6 goes green.
+#   3. Station 6 proper.
+#
+#   ## DOCTRINE EARNED TODAY (second seal)
+#   An instrument pointing at a retired question reads as a frontier and is not one · a recon
+#   that finds no conflict can still find that the STROKE'S SCOPE is wrong, and saying so is the
+#   recon working · probe the spelling before building on it.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
+# ⚠⚠⚠ SEALED 2026-09-18, TWENTY-THIRD SESSION -- STATION 4 IS UNBLOCKED, F-85/F-87/F-88 ALL
+# CLOSED, AND TWO RULED SPELLINGS TURNED OUT TO BE WRONG. THE DAY'S DOCTRINE IS THE CONTROL.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-18 11:18 and `git log -1 --date=iso` 11:16. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 412 green / 51 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed.** Nine commits in Groups, one in support.
+#
+#   The arc: 398 (seal) -> 399 (runRule withdrawn) -> 406 (builtinParseR) -> 412 (skipT).
+#   **RED 51 UNMOVED ROW FOR ROW FROM THE FIRST RUN OF THE DAY TO THE LAST**, diffed each time.
+#   Every green delta is new rows, never a repair of an old one.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. TWO RULED SPELLINGS WERE WRONG AND THE RULINGS BEHIND THEM WERE RIGHT.** That is the
+#   day's shape and it happened twice, so it is a pattern rather than an accident.
+#   `parser` takes the rule via **bare `argument`**, not `*argument` -- the argument IS the rule
+#   (a copy of the FIELD sharing the live rule's BODY, isGrouP 0), so the star lawfully yields
+#   null. And the checkSKIP blocker is **`//`, not `/*`** -- `"/*"` and `"*/"` are innocent,
+#   measured four ways. **Both rulings stand; only the spellings were struck.**
+#
+#   **b. ⚠⚠ RUNNING THE CONTROL FIRST IS WHAT CAUGHT BOTH, AND IT IS THE DAY'S DOCTRINE.**
+#   `*argument` broke ALL THREE roots that already worked. Had `parser(list)` been tried first,
+#   its failure would have read as a `list` problem and the spelling would have shipped. Same
+#   for checkSKIP: respelling BOTH delimiters would have "worked" and left `/*` wrongly blamed
+#   forever; the single-variable control is what said `BlockCommenT` was never the problem.
+#
+#   **c. runRule GATES AND NEVER GENERATES.** The first-use install is withdrawn (Tony). It was
+#   generation inside a gate -- a C++ verb reaching UP to resolve an incant action by name -- and
+#   its order was backwards besides: runRule had compile-then-setParse where `parser`'s own
+#   `compileRules` has setParse-then-compile. **Doctrine candidate, Tony to sign: calls go DOWN,
+#   never up.** Kant calls C++ verbs; C++ fires installed slots; C++ never resolves an action by
+#   name.
+#
+#   **d. THE PARSE PARKS IN `builtinParseR` AND THE RULE KEEPS ITS ACTION. F-87 CLOSED.** Three
+#   changes, each its own one-variable A/B: the carrier (tested on `isCodeD` **read at entry**,
+#   because generateParse sets that flag itself); **walkRules skips noPrint FIRST** -- `CodE`
+#   reads `isRulE` 1 AND `noPrinT` 1, so the isRulE test alone let the walk descend into the
+#   ACTION BODY; and `hasNewParse` **withheld** when the parse parks.
+#   ⚠ **A capture-then-test respell of `isRulE == 0` was tried first on bear-trap #35's advice
+#   and made it WORSE** -- every member walked. The flag was never the problem, the predicate was.
+#
+#   **e. F-88 CLOSED, AND ONLY BECAUSE IT WAS MEASURED AFTER ITEM 1 RATHER THAN ASSUMED.** The
+#   carrier split alone left the spin standing. The cause is **one channel, two meanings** --
+#   `hasNewParse` read as *"a parse was generated"* by walkRules and *"a parse is INSTALLED AND
+#   FIRABLE"* by runRule. Parked in a carrier they come apart and the flag is a promise nothing
+#   keeps. A/B: withheld -> exit 0 and the action fires; raised -> exit 142 on the alarm, no
+#   output. **Closing it as an F-87 consequence would have banked a fix that did not happen.**
+#
+#   **f. THE COMMENT STORE IS BUILDABLE TODAY -- the gating probe PASSED.** kant format only, no
+#   emitter, block-comment payloads until checkSKIP, and **the retok is the reset** so
+#   idempotency is structural. apply/retok/apply gave `8a29fa5197…` both times; codeOnly diff
+#   empty at 8273 lines; the H7 control (apply twice, no retok) doubles the payload.
+#   ⚠ **`insertAt` has NO already-present check** -- read, not assumed.
+#
+#   **g. STATION 6 HAS THREE BROKEN LINKS, NOT ONE, AND LINK 2 IS A RULING.** The body runs and
+#   its argument is an EMPTY label. The carrier is TEXT not code; the rule's `BlocK` is the
+#   ACTION so the terms are never matched; and `checkInput` sets `label = 0` for a members-rule
+#   by design. **The acceptance line is downstream of actually RUNNING the generated parse** --
+#   filling the label is not a repair to a walk that nearly works, the walk does not exist yet.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **412 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · **frontier dies at station 5** · canary **335** · alphaLint 10 out of
+#   order (the pre-existing opIsShortCircuit/opIsOR pair) · **Groups 0/0, support 0/0, TOK 0/0,
+#   BeforeSave reset.**
+#   ⚠ **THE STALENESS GUARD FIRED AT SEAL TIME AND WAS OBEYED**: the comment-store probe's
+#   retoks made `GroupRules.h` newer than the binary, so `pop.sh` printed `⚠ STALE`. Rebuilt,
+#   re-run, unchanged at 412/51. The content was identical either way; **the point is that the
+#   first run was not seal-able and was not sealed.**
+#   ⚠ **AND THE FRONTIER HAS NOT BEEN REVISED TO TODAY'S EDGE.** Station 5 is `compile twin`,
+#   which measures the TWIN road; the campaign moved to the CARRIER road today. It is an
+#   instrument pointing at a question that has been overtaken. **Revising it is owed.**
+#
+#   ## ⚠⚠ WAITING ON TONY
+#
+#   **1. STATION 6's THREE RULINGS, and they are separable.** Does the carrier get compiled --
+#   is `builtinParseR` a CodE-shaped node with its own `BlocK`? Who runs both bodies and in
+#   which order -- `parseRule` gaining a second fire, a new executor, or the carrier's body
+#   ending by calling the action? Which label do the terms attach into? docs/fixIts.md F-83.
+#   **2. `setParse` installing `parseMethod` from the carrier is DELIBERATELY UNDONE.** It is not
+#   a stub -- it is the switch that turns the parse on, and it waits on ruling 2 above.
+#   **3. The comment store's format question** (docs/commentDirectives.md §3) -- the probe says
+#   kant-only is right, and the ruling is Tony's.
+#   **4. `reportRunAbandoned`'s mark, SECOND SIGHTING.** The first is a false positive; this one
+#   is a TRUE positive whose resume point names the wrong line -- it named `IndenT`, two lines
+#   above the `"//"` that actually refused, and sent two readers at the wrong construct.
+#   **5. `~/bin/gz` line 18 is corrupted** -- `ruleTest.hitIt(rule)dH() {…}` -- so sourcing it
+#   errors at that line. `bs` still works; the stray text wants deleting.
+#
+#   ## TOMORROW, IN ORDER
+#   1. Station 6, once link 2 is ruled. `for sumGrup in entries;` is the acceptance line.
+#   2. Revise `incant/frontier` to the carrier road.
+#   3. The comment store proper, if the format is ruled.
+#
+#   ## DOCTRINE EARNED TODAY
+#   **Run the control FIRST** -- twice paid, twice it caught a wrong spelling behind a right
+#   ruling · **measure the consequence after the fix, not before** (F-88) · one channel one
+#   meaning, newest member `hasNewParse` · a ruling can stand while its spelling is struck.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
+# ⚠⚠⚠ SEALED 2026-09-17, TWENTY-SECOND SESSION -- FIVE ROWS CLOSED, AND FIVE OF MY OWN
+# FINDINGS WITHDRAWN. THE DAY'S DOCTRINE IS ABOUT THE SECOND NUMBER.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-17 13:53 and `git log -1 --date=iso` 13:47. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 398 green / 51 red, canary 335, fixit queue 0, all three
+#   repos clean and pushed.** 23 commits in Groups, one in support, one in TOK.
+#
+#   The arc: 352 (seal) -> 355 (F-72) -> 361 (F-76) -> 366 (F-78) -> 372 (the chain) -> 383
+#   (F-79) -> 389 (G03 diagnosed) -> 390 (G03 closed) -> 395 (first-use) -> 398 (parserTest).
+#   Red 51 throughout, row for row, except two deliberate flips that graduated the same day.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. CLOSED: F-72, F-76, F-78, F-79, F-81, the a.b.c.d chain, and the first-use install.**
+#   `a.*b` refuses in `interpretXP` because opDot's `!argument` destroys the evidence first.
+#   `a.b.c.d` reads TWIGVAL -- the parse groups dots in PAIRS, so the orphan is a whole dot
+#   expression and the fold must SPLICE, not wrap. A refusal's scope is the statement.
+#   `stop()`/`bail()` always work. DelimText is opaque in seven positions. A rule gets its parse
+#   at first use.
+#
+#   **b. ⚠⚠ FIVE OF MY OWN FINDINGS WERE WITHDRAWN, ALL THE SAME MOVE, AND THE DOCTRINE IS IN
+#   CLAUDE.md.** An absence is evidence only when the population was the whole tree. The five:
+#   the grammar's `^` (probed a population `dtext` was not in); "four fixtures with inert calls"
+#   (a filename grep; two were PROSE); anyOrNumT's "no-op" (it defines its own `parser`);
+#   F-62's cure "only in trigDO" (the shared copy cures it differently); and "generateParse
+#   destroys list's action" (it never reached `list`). ⚠ **Three were followed by confirming
+#   sweeps that agreed. A sweep inside a wrong population returns unanimity.**
+#
+#   **c. STATION 4 IS BLOCKED AT `parser`'s ROOT RESOLUTION, NOT AT generateParse.** The root
+#   line reads `Grokking[argument.taG]` -- the explicit-accessor spelling a prior ruling stopped,
+#   where `argument.taG` returns `argument`. `parser(Search)` works and is the control;
+#   `parser(list)` generates for a node called `argument`. ⚠ **RULED: parser takes the rule via
+#   `*argument`; registry membership stops mattering.** Tony also suspects `list` is not in the
+#   search list being read.
+#   ⚠⚠ **THE TWO-BODIES-ONE-SLOT COLLISION IS UNTESTED, NOT DISPROVED** -- generateParse has
+#   never seen `list`. **builtinParseR is sized from that first measurement, not before it.**
+#
+#   **d. `utilities` INCLUDES `parser`, AND THE FIXTURES WERE FROZEN COPIES.** `anyOrNumT` and
+#   `trigDO` each carry a COMPLETE frozen copy of the incantation by design; what broke was name
+#   COLLISION, cured by renaming to `aon*`/`td*`. `incant/pop/parserTest` is the live one's POP
+#   over three roots, **with no pinned answers** -- two of them have never run.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **398 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · frontier dies at station 5 · canary **335** · alphaLint 10 out of order
+#   (the pre-existing opIsShortCircuit/opIsOR pair) · **Groups 0/0, support 0/0, TOK 0/0.**
+#
+#   ## ⚠⚠ WAITING ON TONY
+#
+#   **1. F-85's second half is OPEN and undiagnosed:** what stops `list`'s action after a
+#   `parser(list)` that ran on the holder. The collision is not it -- that much is known.
+#   **2. The bear-trap #35 disagreement.** Its direct-subscript miss control **fired** here,
+#   where #35 says it reads 0. Nobody has chased it, and it voided two probes today.
+#   **3. `reportRunAbandoned`'s bailed-file mark** -- for a top-level bail the mark points at the
+#   file's START, so its resume text is wrong in that one case. Parked, fourth attempt.
+#
+#   ## TOMORROW, IN ORDER
+#   1. `parser` takes the rule via `*argument`. **Re-run `parser(Search)` through the new line as
+#      the control FIRST**, then `parser(list)` in parserTest.
+#   2. Read the collision. Then `builtinParseR` **if it exists**.
+#   3. Station 6, one sentence: the parse writes matched data into the label it minted.
+#   4. checkSKIP as its own campaign; `docs/checkSKIP.md` is the card.
+#
+#   ## BANKED TODAY, NOT CHASED
+#   F-86 (KANT-40 in parser's own file -- **no braces in a comment inside an action body** until
+#   checkSKIP lands) · the first-entry-named error family · the #35 disagreement · the
+#   modify/modifyClass split with `delimiter}^` as its acceptance spelling · F-83's label
+#   population · F-77's duplicate `aCTionDefinE` entry · F-80's five-name chain.
+#
+#   ## DOCTRINE EARNED TODAY
+#   A refusal's scope is the statement · `bail()` leaves nothing to report (parked at the
+#   input-level question) · DesignDocs entries are stump markers · **an absence is evidence only
+#   when the population was the whole tree** · IncantForms is WIP that commits · bare is the
+#   default state · bear-trap #54 (a governed statement starting with `*`).
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+
+# ⚠⚠⚠ SEALED 2026-09-16, TWENTY-FIRST SESSION -- THE DIRECTIVES MODEL RAN ON PRODUCTION
+# CODE, THE DOT CHAIN FOLDS, AND TWO PREDICTIONS FAILED HONESTLY.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-16 12:20 and `git log -1 --date=iso` 12:20. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 352 green / 51 red, canary 330, fixit queue 0, all THREE
+#   repos clean and pushed.** Fourteen commits in Groups, one in support, two in TOK.
+#
+#   The arc: 300 (seal) -> 302 -> 308 (designDocs repaired) -> 311 (deleteAt) -> 317 -> 318
+#   (F-67) -> 343 (opPrefixT) -> 352 (dotChainT). Red 51 throughout except one deliberate
+#   red-on-purpose row that graduated the same day.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE DIRECTIVES MODEL RAN ON PRODUCTION SOURCE FOR THE FIRST TIME.** 30 inline keys
+#   respelled across `Commands.rtn` and `ruleActions.rtn` by `genLadder/batches/slugDirectives`
+#   -- TRACKED, because a batch that edited production and was thrown away is a change nobody
+#   can audit. ⚠ **The second-run check earned its place immediately**: the first run was
+#   perfect and the SECOND rewrote a BLOCK comment, because two paths also live in `/* */`
+#   blocks which the convention leaves alone. **Every fromThis is now END-ANCHORED WITH \n** --
+#   an inline key is always last on its line and a block mention never is. Second-run-inert is
+#   now a stated requirement in the directives guide, with the `\n` rule and the re-point
+#   mechanism (`closeFile` / assign / `getFile`) beside it.
+#
+#   **b. THE DOT CHAIN FOLDS.** `a.b.c` and `a[b].c` used to read `xl1` -- interpretXP's
+#   juxtaposition accumulator -- because the trailing `.c` parsed as a whole second TokenXP
+#   that produced no dot call and simply sat next to the term on its left. `isDotUxp` finds it
+#   BY ITS OP and `interpretXP` hands it the left operand the parser never gave it.
+#   ⚠ **The seam carries the direction fact in a comment BEFORE the code: the accumulator is
+#   the RIGHT, because `prior` walks BACKWARD.** Do not re-derive that.
+#
+#   **c. ⚠⚠ TWO PREDICTIONS FAILED, BOTH WITH THEIR CONTROLS INTACT, AND BOTH ARE RESULTS.**
+#   `starFlagT`'s pre-registered flip did not happen -- SF-1/3/5 did not move either, which is
+#   the clause that makes it a negative result rather than a voided control. **The prediction
+#   was built on SF-0 comparing the wrong pair**: the ORIGINAL against the HOLDER, not against
+#   the FACE. Corrected, the face shares the original's body #2 and SF-2's 1 is the flag
+#   crossing LAWFULLY. F-71's headline was withdrawn on it.
+#
+#   **d. F-71 IS CLOSED WITH NO DEFECT, AND THE 2026-09-05 STAR RULING IS RE-AFFIRMED.**
+#   `*x` on a non-group field yields NULL and does NOT refuse; the CONSUMER refuses. It is
+#   built on both halves -- `Instruct.opDeref.starRuling` and `aCTionIterate`'s `nullAfterStar`
+#   arm -- and it records what the other way round cost. ⚠ **A provisional refusal was raised
+#   and withdrawn the same day; 36 live `*argument` sites read isGrouP 0 and work BY THAT
+#   DESIGN.** Overturning it is a design change with those sites behind it, not a repair.
+#
+#   **e. `isGrouP` IS NEW AND IS AN INSTRUMENT, NOT A FIX.** GroupFields 43, read-only, because
+#   `isGROUP` is a VALUE of GroupBody's 5-bit `data` enum and not a flag -- so there is no
+#   opSetFlag write half and its absence is deliberate, said at the site. It predicts the
+#   star's answer exactly: **1 iff `*x` yields something**, measured across eight classes.
+#
+#   **f. F-67 CLOSED IN TWO REPAIRS THAT WERE TWO DIFFERENT DEFECTS.** `where == "before"` was
+#   NEVER TRUE -- a hoisted local is a HOLDER and this was the file's only unstarred read, so
+#   `where=before` silently meant `after` everywhere. Then, newly reachable, the graded
+#   candidate proved true: `if lineStart >= start lineStart++` always fired, stepping one
+#   character INTO line one. ⚠ **Grading that candidate is what saved it** -- written as a fact
+#   it would have been discarded with the wrong theory it was attached to.
+#
+#   **g. OPERATORS IS LONGEST-FIRST AGAIN, AND ORDER BUYS READABILITY ONLY.** Read, not
+#   inferred: `testContainer` scans greedily then BACKS OFF one character at a time, and
+#   `get()` is a linear walk with an exact whole-tag compare. Order changes how many compares
+#   happen before the hit and nothing else. `incant/pop/opPrefixT` pins THE ANSWER, never the
+#   row order, so it survived the reorder and proved it inert.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **352 green / 51 red** · decodePop 14 · ddPop 5 green / 1 red · countPop 0-of-45 ·
+#   formsPop 14 PASSED · frontier dies at station 5 · canary **330** · alphaLint 10 out of
+#   order (the pre-existing opIsShortCircuit/opIsOR pair) · **Groups 0/0, support 0/0, TOK 0/0.**
+#
+#   ## ⚠⚠ WAITING ON TONY
+#
+#   **1. THE 09-05 STAR RULING -- DECIDED, NOT OPEN. RE-AFFIRMED 2026-09-16.** It is listed
+#   here so tomorrow's reader does NOT re-open it. If it is ever overturned that is a design
+#   change with 36 `*argument` sites behind it and it wants its own day.
+#
+#   **2. F-72, OPEN AND ITS OWN STROKE.** `a.*b` never forms a dot at all -- no dot-COMPOSED
+#   arm, and DOTOPERANDS reads left=right=a -- so neither opDot nor handleDot can refuse it.
+#   The refusal wants siting where the unary is visible, with the cure `a[*b]` spelled.
+#   `dotChainT` DC-9 pins today's echo and its header says IN TERMS that it is not yet a refusal.
+#
+#   **3. F-69, F-70, F-71's residue.** Removing `deleteAt`'s `else` arm exits 139, undiagnosed.
+#   `dumpContents(GroupFields)` exits 139 on a clean tree. Both latent, neither chased.
+#
+#   ## TOMORROW, IN ORDER
+#   1. F-72, its own stroke.
+#   2. The `a.b.c.d` case -- the fold handles the two-element chain; a longer chain was not
+#      measured and the backward walk needs a stack for it.
+#   3. The design docket proper.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+#
+# ⚠⚠⚠ SEALED 2026-09-15, NINETEENTH SESSION -- THE COMMENT CONVENTION IS RULED AND SWEPT,
+# THE FIXIT QUEUE IS EMPTY, F-61 IS CLOSED, AND THE KITCHEN HAS THREE REPOS.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-15 14:25 and `git log -1 --date=iso` 14:23. They agree.
+#
+#   ## THE ONE-LINE STATE: **fleet 300 green, canary 329, fixit queue 0, all THREE repos clean
+#   and pushed.** Seventeen commits across Groups, support and TOK.
+#
+#   The arc: 276 (seal) -> 293 (three citizens retired by mapping, 17 rows carried out) -> 302
+#   (starFlagT) -> 299 (three TF-7 rows RETIRED with their subject, not regressed) -> 300.
+#   ⚠ **A FALLING FLEET NUMBER IS NOT A REGRESSION HERE AND THE SEAL SAYS SO ONCE: 302 -> 299
+#   IS THREE CHECKS CEASING TO EXIST** -- TF-7 had one row per disagreeing rule and three rules
+#   stopped disagreeing.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE COMMENT CONVENTION IS RULED, AND IT IS TWO RULES.** The inline form is
+#   `// slug sentence?` -- slug required, sentence optional, **dotted path never inline**, and
+#   where an entry exists to FORBID something the sentence carries the forbid. The split is
+#   **argument versus description** -- move what argues, keep what describes -- and it is
+#   **explicitly not a size rule**: four headers of six-plus lines stayed as descriptions while
+#   `allAttributesOptional` moved at nine. Both in CLAUDE.md.
+#
+#   **b. `GroupItem.twk` IS SWEPT AND IN ALPHA ORDER. 2144 -> 1932 lines**, 20 DesignDocs
+#   entries, `attachLabel` alone from 97 lines of comment around 20 lines of code to seven
+#   `// slug` lines and seven addressable children. **69 of 103 methods changed position and the
+#   generated code did not move a byte** -- tok sorts its own output, measured, not assumed.
+#
+#   **c. `genLadder/codeOnly.py` IS NEW AND IS THE INSTRUMENT THE SWEEP RESTS ON.** It strips C
+#   and C++ comments so *"the .mm diff is comment-only"* is a `diff` rather than an eyeball.
+#   Hygiene tier with `alphaLint.sh`, and **deliberately not on the H12 checklist**: a
+#   formatting claim must never be able to fail the correctness gate.
+#
+#   **d. THE FIXIT QUEUE IS 0.** All three citizens retired by mapping, with their assertions
+#   carried out: `danglingElse` -> `incant/pop/danglingE`, `hasTraits` -> `incant/pop/traitFlagsT`,
+#   `faceFlagsNoCross` -> faceT's existing rows. ⚠ **AND ONE WOULD HAVE RETIRED ON A LIE**:
+#   `faceFlagsNoCross` printed a passing row because `*x.flagName` is **not a flag read** -- it
+#   returns no data on the very field the flag was written to. Banked as **bear-trap #26 payment
+#   seven**, with `incant/pop/starFlagT` as the chained-dot acceptance fixture.
+#
+#   **e. THE TraiT PACKET IS OFF (item A).** `TF-5` 5 -> 2, and the two survivors are a
+#   DIFFERENT cause named **before** the build: `builtinActoR` is their only attribute and it is
+#   noPrint. Four rules carried the packet; only three ever disagreed because of it.
+#
+#   **f. F-61 IS CLOSED.** `setParseAction` is the one writer on both roads -- it raises
+#   `parseACTION`, installs the method as the LEAF in `rStuff->parseMethod` undisguised, and
+#   raises `hasNewParse`. `testAction`'s fallback is gone. ⚠ **The replacement fires 63 times
+#   across exactly the four** (DEFINing 22, CodeBody 17, MEMBERs 13, PRINTing 11), so "nothing
+#   broke" is not luck. **Two attempts failed first and both are kept in `docs/fixIts.md`,
+#   because between them they name where the writer does NOT go.**
+#
+#   **g. THE KITCHEN HAS THREE REPOS.** `InProcess/TOK` has been tracked since 2026-09-04 and
+#   **every seal since has read "both repos"**, so its dirt was invisible for eleven days. Its
+#   `project.pbxproj` is committed today as navigator churn -- measured NOT to be the Xcode 27
+#   format upgrade, and with no target or build-setting change whatever.
+#
+#   ## ⚠⚠ THE TWO STROKES IN FLIGHT -- BOTH LANDED BY THEIR CERTIFICATE
+#
+#   **F-61 writer (`467f76d`)**: fleet 299 unmoved row for row, canary 329, trigDO exit 0,
+#   `GroupItem.h` carries `setActions` and `setParseAction`, alphaLint `104 methods, in order`.
+#   **testPrecedence latch (`6134390`)**: 299 -> 300 and the ONLY row that moved is its own,
+#   latched -> real. 35 distinct markers, 8 pending, 8 of 35 not yet true, non-negative.
+#   ⚠ The ratchet re-baseline **12 -> 8 IS NOT FOUR GRADUATIONS** -- the repair changed both
+#   numerator and denominator. Nothing graduated; the eight are named in `pop.sh`.
+#
+#   ## STATE OF THE CHECKLIST
+#   `pop.sh` **300 green** · decodePop 15 · ddPop 5 green / 1 red / 6 ran · countPop 0-of-45
+#   (red at HEAD too, not from this work) · formsPop 14 PASSED · frontier dies at station 5 ·
+#   canary **329** · alphaLint 0 out of order · `groups.ext` committed and pushed ·
+#   **Groups 0/0, support 0/0, TOK 0/0.**
+#
+#   ## ⚠⚠⚠ RULED 2026-09-16 (Tony) -- BEAR-TRAP #18: ATTRIBUTION CLOSED AS UNKNOWN.
+#
+#   **The ruling, verbatim in its operative half:** *Cause not isolated; not pursued -- would
+#   require tok work. Do not use tok macros outside `testMacro`'s existing shape.* Settling it
+#   means tok maintenance, and **tok macros are not used beyond `testMacro`'s shape, so nothing
+#   in the tree depends on the answer.** The question is CLOSED, not parked: do not re-open it
+#   and do not re-derive the candidate list.
+#
+#   **THE FOUR CANDIDATES ARE STRUCK** -- the terminating semicolon, column-0/declaration
+#   position, the `use field` prefix, and Clay's category mismatch. `CLAUDE.md`'s entry 18 carries
+#   the same edit and is the live text; this is the seal-side record of the decision.
+#
+#   ⚠ **WHAT SURVIVES AS DOCTRINE, UNDIMINISHED BY THE CLOSURE -- the OBSERVATION was never in
+#   doubt and is not what was closed:**
+#   - **Three failure modes, all reproduced.** A macro call nested in an expression expands
+#     silently to nothing and fails at the C++ compile step; a bare macro statement that is not
+#     its function's only statement makes **tok exit 139 with no diagnostic**; two macro calls in
+#     sequence drop the first entirely while leaving the second unexpanded.
+#   - **tok exiting 139 with no diagnostic is a real defect**, ruling or no ruling.
+#   - **The fix that worked was to stop using macros** and write ordinary `extern` functions --
+#     which is why genParse S3 looks as it does.
+#   - The old headline -- *a macro only works when its invocation is the entire, sole body of its
+#     containing function* -- **stays struck as falsified by shipping code**: `testSet` in
+#     `RuleStuff.twk` carries a declaration before its `testMacro(...)` call and works today.
+#
+#   ⚠ **AND THE METHOD NOTE IS THE REASON THE ENTRY READ THIS WAY FOR SEVEN WEEKS**, per
+#   bear-trap #19's corollary: **reproduction proves the SYMPTOM, never the CAUSE.** Splitting
+#   observation from attribution is what let the attribution be closed as unknown without losing
+#   a single thing that had actually been measured.
+#
+#   ## TOMORROW, IN ORDER
+#   1. Reports from the two landed strokes.
+#   2. ~~The #18 ruling.~~ **DONE 2026-09-16 -- closed as unknown; see the section above.**
+#   3. `checkInput`'s second arm -- the top-of-parse skip -- toward trigDO 1/0/1. The single
+#      remaining refusal is `REFUSED BlocK -- checkInput: no enclosing activation to take the
+#      label`, and it is a named refusal where it used to be an EXC_BAD_ACCESS.
+#   4. **BlocK respell (item C)**, on a fresh baseline, carrying the grammar line before and
+#      after verbatim.
+#   5. The design docket proper, **chained dot first** -- `starFlagT` is its acceptance fixture
+#      and carries a pre-registered prediction plus its voided-control clause.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 0`
+#   **The queue is empty. Nothing is pointing at anybody's foot.**
+#
+# ⚠⚠⚠ SEALED 2026-09-14, EIGHTEENTH SESSION -- TONY'S PARSER ARC RECONCILED, AND
+# THE lastRule GLOBAL IS GONE. NINE STROKES, TEN COMMITS.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-14 18:30 and `git log -1 --date=iso` 18:19,
+#   same session. They agree.
+#
+#   ## THE ONE-LINE STATE: **Tony's offline parser work is reconciled and sealed, three
+#   real regressions in it are fixed, `lastRule` is retired, and the fleet is HIGHER than
+#   the tree it started from.** Fleet **276 green**, canary **329**, still-new against
+#   HEAD **4**. Both repos **0 dirty, 0 unpushed**. Fixit queue **3**.
+#
+#   ⚠ THE BASELINE WAS MEASURED, NOT ASSUMED, AND IT IS WHY ANY OF THIS IS READABLE.
+#   HEAD was stashed, rebuilt and run before a single edit: **281 green / 48 red**. So
+#   "new" below means new against the committed tree, never merely red. The arc:
+#
+#       HEAD            281 green   canary 329
+#       Tony's tree     260 green   canary 327    21 new reds
+#       ... nine strokes ...
+#       sealed          276 green   canary 329     4 new reds
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE THREE REGRESSIONS, all in Tony's arc, all fixed.**
+#   - **Every `or` arm in the language segfaulted.** `ElseIf` is the grammar's ONLY
+#     `ruleMethod=` registration, so its action was installed BEFORE `setActionMethod`
+#     ran; the dlsym arm was skipped and nothing published `builtinActoR`. Fixed by a
+#     third arm that publishes an already-set `gMethod`.
+#   - **`setParse`'s internalized walk had no cycle guard.** The grammar is cyclic --
+#     **StatemenT contains BlocK contains StatemenT**, read off the stack. New GroupBody
+#     flag `parseWalked`, **per-walk, not per-process** (per-process over-refuses a second
+#     legitimate root: 54 refusals and zero parked actions in parseClass).
+#   - **`hasNewParse` was raised before anything was installed.** Moved to `setParseWalk`'s
+#     tail; `parkParse` stopped raising it (it parks a NAME for `fireNewParse`, which is
+#     reached by nothing -- F-56); `runRule` refuses by name instead of calling null.
+#
+#   **b. ⚠ THE THREE-SLOT RULING IS THE SPINE OF THE WHOLE SESSION.** `gMethod` is the
+#   ENTRY (parseLoop for a repeating term, the leaf otherwise) · `rStuff->parseMethod` is
+#   the LEAF · `rStuff->actionMethod` is the ACTION. **Measured, not argued:** at
+#   `runRule`'s dispatch the two slots AGREE on six rules and **DISAGREE on `GrouP`** --
+#   `gMethod=parseLoop`, `parseMethod=parseRule`. They are not two copies of one answer,
+#   and collapsing them makes `parseLoop` call itself.
+#
+#   **c. ⚠⚠ A REFUSAL INSIDE A LIBRARY WALK ABORTS WHATEVER INCANT ACTION CALLED THE
+#   WALK. REFUSE ONLY WHERE THERE IS A PATIENT.** New doctrine, and it cost two strokes.
+#   ⚠ **AND ITS QUALIFIER, WHICH IS THE HALF THAT WILL BE MISAPPLIED: "no patient" is
+#   PER-REFUSAL, NOT PER-WALK.** `setParseWalk` has two refusals and they rule opposite
+#   ways -- **re-entry** is routine (52 repeat arrivals among 207 visits, now a silent
+#   return traced under debug only) and **no-rStuff** is LOAD-BEARING. Silencing the
+#   second, which looks like the identical fix, takes trigDO to **exit 139**: that
+#   refusal stops the walk descending into something that then crashes. Measured and
+#   killed, not reasoned about.
+#
+#   **d. `lastRule` IS RETIRED.** It was a global standing in for the ENCLOSING rule,
+#   which the caller already holds. `currentMETHOD` means exactly that and is already
+#   bracketed by `priorMETHOD`. Measured at both re-resolve sites before editing:
+#   `GrouP -> Search`, `NamE -> GrouP`, matching `lastRule` exactly.
+#   ⚠ **TWO THINGS THE PLAN DID NOT ANTICIPATE, and the first is why four earlier strokes
+#   died:** the "save/restore bracket" also held a **parentStuff/parentLabel REPAIR** that
+#   merely lived inside the `if lastRule` guard. **That repair, not the re-resolve's
+#   source, is what every failed attempt had been deleting.** And `currentMETHOD` is set
+#   where `lastRule` was null, so the guard must be on the LOOKUP, not the source.
+#
+#   **e. ⚠ THE MATCH TRACE LIVES IN `groupDirectives` AND IN NO SOURCE FILE.** Three
+#   reconstructions failed before this was found. Verifying the GrouP item needs a
+#   directives build -- legitimate for an OBSERVATION, never for a number. Taken, read,
+#   then **rebuilt bare before the fleet and before the commit** (0 Match markers in the
+#   committed `.mm`). The whole **419-line trace is byte-identical** across the stroke.
+#
+#   ## ⚠⚠⚠ THE TRACE, BANKED 2026-09-15 BY RULING. READ THIS BEFORE THE THREE ROWS BELOW.
+#
+#   **TWO FACTS, AND KEEPING THEM APART IS THE POINT (Tony, 2026-09-15): THE CRASH IS NOT IN
+#   THE WALK. It is `checkInput:1215` at PARSE time, reached only because silencing the
+#   no-rStuff refusal let `DO` compile at all.** Taken on the silenced build -- `Generate.rtn:325`
+#   `return refuse(...)` replaced by `return null` -- which is the exit-139 configuration.
+#   Reverted and rebuilt before anything landed; `Generate.rtn` md5 `9a4e5242…` both sides.
+#
+#       frame #0  RuleStuff::checkInput        RuleStuff.mm:1215
+#       frame #1  GroupItem::parse             GroupItem.mm:1563
+#       frame #2  processCode                  GroupRules.mm:10846
+#       frame #3  compile                      GroupRules.mm:1892
+#       frame #4  aCTionRunRulE                GroupRules.mm:1032
+#       frame #5  GroupItem::fireLabelMethod   GroupItem.mm:860
+#       frame #6  GroupItem::parse             GroupItem.mm:1591
+#       frame #7  testAttributes               RuleStuff.mm:756
+#       frame #8  GroupItem::parse             GroupItem.mm:1583
+#       frame #9  main                         groups.mm:25
+#
+#   `EXC_BAD_ACCESS (code=1, address=0x18)` on
+#   `field->parent->getRStuff()->label = label;`, guarded one line above by
+#   `field->groupBody->flags.hasNewParse && isMember(field->options.affiliation)`.
+#
+#   ⚠ **BEAR-TRAP #36: THE LINE NAMED IS THE CONSUMER.** `field->parent` is a LIVE node;
+#   `getRStuff()` returns nil on that same line and `->label` writes at offset `0x18`. And
+#   `getRStuff` is the PURE getter since the 2026-08-31 ruling -- before it, this line
+#   silently minted an rStuff and could never crash. The split did not cause this; it
+#   revealed a site that had been depending on the getter constructing.
+#
+#   ## ⚠⚠ THE ITEM-3 MEASUREMENT, AND IT SETTLES THE FORK: NEITHER BRANCH IS A COPY.
+#
+#       field                              BlocK       isCopy 0
+#       field->parent                      Grokking    isCopy 0     rStuff nil
+#       field->parent->definingRule()      Grokking    -- RETURNS ITSELF, same pointer
+#       field->parent->definingRule()->rStuff          nil
+#
+#   **So `field->parent` IS NOT A COPY AND HAS NO MASTER -- it is the REGISTRY.** `BlocK` is a
+#   top-level grammar rule and its parent is `Grokking` itself, which lawfully has no rStuff
+#   because it is not a rule. There is nothing to resolve through, so by the ruling's own fork
+#   **the fix is UPSTREAM, where `hasNewParse` is raised**, and this site refuses loud when it
+#   cannot resolve.
+#
+#   ⚠ **AND THE STRUCTURAL READING, which is the kind that holds here: THE GUARD AND ITS
+#   SUBJECT LIVE IN DIFFERENT STRUCTURES.** `hasNewParse` is a `groupBody` flag, which `copyOf`
+#   copies; `rStuff` is never copied and a registry never has one. Line 1215 assumes every
+#   `hasNewParse` MEMBER has a rule-shaped parent, and a top-level rule does not. That is
+#   Ruling D's own diagnostic sentence -- *whenever a guard and its subject live in different
+#   structures, ask whether they can disagree* -- arriving at a new site.
+#
+#   ## ⚠⚠⚠ WHERE THE SIXTY LIVE -- MEASURED 2026-09-15, AND THEY ARE NOT GRAMMAR TERMS.
+#
+#   Tony's puzzle was that there is no `++` or `--` anywhere in the grammar or GroupMain.
+#   There is not. **The sixty refused fields are the CONTENTS of a registry and a bin**, and
+#   the parent chain says so in one line. All three chains asked for -- the first refusal,
+#   an `@` and a `!` -- are IDENTICAL above level 0:
+#
+#       CHAIN  lvl=0  --          kind=-         isRule=0  rStuff=0   aff=member
+#       CHAIN  lvl=1  UnaryOPS    kind=BIN       isRule=0  rStuff=1   aff=attribute  data=isSET
+#       CHAIN  lvl=2  TokenXP     kind=-         isRule=1  rStuff=1
+#       CHAIN  lvl=3  Token       isRule=1 . lvl=4 ExpressioN . lvl=5 IF . lvl=6 WardeD
+#       CHAIN  lvl=7  StatemenT   isRule=1 . lvl=8 DO . then Token, ExpressioN, Xpress
+#
+#   **THE WHOLE POPULATION, all sixty, by the container they sit in:**
+#
+#       52   Operators   (binType 4, REGISTRY)     = . := <- += &&  ==  ?  ^  %  ... 
+#        8   UnaryOPS    (binType 1, BIN)          -- - ++ @ ! * . $$
+#       44 of them sit under `Token`, 8 under `TokenXP`.
+#
+#   ⚠⚠ **THE ANSWER TO ITEM 3's QUESTION IS NO, AND IT IS A CLEAN NO: `actionType` IS 0 AT
+#   EVERY LEVEL OF ALL SIXTY CHAINS.** No `aCTionBlocK`, no action child, nothing. **The walk
+#   is NOT crossing from grammar into action code.** It is descending into a container whose
+#   members are operator tokens.
+#
+#   ⚠ **AND THE CONTAINERS THEMSELVES ARE FINE.** `Operators` and `UnaryOPS` both HAVE rStuff
+#   and `setParseWalk` already has an arm for them -- `isBIN || isREGISTRY -> parseContainer`.
+#   What produces the sixty is the descent INTO their members, and an operator token is not a
+#   rule and never will be: `isRule=0`, `rStuff=0`, lawfully, by Ruling D.
+#
+#   Instrumented at `Generate.rtn:325`, run, reverted; `Generate.rtn` md5 `9a4e5242…` both
+#   sides, canary 329, fleet 299 unmoved, zero CHAIN lines in the shipped binary.
+#
+#   ## ⚠⚠⚠ THE RULING WAS BUILT 2026-09-15 AND IS **NOT LANDED** -- IT UNCOVERS AN
+#   ## UNBOUNDED RECURSION. Item 4's stop clause fired; the rows read 0/0/0, not 1/0/1.
+#
+#   **THE RULING ITSELF IS RIGHT ABOUT THE SIXTY.** Built exactly as ruled -- a member with
+#   `isRule=0` skips silently in the 6b shape, the no-rStuff refusal untouched and still
+#   firing only on `isRule=1` -- and **refusals went 60 -> 0 with the canary at 329.** That
+#   half of the certificate is met and reproducible.
+#
+#   **WHAT IT UNCOVERS, MEASURED RATHER THAN EYEBALLED:**
+#
+#       trigDO exit          139, and it is NOT checkInput any more
+#       stop reason          EXC_BAD_ACCESS code=2 at 0x16f603fc0 -- a STACK address,
+#                            write fault: the guard page. A stack overflow.
+#       the cycle            parseRule -> fireLabelMethod -> exitFromParse -> parseRule
+#       depth                65 `parseRule` frames in the top 200, one every ~3 frames
+#       where it died        reportNoBody's fprintf, which is incidental
+#
+#   That is **`parseSelfRecursion`**, already a problem record, and designDocs
+#   `methodSlotFourReaders` names it in advance: *a parse executor whose whole body is
+#   `field.method(field)` calls itself until the stack is gone.* The ruling does not cause
+#   it; it removes the thing that was holding it off.
+#
+#   ⚠⚠ **AND IT IS NOT CONFINED TO trigDO, WHICH IS THE PART THAT DECIDED NOT TO LAND IT.**
+#   The fleet went **299 -> 296** and two of the three moved rows are substantive:
+#
+#       label-work executors carry 0 parked actions   ->  FAIL, TWELVE of them
+#       parseRule carries 1 parked actions            ->  NINE (row still green, number moved)
+#       trigDO runs / sentinel                        ->  FAIL, exit 139
+#
+#   The parked-action rows are F-60's territory and nobody predicted them.
+#
+#   **THE ENCLOSING-ACTIVATION GUARD WAS BUILT TOO, IN THE SAME STROKE AS INSTRUCTED, AND IT
+#   WORKS.** `RuleStuff.twk:207` becomes `if parent && parent.rStuff` write, `else` refuse by
+#   name. It **fired exactly once** and the `checkInput:1215` crash is gone -- the second 139
+#   is a different site entirely. So the guard is good and is waiting on the recursion, not
+#   the other way round.
+#
+#   **BOTH EDITS ARE REVERTED.** Tree clean, fleet back to 299, trigDO exit 0, canary 329.
+#   The two edits are six lines between them and are fully specified by the ruling itself.
+#
+#   ## ⚠⚠⚠ THE RECURSION, MEASURED 2026-09-15. ALL THREE QUESTIONS ANSWERED, AND THE
+#   ## MECHANISM IS ONE LINE: NamE's actionMethod IS parseRule.
+#
+#   Probe at `parseRule`'s entry, debug-only depth guard at 60 so it REPORTS instead of
+#   overflowing -- **exit 7, not 139**. Measurement only; reverted.
+#
+#       PR  1  NamE  field=0x1005b1440  isCopy=0  cursor=0xae4c68b78  g=0x0  parse=...854  action=...854
+#       PR  2  NamE  field=0x1005b4e40  isCopy=0  cursor=0xae4c0348a  g=0x0  parse=...854  action=...854
+#       PR  3  NamE  field=0x1005b4e00  isCopy=0  cursor=0xae4c0348c  ...
+#       PR  4..12       e40 dc0 d80 d40 d00 cc0 c80 c40 c00 bc0   -- DOWN BY EXACTLY 0x40 EACH
+#       PRADDR parseRule=0x10022f854
+#
+#   **A -- DISTINCT FIELDS, NOT ONE FIELD.** A fresh 64-byte node every turn, marching down by
+#   0x40. Same NAME, different node: the loop MINTS a label per entry and never reuses one.
+#
+#   **B -- THE CURSOR DOES NOT ADVANCE.** `0xae4c68b78`, then `…348a`, then **frozen at
+#   `…348c` for entries 3 through 12.** Two bytes of movement in total. **No input is being
+#   consumed**, so nothing can ever terminate it.
+#
+#   **C -- `NamE`.** `parse=0x10022f854` is `parseRule` EXACTLY. ⚠⚠ **AND SO IS `action`.**
+#   Both slots hold the same function, and `g=0x0` -- gMethod is empty.
+#
+#   ⚠⚠ **SO THE CYCLE IS NOT MYSTERIOUS: `parseRule` runs the body, the body's exit fires the
+#   rule ACTION, the rule action IS `parseRule`.** designDocs `methodSlotFourReaders` predicted
+#   exactly this shape one slot over -- *a parse executor whose whole body is
+#   `field.method(field)` calls itself until the stack is gone.* Here it is `actionMethod`
+#   rather than `gMethod`, and `setParseWalk`'s own `actionMethod = method;` is the line to
+#   look at first.
+#
+#   ## ⚠⚠ THE TWELVE PARKED-ACTION EXECUTORS, NAMED -- AND ALL TWELVE WERE BEYOND THE OLD
+#   ## WALK'S FIRST REFUSAL. F-60's re-pin has its cause.
+#
+#       followedBy  parseSet         leftCurly   parseString      rightCurly  parseString
+#       leftBrace   parseString      rightBrace  parseString      BrancheS    parseContainer
+#       SemI        parseString
+#
+#   Twelve rows, **seven distinct names** -- five of them classified twice, two once.
+#
+#   ⚠ **AND THE ANSWER IS STRONGER THAN "BEYOND THE FIRST REFUSAL": ALL SEVEN ARE ABSENT FROM
+#   THE UNRULED WALK ENTIRELY.** Not before it, not after it -- never classified at all. The
+#   old walk's first refusal is line 14 of parseClass's capture and lines 14-73 are the sixty
+#   refusals; in the ruled run those same lines are the real classifications. **The rows move
+#   because the walk now COMPLETES**, which is F-60 closing with a cause rather than a
+#   coincidence. No row is owed an explanation of any other kind.
+#
+#   ⚠ METHOD NOTE, because it cost a run and would cost the next reader the same: the first
+#   attempt retok'd `GroupRules.twk` and NOT `RuleStuff.twk`, so the guard sat in source and
+#   not in the binary, and the probe reported a DIFFERENT crash. Bear-trap #49's family. The
+#   tell was the measurement disagreeing with the previous run.
+#
+#   ## ⚠⚠⚠ RELANDED 2026-09-15. trigDO 139 -> 0, REFUSALS 60 -> 0, FLEET UNMOVED AT 299.
+#   ## ONE CERTIFICATE CLAUSE IS UNMET AND IT IS NAMED: THE ROWS READ 0/0/0, NOT 1/0/1.
+#
+#   **WHAT `actionMethod = method;` WAS, read before it was removed.** `method` is `gMethod`
+#   -- it generated `ruleStuff->actionMethod = field->groupBody->gMethod;`. It entered in
+#   `5f24cf3` (2026-09-14) inside Tony's offline parser arc, and it was aimed at **F-61**: on
+#   the `parseACTION` road nothing publishes a `builtinActoR`, so `actionMethod` had no writer
+#   at install time and was being filled late and opportunistically by `testAction`'s
+#   fallback, which copies `gMethod` -- and since `setParseWalk` overwrites `gMethod` with the
+#   parse executor, that fallback had been caught filing `parseAction` as the action and
+#   recursing. Capturing `gMethod` at the TOP of the walk, before the ladder overwrites it,
+#   was meant to snapshot the real action while it was still there.
+#
+#   ⚠⚠ **IT DID NOT SNAPSHOT THE ACTION, IT ERASED IT -- AND THEN IT PROPAGATED THE EXECUTOR.**
+#   Measured on `NamE`: THREE visits, ONE field (`0x10444bbc0`), ONE rStuff (`0x104e00cf0`):
+#
+#       visit 1   g=0x0        hasNewParse=0   oldAction=0x1041cf184  -> writes 0x0
+#       visit 2   g=parseRule  hasNewParse=1   oldAction=0x0          -> writes parseRule
+#       visit 3   g=parseRule  hasNewParse=1   oldAction=parseRule    -> writes parseRule
+#
+#   Visit 1 wrote NULL over the real action. Visits 2 and 3 copied the ENTRY into the ACTION
+#   slot, and `parseRule` firing `parseRule` is the unbounded recursion.
+#
+#   ⚠ **AND `parseWalked` DID NOT STOP VISITS 2 AND 3 BECAUSE IT IS PER-WALK, NOT PER-PROCESS.**
+#   Three passes, three visits, and on visits 2 and 3 the slots are POST-install. That is
+#   exactly the ruling's second clause, and `hasNewParse` is now the mark that answers it.
+#
+#   ## ITEM 4 -- IS hasNewParse RAISED ON NamE, AND WHY IS gMethod EMPTY
+#
+#   **Raised: YES**, on visits 2 and 3, by visit 1's own install. **gMethod empty:** the nodes
+#   `parseRule` actually RECEIVES are not the walked node. They are freshly minted labels --
+#   `isCopy=0`, a new 64-byte node each turn -- carrying the master's rStuff (`0x104e00cf0`,
+#   identical) over **their own empty body**, so `g=0` while `parse` and `action` both read
+#   `parseRule`. `runRule` would refuse that by name; the `exitFromParse` road reached it
+#   without asking.
+#
+#   ## ITEM 3b -- F-61 IS **NOT** CLOSED BY REMOVAL. SEVEN FIRES, FOUR RULES.
+#
+#       PRINTing 3 . DEFINing 2 . CodeBody 1 . MEMBERs 1
+#
+#   So `testAction`'s fallback is still the only writer of `actionMethod` for those four on the
+#   parseACTION road. **That is F-61's remaining scope, named.** Reported, not fixed.
+#
+#   ## ⚠⚠ THE ONE UNMET CLAUSE, AND IT IS NOW A NAMED REFUSAL INSTEAD OF A SEGFAULT
+#
+#   `Generating parse code for DO` . `compile succeeded for DO` . both arm headers print .
+#   `TRIG SENTINEL` reached. **But no LABELPROBE and no attachLabel**, and the reason is one
+#   line on stderr:
+#
+#       REFUSED BlocK -- checkInput: no enclosing activation to take the label
+#
+#   `BlocK` carries `hasNewParse`, is a MEMBER, and its parent is the REGISTRY -- so there is
+#   no enclosing activation to hand the label to. The guard turns what was an EXC_BAD_ACCESS
+#   into a refusal that names its subject. **That refusal is the whole remaining distance to
+#   1/0/1.**
+#
+#   ⚠ **AND F-60's PRE-AUTHORISED RE-PIN WAS NOT NEEDED.** With the installed-guard in place the
+#   walk no longer re-enters installed nodes, so the twelve parked-action classifications never
+#   happen and the row stays green at 0. The fleet is unmoved at 299, row for row.
+#
+#   ## ⚠⚠ WAITING ON TONY -- trigDO's THREE ROWS. NO REPAIR UNTIL HE READS THEM.
+#
+#   **They are ONE fact wearing three rows.** The fixture now RUNS to its foot and
+#   REPORTS, which it could not do this morning -- that is what makes them askable.
+#
+#       row                  expected                                              actual
+#       arm 1   LABELPROBE DO minted=DO mintedLen=2 into=Token chainTrue=1 yielded=1   NO LABELPROBE LINE AT ALL
+#       arm 2   LABELPROBE DO minted=DO mintedLen=1 into=Token chainTrue=0 yielded=0   NO LABELPROBE LINE AT ALL
+#       attach  `attachLabel lab=DO ` count = 1                                        0
+#
+#   **WHY, bisected with stderr markers this evening:** `generateParse` prints its cout
+#   and then aborts **inside `setParse(argument)`** -- `M0 before` prints, `M1 AFTER` does
+#   not -- on the first of **60 `setParse: the field passed in has no rStuff` refusals**,
+#   raised on ordinary operator terms (`--`, `-`, `++`, `@`, `!`). So **DO never gets a
+#   `CodE`**, `compile(DO)` exits at its first line (`if !field.isCoded return null`), and
+#   `DO("...")` never runs a generated parse. `measureLabelProbe` fires from `parseRule`,
+#   which is never reached -- hence zero probe lines rather than wrong ones.
+#   ⚠ **This is the doctrine question in (c) with a real subject:** those 60 refusals are
+#   raised on nodes that have no business having rStuff, inside a walk with no patient --
+#   but the refusal is load-bearing and cannot simply be silenced. **That is Tony's.**
+#
+#   ## TONY IS TAKING `testPrecedence` OFFLINE
+#   The trim collapsed the per-row slug mint into a shared `tpMark := new("bare")`, so
+#   every row writes the SAME marker: 26 identical `PENDING bare` lines, and `tpSlot`
+#   becomes a latch that **all 35 rows** increment -- `tpRows=27`, `tpTrue=35`, hence
+#   `-8`. pop.sh's extractor then reads nothing, because `s/[^0-9].*//` **cannot parse a
+#   minus sign**. Two fixes, both instrument-shape calls, both his.
+#
+#   ## WHAT LANDED -- TEN COMMITS
+#   `5f24cf3` seal of Tony's arc + strokes 1-2 · `d179305` 2b per-walk mark ·
+#   `d9926d2` re-pins + causes read · `2c8e07a` stroke 5 F-58 · `e130973` F-59 ·
+#   `de7f2c9` F-60 · `70622a5` F-61 · `338f834` 6b · `65a27dc` 7 lastRule retired ·
+#   `8df10c9` 8 · `b04902b` 9 F-62/F-63 · `715fc0c`/`0e4c2f4` re-pins.
+#   Support: `f0b27ce` (alpha-order + parseWalked mirror), plus the lastRule mirror drop.
+#
+#   ## ⚠ FIVE STROKES WERE REVERTED WHOLE, AND THAT IS THE METHOD WORKING
+#   4, 4b, 4c, 6, and stroke 7's first cut. Every revert was verified byte-identical back
+#   to its seal before the next attempt, and **every one bought a measurement** that the
+#   next stroke used. Try-and-buy is why nine strokes produced no accumulated wreckage.
+#
+#   ## TOMORROW, IN ORDER
+#   1. **The `GroupItem.twk` recon** -- read-only, as dispatched 2026-09-14, output one
+#      report to `ipc/clod-to-clay.md`. **It is the opening move and nothing is owed
+#      before it.** Sections: comment census · alpha order · measuring constructs ·
+#      blast radius on `fireLabelMethod`/`setActionMethod` (both fresh this session) ·
+#      genParse callers.
+#   2. **Comment minion, first pass drafted from that report.**
+#   3. **Peas: `faceFlagsNoCross` first, ONE citizen per POP.**
+#
+#   ## STATE OF THE REST OF THE CHECKLIST
+#   formsPop 14 PASSED · decodePop red · ddPop 5 red (32 pre-existing trim-gate
+#   violations) · **countPop 0-of-47, RED AT HEAD TOO and NOT from this work** ·
+#   frontier 3 PASS, dies at station 5 · canary 329 · `groups.ext` committed and pushed.
+#   Ledger open: **F-59** (baked `rule[n]` shifts under a noPrint attribute -- latent,
+#   not bitten), **F-60** (parked-action census empties under the 4b patch -- a VARIANT
+#   property, green on the tree), **F-61** (`actionMethod` has no writer at install on
+#   the parseACTION road). F-58, F-62, F-63 closed this session.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which citizen goes first.**
+#
+# ⚠⚠⚠ RULED AND EXECUTED 2026-09-15 (Tony). THE PACKET IS OFF. Everything below is the
+# reasoning trail and is kept verbatim; three of its statements are corrected by the landing
+# and the corrections are here rather than in the body, so the trail is not falsified.
+#
+#   THE CERTIFICATE ASKED FOR WAS `TF-5 -> 0` AND THE TREE GIVES `TF-5 -> 2`, which is the
+#   change working. ANYstring, leftCurly and rightCurly carried the packet as their ONLY
+#   attribute and now carry none, so both flags read 0 and they agree. ShortcuT and StatemenT
+#   still disagree on a DIFFERENT cause, named BEFORE the build: their only attribute is
+#   `builtinActoR`, which setActionMethod publishes noPrint on every rule with a dlsym-able
+#   action, and a rule whose attributes are all noPrint reads 1/0 whatever the packet does.
+#
+#   ⚠ SO "FOUR RULES CARRY A SPENT PACKET" IS RIGHT AND "FOUR RULES DISAGREE BECAUSE OF IT"
+#   WOULD NOT HAVE BEEN. ShortcuT had TWO noPrint attributes and now has one; its flags could
+#   not move either way. Four carried it, THREE ever disagreed because of it.
+#
+#   ⚠ The "HT-5 0 over the full 86-rule population" reading below is not reproduced and is
+#   withdrawn as stated. The measurement that stands is today's, with its per-attribute
+#   affiliation dump; the one below was never re-run.
+#
+#   THE REST LANDED AS PREDICTED: census.target's `CALL leftCurly` went back to `LITTO {
+#   slot=leftCurly` -- the CORRECT answer, and the 09-10 pin was the wrong one -- the odometer
+#   went 28 -> 26 losing ScopeXP and StringXP with named refusals, and the ratchet did NOT
+#   fire because neither is on its protected list. `oneTest.base` moved one line,
+#   `ShortcuT [2] builtinActoR` -> `[1]`, which is the removal showing its work.
+#   ⚠ AND parseClass's raw output is BYTE-IDENTICAL across the change, which was checked
+#   rather than assumed because `parseClass.target` is a red row and a red row absorbs new
+#   breakage silently.
+#
+# ⚠⚠⚠ THE ORIGINAL ENTRY, 2026-09-10, AFTER THE SEVENTEENTH SEAL.
+# THE TraiT HAND-UP LEAVES ITS TRANSPORT PACKET ON THE TREE.
+#
+#   ## TONY'S FRAMING, VERBATIM, AND IT IS THE ISSUE
+#
+#   *"Our changes to `aCTionTraiT` and `aCTionTraiTdata` did not clear out the Modifier
+#   attribute which will fire that attribute every time the rules affected get parsed."*
+#
+#   ## THE MECHANISM, STRUCTURAL -- READ FROM CODE, NOT RUN
+#
+#   `1f5ff65` gave `aCTionTraiTdata` a hand-up it did not have before: `input +% Modifier`,
+#   stamped `noPrint` and `rStuff = 0`. It is TRANSPORT -- `aCTionTraiTdata` opens with
+#   `input.clear()`, so the Modifier node is detached, and republishing it onto TraiTdata's
+#   list is the only way `aCTionTraiT` can still find it at `TraiTdata["Modifier"]`.
+#   `aCTionTraiT` then reads the flags, applies `modifyClass(trait,...,0)` -- and NOBODY
+#   TAKES THE PACKET OFF. `trait.setContent(TraiTdata)` copied it onto the trait one line
+#   earlier, and that copy is written and never read: the only two readers of a `Modifier`
+#   attribute in the tree are `ruleActions.rtn:1052` and `:1098`, both on TraiTdata.
+#
+#   ⚠ **AND `hasAttributes` IS A PARSE-TIME GATE, WHICH IS WHY TONY'S SENTENCE IS RIGHT.**
+#   `GroupItem.twk:1539` -- `if sukcess && hasAttributes  sukcess = testAttributes(ruleStuff);`
+#   So four rules now enter `testAttributes` on every successful match and did not before
+#   today. What stops that costing anything is `RuleStuff.twk:382`, `if noPrint continue;`
+#   -- which is `0150f29`, the QuotE fix of 09-07, written three days before the packet
+#   existed and for an unrelated reason. **The packet's harmlessness rests on a tolerance
+#   line nothing ties to it.** Narrow that `continue` and these four rules break.
+#
+#   ## THE POPULATION, MEASURED
+#
+#   ⚠⚠ **IT HAS A LIVE COUNT ON THE FLEET SINCE 2026-09-15: `traitFlagsT`'s TF-5, reading 5,
+#   with the five names pinned one row each as TF-7. THAT IS THIS QUESTION'S CERTIFICATE WHEN
+#   THE PACKET RULING LANDS** -- the number and the names move together and neither can be
+#   re-pinned without a sentence (H6). It arrived carrying `incant/fixits/hasTraits` out by
+#   mapping; retiring that citizen without it would have put the only instrument that counts
+#   this population in the attic.
+#   ⚠ AND THE COUNT IS **FIVE, NOT FOUR**, which is a correction to the paragraph below rather
+#   than a change underneath it: `StatemenT` also disagrees, and it is **NOT a packet carrier**
+#   -- its attribute list is `builtinActoR SemI=; BlocK WardeD Iterate Xpress` with no Modifier
+#   anywhere in it. So the packet explains four of the five and nobody has looked at the fifth.
+#   ⚠ The 09-10 reading of **3** was taken through a walk that said `iterate ... members on`,
+#   which skips the 22 rules living in Grokking's ATTRIBUTE list. Measured both ways in one
+#   session 2026-09-15: narrow walk 64 rules / 3 disagreements, wide walk 86 / 5, the two
+#   admitted being `ANYstring` -- `ShortcuT`'s exact twin, absent from its own population the
+#   whole time -- and `StatemenT`. Rule H11.
+#
+#   Four rules carry a spent packet: `ShortcuT`, `ANYstring`, `leftCurly`, `rightCurly`.
+#   They are the sites where a data-side modifier lands on a node that is itself a Grokking
+#   child; the grammar has **12** data-side modifier sites and the other 8 land on terms
+#   nested inside a parent rule. `leftCurly`/`rightCurly` are the only FLAG-class pair,
+#   because `a0524c8` respelled Braced, Parens, StringXP and ScopeXP name-side and **held
+#   BlocK** -- so the held citizen is the last place in the grammar where a flag rides the
+#   data side, and that is why the two puzzles are one fact.
+#
+#   The citizen's own banked numbers are the before-picture, so no rebuild is needed to
+#   date this: `incant/fixits/hasTraits` recorded HT-2 42 / HT-3 42 / HT-5 **0** on
+#   2026-09-08, and the tree reads HT-2 45 / HT-3 42 / HT-5 **3** today. hasTraits did not
+#   move. Three rules gained a noPrint-only attribute on the day `+%` first published one.
+#
+#   ## ⚠⚠ REMOVING IT IS NOT FREE -- BUILT AND MEASURED TWICE, THEN REVERTED
+#
+#   Two removal shapes -- take the copy off the trait after `modifyClass`, and take the
+#   packet off TraiTdata BEFORE `setContent` copies its list. **Identical outcome both
+#   times**, so it is not the removal verb. Census goes clean (HT-2 = HT-3 = HT-4 = 47,
+#   HT-5 **0** over the full 86-rule population, zero artifacts anywhere), and the
+#   **fleet goes 266 -> 264**. Two rows move and THEY POINT OPPOSITE WAYS:
+#
+#     census.target    CALL leftCurly   ->  LITTO {  /  slot=leftCurly      <- CORRECT
+#     odometer         28 green -> 26, losing ScopeXP and StringXP          <- A REAL LOSS
+#
+#   The odometer loss is genuine and was verified by dumping the emission at HEAD before
+#   reverting: `lit(t1,":") && parseR(t2,label) && lit(t3,";")` is a correct parse method,
+#   and after removal it becomes `REFUSE scopeList -- inline group / structural data isGROUP`.
+#
+#   ⚠ **THE CAUSE IS ONE PREDICATE DOING TWO JOBS.** `genParse.rtn:1639-1665` tests
+#   `isBIN` -> CONTAINER, then **`definer != term` -> CALL**, then the data arms. Arm 2
+#   fires ahead of every data arm, and THE PACKET IS WHAT MAKES ARM 2 FIRE. Remove it and
+#   `leftCurly` falls to arm 3 (LITTO -- right) while `scopeList` falls to arm 4 (REFUSE --
+#   wrong). One artifact, one predicate, two populations, opposite answers. Same family as
+#   this file's one-channel-one-meaning ledger.
+#
+#   **So it is not litter-collection, it is a planner-classification question.** The
+#   discrimination arm 2 wants is almost certainly Ruling D's liveness test -- *is the
+#   named definer a LIVE rule, with `rStuff`* -- rather than merely *is it a different
+#   node*. `CALL leftCurly` today aims `parseR` at the phantom master `a0524c8` named,
+#   which has no rStuff. With that test in place the packet could come off and both
+#   populations would land correctly. UNMEASURED; nobody has tried it.
+#
+#   ## THE THIRD ROAD, and it costs nothing
+#
+#   Respell BlocK. That removes the flag-class half of the population without touching
+#   the planner, and it is already the held citizen's own subject.
+#
+#   ## THE EXACT CHANGE, so nobody re-derives it
+#
+#   In `aCTionTraiT`, hoist the upFlags read above `setContent`, drop the packet, and
+#   spell `setContent`'s subject EXPLICITLY (bear-trap #42 -- a bare `setContent` below an
+#   inserted `upFlags` line re-points to `upFlags`):
+#
+#       if TraiTdata    upFlags = TraiTdata["Modifier"];
+#       if upFlags      upFlags.remove();
+#       if TraiTdata    trait.setContent(TraiTdata);
+#       if Modifier     modify(trait,Modifier.text);
+#       if upFlags      modifyClass(trait,upFlags.text,0);
+#
+#   Canary held 328 across both builds; no `groups.ext` change is owed -- both `remove`
+#   overloads are already mirrored at lines 299-300.
+#
+#   ## TWO SIDE-YIELDS FROM THE SAME SESSION
+#
+#   **a. `incant/fixits/hasTraits` COUNTS 64 OF 86 RULES.** `htWalk` says
+#   `iterate htCur members on *argument;` and **22 rules sit in Grokking's ATTRIBUTE list,
+#   not its member list** -- `ANYorNum ANYstring counter define ElsE ExpressioN FormaT
+#   GrouP InvokeArg leftBrace leftParen LoopRestrict NamE Precision PRINTing PrintXP
+#   rightBrace rightParen ScopeField SemI StatemenT Token`. That is why `ANYstring` never
+#   appeared on HT-5 despite being `ShortcuT`'s exact twin. Rule H11: the census excluded a
+#   known member of its own population. Drop the word `members` and HT-1 reads 86.
+#
+#   ⚠ Its HT-1 `66 -> 64` sentence does not reproduce either. Control run, today's binary,
+#   `git checkout a0524c8~1 -- incant/grammar`: **HT-1 68, HT-5 7**, and ALL FOUR of
+#   leftBrace/leftParen/rightBrace/rightParen left the MEMBER list, not two. They are still
+#   in Grokking, as attributes.
+#
+#   **b. THE FIXIT DELETES ITS OWN TAIL WHEN IT PASSES.** With HT-5 at 0,
+#   `iterate grup on htDisagree;` refuses -- the group has no list -- and **the refusal
+#   stops the block**, so `htAnchor` and the `fixHasTraitsHere` line below it never run.
+#   Observed on the fixed binary. Rule H5 shape: the fixture's tail vanishes at exactly the
+#   moment the fix lands. It wants a guard before that walk.
+#
+#   ## STATE AT HANDOFF
+#
+#   Substrate REVERTED and rebuilt at HEAD. Fleet **266 green / 1 parked**, every row
+#   byte-identical to the pre-change capture; decodePop 14, ddPop 5, countPop 47-of-47,
+#   canary **328**. Groups carries Tony's two fixit edits (`faceFlagsNoCross`, `hasTraits`)
+#   plus one untracked probe, `minionWork/probeHTdump` -- the widened census with a `<nP>`
+#   marker, and the evidence for everything above. Support repo clean.
+#
+# ⚠⚠⚠ SEALED 2026-09-10, SEVENTEENTH SESSION -- `&&` AND `||` ARE THE LANGUAGE's
+# BOOLEANS. 2b, 2c AND THE LOAD/PARSE READ. CLEAN KITCHEN. FOUR COMMITS.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-10 14:12 and `git log -1 --date=iso` 14:12.
+#   They agree.
+#
+#   ## THE ONE-LINE STATE: **the C spellings are the only booleans, 36 sites scrubbed
+#   with the fleet unmoved, the indirection is PARSE-TIME and the `^` is exonerated —
+#   and three separate certificates in this session were VOID until a control said so.**
+#   Fleet **266 green / 50**, canary **328**, ddPop 5, decodePop 14, formsPop 14, countPop
+#   0-of-47, frontier **exit 0, 4 PASS**. Both repos **0 dirty, 0 unpushed**,
+#   `groups.ext` committed and pushed. Fixit queue **3**.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. 2b — AND THE CERTIFICATE WAS VOID.** *"trigDO's five rows unchanged"* asserts
+#   nothing about the emitted conjunct, because **`incant/trigDO` carries its own copy of
+#   `generateParse`.** ⚠ **THERE ARE EIGHT COPIES** — the generator, five fixtures, two
+#   probes — **and they have already drifted**: `probeLabelSeam` branches on
+#   `hasAttributeS` where every other copy branches on `hasTraitS`. Six changed; the two
+#   `minionWork` probes left, named. **The H7 control bites only after the right copy is
+#   edited**: `zzNOTANOP` takes arm 1's `mintedLen` 2 → 0.
+#
+#   **b. 2c — 36 SITES, 19 FILES, FLEET UNMOVED, NO RE-PINS.** Operators only, outside
+#   quoted strings and comment fences; every print string is a literal, so every
+#   output-grepping target is byte-identical **by construction**. One prose casualty
+#   caught and reverted (`that was MEASURED AND IS` — English, not an operator).
+#   designDocs/decoder/jigcorpus excluded as data; `minionWork` as scratch.
+#
+#   **c. ⚠⚠⚠ THE WORD FORMS ARE NOT GONE. `if wT AND wF;` — true AND false — STILL PARSES
+#   AND TOOK THE TRUE ARM.** Removing an operator from the registry removes the MEANING,
+#   not the TOKEN, and leaves the spelling **answering wrongly and silently**. **Third
+#   casualty for the held unknown-operator refusal and the sharpest**: `eq` was never
+#   registered, `&&` was a KNOWN operator with no correct road, `AND` is now a RETIRED
+#   operator that still answers. **A refusal gate would have caught all three; nothing
+#   else did.**
+#
+#   **d. ⚠ A VACUITY THE SCRUB CREATED AND THE SAME PASS CAUGHT.** `shortCircuitT` had
+#   eight rows; the scrub respelled their OPERATORS and left their LABELS, so four printed
+#   "AND"/"OR" while testing `&&`/`||` — **green, duplicated, and lying.** Collapsed to
+#   four, pop.sh with it. **Two spellings of one operator is one row.**
+#
+#   **e. LOAD-TIME OR PARSE-TIME: PARSE-TIME, AND THE `^` IS EXONERATED.** The grammar
+#   LOADS and rules FIRE (`attachLabel lab=StatemenT pRule=Start`); the run dies at
+#   **exit 2** on the **first statement**, `include(unitTests);` — a NAME with an
+#   InvokeArg. Four cells:
+#
+#       ANYorNum^ InvokeArg?   exit 0        ANYorNum  InvokeArg*   exit 2   ^ removed
+#       ANYorNum^ InvokeArg*   exit 2        ANYorNum  InvokeArg?   exit 0   ^ removed
+#
+#   **The `^` changes nothing in either direction**, so **one of the two facts the
+#   diagnosis rested on is gone.** What survives: InvokeArg is an **alternation**, and
+#   every fatal spelling turns the term into something carrying a **container**.
+#   ⚠ **`CAPTURE ORACLE-ABSENT rule=NamE` appears in ALL FOUR cells, including the two
+#   that exit 0** — it is noise, not the failure signature.
+#
+#   ## WHAT LANDED — FOUR COMMITS
+#   `261b240` 2b · `2b39d87` 2c · `ed5a22f` the load/parse read. (`a423d82` 2a sealed
+#   last session.) Support: `4403fce`.
+#
+#   ## ⚠⚠ THE PARKED ITEMS, BY NAME, SO THE NEXT WAKEUP NEEDS TO OPEN NOTHING
+#   - **WARNING PASS** — owed, not started.
+#   - **UNKNOWN-OPERATOR REFUSAL** — Tony's nod. **Three measured casualties now**: `eq`
+#     (never registered, answered truthy 3 of 3), `&&` (known, no correct road, silent),
+#     `AND` (retired, still answers, and answers WRONG). One gate in the operator lookup.
+#   - **PRECEDENCE ARC** — `&&` above `||`, both below comparison, above assignment.
+#     ⚠ **Not a registration**: KANT-43 says this language has NO precedence and
+#     associates right to left. A mechanism that does not exist yet.
+#   - **THE FOLD and 6b-ii**, both behind the indirection — now known **parse-time**, `^`
+#     exonerated, container-shape the surviving suspect.
+#   - **AP-5** — bare `if aFalse;` disagrees with AND/`&&`; the last presence-side reader.
+#   - **danglingElse's `bkFirst` READ** — what `bkFirst` is on the braced road versus the
+#     unbraced. Its candidate list has already lost "positional reach".
+#   - **STATION 4/6/7** — `Braced`'s `StorE`; `frStation4/6/7` fail to PARSE. Tony's.
+#   - **FC-2** — `noPrint` → `noPrinT` before faceFlagsNoCross is read again. Tony's.
+#   - **noElseHere** — parseRule's inline line, on the tok reading. Tony's. (The
+#     DesignDocs entry is already restored.)
+#   - **EIGHT EMITTER COPIES** — new this session, not owed to anyone yet.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, SIXTEENTH SESSION -- `&&` AND `||` SHORT-CIRCUIT. IT WAS TWO
+# SPELLING LISTS, NOT ONE. THREE COMMITS.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-10 14:0x and `git log -1 --date=iso` the same
+#   minute. They agree.
+#
+#   ## THE ONE-LINE STATE: **2a lands — the identity guess was falsified, the real cause
+#   was a SECOND spelling list inside `runShortCircuit`, and both lists are registrations
+#   now.** Fleet **266 green / 50** (264 + shortCircuitT's two), canary **328**, frontier
+#   **exit 0**. Both repos **0 dirty, 0 unpushed**. Fixit queue **3**.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE DISPATCH'S GUESS WAS FALSIFIED, AND THE COUNTER-PREDICTION WAS BANKED FIRST.**
+#   `runShortCircuit` already reads `leftIsTrue = truthOf(target);` — **no identity test on
+#   the left operand anywhere in it.** The read:
+#
+#       ID-1 trueResult  OR  loud()   fires 0      ID-2 true  OR loud()   fires 0
+#       ID-3 trueResult  ||  loud()   fires 1      ID-5 false AND loud()  fires 0
+#       ID-4 falseResult AND loud()   fires 1
+#
+#   ⚠ **ID-4 LOOKS LIKE EVIDENCE FOR THE GUESS AND IS NOT.** `falseResult` **is not
+#   spellable in a body** — measured directly, `if falseResult;` reads TRUTHY, because an
+#   undeclared name is minted as an action LOCAL (bear-trap #39) and a data-less local is
+#   true by presence. So ID-1 and ID-4 are artifacts of the name not resolving. **The shape
+#   that would have carried the guess is the one its own control kills.**
+#
+#   **b. ⚠⚠ IT WAS TWO LISTS.** `interpretXP` chose the tier-3 **binding** by tag;
+#   `runShortCircuit` chose the **skip direction** by tag. `||` — same `operateMethod` as
+#   `OR` — could be seen by neither, so **fixing only the first sent it past both skips**
+#   into the right-arm evaluation and out through `if truthOf(arg) return trueResult;`.
+#   **That is exactly how `true || false` came to read FALSE last session.** `shortCircuit`
+#   says IF, `isOR` says WHICH WAY, and no spelling appears in either action.
+#   **THE RULE: when a predicate replaces a spelling list, GREP THE METHOD IT BINDS TO. A
+#   registration that reaches a body which still asks the tag has MOVED the list, not
+#   removed it.**
+#
+#   **c. THE CERTIFICATE, in pairs:**
+#
+#       SC-1 false AND loud 0    SC-2 true  AND loud 1
+#       SC-3 true  OR  loud 0    SC-4 false OR  loud 1
+#       SC-5 false &&  loud 0    SC-6 true  &&  loud 1
+#       SC-7 true  ||  loud 0    SC-8 false ||  loud 1     ← SC-7 was 1
+#
+#   `true || false` TRUE · orProbe byte-identical · `!true && true` FALSE · **H7: restoring
+#   the spelling test takes `true || false` back to false and SC-7 back to 1.**
+#
+#   **d. A9's SHORT-CIRCUIT ROW GRADUATED AND MOVED HOUSE.** ⚠ **It could not just flip:**
+#   orProbe has a SINGLE `loudZero` case, so post-fix its marker count is **0 with no
+#   non-zero sibling**, and a lone zero is what a right arm that never ran at all would
+#   also print. The evaluation rows moved to `incant/shortCircuitT`, which counts fires in
+#   **pairs**; the truth-table row stays in orProbe. **Two questions, two homes.**
+#
+#   **e. DOCTRINE: an action never selects behaviour by spelling.** Three casualties in one
+#   campaign — `handleDot`'s `"*"` → accessClass, TraiT's doubled `+` → repeatClass,
+#   `interpretXP`'s `"AND" || "OR"` → shortCircuit/isOR. **And a spelling list does not
+#   come alone.**
+#
+#   ## ⚠ WHAT IS NOT DONE AND IS NAMED RATHER THAN CLAIMED
+#   **C PRECEDENCE.** The dispatch asks for `&&` above `||`, both below comparison and
+#   above assignment. **KANT-43 says this language has NO precedence and associates right
+#   to left**, so precedence is not a registration to add — it is a mechanism that does not
+#   exist. `&&`/`||` are correct on short-circuit and on truth; a mixed `a && b || c` still
+#   associates right to left like every other operator here. **Its own stroke.**
+#
+#   ## WHAT LANDED — THREE COMMITS
+#   `2c49965` the doctrine · `e399c83` stroke 1's read · `a423d82` 2a. Support:
+#   `opIsShortCircuit`/`opIsOR` mirrors.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **2b** the emitter emits `&&` · **2c** the scrub · **precedence**, its own stroke ·
+#   stroke 5 load-time or parse-time · AP-5 · danglingElse's `bkFirst` read · the fold ·
+#   6b-ii · unknown-operator refusal — **now with `&&` as a second casualty: a KNOWN
+#   operator with no correct road was exactly as silent as an unknown one.**
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 · noElseHere.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, FIFTEENTH SESSION -- 2a DOES NOT LAND. THE REPAIR BREAKS
+# `||`, AND THE FLEET COULD NOT SEE IT. TWO COMMITS.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-10 13:5x and `git log -1 --date=iso` the same
+#   minute. They agree.
+#
+#   ## THE ONE-LINE STATE: **stroke 0 retired the citizen on its cause; 2a is reverted
+#   whole, and what lands in its place is the measurement plus the fleet row that would
+#   have caught the regression it produced.** Fleet **264 green / 50** (261 + A9's three),
+#   canary **326**, frontier **exit 0**. Both repos **0 dirty, 0 unpushed**. **Fixit queue
+#   3.**
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. STROKE 0 — the citizen retired diagnosed, not re-pinned.** `aCTionBlocK` handed
+#   back NULL where **labelNO** was owed; `GroupControl.twk:158` already said so and four
+#   sites in `ruleActions.rtn` already did it. Coverage mapped onto `iterT1`/`iterT1m`,
+#   which predate the file. **Queue 4 → 3.**
+#
+#   **b. THE `||` GAP IS REAL AND IS NOW MEASURED with a side effect, not argued:**
+#
+#       false AND loud()    right fires 0    short-circuits
+#       true  OR  loud()    right fires 0    short-circuits
+#       false ||  loud()    right fires 1    correct, it must
+#       true  ||  loud()    right fires 1    ⚠ SHOULD BE 0
+#
+#   **The word forms short-circuit and the symbol form does not — and both carry the SAME
+#   operateMethod**, so it was never about `opOR`.
+#   **The cause is an INLINE LIST OF SPELLINGS**, `ruleActions.rtn` interpretXP:
+#   `if op.tag eq "AND" || op.tag eq "OR"  xl.method = runShortCircuit;` — the tier-3
+#   binding is selected by TAG, so `||` cannot be seen. **Third inline list this campaign
+#   has found in an action**, after `accessClass` and `repeatClass`.
+#
+#   **c. ⚠⚠ AND THE OBVIOUS REPAIR BREAKS IT.** Registering `shortCircuit` on `'||'` and
+#   minting `'&&'` beside it gives the symbol form the tier-3 binding — and
+#   **`true || false` READS FALSE.** `runShortCircuit` is **not** a drop-in for the symbol
+#   form and the reason is undiagnosed; `&&` registers and parses but evaluates wrong too
+#   (`!true && true` reads TRUE). **Reverted whole.**
+#
+#   **d. ⚠⚠⚠ THE EXPENSIVE PART: THE FLEET DID NOT MOVE.** 261 green before the attempt
+#   and 261 after, **with `true || false` reading FALSE the whole time.** No row read
+#   `orProbe`'s operator table. **A live regression in a core operator was completely
+#   invisible to a 264-row instrument** — which is the green-banner-is-not-evidence lesson
+#   arriving in a new place.
+#   **So the row that would have caught it lands instead: pop.sh A9**, pinning BOTH halves
+#   because they are different questions — the **TABLE** is what `||` ANSWERS, the
+#   **SHORT-CIRCUIT** row is what it EVALUATES. The second is **pinned AT THE DEFECT** on
+#   purpose, `andProbe` AP-5b's shape, so the day the gap closes the fleet says so and
+#   asks for a sentence.
+#
+#   ## WHAT LANDED — TWO COMMITS
+#   `783315d` the retirement · `3477057` 2a's measurement, its revert, and row A9.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **2a, 2b, 2c and stroke 4.** 2b and 2c were gated on 2a. **Nothing of the `&&`/`||`
+#   ruling is in the tree** — the revert is complete and verified byte-identical.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **why `runShortCircuit` mis-evaluates the symbol form** — it gates 2a, and 2a gates 2b
+#   and 2c · then `&&`/`||` entire · stroke 4 load-time or parse-time · AP-5 ·
+#   danglingElse's first read when opened · the fold · 6b-ii · unknown-operator refusal
+#   (which `&&`'s silent non-evaluation is a fresh argument for).
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 · noElseHere.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, FOURTEENTH SESSION -- STROKE 0: blockDashRefusalWalk RETIRES
+# ON ITS CAUSE. QUEUE 4 -> 3. ONE COMMIT.
+#
+#   ⚠ DATE CHECK: `date` reads 2026-09-10 13:3x and `git log -1 --date=iso` the same
+#   minute. They agree.
+#
+#   ## THE ONE-LINE STATE: **the citizen is retired diagnosed and repaired rather than
+#   re-pinned or withdrawn, and its coverage was already in the fleet before it existed —
+#   so nothing is owed.** Fleet **261 green / 50**, canary **326**, frontier **exit 0**.
+#   Both repos **0 dirty, 0 unpushed**. **Fixit queue 3.**
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#   **The cause:** `aCTionBlocK` handed back **NULL** for a block that **succeeded and
+#   yielded nothing**, where **labelNO** was owed — and `GroupControl.twk:158` already said
+#   so, with four sites in `ruleActions.rtn` already ending `if !result result = labelNO;`,
+#   **`aCTionWhilE` among them.** Fifth member of one-channel-one-meaning; `broke` is the
+#   second channel.
+#   ⚠ **Masked for three sessions by the trailing `rightCurly`**, which was the block's
+#   value on every iteration. **The dash was always right; the sentinel was hiding the
+#   defect behind it.**
+#   **Mapping:** BD-1's 7 visits → `iterT1.target` (the ORDER assertion) and
+#   `iterT1m.target`; the refusal count → pop.sh's *"announces its refusal 4 times"*; the
+#   H7 control → the same two rows, demonstrated red on command.
+#   **Two sentences that outlive it:** *an artifact is invisible to both readers or it is
+#   only half an artifact* (noPrint for the parse, cleared rStuff for the audit); *the
+#   hand-up's odometer gain survived the repair* — 24 → 28 green, population unmoved, and
+#   the labelNO fix cost none of it back.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **2a** register `&&`/`||` with opAND/opOR and jitEmitShortCircuit · **2b** the emitter
+#   emits `&&` · **2c** the scrub · **stroke 4** load-time or parse-time · AP-5 ·
+#   danglingElse's first read when opened — what `bkFirst` is on the braced road versus the
+#   unbraced · the fold · 6b-ii · unknown-operator refusal.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 · noElseHere.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, THIRTEENTH SESSION -- blockDashRefusalWalk CLOSED BY CAUSE.
+# THE TRAILING CURLY WAS MASKING A NULL, AND NULL MEANS FAILED. THREE COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 13:4x and
+#   `git log -1 --date=iso` stamps the same minute. They agree.
+#
+#   ## THE ONE-LINE STATE: **the citizen is closed by CAUSE and not by re-pin — one line,
+#   and the convention it needed was already written down — the fleet is back to 261 with
+#   the modifier ruling KEPT and the odometer's four-rule gain intact.** Fleet **261 green
+#   / 50**, canary **326**, frontier **exit 0**. Both repos **0 dirty, 0 unpushed**.
+#   Fixit queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE GUESS WAS HALF RIGHT AND THE WRONG HALF WAS THE USEFUL ONE.** The grep found
+#   **no positional reach in `aCTionBlocK` at all** — it walks with `input.next(grup)`.
+#   `aCTionRunRulE`'s `input[1]` and `aCTionIterate`'s `IterSource[1]/[2]` reach their
+#   OWN labels, and genParse's twenty `rule[1..3]` are per-ARITY planners. **What the block
+#   had was a positional RESULT: whatever the last item left.**
+#
+#   **b. ⚠⚠ THE MECHANISM, measured at the foot with a new witness, A/B on one grammar
+#   line:**
+#
+#       curlies LABELLED   items=5   while-body result = rightCurly   loop CONTINUES
+#       curlies noLabel    items=3   while-body result = NULL         loop STOPS
+#
+#   **`aCTionWhilE`'s loop is `if result = StatemenT.gMethod(...) { … } else break;`** — so
+#   a body that **succeeded and yielded nothing** stopped the loop. `walk(i)` refuses,
+#   `runAction` clears the arm and returns null, the block hands back null, the caller
+#   ends. **The trailing `rightCurly` had been the block's value on every iteration**, so
+#   no block could ever hand back null and the loop could not stop that way.
+#
+#   **c. THE REPAIR IS ONE LINE AND THE CONVENTION ALREADY EXISTED.** `GroupControl.twk:158`
+#   — *"NULL = failed · labelNO = succeeded and yields NOTHING"* — and **four sites in
+#   `ruleActions.rtn` already end `if !result result = labelNO;`, including `aCTionWhilE`
+#   itself.** `aCTionBlocK` was the one that did not. `broke` is the second channel: a
+#   block that BROKE on a refusal or a branch still hands back what it had, because there
+#   null means failed and that is true.
+#   ⚠ **Fifth measured member of ONE-CHANNEL-ONE-MEANING, and saveLocalFields' shape
+#   exactly** — position standing in for identity, at the block's exit rather than in a
+#   subscript.
+#
+#   **d. THE CERTIFICATE, all of it.** iterT1 back to **7**, iterT1m refusals back to **4**
+#   · the shed curlies **STAY shed** (oneTest 8→6, bare-master AUDITLINE 8→6, census
+#   `LITTO {`→`CALL leftCurly`, odometer 24/38→**28/34 of 62 with the population
+#   unmoved**), all four re-pinned WITH SENTENCES per the ruling · **the odometer's 28
+#   green survives the repair** · fleet **261** · **H7 control**: the labelNO line disabled
+#   in the `.mm` takes iterT1 to 5 and iterT1m's refusals to 2, and both come back on
+#   restore.
+#
+#   **e. ⚠ ONE MORE ARTIFACT, FOUND BY THE AUDIT AND NOT BY CARE.** The handed-up Modifier
+#   copy was noPrint but **still carried rStuff**, so oneTest showed four
+#   `AUDIT TERM … Modifier -- rule TERM, not isRule, has rStuff` lines. **AN ARTIFACT MUST
+#   BE INVISIBLE TO BOTH READERS OR IT IS ONLY HALF AN ARTIFACT**: noPrint keeps it out of
+#   the PARSE, clearing rStuff keeps it out of the AUDIT.
+#
+#   **f. danglingElse RE-READ ON THE SAME COMMIT AND IT STILL BREAKS, identically.** So the
+#   braced-else failure is **not** the block's value channel, **not** the trailing-label
+#   sentinel, and **not** positional reach — its candidate list loses that entry and it
+#   stays open. ⚠ **Second time the two citizens were tested together and came apart**; the
+#   first killed the grammar-modifier hypothesis. **The case for folding them is spent.**
+#
+#   **g. DOCTRINE: drift casualty four.** `:.` is opSetFlag in KANT and **nothing at all**
+#   in TOK; `upMark :. noPrinT;` in a `.rtn` took the canary **326 → 0**. ⚠ **And the cost
+#   is not symmetric** — the first three casualties were claims RECORDED on the wrong road
+#   and cost a wrong belief; this was a line WRITTEN on the wrong road and cost the entire
+#   extern block. **Writing the wrong language fails loudly and three files away; recording
+#   on the wrong language fails quietly and weeks later.**
+#
+#   ## WHAT LANDED — THREE COMMITS
+#   `ccbcc31` drift casualty four · `9733cbf` the grep + `measureBlockResult` · `9311a5c`
+#   the repair, four re-pins with sentences, and danglingElse's re-read. Support:
+#   `measureBlockResult` mirror.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **Strokes 3 (`&&`/`||`) and 4 (load-time or parse-time) not opened** — stroke 3 was
+#   gated on stroke 2 sealing green, which it now has.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **stroke 3** — `&&`/`||` take AND/OR's methods (2a register + short-circuit probe and
+#   H7 · 2b emitter emits `&&` · 2c scrub to zero live word forms) · **stroke 4** load-time
+#   or parse-time · **blockDashRefusalWalk's retirement** (closed by cause; its assertions
+#   want mapping out) · danglingElse, one candidate lighter · AP-5 · the fold · 6b-ii ·
+#   unknown-operator refusal.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 `noPrint` →
+#   `noPrinT` · parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, TWELFTH SESSION -- THE TRAIT HAND-UP LANDS, AND ITS
+# CERTIFICATE CONTAINS A CONTRADICTION THAT ROW 3 WINS. ONE COMMIT.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 13:2x and
+#   `git log -1 --date=iso` stamps the same minute. They agree.
+#
+#   ## THE ONE-LINE STATE: **flags ride up, repetitions stay on the data, the two
+#   spellings are now equivalent — and genParse gained FOUR emittable rules while the
+#   fleet lost seven rows to ONE cause: a held citizen's defect becoming live.** Fleet
+#   **254 green / 57**, canary **326**, frontier **exit 0**. Both repos **0 dirty, 0
+#   unpushed**. Fixit queue **4**. **Sealed after the stroke; 2a/2b/2c and 3 not opened.**
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE CERTIFICATE CONTRADICTS ITSELF AND ROW 3 WINS.** Row 1 asks *fleet 261
+#   unmoved*; row 3 asks that **BlocK's ORIGINAL `="}"-` now reproduce
+#   blockDashRefusalWalk's 5 visits with no respell.** **They cannot both hold** —
+#   honouring BlocK's dash is exactly what takes iterT1/iterT1m red. Row 3 passes, so row
+#   1 cannot.
+#
+#       ✅ ROW 2  StringXP reverted to `pound="#"-` → oneTest BYTE-IDENTICAL.
+#                 The old spelling and the new one are now equivalent — the ruling in one row.
+#       ✅ ROW 3  BlocK's original spelling reproduces 5 visits with NO respell.
+#       ✅ ROW 4  the `=[...]+` population UNMOVED at 62 — no repetition doubled.
+#       ⚠ ROW 1  fleet 261 → 254. SEVEN ROWS, ONE CAUSE.
+#
+#   **b. THE SEVEN MOVERS ARE ONE FACT.** BlocK's dash is now honoured, so **the held
+#   citizen's defect is LIVE ON THE TREE**: iterT1 walks 5 instead of 7, iterT1m the same,
+#   and oneTest / bare-master / census / odometer all shed `leftCurly` and `rightCurly`.
+#   **NOT RE-PINNED** — the citizen is held and re-pinning would freeze its defect as truth.
+#
+#   **c. ⚠⚠ AND THE ODOMETER IS A CAPABILITY GAIN, NOT A LOSS: 24 green → 28 green,
+#   population UNMOVED at 62, red 38 → 34.** **Four rules became emittable** — `ScopeXP`,
+#   `StringXP`, `leftCurly`, `rightCurly`. The two respelled lines' flags now reach their
+#   traits and genParse can plan them. **That is the ruling paying for itself in the one
+#   instrument that measures generation.**
+#
+#   **d. THE SHAPE, as specified.** `modifierClass` is a REGISTRATION — a new `Modifiers`
+#   registry in `incant/setup`, one entry per character, and **only the repetition class
+#   carries `repeatClass`**, so the predicate is presence and the default is flag. **One
+#   predicate, no inline lists**: `modifyClass` applies through `modify()` itself, so one
+#   place knows what a modifier DOES and one place knows what CLASS it is. Repetition
+#   after scalar data **refuses loud**.
+#
+#   **e. ⚠ TWO DOCUMENTED TRAPS BIT ON THE WAY IN.** The plain `+%` hand-up **published
+#   the Modifier as a VISIBLE TERM** — fleet 178, baselineTests **exit 139**, oneTest full
+#   of `AUDIT TERM … Modifier -- rule TERM, not isRule`. It rides as a **noPrint artifact**
+#   now, this tree's standing *artifact-not-a-term* mark (`builtinParsE`, `CodE`). And the
+#   first noPrint spelling was **`upMark :. noPrinT;` — KANT in a `.rtn`** — canary 326 → 0,
+#   failing three files away in `Bytecode.mm`. **Three languages, named.**
+#
+#   ## WHAT LANDED — ONE COMMIT
+#   `1f5ff65` the ruling in five files, plus the support `groups.ext` mirror (306 → 309).
+#   **Revert is one commit** if the seven reds are not the trade wanted.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **The `&&`/`||` amendment (2a/2b/2c) and stroke 3 not opened** — sealing after each
+#   stroke was the instruction, and the trait hand-up is stroke 2.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **the seven reds' disposition** — respell BlocK forward, or leave them red under the
+#   held citizen (Tony's) · **2a** register `&&`/`||` with AND/OR's methods · **2b** the
+#   emitter emits `&&` · **2c** the scrub to zero live word forms · **stroke 3** load-time
+#   or parse-time · AP-5 · the fold · 6b-ii · unknown-operator refusal.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   The seven reds above · `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE`
+#   · FC-2 `noPrint` → `noPrinT` · parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, ELEVENTH SESSION -- THE `if !` SWEEP: 47 LIVE HITS, EXACTLY
+# THREE ASK PRESENCE, AND ALL THREE ARE ONE SHAPE. TWO COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 12:59 and
+#   `git log -1 --date=iso` stamps 2026-09-10 12:58. They agree.
+#
+#   ## THE ONE-LINE STATE: **stroke 2's `!` change is swept and it costs almost nothing —
+#   the value-askers were always fine, the presence-askers number three, and all three
+#   turn out to be the same shape: `:argument a b;` mints an absent attribute PRESENT AND
+#   EMPTY.** Fleet **261 green / 50**, unmoved, canary **323**, frontier **exit 0, 4
+#   PASS**. Both repos **0 dirty, 0 unpushed**. Fixit queue **4**. **Sealed after the
+#   stroke; strokes 2 and 3 not opened.**
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. DOCTRINE, first commit: A FLAG DESCRIBES A TERM; A REPETITION CHANGES WHAT THE
+#   TERM IS.** Two censuses that never met, landing on one line. **TraiT**: handing a
+#   `TraiTdata` modifier up detonated the fleet (249 → 170, exit 139) because the grammar
+#   is full of `=[0-9]+` where the `+` is repetition ON THE DATA, and a repetition applied
+#   twice is not the same parse. **TokenXP**: `?`, `-?`, `^?`, `_?`, `!?` all LIVE while
+#   `@?`, `*`, `+`, `{0 9}` and any interposed rule all DIE. ⚠ **The shape the dead share
+#   IS the sentence** — each turns the term from a direct single reference into something
+#   carrying a CONTAINER, while a flag leaves the term what it was and only says something
+#   about it.
+#
+#   **b. THE SWEEP, reported before respelling.** 47 live hits once quoted strings, comment
+#   blocks and dead regions are stripped — **designDocs' own prose is a third of the raw
+#   grep and is not code.**
+#   **ASKS VALUE — fine, and most of them.** Every `if !isRulE;`, `!term.noPrinT`,
+#   `!listLengtH`, `!s6Len`: a flag or count accessor returns a numeric, so truthOf answers
+#   BY VALUE, which is what the guard wanted. ⚠ **Measured, not assumed — the fleet did not
+#   move on any of them across the opNOT change.**
+#   **ASKS PRESENCE — exactly THREE:** `genMany` (repaired in the stroke that broke it),
+#   `orProbe`'s probeIt, `jidirect`'s tNotIn.
+#
+#   **c. ⚠⚠ ALL THREE ARE ONE SHAPE, AND THAT IS THE FINDING: `:argument a b;` MINTS AN
+#   ABSENT ATTRIBUTE AS PRESENT AND EMPTY.** So `!x` was the idiom for *"the scope hoist
+#   found nothing"*, and it worked only while `!` asked presence. jidirect's is the same
+#   shape one road over — `nc IN cg` hands back a present, valueless node on a miss, and
+#   its own comment already called the guard *"a kludge that handles !IN that does not
+#   exist"*. **The respell is the same every time — ask `.datA` — and both came back
+#   BYTE-IDENTICAL to their pre-stroke readings. No re-pins.**
+#
+#   **d. TWO FILES DELIBERATELY NOT RESPELLED, each for its own reason.**
+#   `lessProbe` carries the identical `if !site || !min;` and **did not move**: `||`
+#   receives already-evaluated operands and tests gCount, so **the disjunction was
+#   truthOf-shaped all along** — genMany's August comment turning out right about `||` for
+#   a reason nobody had measured. `jitXnot` **moved and is now CORRECT**: its header
+#   pre-registers row 1 as `xnIn = 0` present-and-zero, `!` MUST fire, and it now reads 1
+#   where it read 0. **That file was documenting this exact defect and has stopped.**
+#
+#   ⚠ **And the respell is a free consistency check on last SEQ's unary ruling:** `!x.datA`
+#   requires `!` to bind to the CHAIN'S RESULT, which is the value class. It does.
+#
+#   ## WHAT LANDED — TWO COMMITS
+#   `38c9319` the doctrine sentence · `08f88eb` the sweep, two respells, and the
+#   `IfNotSweep` DesignDocs entry.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **Stroke 2 (the TraiT hand-up) and stroke 3 (load-time or parse-time) not opened** —
+#   sealing after each stroke was the instruction.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **stroke 2** — the TraiT hand-up with `modifierClass` on each Modifier's registration,
+#   one predicate, no inline lists; its certificate is written and it is the predicate
+#   stroke 3 will need · **stroke 3** — load-time or parse-time, one read, no build ·
+#   **AP-5**, bare `if aFalse;` disagreeing with AND, the last split reader · the fold ·
+#   6b-ii · unknown-operator refusal · both citizens.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 `noPrint` →
+#   `noPrinT` · parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, TENTH SESSION -- STROKE 3: BOTH GUESSES DIE, AND A MODIFIER
+# CENSUS SPLITS THE SLOT ON THE FLAG / REPETITION LINE. ONE COMMIT.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 12:48 and
+#   `git log -1 --date=iso` stamps 2026-09-10 12:47. They agree.
+#
+#   ## THE ONE-LINE STATE: **neither guess lands, so no fold — but the diagnosis opens
+#   with far more than the two facts it was given: every FLAG-class modifier survives on
+#   that slot, every REPETITION-class modifier kills the language, and `@` dies with the
+#   repetitions.** Fleet **261 green / 50**, canary **323**, frontier **exit 0, 4 PASS**.
+#   Both repos **0 dirty, 0 unpushed**. Fixit queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE TWO GUESSES, one build each, in order, reported as numbers:**
+#
+#       GUESS 1  `PostFiX InvokeArg@;` referenced from TokenXP   plainAssign 0  DEAD
+#       GUESS 2  `InvokeArg-*` directly in TokenXP               plainAssign 0  DEAD
+#
+#   **b. ⚠⚠ THE CENSUS IS THE YIELD, one run each:**
+#
+#       InvokeArg?      LIVES        InvokeArg@?     DEAD
+#       InvokeArg-?     LIVES        InvokeArg*      DEAD
+#       InvokeArg^?     LIVES        InvokeArg+      DEAD
+#       InvokeArg_?     LIVES        InvokeArg{0 9}  DEAD
+#       InvokeArg!?     LIVES
+#
+#   **EVERY FLAG-CLASS MODIFIER LIVES; EVERY REPETITION-CLASS MODIFIER DIES; `@` DIES
+#   WITH THE REPETITIONS.** So it is **not** *"TokenXP tolerates no modifier there"* — it
+#   tolerates four. ⚠ **And that is the same two-class line the modifier ruling already
+#   draws for `TraiT`, arriving from a completely different direction.**
+#
+#   **c. ⚠ GUESS 1's PREMISE IS FALSIFIED, NOT MERELY UNCONFIRMED**, which is worth more
+#   than a dead guess: it was offered on the theory that **`term@` is the CURE** for an
+#   alias collapsing into a group, and **`@` turns out to be one of the KILLERS.** Guess
+#   2's `-`-alone bisect **LIVES**, so the `-` is innocent and the `*` is not — the two
+#   halves of that spelling do not share the blame.
+#
+#   **d. THREE FACTS NOW BOUND THE DIAGNOSIS AND THEY SHARE ONE SHAPE.** Repetition is
+#   fatal · `@` is fatal · **any interposed rule is fatal** — a plain alias
+#   `PostFiX InvokeArg;` carrying **no modifier at all** kills the language as thoroughly
+#   as `*` does. **All three turn the term from a DIRECT SINGLE REFERENCE into something
+#   carrying a CONTAINER** — a repetition list, an isTarget capture, an alias node. That
+#   is where to start, and it is consistent with the isGROUP theory guess 1 was built on
+#   even though its spelling was wrong. **UC-5 remains the symmetric case on the prefix
+#   slot.**
+#
+#   ## WHAT LANDED — ONE COMMIT
+#   `d9a7458` the two guesses as numbers, the modifier census, and the narrowing written
+#   into `PostfixFoldBlocked`. **Nothing built**; the grammar was restored and verified
+#   clean after every arm.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **The fold**, as pre-agreed for either outcome. **Strokes beyond 3 not opened.**
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **diagnose the container shape** — why repetition, `@`, and an interposed rule all
+#   kill a `TokenXP` term while four flag modifiers do not · the bare-`if` half of the
+#   truth contract (AP-5, named last seal and still owed) · the fold, then 6b-ii ·
+#   unknown-operator refusal · both held citizens on the finished dot road.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 `noPrint` →
+#   `noPrinT` · parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, NINTH SESSION -- STROKE 2: `!` ANSWERS BY truthOf. ONE ROW
+# GRADUATES, AND A GUARD THAT WAS USING `!` TO MEAN "HAS NO CONTENTS" IS RESPELLED
+# RATHER THAN RE-PINNED. ONE COMMIT.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 12:45 and
+#   `git log -1 --date=iso` stamps 2026-09-10 12:45. They agree.
+#
+#   ## THE ONE-LINE STATE: **UC-3 reads 1, the layered truth contract now governs `!`
+#   as well as the word forms, and the one thing it broke was a guard whose own comment
+#   had pre-registered the symptom in August — so it took one A/B to recognise.** Fleet
+#   **261 green / 50**, canary **323**, ddPop 5, decodePop 14, formsPop 14, countPop
+#   0-of-44, frontier **exit 0, 4 PASS**. Both repos **0 dirty, 0 unpushed**. Fixit queue
+#   **4**. **Sealed after the stroke, as instructed; stroke 3 not opened.**
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE FIX IS ONE LINE AND THE CONTRACT ALREADY EXISTED.** `opNOT` was
+#   `if !contents()` — the **presence** question — so `!0` came back FALSE, because a node
+#   holding zero HAS contents. It now asks `!truthOf(result)`.
+#
+#       !<numeric 0>            1     was 0
+#       !<numeric 5>            0
+#       !<no numeric value>     0     row 3, true by presence
+#       UC-3 !ucH.listLengtH    1     was 0 — the parked finding
+#       UC-0 3 / UC-1 3 / UC-2 0 / UC-4 0     unchanged
+#
+#   ⚠ **NT-1's `!<absent>` row is NOT evidence and is reported as such:** an undeclared
+#   name in an action body is minted as an action LOCAL (bear-trap #39), so it lands on
+#   row 3, not row 1. **The probe cannot reach row 1 from inside a body.**
+#
+#   **b. ⚠⚠ WHAT IT BROKE, AND THE COMMENT THAT SAVED THE AFTERNOON.** `incant/genMany`'s
+#   `spellMany` guarded with `if !site;` / `if !min;`. An attribute hoisted by the
+#   `:argument site min;` scope line is **PRESENT AND EMPTY**, so under the old `!` it read
+#   *"nothing there"* and refused; under truthOf it is **true by presence**, `!site` reads
+#   false, the guard stops firing, and a site-but-no-min node **EMITS**.
+#   ⚠ **THAT FILE'S OWN COMMENT PRE-REGISTERED THE EXACT SYMPTOM, from a different cause,
+#   in August:** *"the collapsed form let a site-but-no-min node EMIT instead of refusing,
+#   and manyScratch.target moved by ten lines."* It moved by nineteen this time. **The A/B
+#   is the evidence** — opNOT reverted in the `.mm` gives 2 refusals, truthOf gives 0.
+#   **THE REPAIR IS TO SPELL THE INTENT, NOT TO RE-PIN:** the guards now ask `site.datA`
+#   and `min.datA` through the flag idiom, because **data is the question they were always
+#   asking**. `manyScratch.target` holds **byte for byte** afterwards.
+#
+#   **c. ONE ROW GRADUATED AND ONE IS STILL OWED.** `andProbe` AP-5b was pinned at this
+#   defect and **its own failure message asked for exactly this re-pin**; it now reads
+#   TRUE. ⚠ But truthOf's header records that `if <field>` and `<field> AND …` **disagree
+#   in the shipping language**, and **`!` has now crossed to the operator side while BARE
+#   `if aFalse;` (AP-5) has not.** Two spellings, one contract, one owed — named here
+#   rather than left to be rediscovered.
+#
+#   **d. #52 GAINED ITS SYMMETRY SENTENCE, riding this commit as instructed:**
+#   `UnaryOPS?` drops a second **PREFIX** the way `InvokeArg?` drops a second postfix.
+#   Both slots on `TokenXP` are singular, so the trap has two faces — the prefix face is
+#   `!*ucH.listLengtH`, which **prints nothing at all**. **A fold that unpacks only the
+#   postfix container leaves half the trap standing.**
+#
+#   ## WHAT LANDED — ONE COMMIT
+#   `e87db98` opNOT by truthOf, genMany's guards respelled, AP-5b graduated, #52's
+#   symmetry sentence, and the `NotAnswersByTruthOf` DesignDocs entry.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **Stroke 3 not opened** — sealing after each stroke was the instruction. Its two
+#   guesses are unchanged and go one build each, reporting a number before the next:
+#   **`PostFiX InvokeArg@;`** referenced from TokenXP (if the language comes back, the
+#   alias was collapsing into a group and `term@` is the cure — isGROUP, third instance),
+#   then **`InvokeArg-*`** directly in TokenXP (if the language comes back, it is the
+#   Start rule's group issue again). **Both dying** opens the diagnosis from the two facts
+#   already in hand — InvokeArg is an alternation, TokenXP reaches it after `^` — with
+#   UC-5 as the symmetric case. **No fold this SEQ either way.**
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   stroke 3's two guesses · the bare-`if` half of the truth contract (AP-5) · the fold ·
+#   6b-ii · unknown-operator refusal · both held citizens.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 `noPrint` →
+#   `noPrinT` · parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, EIGHTH SESSION -- STROKE 1 ONLY, AND IT WORKS:
+# `DesignDocs.TokFiles` READS `TokFiles`. THE DOT's RIGHT OPERAND IS A NAME.
+# ONE COMMIT.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 12:35 and
+#   `git log -1 --date=iso` stamps 2026-09-10 12:35. They agree.
+#
+#   ## THE ONE-LINE STATE: **the half of 6b-i that never needed the fold is in, and
+#   the single dot works on a member name for the first time — three lines in
+#   `handleDot`, every certificate row green, fleet moved only by its own new rows.**
+#   Fleet **261 green / 50** (258 + A8's three), canary **323**, ddPop 5, decodePop 14,
+#   formsPop 14, countPop 0-of-44, frontier **exit 0, 4 PASS**. Both repos **0 dirty, 0
+#   unpushed**. Fixit queue **4**. **Sealed after one stroke, as instructed.**
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE DEFECT WAS BEAR-TRAP #26 ARRIVING THROUGH THE RIGHT OPERAND.** It arrived
+#   **resolved**, and a resolved node **with data** returns its **data** from `.text`. So
+#   `product = target[text]` looked up the member's whole CONTENTS instead of its name —
+#   `DesignDocs.TokFiles` looked up TokFiles' entire description paragraph and missed.
+#   ⚠ **And that is why accessors always worked while member names never did:** a
+#   groupFields entry is selected by **registry membership** and never reaches the text
+#   road at all. `fcFace.noPrinT` and `DesignDocs.TokFiles` were never on the same road.
+#
+#   **b. THE FIX IS THREE LINES:** after the unwrap, if the op is a dot **and the operand
+#   is not a groupFields entry**, hand opDot a fresh **data-less** node carrying the name
+#   as its tag. **#26 working deliberately instead of by accident.**
+#
+#       DesignDocs.TokFiles reads TokFiles          was 0
+#       measureDotOperands  rightData=0 gCount=0    was rightData=13
+#       fcFace.noPrinT still a groupField, FC-3 back to 0
+#       *crCur.taG reads the member, crCur.taG reads crCur   controls, byte-unchanged
+#       UC-1 3 / UC-2 0                                      control, unchanged
+#       #26 payments 5 and 6: a member name resolves by tag; a MISS returns 0 and
+#           mints nothing
+#
+#   **c. ⚠⚠ THE ACCESSOR EXEMPTION IS LOAD-BEARING AND WAS MEASURED THE EXPENSIVE WAY.**
+#   The FIRST cut left the operand **unwrapped** instead of re-minting, on the theory that
+#   an unevaluated operand carries its own tag. **It carries the RULE WRAPPER's tag —
+#   `ANYtoken`** — so every dot in the tree looked up "ANYtoken", and **FC-3, cursorReadT
+#   and the unary buy row all moved at once.** Re-minting is right; re-minting an
+#   **accessor** would strip its registry and take the whole family off its road.
+#
+#   **d. ⚠⚠ AND THE H7 CONTROL CAUGHT MY OWN FIXTURE BEING VACUOUS — the best finding of
+#   the stroke.** `dotNameT`'s first cut used a **data-less** member, which returns its own
+#   tag anyway, **so DN-1 PASSED WITH THE FIX REMOVED.** The member now carries data: with
+#   the mint disabled DN-1 reads **0** while DN-4 stays **1**. ⚠ **A fixture for a
+#   bear-trap-26 defect has to be built out of a node that HAS data, or it is testing the
+#   trap instead of the fix.**
+#
+#   **e. A8's FIVE ROWS ARE NOT SEPARABLE.** DN-1 is the capability; **DN-2 is the MISS and
+#   must stay EMPTY** — a fix that minted for every right-hand name would pass DN-1 and be
+#   wrong; **DN-3/DN-4 are the accessor exemption as a PAIR**, because a DEAD accessor also
+#   reads 0 and only a live one can produce 0-then-1; DN-0 is the walk's anti-vacuity
+#   control.
+#
+#   ## WHAT LANDED — ONE COMMIT
+#   `67bb7ff` handleDot's name half, `incant/dotNameT`, pop.sh row A8, and the
+#   `RightIsAName` DesignDocs entry.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **Strokes 2 and 3 not opened** — sealing after each stroke was the instruction, and
+#   this is that seal. **Scope was single-dot rows only**: chains still drop their second
+#   postfix (bear-trap #52) and wait on the fold.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **stroke 2** — `!` answers by truthOf (UC-3 reads 0 where `!(0)` wants 1; same class
+#   as aCTionIF/bareIfTruth) · **stroke 3** — the two indirection guesses, one build each,
+#   `PostFiX InvokeArg@;` then `InvokeArg-*`, reporting each as a number before trying the
+#   next · then the fold, 6b-ii, unknown-operator refusal, and both held citizens.
+#   ⚠ **#52 still owes its symmetry sentence**: `UnaryOPS?` drops a second PREFIX the way
+#   `InvokeArg?` drops a second postfix — UC-5 is that case and it is in hand.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s unary class, pending · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2
+#   `noPrint` → `noPrinT` · parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, SEVENTH SESSION -- THE UNARY CLASS SPLIT LANDS ALONE, AND
+# ITS BUY ROW SAYS IT IS A CLEANUP. THE FOLD IT WAS MEANT TO RIDE HAS NO COMMIT.
+# ONE COMMIT.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 12:23 and
+#   `git log -1 --date=iso` stamps 2026-09-10 12:23. They agree.
+#
+#   ## THE ONE-LINE STATE: **the amendment could not ride stroke 3's commit because
+#   stroke 3 has none — the fold is blocked — but the ruling is buildable without the
+#   loop, because today's dispatch already implements it as two hardcoded `tag eq "*"`
+#   literals; landing it turns those into the registration the ruling asks for, and the
+#   pre-registered prediction that NOTHING WOULD MOVE held exactly.** Fleet **258 green
+#   / 50** (255 + A7's three new rows), canary **323**, ddPop 5, decodePop 14, formsPop
+#   14, countPop 0-of-44, frontier **exit 0, 4 PASS**. Both repos **0 dirty, 0
+#   unpushed**. Fixit queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE RULING, AND WHY IT LANDED ALONE.** A prefix unary is **ACCESS** class,
+#   binding to the **PRIMARY** before the postfix chain, or **VALUE** class, binding to
+#   the chain's **RESULT**:
+#
+#       *A.B = (*A).B   access        !A.B = !(A.B)    -A.B = -(A.B)   value
+#       !*A.B = !((*A).B)             both, in that order
+#
+#   **It refines the flip campaign's "unary binds tightest": true of `*`, and of `*`
+#   alone.** The class is `accessClass` on the operator in `incant/setup`; the dispatch
+#   asks **one predicate**, `unaryIsAccess`; **no inline lists in the action.** It sits on
+#   `'*'` and **not** on `deref`, because the class is asked BEFORE `handleUnary` maps the
+#   token to its named operator. `@` pending Tony.
+#   ⚠ **It was to ride stroke 3's commit and stroke 3 has no commit** — the fold is
+#   blocked on an indirection, not a repetition (`31bfff6`) — **so there is no loop to
+#   hang "before the loop / after the loop" on.** It landed anyway because the two
+#   hardcoded literals ARE the ruling, unregistered.
+#
+#   **b. ⚠⚠ THE BUY ROW BOUGHT: NOTHING MOVED — AND THAT WAS THE PREDICTION.**
+#
+#       UC-0 control  ucBag.listLengtH        3      3    the bag really has three
+#       UC-1 access   *ucH.listLengtH         3      3    deref bound to the PRIMARY
+#       UC-2 holder    ucH.listLengtH         0      0    the holder's own
+#       UC-3 value    !ucH.listLengtH         0      0
+#       UC-4 value    -ucH.listLengtH         0      0
+#       UC-5 both     !*ucH.listLengtH      absent absent no output at all
+#                                           before  after
+#
+#   **The prediction was banked before the build and named the MECHANISM, not the
+#   count:** the non-star path already builds the `xp` node as `(A . B)` and hands it to
+#   `handleUnary`, which **is** the value-class shape. So this lands as a **structural
+#   cleanup — the code now says what it already did** — and is landed on that basis
+#   rather than on a behaviour change. **Revert is one commit and nobody is embarrassed.**
+#
+#   **c. ⚠ TWO SEPARATE DEFECTS THE BUY ROW SURFACED**, recorded so they are not later
+#   mistaken for this ruling's blast radius — **both read identically before and after**:
+#   **UC-3** `!ucH.listLengtH` reads **0** where `!(0)` wants 1, and **UC-5**
+#   `!*ucH.listLengtH` — two unaries over a dot — **PRINTS NOTHING AT ALL**.
+#
+#   **d. THE H7 CONTROL IS WHAT MAKES IT ASSERTABLE.** Deleting `accessClass` from the
+#   registration takes **UC-1 from 3 to 0**: the star stops binding to the primary and the
+#   read **collapses onto UC-2**, so subject and control become indistinguishable — exactly
+#   the failure the pair exists to catch. `incant/setup` is read at run time (bear-trap
+#   #31) so the control costs **no rebuild**; the file was restored **md5-identical** and
+#   verified. Banked as fleet rows **A7**, not prose.
+#
+#   ## WHAT LANDED — ONE COMMIT
+#   `e6d946e` the unary class split, its buy row, A7's three rows, and the
+#   `UnaryClassSplit` DesignDocs entry. Support: `unaryIsAccess` mirror (bear-trap #11),
+#   mirror-arity 305 → 306.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **The fold**, still blocked and undiagnosed — `InvokeArg` must be referenced by
+#   `TokenXP` **directly**, and a one-term alias kills the parse as thoroughly as `*` does.
+#   **Strokes 4, 5 and 6 remain gated behind it.**
+#   ⚠ **STILL BUILDABLE AND STILL NOT ATTEMPTED: handleDot's name half** — right operand
+#   taken as a name via term@/captureSpan. Independent of the fold, and it fixes
+#   `DesignDocs.TokFiles` reading 0, which is where #26 payments 5 and 6 live.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **diagnose the indirection** (it gates the fold, #52 and 6b entire) · handleDot's name
+#   half, independent · **UC-3 and UC-5**, newly surfaced and unexplained · the modifier
+#   two-class ruling, signed and not started · 6b-ii · unknown-operator refusal · the two
+#   held citizens on the finished dot road.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   `@`'s class, pending · frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 `noPrint`
+#   → `noPrinT` · parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, SIXTH SESSION -- #52 MINTED AND SHARPENED; THE TRAILING DOT
+# IS A DROPPED TERM, NOT A LEADING ONE; AND THE FOLD IS BLOCKED BY SOMETHING THAT IS
+# NOT REPETITION. FOUR COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 12:16 and
+#   `git log -1 --date=iso` stamps 2026-09-10 12:16. They agree.
+#
+#   ## THE ONE-LINE STATE: **the truncation is named as bear-trap #52 and measured from
+#   two sides; stroke 2 answered NO, so 6b-ii's zero-respells stands; and stroke 3
+#   stopped at the grinding line with the fold blocked by an INDIRECTION, not by a
+#   repetition.** Fleet **255 green / 50**, unmoved all session, canary **322**, ddPop 5,
+#   decodePop 14, formsPop 14, countPop 0-of-44, frontier **exit 0, 4 PASS**. Both repos
+#   **0 dirty, 0 unpushed**. Fixit queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. BEAR-TRAP #52 — THE SECOND POSTFIX EVAPORATES.** Measured from **both** sides:
+#
+#       calls          DesignDocs.TokFiles              1 opDot
+#                      DesignDocs["TokFiles"]           0   correct, a subscript is `=[`
+#                      DesignDocs["TokFiles"].Commands  0
+#                      DesignDocs.TokFiles.Commands     0
+#       arms           A["B"].C   ONE arm: subscript,    primary=DesignDocs
+#                      A.B.C      ONE arm: dot-COMPOSED, primary=DesignDocs
+#                      A.B        ONE arm: dot-COMPOSED, primary=DesignDocs
+#
+#   ⚠ **`A.B.C` AND `A.B` PRODUCE IDENTICAL PARSES.** The trailing `.C` yields no term,
+#   no arm and no call — **dropped at parse time, not mis-evaluated at run time.**
+#   ⚠ **THE DANGER IS THAT IT ANSWERS:** the expression hands back the FIRST postfix's
+#   result, so `A["B"].C` returns `A["B"]` and a reader checking the row is populated
+#   sees a real node with a real tag. **Detector: count opDot ENTRIES or ARM entries,
+#   never results** — a results-based check cannot see this at all, which is why it
+#   survived until seat callouts existed to count calls.
+#
+#   **b. STROKE 2 ANSWERED **NO**, and it protects 6b-ii's scope.** The trailing `.C`
+#   does **not** enter `handleUnary`'s `.` arm on `lastREF` — **no `dot-LEADING` arm
+#   fires for it**. So `X[…].Y` is **not** a leading-dot spelling in disguise; it is a
+#   dropped term, fixed by the fold and not by the accessor road. **6b-ii's "zero
+#   respells" stands and stroke 4's census is unchanged.**
+#
+#   **c. ⚠⚠ STROKE 3 STOPPED, AND THE BLOCKER IS NOT REPETITION.** Four spellings, one
+#   run each, two probes — does a PLAIN ASSIGNMENT still parse, and how many arms fire:
+#
+#       InvokeArg?                         plainAssign 1   arms 6
+#       InvokeArg*                         plainAssign 0   arms 0
+#       PostFiX? with PostFiX InvokeArg+   plainAssign 0   arms 0
+#       InvokeArg+?                        plainAssign 0   arms 0
+#
+#   ⚠ **EVERY FAILURE IS TOTAL** — nothing parses, not a bare `s3A = s3B;`, no sentinel.
+#   TokenXP ceases to match at all.
+#   ⚠⚠ **AND TWO CONTROLS MOVE THE BLAME OFF REPETITION ENTIRELY:**
+#
+#       add `PostFiX InvokeArg+;` and leave TokenXP UNTOUCHED     plainAssign 1
+#       `PostFiX InvokeArg;` — a PLAIN ALIAS, no repetition —
+#           referenced from TokenXP                              plainAssign 0
+#
+#   **THE ADDED RULE IS HARMLESS; THE INDIRECTION IS FATAL.** A one-term alias between
+#   TokenXP and InvokeArg kills the language as thoroughly as `*` does. **So InvokeArg
+#   must be referenced by TokenXP DIRECTLY**, and last session's `?`→`*` reading was the
+#   right symptom attached to the wrong cause.
+#   ⚠ **UNDIAGNOSED AND DELIBERATELY NOT GUESSED.** InvokeArg is an alternation
+#   (Braced / Parens / UnaryXP) and TokenXP reaches it after a `^` noSkip term; those are
+#   the two facts worth starting from and neither is established. **Four spellings plus
+#   two controls is where the measuring stopped, which is also the grinding line.**
+#
+#   **d. DOCTRINE, first commit.** *A `measure*` method READS the state it is handed; it
+#   never recomputes the decision it witnesses* — cited to `measureRuleDispatch`'s stale
+#   `arm=`, which **drifted in the direction that hid the change just made.** And the door
+#   ruling's entry gained the **face-proof reason, dated**: `hasNewParsE` rides the shared
+#   child list, `rStuff` is per-node, so a door keyed on `rStuff` opens for some faces and
+#   not others.
+#
+#   ## WHAT LANDED — FOUR COMMITS
+#   `5c40052` doctrine + #52 minted · `1732a2c` stroke 2's NO + #52 sharpened +
+#   `measureTokenArm` · `31bfff6` stroke 3's blocker recorded. Support: `measureTokenArm`
+#   mirror (bear-trap #11), mirror-arity 304 → 305.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **6b-i's fold**, blocked as above. **Nothing was built** — the grammar was restored
+#   and verified clean, and 6a's sixteen captures were banked before the attempt and are
+#   untouched. **Strokes 4, 5 and 6 untouched**, 4 and 5 being gated behind the fold.
+#   ⚠ **WHAT IS STILL BUILDABLE AND WAS NOT ATTEMPTED: handleDot's half alone** — right
+#   operand taken as a name via term@/captureSpan. It is independent of the fold and it
+#   would fix `DesignDocs.TokFiles` reading 0, which is the single-dot case and the one
+#   #26 payments 5 and 6 live in. That is the next stroke if the fold stays blocked.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **diagnose the indirection** (why a one-term alias between TokenXP and InvokeArg kills
+#   the parse — it gates the fold, #52, and 6b entire) · handleDot's name half, which is
+#   independent · stroke 2's modifier two-class ruling, signed and not started · 6b-ii ·
+#   unknown-operator refusal · the two held citizens on the finished dot road.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   frontier station 4/6/7 — `Braced`'s `StorE` · FC-2 `noPrint` → `noPrinT` ·
+#   parseRule's `noElseHere` line on the tok reading.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, FIFTH SESSION -- THE DOOR RULING LANDED AND OPENED FOR A
+# BIN; THE DOT's RIGHT OPERAND IS EVALUATED, AS SUSPECTED; AND THERE IS NO FOLD TO
+# FOLD WITH. THREE COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 12:02 and
+#   `git log -1 --date=iso` stamps 2026-09-10 12:01. They agree.
+#
+#   ## THE ONE-LINE STATE: **stroke 1's ruling is in and a bin now takes the door;
+#   stroke 3 confirms the dot's right operand is EVALUATED and that this is exactly
+#   6b-i's road; and stroke 4 found that a two-postfix chain fires NO dot at all, so
+#   the fold the ruling delegates to "TokenXP's loop" does not exist yet.** Fleet
+#   **255 green / 50**, unmoved all session, canary **322**, ddPop 5, decodePop 14,
+#   formsPop 14, countPop 0-of-44, frontier **exit 0, 4 PASS**. Both repos **0 dirty,
+#   0 unpushed**. Fixit queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE DOOR IS `hasNewParsE`, LANDED, AND THE CERTIFICATE TURNED UP THE REASON.**
+#   One condition, no isBIN arm.
+#
+#       before   RULEDISPATCH UnaryOPS ... hasNewParse=1 ... arm=NONE
+#       after    RULEDISPATCH UnaryOPS ... hasNewParse=1 ... arm=runRule
+#                runRule DOOR on UnaryOPS  field=1 fieldData=0
+#
+#   ⚠⚠ **AND THIS IS THE PART WORTH KEEPING:** `parseClassify` on the node a subscript
+#   reaches reads **`PC none UnaryOPS`** — `rStuff.parseMethod` is NULL there — while the
+#   SAME node reads `hasNewParsE=1`. That is the **minted-versus-derived split** working
+#   exactly as ruled 08-24: `hasNewParsE` and the `builtinParsE` artifact ride the
+#   **shared child list** and are face-proof; `rStuff` is **per node** and a reference
+#   face has its own. **So a door keyed on rStuff would open for some faces and not
+#   others.** The one-condition form is not merely tidier — **it is the only one that can
+#   be face-proof.**
+#   ⚠ **frontier station 4 NOT MET, and not by this stroke's doing:** `frStation4`, 6 and
+#   7 fail to PARSE (`ERROR processCode: frStation4 parse failed`) for the reason Tony's
+#   own inline comment gives — `Braced` carries a `StorE` attribute that is neither a rule
+#   nor noPrint. Stations 1/2/3/5/8 run; the block predates the door.
+#
+#   **b. ⚠ TWO INSTRUMENT LESSONS FROM ONE STROKE, both cheap and both new.**
+#   **The witness went stale within the hour:** `measureRuleDispatch`'s `arm=` string
+#   **re-derives** runOP's ladder rather than reading it, so the moment the door widened
+#   it still said `arm=NONE` for the node that had just gone through. **A witness that
+#   recomputes its subject's decision drifts from it silently** — synced, and its header
+#   now says the two are edited together.
+#   **And bear-trap #29 bit in its documented form:** the ruling's comment was first
+#   written **between two arms of the if/or chain, immediately before an `or`**, and took
+#   the canary **322 → 0** — the exact cell of that trap's measured table. **Caught by
+#   reading the generated `.mm` before the build, not by the canary alone**: the `.mm`
+#   showed the new arm simply absent.
+#
+#   **c. STROKE 3 — THE RIGHT OPERAND IS EVALUATED, AND THAT IS 6b-i's ROAD.**
+#
+#       fcFace.noPrinT       right=noPrinT  isGroupField=1 gCount=29                works
+#       DesignDocs.TokFiles  right=TokFiles isGroupField=0 gCount=239 rightData=13  reads 0
+#
+#   ⚠ **`rightData=13` is the finding.** An accessor never reaches the text road —
+#   `isGroupField=1` takes the switch arm and `text` is never touched. A **member name**
+#   does, opDot falls to `product = target[text]`, and by **bear-trap #26 a node WITH data
+#   returns its DATA from `.text`**, not its name. TokFiles' data is its long description
+#   paragraph, so the lookup is `DesignDocs[<that whole paragraph>]` and misses. **Taking
+#   the right operand as a TAG closes exactly this.** Answer to the stroke's question:
+#   **no**, it is not falling to a road the fix doesn't touch.
+#
+#   **d. ⚠⚠ STROKE 4 — THERE IS NO FOLD. Counted through the callout, no capture:**
+#
+#       DesignDocs.TokFiles                 1
+#       DesignDocs["TokFiles"]              0   (correct — a subscript is `=[`)
+#       DesignDocs["TokFiles"].Commands     0
+#       DesignDocs.TokFiles.Commands        0
+#
+#   **A single dot fires; ANY two-postfix chain fires none at all** — not left-fold, not
+#   right-fold. The call order the stroke asked for **does not exist to be read**. The
+#   cause is one grammar line: `TokenXP  UnaryOPS? ANYorNum^ InvokeArg?` — **one** optional
+#   postfix — so `A.B.C` cannot be one TokenXP with two.
+#   ⚠ **AND THE GRAMMAR HALF ALONE MAKES IT WORSE, measured rather than assumed:** the `?`
+#   → `*` takes the SINGLE dot from **1 call to 0**, because InvokeArg then arrives as a
+#   repetition container the arms do not recognise. Grammar restored clean. **The two
+#   halves are not separable and neither is a one-liner.**
+#
+#   ## WHAT LANDED — THREE COMMITS
+#   `822e149` stroke 1's ruling + the witness sync + `DoorIsHasNewParse` ·
+#   `2b5a265` strokes 3 and 4 + `DotRightIsEvaluated`. (`4f2aed8` was the prior seal.)
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **Stroke 2 (the modifier two-class ruling), 5 (6b-i), 6 and 7 untouched.** 6b-i is
+#   **re-scoped rather than blocked**, and the scope is now honest: the grammar taking
+#   `InvokeArg*`, `aCTionTokenXP`'s dispatch becoming a **real left-folding loop** over
+#   that list, and `handleDot` taking its right operand as a name. **The clause "the
+#   fold-left is TokenXP's loop" assumes a loop that does not exist — building it IS the
+#   stroke**, and it rewrites the dispatch 6a certified byte-identical, so it wants its
+#   own certificate rather than the tail of another stroke.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   6b-i at its true size (grammar `InvokeArg*` + the fold loop + handleDot's name) ·
+#   stroke 2, the modifier two-class ruling (signed, not started) · 6b-ii the removal ·
+#   stroke 7 (unknown-operator refusal; measured: `eq` parsed, ran, answered truthy 3 of
+#   3) · `blockDashRefusalWalk` · what moved kant's `else` refusal between 08-21 and today
+#   · frontier's `Braced`/`StorE` state, which is blocking three stations.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   FC-2 respelled `noPrint` -> `noPrinT` before faceFlagsNoCross is read again ·
+#   parseRule's `noElseHere` inline line on the tok reading (the DesignDocs entry is
+#   already back) · whether frontier's station 4/6/7 parse failure is cleared before the
+#   next certificate asks for station 4.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, FOURTH SESSION -- THE DOT DEFECT IS ON THE **LEFT**
+# OPERAND, AND THE ESCAPE HATCH ALREADY EXISTS SPELLED WITH A STAR. 6b-i NOT BUILT;
+# ITS CERTIFICATE HAS A ROW THE MECHANISM CANNOT CASH. FOUR COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 11:47 and
+#   `git log -1 --date=iso` stamps 2026-09-10 11:47. They agree.
+#
+#   ## THE ONE-LINE STATE: **stroke 0's housekeeping landed, stroke 1's one read
+#   answered NO to the question it was given and relocated the defect from the right
+#   operand to the left, and stroke 5 killed the guess that the two held citizens are
+#   one defect.** Fleet **255 green / 50**, unmoved all session, canary **322**, ddPop
+#   5, decodePop 14, formsPop 14, countPop 0-of-44, frontier **exit 0, 4 PASS**. Both
+#   repos **0 dirty, 0 unpushed**. Fixit queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. CORRECTION ACCEPTED AND ITS DOCKET HEAD WITHDRAWN.** The ruling retires the
+#   LEADING form `.taG`, not bare `taG`; bare resolves scope-first and stays legal.
+#   A6 is 6b-i's **certificate**, not a blocker, and the previous seal's "make
+#   crCur.taG read the member" head is struck.
+#
+#   **b. ⚠⚠ STROKE 1 ANSWERS **NO**, AND THAT MOVES THE DEFECT.** The question was
+#   whether `taG` arrives isGroupField=0 the way `noPrint` did — on the keyword road,
+#   with the cursor echo being bear-trap #26's shape. Off `measureDotOperands`:
+#
+#       bare taG      right=taG isGroupField=1 gCount=1  left=crAlpha  -> crAlpha
+#       crCur.taG     right=taG isGroupField=1 gCount=1  left=crCur    -> crCur
+#       *crCur.taG                                       left=*crCur   -> crAlpha
+#
+#   **THE RIGHT OPERAND IS ALREADY CORRECT IN BOTH SPELLINGS.** `taG` resolves to the
+#   GroupFields accessor, gCount 1, every time. So `crCur.taG` returning `crCur` is
+#   **not** a wrong lookup and **not** a tag echo — **it is the right answer for the
+#   node opDot was handed.** The cursor is a HOLDER and the dot read the holder's own
+#   tag, faithfully.
+#   ⚠⚠ **AND THE ESCAPE HATCH ALREADY EXISTS, SPELLED WITH A STAR:** `*crCur.taG`
+#   reads the member on both rows, measured. The star/dot rotation applies the deref to
+#   the dot's LEFT operand, which is exactly what a holder needs. **Bear-traps #41/#50's
+#   family, not the accessor family.**
+#   ⚠ **SO STROKE 2's CERTIFICATE HAS A ROW THE MECHANISM CANNOT CASH** — *"crCur.taG
+#   reads the member in both rows"* is not producible by a right-operand change, because
+#   the right operand was never evaluated wrongly. **6b-i NOT BUILT**, per *report the
+#   line, don't fix*. **What 6b-i is still worth**, so it is not read as dead: today the
+#   right operand is RESOLVED and lands on the accessor only because a GroupFields entry
+#   of that name exists — a right-hand name that is **not** a groupField is minted as an
+#   action local instead (#26, payments 5 and 6). Taking it as a tag closes that, and the
+#   fold-left for `A.B.C` is untouched. What it **cannot** do is change what a holder on
+#   the LEFT means; that reaches every `:=` capture in the tree and is a different ruling.
+#
+#   **c. STROKE 5 — THE GUESS DIED FOR ONE BUILD.** The braced-plus-else arm, measured
+#   on both grammars, one run each: **`RunRulE: expected a method not bkFirst` on BOTH.**
+#   The dash makes no difference in either direction, so **the two held citizens are NOT
+#   one defect** and `danglingElse`'s three candidate sites can all drop the grammar's
+#   modifier position. `blockDashRefusalWalk` is **unmoved** — 7 held, 5 respelled, the
+#   pair it was minted with — and that is a re-read, not a re-pin: stroke 2's hand-up was
+#   the only thing that could have moved the dash's reach and it detonated and was
+#   reverted last session.
+#
+#   ## WHAT LANDED — FOUR COMMITS
+#   `713a07d` stroke 0 (four mirrors into groups.ext, alpha order, TokenXP's banner back
+#   beside TokenXP and brought current) · `94a98af` stroke 1's finding + the
+#   `DotLeftOperand` DesignDocs entry · `c0853c5` stroke 5, both citizens · support
+#   `groups.ext` mirror commit (bear-trap #11), mirror-arity 300 -> 304.
+#
+#   ## ⚠ WHAT DID NOT LAND, AND ONE MEASUREMENT REPORTED VOID
+#   **Strokes 2, 3 and 4 untouched** — 2 stopped on the certificate row above and 3/4
+#   were gated behind it.
+#   ⚠ **THE CHAINED-DOT BASELINE IS PARTLY VOID AND IS REPORTED AS VOID, NOT GRADED.**
+#   Trustworthy: `DesignDocs["TokFiles"]` reads **TokFiles**, `DesignDocs.TokFiles` reads
+#   **0** — the ruling's headline target, confirmed broken. **The deeper rows are void:**
+#   `:=` on a dot-expression captured an expression wrapper tagged **`xl1`** for the
+#   subscript spelling AND the dot spelling alike, so the two could not be told apart,
+#   and a direct-print probe died on its own syntax. **Grading it would be reading a
+#   broken instrument.** A working deep-chain probe is owed before 6b-i's certificate can
+#   be evaluated at all.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **a working deep-chain probe** (owed, and it gates 6b-i's certificate) · **the
+#   holder-on-the-left ruling** — does an unstarred dot deref a holder, and what does
+#   that cost every `:=` in the tree · 6b-i's right-operand-as-name half, which stands on
+#   its own merits · 6b-ii the removal · stroke 3 (testing() splits) · stroke 4
+#   (unknown-operator refusal, measured: `eq` parsed, ran and answered truthy 3 of 3) ·
+#   blockDashRefusalWalk · what moved kant's `else` refusal between 08-21 and today.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   **Held pending signature, untouched this SEQ as instructed:** the runOP arm
+#   (`hasNewParsE` as the door) and the two-class modifier hand-up.
+#   **Owed to Tony:** FC-2 respelled `noPrint` -> `noPrinT` before faceFlagsNoCross is
+#   read again · parseRule's `noElseHere` inline line restored on the tok reading (the
+#   DesignDocs entry is already back) · whether 6b-i's certificate drops the
+#   `crCur.taG` row or the ruling grows a left-operand clause.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, THIRD SESSION -- 6a IS A CLEAN MOVE; 6b IS BLOCKED BY
+# ITS OWN PRE-MEASURE. THE EXPLICIT SPELLING THE RULING RETIRES TO DOES NOT WORK.
+# FOUR COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 11:33 and
+#   `git log -1 --date=iso` stamps 2026-09-10 11:33. They agree.
+#
+#   ## THE ONE-LINE STATE: **stroke 5 read at the seat, 6a landed byte-identical with
+#   nothing re-pinned, and 6b STOPPED ON ITS SECOND PRE-MEASURE -- `btCur.taG`, the
+#   explicit spelling the ruling names as the escape hatch, reads the CURSOR and not
+#   the member.** Fleet **255 green / 50** (249 + the six new pre-measure rows), canary
+#   **322** (318 + 6a's four arms), ddPop 5, decodePop 14, formsPop 14, countPop
+#   0-of-44, frontier **exit 0, 4 PASS**. Both repos **0 dirty, 0 unpushed**. Fixit
+#   queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. STROKE 5 -- opDot RECEIVES A GROUPFIELD ON THE RIGHT, read at the seat.**
+#   Not inferred from a value this time. `measureDotOperands`, second use of the
+#   callout doctrine, sits in opDot above the accessor gate:
+#
+#       fcFace.noPrinT   right=noPrinT isGroupField=1 gCount=29   value 0
+#       fcClean.noPrinT  right=noPrinT isGroupField=1 gCount=29   value 0   (FC-3)
+#       fcFace.noPrint   right=noPrint isGroupField=0 gCount=0    tag echo  (FC-2)
+#
+#   **So it is a groupField, not a tag echo and not `true`.** The offline reading was
+#   taken on the build with `.` removed from UnaryOPS, which never reached the tree.
+#   ⚠ **And FC-2's spelling is confirmed at the seat**: `noPrint` is the COMMANDS
+#   keyword, arrives `isGroupField=0`, so opDot falls to `target[text]` and returns
+#   bear-trap #26's echo. **FC-2 and FC-3 have never asked the same question.** Read
+#   only; the respell is Tony's.
+#
+#   **b. STROKE 6a -- A PURE MOVE, AND THE CERTIFICATE HELD.** `handleUnary`,
+#   `handleCall`, `handleSubscript`, `handleDot` extracted; `aCTionTokenXP` keeps the
+#   dispatch. **Sixteen captures banked before and compared after** -- oneTest,
+#   jsonTest, genScratch, popScratch, frontier on both channels, odometer, pop.sh,
+#   decodePop, ddPop, countPop, formsPop -- **all byte-identical** once two H1/H3
+#   artifacts are scrubbed (the harness's own binary size/mtime echo, and raw
+#   ADDRESSES in genScratch's trace lines). **Every count unmoved. No re-pins.**
+#   Canary 318 -> 322, which is exactly the four new externs.
+#   ⚠ **THE ONE PIECE OF CLEVERNESS, and it is worth keeping: A ROTATING ARM FINISHES
+#   THE TERM ITSELF AND SAYS SO BY SETTING `xpress.method`.** The old code said it with
+#   `goto endToken` out of both star rotations, and the reason is not bookkeeping --
+#   **the star is already spent on the dot's LEFT operand**, so falling on to the prefix
+#   arm would apply it twice. Reading `xpress.method` preserves that and invents no new
+#   channel. The second channel is the SWAP: handleDot's two-unary case returns the
+#   inner `xp`, which both replaces ANYtoken and suppresses the `invoke` set.
+#   ⚠ **It deliberately did NOT become a real fold loop** -- a fold changes what
+#   `A.B.C` means, and that is 6b's ruling, not a refactor's to make.
+#   ⚠ **TWO SPECIES OF CALLOUT, one sentence, landed with it:** a WITNESS reports and
+#   wears `measure`; a HAND changes the tree and wears no prefix. The reserved prefix
+#   IS the discipline -- `grep -n 'measure[A-Z]'` must return instruments and nothing
+#   else, and a hand cannot be disarmed at all.
+#
+#   **c. ⚠⚠ STROKE 6b IS BLOCKED, AND THE BLOCKER IS ONE OF ITS OWN PRE-MEASURES.**
+#
+#   **PRE-MEASURE 1, the leading-dot census: THIRTY raw hits, ZERO LIVE.** With quoted
+#   strings stripped first (so a printed `.taG` in a label is not counted as code),
+#   three survive and **all three are prose** -- holderT's header twice, nameRecurse's
+#   results block. Grammar none, setup none, tok sources none. **So "no leading form"
+#   costs zero respellings.** That half is de-risked.
+#
+#   **PRE-MEASURE 2 IS THE BLOCKER.** Two arms, one run each:
+#
+#       ARM A, no collision       bare taG   -> crAlpha / crBeta    CORRECT
+#                                 crCur.taG  -> `crCur`             THE CURSOR
+#       ARM B, a field named taG  bare taG   -> 0
+#       declared in the define    crCur.taG  -> 1
+#
+#   **The ruling says a collision is spelled explicitly, `btCur.taG`. THAT SPELLING
+#   DOES NOT READ THE MEMBER** -- it reads the cursor, bear-trap #35's chained-read
+#   family. So the ruling retires the form that WORKS in favour of the form that does
+#   not, **and pre-measure 1 is what makes that fatal rather than survivable: there is
+#   no third spelling in the tree to fall back on.**
+#   ⚠ **And a declared same-named field shadows BOTH**, so the dispatch's premise --
+#   *a bare member name wins over a same-named field* -- is **half true**: it wins when
+#   nothing shadows it, and when something does, neither spelling is the tag.
+#   ⚠ **CORROBORATED, so it is not one probe's artifact (bear-trap #43):**
+#   `incant/attic/branchTagTruth`'s table has `btCur.taG eq "return"` at 3 of 3 and
+#   `*btCur.taG == "return"` at 0. Two fixtures, same conclusion.
+#   ⚠ **SAME SHAPE AS THE PREVIOUS PRE-FLIGHT:** removing `.` from UnaryOPS without
+#   the replacement road takes every accessor dark; retiring the bare form without a
+#   working explicit form takes **every iterate body** dark. **6b needs the explicit
+#   read fixed FIRST, or in the same stroke.**
+#   **Banked as ROWS, not prose** -- pop.sh **A6**, `incant/cursorReadT` and
+#   `cursorReadTb`, each arm carrying its own walked-count control at 2, H7 control run.
+#
+#   ## WHAT LANDED -- FOUR COMMITS
+#   `762b70a` stroke 5, measureDotOperands · `ef74253` stroke 6a, the four arms ·
+#   `6a4d773` 6b's pre-measures as fleet rows · support `groups.ext` mirror line for
+#   measureDotOperands (bear-trap #11), committed and pushed. Mirror-arity 299 -> 300.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **6b itself**, blocked as above -- and it is a **stop-and-report**, not a partial
+#   build: nothing of the ruling was written, so there is nothing to revert.
+#   **Strokes 3 and 7 untouched.**
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **make `crCur.taG` read the member** (6b's precondition, and the new head) · then 6b
+#   entire, removal and name-as-tag road in one commit · which arm a container gets in
+#   runOP's fork · the modifier-CLASS distinction (stroke 2's other half) · stroke 3
+#   (testing() splits) · stroke 7 (unknown-operator refusal) · blockDashRefusalWalk
+#   re-read on the dot road · what moved kant's `else` refusal between 08-21 and today.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   parseRule's `noElseHere` inline line (the DesignDocs entry is restored) · which arm
+#   a bin gets · the modifier-class ruling · faceFlagsNoCross's FC-2 spelling · the `eq`
+#   sites, per-site · **whether 6b waits on the explicit read or changes its escape
+#   hatch to something that works.**
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10, SECOND SESSION -- THE DOOR IS A NAME AND THE NAME IS FINE;
+# THE FORK IS WHAT HAS NO ARM. TRAITS TAKE HALF THEIR FLAGS. #32 IS A TOK FACT AND
+# KANT INVERTS IT. FOUR COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 11:20 and
+#   `git log -1 --date=iso` stamps 2026-09-10 11:20. They agree.
+#
+#   ## THE ONE-LINE STATE: **three of seven strokes closed, and TWO OF THEM CLOSED
+#   BY FALSIFYING THEIR OWN PREMISE -- the emitted call reaches the right node and
+#   runOP's fork has no arm for a bin; the trait-flag ruling lands in half and its
+#   other half takes the fleet to 170 with an exit 139; and bear-trap #32 is true in
+#   tok, inverted in kant, measured both ways in one session.** Fleet **249 green /
+#   50**, unmoved all session, canary **318**, ddPop 5, decodePop 14, formsPop 14,
+#   countPop 0-of-44, frontier **exit 0, stations 1/2/3/8 PASS**. Both repos **0
+#   dirty, 0 unpushed**. Fixit queue **4**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. STROKE 1 -- THE EMITTER LOSES NOTHING. THE FORK HAS NO ARM.** The dispatch
+#   asked whether the emitted `UnaryOPS(argument)` reaches the node carrying
+#   `hasNewParsE=1 binTypE=1` or some other node off `parser`'s search list. **It
+#   reaches the right one.** Both identities, one run, hit and miss controls passing:
+#
+#       ADDROF       UnaryOPS  field=0x1044abe40  body=0x1044aacd0   the DEFINING node
+#       RULEDISPATCH UnaryOPS  at   =0x104e5ac40  body=0x1044aacd0   what the NAME reached
+#
+#   **SAME BODY, DIFFERENT FIELD** -- rule H13's question 2, so the FIELD column is
+#   the discriminator and the BODY column proves the flags came through. The name
+#   reached a REFERENCE over the defining node's body, and a copy shares its source
+#   body outright, so every flag the fork tests arrived intact. **This is NOT the
+#   modifier-drop hole and is recorded separately from it.**
+#
+#   ⚠⚠ **THE HOLE IS ONE LINE LATER AND IT IS SILENT:**
+#
+#       RULEDISPATCH UnaryOPS ... isRule=0 binType=1 hasNewParse=1 actionType=0
+#                                 isMethod=0 isOperator=0 arm=NONE
+#
+#   `runOP` tests isOperator, isMethod, isRule, actionType. **A BIN IS NONE OF THEM**,
+#   so an emitted call on a container falls off the bottom of the fork, `result` stays
+#   null, and **nothing is printed** -- no error, no refusal, no trace. A full
+#   traceParse run shows ONE `runRule DOOR`, on IterSource, and UnaryOPS nowhere.
+#   ⚠ **AND IT IS BINS GENERALLY, NOT THE REFERENCE:** the DEFINING node reads
+#   `isRule=0` too, so **nothing the emitter could carry would open this door.**
+#   Stopped there, per the dispatch: which arm a container gets is a ruling.
+#
+#   **b. THE MEASURE CALLOUT IS THE STANDING SHAPE, landed with its first use.** A
+#   `measure*` method opens with its OWN arming check and is inert otherwise; the
+#   callout line in the seat is **permanent and carries no gate**. One per seat, named
+#   for the seat, seat state as arguments, returns nothing into the caller, writes
+#   nothing it is handed. `grep -n 'measure[A-Z]'` is the census. **CLAUDE.md carries
+#   the what-to-do as #23's amendment; `incant/designDocs` TokFiles -> measure ->
+#   MeasureCallouts carries the why** -- visible seat, legible name, no clutter -- and
+#   **what it replaced**: a directives build is a DIFFERENT PROGRAM whose `.mm` must
+#   never be committed, and inline prints are invisible to a census and leave with the
+#   person who added them. ⚠ `measureLabelProbe` is **pinned by exact string in
+#   pop.sh**, so *no gate* and *the format is an instrument* are both load-bearing.
+#
+#   **c. NAME WHICH LANGUAGE -- doctrine, and it paid the same day.** A claim about
+#   "the language" names one of three: **tok, kant, or emitted**, and a bear-trap
+#   recorded on one road is not evidence about another until measured there. Three
+#   casualties in CLAUDE.md: **`eq`** (true in tok, cited in kant, which has none, so
+#   it fell through truthy and four registers agreed for weeks), **`leaveRule`** (true
+#   in emitted tok, cited for kant, whose bodies take one argument), **#32** (measured
+#   in kant, quoted as a fact about "the parser"). ⚠ **The third one is now closed by
+#   measurement -- see (e).**
+#
+#   **d. STROKE 2 -- HALF LANDS, AND THE OTHER HALF IS NOT CLOSE.** `aCTionTraiT` now
+#   applies Modifier and Limit to the **trait**, **after** setContent. Fleet unmoved,
+#   three re-pinned rows byte-unchanged, BlocK still held at 7 with its H7 control
+#   still 5.
+#   ⚠⚠ **"MODIFIER POSITION IS FREE / BOTH SPELLINGS EQUIVALENT" DOES NOT LAND.**
+#   Implemented as aCTionTraiTdata handing its Modifier up, it took the fleet
+#   **249 -> 170 with baselineTests at EXIT 139**. Reverting ONLY the hand-up returned
+#   it to 249 exactly, so the bisect is clean and the reorder is exonerated.
+#   ⚠ **THE GRAMMAR CENSUS IS THE ARGUMENT AND IT WAS ONE GREP.** `="..."` followed by
+#   a modifier returns **exactly ONE hit** in incant/grammar -- line 117, the BlocK
+#   line, already held. But the same shape over a **SET** is everywhere:
+#   `numberSet=[0-9]+`, `min=[0-9]+`, `power=[0-9]+`, `decimals=[0-9]+`, `NotA=[^ ...]+`,
+#   `ANYstring=[^ ...]+`, `ShortcuT=[-+~...]+`, `flags=[-# 0+']*`. In every one the
+#   trailing `+`/`*` is **repetition on the DATA** and belongs where it is written;
+#   handing it up applies it to the trait as well, **and a repetition applied twice is
+#   not the same parse.** ⚠ **So the premise needs one more distinction: THE MODIFIER
+#   SET IS NOT ONE KIND.** `-` is a fact about the trait; `+ * ?` are facts about what
+#   repeats. Equivalence needs the modifier CLASS discriminated at the point of
+#   application. That is a ruling with its own certificate, and it is Tony's.
+#   ⚠ The prediction was written **before** the build and named the `=[0-9]+` family as
+#   the risk, which is the only reason the bisect took one build instead of a search.
+#
+#   **e. STROKE 4 -- #32 IS A TOK FACT, AND KANT INVERTS IT.** Both roads driven.
+#
+#       TOK   unbraced multi-statement arm then else    canary 0     fatal
+#             the same method BRACED (H7 control)       canary 319   318 + one extern
+#             restored                                  canary 318
+#
+#       KANT  single-statement if, and if + else                 OK
+#             multi-statement indented arm, NO else              OK
+#             multi-statement indented arm THEN else             OK   <- #32 says BROKEN
+#             BRACED multi-statement arm then else               BROKE <- #32 omits it
+#
+#   ⚠ **The braced one breaks with #32's OWN misdirection** -- `RunRulE: expected a
+#   method not <X>` naming the first, healthy action. **So the diagnosis survives and
+#   the discriminator is backwards in kant: the brace is not the cure, it is the
+#   trigger.** The flag idiom stays right on both roads.
+#   ⚠ **THE ELSE IS NOT SILENTLY DROPPED, and that pair is what makes this a finding**
+#   -- a swallowed else prints no error and leaves a plausible number. Both directions
+#   driven: flag true **2**, flag false **9**, where a 5 would be the initialiser
+#   showing through.
+#   ⚠ **WHAT IS NOT KNOWN, stated rather than inferred:** #32 was measured 2026-08-21
+#   with two passing controls and frontier's eight stations were built on it.
+#   **Something changed which shape kant refuses and nobody has looked.** Do not read
+#   the inversion as "it was always wrong".
+#
+#   ## WHAT LANDED -- FOUR COMMITS
+#   `27c23e6` measure callouts + NAME WHICH LANGUAGE + stroke 1 · `81f8336` stroke 2's
+#   landable half, with the 139 recorded · `237fc7b` stroke 4, both arms, #32 amended,
+#   `noElseHere` restored · support `groups.ext` mirror line (bear-trap #11), committed
+#   and pushed. ⚠ `incant/fixits/danglingElse` MINTED; queue 3 -> 4.
+#
+#   ## ⚠ WHAT DID NOT LAND
+#   **Strokes 3, 5, 6, 7 untouched.** Stroke 1 stopped where its own clause said to;
+#   stroke 2 stopped at the 139. Stroke 5's pre-flight from the previous seal still
+#   stands and is unrepeated: **`.` out of UnaryOPS takes every dotted accessor dark**
+#   (all reads become tag echoes), so the removal and the name-as-tag road land on ONE
+#   stroke or not at all.
+#   ⚠ **OWED AND NOW REPORTED, from last SEQ:** hasTraits' post-setParse row LANDED in
+#   `fe9318e` and came back **VACUOUS** -- HP-5 reads DISAGREE 0 like the raw row, and
+#   **HP-0 says setParse took on 3 members of 64**; the other 61 refuse "no rStuff",
+#   which is Ruling D working as written. A member-walk of Grokking cannot prime that
+#   population. Its live thread also **closed**: connectiveT is green on both rows.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   **which arm a container gets in runOP's fork** (stroke 1's ruling, and it is the
+#   new head) · the modifier-CLASS distinction (stroke 2's other half) · stroke 3
+#   (testing() splits) · stroke 5 (the `.` ruling, both halves on one stroke) · stroke 6
+#   · stroke 7 · then blockDashRefusalWalk re-read on the dot road · what moved kant's
+#   `else` refusal between 08-21 and today.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   parseRule's `noElseHere` **inline line** -- the DesignDocs entry is restored, the
+#   line is his · which arm a bin gets · the modifier-class ruling · faceFlagsNoCross's
+#   FC-2 spelling (`noPrint` keyword vs `noPrinT` accessor -- the two rows have never
+#   asked the same question) · the `eq` sites, per-site.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 4 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-10 -- FOUR `-` LINES LAND, BlocK HELD AS A CITIZEN, `eq`
+# VOIDS FOUR CITATIONS. THREE STROKES OF SIX; 4, 5 AND 6 ARE MEASURED AND NOT BUILT,
+# AND STROKE 4's CERTIFICATE HALF DOES NOT REPRODUCE. THREE COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-10 10:49 and
+#   `git log -1 --date=iso` stamps 2026-09-10 10:46. They agree.
+#
+#   ## THE ONE-LINE STATE: **Tony's offline `-` respell is a real fix and four of
+#   its five lines landed clean; the fifth regresses a nested walk and is now a
+#   fixit citizen; and the day's sharpest finding is that `eq` -- which kant does
+#   not have -- silently answered TRUE and had voided four separate registers that
+#   all agreed with each other.** Fleet **249 green / 50** (from 248/50 at open,
+#   +1 for a new row), canary **318**, ddPop 5, decodePop 14, formsPop 14, countPop
+#   0-of-44, frontier **exit 0, stations 1/2/3/8 PASS**. Both repos **0 dirty, 0
+#   unpushed**. Fixit queue **3**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE BINARY AT SESSION OPEN WAS A DIRECTIVES BUILD, AND IT WAS
+#   BEHAVIOUR-CHANGING.** `GroupRules.mm` carried `if compare(arg,"trA")==0
+#   result = 0;` in aCTionNamE plus two `dumpContents` and a `printf` in parseRule
+#   -- Tony's live parseRule debugging, 7 armed entries in `groupDirectives`.
+#   Retok'd bare per bear-trap #23's 08-18 hardening before anything was measured.
+#   The instrumented copy is reference-only in scratch; `tok GroupRules.twk
+#   groupDirectives` reproduces it. **Every number in this seal is from a bare build.**
+#
+#   **b. THE `-` RESPELL IS A REAL FIX AND THE MECHANISM IS setContent.** Both
+#   spellings parse -- `TraiT` is `NamE Modifier* Limit? TraiTdata?` and TraiTdata
+#   is `'=' DatA Modifier* Limit?`, so a dash written after the `=` lands in
+#   TraiTdata's Modifier* instead of TraiT's. aCTionTraiTdata modifies the **DatA**
+#   node; aCTionTraiT then `setContent`s that node onto the trait, and setContent
+#   does not carry flags (bear-trap #1/#2). So the old spelling applied the dash to
+#   a node whose flags were about to be discarded, and the term was minted as a
+#   **labelled rule with no rStuff** -- the bare-master wreckage the audit reports.
+#
+#   **c. ⚠ IT IS NOT "MOVEMENT IN BOTH DIRECTIONS". FOUR LINES ARE CLEAN WINS AND
+#   ONE IS A REGRESSION, ISOLATED BY ONE-LINE BISECT:**
+#
+#       respelled rule    oneTest MISSRULE    iterT1 / iterT1m
+#       HEAD                     12                MATCH
+#       BlocK                    10                DIFF   <- HELD
+#       Braced                   10                MATCH
+#       Parens                   10                MATCH
+#       StringXP                 12                MATCH
+#       ScopeXP                  12                MATCH
+#
+#   The wreckage removal is **additive and per-rule**; the walk regression is
+#   BlocK's alone. Three fleet rows moved for ONE fact seen from three places and
+#   all three were re-pinned with the sentence: `oneTest.base` (four vanished AUDIT
+#   MISSRULE lines, summary 12 -> 8), the bare-master `AUDITLINE` (12 -> 8), and the
+#   genParse odometer (24/42 of 66 -> **24/38 of 62, GREEN UNMOVED AT 24** and
+#   `odometer.green` byte-unchanged at its 18 names -- a population correction, not
+#   a capability claim). leftCurly and rightCurly stay in all three counts on
+#   purpose, because BlocK is held.
+#
+#   **d. ⚠⚠ `eq` IS THE DAY'S FINDING, AND IT COST FOUR REGISTERS.** kant has
+#   **no** `eq` -- registered nowhere in `incant/setup`'s Operators -- so the token
+#   **falls through TRUTHY instead of refusing.** Six spellings, one run each, same
+#   three tags, BT-3 wants 1:
+#
+#       if *btT == "return";      1  correct     if *btT eq "return";   3  VOID
+#       if taG  == "return";      1  correct     if btT  eq "return";   3  VOID
+#       if btT  == "return";      0  (holder)    if *btCur.taG == ...;  0  (dot)
+#
+#   ⚠ **THE STAR WAS NEVER THE VARIABLE** -- `eq` is void with it and without it,
+#   so Tony's offline A/B moved two things and could not name a cause. `btT ==`
+#   reading 0 is `:=` **minting a holder** (bear-trap #41's other half: having
+#   captured with `:=`, read it back with `*`). `*btCur.taG ==` reading 0 is the
+#   **dot defect** and rides into that ruling's evidence list as a second witness.
+#   **VOIDED BY IT, all four agreeing with each other:** bear-trap #28's fourth row
+#   (amended in place, dated -- the population it reports is real, only the blame
+#   moves; the discriminator is `eq`, **not** `iterate`), `incant/f31:132`,
+#   `incant/fixBisect:47-48`'s name-skip control, and branchTagTruth's own
+#   four-spelling table with its headline claim that kant has no working string
+#   discriminator in this position -- **withdrawn**. ⚠ **Four registers agreeing was
+#   one bad spelling counted four times.** The 2x3 that killed it cost one command.
+#   **The eq sweep, report-only: EIGHT hits in `incant/`, ZERO executable** -- all
+#   prose in dead regions, recording exactly the void measurements above. Nothing
+#   respelled; per-site calls are Tony's.
+#
+#   ## WHAT LANDED -- THREE COMMITS
+#   `a0524c8` four `-` lines, three re-pins, the BlocK citizen, Tony's comment moves
+#   · `d532815` aCTionBrancH's second arm + branchTagTruth retires · `fe9318e`
+#   stroke 3, hasTraits gains a post-setParse row that comes back vacuous.
+#
+#   **aCTionBrancH owed ONE arm, not two, and the generated `.mm` is what said so.**
+#   The citizen asked in writing for that reading because tok's `==` is numeric and
+#   `.tag` is a `char*`. tok renders `BrancheS.tag == 'c'` as
+#   `*BrancheS->groupBody->tag == 'c'` -- a real first-character compare -- so the
+#   surviving arm was never broken. Source alone would have owed two. New pop.sh row
+#   **A5** greps the generated `.mm` for both arms: H4-shaped (counts a PRESENT
+#   construct, so it cannot pass by deletion), H7 control run, reverting either arm
+#   reads 1 and goes red.
+#
+#   ## ⚠ WHAT DID NOT LAND, NAMED RATHER THAN SOFTENED
+#   **Strokes 4, 5 and 6 are measured and not built**, and stroke 4 stopped on its
+#   own pre-flight clause -- *measure "keyed to the defining rule" before building.*
+#
+#   - **STROKE 4: THERE IS NO INSTALL IN runRule TO REMOVE.** runRule reads
+#     `hasNewParse` and forks to `rule["builtinParsE"]`; it writes nothing. The
+#     single install is **`compile()`'s last line**, `field.hasNewParse = true`, on
+#     the outer rule only. So the ruling's shape is right and its demolition clause
+#     has no subject.
+#   - ⚠ **AND THE DIAGNOSIS BEHIND IT DOES NOT REPRODUCE ON THIS BUILD.** After
+#     `parser(IterSource)`, the DEFINING UnaryOPS reads **hasNewParsE=1, binTypE=1**
+#     -- `setParse` did reach it through generateParse's term loop, and `isBIN`
+#     routes to `parseContainer`. It gets no *generated body*, correctly: a bin
+#     needs a container parse, not a body. **What is still unmeasured is whether the
+#     emitted `UnaryOPS(argument)` call resolves to that node**, and UnaryOPS lives
+#     in **`pROPERTIEs`**, which is **not on `parser`'s search list**
+#     (`Grokking GroupFields Utilities`). That is the next measurement and it is one run.
+#   - ⚠ **THE CERTIFICATE'S OTHER HALF DOES NOT REPRODUCE EITHER.** A rule
+#     forward-declared then redefined with members was measured beside a plain rule
+#     of identical shape, both controls passing (hit 1, miss 0):
+#         F-1 FwdRule   hasNewParsE=1 isCodeD=0 listLengtH=5
+#         F-2 PlainRule hasNewParsE=1 isCodeD=0 listLengtH=5
+#     **Identical.** So the same-file shape cannot serve as the certificate; the
+#     09-09 finding needs the **cross-file** re-definition shape
+#     (`genParse.rtn:1154` -- *"a cross-file re-definition binds a satellite the
+#     reader never looks at"*). ⚠ `isCodeD=0` on BOTH after `compile succeeded` is a
+#     separate loose thread, captured not chased.
+#   - **STROKE 5 GAINED ITS PRE-FLIGHT AND IT IS A WARNING, NOT A VETO.** Removing
+#     `.` from UnaryOPS -- Tony's offline experiment, which **never reached the
+#     tree**; `incant/setup` is byte-clean at HEAD and was restored md5-identical
+#     after the arm -- takes **every dotted accessor dark, silently**:
+#         `.` IN UnaryOPS      fcSrc.noPrinT 1 · fcFace.noPrinT 0 · *fcFace.noPrinT 1
+#         `.` OUT of UnaryOPS  all three read a TAG ECHO (bear-trap #26)
+#     opDot stops producing a groupFields read at all. **That is Tony's
+#     faceFlagsNoCross symptom exactly** -- "noPrinT comes through as true, not as a
+#     groupField" -- and it means his offline reading was taken on the experiment
+#     build. **It is evidence FOR the ruling's design, not against it:** the
+#     replacement right-operand road (name-as-tag via term@/captureSpan) has to land
+#     **on the same stroke** as the removal, or the accessor family goes dark.
+#
+#   ## ⚠ FINDINGS REGISTERED, NOT CHASED
+#   - **`incant/fixits/blockDashRefusalWalk`** minted. The BlocK respell alone takes
+#     iterT1/iterT1m from **7 visits to 5** -- a nested walk loses every member after
+#     the first that refuses, refusals 4 -> 2. Carries the bisect table, a probe
+#     showing the stopping frame moves from the refusing callee to its **caller**,
+#     and the one structural observation that BlocK is the only one of the five
+#     whose repeated term is `StatemenT`. **NEXT: OPEN, no guess line**, per dispatch.
+#     H7 control built in: 7 held, 5 respelled.
+#   - **`hasTraits` NOT retired**, and HP-0 is why. The post-setParse row reads
+#     DISAGREE 0 like the raw one, and **`setParse` took on 3 members of 64** -- the
+#     other 61 refuse *"no rStuff"*, which is **Ruling D working as written**. A
+#     member-walk of Grokking cannot prime this population, so HP-5 is a reading of
+#     something never primed. ⚠ **HP-0 is the row to copy**: it is built out of the
+#     refusal arm's own semantics, not a return value -- set a flag 0, call, set it
+#     1, and a refusal stops the block so the second assignment never runs.
+#   - ⚠ **AND THE CITIZEN'S LIVE THREAD HAS CLOSED SINCE IT WAS BANKED.** Its text
+#     said connectiveT pins StatemenT 1/0 *"and that row is RED today, reading 1/1"*.
+#     **It is green**, both rows, with the BlocK 1/1 hit control beside it. So
+#     agreement-before / divergence-after is certified from both sides, and what is
+#     unique to hasTraits is only the BEFORE half. Corrected in place.
+#   - **faceFlagsNoCross, re-read only, not fixed.** Beyond the `.` A/B above: its
+#     **FC-2 reads `fcFace.noPrint`** -- lowercase t, the **Commands keyword** --
+#     while FC-3 reads `fcClean.noPrinT`, the groupFields accessor. FC-2 answers a
+#     tag echo and FC-3 answers 0. **The two rows have never been reading the same
+#     thing**, so "FC-2 and FC-3 reading the SAME value is the defect" measures a
+#     spelling difference on top of whatever else is true. Tony's call.
+#   - **Two probes voided themselves and are reported void, not graded.**
+#     `Grokking["UnaryOPS"]` is a MISS (it lives in pROPERTIEs) and read 0/0/0
+#     convincingly; and `if pZ;` after a `:=` capture answered TRUE on a name that
+#     does not exist. Both are bear-trap #35's ⚠⚠ -- **test existence with a DIRECT
+#     subscript, and carry a hit/miss pair** -- and the corrected runs carry one.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   stroke 4 (compile-side install; **needs the cross-file shape for its
+#   certificate, and one run to see where `UnaryOPS(argument)` resolves**) · stroke 5
+#   (the `.` ruling, with the right-operand road landing on the same stroke) ·
+#   stroke 6 (unknown-operator refusal at compile -- **measured: `eq` parsed, ran and
+#   answered TRUE three times without naming the operator or the rule**) · then BlocK,
+#   re-read on the dot road · blocker 2 (`trigDO39`) · F-55 sweep · JIT ladder (i)-(iii).
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   The `#28/#35` amendment beyond the `eq` row · whether faceFlagsNoCross's FC-2
+#   spelling is fixed or the citizen retires · the `eq` sites, per-site · whether
+#   parseRule's deleted `noElseHere` marker comes back (the entry AND its inline
+#   pointer both went; bear-trap #32 says tidying that flag idiom into an if/else
+#   takes the canary 318 -> 0 and names a healthy function).
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: faceFlagsNoCross, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-09 -- THE KANT ROAD PARSES, REFUSES, AND HAS FLEET ROWS.
+# ONE RULE DEEP, INTERPRETED, THE JIT THREE RUNGS AWAY. SIX COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-09 12:17 and
+#   `git log -1 --date=iso` stamps 2026-09-09 12:08. They agree.
+#
+#   ## THE ONE-LINE STATE: **a rule invoked by name generates, compiles,
+#   dispatches, parses, attaches, and REFUSES a bad input -- certified by five
+#   measurements (H17 both rows, H18, H20, the H7 control, and H19's readings
+#   1-4) -- and it stops in exactly two places: blocker 2 for all-39, and the
+#   JIT, which has no emitter for anything a generated body contains.** Fleet
+#   **248 green / 49 red** (from 243/49 at open), canary **318**, ddPop 5,
+#   decodePop 14, formsPop 14, countPop 0-of-44, frontier **exit 0, stations 1-3
+#   PASS, first absent station 4**. Both repos **0 dirty, 0 unpushed**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. RULING (c'): THE RETURN CARRIES ONE BIT -- THE CHAIN'S TRUTH -- NEVER A
+#   LABEL.** The emitted body is `return A(argument) AND ... AND F(argument);`
+#   with no `if`. parseRule mints a FRESH label per invocation, binds it as the
+#   body's one argument, reads `truthOf(result)` and nothing else, and returns
+#   label-or-0. That is leaveRule's shape: `RuleStuff.twk:776` branches on `ok`
+#   and nothing else, and `ok` IS the chain (`genParse.rtn:596`). parseRule's
+#   `if result` presence test is DELETED -- F-55's fifth face, retired by ruling.
+#
+#   **b. `into` RIDES THE ARGUMENT, and the old arm attached NOTHING.** Before
+#   `808313b`, runRule's leaf arm called `rule.parse(0)` -- pStuff NULL -- so
+#   `attachLabel` returned at `GroupItem.twk:1319` and the terms had nowhere to
+#   go. ⚠ **SO EVERY trigDO "PASS" BEFORE THAT COMMIT WAS MATCHING, NOT PARSING**,
+#   and the reading that says so is `mintedLen`: it read 0 on both arms while
+#   every other signal looked healthy. It now reads 2 on a good input and 1 on a
+#   broken one.
+#
+#   **c. THE JIT DOES NOT REFUSE THE ROAD -- IT HAS NO EMITTER FOR ANYTHING IN
+#   IT.** `jitRunAction` enters, walks, and prints `no result emitted (gate did
+#   not fire?)` with **no op named and no jitDegrade line at all**. The gate is
+#   one condition testing two things (`GroupActions.rtn:981`,
+#   `GroupRules.mm:11316`): `jitting` -- true -- and `op->groupBody->gJitEmitter`
+#   -- NULL, because the only operator in a generated body is `AND`, registered
+#   `AND operateMethod=opAND;` (`incant/setup:134`) with no `jitEmitter=`.
+#   ⚠ **AND THE ARCHAEOLOGY REFINES THAT: `jitEmitShortCircuit` EXISTS** and
+#   landed at `3483167`, reached through an in-body gate at
+#   `GroupRules.mm:11589` rather than the slot. **So there are TWO doors and for
+#   DO's body NEITHER FIRED** -- and since that emitter degrades loudly when it
+#   refuses, a silent run means it was never reached. Rung (i) is therefore
+#   *find which door should have fired*, not *write an opAND emitter*.
+#
+#   **d. THE FIVE CERTIFICATES, all measured today.**
+#     - **H20** (the gate): the chain hands back `trueResult` on a match and
+#       `falseResult` BY IDENTITY on a miss; truthOf reads them 1 and 0.
+#     - **H17 both rows**: good parses and attaches, exit 0; broken exits 0,
+#       attaches NOTHING, and the label is discarded.
+#     - **H18**: `mintedLen=2` good / `1` broken -- the parsing-vs-matching line.
+#     - **H7 control**: `ruleAsLabel` forced to 1 prints the refusal by name and
+#       takes all three value rows red, 248/49 -> 245/52. Run, not asserted.
+#     - **H19 readings 1-4**: labels distinct PER ACTIVATION, inner attaches under
+#       OUTER, the outer SURVIVES the inner, twice-in-sequence yields two labels.
+#
+#   ## ⚠ WHAT DID NOT LAND, NAMED RATHER THAN SOFTENED
+#   **H19's reading 5 and the whole QuotE row.** Neither earned a pop.sh row, so
+#   the fleet is 248 and not the 250 the dispatch expected. Both stopped on the
+#   SAME KIND of blocker and neither is ruling B's fault:
+#   - **the emitter DROPS the `?` MODIFIER** -- `trB?` emits `AND trB(argument)`,
+#     required -- so a recursive fixture grammar can never bottom out and its
+#     chain can never read true. Visible in the live grammar too: `IF ... ElsE?`
+#     emits `AND ElsE()`.
+#     ⚠⚠ **CORRECTED WITHIN THE HOUR BY TONY, AND THE LINE ABOVE NAMES THE WRONG
+#     MECHANISM -- IT IS KEPT ONLY SO THE CORRECTION HAS A SUBJECT.** The emitted
+#     call carries ONLY THE TAG, so it resolves BY NAME to the DEFINING rule and
+#     loses the term REFERENCE's entire rStuff. Tony's contract, which is what the
+#     old parse already does: an optional term FIRES, yields no result and no
+#     label, and RETURNS SUCCESS -- `?` sets `min = 0` on the reference
+#     (`GroupActions.rtn:451`), `parse()` honours it at `GroupItem.twk:1552`
+#     (`if !sukcess && kount >= min sukcess = true;`), and `min` defaults to 1
+#     (`RuleStuff.twk:135`). ⚠ **SO `?` IS ONLY THE MODIFIER THAT BIT FIRST: the
+#     same loss takes `* + ! - < ^ @ { } _ % &` and any `Limit`.** Repetition,
+#     negation, noLabel, noAdvance, noSkip, isTarget and upTo are ALL invisible to
+#     a generated body as spelled. This is a road-shaped hole, not a fixture one,
+#     and it is the docket's new head.
+#   - **QuotE does not discriminate**: a closed quote and an unterminated one
+#     produce IDENTICAL readings. Pinning that would pass on a dead road (H7).
+#     ⚠ What attaches for a leaf is the TERMS themselves -- `lab=tik pRule=QuotE`,
+#     `lab=quoteBody pRule=QuotE` -- so `mintedLen=1` is one TERM, not one rule;
+#     and the chain reads FALSE on a GOOD input while DO's reads true on the same
+#     build. **Term-into-rule specifically.** Undiagnosed, and it is the frontier.
+#   - **A second finding from the same bench**: a rule FORWARD-DECLARED then
+#     redefined with members compiles fine and then does NOT take the new-parse
+#     door -- the walk marks one node, the call resolves another.
+#
+#   ## THE FRONTIER, REVISED AT LAST -- AND THE OLD RED WAS THE INSTRUMENT
+#   Owed since 09-08's second session. **What moved: `storeBody` is DROPPED**
+#   (the (c') road hangs its own body -- generateParse is frHang plus two flags),
+#   **and station 3's read gained the STAR it had been missing.** It read
+#   `frLive.listLengtH`, which reaches the HOLDER and returns 0, while station 2
+#   two lines up had `*frLive.listLengtH` all along -- so `was 3 now 0`, a rule
+#   apparently SHRINKING, was bear-trap #35 in the instrument and never a road
+#   failure. Stations 1-3 now PASS; **the first absent station is 4** (install on
+#   twin), and station 5 prints its anchor with no verdict, which is bear-trap
+#   #37's signature.
+#
+#   ## WHAT LANDED -- SIX COMMITS
+#   `34d9b2b` the three spellable sentinels + parseRule never asks the value ·
+#   `893f2ce` 2a measured, 2b STOPPED (no slot on the kant road), blocker 2 named
+#   as parseSelfRecursion · `808313b` ruling B, into rides the argument ·
+#   `cefeedf` ruling (c') + trigDO into pop.sh with five rows · `bddba43` H19 and
+#   QuotE, both stop with findings · `996beca` the emit gate named,
+#   jitEntryOnCompiled minted. Support: `0583cac` (attachLabel decl).
+#
+#   ## ⚠ FOUR BEAR-TRAPS BIT IN THEIR DOCUMENTED FORM, and one is new
+#   **#32** (multi-statement arm then `else`, canary 318 -> 0) · **#42** (added
+#   declarations re-pointed `checkInput` at `intoStuff` and the clear loop at
+#   `ruleArg` instead of `grup`, COMPILING CLEAN -- parseRule's header now
+#   carries the named diff-against-HEAD check, because the canary read 318
+#   throughout and could not see it) · **#39** (the body's `argument` was bound
+#   at COMPILE time to an action local on the CodE, so `field["argument"]` wrote
+#   a slot nothing reads; the cure is `code["argument"]`, after the clear) ·
+#   **#40** (my own `%-16s` took the canary to 304 in one retok) ·
+#   **#51 MINTED**: SAME NAME, TWO PROVENANCES -- a kant body spelling `false`
+#   gets a COPY, the AND chain hands back `falseResult` ITSELF, so an identity
+#   test works from one road and never from the other, silently.
+#   **Doctrine also landed**: truthOf's header gains a dated sentence --
+#   `isInitialized` on an isCOUNT node is NOT load-bearing for truth where
+#   truthOf is the reader, because it reads the COUNT.
+#
+#   ## ⚠ THE DOCKET, IN ORDER
+#   blocker 2 (`trigDO39`, the isMethod arm; the ruling is what `aCTionBlocK` may
+#   fire) · stroke 4, fleet diff road-on vs road-off · stroke 3, compile census
+#   revived in `measure.twk` · F-55 sweep (`!isRulE` in `odoPopulation`/`pcWalk`,
+#   `eq` on a captured tag) · stroke 5, the upward hole · JIT ladder (i)-(iii) ·
+#   runRule's DOOR-trace deref, one line.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   The #28/#35 amendment · `parser`'s stale `activating` prose · which fixit
+#   citizen steps first (F-55, branchTagTruth, faceFlagsNoCross, hasTraits).
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: branchTagTruth, since 2026-09-08)`
+#   **Step one, or name which goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-08, SECOND SESSION -- THE NEW PARSE ALREADY HAD A DOOR, AND
+# THE CLOSE IT NEEDS DOES NOT EXIST ON ITS ROAD. THREE COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-08 18:46 and
+#   `git log -1 --date=iso` stamps 2026-09-08 18:32. They agree.
+#   ⚠ THE DISPATCH WAS HEADED 2026-09-09 AND THE TREE IS ON 09-08. Everything
+#   here -- commits, pop.sh re-pin sentences, the fixit file -- is stamped with the
+#   TREE's clock, so the record and the commits cannot disagree. H14's family: a
+#   date is the cheapest thing in the world to carry forward and the hardest to
+#   notice once it is wrong.
+#
+#   ## THE ONE-LINE STATE: **runRule has forked on `hasNewParse` all along, so the
+#   trigger was never missing; DO's generated body matches all six terms of
+#   `do print 1; while 0;` and then dies; and the close the dispatch asked for --
+#   leaveRule -- is a five-argument tok extern that a kant body cannot call.**
+#   Fleet **243 green / 49 red** (from 239/53 at open), canary **318**, ddPop 5,
+#   decodePop 14, formsPop 14 passed, countPop 0-of-44, frontier **exit 0, first
+#   failing station 3**. Both repos **0 dirty, 0 unpushed**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE TRIGGER EXISTS AND IS `runRule`.** `GroupActions.rtn:1049` reads
+#   `if hasNewParse` then `rule["builtinParsE"]` then parseRule. Invoking a rule by
+#   name from kant IS the door. Measured with `traceParse()` on: after
+#   `parser(DO)`, `DO("do print 1; while 0;")` goes through builtinParsE and its
+#   generated body MATCHES ALL SIX TERMS -- do(), followedBy(), StatemenT() (which
+#   parses `print 1;` down through PrinT and WardeD), while(), ExpressioN(), SemI().
+#   **Nothing needed building to make the new parse run.**
+#
+#   **b. ⚠ THE CLOSE THE DISPATCH SPECIFIED CANNOT BE WRITTEN ON THIS ROAD, and
+#   this is the session's load-bearing finding.** `leaveRule` is a FIVE-ARGUMENT tok
+#   extern (RuleStuff.twk) used inside genParse's EMITTED TOK SOURCE, which the
+#   compiler builds. Tony's `parser` emits **kant**, compiled at run time by
+#   compile()/processCode, and a kant action takes ONE argument -- so leaveRule is
+#   not callable from it and is registered in no registry. **Neither are `null`,
+#   `labelNO`, `trueResult` or `falseResult`: a kant body cannot spell "return
+#   nothing".** Two generators, two languages, one name.
+#
+#   **c. ALL THREE CLOSES A KANT BODY *CAN* SPELL WERE MEASURED AND NONE IS RIGHT.**
+#   `return runRuleAction(this);` and `return this;` both fire the rule from inside
+#   itself. **The third is the trap: with NO return the body's value becomes
+#   aCTionIF's `labelNO`, which is NON-NULL on the success AND the failure path**, so
+#   parseRule would report success either way. It is green on trigDO by accident of
+#   DO's input parsing, not by being right. **So the close is a DESIGN FORK and it is
+#   Tony's** -- a kant-callable one-argument sibling of leaveRule, a falsy sentinel
+#   kant can name, or parseRule deriving the label instead of reading the return.
+#
+#   **d. ⚠ A CORRECTION I MADE TO MYSELF MID-SESSION, and the shape is the usual
+#   one.** I reported "the close decides it" off a three-arm A/B. The full six-arm
+#   matrix says that holds ONLY when DO ALONE is compiled:
+#
+#       compiled      close                          outcome
+#       DO alone      (no return at all)             exit 0, sentinel, prints 1
+#       DO alone      return this;                   exit 139
+#       DO alone      return runRuleAction(this);    exit 139
+#       all 39        (no return at all)             **exit 139**
+#       all 39        return this;                   exit 139
+#       all 39        return runRuleAction(this);    exit 139
+#
+#   **TWO BLOCKERS, NOT ONE.** And blocker 1's MECHANISM was also wrong in my first
+#   telling: it is not parseRule's label store -- the guard added there never fires
+#   on either arm. It is **aCTionBrancH**: `return <expr>` evaluates its operand and
+#   CALLS it if it carries a method, so **a return whose operand resolves to the rule
+#   fires the rule it is returning from.** Bear-trap #34 in return position.
+#   **Blocker 2 is the frontier**: all 39 compiled reproduces the same
+#   aCTionStatemenT self-recursion WITH the good close, entered through
+#   aCTionXpress -> runOP. Not diagnosed.
+#
+#   **e. ⚠⚠ NO FLEET FIXTURE REACHES parseRule AT ALL.** Under the H7 control --
+#   `ruleAsLabel` forced to 1, refusing EVERY generated parse -- **the fleet stayed at
+#   243 green, unmoved.** The new parse road has ZERO standing coverage, so a green
+#   fleet is evidence about nothing on it. That is the dispatch's stroke 4, and it is
+#   a bigger row than it looked.
+#
+#   ## WHAT LANDED -- THREE COMMITS
+#
+#   **`ad35796` + support `6007c31` -- STROKE 1, the working set.** Tony's five files
+#   and groups.ext; both H6 re-pins; the `compiling` leak; two re-bases. Fleet
+#   239 -> 243, four rows recovered, none newly red.
+#   - **bare-master 10 -> 12** and **odometer 24/40 of 64 -> 24/42 of 66**, both
+#     ColoN and EquaL, both named in oneTest's own AUDIT lines. GREEN UNMOVED AT 24.
+#   - **`compiling` leaked on compile()'s refusal path** (Clod's). Set before
+#     processCode, cleared after -- but the refusal arm RETURNS, so the flag stayed
+#     set for the rest of the process and aCTionANYtoken would permanently stop
+#     rejecting key words. One line.
+#   - ⚠ **jsonTest was NOT just the sentinel: 38 of its 40 error lines were a
+#     PRE-FLIP SPELLING in the fixture's own grammar.** `token = JSONvalue` under the
+#     landed ruling wants `token = *JSONvalue` (incant/utilities:97). **Fixed, not
+#     banked** -- goldenDrift's clause 2 says attribute first, then pin. The 2 that
+#     remain are attributed and owed: the EMPTY-ARRAY case, where JSONarray's
+#     `if JSONlist;` falls back to the RULE when the optional term did not match, so
+#     the guard passes and the walk reads a rule with no list. Two `{"a":[]}` calls,
+#     two lines. Two guard respellings failed; banked attributed.
+#   - ⚠ **oneTest was not just the sentinel either.** SIX punctuation MISSRULEs
+#     PREDATE this session -- measured on a HEAD build -- so the arithmetic is
+#     4 + 8 = 12 and it closes against the bare-master row. Both bases dated
+#     2026-07-29 and had been absorbing drift silently ever since.
+#
+#   **`7460228` -- STROKE 2, PART 1: parseRule guards its label store.**
+#   `ruleAsLabel` (Generate.rtn), a FUNCTION rather than an inline condition for
+#   parkOnMaster's reason -- a declaration inside parseRule re-points every bare
+#   field below it and compiles clean (#42). ⚠ **isRule alone is not the test, and
+#   that half is measured**: `this` is NOT isRule, it is a HOLDER whose group is the
+#   rule, and a `return this;` body walked straight past an isRule-only guard.
+#   H7 recorded: forcing it to 1 prints `REFUSED DO -- parseRule: the generated body
+#   returned a RULE where a label was owed`. **incant/trigDO is tracked, exits 139 BY
+#   DESIGN, and is not in pop.sh** -- it is the repro, carrying the matrix, both
+#   mechanisms and the reproduction recipe below its stop().
+#
+#   **`4df2e50` -- branchTagTruth MINTED** (Tony's dispatch; F2 says the ruling is
+#   his and it was). Queue **2 -> 3**. BT-2 reads 3-of-3 on the REAL BrancheS members,
+#   with the three printed tags -- break, continue, return -- as the anti-vacuity
+#   control, which is a better one than the row I planned.
+#
+#   ## ⚠⚠ A SECOND FINDING THE CITIZEN'S OWN PROBE PRODUCED, AND IT WIDENS A
+#   ## STANDING BEAR-TRAP
+#   **A content test on a tag inside an iterate body answers TRUE FOR EVERY MEMBER,
+#   in FOUR spellings, one run each, on three tags known to differ:**
+#
+#       if taG eq "return";                      3 of 3
+#       if btCur.taG eq "return";                3 of 3
+#       btT := taG;  then  if btT eq "return";   3 of 3
+#       minted nodes instead of a walk           3 of 3, tags came back wrong too
+#
+#   **THE THIRD IS THE REMEDY BEAR-TRAP #28 PRESCRIBES FOR ITS OWN FOURTH ROW --
+#   capture, then test -- AND IT DOES NOT WORK HERE.** The capture is REAL (btT prints
+#   the correct distinct tag every iteration) and the comparison is still void. So
+#   #28's cure is not sufficient and #35's "capture, then test" has a hole.
+#   **The amendment is Tony's; it is recorded in the citizen and here and nowhere
+#   else.** It also means the citizen cannot show content discrimination at all,
+#   which the file states rather than works around.
+#
+#   ## ⚠ THE DISPATCH'S STROKES 3-6, AND WHY NONE OPENED
+#   Stroke 2 is not green, and 3-6 are all downstream of it. **Stroke 4** diffs the
+#   fleet on the new road and the new road crashes at parser(Start) scale.
+#   **Stroke 6** Tony gated explicitly. **Stroke 3** is the one genuinely independent
+#   piece and `measure.twk` exists, so the counts have a home -- but a witness line
+#   counting generated/compiled/refused over a road that segfaults is a number about
+#   a crash. **Stroke 5** (the upward hole) is unstarted and unblocked in principle.
+#
+#   ## ⚠ THE FRONTIER, RUN, NOT REVISED -- AND THE OMISSION IS DELIBERATE
+#   `incant/frontier` exits 0, **first failing station 3 (store body)**: live list
+#   length was 3, now 0. Stations 1 and 2 PASS. **It was NOT revised to today's edge**
+#   and that is a choice, not a lapse: the seal rule asks for a revision, and revising
+#   it at the end of a long session is exactly the silent-failure work the 08-08
+#   loudness doctrine says to route away from late mechanical state. Today's road was
+#   compile/parseRule, not generate/mint/store. **The revision is owed and named.**
+#
+#   ## ⚠ STILL OPEN, CAPTURED NOT CHASED
+#   The compile census is **silently dead** -- `gCompileAttempted++`/`gCompileRefused++`
+#   went out with the comment relocation, so `reportCompileCensus()` returns
+#   immediately on zero forever; the new per-rule `print "compile succeeded for X"` is
+#   a trace, not a count, and it prints into every baseline of any run that compiles
+#   (the dispatch's stroke 3 moves it behind a flag) · `aCTionDefinE`'s embedRule loop
+#   is narrower than it was, attributes-only where it walked all terms, and gated on
+#   isRule -- tested as a suspect and NOT the cause of anything currently red · the
+#   two jsonTest empty-array lines · `incant/f31` still exits 139.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   The close spelling -- it is the smallest thing that unblocks everything else, and
+#   nothing here guesses between the three candidates. The bear-trap #28/#35
+#   amendment. Whether `parser`'s stale prose about `activating` should go.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: branchTagTruth, since 2026-09-08)`
+#   `branchTagTruth` (BEST GUESS, two candidates, and BT-3 is the thing candidate 1
+#   has to survive) · `faceFlagsNoCross` (BEST GUESS, cheaper test named first) ·
+#   `hasTraits` (OPEN, guess withdrawn on measurement). **Step one, or name which
+#   goes first.**
+#
+# ⚠⚠⚠ SEALED 2026-09-08 — `if noPrinT;` MEANS WHAT IT SAYS. bareIfTruth LANDS,
+# opIN's LOOKUP ARM GOES FIRST, AND THE FIXIT QUEUE TURNS OVER. ELEVEN COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-08 11:05 and
+#   `git log -1 --date=iso` stamps 2026-09-08 11:05. They agree.
+#
+#   ## THE ONE-LINE STATE: **aCTionIF answers by `truthOf`, so a FALSE flag tests
+#   false; opIN tries its groupList arm FIRST, so `X IN <registry>` answers the
+#   question asked; and four anti-vacuity controls that had been passing on a tag
+#   echo now read a real 0.** Fleet **241 green / 51 red** (from 206/61 at open),
+#   canary **316**, ddPop 5, formsPop 14 passed, decodePop 14, countPop 0-of-44,
+#   frontier **exit 0, first failing station 3**. Both repos **0 dirty, 0 unpushed**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. `opDot`'s `count = 0` AND `bareIfTruth` ARE A MATCHED PAIR, MEASURED.**
+#   `setCount` raises `isInitialized` (`GroupItem.twk:1802`) and `aCTionIF` tested
+#   truth as `result && isInitialized`. So the moment opDot gave a data-less flag
+#   read a real 0, every FALSE flag tested TRUE — `odoPopulation`'s filters went
+#   from rejecting 2 of 66 to rejecting all 66, and the odometer population read 0
+#   at exit 0. ⚠ **Neither half fixes it alone**: reverting opDot while KEEPING
+#   truthOf leaves the bug fully intact, because a data-less product lands on
+#   truthOf's row 3 and is true by presence. opDot supplies the VALUE, truthOf
+#   READS it. That is why they are one commit.
+#
+#   **b. NO ARM OF `truthOf` NEEDED FIXING, AND ITS HEADER NAMED THIS STROKE IN
+#   ADVANCE.** It has implemented the ruled table since 2026-08-11 and says so:
+#   *"`if <field>` and `<field> AND …` ALREADY DISAGREE … closing that gap is a
+#   separate ruling with its own customer."* bareIfTruth is that customer.
+#
+#   **c. ⚠ `!` ON A ZERO-HOLDING FIELD ANSWERS FALSE, AND IT CHANGED HOW A STROKE
+#   WAS WRITTEN.** `if !isRulE;` skips NOTHING — both artifacts read VISITED —
+#   while `if isRulE == 0;` skips correctly. The obvious spelling of the artifact
+#   gate would have produced a walker silently visiting every artifact at exit 0.
+#   Caught only because `andProbe` AP-5b had been measured an hour earlier.
+#   ⚠ **`odoPopulation` and `parseClass`'s `pcWalk` both carry that spelling and
+#   are therefore filtering nothing.** Captured, not chased.
+#
+#   **d. THE `IN` FINDING IS ROW R4, AND IT IS THE ONLY ROW THAT COULD CATCH IT.**
+#   A registry carries BOTH a character set and a group list; the isSET arm sat
+#   first and returned `trueResult` for everything, so a field DECLARED in the
+#   probe's own define block — which cannot be in the registry — read HIT. Any
+#   census built on `IN` was unmeasurable. With the lookup arm first, R4 misses for
+#   the first time. ⚠ **R1 and R2 stay GREEN on the broken order too** — they
+#   passed by accident — which is exactly why a zero-expecting row needs a
+#   non-zero sibling and not the other way round.
+#
+#   **e. `firstComponent` WAS SURFACED, NOT CAUSED.** `GroupItem.twk` read
+#   `if listLength`, generating `groupBody->groupList->listLength` — an UNGUARDED
+#   deref. It recurses, and the first childless child dereferences null: exit 139.
+#   It never bit because the isSET arm shadowed that path for every registry. The
+#   reorder made a latent crash reachable; the guard (`if groupList`) ships with it
+#   and neither is correct alone.
+#
+#   ## ⚠ WHAT THE FLEET COULD NOT SEE, AND WHY IT WAS CHECKED BY HAND (H12)
+#   The opIN reorder left the fleet UNMOVED at 226/55 — and unmoved meant NOT
+#   REACHED. Both at-risk sites had no rows: `quoteIfNeeded` (set arm) and
+#   `replaceAt` (buffer arm, load-bearing for directives). Captured and diffed
+#   explicitly: **oneTest, jsonTest, displayFormT, directives, Tests/dirtest — all
+#   five BYTE-IDENTICAL**, all exit 0. `decodePop` was controlled the same way and
+#   differs only in its own binary-mtime echo. Both gaps are now standing rows.
+#
+#   ## THE TURNOVER — QUEUE 3 → 2, AND EVERY MOVE WAS A MEASUREMENT
+#   - **`artifactSkipByFlag` CLOSED**, promoted to `incant/artifactSkipT` with six
+#     pinned rows. ⚠ The choice was never "keep noPrint's double duty or add a
+#     flag" — `isRulE` already discriminated, and Tony's own offline trace printed
+#     the `1 1 0 0` column in the same output as the vote to keep noPrint.
+#   - **`refusalNotTerminal` STRUCK.** 32 refusal-arm hits across 9 files, **zero
+#     null iterators** — the poison lands, so it is step 2 and not step 1, and the
+#     refusal IS terminal everywhere measured. ⚠ **Its named specimen `incant/f31`
+#     exits 139** at `showBody(Grokking["tokenize"])` — tokenize is a fossil now —
+#     so it produced no hits and cannot be the gate.
+#   - **`namedReadTwoRoads` STRUCK, both roads.** ROAD 1 closes on the addresses
+#     (fresh node, same body — the carrier, already pinned as roundTripT ARM 0).
+#     ⚠ **ROAD 2 DISSOLVED AND I DID NOT MINT THE REFILE THE DISPATCH ASKED FOR**:
+#     its label says "addGroup twin", its code is `copyOf`, and roundTripT already
+#     pins copyOf as not-crossing. Rule F1. Tony mints it if he disagrees.
+#   - **`hasTraits` MINTED**, and its banked guess is **withdrawn on measurement**:
+#     42/42/42 and **zero disagreements** over 66 rules. They come apart AFTER
+#     setParse, not on the raw grammar; connectiveT's red row is its other half.
+#   - **`faceFlagsNoCross` MINTED.** faceT's face is a copy of a copy (`+%` then
+#     `<-`), bodies #2 vs #4, so F2/F3 cannot pass — and F0, their control, now
+#     reads 0 exactly like them. ⚠ **The fix exposed it**: the tag echo was the
+#     only thing distinguishing control from subject, and it was never a real
+#     distinction. Lands on the already-ruled `<-` copy-on-rebind defect.
+#   - **`quoteIfNeeded` RETIRED** — zero callers, obituary at the site, whole entry
+#     in designDocs. Its arm gained cover it never had (`inArmsT` IA-S1/IA-S2).
+#
+#   ## ⚠ A MEASUREMENT THAT RIDES, NOT A FIX: THE 22-OF-66 INTERSECTION
+#   **`fires=NEVER` is deliberately NOT re-pinned** and stays red carrying its
+#   reason in `pop.sh`. It reads `[]`; ANYtoken and NewGroup have genuinely left
+#   (both classify `fires=body`). **But the census does not cover its own
+#   population: 22 of Grokking's 66 members produce no PC and no PA line at all** —
+#   `parseClassify` is never called for them. **One of the 22 is `ShortcuT`, a
+#   named member of the pin itself**, which probes as an ordinary rule
+#   (noPrinT 0 / isRulE 1 / binTypE 0). So the category could contain ShortcuT and
+#   this census would still print `[]`. Re-pinning would freeze a claim over a
+#   third of the grammar it never looked at — rule H3. Same instrument as
+#   `parseClass.target`, whose 239 → 66 drift the 09-07 seal recorded.
+#
+#   ## ⚠ INSTRUMENT FAILURES, MINE, WORTH THE LINE
+#   - **A census counted MENTIONS, not calls.** I reported "26 files carry more
+#     than one `stop()`" off `grep -c 'stop()'`, which matches PROSE — every
+#     H2-compliant header says *"ONE stop(), at the foot"*, and `jiquery` says it
+#     four times because it is the file the rule came from. **The real population
+#     is 3.** Rule H9, and an overcount reads as a bigger problem rather than a
+#     broken instrument.
+#   - **I removed `anyOrNumT`'s inner `stop()` and had to reverse it** — it is the
+#     LAST statement of its action, so H2's "everything between" is empty.
+#     Removing it moved WITNESS 1 → 0 and produced six new refusals.
+#   - **A commit landed the RENAME ALONE (`4b515d8`).** A stale pathspec in
+#     `git add` aborts the WHOLE add, so nothing else staged and the message
+#     described work it did not contain. The tell was the `--stat` disagreeing with
+#     the message. Amended by `a48fc89`.
+#   - **A "control" that controlled nothing:** a python assert threw, the revert
+#     never happened, and I re-ran the same build calling it the other arm. Caught
+#     because the result was identical.
+#   - **`.taG` in a `.rtn` took the canary to 0** (bear-trap #24) and back to 316 on
+#     the lowercase fix. The standing canary caught it, as designed.
+#
+#   ## ⚠ TWO SPELLING NOTES EARNED TODAY
+#   - **`=` REIMPRINTS THE TAG.** `tester`'s `findField` printed `Found result`
+#     rather than the found name, because `result = X IN Y` is opAssign and stamps
+#     the receiving field's own tag (bear-trap #1). `:=` keeps it — Tony has since
+#     switched.
+#   - **Naming a rule FIRES it.** `htProbe(BlocK)` crashed a fixture at exit 139
+#     with zero bytes (bear-trap #34). Walk members; do not pass a rule by name.
+#
+#   ## ⚠ STILL OPEN, CAPTURED NOT CHASED
+#   `incant/f31` exits 139 · the isSET arm still reads `.text` off a possibly
+#   data-less field, so a pure set can still be handed a name · `if !isRulE;` is
+#   vacuous in `odoPopulation` and `pcWalk` · `faceT` F2/F3 red and now
+#   non-discriminating (filed) · `directives` reports "did not find" on text that
+#   is present (pinned, pre-existing) · four files carry no end sentinel
+#   (`directives`, `grammarOnTheFly`, `oneTest`, `dirtest`) — `oneTest` is covered
+#   by its baseline diff, the other three are not.
+#
+#   ## WHAT LANDED — ELEVEN COMMITS
+#   `e0000a4` pop.sh backtick escape + bisect reset · `fb9e4de` **bareIfTruth** ·
+#   `d5f4a5a` stop() sweep · `4b515d8`/`a48fc89` artifactSkipByFlag closed ·
+#   `8d33df6` Tony's opIN descent · `bf31ef5` **opIN reorder + firstComponent
+#   guard** · `2d337b6` four H6 re-pins + two opIN gates · `ab7ed2b` quoteIfNeeded
+#   retired · `b914194` two citizens struck, hasTraits minted · `b49acf7`
+#   faceFlagsNoCross minted.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   The parser and `walkRules`; the `Attributes` ruling; `Looper` and `aCTionFOR`;
+#   frontier station 3. **The floor is clean for the syntax-testing arc — each
+#   reach into source is a fresh stroke against this baseline.**
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 2 (oldest: hasTraits, since 2026-09-08)`
+#   `hasTraits` (OPEN, guess withdrawn on measurement) · `faceFlagsNoCross`
+#   (BEST GUESS, and its cheaper test is named first). Step one, or name which
+#   goes first.
+#
+# ⚠⚠⚠ SEALED 2026-09-07 — THE STAR BINDS TIGHTER THAN A POSTFIX, AND `@` TOOK THE
+# isGROUP CENSUS FROM SIX TO THREE. SEVEN COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-07 13:09 and
+#   `git log -1 --date=iso` stamps 2026-09-07 12:55. They agree.
+#
+#   ## THE ONE-LINE STATE: **`*a.b` means `(*a).b` and `*a[k]` means `(*a)[k]`;
+#   Start, ANYtoken, InitiatE and NewGroup no longer carry isGROUP at declaration;
+#   the odometer went 18/46 → 24/40 with the population never moving off 64.**
+#   Fleet **218 green / 49 red**, canary **352** = 316 + 21 + 15, odometer **24
+#   green / 40 red of 64**, frontier **exit 0, station 3**, ddPop 5, decodePop 14,
+#   formsPop 14, countPop **0-of-44** (population 40 → 44 as rules became
+#   plannable), alphaLint 8 files / 4 out-of-order / 0 broken units. Both repos
+#   **0 dirty, 0 unpushed**.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE DECLARATION AND THE PARSE-TIME NODE ARE DIFFERENT OBJECTS. This is the
+#   session's load-bearing fact and it explains why NO ACTION WAS EDITED.** genParse
+#   reads a rule's DECLARATION; a rule action reads the node the PARSE built. Moving
+#   a declaration out of isGROUP satisfies the ruling and changes nothing the action
+#   sees. Measured on ANYtoken: instrumenting `aCTionANYtoken`'s two arms across five
+#   fixtures gave **418 calls, group arm every time, else arm never — identical
+#   before and after**. `aCTionNewGroup` reads `group` and was likewise untouched.
+#   The charter predicted "this should be subtraction"; there was nothing to subtract.
+#
+#   **b. `@` ALREADY MEANT WHAT THE RULING WANTED.** `modify` maps `'@'` to
+#   `isTarget` (`GroupActions.rtn:456`), and `attachLabel`'s arm
+#   (`GroupItem.twk:1338`) is `pStuff.label = lab; lab.tag = pStuff.ruleName;` —
+#   literally "this term wears my label". Nothing was added to the modifier
+#   machinery. ⚠ **And the spelling is a SUFFIX**: `ANYtoken NamE@`, not `@NamE`,
+#   which produces no rule at all. `TraiT NamE Modifier*` puts modifiers after the
+#   name and `NewGroup TraiT@` was the tree's existing customer.
+#
+#   **c. ⚠ `@` IS INCOMPATIBLE WITH REPETITION, AND THAT IS THE SESSION'S SHARPEST
+#   FINDING.** `@` promotes ONE term to be the rule's label; `+` says there are many.
+#   `+@` asks for N nodes in one label slot. Attributes is the exhibit: the change
+#   took the fleet to **49 green**, and the failing build names its own victim —
+#   `nextGroup: ERROR immediateAction does not contain a list`, because
+#   `aCTionDefinE`'s `while item = Attributes.next(item)` (`ruleActions.rtn:290`)
+#   then walks the promoted TraiT's own sub-terms instead of a list of TraiTs.
+#   NewGroup is clean for the same reason inverted: `docs/fixIts.md` says it "wants
+#   exactly one trait", so promotion is right there.
+#
+#   **d. TWO ROADS, AND ONLY THE C++ ONE IS SAFE FOR A REGISTERED TERM.** `Looper
+#   ANYtoken@` on the GRAMMAR road takes ANYtoken **out of Grokking** (66 members →
+#   65) and drops the population 64 → 63. The C++ `+%` road does not: it copies
+#   first (`addGroup` copies a parented node), so InitiatE and NewGroup were clean.
+#   ⚠ **An earlier explanation — "unsafe where the term is a registered rule" — is
+#   WITHDRAWN, measured false**: RunRulE IS a member; the reading that said otherwise
+#   used `grep '^MP RunRulE$'` against a line with a trailing space. Bear-trap #47's
+#   anchored-regex family, caught by the count disagreeing.
+#
+#   **e. `embedRule` IS THE SOLE WRITER OF `isEmbedded`** (`GroupItem.twk:1975`, its
+#   own header says so) and mints "the one legitimate copy". `+%` copies too but
+#   stamps `isAttribute` and raises `hasAttributes`/`hasTraits`. Measured shapes:
+#   the embedRule wrapper reads isAttr **0**, parent **TraiT**, in the GROUP slot;
+#   the `+%` term reads isAttr **1**, parent **NewGroup**, in the LIST. **Neither is
+#   shared**, so "the stamp poisons a shared object" was falsified before any change.
+#
+#   ## ⚠ THE NO-BUYS, NAMED, ALL REVERTED TO CLEAN
+#   - **Looper** — grammar road, consumes ANYtoken. Tony's, with `aCTionFOR`.
+#   - **Attributes** — 218 → 49. First attempt was CONFOUNDED (C++ and mirror changed
+#     together); the re-run with the mirror untouched still read 49, and that second
+#     run is the only reason this is a finding rather than a guess.
+#   - **ShortcuT** — **CLOSED, the flag is correct.** Its isGROUP is the ordinary
+#     consequence of a grammar-level `X=data+`: drop the `+` and datA goes 6 → 3. The
+#     premise dissolved on measurement — its four "isSET siblings" (`nameSet`,
+#     `counter`, `Modifier`, `numberSet`) are all **GroupMain-built inert mirrors**
+#     (rename control: they survive), and ShortcuT has **zero** GroupMain hits. The
+#     comparison was a grammar-built rule against four C++-built ones.
+#
+#   ## ⚠ THREE THINGS I GOT WRONG AND CORRECTED IN THE OPEN
+#   - **The Looper mechanism** (above), withdrawn on one grep.
+#   - **`+-` on InitiatE**, proposed and measured at **10 green**. The dash is
+#     load-bearing: `aCTionRunRulE` reads `rule = input[1]`, a POSITIONAL subscript,
+#     and a noLabel term never attaches into that list. ⚠ **It inverts the premise
+#     that produced the proposal**: "nothing reads InitiatE's product" is TRUE and
+#     licensed dropping `@`, but the label is read one level down, by the TERM's
+#     action, not by any consumer of the rule. **Two different questions: what reads
+#     the YIELD, what reads the TERM'S LABEL.** Landed spelling is bare `+`.
+#   - **A vacuous census** — the first isGROUP census read 0 and its pre-registered
+#     control (`InitiatE must appear`) voided it. The `argument.` accessor spelling;
+#     the rewrite used `odoPopulation`'s bare-accessor idiom.
+#
+#   ## ⚠ INSTRUMENT FAILURES, MINE, WORTH THE LINE
+#   - **A truncated capture read as data.** parser's trace was 264 lines ending
+#     mid-word at `Gen`; the alarm killed it with stdout buffered while `PARSER
+#     SENTINEL` arrived on stderr. Every count off it was discarded. Complete run: 270.
+#   - **`stop()` DOES NOT STOP** — it printed its sentinel and fell through into
+#     `evictWalk`. Second sighting; the frontier note had it first. On Tony's docket.
+#   - **A greedy `sed 's/.*for //'`** collapsed `Generating parse code for for` to an
+#     empty string and manufactured BOTH a missing `for` and a phantom empty entry.
+#   - **One pop.sh read 217 where four consecutive runs read 218** — fired in the same
+#     shell command that WROTE `odometer.base`, so the file was likely mid-write. Did
+#     not reproduce; recorded rather than hidden.
+#
+#   ## THE PARSER READING (generate-only, exit 0)
+#   Checks 1, 2 and 4 hold. **Check 1**: 96 generate lines / 89 distinct tags, and the
+#   three duplicate tags equal their DECLARATION-SITE counts exactly (96−89 = 7 =
+#   2+3+2) — distinct nodes sharing a name, not a rule generated twice. **Check 2**:
+#   empty. **Check 4**: Start's CodE reads back non-empty with `hasNewParsE`/`isCodeD`
+#   = 1, against a negative control (`TraiT`, unreached) reading tag echoes.
+#   **Check 3 is the one with content: 43 of 64 reached, 21 not** — 18 behind
+#   data-carrying holders (`definitions=DefinE+`, `InitiatE=RunRulE+`,
+#   `stuff=PrintXP+`) and 3 behind the `BrancheS` bin. `parseMethod` is NOT readable
+#   from incant; `hasNewParsE` was the proxy used.
+#
+#   ## ⚠ A RED ROW MOVED UNDERNEATH THE COUNT (H12)
+#   `fires=NEVER roster` reads **[NewGroup]**, pinned at `[ANYtoken NewGroup ShortcuT]`.
+#   ANYtoken LEFT it — no longer a parked action with no executor, which is
+#   `isGroupActorPoison`'s shape and what the change is for. Already red, so the fleet
+#   said 218 on both sides and hid it. **Re-pin to [NewGroup] with a sentence is on the
+#   docket.**
+#
+#   ## WHAT LANDED — SEVEN COMMITS
+#   `0cef7ed` star/dot rotation + `opGet` null guard + starT S5–S10 ·
+#   `dbeef7e` ATCH, Start loses its group · `c466620` `@` on ANYtoken (carried three) ·
+#   `d2029b3` `@` on InitiatE + Looper no-buy · `2ff7f10` `@` on NewGroup + Attributes
+#   no-buy · `06db2d5` Tony's working set · `a1db494`/`ecfa551` InitiatE's bare `+`
+#   and its mechanism.
+#
+#   ## ⚠ A STANDING RULE CHANGED — TONY, 2026-09-07
+#   **When POP is green, Clod commits the files involved INCLUDING Tony's, and says so
+#   in the message.** Replaces holding them out and reporting them as dirt. ⚠ **Its
+#   edge, recorded before it bites**: when Tony's uncommitted edit is CODE rather than
+#   a comment, a green POP certifies both bodies of work together and the message must
+#   name whose is whose — it happened once today, when `Generate.rtn`'s `setParse` edit
+#   sat in the baseline binary and cost the `fires=NEVER` row, needing a separate
+#   control build to attribute.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   Parser and `walkRules`; `ruleActions.rtn`'s comment pass (**not started** — he
+#   will note it in his offline status); Looper and `aCTionFOR`; frontier station 3's
+#   missing `*`; the **Attributes ruling** — change `attachLabel`, change
+#   `aCTionDefinE`'s walk, or declare `+@` an illegal spelling.
+#
+#   ## THE FRONTIER
+#   `incant/frontier` exit 0, **first failing station 3**. Not revised this session:
+#   station 3's `frLiveLen2 = frLive.listLengtH` needs the `*` that station 2 got, and
+#   that line is Tony's.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: namedReadTwoRoads, since 2026-09-05)`
+#   `namedReadTwoRoads` (OPEN) · `refusalNotTerminal` (wants a real driver or a strike) ·
+#   `artifactSkipByFlag` (RULED, behind the depth-class respell). Step one, or name
+#   which goes first.
+#
+# ⚠⚠⚠ SEALED 2026-09-06, SECOND SESSION — THE COMMENT SWEEP. TWO FILES, 132 ENTRIES,
+# CODE UNMOVED, AND THE ORPHAN MECHANISM CLOSED: INSERTION, NOT SORTING.
+# (The morning's seal, the frame defect, is immediately below and still stands.)
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-06 14:13 and
+#   `git log -1 --date=iso` stamps 2026-09-06 14:12. They agree.
+#
+#   ## THE ONE-LINE STATE: **`genParse.rtn` and `jitEmitters.rtn` are swept —
+#   every long comment is a keyed DesignDocs entry, every link is one line with
+#   its key first, and every header is a UNIT with its declaration.** Fleet
+#   **213 green / 48 red**, canary **352**, ddPop 5, countPop 0-of-40, decodePop
+#   14, formsPop 14, frontier exit 0 station 2, alphaLint 8 files / 4
+#   out-of-order / **0 broken units**. Groups and support clean and pushed.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. ORPHANED HEADERS COME FROM INSERTION, NOT SORTING. Five of five, by
+#   commit clock.** Every orphan header was born in the SAME COMMIT as its own
+#   method — adjacent at birth — and the declaration that ended up beneath it is
+#   YOUNGER. Two same-day cases needed commit-clock resolution, under three
+#   hours each. ⚠ **BOTH SORTS ARE EXONERATED**: the finder run against the real
+#   08-15 pass (`9c4962b`, which also introduced `alphaLint.sh`) and the 09-04
+#   re-sort reports **0 for genParse and 1 for jitEmitters** on both bases.
+#   Clay's sort theory and Clod's restatement of it are **recorded falsified**.
+#   It is a process fact: methods come and go without their headers coming too.
+#
+#   **b. THE UNIT RULE IS RE-JUSTIFIED ON BETTER GROUND THAN IT WAS ADOPTED ON.**
+#   It was argued from sorting, which was wrong. Its real value: **an inserted
+#   method cannot land between a header and its declaration when the two are one
+#   unit with no blank line between.** `alphaLint.sh` checks it, with an H7
+#   control — one injected blank line reads `UNIT BROKEN`.
+#
+#   **c. THE CONVENTION, FOUR CLAUSES, ALL OF THEM TONY'S CORRECTIONS.**
+#   `// slug sentence` — one physical line, key FIRST, bare slug with no file
+#   prefix, inside the top-of-method block AFTER the body, and **saying what the
+#   entry ADDS, never what the reader has just read.** ⚠ All four came from Tony
+#   reading the result; none from the seat writing it.
+#
+#   **d. THE FOURTH SPECIES IS THE OBITUARY, AND ITS TEST IS SUBJECT, NOT TENSE.**
+#   Subject is code that is GONE ⇒ DesignDocs whole, `Status: superseded <date>`,
+#   link labelled `// slug obituary: what died, when`. ⚠ **ONE member, not nine**
+#   — the grep's eight further candidates were all read and all are rationale
+#   carrying history in a subordinate clause.
+#
+#   ## THE NUMBERS, read from metrics.txt
+#
+#   | | genParse.rtn | jitEmitters.rtn |
+#   |---|---|---|
+#   | name-hits in COMMENTS | 218 → **164** | 256 → **188** |
+#   | name-hits in CODE | 187 → **187** | 208 → **208** |
+#   | noise | 53% → 46% | 55% → **47%** |
+#   | lines | 2862 → 2280 | 3663 → **3148** |
+#   | links | 56 | 76 |
+#
+#   ⚠ **CODE HITS NEVER MOVED, and the stripped-comment diff was EMPTY against
+#   the pre-sweep original at every stroke.** ⚠ **AND jitEmitters CROSSED 1:1** —
+#   188 comment mentions against 208 code — so a method-name grep now lands in
+#   code more often than in prose, which was Tony's original complaint.
+#
+#   ## ⚠ INSTRUMENTS BORN, AND EVERY ONE WAS WRONG ON FIRST RUN
+#   unit lint (in `alphaLint.sh`) · overlap scan · CodeSite agreement both
+#   directions with shared entries as their own row · pre-sort finder, **retired
+#   to its narrow question** (did a SORT move this — it cannot see insertion) ·
+#   `metrics.sh`, which writes numbers to a FILE so a commit message is read
+#   rather than drafted.
+#
+#   ⚠ **NOT ONE ANNOUNCED ITS OWN FAILURE.** Three void probes; an overlap scan
+#   reporting 569 then a vacuous 0; a CodeSite lint reading 0/5 because a
+#   `Status` field pushed the value out of view; a site map that silently dropped
+#   a shared entry (26 links, 25 checked); a bulk edit that reattached EVERY link
+#   to the wrong method, caught at 14/50. **Every one was caught by an adjacent
+#   number disagreeing.** ⚠ And the last catch is the one to keep: `jitEmitGIF`'s
+#   header was itself an orphan 1,890 lines from its method, so recutting it in
+#   place produced a CORRECT LINK ABOVE THE WRONG METHOD — adjacency said fine,
+#   because it WAS adjacent to a declaration; only CodeSite knew which one.
+#
+#   ## ⚠ TWO H14 SLIPS, AND THE FIX WAS STRUCTURAL
+#   Two commit messages carried searchability numbers drafted before the metric
+#   ran (`a1b16de` 165/46%/2440 → really 169/47%/2447; `fef0604` 235 → 237).
+#   Corrected in the following commits rather than force-pushed. **The rule had
+#   been read and was slipped anyway, which is the argument for `metrics.sh`
+#   rather than more care.**
+#
+#   ## THE DOCKET
+#   - **CLOSED** — 08-13 (c), the minion role: it is a **dispatch shape**, not a
+#     new seat. Also closed: the stale 08-17 method-scoped blocker (superseded
+#     2026-09-03, three weeks stale when read).
+#   - **SHELVED** — twk conversion, list banked.
+#   - **PARKED** — `bareIfTruth` charter, awaiting Tony's ratification ·
+#     `ruleActions.rtn` recut, behind Tony's BeforeSave diff · the relevance
+#     minion, `docs/relevanceMinion.md` DRAFT, **not chartered**.
+#   - **TONY, OFFLINE** — parser, frontier and compile. The parser compile bit
+#     against the frontier; **the first failing station is the number**.
+#
+#   ## ⚠ THE RELEVANCE MINION, IN ONE LINE
+#   **Placement · referent · noun-existence, three columns, a planted control,
+#   grades without rewriting, one specimen first.** ⚠ Placement is the column
+#   nobody proposed and it caught the most — **fourteen orphans in one day**. And
+#   a minion can check whether a claim's NOUNS are still true; **it cannot check
+#   whether its VERBS are.**
+#
+#   ## HOUSEKEEPING
+#   - Groups and support **0 dirty, 0 unpushed**. TOK carries 2 (Tony's scheme
+#     toggle — his, and not a finding).
+#   - `groups.ext` untouched this session; nothing owed there.
+#   - Cross-references landed: `rightAnswerWrongUniverse` from `docs/jit.md`'s
+#     load-vs-fold line, `callNotGep`/`noBakedOffsets` from bear-trap #10.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: namedReadTwoRoads, since 2026-09-05)`
+#   `namedReadTwoRoads` (OPEN) · `refusalNotTerminal` (its driver is a NEGATIVE
+#   CONTROL) · `artifactSkipByFlag` (RULED, gated on the depth-class respell
+#   pass). Step one, or name which goes first.
+#
+# ⚠⚠⚠ SEALED 2026-09-06 — A FRAME DEFECT THAT PREDATED THE FLIP, FOUND BY THE FIRST
+# BODY THAT FLAGGED A LOCAL MID-FLIGHT. THE RESTORE IS KEYED BY FIELD. M2 DISCHARGED.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-06 10:13 and
+#   `git log -1 --date=iso` stamps 2026-09-06 10:01. They agree.
+#
+#   ## THE ONE-LINE STATE: **`saveLocalFields` pushes the FIELD with its body and
+#   `restoreLocalFields` walks the STACK behind a per-activation FLOOR, so the
+#   frame no longer pairs by position; `aCTionIterate` lives in tok; and
+#   `IncantForms/WorkingOn/parser` walks the whole grammar to exit 0 with zero
+#   refusals.** Fleet **213 green / 1 parked**, canary **352** = 316 + 21 + 15,
+#   ddPop 5, countPop 0-of-40, decodePop 14, formsPop 14, frontier **exit 0,
+#   station 2**. Groups and support clean and pushed.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. THE FRAME FIX IS TWO PARTS AND THE SECOND IS THE ONE THAT COSTS.**
+#   Identity alone (push the field with its body) fixes the shift. It also
+#   removes the BOUND: the old positional walk stopped after one frame **only by
+#   accident of walking the field list**, and `while recurseSTAK.length` drains
+#   every activation at the innermost return. The floor is one null per
+#   activation. ⚠ **Its absence cost 20 fleet rows and five runaways** —
+#   `kant8T`, `anyOrNumT`, `iterT1`, `iterT1m`, `displayFormT` all TIMED OUT at
+#   POPCAP and `pop.sh` read 184. **H5 earned its keep**: without the wall-clock
+#   cap those five take the suite hostage instead of reporting.
+#
+#   **b. M2 IS DISCHARGED, AND IT HAD BEEN OPEN SINCE 2026-08-10.** That probe
+#   read the walker and ruled *"the principled version is to key the restore by
+#   field instead of by position … and it is Tony's."* That is exactly what
+#   landed, and **M2's own diagram predicted the floor** — *"and b1 STRANDED ON
+#   THE STACK."* The discharge is written into `docs/kantCorpus.md`, which is the
+#   **LEDGER OF RECORD**. ⚠ **`KR-3` is RETIRED (Tony, 08-10) and never existed as
+#   a file** — a dispatch cited it this session; do not go looking for it.
+#
+#   **c. `**` IS A DOUBLE DEREF, NOT A MARKER. `$$` IS THE MARKER.**
+#   `incant/setup:185` registers `'$$' unary ruleMethod=opDebug`; `*` is in the
+#   UnaryOPS bin, so `**grup;` is two derefs and no breakpoint will ever fire on
+#   it. Renamed 2026-09-01 so `**` could compose. `tester:33` still carries it.
+#
+#   **d. THE JIT AND THE INTERPRETER NOW AGREE.** `GroupRules.mm`'s FRAME EPILOGUE
+#   declined to reimplement positional pairing on purpose — *"the stack discipline
+#   was the bug surface, and it is gone rather than reimplemented."* The
+#   interpreter has stopped reimplementing it too.
+#
+#   ## ⚠ THREE INSTRUMENT FAILURES, ALL MINE, ALL CHEAP TO HAVE AVOIDED
+#
+#   - **`argRoundT` GRADED ON ITS EXIT STATUS.** Run ad hoc, read as exit 0, used
+#     to declare the recursion hypothesis **falsified** — which sent the hunt away
+#     from the real cause for a round. It exits 0 with depths 2 and 1 returning
+#     **tag echoes**. The fleet's own rows were by-value and caught it correctly;
+#     only my ad-hoc check was wrong. **Never grade a value fixture on its exit
+#     code** — the third corollary in `CLAUDE.md`'s testing block, walked into
+#     head-first. A sentence now sits above those rows in `pop.sh`.
+#   - **THREE VOID PROBES BEFORE ONE DISCRIMINATED.** Dotted reads through an
+#     iterate cursor return **the cursor** (#35); `@grup` re-points at the cursor,
+#     not the member; and **`if isRulE` tests EXISTENCE**, so it read 1 on every
+#     child including the artifacts (the `frOk == 1` family, #26 payment 2). The
+#     working shape: **probe from INSIDE an action on `*grup`, capture with `:=`,
+#     `@argument` between reads.** A 0 comes back as a TAG ECHO, not the digit.
+#   - **`pgrep -f` MATCHES ITS OWN COMMAND LINE.** `until ! pgrep -f 'pop.sh'`
+#     never exits, because the waiter's own `zsh -c` string contains the pattern.
+#     Two waiters spun for minutes after `pop.sh` had finished.
+#
+#   ## ⚠ CLAY'S noPrint-CURSOR READING, FALSIFIED
+#   The dispatch offered two possibilities for parser's hang: the flag never
+#   reaches the attached node, or it does and the hang is elsewhere. **It reaches
+#   it** — `noPrinT` reads 1 on both `CodE` and `builtinParsE`, and `noPrinT`
+#   was skipping them correctly the whole time. **The runaway was the frame floor,
+#   not the walker.** So item 3's `!isRulE` skip is no longer load-bearing; the
+#   census cleared the fact and the change is parked as a nit.
+#
+#   ## WHAT LANDED
+#   - **`61d0e76`** — Tony's `aCTionIterate` rewrite into tok, plus
+#     `ruleActions.rtn:611` `IterSource["UnaryOPS"]` → **`getLabelGroup`** (the
+#     subscript returns the LABEL node, so every starred iterate source refused)
+#     and `Generate.rtn:339`'s restored `return` (the dropped one fell through
+#     into a null `ruleStuff->parseMethod` — parser's exit 139).
+#   - **`1ab282f`** — identity pairing + the frame floor + `noPrintFrameT`.
+#   - **`7e1b449`** — parser: `codeCopy` stays a LOCAL, `:= copyOf`, `+% *codeCopy`.
+#   - support **`c670466`** — `groups.ext` declares `refuse()`, per bear-trap #11's
+#     always-commit rule.
+#
+#   ## FLEET
+#   `incant/noPrintFrameT` is new and on the fleet. It was born **pinned RED
+#   against the correct answer** (H7) and **GRADUATED** (H6) in the same session.
+#   **`K5` and `K6a–K6f` are on the fleet for the first time** — chartered
+#   2026-08-05, answered in a seal, and never guarded since. All green:
+#   K5 **42/42**, K6a **3**, K6b **3**, K6d **3**, K6e **1/1**, K6f **4**.
+#   ⚠ **An older wakeup line reads "K6c unchanged at `k6small`" and is DATED, not
+#   wrong** — `pop.sh` has pinned `k6big` since 09-01.
+#
+#   ## ⚠ FIXITS — THE ARITHMETIC IS NET ZERO, SAY IT PLAINLY
+#   `jitArgBake` **retired to `incant/attic/`** (Tony's word). `artifactSkipByFlag`
+#   **minted** (Tony/Clay's ruling; F2 says Clod does not mint unbidden). So the
+#   queue went **3 → 2 → 3**, not to 2. `NEXT: RULED` — the shape is chosen and the
+#   build is gated on the depth-class respell pass, where walkRules' bare
+#   lastREF-dependent reads get restructured anyway.
+#
+#   ## ⚠ OWED, AND NOT DONE
+#   - **The channel rule is NOT ratified and is NOT written down.** The dispatch
+#     offered it conditionally — *"a no-buy ruled from the design seat is executed
+#     before the hunt continues, **if Tony ratifies it**"* — and no ratification
+#     arrived. It is named here and nowhere else. Ratify it or drop it.
+#   - **`tester` is Tony's**: three declaration deletions and the `$$grup`
+#     spelling at line 33.
+#   - **The depth-class respell pass opens on `spacingT` A–D reading `LEAF`.**
+#   - `TOK` carries 2 dirty (the scheme toggle). **Tony's, and not a finding** —
+#     he changes the scheme constantly when using Xcode.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: namedReadTwoRoads, since 2026-09-05)`
+#   `namedReadTwoRoads` (OPEN) · `refusalNotTerminal` (its driver is a NEGATIVE
+#   CONTROL) · `artifactSkipByFlag` (RULED, gated on the respell pass).
+#   Step one, or name which goes first.
+#
+# ⚠⚠⚠ SEALED 2026-09-05 — THE FLIP LANDED AND THE SWITCH IS GONE. `argument` IS A
+# BINDING, A REFUSAL IS TERMINAL, AND `gNoUnwrap` NO LONGER EXISTS. 41 COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-05 14:28 and
+#   `git log -1 --date=iso` stamps 2026-09-05 14:01. They agree.
+#
+#   ## THE ONE-LINE STATE: **the auto-unwrap is REMOVED from the language — not
+#   gated off, removed; `argument` resolves to the passed field by address; and a
+#   refusal ENDS THE UNIT THAT RAISED IT, activation at run time and definition at
+#   define time.** Fleet **199 green / 1 parked**, ladder **208 / 3**, canary
+#   **352** = 316 + 21 + 15, frontier **exit 0, station 2**, ddPop 5, countPop
+#   0-of-40, decodePop 14, formsPop 14. All three repos clean and pushed.
+#
+#   ## ⚠⚠ THE FIRST THING A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. `gNoUnwrap` IS GONE.** Eleven live gates deleted plus the declaration.
+#   The delete was behaviour-neutral BY CONSTRUCTION — every bare arm was dead the
+#   moment the trunk became the flip — and the certificate is that the fleet was
+#   byte-identical through it. ⚠ **Do not go looking for the switch to check an
+#   arm; there are no arms.** One dated comment survives at `Instruct.rtn:261` and
+#   is a record, not a gate.
+#
+#   **b. ⚠ THE FRONTIER LOST NINE STATIONS TO THE FLIP, AND THAT IS NOW PERMANENT.**
+#   The 09-04 seal reads *"frontier exit 0, 10 PASS"*. It now reads **1 PASS,
+#   stopping at STATION 2**. Measured at THIS session's start, flip on, BEFORE any
+#   edit — so it is the flip's cost and not this session's work. It was a
+#   temporary condition all week; it is the standing state now. **A reader
+#   comparing the two seals will otherwise read a nine-station regression.**
+#
+#   **c. THE ARGUMENT BINDING (try-and-buy B, bought).** Bare `argument` IS the
+#   passed field; `*argument` reads one level BELOW it; it can be WRITTEN THROUGH
+#   (`=` is setContent and reaches the caller) and never REBOUND (`:=`, `<-`
+#   refuse by name). ⚠ **One edit served both roads** — runOP's operand fetch is
+#   upstream of `jitSeedField` — which is why B came in small. Three sites total:
+#   `runOP`, `aCTionIterate`, `jitEmitBareRead`, the third because print items are
+#   seeded outside runOP. designDocs `ArgBinding`.
+#
+#   **d. A REFUSAL IS TERMINAL FOR THE UNIT THAT RAISED IT.** One funnel,
+#   `refuse()`, an arm on GroupRules, checked by `aCTionBlocK`, cleared by
+#   `runAction` at the activation boundary and by `aCTionDefinE` at the DEFINITION
+#   boundary. ⚠ **The define-time clear is not a detail:** without it the first
+#   declared `argument` in a file killed every later definition in it — fleet
+#   171 → 107.
+#
+#   **e. AN ARMED STATEMENT STORES NOTHING — and the check is NOT where it looks.**
+#   At runOP's entry it never fires, because **an assignment dispatches BEFORE its
+#   own right-hand side** (`op== refused=0` then `op=+*`, refusal later still). It
+#   belongs in `opAssign`, where the store is. Fourteen writers consult the arm;
+#   `storeT` certifies eleven, and `++`/`--` cannot be certified because they are
+#   unary and nothing to their left can arm first.
+#
+#   **f. `*x` ON A NO-GROUP FIELD YIELDS NULL AND DOES NOT REFUSE.** Refusal is for
+#   CATEGORY errors. ⚠ **It has two halves** — making `opDeref` silent alone put
+#   f31 back to exit 142, because `aCTionIterate`'s null arm had been deliberately
+#   silent *"the star already spoke"*. The consumer refuses now, and names the
+#   construct the writer typed. **STAR paid for itself: fleet 188 → 198, ten rows
+#   recovered on their ORIGINAL assertions.**
+#
+#   **g. B WAS 40 SITES, NOT 92, AND THE PLANNER MUST NEVER BE ROUTED.**
+#   `planRule`/`planTerm`/`emitPlan`/`genKant` refuse as a NORMAL ANSWER their
+#   caller handles — the odometer is **46 refusals of 64 rules, red by design, all
+#   in ONE walk**. Routing them would have armed on the first unplannable rule and
+#   destroyed it. The word `ERROR` is now pinned at zero for that family precisely
+#   so the reading cannot be made again.
+#
+#   ## ⚠ WHAT WAS BUILT AND THROWN AWAY, so nobody rebuilds it
+#
+#   **LINE.** A statement DOES carry a define-time line (`rStuff.sourceLine`), so
+#   the recon said yes. **The count is not the writer's file line**: argBindT
+#   reported 10 for statements at 16 and 17; f31 reported 11 for an iterate at 45;
+#   `sourceLINE` reads 8,9,10 for definitions at 9,19,29. **Neither source gives
+#   the line a reader would look at.** Reverted in full; the knowledge is at the
+#   site in `refuse()`, with *do not chase it*.
+#
+#   ## ⚠ THREE THINGS I GOT WRONG AND CORRECTED IN THE OPEN
+#
+#   - **The sweep certificate was FALSE twice.** "declared-argument = 0" was
+#     measured with a regex matching `NAME argument code=`, which misses every
+#     declaration with an attribute in between. Six live sites survived it. H9's
+#     exact shape: matched the SURFACE FORM, not the family.
+#   - **The sentinel-as-data set was six, not seven, and two of the six were not
+#     sentinels.** `getMarkLineAt`'s `result` is a bare local already `= 0`;
+#     `opPlusPlus`'s is the PARAMETER. Reading the name instead of the declaration
+#     is what got it wrong.
+#   - **I overwrote Tony's dirty `parser`** with a path-scoped `git checkout`,
+#     the one file the dispatch said not to touch. Recovered byte-exact from a
+#     scratchpad copy (md5 4332f666). Provably lossless; that was an earlier copy,
+#     not process.
+#
+#   ## THE STANDING ORDER, and it is Tony's
+#   **Try fast.** A try-and-buy is cut from trunk, built, run, bought or not.
+#   **No buy: back out to clean and take the long road** — capture, one change,
+#   measure, repeat — until it buys. **pop.sh after every build regardless. The
+#   seal is once per session.** Caution scales with BLAST RADIUS; the claim is how
+#   you read the radius. This week was the slow kind and the instruments were the
+#   right kit; a one-operator stroke plays fast.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S — AND THE PAUSE IS HERE
+#   - **`tester` IS DEAD until three `argument` declarations are deleted.** Its
+#     three live actions are refused by name and not installed; it is UNTRACKED so
+#     no sweep can reach it. The file runs to exit 0 and does nothing.
+#   - **`parser` runs but reads one level too deep.** `arg := *argument` and
+#     `iterate … on *argument` are A-era; the bare form makes the whole walk run
+#     clean with no errors at all. Measured, not guessed.
+#   - **`scopeUnits` had drifted and was regenerated** — its one-hunk guarantee had
+#     silently stopped being true since 17d3642, with the SAME VARIABLE as the
+#     intended one, so it never inverted, it just stopped being single-variable.
+#
+#   ## HOUSEKEEPING
+#   - **41 commits.** Groups, support and TOK all 0 dirty / 0 unpushed. ⚠ The
+#     `parser`-exception clause is retired: it commits with routine work now, so a
+#     dirty tree is a FINDING and not a standing state.
+#   - **`groups.ext` touched twice** — `refused` added, then removed with the
+#     switch; both committed, per bear-trap #11.
+#   - **Bear-trap 49 minted**: a flip is not measured until the binary is rebuilt
+#     at source truth. `pop.sh` carries the binary-vs-source check, which OUTLIVES
+#     the switch it was paid for.
+#   - **Two fixture families still owe the respell pass**: the 18 rows absent
+#     because a fixture drives N refusals from ONE action, and the 4 spacingT rows
+#     red before any of this — **two different facts, and the respell pass opens on
+#     spacingT A–D reading `LEAF` against a tag-echo pin.**
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 3 (oldest: jitArgBake, since 2026-09-05)`
+#   `jitArgBake` (REMEDY, discharged, awaiting retirement ruling) · `namedReadTwoRoads`
+#   (OPEN, the two roads B did not fix) · `refusalNotTerminal` (its driver is a
+#   NEGATIVE CONTROL — the minimal shape does not reproduce). All three steppable.
+#   Step one, or name which goes first.
+#
+# ⚠⚠⚠ SEALED 2026-09-04, SECOND SESSION — THE CLEANUP ARC. TWELVE STROKES, THREE
+# FILES EMPTIED INTO TWO NEW HOMES, TWO RETIREMENTS, A THIRD REPOSITORY, AND
+# FIVE FINDINGS THE MOVES PAID FOR. SIXTEEN COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-04 19:22 and
+#   `git log -1 --date=iso` stamps 2026-09-04 19:15. They agree.
+#
+#   ## THE ONE-LINE STATE: **`measure.twk` exists and holds fifteen instruments;
+#   `Bytecode.twk` holds the dispatch loop; the corpus verbs live in `genParse.rtn`;
+#   `writeTempFile` and `resolveList` are retired; the Xcode project is in git.**
+#   Fleet **197 green / 1 parked / 3 pinned red**, ladder **208 / 3**, canary
+#   **314 + 21 + 15 = 350**, frontier **exit 0, 10 PASS**, ddPop **6**, countPop
+#   **40/40**, formsPop **14**, decodePop **82**, alphaLint **2 out of order** (both
+#   in `Instruct.rtn`, not in this arc). All three repos clean and pushed.
+#
+#   ⚠ **THE CANARY IS NO LONGER ONE NUMBER, AND THE MORNING SEAL'S 333 IS NOT
+#   COMPARABLE TO THIS EVENING'S 350.** `grep -c '^extern' GroupRules.h` counts the
+#   externs DEFINED IN THAT TRANSLATION UNIT, so a method leaving the chain drops it —
+#   which is why the brief's "canary unchanged" had to be inverted before stroke 1
+#   could start. **The conserved quantity is the SUM across the headers**, and the
+#   arithmetic for the day is: 333 + 19 (Bytecode.h) = **352** at the morning seal;
+#   352 across three headers after every move; **350** after the two retirements took
+#   one each. Nothing was lost. ⚠ **Any check that reads GroupRules.h alone is now
+#   measuring a fraction and will cry drift on the next move.** The whole-day figure is
+#   `GroupRules.h + Bytecode.h + measure.h`.
+#
+#   ## ⚠⚠ THE ONE THING THAT MAY BE DIRTY AT WAKEUP, AND IT IS NOT A FINDING
+#
+#   **`jitContext.h:619` — `static int gNoUnwrap = 0` — is Tony's switch, and he may
+#   flip it between sessions.** Told at shutdown, 2026-09-04: *"if I want to run parser
+#   w/no unwrap I have to change gNoUnwrap in jitContext.h. If I do, I will change it
+#   back."*
+#
+#   **So: sealed at 0. If wakeup finds it at 1, that is Tony running the parser lane
+#   under the flip — ASK, do not stash and do not restore.** Rule H8's quarantine clause
+#   is for dirt nobody can explain; this is explained in advance and here.
+#   ⚠ **What it DOES mean is that any measurement taken while it reads 1 is a
+#   measurement about the OTHER program.** The whole fleet is pinned bare. A red at
+#   wakeup should have this checked FIRST — one `grep -n 'static int gNoUnwrap'
+#   jitContext.h` — before anything is believed about the code. Doubt the instrument.
+#
+#   ## ⚠⚠ THE THIRD CLONE — RESURRECTION READERS, START HERE
+#
+#   **A working tree needs THREE repositories, not two.** As of 2026-09-04:
+#
+#   | repo | holds | note |
+#   |---|---|---|
+#   | `github.com/TAnthonyAllen/incant` | `InProcess/Groups` — the sources | public |
+#   | `github.com/TAnthonyAllen/support` | `~/data/support` — `groups.ext`, Frame, Include | public |
+#   | `github.com/TAnthonyAllen/TOK` | `InProcess/TOK` — **the Xcode project** | ⚠ **PRIVATE** |
+#
+#   **The third is new and closes F-57.** The project that builds `~/bin/incant` was
+#   tracked by nothing at all — `git rev-parse --show-toplevel` from `InProcess/`
+#   reported not a repository and no parent was one — so every edit to it rode in no
+#   commit anywhere. Bear-trap #11's family, one degree worse: `groups.ext` at least
+#   lived in `support`.
+#   ⚠ **It tracks `*.xcscheme` even though they sit under `xcuserdata`, deliberately.**
+#   `Groups.xcscheme` — the scheme the build recipe names — is a PER-USER scheme;
+#   `xcshareddata` holds no files. Ignoring `xcuserdata` wholesale gives a clone that
+#   cannot be built by the documented command.
+#   ⚠ **It is PRIVATE while its two siblings are public.** One command flips it;
+#   publishing is the irreversible direction, so that call was left to Tony.
+#   ⚠ **AND THE CLEAN-KITCHEN PASS NOW HAS A THIRD LEG.** Nothing enforces it yet.
+#   `groups.ext` needed a standing rule before it stopped drifting; this wants the same.
+#
+#   ## ⚠⚠ THE `.twk` CONVERSION SHOPPING LIST — WHAT THE SPLIT WILL COST, MEASURED
+#
+#   Held at Tony's word; this is what a future session needs and does not have to
+#   re-derive. All figures read off the tree AFTER the arc, 2026-09-04.
+#
+#   **Everything below turns on one fact: the eight chain `.rtn` are ONE translation
+#   unit.** `GroupRules.twk:291-298` includes `Commands.rtn`, `GroupActions.rtn`,
+#   `ruleActions.rtn`, `Debug.rtn`, `Instruct.rtn`, `jitEmitters.rtn`, `genParse.rtn`
+#   and `Generate.rtn`, all landing in `GroupRules.mm`. Converting three of them to
+#   standalone `.twk` splits that one TU into four, and every edge below becomes a
+#   cross-TU reference needing a `groups.ext` declaration in the right header block.
+#
+#   ### 1. The crossing table
+#
+#   | file | symbols OUT (called elsewhere in the chain) | OUT with no mirror | symbols IN (it calls elsewhere) | IN with no mirror |
+#   |---|---|---|---|---|
+#   | `Commands.rtn` | 8 | — | 10 | `setFile` |
+#   | `Generate.rtn` | 1 | — | 2 | `reportNoBody` |
+#   | `GroupActions.rtn` | 15 | `limitWriteCheck`, `limitWriteGuard`, `reportNoBody` | 11 | `jitEmitShortCircuit`, `setFile` |
+#
+#   **Union: 37 symbols cross a new boundary; FIVE have no `groups.ext` mirror** —
+#   `jitEmitShortCircuit`, `limitWriteCheck`, `limitWriteGuard`, `reportNoBody`,
+#   `setFile`. Those five are the whole declaration bill.
+#   ⚠ **And a mirror line is not enough on its own: it must sit in the RIGHT
+#   `external <Header>.h` BLOCK.** The block header is what tells tok which `#include`
+#   to emit. Stroke 4 learned this by failing to build: ten declarations left in the
+#   `GroupRules.h` block sent `GroupRules.mm` hunting measure's methods in its own
+#   header. Relocate, never copy.
+#   ⚠ **A block ADDITION has a blast radius past the files the stroke retok'd.** tok
+#   emits an include for every `external <Header>.h` block in scope whether the file
+#   uses it or not — `GroupItem.mm` silently gained `#include "measure.h"` and only a
+#   full bare `tokall` made the tree self-consistent again.
+#
+#   ### 2. The globals to migrate FIRST — and this is the ordering constraint
+#
+#   **`jitContext.h` carries FIFTEEN file-scope `static` variables. A file-scope
+#   `static` in a header gives every translation unit its OWN copy.** Today every one
+#   is touched by exactly one TU (`GroupRules`), so there is no live defect — **which
+#   is a property of the current file layout, not of the code.** The split is what
+#   breaks it, silently, in the shape of a real reading.
+#
+#   | line | static | reached from |
+#   |---|---|---|
+#   | 33 | `gParseRecordArmed` | GroupRules |
+#   | 276-278 | `gKantLabel`, `gKantFrom`, `gKantRule` | GroupRules |
+#   | 619 | `gNoUnwrap` | GroupRules — ⚠ **the flip switch** — ⚠ STRUCK 2026-09-05: the switch was REMOVED, so this row is discharged and the migration is one global shorter. Left in place because this seal is a dated record. |
+#   | 637-639 | `gChanPendBody`, `gChanPendGroup`, `gChanPendData` | GroupRules |
+#   | 640-643 | `gChanStkBody`, `gChanStkGroup`, `gChanStkData`, `gChanStkTop` | GroupRules |
+#   | 652-654 | `gCompileAttempted`, `gCompileRefused`, `gCompileReported` | header-internal only |
+#
+#   **`gChanBinds`/`gChanSame` are NOT on that list any more — they were, and stroke 10
+#   moved them onto `GroupRules` as `chanBinds`/`chanSame`.** That is the worked pattern
+#   to copy: an `int` member beside `lastIndent`/`rulesParsed`/`sourceLINE`, a line in
+#   `groups.ext`'s `external GroupRules` block, and passthrough reaching it as
+#   `GroupControl::groupController->groupRules->chanBinds`. ⚠ Bare `groupRules->` does
+#   NOT compile outside a `GroupControl` method. It is a **layout change**, so a full
+#   `tokall`, not a retok.
+#   **The gChanPend/gChanStk family is the obvious next candidate** — same mechanism,
+#   same owner, and `jitSaveFrameRT`/`jitRestoreFrameRT` already live in `jitEmitters`.
+#
+#   ⚠ **THE RULE THIS ARC PAID FOR, and it is what the list is for: before moving a
+#   method across a TU boundary, grep its body for globals and check their linkage.**
+#   `static` in a header means per-TU, and a per-TU counter reads ZERO. `chanReport`
+#   was caught only because the compiler happened to refuse; had a sibling method used
+#   an LLVM type, tok would have emitted the include and it would have printed
+#   `binds = 0 same = 0` forever, with the fleet green — the only thing that would have
+#   caught it is that the row asserts a NON-ZERO total, not merely equality.
+#
+#   ### 3. What it does NOT cost
+#
+#   **The alphabetize is free and so is any same-TU move.** tok emits externs
+#   ASCII-sorted into the `.mm` regardless of source order, so a source reorder is
+#   provably codegen-neutral — six files were sorted with a byte-identical
+#   `GroupRules.mm` to prove it. **The one exception measured:** moving a definition
+#   past its caller flips tok between `::name(...)` and `name(...)`. Semantically
+#   identical unless a class member shares the free function's name — that check is one
+#   grep of the headers and it is the only one this class of edit needs.
+#
+#
+#   ## TOMORROW'S ORDER — UNCHANGED FROM THE FIRST SESSION'S SEAL, plus one
+#   1. **Option B** — `UnaryOPS*`, one stroke, certificate pre-registered in
+#      `docs/unaryPlacement.md` §4.
+#   2. The **leading-dot row** — read-only, rides with B.
+#   3. **C-157 `iterateT`** — absorbs `walkRefT` and `iterRefuseT`'s rows.
+#   4. **C-161** — road 1, bare accessor, deletions; `@*argument` after B.
+#   5. **F-54** `jitDotBareAccessor`.
+#   6. ⚠ **NEW — the `TOK` repo's visibility.** It is PRIVATE and its two siblings are
+#      public; one command flips it. Left to Tony deliberately, because publishing is
+#      the irreversible direction. Nothing depends on it.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   - **`carrierNode`** — the fixit queue, **1**, since 2026-08-31. Untouched again today.
+#   - **`IncantForms/WorkingOn/parser`** — dirty and untouched, as instructed. The lane
+#     is Tony's on a clean tree.
+#   - **`gNoUnwrap`** — see the section at the head of this seal.
+#   - **F-56 `fireNewParse`** — built, complete, reached by nothing at all. The census
+#     found it and the arc deliberately did NOT retire it: the body forks ARTIFACT arm
+#     versus CODE arm and refuses loudly on wreckage, which is not the shape of
+#     abandoned code. Either the caller lands or Tony rules it dead.
+#   - **F-55**, **F-52** — owner unassigned, unchanged.
+#
+#   ## HOUSEKEEPING
+#   - **Sixteen commits** on `jit-unified-emit-wip`; three on `support`; one on the new
+#     `TOK`. **All three repos clean and pushed**, but for `IncantForms/WorkingOn/parser`.
+#   - ⚠ **`groups.ext` was touched FOUR times** — the `external measure.h` block, the
+#     `resolveList` removal, `chanBinds`/`chanSame`, and `chanReport`'s relocation.
+#     Committed every time, per bear-trap #11's 2026-08-25 rule. A Groups `git status`
+#     shows none of it.
+#   - **`docs/commentTrial.md`**: 34 entries written this session, and the trial's first
+#     recorded LOOKUP — graded honestly as a relocation lookup rather than a
+#     comprehension one, because counting it as the stronger thing would be the
+#     instrument lying about itself.
+#   - **`incant/setup` lost one line** (`writeTempFile`). Bear-trap #31 says a setup edit
+#     goes live against whatever binary is installed — the rebuild came first here, and
+#     the fleet was measured after.
+#
+#   ## ⚠ THE FIXIT LINE, GENERATED, LAST
+#   `Tony's fixit incantations waiting: 1 (oldest: carrierNode, since 2026-08-31)`
+#   Step it, or name what goes first. It has been pointing at your foot for four days.
+#
+# ⚠⚠⚠ SEALED 2026-09-04 — THE FLIP BRANCH SHRANK TO ONE COMMIT, TWO RESPELL CLASSES
+# LANDED ON THE TRUNK, R2 DIED ON ITS OWN CERTIFICATE FIXTURE, AND OPTION B IS RULED.
+# THIRTY-ONE COMMITS.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-04 12:25 and
+#   `git log -1 --date=iso` stamps 2026-09-04 12:15. They agree.
+#
+#   ## THE ONE-LINE STATE: **Class (a) `iterate … on *argument` (113 sites) and class
+#   (e) `callee(*cursor)` (72 sites) are on the TRUNK, arm-independent by measurement.
+#   R2 is retired, F-53 is closed, and the explicit-accessor class is STOPPED because
+#   its spelling does not parse as intended.** Fleet **197 green / 1 parked / 3 pinned
+#   red**, ladder **208 green / 3 pre-existing red**, canary **333**, frontier **exit 0,
+#   10 PASS**, ddPop **6**, countPop **40/40**, formsPop **14**, decodePop **82**.
+#   `flip-argument` is **ONE commit** — the flip itself. Binary bare, verified
+#   behaviourally; no probe strings.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. TWO RESPELL CLASSES LANDED ON THE TRUNK, BOTH ARM-INDEPENDENT BY MEASUREMENT.**
+#   Class (a), 113 sites/71 files, 5 commits; class (e) cursor-passed-to-action, 72
+#   sites/37 files, 4 commits. Drift row **0 in scope** for both. The 09-03 census said
+#   73 for class (a) because it was scoped to `incant/` alone — **the real scope is
+#   `incant/ genLadder/ minionWork/`**, and that understatement was 55%.
+#   ⚠ **The arm-independence was a SURPRISE, twice.** `iterate … on *argument` does not
+#   refuse bare — the 09-03 two-wraps split peels the parse hop unconditionally — and
+#   `callee(*cursor)` does not either, because **the cursor is genuinely a holder on both
+#   arms** and bare's auto-unwrap was only hiding it from `addrOf`.
+#
+#   **b. R2 IS RETIRED, KILLED BY THE FIXTURE BUILT TO CERTIFY IT.** `incant/walkRefT`
+#   measured that with no intervening call the flip **already** reads the member — the
+#   walk writers store the HELD at all four sites, which is what C-158's recon had said.
+#   ⚠ **And R2 would not have been a no-op: it would have regressed a correct case.** A
+#   member that is itself a holder reads `wrHeld` under the flip and `wrTarget` bare, so
+#   following one holder level at the write makes the FLIP behave like BARE —
+#   re-introducing for `lastREF` the very auto-unwrap the flip exists to remove.
+#   `walkRefT` is on the trunk with **row 3 pinned to bare as a TRIPWIRE**: when the flip
+#   lands it goes red, `pop.sh` says so by name, and the re-pin to `wrHeld` is the signal.
+#
+#   **c. `lastREF` IS ONE GLOBAL HOLDER WITH NO BRACKET — R1.** It answers *what was
+#   referenced last, calls included*: `runAction` writes it **per call**, so a nested call
+#   overwrites the caller's, measured identically on both arms. **The reader's fix is
+#   CAPTURE, THEN CALL** — with `:=`, not `=`. ⚠ **What that cannot fix is the CALLEE's own
+#   bare reads**, where the wrong thing is the value passed; `*cursor` at the call site is
+#   that half, and it is class (e).
+#
+#   **d. F-53 CLOSED: `jitEmitIterStepBack` + the moved gate. Canary 332 → 333.**
+#   `opMinusMinus`'s `isIterator` arm returned ABOVE its jitting gate, so a `--` walk
+#   emitted no loop — silently, at degrade 0. ⚠ **THREE CLAUSES OF THE RULING COULD NOT BE
+#   BUILT AS WRITTEN** and are in F-53's closing row: not the `jitEmitter` slot (a unary
+#   with a slot is REFUSED and runs interpreted — bear-trap #46); `gJitSlotCount` therefore
+#   cannot move for a unary; and no `groups.ext` line was needed. Rung **JD** certifies it
+#   on the **emitted IR**, not a count, because **F-55** — a field write inside a jitted
+#   walk body does not land, and the `++` twin fails identically, so it predates F-53.
+#
+#   **e. ⚠⚠ THE EXPLICIT-ACCESSOR CLASS IS STOPPED: `*argument.taG` DOES NOT MEAN WHAT IT
+#   LOOKS LIKE.** The star binds to **`taG`**, reading 0 on both arms. `(*argument).taG`
+#   **does not parse**. A `:=` capture becomes a holder, so `.taG` answers with its own
+#   name. And `@` does not repair it: after a call `@argument` re-aims to the **holder**
+#   and `@*argument` **does not re-aim at all**. **Four candidate spellings dead, two
+#   live** — drop `argument.` for the bare accessor, or change the grammar.
+#
+#   **f. OPTION B IS RULED, AND C-163 REFRAMED THE QUESTION FIRST.** The asymmetry is not
+#   where the unary sits: **`InvokeArg` is a sibling INSIDE `TokenXP`** (so `*a[0]` is
+#   structural) while **`.` is an operator and `a.b` is TWO terms** (so `*a.b` is KANT-43's
+#   right-to-left association). Option A had no dotted term to move into and is retired.
+#   ⚠ **And the second-unary DROP SITE is named, which S3a left open:** `UnaryOPS?` is
+#   singular, the leftover falls to `Token → Operators` and runs as a **binary multiply**,
+#   failing loudly as `ERROR Operator * failed on Token and a refused operand`. S3a missed
+#   it because its run was flip-ON, where the star succeeds, and the message names
+#   `Operator *`, not `unary *`. **That line vanishing is B's cheapest certificate row.**
+#
+#   **g. KANT-43 — NO OPERATOR PRECEDENCE, RIGHT TO LEFT, BY DESIGN.** `a * 10 + b` is
+#   `a * (10 + b)`. Tony's design decision, not a defect. It cost a chartered probe: an
+#   agreement fixture read 39 where its author assumed precedence, and the `lastREF` reads
+#   had been correct the whole time.
+#
+#   ## RULES AND TRAPS MINTED TODAY
+#   **H13** identity rows name their QUESTION before their column · **H14** a certificate
+#   number is read off the tree per commit, never carried from a template · **H5's other
+#   half** a control that removes a gate may RUN AWAY — single fixture, under an alarm ·
+#   **#46** a unary carries no `jitEmitter` slot · **#47** a drift row's population is
+#   every file, whatever the extension · **#48** law 3 amended, two mechanisms.
+#
+#   ## TOMORROW'S ORDER
+#   1. **Option B** — `UnaryOPS*`, one stroke, certificate pre-registered in
+#      `docs/unaryPlacement.md` §4.
+#   2. **The leading-dot row** — does bare `.description` parse and read through
+#      `lastREF`? Read-only, rides with B.
+#   3. **C-157 `iterateT`** — absorbs `walkRefT` and `iterRefuseT`'s rows.
+#   4. **C-161** — road 1, bare accessor, deletions; `@*argument` as the re-aim idiom
+#      **after B**.
+#   5. **F-54** `jitDotBareAccessor` — **moved up to fifth**, from unassigned.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   - `++grup.next` — noted, not opened; B changes nothing there, re-opens if something moves.
+#   - F-55 (field write in a jitted walk body) and F-52 (`cerr` unemitted) — owner unassigned.
+#   - `carrierNode` — the fixit queue, **1**, since 2026-08-31. Untouched today.
+#
+#   ## HOUSEKEEPING
+#   - **31 commits.** Both repos 0 dirty / 0 unpushed but for `IncantForms/WorkingOn/parser`.
+#     Support repo clean at `c1ae51a`; **`groups.ext` untouched this session** — no extern
+#     or mirror edit was made or needed.
+#   - ⚠ **`parser`'s WIP was reverted during branch shuffling and RESTORED from a
+#     scratchpad copy** — md5 `849b4cb9`, 3 insertions / 7 deletions, the `**argument` →
+#     `$$argument` rename and the `setPointer` scaffolding removal. **Confirm it is
+#     yours before working on it.** The old `main` stash (`unary WIP: runNOT handler…`)
+#     was also disturbed once and survives intact.
+#   - **`flip-argument` is ONE commit** after a rebase — it read 2 until the R2-held
+#     commit was dropped as already-applied on the trunk.
+#
+# ⚠⚠⚠ SEALED 2026-09-03 — ITERATE IS RE-RULED AND LANDED, THE :244 PROMOTION IS
+# RETIRED, AND THE COMMENT TEMPLATE IS RULED. FIFTEEN COMMITS, ONE FLIP WINDOW,
+# CLOSED md5-CLEAN.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-03 16:11 and
+#   `git log -1 --date=iso` stamps 2026-09-03 16:06. They agree.
+#
+#   ## THE ONE-LINE STATE: **`iterate grup attributes on *field;` — modifiers
+#   before `on`, the source through `IterSource`, the star handled by the action.
+#   The `:244` promotion is gone. Comments have a ruled template and
+#   `ruleActions.rtn` is 1,381 lines with an empty code-only diff.** Fleet
+#   **191 green / 1 parked / 3 pinned red**, frontier **exit 0, 10 PASS**, canary
+#   **332**, ddPop **31 records**, countPop **40/40**, decodePop **82**, formsPop
+#   **14**. `gNoUnwrap` **0 in source AND in the binary** — verified behaviourally,
+#   not by mtime. No probe strings in the binary. Both repos 0 dirty / 0 unpushed
+#   but for `parser`.
+#
+#   ## ⚠⚠ WHAT A FRESH READER MUST NOT RE-DERIVE
+#
+#   **a. ITERATE IS RE-RULED AND LANDED (82f1e6b).**
+#   `Iterate iterate- ANYtoken attributes? members? on- IterSource defer;` with
+#   `IterSource UnaryOPS? ANYtoken;`. Modifiers precede `on`; the star is handled
+#   by `aCTionIterate` and a non-star unary is refused by name.
+#   ⚠ **THE OLD FORM ON A HOLDER IS A HANG, NOT A RED** — it misparses, falls
+#   through to `Xpress`, and `++` on the data arm runs unbounded. **The repo-wide
+#   drift row at 0 is what guards it**; a row scoped to `incant/` would not have,
+#   and that is not hypothetical — the first respell missed four live `genLadder/`
+#   fixtures. 90 sites / 46 files.
+#   The greed finding is why the modifiers moved: `on- ExpressioN` swallowed
+#   `attributes` and walked **2**, which is the arity of the swallowed expression,
+#   at exit 0. Evidence: `docs/iterateRespell.md`.
+#   ⚠ **THE TWO-WRAPS SPLIT IS THE LOAD-BEARING PART.** The parse hop is peeled
+#   UNCONDITIONALLY; only the holder-follow is gated on `gNoUnwrap`, and it retires
+#   with the switch. Gating both is what made every iterate refuse — measured.
+#
+#   **b. ON BARE, `*x` IS ROAD-DEPENDENT, AND THAT IS NOT A DEFECT IN THE STAR.**
+#   Iterate derefs the holder; assign sees `x` already auto-unwrapped and the star
+#   refuses. Temporary by construction, gone with the switch.
+#
+#   **c. `:=` CALLS `setGroup`, WHICH SETS `gGroup` AND `isGROUP` AND NOTHING ELSE.**
+#   `:=` never stamped `byRef` except for four days in June — `692e121` to
+#   `fa9989c`. Four registers quoted the first one for eleven weeks: **EXPIRED, not
+#   wrong**, which is the harder grade because careful reading cannot catch it.
+#   Audit item rescoped to `:. byRef`. Bear-trap #3 carries the measured table.
+#   ⚠⚠ **OPEN, AND IT IS TONY'S:** is `arg := argument` a pointer COPY (arg →
+#   sample) or a pointer TO THE HOLDER (arg → argument)? **Measured today: HOLDER**
+#   (field #5, body #4). Clay recommends pointer-copy.
+#
+#   **d. THE `:244` PROMOTION IS RETIRED (24c3369).** 63 candidates across nine
+#   drivers, **0 firings**, first conjunct false every time.
+#   ⚠ **THE RECON'S CANDIDATE LIST AND THE FIRING LIST DID NOT COINCIDE, EXACTLY
+#   AS THE RECON WARNED** — it was computed over `=`-labelled terms while the
+#   mechanism walks `nextAttribute`, and it said so. That warning is why nothing
+#   was built on it. `allAttributesOptional()` now has **no caller** — a finding,
+#   not a task, and not deleted.
+#   **Spelling rule minted:** on a labelled term the `?` goes on the **LABEL**
+#   (`star?-=field+;`) — match-count modifiers on the value, presence and labelling
+#   on the label. ⚠ **`'*'-` in single quotes NEVER MATCHES** — bear-trap, measured
+#   as a six-way matrix.
+#
+#   **e. `=` ON A LIST-BEARING RHS: RULED TO REFUSE BY NAME**, with the three
+#   spellings in the message (`:=` point, `<-` copy of a field, `copyOf()` own
+#   copy). Half A (holder RHS) is built in `assignFieldCore`. **Half B is PARKED**
+#   — 179 sites in 21 files including `jsonTest`, a fleet baseline — with its
+#   census and four options in `docs/fixIts.md`, revisited after the flip closes.
+#   **`=` stays muddled and this seal says so rather than implying otherwise.**
+#
+#   **f. F-22 IS CLOSED by `incant/starIdiomT`:** `x := compile(rule)` survives.
+#   The documented idiom is `field := A(B); iterate grup on *field;` — a null
+#   refuses at the STAR, a listless field refuses at the ITERATE, and the pair is
+#   what makes either row mean anything.
+#   ⚠ **`nullAfterStar`: a refused star's null reached `unWrap`'s unguarded first
+#   line.** Minted by SEQ 148, found by the fixture on its FIRST run, fixed by
+#   silent-refuse-and-poison — silent because the star already spoke, poison
+#   because otherwise `++` runs away. **`unWrap`'s own missing guard is
+#   pre-existing, left alone, recorded.**
+#
+#   **g. THE COMMENT TEMPLATE IS RULED: `// <entryName> <one sentence>`** — name
+#   first, no path, what it is FOR. Long text to DesignDocs; **site warnings stay
+#   at the site**. `ruleActions.rtn` swept 1,784 → 1,381 with an **empty code-only
+#   diff**.
+#   ⚠ **TWO 09-01 POINTERS HAD NO ENTRY AND THE TEXT IS GONE.** Tony ruled the code
+#   sufficient. The **pointer-resolves check (26/26)** is the row that would have
+#   caught it, and it is the trial's dangling-pointer question answered yes.
+#   **`aCTionIterate`'s re-cut is C-153 and is OPEN** — Tony reviews it before the
+#   rest of the file, then `genParse.rtn`.
+#   ⚠ **SEAT RULE: a function carrying pointers gets its entries READ before it is
+#   touched.**
+#
+#   **h. DO / FOR / WhilE CARRY THREE BYTE-IDENTICAL TRAILING-CONTINUE GUARDS,
+#   ONE ENTRY, AND THEY ARE NOT EXTRACTABLE** — the body is the caller's own
+#   `continue`/`break`/`return`. `isContinue` census pinned at 3.
+#   ⚠ **The "not a paste" warning defended the RATIONALE and was read as a claim
+#   about the CODE, and that reading hid the third copy from two passes.**
+#
+#   **i. DesignDocs IS NOT LOADED BY `setup`** — it is named in `fILEs` only. Five
+#   includers: `ddGate`, `ddProbe`, `ddProbe2`, `lookup`, `tester`. The query verb
+#   (`dd key`, suffix match, refuse on ambiguity, never an empty node) is designed
+#   and unbuilt; **no index until a call is slow**. CLAUDE.md's 40 KB warning is the
+#   same disease and gets the same cure, AFTER C-153 has shown the form on one
+#   function.
+#
+#   ## THE ORDER FOR TOMORROW
+#   1. **Item 4** — the 73-site `*argument` respell, **BRANCH ONLY**, utilities
+#      first. The **25 other-name sites are READ and reported, respelled none** —
+#      silent class, fresh seat.
+#   2. **C-153** — `aCTionIterate` re-cut; Tony reviews before file-wide.
+#   3. **The Skip minion** — charter scribed at `ipc/clod-to-skip.md`, **STATUS
+#      fresh, NOT dispatched**; fires when Clod says the fence is ready.
+#   4. Then the 09-02 order resumes: `kant8Tstar`, the unclassified reds (iterate's
+#      share is now separable), `kant8T`'s hang, `jitBindArgRT`, `nestT`, A→B→A,
+#      fleet rows, the asking.
+#
+#   ## ⚠ TONY'S, NOT CLOD'S
+#   - `IncantForms/WorkingOn/parser:72/76/82` — **silently unfiltered under this
+#     grammar**; excluded from the drift row by name.
+#   - `tester` drops `include(designDocs)` and the `DesignDocs` on its search line.
+#   - the `:=` pointer-copy ruling (c), the `++x`-in-condition bear-trap ruling,
+#     and `=`'s half-B options (e).
+#
+#   ## HOUSEKEEPING
+#   - **15 commits.** The flip window opened ONCE and closed md5-clean
+#     (`4b40cf70`). Every retok bare; no directives build was ever measured.
+#   - **Fleet 191** — `starIdiomT` (6 rows) and `iterRefuseT` (6) joined, plus the
+#     A3 unguarded-terms row and the A4 `isContinue` row. Three rule counts
+#     re-pinned **+1** with sentences (countPop 40/40, odometer 46/64 with GREEN
+#     UNMOVED at 18, shadowCensus 84).
+#   - **Fixit queue 1** — `carrierNode`, since 2026-08-31.
+#   - ⚠ **THE NINE MECHANICAL SLIPS TODAY WERE ALL CAUGHT BY AN INSTRUMENT AND
+#     NONE BY CARE** — a respell scoped to the wrong directory, a regex matching
+#     character-class members, a block comment that took the canary 332 → 0, two
+#     probes that did not test their own claim, an unreproduced zero, a script that
+#     threw twice, a malformed `sed`, and an absence-only first probe. **The pause
+#     is the doctrine firing, not fatigue**: reasoning held, the mechanical layer
+#     wore, and item 4's 25-site read is the silent class.
+#
+# ⚠⚠⚠ SEALED 2026-09-02 — THE setGroup COPY WAS PART OF THE CARRIER DEFECT; SIX
+# FIXITS OPENED AND FOUR CLOSED IN ONE DAY; AND THE ASKING STILL ANSWERS NO, WITH
+# A NEW SIGNATURE.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-02 15:31 and
+#   `git log -1 --date=iso` stamps 2026-09-02 15:02. They agree.
+#
+#   ## THE ONE-LINE STATE: **`setGroup` never copies, `embedRule` owns the one
+#   legitimate copy, the argument channel goes through `setGroup` on BOTH roads,
+#   and node-valued operations — deref, assign, print — go through runtime helpers
+#   sharing ONE spelling with the interpreter.** Fleet **176 green / 1 parked / 3
+#   pinned red**, frontier **exit 0, 10 PASS**, canary **332**, `gNoUnwrap` **0**,
+#   bare binary verified live. Both repos 0 dirty / 0 unpushed but for `parser`.
+#
+#   ## ⚠⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. `setGroup`'s COPY WAS PART OF THE CARRIER DEFECT, AND TWO FIXTURES HAD
+#   PINNED IT FOR DAYS WITHOUT KNOWING.** `holderT` row 3 (`argument` → `htWindow`)
+#   and `anyOrNum`'s ANSWER (`1` → the label) both moved when the copy went, and
+#   **both were fixes.** ⚠ `holderT`'s pin predicted the FLIP would fix it and
+#   named the wrong cause; it arrived at `gNoUnwrap` **0**. **A pin can hold its
+#   VALUE correctly while its stated TRIGGER is wrong, and nothing in the row can
+#   catch that.**
+#
+#   **2. THE BOOTSTRAPPER USED `setGroup`'s COPY AS ITS ONLY COPY PRIMITIVE (F-44).**
+#   `GroupMain.twk` hand-builds the grammar in C++ and never passes through
+#   `aCTionDefinE`, so six sites did copy-then-modify with no copy of their own.
+#   Cured by `GroupItem::embedRule` — copy when the source is a rule, store it
+#   otherwise — called at seven sites. ⚠ **`:218` is NOT one of them**: `new("tik")`
+#   is unparented and not a rule, so it never had a copy to borrow.
+#
+#   **3. PRINT DOES NOT FOLLOW. LAW 1 IS RETIRED (F-49).** `getText`'s `isGROUP`
+#   case yields `group.tag`; cyclic group chains are legal data and **the overflow
+#   is UNREACHABLE rather than guarded**. Five other transitive followers —
+#   `getCount`, `getDataType`, `getItem`, `getNumber`, `getObject` — stopped
+#   following in their own stroke, with **zero moved rows**.
+#   ⚠ **"one level, no follow" is not a one-line answer for all five**: `getText`'s
+#   answer was the TAG because a tag is text, and **a holder has no count of its
+#   own.**
+#
+#   **4. NODE-VALUED OPERATIONS GO THROUGH RUNTIME HELPERS — ONE SPELLING.**
+#   `jitDerefRT`, `assignFieldCore` (called by BOTH roads), `jitPrintNodeRT`
+#   (delegating to `appendGroup`, the interpreted walk's own call). ⚠ **The emit-time
+#   marking keys on the `groupBody`, NOT the node** — two failed attempts earned
+#   that: **the print's operand and the assign's target are different nodes over one
+#   body**, C18's finding at a third site.
+#
+#   **5. ⚠⚠ THE ASKING ANSWERS NO, WITH A NEW SIGNATURE, AND `carrierNode` IS NOT
+#   DISCHARGED.** Under the flip `parser(Start)` reports `PARSE argument <- ruleText`
+#   and `setParse: ERROR field passed in argument has no rStuff`. **Previously the
+#   callee got a COPY SHARING Start's body; now it gets THE HOLDER ITSELF**, named
+#   `argument`, carrying no `rStuff`.
+#   ⚠ **THE RULED RESPELL IS STAR EVERY USE — `<-` MINTS A COPY AND IS NOT AN
+#   ALIAS.** Measured: `pArg <- *argument` reports the capture's own name. Law 4's
+#   *name-it-then-star-it* does not reach Start.
+#
+#   ⚠⚠ **BRANCH RETIRED 2026-09-04 — `tryAndBuy-gNoUnwrap` IS CITED HISTORY, NOT A
+#   WORKING BRANCH, AND IT IS NOT DELETED.** It sits at base `96cff77` (2026-09-02)
+#   carrying one commit, `e27c407`, which sets `gNoUnwrap = 1`. By 09-04 it was **19
+#   commits stale**, so it could not host a bare arm at the day's numbers — C-154 needed
+#   canary 332 and fleet 191/1/3 and the branch is neither. **Ruled: future try-and-buy
+#   branches are cut PER STROKE FROM THE WORKING TRUNK**, so a branch is never older than
+#   the question it is answering.
+#   ⚠⚠ **AND THE TRUNK IS `jit-unified-emit-wip`, NOT `main` — CORRECTED 2026-09-04, ONE
+#   COMMIT AFTER THIS RULING WAS WRITTEN AS "cut from `main`".** Measured on the day:
+#   **`main`'s tip is `b411ffa`, dated 2026-06-30 — 648 commits and two months behind
+#   HEAD — and it carries no `gNoUnwrap` at all.** So "cut from main" would have produced
+#   a branch **two months older than its question**, which is the exact failure the ruling
+#   exists to prevent, committed by the ruling itself. Same family as bear-trap #3 and the
+#   `ipc/` gitignore row: a premise everybody shares and nobody re-runs. The check was one
+#   `git rev-list --count`. This line stays as written below because it was true when
+#   written; the retirement is dated rather than folded in.
+#
+#   **6. THE TRY-AND-BUY IS OPEN ON `tryAndBuy-gNoUnwrap`. 176 → 116, and THE 61
+#   RED ROWS ARE TEN MECHANISMS, NOT 61 FINDINGS.**
+#   ```
+#   kant8T HANGS (90s) -- K7a/b/c, K6c, K2x x3, sentinel are ITS truncation   8  (d)
+#   countPop truncates                                                        3  (d)
+#   spacingT                                                                 14  (a)
+#   pointerT (one row a by-design tripwire)                                   8  (a)
+#   holderT 3 - nestT 3 - starT 2 (pre-registered) - faceT/ADDROF 3 - argWriteT 1
+#   UNCLASSIFIED, need a look                                               ~14
+#   ```
+#   ⚠⚠ **`spacingT` IS THE LINE THAT A BUCKET IS NOT A DIRECTION.** Its pins
+#   expected the **tag** and under the flip it prints the **value**; every other
+#   (a) row moved tag-ward. **A re-pin sweep assuming one direction would have got
+#   those four backwards.**
+#
+#   ## ⚠ DOCTRINE BANKED TODAY
+#
+#   **DEGRADE 0 IS NOT A CERTIFICATE ROW; A CERTIFICATE NAMES THE DEGRADES IT
+#   ALLOWS.** A certificate asked for zero on a fixture where **14 of 25 degrades
+#   were an unemitted `cerr`** — unreachable by anything that stroke could do. Same
+#   family as pinning a certificate to a ROAD instead of to the LAW, and both were
+#   paid for in one week.
+#
+#   **Bear-traps #41–#45 minted:** `=` captures nothing where `:=` captures (#41,
+#   and it makes #35's own stated remedy usable); an inserted block re-points every
+#   bare field BELOW it (#42); a probe must be a minimal DELTA, never a rewrite
+#   (#43); a generated body's run-time `taG` reads `BlocK`, not the rule (#44); an
+#   unresolved bare name in a tok condition becomes a STRING LITERAL, always true,
+#   **with the canary green throughout** (#45).
+#
+#   ## THE ORDER FOR TOMORROW
+#   1. **`minionWork/kant8Tstar.candidate` is step 1** — the `*argument` respell,
+#      byte-identical under the flip and hanging bare, so it RIDES WITH the flip.
+#   2. The ~14 unclassified reds, then `kant8T`'s hang.
+#   3. The runtime-set item: **`noUnwrap;` on `debug;`'s mechanism, explicit set,
+#      NEW NAME** — `unWrap` has three callers and keeps its meaning. **Recon of
+#      `gNoUnwrap` reads FIRST.**
+#   4. F-51 (`Token` print part) and F-52 (`cerr` unemitted) are Tony's, jitter
+#      campaign, interpreted road correct, not chased.
+#
+#   ## ⚠ HOUSEKEEPING A FRESH SESSION SHOULD KNOW
+#   - **Fixit queue is 1** — `carrierNode`, since 2026-08-31, and the asking above
+#     is why it is still open. **Nothing earlier discharges it.**
+#   - **`gNoUnwrap` is 0 on main and 1 on the branch.** Every retok this session was
+#     BARE; no directives build was measured except one one-entry instrument,
+#     unwound and md5-verified.
+#   - **Tony flip-build-test-unflip-builds tonight, sealed on both sides, NO
+#     MEASUREMENT BETWEEN.**
+#   - `IncantForms/WorkingOn/parser` is the only dirty file and it is Tony's WIP.
+#
+# ⚠⚠⚠ SEALED 2026-09-01f — THE CHANNEL CARRIES. `*argument` IS THE SOURCE FIELD BY
+# ADDRESS, AND THE FOUR-ASKING MYSTERY IS CLOSED BY ADDRESS TOO. THE ASKING IS
+# TOMORROW'S FIRST STROKE.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-01 17:56 and
+#   `git log -1 --date=iso` stamps 2026-09-01 17:53. They agree. THIRD seal of the
+#   day — 2f0e0dc covers C1–C17, 1f0a82b covers C18–C19, this one covers C20–C26.
+#   ⚠⚠ AND THE CHECK CAUGHT ITS FIRST REAL ERROR, WHICH IS THE POINT OF RUNNING IT:
+#   this session stamped **2026-09-02** on 35 lines across 8 files before the mark
+#   was typed. Corrected to 09-01 in every line this session added.
+#   ⚠ AND A FINDING FELL OUT OF THE CORRECTION, LEFT UNTOUCHED BECAUSE IT IS NOT
+#   CLOD'S TO REWRITE: **the tree already carried `2026-09-02` prose in nine files,
+#   including `CLAUDE.md` (committed 2026-09-01) and `docs/groupBodySplit.md`
+#   (committed 2026-08-31).** So the registers disagree with the clock and with each
+#   other about what day it is. The seals use the clock; the prose does not always.
+#   **Tony's to rule.** Recorded here rather than fixed.
+#
+#   ⚠ VOCABULARY: **field** and **copy of a field**. "Frame" is retired (SEQ 114) —
+#   where an older ruling says frame, read the argument channel. The peas-pass and
+#   the loaded-gun pair are retired with it.
+#
+#   ## THE ONE-LINE STATE: **The channel carries. `*argument` reaches the SOURCE
+#   FIELD — same pointer, not merely the same body — and the four-asking mystery is
+#   closed by address: the bind repointed the ORIGINAL's body while every named read
+#   went through a COPY still holding the pre-bind body.** Flip-gated at 0 and inert;
+#   fleet **171 green / 1 parked / 3 red (the pinned set), byte-identical** to C24;
+#   canary **326**; frontier **exit 0, 10 PASS**; `jitBindArgRT` **deliberately not
+#   yet touched**. Both repos 0 dirty / 0 unpushed.
+#
+#   ## ⚠⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE CHANNEL CARRIES, BY ADDRESS.** In `runAction` under `gNoUnwrap`: set the
+#   argument attribute BODY's `gGroup` to the source field and mark it isGROUP — the
+#   `+*` link — saving the previous pair and restoring after `processAction`. The
+#   parse road is untouched.
+#   ```
+#   the callee's `argument`     field #6  body #4  isCopy=1   as pre-registered
+#   addrOf(*argument) DIRECT    field #5  body #2  tag s4Src  THE SOURCE FIELD
+#   ```
+#   **Field #5 is the same field the bind saw as its source, same raw pointer, same
+#   run.** Not merely the same body — the same FIELD.
+#
+#   **2. THE FOUR-ASKING MYSTERY IS CLOSED, AND THE ANSWER IS AN ADDRESS.** The bind's
+#   target and the callee's read are **different fields over one body**: target field
+#   #3 / body #4, callee field #6 / body #4. The bind repoints the ORIGINAL's body
+#   pointer to #2; the copy still points at #4. That is why four askings failed, and
+#   the comment above the bind had been saying it, unmeasured, the whole time.
+#
+#   **3. ⚠⚠ THE SPELLING NEARLY COST A WORKING BUILD ITS VERDICT, and Clod's words
+#   are kept: THE VALUE READ SAID SOMETHING ARRIVED, THE DIRECT READ SAID WHAT, AND
+#   ONLY IDENTITY DISCRIMINATES.** `s4Star <- *argument; addrOf(s4Star)` reads body #8
+#   — a FRESH node — and would have been reported as the channel failing. It is
+#   bear-trap #35's ruled copy-on-rebind. ⚠ And the value witness alone could never
+#   have saved it: **bare `argument` also prints ORIG**, because print follows (law 1).
+#
+#   **4. STEP 4 IS DEAD, AND SO IS WIDENING IT.** The sweep at `ruleActions.rtn:459`
+#   was built twice — unscoped, then scoped to the attributes of CODED definitions —
+#   and **the second one FIRED** (`coded=1` on `s4Callee`, `POINTER installed for
+#   argument` ×17) while the callee's read **did not move a byte**. So the sweep is
+#   not the road: changing what the definition HOLDS does not change what the call
+#   HANDS OVER. Members widening dies for the same reason. Both patches are in
+#   `minionWork/`.
+#   ⚠ **AND THE HEAD-VS-COUNT LESSON, IN CLOD'S WORDS: the trace's first twenty lines
+#   all read `coded=0`, because every early definition in the corpus is a command with
+#   no code body. A `head` said the gate never fired. A COUNT said 43.** Reported off
+#   the head, step 4 would have gone into the record as never engaging — a different
+#   and false finding, and one that would have sent the next stroke after a phantom.
+#
+#   **5. LAW 2 IS CERTIFIED BY IDENTITY (C20), AND ITS GATE HAD BEEN OPEN FOR A DAY.**
+#   `pointerT` row L4: the subscript result is a DIFFERENT BODY from the source (#7 vs
+#   #2) and the same capture STARRED is the source (#2). Law 2 is the difference, law
+#   4 is the match, each the other's control. The blocker was identity — `addrOf` —
+#   which landed in the SAME stroke that wrote the note saying law 2 was blocked.
+#
+#   ## ⚠⚠⚠ ONE RULING IS BLOCKED ON A MEASUREMENT, AND IT IS THE FIRST THING TOMORROW
+#
+#   **TONY ASKED, BEFORE THE MARK: did C25 write `gGroup` DIRECTLY or through `setGroup`?**
+#   **ANSWER: DIRECTLY — AND WITH `flags.data = 6` SET ALONGSIDE IT.** So the premise the
+#   ruling rested on does not hold: the union is **not** left undiscriminated, isGROUP **is**
+#   set, and nothing of the prior contents stays readable as data. The direct write set both
+#   halves, copied from `opAddPointer`'s own generated form.
+#
+#   **THE RULING WAS THEN BUILT ANYWAY AND MEASURED, AND IT COSTS THE CHANNEL ITS WHOLE POINT.**
+#   `setGroup` (`GroupItem.mm`) stores the field ITSELF only when the target body is `isLocal`
+#   or `isLabel`, or the source is `byRef`, or **the source has no parent**. Otherwise it stores
+#   **`new GroupItem(g)` — a copy.** An action's argument attribute is neither local nor label,
+#   and a define-block field HAS a parent, so the copy branch is the one taken:
+#   ```
+#   CHANCAM  the SOURCE handed to setGroup            field #3  body #2
+#   CHANCAM  what gGroup ACTUALLY HOLDS after it      field #4  body #2
+#   CHANCAM  same field?  NO -- A COPY   (source parent=0x1049e7300, isLocal=0, isLabel=0)
+#   then     addrOf(*argument)                        field #4  body #2   <- THE COPY
+#   ```
+#   **So through `setGroup`, `*argument` reaches a COPY OF THE SOURCE, not the source** — which
+#   is precisely the disease this campaign exists to cure. Direct reaches the FIELD.
+#   ⚠ **AND THE BODY COLUMN CANNOT TELL THEM APART**, which is why this needed asking: the copy
+#   SHARES the source's body (C18), so both spellings read `body #2`. Only the field column
+#   separates them, and only with the camera at the bind.
+#
+#   **AND THE OTHER HALF OF TONY'S QUESTION — what does `setGroup` do when the body already
+#   holds data? NOTHING. It never inspects the prior union**; it overwrites `gGroup`, sets
+#   `data = 6` and `isInitialized`, and only zeroes when handed null. **So `setGroup` is not a
+#   union guard, and the `0x4` is not the method's own problem — the tripwire is still the only
+#   thing standing between the channel and a clobbered union.**
+#
+#   ⚠ **HELD AT DIRECT, NOT SHIPPED THROUGH setGroup, AND THE HOLD IS THE REPORT.** The ruling
+#   said change it tonight so `jitBindArgRT` lifts the right lines tomorrow — but the lines it
+#   would lift are lines that lose the field. **Tony's re-ruling is the first thing tomorrow,
+#   ahead of `jitBindArgRT`**, because it decides WHAT jitBindArgRT lifts. The code carries the
+#   fork in a comment at the site.
+#   ⚠ **A third option nobody has priced: `setGroup` takes the field itself when the source is
+#   `byRef`.** Not measured, not recommended, and named only so the re-ruling has the full menu.
+#
+#   ## ⚠ TWO RULINGS TAKEN THIS SESSION (Tony, SEQ 120)
+#
+#   **THE UNION — A CONSTRAINT WITH A TRIPWIRE, NOT A FIX. BUILT.** `gGroup` shares
+#   storage with `gCount`, `gNumber`, `gBuffer` and six others (`GroupBody.h:119-131`),
+#   so the channel's write CLOBBERS whatever else that union holds. It is safe today
+#   only because an action's argument attribute body holds nothing. So the channel
+#   **writes `gGroup` only when that union reads 0x0, and refuses BY NAME otherwise**
+#   (`ARGCHANNEL REFUSED on <action>`). Certified under the flip: the channel still
+#   carries and **zero refusals fired**. ⚠ **The refusal has NO NEGATIVE CONTROL — it
+#   has never been made to fire, so "it stays silent" is not yet evidence that it CAN
+#   speak.** Named, not implied.
+#   ⚠ The `0x4` on the source's body stays an **undiagnosed identification**: `s4Src`
+#   holds "ORIG", four characters, so it is probably `gCount` read as a pointer. The
+#   union is structural; the 4 is not diagnosed.
+#
+#   **THE ORDER FOR TOMORROW, AND NOTHING SHIPS BETWEEN.**
+#   0. **THE setGroup RE-RULING FIRST** — see the blocked ruling above. It decides what
+#      `jitBindArgRT` is supposed to lift, so it cannot come after it.
+#   1. **`jitBindArgRT`** (`GroupActions.rtn:382`) — JIT-first, and Clod's own
+#      finding is that **the two roads now differ**, which they were built never to do:
+#      it lifts `runAction`'s binding lines VERBATIM and its comment says so.
+#   2. `nestT` f(g(x)) — the inner bind must not clobber the outer setup.
+#   3. The A→B→A recursion fixture, through the bracket.
+#   4. **FLEET ROWS**, so the channel is certified by something that runs every day
+#      and not by one probe in `minionWork/`.
+#   5. **The asking: `parser(Start)` receives Start.**
+#   ⚠ **A ONE-ROAD CHANNEL IS EXACTLY THE INTERMEDIATE STATE THE TWO-HALF LAW FORBIDS.**
+#
+#   ## WHAT ELSE LANDED — C20 THROUGH C26
+#
+#   ```
+#   C20  law 2 certified by identity; L3's attribution measured; pointerT's header
+#        corrected -- it still carried the falsified account
+#   C21  the isCopy column gets rows (L5); faceT's options row held on a SPELLING,
+#        not on an instrument -- a falsified reason is not a cleared gate
+#   C22  the results table; roundTripT JOINS THE FLEET and its ARM 0 control, failing
+#        since birth, is pinned at MISMATCH; `<-` pinned as carrier-stable
+#   C23  step 4 built unscoped, measured, reverted -- stop clause; F-43 banked
+#   C24  F-43 fixed and certified by DRIVING the arm; step 4 re-aimed, FIRED, and the
+#        callee's read did not move
+#   C25  the bind is the lever -- probe confirmed both clauses; the channel carries
+#   C26  the union tripwire; the date correction; the seal
+#   ```
+#
+#   **F-43 (the guard that crashes) — CLOSED.** `opAddPointer`'s null-refusal arm, added
+#   by F-41 so a refused operand would be named instead of crashing, **contained the
+#   crash**: bare `tag` resolved to the still-null `ptr`. Exit 139 → exit 0, certified by
+#   driving it. ⚠ **It survived because nothing could reach it** — `pointerT`'s F1 uses an
+#   undeclared name, which bear-trap #39 mints as a local, so it never yielded a null.
+#   Row **F2** exists to be the refusal test F1 never was.
+#
+#   ## ⚠ HOUSEKEEPING A FRESH SESSION SHOULD KNOW
+#
+#   - **`gNoUnwrap` is 0 and the shipped binary is bare.** Every retok this session was
+#     BARE; no directives build was ever measured. The flip was raised and lowered four
+#     times, with a rebuild each way, and only probes were run on a flipped build.
+#   - **The fixit queue is 1** — `carrierNode`, since 2026-08-31 — and it is still the
+#     gate. It does NOT discharge on the channel carrying: discharge is `parser(Start)`
+#     receiving Start, at the asking, after step 5. Nothing earlier (SEQ 114).
+#   - **Off-repo, 2026-09-01:** iCloud's "Desktop & Documents Folders" was still ON after
+#     the 08-31 twin scrub; Tony switched it off and Finder found `Documents` again. The
+#     scrub was MEASURED, the setting's prior ON state is REPORTED and was never measured,
+#     the aftermath was MEASURED (`~/Documents` real, 15 items, 1.6 GB; iCloud `Desktop/`
+#     8 KB and empty; the 458 MB retired copy intact). See `docs/fixIts.md` F-42.
+#
+# ⚠⚠⚠ SEALED 2026-09-01e — REBOOT SEAL. C18 AND C19, AND THE DAY'S BEST RESULT IS A
+# SUSPICION THAT DIED: THE STAR HAS NO FIXPOINT AND NO COMPOSITION EITHER — IT HAS ONE STAR.
+#
+#   ⚠ DATE CHECK, run before the mark: `date` reads 2026-09-01 15:45, `git log -1 --date=iso`
+#   stamps 2026-09-01 15:31. They agree. This is the second seal of the day — the earlier one
+#   (2f0e0dc) covers C1–C17 and STANDS; this one covers only what landed after it.
+#
+#   ⚠ VOCABULARY: **field** and **copy of a field**, per Tony's SEQ 112 ruling, and now with
+#   his SEQ 113 definition — *a copy of a field is a field with `isCopy` true whose body is
+#   SHARED with the original. A copy knows it is a copy; the original does not know it has any.*
+#
+#   ## THE ONE-LINE STATE: **Two strokes. Step 3 answered (the sweep makes the copy, 317/317),
+#   and SEQ 113's first three items landed — the follow-through laws re-pinned, `addrOf` minted
+#   as an identity instrument, and `starT` S3a GRADED AGAINST ITSELF.** Fleet **149 green / 1
+#   parked**, expected-red **3** (unchanged all day). Canary **326**. Frontier **exit 0, nine
+#   stations, 10 PASS**. decodePop 22/82 · ddPop 6 · countPop 39/39 · formsPop 14. Both repos
+#   **0 dirty / 0 unpushed**. `gNoUnwrap` **verified back at 0**, bare binary verified live.
+#
+#   ## ⚠⚠ THE FOUR THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. STEP 3: THE COPY UNDER THE TOKEN IS SWEEP-MADE (C18).** `addGroup` copies only
+#   `if ( group->parent )` (`GroupItem.mm:239`), the parse-made field always arrives with a
+#   parent, and the camera read **`adopted=0` on 317 of 317 firings**. No sweep edit was made.
+#   ⚠ **AND THE COPY SHARES THE BODY** — `copyBody == itemBody` in every row, because the copy
+#   constructor is `groupBody = grup->groupBody` outright. **TWO FIELDS OVER ONE BODY**, and
+#   what crosses between them is enumerable: contents, flags, `groupList`, `gMethod`, `gGroup`
+#   are **shared**; `parent`, sibling links, `rStuff` (freshly allocated) and `jitData` are
+#   **not**.
+#
+#   **2. ⚠⚠ `starT` S3a IS GRADED AND ITS OWN SUSPICION IS FALSIFIED. THERE IS NO FIXPOINT AND
+#   NO COMPOSITION — ONLY ONE STAR IS EVER APPLIED. N stars behave as exactly one.** Measured
+#   under `gNoUnwrap=1`, identity by `addrOf`'s **body** column:
+#   ```
+#   baselines   s3Leaf #2    s3One #4    s3Two #6
+#   *s3One   -> #2 LEAF      **s3One  -> #2 LEAF
+#   *s3Two   -> #4 MIDDLE    **s3Two  -> #4 MIDDLE   <- THE DISCRIMINATOR
+#   * *s3Two -> #4 MIDDLE    ***s3Two -> #4 MIDDLE
+#   ```
+#   **R4 decides and R2 alone never could:** a fixpoint AND a working composition both predict
+#   `**s3Two` reaches the LEAF. It reaches the MIDDLE. Only *"the second star does nothing"*
+#   predicts that — and it also explains R2 with no fixpoint anywhere, because one star on a
+#   ONE-deep pointer reaches the leaf by itself. **THE READING THAT LOOKED LIKE A FIXPOINT WAS
+#   A ONE-DEEP COINCIDENCE.**
+#   ⚠ **THE ABSENCE IS EVIDENCE HERE:** not one `ERROR unary *` line in the flip-ON run. F-41
+#   made every operator refuse **by name**, so a second star that ran and refused would have
+#   said so. Nothing refused; nothing second ever ran.
+#   ⚠ **R5 KILLS THE OBVIOUS MECHANISM** — spaced `* *x` reads identically, so this is NOT
+#   longest-match merging two stars into one token. **WHERE they are dropped is NOT DIAGNOSED
+#   and is not guessed at**, per the standing split: reproduction proves the symptom, never the
+#   cause.
+#   ⚠⚠ **THIS CONTRADICTS C16/C17's "`**x` is now `*` twice"** — that claim was read from the
+#   operator table; this is measured. **And it relocates the row that matters to S2b**, which
+#   must go RED at the flip and stay red until composition works.
+#
+#   **3. `addrOf` EXISTS, AND WHY IT IS NOT `showBody`.** Canary 325 → 326. `showBody` already
+#   printed node and body addresses — the right question in the wrong currency, because a raw
+#   `%p` **moves every run** and rule H3 forbids pinning what moves for correctness-unrelated
+#   reasons. `addrOf` prints a **per-run sequence number** instead: first distinct pointer is
+#   `#1`, a pointer already seen reads back its own number. **Identity becomes a small stable
+#   integer a `pop.sh` row can pin.** Certified: identical across three consecutive runs while
+#   the raw addresses moved between them.
+#   ⚠ **ITS BODY COLUMN IS CARRIER-PROOF AND THAT IS THE USEFUL PROPERTY.** The argument carrier
+#   mints a fresh FIELD on every call — `apSrc` read `field=#1`, `#3`, `#8` across three asks —
+#   but the BODY survived at `#2` throughout. So a body-column comparison can ask an identity
+#   question **through** the carrier defect instead of being voided by it. **That is what
+#   unblocked S3a, and it is offered to the step-5 asking for the same reason.**
+#
+#   **4. THE FOLLOW-THROUGH LAWS ARE RULED, AND TWO ROWS WERE PINNED AGAINST THE WRONG
+#   MECHANISM.** Law 1 *print follows* · law 2 *subscript stops at the element* · law 3 *unary
+#   binds tightest, `*a[0]` is `(*a)[0]`* · law 4 *name it, then star it*. `pointerT`'s L1 was
+#   credited to the subscript and belongs to **print**; X was credited to *"one level too many"*
+#   and is really the star **binding to the bag**.
+#   ⚠ **THE VALUES NEVER MOVED — ONLY THE ACCOUNT OF THEM WAS WRONG, WHICH IS EXACTLY WHAT A
+#   VALUE-PINNED ROW CANNOT CATCH.** X's witness had been in the output all along, unread:
+#   `ERROR unary * on ptBagP -- it holds no group`. `pop.sh` now asserts that line **by its
+#   text** (H4), because a row pinned only at 0 goes green the day the star binds the other way.
+#   ⚠ **LAW 4's SPELLING IS `<-`, NOT `=`** — measured: rebind-then-star **follows**,
+#   assign-then-star **refuses**. Rows L2/L3 are that pair, and L3 exists so the next reader who
+#   writes the natural `=` does not conclude the law is broken.
+#   ⚠ **LAW 2 IS NOT CERTIFIED** and `pointerT` says so rather than implying it.
+#
+#   ## `faceT` — THE PAIR FIXTURE, AND THE QUESTION IT ANSWERED FOR CLAY
+#
+#   **`noPrinT` lives in `GroupBody`'s `flags` — THE SHARED COLUMN.** `GroupItem`'s `options`
+#   struct holds only `affiliation:2` and `isCopy:1`. So the charter's conditional resolves the
+#   **other** way: `roundTripT` ARM B2 was **already a body-half arm**, never the field-half arm.
+#   `faceT` adds the identity proof, the FORWARD direction (B2 only did reverse), and the column
+#   census. **Flags round-trip both ways, 1/1.**
+#   ⚠ **F1 IS LOAD-BEARING FOR EVERY OTHER ROW** — without it, *"the write round-tripped"* could
+#   simply mean both names were one field, and the fixture would be a confident tautology. It
+#   pins `field=#1` vs `#3` with `body=#2` both.
+#   ⚠ **F4 IS RECORDED AS UNREADABLE, NOT AS A VERDICT.** `parent` is per-field and the charter
+#   predicted it would not round-trip; **it cannot be read at all** — the capture yields a
+#   data-less field, which returns its own tag (#26). **A PREDICTION THAT CANNOT BE MEASURED IS
+#   NOT CONFIRMED BY FAILING TO MEASURE IT.**
+#   ⚠ **The `options` and `rStuff` columns are ABSENT DELIBERATELY**: `isCopy` is visible only
+#   through `addrOf`, which reports the **carrier** (every subject reads `isCopy=1`, originals
+#   included), and an `rStuff` counter has no readable spelling today. Two more tag-echo rows
+#   would have been green and asserted nothing.
+#
+#   ## THE CHANNEL RULE THIS DAY BOUGHT — WT-15, IN `docs/walkieTalkie.md`
+#
+#   **SCRIBE AT PICKUP, NOT AT LEISURE.** A dispatch is transcribed into `ipc/` **before** the
+#   work it orders begins. SEQ 106–111 were each dictated, each acted on, and **not one was
+#   scribed**; SEQ 106–110's words are gone and the channel carries a reconstruction NOTICE in
+#   their place. SEQ 111 survived **by three minutes** — read out of the untracked, gitignored
+#   `incant++` at 14:26, overwritten at 14:29.
+#   ⚠ **SEQ 113 WAS SCRIBED AT PICKUP**, before any work started. The practice is live.
+#
+#   ## WHAT IS NEXT — SEQ 113's REMAINING ITEMS
+#
+#   **STEP 4, NOT STARTED.** `+*` at the sweep behind `gNoUnwrap` for bare mentions of the
+#   action's own fields; the body reads `*argument`. **The step-3 finding is its argument** —
+#   `+*` hands the callee the field, not a copy of it.
+#   Then **step 5 and the asking** (`kant8T` K2x row 1 / K6c / `nestT`, pre-registered), then
+#   the **try-and-buy**: flip `gNoUnwrap` on a branch, fleet + unitTests, `incant/utilities`
+#   first, **classify reds by mechanism** — that pass IS the unitTests and `pop.sh` revision.
+#   ⚠ **CLAY'S GRADED CANDIDATE STANDS, UNDRIVEN:** the callee's fresh, zeroed `rStuff` as the
+#   account of `parser(Start)` not receiving Start — it received Start's body wearing a copy's
+#   rule state. **`addrOf`'s body column is the witness that candidate did not have.**
+#   ⚠ **OWED BY CLAY, NOT CLOD:** the Ruling A re-read against Tony's copy-of-a-field
+#   definition, before step 5 is graded; and the SEQ 108 recon re-read after Finding 1.
+#
+#   ## ⚠ HOUSEKEEPING A FRESH SESSION SHOULD KNOW
+#
+#   - **`gNoUnwrap` is 0** and the bare binary is verified live — it was flipped to 1 to grade
+#     S3a and flipped back, with a rebuild each way. **Never measure anything else on a flipped
+#     or directives build.**
+#   - **The fixit queue is 1** — `carrierNode`, since 2026-08-31. **It is the gate, and step 3
+#     was its work.** There is no separate step-one errand.
+#   - **Off-repo, this session only:** the iCloud `Documents` twin was scrubbed after a verified
+#     458 MB copy to `~/iCloudDocs-retired-2026-09-01`; three unique files were rescued into
+#     `~/Documents` first. CG's wiki draft lives in `~/Documents/Wiki` with a browsable HTML
+#     pair regenerated by `makeWikiHtml.py` beside it. **None of this is repo material.**
+#
+# ⚠⚠⚠ SEALED 2026-09-01 — SEVENTEEN STROKES, AND THE ONE THING THAT DID NOT LAND WAS A
+# MESSAGE. THE OPERATOR TABLE IS RE-RULED; THE CHANNEL LOST FIVE DISPATCHES AND NEARLY LOST
+# A SIXTH BY THREE MINUTES.
+#
+#   ⚠ DATE DISCIPLINE, RUN BEFORE THIS MARK WAS TYPED, per the standing check the seal
+#   below minted: `date` reads **Tue Sep  1 14:34 EDT 2026** and `git log -1 --date=iso`
+#   stamps **2026-09-01 14:33**. They agree. This seal's date is MEASURED, and it is the
+#   first one that can say so.
+#
+#   ⚠ VOCABULARY, TONY'S RULING (SEQ 112): this seal is written in **field** and **copy of a
+#   field**. Not "node", not "frame". Where a commit message says "frame bind", read **the
+#   argument channel**; the old word is kept only in the commit trail it was written into.
+#
+#   ## THE ONE-LINE STATE: **Seventeen strokes plus a WIP commit. `+*` became a real pointer
+#   operator, `**` stopped being an operator at all, seven operators learned to refuse a null
+#   operand by name, and two premises the campaign was resting on fell out. The session was
+#   stopped by a usage wall at 11:15, one word short of step 3 — so the machine is clean and
+#   the CONVERSATION is what broke.** Fleet **138 green / 1 parked**, expected-red **3**
+#   (unchanged). Canary **325**. Frontier **exit 0, nine stations, 10 PASS**. decodePop 22/82 ·
+#   ddPop 6 · countPop 39/39 · formsPop 14. Both repos **0 dirty / 0 unpushed**. Every retok
+#   BARE. Binary **11:06**, newest source **11:05** — current, not stale.
+#
+#   ## ⚠⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. `+*` IS `opAddPointer` AND `**` IS NOT AN OPERATOR (C16, C17).** `a +% b` adds a
+#   **copy of a field**; `a +* b` adds a **pointer to** that field, read back with a subscript,
+#   which already follows it. `**` left BOTH the operator table AND the `UnaryOPS` bin — it was
+#   in two places, which is why one removal was not enough — so `**x` is now `*` twice.
+#   `opCopyList` and `opDerefAll` retired at **zero call sites each**, censused before removal.
+#   `copyListTo` is frozen substrate and did not move. Canary **326 → 325**, fully accounted:
+#   −2 retired, +1 added.
+#   ⚠ **`+*` WAS NEVER MINTED.** It had been bound in `incant/setup` since before this charter,
+#   meaning "copy the argument's list", with **no users anywhere in the corpus**. So the spacing
+#   law was certified against an operator that already existed, and nothing was added to the
+#   tokenizer to ask the question.
+#
+#   **2. ⚠⚠ `+%` DOES NOT ISOLATE — AND A PLAN WAS RESTING ON IT.** `pointerT`'s anti-vacuity
+#   twin expected a **copy of a field** not to see later writes to its source. **It sees them**,
+#   measured identically with the flip ON and OFF, so this is not the flip: `+%` already shares
+#   the source's `GroupBody` (`Bytecode.twk:77` says so outright). **The copy-versus-pointer
+#   difference is THE LINK, not the contents.** The SEQ 108 recon's framing — *can `+%` hand the
+#   body a reference instead of a copy?* — is answered *it already does, at the body level*, and
+#   **the re-read is Clay's; nothing is owed from Clod** (SEQ 112).
+#
+#   **3. ⚠⚠ `starT` S3a IS UNGRADED, AND SEQ 112 SUPPLIES THE MISSING WITNESS.** Under the flip,
+#   `**x` on a one-deep pointer READ where the law says the second star must refuse. Both
+#   witnesses were void: **printing a pointer follows the chain**, so a value witness cannot
+#   separate one-level from to-the-leaf; and the identity witness — pass it to an action, print
+#   `argument.taG` — returns `argument`, because **a tag read through an action-argument holder
+#   yields the holder**. The instrument needed to certify the star law was blocked by the very
+#   defect this campaign exists to fix. It was reported unmeasured rather than graded, per the
+#   refusal to grade a voided control. ⚠ **SEQ 112 ORDERS AN `addrOf` EXTERN — instrument,
+#   canary-declared — so S3a separates the two by IDENTITY with no holder and no print. S3a is
+#   gradeable and is owed.**
+#
+#   **4. F-41 — SEVEN OPERATORS REFUSE A NULL OPERAND BY NAME (C14).** `opPlus`, `opMinus`,
+#   `opGT`, `opLT`, `opEQ`, `opGE`, `opLE` each gained `opMultiply`'s guard. A refusing unary
+#   returns null, that null arrives as the next operator's right operand, and every
+#   `argument.` read below it was a latent 139. **Certified by DRIVING each one** — eight rows
+#   in `spacingT`, each asserted BY ITS TEXT (H4).
+#   ⚠ **THE EIGHT ROWS ARE ONLY MEANINGFUL WHILE ROW A IS GREEN**, and that dependency is
+#   written into `pop.sh` beside them: row A is the unary still refusing cleanly, and if it ever
+#   starts succeeding there is no null, and all eight go green while asserting nothing.
+#   ⚠ **GRADE KEPT HONEST:** the crash was MEASURED on `opMultiply` only (F-36). The other six
+#   were censused **structurally** — zero guards against 3–6 dereferences each — and guarded on
+#   that basis, not on six separate crashes.
+#
+#   **5. THE FOLLOW-THROUGH LAWS ARE RULED AND TWO ROWS ARE PINNED AGAINST THE WRONG READING.**
+#   Tony, 2026-09-01: **print follows** — a field holding a pointer prints its group;
+#   **subscript stops at the element**; **unary binds tightest**, so `*a[0]` is `(*a)[0]` and
+#   refuses on a `+*` list; **the read of a pointer out of a list is name it, then star it.**
+#   ⚠ These arrived in the dispatch that never landed, so `pointerT` rows **L and X are pinned
+#   against Clod's own reading, not against these laws.** Two green rows are currently asserting
+#   something Tony did not rule. **They re-pin as part of step 3's stroke.**
+#
+#   **6. ⚠⚠ THE CHANNEL IS WHAT FAILED, NOT THE MACHINE — FIVE DISPATCHES LOST, A SIXTH SAVED BY
+#   THREE MINUTES.** SEQ 106 through SEQ 111 were dictated in chat and acted on; **not one was
+#   scribed into `ipc/clay-to-clod.md` at the time.** SEQ 106–110's words are **gone** — the
+#   channel now carries a **reconstruction NOTICE** in their place, built from the commits that
+#   cite them, and it says in terms that it is evidence about what was DONE and never about what
+#   was SAID. **None of it may be cited as Clay's.**
+#   ⚠ **SEQ 111 SURVIVES ONLY BECAUSE OF A COINCIDENCE OF THREE MINUTES.** Its body was read out
+#   of `IncantForms/WorkingOn/incant++` at **14:26** on the restart; Tony overwrote that section
+#   at **14:29**. `incant++` is untracked and gitignored, so **there was no second copy anywhere
+#   on disk** — the whole operator-table ruling, the star law, and both fixture charters would
+#   have gone with it. It is transcribed verbatim now, with that provenance stated in the entry.
+#   **THE RULE THIS BUYS: SCRIBE AT PICKUP, NOT AT LEISURE.** The channel's own doctrine already
+#   said a finding recorded only in a commit message is recorded and simultaneously lost; this
+#   is the same failure one register over, and it cost five dispatches before anybody counted.
+#
+#   ## ⚠ WHERE THE SESSION ACTUALLY STOPPED, so nobody reconstructs it twice
+#
+#   The 09-01 session ran **08:45 → 11:15** and was ended by a **usage wall**, not by a decision.
+#   The last thing written was Clod's report at the foot of `incant++`, and it ends:
+#   *"Step 3 is next and unstarted — the mint-site capture: is the copy under the Token made by
+#   the sweep at `ruleActions.rtn:459`, or already present from parse and merely copied again?
+#   One capture, address reported before any sweep edit. **Say go.**"*
+#   **Nothing was in flight** — no half-edit, no uncommitted build, no running agent, no staged
+#   index, no merge or rebase state in either repo. The wall caught the conversation, not the
+#   tree. **The go arrived in a dispatch that never reached disk**, which is why the restart cost
+#   a reconstruction instead of a resume.
+#
+#   ## THE NUMBERS, MEASURED AT 14:34 ON THE RESTART — NOT CARRIED FORWARD FROM C17
+#
+#   ```
+#   pop.sh          138 green / 1 parked / 3 red      exit 1   (the pinned red set, unchanged)
+#                     parseClass.target · oneTest baseline · jsonTest baseline
+#   decodePop        22 checks, 82 terms                       PASSED
+#   ddPop             6 green                                  PASSED
+#   countPop         39 compiled clean of 39 attempted         SENTINEL reached
+#   formsPop         14 checks                                 PASSED
+#   frontier          9 stations RAN and PASSED, 10 PASS lines exit 0
+#   canary           grep -c '^extern' GroupRules.h = 325
+#   binary           11:06, 1427584 bytes; newest source 11:05 — CURRENT
+#   Groups           0 dirty, 0 unpushed         (jit-unified-emit-wip)
+#   support          0 dirty, 0 unpushed         (main; groups.ext committed at 4a4d61d)
+#   fixit queue      1 — carrierNode, since 2026-08-31, lane parser, blast OVERLAPS
+#   ```
+#   ⚠ **THE THREE REDS ARE THE PINNED SET AND DID NOT MOVE ALL SESSION.** Read `parseClass.target`
+#   past its first six lines, per the standing warning that a red row absorbs new breakage
+#   silently.
+#
+#   ## ⚠ THE FIXIT LINE, AND IT IS NOT A SEPARATE ERRAND
+#
+#   **`carrierNode` is THE GATE, and step 3 is its work** (SEQ 112). There is no step-one-first
+#   question to ask this session: the queue's single citizen and the campaign's next stroke are
+#   the same stroke. Queue **1**, oldest **2026-08-31**.
+#
+#   ## WHAT HAPPENS NEXT — SEQ 112'S ORDER, (a) AND (b) NOW DONE
+#
+#   **(c) STEP 3, THE MINT-SITE CAPTURE.** At `ruleActions.rtn:459`: is the **copy of the field**
+#   under the Token made by the sweep, or already present from the parse and merely copied again?
+#   **One capture. The address is reported BEFORE any sweep edit.**
+#   Then, in order: **steps 4–5** (`+*` at the sweep behind `gNoUnwrap` for bare mentions of the
+#   action's own fields; the body reads `*argument`; the asking pre-registered with `kant8T` K2x
+#   row 1, K6c and `nestT`), and **after step 5 the try-and-buy**: flip `gNoUnwrap` on a branch,
+#   run fleet + unitTests, `incant/utilities` first, **classify reds by mechanism** — and that
+#   pass IS the unitTests and `pop.sh` revision, done against the real red set rather than a
+#   guessed one.
+#   ⚠ **THE PRE-STEP-4 CHECK ALREADY PASSED** and does not need re-running: with `gNoUnwrap` ON,
+#   `spacingT` G2 (`a + *b`) reads **12** and G (`a + **b`) reads **12**. A single `*` IS wired
+#   to the flip.
+#
+#   ## ⚠ ONE PROCESS FAILURE, BANKED WHERE IT HAPPENED
+#
+#   **C16 carried only the `derefAllT` rename while its message described the whole stroke.** Its
+#   `git add` listed a path that no longer existed, **the add aborted, and `2>/dev/null` hid it**;
+#   the commit took what was staged. C16 was already pushed, so it was not rewritten — **C17 is
+#   the body its message describes, and the two are one stroke.** Same family as the 08-08
+#   sweep-up note: a commit that describes work it does not contain.
+#   **The lesson, and it was applied to every commit after it:** read `git diff --cached
+#   --name-only` BEFORE typing the commit, not after.
+#
+#   ## THE SEVENTEEN STROKES, IN ORDER
+#
+#   ```
+#   C1   SEQ 103 transcribed; the seal date was never the clock
+#   C2   Tony's fixit verdicts — four of goldenDrift's six discharge
+#   C3   K2 could not answer the question K2 asks — the asymmetry is void
+#   C4   the argument trample has a pointable one-statement cause, and it is NOT the carrier
+#   C5   SEQ 98 to Clay — Part 1 done, Part 2 stopped on a measurement
+#   C6   THE FIXIT CULL — queue 9 → 1, and two rules that stop it growing back
+#   C7   R4 + carrierNode's new form; Part 2 stops at the scoping gate
+#   C8   the argument channel binds — certificates 2 and 3 green, the trample fixed
+#   C9   the fourth asking failed; the camera says the slot was never written
+#   C10  frameArg stripped; the copy census answers the fork — ONE copy, not one per mention
+#   C11  the copy bind fails its own control — arm 1's save/restore clause does not hold
+#   C12  SEQ 108 recon items 1–2 — and item 2 CORRECTS Clod's own C10 census
+#   C13  F-36 CLOSED — and the star was a red herring
+#   C14  F-41 — all seven operators refuse a null operand by name
+#   C15  step 2 — `+*` ALREADY EXISTED, so the law was certified without minting it
+#   C16  +* IS opAddPointer, ** IS NOT AN OPERATOR — and two premises fell out
+#   C17  SEQ 111's body — the operator table, both fixtures, and the re-pins
+#   +    WIP (Tony): compileRules recursion → compileRules, not walkRules   [parser:68]
+#   ```
+#   ⚠ **`parser:68` WAS ADJUDICATED, NOT INHERITED.** It was found dirty at the restart, mtime
+#   09:30, and it is Tony's hunk: `compileRules` was recursing into `walkRules` on a
+#   list-bearing field, so the deeper levels took the other walker. Ruled **commit as-is, not a
+#   revert under any reading**. `parser` stays TRACKED — it is WIP with an end date, waiting on
+#   the flip, which is the line that separates it from `incant++` and `tester`.
+#
+#   ⚠ **THIS SUPERSEDES THE SEAL BELOW (2026-08-31), WHICH IS INTACT AND TRUE AS OF ITS OWN
+#   MARK.** Its "clean with no exception clause" state held through all seventeen strokes.
+#
+# ⚠⚠⚠ SEALED 2026-08-31 — THE THIRD ASKING FAILED INFORMATIVELY, AND THAT IS THE DAY'S
+# HEADLINE. THE BIND IS EXONERATED ON CAMERA; ONE MECHANISM NOW EXPLAINS THREE MEASUREMENTS.
+#
+#   ⚠⚠ **DATE CORRECTED 2026-09-01 (SEQ 103 housekeeping). THIS SEAL WAS MARKED `2026-09-02`,
+#   WRONG BY TWO DAYS — AND IT WAS *NOT* THE CLOCK. THE CLOCK IS THE ONE INSTRUMENT THAT HAS
+#   BEEN RIGHT ALL ALONG.** The seal prose has been running AHEAD of the machine, and two
+#   earlier seals diagnosed that backwards.
+#
+#   **THE PROOF, for this seal, independent of any earlier claim:** every commit this seal
+#   describes is machine-stamped **2026-08-31 08:19–12:49 EDT** (`R1`…`R20`, the seal commit
+#   `8fb096a`, and `2a947d2`); the machine now reads **2026-09-01**; and **Tony's own calendar
+#   agrees at 09-01**. That timeline is monotonic and ~20h wide, so a clock two days *behind*
+#   on 08-31 would put today at 09-03, which Tony says it is not.
+#
+#   **THE DRIFT LEDGER — each seal's claimed date against the machine stamp on its own commit:**
+#   ```
+#   claimed 2026-09-02   commit 08-31   +2      <- this seal
+#   claimed 2026-08-31   commit 08-30   +1      <- the seal below; ALSO mis-stamped
+#   claimed 2026-08-29e  commit 08-29    0
+#   claimed 2026-08-29   commit 08-28   +1
+#   claimed 2026-08-28   commit 08-27   +1
+#   claimed 2026-08-27   commit 08-26   +1
+#   claimed 2026-08-25   commit 08-25    0      <- and 08-23, -22, -21, -20, -19 all 0
+#   ```
+#   ⚠ **SO THE SEAL BELOW IS MIS-STAMPED TOO — its true date is 2026-08-30 — and the two seals
+#   do NOT both belong to one day.** It is left as written rather than rewritten, per the
+#   standing rule that a dated record is not restated to match a later finding; **read it as
+#   08-30.** Same for `ipc/clay-to-clod.md`'s **SEQ 100** (`2026-09-01`) and **SEQ 101 /
+#   SEQ 102** (`2026-09-02`): all three were transcribed in the **08-31** session. Read them
+#   as 08-31.
+#
+#   ⚠⚠ **AND THE FINDING WORTH MORE THAN THE DATES: THE 08-27 AND 08-28 SEALS' "the machine
+#   clock read a day behind" NOTES WERE POINTING AT THE WRONG INSTRUMENT.** Both sit in the +1
+#   band above, and the note "retired" on 08-29 exactly when the drift happened to fall to zero
+#   — which reads as the clock correcting itself and is equally consistent with the prose
+#   landing on the right day by accident. **The unreliable instrument is the seat's inherited
+#   sense of the date, not the machine** — and the machine is the only one of the two that
+#   leaves a checkable stamp on every commit.
+#   ⚠ **GRADE, stated because this file's own doctrine demands it: the top row is MEASURED
+#   against Tony's calendar. The older rows are a CONSISTENT PATTERN, not independently
+#   confirmed** — nobody has a calendar witness for 08-26, and none is now obtainable.
+#   ⚠ **The standing check is one command, and it is owed before any seal mark is typed:
+#   `date` beside `git log -1 --date=iso`.** A seal date is a measurement like any other; this
+#   one was being written from memory for six seals running.
+#
+#   ⚠ **THIS SUPERSEDES THE SEAL BELOW (marked 2026-08-31, truly 08-30), WHICH IS INTACT AND
+#   TRUE AS OF ITS OWN MARK.**
+#
+#   ## THE ONE-LINE STATE: **Twenty-two commits of little steps that compounded — the flip's
+#   blocker is now a filmed mechanism instead of a hypothesis, two getters lost their side
+#   effects, `tokenize` retired in full, the audit gate stopped demanding the impossible, and
+#   the tree is CLEAN WITH NO EXCEPTION CLAUSE for the first time since mid-August.** Fleet
+#   **88 green / 1 parked**, expected-red set **3** (was 4). Canary **326**. Frontier **exit 0,
+#   10 PASS**. decodePop 22/82 · ddPop 6 · countPop 39/39 · formsPop green. Both repos
+#   **0 dirty / 0 unpushed**. Every retok BARE.
+#
+#   ## ⚠⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE THIRD ASKING FAILED, AND THE CAMERA CHANGED THE QUESTION.** `parser(Start)` still
+#   receives a carrier — but the bind is **exonerated on film**:
+#   ```
+#   CARRIERCAM bind   ruleArg=0x100651780 ruleArgBody=0x100652960 -> resultBody=0x100652cd0
+#   CARRIERCAM after  ruleArgBody=0x100652cd0        THE BIND WORKED
+#   BODY  argument    node=0x100657540  body=0x100652960   THE CALLEE READS ANOTHER NODE
+#   ```
+#   One unwrap of the carrier yields **nothing** — "holds no group". Legacy's else-arm sets
+#   `setGroup`; the flip skips it and the body adoption lands elsewhere, so the read node ends up
+#   with **neither**. ⚠ **NEITHER PRE-REGISTERED CANDIDATE SURVIVED.** The replacement question
+#   is narrower: *which road mints the node the callee reads, and when.*
+#
+#   **2. PART 1 ANSWERED IT: MINT → BIND → READ, and the mint and bind are ALREADY different
+#   nodes** (0x100ced8c0 vs 0x100ced780, one body). **THREE nodes in play**, so the multi-node
+#   problem starts earlier than the bind — which is the measured argument for moving the channel
+#   to the FRAME rather than chasing identity across three roads.
+#
+#   **3. ⚠ IT IS ONE MECHANISM, MEASURED THREE TIMES ON THREE DAYS.** `roundTripT` (flag write vs
+#   read), `broadcastT` (twin vs original), and now the argument bind: **a named read does not
+#   reach a written node.** A fix aimed only at the argument road leaves the other two standing.
+#
+#   **4. THE GATE READS "AUDIT AT PIN", NEVER "AUDIT CLEAN".** The audit counts `isRule &&
+#   !rStuff`, which Ruling D makes the lawful signature of a bare master, and SEQ 100's C3 table
+#   showed **no reader needs rStuff off those ten**. Pinned **10/4** as a tripwire: 11 means a new
+#   route is marking masters, 9 means an attachment road started constructing. `literalMasterIsRule`
+#   discharged and retired on it.
+#
+#   **5. `tokenize` IS GONE — method, extern, mirror, GroupMain construction, every term.** Zero
+#   firings measured; the succession is `tokened` → `captureSpan`, named in the code's own
+#   comments. ⚠ **The H11 gap was closed by the DELETION, not waived** — a removal is the positive
+#   control a counter cannot be. Odometer re-pinned 18/45/63; `tokenize` was one of the nineteen
+#   genParse-GREEN rules.
+#
+#   **6. TWO GETTERS STOPPED BEING SETTERS.** `getRStuff` and `getGuard` are pure; `ensureRStuff`
+#   and `ensureGuard` carry the construction by name. ⚠ **The `getRStuff` census was wrong by 133
+#   sites** — tok's `#autoGetSet` binds every bare `.rStuff` read to it, and **the blast radius is
+#   set by the out-of-repo mirror, not by the getter**: 8 sites before one `groups.ext` line, 137
+#   after. `pop.sh` now pins the raw-read count as a drift tripwire.
+#
+#   ## WHAT MOVED
+#   **RETIRED:** `tokenize` (in full) · `literalMasterIsRule` (by mapping) · the seal's
+#   "but for Tony's two named files" clause · the 08-08 sweep-up trap (structurally).
+#   **BORN:** `carrierNode` (the campaign's last citizen, evidence not hypotheses) ·
+#   `roundTripT` · `sixShapeT` · `derefAllT` · `litToK` · `opDerefAll`.
+#   **CLOSED:** F-35 (codegen drift from one out-of-repo line) · F-37.
+#   **OPEN:** F-34 (kant/C++ literal text) · F-36 (`* *x` crashes at 139).
+#
+#   ## ⚠ THE NEXT SEAT OPENS WITH ONE OF THESE, NEVER BOTH
+#   **A — THE FRAME BIND (SEQ 102 Part 2).** Revert boundary is **R19**. The shape is
+#   `parentLabel`'s, transplanted: slot on the frame beside `parentLabel`; caller evaluates args,
+#   writes the slot, then calls (**write-last is load-bearing**); callee **lifts into a stack local
+#   at entry, first line**. No save/restore — a handoff window, not storage. Certificates
+#   pre-registered in `carrierNode`'s RULED block: the asking on camera, an A→B→A recursion
+#   fixture, an f(g(x)) nesting fixture, and `parseRule`'s owed lift. ⚠ **It is a `RuleStuff`
+#   LAYOUT change — bear-trap #10: `groups.ext` sync AND `tokall`, or it fails silently.**
+#   **B — THE COMMENT SWEEP of `ruleActions.rtn`** (1,714 lines, 37 externs, ~35 blocks).
+#   ⚠ **RECONCILE FIRST: `docs/commentMinion.md` is SIGNED with schema v2 and Tony's own
+#   METHOD-SCOPED-NOT-FILE-SCOPED amendment; tonight's exemplar uses `TokFiles`. TWO CONVENTIONS,
+#   ONE JOB** — and the two-line question from `opDot` is unruled. Ten-minute ruling, then a
+#   minion can run it mechanically.
+#
+#   ## NON-GOALS, so they do not creep
+#   The flag-write and addGroup-twin roads stay as ruled. The operand-pickup unwrap (#35's arms,
+#   `derefT`'s non-motion) is **the second gate, separately chartered.** `opDebug`'s unwrap strip
+#   re-rides whichever stroke carries the flip.
+#
+#   ## ⚠ THREE PROCESS FAILURES, RECORDED BECAUSE THEY WERE MECHANICAL AND MINE
+#   `git add -u` swept Tony's WIP into a commit that then described work it did not contain
+#   (fixed structurally — both files untracked). A fleet run **chained into the commit command**,
+#   so an 85 scrolled past above an already-made commit. And an instrument reverted in **source
+#   but not binary**, which is what produced that 85. **The rule earned: the fleet run is its own
+#   step, read before the commit is typed.**
+#
+#   Tony's fixit incantations waiting: 8 (oldest: kantGenPath, since 2026-08-24)
+
+# ---
+
+# ⚠⚠⚠ SEALED 2026-08-31 — THE ACCEPTANCE LINE WAS NOT ASKED A THIRD TIME. THE SPLIT IS
+# BLOCKED ON A FLAG THAT WILL NOT ROUND-TRIP, AND THAT IS UPSTREAM OF EVERYTHING TRIED.
+#
+#   ## THE ONE-LINE STATE: **Three split attempts, three reverts, and today the instrument
+#   finally named something upstream of the search space — under the split a node cannot read
+#   a flag it just had set.** Fleet **86 green / 1 parked**, red set byte-identical to
+#   stroke-open. Canary **325**. Frontier **exit 0, 10 PASS**. decodePop **22 checks / 82
+#   terms**. ddPop **6 green / 31 records**. countPop **39/39**. Switch at **0**, probes
+#   **zero**, every retok BARE. Both repos clean and pushed but for Tony's two named files.
+#
+#   ## ⚠⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE ACCEPTANCE LINE'S VERDICT IS "NOT ASKED".** It was asked twice before and failed
+#   both times on `parser(Start)` receiving a carrier. Today it was never reached: certification
+#   is gated on the audit number and the audit never came clean, so the flip did not re-arm and
+#   `acceptStartT` stayed parked. **Not asked is not the same as failed, and the seal says so
+#   rather than implying a third failure.**
+#
+#   **2. THE MECHANISM IS ONE LEVEL ABOVE WHERE THREE STROKES LOOKED.** `broadcastT`'s ARM 3 —
+#   its anti-vacuity control, *did the write land on the original at all* — **FAILS under the
+#   split**. `x :. noPrinT` then `x.noPrinT` does not round-trip on the same node. Every other
+#   arm is downstream of that, so the columns, the stamp, the roads and the writers were all
+#   being measured through a void control. **A three-line round-trip fixture is the next
+#   stroke's first build.**
+#
+#   **3. THE WRITER FIX WAS A NO-OP, AND THAT IS THE PER-SITE CHECK'S ANSWER.** All three late
+#   writes are already at the earliest moment their inputs exist — the bin write sits inside
+#   `aCTionDefinE`'s attachment walk, and `setRuleStuff`'s two arms derive from `registry` and
+#   `parent`, both set at attachment. Nothing to relocate. **A derivation cannot be asked before
+#   its answer exists**, and these are asked exactly when it does.
+#
+#   **4. `isVirtual` AT STAY IS RIGHT AND WAS NOT THE HANG.** Re-homing it was the standing
+#   hypothesis; the hang survives with it firmly in the body and the `copyOf` rider reverted.
+#   **`kant8T` times out at 90s.** The ruling is correct on its own terms — it is a mechanism
+#   flag — and that hypothesis is dead. Do not re-run it.
+#
+#   **5. THE BROADCAST IS REAL AND MEASURED, AND THE LAW OUTLAWS IT.** ARM 2b read 1 on the
+#   legacy binary: a late write to a shared body reaches every node sharing it. Ruled the same
+#   day — identity set at definition, post-definition writes user-beware with a squawk — so
+#   **post-mint silence is the law working, not a regression.** `incant/broadcastT` ships as a
+#   tripwire pinned to the pre-law answer; it goes red when the fix lands, which is when
+#   somebody should be looking.
+#
+#   ## WHAT MOVED
+#   **BORN:** `probePlacementInheritsConclusion` (a probe downstream of its predicate sees one
+#   outcome) and `parentStampOnRealNode` — decoder lines, problem records, rendered.
+#   **RETIRED:** `parentStamp`, unreproduced, queue 9 → 8. 33 measured arrivals at opDot's
+#   substituting cases, dangerous event zero. **Its coupling claim was STRUCK, not archived.**
+#   **DOCTRINE:** two rows in `hookRules.md` — probe placement, and `!` exonerated a second time
+#   with the capture convicted twice.
+#   **BUILT AND KEPT:** `incant/broadcastT`, the timing oracle — one second where the fleet took
+#   ten minutes and hung.
+#
+#   ## THE NEXT STATIONS
+#   1. **The three-line round-trip fixture.** Set a flag, read it back, same node, under the
+#      split. Upstream of every other question.
+#   2. The split re-attempt, unchanged in shape, once round-trip holds.
+#   3. The flip, and the acceptance line's third asking.
+#   4. **Fixit queue: 8 — the pledged hour ran today; parentStamp retired out of it.**
+#
+#   ## PARKED, WITH GRADES
+#   `gMethod` (own ruling, against #34 and methodSlotFourReaders) · `lastREF` channel redesign
+#   (named ledger row, outside the charter) · the J-arm · `goldenDrift` clusters 2/3/4 (cluster
+#   1 REMEDY; 3 narrowed to 08-02, four unbuildable commits, hand-read not bisect) ·
+#   `parseSelfRecursion` retest-post-flip · `literalMasterIsRule` on its four-node remainder ·
+#   `*` quarantined to fixtures until the flip certifies · the closing stroke's sweep list
+#   (switch obituary, dead-flag census, `isPointer`'s whole-organism retirement).
+#
+#   ## TRIPWIRES ARMED
+#   `incant/broadcastT` — pinned pre-law, goes RED when the propagation-writer fix lands.
+#   `incant/acceptStartT` — parked, un-parks at the flip. `incant/derefT` — parked, re-pins to
+#   R1 ≠ R2 at the flip.
+#
+#   Tony's fixit incantations waiting: 8 (oldest: kantGenPath, since 2026-08-24)
+  lanes: parser 5 . genParse campaign 3   |   blast: OVERLAPS 4 . DISJOINT 4
+  routing: OVERLAPS lands before the recon or rides the migration ledger; DISJOINT holds for the pledged hour
+
+# ---
+
+# ⚠⚠⚠ SEALED 2026-08-29, SECOND SESSION (EVENING) — THE GENERATED PARSE DISPATCHES AND CARRIES
+# A TRUE FRAME. XPRESS IS ONE HUNG DOOR FROM WALKING. READ THIS FIRST.
+#
+#   ⚠ **TWO SEALS CARRY THE DATE 2026-08-29.** This is the SECOND. The one below it is the
+#   isGROUP-poison session and is intact and true as of its own mark. ⚠ **AND THE CLOCK NOTE
+#   RETIRES: the machine clock read correctly today.** Two consecutive seals carried a
+#   clock-a-day-behind warning; this one does not, and commits are stamped 2026-08-29 truthfully.
+#
+#   ## THE ONE-LINE STATE: **Dispatch is proven four-deep on camera; the frame channel carries
+#   four distinct true parents as dataflow; the 4364 verdict is honest — frame and attachment are
+#   SEPARATE duties; Xpress is one unbuilt door from walking.** Fleet **75 green / 1 parked**, red
+#   set byte-identical to yesterday's four. Canary **322**. Frontier **exit 0, 10 PASS**.
+#   decodePop **22 checks / 80 terms**. ddPop **6 green / 29 records**. countPop **39/39 clean**.
+#   Nine commits G1–G9, both repos pushed. **Fixit queue: 8 (oldest kantGenPath, 08-24) —
+#   FOUR sessions unmoved, and it gets the first hour next session.**
+#
+#   ## ⚠⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE EVICTION IS THE MECHANISM, AND IT WORKS.** Step 3 of the original brief — install the
+#   parse INTO `gMethod` — is DEAD, killed by the `parseAction` finding. The replacement is
+#   bear-trap #34's retirement clause: **vacate `gMethod`, install nothing.** With the slot empty
+#   and `isMethod` retracted by the now-symmetric `setMethod`, `runOP` arm two stops claiming
+#   rules, and a bare `QuotE()` falls through to the `isRule` arm → `runRule` → `builtinParsE`.
+#   **The new parse wins by having no competitor.** Proof is a stack, not an absence:
+#   ```
+#   runOP -> runRule -> parseRule -> aCTionBlocK -> aCTionIF -> runShortCircuit
+#         -> runOP -> runRule -> parseRule -> ...      (four levels deep)
+#   ```
+#   That chain cannot exist while `gMethod` holds the action, because arm two claims the call first.
+#
+#   **2. ⚠ THE PARK HAD TO REACH THE MASTER, AND THE REFUSAL FOUND IT.** `rStuff` is PER NODE,
+#   `groupBody` is SHARED. `setParse` parked `actionMethod` on whatever FACE it was handed; the
+#   walk calls it on member TERMS; the eviction sweep reaches the MASTER. So the verified copy and
+#   the slot to be nulled sat on **different nodes**, and `evictAction` refused **nine of ten**
+#   cohort rules rather than destroy an action nothing was holding. `parkOnMaster` (resolving
+#   `definingRule()`) took it to **10 of 10**. **Additive, not a move** — the actor gate reads
+#   `actionMethod` off the face, so parking only on the master would silently stop hanging
+#   `builtinActoR` at all.
+#
+#   **3. ⚠⚠ A SINGLETON IS NOT A CHANNEL — AND THE CONTROL IS PRESERVED IN-ROW.** The frame's
+#   first implementation resolved the parent from `ruler->ruleSTUFF`. It printed **ONE pointer for
+#   all four invocations** (the driver's own `BlocK`, stale) where four distinct were
+#   pre-registered. Reading the holder's own `rStuff.label` — `runRule`'s existing argument —
+#   prints four distinct labels, **on the same line as the stale singleton pointer**, which is why
+#   `frameProbe` was KEPT rather than deleted as scaffolding. **A doctrine row whose control has
+#   been thrown away is a claim nobody can re-check.**
+#   ```
+#   PARENTPROBE Xpress      parentLabel=0x103536c00  ruleText     <- the argument holder
+#   PARENTPROBE ExpressioN  parentLabel=0x103560b00  InvokeArg
+#   PARENTPROBE Token       parentLabel=0x103563700  InvokeArg
+#   PARENTPROBE QuotE       parentLabel=0x103565340  InvokeArg
+#   ```
+#   Morning: all four `0x0`. Mid-evening: all four one stale `BlocK`. Now: four distinct, correct.
+#
+#   **4. THE FRAME-BYPASS MECHANISM, WITH ITS ADDRESS.** `parse()` documents `rStuff.parentLabel`
+#   as FRAME and its fork carries the comment *"THIS LINE IS ITS SINGLE WRITER"*. The new-parse
+#   road dispatches `newParse.method(rule)` **straight at `builtinParsE` and never calls
+#   `rule.parse()`**, so it never crossed the writing line. The channel existed; the road did not
+#   write it. Fixed by EXTRACTION, not duplication: `GroupItem::establishFrame` is one BODY with
+#   two call sites, and the fork's comment now says exactly that so it cannot decay into a lie.
+#   ⚠ **THE DISCIPLINE IS NOT SAVE/RESTORE.** There is none, and the incumbent had none — a bare
+#   write immediately before the call. **Recursion safety lives in the CALLEE**, which lifts
+#   `parentLabel` into a stack local at entry before descending; the emitted methods do it on their
+#   first line. **`parseRule` does NOT lift today**, and the lift is owed AT ENTRY when the door
+#   reads the frame.
+#
+#   **5. ⚠ 4364's VERDICT IS HONEST NOW, AND IT IS "SEPARATE DUTIES".** `interpretXP`
+#   (`GroupRules.mm`) dereferences `xpList->groupBody->groupList->listLength` unguarded and dies.
+#   It **fires unchanged under a true frame**, same five frames — so the orphaned-action mechanism
+#   is NOT explained by the missing frame, and frame and attachment are separate duties as
+#   designed. ⚠ That verdict was refused twice off broken gauges before being taken off a good
+#   one. **No guard was added there, deliberately**: a null check converts a crash into whatever
+#   an expression interpreter returns next, which is the silent-wrong-answer family.
+#
+#   **6. ⚠ THE DOOR WAS STOPPED DELIBERATELY, AND THE REASON IS SCHEDULING, NOT DIFFICULTY.**
+#   `setParentLabel` is unbuilt. What remains — Measurement 4's **walker-attach retirement in the
+#   same stroke the door goes live** — is the SILENT-FAILURE class: retire it wrongly and old-road
+#   rules duplicate or drop attachments with nothing going red. The session's ledger holds three
+#   mechanical slips caught **only by instruments**, which is exactly the state the 2026-08-08
+#   doctrine routes away from silent-failure work. **Measurements 3 and 4 are read-only and resume
+#   cold with nothing lost.**
+#
+#   ## WHAT MOVED
+#   **BORN:** `methodSlotFourReaders` (repointing method has four readers) — status **open**,
+#   decoder line + problem record + census. Its H11 control pair is pre-registered: any census of
+#   this class must return `parseAction` AND `aCTionStatemenT` or it is void.
+#   **ATTRIBUTED:** the P1 guard, by a one-arm revert-test Tony authorised — `if actionMethod`
+#   vs `if actionMethod && parseMethod` is **72 green vs 75**, and the three moved rows are the
+#   isGROUP-poison detector family, which **named the disease in words** on its first independent
+#   occasion.
+#   **CLOSED:** the `gMethod` write side — three raw-write bypasses converted through the
+#   now-symmetric setter; standing detector `grep -n "gMethod = " GroupRules.mm` reads **ZERO**.
+#   **ABOLISHED:** `gNewParseInFlight`, with its obituary standing in `jitContext.h`. The capture
+#   gate is now STRUCTURAL (`pMethod` — a property of the FIELD) where it was TEMPORAL (a global —
+#   a property of the moment). Tony's objection to the `-%` spelling was the better instinct: **the
+#   awkward spelling was the symptom of a guard asking its question about the wrong subject.**
+#
+#   ## MINTS
+#   - **THE SINGLETON DOCTRINE ROW.** Per-invocation facts travel as **dataflow**, or as
+#     write-then-lift **adjacency**. A distant read of shared state answers *"what happened last"*,
+#     never *"who is asking"*. Funded by four identical pointers where four distinct were
+#     pre-registered; **control preserved in-row** in `frameProbe`.
+#   - **⚠⚠ BEAR-TRAP: A DECLARATION INTRODUCED INTO A tok FUNCTION RE-BINDS EVERY BARE MEMBER NAME
+#     IN SCOPE — INCLUDING LINES ABOVE THE INSERTION.** tok resolves a bare field name against
+#     whichever DECLARED field owns that member, later declaration winning. Adding two locals to
+#     `setParse` silently re-pointed every bare `parseMethod`, `actionMethod`, `upTo` and `data` in
+#     the rest of the function onto the new declarations: **the rStuff refusal began testing the
+#     wrong node and the whole classification switch began writing the master's slot.** It compiled
+#     clean and the fleet would have run green. Caught **only** by reading the generated `.mm`.
+#     **ENFORCEMENT: cross-node work in a declared-field function goes in a SEPARATE FUNCTION — a
+#     call introduces no declaration.** `parkOnMaster`, `frameParent` and `frameProbe` all exist in
+#     that shape for this reason and say so in their headers.
+#   - **THE MASTER/FACE SEAM ROW, FOUR SIGHTINGS:** Ruling D, bear-trap #34, `methodSlotFourReaders`,
+#     `evictAction`'s nine refusals.
+#   - **TWO RENT COLLECTIONS.** `percentMinusClosesPassthrough` — a `%-` width specifier inside a
+#     `-%` block **is** the terminator; tok exited 139 with the extern canary at **ZERO**, and the
+#     register turned an hour into one bisect. And **bt36's backward read** on the crash frame.
+#   - **TWO GUARDS FIRED CORRECTLY ON FIRST CONTACT:** the fleet's poison detector on the `:300`
+#     revert, and `evictAction`'s structural relocate-then-null on the nine unparked rules.
+#
+#   ## THE NEXT STATIONS
+#   1. **`kantGenPath` — FIRST HOUR, four sessions unmoved.** Discharge staged behind the Start walk.
+#   2. **The door.** `setParentLabel` reads the frame; Measurements 3 (return census, `testAction`
+#      and refusal spellings named) and 4 (walker attach traced) resume as written; **walker's
+#      attachment retires in the same stroke, verified against duplication on an OLD-ROAD rule**;
+#      the `parseRule` entry lift lands with its reader.
+#   3. **Start's walk is Tony's**, triage map standing: **keyword-name** (9 refusals — `if()`,
+#      `while()`, `print()` parse as the KEYWORD, which is what Step 4's `parseR` fixes) /
+#      **empty-conjunct** (18 refusals — rules with neither data nor walkable members emit `if ;`;
+#      **no step on any page addresses this**) / **parseAction-cohort** (`DEFINing`, `PRINTing` —
+#      the Start-only intersection) / **fourth-column unknowns, which OUTRANK all three.**
+#   4. `verifyParse139` stands as its own citizen, NOT discharged as downstream.
+#
+#   ## THE SEAL CHECKLIST, run 2026-08-29 evening ON A BARE REBUILD
+#   ⚠ **AND THE REBUILD EARNED ITS KEEP ON THE FIRST COMMAND.** A bare retok moved `GroupRules.mm`
+#   by exactly one line — `frameProbe(...)` → `::frameProbe(...)`, tok emitting the global
+#   qualifier once the extern was declared in `groups.ext`, which landed AFTER the previous retok.
+#   No behaviour change, but **the committed artifact was not what its own sources generate**, and
+#   a certify-from-memory seal would have recorded a green checklist over a stale file.
+#   Bear-trap #11's family in miniature: `groups.ext` affects **codegen**, is out of repo, and can
+#   never appear in a Groups `git status`. **Rebuild THEN certify.**
+#
+#   fleet **75 green / 1 parked**, red set byte-identical to the four (`parseClass.target`,
+#   `rStuff audit`, `oneTest baseline`, `jsonTest baseline`) · frontier **exit 0, 10 PASS, first
+#   failing station NONE** (⚠ still unrevised — the standing finding that it has fallen behind the
+#   campaign holds) · decodePop **22 checks / 80 terms** (re-pinned +1, seventeenth, term named) ·
+#   ddPop **6 green / 29 records** · countPop **39/39 clean** · canary **322** (+3: `evictAction`,
+#   `parkOnMaster`, `frameProbe` — all declared in `groups.ext`) · `groups.ext` **committed, three
+#   commits, per the 08-25 rule** · both repos **0 dirty / 0 unpushed** but for Tony's
+#   `IncantForms/WorkingOn/incant++`, which is his status report and commits with his session ·
+#   every retok BARE.
+#   **Tony's fixit incantations waiting: 8 (oldest: kantGenPath, since 2026-08-24)**
+
+# ---
+
+# ⚠⚠⚠ SEALED 2026-08-29 — THE isGROUP POISON HAS A MECHANISM AND IS DEAD, THE INSTRUMENT THAT
+# WAS ITS BIGGEST VICTIM IS RESTORED, AND THE FLEET GREW A DISEASE-CLASS DETECTOR. READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-28 SEAL BELOW, WHICH IS INTACT AND TRUE AS OF ITS OWN MARK.**
+#
+#   ## THE ONE-LINE STATE: **`parser(ANYorNum)` goes 4-refused to 0-refused on a ruled one-line
+#   fix; `incant/parseClass` goes from 63 errors and a quarter of its census to zero errors and all
+#   of it; the fleet is 75 green / 1 parked (was 67, +8 rows, no row changed state); one id was
+#   born and discharged inside the session; and SEQ 2 is off `working` after 25 days.** Canary
+#   **319**. Frontier **10 PASS, first failing station NONE**. decodePop **22 checks / 79 terms**.
+#   ddPop 6. countPop **39/39 clean**. All repos clean and pushed. **Fixit queue: 8 (oldest
+#   kantGenPath, 08-24) — and it did NOT move today, see item 6.**
+#
+#   ⚠ **CLOCK NOTE, SECOND SESSION RUNNING: the machine clock read 2026-08-28 all day while the
+#   work was dated 08-29.** Every commit from this session is stamped Aug 28. Do not read that as
+#   the previous seal's day.
+#
+#   ## ⚠⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE POISON WAS ONE ARM, ATTRIBUTED BY A THREE-ARM PROBE, AND IT IS FIXED.** `setParse`
+#   takes `actionMethod = method` ABOVE its data switch, and the switch's isGROUP case sets
+#   `parseMethod = null` — so an isGROUP alias came away with an ACTOR AND NO EXECUTOR, and that
+#   half-installed executor broke every later parse of any grammar the alias could be reached from.
+#   Three aliases carry it: **ANYtoken, NewGroup, ShortcuT**, and `ANYtoken` sits under
+#   `TokenXP → ANYorNum`, which every expression parse crosses. One rebuild per arm:
+#   ```
+#   arm 1  suppress the builtinActoR attachment, keep the assignment   4 -> 0 refused   THE POISON
+#   arm 2  keep the attachment, null the persisted actionMethod        4 -> 4 refused
+#   arm 3  suppress updateContentFlags                                 4 -> 4 refused
+#   ```
+#   **EXACTLY ONE ARM CLEARS IT**, which is what makes it attribution and not correlation. Clay
+#   pre-registered arm 3 or arm 1 with arm 2 harmless: arm 1 confirmed, **arm 3 falsified**, arm 2
+#   harmless as predicted. Fix is `if actionMethod && parseMethod {` — the parked pointer STAYS
+#   (arm 2 says it is harmless and it is wanted the day an alias gains a real executor).
+#   ⚠ **ARM 2 NEEDED A CONSTRUCTION THE BRIEF DID NOT DESCRIBE:** suppressing the assignment
+#   outright also suppresses the attachment, which is gated on it, so the two arms would have been
+#   confounded. Arm 2 keeps both and nulls `rStuff->actionMethod` after.
+#
+#   **2. ⚠⚠ THE INSTRUMENT WAS THE DISEASE'S LARGEST VICTIM AND NOTHING SAID SO.**
+#   `incant/parseClass` had been emitting **63 `reached end of input` errors every run** and walking
+#   **66 of its 239 census rows** — three quarters gone, at exit 0, with its sentinel printing.
+#   After the fix: **0 errors, 237 rows, 118 distinct tags against 66.** Its "poisons the loader"
+#   header folklore now carries the address. **DOUBT THE INSTRUMENT HARDEST WHEN IT IS THE ONE
+#   INSTRUMENT POINTED AT THE THING YOU ARE HUNTING.**
+#
+#   **3. ⚠ `parseClass.target` IS STILL RED AND WAS DELIBERATELY NOT RE-PINNED.** Its remaining
+#   ~60-line diff is entirely Tony's punctuation rename plus parked `HeX` — literals to
+#   `leftParen`/`rightBrace`, `e`→`exponent`, `CodE`→`CodeBody`, and `followedBy`/`SemI`/`Modifier`/
+#   `nameSet`/`numberSet`/`while` moving off `parseSet`/`parseString` onto `parseRule`. Re-pinning
+#   would ALSO assert the six punctuation `NO-rSTUFF` rows are correct, which is the exact thing
+#   under ruling in `literalMasterIsRule`. **B3/B4 unlocks it; do not re-pin it before then.**
+#   ⚠ **AND THE ROW HAD BEEN READ AS ITS FIRST SIX LINES FOR WEEKS** while the census fell 239→66
+#   underneath them. **A red row absorbs new breakage silently, because nobody diffs a diff.**
+#
+#   **4. THE ACTION-PARKED CENSUS — TONY'S RECON ANSWER, ON THE COMPLETE WALK.** `setParse` parks
+#   `actionMethod` for EVERY rule it claims, not only `parseRule` ones. Of 237 rows: parseRule 65
+#   parked / 74 none, parseAction 8 / 0, **isGROUP-none 7 parked**, and **ZERO parked on every
+#   label-work executor** (parseString 37, parseSet 16, parseContainer 4, parseUpTo 2,
+#   parseCharacter 1, parseAny 1). **So none of them is owed a `runRuleAction` tail today** —
+#   `BrancheS` is `parseContainer`, `act=none`, exactly as Tony read it. ⚠ The safety is MEASURED,
+#   not structural, which is why P2 pins it.
+#   ⚠ **AN EARLIER REPORT OF THIS CENSUS SAID 66 ROWS AND IS CORRECTED HERE** — it was taken on the
+#   truncated run. **The conclusion is unchanged; only the magnitudes moved.**
+#
+#   **5. BEAR-TRAP CANDIDATE, MEASURED WITH CONTROLS: A `(…#)` LITERAL WHOSE OPENING LINE ENDS
+#   RIGHT AFTER THE `(` KILLS THE PARSE.** `name=(one line#);` parses · `name=(first\n second#);`
+#   parses · `name=(\n second#);` **BREAKS**. It took `ddPop` 6 green → 3 with
+#   `ddGate sentinel MISSING` and its H7 control going vacuous, and the symptom is bear-trap #32's
+#   misdirection exactly: `RunRulE: expected a method not DisplayDesignHTML` names the FIRST entry
+#   in the file, which is healthy, at exit 0. **Bisect by removing later entries.**
+#
+#   **6. ⚠ THE FIXIT QUEUE IS 8 AND DID NOT MOVE. A RELAY SAID 8 → 7 AND WAS READING A CITIZEN THAT
+#   NEVER EXISTED.** `isGroupActorPoison` was minted as a **problem record + decoder line only** —
+#   it never had a file in `incant/fixits/`, so its (correct, ruled) retirement discharges the
+#   RECORD and moves the directory not at all. The queue stands at 8, oldest `kantGenPath`, and
+#   `fixitNag.sh` says so. Generated, not typed — which is why the discrepancy was visible.
+#
+#   ## WHAT MOVED
+#   **BORN AND DISCHARGED IN ONE SESSION:** `isGroupActorPoison` (half-installed executor on an
+#   alias) — status **remedy**, verdict written, `reviewed` closed. ⚠ **The record KEEPS its table
+#   and discharge evidence by Tony's explicit instruction: it is trimmable by the gate and is NOT
+#   to be trimmed.**
+#   **BORN AND ESCALATING:** `verifyParse139` — `parser(PrintXP)` and `parser(ExpressioN)` **STILL
+#   exit 139 after the fix, signature identical** (PARSER SENTINEL · WITNESS compiled 1 · death).
+#   So it does NOT discharge as downstream-of-poison. **It is the campaign's last orphan with no
+#   mechanism.** Next measurement named and NOT taken: a backtrace under `script -q /dev/null`,
+#   read one line BACKWARD from whatever it names (bt36).
+#   **REGRADED:** `parentUnreachable` **BEST GUESS → OPEN**, and **nothing is owed by Tony at that
+#   grade** — a change from the version that asked him for a language addition.
+#   **RELAYED:** SEQ 2 Part B ruling to the support minion; `ipc/support-to-clod.md` off `working`
+#   after **25 days**. Part B is unblocked and NOT started; the campaign outranks it.
+#
+#   ## ⚠ `parentUnreachable`: THE GUESS WAS FALSIFIED BY ONE GREP, AND THIS IS THE SHAPE TO COPY
+#   It said "add a parent accessor to opDot — up is the one missing direction". **`parenT` IS
+#   opDot case 2**, registered in `incant/setup` as `parenT=2`, returning the real parent; the
+#   wrapper behaviour was repaired 08-24 and `minionWork/probeCanonTopo`'s "returns a WRAPPER" note
+#   is **stale**. Building it would have added a second parent road beside a working one.
+#   **What is actually broken, measured in one process with a control column:**
+#   ```
+#   accessor      kind       direct      through an action-argument holder
+#   .taG          property   fpInside    fpInside          ok
+#   .texT         property   --          fpInside          ok
+#   .listLengtH   property   4           4                 ok
+#   .parenT       NODE       fpWindow    argument          BROKEN
+#   ```
+#   **READ THE COLUMNS.** Direct is right for everything, so the accessor works. Through the holder
+#   every PROPERTY accessor is right and the NODE accessor hands back **the holder** — `runAction`
+#   binds by `ruleArg.group = argument`, so an action's `argument` is a field POINTING AT the
+#   subject. **A single-unwrap asymmetry between opDot cases, not a missing direction.** Contact
+#   with G5's two-faces hypothesis on a second road; noted, not chased.
+#
+#   ## THE NEW DOCTRINE — RULE H12, in CLAUDE.md
+#   **A LANDING RUNS THE FULL SEAL CHECKLIST, NOT THE FLEET ALONE.** No exception for an
+#   "obviously neutral" edit — that is the class that forced it. A comment move landed under a
+#   fleet-only check: **67 green before, 67 after**, because no fleet row reads `designDocs`, while
+#   `ddPop` went 6 → 3. **A GREEN FLEET IS EVIDENCE ONLY ABOUT WHAT THE FLEET READS**, and "no
+#   instrument reads what I touched" is a coverage finding, not a clean bill.
+#
+#   ## ⚠ THE FRONTIER HAS BEEN ALL-PASS FOR TWO SEALS, WHICH MEANS IT IS NO LONGER MEASURING AN EDGE
+#   `incant/frontier` is 10 PASS / first failing station NONE, unrevised, exactly as on 08-28. **A
+#   red frontier is its normal, correct state**, so two green seals running is a signal that the
+#   file has fallen behind the campaign rather than that the campaign is finished. **Revising it is
+#   real work owed.** The candidate edge, now that a single rule's nine stations all pass, is the
+#   MULTI-RULE WALK — which is what `incant/anyOrNumT` exercises and what `verifyParse139` dies in.
+#
+#   ## THE NEXT STATIONS, in Clay's order
+#   1. **The `verifyParse139` backtrace** — cheap, and it gives the campaign's last orphan a
+#      mechanism. `script -q /dev/null`, read one line backward.
+#   2. **B3/B4** — teach `auditMissingRules` the category, then re-pin. Carries the bonus of
+#      unlocking `parseClass.target`'s re-pin and starting the expected-red set down from four.
+#   3. **The widened opDot census** — every node-returning case, twice each, direct and through a
+#      holder, every row paired with its direct sibling.
+#   4. SEQ 2 Part B implementation, at Clod's sequencing. A6–A8, B5 at Tony's priority.
+#
+#   ## THE SEAL CHECKLIST, run 2026-08-29
+#   fleet **75 green / 1 parked** (was 67; +8 rows, **red/park set byte-identical — no row changed
+#   state**) · frontier **exit 0, 10 PASS, FIRST FAILING STATION: NONE** (⚠ not revised, and see
+#   the section above — that is now a finding, not a note) · decodePop **22 checks, 79 terms**
+#   (re-pinned +2, sixteenth, both additions named) · ddPop **6 green** · countPop **39/39 clean,
+#   0 missing** · canary **319** · `groups.ext` untouched (mtime predates the session) · **all
+#   repos 0 dirty / 0 unpushed but for Tony's two named-WIP files** · every retok BARE, so the
+#   binary is the real program and not an instrumented one.
+#   **Tony's fixit incantations waiting: 8 (oldest: kantGenPath, since 2026-08-24)**
+
+# ---
+
+# ⚠⚠⚠ SEALED 2026-08-28 — TONY'S OFFLINE WORK RE-BASELINED, THREE CITIZENS OFF THE QUEUE,
+# AND THE isRule CENSUS KILLS OPTION B'S CHEAP FLAVOUR. READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-27 SEAL BELOW, WHICH IS INTACT AND TRUE AS OF ITS OWN MARK.**
+#
+#   ## THE ONE-LINE STATE: **Tony's punctuation/rename work is landed and re-baselined; the fleet
+#   is 67 green / 1 parked (was 61, +9 rows added, one lost to a ruling); the fixit queue is 7
+#   (was 8, with three retired and two minted); and option B for `literalMasterIsRule` is measured
+#   dead in its cheap form.** Canary **319**. Frontier **10 PASS, first failing station NONE**.
+#   decodePop 77 terms / 22 checks. ddPop 6. countPop **39/39 clean**. All four repos clean and
+#   pushed. **Fixit queue: 7 (oldest kantGenPath, 08-24).**
+#
+#   ⚠ **CLOCK NOTE FOR A RESURRECTION READER: the machine clock read 2026-08-27 all session while
+#   the work was dated 08-28.** Every commit from this session is stamped Aug 27. Do not read that
+#   as the previous seal's day.
+#
+#   ## ⚠⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE `setParse` CRASH FIX IS REAL AND INDEPENDENT OF EVERYTHING ELSE.** Its refusal arm
+#   printed `field passed in %s has no rStuff` and then FELL THROUGH to `if parseMethod`, which
+#   resolves against the very null it had just refused. `incant/parseClass` died at exit 139.
+#   Tony's six punctuation members are the first callers ever to lack rStuff. Ruling D says a node
+#   without rStuff is LAWFUL, so the refusal is right and must actually refuse. Fixed in
+#   `Generate.rtn`; fleet 54 → 56.
+#
+#   **2. ⚠ DO NOT ADD `setRuleStuff()` TO THE SIX PUNCTUATION MASTERS. IT WAS TRIED, IT WAS GREEN,
+#   AND IT IS WRONG.** Tony's ruling: rules added to Grokking do NOT carry rStuff; the rStuff
+#   arrives when a literal is ATTACHED to another rule, by a `setRuleStuff` call or by a `modify`
+#   call that runs it. The addition cleared two fleet rows and took genParse 19 → 25 — it bought a
+#   better number by breaking an unwritten invariant. **Green was not the test.** Reverted.
+#
+#   **3. THE `isRule` BACK-PROPAGATION, AND ITS CENSUS.** `setRuleStuff` raises
+#   `groupBody->flags.isRule`; the copy constructor SHARES groupBody (`groupBody = grup->groupBody`)
+#   while rStuff is per-node. So attaching a literal marks the MASTER. Negative control: a seventh
+#   master attached to NO rule does not acquire the flag — minting is clean, ATTACHMENT marks it.
+#   Census banked at **`minionWork/isRuleCensus`**, pre-registration at its head. Its four findings:
+#   - **the write is EIGHT sites, six outside `setRuleStuff`** (a pre-registered prediction of ONE,
+#     falsified) — `GroupMain.twk:16,282`, `ruleActions.rtn:398,449,1447`, `Commands.rtn:863`;
+#   - **B2 (gate the write on a copy) is REFUTED and not on cost — it does not achieve its goal.**
+#     Audit stayed at 10 missing and loose went 4 → 11; countPop crashed a rule; the odometer lost
+#     `Limit`'s refusal line; fleet 67 → 63. Restored, md5-verified;
+#   - **`tokenize` is NOT this disease** — ABSENT from MISSRULE, so it HAS rStuff, because
+#     `modify(strap,"^@")` runs on the master not a copy. `break`/`continue`/`return` ARE affected
+#     but by a THIRD route, bin-member propagation at `ruleActions.rtn:449`. **Three mechanisms;**
+#   - the affected population is **10**, splitting **6 / 3 / 1** across those three.
+#   ⚠ **SO OPTION A (teach `auditMissingRules` the category) IS THE ONLY CHOICE WITH A KNOWN-ZERO
+#   BLAST RADIUS. B1 — move `isRule` out of groupBody — is a LAYOUT CHANGE (bear-trap #10) and is
+#   UNMEASURED. The ruling is still Tony's; `incant/fixits/literalMasterIsRule` holds all three.**
+#
+#   **4. BEAR-TRAP #35 EXTENDED — A PROPERTY READ INSIDE A COMPOUND CONDITION UNDER-FILTERS A WALK
+#   AT EXIT 0.** Six shapes measured, one run each, 39 correct: bare-positive and
+#   capture-then-test give 39; `!x`, `x == 0`, AND `cursor.x == 0` all give **64**. **`!` is not the
+#   culprit** — `== 0` fails identically and both work once the value is in a local. **CAPTURE,
+#   THEN TEST.** Worse than #38's under-walk-to-one, because 64 where 39 is right looks exactly
+#   like a working walk. Provenance: Tony distrusted `!` and was right about the line, one step off
+#   on the mechanism; Clod wrote the `!` and blamed `!` in prose before measuring.
+#
+#   **5. THE TWO REMAINING FLEET REDS ARE PRE-EXISTING AND WERE MEASURED SO.** Both were red at
+#   HEAD before Tony's edits: `parseClass.target` (its diff SHRANK under his change) and
+#   `jsonTest baseline`. ⚠ **`rStuff audit` and `oneTest baseline` are red BY CHOICE, not by
+#   neglect** — re-pinning them 4 → 10 would assert that ten missing rules is correct, which is the
+#   exact thing under ruling in item 3. **Do not re-pin them to get a green number.**
+#
+#   **6. THE WALKIE-TALKIE IS DOWN (Tony, 08-28).** `SEQ 92` in `ipc/clod-to-clay.md` is a RECORD,
+#   NOT A DELIVERY; the paste-ready text went to Tony in chat. ⚠ And while polling,
+#   `ipc/support-to-clod.md` **SEQ 2 has sat at `working` since 2026-08-03 — 25 days** — blocked on
+#   a ruling from Tony on the registry archive wire format, Part A landed green, Part B at the gate.
+#   Clay wants that Part B text when the channel carries it; the ruling stays his.
+#
+#   ## WHAT MOVED ON THE QUEUE
+#   **RETIRED (3):** `dataCrash` (crash gone, mapped onto countPop's `ok DatA`; ⚠ its listLength
+#   anti-vacuity control did NOT carry, said plainly) · `countInputInTmp` (population now DERIVED
+#   live — no file to go stale — and `ok` scored on the compile census, so a ghost name can no
+#   longer score green; ⚠ last session's "42/42 clean" was **41 real + 1 ghost**, corrected) ·
+#   `trailingContinue` (promoted to `incant/trailingContinueT`, five fleet rows).
+#   **MINTED (2):** `jsonListNotAList` · `literalMasterIsRule`.
+#   ⚠ **`incant/jsonTest` HAD NOT BEEN RUNNING SINCE 2026-08-25** — its semicolon-less `if` became
+#   illegal under the SemI- ruling, so it dropped all 17 assertions and still exited 0. Fixed; it
+#   now reproduces its 07-29 baseline byte-for-byte but for one stray line, which is `jsonListNotAList`.
+#
+#   ## ⚠ THE MEASUREMENT THAT JUSTIFIED PROMOTING trailingContinue, because it generalises
+#   With the remedy stripped and the binary rebuilt, **the fleet reported 62 green and a
+#   byte-identical failure set — it was BLIND.** After promotion the same control takes it 67 → 65
+#   with FOR and DO red by name. **Retiring a citizen without measuring whether the fleet covers it
+#   is how coverage is lost silently.** `incant/loopBranchT` is adjacent and asserts behaviour
+#   INSIDE the loop; nothing asserted what survives after it.
+#
+#   ## THE NEXT STATIONS, in Clay's order
+#   1. **`literalMasterIsRule`'s A/B/C ruling** — Tony's, now unblocked by the census.
+#   2. **The two-pattern corpus sweep** — semicolon-less `if`s (the 08-25 seal already named four
+#      in `displayIfVisible`, in the file every fixture includes) and in-condition property reads.
+#   3. **SEQ 2 Part B text to Clay** when the channel carries it.
+#   4. Then resume the queue: `kantGenPath` and `parentUnreachable` are both BEST GUESS.
+#
+#   ## THE SEAL CHECKLIST, run 2026-08-28
+#   fleet **67 green / 1 parked** · frontier **exit 0, 10 PASS, FIRST FAILING STATION: NONE**
+#   (⚠ NOT revised this session, and that is deliberate: the campaign edge did not move — the work
+#   was fixits and a census, not the parse campaign) · decodePop **77 terms, 22 checks** · ddPop
+#   **6 green** · countPop **39/39 clean, 0 missing** · canary **319** · `groups.ext` untouched
+#   (mtime predates the session; no flag or extern was added) · **all four repos 0 dirty /
+#   0 unpushed** · every retok BARE, so the binary is the real program and not an instrumented one.
+#   **Tony's fixit incantations waiting: 7 (oldest: kantGenPath, since 2026-08-24)**
+
+# ---
+
+# ⚠⚠⚠ SEALED 2026-08-27 — THE CONNECTIVE CLOSES, THE MIRROR'S DISEASE IS NAMED BY ADDRESS, AND
+# THE GUARD IS REFUSED PENDING A RULING. READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-25 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN
+#   MARK.** That one closed the label seam. This one discharged a citizen by remedy, found the
+#   recursion's actual door, and STOPPED one step short of barring it because the door was not
+#   where the brief put it.
+#
+#   ## THE ONE-LINE STATE: **connectiveDiscriminant is DISCHARGED BY REMEDY and promoted into the
+#   fleet; parseSelfRecursion's mechanism is RULED and its door is measured, but NO GUARD IS BUILT.**
+#   Fleet **61 green / 1 parked** (was 57 — four rows added, none lost). Canary **319**. Frontier
+#   **10 PASS, first failing station NONE**. decodePop 77 terms / 22 checks. ddPop 6. All four repos
+#   clean and pushed but for Tony's own files. **Fixit queue: 8 (oldest countInputInTmp, 08-24).**
+#   **THE NEXT STATION IS THE UPSTREAM PROBE, chartered below and not run.** One disease named by
+#   address, one probe waiting at its door.
+#
+#   ## ⚠⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE CONNECTIVE DEFECT WAS NEVER THE DISCRIMINANT — IT WAS setParse'S DECORATION, AND THE
+#   2x2 IS THE WHOLE PROOF.** `setParse` hangs `builtinParsE`/`builtinActoR` on every rule it
+#   touches, both noPrint, so `hasAttributeS` — which answers *is this node marked up* — read TRUE
+#   for all 36 emitted bodies and the OR branch was unreachable. `hasTraits` (a bit that counts only
+#   NON-noPrint attributes) fixed it in two ruled parts. Read the COLUMNS:
+#   ```
+#   gate           setParse RUNS      setParse OFF
+#   hasAttributeS  36 AND / 0 OR      28 AND / 8 OR     <- retired gate, PINNED, must not be "fixed"
+#   hasTraitS      28 AND / 8 OR      28 AND / 8 OR     <- live gate
+#   ```
+#   ⚠ **THE RETIRED GATE'S ROW NOT MOVING IS THE NEGATIVE CONTROL, NOT A MISS**, and it was
+#   pre-registered as a hold before the run. Old gate still wrong, new gate right, same build. A run
+#   where BOTH rows moved could not attribute the change to the gate at all.
+#
+#   **2. A RULED ONE-LINER COST A THIRD EDIT NOBODY PLANNED, AND THAT IS NOW A REGISTRY ROW.**
+#   `setParse` calling `updateContentFlags` crashed at EXC_BAD_ACCESS and took the fleet 57 → 55.
+#   `updateContentFlags` read `if listLength` through an **unguarded groupList** and always had —
+#   latent for exactly as long as `moveTo` was its only caller. Minted as **`firstCallerNullList`**
+#   (*dead helper meets its first caller*), status remedy, and it completes the demolition-arc pair:
+#   **condemned code gets READ before deletion; revived code gets DISTRUSTED before promotion.**
+#   ⚠ It was identifiable as CAUSED rather than pre-existing only because the before-captures were
+#   banked before the first edit. Two red rows in a fixture with nothing to do with connectives is
+#   otherwise a mystery of unknown vintage.
+#
+#   **3. THE MIRROR'S ENTRY PATH IS NOT THE runAction RECONSTRUCTION, AND IT IS WRONG IN THREE
+#   PARTICULARS.** Read outermost-inward from the stack bottom:
+#   ```
+#   runOP · runAction(argument=StatemenT, field=parser) · processAction · aCTionBlocK ·
+#   runOP · runOP · runRule(field=ruleText, rule=StatemenT) · parseRule(field=StatemenT) ·
+#   aCTionBlocK · aCTionStatemenT x74k
+#   ```
+#   (a) the `runOP/runAction/processAction` frames are the **verifier action `parser` running its own
+#   body**, not a generated parse body; (b) the rule-name call **DID take the legal road** —
+#   `runRule → parseRule`; (c) the first mirror entry is called by **`aCTionBlocK`**, and `runAction`
+#   has no gMethod dispatch line to guard at all — it calls `processAction`.
+#
+#   **4. THE ILLEGAL THING IS THE NODE, NOT THE ROAD — AND ITS PROVENANCE IS MEASURED.** The mirror
+#   node's parent is a node tagged `BlocK` whose parent is **Grokking**: it is **the grammar's own
+#   `BlocK[StatemenT]` term-reference**. `aCTionBlocK` is walking a legitimately parsed `BlocK`
+#   (parent StatemenT, listLength 9) and fires that grammar term as if it were a parsed statement.
+#   **TWO DOORS, both named.** OUTER — `aCTionBlocK` `GroupRules.mm:84-85`, which consults
+#   `isMethod(grup->groupBody->flags.instructType)` **and nothing else**; `instructType` and `gMethod`
+#   both live in the COPIED `groupBody` (bear-trap #34), so `isMethod` is a SHAPE fact and never a
+#   legality one. INNER — `aCTionStatemenT:1487`, where `datA 0` means the isGROUP unwrap never fires
+#   and the node dispatches its own handler on itself.
+#   ⚠ **`isRule` ALONE DOES NOT DISCRIMINATE:** `aCTionBlocK`'s own input — legitimate work — also
+#   reads `isRule 1`, `parseMethod` bound, registry Grokking. A guard keyed on it refuses correct work.
+#   ⚠ **AND A THIRD CANDIDATE SITE IS UPSTREAM OF BOTH:** whatever put the grammar term into that
+#   parsed BlocK's member list is earlier than either door, and a guard at either door treats a symptom.
+#   ⚠⚠ **THE THIRD-DOOR RECONSTRUCTION IS DEAD. DO NOT RE-DERIVE IT.** Killed in three measured
+#   particulars by the 08-27 docket (`8118146`). **ANY BRIEF CITING "the third door" OR "guard
+#   runAction" IS SUPERSEDED BY THIS SECTION** — there is no third door, there is a contaminated
+#   member list with two doors downstream of it.
+#
+#   **5. THE DOOR'S INVENTORY, because the routing decision needs it in hand.** `isRule 1` ·
+#   `isLabel 0` · `datA 0` · `actionType 1` · `hasNewParse 1` · `gMethod` = aCTionStatemenT ·
+#   registry Grokking · **`rStuff` LIVE with `parseMethod` BOUND, resolving to `parseRule`.** So
+#   route-to-parse **is constructable** — the rule's own parse is readable at the point of the
+#   illegal fire. Graded BEST GUESS, NOT built, and its promote conditions are in the report below.
+#
+#   ## ⚠ WHERE I DISAGREE WITH THE TOPSIDE ACCOUNTING — flagged, not silently reconciled
+#
+#   **A. `censusScratch` DOES NOT EXIST, AND THIS IS THE SECOND TIME.** The trim brief's NEVER-CUT
+#   list names it among the seal-checklist fixtures. It was renamed **`popScratch`** and the 08-05
+#   wakeup says so; the **08-25 seal's Amendment A already recorded this exact citation failure**.
+#   `pop.sh:187` drives `popScratch`. ⚠ **A NEVER-CUT LIST BUILT ON IT WOULD PROTECT A GHOST AND
+#   LEAVE THE REAL FILE UNPROTECTED** — the citation-from-a-sealed-document failure, third instance.
+#
+#   **B. `jitLadder/ladder.sh` IS MISSING FROM THE CITATION SOURCES, AND IT PROTECTS 40 FILES.**
+#   The brief's sweep names pop.sh + ladder targets, tree.sh, frontier, wakeup recipes, minionWork,
+#   seal-checklist fixtures. **Measured: 40 `incant/` files are named by `jitLadder/ladder.sh` and
+#   driven by NONE of `pop.sh`'s 14** — `jiquery`, `jitAttrPop`, `jitDfProbe`, `jitFalseT`,
+#   `jitIterTwice`, `jitJ1`–`jitJ7`, `jitJE/JF/JP/JPd/JPl/JR/JRL/JRt1..JRt4/JU/JUi`, `jitPrintT`,
+#   `jitSelfFn`, `jitSlotT`, `juiProbe` and siblings. That is a **fifth of the 190-file directory**,
+#   it is exactly the jit population the brief hands to my judgment, and with jitLadder omitted every
+#   one of them defaults to CUT or MAYBE. **jitLadder goes in the sweep.**
+#
+#   **C. THE GUARD DID NOT LAND, SO THE CENSUS'S FILL-CONDITION NEVER TRIGGERS.** The accounting has
+#   the third-door brief IN FLIGHT with the trim census "optional as fill if the guard lands early".
+#   Step 1's stop clause fired instead. **The census is therefore not fill — it is the only
+#   available work**, because the guard is blocked on a ruling that has not been made.
+#
+#   **D. THE ROUTING DECISION IS THREE-WAY, NOT TWO-WAY.** The accounting frames it as
+#   *route-to-parse vs refusal-only*. The **site** is open too: outer door on provenance, inner door
+#   on self-dispatch (which needs no new fact at all), or the upstream site. The briefed site,
+#   `runAction`, is gone.
+#
+#   **E. `parseSelfRecursion` HAS NO FIXIT CITIZEN — its "NEXT" is a problem-record field, not a
+#   `NEXT:` block.** The accounting says "parseSelfRecursion's NEXT" as though it were a citizen in
+#   the queue. It is not in `incant/fixits/`. ⚠ **So the hottest open item on the board is the one
+#   thing NOT pointing at Tony's foot at shutdown**, which inverts the loaded-gun mechanism exactly
+#   where it matters most. The standing rule since 08-19 is that banking an issue owed to Tony means
+#   writing its fixit incantation as part of the banking.
+#
+#   **F. THE FIRE-DOCTRINE SENTENCE IS OWED BUT HAS NO ADDRESS.** It is to land "beside the
+#   fire-count row" — and that row exists **only inside the 08-25 sealed vintage**, which is history
+#   and must not be rewritten. The write needs a destination ruling: CLAUDE.md's seat ledger, or a
+#   problem record of its own.
+#
+#   **G. `firstCallerNullList`'s `verdict` STILL READS `-- unreviewed --`/`-- awaiting Tony --`.**
+#   Tony ratified it on the wire; I did not write his verdict, because `verdict` is his loud channel
+#   and I have it only relayed. One line from him and it is done.
+#
+#   **H. THE UNTRACKED POPULATION IN `incant/` IS ZERO.** All 190 files plus the 8 fixits are
+#   tracked, so phase two's "untracked files just die" clause has an empty population there and
+#   **every cut is a commit**. Worth knowing before the razor comes out.
+#
+#   ## ⚠⚠ THE NEXT STATION ON RESURRECTION: THE UPSTREAM PROBE — THE DISEASE, NOT THE DOORS
+#   **Chartered, NOT run. Both doors treat symptoms until this answers.** In the crashing parse:
+#   1. **which member INDEX** of that parsed `BlocK` holds the term-reference;
+#   2. **what the other eight members ARE** — the diff between minted products and the intruder is
+#      the mechanism's fingerprint, and it is the whole point of the station;
+#   3. **which parse step APPENDED it.**
+#   ⚠ **LEDGER-ADJACENT SUSPECTS ARRIVE AS TREE-READS ONLY** — `<-` hands back copies; `copyOf` does
+#   not carry `gMethod`. Neither is to be reasoned forward into a mechanism. **This week produced two
+#   reconstructions that died on contact with frames, which is the proof of why.**
+#
+#   ## ⚠ RULINGS TEED UP FOR TONY — made in conversation, recorded nowhere else until this mark
+#   **INNER-DOOR SELF-DISPATCH BACKSTOP — Clay RECOMMENDS ruling it in regardless of the upstream
+#   fix.** A node dispatching its own `gMethod` on itself is detectable at `:1487`'s own site **on no
+#   new fact**, refuses a state that is never legal, and **cannot false-positive the way `isRule`
+#   would** — `aCTionBlocK`'s own legal input also reads `isRule 1`. It converts any future
+#   contamination from 74k frames into a one-line tattle. **Awaiting Tony's word.**
+#   **ROUTE-TO-PARSE — graded BEST GUESS and explicitly NOT recommended.** Kill condition on record:
+#   with the term-reference still sitting in the member list, a routed parse likely re-enters by the
+#   same door. **Do not build ahead of the upstream answer.**
+#   **THE FIRE-DOCTRINE SENTENCE is still owed and is UNCHANGED by the docket** — the doctrine was
+#   never wrong, only the map of where it was violated: *an action fires when its rule parses,
+#   holding a label, once, done — zero fires on every other road.* Dated, beside the fire-count row.
+#   ⚠ **AND FLAG F BELOW STILL STANDS AGAINST IT:** that row lives only inside the 08-25 SEALED
+#   vintage, which is history and must not be rewritten. **The sentence has a text and no address.**
+#
+#   ## ⚠ WHAT TONY IS ON THE HOOK FOR — in rough order of heat
+#   1. **The inner-door backstop: yes or no** (Clay recommends yes, independent of everything else).
+#      The door question proper — outer/inner/upstream — waits on the upstream probe, which is the
+#      next station and is chartered above. Route-vs-refuse does not get decided before it.
+#   2. **Jitter sketch margin notes** — seven holes, gated on the redirect ruling. Hole 4
+#      (print-redirect-to-buffer, kant can't) is the load-bearing move; hole 2 (method-cell fired
+#      from kant); hole 3 answered by the opSetFlag/isSTRING type-as-data ruling; holes 1, 5, 6, 7
+#      afternoon-sized seams.
+#   3. **Trim lists review** — `incant/` is overdue a high-and-tight trim. **PHASE ONE IS A
+#      READ-ONLY CENSUS: nothing cut, moved or renamed.** Clod produces three graded lists, Tony and
+#      Clay review, cutting is phase two under its own brief. Judge-jury-barber on the grades is
+#      Clod's — especially the jit population, his own build — **but the razor stays holstered.**
+#      **NEVER CUT** — derived mechanically first, judgment second: every `incant/` file cited by a
+#      standing instrument (pop.sh + ladder targets, tree.sh, **jitLadder — see flag B**, frontier
+#      stations, wakeup run recipes, minionWork probes, seal-checklist fixtures: `oneTest`,
+#      `jsonTest`, **`popScratch` — see flag A**, `walkPhase`, the decodePop/ddPop fixtures), the
+#      `kant8T` family (K5/K6 chartered-but-unrun — a fixture with chartered future work is cited by
+#      the charter), and `jitscratch` by name (sole exerciser of `jitRunAction`, home of the parked
+#      `opPlusPlus` 139). Each row: filename + the one-line citation that protects it. ⚠ **A file
+#      protected only by a STALE citation — an instrument that no longer runs — is a FINDING, not a
+#      protection.** **CUT** — answered one-shot probes, superseded rungs, dead scaffolding,
+#      fixtures for discharged-and-tombstoned defects. Each row: filename + what it was for + why
+#      it is done. `firstCallerNullList` is the doctrinal cover: deleting dormant machinery is the
+#      safe direction, no eulogies owed. **MAYBE** — probably-dead but a doubt survives: possible
+#      sole exerciser of some road, questions that could recur, jit files whose future under O6 is
+#      unclear. Each row: filename + what it exercises + **the specific doubt**. ⚠ **THE MAYBE LIST
+#      IS THE REVIEW'S REAL AGENDA; the other two should mostly rubber-stamp.**
+#      **INVERSE FINDING ALSO OWED:** instruments citing files that do not exist — trim-adjacent debt,
+#      and flag A is already one of them.
+#      Disposition PRE-RULED for phase two: **tracked die by commit — the repo is the archive, no
+#      attic directory, no ponytail in a drawer. Untracked just die.** Note tracked/untracked per
+#      file, since it picks the mechanism (⚠ but see flag H: in `incant/` that population is ZERO).
+#      ⚠ **Fold flags A and B in BEFORE the census runs, or it is built on a bad source.**
+#   4. **Parent text owed to me** for the two doctrine rows — the **opSetFlag contract** and the
+#      **typed-valueless accessor caution**. I refused to reconstruct them from the one-line
+#      summaries; a relayed amendment whose parent is unconfirmed is one clause of a convention.
+#
+#   ## CHARTERED, QUEUED AT TONY'S WORD, none in flight
+#   **The & campaign** — four read-only pre-design stations: `&` meaning census · R-3 assign-census
+#   slice · `<-` intent census (incl. the does-`<-`-ever-bind-node-fields grep that checks the
+#   locals-only scoping) · **runOP recon** (two roads walked, divergence named, touch-list graded —
+#   runOP the bear in waiting). Design session convenes on all four. **`byRefReview` is exhibit
+#   zero**, absorbed and moved to `minionWork/byRefReview` with its gate questions preserved verbatim
+#   — absorption is not an answer to them. K5/K6 clears the frame-model wall first if the recon
+#   confirms it load-bearing. **Retirement by census: `<-` dies when its site count reads zero.**
+#   **opSetFlag implementation** — clears-by-contract on data-flag set, population named via the
+#   flag-species declarations, before-captures (blast radius: every re-type site).
+#   **K5/K6** — the standing KANT-8 gate, chartered 08-05, still unrun; now has a live customer.
+#
+#   ## STANDING DESIGN STATE (O6, not yet open)
+#   Jitter incantation = parser's structural sibling, residing in `IncantForms/WorkingOn` beside it.
+#   Loader contract specced (`jitLoad(buffer, name)` → verdict, register into slot machinery,
+#   three-rung tattling refusal, interpreted floor). Two-layer POP (byte-agreement round-tripped +
+#   two-arm answer-agreement). Buffer = one per action, print-redirect, sink-doctrine (emission owns
+#   the redirected channel; everything with a voice speaks on stderr). O6 charter questions still
+#   Tony's: buttress death = loader is permanent residue; reflexive close = final POP, unscheduled.
+#   ⚠ **The third-door findings may inform jitter dispatch design — both threads converge on the
+#   dispatch door from opposite sides.**
+#
+#   ## THE DISCIPLINE EXHIBITS, because each changed an outcome
+#   **A PRE-REGISTERED PREDICTION HELD, TWICE, AND ONE OF THEM WAS A NON-MOVE.** The `hasAttributeS`
+#   row was called as a HOLD before the run and holding is the fix working; without the
+#   pre-registration it reads as a failed promote condition.
+#   **MY OWN CENSUS INSTRUMENT LIED IN THIS PASS AND I CAUGHT IT.** The first jitLadder comparison
+#   returned **0 files protected only by jitLadder** — plausible, quotable and wrong, because
+#   jitLadder drives fixtures through a variable rather than literals. The real figure is **40**.
+#   H9's exact shape, and it is recorded because the number was going into a seal.
+#   **TWO RECONSTRUCTIONS DIED ON CONTACT WITH FRAMES** — the citizen's bare-name-resolution guess,
+#   and the runAction door. Both were sound reasoning on premises nobody had run.
+#   **A BACKTRACE'S OFF-BY-ONE WAS CAUGHT AT ITS OWN VINTAGE.** The 08-26 docket cites `:1483` for
+#   `getGroup`; at that same commit `getGroup` is `:1484` and `:1483` is the guard above it —
+#   bear-trap #36. And the call is moot anyway: `datA 0`, so it never fires.
+#
+#   ## THE SEAL CHECKLIST, run 2026-08-27
+#   `incant/frontier` **exit 0, 10 PASS, FIRST FAILING STATION: NONE** · fleet **61 green / 1 parked**,
+#   rows diffed against a pre-session capture, **zero lost** · decodePop **77 terms, 22 checks** ·
+#   ddPop **6 green** · canary **319** · `oneTest`/`jsonTest` md5 unmoved · `parser(NamE)` transcript
+#   byte-identical · **support repo 0 uncommitted / 0 unpushed**, `groups.ext` committed per the
+#   standing rule (`4d1b252`) · Parse and Tokf clean · Groups clean but for Tony's
+#   `IncantForms/WorkingOn/{incant++, parser, tester, jitter}` — all his, all expected dirt, `jitter`
+#   new and untracked and named-WIP.
+#   **Tony's fixit incantations waiting: 8 (oldest: countInputInTmp, since 2026-08-24)**
+
+# ---
+
+# ⚠⚠⚠ SEALED 2026-08-25 — THE LABEL SEAM CLOSES, AND FOUR LATENT DEFECTS SURFACE. READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-23 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN
+#   MARK.** That one closed F-31. This one made new parse answer correctly, and then spent the day
+#   finding what the fleet structurally cannot see.
+#
+#   ## THE ONE-LINE STATE: **NamE parses `foo` through the new parse and its action returns `foo`,
+#   byte-identical to old parse.** Fleet **57 green / 1 parked** (was 53 — four rows added, none
+#   lost). Canary **318**. Frontier **10 PASS, first failing station NONE**. decodePop 72 terms /
+#   22 checks. ddPop 6. Both repos clean and pushed. **Fixit queue: 9.**
+#
+#   ## ⚠⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE LABEL FIX IS ONE SITE PLUS ONE GATE, AND THE GATE IS THE LOAD-BEARING HALF.**
+#   `runRuleAction` is the ONLY seam between the terms matching and the action firing, because the
+#   emitted tail is `return runRuleAction(this)` — the action fires from INSIDE the body. But that
+#   function is also on the ORDINARY path (`aCTionBrancH`, `runOP`), where no parse is in flight and
+#   `hereAt` is stale. `gNewParseInFlight` (jitContext.h) makes the stale-span write
+#   unconstructable. Ungated it would have written a plausible span into every ordinary dispatch.
+#
+#   **2. A GREEN FLEET IS NOT A CORPUS CHECK, AND THIS COST TWO NEAR-MISSES IN ONE DAY.** Bodies
+#   compile LAZILY AT FIRST CALL, so anything never called is invisible to `pop.sh`. The `SemI-`
+#   change ran 57 green **with a live hit sitting in `incant/utilities`** — `displayIfVisible`, four
+#   semicolon-less `if`s, in the file every fixture includes. And guard-1's symptom census, which
+#   sweeps only code that RUNS, misses that same function's two Operator errors for the same reason.
+#   **When a corpus gate reads clean, ask whether the corpus was executed.**
+#
+#   **3. `if field != 0;` IS NOT A SAFER `if field;` — THE TWELVE-CELL TABLE SAYS SO.** They ask
+#   different questions (presence vs numeric value) and each is wrong where the other is right.
+#   `!= 0` reads TRUE on an absent field and FALSE on a group; the bare test reads TRUE on a field
+#   holding zero and on a valueless one. **`if listLengtH;` is the CORRECT empty-list guard and
+#   `!= 0` breaks it** — nine sites would have moved under a blanket rule. Accessors disagree with
+#   each other and must be checked one at a time. `minionWork/probeBareTest`.
+#
+#   **4. BEAR-TRAP #39 HAS TWO VICTIMS, FOUND BY TWO DIFFERENT INSTRUMENTS.** An undeclared name in
+#   an action body is an action LOCAL, cleared on entry, so two actions sharing one never see each
+#   other's writes. `e8e8619`'s mechanical patch gave eleven of twelve emitter copies their counter
+#   declaration. `incant/bisectQ` was found by being banked as a citizen; `incant/phaseProbe` was
+#   found by guard-1 sweeping for the SYMPTOM. **Neither instrument would have found the other's
+#   file.** Both fixed, one line each.
+#
+#   **5. THE FIRE COUNT IS ONE PER ROAD, AND `parseSetLabel`'S FIRE WAS UNREACHABLE.** Tony's
+#   ruling: `parseSetLabel` = label work (alive as the future glom arm), `runRuleAction` = body road,
+#   `fireLabelMethod` = interpretive road. Stripping it discharged **fixIts row 1 BY RULING**. It
+#   could never have starved anything: only three rules are leaf-shaped AND method-bearing
+#   (`ANYtoken`, `NewGroup`, `ShortcuT`), all read `datA 6` = isGROUP, and `setParse` binds those to
+#   `parseMethod = null`.
+#
+#   ## ⚠ WHAT TONY IS ON THE HOOK FOR
+#   1. **`parentUnreachable`** — an action cannot reach its argument's parent; five of six
+#      navigation directions exist and only UP is missing. Two shapes graded, choosing is his.
+#   2. **`trailingContinue`** — REMEDY landed, awaiting step-and-bless, then it promotes.
+#   3. **`WhilE` grammar rule** — `SemI-` STOPPED at 19 live `while ++grup` sites. A style ruling on
+#      a live idiom, not a first-draft safety net. `ElseIf` and `IF` landed.
+#   4. **Guard-1's proposal** — standardise the refusal tail across all 13 operator sites; a halt
+#      would fire on NOTHING today, so it can be armed with no migration.
+#   5. **Bear-trap #39 minted** in CLAUDE.md (the seat ledger); the user-facing document is task 4
+#      and unwritten.
+#
+#   ## THE DISCIPLINE EXHIBITS, because each changed an outcome
+#   **FIVE INSTRUMENT FAULTS, EVERY ONE CAUGHT BY A CONTROL RATHER THAN BY A WRONG-LOOKING NUMBER:**
+#   unquoted globs returning 0 over a known-non-empty population; `xargs -a` (not BSD) erroring into
+#   a 0; a stale corpus list making an H11 control read ABSENT; a regex anchored on `NamE$` after a
+#   pointer print was appended; and `if isGROUP;` reading a constant, not a field kind.
+#   **A PREDICTION DIED ON ONE COMMAND** — `notFirstTimeThru` was predicted to break rule 2 and does
+#   not, because undeclared is the CORRECT spelling there. Recorded rather than dropped.
+#   **AN ASSERTION'S BLIND SPOT WAS AUDITED AND FOUND EMPTY** — the earlier fire-count grep did
+#   exclude `parseSetLabel`; re-run with every site counted, the figures are unchanged.
+#   **A REPORTED DEFECT WAS NEARLY MINE** — `displayIfVisible`'s Operator errors were first measured
+#   against a fixture whose argument had no parent. Re-measured with a properly parented specimen;
+#   they reproduce. The patient is sick; the first instrument could not prove it.
+#
+#   ## THE SEAL CHECKLIST, run 2026-08-25
+#   `incant/frontier` **exit 0, 10 PASS, FIRST FAILING STATION: NONE** · fleet **57 green / 1 parked**
+#   · decodePop **72 terms, 22 checks** · ddPop **6 green** · canary **318** · generated-file check
+#   **flags.tokened = 2, expected 2** · **support repo 0 uncommitted, 0 unpushed** (the standing step,
+#   ruled today) · Groups clean but for Tony's `IncantForms/WorkingOn/{incant++,tester}`.
+#   **Tony's fixit incantations waiting: 9 (oldest: byRefReview, since 2026-08-24)**
+
+# ---
+
+# ⚠⚠⚠ SEALED 2026-08-23 — THE CAMPAIGN CLOSES. READ THIS FIRST.
+
+#   ⚠ **THIS SUPERSEDES THE 2026-08-22 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN
+#   MARK.** That one proved the fix shape on a specimen. This one made the shape unnecessary.
+
+#   ## THE ONE-LINE STATE: **F-31 is CLOSED, status remedy, and the fix that was proven end-to-end
+#   was never fired in anger.** `tokenize` has **zero reads-through and zero firings**, is still in
+#   the grammar, still bare, still tagged. The same-count discriminator that isolated F-31 now
+#   answers **identically on both arms** — its defining measurement returns null.
+#   **THE COUNT: 22 compiled clean, 19 parse-failed, 1 crashed, of 42 attempted.**
+#   Fleet **52 green / 1 parked**, rows byte-identical. Decoder 72 terms.
+
+#   ## ⚠⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+
+#   **1. THE MECHANISM WAS NEVER A BODY-MISREAD.** Installing a generated parse method gave the one
+#   BARE hook its **FIRST attribute**, which reclassified it from method-hook to attribute-matcher —
+#   so its method stopped being fired and the reader it served starved. `Braced`, which already had
+#   attributes and gained the same `CodE`, did not flip. Measured `hasAttr 0 -> 1`.
+
+#   **2. THE JANITOR HAD A SECOND JOB, AND THAT IS THE ASYMMETRY NOBODY COULD EXPLAIN FOR A WEEK.**
+#   `tokenize`'s comment advertised one thing — it "gloms parent label components together into the
+#   label string". That glom **also consumed** the labels a rule's LABELED sub-terms produce.
+#   `captureSpan` inherited the capture; nobody inherited the collapse.
+
+#   **3. THE DASH IS WHY NamE WAS IMMUNE — IT IS SPELLING, NOT LUCK.** Read the two lines:
+#   `NamE first-=[a-zA-Z] nameSet-^*` — both sub-terms carry the **noLabel dash**;
+#   `NumbeR numberSet=[0-9]+` — **labeled**. A noLabel sub-term mints no label, so there is nothing
+#   to hang. Respelling NumbeR the same way took the load census **42 → 4**. Do not go looking for
+#   rule-specific weirdness; there is none.
+
+#   **4. THE COUNT'S 19 FAILURES ARE WEATHER, NOT THE SNAKE.** Named, not absorbed: BasicElse CodE
+#   DEFINing DO DelimText ElseIf FOR IF InvokE Limit MemberS PrinT RunRulE Search SetBrackets
+#   TraiTdata WhilE break tokenize; plus DatA crashing at 139. The four the earlier 12-of-43 partial
+#   had already named are all present, which is what makes them **pre-existing rather than caused**.
+#   `tokenize` failing is expected and harmless — a bare rule generates an empty condition and
+#   nothing routes through it. Each is an ordinary frontier row now.
+
+#   **5. THE EPITAPH, because it is the whole campaign in one sentence: ABSENCE IS NOT A CHANNEL.**
+#   A bare hook meant *I am live machinery*; a leaf product meant *I am a value*; an unread label
+#   meant *nothing*. Uniform progress erased all three absences. **Every fix shipped was the same
+#   fix: say the thing explicitly** — a flag instead of bareness, `setToken` instead of decoration,
+#   a dash instead of an unread label.
+
+#   ## THE DISCIPLINE EXHIBITS, because each changed an outcome
+#   **FIVE MECHANISMS DIED ON CONTACT** and one survivor was named on bones — four cuts, every
+#   outcome pre-registered, all four landing where they were aimed and neither loud miss firing.
+#   **TWO PROBES WERE VOID AND SAID SO.** A hollow-capture run reported a clean 52 that meant
+#   nothing, because `GroupMain.twk` was edited and never re-tok'd — the flag never reached the
+#   binary. **The check is now standing: count the set site in the GENERATED file, never the source.**
+#   **A KILLED CAPTURE WAS READ AS A DIFF**, against rule H5's explicit warning, and produced a
+#   finding that had to be re-measured. It reproduced — but the doubt was the instrument's fault.
+
+#   ## ⚠ WHAT IS CARRIED
+#   1. **The fix-shape apparatus** — off-rule storage, explicit activation, ruled-moment bind —
+#      **superseded-unexecuted**, proven on Braced, retired to doctrine.
+#   2. **`DatA` crashes at 139** in the count harness — its own row, undiagnosed.
+#   3. **Buffer-lifetime** — still honestly void, twice attempted.
+#   4. **Queued:** `parseMethod` → `groupBody` · define liberation · the installation gap
+#      (genParse never sees NamE or FormaT) · the wrap/unwrap evidence pile
+#      (`canonRoadDependence`, the rebind-taG sighting). **#37 stays parked and fed.**
+#   5. **HeX is parked**, reversal instructions inside its own comment. **Station 3 stays parked.**
+#   6. ⚠ **`groups.ext` IS DIRTY IN THE SUPPORT REPO AND IT IS THE CAMPAIGN'S OWN WORK.** Eleven
+#      insertions, mtime 2026-08-21, uncommitted: `maxLimit`, `repeatLimit`, `reportMaxLimit`,
+#      `reportRepeatLimit`, `storeBody`, `storedBody`, `activateBody` and siblings. **It is EXPLAINED,
+#      not a surprise diff** — it is the out-of-repo extern mirror keeping pace. **But bear-trap #11
+#      applies: it lives outside the Groups repo, so it never appears in a Groups `git status` and
+#      the build depends on it.** Committing it is Tony's call; a resurrection reader needs to know
+#      it is there and uncommitted.
+
+#   ## THE SEAL CHECKLIST, run 2026-08-23
+#   `incant/frontier` — **RUN, exit 0, nine of nine RAN and PASSED. FIRST FAILING STATION: NONE.**
+#   Its prose now records that the campaign it was built for closed *without it ever needing
+#   `tokenize` as its subject*, and that the next edge is unnamed — the 19 parse failures are the
+#   candidates. Fleet **52 green / 1 parked**, zero timeouts · decodePop **72 terms, 22 checks** ·
+#   ddPop **6 green** · canary **315** · generated-file check **2 set sites** ·
+#   **Tony's fixit incantations waiting: 1 (nodeIdentity, since 2026-08-22)** · everything pushed,
+#   working tree clean except Tony's own `IncantForms/WorkingOn/{incant++,tester}`.
+
+# ---
+
+# ⚠⚠⚠ SEALED 2026-08-22 — KITCHEN PASS (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-21 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN
+#   MARK.** That one had an instrument that said where the campaign was stuck. This one ran it green.
+#
+#   ## THE ONE-LINE STATE: **the F-31 (tokenize snake-eats-tail) fix shape is PROVEN end-to-end on a
+#   specimen.** `incant/frontier` runs **nine stations, all RAN and all PASSED**, ran-census 9 of 9,
+#   exit 0, reproduces. Fleet **53 green / 1 parked**, canary **315**, everything pushed.
+#   **Tony's fixit incantations waiting: 1 (nodeIdentity, since 2026-08-22)**
+#
+#   ## ⚠⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE CAMPAIGN'S QUESTION IS ANSWERED, ON A SPECIMEN.** A body that did not exist when the
+#   process started was generated, stored off-rule, activated on a twin, compiled, harvested onto the
+#   live rule, bound into its parse path, and **executed by the ordinary parse as Braced's own parse
+#   implementation** — correctly enough that the bracket it governs parsed. `tokenize` untouched.
+#   Runnable: `minionWork/probeDecisiveV2`, `incant/frontier`.
+#
+#   **2. THREE THINGS HAD TO BE TRUE AT ONCE.** Remove any one and the run goes red or silent.
+#   **Bind the real node** — `<-` hands back a reference-sharing-substance, and a reference confirms
+#   every read-back of a write that changed nothing (Ruling E: bind the node, not a copy).
+#   **The fork's node is the ordinary catalog node** — no carrier, no fallback, no resolution
+#   function; `canonOf(Grokking["Braced"])` reports SAME NODE and equals the fork's `definer`.
+#   **The return is consumed at the fire site** — a body's yield is a value, never control flow.
+#
+#   **3. ⚠ THE CONFOUNDER THAT ATE A WEEK, AND WHY NO INSTRUMENT CAUGHT IT.** `<-` yields a node that
+#   shares the original's child list but is **not** the original. It answers every READ correctly —
+#   same tag, flags, list, `definingRule` — and diverges only on MUTATION, where the write lands on
+#   the copy and **the read-back off that copy confirms it**. No error, no crash, fixture green. Four
+#   findings were reported and later inverted from this one root. **Identity questions are asked in
+#   POINTERS, through `canonOf`** — a resolver that reports names cannot answer a question about
+#   identity, because two faces of one rule share a tag by construction.
+#
+#   **4. #37 (artifact return unwinds caller) IS STILL STANDING — DO NOT READ THE GREEN AS ITS CURE.**
+#   Containment is proven at `parseRule`'s door ONLY. The frontier is green because the truth-test
+#   discipline **removed the fire**, not because the unwind was contained; the #37 path is not
+#   exercised anywhere in that run. The evaluation door — `aCTionIF`'s condition fork,
+#   `GroupRules.mm:857` — is parked as a named acceptance criterion on the gMethod-move batch with an
+#   H7 control: **truth-test a commissioned BlocK; it must NOT fire.** Retirement fires on that
+#   verified landing, not before.
+#
+#   **5. THE STAGING PROPERTY, DEMONSTRATED NOT ASSERTED: arming without routing is inert by
+#   construction.** The artifact sat armed on the live rule across whole sessions and never fired
+#   until it was routed. So the tokenize repair stages **store → arm → verify → bind**, everything
+#   before the bind provably inert, the live switch at one ruled moment.
+#
+#   ## RULINGS BANKED BY THIS CAMPAIGN
+#
+#   **A** twin inertness (a `copyOf` twin is specimen, not organism) · **C** compile guards both
+#   channels with distinct refusals (flag-vs-artifact disagreement is itself diagnostic) ·
+#   **D** shape vs liveness vs birth — D1 `isRule`-class flags say rule-SHAPED never LIVE, liveness is
+#   asked of `rStuff`; D2 `isLabel` is a birth certificate, an `rStuff`-less label is WRECKAGE and
+#   refuses loud; D3 registration mints shape, reference mints life · **E** bind the node, not a copy ·
+#   **containment lives at the fire site**, yields are consumed not obeyed.
+#   ⚠ **DOOR TAXONOMY:** deliberate fire sites (parseRule) consume returns — landed and proven.
+#   **Evaluation sites (any operand-position gMethod call) are a LANGUAGE ruling, not an edit** —
+#   consuming there changes what `if` means for every method-valued condition.
+#
+#   ## ⚠ WHAT TONY IS ON THE HOOK FOR
+#
+#   1. **Arm A** — instrument the walk around install #43, confirm one concrete read into `tokenize`'s
+#      overwritten body. It gates the repair and nothing this campaign did touched it.
+#   2. **`nodeIdentity` fixit** — intent half RULED (pointer wanted, mechanism missing); the `parenT`
+#      grep is the open half, one command, no build.
+#   3. **The `<-` memory row** (`project_incant_new_operators_setflag_rebind`) describes the symptom as
+#      if it were the design — wants a word now that the intent is ruled.
+#   4. **Carried:** `groupDirectives` working copy · `jsonTest baseline` red, pre-existing all session ·
+#      `IncantForms/WorkingOn/{incant++,tester}` are his live files.
+#
+#   ## THE DISCIPLINE EXHIBITS, because each changed an outcome
+#   **THE TRY-AND-BUY SYSTEM SAID NO, AND WAS RIGHT.** One full cycle, criteria pre-registered before
+#   the edit, criterion 2 failed on measurement, the one-commit revert floor executed clean — and the
+#   no-buy turned out righter than known once the confounder surfaced.
+#   **A GREEN RUN THAT NEVER ENTERS THE FAILING PATH IS NOT EVIDENCE THE PATH IS FIXED**, and the
+#   frontier says so in its own prose rather than letting its banner imply otherwise.
+#   **THE RAN-CENSUS EXISTS BECAUSE THE BANNER LIED ONCE:** reading v1 printed "all nine stations
+#   PASSED" while station 9 sat unparsed, because `frDead` only ever rises from a station that RAN.
+#   **FOUR FINDINGS WERE WITHDRAWN OR INVERTED AND NO WRONG RULING SURVIVED** — finding 1 withdrawn
+#   before its ruling was acted on, finding 3's fix-vs-reorder explicitly held for mechanism, Ruling E's
+#   trial refused by pre-registered criteria. The process caught what the probes could not.
+#
+# ---
+#
+# ⚠⚠⚠ SEALED 2026-08-21 — KITCHEN PASS (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-20 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN
+#   MARK.** That one opened the campaign gate. This one spent the gate — and found the road.
+#
+#   ## THE ONE-LINE STATE: **the storage-and-activation machinery EXISTS, the headline number has
+#   NOT moved, and the campaign now has an instrument that says exactly where it is stuck.**
+#   `incant/frontier` runs and **dies at STATION 4**. Fleet **53 green / 1 parked**, canary **314**,
+#   jitLadder 205, everything pushed. **Tony's fixit incantations waiting: 0**
+#
+#   ## ⚠⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   **1. THE FRONTIER FILE EXISTS AND DIES AT STATION 4.** `incant/frontier`, eight stations,
+#   revised in place at every seal and never forked. Stations 1-3 PASS (generate · store, census
+#   pending 1 · mint twin, taG reads Braced). **STATION 4 FAILS: a `copyOf` twin REFUSES the body
+#   install that the LIVE RULE accepts one station earlier** — same `frHang`, same body, different
+#   target. ⚠ **That is ONE STEP UPSTREAM of the portability gate the crucible was built to answer**,
+#   so the crucible is *wounded at a named line*, not dead. **The front question for the next session
+#   is: what does install require that a `copyOf` twin lacks?** Steppable at `fixFrontier4Here`.
+#
+#   **2. THE SWEEP-RETRIEVAL SUSPECT IS DEAD.** The leading candidate for the sweep's uniform
+#   `reached end of input` was *"retrieval hands compile an empty read"*. **Measured and refuted** —
+#   the dump shows the body arriving IN FULL:
+#   `{ if  SemI() OR BlocK() OR WardeD() OR Iterate() OR Xpress(); return runRuleAction(this); }`
+#   A further cell (OR-chain on a detached entry) did **not** reproduce the sweep's text either. The
+#   texture is narrowed to **subject-identity or a population/sequence effect** and is **named, not
+#   chased**. Do not re-run the empty-read theory; it is closed.
+#
+#   **3. THE ARTIFACT'S TRUE ADDRESS IS `BlocK` + `isAction`, NOT rStuff.** Attached by `processCode`
+#   at **`GroupActions.rtn:951-952`** (`result.noPrint = true; field +% result; field.isAction =
+#   true`). ⚠ **The rStuff siting in the SEQ 81 charter is STRUCK AS AN ERRATUM.** Anything designed
+#   against "commission into rStuff" needs re-siting before it means anything.
+#   ⚠ **And its companion blocker, captured:** `:. isActioN` has **no case in `opSetFlag`** — it
+#   prints `groupField isActioN has no case yet -- gCount 408` and does nothing. Station 6 will need
+#   another route to the `isAction` half. **Blocker-in-waiting, not yet paid.**
+#
+#   **4. R1-GREEN STANDS: A DETACHED ENTRY COMPILES FINE AND RESOLVES NOTHING.** The 2x2
+#   (`minionWork/probeCompileCells`, runnable) is the sharpest thing measured this session:
+#   | body | terms | `runRuleAction` | result |
+#   |---|---|---|---|
+#   | R1 | no | no | **GREEN** |
+#   | R2 | no | yes | fails at `runRuleAction(this)` |
+#   | R3 | yes | no | fails at the term |
+#   | R4 | yes | yes | fails at the term |
+#   **A detached-entry compile fails on the FIRST UNRESOLVABLE CONSTRUCT**, and both term calls and
+#   `runRuleAction(this)` are unresolvable there. ⚠ **So "entries do not compile" was WRONG — they
+#   compile, and resolve nothing.** The cause is arm 2's finding, below.
+#
+#   **5. WHY, EXACTLY — AND IT IS A ONE-LINE MECHANISM.** `GroupItem.twk:1789`:
+#   `if registry && registry.isRule  isRule = true;` — **filing a node in an `isRule` registry
+#   AUTO-PROMOTES IT TO A RULE.** `GroupMain.twk:16` sets that on Grokking, and `genParse.rtn:780`
+#   records it true **only** for Grokking. `GenBodies` is not `isRule`, so corpus entries **are not
+#   rules**, so `runRuleAction(this)` has nothing to resolve against.
+#   ⚠ **AND THE COROLLARY THAT MATTERS FOR THE CRUCIBLE:** `kantDoor`'s "NOT Grokking … the mint must
+#   not be one" (`genParse.rtn:826-830`) is **NOT the substrate rejecting rule-shaped-but-not-a-rule.**
+#   It exists to stop **accidental** promotion. **It says nothing against a deliberate rule-shaped
+#   twin — the crucible is untouched by it.**
+#
+#   ## WHAT LANDED — six commits, all pushed
+#
+#   | commit | what |
+#   |---|---|
+#   | `4dcee26` | **pre-registration, committed BEFORE a line of code** — canary delta, groups.ext edits by name, f31 signature, census shape, and `56 of 56 PRE-REGISTERED AS SUSPICIOUS` |
+#   | `d097772` | **the machinery is born** — five verbs, corpus in `GenBodies`, phase 1 hits its pin at 56/0/0/56 |
+#   | `40864cb` | back-pointer **deleted** (audited: no second purpose), bodyless compile refuses loud, **the number taken** |
+#   | `758dd32` | **Option B built and stopped by its own stop condition** — and the condition's premise falsified |
+#   | `f97c4f4` | the crucible recon: arms 2 and 3 delivered, **arm 1 declared INCOMPLETE rather than reported** |
+#   | `62986a5` | **`incant/frontier` born**, dies at station 4 |
+#
+#   ## THE MACHINERY, AS BUILT — six library verbs, canary 308 → 314
+#
+#   `storeBody` · `storedBody` · `activateBody` · `activateAll` · `compileStored` · `bodyCensus`.
+#   Corpus is the **`GenBodies`** registry, keyed by rule tag. States on an entry: **1 pending · 3
+#   compiled-green · 2 commissioned — never 0**, because a fresh node counts zero already and zero
+#   must never mean a state we put it in.
+#   ⚠ **`groups.ext` took SIX decls and rides in no commit here (bear-trap #11).** md5 at session
+#   start `31ff1b0f7db20271e5d98f7ef0851a7b`, **at seal `96e8fc0b9f86a3dedc0b95badcb28c96`** — the six are `storeBody`, `storedBody`,
+#   `activateBody`, `activateAll`, `compileStored`, `bodyCensus` in the `external GroupRules.h` block.
+#
+#   ## ⚠⚠ THE HEADLINE NUMBER: STILL 0 OF 56. Said plainly, because it is the point.
+#
+#   | | |
+#   |---|---|
+#   | phase 1 census | **56 / 0 / 0 / 56 — the pre-registration EXACTLY** |
+#   | phase 2 | **compiled 0, rejected 56** against a pinned 0 of 56 |
+#   | residue | **uniform** — all 56 `reached end of input` |
+#
+#   **THE INVARIANT HOLDS AND THE NUMBER DID NOT MOVE, AND BOTH HALVES ARE TRUE.** Generation writes
+#   no live slot; phase 1 is clean. But **whole-population activation before any compile reproduces
+#   the poisoning**, and **compile-from-store is not constructible by compiling a detached entry**.
+#   ⚠ **`reached end of input` IS NOT A DISPLACEMENT DETECTOR** — under Option B displacement was
+#   *impossible* (commissioned 0 at every checkpoint) and the text appeared anyway. Anything that
+#   leaves a reader with no tokens produces it. **A constant failure is camouflage for a variable
+#   one**, which is the trap that hid F-31's transition behind `BasicElse`.
+#
+#   ## THREE SUBSTRATE FINDINGS THE BUILD PAID FOR — two are now bear-traps #32 and #33
+#
+#   **#32 — a multi-statement indented `if`-arm followed by an `else` breaks the parse**, and the
+#   error names **the first action in the file**, which is healthy. Two controls passed; only the
+#   combination fails. That misdirection cost an entire bisect. Cure is the flag idiom.
+#   **#33 — an incant command extern MUST return `GroupItem`.** An `int` return is read as a pointer
+#   and the process dies **on the statement after the call**, so the callee's entry trace never fires
+#   and it reads as *"never registered"*. Census: **zero** registered commands return `int`.
+#   **Third, applied not charted:** `setGroup` **deep-copies a parented target** (`GroupItem.twk:1662`)
+#   unless the node is `isLocal`/`isLabel` or the target is `byRef` — which is why `kantDoor` sets
+#   `isLocal` before `group`, and why the corpus back-pointer was deleted rather than repaired.
+#
+#   ## ⚠ WHAT TONY IS ON THE HOOK FOR
+#
+#   1. **THE FRONT QUESTION, and it is answerable in the debugger before anyone writes a line:
+#      what does install require that a `copyOf` twin lacks?** Break at `fixFrontier4Here`.
+#   2. **F-33 — QUEUED AND LOAD-BEARING.** The termless-rule body. It is in the 56.
+#   3. **Charter B — the `isLIST` recon — UNSTARTED.** Chartered in full at SEQ 78; rides after A seals.
+#   4. **The 8 nested-term refusals are UNMEASURED under the new siting** — `;` `attributes` `cerr`
+#      `cout` `in` `iterate` `members` `on`, all nested terms `locate()` cannot reach. They did **not**
+#      reproduce under Option B, so **no fixit row is minted from them** until the siting settles.
+#   5. **The ordinal is STILL FLAGGED** — four customers found and sited, fifth unrefuted.
+#   6. **`IncantForms/WorkingOn/drawing` is annotated but UNCOMMITTED** — it is his working file. See
+#      the Drawing-registry section in the session report; six entries confident, two flagged `"?"`,
+#      `endPath` refuted by dlsym.
+#   7. **Carried:** `groupDirectives` working copy · F-29's mechanism · F-32's `else()` emit ·
+#      `jsonTest baseline` red, pre-existing all session.
+#
+#   ## THE DISCIPLINE EXHIBITS, because each one changed an outcome
+#   **THE PRE-REGISTRATION DID ITS JOB TWICE.** It caught the canary at +5 not +4 (the fifth verb,
+#   `storedBody`, closing a gap nobody could have reasoned out: **the direct install was doing double
+#   duty as the walk's VISITED MARK**, and separating them made the walk recurse forever). And its
+#   `56-of-56-is-suspicious` clause was written before any run, so it could not be rationalised after.
+#   **ARM 1 WAS DECLARED INCOMPLETE RATHER THAN REPORTED.** Its control's marker body silently failed
+#   to parse, so nothing ever demonstrated the artifact executing. Reporting a twin comparison on top
+#   of that would have been a void control wearing green — the exact failure H7 exists to prevent.
+#   **THE FRONTIER FILE CAUGHT ITSELF BEING VOID ONE RUN AFTER IT WAS WRITTEN**, and that is the best
+#   argument for the practice: `if frOk;` tests existence, always true, so three stations printed PASS
+#   unearned. **The structure found it, not anybody's memory.**
+#   **A GRINDING THRESHOLD WAS HONOURED THREE TIMES** — activation binding, the compile site, and the
+#   starvation texture were each handed back after three distinct attempts rather than ground on.
+#
+# ---
+#
+# ⚠⚠⚠ SEALED 2026-08-20 — KITCHEN PASS (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-19 LATE SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS
+#   OWN MARK.** That one closed the day 56 problems became one. This one closes the one.
+#
+#   ## THE ONE-LINE STATE: **the campaign gate is OPEN.** `F-31` is **CONFIRMED and ratified**, its
+#   mechanism is **measured**, and the fix is **ruled and released — but deliberately not tasked.**
+#   Fleet **53 green / 1 parked**, canary **308**, everything pushed, tree clean but for Tony's three
+#   working files. **Tony's fixit incantations waiting: 0**
+#
+#   ## ⚠⚠ THE THING A FRESH READER MUST NOT RE-DERIVE — THREE MEASUREMENTS, THEY NEST
+#
+#   **1. WHICH install — a SAME-COUNT SWAP.** The old 42-vs-43 A/B moved count and membership
+#   together and could not settle it. Hold installs **fixed at 42** and exchange one member:
+#
+#   | arm | 42 installs | `tokenize` among them | compiling `BasicElse` |
+#   |---|---|---|---|
+#   | 0 | `BlocK` in | no | **CONTENT** — `failed at "else() AND followedBy()…"` |
+#   | 1 | `BlocK` out | **yes** | **EMPTY** — `reached end of input`, line 1 |
+#
+#   **2. WHEN — dispatch is LIVE, not frozen at bind.** Two compiles of the same body in **one
+#   process**, one install between: reads CONTENT before, EMPTY after.
+#
+#   **3. WHY — Arm A, and it is the promoter.** A temporary `cerr` on the C++ `tokenize`
+#   (`GroupActions.rtn:1545`), counting calls, then a **bare revert and rebuild**:
+#
+#   | arm | `tokenize` in | whole run | **DURING the compile** |
+#   |---|---|---|---|
+#   | 0 | no | 1163 | **2** |
+#   | 1 | yes | 1170 | **0** |
+#
+#   ⚠ **READ THE TWO COLUMNS TOGETHER OR NEITHER MEANS ANYTHING.** The whole-run totals are
+#   effectively equal, so the tokenizer is **alive in both runs** and the install does not kill it
+#   globally — that is the anti-vacuity control. **During the compile it goes 2 → 0**: a reader that
+#   got tokens and choked, versus one that **never got a token.**
+#
+#   ## ⚠ AND THE TRACE BOUGHT A REFINEMENT — TWO CAUSES, AND THEY EXPLAIN DIFFERENT HALVES
+#
+#   The body installed over `tokenize` is **degenerate — `{ if  return runRuleAction(this); }`, an
+#   `if` with no condition** — because `tokenize^@;` (`grammar:34`) is a **termless** rule and the
+#   generator's term loop emits nothing.
+#   **Do not merge the causes:** the **DUAL ROLE** explains **the collision** (a rule the reader
+#   depends on gets a body installed over it mid-use); **TERMLESSNESS** explains **the degenerate
+#   body**, now charted separately as **F-33**. They compound — but **a hook WITH terms is still a
+#   hook**, which is exactly why the fix was ruled on the dual role and not on the body.
+#
+#   ## THE FIX: RULED, RELEASED, NOT TASKED — and each word was decided separately
+#
+#   **SELECTED: off-rule storage plus explicit activation**, fourth customer (with the napalm, the
+#   `BlocK` re-poison, mid-walk `setParse` binding). **REFUTED: exempt-the-hook** — correct for
+#   today's grammar, **silently wrong for tomorrow's**. Tony ruled the **hook class OPEN**: `tokenize`
+#   may be the only member *now*, and self-hosting **structurally mints dual-role rules over time**.
+#   ⚠ **THE CENSUS NEVER GOT TO VOTE, AND THAT IS THE POINT** — it returned **one** member, and the
+#   siblings' immunity is **incidental** (they carry data; `tokenize` does not). Second time this
+#   campaign a fix was chosen by asking **what the project IS** rather than what the bug does; the
+#   pick-one constraint went the same way.
+#   **The census survives as a standing registry: `docs/hookRules.md`**, row one `tokenize`.
+#
+#   ## ⚠ WHAT TONY IS ON THE HOOK FOR
+#
+#   1. **THE BUILD — released-and-untasked BY RULING, not by drift.** Cut it first thing on a fresh
+#      session. ⚠ **STEP ONE IS PRE-REGISTRATION:** write `incant/f31`'s expected taken-signature down
+#      **before touching code** — a target regenerated green is not a target. ⚠ **AND f31 ORACLES THE
+#      SYMPTOM, NOT THE MECHANISM:** a green f31 says `tokenize` survives installation and says
+#      **nothing** about the other three customers. **The build's verification surface is wider than
+#      the fixit that gated it.**
+#   2. **F-33** — ratify the shape: emit the **minimal well-formed body** for a termless rule (no
+#      `if`, straight to the return). **Not** "refuse to generate" — refusal leaves termless rules
+#      permanently outside self-hosting for no gain.
+#   3. **F-26's five** — still his. Sites for all five are now in the docket, file:line, so he reads
+#      rather than hunts. ⚠ **Items 1 and 5 are NOT mintable as fixits yet** and the reason is
+#      measured: nothing drives a parse through a bound `parseRule`.
+#   4. **`groupDirectives`** — his working copy; the `compile`-entry `debugAllRules` line is still not
+#      regenerable from it.
+#   5. **One ordinal to check:** the relay called `tokenize` the **fifth** customer of
+#      off-rule-plus-activation; the tree says **fourth** and names three predecessors. **Flagged, not
+#      reconciled** — a customer count is exactly the kind of cited number that gets built on.
+#   6. **Carried:** DesignDocs `KantParser` authored-not-installed · `IncantForms/WorkingOn`
+#      reconciliation (H8) · F-29's mechanism · F-32 the `else()` emit · `jsonTest baseline` red,
+#      pre-existing all session.
+#
+#   ## WHAT ELSE CLOSED — `iterT1m`, and KE-4 with it
+#
+#   **Row 1 GRADUATED (H6):** `iterT1m.divergence` → **`iterT1m.target`**, 7 visits, each node once.
+#   The re-pin sentence is a **subsequence claim**: the old 14-line pin differs by **deletions only**,
+#   so today's walk *is* the old walk minus its seven duplicate visits — and it is the exact trace the
+#   fixture's own header **pre-registered as correct**. ⚠ **NOT claimed:** that header's conclusion
+#   that the recursion inference now covers mutual recursion. `field.recursive` is **unchanged**
+#   (`ruleActions.rtn:1320`, still identity-against-`currentMETHOD`). **The target pins the answer, not
+#   a mechanism.**
+#   **Row 2 — cause established, then RULED AND RESTORED.** KE-4's three candidates resolved to the
+#   **first**: the `cerr` was **deleted in `9c4962b` (2026-08-15)**, Tony's own offline work. Restored
+#   verbatim; **provably one line** (canary 308, `.mm` diff = 1 insertion); fleet **52 → 53 with
+#   exactly one row moved**. ⚠ **The pin is 4, not the old 7** — seven was the count under the *broken*
+#   walk. **The number moved because the WALK moved.**
+#   ⚠ **REMEDY: ASSERTABILITY** — restoring it changed **no behaviour**; the poison was intact
+#   throughout. It restored the fleet's only **presence-with-value** cover for the poison.
+#
+#   ## THE REGISTER GREW A CHARTER TODAY — five addenda, and the queue emptied
+#
+#   `incant/fixits/` gained: **prose below `stop();`** (parse-dead — Tony's ruling, hostile-text probe
+#   agrees); **the loaded gun** (the seal line is an *armed condition*, not a reminder — silencing it
+#   is unloading someone else's gun); **the peas pass** (session open runs `fixitNag.sh` and asks
+#   *step one now, or which citizen first* — **new campaign work does not open while that is
+#   pending**); **REMEDY blocks** naming `BEHAVIOUR`/`ASSERTABILITY` first word; and **`NEXT:` on
+#   every citizen, never absent**, graded `OPEN → BEST GUESS → RULED → REMEDY`.
+#   ⚠ **`RULED` exists because the other three are EPISTEMIC and a ruling is DEONTIC** — a project
+#   that rules on trajectory ahead of evidence produces *decided-but-not-yet-buildable* structurally.
+#   ⚠ **AND ABSENCE-AS-SIGNAL FAILED ITS FIRST COLD READER**, which is why `NEXT:` is mandatory: a
+#   grade needing a qualifying clause to be read correctly is **a failure surviving correct
+#   application.**
+#
+#   ## ⚠ WHY THE BUILD WAS NOT CUT TONIGHT — a scheduling ruling, not a judgement call
+#
+#   The 2026-08-08 doctrine fired on its exact signature: **reasoning intact, mechanics degrading.**
+#   Six mechanical misfires this session — a non-discriminating `eq` guard that **voided a control**, a
+#   registry lookup echoing its own tag, `!listLengtH` reporting zero leaves, an ordinal skip landing
+#   on `continue` **twice**, a `fixitNag` sort written wrong twice, and a control that **collapsed into
+#   an arm already in hand**. ⚠ **Every one was caught — and the catch rate is NOT the metric.** The
+#   ruling is *scheduling, not more care*, and the fourth-customer build is the **highest blast-radius
+#   work on the board** (a ruling with three other customers, where a misfiling is charter-level and
+#   gets built on).
+#
+#   ## THE DISCIPLINE EXHIBITS, because each cost something today
+#   **TWO VOID CONTROLS IN F-31 ALONE, both caught by a PRINTED NAME and neither by reasoning:**
+#   *"43 installs without `tokenize`"* is **unbuildable** (the population is exactly 43 and `tokenize`
+#   is last, so the skip silently collapses to the N=42 arm and **reproduces the CONTENT read**, which
+#   reads as a clean refutation); and an ordinal skip above `fbGen`'s `datA` gate skips `continue`,
+#   which `fbGen` drops silently anyway. **A fixture that names what it skipped cannot lose a control
+#   the way the name-skip did.**
+#   **THE INSTRUMENTED BUILD WAS REVERTED AND REBUILT BARE BEFORE ANY CAPTURE** (bear-trap #23's
+#   hardening) — verified by canary 308, zero `TOKZ` in the `.mm`, and the fleet returning to 53.
+#   **A RELAY DROP:** an amendment arrived whose parent ruling never did. **Flagging the gap beat
+#   reconstructing it** — a reconstruction would have been plausible, unmarked and wrong.
+#
+# ---
+#
+# ⚠⚠⚠ SEALED 2026-08-19 LATE — KITCHEN PASS (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   ⚠ **THIS SUPERSEDES THE 2026-08-19 SEAL BELOW, WHICH IS INTACT AND STILL TRUE AS OF ITS OWN
+#   MARK.** Same day, second pass: that one sealed the pick-one work in the morning; this one seals
+#   the parse-generation afternoon.
+#
+#   ## THE ONE-LINE STATE: **the day the campaign went from 56 problems to ONE, and the one has an
+#   address.** `F-31` bisected to a **single install** — `tokenize`, #43 — that turns a readable
+#   generated body into an empty read. Fleet **51 green / 1 parked**, canary **308**, everything
+#   pushed, tree clean but for Tony's three working files.
+#
+#   ## ⚠⚠ THE THING A FRESH READER MUST NOT RE-DERIVE — F-31 IS ONE INSTALL, NOT FIFTY-SIX
+#
+#   `incant/fixBisect` installs the first N bodies then compiles the FIRST one, known good alone:
+#
+#   | N | last installed | compiling `BasicElse` |
+#   |---|---|---|
+#   | 1 … 42 | … `break` | fails on **CONTENT** — `failed at "else() AND followedBy()"`, text **is read** |
+#   | **43** | **`tokenize`** | fails at **`reached end of input`**, line 1 |
+#
+#   Same body, same compile, one install between them. **Individually perfect, collectively
+#   unreadable.** Candidate mechanism, structural support only: `tokenize` is the tokenizer hook
+#   (`grammar:34`), so installing a body over it plausibly displaces the method every later read
+#   depends on. ⚠ **The confirming control is VOID, not negative** — two name-skip spellings both
+#   matched every member and installed nothing (now bear-trap #28's fourth row). What stands is the
+#   A/B, which isolates the same install without naming it.
+#   ⚠ **AND THE DETECTOR HAD TO BE THE SIGNATURE, NOT THE ERROR.** `BasicElse` fails at EVERY N
+#   (F-32: the generator emits `else()`, a keyword). Counting `ERROR processCode` reports failure at
+#   N=1 and hides the transition completely. **A constant failure is camouflage for a variable one.**
+#
+#   ## WHAT LANDED — six commits, all pushed
+#
+#   | commit | what |
+#   |---|---|
+#   | `654a180` | **Generate.rtn template audit** — the `parse*` family had lost the half that MOVES: no `atRuleMark++`, no min gate, and `parseString` had lost its match guard |
+#   | `acb0617` | `maxLimit` becomes a settable property, landed at the **status quo** because the default is measured |
+#   | `73ae47c` | **F-27 closed** — bad writes refuse AT THE WRITE; default measured at 100000 because **100 would have truncated `phaseA`** |
+#   | `fa28f71` | **`parseClass`** — the setParse classification census, and it found a third misrouting on its first run |
+#   | `d34f3c1` | **maxLimit splits** (F-28), **setParse skips registries** (F-30), **the runaway is `StatemenT`** (F-29) |
+#   | `c4a222b` | **F-31 bisected**, and **fixit incantations** start with `iterT1m` |
+#
+#   ## THE INSTRUMENTS — three new, and each answered a question the same day it was built
+#
+#   **`incant/parseClass`** — which `setParse` arm claims each field, 239 rows, pinned and wired into
+#   `pop.sh`. ⚠ **It is the ONLY row in the fleet that exercises `setParse` at all**; before it,
+#   "fleet unmoved" said nothing whatever about the generated-parse arc. It found the `ANYtoken` /
+#   `NewGroup` / `ShortcuT` misrouting within minutes of existing.
+#   **`reportRepeatLimit`** — named `StatemenT` as the sinkProbe runaway, with position, the first
+#   time it fired. **`incant/fixBisect`** — F-31's answer above.
+#
+#   ## THE TWO CEILINGS, BOTH MEASURED (F-28 closed)
+#
+#   | knob | bounds | fleet ceiling | default | on a hit |
+#   |---|---|---|---|---|
+#   | `maxLimit` | characters in one match | 79 | **100** | `reportMaxLimit`, **match fails** |
+#   | `repeatLimit` | times a rule repeats | 171 | **100000** | `reportRepeatLimit`, **reports only** |
+#
+#   The asymmetry is the ruling: a truncated TOKEN is wrong content; a rule at its repetition ceiling
+#   matched everything correctly. **Anti-vacuity: 182 fixtures, exactly one citizen at either ceiling,
+#   nothing near 100.**
+#
+#   ## NEW STANDING PRACTICE — FIXIT INCANTATIONS (CLAUDE.md, fourth register)
+#
+#   `incant/fixits/` holds one **runnable** file per issue owed to Tony. Prose capture rots. The seal
+#   line is generated by `genLadder/fixitNag.sh`, never typed:
+#   **Tony's fixit incantations waiting: 1 (oldest: iterT1m, since 2026-08-19)**
+#   ⚠ `incant/fixits/` is Tony's queue and **NOT** the fleet — nothing in it runs under `pop.sh` until
+#   promoted.
+#
+#   ## ⚠ WHAT TONY IS ON THE HOOK FOR
+#
+#   1. **`incant/fixits/iterT1m`** — step it, bless or investigate, re-pin BOTH baselines. The fixture
+#      now walks CORRECTLY (7 visits, each node once) while both pins describe the old broken walk.
+#      **One decision, not two.** This run is also the practice's acceptance test.
+#   2. **F-31 confirm or refute** — one working skip plus `showBody` on the failing pair. **Everything
+#      gated on "parse generation closes" sits behind this.**
+#   3. **F-26's five** — still his: the rule action firing TWICE on the generated path, `setParse`'s
+#      order vs `setTestMatch`'s, the four parse methods that never call `checkInput` (`parseRule` is
+#      the one that matters), `parseRule`'s local-clear guard, and `*`-at-zero on the generated fork.
+#   4. **`groupDirectives`** — his working copy; the `compile`-entry `debugAllRules` line is NOT
+#      regenerable from it and was lost in a retok. Re-add if wanted.
+#   5. **Carried:** DesignDocs `KantParser` still authored-not-installed · `IncantForms/WorkingOn`
+#      reconciliation (H8) · F-29's mechanism (candidate-grade, now instrumented) · F-32 the `else()`
+#      emit · star-at-zero as the named second fixit citizen.
+#
+#   ## ⚠ groups.ext TOOK FIVE EDITS AND IS IN NO COMMIT (bear-trap #11)
+#   `maxLimit` and `repeatLimit` in the `external GroupRules` mirror · `maxRepeat` in the
+#   `external RuleStuff` mirror · `reportMaxLimit` and `reportRepeatLimit` in `external GroupRules.h`.
+#   md5 at seal: `31ff1b0f7db20271e5d98f7ef0851a7b`.
+#
+#   ## THE DISCIPLINE EXHIBITS, because three of them cost real time today
+#   **`pop.sh` from inside `genLadder` reports 1 green** — its paths are repo-root-relative, and a
+#   wrong-cwd run reads exactly like a catastrophic regression. **A probe that changes what it
+#   measures is not a measurement** — the first high-water probe `fprintf`'d per record advance and
+#   turned a 268M-iteration loop into a timeout that looked like my own regression. **Bear-trap #29
+#   live**: a comment inside an `if`/`or` chain silently deleted `setParse` from the extern block,
+#   307→306, tok exit 0, BUILD SUCCEEDED — the canary was the only tell.
+#
+# ---
+#
+# ⚠⚠⚠ SEALED 2026-08-19 — KITCHEN PASS (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   ⚠ **THIS SEAL COVERS TWO DAYS.** 2026-08-18 was worked and pushed but never sealed — an API
+#   failure took the session mid-brief — so everything below spans 08-18 and 08-19 together. The
+#   08-17-late block beneath is intact and superseded.
+#
+#   ## THE ONE-LINE STATE: **the day the rules learned to pick one, and the day two owed
+#   measurements both came back and both changed a plan.** The GroupMain bootstrap trio is
+#   pick-one conforming; the phase-one shadow census prices the (b) pull-forward at **all of it**;
+#   and the BrancheS fork's premise is **falsified by its own control.** Fleet **48 green / 1
+#   parked, byte-identical to the pre-edit baseline**; jitLadder **205 ok, stderr 0, one owned red
+#   (JV/F-12)**. Groups clean but for Tony's two `IncantForms/WorkingOn` files.
+#
+#   ## ⚠⚠ THE THING A FRESH READER MUST NOT RE-DERIVE — THE TWO VERDICTS
+#
+#   **PHASE ONE DAMAGES ALL OF THE GRAMMAR PHASE TWO NEEDS, AND THERE IS NO SAFE SUBSET.**
+#   `incant/phaseProbe`, 79 rules read twice in one process. **11 flip shape. EIGHT of them go
+#   `-M--` → `AM--`** — a members-only alternation rule acquiring an attribute, which is F-15's
+#   poisoned shape exactly — and since **zero rules owned both before the walk, every one of the
+#   eight is a hybrid CREATED by generation.** Then the half that prices it: **11 of 11 flipped
+#   rules are reachable from `BlocK`. Zero fall outside.** So off-rule storage cannot be deferred
+#   behind phase two. **This is F-15 option (b), and the measurement says FIRST, not last.**
+#   ⚠ Its instrument check ran first and is why the rest is readable: the warm-up S2 block agrees
+#   with S1 **row for row, 79/79**, so the two shape readers demonstrably read the same thing.
+#
+#   **BrancheS: THE `bin`-IS-AN-ATTRIBUTE PREMISE IS FALSIFIED, AND NO CHILD TRIPS THE CLASSIFIER.**
+#   The fork was posed as *`bin` is a noPrint ATTRIBUTE the census should ignore, so the repair is a
+#   classifier filter*. `incant/branchProbe` walks the attribute list and prints one line each:
+#
+#   | rule | columns | attributes | members |
+#   |---|---|---|---|
+#   | `BrancheS` | `-MD-`, `datA = 3` | **zero** | 3 — `break` `continue` `return` |
+#   | `Operators` | `-MD-`, `datA = 3` | **zero** | 57 |
+#   | `NumbeR` (control) | `A---`, `datA = 0` | 3 | zero |
+#
+#   **The control is what makes the two zeros mean anything** — the same loop printed three rows for
+#   `NumbeR` in the same run, so the walk is live and the answer is genuinely empty. `bin` is
+#   consumed by `processFlags` at define time and leaves nothing behind. **The `D` is on the rule
+#   node itself.** And the structural replacement, measured over all 13 members-shaped rules: **the
+#   `-MD-` pair is exactly the two CONTAINERS** — `BrancheS` a bin, `Operators` a registry — while
+#   the other **eleven** carry no data at all. ⚠ **What that `isSET` datum IS was NOT measured and
+#   is deliberately not inferred.** The live question is no longer *filter the census*; it is
+#   **does pick-one apply to a container at all** — Tony's.
+#
+#   ## WHAT LANDED
+#
+#   | commit | what |
+#   |---|---|
+#   | `a5ca5e1` `a390f83` | F-15/F-16 — the refusals are a SHADOWING defect, measured with a control; pre-flight census NONZERO |
+#   | `c13f06f` | **F-15 CLOSED** — the members arm goes first, gated on `!data`; fleet UNMOVED |
+#   | `9614ea2` | **Ruling 4** — the two-phase walk lands and delivers the partition |
+#   | `4ab72dd` | Tony's 2026-08-18 offline work: `compile`, the name/token guards, directives |
+#   | `1f39bac` | **F-18 RULED AND LANDED** + **F-19 opened and closed** + **F-20 opened** |
+#   | `7488cb5` | **PICK-ONE lands on the GroupMain trio** + both owed measurements |
+#
+#   ## ⚠ THE SEAL BRIEF'S SIX ITEMS, ANSWERED IN ORDER
+#
+#   **1. F-18 — LANDED, `1f39bac`.** `Generate.rtn`'s `parseRule` bail arm is `reportNoBody(field);`
+#   — no parse call, no fallback — and the comment was rewritten in the same edit, because the old
+#   one stated the opposite doctrine. `reportNoBody` is a **sibling** of `reportCodeFail`, not a
+#   reuse: the two state different facts and the wrong one would print `ERROR processCode:` for a
+#   rule `processCode` never touched. Externs 302 → 303.
+#   ⚠ **AND ITS NAPALM CLAIM IS RETRACTED BY THE REPAIR ITSELF** — with the null deref fixed the run
+#   still died and the backtrace named a different function; `parseRule` was never entered. The
+#   defect was real, the mechanism story was written before it was tested.
+#
+#   **2. DIRECTIVES-BUILD DOCTRINE — CONFIRMED ON DISK,** `CLAUDE.md` bear-trap #23, the 2026-08-18
+#   hardening block. A directives build is **semantically different**, not merely instrumented
+#   (`aCTionNamE starting active` changes how a name resolves), so a capture taken on one is a
+#   result about a different program. **Rebuild bare before any capture** is doctrine now. Every
+#   number in this seal was taken that way: `tok GroupMain.twk`, no directives file, canary
+#   `303 → 303`, rebuilt 09:09.
+#
+#   **3. ⚠ DesignDocs `KantParser` — NOT INSTALLED. DO NOT RECORD IT GREEN.** The five attributes
+#   (`KantParser` `KantParserWhy` `KantParserHow` `KantParserFlow` `InterpretOrCompile`) exist
+#   **only in `IncantForms/WorkingOn/incant++`**, which is Tony's uncommitted working file — a grep
+#   of the whole tree finds them nowhere else, and `incant/designDocs` (last touched 08-15) has no
+#   `KantParser` entry at all. So: **authored, not homed, not compile-verified.** The pending
+#   amendment stands and is now sharper: `KantParserHow`'s constraint wording — *"only data, only
+#   attributes, or only members"* — would gain an *"ignoring noPrint attributes"* clause **if** the
+#   noPrint exemption is ruled; the BrancheS measurement above says that exemption **would not save
+#   BrancheS**, because BrancheS has no attributes to exempt. ⚠ Note also that `KantParserHow`
+#   asserts *"Incant grammar rules now fit that constraint"* — as of this seal **two do not**, and
+#   they are the two containers.
+#
+#   **4. PICK-ONE — SCOPE WAS NOT OPEN HERE. Tony's sentence was received in session, verbatim and
+#   PLURAL**, and this is the one place the brief and the room disagreed:
+#   > *"Change GroupMain bootstrap rules that do not pick one; For example, NumbeR rule should be
+#   > changed to: `NumbeR numberSet=[0-9]+ FloaT? tokenize;`"*
+#   The census closes the set at **exactly three** — `incant/shadowCensus`'s `A-D-` class is
+#   `{ FloaT NumbeR PoweR }` and `census.target` refuses all three for the identical
+#   `rule-level data (§4.1)` reason. **After the edit the `A-D-` class is EMPTY, 3 → 0.**
+#   ```
+#   NumbeR   setGroup(numberSet)   ->  addAttribute(numberSet) "+"     <- Tony's spelling exactly
+#   FloaT    setCharacter('.')     ->  attribute `point` = "."         <- NAME CHOSEN BY CLOD
+#   PoweR    setCharacterSet("eE") ->  attribute `e`     = [eE]        <- NAME CHOSEN BY CLOD
+#   ```
+#   ⚠ **`point` and `e` want a nod, not a review** — chosen by the `HeX zero-="0" x-=[xX]` precedent
+#   for a marker term. Everything else is mechanical.
+#   ⚠ **THE FLEET BEING UNMOVED IS NOT THE CERTIFICATION, and this is the H7 row of the day:
+#   NOTHING IN `pop.sh` PARSES A FLOAT.** The positive control is `incant/dblProbe` — `3.5` · `0.25`
+#   · `1.5e2 → 150` · `3.5+1 = 4.5` · `10/4 = 2.5`, all correct after the reshape, **exponent
+#   included**, plus `incant/divT` sentinel-green.
+#   **THE LABELLED-LITERALS CLEANUP WAS NOT BUNDLED** — same rules, same visit, still Tony's and
+#   still undecided. The bare literals (`strap += "("`, `new("{")`) are untouched.
+#
+#   **5. BrancheS fork — MEASURED. Verdict above.** Recorded under `docs/fixIts.md` F-17c with the
+#   probe, the control, and the named non-measurement.
+#
+#   **6. CARRIED UNTOUCHED, verbatim from the brief:** shadowCensus probe *(⚠ **this one is now
+#   DONE** — `incant/phaseProbe`, verdict above, recorded under F-15)* · Tony's offline Xcode walk,
+#   row 8 · checkSkip-in-kant, parked post-jit-proof, with its loader-separation row · F-13/F-14 ·
+#   **Tony's owed: the two `iterT1m` re-pins, and `docs/commentMinion.md` to Clay.**
+#
+#   ## THE CENSUS RE-PIN, AND WHY IT IS NOT A REGRESSION
+#
+#   `genLadder/census.target` moved by **six lines, all three rules, one shape**. Refusals rise
+#   **24 → 27** and `PLAN` stays **30**. That is H9's corollary in its cheap direction — a refusal
+#   census reports the FIRST blocker, so removing one reveals the next — and **the destination is
+#   the point:** the three rules now refuse in **exactly the shape `QuotE` and `NamE` already refuse
+#   in** (`inline group / structural data` → `term unclassified`). They left a private refusal class
+#   and joined the shared one, so their remaining work is the work the conforming rules already
+#   need, not extra work.
+#
+#   ## THE INSTRUMENTS — two new
+#
+#   **`incant/phaseProbe`** (clean-vs-post-walk shape, term graph, reachability computed in the
+#   shell where it can be checked by eye; carries its own warm-up agreement check) ·
+#   **`incant/branchProbe`** (attribute/member walk with a built-in vacuity control — the reason its
+#   two zeros are readable).
+#
+#   ## ⚠ LATE ADDITION — `IncantForms/WorkingOn/parser` RUNS TO COMPLETION AGAIN, AND IT HAD NOT BEEN
+#
+#   Tony asked for whatever the walker needed to be runnable in Xcode. **It had not been reaching
+#   its `stop()` at all, and its exit status was an accident of what followed it.** Once the walk
+#   installs generated methods the loader cannot read the source that follows, so a top-level
+#   `walkRules(X); stop();` dies at `checkInput: no input source`. With five dead `walkRules` lines
+#   sitting BELOW the `stop()`, the poisoned loader failed to parse them and abandoned the file —
+#   the documented exit-0-on-parse-failure path — so the run reported **0**. Truncate those same
+#   lines and the identical run reports **139**. **Neither reached `stop()`, and neither said so.**
+#
+#   **THE FIX IS SHAPE, NOT CARE: the driver is now an action and its `stop()` is INSIDE it.** An
+#   action body is parsed once into a cached BlocK, so it needs no loader, and stopping from in
+#   there ends the process before the loader is ever asked for another statement. The sentinel
+#   beside it is on **`cerr`** deliberately — stdout is block-buffered and a crash loses it, so a
+#   stdout sentinel cannot report the crash it exists to detect. Measured: **TokenXP 59 lines ·
+#   Braced 59 · NumbeR 19 · QuotE 7 · StringXP 7**, every one reaching the sentinel, printing
+#   `stop:`, exit 0. `Start` still exits 1 at the first `ERROR processCode` — **F-17e, Tony's.**
+#
+#   ⚠ **AND IT CAUGHT A REGRESSION THE FLEET COULD NOT SEE** — `setParse: ERROR field passed in e
+#   has no rStuff`, from the pick-one conversion's two new terms, which were added with `+%` and
+#   never given rStuff (`QuotE`'s `tik` is the precedent and carries an explicit `setRuleStuff()`).
+#   **48 green through the whole thing.** H7 from the other end: an instrument that does not
+#   exercise a construct is silent about it, and silence is not a pass. **F-21 opened** for the
+#   four `Buffer: ERROR no text passed into appendString` lines, zero on the control binary.
+#
+#   ⚠ **AND ONE CONSEQUENCE OF PICK-ONE THAT IS NOT A DEFECT: F-16's bare-name deref NO LONGER
+#   APPLIES TO `NumbeR`.** On the pre-change control, `walkRules(NumbeR)` printed three lines and
+#   walked `numberSet`; today it walks the real `NumbeR` and all six descendants. **F-16's
+#   "done when" is satisfied for NumbeR — by removing the group data, not by changing the call.**
+#
+#   ## ⚠⚠ SECOND LATE ADDITION — THE QuotE ORDER-DEPENDENCE DISSOLVED, AND IT WAS MY INSTRUMENT
+#
+#   **THERE IS NO PREDECESSOR AND THERE IS NO ORDER DEPENDENCE.** `incant/bisectQ` walked TokenXP in
+#   real order (QuotE is SEQ 19 of 30) and took the endpoints first: **N=0 crashes, and N=18 — every
+#   compile that precedes QuotE — STILL CRASHES.** One difference between the arms was visible in one
+#   look and got one run: the walk calls `compile(argument);` bare, my driver wrote
+#   `bqTarget := compile(argument);`.
+#
+#   | run | result |
+#   |---|---|
+#   | N=0, driver frame, **`:=` capture** | **139** |
+#   | N=18, driver frame, **`:=` capture** | **139** |
+#   | N=0, **bare** `compile` | **exit 0, sentinel** |
+#   | N=0, walk's own call path (bare) | **exit 0, sentinel** |
+#
+#   **One variable, and it is not a rule.** The walk passed because `walkRules` has always called
+#   compile bare. Filed **F-22**, candidate trap, **symptoms only** — a `:=` capture of a COMMAND
+#   RETURN segfaults; that is bear-trap #3's family (`:=` stamps `byRef` permanently) and no
+#   mechanism is claimed.
+#
+#   ⚠⚠ **RETRACTED: the row-8 matrix in the block above was measuring the fixture.** It reported
+#   `QuotE` 139 (2/2), `NamE` 137, `tokenize` 139, `GrouP` clean, and I read a shape split off it —
+#   members-shaped compiles, attribute-shaped crashes. **Bare call: `QuotE` exit 0, `tokenize` exit
+#   0, `GrouP` exit 0.** Two of the three crashes were the capture. **And the green row is what made
+#   it convincing** — `GrouP` passing read as proof the instrument discriminated, when it only proved
+#   the defect is not universal. **A matrix with one green row is not thereby a working instrument.**
+#   ✅ **STANDING:** `NamE` still **hangs (137)** with the bare call, at a 45s cap and at 150s. Real,
+#   and deliberately not chased.
+#
+#   ## ⚠ AND PICK-ONE NOW HOLDS WITH NO EXCEPTIONS — the classifier was wrong about the containers
+#
+#   A bin's or registry's data is **DERIVED, not authored**: `GroupItem::addGroup` folds each member's
+#   first character into the set at **add-member time**, and nothing anywhere authors it. So
+#   `BrancheS` and `Operators` were reported as hybrids **that were never written**. Both readers now
+#   exempt a container by `!binType` — **the same test `addGroup` writes under, so the reader cannot
+#   drift from the writer**. `-MD-` **2 → 0**; members-shaped 11 → 13.
+#   **No new flag, and none was needed.** The only existing candidate, `altered`, is the
+#   stak-invalidation bit that `resetStak` **clears** — a derived mark stored there would evaporate.
+#   `census.target` did **not** move and no re-pin is owed: the planner's 30 PLAN rules never reach a
+#   container. `pop.sh`'s partition row re-pinned — ⚠ an empty expected set is an absence check, so it
+#   now also asserts the data-shaped population non-zero (**17**).
+#
+#   ## ⚠⚠ THIRD LATE ADDITION — F-17e CLOSED, AND THE COUNT IT WAS SUPPRESSING IS **56 OF 56**
+#
+#   **`compile` no longer exits on a refused parse** (`Commands.rtn`, `exit(1)` → `return null;`).
+#   `processCode` had already reported through `reportCodeFail` by the time control reached that
+#   line, so the exit added nothing but the end of the process — and a refusal is now a **value a
+#   caller can tally**. `runParse(Start)` used to die at the first `ERROR processCode`; it now
+#   reports **six** and keeps going.
+#
+#   **THE CAMPAIGN'S ACTUAL POSITION, and it is worse than the number everyone was quoting.**
+#   `incant/walkPhase`, exit 0, sentinel:
+#   ```
+#   entered 139 · generated 56 · leaf 60 · refused 23     (sums, no remainder)
+#   census 56  ->  compiled 0 · rejected 56
+#   ```
+#   **Nothing compiles. Not 53 of 54 — 56 of 56**, and this is the first time the figure was
+#   *takeable*, because the exit was terminating the census that would have produced it.
+#   ⚠ **The instrument was checked before the number was believed, twice:** the 56 `ERROR
+#   processCode` lines name **56 distinct rules**, and that set is **identical** to the set of 56
+#   `COMPILING` lines — corroboration from a channel the tally does not control — and the sweep was
+#   re-run with `=` in place of its `:=` capture, returning the identical verdict.
+#
+#   ## ⚠ NamE IS NOT FRAME-DEPENDENT — IT IS **PHASE**-DEPENDENT, and that is the finding
+#
+#   | configuration | NamE |
+#   |---|---|
+#   | standalone, driver frame | **137 hang** |
+#   | standalone, walk's own call path | **137 hang** |
+#   | after an 18-rule prefix, either frame | **137 hang** |
+#   | after the **full** 30-rule TokenXP prefix | **137 hang** |
+#   | inside `walkPhase`'s **two-phase** run | **refuses cleanly**, run completes |
+#
+#   **So there is no minimal walk target to name — the minimal reproducer is STANDALONE**, and it is
+#   installed as **`runNamE`** in `IncantForms/WorkingOn/parser` (swap the foot line to
+#   `runNamE(NamE);`; it hangs at a labelled `cerr`, so the last line printed names the statement).
+#   The discriminator is neither the frame nor the prefix: it is **whether the grammar is fully
+#   generated before anything is compiled.** Two-phase turns the hang into an ordinary refusal —
+#   Ruling 4's split doing real work. Filed **F-23**; Tony's, in Xcode, and the texture is a cycle to
+#   interrupt rather than a frame to catch.
+#
+#   **`parser` is current** — driver-as-action, cerr sentinel, bare `compile`, **zero `:=`**. Two
+#   things in it predated today: the post-mint prediction is **retired in place** (its
+#   `CENSUS prune-noPrint` counters were removed in the 08-18 offline edit, so no run can settle it —
+#   kept as provenance, marked do-not-repair-by-re-adding-the-counters), and the stale `Start` note
+#   is replaced by the six-refusals-then-hang measurement.
+#
+#   **F-22 sweep, listed and untouched:** `enumT:53` · `walkPhase:129` · `compileProbe:65` and `:75`.
+#   None crashes today. ⚠ **`:= new(...)` / `:= copyOf(...)` are NOT on it** — that is the sanctioned
+#   mint idiom; the suspect shape is a **command return**. **F-24 opened** in passing: `compile`
+#   returns the FIELD for an uncoded subject, so `compileProbe`'s own row C has been printing `????`
+#   on every run with nobody watching. It does **not** touch the 56/56 — all 56 were `isCoded`.
+#
+#   ## ⚠⚠ FOURTH LATE ADDITION — THE DISCRIMINATOR IS `setParse`, AND THE PHASE STORY IS RETRACTED
+#
+#   The provenance exhibit was built to Clay's brief and **came back negative** — `runTokenHand`
+#   and `runTokenWalked` **both compile**, so how the body was authored is not the discriminator.
+#   But `Token` **does** refuse inside `walkPhase`'s sweep, same rule and same install path, so one
+#   call separated those runs. It did:
+#
+#   | run | result |
+#   |---|---|
+#   | `runNamE(NamE)` — genParseTest **with** `setParse` | **137 hang** |
+#   | `runNamEnoParse(NamE)` — identical, `setParse` suppressed | **exit 0, completes** |
+#   | `walkPhase` as committed (**no** setParse) | 56 clean refusals, sweep finishes |
+#   | `walkPhase` **with setParse added** | ⚠ **hangs on its FIRST swept item** (`StatemenT`), 0 refusals |
+#
+#   ⚠⚠ **F-23's phase reading, filed this morning, is RETRACTED.** I read the difference as one-phase
+#   versus two-phase — *"NamE compiled against a grammar that is only partly generated"* — and the
+#   two-phase arm simply **never armed the rules**. The phase split got the credit for `setParse`'s
+#   absence. **Structural claims here hold, causal ones fail; this was a causal one, and it is the
+#   sixth.**
+#
+#   ⚠ **The mechanism was in writing BEFORE it was measured**, which is the only reason a reading is
+#   offered: `setParse` binds `parseMethod = parseRule` (`GroupRules.mm:12200`, one-shot behind
+#   `if (!parseMethod)`), and `parseRule` reads the rule's own `CodE` (`:9949`). **F-17a** already
+#   called this *"activation happening during generation"*; **F-18**'s ruling already recorded that
+#   `field.parse(...)` *"trades crash for infinite recursion through the parseMethod fork"*. A hang is
+#   what that predicts. **NOT measured and not claimed: the recursion itself** — that is the walk, and
+#   breakpoints **B9/B10** are aimed at exactly it (`parseRule` entry, *the frame to watch repeat* —
+#   the same tag recurring IS the loop).
+#
+#   **`IncantForms/WorkingOn/parser` is the deliverable** and carries its own crib: a four-command
+#   recipe with each outcome measured, five uniquely-named inert anchors (fleet UNMOVED confirms no
+#   leak), and ten breakpoints each with a re-find grep, because `GroupRules.mm` is generated and any
+#   retok moves them. Filed **F-25** for the negative exhibit, kept in the file as the control.
+#
+#   ## FIFTH LATE ADDITION — THE MINION-DAY PILOT RAN, AND `minionWork/` NOW EXISTS
+#
+#   One charter, read-only, solo. **`minionWork/jitArcPhase1`** is a DesignDocs-format report on the
+#   jit arc — 19 claims, **9 current · 7 superseded · 3 current-with-caveat**, each carrying the
+#   command that checks it. It parses, walks, and verifies itself. **`minionWork/pilotAddendum.md`**
+#   is the protocol verdict. Status **unbaked**: nothing installed, nothing measured moved.
+#
+#   **Three doc claims moved and they matter to anyone reading `docs/jit.md`:** *"exactly ONE gated
+#   statement handler"* → **twelve**; *"42 ops, 18 gated"* → **44 and 20**, with the membership wrong
+#   in two named rows (`opDot`, `opRem` are gated and sit in the not-gated list); and §3.4's
+#   *"sharpest **OPEN** contradiction"* → **resolved by O4**, ratified 2026-07-31, one day after
+#   §3.4's own asOf and inside the same consolidation.
+#
+#   ⚠ **AND A NEW AUTHORING FACT, MEASURED AND NOT YET FILED IN THE TRAP TABLE: A BLANK LINE INSIDE A
+#   `define` BLOCK ENDS THE BLOCK.** Silently, at exit 0, with `RunRulE: expected a method not <next
+#   entry>` on stderr — the documented truncation signature. Found by losing a cycle to it. It was
+#   **not filed** because the pilot's writes were fenced to `minionWork/` and the IPC file, so it is
+#   **owed a home by someone with the write** — `docs/kantCorpus.md` beside KANT-42 is the fit.
+#
+#   Also filed this session: **`CLAIM KANT-42`** — a brace is **inert** in a defining string body and
+#   **still bites** in a `code={ }` body, both sides measured with a negative control. That is what
+#   lets a minion claim carry its verification command verbatim with no escaping convention.
+#
+#   ## NEXT SESSION OPENS ON
+#
+#   1. **Tony's two rulings, both now priced by measurement:** F-15 option **(b) first** (off-rule
+#      storage / explicit activation), and **does pick-one apply to a container** (BrancheS,
+#      Operators).
+#   2. **`KantParser` needs a home** — `incant/designDocs`, then compile-verify, then the noPrint
+#      clause if it is ruled.
+#   3. **F-20** — `setParse` writes `field->rStuff` while `parse()` reads `definingRule().rStuff`.
+#      Graded structural-not-measured; one probe printing two pointers settles it.
+#   4. **F-13/F-14**, and Tony's offline Xcode walk, row 8.
+#   5. **Owed by Tony:** the two `iterT1m` re-pins, `docs/commentMinion.md` to Clay, and adjudication
+#      of `IncantForms/WorkingOn/{incant++,parser}`, dirty since before this session (H8).
+#
+# ⚠⚠⚠ SEALED 2026-08-17 LATE — SUPERSEDED by the 2026-08-19 block above. Kept intact.
+#
+#   THE ONE-LINE STATE: **the day the monty ran, and the day it turned out not to have.** The walk
+#   generates 54 rules and terminates; the strict jit sweep closed 10/10; and the last hours were
+#   an eight-hypothesis hunt that ended with the cause NOT FOUND and the search space finally
+#   narrowed by measurement. **Tony takes the parse offline from here with an Xcode walk.**
+#   Fleet **40 green / 1 parked, byte-identical to this morning's baseline.** jitLadder **205 ok,
+#   stderr 0, one owned red (JV/F-12)**. Both repos pushed. Tree clean but for Tony's `incant++`.
+#
+#   ## ⚠⚠ THE THING A FRESH READER MUST NOT RE-DERIVE: WHAT "IT WORKS" ACTUALLY COVERS
+#
+#   **`walkRules(Start)` terminates and emits 54 correct-looking parse bodies. NOTHING COMPILES.**
+#   The 147 walk entries partition with **zero remainder** — 54 generated, 73 leaf-installed,
+#   21 revisit-refused — but `processCode` refuses **53 of the generated bodies**, and that was
+#   invisible until this evening because `compile` had been silently refusing every rule.
+#   **So the ledger is: generation ✅ · installation ✅ · compilation ❌.**
+#
+#   ## ⚠ THE FALSIFICATION TABLE — EIGHT HYPOTHESES, SEVEN DEAD, ONE REPRODUCING
+#
+#   | # | hypothesis | died on |
+#   |---|---|---|
+#   | 1 | missing `this`/`tempField` | ensure block landed (prune-noPrint 34→102), still 53 |
+#   | 2 | generated shape invalid | all shapes compile at define time |
+#   | 3 | mint path broken | hand-built CodE → `compile SUCCEEDED` |
+#   | 4 | emitter reads `.text` not tag | every leaf spells as a name; `SemI()` correct **14×** |
+#   | 5 | the body content | `Token`'s **real body** compiles standalone |
+#   | 6 | `clear(CodE)` | passes with and without |
+#   | 7 | dedent / close-brace indent (Tony's suspect) | both indents compile |
+#   | **8** | **the target is a real grammar rule** | ⚠ **REPRODUCES — 139** |
+#
+#   **Row 8 is the live lead and it is one line to reproduce:** an identical trivial body compiles
+#   on a PLAIN FIELD and **exits 139 on a REAL GRAMMAR RULE** (`QuotE`). The variable was never the
+#   text — it is **what you attach it to**. ⚠ **And note where that points: a rule carrying BOTH its
+#   grammar structure and a compiled body is the two-live-paths shape R-2 forbade.**
+#
+#   ## WHAT LANDED — 11 commits, all pushed
+#
+#   | commit | what |
+#   |---|---|
+#   | `a2711e6` `9f1beba` | **step 2 pathfinder** — `*` then `>` emit through a `jitEmitter` slot |
+#   | `1913c6a` `04df6b1` | **sweep batches 1 & 2 — STRICT BINARY/COMPARISON MIGRATED 10/10** |
+#   | `2a4d97b` | `compile`'s `isCoded` guard — an uncoded field truncated a whole run at exit 0 |
+#   | `533fa2e` | **F-11 census** — expected zero customers, found one |
+#   | `66f5be7` | **`showBody`** — the pointer instrument, and the aliasing it found |
+#   | `dfd5a23` | **`mintT`** — five spellings of "give me my own node", two correct |
+#   | `95e8e19` | **Tony's mint** — every rule gets its own CodE; the walk terminates |
+#   | `0874699` `5e35cab` | **`:.` SETS, all nine flags** (Tony's ruling) |
+#   | `8dd7cd6` | R-4 ensure + `reportCodeFail`, **diagnosis falsified in the message** |
+#
+#   ## ⚠ RULINGS BANKED
+#
+#   **R-2 RULED — REPLACEMENT, NOT COEXISTENCE**, verbatim from `jit.md` §0. Generated parse IS the
+#   parser; old `parse()` is the specification and transitional fallback. **Ruling 1 later hardened
+#   it: no fallback arm at all — refuse loudly.** ⚠ **The fork-3 counter and crossing fixture were
+#   STRUCK** — no second arm means nothing to count.
+#   **R-3 OPEN — the assign-semantics census.** *What does a name bind to, and what does writing
+#   through it touch?* Three rows from one drill, and they are ONE question answered differently per
+#   operator and per position.
+#   **R-4 RULED, IMPLEMENTED, AND ITS DIAGNOSIS FALSIFIED.** compile owns the preconditions; they
+#   were genuinely absent; that was not the trip point.
+#   **RULING 3 (cycle guard) RETIRED ON EVIDENCE** — ENTERs 130 at a 20s cap and 130 at 40s, 77
+#   distinct rules, identical. The walk terminates on its own merits.
+#   **`:.` SETS FOR EVERY FLAG.** Census first: zero sites relied on toggling, **five were broken by
+#   it** (`isPercenT` on reused locals in `utilities`' layout loops).
+#
+#   ## ⚠ THE NAPALM IS REAL, AND IT HAS A CUSTOMER
+#
+#   **Once the generated methods install, the parser can no longer read the source that follows** —
+#   after `walkRules` runs, no further statement executes, not `cerr`, not a registered action, not
+#   `stop()`. Not a hang: the generated parser is live enough to **eat its own loader**. The
+#   loader-separation question (generation vs activation, separable in principle, not separated
+#   today) now has a paying customer and belongs on the queue as its own item.
+#
+#   ## THE INSTRUMENTS — four new, all born this week
+#
+#   `showBody` (node + groupBody addresses; incant accessors are snapshot-by-value so identity is
+#   otherwise unaskable) · **`incant/flagT`** (does `:.` set a flag) · **`incant/bodyT`** (do two
+#   attachments alias — ⚠ **its verdict INVERTS when the mint lands; do not "repair" it**) ·
+#   **`incant/mintT`** (which spelling gives me my own node — the R-3 copy-semantics chapter,
+#   pre-written and executable) · `reportCodeFail` (named home for parse-error reporting; converges
+#   with `aCTionFailed` when someone makes it good).
+#   Ladder rungs **JM1-JM4** carry the slot migration; `slotrung` asserts the count and fails on a
+#   MISSING line.
+#
+#   ## ⚠ TRAPS COLLECTED, ALL PAID FOR IN ONE DAY
+#
+#   - a block comment **between an `if`'s closing brace and its `else`** wipes the extern block to 0
+#     (bear-trap #29 — walked into while writing an error handler)
+#   - `%-` inside a passthrough format string **is the close delimiter**
+#   - a `:` inside a string literal collides with the `:` print terminator
+#   - **literal braces inside a string in a code body close the block early** — which is why Tony's
+#     `openBrace`/`closeBrace` fields exist
+#   - **`+=` on a name adds an ATTRIBUTE** (via `addString`), it is not the member-add `:+`
+#   - `field[CodE]` in a fresh extern killed the process; three separate bites
+#   - ⚠ **`[]` runs `get(String)` and IS agnostic between attributes and members.** A claim that it
+#     is not was cited from a sealed doc without re-measuring, then "confirmed" by a probe using the
+#     wrong operator. **Corrected by Tony.** Re-measure before citing, then re-measure the probe.
+#
+#   ## NEXT SESSION OPENS ON
+#
+#   1. **Tony's offline Xcode walk of the parse** — row 8 is the lead.
+#   2. **Bootstrap rules in `GroupMain.twk` are ARMED, not firing** — they carry bare literals
+#      (`strap += "["`, `new("{")`) whose tags are the characters, and never got the
+#      labelled-literals cleanup the grammar did. The walk does not reach them yet; it will.
+#      Two grammar-level siblings exist: `grammar:60` (`define`) and `grammar:61` (`RunRulE`) carry
+#      bare `';'`, and they are the only source of the one `;()` emitted. **`SemI=";"` is innocent.**
+#   3. **F-13/F-14** — the aliasing exhibit and the walk's four silent exits (now instrumented).
+#   4. **Owed by Tony:** the two `iterT1m` re-pins, and `docs/commentMinion.md` to Clay for review.
+#
+# ⚠⚠⚠ SEALED 2026-08-17 — earlier vintage, superseded by the block above.
+#
+#   THE ONE-LINE STATE: **the runway session. It opened on the 08-16 seal's own queue — F-5, the
+#   landable-set declaration, the capture — and cleared all of it. F-5 is CLOSED across two foreign
+#   repos, the compile/actionTypE trio is LANDED with the fleet certified UNMOVED, and STEP 2 IS
+#   NOW OPEN.** Fleet **40 green / 1 parked**, reds `iterT1m` ×2 + `jsonTest baseline`, all
+#   pre-existing. Three repos clean or intentionally dirty; everything pushed.
+#   ⚠ **THE NAMED OMISSION, per the valve: the two `iterT1m` re-pin sentences are STILL NOT IN HAND.**
+#   Sealed without them, knowingly. They remain Tony's, KE-4.
+#
+#   ## WHAT LANDED — 3 commits across 2 repos, all pushed
+#
+#   | commit | repo | what |
+#   |---|---|---|
+#   | `1e4c738` | **Parse** | `.act` bodies attach to their rules; `PLG.C` regenerated BARE, not committed as found |
+#   | `fcb87b8` | Groups | `fixIts`: **F-5 closed**, **F-10 opened** |
+#   | `62deb33` | Groups | **Tony-commit — the `compile` command and the `actionTypE` group field** |
+#
+#   ## ⚠ THE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   1. ⚠⚠ **BEAR-TRAP #31, AND IT IS THE DAY'S BEST FINDING BECAUSE IT ARRIVED DISGUISED AS THREE
+#      REGRESSIONS.** `incant/setup` is read at **RUNTIME**, so Tony's `compile immediateAction;` was
+#      live against a binary that had no such extern. The fleet read **37 green, not 40**. Four rows
+#      carried `setCompiledMethod: ERROR no method found compile`; three went red on that line
+#      ALONE — and all three are fixtures with **nothing to do with the new command**
+#      (`manyScratch.target`, `displayForm baseline`, `oneTest baseline`), because the error prints
+#      into the output a diff-based row compares. **The control is one command** —
+#      `git checkout HEAD -- incant/setup`, re-run — **and it reproduced the seal exactly at 40.**
+#      Order is **rebuild, then measure**. A fleet number taken between the edit and the build is a
+#      number about the gap.
+#   2. ⚠ **TONY'S `Generate.rtn` WIP DOES NOT TOK — IT SEGFAULTS AND WIPES THE EXTERN BLOCK.**
+#      `tok GroupRules.twk` with his working `parseRule` in the chain exits **139** and takes the
+#      canary **288 → 0**, which then fails the build three files away in `Bytecode.mm` with nothing
+#      pointing home. Cause is the bare unbound `action` in `if result = action["BlocK"]` — the
+#      fallout of removing `processCode` from `parseRule`, which **he has already diagnosed**. tok
+#      says `FAIL Block at: if result = action["` / `FAIL Body3` / `Expected a semi-colon`.
+#      **For the landing his file was set aside to HEAD and restored byte-exact** (md5
+#      `4d31e82e55bee529c2b92f4f878313aa`). It is untouched, still dirty, still his.
+#   3. **THE TRIO IS ADDITIVE AND IT WAS PROVED TWICE, NOT ASSERTED.** Extern set **288 → 289**, diff
+#      exactly one line (`extern "C" GroupItem *compile(GroupItem *field);`). Fleet body
+#      **BYTE-IDENTICAL** to the control, 62 lines each, zero differing check rows — the only capture
+#      diffs are the harness's own H1 header and tree-state list, which move by design.
+#   4. ⚠ **ONE LINE OF TONY'S CODE WAS REPAIRED AND IS NAMED, NOT BURIED.** `compile` could not
+#      compile: `processCode` returns **`int`**, not `GroupItem`. Landed as
+#      `if !processCode(field) return 0; return field;` — preserves the failure signal, matches
+#      `cLEAR`/`cOPY` either side of it, and `walkRules` ignores the return anyway. **If Tony wanted a
+#      bare success flag, that is the line.**
+#   5. **`plgDirectives` IS NOT `groupDirectives` — F-10.** Some of its entries generate **flag-gated**
+#      debug support (`if ( state->debugRulePLG || debug )`) and **that generated code IS the committed
+#      baseline** (`GUARD-REJECTED`: PLGrule.twk **0**, PLGrule.C **1**; same in `Alternative`,
+#      `Element`). So a bare retok of those files **silently deletes working debug support** — the
+#      exact opposite of the correct answer for `PLG.C`, same repo, same directives file, **no marker
+#      at either target saying which.** Not bear-trap #23 repeating: #23 discriminates *normal build*
+#      from *hunting*; here both are normal builds and the discriminator is **which file**.
+#   6. **DEAD CITATION: the 08-16 seal's "the reissued brief is in the Clay channel" IS NOT THERE.**
+#      `ipc/clay-to-clod.md` ends at **SEQ 55, dated Aug 11**, all cleared — it predates the 08-16
+#      rulings. The operative step-2 spec is the **Fearless relay text**, which says so itself.
+#      One grep, and it is the same class the doctrine already names.
+#   7. **F-6 DISCHARGED** in `62deb33`'s message: `parseRule`'s jitting-gate removal is **INERT**
+#      (`jitting` is raised only inside `jitRunAction`, so it is false during parse).
+#
+#   ## ⚠ DOCTRINE EARNED
+#
+#   - ⚠⚠ **A SURPRISING RED IS A HYPOTHESIS. RUN THE CONTROL BEFORE YOU NAME A CAUSE.** 37-vs-40 had
+#     a ready story (three regressions from Tony's edits) that was **entirely wrong** and would have
+#     sent the session hunting in three unrelated fixtures. The control cost one command. This is
+#     doubt-the-instrument met from the cheap direction, and it is the second time in two sessions
+#     that a one-command control beat a plausible reading.
+#   - **`${PIPESTATUS[0]}` BIT AGAIN, IN THIS SEAT, ON THE DAY ITS TRAP WAS RE-READ.** `tok ... | tail`
+#     reported an **empty** exit status; taken directly, `tok` was exiting **139**. Third recorded
+#     instance on this project. **Knowing the rule does not prevent the error** — which is the
+#     make-it-unconstructable argument, again.
+#   - **A REGENERATED ARTIFACT IS A TEST, AND IT SHOULD CARRY A PREDICTION.** `PLG.C` was regenerated
+#     under three pre-registered predictions (pure deletion · exactly the `attachActions` hunk vs HEAD
+#     · `PLG.h` byte-identical). All three held, which is what made the commit safe to write rather
+#     than hopeful. `tok` being dated **Nov 10 2024** — the same binary that produced the working copy
+#     — is why the test had no drift in it, and that was checked, not assumed.
+#
+#   ## THE INSTRUMENTS
+#
+#   Unchanged fleet: `pop.sh` (**40 green / 1 parked**) · `smoke.sh` · `smokelib.sh` · `parked.sh` ·
+#   `kantRatchet.sh` · `kantCensus.sh` · `completePop.sh` · `alphaLint.sh`.
+#   ⚠⚠ **`jitLadder/ladder.sh` IS ON THE SEAL ROSTER AS OF 2026-08-17** (Clay's call, Tony
+#   ratified). **EVERY SEAL FROM HERE RUNS IT AND RECORDS ITS STATE BESIDE `pop.sh`.** Current
+#   state: **199 ok / 1 OWNED RED / exit 1 / stderr 0 bytes.** The red is **JV**, annotated in
+#   place and naming **`docs/fixIts.md` F-12**; it is **pre-existing, not the sweep** — bounded by
+#   one look to **at least 2026-08-11**, standing across every seal since, *unnoticed precisely
+#   because the ladder was not on the roster.* That is the argument for putting it there.
+#   ⚠ Its stderr was **90 bytes of shell syntax error on every run** until 2026-08-17 — backticks
+#   inside a double-quoted `echo` read as command substitution. Now 0. **Standing stderr noise in
+#   an instrument is where a real failure hides**, so a non-zero byte count is itself a finding.
+#   **NEW DOCS:** `docs/commentMinion.md` (**Track B charter, DRAFT — Clod drafted, CLAY REVIEW OWED,
+#   no minion sees it until both sign**) · `docs/jitterBrief.md` (**queued behind step 2; do not start
+#   before `processJit(field)` exists**).
+#
+#   ## ⚠⚠ MILESTONE — THE STRICT BINARY/COMPARISON SWEEP IS COMPLETE, 10 OF 10
+#
+#   Every strict `(argument,target,selector)` op now emits through a `jitEmitter` slot on its own
+#   node instead of an `if jitting` gate inside its interpreter body:
+#   **`*` `>` `>=` `<` `<=` `==` `!=` `+` `-` `/`** — pathfinder, op two, then two batches of four.
+#   Ledger, recipe and obligations: **`docs/jitSlotMigration.md`**.
+#   ⚠⚠ **THIS IS NOT THE SWEEP CLOSING, AND NEVER-NULL STAYS OPEN.** What remains is
+#   **out-by-SHAPE, not unswept** — the `jitEmitDot`/`jitEmitRem` pair take a **third** argument
+#   (`ruler->tempField`) and need a shape-extension ruling; three are `jitEmitUnary`;
+#   `jitEmitAssign` is a shape *fit* parked for other reasons. **The null slot therefore still
+#   means "not yet migrated", so hardening now would fail on every one of them.**
+#   **THE CERTIFICATION IS A COUNT AND HAD TO BE:** the fork is value-transparent by construction,
+#   so products are blind to it. `gJitSlotCount` is asserted by rungs **JM1-JM4**, a batch of N
+#   asserts the count moving by exactly N, and **five H7 pulls** have now shown the same shape —
+#   pull one registration, the count drops by one, **the values do not move.**
+#   **THE UNARY EDGE IS HARDENED** — `gJitSlotUnaryRefused`, loud and counted, **demonstrated to
+#   fire** by temporarily slotting `'++'` (refused 2, slot count 0, values still right). Retire
+#   guard, counter and rung row **together** when the unary specimen lands.
+#
+#   ## NEXT SESSION OPENS ON — step 2, and two things waiting on other people
+#
+#   1. ⚠ **STEP 2 IS OPEN AND UNBLOCKED.** Pathfinder **`opMultiply`/`jitMul`**; slot **`jitEmitter`**;
+#      **slot beside the BINDING**, not beside `operateMethod`; **presence-gated fork in `runOP`'s
+#      existing seed gate ONLY, no new gates**; ⚠ **`jitCantEmit`-delegating-to-`operat` FORBIDDEN in
+#      every window.** Spec is the relay text (see dead citation, #6 above).
+#   2. **Clay's review of `docs/commentMinion.md`.** Its live recommendation: take the trial from
+#      **`Commands.rtn`** (`arrondir` 42 lines, optional second `guard` 22) and **NOT** from
+#      `Instruct.rtn`, whose fattest targets are `opMultiply` (the pathfinder itself), `opPlusPlus`
+#      (parked as F-7) and `runOP` (the seed gate) — *"tracks don't touch"* would otherwise be
+#      nominally true and literally false.
+#   3. **Tony:** the two `iterT1m` sentences (KE-4), and whether `compile`'s return shape is what he
+#      wanted.
+#
+# ⚠⚠⚠ SEALED 2026-08-16 — shutdown seal (superseded 2026-08-17, kept as the reasoning trail).
+#
+#   THE ONE-LINE STATE: **the kitchen-cleaning session. It opened on the curve ball's residue —
+#   an unreconciled tree, an instrumented binary and a fleet reading 29 green — and closes at
+#   **40 green / 2 red / 1 parked**, Groups clean, both repos pushed, fourteen commits.
+#   ⚠ **THE SEAL CAPTURE ITSELF IS NOT DONE.** It waits on Tony: the F-5 declaration, two
+#   `iterT1m` sentences, and the landable-set declaration. **Next session opens there**, and
+#   step 2 fires behind one capture.
+#
+#   ## THE ARC, because the shape is the lesson
+#
+#   A B0 gate census (measurement only) → a classifier fix → an isLiteral recon → an arbitration
+#   that overturned the recon's own inference → a reconciliation → a fixit register → the
+#   generator quarantine. **Every step was generated by the measurement before it**, which is why
+#   `docs/fixIts.md` now exists: findings were arriving faster than anyone could act on them and
+#   were living in commit messages, which is recorded and simultaneously lost.
+#
+#   ## WHAT LANDED — 14 commits, all pushed to `jit-unified-emit-wip`
+#
+#   | commit | what |
+#   |---|---|
+#   | `8b4c0da` | **B0 gate census** — 51 live gates, 21 SHIM / 29 SHARED / 1 CROSSER / **0 PARSE-ADJACENT** |
+#   | `ffb145f` | `jitDfProbe`'s `aCTionIterate` no-gate claim corrected in the current-truth block, not in place |
+#   | `0a75df5` | **`planTerm` plans literals as LIT again** — keyed to the representation, never `isLiteral` |
+#   | `73294e5` | isLiteral recon — the flag is not lost in transit |
+#   | `85690e5` | **the `:1381` arbitration** — flag SET, gate LIVE, my own inertness flag withdrawn |
+#   | `b1482ff` `2364b05` | `Aside/` and `BackupIncant/` ignored **and untracked** (52 files out of the index) |
+#   | `9f0a73f` | four targets re-pinned, `useDefaultSpace` semantics kept |
+#   | `16f165c` | **bear-traps #29 and #30** |
+#   | `b18b2a3` | `aCTionDefinE:376` named as the operator-naming site |
+#   | `6212a71` | **Tony's offline work committed** (13 files) + support `2c6e101` |
+#   | `3e86fab` | **`docs/fixIts.md`** — the capture queue |
+#   | `5b63e6b` | **F-1** — `aCTionParens` clears unconditionally, audit runs again, 12 → 0 |
+#   | `83cbbd7` | **generator quarantined** into `incant/generating`, off the roster |
+#
+#   ## ⚠ RULINGS BANKED, WITH OWNERS — do not re-derive any of these
+#
+#   **STEP 2 IS FULLY ARMED. All three design questions are CLOSED** (Clay, ratified by Tony):
+#   1. **The slot sits beside the BINDING**, not beside `operateMethod` — uniform across binary
+#      (`operateMethod`/`isOperator`) and unary (`ruleMethod`/`method`/`isMethod`). The
+#      binary/unary split is **interpreter dispatch anatomy and the jit does not inherit it**.
+#      This is what reaches all 13 selectors; an `operateMethod`-adjacent slot reached only 10.
+#   2. **The slot is named `jitEmitter`.** `jitMethod` is TAKEN — `rStuff.jitMethod` means the
+#      compiled **OUTPUT** of a field's method; this slot holds the emitter **FUNCTION**. Same
+#      stem as `jitEmitX`/`jitEmitters.rtn`, so the mechanism greps under one name.
+#   3. **Presence-gated fork during migration** — slot installed → driver calls it; absent →
+#      existing gated handler, untouched. ⚠ **`jitCantEmit`-delegating-to-`operat` is FORBIDDEN in
+#      every window** (a silent identity default). Never-null hardens at sweep close, certified by
+#      a slot census. Pathfinder **`opMultiply`/`jitMul`**; fork in **`runOP`'s existing seed gate
+#      only**, no new gates. The reissued brief is in the Clay channel.
+#   **GENERATOR QUARANTINED** (Tony) — `incant/generating`, off the POP roster, exhibit captured
+#   non-normative. Rationale: **a baseline over inactive work pins a moving target** and turns
+#   every grammar edit into re-attribution on rows nobody owns.
+#   **THE TONY-COMMITS RULE** (ratified): Tony's verified work is committed by Clod as **separately
+#   labelled Tony-commits**, once Tony declares the landable set. **Forbidden: mixing his hunks
+#   into a commit describing other work.** Tony alone declares landable vs mid-thought.
+#   **THE FIXIT CHARTER** — `docs/fixIts.md`. **Capture, don't chase.** A row is minion-ready or it
+#   isn't a row. **Plain language first: the list's first reader is Tony**; if it can't be stated
+#   plainly it is still a measurement, not a finding. Three registers — **fixIts** (parked
+#   findings) / **knownErrors** (deep defects awaiting rulings) / **TODO** (roadmap). **A
+#   waystation, not a residence.**
+#   **THE DIRECTIVE CONTRACT, measured in 3 cases** — one directive per target function; the
+#   **first ARMED** entry in file order wins; **disarmed entries are skipped entirely and hold no
+#   slot**; **anchors do NOT create separate slots**; losers fail **SILENT** with a clean `tok`.
+#   ⚠ **BY DESIGN per Tony — do not propose fixing tok.** Discipline: **grep the `.mm` for your own
+#   marker before trusting any directive run.**
+#
+#   ## ⚠ THE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   1. **`isLiteral` DIES AT EXACTLY ONE LINE** — `aCTionTraiTdata`'s else arm, `setContent`: a
+#      **content copy, and a flag is not content.** It is ALIVE at the `:1381` gate (measured: all
+#      eight relabelled literals arrive `isLiteral=1 isRule=1`, so **the gate is LIVE and stays**)
+#      and dead by rule-term arrival. **NOT duplication loss** — the copy constructor shares
+#      `groupBody` and cannot lose it. The yak is parked with a one-sentence choice waiting: carry
+#      the flag at that assignment, or ratify that content copies don't carry flags. **Nothing
+#      depends on it** — `planTerm` is representation-keyed now.
+#   2. **`aCTionDefinE:376` IS THE OPERATOR-NAMING MECHANISM.** `tag = text; text = 0` fires **55
+#      times, every one an Operators-registry node, ZERO rules.** It looks like dead weight beside
+#      the literal-labelling change; **delete it and every operator in the language unnames
+#      itself, silently.** Guardian comment landed. It reads `NewGroup`, the thing being DEFINED,
+#      never the terms inside it — which is why labelling literal terms does not reach it.
+#   3. ⚠⚠ **THE GRAMMAR IS NOT CONFIGURATION. INNOCENT GRAMMAR CHANGES ARE GUILTY.** One
+#      labelled-literal edit produced **three confirmed casualties**, each surfacing in a different
+#      file from the edit: `planTerm`'s classifier (fixed — LIT/LITTO from the data), the
+#      `InvokeArg` tag-sentinel (fixed in F-1's chase), `aCTionParens`' vacancy-clear (fixed, F-1).
+#      **Two census rows stand for the two classes**: tag-comparisons-as-sentinels, and
+#      clears-safe-only-by-vacancy (**F-9**, minion candidate, model repair is `aCTionBraced`).
+#   4. **A PIN AT THE NATURAL-LOOKING ZERO ASSERTS NOTHING — collected, not theoretical.** The dead
+#      rStuff audit emitted `0 missing rules, 0 missing terms, 0 loose, 0 unconsumed` and **would
+#      have read GREEN forever** had the line been pinned at zero. It is pinned at its real
+#      non-zero population, which is the only reason a dead instrument was visible. **Pins name
+#      their population** — the 12 MISSTERM are named by hand in `pop.sh`.
+#   5. **`oneTest`'s INCLUDES ARE LOAD-BEARING FOR THE AUDIT, NOT THE GENERATOR.** It no longer
+#      generates anything, but `include(generate)` populates the registries the audit counts.
+#      **Dropping it reads exactly like a regression** in a check re-pinned one commit earlier.
+#   6. **TONY'S OFFLINE rStuff WORK CLOSED A POPULATION** — 12 MISSTERM → 0, **closed by
+#      construction** (`aCTionDefinE` now mints rStuff for any `isRule` term lacking it), plus 10
+#      uncounted `AUDIT TERM` rows. ⚠ **It was UNMEASURED until F-1 re-armed the instrument: the
+#      reds were the audit failing to WITNESS a fix, not a fix breaking anything.**
+#   7. **TWO DEAD CITATIONS.** The 08-15 seal's **"18 shims"** — the census says **21 SHIM** under
+#      the ratified liftable definition, precedence **CROSSER > SHARED > SHIM > PARSE-ADJACENT**;
+#      and there are **two different 18s** that coincide by accident (selector-passing sites vs
+#      one-line-return bodies in `Instruct.rtn`). And **cross-session addresses cite `.rtn`/`.twk`
+#      sources, NEVER `.mm` line numbers** — the brief's `GroupRules.mm:3904→2424` had expired.
+#
+#   ## ⚠ DOCTRINE EARNED
+#
+#   - ⚠⚠ **A MEASURED VALUE IS MEASURED AT A NODE AND AT A TIME. Moving it to another node is a
+#     NEW CLAIM NEEDING A NEW MEASUREMENT.** Ledger-grade, and paid for by my own strike-through:
+#     the B0-2 recon established that writer and reader are different nodes, then I applied that
+#     finding to the flag's death **without applying it to my own inference**, and declared the
+#     `:1381` gate inert. It is live. **The structural claim held; the causal extension did not** —
+#     the standing asymmetry, collected again.
+#   - **`diff -w` BEFORE "IT'S JUST SPACING".** `spell.target` was **69 spacing lines + 1 content
+#     line**, and the 1 was the file's truth. Re-pinning on "it's just spacing" would have been
+#     true of 69/70 and wrong about the file.
+#   - **A BLOCK COMMENT'S POSITION IS LOAD-BEARING** — bear-trap #29. Between two arms of an
+#     `if`/`or` chain it wipes the extern block to zero; above the chain or inside an arm body it
+#     is fine. ⚠ **Every paragraph killed it individually**, which is what proves POSITION rather
+#     than any token inside it — an hour hunting a bad character is an hour wasted.
+#   - **`useDefaultSpace`'s persistent-`$` REVERSAL IS CONFIRMED DELIBERATE**, re-pinned across six
+#     targets with H6 sentences. The `displayForm` case was **one byte**, checked with `od` because
+#     the two lines render identically.
+#   - **AN INSTRUMENTED BINARY MUST NEVER BE LEFT BEHIND A MEASUREMENT.** Three directive probes
+#     this session, each restored byte-exact (md5 verified) and rebuilt bare before any POP.
+#
+#   ## THE INSTRUMENTS, so nobody rebuilds one
+#
+#   `pop.sh` (fleet, **40/2/1**) · `smoke.sh` · `smokelib.sh` (sourced never copied) · `parked.sh` ·
+#   `kantRatchet.sh` · `kantCensus.sh` · `completePop.sh` · `alphaLint.sh`.
+#   **NEW:** `incant/litProbe` (labelled vs bare literal shapes) · `incant/litFlagProbe`
+#   (`isLiteraL` at the read sites) · **`incant/generating`** (the quarantined specimen — RUN ON
+#   DEMAND, never in the roster) · `docs/emitted/generating-exhibit-2026-08-16.txt` (**an EXHIBIT,
+#   not a pin — nothing compares against it**).
+#   ⚠ **A PROBE NEEDS `Start();` AS ITS FIRST LINE**, with `include`/`search` ABOVE the comment
+#   header. Otherwise the includes never run, `search` fails token by token, and **`print` emits
+#   ZERO BYTES at exit 0** — indistinguishable from a short successful run.
+#
+#   ## NEXT SESSION OPENS ON — Tony's queue, then one capture, then step 2
+#
+#   1. **F-5** — `Parse` (`PLG.C`, `PLG.twk`) and `Tokf` (`Name.h`) carry unaccounted dirt. H8
+#      verdict per hunk: commit, revert, or named-WIP with an owner.
+#   2. **Two `iterT1m` sentences** — the KE-4 re-pins, older than the SEQ 55 seal.
+#   3. **Landable-set declaration** → Tony-commits → **capture ONCE** → seal → **step 2 fires**.
+#   **PARKED DELIBERATELY:** the DesignDocs pancake, for a fresh head — Clod drafts the brief
+#   against his four constraints (walker not bare-locate; no double quotes in entry text;
+#   site-scoped warnings stay at their posts; walk entries, don't trust exit status) plus the
+#   pancake criteria (mid-sized, spans the comment species, NOT `ruleActions`/`GroupActions`, NOT
+#   the two giants); **Clay reviews before any minion sees it.** **F-6** (the correction owed to
+#   `6212a71`'s message — the `parseRule` gate removal is INERT, `jitting` is raised only inside
+#   `jitRunAction`) folds into the next landing.
+#
+# ⚠⚠⚠ SEALED 2026-08-15 — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   THE ONE-LINE STATE: **the curve-ball day. Tony coded offline in kant, brought back a
+#   machine-written parse-method family and a rewritten `Generate.rtn`, and the reconciliation
+#   of that work found and closed TWO defect classes hiding behind one another.** The fleet
+#   closes at **41 green / 2 red / 1 parked — one green BETTER than the 08-13 seal it opened
+#   from.** Both reds are `iterT1m`, pre-existing, older than the SEQ 55 seal, verdicts banked
+#   in `docs/knownErrors.md` KE-4. **Kitchen is clean; the next session opens on a CHOICE.**
+#
+#   ## WHAT LANDED — one commit, one vintage (Tony waived the per-hunk walk on the fleet line's
+#   ## authority)
+#
+#   | thing | state |
+#   |---|---|
+#   | Tony's offline work | `Generate.rtn` rewritten as a 12-method `parse*` family; `parseMethod`/`actionMethod` fnptr slots; `IncantForms/WorkingOn/parser` (kant emitter for parse bodies) |
+#   | `opSetGroup` two-line fix | stamp inside the `if argument` guard, `isInitialized` set alongside |
+#   | `opPlusPlus` exhaustion | `result.group = 0` on an exhausted iterator, via `setGroup` |
+#   | `useDefaultSpace` | **BOTH halves restored** to `processAction`; the `aCTionPrinT` copy removed |
+#   | `parseContainer` | the two lines lost in transcription from `testContainer` restored |
+#   | alphabetical order | 8 `.rtn`, 288 units, **0 out of order**; `genLadder/alphaLint.sh` is the checker |
+#   | DesignDocs pilot | `jitFieldMethod` 66 comment lines → 3; entry + 8 children in `incant/designDocs` |
+#   | op-selector | **RATIFIED as the slot model**, no design session needed |
+#   | probes | 7 new fixtures, all exit 0 with sentinels (see THE INSTRUMENTS) |
+#
+#   ## ⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   1. **`setGroup()` SET FOUR THINGS, AND BYPASSING IT DROPPED THREE OF THEM.** Tony's offline
+#      `opSetGroup` wrote `gGroup` raw — deliberately, to stash a field without touching parent or
+#      affiliation, which is right and stands. But `setGroup` also set `isInitialized`, cleared on
+#      a null argument, and copied when the argument had a parent. **Two separate reds and one
+#      SIGSEGV came out of the two flags it stopped setting.** When a raw-ivar write replaces a
+#      setter here, enumerate what the setter did.
+#   2. **`aCTionIF` READS `isInitialized` ON THE CONDITION'S VALUE** (`ruleActions.rtn`, generated
+#      as `if ( result && result->groupBody->flags.isInitialized )`). That is why
+#      `if action := generator[argument];` took the ELSE arm and the whole bytecode emit path went
+#      dark at exit 0. **Certified by `incant/setGroupInit`**: row D `:=` in condition, row E `=`
+#      control, row F `:=` as a statement then a bare test — **F is the load-bearing row, because
+#      it proves the bind WORKED and isolates the failure to the condition-position read.**
+#   3. **AN EXHAUSTED ITERATOR USED TO BE CLEARED BY ACCIDENT OF `setGroup(0)`.** With the guard
+#      added it kept `isGROUP` and a stale `gGroup`, and `aCTionIterate`'s first line
+#      (`while iterator.isGROUP  iterator = iterator.group;`) then **redirected the next iterate
+#      onto the stale node**. Symptom: a second `iterate` over the SAME local walks zero items.
+#      **Certified by `incant/iterReuse`** — A one local 3/0, B two locals 3/2, C reversed 2/0.
+#      ⚠ **ROW C IS THE EXHIBIT**: reversing the order moves the zero, so it was never
+#      "members are broken", it was reuse of the local. `incant/ruleCount` had been working around
+#      this for weeks with `rcCur`/`rcCur3` and never said why.
+#   4. **BOTH-PRESENT IS ZERO AND IS NOW REJECTED BY FIAT, like data+list.** No rule in the live
+#      population carries both an attribute set and a member list: **0 both / 43 attrs-only /
+#      13 members-only / 23 neither, over all 79 `Grokking` entries** (`incant/bothCensus`).
+#      ⚠ **The zero is only worth the control that backs it**: `incant/bothControl` builds a node
+#      with 3 attributes and 2 members and it reads `A M`, so the instrument can see a both-rule.
+#      **The emitter template is closed: pure sequence or pure alternation.** The `else` bridge and
+#      the mid-body restore problem are both gone.
+#   5. **THE OP-SELECTOR IS NOT A VOCABULARY PROBLEM.** The 13 selectors
+#      (`jitOp`/`jitCmp`/`jitUnary`, `jitContext.h:454-465`) are **never computed** — each is a
+#      compile-time constant hardcoded at the site that already knows which operator it is.
+#      **RULED: the slot model** — the op node carries `jitMethod` beside `operateMethod`, the
+#      driver calls the slot, the selector parameter retires. **A kant-side name→enum table was
+#      REJECTED**: it re-introduces name lookup the language works to eliminate, gives the op's
+#      identity two homes, and an unmapped op yields 0 which IS `jitAdd` — a `-` emitting an ADD,
+#      silently, degrade count 0. ⚠ **And the cost is smaller than it looks: 18 gates already have
+#      a body that is exactly one `return jitEmitX(...)` line.** The shims are written; they are
+#      anonymous and trapped inside `if jitting`.
+#   6. **`iterT1m` IS THE SAME STANDING QUESTION IT WAS BEFORE THE CURVE BALL.** Both reds are
+#      pre-existing and are NOT this session's. Re-pin rulings are Tony's, sentences bought in KE-4.
+#
+#   ## ⚠ DOCTRINE EARNED, AND THE FIRST ONE IS LEDGER-GRADE
+#
+#   - ⚠⚠ **A CONTENT-COMPLETE DIFF THAT STILL FAILS EARNS A BYTE-LEVEL LOOK BEFORE IT EARNS
+#     ANOTHER THEORY.** Paid for the same day. After the iterator cure `displayForm` still failed,
+#     so the tempting read was "a second walk defect". **The walk was already correct**: all 21
+#     content lines matched byte for byte and the sole difference was **ONE TRAILING SPACE** on the
+#     sentinel — two lines that render identically and only `od` separates. The real cause was the
+#     unreverted second half of a two-half change. **Had the search gone hunting for a walk defect,
+#     the space it searched would not have contained the answer** — bear-trap #19's corollary, met
+#     from the cheap direction for once. Diff bytes before theorising.
+#   - **A TWO-HALF CHANGE NEEDS BOTH HALVES REVERTED.** `useDefaultSpace` was *moved* from
+#     `processAction` to `aCTionPrinT`. Restoring only the origin left it set in BOTH places, which
+#     is a third state nobody designed. Certified in both directions: line out → `spell.target` and
+#     `manyScratch.target` RED with `lit(t1,"x")` becoming `lit( t 1  , " x " )`; line back → green
+#     and the fleet byte-identical to the pre-edit capture.
+#   - **A PREDICTION THAT NAMES ITS OWN GAP IS WORTH MORE THAN ONE THAT PASSES.** The relay-#3 fix
+#     was predicted to clear `oneTest` and the two spacing rows **and to leave `displayForm` red**,
+#     because that chain lived in `opPlusPlus` and violated neither ruled invariant. All four rows
+#     landed as predicted. The value was in the row predicted to FAIL — it named the second cure
+#     before anyone went looking for it.
+#   - **A PRE-REGISTERED PREDICTION THAT FAILS IS THE CHEAP WIN.** "`displayForm` shares
+#     `oneTest`'s cause" was recorded, then falsified by one grep — **only ONE `:=`-in-condition
+#     site exists in all of `incant/`.** That failure is what split one investigation into two
+#     correct ones.
+#   - **A REORDER IS NOT CODEGEN-NEUTRAL, AND THE CONTROL IS HOW YOU KNOW.** tok's bare-name
+#     resolution is order-dependent, so the alphabetical pass was certified by a function-level
+#     diff — **288 functions in, 288 out, none lost, none gained, 15 bodies differing ONLY by tok's
+#     `::` global-scope qualifier** — then by build, then by a fleet that did not move. A build
+#     that succeeds is not evidence that a reorder was safe.
+#
+#   ## ⚠ THREE VIGRAM CANDIDATES NOW STANDING (design intent; no vigram work opens today)
+#
+#   1. **`isGROUP ⇒ gGroup non-null`** — ⚠ **it has a live NEGATIVE CONTROL**: `x := f["MissingKey"]`
+#      built the violation on demand and `if x;` **exited 139 with zero bytes** before the fix.
+#      The invariant can be shown to fire before it is trusted, which is the H7 bar.
+#   2. **`isGROUP ⇒ isInitialized`** — the flag `aCTionIF` actually reads. Stamped together now, so
+#      neither can be forgotten separately.
+#   3. **AN EXHAUSTED ITERATOR CARRIES NO GROUP.** ⚠ **Load-bearing for Tony's `IterateIf`**
+#      (`if iterate grup on X attributes;`, desugaring to opIterate + opPlusPlus-as-test + back-edge
+#      advance), which leans on the `isInitialized` work. **An argument for the invariant, not a hold.**
+#   ⚠ **FILED, NOT RULED: `isGROUP` carries TWO meanings** — *carries a group* and
+#   *follow-me-redirect* (`aCTionIterate`'s first line reads it the second way). One-channel-one-
+#   meaning, newest member. **No channel split ruled today.**
+#
+#   ## THE COMMENT PROBLEM, MEASURED — and `genParse.rtn` is now crowned by THREE independent
+#   ## measurements
+#
+#   **299 comment blocks over 3 lines, 4053 lines**, across the `.rtn` fleet.
+#   `genParse.rtn` **1242** · `jitEmitters.rtn` **1066** · `ruleActions.rtn` 603 · `GroupActions.rtn`
+#   509 · `Instruct.rtn` 359 · `Commands.rtn` 246 · `Debug.rtn` 20 · **`Generate.rtn` 8**.
+#   ⚠ **`Generate.rtn` is the reference specimen and the gap to the next file up is ~150x.** That is
+#   the target style stated in numbers. And `genParse.rtn` is now worst on **comment volume**,
+#   **alphabetical disorder (23 of 56)**, and Tony's own read — three independent measurements
+#   agreeing, which is why its spa treatment is queued rather than argued.
+#
+#   ## ⚠ DesignDocs — SCHEMA v2 RULED, AND ONE BLOCKER A NAIVE VERB WOULD HAVE HIT
+#
+#   **Sub-entries are MEMBERS, and members are not bare-locatable.** Measured: bare name → empty
+#   node; `Parent["Child"]` → empty node; **reached by ITERATING the parent's members → the real
+#   node with its 3 children**; top-level parent as control → 8 children. **So the registry's whole
+#   content below the top level is walkable but NOT addressable**, and a query verb written the
+#   obvious way (locate by key) would silently return empty nodes for every sub-entry.
+#   **RULED: the verb is a WALKER, not a restructure** — sub-entries stay members, the walker walks
+#   by tag and enforces key uniqueness in passing, and this is the general answer wherever data
+#   registries recur (`gDO`'s "members are not bare-locatable" wall included).
+#   **Schema v2 adopted, next-relay work:** `Status` (canonical / measured `<date>` / open, owner
+#   `<name>`) · `Evidence` (verbatim, no reflow) · `CodeSite` (a field, so entry-outlives-method is
+#   lint-checkable) · `Rejected` (earned by two independent authors reaching for it).
+#   ⚠ **SITE-SCOPED WARNINGS ARE THE NAMED EXCEPTION AND NEVER MIGRATE** — a warning stays one line
+#   at its post in the function it guards; the registry may carry the why.
+#   **Mechanical:** entry text **cannot contain a double quote** (it terminates the string);
+#   apostrophes and semicolons are fine.
+#   ⚠ **PARSE-GREEN IS NOT SHAPE-CORRECT** — the pilot entry was verified by walking it
+#   (8 children, `Contract` sub 3), not by exit status. The registry's own header records why.
+#
+#   ## PARKED, WITH OWNERS — nobody has to guess whose these are
+#
+#   | item | owner |
+#   |---|---|
+#   | `IterateIf` construct | **Tony**, in flight |
+#   | `parseRule` rec sheet — the `isAction` fork into `setParse` slots, `parseFail` (7 duplications), the `if jitting` stub → `actionMethod` slot | **Tony** |
+#   | `genParseTest` both-present guard line | **Tony**, his file |
+#   | DesignDocs schema v2 + the walker verb | next relay |
+#   | op-selector campaign — de-gating the 31 `Instruct.rtn` gates and unblocking the kant jit driver **close together as ONE mechanism** | post-pause |
+#   | `opPlusEQ` as a named exception (per-leaf dispatch, outside the slot model) and the `jitEmitAssign` call-shape wrinkle | **Clod**, to propose when the campaign opens |
+#   | `iterT1m` ×2 re-pins | **Tony** |
+#
+#   ## ⚠ THE KANT JIT DRIVER — DOABLE, AND ITS KEYSTONE WAS ALREADY IN TONY'S OFFLINE WORK
+#
+#   `incant/jitDrive` runs: it finds a real action's `BlocK`, walks it, dispatches per node.
+#   **62 jit externs, 4 reachable from kant today** (`jitTrace`, `jitRefire`, `jitShowRecord`,
+#   `jitFieldMethod`) — so kant→jit-extern calling is already proven, not hypothetical.
+#   ⚠ **The guessed missing-bits list was HALF WRONG and the correction is the finding**: a
+#   **builder handle is NOT needed** — 20 externs take `()` and work on module-level state, so kant
+#   calls them as bare commands and registration is the whole cost. `jitStoreResult()` and
+#   `jitNodeInFlight()` already exist. **The real blocker was the op selector**, which is now ruled.
+#
+#   ## THE INSTRUMENTS, so nobody rebuilds one
+#
+#   `pop.sh` (fleet, 41/2/1) · `smoke.sh` (the bell) · `smokelib.sh` (**sourced never copied**) ·
+#   `parked.sh` · `kantRatchet.sh` · `kantCensus.sh` · `completePop.sh` ·
+#   **`alphaLint.sh` (NEW — hygiene tier, report only, deliberately NOT in `pop.sh`, and it
+#   certifies itself: zero method lists extracted exits 2 rather than printing a clean banner)**.
+#   **NEW PROBES, report tier, all exit 0 with sentinels:** `incant/iterReuse` (iterator reuse, with
+#   its reversed-order exhibit) · `incant/setGroupInit` (`:=` in condition, with its `=` control) ·
+#   `incant/bothCensus` + `incant/bothControl` (both-present, with its positive control) ·
+#   `incant/ddProbe` + `incant/ddProbe2` (DesignDocs shape and addressability) · `incant/jitDrive`
+#   (the kant jit driver stub).
+#   **RULE H10: smoke-green authorizes CONTINUING, only a fleet check authorizes LANDING — and the
+#   landable property is UNMOVED, not green.**
+#
+#   ## ⚠ TWO STANDING HAZARDS RE-CONFIRMED THIS SESSION, both cheap to lose
+#
+#   - **A BARE `for r in Grokking;` WALK EXITS 139 WITH ZERO OUTPUT.** Reproduced independently and
+#     **it is NOT `genKant`-specific** — a walk whose body does nothing but count also dies. The
+#     workaround is the `iterate`/`while ++` idiom (`incant/ruleCount`) or one-rule-per-process.
+#   - **A STALE `.mm` COMPILES AND RUNS.** The binary that opened this session was built from a
+#     `GroupRules.mm` generated BEFORE two of that morning's `.rtn` edits — Xcode recompiled the
+#     `.mm`, `tok` was never re-run. **Verified before trusting any measurement**: `opSetGroup`,
+#     `opPlusPlus` and `aCTionIF` were byte-identical between the stale and fresh `.mm`, which is
+#     the only reason the day's chains stood. **No mechanization ruled** (Tony's practice is
+#     always-retok); treated as one-off unless the fleet says otherwise.
+#
+# ⚠⚠⚠ SEALED 2026-08-13 LATE — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   THE ONE-LINE STATE: **the OPT vocabulary is BUILT and LANDED — `optRK` compiles, emits and
+#   trebles the emittable population from 1 to 4 — and RUNG ONE STUMBLED at 139 on the live
+#   install.** The stumble is banked with evidence and NOT diagnosed, on purpose. **Tomorrow
+#   opens on a CHORE, not a choice.**
+#
+#   ## WHAT LANDED TONIGHT
+#
+#   | thing | state |
+#   |---|---|
+#   | **decision (a) RULED** | the vocabulary charter is **OPT** (Tony, off SEQ 72's stamped table) |
+#   | `optRK` shim | **BUILT, COMPILED, LIVE** — `nm` shows `_optRK`; externs 276 → 277, no cascade |
+#   | `kantLeaf` OPT arm | emits `optRK` for a CALL optional; **REFUSES** LIT and CONTAINER optionals **by name** |
+#   | **emittable population** | **1 → 4**: `Braced` (was), **+ `InvokE`, `Parens`, `PrintField`** |
+#   | rung one (live install) | ⚠ **STUMBLED — exit 139.** Banked, not chased |
+#   | fleet | **UNMOVED** across a C++ change and a full rebuild — every `pop.sh` check row byte-identical |
+#
+#   ## ⚠ THE SIX THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   1. **THE DENOMINATOR IS 78. `47` IS DEAD EVERYWHERE.** 60 rule members + 18 rule attributes,
+#      out of 79 `Grokking` entries; the one non-rule entry is **`Operators`**. That single fact is
+#      the whole of the 78-vs-79 "discrepancy" two passes recorded — **both numbers were right and
+#      neither was labelled.** `docs/jit.md`'s columns 2–5 now have their denominator.
+#   2. **SEQ 72's stamped table is 78/78, zero blank, zero unclassified** —
+#      `genLadder/kantCensus.sh`, raw run at `docs/emitted/kantCensus-2026-08-13.txt`. The 39
+#      blanks that voided SEQ 71 are gone and a blank row is **unconstructable**.
+#   3. **THE (a) RULING'S BASIS IS THE TABLE, NOT A CITATION.** OPT opened the most rules of any
+#      single vocabulary item. ⚠ **AND THE RE-RUN MOVED THE NUMBER, EXACTLY AS THE FENCE SAID IT
+#      MIGHT: SEQ 72 said "5 held out by OPT"; closing OPT opened THREE.** `RunRulE` wants
+#      `optLK` (a LITERAL optional — `';'-?`), `TokenXP` wants a CONTAINER optional (`UnaryOPS?`).
+#      **A first-blocker count is not a promotion count. This is the discipline paying out, not
+#      failing.**
+#   4. **THE FENCE PROBE CAME BACK FENCED.** `locate(argument.text)`-shaped resolution exists at
+#      **three** live sites and **none is on the install or parse path**: `dumpRuleTerms`
+#      (instrument, filed), `runNotified` (`GroupItem.twk:1562`, listener dispatch) and
+#      `styleComponent` (`GroupDraw.twk:220`, drawing). ⚠ **The kant doors do NOT use it** —
+#      `parseViaKant` and `kantDoor` build `"kp" rule.tag` as a **String** and `locate` that, so a
+#      name never passes through a node's `.text`. `parseRuleMethod:1908` does read `.text`, but of
+#      a `parseMethod=` attribute whose value the source assigned with `=`, it dlsyms rather than
+#      locates, and it names the empty case. **The walk proceeds clean.**
+#   5. **RUNG ONE'S STUMBLE IS `docs/emitted/parens-opt-stumble-2026-08-13.txt`, AND ITS CAUSE IS
+#      NOT WRITTEN DOWN ON PURPOSE.** `Parens` bound cleanly, entered the kant door **3556 times**,
+#      never reached `parseR`, never refused, and died with **zero bytes of stdout**. That is the
+#      signature of unbounded re-entry — **a description, not a diagnosis.** Two mechanisms are
+#      available (Mechanism 3's re-entrant frame; the ALT-option `into`-not-`label` frame) and
+#      **NEITHER is named as cause**; `Braced` is also an `InvokeArg` option and works, which alone
+#      sinks the easy story. ⚠ **Mechanism 3 stays a filed tension. Do not pre-solve it.**
+#   6. **THE FIRST PICK WAS `InvokE` AND IT WAS GREEN AND HOLLOW.** Exit 0, both legs printed 251,
+#      **and the kant door never fired** — `fireIt()` parses `TokenXP → InvokeArg → Parens`, not
+#      `InvokE`. The bind took (the SEQ 58 seam reads correctly); the parse never forked. ⚠ **The
+#      STRUCTURAL claim held and the CAUSAL one — "this input reaches this rule" — was read off the
+#      grammar by eye and was false.** GM-30 had already recorded that `InvokE` does not fire; the
+#      note was cited and not measured. **251 alone proves nothing** did its job again.
+#
+#   ## ⚠ TOMORROW IS A CHORE, NOT A CHOICE — deliberately, and in this order
+#
+#   1. **Separate the two mechanisms behind the 139**, one run. Then fix-or-skip is Tony's.
+#   2. **Rung one re-run on `Parens`** — it is `Braced` with term 2 made optional: same parent
+#      alternation, same attach frame, and the control is already green and committed. The fixture
+#      pair is in the stumble specimen, **one `cp` from live**.
+#   0. ⚠ **THE DOOR-ENTRY ASSERTION — proposed by Clay, SECONDED, and it is the session's
+#      structural answer to the hollow green.** `InvokE` exited 0 with both arms at 251 and
+#      proved nothing because **the input never reached the rule**. The arm-by-name discipline
+#      catches WHICH code answered; **nothing yet asserts the target was ever ASKED.** So the
+#      fixture contract gains: **the target rule's door fired, or the run is not a result.**
+#      ⚠ **AND THE PREMISE NEEDED CORRECTING BEFORE ANYONE BUILDS IT: there is NO door-entry
+#      counter.** The `3556` was a grep over a `cerr` inside `parseViaKant` that is **gated on
+#      `parseTrace`**. What DOES exist is `genLadder/kantRatchet.sh:131` — `grep -q
+#      "parseViaKant $RULE -> kp$RULE"`, R3's third assertion. **So this is not new machinery;
+#      it is R3's door check PROMOTED out of the ratchet into the general contract.** Two
+#      refinements agreed: **print the COUNT, do not merely test presence** (R3's `grep -q`
+#      would have passed `Parens` at 3556 had it not crashed — `>=1` is the weakest possible
+#      form, and a non-crashing runaway satisfies it); and **the residual is named** — this is
+#      an instrument reading an instrument, coupled to a `parseTrace`-gated line's exact text.
+#      Polarity is right: delete the line and the count goes 0 and the run fails CLOSED.
+#      ⚠ **Count 0 catches TWO failures** — bind-took-but-never-reached (`InvokE`) and
+#      bind-never-took. The `SEAM bind`/`SEAM read` lines separate them, one grep away.
+#      **Fourth refuse-by-kind promotion in three dispatches.**
+#   3. **Then the promotion**, gated on rung one green — and ⚠ **the fence's re-run of all five is
+#      part of the chore, not optional**: two of them (`RunRulE`, `TokenXP`) are already known NOT
+#      to be opened by `optRK`. **`optLK` and the container optional go on the vocabulary shelf as
+#      named, priced follow-ons — not tonight's debts** (Clay, ratified at close).
+#
+#   ## ⚠ INSTRUMENT DEFECTS FOUND IN MY OWN WORK TONIGHT — the class is the point
+#
+#   - ⚠ **THE CENSUS KINDS COLUMN HAD A PRECEDENCE BUG AND 11 OF 78 ROWS WERE WRONG.** It tested
+#     `REFERENCE` **before** the data row, so every term that is **both a reference and carries
+#     data** was called `R` where the tree calls it a container or a charset. **`row42`'s own header
+#     warns about exactly this** — it mirrors `setTestMatch`'s cascade *in its own order* and says a
+#     classifier reading the table top-to-bottom would already disagree with the tree. **It was read
+#     top-to-bottom anyway.** Corrected and re-run; the delta is `TokenXP`, `UnaryXP`, `DatA`,
+#     `Token`, `BrancH`, `FloaT`, `NumbeR`, `PrintField`, `ANYorNum`, `FormaT`, `ScopeField`.
+#     ⚠ **WHAT CAUGHT IT WAS `planTerm` REFUSING BY KIND** — `TokenXP`'s `UnaryOPS?` came back
+#     CONTAINER where the census had said `R`. **Third time in two dispatches that refuse-by-kind
+#     has named an instrument defect. Structure, not vigilance.**
+#   - **ONE APOSTROPHE IN AN awk COMMENT KILLED THE WHOLE TABLE** — the program lives in a
+#     single-quoted shell string and `row42's` closed it. Output: a full header and **ZERO ROWS**.
+#     ⚠ **The self-certification floor caught it by name** (`rows != population`), which is
+#     H2-turned-on-the-harness doing precisely the job it was added for.
+#   - **RESIDUAL, NAMED NOT FIXED: the census's KINDS column and its SHIM column are TWO
+#     CLASSIFIERS** (`row42` vs `planTerm`) and they still disagree — `PrintField` reads `RC?` and
+#     emits anyway. **The SHIM column is authoritative** (it is the emitter itself). Same family as
+#     the precedence bug; do not read KINDS as a shim predictor.
+#
+#   ## RULING CARRIED ACROSS THE SESSION BOUNDARY
+#
+#   **THE REGISTRY WIRE FORMAT IS `ALWAYS-BZ1`** (Tony, 2026-08-13). Every buffer field prints as
+#   its compressed form: one code path, no chooser, no escaping anywhere. **Support minion SEQ 2
+#   Part B is UNBLOCKED — and unblocked is NOT scheduled.** `ipc/support-to-clod.md` has been open
+#   at `working` since 2026-08-03; the gate is now answered.
+#
+#   ## BANKED, BY NAME — none of these are diagnosed
+#
+#   · ⚠ **bare `ANYstring` resolves to a node tagged `DatA`** (symptom measured, mechanism NOT
+#     written down). Matters past the census: **any bare-identifier rule reference in incant may be
+#     reaching a different node than its spelling says.**
+#   · **the in-process walk exits 139** after one rule (`for r in Grokking; genKant(r);`) —
+#     sidestepped by one-rule-per-process, still undiagnosed.
+#   · **`dumpRuleTerms` carries the same `locate(argument.text)` hazard** — a C++ edit, unpaid.
+#   · **`iterT1m`'s live question** and the other two KE-4 reds — re-pins are Tony's, still owed.
+#   · **IT-3 attrition + the K5/K6 GATE** — standing from before this campaign, cheap to forget.
+#
+#   ## THE INSTRUMENTS, so nobody rebuilds one
+#
+#   `kantCensus.sh` (the stamped table; counts its own population first, cannot print a blank row,
+#   carries its own H7 negative control for name-passing) · `smoke.sh` (the bell) · `smokelib.sh`
+#   (**sourced never copied**) · `parked.sh` · `kantRatchet.sh` · `pop.sh` (fleet; **3 pre-existing
+#   reds, older than the SEQ 55 seal**) · `completePop.sh`.
+#   **RULE H10: smoke-green authorizes CONTINUING, only a fleet check authorizes LANDING — and the
+#   landable property is UNMOVED, not green.**
+#
+# ⚠⚠⚠ SEALED 2026-08-13 EVENING — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+#
+#   THE ONE-LINE STATE: **the kant loop is CLOSED on a real rule** — `Braced` parses live input
+#   through a body written in kant, emitted by machine from its own live terms. The bind defect
+#   that blocked it for a week is found, closed and pinned. The jit-parse door is refused with the
+#   lock described. **The next session opens on a CHOICE, not a chore** — see the decision queue at
+#   the foot of this seal.
+#
+#   ## WHAT LANDED, SEQ 56 → 71 (all pushed; branch `jit-unified-emit-wip`)
+#
+#   | SEQ | commit | what |
+#   |---|---|---|
+#   | 56 | `fcc5371` | `aCTionDefinE` arm reorder — the coded test wins. Fleet byte-identical AND not inert: M1b's silent inertness is repaired |
+#   | 58 | `996ad5a` | **THE BIND-READ SEAM, FOUND AND CLOSED.** The door bound a SATELLITE node; `definingRule()` on that very node already returned the reader's. Both doors now resolve the reader's way. ⚠ `parseBraced` had never been compiled — added |
+#   | 59+60 | `ca606ee` | IA-2 trial ladder (rung 1 green, reverted per the wall); `smoke.sh` built |
+#   | 61 | `e6438ba`, `9693f04` | **PC-1 RULED.** Narrow spelling landed, `bindSeamB` PINNED at 251 with the ARM asserted by name, IT-3's demolition list marked |
+#   | 63 | `79186c3` | **FIRST LIGHT.** `bracedK` — kant `Braced` body, first live fire of `parseRK`; the two arms diff clean over 30 lines |
+#   | 65/66-r1 | `728265a` | Jit-parse leg PRICED and STOPPED at the first exit |
+#   | 67 | `39a86d7`, `2f6203c`, `92f57f7` | Frame/baked-address tension filed with its cost tripwire; **KE-3 degrade crash repaired**; **`genKant` — the emitter replaces the hand** |
+#   | 68 | `7b8f8fe`, `9ffeb94` | Walk stops at `Braced` (two table rows were wrong); jit census column 1 answered |
+#   | 70 | `55481d1` | **THE THREE REDS: all three are older than the SEQ 55 seal.** Verdicts with evidence |
+#   | 71 | `5276a89` | **`genKant` was emitting WRONG bodies for alternations — fold gate added.** Survey partial, tally VOID and named |
+#
+#   ## ⚠ THE FIVE THINGS A FRESH READER MUST NOT RE-DERIVE
+#
+#   1. **The bind defect was a SATELLITE NODE**, not a clobber. `parseMethod=` from another file
+#      bound onto the node `aCTionDefinE` hands the door, while `parse()` forks on
+#      `definingRule().rStuff`. Both doors now resolve through `definingRule()`. Same-file binds
+#      (`kantParse1`, `genScratch`, the Scaf family) were never affected and are untouched.
+#   2. **PC-1 is RESTATED, not overridden.** The generated arm may consult `isTarget` ONLY where
+#      there is no parent label — no subtree to destroy, which is the rationale GM-22 protects.
+#      `bindSeamB` at 251 is the pin AND IT-3's tripwire.
+#   3. **The jit-parse door is REFUSED (c), with the lock described.** Mechanism 3 — re-entrant
+#      frame vs baked stable address — is **two correct rulings meeting**, filed as a TENSION with
+#      a **cost tripwire** in `docs/jitDesign.md`. Nothing is owed until the walk gives the fleet
+#      real rule counts. **Do not pre-solve it.**
+#   4. **`251` ALONE PROVES NOTHING** anywhere in this campaign. The interpreted arm has always
+#      produced it. Read the ARM by name: `promote=0` generated, `promote=1` interpreted.
+#   5. **The three `pop.sh` reds are OLDER THAN THE SEQ 55 SEAL** and are not this campaign's.
+#      Verdicts and evidence in `docs/knownErrors.md` KE-4. `iterT1m` is the one with a live
+#      question in it.
+#
+#   ## ⚠ THREE DOCTRINE SPECIMENS EARNED THIS SESSION
+#
+#   - **THE WRONG-LEAD LEDGER GAINED ITS FIFTH.** KE-3's filed cause — *"the return dereferenced an
+#     absent value"* — sent the search at `jitEmitReturn`. **The site said otherwise three lines
+#     earlier:** `arg = arg.gMethod(arg)` is overwritten by the emitter's `nullptr`, and the STAMP
+#     dereferenced it. The instruction to *verify at the site before repairing* is the only reason a
+#     correct-looking repair did not land in the wrong file.
+#   - **THE 42-CONTROL.** `0 = 0` is the weakest possible agreement. Paired with a body that
+#     degrades **mid-body** then returns 42, it asserts what the zero row could not: **a degrade in
+#     the middle of a body does not poison what follows** — *fallback sound*, not *fallback
+#     occurred*.
+#   - **A PER-ITEM GUARD CANNOT SEE A WHOLE-BODY PROPERTY.** `kantLeaf` refuses by KIND and covered
+#     every unknown term; **the JOIN is not a term**, so `genKant` emitted `AND` chains for
+#     alternations — bodies that parse and answer wrong — until SEQ 71's fold gate.
+#
+#   ## ⚠ AND THE T-0 FAMILY COLLECTED **FOUR** MORE IN ONE DAY. Stop citing tables; re-run them.
+#
+#   `Xpress`/`UnaryXP` cited `ref · ref` (both wrong — `SemI` is `isSTRING`, `ANYtoken` is
+#   `isGROUP`) · **"47 live rules"** (matches nothing measured; `popScratch` says 78, iteration says
+#   79, **and none is confirmed**) · `incant/parseCode` shaped for the unbuilt MINT door
+#   (`parseViaKant` locates `kp<Tag>`, not `<Tag>`) · the survey's own blocking-kind tally, **VOID**
+#   because 39 blank rows hid three different causes. **What caught the first was `kantLeaf`
+#   refusing by kind rather than guessing** — structure, not vigilance.
+#
+#   ## THE DECISION QUEUE — the next session picks from this list
+#
+#   | # | decision | state |
+#   |---|---|---|
+#   | a | **Next vocabulary charter** | ⚠ **BLOCKED on the stamped table.** The optional's claim to "opens the most rules" is unverified citation. SEQ 71 did not deliver the table; two instrument fixes are owed first (driver name-passing, both refusal shapes) |
+#   | b | **Invokable mechanism, yes/no** | Reframed: it is **kant-at-large** work, not parse work. Jittability is 0 without it and total with it — no partial credit — so the decision is purely price (`728265a`). Mechanism 3 stays a filed tension |
+#   | c | **Minion consult** | Parked. SEQ 70 was its trial assignment and is done; re-cut against surviving backlog, which may be the honest test of whether the role is needed |
+#   | d | **Promotion gate** | `incant/parseCode`'s `fILEs` line into `incant/setup`. **One line, whenever called** |
+#   | e | **IT-3 attrition + K5/K6 GATE** | Standing from before this campaign, cheap to forget. IT-3's list now carries the IA-2 demolition item |
+#   | f | **The three reds' re-pins** | Sentences bought (KE-4); every re-pin ruling is Tony's |
+#
+#   ## THE INSTRUMENTS, so nobody rebuilds one
+#
+#   `genLadder/smoke.sh` (5 slots, the bell — slot 1 is `bracedK`) · `smokelib.sh` (shared helpers,
+#   **sourced never copied**) · `parked.sh` (two-stage retirement; green flushes, RED reinstates,
+#   UNRUNNABLE is never a pass) · `kantRatchet.sh` (generate → byte-compare → install → run, all on
+#   one run's own output) · `pop.sh` (fleet; **3 pre-existing reds, older than the seal**) ·
+#   `completePop.sh` (137 swept / 242 green / 3 abandoned, all recorded).
+#   **RULE H10: smoke-green authorizes CONTINUING, only a fleet check authorizes LANDING — and the
+#   landable property is UNMOVED, not green.**
+#
+# ⚠⚠⚠ SEALED 2026-08-11 EVENING — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+# **THE LOOP IS CLOSED. A RULE PARSES REAL INPUT WITH ITS PARSE METHOD WRITTEN IN KANT,
+# ONE STATEMENT, SPELLED AS AN `AND` CHAIN.** Nine dispatches (SEQ 47–55), seven commits,
+# three rebuilds, and the fleet finishes byte-identical to where it started.
+#
+# ⚠⚠ NEXT ACTION — **THE RULE LIST** (SEQ 51 items 2–3, ruled by Tony as tomorrow's top
+#    item). A census **RE-RUN against today's source** — ⚠ **NOT Phase A's numbers, which
+#    predate GX-1 and the AND/OR rung.** Per rule: **term count · term kinds** (literal /
+#    charset / reference / container) **· shims available yes-no · first blocker if refused,
+#    H9-STAMPED.** ⚠ **NO INSTALLS AGAINST IT.** Tony + Clay eyeball it, mark walk order
+#    simplest-first, and the walk then runs **until it stumbles into body-and-fender work**;
+#    stumbles get banked and filed, fix-or-skip per stumble.
+#
+# ⚠ **WHAT CLOSED, IN ONE PARAGRAPH.** `parse()` forks on `rStuff.parseMethod`, a **C++
+#   function pointer**; a kant method is a GroupItem carrying CodE/BlocK. **`parseViaKant`
+#   (`genParse.rtn`) stands in that slot and forwards** — the cheap door, versus widening the
+#   pointer's signature, which `RuleStuff.twk` ruled a **LAYOUT change** on 2026-08-05. It
+#   binds through the **existing** `parseMethod=` dlsym door, finds its action **by
+#   convention** (rule `Foo` → action `kpFoo`), and **owns the frame**: mark, minted label and
+#   rule saved around the body and restored after, so **the C++ call stack IS the frame
+#   stack.** Shims `litK`/`parseRK` do the matching. `incant/kantParse1`:
+#   `ScafKB isRule "["- "]"-`, method `return litK(1) AND litK(2);`
+#
+#   | row | lit lines | verdict | mark |
+#   |---|---|---|---|
+#   | `ScafKB '[]'` kant | 2 | **WIN** | consumed |
+#   | `ScafKB '['` kant | 2 | FAIL | **rewound** |
+#   | `Scaf2 '{'` **C++ ORACLE, same shape** | 2 | FAIL | **rewound — the arms agree** |
+#   | `ScafKB 'x'` kant | **1** | FAIL | **unmoved** |
+#
+#   ⚠ **ROW 4 IS THE EXHIBIT AND IT PAYS TWICE:** one lit line where the others have two, so
+#   **the AND chain short-circuited inside a LIVE INSTALLED PARSE METHOD**; and **`unmoved`
+#   against row 2's `rewound`**, which is the discrimination the cursor rule exists for.
+#
+# ⚠⚠ **THE CONVENTION AS LANDED — STANDING, first of its line, citable by future rungs
+#   (Tony, SEQ 54 item 3, ratified SEQ 55 item 2):**
+#
+#     **AN EMITTED KANT BODY NEVER SEES PARSER INTERNALS. It names a term BY POSITION and
+#     holds no node at all; POSITION, LABEL and INVARIANT belong to the C++ frame around the
+#     dispatch.**
+#
+#   ⚠ **AND THE SUBSTRATE ENFORCED IT ON ITS OWN, which is why it is grounds and not taste.**
+#   The shims were priced to take *nodes* via the `:scope` multi-arg idiom. **kant CANNOT
+#   INDEX A RULE'S TERMS:** `argument[1]` handed the shim a node tagged with the **command
+#   name**, which dutifully tried to match the literal `"litK"` — bear-trap #26's family, a
+#   plausible string where a node was wanted. So the shims take a **position**, the frame
+#   indexes in C++ (`rule[1]` → `rule->get(1)`), and **the convention came out cleaner than
+#   priced.** The `:scope` hoist was never needed.
+#
+# ⚠ **THE MARK RULING (Tony, 2026-08-11): THE MARK NEVER CROSSES.** `String from = atRuleMark`
+#   is a **position, not a value** — it cannot travel as kant data *by nature*, not by missing
+#   plumbing — and keeping it C++-side leaves **Invariant R with one writer**, where
+#   `RuleStuff.twk:657` rules it lives. Reversibility is asymmetric: widening to a handle later
+#   is additive; retracting a crossed mark is a full-population regenerate-and-re-pin **for a
+#   correctness reason.** Full pricing: **`docs/kantShims.md`**.
+#
+# ⚠⚠ **FOUR FINDINGS THAT OUTLIVE THE DAY.**
+#   1. ⚠ **THE CURSOR, NOT THE VERDICT, IS THE INSTRUMENT — and it is now standing doctrine
+#      for parse fixtures (SEQ 50 item 3).** `incant/kantRuleS` is `kantRuleA` with the
+#      alternation spelled `||`: it ends at **cursor 4 where the word form ends at 3**, a token
+#      eaten by an option that did not match — **and BOTH spellings return SUCCESS on that
+#      row.** A harness asserting the rule's verdict would have certified the eager one.
+#   2. ⚠ **A DEFECTIVE CITATION DOES NOT MERELY STATE SOMETHING FALSE — IT GENERATES
+#      WELL-REASONED QUESTIONS NOBODY NEEDED TO ASK.** The respell charter nominated `Braced`
+#      as its flagship exhibit citing GM-13's *"LEAD … UNMEASURED"* line. **That lead had been
+#      dead since the day after it was written** (GM-16, 2026-08-05), seventy lines below it in
+#      the same file, and its actual cause was **repaired 2026-08-06** (GX-1). ⚠ **And the
+#      failure §3.0 was written to prevent was LIVE: had Braced been installed as the exhibit
+#      and come back green, GX-1 — landed five days earlier for an unrelated defect — would
+#      have been read as the respell's proof.** Forward pointer now at GM-13.
+#   3. ⚠ **PARSE-GREEN IS NOT SHAPE-CORRECT.** The canonical `DesignDocs` text carried **three
+#      missing terminating semicolons**, each NESTING what followed it. Exit 0, sentinel
+#      printed, stderr empty — and `EmissionPrinciple` governing layout, targets and events.
+#      **A registry with no verb over it yet is exactly where that survives**, and its first
+#      reader would have been a consolidation minion.
+#   4. ⚠ **`&&` OVER CALLS DOES NOT ANSWER WRONGLY — IT KILLS THE PARSE**, exit 139 with ZERO
+#      bytes, before the `Search list:` line, so it reads as a broken binary. Bisected one
+#      operator at a time. ⚠ **This moves the symbols repair: KE-5's believed one-liner
+#      (`'&&' operateMethod=opAND`) would give a right truth table ON FIELDS and leave it
+#      EAGER — finding 1's over-consumption. THE SYMBOLS RUNG AIMS AT TIER 3, NOT AT
+#      `operateMethod`.** Both KEs amended; neither run.
+#
+# ⚠ **TWO INSTRUMENT DEFECTS CAUGHT IN MY OWN WORK, sealed because the class is the point:**
+#   · **the guard was `if !action.isCoded`, and `isCoded` is CONSUMED BY RUNNING** —
+#     `processAction` compiles to a cached BlocK and clears it — so it passed on fire 1 and
+#     **refused every fire after**, and a rule parses many times. Cross-filed with bear-trap
+#     #25, which records the same fact from `testing()`'s side.
+#   · **the frame's R line printed `"mark rewound"` UNCONDITIONALLY** — an absence-shaped
+#     assertion sitting in the exact place a cursor fixture reads. It now mirrors `leaveRule`'s
+#     own comparison, **which is why rows 2 and 4 differ at all** and why the kant arm is
+#     *diffable* against the C++ arm rather than merely similar.
+#   · ⚠ **AND A THIRD, IN THE MEASUREMENT RATHER THAN THE CODE:** a first fleet comparison
+#     reported three of four fixtures as DIFFERING. **The baseline had been captured with
+#     `2>&1` merged and the new run separated the streams.** Compared like for like, all four
+#     are byte-identical. **Doubt the instrument.**
+#
+# ⚠ **THE RESPELL IS CLEARED AS A *STOP*, NOT A DELIVERY — carried here so it is not lost by
+#   being cleared.** §3.0 answered **NO**: the goto scaffolding is not the cause of the Braced
+#   red, and ⚠ **NO EMITTED METHOD HAS EVER CONTAINED A GOTO** — regenerated today,
+#   `parseBraced` is already an `&&` chain, byte-identical to the 08-05 banking. **So §3.5's
+#   promised exhibit ("goto out, chains in") is not producible from ANY rule**, and §1's
+#   premise is falsified by the emitted text. **The §1 RULING is NOT withdrawn; what moved is
+#   the description of what it buys.** ⚠ **`docs/respellRung.md` needs §1 RESTATED by Tony
+#   before the rung re-opens.** With §1 restated, §2's third bullet needs re-deciding — that
+#   failure shape ceased to be expressible via **GX-1**, not via anything the rung does.
+#
+# ⚠ **OWED AND NOT DONE, so nothing here reads as finished that is not:**
+#   · **The RULE LIST** — tomorrow's first action, above.
+#   · **A SHELL POP FOR `incant/kantParse1`** — it **NARRATES, it does not self-assert.** Its
+#     evidence is `parseTrace` on stderr, read against the C++ oracle **by eye**. The right
+#     instrument greps the four rows and takes `$?` from the binary. **Queued with tomorrow,
+#     explicitly not tonight** (SEQ 55 item 4).
+#   · **Phase R rung 2 (Family C)** — RECON ONLY, banked in `docs/gapBPhaseR.md`, **not built**.
+#     ⚠ Its two measurements are **RATIFIED AS PRE-REGISTERED PREDICTIONS** (SEQ 53 item 4):
+#     **the rule-level `isSET` site holds SIX rules, not four** (`BrancheS`, a bin, and `PoweR`,
+#     Family D, share it — so `if rule.isSET` is the wrong test **and would pass every positive
+#     row while being wrong**), and **expected movement is 94→90 refusals / 16→20 plannable —
+#     FOUR, not thirteen.** ⚠ **A rung 2 close moving more than four has widened scope.**
+#     Family C needs a NEW plan kind; rung 1's cheapness is **not** inherited.
+#   · **`leaveRule`'s `into` is VESTIGIAL** (PC-4 removed its attach; its own comment says so).
+#     **Noted, deliberately NOT tidied** — a separate job, not a mid-rung edit.
+#   · **KE-5 / KE-6** — amended today, **neither run**. **The symbols rung aims at tier 3.**
+#   · **KE-4** · **K6c** · **the vestigial `recursive` flag** · **`BLOCKED KANT-B1`** · **the
+#     bare-`if` truthiness fork** — all untouched today and all still standing.
+#
+# ⚠ **ALSO LANDED (SEQ 47): the `DesignDocs` registry is homed at `incant/designDocs`** —
+#   design documents as kant data, registered in `incant/setup`'s `fILEs` — **and
+#   `docs/displayDesign.md` is HISTORICAL**, marked with a supersession banner rather than
+#   deleted. Forward-looking pointers repointed (`wakeup`'s drawer entry, `note-to-clay-style`);
+#   **provenances left standing.** ⚠ **The HTML event fence MOVED at that review** — the target
+#   now handles simple events and reports back to kant — so *"static only, no JS"* is no longer
+#   the scope. ⚠ `IncantForms/WorkingOn/incant++` still carries the source text and is **held
+#   back deliberately**: Tony's offline status note, his call (H8).
+#
+# ⚠ THE FLEET AT SEAL, after three rebuilds: ladder **184 / exit 0** · pop **33 green / 1
+#   parked** · **completePop 133 swept / 0 MISSING SENTINELS / 234 green** (was 129/0/226 —
+#   +4 fixtures, +8 checks, and the zero held) · decodePop 22 · recordPop 48 · gapB 22 ·
+#   formsPop 14 · containerPop 11 · printPop 9 · mixed 7 · tree exit 0 ·
+#   **oneTest / jsonTest / phaseA / emitAll BYTE-IDENTICAL ON BOTH STREAMS** ·
+#   **`TALLY` still 94 refusals / 16 plannable** — the trampoline and the shims add no
+#   plannability, which is correct. Commits **`68e2f69`** (DesignDocs) · **`7e1c1e1`** (§3.0
+#   stop) · **`6cf0000`** (the chain on a rule shape) · **`086a151`** (recon + cost
+#   correction) · **`7c3338f`** (the trampoline) · **`b25eaf0`** (shims priced) ·
+#   **`adcbe3b`** (the loop closed). Working tree carries only Tony's own
+#   `IncantForms/WorkingOn/incant++`.
+#
+# ⚠ **NEW FILES, all swept and all sentinelled:** `incant/designDocs` (registry, not swept —
+#   no `Start()`, correctly) · `incant/kantRuleA` (the AND/OR rule shape) · `incant/kantRuleS`
+#   (its H7 eager control) · `incant/kantLoop` (trampoline dispatch + refusal control) ·
+#   `incant/kantParse1` (the closed loop) · **`docs/kantShims.md`** (the pricing).
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# ⚠⚠ AMENDED 2026-08-11 MIDDAY (SUPERSEDED BY THE SEAL ABOVE, WHICH REPORTS ITS CONSEQUENCES) — THE RESPELL FIRED, TOOK §3.0 FIRST, AND **STOPPED
+# ON THE ANSWER**. READ THIS AMENDMENT BEFORE THE SEAL BELOW IT, WHOSE "NEXT ACTION" IT MOVES.
+#
+# ⚠⚠ **§3.0 ANSWERED NO. THE GOTO SCAFFOLDING IS NOT THE CAUSE OF THE BRACED RED — AND THE
+# CHARTER'S §1 PREMISE IS FALSIFIED BY THE EMITTED TEXT.** Four measurements, none needing an
+# install. Full record: **`docs/respellRung.md` §6's Braced block**, which is the file to read.
+#   1. **GM-13's lead was already dead** — falsified 2026-08-05 by **GM-16**, seventy lines below
+#      it in the same file. The charter cited the lead, not the file. A forward pointer is now at
+#      GM-13 so the next reader cannot repeat it.
+#   2. **The goto WAS a cause and was REPAIRED 2026-08-06** by GX-1's `fireLabelMethod`
+#      extraction. Verified in TODAY's source: `GroupItem.twk:1231-1232` fires the action
+#      **before** the `goto`.
+#   3. ⚠⚠ **NO GENERATED METHOD HAS EVER CONTAINED A GOTO.** Regenerated today rather than cited
+#      (`INCANT_PARSE_RECORD` on `incant/recordPT`): `parseBraced` is
+#      `lit(t1,"[") && parseR(t2,label) && lit(t3,"]")` — **already an operator chain, and
+#      byte-identical to the 2026-08-05 banking.** The `goto` lives in `parse()`'s hand-written
+#      arm. **So §3.5's promised exhibit — "goto out, chains in" — is not producible from ANY
+#      rule**, and the real delta is `&&`/`||` → `AND`/`OR`.
+#   4. **The surviving red is GM-29's mechanism**, named to one line: `attachLabel`'s no-label
+#      guard, `GroupItem.twk:1101`. `Braced` is an option of the **alternation** `InvokeArg`, and
+#      an option's label under a label-transparent parent is dropped silently at exit 0.
+#
+# ⚠ **HONEST LIMIT: `Braced` ITSELF HAS NOT BEEN RE-RUN SINCE 2026-08-05.** GM-29's post-GX-1
+#   reproduction is on `Parens`. "Braced is still red" is structural and pointable, **not
+#   measured** — measuring it is an install, which is a rung, and it was not taken.
+#
+# ⚠ **AND THE DISPATCH'S FEARED FAILURE WAS LIVE:** had Braced been installed as the exhibit and
+#   come back green, **GX-1 — landed five days ago for an unrelated defect — would have been read
+#   as the respell's proof.** That is the whole reason §3.0 was written before step 1.
+#
+# ⚠⚠ **NEXT ACTION IS NOW TONY'S, AND IT IS A DECISION, NOT A BUILD: RESTATE §1 IN TERMS OF THE
+#   REAL DELTA.** The §1 ruling is **NOT withdrawn**; what moved is the description of what it
+#   buys. With §1 restated, §2's third bullet (*"the Braced red's failure shape ceases to be
+#   expressible"*) needs re-deciding — **that shape ceased to be expressible via GX-1.** The
+#   `&&`→`AND` widening may still be worth doing on §2's first two bullets alone. **Nobody should
+#   start the rung until that sentence exists.**
+#
+# ⚠ **PHASE R RUNG 2 IS UNAFFECTED AND ITS ORDERING ARGUMENT NOW CUTS THE OTHER WAY.** The seal
+#   below puts the respell first so rung 2's rules are emitted in their final shape. With the
+#   respell stopped pending a ruling, **that reason no longer holds anything up** — Family C
+#   (CHARACTER SET, 4) is the recorded and accepted pick and opens without re-litigating it.
+#   ⚠ But note what §3.0 found on the way past: the emitted form is **already** `&&`-chained, so
+#   a later `&&`→`AND` respell moves generated text for every rule installed before it, rung 2's
+#   included. That is a re-pin, not a correctness risk.
+#
+# ⚠ **ALSO LANDED THIS SESSION (SEQ 47, commit `68e2f69`): the `DesignDocs` registry is homed at
+#   `incant/designDocs` and `docs/displayDesign.md` is HISTORICAL.** The Display First Light
+#   drawer entry below is repointed in place. ⚠ **The canonical text needed three semicolons** —
+#   parse-green is not shape-correct, and the mis-nested tree it built exited 0 with a sentinel.
+#
+# ⚠ **NOTHING ELSE MOVED.** Docs and ipc only; no engine surface, no fixture, no baseline. The
+#   `incant/recordPT` run was read-only and env-gated.
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# ⚠⚠⚠ SEALED 2026-08-11 — SHUTDOWN SEAL (CURRENT VINTAGE). READ THIS FIRST.
+# **THE AND/OR RUNG IS BUILT, GREEN AND SEALED — ALL SIX PARTS, ONE SESSION.** Ladder
+# **173 → 184 / exit 0** and there are **NO INVERTED ROWS LEFT ON IT** for the first time.
+# `AND`/`OR` short-circuit in both engines and byte-agree. Two KEs filed, one KANT claim
+# repaired, one prediction failed and filed as failed.
+#
+# ⚠⚠ NEXT ACTION — **THE GENERATOR RESPELL ONTO AND/OR. AUTHORIZED, RULED, AND FIRING.**
+#    Charter transcribed to **`docs/respellRung.md`** (it was dictated in chat, and a ruling
+#    whose only home is a thread is an unmeasured citation waiting to be made). **§1's
+#    ruling is GRANTED — Tony, 2026-08-11:** the frozen section of
+#    `docs/attributesTemplate.md` may be edited to emit AND/OR chains, dated with the old
+#    form left legible; and **generated-code use of AND/OR is a NEW population, named and
+#    granted** — the landed consumer respell (`a7fcb34`) was ALTERNATION-only, and nothing
+#    slips in unscoped.
+#    **WHAT IT DOES, in one sentence:** an installed rule's generated parse method is built
+#    today from **`goto generatedExit`** scaffolding (`GroupItem.twk:1232`/`:1269`); the
+#    respell replaces it with **operator chains** — a term sequence becomes
+#    `t1() AND t2() AND t3()`, an alternation an `OR` chain. ⚠ **It is sound ONLY because of
+#    what landed 2026-08-11**: short-circuit stops the chain at the first failed term, and
+#    the convention puts the **mark-restore INSIDE each term**, so stopping early cannot
+#    strand the rule mark.
+#    ⚠ **FIRST MOVE IS NOT STEP 1. It is §3.0 — MEASURE GM-13's LEAD** before committing
+#    `Braced` to the structural-exhibit slot. The charter picks Braced because *"first
+#    install went red on the goto structure"*; `GM-13` (`docs/grammarCorpus.md:268`)
+#    confirms the RED but names its cause **"LEAD, at the usual odds, UNMEASURED and NOT
+#    HARDENED."** If the goto structure is not the cause, the flagship exhibit either stays
+#    red or **goes green for an unrelated reason and is read as proof.** One before/after
+#    against `docs/emitted/braced-red-specimen.txt`, which already exists.
+#
+# ⚠ **AND THE ORDERING IS DELIBERATE — RESPELL BEFORE PHASE R RUNG 2, on this project's own
+#   precedent.** `docs/andOrRung.md`'s scheduling note put AND/OR *before* genKantParse for
+#   exactly one reason: **"ordering AND/OR first means genKantParse emits the final shape the
+#   first time."** The same argument applies one link down the chain. Rung 2 **installs new
+#   rules**; the respell **changes the form every installed rule is emitted in**. Install
+#   first and rung 2's rules are emitted in a shape that is about to move — **generated text
+#   produced twice, and an oracle re-pinned for a reason that says nothing about
+#   correctness.** So: **respell, then rung 2.**
+#
+# ⚠ **SECOND ACTION — PHASE R RUNG 2**, unchanged in substance and no longer conditional on
+#   anything: **Family C, CHARACTER SET (4)** is the **RECORDED AND ACCEPTED** pick (SEQ 33)
+#   and **opens on that pick without re-litigating** — single-token, self-delimiting terms,
+#   no container work, where **Family A REFERENCE (5)** leans on rule-reference resolution
+#   the refusal census still calls a frontier. ⚠ **And that census reports the FIRST blocker,
+#   not the blocker SET** (H9's corollary), so *"Family A is nearly unblocked"* is **not a
+#   claim the census can support** — re-run the rules after any close before believing it.
+#   Denominator stays **47**; the metric moves only on installed, verified-green rules.
+#
+# ⚠ **WHAT LANDED (spec and full record: `docs/andOrRung.md`, whose §Status table is the
+#   LEDGER OF RECORD, part by part).** `AND`/`OR` take C++ semantics — **return 1 or 0
+#   always, short-circuit, both engines agree**.
+#   **THE SEAT IS `interpretXP`, AND IT IS TONY'S RULING.** The first build gated at the top
+#   of `runOP` and he moved it. **`TokenXP` — the natural guess, since unaries live there —
+#   CANNOT work for a binary**, and the reason is pointable in the grammar:
+#   `TokenXP UnaryOPS? ANYorNum^ InvokeArg?` **groups** a unary with its operand, so the
+#   pairing is a *parse fact*; `ExpressioN Token+` is **FLAT**, so at that seat `AND` has no
+#   arms and no precedence. The binary first exists in `interpretXP`'s tree build, which is
+#   therefore where the **category** decision belongs — paid **once per expression** instead
+#   of once per dispatch, and `runOP` stays what §6 calls it, *the strict operator dispatcher
+#   and nothing else*. **`runOP` is untouched.**
+#   **ONE CONTRACT, ONE PLACE:** `truthOf` (`Instruct.rtn`) — null false · numeric **by
+#   value** · non-numeric true **by presence** · **text DELIBERATELY UNRULED and refused at
+#   emit**. Both arms of both words go through it, so the engines cannot grow separate ideas
+#   of truth.
+#   **THE EMITTER:** `jitEmitShortCircuit` + `jitScBegin`/`jitScEnd`. Entry-block alloca (so
+#   mem2reg can promote it), the short-circuit answer **PRE-STORED** so the skipped path
+#   needs **no block at all**, **no hand-written phi**, and the result **seeded onto the
+#   node's `jitData`** — ⚠ without that last step the topology was right and **the value had
+#   nowhere to go**: `x2Out` returned 0 on every fire while the diamond and the ticks were
+#   both already correct.
+#
+# ⚠⚠ **THE PLACEMENT DOCTRINE — RULED BY TONY, RATIFIED IN CLOD'S FORMULATION (SEQ 33), AND
+#   THE NEXT TIER-3 CONSTRUCT INHERITS IT BY CITATION. Doc of record: `docs/andOrRung.md` §6a**
+#   (filed there rather than in the corpus because §6 is already where the tier table and the
+#   phase rule live, so a reader arriving at "what tier is this and where does it go" finds
+#   both in one place):
+#
+#     **An evaluation-controlling operator intercepts at `interpretXP`, where the expression
+#     tree is BUILT — never at the strict-operator handler, and never at the strict
+#     dispatcher's door.** Paid **once per expression** instead of once per dispatch, and the
+#     **tier-3 set becomes one line you edit to widen.**
+#
+#   **AND ITS COMPANION RULE, which the exhibit forces: A TIER-3 PROMOTION IS NOT LANDABLE IN
+#   HALVES.** Promote the category and emit for it **in the same rung**, and make the emit-side
+#   gate a **REFUSAL** rather than a fall-through — a refusal is counted by every rung's
+#   degrade-zero assertion; a fold is counted by nothing.
+#
+# ⚠ **THE SPLIT, SAID PLAINLY, which is the whole requirement:** SEQ 31 §4 made Phase R rung 2
+#   conditional on this rung sealing clean. **It sealed clean and rung 2 was still not opened**
+#   — the session went to the truthiness contradiction, the seat move and the emitter.
+#   **A KNOWING SPLIT under the practicality valve, not an overrun.**
+#
+# ⚠ **RESULTS, VALUES NOT COUNTERS:** `jitXand2` fire 1 **0** / fire 2 **1** (was 0, silently
+#   wrong) · `jitXor` fire 1 **0** / fire 2 **1** (was 0, silently wrong) · `jitXand` fire 1
+#   `ticksR` **0 = SKIPPED**, fire 2 `ticksR` **1**, `ticksL` **2 = emitted per fire** ·
+#   `xaOut` fire 2 **1** · **degrade 0 on all three** · `orProbe` `hasOnly` → *"disjunction
+#   caught it"* · `andProbe` §1 unchanged across the rung, which is the claim.
+#
+# ⚠⚠ **FOUR FINDINGS THAT OUTLIVE THE RUNG:**
+#   1. ⚠ **THE PROMOTION ALONE MADE THINGS WORSE, AND THIS IS THE ONE TO REMEMBER.** On the
+#      intermediate build — interpreted arm promoted, **no emitter** — the `AND`-under-jit
+#      **139 DISAPPEARED AND WAS REPLACED BY THE SILENT WRONG ANSWER**, at **degrade count
+#      0**. Trading a loud crash for §2's *"dangerous one"* is a **REGRESSION IN LOUDNESS
+#      WEARING THE SHAPE OF PROGRESS**, and it was visible **only** because the two inverted
+#      JXD rows were watched across *both* builds. **A partial landing of a two-arm change can
+#      be worse than not starting**, which is why `runShortCircuit`'s jitting gate is a
+#      **REFUSAL** and never a fall-through.
+#   2. ⚠ **THE H7 NEGATIVE CONTROL IS THE BEST EXHIBIT THE RULE HAS.** Short-circuit removed
+#      (`CreateCondBr` → unconditional `CreateBr`), rebuilt, rung re-run:
+#      **tick rows RED · `xaOut = 1` GREEN · degrade 0 GREEN.** **The value row and the
+#      degrade row both survived the mechanism's removal**, so a rung built the obvious way
+#      would have certified **eager code as short-circuiting** — and nobody would have looked,
+#      because it tested the right feature and got the right number. **Only counting can see
+#      a skipped arm.** Recorded in the ladder at JXD-3.
+#   3. ⚠ **A CORRECT CLAIM CARRIED A WRONG MECHANISM FOR TEN DAYS. `CLAIM KANT-35` IS
+#      REPAIRED** — `||` on `!absent` went from *"saw BOTH PRESENT"* to *"caught it"* — and
+#      **the cause is NOT the evaluation-order mechanism the claim recorded**. `opOR`'s
+#      structure was **INVERTED**: it consulted `argument` only when `target` was **already
+#      truthy**, so a false left arm returned `falseResult` **without ever reading the right
+#      arm**. Structural claims hold, causal claims fail — **and the symptom kept reproducing,
+#      which is exactly how the wrong mechanism survived.** `KANT-34` splits: statement holds
+#      for the **symbol** forms, its *not-expressible* mechanism claim **retires**.
+#   4. ⚠ **THE CENSUS MISSED A FILE INSIDE ITS OWN SCOPE.** Part 3's 08-09 census read
+#      **165 surface / 7 genuine**; re-measured **294 / ~30**, and the miss is
+#      **`incant/utilities`** — six uses, **`include`d by every fixture preamble in the
+#      tree**. **The CONCLUSION stands** (zero side-effecting right arms under the wider net),
+#      which is why this is a **census** failure and not a rung failure. **H9 again, on the
+#      paragraph below the rule about censuses.** Reachability measured: `displayIfVisible`
+#      **LATENT (defined, never called)**, `listRules` **LIVE**.
+#
+# ⚠ **A PRE-REGISTERED PREDICTION FAILED AND IS FILED AS FAILED** (`andProbe` §4). Clod
+#   predicted the assignment-position change was inert. **It is not:** a false conjunction
+#   used to yield a node with **no data** (a bare `if` reads it **false**) and now yields one
+#   **holding 0** (a bare `if` reads it **TRUE**). Only shipping consumer is
+#   `displayIfVisible`, which is **never called**, so **nothing live moved**.
+#   ⚠ **AND THE FACT UNDERNEATH IT, WHICH THE RUNG DOES NOT CLOSE: `if <field>` AND
+#   `<field> AND …` ALREADY DISAGREED, BEFORE ANY OF THIS.** `if aFalse;` reads **TRUE** on a
+#   field holding 0 (bare tests go by **presence**); `aFalse AND aTrue` reads **false**. The
+#   ruled contract governs **the operator**, deliberately. **Closing that gap is a ruling with
+#   its own customer, and nobody has one.**
+#
+# ⚠ **FILED, NOT FIXED — the symbol forms, and they want taking TOGETHER** (`docs/knownErrors.md`):
+#   **KE-5** — `&&` answers **`true && true` as false**. Not a truth table at all. Mechanism
+#   **structural and pointable, not inferred**: `'&'` is registered **bare at `incant/setup:162`,
+#   no `operateMethod`** — the exact state `'|'` was in before 2026-08-01, and `setup:100-111`
+#   describes that failure mode in those words. ⚠ **The one-line repair is BELIEVED and was
+#   DELIBERATELY NOT RUN**, because applying it *is* the repair and the repair is out of scope.
+#   **KE-6** — **`OR` short-circuits and `||` does not, ON ONE SHARED HANDLER.** Created by
+#   this rung and **named rather than hidden**; values agree, only evaluation differs.
+#   **Widening tier 3 to the symbol forms is a RULING, not a rung.**
+#
+# ⚠ THE FLEET AT SEAL: ladder **184 / exit 0** (was 173) · pop **33 green / 1 parked**
+#   (unchanged) · gapB 22 · mixed 7 · **completePop 129 swept, 0 missing sentinels (was 2),
+#   226 green** · tree/printPop/containerPop/recordPop/formsPop/decodePop exit 0 · oneTest
+#   (`maximus = 11` then **26 ×4**), jsonTest (**13 ok**), phaseA, emitAll, kant8T exit 0.
+#   **Blast radius: every other stream byte-identical but the H1 binary echo.** Commits
+#   **`3483167`** (Groups) and **`3bdcd2d`** (support — `groups.ext` gained `truthOf` and
+#   `runShortCircuit` prototypes; ⚠ **out-of-repo build dependency, bear-trap #11, named
+#   here because it will not show in a Groups `git status`**). Working tree carries only
+#   Tony's own `IncantForms/WorkingOn/incant++`, deliberately held back.
+#
+# ⚠ **`incant/andProbe` IS NEW AND KEPT** — sibling to `orProbe`, the AND truth table plus the
+#   short-circuit and assignment-position rows. **Zero text-bearing locals**, so the 08-10
+#   audited set is intact. `completePop` picked it up automatically (128 → 129).
+#   ⚠ **Its first header KILLED THE PARSE** — code-shaped lines, **bear-trap #27 reproduced
+#   exactly**, exit 0 with the run truncated — and had to be wrapped in a comment block. The
+#   trap's "headers get PROSE" rule is **necessary but not sufficient: the block delimiter is
+#   also required.**
+#
+# ⚠⚠ **DRAWER AT SHUTDOWN — the menu, updated by SEQ 33. Two items DE-PARKED or NEW because
+#    of today, and they are marked so the next session reads a current menu:**
+#   · ⚠ **THE GENERATOR RESPELL — NOT IN THE DRAWER ANY MORE. It is the NEXT ACTION above,
+#     authorized and ruled.** Charter: **`docs/respellRung.md`**. Its prerequisite line
+#     (`docs/genKantParse.md` §2(c) row 2, *"emitted AND/OR short-circuit"*) **read ❌ THE WALL
+#     and now reads exactly today's seal.** Charter amendments applied at de-park, per its own
+#     provision: **(a)** §5 controls gain **`incant/andProbe` and `incant/orProbe` as KEPT
+#     instruments** — the respell composes *chains*, so per-operator semantics must be pinned
+#     **before the first regenerated rule fires**, or a chain defect and an operator defect are
+#     indistinguishable at the only moment anyone is looking; **(b)** ladder reference updated
+#     to **184 / 0**; **(c)** the charter **inherits** the truthiness ruling (SEQ 32) and the
+#     placement doctrine (§6a) as standing context.
+#   · **Phase R rung 2** — the SECOND ACTION above, behind the respell for the freeze-once
+#     reason stated there. **Family C (4) is the RECORDED AND ACCEPTED pick** (SEQ 33) and
+#     **opens without re-litigating it**. Family A (5) stays available if Tony overrides.
+#   · ⚠ **NEW, NAMED, UNRULED — the BARE-`if` TRUTHINESS FORK.** `if <field>` and
+#     `<field> AND …` **disagree on a datumless node**: statement position reads
+#     absence-of-datum as **false**, operand position reads presence as **true**.
+#     **Pre-existing, zero live customers**, wants a ruling — **unify, or declare it
+#     deliberate**. On **nobody's schedule**. Opening exhibit: `incant/andProbe` §4 and §5.
+#   · ⚠ **NEW — THE SYMBOLS RUNG, KE-5 + KE-6 JOINTLY.** `'&'` bare-registered at
+#     `incant/setup:162` (the pre-08-01 `'|'` state) **plus** the one-handler short-circuit
+#     gap. **Bounded, cold, and wants taking TOGETHER** — one question asked about two words.
+#     ⚠ **The believed one-line repair stays deliberately UN-RUN until the rung opens.**
+#   · **KE-4 refusal rung** — still cold, still ruled refuse-at-emit. **Untouched by the
+#     AND/OR rung and not oversold.** ⚠ **It now carries finding 1 as PRECEDENT for its
+#     posture**: refuse-and-count beats fold-and-be-quiet, demonstrated rather than argued.
+#   · **`KANT-35`'s orphaned consequence** — its *"multi-attribute presence checks MUST stay
+#     sequential"* instruction and `incant/genMany`'s site warning are **BELIEVED obsolete now
+#     that the claim is repaired. BELIEVED IS NOT MEASURED** — the check is re-running
+#     `spellMany`'s collapsed form against `manyScratch.target`. ⚠ **DO NOT tidy those guards
+#     on the strength of the note alone.**
+#   · **Display First Light (HTML)** — bounded opener, wiki-scope static documents, first
+#     customer docs-to-HTML. ⚠ **REPOINTED 2026-08-11: the live ruling is the
+#     `DisplayDesignHTML` entry of `incant/designDocs`**, not `docs/displayDesign.md`, which is
+#     now HISTORICAL and carries a supersession banner. ⚠ **And the fence MOVED at that review:
+#     the HTML target now handles simple events (resize, mouse clicks), passing them back to
+#     kant to re-lay-out and re-emit — "static only, no JS planned" is no longer the whole
+#     scope.** Whoever opens this reads the registry entry, not the md.
+#   · **K6f re-size** — spec'd, **awaiting Tony's nod**, owner = next K-row rung.
+#   · **First Light (parse)** — waiting. Behind it: **H3's 3–4 command registrations** · the
+#     **contract RUN** that converts H4 from READ to signable.
+#   · **At Clay's station, undrafted:** the **minion-channel addendum** and the
+#     **citation-sweep dispatch** — ⚠ **which gains a `MECHANISM-UNVERIFIED` tag to its
+#     classification set (SEQ 33), minted on `KANT-35`: a claim whose STATEMENT is measured
+#     and whose CAUSE was never run.** Three fresh exhibits from this session: the §3
+#     truthiness **TABLE**, the part-3 **CENSUS** (both cited-not-measured, both wrong, both
+#     caught by one run each), and **`KANT-35`'s mechanism**, which survived ten days because
+#     the symptom kept reproducing.
+#
+# ⚠ **BASELINE NOTE FOR WHOEVER NEXT CAPTURES (SEQ 33): the seal's fleet table above is the
+#   NEW REFERENCE — ladder 184, `completePop` 129 swept / 226 green / 0 missing. ANY DOC STILL
+#   CITING 173 IS CITATION-SWEEP FODDER, NOT A LIVE CLAIM.** `docs/genKantParse.md`'s
+#   "green at 150 checks" is **deliberately left standing** — it is a *provenance* naming the
+#   run its §5 table was measured against, and repointing a provenance falsifies the record;
+#   it carries a dated pointer to this seal instead.
+#
+# ⚠ **STILL STANDING, so nothing here reads as finished that is not:** **KE-4** · **K6c**
+#   (the argument-carrier's mutual failure) · **the vestigial `recursive` flag** (bear-trap
+#   #16 territory, removal deferred with a dated note) · **`BLOCKED KANT-B1`** — kant still
+#   cannot express a null · **KE-5/KE-6**, above · **the `if`-vs-operator truthiness gap**,
+#   above.
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# ⚠⚠ SEALED 2026-08-10 EVENING (SUPERSEDED BY THE BLOCK ABOVE) — its NEXT ACTION was
+# "none mandated, the drawer is the menu", and the **AND/OR rung** was taken off that
+# drawer and is reported DONE above. READ THIS FIRST.
+# **CLAIM KANT-8 IS REPAIRED AND CLOSED** — open since 2026-07-29, shut in ONE campaign,
+# TWO rungs, ONE seal, no split. **THE TWO DOORS ARE RULED AND CERTIFIED.** Display has a
+# design doc. Fleet green at **173/0** and **33 green / 1 parked**.
+#
+# ⚠⚠ NEXT ACTION — **NONE IS MANDATED, AND THAT IS ITSELF THE NEWS.** The campaign that
+#    has headed this file since 08-08 is DONE, and nothing replaced it at the head. **THE
+#    DRAWER IS THE MENU.** Full list at the FOOT of this seal under DRAWER AT SHUTDOWN;
+#    the two bounded openers, for a session that wants a clean win, are:
+#      · **KE-4's refusal rung** — still cold, still ruled refuse-at-emit, still the right
+#        cold-open. **Deliberately not taken today** — today already had its win.
+#      · **DISPLAY FIRST LIGHT — the HTML target.** Wiki-scope **static documents only**
+#        (no JS, no events, per §7.1); **first customer is docs-to-HTML**; opens whenever
+#        a session wants a green-fleet build day. `docs/displayDesign.md`.
+#
+# ⚠ **WHAT LANDED (full record: `docs/kantCorpus.md`, CLAIM KANT-8, the block at the
+#   END of the claim — that table is the LEDGER OF RECORD; `KR-3` stays retired).**
+#   **RUNG A — value-capture in `runAction`:** the result's value is copied into a
+#   freshly minted node BEFORE the restore sweep, and that node is returned. Gated
+#   `!jitting`, because the jitted arm already returns by capture and owed
+#   byte-agreement only — which it delivered. ⚠ **The copy constructor could not be
+#   used: `GroupItem(GroupItem)` SHARES the body**, the very thing the sweep
+#   overwrites. Mint on the tag, then `setContent`.
+#   **RUNG B — the unconditional bracket:** all four `if field.recursive` gates gone.
+#   ⚠ Those four were the flag's ONLY readers, so `recursive` is now **VESTIGIAL as of
+#   `168453d`** — written (`ruleActions.rtn:1389`), cleared (`GroupActions.rtn:653`),
+#   **read by nothing.** Removal DEFERRED, not forgotten: it is a field removal and so
+#   bear-trap #16 territory (`groups.ext`'s mirror first, then `tokall`). **Same family
+#   as the `ruleSTUFF` write-only ruling.** Dated note carried in the corpus entry **so a
+#   future census reads it as a KNOWN state instead of rediscovering it as a mystery.**
+#
+# ⚠ **THE ORDER WAS THE WHOLE THING.** The 08-10 attempt did B without A and
+#   universalised the defect. A-then-B was ruled by measurement and it held exactly:
+#   **K3 stayed at 42 through both rungs**, so the fixture never went void this time.
+#
+# ⚠ **RESULTS, VALUES NOT COUNTERS:** K1 `k1loc`→**42** · K4 `k4loc`→**42** · K5
+#   `k5loc`/`k5loc`→**42/42** · **K6a 2→3, rung B's payoff** (mutual recursion, which
+#   the gate could NEVER cover because `recursive` is set at parse time by identity) ·
+#   K2 unchanged at 7 · **K6c unchanged at `k6small` — the argument-carrier's mutual
+#   failure is NOT repaired** · `kant8M1o` `m1count`→**42**, the second witness.
+#
+# ⚠ **TWO PRE-REGISTERED PREDICTIONS FIRED, AND BOTH INSTRUMENTS CAUGHT THEIR OWN
+#   REPAIR** — ladder **JRt3** (*"That is not a regression, it is NEWS: KANT-8 may have
+#   been repaired"*) and `kant8M1o`'s header. **Both graduated per H6 with their re-pin
+#   sentences.** Ladder stays at **173**: a graduation, not an addition.
+#
+# ⚠⚠ **THREE FINDINGS THAT OUTLIVE THE RUNG:**
+#   1. **THE TWO DOORS, MEASURED ON BOTH SIDES.** Door one (`runAction`) **523
+#      crossings, 523 action, 0 RULE**; door two (`runRule`→`rule.parse(0)`) **1183,
+#      0 action, 1183 RULE**. 1706 dispatches, **zero overlap**, name sets disjoint
+#      (211 vs 12). ⚠ **The 0 is a POSITIVE named-set result, not an absence claim** —
+#      door two carries the entire rule population elsewhere. **THE CENSUS CERTIFIES THE
+#      RULING RATHER THAN MERELY SCOPING THE RUNG**, so it stands on measurement and not
+#      on authority alone — ruled and certified the SAME DAY. Filed as **`CLAIM KANT-41`**
+#      (RUN). Under it this campaign is **maintenance of door one, the LEGACY door**, and
+#      **proposals to EXTEND door one's machinery should cite the ruling first.** ⚠ The
+#      convergence question **inverts and PARKS**: not *"does door two need a bracket"*
+#      but, post-self-hosting, *"does door one still need to exist."* **Nobody's task.**
+#   2. **K6f HAS COLLIDED — number unmoved, MEANING changed.** Its "5 = no trample"
+#      reading assumed the outer COUNTER carries across; with the bracket
+#      unconditional the counter is per-activation too, so the outer counts its own 4
+#      — **which is also 4**. One number, two eras. **K6a disambiguates** (3-wide
+#      outer: 2 = trampled, 3 = kept its own) and moved 2→3 on the same build.
+#      **Annotated, deliberately NOT re-sized** — a fixture whose meaning changed is a
+#      design object again. ⚠ **THE RE-SIZE IS SPEC'D AND AWAITS TONY'S NOD** (SEQ 29):
+#      differentiate the outer and inner widths, **e.g. 5 / 3**, so the two eras stop
+#      aliasing on one number and *"no trample"* is discriminating rather than
+#      coincidental. One-line edit; **owner is whoever next takes the K-row table.**
+#      **The failure class now has a NAME** — `oneNumberTwoEras`, minted into the decoder
+#      corpus: *a green that survived a semantics change by arithmetic accident.*
+#   3. ⚠ **CLAUSE 3'S FIXTURE WAS GREEN AND CERTIFIED NOTHING, and only the negative
+#      control knew.** `runAction` has TWO null paths. The **reachable** one is its
+#      early return on a parse failure, ABOVE the seam. The **guarded** one measured
+#      **0 occurrences in 128 files**. So the null guard is **confirmed correct by
+#      census** and prevents a dereference, but is **uncontrolled by any fixture** —
+#      **honestly labelled uncontrolled-until-reachable** in `incant/kant8N`'s header
+#      rather than papered over with an invented green.
+#      ⚠ **AND THE ZERO HAS A MECHANISM, found by reading the corpus: `BLOCKED KANT-B1`,
+#      filed a week earlier by a different round, tried FOUR ways to produce a null from
+#      a kant body and could not.** So the 0-in-128 is not *"nobody happens to"* but
+#      ***"kant cannot express it"*** — much stronger, and it settles the ambiguity a bare
+#      count would have left. **The two findings were made a week apart and each would
+#      otherwise have been re-derived; both entries are now cross-linked.** B1's blocker
+#      is thereby located as **UPSTREAM of the seam** — clause 3 preserves a null if one
+#      ever arrives, so the probe belongs at `processAction`'s `BlocK` result.
+#      ⚠ **THIS IS THE DAY'S BEST EXHIBIT FOR THE VIGRAM THESIS: A CONTROL NEEDED A
+#      CONTROL.** The fixture was green; only the mechanism-removed run — by **failing to
+#      go red** — revealed that the green certified nothing. Without it the seal would
+#      have read *"clause 3 controlled"* and been wrong **in the flattering direction**,
+#      which is clause 3's own documented danger. **Discipline-as-structure caught it,
+#      not care.** Same lesson, same day, one level down: `${PIPESTATUS[0]}` — this
+#      repo's own documented bear-trap, read this morning — **bit anyway**, and was
+#      caught by re-measurement rather than by knowing.
+#
+# ⚠ **NOT REPAIRED, so it is not oversold:** **KE-4** (text local on the JITTED arm
+#   returns its LENGTH) — rung A is `!jitting` by design and could not have touched it.
+#   **K6c**, above. The vestigial flag, above.
+#
+# ⚠ THE FLEET AT SEAL: ladder **173 / exit 0** · pop **33 green / 1 parked** · gapB 22 ·
+#   mixed 7 · **completePop 128 swept** (was 127; +1 and +2 green are `kant8N`, named) ·
+#   tree/printPop/containerPop/recordPop/formsPop/decodePop exit 0 · oneTest, jsonTest,
+#   phaseA, emitAll, kant8T exit 0. **Blast radius: every harness differs by the H1
+#   binary echo ONLY**, every exit status identical, `oneTest`/`jsonTest`/`phaseA`/
+#   `emitAll`/`kant8M1`/`spellScratch` byte-identical. Working tree carries this work
+#   plus Tony's own `IncantForms/WorkingOn/incant++`. Commits `168453d` (the campaign),
+#   `7f99e66` (Display design), plus the SEQ 30 closeout.
+#
+# ⚠ **SEQ 29 — DISPLAY IS DESIGNED AND RECORDED: `docs/displayDesign.md`.** source →
+#   form → attributes → target. Two rulings inside it: **§3 the stream model** — output
+#   is a **forward-only stream, not a scope tree**; named styles replace state wholesale,
+#   **no restore exists BY CONSTRUCTION** (no bracket, no seam — §4 cites this repo's own
+#   freshly measured failure class as the reason); and **§5 emission** — targets receive
+#   **resolved** output, **no CSS**, everything inline. ⚠ **Independently convergent with
+#   the 2026-08-06 Display ruling** ("context + one style slot + pen + measure"): §3's
+#   current style IS that slot, §6's measurement IS that measure. **Two design passes,
+#   different entry points, same architecture — checked, not assumed.**
+#   `docs/note-to-clay-style.md` (the 06-27 ask) carries a dated pointer to it, naming
+#   what is settled and what is **not** (Cocoa seams, the SVG sink, §9(a) based-on chains).
+#   **`layout-recon.md` and `gui.md` get NO pointer** — they are §7.2 window-target
+#   INPUTS, not superseded designs.
+#
+# ⚠⚠ **DRAWER AT SHUTDOWN — the menu, in no mandated order:**
+#   · **KE-4 refusal rung** — bounded opener, cold, ruled refuse-at-emit. **Cold and NOT
+#     oversold: rung A is `!jitting` by design and could not have touched it.**
+#   · **Display First Light (HTML)** — bounded opener, scope-fenced to wiki-like static
+#     documents, first customer docs-to-HTML.
+#   · **K6f re-size** — spec'd, **awaiting Tony's nod**, owner = next K-row rung.
+#   · **`AND`/`OR` rung** — ruled, **drawer-ready** in `docs/andOrRung.md`, NOT built.
+#     Part 3 changes shipping text, so it wants the TOP of a session.
+#   · **First Light (parse)** — waiting. Behind it: Phase R rung 2 (Family A REFERENCE 5,
+#     or Family C CHARACTER SET 4) · **H3's 3–4 command registrations** · the **contract
+#     RUN** that converts H4 from READ to signable.
+#   · **At Clay's station, undrafted:** the **minion-channel addendum** and the
+#     **citation-sweep dispatch**.
+#
+# ⚠ **STILL STANDING, so nothing here reads as finished that is not:** **K6c** — the
+#   argument-carrier's MUTUAL failure is **not** repaired by either rung and remains
+#   `k6small`. **KE-4** — text local on the JITTED arm returns its LENGTH. **The
+#   vestigial flag.** **`BLOCKED KANT-B1`** — kant still cannot express a null.
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# ⚠⚠ SEALED 2026-08-10 MIDDAY (SUPERSEDED BY THE BLOCK ABOVE) — its NEXT ACTION, the
+# seam + bracket campaign, is the work the block above reports as DONE AND CLOSED.
+# THE SEAM IS RULED · THE CENSUS IS EMPTY · KE-4 IS RULED · THE CHANNEL IS TRACKED.
+# TODAY REVERTED ITS ONLY BUILD AND STILL ENDS AHEAD: four premises retired, two
+# doors found, a channel made legible, and the next session opens at a FIXTURE LIST.
+#
+# ⚠⚠ NEXT ACTION — **THE SEAM + BRACKET CAMPAIGN. ONE CAMPAIGN, TWO RUNGS, ONE SEAL**
+#    (Q3 MERGED, Tony 2026-08-10). Scheduled for the ~16:00 restart the SAME DAY —
+#    Tony's siesta-then-afternoon pattern, which worked on 08-09. In order:
+#      1. THE CROSSING COUNTER in `runAction` — quantified expectation before the
+#         edit, because the seam's territory is `actionType` calls ONLY (two doors).
+#      2. VALUE-CAPTURE: **mint a fresh node, copy the value in, return that** —
+#         never the local's node, never a bare scalar, and **PRESERVE NULL AS NULL**.
+#      3. THE CONTROL FLEET: K3 at 42 gate-irrelevant · JRt1 interpreted == jitted ·
+#         **JRt3's certified divergence FLIPS to agreement, with its H6 re-pin
+#         sentence** · `incant/kant8M1` as the template witness · the speller's 85
+#         rows byte-identical · **K6 READABLE — the voided control back in service.**
+#      4. THE BRACKET RUNG, on the same seal, inheriting a green K6 as a free entry
+#         control.
+#    ⚠ **PRACTICALITY VALVE (Tony): the merge is PREFERRED, NOT MANDATORY.** If
+#    session length or a finding forces a split, **split KNOWINGLY and say so in the
+#    seal.** Full spec: `docs/kantCorpus.md` CLAIM KANT-8. **KE-4's refusal rung
+#    cold-opens whenever a fresh session wants a bounded win.**
+#
+# ⚠ THE FLEET AT SEAL: ladder **173 / exit 0** · pop **33 green / 1 parked** ·
+#   gapB 22 · mixed 7 · completePop 127 swept. Junction verified AFTER the census.
+#   Working tree clean but for Tony's own `IncantForms/WorkingOn/incant++`.
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+# ⚠⚠ SEALED 2026-08-09 EVENING (SUPERSEDED BY THE BLOCK ABOVE) — READ THIS SECTION FIRST.
+# PHASE T DELIVERED · E2 BUILT · THE DECODER BUILT · STEP 1 ARTIFACT MEASURED ·
+# AND/OR RULED (not built). THE METRIC IS 0/47 (see T-3 — it did NOT move to 0/46).
+# Everything from the `# ⚠⚠ SEALED 2026-08-08 EVENING` header down is older vintage.
+#
+# ⚠ SUPERSEDED 2026-08-10 — THE BRACKET FIX WAS ATTEMPTED AND IS **BLOCKED ON
+#   `CLAIM KANT-8`'s OWN REPAIR**, which is a design call and is TONY'S. It was
+#   built as specified, it runs, and it UNIVERSALISES KANT-8 rather than fixing
+#   it: kant8T's K3 control goes void, so the rung's prediction could not be
+#   evaluated. REVERTED — the fleet is back at 173/0 and the junction is still
+#   intact for whoever takes it next. Sites and scope below are CONFIRMED
+#   correct; only the prerequisite was missing. See the two blocks below and
+#   `docs/kantCorpus.md` CLAIM KANT-8 (2026-08-10).
+#
+#   (Superseded text, left legible: "NEXT ACTION IS UNCHANGED AND STILL FIRST IN
+#   LINE: THE KANT-8 UNCONDITIONAL BRACKET FIX. Nothing today installed
+#   anything, so ITS JUNCTION IS INTACT — the fleet is green at 173/0 and the
+#   argument for taking it on the cleanest baseline still holds.")
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-09 — THE FAMILY TABLE LANDED, E2 IS BUILT, AND A SEALED CENSUS
+#              TURNED OUT TO BE WRONG FOR 13 OF 21
+# ═══════════════════════════════════════════════════════════════════════════
+
+## ⚠⚠ RUN 2026-08-10 — **BLOCKED, AND THE BLOCKER IS `CLAIM KANT-8` ITSELF. READ THIS BEFORE
+## THE BLOCK BELOW, WHICH IS LEFT AS WRITTEN BECAUSE ITS SITES AND SCOPE ARE STILL CORRECT.**
+**The fix was built exactly as specified — all four `if field.recursive` gates removed — and it
+runs. It does not repair `CLAIM KANT-8`; IT UNIVERSALISES IT.** The gate was the only thing
+keeping `restoreLocalFields` off the return seam on ordinary calls, so ungating it makes *every*
+action that returns a local return a blanked node, not just self-mentioning ones.
+
+**`kant8T`'s own validity control is what says so.** K3 — *non-recursive, returns a local, "want
+42; if this is not 42 the fixture is void"* — returns **`k3loc`**. By the fixture's declared
+terms every K6 row below it is then **uninterpretable, not wrong**.
+
+⚠ **SO THE PREDICTION THIS RUNG CARRIED COULD NOT BE EVALUATED.** K6 neither inverted nor
+partially recovered — **it stopped being readable**. And the thing "hiding in the blast radius"
+was never hidden: it is `CLAIM KANT-8`, RUN-confidence since 2026-07-29, on the same seam, whose
+own text already names the repair as **Tony's design call** (detach the result before restoring,
+or restore before reading it).
+
+**RULED BY MEASUREMENT: KANT-8's repair is a PREREQUISITE of the unconditional bracket, not a
+follow-on.** The two cannot be sequenced the other way — the gate is what currently bounds
+KANT-8's blast radius. **That design call is now on the critical path, and it is Tony's.**
+
+## ✅✅ SEAM RULED 2026-08-10 (Tony): **VALUE-CAPTURE, ALIGNED TO THE JIT'S CHANNEL.** CENSUS RUN,
+## **REAL CUSTOMERS ZERO — FORK BRANCH 1 EXECUTED.** THE SEAM FIX OPENS A FRESH SESSION.
+`runAction` captures the result's value **before** the restore sweep and returns it. **The bracket
+is untouched** (M1: locals restore perfectly at every depth on both engines). Not a workaround —
+**the jit already returns by capture**, so this is the interpreter adopting the certified arm's
+semantics, and the jit owes **byte-agreement only**.
+
+**NODE-RETURN CENSUS — 727 surface / 65 statement-position / 51 candidates / 2 node-valued /
+ZERO real customers.** `JSONfield`'s `token` is **out of the seam's reach by mechanism**;
+`testNew`'s `grup` is **dead** (both call sites commented out). ⚠ **THE MECHANISM FINDING IS BIGGER
+THAN THE CENSUS: A CODED *RULE* NEVER ENTERS `runAction`** — `ruleActions.rtn:352` binds
+`processAction` directly, and `runRule` goes to `rule.parse(0)`. **Two entry paths into an action
+body; only one has a bracket or a seam.** So the whole grammar/XML population sits outside both.
+⚠ **CARRIER DISCIPLINE RETIRED (dated note, not deletion)** — obsoleted by the seam fix, surviving
+for **no** population. Full record: `docs/kantCorpus.md`, `CLAIM KANT-8`.
+
+⚠ **THE SEAM RUNG STARTS FROM THIS CONSTRAINT: MINT A FRESH NODE, COPY THE VALUE IN, RETURN THAT
+— never the local's node, and never a bare scalar.** `genParse.rtn:847` and `:964` both null-check
+the result **and then read `.text`** off it — four reads at two sites that a raw integer breaks.
+**The census pre-cleared the minting**: zero identity customers means a fresh node is
+indistinguishable from today's behaviour for every living caller. ⚠ **ONE SENTENCE OF SPEC FOLDED
+INSIDE IT — THE NULL PATH: preserve "no result" as NULL, do not mint an empty node**, or both
+`if !result` checks silently invert and an empty answer reads as a successful one.
+⚠ **AND THE SEAM'S TERRITORY IS NARROWER THAN "THE INTERPRETER": only `actionType` calls reach
+`runAction`. Coded RULES bind `processAction` direct (`ruleActions.rtn:352`) and cross no seam.**
+So a moved **parse** row in the seam capture is a **finding, not noise** — the diff is a sharp
+instrument rather than a broad one. **Opening move of the campaign: a crossing counter in
+`runAction`**, so the expectation is quantified rather than reasoned.
+**Named controls, so the session starts at the fixtures:** K3 at 42 with gate-irrelevance ·
+JRt1 interpreted matching jitted · **JRt3's certified divergence flipping to agreement, with its
+H6 re-pin sentence (values, not counters)** · `incant/kant8M1` as the template-population witness ·
+the speller's 85 rows byte-identical · **K6 with readable rows — the voided control returning to
+service.** Then the bracket rung unblocks, inheriting a green K6 as a free entry control.
+
+✅ **KE-4 RULED refuse-at-emit** (`docs/knownErrors.md`), repair deferred to its own unscheduled
+rung. ✅ **`i32`-by-rule fence frozen into `docs/attributesTemplate.md` §6.**
+
+⚠ **AND KE-4 HAS REAL CUSTOMERS WAITING:** `genEmit`'s `leaf` and `genMany`'s `answer` are
+body-born **text** locals returned across the genParse kant seam, which *does* go through
+`runAction`. **Audited 2026-08-10 — the AND/OR fixtures and every named seam control carry ZERO
+text-bearing locals**, so their greens are trustworthy; the text population is confined to
+`genEmit` (7), `lessProbe` (4), `genMany` (2).
+
+⚠ **M1 + M2 RUN 2026-08-10, AND THE CONDITIONAL DETACH PICK IS OFF — M2's PRECONDITION FAILS.**
+`restoreLocalFields` pairs **positionally**, via an **unkeyed LIFO**: save walks forward pushing a
+body per member, restore walks backward popping one per member, and nothing but walk position ties
+a body to its field. **A mid-frame detach therefore hands the wrong body to a surviving local and
+strands one on the stack** — silent both ways. The tree already says so in the JIT's own rationale
+(*"restoreLocalFields walks BACKWARD because it pops a stack … the stack discipline was the bug
+surface, and it is gone rather than reimplemented"*). **So "one unlink at one site" does not hold;
+a correct detach is walker surgery.** The principled form — **key the restore by field, not by
+position** — is bigger than either option weighed, and it is Tony's. **STOPPED AND RECONVENING; no
+code written.**
+
+✅ **M1 CONFIRMS THE CHANNEL SPLIT AND NARROWS THE REPAIR.** Interpreted hands back the **node**;
+jitted hands back a **value** already out of it (42, then 45 on refire, degrade 0). **So the defect
+is interpreter-side aliasing and the jit arm owes byte-agreement only.** And the more useful half:
+printed from *inside*, **the frame bracket is not broken** — both locals restore perfectly at every
+depth on both engines (42/41/40 in, 40/41/42 out). The bug is only that *the returned pointer points
+into the frame being restored*. ⚠ M1 also found a **silent wrong answer nobody was looking for**: a
+**text** local on the jitted arm comes back as its **LENGTH**, degrade 0, exit 0 — filed
+`docs/knownErrors.md` **KE-4**, unruled, Tony's. Fixtures `incant/kant8M1`, `incant/kant8M1o`.
+
+Three witnesses, one signature: `kant8T` K3 → `k3loc` · `incant/genEmit`'s speller → `leaf` (85
+`spell.target` rows plus `rung5.target`) · ladder **JRt1** interpreted `''` vs jitted 21.
+`oneTest`, `jsonTest`, `phaseA`, `emitAll`, `tree`, `printPop` stayed **byte-identical**, so the
+damage is precisely the returns-a-local population. **REVERTED — the fleet is back at baseline
+(ladder 173/exit 0, pop 33 green/1 parked), every remaining diff an H1 echo or a pinned-crasher
+PID.** Full record: `docs/kantCorpus.md`, `CLAIM KANT-8`, the 2026-08-10 block.
+
+## ⚠⚠ NEXT ACTION — **THE KANT-8 UNCONDITIONAL BRACKET FIX.** GO given (Tony, 2026-08-09),
+## scheduled for the afternoon session. Everything it needs is in this block; no archaeology.
+## ⚠ **ATTEMPTED 2026-08-10 AND BLOCKED — see the block immediately above. The sites and the
+## scope below are CORRECT and were confirmed by measurement; what is missing is the KANT-8
+## prerequisite. Nothing below is withdrawn.**
+
+**Why now, and it is perishable:** the scheduling term was *"at the green-fleet junction"*, and the
+junction is **open right now** — the fleet is green at **173/0** and freshly re-certified by rung
+1's blast-radius capture. **Every campaign rung from here lands on a progressively less pristine
+baseline**, so taking it today puts its blast radius on the cleanest fleet the project will have
+for a while.
+
+**THE SITES, located 2026-08-09 so the afternoon starts at the edit:**
+- `GroupActions.rtn:746-754` — `jitSaveFrameRT` / `jitRestoreFrameRT`, both `if field.recursive`.
+- `GroupActions.rtn:748 · 753 · 782 · 799` — the four `field.recursive`-gated bracket calls.
+- `saveLocalFields` `:924` · `restoreLocalFields` `:648`.
+- **The gate is the defect.** `recursive` is set at PARSE time **by identity**
+  (`ruleActions.rtn:1310`), so **mutual recursion never sets it** — and bear-trap #25's sibling
+  records that it is additionally **CLEARED AT RUN TIME** by `restoreLocalFields`, so whether the
+  bracket runs depends on **invocation history**. Unconditional kills both failure modes.
+
+**SCOPE — the defect is the bracket's ABSENCE and only that.** K6: blast radius wide but **entirely
+bracket-shaped**. K5 **dissolved its own premise** (flag-clear reachable only where harmless;
+sequential re-entry sound). K6a confirmed the restart mechanism. **The measurements ARE the spec;
+nothing re-opens them.**
+
+**OBLIGATIONS, all standing precedent now:**
+- **H6 graduations** — any `kant8T` row pinned green-while-defective goes red on repair and
+  graduates **with the re-pin sentence**, exactly as JE2/JXN did. **Values, never counters.**
+- **H7 control — measured, not inferred.** Rung 1 set the bar: **show the discrimination**, not
+  just the green (11 red / 5 still-green was the shape).
+- **Blast-radius rider is STANDING PRECEDENT, not a per-rung request.** Full fleet captured before
+  and after, **every stream diffed**, the impact record as deliverable. **Rung 1's format is the
+  template** (`docs/gapBPhaseR.md`), and its noise classes are already characterised: H1 binary
+  echo, PIDs in pinned-crasher segfault lines, pop.sh's working-tree readout.
+- ~~**KR-3 ledger rows updated with the repair outcome.**~~ ⚠ **`KR-3` RETIRED 2026-08-10 (Tony).
+  THE LEDGER NEVER EXISTED AS A FILE** — a tree-wide grep returns exactly one hit, **this sentence
+  citing it**. A ledger spoken into being by the instruction to update it; Amendment A's family,
+  and the defective citation was Clay's. Struck rather than deleted, per the legibility rule.
+  **THE LEDGER OF RECORD IS THE K-ROW TABLE UNDER `CLAIM KANT-8` IN `docs/kantCorpus.md`** — future
+  briefs name that file and that table.
+- ⚠ **DOCTRINE CHECK AT THE TAIL:** K1–K4 established **carrier discipline** as a working
+  mitigation for **direct** self-recursion and **invalid for mutual**. If the unconditional bracket
+  makes that mitigation obsolete, the doctrine line gets a **dated retirement note — not deletion**
+  (same legibility rule as everywhere). **If it survives for some population, say which.**
+
+**NOT IN SCOPE:** Family C waits behind the bracket (follow-on if the afternoon runs long, next
+session otherwise). **The `jitEmitUnary`←`opPlusPlus` 139 stays parked** — it is *adjacent*, and
+**adjacency is not scope**: if the bracket's neighbourhood is touched, **note it, do not chase it**.
+
+## THEN — Phase R rung 2 — Family A (REFERENCE, 5) or Family C (CHARACTER SET, 4). Both have a §2.5 spec
+(A is ITERATE, C is ACCUMULATE). ⚠ **§3's ordering aims at `InvokeArg`'s alternation via
+`NumbeR`/`ANYtoken`/`SemI`, and the DOUBLE-BLOCK RIDER still bites:** `SemI`'s **rule-level** block
+is now closed but its **term-level** half is not, and `ANYtoken` is likewise blocked twice. **Rule-
+level work alone closes neither cascade head.** Rung records: `docs/gapBPhaseR.md`.
+
+## ✅ PHASE R RUNG 1 — FAMILY B (LITERAL) IS GREEN. REFUSALS 97→94, PLANNABLE 13→16.
+**The metric's first movement under the charter — on the PLANNABILITY gate.** ⚠ **16 plannable is
+NOT 16 installable; the metric line stays 0/47** (§1: this charter buys gate 1 only).
+- **The treatment reuses `planTerm`'s existing `LIT`/`LITTO`** — no new plan kind, no new support
+  function, and the LIT-vs-LITTO split is *copied* from `planTerm` rather than re-decided. That
+  reuse is why it was rung 1.
+- **The test is `rule.isSTRING`, not `rule.data`, deliberately** — widening would re-merge the three
+  constructs the taxonomy exists to separate, **and would pass every positive row while doing it.**
+  Five negative controls ride along for exactly that reason.
+- **Bear-trap #26 was the live risk and did not bite** (`rule.text` → `;`, not `SemI`). The rung
+  asserts **the literal text by name**: *"it planned"* cannot tell `LITTO ;` from `LITTO SemI`.
+- ✅ **H4 DISCHARGED — both ruling-4 numbers are PRINTED as scalars** by `phaseA`
+  (`TALLY refusals` / `TALLY plannable`). `planTally` counts at **3 sites not 17**, licensed by a
+  **measured** invariant (`97 == 65 + 32`), and **the invariant is cross-checked against the grep
+  every run** so a future two-line refusal path names itself instead of moving the metric quietly.
+- ⚠ **THE TALLY'S FIRST DRAFT BROKE THE FIXTURE'S OWN COMPLETENESS GUARD** — prefixed `PLAN TALLY`,
+  it was counted by phaseA's A1 marker as two extra walked rules (**80 PLAN / 78 DONE**): *the
+  instrument that detects a truncated walk reported one, caused by the instrument added beside it.*
+  Caught first run because the rung asserts A1 **from outside**.
+- **NEW HARNESS `genLadder/gapB.sh` — 22 checks, exit 0**, with self-certification at the foot that
+  a vanished helper set cannot satisfy. **H7 negative control measured:** 11 rows red without the
+  treatment, **and the five negative controls stay green on that same capture** — so it
+  discriminates rather than reddening on any input.
+- ⚠ **BLAST RADIUS RECORDED, and rung 1 sets the precedent that every install documents what it
+  touched.** Exit statuses identical across all 13 entry points; **`phaseA.err` shows the intended
+  change and only it** (3 refusals → 3 plans, plus the 2 TALLY lines); every other diff is the H1
+  binary echo or **PIDs in the shell's segfault lines for the pinned crashers**. **No baseline
+  moved, no target re-pinned, no harness changed verdict.**
+
+## ⚠⚠ THE FINDING THAT OUTRANKS THE DAY'S WORK — T-0
+**`docs/gapB-staging.md`'s rule→kind mapping was WRONG FOR 13 OF 21.** Counts reproduce exactly
+(9/6/3/1/1/1) on the **byte-identical binary**; memberships are scrambled. Mechanically diffed:
+8 agree, 13 do not. `loopOnAttributes="attributes"` is a string literal and measures **isSTRING**,
+not isGROUP; the rule literally named **`Any`** measures **isANY**, not isSET.
+- **RULED (Tony):** the re-measurement is the truth of record. The wrong table stays legible with a
+  dated correction banner on top — **no silent overwrite.** Cause stays **UNDIAGNOSED**: two
+  explanations were tested and both falsified, and nobody guesses a third in.
+- ⚠ **IT IS AMENDMENT A'S TWIN, ONE LAYER DOWN.** Amendment A exists because a *fixture name* was
+  cited from a sealed doc instead of checked. This is a *table* cited from a sealed doc instead of
+  re-run. **Cost of the re-run: one grep, against a fixture that already existed.**
+- ⚠ **AND THE EXPENSIVE SHAPE: T-1's whole premise was an artifact of it.** The resolved-vs-declared
+  question was designed carefully, fenced properly, and aimed at a divergence **that did not exist**
+  — `Looper` measures isGROUP, exactly what its declared shape predicts. **A defective citation does
+  not merely state something false; it generates well-reasoned questions that need not be asked.**
+  CLAUDE.md's asymmetry paragraph now carries the sharpened form: **the pattern is
+  unmeasured-citation-losing-to-measurement, not one seat losing to another.**
+
+## ✅ T-1 ANSWERED — `planRule` READS THE **DECLARED** KIND. ONE PARTITION SERVES.
+`genParse.rtn:517` is a single field read of `rule.data` with no chasing anywhere. The
+discriminator used is stronger than a divergence: **four reference-shaped rules whose referents
+carry NO rule-level data at all** (`NamE`, `RunRulE`, `TraiT`, `StatemenT` all pass :517) while the
+referrers all report `isGROUP`. **Resolution cannot manufacture a kind from a referent that has
+none.**
+⚠ **T-1a, RAISED AND NOT DIAGNOSED:** the grammar-text→stored-kind map is *not* naive
+(`counter=[0-9]` stores isCOUNT; `ShortcuT=[..]+` stores isGROUP). "Repetition promotes set→group"
+is broken by `numberSet`; "length-1 literal→isCHAR" is broken by `SemI`. **Two counterexamples, so
+it is an observation and not a mechanism.** Gates OPEN rows only.
+
+## ✅ THE FAMILY TABLE — 21 rows, complete and closed, verified mechanically
+```
+  A REFERENCE      5  ANYtoken Looper Attributes InitiatE Start   (+NewGroup DEFERRED, IT-3)
+  B LITERAL        3  SemI loopOnAttributes loopOnMembers      <- next rung
+  C CHARACTER SET  4  nameSet Modifier followedBy numberSet
+  D SET+SUBFIELDS  2  PoweR NumbeR      <- the shape §2.5 does not cover AT ALL
+  E REPEATED SET   2  ShortcuT ANYstring
+  OPEN             2  FloaT counter
+  EVICTED          2  BrancheS (container, paid) · Any (not a grammar rule)
+```
+A is §2.5's ITERATE and B maps onto `planTerm`'s existing `LIT` — both have known treatments.
+**D's two members disagree on kind**, which is the first thing its rung must explain. E was minted
+separately so a collapse into C has to be **argued**.
+- **`Any` EVICTED (ruled):** not a grammar rule — a **C++ bootstrap primitive**, `GroupMain.twk:156-158`,
+  `isANY` set explicitly, absent from `incant/grammar` entirely.
+- **Amendment B's `BrancheS` row cites "censused isGROUP"; it measures isSET.** Corrected on top;
+  the eviction stands because it rests on `bin`, never on the kind.
+- **Charter §2 annotated (text untouched):** "the scalar kinds" shares exactly ONE rule (`SemI`)
+  with what it denoted at ratification. ✅ **§3's attack order SURVIVES — by measurement, not
+  argument:** it keys on `NumbeR`/`ANYtoken`/`SemI`, **all three among the 8 filed correctly.**
+
+## ⚠⚠ T-3 — THE METRIC IS **0/47**, NOT 0/46. HELD, WITH THE MEASUREMENT.
+The `Any` eviction arrived with an attached arithmetic (`47→46`) and a documentation ask (*"note how
+the liveness census came to count a rule no grammar line defines"*). **Both assume `Any` was one of
+the 47. It was not.**
+- IA-4/GM-31 defines the 47 as *names in `incant/grammar` that can consume a bind at their own
+  definition site*, provenance *`incant/grammar`'s 163 lines*.
+- **`Any` appears NOWHERE in `docs/emitted/liveness-census-2026-08-07.txt`.** Never probed.
+**So the census never counted it and there is no instrument limitation to record.** `Any` was in the
+**21** (from the **78**, Grokking's registry, where a C++-minted member is a full citizen), never in
+the **47** (from grammar text) — GM-31 warns in bold these are different axes.
+⚠ **Decrementing would UNDERSTATE the denominator and flatter the metric** — Amendment B's overcount
+running backwards, sealed into the metric line. ✅ **CLOSED — Tony reviewed 2026-08-09, nothing to
+add. The metric line stands at 0/47 as sealed and the awaiting-Tony flag is down.** The Gap B
+population itself *does* move: **21 censused → 20, 18 in scope.**
+
+## ✅ E2 IS BUILT — R1's CAMPAIGN PREREQUISITE IS DISCHARGED. LADDER 170 → 173.
+`jitXe2`: was jitted **222/999** against an interpreted 111/0; now **111/0 then 222/999**, degrade
+**0**, **one compile**, two fires on **opposite arms** with the input changed after emission.
+**The fix: an inlined region gets an epilogue of its own** — one `JitInlineFrame` per inline, whose
+exit block is the branch target for a return inside the callee. Branching to `gJitEpilogueBB` would
+have returned from the **caller**. The old refusal's diagnosis was right and became the spec.
+- **The exit block is unparented until first use** — an H7 obligation: a return-free callee must
+  emit **byte-identical** IR.
+- ⚠ **The value channel was not `gJitResult`, and the IR said so.** An assignment reads its
+  operand's `jitData->jitValue`. A first cut set only `gJitResult` and produced **a merge that was
+  correct and ignored**, plus a dominance violation. `jitInlinePop` now stamps the result node.
+- ⚠ **One self-inflicted bug worth knowing:** re-inserting a block that was already parented
+  surfaced as **"pointer being freed was not allocated" inside `~Function()`** at module teardown,
+  with a backtrace naming `LLJIT::lookup` and nothing of ours.
+- **THREE PINS FELL TO ONE REPAIR AND NOTHING ELSE MOVED** — JXT (degrade 2→0, its old pin
+  *predicted* this), JE2 (222/999→111/0), **JXN (out 1/999 → 0/0 — the two-deep template now
+  REJECTS what it must reject)**. All graduated per H6, each with the sentence the re-pin rule asks
+  for. Banner corrected: **JXD-1/JXD-2 are the only inverted rows left.**
+- **H7 negative control recorded at the rung**, and stronger than a synthetic gate-removal: the
+  mechanism-absent run was **pinned green in a shipping harness for a day** — 222/999, degrade 2,
+  exit 0, sentinel printed. **The wrong answer cost nothing visible.**
+
+## ✅ EVENING — AND/OR RULED, THE ARTIFACT CORRECTED TWICE, AND ONE WITHDRAWAL
+**`AND`/`OR` RULED (Tony, 2026-08-09): C++ semantics.** Return **1/0 always**, both engines
+byte-agreeing, **short-circuit with the unreached arm never evaluated, side effects included.**
+**The last open ruling on the promotion.** ⚠ **RULED, NOT BUILT** — transcribed to
+`docs/andOrRung.md` with the six-part rung drawer-ready (interceptor handlers per the `if`
+precedent · emitter diamond on the operand's `jitValue` channel, no phi, parent-once · **pre-flight
+census of right-arm side effects in shipping text**, grep-then-migrate-or-certify in the SAME
+commit · `jitXand`/`jitXand2` flip from documenting-the-139 to certifying, with H6 sentences ·
+KANT-34's both-arms line gets a **dated retirement note, not deletion** · H7 control by **tick
+count**, because a right arm that runs anyway still usually produces the right *answer*).
+**Scheduling: post-First-Light natural, earlier permitted, Clod's clock.** Parked tonight on
+purpose: part 3 is a **behaviour change to shipping text**, which is the loudest reason on the list
+to start at the top of a session rather than the bottom of one.
+- ⚠ **THE RULING WAS MADE IN CHAT AND NOW LIVES IN A FILE.** Today's two lessons — the decoder's
+  reason for existing and T-0's cost — arriving on the day both were written down.
+
+### ⚠ D1 WITHDRAWN FOR THE KANT ARM — my own claim, and the withdrawal is the useful part
+I ruled that the SEQUENCE template's mark save/restore was a **second writer** against
+`leaveRule`'s ownership of Invariant R, and recommended dropping it. **Correct for the C++ emitted
+arm. It does not apply to the kant arm, which is the one the template is for:** `leaveRule` is
+called by an emitted method's own return expression, and **it is not command-registered**, so a
+kant method cannot reach it. **No first writer ⇒ no second one.** The **entry-save / tail-restore
+epilogue stands, exactly as Tony ruled** — short-circuit stops the *evaluation*, it does not give
+back what the arms that DID run consumed.
+⚠ **The method failure, named: I asserted a conflict without measuring whether the first writer
+was on the arm in question — and the grep was one I had already run, for H3.** A structural claim
+about the arm I was reading, applied to an arm I had not.
+✅ **And it leaves a cheap decision: registering `leaveRule` collapses the question.** It is already
+a candidate on H3's 3–4-command list. Register it and the kant arm inherits S1.8's single
+implementation and the epilogue drops; leave it and every kant template carries its own — two
+implementations of Invariant R, which is what S1.8 exists to prevent.
+
+### ✅ THE RUNG-NUMBER DIVERGENCE IS NOT ONE — BOTH CITATIONS WERE RIGHT
+`docs/gapBCharter.md`'s own title reads *"Gap B Charter — rule-as-data (§4.1, **rung 5**)"*. So
+**rung 5 is the genParse ladder's number for the workstream** and **rung 1/2 are the FAMILY rungs
+inside the charter.** Family A is *charter rung 2, part of genParse rung 5.* ⚠ **Two axes, not two
+numberings of one axis — GM-31's 47-vs-78 warning in a new hat.**
+✅ **Sequencing settled and no longer conditional: rung 2 = Family A in the plan layer** (which is
+what makes `Attributes` plannable), **then** the hand-written install. Picking an
+already-plannable rule for First Light instead would forfeit the template work and the `parseR`
+alignment for a shortcut that certifies less.
+
+### ⚠ THE ALTERNATION PRECONDITION IS NOW INSIDE THE TEMPLATE, NOT A FOOTNOTE
+*Every alternative must be a rule reference.* Written into the code block itself, because the first
+literal-bearing alternation to reach for the template would otherwise inherit a justification that
+does not cover it. ⚠ **It survives the `AND`/`OR` collapse unchanged** — non-restoring is a property
+of the **operand**, not the operator.
+
+## FLEET AT SEAL
+```
+sh genLadder/decodePop.sh      22 checks, exit 0     NEW -- the decoder POP (34 terms)
+sh genLadder/gapB.sh           22 checks, exit 0     NEW -- the Phase R rung POP
+sh jitLadder/ladder.sh        173 checks, exit 0     (was 170; +3, three rows graduated)
+sh genLadder/pop.sh            33 green / 1 parked (exit 1, the same 3 owned reds)
+sh genLadder/mixed.sh           7 checks, exit 0   (parse-arm pin holds)
+sh genLadder/completePop.sh   123 swept · 3 abandoned · 2 missing sentinels · 212 green · exit 1
+sh genLadder/tree.sh · printPop · containerPop · recordPop · formsPop      exit 0
+<binary> incant/oneTest · jsonTest · kant8T · phaseA · emitAll             exit 0
+```
+**Metric: 0/47 installed** (T-3 — NOT 0/46; ruled, `Any` was never in the 47). Ruling-4 numbers:
+**94 total plan-layer refusals · 16 fully plannable of 78** — moved by rung 1, and now **printed as
+scalars** rather than grepped. `incant/phaseA` is the ruling-4 instrument, **Amendment A discharged by
+measurement** (exists · reaches the Gap B branch, 21 hits on `:518` · completes 78 PLAN / 78 DONE).
+
+## ✅ STEP 1 ARTIFACT — the parse-method TEMPLATE FAMILY + `Attributes` v0. `docs/attributesTemplate.md`
+All six holes filled by measurement. **Nothing installed.** Two answers move the draft and one
+wants Tony before First Light.
+- ⚠ **H4 (the gate) — YES for rules, NO for `lit`.** Native rule failure restores to `hereAt`
+  (`GroupItem.twk:1267`), generated to `from` (`leaveRule`, unconditional). **But `lit` commits its
+  skip pass before matching and returns false with the mark ADVANCED** (`RuleStuff.twk:525`), which
+  `leaveAlt`'s S4.2 comment already records. So the draft's ALTERNATION *"no save, no restore
+  anywhere"* is **false for any chain with a literal alternative** — Tony's fork, one level lower
+  than the seat-note expected: at a primitive, not at the seam. ⚠ **GRADE: READ, NOT RUN** — the
+  run is owed before the contract is signed, and both routes are named in the artifact.
+- ⚠ **H3 IS THE REAL BLOCKER, AND IT IS SMALL: the templates are kant, and every primitive they
+  need is unreachable from incant.** `atRuleMark` (the real spelling — Tony's working name is the
+  actual name), `checkSkip`, `parseR`, `lit`, `leaveRule` — **none registered as a command**;
+  search space named in the artifact. ⚠ **`setMark` is a FALSE FRIEND** — it is the *Buffer* mark
+  and would half-work. **This is Tony's own `incant++` note arriving as a measurement**, and the
+  gap is a bounded 3–4 command registrations, not a design question.
+- ✅ **H2 — Clay's citation was RIGHT: `Attributes=TraiT+;`.** One-or-more, pure reference, no
+  literals, so v0 is the bare ITERATE with no SEQUENCE wrapper. **A structural claim holding, which
+  is what the asymmetry predicts** — recorded as a hit, since the ledger wants both columns.
+- ⚠ **H1 INVERTS: `Attributes` is NOT among the 16 plannable — it REFUSES** (`rule-level data
+  isGROUP`). ⚠ **And its refusal names RUNG 5 while the family table calls Family A the RUNG 2
+  candidate** — two rung numberings in circulation for the same work, cheap now, T-0 later.
+- ⚠ **§2's mark save/restore is a SECOND WRITER — recommend dropping it.** `leaveRule` owns
+  Invariant R by explicit design (S1.8, one implementation every rule), and PC-4 records that a
+  second writer there produced GM-17's divergence. This dissolves H5 as well.
+- **SEQUENCE is already a green rung** — JXT *is* "the genKantParse body", degrade 0 **as of today**
+  (E2 took it from 2). **ITERATE has no rung**: built from certified parts, composition unrun — its
+  rung is step 2's. Loop is **`while`** (J3); ⚠ **never `for`** (the iterator divergence is a named
+  JIT-0.1 exclusion, `jitJUi`, 0 leaves vs 2).
+- ⚠ **`Attributes` lands on a PRE-RECORDED OPEN:** `parseR`'s header fences `parseMethod`-is-
+  per-node against *"rung 4, the first cross-method call"*, and `TraiT+` is nothing but a
+  rule-reference term. Right subject, but choose it knowingly.
+
+## OPEN, AND WHOSE
+**PARKED TONIGHT, DELIBERATELY, EACH WITH ITS REASON — the clean-kitchen list:**
+`AND`/`OR` rung (behaviour change to shipping text — top of a session, not the bottom) ·
+the **contract RUN** that converts H4 from READ to signable (needs an instrumented build or a
+behavioural probe; a misfiled measurement here becomes doctrine) · **H3's 3–4 command
+registrations** · **rung 2 = Family A** · then the install arc. ⚠ **The KANT-8 bracket fix is still
+FIRST IN LINE and its junction is intact — nothing today installed anything.**
+
+**Tony's:** ⚠ **the parse contract's formal nod** — ⚠ **hold it until H4 has its RUN**; a signature
+converts a read into doctrine, and today is the day that lesson cost the most. And with it the
+*"exactly as at entry"* wording,
+which is stronger than the native arm provides (native restores **post**-skip, generated **pre**-skip) ·
+⚠ **the ALTERNATION fork** (non-destructive `lit`, or keep the `from` save) ·
+⚠ **`parked` — the decoder's ONE HELD SLOT, and Clay asked for the hold himself**
+(§8 of `docs/decoder.md`): the dispatch's *"a scheduling state, not a verdict"* against SEQ 44
+PINCH 6's *"parked means nobody has ruled; pinned means we ruled it wrong and are watching."*
+**Incompatible, and PINCH 6 was written first.** If PINCH 6 wins, `parkdiff` / `parked-WIP` /
+`owned reds` sort into **three terms, not two**, and **a registration schema inherits whichever is
+pinned** — which is why the pin comes before the schema. ⚠ **Entangled with it: H6's wording**, whose
+dictated sentence is narrower than `CLAUDE.md`'s headline and is silent on exactly the parked case ·
+`FloaT` and `counter`, the two OPEN taxonomy rows · child-drop decision, no clock ·
+`completePop` owned-red vocabulary (2 standing sentinel misses, `jitXand`/`jitXand2`) ·
+migration ruling (waits on child-drop) · vi grammar offline.
+**Parallel track, unchanged:** scale fixture · the not-gated sweep (22 operators left, `jitXor`
+shape, two discriminating fires each) — **`AND`/`OR` (JXD-1/JXD-2) remain the two measured members.**
+**`docs/vigram.md`** — the 2026-08-09 addition is imported and **both files are now COMMITTED**
+(ruled: an untracked founding document is Amendment A's citation-rot risk in a new hat). §10 carries
+the V0 pass. **O1–O4 open by ruling, gating V1, Tony's at the V1 gate — not before.**
+## ✅ THE DECODER IS BUILT AND GREEN — 34 terms, `genLadder/decodePop.sh` 22 checks exit 0
+`incant/decoder` (corpus + verb) · `incant/decode` (edit the decode line, run) · `incant/decodeT`
+(fixture) · `genLadder/decodePop.sh` (instrument) · one line in `incant/setup`. **Discipline 2 is
+now `WT-14`**, registered in `docs/walkieTalkie.md` and **enforced in code, not documented** — an
+undefined term prints a fail-loud line naming itself, and the POP asserts that line with the
+arm-removed run as its control. Full record: `docs/decoder.md`.
+- ⚠ **THREE OF THE DISPATCH'S OWN ENTRIES CAME BACK CORRECTED**, caught only because Clay marked
+  them ⚠ PULL — *"my draft is a citation, not a measurement"* — and the seal was re-read instead of
+  transcribed. **H4**'s sentence was rung 1's *discharge* of H4, not H4. **H9**'s was the corollary,
+  not the primary. **`degradeAssertsOccurrence` was a materially different fact** — the seal is
+  *fallback occurred, never fallback was sound*; the draft was about jit occurrence, and serving it
+  would have retired E2's per-construct warning **by definition**. The two-class discipline is the
+  entire reason these were caught, on the artifact's first run.
+- ⚠ **THE LOAD-BEARING CHECK'S FIRST DRAFT WAS VACUOUS AND WENT GREEN** — `definition == taG`,
+  copied from `jiquery` section 0; deleting a definition **left it green**. Measured: an absent
+  attribute reads **0** (falsy, so a count catches it); a `definition=(#)` one reads the string
+  `"definition"` and **compares equal to nothing**, so only a grep on the printed line sees it.
+  **That asymmetry is why there is a shell POP beside the fixture at all.**
+- ⚠ **AND IT TRAVELS: `jiquery`'s own section-0 content check CANNOT FIRE.** It compares the value
+  against the **claim's** tag while a dataless value echoes the **attribute's** name. The check
+  written because *"the corpus silently lost its content and nothing noticed for a month"* is,
+  measured on the identical shape, unable to detect it. **Reported, not fixed — jigcorpus's
+  instrument, not the decoder's.**
+- **Three candidate incant traps, symptoms bisected and none diagnosed:** `group[argument.text]`
+  exits **139 with zero output** where `[argument.taG]` works · `if !x.attribute;` exits **139 with
+  zero output** · `print "":;` prints the string `quoteBody` (use `print :;`). Also mechanical and
+  worth knowing: **`include()` searches no path** — every includable file is registered by hand in
+  `incant/setup`'s `fILEs` registry, and an unregistered one fails **at exit 0**.
+⚠ **Its brief had existed in NO FILE until Tony asked** — relayed in chat, acknowledged in chat,
+never written down. **The decoder exists because vocabulary lives outside the system, and its own
+brief was living outside the system.**
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ SEALED 2026-08-08 EVENING — the 08-08 evening section follows. Older vintage from here down.
+# ⚠ ITS METRIC LINE AND ITS "NEXT ACTION" (T-1) ARE BOTH DISCHARGED ABOVE.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-08 EVENING — SHUTDOWN SEAL. CHARTER IN HISTORY, FOUR RULINGS SETTLED,
+#                      E2 PROMOTED INTO THE CAMPAIGN, PHASE T PARKED CLEAN
+# ═══════════════════════════════════════════════════════════════════════════
+
+## ⚠ NEXT ACTION, SO TOMORROW NEEDS NO ARCHAEOLOGY
+**T-1's mechanism check FIRST** — *which kind does `planRule` actually read when it refuses:
+the RESOLVED/transitive kind, or the DECLARED one?* **Then** the family table, built on
+**declared shape**, one grammar line cited per rule. **Then E2.** Working notes and the two
+findings that shape it: `docs/gapBPhaseT.md`. Charter: `docs/gapBCharter.md` (+2 amendments).
+
+## THE CHARTER IS IN HISTORY, AND ITS DEFECTS ARE AMENDMENTS ON TOP
+`f8cf727` commits it **unedited**; `a9fa6ce` amends it. Deliberate order — the charter's own
+defect history stays readable in the log rather than being quietly tidied.
+- **AMENDMENT A — the ruling-4 instrument slot is OPEN, not assumed.** §5 named
+  `incant/censusScratch`, which **does not exist** (renamed `incant/popScratch`, wakeup 08-05).
+  ⚠ **The cause is the keeper: the name was cited from a sealed wakeup instead of checked** —
+  doubt-the-instrument failing *inside a governing document*, the most expensive place for it.
+  Now a **measurement obligation**: the instrument is whichever fixture demonstrably produces
+  **both** ruling-4 numbers. `phaseA` is the candidate; `popScratch` is on record as *"a sample,
+  never a census"*. **No rung may cite an unverified oracle.**
+- **AMENDMENT B — THE TABLE'S COUNT IS THE COUNT.** "21" is now "21 censused, provisional".
+  Evictions land as **rows with reasons, never silent renumbering** (H9's overcount running
+  backwards). Three already identified: `BrancheS` **container, already paid (CT)** ·
+  `NewGroup` **DEFERRED**, carries `TraiT@` under IT-3's expiry · `Any` **ESCALATED as a
+  POPULATION QUESTION** — censused but absent from `incant/grammar`, which is a **census-instrument**
+  question and gets asked of the instrument before the taxonomy.
+
+## ✅ FOUR RULINGS SETTLED (Tony, 2026-08-08 evening)
+**R1 — E2 IS A CAMPAIGN PREREQUISITE, IN THE CAMPAIGN, NOT THE PARALLEL TRACK.** It gates v1 for
+**CORRECTNESS**, not purity: `incant/jitXnest` shows a **two-deep template accepting input it must
+reject, at exit 0**. ⚠ **"Template certified" is bounded to DEPTH 1, tail-position leaves only.**
+Sequence: **family table first** (gating, open — finish the started thing), **E2 immediately
+after**, before any Phase R rung concludes.
+**R2 / R3 —** amendments A and B as written above.
+**R4 — Phase T order confirmed:** T-1's mechanism check **first**, then the table on **declared
+shape**. The census column is **resolved** kind (`Looper → ANYtoken → NamE → set`); grouping on it
+files **references under scalars** — §2.5's build-wrongly failure one layer up, **caught before a
+row was written.** ⚠ **The refusal to ship a partial table was correct and is the standing standard.**
+
+## PINS — E2 IS OWNED WHILE IT WAITS. LADDER 162 → 170.
+New inverted rows **JE2** and **JXN** (green while the defect is present, red on repair, H6):
+- **JE2** — mid-body return in an inlined callee: jitted **222/999**, interpreted **111/0**.
+- **JXN** — the nested template **accepts a failing term** (out 1, tail 999); oracle 0.
+Standing: **JXT** degrade pinned at 2 · **JXD-1** (`AND` → 139) · **JXD-2** (`OR` → silently wrong)
+· `genLadder/mixed.sh`'s child-drop pin.
+
+## DOCTRINE ADDED (CLAUDE.md)
+- ⚠ **A DEGRADE LINE ASSERTS A FALLBACK *OCCURRED*, NEVER THAT IT WAS *SOUND*.** Soundness is
+  **per-construct**: E2 at **tail** position is sound, at **mid-body** it changes the answer — **same
+  degrade count 2.** So degrade-zero cannot tell a handled fallback from an unhandled one; JE2/JXN
+  assert **values**, never the counter.
+- ⚠ **MATCH THE TASK'S FAILURE LOUDNESS TO THE SEAT'S MECHANICAL STATE.** A misfiling in a precision
+  classification **does not fail loud** — it becomes a charter-level mistake that gets built on.
+  Late-session mechanical state routes to self-checking work or to shutdown, **never to
+  silent-failure work.**
+- **BEAR-TRAP #27 (candidate)** — a fixture's **comment header is not inert**: exit 138, **zero
+  bytes**, before the first statement; bisected to the header alone, body innocent. Headers get
+  **prose, not pasted code**. ⚠ The `<-` rebind theory was **tested and falsified before** the
+  bisect — the only reason a wrong cause is not written down.
+
+## ⚠ THE EIGHT-SLIP INVENTORY — verbatim, because it is the citation behind the scheduling doctrine
+Self-read at the pause: **the reasoning layer held; the mechanical layer degraded.** The findings
+were solid and several decisive (E2 gating the campaign, the parse arm answering NO, a
+pre-registered prediction falsified). Against that, **eight instrument slips in one session**:
+1. `mixed.sh`'s PASS banner said the **opposite of its own verdict**
+2. its census grep **matched prose** — 5 bindings for 4
+3. an anchored `^diffcheck` regex **undercounted pop.sh 13→8**
+4. `git add -A genLadder incant docs` **omitted `jitLadder/`** — a commit whose message
+   **described work it did not contain**
+5. `git add -A docs` **swept up `verification.md`**, held back one command earlier
+6. a fixture header **crashed the parser**
+7. a broken `printf` in the census loop
+8. **`${PIPESTATUS[0]}` used — a bear-trap in this repo's own CLAUDE.md, read the same day**
+
+Every one was caught, **mostly by accident or by a guard written earlier, not by care**. ⚠ **#8 is
+the tell: knowing the rule did not prevent the error** — which is the argument for structure and
+scheduling over more care, and is why the scheduling doctrine sits beside the
+make-the-failure-unconstructable family.
+
+## BOARD STATE
+- **Campaign runway OPEN** — Phase T is actionable now (T-1, then the table).
+- **Behind it:** step-5 remainder — the **E2 rung is now IN-CAMPAIGN per R1**; **scale fixture** and
+  the **not-gated sweep** (22 operators left, `jitXor` shape, two discriminating fires each) stay
+  parallel-track.
+- **`docs/vigram.md` — HONESTLY FLAGGED: NEVER OPENED.** Still the interleave track, steps 1–3 per
+  SEQ 46. Clod acknowledged the priority and then never read the file; nothing in it has been absorbed.
+
+## OPEN, AND TONY'S
+**child-drop decision** — charter it or bank it; **no clock, but not silent** · **migration ruling**
+(waits on child-drop) · **completePop owned-red vocabulary** (2 standing sentinel misses, `jitXand`
+/`jitXand2`, whose missing sentinel *is* the defect they record) · **vi grammar offline.**
+
+## FLEET AT SEAL
+```
+sh jitLadder/ladder.sh        170 checks, exit 0
+sh genLadder/pop.sh            33 green / 1 parked (exit 1, the same 3 owned reds)
+sh genLadder/mixed.sh           7 checks, exit 0   (parse-arm pin holds)
+sh genLadder/completePop.sh   123 swept · 3 abandoned · 2 missing sentinels · exit 1
+sh genLadder/tree.sh · printPop · containerPop · recordPop · formsPop      exit 0
+<binary> incant/oneTest · jsonTest · kant8T · phaseA · emitAll             exit 0
+```
+**Metric: 0/47 installed.**
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ SEALED 2026-08-08 (morning/afternoon vintage) — the earlier 08-08 section follows.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-08 — planB OPENED (genKantParse), AND THE SKETCH'S SPELLING DIED ON
+#              SEVEN FIXTURES WHILE ITS PREMISE SURVIVED
+# ═══════════════════════════════════════════════════════════════════════════
+
+## WHAT IS RUNNABLE
+```
+sh jitLadder/ladder.sh        150 checks, exit 0    (re-run today, green)
+sh genLadder/pop.sh            33 green / 1 parked  (the SAME 3 owned reds)
+sh genLadder/recordPop.sh      48 checks · formsPop.sh 14 · printPop 9 · containerPop 11 · tree 0
+sh genLadder/completePop.sh    121 swept · 3 abandoned · 2 missing sentinels · 208 green · exit 1
+sh jitLadder/ladder.sh         162 checks, exit 0     (150 + JXT + JXD pins)
+sh genLadder/mixed.sh            7 checks, exit 0     NEW — the parse-arm decomposition, PINNED RED-SIDE
+<binary> incant/oneTest · jsonTest · kant8T · phaseA · emitAll      exit 0
+```
+**Metric: 0/47 installed.** Nothing regressed today; today's work added fixtures only.
+
+## ⚠ THE SEAL CORRECTIONS OWED FROM THE 08-07 VINTAGE, APPLIED
+The section below this one says **0/78** in three places and it is **stale, not wrong-headed**:
+- **THE DENOMINATOR IS 47** (IA-4). 78 counts **Grokking's registry population** (60 members + 18
+  attributes); 47 counts **names in `incant/grammar` that can consume an install bind at their own
+  definition site**. Different sources, different axes — 47 does not *correct* 78, it **replaces
+  it as the campaign's denominator**, because a rule that cannot consume a bind cannot be
+  installed however plannable it is. 102 sites probed: 67 LIVE, 35 dead, 0 VOID.
+- **The oracle is amended to EVIDENCE-OF-EXECUTION** (IA-5). For a **deferred** rule neither axis
+  of the union lens discriminates the arms — `BlocK` reads `fire=2 attach=0` identically with the
+  install on and off, because `defer` skips its label at the yield guard long before
+  `attachLabel`'s no-label guard. **The crash was the evidence the lens could not supply.**
+- **The abandonment instrument is LIVE with three catches** (IA-6). `genLadder/completePop.sh`,
+  structurally defined population. Three pre-existing live abandoners, all at
+  exit 0, none session-caused: **`delimTest`, `grammarOnTheFly`, `hashProbe`**. Reported, not
+  diagnosed. **The sweep is RED on arrival and that is the instrument working.**
+
+⚠ **AND IT PROVED THE STRUCTURAL POPULATION WORKS BY CATCHING TODAY'S OWN FIXTURES — the numbers
+moved and the movement is named, not absorbed.** `112 / 3 abandoned / 0 missing sentinels`
+became **`121 / 3 / 2`**. The two new sentinel misses are **`jitXand` and `jitXand2`, and their
+missing sentinel IS the finding they were written to record**: `AND` under jit exits 139, so the
+sentinel cannot print. Nothing regressed — the abandoner count is **unchanged at 3**, and the
+sweep swept nine new fixtures with nobody maintaining a list, which is exactly what IA-6 bought.
+**⚠ But two deliberate crashes are now STANDING REDS with no way to own them.** `pop.sh` has an
+owned-red/parked vocabulary and `completePop.sh` has none, so these will be re-explained every
+session until someone rules. **That is IA-6's own named follow-on** (*"hardening their choke
+points is day-size but not this fire's day"*) arriving with a concrete demand case. **Tony's
+call:** an owned-red list, or measurement fixtures kept out of the swept population — noting that
+the second option weakens the structural-population property that makes the sweep worth having.
+- **GATE discharged on K5/K6** · **bracket fix scheduled at the green-fleet junction.**
+
+## ⚠⚠ THE FORK: planB / genKantParse — ASSESSED, NOT SCHEDULED
+Full assessment with every measurement: **`docs/genKantParse.md`**. Three sentences of it:
+
+**THE PREMISE IS SOUND AND THE SKETCH AS WRITTEN DOES NOT RUN, AND THOSE ARE SEPARATE FINDINGS.**
+The proposal — generate the parse as **kant CodE** installed in the rule's `method` slot, with the
+semantic action moved to `actionMethod` — collapses the whole PC divergence class for generated
+rules, because there stops being two artifacts to keep in parity. **But the body it is written in,
+`sukcess = t1() AND t2() AND t3()`, uses the two worst-behaved constructs the JIT currently has.**
+
+| measured today | result |
+|---|---|
+| `AND`, plain field operands | ❌ **exit 139, and NO degrade line — it crashes before the counter sees it** |
+| `OR`, plain field operands | ❌ **exit 0, degrade 0, WRONG ANSWER** (fire 2 wants 1, gets 0 — emit-time fold) |
+| action→action call, acyclic | ✅ emitted, runs per fire |
+| **action→action, MUTUALLY RECURSIVE** | ✅ **the cycle closes** — ticks 4→10, one compile, degrade 0 |
+| two value-returning callees, sequential | ✅ green (degrade 2, the known E2 tail-return) |
+| **the proposed replacement template** | ✅ **short-circuits for real — ticks 1→3** |
+
+**THE REPLACEMENT NEEDS NO NEW JIT WORK — ONLY A DIFFERENT SPELLING**, built from constructs the
+ladder already certifies (comparison, `if`, mid-block `return`, sequential calls):
+```
+    xtSuk = xtT1();   if xtSuk == 0;   return 0;
+    xtSuk = xtT2();   if xtSuk == 0;   return 0;
+    return 1;
+```
+⚠ **AND IT SHORT-CIRCUITS BY CONSTRUCTION, WHICH IS THE POINT AND NOT AN OPTIMISATION.** KANT-34
+records `&&`/`||` as evaluating both arms **in the interpreter too**, and records the reason as
+structural. **For a parser that is a correctness requirement, not a style choice** — a parse term
+consumes input, so an eager right arm advances the mark past text the rule never matched. The AND
+spelling cannot express parse semantics in **either** engine. The if-chain does not need to.
+If short-circuit is ever wanted as an *operator*, it must become **control flow** with its own
+`aCTion*` handler and emitter — the shape `if` and the loops already have — **not** a repair to
+`opAND`.
+
+## ⚠ THE FINDING THAT MOST CHANGES THE CAMPAIGN'S SHAPE — put in front of Tony first
+**`t1()` DISPATCH IS UNIFORM.** `aCTionRunRulE` dispatches on `rule.isMethod` and never asks
+whether the method was generated; under jit the callee is **inlined**, and `jitXmutual` shows a
+**two-cycle closes**. A generated and a non-generated callee are **the same call at both layers**.
+**So the mixed-shape world is safe — and IA-0's premise is what that undermines.** IA-0 ("the
+migration unit is the ALTERNATION, all of one parent's options cross together") exists precisely
+to prevent mixed shapes. If they are safe, **the migration unit can be the RULE**, and IA-1's gate
+loses the reason it refuses every install. **IA-0/IA-1 would dissolve rather than get satisfied.**
+⚠ Measured for **action** dispatch only. The **parse-arm** fork inside `parse()` is a separate
+question these fixtures do not cover, and the claim must not be stretched over it.
+
+## WHAT planB DOES NOT DO, STATED SO IT IS NOT OVERSOLD
+**It does not move the metric.** The gate is **GAP B (rule-as-data)**, and both of its refusals
+live in the **PLAN layer** — `planRule`'s *"rule-level data"* and `planTerm`'s *"inline group /
+character data"* — which genKantParse **shares unchanged**. A second back end respells plans that
+already succeed; it cannot make a refused rule plannable. **Close Gap B in the plan layer first**,
+where it pays both back ends and where a red has exactly one cause.
+
+## ⚠ genParse WAS ALREADY BUILT FOR A SECOND BACK END, and this is the cost answer
+`genParse.rtn` is already two layers with a clean seam, **and says so in its own comments**:
+`planRule` DECIDES (a GroupItem plan tree — `SEQ`/`ALT` over `CALL`/`LIT`/`LITTO`/`CONTAINER`/
+`OPT`/`MANY`), `emitPlan` WRITES, *"nothing between them knows about C++."* So **genKantParse is a
+second back end on a shared plan, ~200 lines of respelling — not a second campaign.** Adjudication
+is then the H8 shape Tony asked for almost for free: same rule, same plan, two back ends, one
+comparison fixture.
+**And the fork the brief did not name:** emit **kant source text** through the ordinary
+`define … code={ }` door (cheap, keeps `emitPlan`'s shape, keeps the artifact human-readable) vs
+**synthesize the BlocK tree** (needs the tree-synthesis idioms, bypasses `aCTionDefinE`).
+**Take the text route for v1.**
+
+## THE COMMAND TALLY IS SHORT — but the library needs REGISTERING, not writing
+~8 → **~11 for parity with today's frontier, ~13 to clear it**. Missing and load-bearing:
+**`inGuard`** (every member option is `(inGuard(...) && parseR(into))`) and **`stashDefer`**
+(`defer` is the parse→generate seam — where `gIF`/`gFOR`/`gPrinT`/`gXpress` come from).
+`containerTo` is **already paid**. `upTo`/`upToOver`/`macroVal` are beyond the frontier in *both*
+generators, so not owed for v1. ⚠ **But the seven support functions already exist as `extern "C"`
+in `RuleStuff` — making them kant-callable is shims + registration, not implementation.**
+**What is actually hiding is not a command:** Invariant **R′**'s two-part label-recycling
+handshake (an obligation on the emitted loop, deliberately not inherited), and **§7.1's
+min-zeroing defect**, which a kant action re-inherits the moment it reads `rs.min` at RUN time —
+which is the worked example that earns Tony's **generation-era doctrine** its promotion.
+
+## DOCTRINE / DEFECTS ADDED TODAY
+- **TWO PRE-EXISTING JIT DEFECTS, LOGGED INDEPENDENTLY OF planB.** `AND` under jit **crashes with
+  no degrade line**; `OR` under jit is **silently wrong at degrade 0**. Both are the ungated-
+  operator class. ⚠ The general statement — *an ungated operator in a jitted body folds its
+  emit-time value* — is **inferred from two members and NOT swept**; the not-gated list has **24**
+  entries. **A sweep is the obvious next instrument** and is cheap (the `jitXor` shape, one
+  fixture per operator, two discriminating fires).
+- **`if !field;` IS INERT ON A FIELD CARRYING A VALUE** — measured interpreted-only, `0` and `1`
+  both failing to fire, **both engines agreeing**, so it is a language question and not a JIT one.
+  KANT-35's `if !a;` idiom is measured only against **absent attributes**. **Use `== 0`.** Tony's.
+- ⚠ **THE ANTI-VACUITY RULE PAID ITS BILL INSIDE TODAY'S OWN INVESTIGATION.** The first `jitXor`
+  used `0 OR 1` and `1 OR 1` — both 1 — and **reported green**. It would have entered the
+  assessment as *"OR is fine."* The re-run with a discriminating pair found the fold. **A fixture
+  that cannot distinguish the answers distinguishes nothing** — including one written by someone
+  who had just finished reading the rule.
+- **E2 IS SURVIVABLE BY ACCIDENT, AND SHOULD BE KNOWN AS SUCH.** A `return` inside an inlined
+  callee degrades (*"it would branch to the enclosing function's epilogue"*). Every fixture shows
+  it. It is green today **only because a TAIL return needs no branch**, so falling through is
+  accidentally equivalent. genKantParse's templates are tail-shaped naturally — fine, but that is
+  an accident to be aware of, not a property to lean on.
+
+## ⚠⚠ CAMPAIGN OPENED — genKantParse (SEQ 41, Tony, 2026-08-08). FIVE STEPS, TWO FENCES.
+The assessment is **adopted**. Order: **1** Gap B in the plan layer · **2** the parse-arm dispatch
+fixture then the migration-unit ruling · **3** genKantParse v1 · **4** the adjudicator, before any
+rule crosses · **5** parallel jit-ladder work (E2 rung, scale fixture, not-gated sweep).
+**FENCES, exactly two:** the **Gap B charter precedes Gap B edits** (director's), and the
+**migration-unit ruling follows the parse-arm fixture**. Everything else is Clod's discretion.
+**Victory condition, stated so it is not re-litigated:** *not* "the same parse, generated" — **a
+compiled parser with the grammar folded in**. Generation is **partial evaluation of the parser
+with respect to the grammar**; the JIT compiles the frozen form. Full text: `ipc/clod-to-clay.md`
+SEQ 41.
+
+## ⚠⚠ STEP 2 IS ANSWERED AND THE ANSWER IS **NO** — the fence earned its keep on first use
+`genLadder/mixed.sh` (new, pinned, exit 0). **Parse-arm dispatch is NOT uniform.**
+```
+    variant   installed                '(a)'      '(i)'
+    none      (interpretive)           ScafALT    ScafALT
+    leaf      ScafA ScafI              NONE       NONE      <-- child DROPPED
+    alt       ScafALT                  NONE       NONE      <-- child DROPPED
+    out       ScafOUT                  ScafALT    ScafALT
+    all       everything               ScafA      ScafI
+```
+**Both PURE configurations keep the child; a MIXED one drops it** — not retagged, not
+mis-parented, **gone, at exit 0, with no diagnostic.** Strictly worse than the §2.4 retag
+divergence, and **new**: `tree.divergence` records a tag changing, never a node vanishing.
+⚠ **So IA-0 STANDS AS WRITTEN — the migration unit stays the ALTERNATION**, and the previous
+section's hopeful reading of `t1()` uniformity is **corrected**: `jitXmutual`'s **action**-dispatch
+uniformity is real and **does not extend to the parse arm**. Two forks, two answers.
+**Mechanism is a LEAD, not a ruling** (usual odds): IA-2's silent return generalised — the
+generated arm's `promote=0` meets a label-transparent parent whose label is null, and the promote
+case that rescues it interpretively sits on the **other arm**.
+⚠ **Built as a DECOMPOSITION, and that is why it found anything.** *"Does a mixed config parse"*
+is nearly vacuous — something always comes out. Asking whether an install **perturbs only itself**
+is what exposed the loss.
+
+## ⚠ GAP B IS 21 RULES ACROSS SIX DATA KINDS, NOT 3 ACROSS TWO (`docs/gapB-staging.md`)
+Staged under fence 1 — **measurement only, no plan-layer edit made.** Every prior statement names
+`NumbeR`/`ANYtoken`/`SemI` and `isGROUP`/`isSTRING`; those are **the specimens that were looked at,
+not the population.** Measured: `isGROUP` 9 · **`isSET` 6** · `isSTRING` 3 · `isCOUNT` 1 ·
+`isCHAR` 1 · `isANY` 1 = **21 rules, 45% of the 47 denominator.** `isSET` is **twice** `isSTRING`
+and appears in no prior statement — **RULE H9 again.**
+- ⚠ **§2.5 IS A PARTIAL MAP, and it is the charter's first problem.** Accumulate/iterate covers
+  **8 of 21**. **Inline group (9) is explicitly NOT the iterate case** — `planTerm` classifies a
+  reference as `CALL` *before* the data test and names the leftover a *"named future kind"* that
+  **must not quietly become one**. `isSTRING`/`isCOUNT` (4) are in **neither** family. **Three
+  constructs wearing one refusal message**; a charter sized on two shapes will meet 21 rules.
+  Suggested rung order: **accumulate (8, has a spec and `testMacro` as precedent) → scalar (4) →
+  inline group (9, the only genuinely new construct).**
+- ⚠ **THE CASCADE IS A FRONTIER** (H9's corollary): closing rule-as-data **reveals** the next
+  refusal in `Iterate`/`ANYorNum`/`UnaryXP`/`StatemenT`/`Xpress` rather than unblocking them.
+  **And `ANYtoken` and `SemI` are each blocked TWICE — rule-level AND term-level — so rule-level
+  work alone closes NEITHER cascade head. Both axes or neither.**
+- ⚠ **PLANNABILITY AND INSTALLABILITY ARE NOW TWO SEPARATE GATES.** Gap B buys the first. After
+  step 2 it does **not** buy the second: a plannable rule still cannot cross alone while partial
+  installs lose nodes. **The charter should say which one it is purchasing.**
+
+## LADDER 150 → 162, and three rows that assert defects rather than fixes
+**JXT** graduates `jitXtemplate` — ticks **1→3** (cumulative on purpose, so no folded constant
+satisfies both rows), oracle agrees, and **degrade PINNED AT 2**, the honest value: E2's
+tail-return accident is what makes it green, so **when E2's rung lands the count drops and JXT
+goes red demanding graduation.** Using the generic `rung` helper would have forced a choice
+between weakening the fleet's degrade-zero rule and not landing the rung; asserting the true value
+costs neither. **JXD-1/JXD-2** pin `AND`'s 139 and `OR`'s **wrong value by name**, both inverted.
+⚠ **`genLadder/mixed.sh` caught itself three times** and records all three: its anti-vacuity guard
+fired on **its own census** (matched `treeScratch`'s header *comment*, 5 bindings for 4 — H9 on the
+guard rather than the guarded) · its first verdict was an unreadable **diff-of-diffs** when the
+finding was plain in the trees · and its **PASS banner said the opposite of its verdict**,
+inherited from the draft written before the answer came back. **A harness whose summary line
+contradicts its own rows is the worst instrument failure available**, because the banner is the
+line most readers see.
+
+## OPEN, AND WHOSE
+**Director's, in priority order:** (1) **the Gap B charter** — fence 1, and now with numbers · (2) **Gap B's brief** — still the largest thing on the
+board and still the metric · (3) planB scheduled or parked, on §4's five-point recommendation ·
+(4) the ungated-operator sweep · (5) `if !field;` on valued fields.
+**Reconciliation (H8):** `docs/verification.md` is **untracked** — stage-1 durable, asOf
+2026-08-07, VI-1..VI-7, its own SURVEY ROW open and self-graded ASSUMED. Explainable as yesterday's
+output not yet committed, **but it has had no verdict** — commit / revert / named-WIP is Tony's.
+`IncantForms/WorkingOn/incant++` is Tony's own working document, dirty as normal, safe to ignore.
+**Flagged, not chased:** `litTo` still unimplemented · the three IA-6 abandoners
+(`delimTest`, `grammarOnTheFly`, `hashProbe`) · GM-19's single audit line.
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ SEALED 2026-08-07 — the 08-07 section follows. Older vintage from here down.
+# ⚠ ITS METRIC LINE (0/78) IS SUPERSEDED BY 0/47 ABOVE.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-07 — THE PARSE-CONTRACT CAMPAIGN OPENED, THE EXTRACTION LANDED,
+#              AND THE FORMS ARC GREW A COMMAND, A HARNESS AND A RECIPE
+# ═══════════════════════════════════════════════════════════════════════════
+
+## WHAT IS RUNNABLE — six POPs now, two of them new
+```
+sh jitLadder/ladder.sh        150 checks, exit 0
+sh genLadder/pop.sh            33 green / 1 parked   (the SAME 3 owned reds)
+sh genLadder/recordPop.sh      48 checks, exit 0     NEW — ParsE/JiT records
+sh genLadder/formsPop.sh       14 checks, exit 0     NEW — displayFill, BY PIXEL
+sh genLadder/printPop.sh        9 · containerPop 11 · tree exit 0
+<binary> incant/oneTest · jsonTest · kant8T · phaseA · emitAll      exit 0
+```
+**Metric: 0/78 installed.** Nothing regressed today; everything below either landed green or
+reverted clean.
+
+## ⚠ THE ONE PROTOCOL TO CARRY: **CONVERT, GATE, THEN INSTALL**
+Earned three times today, in ascending cost. A change to the parse layer is proved against the
+INTERPRETIVE arm **before** any rule is installed. When the discriminator in `aCTionInvokeArg` was
+wrong it failed as **18 diagnostic lines and one moved baseline**; the same class of error two
+passes earlier, un-gated, arrived as a **fleet-wide SIGSEGV**. The gate is where this campaign's
+errors are supposed to die.
+
+## THE PC CAMPAIGN — the three walls were one finding
+`parse()`'s two arms never had a shared, enumerated contract. Every wall this week was a place they
+quietly disagreed. PC is the ledger; each divergence gets a row, measured both arms, dated.
+- **Row 1, fire-label — CLOSED (GX).** `fireLabelMethod` extracted; both arms fire the same rule
+  action. Was: the generated arm's `goto generatedExit` jumped clean over it.
+- **Row 2, attach — CLOSED (PC-1/PC-4).** `attachLabel` owns the attach for both arms;
+  `leaveRule`'s attach removed. **The generated arm passes `promote=0` (attach-under always), the
+  interpretive arm `promote=1` (legacy)** — the fork is a PARAMETER, not an inference, and carries
+  IT-3's expiry in its own comment. `tree.sh` green for the first time since LA.
+- **Row 3, empty-yield — CLOSED (PC-3).** `labelNO` is the return channel's third value:
+  **NULL = failed · labelNO = succeeded, yields nothing · any node = succeeded, yields that.**
+  ⚠ **Minted `isCOUNT` 0, and that is the whole trick.** The JIT's value channel is an **i32
+  alloca** and cannot carry a GroupItem, so a non-numeric labelNO would have split the engines
+  permanently. The meaning lives in **identity** (`lab == labelNO`); the numeric reading is
+  courtesy, unchanged at 0, so both engines still agree and rung JV needed no re-pin.
+
+## ⚠ IT — isTarget PROMOTION IS RETIRED AS A PARSE-LAYER MECHANISM (director)
+**The parse builds one shape; opinions about shape belong to actions.** Promotion becomes opt-in in
+one line: an action returns the child's label as its own yield, and attach-under plants it.
+Interpretive promotion runs untouched as legacy and retires by attrition. **End state, nameable
+now:** the `isTarget` predicate deletes, the promote case leaves `attachLabel`, three cases become
+one — `pStuff.label +% lab`, skip NULL and labelNO, both arms, no fork.
+**And the cost model beside it (IT-6, Tony's observation):** an action is ONE artifact serving BOTH
+engines — the interpreter fires it through `fireLabelMethod`, the jitter calls it through the
+fallback column — so **action-layer fixes are two-for-one and arm fixes pay per-arm.** Prefer the
+action layer where a divergence permits the choice. Exception: an action containing an `if jitting`
+fork is arm code in disguise and pays arm prices.
+
+## WHERE THE METRIC IS STUCK, AND IT IS ONE NAMED GAP
+**IA-0: the migration unit is the ALTERNATION** — all of one parent's options cross together, so the
+mixed-shape world never exists. **IA-1's gate then refuses every install**, because no
+reader-bearing alternation is fully plannable:
+```
+    InvokeArg  Braced OK · Parens OK · UnaryXP BLOCKED     <- nearest by far
+    ANYorNum   0 of 2        StatemenT  2 of 5        DatA  blocked (+ NotA is not a rule)
+```
+- **GAP A — container terms: CLOSED TODAY (CT).** `containerTo` in the support library, `CONTAINER`
+  a plannable kind classified BEFORE the reference test (a bin term is also a reference).
+  Partition moved **REFUSE 99 → 97**.
+- **GAP B — rule-as-data (§4.1, rung 5): OPEN, BANKED, AND NOW THE ONLY THING IN THE WAY.**
+  `NumbeR`/`ANYtoken`/`SemI` refuse on rule-level `isGROUP`/`isSTRING`, cascading into `Iterate`,
+  `Xpress`, `ANYorNum`, `StatemenT` — and into `UnaryXP`'s second term, which is why Gap A alone did
+  not unblock `InvokeArg`.
+
+⚠ **AND THE INSTRUMENT LESSON THAT CORRECTS ITS OWN SEQUENCING CLAIM: A REFUSAL CENSUS REPORTS THE
+FIRST BLOCKER, NOT THE BLOCKER SET.** The classification walk stops at the first term it cannot
+classify, so a refusal census is a census of **frontiers**. Closing a gap does not unblock the rules
+it appeared in — it reveals their next refusal. **Total refusals falling is real progress and is not
+the same measurement as any rule becoming plannable.** CLAUDE.md, H9 corollary.
+
+## WHAT ELSE LANDED — capability, not campaign
+- **DRAWING EXISTS, INTERPRETED AND JITTED.** `displayFill` fills a frame's rect through a style
+  slot into a `CGBitmapContext`. Interpreted `r0 g0 b0 a0 → r255 g0 b0 a255`; **jitted fire 2 tracks
+  a style swapped AFTER emission** (`r0 g128 b128 a255`), degrade 0, one compile — so it ran from
+  compiled code. **FR §4's prediction held: the route is the fallback column, not IR emission** —
+  a drawing method must be CALLABLE, not EMITTABLE. Five-seam recipe with file:line in
+  `docs/formsRecon.md` §8, plus §8.6's **handover fences**.
+  ⚠ Named `displayFill`, not `fill` — bear-trap #17, `fill()` is in the shared `OCframe` alias table.
+- **`ParsE` and `JiT` records.** `genParse` hangs the generated source on the rule; `jitRunAction`
+  hangs the post-mem2reg IR on the action. **One writer per fact**, both `noPrint`, both gated
+  (`INCANT_PARSE_RECORD` / `INCANT_JIT_RECORD`, and `recordParse()` for the in-fixture door).
+  **`showParse('Rule')`** prints the record — ⚠ **a command and not a kant action, because naming a
+  rule in expression position INVOKES it.** `incant/showGen` is the no-preparation looksee: run it,
+  edit one line, read any rule's generated method.
+- **`aCTionIF` no longer SIGSEGVs on a missing statement.** `if 1;` used to exit 139 with zero
+  output — **that was bear-trap #4's crash all along**, and the trap only ever described the parse
+  bleed above it. Refuses loudly now, naming the three known causes.
+
+## DOCTRINE ADDED TODAY
+- **BEAR-TRAP #26 — a field with no data returns its own TAG from `.text`.** Six payments in the
+  ledger, in both directions; one of them is a case where the trap made something *work*.
+- **RULE H9 — a census matches the IDIOM FAMILY, not the surface form**, plus the frontier corollary
+  above. Written after a census miscounted its own subject twice, in both directions.
+- **A minion inherits FENCES, not just crossings** (`docs/formsRecon.md` §8.6). The recipe says how;
+  the fences say when you have left it. Every finding worth having today was a fence product.
+
+## OPEN, AND WHOSE
+**Director's:** Gap B's brief (largest thing on the board — its blast radius wants its own charter) ·
+the IA-0 refinement for non-rule alternation options (`NotA`) · `aCTionTokenXP`'s conversion to the
+attached shape, which is specified and unblocked but pointless until an alternation can cross.
+**Flagged, not chased:** `litTo` still has no implementation in the support library — the labelled
+LITERAL road is a stub while the labelled CONTAINER road is now paved · guiDesign §10.0 vs §10.2
+disagree about whether measurement belongs on Display (flagged at the insert, reconcilable) ·
+GM-19's single audit line (`AUDIT TERM Parens [3]`) stays banked, unpinned, uncaused.
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ SEALED 2026-08-05 — the 08-05 section follows. Older vintage from here down.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-05 — KANT-8 CLOSED, `return` EMITTED, AND THE GRAMMAR CAMPAIGN OPENED
+#              ON MEASURED GROUND
+# ═══════════════════════════════════════════════════════════════════════════
+
+## ✅ RULED (Tony) — **KANT-8 IS CLOSED BY DISPOSITION**
+- **jitted side correct** (JRt F3, ledger row one) · **characterisation complete** (K1–K6d, deterministic)
+- **interpreter repair PARKED pending the frame model**, and **strengthened by K6**: patching
+  `saveLocalFields` would not touch the mutual-recursion gap; **only per-activation state kills both**
+- **carrier discipline NARROWED by measurement** — valid for **direct** self-recursion (K2),
+  **invalid for mutual** (K6c)
+- **frame-model gate SATISFIED**, opening fixture named: **K6a's shape, jitted**
+
+## ✅ ITEM 1 — the inlined self-call died at its cause (option **(b)**, build-on-discovery)
+`jitEmitSelfCall` said `CreateCall(gJitCurrentFn)` unconditionally; a self-call inside an **inlined**
+body got the **enclosing** function and replayed the driver's preamble every recursion. **The map is
+the predicate**, populated by the inline-stack test at discovery. S1 extraction byte-identical · S2
+names from action identity (`jit_<tag>`) · S3 restart bounded and checked · S4 entry by name · S5 rung
+**JS**. H7: the pre-S3 binary exits **139 after 173,400 replays**. **Rule H5 reached the JIT ladder** —
+it had never had a wall-clock cap.
+
+## ✅ ITEM 2 — `return` IS EMITTED. **Ladder 129 → 150.**
+Rung **JRt**: returned scalar 21/27 · **factorial(5)=120 through real recursion** · KANT-8's shape
+jitted **42/45 with the interpreted tag asserted as an intended divergence** · mid-block return
+111/222 with tail 0/999. **E3 was not real — a bare `return;` is correct by construction.** A fifth
+edge the brief did not name: **a bare field read as the returned expression emitted nothing.**
+**Bear-trap #25** records both oracle traps (`isCoded` routing; post-jit interpreted calls are not
+clean oracles for *returned* values).
+
+## THE GRAMMAR CAMPAIGN — opened, and at its real question
+- **Population 78**, not 60 — Grokking's **60 rule members + 18 rule attributes**. ⚠ A one-axis walk
+  reports 60 **and looks right**; `GrouP`/`NamE` were the tell.
+- **Partition 12 PLAN / 66 REFUSE / 0 UNKNOWN**, guard-controlled, with a **role axis**
+  (6 declaration-flag, 72 parsing). **`docs/phaseA-partition.txt` is corpus.**
+- **`popScratch`** (was `censusScratch`) — a **sample**, never a census; `debug` is a **deliberate
+  negative control**.
+- **Gap #6** (flag-setting as a plannable term kind, any position) chartered to the **main line**.
+- **Corpus stood up** — `docs/grammarCorpus.md`, **GM-1…GM-16**, stage-1 durability in force:
+  every claim written for a reader with **no session context**.
+- **Install vocabulary registered in `incant/setup`** (`parseMethod`, `parseTerms`) with the
+  **consumed-check standing** in the audit family; H7 control is today's Braced SIGSEGV.
+- **Rule one `Braced`: installs clean, verifies RED, parked** with a 253-line specimen.
+
+## ⚠⚠ THE DAY'S LAST FINDING — **THE GENERATED ARM DOES NOT FIRE THE RULE ACTION**
+The FU-2′ localizer worked on first use **and falsified the lead it was built to test**: `parseR`
+attaches `ExpressioN` under the label, correctly named. **The fork point is elsewhere and now has
+file:line** — `parse()`'s generated arm ends `goto generatedExit` (`GroupItem.twk:1050-1054`), and
+`generatedExit` (`:1109-1113`) skips **`:1073-1079`, *"Success. Fire label method if there is one."***
+
+**So Braced's red is an ACTION-LAYER divergence, not a parse divergence — the exact thing GM-6 rules
+must not exist.** GM-6's isolation property is **true of the design and false of the code today**,
+which the very first red exposed. **The ruling stands; it is now a work item with a named site rather
+than an assumed invariant — and that is why it was worth writing down before it was needed.**
+**No fix taken:** `Parens` runs first; two specimens make the pattern systemic and the fix lands
+**once at the right level**.
+
+## WHAT IS RUNNABLE
+```
+sh jitLadder/ladder.sh        150 checks, exit 0   … JC JS JRt + J-R
+sh genLadder/pop.sh            33 green / 1 parked  (the SAME 3 owned reds)
+sh genLadder/printPop.sh        9 · containerPop 11 · tree · harnessCensus (6 harnesses, 112 fixtures)
+<binary> incant/oneTest        exit 0, 11 then 26 x4
+<binary> incant/jsonTest · incant/kant8T · incant/phaseA · incant/emitAll      exit 0
+```
+**Metric: 0/78 installed** — honest, and blocked by **rule behaviour**, not by the door.
+
+## QUEUE
+**Next fire: `Parens`** (designed discriminator — same three-term shape, different action), preceded
+by **FU-1** (answered: `parseTerms` is a **guard only**, define-time, GM-12a) and **FU-2′** (built:
+`parseTrace` extended to `parseR`/`lit`, gated, **fleet byte-identical with the gate closed**).
+**Gap #6 brief on Clay's shelf.** **Frame arc gated open**, opening fixture named (K6a's shape, jitted).
+**Still open:** ipc SEQ 38 consequence 3 (the `locate` never-assertion) · the print-length defect ·
+`pop.sh`'s three owned reds.
+
+**Housekeeping:** `IncantForms/WorkingOn/incant++` is Tony's own working document, safe to ignore.
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ UPDATED 2026-08-03 — the 08-03 section follows. Older vintage from here down.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-03 — THE JIT'S LAST KNOWN CRASH DIED AT ITS CAUSE, THE SWEEP LANDED,
+#              AND FOUR CONFIDENT CLAIMS DIED ON MEASUREMENTS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## ✅ CLAIM JIT-0.1 — DECLARED, and written as a claim rather than a banner
+
+**The JIT compiles the certified instruction families with interpreter parity, certified by
+`jitLadder/ladder.sh` (83 checks, exit 0), asOf this reseal.** Families: assign · arithmetic ·
+compare · **unary (`++ --`, new today)** · if/else · while · do · multi-statement operand reuse ·
+an emitted call · the fallback column · **recursion on real frames**. Every rung compiles ONCE and
+fires TWICE with the input changed after emission, so the answers are proven to come from compiled
+code; every rung asserts **degrade count 0** and records the interpreted oracle beside its value.
+
+⚠ **EXCLUDED, AND NAMED ON THE FACE OF THE CLAIM — this list IS v0.2's contents:**
+- **Iterator semantics divergence.** A jitted action containing an iterator walk visits **0** leaves
+  where the interpreter visits **2**. Pinned in `incant/jitJUi`; **measured pre-existing** (both the
+  old and new seed gates give 0/2), and it waits on Tony's `iterT3`/trunk-arity ruling. **It is an
+  interpreter question wearing a JIT fixture.**
+- **IR persistence** — designed, unbuilt, next arc.
+- **Inlining** — parked question, blocks nothing.
+
+**The honest form of the parity statement, and it is stronger than a clean banner:** we do **not**
+claim the engines agree everywhere. We claim **they agree everywhere certified, and the one known
+disagreement is pinned and owned.**
+
+## THE FIX — the unary crash died at its cause, not under a bandage
+`jitInc`/`jitDec`/`jitNeg` had exited 139 inside `jitEmitUnary` since the 06-30 unified-emit pivot.
+`runOP`'s seed gate read `if jitting && op.isOperator`, but unary operators are registered
+`unary ruleMethod=` — **isUnary and isMethod, NOT isOperator** — so dispatch took the `isMethod` arm
+and **no operand was ever seeded**. `jitEmitUnary` derefs `target->jitData` unconditionally, so the
+miss was a SIGSEGV rather than a wrong answer.
+
+```
+    if jitting && (op.isOperator || op.isUnary)
+```
+**`isUnary` is the precise gate** — widening to `isMethod` would seed an operand for every rule
+method in the language. **No layout change** (`isUnary` was already in `.twk`, `.h` and
+`groups.ext`). Now 14 / 12 / -13, degrade 0, pinned by **ladder rung JU** (+7 checks, 76 → 83).
+
+**What made it VERIFIED rather than inferred** — the corpus had graded the cause `inferred` for four
+days and wrote its own graduation criterion. A **debugger probe** closed it:
+`gJitSeeded.size() == 0` at the crash, with `gJitBuilder`/`gJitCurrentFn`/`gJitResultSlot` **all
+non-null**. That last line **refuted the rival hypothesis by measurement** — "the emit context is not
+set up on the newly-live `jitRunAction` path" predicts a null builder — so the shared-prologue design
+question it would have raised never arose.
+
+## THE SWEEP — and the disease was nastier than the one we thought we had
+`oneTest`: 5 × `generateCode failed` → **0**; `maximus = 11` then **26 ×4**.
+
+⚠ **`generatE` WAS NEVER THE DARK NAME.** C++ reaches it via `generator["generatE"]`, a **parent
+index**. The names that went dark were **`gXpress` and `emitBC`, called by bare name from INSIDE
+SIBLING MEMBER BODIES** — so the dispatched action ran and **its innards quietly did nothing**,
+at exit 0. Repaired by hoisting the sibling once per body through the table that owns it (31 sites).
+
+## ⚠ THE REGISTER LAW, STATED AS MADE
+**`register` as a `noPrint` definition attribute publishes an otherwise-dark member into a registry**
+— `currentRegistry` by default, `registries[name]` when the attribute carries data. Dormant prior
+art, POP'd before being trusted (`incant/regProbe`, three legs): the registered entry is
+bare-findable, **the unregistered sibling stays dark**, and both stay reachable through their parent.
+**First production use today: `emitBC`**, with a negative control confirming `gXpress` stayed dark.
+
+**And the rule it operates on, measured four ways:** a member is on its **parent's** list and **not**
+on the registry's (`Generating` 49 entries with `generator` among them and no `gXpress`; `generator`
+10 with `gXpress` among them). **`incant/vantage2x2`: two names × two vantages, ALL FOUR CELLS
+DARK** — not the vantage, not the entry. **The members gate IS the mechanism**, and it is complete.
+
+## ⚠⚠ FOUR CONFIDENT CLAIMS DIED ON MEASUREMENTS TODAY — the tally, because the pattern is the point
+1. **`generatE` is the dark name** (wakeup 08-02 + briefs, carried as settled fact) — died on one
+   grep. **A parent index was working the whole time.**
+2. **"The gate has drifted, tools down"** — my own alarm, from leg B of the register POP. Died on
+   re-measuring the real specimen. **Interrogating the failing measurement before escalating is what
+   produced everything below it.**
+3. **"Registry membership is not the discriminator"** — my overturn claim. **Wrong**, and so was the
+   self-correction I offered after it. Both were inference; walking the lists settled it.
+4. **Vantage as the discriminator** (Clay's lead suspect, offered at the usual odds) — died on the
+   2×2. All four cells dark.
+
+⚠ **AND THE INSTRUMENT THAT CAUSED #2 AND #3, worth more than any of them:
+NEVER TEST EXISTENCE WITH `if x.taG;`.** A GroupField accessor returns a **fresh temporary field of
+property text**, so it is **truthy whether or not the lookup found anything**. Use `if x;`. This is
+in project memory already and was used wrongly anyway; it survived two fixture rewrites and produced
+a false tools-down alarm that would have sent Tony hunting corrupted lists — **his least favourite
+quarry, and there was nothing there.**
+
+**The standing asymmetry held again:** structural claims survived, causal claims died 4-for-4.
+
+## ERRATA AGAINST THIS FILE'S OWN EARLIER SECTIONS
+- **"`groups.ext` changes have NO COMMIT TRAIL"** (said three times below) — **false.** It is
+  **tracked in the support repo** (`~/data/support`, its own git, 5 commits naming the file).
+  Bear-trap #11's practical warning stands — *this* repo's history will not save you — but the
+  **distrust-the-audits corollary was overdrawn.**
+- **The `generatE` diagnosis** in the 08-02 section — superseded by the sweep above.
+
+## ⚠ A LATENT FINDING NOBODY WAS LOOKING FOR — `oneTest` RUNS ONE SECTION OF SIX
+`incant/oneTest` has **six `stop()` calls** and terminates at the **first**, on line 31. **32 lines
+below it never execute** — including `testUnitTests()` and the GUI-utilities section. Verified by
+marker: `hello world`, `dumpBC for`, `testGXLeaf`, `Unit Tests`, `printDefinition` all appear
+**zero** times in a full run.
+
+**This is `jiquery`'s disease (RULE H2's own worked example) sitting in the project's PRIMARY
+BASELINE**, and it means `oneTest.base` certifies only the five `generateAction` rows. **Whether the
+later sections are deliberately parked or a debug `stop()` was left in is Tony's call** — reported,
+not touched. It also corrects today's own census: the four `dumpBC` calls were **`stop()`-dead, not
+bare-lookup-dead** (deleted today per Tony's ruling; the baseline did not move, byte-identical).
+
+## WHAT IS RUNNABLE
+```
+sh jitLadder/ladder.sh       83 checks, exit 0   J1..J7, JE, JF, JP, JPd, JU + J-R
+sh genLadder/pop.sh          32 green / 1 parked  (2 documented reds, see below)
+sh genLadder/printPop.sh      9 checks, exit 0
+sh genLadder/containerPop.sh 11 checks, exit 0
+sh genLadder/tree.sh                     exit 0
+<binary> incant/oneTest      exit 0, ZERO `generateCode failed`, 11 then 26 x4
+```
+⚠ **`pop.sh`'s two reds are still deliberately unpinned.** `census.target` (genParse refuses to plan
+`MemberS` — a capability regression tangled with a deliberate grammar change; **they want separating
+before either is pinned**) and `oneTest baseline` — **whose bytecode-emit half is now FIXED**; its
+remaining 9-line diff is **only** the already-signed audit movement (the three named terms
+`JSONtoken[1] JSONblock`, `JSONvalue[1] JSONblock`, `JSONvalue[2] JSONarray` plus the `pROPERTIEs`
+index shift). **The re-pin is its own act and was deliberately not taken today.**
+
+## ✅ RULED 2026-08-03 (Tony) — TWO PRINT FORMS FROM ONE WALK
+**display** — today's behaviour, `noPrint` attributes elide, the default **for eyes**.
+**fidelity** — **`noPrint` attributes SURVIVE**; the archive persists this and the round-trip oracle
+runs against it.
+
+**The law line:** *a form meant to be **re-read as definition** must be **fidelity**; a form meant
+for **eyes** may elide.*
+
+**Why it was forced:** the archive persists entities **through the print form**, and **re-reading a
+printed definition is defining.** A `noPrint` `register` that vanished at print **never fires on
+re-read — a lit member comes back dark.** Byte-identical storage, different citizen. It also closes
+a real oracle blind spot by construction: `register` is consumed silently and does not echo in
+`printDefinition`, so a round-trip POP is blind to it — but **the archive prints what survives,
+because fidelity is *defined as* what survives.**
+
+⚠ **PREREQUISITE, TONY'S** *(⚠ corrected 2026-08-03 — the first wording was wrong in a way that
+changes the fix)*: `aCTionDefinE` does **NOT delete** a `noPrint` attribute that has a method — **it
+never ATTACHES it.** `ruleActions.rtn:207` runs the method inside `if noPrint && immediateACTION`
+and falls past the `else` that would attach it; the source comment says so outright (*"item gets run
+but is not added to the new group"*). **"Stop deleting" and "start attaching" are different edits**,
+and only the second exists. Fidelity print needs those attributes present, so this must change
+before the fidelity form can round-trip. Named now so it is not discovered at build time.
+Nothing builds today; the flag is parked at the site (`docs/supportMinion.md` TASK 2).
+
+## NEXT
+0. **Fire order is ruled: FORMS BEFORE SEARCH** — the forms corpus carries **43 measured
+   `register`-as-attribute uses**, so search's question 3 inherits a real population instead of a
+   hypothetical. Forms fires once support's census legs settle and the channel is judged clear.
+1. **Minions.** Three charters are shelf-ready (`docs/formsMinion.md` added): `docs/supportMinion.md` (recon → Buffer compress +
+   registry → Display; TASK 0 is a verbatim floor-snapshot commit; NO GRINDING) and
+   `docs/searchMinion.md` (the first **design** minion — five questions of search law, deliverable is
+   a proposal with no oracle, judged at Tony's gauntlet). **Stagger the firing** so two minions'
+   pause-and-ask traffic does not interleave in one relay channel.
+2. **The disposition sorting** — `docs/bareLookupCensus.md`, 39 sites. Unblocked now that
+   *"register it"* has a known meaning.
+3. **The census signature** / separating the `MemberS` regression from the grammar change.
+4. **`checkSkip` capture** — lower-level scan, not a callback (Tony's ruling).
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ UPDATED 2026-08-02 — the 08-02 section follows. Older vintage from here down.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-02 — THE DAY THE FLEET STARTED TELLING THE TRUTH. FOUR DEFECTS FIXED,
+#              ONE ENTIRE ARC BUILT AND THEN DELETED, AND THE INSTRUMENTS WON
+# ═══════════════════════════════════════════════════════════════════════════
+
+## IF YOU READ NOTHING ELSE — five things, in the order they will bite you
+
+**1. `tok sourceFile directivesFile` — THE DIRECTIVES FILE IS AN ARGUMENT.** A bare
+`tok GroupRules.twk` applies **ZERO** directives and says nothing about it: no warning, exit 0,
+and the injected code simply is not in the output. So a retok **silently strips every directive**
+unless the file is named on the command line. This cost a full bisect — the directives vanished,
+reverting `groupDirectives` did not bring them back, and the edit looked guilty because the edit
+was the only thing in the search space. **It was never the variable; the INVOCATION was.**
+⚠ **BUT THE DEFAULT IS BARE — cross-annotated 2026-08-05, because this item and the 08-02
+"diagnostic trace off stdout" fix below point OPPOSITE WAYS and the fork has now cost a rebuild in
+each direction.** `groupDirectives` carries ~10 `active` hooks, so naming it injects live `cerr`
+trace into ordinary runs. Use `tok GroupRules.twk` **bare** for any build whose output a POP,
+baseline or measurement will be read from, and for anything committed; name the directives file
+**only** for ephemeral instrumentation, and then neither measure a POP on that binary nor commit
+its `.mm`. Full discriminator table: `CLAUDE.md` bear-trap #23. **A trap explaining how to turn
+something ON is not a ruling that it should be on.**
+
+**2. NAME IT BEFORE YOU USE IT.** A reference term resolves by *sharing the definer's child
+list*, so a name that does not exist yet mints an empty stub that **never becomes a reference**.
+Forward-declare then flesh out:
+```
+    JSONblock isRule;      <- two lines, and they retired an entire arc
+    JSONarray isRule;
+```
+Symptoms when you get it wrong are TWO and they look unrelated: genParse plans `LITTO` where it
+should plan `CALL`, and the *first* parse fails while a later identical one succeeds.
+
+**3. ⚠ AN INCANT ACCESSOR IS NOT A tok ACCESSOR, and the failure is displaced by three files.**
+`listLengtH` is incant; in a `.rtn` it produced bear-trap #10's exact signature — `Expected } or
+statement` / `FAIL Body3` / `Expected a semi-colon` — which **cascaded and wiped GroupRules.h's
+extern block to ZERO**, surfacing as `no member named 'opEQ'` in `Bytecode.mm`. tok exited 139.
+Use `groupList` / `contents()`. **The extern canary (`grep -c '^extern' GroupRules.h`) is what
+caught it** — check it after every retok.
+
+**4. A HANG IS USUALLY NOT A HANG.** Two separate impostors met today: the **Swift backtracer's
+interactive prompt** (`Press space to interact… (30s)`) makes a SIGSEGV look like an infinite
+loop — `SWIFT_BACKTRACE=enable=no` turns it back into an honest 139; and **copying a binary over
+the signed one gets it SIGKILLed** (137) by macOS, which reads as a timeout. Re-`codesign
+--force --sign -` after any swap.
+
+**5. rStuff IS BEAR COUNTRY (Tony, and he is right).** `parse()`'s first act is
+`getStuff(pStuff)`. Anything wired in beside it crashes in ways that do not name themselves —
+null `groupBody` in `addGroup`, via `parse → testAttributes → parse`, with **zero bytes of
+output**. If a change touches rStuff, expect the failure to arrive somewhere else entirely.
+
+## WHAT IS RUNNABLE — five POPs
+```
+sh genLadder/pop.sh          32 green / 1 parked   genParse ladder + baselines + iterators
+sh genLadder/printPop.sh      9 checks, exit 0     print family, fully green
+sh genLadder/tree.sh          exit 0               §2.4 divergence unchanged (OPEN, not broken)
+sh genLadder/containerPop.sh 11 checks, exit 0     NEW — testContainer + Buffer::shorten
+sh jitLadder/ladder.sh       76 checks, exit 0     J1..J7, JE, JF, JP, JPd + J-R
+```
+⚠ **`pop.sh` reports FAILED on 2 reds that are DELIBERATELY UNPINNED** — see "TWO REDS" below.
+Everything else is green. The parked count is down from 4 to 1.
+
+## THE FOUR FIXES
+
+**`testContainer` — LONGEST-ENTRY MATCH.** The greedy scan over the container's *character set*
+is an UPPER BOUND, never the answer: set membership can say "this character could belong to some
+entry", never "is this prefix an entry", because a set has no notion of where an entry ends. Any
+container holding both a symbol and a word poisons the symbol with the word's letters. `Operators`
+holds `negate` and `modedOP`, so `n e g a t m o d` are all in its set and **`9 -grup` scanned
+`-g`** — an entry of nothing — taking the enclosing statement's parse with it, silently, at exit 0.
+Now the buffer backs off one character at a time (`Buffer::shorten`, new, mark-unaware on purpose)
+until it IS an entry or is empty. **Same disease class as the ShortcuT `+`-merge that sank `,`:
+set-based character grouping making token decisions. Two specimens; the class has a name if a
+third surfaces.**
+
+**Forward references — and the fix is grammar, not machinery.** See item 2 above. jsonTest went
+11 ok / 2 FAIL → **13 ok / 0 FAIL**, and its baseline is byte-identical again.
+
+**Iterator refusal — announced once, poisoned, and the advance is the only reader.** A refused
+`iterate` returned 0 *before* setting `isIterator`, so `while ++grup` missed `opPlusPlus`'s
+iterator arm and fell through to the **DATA** arm — `if !data count = 1;` returns the node, which
+is truthy, **so the loop could never end**. Now `aCTionIterate` announces once at the door and
+sets `fLAG`; `++`/`--` gate on it before any advance work; the `while` is untouched.
+**THE RESET LIVES ON `aCTionIterate`'s SUCCESS PATH** and nowhere else — the poison means "the
+LAST iterate on this node was refused", so a fresh successful iterate is exactly what clears it,
+and re-running the Iterate rule is now the only way to change a source. `iterT1m` went from HANG
+to exit 0. Uses the existing `fLAG`, so **no layout change** — no `groups.ext`, no `tokall`.
+
+**Diagnostic trace off stdout.** Three POP targets were broken by an *instrument*:
+`printFamily.target` diffed `0a1,288` and `printFamilyNew.divergence` `0a1,292` — lines
+**prepended**, zero content divergence. Cause: directive hooks tracing with `cout`, which is never
+divertible. All 47 sinks in `groupDirectives` are `cerr` now (not just the 3 live ones — the other
+44 are landmines for whoever flips a `ctive` to `active`), and the `.mm` are retok'd without
+directives at Tony's word.
+
+## ⚠ THE ARC THAT WAS BUILT AND THEN DELETED, and why that is a good outcome
+
+A whole deferred-repair mechanism — `finalizeRegistry`, `finalizeRegistries`, `finalizeIfDirty`,
+`registriesDirty`, `markRegistriesDirty`, a dirty flag, a `currentDefine` gate, two reader entries
+— was built, made to work on the census half, and then **deleted in favour of two lines of
+grammar**. Trail: `3957233 / 713d45f / 8bb989e`, superseded by `c8d38f6`.
+
+**Read this before rebuilding any of it.** The arc was not wasted: it produced the measurement
+that made the two-line fix findable (`incant/termScratch` showing three sibling options of ONE
+alternation split by nothing but declaration order). But **the deletion was licensed by a probe,
+not by optimism** — the census was re-run with the sweep disabled and still read `CALL`, because
+*"the fix works"* and *"the old machinery is redundant"* are different claims and only the second
+justifies a deletion.
+
+**Three hypotheses died in that arc, each on one measurement, and the pattern is the lesson:**
+- *"identity — the readers see different nodes"* → pointer probes: **same GroupItem, same
+  GroupBody, both readers.** Killed.
+- *"the write does not stick"* → probe right after the assignment: `kids=1`. **It stuck.** Killed.
+- *"the hook site is wrong, find a better one"* → true but unfixable, because **input lifetime and
+  define lifetime are independent**. popInput was too late (only the 10 base registries exist at
+  include-pop); pushInput crashed. That is the same fact from both ends.
+
+## TWO REDS LEFT, BOTH DELIBERATELY UNPINNED — pinning either would freeze a real defect
+- **`census.target`** — the diff is now ONLY Tony's `MemberS ':'- MEMBERs- Mlist=DefinE+;`
+  rewrite, but **genParse now REFUSES to plan MemberS**. The grammar change is deliberate; the
+  planner losing a rule is a capability regression. **Those two want separating before either is
+  pinned.** Tony's signature.
+- **`oneTest baseline`** — the audit movement plus **`generateCode failed`: the whole bytecode
+  emit is gone.** `generatE` (`incant/generate:233`) sits one indent deep — a MEMBER — and is
+  reached by bare lookup, which the new members gate no longer serves. **That is the bare-lookup
+  sweep's first fix, not a re-pin.**
+
+## NEXT, in order
+1. **The bare-lookup sweep**, gXpress first. Grep the tree for every site that locates a
+   member-depth name by bare lookup and fix the population in ONE pass — the gate's blast radius
+   becomes a counted list instead of a series of ambushes. `oneTest baseline` goes green with it.
+2. **The census signature** (or the separation above).
+3. **`checkSkip` capture — LOWER-LEVEL SCAN, NOT A CALLBACK** (Tony's ruling). One skip/consume
+   primitive that understands quoted strings and comments, with BOTH `checkSkip` and `aCTionCodE`
+   routing through it. A callback bolted onto `checkSkip` leaves `aCTionCodE` to grow its own
+   quote-awareness later — two implementations in one subsystem. **This retires `CLAIM KANT-40`
+   by construction**: an action containing a comment containing `}` survives capture and runs.
+   C++ now, kant at self-hosting.
+4. **Timed green pass → per-block POPCAP budgets** at measured-time × margin. The 90s default is a
+   courtesy allowance, not a target.
+
+## TONY'S OFFLINE WORK THAT LANDED TODAY (his words, kept because they explain the fleet)
+- **Iterators finished.** They filter on attributes or members, triggered by whether the iterator
+  `isAttribute` or `isMember`. **Resetting an iterator is REMOVED from `:=`** — to change a source,
+  run the Iterate rule again. All the unused `iterWhatever` methods were removed rather than
+  updated for changes not worth making.
+- **The attribute-pollution fix**: `aCTionDefinE` did not gate on member processing.
+  `aCTionNewGroup()` sets `currentDefine`; `processFlags()` gets a `MEMBERs` toggle from the
+  `MemberS` rule setting an `addingMembers` flag that `aCTionDefinE` gates on. So
+  `MemberS ':'- MEMBERs- Mlist=DefinE+;`. **Note the consequence, and it is load-bearing: if
+  `currentRegistry.isRule` members get added to it; if not they are NOT added to the
+  currentRegistry and so are not found by `locate()`.** That is what `generateCode failed` is
+  downstream of.
+- Still open, his: mutual recursion loses locals (`iterT1m` pins the wrong answer at 14 lines
+  where 7 is correct) · `iterT3`, the last parked fixture.
+
+## DOCTRINE ADDED TODAY
+**RULE H5 — A FIXTURE MUST NOT BE ABLE TO DELETE THE REST OF THE SUITE.** `iterT1m` began to hang,
+so `pop.sh` never reached its summary, its exit status, or the eleven checks below the iterator
+block. Those checks did not fail and did not pass — **they ceased to exist**, and the operator
+sees a terminal that is merely quiet. Worse than the missing-sentinel case, because there is no
+output to be suspicious of. **And the fixture that did it was a PARKED one**: parking bounds a
+VERDICT, and it never contemplated a fixture bounding nothing at all by never returning. So every
+fixture runs under a wall-clock cap, and **a timeout fails the suite even when parked** — a hang
+is not a wrong answer, it is the absence of a run, and nobody parked that.
+
+**A PARKED PIN THAT STARTS PASSING MUST GRADUATE.** `WOKE` fired twice today and both fixtures
+came off the list. Parking means *"the answer has not been chosen"*; once it is chosen the item is
+either a full check (`iterT1`, whose original target held byte for byte) or a deliberately pinned
+known defect (`iterT1m`, the `tree.divergence` pattern) — **never still parked**. A pin that
+silently begins to hold is how a parked item becomes a forgotten one.
+
+**A RE-PIN NEEDS A SENTENCE, NOT A GREEN DIFF.** Both of today's "probably fine, just re-pin it"
+candidates came back **regression** on one grep each. The audit's `15 → 12` was signed only once
+the three vanished terms were *named* (`JSONtoken[1] JSONblock`, `JSONvalue[1] JSONblock`,
+`JSONvalue[2] JSONarray`) and explained. **Without that discipline both breakages would have been
+frozen into the baselines as truth.**
+
+**PRIOR ART BEATS SPECULATION.** The forward-reference fix was two lines that a worn path already
+sanctioned, reached after a day of armchair analysis about fill-in-place and cycle depth. Tony's
+call — *"act like it won't until it do"* — was right, and the experiment answered in under a
+minute. **When a question is measurement-shaped, measuring is cheaper than deciding it is safe to
+measure.**
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ UPDATED 2026-08-01 — the 08-01 section follows. Older vintage from here down,
+# still broadly accurate, just no longer the top of the story.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-08-01 — THE LONGEST DAY IN THE RECORD. J-R WENT GREEN, THE CONVERSION
+#              ARC OPENED AND RAN TWICE, AND THE NUMERIC TOWER GOT ITS RULINGS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## IF YOU READ NOTHING ELSE — five things, in the order they will bite you
+
+**1. `cerr` AND `cout` ARE NATIVE STATEMENT KEYWORDS.** Three sinks, three different things:
+`print` is DIVERTIBLE (buffer if armed, else stdout); `cout` is NOT (always stdout); `cerr` is
+NOT (always stderr). Neither `opCout` nor `opCerr` consults `toBUFFER`, and **in both cases the
+missing test IS the feature** — adding it back to `opCout` restores KANT-23 exactly. Fixture
+`incant/sinkT` pins all three under an ARMED diversion, the only condition that tells them apart.
+
+**2. THE JIT NOW DOES RECURSION, ON REAL FRAMES.** `J-R` is green — factorial through an
+**emitted self-call**, fired at two depths (6→24), plus `jitJRL` where a LOCAL read *after* the
+recursive call returns proves per-activation storage (5→9; aliased slots would give 4→6).
+**Depth-1 passes on aliased slots and depth-N cannot**, which is why both depths are asserted.
+
+**3. ⚠ INLINING IS THE CALLING CONVENTION, BY CONSTRUCTION.** A non-recursive jitted call is
+INLINED — emit-on-walk re-executes the callee's BlocK into the caller's builder, so there is no
+`call` instruction at all. Only a SELF-call gets a real call, because inlining one cannot work.
+Zero call overhead, mem2reg optimises across dissolved boundaries, and **small composed actions
+are the FAST idiom** — which the conversion arc should know, since it is minting that population.
+
+**4. THE CONVERSION ARC IS OPEN AND HAS RUN TWICE.** Order ratified:
+`emitMany` → `countRuleTerms` → `printPlan` → `emitPlan` → `unresolvedTerms` → `planRule` →
+`planTerm`. **Conversion 1 is CLOSED** (kant `emitMany` answers through the seam, `rung5.target`
+byte-identical, `MANIER kant` pinned). **Conversion 2's kant is written and NOT wired** — see
+OPEN below, it is blocked on a real ordering problem.
+
+**5. ⚠ A CLOSE-BRACE CANNOT APPEAR ANYWHERE IN AN ACTION BODY — INCLUDING IN A COMMENT.**
+`aCTionCodE` scans for the first one with no quote awareness and no comment awareness.
+`CLAIM KANT-40` was earned by writing a comment *explaining* this, which contained the character,
+which ended the capture. The whole action vanished at exit 0. **Do not write it in any form,
+including while describing it.** Emitters carry `closeBrace="}"` as a define-line trait instead.
+
+## WHAT IS RUNNABLE — four POPs, all exit 0
+```
+sh genLadder/pop.sh        29 green / 5 parked-WIP   genParse ladder + baselines + conversions
+sh genLadder/printPop.sh    9 checks                 print family, now fully green
+sh genLadder/tree.sh                                 §2.4 divergence unchanged (OPEN, not broken)
+sh jitLadder/ladder.sh     76 checks                 J1..J7, JE, JF, JP, JPd + J-R
+```
+⚠ **"5 parked-WIP" IS THE CLEAN STATE, NOT DEBT.** The five iterator fixtures are pinned to an
+OLD design; Tony reworked iterators offline and their semantics are his. They re-pin when his
+work lands, as part of it. **A `WOKE` alarm fires loudly if one starts passing** — negative-
+controlled, so it is known to work.
+
+## THE LANGUAGE MOVED — rulings implemented today
+- **`/` PROMOTES.** `10/4` → `2.5` typed double. **Always** a double, including `8/4` — because
+  premise 1's datA-stability contract forbids a result type that depends on runtime values.
+- **Narrowing rounds HALF-UP, uniformly**, in ONE place: `getCount`'s `isNUMBER` arm. Not
+  `lround`, which rounds half away from zero and disagrees on negatives.
+- **Compound assign computes in doubles and narrows the RESULT**; the **binary family PROMOTES**.
+- **`arrondir(x)`** is explicit rounding. ⚠ Named in French deliberately: `round` is libc and an
+  `extern "C"` clash is bear-trap #12. **Borrowing a word from another language beat inventing
+  one** — it removed both the collision and the `=method` indirection.
+- **`||` is registered** (`'||' operateMethod=opOR`). ⚠ **It EVALUATES BOTH ARMS** — structural,
+  an operateMethod receives already-evaluated operands. And **`!a || !b` IS NOT `if !a; or !b;`**
+  on absent attributes (KANT-35) — multi-attribute presence checks MUST stay sequential.
+- **`isRulE` has its opDot case.** ⚠ The fix was TWO lines, not one: unnumbered GroupFields
+  entries get no index at all, so they hit the `default` arm. Ten more are in that state.
+
+## ⚠ OPEN, AND WHOSE
+
+**Blocking conversion 2 (foreman's, needs one measurement):** `parseRuleMethod` calls
+`countRuleTerms` at **DEFINE** time, but `genScratch`'s `search … list;` runs AFTER the define
+block — so a `locateCounter` fork would find nothing at define time and **the binder would run
+C++ while `planRule` ran kant**. Two implementations in one subsystem, which that method's own
+header forbids. Fixture ordering is the remedy. **Do not land the fork before settling it.**
+
+**Tony's:** the T6 generation assessment (below) · the iterator semantics · the name-scope
+pollution fix (`docs/nameScopeRecon.md`) · the `ruleOrRefuse` convention change.
+
+**Foreman's, parked demand-driven:** the `}`-scan and quoted-whitespace gaps. Neither blocks
+anything; they jump the queue with a specimen attached.
+
+## T6 — THE GENERATION ASSESSMENT, awaiting Tony's go (`docs/jitDesign.md`)
+**34 ops carry an `operateMethod`; exactly TWO have a `switch(data)` dispatch tree.** So
+`opPlusEQ` — the probe — is the OUTLIER, not the exemplar. Answer is **per-family**: GENERATE the
+comparison six (character-identical but for three slots, and generation closes §3.5's bypassed
+null-guards by construction); SHELLS for arithmetic + compound assign; DON'T for the ~20
+structural ops. **15 ops still carry the top-gate shape T1 condemns**, ~1 mechanical edit each.
+
+## INSTRUMENT LESSONS PAID FOR TODAY — all three were the harness lying
+- ⚠ **`pop.sh` called `sentinel` without defining it.** Copied the idiom, not the helper. Every
+  run printed `command not found` and CARRIED ON — the check did not pass, did not fail, **it
+  ceased to exist**. H2's own failure mode inside the harness that enforces H2, and the second
+  instance after `jiquery`. Found by minionA, which deliberately did NOT fix it because the brief
+  pinned the count.
+- ⚠ **A negative control needs its own negative control.** Renaming a sentinel to
+  `MS SENTINEL-BROKEN` still passed — `grep -F` matched it as a SUBSTRING.
+- ⚠ **A number written without measuring it is a lie in the ledger.** One commit says
+  "jitLadder 78/78"; the real count was 76.
+
+## THE MINION HARNESS — two rounds, both strong
+Round 2 (`emitMany`) and round 3 (`countRuleTerms`) both held the carve-out exactly: kant only,
+no `tok`, no `xcodebuild`, no `groups.ext`. **Round 3 hit no obstacle a corpus claim should have
+prevented** — the corpus worked as an instrument. Its own headline: **a double-quoted literal
+SPANS NEWLINES**, so ten `cerr` statements became one and the emitter now looks like the C++ it
+emits. That was Tony's instruction and it held.
+⚠ **A crash autopsy (KANT-25) found the loss from a mid-round 500 was ZERO** — the transcript is
+the persistence layer and resume reads it. **Do not build preservation machinery against it**; the
+cure proposed at the time collided with the spawn rule's only-write-to-the-corpus clause.
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ UPDATED 2026-07-31 — the 07-31 section follows.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-07-31 — THE STRING EXPRESSION MOVED TO `#`, TWO LANGUAGE RULINGS LANDED,
+#              AND THE JIT GREW A LADDER THAT CERTIFIES ITS OWN CLAIMS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## IF YOU READ NOTHING ELSE
+
+**`#` is the string-expression opener.** `x = #"a" "b";` replaces the old `string` keyword.
+It was tried as `,` first and that had to be abandoned: `,` is already in the shortcut set
+(`ShortcuT=[-+~`$_:,]+`, `incant/grammar:92`) whose `+` MERGES adjacent shortcut characters, so
+a `,` inside a print had two readings — and `print "it is", maximus + 3, "done":;`, live in
+`unitTests`, SEGFAULTED. `#` is not in that set. Record: `incant/hashProbe`.
+
+**`$` is now a PERSISTENT TOGGLE.** `useDefaultSpace = true` was removed from `opPrint`/
+`opString`. `processAction` resets it before each action runs, so it cannot leak *into* one, but
+it survives across statements *within* one and a nested call resets it. **The safe idiom is
+BALANCED `$ … $`** — off at the start of a statement, on at the end. `incant/printFamily` is
+the worked example; `incant/stringT` row 4 pins the persistence itself.
+
+## WHAT IS RUNNABLE — five POPs, all green, all exit 0
+```
+sh genLadder/pop.sh        30 checks   genParse ladder + baselines + branch semantics
+sh genLadder/printPop.sh                print family (moving half still pinned WRONG)
+sh genLadder/tree.sh                    §2.4 divergence unchanged (OPEN, not broken)
+sh jitLadder/ladder.sh     47 checks    THE JIT LADDER, rungs J1..J7
+<binary> incant/jiquery                 the JIT minion corpus, queried
+```
+⚠ **`pop.sh` echoes the binary it is testing as its first two lines.** All three genLadder POPs
+used to hardcode a DerivedData path from a project that no longer exists; a stale binary does
+not fail as a diff, it HANGS. They now use `${INCANT:-$HOME/bin/incant}`.
+
+## THE JIT LADDER — the month's main artifact
+`jitLadder/ladder.sh`. **Nothing in this tree had ever asserted that an ACTION, jitted end to
+end, RETURNS THE INTENDED VALUE.** Each rung is the previous plus ONE construct, so a red NAMES
+the construct.
+
+| rung | adds | the claim it proves |
+|---|---|---|
+| J1 | assign + arithmetic | the OPERANDS are read at run time |
+| J2 | if/else | the BRANCH is decided at run time |
+| J3 | while | the loop RUNS THE RIGHT NUMBER OF TIMES |
+| J4 | do | the body runs ONCE when the condition starts FALSE |
+| J5 | multi-statement operand reuse | **attribution, not coverage** — the clobber's trial |
+| J6 | an emitted call (`jitTrace`) | a call is EMITTED and runs PER FIRE |
+| J7 | fallback column on a real opMethod | emit a call, GET A VALUE BACK, layout-free |
+
+**EVERY RUNG COMPILES ONCE AND FIRES TWICE**, input changed *after* emission. A right answer
+does not prove compiled code produced it — under jitting the interpreter executes the body for
+real at emit time, so a naive POP goes green on an emit-time side effect. Fire 2 recompiles
+NOTHING; if its answer tracks the input, the computation happened at RUN TIME.
+⚠ **INJECTIVITY: the two ANSWERS must differ, not just the inputs.** J1–J6 satisfied this by
+luck; J7 (`17 % 3` and `20 % 3` are both 2) is where it surfaced.
+Every rung also asserts **degrade count 0** and records the **interpreted oracle** beside its
+value — §0 sentences the interpreter, so the ladder banks its testimony while it can.
+
+## THE FRAME MODEL IS NEXT, AND IT IS TEED UP
+**Recon done, nothing built.** `docs/jitDesign.md` Part III.
+
+⚠ **THE FRAME SCHEMA ALREADY EXISTS IN THE TREE** — `(isArgument || isLocal) && !noPrint`,
+walked forward by `saveLocalFields` (`GroupActions.rtn:697`) and backward by
+`restoreLocalFields` (`:524`). The JIT **inherits** it rather than inventing one.
+⚠ **THE FUNCTION §0 SENTENCED TO DEATH IS THE ONE THAT DOCUMENTS WHAT TO BUILD.** Read it
+before deleting it; do not delete until the replacement is green. **Inherit the schema, NOT the
+bug** — `CLAIM KANT-8` lives in the same machinery.
+
+**Increment 1:** schema walk at emit → one alloca per local → prologue in → locals via alloca
+while **globals keep baked addresses and immediate store-through** → epilogue out.
+⚠ **IT IS NOT INDEPENDENTLY PROVABLE.** Without recursion, allocas-for-locals is
+behaviour-neutral. A rung can assert STRUCTURE plus a value regression net, and **must label
+itself not-the-proof**. **J-R is the proof** — factorial-shaped, fired at TWO DEPTHS, because
+depth-1 passes on aliased slots and depth-N cannot.
+
+## LANGUAGE RULINGS IMPLEMENTED (Tony's, 2026-07-31)
+- **A bare `return;` yields the PRIOR statement's value.** An action's value is the value of the
+  LAST EXECUTED STATEMENT; `return` means *stop*. It used to yield the string `"return"` —
+  KANT-10 leaking through `aCTionBrancH`. Fixture `incant/retProbe`.
+- **`break` is CONSUMED by the innermost loop** and propagates nothing, so statements after the
+  loop run. It used to make post-loop code unreachable. Fixture `incant/loopBranchT`.
+- ⚠ Both share a structural root — **the VALUE and the BRANCH SIGNAL ride the same node** — and
+  both are retired at crossover rather than fixed, because in IR a `br` carries no value.
+
+## RULES ADOPTED THIS MONTH (CLAUDE.md Testing)
+**H1** a harness echoes its binary · **H2** every harness asserts its own completeness with a
+sentinel unreachable except through the final section · **H3** assert what only moves when the
+answer moves · **H4** presence-with-value, never absence-of-message (fleet-audited, no
+conversions owed) · **E1** a bracketing emitter leaves nothing in flight · **one channel, one
+meaning** · **prefer a structure that makes the failure unconstructable** · **retirement by
+mapping** · **in a demolition arc the recon is how you learn what the condemned code knows**.
+
+## OPEN, and whose
+**Tony's:** the crossover ruling (degrade loudly?) · `sink=`'s run-time half (the define-time
+half is cheap; `definingRule()` cannot reach a rule from a parsed instance — `ipc/clod-to-clay.md`
+SEQ 36) · `knownErrors.md` KE-1/KE-2 · FormaT does not fire, and when fixed its lead character
+should be `%` not `#`.
+**Mechanism curiosity, blocks nothing:** why seeding happens per use against bear-trap #9, and
+why a `do` body is not block-wrapped where a `while` body is (`openWalkStructureReads`).
+
+## ⚠ THE INSTRUMENT THAT CHANGES HOW YOU DEBUG
+```
+INCANT_JIT_DUMP=2 <binary> incant/<fixture> 2>&1
+```
+**Mode 2 is PRE-mem2reg — the EMITTER'S OWN output.** Mode 1 cannot tell you whether the emitter
+emitted something or the optimiser produced it, which is the first question any emitter failure
+raises. The result-slot clobber was invisible at `=1` because folding hid it.
+And **`jitTrace(field)` is the print that survives jitting** — `print` fires at EMIT time under
+jitting and reports compile-time state once: **it appears to work and it lies.**
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠⚠ UPDATED 2026-07-30 — the 07-30 section follows.
+# Everything from `# ⚠ UPDATED 2026-07-29` down is 07-29 vintage and still accurate; it is
+# just no longer the top of the story. CLEAN STOP, tree clean, both POPs green.
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 2026-07-30 — TWO MINIONS RAN, THE JIT GOT ITS FIRST INSTRUMENTS, AND
+#              "EXIT 0" STOPPED MEANING SUCCESS
+# ═══════════════════════════════════════════════════════════════════════════
+
+## THE ONE THING MOST EXPENSIVE TO LOSE, if you read nothing else
+
+**AN INCANT PARSE FAILURE ABANDONS THE REST OF THE FILE AND STILL EXITS 0.** No `stop:`
+line, prior output still flushed, every assertion before the bad line still passing. It is
+indistinguishable from a short, complete, successful run — and it is **worse than the
+SIGSEGV case**, because 139 is at least visible.
+
+```
+A: before the bad line     <- printed
+x = $"a" _ "b";            <- RunRulE: expected a method not x   (stderr)
+B: AFTER the bad line      <- NEVER PRINTED
+EXIT=0, no stop: line
+```
+
+**Mitigation, and every new fixture must carry it: a SENTINEL** — a known marker as the
+file's last statement, asserted FIRST and by name. Absent sentinel ⇒ the run truncated ⇒
+every other "ok" in it is *uninterpretable*, not merely incomplete. `genLadder/printPop.sh`
+implements it and negative-controls it. Written into `CLAUDE.md`'s testing doctrine as a
+third corollary.
+
+**Its shell-level twin: `${PIPESTATUS[0]}` is silently EMPTY in zsh** (bash spelling; zsh
+uses `$pipestatus`) and reports every run as passing. Take `$?` directly from the binary,
+never through a pipe. **It bit three separate agents in one day**, including this one.
+
+## WHERE WORK STOPPED, AND WHY — 35b is PARKED ON A DESIGN DECISION, not on effort
+
+**Tony took it offline on 2026-07-30.** *"The issue here is shortcuts, I want them in; now
+have to figure out how best to make that happen."* **Do not start 35b until that lands.**
+
+The blocker, measured: **no print shortcut parses in an `ExpressioN` position.** `$`, `_`
+and `,+` all fail (`ERROR processCode: <action> parse failed`). Cause, per Tony:
+**ExpressioN does not deal with shortcuts — PrintXP does**, and the right-hand side of an
+assignment is an ExpressioN. A design boundary, not an accident.
+
+Why that blocks 35b specifically: its briefed oracle is "the 24 `string` call sites,
+byte-identical under the omitted form." **There are 30, and 25 of them carry a shortcut**
+(overwhelmingly `$` — `local = string $"t" at;`, `cellName = string $"c" r "x" c;`). Those
+25 **cannot be written in the omitted form at all**, so the oracle as briefed covers 5
+sites, and the 5 least representative ones.
+
+**Three questions are open and were put to Tony** (see `ipc/clay-to-clod.md`, foot):
+1. **BLOCKING** — is 35b's oracle the ~5 shortcut-free sites; or should the omitted form
+   reach shortcuts (which routes `=`'s RHS through PrintXP — much bigger than "add list
+   handling"); or is the oracle a *fixture* mirroring the shapes rather than converting
+   live sites?
+2. Does `=` want the same append/assign rule `+=` got, or does `=` always assign? *(Do not
+   infer it — the amendment's own root cause was reading `=` and `+=` as one operation with
+   a modifier.)*
+3. `=` with a list on a non-string target: leave it (today it yields `xlInSet`, an
+   **uninitialised read** — broken, not merely absent) or make it a loud refusal?
+
+## 35a IS DONE AND IN THE PRODUCT
+
+`field += this that and the other` concatenates. The arm sits above `opPlusEQ`'s
+`isLIST → copyListTo` short-circuit and routes through `appendGroup` + `opString` — **one
+call, not a loop**, because appendGroup already walks a list and an expression list answers
+`isLIST`. Fixture `incant/concatT`.
+
+- **Oracle answered empirically: there are NO `+=`-with-a-list call sites in the tree.**
+  Instrumented the copyListTo arm and ran 17 named fixtures — **zero hits**. That arm is
+  dead in-tree; there was no behaviour to preserve. Absence scoped to those 17 by name.
+- **Append if the target has data, assign if it does not** (Tony's ruling). The guard is
+  `data`, **not** "text is non-empty" — **a field with no data returns its TAG from
+  `.text`**, so an unguarded pre-load would concatenate onto the field's own name.
+- Trailing space under default spacing is **the user's to deal with** (Tony). A shortcut
+  that backs up over one is a noted maybe, not scheduled.
+
+## THE RULING TONY OWES, AND IT IS BIGGER THAN THE ITEM THAT SURFACED IT
+
+**`CLAIM KANT-22` — KANT HAS NO STATEFUL RECURSION.** Both routes barred, different reasons:
+
+| route | state across the recursive call |
+|---|---|
+| named self-call | **does not compile** (KANT-6, exit 139, re-tested 07-30 and it holds) |
+| `this(...)` | compiles, **locals SHARED** — inner overwrites outer's (KANT-7) |
+
+Neither claim is new. **The conjunction is**, and it was missed for a whole round because
+each was filed as a fact about `spellLeaf` rather than about the language. **It bars
+`emitPlan`** — which accumulates text across a walk and reads its accumulator after each
+recursive call — so it **bars step 3 of the minion arc**, which nobody knew when the arc was
+planned.
+
+**Three exits: fix the self-name bar; make `this()` per-frame; or adopt the CARRIER
+DISCIPLINE** — *anything that must survive a recursive call lives on a carrier node, never
+in a local*. Sharing can't reach a carrier and neither can a restore. **Exit 3 costs
+nothing, works today, needs no runtime change**, and under it `emitPlan` is writable in kant
+right now. The warm-up workaround was considered and **rejected** by Clay: it manufactures a
+configuration nothing in the product will be in.
+
+## THE JIT HAS INSTRUMENTS FOR THE FIRST TIME
+
+Nothing in the live tree had ever called `verifyFunction`, and no IR had ever been dumped.
+
+- **The verifier REFUSES** (`-5`), placed *before* mem2reg so it catches the emitter's own
+  output. **It is SILENT on the gIF fixtures** — and that is the finding: a branch with a
+  missing merge is *valid* IR that computes the wrong thing. Validity and correctness are
+  different questions.
+- **`INCANT_JIT_DUMP=1` dumps the module.** Env var, not a GroupBody flag, so no bitfield
+  shift and no `tokall`. **This is what produced bones:**
+
+```
+endif:                        ; preds = %then, %entry
+  ret i32 99                  ; ⚠ A CONSTANT — taken and not-taken IR are IDENTICAL
+```
+
+  The **store is properly conditional** (`maximus` correctly stays 11 on the not-taken
+  path); the **return value is not merged**. So the defect is precisely a missing
+  return-value merge. ⚠ **This CORRECTS the record** — the stored note "IR: unconditional
+  store + `br i1 true`" describes the OLD state; unified emit-on-walk fixed the branch.
+  Second finding read off the dump: **field slots are `inttoptr` absolute addresses, not
+  allocas, so mem2reg has nothing to promote** — the "mem2reg is the foundation" comment
+  does not hold for baked field addresses.
+- **`jitDegrade` lifted** — §0's "degrade to the oracle LOUDLY", which existed exactly once
+  and was **inside `if result.isIterator`, a gate §0 schedules for deletion**. It carries a
+  counter, which is the point: ~53 silent fallbacks become countable. ⚠ **It has NO
+  behavioural coverage** — its two call sites are unreachable by any fixture, blocked by an
+  open question (see below). `incant/jitDegradeT` is committed reaching its sentinel and
+  **not** its target, and says so in its own header.
+
+## TWO MINIONS RAN. Both held their sandbox; leak-checked mechanically, not on trust.
+
+**Grammar minion (new, its own corpus `docs/grammarCorpus.md`, no frozen brief).**
+- Round 1: `cout` **built** via runtime graft; `cerr` **REFUSED** with evidence (`opPrint`
+  is a two-arm if). The refusal was the better half and was accepted as success.
+- Round 2: the **print-family POP** (`sh genLadder/printPop.sh`, 9 checks, exit 0, its own
+  script — it correctly refused to touch `pop.sh`). `cerr` rows **pinned RED on purpose**,
+  `iterT1m`-style; they flip when the C++ lands.
+- ⚠ **It corrected its own predecessor**: GRAM-3's byte-identical oracle was captured
+  **entirely with the diversion unarmed** — the one condition under which correct and broken
+  are indistinguishable. **`cout` under an armed diversion goes into the buffer.**
+
+**Minion A round 2 is HELD**, and not on judgement: **every remaining emitter in genParse
+writes its PRODUCT via `cerr`** (`emitMany` 11, `printPlan` 6, `emitPlan` 14, `planTerm` 11)
+and **kant has no stderr**. Targets are captured from stderr, so a kant version cannot
+reproduce its own target. `emitLeaf` was convertible only because it *returns* a String.
+Pre-registration is in `docs/minionAledger.md`, difficulty confound named **before** the
+round. Softened but not cleared by GRAM-6 (below).
+
+## DOCTRINE ADDED TODAY — all of it paid for the same day
+
+- **`CLAUDE.md`** — the exit-0 third corollary + sentinel discipline (above).
+- **An ABSENCE claim must name where it looked.** `CLAIM KANT-17` said no member-filtered
+  accessor existed; foreman added one an hour later, falsifying the corpus.
+- **OPEN is a third shape** beside CLAIM and BLOCKED. `KANT-20`'s own scope had to call
+  itself "an open item wearing a claim's clothes."
+- **AN ORACLE IS ONLY EVIDENCE OVER THE CONDITIONS IT WAS CAPTURED UNDER.** A fixture that
+  does not vary the discriminating condition is **silent, not green**. Three of today's
+  failures are instances: GRAM-3 never armed the diversion; `spell.target` never crosses a
+  renamed sink; the four baselines never reached a recursive action with a list-carrying
+  local.
+- **A status table is a claim with an `asOf` nobody wrote down.** `jit.md`'s Phase-1 unary
+  rows say DONE; all three exit 139. **Left standing with the contradiction beside them** —
+  they were TRUE when written and were falsified by the 06-30 pivot that folded out `jitXP`.
+- **THE PROPAGATION FAILURE, logged in `grammarCorpus.md`:** the minion read `opPrint`
+  correctly; foreman verified the *reading* and carried the *inference* further; Clay checked
+  the inference against the reading. **Nobody re-derived the `'p'` test from source.** It
+  took Tony opening the file. *"I verified X" and "I verified someone's reading of X" are
+  different acts and read identically in a report.*
+
+## OPEN, and whose
+
+**Tony's:** the KANT-22 stateful-recursion ruling (three exits) · the shortcuts-in-
+ExpressioN design (parked, offline, gates 35b) · the JIT seam ruling — whether the JIT gets
+rung 3's walk-decides/emitter-writes shape, which is what turns ~53 undeclared fallbacks
+into a countable artifact · the `sink=` proposal (GRAM-P1) replacing the `'p'` character
+test · whether `=` gets append/assign · the upload bundle (`docs/jit.md`,
+`docs/jitDesign.md`, TODO's JIT sections).
+
+**Clod's, unblocked:** the `isCoded` question — a `define` in an **included** file yields a
+coded field, the identical define in a **top-level script file** does not (`jitAdd` works,
+`walkBag` does not). Plausibly bear-trap #15's family, **not established**. It is what
+blocks coverage for `jitDegrade`.
+
+**Still open from before, untouched:** everything in the 07-29 and 07-28 sections below.
+
+## RUN RECIPE — what is new today
+```
+sh genLadder/pop.sh                      # 22 checks, exit 0 (unchanged)
+sh genLadder/printPop.sh                 # 9 checks, exit 0, moving half pinned WRONG
+INCANT_JIT_DUMP=1 <binary> incant/jitGifScratch 2>&1     # the IR, first time visible
+<binary> incant/concatT                  # 35a, 5 rows + sentinel
+<binary> incant/nameRecurse              # per-frame locals + .firsT affiliation + 403/404
+<binary> incant/jitDegradeT              # ⚠ reaches its sentinel, NOT its target
+```
+New this day: `.firstMembeR` (opDot case 405) · `.firsT`/`.lasT` no longer segfault on a
+leaf · `jitDegrade` · the verifier · the dump. **`groups.ext` was NOT touched today.**
+Extern canary **203 → 204** (jitDegrade), the one addition accounted for.
+
+# ═══════════════════════════════════════════════════════════════════════════
+
+# ⚠ UPDATED 2026-07-29 — read the 07-29 section FIRST (it is directly below this header block).
+# THE JIT REPLACES THE INTERPRETER, and 07-29 was the ITERATOR + Minion-A-harness day. The
+# genParse ladder narrative that follows is 07-28 vintage and still accurate; it is just no
+# longer the whole story.
+#
+# Incant — Status & Handoff (2026-07-28: SHAPE (SEQ 25), RUNG 4, the SEAM (SEQ 26), and RUNG 5
+# (SEQ 27), RUNG 6 (SEQ 28) and RUNG 7 (SEQ 29) all landed. The walk DECIDES into a plan of
+# GroupItems, the emitter WRITES from it, and SEQ/ALT/LIT/LITTO/CALL/MANY/OPT all emit. THE WHOLE
+# JSON FAMILY NOW PLANS. ⚠ RUNG 7's TREE POP FOUND A REAL PRE-EXISTING §2.4 GAP — read it before
+# trusting an alternation. `sh genLadder/pop.sh` is the one-command POP.
+# Everything RUN with exit status checked. CLEAN STOP — see "WHERE THIS STOPPED" below.)
+*Written by Clod for a fresh Clay/Clod with ZERO memory of today. Self-contained. Read fully before
+touching code. Everything is on branch `jit-unified-emit-wip`; main is untouched.*
+
+## READ THIS FIRST IF YOU ARE COLD — the one thing most expensive to lose
+
+**A generated parse method now looks like this, and it RUNS:**
+```
+extern GroupItem parseScaf2(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;
+GroupItem   label = new("Scaf2");
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveRule(rule,into,label,from, lit(t1,"{") && lit(t2,"}") );
+}
+```
+One argument and it is the rule (§1.1 — kant methods take one argument). `into` is DERIVED from the
+new `RuleStuff.parentLabel`, not passed (§1.2). Leaves take the TERM, not the rule (§1.4). No
+`locate` anywhere (§1.3). No entry wrapper — invocation is `Scaf('x')`, exactly as `Start()` (§1.7).
+
+**Invocation is bound in incant, and this is §4.1 ANSWERED:**
+```
+registry(cOMMANDs);
+define parseMethod immediateAction=parseRuleMethod noPrint; ;   <-- noPrint IS LOAD-BEARING
+register(Ladder);
+define  Scaf  isRule "x"- parseMethod=parseScaf;  ;
+```
+The `noPrint` is not decoration. Without it the binding attribute lands in the rule's **own term
+list** as a bogus second term, and the emitter writes a term local for it. That is §1.5's hazard
+arriving from a direction nobody predicted, and it is what the first run crashed on.
+
+## ⚠ 2026-07-29 — THE JIT REPLACES THE INTERPRETER (and everything below is 07-28)
+**Tony's plan is that the JIT BECOMES the interpreter — not an accelerator beside one.** One
+execution path, and in the end it is the compiled one. This was undocumented anywhere until
+07-29; a cold reader derives "accelerator" from the `jitting` gate in the source and then
+misreads every JIT decision downstream (Clay did exactly that on 07-29 and argued for repairing
+the interpreter's frames on the strength of it). **The statement, its two consequences and its one
+open ruling now live in `docs/jit.md` §0 — read that before touching JIT work.** Headlines:
+- **`saveLocalFields` gets DELETED, not repaired.** Locals-as-frames lands ONCE, in the JIT. The
+  07-29 per-frame fix below is a deliberate **bridge**; its fixtures outlive it.
+- The iterator becomes **two stack slots** (source, current) — no heap handle, no `isIterator`
+  gate. Tony's usage already reads as pointer semantics, so no language design changes.
+- **OPEN, Tony's:** during crossover, what happens to a construct the JIT cannot emit yet?
+  Falling back to the interpreter *is* divergence, arriving as a schedule artifact. Candidate
+  answer (the one that made mixed mode safe): **degrade to the oracle LOUDLY.**
+- The whole class of *"will jitted and interpreted paths diverge?"* worries is **retired** —
+  there is only ever one path.
+
+### 2026-07-29's other work, in commits (details in each commit message, not repeated here)
+```
+77750cd  B0: claim format + tok-claim sweep
+aabf7c7  Minion A harness: spawn rule, frozen brief, empty corpus, ledger
+a4b72bb  Minion A harness: SEQ 30d rulings -- deferred baseline, claim-surface closer, abort
+1bf80a0  Tony's Group-A work (GUI, Debug.rtn, docs, JSON fixtures)
+552d60c  Tony's runtime work: rStuff-at-define rework + the iterator source (PRE-TOK)
+3a8611f  Iterator Stages 1+2: flags tok'd, Iterate rule live, aCTionIterate compiles
+60b237a  GroupMain: setRuleStuff on Limit's min and max -- POP back to GREEN
+8a4e94a  auditRegistry: the verifier, presence-based -- found 3 more on first run
+61b2487  B0: claims name their verifier
+90f6366  audit: user-driven command, both directions, populations split and PINNED
+6bd1928  Stage 3 WIP: ++/-- dispatch to iterAdvance -- reached, correct operand, then HANGS
+015e9e8  incant/iterScratch: the iterator hang fixture
+23df1b0  Iterator WORKS: runOP must not unwrap a handle. FWD a,b,c / BCK c,b,a
+6abfd86  T1 PASSES: PER-FRAME. Cause was saveLocalFields
+2401b61  T1 DEEP: coexisting cursors, exact order
+80e5873  T1m: recursion coverage is DIRECT-ONLY. Mutual recursion loses locals
+6bd642b  := is the iterator's only reset. T3 x4 GREEN. Sweep came back EMPTY
+cc8eba6  Iterators FINISHED: runaway tripwire, the gate PROVEN, T1/T3 in pop.sh
+```
+### ⚠ TWO LIVE OPEN ITEMS FROM 07-29, and the first is a BUG in a hot-path function
+1. **`runAction` empties a returned local when `recursive` is set** (corpus `CLAIM KANT-8`).
+   `restoreLocalFields` runs **after** `processAction` and before the return, so an action that
+   returns one of its own locals hands the caller that local **reverted to its pre-call state**.
+   Measured three ways: return a **local** → emptied; return the **argument** → survives (that
+   is the idiom until it is fixed); **mint a node into a local** → emptied. So it is about *which
+   slot the returned pointer is*, not node identity — and `restoreLocalFields` is not itself
+   wrong, restoring the caller's frame is its job; the defect is that `result` points into the
+   frame being restored. **Same function whose `saveLocalFields` was fixed the same morning** —
+   a second, independent hole in the same frame machinery. `emitPlan` recurses and must return
+   text, so Minion A's step 3 inherits it. **THE FIX IS TONY'S** — both candidates touch the
+   interpreter's hot path. Repro: two identical action bodies differing only by an *unreached*
+   self-mention.
+2. **A kant action cannot return NULL across `runAction`** (`BLOCKED KANT-B1`, IDIOM-GAP, five
+   attempts with output pasted). Live consequence: the kant `spellLeaf` is *loud* on an unknown
+   kind but does not *refuse*, so `emitPlan` would take junk text as a spelling. Suggested first
+   move, untried: return the argument with a flag stamped via `:.` and test the flag C++-side.
+
+### MINION A ROUND 1 IS IN, AND GREEN — `emitLeaf` is kant
+`incant/genEmit` holds it (registry `Spellers`, action `spellLeaf`). `emitLeaf` **forks**: with a
+`spellLeaf` registered it runs, without one the C++ body runs unchanged — so absent the kant file
+every target still holds. **A registered speller's answer is authoritative INCLUDING NULL**, on
+purpose: a fallback would let a kant defect silently produce the right text.
+- `genLadder/spell.target` is its oracle — **the C++ `emitLeaf`'s own answer**, captured before
+  anything moved: 5 plan kinds × both sinks. It reaches **`LITTO`**, which no ladder rung does,
+  so `litTo`/`litOption` are gated only there. **`emitLeaf`'s own refusal arm is NOT covered** —
+  the walk refuses anything the emitter would, so no plan node of an unknown kind ever exists.
+- `spellMode` + `pop.sh`'s **speller pin** answer "which implementation produced this", because
+  the fork is silent and the target is green either way. **Pinned at `kant`** — if it ever reads
+  `c++` again the kant speller stopped being found.
+- **The pick's decoupling argument was half wrong, worth knowing:** `emitLeaf` was chosen partly
+  as "a table, not a walk — needs no iterator." True of the table, **false of the round** — `OPT`
+  wraps a term and reaching it took `iterate inner on argument members`.
+- Ledger `docs/minionAledger.md` (round 1's number entered; format held). Leak check is now
+  mechanical: `sh docs/minions/roundTrace.sh <transcript>`, **read its WRITE SURFACE first**.
+
+**THE ONE BUG WORTH NOT RE-DERIVING:** `saveLocalFields` copied the locals struct *including the
+list pointer* and then cleared the shared object in place, so **no local carrying a list survived
+recursion — since the initial commit.** Iterators were merely the first thing to notice.
+Coverage is **DIRECT-ONLY**: `field.recursive` is inferred by identity against `currentMETHOD`
+(`ruleActions.rtn`), so in `A → B → A` neither action names itself, neither gets flagged, and
+locals are lost. `incant/iterT1m` is that hole, committed as a **pinned wrong answer** in
+`pop.sh`. The sweep for live victims came back **EMPTY** — the bug was latent.
+
+**`pop.sh` now has 22 checks** including `iterT1`/`iterT3`/`iterT1m`, `spell.target` and the
+speller pin. The four old baselines came back byte-identical across the `saveLocalFields` fix,
+because nothing in them reaches a recursive action with a list-carrying local — **baseline parity
+was not evidence the fix was safe.**
+
+### CLEAN STOP, 2026-07-29 — nothing in flight, nothing half-applied
+```
+sh genLadder/pop.sh    -> POP PASSED, 22 checks, exit 0
+sh genLadder/tree.sh   -> exit 0 (§2.4 divergence unchanged — OPEN, not broken)
+```
+Working tree clean; everything on `jit-unified-emit-wip`. **Tony is reading round 1's kant code
+offline** (`incant/genEmit`, ~30 lines) and rules on style — the ledger's correction count for
+round 1 is marked PROVISIONAL until he does.
+
+**`groups.ext` moved today and has NO COMMIT TRAIL** (bear-trap #11, it lives outside the repo).
+Added: `iterSpins`, `dumpSpellings`, `locateSpeller`, `spellMode`, `spellKant` — plus a real fix,
+`emitLeaf` was declared there with **two** parameters against a three-parameter definition, stale
+since the `sink` argument was added. Extern canary 198 → 203, every addition accounted for.
+
+**genParse's recursion shape, measured 07-29 (it decides Minion A's step 3, not today's work):**
+`emitPlan` does **not** recurse at all — a flat two-pass walk that calls `emitLeaf`/`emitMany`.
+`emitLeaf` **already self-recurses**, directly, for `OPT`'s wrapped term. `planRule → planTerm` is
+one level; `planTerm` never calls `planRule`. All are C++ externs today, so recursion is free
+stack frames — the coverage question bites only once they are **converted to kant**, and the
+recursion that exists is the **direct** kind, which is covered. **A nesting rung must route
+recursion through `emitPlan` itself, never `emitPlan → emitLeaf → emitPlan`** — that shape is
+mutual, and mutual is the uncovered one.
+
+⚠ **NAMING:** the spec (`genParseSpec.md` §4.2) and Clay's briefs say **`emitTerm`**. The live
+function is **`emitLeaf`** (`genParse.rtn`) — renamed at the rung-3 seam. There is no `emitTerm`
+in the source. Minion A round 1's target is `emitLeaf`.
+
+## 2026-07-28's commits (branch `jit-unified-emit-wip`, in order)
+```
+da698e8  genParseShape steps 1-2: RuleStuff.parentLabel + one-argument parseMethod fnptr
+e261e5d  genParseShape steps 3-7: term-first library, parseR, indexed emit, binding, POP
+5c71db4  wakeup.md reseal + import Clay's SEQ 25 brief
+ec34f59  RUNG 4 GREEN: a generated rule reached through another rule's reference term
+a21e8ed  wakeup.md reseal for rung 4
+30b7cd6  §1 census + FIX: `!rStuff` was never a classifier, and it dropped real terms
+41a3831  rung 3a: plan vocabulary + walk builds plans, emission untouched (no-op)
+835b5fc  rung 3b: emitter consumes the plan; old interleaved path deleted
+092f96c  wakeup.md reseal for rung 3 + import SEQ 26 seam brief
+4deaa6e  scope genParse's own lookup to rule registries (§1.3 second half)
+af7e43d  genParseSpec §2.2a: Invariant R′, with its provenance checked
+f6c599a  RUNG 5 GREEN: MANY + Invariant R′ demonstrated
+502e7d0  wakeup.md reseal for rung 5
+0463d51  RUNG 6 GREEN: OPT, the inline ((term) || 1) form
+15712d1  wakeup.md reseal for rung 6
+0ae2923  isGROUP ordering: reference wins; inline group a named future kind
+3eb8398  RUNG 7: ALT emission — and §2.4's tree POP found a real gap
+a5d541a  wakeup.md reseal for rung 7
+168195b  rStuff at define time: late materialisation now fires ZERO times
+```
+(Session tip on arrival was `23d6888`.)
+
+## POP LEDGER — every line RUN, exit status checked (the doctrine from 2026-07-27 holds)
+| check | result |
+|---|---|
+| `oneTest` / `jsonTest` after **every** step | exit 0, **BYTE-IDENTICAL** (11 then 26 ×4 · 13 `ok`) |
+| `genScratch` | **exit 0** — emission plus all four runtime cases |
+| `Scaf('x')` · `Scaf('y')` | **WIN** · **FAIL, mark UNMOVED** |
+| `Scaf2('{}')` · `Scaf2('{')` | **WIN** · **FAIL, mark REWOUND** — Invariant R both directions |
+| `ScafB('ab')` · `ScafB('ax')` | **WIN through a reference term** · **FAIL, mark REWOUND across a nested generated call** |
+| binder count guard, deliberately mismatched | **REFUSED**, and ScafA degraded to the interpretive walk |
+| emitted text vs the compiled-in methods | **byte-for-byte identical** (rungs 1-2 and rung 4) |
+| `grep -c extern GroupRules.h` | **166** (was 161; every addition accounted for — canary intact) |
+| `genLadder/rung12.target` | regenerated **deliberately** — every line of the frame moved |
+| `genLadder/rung4.target` | new |
+| `genLadder/census.target` | 30 rules, plan-level, stable across runs |
+| `genLadder/rung5.target` | repetition helper + method |
+| `genLadder/rung6.target` | optional reference + optional literal |
+| `genLadder/rung7.target` | new — alternation + its enclosing sequence |
+| `ScafOUT('(a)')`/`('(i)')`/`('(x)')` | WIN · WIN · **FAIL, mark REWOUND** |
+| census after ALT emission | **moved by ZERO lines** — nothing leaked across the seam |
+| `ScafE`/`ScafF` × 3 each | optional present · absent · **failing mandatory neighbour, mark REWOUND** |
+| `ScafC('ac')` · `('aaac')` | **WIN** · **WIN** (three passes) |
+| `ScafC('aax')` · `('c')` | **FAIL, mark REWOUND** (R across a generated LOOP) · **FAIL, mark unmoved** |
+| emission after the seam vs before it | **IDENTICAL**, whole genScratch run |
+
+Note what the runtime rows now prove that they could not before: the wrapper is gone, so a green run
+means **emission + the fork + binding + dispatch** all work. The old wrapper called `parseScaf`
+directly and could have passed with the binding wholly unbuilt.
+
+## THE MEASUREMENT THAT SETTLED THREE QUESTIONS — `dumpRuleTerms`, and it is kept
+§1.5 says genParse must traverse with the same accessor the emitted code reads with. Whether a
+`fail` modifier or a `code={}` tail occupies a slot is a question about the **tree**, so it was
+measured (`incant/termScratch`, one run) rather than reasoned about. Findings, all load-bearing:
+
+1. `rule[i]` is source order, 1-based. **`fail` occupies NO slot.**
+2. **A `code={}` tail occupies FOUR slots, not one** — `CodE`, `this`, `tempField`, and a cached
+   `BlocK` that appears **only after the rule has been parsed once**. The tail of `rule[]` is not
+   even stable across a run. §1.5's hazard is real and bigger than the brief supposed.
+3. **All four are `noPrint`; no real term is.** So the classifier is `noPrint` — and that is not an
+   invention, it is the test `testAttributes` already uses (`if noPrint continue`). Model-not-oracle
+   applied to classification itself: take the oracle's own test rather than a parallel one that can
+   drift from it.
+4. Sequence terms are `isAttribute`; alternation options are `isMember`. One list, distinguished by
+   affiliation.
+5. A rule-reference term (JSONblock's `JSONfield`) is a **DISTINCT NODE** from the registry rule of
+   the same name — different parent — but the two **SHARE a child list**. `rStuff`, however, is
+   **per node**.
+6. **No rule-reference term is `isGROUP`, and none has `onGroup` set**, before or after a parse.
+
+Re-measuring is one command: `<binary> incant/termScratch`.
+
+## TWO CORRECTIONS TO THE BRIEF, both made against the tree
+- **§1.6's `t2.onGroup` does not exist to be written to** (finding 6). A reference term is a node
+  carrying `isRule` and sharing the referenced rule's list, so it **parses directly** — which is
+  exactly what the interpretive walk does (`testAttributes` calls `grup.parse(stuff)` on the term
+  itself, never on a dereferenced target). `parseR` was written for parity with the oracle rather
+  than as a parallel mechanism.
+- **§2's `rule.parentLabel` cannot compile as written.** `parentLabel` is a `RuleStuff` field and
+  `GroupItem` does not forward to it, so the emitted line is `rule.rStuff.parentLabel`. Only
+  deviation from §2's literal text.
+
+## ⚠ ONE NEW THING THAT WAS NOT IN THE BRIEF, and it is load-bearing
+**`leaveRule` must tolerate a NULL `into`.** Retiring the entry wrappers (§1.7) makes a generated
+rule reachable from a top-level incant call, and `runRule` invokes `rule.parse(0)` — no parent
+stuff, so `parentLabel`, and therefore `into`, is **null**. The interpretive path has always guarded
+this (`parse()`'s attachment block is `if label && pStuff`); the guard is now also in `leaveRule`,
+one implementer down. **Without it `Scaf('x')` dereferences null on its FIRST success.** Any future
+exit primitive inherits this obligation.
+
+
+
+
+
+
+
+## WHERE THIS STOPPED (2026-07-28, end of day) — clean kitchen
+**Both POPs pass. Nothing in flight. Nothing half-applied.**
+```
+sh genLadder/pop.sh    -> POP PASSED   (7 rung targets + census + both baselines, exit 0 each)
+sh genLadder/tree.sh   -> fixture ok   (§2.4 divergence unchanged — it is OPEN, not broken)
+```
+Landed today: **rung 3** (the walk/emission seam, plan-as-GroupItem), **rung 4**
+(`definingRule()`, resolve-at-use-time binding), **rung 5** (MANY, Invariant R′), **rung 6** (OPT),
+**rung 7** (ALT emission), and **rStuff at define time** — six rungs and one structural change,
+every one with the baselines accounted for and exit 0.
+
+Fixtures that did not exist this morning: the **census** (30 rules, plan-level), **tree.divergence**,
+**pop.sh** as one command, and **rung4–rung7 targets**. Two of the three defects caught this week
+came from rules nobody was working on — that is the census earning its place, and the argument for
+growing it as rungs land rather than treating it as done.
+
+**Tony is reading the day's work offline.** Design changes are possible but not expected. **If any
+turn up, check them against the census** — it is the only artifact that speaks for the rules you are
+not looking at.
+
+**Uncommitted and NOT ours:** Tony's Group-A files (`Debug.rtn`, `Stylish.*`, `Layout.*`, `TODO.md`,
+`docs/guiDesign.md`, `CLAUDE.md`, `incant/utilities`, `incant/jsonTest`, and the `.mm` regenerated
+alongside them). Left exactly as found. **Do not run `tokall`** without checking with him first —
+it would regenerate `Layout.twk`/`Stylish.twk` over his uncommitted work.
+
+## rStuff IS MATERIALISED AT DEFINE TIME — late materialisation fires ZERO times
+`getRStuff`'s `no rStuff - creating` warning fired **8 times in oneTest and 6 in jsonTest**. It now
+fires **zero times, in all four fixtures**. The warning stays in place as the instrument: **if it
+ever fires again, WHICH rule is the interesting part.**
+
+**Measured first, and it moved the target.** Terms defined *from incant source* already materialised
+at definition — `modify` calls `setRuleStuff`, and even an unmodified term comes back with rStuff.
+The real gap was **the bootstrapper**, which hand-builds rules in C++: `GroupMain`'s `Limit` adds
+`"["` and `"]"` with **no `modify()` call at all**, and applies its `+`/`*` to `item.group` (the
+shared `counter` rule) rather than to the `min`/`max` terms.
+
+Two call sites, both at a **completion point** rather than per-attribute — the ordering lesson rung 7
+paid for:
+- `aCTionDefinE`, just before `input.clear()`, where attributes *and* members are both in
+- the bootstrapper, over `grok`, before setup is parsed (setup's own rules go through `aCTionDefinE`)
+
+It materialises the **rule node as well as its terms**. Terms alone left exactly two late sites,
+`define` and `InitiatE`, both rule nodes — which is how that was found.
+
+**Uses `setRuleStuff`, per Tony's ruling: it only ever applies to rules anyway**, so the `isRule`
+propagation is correct rather than a side effect to work around, and it keeps this to one
+implementer. That propagation is **load-bearing, not cosmetic**: a reference term shares the
+referenced rule's member list, so `isRule && hasMembers` is precisely how `parse()` dispatches into
+a referenced alternation (`GroupItem.twk:1062`) and how `checkInput` suppresses its label
+(`RuleStuff.twk:139`).
+
+### The three deliberate moves
+| moved | to what |
+|---|---|
+| `oneTest.base` | the 8 `getRStuff` lines removed, **nothing else**. 11 then 26 ×4, exit 0 |
+| `jsonTest.base` | the 6 `getRStuff` lines removed, nothing else. 13 `ok`, exit 0 |
+| `census.target` | exactly two rules, both bootstrap-built (below) |
+
+- **`CodE`** — REFUSE (2 unmaterialised) → **plans**, as SEQ with two **LITTO** terms. LITTO and not
+  LIT is **correct**: `incant/grammar:42` lists `CodE "{" "}" parseAction;` with no modifiers.
+- **`Limit`** — REFUSE (3 unmaterialised) → refusal **moved** to `min` being isGROUP, the named
+  inline-group kind. It now refuses on honest, named grounds rather than on "cannot tell".
+
+### ⚠ FINDING: `Limit`'s `']'-` never had its modifier applied
+`incant/grammar:52` lists `Limit '['- min=[0-9]+ max?=[0-9]+ ']'- noPrint;` — with the `-`. The
+bootstrapper adds `"["` and `"]"` **bare**. A real divergence between the documented grammar and the
+built one, invisible until materialisation made it readable. **`CodE` is NOT such a case** — do not
+"fix" it to match a modifier its listing does not have.
+
+This also **closes open item 2 by dissolving it**: there is no longer a window in which a term is
+defined but unclassifiable, so the walk's unmaterialised-term refusal is now unreachable. Left in
+place deliberately — it is a guard, not dead code to mourn.
+
+## ⚠ RUNG 7 — ALT EMITS, BUT §2.4 IS OPEN. Read this before trusting an alternation.
+```
+extern GroupItem parseScafALT(GroupItem rule)
+{
+GroupItem   into  = rule.rStuff.parentLabel;      <- NO `label` local: §2.4, an ALT builds none
+GroupItem   t1 = rule[1];
+GroupItem   t2 = rule[2];
+String      from  = atRuleMark;
+    return leaveAlt(rule,from, parseR(t1,into) || parseR(t2,into) );
+}
+```
+The fold decides the **sink** (`into` for ALT, `label` for SEQ) and the **joiner** (`||` vs `&&`),
+both emitter-side. `litOption` is the ALT spelling of a labelled literal — re-read 2026-07-28: its
+first parameter is **already** the term and unused exactly as `lit`'s is, so term-first was
+satisfied; only the reasoning needed checking.
+
+**The sharp POP held: the census moved by ZERO lines.** Emission changed no planning, so nothing
+leaked across the seam rung 3 closed.
+
+### THE TREE POP FAILED, and that is the result — not a regression
+```
+generated     ScafOUT -> ScafA        (winner keeps its OWN tag)
+interpretive  ScafOUT -> ScafALT      (winner RETAGGED to the ALT's name)
+```
+Cause, read off `parse()`: an alternation member is `isTarget`, and the attach block does
+`pStuff.label = label; label.tag = pStuff.ruleName`. **Right language, wrong tree** — every WIN/FAIL
+check passes on it, which is exactly why §2.4 was told to use a tree comparison.
+
+**Not new and not introduced here.** `RuleStuff.twk`'s RETAGGING NOTE (2026-07-25) records the same
+divergence, found when a tail action received two children both tagged `GrouP` and silently
+discarded the field. It was patched **by hand** in `parseJSONfield` and called *"a gap in
+genParseSpec's sub(R) semantics generally"*. The seam now makes it fixable in one place.
+
+**And the interpretive path is not self-consistent about it:** `isTarget` is set on only **11 of 16**
+measured alternation members — `JSONvalue`'s `JSONblock`/`JSONarray`, `JSONtoken`'s
+`JSONblock`/`NumbeR` and `DatA`'s `DelimText` do **not** have it. So it retags some winners and not
+others, *within the same rule*.
+
+**NOT GUESSED AT.** Which tag is correct — and whether `leaveAlt` should take `into` and retag — is
+a semantics decision for Tony/Clay. The divergence is recorded in `genLadder/tree.divergence`, and
+`sh genLadder/tree.sh` asserts it is **unchanged**: a fixture on an open item rather than a broken
+gate. Settle it and the fixture moves, and whoever moves it accounts for the move.
+
+### GUARDS — scoped, and the recommendation is SPLIT THEM OUT, well past rung 8
+`getGuard` is ~70 lines of recursive first-set computation: cycle detection (`guardInProcess`), a
+stop-at-first-mandatory-attribute rule tied to `min`, member union, set/data/registry special cases.
+Reproducing it at generate time is an **arc, not a rung**. Two concrete blockers beyond size, both
+read off the source:
+- `if isMember && parent.guardSet  parent.guardSet += guardSet` — **getGuard MUTATES ITS PARENT**
+- `setRuleStuff()` on entry — **it MATERIALISES rStuff**
+
+So calling it from the walk **re-introduces tree mutation during generation**, precisely what rung 3
+established the walk must not do, and it collides with the open rStuff-materialisation item too.
+Unguarded ordered `||` is correct and merely slower — the ALT above has no guards and passes — so
+guards are an **optimization**. §4.3's `_` already means "emit unguarded", so the plan has a place
+for the distinction whenever it lands.
+
+### Fixture note: an alternation must be bound in a SECOND define block
+A definition attribute fires **when it is parsed**, so `parseMethod=` on an alternation's own line
+runs *before its members exist*; the §3 count guard then sees 0 terms and refuses — correctly. A
+second `define` re-opens the rule. Sequence rules are unaffected (terms on the same line).
+**The count guard caught this itself.**
+
+## isGROUP ORDERING — reference wins; "inline group" is a named future kind
+Content-is-a-group and is-a-reference are **orthogonal**; two terms are both (`JSONtoken[5]`,
+`DatA[2]`, both `NumbeR`). `data` used to be tested first so the overlap refused — right while the
+precedence was unsettled. Settled now: **a term that names another rule is a call, whatever its
+content**. What is left over is `isGROUP` *without* a reference — a group inlined at the term rather
+than named — which is a **named future kind** and keeps refusing.
+
+`JSONtoken` planning was the last gap, so **the JSON family is complete: all seven rules plan**
+(14 of 30 census rules). `DatA` is *not* "likewise" — its refusal **moved** from `NumbeR` to `CodE`,
+which is both a reference and `parseACTION`, and parseACTION is tested before the reference test.
+
+## RUNG 6 — OPT. The label question was settled from `parse()` BEFORE anything was emitted.
+```
+ScafE isRule "e"- ScafA? "f"-;   ->  lit(t1,"e") && (parseR(t2,label) || 1) && lit(t3,"f")
+ScafF isRule "f"- ","?- "g"-;    ->  lit(t1,"f") && (lit(t2,",")       || 1) && lit(t3,"g")
+```
+**What the interpretive path does with a non-matching optional, read off the source:** it takes the
+min-0 rescue — `matchFailed` sets `sukcess = true` on `kount >= min` **before** `debugHere`, so
+`debugHere` is skipped (label not zeroed, mark not rewound) and `generatedExit` returns the label
+`checkInput` built. **But the attach lives inside the loop's success block** (`pStuff.label +%
+label`), which a non-match never reaches. **So nothing is attached** — and the inline form agrees
+exactly, because the callee's `leaveRule` attaches on success and not on failure. Non-match and
+match-with-nothing stay distinguishable in the tree (nothing vs an empty child), which is what the
+`code={}` actions read.
+
+One divergence, recorded rather than relied on, and **generated is the tighter**: the interpretive
+non-match skips the rewind and can leave the mark advanced by `checkInput`'s skip pass; the
+generated callee rewinds to its own `from`. Both re-skip before the next term, so it is not
+observable.
+
+### One rung, not two — measured
+Of the **12** optionals in the census, **4 are character-level** (`data` set) and already refuse
+*above* the min/max test, alongside the accumulators. So `?` on a character-level term **never
+reaches OPT by construction**, and §2.5's conflation warning cannot bite here. The other 8 are
+**6 references** and **2 noLabel literals** — exactly the two shapes OPT wraps. A *labelled* literal
+optional does not occur, so it refuses rather than being designed for.
+
+### The POP case that matters
+The optional sits **between two mandatory terms** deliberately. *An optional that swallows a
+following failure is optional-as-mandatory inverted*, and only a mandatory neighbour catches it:
+```
+ScafE('ef')  absent  -> ScafA FAIL (mark unmoved), ScafE WIN
+ScafE('eaf') present -> ScafA WIN,  ScafE WIN
+ScafE('ex')  absent  -> ScafE FAIL, mark REWOUND      <- NOT swallowed
+ScafF('fg') WIN · ScafF('f,g') WIN · ScafF('fx') FAIL, mark REWOUND
+```
+
+## RUNG 5 — MANY. One kind, iteration only.
+```
+ScafC isRule ScafA+ "c"-;
+    extern int manyScafC1(GroupItem label, GroupItem term)
+    {
+    String      from = atRuleMark;          <- captured ONCE, at entry
+    int         kount;
+        while parseR(term,label)    kount++;
+        if kount >= 1   return true;        <- min baked
+        atRuleMark = from;
+        return false;
+    }
+    ... leaveRule(rule,into,label,from, manyScafC1(label,t1) && lit(t2,"c") );
+```
+The helper is emitted by **emitPlan's first pass** — which is what the two-pass shape was built
+for. **R′ is structural here, not promised:** `from` once at entry (mark clause); every pass goes
+through `parseR`→`parse()` and builds a fresh label, with no `fLAG` anywhere (label clause). **R and
+R′ compose** — a failing pass rewinds *itself* via the callee's `leaveRule`, so the helper only ever
+gives back the whole run.
+
+### ⚠ OPTIONAL IS NOW REFUSED, and that is the finding of the rung
+An optional term (min 0, max 1) was planning as a **plain conjunct** — so it would have emitted as
+**mandatory**: `lit(t4,",")` where the hand-written model wrote `(lit(rule,",") || true)`. Four
+census rules were affected (`JSONfield`, `JSONitem`, `JSONarray`, `InvokE`) — they were planning a
+parser that **accepts too little**. They refuse until optionality gets its own kind. One kind per
+rung.
+
+Measured min/max shapes: **40** terms plain (1,1) · **12** optional (0,1) · **4** star
+(0,unbounded) · **5** plus (1,unbounded). Unbounded sentinel is **268435457**.
+
+### ⚠ min ≥ 2 IS UNREACHABLE THROUGH THE GRAMMAR — pre-existing, and it is not just latent
+- `X[2]` → **rejected outright**: `ERROR Operator - failed on isRule and Token`
+- `X[2 9]` → parses, prints `nextGroup: ERROR max does not contain a list`, and **leaves min/max at
+  1/1** — the limit is **silently not applied**
+- `setLimits` itself reads correctly (`ruleStuff.min = minimum.count`), so the fault is **upstream
+  of it**
+
+genParseSpec §2.2 says R′'s mark clause is "latent until someone writes `X[2]`". It is stronger than
+that: you *cannot* write it. This is why the mark clause is demonstrated as a **controlled
+comparison** rather than as a ladder rule.
+
+### Invariant R′ DEMONSTRATED — a passing run proves neither clause
+```
+MARK,  input "a" against a term needing 2:
+  entry-saved (emitted) : matched 1 of 2 -- REWOUND to loop entry
+  per-pass  (parse())   : matched 1 of 2 -- rewound only to the FAILED PASS, input STRANDED
+LABEL, input "aa":
+  2 passes attached 2 FRESH labels          (a recycling loop would show one)
+```
+`demoRprime` in `genParse.rtn`. A first cut reported "STRANDED" on a **successful** run, because it
+compared the mark to loop entry without first asking whether a rewind was due. Fixed before landing
+— **a POP that reports a false signal is worse than no POP.**
+
+## genParse's OWN lookup is now scoped (§1.3's second half)
+Emitted text has carried no `locate` since the shape brief; **the emitter still ran one**, and a
+bare `locate()` resolves down the *general* search stack — search registries, then base registries
+(`pROPERTIEs`, `Operators`, `cOMMANDs`, `fILEs`, `Keywords`, `GroupFields`). Any rule sharing a name
+with a keyword or command was a **silent mis-target**.
+
+`locateRule` walks the search list and accepts **only `isRule` hits**. `ruleOrRefuse` names which
+problem it is — "no rule of that name" and "that name is a keyword, here is its registry" are
+different.
+
+**Correcting `41a3831`'s guess:** `debug` resolves to a **not-isRule node in Keywords**
+(`incant/setup:196` defines it as a bare keyword), *not* cOMMANDs. The real grammar rule is
+**`DEBUG`** — isRule, Grokking, four terms. So there is no lowercase `debug` rule and it now refuses,
+correctly. **Why it could not wait:** the mis-target was visible only because that node happened to
+carry no terms. A collision with a node that *has* terms would have produced a plausible-looking
+plan and nothing would have complained.
+
+## RUNG 3 — THE SEAM IS CLOSED. Read this before touching genParse.
+`planRule` **decides**, `emitPlan` **writes**. The artifact between them is a **plan tree of
+GroupItems** — resolved decisions, baked literals, **no target syntax anywhere**. It is the bytecode
+move one level up.
+
+**Five kinds, and that is the whole vocabulary** for rungs 1, 2 and 4:
+
+| kind | carries |
+|---|---|
+| `SEQ` | rule tag, `label`, ordered conjuncts (members, in order) |
+| `ALT` | rule tag, ordered disjuncts, no label |
+| `LIT` | literal text (noLabel) + `at` = baked `rule[]` index |
+| `LITTO` | literal text + `slot` + `at` |
+| `CALL` | the term to parse through + `at` |
+
+It grows **one kind at a time as a rung demands it** — `MANY` with rung 5, `GUARD` with the
+alternation rung, `ACT` when actions land. **If the vocabulary ever comes back complete, it is too
+big** — that is the tell this rung went wrong.
+
+### THE RULING THAT MATTERS MOST — positive tests only
+**Every plan node comes from a positive test, and an unclassified term is a REFUSAL, never a
+default.** This is the one place genParse must **not** copy `setTestMatch`: there, references are
+classified by **fall-through** — "no row matches" *is* the answer, and `parse()` collects them on
+the `hasAttributes` arm. Inherit that residual and every future unmatched kind becomes a **silent
+bogus CALL** — and the census says the unmatched group is the **largest one**, so that failure would
+be easy to write and hard to see. `definingRule() != term` is what turns the residual into a
+positive, pointer-based property.
+
+**Loud refusal over quiet skip, everywhere in the walk.** Both defects found today were quiet skips.
+
+### What sits on each side (do not let these drift back together)
+- **Walk** — fold selection, the `noPrint` gate, classification, baked indices, and **all
+  refusals**. A refusal is a validity question about the *rule*, so it reads the same whichever
+  emitter is downstream.
+- **Emitter** — the frame preamble, joining conjuncts with `&&`, quoting, and **which support
+  function spells a decision the walk already made**. `LIT`/`LITTO` carries "does this attach a
+  label"; that a `LITTO` in a `SEQ` is spelled `litTo` (and in an `ALT` would be `litOption`) is
+  emitter work.
+
+`emitPlan` walks the plan **twice**, once to validate and once to write. Deliberate: §3.3's helper
+functions are discovered mid-walk, and with text already going out you must buffer or emit out of
+order. With a plan you walk it again.
+
+**ALT is now REFUSED, not emitted.** The old interleaved path would have written a `SEQ` frame with
+`&&` joins for an alternation — simply wrong, and invisible until there was an artifact to look at.
+
+## GROW THE CENSUS AS RUNGS LAND — it is not a finished artifact
+**Two of the three defects the ladder has caught came from rules nobody was working on, both via
+the census** (`debug`'s empty fold; the four rules planning optionals as mandatory). The ladder
+targets test the rung you are on; the census tests the rules you are not looking at. Add to it when
+a rung lands, and treat a census move as something to *account for*, never to regenerate green.
+
+## THE CENSUS FIXTURE — the classifier's own POP
+`genLadder/census.target`, 29 rules, produced by `<binary> incant/censusScratch`. The ladder targets
+**cannot** test the classifier: Scaf/Scaf2/ScafA/ScafB reach two kinds out of five and never carry
+an unmaterialised term. This asserts a plan **or a named refusal** for every term, **at plan level**,
+so it is target-independent and survives the kant emitter unchanged.
+
+**It found a bug on its first run:** `debug` planned as a `SEQ` with **zero conjuncts** — same shape
+as the `CodE` `(null)` defect, different cause (`locate('debug')` resolves to something carrying no
+terms; the cOMMANDs entry, not the grammar rule). An empty fold is now a refusal.
+
+### The plans, the day the seam was introduced (SEQ 26 §6)
+```
+PLAN Scaf                PLAN Scaf2               PLAN ScafB
+  SEQ Scaf                 SEQ Scaf2                SEQ ScafB
+    label=Scaf               label=Scaf2              label=ScafB
+    LIT x                    LIT {                    CALL ScafA
+      at=1                     at=1                     at=1
+                             LIT }                    LIT b
+                               at=2                     at=2
+```
+This is the first artifact in the project that a C++ emitter and a kant emitter would both have to
+agree on.
+
+## §1 CENSUS — §4.2's table vs the tree. VERDICT: several rows wrong.
+27 rules / 73 terms; the JSON family **plus** a spread of the real bootstrap grammar (restricting to
+JSON would have flattered the table).
+
+| §4.2 row | count |
+|---|---|
+| **NO ROW MATCHES** | **24** |
+| default `lit`/`litTo` | 19 |
+| `isSET` | 11 |
+| (no rStuff yet) | 5 |
+| `isGROUP` | 4 |
+| `upToOver` · `parseACTION` · `isCHAR` | 1 each |
+| `upTo` · `isBIN/isREGISTRY` · `isANY` · `isMacro` · `isCondition` | **0** |
+
+- **The largest group falls in no row, and all 24 are rule-reference terms.** They fail every branch
+  and `!contents()` is false (they carry the shared list), so `setTestMatch` leaves `testMatch` null
+  and `parse()` reaches them on the `hasAttributes` arm. **References are handled by fall-through,
+  not by `onGroup`.**
+- **The `isGROUP` row exists but means something else** — *content-is-a-group* (`min=[0-9]+`,
+  `NumbeR`→`numberSet`), not "a rule reference". Orthogonal properties, conflated by the table.
+- **§4.1's `if rule.onGroup` is dead** — 13 of 13 reporting rules NONE, zero positives anywhere.
+- **§4.1's `if rule.data` is live and unimplemented** — 6 rules carry rule-level data
+  (`FloaT` isCHAR, `PoweR` isSET, `Modifier` isSET are accumulator cases). The walk **refuses** them
+  until rung 5.
+- §4.1's **fold test itself held**: ALT 4 / SEQ 23.
+
+So the walk is a **fresh classifier written against the tree**, not a transcription of
+`setTestMatch` — which makes the seam a *correctness* argument rather than a tidiness one: it is new
+code you would otherwise write twice.
+
+## NAMED OPEN ITEMS from the census (not unnoticed ones)
+1. **`isGROUP` + reference is a real overlap with no precedence rule.** Two terms are both
+   (`JSONtoken[5]`, `DatA[2]`, both `NumbeR`). `planTerm` tests `data` **before** the reference test
+   so the both-case **refuses** rather than silently becoming a CALL. What it means semantically is
+   unsettled and no ladder rule reaches it.
+2. **Where do modifiers live before rStuff exists?** `Limit`'s `']'-` has a source modifier and no
+   rStuff to hold it. Unknown, and it is why eager materialisation would **fabricate** a
+   classification rather than discover one.
+3. **`locate('debug')` finds a term-less node** — a name collision between the `debug` command and
+   the `debug` grammar rule. Surfaced by the fixture; nobody has looked at it.
+
+## MEASURED, because it was flagged as a hazard to check rather than assert
+**Eager materialisation via `getRStuff` CANNOT reach `getWhatFollows`'s `parent.rStuff.min = 0`** —
+the §7.1 write. `getRStuff` constructs and `setRStuff`s, nothing more; `getWhatFollows` has exactly
+**one** caller, `getStuff`, gated on `!followed`. The hazard is real but **bounded to `getStuff`**.
+Refusing is still right, for a second and independent reason — see open item 2 above.
+
+## RUNG 4 — SOLVED. The route exists, and it is a pointer walk.
+The question that gated it: `parseMethod` lives on `rStuff`, `rStuff` is PER NODE, so a reference
+term has its own and was never bound. Binding a rule therefore looked like it could not reach the
+terms that reference it — which is exactly what mixed mode needs.
+
+**Measured, not reasoned (the same `termScratch` method):** a reference term shares the defining
+rule's child list, and **the children are parented to the DEFINER** — so `term[1].parent` **IS the
+defining rule, by pointer.** Verified against what `locate()` returns for the same name on
+`JSONblock→JSONfield`, `JSONfield→JSONtoken`, `JSONfield→JSONvalue`.
+
+`GroupItem.definingRule()` is that walk. **It needs no guard because the test discriminates:** a
+node that OWNS its children (a defining rule, and also `CodE`/`BlocK`) routes back to ITSELF, and a
+leaf term has no children at all — both fall through to `return this`. Only genuine references
+resolve elsewhere.
+
+**The ruling: resolve at USE time.** `parse()`'s fork reads `parseMethod` from `definingRule()`, so
+binding a rule once reaches every reference to it **including references created later**. No
+registry sweep (would miss late references), no `locate` (§1.3 forbids it).
+
+### The shape/frame split, and why the two fields go to DIFFERENT nodes
+- **`parseMethod` is SHAPE** — one answer, always the same for a rule → read from the **definer**.
+- **`parentLabel` is FRAME** — it varies per invocation and is the field that carries the variation
+  → stays on **`this`**, the node actually being parsed. Routing it to the definer would make every
+  reference to a recursive rule write the **same slot**, which is correct-looking right up until the
+  recursion is live.
+
+**The general tell, worth more than this instance: a field that looks like it belongs with the rule
+because it is usually the same is exactly the dangerous case.** (Clay corrected his own near-miss on
+this twice in one session, on Tony's lesson.)
+
+`this` is what gets passed to the generated method, not the definer — the two share a child list so
+`rule[n]` reads the same terms from either, while `rule.rStuff.parentLabel` must be this
+invocation's.
+
+## THE COUNT GUARD — and it has been made to fire
+Every emitted `rule[n]` bets the list only ever mutates BEHIND the real terms. The cached `BlocK`
+appearing after a rule's first parse proves the list *does* mutate at runtime, and nothing enforced
+the bet. Now: `RuleStuff.termCount`, recorded by a **`parseTerms=N`** binding attribute, checked by
+**`parseMethod=`** before it installs anything.
+
+`countRuleTerms` is the **ONE implementer** of "real term" — the emitter bakes indices with it and
+the binder re-checks with it. A check using its own private notion of the classifier would be worth
+nothing.
+
+**Negative test, RUN:**
+```
+parseMethod: REFUSING to bind parseScafA to ScafA
+             emitted against 9 terms, rule now has 1
+```
+and note the behaviour on refusal: ScafA fell back to the **interpretive walk** while ScafB still
+ran generated and still WON. **A refused binding degrades to the oracle rather than breaking** —
+mixed mode doing exactly its job. Reproduce with:
+`sed 's/ScafA isRule "a"- parseTerms=1/ScafA isRule "a"- parseTerms=9/' incant/genScratch > /tmp/g && <binary> /tmp/g`
+
+`termCount` 0 means unrecorded, which **binds with a warning** rather than refusing — a silent trap
+would be worse than an unguarded one.
+
+## RUNG-4 POP (all RUN, exit 0)
+```
+ScafA isRule "a"-;                  ScafB isRule ScafA "b"-;      both generated, both bound
+emitted:  return leaveRule(rule,into,label,from, parseR(t1,label) && lit(t2,"b") );
+ScafB('ab')  ->  HIT/WIN ScafA nested inside HIT/WIN ScafB
+                 ScafA's GENERATED method ran, reached through a reference term
+ScafB('ax')  ->  ScafA WINs, lit "b" fails, FAIL ScafB with mark REWOUND
+                 Invariant R across a NESTED generated call
+emitted text == compiled-in source, byte-for-byte   (genLadder/rung4.target, new)
+```
+Reading the trace: `HIT` prints at the top of **leaveRule**, which is the rule's EXIT (§1.8 moved
+instrumentation into the library, so there is no entry hook). One HIT per invocation, so §6.1's
+attempt count is right; only the ORDER reads oddly — a callee's HIT appears before its caller's.
+
+## Also landed, worth not re-deriving
+- **§1.8 instrumentation is in the library, gated.** HIT/WIN and Invariant R live in
+  `leaveRule`/`leaveAlt` behind `GroupRules.parseTrace` (off by default, so baselines cannot move;
+  `traceParse('on')` turns it on). One implementation, every rule, no emitted lines, survives the
+  kant handover. This is what replaces `runScaf`'s R-inner/R-outer prints — R is a property of the
+  **failure path**, so `Scaf()` alone could never show it.
+- **`runScaf`/`runScaf2`/`runJSONblock` are RETIRED.** Do not re-emit an entry wrapper.
+- **JSON models converted** to the same shape using the **measured** indices. They stay dormant
+  (nothing invokes them; JSON is last by ruling). `parseGeneric` survives with no callers —
+  `parseR` subsumes it.
+- **`setParseMethod`** does the `void*` → typed-fnptr cast in `-% %-` passthrough, because tok has
+  no syntax for it. Its body is entirely passthrough and everything arrives as a **parameter**
+  (bear-trap #13: an incant-level local referenced only inside a passthrough is pruned as unused).
+- **Latent, flagged not carried:** `emitTerm`'s labelled branch emits `litTo`, which has **no
+  implementation** in the support library. Never fires for rungs 1-2/4 (all terms `noLabel`).
+- **`emitTerm` now classifies**: a term whose `definingRule()` differs from itself emits
+  `parseR(tN,label)`; literals still emit `lit`/`litTo`.
+- **A `noPrint` definition attribute does NOT persist in the rule's list** — "fire and forget" is
+  literal. Measured: `Scaf isRule "x"- parseMethod=parseScaf;` leaves `Scaf` with exactly one entry.
+  That is why the term count needed a real field and could not ride on a sibling attribute.
+- **tok note, and it has bitten twice now:** juxtaposed concat does not work in **return position**
+  (`return "a" b;` -> `FAIL Block`/`ERROR Inheritance`, taking the whole extern with it) **or in
+  argument position** (`f(x, pad "  ")` silently generated a THREE-argument call, caught only by
+  the C++ compiler). Concat into a local first, always. Assignment position is fine.
+
+## NEXT — Clay's standing order (SEQ 27 §5), each waiting on the one before it
+0. **Recon owed before B can be briefed** — read-only, perturbs nothing. TWO greps:
+   *(a)* what do rule actions actually return, and how do they locate a child? Tag-locating actions
+   survive B; position-locating ones may not. *(b)* which bootstrap-built rules add terms with no
+   `modify()` call — i.e. confirm `Limit` is the only one, or find the others.
+1. **B — drop the automatic `isTarget` stamp on members.** Tony's ruling: `isTarget` becomes `@` and
+   nothing else. `genLadder/tree.divergence` flips from asserting the divergence to asserting
+   AGREEMENT — that flip is the acceptance test. Expect quiet fallout, not loud: a wrong result, not
+   a failed parse. This is §2.4's retag question below, and it gates the JSON family end-to-end. The whole family plans and
+   emits, but the trees diverge, and the hand-patched RETAGGING NOTE in `parseJSONfield` is the
+   same bug. Decide whether `leaveAlt` takes `into` and retags. Note the interpretive path is not
+   self-consistent, so "match the oracle" does not fully determine the answer.
+2. **Accumulators** — `data`-carrying repetition (`FloaT`/`PoweR`/`Modifier`/`NamE`), still refused.
+   §2.5: star and plus mean something different for character-level terms than for references, and
+   conflating them yields a parser that accepts correctly and BUILDS WRONGLY.
+3. **D — the guard arc**: genParse's own NON-mutating first set. Not a call into `getGuard` — see the
+   scoping above. An arc, not a rung.
+4. **Inline group** — `isGROUP` without a reference, the named future kind. `Limit` refuses on it.
+5. Standing tripwire: the interpretive path does `kount++` on success, the generated path does not.
+4. **Rung 9 is TONY'S RULING and gates only rung 9** — bare reference to an alternation:
+   auto-`promoteR`, or require explicit `@`?
+5. **§4.2 / §4.3 fixes, after shape**: make `lit`'s skip pass non-destructive (then `leaveAlt` drops
+   to `(rule, ok)`); end-of-input normalization beside `checkSkip`.
+6. **§7.5's result-discard is LOCATED but UNFIXED**, and it is on the path to a working POP, not
+   behind one: until it is fixed no test on failing input reads honestly. Narrowing from 07-27: the
+   discard sits **above `runOP`, or in the script-level invocation**; `parse()`, `runRule`, `runOP`
+   and `matchFailed` are all exonerated.
+7. JSON LAST, and only once `jsonTest` is a clean oracle again.
+
+## STILL OPEN from 2026-07-27 — none of it closed today
+- **DIVERSION BOUNDARY NOT RESPECTED DURING MATCH.** A failing parse reads past the end of its
+  diverted buffer into the enclosing script text *while matching*; the tell is a `Failed at:` window
+  containing the script's own source. Process exits 0 (crash fixed 07-27) but following statements
+  are swallowed. **Consequence: `jsonTest` still cannot run multiple failing cases in one process**,
+  so §7.1's inverted-ordering fixture stays REQUIRED (well-formed to arm, malformed to read, nothing
+  after, ONE process).
+- `jsonTest`'s last case is annotated `KNOWN TO FAIL` while printing `ok` — **when the
+  invocation-layer bug is fixed it flips to a real failure, which terminates the run, so jsonTest
+  will appear to break at the moment the bug is fixed.**
+- **`ruleSTUFF` is a WRITE-ONLY GLOBAL** (Tony's ruling 07-27). Exactly one reader,
+  `GroupActions.rtn:269`, and that local is never referenced again; inert since the initial commit.
+  Leave `parse()`'s own write and the global's declaration alone — `parse()` is the parity anchor.
+
+## FINDING — pre-existing, surfaced not caused (report, do not chase)
+`Commands.rtn`'s `testing()` had been **hijacked** to call `runScaf` twice. Since `runScaf` retired
+it had to change, and it was restored to what its own doc comment describes (`jitRunAction` for a
+coded argument, `jitRunIfTest` otherwise). **`incant/jitscratch` therefore exercises the JIT for the
+first time in a while, and it crashes (139) on the `jitInc` fixture:**
+```
+0  jitEmitUnary  GroupRules.mm:2424   <- crash
+1  opPlusPlus    GroupRules.mm:3904
+2  runOP · aCTionBlocK · jitExecBlock · jitRunAction · testing
+```
+Squarely in the JIT arc (`++`'s emit path), nothing to do with genParse. `jitscratch` is not a
+baseline and was not passing before in any meaningful sense — the old body never called
+`jitRunAction` at all.
+⚠ **CROSS-REFERENCE ADDED 2026-08-10 — LIKELY DIAGNOSIS FRAME, still parked, still not chased:**
+this backtrace carries the **inverse** signature of the phase rule in `docs/andOrRung.md` §6
+(*emit time never enters a runtime handler for its value; run time never enters an emitter*) —
+here a **runtime handler enters an emitter** (`opPlusPlus` → `jitEmitUnary`), where §2's `OR`
+silent-wrong is the same rule broken the other way. **Frame only; adjacency is not scope.**
+
+## Open, Tony's (carried forward, none touched today)
+- **TODO.md cause-1 entry** — annotate as dead-since-`875b936`, don't strike. His file.
+- **Bear-trap #18's ATTRIBUTION** — split into a confirmed OBSERVATION (keep as doctrine) and an
+  OPEN attribution with four candidates, one of them Clay's own spec error. Tony signs off.
+- **`GUI/Layout.twk` and `GUI/Stylish.twk`** share basenames with the top-level files he edits, and
+  `tokall` only ever sweeps top level.
+- His Group-A work (Debug.rtn, Stylish, Layout, TODO, guiDesign, incant/utilities+jsonTest) is still
+  uncommitted.
+
+## THE POP IS ONE COMMAND NOW
+```
+sh genLadder/pop.sh     # every ladder target + census + both baselines, exit status checked
+sh genLadder/tree.sh    # §2.4 tree fixture — asserts the OPEN divergence is unchanged
+```
+`pop.sh` prints one line per check and the diff when something moves. Baselines live in
+`genLadder/` so it is self-contained. I hand-rolled these checks every rung and got the escaping
+wrong once; this exists so nobody does that again.
+
+## Run recipe / reproduce
+⚠⚠ **THE BUILD AND BINARY LINES BELOW ARE SUPERSEDED (Tony, 2026-09-15). THEY ARE LEFT
+VERBATIM BECAUSE THEY WERE TRUE WHEN WRITTEN** — rewriting a dated record to match a later
+convention falsifies it, and this pair is now *evidence* rather than instruction. Build
+through `TOK.xcodeproj / scheme Groups`; the measured door and its table are in CLAUDE.md's
+Build Workflow. ⚠ **These two lines are also what corrected that CLAUDE.md entry the day it
+was written**: it had claimed nothing was ever built through the workspace, and this recipe
+says otherwise. What makes the pair worth keeping is that its `Binary:` line names the
+**workspace** product while `~/bin/incant` already pointed at the `TOK-*` tree — so two
+binaries existed and the recipe named the one the fleet was not running, which is exactly
+the hazard the replacement guards.
+- Binary: `~/Library/Developer/Xcode/DerivedData/InProcess-ezzmcllcsvijqmbipricnduikqfp/Build/Products/Debug/Groups`.
+- Build: `cd ~/Library/CloudStorage/Dropbox/data/InProcess && xcodebuild -workspace
+  InProcess.xcworkspace -scheme Groups -configuration Debug build`.
+- `.rtn` (genParse.rtn, Commands.rtn, GroupActions.rtn, ruleActions.rtn) are `include`d into
+  GroupRules.twk → edit one, then **`tok GroupRules.twk`** (NOT a standalone retok). Standalone
+  class files (`RuleStuff.twk`, `GroupItem.twk`…) → `tok <File>.twk` directly.
+- ⚠⚠ **ENV SWITCHES ARE WRITTEN INLINE, NEVER THROUGH A SPLIT VARIABLE (Tony, 2026-09-26, SEQ 200).** Write
+  `PTF=1 PTF_NOCLASSHOLD=1 ~/bin/incant <file>`, never `cfg="PTF=1 PTF_NOCLASSHOLD=1"; env $cfg ...`: **zsh does not
+  word-split an unquoted variable**, so that sets PTF to the whole string and never sets the second switch. Paid for
+  on SEQ 199: a "switch off" control column ran with the switch ON and agreed with the treatment -- void, and read
+  as a result until the trace disagreed. Same family as `${PIPESTATUS[0]}` in zsh: the shell, not the code.
+- **`tokall` is a shell FUNCTION** — `for item in *.twk; do tok $item; done`. Top-level only (13
+  files); misses 14 below (`GUI/`, `GUI/Stuff/`, `Tests/`). After a layout change, grep those
+  generated files for the class you shifted. Today: only `GUI/Bwana.mm`, and it merely `#include`s
+  `GroupRules.h` without touching a field — nothing owed.
+- **`groups.ext` lives OUTSIDE the repo** at `~/Dropbox/data/InProcess/Include/groups.ext`
+  (bear-trap #11). It now carries `parentLabel`, the one-arg `parseMethod`, `parseTrace`, `parseR`,
+  `parseRuleMethod`, `traceParse`, `dumpRuleTerms`, the renamed `leaveRule`/`leaveAlt` params and
+  the one-arg JSON parse decls — and `runScaf`/`runScaf2`/`runJSONblock` removed. Rung 4 added
+  `termCount`, `definingRule`, `countRuleTerms`, `parseTermCount`, `parseScafA`/`parseScafB`.
+  **No commit trail exists for any of it.**
+- genParse ladder: `<binary> incant/genScratch` → emits parseScaf/parseScaf2, then runs
+  `Scaf('x')`/`('y')`/`Scaf2('{}')`/`('{')` with the leaveRule R report. POP:
+  `sed -n '/^extern GroupItem parseScaf(/,/^}/p;/^extern GroupItem parseScaf2(/,/^}/p'` of the
+  output vs `genLadder/rung12.target` (empty diff = PASS).
+- Term measurement: `<binary> incant/termScratch`.
+- Baselines: `<binary> incant/oneTest` → `maximus = 11` then `26` ×4; `<binary> incant/jsonTest` →
+  13 `ok` — **13, not 14**; the briefs carried 14 and Clay has corrected it. **Capture BEFORE
+  changing anything and `diff` after.**
+- Census POP: `<binary> incant/censusScratch 2>&1 | grep -v "^getRStuff" | sed -n '/^PLAN /,$p' |
+  grep -v "^Search list:" | grep -v "^stop:" | grep -v "^$"` vs `genLadder/census.target`.
+- Crash frames without Xcode: run under `script -q /dev/null` (segfaults lose buffered stdout).
+- No `timeout` on this shell — background + kill anything that might hang.
+
+## HOW TO WEIGHT A CLAY BRIEF (earned 2026-07-27, held again today)
+The split is **structural vs causal**, not design-vs-tree. Today's structural claims all held (one
+argument, derived `into`, term-first, no locate, no wrapper, instrumentation in the library,
+through-the-fork). The two that needed correcting were both **claims about what is in the tree**
+(`t2.onGroup`, `rule.parentLabel`) — same family as the five that failed on 07-27.
+**Take the distinctions, check the attributions.** Cost of checking: one measurement run.
+
+## PARKED by Clay (SEQ 26), neither blocks the ladder
+`jitEmitUnary`←`opPlusPlus` (see the finding above), and the LLVM-IR-for-inlining question raised by
+routing `parseR` through the fork. Both are JIT-ladder work.
+
+## THE WALKIE-TALKIE HAS ITS OWN DOC NOW — `docs/walkieTalkie.md`
+One pointer, by that file's own instruction: its content stays there, not here. It is Clay's
+2026-07-29 rulings on the Clay↔Clod channel, in the B0 claim format. **Read it before writing
+anything into `ipc/`.** The three that bite hardest:
+- **WT-11 — NO SILENT OVERWRITE.** A write carries the whole file, prior history included.
+  Downloading or rewriting atop a file *replaces* it, and an unread turn vanishes with nothing
+  saying so. **Broken once already, by Clod, on 2026-07-29** — `clod-to-clay.md`'s SEQ 17 was
+  still `fresh` when SEQ 18 went over it (erratum + reconstruction are in that file's header
+  and foot). The rule binds both directions.
+- **WT-9 — direct write is proven, so route deliberately:** a brief Clod will act on gets
+  dictated and transcribed, because *the transcription step was a second close reader*;
+  reference docs get downloaded straight in.
+- **WT-10 / WT-13 — the channel is ASYMMETRIC.** Clod polls `ipc/clay-to-clod.md` for an
+  on-disk change; Clay cannot poll anything and reads only when Tony prompts him.
+
+**Open and assigned to Clod in that file's PLAN step 1** (untouched, and it wants Tony's nod
+first because it puts repo files into a sync path): expose `ipc/` to Clay read-only via the
+Drive connector. Step 2 says **measure before building** — if removing the paste step only
+saves typing, MCP is not worth a build.
+
+## Working relationship (unchanged)
+Tony (Haps) = architect/final authority. Clay (claude.ai) = design/reasoning. Clod (Claude Code) =
+execution/edits/build. Standing permission: change source freely, commit/push routine work at
+discretion.
+**Walkie-talkie transport is SETTLED: Clay has NO filesystem reach — read-only uploads only. CLAY
+DICTATES, CLOD TRANSCRIBES; Clod owns every `ipc/` write in both directions.** SEQ 25
+(genParseShape) arrived as a file in `~/Downloads`, imported to `docs/genParseShape.md`.
+SEQ 26 (rung 4) arrived in chat; SEQ 26's seam brief as `docs/genParseSeam.md`.
+`grep -H '^STATUS:' ipc/*.md` is Tony's window.
