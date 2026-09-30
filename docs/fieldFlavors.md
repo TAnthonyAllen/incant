@@ -192,3 +192,5 @@ default arm (`"access to X not supported yet"`). "Write" says whether `:.` has a
   isOption 1 · isTarget 10 · modPercent 4 · modPointer 4 · modUnGuarded 7 · noAdvance 7 · notifyFail 3 · overTo 3 ·
   sukcess 60. (Exposed: noLabel as `noLabeL` 28, noSkip as the case-less `noSkiP`, ruleTerm inside `isRulE`'s
   `isRuleTerm()`.)
+
+**Standing (Tony, 2026-09-30):** no sweep. Other flags that could become property fields are taken up as we trip over them in ordinary work; the census above is the reference when one comes up.
