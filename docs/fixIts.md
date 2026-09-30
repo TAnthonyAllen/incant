@@ -92,7 +92,7 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-130 — OPEN 2026-09-30 — two `RuleStuff.owner` readers run under no fleet row (coverage)
+### F-130 — HALF CLOSED 2026-09-30 — two `RuleStuff.owner` readers run under no fleet row (coverage): aCTionFailed pinned, processCode's label branch unreachable
 
 **What.** Stroke 4.4b renamed `RuleStuff.rule` to `owner` at every reader, including two that recon 22's tap measured
 at **0 calls** across pop.sh, jitLadder and printPop. The rename touched them and nothing ran them, so their
@@ -106,7 +106,15 @@ red when the read is broken -- or Tony rules either site dead and it goes to the
 **Owner.** Unassigned.
 ```
 ATTEMPT LOG
-  (none yet)
+  2026-09-30 aCTionFailed: fixture incant/pop/failNotT -- `FnA isRule fail "a"-;` rejected through tell -> parse() calls
+    aCTionFailed(owner), prints "Rule FnA" / "Failed at:" and ends the run. pop.sh rows FN-3 and FN-1/FN-2 (control:
+    no flag, no Rule line). H7 on a fixture copy with the flag removed: Rule FnA 0 -> red. HALF DONE.
+  2026-09-30 processCode label branch: NOT REACHED, not forced. Every caller of processCode either maps a label to its
+    owner first (processAction, GroupActions.rtn:692) or gates on isCoded / a pending carrier (runAction, compile,
+    generateCode, jitRunAction) -- and a parse-minted label (RuleStuff.twk:115, `new(tag)`) has a fresh body that is
+    never coded. The other isLabel writer (processAction's locals, GroupActions.rtn:702) marks action-body locals, which
+    are not passed to processCode. So the arm looks dead by structure, and D2's tripwire above it with it. Open for
+    Tony: pin it dead (cleanupList) or name a road that should reach it.
 ```
 
 ### F-129 — OPEN 2026-09-27 — an action whose body holds a BARE-NAME statement crashes on its SECOND call
