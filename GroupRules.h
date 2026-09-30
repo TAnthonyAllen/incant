@@ -155,7 +155,6 @@ extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *re
 extern "C" void dumpColorRGB(GroupItem *field);
 extern "C" GroupItem *dumpContents(GroupItem *stuff);
 extern "C" void dumpFontInfo(GroupItem *field);
-extern "C" GroupItem *dupCensus(GroupItem *argument);
 extern "C" GroupItem *dupTermRefusal(GroupItem *rule);
 extern "C" GroupItem *enclosingFace(GroupItem *field);
 extern "C" GroupItem *exitFromParse(GroupItem *field);
