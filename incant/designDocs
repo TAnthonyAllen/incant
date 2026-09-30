@@ -76,7 +76,7 @@ define
             SlotEmpty="Slot empty means compile via jitRunAction, then stash both: the function pointer into rStuff.jitMethod, and the emitted IR text into a JiT attribute beside CodE and BlocK.";
             CompileRefused="A refused compile leaves the slot empty and says so. A refusal must not install a pointer and must not be silent; a field that quietly stopped being jitted would read as a field that was never jittable.";
         JitFieldMethodInvariant="SEQ 38 holds by construction here, and this is the place it would have broken. locate is prohibited, not merely unused: action execution resolves no names. The field arrives as the first parameter and everything else is a pointer walk from it, rStuff off the node and the JiT attribute off its own list. If a later change here seems to need locate, that change is misdesigned rather than blocked.";
-        JitFieldMethodMechanism="The slot is read and written on definingRule, not on the node that arrives, and that is the whole mechanism rather than a detail. Every call site hands a fresh GroupItem wrapper over one shared GroupBody, which is incant field semantics and not a bug: a field is pointer-shaped storage with value-content semantics, so a reference is its own node. Storing the pointer on the arriving node stores it on a temporary discarded when the statement ends. The store stuck and readback confirmed it; it was written where nothing would look again. definingRule is a pointer walk to the node that owns the children, and parse uses it for exactly this problem in exactly this way. So the half that makes the shape work is the resolution, not the slot: transplanting the slot without the walk produces code that looks right and compiles forever.";
+        JitFieldMethodMechanism="The slot is read and written on definingRule (instanceRule since 2026-09-29; definingRule retired 2026-09-30), not on the node that arrives, and that is the whole mechanism rather than a detail. Every call site hands a fresh GroupItem wrapper over one shared GroupBody, which is incant field semantics and not a bug: a field is pointer-shaped storage with value-content semantics, so a reference is its own node. Storing the pointer on the arriving node stores it on a temporary discarded when the statement ends. The store stuck and readback confirmed it; it was written where nothing would look again. definingRule is a pointer walk to the node that owns the children, and parse uses it for exactly this problem in exactly this way. So the half that makes the shape work is the resolution, not the slot: transplanting the slot without the walk produces code that looks right and compiles forever.";
         JitFieldMethodEvidence="Measured 2026-08-04, because the first cut recompiled on every fire. Three calls, field pointer then body pointer: call 1 field 0x1031ccf80 body 0x1031c6380; call 2 field 0x1031df5c0 body 0x1031c6380; call 3 field 0x1031ed9c0 body 0x1031c6380; and definer 0x100eaa3c0 on all three.";
         JitFieldMethodSlotHome="Why the slot's home is materialised here and not at define time. aCTionDefinE zeroes rStuff for a non-rule, so an ordinary attribute reaches this point with no shape struct at all, while the design as ruled says the slot rides the attribute's stuff. Rather than change what define does to every field in the language, the slot's owner mints its own home on the one path that needs it, using the same two lines aCTionDefinE already uses for member terms. Cost is one struct per jitted field, paid on first fire, and the define-time invariant is untouched.";
         JitFieldMethodRejected="Rejected alternative, recorded: reconstructing a callable from the JiT attribute. The JiT attribute is a record and not a cache, written after a successful compile and read by nobody in this function. Reconstructing from it would mean re-entering LLVM to parse text we already hold a pointer to, which is slower, and it would give one fact two homes, the one-channel-one-meaning failure this project has paid for twice.";
@@ -1347,7 +1347,10 @@ define
                     migration runs. THE ORACLE IS SAMPLED BEFORE THE WRITE BELOW -- once
                     this function supplies the product, a sample taken after would compare
                     the function to itself and read MATCH forever.#);
-            definingRule=(the node a rule-reference term refers to, reached WITHOUT
+            definingRule=(RETIRED 2026-09-30 (stroke 4.4a): the method is deleted and instanceRule() answers
+                instead -- the registered original for a copy of one, else the node. Kept as the record.
+
+                The node a rule-reference term refers to, reached WITHOUT
                 a name lookup. Clay SEQ 26 S1; measured, not reasoned (incant/termScratch).
 
                 A reference term is a distinct node that SHARES the defining rule's child
@@ -1726,7 +1729,7 @@ define
                     fields go to DIFFERENT nodes, deliberately:
 
                       parseMethod is SHAPE. One answer, always the same for a given rule,
-                      so it is read from the DEFINING rule (definingRule(), a pointer walk,
+                      so it is read from the DEFINING rule (definingRule() then, instanceRule() since 2026-09-29, a pointer walk,
                       no name lookup). That is what lets a generated rule be reached
                       through another rule's reference term and not only by name -- bind
                       once, and every reference sees it, including references created after
@@ -3411,7 +3414,8 @@ define
 
                 MOVED HERE FROM Commands.rtn 2026-09-04, cleanup arc stroke 4. The method is
                 unchanged; only its home and its comment moved.#);
-            canonOf=(canonOf -- name the node definingRule() resolves to, from incant.
+            canonOf=(canonOf -- name the node instanceRule() resolves to, from incant. It read definingRule()
+                until that was retired, 2026-09-30 (stroke 4.4a); the paragraphs below are its record.
 
                 THE INSTRUMENT ROAD-1 EXISTS FOR (Clay dispatch amendment 8). Ruling E is
                 about resolution, so the tree needs a way to ASK where a face resolves to,

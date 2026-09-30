@@ -176,7 +176,7 @@ GroupRules  ruler = groupRules;
     return trueResult;
 }
 
-// definersOf every occurrence of a rule -- the registry entry and each term carrying its tag -- and whether definingRule() answers the REGISTRY's entry, as the shared-children invariant says it must (SEQ 216); prints the counts unconditionally
+// definersOf every occurrence of a rule -- the registry entry and each term carrying its tag -- and whether instanceRule() answers the REGISTRY's entry, as the shared-children invariant says it must (SEQ 216); prints the counts unconditionally
 extern GroupItem definersOf(GroupItem input)
 {
 GroupRules  ruler = groupRules;
@@ -188,12 +188,12 @@ GroupRules  ruler = groupRules;
     GroupItem *r = 0;
     while ( want && regEntry && (r = reg->next(r)) ) {
         GroupItem *t = 0;
-        if ( ::strcmp(r->groupBody->tag,want) == 0 ) { seen++; if ( r->definingRule() == regEntry ) toRegistry++;
-            else ::fprintf(stderr,"  DEFINER %s registry entry answers %p, not itself\n",want,r->definingRule()); }
+        if ( ::strcmp(r->groupBody->tag,want) == 0 ) { seen++; if ( r->instanceRule() == regEntry ) toRegistry++;
+            else ::fprintf(stderr,"  DEFINER %s registry entry answers %p, not itself\n",want,r->instanceRule()); }
         while ( (t = r->next(t)) )
             if ( ::strcmp(t->groupBody->tag,want) == 0 ) {
                 seen++;
-                GroupItem *d = t->definingRule();
+                GroupItem *d = t->instanceRule();
                 if ( d == regEntry ) toRegistry++;
                 else ::fprintf(stderr,"  DEFINER %s term of rule %s answers %s@%p (parent %s), not the registry's\n",want,r->groupBody->tag,
                     d ? d->groupBody->tag : "-",d,(d && d->parent) ? d->parent->groupBody->tag : "-"); }

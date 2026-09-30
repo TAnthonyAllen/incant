@@ -15,6 +15,10 @@ stop();
 
 definerT -- EVERY OCCURRENCE OF A RULE ANSWERS THE REGISTRY'S ENTRY AS ITS DEFINER (SEQ 216, 2026-09-27).
 
+RESPELLED 2026-09-30 (stroke 4.4a): definersOf now asks instanceRule(), and definingRule() is deleted. The rows held
+row for row. instanceRule() reads ruleOf, not the first child's parent, so this fixture no longer witnesses the
+child-parenting invariant described below -- see the stroke's coverage finding.
+
 A rule's child list is SHARED by every place the rule is used, and definingRule() reads the owner of
 that list off the first child's parent -- so the invariant is that shared children stay parented to the
 REGISTRY's entry. Two loops broke it, both added in 5f24cf3 (2026-09-14): compile() and setParseWalk

@@ -698,22 +698,6 @@ int GroupItem::deferredAbove(RuleStuff *stuff)
 	
 }
 
-/***************************************************************************
-                                definingRule
-    // definingRule the definer is the first child's PARENT, by pointer, with no name lookup -- and the test
-    // definingRule discriminates, which is why it is unguarded on purpose
-***************************************************************************/
-GroupItem *GroupItem::definingRule()
-{
-GroupItem 	*first = get(1);
-GroupItem 	*owner = 0;
-	if ( first )
-		owner = first->parent;
-	if ( owner && owner != this )
-		return owner;
-	return this;
-}
-
 /*****************************************************************************
                                 dispatch
 	Run a group method in the dispatch Q

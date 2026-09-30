@@ -192,8 +192,7 @@ int 		total = 0;
 	return GroupControl::groupController->groupRules->trueResult;
 }
 
-/*  ⚠ definingRule() IS ASSIGNED TO A LOCAL, NEVER TESTED INLINE -- the inline
-    form does not parse.   measure.canonOf  */
+/*  canon is instanceRule() -- the registered original for a copy of one, else the node (stroke 4.4a; definingRule() retired)   measure.canonOf  */
 extern "C" GroupItem *canonOf(GroupItem *argument)
 {
 GroupItem 	*canon = 0;
@@ -202,7 +201,7 @@ GroupItem 	*canon = 0;
 		::fprintf(stderr,"canonOf: no field passed in\n");
 		return 0;
 		}
-	canon = argument->definingRule();
+	canon = argument->instanceRule();
 	if ( !canon )
 		{
 		::fprintf(stderr,"canonOf: %s resolved to nothing\n",argument->groupBody->tag);
