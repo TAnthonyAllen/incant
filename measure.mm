@@ -356,9 +356,9 @@ extern "C" GroupItem *measureBlockResult(GroupItem *input, GroupItem *result, in
 extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int listWalk, int held, int endKind, int inDrive)
 {
 	
-	if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->rule )
+	if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->owner )
 	{
-	GroupItem *r = stuff->rule;
+	GroupItem *r = stuff->owner;
 	int action = (stuff->actionMethod || r->groupBody->flags.actionType || r->getAttribute((char*)"builtinActoR")) ? 1 : 0;
 	const char *end = endKind == 1 ? "floor" : endKind == 2 ? "deferred" : endKind == 3 ? "processingCode" : "empty";
 	::fprintf(stderr,"  DEFERABOVE rule=%s walk=%s held=%d end=%s inDrive=%d action=%d\n",
@@ -790,10 +790,10 @@ extern "C" GroupItem *measureStopCaller(GroupItem *caller)
 extern "C" GroupItem *measureTargetAgree(RuleStuff *stuff, int computed)
 {
 	
-	if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->rule )
+	if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->owner )
 	::fprintf(stderr,"  TARGETAGREE rule=%s parent=%s followed=%d old=%d new=%d %s\n",
-	stuff->rule->groupBody->tag,
-	stuff->rule->parent ? stuff->rule->parent->groupBody->tag : "(none)",
+	stuff->owner->groupBody->tag,
+	stuff->owner->parent ? stuff->owner->parent->groupBody->tag : "(none)",
 	(int)stuff->followed, (int)stuff->isTarget, computed,
 	!stuff->followed ? "unvisited" : ((int)stuff->isTarget == computed ? "agree" : "DISAGREE"));
 	

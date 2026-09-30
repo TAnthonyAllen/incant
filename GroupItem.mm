@@ -179,7 +179,7 @@ GroupItem::GroupItem(GroupItem *grup)
 		{
 		rStuff = new RuleStuff(this);
 		*rStuff = *grup->getRStuff();
-		rStuff->rule = this;
+		rStuff->owner = this;
 		rStuff->followed = rStuff->isOK = rStuff->sukcess = 0;
 		}
 }
@@ -685,13 +685,13 @@ int GroupItem::deferredAbove(RuleStuff *stuff)
 	ParseActivation *a = gParseActive;
 	if ( a->stuff == stuff ) a = a->prev;
 	for ( ; a && !a->floor; a = a->prev )
-	if ( a->stuff && a->stuff->rule && a->stuff->rule->groupBody->flags.deferred )
+	if ( a->stuff && a->stuff->owner && a->stuff->owner->groupBody->flags.deferred )
 	{ ::measureDeferredAbove(stuff,1,1,2,inDrive); return 1; }
 	::measureDeferredAbove(stuff,1,0,a ? 1 : 0,inDrive);
 	return 0;
 	}
 	for ( RuleStuff *up = stuff->parentStuff; up; up = up->parentStuff )
-	if ( up->rule && up->rule->groupBody->flags.deferred )
+	if ( up->owner && up->owner->groupBody->flags.deferred )
 	{ ::measureDeferredAbove(stuff,0,1,2,inDrive); return 1; }
 	::measureDeferredAbove(stuff,0,0,0,inDrive);
 	return 0;
@@ -1390,10 +1390,10 @@ RuleStuff *GroupItem::getStuff(RuleStuff *pStuff)
 	// lazyMaterialisation it asks ensureRStuff BY NAME -- a node arriving with no rStuff is the parser's design,
 	// lazyMaterialisation not a mis-use to be repaired
 RuleStuff *stuff = ensureRStuff();
-	if ( stuff->rule != this || stuff->inProcess )
+	if ( stuff->owner != this || stuff->inProcess )
 		{
 		stuff = new RuleStuff(getRStuff());
-		stuff->rule = this;
+		stuff->owner = this;
 		}
 	if ( stuff->parentStuff = pStuff )
 		stuff->parentLabel = stuff->parentStuff->label;
@@ -1837,7 +1837,7 @@ continueHere:
 		else	break;
 		}
 	if ( ruleStuff->kount >= ruleStuff->maxRepeat && ruleStuff->maxRepeat > 1 )
-		::reportRepeatLimit(ruleStuff->rule,ruleStuff->kount,ruleStuff->maxRepeat);
+		::reportRepeatLimit(ruleStuff->owner,ruleStuff->kount,ruleStuff->maxRepeat);
 matchFailed:
 	if ( !ruleStuff->sukcess )
 		{
@@ -1865,7 +1865,7 @@ debugHere:
 		}
 generatedExit:
 	if ( !ruleStuff->sukcess && ruleStuff->notifyFail )
-		::aCTionFailed(ruleStuff->rule);
+		::aCTionFailed(ruleStuff->owner);
 	if ( ruleStuff->sukcess && !ruleStuff->label )
 		ruleStuff->label = ruler->labelNO;
 	ruleStuff->inProcess = 0;
@@ -2482,10 +2482,10 @@ int 	asTerm = 0;
 	if ( !getRStuff() )
 		setRStuff(new RuleStuff(this));
 	else
-	if ( getRStuff()->rule != this )
+	if ( getRStuff()->owner != this )
 		{
 		setRStuff(new RuleStuff(getRStuff()));
-		getRStuff()->rule = this;
+		getRStuff()->owner = this;
 		}
 	if ( asTerm )
 		getRStuff()->ruleTerm = 1;

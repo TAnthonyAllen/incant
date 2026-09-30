@@ -496,7 +496,7 @@ GroupItem 	*item = 0;
 							item->getRStuff()->parentStuff = grup->getRStuff();
 							item->getRStuff()->parentLabel = grup->getRStuff()->label;
 							}
-						item->getRStuff()->rule = item;
+						item->getRStuff()->owner = item;
 						}
 				// codeIsAProperty an action's CodE is an artifact, so it goes on the property list, never among the terms (stroke 3)
 				if ( item == CodE )
@@ -2391,8 +2391,8 @@ int 		refused = 0;
 extern "C" GroupItem *enclosingFace(GroupItem *field)
 {
 	
-	if ( !field || !gParseActive || gParseActive->floor || !gParseActive->stuff || !gParseActive->stuff->rule ) return 0;
-	return gParseActive->stuff->rule->get(field->groupBody->tag);
+	if ( !field || !gParseActive || gParseActive->floor || !gParseActive->stuff || !gParseActive->stuff->owner ) return 0;
+	return gParseActive->stuff->owner->get(field->groupBody->tag);
 	
 }
 
@@ -9389,7 +9389,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		{
 		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
 		ruleStuff->sukcess = 0;
-		char *matchedString = ruleStuff->rule->matches(ruler->atRuleMark);
+		char *matchedString = ruleStuff->owner->matches(ruler->atRuleMark);
 		if ( matchedString )
 			{
 			if ( ruleStuff->label )
@@ -9672,7 +9672,7 @@ GroupItem 	*priorMETHOD = ruler->currentMETHOD;
 GroupItem 	*priorTempField = ruler->tempField;
 GroupItem 	*action = field;
 	if ( action->groupBody->flags.isLabel )
-		action = ruleStuff->rule;
+		action = ruleStuff->owner;
 	ruler->currentMETHOD = action;
 	if ( !action->actionBlocK() && !::processCode(action,action->actionHolder()) )
 		return 0;
@@ -9726,7 +9726,7 @@ int 		processing = ruler->processingCode;
 		return 0;
 		}
 	if ( field->groupBody->flags.isLabel )
-		field = field->getRStuff()->rule;
+		field = field->getRStuff()->owner;
 	// staleIR re-parsing invalidates the action's IR record -- setText, never clear(), or it reads back as its tag
 	
 	GroupItem   *staleIR = field->get("JiT");
@@ -10787,8 +10787,8 @@ char 		*name = 0;
 extern "C" void setTargetFlag(RuleStuff *stuff)
 {
 	
-	if ( !stuff || !stuff->rule ) return;
-	GroupItem *r = stuff->rule;
+	if ( !stuff || !stuff->owner ) return;
+	GroupItem *r = stuff->owner;
 	int computed = 0;
 	if ( isMember(r->options.affiliation) && r->parent && !r->parent->groupBody->flags.binType )
 	computed = 1;

@@ -681,7 +681,7 @@ GroupItem   label = field,
             priorMETHOD = currentMETHOD,
             priorTempField = tempField,
             action = field;
-    if isLabel      action = rule;
+    if isLabel      action = owner;
     currentMETHOD   = action;
     if !action.actionBlocK() && !processCode(action,action.actionHolder())  return null;
     // labelToLocals a rule's locals take the label's contents; isLabel fields are not cleared below
@@ -722,7 +722,7 @@ use field
     if isLabel && !rStuff {
         cerr "processCode: REFUSING " tag " -- isLabel with no rStuff. Only a live parse mints a label (Ruling D2), so this node is wreckage, not a specimen; look upstream at whatever copied or hand-built it.":;
         return false; }
-    if isLabel  field = rule;
+    if isLabel  field = owner;
     // staleIR re-parsing invalidates the action's IR record -- setText, never clear(), or it reads back as its tag
     -%
     GroupItem   *staleIR = field->get("JiT");
