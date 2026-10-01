@@ -10574,7 +10574,7 @@ fleet mover in 5.6b. Copy-asides verified to exist before any destructive step.
 ===================================================================
 SEQ 247  -  STROKE 5.6, RE-CUT: THE LABEL -> RULE LINK FIRST, THEN THE READERS, THEN owner RETIRES
 ===================================================================
-STATUS: working -- transcribed AT PICKUP (pasted by Tony), before any edit, per WT-15.
+STATUS: STOPPED at 5.6c -- 5.6a a73e3f9 and 5.6b 46e6dcb landed green; owner value readers 0; two identity guards (getStuff, setRuleStuff: owner != this) still read it, fired 0 of 4,145,545 calls. Deletion awaits a ruling on the guards. NOT SEALED.
 
 RULINGS
 R1. The link: GroupItem gains `labelOf`, the rule a label was minted for. It is written
@@ -10601,3 +10601,72 @@ STOP: a label minted where its rule is not at hand; any tap inequality; any move
 or 5.6c. Seal only if all three land green. ipc (SEQ 246, STOPPED) commits with 5.6a.
 
   END SEQ 247
+
+
+===================================================================
+SEQ 248  -  STROKE 5.6c, RE-CUT: THE BORROWED-STUFF GUARDS ANSWER WITHOUT owner, THEN owner IS DELETED
+===================================================================
+STATUS: STOPPED by R3 -- setActions lends the rule's rStuff to builtinActoR (GroupItem.twk:1729, 1746, 1757), not a label; R1's test would miss it. Nothing built. R5 banked in cleanupList (uncommitted).
+
+RULINGS
+R1. The question the guards ask stays. A borrowed rStuff is a label holding its rule's
+    stuff: `labelOf && rStuff == labelOf.rStuff`. getStuff (GroupItem.twk:1053) and
+    setRuleStuff (:1968) test that in place of `owner != this`.
+R2. When it fires, it REFUSES and names the label and its labelOf; it does not mint a
+    fresh stuff. getStuff's inProcess clause is unchanged.
+R3. Lend-site census first, over the whole tree: every place an rStuff is lent to another
+    node. If any lend goes to a node that is not a label carrying labelOf, STOP.
+R4. Then RuleStuff.owner is deleted as SEQ 246 R2 dispatched.
+R5. Bank, do not fix: processAction's isLabel mark on action locals means "do not clear".
+    One line in docs/cleanupList.md.
+
+THE WORK
+1. Lend census (R3). 2. Guards respelled (R1, R2), one commit: fleet row for row; tap
+(reverted md5-identical) new test vs old agree on every call; H7 a synthetic borrow in
+incant++ reaches the refusal, or say why it can't be made. 3. The deletion: owner reads of
+any kind 0 by whole-tree search, identity included; any fleet mover is a STOP.
+Seal on green, stroke 5.6 whole. ipc commits with the first commit.
+
+  END SEQ 248
+
+
+===================================================================
+SEQ 249  -  5.6c, SECOND RE-CUT: builtinActoR STOPS BORROWING; SEQ 248 THEN PROCEEDS AS DISPATCHED
+===================================================================
+STATUS: STOPPED by R3 -- R2(b) mints 0; R2(a) reads 1: artifactSkipT asks builtinActoR isRulE -> opDot case 23 -> isRuleTerm() -> getRStuff() (null-test). Lend-free build row for row under the tap. Reverted to 46e6dcb; nothing landed.
+
+RULINGS
+R1. setActions' three lends (GroupItem.twk:1729, 1746, 1757) are deleted: builtinActoR gets
+    no rStuff. Borrowed stuff is then a label-only fact, and SEQ 248's R1 test is complete.
+R2. Certificate before landing, with a tap reverted md5-identical, across pop.sh, jitLadder
+    and printPop, on the lend-free build: (a) any rStuff read on a builtinActoR node, by
+    accessor or direct field read; (b) any mint by getStuff, ensureRStuff or jitFieldMethod
+    on a builtinActoR node. Both must read 0.
+R3. If R2 reads non-zero: STOP and report the reader.
+R4. On green: SEQ 248 R1, R2 and R4 proceed unchanged (guards respelled, then owner deleted).
+
+THE WORK
+1. Delete the lends; build; tap (R2); fleet row for row. One commit, carrying ipc and the
+   cleanupList line. 2. SEQ 248 steps 2-3 as dispatched. Seal on green, stroke 5.6 whole.
+
+  END SEQ 249
+
+
+===================================================================
+SEQ 250  -  5.6c, LANDING: THE LEND GOES; SEQ 248 FOLLOWS AS DISPATCHED
+===================================================================
+STATUS: working -- step 1 landed (lends deleted); guards and owner deletion in progress.
+
+RULINGS
+R1. The one read is LAWFUL. An actor answers isRuleTerm for itself. With the lend it was
+    answering with its rule's per-instance ruleTerm, the leak stroke 2 closed for
+    references. SEQ 249 R1 (the lends deleted) lands as measured.
+R2. SEQ 248 R1, R2 and R4 proceed unchanged: the guards test
+    `labelOf && rStuff == labelOf.rStuff` and refuse loudly by name; then owner is deleted.
+
+THE WORK
+1. The lend deletion, one commit carrying ipc and the cleanupList line; fleet row for row
+   with 5.6b, re-run at the commit. 2. SEQ 248 step 2 (guards), then step 3 (owner
+   deleted); final owner-read count of any kind 0 by whole-tree search. Seal on green.
+
+  END SEQ 250

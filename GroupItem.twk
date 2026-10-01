@@ -1726,7 +1726,6 @@ RuleStuff   ruleStuff = rStuff;
         // markThenAdd noPrint before the attach, as the two arms below -- addAttribute reads it to decide hasTraits (fixIts F-58)
         GroupItem builtinActoR  = new("builtinActoR");
         builtinActoR.noPrint    = true;
-        builtinActoR.rStuff     = ruleStuff;
         builtinActoR.method     = processAction;
         addProperty(builtinActoR);
         // bodyMoves CodE IS THE ACTION'S SLOT, so it leaves the rule -- a rule that keeps it
@@ -1743,7 +1742,6 @@ RuleStuff   ruleStuff = rStuff;
             // markThenAdd noPrint is set BEFORE the node is attached, because addAttribute reads it at the instant of adding to decide hasTraits -- marking after is always too late (fixIts F-58)   GroupItem.setActions.markThenAdd
             GroupItem builtinActoR  = new("builtinActoR");
             builtinActoR.noPrint    = true;
-            builtinActoR.rStuff     = ruleStuff;
             builtinActoR.method     = methodAddress;
             addProperty(builtinActoR); }
         free(methodName);
@@ -1754,7 +1752,6 @@ RuleStuff   ruleStuff = rStuff;
         // markThenAdd as the dlsym arm above -- noPrint before the attach, never after (fixIts F-58)
         GroupItem builtinActoR  = new("builtinActoR");
         builtinActoR.noPrint    = true;
-        builtinActoR.rStuff     = ruleStuff;
         builtinActoR.method     = actorAddress;
         addProperty(builtinActoR); }
 }

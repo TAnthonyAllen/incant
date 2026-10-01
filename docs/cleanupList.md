@@ -154,3 +154,13 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 - **Measured before the cut:** a temporary log across the whole checklist (pop.sh, jitLadder, decodePop, ddPop,
   countPop, printPop, frontier): **4,307 arrivals with a carrier present, 0 carrier moves, 0 CodE moves** --
   `parser:43-44` file both with `+<` since SEQ 224. Deleted with the fleet row for row.
+
+### `isLabel` as "do not clear" on action locals -- a second meaning (SEQ 248 R5, banked, not fixed)
+- **Where:** `processAction`, GroupActions.rtn:713 (`result.isLabel = true;` on an action-body local bound to a label
+  child), read back at :720 (`if isLocal && !isLabel ...` skips the entry clear).
+- **Why it looks cuttable:** `isLabel` otherwise means "a parse minted this as a rule's label" (checkInput, with
+  `labelOf`). Here it means "this local holds a label child; do not clear it" -- one flag, two meanings, and the
+  locals carry no `labelOf`.
+- **Confirm:** a census of every `isLabel` reader, each read classified by meaning; a separate flag for the local
+  case, fleet row for row.
+- **Seen:** 2026-10-01 (stroke 5.6a mint-site census).
