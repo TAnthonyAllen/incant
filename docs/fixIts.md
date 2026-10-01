@@ -836,6 +836,11 @@ ATTEMPT LOG
      processes, across pop.sh + jitLadder + printPop. deferredAbove itself no longer walks the chain on those calls
      (in-drive -> list walk), so nothing hangs; the cycles remain in the data. HANG SOURCE RETIRED BY 5.5b, which
      switches E14 off the chain.
+  26. CHAIN WALK DELETED (2026-10-01, stroke 5.5b, SEQ 245, f92428d). deferredAbove walks only the activation list;
+     no code walks the parentStuff chain any more, so the 458 cannot run. Reading: a tap on the seal tree entered
+     deferredAbove 7,425,628 times (pop + jitLadder + printPop) and the chain path ran 0 times -- after 5.5a the top of
+     the list is always an activation. The cycles remain in the DATA (parentStuff still links them); its readers are
+     listed in docs/objectModel.md's 5.5b status (R4 census). Fleet row for row; no fixture hangs.
 ```
 Inputs and results: `jitLadder/station2/f114site1` (pairs) and `f114site1.results`.
 

@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -10497,3 +10497,43 @@ VERDICT LINE AT THE TOP
 SEAL: shutdown. Next session opens with this verdict and 5.5b.
 
   END SEQ 244
+
+
+===================================================================
+SEQ 245  -  STROKE 5.5b: deferredAbove AND measureDeferredAbove ONTO THE ACTIVATION LIST
+===================================================================
+STATUS: cleared -- landed f92428d: chain path ran 0 times since 5.5a (tap), fleet 861 -> 860 (retired chain row only); owner readers 2; hand-carry NOT redundant (860 -> 857); R4 census in objectModel.
+
+RULINGS
+R1. E14 (deferredAbove's parentStuff chain walk) reads the activation list and stops at a
+    floor. The chain walk is DELETED, not kept as a fallback. SEQ 244's verdict is the
+    authority: all 680 "chain held, list not" calls stopped at a floor, ran-out 0.
+R2. measureDeferredAbove moves onto the list with it. If its only job was comparing the
+    chain against the list, it becomes list-against-list and is vacuous: retire it instead
+    and say so in one line.
+R3. driveStep:289's hand-carry is MEASURED in this stroke, not removed. If the measurement
+    says it is redundant, its removal is its own commit after the switch, certified alone.
+    If it is not redundant, name what it still carries.
+R4. Stale parentStuff (the 88 cases): after the switch, census every remaining parentStuff
+    READER, over the whole tree. Report the list. Fix nothing.
+
+THE WORK
+1. Baseline first: pop.sh, jitLadder, printPop at the seal tree, captured before any edit.
+2. The switch (R1 + R2). One commit.
+3. Certificate: owner readers 4 -> 2 (processAction, processCode left); F-114 entry 25's 458
+   never-ending chain walks gone, count read 0; fleet row for row against the baseline, every
+   mover traced to the 680 with its sentence -- a mover NOT traced to the 680 is a STOP; H7 one
+   row red with the chain walk restored and green on the list (the 88 stale-chain case if a
+   fixture reaches it).
+4. The hand-carry measurement (R3), then its commit only if the measurement earns it.
+5. The parentStuff reader census (R4).
+6. Clean as you go: alpha slots, one-line headers, the DesignDocs stump for deferredAbove.
+   No ParseActivation field expected; if one is touched, bear-trap #58 applies.
+
+STOP CONDITIONS: any fleet mover not traceable to the 680; a hang or crash on any fixture.
+Bound every new walk (F-114 entry 25).
+
+REPORT, TOP FIRST: what ran, what moved and on which rule; owner-reader count, hand-carry
+verdict, parentStuff reader list; evidence after. Seal only if green; else stay dirty, flag loud.
+
+  END SEQ 245
