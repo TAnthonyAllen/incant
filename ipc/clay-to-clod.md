@@ -10655,7 +10655,7 @@ THE WORK
 ===================================================================
 SEQ 250  -  5.6c, LANDING: THE LEND GOES; SEQ 248 FOLLOWS AS DISPATCHED
 ===================================================================
-STATUS: working -- step 1 landed (lends deleted); guards and owner deletion in progress.
+STATUS: cleared -- 31aa1c2 lends deleted; 50c72ca guards ask labelOf and refuse (old/new agree on 4,145,545 calls); b79e5fa owner deleted, reads 0. Fleet row for row throughout. Sealed.
 
 RULINGS
 R1. The one read is LAWFUL. An actor answers isRuleTerm for itself. With the lend it was
