@@ -1401,8 +1401,19 @@ GroupItem parse(RuleStuff pStuff)
 GroupItem   parentLabel;
 GroupItem   definer;
 GroupRules  ruler       = groupRules;
+ParseActivation oldActive;
 RuleStuff   defStuff;
 RuleStuff   ruleStuff   = getStuff(pStuff);
+    // oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
+    oldActive.face      = this;
+    oldActive.isFloor   = 0;
+    oldActive.label     = null;
+    oldActive.prev      = ruler.gParseActive;
+    oldActive.stuff     = ruleStuff;
+    ruler.gParseActive  = &oldActive;
+    // activeNotSubject the record takes GroupRules' scope, so re-mention ruler then ruleStuff or ruler's bare names bind to oldActive (bear-trap #58)
+use ruler
+use ruleStuff
     if pStuff   parentLabel = pStuff.label;
     kount       = 0;
     isOK        = false;
@@ -1456,6 +1467,9 @@ generatedExit:
     if !sukcess && notifyFail   aCTionFailed(this);
     if sukcess && !label        label = labelNO;
     inProcess   = false;
+    ruler.gParseActive  = oldActive.prev;
+use ruler
+use ruleStuff
     return label;
 }
 
