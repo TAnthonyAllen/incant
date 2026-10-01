@@ -467,11 +467,10 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
-// checkInput skip, set hereAt, pass the guard and mint the label -- true when input is valid
-int RuleStuff::checkInput()
+// checkInput skip, set hereAt, pass the guard and mint the label -- true when input is valid; field is the node the caller runs, never RuleStuff.owner (stroke 5.4a)
+int RuleStuff::checkInput(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*field = owner;
 	guardFAIL = 0;
 	if ( !ruler->atRuleMark )
 		{

@@ -9037,7 +9037,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 int 		counter = 0;
 int 		more = 0;
 	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput() )
+	if ( ruleStuff->checkInput(field) )
 		{
 		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
 		ruleStuff->sukcess = 0;
@@ -9077,7 +9077,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 int 		counter = 0;
 int 		more = 0;
 	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput() )
+	if ( ruleStuff->checkInput(field) )
 		{
 		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
 		ruleStuff->sukcess = 0;
@@ -9171,7 +9171,7 @@ int 		matched = 0;
 			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
 		}
 	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput() )
+	if ( ruleStuff->checkInput(field) )
 		{
 		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
 		ruleStuff->sukcess = 0;
@@ -9263,7 +9263,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 		}
 	// bareFieldRepoint the use lines below are load bearing -- a new declaration re-points every bare field under it
 	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput() )
+	if ( ruleStuff->checkInput(field) )
 		{
 		if ( isAction(field->groupBody->flags.actionType) )
 			{
@@ -9328,7 +9328,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 int 		counter = 0;
 int 		more = 0;
 	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput() )
+	if ( ruleStuff->checkInput(field) )
 		{
 		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
 		ruleStuff->sukcess = 0;
@@ -9366,7 +9366,7 @@ extern "C" GroupItem *parseString(GroupItem *field)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
 	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput() )
+	if ( ruleStuff->checkInput(field) )
 		{
 		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
 		ruleStuff->sukcess = 0;
@@ -9390,7 +9390,7 @@ extern "C" GroupItem *parseUpTo(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
 	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput() )
+	if ( ruleStuff->checkInput(field) )
 		{
 		// gateIsNotAMatch as the other leaves
 		ruleStuff->sukcess = 0;

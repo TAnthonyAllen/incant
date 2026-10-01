@@ -79,11 +79,10 @@ GroupRules  ruler = groupRules;
     return false;
 }
 
-// checkInput skip, set hereAt, pass the guard and mint the label -- true when input is valid
-int checkInput()
+// checkInput skip, set hereAt, pass the guard and mint the label -- true when input is valid; field is the node the caller runs, never RuleStuff.owner (stroke 5.4a)
+int checkInput(GroupItem field)
 {
 GroupRules  ruler = groupRules;
-GroupItem   field = owner;
     guardFAIL   = false;
     if !atRuleMark {
         cerr "checkInput: no input source":;

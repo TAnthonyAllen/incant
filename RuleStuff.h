@@ -49,7 +49,7 @@ struct
 RuleStuff(GroupItem *grup);
 RuleStuff(RuleStuff *r);
 int checkGuard(GroupItem *field);
-int checkInput();
+int checkInput(GroupItem *field);
 GroupItem *followingMember();
 void getWhatFollows();
 void setTestMatch();

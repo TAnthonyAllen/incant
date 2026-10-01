@@ -1414,7 +1414,7 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
     while !isOK && kount < maxRepeat {
 continueHere:
         sukcess     = false;
-        if !checkInput()    goto matchFailed;
+        if !checkInput(this)    goto matchFailed;
         /*******************************************************************
             Run the matches that determine if this rule succeeds
             //runParseMatches

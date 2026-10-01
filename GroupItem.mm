@@ -1822,7 +1822,7 @@ RuleStuff 	*ruleStuff = getStuff(pStuff);
 		{
 continueHere:
 		ruleStuff->sukcess = 0;
-		if ( !ruleStuff->checkInput() )
+		if ( !ruleStuff->checkInput(this) )
 			goto matchFailed;
 		/*******************************************************************
 		Run the matches that determine if this rule succeeds

@@ -10237,3 +10237,42 @@ REPORT: top line first: what ran, what moved, which rule if parser failed.
 report when 5.3b lands, or you can tell me what 5.4 covers.")
 
   END SEQ 237
+
+
+===================================================================
+SEQ 238  -  STROKE 5.4a: checkInput TAKES ITS NODE
+===================================================================
+STATUS: cleared -- checkInput(field) landed; witness 0 differ at 7 sites, parseAny 0 calls; control
+        counts; owner readers 12 -> 11; fleet row for row.
+
+RULINGS (Tony, 2026-10-01)
+R1. 5.4 lands in two strokes: 5.4a is checkInput alone; 5.4b is the other seven
+    signatures (getWhatFollows, followingMember, setTestMatch, testAttributes,
+    testOptions, setTargetFlag + measureTargetAgree, deferredAbove + measureDeferredAbove).
+R2. checkInput's new parameter is named `field`, replacing its local
+    `GroupItem field = owner;`, so the tail's bare `field` binds as it does today
+    (bear-trap #42). If tok will not take it, STOP and report.
+R3. Each caller passes the node it already holds. Where a caller holds only an activation,
+    it passes face. Report which callers took which.
+
+5.4a: THE BUILD
+- checkInput(field): signature in RuleStuff.twk, extern in groups.ext; all 8 call sites
+  respelled.
+- owner is not deleted and gains no writer.
+- Clean as you go.
+
+CERTIFICATE
+- Witness at each of the 8 call sites: count field != stuff.owner (want 0), with the call
+  count beside it, so a zero is not vacuous. Then reverted md5-identical.
+- Witness control (H7): at ONE call site, temporarily pass a different node and show that
+  the witness counts. Reverted.
+- Bear-trap #42 read: checkInput's generated tail before and after, line for line; every
+  bare name binds as before.
+- Full bare tokall: every generated line explained.
+- Canary moves only by checkInput's signature.
+- pop.sh row for row with 861 / 1; jitLadder PASSED; printPop PASSED.
+- owner readers by site and by function, after.
+
+REPORT: top line first: what ran, what moved, which rule if parser failed.
+
+  END SEQ 238
