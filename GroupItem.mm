@@ -1804,11 +1804,20 @@ GroupItem *GroupItem::nextProperty(GroupItem *entry)
 ***************************************************************************/
 GroupItem *GroupItem::parse(RuleStuff *pStuff)
 {
-GroupItem 	*parentLabel = 0;
-GroupItem 	*definer = 0;
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*defStuff = 0;
-RuleStuff 	*ruleStuff = getStuff(pStuff);
+GroupItem 			*parentLabel = 0;
+GroupItem 			*definer = 0;
+GroupRules 			*ruler = GroupControl::groupController->groupRules;
+ParseActivation 	oldActive;
+RuleStuff 			*defStuff = 0;
+RuleStuff 			*ruleStuff = getStuff(pStuff);
+	// oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
+	oldActive.face = this;
+	oldActive.isFloor = 0;
+	oldActive.label = 0;
+	oldActive.prev = ruler->gParseActive;
+	oldActive.stuff = ruleStuff;
+	ruler->gParseActive = &oldActive;
+	// activeNotSubject the record takes GroupRules' scope, so re-mention ruler then ruleStuff or ruler's bare names bind to oldActive (bear-trap #58)
 	if ( pStuff )
 		parentLabel = pStuff->label;
 	ruleStuff->kount = 0;
@@ -1892,6 +1901,7 @@ generatedExit:
 	if ( ruleStuff->sukcess && !ruleStuff->label )
 		ruleStuff->label = ruler->labelNO;
 	ruleStuff->inProcess = 0;
+	ruler->gParseActive = oldActive.prev;
 	return ruleStuff->label;
 }
 
