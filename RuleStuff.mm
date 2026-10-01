@@ -518,6 +518,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 				{
 				label = new GroupItem(field->groupBody->tag);
 				label->groupBody->flags.isLabel = 1;
+				// labelOf the rule this label was minted for -- written here once, never rewritten (stroke 5.6a)
+				label->labelOf = field;
 				}
 			else	label->groupBody->flags.fLAG = 0;
 			if ( !label->getRStuff() || ::compare(ruleName,field->groupBody->tag) != 0 )

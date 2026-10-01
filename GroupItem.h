@@ -24,6 +24,7 @@ class GroupItem
 {
 public:
 GroupBody *groupBody;
+GroupItem *labelOf;
 GroupItem *ruleOf;
 GroupItem *parent;
 GroupItem *nextInParent;

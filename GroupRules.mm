@@ -9279,6 +9279,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 			// labelReachesNothing myLabel is minted and goes nowhere until CT-5 gives it a channel
 			into = ruleStuff->parentLabel;
 			myLabel = new GroupItem(field->groupBody->tag);
+			myLabel->labelOf = field;
 			::measureLabelMint(field,myLabel,into);
 			::saveLocalFields(field);
 			priorMETHOD = ruler->currentMETHOD;

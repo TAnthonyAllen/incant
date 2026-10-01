@@ -6,6 +6,7 @@ include groupIncludes
 class GroupItem
 {
 GroupBody       groupBody;
+GroupItem       labelOf;
 GroupItem       ruleOf;
 GroupItem	    parent,
                 nextInParent,

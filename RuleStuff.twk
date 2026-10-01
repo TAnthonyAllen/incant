@@ -112,7 +112,9 @@ GroupRules  ruler = groupRules;
         else {
             if !label || !label.fLAG {
                 label           = new(tag);
-                label.isLabel   = true; }
+                label.isLabel   = true;
+                // labelOf the rule this label was minted for -- written here once, never rewritten (stroke 5.6a)
+                label.labelOf   = field; }
             else label.fLAG     = false;
             if !label.rStuff || ruleName ne tag label.setRStuff(this);
             // enclosingActivation

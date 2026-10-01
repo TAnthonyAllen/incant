@@ -10537,3 +10537,67 @@ REPORT, TOP FIRST: what ran, what moved and on which rule; owner-reader count, h
 verdict, parentStuff reader list; evidence after. Seal only if green; else stay dirty, flag loud.
 
   END SEQ 245
+
+
+===================================================================
+SEQ 246  -  STROKE 5.6: THE LAST TWO OWNER READERS, THEN RuleStuff.owner RETIRES
+===================================================================
+STATUS: STOPPED by R1 -- tap: processAction label arm 60 calls, node in hand != owner on all 60 (the label, not the rule); processCode label arm 0 calls. Tap reverted md5-identical; nothing built.
+
+RULINGS
+R1. processAction (GroupActions.rtn:703) and processCode (:744) read the node they are
+    handed, not stuff.owner. Same method as 5.5b: tap first, and confirm the node in hand
+    equals owner on every call across pop.sh, jitLadder and printPop before switching.
+    Any inequality is a STOP: report the call, its rule, and both nodes.
+R2. Once owner readers read 0, RuleStuff.owner is DELETED (5.6b): the field, every writer,
+    the groups.ext mirror, and DesignDocs RuleStuff.fields.owner. It is a layout change,
+    so take the full bare tokall diff and commit groups.ext in support in the same pass.
+R3. F-130, processCode's label arm (unreachable by structure, per seal 09-30 (2)): PIN IT
+    DEAD. Replace the arm with a named refusal that says the label arm was reached and
+    names the rule. Do not delete it silently, and do not respell it onto a node it never
+    receives. If a road to it turns up, the refusal names it.
+R4. parentStuff is NOT in this stroke. 5.5b's reader list stands as recorded.
+
+THE WORK
+5.6a: baseline at 85bc899; tap (R1) reverted md5-identical; respell both readers plus R3's
+refusal, one commit; certificate owner readers 2 -> 0 by whole-tree search, fleet row for
+row, H7 (switch reverted alone turns a row red, or say why none can).
+5.6b: writer census; delete (R2); full bare tokall, canary before/after; fleet, jitLadder,
+printPop, decodePop, ddPop, countPop, frontier row for row with 5.6a; objectModel status.
+
+STOP: any tap inequality (R1); a writer of owner that is not a constructor or a copy; any
+fleet mover in 5.6b. Copy-asides verified to exist before any destructive step.
+
+  END SEQ 246
+
+
+===================================================================
+SEQ 247  -  STROKE 5.6, RE-CUT: THE LABEL -> RULE LINK FIRST, THEN THE READERS, THEN owner RETIRES
+===================================================================
+STATUS: working -- transcribed AT PICKUP (pasted by Tony), before any edit, per WT-15.
+
+RULINGS
+R1. The link: GroupItem gains `labelOf`, the rule a label was minted for. It is written
+    once, where the label is minted, and never rewritten. It is a separate field from
+    ruleOf (copy -> original); one slot, one meaning.
+R2. Every label mint site gets the write, not just checkInput's (RuleStuff.twk:115-118).
+    Census the mint sites over the whole tree first, both roads. An absence counts only
+    if the search covered the whole tree.
+R3. processAction and processCode read field.labelOf where they read stuff.owner today.
+R4. processCode's label arm (0 calls, all three harnesses): a named refusal, landed in the
+    readers commit (SEQ 246 R3 stands).
+R5. Then RuleStuff.owner is deleted as SEQ 246 R2 dispatched.
+
+THE WORK
+5.6a the link (layout): baseline at 85bc899; mint-site census; grep labelOf first (#58),
+placed as ruleOf; full bare tokall diff; groups.ext committed in support. Certificate: tap
+at processAction's label arm reads labelOf == ruleSTUFF->owner on all 60 calls, and on
+every mint labelOf == the minting rule; reverted md5-identical; fleet row for row.
+5.6b the readers (R3, R4): owner readers 2 -> 0 by whole-tree search; fleet row for row;
+H7 labelOf left unwritten turns the JSON rows red, or say why none can see it.
+5.6c the deletion (SEQ 246 R2, steps 5-7): writer census first; any fleet mover is a STOP.
+
+STOP: a label minted where its rule is not at hand; any tap inequality; any mover in 5.6a
+or 5.6c. Seal only if all three land green. ipc (SEQ 246, STOPPED) commits with 5.6a.
+
+  END SEQ 247

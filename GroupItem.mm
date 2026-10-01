@@ -145,6 +145,7 @@ int 	result = -1;
 *******************************************************************************/
 GroupItem::GroupItem()
 {
+	labelOf = 0;
 	ruleOf = 0;
 	parent = 0;
 	nextInParent = 0;
@@ -164,6 +165,7 @@ GroupItem::GroupItem()
 ******************************************************************************/
 GroupItem::GroupItem(GroupItem *grup)
 {
+	labelOf = 0;
 	ruleOf = 0;
 	parent = 0;
 	nextInParent = 0;
@@ -186,6 +188,7 @@ GroupItem::GroupItem(GroupItem *grup)
 
 GroupItem::GroupItem(char *c)
 {
+	labelOf = 0;
 	ruleOf = 0;
 	parent = 0;
 	nextInParent = 0;
