@@ -1398,7 +1398,15 @@ RuleStuff *GroupItem::getStuff(RuleStuff *pStuff)
 	// lazyMaterialisation it asks ensureRStuff BY NAME -- a node arriving with no rStuff is the parser's design,
 	// lazyMaterialisation not a mis-use to be repaired
 RuleStuff *stuff = ensureRStuff();
-	if ( stuff->owner != this || stuff->inProcess )
+char *why = 0;
+	// borrowedRefuses a label holding its rule's rStuff is the one lawful borrow and never parses through here -- refuse by name, never mint (SEQ 248)
+	if ( labelOf && stuff == labelOf->getRStuff() )
+		{
+		why = ::concat(2,"getStuff: a label holding its rule's rStuff reached the parse; its rule is ",labelOf->groupBody->tag);
+		::refuse(this,why);
+		return stuff;
+		}
+	if ( stuff->inProcess )
 		{
 		stuff = new RuleStuff(getRStuff());
 		stuff->owner = this;
@@ -2483,6 +2491,7 @@ void GroupItem::setRegex(PLGrgx *v)
 void GroupItem::setRuleStuff()
 {
 int 	asTerm = 0;
+char 	*why = 0;
 	// copyIsATerm attached under a rule, a COPY takes part as a rule term -- that fact is the instance's, never the shared body's (stroke 2)
 	if ( !groupBody->flags.isRule )
 		if ( groupBody->registry && groupBody->registry->groupBody->flags.isRule )
@@ -2495,13 +2504,15 @@ int 	asTerm = 0;
 					asTerm = 1;
 				else	groupBody->flags.isRule = 1;
 				}
+	// borrowedRefuses a label holding its rule's rStuff is never made a rule here -- refuse by name, never mint (SEQ 248)
 	if ( !getRStuff() )
 		setRStuff(new RuleStuff(this));
 	else
-	if ( getRStuff()->owner != this )
+	if ( labelOf && getRStuff() == labelOf->getRStuff() )
 		{
-		setRStuff(new RuleStuff(getRStuff()));
-		getRStuff()->owner = this;
+		why = ::concat(2,"setRuleStuff: a label holding its rule's rStuff was asked to become a rule; its rule is ",labelOf->groupBody->tag);
+		::refuse(this,why);
+		return;
 		}
 	if ( asTerm )
 		getRStuff()->ruleTerm = 1;

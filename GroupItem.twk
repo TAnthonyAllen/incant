@@ -1051,7 +1051,13 @@ RuleStuff getStuff(RuleStuff pStuff)
     // lazyMaterialisation it asks ensureRStuff BY NAME -- a node arriving with no rStuff is the parser's design,
     // lazyMaterialisation not a mis-use to be repaired
 RuleStuff   stuff = ensureRStuff();
-    if stuff.owner != this || stuff.inProcess {
+String      why;
+    // borrowedRefuses a label holding its rule's rStuff is the one lawful borrow and never parses through here -- refuse by name, never mint (SEQ 248)
+    if labelOf && stuff == labelOf.rStuff {
+        why = "getStuff: a label holding its rule's rStuff reached the parse; its rule is " labelOf.tag;
+        refuse(this,why);
+        return stuff; }
+    if stuff.inProcess {
         stuff       = new(rStuff);
         stuff.owner = this; }
     if parentStuff = pStuff
@@ -1955,6 +1961,7 @@ void setRStuff(RuleStuff stuff)
 void setRuleStuff()
 {
 int         asTerm = false;
+String      why;
     // copyIsATerm attached under a rule, a COPY takes part as a rule term -- that fact is the instance's, never the shared body's (stroke 2)
     if !isRule
         if registry && registry.isRule              isRule = true;
@@ -1962,10 +1969,12 @@ int         asTerm = false;
             if !registry || registry == keyWords {
                 if ruleOf   asTerm = true;
                 else        isRule = true; }
+    // borrowedRefuses a label holding its rule's rStuff is never made a rule here -- refuse by name, never mint (SEQ 248)
     if !rStuff  rStuff = new(this);
-    or owner != this {
-        rStuff  = new(rStuff);
-        owner   = this; }
+    or labelOf && rStuff == labelOf.rStuff {
+        why = "setRuleStuff: a label holding its rule's rStuff was asked to become a rule; its rule is " labelOf.tag;
+        refuse(this,why);
+        return; }
     if asTerm   rStuff.ruleTerm = true;
 }
 
