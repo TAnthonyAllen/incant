@@ -10105,3 +10105,43 @@ CERTIFICATE
 REPORT: top line first: what ran, what moved, which rule if parser failed.
 
   END SEQ 234
+
+
+===================================================================
+SEQ 235  -  STROKE 5.2: FOUR OWNER READERS TO THE NODE IN HAND
+===================================================================
+STATUS: cleared -- 5.2 landed 2026-10-01; tap 0 disagreements on all four; owner readers 18 -> 14;
+        fleet row for row 861 / 1; jitLadder, printPop PASSED; canary 315.
+
+RULINGS (Tony, 2026-10-01)
+R1. Naming: no ParseActivation field takes a name the generated C++ already calls bare
+    (floor, index, time, ...). isFloor stays.
+R2. Every stroke that ADDS a field to ParseActivation carries a full bare-tokall diff as a
+    certificate line, with every generated line explained. The canary is not enough
+    (bear-trap #58). Standing; record it in CLAUDE.md beside R1.
+R3. The three escaped ::enclosingFace call sites (parseLoop, parseContainer, parseRule)
+    go in cleanupList with the bear-trap #42 reason. Not respelled now.
+
+5.2: THE BUILD
+Respell the four owner readers that recon 23 measured equal to the node already held
+1-3 calls up: each reads the field it was handed instead of RuleStuff.owner. Pass the node
+down the call where it is not already in scope. owner is NOT deleted and gains no writer;
+it retires later in stroke 5.
+- No new ParseActivation fields; nothing on the activation changes.
+- Name the four readers at the top of the report, with file:line, before building.
+- Clean as you go: alphabetical slots, // slug comments.
+
+CERTIFICATE
+- Equality, per reader: a temporary tap comparing owner with the node in hand, run across
+  the fleet, 0 disagreements, then reverted md5-identical (recon 22's method). A respell
+  to an equal value has no meaningful H7 red, so the tap is the evidence; say so in the
+  report.
+- owner reader census: 18 -> 14, by grep, readers named.
+- pop.sh row for row with 861 / 1; jitLadder PASSED; printPop PASSED.
+- Canary: any move named.
+- tokall bare; every generated diff explained.
+- groups.ext committed if touched.
+
+REPORT: top line first: what ran, what moved, which rule if parser failed.
+
+  END SEQ 235

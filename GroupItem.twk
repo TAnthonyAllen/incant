@@ -1435,7 +1435,7 @@ continueHere:
             kount++;
             attachLabel(ruleStuff,pStuff,1); }
         else break; }
-    if kount >= maxRepeat && maxRepeat > 1  reportRepeatLimit(owner,kount,maxRepeat);
+    if kount >= maxRepeat && maxRepeat > 1  reportRepeatLimit(this,kount,maxRepeat);
 matchFailed:
     if !sukcess {
         if !sukcess && kount >= min sukcess = true;
@@ -1451,7 +1451,8 @@ debugHere:
             atRuleMark  = hereAt;
             if label    label = 0; }}
 generatedExit:
-    if !sukcess && notifyFail   aCTionFailed(owner);
+    // nodeInHand this, never RuleStuff.owner -- getStuff makes them one node (stroke 5.2)
+    if !sukcess && notifyFail   aCTionFailed(this);
     if sukcess && !label        label = labelNO;
     inProcess   = false;
     return label;

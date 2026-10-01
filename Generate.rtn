@@ -330,7 +330,8 @@ RuleStuff   ruleStuff = rStuff;
     if checkInput() {
         // gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
         sukcess = false;
-        String  matchedString = owner.matches(atRuleMark);
+        // nodeInHand match through the field itself, never RuleStuff.owner -- equal on every call measured (stroke 5.2)
+        String  matchedString = field.matches(atRuleMark);
         if matchedString {
             if label    label.text  = matchedString;
             sukcess     = true; }}

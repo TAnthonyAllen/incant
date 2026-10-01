@@ -79,6 +79,18 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   file move plus the `GroupRules.twk` include line and the DesignDocs `TokFiles -> genParse` keys.
 - **Seen:** 2026-09-30.
 
+### The three escaped `::enclosingFace` calls -- NOT a cut; a respell, parked by ruling (SEQ 235 R3)
+- **What/where:** `Generate.rtn:145` (parseContainer), `:196` (parseLoop), `:221` (parseRule), each
+  `-% { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } %-`.
+- **Why listed:** stroke 5.1 gave `enclosingFace` its `groups.ext` line, so tok can now call it; the passthrough is
+  no longer needed to reach it. **Not respelled now (Tony, R3), for bear-trap #42:** the tok spelling needs a new
+  local for `zEnc`, and a new declaration mid-function re-points every bare field below it -- in `parseRule`, the
+  whole body under its `use` lines. Calling it twice instead (`if enclosingFace(field) field = enclosingFace(field)`)
+  avoids the local and doubles the lookup.
+- **Confirm:** respell one site at a time; full bare tokall diff of the function must show only that line, then
+  fleet row for row. Read the generated tail (#42), not only the canary.
+- **Seen:** 2026-10-01.
+
 ## Seeded, already gone
 
 Seeded 2026-09-28 from the dispatch. A source census shows each was already deleted, so there is nothing to cut.

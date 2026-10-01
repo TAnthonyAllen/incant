@@ -9367,7 +9367,8 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		{
 		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
 		ruleStuff->sukcess = 0;
-		char *matchedString = ruleStuff->owner->matches(ruler->atRuleMark);
+		// nodeInHand match through the field itself, never RuleStuff.owner -- equal on every call measured (stroke 5.2)
+		char *matchedString = field->matches(ruler->atRuleMark);
 		if ( matchedString )
 			{
 			if ( ruleStuff->label )

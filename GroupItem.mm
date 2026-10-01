@@ -1858,7 +1858,7 @@ continueHere:
 		else	break;
 		}
 	if ( ruleStuff->kount >= ruleStuff->maxRepeat && ruleStuff->maxRepeat > 1 )
-		::reportRepeatLimit(ruleStuff->owner,ruleStuff->kount,ruleStuff->maxRepeat);
+		::reportRepeatLimit(this,ruleStuff->kount,ruleStuff->maxRepeat);
 matchFailed:
 	if ( !ruleStuff->sukcess )
 		{
@@ -1885,8 +1885,9 @@ debugHere:
 			}
 		}
 generatedExit:
+	// nodeInHand this, never RuleStuff.owner -- getStuff makes them one node (stroke 5.2)
 	if ( !ruleStuff->sukcess && ruleStuff->notifyFail )
-		::aCTionFailed(ruleStuff->owner);
+		::aCTionFailed(this);
 	if ( ruleStuff->sukcess && !ruleStuff->label )
 		ruleStuff->label = ruler->labelNO;
 	ruleStuff->inProcess = 0;

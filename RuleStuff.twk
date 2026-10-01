@@ -316,7 +316,8 @@ extern int testString(GroupItem field)
 {
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = field.rStuff;
-String      matchedString = owner.matches(atRuleMark);
+String      matchedString = field.matches(atRuleMark);
+    // nodeInHand the match reads the field it was handed, never RuleStuff.owner (stroke 5.2)
     if matchedString {
         if noAdvance    atRuleMark = hereAt;
         if label        label.text = matchedString;

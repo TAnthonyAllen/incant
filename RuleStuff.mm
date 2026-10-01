@@ -254,7 +254,8 @@ extern "C" int testString(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
-char 		*matchedString = ruleStuff->owner->matches(ruler->atRuleMark);
+char 		*matchedString = field->matches(ruler->atRuleMark);
+	// nodeInHand the match reads the field it was handed, never RuleStuff.owner (stroke 5.2)
 	if ( matchedString )
 		{
 		if ( ruleStuff->noAdvance )

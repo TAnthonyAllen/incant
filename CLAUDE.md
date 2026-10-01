@@ -160,6 +160,12 @@ exception left.** `ParseActivation` is a struct declared inside `class GroupRule
 `groups.ext`'s `external GroupRules`, and `gParseActive` is a `GroupRules` member. `prev` is typed
 through a forward declaration in `groups.ext` (`external struct ParseActivation no.h`; bear-trap #58).
 
+⚠⚠ **TWO MORE FOR `ParseActivation`, Tony, ruled 2026-10-01 (SEQ 235 R1, R2), standing.** **Naming:** no
+`ParseActivation` field takes a name the generated C++ already calls bare (`floor`, `index`, `time`, ...) --
+`isFloor` stays. **Certificate:** every stroke that ADDS a field to `ParseActivation` carries a **full bare-tokall
+diff** as a certificate line, every generated line explained. **The canary is not enough** -- bear-trap #58's
+`floor` capture moved 0 externs.
+
 ---
 
 ## Core Architecture
