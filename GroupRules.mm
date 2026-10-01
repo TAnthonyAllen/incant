@@ -10652,7 +10652,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		return ::refuse(field,"setParse: the field passed in has no rStuff");
 		}
 	// newRoadTarget every face with rStuff, before the installed and re-entry exits -- isTarget is what promotes and RETAGS a member's label (09-22 retag ruling, SEQ 192)
-	setTargetFlag(ruleStuff);
+	setTargetFlag(ruleStuff,field);
 	// installedIsDone an rStuff carrying hasNewParse is installed, and the walk leaves it alone
 	if ( field->groupBody->flags.hasNewParse )
 		{
@@ -10766,17 +10766,17 @@ char 		*name = 0;
 }
 
 // setTargetFlag the new road's isTarget and nothing else -- getWhatFollows' target rule, run over every face at generation
-extern "C" void setTargetFlag(RuleStuff *stuff)
+extern "C" void setTargetFlag(RuleStuff *stuff, GroupItem *field)
 {
 	
-	if ( !stuff || !stuff->owner ) return;
-	GroupItem *r = stuff->owner;
+	if ( !stuff || !field ) return;
+	GroupItem *r = field;
 	int computed = 0;
 	if ( isMember(r->options.affiliation) && r->parent && !r->parent->groupBody->flags.binType )
 	computed = 1;
 	else if ( isEmbedded(r->options.affiliation) )
 	{ if ( (r->groupBody->flags.data && r->groupBody->flags.data < 4) || stuff->max == 1 ) computed = 1; }
-	::measureTargetAgree(stuff, computed);
+	::measureTargetAgree(stuff, computed, field);
 	if ( computed ) stuff->isTarget = 1;
 	
 }

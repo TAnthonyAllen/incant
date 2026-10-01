@@ -787,13 +787,13 @@ extern "C" GroupItem *measureStopCaller(GroupItem *caller)
 }
 
 // measureTargetAgree witness: on a face the old road already visited (followed), does the new road's isTarget agree with what getWhatFollows wrote -- parseTrace-gated, reads only
-extern "C" GroupItem *measureTargetAgree(RuleStuff *stuff, int computed)
+extern "C" GroupItem *measureTargetAgree(RuleStuff *stuff, int computed, GroupItem *field)
 {
 	
-	if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->owner )
+	if ( GroupControl::groupController->groupRules->parseTrace && stuff && field )
 	::fprintf(stderr,"  TARGETAGREE rule=%s parent=%s followed=%d old=%d new=%d %s\n",
-	stuff->owner->groupBody->tag,
-	stuff->owner->parent ? stuff->owner->parent->groupBody->tag : "(none)",
+	field->groupBody->tag,
+	field->parent ? field->parent->groupBody->tag : "(none)",
 	(int)stuff->followed, (int)stuff->isTarget, computed,
 	!stuff->followed ? "unvisited" : ((int)stuff->isTarget == computed ? "agree" : "DISAGREE"));
 	

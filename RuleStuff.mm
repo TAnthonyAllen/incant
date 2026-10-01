@@ -97,11 +97,11 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 }
 
 // testAttributes parse each attribute in turn; true only when all succeed
-extern "C" int testAttributes(RuleStuff *stuff)
+extern "C" int testAttributes(RuleStuff *stuff, GroupItem *field)
 {
 GroupItem 	*grup = 0;
 int 		result = 1;
-	while ( grup = stuff->owner->nextAttribute(grup) )
+	while ( grup = field->nextAttribute(grup) )
 		if ( grup->groupBody->flags.noPrint )
 			continue;
 		else
@@ -195,10 +195,10 @@ Buffer 		*buffer = ruler->stringBUFFER;
 }
 
 // testOptions parse the first member that passes its guard
-extern "C" int testOptions(RuleStuff *stuff)
+extern "C" int testOptions(RuleStuff *stuff, GroupItem *field)
 {
 GroupItem 	*grup = 0;
-	while ( grup = stuff->owner->nextMember(grup) )
+	while ( grup = field->nextMember(grup) )
 		{
 		if ( stuff->checkGuard(grup) )
 			{
@@ -539,11 +539,11 @@ checkFailed:
 }
 
 // followingMember the next member after this rule in its parent list -- getWhatFollows' onFail
-GroupItem *RuleStuff::followingMember()
+GroupItem *RuleStuff::followingMember(GroupItem *field)
 {
-	if ( owner->parent )
+	if ( field->parent )
 		{
-		GroupItem 	*grup = owner;
+		GroupItem 	*grup = field;
 		while ( grup = grup->nextInParent )
 			if ( isMember(grup->options.affiliation) )
 				break;
@@ -553,40 +553,40 @@ GroupItem *RuleStuff::followingMember()
 }
 
 // getWhatFollows sets the RuleStuff fields once, lazily, the first time a rule is needed
-void RuleStuff::getWhatFollows()
+void RuleStuff::getWhatFollows(GroupItem *field)
 {
 GroupItem 	*grup = 0;
 	followed = 1;
-	if ( isGROUP(owner->groupBody->flags.data) )
-		onGroup = owner->getGroup();
-	if ( isMember(owner->options.affiliation) && !owner->parent->groupBody->flags.binType )
+	if ( isGROUP(field->groupBody->flags.data) )
+		onGroup = field->getGroup();
+	if ( isMember(field->options.affiliation) && !field->parent->groupBody->flags.binType )
 		{
 		isTarget = 1;
-		if ( grup = followingMember() )
+		if ( grup = followingMember(field) )
 			onFail = grup;
 		}
 	else
-	if ( isEmbedded(owner->options.affiliation) )
+	if ( isEmbedded(field->options.affiliation) )
 		{
-		if ( (owner->groupBody->flags.data && owner->groupBody->flags.data < 4) || max == 1 )
+		if ( (field->groupBody->flags.data && field->groupBody->flags.data < 4) || max == 1 )
 			isTarget = 1;
 		}
 	// promotionRetired the parent-min promotion is RETIRED -- do not reintroduce it; an optional term must not make its whole rule optional
 	if ( !testMatch )
-		setTestMatch();
+		setTestMatch(field);
 }
 
 // setTestMatch picks the old road's test for this rule's shape
-void RuleStuff::setTestMatch()
+void RuleStuff::setTestMatch(GroupItem *field)
 {
 	if ( upTo(overTo) || upToOver(overTo) )
 		testMatch = ::testUpTo;
 	else
-	if ( isBIN(owner->groupBody->flags.binType) || isREGISTRY(owner->groupBody->flags.binType) )
+	if ( isBIN(field->groupBody->flags.binType) || isREGISTRY(field->groupBody->flags.binType) )
 		testMatch = ::testContainer;
 	else
-	if ( owner->groupBody->flags.data )
-		switch (owner->groupBody->flags.data)
+	if ( field->groupBody->flags.data )
+		switch (field->groupBody->flags.data)
 			{
 			case 1:
 				testMatch = ::testAny;
@@ -604,13 +604,13 @@ void RuleStuff::setTestMatch()
 				testMatch = ::testString;
 			}
 	else
-	if ( owner->groupBody->flags.isCondition )
+	if ( field->groupBody->flags.isCondition )
 		testMatch = ::testCondition;
 	else
-	if ( parseACTION(owner->groupBody->flags.methodType) )
+	if ( parseACTION(field->groupBody->flags.methodType) )
 		testMatch = ::testAction;
 	else
-	if ( !owner->contents() )
-		if ( !isMethod(owner->groupBody->flags.instructType) )
+	if ( !field->contents() )
+		if ( !isMethod(field->groupBody->flags.instructType) )
 			testMatch = ::testString;
 }

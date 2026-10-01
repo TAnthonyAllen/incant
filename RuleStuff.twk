@@ -126,11 +126,11 @@ checkFailed:
 }
 
 // followingMember the next member after this rule in its parent list -- getWhatFollows' onFail
-GroupItem followingMember()
+GroupItem followingMember(GroupItem field)
 {
-    if parent
+    if field.parent
         {
-        GroupItem   grup = owner;
+        GroupItem   grup = field;
         while grup = grup.nextInParent
             if grup.isMember    break;
         return grup;
@@ -139,25 +139,26 @@ GroupItem followingMember()
 }
 
 // getWhatFollows sets the RuleStuff fields once, lazily, the first time a rule is needed
-void getWhatFollows()
+void getWhatFollows(GroupItem field)
 {
 GroupItem   grup;
-use owner
+use field
     followed    = true;
     if isGROUP
         onGroup     = group;
     if isMember && !parent.binType {
         isTarget    = true;
-        if grup = followingMember() onFail = grup; }
+        if grup = followingMember(field) onFail = grup; }
     or isEmbedded {
         if (data && data < 4) || max == 1 isTarget = true; }
     // promotionRetired the parent-min promotion is RETIRED -- do not reintroduce it; an optional term must not make its whole rule optional
-    if !testMatch   setTestMatch();
+    if !testMatch   setTestMatch(field);
 }
 
 // setTestMatch picks the old road's test for this rule's shape
-void setTestMatch()
+void setTestMatch(GroupItem field)
 {
+use field
     if upTo || upToOver     testMatch = testUpTo;
     or isBIN || isREGISTRY  testMatch = testContainer;
     or data
@@ -239,11 +240,11 @@ testMacro(*atRuleMark);
 }
 
 // testAttributes parse each attribute in turn; true only when all succeed
-extern int testAttributes(RuleStuff stuff)
+extern int testAttributes(RuleStuff stuff, GroupItem field)
 {
 GroupItem   grup;
 int         result = true;
-    while grup = owner.nextAttribute(grup)
+    while grup = field.nextAttribute(grup)
         if noPrint  continue;
         or parse(stuff) result = true;
         else {
@@ -292,10 +293,10 @@ Buffer      buffer  = stringBUFFER;
 }
 
 // testOptions parse the first member that passes its guard
-extern int testOptions(RuleStuff stuff)
+extern int testOptions(RuleStuff stuff, GroupItem field)
 {
 GroupItem   grup;
-    while grup = owner.nextMember(grup) {
+    while grup = field.nextMember(grup) {
         if checkGuard(grup) {
             grup.guardOK = true;
             if parse(stuff) return true; }}

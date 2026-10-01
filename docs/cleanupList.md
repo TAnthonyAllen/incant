@@ -91,6 +91,19 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   fleet row for row. Read the generated tail (#42), not only the canary.
 - **Seen:** 2026-10-01.
 
+### `parseAny` -- installed only on the bootstrap rule `Any`, which no grammar references
+- **What/where:** `Generate.rtn:74` (`extern GroupItem parseAny`), installed by `setParseWalk`'s `case isANY:`
+  (`Generate.rtn:418`). The only node carrying `isANY` data is the bootstrap rule `Any`
+  (`GroupMain.twk:157-159`, `grok += new("Any"); isANY = true;`); nothing else in `.twk`/`.rtn` sets it.
+- **Why it looks deletable:** no grammar term names `Any` -- a word-bounded grep of `incant/`, `IncantForms/` and
+  `grammar` finds 19 hits, all prose (`incant/pop/f31` lists `Any` among names dropped). Stroke 5.4a's witness counted
+  **0 calls** to `parseAny` across pop.sh + jitLadder + printPop.
+- **Related, same question, not claimed:** the `Any` bootstrap rule itself and the old road's `testAny` (`RuleStuff.twk:236`,
+  bound at `RuleStuff.twk:167`'s `case isANY:`), which would go with it.
+- **Confirm:** a call census of `parseAny` and `testAny` over the full seal checklist (want 0 with the census's own
+  call-count sibling > 0 elsewhere); delete `parseAny` and its `case`, full bare tokall, fleet row for row.
+- **Seen:** 2026-10-01 (SEQ 239 rider).
+
 ## Seeded, already gone
 
 Seeded 2026-09-28 from the dispatch. A source census shows each was already deleted, so there is nothing to cut.

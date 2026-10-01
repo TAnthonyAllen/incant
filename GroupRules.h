@@ -407,7 +407,7 @@ extern "C" GroupItem *setMark(GroupItem *argument);
 extern "C" GroupItem *setParse(GroupItem *field);
 extern "C" GroupItem *setParseWalk(GroupItem *field);
 extern "C" GroupItem *setRuleAction(GroupItem *block);
-extern "C" void setTargetFlag(RuleStuff *stuff);
+extern "C" void setTargetFlag(RuleStuff *stuff, GroupItem *field);
 extern "C" int showTree(GroupItem *node, char *pad);
 extern "C" int statementMatches(GroupItem *a, GroupItem *b);
 extern "C" GroupItem *stopParsingInput(GroupItem *input);

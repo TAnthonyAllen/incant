@@ -10276,3 +10276,52 @@ CERTIFICATE
 REPORT: top line first: what ran, what moved, which rule if parser failed.
 
   END SEQ 238
+
+
+===================================================================
+SEQ 239  -  RULINGS ON 5.4's THREE QUESTIONS; STROKE 5.4b: REMAINING STUFF-ONLY READERS
+===================================================================
+STATUS: cleared -- 5.4b landed; witness 0 differ at 7 sites, all reached; owner readers 11 -> 4;
+        parseAny to cleanupList; fleet row for row.
+
+RULINGS ON 5.4's THREE QUESTIONS (Tony, 2026-10-01)
+R1. Pass the node in; no method moves to GroupItem in stroke 5. Where checkInput,
+    getWhatFollows, followingMember and setTestMatch live is revisited after the
+    activation fields leave RuleStuff, when what they read is settled. getStuff can mint
+    a fresh stuff, so a GroupItem method could not assume this->rStuff anyway.
+R2. deferredAbove keeps its signature until 5.5. 5.4b drops deferredAbove and
+    measureDeferredAbove from its list.
+R3. Confirmed: checkInput's tail is certified by reading the generated function line for
+    line (5.4a's #42 line), not by the canary.
+
+STROKE 5.4b RULINGS (Tony, 2026-10-01)
+R1. 5.4a's shape carries over: each function gains its node as a parameter named `field`
+    where it replaces a `field = owner` local (bear-trap #42); callers pass the node they
+    hold, face only where they hold just an activation.
+R2. Scope: getWhatFollows, followingMember, setTestMatch, testAttributes, testOptions,
+    setTargetFlag + measureTargetAgree. NOT deferredAbove or measureDeferredAbove (5.5).
+
+5.4b: THE BUILD
+- Signatures in RuleStuff.twk / Generate.rtn / GroupItem.twk / measure.twk as they fall;
+  groups.ext lines to match. Every call site respelled.
+- owner is not deleted and gains no writer. Clean as you go.
+
+CERTIFICATE
+- Witness at each new call site: count field != stuff.owner with the call count beside it
+  (want 0, with calls > 0; a site the fleet never reaches is named as equal by structure
+  only). Reverted md5-identical.
+- H7: the witness shown to count at one site, as in 5.4a.
+- Bear-trap #42 read of each function whose owner local became a parameter: generated
+  body before and after, every bare name binding as before.
+- Full bare tokall: every generated line explained. Canary moves named (expected none).
+- pop.sh row for row with 861 / 1; jitLadder PASSED; printPop PASSED.
+- owner readers after, by site and by function. Expected 11 -> 4: processAction,
+  processCode, deferredAbove (parentStuff walk), measureDeferredAbove.
+
+RIDER, by reading, no build: what installs parseAny as a parse method, and does any rule
+in the live grammar have that shape? If none does, add it to cleanupList as a candidate.
+One paragraph.
+
+REPORT: top line first: what ran, what moved, which rule if parser failed.
+
+  END SEQ 239

@@ -1420,7 +1420,7 @@ RuleStuff *stuff = ensureRStuff();
 	if ( stuff->parentStuff = pStuff )
 		stuff->parentLabel = stuff->parentStuff->label;
 	if ( !stuff->followed )
-		stuff->getWhatFollows();
+		stuff->getWhatFollows(this);
 	return stuff;
 }
 
@@ -1829,7 +1829,7 @@ continueHere:
 		//runParseMatches
 		*******************************************************************/
 		if ( isRuleTerm() && groupBody->flags.hasMembers && !groupBody->flags.data )
-			ruleStuff->sukcess = ::testOptions(ruleStuff);
+			ruleStuff->sukcess = ::testOptions(ruleStuff,this);
 		else
 		if ( ruleStuff->testMatch || ruleStuff->onGroup || groupBody->flags.hasAttributes )
 			{
@@ -1840,7 +1840,7 @@ continueHere:
 				if ( ruleStuff->sukcess && ruleStuff->onGroup && !ruleStuff->onGroup->parse(ruleStuff) )
 					ruleStuff->sukcess = 0;
 				if ( ruleStuff->sukcess && groupBody->flags.hasAttributes )
-					ruleStuff->sukcess = ::testAttributes(ruleStuff);
+					ruleStuff->sukcess = ::testAttributes(ruleStuff,this);
 				}
 			}
 		if ( !ruleStuff->sukcess )

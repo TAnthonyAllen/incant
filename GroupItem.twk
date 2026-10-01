@@ -1066,7 +1066,7 @@ RuleStuff   stuff = ensureRStuff();
         stuff.owner = this; }
     if parentStuff = pStuff
         parentLabel = parentStuff.label;
-    if !followed    getWhatFollows();
+    if !followed    getWhatFollows(this);
     return stuff;
 }
 
@@ -1419,12 +1419,12 @@ continueHere:
             Run the matches that determine if this rule succeeds
             //runParseMatches
         *******************************************************************/
-        if isRuleTerm() && hasMembers && !data                      sukcess = testOptions(ruleStuff);
+        if isRuleTerm() && hasMembers && !data                      sukcess = testOptions(ruleStuff,this);
         or testMatch || onGroup || hasAttributes {
             if testMatch                                            sukcess = testMatch(this);
             if !parseACTION {
                 if sukcess && onGroup && !onGroup.parse(ruleStuff)  sukcess = false;
-                if sukcess && hasAttributes                         sukcess = testAttributes(ruleStuff); }}
+                if sukcess && hasAttributes                         sukcess = testAttributes(ruleStuff,this); }}
         if !sukcess     goto matchFailed;
         /*******************************************************************
             Success. Fire label method if there is one.
