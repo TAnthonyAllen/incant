@@ -10410,3 +10410,34 @@ CERTIFICATE
 REPORT: top line first: what ran, what moved, which rule if parser failed.
 
   END SEQ 241
+
+
+===================================================================
+SEQ 242  -  STROKE 5.5a, RETRIED TO LAND
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-01,
+        before any edit.
+
+RULINGS (Tony, 2026-10-01)
+R1. The tripwire's in-drive fires 446 -> 2856 is accepted: deferredAbove now takes the
+    list walk where it took the chain; no answer changed, and the guarded count stays 0.
+    One sentence beside the row; no pin.
+R2. The checkInput old-road-arrival tap is dropped (it sized 5.5b and was not pass/fail;
+    the fleet row for row answers the behavioural question).
+R3. The chain-versus-list tap is the one certificate owed: on every deferredAbove call,
+    compute both walks' answers and compare. No old-road lookup.
+
+5.5a: LAND IT
+- stroke-5.5a-stopped (rebased on 5.5f) merges to trunk once the tap is in.
+
+CERTIFICATE
+- Tap: deferredAbove same/differ with call count, across pop.sh, jitLadder and printPop.
+  Any differ: STOP and report. Reverted md5-identical.
+- pop.sh row for row with 861 / 1 (the tripwire's moved count named, per R1);
+  jitLadder PASSED; printPop PASSED; canary 315 or moves named.
+- Full bare tokall as on the branch: record, push, pop, use-restores, comment.
+- cleanupList: parse()'s unused parentLabel local (step 0's finding).
+
+REPORT: top line first: what ran, what moved, which rule if parser failed.
+
+  END SEQ 242
