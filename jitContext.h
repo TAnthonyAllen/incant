@@ -697,15 +697,6 @@ static inline void reportCompileCensus(void)
         ::exit(1);
 }
 
-// ParseActivation -- the NEW road's activation list: WHO IS ACTIVE ABOVE. parseRule pushes one on the C++ stack and pops it
-// before its single return; a drive (a field carrying data) pushes a FLOOR the walk stops at. parentStuff stays and means
-// WHERE TO ATTACH. deferredAbove walks this list whenever an activation sits above the floor, either road; otherwise it
-// keeps the parentStuff walk (Tony, 2026-09-24; F-114 hangs, option 1, ruling (b) refined).
-class RuleStuff;
-// label: a drive FLOOR's slot for the generated root's label -- written by driveFloorLabel (from checkInput), read by
-// driveStep after the fire (Tony, 2026-09-26, SEQ 185 (i)). parseRule's own activations never use it.
-struct ParseActivation { RuleStuff *stuff; ParseActivation *prev; int floor; GroupItem *label; };
-inline ParseActivation *gParseActive = nullptr;
 // THE COMPILE OWNER (SEQ 214): the action processCode is compiling. ONE WRITER -- processCode, set before the
 // drive and restored after. aCTionNamE reads it while processingCode is set, because a generated body repoints
 // currentMETHOD to a grammar face and a name minted there lands in the grammar (SEQ 213). Retires when

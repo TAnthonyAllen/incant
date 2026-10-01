@@ -227,13 +227,14 @@ GroupItem   notifyLIST  = parent;
 // driveFloorLabel a generated DRIVE ROOT's label is parked on the drive's floor, the activation just below the root's own -- one writer (checkInput), one reader (driveStep); returns 1 when it took the label (Tony, 2026-09-26, SEQ 185 (i))
 extern int driveFloorLabel(RuleStuff stuff, GroupItem label)
 {
-    -%
-    if ( !stuff || !gParseActive || gParseActive->stuff != stuff ) return 0;
-    ParseActivation *below = gParseActive->prev;
-    if ( !below || !below->floor ) return 0;
-    below->label = label;
+GroupRules      ruler = groupRules;
+ParseActivation *below,
+                *top = ruler.gParseActive;
+    if !stuff || !top || top.stuff != stuff     return 0;
+    below = top.prev;
+    if !below || !below.isFloor   return 0;
+    below.label = label;
     return 1;
-    %-
 }
 
 
@@ -244,7 +245,11 @@ GroupRules  ruler = groupRules;
 GroupItem   result;
 GroupItem   intoField;
 int         baseStak = 0,
-            priorFloor = 0;
+            floorPushed = 0,
+            priorDefining,
+            priorFloor = 0,
+            priorIndent;
+ParseActivation driveFloor;
 String      driveBase;
 use rule
     // ruleDoorSeat WHICH DOOR a rule arrived through -- the one question the dispatch fork above cannot answer
@@ -252,12 +257,16 @@ use rule
 use ruler
     if inputSTAK    baseStak = inputSTAK.length;
     // driveFloor a drive pushes a FLOOR on the new road's activation list; deferredAbove stops there (Tony, 2026-09-24)
-    -%
-    ParseActivation driveFloor = { 0, gParseActive, 1 };
-    int floorPushed = 0;
-    int priorIndent = ruler->lastIndent, priorDefining = ruler->defining;
-    if ( field && field->groupBody->flags.data ) { gParseActive = &driveFloor; floorPushed = 1; }
-    %-
+    driveFloor.isFloor  = 1;
+    driveFloor.label    = null;
+    driveFloor.prev     = ruler.gParseActive;
+    driveFloor.stuff    = null;
+    priorDefining       = ruler.defining;
+    priorIndent         = ruler.lastIndent;
+    if field && field.data {
+        ruler.gParseActive  = &driveFloor;
+        floorPushed         = 1; }
+use ruler
     if field && field.data {
         divertToRule    = true;
         pushInput(field);
@@ -286,10 +295,11 @@ use ruler
         if intoField && !intoField.data     result = parseR(rule,intoField);
         else {
             // oldRoadAttach an old-road rule called from INSIDE a new-road activation attaches into that activation -- with parse(0) attachLabel dropped its label, and every print shortcut vanished (F-120, F-116); a real drive has pushed its floor, so it still passes 0
-            -% result = rule->parse((gParseActive && !gParseActive->floor) ? gParseActive->stuff : 0); %-
+            if ruler.gParseActive && !ruler.gParseActive.isFloor  result = rule.parse(ruler.gParseActive.stuff);
+            else    result = rule.parse(null);
             } }
     // floorLabel a generated root that SUCCEEDED hands back the label its floor holds (trueResult when it parked none); a failure hands back what the fire did
-    -% if ( floorPushed && rule->groupBody->flags.hasNewParse && result && result != ruler->falseResult && driveFloor.label ) result = driveFloor.label; %-
+    if floorPushed && rule.hasNewParse && result && result != ruler.falseResult && driveFloor.label  result = driveFloor.label;
 use ruler
     // markSeat2 SEQ 166 point 2 -- THE KEY PAIR, either side of the pop
     if field && field.data  measureMarkPoint("2b-before-pop");
@@ -298,14 +308,14 @@ use ruler
 use ruler
     if field && field.data  inputFloor = priorFloor;
     // driveOwnsIndent a drive's message is its own input: its indentation and an unterminated define end with it -- restore the caller's lastIndent and defining (F-125; each alone leaked)
-    -%
-    if ( field && field->groupBody->flags.data ) { ruler->lastIndent = priorIndent; ruler->defining = priorDefining; }
-    %-
+    if field && field.data {
+        ruler.defining      = priorDefining;
+        ruler.lastIndent    = priorIndent; }
     while field && field.data && inputSTAK && inputSTAK.length > baseStak
         popInput();
     if field && field.data  measureMarkPoint("2c-after-pop");
     // driveFloor pop the floor before the single return
-    -% if ( floorPushed ) gParseActive = driveFloor.prev; %-
+    if floorPushed  ruler.gParseActive = driveFloor.prev;
     return result;
 }
 

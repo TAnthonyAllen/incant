@@ -2155,35 +2155,47 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 // driveFloorLabel a generated DRIVE ROOT's label is parked on the drive's floor, the activation just below the root's own -- one writer (checkInput), one reader (driveStep); returns 1 when it took the label (Tony, 2026-09-26, SEQ 185 (i))
 extern "C" int driveFloorLabel(RuleStuff *stuff, GroupItem *label)
 {
-	
-	if ( !stuff || !gParseActive || gParseActive->stuff != stuff ) return 0;
-	ParseActivation *below = gParseActive->prev;
-	if ( !below || !below->floor ) return 0;
+GroupRules 			*ruler = GroupControl::groupController->groupRules;
+ParseActivation 	*below = 0;
+ParseActivation 	*top = ruler->gParseActive;
+	if ( !stuff || !top || top->stuff != stuff )
+		return 0;
+	below = (ParseActivation*)top->prev;
+	if ( !below || !below->isFloor )
+		return 0;
 	below->label = label;
 	return 1;
-	
 }
 
 // driveStep runRule's body and the one drive runRule and tell share: divert input to the field's content, run the rule, and report OFFSETS into the message, never addresses (H3)
 extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*result = 0;
-GroupItem 	*intoField = 0;
-int 		baseStak = 0;
-int 		priorFloor = 0;
-char 		*driveBase = 0;
+GroupRules 			*ruler = GroupControl::groupController->groupRules;
+GroupItem 			*result = 0;
+GroupItem 			*intoField = 0;
+int 				baseStak = 0;
+int 				floorPushed = 0;
+int 				priorDefining = 0;
+int 				priorFloor = 0;
+int 				priorIndent = 0;
+ParseActivation 	driveFloor;
+char 				*driveBase = 0;
 	// ruleDoorSeat WHICH DOOR a rule arrived through -- the one question the dispatch fork above cannot answer
 	::measureRuleDoor(field,rule);
 	if ( ruler->inputSTAK )
 		baseStak = ruler->inputSTAK->length;
 	// driveFloor a drive pushes a FLOOR on the new road's activation list; deferredAbove stops there (Tony, 2026-09-24)
-	
-	ParseActivation driveFloor = { 0, gParseActive, 1 };
-	int floorPushed = 0;
-	int priorIndent = ruler->lastIndent, priorDefining = ruler->defining;
-	if ( field && field->groupBody->flags.data ) { gParseActive = &driveFloor; floorPushed = 1; }
-	
+	driveFloor.isFloor = 1;
+	driveFloor.label = 0;
+	driveFloor.prev = (void*)ruler->gParseActive;
+	driveFloor.stuff = 0;
+	priorDefining = ruler->defining;
+	priorIndent = ruler->lastIndent;
+	if ( field && field->groupBody->flags.data )
+		{
+		ruler->gParseActive = &driveFloor;
+		floorPushed = 1;
+		}
 	if ( field && field->groupBody->flags.data )
 		{
 		ruler->divertToRule = 1;
@@ -2221,11 +2233,14 @@ char 		*driveBase = 0;
 			result = ::parseR(rule,intoField);
 		else {
 			// oldRoadAttach an old-road rule called from INSIDE a new-road activation attaches into that activation -- with parse(0) attachLabel dropped its label, and every print shortcut vanished (F-120, F-116); a real drive has pushed its floor, so it still passes 0
-			 result = rule->parse((gParseActive && !gParseActive->floor) ? gParseActive->stuff : 0); 
+			if ( ruler->gParseActive && !ruler->gParseActive->isFloor )
+				result = rule->parse(ruler->gParseActive->stuff);
+			else	result = rule->parse(0);
 			}
 		}
 	// floorLabel a generated root that SUCCEEDED hands back the label its floor holds (trueResult when it parked none); a failure hands back what the fire did
-	 if ( floorPushed && rule->groupBody->flags.hasNewParse && result && result != ruler->falseResult && driveFloor.label ) result = driveFloor.label; 
+	if ( floorPushed && rule->groupBody->flags.hasNewParse && result && result != ruler->falseResult && driveFloor.label )
+		result = driveFloor.label;
 	// markSeat2 SEQ 166 point 2 -- THE KEY PAIR, either side of the pop
 	if ( field && field->groupBody->flags.data )
 		::measureMarkPoint("2b-before-pop");
@@ -2235,15 +2250,18 @@ char 		*driveBase = 0;
 	if ( field && field->groupBody->flags.data )
 		ruler->inputFloor = priorFloor;
 	// driveOwnsIndent a drive's message is its own input: its indentation and an unterminated define end with it -- restore the caller's lastIndent and defining (F-125; each alone leaked)
-	
-	if ( field && field->groupBody->flags.data ) { ruler->lastIndent = priorIndent; ruler->defining = priorDefining; }
-	
+	if ( field && field->groupBody->flags.data )
+		{
+		ruler->defining = priorDefining;
+		ruler->lastIndent = priorIndent;
+		}
 	while ( field && field->groupBody->flags.data && ruler->inputSTAK && ruler->inputSTAK->length > baseStak )
 		ruler->popInput();
 	if ( field && field->groupBody->flags.data )
 		::measureMarkPoint("2c-after-pop");
 	// driveFloor pop the floor before the single return
-	 if ( floorPushed ) gParseActive = driveFloor.prev; 
+	if ( floorPushed )
+		ruler->gParseActive = (ParseActivation*)driveFloor.prev;
 	return result;
 }
 
@@ -2343,10 +2361,11 @@ int 		refused = 0;
 // enclosingFace the face of this term in the ENCLOSING RULE BODY, through the enclosing parse activation -- a drive floors it, so a drive root has none; never through currentMETHOD, which inside an action is the action and finds its own compiled BlocK (SEQ 212)
 extern "C" GroupItem *enclosingFace(GroupItem *field)
 {
-	
-	if ( !field || !gParseActive || gParseActive->floor || !gParseActive->stuff || !gParseActive->stuff->owner ) return 0;
-	return gParseActive->stuff->owner->get(field->groupBody->tag);
-	
+GroupRules 			*ruler = GroupControl::groupController->groupRules;
+ParseActivation 	*top = ruler->gParseActive;
+	if ( !field || !top || top->isFloor || !top->stuff || !top->stuff->owner )
+		return 0;
+	return top->stuff->owner->get(field->groupBody->tag);
 }
 
 // exitFromParse the common exit every parse method returns through: sync, fire the label method, attach; a min-zero miss owes a success
@@ -9205,16 +9224,17 @@ RuleStuff *ruleStuff = field->getRStuff();
 // parseRule run a rule's generated body; a new declaration here re-points every bare field below it (bear-trap #42)
 extern "C" GroupItem *parseRule(GroupItem *field)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*code = field->parseBody();
-GroupItem 	*result = 0;
-GroupItem 	*grup = 0;
-GroupItem 	*myLabel = 0;
-GroupItem 	*into = 0;
-GroupItem 	*priorMETHOD = 0;
+GroupRules 			*ruler = GroupControl::groupController->groupRules;
+GroupItem 			*code = field->parseBody();
+GroupItem 			*result = 0;
+GroupItem 			*grup = 0;
+GroupItem 			*myLabel = 0;
+GroupItem 			*into = 0;
+GroupItem 			*priorMETHOD = 0;
+ParseActivation 	callActive;
 	// enclosingRule re-resolve to the enclosing rule body's own face, through the ENCLOSING PARSE ACTIVATION -- a drive floors it, so a drive root keeps the rule it was handed (SEQ 212)
 	 { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } 
-RuleStuff 	*ruleStuff = field->getRStuff();
+RuleStuff 			*ruleStuff = field->getRStuff();
 	// callBracket lift this call's own rStuff state into C++ locals -- the C++ stack is the frame stack, and a nested call of the same rule would otherwise overwrite it (Tony, 2026-09-24; F-114). Passthrough, so tok sees no declaration (bear-trap #42)
 	
 	GroupItem *callLabel = ruleStuff ? ruleStuff->label : 0, *callParentLabel = ruleStuff ? ruleStuff->parentLabel : 0;
@@ -9222,9 +9242,14 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	char *callHereAt = ruleStuff ? ruleStuff->hereAt : 0;
 	int callKount = ruleStuff ? ruleStuff->kount : 0;
 	int callSukcess = ruleStuff ? ruleStuff->sukcess : 0;
-	ParseActivation callActive = { ruleStuff, gParseActive, 0 };
-	gParseActive = &callActive;
 	
+	// activePush this call's record goes on the activation list; one pop, after exitFromParse
+	callActive.isFloor = 0;
+	callActive.label = 0;
+	callActive.prev = (void*)ruler->gParseActive;
+	callActive.stuff = ruleStuff;
+	ruler->gParseActive = &callActive;
+	// activeNotSubject the record inherits GroupRules' scope, so re-mention ruler then ruleStuff or currentMETHOD binds to callActive (bear-trap #57)
 	::measureParentProbe(field);
 	// parentRepair re-point parentStuff at the ENCLOSING rule's stuff and sync parentLabel, sourced from currentMETHOD (measured to track lastRule exactly)
 	if ( ruler->currentMETHOD && ruler->currentMETHOD->getRStuff() != ruleStuff->parentStuff )
@@ -9281,7 +9306,7 @@ checkSuccess:
 	::measureMarkPoint("1-parseRule-exit");
 	result = ::exitFromParse(field);
 	// activeList pop this call's activation -- AFTER exitFromParse, so its own fire saw itself on top and skipped it
-	 gParseActive = callActive.prev; 
+	ruler->gParseActive = (ParseActivation*)callActive.prev;
 	// callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it; sukcess joined 2026-09-24 (F-121): a failed inner call wrote 0 into an rStuff an old-road caller was holding, and no post-return reader decides on it (census)
 	
 	if ( ruleStuff ) {
@@ -10997,6 +11022,7 @@ char 	*junkText = input->getText();
 *******************************************************************************/
 GroupRules::GroupRules()
 {
+	gParseActive = 0;
 	atRuleMark = 0;
 	ruleSTUFF = 0;
 	currentDefine = 0;

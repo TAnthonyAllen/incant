@@ -10056,3 +10056,52 @@ caller); F-56's fireNewParse; parseGeneric; testAttributes' artifact skip (block
 dead flags are already gone (stroke 3).
 
   END SEQ 223
+
+
+===================================================================
+SEQ 234  -  STROKE 5.1: ParseActivation INTO TOK (R1-R4 ruled)
+===================================================================
+STATUS: cleared -- 5.1 landed 2026-10-01; escapes 9 -> 0; fleet row for row 861 / 1; jitLadder,
+        printPop PASSED; canary 315. Field floor -> isFloor, prev void * (bear-trap #58).
+
+RULINGS (Tony, 2026-10-01)
+R1. ParseActivation is declared in GroupRules (GroupRules.twk + groups.ext). It is engine
+    state, not an instance feature: one record per call of an instance; a floor has no
+    instance at all. gParseActive becomes a GroupRules member, not a free tok global;
+    readers on the GroupItem side reach it as deferredAbove already does
+    (groupController.groupRules).
+R2. The old road's parse() becomes the third creator (5.5). Owed when 5.5 opens: confirm
+    by measurement that parse() reads the activation fields (Clay's reasoning, not yet
+    measured).
+R3. The label-link points at the RULE and lives on the label. It cannot point at the
+    activation, which is popped while the label survives. Owed when it is built: can a
+    label carry GroupItem.ruleOf? If so, the link may be ruleOf and no new field.
+R4. sourceLine and guardFAIL are deleted, not moved (zero readers). They go in the stroke
+    that moves the activation fields off RuleStuff.
+
+5.1: THE BUILD
+Move the struct as it stands today ({stuff, prev, floor, label}, jitContext.h:707-708)
+into tok. NO NEW FIELDS (face is 5.3).
+- Declare ParseActivation in GroupRules.twk, mirrored in groups.ext. Watch declaration
+  order (bear-trap #57 / F-O36): diff tokall's bare-name lines, not only the canary.
+- gParseActive: a GroupRules member; the jitContext.h global goes.
+- Respell every touch WITHOUT C++ escapes:
+    creators: parseRule (Generate.rtn:229/:280), driveStep (GroupActions.rtn:256/:308)
+    readers:  enclosingFace (Generate.rtn:18-19), deferredAbove (GroupItem.twk:457-470),
+              driveFloorLabel (GroupActions.rtn:231-235), driveStep :289 and :309
+- enclosingFace gets its groups.ext line.
+- Both creators keep the record on the stack with one pop before the single return.
+  If tok cannot spell a stack-allocated struct, STOP and report; do not work around it.
+- Clean as you go: alphabetical slots, // slug comments.
+
+CERTIFICATE
+- Escape count at the sites above: 0, by grep, before and after.
+- pop.sh row for row with this morning's baseline (861 / 1); jitLadder PASSED;
+  printPop PASSED.
+- Canary: any move named.
+- tokall bare; every generated diff explained.
+- groups.ext committed (support).
+
+REPORT: top line first: what ran, what moved, which rule if parser failed.
+
+  END SEQ 234

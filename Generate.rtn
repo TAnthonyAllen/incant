@@ -14,10 +14,10 @@ GroupItem   grup;
 // enclosingFace the face of this term in the ENCLOSING RULE BODY, through the enclosing parse activation -- a drive floors it, so a drive root has none; never through currentMETHOD, which inside an action is the action and finds its own compiled BlocK (SEQ 212)
 extern GroupItem enclosingFace(GroupItem field)
 {
-    -%
-    if ( !field || !gParseActive || gParseActive->floor || !gParseActive->stuff || !gParseActive->stuff->owner ) return 0;
-    return gParseActive->stuff->owner->get(field->groupBody->tag);
-    %-
+GroupRules      ruler = groupRules;
+ParseActivation *top = ruler.gParseActive;
+    if !field || !top || top.isFloor || !top.stuff || !top.stuff.owner     return null;
+    return top.stuff.owner.get(field.tag);
 }
 
 // exitFromParse the common exit every parse method returns through: sync, fire the label method, attach; a min-zero miss owes a success
@@ -215,6 +215,7 @@ GroupItem   code = field.parseBody(),
             myLabel,
             into;
 GroupItem   priorMETHOD;
+ParseActivation callActive;
 use field
     // enclosingRule re-resolve to the enclosing rule body's own face, through the ENCLOSING PARSE ACTIVATION -- a drive floors it, so a drive root keeps the rule it was handed (SEQ 212)
     -% { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } %-
@@ -226,9 +227,16 @@ RuleStuff   ruleStuff = rStuff;
     char *callHereAt = ruleStuff ? ruleStuff->hereAt : 0;
     int callKount = ruleStuff ? ruleStuff->kount : 0;
     int callSukcess = ruleStuff ? ruleStuff->sukcess : 0;
-    ParseActivation callActive = { ruleStuff, gParseActive, 0 };
-    gParseActive = &callActive;
     %-
+    // activePush this call's record goes on the activation list; one pop, after exitFromParse
+    callActive.isFloor  = 0;
+    callActive.label    = null;
+    callActive.prev     = ruler.gParseActive;
+    callActive.stuff    = ruleStuff;
+    ruler.gParseActive  = &callActive;
+    // activeNotSubject the record inherits GroupRules' scope, so re-mention ruler then ruleStuff or currentMETHOD binds to callActive (bear-trap #57)
+use ruler
+use ruleStuff
     measureParentProbe(field);
     // parentRepair re-point parentStuff at the ENCLOSING rule's stuff and sync parentLabel, sourced from currentMETHOD (measured to track lastRule exactly)
     if currentMETHOD && currentMETHOD.rStuff != parentStuff {
@@ -277,7 +285,7 @@ checkSuccess:   // this is just a marker for directives
     measureMarkPoint("1-parseRule-exit");
     result = exitFromParse(field);
     // activeList pop this call's activation -- AFTER exitFromParse, so its own fire saw itself on top and skipped it
-    -% gParseActive = callActive.prev; %-
+    ruler.gParseActive = callActive.prev;
     // callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it; sukcess joined 2026-09-24 (F-121): a failed inner call wrote 0 into an rStuff an old-road caller was holding, and no post-return reader decides on it (census)
     -%
     if ( ruleStuff ) {

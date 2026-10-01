@@ -154,10 +154,11 @@ bible's TAWK Known Issues table):
 
 ⚠⚠ **NO NEW FIELD TOK CANNOT SEE. Tony, ruled 2026-09-28 (SEQ 218, R1), standing.** A field that
 tok source references is **declared in tok** (a `.twk` class) **and mirrored in `groups.ext`**.
-The one existing exception is `ParseActivation` (a plain C++ struct in `jitContext.h`):
-its migration into tok is **PARKED**, and it becomes **its own stroke the first time any stroke needs
-to touch `ParseActivation`** — so object-model stroke 5, which moves activation fields there, opens
-with that migration rather than adding fields to the C++ struct.
+~~The one existing exception is `ParseActivation` (a plain C++ struct in `jitContext.h`):
+its migration into tok is **PARKED**~~ — **closed 2026-10-01 by stroke 5.1 (SEQ 234): there is no
+exception left.** `ParseActivation` is a struct declared inside `class GroupRules`, mirrored in
+`groups.ext`'s `external GroupRules`, and `gParseActive` is a `GroupRules` member. tok can declare it but
+**cannot let it name itself**, so `prev` is `void *` and tok inserts the casts (bear-trap #58).
 
 ---
 
@@ -2799,6 +2800,22 @@ Hard-won lessons. Each one has cost real debugging time.
     bear-trap #42 (last-mentioned wins), reached through a class declaration instead of a function body.
     **The detector is a full-tree diff, not the canary:** copy every `.mm`/`.h`, `tokall`, `cmp` each, and
     read every changed file whose change you did not intend.
+
+58. **A STRUCT DECLARED INSIDE A tok CLASS TAKES THE CLASS'S SCOPE WITH IT, SO ITS LOCALS AND ITS FIELD
+    NAMES BECOME CANDIDATES FOR BARE NAMES -- SILENTLY, CANARY UNMOVED, tok EXIT 0.** Gloss: the record
+    joins the scope. Measured 2026-10-01 (**tok**, stroke 5.1). `struct ParseActivation {...} *gParseActive;`
+    inside `class GroupRules`, two captures on the first tokall:
+    | the bare name | what it generated |
+    |---|---|
+    | `currentMETHOD` in `parseRule`, after a `ParseActivation callActive;` local | `callActive.currentMETHOD` -- the struct local outranked `ruler` |
+    | the libc call `floor(x)` in `GroupItem.twk` and `Instruct.rtn` | `groupRules->gParseActive->floor(x)` -- the field name won over the function |
+    **Cures, both measured:** re-mention the intended subject after the struct local (`use ruler`, then
+    `use ruleStuff`); and give the fields names nothing else uses (`floor` became `isFloor`).
+    **Two more facts from the same stroke:** a tok struct **cannot name itself** inside its braces (any
+    form fails to parse), so a self-pointer is `void *` and tok inserts the casts at each use -- a chained
+    `a.prev.isFloor` will not resolve; hop through a typed local. And a top-level `struct` in a `.twk` does
+    not parse at all; only the in-class form `struct X {...} *member;` emits the definition without a
+    bogus member. **Detector: bear-trap #57's full-tree diff.** The canary read 315 throughout.
 
 ⚠⚠ **THE RULE-LADDER SELECTION CRITERION — TWO CLAUSES, AND THE SECOND WAS PAID FOR.** Tony,
 2026-08-24.

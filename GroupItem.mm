@@ -675,27 +675,48 @@ GroupItem 	*stuff = 0;
 ***************************************************************************/
 int GroupItem::deferredAbove(RuleStuff *stuff)
 {
+GroupRules 			*ruler = GroupControl::groupController->groupRules;
+ParseActivation 	*top = ruler->gParseActive;
+RuleStuff 			*up = 0;
+int 				inDrive = 0;
 	// twoWalks an activation above the drive floor means WHO IS ACTIVE ABOVE is on the list -- walk it, skipping self; with none, walk parentStuff (where it attaches) -- ruling (b) refined, Tony 2026-09-24
-	
-	int inDrive = gParseActive && !gParseActive->floor;
-	if ( GroupControl::groupController->groupRules->processingCode )
-	{ ::measureDeferredAbove(stuff,inDrive,1,3,inDrive); return 1; }
+	if ( top && !top->isFloor )
+		inDrive = 1;
+	if ( ruler->processingCode )
+		{
+		::measureDeferredAbove(stuff,inDrive,1,3,inDrive);
+		return 1;
+		}
 	if ( inDrive )
-	{
-	ParseActivation *a = gParseActive;
-	if ( a->stuff == stuff ) a = a->prev;
-	for ( ; a && !a->floor; a = a->prev )
-	if ( a->stuff && a->stuff->owner && a->stuff->owner->groupBody->flags.deferred )
-	{ ::measureDeferredAbove(stuff,1,1,2,inDrive); return 1; }
-	::measureDeferredAbove(stuff,1,0,a ? 1 : 0,inDrive);
-	return 0;
-	}
-	for ( RuleStuff *up = stuff->parentStuff; up; up = up->parentStuff )
-	if ( up->owner && up->owner->groupBody->flags.deferred )
-	{ ::measureDeferredAbove(stuff,0,1,2,inDrive); return 1; }
+		{
+		if ( top->stuff == stuff )
+			top = (ParseActivation*)top->prev;
+		while ( top && !top->isFloor )
+			{
+			if ( top->stuff && top->stuff->owner && top->stuff->owner->groupBody->flags.deferred )
+				{
+				::measureDeferredAbove(stuff,1,1,2,inDrive);
+				return 1;
+				}
+			top = (ParseActivation*)top->prev;
+			}
+		if ( top )
+			::measureDeferredAbove(stuff,1,0,1,inDrive);
+		else	::measureDeferredAbove(stuff,1,0,0,inDrive);
+		return 0;
+		}
+	up = stuff->parentStuff;
+	while ( up )
+		{
+		if ( up->owner && up->owner->groupBody->flags.deferred )
+			{
+			::measureDeferredAbove(stuff,0,1,2,inDrive);
+			return 1;
+			}
+		up = up->parentStuff;
+		}
 	::measureDeferredAbove(stuff,0,0,0,inDrive);
 	return 0;
-	
 }
 
 /*****************************************************************************

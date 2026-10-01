@@ -3,6 +3,14 @@ class GroupItem;
 class PLGset;
 class Stak;
 class Buffer;
+struct ParseActivation
+	{
+	int isFloor;
+	GroupItem *label;
+	void *prev;
+	RuleStuff *stuff;
+	};
+
 /*******************************************************************************
 	GroupRules
 *******************************************************************************/
@@ -10,6 +18,7 @@ class Buffer;
 class GroupRules
 {
 public:
+ParseActivation *gParseActive;
 char *atRuleMark;
 RuleStuff *ruleSTUFF;
 GroupItem *currentDefine;
