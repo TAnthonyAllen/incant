@@ -830,6 +830,12 @@ ATTEMPT LOG
      consuming repeats to max (100 for `+`) and the loop returns success with nothing said -- F-123's 100 fires were this.
      The old road names the limit (reportRepeatLimit). The choice: REPORT a zero-progress pass, or REFUSE it. Not changed;
      docs/parseSiblings.md carries the measurement.
+  25. THE CHAIN STILL CYCLES, MEASURED FLEET-WIDE (2026-10-01, stroke 5.5a's tap, SEQ 243 R3). A tap walking the
+     parentStuff chain on EVERY deferredAbove call (not only where deferredAbove uses it) hung deferNatT dfSub, dfCall,
+     dfPrint, probeDoorT, sweepT and oldRoad column do; bounded at 100k steps it found 458 walks that never end, in 10
+     processes, across pop.sh + jitLadder + printPop. deferredAbove itself no longer walks the chain on those calls
+     (in-drive -> list walk), so nothing hangs; the cycles remain in the data. HANG SOURCE RETIRED BY 5.5b, which
+     switches E14 off the chain.
 ```
 Inputs and results: `jitLadder/station2/f114site1` (pairs) and `f114site1.results`.
 

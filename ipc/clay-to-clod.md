@@ -10441,3 +10441,29 @@ CERTIFICATE
 REPORT: top line first: what ran, what moved, which rule if parser failed.
 
   END SEQ 242
+
+
+===================================================================
+SEQ 243  -  STROKE 5.5a: MERGE
+===================================================================
+STATUS: cleared -- merged 60b24fc; seal checklist row for row, tripwire 446 -> 2856 named; F-114
+        entry 25 records the 458 non-terminating chain walks.
+
+RULINGS (Tony, 2026-10-01)
+R1. The certificate accepts chain/list differences that land only on non-deferred rules,
+    where fireLabelMethod never reads the answer (held is used only under
+    deferred && held). The 15 defer rules: 0 differ. 5.5a merges as it stands.
+R2. The ~670 "chain held, list not" calls are traced BEFORE 5.5b switches E14: for each
+    (or a representative sample by rule), is there a floor between the record and the
+    deferred ancestor the chain reached? Floor between = the list is right (a drive hides
+    its caller). No floor = report; 5.5b waits.
+R3. The 458 non-terminating chain walks are recorded against F-114 as a hang source that
+    5.5b retires.
+
+MERGE
+- stroke-5.5a-stopped (0004cff) to trunk. Seal checklist as usual; the tripwire's
+  446 -> 2856 named per this morning's R1.
+
+The R2 trace is the NEXT dispatch, not part of this one.
+
+  END SEQ 243

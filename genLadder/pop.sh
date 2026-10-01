@@ -2856,6 +2856,7 @@ else echo "  FAIL  deferNatT dfPrint value -- print s2L[1]; did not print aa"; f
 #  Born red under ruling (a) (ShortcuT, held=0); green once every in-drive fire walks the list.
 #  COUNT MOVED 2026-09-27 (SEQ 209) 413 -> 429, all of it from nnFmt / nnFmtN / nnFmtS (14/14/17 -> 17/24/20 in-drive
 #  fires; every other trace file unmoved): new road now agrees with the old road; the old pin held a zero-width leaf failure (nameSet*/Modifier*). The chain-walk count stays 0.
+#  COUNT MOVED 2026-10-01 446 -> 2856 (stroke 5.5a, SEQ 242 R1, accepted, no pin): old-road parse() now pushes activations, so deferredAbove takes the list walk where it took the chain; no answer changed and the guarded chain-walk count stays 0.
 _twt=0; _twa=0
 for _f in "$T"/nn*.e "$T"/un*.e "$T"/qn*.e "$T"/df*.e "$T"/dwn.e; do
     [ -f "$_f" ] || continue
