@@ -7,7 +7,7 @@ struct ParseActivation
 	{
 	int isFloor;
 	GroupItem *label;
-	void *prev;
+	ParseActivation *prev;
 	RuleStuff *stuff;
 	};
 

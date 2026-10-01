@@ -690,7 +690,7 @@ int 				inDrive = 0;
 	if ( inDrive )
 		{
 		if ( top->stuff == stuff )
-			top = (ParseActivation*)top->prev;
+			top = top->prev;
 		while ( top && !top->isFloor )
 			{
 			if ( top->stuff && top->stuff->owner && top->stuff->owner->groupBody->flags.deferred )
@@ -698,7 +698,7 @@ int 				inDrive = 0;
 				::measureDeferredAbove(stuff,1,1,2,inDrive);
 				return 1;
 				}
-			top = (ParseActivation*)top->prev;
+			top = top->prev;
 			}
 		if ( top )
 			::measureDeferredAbove(stuff,1,0,1,inDrive);

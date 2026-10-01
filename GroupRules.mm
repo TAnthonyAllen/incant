@@ -2160,7 +2160,7 @@ ParseActivation 	*below = 0;
 ParseActivation 	*top = ruler->gParseActive;
 	if ( !stuff || !top || top->stuff != stuff )
 		return 0;
-	below = (ParseActivation*)top->prev;
+	below = top->prev;
 	if ( !below || !below->isFloor )
 		return 0;
 	below->label = label;
@@ -2187,7 +2187,7 @@ char 				*driveBase = 0;
 	// driveFloor a drive pushes a FLOOR on the new road's activation list; deferredAbove stops there (Tony, 2026-09-24)
 	driveFloor.isFloor = 1;
 	driveFloor.label = 0;
-	driveFloor.prev = (void*)ruler->gParseActive;
+	driveFloor.prev = ruler->gParseActive;
 	driveFloor.stuff = 0;
 	priorDefining = ruler->defining;
 	priorIndent = ruler->lastIndent;
@@ -2261,7 +2261,7 @@ char 				*driveBase = 0;
 		::measureMarkPoint("2c-after-pop");
 	// driveFloor pop the floor before the single return
 	if ( floorPushed )
-		ruler->gParseActive = (ParseActivation*)driveFloor.prev;
+		ruler->gParseActive = driveFloor.prev;
 	return result;
 }
 
@@ -9246,7 +9246,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	// activePush this call's record goes on the activation list; one pop, after exitFromParse
 	callActive.isFloor = 0;
 	callActive.label = 0;
-	callActive.prev = (void*)ruler->gParseActive;
+	callActive.prev = ruler->gParseActive;
 	callActive.stuff = ruleStuff;
 	ruler->gParseActive = &callActive;
 	// activeNotSubject the record inherits GroupRules' scope, so re-mention ruler then ruleStuff or currentMETHOD binds to callActive (bear-trap #57)
@@ -9306,7 +9306,7 @@ checkSuccess:
 	::measureMarkPoint("1-parseRule-exit");
 	result = ::exitFromParse(field);
 	// activeList pop this call's activation -- AFTER exitFromParse, so its own fire saw itself on top and skipped it
-	ruler->gParseActive = (ParseActivation*)callActive.prev;
+	ruler->gParseActive = callActive.prev;
 	// callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it; sukcess joined 2026-09-24 (F-121): a failed inner call wrote 0 into an rStuff an old-road caller was holding, and no post-return reader decides on it (census)
 	
 	if ( ruleStuff ) {

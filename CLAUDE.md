@@ -157,8 +157,8 @@ tok source references is **declared in tok** (a `.twk` class) **and mirrored in 
 ~~The one existing exception is `ParseActivation` (a plain C++ struct in `jitContext.h`):
 its migration into tok is **PARKED**~~ — **closed 2026-10-01 by stroke 5.1 (SEQ 234): there is no
 exception left.** `ParseActivation` is a struct declared inside `class GroupRules`, mirrored in
-`groups.ext`'s `external GroupRules`, and `gParseActive` is a `GroupRules` member. tok can declare it but
-**cannot let it name itself**, so `prev` is `void *` and tok inserts the casts (bear-trap #58).
+`groups.ext`'s `external GroupRules`, and `gParseActive` is a `GroupRules` member. `prev` is typed
+through a forward declaration in `groups.ext` (`external struct ParseActivation no.h`; bear-trap #58).
 
 ---
 
@@ -2811,11 +2811,15 @@ Hard-won lessons. Each one has cost real debugging time.
     | the libc call `floor(x)` in `GroupItem.twk` and `Instruct.rtn` | `groupRules->gParseActive->floor(x)` -- the field name won over the function |
     **Cures, both measured:** re-mention the intended subject after the struct local (`use ruler`, then
     `use ruleStuff`); and give the fields names nothing else uses (`floor` became `isFloor`).
-    **Two more facts from the same stroke:** a tok struct **cannot name itself** inside its braces (any
-    form fails to parse), so a self-pointer is `void *` and tok inserts the casts at each use -- a chained
-    `a.prev.isFloor` will not resolve; hop through a typed local. And a top-level `struct` in a `.twk` does
-    not parse at all; only the in-class form `struct X {...} *member;` emits the definition without a
-    bogus member. **Detector: bear-trap #57's full-tree diff.** The canary read 315 throughout.
+    **Two more facts from the same stroke.** A tok struct names itself **only after a forward
+    declaration** -- `external struct X no.h` ahead of the class -- and then `X *prev;` inside its own
+    braces generates typed, and even a chained `a.prev.isFloor` resolves (Tony's suggestion, measured
+    the same day). ~~"a tok struct cannot name itself (any form fails to parse)"~~ was written first and
+    was wrong: the forward had been tried only with a separate `X *member;` line, never with the
+    attached form, so the search space excluded the answer -- the absence-needs-its-population rule,
+    paid for in an afternoon. A top-level `struct` in a `.twk` does not parse (tried with and without a
+    forward); the in-class form `struct X {...} *member;` emits the definition without a bogus member.
+    **Detector: bear-trap #57's full-tree diff.** The canary read 315 throughout.
 
 ⚠⚠ **THE RULE-LADDER SELECTION CRITERION — TWO CLAUSES, AND THE SECOND WAS PAID FOR.** Tony,
 2026-08-24.

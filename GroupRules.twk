@@ -13,12 +13,12 @@ external GroupItem
 *******************************************************************************/
 class GroupRules
 {
-    // parseActivation the new road's activation list, WHO IS ACTIVE ABOVE -- one record per call, on the C++ stack; a drive pushes a floor; prev is void because a tok struct cannot name itself
+    // parseActivation the new road's activation list, WHO IS ACTIVE ABOVE -- one record per call, on the C++ stack; a drive pushes a floor; prev names the struct through groups.ext's forward declaration
 struct ParseActivation
 {
     int             isFloor;
     GroupItem       label;
-    void            *prev;
+    ParseActivation *prev;
     RuleStuff       stuff;
 }
 *gParseActive;
