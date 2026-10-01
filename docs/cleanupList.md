@@ -104,6 +104,16 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   call-count sibling > 0 elsewhere); delete `parseAny` and its `case`, full bare tokall, fleet row for row.
 - **Seen:** 2026-10-01 (SEQ 239 rider).
 
+### `jitProbeDrive` -- a second drive door beside `driveStep` (one-door candidate, SEQ 241 R3)
+- **What/where:** `jitEmitters.rtn:682` (`extern int jitProbeDrive`, behind incant `probeDrive`). It opens a drive
+  in C++ passthrough: `pushInput`, `inputFloor`, `lastIndent`/`defining` save-restore, and since stroke 5.5f its
+  own activation floor -- each a copy of what `driveStep` (`GroupActions.rtn:255-310`) does.
+- **Why listed:** two doors means every drive rule has to be applied twice. 5.5a found the first cost: this door
+  had no floor, so an old-road activation above it became visible to `deferredAbove` and `adoptT` moved.
+- **Confirm:** route its fire through `driveStep` (the jitted carrier swap would need a seat there), then the drive
+  census row in `pop.sh` drops `jitEmitters.rtn:jitProbeDrive` and reads 3; every `probeDrive` fixture row for row.
+- **Seen:** 2026-10-01.
+
 ## Seeded, already gone
 
 Seeded 2026-09-28 from the dispatch. A source census shows each was already deleted, so there is nothing to cut.

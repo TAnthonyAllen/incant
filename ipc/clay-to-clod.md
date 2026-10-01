@@ -10371,3 +10371,42 @@ CERTIFICATE
 REPORT: top line first: what ran, what moved, which rule if parser failed.
 
   END SEQ 240
+
+
+===================================================================
+SEQ 241  -  STROKE 5.5f: EVERY DRIVE DOOR PUSHES A FLOOR
+===================================================================
+STATUS: cleared -- 5.5f on trunk row for row (jitProbeDrive floor); 5.5a rebased onto it, see report.
+
+(Clay: the +4% cost is tolerable for now; 5.5b retires the 23M-step chain walk.)
+
+RULINGS (Tony, 2026-10-01)
+R1. A drive hides its caller: every road that opens a drive pushes a floor
+    {stuff 0, face 0, isFloor 1} and pops it before its single return. adoptT's pin
+    stands; nothing is re-pinned for 5.5a's adoptT move.
+R2. This lands on TRUNK as its own stroke, before 5.5a is retried. 5.5a stays parked on
+    stroke-5.5a-stopped.
+R3. probeDrive / jitProbeDrive gets the floor push in place now. Whether it should route
+    through driveStep instead goes on cleanupList as a one-door candidate.
+
+STEP 0: by reading
+- The seven pushInput callers (P1's census): which open a drive, and which of those push a
+  floor today. Table: caller, file:line, opens a drive y/n, floor y/n.
+
+5.5f: THE BUILD
+- A floor push/pop at every drive door that lacks one. use-restores after each push as
+  bear-trap #58 requires.
+
+CERTIFICATE
+- On trunk: pop.sh row for row with 861 / 1. If it moves, STOP: a floor visible on trunk
+  means something already depended on walking past one. Name the movers.
+- Full bare tokall: every generated line explained, no bare name re-aimed. Canary moves
+  named.
+- jitLadder PASSED; printPop PASSED.
+- Then, on stroke-5.5a-stopped rebased onto this: adoptT FIELD back to 1, and the
+  tripwire's in-drive fires reported (446 on trunk; 2856 on 5.5a before the floor). Do
+  not land 5.5a yet; report.
+
+REPORT: top line first: what ran, what moved, which rule if parser failed.
+
+  END SEQ 241

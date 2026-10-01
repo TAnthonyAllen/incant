@@ -5856,6 +5856,10 @@ extern "C" int jitProbeDrive(GroupItem *rule, GroupItem *armed, char *msg, int j
 	if (!m->groupBody->flags.data) { printf("PROBE REFUSED: message carries no data\n"); fflush(stdout); return -1; }
 	int baseStak = ruler->inputSTAK ? ruler->inputSTAK->length : 0;
 	ruler->divertToRule = 1;
+	//  probeFloor A DRIVE HIDES ITS CALLER: the floor goes on before the push and comes off before the single return (stroke 5.5f, SEQ 241)
+	ParseActivation probeFloor;
+	probeFloor.face = 0; probeFloor.isFloor = 1; probeFloor.label = 0; probeFloor.prev = ruler->gParseActive; probeFloor.stuff = 0;
+	ruler->gParseActive = &probeFloor;
 	ruler->pushInput(m);
 	char *driveBase  = ruler->atRuleMark;
 	int   priorFloor = ruler->inputFloor;
@@ -5886,6 +5890,7 @@ extern "C" int jitProbeDrive(GroupItem *rule, GroupItem *armed, char *msg, int j
 	armed->groupBody->tag, rule->groupBody->tag, jitted ? "JITTED" : "INTERP", msg,
 	verdict, consumed, len, terms, fires, trues, refused);
 	fflush(stdout);
+	ruler->gParseActive = probeFloor.prev;
 	return verdict;
 	
 }
