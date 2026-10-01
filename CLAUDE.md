@@ -165,6 +165,9 @@ through a forward declaration in `groups.ext` (`external struct ParseActivation 
 `isFloor` stays. **Certificate:** every stroke that ADDS a field to `ParseActivation` carries a **full bare-tokall
 diff** as a certificate line, every generated line explained. **The canary is not enough** -- bear-trap #58's
 `floor` capture moved 0 externs.
+**And before ANY field is added (SEQ 237 R1):** grep the tree for bare uses of its name and **report them**; the
+full-tokall diff then confirms nothing was re-aimed. The capture follows any variable of the struct's type, so
+naming is the only cure -- and the rule covers **incant's own names**, not only C library names.
 
 ---
 

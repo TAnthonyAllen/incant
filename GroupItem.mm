@@ -693,7 +693,8 @@ int 				inDrive = 0;
 			top = top->prev;
 		while ( top && !top->isFloor )
 			{
-			if ( top->stuff && top->stuff->owner && top->stuff->owner->groupBody->flags.deferred )
+			// faceNotOwner each activation's face, never stuff.owner (stroke 5.3 tap); the parentStuff walk below stays on owner until 5.5
+			if ( top->stuff && top->face && top->face->groupBody->flags.deferred )
 				{
 				::measureDeferredAbove(stuff,1,1,2,inDrive);
 				return 1;

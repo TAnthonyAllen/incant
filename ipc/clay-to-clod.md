@@ -10200,3 +10200,40 @@ If §23's ledger already pairs the field with its readers in one stroke, cut R2 
 switch to the build." Forwarded with R2 in the RULINGS block, so R2 stands.)
 
   END SEQ 236
+
+
+===================================================================
+SEQ 237  -  STROKE 5.3b: E1 AND E13 READ face
+===================================================================
+STATUS: cleared -- E1, E13 read face; owner sites 14 -> 12, functions 13 -> 12; fleet row for row.
+
+RULINGS (Tony, 2026-10-01)
+R1. Standing, beside SEQ 235 R1/R2 in CLAUDE.md: before ANY field is added to
+    ParseActivation, grep the tree for bare uses of its name and report them; the
+    full-tokall diff then confirms nothing was re-aimed. The capture follows any variable
+    of the struct's type (bear-trap #58 as corrected), so naming is the only cure, and the
+    rule covers incant's own names, not only C library names.
+R2. E14 (deferredAbove's parentStuff chain) stays on owner until 5.5 gives the old road
+    activations. Its 23.7M fleet steps are recorded as a NO HUNT search site that 5.5
+    retires.
+
+5.3b: THE BUILD
+- E1 enclosingFace: read the top non-floor activation's face instead of stuff->owner.
+- E13 deferredAbove's list walk: read each activation's face instead of stuff->owner.
+- E14 untouched. owner not deleted, gains no writer.
+- Clean as you go: // slug comments, alphabetical slots.
+
+CERTIFICATE
+- Equality: 5.3's tap (E1 459,508 / 0, E13 456,855 / 0) is the evidence; a respell to an
+  equal value has no meaningful H7 red. Say so in the report.
+- owner reader census, by SITE and by FUNCTION: E1 and E13 gone. enclosingFace leaves the
+  function list; deferredAbove stays (E14). Report both counts.
+- Full bare tokall: every generated line explained.
+- pop.sh row for row with 861 / 1; jitLadder PASSED; printPop PASSED; canary moves named.
+
+REPORT: top line first: what ran, what moved, which rule if parser failed.
+
+(Clay, forwarded with it: "the ledger's next item should be 5.4 ... I'll draft from Clod's
+report when 5.3b lands, or you can tell me what 5.4 covers.")
+
+  END SEQ 237

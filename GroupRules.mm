@@ -2364,9 +2364,10 @@ extern "C" GroupItem *enclosingFace(GroupItem *field)
 {
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 ParseActivation 	*top = ruler->gParseActive;
-	if ( !field || !top || top->isFloor || !top->stuff || !top->stuff->owner )
+	// faceNotOwner the activation's face, never stuff.owner -- equal on every read measured (stroke 5.3 tap); the stuff test stays so the null cases match
+	if ( !field || !top || top->isFloor || !top->stuff || !top->face )
 		return 0;
-	return top->stuff->owner->get(field->groupBody->tag);
+	return top->face->get(field->groupBody->tag);
 }
 
 // exitFromParse the common exit every parse method returns through: sync, fire the label method, attach; a min-zero miss owes a success
