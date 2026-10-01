@@ -10325,3 +10325,49 @@ One paragraph.
 REPORT: top line first: what ran, what moved, which rule if parser failed.
 
   END SEQ 239
+
+
+===================================================================
+SEQ 240  -  STROKE 5.5a: THE OLD ROAD PUSHES ACTIVATIONS
+===================================================================
+STATUS: cleared -- STOPPED by R3. Fleet 861 -> 860 (adoptT FIELD 1 -> 0; PROPERTY 4 -> 3;
+        tripwire in-drive fires 446 -> 2856). Reader deferredAbove: an old-road Xpress record
+        above probeDrive's floorless drive holds Iterate. Parked on stroke-5.5a-stopped; trunk 5.4b.
+
+(Clay's preamble: 5.5 is the first stroke in this run that can change behaviour; split as
+5.3 was -- 5.5a pushes and switches nothing, with a tap comparing the chain walk against
+the list walk; 5.5b switches E14 and retires the hand-carry if measured redundant.)
+
+RULINGS (Tony, 2026-10-01)
+R1. GroupItem::parse becomes the third creator: one record per call, on the stack,
+    {stuff = the stuff getStuff returns, face = this, isFloor = 0}, pushed after getStuff
+    and popped before the single return. Old-road activations are visible to every list
+    reader (the morning's ruling 2).
+R2. 5.5a switches no reader. E14 and measureDeferredAbove move in 5.5b; driveStep:289's
+    hand-carry stays until 5.5b measures whether it is redundant.
+R3. If the fleet moves, STOP and report the movers by name with the reader that saw the
+    new records. Do not re-pin.
+
+STEP 0: by reading, no build
+- Ruling 2's owed confirmation: does parse() read the activation fields (label, kount,
+  sukcess, hereAt, failedAt, guardOK...)? List which, by line.
+- Where the push sits: after getStuff, before the first read that could recurse. Name
+  the line. Name any early return, since one pop before one return is the shape.
+
+5.5a: THE BUILD
+- Push and pop in GroupItem::parse as R1. No new fields, so no bare-name grep is owed;
+  the full-tokall diff still runs.
+
+CERTIFICATE
+- Tap: inside deferredAbove, compute both answers on every call: today's parentStuff chain
+  and the list walk to the floor, now reaching old-road records. Report same/differ and
+  the call count. Reverted md5-identical. This is 5.5b's evidence.
+- Second tap: at checkInput's enclosing-activation arm, count arrivals whose top record is
+  an old-road record. Not a pass/fail; it sizes what 5.5b will touch.
+- pop.sh row for row with 861 / 1, or STOP (R3); jitLadder PASSED; printPop PASSED.
+- Full bare tokall: every generated line explained. Canary moves named.
+- Cost: wall time of pop.sh before and after, since parse() runs ~8.3M times in the fleet.
+
+REPORT: top line first: what ran, what moved, which rule if parser failed.
+
+  END SEQ 240
