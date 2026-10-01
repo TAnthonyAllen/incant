@@ -92,7 +92,7 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-130 — HALF CLOSED 2026-09-30 — two `RuleStuff.owner` readers run under no fleet row (coverage): aCTionFailed pinned, processCode's label branch unreachable
+### F-130 — ✅ CLOSED 2026-10-01 — two `RuleStuff.owner` readers run under no fleet row (coverage): aCTionFailed pinned, processCode's label branch unreachable
 
 **What.** Stroke 4.4b renamed `RuleStuff.rule` to `owner` at every reader, including two that recon 22's tap measured
 at **0 calls** across pop.sh, jitLadder and printPop. The rename touched them and nothing ran them, so their
@@ -115,6 +115,10 @@ ATTEMPT LOG
     never coded. The other isLabel writer (processAction's locals, GroupActions.rtn:702) marks action-body locals, which
     are not passed to processCode. So the arm looks dead by structure, and D2's tripwire above it with it. Open for
     Tony: pin it dead (cleanupList) or name a road that should reach it.
+  2026-10-01 processCode label branch PINNED DEAD (SEQ 246 R3 / SEQ 247 R4, stroke 5.6b): re-tapped across pop.sh,
+    jitLadder and printPop -- 0 calls. The arm is now a named refusal through refuse(): "processCode: the label arm was
+    reached -- a label was handed in where an action belongs (F-130)", naming the label's labelOf (or the label itself
+    when labelOf is null), then return false. Fires 0 times in the fleet. CLOSED unless the refusal ever prints.
 ```
 
 ### F-129 — OPEN 2026-09-27 — an action whose body holds a BARE-NAME statement crashes on its SECOND call

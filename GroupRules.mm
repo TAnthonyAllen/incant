@@ -9651,7 +9651,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 extern "C" GroupItem *processAction(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = ruler->ruleSTUFF;
 GroupItem 	*label = field;
 GroupItem 	*code = 0;
 GroupItem 	*grup = 0;
@@ -9659,8 +9658,9 @@ GroupItem 	*result = 0;
 GroupItem 	*priorMETHOD = ruler->currentMETHOD;
 GroupItem 	*priorTempField = ruler->tempField;
 GroupItem 	*action = field;
+	// labelKnowsItsRule a label carries the rule it was minted for -- no singleton, no owner (stroke 5.6b)
 	if ( action->groupBody->flags.isLabel )
-		action = ruleStuff->owner;
+		action = field->labelOf;
 	ruler->currentMETHOD = action;
 	if ( !action->actionBlocK() && !::processCode(action,action->actionHolder()) )
 		return 0;
@@ -9713,8 +9713,14 @@ int 		processing = ruler->processingCode;
 		::fprintf(stderr,"processCode: REFUSING %s -- isLabel with no rStuff. Only a live parse mints a label (Ruling D2), so this node is wreckage, not a specimen; look upstream at whatever copied or hand-built it.\n",field->groupBody->tag);
 		return 0;
 		}
+	// labelArmDead no road hands processCode a label (F-130: 0 calls, SEQ 246 tap) -- refuse by name, never guess the rule
 	if ( field->groupBody->flags.isLabel )
-		field = field->getRStuff()->owner;
+		{
+		if ( field->labelOf )
+			::refuse(field->labelOf,"processCode: the label arm was reached -- a label was handed in where an action belongs (F-130)");
+		else	::refuse(field,"processCode: the label arm was reached by a label with no labelOf (F-130)");
+		return 0;
+		}
 	// staleIR re-parsing invalidates the action's IR record -- setText, never clear(), or it reads back as its tag
 	
 	GroupItem   *staleIR = field->get("JiT");
