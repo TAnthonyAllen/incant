@@ -49,7 +49,6 @@ GroupItem(GroupItem grup)
     if grup.rStuff {
         rStuff  = new(this);
         *rStuff = *grup.rStuff;
-        owner   = this;
         followed = isOK = sukcess = false; }
 }
 
@@ -1058,8 +1057,7 @@ String      why;
         refuse(this,why);
         return stuff; }
     if stuff.inProcess {
-        stuff       = new(rStuff);
-        stuff.owner = this; }
+        stuff       = new(rStuff); }
     if parentStuff = pStuff
         parentLabel = parentStuff.label;
     if !followed    getWhatFollows(this);

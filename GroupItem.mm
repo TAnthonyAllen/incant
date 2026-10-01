@@ -181,7 +181,6 @@ GroupItem::GroupItem(GroupItem *grup)
 		{
 		rStuff = new RuleStuff(this);
 		*rStuff = *grup->getRStuff();
-		rStuff->owner = this;
 		rStuff->followed = rStuff->isOK = rStuff->sukcess = 0;
 		}
 }
@@ -1409,7 +1408,6 @@ char *why = 0;
 	if ( stuff->inProcess )
 		{
 		stuff = new RuleStuff(getRStuff());
-		stuff->owner = this;
 		}
 	if ( stuff->parentStuff = pStuff )
 		stuff->parentLabel = stuff->parentStuff->label;

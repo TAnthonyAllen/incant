@@ -12,7 +12,6 @@ GroupItem *onFail;
 GroupItem *onGroup;
 GroupItem *parentLabel;
 GroupItem *sourceLine;
-GroupItem *owner;
 int kount;
 int max;
 int maxRepeat;

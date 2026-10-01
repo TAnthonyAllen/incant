@@ -325,8 +325,7 @@ use item
                             grup = item.parent;
                             if grup && grup.rStuff {
                                 parentStuff = grup.rStuff;
-                                parentLabel = grup.label; }
-                            rStuff.owner   = item; }
+                                parentLabel = grup.label; } }
                     // codeIsAProperty an action's CodE is an artifact, so it goes on the property list, never among the terms (stroke 3)
                     if item == CodE     grup = NewGroup.addProperty(item);
                     else                grup = NewGroup +% item; }

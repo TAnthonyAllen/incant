@@ -396,7 +396,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	overTo = 0;
 	ruleTerm = 0;
 	sukcess = 0;
-	owner = grup;
 	ruleName = grup->groupBody->tag;
 	// min and max may be overwritten by the TraiT rule action
 	max = 1;
@@ -420,7 +419,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	onGroup = 0;
 	parentLabel = 0;
 	sourceLine = 0;
-	owner = 0;
 	max = 0;
 	maxRepeat = 0;
 	min = 0;

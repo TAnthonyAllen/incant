@@ -496,7 +496,6 @@ GroupItem 	*item = 0;
 							item->getRStuff()->parentStuff = grup->getRStuff();
 							item->getRStuff()->parentLabel = grup->getRStuff()->label;
 							}
-						item->getRStuff()->owner = item;
 						}
 				// codeIsAProperty an action's CodE is an artifact, so it goes on the property list, never among the terms (stroke 3)
 				if ( item == CodE )
