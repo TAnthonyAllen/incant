@@ -13,9 +13,10 @@ external GroupItem
 *******************************************************************************/
 class GroupRules
 {
-    // parseActivation the new road's activation list, WHO IS ACTIVE ABOVE -- one record per call, on the C++ stack; a drive pushes a floor; prev names the struct through groups.ext's forward declaration
+    // parseActivation the new road's activation list, WHO IS ACTIVE ABOVE -- one record per call, on the C++ stack; a drive pushes a floor; face is the field the call runs (0 on a floor), written at push only; prev names the struct through groups.ext's forward declaration
 struct ParseActivation
 {
+    GroupItem       face;
     int             isFloor;
     GroupItem       label;
     ParseActivation *prev;

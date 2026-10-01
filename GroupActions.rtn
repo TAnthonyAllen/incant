@@ -257,6 +257,7 @@ use rule
 use ruler
     if inputSTAK    baseStak = inputSTAK.length;
     // driveFloor a drive pushes a FLOOR on the new road's activation list; deferredAbove stops there (Tony, 2026-09-24)
+    driveFloor.face     = null;
     driveFloor.isFloor  = 1;
     driveFloor.label    = null;
     driveFloor.prev     = ruler.gParseActive;

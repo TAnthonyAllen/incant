@@ -2185,6 +2185,7 @@ char 				*driveBase = 0;
 	if ( ruler->inputSTAK )
 		baseStak = ruler->inputSTAK->length;
 	// driveFloor a drive pushes a FLOOR on the new road's activation list; deferredAbove stops there (Tony, 2026-09-24)
+	driveFloor.face = 0;
 	driveFloor.isFloor = 1;
 	driveFloor.label = 0;
 	driveFloor.prev = ruler->gParseActive;
@@ -9244,6 +9245,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	int callSukcess = ruleStuff ? ruleStuff->sukcess : 0;
 	
 	// activePush this call's record goes on the activation list; one pop, after exitFromParse
+	callActive.face = field;
 	callActive.isFloor = 0;
 	callActive.label = 0;
 	callActive.prev = ruler->gParseActive;

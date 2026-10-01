@@ -10145,3 +10145,58 @@ CERTIFICATE
 REPORT: top line first: what ran, what moved, which rule if parser failed.
 
   END SEQ 235
+
+
+===================================================================
+SEQ 236  -  STROKE 5.3: ParseActivation GAINS face (step 0: file-scope probe)
+===================================================================
+STATUS: cleared -- step 0: file scope still captures, stayed nested; face landed (3 generated
+        lines); tap E1 459,508/0, E13 456,855/0, E14 0 compared (no activation on the old road).
+
+RULINGS (Tony, 2026-10-01)
+R1. face is the field an activation is running: the term's own field, as parseRule
+    resolves it. A floor's face is 0. Written at push, never after.
+R2. 5.3 WRITES face and switches no reader (4.1's shape). E1/E13/E14 move to it in
+    their own stroke, on this stroke's tap.
+R3. If step 0 shows file scope stops bear-trap #58's capture, ParseActivation moves to
+    file scope in GroupRules.twk; gParseActive stays a GroupRules member. Ruling 1's
+    "in GroupRules" is satisfied either way.
+
+STEP 0: FILE-SCOPE PROBE, measure first
+- Move the struct (with its forward declaration) out of class GroupRules to file scope in
+  GroupRules.twk; mirror in groups.ext.
+- Control for capture: add a temporary field named floor, full bare tokall, and look for
+  floor(x) at GroupItem.twk:901 and Instruct.rtn:335. Nested (5.1) re-aimed both; record
+  what file scope does. Remove the temporary field.
+- Captured: revert to nested and carry on. Not captured: keep file scope.
+  Report either way, with the generated lines.
+
+5.3: THE BUILD
+- Add `face` to ParseActivation (GroupItem *), mirrored in groups.ext.
+- Before adding it, grep for bare `face` in the parse road (locals, enclosingFace's
+  callers); the full-tokall diff must show none re-aimed.
+- Writers: parseRule's push sets face to the field being run; driveStep's floor push
+  sets 0. No other writer.
+
+CERTIFICATE
+- Full bare-tokall diff (standing R2): every generated line explained, no bare name
+  re-aimed.
+- Tap: at E1, E13 and E14, a temporary counter comparing face with what each reads today
+  (owner), across pop.sh, jitLadder and printPop. Report same/differ per site, then
+  revert md5-identical. Any differ: STOP and report; do not switch anything.
+- pop.sh row for row with 861 / 1; jitLadder PASSED; printPop PASSED; canary moves named.
+- groups.ext committed.
+
+RIDER, 5.2's closing question, answer by reading, no build
+- At E15/E16 (GroupItem.twk:1438, :1455), does GroupItem::parse take its stuff from
+  this->rStuff, or from a stuff passed in (driveStep:289's old-road arm passes the top
+  activation's stuff)? If passed in, can owner differ from `this` there, and is that path
+  reached by any fleet row? One paragraph.
+
+REPORT: top line first: what ran, what moved, which rule if parser failed.
+
+(Clay's note to Tony, forwarded with it: "I've made 5.3 write face, switch no reader ...
+If §23's ledger already pairs the field with its readers in one stroke, cut R2 and add the
+switch to the build." Forwarded with R2 in the RULINGS block, so R2 stands.)
+
+  END SEQ 236

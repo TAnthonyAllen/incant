@@ -2823,8 +2823,12 @@ Hard-won lessons. Each one has cost real debugging time.
     the same day). ~~"a tok struct cannot name itself (any form fails to parse)"~~ was written first and
     was wrong: the forward had been tried only with a separate `X *member;` line, never with the
     attached form, so the search space excluded the answer -- the absence-needs-its-population rule,
-    paid for in an afternoon. A top-level `struct` in a `.twk` does not parse (tried with and without a
-    forward); the in-class form `struct X {...} *member;` emits the definition without a bogus member.
+    paid for in an afternoon. ~~A top-level `struct` in a `.twk` does not parse~~ -- it does, **ending in `;`**
+    (measured 2026-10-01, stroke 5.3 step 0; the 5.1 test omitted the `;`). **File scope does NOT stop the
+    capture:** with the struct at file scope and a temporary `floor` field, both `floor(x)` sites re-aimed
+    through `gParseActive` exactly as nested. **The capture follows a variable of the struct's type, not the
+    nesting** -- a scratch local `PA rec;` turns `floor(x)` into `rec.floor(x)`. So naming is the only cure
+    (SEQ 235 R1), and ParseActivation stays nested by ruling (SEQ 236 R3).
     **Detector: bear-trap #57's full-tree diff.** The canary read 315 throughout.
 
 ⚠⚠ **THE RULE-LADDER SELECTION CRITERION — TWO CLAUSES, AND THE SECOND WAS PAID FOR.** Tony,

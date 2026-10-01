@@ -5,6 +5,7 @@ class Stak;
 class Buffer;
 struct ParseActivation
 	{
+	GroupItem *face;
 	int isFloor;
 	GroupItem *label;
 	ParseActivation *prev;
