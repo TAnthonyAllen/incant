@@ -10467,3 +10467,33 @@ MERGE
 The R2 trace is the NEXT dispatch, not part of this one.
 
   END SEQ 243
+
+
+===================================================================
+SEQ 244  -  5.5b PREP: THE ~670 TRACE, THEN SHUTDOWN SEAL
+===================================================================
+STATUS: cleared -- VERDICT: all 680 floor-stopped, ran-out 0 (592 ancestor beyond the floor; 88
+        chain ancestor not on the list, stale parentStuff). 5.5b clear. Sealed shutdown.
+
+RULINGS (Tony, 2026-10-01)
+R1. Measure only; no code lands. The question: on each call where the parentStuff chain
+    reaches a deferred ancestor and the list walk does not, is there a FLOOR between the
+    calling record and that ancestor?
+R2. After the trace, seal as SHUTDOWN. 5.5b opens next session on this answer.
+
+THE TRACE (temporary tap on trunk, reverted md5-identical)
+- On each "chain held, list not" call, record: the rule, the deferred ancestor the chain
+  reached, and whether the list walk stopped at a floor or ran out of records before
+  reaching it.
+- Report as a table by rule: count, floor-stopped, ran-out. If ran-out is nonzero, name
+  one case end to end (the list as printed for adoptT this morning).
+- Keep the 100k-step bound on the chain walk.
+
+VERDICT LINE AT THE TOP
+- All floor-stopped: the list is right by the morning's ruling (a drive hides its
+  caller); 5.5b is clear to switch E14.
+- Any ran-out: the list misses a deferred ancestor; 5.5b waits on a ruling.
+
+SEAL: shutdown. Next session opens with this verdict and 5.5b.
+
+  END SEQ 244
