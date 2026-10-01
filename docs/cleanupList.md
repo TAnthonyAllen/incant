@@ -114,6 +114,16 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   census row in `pop.sh` drops `jitEmitters.rtn:jitProbeDrive` and reads 3; every `probeDrive` fixture row for row.
 - **Seen:** 2026-10-01.
 
+### `parse()`'s local `parentLabel`
+- **What/where:** `GroupItem.twk` parse(): `GroupItem parentLabel;` declared, then `if pStuff parentLabel = pStuff.label;`.
+  Generated `GroupItem.mm` parse(): `GroupItem *parentLabel = 0;` and `parentLabel = pStuff->label;`.
+- **Why it looks deletable:** a local, assigned once, never read. The stuff's own `parentLabel` is set by `getStuff`
+  (`stuff->parentLabel = stuff->parentStuff->label`), which is the one readers use.
+- **Confirm:** delete the declaration and the assignment; full bare tokall shows exactly those two generated lines gone
+  and no bare `parentLabel` re-aimed (it would otherwise resolve to `ruleStuff->parentLabel` -- read the tail);
+  fleet row for row.
+- **Seen:** 2026-10-01 (stroke 5.5a step 0, SEQ 240; listed by SEQ 242).
+
 ## Seeded, already gone
 
 Seeded 2026-09-28 from the dispatch. A source census shows each was already deleted, so there is nothing to cut.

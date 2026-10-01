@@ -10415,8 +10415,8 @@ REPORT: top line first: what ran, what moved, which rule if parser failed.
 ===================================================================
 SEQ 242  -  STROKE 5.5a, RETRIED TO LAND
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-01,
-        before any edit.
+STATUS: cleared -- STOPPED on the tap: 2,887 differ, all non-deferred rules (held unused); fleet
+        row for row; NOT merged; parentLabel on cleanupList.
 
 RULINGS (Tony, 2026-10-01)
 R1. The tripwire's in-drive fires 446 -> 2856 is accepted: deferredAbove now takes the
