@@ -1369,6 +1369,11 @@ define
                 always the same -- so resolving it here means binding a rule once reaches
                 every reference to it, including references created LATER. No registry
                 sweep (which would miss late references) and no locate (S1.3 forbids it).#);
+            deferredAbove=(WHO IS ACTIVE ABOVE IS THE ACTIVATION LIST, walked to the first
+                floor. Do not bring back the parentStuff chain: it held stale parents from
+                earlier parses, missed a live deferred ancestor through a recursion, and
+                looped forever on the F-114 cycles. Stroke 5.5b, SEQ 245; the argument is in
+                docs/objectModel.md, stroke 5 status.#);
             establishFrame=(THE SINGLE WRITER OF parentLabel, now one body with two
                 call sites. Tony's ruling via Clay, 2026-08-29.
 

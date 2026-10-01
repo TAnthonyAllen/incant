@@ -2845,9 +2845,9 @@ $2(dfPlain);/" incant/pop/deferNatT > "$T/$1.twk"
     sentinel "deferNatT $1 sentinel" "$T/$1.e" "DEFERNAT SENTINEL"
 done
 _dfw() { awk '/^DF BEGIN/{f=1} /^DF RETURNED/{f=0} f' "$T/dfPrint.e"; }
-if _dfw | grep -q "DEFERABOVE rule=NumbeR walk=list held=1 end=deferred"; then echo "  ok    deferNatT through the recursion: NumbeR inside s2L[1] sees PrinT's defer"; green=$((green+1))
+if _dfw | grep -q "DEFERABOVE rule=NumbeR held=1 end=deferred"; then echo "  ok    deferNatT through the recursion: NumbeR inside s2L[1] sees PrinT's defer"; green=$((green+1))
 else echo "  FAIL  deferNatT through the recursion: NumbeR did not read held=1 end=deferred"; _dfw | grep "DEFERABOVE rule=NumbeR" | sed 's/^/          /'; fail=1; fi
-if _dfw | grep -q "DEFERABOVE rule=PrinT walk=list held=0 end=floor"; then echo "  ok    deferNatT drive floor: PrinT's walk stops at the drive's floor"; green=$((green+1))
+if _dfw | grep -q "DEFERABOVE rule=PrinT held=0 end=floor"; then echo "  ok    deferNatT drive floor: PrinT's walk stops at the drive's floor"; green=$((green+1))
 else echo "  FAIL  deferNatT drive floor: PrinT's walk did not end at the floor"; _dfw | grep "DEFERABOVE rule=PrinT" | sed 's/^/          /'; fail=1; fi
 if grep -qE '^aa ?$' "$T/dfPrint.o"; then echo "  ok    deferNatT dfPrint value -- print s2L[1]; printed aa"; green=$((green+1))
 else echo "  FAIL  deferNatT dfPrint value -- print s2L[1]; did not print aa"; fail=1; fi
@@ -2857,17 +2857,17 @@ else echo "  FAIL  deferNatT dfPrint value -- print s2L[1]; did not print aa"; f
 #  COUNT MOVED 2026-09-27 (SEQ 209) 413 -> 429, all of it from nnFmt / nnFmtN / nnFmtS (14/14/17 -> 17/24/20 in-drive
 #  fires; every other trace file unmoved): new road now agrees with the old road; the old pin held a zero-width leaf failure (nameSet*/Modifier*). The chain-walk count stays 0.
 #  COUNT MOVED 2026-10-01 446 -> 2856 (stroke 5.5a, SEQ 242 R1, accepted, no pin): old-road parse() now pushes activations, so deferredAbove takes the list walk where it took the chain; no answer changed and the guarded chain-walk count stays 0.
-_twt=0; _twa=0
+#  CHAIN ROW RETIRED 2026-10-01 (stroke 5.5b, SEQ 245 R1): deferredAbove's parentStuff walk is DELETED, so "an action fires
+#  inside a drive on the chain" is unconstructable -- the witness lost its walk= column with it. Mapping: the question it
+#  guarded (an in-drive fire sees its ancestors) is asserted by value below, ShortcuT held=1 inside a print drive.
+_twt=0
 for _f in "$T"/nn*.e "$T"/un*.e "$T"/qn*.e "$T"/df*.e "$T"/dwn.e; do
     [ -f "$_f" ] || continue
-    _twt=$((_twt + $(grep -c "DEFERABOVE.*inDrive=1" "$_f"))); _twa=$((_twa + $(grep -c "DEFERABOVE.*walk=chain.*inDrive=1 action=1" "$_f")))
+    _twt=$((_twt + $(grep -c "DEFERABOVE.*inDrive=1" "$_f")))
 done
-echo "  ..    (b) tripwire: fires inside a drive = $_twt, chain walks carrying an action = $_twa"
+echo "  ..    (b) tripwire: fires inside a drive = $_twt"
 if [ "$_twt" -gt 0 ]; then echo "  ok    (b) tripwire anti-vacuity: $_twt fires inside drives witnessed"; green=$((green+1))
 else echo "  FAIL  (b) tripwire anti-vacuity: no fire inside a drive was witnessed"; fail=1; fi
-if [ "$_twa" -eq 0 ]; then echo "  ok    (b) tripwire: no action fires inside a drive on the parentStuff chain"; green=$((green+1))
-else echo "  FAIL  an old-road action now fires inside a new-road drive; deferredAbove cannot see its ancestors; rule on (b)"
-     grep -h "DEFERABOVE.*walk=chain.*inDrive=1 action=1" "$T"/nn*.e "$T"/un*.e "$T"/qn*.e "$T"/df*.e "$T"/dwn.e 2>/dev/null | sort | uniq -c | sed 's/^/          /'; fail=1; fi
 #  THE CERTIFICATE VALUE: ShortcuT, an old-road rule with an action, fired inside the `print ... :;` drive,
 #  sees PrinT's defer. H7: under ruling (a) it read held=0, so this row goes red with (b) removed.
 if grep -qE "DEFERABOVE rule=ShortcuT .*held=1 .*inDrive=1" "$T/qnPs.e"; then echo "  ok    (b) ShortcuT inside a print drive reads held=1"; green=$((green+1))

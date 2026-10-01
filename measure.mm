@@ -352,17 +352,16 @@ extern "C" GroupItem *measureBlockResult(GroupItem *input, GroupItem *result, in
 	return result;
 }
 
-// measureDeferredAbove witness: which walk a fire took (the activation list, or the parentStuff chain), its answer, where the walk ended, whether it fired inside a drive and whether it carries an action -- the (b) tripwire counts chain walks inside a drive. parseTrace-gated
-extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int listWalk, int held, int endKind, int inDrive)
+// measureDeferredAbove witness: a fire's answer, where the activation-list walk ended, whether it fired inside a drive and whether it carries an action -- the rule is the node in hand, never stuff.owner. parseTrace-gated
+extern "C" GroupItem *measureDeferredAbove(GroupItem *field, RuleStuff *stuff, int held, int endKind, int inDrive)
 {
 	
-	if ( GroupControl::groupController->groupRules->parseTrace && stuff && stuff->owner )
+	if ( GroupControl::groupController->groupRules->parseTrace && field )
 	{
-	GroupItem *r = stuff->owner;
-	int action = (stuff->actionMethod || r->groupBody->flags.actionType || r->getAttribute((char*)"builtinActoR")) ? 1 : 0;
+	int action = ((stuff && stuff->actionMethod) || field->groupBody->flags.actionType || field->getAttribute((char*)"builtinActoR")) ? 1 : 0;
 	const char *end = endKind == 1 ? "floor" : endKind == 2 ? "deferred" : endKind == 3 ? "processingCode" : "empty";
-	::fprintf(stderr,"  DEFERABOVE rule=%s walk=%s held=%d end=%s inDrive=%d action=%d\n",
-	r->groupBody->tag, listWalk ? "list" : "chain", held, end, inDrive, action);
+	::fprintf(stderr,"  DEFERABOVE rule=%s held=%d end=%s inDrive=%d action=%d\n",
+	field->groupBody->tag, held, end, inDrive, action);
 	}
 	
 	return 0;

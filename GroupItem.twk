@@ -454,31 +454,20 @@ int deferredAbove(RuleStuff stuff)
 {
 GroupRules      ruler = groupRules;
 ParseActivation *top = ruler.gParseActive;
-RuleStuff       up;
 int             inDrive = 0;
-    // twoWalks an activation above the drive floor means WHO IS ACTIVE ABOVE is on the list -- walk it, skipping self; with none, walk parentStuff (where it attaches) -- ruling (b) refined, Tony 2026-09-24
+    // listOnly WHO IS ACTIVE ABOVE is the activation list, walked to the first floor (a drive hides its caller); the parentStuff chain is gone -- it held stale parents and never ended on F-114's cycles (stroke 5.5b)
     if top && !top.isFloor    inDrive = 1;
     if ruler.processingCode {
-        measureDeferredAbove(stuff,inDrive,1,3,inDrive);
+        measureDeferredAbove(this,stuff,1,3,inDrive);
         return 1; }
-    if inDrive {
-        if top.stuff == stuff   top = top.prev;
-        while top && !top.isFloor {
-            // faceNotOwner each activation's face, never stuff.owner (stroke 5.3 tap); the parentStuff walk below stays on owner until 5.5
-            if top.stuff && top.face && top.face.deferred {
-                measureDeferredAbove(stuff,1,1,2,inDrive);
-                return 1; }
-            top = top.prev; }
-        if top  measureDeferredAbove(stuff,1,0,1,inDrive);
-        else    measureDeferredAbove(stuff,1,0,0,inDrive);
-        return 0; }
-    up = stuff.parentStuff;
-    while up {
-        if up.owner && up.owner.deferred {
-            measureDeferredAbove(stuff,0,1,2,inDrive);
+    if top && top.stuff == stuff    top = top.prev;
+    while top && !top.isFloor {
+        if top.stuff && top.face && top.face.deferred {
+            measureDeferredAbove(this,stuff,1,2,inDrive);
             return 1; }
-        up = up.parentStuff; }
-    measureDeferredAbove(stuff,0,0,0,inDrive);
+        top = top.prev; }
+    if top  measureDeferredAbove(this,stuff,0,1,inDrive);
+    else    measureDeferredAbove(this,stuff,0,0,inDrive);
     return 0;
 }
 

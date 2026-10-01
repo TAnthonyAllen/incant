@@ -27,7 +27,7 @@ extern "C" GroupItem *labelTree(GroupItem *field);
 extern "C" GroupItem *measureAdoption(GroupItem *field, GroupItem *handed, GroupItem *adopted);
 extern "C" GroupItem *measureAttachRepeat(RuleStuff *stuff, GroupItem *lab);
 extern "C" GroupItem *measureBlockResult(GroupItem *input, GroupItem *result, int stopped);
-extern "C" GroupItem *measureDeferredAbove(RuleStuff *stuff, int listWalk, int held, int endKind, int inDrive);
+extern "C" GroupItem *measureDeferredAbove(GroupItem *field, RuleStuff *stuff, int held, int endKind, int inDrive);
 extern "C" GroupItem *measureDotOperands(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *measureFireLabelActionIn(GroupItem *field, GroupItem *myLabel);
 extern "C" GroupItem *measureFireLabelActionOut(GroupItem *field, GroupItem *myLabel);
