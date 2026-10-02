@@ -187,6 +187,16 @@ the leading `.taG` form unmoved beside it (H7 pair).
 ```
 ATTEMPT LOG
   2026-10-02 filed from deepClean D-26; no attempt yet.
+  2026-10-02 SEQ 265 R2 -> NOT BUILT, THE CERTIFICATE CANNOT BE CASHED: no kant spelling reaches opDot with a binary
+    null right. Seven spellings on trunk 7661b11, parseTrace on (measureDotOperands): `a.(*b)`, `a.f()`, `a . f()` do
+    not parse (processCode parse failed); `a . *b` is refused upstream by refuseDotUnaryRight; `a . f` and `a.f`
+    (f an action returning *plain, i.e. null) arrive with right=f, the NAME -- f never ran ("dnNull ran" absent);
+    `a . plain` the same. Population and why it would have held the answer: every road into opDot's binary arm goes
+    through handleDot or foldDot, and both hand opDot the right operand as `new(arg.tag)` (rightIsAName) unless it is
+    a groupFields entry -- a fresh node, never null and never invoked; runOP's isMethod&&invoke evaluation does not
+    fire on it. So `!argument` today means ONLY the leading form. Building the refusal would add an arm that fires 0
+    times and a row that cannot go red (H7). Open for Tony: pin F-132 dead (the two meanings never meet), or name the
+    road that should carry a value to the right of a dot.
 ```
 
 ### F-133 — a rule action's read of a declared global comes through data-less, and the global then reads as its tag
