@@ -569,7 +569,7 @@ extern GroupItem measureParseClass(GroupItem field)
         void *m = (void*)field->rStuff->parseMethod;
         const char *name = !m ? "none" : m == (void*)parseAction ? "parseAction" : m == (void*)parseRule ? "parseRule"
             : m == (void*)parseContainer ? "parseContainer" : m == (void*)parseString ? "parseString" : m == (void*)parseSet ? "parseSet"
-            : m == (void*)parseAny ? "parseAny" : m == (void*)parseCharacter ? "parseCharacter" : m == (void*)parseUpTo ? "parseUpTo"
+            : m == (void*)parseCharacter ? "parseCharacter" : m == (void*)parseUpTo ? "parseUpTo"
             : m == (void*)parseCondition ? "parseCondition" : "other";
         ::fprintf(stderr,"  PARSECLASS rule=%s method=%s\n",field->groupBody->tag,name);
         }
@@ -794,7 +794,6 @@ String      pcName = "other";
         else if (pm == ::parseCondition) pcName = (char *)"parseCondition";
         else if (pm == ::parseAction)    pcName = (char *)"parseAction";
         else if (pm == ::parseRule)      pcName = (char *)"parseRule";
-        else if (pm == ::parseAny)       pcName = (char *)"parseAny";
         else if (pm == ::parseCharacter) pcName = (char *)"parseCharacter";
         else if (pm == ::parseSet)       pcName = (char *)"parseSet";
         else if (pm == ::parseString)    pcName = (char *)"parseString";

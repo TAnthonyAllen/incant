@@ -44,18 +44,13 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   fleet row for row. Read the generated tail (#42), not only the canary.
 - **Seen:** 2026-10-01.
 
-### `parseAny` -- installed only on the bootstrap rule `Any`, which no grammar references
-- **What/where:** `Generate.rtn:74` (`extern GroupItem parseAny`), installed by `setParseWalk`'s `case isANY:`
-  (`Generate.rtn:418`). The only node carrying `isANY` data is the bootstrap rule `Any`
-  (`GroupMain.twk:157-159`, `grok += new("Any"); isANY = true;`); nothing else in `.twk`/`.rtn` sets it.
-- **Why it looks deletable:** no grammar term names `Any` -- a word-bounded grep of `incant/`, `IncantForms/` and
-  `grammar` finds 19 hits, all prose (`incant/pop/f31` lists `Any` among names dropped). Stroke 5.4a's witness counted
-  **0 calls** to `parseAny` across pop.sh + jitLadder + printPop.
-- **Related, same question, not claimed:** the `Any` bootstrap rule itself and the old road's `testAny` (`RuleStuff.twk:236`,
-  bound at `RuleStuff.twk:167`'s `case isANY:`), which would go with it.
-- **Confirm:** a call census of `parseAny` and `testAny` over the full seal checklist (want 0 with the census's own
-  call-count sibling > 0 elsewhere); delete `parseAny` and its `case`, full bare tokall, fleet row for row.
-- **Seen:** 2026-10-01 (SEQ 239 rider).
+### `testAny` and the bootstrap rule `Any` -- the rest of parseAny's question (open; seen 2026-10-02)
+- **Where:** `testAny` (RuleStuff.twk, bound by `setTestMatch`'s `case isANY:`), the bootstrap rule `Any` (GroupMain.twk,
+  `grok += new("Any"); isANY = true;`).
+- **Why it looks cuttable:** S6's witness (2026-10-02, pop.sh + jitLadder + printPop) counted **testAny 0** calls beside a
+  `parseString` sibling of 18,487 (equal to stroke 5.4a's measured count). No grammar term names `Any`.
+- **Confirm:** cut both; full bare tokall; fleet row for row. The `isANY` data type itself stays (GroupBody's enum,
+  setGuard, dataName).
 
 ### `jitProbeDrive` -- a second drive door beside `driveStep` (one-door candidate, SEQ 241 R3)
 - **What/where:** `jitEmitters.rtn:682` (`extern int jitProbeDrive`, behind incant `probeDrive`). It opens a drive
@@ -77,6 +72,12 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 | `parseGeneric` (`RuleStuff.twk`) | `2bfa808` -- Task 2 (SEQ 192) | 0 references in `*.twk *.rtn *.h` |
 
 ## Done
+
+### `parseAny` -- CUT 2026-10-02 (deepClean S6, SEQ 260)
+- Witness re-run first: parseAny **0** calls, parseString sibling 18,487. Cut: the function, its `case isANY:` installer in
+  setParseWalk (an `isANY` node now classifies as the default, parseString), the two measure name-table entries, its
+  groups.ext line. Its DesignDocs leaf-template note re-keyed to `parseCharacter`. Canary 301 -> 300; fleet row for row
+  but mirror arity 255 -> 254.
 
 ### The Bytecode road -- CUT 2026-10-02 (deepClean S4, SEQ 260; ruled 2026-09-30)
 - Cut: `Bytecode.twk/.mm/.h` and their 8 TOK.xcodeproj references; `interpretMethod` and its bootstrap; `generateCode`;

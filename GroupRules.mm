@@ -8599,46 +8599,6 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	return ::exitFromParse(field);
 }
 
-// parseAny the leaves are the generated-path twins of RuleStuff's testMacro: tester loop, advance, then ONE min gate -- copy the template
-extern "C" GroupItem *parseAny(GroupItem *field)
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->getRStuff();
-int 		counter = 0;
-int 		more = 0;
-	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput(field) )
-		{
-		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
-		ruleStuff->sukcess = 0;
-		while ( *ruler->atRuleMark )
-			{
-			if ( counter >= ruleStuff->max )
-				{
-				more = 1;
-				break;
-				}
-			counter++;
-			ruler->atRuleMark++;
-			if ( !*ruler->atRuleMark )
-				break;
-			}
-		if ( more && ruleStuff->max > 1 )
-			::reportMaxLimit(field);
-		else
-		if ( counter && counter >= ruleStuff->min )
-			{
-			if ( ruleStuff->label )
-				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
-			ruleStuff->sukcess = 1;
-			}
-		}
-	// keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
-	if ( ruleStuff->label && !ruleStuff->sukcess )
-		ruleStuff->label->clear();
-	return ::exitFromParse(field);
-}
-
 // parseCharacter match a run of one character against the current input
 extern "C" GroupItem *parseCharacter(GroupItem *field)
 {
@@ -10235,9 +10195,6 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( field->groupBody->flags.data )
 		switch (field->groupBody->flags.data)
 			{
-			case 1:
-				ruleStuff->parseMethod = ::parseAny;
-				break;
 			case 2:
 				ruleStuff->parseMethod = ::parseCharacter;
 				break;

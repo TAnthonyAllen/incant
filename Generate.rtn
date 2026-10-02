@@ -79,31 +79,6 @@ RuleStuff   ruleStuff = rStuff;
     return exitFromParse(field);
 }
 
-// parseAny the leaves are the generated-path twins of RuleStuff's testMacro: tester loop, advance, then ONE min gate -- copy the template
-extern GroupItem parseAny(GroupItem field)
-{
-GroupRules  ruler = groupRules;
-RuleStuff   ruleStuff = rStuff;
-int         counter;
-int         more;
-    sukcess = false;
-    if checkInput(field) {
-        // gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
-        sukcess = false;
-        while *atRuleMark {
-            if counter >= max { more = true; break; }
-            counter++;
-            atRuleMark++;
-            if !*atRuleMark break; }
-        if more && max > 1  reportMaxLimit(field);
-        or counter && counter >= min {
-            if label    label.setToken(hereAt,counter);
-            sukcess     = true; }}
-    // keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
-    if label && !sukcess    label.clear();
-    return exitFromParse(field);
-}
-
 // parseCharacter match a run of one character against the current input
 extern GroupItem parseCharacter(GroupItem field)
 {
@@ -417,7 +392,6 @@ RuleStuff   ruleStuff = rStuff;
     or parseACTION          parseMethod = parseAction;
     or hasTraits || hasMembers  parseMethod = parseRule;
     or data switch(data) {
-        case isANY:         parseMethod = parseAny;
         case isCHAR:        parseMethod = parseCharacter;
         case isSET:         parseMethod = parseSet;
         case isGROUP:       parseMethod = null;

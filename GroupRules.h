@@ -338,7 +338,6 @@ extern "C" GroupItem *opSetTag(GroupItem *argument, GroupItem *target);
 extern "C" GroupItem *opString(GroupItem *target, Buffer *buffer);
 extern "C" GroupItem *opUnaryMinus(GroupItem *result);
 extern "C" GroupItem *parseAction(GroupItem *field);
-extern "C" GroupItem *parseAny(GroupItem *field);
 extern "C" GroupItem *parseCharacter(GroupItem *field);
 extern "C" GroupItem *parseCondition(GroupItem *field);
 extern "C" GroupItem *parseContainer(GroupItem *field);
