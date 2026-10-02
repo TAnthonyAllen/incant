@@ -11031,3 +11031,28 @@ DO: resume SEQ 261 from the banked data. Write docs/ptfReread.md, carrying the P
 becomes concrete. Seal.
 
   END SEQ 262
+
+
+===================================================================
+SEQ 263  -  PTF SHAPE (iii)->(ii): T1 AND T2 ON TRUNK
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+
+RULINGS
+R1. Port shape is (iii) then (ii). T1 and T2 land on trunk now. Step 1 is then rebuilt on trunk's model from the
+    plan (a later dispatch), not replayed.
+R2. F-135 is reclassified as a step-1 replay item: unreproduced on trunk across six shapes, so not a trunk defect.
+    Its cure (T3) rides the step-1 rebuild. Amend the row.
+R3. T1, P4 as ruled: the branchKind slot, one writer, bracketed at processAction, parseRule's fire and the jit emit
+    walk; isBranch retired (a layout change: full bare tokall, canary noted); byRef's loop steering retired with it.
+    Port P4's certificate rung (ctlStampT) from the branch: continue v; 2 -> 0, compiled return w; 3 -> 0, and each
+    slot-leak row red with its bracket removed (H7).
+R4. T2, F-134. Open it with the mechanism and a proposed cure. If the cure changes what attachLabel's promote retag
+    means, rather than just stopping it from renaming a node it does not own, stop for a ruling. Certificate:
+    retagSharedNode red -> green.
+R5. Copy the branch-only docs onto trunk as records, unchanged: the step-2 plan (the branch's jitDesign.md sections)
+    and docs/overlapCensus.md.
+STOP IF: an unnamed fleet mover; T2's cure touching promote's meaning; any crash.
+REPORT: the fleet line per stroke first, then evidence. Seal each.
+
+  END SEQ 263
