@@ -10893,3 +10893,39 @@ DO: merge; mirror lines; retok bare, install; checklist (pop.sh row for row with
 printPop, sealCaptures diff); R3, R4; seal on trunk. Next after the seal: the deep-clean recon.
 
   END SEQ 258
+
+
+===================================================================
+SEQ 259  -  DEEP-CLEAN RECON (read-only, nothing cut)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+
+RULINGS
+R1. A recon. Nothing is cut, moved or refactored. Any runtime tap is temporary and reverted md5-identical.
+R2. One ranked list; Tony rules each line. Each line proposes one action: cut, keep (with its reason),
+    refactor, fix, or retire by mapping.
+R3. The Bytecode cut (ruled 09-30) is in the basket: size it from cleanupList.md's list and slot it into a
+    stroke. incant/generate stays as reference.
+R4. The absence doctrine throughout: "zero callers" means zero in the whole population -- kant files,
+    groups.ext, fixtures, generated code, whole-struct copies. Name the population for every zero.
+
+POPULATIONS
+1. Dead code: functions with no callers, fields with no readers, groups.ext externs nothing uses.
+   RuleStuff gets its own pass after stroke 5.
+2. cleanupList.md as it stands: re-measure every entry.
+3. Two-meaning slots: fLAG, sukcess, isLabel's "do not clear", opDot's `if !argument`, any others found;
+   both meanings and their readers.
+4. Stroke 5's tail: per-call state (label, hereAt, kount, sukcess) on the shared RuleStuff -- readers,
+   writers, cost of moving it onto the activation.
+5. Instruments that measure nothing: decodePop, countPop, frontier -- what each was built to catch, why
+   red, fix / re-aim / retire by mapping.
+6. Leftovers: stale branches; wakeup.md's length; DesignDocs entries pointing at retired code; Clod's 6
+   fixits (keep or close each); the measure* move from Generate.rtn; the jit tok declarations.
+7. C++ escapes: a count by file only, no removal proposals (parked until the jitter pauses).
+DELIVERABLE: docs/deepClean.md -- item, evidence, size (lines, externs, fixtures touched), risk, action;
+ending with the cuts grouped into proposed strokes in a suggested order, the Bytecode cut among them.
+REPORT: what was run, counts per population, the proposed stroke list first; evidence after. Seal.
+STOP IF: an item that looks dead is live on a road the fleet does not cover (report, do not chase); a tap
+that will not revert clean.
+
+  END SEQ 259
