@@ -11056,3 +11056,19 @@ STOP IF: an unnamed fleet mover; T2's cure touching promote's meaning; any crash
 REPORT: the fleet line per stroke first, then evidence. Seal each.
 
   END SEQ 263
+
+
+===================================================================
+SEQ 264  -  T1a: DRIVES ARE branchKind FRAMES
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+
+RULINGS
+R1. driveStep is a branchKind frame: save, clear, restore. A drive is its own execution root (the 09-25
+    recording-scope ruling). R3's frame list becomes processAction, parseRule's fire, the jit emit walk, and the
+    drive doors.
+R2. jitProbeDrive gets the same bracket until D-22 unifies the drive doors.
+DO: land T1a on trunk with both brackets; run the slot-leak H7 controls, one per new frame (the driveStep bracket
+removed turns the oldRoad do/se rows red); then T1b, the layout change; then T2. Stop conditions as in SEQ 263.
+
+  END SEQ 264
