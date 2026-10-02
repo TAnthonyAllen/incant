@@ -10715,3 +10715,27 @@ STOP IF: a writer outside parse is found; a reader where parentStuff is the only
 answer with no activation and no floor explanation; any tap that won't revert clean.
 
   END SEQ 251
+
+
+===================================================================
+SEQ 252  -  SEQ 251 RESUMES
+===================================================================
+STATUS: STOPPED by stop 1 again -- an UNLISTED writer: GroupItem(GroupItem) GroupItem.twk:51 `*rStuff = *grup.rStuff` (struct copy, never names the field). It last-wrote ALL 5,820 leaf-exit disagreements; the :295 restore last-wrote none. Runs outside parse 9,734x (all null). Section 24 NOT written; data banked in clod-to-clay SEQ 165. H12 line added.
+
+RULINGS
+R1. The bootstrap constructor writer clears stop 1: it is the known constructor writing the
+    instance meaning before the first parse. Stop 1 covered an unknown writer outside parse.
+R2. Bank the tap counts and one printed case per class in section 24 (the scratchpad is
+    session-only; section 24 is the record Tony rules from).
+
+DO
+Write section 24 and the stroke-5 status paragraph from the data in hand. Open section 24 with:
+parentStuff carries two meanings -- the instance meaning (the grammar parent, written by the
+constructor and aCTionDefinE) and the activation meaning (the caller, written by the repairs);
+every measured disagreement is one meaning read where the other was meant. Name the parseRule
+restore at :295 explicitly: it puts back the stale values the repair overwrote, which is how leaf
+exits come to read them. Seal.
+OWED, small: CLAUDE.md H12 -- a seal that names an instrument as row-for-row banks that
+instrument's output beside it.
+
+  END SEQ 252

@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 164 at the FOOT -- SEQ 217: MERGED 24cd9fe, F-128 closed, trunk into parse-then-fire; SEALED (Tony)
+STATUS:   fresh           # SEQ 165 at the FOOT -- SEQ 251/252: parentStuff recon STOPPED, unlisted writer GroupItem copy ctor; data banked
+# prior: SEQ 164 at the FOOT -- SEQ 217: MERGED 24cd9fe, F-128 closed, trunk into parse-then-fire; SEALED (Tony)
 # prior: SEQ 163 at the FOOT -- SEQ 216: the re-pointing loops removed; the branch CLEARS the whole certificate (2bc15f9), not merged
 # prior: SEQ 162 at the FOOT -- SEQ 215: item C confirmed and STAGED (compile succeeds); a drive then refuses on a stray definer left by compile()'s own parent loop
 # prior: SEQ 161 at the FOOT -- SEQ 214: owner channel + resolveName built, grammar clean (7 -> 0); certificate STOPS at item C (second parser() of ExpressioN)
@@ -9105,3 +9106,94 @@ merge carried SEQ 211's "REVERTED" line in repeatsInLoop's header (748d46f, comm
 
   END SEQ 164
 
+
+
+===================================================================
+SEQ 165  -  SEQ 251/252: parentStuff RECON -- STOPPED (stop 1, an unlisted writer); DATA BANKED HERE
+===================================================================
+STATUS: fresh -- 2026-10-02. Recon only; every tap reverted md5-identical; bare rebuild row for row.
+
+LEAD: GroupItem(GroupItem), GroupItem.twk:51, `*rStuff = *grup.rStuff` is a parentStuff WRITER the
+census missed -- a struct copy that never names the field, so a name grep cannot find it (the population
+was "lines naming parentStuff"; this line is outside it). A copied face inherits its source's
+parentStuff. It runs outside parse 9,734 times (all null; the 341,267 non-null copies all ran with an
+activation on the list; 83,109 null with one). Stop 1 as worded.
+
+AND IT FALSIFIES SEQ 252's :295 CLAUSE, measured: a last-writer tap (map stuff -> last site that wrote
+its parentStuff) at the two leaf-exit readers:
+  exitSync   disagree 5,548   last writer GroupItemCopy 5,548 (100%)    ruleRestore 0
+  exitAttach disagree   272   last writer GroupItemCopy   272 (100%)    ruleRestore 0
+  exitSync   agree    121,729: ruleRestore 53,776 · GroupItemCopy 32,355 · ruleRepair 29,262 ·
+                               getStuff 5,410 · contRepair 917 · ctor 9
+  exitAttach agree     87,374: ruleRestore 51,283 · ruleRepair 29,029 · getStuff 5,269 ·
+                               contRepair 917 · GroupItemCopy 867 · ctor 9
+So the :295 restore does put back pre-repair values (ruleRestore's class counts equal ruleSave's
+exactly, below), but no leaf exit that disagrees was last written by it. Section 24's opening line as
+ruled ("every disagreement is one meaning read where the other was meant") is also unmeasured for the
+copy: the copied value is whatever its source held at copy time, instance or activation, and the tap
+did not record which.
+
+TAP 1 (SEQ 251): parentStuff vs the nearest enclosing activation's stuff (skipping the reader's own
+activation), pop.sh + jitLadder + printPop, 314 processes. Classes: agree; agreeNullAtFloor (list
+answer is a floor, chain null); noAct (no activation); STALE (chain a different rule, not on the list);
+SAMERULE* (same rule name as the list's nearest, different stuff instance: notOnList / onList above or
+beyond a floor); OTHERchainNull (chain null, list has one). inst = chain is the reader's grammar parent's
+stuff; defRule = chain is the nearest activation face's defining rule's stuff.
+  getStuff        agree 4,037,848 · nullAtFloor 6,238 · noAct(null) 628 (top-level parse entry, 2/proc)
+  rulePost        agree 228,991 · nullAtFloor 11,784                         (after parentRepair: 0 disagree)
+  contPost        agree 20,084                                               (after binParentRepair: 0)
+  contPre         agree 19,654 · SAMERULE-notOnList 430
+  exitSync        agree 116,238 (inst 10,510) · nullAtFloor 5,491 · SAMERULE-notOnList 3,592
+                  (defRule 1,660) · STALE 1,956
+  exitAttach      agree 81,951 (inst 10,510) · nullAtFloor 5,423 · SAMERULE-notOnList 272 (defRule 272)
+  rulePre = ruleSave = ruleRestore (identical every class):
+                  agree 116,778 · nullAtFloor 11,784 · SAMERULE-notOnList 64,272 (defRule 792) ·
+                  OTHERchainNull 35,335 · SAMERULE-onListBeyondFloor 9,689 · STALE 1,232 ·
+                  SAMERULE-onListAboveFloor 1,685 (defRule 1,527)
+  ctor            noAct null 7,536 · noAct set 7,536 (all GroupMain::bootstrapper, lldb 48/48) ·
+                  OTHERchainNull 23,698 · STALE 5,511 · SAMERULE-notOnList 355 (defRule 355) · agree 78
+  define          STALE 34,147 (inst 34,147: the grammar parent, never an activation)
+  attachLabel trace reached 4,342, parseTrace on 1
+FLOOR-HIDDEN at a seat that USES the value: 0. The 9,689 are parseRule pre-repair, overwritten before use.
+
+ONE CASE PER CLASS (pointer-level, list top-down):
+  ctor noActChainSet self=exponent face=PoweR list=null(0x0 face=- faceStuff=0x0) chain=PoweR(0x1051a4c00)  LIST:
+  ctor STALE self=tik face=QuotE1 list=GrouP(0x1051a9900 face=GrouP faceStuff=0x1051a9900) chain=QuotE1(0x1051a4800)  LIST: GrouP(0x1051a9900) InvokE(0x1051a9700) RunRulE(0x1051a9580) ...
+  ctor OTHERchainNull self=ExpressioN face=Grokking list=DefinE(0x1051a9c00 face=DefinE faceStuff=0x1051a9c00) chain=null(0x0)  LIST: DefinE(0x1051a9c00) definitions(0x1051a9c80) define(0x1051a9d80) RunRulE(0x1051a9580) ...
+  define STALE self=NamE face=NamE list=DefinE(0x1051a9c00 face=DefinE faceStuff=0x1051a9c00) chain=Attributes(0x1051a9f00)  LIST: DefinE(0x1051a9c00) definitions(0x1051a9c80) define(0x1051a9d80) RunRulE(0x1051a9580) ...
+  ctor SAMERULEother-notOnList self=Operators face=Token list=Token(0x105235a80 face=Token faceStuff=0x105235a80) chain=Token(0x105235e80)  LIST: Token(0x105235a80) ExpressioN(0x105252200) Xpress(0x105258f80) StatemenT(0x105258d00
+  exitSync SAMERULEother-notOnList self=search face=search list=Search(0x101364480 face=Search faceStuff=0x101364480) chain=Search(0x1012de600)  LIST: Search(0x101364480) |FLOOR| Xpress(0x1012e4f80) StatemenT(0x1012e4d00) Start(0x
+  ruleSave SAMERULEother-notOnList self=GrouP face=GrouP list=Search(0x101364480 face=Search faceStuff=0x101364480) chain=Search(0x1012de600)  LIST: Search(0x101364480) |FLOOR| Xpress(0x1012e4f80) StatemenT(0x1012e4d00) Start(0x10
+  rulePre SAMERULEother-notOnList self=GrouP face=GrouP list=Search(0x101364480 face=Search faceStuff=0x101364480) chain=Search(0x1012de600)  LIST: GrouP(0x1012dba00) Search(0x101364480) |FLOOR| Xpress(0x1012e4f80) StatemenT(0x101
+  ruleRestore SAMERULEother-notOnList self=NamE face=NamE list=GrouP(0x1012dba00 face=GrouP faceStuff=0x1012dba00) chain=GrouP(0x100783480)  LIST: GrouP(0x1012dba00) Search(0x101364480) |FLOOR| Xpress(0x1012e4f80) StatemenT(0x1012
+  ruleSave STALE self=NumbeR face=NumbeR list=wzNum(0x10136c800 face=wzNum faceStuff=0x10136c800) chain=Attributes(0x100785f00)  LIST: wzNum(0x10136c800) |FLOOR| Xpress(0x1012e4f80) StatemenT(0x1012e4d00) Start(0x1012e4e00) RunRul
+  rulePre STALE self=NumbeR face=NumbeR list=wzNum(0x10136c800 face=wzNum faceStuff=0x10136c800) chain=Attributes(0x100785f00)  LIST: NumbeR(0x10130bf00) wzNum(0x10136c800) |FLOOR| Xpress(0x1012e4f80) StatemenT(0x1012e4d00) Start(
+  ruleRestore STALE self=NumbeR face=NumbeR list=wzNum(0x10136c800 face=wzNum faceStuff=0x10136c800) chain=Attributes(0x100785f00)  LIST: wzNum(0x10136c800) |FLOOR| Xpress(0x1012e4f80) StatemenT(0x1012e4d00) Start(0x1012e4e00) Run
+  exitSync STALE self=do face=do list=DO(0x1059a4380 face=DO faceStuff=0x1059a4380) chain=Attributes(0x104c69f00)  LIST: DO(0x1059a4380) |FLOOR| Xpress(0x105760f80) StatemenT(0x105760d00) Start(0x105760e00) RunRulE(0x104c69580) ..
+  ruleSave OTHERchainNull self=DO face=DO list=WardeD(0x10575d080 face=WardeD faceStuff=0x10575d080) chain=null(0x0)  LIST: WardeD(0x10575d080) StatemenT(0x105748600) DO(0x1059a4380) |FLOOR| Xpress(0x105760f80) StatemenT(0x105760d
+  rulePre OTHERchainNull self=DO face=DO list=WardeD(0x10575d080 face=WardeD faceStuff=0x10575d080) chain=null(0x0)  LIST: DO(0x10575a980) WardeD(0x10575d080) StatemenT(0x105748600) DO(0x1059a4380) |FLOOR| Xpress(0x105760f80) Stat
+  ruleRestore OTHERchainNull self=DO face=DO list=WardeD(0x10575d080 face=WardeD faceStuff=0x10575d080) chain=null(0x0)  LIST: WardeD(0x10575d080) StatemenT(0x105748600) DO(0x1059a4380) |FLOOR| Xpress(0x105760f80) StatemenT(0x1057
+  ruleSave SAMERULEother-onListBeyondFloor self=WardeD face=WardeD list=StatemenT(0x104ce2880 face=StatemenT faceStuff=0x104ce2880) chain=StatemenT(0x105760d00)  LIST: StatemenT(0x104ce2880) BlocK(0x104ce2a80) |FLOOR| Xpress(0x105
+  rulePre SAMERULEother-onListBeyondFloor self=WardeD face=WardeD list=StatemenT(0x104ce2880 face=StatemenT faceStuff=0x104ce2880) chain=StatemenT(0x105760d00)  LIST: WardeD(0x10575d080) StatemenT(0x104ce2880) BlocK(0x104ce2a80) |
+  contPre SAMERULEother-notOnList self=UnaryOPS face=UnaryOPS list=TokenXP(0x104cf5c80 face=TokenXP faceStuff=0x104cf5c80) chain=TokenXP(0x1059a4200)  LIST: TokenXP(0x104cf5c80) Token(0x104cf5a80) ExpressioN(0x105757400) BrancH(0x
+  ruleSave SAMERULEother-onListAboveFloor self=Token face=Token list=ExpressioN(0x104cee680 face=ExpressioN faceStuff=0x104cee680) chain=ExpressioN(0x105757400)  LIST: ExpressioN(0x104cee680) Parens(0x104cee280) InvokeArg(0x104cf1
+  rulePre SAMERULEother-onListAboveFloor self=Token face=Token list=ExpressioN(0x104cee680 face=ExpressioN faceStuff=0x104cee680) chain=ExpressioN(0x105757400)  LIST: Token(0x104cf5a80) ExpressioN(0x104cee680) Parens(0x104cee280) 
+  ruleRestore SAMERULEother-onListAboveFloor self=Token face=Token list=ExpressioN(0x104cee680 face=ExpressioN faceStuff=0x104cee680) chain=ExpressioN(0x105757400)  LIST: ExpressioN(0x104cee680) Parens(0x104cee280) InvokeArg(0x104
+  ruleRestore SAMERULEother-onListBeyondFloor self=WardeD face=WardeD list=StatemenT(0x104ce2880 face=StatemenT faceStuff=0x104ce2880) chain=StatemenT(0x105760d00)  LIST: StatemenT(0x104ce2880) BlocK(0x104ce2a80) |FLOOR| Xpress(0x
+  exitAttach SAMERULEother-notOnList self=exponent face=exponent list=PoweR(0x1030c4880 face=PoweR faceStuff=0x1030c4880) chain=PoweR(0x1030c4c00)  LIST: PoweR(0x1030c4880) FloaT(0x1030c4200) NumbeR(0x103165d80) Token(0x103165a80)
+
+NO HUNT at this tree: 6 of 7 baseline sites remain. Gone: deferredAbove's parentStuff walk (its list walk
+to the first floor stays). Remaining: enclosingFace (top.face.get(tag); not a parentStuff site),
+parseContainer binParentRepair (Generate.rtn:167-170), parseRule parentRepair (:243-246), exitFromParse
+parentLabelSync (:30-31), the F-114 callBracket (:224-229, :292-295), getStuff copy + re-derive
+(GroupItem.twk:1059-1062). parentStuff sites: 5 of the 6.
+
+OPEN FOR THE RULING: the census needs a second population -- every struct copy of a RuleStuff
+(GroupItem.twk:51, RuleStuff.twk:61's `*this = *r` which then nulls the field). The copy is the
+writer every leaf-exit disagreement traces to.
+
+Reverts: GroupRules.mm b231358e, GroupItem.mm d50744d6, RuleStuff.mm eebceca3. Bare rebuild:
+pop.sh 860 / 1 row for row (acceptStartT address only, H3), jitLadder PASSED, printPop PASSED,
+canary 315. decodePop and countPop banked as docs/sealCaptures/*.txt (new H12 line). NOT SEALED.
+
+  END SEQ 165

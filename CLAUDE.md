@@ -3036,6 +3036,14 @@ direction the campaign might take, it is a state the machinery must report as a 
 > `countPop.sh` · **`printPop.sh`** · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
 >
+> ⚠⚠ **A SEAL THAT NAMES AN INSTRUMENT AS "ROW FOR ROW" BANKS THAT INSTRUMENT'S OUTPUT BESIDE IT
+> (Clay, SEQ 252, 2026-10-02).** `decodePop` and `countPop` are standing red and had been recorded
+> "row for row" seal after seal with no capture kept, so the next session could not diff against anything
+> -- the claim was unfalsifiable by construction. A row-for-row claim without the bytes it compared is a
+> carried number (H14) wearing a measurement's clothes. **Where:** `docs/sealCaptures/<instrument>.txt` (`.txt`, because `*.out` is gitignored)`, one
+> file per instrument, overwritten at each seal and committed with it -- git history holds the earlier ones, and
+> "row for row" then means `git diff` on that file reads empty but for the H1 binary-echo line and any named H3 noise.
+>
 > ⚠⚠ **`tree.sh` AND `mixed.sh` JOINED THE SEAL 2026-09-25 (Tony, SEQ 179), and both were VOID when
 > they joined.** Dated by clone bisect: `0150f29` (2026-09-07) stripped the genParse fork out of
 > `parse()`, so `rule.parse(0)` -- treeOf's door -- never runs a generated body, and both harnesses

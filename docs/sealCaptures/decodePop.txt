@@ -1,0 +1,35 @@
+=== DECODER POP ==========================================================
+binary: /Users/anthony/bin/incant
+        size 1479696   mtime Oct 2 09:32
+
+-- THE POP FIXTURE. incant/pop/decodeT produces the quantities; this harness
+   compares them. Its sentinel is checked FIRST and by name.
+  ok    decodeT exits 0
+  ok    decodeT sentinel (run reached the end)
+  ok    corpus holds 82 terms
+  FAIL  82 of them carry a definition (got '0', want '82')
+  FAIL  every term is defined (got '0', want '82')
+  FAIL  decodeT recorded 5 green checks (got '4', want '5')
+  FAIL  decodeT self-cert green -- expected line not produced: SELF-CERT ok
+  FAIL  undefined term fails loud, by name -- expected line not produced: decode UNDEFINED TERM  notATermAnybodyMinted
+  ok    parked declares itself an unratified slot
+  ok    parked carries candidateA (the dispatch)
+  ok    parked carries candidateB (SEQ 44 PINCH 6)
+  ok    byteIdentical declares itself reserved
+  ok    decodeT writes nothing to stderr
+
+-- THE RUNNER. incant/pop/decode serves a decode line and dumps the corpus.
+  ok    decode exits 0
+  ok    decode sentinel (run reached the end)
+  ok    decode produced output (vacuity guard)
+  ok    corpus dump + decode line = 85 definition rows
+  ok    no entry's definition printed as the string 'definition'
+  FAIL  decode line served H4 by its own words -- expected line not produced: never absence-of-message
+  FAIL  decode line served H7 by its own words -- expected line not produced: measured, not inferred
+  FAIL  decode line served blastRadius by its own words -- expected line not produced: every stream diffed
+  ok    decode writes nothing to stderr
+
+  FAIL  SELF-CERTIFICATION: only 14 green checks recorded, expected
+        at least 18. Either helpers vanished or the run stopped early.
+checks green = 14
+DECODER POP FAILED -- see the rows above.
