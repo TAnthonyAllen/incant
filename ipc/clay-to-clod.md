@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 254 -- 5.8 built on om-stroke58, not merged, zero movers, sealed on the branch; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -10763,3 +10763,56 @@ R4. Standing line in CLAUDE.md beside the absence doctrine: a census of a struct
 DO: section 24 from SEQ 165's data with R2's wording; the stroke-5 status paragraph; seal.
 
   END SEQ 253
+
+
+===================================================================
+SEQ 254  -  STROKE 5.8: RETIRE parentStuff (shape (c), try-and-buy)
+===================================================================
+STATUS: cleared -- om-stroke58 pushed, NOT merged: 5.8a 1f4890b row for row; 5.8b b5c937f ZERO movers (witness: 5,820 answers did change, no row reads them); 5.8c 8ee880e row for row, groups.ext :773 kept to merge (removal wipes trunk's canary). H7 R4: 860 -> 655. NO HUNT 3 of 7 (bracket by R5, getStuff copy). Sealed on the branch.
+
+RULINGS
+R1. Shape (c): RuleStuff.parentStuff is deleted; every reader asks the activation list.
+R2. Built on branch om-stroke58, pushed, NOT merged. Tony buys after reading the movers.
+R3. One helper, enclosingStuff, in GroupRules in its alpha slot beside enclosingFace: the nearest
+    enclosing activation's stuff (the 5.7 tap's comparison becomes the code). Every reader calls
+    it; none walks the list on its own.
+R4. Leaf methods push no activation, so enclosingStuff tells whether the top activation is the
+    asker's own; if so it answers with the one below. The only new logic; its H7 must show it.
+R5. The F-114 bracket loses only its parentStuff slot.
+
+THREE COMMITS, fleet after each, one variable at a time
+5.8a the agreeing readers: add enclosingStuff; switch getStuff, parseRule's repair,
+     parseContainer's repair, attachLabel's trace. Certificate: pop.sh row for row, jitLadder and
+     printPop pass.
+5.8b the two leaf exits: exitFromParse's sync and attach. The 5,820 answers change; measure the
+     fleet, name every mover with its sentence. Do not chase or fix; the movers are the purchase.
+5.8c the field goes: writers (ctor, aCTionDefinE, the repairs' writes, the bracket slot), the
+     field, groups.ext :773. Layout change: full bare-tokall diff, canary. Fleet row for row with
+     5.8b.
+CERTIFICATE: NO HUNT reads 1 of 7 (enclosingFace only). H7 for R4: break the own-activation test in
+a throwaway build, name the rows that go red; none red => R4 unwitnessed, say so.
+STOP IF: at 5.8b a mover that does not trace to a leaf exit; any crash; a reader needing the caller
+across a floor; 5.8a not row for row.
+REPORT: what was run, the fleet line at a, b, c; movers table; evidence. Seal on the branch.
+
+  END SEQ 254
+
+
+===================================================================
+SEQ 255  -  STROKE 5.8 BOUGHT: MERGE om-stroke58
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+
+RULINGS
+R1. Tony buys 5.8. Merge om-stroke58 into trunk.
+R2. At the merge, delete groups.ext :773 and the RuleStuff ivar. Certify with a full bare tokall: the
+    diff is exactly those lines, canary noted.
+R3. The IA2 trace's listParent column is accepted as-is.
+
+DO: merge; remove the mirror line and the ivar; retok bare and install; full checklist (pop.sh row for
+row with 5.8c, jitLadder, printPop, sealCaptures diff empty); objectModel.md stroke-5 status:
+parentStuff retired, NO HUNT 3 of 7 with each remaining site named; seal on trunk.
+NEXT ON THE DOCKET (not this dispatch): parentLabel as a cached copy of enclosingStuff().label
+(stroke 5.9, recon first).
+
+  END SEQ 255

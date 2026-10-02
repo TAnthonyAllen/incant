@@ -444,12 +444,11 @@ GroupItem 	*lab = stuff->label;
 		{
 		const char *pName  = pStuff->ruleName ? pStuff->ruleName : "(none)";
 		const char *pPar   = pStuff->parentLabel ? pStuff->parentLabel->groupBody->tag : "(null)";
-		const char *ppName = (pStuff->parentStuff && pStuff->parentStuff->ruleName)
-		? pStuff->parentStuff->ruleName : "(none)";
-		const char *ppLab  = (pStuff->parentStuff && pStuff->parentStuff->label)
-		? pStuff->parentStuff->label->groupBody->tag : "(null)";
+		RuleStuff *lp = ::enclosingStuff(this,stuff);
+		const char *ppName = (lp && lp->ruleName) ? lp->ruleName : "(none)";
+		const char *ppLab  = (lp && lp->label) ? lp->label->groupBody->tag : "(null)";
 		const char *sPar   = stuff->parentLabel ? stuff->parentLabel->groupBody->tag : "(null)";
-		::fprintf(stderr,"    IA2 DROP  lab=%s  pRule=%s  pStuff.parentLabel=%s  pStuff.parentStuff=%s pp.label=%s  stuff.parentLabel=%s\n",
+		::fprintf(stderr,"    IA2 DROP  lab=%s  pRule=%s  pStuff.parentLabel=%s  listParent=%s lp.label=%s  stuff.parentLabel=%s\n",
 		lab->groupBody->tag,pName,pPar,ppName,ppLab,sPar);
 		}
 		
@@ -1409,8 +1408,9 @@ char *why = 0;
 		{
 		stuff = new RuleStuff(getRStuff());
 		}
-	if ( stuff->parentStuff = pStuff )
-		stuff->parentLabel = stuff->parentStuff->label;
+	// listParent the enclosing activation's label, never pStuff's -- they agreed on every call measured (recon 24c)
+	if ( ::enclosingStuff(this,stuff) )
+		stuff->parentLabel = ::enclosingStuff(this,stuff)->label;
 	if ( !stuff->followed )
 		stuff->getWhatFollows(this);
 	return stuff;
