@@ -1,0 +1,49 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(UnrunIfP);
+define
+    uiF=0;
+    uiT=1;
+    uiN=0;
+    uiOut;
+    uiH;
+    uiUnrun code={
+        if uiF;
+            uiN = 1;
+        };
+    uiRun code={
+        if uiT;
+            uiN = 7;
+        };
+    uiElse code={
+        if uiF;
+            uiN = 1;
+        else
+            uiN = 5;
+        };
+    ;
+uiOut = uiUnrun();
+cerr "UI UNRUN value=" uiOut " tag=" uiOut.taG " uiN=" uiN:;
+uiOut = uiRun();
+cerr "UI RUN value=" uiOut " tag=" uiOut.taG " uiN=" uiN:;
+uiOut = uiElse();
+cerr "UI ELSE value=" uiOut " tag=" uiOut.taG " uiN=" uiN:;
+uiF = 9;
+uiOut = uiUnrun();
+cerr "UI UNRUN-after-uiF=9 (should now run) value=" uiOut " uiN=" uiN:;
+uiF = 0;
+uiH := uiUnrun();
+cerr "UI HOLD unrun tag=" *uiH.taG " plain=" uiH.taG:;
+uiH := uiElse();
+cerr "UI HOLD else tag=" *uiH.taG " plain=" uiH.taG:;
+cerr "UI SENTINEL":;
+stop();
+
+unrunIf -- SEQ 261 item 4 (P6's open question). An IF whose arm does not run hands back its CONDITION's value (the
+UI HOLD unrun row: the returned node IS the field uiF), and a run arm hands back the live assignment target (uiN).
+Values ruling 1-5 (2026-09-25) says a construct hands its parent a value and an unrun IF hands back nothing.
+Banked 2026-10-02 from the SEQ 261 re-read.

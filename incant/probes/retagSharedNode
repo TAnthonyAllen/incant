@@ -1,0 +1,17 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+define
+    rtX=0;
+    ;
+traceParse();
+cerr "RT ONE":;
+cerr "RT TWO":;
+print "RT THREE":;
+cerr "RT SENTINEL":;
+stop();
+
+retagSharedNode -- F-134 (SEQ 262 R3). Under traceParse, read the ADOPTION and attachLabel lines: CerR returns the
+shared singleton `true`; fireLabelMethod adopts it as the label (stuff.label = actionMethod(label)), and
+attachLabel's promote arm (`lab.tag = pStuff.ruleName`) renames it -- true -> WardeD -> StatemenT -- so every later
+CerR/PrinT returns a node tagged "StatemenT". Banked 2026-10-02 from the SEQ 261 re-read.

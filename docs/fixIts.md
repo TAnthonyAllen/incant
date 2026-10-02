@@ -92,6 +92,53 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-134 — RETAGCARRY's trunk road: adopting an action's return and retagging it at attach renames shared nodes
+
+**What.** fireLabelMethod adopts an action's return as the label (`stuff.label = stuff.actionMethod(stuff.label)`),
+and attachLabel's promote arm then renames whatever was adopted (`pStuff.label = lab; lab.tag = pStuff.ruleName`).
+When the action returns a SHARED node, the shared node is renamed for the rest of the run: CerR and PrinT return the
+singleton `true`, which becomes "WardeD" and then "StatemenT"; Iterate returns the live field s2C, which becomes
+"StatemenT". A silent wrong answer: anything later reading the node's tag reads the rule's name. It is the trunk road
+of step 1's RETAGCARRY (which the replay did explicitly); values ruling 1-5 (2026-09-25) makes it unconstructable at
+parse-then-fire step 2, where no ordinary action fires before attach.
+**Where.** `GroupItem.twk` fireLabelMethod (the adoption, ~:715) and attachLabel's promote arm (~:234-237).
+**Evidence.** `incant/probes/retagSharedNode` under traceParse: `RT ONE` -- `ADOPTION kind=PROPERTY rule=CerR
+returned=true`, then `attachLabel lab=true ... pRule=WardeD`, `attachLabel lab=WardeD ... pRule=StatemenT`; `RT TWO` --
+`ADOPTION ... rule=CerR returned=StatemenT`. And incant/pop/adoptT's trace: `ADOPTION kind=FIELD rule=Iterate
+returned=s2C`, then `attachLabel lab=s2C ... pRule=StatemenT`.
+**Done when.** A shared or live node returned by an action keeps its own tag through the attach (a fixture reads
+`true`'s tag after a top-level cerr, and s2C's after an Iterate), with an H7 -- or the row closes with step 2's value
+handoff, named as its certificate.
+**Owner.** Clod (SEQ 262 R3).
+```
+ATTEMPT LOG
+  2026-10-02 found by the SEQ 261 re-read (an agent probe), re-run by Clod and banked as incant/probes/retagSharedNode.
+    Not fixed.
+```
+
+### F-135 — plant 4: `fLAG` read as "recycle this label" can catch Braced's "this InvokeArg is a subscript"
+
+**What.** aCTionBraced sets fLAG on its own label to mean "subscript" (read by aCTionTokenXP's subscript arm);
+attachLabel's unwrap arm sets fLAG to mean "recycle this label in place"; checkInput's label mint reads fLAG as
+"recycle", reusing the stored label instead of minting one. If Braced's flagged label is still its rule's stored label
+at the next Braced match, the second subscript reuses the node already attached as the first's InvokeArg. Step 1's
+plant 4 on the parse-then-fire branch (deferNatT's "stale parent" turned out to be this). deepClean D-23 path C->D.
+**Where.** `ruleActions.rtn` aCTionBraced (~:89, `input.fLAG = true`); `GroupItem.twk` attachLabel unwrap arm (~:266);
+`RuleStuff.twk` checkInput's label mint (~:97, `if !label || !label.fLAG`, else recycle).
+**Evidence.** Pointable by reading (above). **NOT REPRODUCED ON TRUNK:** `incant/probes/twoSubscripts` and
+`incant/probes/subscriptShapes` read right on six shapes (two subscripts in one expression both orders, three in one
+statement, a subscript as an index, one inside a call argument, top level and in an action run twice), 2026-10-02.
+On the branch it showed only under step 1's replay. The cure is Tony's choice (branch jitDesign P8, A7): a second bit
+for "subscript", or the opGet shape rewrite (`field[x]` -> `opGet field x`), which retires Braced's subscript arm.
+**Done when.** Either a reproducing input on trunk is found and pinned red, or the cure lands and the "subscript" and
+"recycle" meanings no longer share a bit (a zero-overlap census of fLAG's writers and readers by meaning).
+**Owner.** Clod (SEQ 262 R3).
+```
+ATTEMPT LOG
+  2026-10-02 two probes, six shapes, all green on trunk (twoSubscripts, subscriptShapes). Filed as ruled; the
+    reproduction is owed.
+```
+
 ### F-131 — a count whose generic flag is set from kant stops incrementing: `x :. flaG; ++x` leaves x unchanged
 
 **What.** `opPlusPlus` reads the iterator poison (`fLAG`) for EVERY operand at its top, before it tests isIterator, so a

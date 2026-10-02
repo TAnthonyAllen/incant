@@ -1,0 +1,27 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(ProbeP4);
+define
+    p4A p4A0=1 p4A1=2;
+    p4B p4B0=30 p4B1=400;
+    p4I p4I0=2 p4I1=1;
+    p4Id code={ return argument; };
+    p4Run code={
+        p4R3 = p4A[1] + p4B[2] + p4A[2];
+        p4RN = p4A[p4I[1]];
+        p4RC = p4Id(p4B[2]) + p4A[1];
+        cerr "P4-3 three   p4A[1]+p4B[2]+p4A[2] = " p4R3 " (want 403)":;
+        cerr "P4-N nested  p4A[p4I[1]]          = " p4RN " (want 2)":;
+        cerr "P4-C call    p4Id(p4B[2]) + p4A[1] = " p4RC " (want 401)":;
+        };
+    ;
+p4Run();
+p4Run();
+cerr "PROBE plant4b SENTINEL":;
+stop();
+
+subscriptShapes -- F-135 (plant 4, SEQ 262 R3). Three more subscript shapes beyond twoSubscripts: three in one
+statement, a subscript as an index, a subscript inside a call argument; run twice. All read right on trunk
+2026-10-02 -- plant 4 is pointable by reading and NOT yet reproduced on trunk. Subscripts are 1-based.

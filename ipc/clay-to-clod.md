@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -10975,7 +10975,7 @@ REPORT: fleet line per stroke first, then probe results, the main log, the branc
 ===================================================================
 SEQ 261  -  PARSE-THEN-FIRE RE-READ (read-only) + TWO HOUSEKEEPING ITEMS
 ===================================================================
-STATUS: STOPPED by the stop condition -- Control 6 (control read at fire time) vs the signed OM (isBranch -> ParseActivation, gone at return). Reported in clod-to-clay SEQ 166 with every measurement; R1 housekeeping done; ptfReread.md not written, not sealed.
+STATUS: cleared -- stopped on the control-signal home, ruled in SEQ 262, resumed: docs/ptfReread.md written; sealed.
 
 RULINGS
 R1. main: fast-forward it to trunk and push, so GitHub's default branch is current. checkinput-state:
@@ -11011,3 +11011,23 @@ the signed object model -- report, do not resolve; a tap that will not revert cl
 REPORT: the counts and the options table first, then evidence.
 
   END SEQ 261
+
+
+===================================================================
+SEQ 262  -  CONTROL-SIGNAL HOME RULED; SEQ 261 RESUMES
+===================================================================
+STATUS: cleared -- OM amended (row 88, F-O15, 2026-10-02 row + firing-level finding); F-134 (RETAGCARRY trunk road, reproduced) and F-135 (plant 4, filed as ruled, NOT reproduced on six shapes) filed; docs/ptfReread.md written; sealed.
+
+RULINGS
+R1. The control signal (break, continue, return) is execution state. It lives in P4's ruler slot, bracketed at
+    processAction, with one writer and read by the firing parent. It does not go on ParseActivation, and no
+    snapshots are taken.
+R2. Object-model amendment, dated today: row 88 and F-O15 are revised. isBranch is the firing level's state, not
+    the parse activation's. Record the finding beside it: parse-then-fire adds a firing level that the three-level
+    model does not name; its shape is designed with step 2.
+R3. File two fixit rows, owner Clod: RETAGCARRY's trunk road (the true node and s2C renamed to "StatemenT"); plant 4,
+    the fLAG subscript recycle. Both are pointable silent wrong answers on trunk today.
+DO: resume SEQ 261 from the banked data. Write docs/ptfReread.md, carrying the P4 home as ruled; port shape (iii)
+becomes concrete. Seal.
+
+  END SEQ 262
