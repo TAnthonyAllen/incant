@@ -11141,3 +11141,32 @@ Stop conditions: a fleet mover not named; a live case-12 use the census missed.
 Report: the fleet line first. Seal. Next dispatch: the step-1 rebuild plan.
 
   END SEQ 267
+
+
+===================================================================
+SEQ 268  -  STEP-1 REBUILD PLAN (plan and recon, nothing built)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+
+RULINGS
+R1. Step 1 is rebuilt on trunk's model (SEQ 263 R1). This dispatch PLANS it and builds nothing. Inputs:
+    docs/ptfReread.md, docs/ptfStep2Plan.md, docs/overlapCensus.md, and the parse-then-fire branch, read-only.
+R2. The firing level the object-model amendment named gets its shape designed here -- what a record is, where it
+    lives, its scope, its lifetime. Visible to tok (no new field tok cannot see); its label must not collide with
+    ParseActivation.label (bear-trap #58, the naming rule).
+R3. The :. refusal covers every unregistered flag name; Tony accepts it. Note it in docs/flagCensus.md.
+R4. Riders: a CLAUDE.md line -- kill only by a process ID read first, never by name pattern (2026-10-02,
+    pkill -f 'cat'); search Groups, support and TOK for Dropbox "conflicted copy" files and report.
+The plan covers: the firing level (records, replay frame, recording scope -- ruling A: a drive is its own root --
+and how it sits beside branchKind); replay without activations (labels enough, or keep something; S8 interaction);
+Rule C (each of the 18 attach-time reads, name resolution 9 + label shape 9: step 1 at replay, or step 2 only);
+the plants (1 unwrapsOnAttach, 2 fire-time keyword check, 3 replay never sets fLAG, 4 / T3) and whether the fLAG
+A-D split belongs in step 1; the switch (PTF=0 trunk-identical from the same binary); a pre-registered certificate
+(M1 identity on a named fixture list; M2 parse-time ordinary fires 0 at PTF=1; the conservation row; an error-diff
+with every mover named); frontier's new stations; strokes in order, sized, each with its certificate.
+Deliverable: docs/ptfStep1Plan.md; seal.
+Stop conditions: the plan needs a field tok cannot see; the plan contradicts one of Tony's rulings.
+Report: the stroke list and the open rulings first; evidence after.
+
+  END SEQ 268
+
