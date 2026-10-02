@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11036,7 +11036,7 @@ becomes concrete. Seal.
 ===================================================================
 SEQ 263  -  PTF SHAPE (iii)->(ii): T1 AND T2 ON TRUNK
 ===================================================================
-STATUS: STOPPED in T1a on an unnamed mover -- oldRoad column do/se red on StatemenT|break; (the branchKind slot leaks out of a drive: driveStep is not a frame). Measured cure: bracket driveStep (a 4th frame) -> fleet 861 + the named 10. T1a parked on branch t1-p4 (pushed, not merged); trunk restored row for row. R2 and R5 landed (9ca0bbe). T1b and T2 not started.
+STATUS: cleared -- stopped at T1a (drive frame), ruled in SEQ 264, resumed: T1a 221f31a, T1b, T2 84e4ce4 landed and sealed; R2/R5 9ca0bbe.
 
 RULINGS
 R1. Port shape is (iii) then (ii). T1 and T2 land on trunk now. Step 1 is then rebuilt on trunk's model from the
@@ -11061,7 +11061,7 @@ REPORT: the fleet line per stroke first, then evidence. Seal each.
 ===================================================================
 SEQ 264  -  T1a: DRIVES ARE branchKind FRAMES
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+STATUS: cleared -- T1a landed with both drive brackets (221f31a), every frame's H7 red (fire and probe brackets unmasked, H17; probeFrameT added); T1b isBranch retired; T2 F-134 closed (84e4ce4). Sealed.
 
 RULINGS
 R1. driveStep is a branchKind frame: save, clear, restore. A drive is its own execution root (the 09-25
