@@ -113,3 +113,50 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 - **Confirm:** route its fire through `driveStep` (the jitted carrier swap would need a seat there), then the drive
   census row in `pop.sh` drops `jitEmitters.rtn:jitProbeDrive` and reads 3; every `probeDrive` fixture row for row.
 - **Seen:** 2026-10-01.
+
+## Seeded, already gone
+
+Seeded 2026-09-28 from the dispatch. A source census shows each was already deleted, so there is nothing to cut.
+
+| item | deleted in | census |
+|---|---|---|
+| F-56's `fireNewParse` (`Commands.rtn`) | `1dd73d6` -- Tier 1 of the parseMethod= deletion (SEQ 188) | 0 references in `*.twk *.rtn *.h`; only docs and the channel mention it |
+| `parseGeneric` (`RuleStuff.twk`) | `2bfa808` -- Task 2 (SEQ 192) | 0 references in `*.twk *.rtn *.h` |
+
+## Done
+
+### `establishFrame` and `parse()`'s local `parentLabel` -- CUT 2026-10-02 (stroke 5.9b, SEQ 257 R4)
+- **Were:** `GroupItem::establishFrame` (0 callers; a counting tap read 0 calls; its header claimed to be the single
+  writer of parentLabel) and `parse()`'s local `parentLabel` (written, never read; listed since SEQ 240/242).
+- **Cut** with the field in 5.9b (`cdad9c8`): full bare tokall shows exactly those lines gone; fleet row for row.
+  `establishFrame`'s `groups.ext` line (:321) goes at merge with the field's mirror line.
+
+### `dupCensus`
+- **What/where:** `genParse.rtn:136`, registered `dupCensus immediateAction;` in `incant/setup`, and a groups.ext line.
+- **What it was for:** the complete two-faces census for F-110 (Clay, 2026-09-23). It walks every reachable node and
+  asks each `dupTermRefusal`.
+- **Callers:** 0 in any incant, `IncantForms`, `.sh` or `.twk`/`.rtn` file; only its own registration. Its sibling
+  `dupTermRefusal` is live (`IncantForms/WorkingOn/parser:13`, above its `bail()`) and is **not** a candidate.
+- **Cost of cutting:** the extern, the setup line and the groups.ext line, in one stroke with the rebuild (#31). It
+  loses a re-runnable instrument; F-110's record keeps the numbers it produced.
+- **Confirm:** the census above re-run at cut time; fleet row for row.
+- **Seen:** 2026-09-30.
+- **CUT 2026-09-30:** extern, setup registration and groups.ext line removed; canary 316 -> 315; fleet row for row
+  (the mirror-arity row counts 283 comparable names, one fewer, drift still 0).
+
+### `compile`'s pending-carrier re-filing block -- DELETED 2026-09-29 (SEQ 225 item 2)
+- **Was:** `Commands.rtn:56-68` (`pendingToProperties`), moving a `pendingParseR` carrier and its `CodE` from the
+  terms to the property lists.
+- **Measured before the cut:** a temporary log across the whole checklist (pop.sh, jitLadder, decodePop, ddPop,
+  countPop, printPop, frontier): **4,307 arrivals with a carrier present, 0 carrier moves, 0 CodE moves** --
+  `parser:43-44` file both with `+<` since SEQ 224. Deleted with the fleet row for row.
+
+### `isLabel` as "do not clear" on action locals -- a second meaning (SEQ 248 R5, banked, not fixed)
+- **Where:** `processAction`, GroupActions.rtn:713 (`result.isLabel = true;` on an action-body local bound to a label
+  child), read back at :720 (`if isLocal && !isLabel ...` skips the entry clear).
+- **Why it looks cuttable:** `isLabel` otherwise means "a parse minted this as a rule's label" (checkInput, with
+  `labelOf`). Here it means "this local holds a label child; do not clear it" -- one flag, two meanings, and the
+  locals carry no `labelOf`.
+- **Confirm:** a census of every `isLabel` reader, each read classified by meaning; a separate flag for the local
+  case, fleet row for row.
+- **Seen:** 2026-10-01 (stroke 5.6a mint-site census).
