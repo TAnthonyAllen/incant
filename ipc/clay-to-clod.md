@@ -10873,3 +10873,23 @@ STOP IF: any fleet mover; any reader found to want the live slot rather than the
 REPORT: what was run and the fleet line per commit, then evidence. Seal on the branch.
 
   END SEQ 257
+
+
+===================================================================
+SEQ 258  -  STROKE 5.9 BOUGHT: MERGE om-stroke59
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+
+RULINGS
+R1. Tony buys 5.9. Merge om-stroke59 into trunk.
+R2. At the merge, delete groups.ext :768 and :321. Full bare tokall: the diff is exactly the RuleStuff
+    ivar and the establishFrame declaration; canary noted.
+R3. Delete the merged branches om-stroke58 and om-stroke59, local and remote (Tony's OK).
+R4. objectModel.md: stroke 5's NO HUNT goal met -- 0 of 7 sites search for a parent. One finding
+    line: the bracket and getStuff's inProcess copy carry per-call state (label, hereAt, kount,
+    sukcess) on the shared RuleStuff; by the three-level target it belongs on the activation. A
+    finding, not a stroke.
+DO: merge; mirror lines; retok bare, install; checklist (pop.sh row for row with 5.9b, jitLadder,
+printPop, sealCaptures diff); R3, R4; seal on trunk. Next after the seal: the deep-clean recon.
+
+  END SEQ 258
