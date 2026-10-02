@@ -40,13 +40,11 @@ define
     exit immediateAction=processFlags;
     fail immediateAction=processFlags noPrint;
     file immediateAction=setInternalType noPrint;
-    generateCode immediateAction;
     getFile immediateAction;
     getLine immediateAction=getMarkLineAt;
     getType immediateAction;
     grammarHolds immediateAction;
     index immediateAction=processFlags noPrint;
-    interpretBC immediateAction=interpretBC;
     isList immediateAction=processFlags noPrint;
     isRule immediateAction=processFlags noPrint;
     jitRefire immediateAction=jitRefire;
@@ -70,7 +68,6 @@ define
     regex immediateAction=setInternalType noPrint;
     register immediateAction=rEGISTER noPrint;
     reset immediateAction=resetField;
-    runByteFn immediateAction=runByteFn;
     setFile immediateAction=setFile;
     setMark immediateAction;
     setParse immediateAction;
@@ -108,10 +105,10 @@ define
     deref   unary ruleMethod=opDeref;
     '?';
     '>>';
-    '>='    operateMethod=opGE  interpretMethod=runGE  jitEmitter=jitEmitGE;
-    '>'     operateMethod=opGT  interpretMethod=runGT  jitEmitter=jitEmitGT;
+    '>='    operateMethod=opGE  jitEmitter=jitEmitGE;
+    '>'     operateMethod=opGT  jitEmitter=jitEmitGT;
 
-    '=='    operateMethod=opEQ  interpretMethod=runEQ  jitEmitter=jitEmitEQ;
+    '=='    operateMethod=opEQ  jitEmitter=jitEmitEQ;
     '=['    operateMethod=opGet;
     '=]'    operateMethod=opEnd;
     '=/'    operateMethod=opGetMember;
@@ -119,11 +116,11 @@ define
     '=<'    operateMethod=opGetProperty;
     '='     operateMethod=opAssign;
 
-    '<='    operateMethod=opLE  interpretMethod=runLE  jitEmitter=jitEmitLE;
+    '<='    operateMethod=opLE  jitEmitter=jitEmitLE;
     '<<';
     '<:'    operateMethod=opSetTag;
     '<-'    operateMethod=opRebind;
-    '<'     operateMethod=opLT  interpretMethod=runLT  jitEmitter=jitEmitLT;
+    '<'     operateMethod=opLT  jitEmitter=jitEmitLT;
 
     ':>';
     ':='    operateMethod=opSetGroup;
@@ -154,37 +151,14 @@ define
     '+%'    operateMethod=opAddAttribute;
     '+<'    operateMethod=opAddProperty;
     '+/'    operateMethod=opAddMember;
-    '+'     operateMethod=opPlus  interpretMethod=runPlus  jitEmitter=jitEmitAdd;
+    '+'     operateMethod=opPlus  jitEmitter=jitEmitAdd;
     '*='    operateMethod=opMultiplyEQ;
-    '*'     operateMethod=opMultiply  interpretMethod=runMultiply  jitEmitter=jitEmitMul  accessClass;
+    '*'     operateMethod=opMultiply  jitEmitter=jitEmitMul  accessClass;
     '@'     unary ruleMethod=opLastREF;
     '&';
     '%'     operateMethod=opRem;
-    '!='    operateMethod=opNotEQ  interpretMethod=runNotEQ  jitEmitter=jitEmitNE;
+    '!='    operateMethod=opNotEQ  jitEmitter=jitEmitNE;
     '!'     unary ruleMethod=opNOT;
-    ;
-/*******************************************************************************
-	bcOPs — bytecode opcodes (control flow + stack ops). A SEPARATE registry,
-	deliberately NOT in Operators: these names are emitted into bcLIST as
-	bare-name fields by the generator (emitBC(bcPushLit=tmp), bcBRZ +% target),
-	so if they were operator-tokens the emitter source would fail to parse (it
-	did — the 2026-05-30 fold experiment). Instead bcOPs is added to the search
-	list, so bare references resolve here as names and the emitted op inherits
-	its interpretMethod= handler; interpret() then dispatches via grup.interpret like
-	everything else.
-*******************************************************************************/
-registry(bcOPs);
-define
-    bcBR         interpretMethod=runBR;
-    bcBRZ        interpretMethod=runBRZ;
-    bcCALL       interpretMethod=runCall;
-    bcRET        interpretMethod=runRET;
-    bcPushLit    virtual interpretMethod=runPushLit;
-    bcPushField  virtual interpretMethod=runPushField setPointer;
-    bcStoreField interpretMethod=runStoreField;
-    bcForNext    interpretMethod=runForNext;
-    bcPrint      interpretMethod=runPrint;
-    bcString     interpretMethod=runString;
     ;
 /*******************************************************************************
 	pROPERTIEs is a base registry defined on startup and extended here
@@ -430,16 +404,17 @@ include(grammar);
     suppressions -- so the not-isPointer clause in all four unwrap lines is a
     never-true condition with no live customers. `deref` is its successor.
 
-    ⚠ `opPointer` THE EXTERN SURVIVES: it is still reached as the `setPointer`
-    definition-time command in the cOMMANDs registry above, used by bcPushField,
-    which is a different spelling with a real user.
+    ⚠ `opPointer` THE EXTERN SURVIVED as the `setPointer` definition-time command,
+    used by bcPushField -- which retired with the bytecode road (deepClean S4,
+    2026-10-02). Whether setPointer has any user left is on docs/cleanupList.md.
 
 
     5. THE THREE SLOTS -- operateMethod, interpretMethod, jitEmitter
 
     The star operator is the step-2 pathfinder, the first op to carry a jitEmitter.
     Three slots, three consumers, one op: operateMethod is the interpreter,
-    interpretMethod is the bytecode handler, jitEmitter is the JIT. They sit side by
+    interpretMethod was the bytecode handler (retired with the bytecode road,
+    deepClean S4, 2026-10-02), jitEmitter is the JIT. They sit side by
     side deliberately; installing the third disturbs neither of the first two, which
     is what makes the migration one op at a time.
 

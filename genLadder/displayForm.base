@@ -1,4 +1,4 @@
-Search list: Grokking Generating UnitTests bcOPs Utilities
+Search list: Grokking Generating UnitTests Utilities
 == CASE 1: a leaf -- attributes, no members == 
 dfLeaf 
 	leafOne does not have method 

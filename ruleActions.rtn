@@ -438,13 +438,7 @@ GroupItem   StatemenT:,
 *******************************************************************************/
 extern GroupItem aCTionExpressioN(GroupItem xpList)
 {
-    /* Thin dispatcher over two mode-handlers (jitXP folded out 2026-06-30, JIT
-       unified-emit-on-walk pivot step 1): jitting now falls through to
-       interpretXP. jitRunAction still raises generating alongside jitting, so
-       generating is checked first — under jitting+generating, generateXP's
-       by-reference revisedList still wins; interpretXP only fires under plain
-       interpretation or, going forward, under jitting-without-generating. */
-    if generating   return generateXP(xpList);
+    // oneMode interpretXP serves interpretation and the jit alike; the bytecode road's generateXP retired with it (deepClean S4, 2026-10-02)
     return interpretXP(xpList);
 }
 
@@ -700,29 +694,6 @@ extern GroupItem aCTionPrinT(GroupItem input)
 GroupRules  ruler   = groupRules;
 GroupItem   stuff:;
 GroupItem   grup;
-    /***********************************************************************
-        Generating branch — currently UNUSED on the bytecode print path
-        (gPrinT passes the statement to bcPrint; runPrint calls aCTionPrinT
-        with generating false). Kept (a) because it's the future home for real
-        operand compilation and (b) because its presence keeps stuff: resolving
-        to `input` in codegen. Never entered while generating is false.
-    ***********************************************************************/
-    if generating {
-        GroupItem   revisedList = new("revisedList");
-        while grup = stuff.nextAttribute(grup) {
-            use grup
-            if noPrint  continue;
-            GroupItem   FormaT:,
-                        ExpressioN:,
-                        result;
-            if ExpressioN   result = ExpressioN;
-            else            result = grup;
-            -%
-            %-
-            if FormaT   result += FormaT;
-            revisedList += result; }
-        input.group = revisedList;
-        return input; }
     // ⚠ THE EMIT-TIME WALK MUST BE EFFECT-FREE -- a print that fires at compile time
     // jittedPrint is worse than one that does not print, because it appears to work
     // ⚠ CALLED AT tok LEVEL, NOT FROM PASSTHROUGH -- as passthrough this hit both
@@ -955,13 +926,6 @@ use input
         // statementScope  been raised during the MATCH and never reached a method at all
         clearRefusal(statement);
         return outcome; }
-    or generating
-        if !gText && isGROUP {
-            GroupItem xpStatement = group;
-            input.clear();
-            text    = "gXpress";
-            input   +% xpStatement; }
-        or gText eq "gFOR" doNothing = 0;
     return input;
 }
 
@@ -1017,16 +981,6 @@ GroupItem   swap,
             UnaryOPS:,
             InvokeArg = xpress["InvokeArg"],
             ANYtoken = xpress["ANYorNum"];
-    if generating && !isPRINTING {
-        // Bare the simple field-ref operand for the generating path: mirror the
-        // non-generating normalization below (xpress.group = ANYtoken) so
-        // aCTionExpressioN's unwrap (while grup.isGROUP grup = grup.group)
-        // reaches the bare field instead of depositing the TokenXP wrapper.
-        // Invoke / unary / dot operands are left raw for now (Brief 2026-06-04).
-        if isGROUP  ANYtoken = group;
-        if !InvokeArg && !UnaryOPS && registry != groupFields
-            xpress.group = ANYtoken;
-        return xpress; }
     xpress.clear();
     if isGROUP  ANYtoken = group;
     // leadingDotNumber `.5` is refused by name and the term stays a harmless primary, so the statement is silenced rather than the file abandoned (F-117)
@@ -1293,82 +1247,6 @@ plainFold:
     return folded;
 }
 
-
-/*******************************************************************************
-    generateXP — the `generating` mode: build a flat-RPN revisedList from the
-    parsed expression and emit nothing (the bytecode walk emits later). Members
-    are added BY REFERENCE; gXpress launders them with copyOf at bytecode-emit
-    time. (jitXP, its copyOf-on-append twin for the JIT lowering, was folded out
-    2026-06-30 — JIT now falls through to interpretXP per the unified
-    emit-on-walk pivot; see docs/jitDesign.md.)
-*******************************************************************************/
-extern GroupItem generateXP(GroupItem xpList)
-{
-GroupItem   op, target, arg, xl, token;
-GroupItem   revisedList = new("revisedList");
-GroupItem   grup, store, tgt;
-    if xpList.listLength == 1 {
-        arg = xpList.firstInList;
-        -%
-        %-
-        revisedList += arg; }
-    else {
-        /******************************************************************
-            Mirror the non-generating walk's op/target/arg identification
-            (right-to-left, precedence-correct via the same state machine),
-            but emit flat RPN instead of building the runOP tree: for each
-            completed instruction emit target, then arg (when a leaf), then
-            op; for '=' emit the value then a bcStoreField carrying target.
-        *******************************************************************/
-        // No-operator expression (a bare operand sequence, e.g. the print
-        // operands `"hello" name`): the RPN walk below only emits when it
-        // completes an op+target, so with no operator it produces an EMPTY
-        // revisedList and the clear() below would destroy the tokens. Detect
-        // that and leave xpList intact so aCTionPrinT/appendGroup can print
-        // the operands directly. (Operator expressions fall through to RPN.)
-        GroupItem   hasOp, tk;
-        while tk = xpList.prior(tk)
-            if tk.isOperator   hasOp = tk;
-        if !hasOp {
-            xpList.isLIST       = true;
-            xpList.reversePrint = true;
-            return xpList; }
-        while token = xpList.prior(token) {
-            grup = token;
-            // Operator-skip guard: never unwrap an operator. Operators carry
-            // their interpret=/operateMethod= as attributes (e.g. > has
-            // interpret=runGT), which is the dispatch handler gXpress/
-            // interpretBC need — unwrapping would dis-member the op.
-            if grup.isGROUP && !grup.isOperator
-                while grup.isGROUP
-                    grup = grup.group;
-            if grup.isOperator   op = grup;
-            else {
-                if !arg arg = grup;
-                or op   target = grup; }
-            if op
-                if target {
-                    if op.tag eq "=" {
-                        if !arg.method   revisedList += arg;
-                        store = copyOf(bcOPs["bcStoreField"]);
-                        tgt = new("target");
-                        tgt.group = target;
-                        store +% tgt;
-                        revisedList += store; }
-                    else {
-                        revisedList += target;
-                        if !arg.method   revisedList += arg;
-                        revisedList += op; }
-                    xl = new("xl");
-                    xl.method   = runOP;
-                    op = 0;
-                    target = 0;
-                    arg = xl; }}}
-    dumpContents(revisedList);
-    xpList.clear();
-    xpList.group = revisedList;
-    return xpList;
-}
 
 /*  handleCall -- the `(` arm. No operator: the falsy op is what tells runOP this is
     an invocation rather than an operation. ⚠ THE RECURSION STAMP LIVES HERE and

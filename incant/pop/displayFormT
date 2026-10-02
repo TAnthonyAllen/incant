@@ -47,7 +47,7 @@ include(generate);
 include(utilities);
 
 search reset stack Grokking;
-search Generating UnitTests bcOPs Utilities list;
+search Generating UnitTests Utilities list;
 
 register(FormT);
 define

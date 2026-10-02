@@ -1,4 +1,9 @@
 /*******************************************************************************
+    REFERENCE ONLY, 2026-10-02 (deepClean S4). The bytecode road this file drove is
+    retired, with no interpretBC, no bcOPs registry and no generateCode left in the
+    engine. Kept as kant template material by Tony's ruling of 2026-09-30, not as a
+    running road.
+
 	Types registry is a list of the types associated with field data. Referenced
     in getType(). Isn't it nice we can use quotes to define a field tag.
     Note: type tags use C++ syntax for pointer to type

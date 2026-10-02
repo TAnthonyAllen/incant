@@ -406,24 +406,6 @@ extern int hasRepeatClass(String modifier)
 }
 
 
-// interpretMethod bind a bytecode op's handler on a PERSISTENT interpret child, so interpretBC dispatches it in place; the op's own slots stay clear
-extern GroupItem interpretMethod(GroupItem input)
-{
-String      name = text;
-GroupItem   interp;
-use input
-    if input.fLAG
-        if name {
-            GroupItem   grup = parent;
-            if grup {
-                interp = addString("interpret");
-                interp.method = dlsym(RTLD_SELF,name); }
-            else    cerr "interpretMethod: no parent to attach interpret to":; }
-        else    cerr "interpretMethod: expected a handler name in text":;
-    else    cerr "interpretMethod: should be invoked as a definition attribute":;
-    return group;
-}
-
 
 // jitSeedOperands seed both operands for the emitter -- a literal as a constant, anything else as a field
 extern void jitSeedOperands(GroupItem target,GroupItem arg)

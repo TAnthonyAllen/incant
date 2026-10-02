@@ -137,45 +137,6 @@ GroupItem   grup;
 
 
 /*******************************************************************************
-    This is the simplified generateCode command method that leaves dirty work
-    to the incant actions in the incant generate file
-*******************************************************************************/
-extern GroupItem generateCode(GroupItem field)
-{
-GroupRules  ruler = groupRules;
-    if !generator       generator = locate("generator");
-GroupItem   generate    = generator["generatE"];
-    if generate.isCoded
-        if !processCode(generate,generate)   return null;
-use field
-    generating = true;
-    if isCoded
-        if !processCode(field,field)      return null;
-    generating = false;
-GroupItem   BlocK:;
-GroupItem   bcLIST      = new("bcLIST");
-    groupList   = new;
-    noPrint     = true;
-    field   +% bcLIST;
-    bcLIST = generator.replace(bcLIST);
-    if !generator   cerr "generateCode: could not find generator":;
-    else {
-        generate = generator["generatE"];
-        if !generate    cerr "generateCode: could not find generatE() action":;
-        or BlocK {
-            cout "generateCode: running on",field.tag:;
-            runAction(BlocK,generate); }}
-    // Copy the accumulated instructions from generator's bcLIST back to the
-    // action's own bcLIST. Both slots are kept by design; this just brings the
-    // action's copy up to date after generation runs (emitBC accumulates into
-    // generator's bcLIST via :generator bcLIST).
-GroupItem   fieldList   = field.getAttribute("bcLIST");
-    dumpContents(fieldList);
-    byRef   = true;
-    return fieldList;
-}
-
-/*******************************************************************************
     getFile reads the field passed in as a file spec and loads the field buffer
     (creating it if necessary) with text read in from the file. Returns the
     loaded field.

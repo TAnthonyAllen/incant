@@ -192,8 +192,6 @@ GroupItem   action;
     groupFields = getRegistry("GroupFields");
     commands    = getRegistry("cOMMANDs");
     files       = getRegistry("fILEs");
-    bcOPs       = getRegistry("bcOPs");
-    bcOPs.isOperator    = true;
     addBaseRegistry(properties);
     addBaseRegistry(opFields);
     addBaseRegistry(commands);

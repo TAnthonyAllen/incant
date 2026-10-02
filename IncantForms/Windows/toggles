@@ -3,7 +3,7 @@ include(unitTests);
 include(generate);
 include(utilities);
 initFORMs();
-search Generating bcOPs list;
+search Generating list;
 
 register(FORMs);
 define

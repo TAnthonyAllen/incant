@@ -18,7 +18,6 @@
 #include "regex.h"
 #include "RuleStuff.h"
 #include "GroupStak.h"
-#include "Bytecode.h"
 #include "PLGset.h"
 #include "PLGrgx.h"
 #include "PLGitem.h"

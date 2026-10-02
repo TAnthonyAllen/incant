@@ -14,40 +14,14 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 - **Seen:** 2026-09-28.
 - **Re-measured 2026-09-29 (SEQ 224, F-O38 closed by `+<`):** pendingParseR 30,208 -> **0**. But the site still skips **120 locals** -- `this` 60 and `tempField` 60, on coded rules (JSONfield 42+42, JSONarray 9+9, ScafA 4+4, list 3+3, ask 2+2). **So it is NOT deletable as it stands:** it has become a LOCAL skipper, the same class as `setParseWalk`, `compile` x2 and `dupTermRefusal`, which stay by ruling. Leave the entry for Tony to strike or keep.
 
-### The Bytecode road -- RULED RETIRE (Tony, 2026-09-30). The cut is its own stroke on another day; this is its list.
-- **Ruling:** the Bytecode road is retired; the JIT is the one path. **`incant/generate` is KEPT** as template material
-  (interesting kant code, reference for a while) -- not deleted, not attic'd.
-- **Live callers: 0** (census 2026-09-30, first entry of this section's history): the handlers are reached only through
-  `interpretBC` -> `runByteFn` -> an op's `interpret` sub-attribute; `interpretBC`'s one caller is `incant/generate`'s
-  `generateAction`, whose only calls (`incant/pop/oneTest:85-95`) sit below oneTest's `stop()`.
-- **THE EXACT CUT LIST.**
-  1. **C++ -- `Bytecode.twk` / `.mm` / `.h` whole**: 21 externs (`interpretBC`, the dispatch loop; `runByteFn`;
-     `opStackOf`; `runBR` `runBRZ` `runCall` `runEQ` `runForNext` `runGE` `runGT` `runLE` `runLT` `runMultiply`
-     `runNotEQ` `runPlus` `runPrint` `runPushField` `runPushLit` `runRET` `runStoreField` `runString`) and the dummy
-     `class Bytecode`. `TOK.xcodeproj`: 8 references.
-  2. **`interpretMethod`** -- the attribute handler `GroupActions.rtn:399` and its bootstrap in `GroupMain.twk:54-56`.
-  3. **groups.ext**: the `external Bytecode` line (3), the `external Bytecode.h` block (16-30, 12 externs), and
-     `interpretBC` / `interpretMethod` (553-554). The canary moves by the GroupRules-chain externs only
-     (`interpretMethod`; `interpretBC` lives in Bytecode.h) -- count at cut time, per H14.
-  4. **`incant/setup`**: the `interpretBC` (:55) and `runByteFn` (:79) command lines, and the **18** `interpretMethod=`
-     clauses -- 8 on Operators (`>= > == <= < + * !=`, :118-170) and 10 on bcOPs (:185-194). (The 19 counted earlier
-     included the prose on :180.) setup is read at runtime: these go in the same stroke as the rebuild (#31).
-  5. **`bcOPs` on search lines**: `registry(bcOPs)` (:183) and its 10 entries, and `bcOPs` on the **77** incant search
-     lines. Choice at cut time: keep an empty `bcOPs` registry (77 lines untouched), or drop it and edit 77 preambles.
-  6. **generateAction's callers below oneTest's stop()**: `incant/pop/oneTest:85-95` (and the parked sections
-     beneath it that call `generateCode`/`generateAction`). `Commands.rtn`'s `generateCode` (:179) is the C++ entry
-     and goes with them.
-  7. **oneTest's header** still points at `incant/generating`, which does not exist -- fix that line when the cut lands.
-  8. **CLAUDE.md**: the Phase Bytecode sections and the `testByteCode` / `testIfElse` status text.
-- **WHAT THE CUT MUST ANSWER FIRST, ANSWERED 2026-09-30 (probe, reverted md5-identical):** does `incant/generate` still
-  load once the C++ road is gone? With `incant/setup`'s bytecode side stripped (the two command lines and all 18
-  `interpretMethod=` clauses) against today's binary, **`oneTest` -- which does `include(generate)` -- is
-  byte-identical, and pop.sh reads 861 / 1 row for row.** generate names `interpretBC` only inside `generateAction`'s
-  `code={}` body, which compiles lazily; nothing in it names a removed command at define time. **So the outcome is the
-  first one: generate stays where it is, with a header line marking it reference only, not a running road.** The
-  audit pin and oneTest's include need no re-pin. (Not yet measured: a binary with the externs actually removed; the
-  cut stroke re-runs this probe on it.)
-- **Seen:** 2026-09-30.
+### The `setPointer` command (-> `opPointer`) -- no user left (seen 2026-10-02, deepClean S4)
+- **Where:** `incant/setup:74` `setPointer immediateAction=opPointer noPrint;` and `opPointer`, Instruct.rtn:1246.
+- **Why it looks cuttable:** its one user was `bcPushField`'s `setPointer` clause in the bcOPs registry, which retired with
+  the bytecode road. Census 2026-10-02 over incant/**, IncantForms/**, genLadder, jitLadder, *.twk, *.rtn: no kant use of
+  the command. `GroupItem::setPointer(void*)` (GroupItem.twk:1799, used by GroupDraw.twk:130) is a different method and is
+  live.
+- **Confirm:** cut the registration and `opPointer`; setup is read at runtime, so rebuild in the same commit (#31); fleet
+  row for row.
 
 ### `genParse.rtn` -- the file name, not its contents (a move, not a cut)
 - **What/where:** the header says this is "what is left of the C++ parse-method emitter" (retired by mapping 2026-09-26).
@@ -103,6 +77,16 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 | `parseGeneric` (`RuleStuff.twk`) | `2bfa808` -- Task 2 (SEQ 192) | 0 references in `*.twk *.rtn *.h` |
 
 ## Done
+
+### The Bytecode road -- CUT 2026-10-02 (deepClean S4, SEQ 260; ruled 2026-09-30)
+- Cut: `Bytecode.twk/.mm/.h` and their 8 TOK.xcodeproj references; `interpretMethod` and its bootstrap; `generateCode`;
+  the `generating` mode (`generateXP` and the branches in aCTionExpressioN, aCTionPrinT, aCTionStatemenT, aCTionTokenXP,
+  jitEmitters' reset); `bcOPs` dropped whole (R4) -- the GroupRules members `bcOPs`, `generator`, `generating`, the
+  GroupControl init, the setup registry and its 8 Operators clauses, the 77 search lines; groups.ext 23 lines; oneTest's
+  dead-region calls and its two stale header lines; CLAUDE.md's Phase Bytecode text. `incant/generate` stays as reference
+  with a header line saying so, and still loads (oneTest exit 0).
+- Certificate: full bare tokall, deletions only plus two comments; canary 304 -> 301; fleet row for row with S3 but the
+  mirror-arity census (270 -> 255, the 15 cut externs with definitions).
 
 ### `labelMinters`, `allAttributesOptional()`, parse()'s `definer`/`defStuff` -- CUT 2026-10-02 (deepClean S3, SEQ 260)
 - Cut with the rest of S3's dead code (deepClean D-11 to D-16). The generated diff is exactly the deletions plus two

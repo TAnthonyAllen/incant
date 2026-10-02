@@ -195,15 +195,13 @@ extern int jitBuildFunction(GroupItem action)
     B.CreateStore(llvm::ConstantInt::get(i32, 0), gJitResultSlot);
 
     GroupRules *ruler = GroupControl::groupController->groupRules;
-    // Unified JIT emit-on-walk (pivot, 2026-06-30): jitting ONLY — generating stays
-    // OFF so aCTionExpressioN's dispatcher routes to interpretXP (runOP trees), NOT
-    // generateXP (flat revisedLists). Parsing builds the runOP trees; EXECUTING the
+    // Unified JIT emit-on-walk (pivot, 2026-06-30): jitting ONLY (the bytecode road's
+    // generating mode retired, deepClean S4). Parsing builds the runOP trees; EXECUTING the
     // BlocK runs them, and each opMethod's jitting gate emits LLVM in place (the
     // runOP seeding gate seeds leaves first). The interpret walk owns its traversal
     // and never re-parents live nodes — the structural cure for the by-reference
     // operand-stack corruption the deferred jitXpress path hit.
     ruler->jitting = 1;
-    ruler->generating = 0;
     //  R1's ONE MECHANISM, first of its two call sites. Between functions the
     //  obligation is identical to the one gJitSeeded's header states between
     //  compiles -- an llvm::Value is valid only inside the function that defined

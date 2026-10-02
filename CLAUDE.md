@@ -9,7 +9,7 @@ Read `projectBible.md` for the full ecosystem context (PLG/TAWK/Incant).
 
 Incant is the third project in the ecosystem: **PLG recognizes, TAWK transforms, Incant reasons.**
 
-Incant is a reflexive, homoiconic, stack-aware language. Code and data have the same structure — a GroupItem field IS the rule that describes it. Programs construct, inspect, and rewrite their own structure. The bytecode IR is itself a tree of GroupItems, walked by an `interpret()` written in incant.
+Incant is a reflexive, homoiconic, stack-aware language. Code and data have the same structure — a GroupItem field IS the rule that describes it. Programs construct, inspect, and rewrite their own structure. Execution is the interpreter walking the cached BlocK, and the JIT emits LLVM IR straight from that same BlocK (the bytecode road retired 2026-10-02).
 
 The runtime is C++/Objective-C++; the language surface is `.twk` source compiled to `.mm` via TAWK.
 
@@ -26,22 +26,20 @@ Groups/
 ├── GroupControl.{twk,mm,h} — Factory + registry manager. Singleton (groupController). itemFactory
 │                              path is gone; constructors are now the only path.
 ├── GroupRules.{twk,mm,h}   — Recursive-descent parser/runtime. pushInput/popInput, checkSkip,
-│                              setGuard, action dispatch. The bytecode gating hook lives at
-│                              GroupRules.mm:786.
+│                              setGuard, action dispatch.
 ├── GroupMain.{twk,mm,h}    — main() entry point. Bootstraps, loads input, runs parse.
 ├── GroupDraw.{twk,mm,h}    — Drawing primitives for GUI work (HPDL).
 ├── GroupList.{twk,mm,h}    — DoubleLinkList wrapper.
 ├── GroupStak.{twk,mm}      — Stack support for the runtime.
 ├── RuleStuff.{twk,mm,h}    — Rule metadata: labels, guards, repetition, onSuccess/onFail wiring.
 ├── GroupHash.{twk,mm,h}    — Hash-based GroupItem lookup.
-├── Bytecode.{mm,h}         — Phase Bytecode interpreter handlers (runBR, runBRZ, etc.)
 ├── parts.twk, action.twk   — Supporting source.
-├── Generate.rtn            — Runtime: generateCode() bridge from C++ into incant emitter.
+├── Generate.rtn            — The new-road parse executors (exitFromParse, parseRule, enclosingStuff, ...).
 ├── GroupActions.rtn        — Runtime action definitions.
 ├── grammar                 — Bootstrap grammar — 32 seed rules.
 ├── groupIncludes           — Include manifest for the build.
 ├── groupDirectives         — TAWK directive file for Incant classes.
-├── incant/                 — Active incant source files (setup, grammar, generate, bytecode,
+├── incant/                 — Active incant source files (setup, grammar, generate (reference only),
 │                              directives, oneTest, unitTests, utilities). Promoted from
 │                              XML/WorkingOn/ on 2026-05-29.
 ├── XML/                    — Window-definition DSL files. 12 subdirs of GUI material
@@ -218,11 +216,14 @@ getRegistry("RegistryName");   // named registry
 
 ---
 
-## Phase Bytecode
+## Phase JIT (the bytecode road is RETIRED)
 
-The old C++-source emit path is being **abandoned**, not preserved. The new
-target is **bytecode as canonical IR**, represented as GroupItems so incant
-code can construct and walk it.
+**THE BYTECODE ROAD WAS CUT 2026-10-02 (deepClean S4, SEQ 260; ruled 2026-09-30).** Gone: `Bytecode.twk/.mm/.h`
+(`interpretBC`, `runByteFn`, the `run*` handlers), `interpretMethod`, `generateCode`, the `generating` mode and
+`generateXP`, the `bcOPs` registry and its 77 search-line mentions, and the GroupRules members `bcOPs`, `generator`,
+`generating`. **`incant/generate` stays as reference only** (Tony's ruling, 2026-09-30). The pipeline, the settled
+bytecode decisions and the `testByteCode`/`testIfElse` status that lived here are in git history before that cut;
+`docs/deepClean.md` D-17 has the cut list.
 
 **THE JIT REPLACES THE INTERPRETER (Tony's plan, written down 2026-07-29).** It is not an
 accelerator running beside an interpreter that stays — the JIT *becomes* the interpreter, one
@@ -240,68 +241,6 @@ generated from bytecode" plan is superseded. Full rationale:
 into exactly two files: `docs/jit.md` (what is true today, every claim dated)
 and `docs/jitDesign.md` (settled premises + open work). Six older JIT docs were
 deleted in that pass; they are in git history if a reasoning trail is wanted.**
-
-### Pipeline
-
-1. Parse builds GroupItem trees (unchanged).
-2. `generateCode(action)` in `Generate.rtn` — C++ entry. Looks up the incant
-   `generatE` action and runs it.
-3. `generatE` (in `incant/generate`) — top-level emitter. Walks
-   fields and dispatches via `runGenerated`.
-4. `runGenerated` — dispatch hub. Looks up handler in the `generator`
-   registry by statement kind.
-5. Per-statement handlers (`gBlocK`, `gIF`, `gFOR`, `gWhilE`, `gDO`,
-   `gExpressioN`, `gXpress`, `gPrinT`, `gDeclare`) — emit bytecode
-   GroupItems. **`gIF`, `gXpress`, and the `aCTionExpressioN`-built
-   `revisedList` (the `gExpressioN` path) are live** — they carry
-   `testByteCode` to `maximus = 26` (see Status).
-6. `interpret(bytecode)` — the dispatch loop. Written in incant
-   (`incant/bytecode`). Walks the bytecode stream; each op
-   GroupItem's `interpret` sub-attribute is the handler.
-
-### Settled design decisions
-
-1. **Op identity** — an instruction's tag IS the op GroupItem itself. Drawn
-   from `Operators` (for `>`, `*`, `=`) plus `bcOPs` (for `bcBR`, `bcBRZ`,
-   `bcRET`).
-2. **Two registries** — `Operators` and `bcOPs` are separate. User code
-   walking `Operators` should not see control-flow ops.
-3. **Implicit-next dispatch** — instructions are members of the body in
-   execution order. Branch ops override by reassigning `grup` mid-loop.
-4. **Bytecodes are GroupItems.** No vregs as separate objects — "a virtual
-   register is just a GroupItem field."
-
-### Status
-
-| Component | State |
-|---|---|
-| `interpret()` (in incant) | ✅ Written |
-| `Bytecode.{h,mm}` (C++ handlers) | ✅ Written |
-| Gating hook in `GroupRules.mm:786` | ✅ Wired (falls through to gMethod when no bytecode) |
-| `bcOPs` registry | ✅ Defined |
-| `gIF` emitter | ✅ emit correct — then *and* else arms (condition via `gXpress`, `bcBRZ`→`elseLabel`/`endLabel`, then-branch, `bcBR`, `elseLabel`, else body, `endLabel`); **unique labels** `bcLabel<n>` via `:=` + `labelIndex` (2026-06-10) |
-| `gXpress` emitter | ✅ Live — emits push-ops/operators from a `revisedList`'s members |
-| `gExpressioN` path | ✅ Live — `aCTionExpressioN` builds the `revisedList` that `gXpress` walks |
-| `testByteCode` / `testIfElse` end-to-end | ✅ **branches taken** — `testByteCode` false→11, `testIfElse`→26, both through the **C++ `interpretBC`** dispatch loop (9-op / 13-op `bcLIST`) |
-
-**The branch works — via the C++ dispatch loop (resolved 2026-06-11).** The 2026-06-09 deep
-dive (`docs/branch-mechanism.md`) concluded the branch wasn't expressible in interpreted
-incant and prescribed moving the dispatch loop to C++. A 2026-06-10 claim that the incant
-`interpretBC` took the branch was a **shape-read** — under a clean run it fell straight
-through (`testByteCode`→26, `testIfElse`→7). Two entangled incant blockers were the cause:
-(A) `grup := result` **welds** the test variable to the branch-target node (bear-trap #3 —
-`=`/setContent can't re-tag, so it can't be reset); (B) `aCTionFOR` advances its **own**
-C++ cursor, so a body `:=` can't steer iteration. The fix was Clay's: a small **C++
-`interpretBC`** (`GroupActions.rtn`) with a plain C++ cursor — no `:=`/byRef weld, and
-`nextGroup` is stateless so it relocates to an arbitrary branch-target member cleanly.
-`runByteFn` returns the target stream-member on a taken branch; the loop relocates by tag,
-else `nextMember`. Also fixed: `runBR` (Bytecode.twk) now mirrors `runBRZ`'s attribute-walk
-(was a dead `getFromList("dst")`). Verified: `testByteCode` false→**11**, `testIfElse`
-true→**26** (init `maximus=11`; no-op→11/11, straight-through→26/7, correct branching→11/26).
-The incant `interpretBC` is retired; `branch-mechanism.md` is vindicated (kept as the
-reasoning trail; see `docs/branch-dispatch-findings.md` for the resolution). Remaining:
-broaden the bytecode-generation POP (more statement forms, `gPrinT` proper emit, `gDeclare`,
-real field refs vs folded values).
 
 ### Incant Dispatch Idiom (IMPORTANT)
 Two steps — never chain:
@@ -334,36 +273,13 @@ oneTest, unitTests, utilities) now live at the top-level `incant/` directory
 ## Current State
 
 ### Working ✅
-- Incant parses and interprets itself
-- BDWGC integration complete (Phase 0)
-- `generateCode()` repurposed as bytecode emitter entry point (Phase 1)
-- Bytecode interpreter: **C++ `interpretBC` dispatch loop** (`GroupActions.rtn`) + C++ op handlers (`Bytecode.twk`/`.mm`)
-- Gating hook wired at `GroupRules.mm:786`
-- Emit path is live and correct: `gIF` (then **and** else arms), `gXpress`, and
-  the `gExpressioN`/`revisedList` path all emit; the C++ `interpretBC` runs the stream.
-  `testByteCode` emits a 9-op `bcLIST`, `testIfElse` a 13-op `bcLIST`, and `testPrint`
-  produces `"hello world"` (via the `gPrinT` thunk).
-  **Branch execution works (2026-06-11) via the C++ `interpretBC`:** `testByteCode` false→11
-  and `testIfElse` true→26 run correctly (init `maximus=11`; only correct branching yields
-  11/26). The plain C++ cursor sidesteps the `:=`/byRef weld and `aCTionFOR`'s non-steerable
-  advance that blocked the incant loop; `runBR` was also fixed to mirror `runBRZ`'s
-  attribute-walk. The incant `interpretBC` is retired. See `docs/branch-dispatch-findings.md`.
+- Incant parses and interprets itself; BDWGC integration complete.
+- The JIT emits LLVM IR straight from the ops/BlocK (`docs/jit.md`); `jitLadder/ladder.sh` certifies it.
+- The object-model redesign's stroke 5 is complete: no site hunts for a parent (`docs/objectModel.md`).
 
-### In Progress
-- **Broaden the bytecode-generation POP.** Branch execution is **done** — it works via the
-  C++ `interpretBC` dispatch loop (see above). Next proof points as generation work
-  continues: more statement forms, real field references vs folded values, `gPrinT` proper
-  emit, `gDeclare`. (`docs/branch-mechanism.md`'s C++-dispatch conclusion was vindicated;
-  kept as the 2026-06-09 reasoning trail.)
-
-### Next
-- `gPrinT` proper bytecode emit (currently a thunk that re-fires `aCTionPrinT`)
-- `gDeclare` verification
-- More test cases beyond `testByteCode` / `testIfElse`
-- Phase JIT: LLVM IR straight from the ops/BlocK (parallel to bytecode, not from it) (HPDL)
-
-**Out of scope for current arc:** `Bytecode.mm` into the incantGUI Xcode
-target. Phase Bytecode proceeds via the command-line C++ compiler path.
+### In Progress / Next
+- The deep clean (`docs/deepClean.md`), stroke by stroke; the current opener is always `docs/wakeup.md`'s top seal.
+- The bytecode road is retired (see Phase JIT above); nothing in this section depends on it any more.
 
 ---
 
@@ -905,26 +821,6 @@ nobody re-ran.
 > whole section exists to prevent — and it arrives **disguised as diligence**, because the rows are
 > right there and they do have values. A two-outcome prediction has nowhere to put a voided run,
 > and that absence is itself the pressure to misreport it.
-
-```
-testByteCode / testIfElse fixtures in incant/generate; init maximus=11, righty=13 (unitTests:82)
-  testByteCode code={ if righty <= 0; maximus = righty * 2; };
-    emit (9 ops): bcPushField 13 · bcPushLit 0 · <= · bcBRZ ·
-                  bcPushField 13 · bcPushLit 2 · * · bcStoreField · bcLabel1
-    outcome: maximus = 11  ✅ — bcBRZ branches past the then-arm (false condition)
-  testIfElse code={ if righty > 0; maximus = righty * 2; else maximus = 7; };
-    emit (13 ops): … bcBRZ→bcLabel2 … bcBR→bcLabel1 · bcLabel2 · …else… · bcLabel1
-    outcome: maximus = 26  ✅ — then runs, bcBR jumps to bcLabel1 skipping else
-  Both run through the C++ `interpretBC` dispatch loop (2026-06-11). Labels are the
-  unique, space-free `bcLabel1`/`bcLabel2` ($-suppressed). Only correct branching in
-  both directions yields 11/26 (no-op→11/11, straight-through→26/7).
-```
-
-Note: `oneTest` currently runs `generateAction(testByteCode); stop();` at the top, so
-`testByteCode` (→ `maximus = 11`) runs directly from `oneTest`. For `testIfElse` (or any
-other fixture) drive it with a small scratch file that includes `unitTests`/`generate`/
-`utilities`, sets the search list, then `generateAction(<fixture>); stop();` — single pass
-(a second generate on the same action still hits the sequential-state-corruption tar baby).
 
 `Tests/test.json` — sample widget definition for JSON/XML parsing exercises.
 
@@ -1555,7 +1451,8 @@ Hard-won lessons. Each one has cost real debugging time.
    the explicit `=name` form.
 
 8. **`setGroup: cannot add group to itself`** — benign but noisy. Caused by a redundant
-   `:generator bcLIST` rebind inside `emitBC` scope.
+   `:generator bcLIST` rebind inside `emitBC` scope. (Historical: `emitBC` belongs to the
+   bytecode road, retired 2026-10-02; `incant/generate` keeps the text as reference.)
 
 9. **JIT gate: `else jitSeedField` assumes a non-literal operand is a real field.** In
    `aCTionExpressioN`'s jitting branch, an operand that isn't a literal is routed to
@@ -3238,11 +3135,11 @@ direction the campaign might take, it is a state the machinery must report as a 
 testing(actionName);
 ```
 
-Scratch verification harness in `Commands.rtn`. Primes a fresh list-typed `bcLIST`
-on the generator (same way `generateCode` does), runs the named action's body against
-it, returns `generator["bcLIST"]` for inspection.
+Scratch verification harness in `Commands.rtn`. ⚠ **The bcLIST priming this section used to
+describe retired with the bytecode road (2026-10-02).** Today `testing()` routes by `isCoded`:
+`jitRunAction` for a coded action, else `jitRunIfTest` (bear-trap #25).
 
-Use instead of `generateCode` for isolated emit verification — run it, dump the
+Use it for isolated emit verification — run it, dump the
 result, verify the structure before wiring into real code. When the next verification
 need arises, rewrite the C++ body to focus on it. No new command method needed.
 

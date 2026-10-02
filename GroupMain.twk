@@ -51,13 +51,6 @@ GroupItem   item;
     isMethod            = true;
     noPrint             = true;
 
-    item = new("interpretMethod");
-    commands            += item;
-    method              = interpretMethod;
-    immediateACTION     = true;
-    isMethod            = true;
-    noPrint             = true;
-
     item = new("jitEmitter");
     commands            += item;
     method              = jitEmitter;

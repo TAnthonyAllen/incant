@@ -4,7 +4,7 @@ include(generate);
 include(utilities);
 
 search reset stack Grokking;
-search Generating UnitTests bcOPs Utilities list;
+search Generating UnitTests Utilities list;
 
 /*  rStuff audit -- HERE, not in GroupMain, because this is the first point at
     which all the definitions are in place. The invariant is isRule IMPLIES has
@@ -13,9 +13,10 @@ search Generating UnitTests bcOPs Utilities list;
 audit();
 
 /*****************************************************************************
-    ⚠ THE FIVE generateAction ROWS THAT USED TO SIT HERE ARE GONE, MOVED TO
-    incant/generating BY TONY'S RULING, 2026-08-16. They are QUARANTINED, not
-    deleted, and the file above them explains why: the generator campaign is
+    ⚠ THE FIVE generateAction ROWS THAT USED TO SIT HERE ARE GONE. Tony's ruling
+    of 2026-08-16 sent them to a quarantine file, incant/generating, that was never
+    written, and the bytecode road they ran retired 2026-10-02 (deepClean S4).
+    The reason they left still holds: the generator campaign is
     INACTIVE while the grammar actively moves, so a baseline over it pins a
     moving target and turns every grammar edit into re-attribution work on rows
     nobody owns.
@@ -33,8 +34,7 @@ audit();
     in a check that was just re-pinned.
 
     ⚠ SO WHAT DOES THIS FILE STILL CERTIFY? The audit, and only the audit. The
-    baseline is correspondingly smaller. Anything wanting the generator runs
-    incant/generating on demand.
+    baseline is correspondingly smaller. incant/generate stays as reference only.
 *****************************************************************************/
 /*****************************************************************************
     ⚠ THE OPERATIVE stop() IS THE ONE DIRECTLY BELOW. TONY'S RULING, 2026-08-03:
@@ -46,7 +46,7 @@ audit();
     they go, so scratch accumulates below the stop.
 
     ⚠ WHAT THE BASELINE CERTIFIES, AND IT IS THE WHOLE OF IT:
-    genLadder/oneTest.base certifies THE FIVE generateAction ROWS ABOVE AND
+    genLadder/oneTest.base certifies THE rStuff AUDIT ABOVE AND
     NOTHING BELOW THIS LINE. Nothing under this stop has ever executed under it.
     Verified by marker: "hello world", "dumpBC for", "testGXLeaf", "Unit Tests"
     and "printDefinition" all appear ZERO times in a full run.
@@ -75,24 +75,6 @@ audit();
     carried this edit and the keep-or-clean call is Tony's.
 *****************************************************************************/
 stop();
-/*****************************************************************************
-	Bytecode print generation — POP target: testPrint -> "hello world"
-	Placed FIRST so the aCTionPrinT breakpoint trips on the testPrint generate
-	pass rather than after testByteCode's many print/dump calls.
-*****************************************************************************/
-generateCode(testPrint);
-dumpContents(testPrint);
-generateAction(testPrint);
-
-generateCode(testByteCode);
-dumpContents(testByteCode);
-generateAction(testByteCode);
-
-generateCode(testGXLeaf);
-print testGXLeaf.bcLIST:;
-
-generateCode(testIfElse);
-
 /*****************************************************************************
 	Unit Tests
 *****************************************************************************/

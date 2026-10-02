@@ -190,8 +190,6 @@ GroupItem 	*action = 0;
 	groupRules->groupFields = getRegistry("GroupFields");
 	groupRules->commands = getRegistry("cOMMANDs");
 	groupRules->files = getRegistry("fILEs");
-	groupRules->bcOPs = getRegistry("bcOPs");
-	groupRules->bcOPs->groupBody->flags.instructType = 2;
 	addBaseRegistry(groupRules->properties);
 	addBaseRegistry(groupRules->opFields);
 	addBaseRegistry(groupRules->commands);

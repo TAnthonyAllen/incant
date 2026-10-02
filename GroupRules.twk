@@ -34,7 +34,6 @@ struct ParseActivation
                 currentRegistry,
                 debugJunk,
                 baseRegistryList,
-                bcOPs,
                 commands,
                 files,
                 grokking,
@@ -53,7 +52,6 @@ struct ParseActivation
                 labelNO,
                 lastREF,
                 lastStatement,
-                generator,
                 maxLimit,
                 printSPACE,
                 repeatLimit,
@@ -99,7 +97,6 @@ struct ParseActivation
             defining
             divertToRule
             endParse
-            generating
             jitting
             ignoreThis
             ignoreNoPrint

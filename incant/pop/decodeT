@@ -154,7 +154,7 @@ define
     ;
 
 search reset stack Grokking;
-search Generating UnitTests bcOPs Utilities Decoder DecodeTest list;
+search Generating UnitTests Utilities Decoder DecodeTest list;
 
 print "=== A. COUNT ===":;
 checkCount();

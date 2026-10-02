@@ -26,7 +26,7 @@ include(utilities);
 include(decoder);
 
 search reset stack Grokking;
-search Generating UnitTests bcOPs Utilities Decoder list;
+search Generating UnitTests Utilities Decoder list;
 
 /*  ---- THE DECODE LINE -- edit this and run --------------------------- */
 print "=== decode ===":;

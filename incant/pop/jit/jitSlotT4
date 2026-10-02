@@ -3,7 +3,7 @@ include(unitTests);
 include(generate);
 include(utilities);
 search reset stack Grokking;
-search Generating UnitTests bcOPs Utilities list;
+search Generating UnitTests Utilities list;
 
 /*****************************************************************************
     jitSlotT4 -- BATCH TWO OF THE SWEEP, AND THE MILESTONE. 2026-08-17.

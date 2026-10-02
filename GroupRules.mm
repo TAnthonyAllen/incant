@@ -573,14 +573,7 @@ GroupItem 	*grup = dtext->groupBody->groupList->firstInList;
 *******************************************************************************/
 extern "C" GroupItem *aCTionExpressioN(GroupItem *xpList)
 {
-	/* Thin dispatcher over two mode-handlers (jitXP folded out 2026-06-30, JIT
-	unified-emit-on-walk pivot step 1): jitting now falls through to
-	interpretXP. jitRunAction still raises generating alongside jitting, so
-	generating is checked first — under jitting+generating, generateXP's
-	by-reference revisedList still wins; interpretXP only fires under plain
-	interpretation or, going forward, under jitting-without-generating. */
-	if ( GroupControl::groupController->groupRules->generating )
-		return generateXP(xpList);
+	// oneMode interpretXP serves interpretation and the jit alike; the bytecode road's generateXP retired with it (deepClean S4, 2026-10-02)
 	return interpretXP(xpList);
 }
 
@@ -896,35 +889,6 @@ extern "C" GroupItem *aCTionPrinT(GroupItem *input)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*stuff = input->getLabelGroup("stuff");
 GroupItem 	*grup = 0;
-	/***********************************************************************
-	Generating branch — currently UNUSED on the bytecode print path
-	(gPrinT passes the statement to bcPrint; runPrint calls aCTionPrinT
-	with generating false). Kept (a) because it's the future home for real
-	operand compilation and (b) because its presence keeps stuff: resolving
-	to `input` in codegen. Never entered while generating is false.
-	***********************************************************************/
-	if ( ruler->generating )
-		{
-		GroupItem 	*revisedList = new GroupItem("revisedList");
-		while ( grup = stuff->nextAttribute(grup) )
-			{
-			if ( grup->groupBody->flags.noPrint )
-				continue;
-			GroupItem *FormaT = grup->getLabelGroup("FormaT");
-			GroupItem *ExpressioN = grup->getLabelGroup("ExpressioN");
-			GroupItem *result = 0;
-			if ( ExpressioN )
-				result = ExpressioN;
-			else	result = grup;
-			
-			
-			if ( FormaT )
-				result->addMember(FormaT);
-			revisedList->addMember(result);
-			}
-		input->setGroup(revisedList);
-		return input;
-		}
 	// ⚠ THE EMIT-TIME WALK MUST BE EFFECT-FREE -- a print that fires at compile time
 	// jittedPrint is worse than one that does not print, because it appears to work
 	// ⚠ CALLED AT tok LEVEL, NOT FROM PASSTHROUGH -- as passthrough this hit both
@@ -1206,18 +1170,6 @@ GroupItem 	*sourceFile = new GroupItem("sourceFile");
 		clearRefusal(statement);
 		return outcome;
 		}
-	else
-	if ( ruler->generating )
-		if ( !input->groupBody->gText && isGROUP(input->groupBody->flags.data) )
-			{
-			GroupItem 	*xpStatement = input->getGroup();
-			input->clear();
-			xpStatement->setText("gXpress");
-			input->addAttribute(xpStatement);
-			}
-		else
-		if ( ::compare(input->groupBody->gText,"gFOR") == 0 )
-			ruleStuff->doNothing = 0;
 	return input;
 }
 
@@ -1318,19 +1270,6 @@ GroupItem 	*swap = 0;
 GroupItem 	*UnaryOPS = xpress->getLabelGroup("UnaryOPS");
 GroupItem 	*InvokeArg = xpress->get("InvokeArg");
 GroupItem 	*ANYtoken = xpress->get("ANYorNum");
-	if ( ruler->generating && !ruler->isPRINTING )
-		{
-		// Bare the simple field-ref operand for the generating path: mirror the
-		// non-generating normalization below (xpress.group = ANYtoken) so
-		// aCTionExpressioN's unwrap (while grup.isGROUP grup = grup.group)
-		// reaches the bare field instead of depositing the TokenXP wrapper.
-		// Invoke / unary / dot operands are left raw for now (Brief 2026-06-04).
-		if ( isGROUP(ANYtoken->groupBody->flags.data) )
-			ANYtoken = ANYtoken->getGroup();
-		if ( !InvokeArg && !UnaryOPS && ANYtoken->groupBody->registry != ruler->groupFields )
-			xpress->setGroup(ANYtoken);
-		return xpress;
-		}
 	xpress->clear();
 	if ( isGROUP(ANYtoken->groupBody->flags.data) )
 		ANYtoken = ANYtoken->getGroup();
@@ -2425,156 +2364,6 @@ GroupItem 	*frame = action->getProperty("frameSTAK");
 	return frame;
 }
 
-/*******************************************************************************
-    This is the simplified generateCode command method that leaves dirty work
-    to the incant actions in the incant generate file
-*******************************************************************************/
-extern "C" GroupItem *generateCode(GroupItem *field)
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	if ( !ruler->generator )
-		ruler->generator = GroupControl::groupController->locate("generator");
-GroupItem 	*generate = ruler->generator->get("generatE");
-	if ( isCoded(generate->groupBody->flags.actionType) )
-		if ( !::processCode(generate,generate) )
-			return 0;
-	ruler->generating = 1;
-	if ( isCoded(field->groupBody->flags.actionType) )
-		if ( !::processCode(field,field) )
-			return 0;
-	ruler->generating = 0;
-GroupItem 	*BlocK = field->getLabelGroup("BlocK");
-GroupItem 	*bcLIST = new GroupItem("bcLIST");
-	bcLIST->groupBody->groupList = new GroupList();
-	bcLIST->groupBody->flags.noPrint = 1;
-	field->addAttribute(bcLIST);
-	bcLIST = ruler->generator->replace(bcLIST);
-	if ( !ruler->generator )
-		::fprintf(stderr,"generateCode: could not find generator\n");
-	else {
-		generate = ruler->generator->get("generatE");
-		if ( !generate )
-			::fprintf(stderr,"generateCode: could not find generatE() action\n");
-		else
-		if ( BlocK )
-			{
-			::printf("generateCode: running on %s\n",field->groupBody->tag);
-			::runAction(BlocK,generate);
-			}
-		}
-	// Copy the accumulated instructions from generator's bcLIST back to the
-	// action's own bcLIST. Both slots are kept by design; this just brings the
-	// action's copy up to date after generation runs (emitBC accumulates into
-	// generator's bcLIST via :generator bcLIST).
-GroupItem 	*fieldList = field->getAttribute("bcLIST");
-	::dumpContents(fieldList);
-	fieldList->groupBody->flags.byRef = 1;
-	return fieldList;
-}
-
-/*******************************************************************************
-    generateXP — the `generating` mode: build a flat-RPN revisedList from the
-    parsed expression and emit nothing (the bytecode walk emits later). Members
-    are added BY REFERENCE; gXpress launders them with copyOf at bytecode-emit
-    time. (jitXP, its copyOf-on-append twin for the JIT lowering, was folded out
-    2026-06-30 — JIT now falls through to interpretXP per the unified
-    emit-on-walk pivot; see docs/jitDesign.md.)
-*******************************************************************************/
-extern "C" GroupItem *generateXP(GroupItem *xpList)
-{
-GroupItem 	*op = 0;
-GroupItem 	*target = 0;
-GroupItem 	*arg = 0;
-GroupItem 	*xl = 0;
-GroupItem 	*token = 0;
-GroupItem 	*revisedList = new GroupItem("revisedList");
-GroupItem 	*grup = 0;
-GroupItem 	*store = 0;
-GroupItem 	*tgt = 0;
-	if ( xpList->groupBody->groupList->listLength == 1 )
-		{
-		arg = xpList->groupBody->groupList->firstInList;
-		
-		
-		revisedList->addMember(arg);
-		}
-	else {
-		/******************************************************************
-		Mirror the non-generating walk's op/target/arg identification
-		(right-to-left, precedence-correct via the same state machine),
-		but emit flat RPN instead of building the runOP tree: for each
-		completed instruction emit target, then arg (when a leaf), then
-		op; for '=' emit the value then a bcStoreField carrying target.
-		*******************************************************************/
-		// No-operator expression (a bare operand sequence, e.g. the print
-		// operands `"hello" name`): the RPN walk below only emits when it
-		// completes an op+target, so with no operator it produces an EMPTY
-		// revisedList and the clear() below would destroy the tokens. Detect
-		// that and leave xpList intact so aCTionPrinT/appendGroup can print
-		// the operands directly. (Operator expressions fall through to RPN.)
-		GroupItem *hasOp = 0;
-		GroupItem *tk = 0;
-		while ( tk = xpList->prior(tk) )
-			if ( isOperator(tk->groupBody->flags.instructType) )
-				hasOp = tk;
-		if ( !hasOp )
-			{
-			xpList->groupBody->flags.binType = 3;
-			xpList->groupBody->flags.reversePrint = 1;
-			return xpList;
-			}
-		while ( token = xpList->prior(token) )
-			{
-			grup = token;
-			// Operator-skip guard: never unwrap an operator. Operators carry
-			// their interpret=/operateMethod= as attributes (e.g. > has
-			// interpret=runGT), which is the dispatch handler gXpress/
-			// interpretBC need — unwrapping would dis-member the op.
-			if ( isGROUP(grup->groupBody->flags.data) && !isOperator(grup->groupBody->flags.instructType) )
-				while ( isGROUP(grup->groupBody->flags.data) )
-					grup = grup->getGroup();
-			if ( isOperator(grup->groupBody->flags.instructType) )
-				op = grup;
-			else {
-				if ( !arg )
-					arg = grup;
-				else
-				if ( op )
-					target = grup;
-				}
-			if ( op )
-				if ( target )
-					{
-					if ( ::compare(op->groupBody->tag,"=") == 0 )
-						{
-						if ( !arg->groupBody->gMethod )
-							revisedList->addMember(arg);
-						store = ::copyOf(GroupControl::groupController->groupRules->bcOPs->get("bcStoreField"));
-						tgt = new GroupItem("target");
-						tgt->setGroup(target);
-						store->addAttribute(tgt);
-						revisedList->addMember(store);
-						}
-					else {
-						revisedList->addMember(target);
-						if ( !arg->groupBody->gMethod )
-							revisedList->addMember(arg);
-						revisedList->addMember(op);
-						}
-					xl = new GroupItem("xl");
-					xl->setMethod(::runOP);
-					op = 0;
-					target = 0;
-					arg = xl;
-					}
-			}
-		}
-	::dumpContents(revisedList);
-	xpList->clear();
-	xpList->setGroup(revisedList);
-	return xpList;
-}
-
 /***************************************************************************
 	Return a string from the stream passed in converting newLines to space
 ***************************************************************************/
@@ -3015,27 +2804,6 @@ RuleStuff 	*defStuff = 0;
 		defStuff->parseMethod = faceStuff->parseMethod;
 }
 
-// interpretMethod bind a bytecode op's handler on a PERSISTENT interpret child, so interpretBC dispatches it in place; the op's own slots stay clear
-extern "C" GroupItem *interpretMethod(GroupItem *input)
-{
-char 		*name = input->getText();
-GroupItem 	*interp = 0;
-	if ( input->groupBody->flags.fLAG )
-		if ( name )
-			{
-			GroupItem 	*grup = input->parent;
-			if ( grup )
-				{
-				interp = grup->addString("interpret");
-				interp->setMethod((GroupItem*(*)(GroupItem*))::dlsym(RTLD_SELF,name));
-				}
-			else	::fprintf(stderr,"interpretMethod: no parent to attach interpret to\n");
-			}
-		else	::fprintf(stderr,"interpretMethod: expected a handler name in text\n");
-	else	::fprintf(stderr,"interpretMethod: should be invoked as a definition attribute\n");
-	return input->getGroup();
-}
-
 /*******************************************************************************
     interpretXP — the interpret/run mode: build the left-associative runOP tree
     the interpreter walks. (Split out of aCTionExpressioN 2026-06-30; was the
@@ -3360,15 +3128,13 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	B.CreateStore(llvm::ConstantInt::get(i32, 0), gJitResultSlot);
 	
 	GroupRules *ruler = GroupControl::groupController->groupRules;
-	// Unified JIT emit-on-walk (pivot, 2026-06-30): jitting ONLY — generating stays
-	// OFF so aCTionExpressioN's dispatcher routes to interpretXP (runOP trees), NOT
-	// generateXP (flat revisedLists). Parsing builds the runOP trees; EXECUTING the
+	// Unified JIT emit-on-walk (pivot, 2026-06-30): jitting ONLY (the bytecode road's
+	// generating mode retired, deepClean S4). Parsing builds the runOP trees; EXECUTING the
 	// BlocK runs them, and each opMethod's jitting gate emits LLVM in place (the
 	// runOP seeding gate seeds leaves first). The interpret walk owns its traversal
 	// and never re-parents live nodes — the structural cure for the by-reference
 	// operand-stack corruption the deferred jitXpress path hit.
 	ruler->jitting = 1;
-	ruler->generating = 0;
 	//  R1's ONE MECHANISM, first of its two call sites. Between functions the
 	//  obligation is identical to the one gJitSeeded's header states between
 	//  compiles -- an llvm::Value is valid only inside the function that defined
@@ -10817,7 +10583,6 @@ GroupRules::GroupRules()
 	currentRegistry = 0;
 	debugJunk = 0;
 	baseRegistryList = 0;
-	bcOPs = 0;
 	commands = 0;
 	files = 0;
 	grokking = 0;
@@ -10832,7 +10597,6 @@ GroupRules::GroupRules()
 	labelNO = 0;
 	lastREF = 0;
 	lastStatement = 0;
-	generator = 0;
 	maxLimit = 0;
 	printSPACE = 0;
 	repeatLimit = 0;
@@ -10863,7 +10627,6 @@ GroupRules::GroupRules()
 	defining = 0;
 	divertToRule = 0;
 	endParse = 0;
-	generating = 0;
 	ignoreThis = 0;
 	ignoreNoPrint = 0;
 	ignoreNoRoom = 0;
