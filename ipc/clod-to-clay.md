@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 165 at the FOOT -- SEQ 251/252: parentStuff recon STOPPED, unlisted writer GroupItem copy ctor; data banked
+STATUS:   fresh           # SEQ 166 at the FOOT -- SEQ 261: PTF re-read STOPPED (control-signal home vs the signed OM); data banked
+# prior: SEQ 165 at the FOOT -- SEQ 251/252: parentStuff recon STOPPED, unlisted writer GroupItem copy ctor; data banked
 # prior: SEQ 164 at the FOOT -- SEQ 217: MERGED 24cd9fe, F-128 closed, trunk into parse-then-fire; SEALED (Tony)
 # prior: SEQ 163 at the FOOT -- SEQ 216: the re-pointing loops removed; the branch CLEARS the whole certificate (2bc15f9), not merged
 # prior: SEQ 162 at the FOOT -- SEQ 215: item C confirmed and STAGED (compile succeeds); a drive then refuses on a stray definer left by compile()'s own parent loop
@@ -9197,3 +9198,79 @@ pop.sh 860 / 1 row for row (acceptStartT address only, H3), jitLadder PASSED, pr
 canary 315. decodePop and countPop banked as docs/sealCaptures/*.txt (new H12 line). NOT SEALED.
 
   END SEQ 165
+
+
+===================================================================
+SEQ 166  -  SEQ 261: PARSE-THEN-FIRE RE-READ -- STOPPED ON THE STOP CONDITION (a step-2 ruling vs the signed model)
+===================================================================
+STATUS: fresh -- 2026-10-02. Read-only; nothing built, no tap opened (two agent probes ran under /private/tmp only).
+docs/ptfReread.md is NOT written and nothing is sealed, pending the ruling below. Everything measured is banked here.
+
+THE STOP (reported, not resolved), verified by Clod against both texts:
+  Control 6 (Tony, RULED 2026-09-25; branch docs/fixIts.md:349, F-122 entry 7): "break / continue / return are
+  CONTROL, on a channel of their own: the keyword action writes it, the action firing children reads it after each
+  child. NEVER on the value channel." With M1 (the parse builds the tree; actions fire afterward), that reader runs
+  AFTER the statement's parse returned. P4 (SEQ 179) homed it as a ruler slot bracketed at processAction.
+  Signed object model (docs/objectModel.md, signed 2026-09-28): row 88 sends `isBranch` ("the control signal of one
+  execution -- P4 moved it to branchKind on the paused branch") -> ParseActivation (stroke 5); F-O15 (row 133) the
+  same; row 37: ParseActivation's lifetime is "the parse; gone at return".
+  Both cannot hold: at fire time there is no activation (the branch's own parked problem: "the activations are gone
+  by then, so it needs snapshots", wakeupVintage-2026-09-20-to-09-24.md:81). Caveat for the ruling: the OM row cites
+  P4's branchKind, so it may describe today's world (firing inside the parse), where the activation is alive.
+  Trunk has executed neither: isBranch:2 is still on GroupBody; branchKind is inert (GroupRules.twk:74-79). The
+  branch-inventory agent flagged the same dispute independently ("home disputed").
+  Other rulings: M1 and M4 CONSISTENT with the OM; M2, M3, M5, M6, M7, Rule C, values 1-5, ruling 7 NOT ADDRESSED by it.
+
+COUNTS (all on trunk 5b627c6 unless dated)
+  Branch inventory: parse-then-fire 24 non-merge commits ahead, p6-held-class 3 more; git cherry: 27 of 27 not on
+  trunk. DONE on trunk by other means: df73ad6 and 939d040 (pop.sh rows, as 02ca6cf / 26f499c), 860047e's pop.sh half,
+  P4's inert branchKind declaration. OBSOLETE: the C-form code (440ee54, 1b49e47 code half), every parentStuff chain arm
+  and every bare gParseActive / ->floor spelling inside the ptf code. STILL NEEDED: the step-1 engine (58ab827, 3f48ff2,
+  cf2c768, 0f77486, a9d637b, 860047e code, 5e30f2a, e2b1e6c), measureRetire (0512109), P4 (e181681 + 333c331, home
+  disputed), P6 WIP (57f3e7a, 700c884, da782ce), the record docs (2aac1f8, 4502e41, the P5/P6 stop notes) and
+  docs/overlapCensus.md (branch-only).
+  Plants: plant 1 (attach reads isGROUP) -- inline predicate unchanged, GroupItem.twk:262. Plant 2 (ANYtoken reads
+  NamE) -- unchanged. Plant 3 -- branch-only, no trunk road. PLANT 4 (fLAG subscript vs recycle) -- LIVE ON TRUNK:
+  aCTionBraced ruleActions.rtn:89 writes, attachLabel :266 writes, RuleStuff.twk:97 reads; nothing retires it.
+  RETAGCARRY -- branch replay only; BUT A TRUNK ROAD IS MEASURED: fireLabelMethod's adoption + attachLabel's promote
+  retag (GroupItem.twk:234-237) renames the shared singleton `true` (CerR: true -> WardeD -> StatemenT, then every later
+  CerR/PrinT returns "StatemenT") and the live field s2C (Iterate -> StatemenT). Stale chains -- retired on trunk
+  (5.5b, 5.8, 5.9); a port asks the list only.
+  Step-2 retirements today vs the 09-25 plan: deferred 2 writers / 8 readers (plan 3 / 11; the rest were step-1-only or
+  the deleted chain); 15 defer grammar rules (same); deferredAbove 20 lines, 1 caller, 4 witness calls, 4 pop rows
+  (plan named 2 of them -- 2 rows owed a mapping it did not name); yield channel 1 adoption seat, 5 readers, 2 attach
+  seats, 5 yieldOrValue splits (same). Every population same or smaller; trunk has none of step 1.
+  Overlap census (branch-only file; per-row cause mapping reconstructed from the wakeup's cause counts): 55 then, 51 live.
+  Removed on trunk: A12 (3494d52), B7 (46e6dcb), B15 (f0c30eb); A17 never landed. Causes: name resolution 9/9 and label
+  shape at attach 9/9 REMAIN (every plant lives there); define/registry 14 REMAINS (smaller surface); input 10 REMAINS;
+  method/frame 6 -> 4; refusal 3 REMAINS; misc 3 -> 2; step-1 globals 0 on trunk. Plus interpretXP's registry/
+  actionType read (P8's extra Rule C site), live.
+  P6's question on trunk: an unrun IF hands back its CONDITION (owner-run; probe: returns the field uiF itself), and a
+  run arm hands back the live assignment target -- both against values 1-5. RETAGCARRY's road: yes, as above.
+  Held refactors: fLAG -- reshaped (meaning D moves to fire time), plant 4 its own stroke; sukcess V/R -- narrowed to
+  the exempt class; isLabel -- left alone; deferred -- retired as first planned, reshaped as ruled (SEQ 198 class
+  marker); byRef -- left alone by the plan, but its loop-steering meaning (FOR ruleActions.rtn:507 off the RESULT) is a
+  control fact on the value channel, which Control 6 forbids -- a gap in the plan; RuleStuff label -- reachable under
+  parent-driven firing (labelOf stays the child). S8 -- neither prerequisite nor moot: step 2 removes its fire-time
+  writers, but if S8 lands first the per-call slot moves onto an activation that is gone at replay, so whichever lands
+  second carries the snapshot fix; ParseActivation.label already names the drive-floor slot.
+
+PORT SHAPES (sketched, not ruled; conflicts by function from the inventory agent)
+  (i) replay step 1 onto a fresh branch: conflicts parseRule (heaviest: activation push, enclosingStuff, into snapshot,
+      bracket), parse() (5.5a push, 5.9), attachLabel (enclosingStuff), checkInput's label mint (5.6a labelOf, same
+      lines), driveStep (floor, driveFloorLabel, hand-carry), processAction (5.6b), jitBuildFunction, jitProbeDrive,
+      jitContext.h (ParseActivation moved into GroupRules: respell gParseActive/->isFloor); drop the DONE pop.sh rows
+      and the C-form code; delete the chain arms.
+  (ii) rebuild step 1 from the plan on trunk's model: no textual conflicts; reuses the list (enclosingStuff) where the
+      branch walked chains; costs re-deriving the engine and re-measuring P2's conservation numbers (H14).
+  (iii) split: land P4 (once its home is ruled) and plant 4's cure on trunk first -- both independent of PTF -- then
+      (i) or (ii).
+  Frontier candidates (draft): S1 a top-level statement's ordinary fires are recorded, not run, during its parse;
+  S2 replay at statement end equals PTF=0's fire multiset; S3 a failed alternative's records never fire (conservation
+  row); S4 a statement-level `defer` construct is held and fired by the root, deferredAbove not asked; S5 an unrun IF
+  hands back nothing and no shared node is renamed at attach.
+
+OWED TO TONY: the home of the control signal (P4's ruler slot vs the OM's ParseActivation), then SEQ 261 resumes.
+Housekeeping R1 done: main == trunk (pushed); checkinput-state deleted, tip 0ec0702 recorded in 5b627c6.
+
+  END SEQ 166

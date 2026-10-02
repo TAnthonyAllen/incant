@@ -10975,7 +10975,7 @@ REPORT: fleet line per stroke first, then probe results, the main log, the branc
 ===================================================================
 SEQ 261  -  PARSE-THEN-FIRE RE-READ (read-only) + TWO HOUSEKEEPING ITEMS
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+STATUS: STOPPED by the stop condition -- Control 6 (control read at fire time) vs the signed OM (isBranch -> ParseActivation, gone at return). Reported in clod-to-clay SEQ 166 with every measurement; R1 housekeeping done; ptfReread.md not written, not sealed.
 
 RULINGS
 R1. main: fast-forward it to trunk and push, so GitHub's default branch is current. checkinput-state:
