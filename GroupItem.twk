@@ -198,18 +198,6 @@ GroupItem	group;
 	return group;
 }
 
-/***************************************************************************
-                                allAttributesOptional
-    // allAttributesOptional an attribute with no rStuff counts as MANDATORY -- not yet known is not the same as optional
-***************************************************************************/
-int allAttributesOptional()
-{
-GroupItem   attr;
-    while attr = nextAttribute(attr)
-        if !attr.rStuff || attr.min     return false;
-    return true;
-}
-
 /*****************************************************************************
                                 append
 	Append the group passed in to this one. Does not care if there is no
@@ -222,16 +210,6 @@ void append(GroupItem grup)
     if nextInParent     nextInParent.priorInParent  = grup;
     or parent           parent.lastInList = grup;
 	nextInParent		= grup;
-}
-
-/***************************************************************************
-                                attachBlocK
-    // attachBlocK the compiled body is attached BESIDE the CodE it came from, never on the rule
-***************************************************************************/
-GroupItem attachBlocK(GroupItem blocK)
-{
-GroupItem   holder = actionHolder();
-    return holder.addProperty(blocK);
 }
 
 /***************************************************************************
@@ -761,20 +739,6 @@ GroupItem   entry = get(name);
 }
 
 /***************************************************************************
-                                frameParent
-    // frameParent it reads runRule's OWN argument, never the ruleSTUFF singleton -- a singleton answers what
-    // frameParent happened last, never who is asking
-***************************************************************************/
-GroupItem frameParent(GroupItem holder)
-{
-RuleStuff   holderStuff;
-    if !holder  return holder;
-    holderStuff = holder.rStuff;
-    if holderStuff && holderStuff.label     return holderStuff.label;
-    return holder;
-}
-
-/***************************************************************************
                                 get
 	Returns first component with tag == name. The search does not descend.
 ***************************************************************************/
@@ -922,15 +886,6 @@ GroupItem getGroup()
 	return 0;
 }
 
-/***************************************************************************
-                                getGuard
-    // getGuard a PURE read -- it builds NOTHING; ensureGuard is what constructs
-***************************************************************************/
-PLGset getGuard()
-{
-    return guardSet;
-}
-
 PLGitem getItem()
 {
 	if isITEM || isDate return item;
@@ -1004,12 +959,6 @@ GroupItem   entry;
         if entry.tag eq name    return entry;
         entry = entry.nextInParent; }
     return null;
-}
-
-PLGrgx getRegex()
-{
-	if isREGEX return regex;
-	return 0;
 }
 
 /*******************************************************************************
@@ -1087,39 +1036,6 @@ String      junkText;
             default:        junkText = tag "data type has no toString() method"; }
     or tag  junkText = tag;
 	return  junkText;
-}
-
-/*****************************************************************************
-                                insertAfter
-    Insert grup into this's parent list immediately after this. Bookkeeping
-    parallel: append() only adjusts sibling pointers, so this wraps it with
-    parent/listLength/lastInList updates so the parent list stays consistent.
-*****************************************************************************/
-void insertAfter(GroupItem grup)
-{
-    append(grup);
-    grup.parent = parent;
-    if parent {
-        parent.listLength++;
-        if !grup.nextInParent   parent.lastInList = grup; }
-}
-
-/*****************************************************************************
-                                insertGroup
-	Insert an item at the beginning of this list. If list has entries and is
-    sorted will throw an error and return null;
-*****************************************************************************/
-GroupItem insertGroup(GroupItem grup)
-{
-    if !groupList || !listLength    return addGroup(grup);
-    if isSorted {
-        cerr "insertGroup: cannot insert into a sorted list":;
-        return 0; }
-    if firstInList  firstInList.prepend(grup);
-    else            firstInList = lastInList = push(grup);
-    grup.parent = this;
-    listLength++;
-    return firstInList;
 }
 
 /***************************************************************************
@@ -1300,19 +1216,6 @@ GroupItem	existing,replacement,item;
 }
 
 /***************************************************************************
-                                moveTo
-    Moves this group to the item passed in. No copy involved because remove
-    clears the item parent.
-***************************************************************************/
-void moveTo(GroupItem item)
-{
-    remove();
-    if isAttribute  item.addAttribute(this);
-    else    item.addMember(this);
-    updateContentFlags();
-}
-
-/***************************************************************************
                                 next
 	Iterates thru attributes and members. The group passed in is taken as
     the last item iterated. If it is null, the first entry found is returned.
@@ -1377,10 +1280,8 @@ GroupItem nextProperty(GroupItem entry)
 ***************************************************************************/
 GroupItem parse(RuleStuff pStuff)
 {
-GroupItem   definer;
 GroupRules  ruler       = groupRules;
 ParseActivation oldActive;
-RuleStuff   defStuff;
 RuleStuff   ruleStuff   = getStuff(pStuff);
     // oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
     oldActive.face      = this;
@@ -1395,9 +1296,6 @@ use ruleStuff
     kount       = 0;
     isOK        = false;
     inProcess   = true;
-    //  genParseRuleAccess
-    definer = instanceRule();
-    defStuff = definer.rStuff;
     // bindReadSeamProbe
     while !isOK && kount < maxRepeat {
 continueHere:
@@ -1846,15 +1744,6 @@ void setJitEmitter(void* m)
     -% groupBody->gJitEmitter = (GroupItem*(*)(GroupItem*,GroupItem*))m; %-
 }
 
-void setMap(BitMAP i)
-{
-    gMap        = i;
-    if i        isMAP   = true;
-    else data   = 0;
-    isInitialized = true;
-    if hasListeners updateListeners();
-}
-
 /***************************************************************************
                                 setMethod
     // setMethod SYMMETRIC, and the sole maintainer of isMethod -- a raw gMethod write anywhere else
@@ -2033,19 +1922,6 @@ moveForward:
      cerr "GroupBody sort: must set isSorted first":;
 }
 
-/*****************************************************************************
-                                sortByAttribute
-    Sort members by the value of the attribute named in the parameter
-    passed in.
-*****************************************************************************/
-void sortByAttribute(String attributeName)
-{
-String  saveText = text;
-    text = attributeName;
-    sort(compareAttribute);
-    text = saveText;
-}
-
 /*******************************************************************************
                                 updateContentFlags
 	Make sure affiliation and content flags (hasMembers, hasAttributes) match
@@ -2077,26 +1953,6 @@ void updateContentFlags()
                 }
             or item.isMember    hasMembers = true;
         }
-}
-
-/*****************************************************************************
-                                updateDispatch
-	Not used, was updateListeners, saved here just in case
-*****************************************************************************/
-void updateDispatch()
-{
-GroupItem	item,listener;
-    if !dispatchQ
-        {
-        dispatchQ = new;
-        dispatchGroup = makeGroup();
-        }
-	if listener = getAttribute("notifyLIST")
-		while item = listener.next(item)
-            item.dispatch();
-    cout `tag,"finished dispatching listeners":;
-	dispatchQ.wait(forever);
-    cout `tag,"finished updating listeners":;
 }
 
 /*****************************************************************************

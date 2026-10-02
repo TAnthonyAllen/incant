@@ -152,7 +152,7 @@ Size = lines removed or changed · externs · fixtures touched. Risk is what cou
 | `sHADOW` | Stylish.twk:164 | 24 |
 
 - **Size:** ~116 lines, 10 externs.
-- **Risk:** `jitForceInclude`'s body is `Builder b; b=0;` -- possibly a link-forcing idiom. Check its history before cutting. `dumpColorRGB`/`dumpFontInfo` are lldb-callable debug helpers (CLAUDE.md bear-trap #14 cites them).
+- **`jitForceInclude` is KEPT (ruled, SEQ 260 R6; history read).** Reason: it is an include-forcing idiom (`60d8dca`, 2026-06-17): a tok-native use of an external jit type, so that tok emits jitContext.h's include into GroupRules.mm. S3 met the same mechanism from the other side: cutting `bodyCensus` dropped `GroupList.h` from measure.mm (build error), and the fix was the same idiom, `includeGroupList`. `dumpColorRGB`/`dumpFontInfo` are lldb-callable debug helpers (CLAUDE.md bear-trap #14 cites them).
 
 **D-12 · Four dead-text-only externs -- CUT.**
 - `jitRunAddTwo` (jitEmitters.rtn:3137, 38 lines; only a `//` in incant/generate);

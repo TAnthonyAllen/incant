@@ -1,15 +1,4 @@
 
-/***************************************************************************
-    Buffer-side mark machinery wrappers — thin passthroughs to Buffer's
-    setMark/unMark/setFile/closeFile. Used by incant code that wants
-    explicit control over the mark, and by applyTextDirective to
-    arm/disarm Buffer.markIsSet around find-and-replace sweeps.
-***************************************************************************/
-extern void flushBuffer(GroupItem bufField)
-{
-    if bufField.isBUFFER    bufField.buffer.flush();
-}
-
 /*****************************************************************************
     The argument passed in to getMarkLineAt must have source and fromThis
     It returns the line wrapped in a GroupItem field using setToken (as a stream

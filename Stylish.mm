@@ -123,11 +123,6 @@ extern "C" NSRect indentFrame(NSRect f, double b)
 	return ::NSMakeRect(f.origin.x + b,f.origin.y + b,f.size.width - 2 * b,f.size.height - 2 * b);
 }
 
-extern "C" NSRect indentFrameWH(NSRect f, double w, double h)
-{
-	return ::NSMakeRect(f.origin.x + w,f.origin.y + h,f.size.width - 2 * w,f.size.height - 2 * h);
-}
-
 /*******************************************************************************
 	Assign a style to the field passed in, which is expected to be a style
     attribute. Looks up styles in sTYLEs registry that does not exist yet.
@@ -160,40 +155,6 @@ Stylish 	*style = 0;
 	styleItem->setPointer((void*)style);
 	field->addAttribute(styleItem);
 	return style;
-}
-
-/*******************************************************************************
-	Process shadow. This compiles but design required plus POP to make sure
-    shadow and shadowField are set right and in sync.
-*******************************************************************************/
-extern "C" void sHADOW(GroupItem *field)
-{
-Stylish 	*shadowStyle = ::getStyle(field);
-	if ( !shadowStyle->shadow )
-		{
-		shadowStyle->shadow = [[NSShadow alloc] init];
-		::CFRetain((void*)shadowStyle->shadow);
-		}
-	if ( shadowStyle->shadowField )
-		{
-		GroupItem 	*shadowBlur = shadowStyle->shadowField->get("blur");
-		GroupItem 	*shadowColor = shadowStyle->shadowField->get("color");
-		GroupItem 	*xOffset = shadowStyle->shadowField->get("x");
-		GroupItem 	*yOffset = shadowStyle->shadowField->get("y");
-		shadowStyle = ::getStyle(shadowStyle->shadowField);
-		if ( shadowBlur )
-			[shadowStyle->shadow setShadowBlurRadius:shadowBlur->getNumber()];
-		else	[shadowStyle->shadow setShadowBlurRadius:3.0];
-		if ( shadowColor && shadowColor->groupBody->flags.isPointer )
-			{
-			NSColor 	*coloric = (NSColor*)shadowColor->getPointer();
-			[shadowStyle->shadow setShadowColor:coloric];
-			}
-		else	[shadowStyle->shadow setShadowColor:[[NSColor blackColor] colorWithAlphaComponent:0.3]];
-		if ( xOffset && yOffset )
-			[shadowStyle->shadow setShadowOffset:NSMakeSize(xOffset->getNumber(),yOffset->getNumber())];
-		else	[shadowStyle->shadow setShadowOffset:NSMakeSize(2.0,-2.0)];
-		}
 }
 
 /***************************************************************************

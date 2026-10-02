@@ -10,21 +10,6 @@
 #include "Stylish.h"
 #include "GroupDraw.h"
 
-/*******************************************************************************
-	blockContaining now lives in Stylish.twk (2026-07-02 dedup — was defined
-    twice, causing a duplicate-symbol link error; Stylish's version is current).
-*******************************************************************************/
-/*****************************************************************************
-	Check if point is in the frame defined here. Edges do not count.
-*****************************************************************************/
-extern "C" int containsPoint(GroupItem *grup, NSPoint p)
-{
-NSRect 	frame = ::getFrame(grup);
-	if ( p.y > frame.origin.y && p.y < frame.origin.y + frame.size.height && p.x > frame.origin.x && p.x < frame.origin.x + frame.size.width )
-		return 1;
-	return 0;
-}
-
 extern "C" GroupItem *displayFillRT(GroupItem *field)
 {
 GroupItem 	*comp = 0;
@@ -59,6 +44,10 @@ NSColor 	*colour = 0;
 	return field;
 }
 
+/*******************************************************************************
+	blockContaining now lives in Stylish.twk (2026-07-02 dedup — was defined
+    twice, causing a duplicate-symbol link error; Stylish's version is current).
+*******************************************************************************/
 /****************************************************************************
 	Get the frame struct for the group passed in.
 ****************************************************************************/
@@ -74,30 +63,6 @@ NSRect 		framed;
 	framed.size.width = width ? width->getNumber() : 0.0;
 	framed.size.height = height ? height->getNumber() : 0.0;
 	return framed;
-}
-
-/*******************************************************************************
-	Sets the content for and returns TextView to display the field passed in
-*******************************************************************************/
-extern "C" NSTextView *getTextView(GroupItem *field)
-{
-NSString 			*atText = 0;
-NSAttributedString 	*aString = 0;
-NSTextStorage 		*store = 0;
-NSTextView 			*editor = 0;
-NSRect 				frame = ::getFrame(field);
-char 				*txt = field->getText();
-	if ( txt )
-		{
-		if ( isOBJECT(field->groupBody->flags.data) )
-			editor = (NSTextView*)field->getObject();
-		else	editor = [[NSTextView alloc] initWithFrame:frame];
-		atText = [NSString stringWithCString:txt encoding:NSASCIIStringEncoding];
-		store = [editor textStorage];
-		aString = [[NSAttributedString alloc] initWithString:atText];
-		[store setAttributedString:aString];
-		}
-	return editor;
 }
 
 /*****************************************************************************
@@ -253,45 +218,6 @@ char *toString(NSRect f)
 char 	*text = 0;
 	text = ::concat(5,::toString(f.origin),",",::toStringFromDouble(f.size.width),",",::toStringFromDouble(f.size.height));
 	return text;
-}
-
-/*******************************************************************************
-	Set up a window or pane
-*******************************************************************************/
-void GroupDraw::setWindow(GroupItem *block)
-{
-NSWindow 	*window = 0;
-NSRect 		framed = ::getFrame(block);
-NSRect 		windowFrame;
-int 		mask = 0;
-NSView 		*view = 0;
-	if ( block->get("closable") )
-		mask |= NSClosableWindowMask;
-	if ( block->get("title") )
-		mask |= NSTitledWindowMask;
-	if ( block->get("resize") )
-		mask |= NSResizableWindowMask;
-	if ( block->get("panel") )
-		{
-		NSPanel 	*pane = (NSPanel*)[[NSWindow alloc] initWithContentRect:framed styleMask:mask backing:NSBackingStoreBuffered defer:1];
-		window = pane;
-		block->setObject((NSObject*)pane);
-		}
-	else {
-		window = [[NSWindow alloc] initWithContentRect:framed styleMask:mask backing:NSBackingStoreBuffered defer:1];
-		block->setObject((NSObject*)window);
-		}
-	view = [window contentView];
-	windowFrame = [window frame];
-	//layout      = new(framed);
-	//layout.base = block;
-	framed.size.height += windowFrame.size.height - [view frame].size.height;
-	[window setFrame:framed display:0];
-	[window setContentView:layout];
-	if ( mask & NSTitledWindowMask )
-		[window setTitle:[NSString stringWithCString:block->getText() encoding:NSASCIIStringEncoding]];
-	[window makeKeyAndOrderFront:nil];
-	[view setNeedsDisplay:1];
 }
 /*	Warning: the following methods were referenced but not declared
 	getColor(char*)

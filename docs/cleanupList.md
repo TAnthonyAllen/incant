@@ -6,18 +6,6 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 
 ## Open
 
-### `labelMinters`
-- **What/where:** `measure.twk:279` (`extern int labelMinters(GroupItem rule)`), declared in `measure.h`; also a DesignDocs slug (`TokFiles -> Generate -> labelMinters`).
-- **Why deletable:** no caller. Only its definition and declaration reference it in tok, C++ or incant, and `incant/setup` does not register it as a command.
-- **Confirm:** a `grep -rn 'labelMinters('` over `*.twk *.rtn *.mm` (definition only) plus a check that no incant file calls it. F-O35's skip census found its 0 skips were vacuous: empty population, not measurement (`objectModel.md` F-O35). **Canary cost:** `measure.h` 42 -> 41.
-- **Seen:** 2026-09-28.
-
-### `allAttributesOptional()`
-- **What/where:** `GroupItem.twk:184`, declared in `GroupItem.h:46`.
-- **Why deletable:** no caller. Its only caller was the parent-`min` promotion, retired 2026-09-03 by measurement (SEQ 152). DesignDocs `promotionRetired` records that it was "left callerless, deliberately".
-- **Confirm:** a `grep -rn 'allAttributesOptional()'` over `*.twk *.rtn *.mm` (definition only), then a retok with a byte-identical diff apart from the method, and the fleet unmoved. Its DesignDocs entry and the CLAUDE.md census example (comment convention) cite it and would need a note.
-- **Seen:** 2026-09-28 (first noted callerless in the 2026-09-03 wakeup).
-
 ### `testAttributes`' artifact skip -- **KEEP: skips locals (this, tempField)** (SEQ 260 R8, 2026-10-02)
 - **What/where:** `RuleStuff.twk:269`, `if noPrint continue;` in `testAttributes` (old road).
 - **Why deletable:** after stroke 3, artifacts should not be on term lists.
@@ -25,15 +13,6 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 - **Confirm:** once F-O38 is fixed, re-run the F-O35 skip log. This site must read 0 skips with arrivals present, and the fleet must be unmoved.
 - **Seen:** 2026-09-28.
 - **Re-measured 2026-09-29 (SEQ 224, F-O38 closed by `+<`):** pendingParseR 30,208 -> **0**. But the site still skips **120 locals** -- `this` 60 and `tempField` 60, on coded rules (JSONfield 42+42, JSONarray 9+9, ScafA 4+4, list 3+3, ask 2+2). **So it is NOT deletable as it stands:** it has become a LOCAL skipper, the same class as `setParseWalk`, `compile` x2 and `dupTermRefusal`, which stay by ruling. Leave the entry for Tony to strike or keep.
-
-### `parse()`'s `definer` and `defStuff`
-- **What/where:** `GroupItem.twk` parse(), `definer = instanceRule(); defStuff = definer.rStuff;` (the two locals and their
-  declarations).
-- **Why deletable:** assigned and never read -- in the .twk and in the generated `GroupItem.mm`. Stroke 4.3 family 2 switched the
-  first line from definingRule() and measured 1,227,517 changed answers across the checklist with the fleet row for row,
-  which is only possible because nothing reads it.
-- **Confirm:** delete both, retok, the generated parse() loses exactly those four lines, fleet row for row.
-- **Seen:** 2026-09-29.
 
 ### The Bytecode road -- RULED RETIRE (Tony, 2026-09-30). The cut is its own stroke on another day; this is its list.
 - **Ruling:** the Bytecode road is retired; the JIT is the one path. **`incant/generate` is KEPT** as template material
@@ -124,6 +103,11 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 | `parseGeneric` (`RuleStuff.twk`) | `2bfa808` -- Task 2 (SEQ 192) | 0 references in `*.twk *.rtn *.h` |
 
 ## Done
+
+### `labelMinters`, `allAttributesOptional()`, parse()'s `definer`/`defStuff` -- CUT 2026-10-02 (deepClean S3, SEQ 260)
+- Cut with the rest of S3's dead code (deepClean D-11 to D-16). The generated diff is exactly the deletions plus two
+  re-emitted file-header comments and one `class PLGrgx;` forward declaration. pop.sh's ruleOfT RO-8 re-pinned 5 -> 4
+  with its sentence: the `instanceRule()` call left with `definer`.
 
 ### `establishFrame` and `parse()`'s local `parentLabel` -- CUT 2026-10-02 (stroke 5.9b, SEQ 257 R4)
 - **Were:** `GroupItem::establishFrame` (0 callers; a counting tap read 0 calls; its header claimed to be the single

@@ -491,31 +491,6 @@ GroupRules  ruler = groupRules;
 }
 
 
-// loadRegistryFromString load a registry, creating it if needed, with every run of non-space characters; attributes are not handled
-extern void loadRegistryFromString(String name,String content)
-{
-GroupRules  ruler   = groupRules;
-Buffer      buffer  = stringBUFFER;
-GroupItem   target  = getRegistry(name);
-GroupItem   field;
-String      input   = content,
-            strung;
-PLGset      fieldSet = new("^ \n\r\t");
-    print target.tag:;
-    while input && *input {
-        field   = null;
-        if fieldSet.contains(*input) {
-            reset();
-            while fieldSet.contains(*input) {
-                buffer += *input;
-                input++; }
-            strung  = buffer.toString();
-            field   = new(strung);
-            //target    += field;
-            print `tag:; }
-        else input++; }
-}
-
 
 // makeDataType set target to the data type the argument names -- called from setInternalType
 extern GroupItem makeDataType(GroupItem target,GroupItem argument)
@@ -550,15 +525,6 @@ use target
     return target;
 }
 
-
-// materialiseRegistry materialise the rStuff of every rule in a registry; returns how many were made
-extern int materialiseRegistry(GroupItem registry)
-{
-GroupItem   rule;
-int         made = 0;
-    while rule = registry.next(rule)    made += materialiseTerms(rule);
-    return made;
-}
 
 
 // materialiseTerms rStuff at DEFINE TIME, for the rule and each term -- it closes the gap the bootstrapper's hand-built rules leave
@@ -1127,12 +1093,6 @@ String      name;
     return item;
 }
 
-
-// statementMatches statement equivalence: v1 is a top-level GroupItem.matches; a recursive walk is the v2 candidate
-extern int statementMatches(GroupItem a,GroupItem b)
-{
-    return a.matches(b);
-}
 
 
 // verdictCount add one named count to a verdict

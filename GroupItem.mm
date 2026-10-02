@@ -7,12 +7,10 @@
 #include "OCroutines.h"
 #include "StringRoutines.h"
 #include "GroupItem.h"
-#include "DoubleLinkList.h"
 #include "jitContext.h"
 #include "Stak.h"
 #include "Buffer.h"
 #include "DispatchQ.h"
-#include "BitMAP.h"
 #include "GroupRules.h"
 #include "GroupControl.h"
 #include "GroupList.h"
@@ -364,19 +362,6 @@ GroupItem 	*group = 0;
 	return group;
 }
 
-/***************************************************************************
-                                allAttributesOptional
-    // allAttributesOptional an attribute with no rStuff counts as MANDATORY -- not yet known is not the same as optional
-***************************************************************************/
-int GroupItem::allAttributesOptional()
-{
-GroupItem 	*attr = 0;
-	while ( attr = nextAttribute(attr) )
-		if ( !attr->getRStuff() || attr->getRStuff()->min )
-			return 0;
-	return 1;
-}
-
 /*****************************************************************************
                                 append
 	Append the group passed in to this one. Does not care if there is no
@@ -392,16 +377,6 @@ void GroupItem::append(GroupItem *grup)
 	if ( parent )
 		parent->groupBody->groupList->lastInList = grup;
 	nextInParent = grup;
-}
-
-/***************************************************************************
-                                attachBlocK
-    // attachBlocK the compiled body is attached BESIDE the CodE it came from, never on the rule
-***************************************************************************/
-GroupItem *GroupItem::attachBlocK(GroupItem *blocK)
-{
-GroupItem 	*holder = actionHolder();
-	return holder->addProperty(blocK);
 }
 
 /***************************************************************************
@@ -1050,22 +1025,6 @@ GroupItem 	*entry = get(name);
 }
 
 /***************************************************************************
-                                frameParent
-    // frameParent it reads runRule's OWN argument, never the ruleSTUFF singleton -- a singleton answers what
-    // frameParent happened last, never who is asking
-***************************************************************************/
-GroupItem *GroupItem::frameParent(GroupItem *holder)
-{
-RuleStuff 	*holderStuff = 0;
-	if ( !holder )
-		return holder;
-	holderStuff = holder->getRStuff();
-	if ( holderStuff && holderStuff->label )
-		return holderStuff->label;
-	return holder;
-}
-
-/***************************************************************************
                                 get
 	Returns first component with tag == name. The search does not descend.
 ***************************************************************************/
@@ -1250,15 +1209,6 @@ GroupItem *GroupItem::getGroup()
 	return 0;
 }
 
-/***************************************************************************
-                                getGuard
-    // getGuard a PURE read -- it builds NOTHING; ensureGuard is what constructs
-***************************************************************************/
-PLGset *GroupItem::getGuard()
-{
-	return groupBody->guardSet;
-}
-
 PLGitem *GroupItem::getItem()
 {
 	if ( isITEM(groupBody->flags.data) || "isDate" )
@@ -1360,13 +1310,6 @@ RuleStuff *GroupItem::getRStuff()
 	return rStuff;
 }
 
-PLGrgx *GroupItem::getRegex()
-{
-	if ( isREGEX(groupBody->flags.data) )
-		return groupBody->gRegex;
-	return 0;
-}
-
 Stak *GroupItem::getStak()
 {
 	if ( isSTAK(groupBody->flags.data) )
@@ -1461,46 +1404,6 @@ char 	*junkText = 0;
 	if ( groupBody->tag )
 		junkText = groupBody->tag;
 	return junkText;
-}
-
-/*****************************************************************************
-                                insertAfter
-    Insert grup into this's parent list immediately after this. Bookkeeping
-    parallel: append() only adjusts sibling pointers, so this wraps it with
-    parent/listLength/lastInList updates so the parent list stays consistent.
-*****************************************************************************/
-void GroupItem::insertAfter(GroupItem *grup)
-{
-	append(grup);
-	grup->parent = parent;
-	if ( parent )
-		{
-		parent->groupBody->groupList->listLength++;
-		if ( !grup->nextInParent )
-			parent->groupBody->groupList->lastInList = grup;
-		}
-}
-
-/*****************************************************************************
-                                insertGroup
-	Insert an item at the beginning of this list. If list has entries and is
-    sorted will throw an error and return null;
-*****************************************************************************/
-GroupItem *GroupItem::insertGroup(GroupItem *grup)
-{
-	if ( !groupBody->groupList || !groupBody->groupList->listLength )
-		return addGroup(grup);
-	if ( groupBody->flags.isSorted )
-		{
-		::fprintf(stderr,"insertGroup: cannot insert into a sorted list\n");
-		return 0;
-		}
-	if ( groupBody->groupList->firstInList )
-		groupBody->groupList->firstInList->prepend(grup);
-	else	groupBody->groupList->firstInList = groupBody->groupList->lastInList = push(grup);
-	grup->parent = this;
-	groupBody->groupList->listLength++;
-	return groupBody->groupList->firstInList;
 }
 
 /***************************************************************************
@@ -1696,20 +1599,6 @@ GroupItem 	*item = 0;
 }
 
 /***************************************************************************
-                                moveTo
-    Moves this group to the item passed in. No copy involved because remove
-    clears the item parent.
-***************************************************************************/
-void GroupItem::moveTo(GroupItem *item)
-{
-	remove();
-	if ( isAttribute(options.affiliation) )
-		item->addAttribute(this);
-	else	item->addMember(this);
-	updateContentFlags();
-}
-
-/***************************************************************************
                                 next
 	Iterates thru attributes and members. The group passed in is taken as
     the last item iterated. If it is null, the first entry found is returned.
@@ -1780,10 +1669,8 @@ GroupItem *GroupItem::nextProperty(GroupItem *entry)
 ***************************************************************************/
 GroupItem *GroupItem::parse(RuleStuff *pStuff)
 {
-GroupItem 			*definer = 0;
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 ParseActivation 	oldActive;
-RuleStuff 			*defStuff = 0;
 RuleStuff 			*ruleStuff = getStuff(pStuff);
 	// oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
 	oldActive.face = this;
@@ -1796,9 +1683,6 @@ RuleStuff 			*ruleStuff = getStuff(pStuff);
 	ruleStuff->kount = 0;
 	ruleStuff->isOK = 0;
 	ruleStuff->inProcess = 1;
-	//  genParseRuleAccess
-	definer = instanceRule();
-	defStuff = definer->getRStuff();
 	// bindReadSeamProbe
 	while ( !ruleStuff->isOK && ruleStuff->kount < ruleStuff->maxRepeat )
 		{
@@ -2363,17 +2247,6 @@ void GroupItem::setJitEmitter(void *m)
 	 groupBody->gJitEmitter = (GroupItem*(*)(GroupItem*,GroupItem*))m; 
 }
 
-void GroupItem::setMap(BitMAP *i)
-{
-	groupBody->gMap = i;
-	if ( i )
-		groupBody->flags.data = 8;
-	else	groupBody->flags.data = 0;
-	groupBody->flags.isInitialized = 1;
-	if ( groupBody->flags.hasListeners )
-		updateListeners();
-}
-
 /***************************************************************************
                                 setMethod
     // setMethod SYMMETRIC, and the sole maintainer of isMethod -- a raw gMethod write anywhere else
@@ -2578,19 +2451,6 @@ moveForward:
 	::fprintf(stderr,"GroupBody sort: must set isSorted first\n");
 }
 
-/*****************************************************************************
-                                sortByAttribute
-    Sort members by the value of the attribute named in the parameter
-    passed in.
-*****************************************************************************/
-void GroupItem::sortByAttribute(char *attributeName)
-{
-char 	*saveText = getText();
-	setText(attributeName);
-	sort(::compareAttribute);
-	setText(saveText);
-}
-
 /*******************************************************************************
                                 updateContentFlags
 	Make sure affiliation and content flags (hasMembers, hasAttributes) match
@@ -2628,27 +2488,6 @@ void GroupItem::updateContentFlags()
 			if ( isMember(item->options.affiliation) )
 				groupBody->flags.hasMembers = 1;
 		}
-}
-
-/*****************************************************************************
-                                updateDispatch
-	Not used, was updateListeners, saved here just in case
-*****************************************************************************/
-void GroupItem::updateDispatch()
-{
-GroupItem 	*item = 0;
-GroupItem 	*listener = 0;
-	if ( !GroupControl::groupController->dispatchQ )
-		{
-		GroupControl::groupController->dispatchQ = new DispatchQ();
-		GroupControl::groupController->dispatchQ->dispatchGroup = ::dispatch_group_create();
-		}
-	if ( listener = getAttribute("notifyLIST") )
-		while ( item = listener->next(item) )
-			item->dispatch();
-	::printf("\t%s finished dispatching listeners\n",groupBody->tag);
-	GroupControl::groupController->dispatchQ->wait(DISPATCH_TIME_FOREVER);
-	::printf("\t%s finished updating listeners\n",groupBody->tag);
 }
 
 /*****************************************************************************

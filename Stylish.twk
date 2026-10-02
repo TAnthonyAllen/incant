@@ -124,11 +124,6 @@ extern Frame indentFrame(Frame f,double b)
 	return rectangle(x + b,y + b, width - 2 * b,height - 2 * b);
 }
 
-extern Frame indentFrameWH(Frame f,double w,double h)
-{
-	return rectangle(x + w,y + h, width - 2 * w,height - 2 * h);
-}
-
 /***************************************************************************
 	Converts a color hex code into a color object
     Note: cOLORs registry stores color hex as a string like "rrggbb"
@@ -155,35 +150,6 @@ use field
         sscanf(truncateString(atText,2),"%x",&red);
         color = rgbColor((double)red / 255.0,(double)green / 255.0,(double)blue / 255.0,1.0);
         object = color; }
-}
-
-/*******************************************************************************
-	Process shadow. This compiles but design required plus POP to make sure
-    shadow and shadowField are set right and in sync.
-*******************************************************************************/
-extern void sHADOW(GroupItem field)
-{
-Stylish shadowStyle = getStyle(field);
-    if !shadow
-        {
-        shadow = new;
-        hold((void*)shadow);
-        }
-    if shadowField {
-        GroupItem   shadowBlur = shadowField["blur"];
-        GroupItem   shadowColor = shadowField["color"];
-        GroupItem   xOffset = shadowField["x"];
-        GroupItem   yOffset = shadowField["y"];
-        shadowStyle = getStyle(shadowField);
-        if shadowBlur shadow.blur(shadowBlur.number);
-        else shadow.blur(3.0);
-        if shadowColor && shadowColor.isPointer {
-            Color coloric = shadowColor.pointer;
-            shadow.color(coloric); }
-        else shadow.color(black.alpha(0.3));
-        if xOffset && yOffset   shadow.offset(sized(xOffset.number,yOffset.number));
-        else shadow.offset(sized(2.0,-2.0));
-        }
 }
 
 /***************************************************************************

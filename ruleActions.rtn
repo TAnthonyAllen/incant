@@ -151,21 +151,6 @@ Buffer      buffer = bufferSTAK.pop();
 }
 
 /*******************************************************************************
-    CheckFor is a debugging tool. It matches its text and returns null
-    if it matches so it fails even if it succeeds.
-    It should be entered as a rule attribute like: CheckFor?="some text".
-    It enables you to stop the parse at some arbitrary point in the input
-    stream and you can modify it to do whatever before it returns (like
-    turn on debugAllRules). It runs in the parse not at runtime, unlike
-    the similar opDoNothing operator that runs at code execution.
-*******************************************************************************/
-extern GroupItem aCTionCheckFor(GroupItem input)
-{
-    debugAllRules = true;
-    return null;
-}
-
-/*******************************************************************************
 	CodE rule action Note: box boundaries defined by its left and right attributes
 *******************************************************************************/
 extern GroupItem aCTionCodE(GroupItem rule)

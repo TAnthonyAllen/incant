@@ -3130,49 +3130,6 @@ extern int jitRunAction(GroupItem action)
 }
 
 
-/* Pipeline proof: hand-build the IR for an addTwo-shaped function
-   ( i32 f(){ return 3 + 5; } ), JIT-compile it via the engine, call it, and
-   return the result. Proves emit -> ORCv2 compile -> lookup -> native call.
-   The generic body-walk + tok-native emitters replace the hand-built IR next. */
-extern int jitRunAddTwo()
-{
-    -%
-    printf("=== jitRunAddTwo: entering ===\n"); fflush(stdout);
-    jitInitOnce();
-    llvm::orc::LLJIT *jit = (llvm::orc::LLJIT*)jitEngine();
-    if (!jit) { printf("=== JIT engine null ===\n"); fflush(stdout); return -1; }
-
-    auto ctx = std::make_unique<llvm::LLVMContext>();
-    auto mod = std::make_unique<llvm::Module>("addTwoMod", *ctx);
-    llvm::IRBuilder<> B(*ctx);
-
-    llvm::Type *i32 = llvm::Type::getInt32Ty(*ctx);
-    llvm::Function *fn = llvm::Function::Create(
-        llvm::FunctionType::get(i32, false),
-        llvm::Function::ExternalLinkage, "addTwo", mod.get());
-    B.SetInsertPoint(llvm::BasicBlock::Create(*ctx, "entry", fn));
-
-    // Hand-built add: a low-level ORC smoke test, independent of the gate and
-    // the opMethod emitters. Proves emit -> compile -> lookup -> call in isolation.
-    B.CreateRet(B.CreateAdd(
-        llvm::ConstantInt::get(i32, 3), llvm::ConstantInt::get(i32, 5), "add"));
-
-    if (auto err = jit->addIRModule(
-            llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
-        llvm::consumeError(std::move(err));
-        printf("=== JIT addIRModule failed ===\n");
-        return -2;
-    }
-    auto sym = jit->lookup("addTwo");
-    if (!sym) { llvm::consumeError(sym.takeError());
-                printf("=== JIT lookup failed ===\n"); return -3; }
-    int (*fp)() = sym->toPtr<int(*)()>();
-    int r = fp();
-    printf("=== JIT addTwo result = %d ===\n", r); fflush(stdout);
-    return r;
-    %-
-}
-
 
 /*******************************************************************************
     jitRunIfTest -- CONTROL-FLOW SMOKE TEST, and the first multi-basic-block IR

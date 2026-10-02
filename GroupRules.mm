@@ -219,21 +219,6 @@ Buffer 		*buffer = (Buffer*)GroupControl::groupController->groupRules->bufferSTA
 }
 
 /*******************************************************************************
-    CheckFor is a debugging tool. It matches its text and returns null
-    if it matches so it fails even if it succeeds.
-    It should be entered as a rule attribute like: CheckFor?="some text".
-    It enables you to stop the parse at some arbitrary point in the input
-    stream and you can modify it to do whatever before it returns (like
-    turn on debugAllRules). It runs in the parse not at runtime, unlike
-    the similar opDoNothing operator that runs at code execution.
-*******************************************************************************/
-extern "C" GroupItem *aCTionCheckFor(GroupItem *input)
-{
-	GroupControl::groupController->groupRules->debugAllRules = 1;
-	return 0;
-}
-
-/*******************************************************************************
 	CodE rule action Note: box boundaries defined by its left and right attributes
 *******************************************************************************/
 extern "C" GroupItem *aCTionCodE(GroupItem *rule)
@@ -1689,37 +1674,6 @@ GroupItem 	*grup = 0;
 		}
 }
 
-/*******************************************************************************
-                            Commands.rtn
-    Home for extern methods backing the cOMMANDs base registry. Commands fire
-    C++ methods used to set flags or perform side effects; they are wired up
-    via the immediateAction attribute in incant/setup.
-
-    Externs are ordered alphabetically by method name (case-sensitive ASCII,
-    matching tok's emit order so the .rtn order and .mm order line up).
-    
-    Note: incant commands are defined at setup in the cOMMANDs registry. They
-    come in two flavors: commands with a noPrint attribute are invoked during
-    field definition to modify the field being defined; the command is not
-    added to the definition; it is fire and forget. Commands without a noPrint
-    attribute are intended to be run on the command line.
-*******************************************************************************/
-/******************************************************************************
-    arrondir is French for to round. Named because libc has round so cannot
-    declare a kant command named round.
-        // arrondirNote
-******************************************************************************/
-extern "C" GroupItem *arrondir(GroupItem *field)
-{
-	if ( !field )
-		{
-		::fprintf(stderr,"arrondir: no argument provided\n");
-		return 0;
-		}
-	GroupControl::groupController->groupRules->tempField->setCount(field->getCount());
-	return GroupControl::groupController->groupRules->tempField;
-}
-
 // assignFieldCore BOTH ROADS CALL THIS -- the interpreted = from opAssign, the emitted = through jitAssignNodeRT -- one spelling, so they cannot drift
 extern "C" int assignFieldCore(GroupItem *source, GroupItem *target)
 {
@@ -1741,6 +1695,21 @@ extern "C" int assignFieldCore(GroupItem *source, GroupItem *target)
 }
 
 /*******************************************************************************
+                            Commands.rtn
+    Home for extern methods backing the cOMMANDs base registry. Commands fire
+    C++ methods used to set flags or perform side effects; they are wired up
+    via the immediateAction attribute in incant/setup.
+
+    Externs are ordered alphabetically by method name (case-sensitive ASCII,
+    matching tok's emit order so the .rtn order and .mm order line up).
+    
+    Note: incant commands are defined at setup in the cOMMANDs registry. They
+    come in two flavors: commands with a noPrint attribute are invoked during
+    field definition to modify the field being defined; the command is not
+    added to the definition; it is fire and forget. Commands without a noPrint
+    attribute are intended to be run on the command line.
+*******************************************************************************/
+/*******************************************************************************
 	The incant clear command invokes this. It clears its argument.
     If data is a buffer, it is reset. If data is a stak, it is cleared.
     Otherwise input is cleared wiping data and list.
@@ -1757,15 +1726,6 @@ extern "C" GroupItem *cLEAR(GroupItem *input)
 		input->clearList();
 		}
 	return input;
-}
-
-/*******************************************************************************
-	Returns a copy of the field passed in
-*******************************************************************************/
-extern "C" GroupItem *cOPY(GroupItem *field)
-{
-GroupItem 	*newField = new GroupItem(field);
-	return newField;
 }
 
 /*  clearRefusal -- A REFUSAL'S SCOPE IS THE STATEMENT. Tony, ruled 2026-09-17.
@@ -1981,23 +1941,6 @@ extern "C" char *dataName(int d)
 	if ( d == 14 )
 		return "isTOKEN";
 	return "unknown";
-}
-
-/*******************************************************************************
-	The incant debugGuard command invokes this to toggle the debugGuard
-    flag in the argument passed in
-*******************************************************************************/
-extern "C" GroupItem *debugOnGuard(GroupItem *input)
-{
-	if ( !input )
-		GroupControl::groupController->groupRules->debugGuards = !GroupControl::groupController->groupRules->debugGuards;
-	else
-	if ( input->groupBody->flags.fLAG )
-		input = input->parent;
-	if ( input->groupBody->flags.isRule )
-		input->groupBody->flags.debugGuard = !input->groupBody->flags.debugGuard;
-	else	::fprintf(stderr,"debugOnGuard: expected a rule argument, got: %s\n",input->groupBody->tag);
-	return GroupControl::groupController->groupRules->trueResult;
 }
 
 /***************************************************************************
@@ -2258,24 +2201,6 @@ char 				*driveBase = 0;
 }
 
 /*******************************************************************************
-	Debug: setColor a field then print its resulting RGB components (0.0-1.0),
-    to verify setColor's hex parse + scale. POP tool, not called from
-    production paths.
-*******************************************************************************/
-extern "C" void dumpColorRGB(GroupItem *field)
-{
-	::setColor(field);
-	
-	NSColor *c = (NSColor*)field->getObject();
-	if (c) {
-	CGFloat r = 0, g = 0, b = 0, a = 0;
-	[c getRed:&r green:&g blue:&b alpha:&a];
-	fprintf(stderr,"dumpColorRGB %s: r=%.3f g=%.3f b=%.3f a=%.3f\n", field->getText(), r, g, b, a);
-	} else fprintf(stderr,"dumpColorRGB %s: NULL\n", field->getText());
-	
-}
-
-/*******************************************************************************
 	The incant dumpContents command runs this. It is used mostly for debugging.
     It lists out the componenst of the argument passed in.
 *******************************************************************************/
@@ -2296,24 +2221,6 @@ GroupItem 	*grup = 0;
 		::dumpContents(stuff);
 		}
 	return GroupControl::groupController->groupRules->trueResult;
-}
-
-/*******************************************************************************
-	Debug: setFont a field then print its resulting NSFont's displayName +
-    bold/italic traits. POP tool, not called from production paths.
-*******************************************************************************/
-extern "C" void dumpFontInfo(GroupItem *field)
-{
-	::setFont(field);
-	
-	NSFont *f = (NSFont*)field->getObject();
-	if (f) {
-	NSFontSymbolicTraits t = f.fontDescriptor.symbolicTraits;
-	fprintf(stderr,"dumpFontInfo %s: displayName='%s' size=%.1f bold=%d italic=%d\n",
-	field->resolvedTag(), [f.displayName UTF8String], f.pointSize,
-	(t & NSFontDescriptorTraitBold) != 0, (t & NSFontDescriptorTraitItalic) != 0);
-	} else fprintf(stderr,"dumpFontInfo %s: NULL\n", field->resolvedTag());
-	
 }
 
 /*******************************************************************************
@@ -2421,18 +2328,6 @@ char 	*name = input->getText();
 		else	::fprintf(stderr,"FAIL: no fail method argument provided\n");
 	else	::fprintf(stderr,"FAIL: should be a rule attribute\n");
 	return GroupControl::groupController->groupRules->trueResult;
-}
-
-/***************************************************************************
-    Buffer-side mark machinery wrappers — thin passthroughs to Buffer's
-    setMark/unMark/setFile/closeFile. Used by incant code that wants
-    explicit control over the mark, and by applyTextDirective to
-    arm/disarm Buffer.markIsSet around find-and-replace sweeps.
-***************************************************************************/
-extern "C" void flushBuffer(GroupItem *bufField)
-{
-	if ( isBUFFER(bufField->groupBody->flags.data) )
-		bufField->getBuffer()->flush();
 }
 
 /*  foldDot -- MINT ONE xdot: a dot whose left operand the parser never handed it.
@@ -6189,49 +6084,6 @@ extern "C" int jitRunAction(GroupItem *action)
 	
 }
 
-/* Pipeline proof: hand-build the IR for an addTwo-shaped function
-   ( i32 f(){ return 3 + 5; } ), JIT-compile it via the engine, call it, and
-   return the result. Proves emit -> ORCv2 compile -> lookup -> native call.
-   The generic body-walk + tok-native emitters replace the hand-built IR next. */
-extern "C" int jitRunAddTwo()
-{
-	
-	printf("=== jitRunAddTwo: entering ===\n"); fflush(stdout);
-	jitInitOnce();
-	llvm::orc::LLJIT *jit = (llvm::orc::LLJIT*)jitEngine();
-	if (!jit) { printf("=== JIT engine null ===\n"); fflush(stdout); return -1; }
-	
-	auto ctx = std::make_unique<llvm::LLVMContext>();
-	auto mod = std::make_unique<llvm::Module>("addTwoMod", *ctx);
-	llvm::IRBuilder<> B(*ctx);
-	
-	llvm::Type *i32 = llvm::Type::getInt32Ty(*ctx);
-	llvm::Function *fn = llvm::Function::Create(
-	llvm::FunctionType::get(i32, false),
-	llvm::Function::ExternalLinkage, "addTwo", mod.get());
-	B.SetInsertPoint(llvm::BasicBlock::Create(*ctx, "entry", fn));
-	
-	// Hand-built add: a low-level ORC smoke test, independent of the gate and
-	// the opMethod emitters. Proves emit -> compile -> lookup -> call in isolation.
-	B.CreateRet(B.CreateAdd(
-	llvm::ConstantInt::get(i32, 3), llvm::ConstantInt::get(i32, 5), "add"));
-	
-	if (auto err = jit->addIRModule(
-	llvm::orc::ThreadSafeModule(std::move(mod), std::move(ctx)))) {
-	llvm::consumeError(std::move(err));
-	printf("=== JIT addIRModule failed ===\n");
-	return -2;
-	}
-	auto sym = jit->lookup("addTwo");
-	if (!sym) { llvm::consumeError(sym.takeError());
-	printf("=== JIT lookup failed ===\n"); return -3; }
-	int (*fp)() = sym->toPtr<int(*)()>();
-	int r = fp();
-	printf("=== JIT addTwo result = %d ===\n", r); fflush(stdout);
-	return r;
-	
-}
-
 /*******************************************************************************
     jitRunIfTest -- CONTROL-FLOW SMOKE TEST, and the first multi-basic-block IR
     in the JIT layer. Field assumed a count (i32 gCount); drive with
@@ -6809,37 +6661,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ruler->falseResult;
 }
 
-// loadRegistryFromString load a registry, creating it if needed, with every run of non-space characters; attributes are not handled
-extern "C" void loadRegistryFromString(char *name, char *content)
-{
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-Buffer 		*buffer = ruler->stringBUFFER;
-GroupItem 	*target = GroupControl::groupController->getRegistry(name);
-GroupItem 	*field = 0;
-char 		*input = content;
-char 		*strung = 0;
-PLGset 		*fieldSet = new PLGset("^ \n\r\t");
-	::printf("%s\n",target->groupBody->tag);
-	while ( input && *input )
-		{
-		field = 0;
-		if ( fieldSet->contains(*input) )
-			{
-			buffer->reset();
-			while ( fieldSet->contains(*input) )
-				{
-				buffer->appendChar(*input,0,0);
-				input++;
-				}
-			strung = buffer->toString();
-			field = new GroupItem(strung);
-			//target    += field;
-			::printf("\t%s\n",field->groupBody->tag);
-			}
-		else	input++;
-		}
-}
-
 /*******************************************************************************
     // ruleLookupScope  resolves on the SEARCH LIST only and only isRule hits -- a bare locate() falls through to the base registries and silently mis-targets any rule sharing a name with a keyword or command
 *******************************************************************************/
@@ -6957,16 +6778,6 @@ GroupItem 	*form = input->parent;
 		form->groupBody->flags.isWindow = 1;
 	else	::fprintf(stderr,"window: should be invoked as an attribute when its parent is defined\n");
 	return GroupControl::groupController->groupRules->trueResult;
-}
-
-// materialiseRegistry materialise the rStuff of every rule in a registry; returns how many were made
-extern "C" int materialiseRegistry(GroupItem *registry)
-{
-GroupItem 	*rule = 0;
-int 		made = 0;
-	while ( rule = registry->next(rule) )
-		made += ::materialiseTerms(rule);
-	return made;
 }
 
 // materialiseTerms rStuff at DEFINE TIME, for the rule and each term -- it closes the gap the bootstrapper's hand-built rules leave
@@ -10499,24 +10310,6 @@ int 		leftIsTrue = 0;
 	return GroupControl::groupController->groupRules->falseResult;
 }
 
-/*******************************************************************************
-    C extern backing the incant `system` command. Named runSystem to avoid
-    the extern "C" symbol clash with libc system(3). User-beware: no escaping,
-    no stdout capture, no elaborate error handling. Returns trueResult on
-    exit code 0, falseResult otherwise.
-*******************************************************************************/
-extern "C" GroupItem *runSystem(GroupItem *command)
-{
-char 	*cmdText = command->getText();
-int 	status = 0;
-	if ( !cmdText )
-		return GroupControl::groupController->groupRules->falseResult;
-	status = ::system(cmdText);
-	if ( status == 0 )
-		return GroupControl::groupController->groupRules->trueResult;
-	return GroupControl::groupController->groupRules->falseResult;
-}
-
 // saveLocalFields save an action's argument and locals before a nested call, so each activation starts from its own state
 extern "C" void saveLocalFields(GroupItem *action)
 {
@@ -10802,12 +10595,6 @@ char 		*deeper = 0;
 		while ( kid = node->nextGroup(kid) )
 			::showTree(kid,deeper);
 	return 1;
-}
-
-// statementMatches statement equivalence: v1 is a top-level GroupItem.matches; a recursive walk is the v2 candidate
-extern "C" int statementMatches(GroupItem *a, GroupItem *b)
-{
-	return a->matches(b);
 }
 
 /*******************************************************************************

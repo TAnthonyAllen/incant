@@ -603,19 +603,6 @@ define
                 MOVED HERE FROM GroupActions.rtn 2026-09-04, cleanup arc. The method is
                 unchanged; only its home and its comment moved.#);
         Commands="an rtn file that gets included into GroupRules.twk when it gets tokked.":
-            arrondir="A kant command for rounding":
-                arrondirNote date="2026-08-20" site="Commands.rtn arrondir" purpose="rounds a value" invoke="as incant command" why="avoid libc symbol collision" beartraps="7 12" description=(arrondir is French for round and it works as an incant command that does what round does. round is in libc math.h so trying to use it directly as an incant command would generate a duplicate symbol error on linking.
-                    Borrowing a word from another language gets around that issue. arrondir is free at C level, causing no linking duplication.
-                    arrondir is not used in underlying kant methods like opDiv(). Likewise GroupItem getCount() does not use arrondir. opDiv and getCount are C++ methods so they do not need it. Kant has no such option; arrondir allows kant to run round().
-                    HALF-UP, the same rule and the same spelling as everywhere else: >= .5 goes
-                    up, < .5 goes down, so -2.5 gives -2. ⚠ THAT DISTINCTION IS NOW LOAD-BEARING
-                    rather than academic -- under Word 2 the compound-assign family computes in
-                    doubles and narrows the RESULT, so negative halves actually reach a rounding
-                    decision. lround() would round half AWAY FROM ZERO and disagree here.
-                    ROUTED THROUGH .count (getCount) DELIBERATELY, exactly as the compound
-                    arms are, so the half-up rule keeps ONE IMPLEMENTER. An inline floor(x+0.5)
-                    here would be a second copy of a rule whose whole history is copies
-                    disagreeing.#);
             compile="compiles a rule parse generated in the parser incantation.":
                 compileAddTempFields=(Every coded body is built with TWO HIDDEN LOCALS -- `this` and
                     `tempField`. aCTionDefinE adds them at definition time when it sees a
@@ -1124,42 +1111,6 @@ define
         GroupItem=(is the twk file for the core tree node. Entries here are method notes
                 lifted out of the code under the 2026-09-01 convention: the inline line
                 carries the claim, this carries the argument.#):
-            getGuard=(PURE READ OF THE GUARD SET. Builds nothing. Split out of the
-                constructing body 2026-09-01 by Tony's ruling -- the same cure applied to
-                getRStuff the day before.
-
-                IT LOOKED LIKE A GETTER AND ACTED LIKE A SETTER, and the side effect was
-                worse than construction. The old body opened with setRuleStuff, which sets
-                isRule as well as minting rStuff -- and isRule lives in groupBody, which is
-                SHARED. So a bare read could raise a SHAPE FACT and broadcast it to every
-                twin over that body. That is a reader changing what a node IS.
-                "Right now it works" is exactly what getRStuff said until an audit read
-                0 missing and 801 loose.
-
-                ⚠ THE CENSUS FOUND SOMETHING NEITHER COUNT CARRIED. Tony counted five call
-                sites, Clod counted six; the six was the definition line, an H9 surface-form
-                artefact. But THREE OF THE FIVE ARE getGuard'S OWN RECURSION, inside its own
-                body, building child guard sets. There are exactly TWO external callers,
-                both in RuleStuff.twk, both spelled `if !guarding getGuard();` and both
-                DISCARDING THE RETURN -- they were already pure ensure-for-effect calls and
-                had been misnamed all along.
-
-                ⚠ AND THE 17x HAZARD CANNOT ARISE HERE, which is the substantive difference
-                from getRStuff. getGuard is a HAND-WRITTEN method whose name merely starts
-                with `get`, not an autoGetSet accessor for a field called `guard` -- the
-                field is guardSet. It was already declared in groups.ext, so no mirror line
-                could ever bind a bare read to it. Its five sites are the whole population
-                and always were.
-
-                Certified byte-identical on the fleet against a capture banked before the
-                first edit, 87 green, raw-rStuff drift row unmoved at 30.#);
-            allAttributesOptional=(True if every attribute of this group has min 0. getWhatFollows() only
-                zeroes a parent rule's min when ALL of its attributes are individually
-                optional -- one optional attribute among mandatory siblings must not
-                drag the parent's own min down to 0 (genParseSpec.md S7.1). An attribute
-                with no rStuff yet has not had a chance to relax its implicit default
-                min of 1 (RuleStuff(GroupItem) sets min=1), so treat "not yet known" as
-                mandatory, not as optional -- the safe default, same as an untouched min.#);
             attachLabel=(THE LABEL ATTACH, and the ONLY site that performs one.
 
                 PC-4, 2026-08-07. Extracted from parse()'s match loop so both arms run the
@@ -1365,32 +1316,6 @@ define
                 earlier parses, missed a live deferred ancestor through a recursion, and
                 looped forever on the F-114 cycles. Stroke 5.5b, SEQ 245; the argument is in
                 docs/objectModel.md, stroke 5 status.#);
-            frameParent=(resolve the parse-time parent for a rule invoked through
-                runRule, which has no pStuff to read one from.
-
-                IT READS runRule's OWN ARGUMENT, and that is the whole finding. The holder
-                is the node the call site handed down -- the InvokeArg for a sub-rule call,
-                the argument field for a top-level one -- and its rStuff carries a label
-                that is DISTINCT PER INVOCATION. So the caller's name reaches the writer as
-                dataflow along the existing call, with no emitter change and no channel
-                invented.
-
-                ⚠ THE FIRST VERSION READ ruler->ruleSTUFF AND WAS WRONG, MEASURABLY.
-                A singleton is not a channel: a distant read of shared state answers "what
-                happened last", never "who is asking". It printed ONE pointer for all four
-                invocations of an Xpress walk -- the driver action's own BlocK, stale --
-                where four distinct ones were pre-registered. The holder's own stuff prints
-                four distinct labels on the same run, and the singleton prints its single
-                stale pointer beside them, which is the control.
-
-                A top-level invocation's holder has no rStuff at all (the probe shows
-                fieldStuff=0x0 for ruleText), so it falls through to the holder itself --
-                the argument holder, which is what a top-level parse should attach into.
-
-                Separate from establishFrame deliberately: runRule is a declared-field
-                function and after the parkOnMaster near-miss no new declarations go inside
-                one. A call introduces no declaration, so the resolution happens here and
-                runRule's own bare-name resolution cannot move.#);
             setMethod=(SYMMETRIC, AND IT IS THE SOLE MAINTAINER OF A SHAPE FACT.
                 Tony's design, 2026-08-29, minted with the eviction campaign.
 
@@ -1647,73 +1572,6 @@ define
                 WANT setRuleStuff's re-clone is a live question and now a visible one; it is
                 deliberately not answered here.#);
             parse="the old parse"
-                genParseRuleAccess=(⚠ HISTORICAL, 2026-10-02: the fork this describes left parse() on 2026-09-07 (0150f29), and `into` is now a parseRule snapshot of enclosingStuff().label (stroke 5.9). Retires with parse()'s definer/defStuff (deepClean D-15).
-                    genParseRuleAccess S1.3 -- a generated parse supersedes the interpretive walk.
-
-                    INSIDE the inProcess bracket, DELIBERATELY, and it does NOT return
-                    early. Two reasons, both load-bearing:
-                    1. inProcess must be SET, so getStuff() hands a nested call a fres
-                       clone. The JSON family is mutually recursive (JSONvalue ->
-                       JSONblock -> JSONfield -> JSONvalue); without it a nested call
-                       shares one frame with its parent. Placing the fork BEFORE this
-                       line is safe against leaks and wrong about reentrancy.
-                    2. inProcess must be CLEARED, and aCTionFailed/trueResult must still
-                       run. So the fork sets sukcess and falls through to the ONE shared
-                       exit rather than reimplementing it. The generated path then
-                       matches the interpretive path because it RUNS the same exit, not
-                       because the exit was copied carefully -- model-not-oracle applied
-                       to the exit itself. In particular notifyFail survives onto the
-                       generated path: a generated rule that could not report failure
-                       would rebuild exactly the blindness that made jsonTest useless.
-
-                    leaveRule/leaveAlt own only the REWIND (Invariant R) and the
-                    label-or-0 return. parse()'s tail keeps the trueResult substitution
-                    and the aCTionFailed decision. One implementer each.
-
-                    NO-OP until something is generated: no current path assigns
-                    parseMethod, so every rule takes the old road and the baseline must
-                    be byte-identical.
-                    Deliberately NOT lazily initialized (contrast testMatch's
-                    `if !testMatch setTestMatch()` at RuleStuff.twk:159). Generation is
-                    explicit and idempotent; an `if !parseMethod genParse(rule)` here
-                    would turn first-parse into a generation event -- this phase, that
-                    means emitting text and running a build, from inside a parse.
-
-                    RUNG-6 TRIPWIRE: the interpretive path does kount++ on success, which
-                    feeds `kount >= min` and the iteration bound. The generated path does
-                    not. Invisible at max 1 (rungs 1-2); rung 6 must address it.
-
-                    genParseShape S1.1/S1.2 (2026-07-28): the fnptr takes ONE argument and
-                    it is the rule -- kant methods take one argument, so the old
-                    (rule, parentLabel) pair could never survive the kant handover. The
-                    `into` travels through the named parentLabel field instead, and THIS
-                    LINE IS ITS SINGLE WRITER. It is written on the rule's OWN rStuff, not
-                    on ruleStuff, because ruleStuff may be a reentrancy clone the callee
-                    cannot reach -- the callee only receives the rule. The callee lifts it
-                    into a stack local at entry, before descending, so a nested invocation
-                    overwriting it here cannot disturb an outer frame already under way.
-
-                    RUNG 4, and the split is the whole point (Clay SEQ 26 S1/S2). The two
-                    fields go to DIFFERENT nodes, deliberately:
-
-                      parseMethod is SHAPE. One answer, always the same for a given rule,
-                      so it is read from the DEFINING rule (definingRule() then, instanceRule() since 2026-09-29, a pointer walk,
-                      no name lookup). That is what lets a generated rule be reached
-                      through another rule's reference term and not only by name -- bind
-                      once, and every reference sees it, including references created after
-                      the binding.
-
-                      parentLabel is FRAME. It varies per invocation and is what carries
-                      the variation. It stays on `this` -- the node actually being parsed.
-                      Routing it to the defining rule instead would make every reference to
-                      a recursive rule write the SAME slot, which is correct-looking right
-                      up until the recursion is live. A field that looks like it belongs
-                      with the rule because it is usually the same is exactly the dangerous
-                      case.
-
-                    `this` is what gets passed, not the definer: the two share a child
-                    list, so rule[n] reads the same terms from either, while
-                    rule.rStuff.parentLabel has to be this invocation's.#)
                 bindReadSeamProbe=(THE READ HALF OF THE BIND-READ SEAM PROBE, SEQ 58, 2026-08-13. Its
                     write half sits in the binding door in genParse. Together they
                     answered, in one bit, why a cross-file parse-method bind was written
@@ -3347,22 +3205,6 @@ define
 
                 MOVED HERE FROM GroupActions.rtn 2026-09-04, cleanup arc stroke 4. The method is
                 unchanged; only its home and its comment moved.#);
-            bodyCensus=(bodyCensus -- THE QUERY VERB.
-
-                Reports the corpus as pending / activated / stray, PRINTED UNCONDITIONALLY
-                AND WITH VALUES. That is rule H4: a census that stays silent when the
-                corpus is empty is an absence check, and an absence check passes the day
-                somebody deletes the code that would have spoken. Zero pending is a
-                reportable answer here, not a silence.
-
-                `stray` counts entries whose count is neither 1 nor 2. It should always be
-                zero; it exists so that a corpus written by something other than these
-                verbs is visible rather than silently partitioned into the two known bins.
-
-                ⚠ RETURNS GroupItem for the reason spelled out on activateAll above.
-
-                MOVED HERE FROM Commands.rtn 2026-09-04, cleanup arc stroke 4. The method is
-                unchanged; only its home and its comment moved.#);
             canonOf=(canonOf -- name the node instanceRule() resolves to, from incant. It read definingRule()
                 until that was retired, 2026-09-30 (stroke 4.4a); the paragraphs below are its record.
 
@@ -3421,38 +3263,6 @@ define
                 header means per-TU, and a per-TU counter reads zero.
 
                 MOVED HERE FROM GroupActions.rtn 2026-09-04, cleanup arc stroke 11.#);
-            evictAction=(evictAction -- THE EVICTION, AND IT REFUSES RATHER THAN SUBSTITUTES.
-
-                Tony's design, 2026-08-29. Step 3 of the earlier brief -- install the parse
-                INTO gMethod -- is dead, killed by the parseAction finding: gMethod is read
-                as THE ACTION by nine sites, one of which is a parse executor that would
-                then call itself. The replacement is bear-trap 34's retirement clause.
-                VACATE gMethod and install NOTHING. With the slot empty and isMethod
-                retracted by the symmetric setter, runOP arm two stops claiming the rule,
-                and a bare `QuotE()` in a generated body falls through to the isRule arm,
-                into runRule, into builtinParsE. The new parse wins by having no
-                competitor rather than by taking the old channel.
-
-                ⚠ RELOCATE-THEN-NULL IS STRUCTURAL HERE, NOT REMEMBERED. The whole reason
-                this is one extern rather than two statements in the driver is that the
-                null must be unreachable until the relocation is VERIFIED. setParse already
-                parks actionMethod for every rule it claims, so the relocation has usually
-                happened -- but "usually" is what the brief said not to trust, and a rule
-                that reached dual-flag by any road other than setParse is the burn case:
-                null its gMethod and the action is gone with nothing holding a copy.
-
-                ⚠ IT REPORTS A VALUE ON EVERY RULE, NOT A MESSAGE ON FAILURE (rule H4).
-                An eviction pass that printed only its refusals would go quiet the day it
-                stopped evicting anything, and quiet would read as success. Every rule
-                prints its outcome by name, so the driver can count them and a zero is
-                visible as a zero.
-
-                The passthrough reads two function pointers and compares them. There is no
-                kant spelling for that -- parseClassify above is the house precedent, and
-                the comparison is all that sits inside the escape.
-
-                MOVED HERE FROM Generate.rtn 2026-09-04, cleanup arc stroke 4. The method is
-                unchanged; only its home and its comment moved.#);
             measureFrameProbe=(RENAMED FROM frameProbe 2026-09-18 so the reserved prefix census
                 -- grep -n "measure[A-Z]" -- returns every instrument and nothing else. It was the
                 one witness in the tree wearing no prefix. Its caller gate went with the rename:
@@ -3468,36 +3278,6 @@ define
                 Separate function, not lines inside runRule: runRule is a declared-field
                 function and after parkOnMaster no new declarations go inside one.
                 No percent-dash in the format string; that token closes passthrough.
-
-                MOVED HERE FROM Generate.rtn 2026-09-04, cleanup arc stroke 4. The method is
-                unchanged; only its home and its comment moved.#);
-            labelMinters=(THE CONDITION IS COPIED FROM checkInput AND NOT FROM THE SPELLING, and that
-                is Tony's ruling of 2026-08-25 rather than a preference. RuleStuff.mm's
-                checkInput sets `label = 0` when
-
-                    noLabel || (isRule && hasMembers && !binType)
-
-                -- so the dash is only HALF of it. A sub-term that is itself a rule with
-                members mints no label either, and a dash-only census calls such a rule
-                "has labelled components", declines to capture, and leaves it silently
-                returning an empty label while the specimen works. Mirror the mechanism,
-                never the grammar line.
-
-                ⚠ noLabel LIVES ON THE TERM'S rStuff, THE OTHER THREE ON ITS groupBody, and
-                a term with NO rStuff is NOT thereby label-free -- rStuff is materialised
-                lazily, so an unstuffed term still mints when it is parsed. Absence of
-                rStuff is therefore not a skip; only the two positive conditions are.
-                That is Ruling D1 read in the direction it actually points.
-
-                ⚠ next() IS SAFE HERE AND THE REASON IS LOCAL: its shared `entry` state is
-                clobbered by NESTED calls, and this loop body calls nothing that can parse
-                or re-enter. It counts flags and moves on. Do not copy the idiom into a
-                walk whose body descends.
-
-                Returns the COUNT, not a boolean, because rule H4 wants the quantity
-                printed rather than a verdict asserted -- a caller that prints 0 and a
-                caller that prints 3 are telling the reader different things, and "false"
-                tells it neither.
 
                 MOVED HERE FROM Generate.rtn 2026-09-04, cleanup arc stroke 4. The method is
                 unchanged; only its home and its comment moved.#);
@@ -3559,24 +3339,6 @@ define
                 (bear-trap 40). The `measure` prefix is Tony's naming rule for call-outs,
                 2026-09-09: a reader meeting one in the middle of real code should know from
                 the name alone that its purpose is measuring.#);
-            measureLabelProbe=(⚠ NOT TEMPORARY. genLadder/pop.sh PINS THIS LINE BY EXACT
-                STRING -- trigDO arms 1 and 2, plus the attach count -- so its format is a
-                fleet target and changing it is a re-pin owed a sentence (rule H6). Called
-                from Generate.rtn parseRule immediately before the yield decision is acted
-                on, so it reports what the invocation DECIDED rather than recomputing it.
-
-                ⚠ `yielded` IS PASSED IN RATHER THAN DERIVED, deliberately. Recomputing it
-                here would assert something about this function instead of about parseRule,
-                which is rule H4's point one level down: print the quantity the code
-                actually used.
-
-                It is the reason the three probes are call-outs rather than directives. A
-                parseTrace-gated call-out is toggled at RUN time, so the ordinary bare build
-                carries it and the fleet can pin it; a directive is toggled by a retok and a
-                rebuild, which would mean the fleet could only run on a directives build --
-                and a directives build is a different program (bear-trap 23).
-
-                No percent-dash in the format string (bear-trap 40).#);
             measureParentProbe=(TEMPORARY, parseTrace gated. Called from Generate.rtn
                 parseRule at entry, before the use lines.
 

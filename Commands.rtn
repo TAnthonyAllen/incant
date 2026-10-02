@@ -14,20 +14,6 @@
     attribute are intended to be run on the command line.
 *******************************************************************************/
 
-/******************************************************************************
-    arrondir is French for to round. Named because libc has round so cannot
-    declare a kant command named round.
-        // arrondirNote
-******************************************************************************/
-extern GroupItem arrondir(GroupItem field)
-{
-    if !field {
-        cerr "arrondir: no argument provided":;
-        return null; }
-    tempField.count = field.count;
-    return tempField;
-}
-
 /*******************************************************************************
 	The incant clear command invokes this. It clears its argument.
     If data is a buffer, it is reset. If data is a stak, it is cleared.
@@ -111,15 +97,6 @@ use field
 }
 
 /*******************************************************************************
-	Returns a copy of the field passed in
-*******************************************************************************/
-extern GroupItem cOPY(GroupItem field)
-{
-GroupItem newField = new(field);
-    return newField;
-}
-
-/*******************************************************************************
 	copyOf() makes a copy of the field passed in. The copy groupBody is a copy.
     if the source isVirtual the copy will share the same list as grup (the source).
     If source is not isVirtual the copy list will be distinct but will have
@@ -136,19 +113,6 @@ GroupItem block = new;
         block.groupList = new();
         grup.copyListTo(block); }
     return block;
-}
-
-/*******************************************************************************
-	The incant debugGuard command invokes this to toggle the debugGuard
-    flag in the argument passed in
-*******************************************************************************/
-extern GroupItem debugOnGuard(GroupItem input)
-{
-    if !input   debugGuards = !debugGuards;
-    or fLAG     input = parent;
-    if isRule   debugGuard = !debugGuard;
-    else    cerr "debugOnGuard: expected a rule argument, got:",tag:;
-    return trueResult;
 }
 
 
@@ -576,22 +540,6 @@ String      name = item.data ? item.text : 0;
         *******************************************************************/
         currentRegistry = argument.registry; }
     return trueResult;
-}
-
-/*******************************************************************************
-    C extern backing the incant `system` command. Named runSystem to avoid
-    the extern "C" symbol clash with libc system(3). User-beware: no escaping,
-    no stdout capture, no elaborate error handling. Returns trueResult on
-    exit code 0, falseResult otherwise.
-*******************************************************************************/
-extern GroupItem runSystem(GroupItem command)
-{
-String  cmdText = command.text;
-int     status;
-    if !cmdText return falseResult;
-    status = system(cmdText);
-    if status == 0  return trueResult;
-    return falseResult;
 }
 
 /*******************************************************************************

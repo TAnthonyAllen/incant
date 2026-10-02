@@ -184,33 +184,6 @@ int         spurious = 0;
 }
 
 
-/*  prints its counts UNCONDITIONALLY (rule H4): zero pending is a reportable
-    answer here, not a silence.   measure.bodyCensus  */
-extern GroupItem bodyCensus(GroupItem ignored)
-{
-GroupItem   reg,
-            entry;
-int         pending  = 0;
-int         compiled = 0;
-int         active   = 0;
-int         stray    = 0;
-int         total    = 0;
-    reg = getRegistry("GenBodies");
-    if reg.groupList
-        while entry = reg.next(entry) {
-            total = total + 1;
-            if entry.count == 1         pending  = pending + 1;
-            or entry.count == 3         compiled = compiled + 1;
-            or entry.count == 2         active   = active + 1;
-            else                        stray    = stray + 1; }
-    cerr "CORPUS pending " toStringFromInt(pending)
-         " compiled " toStringFromInt(compiled)
-         " commissioned " toStringFromInt(active)
-         " stray " toStringFromInt(stray)
-         " total " toStringFromInt(total):;
-    return trueResult;
-}
-
 /*  canon is instanceRule() -- the registered original for a copy of one, else the node (stroke 4.4a; definingRule() retired)   measure.canonOf  */
 extern GroupItem canonOf(GroupItem argument)
 {
@@ -252,42 +225,10 @@ extern GroupItem chanReport(GroupItem input)
     return trueResult;
 }
 
-/*  RELOCATE-THEN-NULL IS STRUCTURAL: the null must be unreachable until the
-    relocation is verified. It REFUSES rather than substitutes.   measure.evictAction  */
-extern GroupItem evictAction(GroupItem field)
+// includeGroupList pulls GroupList.h into measure.mm -- every instrument here reads groupList only inside passthrough, which tok cannot see, so without one tok-native use the include drops (it went with bodyCensus in deepClean S3; the same idiom as jitEmitters' jitForceInclude)
+extern void includeGroupList(GroupItem field)
 {
-RuleStuff   ruleStuff = field.rStuff;
-String      outcome = "no-rstuff";
-int         doEvict = 0;
-    if ruleStuff {
-        -%
-        GroupItem *(*am)(GroupItem *) = ruleStuff->actionMethod;
-        GroupItem *(*gm)(GroupItem *) = field->groupBody->gMethod;
-        if      ( !gm )        outcome = (char *)"already-vacant";
-        else if ( !am )        outcome = (char *)"REFUSED-unparked";
-        else if ( am != gm )   outcome = (char *)"REFUSED-mismatch";
-        else                 { outcome = (char *)"evicted"; doEvict = 1; }
-        %- }
-    cerr "EVICT " field.tag " " outcome:;
-    if doEvict  field.method = 0;
-    return field;
-}
-
-/*  labelMinters -- HOW MANY OF THIS RULE'S SUB-TERMS WILL MINT A LABEL. The
-    condition is copied from checkInput, not from the spelling.   measure.labelMinters  */
-extern int labelMinters(GroupItem rule)
-{
-GroupItem   grup;
-RuleStuff   termStuff;
-int         minters = 0;
-    if !rule    return 0;
-    while grup = rule.next(grup) {
-        if grup.noPrint     continue;
-        termStuff = grup.rStuff;
-        if termStuff && termStuff.noLabel   continue;
-        if grup.isRule && grup.hasMembers && !grup.binType  continue;
-        minters++; }
-    return minters;
+    if field.groupList  return;
 }
 
 // labelTree print a label tree as TREE <depth> <tag>, one line per node, depth-first -- unwraps holders first, prints no addresses (H3), so a fixture can pin it
@@ -522,26 +463,6 @@ extern GroupItem measureLabelMint(GroupItem field, GroupItem myLabel, GroupItem 
             field->groupBody->tag,(void*)myLabel,
             into ? into->groupBody->tag : "(none)",(void*)into,
             (into && into->groupBody->groupList) ? (int)into->groupBody->groupList->listLength : 0);
-    %-
-    return field;
-}
-
-/*  ⚠ NOT TEMPORARY -- genLadder/pop.sh PINS THIS LINE BY EXACT STRING (trigDO arms
-    1 and 2), so its format is a fleet target and changing it is a re-pin owed a
-    sentence (rule H6). parseTrace-gated. ⚠ No percent-dash in the format string
-    (bear-trap #40).   measure.measureLabelProbe  */
-extern GroupItem measureLabelProbe(GroupItem field, GroupItem myLabel, GroupItem into, GroupItem result, int yielded)
-{
-    -%
-    if ( GroupControl::groupController->groupRules->parseTrace )
-        ::fprintf(stderr,"LABELPROBE %s minted=%s mintedLen=%d into=%s chainTrue=%d yielded=%d at=%p\n",
-            field->groupBody->tag,
-            myLabel ? myLabel->groupBody->tag : "(none)",
-            (myLabel && myLabel->groupBody->groupList) ? (int)myLabel->groupBody->groupList->listLength : 0,
-            into ? into->groupBody->tag : "(none)",
-            ::truthOf(result),
-            yielded,
-            (void*)myLabel);
     %-
     return field;
 }

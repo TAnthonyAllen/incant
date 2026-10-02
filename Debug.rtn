@@ -48,42 +48,6 @@ int     length;
     if flag cout :;
 }
 
-/*******************************************************************************
-	Debug: setColor a field then print its resulting RGB components (0.0-1.0),
-    to verify setColor's hex parse + scale. POP tool, not called from
-    production paths.
-*******************************************************************************/
-extern void dumpColorRGB(GroupItem field)
-{
-    setColor(field);
-    -%
-    NSColor *c = (NSColor*)field->getObject();
-    if (c) {
-        CGFloat r = 0, g = 0, b = 0, a = 0;
-        [c getRed:&r green:&g blue:&b alpha:&a];
-        fprintf(stderr,"dumpColorRGB %s: r=%.3f g=%.3f b=%.3f a=%.3f\n", field->getText(), r, g, b, a);
-    } else fprintf(stderr,"dumpColorRGB %s: NULL\n", field->getText());
-    %-
-}
-
-/*******************************************************************************
-	Debug: setFont a field then print its resulting NSFont's displayName +
-    bold/italic traits. POP tool, not called from production paths.
-*******************************************************************************/
-extern void dumpFontInfo(GroupItem field)
-{
-    setFont(field);
-    -%
-    NSFont *f = (NSFont*)field->getObject();
-    if (f) {
-        NSFontSymbolicTraits t = f.fontDescriptor.symbolicTraits;
-        fprintf(stderr,"dumpFontInfo %s: displayName='%s' size=%.1f bold=%d italic=%d\n",
-            field->resolvedTag(), [f.displayName UTF8String], f.pointSize,
-            (t & NSFontDescriptorTraitBold) != 0, (t & NSFontDescriptorTraitItalic) != 0);
-    } else fprintf(stderr,"dumpFontInfo %s: NULL\n", field->resolvedTag());
-    %-
-}
-
 /***************************************************************************
 	Return a string from the stream passed in converting newLines to space
 ***************************************************************************/

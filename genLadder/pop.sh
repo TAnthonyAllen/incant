@@ -5559,7 +5559,10 @@ kindRow "ruleOfT RO-6 ruleOf code lines in source (non-zero sibling of RO-5)" "$
 kindRow "ruleOfT RO-7 definingRule() engine callers left" "$(cat *.twk *.rtn | grep -c 'definer *= .*definingRule()')" "0"
 #  RO-8, RO-7's non-zero sibling: the engine callers that now read instanceRule() -- runLeafParse, installParseMethod,
 #  parse(), jitFieldMethod, jitShowRecord. A zero in RO-7 asserts nothing unless the callers are shown to exist.
-kindRow "ruleOfT RO-8 instanceRule() engine callers (non-zero sibling of RO-7)" "$(cat *.twk *.rtn | grep -c 'definer *= .*instanceRule()')" "5"
+#  RE-PINNED 2026-10-02 (SEQ 260, deepClean D-15): 5 -> 4 -- parse()'s `definer = instanceRule()` was CUT with its
+#  unread defStuff (written, never read since stroke 4.3 family 2). Still non-zero: runLeafParse, installParseMethod,
+#  jitFieldMethod, jitShowRecord.
+kindRow "ruleOfT RO-8 instanceRule() engine callers (non-zero sibling of RO-7)" "$(cat *.twk *.rtn | grep -c 'definer *= .*instanceRule()')" "4"
 
 #  ---------------------------------------------------------------------------
 #  ruleTermT -- OBJECT MODEL STROKE 2: "this term takes part as a rule term" is the REFERENCE'S fact (rStuff
