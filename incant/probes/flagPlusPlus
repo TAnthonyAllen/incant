@@ -25,3 +25,7 @@ flagPlusPlus -- deepClean D-23, path B<-E (SEQ 260 R9). Does a field whose gener
 (opSetFlag case 12) stop incrementing? Instruct.rtn's opPlusPlus reads the iterator poison (fLAG) for every
 operand at its top, so a flagged count may be refused. PFI-2 is the control: the same prefix ++ (the count arm) on an unflagged twin, both set to 5 in the body so each
 holds a count.
+
+2026-10-02 (SEQ 267): case 12 RETIRED. This probe now reads the refusal ("`:. flaG` -- not a groupField ...") and
+the rest of pfRun is abandoned by it, so PFI-1/PFI-2 no longer print. F-131 closed by construction; the fleet row is
+incant/pop/flagRetiredT.

@@ -7051,6 +7051,7 @@ GroupItem 	*product = 0;
 		{
 		 return jitEmitDot(argument, target, ruler->tempField); 
 		}
+	// leadingOnly !argument means the leading-dot form ONLY -- the right of a dot is a literal tag (ruled 09-16), so a binary null right has no road (F-132)
 	if ( !argument )
 		if ( ruler->lastREF )
 			{
@@ -7121,10 +7122,6 @@ GroupItem 	*product = 0;
 					break;
 				case 11:
 					if ( target->groupBody->flags.invoke )
-						product->setCount(1);
-					break;
-				case 12:
-					if ( target->groupBody->flags.fLAG )
 						product->setCount(1);
 					break;
 				case 17:
@@ -8416,10 +8413,11 @@ GroupItem 	*flagDef = 0;
 		return target;
 		}
 	flagDef = ruler->groupFields->get(argument->groupBody->tag);
+	// notAFlag a name with no groupFields entry has no flag to set -- refused by name, never a no-op (kant's generic flaG, case 12, retired 2026-10-02)
 	if ( !flagDef )
 		{
-		::fprintf(stderr,"opSetFlag: argument %s is NOT a groupField\n",argument->groupBody->tag);
-		return target;
+		char 	*why = ::concat(3,"`:. ",argument->groupBody->tag,"` -- not a groupField, so there is no flag to set; for a use-then-toss mark, +% a noPrint marker defined in pROPERTIEs (docs/flagCensus.md)");
+		return ::refuse(target,why);
 		}
 	/*  ⚠⚠ `:.` SETS. IT DOES NOT TOGGLE. Tony's ruling, 2026-08-17.
 	A toggle makes "make sure this flag is on" UNWRITABLE -- there is no
@@ -8450,9 +8448,6 @@ GroupItem 	*flagDef = 0;
 	if ( argument && target )
 		switch (flagDef->groupBody->gCount)
 			{
-			case 12:
-				target->groupBody->flags.fLAG = 1;
-				break;
 			case 21:
 				target->groupBody->flags.isPercent = 1;
 				break;

@@ -1755,6 +1755,13 @@ define
                     it, so it would have truncated pointerT at row X and deleted rows
                     F1 and F2 below it, which is a fixture reporting less rather than
                     a language saying more.   Instruct.opGet.nullTarget#);
+            opSetFlag=(THE :. SET-FLAG OPERATOR. Sets a GroupFields flag; it never toggles.#):
+                notAFlag=(A USE-THEN-TOSS MARK IS AN ATTRIBUTE, NOT A FLAG. Kant's generic
+                    flaG (case 12) retired 2026-10-02 (SEQ 267); a name with no groupFields
+                    entry is refused. The sanctioned form: a noPrint marker defined in
+                    pROPERTIEs, set with +%, tested by subscript, tossed with -=. Two
+                    measured caveats: it PRINTS while attached, and it COUNTS in listLengtH
+                    and in walks. docs/flagCensus.md has the census and the probe.#);
             opSetGroup=(THE := SET-GROUP OPERATOR.#):
                 oneSpelling=(ROUTED THROUGH setGroup, R2, Tony 2026-09-03. It wrote
                     gGroup, isGROUP and isInitialized by hand and was the LAST

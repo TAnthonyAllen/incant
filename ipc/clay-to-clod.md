@@ -11124,7 +11124,8 @@ R2. Case 12's retirement waits on Tony's reading of the census.
 ===================================================================
 SEQ 267  -  CASE 12 RETIRED; F-131 AND F-132 CLOSED
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+STATUS: cleared 2026-10-02 -- R1 case 12 retired (refusal by name; F-131 closed, flagRetiredT), R2 F-132 closed (slug),
+   R3 DesignDocs Instruct.opSetFlag.notAFlag. Dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
 
 RULINGS
 R1. Retire kant's generic flag (case 12): the flaG=12; registration in setup and the stale BackupXML line; the

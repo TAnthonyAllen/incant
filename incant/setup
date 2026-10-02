@@ -256,7 +256,6 @@ define
     isLocaL=9;
     isArgumenT=10;
     invokE=11;
-    flaG=12;
     isAttributE=34;
     isBiN=33;
     isConditioN;

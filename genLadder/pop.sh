@@ -5658,6 +5658,15 @@ kindRow "ruleGlobalT RG-2 the global survived two fires" "$(grep '^RG-2' "$T/rgl
 kindRow "ruleGlobalT RG-3 a global counter bumped by two fires" "$(grep '^RG-3' "$T/rgl" | awk '{print $NF}')" "2"
 kindRow "ruleGlobalT RG-4 no fire saw the last fire's local" "$(grep '^RG-4' "$T/rgl" | awk '{print $NF}')" "0"
 
+#  ⚑ flagRetiredT -- SEQ 267 R1: kant's generic flag (case 12) is retired; `x :. flaG` refuses by name, so kant can no
+#  longer set the bit that steers ++ (F-131 closed by construction). H7: `flaG=12;` restored in incant/setup -> no
+#  refusal, FR-0 prints, red.
+run1 flagRetiredT "$T/frt";   check "flagRetiredT runs" 0 $?
+sentinel "flagRetiredT sentinel" "$T/frt" "FLAGRETIRED SENTINEL"
+kindRow "flagRetiredT FR-1 the refusal names :. flaG" "$(grep -c '^REFUSED frX -- `:. flaG` -- not a groupField' "$T/frt")" "1"
+kindRow "flagRetiredT FR-0 the refused statement's block was abandoned" "$(grep -c '^FR-0' "$T/frt")" "0"
+kindRow "flagRetiredT FR-2 an unflagged count increments" "$(grep '^FR-2' "$T/frt" | awk '{print $NF}')" "6"
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi

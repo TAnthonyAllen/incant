@@ -45,4 +45,6 @@ added, and `noPrint` on its define line is the flag attribute doing its usual jo
 (listLengtH, `for`) count it**, so while a marker is attached it is visible to any count the field's owner takes.
 That is the cost of an attribute over a bit: a bit lives off the list.
 
-R2: case 12's retirement waits on Tony's reading of this table.
+**RULED 2026-10-02 (SEQ 267): case 12 RETIRED.** The registration (setup, BackupXML) and both case-12 arms are cut;
+`x :. flaG` refuses by name. F-131 closed by construction (fleet: incant/pop/flagRetiredT). The pROPERTIEs noPrint
+marker is the sanctioned use-then-toss form, with the two caveats above (DesignDocs `Instruct.opSetFlag.notAFlag`).

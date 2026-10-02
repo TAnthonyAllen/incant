@@ -348,6 +348,7 @@ GroupItem   product;
         -% return jitEmitDot(argument, target, ruler->tempField); %-
     }
 use argument
+    // leadingOnly !argument means the leading-dot form ONLY -- the right of a dot is a literal tag (ruled 09-16), so a binary null right has no road (F-132)
     if !argument
         if lastREF {
             argument = target;
@@ -379,7 +380,6 @@ use argument
                 case 9:     if target.isLocal       product.count = 1;
                 case 10:    if target.isArgument    product.count = 1;
                 case 11:    if target.invoke        product.count = 1;
-                case 12:    if target.fLAG          product.count = 1;
                 case 17:    if target.isLiteral     product.count = 1;
                 case 19:    if target.isMethod      product.count = 1;
                 case 20:    if target.isOperator    product.count = 1;
@@ -1421,9 +1421,10 @@ use argument
         cerr "opSetFlag: missing operand":;
         return target; }
     flagDef = groupFields[tag];
+    // notAFlag a name with no groupFields entry has no flag to set -- refused by name, never a no-op (kant's generic flaG, case 12, retired 2026-10-02)
     if !flagDef {
-        cerr "opSetFlag: argument",tag,"is NOT a groupField":;
-        return target; }
+        String  why = "`:. " tag "` -- not a groupField, so there is no flag to set; for a use-then-toss mark, +% a noPrint marker defined in pROPERTIEs (docs/flagCensus.md)";
+        return refuse(target,why); }
     /*  ⚠⚠ `:.` SETS. IT DOES NOT TOGGLE. Tony's ruling, 2026-08-17.
         A toggle makes "make sure this flag is on" UNWRITABLE -- there is no
         idempotent spelling, so every site is a bet about the current state and
@@ -1452,7 +1453,6 @@ use argument
         and is the intended meaning of "set this kind".  */
     if argument && target
         switch(flagDef.gCount) {
-            case 12:    target.fLAG         = true;
             case 21:    target.isPercent    = true;
             case 25:    target.isVirtual    = true;
             case 26:    target.mergeOn      = true;

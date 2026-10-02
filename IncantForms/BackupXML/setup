@@ -182,7 +182,6 @@ define
     isArgumenT=10;
     invokE=11;
     // The following flags should probably be made available via opDot()
-    flaG;
     isConditioN;
     isFilE;
     isIndexeD;

@@ -1,0 +1,32 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(FrLadder);
+define
+    frX=5;
+    frY=5;
+    frSet code={
+        frX :. flaG;
+        cerr "FR-0 the statement after the refused set ran":;
+        };
+    frInc code={
+        ++frY;
+        cerr "FR-2 an unflagged count increments " frY:;
+        };
+    ;
+search FrLadder UnitTests Utilities list;
+frSet();
+frInc();
+cerr "FLAGRETIRED SENTINEL":;
+stop();
+
+flagRetiredT -- SEQ 267 R1: kant's generic flag (GroupFields case 12, `flaG`) is retired.
+
+`x :. flaG` names no groupField any more, so opSetFlag refuses it by name (R-2) instead of setting fLAG -- the
+engine bit that poisons `++` (F-131). The refusal abandons the rest of frSet, so FR-0 never prints.
+  FR-1  the refusal names `:. flaG`                      want 1 line
+  FR-0  the statement after the refused set              want absent (abandoned by the refusal)
+  FR-2  ++ on an unflagged count                          want 6  (non-zero sibling)
+H7, measured 2026-10-02: `flaG=12;` put back in incant/setup (runtime only, same binary) -> no refusal, FR-0
+prints, FR-1 red. The census behind the retirement is docs/flagCensus.md.

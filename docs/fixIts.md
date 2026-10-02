@@ -150,7 +150,7 @@ ATTEMPT LOG
     reproduction is owed.
 ```
 
-### F-131 — a count whose generic flag is set from kant stops incrementing: `x :. flaG; ++x` leaves x unchanged
+### F-131 — ✅ CLOSED 2026-10-02 — a count whose generic flag is set from kant stops incrementing: `x :. flaG; ++x` leaves x unchanged
 
 **What.** `opPlusPlus` reads the iterator poison (`fLAG`) for EVERY operand at its top, before it tests isIterator, so a
 plain count whose generic flag was set from kant (opSetFlag case 12, `x :. flaG`) silently does not increment. It is
@@ -168,9 +168,14 @@ defers that, and the fLAG split waits for it).
 ATTEMPT LOG
   2026-10-02 probe flagPlusPlus written. First spelling (x++, values from define) was VOID -- its control did not
     increment either; the count arm is prefix ++ on a count set in the body. Second spelling: RED as above. Not fixed.
+  2026-10-02 SEQ 267 R1 -> CLOSED BY CONSTRUCTION: kant's generic flag retired -- `flaG=12;` gone from incant/setup
+    (and BackupXML/setup), opDot's and opSetFlag's case-12 arms cut. `x :. flaG` now refuses by name through refuse()
+    ("`:. flaG` -- not a groupField ..."), so kant cannot set the bit that steers ++. probes/flagPlusPlus: PFI-1 5
+    (red) -> the refusal. Fleet fixture incant/pop/flagRetiredT FR-1/FR-0/FR-2; H7: `flaG=12;` restored in setup ->
+    no refusal, FR-0 prints, red. The engine's fLAG meanings A-D stay held for step 1.
 ```
 
-### F-132 — opDot on `a.<null>` silently swaps its operands instead of refusing
+### F-132 — ✅ CLOSED 2026-10-02 (no road, by design) — opDot on `a.<null>` silently swaps its operands instead of refusing
 
 **What.** opDot's `if !argument` means both "called as the leading-dot unary" (`.taG`, the left side from lastREF) and
 "the right operand evaluated to null". In a binary `a.<null>` it takes the unary reading: the LEFT operand becomes the
@@ -197,6 +202,8 @@ ATTEMPT LOG
     fire on it. So `!argument` today means ONLY the leading form. Building the refusal would add an arm that fires 0
     times and a row that cannot go red (H7). Open for Tony: pin F-132 dead (the two meanings never meet), or name the
     road that should carry a value to the right of a dot.
+  2026-10-02 SEQ 267 R2 -> CLOSED AS NO ROAD BY DESIGN: the right operand of `.` is a literal tag (ruled 09-16). One
+    inline slug at opDot (`leadingOnly`) records that !argument means the leading-dot form only. No refusal built.
 ```
 
 ### F-133 — ✅ CLOSED 2026-10-02 — a rule action's read of a declared global comes through data-less, and the global then reads as its tag
