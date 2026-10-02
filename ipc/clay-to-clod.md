@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11242,3 +11242,41 @@ g. Riders: parseTrace (what, who calls it, does a directive cover it -- ruled 09
 REPORT: take first (a paragraph), then the census table, then anything that changes the shape. Checklist line only.
 
   END SEQ 269
+
+
+===================================================================
+SEQ 270  -  RECORD TONIGHT'S DESIGN DISCUSSION. DOCS ONLY.
+===================================================================
+STATUS: cleared 2026-10-02 -- draft amendment in objectModel.md (A1-A5); cleanupList x3; F-136, F-137; seal 23 opens on the draft.
+
+RULINGS
+R1. Record the instance-shape discussion (SEQ 269 / Clod's SEQ 167 and after) in docs/objectModel.md as a DRAFT Part 1
+    amendment, headed "DRAFT -- NOT RULED, 2026-10-02". Part 1 itself does not change.
+R2. File the small findings below as named (cleanupList / fixits); nothing cut, nothing fixed.
+R3. The next seal's opener names the draft amendment as the first thing on wakeup, ahead of stroke 1.1 and OR-1..OR-8.
+
+THE DRAFT AMENDMENT, in these sections:
+1. PRINCIPLES (Tony): answers by attributes; a question asked from outside the parse walk pays for its own answer, the
+   walk itself must not get slower; plain fields carry no ruleOf, labelOf or rStuff.
+2. THE CANDIDATE SHAPE: (a) plain fields body only, copies keep sharing, the copy ctor keeps its meaning; (b) rule facts
+   on the rule (body and propertyList); (c) instance facts (modifiers, min/max, the rule link) in the PARENT rule's term
+   table, in its propertyList, one row per term, built once at define time, the walk reads row k at term k; (d)
+   per-call state (label hereAt kount sukcess) to ParseActivation (S8), S8 first, the call bracket retires with it;
+   (e) labels: a label prototype in the rule's propertyList, newLabel = new(ruleLabel), own body, prototype's
+   attributes carried; (f) RuleStuff retires across b, c, d.
+3. CONSIDERED AND SET ASIDE: instances with own bodies (shelved, not banned; census); "paid once at push" (~60%),
+   replaced by define-time payment.
+4. OPEN: O1 outside askers need the ROW or only "is this a rule"; O2 table freshness, every writer of a rule's terms
+   after definition, one writer; O3 can genParse and the jit bake row k at emit; O4 labelOf vs ruleOf (labelOf ruled
+   separate 2026-10-01), census every "is this an instance" reader first; O5 label propertyList shared with the
+   prototype (read-only, F-134's family) or copied per mint, priced at both mint sites; O6 instance read-only, $ ->
+   isMacro on the shared body is the existing breach. Note getStuff's 0 of 3,312,125 as the basis for a refusal.
+5. EXECUTION: deliberately not decided.
+
+SMALL FINDINGS (R2): cleanupList -- modPercent/modPointer; fold interpretXP; parseTrace overlaps directives (map
+driveDoorT, chainTruthT, searchAcc first). fixits -- traceParse(0) turns tracing on (nit, Tony's call); a copy of a
+label loses labelOf (latent, ~97k per run, bears on O4/O5).
+
+REPORT: the commit and the draft's section headings. No fleet run; docs only.
+
+  END SEQ 270

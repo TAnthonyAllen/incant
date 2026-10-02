@@ -149,6 +149,79 @@ None. O-1 and O-2 were ruled 2026-09-28 (§1.5).
 | 2026-10-01 | **Stroke 5 rulings (SEQ 234), on recon 23:** **R1** `ParseActivation` is declared in `GroupRules` (engine state, not an instance feature; a floor has no instance) and `gParseActive` is a `GroupRules` member; GroupItem-side readers reach it through `groupRules`. **R2** the old road's `parse()` becomes the third creator (5.5) -- owed when 5.5 opens: measure that `parse()` reads the activation fields. **R3** the label-link points at the RULE and lives on the label (the activation is popped while the label survives) -- owed when built: can a label carry `ruleOf`; if so the link is `ruleOf` and no new field. **R4** `sourceLine` and `guardFAIL` are deleted, not moved, in the stroke that moves the activation fields off `RuleStuff`. |
 | 2026-10-02 | **AMENDMENT (SEQ 262, Tony; R1, R2): THE CONTROL SIGNAL IS EXECUTION STATE.** `break`/`continue`/`return` live in P4's ruler slot (`branchKind`), bracketed at `processAction`, one writer (the keyword action), read by the firing parent -- **not** on `ParseActivation`, and no snapshots are taken. Row 88 and F-O15 are revised: `isBranch` is the **firing level's** state, not the parse activation's. `guardInProcess` keeps F-O15's original home. **FINDING, recorded with it:** parse-then-fire adds a **firing level** that the three-level model (rule, instance, activation) does not name -- the activations are gone by the time actions fire. Its shape is designed with parse-then-fire's step 2. Found by the SEQ 261 re-read's stop condition (Control 6 of 2026-09-25 vs this row); `docs/ptfReread.md`. |
 
+
+---
+
+## Part 1 amendment — DRAFT -- NOT RULED, 2026-10-02
+
+**Status: a draft for Tony's ruling. Part 1 above is unchanged and remains the signed target.** Recorded from the
+evening design discussion of 2026-10-02: SEQ 269 (Clay's candidate shape), Clod's take and census (clod-to-clay
+SEQ 167), and what followed (SEQ 270). Tony's preface: *the design is in flux and it is taking a few design iterations
+to sort out.*
+
+### A1. Principles (Tony, stated 2026-10-02)
+
+- **Anything you want to know about a field is answered by its attributes.**
+- **A question asked from outside the parse walk pays for its own answer. The walk itself must not get slower.**
+- **Plain (non-rule) fields carry no rule baggage:** no `ruleOf`, no `labelOf`, no `rStuff`.
+
+### A2. The candidate shape
+
+- **a. Plain fields:** body only. Copies keep sharing bodies; **the copy constructor keeps its meaning** (aliasing).
+- **b. Rule facts stay on the rule:** its body and its `propertyList`.
+- **c. Instance facts** (modifiers, min/max, the rule link) live in the **parent rule's term table**, in the parent's
+  `propertyList`, one row per term, **built once at define time**. The walk reads row *k* at term *k*. Rationale:
+  these facts are written in the parent's definition, and under shared bodies an instance has no attribute place of
+  its own.
+- **d. Per-call state** (`label`, `hereAt`, `kount`, `sukcess`) moves to `ParseActivation` (S8). **S8 goes first:** it
+  stands alone, and the call bracket retires with it.
+- **e. Labels:** the rule carries a **label prototype** in its `propertyList`; minting is `newLabel = new(ruleLabel)`,
+  own body, the prototype's attributes carried.
+- **f. `RuleStuff` retires** across b, c and d. The census classing of every field (clod-to-clay SEQ 167, item c):
+  rule (`ruleName`, `testMatch`, `parseMethod`, `actionMethod`, `jitMethod`, `onGroup`; `followed` is a lazy-init
+  marker), instance (`min`, `max`, `maxRepeat`, `noAdvance`, `noLabel`, `noSkip`, `modUnGuarded`, `overTo`,
+  `isTarget`, `notifyFail`, `ruleTerm`), per-call (`label`, `hereAt`, `failedAt`, `kount`, `sukcess`, `isOK`,
+  `guardOK`, `inProcess`), measurement-only (`modPercent`, `modPointer`).
+
+### A3. Considered and set aside
+
+- **Instances with their own bodies** (Tony's original picture). **Shelved, not banned.** The census
+  (2026-10-02, pop.sh + jitLadder + printPop, one tap reverted md5-identical): the shared body carries the tag,
+  `hasNewParse`, the guards, the installed parse method and `CodE`/`BlocK`, several of them written **after** the
+  instances exist (`parser()`, `compile`); and the copy constructor makes about **240k plain-field and 386k rule
+  copies per fleet run**, so it cannot change meaning.
+- **"Paid once at activation push."** It covers about **60%** of fact reads during a parse (the pushed node asking
+  about itself). About 40% are a parent asking about a child it has not pushed (`testOptions`, the guard and option
+  reads, each term's lookup before its own push). **Replaced by define-time payment (A2c).**
+
+### A4. Open -- each with the census that answers it
+
+- **O1. Outside askers.** For each of `runOP`'s `isRuleTerm` (on every op), `opDot`, `opGet`, `locate` and
+  `compile`: does it need the **row**, or only "is this a rule"? That decides whether a row number comes back on
+  `GroupItem`. `runOP` is hot. *Census:* per asker, what it does with the answer.
+- **O2. Table freshness.** Every writer of a rule's terms after definition (redefinition, the member road,
+  bootstrap) must rebuild the table, through **one writer**. *Census:* list them.
+- **O3. Generated bodies.** Generated parse bodies call terms by name: can the generator bake row *k* in at emit?
+  Same question for the jit. *Census:* the emit sites that name a term.
+- **O4. `labelOf` vs `ruleOf`.** Clod's suggestion: a label is an instance of its minting rule, so its link could be
+  `ruleOf`. `labelOf` was ruled separate on 2026-10-01 (stroke 5.6a); the stroke-5 rulings row of 2026-10-01 (R3)
+  had asked whether a label can carry `ruleOf`. *Census before any merge:* every reader that asks "is this an
+  instance" (`isRuleTerm`, `instanceRule()`).
+- **O5. The label `propertyList`:** shared with the prototype (read-only by construction -- F-134's family if
+  written) or copied per mint. *Price both* at the two mint sites: checkInput 1,148,652 and processAction 109,439
+  mints per fleet run; a copy per mint is about 3 GC allocations (list, attribute item, its body). Related: a copy
+  of a label loses `labelOf` today (F-137).
+- **O6. Instance read-only.** Under shared bodies a write through an instance lands on the rule. It wants its own
+  rule. The existing breach: `modify`'s `$` writes `isMacro` onto the shared body. The census also saw list writes
+  through faces: `push` 11,604 and `addGroup` 1,934 per run.
+- **Measured basis for one later refusal:** `getStuff` found no `rStuff` on **0 of 3,312,125** calls (2026-10-02).
+  That is the evidence for making its existence check a refusal ("Houston, we got a problem") when this lands.
+
+### A5. Execution -- deliberately not decided
+
+Whether to amend, the stroke order beyond "S8 first", and where stroke 1.1 of the step-1 rebuild lands are for after
+this amendment is ruled.
+
 ---
 
 ## Part 2 — Stroke ledger

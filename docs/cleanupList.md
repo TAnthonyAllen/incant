@@ -62,6 +62,21 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   census row in `pop.sh` drops `jitEmitters.rtn:jitProbeDrive` and reads 3; every `probeDrive` fixture row for row.
 - **Seen:** 2026-10-01.
 
+### `modPercent` and `modPointer` -- RuleStuff flags with no reader but a measure (seen 2026-10-02, SEQ 269/270)
+- **What/where:** `RuleStuff.twk:26-27`; written only by `modify()` (`GroupActions.rtn:565-566`, the `%` and `&` modifiers).
+- **Why deletable:** read only by `measure.twk` `modsOf` (the MODSOF witness, :766-770). Whole-tree word census of `*.twk`/`*.rtn`, 2026-10-02.
+- **Confirm:** a census of `incant/`, `IncantForms/` and the grammar for `%`/`&` modifiers in use; cut the two flags, the two `modify` arms and the witness columns; layout (groups.ext + full bare tokall); fleet row for row. The draft Part 1 amendment (objectModel.md A2f) classes them measurement-only.
+
+### Fold `interpretXP` into `aCTionExpressioN` (seen 2026-10-02, SEQ 269/270)
+- **What/where:** `ruleActions.rtn:441-445` `aCTionExpressioN` is `return interpretXP(xpList);`; `interpretXP` at `ruleActions.rtn:1396`.
+- **Why:** the bytecode branch that made it a dispatcher retired in deepClean S4 (2026-10-02). `aCTionExpressioN` is the ONLY caller -- searched in `*.twk`, `*.rtn`, the generated `.mm` and `incant/`, 2026-10-02.
+- **Confirm:** move the body, keep the `aCTionExpressioN` name (it is the registered rule action), respell the DesignDocs keys `ruleActions.interpretXP.*` and the `jitEmitters.rtn:1925` comment; fleet and jitLadder row for row.
+
+### `parseTrace` / `traceParse` -- overlaps Tony's directives (seen 2026-10-02, SEQ 269/270)
+- **What/where:** `GroupRules.parseTrace`, set by `traceParse` (`genParse.rtn:87-92`, registered `incant/setup:81`); gates about 51 lines in `measure.twk` and three inline blocks in `GroupItem.twk:226-291`.
+- **Why:** `groupDirectives` already carries entry traces for `parseAction`/`Container`/`Set`/`String`/`UpTo`, `exitFromParse` and `parse()` -- two ways to trace a parse. Tony, 2026-10-02: "we do not need two ways to do that."
+- **Confirm / first:** fleet rows read its output -- `incant/pop/driveDoorT` (door row), `chainTruthT` (rows 1-6), `searchAcc`. Retire those by mapping before any cut. Note the 2026-09-10 measure-callout ruling chose callouts over directives builds; this entry reopens that for parse tracing, and the call is Tony's.
+
 ## Seeded, already gone
 
 Seeded 2026-09-28 from the dispatch. A source census shows each was already deleted, so there is nothing to cut.

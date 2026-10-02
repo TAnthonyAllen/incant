@@ -150,6 +150,40 @@ ATTEMPT LOG
     reproduction is owed.
 ```
 
+### F-136 — `traceParse(0)` turns tracing ON: the argument is ignored and there is no off
+
+**What.** `traceParse` sets `parseTrace = true` whatever it is handed, and nothing turns it off. Two fleet fixtures write
+`traceParse(0)` and get tracing on. **Severity: nit.**
+**Where.** `genParse.rtn:87-92` (`traceParse`); callers `incant/pop/chainTruthT:84`, `incant/pop/searchAcc:97`,
+`incant/pop/driveDoorT:42` (`traceParse(1)`).
+**Evidence.** Read 2026-10-02 (SEQ 269 rider): the extern body is the one assignment; no other writer of `parseTrace`
+in `*.twk`/`*.rtn`.
+**Done when.** Tony rules it: honour the argument, rename to a bare `traceParse()`, or let it retire with
+`parseTrace` (cleanupList). Fleet rows that read trace output must not move unless mapped.
+**Owner.** Tony's call.
+```
+ATTEMPT LOG
+  2026-10-02 filed (SEQ 270 R2); nothing changed.
+```
+
+### F-137 — a copy of a label loses `labelOf`
+
+**What.** The copy constructor zeroes `labelOf` (and copies `rStuff`), so a label added to a second parent becomes a
+copy with no link to the rule that minted it. **Severity: latent** -- no failing row is known. Bears on the draft
+amendment's O4 and O5 (objectModel.md A4).
+**Where.** `GroupItem.twk:42-52` (the copy constructor; the generated `labelOf = 0` at `GroupItem.mm` in the ctor);
+callers making label copies: `addGroup` (91,644), `aCTionTraiTdata` (2,084), `aCTionTraiT` (1,820), `embedRule`
+(1,602), `copyListFrom` (13).
+**Evidence.** Census tap 2026-10-02 (clod-to-clay SEQ 167, reverted md5-identical): **97,163 label copies per fleet
+run** (pop.sh + jitLadder + printPop).
+**Done when.** Either a copy carries its source's `labelOf` (and a row pins it), or the draft amendment's label shape
+(A2e) is ruled and makes the question moot.
+**Owner.** Clod (filed under SEQ 270 R2).
+```
+ATTEMPT LOG
+  2026-10-02 filed (SEQ 270 R2); measured only, nothing changed.
+```
+
 ### F-131 — ✅ CLOSED 2026-10-02 — a count whose generic flag is set from kant stops incrementing: `x :. flaG; ++x` leaves x unchanged
 
 **What.** `opPlusPlus` reads the iterator poison (`fLAG`) for EVERY operand at its top, before it tests isIterator, so a

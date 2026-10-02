@@ -4,45 +4,11 @@
 *****************************************************************************/
 Start();
 include(utilities);
+include(unitTests);
 search reset stack Grokking;
-search Utilities list;
+search UnitTests Utilities list;
 
-// Clod you can change this incantation as needed
-register(TESTing);
-define
-    shSay code={
-        v := tell(argument);
-        m := *v["matched"]; c := *v["consumed"];
-        cerr "DRIVE " argument " matched= " m " consumed= " c:;
-        };
-    ShA    isRule ka-="a";
-    ShRef  isRule ShA kb-="b" TOKENize;
-    ShRep  isRule ShA+ kc-="c" TOKENize;
-    rsN=0;
-    rsRun code={
-        rsN = rsN + 1;
-        cerr "RS SINK FIRED" rsN:;
-        };
-    ;
-cerr "--- OLD ROAD":;
-ShRef("ab");
-ShRep("aaac");
-parser(ShRef);
-parser(ShRep);
-debug ShRef ShRep ShA tell;
-cerr "--- NEW ROAD":;
-ShRef("ab");
-ShRep("aaac");
-shSay("ShRep aaac");
-cerr ::"Running retireSkipsDegraded test":;
-rsRun(rsN);
-rsRun(rsN);
-rsRun(rsN);
-stop();
-
-debug;
-parser(PrinT);
-PrinT("print ++result;");
+parser(Start);
 stop();
 
 /***************************************************************************
@@ -52,6 +18,7 @@ stop();
 include("IncantForms/WorkingOn/parser");
 parser(Search);
 Search("search Utilities list");
+register(TESTing);
 
 parser(PrinT);
 PrinT("print ++result;");
