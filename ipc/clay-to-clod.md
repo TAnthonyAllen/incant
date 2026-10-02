@@ -11075,11 +11075,34 @@ removed turns the oldRoad do/se rows red); then T1b, the layout change; then T2.
 
 
 ===================================================================
+SEQ 265  -  F-132, F-133, AND THE kant flaG CENSUS
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod 2026-10-02, ARRIVING AFTER SEQ 266 (which
+   revises its R4). Order of work: F-132, F-133, then the census as SEQ 266 R1 restates it.
+
+RULINGS
+R1. Tony's ruling on kant's generic flag (opDot / opSetFlag case 12): fLAG/flaG are intended as use-then-toss
+    markers. They may be retired if every use is unused or can be respelled. Retiring case 12 cures F-131 by
+    construction (kant can no longer set the bit that steers ++). The engine's own fLAG meanings (A-D) stay held
+    for the step-1 rebuild.
+R2. F-132: opDot on a.<null> refuses loud, naming the patient (R-2). A separate channel from the leading-dot
+    unary (D-26). Certificate: a probe that goes red without the refusal.
+R3. F-133: find the mechanism first. Build the cure only if it does not change how names resolve; if it does,
+    stop and report -- name resolution is step 1's territory. Certificate: the frontier probe's global reads its
+    value.
+R4. (SUPERSEDED BY SEQ 266 R1) The flaG census, read-only, with a proposed respelling per use; respell nothing.
+Order: F-132, then F-133, then the census. Seal after each stroke.
+Stop conditions: a fleet mover not named; F-133's cure touching name resolution; any crash.
+Report: the fleet line per stroke, F-133's mechanism, and the census table first; evidence after.
+
+  END SEQ 265
+
+
+===================================================================
 SEQ 266  -  R4 OF SEQ 265 REVISED: THE flaG REPLACEMENT
 ===================================================================
 STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
-   ⚠ SEQ 265 ITSELF NEVER REACHED CLOD: it is not in the session or in this file. Only this replacement of its R4
-   is acted on; SEQ 265's other clauses are unknown here and are not reconstructed (the 2026-08-20 relay lesson).
+   SEQ 265 arrived later the same turn and is transcribed directly above; this revises its R4.
 
 RULINGS
 R1. (replaces SEQ 265 R4) The flaG recon, read-only. Tony's replacement candidate: a throwaway noPrint attribute
