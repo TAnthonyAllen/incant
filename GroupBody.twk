@@ -56,7 +56,6 @@ boolean bools {
     fileType:2[isDirectory isExec isFile]
     guarding:2[guarded unGuarded guardInProcess]
     instructType:2[isMethod isOperator]
-    isBranch:2[isBreak isContinue isReturn]
     isSorted:2[sortAscending sortDescending]
     methodType:2[immediateACTION parseACTION]
 

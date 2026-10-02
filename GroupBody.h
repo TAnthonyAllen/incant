@@ -20,7 +20,6 @@ struct bools
 	unsigned int fileType:2;
 	unsigned int guarding:2;
 	unsigned int instructType:2;
-	unsigned int isBranch:2;
 	unsigned int isSorted:2;
 	unsigned int methodType:2;
 	unsigned int addingMembers:1;
@@ -82,9 +81,6 @@ struct bools
 #define guardInProcess(button) (button == 3)
 #define isMethod(button) (button == 1)
 #define isOperator(button) (button == 2)
-#define isBreak(button) (button == 1)
-#define isContinue(button) (button == 2)
-#define isReturn(button) (button == 3)
 #define sortAscending(button) (button == 1)
 #define parseACTION(button) (button == 2)
 #define immediateACTION(button) (button == 1)

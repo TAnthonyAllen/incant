@@ -639,8 +639,6 @@ int 		restrict = 0;
 			}
 		ruler->branchKind = 0;
 		result = StatemenT->groupBody->gMethod(StatemenT);
-		if ( result->groupBody->flags.byRef )
-			grup = result->priorInParent;
 		if ( ruler->branchKind )
 			{
 			// ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
@@ -7215,10 +7213,6 @@ GroupItem 	*product = 0;
 				case 44:
 					if ( target->groupBody->flags.debugged )
 						product->setCount(1);
-					// isBrancHWitness read-only: P4 retired the stamp, so nothing writes isBranch -- a write half would let a fixture fake the 0 it watches
-					break;
-				case 45:
-					product->setCount((int)target->groupBody->flags.isBranch);
 					break;
 				case 401:
 					if ( !target->nextInParent )

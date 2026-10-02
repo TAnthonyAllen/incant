@@ -42,15 +42,9 @@ define
         };
     ctRun code={
         ctContOp();
-        ctC := ctV.isBrancH;
-        cerr "CT P4-1 continue v isBranch " *ctC:;
         cerr "CT P4-1s continue v loop ran " ctK:;
-        ctJ := ctW.isBrancH;
-        cerr "CT P4-2 compiled return w isBranch " *ctJ:;
         ctGot := ctRet();
         cerr "CT LV-1 action returned value " *ctGot:;
-        ctB := ctX.isBrancH;
-        cerr "CT LV-1 action returned x isBranch " *ctB:;
         ctLoop();
         cerr "CT SL-1 loop over a returning action ran " ctK:;
         ctGenLoop();
@@ -111,3 +105,8 @@ H7, MEASURED 2026-09-26, each control on this fixture alone, rebuilt bare after:
   emit-frame restore removed:     SL-3 5 -> 0, nothing else moves
 ORDER IS LOAD-BEARING: ctEmitLeak runs FIRST so testing() compiles ctJit before anything
 runs it interpreted (bear-trap #25); ONE testing() in the file.
+
+T1b (SEQ 263 R3, 2026-10-02): THE isBranch BIT IS GONE. The rows P4-1, P4-2 and LV-1-x read it through the
+read-only isBrancH accessor to show the stamp no longer landed (2 -> 0, 3 -> 0, 3 -> 0 under the stamp-put-back
+control). With the bit deleted from GroupBody the stamp is unconstructable, so the rows retire BY MAPPING to the
+structure itself; their certificate stands in commit 221f31a. P4-1s, LV-1's value and SL-1..3 stay.

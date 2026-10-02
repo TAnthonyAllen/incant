@@ -5625,9 +5625,11 @@ kindRow "termCountT TC-4 QuotE at rest / after (grammar: tik quoteBody; carries 
 run1 ctlStampT "$T/cts";   check "ctlStampT runs" 0 $?
 sentinel "ctlStampT sentinel" "$T/cts" "CTLSTAMP SENTINEL"
 ctRow () { kindRow "ctlStampT $1" "$(grep -E "^CT $1 +[0-9]+ *\$" "$T/cts" | awk '{print $NF}')" "$2"; }
-ctRow "P4-1 continue v isBranch" 0;  ctRow "P4-1s continue v loop ran" 2
-ctRow "P4-2 compiled return w isBranch" 0
-ctRow "LV-1 action returned value" 7; ctRow "LV-1 action returned x isBranch" 0
+#  RETIRED BY MAPPING 2026-10-02 (T1b): "P4-1 continue v isBranch", "P4-2 compiled return w isBranch", "LV-1 action
+#  returned x isBranch" -- the isBranch bit is deleted from GroupBody, so the stamp they watched for cannot be written;
+#  their certificate (2 -> 0, 3 -> 0, with the stamp-put-back H7) stands in commit 221f31a.
+ctRow "P4-1s continue v loop ran" 2
+ctRow "LV-1 action returned value" 7
 ctRow "SL-1 loop over a returning action ran" 3
 ctRow "SL-2 loop over generated drives ran" 3
 ctRow "SL-3 statement after a compile ran" 5

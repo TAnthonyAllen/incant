@@ -507,7 +507,6 @@ int         restrict;
             lastREF.isGROUP = true; }
         branchKind = 0;
         result = StatemenT.gMethod(StatemenT);
-        if byRef    grup = result.priorInParent;
         if branchKind {
             // ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
             // extractable: the arms are continue/return/break over THIS loop
