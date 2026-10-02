@@ -5640,6 +5640,13 @@ run1 probeFrameT "$T/pbf";  check "probeFrameT runs" 0 $?
 sentinel "probeFrameT sentinel" "$T/pbf" "PROBEFRAME SENTINEL"
 kindRow "probeFrameT the statement after a probe drive of break ran" "$(grep '^PB statement after' "$T/pbf" | awk '{print $NF}')" "1"
 
+#  ⚑ retagOwnT -- F-134 (T2): promote's retag renames only a node the parse owns (a minted label, or a fresh node nobody
+#  else holds), never the shared `true`, a registry member or a live field. RT TWO's CerR used to return "StatemenT".
+#  H7 (fixture notes): the unguarded retag put back -> StatemenT, red.
+run1 retagOwnT "$T/rto";   check "retagOwnT runs" 0 $?
+sentinel "retagOwnT sentinel" "$T/rto" "RETAGOWN SENTINEL"
+kindRow "retagOwnT RT TWO's CerR returns the shared true by its own name" "$(awk '/^RT TWO/{f=1;next} f&&/ADOPTION/{print;exit}' "$T/rto" | sed 's/.*returned=\([^ ]*\).*/\1/')" "true"
+
 
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"

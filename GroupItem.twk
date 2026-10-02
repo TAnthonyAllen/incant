@@ -233,7 +233,8 @@ GroupItem   lab = stuff.label;
     // pc1Restated parent label exists, because that is the one with a subtree to destroy
     if (promote || !pStuff.label) && stuff.isTarget {
         pStuff.label    = lab;
-        lab.tag         = pStuff.ruleName;
+        // ownedRetag rename only a node this parse owns -- a minted label, or a fresh node nobody else holds; never a shared sentinel, a registry member or a live field (F-134)
+        if lab.labelOf || (!lab.registry && !lab.parent)    lab.tag = pStuff.ruleName;
         return; }
     // attachGuardHere the guard belongs HERE and not above the promote case -- both placements were measured
     // attachGuardHere and each crashes the fleet the other way, three lines apart

@@ -92,7 +92,14 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-134 — RETAGCARRY's trunk road: adopting an action's return and retagging it at attach renames shared nodes
+### F-134 — ✅ CLOSED 2026-10-02 (T2, SEQ 263 R4) — RETAGCARRY's trunk road: adopting an action's return and retagging it at attach renamed shared nodes
+
+**CURE, LANDED:** attachLabel's promote arm still installs the adopted node as the parent's label, but RENAMES it only when
+the parse owns it -- `lab.labelOf` (a minted label) or `!lab.registry && !lab.parent` (a fresh node nobody else holds).
+It never renames a shared sentinel, a registry member or a live field. Census at landing (temporary tap, three
+instruments): 3,172 retags of `true`, 19 of registry members and 65 of parented fields stop; 155 fresh parentless
+nodes and every minted label are renamed as before. Certificate: pop.sh `retagOwnT` (RT TWO's CerR returns `true`, was
+"StatemenT"); H7 -- the unguarded retag put back reads StatemenT. Fleet otherwise unmoved.
 
 **What.** fireLabelMethod adopts an action's return as the label (`stuff.label = stuff.actionMethod(stuff.label)`),
 and attachLabel's promote arm then renames whatever was adopted (`pStuff.label = lab; lab.tag = pStuff.ruleName`).

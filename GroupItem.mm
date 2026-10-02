@@ -402,7 +402,9 @@ GroupItem 	*lab = stuff->label;
 	if ( (promote || !pStuff->label) && stuff->isTarget )
 		{
 		pStuff->label = lab;
-		lab->groupBody->tag = pStuff->ruleName;
+		// ownedRetag rename only a node this parse owns -- a minted label, or a fresh node nobody else holds; never a shared sentinel, a registry member or a live field (F-134)
+		if ( lab->labelOf || (!lab->groupBody->registry && !lab->parent) )
+			lab->groupBody->tag = pStuff->ruleName;
 		return;
 		}
 	// attachGuardHere the guard belongs HERE and not above the promote case -- both placements were measured

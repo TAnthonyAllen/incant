@@ -1,0 +1,22 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+define
+    rtX=0;
+    ;
+traceParse();
+cerr "RT ONE":;
+cerr "RT TWO":;
+print "RT THREE":;
+traceParse(0);
+cerr "RETAGOWN SENTINEL":;
+stop();
+
+retagOwnT -- F-134 (SEQ 263 R4, T2): attachLabel's promote retag renames only a node the parse owns -- a minted label
+(labelOf) or a fresh node nobody else holds -- never a shared sentinel, a registry member or a live field. Before the
+cure the first top-level cerr's adopted `true` was renamed WardeD then StatemenT, so RT TWO's CerR returned
+"StatemenT"; now it returns `true`. pop.sh reads RT TWO's first ADOPTION line under traceParse.
+The sentinel follows traceParse(0) so no MARKPT preview can carry its text (H2).
+H7 (measured at landing): the unguarded retag put back -> RT TWO returns StatemenT -- red.
+Census at landing (temporary tap, three instruments): of ~748,000 promote retags, 3,172 renamed `true`, 19 a registry
+member, 65 a parented field -- those stop; 155 fresh parentless nodes and every minted label are renamed as before.
