@@ -11036,7 +11036,7 @@ becomes concrete. Seal.
 ===================================================================
 SEQ 263  -  PTF SHAPE (iii)->(ii): T1 AND T2 ON TRUNK
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+STATUS: STOPPED in T1a on an unnamed mover -- oldRoad column do/se red on StatemenT|break; (the branchKind slot leaks out of a drive: driveStep is not a frame). Measured cure: bracket driveStep (a 4th frame) -> fleet 861 + the named 10. T1a parked on branch t1-p4 (pushed, not merged); trunk restored row for row. R2 and R5 landed (9ca0bbe). T1b and T2 not started.
 
 RULINGS
 R1. Port shape is (iii) then (ii). T1 and T2 land on trunk now. Step 1 is then rebuilt on trunk's model from the
