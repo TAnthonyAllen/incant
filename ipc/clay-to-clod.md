@@ -11119,3 +11119,24 @@ R1. (replaces SEQ 265 R4) The flaG recon, read-only. Tony's replacement candidat
 R2. Case 12's retirement waits on Tony's reading of the census.
 
   END SEQ 266
+
+
+===================================================================
+SEQ 267  -  CASE 12 RETIRED; F-131 AND F-132 CLOSED
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+
+RULINGS
+R1. Retire kant's generic flag (case 12): the flaG=12; registration in setup and the stale BackupXML line; the
+    opDot and opSetFlag case-12 arms. `x :. flaG` must then refuse by name (R-2), no silent no-op. F-131 closes:
+    flagPlusPlus goes red -> the refusal, fleet row for row otherwise. The engine's fLAG meanings A-D stay held for
+    the step-1 rebuild.
+R2. F-132 closes as no road by design: the right operand of `.` is a literal tag (ruled 09-16). A one-line slug at
+    opDot recording that !argument means the leading-dot form only. No refusal built.
+R3. Record the replacement: a throwaway noPrint marker defined in pROPERTIEs is the sanctioned use-then-toss form.
+    A DesignDocs stump line pointing at docs/flagCensus.md with its two measured caveats: it prints while attached,
+    and it counts in listLengtH and walks.
+Stop conditions: a fleet mover not named; a live case-12 use the census missed.
+Report: the fleet line first. Seal. Next dispatch: the step-1 rebuild plan.
+
+  END SEQ 267
