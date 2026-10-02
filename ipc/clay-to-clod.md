@@ -11072,3 +11072,26 @@ DO: land T1a on trunk with both brackets; run the slot-leak H7 controls, one per
 removed turns the oldRoad do/se rows red); then T1b, the layout change; then T2. Stop conditions as in SEQ 263.
 
   END SEQ 264
+
+
+===================================================================
+SEQ 266  -  R4 OF SEQ 265 REVISED: THE flaG REPLACEMENT
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+   ⚠ SEQ 265 ITSELF NEVER REACHED CLOD: it is not in the session or in this file. Only this replacement of its R4
+   is acted on; SEQ 265's other clauses are unknown here and are not reconstructed (the 2026-08-20 relay lesson).
+
+RULINGS
+R1. (replaces SEQ 265 R4) The flaG recon, read-only. Tony's replacement candidate: a throwaway noPrint attribute
+    defined in pROPERTIEs -- set when needed, tested, and tossed, nothing in C++.
+    Census: every kant use of case 12, set or read, across incant/, IncantForms/ and fixtures, with file:line and
+    what the marker does.
+    Fit: for each use, can the attribute form do the job (set with +%, test by subscript, toss by removal), or is
+    it "unused, delete"? Name any use the attribute cannot express.
+    A probe of the candidate (throwaway build or scratch incantation): define the marker in pROPERTIEs, set it,
+    test it, toss it on a field. Report: does it survive a toss; does it print; do attribute walkers count it
+    (including testAttributes' noPrint skip); does it read as a trait; does it land in a frame -- i.e. which of
+    noPrint's five meanings it picks up. Respell nothing; Tony rules each use.
+R2. Case 12's retirement waits on Tony's reading of the census.
+
+  END SEQ 266
