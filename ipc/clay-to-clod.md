@@ -10970,3 +10970,44 @@ cut; a probe that destabilises the fleet run.
 REPORT: fleet line per stroke first, then probe results, the main log, the branch tally; evidence after.
 
   END SEQ 260
+
+
+===================================================================
+SEQ 261  -  PARSE-THEN-FIRE RE-READ (read-only) + TWO HOUSEKEEPING ITEMS
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+
+RULINGS
+R1. main: fast-forward it to trunk and push, so GitHub's default branch is current. checkinput-state:
+    delete it, local and remote, and record its tip SHA in the housekeeping commit; its comment store
+    goes with it.
+R2. The re-read is read-only. Any tap or throwaway build is reverted md5-identical. parse-then-fire and
+    p6-held-class are read, never rebased or merged.
+R3. The deliverable is costed options with no recommendation in the body; a lean, if any, is a separate
+    final line marked as Clod's.
+
+THE QUESTION: what is parse-then-fire's step 2 on today's trunk, after strokes 1-5 and the deep clean?
+ITEMS
+1. What the branch holds: classify each commit against trunk -- still needed / done on trunk by other
+   means / obsolete under the new model. Name the step-1 plants: plant 4 (fLAG recycle), RETAGCARRY
+   renaming shared nodes, the stale-chain cases.
+2. Step 2's retirements sized today: reader and writer counts on trunk for defer, deferredAbove
+   (list-only now) and the yield channel, against the 09-25 plan in the branch's jitDesign.md.
+3. The overlap census: re-classify docs/overlapCensus.md's 55 overlaps and 8 causes on trunk -- which
+   causes the redesign removed, which remain. Rule C (attaching never reads what an action wrote) is
+   the lens.
+4. P6's open question re-asked: does an unrun IF still hand back its condition's value? Does
+   RETAGCARRY's shared-node rename still have a road on trunk?
+5. The held refactors: for each S7 split (fLAG, sukcess V/R, isLabel, deferred, byRef, RuleStuff label)
+   and S8, does step 2 retire, reshape, or leave it alone? Is S8 a prerequisite for step 2 (the
+   activations are gone by replay time), or does step 2 make it moot?
+6. Port shapes, costed: (i) replay step 1 onto a fresh branch from trunk; (ii) rebuild step 1 from the
+   plan without the branch's code; (iii) anything the reading suggests. Conflicts with strokes 1-5 by
+   function, for each.
+7. Frontier's next edge: candidate stations for its re-aim, drawn from step 2.
+DELIVERABLE: docs/ptfReread.md on trunk; seal.
+STOP IF: the re-read finds a step-2 ruling (1-7, Rule C, the value and control rulings) contradicted by
+the signed object model -- report, do not resolve; a tap that will not revert clean.
+REPORT: the counts and the options table first, then evidence.
+
+  END SEQ 261
