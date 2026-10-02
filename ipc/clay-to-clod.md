@@ -10929,3 +10929,44 @@ STOP IF: an item that looks dead is live on a road the fleet does not cover (rep
 that will not revert clean.
 
   END SEQ 259
+
+
+===================================================================
+SEQ 260  -  DEEP CLEAN: S1-S6, PROBES, HOUSEKEEPING
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+
+RULINGS
+R1. Land in order S1, S2, S3, S4, S5, then S6 (D-21 only). Each stroke its own commit set, with a seal
+    and the full checklist after it. S1 first: it re-baselines the instruments; its new captures are
+    the baseline for S2 on.
+R2. Frontier (D-1): fix the witness line; mark its charter "re-aim pending -- after the parse-then-fire
+    re-read". Do not re-aim now.
+R3. D-3 includes incant/lookup. D-4 retires countPop by mapping and cuts its dead counters and
+    reportCompileCensus in the same stroke.
+R4. S4 drops bcOPs: the members, the init, and the 77 lines naming it. incant/generate stays, with a
+    reference-only header line.
+R5. D-18 includes sourceLine and guardFAIL (deletion ruled 10-01, never landed). modPercent and
+    modPointer stay.
+R6. Keep debugRuleNamed and the four lldb debug helpers, each with its reason in deepClean.md. Before
+    cutting jitForceInclude, read its history; if a link-forcing idiom, keep it with a reason line.
+R7. Delete all seven never-invoked registered commands (arrondir, bodyCensus, debugGuard, evictAction,
+    flushBuffer, system, copy), and their implementing functions when registration is their only
+    caller. Rides S3; setup is read at runtime, so rebuild in the same commit.
+R8. D-36 is kept. Its cleanupList entry becomes "keep: skips locals (this, tempField)".
+R9. Probes only, no splits: D-23's C->D (a[0] + b[1]) and B<-E (x :. flaG; x++;), and D-24's vetoed
+    optional on both roads. Each red probe becomes a fixit row, owner Clod. Also file as Clod's fixit
+    rows: opDot's a.<null> (refusing loud per R-2); the frontier's data-less read of a global from
+    inside a rule action. What kant's generic flag (opDot case 12) is for is deferred to Tony; the fLAG
+    split waits for that and the parse-then-fire re-read.
+R10. Held: the S7 splits, S8, D-22 (jitter lane), D-37 to D-41 (parked as stated).
+R11. Housekeeping: delete the 27 merged branches, local and remote; delete try-fire-root,
+    tryAndBuy-gNoUnwrap, flip-argument, holder-attribute; delete group-descent once F-98 is confirmed on
+    trunk and checkinput-state once the comment store is confirmed on trunk; keep om-r2-ownname,
+    parse-then-fire, p6-held-class. main: print the 8 unpushed commits' log for Tony, touch nothing
+    else. Do the wakeup trim (D-33) and the fixit consolidation (D-34).
+STOP IF: a fleet mover the line's own evidence does not name; any crash; an item found live during the
+cut; a probe that destabilises the fleet run.
+REPORT: fleet line per stroke first, then probe results, the main log, the branch tally; evidence after.
+
+  END SEQ 260
