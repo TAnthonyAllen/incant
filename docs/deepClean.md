@@ -256,7 +256,7 @@ Size = lines removed or changed · externs · fixtures touched. Risk is what cou
 
 ### S7 -- two-meaning slots (ONE CHANNEL, ONE MEANING). Probes first, then splits, each a try-and-buy
 
-**D-23 · `fLAG` -- FIX, probes first. FIVE meanings, not the two F-O15 ledgers.**
+**D-23 · `fLAG` -- FIX, probes first. FIVE meanings, not the two F-O15 ledgers.** **Kant case 12 (meaning E): census and the pROPERTIEs-marker probe in docs/flagCensus.md (2026-10-02, SEQ 265/266) -- zero live kant uses.**
 
 | meaning | writers | readers |
 |---|---|---|

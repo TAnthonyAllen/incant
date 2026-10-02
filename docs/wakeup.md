@@ -1,3 +1,19 @@
+# ⚠⚠⚠ SEALED 2026-10-02 (20) ON TRUNK -- SEQ 265 R4 / SEQ 266 R1: THE flaG CENSUS (read-only). ZERO LIVE KANT USES.
+#
+#   ## THE OPENER: Tony reads docs/flagCensus.md and rules case 12's retirement (SEQ 266 R2), and F-132 (pin dead or
+#   name the road). Then the step-1 rebuild (docs/ptfStep2Plan.md) when dispatched; T3 rides it.
+#   
+#   ## THE ONE-LINE STATE: unchanged from seal 19 -- no source touched. Fleet 880 / 1 · canary 300 · bare.
+#   
+#   ## LANDED: docs/flagCensus.md -- case 12's kant population is a registration, a backup registration, F-131's
+#   exhibit and prose; the one real use (compileRules' visited mark) was removed by Tony in 5f24cf3. The pROPERTIEs
+#   noPrint marker: tossed cleanly, not a trait, not a frame slot, skipped by noPrint-gated walkers -- but it PRINTS on
+#   dumpContents and printDefinition, and listLengtH and `for` count it. Probe: incant/probes/markerCandidate.
+#   
+#   ## CHECKLIST: read-only stroke -- fleet not re-run beyond seal 19 (nothing it reads moved) · Groups, support, TOK
+#   clean and pushed · BeforeSave not touched · no incant.
+#
+
 # ⚠⚠⚠ SEALED 2026-10-02 (19) ON TRUNK -- SEQ 265 R2/R3: F-133 CLOSED; F-132 NOT BUILDABLE (reported).
 #
 #   ## THE OPENER: the flaG census (SEQ 265 R4 as revised by SEQ 266 R1) -- read-only, with the pROPERTIEs-marker probe.

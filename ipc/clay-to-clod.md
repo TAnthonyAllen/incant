@@ -11077,7 +11077,8 @@ removed turns the oldRoad do/se rows red); then T1b, the layout change; then T2.
 ===================================================================
 SEQ 265  -  F-132, F-133, AND THE kant flaG CENSUS
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod 2026-10-02, ARRIVING AFTER SEQ 266 (which
+STATUS: cleared 2026-10-02 -- R2 F-132 NOT BUILT (unreachable; reported, fixIts), R3 F-133 CLOSED (b95a10f), R4 done
+   as SEQ 266 R1 (docs/flagCensus.md). Dictated via Tony ("Fearless"), transcribed by Clod 2026-10-02, ARRIVING AFTER SEQ 266 (which
    revises its R4). Order of work: F-132, F-133, then the census as SEQ 266 R1 restates it.
 
 RULINGS
@@ -11101,8 +11102,8 @@ Report: the fleet line per stroke, F-133's mechanism, and the census table first
 ===================================================================
 SEQ 266  -  R4 OF SEQ 265 REVISED: THE flaG REPLACEMENT
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
-   SEQ 265 arrived later the same turn and is transcribed directly above; this revises its R4.
+STATUS: cleared 2026-10-02 -- R1 census and probe in docs/flagCensus.md; R2 (retirement) waits on Tony.
+   Dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02. SEQ 265 arrived later the same turn and is transcribed directly above; this revises its R4.
 
 RULINGS
 R1. (replaces SEQ 265 R4) The flaG recon, read-only. Tony's replacement candidate: a throwaway noPrint attribute
