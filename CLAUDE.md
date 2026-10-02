@@ -3364,6 +3364,15 @@ agreed — nine grammar spellings, a census, a second grep. **A sweep inside a w
 returns unanimity, and unanimity reads exactly like proof.** When a search comes back clean,
 distrust it in proportion to how clean it came back.
 
+⚠⚠ **A CENSUS OF A STRUCT FIELD INCLUDES EVERY WHOLE-STRUCT COPY OF THAT STRUCT. A NAME GREP CANNOT
+FIND THEM. Clay, SEQ 253 R4, 2026-10-02.** `*rStuff = *grup.rStuff` writes every field of a RuleStuff
+and names none of them. The parentStuff census (objectModelRecon.md §24) grepped every line naming the
+field across all three repos and reported a complete writer list. The GroupItem copy constructor
+(`GroupItem.twk:51`) was not on it, and it was the last writer of **all 5,820** leaf-exit
+disagreements. A last-writer tap found it, not the grep. **So a field census runs two searches: the
+field's name, and every `*x = *y` (and `memcpy`, and copy constructor) on its struct.** The second
+population for RuleStuff is two sites: `GroupItem.twk:51` and `RuleStuff.twk:61`.
+
 ⚠⚠ **BISECTS RUN IN A CLONE OUTSIDE DROPBOX. Standing, 2026-09-23 (Tony, via the jitter
 dispatch).** Paid for the same day: an in-place bisect of 08-21..09-02 made git OVERWRITE and then
 DELETE `groupDirectives` and `IncantForms/WorkingOn/incant++` — ignored now, tracked before

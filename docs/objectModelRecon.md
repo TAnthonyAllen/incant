@@ -1205,3 +1205,149 @@ Every step lands on its own branch and keeps the fleet (pop.sh, jitLadder, print
 2. Whether old-road activations are visible to `enclosingFace` (5.5).
 3. The label-link name, and whether it stays `GroupItem` or goes onto a property.
 4. Whether `sourceLine` and `guardFAIL` are deleted rather than moved (both have zero readers).
+
+---
+
+## 24. Stroke 5.7 recon: what `RuleStuff.parentStuff` carries that the activation list does not (SEQ 251-253, 2026-10-02, read-only)
+
+**Finding.** Every leaf-exit disagreement with the list (5,548 sync, 272 attach) is a value inherited through a struct copy, the GroupItem copy constructor's `*rStuff = *grup.rStuff` (`GroupItem.twk:51`). parseRule's frame restore at `Generate.rtn:295` wrote none of them; it is the last writer only on reads that agree. **Whether a copied value is the instance meaning or the activation meaning is not measured.**
+
+**Provenance.** Tree `0f664b8` (= `b79e5fa` + records + seal), bare, no incant process. Two temporary taps, both inserted into the generated `.mm` (GroupRules, GroupItem, RuleStuff) with no `.twk` change and no retok, and both reverted md5-identical (`b231358e` / `d50744d6` / `eebceca3`). Each ran across pop.sh, jitLadder and printPop (314 processes). Tap 1 compares `parentStuff` with the nearest enclosing activation's `stuff`, skipping the reader's own activation. Tap 2 records, per RuleStuff, the last site that wrote its `parentStuff`, and reads that at the two leaf-exit readers. Bare rebuild afterwards: pop.sh 860 / 1 row for row (one `acceptStartT` address, H3), jitLadder and printPop PASSED, canary 315. Two stops on the way: the bootstrap constructor (SEQ 252 R1) and the copy constructor (SEQ 253 R1), each a writer that runs outside parse and each cleared. SEQ 252's ruled sentence blaming `:295` was measured before it was written, and it did not hold (SEQ 253 R2 withdrew it).
+
+### 24a. Census: writers and readers (two populations, per SEQ 253 R3)
+
+**Population 1** is every line naming `parentStuff`, case-insensitive, across Groups, the support repo, `InProcess/TOK`, `groups.ext`, `.twk`/`.rtn`/`.h`/`.mm`/`.C`, and the kant files. Control: getStuff's write was found. **Population 2** is every whole-struct copy of a RuleStuff: `*x = *y` on a RuleStuff, `memcpy`, and copy constructors. Population 1 cannot see population 2.
+
+| # | site | kind | meaning written or read | outside parse? |
+|---|---|---|---|---|
+| W1 | `RuleStuff(GroupItem)` RuleStuff.twk:55-56 | writer | instance: the grammar parent's stuff | **yes, at bootstrap**: 24 null + 24 set per process, all under `GroupMain::bootstrapper` (lldb 48/48). Cleared, SEQ 252 R1 |
+| W2 | `RuleStuff(RuleStuff)` RuleStuff.twk:61-65 | **struct copy**, then nulls the field | null | n/a |
+| W3 | **`GroupItem(GroupItem)` GroupItem.twk:51** | **struct copy** | whatever the source held | **yes**: 9,734 copies, all null; 341,267 non-null and 83,109 null copies, all inside a parse. Cleared, SEQ 253 R1 |
+| W4 | aCTionDefinE ruleActions.rtn:327 | writer | instance: the defining parent's stuff | no (34,147, all inside a parse) |
+| W5 | getStuff GroupItem.twk:1061 | writer (old road) | activation: pStuff, the caller | top-level parse entry only, pStuff null (628, 2 per process) |
+| W6 | parseContainer binParentRepair Generate.rtn:169 | writer | activation: `currentMETHOD.rStuff` | no |
+| W7 | parseRule parentRepair Generate.rtn:245 | writer | activation: `currentMETHOD.rStuff` | no |
+| W8 | parseRule callBracket restore Generate.rtn:295 | writer | the value saved at entry (:227) | no |
+| R1 | exitFromParse parentLabelSync Generate.rtn:31 | reader | label sync | 0 |
+| R2 | exitFromParse attach Generate.rtn:37 | reader | attachLabel's destination | 0 |
+| R3 | parseContainer Generate.rtn:168, 170 | reader | repair compare, label sync | 0 |
+| R4 | parseRule Generate.rtn:227 (save), 244, 246 | reader | frame save, repair compare, label sync | 0 |
+| R5 | attachLabel IA2 trace GroupItem.twk:272-275 | reader | the grandparent, parseTrace-gated | 0 (reached 4,342 times, parseTrace on 1) |
+| R6 | getStuff :1062, RuleStuff ctor :56 | reader | each reads back its own write for parentLabel | as W5 and W1 |
+
+The `groups.ext` mirror is `RuleStuff parentStuff;` (:773). No kant readers: in kant files the name appears only in prose (designDocs, fixture dead regions). **Against the 5.5b list:** nothing added or dropped from population 1, only line numbers moved. Added: W2 and W3 from population 2, and the bootstrap fact for W1.
+
+### 24b. Per reader: activation in hand, road, and whether it runs outside a parse
+
+| reader | road | activation in hand | ran with no activation |
+|---|---|---|---|
+| R1, R2 exitFromParse | new (every generated parse method returns through it) | yes: its own when called from parseRule, the enclosing one when called from a leaf method | 0 |
+| R3 parseContainer | new (reached from runOP inside generated bodies) | yes | 0 |
+| R4 parseRule | new | yes, pushed at :233-238 | 0 |
+| R5 attachLabel trace | both (called from parse() and exitFromParse) | yes | 0 |
+| R6 getStuff | old (parse()), called before the push | the caller's activation is on top | 628, the top-level entry, pStuff null |
+
+### 24c. Agreement with the list (tap 1)
+
+Classes:
+- **agree:** the chain and the list give the same stuff.
+- **nullAtFloor:** the nearest activation is a floor and the chain is null.
+- **STALE:** the chain names a different rule that is not on the list.
+- **SAMERULE:** the chain names the same rule as the list's nearest activation but is a different stuff instance. Sub-cases: not on the list, on the list above a floor, or on the list beyond a floor (floor-hidden).
+- **chainNull:** the chain is null where the list has an answer.
+
+Extra columns: `inst` counts reads where the chain is the reader's grammar parent's stuff; `defRule` counts reads where the chain is the nearest activation face's defining rule's stuff.
+
+| seat | agree | nullAtFloor | disagree |
+|---|---|---|---|
+| getStuff (W5) | 4,037,848 | 6,238 | **0** (628 no activation) |
+| parseRule after repair | 228,991 | 11,784 | **0** |
+| parseContainer after repair | 20,084 | -- | **0** |
+| parseContainer before repair | 19,654 | -- | SAMERULE not on list 430 |
+| **R1 exitFromParse sync** | 116,238 (inst 10,510) | 5,491 | **5,548**: SAMERULE not on list 3,592 (defRule 1,660), STALE 1,956 |
+| **R2 exitFromParse attach** | 81,951 (inst 10,510) | 5,423 | **272**: SAMERULE not on list 272 (defRule 272) |
+| parseRule before repair; save :227; restore :295 (**identical every class**) | 116,778 | 11,784 | SAMERULE not on list 64,272 (defRule 792) · chainNull 35,335 · **SAMERULE beyond a floor 9,689** · SAMERULE above a floor 1,685 (defRule 1,527) · STALE 1,232 |
+| W1 ctor (inside parse) | 78 | -- | chainNull 23,698 · STALE 5,511 · SAMERULE 355 (defRule 355) |
+| W4 define | -- | -- | STALE 34,147 (inst 34,147: always the grammar parent, never an activation) |
+
+**Floor-hidden at a seat that uses the value: 0.** The 9,689 floor-hidden values are parseRule's from before the repair; the repair overwrites them before any use. The restore at `:295` puts them back. Its counts equal the save's in every class, so the restore re-installs exactly the pre-repair values. The two repairs agree with the list on every call: `currentMETHOD.rStuff` *is* the list's answer wherever it was asked.
+
+### 24d. Who last wrote the value a leaf exit reads (tap 2)
+
+| reader | ruleRestore :295 | ruleRepair | getStuff | contRepair | **GroupItem copy :51** | ctor |
+|---|---|---|---|---|---|---|
+| exitSync, **disagree 5,548** | **0** | 0 | 0 | 0 | **5,548** | 0 |
+| exitAttach, **disagree 272** | **0** | 0 | 0 | 0 | **272** | 0 |
+| exitSync, agree 121,729 | 53,776 | 29,262 | 5,410 | 917 | 32,355 | 9 |
+| exitAttach, agree 87,374 | 51,283 | 29,029 | 5,269 | 917 | 867 | 9 |
+
+Whether a copied value is the instance meaning or the activation meaning is not measured (SEQ 253 R2: no tap for it).
+
+### 24e. One printed case per class (tap 1, list top-down, pointers per process)
+
+```
+ctor noActChainSet self=exponent face=PoweR list=null(0x0 face=- faceStuff=0x0) chain=PoweR(0x1051a4c00)  LIST:
+ctor STALE self=tik face=QuotE1 list=GrouP(0x1051a9900 face=GrouP faceStuff=0x1051a9900) chain=QuotE1(0x1051a4800)  LIST: GrouP(0x1051a9900) InvokE(0x1051a9700) RunRulE(0x1051a9580) ...
+ctor OTHERchainNull self=ExpressioN face=Grokking list=DefinE(0x1051a9c00 face=DefinE faceStuff=0x1051a9c00) chain=null(0x0)  LIST: DefinE(0x1051a9c00) definitions(0x1051a9c80) define(0x1051a9d80) RunRulE(0x1051a9580) ...
+define STALE self=NamE face=NamE list=DefinE(0x1051a9c00 face=DefinE faceStuff=0x1051a9c00) chain=Attributes(0x1051a9f00)  LIST: DefinE(0x1051a9c00) definitions(0x1051a9c80) define(0x1051a9d80) RunRulE(0x1051a9580) ...
+ctor SAMERULEother-notOnList self=Operators face=Token list=Token(0x105235a80 face=Token faceStuff=0x105235a80) chain=Token(0x105235e80)  LIST: Token(0x105235a80) ExpressioN(0x105252200) Xpress(0x105258f80) StatemenT(0x105258d00) Start(0x10
+exitSync SAMERULEother-notOnList self=search face=search list=Search(0x101364480 face=Search faceStuff=0x101364480) chain=Search(0x1012de600)  LIST: Search(0x101364480) |FLOOR| Xpress(0x1012e4f80) StatemenT(0x1012e4d00) Start(0x1012e4e00) R
+ruleSave SAMERULEother-notOnList self=GrouP face=GrouP list=Search(0x101364480 face=Search faceStuff=0x101364480) chain=Search(0x1012de600)  LIST: Search(0x101364480) |FLOOR| Xpress(0x1012e4f80) StatemenT(0x1012e4d00) Start(0x1012e4e00) Run
+rulePre SAMERULEother-notOnList self=GrouP face=GrouP list=Search(0x101364480 face=Search faceStuff=0x101364480) chain=Search(0x1012de600)  LIST: GrouP(0x1012dba00) Search(0x101364480) |FLOOR| Xpress(0x1012e4f80) StatemenT(0x1012e4d00) Star
+ruleRestore SAMERULEother-notOnList self=NamE face=NamE list=GrouP(0x1012dba00 face=GrouP faceStuff=0x1012dba00) chain=GrouP(0x100783480)  LIST: GrouP(0x1012dba00) Search(0x101364480) |FLOOR| Xpress(0x1012e4f80) StatemenT(0x1012e4d00) Start
+ruleSave STALE self=NumbeR face=NumbeR list=wzNum(0x10136c800 face=wzNum faceStuff=0x10136c800) chain=Attributes(0x100785f00)  LIST: wzNum(0x10136c800) |FLOOR| Xpress(0x1012e4f80) StatemenT(0x1012e4d00) Start(0x1012e4e00) RunRulE(0x10078558
+rulePre STALE self=NumbeR face=NumbeR list=wzNum(0x10136c800 face=wzNum faceStuff=0x10136c800) chain=Attributes(0x100785f00)  LIST: NumbeR(0x10130bf00) wzNum(0x10136c800) |FLOOR| Xpress(0x1012e4f80) StatemenT(0x1012e4d00) Start(0x1012e4e00)
+ruleRestore STALE self=NumbeR face=NumbeR list=wzNum(0x10136c800 face=wzNum faceStuff=0x10136c800) chain=Attributes(0x100785f00)  LIST: wzNum(0x10136c800) |FLOOR| Xpress(0x1012e4f80) StatemenT(0x1012e4d00) Start(0x1012e4e00) RunRulE(0x10078
+exitSync STALE self=do face=do list=DO(0x1059a4380 face=DO faceStuff=0x1059a4380) chain=Attributes(0x104c69f00)  LIST: DO(0x1059a4380) |FLOOR| Xpress(0x105760f80) StatemenT(0x105760d00) Start(0x105760e00) RunRulE(0x104c69580) ...
+ruleSave OTHERchainNull self=DO face=DO list=WardeD(0x10575d080 face=WardeD faceStuff=0x10575d080) chain=null(0x0)  LIST: WardeD(0x10575d080) StatemenT(0x105748600) DO(0x1059a4380) |FLOOR| Xpress(0x105760f80) StatemenT(0x105760d00) Start(0x
+rulePre OTHERchainNull self=DO face=DO list=WardeD(0x10575d080 face=WardeD faceStuff=0x10575d080) chain=null(0x0)  LIST: DO(0x10575a980) WardeD(0x10575d080) StatemenT(0x105748600) DO(0x1059a4380) |FLOOR| Xpress(0x105760f80) StatemenT(0x1057
+ruleRestore OTHERchainNull self=DO face=DO list=WardeD(0x10575d080 face=WardeD faceStuff=0x10575d080) chain=null(0x0)  LIST: WardeD(0x10575d080) StatemenT(0x105748600) DO(0x1059a4380) |FLOOR| Xpress(0x105760f80) StatemenT(0x105760d00) Start
+ruleSave SAMERULEother-onListBeyondFloor self=WardeD face=WardeD list=StatemenT(0x104ce2880 face=StatemenT faceStuff=0x104ce2880) chain=StatemenT(0x105760d00)  LIST: StatemenT(0x104ce2880) BlocK(0x104ce2a80) |FLOOR| Xpress(0x105760f80) Stat
+rulePre SAMERULEother-onListBeyondFloor self=WardeD face=WardeD list=StatemenT(0x104ce2880 face=StatemenT faceStuff=0x104ce2880) chain=StatemenT(0x105760d00)  LIST: WardeD(0x10575d080) StatemenT(0x104ce2880) BlocK(0x104ce2a80) |FLOOR| Xpres
+contPre SAMERULEother-notOnList self=UnaryOPS face=UnaryOPS list=TokenXP(0x104cf5c80 face=TokenXP faceStuff=0x104cf5c80) chain=TokenXP(0x1059a4200)  LIST: TokenXP(0x104cf5c80) Token(0x104cf5a80) ExpressioN(0x105757400) BrancH(0x10575a580) W
+ruleSave SAMERULEother-onListAboveFloor self=Token face=Token list=ExpressioN(0x104cee680 face=ExpressioN faceStuff=0x104cee680) chain=ExpressioN(0x105757400)  LIST: ExpressioN(0x104cee680) Parens(0x104cee280) InvokeArg(0x104cf1900) TokenXP
+rulePre SAMERULEother-onListAboveFloor self=Token face=Token list=ExpressioN(0x104cee680 face=ExpressioN faceStuff=0x104cee680) chain=ExpressioN(0x105757400)  LIST: Token(0x104cf5a80) ExpressioN(0x104cee680) Parens(0x104cee280) InvokeArg(0x
+ruleRestore SAMERULEother-onListAboveFloor self=Token face=Token list=ExpressioN(0x104cee680 face=ExpressioN faceStuff=0x104cee680) chain=ExpressioN(0x105757400)  LIST: ExpressioN(0x104cee680) Parens(0x104cee280) InvokeArg(0x104cf1900) Toke
+ruleRestore SAMERULEother-onListBeyondFloor self=WardeD face=WardeD list=StatemenT(0x104ce2880 face=StatemenT faceStuff=0x104ce2880) chain=StatemenT(0x105760d00)  LIST: StatemenT(0x104ce2880) BlocK(0x104ce2a80) |FLOOR| Xpress(0x105760f80) S
+exitAttach SAMERULEother-notOnList self=exponent face=exponent list=PoweR(0x1030c4880 face=PoweR faceStuff=0x1030c4880) chain=PoweR(0x1030c4c00)  LIST: PoweR(0x1030c4880) FloaT(0x1030c4200) NumbeR(0x103165d80) Token(0x103165a80) ExpressioN(
+```
+
+How to read them: `exponent`'s attach (last line) has chain `PoweR@…c00`, which is the defining PoweR's stuff, while the running PoweR face is `@…880`. The `WardeD` floor-hidden case has chain = the StatemenT beyond the floor (`@…0d00`), while the list's nearest is the inner StatemenT (`@…2880`).
+
+### 24f. NO HUNT at this tree
+
+**6 of the 7 baseline sites remain; 5 of them are parentStuff sites.**
+- **Gone:** site 1's parentStuff walk (5.5b). `deferredAbove`'s list walk to the first floor stays, and it is not a parentStuff walk.
+- **Remaining, not a parentStuff site:** 2 `enclosingFace`, now `top.face.get(tag)`.
+- **Remaining, parentStuff sites:**
+  - 3 parseContainer binParentRepair (Generate.rtn:167-170)
+  - 4 parseRule parentRepair (:243-246)
+  - 5 exitFromParse parentLabelSync (:30-31)
+  - 6 the F-114 callBracket (:224-229, :292-295)
+  - 7 getStuff's copy and re-derive (GroupItem.twk:1059-1062)
+
+### 24g. Shapes for the ruling (costs; no recommendation)
+
+**Readers needing the caller across a floor, under every shape: none.** Floor-hidden is 0 at every seat that uses the value, and the driveStep hand-carry fires only when the top of the list is not a floor.
+
+**(a) parentStuff becomes a field of ParseActivation, written at push.**
+- It equals `prev.stuff` on every measured push (getStuff 4,037,848 / 0; parseRule after repair 240,775 / 0), so the field is one pointer step that already exists.
+- **Cost:** a ParseActivation layout change, with the SEQ 237 name grep and a full bare-tokall certificate.
+- **Leaf methods push nothing**, so exitFromParse needs a test for whether the top activation is its own (`top.face == field && top.stuff == ruleStuff` is the test tap 1 used).
+- **Moves:** the 5,548 sync and 272 attach answers change; the effect on the fleet is unmeasured.
+- Repairs W6 and W7 retire, and the callBracket loses its parentStuff slot.
+- **Copied face:** RuleStuff no longer has the field, so neither struct copy carries one; a copied face gets its parent when its activation is pushed.
+
+**(b) It stays on RuleStuff, written only at push.**
+- W1, W4, W6 and W7 retire. W5 (getStuff) is the old road's push-equivalent and stays; parseRule's push would write it.
+- Leaf methods are never pushed, so a leaf's stuff is never written and keeps whatever it held. That is today's 5,820 disagreements, and more once the instance writes are gone.
+- The F-114 bracket and getStuff's inProcess copy both stay, because the field is still per stuff.
+- **Copied face:** `GroupItem.twk:51` still copies the source's value unless it nulls the field the way `RuleStuff.twk:61` already does. Without that, the 5,820 inherited values survive the shape.
+
+**(c) It is deleted, and each reader asks the list.**
+- R1/R2 read the nearest activation that is not their own; R3/R4's compares go with the repairs; R5 reads the activation below pStuff's; R6 goes with its writes.
+- Retire: W1, W4, W5, W6, W7, the bracket slot, the parentLabel re-derives built on it, and the `groups.ext` line.
+- **Moves:** the same 5,548 and 272 answers change; the effect on the fleet is unmeasured and needs a build.
+- **Copied face:** nothing to copy. Both struct copies stop being writers by construction.
+
+**Not measured, and owed before any shape lands:** what the 5,820 changed answers do to the fleet. That needs a build of the chosen shape.

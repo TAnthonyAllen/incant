@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -10739,3 +10739,27 @@ OWED, small: CLAUDE.md H12 -- a seal that names an instrument as row-for-row ban
 instrument's output beside it.
 
   END SEQ 252
+
+
+===================================================================
+SEQ 253  -  SEQ 251 RESUMES (second time)
+===================================================================
+STATUS: cleared -- section 24 written (R2 wording, R3 two populations), objectModel 5.7 status, CLAUDE.md struct-copy census line (R4). Sealed.
+
+RULINGS
+R1. The copy constructor clears stop 1. Outside parse it only ever copies a null, so it carries
+    nothing.
+R2. SEQ 252's ruled sentences are withdrawn. Section 24 states the measurement: the leaf-exit
+    disagreements (5,548 sync, 272 attach) are all values inherited through a struct copy
+    (GroupItem.twk:51); the :295 restore wrote none of them, last writer on agreeing reads only;
+    whether a copied value is the instance or the activation meaning is not measured -- say so in
+    one line, no tap.
+R3. The census includes struct copies of RuleStuff: GroupItem.twk:51 and RuleStuff.twk:61 (copies,
+    then nulls the field). Each of shapes (a)-(c) gains one line on what a copied face's
+    parentStuff is under it.
+R4. Standing line in CLAUDE.md beside the absence doctrine: a census of a struct field includes
+    every whole-struct copy of that struct; a name grep cannot find them. Cite this recon.
+
+DO: section 24 from SEQ 165's data with R2's wording; the stroke-5 status paragraph; seal.
+
+  END SEQ 253
