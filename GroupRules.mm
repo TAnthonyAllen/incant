@@ -2389,9 +2389,9 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( ruleStuff->sukcess )
 		{
-		// parentLabelSync parentStuff IS the enclosing rule's stuff, so only the label sync is owed here
-		if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
-			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
+		// parentLabelSync the enclosing activation's label, through the list -- the stuff field held values inherited through a face copy (recon 24d)
+		if ( ::enclosingStuff(field,ruleStuff) && ruleStuff->parentLabel != ::enclosingStuff(field,ruleStuff)->label )
+			ruleStuff->parentLabel = ::enclosingStuff(field,ruleStuff)->label;
 		if ( ruleStuff->noAdvance )
 			ruler->atRuleMark = ruleStuff->hereAt;
 		field->fireLabelMethod(ruleStuff);
@@ -2400,7 +2400,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			if ( ruleStuff->label && !ruleStuff->noLabel )
 				{
 				// oneAttach ONE ATTACH, through attachLabel, and the promote value is 1 -- promote=0 cannot RETAG here, and the retag is the half a members rule needs
-				field->attachLabel(ruleStuff,ruleStuff->parentStuff,1);
+				field->attachLabel(ruleStuff,::enclosingStuff(field,ruleStuff),1);
 				// oneBitReturn a successful term returns its TRUTH, never its label -- the label is already attached above, and a label carrying a matched 0 read as a failed alternative in a || chain (Tony, 2026-09-23, restoring ruling c')
 				return ruler->trueResult;
 				}
