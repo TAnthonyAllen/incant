@@ -10796,3 +10796,23 @@ across a floor; 5.8a not row for row.
 REPORT: what was run, the fleet line at a, b, c; movers table; evidence. Seal on the branch.
 
   END SEQ 254
+
+
+===================================================================
+SEQ 255  -  STROKE 5.8 BOUGHT: MERGE om-stroke58
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+
+RULINGS
+R1. Tony buys 5.8. Merge om-stroke58 into trunk.
+R2. At the merge, delete groups.ext :773 and the RuleStuff ivar. Certify with a full bare tokall: the
+    diff is exactly those lines, canary noted.
+R3. The IA2 trace's listParent column is accepted as-is.
+
+DO: merge; remove the mirror line and the ivar; retok bare and install; full checklist (pop.sh row for
+row with 5.8c, jitLadder, printPop, sealCaptures diff empty); objectModel.md stroke-5 status:
+parentStuff retired, NO HUNT 3 of 7 with each remaining site named; seal on trunk.
+NEXT ON THE DOCKET (not this dispatch): parentLabel as a cached copy of enclosingStuff().label
+(stroke 5.9, recon first).
+
+  END SEQ 255
