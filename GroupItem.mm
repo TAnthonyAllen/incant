@@ -1408,9 +1408,9 @@ char *why = 0;
 		{
 		stuff = new RuleStuff(getRStuff());
 		}
-	// listParent the enclosing activation's stuff, never pStuff -- they agreed on every call measured (recon 24c)
-	if ( stuff->parentStuff = ::enclosingStuff(this,stuff) )
-		stuff->parentLabel = stuff->parentStuff->label;
+	// listParent the enclosing activation's label, never pStuff's -- they agreed on every call measured (recon 24c)
+	if ( ::enclosingStuff(this,stuff) )
+		stuff->parentLabel = ::enclosingStuff(this,stuff)->label;
 	if ( !stuff->followed )
 		stuff->getWhatFollows(this);
 	return stuff;

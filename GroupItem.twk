@@ -1057,9 +1057,9 @@ String      why;
         return stuff; }
     if stuff.inProcess {
         stuff       = new(rStuff); }
-    // listParent the enclosing activation's stuff, never pStuff -- they agreed on every call measured (recon 24c)
-    if parentStuff = enclosingStuff(this,stuff)
-        parentLabel = parentStuff.label;
+    // listParent the enclosing activation's label, never pStuff's -- they agreed on every call measured (recon 24c)
+    if enclosingStuff(this,stuff)
+        parentLabel = enclosingStuff(this,stuff).label;
     if !followed    getWhatFollows(this);
     return stuff;
 }

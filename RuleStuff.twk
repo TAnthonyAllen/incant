@@ -16,7 +16,6 @@ int         kount,
             max,
             maxRepeat,
             min;
-RuleStuff   parentStuff;
 int         &testMatch(GroupItem);
 GroupItem   &actionMethod(GroupItem);
 GroupItem   &parseMethod(GroupItem);
@@ -52,8 +51,8 @@ RuleStuff(GroupItem grup)
     maxRepeat   = 1;
     min         = 1;
     if grup = grup.parent
-        if parentStuff = grup.rStuff
-            parentLabel = parentStuff.label;
+        if grup.rStuff
+            parentLabel = grup.rStuff.label;
 }
 
 RuleStuff(RuleStuff r)
@@ -62,7 +61,6 @@ RuleStuff(RuleStuff r)
     label   = null;
     sukcess = 0;
     kount   = 0;
-    parentStuff = null;
 }
 
 // checkGuard true when the rule is unguarded or the input character is in its guardSet

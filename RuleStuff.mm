@@ -402,8 +402,8 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	maxRepeat = 1;
 	min = 1;
 	if ( grup = grup->parent )
-		if ( parentStuff = grup->rStuff )
-			parentLabel = parentStuff->label;
+		if ( grup->rStuff )
+			parentLabel = grup->rStuff->label;
 }
 
 RuleStuff::RuleStuff(RuleStuff *r)
@@ -422,6 +422,7 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	max = 0;
 	maxRepeat = 0;
 	min = 0;
+	parentStuff = 0;
 	banged = 0;
 	doNothing = 0;
 	followed = 0;
@@ -444,7 +445,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	label = 0;
 	sukcess = 0;
 	kount = 0;
-	parentStuff = 0;
 }
 
 // checkGuard true when the rule is unguarded or the input character is in its guardSet

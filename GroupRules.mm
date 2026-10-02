@@ -492,10 +492,7 @@ GroupItem 	*item = 0;
 						item->setRStuff(new RuleStuff(item->getRStuff()));
 						grup = item->parent;
 						if ( grup && grup->getRStuff() )
-							{
-							item->getRStuff()->parentStuff = grup->getRStuff();
 							item->getRStuff()->parentLabel = grup->getRStuff()->label;
-							}
 						}
 				// codeIsAProperty an action's CodE is an artifact, so it goes on the property list, never among the terms (stroke 3)
 				if ( item == CodE )
@@ -9180,13 +9177,9 @@ int 		matched = 0;
 		ruler->atRuleMark = entryMark;
 		return 0;
 		}
-	// binParentRepair a bin is reached from runOP, never through parseRule, so nothing else gives it the asker's stuff and attachLabel would drop its label at !pStuff
-	if ( ::enclosingStuff(field,ruleStuff) != ruleStuff->parentStuff )
-		{
-		ruleStuff->parentStuff = ::enclosingStuff(field,ruleStuff);
-		if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
-			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
-		}
+	// binParentRepair a bin is reached from runOP, never through parseRule, so nothing else syncs its parentLabel to the enclosing activation
+	if ( ::enclosingStuff(field,ruleStuff) && ruleStuff->parentLabel != ::enclosingStuff(field,ruleStuff)->label )
+		ruleStuff->parentLabel = ::enclosingStuff(field,ruleStuff)->label;
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput(field) )
 		{
@@ -9257,7 +9250,6 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	// callBracket lift this call's own rStuff state into C++ locals -- the C++ stack is the frame stack, and a nested call of the same rule would otherwise overwrite it (Tony, 2026-09-24; F-114). Passthrough, so tok sees no declaration (bear-trap #42)
 	
 	GroupItem *callLabel = ruleStuff ? ruleStuff->label : 0, *callParentLabel = ruleStuff ? ruleStuff->parentLabel : 0;
-	RuleStuff *callParentStuff = ruleStuff ? ruleStuff->parentStuff : 0;
 	char *callHereAt = ruleStuff ? ruleStuff->hereAt : 0;
 	int callKount = ruleStuff ? ruleStuff->kount : 0;
 	int callSukcess = ruleStuff ? ruleStuff->sukcess : 0;
@@ -9271,13 +9263,9 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	ruler->gParseActive = &callActive;
 	// activeNotSubject the record inherits GroupRules' scope, so re-mention ruler then ruleStuff or currentMETHOD binds to callActive (bear-trap #57)
 	::measureParentProbe(field);
-	// parentRepair re-point parentStuff at the ENCLOSING rule's stuff and sync parentLabel, through the activation list (stroke 5.8a; it agreed with currentMETHOD on every call measured, recon 24c)
-	if ( ::enclosingStuff(field,ruleStuff) != ruleStuff->parentStuff )
-		{
-		ruleStuff->parentStuff = ::enclosingStuff(field,ruleStuff);
-		if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
-			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
-		}
+	// parentRepair sync parentLabel to the ENCLOSING activation's label, through the list (stroke 5.8; the parentStuff field is gone)
+	if ( ::enclosingStuff(field,ruleStuff) && ruleStuff->parentLabel != ::enclosingStuff(field,ruleStuff)->label )
+		ruleStuff->parentLabel = ::enclosingStuff(field,ruleStuff)->label;
 	// bareFieldRepoint the use lines below are load bearing -- a new declaration re-points every bare field under it
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput(field) )
@@ -9331,7 +9319,7 @@ checkSuccess:
 	// callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it; sukcess joined 2026-09-24 (F-121): a failed inner call wrote 0 into an rStuff an old-road caller was holding, and no post-return reader decides on it (census)
 	
 	if ( ruleStuff ) {
-	ruleStuff->label = callLabel;  ruleStuff->parentLabel = callParentLabel;  ruleStuff->parentStuff = callParentStuff;
+	ruleStuff->label = callLabel;  ruleStuff->parentLabel = callParentLabel;
 	ruleStuff->hereAt = callHereAt;  ruleStuff->kount = callKount;  ruleStuff->sukcess = callSukcess; }
 	
 	return result;
