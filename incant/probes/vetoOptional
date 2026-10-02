@@ -1,0 +1,52 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    vtFires=0;
+    vtSay code={
+        v := tell(argument);
+        m := *v["matched"]; c := *v["consumed"];
+        cerr "   verdict matched= " m " consumed= " c " vetoFires= " vtFires:;
+        };
+    ;
+register(VetoP);
+define
+    VtOpt isRule vo-="x" code={ vtFires += 1; return null; };
+    VcOpt isRule vc-="x";
+    ;
+define
+    VtOUT isRule VtOpt? vr-="x";
+    VcOUT isRule VcOpt? vq-="x";
+    ;
+search GroupFields UnitTests Utilities VetoP list;
+cerr "OLD control VcOUT x":;
+vtSay("VcOUT x");
+cerr "OLD veto    VtOUT x":;
+vtSay("VtOUT x");
+cerr "OLD control VcOUT xx":;
+vtSay("VcOUT xx");
+cerr "OLD veto    VtOUT xx":;
+vtSay("VtOUT xx");
+parser(VtOUT);
+parser(VcOUT);
+cerr "NEW control VcOUT x":;
+vtSay("VcOUT x");
+cerr "NEW veto    VtOUT x":;
+vtSay("VtOUT x");
+cerr "NEW control VcOUT xx":;
+vtSay("VcOUT xx");
+cerr "NEW veto    VtOUT xx":;
+vtSay("VtOUT xx");
+cerr "PROBE vetoOptional SENTINEL":;
+stop();
+
+vetoOptional -- deepClean D-24 (SEQ 260 R9). sukcess carries both "the action vetoed this match" (fireLabelMethod
+sets it false when the action returns null) and "satisfied by min". On the OLD road (parse()) a vetoed iteration
+reaches matchFailed, where kount >= min flips it back to true and the rewind inside `if !sukcess` is skipped, so the
+vetoed match's input may stay consumed. The NEW road (exitFromParse) rewinds before its min-zero success.
+Rows: VcOUT (no action on the optional) is the control and must read the same on both roads. VtOUT's optional
+matches "x" and vetoes; if the old road keeps the consumed "x", the literal after it fails there and not on the
+new road. The xx rows: the control reads matched 1 consumed 2; a veto that keeps its input consumed reads
+consumed 2, one that rewinds reads consumed 1. vetoFires must RISE across a veto row for a veto row to mean anything.

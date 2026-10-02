@@ -92,6 +92,64 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-131 — a count whose generic flag is set from kant stops incrementing: `x :. flaG; ++x` leaves x unchanged
+
+**What.** `opPlusPlus` reads the iterator poison (`fLAG`) for EVERY operand at its top, before it tests isIterator, so a
+plain count whose generic flag was set from kant (opSetFlag case 12, `x :. flaG`) silently does not increment. It is
+deepClean D-23's path B<-E: `fLAG` carries five meanings and this one reads "the last iterate on this node was refused"
+off a node that is not an iterator. Same family as F-7, whose "move below the jitting gate" left this top copy dominant.
+**Where.** `Instruct.rtn`, `opPlusPlus`: `if result.fLAG      return 0;` directly above `if isIterator {`. The arm's own
+second copy, below the jitting gate, is the one the 2026-08-05 census meant to keep.
+**Evidence.** `incant/probes/flagPlusPlus` (2026-10-02): `PFI-1 flagged x after ++ = 5 (want 6)`; control
+`PFI-2 y after ++ = 6 (want 6)`; exit 0, sentinel reached. The control is the same prefix ++ on an unflagged twin.
+**Done when.** The flagged count reads 6 and the poisoned-iterator rows (iterT1m's map: iterrunLIVE, the pop.sh refusal
+row) are row for row -- or Tony rules what kant's generic flag (opDot / opSetFlag case 12) is for first (SEQ 260 R9
+defers that, and the fLAG split waits for it).
+**Owner.** Clod (SEQ 260 R9).
+```
+ATTEMPT LOG
+  2026-10-02 probe flagPlusPlus written. First spelling (x++, values from define) was VOID -- its control did not
+    increment either; the count arm is prefix ++ on a count set in the body. Second spelling: RED as above. Not fixed.
+```
+
+### F-132 — opDot on `a.<null>` silently swaps its operands instead of refusing
+
+**What.** opDot's `if !argument` means both "called as the leading-dot unary" (`.taG`, the left side from lastREF) and
+"the right operand evaluated to null". In a binary `a.<null>` it takes the unary reading: the LEFT operand becomes the
+property name, `lastREF.group` becomes the target, and nothing is refused. deepClean D-26. To refuse loud per R-2 (as
+dispatched in SEQ 260 R9), the binary null case needs its own channel -- a distinct leading-dot op, or a marker the
+leading arm sets -- and then a named refusal.
+**Where.** `Instruct.rtn` opDot, `if !argument` (~:362); the leading arm in handleUnary/handleDot (ruleActions.rtn);
+jitEmitDot's null convention; runOP if it carries the marker.
+**Evidence.** Static, from the two-meaning census (deepClean D-26, 2026-10-02). Reachable only through an isArgument
+or invoked right operand, because the right of `.` is normally a data-less name token from handleDot. Not yet run.
+**Done when.** A fixture drives `a.<null>` through an invoked operand that returns null and reads a named refusal, with
+the leading `.taG` form unmoved beside it (H7 pair).
+**Owner.** Clod (SEQ 260 R9).
+```
+ATTEMPT LOG
+  2026-10-02 filed from deepClean D-26; no attempt yet.
+```
+
+### F-133 — a rule action's read of a declared global comes through data-less, and the global then reads as its tag
+
+**What.** Inside a rule's action body, `frWitness = frMark;` -- where `frMark` is a declared Frontier global holding
+987654 -- assigns nothing, and after the fire `frMark` itself prints as its tag (bear-trap #26). Found by the deep-clean
+recon as the cause of incant/frontier's station 4 failure; the frontier's witness now reads a literal (D-1), so the
+defect is no longer masked by an instrument but is unfixed.
+**Where.** Unknown; the 2026-09-19/20 frame-member change (`fa15fe6` / `9b4d81c`, "argument is BOTH a term and a frame
+member") is the likely window -- unmeasured.
+**Evidence.** `incant/probes/globalReadInAction` (2026-10-02; a minimal delta of incant/frontier): `F133 before the drive
+frMark= 987654`, `F133 after the drive frMark= frMark frWitness= frMark`; the body ran and walked 3 terms. With the witness respelled to the literal,
+all six stations PASS.
+**Done when.** A fixture reads a declared global from inside a rule action and gets the value, and the global still
+holds it after the fire; H7 on the frame-member change.
+**Owner.** Clod (SEQ 260 R9).
+```
+ATTEMPT LOG
+  2026-10-02 filed; the frontier's witness was respelled to a literal (D-1) so the station measures again. Not fixed.
+```
+
 ### F-130 — ✅ CLOSED 2026-10-01 — two `RuleStuff.owner` readers run under no fleet row (coverage): aCTionFailed pinned, processCode's label branch unreachable
 
 **What.** Stroke 4.4b renamed `RuleStuff.rule` to `owner` at every reader, including two that recon 22's tap measured

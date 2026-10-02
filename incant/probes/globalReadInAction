@@ -17,7 +17,7 @@ define
     frLen=0;
     frLen2=0;
     frRule isRule frEntries=ANYstring+ SemI?- code={
-        frWitness = 987654;
+        frWitness = frMark;
         frTermsSeen = 0;
         if frEntries.listLengtH;
             for frSum in frEntries;     frTermsSeen = frTermsSeen + 1;
@@ -80,7 +80,9 @@ define
         frRan = frRan + 1;
         cerr :"ANCHOR frontier station 4 -- FIRE the rule; the witness is the verdict":;
         frWitness = 0;
+        cerr "F133 before the drive frMark= " frMark:;
         frDrive();
+        cerr "F133 after  the drive frMark= " frMark " frWitness= " frWitness:;
         cerr "STATION 4 witness reads " frWitness " and must equal " frMark:;
         frOk = 0;
         if frWitness == frMark;     frOk = 1;
@@ -174,6 +176,9 @@ frRule is isRule, carries members AND a code body, and lives in the Frontier
 registry. It could not have been the subject before 2026-09-18, because parser
 resolved its root out of Grokking; it now takes the rule bare, so registry
 membership stopped mattering. The rule is `list`'s shape, which is the spec.
+
+F-133 PROBE (docs/fixIts.md): a copy of incant/frontier with the witness read from the global again and two cerr
+lines around frDrive(). Read the two F133 lines.
 
 RE-AIM PENDING -- AFTER THE PARSE-THEN-FIRE RE-READ (SEQ 260 R2, 2026-10-02).
 All six stations PASS since the witness fix below, so this file has NO EDGE today

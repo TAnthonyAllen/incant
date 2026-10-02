@@ -1,0 +1,27 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(ProbeFlagInc);
+define
+    pfX;
+    pfY;
+    pfRun code={
+        pfX = 5;
+        pfY = 5;
+        pfX :. flaG;
+        ++pfX;
+        ++pfY;
+        cerr "PFI-1 flagged  x after ++ = " pfX " (want 6)":;
+        cerr "PFI-2 control  y after ++ = " pfY " (want 6)":;
+        };
+    ;
+pfRun();
+print "PROBE flagPlusPlus SENTINEL":;
+stop();
+
+flagPlusPlus -- deepClean D-23, path B<-E (SEQ 260 R9). Does a field whose generic flag was set from kant
+(opSetFlag case 12) stop incrementing? Instruct.rtn's opPlusPlus reads the iterator poison (fLAG) for every
+operand at its top, so a flagged count may be refused. PFI-2 is the control: the same prefix ++ (the count arm) on an unflagged twin, both set to 5 in the body so each
+holds a count.

@@ -1,0 +1,32 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(ProbeTwoSub);
+define
+    psA psA0=1 psA1=2;
+    psB psB0=30 psB1=400;
+    psTop;
+    psRun code={
+        psS1 = psA[1];
+        psS2 = psB[2];
+        psR1 = psA[1] + psB[2];
+        psR2 = psB[2] + psA[1];
+        cerr "PTS-1 single  psA[1]          = " psS1 " (want 1)":;
+        cerr "PTS-2 single  psB[2]          = " psS2 " (want 400)":;
+        cerr "PTS-3 two     psA[1] + psB[2] = " psR1 " (want 401)":;
+        cerr "PTS-4 two     psB[2] + psA[1] = " psR2 " (want 401)":;
+        };
+    ;
+psRun();
+psRun();
+psTop = psA[1] + psB[2];
+cerr "PTS-5 top-level psA[1] + psB[2] = " psTop " (want 401)":;
+print "PROBE twoSubscripts SENTINEL":;
+stop();
+
+twoSubscripts -- deepClean D-23, path C->D (SEQ 260 R9). aCTionBraced sets fLAG on Braced's own label to mean
+"this InvokeArg is a subscript"; checkInput reads fLAG on a stored label to mean "recycle this label in place".
+If the two meet, the second subscript in one expression reuses the first's node. Subscripts are 1-based (psB[1] reads the first member). PTS-1/2 are the single-
+subscript controls; PTS-3/4 put two in one expression, both orders; the action runs twice (bear-trap #22).
