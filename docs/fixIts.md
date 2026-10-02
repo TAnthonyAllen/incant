@@ -118,6 +118,10 @@ ATTEMPT LOG
 
 ### F-135 — plant 4: `fLAG` read as "recycle this label" can catch Braced's "this InvokeArg is a subscript"
 
+**⚠ RECLASSIFIED 2026-10-02 (SEQ 263 R2): A STEP-1 REPLAY ITEM, NOT A TRUNK DEFECT.** Unreproduced on trunk across six
+shapes; it showed only under step 1's replay. Its cure (T3: a second bit, or the opGet rewrite) rides the step-1
+rebuild on trunk's model (port shape (ii)), not a trunk stroke.
+
 **What.** aCTionBraced sets fLAG on its own label to mean "subscript" (read by aCTionTokenXP's subscript arm);
 attachLabel's unwrap arm sets fLAG to mean "recycle this label in place"; checkInput's label mint reads fLAG as
 "recycle", reusing the stored label instead of minting one. If Braced's flagged label is still its rule's stored label
