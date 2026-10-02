@@ -1351,3 +1351,125 @@ How to read them: `exponent`'s attach (last line) has chain `PoweR@…c00`, whic
 - **Copied face:** nothing to copy. Both struct copies stop being writers by construction.
 
 **Not measured, and owed before any shape lands:** what the 5,820 changed answers do to the fleet. That needs a build of the chosen shape.
+
+---
+
+## 25. Stroke 5.9 recon: what `RuleStuff.parentLabel` carries that `enclosingStuff().label` does not (SEQ 256, 2026-10-02, read-only)
+
+**Finding.** `parentLabel` is a **snapshot of the enclosing activation's label, taken at the sync**. `enclosingStuff().label` is that activation's label slot **now**. The two differ only when the parent's label slot is rewritten between the sync and the read. In the one reader that uses the value after syncing (`into`, parseRule), that happens 4,388 times. In the printed cases, the rewrite is a **child's label promoted into the parent's slot** (StatemenT's slot holds the child Xpress's label), or a same-stuff activation re-minting it. Every other reader compares and then syncs, so a stale value there is overwritten before anything uses it. **The bracket's parentLabel slot follows the same pattern as the `:295` restore:** the restored value is overwritten by the next sync whenever it disagrees. **The bracket's `label` slot does not:** it gives a live outer activation of the same stuff its label back (4,871 calls).
+
+**Provenance.** Trunk `4311149` (the 5.8 merge seal), bare, no incant process. One temporary tap in the generated `.mm` (GroupRules, GroupItem, RuleStuff, measure), reverted md5-identical (`c7617049` / `8291f0a3` / `2d476ca9` / `543ff0e9`); bare rebuild, pop.sh 860 / 1 row for row. The tap ran across pop.sh, jitLadder and printPop. It compared `parentLabel` with `enclosingStuff(field,stuff).label` at each reader, kept a last-writer map per RuleStuff, and at the bracket restore recorded whether each slot had changed during the call and whether an outer activation of the same stuff was still on the list. No stop tripped:
+- **Writers:** every writer is the grammar parent, a list answer, or a carrier (the bracket restore and the two struct copies); `establishFrame` made 0 calls.
+- **No-activation reader:** the only one is `probeNode`, a diagnostic print of an arbitrary probed node.
+- **Revert:** clean.
+
+### 25a. Census (two populations: lines naming the field, and whole-struct copies of RuleStuff)
+
+| # | site | kind | meaning |
+|---|---|---|---|
+| W1 | `RuleStuff(GroupItem)` RuleStuff.twk:55 | writer | **grammar parent**: `grup.parent.rStuff.label` (at bootstrap too) |
+| W2 | aCTionDefinE ruleActions.rtn:327 | writer | **grammar parent**: the defining parent's label |
+| W3 | getStuff GroupItem.twk:1062 | writer | **list answer** (old road, before the push) |
+| W4 | exitFromParse Generate.rtn:42 | sync | **list answer** |
+| W5 | parseContainer Generate.rtn:179 | sync | **list answer** |
+| W6 | parseRule Generate.rtn:252 | sync | **list answer** (after the push) |
+| W7 | parseRule callBracket restore Generate.rtn:301 | carrier | the value saved at :235 |
+| W8 | `GroupItem(GroupItem)` GroupItem.twk:51, `*rStuff = *grup.rStuff` | **struct copy** | the source's value |
+| W9 | `RuleStuff(RuleStuff)` RuleStuff.twk:61, `*this = *r` | **struct copy** | the source's value. It nulls label, sukcess and kount, **not** parentLabel |
+| W10 | `establishFrame` GroupItem.twk:682 | writer | argument value. **0 callers, 0 calls** (cleanupList) |
+| R1 | exitFromParse :42 | compare, then sync | -- |
+| R2 | parseContainer :179 | compare, then sync | -- |
+| R3 | parseRule :252 | compare, then sync | -- |
+| R4 | parseRule :263 `into = parentLabel` | **use** (feeds `measureLabelMint` only, which is parseTrace-gated, unpinned, "goes nowhere") | -- |
+| R5 | parseRule :235 bracket save | carrier | -- |
+| R6 | attachLabel IA2 trace GroupItem.twk:271, 275 | use, parseTrace-gated | reached 4,342 times, trace on 1 |
+| R7 | `measureParentProbe` measure.twk:630 | use, parseTrace-gated | 1,283 calls with trace on |
+| R8 | `probeNode` measure.twk:909 | use, diagnostic | 9 calls (emitRefT, roundTripT). It prints a probed node's field, and pop.sh reads only its `node=` column |
+
+Also: `groups.ext` :768 is the mirror. `parse()` has a **local** named `parentLabel` (GroupItem.twk:1395, 1411): written, never read, and not the field (cleanupList). No kant readers: in kant files the name appears only in prose.
+
+### 25b. Per reader
+
+| reader | road | activation in hand | ran with no activation |
+|---|---|---|---|
+| R1, R4, R5, R3 | new | yes (5.7 measured 0 no-activation at these seats) | 0 |
+| R2 | new | yes | 0 |
+| R6 | both | yes | 0 |
+| R7 | new (called from parseRule) | yes | 0 |
+| R8 | a kant command in a fixture body | irrelevant: it reads the probed node's field, not its own enclosing parent | explained |
+
+### 25c. Agreement: `parentLabel` vs `enclosingStuff(field,stuff).label`, with last writer
+
+Classes:
+- **agree:** both the same label.
+- **bothNull:** both null.
+- **fieldNull-listSet:** `parentLabel` null, the list's label set.
+- **DISAGREE:** both set, and different.
+
+`where` says whether the disagreeing `parentLabel` is the label of an activation on the list, or not on it.
+
+| reader | agree | bothNull | fieldNull-listSet | DISAGREE |
+|---|---|---|---|---|
+| **R4 `into` (use, after the sync)** | 55,042 | 50,415 | **4,163** (lw restore 4,006, getStuff 157) | **225** (lw ruleSync 225; not on list 225) |
+| R1 exit, before sync | 50,193 | 39,458 | 1,049 (lw restore 1,031) | 36,577 (lw exitSync 36,110, GroupItemCopy 467; not on list) |
+| R2 container, before sync | -- | 6,365 | -- | 13,719 (lw contSync 13,262, getStuff 457; not on list) |
+| R3 rule, before sync (= R5 bracket save, identical) | 574 | 159,921 | 2,252 (lw restore 2,203) | 78,028 (lw **restore 75,633**, getStuff 2,052, ruleSync 305, GroupItemCopy 38; not on list 77,287, on list above a floor 741) |
+
+The `inst` column (parentLabel is the reader's own grammar parent's label) matters only on agreeing rows: 8,918 at R1, 10,876 at R4, 1,484 at R3 DISAGREE. **No disagreement anywhere has the grammar-parent writers (W1, W2) as last writer.** Before-sync disagreements are by construction overwritten by the sync that follows them. The four sets of disagreements that reach a use are all at R4, after the sync.
+
+**Why R4 can disagree right after its own sync** (cases below): the sync runs before `checkInput(field)`, and `into` is read after it. In between, the enclosing activation's label slot is rewritten. In the printed cases it holds the child's own label: StatemenT's slot reads `Xpress@…230`, the very label the Xpress activation carries. `parentLabel` keeps what the slot held at the sync. So the 4,388 R4 differences are the cached value surviving a rewrite of the parent's slot. **Whether that slot rewrite is a promote or a same-stuff re-mint is not separated by this tap**; the cases show the child's label in the parent's slot.
+
+### 25d. The F-114 bracket: what its label and parentLabel saves protect (item 4, measured)
+
+At the restore (after the pop), per slot: did the slot change during the call, and is an outer activation of the **same stuff** still on the list (i.e. will something live read it)?
+
+| slot | unchanged, no outer | unchanged, outer live | **changed, no outer** | **changed, outer live** |
+|---|---|---|---|---|
+| `label` | 131,439 | 2,038 | 102,427 | **4,871** |
+| `parentLabel` | 154,495 | 4,951 | 79,371 | **1,958** |
+
+- **`label`: real protection.** In 4,871 calls the call changed the slot while an outer activation of the same stuff was live, and the restore hands that outer activation its own label back for its attach. That is F-114's case.
+- **`parentLabel`: the `:295` pattern, as the question supposed.**
+  - The restored value is next met by a sync. At R3 (the next entry) it disagrees with the list 75,633 times and the sync overwrites it; at R1, 1,031 times, overwritten.
+  - The 1,958 changed-with-outer-live restores give the outer activation a `parentLabel` that its exit then re-syncs from the list anyway (R1's DISAGREE row has no restore as last writer).
+  - The only reader that *uses* a restored value without re-syncing is R4: 4,006 null-vs-set plus 358 agree. All of those are on the next entry, after a sync that found nothing to change.
+
+### 25e. One printed case per class
+
+```
+exitSyncPre DISAGREE self=search field=search parentLabel=Search(0x1039a26e0) list=Search label=Search(0x1039cd5f0) lw=GroupItemCopy LIST: Search[Search 0x1039cd5f0] |FLOOR| Xpress[Xpress 0x1039c3730] StatemenT[null 0x0] Start[Start 0x103939280] RunRulE[RunRulE 0x103939550] InitiatE[InitiatE 0x1039395f0]
+bracketSave DISAGREE self=GrouP field=GrouP parentLabel=StatemenT(0x103960d70) list=Search label=Search(0x1039cd5f0) lw=getStuff LIST: Search[Search 0x1039cd5f0] |FLOOR| Xpress[Xpress 0x1039c3730] StatemenT[null 0x0] Start[Start 0x103939280] RunRulE[RunRulE 0x103939550] InitiatE[InitiatE 0x1039395f0]
+rulePre DISAGREE self=GrouP field=GrouP parentLabel=StatemenT(0x103960d70) list=Search label=Search(0x1039cd5f0) lw=getStuff LIST: GrouP[GrouP 0x10395f2d0] Search[Search 0x1039cd5f0] |FLOOR| Xpress[Xpress 0x1039c3730] StatemenT[null 0x0] Start[Start 0x103939280] RunRulE[RunRulE 0x103939550] InitiatE[InitiatE 0x1039395f0]
+contPre DISAGREE self=BrancheS field=BrancheS parentLabel=StatemenT(0x103650e60) list=BrancH label=BrancH(0x103657be0) lw=getStuff LIST: BrancH[BrancH 0x103657be0] WardeD[null 0x0] StatemenT[null 0x0] BlocK[BlocK 0x103657f00] |FLOOR| Xpress[Xpress 0x103654a50] StatemenT[null 0x0] Start[Start 0x1033dd280] RunRulE[RunRulE 0
+bracketSave fieldNull-listSet self=PrintXP field=PrintXP parentLabel=null(0x0) list=stuff label=stuff(0x10108d4b0) lw=GroupItemCopy LIST: stuff[stuff 0x10108d4b0] StringXP[StringXP 0x10108d6e0] Token[null 0x0] ExpressioN[ExpressioN 0x10108da00] |FLOOR| Xpress[Xpress 0x10108b2d0] StatemenT[null 0x0] Start[Start 0x100e39280
+rulePre fieldNull-listSet self=PrintXP field=PrintXP parentLabel=null(0x0) list=stuff label=stuff(0x10108d4b0) lw=GroupItemCopy LIST: PrintXP[null 0x0] stuff[stuff 0x10108d4b0] StringXP[StringXP 0x10108d6e0] Token[null 0x0] ExpressioN[ExpressioN 0x10108da00] |FLOOR| Xpress[Xpress 0x10108b2d0] StatemenT[null 0x0] Start[Sta
+into fieldNull-listSet self=Xpress field=Xpress parentLabel=null(0x0) list=StatemenT label=Xpress(0x10a178f00) lw=getStuff LIST: Xpress[Xpress 0x10a178f00] StatemenT[Xpress 0x10a178f00] |FLOOR| Xpress[Xpress 0x10a178f00] StatemenT[null 0x0] Start[Start 0x104e71280] RunRulE[RunRulE 0x104e71550] InitiatE[InitiatE 0x104e715f
+exitSyncPre fieldNull-listSet self=WardeD field=WardeD parentLabel=null(0x0) list=StatemenT label=StatemenT(0x10a180780) lw=restore LIST: WardeD[WardeD 0x10a17c320] StatemenT[StatemenT 0x10a180780] |FLOOR| Xpress[Xpress 0x10a17b140] StatemenT[null 0x0] Start[Start 0x104e71280] RunRulE[RunRulE 0x104e71550] InitiatE[Initiat
+into DISAGREE self=Xpress field=Xpress parentLabel=Iterate(0x10a192410) list=StatemenT label=Xpress(0x10a192230) lw=ruleSync LIST: Xpress[Xpress 0x10a192230] StatemenT[Xpress 0x10a192230] |FLOOR| Xpress[Xpress 0x10a192230] StatemenT[null 0x0] Start[Start 0x104e71280] RunRulE[RunRulE 0x104e71550] InitiatE[InitiatE 0x104e71
+```
+
+### 25f. NO HUNT: which of the three remaining sites retire if parentLabel goes
+
+**None retires whole.**
+- **(2) `enclosingFace`:** untouched; it reads `top.face`, not a label.
+- **(6) the F-114 callBracket:** loses its `parentLabel` slot but keeps `label` (25d: 4,871 live protections), `hereAt`, `kount` and `sukcess`.
+- **(7) getStuff's inProcess copy:** loses its `parentLabel` write but keeps the copy, which exists for the stuff's per-activation fields, not for this one.
+
+### 25g. Shapes (costed; no recommendation)
+
+**(a) Keep `parentLabel`, synced only at push.**
+- **Writes kept:** W6 (parseRule's push) and W3 (getStuff, the old road's push-equivalent).
+- **Retire:**
+  - W4 and W5: the leaf exit and the container push nothing, so their syncs only rewrite a value no later reader of that stuff uses before the next push.
+  - W1 and W2: the grammar-parent writes. They are the last writer of no disagreement, and the next push overwrites them.
+  - The bracket's parentLabel slot (25d).
+- **Moves:** R4 is unchanged (it reads after W6). The parseTrace-gated readers R6 and R7 would see unsynced values on leaf stuffs.
+- **Copied face (W8, W9):** carries the source's last snapshot until its first push overwrites it. W9 does not null it, so getStuff's inProcess copy starts from the original's snapshot, and W3 overwrites it only when the list answers.
+
+**(c) Delete `parentLabel`; readers call `enclosingStuff().label`.**
+- **Retire:** W1–W7 and W10; the bracket slot; the field, its `groups.ext` line (:768) and the ivar, which is a layout change (SEQ 237 name grep, full bare tokall).
+- **R4 `into` changes on 4,388 calls**: 225 different labels and 4,163 set where it read null. In those calls it reads the parent's slot after it was rewritten (the child's own label, in the printed cases) instead of the entry snapshot. Its only consumer, `measureLabelMint`, is parseTrace-gated and pinned by no fleet row; the effect on the fleet is otherwise unmeasured.
+- **R6, R7, R8 change columns:** R8 (`probeNode`) prints the probed node's own field, which has no list equivalent for an arbitrary node, so that column would go. pop.sh reads only `node=` from it.
+- **Copied face:** nothing to copy. W8 and W9 stop carrying it by construction.
+
+**Under either shape:** no reader needs the caller across a floor. The only disagreements whose label is on the list (741 at R3, above a floor) are before the sync, and the sync overwrites them.

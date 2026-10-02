@@ -164,3 +164,18 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 - **Confirm:** a census of every `isLabel` reader, each read classified by meaning; a separate flag for the local
   case, fleet row for row.
 - **Seen:** 2026-10-01 (stroke 5.6a mint-site census).
+
+### `establishFrame` -- no callers, and its header claims it is the SINGLE WRITER of parentLabel (SEQ 256, banked)
+- **Where:** `GroupItem::establishFrame`, GroupItem.twk:682 (and its `groups.ext` line :321).
+- **Why it looks cuttable:** no caller in any `.twk`/`.rtn`/`.mm`, fixture or registry; a counting tap read **0 calls**
+  across pop.sh, jitLadder and printPop. Its header ("the SINGLE WRITER of parentLabel") is false today -- recon 25
+  counts nine writers.
+- **Confirm:** delete it and its mirror line; full bare tokall diff is the function only; fleet row for row.
+- **Seen:** 2026-10-02 (stroke 5.9 recon).
+
+### `parse()`'s local `parentLabel` -- written, never read (SEQ 256, banked)
+- **Where:** `GroupItem::parse`, GroupItem.twk:1395 (declaration) and :1411 (`if pStuff parentLabel = pStuff.label;`).
+- **Why it looks cuttable:** a local of the same name as the RuleStuff field, written once and read nowhere in the
+  body (the generated `.mm` shows a plain local, not the field).
+- **Confirm:** delete both lines; the generated diff is those lines only; fleet row for row.
+- **Seen:** 2026-10-02 (stroke 5.9 recon).

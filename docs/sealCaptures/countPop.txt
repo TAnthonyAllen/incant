@@ -1,5 +1,5 @@
 binary: /Users/anthony/bin/incant
-        size 1479808  mtime Oct 2 09:58
+        size 1479808  mtime Oct 2 10:03
 rules:  47 (derived live from Grokking)
   MISSING ANYtoken -- no compile census; compile never took the rule
   MISSING Attributes -- no compile census; compile never took the rule

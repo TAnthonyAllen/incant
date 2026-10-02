@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -10816,3 +10816,33 @@ NEXT ON THE DOCKET (not this dispatch): parentLabel as a cached copy of enclosin
 (stroke 5.9, recon first).
 
   END SEQ 255
+
+
+===================================================================
+SEQ 256  -  STROKE 5.9 RECON: parentLabel (read-only, nothing built)
+===================================================================
+STATUS: cleared -- section 25 written; tap reverted md5-identical; no stop tripped. parentLabel = entry snapshot of the parent slot; into differs 4,388x; bracket parentLabel slot is the :295 pattern, label slot protects 4,871 live outer frames. Sealed.
+
+RULINGS
+R1. A recon. Any tap is temporary and reverted md5-identical.
+R2. Same question as 5.7, same shape of answer: what does parentLabel carry that
+    enclosingStuff().label does not already answer? No recommendation; Tony rules the shape.
+
+Before any number: trunk at the 5.8 merge seal, bare, no incant process.
+ITEMS
+1. Census: every writer and reader of parentLabel, incl. struct copies and the bootstrap; each
+   with its meaning (grammar parent: ctor, aCTionDefinE; list answer: getStuff, both repairs;
+   anything else).
+2. Per reader: activation in hand, road, ever runs with no activation.
+3. Agreement: parentLabel vs enclosingStuff().label at each reader -- agree / null / disagree;
+   classify, one case per class; a last-writer column if any reader disagrees.
+4. The F-114 bracket: what its label and parentLabel saves protect, measured. Same pattern as
+   :295 (putting back values a sync then overwrites)? (Clay's hypothesis, framed as a question.)
+5. NO HUNT: which of the three remaining sites retire if parentLabel goes.
+6. Shapes, costed, no recommendation: (a) keep, sync only at push; (c) delete, readers call
+   enclosingStuff().label. For each, what a copied face's parentLabel is.
+Deliverable: section 25 in docs/objectModelRecon.md, a stroke-5 status line, seal.
+STOP IF: a writer that is neither the grammar parent nor a list answer; a reader with no activation
+and no explanation; a tap that won't revert clean.
+
+  END SEQ 256
