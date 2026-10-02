@@ -2369,6 +2369,19 @@ ParseActivation 	*top = ruler->gParseActive;
 	return top->face->get(field->groupBody->tag);
 }
 
+// enclosingStuff the nearest enclosing activation's stuff, or null at a floor or an empty list -- every parentStuff reader asks here and none walks the list (stroke 5.8, SEQ 254 R3)
+extern "C" RuleStuff *enclosingStuff(GroupItem *askField, RuleStuff *askStuff)
+{
+GroupRules 			*ruler = GroupControl::groupController->groupRules;
+ParseActivation 	*top = ruler->gParseActive;
+	// ownActivation a parseRule has pushed itself and a leaf has pushed nothing -- when the top is the asker's own, the enclosing one is below it (SEQ 254 R4)
+	if ( top && top->face == askField && top->stuff == askStuff )
+		top = top->prev;
+	if ( !top || top->isFloor )
+		return 0;
+	return top->stuff;
+}
+
 // exitFromParse the common exit every parse method returns through: sync, fire the label method, attach; a min-zero miss owes a success
 extern "C" GroupItem *exitFromParse(GroupItem *field)
 {
@@ -9168,9 +9181,9 @@ int 		matched = 0;
 		return 0;
 		}
 	// binParentRepair a bin is reached from runOP, never through parseRule, so nothing else gives it the asker's stuff and attachLabel would drop its label at !pStuff
-	if ( ruler->currentMETHOD && ruler->currentMETHOD->getRStuff() != ruleStuff->parentStuff )
+	if ( ::enclosingStuff(field,ruleStuff) != ruleStuff->parentStuff )
 		{
-		ruleStuff->parentStuff = ruler->currentMETHOD->getRStuff();
+		ruleStuff->parentStuff = ::enclosingStuff(field,ruleStuff);
 		if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
 			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
 		}
@@ -9258,10 +9271,10 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	ruler->gParseActive = &callActive;
 	// activeNotSubject the record inherits GroupRules' scope, so re-mention ruler then ruleStuff or currentMETHOD binds to callActive (bear-trap #57)
 	::measureParentProbe(field);
-	// parentRepair re-point parentStuff at the ENCLOSING rule's stuff and sync parentLabel, sourced from currentMETHOD (measured to track lastRule exactly)
-	if ( ruler->currentMETHOD && ruler->currentMETHOD->getRStuff() != ruleStuff->parentStuff )
+	// parentRepair re-point parentStuff at the ENCLOSING rule's stuff and sync parentLabel, through the activation list (stroke 5.8a; it agreed with currentMETHOD on every call measured, recon 24c)
+	if ( ::enclosingStuff(field,ruleStuff) != ruleStuff->parentStuff )
 		{
-		ruleStuff->parentStuff = ruler->currentMETHOD->getRStuff();
+		ruleStuff->parentStuff = ::enclosingStuff(field,ruleStuff);
 		if ( ruleStuff->parentStuff && ruleStuff->parentLabel != ruleStuff->parentStuff->label )
 			ruleStuff->parentLabel = ruleStuff->parentStuff->label;
 		}

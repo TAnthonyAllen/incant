@@ -10763,3 +10763,36 @@ R4. Standing line in CLAUDE.md beside the absence doctrine: a census of a struct
 DO: section 24 from SEQ 165's data with R2's wording; the stroke-5 status paragraph; seal.
 
   END SEQ 253
+
+
+===================================================================
+SEQ 254  -  STROKE 5.8: RETIRE parentStuff (shape (c), try-and-buy)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+
+RULINGS
+R1. Shape (c): RuleStuff.parentStuff is deleted; every reader asks the activation list.
+R2. Built on branch om-stroke58, pushed, NOT merged. Tony buys after reading the movers.
+R3. One helper, enclosingStuff, in GroupRules in its alpha slot beside enclosingFace: the nearest
+    enclosing activation's stuff (the 5.7 tap's comparison becomes the code). Every reader calls
+    it; none walks the list on its own.
+R4. Leaf methods push no activation, so enclosingStuff tells whether the top activation is the
+    asker's own; if so it answers with the one below. The only new logic; its H7 must show it.
+R5. The F-114 bracket loses only its parentStuff slot.
+
+THREE COMMITS, fleet after each, one variable at a time
+5.8a the agreeing readers: add enclosingStuff; switch getStuff, parseRule's repair,
+     parseContainer's repair, attachLabel's trace. Certificate: pop.sh row for row, jitLadder and
+     printPop pass.
+5.8b the two leaf exits: exitFromParse's sync and attach. The 5,820 answers change; measure the
+     fleet, name every mover with its sentence. Do not chase or fix; the movers are the purchase.
+5.8c the field goes: writers (ctor, aCTionDefinE, the repairs' writes, the bracket slot), the
+     field, groups.ext :773. Layout change: full bare-tokall diff, canary. Fleet row for row with
+     5.8b.
+CERTIFICATE: NO HUNT reads 1 of 7 (enclosingFace only). H7 for R4: break the own-activation test in
+a throwaway build, name the rows that go red; none red => R4 unwitnessed, say so.
+STOP IF: at 5.8b a mover that does not trace to a leaf exit; any crash; a reader needing the caller
+across a floor; 5.8a not row for row.
+REPORT: what was run, the fleet line at a, b, c; movers table; evidence. Seal on the branch.
+
+  END SEQ 254
