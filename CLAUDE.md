@@ -3301,6 +3301,12 @@ against TODAY's headers -- rewrite them in the clone's `project.pbxproj` to the 
 in the clone reads the live tree. Run fixtures from INSIDE the clone's Groups (setup loads by relative
 path), with a `-derivedDataPath` per clone, and check the build log for live Groups paths (want 0).
 
+⚠⚠ **KILL ONLY BY A PROCESS ID YOU HAVE READ FIRST, NEVER BY NAME PATTERN. Standing, 2026-10-02 (SEQ 268 R4).**
+Paid for that day: `pkill -f 'cat'`, aimed at one hung `cat`, matched "Appli**cat**ions" in every app path and killed
+Tony's Xcode, Claude app, Stickies and the main Dropbox app mid-session. `pgrep -fl` first, read the line, then
+`kill <PID>`; for a hung background task, stop the task itself. After any stray kill, check that Dropbox's main process
+is running (`pgrep -lf 'Dropbox.app/Contents/MacOS/Dropbox'`).
+
 ⚠ **FIXIT CITIZENS ARE NOT CLOD'S TO MINT (Rule F2, Tony, 2026-09-01).** A finding goes in the
 **seal**; whether it becomes a citizen in `incant/fixits/` is Tony's or Clay's ruling. Clod may
 always add a **fleet row** — that is where a measurement belongs — and should, rather than reaching

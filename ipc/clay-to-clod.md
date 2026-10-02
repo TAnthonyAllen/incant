@@ -11146,7 +11146,8 @@ Report: the fleet line first. Seal. Next dispatch: the step-1 rebuild plan.
 ===================================================================
 SEQ 268  -  STEP-1 REBUILD PLAN (plan and recon, nothing built)
 ===================================================================
-STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+STATUS: cleared 2026-10-02 -- docs/ptfStep1Plan.md (strokes 1.1-1.8, open rulings OR-1..OR-8); riders done.
+   Dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
 
 RULINGS
 R1. Step 1 is rebuilt on trunk's model (SEQ 263 R1). This dispatch PLANS it and builds nothing. Inputs:

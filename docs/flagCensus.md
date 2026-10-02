@@ -48,3 +48,8 @@ That is the cost of an attribute over a bit: a bit lives off the list.
 **RULED 2026-10-02 (SEQ 267): case 12 RETIRED.** The registration (setup, BackupXML) and both case-12 arms are cut;
 `x :. flaG` refuses by name. F-131 closed by construction (fleet: incant/pop/flagRetiredT). The pROPERTIEs noPrint
 marker is the sanctioned use-then-toss form, with the two caveats above (DesignDocs `Instruct.opSetFlag.notAFlag`).
+
+**The refusal is wider than flaG, and that is accepted (Tony, SEQ 268 R3, 2026-10-02).** opSetFlag's no-groupField
+arm refuses by name for EVERY name with no groupFields entry, not only the retired `flaG` -- `x :. anyUnregistered`
+now refuses (R-2) where it used to print a cerr and carry on. The fleet moved only by flagRetiredT's own rows when it
+landed, so no fixture relied on the old silent arm.
