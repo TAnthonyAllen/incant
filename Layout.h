@@ -2,7 +2,6 @@
 class GroupItem;
 @class NSBezierPath;
 @class NSColor;
-@class NSFont;
 @class NSTextFieldCell;
 @class NSTextField;
 class Stylish;
@@ -18,8 +17,6 @@ GroupItem *selection;
 NSBezierPath *layoutPath;
 NSColor *strokeColor;
 NSColor *textColor;
-NSColor *wallColor;
-NSFont *currentFont;
 NSTextFieldCell *cell;
 NSTextField *textField;
 Stylish *style;

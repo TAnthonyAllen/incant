@@ -1,8 +1,8 @@
 @class NSShadow;
 @class NSColor;
 @class NSFont;
-class GroupItem;
 @class NSNumberFormatter;
+class GroupItem;
 /*******************************************************************************
 	Defined as class but just a structure really to encapsulate style attributes
 *******************************************************************************/
@@ -20,18 +20,12 @@ NSColor *fillColor;
 NSColor *strokeColor;
 NSColor *textColor;
 NSFont *font;
-GroupItem *shadowBlur;
-GroupItem *shadowOffset;
-GroupItem *shadowX;
-GroupItem *shadowY;
-GroupItem *shadowColor;
 NSNumberFormatter *formatter;
 struct 
 	{
 	unsigned int editable:1;
 	unsigned int selected:1;
 	unsigned int selectable:1;
-	unsigned int subbed:1;
 	};
 GroupItem *shadowField;
 Stylish(GroupItem *item);

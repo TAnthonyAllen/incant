@@ -900,17 +900,9 @@ extern GroupItem aCTionShortcuT(GroupItem group)
 extern GroupItem aCTionStatemenT(GroupItem input)
 {
 GroupRules  ruler = groupRules;
-RuleStuff   ruleStuff = rStuff;
-GroupItem   sourceFile = new("sourceFile");
     // markSeat3 SEQ 166 point 3 -- what text a StatemenT attempt starts on, and whose buffer
     measureMarkPoint("3-StatemenT-entry");
 use input
-    // noStuffNoLine a statement whose action already fired in fireLabelMethod can arrive with no rStuff
-    if ruleStuff {
-        sourceLine  = new("sourceAt");
-        sourceLine.count = sourceLINE;
-        sourceFile.text = sourceFILE.tag;
-        sourceLine  +% sourceFile; }
     if !processingCode {
         /*  ⚠ outcome IS DECLARED FIRST SO `statement` STAYS LAST-MENTIONED -- the bare
             `isGROUP` and `group` below resolve against whatever was named most recently

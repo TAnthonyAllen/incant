@@ -22,15 +22,11 @@
 #include <vector>
 #include <string>
 
-// gParseRecordArmed — genParse's in-fixture ParsE-record switch (GX-6), set by
-// the `recordParse` command and read by `genParse`, both in genParse.rtn. It
-// lives in THIS header and not in that file because tok relocates a file-scope
-// `-% %-` passthrough to the END of the generated .mm, so a static declared
-// there is emitted AFTER both of its users ("use of undeclared identifier").
-// This header is hand-written and NOT tok-processed, so the declaration
-// survives a retok — bear-trap #5 drops #include lines and anything else tok
-// regenerates. Nothing to do with the JIT; it is here for the retok property.
-static int gParseRecordArmed = 0;
+// WHY HAND-DECLARED GLOBALS LIVE IN THIS HEADER, a reason worth not re-learning: a file-scope `-% %-` passthrough
+// in a .rtn is RELOCATED BY TOK TO THE END of the generated .mm, so a static declared there lands after its users
+// ("use of undeclared identifier"), and a bare tok-level file-scope declaration is simply dropped. This header is
+// hand-written and not tok-processed, so its declarations survive a retok. (gParseRecordArmed and the gKant* kant
+// parse frame lived here for that reason; both were cut 2026-10-02, deepClean S5, with no reader left.)
 
 // The builder the emitters write into. Set by the compile driver before walking
 // an action body; grabbed by each emitter in a one-line -% %- (the only passthrough
@@ -292,24 +288,6 @@ inline std::set<void*> gJitFrameAssigned;
 // needed this; the #9 guard makes it necessary.)
 class GroupItem;
 inline std::vector<GroupItem*> gJitSeeded;
-
-// gKantLabel / gKantFrom — THE KANT PARSE FRAME (SEQ 54, 2026-08-11). Nothing to
-// do with the JIT; they are here for the same retok property gParseRecordArmed is,
-// and that reason is worth not re-learning: a file-scope `-% %-` passthrough in a
-// .rtn is RELOCATED BY TOK TO THE END of the generated .mm, so a static declared
-// there is emitted AFTER its users and every use is "undeclared identifier". A bare
-// tok-level declaration at file scope is simply dropped. Measured both ways on
-// 2026-08-11; this header is hand-written and not tok-processed, so it survives.
-//
-// WHAT THEY ARE. Tony ruled 2026-08-11 that THE MARK NEVER CROSSES into kant: a
-// position is not a value, so it cannot travel as kant data at all, and keeping it
-// here keeps Invariant R with one writer (RuleStuff.twk:657 — leaveRule/leaveAlt
-// "and nowhere else"). parseViaKant saves both around the body and restores them
-// after, so the C++ call stack IS the frame stack and nested rules cost nothing.
-// The kant body names a term; the frame owns position and destination.
-static GroupItem *gKantLabel = 0;
-static char      *gKantFrom  = 0;
-static GroupItem *gKantRule  = 0;
 
 // gNewParseInFlight — ABOLISHED 2026-08-29, WITH THE TWO-CHANNEL WORLD IT
 // GUARDED. Obituary kept deliberately: it was a correct answer to a question

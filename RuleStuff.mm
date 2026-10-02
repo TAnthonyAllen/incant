@@ -371,18 +371,12 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	hereAt = 0;
 	failedAt = 0;
 	label = 0;
-	onFail = 0;
 	onGroup = 0;
-	sourceLine = 0;
 	kount = 0;
-	banged = 0;
-	doNothing = 0;
 	followed = 0;
 	guardOK = 0;
-	guardFAIL = 0;
 	inProcess = 0;
 	isOK = 0;
-	isOption = 0;
 	isTarget = 0;
 	modPercent = 0;
 	modPointer = 0;
@@ -410,20 +404,14 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	ruleName = 0;
 	hereAt = 0;
 	failedAt = 0;
-	onFail = 0;
 	onGroup = 0;
-	sourceLine = 0;
 	max = 0;
 	maxRepeat = 0;
 	min = 0;
-	banged = 0;
-	doNothing = 0;
 	followed = 0;
 	guardOK = 0;
-	guardFAIL = 0;
 	inProcess = 0;
 	isOK = 0;
-	isOption = 0;
 	isTarget = 0;
 	modPercent = 0;
 	modPointer = 0;
@@ -462,7 +450,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 int RuleStuff::checkInput(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	guardFAIL = 0;
 	if ( !ruler->atRuleMark )
 		{
 		::fprintf(stderr,"checkInput: no input source\n");
@@ -498,7 +485,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 		else
 		if ( guarded(field->groupBody->flags.guarding) && field->groupBody->guardSet->contains(*ruler->atRuleMark) )
 			sukcess = 1;
-		else	guardFAIL = 1;
 		}
 	// the label
 	if ( sukcess )
@@ -531,32 +517,15 @@ checkFailed:
 	return sukcess;
 }
 
-// followingMember the next member after this rule in its parent list -- getWhatFollows' onFail
-GroupItem *RuleStuff::followingMember(GroupItem *field)
-{
-	if ( field->parent )
-		{
-		GroupItem 	*grup = field;
-		while ( grup = grup->nextInParent )
-			if ( isMember(grup->options.affiliation) )
-				break;
-		return grup;
-		}
-	return 0;
-}
-
 // getWhatFollows sets the RuleStuff fields once, lazily, the first time a rule is needed
 void RuleStuff::getWhatFollows(GroupItem *field)
 {
-GroupItem 	*grup = 0;
 	followed = 1;
 	if ( isGROUP(field->groupBody->flags.data) )
 		onGroup = field->getGroup();
 	if ( isMember(field->options.affiliation) && !field->parent->groupBody->flags.binType )
 		{
 		isTarget = 1;
-		if ( grup = followingMember(field) )
-			onFail = grup;
 		}
 	else
 	if ( isEmbedded(field->options.affiliation) )

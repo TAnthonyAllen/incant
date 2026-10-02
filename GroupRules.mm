@@ -1140,18 +1140,8 @@ extern "C" GroupItem *aCTionShortcuT(GroupItem *group)
 extern "C" GroupItem *aCTionStatemenT(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = input->getRStuff();
-GroupItem 	*sourceFile = new GroupItem("sourceFile");
 	// markSeat3 SEQ 166 point 3 -- what text a StatemenT attempt starts on, and whose buffer
 	::measureMarkPoint("3-StatemenT-entry");
-	// noStuffNoLine a statement whose action already fired in fireLabelMethod can arrive with no rStuff
-	if ( ruleStuff )
-		{
-		ruleStuff->sourceLine = new GroupItem("sourceAt");
-		ruleStuff->sourceLine->setCount(ruler->sourceLINE);
-		sourceFile->setText(ruler->sourceFILE->groupBody->tag);
-		ruleStuff->sourceLine->addAttribute(sourceFile);
-		}
 	if ( !ruler->processingCode )
 		{
 		/*  ⚠ outcome IS DECLARED FIRST SO `statement` STAYS LAST-MENTIONED -- the bare
@@ -6604,9 +6594,6 @@ extern "C" void modify(GroupItem *field, char *modifier)
 			case '?':
 				field->getRStuff()->min = 0;
 				break;
-			case '!':
-				field->getRStuff()->banged = 1;
-				break;
 			case '<':
 				field->getRStuff()->noAdvance = 1;
 				break;
@@ -10635,7 +10622,6 @@ GroupRules::GroupRules()
 	isPRINTING = 0;
 	isRELATIVE = 0;
 	isRigorous = 0;
-	membering = 0;
 	noSkipping = 0;
 	parseTrace = 0;
 	processingCode = 0;

@@ -556,7 +556,6 @@ extern void modify(GroupItem field,String modifier)
                         max         = maxLimit.count;
                         maxRepeat   = repeatLimit.count;
             case '?':   min     = 0;
-            case '!':   banged  = true;
             case '<':   noAdvance   = true;
             case '%':   modPercent  = true;
             case '&':   modPointer  = true;
