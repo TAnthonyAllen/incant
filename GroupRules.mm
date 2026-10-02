@@ -488,12 +488,7 @@ GroupItem 	*item = 0;
 				if ( item->isRuleTerm() )
 					if ( !item->getRStuff() )
 						item->setRStuff(new RuleStuff(item));
-					else {
-						item->setRStuff(new RuleStuff(item->getRStuff()));
-						grup = item->parent;
-						if ( grup && grup->getRStuff() )
-							item->getRStuff()->parentLabel = grup->getRStuff()->label;
-						}
+					else	item->setRStuff(new RuleStuff(item->getRStuff()));
 				// codeIsAProperty an action's CodE is an artifact, so it goes on the property list, never among the terms (stroke 3)
 				if ( item == CodE )
 					grup = NewGroup->addProperty(item);

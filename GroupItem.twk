@@ -672,16 +672,6 @@ RuleStuff ensureRStuff()
     return rStuff;
 }
 
-/***************************************************************************
-                                establishFrame
-    // establishFrame the SINGLE WRITER of parentLabel, and there is deliberately no save/restore -- the callee
-    // establishFrame lifts it at entry, so a parseMethod that reads it LATE is unsafe under recursion
-***************************************************************************/
-void establishFrame(GroupItem parentLabel)
-{
-    if rStuff   rStuff.parentLabel = parentLabel;
-}
-
 /*****************************************************************************
                                 findAttribute
 	Searches ancestors bottom up for the first attribute matching name.
@@ -1055,9 +1045,6 @@ String      why;
         return stuff; }
     if stuff.inProcess {
         stuff       = new(rStuff); }
-    // listParent the enclosing activation's label, never pStuff's -- they agreed on every call measured (recon 24c)
-    if enclosingStuff(this,stuff)
-        parentLabel = enclosingStuff(this,stuff).label;
     if !followed    getWhatFollows(this);
     return stuff;
 }
@@ -1390,7 +1377,6 @@ GroupItem nextProperty(GroupItem entry)
 ***************************************************************************/
 GroupItem parse(RuleStuff pStuff)
 {
-GroupItem   parentLabel;
 GroupItem   definer;
 GroupRules  ruler       = groupRules;
 ParseActivation oldActive;
@@ -1406,7 +1392,6 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
     // activeNotSubject the record takes GroupRules' scope, so re-mention ruler then ruleStuff or ruler's bare names bind to oldActive (bear-trap #58)
 use ruler
 use ruleStuff
-    if pStuff   parentLabel = pStuff.label;
     kount       = 0;
     isOK        = false;
     inProcess   = true;

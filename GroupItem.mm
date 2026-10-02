@@ -945,17 +945,6 @@ RuleStuff *GroupItem::ensureRStuff()
 	return getRStuff();
 }
 
-/***************************************************************************
-                                establishFrame
-    // establishFrame the SINGLE WRITER of parentLabel, and there is deliberately no save/restore -- the callee
-    // establishFrame lifts it at entry, so a parseMethod that reads it LATE is unsafe under recursion
-***************************************************************************/
-void GroupItem::establishFrame(GroupItem *parentLabel)
-{
-	if ( getRStuff() )
-		getRStuff()->parentLabel = parentLabel;
-}
-
 /*****************************************************************************
                                 findAttribute
 	Searches ancestors bottom up for the first attribute matching name.
@@ -1406,9 +1395,6 @@ char *why = 0;
 		{
 		stuff = new RuleStuff(getRStuff());
 		}
-	// listParent the enclosing activation's label, never pStuff's -- they agreed on every call measured (recon 24c)
-	if ( ::enclosingStuff(this,stuff) )
-		stuff->parentLabel = ::enclosingStuff(this,stuff)->label;
 	if ( !stuff->followed )
 		stuff->getWhatFollows(this);
 	return stuff;
@@ -1794,7 +1780,6 @@ GroupItem *GroupItem::nextProperty(GroupItem *entry)
 ***************************************************************************/
 GroupItem *GroupItem::parse(RuleStuff *pStuff)
 {
-GroupItem 			*parentLabel = 0;
 GroupItem 			*definer = 0;
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 ParseActivation 	oldActive;
@@ -1808,8 +1793,6 @@ RuleStuff 			*ruleStuff = getStuff(pStuff);
 	oldActive.stuff = ruleStuff;
 	ruler->gParseActive = &oldActive;
 	// activeNotSubject the record takes GroupRules' scope, so re-mention ruler then ruleStuff or ruler's bare names bind to oldActive (bear-trap #58)
-	if ( pStuff )
-		parentLabel = pStuff->label;
 	ruleStuff->kount = 0;
 	ruleStuff->isOK = 0;
 	ruleStuff->inProcess = 1;

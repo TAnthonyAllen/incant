@@ -906,13 +906,11 @@ GroupItem   probed;
     probed = argument;
 -%
     RuleStuff *rs = probed->rStuff;
-    GroupItem *pl = rs ? rs->parentLabel : (GroupItem *)0;
-    ::fprintf(stderr,"PN %s node=%p body=%p gMethod=%p rStuff=%p parentLabel=%p %s\n",
+    ::fprintf(stderr,"PN %s node=%p body=%p gMethod=%p rStuff=%p\n",
         probed->groupBody->tag,
         (void*)probed,(void*)probed->groupBody,
         (void*)probed->groupBody->gMethod,
-        (void*)rs,(void*)pl,
-        pl ? pl->groupBody->tag : (char *)"(none)");
+        (void*)rs);
 %-
     return probed;
 }
