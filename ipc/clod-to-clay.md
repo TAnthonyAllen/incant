@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 166 at the FOOT -- SEQ 261: PTF re-read STOPPED (control-signal home vs the signed OM); data banked
+STATUS:   fresh           # SEQ 167 at the FOOT -- SEQ 269: instance shape -- take + read-only census; taps reverted md5-identical
+# prior: SEQ 166 at the FOOT -- SEQ 261: PTF re-read STOPPED (control-signal home vs the signed OM); data banked
 # prior: SEQ 165 at the FOOT -- SEQ 251/252: parentStuff recon STOPPED, unlisted writer GroupItem copy ctor; data banked
 # prior: SEQ 164 at the FOOT -- SEQ 217: MERGED 24cd9fe, F-128 closed, trunk into parse-then-fire; SEALED (Tony)
 # prior: SEQ 163 at the FOOT -- SEQ 216: the re-pointing loops removed; the branch CLEARS the whole certificate (2bc15f9), not merged
@@ -9274,3 +9275,108 @@ OWED TO TONY: the home of the control signal (P4's ruler slot vs the OM's ParseA
 Housekeeping R1 done: main == trunk (pushed); checkinput-state deleted, tip 0ec0702 recorded in 5b627c6.
 
   END SEQ 166
+
+
+===================================================================
+SEQ 167  -  SEQ 269: THE INSTANCE SHAPE -- TAKE, THEN THE CENSUS
+===================================================================
+STATUS: fresh -- 2026-10-02. Read-only. One tap (generated .mm only, two builds), reverted md5-identical; bare rebuild
+   row for row (pop.sh 885 / 1, jitLadder PASSED, printPop PASSED, canary 300). Nothing committed but this channel.
+
+ASK 1 -- THE TAKE
+The DIRECTION is right and the data backs two-thirds of it. Get rule baggage off plain fields, split RuleStuff three
+ways, and put per-call state on the activation (S8). Nothing below argues against those. The expensive third is "an
+instance has its OWN body". The list undercounts what it costs, because a shared body delegates EVERY body fact, not
+just terms: tag, the flags (isRule, hasNewParse, data, actionType, hasMembers, binType, noPrint), the guard sets, the
+installed method (driveStep fires rule.method(rule)), and CodE/BlocK. Several of these are written LATE, after the
+faces exist (parser() sets hasNewParse and installs methods; compile writes BlocK). Today a face sees those writes
+for free. With its own body, every such read has to hop. Implication 2 ("reads expecting terms") is the smallest
+part of that population.
+Two things the list misses outright:
+  (1) The copy constructor cannot change meaning. It serves plain aliasing as much as rule instances: 240k copies
+      of plain fields against 386k copies of rules per fleet run. Instances need a SEPARATE constructor, used only
+      when the thing referenced is a rule.
+  (2) "Paid once at push" is only half real. Of the fact reads during a parse, about 60% are the pushed node asking
+      about itself, which push can absorb. About 40% are a PARENT asking about a CHILD it has not pushed:
+      testOptions, the guard and option reads in isUnGuarded and isRuleTerm, and every term's stuff read before its
+      own push. Kant also asks outside any parse: runOP calls isRuleTerm on every op, plus opDot, opGet, locate,
+      aCTionIterate, compile and copyListFrom.
+WHAT I WOULD DO DIFFERENTLY: pay at DEFINE, not at push. Instance facts never change after define/parser(): modifiers,
+min/max, the rule link. So compile them ONCE per rule into a term table, one row per term: the rule, min/max, and
+the modifier bits. Then the parent reads its own table and never asks a child, a push points at the table, and
+nothing is copied into the activation per call. The genParse road already bakes these. Order: S8 first (per-call
+state to the activation; independent of the instance question, and it retires getStuff's inProcess copy, the
+callBracket and the guardOK handoff). Then the term table. Then the instance-body question gets small: an instance
+is a table row plus its attributes, and plain copies keep sharing. One question for Tony: a label is structurally an
+instance of the rule that minted it, so `labelOf` could be the label's ruleOf rather than a second link (D2 would
+still hold through isLabel).
+
+ASK 2 -- CENSUS (pop.sh + jitLadder + printPop, 219 + 50 + 2 processes; counts are per fleet run)
+"FACE" = a copy of a rule-shaped node, labels excluded. "OWN" = the top activation is this node's own.
+ a. List reads on FACES (body list touched through the face): 4,402,187 across 44 functions.
+      OWN 3,637,432: getAttribute 1.25M, testAttributes 1.15M, testOptions 565k, enclosingFace 403k,
+      saveLocalFields 99k, parseRule 95k, testContainer 31k, aCTionCodE 29k.
+      OTHER 764,695, the roads outside the face's own parse: copyListFrom 246k, locate 213k, contents 74k,
+      getAttribute 43k, ensureGuard 33k, opDot 31k, compile 24k, opGet 23k, aCTionIterate 17k, jitProbeDrive 10k,
+      dupTermRefusal 9k, parseContainer 9k, setParseWalk 4.5k, processCode 4k, aCTionDefinE 1.6k, aCTionSearch 1k.
+      WRITES through a face into the rule's list: push 11,604 and addGroup 1,934. The shape has to decide what
+      these mean.
+ b. Pushes: parse() 3,312,125 · parseRule 239,914 · driveStep floor 6,588 · jitProbeDrive floor 11,345.
+      Instance and rule fact reads (rStuff getters) on FACES: OWN 11.05M / OTHER 8.79M / no activation 19k.
+      On ORIGINAL rules: OWN 2.56M / OTHER 1.14M.
+      RATIO, over 3.55M parse pushes: about 3.8 self reads plus 1.0 list read per push (push can absorb these), and
+      about 3.0 reads per push of a node that is NOT the top. Biggest OTHER readers: parse() 2.80M (the term's own
+      lookup before its push), isUnGuarded 2.56M, isRuleTerm 0.73M, testOptions 577k, driveStep 524k,
+      runLeafParse 457k, parseRule 228k, parseLoop 209k.
+ c. RuleStuff, classed:
+      RULE (one answer per rule, or derived from its shape): ruleName, testMatch, parseMethod, actionMethod,
+        jitMethod, onGroup. `followed` is a lazy-init marker that retires with eager init.
+      INSTANCE (modifiers, TraiT, position): min, max, maxRepeat, noAdvance, noLabel, noSkip, modUnGuarded,
+        overTo (upTo, upToOver), isTarget (modify '@' or getWhatFollows/setTargetFlag), notifyFail (processFlags),
+        ruleTerm (aCTionDefinE marks a copy as a term).
+      PER-CALL: label, hereAt, failedAt (read after failure by aCTionFailed, reportDrive, tell), kount, sukcess,
+        isOK, guardOK (a parent-to-child handoff in testOptions -> checkInput), inProcess (the recursion marker).
+      MEASUREMENT-ONLY: modPercent, modPointer. Written only by modify ('%' and '&', GroupActions.rtn:565-566);
+        read only by measure.twk modsOf. Candidates for cleanupList.
+      NOT IN RuleStuff BUT INSTANCE: modify's '$' writes isMacro onto the SHARED BODY. A per-instance modifier leaks
+        to the rule and every face. The candidate shape fixes this family.
+ d. rStuff readers outside a parse (static, then live):
+      define/bootstrap: aCTionDefinE, aCTionTraiT, aCTionTraiTdata, modify, setRuleStuff, setActions,
+        processFlags, embedAttribute, GroupMain bootstrapper (40 setRuleStuff calls).
+      generation/jit: setParseWalk, installParseMethod, repeatsInLoop, jitFieldMethod.
+      kant runtime: runOP -> isRuleTerm (per op), resolveName, opDot, opSetFlag, aCTionRunRulE, compile,
+        aCTionFailed, reportDrive/tell.
+      Live with no activation at all: 61k getter calls, all define-time (setRuleStuff, modify, isRuleTerm,
+        copy ctor, setActions).
+ e. Labels minted: checkInput 1,148,652 + processAction 109,439 = 1,258,091 per fleet run. Label copies 97,163.
+      (a) a property list per label: about 3 GC allocations per mint (list, attribute item, its body), roughly 3.8M
+          extra per run against 0 today.
+      (b) one list per rule, shared: no allocation per mint. But a GroupList entry has ONE parent, and any per-label
+          write lands on all of A's labels. That is the F-134 family, so the list must be read-only by construction.
+      Note: the copy ctor ZEROES labelOf today, so the 97k label copies have none. Any body-held home changes that.
+ f. RuleStuff created at 13 sites:
+      copy ctor (GroupItem.twk:50); ensureRStuff (:649, lazy); getStuff's inProcess copy; setRuleStuff (:1844);
+      aCTionDefinE x6; processFlags; jitFieldMethod (a throwaway); parseR (a bridge).
+      getStuff arrivals that found NONE: 0 of 3,312,125. Tony's "there when needed" already holds at getStuff.
+      Bootstrap rules are born with theirs (setRuleStuff, so implication 4 is half done). Whether ensureRStuff
+      ever CREATES, through its other callers (ensureGuard, setParseAction), was not tapped.
+ g. parseTrace: a GroupRules flag, set by the traceParse command (incant/setup:81; genParse.rtn:90 sets it TRUE
+      whatever the argument, and there is no off: chainTruthT and searchAcc call traceParse(0) and get it ON). It
+      gates about 51 measure.twk callouts and three inline blocks in GroupItem.twk:226-291. groupDirectives
+      already carries entry traces for parseAction/Container/Set/String/UpTo, exitFromParse and parse(), so the
+      overlap is real. Fleet rows read its output (driveDoorT's door row, chainTruthT rows 1-6, searchAcc), so
+      retiring it is a mapping job.
+    interpretXP: aCTionExpressioN is its ONLY caller (sources, generated .mm, incant/ all searched). It folds.
+
+ANYTHING THAT CHANGES THE SHAPE
+  1. Delegation by body covers every body fact, including facts written late. Name which body facts an instance
+     owns and which it reads through ruleOf, or every late writer goes quietly stale on instances.
+  2. The copy ctor stays as aliasing; an instance needs a separate constructor.
+  3. Parent-asks-child (about 40% of fact reads) is not covered by push, so a per-rule term table, paid at define,
+     is the better place to pay.
+  4. Writes through faces (push/addGroup into the rule's list; '$' isMacro onto the shared body) need a meaning.
+INSTRUMENT NOTES: the tap's 1st pass counted labels as rule-shaped, and its "inside an activation" state could not
+  discriminate (everything runs inside the top-level parse). Both were corrected before any number above was taken.
+  The rewrite moved the standing-red ->rStuff text-count row (34 -> 29) and nothing else; the bare rebuild put it back.
+
+  END SEQ 167

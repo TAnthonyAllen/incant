@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11171,3 +11171,74 @@ Report: the stroke list and the open rulings first; evidence after.
 
   END SEQ 268
 
+
+
+===================================================================
+SEQ 269  -  THE INSTANCE SHAPE: CLOD'S TAKE, THEN A READ-ONLY CENSUS
+===================================================================
+STATUS: cleared 2026-10-02 -- take + census answered in clod-to-clay SEQ 167; taps reverted md5-identical, bare rebuild row for row.
+   Tony's preface: "I am not entirely happy with our design. That is on me not Clay. Best interpretation: the
+   design is in flux and it is taking a few design iterations to sort out."
+
+NOTHING BUILT. NO BRANCH. STROKE 1.1 AND THE OR-1..OR-8 RULINGS WAIT ON THIS.
+
+RULINGS: none. Tony has not ruled the shape below. It is a candidate Part 1 amendment to docs/objectModel.md,
+offered for critique.
+
+WHY
+Tony read this morning's twk/rtn changes and found the build differs from his picture. He had taken an instance
+to be a copy with its OWN groupBody, and ruled ruleOf/labelOf expecting them to land in propertyList, which he
+read as an instance list. As built, instances SHARE the rule's body, so propertyList is the rule's list, and every
+per-instance fact has to live off the body (GroupItem fields, rStuff). His concern: ruleOf, labelOf and rStuff are
+rule baggage that every non-rule field carries.
+
+HIS PRINCIPLE
+Anything you want to know about a field is answered by its attributes. Today many answers are flags in groupBody
+or rStuff.
+
+THE CANDIDATE SHAPE
+- A plain field: its body only. No ruleOf, labelOf or rStuff.
+- A rule: a plain field plus a propertyList, a noPrint attribute the parse ignores, holding the rule's facts
+  (actor, CodE, carrier, ...).
+- An instance: a DISTINCT field with its own small body (no terms) and its own propertyList holding ruleOf and its
+  instance facts (modifiers). Terms stay on the rule and are reached through ruleOf, so a grammar change still
+  reaches every instance: delegation kept, by link instead of by shared body.
+- A label: labelOf as a field in its propertyList. Open: (a) a list per label, or (b) one label-properties list per
+  rule, shared by every label it mints (all of A's labels have the same labelOf; F-134's family?).
+- RuleStuff splits three ways and retires: rule facts to the rule's propertyList, instance facts to the
+  instance's, per-call state (label hereAt kount sukcess) to ParseActivation (S8).
+
+INDIRECTION, PAID ONCE
+Pay the hop at ACTIVATION PUSH only. The push looks up ruleOf once, holds a pointer to the rule's term list (a
+pointer, not a copy, so mid-parse grammar edits are seen), reads instance-over-rule facts once into activation
+fields, and refuses loud, naming the instance, if anything is missing. Below the push the parse reads only the
+activation: no hop, no existence check, no hunt. enclosingStuff/enclosingFace become act.prev. The activation's
+fields are a one-writer view; attributes stay the truth. Roads outside a parse (compile, define, print,
+setParseWalk, aCTionFailed, kant =< ruleOf) pay a lookup per ask. The jit may bake the rule in at compile time.
+
+KNOWN IMPLICATIONS (Clay's list, to extend or knock down)
+1. The copy ctor changes meaning: it makes a small own body, not a shared one.
+2. Every site reading an instance's body for terms breaks.
+3. A label propertyList per mint is an allocation per match.
+4. Bootstrap (GroupMain) rules must be born with their propertyList.
+5. Old road, new road and jit emit all respell to read the activation.
+6. rStuff readers outside a parse each need a home.
+7. The step-1 FiringFrame sits on the activation, which this makes the complete picture of a call.
+
+ASK 1 -- YOUR TAKE, FIRST, IN PLAIN WORDS. Is the shape sound? What breaks that the list misses? Is "paid once at
+push" real, or are there hot readers that ask an instance about its rule outside any activation? Would you do it
+differently?
+
+ASK 2 -- CENSUS, READ-ONLY (taps reverted md5-identical)
+a. Every site that reads an instance's body expecting terms, by road.
+b. Activation pushes per fleet run, against the term and flag reads under them: the "pay once" ratio.
+c. Every RuleStuff field and flag, classed rule / instance / per-call / measurement-only (modPercent, modPointer).
+d. Every rStuff reader outside a parse.
+e. Labels minted per run; what (a) and (b) above would cost.
+f. getStuff: every place a RuleStuff is created, and how many getStuff arrivals find none.
+g. Riders: parseTrace (what, who calls it, does a directive cover it -- ruled 09-20: tracing belongs in
+   directives); interpretXP (is aCTionExpressioN its only caller -- if so it folds).
+
+REPORT: take first (a paragraph), then the census table, then anything that changes the shape. Checklist line only.
+
+  END SEQ 269
