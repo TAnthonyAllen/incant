@@ -10670,3 +10670,48 @@ THE WORK
    deleted); final owner-read count of any kind 0 by whole-tree search. Seal on green.
 
   END SEQ 250
+
+
+===================================================================
+SEQ 251  -  STROKE 5.7 RECON: parentStuff (read-only, nothing built)
+===================================================================
+STATUS: STOPPED by stop 1 -- RuleStuff(GroupItem) writes parentStuff 24x/process (non-null) inside GroupMain::bootstrapper, no parse running (lldb: 48/48 no-activation ctor calls under bootstrapper). Tap run across pop/jit/printPop and reverted md5-identical; bare rebuild row for row. Section 24 not written pending Tony.
+
+RULINGS
+R1. This is a recon. No source change lands. Any tap is temporary and reverted md5-identical
+    before the report, as in recons 22 and 23.
+R2. Whether parentStuff moves onto the activation stays an open ruling. The recon gives Tony
+    what he needs to rule on it. It does not choose.
+
+Before any number: confirm the tree is the seal's (b79e5fa + records + seal), bare, no incant
+process. Retok bare if it isn't, and say so in one line.
+
+THE QUESTION: what does RuleStuff.parentStuff carry that the activation list does not already
+answer?
+
+ITEMS
+1. Census, whole tree: every writer and reader of parentStuff, incl. bootstrap (GroupMain) and
+   any kant or groups.ext mirror. Name the population searched. Start from the 5.5b reader list
+   in objectModel.md (exitFromParse, parseContainer, parseRule, attachLabel's trace, getStuff,
+   the RuleStuff constructor); say what was added or dropped.
+2. Per reader: activation in hand (gParseActive, or one or two calls up)? old road, new road,
+   or both? can it run with no activation at all (outside any parse)?
+3. Agreement, measured: at each reader with an activation in hand, tap parentStuff against the
+   nearest enclosing activation's stuff. agree / disagree / no-activation counts per reader
+   across the fleet.
+4. Each disagreement classed: stale (ancestor not running; SEQ 244's 88), floor-hidden
+   (ancestor on the list beyond a floor), or other. One printed case per class, SEQ 244 shape:
+   list vs chain.
+5. NO HUNT census: stroke 2 baseline 7 search sites, stroke 5 must read zero. Count at this
+   tree, naming remaining sites and which are parentStuff walks.
+6. Shapes for the ruling, cost each, no recommendation: (a) parentStuff a ParseActivation field
+   written at push; (b) stays on RuleStuff, written only at push; (c) deleted, readers ask the
+   list. For each, which readers need the caller across a floor.
+
+Deliverable: section 24 in docs/objectModelRecon.md, one-paragraph status in objectModel.md
+stroke 5. Report opens with what was run and the counts, then evidence. Seal when done.
+
+STOP IF: a writer outside parse is found; a reader where parentStuff is the only route to a live
+answer with no activation and no floor explanation; any tap that won't revert clean.
+
+  END SEQ 251
