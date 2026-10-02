@@ -997,6 +997,11 @@ stops being printed is the day nobody notices it filling up again. ⚠ **Read th
 dated rather than wrong**: it was true on 2026-09-01 with one charter citizen standing, which is
 this file's own *dated-measurement-written-as-timeless-fact* failure recorded against itself.
 
+⚠⚠ **AND DATED AGAIN, 2026-10-02 (deepClean D-10): `incant/fixits/` IS NOT EMPTY.** It holds Clod's citizens,
+filed under Clay's and Tony's rulings (SEQ 202, 230, 231), and `fixitNag.sh` prints them as a second lane:
+`Tony's ... waiting: N` and `Clod's ... waiting: M`. **Tony's lane is the queue this section is about**; Clod's lane
+is work Clod owns and steps without asking. Both stay generated and both stay in the seal.
+
 
 **PROSE CAPTURE ROTS; RUNNABLE CAPTURE DOES NOT.** An issue banked for Tony as a paragraph costs him
 a reconstruction before he can start — the exhibit that forced this was *"what are the iterT1m
@@ -1685,6 +1690,10 @@ Hard-won lessons. Each one has cost real debugging time.
     drifted out of `Stylish.twk` at some earlier, unrecorded refactor and were still being
     zero-inited in every `Stylish` constructor). Generalizes bear-trap #10 beyond
     GroupBody-flag-and-extern-sync to any class's ivar list.
+    ⚠ **CORRECTED 2026-10-02 (deepClean D-8): THAT CLEANUP NEVER REACHED `groups.ext`.** Its Stylish block
+    (:840-850) still carried `shadowBlur`, `shadowOffset`, `shadowX`, `shadowY`, `shadowColor` and `subbed`,
+    so by this trap's own mechanism they were still in Stylish.h and still zero-inited three months later.
+    The trap was right and the fix it describes was written down, not landed. deepClean D-19 cuts them.
 
 17. **A short/common bare keyword can be silently claimed by TAWK's own Apple-symbol alias table,
     shadowing a same-named real function elsewhere — only surfacing when both get compiled in the
@@ -1881,8 +1890,9 @@ Hard-won lessons. Each one has cost real debugging time.
 
     ⚠ **THE PATTERN WAS ALREADY WORKING BEFORE IT WAS RULED** — `measureLabelMint`,
     `measureLabelProbe` and `measureParentProbe`, minted 2026-09-04 — and one of them,
-    `measureLabelProbe`, is **pinned by exact string in `genLadder/pop.sh`**. So *no gate on the
-    callout* and *the format is an instrument* are both load-bearing: changing either is a re-pin
+    `measureLabelProbe`, was **pinned by exact string in `genLadder/pop.sh`** (⚠ no longer: those
+    rows retired by mapping under F-109, and the callout itself is cut in deepClean S3). So *no gate on
+    the callout* and *the format is an instrument* are both load-bearing: changing either is a re-pin
     owed a sentence. First use under the rule: `measureRuleDispatch` in `runOP`, which is the only
     line in the tree that can report `arm=NONE`. The **why** lives in `incant/designDocs` under
     `TokFiles -> measure -> MeasureCallouts`; this row is the **what to do**.

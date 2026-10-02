@@ -161,7 +161,7 @@ Size = lines removed or changed · externs · fixtures touched. Risk is what cou
 - `measureLabelProbe` (measure.twk:533, 15; only a pop.sh comment).
 - **Size:** ~74 lines, 4 externs. **Risk:** low.
 
-**D-13 · `debugRuleNamed` (Debug.rtn:6) -- KEEP.** Its only callers are armed `groupDirectives` entries (parseUpTo :149, bootstrapper :301). It is a directives-build instrument, dead in a bare build by design.
+**D-13 · `debugRuleNamed` (Debug.rtn:6) -- KEEP (ruled, SEQ 260 R6).** Reason: it is the directives build's rule-debug switch, so it is meant to be dead in a bare build. Its only callers are armed `groupDirectives` entries (parseUpTo :149, bootstrapper :301). It is a directives-build instrument, dead in a bare build by design.
 
 **D-14 · Dead class methods -- CUT, except the debug helpers.**
 - **Cut:**
@@ -182,7 +182,12 @@ Size = lines removed or changed · externs · fixtures touched. Risk is what cou
 | `GroupDraw::setWindow` | GroupDraw.twk:21 | 31 |
 
   `getGuard` is a pure read; its three directives were culled by C-155.
-- **Keep (lldb debug helpers, reason stated):** `GroupItem::dQ` (:487), `GroupItem::dumpField` (:506), `GroupControl::dumpSearchList`, `GroupStak::listStakked`.
+- **KEEP (ruled, SEQ 260 R6), each for the same reason: an lldb or Xcode expression call is their road, and no
+  census can see it** (the blind spot named at the head of this file):
+  - `GroupItem::dQ` (:487) -- dumps a node's flags and body from a breakpoint;
+  - `GroupItem::dumpField` (:506) -- prints one field with its attributes, the standard `po`-from-lldb helper;
+  - `GroupControl::dumpSearchList` -- prints the live search list, which no runtime command shows;
+  - `GroupStak::listStakked` -- prints the input stack, the one view of a divert in flight.
 - **Size:** ~117 lines. **Risk:** low.
 
 **D-15 · `parse()`'s `definer` / `defStuff` (GroupItem.twk:1380, 1383, 1399-1400) -- CUT.**

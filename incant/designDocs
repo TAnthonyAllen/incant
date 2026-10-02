@@ -697,15 +697,6 @@ define
                     costs nothing a caller was relying on -- the return value is unchanged
                     and every tally still counts a null as a refusal.#);
             stop="Immediate method for the stop command.":
-                stopRefusalHandling=(census fires at completion not at refusal, and that is the
-                    whole of Tony's ruling: F-17e's full sweep is preserved -- all 42
-                    refusals report as 42 -- and only then does the run refuse to call
-                    itself successful. Exiting at the first refusal would report one.
-
-                    SILENT WHEN THE ROAD WAS NEVER TRAVELLED. A run that never called
-                    compile has no compile census, so nothing prints and no baseline
-                    moves. That is not a gate on the assertion; it is the difference
-                    between a zero and an absence.#);
                 twoVerbs=(TWO VERBS THROUGH ONE EXTERN, told apart by the node handed in.
                     bail LEAVES THE FILE and stop LEAVES THE PROCESS, and the whole
                     discrimination is a tag test on the argument -- which works only
@@ -734,11 +725,11 @@ define
                     and answered with three RunRulE complaints. setup carries its
                     commentary in an ordinary trailing comment block instead.#);
         Generate="is an rtn file that gets included into GroupRules.twk when it gets tokked. It holds the new-road parse executors and setParse's classification walk. Entries reviewed and trimmed 2026-09-26; the retired ones are named in that day's commit and git has their text.":
-            exitFromParse=(THE COMMON EXIT FOR EVERY NEW-ROAD PARSE METHOD: sync parentLabel, fire the label method, attach upward. Its failure tail returns trueResult for a term whose MINIMUM IS ZERO -- an absent optional owes the chain a success. Guarded max <= 1, because repetition is parseLoop's and a true here would run a loop to max; and NOT isCondition, because parseCondition reads min as a value. Spelled min, never kount >= min: kount is stale outside parseLoop. fixIts F-95 attempt 6.#):
+            exitFromParse=(THE COMMON EXIT FOR EVERY NEW-ROAD PARSE METHOD: fire the label method, attach upward into the enclosing activation's stuff (enclosingStuff; parentStuff and parentLabel retired in strokes 5.8-5.9). Its failure tail returns trueResult for a term whose MINIMUM IS ZERO -- an absent optional owes the chain a success. Guarded max <= 1, because repetition is parseLoop's and a true here would run a loop to max; and NOT isCondition, because parseCondition reads min as a value. Spelled min, never kount >= min: kount is stale outside parseLoop. fixIts F-95 attempt 6.#):
                 oneAttach=(ONE ATTACH, THROUGH attachLabel, WITH promote=1 -- ruled 2026-09-22, SEQ 192. promote=0 is INERT here: checkInput's enclosingActivation arm has already filled the parent slot unretagged, so the retag a members rule needs never happens. ⚠ Banked, not chased: that arm and this one are two writers of the parent's label slot, and attachLabel's alreadyIsParentLabel guard exists only because of it (F-95).#);
             parseAction=(runs the rule's ACTION as its parse. Pinned unreachable today by incant/pop/paReachT.#):
                 ownSlot=(THREE SLOTS, THREE MEANINGS (Tony, 2026-09-14): gMethod is the ENTRY, rStuff.parseMethod the LEAF, rStuff.actionMethod the ACTION. Reading gMethod here recursed until the stack was gone, because on a parseACTION node gMethod IS parseAction.#);
-            parseAny=(THE FOUR LEAVES -- parseAny, parseCharacter, parseSet, parseString -- ARE THE GENERATED-PATH TWINS OF RuleStuff's testMacro. Copy the template, never a sibling: in 2026-08 three of them had kept the tester and dropped the advance and the min gate, so a match consumed no input and could not terminate. The shape: a tester loop that advances and breaks at end of input or max, then ONCE, counter >= min sets the label and succeeds. The maxLimit report is gated max > 1 && !limitsSet -- ungated it rejects every name longer than one letter. fixIts F-26.#);
+            parseAny=(THE FOUR LEAVES -- parseAny, parseCharacter, parseSet, parseString -- ARE THE GENERATED-PATH TWINS OF RuleStuff's testMacro. Copy the template, never a sibling: in 2026-08 three of them had kept the tester and dropped the advance and the min gate, so a match consumed no input and could not terminate. The shape: a tester loop that advances and breaks at end of input or max, then ONCE, counter >= min sets the label and succeeds. The maxLimit report is gated max > 1 (limitsSet retired with the Limit rule) -- ungated it rejects every name longer than one letter. fixIts F-26.#);
             parseContainer=(matches the longest input prefix naming an entry of a bin or registry.#):
                 noStuffLawfulSkip=(A REGISTRY LAWFULLY CARRIES NO rStuff (Ruling D1) and reaches here by bare name from an emitted body -- Operators, for one. A SKIP, NOT A REFUSAL: a refusal inside a parse aborts the action containing it (Tony, 2026-09-20). It matches with default limits and exits WITHOUT exitFromParse, which dereferences rStuff. Nothing is minted onto the registry.#);
             parseLoop=(THE VERDICT IS THE COUNT, NEVER THE FLAG. A repetition ends by FAILING, so the last attempt always leaves sukcess 0, and a flag read makes every satisfied + or * report failure -- measured SEQ 194 on "search list;". It reads the count and returns, and does not write sukcess, which already carries two meanings. measureLoopVerdict pins the disagreement at 0. fixIts F-95 attempt 5.#);
@@ -892,8 +883,8 @@ define
                     parse-succeeded-with-wrong-content, the worst failure genre on the books, so
                     it refuses. ONE IMPLEMENTER: testMacro and the generated leaves both call it.
                     NOT ALLOWED TO FIRE ON max 1 (the default) or an explicit Limit, which reach
-                    counter >= max in a correct parse -- so callers gate on max > 1 &&
-                    !limitsSet, true only for the ceiling modify() stamps.#);
+                    counter >= max in a correct parse -- so callers gate on max > 1 (limitsSet
+                    retired with the Limit rule, 2026-09-28).#);
             reportNoBody=(a rule reached through a bound parse method with no compiled body. A
                 SIBLING, NOT A REUSE: reportCodeFail would name processCode for a rule
                 processCode never touched. It repeats once per attempt, by intent.#);
@@ -1219,7 +1210,7 @@ define
 
                 litOption keeps its own attach: a literal option builds its own fresh label
                 and never enters parse().#):
-                rung2bRed=(⚠ RUNG 2b WAS BUILT HERE AND IS RED. SEQ 59, 2026-08-13. Recorded
+                rung2bRed=(⚠ HISTORICAL, 2026-10-02: the code quoted below names parentStuff, retired in stroke 5.8. ⚠ RUNG 2b WAS BUILT HERE AND IS RED. SEQ 59, 2026-08-13. Recorded
                     because the destination it used is the one the frame offers, so the
                     next reader will reach for it too.
 
@@ -1374,35 +1365,6 @@ define
                 earlier parses, missed a live deferred ancestor through a recursion, and
                 looped forever on the F-114 cycles. Stroke 5.5b, SEQ 245; the argument is in
                 docs/objectModel.md, stroke 5 status.#);
-            establishFrame=(THE SINGLE WRITER OF parentLabel, now one body with two
-                call sites. Tony's ruling via Clay, 2026-08-29.
-
-                parse()'s fork used to carry this write inline, under a comment reading
-                "THIS LINE IS ITS SINGLE WRITER". That was true and it is still true: the
-                doctrine is one BODY, not one call site. Both seams call here.
-
-                ⚠ WHY runRule NEEDED IT. The new parse road dispatches
-                `newParse.method(rule)` straight at builtinParsE and never calls
-                rule.parse(), so it never crossed the writing line. Measured 2026-08-29:
-                PARENTPROBE printed parentLabel=0x0 on all four invocations of an Xpress
-                walk -- Xpress, ExpressioN, Token, QuotE -- while the structural parent
-                named definitional positions (Token's own parent is Token). The frame
-                channel existed and the new road did not write it.
-
-                ⚠⚠ THE DISCIPLINE IS NOT SAVE/RESTORE, AND THAT IS WORTH KNOWING BEFORE
-                ANYONE "FIXES" IT. There is no save and no restore here, and the incumbent
-                had none either -- it is a bare write immediately before the call. The
-                recursion safety lives in the CALLEE: parse()'s fork comment states that
-                the callee lifts parentLabel into a stack local at entry before descending,
-                so a nested invocation overwriting this slot cannot disturb an outer frame
-                already under way. The genParse-emitted methods implement exactly that --
-                `GroupItem into = rule.rStuff.parentLabel;` is their first line.
-
-                THE CONSEQUENCE, NAMED RATHER THAN LEFT TO BITE: a parseMethod that reads
-                parentLabel LATE instead of lifting it at entry is unsafe under recursion,
-                and parseRule does not lift today because it does not yet read the frame at
-                all. When setParentLabel lands, the lift is owed AT parseRule's ENTRY, not
-                at the point of use.#);
             frameParent=(resolve the parse-time parent for a rule invoked through
                 runRule, which has no pStuff to read one from.
 
@@ -1570,7 +1532,7 @@ define
                     seats because a single after-the-fact read cannot tell a replacement from
                     a pass-through, and a NULL is printed as NULL rather than as isLabel=0
                     because those are two facts and one channel may not carry both.#);
-            getRstuff=(The old body minted an
+            getRstuff=(⚠ HISTORICAL, 2026-10-02: the method is gone; ensureRStuff is its successor. The old body minted an
                 rStuff on a miss, and the header said it "warns if it had to create one".
                 The warn — `getRStuff: <node> no rStuff - creating` — was DELETED on
                 2026-07-29, so for a month the function constructed in total silence while
@@ -1685,7 +1647,8 @@ define
                 WANT setRuleStuff's re-clone is a live question and now a visible one; it is
                 deliberately not answered here.#);
             parse="the old parse"
-                genParseRuleAccess=(genParseRuleAccess S1.3 -- a generated parse supersedes the interpretive walk.
+                genParseRuleAccess=(⚠ HISTORICAL, 2026-10-02: the fork this describes left parse() on 2026-09-07 (0150f29), and `into` is now a parseRule snapshot of enclosingStuff().label (stroke 5.9). Retires with parse()'s definer/defStuff (deepClean D-15).
+                    genParseRuleAccess S1.3 -- a generated parse supersedes the interpretive walk.
 
                     INSIDE the inProcess bracket, DELIBERATELY, and it does NOT return
                     early. Two reasons, both load-bearing:
@@ -1965,7 +1928,6 @@ define
             checkInput="sets hereAt and atRuleMark, handles input diversion, and returns true if current input is valid.":
                  enclosingActivation=(this write hands the label UP to the enclosing rule's stuff. A generated DRIVE ROOT parks it on the drive floor first (driveFloorLabel, 2026-09-26); otherwise a top-level rule's parent is the REGISTRY, which lawfully has no stuff -- so refuse by name rather than dereference a null.#);
             fields=(the per-node parse state's fields that carry an argument.#):
-                parentLabel=(the `into` a generated body attaches to, made direct and named. Not new state: parse() reached the same value through parentStuff.label. The callee lifts it into a stack local at ENTRY, which closes the recursion window.#);
                 frameArg=(MINTED AND STRIPPED 2026-09-01, kept because the reason is reusable: parentLabel's pattern moved to carry an ACTION's argument, and it could never fire -- rStuff presence is the liveness test (Ruling D) and an action is not a rule. The residence was chosen from the precedent's shape, not the customer's. An unused field in a MIRRORED struct is bear-trap #10's next victim, so it went rather than sitting inert.#);
                 parseMethod=(ONE argument, the rule: kant methods take one, so a two-argument parse method could never survive the kant handover. Widening or narrowing it is a LAYOUT change (bear-trap #10).#);
                 jitMethod=(the compiled body of a field's method -- parseMethod's shape, not a new idea: it rides the shape struct, dispatch is only through the pointer (the JiT attribute is its RECORD), and nothing reaches it by name. The slot is `int (GroupItem)`, uniform i32(ptr), since 2026-09-23. It is LAZY where parseMethod is not: compile-on-first-fire is in-process, while generating a parse means a build.#);
@@ -3201,25 +3163,7 @@ define
         genParse=(is the rtn file that held the C++ parse-method emitter. The emitter, its plan
             vocabulary, the kant-door shims and the stored-body verbs RETIRED BY MAPPING 2026-09-26
             (SEQ 191); what is left is dataName, locateRule, showTree/treeOf, traceParse and
-            dupTermRefusal/dupCensus. The retired entries are named in that commit and git has them.#):
-            invariantRprime=(demoRprime -- INVARIANT R-PRIME, DEMONSTRATED, BOTH CLAUSES.
-                A POP that only shows a passing run proves neither clause: at min <= 1 the
-                rewind branch is never reached, and a recycled label and a fresh one look
-                identical from outside. So this runs the two loop shapes side by side on the
-                same input and reports the difference.
-
-                MARK CLAUSE. Input "a" against a term needing 2. The entry-saved loop (the
-                emitted shape) gives back the whole run. The per-pass loop (parse()'s shape,
-                where checkInput reassigns hereAt every iteration) rewinds to the start of
-                the FAILED attempt, which is already past the match -- so the first match's
-                input stays consumed. That is the defect genParseSpec §2.2 records, made
-                visible.
-
-                LABEL CLAUSE. Input "aa". Each pass goes through parse() and builds a fresh
-                label, so two passes attach TWO children. A recycling loop -- parse()'s
-                `isGROUP && max > 1` path, which clears the label and hands it back via the
-                fLAG handshake -- would show one.#):
-                Retired="demoRprime removed 2026-09-26 (ruling 3a) -- the demonstration of 2026-07-28 stands as history; git has the code";
+            dupTermRefusal (dupCensus cut 2026-09-30). The retired entries are named in that commit and git has them.#):
             ruleLookupScope=(locateRule -- genParseShape §1.3's ruling, the half that had not
                 landed. Emitted text has carried no locate since the shape brief; THE EMITTER
                 still ran one, and a bare locate() resolves down the GENERAL search stack:

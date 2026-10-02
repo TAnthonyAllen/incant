@@ -18,7 +18,7 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 - **Confirm:** a `grep -rn 'allAttributesOptional()'` over `*.twk *.rtn *.mm` (definition only), then a retok with a byte-identical diff apart from the method, and the fleet unmoved. Its DesignDocs entry and the CLAUDE.md census example (comment convention) cite it and would need a note.
 - **Seen:** 2026-09-28 (first noted callerless in the 2026-09-03 wakeup).
 
-### `testAttributes`' artifact skip
+### `testAttributes`' artifact skip -- **KEEP: skips locals (this, tempField)** (SEQ 260 R8, 2026-10-02)
 - **What/where:** `RuleStuff.twk:269`, `if noPrint continue;` in `testAttributes` (old road).
 - **Why deletable:** after stroke 3, artifacts should not be on term lists.
 - **Blocked on F-O38.** Measured 2026-09-28: it still skips `pendingParseR` 29,260 times across the fleet, because the kant generator attaches the pending carrier with `+%` (among the terms), and `compile` only moves it when it reaches that rule.
@@ -74,7 +74,7 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 - **What/where:** the header says this is "what is left of the C++ parse-method emitter" (retired by mapping 2026-09-26).
   Every extern left in it is live: `dataName` (GroupItem.twk:908-912, measure.twk:509), `locateRule` and `showTree`
   (via `treeOf`), `treeOf` (`incant/pop/driveDoorT` IA-3/IA-4), `traceParse` (29 fixtures), `dupTermRefusal`
-  (parser). Only `dupCensus` above is callerless.
+  (parser). (dupCensus was cut 2026-09-30, so every extern left here is live -- re-measured 2026-10-02.)
 - **Why listed:** nothing in it generates a parse any more. If Tony wants the name to match the contents, the cost is a
   file move plus the `GroupRules.twk` include line and the DesignDocs `TokFiles -> genParse` keys.
 - **Seen:** 2026-09-30.

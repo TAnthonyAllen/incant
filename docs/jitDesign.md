@@ -1159,8 +1159,8 @@ from one list. ⚠ **The C++-escape recon this entry was to sit beside was NOT F
   excluded. For each site: what it does, why tok could not express it, and a REMEDY CLASS -- (a) tok can already;
   (b) move to a jit, measure or support helper; (c) needs a tok feature (name it). It prices the parseRule bracket and
   the ParseActivation list. **Run it together with the actions-and-ops census** -- both touch the same code.
-- **Move the `measure*` methods from Generate.rtn to measure.twk**, with the translation-unit checks already specified:
-  global linkage; the groups.ext declarations relocated to the measure.h block; trace-row values unchanged.
+- ~~**Move the `measure*` methods from Generate.rtn to measure.twk**~~ -- **DONE 2026-09-26 (`0d7dea0`, SEQ 182 Task 1)**; struck
+  2026-10-02 (deepClean D-7). No `measure*` definition lives outside measure.twk (27 of 27).
 - **The yield channel's ruling** -- what fireLabelMethod's adoption may receive (fixIts F-122 entry 7; the (b) guard
   stays unarmed; `adoptT` pins the live-field count).
 - **parseLoop's silent success at max** -- report or refuse a zero-progress pass (fixIts F-114 entry 24).
