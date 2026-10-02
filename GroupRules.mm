@@ -44,7 +44,7 @@ GroupItem 	*token = 0;
 /*******************************************************************************
 	The BlocK rule action.
 
-    // bareReturnValue A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not the keyword's tag, and the substitution MUST re-stamp isBranch or every break and continue dies.
+    // bareReturnValue A BARE `return;` YIELDS THE PRIOR STATEMENT'S VALUE, not the keyword's tag; the kind stays in the ruler slot, so the substitution carries no signal
 *******************************************************************************/
 extern "C" GroupItem *aCTionBlocK(GroupItem *input)
 {
@@ -56,6 +56,7 @@ GroupItem 	*prior = 0;
 	while ( grup = input->next(grup) )
 		{
 		prior = result;
+		ruler->branchKind = 0;
 		if ( isMethod(grup->groupBody->flags.instructType) )
 			result = grup->groupBody->gMethod(grup);
 		else	result = grup;
@@ -74,7 +75,7 @@ GroupItem 	*prior = 0;
 			 jitEmitRefusedCheck(); gJitStmtCanRefuse = false; 
 			}
 		/*  ⚠ A REFUSAL STOPS THE BLOCK, and the jitting arm must NOT stop the
-		EMIT walk -- same era split as the isBranch check below, and the
+		EMIT walk -- same era split as the branch check below, and the
 		same reason: at emit time the statements after a refusal are
 		REACHABLE and must all be emitted. The emitted body does its own
 		per-statement check at RUN time.   ruleActions.aCTionBlocK.refusalArm  */
@@ -83,13 +84,10 @@ GroupItem 	*prior = 0;
 				broke = 1;
 		if ( broke == 1 )
 			break;
-		if ( result && result->groupBody->flags.isBranch )
+		if ( result && ruler->branchKind )
 			{
-			if ( prior && result->groupBody->flags.isBranch == 3 && result->groupBody->registry == ruler->keyWords )
-				{
+			if ( prior && ruler->branchKind == 3 && result->groupBody->registry == ruler->keyWords )
 				result = prior;
-				result->groupBody->flags.isBranch = 3;
-				}
 			// ⚠ DO NOT let this break run under jitting -- it stops the COMPILER'S walk and
 			// emitWalkMustNotStop every statement after a branch vanishes from the IR
 			if ( ruler->jitting )
@@ -162,14 +160,16 @@ GroupItem 	*arg = ExpressioN;
 		}
 	switch (*BrancheS->groupBody->tag)
 		{
+			// controlSlot the kind goes to the ruler slot, never onto arg -- arg is the VALUE (P4, Tony SEQ 179)
+			break;
 		case 'b':
-			arg->groupBody->flags.isBranch = 1;
+			ruler->branchKind = 1;
 			break;
 		case 'c':
-			arg->groupBody->flags.isBranch = 2;
+			ruler->branchKind = 2;
 			break;
 		case 'r':
-			arg->groupBody->flags.isBranch = 3;
+			ruler->branchKind = 3;
 		}
 	// branchesUnderJit break and return DEGRADE LOUDLY here rather than emitting nothing, and the tag
 	// returnEmitNow
@@ -332,24 +332,26 @@ GroupItem 	*result = 0;
 		return GroupControl::groupController->groupRules->falseResult;
 		}
 	do	{
+		GroupControl::groupController->groupRules->branchKind = 0;
 		result = StatemenT->groupBody->gMethod(StatemenT);
-		if ( result->groupBody->flags.isBranch )
+		if ( GroupControl::groupController->groupRules->branchKind )
 			{
 			// ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
 			// extractable: the arms are continue/return/break over THIS loop
 			// trailingContinueGuard
-			if ( isContinue(result->groupBody->flags.isBranch) )
+			if ( GroupControl::groupController->groupRules->branchKind == 2 )
 				{
+				GroupControl::groupController->groupRules->branchKind = 0;
 				result = GroupControl::groupController->groupRules->trueResult;
 				continue;
 				}
 			else
-			if ( isReturn(result->groupBody->flags.isBranch) )
+			if ( GroupControl::groupController->groupRules->branchKind == 3 )
 				return result;
-			// BREAK IS CONSUMED HERE -- clearing isBranch is what stops the enclosing
+			// BREAK IS CONSUMED HERE -- clearing the slot is what stops the enclosing
 			// breakIsConsumed block breaking too
-			result->groupBody->flags.isBranch = 0;
-			if ( result->groupBody->registry == GroupControl::groupController->groupRules->keyWords )
+			GroupControl::groupController->groupRules->branchKind = 0;
+			if ( result && result->groupBody->registry == GroupControl::groupController->groupRules->keyWords )
 				result = 0;
 			break;
 			}
@@ -635,26 +637,28 @@ int 		restrict = 0;
 			ruler->lastREF->groupBody->gGroup = grup;
 			ruler->lastREF->groupBody->flags.data = 6;
 			}
+		ruler->branchKind = 0;
 		result = StatemenT->groupBody->gMethod(StatemenT);
 		if ( result->groupBody->flags.byRef )
 			grup = result->priorInParent;
-		if ( result->groupBody->flags.isBranch )
+		if ( ruler->branchKind )
 			{
 			// ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
 			// extractable: the arms are continue/return/break over THIS loop
 			// trailingContinueGuard
-			if ( isContinue(result->groupBody->flags.isBranch) )
+			if ( ruler->branchKind == 2 )
 				{
+				ruler->branchKind = 0;
 				result = ruler->trueResult;
 				continue;
 				}
 			else
-			if ( isReturn(result->groupBody->flags.isBranch) )
+			if ( ruler->branchKind == 3 )
 				return result;
-			// BREAK IS CONSUMED HERE -- clearing isBranch is what stops the enclosing
+			// BREAK IS CONSUMED HERE -- clearing the slot is what stops the enclosing
 			// breakIsConsumed block breaking too
-			result->groupBody->flags.isBranch = 0;
-			if ( result->groupBody->registry == ruler->keyWords )
+			ruler->branchKind = 0;
+			if ( result && result->groupBody->registry == ruler->keyWords )
 				result = 0;
 			break;
 			}
@@ -719,6 +723,7 @@ GroupItem 	*result = ExpressioN;
 		::fprintf(stderr,"aCTionIF: REFUSING -- the condition parsed but its governed statement is MISSING. Common causes: a // between the condition and the statement (bear-trap #4), an `if <cond>;` with no statement at all, or a rule named in the condition consuming the statement as its input.\n");
 		return GroupControl::groupController->groupRules->falseResult;
 		}
+	GroupControl::groupController->groupRules->branchKind = 0;
 	if ( ::truthOf(result) )
 		result = StatemenT->groupBody->gMethod(StatemenT);
 	else
@@ -730,7 +735,7 @@ GroupItem 	*result = ExpressioN;
 	// yieldOrValue ONE RETURN, TWO MEANINGS, TOLD APART BY deferred: direct fire = YIELD (own label, unless the arm's result carries a branch signal); owner-run = VALUE, as before. The clean split waits for the crossover (Tony, 2026-09-24, F-122)
 	if ( input->groupBody->flags.deferred )
 		return result;
-	if ( result && result->groupBody->flags.isBranch )
+	if ( result && GroupControl::groupController->groupRules->branchKind )
 		return result;
 	return input;
 }
@@ -1446,24 +1451,26 @@ GroupItem 	*result = 0;
 		{
 		if ( looper->groupBody->flags.isIterator )
 			looper = looper->getGroup();
+		GroupControl::groupController->groupRules->branchKind = 0;
 		if ( result = StatemenT->groupBody->gMethod(StatemenT) )
 			{
-			if ( result->groupBody->flags.isBranch )
+			if ( GroupControl::groupController->groupRules->branchKind )
 				{
 				// ⚠ TRAILING-CONTINUE GUARD -- one IDENTICAL body in DO, FOR and WhilE, and NOT
 				// extractable: the arms are continue/return/break over THIS loop
 				// trailingContinueGuard
-				if ( isContinue(result->groupBody->flags.isBranch) )
+				if ( GroupControl::groupController->groupRules->branchKind == 2 )
 					{
+					GroupControl::groupController->groupRules->branchKind = 0;
 					result = GroupControl::groupController->groupRules->trueResult;
 					continue;
 					}
 				else
-				if ( isReturn(result->groupBody->flags.isBranch) )
+				if ( GroupControl::groupController->groupRules->branchKind == 3 )
 					return result;
-				// BREAK IS CONSUMED HERE -- clearing isBranch is what stops the
+				// BREAK IS CONSUMED HERE -- clearing the slot is what stops the
 				// breakIsConsumed enclosing block breaking too
-				result->groupBody->flags.isBranch = 0;
+				GroupControl::groupController->groupRules->branchKind = 0;
 				if ( result->groupBody->registry == GroupControl::groupController->groupRules->keyWords )
 					result = 0;
 				break;
@@ -2037,6 +2044,7 @@ GroupRules 			*ruler = GroupControl::groupController->groupRules;
 GroupItem 			*result = 0;
 GroupItem 			*intoField = 0;
 int 				baseStak = 0;
+int 				branchSave = 0;
 int 				floorPushed = 0;
 int 				priorDefining = 0;
 int 				priorFloor = 0;
@@ -2045,6 +2053,9 @@ ParseActivation 	driveFloor;
 char 				*driveBase = 0;
 	// ruleDoorSeat WHICH DOOR a rule arrived through -- the one question the dispatch fork above cannot answer
 	::measureRuleDoor(field,rule);
+	// branchFrame a drive is its own execution root: the control slot is saved, cleared and restored, so a branch fired inside it cannot leak to the caller (SEQ 264)
+	branchSave = ruler->branchKind;
+	ruler->branchKind = 0;
 	if ( ruler->inputSTAK )
 		baseStak = ruler->inputSTAK->length;
 	// driveFloor a drive pushes a FLOOR on the new road's activation list; deferredAbove stops there (Tony, 2026-09-24)
@@ -2126,6 +2137,7 @@ char 				*driveBase = 0;
 	// driveFloor pop the floor before the single return
 	if ( floorPushed )
 		ruler->gParseActive = driveFloor.prev;
+	ruler->branchKind = branchSave;
 	return result;
 }
 
@@ -3124,6 +3136,11 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	// runOP seeding gate seeds leaves first). The interpret walk owns its traversal
 	// and never re-parents live nodes — the structural cure for the by-reference
 	// operand-stack corruption the deferred jitXpress path hit.
+	//  THE EMIT WALK IS A FRAME FOR THE CONTROL SLOT (P4): an emit-time break, continue or
+	//  return writes the slot and aCTionBlocK walks on past it, so the slot is saved here
+	//  and restored after the walk -- the compile cannot leave a signal for the caller.
+	int emitBranchSave = ruler->branchKind;
+	ruler->branchKind = 0;
 	ruler->jitting = 1;
 	//  R1's ONE MECHANISM, first of its two call sites. Between functions the
 	//  obligation is identical to the one gJitSeeded's header states between
@@ -3208,6 +3225,7 @@ extern "C" int jitBuildFunction(GroupItem *action)
 	// control flow lands via aCTionIF's jitting gate -> jitEmitGIF.
 	jitExecBlock(action);
 	ruler->jitting = 0;
+	ruler->branchKind = emitBranchSave;
 	
 	//  "DID ANYTHING EMIT" is now gJitEmitted, NOT a non-null gJitResult. The
 	//  result slot falsified the old test: a bracketing emitter commits its
@@ -5512,6 +5530,9 @@ extern "C" int jitProbeDrive(GroupItem *rule, GroupItem *armed, char *msg, int j
 	ParseActivation probeFloor;
 	probeFloor.face = 0; probeFloor.isFloor = 1; probeFloor.label = 0; probeFloor.prev = ruler->gParseActive; probeFloor.stuff = 0;
 	ruler->gParseActive = &probeFloor;
+	//  branchFrame a drive door is a frame for the control slot until D-22 unifies the doors (SEQ 264 R2)
+	int probeBranchSave = ruler->branchKind;
+	ruler->branchKind = 0;
 	ruler->pushInput(m);
 	char *driveBase  = ruler->atRuleMark;
 	int   priorFloor = ruler->inputFloor;
@@ -5543,6 +5564,7 @@ extern "C" int jitProbeDrive(GroupItem *rule, GroupItem *armed, char *msg, int j
 	verdict, consumed, len, terms, fires, trues, refused);
 	fflush(stdout);
 	ruler->gParseActive = probeFloor.prev;
+	ruler->branchKind = probeBranchSave;
 	return verdict;
 	
 }
@@ -6201,9 +6223,10 @@ extern "C" void jitStoreResult()
     which at RUN time runs runOP on the same node the interpreted way and returns
     truthOf the result. One spelling on both roads: the run-time helper IS the
     interpreted dispatch. Inline comes later and is diffed against this.
-    ⚠ It returns a FRESH node, never the xpress node or a sentinel: aCTionBrancH
-    stamps isBranch on whatever comes back, and a stamp on the parse tree or on
-    trueResult would outlive the compile (bear-trap #22).
+    ⚠ It returns a FRESH node, never the xpress node or a sentinel: a write on the
+    parse tree or on trueResult would outlive the compile (bear-trap #22). (Before
+    P4, aCTionBrancH stamped isBranch on whatever came back; the kind now rides the
+    ruler slot.)
 *******************************************************************************/
 extern "C" int jitTermCallRT(GroupItem *field)
 {
@@ -7192,6 +7215,10 @@ GroupItem 	*product = 0;
 				case 44:
 					if ( target->groupBody->flags.debugged )
 						product->setCount(1);
+					// isBrancHWitness read-only: P4 retired the stamp, so nothing writes isBranch -- a write half would let a fixture fake the 0 it watches
+					break;
+				case 45:
+					product->setCount((int)target->groupBody->flags.isBranch);
 					break;
 				case 401:
 					if ( !target->nextInParent )
@@ -8800,7 +8827,10 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 			if ( result = field->parseBlocK() )
 				{
 				// probeDoor armed only inside jitProbeDrive: fire the COMPILED body in place of this BlocK, nothing else changes
+				// branchFrame a fire is a frame for the control slot: saved, cleared, restored, so a body's branch cannot leak to the caller (P4)
 				
+				int fireBranchSave = ruler->branchKind;
+				ruler->branchKind = 0;
 				if ( gJitProbeCarrier && field->get((char*)"builtinParseR") == gJitProbeCarrier ) {
 				++gProbeRuleFires;
 				if ( gJitProbeFn )  result = gJitProbeFn(::jitBodyField(gJitProbeCarrier)) ? ruler->trueResult : ruler->falseResult;
@@ -8808,9 +8838,8 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 				if ( ::truthOf(result) )    ++gProbeRuleTrue; }
 				else
 				result = result->groupBody->gMethod(result);
+				ruler->branchKind = fireBranchSave;
 				
-				if ( result )
-					result->groupBody->flags.isBranch = 0;
 				}
 			ruler->currentMETHOD = priorMETHOD;
 			::restoreLocalFields(field);
@@ -9176,6 +9205,11 @@ GroupItem 	*action = field;
 	ruler->currentMETHOD = action;
 	if ( !action->actionBlocK() && !::processCode(action,action->actionHolder()) )
 		return 0;
+	// branchFrame an action is a frame for the control slot: a callee's return or break is consumed here, never read by the caller's loop (P4, Tony SEQ 179)
+	
+	int actionBranchSave = GroupControl::groupController->groupRules->branchKind;
+	GroupControl::groupController->groupRules->branchKind = 0;
+	
 	// labelToLocals a rule's locals take the label's contents; isLabel fields are not cleared below
 	if ( action->groupBody->flags.isRule )
 		{
@@ -9200,9 +9234,9 @@ GroupItem 	*action = field;
 		while ( grup = action->nextAttribute(grup) )
 			if ( grup->groupBody->flags.isLocal && !grup->groupBody->flags.isLabel && !grup->groupBody->flags.noPrint && !grup->groupBody->flags.isArgument && grup->groupBody != action->groupBody )
 				grup->clear();
-		if ( result = result->groupBody->gMethod(result) )
-			result->groupBody->flags.isBranch = 0;
+		result = result->groupBody->gMethod(result);
 		}
+	 GroupControl::groupController->groupRules->branchKind = actionBranchSave; 
 	ruler->currentMETHOD = priorMETHOD;
 	ruler->tempField = priorTempField;
 	return result;

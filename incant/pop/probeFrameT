@@ -1,0 +1,27 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    pbRoot root="StatemenT" msg=(break;#) jitted=0;
+    pbAfter=0;
+    pbRun code={
+        probeDrive(pbRoot);
+        pbAfter = 1;
+        };
+    ;
+pbRun();
+pbAfter = 0;
+parser(StatemenT);
+pbRun();
+cerr "PB statement after a probe drive of break ran = " pbAfter:;
+cerr "PROBEFRAME SENTINEL":;
+stop();
+
+probeFrameT -- THE PROBE DRIVE IS A branchKind FRAME (SEQ 264 R2; T1a). An action probe-drives `break;` through
+StatemenT and its next statement must run: a branch fired inside the drive must not leak into the caller's block.
+The first pbRun is a warm call (an action compiled after parser() refuses on its first call, SEQ 202).
+H7, measured 2026-10-02 on throwaway builds (reverted md5-identical): with jitProbeDrive's bracket AND parseRule's
+fire bracket removed the row reads 0; with either one present it reads 1 -- each bracket masks the other on this
+shape (H17), so the control removes both. ctlStampT's SL-2 witnesses the fire bracket the same way (fire and
+driveStep brackets removed: 3 -> 0).

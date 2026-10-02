@@ -1,0 +1,113 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+define
+    ctX=7;
+    ctW=4;
+    ctV=9;
+    ctK=0;
+    ctM=0;
+    ctJit code={
+        return ctW;
+        };
+    ctEmitLeak code={
+        ctM = 0;
+        testing(ctJit);
+        ctM = 5;
+        };
+    ctRet code={
+        return ctX;
+        };
+    ctOne code={
+        return 1;
+        };
+    ctLoop code={
+        ctK = 0;
+        while ctK < 3;
+            ctOne();
+            ++ctK;
+        };
+    ctContOp code={
+        ctK = 0;
+        while ctK < 2;
+            ++ctK;
+            continue ctV;
+        };
+    ctGenLoop code={
+        ctK = 0;
+        while ctK < 3;
+            v := tell("CtOUT (a)");
+            ++ctK;
+        };
+    ctRun code={
+        ctContOp();
+        ctC := ctV.isBrancH;
+        cerr "CT P4-1 continue v isBranch " *ctC:;
+        cerr "CT P4-1s continue v loop ran " ctK:;
+        ctJ := ctW.isBrancH;
+        cerr "CT P4-2 compiled return w isBranch " *ctJ:;
+        ctGot := ctRet();
+        cerr "CT LV-1 action returned value " *ctGot:;
+        ctB := ctX.isBrancH;
+        cerr "CT LV-1 action returned x isBranch " *ctB:;
+        ctLoop();
+        cerr "CT SL-1 loop over a returning action ran " ctK:;
+        ctGenLoop();
+        cerr "CT SL-2 loop over generated drives ran " ctK:;
+        cerr "CT SL-3 statement after a compile ran " ctM:;
+        };
+    ;
+register(CtLadder);
+define
+    CtA isRule ca-="a";
+    CtOUT isRule cl-="(" CtA cr-=")";
+    ;
+search GroupFields UnitTests Utilities CtLadder list;
+ctEmitLeak();
+parser(CtOUT);
+ctRun();
+cerr "CTLSTAMP SENTINEL":;
+stop();
+
+ctlStampT -- P4: THE CONTROL SIGNAL IS NOT STAMPED ON THE RETURNED VALUE.
+
+Before P4, aCTionBrancH wrote isBranch = 1/2/3 (break/continue/return) onto whatever it
+returned -- a live field, falseResult, the keyword node. P4 (Tony, SEQ 179) moves the kind
+to a ruler slot, `branchKind`: ONE writer (aCTionBrancH), read by the firing parent after
+each child (BlocK, DO, FOR, WhilE, IF, each clearing it before the child), and saved,
+cleared and restored at three frames -- processAction, parseRule's fire of a generated
+body, and the jit's emit walk. Nothing writes isBranch any more; the read-only isBrancH
+accessor (GroupFields 45) watches it stay 0.
+
+THE CERTIFICATE (SEQ 194), WITH ITS CONTROLS -- the pre-P4 readings, measured 2026-09-26 on
+parse-then-fire at e181681 (stamp intact, accessor present), incant/ctlStampProbe:
+  P4-1  `continue v;` leaves v's isBranch        want 0    CONTROL (pre-P4)  2
+  P4-1s the loop over it ran                     want 2    CONTROL           2
+  P4-2  testing()-compiled `return w;` w's        want 0    CONTROL           3
+The two rows the plan first named -- `return x;` and a failed operand's falseResult -- read
+0 BEFORE P4 as well (processAction cleared the returned value's stamp), so they could not
+discriminate. That is why the certificate is the two SURVIVING stamps.
+
+THE PER-BRACKET ROWS (SEQ 194). P4 leaves NO stamp for a bracket to clear, so by ruling
+they assert the returned value carries no control stamp:
+  LV-1  processAction: `return x;` hands back 7, x's isBranch 0
+  LV-2  parseRule -- NO ROW, and the reason is measured: every generated body ends
+        `return <expr>;`, but parseRule consumes that value and returns the LABEL, so the
+        returned value never leaves the bracket. With the stamp put back (H7 control) the
+        three spellings tried -- `true`, a captured `1 && 1`, tell's reply -- all read 0,
+        so a row there would be green and certify nothing. SL-2 carries this bracket.
+  (the emit frame's is P4-2: w is the operand of the compiled return)
+
+Those rows cannot fail if a bracket is REMOVED (there is no stamp to leak), so each bracket
+also carries a SLOT-LEAK row, which does (H7):
+  SL-1  processAction: a loop over an action that returns runs all 3
+  SL-2  parseRule: a loop over tell() drives of a generated rule runs all 3
+  SL-3  emit frame: the statement after testing() in the same block runs (ctM 5)
+H7, MEASURED 2026-09-26, each control on this fixture alone, rebuilt bare after:
+  stamp put back (arg.isBranch = branchKind):  P4-1 2, P4-2 3, LV-1 x 3 -- all red
+  processAction restore removed:  ctRun stops after P4-2; LV-1 and SL-1..3 VANISH
+  parseRule restore removed:      SL-2 3 -> 0, nothing else moves
+  emit-frame restore removed:     SL-3 5 -> 0, nothing else moves
+ORDER IS LOAD-BEARING: ctEmitLeak runs FIRST so testing() compiles ctJit before anything
+runs it interpreted (bear-trap #25); ONE testing() in the file.

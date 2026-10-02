@@ -245,6 +245,7 @@ GroupRules  ruler = groupRules;
 GroupItem   result;
 GroupItem   intoField;
 int         baseStak = 0,
+            branchSave = 0,
             floorPushed = 0,
             priorDefining,
             priorFloor = 0,
@@ -255,6 +256,9 @@ use rule
     // ruleDoorSeat WHICH DOOR a rule arrived through -- the one question the dispatch fork above cannot answer
     measureRuleDoor(field,rule);
 use ruler
+    // branchFrame a drive is its own execution root: the control slot is saved, cleared and restored, so a branch fired inside it cannot leak to the caller (SEQ 264)
+    branchSave  = branchKind;
+    branchKind  = 0;
     if inputSTAK    baseStak = inputSTAK.length;
     // driveFloor a drive pushes a FLOOR on the new road's activation list; deferredAbove stops there (Tony, 2026-09-24)
     driveFloor.face     = null;
@@ -317,6 +321,7 @@ use ruler
     if field && field.data  measureMarkPoint("2c-after-pop");
     // driveFloor pop the floor before the single return
     if floorPushed  ruler.gParseActive = driveFloor.prev;
+    ruler.branchKind    = branchSave;
     return result;
 }
 
@@ -650,6 +655,11 @@ GroupItem   label = field,
     if isLabel      action = field.labelOf;
     currentMETHOD   = action;
     if !action.actionBlocK() && !processCode(action,action.actionHolder())  return null;
+    // branchFrame an action is a frame for the control slot: a callee's return or break is consumed here, never read by the caller's loop (P4, Tony SEQ 179)
+    -%
+    int actionBranchSave = GroupControl::groupController->groupRules->branchKind;
+    GroupControl::groupController->groupRules->branchKind = 0;
+    %-
     // labelToLocals a rule's locals take the label's contents; isLabel fields are not cleared below
     if isRule {
         code = action.actionBody();
@@ -665,7 +675,8 @@ use grup
         // argumentExempt the argument is exempt from the entry clear -- runAction bound it before calling here
         while grup = action.nextAttribute(grup)
             if isLocal && !isLabel && !noPrint && !isArgument && groupBody != action.groupBody clear();
-        if result = result.gMethod(result)  result.isBranch = 0; }
+        result = result.gMethod(result); }
+    -% GroupControl::groupController->groupRules->branchKind = actionBranchSave; %-
     currentMETHOD   = priorMETHOD;
     tempField       = priorTempField;
     return result;
