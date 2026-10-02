@@ -3040,7 +3040,7 @@ direction the campaign might take, it is a state the machinery must report as a 
 > (Clay, SEQ 252, 2026-10-02).** `decodePop` and `countPop` are standing red and had been recorded
 > "row for row" seal after seal with no capture kept, so the next session could not diff against anything
 > -- the claim was unfalsifiable by construction. A row-for-row claim without the bytes it compared is a
-> carried number (H14) wearing a measurement's clothes. **Where:** `docs/sealCaptures/<instrument>.txt` (`.txt`, because `*.out` is gitignored)`, one
+> carried number (H14) wearing a measurement's clothes. **Where:** `docs/sealCaptures/<instrument>.txt` (`.txt`, because `*.out` is gitignored), one
 > file per instrument, overwritten at each seal and committed with it -- git history holds the earlier ones, and
 > "row for row" then means `git diff` on that file reads empty but for the H1 binary-echo line and any named H3 noise.
 >
