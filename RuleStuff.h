@@ -10,7 +10,6 @@ char *failedAt;
 GroupItem *label;
 GroupItem *onFail;
 GroupItem *onGroup;
-GroupItem *parentLabel;
 GroupItem *sourceLine;
 int kount;
 int max;

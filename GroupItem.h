@@ -65,7 +65,6 @@ void embedAttribute(GroupItem *g);
 void embedRule(GroupItem *g);
 PLGset *ensureGuard();
 RuleStuff *ensureRStuff();
-void establishFrame(GroupItem *parentLabel);
 GroupItem *findAttribute(char *name);
 GroupItem *findParent(char *name);
 void fireLabelMethod(RuleStuff *stuff);
