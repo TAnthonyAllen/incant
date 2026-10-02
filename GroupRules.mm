@@ -2386,9 +2386,6 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( ruleStuff->sukcess )
 		{
-		// parentLabelSync the enclosing activation's label, through the list -- the stuff field held values inherited through a face copy (recon 24d)
-		if ( ::enclosingStuff(field,ruleStuff) && ruleStuff->parentLabel != ::enclosingStuff(field,ruleStuff)->label )
-			ruleStuff->parentLabel = ::enclosingStuff(field,ruleStuff)->label;
 		if ( ruleStuff->noAdvance )
 			ruler->atRuleMark = ruleStuff->hereAt;
 		field->fireLabelMethod(ruleStuff);
@@ -9177,9 +9174,6 @@ int 		matched = 0;
 		ruler->atRuleMark = entryMark;
 		return 0;
 		}
-	// binParentRepair a bin is reached from runOP, never through parseRule, so nothing else syncs its parentLabel to the enclosing activation
-	if ( ::enclosingStuff(field,ruleStuff) && ruleStuff->parentLabel != ::enclosingStuff(field,ruleStuff)->label )
-		ruleStuff->parentLabel = ::enclosingStuff(field,ruleStuff)->label;
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput(field) )
 		{
@@ -9249,7 +9243,7 @@ ParseActivation 	callActive;
 RuleStuff 			*ruleStuff = field->getRStuff();
 	// callBracket lift this call's own rStuff state into C++ locals -- the C++ stack is the frame stack, and a nested call of the same rule would otherwise overwrite it (Tony, 2026-09-24; F-114). Passthrough, so tok sees no declaration (bear-trap #42)
 	
-	GroupItem *callLabel = ruleStuff ? ruleStuff->label : 0, *callParentLabel = ruleStuff ? ruleStuff->parentLabel : 0;
+	GroupItem *callLabel = ruleStuff ? ruleStuff->label : 0;
 	char *callHereAt = ruleStuff ? ruleStuff->hereAt : 0;
 	int callKount = ruleStuff ? ruleStuff->kount : 0;
 	int callSukcess = ruleStuff ? ruleStuff->sukcess : 0;
@@ -9263,9 +9257,9 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	ruler->gParseActive = &callActive;
 	// activeNotSubject the record inherits GroupRules' scope, so re-mention ruler then ruleStuff or currentMETHOD binds to callActive (bear-trap #57)
 	::measureParentProbe(field);
-	// parentRepair sync parentLabel to the ENCLOSING activation's label, through the list (stroke 5.8; the parentStuff field is gone)
-	if ( ::enclosingStuff(field,ruleStuff) && ruleStuff->parentLabel != ::enclosingStuff(field,ruleStuff)->label )
-		ruleStuff->parentLabel = ::enclosingStuff(field,ruleStuff)->label;
+	// intoSnapshot the enclosing activation's label as it stood at entry -- a snapshot, never the live slot, which a child can rewrite before the read (recon 25c)
+	if ( ::enclosingStuff(field,ruleStuff) )
+		into = ::enclosingStuff(field,ruleStuff)->label;
 	// bareFieldRepoint the use lines below are load bearing -- a new declaration re-points every bare field under it
 	ruleStuff->sukcess = 0;
 	if ( ruleStuff->checkInput(field) )
@@ -9277,7 +9271,6 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 					grup->clear();
 			// noArgumentOnARule a rule carries no argument slot (Tony, 2026-09-20; F-94) -- the return carries one bit
 			// labelReachesNothing myLabel is minted and goes nowhere until CT-5 gives it a channel
-			into = ruleStuff->parentLabel;
 			myLabel = new GroupItem(field->groupBody->tag);
 			myLabel->labelOf = field;
 			::measureLabelMint(field,myLabel,into);
@@ -9319,7 +9312,7 @@ checkSuccess:
 	// callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it; sukcess joined 2026-09-24 (F-121): a failed inner call wrote 0 into an rStuff an old-road caller was holding, and no post-return reader decides on it (census)
 	
 	if ( ruleStuff ) {
-	ruleStuff->label = callLabel;  ruleStuff->parentLabel = callParentLabel;
+	ruleStuff->label = callLabel;
 	ruleStuff->hereAt = callHereAt;  ruleStuff->kount = callKount;  ruleStuff->sukcess = callSukcess; }
 	
 	return result;

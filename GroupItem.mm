@@ -443,13 +443,11 @@ GroupItem 	*lab = stuff->label;
 		if ( GroupControl::groupController->groupRules->parseTrace )
 		{
 		const char *pName  = pStuff->ruleName ? pStuff->ruleName : "(none)";
-		const char *pPar   = pStuff->parentLabel ? pStuff->parentLabel->groupBody->tag : "(null)";
 		RuleStuff *lp = ::enclosingStuff(this,stuff);
 		const char *ppName = (lp && lp->ruleName) ? lp->ruleName : "(none)";
 		const char *ppLab  = (lp && lp->label) ? lp->label->groupBody->tag : "(null)";
-		const char *sPar   = stuff->parentLabel ? stuff->parentLabel->groupBody->tag : "(null)";
-		::fprintf(stderr,"    IA2 DROP  lab=%s  pRule=%s  pStuff.parentLabel=%s  listParent=%s lp.label=%s  stuff.parentLabel=%s\n",
-		lab->groupBody->tag,pName,pPar,ppName,ppLab,sPar);
+		::fprintf(stderr,"    IA2 DROP  lab=%s  pRule=%s  listParent=%s lp.label=%s\n",
+		lab->groupBody->tag,pName,ppName,ppLab);
 		}
 		
 		// rung2bRed reachable is not correct -- an alternation must YIELD its winning option's label upward,

@@ -627,14 +627,14 @@ extern GroupItem measureParentProbe(GroupItem field)
 {
     -%
     if ( GroupControl::groupController->groupRules->parseTrace )
-        ::fprintf(stderr,"PARENTPROBE %s self=%p parent=%p parentTag=%s stuff=%p parentLabel=%p parentLabelTag=%s\n",
+        ::fprintf(stderr,"PARENTPROBE %s self=%p parent=%p parentTag=%s stuff=%p listLabel=%p listLabelTag=%s\n",
             field->groupBody->tag,
             (void*)field,
             (void*)field->parent,
             field->parent ? field->parent->groupBody->tag : "(none)",
             (void*)field->rStuff,
-            field->rStuff ? (void*)field->rStuff->parentLabel : (void*)0,
-            (field->rStuff && field->rStuff->parentLabel) ? field->rStuff->parentLabel->groupBody->tag : "(none)");
+            (field->rStuff && ::enclosingStuff(field,field->rStuff)) ? (void*)::enclosingStuff(field,field->rStuff)->label : (void*)0,
+            (field->rStuff && ::enclosingStuff(field,field->rStuff) && ::enclosingStuff(field,field->rStuff)->label) ? ::enclosingStuff(field,field->rStuff)->label->groupBody->tag : "(none)");
     %-
     return field;
 }
