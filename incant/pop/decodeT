@@ -97,7 +97,7 @@ define
         withDef = 0;
         for grup in decodeCorpus;
             seen += 1;
-            if grup.definition;
+            if *grup.definition;
                 withDef += 1;
         print "TALLY definitions =" withDef:;
         if withDef == seen;

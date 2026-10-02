@@ -17,7 +17,7 @@ define
     frLen=0;
     frLen2=0;
     frRule isRule frEntries=ANYstring+ SemI?- code={
-        frWitness = frMark;
+        frWitness = 987654;
         frTermsSeen = 0;
         if frEntries.listLengtH;
             for frSum in frEntries;     frTermsSeen = frTermsSeen + 1;
@@ -175,15 +175,21 @@ registry. It could not have been the subject before 2026-09-18, because parser
 resolved its root out of Grokking; it now takes the rule bare, so registry
 membership stopped mattering. The rule is `list`'s shape, which is the spec.
 
-WHERE IT DIES TODAY: STATION 5. The carrier is TEXT -- builtinParseR holds the
-generated parse as a string and carries no BlocK, so nothing compiles it and
-nothing can run it. That is why station 6 reads an empty label: the body cannot
-see what was parsed because NOTHING MATCHED ANYTHING. Filling the label is not a
-repair to a walk that nearly works; the walk does not exist yet.
+RE-AIM PENDING -- AFTER THE PARSE-THEN-FIRE RE-READ (SEQ 260 R2, 2026-10-02).
+All six stations PASS since the witness fix below, so this file has NO EDGE today
+and a green run here means nothing yet. Do not read it as a campaign result; it
+is revised in place to the next real edge once that re-read names it.
 
-THE THREE RULINGS STATION 5 AND 6 WAIT ON are in docs/fixIts.md F-83: does the
-carrier get compiled, who runs both bodies and in which order, and which label do
-the terms attach into.
+THE WITNESS FIX (SEQ 260, deepClean D-1). Station 4 used to fail with "the action
+RAN WITHOUT ITS TERMS": the body ran and walked its three terms all along. What
+failed was the witness, `frWitness = frMark;` -- a read of a declared Frontier
+global from inside the rule's action comes through data-less, and afterwards the
+global reads as its tag (bear-trap #26). The witness is now the literal 987654;
+it is still zeroed before the drive, so the PASS is earned. The data-less read is
+a Clod fixit row in docs/fixIts.md, not fixed here.
+
+WHERE IT DIED BEFORE (history): station 5, 2026-09-18 -- the carrier was TEXT.
+F-83's three rulings closed that; see docs/fixIts.md F-83.
 
 WHY EVERY STATION PRINTS EVEN WHEN IT PASSES
 

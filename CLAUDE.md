@@ -3033,8 +3033,12 @@ direction the campaign might take, it is a state the machinery must report as a 
 >
 > **The checklist, and all of it every time:** `pop.sh` · **`jitLadder/ladder.sh`, its line
 > recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·
-> `countPop.sh` · **`printPop.sh`** · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
+> **`printPop.sh`** · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
+>
+> ⚠⚠ **`countPop.sh` LEFT THE SEAL 2026-10-02 (SEQ 260 R3), RETIRED BY MAPPING to `parserCoverage`.** Its
+> scorer had been dead since 2026-09-08 and its scaffold since stroke 3, so for weeks it was recorded "row for
+> row" while measuring nothing. pop.sh carries the mapping, assertion by assertion; the script stays as history.
 >
 > ⚠⚠ **A SEAL THAT NAMES AN INSTRUMENT AS "ROW FOR ROW" BANKS THAT INSTRUMENT'S OUTPUT BESIDE IT
 > (Clay, SEQ 252, 2026-10-02).** `decodePop` and `countPop` are standing red and had been recorded

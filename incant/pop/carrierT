@@ -28,13 +28,10 @@
             that body declares -- presence with value, not "CodE is still there".
       CT-4  builtinParseR is ON the rule. The parse was generated and parked, not discarded --
             CT-2 alone would also pass if generation had simply stopped happening.
-      CT-5  ⚠ PINNED WRONG ON PURPOSE (H7's other half). The body runs and CANNOT SEE WHAT WAS
-            PARSED: `entries` still holds its term definition, so the for loop dies on
-            `nextGroup: ERROR DatA does not contain a list`. That is fixIts F-83, STATION 6's
-            target, and it is UNRULED. This row is not a claim the behaviour is right; it is a
-            pin so that the day label population lands, something says so.
-            ⚠ IT IS ALSO THE ROW THAT PROVES CT-2 REACHED THE LOOP -- an action that fired and
-            stopped at its first statement would leave CT-5 silent.
+      CT-5  the body WALKS ITS MATCHED TERMS: the for loop prints every matched entry, and the
+            row asserts the last one. Re-pinned 2026-10-02 (SEQ 260, deepClean D-2) from a
+            deliberate wrong pin on F-83's label gap, which label population closed. It is also
+            the row that proves CT-2 reached the loop rather than stopping at its first statement.
       CT-6  exit 0. The spin is gone, and a spin cannot be asserted by a diff -- a killed
             process yields truncated output and names the wrong row.  */
 Start();

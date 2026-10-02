@@ -44,3 +44,8 @@ NEXT: BEST GUESS -- print count only when the data is a count (isCOUNT), and oth
 Grade: mechanism read in source, symptom measured; the fix is one line in measurePlusPlusWrite (and the same check is
 worth a look in measurePlusEqWrite's PEQWRITE, which prints the same column). Promote by running this twice and
 seeing identical PPWRITE lines; kill if a reader of the raw count exists (grep PPWRITE across genLadder first).
+
+CLOSED 2026-10-02 (SEQ 260, deepClean D-5). measurePlusPlusWrite and measurePlusEQWrite now print the
+count column only when the field's data is a count, and "-" otherwise, so a group's pointer bits no
+longer reach the output. Re-run after the fix: `PPWRITE tag=pcCur ... data=0 count=- ...`. chainTruthT's
+run-to-run md5 drift had this as its cause; nothing in genLadder read the raw column.

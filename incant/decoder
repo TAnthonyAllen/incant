@@ -344,7 +344,7 @@ define
     /*  Print ONE term. Fails loud when the corpus has no entry.  */
     decodeOne code={
         hit = decodeCorpus[argument.taG];
-        if hit;
+        if decodeCorpus[argument.taG];
             print argument.taG " -- " hit.definition:;
         else
             print "decode UNDEFINED TERM " argument.taG " -- FAILS LOUD, mint the entry now (WT14)":;
@@ -359,7 +359,7 @@ define
     decodE code={
         if argument.listLengtH;
             for grup in <- argument;
-                decodeOne(grup);
+                decodeOne(*grup);
         else
             decodeOne(argument);
         };

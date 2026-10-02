@@ -636,10 +636,6 @@ use ruler
         *atRuleMark = 0;
         endParse    = true;
         cout :"stop: end parsing":;
-        // stopRefusalHandling census fires at completion not at refusal
-        -%
-        ::reportCompileCensus();
-        %-
         exit(0); }
     return  input;
 }

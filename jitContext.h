@@ -675,28 +675,6 @@ static int        gChanStkTop = 0;
 // zero-reading the moment one of them moved. chanReport is that one.
 // The gChanPend/gChanStk family above is untouched and has the same hazard.
 
-static int gCompileAttempted = 0;
-static int gCompileRefused   = 0;
-static int gCompileReported  = 0;
-
-// Fires at COMPLETION, never at the refusal: F-17e's full sweep is preserved,
-// all refusals report, and only then does the run refuse to call itself
-// successful. Exiting at the first refusal would report one.
-//
-// SILENT WHEN THE ROAD WAS NEVER TRAVELLED. A run that never called compile
-// has no compile census, so nothing prints and no baseline moves. That is not
-// a gate on the assertion; it is the difference between a zero and an absence.
-static inline void reportCompileCensus(void)
-{
-    if ( gCompileReported )         return;
-    if ( gCompileAttempted == 0 )   return;
-    gCompileReported = 1;
-    ::fprintf(stderr,"compile census: %d attempted, %d refused\n",
-        gCompileAttempted,gCompileRefused);
-    if ( gCompileRefused )
-        ::exit(1);
-}
-
 // THE COMPILE OWNER (SEQ 214): the action processCode is compiling. ONE WRITER -- processCode, set before the
 // drive and restored after. aCTionNamE reads it while processingCode is set, because a generated body repoints
 // currentMETHOD to a grammar face and a name minted there lands in the grammar (SEQ 213). Retires when

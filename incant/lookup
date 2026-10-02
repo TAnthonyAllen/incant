@@ -56,11 +56,11 @@ define
     luOne code={
         luHit = 0;
         luD = decodeCorpus[argument.taG];
-        if luD;
+        if decodeCorpus[argument.taG];
             print "=== " argument.taG " -- " luD.definition:;
             luHit = 1;
         luP = ProblemRecords[argument.taG];
-        if luP;
+        if ProblemRecords[argument.taG];
             print "--- problem record ---":;
             luFull(luP);
             luHit = 1;

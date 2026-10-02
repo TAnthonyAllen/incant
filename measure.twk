@@ -677,15 +677,18 @@ extern GroupItem measureParseResult(GroupItem field, GroupItem result)
 extern GroupItem measurePlusEQWrite(GroupItem field)
 {
     -%
-    if ( GroupControl::groupController->groupRules->parseTrace && field )
-        ::fprintf(stderr,"PEQWRITE tag=%s field=%p body=%p data=%d count=%d jitting=%d isCopy=%d isVirtual=%d\n",
+    if ( GroupControl::groupController->groupRules->parseTrace && field ) {
+        char cnt[24];
+        if ( isCOUNT(field->groupBody->flags.data) )  ::snprintf(cnt,sizeof cnt,"%d",(int)field->groupBody->gCount);
+        else                                          ::strcpy(cnt,"-");
+        ::fprintf(stderr,"PEQWRITE tag=%s field=%p body=%p data=%d count=%s jitting=%d isCopy=%d isVirtual=%d\n",
             field->groupBody->tag ? field->groupBody->tag : "(untagged)",
             (void*)field, (void*)field->groupBody,
             (int)field->groupBody->flags.data,
-            (int)field->groupBody->gCount,
+            cnt,
             (int)GroupControl::groupController->groupRules->jitting,
             (field->ruleOf ? 1 : 0),
-            (int)field->groupBody->flags.isVirtual);
+            (int)field->groupBody->flags.isVirtual); }
     %-
     return field;
 }
@@ -699,15 +702,18 @@ extern GroupItem measurePlusEQWrite(GroupItem field)
 extern GroupItem measurePlusPlusWrite(GroupItem field)
 {
     -%
-    if ( GroupControl::groupController->groupRules->parseTrace && field )
-        ::fprintf(stderr,"PPWRITE tag=%s field=%p body=%p data=%d count=%d jitting=%d isCopy=%d isVirtual=%d\n",
+    if ( GroupControl::groupController->groupRules->parseTrace && field ) {
+        char cnt[24];
+        if ( isCOUNT(field->groupBody->flags.data) )  ::snprintf(cnt,sizeof cnt,"%d",(int)field->groupBody->gCount);
+        else                                          ::strcpy(cnt,"-");
+        ::fprintf(stderr,"PPWRITE tag=%s field=%p body=%p data=%d count=%s jitting=%d isCopy=%d isVirtual=%d\n",
             field->groupBody->tag ? field->groupBody->tag : "(untagged)",
             (void*)field, (void*)field->groupBody,
             (int)field->groupBody->flags.data,
-            (int)field->groupBody->gCount,
+            cnt,
             (int)GroupControl::groupController->groupRules->jitting,
             (field->ruleOf ? 1 : 0),
-            (int)field->groupBody->flags.isVirtual);
+            (int)field->groupBody->flags.isVirtual); }
     if ( GroupControl::groupController->groupRules->parseTrace && field )
         ::fprintf(stderr,"PPWRITE   isIterator=%d fLAG=%d isGROUP=%d hasAttributes=%d hasMembers=%d\n",
             (int)field->groupBody->flags.isIterator,

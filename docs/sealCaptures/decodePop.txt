@@ -1,17 +1,17 @@
 === DECODER POP ==========================================================
 binary: /Users/anthony/bin/incant
-        size 1479664   mtime Oct 2 10:16
+        size 1479376   mtime Oct 2 10:52
 
 -- THE POP FIXTURE. incant/pop/decodeT produces the quantities; this harness
    compares them. Its sentinel is checked FIRST and by name.
   ok    decodeT exits 0
   ok    decodeT sentinel (run reached the end)
   ok    corpus holds 82 terms
-  FAIL  82 of them carry a definition (got '0', want '82')
-  FAIL  every term is defined (got '0', want '82')
-  FAIL  decodeT recorded 5 green checks (got '4', want '5')
-  FAIL  decodeT self-cert green -- expected line not produced: SELF-CERT ok
-  FAIL  undefined term fails loud, by name -- expected line not produced: decode UNDEFINED TERM  notATermAnybodyMinted
+  ok    82 of them carry a definition
+  ok    every term is defined
+  ok    decodeT recorded 5 green checks
+  ok    decodeT self-cert green
+  ok    undefined term fails loud, by name
   ok    parked declares itself an unratified slot
   ok    parked carries candidateA (the dispatch)
   ok    parked carries candidateB (SEQ 44 PINCH 6)
@@ -24,12 +24,11 @@ binary: /Users/anthony/bin/incant
   ok    decode produced output (vacuity guard)
   ok    corpus dump + decode line = 85 definition rows
   ok    no entry's definition printed as the string 'definition'
-  FAIL  decode line served H4 by its own words -- expected line not produced: never absence-of-message
-  FAIL  decode line served H7 by its own words -- expected line not produced: measured, not inferred
-  FAIL  decode line served blastRadius by its own words -- expected line not produced: every stream diffed
+  ok    decode line served H4 by its own words
+  ok    decode line served H7 by its own words
+  ok    decode line served blastRadius by its own words
   ok    decode writes nothing to stderr
 
-  FAIL  SELF-CERTIFICATION: only 14 green checks recorded, expected
-        at least 18. Either helpers vanished or the run stopped early.
-checks green = 14
-DECODER POP FAILED -- see the rows above.
+checks green = 22
+DECODER POP PASSED -- 82 terms, all defined, fail-loud arm live,
+  both unratified slots announcing themselves.

@@ -10840,10 +10840,6 @@ int 		bailing = 0;
 		*ruler->atRuleMark = 0;
 		ruler->endParse = 1;
 		::printf("\nstop: end parsing\n");
-		// stopRefusalHandling census fires at completion not at refusal
-		
-		::reportCompileCensus();
-		
 		::exit(0);
 		}
 	return input;

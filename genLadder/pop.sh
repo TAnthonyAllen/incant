@@ -3575,15 +3575,15 @@ for _r in "CT-2 THE ACTION FIRES after parser(list) -- F-87 closed|list tests th
         echo "  FAIL  carrierT $_lbl -- MOVED. Wanted: $_want"; fail=1
     fi
 done
-#  ⚠ CT-5 IS PINNED WRONG ON PURPOSE (H7's other half) -- fixIts F-83, STATION 6's target and
-#  UNRULED. The body runs and CANNOT SEE WHAT WAS PARSED: `entries` still holds its term
-#  definition, so the for loop dies. When label population lands this row goes red and THAT IS
-#  THE WIN. ⚠ It is also what proves CT-2 reached the loop rather than stopping at statement one.
-if grep -qF "nextGroup: ERROR DatA does not contain a list" "$T/ct.e"; then
-    echo "  ok    carrierT CT-5 the body still cannot see its terms -- PINNED WRONG (F-83)"; green=$((green+1))
+#  ⚠⚠ CT-5 RE-PINNED 2026-10-02 (SEQ 260, deepClean D-2) -- THE WIN IT WAS WAITING FOR. It was pinned
+#  wrong on purpose on F-83's label gap (`nextGroup: ERROR DatA does not contain a list`). Label
+#  population landed: the body's for loop now walks the matched entries, and the frontier's station 6
+#  agrees. The re-pin asserts the LAST matched entry on the line after the loop's header walk, which a
+#  body that stopped at its first statement, or saw no terms, cannot print. F-83 closed.
+if grep -A6 -F "list tests the for statement:" "$T/ct.o" | grep -qE "^	nine ?$"; then
+    echo "  ok    carrierT CT-5 the body walks its matched terms (last = nine) -- F-83 closed"; green=$((green+1))
 else
-    echo "  FAIL  carrierT CT-5 the label gap is GONE. If label population landed, that is"
-    echo "        the win: re-pin with a sentence (H6) and close F-83."; fail=1
+    echo "  FAIL  carrierT CT-5 the body no longer walks its matched terms (wanted nine after the for header)"; fail=1
 fi
 
 #  ---- firstUseT: runRule GATES on hasNewParse and never installs --------------
@@ -4766,48 +4766,18 @@ diffcheck "jsonTest JT-TREE every case's tree, by value" genLadder/jsonTest.tree
 #  RETIRED 2026-09-26 (SEQ 191): "genParse odometer" -- successor parserCoverage (how many grammar
 #  rules parser() generates and compiles, by name).
 
-#  ---- THE SCAFFOLD COUNT, ruled into the fleet by Clay 2026-08-28 -----------
-#  ⚠ IT IS THE SOLE ASSERTOR THAT `DatA` DOES NOT CRASH THE COMPILER. That was
-#  incant/fixits/dataCrash's entire surviving coverage when it retired by
-#  mapping, and until now it lived OUTSIDE the standing instrument -- an
-#  assertion that only runs when someone remembers to run it, which is the
-#  ghost mechanism this fleet exists to abolish. 2.3s against the fleet's 3.5s.
-#
-#  ⚠ WHAT IS AND IS NOT ASSERTED HERE. countPop.sh is RED-BY-DESIGN about FAIL
-#  and CRASH rows -- those are the genParse frontier, like the odometer -- so a
-#  frontier row must NOT fail this fleet. What its exit status DOES carry is the
-#  instrument's own integrity: a MISSING row (a name the population handed it
-#  that compile never took), a truncated population walk, an empty population,
-#  or attempted != population. Those are the harness disagreeing with itself,
-#  and they are never facts about genParse.
-#  So: exit 0 is asserted, and the headline is asserted BY VALUE (H4) rather
-#  than by the absence of a complaint.
-bash genLadder/countPop.sh > "$T/cnt" 2>&1; check "countPop runs (scaffold count; instrument integrity)" 0 $?
-sentinel "countPop sentinel (no truncation)" "$T/cnt" "COUNTPOP SENTINEL"
-#  H4: the count is compared BY VALUE. A row that merely greps for the word
-#  "clean" would pass the day the number went to zero.
-cntline=$(grep -m1 '^THE COUNT:' "$T/cnt")
-#  ⚠ RE-PINNED 39 -> 40, 2026-09-03, SEQ 148, AND THE SENTENCE IS THE POINT:
-#  the grammar gained EXACTLY ONE RULE, `IterSource`, by Tony's ruling. The
-#  delta is +1 here, +1 in the odometer's qualifying population (63 -> 64) and
-#  +1 in shadowCensus's walk (83 -> 84) -- three independent rule counts moving
-#  by one, which is what a single added rule looks like and is not what
-#  anything else looks like. `0 missing, 0 parse-failed` HELD ACROSS THE MOVE,
-#  so the new rule compiles clean rather than merely being counted.
-#  A first attempt at this stroke moved these numbers by +15 and +19 instead.
-#  That was NOT the ruling: it was an incomplete respell -- `genLadder/`
-#  carries four incant files (countPopulation, odoPopulation, breakSpecimen,
-#  breakFire) that the respell's `incant/` glob never saw, and their stale
-#  `on X members;` left `members` behind as a stray statement, unfiltering the
-#  census walk. Named here because +19 and +1 have the same shape in a diff and
-#  only one of them is the ruling.
-if [ "$cntline" = "THE COUNT: 40 compiled clean, 0 parse-failed, 0 crashed/truncated, 0 missing, of 40 attempted" ]; then
-    echo "  ok    countPop headline (40/40 clean, 0 missing) -- PINNED BY VALUE"; green=$((green+1))
-else
-    echo "  FAIL  countPop headline moved"; echo "          actual:   $cntline"
-    echo "          expected: THE COUNT: 40 compiled clean, 0 parse-failed, 0 crashed/truncated, 0 missing, of 40 attempted"
-    fail=1
-fi
+#  RETIRED BY MAPPING 2026-10-02 (SEQ 260 R3, deepClean D-4): "countPop runs", "countPop sentinel",
+#  "countPop headline". Its scorer had been dead since 2026-09-08 (ad35796 removed the compile-census
+#  increments, so every rule read MISSING) and its f31 scaffold no longer installs a CodE after stroke 3.
+#  Each assertion and where it lives now:
+#    per-rule "compiles clean"            -> parserCoverage.target, one COMPILES/LEAF row per rule
+#    "DatA does not crash the compiler"   -> parserCoverage.target "COMPILES  DatA" (own process, sentinel)
+#    population derived live, not a file -> parserCoverage recomputes from Grokking, same four filters
+#    H2 (walk reached its end, non-empty) -> parserCoverage's summary line, reachable only after the last rule
+#    "a name compile never took" (MISSING) -> PARTLY carried: parserCoverage names REFUSED/ERROR by rule; no
+#                                            dedicated ghost row (judged low value)
+#  Lost: the install-ALL-then-compile-one interference question; its scaffold rode the retired C++ emitter.
+#  countPop.sh, mkProbeOne.py and countPopulation stay in genLadder/ as history.
 
 #  ---------------------------------------------------------------------------
 #  RAW ->rStuff READS IN THE GENERATED .mm -- THE MIRROR-DRIFT TRIPWIRE.

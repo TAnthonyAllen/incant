@@ -1,0 +1,46 @@
+=== incant/frontier -- the campaign live edge, six stations, CARRIER ROAD === 
+
+ANCHOR frontier station 1 -- generate the parse onto a rule that has an action 
+STATION 1 parse carrier present before  0 after  1 
+STATION 1 generate: PASS -- the carrier appeared, so generation attached something 
+
+ANCHOR frontier station 2 -- the parse PARKED in builtinParseR 
+STATION 2 carrier reads  1 and the miss control reads  0 
+STATION 2 park: PASS -- builtinParseR is on the rule and the miss control is dark 
+
+ANCHOR frontier station 3 -- the rule KEPT its own action body, now in builtinActoR 
+STATION 3 the builtinActoR carrier holds CodE  1 and the miss control reads  0 
+STATION 3 preserve: PASS -- the action body survived generation, in its carrier 
+
+ANCHOR frontier station 4 -- FIRE the rule; the witness is the verdict 
+STATION 4 witness reads  987654 and must equal  987654 
+STATION 4 fire: PASS -- the rule's own action ran after generation 
+
+ANCHOR frontier station 5 -- the carrier must be RUNNABLE, not just parked 
+STATION 5 the carrier holds a BlocK  1 ; a runnable body needs one 
+STATION 5 compile carrier: PASS -- the carrier has a body to run 
+
+ANCHOR frontier station 6 -- the parse fills the label the body is handed 
+STATION 6 the body walked  3 terms; the input carried 3 
+STATION 6 populate: PASS -- for frSum in frEntries ran over matched data 
+FRONTIER ran-census: stations that RAN  6 of  6 declared 
+=== FRONTIER: all six stations RAN and PASSED. === 
+FRONTIER SENTINEL -- the ladder reached its foot 
+
+stop: ending input divert
+Search list: Grokking UnitTests Utilities
+Generating parse code for frRule 
+frRule = CodE { 
+	return frEntries() && SemI();
+	}  
+Generating parse code for frEntries 
+Generating parse code for SemI 
+walkRules ended 
+compile succeeded for frRule
+compile ended 
+setParse ended and that ends compileRules 
+
+
+stop: ending input divert
+
+stop: end parsing

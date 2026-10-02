@@ -2917,6 +2917,11 @@ files were diffed against the old: **nothing else moved.**
 **Fleet 395 → 398 green, red 51 unmoved row for row.** **Grade:** CONFIRMED.
 
 ### F-83 — a rule with an action gets its body RUN but its matched terms never reach it
+**✅ CLOSED 2026-10-02 (SEQ 260, deepClean D-2).** Label population landed: `list`'s body walks its matched entries
+(`righty 3.1 seven eight nine`), and `incant/frontier` station 6 walks 3 of 3. Certified by pop.sh carrierT CT-5,
+re-pinned from its deliberate wrong pin to the last walked entry. The frontier's station 4 had been reading the
+same win as a failure through a data-less witness (D-1).
+
 **The `builtinParseR` seam, measured 2026-09-17 on `incant/unitTests`' `list` — Tony's own
 example.** `list isRule entries=ANYstring+ SemI?- code={ … }` is a rule with members AND a code
 body, which is the whole case.
