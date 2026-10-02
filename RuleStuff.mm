@@ -400,9 +400,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	max = 1;
 	maxRepeat = 1;
 	min = 1;
-	if ( grup = grup->parent )
-		if ( grup->rStuff )
-			parentLabel = grup->rStuff->label;
 }
 
 RuleStuff::RuleStuff(RuleStuff *r)

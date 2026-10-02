@@ -114,16 +114,6 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
   census row in `pop.sh` drops `jitEmitters.rtn:jitProbeDrive` and reads 3; every `probeDrive` fixture row for row.
 - **Seen:** 2026-10-01.
 
-### `parse()`'s local `parentLabel`
-- **What/where:** `GroupItem.twk` parse(): `GroupItem parentLabel;` declared, then `if pStuff parentLabel = pStuff.label;`.
-  Generated `GroupItem.mm` parse(): `GroupItem *parentLabel = 0;` and `parentLabel = pStuff->label;`.
-- **Why it looks deletable:** a local, assigned once, never read. The stuff's own `parentLabel` is set by `getStuff`
-  (`stuff->parentLabel = stuff->parentStuff->label`), which is the one readers use.
-- **Confirm:** delete the declaration and the assignment; full bare tokall shows exactly those two generated lines gone
-  and no bare `parentLabel` re-aimed (it would otherwise resolve to `ruleStuff->parentLabel` -- read the tail);
-  fleet row for row.
-- **Seen:** 2026-10-01 (stroke 5.5a step 0, SEQ 240; listed by SEQ 242).
-
 ## Seeded, already gone
 
 Seeded 2026-09-28 from the dispatch. A source census shows each was already deleted, so there is nothing to cut.
@@ -134,6 +124,12 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 | `parseGeneric` (`RuleStuff.twk`) | `2bfa808` -- Task 2 (SEQ 192) | 0 references in `*.twk *.rtn *.h` |
 
 ## Done
+
+### `establishFrame` and `parse()`'s local `parentLabel` -- CUT 2026-10-02 (stroke 5.9b, SEQ 257 R4)
+- **Were:** `GroupItem::establishFrame` (0 callers; a counting tap read 0 calls; its header claimed to be the single
+  writer of parentLabel) and `parse()`'s local `parentLabel` (written, never read; listed since SEQ 240/242).
+- **Cut** with the field in 5.9b (`cdad9c8`): full bare tokall shows exactly those lines gone; fleet row for row.
+  `establishFrame`'s `groups.ext` line (:321) goes at merge with the field's mirror line.
 
 ### `dupCensus`
 - **What/where:** `genParse.rtn:136`, registered `dupCensus immediateAction;` in `incant/setup`, and a groups.ext line.
@@ -164,18 +160,3 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 - **Confirm:** a census of every `isLabel` reader, each read classified by meaning; a separate flag for the local
   case, fleet row for row.
 - **Seen:** 2026-10-01 (stroke 5.6a mint-site census).
-
-### `establishFrame` -- no callers, and its header claims it is the SINGLE WRITER of parentLabel (SEQ 256, banked)
-- **Where:** `GroupItem::establishFrame`, GroupItem.twk:682 (and its `groups.ext` line :321).
-- **Why it looks cuttable:** no caller in any `.twk`/`.rtn`/`.mm`, fixture or registry; a counting tap read **0 calls**
-  across pop.sh, jitLadder and printPop. Its header ("the SINGLE WRITER of parentLabel") is false today -- recon 25
-  counts nine writers.
-- **Confirm:** delete it and its mirror line; full bare tokall diff is the function only; fleet row for row.
-- **Seen:** 2026-10-02 (stroke 5.9 recon).
-
-### `parse()`'s local `parentLabel` -- written, never read (SEQ 256, banked)
-- **Where:** `GroupItem::parse`, GroupItem.twk:1395 (declaration) and :1411 (`if pStuff parentLabel = pStuff.label;`).
-- **Why it looks cuttable:** a local of the same name as the RuleStuff field, written once and read nowhere in the
-  body (the generated `.mm` shows a plain local, not the field).
-- **Confirm:** delete both lines; the generated diff is those lines only; fleet row for row.
-- **Seen:** 2026-10-02 (stroke 5.9 recon).

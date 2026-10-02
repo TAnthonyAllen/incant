@@ -627,14 +627,14 @@ extern GroupItem measureParentProbe(GroupItem field)
 {
     -%
     if ( GroupControl::groupController->groupRules->parseTrace )
-        ::fprintf(stderr,"PARENTPROBE %s self=%p parent=%p parentTag=%s stuff=%p parentLabel=%p parentLabelTag=%s\n",
+        ::fprintf(stderr,"PARENTPROBE %s self=%p parent=%p parentTag=%s stuff=%p listLabel=%p listLabelTag=%s\n",
             field->groupBody->tag,
             (void*)field,
             (void*)field->parent,
             field->parent ? field->parent->groupBody->tag : "(none)",
             (void*)field->rStuff,
-            field->rStuff ? (void*)field->rStuff->parentLabel : (void*)0,
-            (field->rStuff && field->rStuff->parentLabel) ? field->rStuff->parentLabel->groupBody->tag : "(none)");
+            (field->rStuff && ::enclosingStuff(field,field->rStuff)) ? (void*)::enclosingStuff(field,field->rStuff)->label : (void*)0,
+            (field->rStuff && ::enclosingStuff(field,field->rStuff) && ::enclosingStuff(field,field->rStuff)->label) ? ::enclosingStuff(field,field->rStuff)->label->groupBody->tag : "(none)");
     %-
     return field;
 }
@@ -906,13 +906,11 @@ GroupItem   probed;
     probed = argument;
 -%
     RuleStuff *rs = probed->rStuff;
-    GroupItem *pl = rs ? rs->parentLabel : (GroupItem *)0;
-    ::fprintf(stderr,"PN %s node=%p body=%p gMethod=%p rStuff=%p parentLabel=%p %s\n",
+    ::fprintf(stderr,"PN %s node=%p body=%p gMethod=%p rStuff=%p\n",
         probed->groupBody->tag,
         (void*)probed,(void*)probed->groupBody,
         (void*)probed->groupBody->gMethod,
-        (void*)rs,(void*)pl,
-        pl ? pl->groupBody->tag : (char *)"(none)");
+        (void*)rs);
 %-
     return probed;
 }
