@@ -1,0 +1,44 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(RgLadder);
+define
+    rgMark=987654;
+    rgIn=0;
+    rgFires=0;
+    rgStale=0;
+    rgRule isRule rgEnt=ANYstring+ SemI?- code={
+        rgIn = rgMark;
+        rgFires = rgFires + 1;
+        if rgLoc == 5;      rgStale = rgStale + 1;
+        rgLoc = 5;
+        };
+    rgRun code={
+        rgRule("a b;");
+        rgRule("c d;");
+        cerr "RG-1 the rule action read the global " rgIn:;
+        cerr "RG-2 the global after two fires " rgMark:;
+        cerr "RG-3 a global counter bumped by each fire " rgFires:;
+        cerr "RG-4 fires that saw the last fire's local " rgStale:;
+        };
+    ;
+search RgLadder UnitTests Utilities list;
+rgRun();
+cerr "RULEGLOBAL SENTINEL":;
+stop();
+
+ruleGlobalT -- F-133: A RULE ACTION READS A DECLARED GLOBAL, AND THE GLOBAL SURVIVES THE FIRE.
+
+processAction's labelToLocals loop, on a rule's fire, cleared every attribute of the rule's code that the label
+did not carry. The code's attributes include the globals the body names, and they SHARE the global's body, so the
+clear wiped the global itself: rgIn and rgMark read their tags, and rgFires restarted every fire. The gate
+(GroupActions.rtn, rulesOwnOnly) clears only the rule's own locals and terms.
+
+  RG-1  in-rule read of the global        want 987654
+  RG-2  the global after two fires         want 987654
+  RG-3  a global counter, two fires        want 2      (non-zero sibling: the global persists ACROSS fires)
+  RG-4  fires that saw a stale local       want 0      (locals still clear per fire; regression guard only --
+        the action loop below labelToLocals clears isLocal too, so this row cannot certify the gate, H17)
+
+H7, measured 2026-10-02: the ungated clear put back, rebuilt -- see the commit that landed this fixture.

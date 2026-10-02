@@ -19,7 +19,7 @@ define
     frRule isRule frEntries=ANYstring+ SemI?- code={
         frWitness = 987654;
         frTermsSeen = 0;
-        if frEntries.listLengtH;
+        if frEntries.isGrouP;
             for frSum in frEntries;     frTermsSeen = frTermsSeen + 1;
         };
     frDrive code={
@@ -219,3 +219,11 @@ Every station opens with a uniquely-named inert anchor -- fixFrontier1Here
 through fixFrontier6Here -- and a cerr naming the station. Set a name-conditioned
 breakpoint on any anchor and you land exactly there with everything the previous
 stations built still in scope, ready to step.
+
+2026-10-02 (SEQ 265 R3, F-133): STATION 6's GUARD RESPELLED `if frEntries.listLengtH;` -> `if frEntries.isGrouP;`.
+Its PASS had been manufactured by F-133 itself. The rule fire's labelToLocals clear wiped every code attribute the
+label lacked -- the GroupFields accessor `listLengtH` among them, since it shares the registry's body -- so inside
+the body `frEntries.listLengtH` read "access to listLengtH not supported yet", truthy, and the walk ran. With the
+clear gated (F-133's cure) the accessor is intact and reads 0: frEntries HOLDS the match as a group, and listLengtH
+reads the holder's own empty list. The question the guard asks is "did the term hold a match", which is isGrouP.
+Measured on the cured binary: listLengtH 0 walked, isGrouP 3, bare `if frEntries;` 3, no guard 3.

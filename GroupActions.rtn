@@ -665,10 +665,11 @@ GroupItem   label = field,
         code = action.actionBody();
         while result = code.nextAttribute(result) {
             if result.noPrint continue;
+            // rulesOwnOnly clear only the rule's own locals and terms -- a global the body reads SHARES its body, so clearing it wiped the global (F-133)
             if grup = label[result.tag] {
                 result.group    = grup;
                 result.isLabel  = true; }
-            else    result.clear(); }}
+            else    if result.isLocal || action[result.tag]     result.clear(); }}
     if result = action.actionBlocK() {
         if isRule   action = code;
 use grup

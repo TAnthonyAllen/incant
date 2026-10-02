@@ -199,7 +199,7 @@ ATTEMPT LOG
     road that should carry a value to the right of a dot.
 ```
 
-### F-133 — a rule action's read of a declared global comes through data-less, and the global then reads as its tag
+### F-133 — ✅ CLOSED 2026-10-02 — a rule action's read of a declared global comes through data-less, and the global then reads as its tag
 
 **What.** Inside a rule's action body, `frWitness = frMark;` -- where `frMark` is a declared Frontier global holding
 987654 -- assigns nothing, and after the fire `frMark` itself prints as its tag (bear-trap #26). Found by the deep-clean
@@ -216,6 +216,22 @@ holds it after the fire; H7 on the frame-member change.
 ```
 ATTEMPT LOG
   2026-10-02 filed; the frontier's witness was respelled to a literal (D-1) so the station measures again. Not fixed.
+  2026-10-02 SEQ 265 R3 MECHANISM: processAction's labelToLocals loop (GroupActions.rtn), on a rule's fire, ran
+    clear() on EVERY attribute of the rule's code that the label did not carry, with no isLocal gate (the action loop
+    below it has one). The code's attributes include every name the body mentions, and a resolved name SHARES the
+    named field's body -- so the clear wiped the global (tap: gMark, gWit isLocal=0 cleared) AND the GroupFields
+    accessors the body names (isLocaL, isArgumenT, listLengtH, taG -- inside the body they then read "access to X not
+    supported yet"). The window guess (fa15fe6/9b4d81c) was not needed and is not confirmed. Name resolution untouched:
+    the cure changes which attributes are cleared at entry, not how a name binds.
+  2026-10-02 CURE: the clear is gated `if result.isLocal || action[result.tag]` (rulesOwnOnly) -- the rule's own
+    locals and terms only. Canary 300; generated diff is the gate alone. probes/globalReadInAction: frMark 987654
+    before and after, STATION 4 PASS. New fleet fixture incant/pop/ruleGlobalT, rows RG-1..4 (987654, 987654, 2, 0).
+    H7, measured: the ungated clear put back, rebuilt -> all four RG rows vanish (sentinel prints), red; restored ->
+    green. Fleet 874 -> 880, the six new rows and fixture names 201 -> 202 only, row for row.
+  2026-10-02 NAMED MOVER: incant/frontier STATION 6 PASS -> FAIL. Its PASS was manufactured by this defect: the wiped
+    listLengtH accessor read truthy, so `if frEntries.listLengtH;` passed; intact, it reads 0 (frEntries HOLDS the
+    match as a group; listLengtH reads the holder's own list). Guard respelled to `if frEntries.isGrouP;` (walks 3);
+    frontier 6 / 6 again, now earned. CLOSED.
 ```
 
 ### F-130 — ✅ CLOSED 2026-10-01 — two `RuleStuff.owner` readers run under no fleet row (coverage): aCTionFailed pinned, processCode's label branch unreachable

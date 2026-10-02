@@ -9212,12 +9212,15 @@ GroupItem 	*action = field;
 			{
 			if ( result->groupBody->flags.noPrint )
 				continue;
+			// rulesOwnOnly clear only the rule's own locals and terms -- a global the body reads SHARES its body, so clearing it wiped the global (F-133)
 			if ( grup = label->get(result->groupBody->tag) )
 				{
 				result->setGroup(grup);
 				result->groupBody->flags.isLabel = 1;
 				}
-			else	result->clear();
+			else
+			if ( result->groupBody->flags.isLocal || action->get(result->groupBody->tag) )
+				result->clear();
 			}
 		}
 	if ( result = action->actionBlocK() )

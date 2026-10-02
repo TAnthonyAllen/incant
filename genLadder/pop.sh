@@ -5648,6 +5648,16 @@ sentinel "retagOwnT sentinel" "$T/rto" "RETAGOWN SENTINEL"
 kindRow "retagOwnT RT TWO's CerR returns the shared true by its own name" "$(awk '/^RT TWO/{f=1;next} f&&/ADOPTION/{print;exit}' "$T/rto" | sed 's/.*returned=\([^ ]*\).*/\1/')" "true"
 
 
+#  ⚑ ruleGlobalT -- F-133: a rule action reads a declared global and the global survives the fire. processAction's
+#  labelToLocals clear wiped every code attribute the label lacked, globals included (shared body). H7: the ungated
+#  clear put back -> RG-1 and RG-2 read the tag, RG-3 does not reach 2, red.
+run1 ruleGlobalT "$T/rgl";   check "ruleGlobalT runs" 0 $?
+sentinel "ruleGlobalT sentinel" "$T/rgl" "RULEGLOBAL SENTINEL"
+kindRow "ruleGlobalT RG-1 the rule action read the global" "$(grep '^RG-1' "$T/rgl" | awk '{print $NF}')" "987654"
+kindRow "ruleGlobalT RG-2 the global survived two fires" "$(grep '^RG-2' "$T/rgl" | awk '{print $NF}')" "987654"
+kindRow "ruleGlobalT RG-3 a global counter bumped by two fires" "$(grep '^RG-3' "$T/rgl" | awk '{print $NF}')" "2"
+kindRow "ruleGlobalT RG-4 no fire saw the last fire's local" "$(grep '^RG-4' "$T/rgl" | awk '{print $NF}')" "0"
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi
