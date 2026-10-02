@@ -376,7 +376,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	parentLabel = 0;
 	sourceLine = 0;
 	kount = 0;
-	parentStuff = 0;
 	banged = 0;
 	doNothing = 0;
 	followed = 0;
@@ -422,7 +421,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	max = 0;
 	maxRepeat = 0;
 	min = 0;
-	parentStuff = 0;
 	banged = 0;
 	doNothing = 0;
 	followed = 0;

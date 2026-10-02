@@ -16,7 +16,6 @@ int kount;
 int max;
 int maxRepeat;
 int min;
-RuleStuff *parentStuff;
 int (*testMatch)(GroupItem *);
 GroupItem *(*actionMethod)(GroupItem *);
 GroupItem *(*parseMethod)(GroupItem *);
