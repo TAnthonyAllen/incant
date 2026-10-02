@@ -10846,3 +10846,30 @@ STOP IF: a writer that is neither the grammar parent nor a list answer; a reader
 and no explanation; a tap that won't revert clean.
 
   END SEQ 256
+
+
+===================================================================
+SEQ 257  -  STROKE 5.9: RETIRE parentLabel (try-and-buy)
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-02.
+
+RULINGS
+R1. Shape (c), one change: into keeps its snapshot meaning as a parseRule local, taken from
+    enclosingStuff().label at entry. into's answers must not move.
+R2. Branch om-stroke59, pushed, NOT merged. The groups.ext mirror line goes at merge, as in 5.8.
+R3. The F-114 bracket keeps its label slot (section 25: 4,871 real protections); only its
+    parentLabel slot goes.
+R4. Delete clean-as-you-go in the same stroke: establishFrame (0 callers); parse()'s unread
+    parentLabel local; probeNode's parentLabel column. Each off cleanupList.md as it goes.
+
+TWO COMMITS, fleet after each
+5.9a into becomes the local; every other reader removed (compare-and-sync sites, measureLabelMint's
+     source, the bracket slot). Certificate: pop.sh row for row + a temporary tap showing into equals
+     the old snapshot on every call, reverted md5-identical.
+5.9b the field, its writers (grammar-parent writes, both struct copies' share) and the R4 deletions.
+     Full bare-tokall diff of exactly the intended lines; canary. Fleet row for row with 5.9a.
+CERTIFICATE: NO HUNT states what remains and why each remaining site is or isn't a hunt.
+STOP IF: any fleet mover; any reader found to want the live slot rather than the snapshot; any crash.
+REPORT: what was run and the fleet line per commit, then evidence. Seal on the branch.
+
+  END SEQ 257
