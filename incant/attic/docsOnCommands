@@ -24,3 +24,6 @@ so nothing breaks; the command's value is the prose. Without include(designDocs)
 
 NEXT: RULED -- R2 PARKED (SEQ 231); same fix site as counterCapture. Taken: both lines print the command's own tag. Not
 taken: they print the DesignDocs prose.
+
+RETIRED BY MAPPING 2026-10-02 (deepClean D-34, SEQ 260 R11): consolidated into incant/fixits/defineCapture, which
+carries this file's live region as one section and its notes verbatim. Its printed values were diffed equal when merged.

@@ -26,3 +26,6 @@ NEXT: RULED -- R2 is PARKED (SEQ 231 R1) as its own named item; candidate later 
 Nothing here is applicable yet. The fix must act where the definition's OWN name is resolved or first written (aCTionTraiT's
 setContent, and the MEMBERs flag -- see membersFlagCapture), not in aCTionDefinE (recon 19-20). Taken: this file prints the
 empty set. Not taken: it prints 0.
+
+RETIRED BY MAPPING 2026-10-02 (deepClean D-34, SEQ 260 R11): consolidated into incant/fixits/defineCapture, which
+carries this file's live region as one section and its notes verbatim. Its printed values were diffed equal when merged.

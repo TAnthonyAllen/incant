@@ -38,3 +38,6 @@ NEXT: BEST GUESS -- the value's writes belong to the value AS USED HERE: copy fi
 for the rStuff case; the affiliation write precedes it, and the no-rStuff arm writes the original). Grade: mechanism read
 in the generated .mm, symptom measured. Promote by a build where the before/after lines above agree at 0; kill if a define
 relies on promoting a foreign field to a rule through its value.
+
+RETIRED BY MAPPING 2026-10-02 (deepClean D-34, SEQ 260 R11): consolidated into incant/fixits/defineCapture, which
+carries this file's live region as one section and its notes verbatim. Its printed values were diffed equal when merged.

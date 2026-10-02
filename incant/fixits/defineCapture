@@ -1,0 +1,130 @@
+Start();
+include(unitTests);
+include(utilities);
+include(designDocs);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+cerr "=== SECTION 1 counterCapture ===":;
+cerr "ANCHOR counterCapture -- Grokking's counter should be the digit set [0-9]; unitTests' counter=0 overwrote it":;
+print "Grokking counter = [" Grokking["counter"] "]  (the set prints empty; 0 is the capture)":;
+fixCounterCaptureHere = 0;
+cerr "=== SECTION 2 docsOnCommands ===":;
+cerr "ANCHOR docsOnCommands -- the stop COMMAND should carry no data; DesignDocs' stop entry wrote its prose into it":;
+print "cOMMANDs stop = [" cOMMANDs["stop"] "]":;
+print "cOMMANDs compile = [" cOMMANDs["compile"] "]":;
+fixDocsOnCommandsHere = 0;
+cerr "=== SECTION 3 traitDataCapture ===":;
+register(TdCap);
+define
+    tdRead code={
+        tdM := UnitTests["maximus"];
+        tdR := Grokking["NamE"];
+        cerr "TD " argument ": UnitTests maximus isRulE=" *tdM.isRulE "   control, the rule NamE isRulE=" *tdR.isRulE:;
+        };
+    ;
+tdRead(before);
+define
+    tdV=maximus+;
+    ;
+tdRead(after);
+cerr "ANCHOR traitDataCapture -- maximus is a plain field of UnitTests; after tdV=maximus+ it reads isRule 1":;
+fixTraitDataCaptureHere = 0;
+cerr "=== SECTION 4 membersFlagCapture ===":;
+register(McCap);
+define
+    mcRead code={
+        mcM := UnitTests["maximus"];
+        mcK := *mcM["mcKid"];
+        cerr "MC " argument ": UnitTests maximus has term mcKid: " *mcK.taG:;
+        };
+    ;
+mcRead(before);
+define
+    maximus
+        mcKid;
+    ;
+mcRead(after);
+cerr "ANCHOR membersFlagCapture -- a definition in McCap named maximus, with a member, wrote the member into UnitTests' maximus":;
+fixMembersFlagCaptureHere = 0;
+cerr "SENTINEL defineCapture reached the foot -- all four sections ran":;
+stop();
+
+defineCapture -- FOUR CLOD FIXITS CONSOLIDATED INTO ONE CITIZEN, 2026-10-02 (deepClean D-34, SEQ 260 R11). They are one
+family: a define in one registry writes into a field of another (the R2 / define-road capture, owner om-r2-ownname's
+currentDefine repair). One file may carry several tests (Tony, 2026-08-20). Each section prints exactly what its
+original printed alone -- that was diffed when the four were merged.
+QUEUE AGE IS OLDER THAN THIS FILE: fixitNag dates a citizen by its first commit, so it reads 2026-10-02 here. The four
+components entered the queue as: counterCapture 2026-09-29; docsOnCommands 2026-09-29; membersFlagCapture 2026-09-29; traitDataCapture 2026-09-29. The originals' own notes follow, verbatim.
+
+============================== counterCapture ==============================
+LANE:  define
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 231 R2, Clay: file as fixits, owner Clod, with today's analysis)
+
+counterCapture -- F-O40: UnitTests' counter OVERWRITES the grammar's digit set.
+
+incant/unitTests:87 declares the test variable counter=0. Its name resolves (resolveName -> locate walks the search list)
+to Grokking's counter=[0-9] (incant/grammar:29, used by Precision), and aCTionTraiT writes the value 0 into THAT node
+(trait.setContent(TraiTdata), trait = the resolved node) before aCTionDefinE copies it into UnitTests. The copy shares the
+body, so the grammar's rule now holds 0. Measured: with unitTests loaded Grokking["counter"] reads 0; without, the set.
+Recon 17-20 carry the analysis; the R2 try-and-buy (branch om-r2-ownname, unmerged) showed that minting fresh at
+aCTionDefinE does NOT fix it -- the write has already happened at TraiT time -- and that the fresh entry then loses its 0.
+
+NEXT: RULED -- R2 is PARKED (SEQ 231 R1) as its own named item; candidate later home: the kant mirror of the define road.
+Nothing here is applicable yet. The fix must act where the definition's OWN name is resolved or first written (aCTionTraiT's
+setContent, and the MEMBERs flag -- see membersFlagCapture), not in aCTionDefinE (recon 19-20). Taken: this file prints the
+empty set. Not taken: it prints 0.
+
+============================== docsOnCommands ==============================
+LANE:  define
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 231 R2)
+
+docsOnCommands -- F-O41: DesignDocs text lands on cOMMANDs entries.
+
+A DesignDocs member named after a command (stop, compile, canonOf, ... 18 of them, recon 18c) resolves to the cOMMANDs
+entry, and its (…#) value is written into that entry's body -- the same capture as counterCapture, on the member road
+(ruleActions.rtn:359, NewGroup += item copies a parented node). The commands still dispatch (the method is in another slot),
+so nothing breaks; the command's value is the prose. Without include(designDocs) each reads its own tag (no data).
+
+NEXT: RULED -- R2 PARKED (SEQ 231); same fix site as counterCapture. Taken: both lines print the command's own tag. Not
+taken: they print the DesignDocs prose.
+
+============================== traitDataCapture ==============================
+LANE:  define
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 231 R2)
+
+traitDataCapture -- aCTionTraiTdata writes a resolved VALUE in place.
+
+A definition's value (DatA) resolves like any name. With a Modifier, aCTionTraiTdata writes the resolved node before
+anything is copied: options.affiliation = isAttribute (always, on the ORIGINAL node, even when it then copies); and when
+the node has no rStuff it runs setRuleStuff() and sets isRule = 1 on the ORIGINAL's body (a copy is made only when
+rStuff already exists). Measured here: UnitTests' plain field maximus reads isRule 0 before  in another
+registry and 1 after; the control rule NamE reads 1 throughout (the starred read is the one that discriminates).
+Not the definition's own field (recon 20) -- the same capture on the value.
+
+NEXT: BEST GUESS -- the value's writes belong to the value AS USED HERE: copy first, then write (the copy already exists
+for the rStuff case; the affiliation write precedes it, and the no-rStuff arm writes the original). Grade: mechanism read
+in the generated .mm, symptom measured. Promote by a build where the before/after lines above agree at 0; kill if a define
+relies on promoting a foreign field to a rule through its value.
+
+============================== membersFlagCapture ==============================
+LANE:  define
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 231 R2)
+
+membersFlagCapture -- the MEMBERs flag lands on another registry's original.
+
+The MEMBERs flag command (Commands.rtn:516-517) runs at parse time, before aCTionDefinE, and sets
+currentDefine.addingMembers = true -- where currentDefine (aCTionNewGroup) is the RESOLVED node. For a definition whose name
+resolved to another registry's entry, the flag goes on the original's body. Today that is transient: aCTionDefinE clears it
+at the end on NewGroup, and NewGroup's copy shares the original's body, so the clear reaches the original too. It becomes a
+STUCK flag under any design that mints the definition its own node (the R2 try-and-buy, recon 19-20): the clear then hits
+the fresh node and the original keeps addingMembers set, and every later definition in that registry reads as "adding
+members". What this file shows live is the capture the flag rides on: the member mcKid lands in UnitTests' maximus.
+
+NEXT: OPEN -- what would generate a fix: a measure callout on the MEMBERs arm printing currentDefine's registry beside
+currentRegistry, run under the R2 branch's knob, to see every definition where the two differ; the fix then moves the flag
+onto whatever node the definition finally owns (om-r2-ownname already carries the currentDefine repair for the mint case).
+

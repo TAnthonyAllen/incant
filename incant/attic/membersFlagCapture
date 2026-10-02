@@ -39,3 +39,6 @@ members". What this file shows live is the capture the flag rides on: the member
 NEXT: OPEN -- what would generate a fix: a measure callout on the MEMBERs arm printing currentDefine's registry beside
 currentRegistry, run under the R2 branch's knob, to see every definition where the two differ; the fix then moves the flag
 onto whatever node the definition finally owns (om-r2-ownname already carries the currentDefine repair for the mint case).
+
+RETIRED BY MAPPING 2026-10-02 (deepClean D-34, SEQ 260 R11): consolidated into incant/fixits/defineCapture, which
+carries this file's live region as one section and its notes verbatim. Its printed values were diffed equal when merged.
