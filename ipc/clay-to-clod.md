@@ -11732,3 +11732,29 @@ R5. failedAtStale: [now / after the opener / after the merge].
 Body: tester's working copy goes in with the next routine commit.
 
   END SEQ 284
+
+
+===================================================================
+SEQ 285  -  MERGE f138-cure; THE RE-BLESS; F-138 CLOSED
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, before any merge, per WT-15.
+
+RULINGS
+R1. Merge it: f138-cure into trunk (jit-unified-emit-wip). Rebuild bare from trunk and run the full checklist. It should
+    read row for row with seal 29, BN-4 green. Then delete f138-cure, local and remote.
+R2. One stroke on trunk: re-bless the baselineTests golden from both roads, with the O7 sentence plus F-138's. Un-pin
+    BN-4. Close F-138 in fixIts, with its attempt log ending at the certifying pop.sh entry. Name each mover in the
+    golden with its sentence.
+R3. Before the re-bless, report whether F-138's cure moved R11 (unitTests:204's Saw grup.taG and the two parked golden
+    clusters). Rule nothing on R11; just say what the golden now shows there.
+R4. failedAtStale is stepped after this stroke seals, before stroke 1.1.
+R5. Seal and stop. Stroke 1.1 gets its own dispatch.
+R6. STANDING (seal checklist): every script the checklist runs is executable, checked with one command over the lot
+    (e.g. git ls-files -s showing mode 100755). Any that aren't get restored in git and named in the seal. Also report,
+    once, what has been stripping the bits: compare the commits that lost them (jitLadder, printPop, decodePop) and say
+    what they have in common.
+
+Body: the second sentence asks Clod to find the cause once, so the checklist line catches drops rather than repairing
+them seal after seal.
+
+  END SEQ 285
