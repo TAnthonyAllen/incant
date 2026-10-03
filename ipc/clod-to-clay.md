@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 181 at the FOOT -- SEQ 287: site 1 on branch stroke11-site1, 890->885 (a guard leak closed; re-pin needs a ruling); isOK is a handoff
+STATUS:   fresh           # SEQ 182 at the FOOT -- SEQ 288: site 1 LANDED 3793f63 (five rows re-pinned, '+=' stays 6); no-stash rule written; two stashes listed
+# prior: SEQ 181 at the FOOT -- SEQ 287: site 1 on branch stroke11-site1, 890->885 (a guard leak closed; re-pin needs a ruling); isOK is a handoff
 # prior: SEQ 180 at the FOOT -- SEQ 286: failedAtStale -- no stale leak; the new road reports NO failure point (stoppedAt 0); golden line 5 re-blessed, F-139
 # prior: SEQ 179 at the FOOT -- SEQ 285: merged a342b75; BN-4 un-pinned, F-138 closed; RE-BLESS HELD (R11 unmoved)
 # prior: SEQ 178 at the FOOT -- SEQ 284: directives repaired; sweep rule; exitFromParse said in tok (853d6b4), row for row
@@ -10243,3 +10244,37 @@ R3 f138-setparse-first deleted, local (was dea1d8a, contained in trunk) and remo
    untouched. Groups tree clean but for this channel; f31 == HEAD.
 
   END SEQ 181
+
+
+===================================================================
+SEQ 182  -  SEQ 288: SITE 1 LANDED (3793f63); THE STASH LIST FOR TONY
+===================================================================
+STATUS: fresh -- 2026-10-03, trunk. Groups merge 3793f63, support merge 23605e4; both stroke11-site1 branches deleted
+local + remote. Trunk binary ccf407fc, bare.
+
+R1 RE-PINNED on the branch (one commit, the ruled sentence above each pin), then merged:
+     tokJitT `% accepts` and `: bb cc rejects`: terms=6 -> 5.
+     opLenT: its ONE shared pin became PER OPERATOR, because the measurement said so -- '==' '<=' '=' read 5 on all
+     three drives each; '+=' reads 6 on all three and never moved (no leaked pass on its drives), so it stays 6.
+     (Recorded in the pin's comment; three of the "opLenT x3" rows were the moved ones, '+=' was not among them.)
+   Full checklist on the bare trunk build: tokall bare, nothing moved, canary 300 · binary ccf407fc (== the branch
+   build) · pop.sh 890 / 1 -- row for row with the branch run but the fixture-name count 205 -> 204 (failedAtStale to
+   the attic, SEQ 287) · jitLadder PASSED · printPop PASSED · decodePop and frontier row for row with their captures ·
+   ddPop 5 / 1 standing · lr_new, lr_old, testerA, printDefinition tester, baselineTests byte-identical · exec check:
+   all six 100755 · groups.ext: support main carries the site-1 lines (guardOK gone, the two signatures).
+R2 objectModel A5 stroke 1: the sites written down -- 1.1a done, site 1 landed, site 2 parseR, site 3 isOK (first
+   measure: does the copy leak).
+R3 F-140's attempt log: waits for 1.2.
+R4 NO STASH -- in CLAUDE.md (Working Relationship, beside kill-by-PID) and in Clod's memory. The 09-28 guardrail was
+   not written anywhere I could find in the tree, which is how it was missed. THE TWO ENTRIES, for your ruling:
+     stash@{0}  2026-09-23 15:09, Clod: "dropbox-resync debris from bisect checkouts 2026-09-23". Base 7412f5c (09-02).
+                Modified: minionWork/{f46Star, jitArcPhase1, probeFireDoor, probeK2vacuity, probeM3, probeStdTrace}
+                (22 lines each way). Untracked: incant/trigDO39, minionWork/probeArgJit, and six "(T Anthony Allen's
+                conflicted copy 2026-09-23)" files. minionWork/ is in no branch of the repo today.
+     stash@{1}  2026-06-14 14:00, on main: "unary WIP: runNOT handler + ! binding + testNot fixture + gXpress bare-for
+                (blocked on uxp decomposition in aCTionExpressioN)". Base d9c844b. Bytecode.{h,mm,twk} (+40),
+                incant/generate, incant/setup. The bytecode road it extends was retired 2026-10-02.
+   Neither is popped, applied or dropped.
+R5 sealed and stopped.
+
+  END SEQ 182

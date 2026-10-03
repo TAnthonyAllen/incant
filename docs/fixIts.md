@@ -105,6 +105,8 @@ never writes it. Read by `reportDrive` (`GroupActions.rtn:802`), which `tell` tu
 ```
 ATTEMPT LOG
   2026-10-03 filed (SEQ 287 R2) from failedAtStale's repro; measured only, nothing changed.
+  2026-10-03 SEQ 288 R3: waits for stroke 1.2 (per-call state onto the activation) -- a result read after the drive
+    returns, not a 1.1 handoff.
 ```
 
 ### F-139 — the baselineTests golden's unpinned lines (SEQ 274 R11): three movers left stale on purpose

@@ -3318,6 +3318,13 @@ against TODAY's headers -- rewrite them in the clone's `project.pbxproj` to the 
 in the clone reads the live tree. Run fixtures from INSIDE the clone's Groups (setup loads by relative
 path), with a `-derivedDataPath` per clone, and check the build log for live Groups paths (want 0).
 
+⚠⚠ **NO `git stash`. USE A BRANCH OR A COMMIT INSTEAD. Tony, guardrail of 2026-09-28, restated standing 2026-10-03
+(SEQ 288 R4).** A stash is an unnamed side-store that any later `stash pop` can bring back into the wrong tree. Paid
+for on 2026-10-03: a mistyped `git stash -q push` failed silently, and the `stash pop` meant for it applied the
+09-23 bisect-debris stash instead, with conflicts, and Dropbox re-synced the debris once after the undo. To park
+work while switching, commit it on a branch; to carry an uncommitted file across a checkout, copy it to the
+scratchpad. The stash list is Tony's to rule on, never Clod's to pop or drop.
+
 ⚠⚠ **KILL ONLY BY A PROCESS ID YOU HAVE READ FIRST, NEVER BY NAME PATTERN. Standing, 2026-10-02 (SEQ 268 R4).**
 Paid for that day: `pkill -f 'cat'`, aimed at one hung `cat`, matched "Appli**cat**ions" in every app path and killed
 Tony's Xcode, Claude app, Stickies and the main Dropbox app mid-session. `pgrep -fl` first, read the line, then
