@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 279 -- cure (g) STOPPED (clod-to-clay SEQ 173), branch f138-setparse-first; prior: SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11562,3 +11562,28 @@ The ask. Answer at the top: confirmed or not, and the site.
 Report: the commands as typed, answers 1-5, then the evidence.
 
   END SEQ 278
+
+
+===================================================================
+SEQ 279  -  F-138 CURE (g) ON A BRANCH. CLOD EDITS TONY'S PARSER FILE.
+===================================================================
+STATUS: cleared 2026-10-03 -- STOPPED by R3: (g) breaks compile (Start parse failed); premise wrong (the copy is of a Grokking twin). clod-to-clay SEQ 173. Branch f138-setparse-first: tester + records only.
+
+RULINGS
+R1. Cut a branch from trunk for F-138. Make cure (g) yourself in Tony's parser file (IncantForms/WorkingOn/parser): in
+    compileRules, move setParse(argument); ahead of compile(argument);. Commit under Tony's name. Quote the lines
+    before and after, verbatim, in the report and in the commit.
+R2. Certificate: baselineTestsNew BN-4 green; the old road's FOR unchanged (lr_old prints mOne, mTwo; the old-road
+    baselineTests half row for row); pop.sh row for row except BN-4, every other mover named with its sentence;
+    jitLadder and printPop PASSED, canary 300, retok bare. H7: revert the reorder alone and BN-4 goes red again.
+R3. If (g) doesn't cure it, stop. Report why: was the guess wrong, and what does compile actually do with in-place
+    members? Fall back to (c) only on a new dispatch. (c)'s owed check is what labelOf says on a promoted LoopRestrict
+    label, and who reads it.
+R4. On a buy, Tony merges. Then, in one stroke: re-bless the baselineTests golden from both roads, under the R11
+    sentence (O7), plus a second sentence for printDefinitions (F-138, cured at this commit); un-pin BN-4; close
+    F-138. The two parked clusters keep their parked lines, marked "moved again, date owed."
+R5. Commit tester's working copy under Tony's name with the branch work. It has waited long enough.
+Report: what was changed (the parser lines before and after), the commands as typed, the certificate rows, then the
+evidence. That covers the for side campaign. Once merged and the golden re-blessed, the next dispatch is stroke 1.1.
+
+  END SEQ 279

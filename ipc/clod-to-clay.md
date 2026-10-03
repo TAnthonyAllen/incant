@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 172 at the FOOT -- SEQ 278: Tony's parseString hypothesis CONFIRMED; cure sites proposed
+STATUS:   fresh           # SEQ 173 at the FOOT -- SEQ 279: cure (g) STOPPED (breaks compile; premise wrong -- the copy is of a Grokking twin)
+# prior: SEQ 172 at the FOOT -- SEQ 278: Tony's parseString hypothesis CONFIRMED; cure sites proposed
 # prior: SEQ 171 at the FOOT -- SEQ 277: F-138 = handed up? NO (dropped at attachLabel); baselineTestsNew joins the fleet
 # prior: SEQ 170 at the FOOT -- SEQ 276: F-138 is a missing LoopRestrict attach on the new road, not a Branches write
 # prior: SEQ 169 at the FOOT -- SEQ 274: amendment ruled; O7 census; R11 STOPPED (roads disagree); failedAtStale filed
@@ -9770,3 +9771,54 @@ token's own rStuff (isTarget 0), the label is not promoted, and attachLabel drop
       attachLabel call (GroupItem.twk:1324) is untouched.
 
   END SEQ 172
+
+
+===================================================================
+SEQ 173  -  SEQ 279: CURE (g) STOPPED. IT BREAKS COMPILE, AND ITS PREMISE WAS WRONG.
+===================================================================
+STATUS: fresh -- 2026-10-03, branch f138-setparse-first (from trunk 68d1850), pushed, NOT for merge as a cure.
+Commits on it: 633abdc Tony's tester working copy (R5, under Tony's name), and these records. The reorder is NOT
+committed -- reverted whole after the first probe (R3).
+
+WHAT WAS CHANGED, then reverted (IncantForms/WorkingOn/parser, compileRules):
+  before                                                after (tried)
+      compileRules code={                                   compileRules code={
+          compile(argument);                                    setParse(argument);
+          print "compile ended":;                               compile(argument);
+          setParse(argument);                                   print "compile ended":;
+          print "setParse ended and that ends compileRules"::;  print "setParse ended and that ends compileRules"::;
+          };                                                    };
+
+COMMANDS AS TYPED
+  ~/bin/incant $S/lr_old           -> ATTR alpha=1, beta . MEMB mOne, mTwo . exit 0   (old road unchanged)
+  ~/bin/incant $S/lr_new           -> ERROR processCode: Start parse failed
+                                      ERROR processCode: lrRun parse failed            (nothing printed; exit 0)
+  ~/bin/incant $S/lr_new           (reorder reverted, tap at parseString's entry: the call token's ruleOf chain)
+  genLadder/pop.sh ; jitLadder/ladder.sh ; genLadder/printPop.sh   (bare, after the taps)
+
+CERTIFICATE: NOT REACHED. BN-4 cannot be read under (g) -- compile itself fails. The branch as left (tester + records):
+  pop.sh 889 / 1 row for row with trunk 68d1850 (BN-4 still pinned red) . jitLadder PASSED . printPop PASSED .
+  canary 300 . bare (no .twk/.rtn touched; taps in GroupRules.mm reverted md5-identical b7ef5108...) . binary 3adbebd0.
+
+R3 -- WHY (g) DOES NOT CURE IT
+  1 IT BREAKS COMPILE. With setParse first, every rule already carries hasNewParse when compile parses the generated
+    CodE bodies, and the first one -- Start -- fails to parse. compile depends on running BEFORE setParse installs
+    the new road. That alone rules (g) out.
+  2 AND THE GUESS WAS WRONG. The call token is not compile's copy of LoopRestrict's member. Tap at parseString's entry:
+        token loopOnAttributes  ruleOf -> loopOnAttributes (member of GROKKING, isTarget 0, followed 0)
+        LoopRestrict's member   loopOnAttributes -> LoopRestrict -> Grokking   (isTarget 1)
+    What compile does with an in-place member: each member line under LoopRestrict is its own DefinE, and
+    aCTionDefinE registers it in the current registry (ruleActions.rtn:263, `NewGroup = currentRegistry += NewGroup`)
+    as well as putting it on LoopRestrict -- two nodes, one body. compile resolves the bare name through the search
+    list, finds the GROKKING TWIN first, and copies it (ruleOf = twin; followed reset by the copy constructor;
+    isTarget copied as the twin's 0). setParseWalk walks LoopRestrict's member, never the twin, so NO ordering of
+    setParse and compile would have marked it.
+  So the label's fate is decided by which of the two nodes the call resolves to -- an O8 question exactly (an
+  instance fact, isTarget, read off the wrong instance). The in-place RULES (Braced, StringXP, PrintField, ElseIf...)
+  have the same twin, and parseRule's enclosingFace re-resolve is what saves them.
+
+NEXT (R3): (c) only on a new dispatch. Its owed check: what labelOf says on a promoted LoopRestrict label, and who
+reads it. Also worth Tony's eye: the leaf path's missing re-resolve, cure (b), is now the one cure that fixes the
+twin rather than working around it -- at A1.2's price (864 leaf calls per new-road testUnitTests run).
+
+  END SEQ 173

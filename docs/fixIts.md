@@ -209,6 +209,14 @@ ATTEMPT LOG
     (only parseRule, parseContainer, parseLoop do), so it runs the call token (isTarget 0) where the re-resolve would
     hand it LoopRestrict's member (isTarget 1). ShortcuT is not a counterexample: the node PrintXP's call reaches has
     hasNewParse 0 and runs the old road's parse(). Cures proposed in clod-to-clay SEQ 172; grammar respell ruled out.
+  2026-10-03 SEQ 279, branch f138-setparse-first: cure (g) -- setParse(argument); moved ahead of compile(argument); in
+    the parser file's compileRules -> REVERTED WHOLE, bought nothing. lr_new: `ERROR processCode: Start parse failed`,
+    `lrRun parse failed` (compile cannot run after setParse); lr_old unchanged. The premise was WRONG: the call token
+    is not a copy of LoopRestrict's member. It copies a GROKKING TWIN -- aCTionDefinE registers each in-place member
+    definition in the current registry (ruleActions.rtn:263) as well as on LoopRestrict; compile resolves the name
+    through the search list to the twin (ruleOf = twin, parent Grokking, isTarget 0). setParseWalk never reaches the
+    twin, so no ordering marks it. Two taps, reverted md5-identical; bare rebuild row for row. Next: (c), on a new
+    dispatch; its owed check is labelOf on a promoted LoopRestrict label and who reads it.
 ```
 
 ### F-137 — a copy of a label loses `labelOf`
