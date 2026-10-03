@@ -2239,7 +2239,20 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			if ( ruleStuff->label && !ruleStuff->noLabel )
 				{
 				// oneAttach ONE ATTACH, through attachLabel, and the promote value is 1 -- promote=0 cannot RETAG here, and the retag is the half a members rule needs
-				field->attachLabel(ruleStuff,::enclosingStuff(field,ruleStuff),1);
+				// containerYields CURE (c), F-138: a member CONTAINER (not a bin) with no label of its own takes its member's label whatever isTarget says -- the new road's attach only; the old road's attachLabel is untouched (SEQ 283 R3)
+				
+				{
+				ParseActivation *cTop = ruler->gParseActive;
+				RuleStuff *cParent = 0;
+				GroupItem *cFace = 0, *cLab = ruleStuff->label;
+				if ( cTop && cTop->face == field && cTop->stuff == ruleStuff )  cTop = cTop->prev;
+				if ( cTop && !cTop->isFloor ) { cParent = cTop->stuff; cFace = cTop->face; }
+				if ( cParent && !cParent->label && cFace && cFace->groupBody->flags.hasMembers && !cFace->groupBody->flags.binType && cLab != ruler->labelNO ) {
+				cParent->label = cLab;
+				if ( cLab->labelOf || (!cLab->groupBody->registry && !cLab->parent) )  cLab->groupBody->tag = cParent->ruleName; }
+				else    field->attachLabel(ruleStuff,cParent,1);
+				}
+				
 				// oneBitReturn a successful term returns its TRUTH, never its label -- the label is already attached above, and a label carrying a matched 0 read as a failed alternative in a || chain (Tony, 2026-09-23, restoring ruling c')
 				 HANDBACK(ruleStuff) 
 				return ruler->trueResult;
