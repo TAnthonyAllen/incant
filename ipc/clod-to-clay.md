@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 173 at the FOOT -- SEQ 279: cure (g) STOPPED (breaks compile; premise wrong -- the copy is of a Grokking twin)
+STATUS:   fresh           # SEQ 174 at the FOOT -- SEQ 280: lead confirmed (owner is the CodE); cure (r) STOPPED by R4 (needs a new lookup or minting onto the rule)
+# prior: SEQ 173 at the FOOT -- SEQ 279: cure (g) STOPPED (breaks compile; premise wrong -- the copy is of a Grokking twin)
 # prior: SEQ 172 at the FOOT -- SEQ 278: Tony's parseString hypothesis CONFIRMED; cure sites proposed
 # prior: SEQ 171 at the FOOT -- SEQ 277: F-138 = handed up? NO (dropped at attachLabel); baselineTestsNew joins the fleet
 # prior: SEQ 170 at the FOOT -- SEQ 276: F-138 is a missing LoopRestrict attach on the new road, not a Branches write
@@ -9822,3 +9823,39 @@ reads it. Also worth Tony's eye: the leaf path's missing re-resolve, cure (b), i
 twin rather than working around it -- at A1.2's price (864 leaf calls per new-road testUnitTests run).
 
   END SEQ 173
+
+
+===================================================================
+SEQ 174  -  SEQ 280: THE OWNER IS THE CodE. CURE (r) STOPPED BY R4.
+===================================================================
+STATUS: fresh -- 2026-10-03, branch f138-setparse-first. One tap (GroupRules.mm aCTionNamE), reverted md5-identical
+(b7ef5108...); bare rebuild 3adbebd0, pop.sh 889 / 1 row for row, jitLadder PASSED, printPop PASSED, canary 300.
+Nothing built.
+
+COMMAND AS TYPED
+  ~/bin/incant $S/lr_new     (tap in aCTionNamE for loopOnAttributes, loopOnMembers, PrintField, Braced)
+
+1 WHAT THE CHANNELS HOLD. When `loopOnMembers()` in LoopRestrict's generated body is resolved:
+      processingCode=1  gCompileOwner=CodE  currentMETHOD=CodE  owner=CodE
+  THE SITE: aCTionNamE (ruleActions.rtn:630) -> resolveName(arg, owner) (ruleActions.rtn:1629). NOT locateInMethod.
+  owner = gCompileOwner while processingCode, else currentMETHOD; processCode (GroupActions.rtn:715) sets both to the
+  rule's generated CodE (`if isRule action = code;`) -- deliberately, so names mint into the body and never into the
+  grammar face (SEQ 214). resolveName's local search is owner.getAttribute(arg) -- the CodE -- then locate(arg):
+      owner.getAttribute = FOUND (a copy already minted into the CodE, aff=attribute, parent CodE)
+      locate             = loopOnMembers, parent GROKKING            <- the twin the copy was made from
+  Same for the in-place rules PrintField and Braced (owner CodE, locate -> parent Grokking).
+  So Tony's lead holds in substance: the search never looks in LoopRestrict -- via the owner channel, not
+  locateInMethod.
+2 IN LoopRestrict. LoopRestrict.get("loopOnMembers") is its member (aff=member, isTarget 1) -- the same node SEQ 278's
+  enclosingFace tap reached at parse time.
+3 CURE (r) -- NOT BUILT (R4). The container IS in hand in processCode (`field`), but no existing lookup reads it:
+  resolveName searches the owner only, and nothing reads currentMETHOD during the compile. The two ways to make the
+  search look in LoopRestrict are both out:
+    - owner = LoopRestrict: resolveName then MINTS new locals and attributes onto the shared grammar rule
+      (owner->addAttribute) -- an O6 breach, and it reverses SEQ 214's ruling.
+    - keep the owner and add a search in the container: a new lookup.
+  The in-place-rules count (does parseRule's swap stop changing their field) is moot without (r).
+
+R5 parked in objectModel A4: currentMETHOD readable from kant, read-only, 3494d52's collision as the caution.
+
+  END SEQ 174

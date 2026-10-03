@@ -217,6 +217,12 @@ ATTEMPT LOG
     through the search list to the twin (ruleOf = twin, parent Grokking, isTarget 0). setParseWalk never reaches the
     twin, so no ordering marks it. Two taps, reverted md5-identical; bare rebuild row for row. Next: (c), on a new
     dispatch; its owed check is labelOf on a promoted LoopRestrict label and who reads it.
+  2026-10-03 SEQ 280, branch: Tony's lead CONFIRMED -- the call resolves in aCTionNamE (ruleActions.rtn:630) via
+    resolveName(arg, owner), NOT locateInMethod; owner = gCompileOwner = currentMETHOD = the generated body's CodE (processCode:
+    `if isRule action = code;`), never LoopRestrict. resolveName's only local search is owner.getAttribute (CodE), then
+    locate -> the Grokking twin. Cure (r) NOT BUILT (R4): reaching LoopRestrict needs either owner = the rule (mints
+    locals onto the shared grammar rule -- O6, SEQ 214) or a second search in the container (a new lookup). Tap
+    reverted md5-identical; bare rebuild row for row.
 ```
 
 ### F-137 — a copy of a label loses `labelOf`

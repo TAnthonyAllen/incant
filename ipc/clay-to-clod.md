@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 279 -- cure (g) STOPPED (clod-to-clay SEQ 173), branch f138-setparse-first; prior: SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 280 -- owner is the CodE; (r) STOPPED by R4 (clod-to-clay SEQ 174); prior: SEQ 279 -- cure (g) STOPPED (clod-to-clay SEQ 173), branch f138-setparse-first; prior: SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11587,3 +11587,31 @@ Report: what was changed (the parser lines before and after), the commands as ty
 evidence. That covers the for side campaign. Once merged and the golden re-blessed, the next dispatch is stroke 1.1.
 
   END SEQ 279
+
+
+===================================================================
+SEQ 280  -  F-138: WHAT currentMETHOD IS DURING THE COMPILE; CURE (r) ON THE BRANCH.
+===================================================================
+STATUS: cleared 2026-10-03 -- lead confirmed (owner = the CodE, via aCTionNamE/resolveName); cure (r) STOPPED by R4. clod-to-clay SEQ 174.
+
+RULINGS
+R1. Recon first, on branch f138-setparse-first. Taps reverted md5-identical.
+R2. Tony's lead: locateInMethod searches currentMETHOD before Grokking. If currentMETHOD (or compile's owner channel)
+    is not LoopRestrict while its generated body compiles, that's why the call resolves to the Grokking copy.
+R3. If item 1 confirms the lead, build cure (r) on the branch: while a container's generated body compiles, the local
+    search looks in that container. Use whichever channel resolution already uses (currentMETHOD or the owner); add no
+    new lookup. Certificate as before: BN-4 green; lr_old unchanged; pop.sh row for row but BN-4, every mover named;
+    jitLadder and printPop PASSED, canary 300, retok bare; H7: revert (r) alone, and BN-4 goes red. Also report: do
+    the in-place rules (Braced, StringXP, PrintField...) now reach their members directly, i.e. does parseRule's swap
+    stop changing the field for them? Count it, don't act on it.
+R4. If (r) fails or needs a new lookup, stop and report. Don't fall back to (b) or (c).
+R5. Parked as its own A4 item, not this dispatch: currentMETHOD readable from kant (Tony, 2026-10-03), read-only,
+    with 3494d52's collision as the caution.
+
+The ask. Answer at the top:
+  1 What currentMETHOD, and compile's owner channel, hold when the call loopOnMembers() inside LoopRestrict's
+    generated body is resolved. Name the site that resolves it, and say whether it goes through locateInMethod.
+  2 What locateInMethod would find if the local search looked in LoopRestrict.
+  3 (r), if R3 applies: the change, before and after, and the certificate.
+
+  END SEQ 280

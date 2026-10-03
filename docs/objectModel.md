@@ -258,6 +258,8 @@ design is in flux and it is taking a few design iterations to sort out.*
     239,914 differ); the old road differs on 63,970 of 3,312,107, all at `getStuff`'s re-entry mint. No push's field is a
     label. Nine misfits; the largest is **M1 -- leaves push no activation** yet hold `label`/`hereAt`/`sukcess`/`isOK`
     on `rStuff`; also `guardOK` handed across the push (M2) and `failedAt` read after the call by tell's reply (M3).
+- **PARKED (SEQ 280 R5): `currentMETHOD` readable from kant** (Tony, 2026-10-03) -- read-only. Caution: `3494d52`'s
+  collision (a new-road compile minted into the grammar face that `currentMETHOD` named, SEQ 213/214). Not dispatched.
 - **O9. `followed`'s mixed guard** (M5, open, R10). One lazy marker over `getWhatFollows`, which sets rule facts
   (`onGroup`, `testMatch`) and an instance fact (`isTarget`) together; the copy constructor clears it, so rule facts
   are recomputed per instance. Does not block stroke 1.
