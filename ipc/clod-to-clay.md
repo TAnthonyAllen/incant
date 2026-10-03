@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 169 at the FOOT -- SEQ 274: amendment ruled; O7 census; R11 STOPPED (roads disagree); failedAtStale filed
+STATUS:   fresh           # SEQ 170 at the FOOT -- SEQ 276: F-138 is a missing LoopRestrict attach on the new road, not a Branches write
+# prior: SEQ 169 at the FOOT -- SEQ 274: amendment ruled; O7 census; R11 STOPPED (roads disagree); failedAtStale filed
 # prior: SEQ 168 at the FOOT -- SEQ 271: activation shape census -- read-only, tap reverted md5-identical
 # prior: SEQ 167 at the FOOT -- SEQ 269: instance shape -- take + read-only census; taps reverted md5-identical
 # prior: SEQ 166 at the FOOT -- SEQ 261: PTF re-read STOPPED (control-signal home vs the signed OM); data banked
@@ -9563,3 +9564,66 @@ R11 -- STOPPED, NOTHING RE-PINNED
   F-138 decides whether "both roads" is one golden or two.
 
   END SEQ 169
+
+
+===================================================================
+SEQ 170  -  SEQ 276: F-138 RECON -- THE FOR LOSES ITS LoopRestrict; NOBODY WRITES ONTO Branches ON THE NEW ROAD
+===================================================================
+STATUS: fresh -- 2026-10-03. Read-only. Three taps in the generated .mm (GroupItem.mm addMember, GroupRules.mm
+aCTionFOR), reverted md5-identical (9bc04ce5..., b7ef5108...); bare rebuild row for row (pop.sh 885 / 1 but one
+address (H3) and fixture names 203 -> 204 (failedAtStale); jitLadder PASSED; printPop PASSED; canary 300). The
+installed binary is md5 3adbebd0..., identical to Tony's 11:32 build.
+
+COMMANDS AS TYPED (probes in the scratchpad; lr_old/lr_new differ only in a `parser(Start);` line before lrRun();)
+  ~/bin/incant $S/lr_old        ~/bin/incant $S/lr_new        TAP276A=1 ~/bin/incant $S/lr_new     ~/bin/incant $S/testerA
+
+ANSWERS
+1. THE WRITER -- none on the new road. BrancheS's data is the bin's GUARD SET, written at DEFINE time by addMember
+   (GroupItem.twk:137-142: `binGuard = characterSet; setSimple(group.tag)` for each member) onto BrancheS itself, not
+   through an instance. Value: datA=3 (the set of break/continue/return), present before any parser call (probe:
+   BrancheS datA=3 listLen=3 binTypE=1; controls ShortcuT 6/0, BlocK 0/3). The warning is generateParse's
+   (IncantForms/WorkingOn/parser:20) during parser(Start), and it prints in Tony's tester-as-is too, where output
+   MATCHED. Not RETAGCARRY, not promote's retag, not an O6 breach. Banked before (wakeup vintage 09-20..24): a bin's
+   set data is derived and wants generateParse's binTypE exemption.
+2. THE ARM -- no. Every item takes the same if/else arm on both roads. What differs is WHICH ITEMS each loop visits:
+   the attributes/members restriction is ignored on the new road. sumple: old attribute loop 6 (height width x y down
+   across), new 7 (+ crossing); old member loop 1 (crossing), new 7.
+   MECHANISM (tap): aCTionFOR's input children --
+     old: Looper(grup) ExpressioN(lrBag) LoopRestrict(text=attributes) StatemenT
+     new: Looper(grup) ExpressioN(lrBag) StatemenT                      <- no LoopRestrict, not even retagged
+   so `if LoopRestrict` is false, restrict stays 0, and the loop walks every child. The word `attributes` IS consumed
+   (the body parses and runs), so the generated FOR matched LoopRestrict and attached no label for it. The generated
+   body (from the parser(Start) trace): `... SemI() && LoopRestrict() && StatemenT()` with
+   `LoopRestrict = loopOnAttributes() || loopOnMembers()` -- an optional over an alternation of two literal leaves.
+   Which of those drops the label is NOT measured.
+3. THE LINK -- no. Suppressing BrancheS's write (env-gated tap) does not restore the old output; it VOIDS the new road:
+   `ERROR processCode: walkRules parse failed`, `lrRun parse failed`, nothing printed. And the warning already
+   prints in Tony's matching run. The write is innocent; the missing LoopRestrict attach is the cause.
+4. THE SMALLEST ACTION -- no if/else needed; the members loop alone shows it. For tester:
+       register(LR);
+       define
+           lrBag alpha=1 beta:
+               mOne;
+               mTwo;
+           lrRun code={
+               for grup in lrBag; members
+                   cerr "MEMB " taG:;
+               };
+           ;
+       parser(Start);
+       lrRun();
+   Old road (drop the parser(Start) line): MEMB mOne, MEMB mTwo. New road: MEMB alpha, beta, mOne, mTwo.
+   (lrRun must not be called before parser(Start) -- SEQ 275: the first call compiles it.)
+
+PROPOSAL ONLY (R3) -- baselineTests' new-road half as its own process
+  Shape: a second fixture, identical but `parser(Start);` ahead of `testUnitTests();`, so every action compiles on
+  the new road; pop.sh runs it beside the old one.
+  Cost: one process, 0.043s (old 0.042s). It prints parser(Start)'s generation trace (431 lines) ahead of the tests,
+  so the content check wants that trace filtered (or a quiet switch on parser). And the two halves can only share one
+  golden once the roads agree -- until F-138 is fixed, the new half is pinned red on its printDefinition block or
+  carries its own golden.
+  Would have caught: F-138, the first day an action body was parsed through the generated FOR -- and any other
+  statement form testUnitTests reaches whose generated body drops a label (if/else, while, do, print shortcuts,
+  scope). Today nothing in the fleet compiles testUnitTests' bodies on the new road.
+
+  END SEQ 170

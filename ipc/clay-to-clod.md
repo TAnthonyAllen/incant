@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11481,3 +11481,32 @@ Report: the command as typed, the first differing lines of output, then the evid
 copy in this dispatch.
 
   END SEQ 275
+
+
+===================================================================
+SEQ 276  -  F-138 RECON: WHO WRITES DATA ONTO Branches. READ-ONLY.
+===================================================================
+STATUS: cleared 2026-10-03 -- no Branches write on the new road; the generated FOR attaches no LoopRestrict. clod-to-clay SEQ 170.
+
+RULINGS
+R1. F-138 recon. Taps go in the generated .mm and are reverted md5-identical. Fix nothing.
+R2. Lead (Tony): "rules should not have data and a list" fires on exactly one rule, Branches (a bin). So on the new
+    road, something writes data onto the Branches rule. Under O6 (ruled this morning), that is a breach.
+R3. Add the fresh-process form to the report as a proposal only (below). Don't change baselineTests.
+
+The ask. Answer at the top, in this order:
+  1 The writer. During a new-road compile of printDefinition (testerA's shape: no call before parser(Start)), who
+    writes data onto Branches? The writer, the site, the value written, and the field it was written through:
+    Branches itself, or an instance whose write lands on its body. Look first at RETAGCARRY's family (F-134, shared
+    nodes renamed) and promote's retag.
+  2 The arm. Does the if/else inside printDefinition's for take a different arm on the new road? Compare old and new
+    per item, for the first definition that differs (sumple).
+  3 The link. Is 1 the cause of 2? Suppress the write with a tap only, then rerun. Does printDefinition's output then
+    match the old road?
+  4 The smallest action that shows it: a for with an if/else in its body, compiled after parser(Start). A few lines
+    Tony can walk in tester.
+Proposal only (R3). baselineTests' new-road half becomes its own incant process with parser(Start) before any call,
+so every action compiles on the new road. Say what it costs and what it would have caught.
+Report: the command as typed, the answers to 1-4, then the evidence.
+
+  END SEQ 276

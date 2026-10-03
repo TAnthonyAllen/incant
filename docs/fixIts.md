@@ -190,6 +190,12 @@ ATTEMPT LOG
     the after-calls replay the BlocK compiled on the old road at the first call. Moving only the first call after
     parser(Start) (scratch copy) brings F-138 back. So F-138 is a fact about a body PARSED by the new road; Tony's
     run never parsed printDefinition there. Same binary both runs (TOK DerivedData Groups, md5 3adbebd0...).
+  2026-10-03 SEQ 276 (taps reverted md5-identical, bare rebuild row for row): on the new road aCTionFOR's input has
+    NO LoopRestrict child (old road: LoopRestrict text=attributes/members), so `restrict` stays 0 and the loop walks
+    every child. The word is consumed; the label is not attached. The BrancheS warning is unrelated: BrancheS's data
+    is addMember's bin guard set, written at define time (datA=3 before any parser call), and the warning prints in
+    Tony's matching run too. Suppressing that write voids the new road (walkRules, lrRun fail to compile).
+    Smallest shape: a `for x in bag; members` compiled after parser(Start) visits attributes too.
 ```
 
 ### F-137 — a copy of a label loses `labelOf`
