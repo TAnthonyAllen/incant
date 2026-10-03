@@ -242,6 +242,12 @@ ATTEMPT LOG
     new road only). BN-4 GREEN; pop.sh 890 / 1, the only mover BN-4; tester prints printDefinition as the old road does.
     H7: (c) reverted -> red by the drop (IA2 DROP into LoopRestrict, both loops wrong); 1.1a reverted -> red by the wipe
     (attributes loop wrong, members loop right). Close with the golden re-bless and BN-4's un-pin after the merge.
+  2026-10-03 SEQ 284 R3, f138-cure: both halves SAID IN TOK, no -% %- left in exitFromParse -- one exit (result local,
+    the three clears once) replaces the four HANDBACK uses; cure (c) inline in tok, locals declared first and ruler/field/
+    ruleStuff re-mentioned after each cTop use (first try captured rStuff, atRuleMark, trueResult; #42/#58, canary blind).
+    Full bare tokall: only exitFromParse moved. pop.sh 890 / 1 row for row, BN-4 green; lr_new, lr_old, testerA, the
+    printDefinition tester, old-road baselineTests byte-identical; jitLadder, printPop PASSED; canary 300. H7 on the tok
+    spelling: cure removed -> red by the drop; clears removed -> red by the wipe.
 ```
 
 ### F-137 — a copy of a label loses `labelOf`
