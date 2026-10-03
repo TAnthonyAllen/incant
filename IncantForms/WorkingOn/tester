@@ -9,9 +9,7 @@ search reset stack Grokking;
 search UnitTests Utilities list;
 
 parser(Start);
-        printDefinition(sumple);
-        printDefinition(simple);
-        printDefinition(sample);
+testUnitTests();
 stop();
 
 /***************************************************************************

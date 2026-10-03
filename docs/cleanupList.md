@@ -86,6 +86,9 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 | F-56's `fireNewParse` (`Commands.rtn`) | `1dd73d6` -- Tier 1 of the parseMethod= deletion (SEQ 188) | 0 references in `*.twk *.rtn *.h`; only docs and the channel mention it |
 | `parseGeneric` (`RuleStuff.twk`) | `2bfa808` -- Task 2 (SEQ 192) | 0 references in `*.twk *.rtn *.h` |
 
+### A named-rule trace may be quiet on a face (SEQ 284 R4, parked, 2026-10-03)
+- `groupDirectives`' parse-debugging bodies test `field.debugged`, and `parseRule`/`parseContainer` re-resolve `field` to the enclosing face first; if a face does not share the registry rule's body, `debugRuleNamed` stays quiet there (`debugAllRules` is unaffected). Unmeasured. Confirm: `debugRuleNamed` on a rule reached by face, and count its trace lines.
+
 ## Done
 
 ### `parseAny` -- CUT 2026-10-02 (deepClean S6, SEQ 260)

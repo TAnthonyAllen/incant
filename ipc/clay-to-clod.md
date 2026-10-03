@@ -11709,3 +11709,26 @@ Report: what changed (before and after per site), the commands as typed, the cer
 the evidence. When it reports green, Tony rebuilds from f138-cure in Xcode and runs tester the way he wants to.
 
   END SEQ 283
+
+
+===================================================================
+SEQ 284  -  TONY'S DIRECTIVES REPAIRED; THE SWEEP GAP CLOSED; THEN SEAL 28'S OPENER
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, before any edit, per WT-15.
+
+RULINGS
+R1. Apply your swap to groupDirectives: field.debugged in the Generate.rtn targets, bare debugged in parse(). Report
+    each target's "has directives" line, then retok bare (canary 300, generated files equal to committed).
+R2. STANDING (to CLAUDE.md): a rename or deletion sweep covers the gitignored directive files (groupDirectives and its
+    kin), not only tracked source. Each sweep's report says they were grepped.
+R3. Then the opener as seal 28 states it: say exitFromParse's new -% %- escapes in tok. Certificate as SEQ 283's.
+R4. Parked: the face question (a named-rule trace possibly quiet on a face that doesn't share the registry rule's body)
+    goes on cleanupList as one line. The JIT-coverage read waits until redesign step 1 is sealed: stroke 1.1 changes
+    the calling convention a jitted body emits.
+R5. failedAtStale: [now / after the opener / after the merge].
+    -- FORWARDED UNFILLED. Clay's lean, in the body: "after the merge". Not ruled (RULINGS rule: a blank is not a
+       ruling); Clod treats it as open and nothing in R1-R4 depends on it.
+
+Body: tester's working copy goes in with the next routine commit.
+
+  END SEQ 284

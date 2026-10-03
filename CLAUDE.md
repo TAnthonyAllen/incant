@@ -3245,6 +3245,14 @@ is a hunk to name in the commit message. ⚠ **Its first application is the one 
 he did so**. This is bear-trap #23's fork settled from the other end: that entry tells you how to
 turn instrumentation ON and this one says what the tree's resting state is.
 
+⚠⚠ **A RENAME OR DELETION SWEEP COVERS THE GITIGNORED DIRECTIVE FILES, NOT ONLY TRACKED SOURCE. Tony, standing,
+2026-10-03 (SEQ 284 R2).** `groupDirectives` (and any kin -- a directives file passed to `tok`) is gitignored, so a
+sweep driven by `git grep` or by the tracked tree never sees it. **Each sweep's report says the directive files were
+grepped.** Paid for: `RuleStuff.rule` became `owner` (`df520b0`, 2026-09-30) and was then deleted (stroke 5.6), and
+twelve directive bodies still read `rule.debugged`. tok parses a directive body in its target's scope
+(`Tokf/Directive.twk:42`), so the name failed to resolve and **every parse-debugging directive was silently dropped**:
+`parseDirective: failed for <method> <anchor>` on stdout, exit 0, extern canary unmoved.
+
 ⚠⚠ **TONY TELLS CLOD WHEN HE INSERTS DIRECTIVES — AND HE MAY FORGET AFTER OFFLINE WORK.** When
 Clod finds an instrumented `.mm` he was not told about, he **says so plainly** — that is the fuss
 Tony asked for — **retoks bare, and carries on.** ⚠ **It is BOOKKEEPING, NOT A FINDING**, the same
