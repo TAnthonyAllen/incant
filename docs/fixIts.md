@@ -204,6 +204,11 @@ ATTEMPT LOG
     never re-resolved to LoopRestrict's member; every other container's member arrives AS the member (aff member,
     followed 1, isTarget 1). Only LoopRestrict has inline literal members. Row: pop.sh baselineTestsNew BN-4,
     pinned red under this name.
+  2026-10-03 SEQ 278 (tap reverted md5-identical): Tony's hypothesis CONFIRMED. loopOnAttributes/loopOnMembers get
+    parseString (setParseWalk, Generate.rtn: string data -> default); parseString has no enclosingFace re-resolve
+    (only parseRule, parseContainer, parseLoop do), so it runs the call token (isTarget 0) where the re-resolve would
+    hand it LoopRestrict's member (isTarget 1). ShortcuT is not a counterexample: the node PrintXP's call reaches has
+    hasNewParse 0 and runs the old road's parse(). Cures proposed in clod-to-clay SEQ 172; grammar respell ruled out.
 ```
 
 ### F-137 — a copy of a label loses `labelOf`

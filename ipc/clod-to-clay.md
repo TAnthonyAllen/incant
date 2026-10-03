@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 171 at the FOOT -- SEQ 277: F-138 = handed up? NO (dropped at attachLabel); baselineTestsNew joins the fleet
+STATUS:   fresh           # SEQ 172 at the FOOT -- SEQ 278: Tony's parseString hypothesis CONFIRMED; cure sites proposed
+# prior: SEQ 171 at the FOOT -- SEQ 277: F-138 = handed up? NO (dropped at attachLabel); baselineTestsNew joins the fleet
 # prior: SEQ 170 at the FOOT -- SEQ 276: F-138 is a missing LoopRestrict attach on the new road, not a Branches write
 # prior: SEQ 169 at the FOOT -- SEQ 274: amendment ruled; O7 census; R11 STOPPED (roads disagree); failedAtStale filed
 # prior: SEQ 168 at the FOOT -- SEQ 271: activation shape census -- read-only, tap reverted md5-identical
@@ -9706,3 +9707,66 @@ R2 -- THE FIXTURE: incant/pop/baselineTestsNew, in pop.sh after baselineTests
   filtering the sentinel line deleted a real line. Split streams fixed it; the pop.sh comment says why.
 
   END SEQ 171
+
+
+===================================================================
+SEQ 172  -  SEQ 278: TONY'S HYPOTHESIS -- CONFIRMED. parseString SKIPS THE RE-RESOLVE.
+===================================================================
+STATUS: fresh -- 2026-10-03. Read-only. One tap (GroupRules.mm: parseString and parseSet entry), reverted
+md5-identical (b7ef5108...); bare rebuild 3adbebd0..., pop.sh 889 / 1 row for row, jitLadder PASSED, printPop PASSED.
+
+COMMANDS AS TYPED
+  ~/bin/incant $S/lr_new                                  (tap: field vs enclosingFace at leaf entry)
+  ~/bin/incant incant/pop/baselineTestsNew 2>&1 >/dev/null | grep TAP278     (the population: 864 leaf calls)
+  ~/bin/incant $S/it_old ; ~/bin/incant $S/it_new         (iterate's members restriction, both roads)
+  ~/bin/incant $S/lr_sp                                   (scratch override of compileRules -- VOID, see 5)
+
+ANSWER: CONFIRMED. The site: parseString (Generate.rtn:307) has no `enclosingFace` re-resolve; parseRule
+(Generate.rtn:200-202), parseContainer and parseLoop do. So the leaf runs the generated body's CALL TOKEN with the
+token's own rStuff (isTarget 0), the label is not promoted, and attachLabel drops it.
+
+1 THE METHOD. setParseWalk (Generate.rtn:368): loopOnAttributes/loopOnMembers carry string data -> `default:
+  parseMethod = parseString`. ShortcuT (a set) -> parseSet. But the ShortcuT node PrintXP's generated call reaches
+  reports hasNewParse=0 gMethod=0, so it runs the OLD road's parse() with the enclosing activation's stuff
+  (driveStep's oldRoadAttach) and is promoted there. ShortcuT never runs parseSet in these runs -- it is not a
+  counterexample.
+2 THE RESOLUTION STEP. parseRule's first line: `{ zEnc = enclosingFace(field); if (zEnc) field = zEnc; }` --
+  enclosingFace = the enclosing activation's face `.get(field.tag)` (Generate.rtn:14-22). That turns the call token
+  into the container's member; the member's isTarget was set by setParseWalk's setTargetFlag. parseString SKIPS it.
+  Tap at parseString's entry, lr_new:
+      field=loopOnAttributes aff=attribute isTarget=0 | enclosingFace=loopOnAttributes aff=member isTarget=1
+      field=loopOnMembers    aff=attribute isTarget=0 | enclosingFace=loopOnMembers    aff=member isTarget=1
+  Leaf methods WITHOUT the line: parseString, parseSet, parseCharacter, parseUpTo, parseAction, parseCondition.
+3 THE GENERATED BODIES, side by side -- the same shape at the member call:
+      LoopRestrict = CodE { return loopOnAttributes() || loopOnMembers(); }
+      PrintXP      = CodE { return ShortcuT() || PrintField(); }
+  What differs is what runs behind the name: LoopRestrict's are in-place string leaves (parseString, no re-resolve);
+  PrintXP's are a rule (PrintField, parseRule re-resolves) and an old-road leaf (ShortcuT).
+4 OTHERS. Containers with members defined in place: InvokeArg (Braced, Parens), Token (StringXP), PrintXP
+  (PrintField), ElsE (BasicElse, ElseIf), WardeD (all twelve), LoopRestrict (loopOnAttributes, loopOnMembers). All
+  but LoopRestrict's are RULES (parseRule, re-resolved). LoopRestrict's are the only in-place LEAVES in the grammar.
+  BrancheS is a bin (parseContainer). Iterate's attributes/members are literal terms in a SEQUENCE, not a container,
+  and need no promotion: both roads print mOne, mTwo.
+5 THE CURE -- three sites, none built.
+  (g) GENERATE TIME, Tony's parser file -- UNMEASURED, and the one probe of it is VOID:
+        before (compileRules)          after
+          compile(argument);             setParse(argument);
+          print "compile ended":;        compile(argument);
+          setParse(argument);            print "compile ended":;
+      Premise (a guess): the call token is compile's copy of its definition, taken before setParse's setTargetFlag
+      marks in-place members, so it copies isTarget 0. A scratch redefinition of compileRules from a probe did NOT
+      take (the original order printed), so this is unmeasured; testing it means editing Tony's file. Risk:
+      compile would then see hasNewParse already set on the bodies it compiles.
+  (b) THE LEAF PATH -- add parseRule's re-resolve line to the leaf methods. Cost against A1.2: one
+      enclosingFace (an activation read plus a get-by-tag over the enclosing face's terms) on EVERY leaf call: 864
+      per new-road testUnitTests run. It changes the node for 127 of them (re-resolved to a member) and isTarget for
+      3 (LoopRestrict's) -- so the 124 others would start writing per-call state into a different rStuff: fleet
+      movers expected.
+  (c) THE NEW ROAD'S ATTACH, exitFromParse (Generate.rtn:46) -- Clod's pick. When the enclosing activation's face is a
+      members container (hasMembers && !binType) and has no label, promote the member's label whatever its isTarget.
+      That is getWhatFollows' own rule (`isMember && !parent.binType` -> target) applied at the one place it is
+      needed. Cost: zero on the walk; one flag test on exitFromParse's attach, and it can only fire where today's
+      code DROPS a label (IA2 DROP: 2 per lr_new run). exitFromParse is new-road only; the old road's
+      attachLabel call (GroupItem.twk:1324) is untouched.
+
+  END SEQ 172
