@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 167 at the FOOT -- SEQ 269: instance shape -- take + read-only census; taps reverted md5-identical
+STATUS:   fresh           # SEQ 168 at the FOOT -- SEQ 271: activation shape census -- read-only, tap reverted md5-identical
+# prior: SEQ 167 at the FOOT -- SEQ 269: instance shape -- take + read-only census; taps reverted md5-identical
 # prior: SEQ 166 at the FOOT -- SEQ 261: PTF re-read STOPPED (control-signal home vs the signed OM); data banked
 # prior: SEQ 165 at the FOOT -- SEQ 251/252: parentStuff recon STOPPED, unlisted writer GroupItem copy ctor; data banked
 # prior: SEQ 164 at the FOOT -- SEQ 217: MERGED 24cd9fe, F-128 closed, trunk into parse-then-fire; SEALED (Tony)
@@ -9380,3 +9381,98 @@ INSTRUMENT NOTES: the tap's 1st pass counted labels as rule-shaped, and its "ins
   The rewrite moved the standing-red ->rStuff text-count row (34 -> 29) and nothing else; the bare rebuild put it back.
 
   END SEQ 167
+
+
+===================================================================
+SEQ 168  -  SEQ 271: THE ACTIVATION'S SHAPE -- THE CENSUS (read-only)
+===================================================================
+STATUS: fresh -- 2026-10-03. Read-only. One tap (generated .mm only: parseRule's push in GroupRules.mm, parse()'s push
+in GroupItem.mm), run on pop.sh + jitLadder + printPop, reverted md5-identical; bare rebuild row for row (885 / 1,
+jitLadder PASSED, printPop PASSED, canary 300). O7 and O8 are in objectModel.md's draft (A4). Nothing built.
+
+ANSWERS
+1. stuff vs instance. NEW ROAD (parseRule): 239,914 pushes, stuff != field->rStuff on 0. OLD ROAD (parse()):
+   3,312,107 pushes, differ on 63,970 -- ALL at one site, getStuff's re-entry mint (GroupItem.twk getStuff:
+   `if stuff.inProcess  stuff = new RuleStuff(...)`), i.e. the old road's own per-call copy. Pushes whose field is a
+   label (labelOf set): 0 on both roads. Null stuff: 0. Field with no rStuff: 0.
+   => stuff is derivable from the instance everywhere EXCEPT the old road's re-entry, and there the differing stuff is
+   exactly per-call state that O8 moves to the activation. So "stuff leaves" holds once O8's moves land; before them,
+   dropping stuff would lose the old road's re-entry copy.
+2. Classification: 6 rule, 10 instance, 7 activation as cleanly placed; 9 misfits (list below). THE BIG ONE IS M1:
+   LEAVES PUSH NO ACTIVATION, but they hold per-call label/hereAt/sukcess/isOK on rStuff.
+3. rStuff.label readers: every after-the-call label read is served already -- by parse()'s return value (read before
+   its pop) or by the drive floor. Jit emitters and generated parse bodies read rStuff.label ZERO times. NO after-the-
+   call LABEL reader is left unserved by the parse-then-fire label tree. The unserved after-the-call reader is a
+   different field: failedAt (M3), read by tell's reply.
+
+CENSUS 2 -- EVERY RuleStuff FIELD (writers from the generated .mm, all files)
+  RULE (same for every reference)
+    ruleName      only the ctor, from the tag (debug)
+    testMatch     setTestMatch from the field's shape (upTo, BIN/REGISTRY, data type) -- body facts
+    parseMethod   setParseWalk (11), installParseMethod, setParseAction -- written per rStuff, which is why ruleOf exists (F-O32)
+    actionMethod  setActions, aCTionTraiTdata, and fireLabelMethod (M6)
+    jitMethod     jitFieldMethod only
+    onGroup       getWhatFollows: `onGroup = group` -- a cache of the body's own group; also embedAttribute
+  INSTANCE (differs between references, fixed per reference)
+    min max maxRepeat overTo noAdvance noLabel noSkip modUnGuarded   only modify + ctor
+    isTarget      getWhatFollows from affiliation / parent.binType / data / max; modify, setTargetFlag, embedAttribute
+    ruleTerm      aCTionDefinE, aCTionTraiTdata, setRuleStuff(asTerm) -- "this reference is a term"
+  ACTIVATION (changes between two calls of the same reference)
+    label hereAt kount sukcess   O8's list; parseRule brackets all four
+    inProcess     old road only, set/cleared around parse(); its one job is getStuff's re-entry mint (M4)
+    isOK          old road's repeat loop flag; also leaf tests (M1)
+    failedAt      old road only (parse():1338); read after the call (M3)
+
+MISFITS -- where the real rulings are
+  M1 LEAVES HAVE NO ACTIVATION. parseCharacter/Set/String/UpTo/Container/Action/Condition (new road) and
+     testAny/Character/Set/String/UpTo/Container/Action (old road) push nothing (enclosingStuff's own comment: "a leaf
+     has pushed nothing"), yet write label, sukcess, isOK, and hereAt (via checkInput) on rStuff. No re-entry, so no
+     clobber today; but under O8's "no copy left behind" they have no home unless leaves push -- and A1 says the walk
+     must not get slower. Leaf call count NOT measured (one more tap).
+  M2 guardOK is a hand-off across the push boundary: the parent's testOptions sets it on the child (RuleStuff.twk:272)
+     before the child pushes; the child's checkInput reads and clears it (:84-85). No activation exists when it is
+     written -- A3's 40% case.
+  M3 failedAt is per-call but read AFTER the call: reportDrive (tell's and driveStep's failedAt offset) reads
+     rule.rStuff.failedAt after the drive returns; aCTionFailed and reportCodeFail read it too. Not in O8's
+     activation list -- it needs the floor, like label. And only the old road writes it, so a generated root's
+     report reads whatever an old-road run left (unmeasured).
+  M4 inProcess + getStuff's mint are the old road's own call bracket, done by copying the whole RuleStuff (63,970 per
+     fleet run). The copy carries instance facts as well. Both retire under O8; inProcess has no other job.
+  M5 followed is one lazy marker over getWhatFollows, which sets rule facts (onGroup, testMatch) AND an instance fact
+     (isTarget) together. The copy ctor clears it, so rule facts are recomputed per instance.
+  M6 actionMethod gets a rule fact written in the walk: fireLabelMethod copies builtinActoR.method into stuff.
+     actionMethod mid-fire (GroupItem.twk:699).
+  M7 notifyFail is set by processFlags' 'f' on whichever node carries the flag. Rule or instance depends on whether
+     'f' is written on definitions or references; that census was not run.
+  M8 modPercent / modPointer: written by modify, read only by measurement (already on cleanupList). Instance if kept.
+  M9 the copy ctor resets followed/isOK/sukcess per copy -- per-call state reset at copy time, a third place
+     activation state is managed.
+
+CENSUS 3 -- EVERY rStuff.label READER (generated .mm, so bare names under `use ruleStuff` are counted)
+  DURING THE CALL -> moves to the activation
+    own label: exitFromParse (attach test), fireLabelMethod, captureSpan, parseAction, aCTionCodE (a rule action
+      reading its rule's label during the fire), the old road's parse() body.
+    ENCLOSING label (reads/writes the PARENT's, which is live): attachLabel (pStuff = enclosingStuff, read + promote
+      write + addAttribute), parseRule's `into` snapshot (:8797), checkInput's fallback write
+      `field->parent->getRStuff()->label` (a parent reach, with refusal) and driveFloorLabel.
+    leaves (M1): testAction/Any/Character/Container/Set/String/UpTo, parseCharacter/Container/Set/String/UpTo.
+    parseR's BRIDGE: a fabricated RuleStuff whose only job is `bridge.label = into`, handed to old-road
+      parse(bridge) as the enclosing stuff. Under O8 it is a fake enclosing activation that is not on the list --
+      flagged, it needs a shape (push a record carrying `into`?).
+  AFTER THE CALL
+    parse()'s return value: old-road parse() returns ruleStuff->label (read before its pop); callers driveStep and
+      parseR take it as a value. Served.
+    driveStep: reads driveFloor.label (already the activation). O8 retires driveFloorLabel's special case.
+    tell's reply: through driveStep -> reportDrive, which reads failedAt, not label (M3).
+    jit emitters, generated parse bodies: 0 reads (they reach labels only through parseR's bridge).
+    labelOf borrowing path: getStuff's refusal and checkInput's `label->setRStuff(this)` move the rStuff POINTER,
+      never .label.
+    the callBracket restore (Generate.rtn:274) -- a writer; retires with O8.
+    witnesses: measureFrameProbe, measureParentProbe.
+
+INSTRUMENT NOTES: the tap counted at each push, after the push line; "differInProcessMint" counted differ pushes
+  where the instance's own rStuff was inProcess and stuff != it -- all 63,970 were that. Census 2/3 read the
+  generated .mm, not tok source, because bare names under `use` hide the receiver; a writer regex false-hit (kount in
+  jitShowRecord, a local) was read and dropped by name.
+
+  END SEQ 168

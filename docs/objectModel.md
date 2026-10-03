@@ -214,6 +214,43 @@ to sort out.*
 - **O6. Instance read-only.** Under shared bodies a write through an instance lands on the rule. It wants its own
   rule. The existing breach: `modify`'s `$` writes `isMacro` onto the shared body. The census also saw list writes
   through faces: `push` 11,604 and `addGroup` 1,934 per run.
+- **O7. The `for` cursor's meaning** (draft, SEQ 271, 2026-10-03). Since T1b (`9244bc3`) removed `aCTionFOR`'s
+  `byRef` cursor relocation, the loop cursor reads as a **holder**. Tony's unitTests fixes (`a4422c4`: `ifTest` reads
+  `taG` for `grup.taG`, `printDefinitions` passes `*grup`) respell the fixtures to match. *Open:* is "the cursor is a
+  holder" the intended meaning of `for`, or a side effect of T1b? *Census:* the population of `for` loops in Tony's
+  incantations that read through the cursor. **The baselineTests golden re-pin waits on this ruling** (SEQ 271 R3), so
+  its sentence can say why it moved.
+- **O8. The activation's shape** (draft, SEQ 271, 2026-10-03; a direction of record, not ruled -- Tony expects to
+  revisit it). Vocabulary: a **rule** is the definition; an **instance** is the field a parse sees, with its own
+  `rStuff`; a rule and all its instances share one `groupBody`; an instance may or may not be the original field.
+  **Three homes, one test per field:**
+
+  | question about the value | level | home |
+  |---|---|---|
+  | same for every reference to the rule? | rule | `groupBody` (parse method, jitted code) |
+  | differs between references, fixed per reference? | instance | `rStuff` (min/max, noLabel, noSkip, `_ { } % &`, ruleTerm) |
+  | changes between two calls of the same reference? | activation | `ParseActivation` |
+
+  - `ParseActivation` = `instance`, `prev`, `isFloor`, `label`, `hereAt`, `kount`, `sukcess`. **`stuff` and `face`
+    leave** (`face` *is* the instance; the name goes). Instance facts are read through `instance.rStuff`, rule facts
+    through `instance.groupBody`.
+  - `rStuff` holds instance facts only: `label`, `hereAt`, `kount`, `sukcess` leave it with no copy left behind, and
+    **the callBracket retires** -- *a bracket around a value means the value is on the wrong level* (bodies are shared,
+    recursion re-enters the same instance while the outer call is live; recon 25 counted 4,871 live outer same-stuff
+    activations).
+  - Rule facts move to `groupBody`; **`ruleOf`, and the REGISTRY test inside `instanceRule()`, retire** when that move
+    completes -- `ruleOf` exists only because rule facts (the parse method above all; F-O32, 4.3) sit on the per-instance
+    `rStuff`.
+  - A drive floor's label is the floor's own label; **`driveFloorLabel`'s special case retires.**
+  - The name `instance` must clear the bear-trap #58 check (grep, then a full bare-tokall diff); if it does not, Tony
+    picks another.
+  - *Open:* the order of moves, and whether parse-then-fire's port absorbs the after-the-call label readers.
+  - ⚠ **Tension with A2, recorded not resolved:** O8 keeps `rStuff` as the instance home, where A2c puts instance facts
+    in the parent's term table and A2f retires `RuleStuff`. Both are drafts.
+  - *Census (SEQ 271, clod-to-clay SEQ 168, 2026-10-03):* `stuff == instance.rStuff` on every new-road push (0 of
+    239,914 differ); the old road differs on 63,970 of 3,312,107, all at `getStuff`'s re-entry mint. No push's field is a
+    label. Nine misfits; the largest is **M1 -- leaves push no activation** yet hold `label`/`hereAt`/`sukcess`/`isOK`
+    on `rStuff`; also `guardOK` handed across the push (M2) and `failedAt` read after the call by tell's reply (M3).
 - **Measured basis for one later refusal:** `getStuff` found no `rStuff` on **0 of 3,312,125** calls (2026-10-02).
   That is the evidence for making its existence check a refusal ("Houston, we got a problem") when this lands.
 

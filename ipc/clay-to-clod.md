@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11280,3 +11280,69 @@ label loses labelOf (latent, ~97k per run, bears on O4/O5).
 REPORT: the commit and the draft's section headings. No fleet run; docs only.
 
   END SEQ 270
+
+
+===================================================================
+SEQ 271  -  THE ACTIVATION'S SHAPE: DRAFT ITEMS O7, O8 AND ONE READ-ONLY CENSUS
+===================================================================
+STATUS: cleared 2026-10-03 -- O7, O8 in objectModel draft A4; census in clod-to-clay SEQ 168; tap reverted md5-identical; sealed.
+
+RULINGS (all of them; nothing is ruled in the body)
+R1. Add O7 and O8 below to the DRAFT Part 1 amendment in docs/objectModel.md as open items. They are a direction of
+    record, not ruled. Tony expects to revisit them ("one step forward, two back" is allowed).
+R2. Run the census below. Read-only: taps go in the generated .mm and are reverted md5-identical, as in SEQ 269.
+    Build nothing.
+R3. Hold the baselineTests golden re-pin until O7 is ruled, so its sentence can say why it moved.
+
+WHERE THE THINKING LANDED (Tony and Clay, this morning)
+Vocabulary. Rule is the definition. Instance is the field a parse sees, which has its own rStuff. A rule and all its
+instances share one groupBody. An instance may or may not be the original field.
+
+Three homes, one test per RuleStuff field.
+  Question about the value                               Level       Home
+  Same for every reference to the rule?                  rule        groupBody (parse method, jitted code)
+  Differs between references, fixed per reference?       instance    rStuff (min/max, noLabel, noSkip, _ { } % &, ruleTerm)
+  Changes between two calls of the same reference?       activation  ParseActivation
+
+Why label is on the activation. Bodies are shared, so a term inside ExpressioN's body is one field reached by every
+activation of ExpressioN. Recursion re-enters the same instance while the outer call is still live; the 5.9 recon
+counted 4,871 live outer same-stuff activations. Per-call state on rStuff gets overwritten, and that is the only reason
+the callBracket exists. A bracket around a value means the value is on the wrong level.
+
+Why there is no pointer back to the original. ruleOf exists only because rule-level facts (the parse method above all;
+F-O32, 4.3) sit on rStuff, which is copied per instance. Once those move to groupBody, an instance never needs its
+original.
+
+face. face is the instance. The name goes.
+
+O7 (draft). The for cursor's meaning. Since T1b (9244bc3) removed aCTionFOR's byRef cursor relocation, the loop cursor
+reads as a holder. Tony's unitTests fixes (a4422c4: ifTest taG for grup.taG, printDefinitions *grup) respell the
+fixtures to match. Open: is "the cursor is a holder" the intended meaning of for, or a side effect of T1b? Census: the
+population of for loops in Tony's incantations that read through the cursor.
+
+O8 (draft). The activation's shape.
+  ParseActivation = instance, prev, isFloor, label, hereAt, kount, sukcess. stuff and face leave. Instance facts are read
+  through instance.rStuff, rule facts through instance.groupBody.
+  rStuff holds instance facts only. label, hereAt, kount, and sukcess leave it, with no copy left behind. The
+  callBracket retires.
+  Rule facts move to groupBody. ruleOf, and the REGISTRY test inside instanceRule(), retire when that move completes.
+  A drive floor's label is the floor's own label. driveFloorLabel's special case retires.
+  The name instance must clear the bear-trap #58 check: grep it, and a full bare-tokall diff. If it doesn't, Tony picks
+  another.
+  Open: the order of moves, and whether parse-then-fire's port absorbs the after-the-call label readers.
+
+THE CENSUS (R2). Report the answers at the top, evidence after.
+1. stuff vs instance. On every push, by road, does stuff == field->rStuff (the field face points at)? Count the pushes
+   where they differ, and name the site. Same tap: count pushes whose field is a label (labelOf set).
+2. RuleStuff classification. Put every RuleStuff field in one row of the table above, with one line of evidence each.
+   List separately every field that doesn't fit cleanly. That list is where the real rulings are.
+3. rStuff.label readers. Every reader, classed as reading during the call (moves to the activation) or after it (tell's
+   reply, driveStep, the jit emitters and generated code, the labelOf borrowing path). Flag any after-the-call reader
+   that the parse-then-fire label tree would not already serve.
+
+Docs-only seal after. Fleet only if a tap touched a build.
+
+On how this campaign is landing: the shape is simple, three levels with one home each, and it explains the bracket,
+ruleOf, and face in one stroke. The census's misfit list will show whether the simplicity holds.
+
+  END SEQ 271
