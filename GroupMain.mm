@@ -419,7 +419,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	*************************************************************************/
 	ruler->pushInput(::getFile(ruler->setupFILE));
 	if ( ruler->sourceFILE )
-		strap->parse(0);
+		strap->parse(0,0);
 	ruler->popInput();
 	/*************************************************************************
 	Set the buffer links

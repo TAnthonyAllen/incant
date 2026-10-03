@@ -19,7 +19,6 @@ GroupItem   &parseMethod(GroupItem);
 int         &jitMethod(GroupItem);
 boolean
     followed
-    guardOK
     inProcess
     isOK
     isTarget
@@ -66,7 +65,7 @@ GroupRules  ruler = groupRules;
 }
 
 // checkInput skip, set hereAt, pass the guard and mint the label -- true when input is valid; field is the node the caller runs, never RuleStuff.owner (stroke 5.4a)
-int checkInput(GroupItem field)
+int checkInput(GroupItem field, int guardPassed)
 {
 GroupRules  ruler = groupRules;
     if !atRuleMark {
@@ -81,9 +80,7 @@ GroupRules  ruler = groupRules;
     hereAt  = atRuleMark;
     if !*atRuleMark     goto checkFailed;
     // the rule guard, if there is one
-    if guardOK {
-        guardOK = false;
-        sukcess = true; }
+    if guardPassed  sukcess = true;
     or field.isUnGuarded()  sukcess = true;
     else {
         if guardInProcess   guarding = 0;
@@ -160,7 +157,7 @@ GroupItem   got;
         cerr "  parseR term=",term.tag," into=",into.tag:; }
     bridge          = new(term);
     bridge.label    = into;
-    got = term.parse(bridge);
+    got = term.parse(bridge,0);
     if parseTrace {
         if got  cerr "  parseR term=",term.tag," -> attached as ",got.tag," under ",into.tag:;
         else    cerr "  parseR term=",term.tag," -> NULL (no attachment)":; }
@@ -217,7 +214,7 @@ GroupItem   grup;
 int         result = true;
     while grup = field.nextAttribute(grup)
         if noPrint  continue;
-        or parse(stuff) result = true;
+        or parse(stuff,0)   result = true;
         else {
             result = false;
             break; }
@@ -269,8 +266,7 @@ extern int testOptions(RuleStuff stuff, GroupItem field)
 GroupItem   grup;
     while grup = field.nextMember(grup) {
         if checkGuard(grup) {
-            grup.guardOK = true;
-            if parse(stuff) return true; }}
+            if grup.parse(stuff,1)  return true; }}
     return  false;
 }
 

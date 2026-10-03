@@ -29,7 +29,7 @@ GroupItem 	*got = 0;
 		}
 	bridge = new RuleStuff(term);
 	bridge->label = into;
-	got = term->parse(bridge);
+	got = term->parse(bridge,0);
 	if ( ruler->parseTrace )
 		{
 		if ( got )
@@ -105,7 +105,7 @@ int 		result = 1;
 		if ( grup->groupBody->flags.noPrint )
 			continue;
 		else
-		if ( grup->parse(stuff) )
+		if ( grup->parse(stuff,0) )
 			result = 1;
 		else {
 			result = 0;
@@ -202,8 +202,7 @@ GroupItem 	*grup = 0;
 		{
 		if ( stuff->checkGuard(grup) )
 			{
-			grup->getRStuff()->guardOK = 1;
-			if ( grup->parse(stuff) )
+			if ( grup->parse(stuff,1) )
 				return 1;
 			}
 		}
@@ -374,7 +373,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	onGroup = 0;
 	kount = 0;
 	followed = 0;
-	guardOK = 0;
 	inProcess = 0;
 	isOK = 0;
 	isTarget = 0;
@@ -409,7 +407,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	maxRepeat = 0;
 	min = 0;
 	followed = 0;
-	guardOK = 0;
 	inProcess = 0;
 	isOK = 0;
 	isTarget = 0;
@@ -447,7 +444,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 }
 
 // checkInput skip, set hereAt, pass the guard and mint the label -- true when input is valid; field is the node the caller runs, never RuleStuff.owner (stroke 5.4a)
-int RuleStuff::checkInput(GroupItem *field)
+int RuleStuff::checkInput(GroupItem *field, int guardPassed)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( !ruler->atRuleMark )
@@ -467,11 +464,8 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	if ( !*ruler->atRuleMark )
 		goto checkFailed;
 	// the rule guard, if there is one
-	if ( guardOK )
-		{
-		guardOK = 0;
+	if ( guardPassed )
 		sukcess = 1;
-		}
 	else
 	if ( field->isUnGuarded() )
 		sukcess = 1;

@@ -1668,7 +1668,7 @@ GroupItem *GroupItem::nextProperty(GroupItem *entry)
                                 parse
     Treat this field as a rule and match it against the input stream.
 ***************************************************************************/
-GroupItem *GroupItem::parse(RuleStuff *pStuff)
+GroupItem *GroupItem::parse(RuleStuff *pStuff, int guardPassed)
 {
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 ParseActivation 	oldActive;
@@ -1689,8 +1689,10 @@ RuleStuff 			*ruleStuff = getStuff(pStuff);
 		{
 continueHere:
 		ruleStuff->sukcess = 0;
-		if ( !ruleStuff->checkInput(this) )
+		if ( !ruleStuff->checkInput(this,guardPassed) )
 			goto matchFailed;
+		// guardHandoff testOptions' passed guard is an ARGUMENT, spent by the first checkInput that reaches it -- one that fails before the guard (end of input) keeps it for the retry, as the rStuff flag did (stroke 1.1 site 1)
+		guardPassed = 0;
 		/*******************************************************************
 		Run the matches that determine if this rule succeeds
 		//runParseMatches
@@ -1704,7 +1706,7 @@ continueHere:
 				ruleStuff->sukcess = ruleStuff->testMatch(this);
 			if ( !parseACTION(groupBody->flags.methodType) )
 				{
-				if ( ruleStuff->sukcess && ruleStuff->onGroup && !ruleStuff->onGroup->parse(ruleStuff) )
+				if ( ruleStuff->sukcess && ruleStuff->onGroup && !ruleStuff->onGroup->parse(ruleStuff,0) )
 					ruleStuff->sukcess = 0;
 				if ( ruleStuff->sukcess && groupBody->flags.hasAttributes )
 					ruleStuff->sukcess = ::testAttributes(ruleStuff,this);
