@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 178 at the FOOT -- SEQ 284: directives repaired; sweep rule; exitFromParse said in tok (853d6b4), row for row
+STATUS:   fresh           # SEQ 179 at the FOOT -- SEQ 285: merged a342b75; BN-4 un-pinned, F-138 closed; RE-BLESS HELD (R11 unmoved)
+# prior: SEQ 178 at the FOOT -- SEQ 284: directives repaired; sweep rule; exitFromParse said in tok (853d6b4), row for row
 # prior: SEQ 177 at the FOOT -- SEQ 283: F-138 CURED on f138-cure (1.1a + (c)); BN-4 green; awaiting Tony's merge
 # prior: SEQ 176 at the FOOT -- SEQ 282: R3 does NOT reproduce today (JC moves, BN-4 red); the lingering leaf label is the finding
 # prior: SEQ 175 at the FOOT -- SEQ 281: cure (r) built, does NOT cure; reverted whole (R4)
@@ -10093,3 +10094,49 @@ Rider: genLadder/decodePop.sh had no exec bit (git mode 100644, exit 126); +x re
 NEXT: Tony's merge of f138-cure; then the golden re-bless + BN-4 un-pin + F-138 close; then stroke 1.1.
 
   END SEQ 178
+
+
+===================================================================
+SEQ 179  -  SEQ 285: MERGED; BN-4 UN-PINNED; F-138 CLOSED; THE RE-BLESS HELD
+===================================================================
+STATUS: fresh -- 2026-10-03, trunk jit-unified-emit-wip. a342b75 (merge), 7248618 (BN-4, F-138, R6), seal 30 after.
+Bare build e6952d0d installed. STOPPED on R2's re-bless only; everything else done.
+
+R1 MERGED: f138-cure -> trunk, --no-ff, a342b75, pushed (tree == the branch tip). tokall bare: no generated file moved,
+   canary 300. Rebuilt from trunk: md5 e6952d0d, the same as the branch. Checklist row for row with seal 29: pop.sh
+   890 / 1 (BN-4 ok); jitLadder PASSED; printPop PASSED; decodePop and frontier (6 / 6) row for row with their
+   captures; ddPop 5 / 1 standing; lr_new, lr_old, testerA, the printDefinition tester, old-road baselineTests
+   byte-identical. f138-cure deleted local and remote (`-D`: its last commit, the SEQ 285 transcription, was never
+   on origin/f138-cure but is in pushed trunk -- checked with merge-base first).
+   Left, not ruled: f138-setparse-first (local + remote), fast-forwarded into f138-cure on 10-03. Yours to cut.
+R3 THE CURE DID NOT MOVE R11. Old road against baselineTests.golden today -- the same four movers SEQ 169 listed:
+     golden 5      ifTest:                      -> ifTest test:              a4422c4's text edit (has a sentence)
+     golden 44-45  Saw lightGreen / Saw rounded -> Saw grup x2               unitTests:204 reads through the holder
+     golden 65-66  second=56; / third=WTF? ...  -> second; / third ...       parked cluster, unattributed
+     golden 70-71  width=50% / stuff text       -> width=50 / stuff text=one  parked cluster, unattributed
+   The new road now prints the same output as the old road, line for line (pop.sh's filter), so it shows the same
+   four. F-138's sentence moves no golden line: the golden is old-road output, and the old road never had F-138.
+R2 PARTLY DONE, RE-BLESS HELD:
+   DONE  BN-4 un-pinned -- the pinned if/else is now a plain diffcheck; pop.sh 890 / 1, BN-4 ok. Header comment and
+         baselineTestsNew's own header updated.
+   DONE  F-138 closed in fixIts; the attempt log ends at the certifying row: `ok    baselineTestsNew BN-4 printDefinitions
+         agrees with the old road`, pop.sh at trunk 890 / 1.
+   HELD  the golden re-bless. R2 says to name each mover with its sentence, and only one of the four has one. With
+         "the O7 sentence plus F-138's" the re-bless would pin `Saw grup` x2 (R11: "banks the holder's tag as truth";
+         unitTests:204 is on O7's READS-THROUGH list, respell under Tony's name) and the two parked clusters
+         (goldenDrift clause 2: attribute first, then pin). So it needs a ruling on: (a) re-bless only ifTest's line,
+         leaving the golden mixed as today; (b) respell unitTests:204 first (`Saw *grup.taG` or bare `taG`), then
+         re-bless ifTest + Saw; (c) pin all four on a stated sentence anyway. Nothing in the fleet reads the golden's
+         content, so holding costs nothing today.
+R4 failedAtStale: after this stroke seals, before stroke 1.1. Not started.
+R6 STANDING LINE ADDED (CLAUDE.md, H12). One command: `git ls-files -s <the six> | grep -v '^100755'` prints nothing
+   today -- pop, ladder, decodePop, ddPop, printPop, fixitNag are all 100755. None restored this stroke (decodePop was
+   restored at seal 29).
+   WHAT STRIPPED THE BITS: nothing in git. jitLadder (845c70e), printPop (b3e2eb7) and decodePop (469347a) were each
+   CREATED 100644, and the only mode changes in their history are our two fixes (077e02a, ebaebba). So the bit only
+   ever lived on disk, and any write git makes lays the file down 644. On disk, 131 files share mtime 2026-09-23 15:19
+   (the in-place bisect), and every 100644 script in that cluster is non-executable while the 100755 ones survived.
+   Common factor: created without +x in git. The check now catches that at the source, not on disk.
+NEXT: your ruling on the re-bless (a/b/c); then failedAtStale (R4); then stroke 1.1's dispatch.
+
+  END SEQ 179
