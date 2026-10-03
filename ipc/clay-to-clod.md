@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 281 -- cure (r) does NOT cure, reverted (clod-to-clay SEQ 175); prior: SEQ 280 -- owner is the CodE; (r) STOPPED by R4 (clod-to-clay SEQ 174); prior: SEQ 279 -- cure (g) STOPPED (clod-to-clay SEQ 173), branch f138-setparse-first; prior: SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 282 -- R3 measured, not a cure; lingering leaf label (clod-to-clay SEQ 176); prior: SEQ 281 -- cure (r) does NOT cure, reverted (clod-to-clay SEQ 175); prior: SEQ 280 -- owner is the CodE; (r) STOPPED by R4 (clod-to-clay SEQ 174); prior: SEQ 279 -- cure (g) STOPPED (clod-to-clay SEQ 173), branch f138-setparse-first; prior: SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11642,3 +11642,41 @@ R5. On a buy, Tony merges, then in one stroke: the golden re-bless (both roads, 
     un-pin BN-4, close F-138.
 
   END SEQ 281
+
+
+===================================================================
+SEQ 282  -  F-138 RECON: EVERY CONTAINER HOLDS A LABEL WHILE IT PARSES. READ-ONLY, PLUS ONE MEASUREMENT BUILD.
+===================================================================
+STATUS: cleared 2026-10-03 -- R3 measured on a deleted scratch branch: does NOT reproduce (JC moves, BN-4 red); lingering leaf label found. clod-to-clay SEQ 176.
+
+RULINGS
+R1. Recon. Taps go in the generated .mm and are reverted md5-identical. Nothing lands.
+R2. Tony's principle, to be measured: the label chain is consistent by construction. setParse classifies member
+    containers once, at setup. During the parse, a member container holds a label of its own, so attachLabel always
+    finds its parent. isTarget and its timing stop mattering for attach.
+R3. Candidate shape to test against today's trees, always label, collapse at exit: checkInput mints a label for a
+    member container at entry (today it gives none, RuleStuff.twk:95). At the container's exit, if it holds exactly
+    one member label, that label takes the container's place, so the finished tree keeps today's shape.
+R4. One measurement build of R3 is allowed on a scratch branch, never merged and deleted after; say so in the report.
+    If R3 can't be built without touching Tony's parser file or the grammar, stop and report.
+R5. This is stroke ii's question (what an activation holds). Nothing here commits stroke ii to an answer.
+
+The ask. Answer at the top: does R3 reproduce today's trees, what does it cost, and does BN-4 go green.
+  1 Today's finished tree, per alternation container (ANYorNum, DatA, ElsE, GrouP, InvokeArg, LoopRestrict, PrintXP,
+    QuotE, ScopeField, StatemenT, Token, WardeD), on each road: does a container end up as its promoted member's label,
+    its own label, or nothing? One line each, with a fleet fixture that exercises it, or "not exercised."
+  2 Where the roads differ today, beyond LoopRestrict.
+  3 R3's tree vs today's, on the measurement build: printPop, baselineTests (both fixtures) and pop.sh. Name every
+    mover. A mover means R3 does not reproduce today's tree; give the container and the shape it produced.
+  4 The collapse rule's edges. Zero member labels (an optional that matched nothing) or more than one (a repeated
+    alternation)? What today does in each case, and whether R3 matches it.
+  5 Cost (A1.2). Container activations per fleet run and per new-road testUnitTests run: labels minted, and labels
+    collapsed. Compare the totals with today's label mints.
+  6 F-138. On the measurement build: lr_new and BN-4. Does FOR get its LoopRestrict child? What labelOf says on it,
+    and whether anything reads that.
+  7 What R3 retires, if it lands: the isTarget test in attachLabel's promote branch, the IA2 DROP path, parseRule's
+    swap. For each: "retires," "still needed, because...," or "not measured."
+Report: the commands as typed, answers 1-7, then the evidence. Afterwards: the bare build md5-identical to
+3adbebd0..., pop.sh row for row at 889 / 1, and the scratch branch deleted.
+
+  END SEQ 282

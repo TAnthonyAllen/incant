@@ -231,6 +231,12 @@ ATTEMPT LOG
     twin, parent Token -- resolveName's answer is not the node that runs (unmeasured: the owner CodE already holds a
     twin copy, which addAttribute likely hands back). Source, groups.ext and generated files restored to the pre-281
     snapshot; binary md5-identical (3adbebd0); fleet row for row.
+  2026-10-03 SEQ 282, scratch branch (deleted, never pushed): R3 -- containers mint a label, collapse at exit. LoopRestrict
+    now reaches FOR, but BN-4 stays RED: the second loop's failed loopOnAttributes() runs parseString's
+    `if label && !sukcess label.clear()` on the leaf's lingering rStuff.label -- the label already under the first FOR --
+    so it reads its tag. jitLadder JC moves: StatemenT's own empty label on the old road -> `nextGroup: ERROR StatemenT
+    does not contain a list`. pop.sh and printPop row for row. Cost +493,371 container mints (+51% on 974,430).
+    Finding: a leaf's per-call label lingers on rStuff with no bracket -- A5 stroke 1/2's subject.
 ```
 
 ### F-137 — a copy of a label loses `labelOf`

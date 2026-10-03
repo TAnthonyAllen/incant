@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 175 at the FOOT -- SEQ 281: cure (r) built, does NOT cure; reverted whole (R4)
+STATUS:   fresh           # SEQ 176 at the FOOT -- SEQ 282: R3 does NOT reproduce today (JC moves, BN-4 red); the lingering leaf label is the finding
+# prior: SEQ 175 at the FOOT -- SEQ 281: cure (r) built, does NOT cure; reverted whole (R4)
 # prior: SEQ 174 at the FOOT -- SEQ 280: lead confirmed (owner is the CodE); cure (r) STOPPED by R4 (needs a new lookup or minting onto the rule)
 # prior: SEQ 173 at the FOOT -- SEQ 279: cure (g) STOPPED (breaks compile; premise wrong -- the copy is of a Grokking twin)
 # prior: SEQ 172 at the FOOT -- SEQ 278: Tony's parseString hypothesis CONFIRMED; cure sites proposed
@@ -9914,3 +9915,78 @@ SEQ 278's tap shows enclosingFace reaching the member with isTarget 1) and (c) p
 need a new dispatch.
 
   END SEQ 175
+
+
+===================================================================
+SEQ 176  -  SEQ 282: EVERY CONTAINER HOLDS A LABEL (R3) -- MEASURED. NOT A CURE; THE LINGERING LEAF LABEL IS THE FINDING.
+===================================================================
+STATUS: fresh -- 2026-10-03. Recon + one measurement build on SCRATCH branch scratch-r3-measure (cf2c8e0), never
+merged, never pushed, DELETED. Taps in the generated .mm only, writing to a scratch file (never stdout/stderr, so the
+tap moved no row -- certified: pop.sh row for row under the tap). After: generated files restored to the pre-282
+snapshot, bare binary md5-identical 3adbebd0, pop.sh 889 / 1 row for row, jitLadder PASSED, printPop PASSED, canary 300.
+
+ANSWER: R3 does NOT reproduce today's trees. Outcome classes match everywhere but LoopRestrict (as intended) and
+pop.sh/printPop are row for row -- but jitLadder JC moves (an old-road error line) and BN-4 stays RED. Cost: +51%
+label mints. The reason BN-4 stays red is a second defect R3 uncovers, and it is the stroke-2 question in miniature.
+
+COMMANDS AS TYPED
+  genLadder/pop.sh ; genLadder/printPop.sh ; jitLadder/ladder.sh       (today, then on the R3 build; tap -> file)
+  ~/bin/incant $S/lr_old ; ~/bin/incant $S/lr_new                       (both builds; R3 build also with stderr taps)
+
+1 TODAY'S FINISHED TREE, per container (pop + printPop, aggregated by fixture; NEW = generated road, OLD = parse()):
+  ANYorNum     promoted both roads          NEW baselineTestsNew . OLD oneTest
+  DatA         promoted OLD; NEW not exercised (no new-road define in the fleet)   OLD oneTest
+  ElsE         promoted both                NEW baselineTestsNew . OLD jsonTest
+  GrouP        promoted both                NEW chainTruthT . OLD oneTest
+  InvokeArg    promoted both                NEW baselineTestsNew . OLD oneTest
+  LoopRestrict OLD promoted, NEW NOTHING    OLD baselineTests . NEW baselineTestsNew (F-138)
+  PrintXP      promoted both                NEW baselineTestsNew . OLD jsonTest
+  QuotE        promoted both                NEW baselineTestsNew . OLD oneTest
+  ScopeField   promoted both                NEW sweepT . OLD dirT
+  StatemenT    promoted, and NOTHING when its member yields none (NEW 68 sweepT; OLD 430 jsonTest) -- both roads
+  Token        promoted both                NEW baselineTestsNew . OLD oneTest
+  WardeD       promoted both                NEW baselineTestsNew . OLD oneTest
+  No container ever ends as its OWN label today: container label mints = 0.
+2 WHERE THE ROADS DIFFER beyond LoopRestrict: nowhere by outcome class. Same input both roads (baselineTests old vs
+  baselineTestsNew new): every container promoted on both; only LoopRestrict differs.
+3 R3 vs TODAY (measurement build). Outcome classes: identical except NEW LoopRestrict none -> promoted. pop.sh: row for
+  row (BN-4 still red). printPop: byte-identical. MOVERS:
+  - jitLadder JC (FAIL "THE ENGINES DISAGREE"): the oracle half gains two `nextGroup: ERROR StatemenT does not contain a
+    list`. Container StatemenT, OLD road: its OWN label, empty, exists while a member parses, and something walks it.
+    Shape produced: an error line where today's StatemenT holds nothing. (Walker not identified.)
+  - BN-4 / lr_new (still red, a different red): FOR #1 gets LoopRestrict(text=LoopRestrict) -- the tag echo. The
+    collapse handed FOR the right label (kid text "attributes"), then loop #2's loopOnAttributes() failed its guard on
+    "members" and parseString's `if label && !sukcess label.clear()` cleared the leaf's rStuff.label -- STILL POINTING
+    at the label now under FOR #1. FOR #2 reads text=members and its members loop is right.
+4 THE COLLAPSE EDGES.
+  - ZERO member labels: 494 in the fleet (StatemenT when its member yields none). Today: the container ends with
+    nothing. R3 ends with nothing too (outcome class matches) -- but its empty own label is live DURING the member's
+    parse, which is the JC mover.
+  - MORE THAN ONE: 0 in the fleet. A repeated alternation (Token+) is one container activation per repetition via
+    parseLoop, so today never puts two member labels under one container activation. R3's rule (keep the own label) is
+    untested.
+5 COST (same fixture set, pop + printPop):
+      today  container label mints 0        other mints 974,430   IA2 drops 2,902
+      R3     container label mints 493,371  other mints 985,432   IA2 drops 2,874   collapses 496 (494 zero, 2 one)
+  So R3 mints +51% labels, and all but 496 are thrown away when a target member's promotion replaces them.
+  One new-road testUnitTests run (baselineTestsNew): +3,646 container mints on 6,770 (+54%); collapses 5 (3 zero, 2 one).
+6 F-138 ON THE R3 BUILD. lr_new: FOR gets a LoopRestrict child in both loops (text attributes, then members) -- then the
+  first is wiped as in 3. BN-4 red. labelOf on the collapsed label = the call token it was minted for (loopOnAttributes
+  in LoopRestrict's CodE, ruleOf the Grokking twin). Readers of labelOf, by grep (not measured on this path): attachLabel's
+  ownedRetag gate (labelOf licenses the retag), getStuff's borrow refusal, processCode/processAction's label-arm
+  refusals (F-130), the copy constructor (zeroes it, F-137). None reads WHICH rule it names here.
+7 WHAT R3 RETIRES.
+  - isTarget in attachLabel's promote branch: STILL NEEDED as built -- exitFromParse passes promote=1 on every attach,
+    and isTarget is what stops a SEQUENCE's term from replacing its parent's label. R3 only makes it unneeded for a
+    CONTAINER parent. (By reading; not measured.)
+  - the IA2 DROP path: STILL NEEDED -- 2,874 drops remain under R3 (2,902 today); their parents are not containers
+    (about 12 per fixture, both roads).
+  - parseRule's swap: NOT MEASURED. It supplies the instance's rStuff for every rule fact, not only isTarget.
+
+THE FINDING, and why it points at stroke ii: a LEAF's per-call label lingers on its rStuff after the leaf has handed
+it up, because leaves push no activation and have no call bracket. Today promotion leaves the same pointer behind; R3
+merely made it visible (a later failed guard clears an attached label). O8's "handoffs are arguments" -- a leaf's
+label is its RESULT, returned, never stored -- removes the lingering pointer by construction, which is A5 stroke 1.
+F-138 may be cured as a side effect of stroke 1 rather than as a separate fix. Not measured; offered for the ruling.
+
+  END SEQ 176
