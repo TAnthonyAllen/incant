@@ -186,6 +186,10 @@ re-blessed from both.
 ```
 ATTEMPT LOG
   2026-10-03 filed (SEQ 274, found running R11); measured only, nothing changed.
+  2026-10-03 SEQ 275: Tony's tester (printDefinition x3 before parser(Start), x3 after) prints identical halves --
+    the after-calls replay the BlocK compiled on the old road at the first call. Moving only the first call after
+    parser(Start) (scratch copy) brings F-138 back. So F-138 is a fact about a body PARSED by the new road; Tony's
+    run never parsed printDefinition there. Same binary both runs (TOK DerivedData Groups, md5 3adbebd0...).
 ```
 
 ### F-137 — a copy of a label loses `labelOf`
