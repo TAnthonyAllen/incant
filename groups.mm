@@ -22,7 +22,7 @@ char 		*name = argv[1];
 		GroupItem 	*boot = crap->bootstrapper();
 		GroupItem 	*source = new GroupItem(name);
 		::loadInputFromFile(source);
-		boot->parse(0);
+		boot->parse(0,0);
 		/*  abandonedRun  THE OUTERMOST BOUNDARY. A refusal still standing here means the
 		abandonedRun  rest of the file was never parsed -- say so, because exit 0 will
 		abandonedRun  not.   ruleActions.reportRunAbandoned  */

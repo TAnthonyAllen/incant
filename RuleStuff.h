@@ -20,7 +20,6 @@ int (*jitMethod)(GroupItem *);
 struct 
 	{
 	unsigned int followed:1;
-	unsigned int guardOK:1;
 	unsigned int inProcess:1;
 	unsigned int isOK:1;
 	unsigned int isTarget:1;
@@ -40,7 +39,7 @@ struct
 RuleStuff(GroupItem *grup);
 RuleStuff(RuleStuff *r);
 int checkGuard(GroupItem *field);
-int checkInput(GroupItem *field);
+int checkInput(GroupItem *field, int guardPassed);
 void getWhatFollows(GroupItem *field);
 void setTestMatch(GroupItem *field);
 };

@@ -3066,8 +3066,11 @@ for _tp in "1 1 abc" "2 2 42rest" "3 3 iterate" "4 4 %-fire1" "5 4 %-fire2" "6 5
     if [ -n "$_j" ] && [ "$_j" = "$_i" ]; then echo "  ok    tokJitT $3 jitted = interpreted: $_j"; green=$((green+1))
     else echo "  FAIL  tokJitT $3 jitted [$_j] vs interpreted [$_i]"; fail=1; fi
 done
-if [ "$(_tjl INTERP 4)" = "verdict=1 consumed=1 length=1 terms=6 fires=1 true=1" ]; then echo "  ok    tokJitT % accepts 1 of 1 in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT % reads $(_tjl INTERP 4)"; fail=1; fi
-if [ "$(_tjl INTERP 5)" = "verdict=0 consumed=0 length=7 terms=6 fires=1 true=0" ]; then echo "  ok    tokJitT : bb cc rejects in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT : bb cc reads $(_tjl INTERP 5)"; fail=1; fi
+#  RE-PINNED terms 6 -> 5 (SEQ 288 R1, 2026-10-03): guardOK as an argument cannot outlive its call; the stored bit
+#  survived getStuff's in-process copy and gave later parses of the rule an unearned guard pass, one extra term
+#  attempted per drive.
+if [ "$(_tjl INTERP 4)" = "verdict=1 consumed=1 length=1 terms=5 fires=1 true=1" ]; then echo "  ok    tokJitT % accepts 1 of 1 in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT % reads $(_tjl INTERP 4)"; fail=1; fi
+if [ "$(_tjl INTERP 5)" = "verdict=0 consumed=0 length=7 terms=5 fires=1 true=0" ]; then echo "  ok    tokJitT : bb cc rejects in one fire"; green=$((green+1)); else echo "  FAIL  tokJitT : bb cc reads $(_tjl INTERP 5)"; fail=1; fi
 _tjd=$(grep -c '=== jitDegrade count = 0 ===' "$T/tj.o"); _tjc=$(grep -c 'jitDegrade count' "$T/tj.o")
 if [ "$_tjc" -gt 0 ] && [ "$_tjd" -eq "$_tjc" ]; then echo "  ok    tokJitT $_tjc compile(s), degrade 0"; green=$((green+1))
 else echo "  FAIL  tokJitT degrade: $_tjd of $_tjc compiles at 0"; fail=1; fi
@@ -3149,9 +3152,12 @@ done
 run2 opLenT "$T/ol.o" "$T/ol.e"; check "opLenT runs" 0 $?
 sentinel "opLenT sentinel" "$T/ol.e" "OPLEN SENTINEL"
 _oll() { grep "^PROBEDRIVE root=ExpressioN armed=Token" "$T/ol.e" | sed -n "${1}p" | sed 's/.* ret=[0-9]* //'; }
-for _op in "1 2 3 == 2" "4 5 6 <= 2" "7 8 9 += 2" "10 11 12 = 1"; do
+#  RE-PINNED terms 6 -> 5 (SEQ 288 R1, 2026-10-03): guardOK as an argument cannot outlive its call; the stored bit
+#  survived getStuff's in-process copy and gave later parses of the rule an unearned guard pass, one extra term
+#  attempted per drive. Per operator: '+=' was not moved (no leaked pass on its drives) and stays 6.
+for _op in "1 2 3 == 2 5" "4 5 6 <= 2 5" "7 8 9 += 2 6" "10 11 12 = 1 5"; do
     set -- $_op
-    _a=$(_oll $1); _b=$(_oll $2); _c=$(_oll $3); _w="verdict=1 consumed=$5 length=$5 terms=6 fires=1 true=1"
+    _a=$(_oll $1); _b=$(_oll $2); _c=$(_oll $3); _w="verdict=1 consumed=$5 length=$5 terms=$6 fires=1 true=1"
     if [ "$_a" = "$_w" ] && [ "$_b" = "$_w" ] && [ "$_c" = "$_w" ]; then echo "  ok    opLenT '$4' consumes $5 of $5, jitted twice and interpreted"; green=$((green+1))
     else echo "  FAIL  opLenT '$4' want [$_w]: J1 [$_a] J2 [$_b] I [$_c]"; fail=1; fi
 done

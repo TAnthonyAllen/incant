@@ -112,7 +112,7 @@ RuleStuff   ruleStuff = rStuff;
 int         counter;
 int         more;
     sukcess = false;
-    if checkInput(field) {
+    if checkInput(field,0) {
         // gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
         sukcess = false;
         while *atRuleMark == character {
@@ -174,7 +174,7 @@ use field
         ruler.atRuleMark = entryMark;
         return 0; }
     sukcess = false;
-    if checkInput(field) {
+    if checkInput(field,0) {
         // gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
         sukcess = false;
         reset();
@@ -249,7 +249,7 @@ use ruleStuff
     // bareFieldRepoint the use lines below are load bearing -- a new declaration re-points every bare field under it
 use ruleStuff
     sukcess = false;
-    if checkInput(field) {
+    if checkInput(field,0) {
 use grup
         if field.isAction {
             while grup = code.nextAttribute(grup)
@@ -311,7 +311,7 @@ RuleStuff   ruleStuff = rStuff;
 int         counter;
 int         more;
     sukcess = false;
-    if checkInput(field) {
+    if checkInput(field,0) {
         // gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
         sukcess = false;
         while set.contains(*atRuleMark) {
@@ -334,7 +334,7 @@ extern GroupItem parseString(GroupItem field)
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = rStuff;
     sukcess = false;
-    if checkInput(field) {
+    if checkInput(field,0) {
         // gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
         sukcess = false;
         // nodeInHand match through the field itself, never RuleStuff.owner -- equal on every call measured (stroke 5.2)
@@ -352,7 +352,7 @@ extern GroupItem parseUpTo(GroupItem field)
 {
 RuleStuff   ruleStuff = rStuff;
     sukcess = false;
-    if checkInput(field) {
+    if checkInput(field,0) {
         // gateIsNotAMatch as the other leaves
         sukcess = false;
         if testUpTo(field)  sukcess = true; }

@@ -1279,7 +1279,7 @@ GroupItem nextProperty(GroupItem entry)
                                 parse
     Treat this field as a rule and match it against the input stream.
 ***************************************************************************/
-GroupItem parse(RuleStuff pStuff)
+GroupItem parse(RuleStuff pStuff, int guardPassed)
 {
 GroupRules  ruler       = groupRules;
 ParseActivation oldActive;
@@ -1301,7 +1301,9 @@ use ruleStuff
     while !isOK && kount < maxRepeat {
 continueHere:
         sukcess     = false;
-        if !checkInput(this)    goto matchFailed;
+        if !checkInput(this,guardPassed)    goto matchFailed;
+        // guardHandoff testOptions' passed guard is an ARGUMENT, spent by the first checkInput that reaches it -- one that fails before the guard (end of input) keeps it for the retry, as the rStuff flag did (stroke 1.1 site 1)
+        guardPassed = 0;
         /*******************************************************************
             Run the matches that determine if this rule succeeds
             //runParseMatches
@@ -1310,7 +1312,7 @@ continueHere:
         or testMatch || onGroup || hasAttributes {
             if testMatch                                            sukcess = testMatch(this);
             if !parseACTION {
-                if sukcess && onGroup && !onGroup.parse(ruleStuff)  sukcess = false;
+                if sukcess && onGroup && !onGroup.parse(ruleStuff,0)  sukcess = false;
                 if sukcess && hasAttributes                         sukcess = testAttributes(ruleStuff,this); }}
         if !sukcess     goto matchFailed;
         /*******************************************************************

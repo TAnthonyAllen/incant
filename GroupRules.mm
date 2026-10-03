@@ -2107,8 +2107,8 @@ char 				*driveBase = 0;
 		else {
 			// oldRoadAttach an old-road rule called from INSIDE a new-road activation attaches into that activation -- with parse(0) attachLabel dropped its label, and every print shortcut vanished (F-120, F-116); a real drive has pushed its floor, so it still passes 0
 			if ( ruler->gParseActive && !ruler->gParseActive->isFloor )
-				result = rule->parse(ruler->gParseActive->stuff);
-			else	result = rule->parse(0);
+				result = rule->parse(ruler->gParseActive->stuff,0);
+			else	result = rule->parse(0,0);
 			}
 		}
 	// floorLabel a generated root that SUCCEEDED hands back the label its floor holds (trueResult when it parked none); a failure hands back what the fire did
@@ -8652,7 +8652,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 int 		counter = 0;
 int 		more = 0;
 	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput(field) )
+	if ( ruleStuff->checkInput(field,0) )
 		{
 		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
 		ruleStuff->sukcess = 0;
@@ -8739,7 +8739,7 @@ int 		matched = 0;
 		return 0;
 		}
 	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput(field) )
+	if ( ruleStuff->checkInput(field,0) )
 		{
 		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
 		ruleStuff->sukcess = 0;
@@ -8826,7 +8826,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 		into = ::enclosingStuff(field,ruleStuff)->label;
 	// bareFieldRepoint the use lines below are load bearing -- a new declaration re-points every bare field under it
 	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput(field) )
+	if ( ruleStuff->checkInput(field,0) )
 		{
 		if ( isAction(field->groupBody->flags.actionType) )
 			{
@@ -8893,7 +8893,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 int 		counter = 0;
 int 		more = 0;
 	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput(field) )
+	if ( ruleStuff->checkInput(field,0) )
 		{
 		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
 		ruleStuff->sukcess = 0;
@@ -8931,7 +8931,7 @@ extern "C" GroupItem *parseString(GroupItem *field)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
 	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput(field) )
+	if ( ruleStuff->checkInput(field,0) )
 		{
 		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
 		ruleStuff->sukcess = 0;
@@ -8955,7 +8955,7 @@ extern "C" GroupItem *parseUpTo(GroupItem *field)
 {
 RuleStuff 	*ruleStuff = field->getRStuff();
 	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput(field) )
+	if ( ruleStuff->checkInput(field,0) )
 		{
 		// gateIsNotAMatch as the other leaves
 		ruleStuff->sukcess = 0;

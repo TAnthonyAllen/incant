@@ -99,7 +99,7 @@ GroupItem *nextAttribute(GroupItem *current);
 GroupItem *nextGroup(GroupItem *grup);
 GroupItem *nextMember(GroupItem *current);
 GroupItem *nextProperty(GroupItem *entry);
-GroupItem *parse(RuleStuff *pStuff);
+GroupItem *parse(RuleStuff *pStuff, int guardPassed);
 GroupItem *parseBlocK();
 GroupItem *parseBody();
 GroupItem *parseHolder();

@@ -300,8 +300,8 @@ use ruler
         if intoField && !intoField.data     result = parseR(rule,intoField);
         else {
             // oldRoadAttach an old-road rule called from INSIDE a new-road activation attaches into that activation -- with parse(0) attachLabel dropped its label, and every print shortcut vanished (F-120, F-116); a real drive has pushed its floor, so it still passes 0
-            if ruler.gParseActive && !ruler.gParseActive.isFloor  result = rule.parse(ruler.gParseActive.stuff);
-            else    result = rule.parse(null);
+            if ruler.gParseActive && !ruler.gParseActive.isFloor  result = rule.parse(ruler.gParseActive.stuff,0);
+            else    result = rule.parse(null,0);
             } }
     // floorLabel a generated root that SUCCEEDED hands back the label its floor holds (trueResult when it parked none); a failure hands back what the fire did
     if floorPushed && rule.hasNewParse && result && result != ruler.falseResult && driveFloor.label  result = driveFloor.label;
