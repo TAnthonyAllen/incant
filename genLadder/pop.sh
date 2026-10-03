@@ -239,6 +239,8 @@ run1 jsonTest "$T/jsn";      check "jsonTest runs"    0 $?
 #  still unattributed:
 #        lines 65-66   second=56 / third=WTF?   (values disappearing)
 #        lines 70-71   width=50% / text         (see incant/fixits/goldenDrift)
+#  ⚠ 2026-10-03 (SEQ 286): line 5 re-blessed (ifTest test:); lines 44-45 (Saw grup x2,
+#  unitTests:204 reads through the cursor) joined the unpinned set. All three: fixIts F-139.
 #  So a content diff turned on today comes up RED ON TWO CLUSTERS BY DESIGN. That
 #  is the pin being honest, NOT a regression -- do not "fix" it by re-pinning
 #  them, which is precisely the move goldenDrift's clause 2 prohibits: re-pinning

@@ -92,6 +92,28 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-139 — the baselineTests golden's unpinned lines (SEQ 274 R11): three movers left stale on purpose
+
+**What.** `incant/pop/baselineTests.golden` differs from today's output on both roads (they agree, BN-3/BN-4) at
+three places, each left UNPINNED by ruling (SEQ 286 R1) -- goldenDrift clause 2: attribute first, then pin.
+  - **lines 44-45** `Saw lightGreen` / `Saw rounded` -> `Saw grup` x2. Attributed: `incant/unitTests:204` prints
+    ``Saw grup.taG``, which reads the for cursor's own tag (the cursor is a holder, O7). The respell rides with the O7
+    respells, under Tony's name (SEQ 286 R2); re-bless after it.
+  - **lines 65-66** `second=56;` / `third=WTF? ...` -> `second;` / `third ...` -- values gone. Unattributed.
+  - **lines 70-71** `width=50%` / `stuff text` -> `width=50` / `stuff text=one`. Unattributed
+    (`incant/attic/goldenDrift`).
+Line 5 (`ifTest test:`, a4422c4's text edit) was re-blessed 2026-10-03 (SEQ 286 R1). **Severity: none today** -- no
+row reads the golden's content (pop.sh checks exit code and last line).
+**Where.** `incant/pop/baselineTests.golden`; `incant/unitTests:204`; the two clusters' producers unknown.
+**Evidence.** 2026-10-03, binary e6952d0d: `diff` of the golden against the old road's stdout (stop lines stripped)
+shows exactly these six lines.
+**Done when.** Each mover is attributed and re-blessed with its sentence, or ruled a defect and cured.
+**Owner.** Tony (the respell); unassigned (the two clusters).
+```
+ATTEMPT LOG
+  2026-10-03 filed (SEQ 286 R1): line 5 re-blessed; 44-45, 65-66, 70-71 listed, nothing pinned.
+```
+
 ### F-134 — ✅ CLOSED 2026-10-02 (T2, SEQ 263 R4) — RETAGCARRY's trunk road: adopting an action's return and retagging it at attach renamed shared nodes
 
 **CURE, LANDED:** attachLabel's promote arm still installs the adopted node as the parent's label, but RENAMES it only when

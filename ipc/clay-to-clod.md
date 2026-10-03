@@ -11758,3 +11758,24 @@ Body: the second sentence asks Clod to find the cause once, so the checklist lin
 them seal after seal.
 
   END SEQ 285
+
+
+===================================================================
+SEQ 286  -  THE GOLDEN, OPTION (a); THEN failedAtStale
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, before any edit, per WT-15.
+
+RULINGS
+R1. Re-bless the baselineTests golden on the ifTest line only (line 5, a4422c4's text edit, with that sentence).
+    Lines 44-45 and the two parked clusters (65-66, 70-71) stay unpinned and are listed by number under R11 in fixIts.
+    Clause 2 holds: attribute first, then pin.
+R2. unitTests:204's respell rides with the O7 respells, under Tony's name. Nothing to do now.
+R3. Step failedAtStale (seal 28's R4). Report at the top what was run and what it shows. Rule nothing; any cure gets
+    its own dispatch.
+R4. f138-setparse-first: [delete / keep].
+    -- FORWARDED UNFILLED. Not ruled; Clod reports what the branch holds.
+R5. Seal and stop. Stroke 1.1 gets its own dispatch.
+
+Body (Tony, in chat): wants to keep working past this seal if stroke 1.1 is short; Clod's call when we get there.
+
+  END SEQ 286
