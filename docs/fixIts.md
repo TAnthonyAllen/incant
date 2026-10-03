@@ -180,8 +180,8 @@ loopOnMembers`). **Unmeasured guess:** the generated road loses or swaps the loo
 prints `rules should not have data and a list; one or the other` on stderr.
 **Evidence.** 2026-10-03, one binary (seal 24's bare build), two runs: `diff` old vs new = the parser(Start)
 generation trace plus six moved definition blocks (old output lines 60-75).
-**Done when.** Both roads print `printDefinitions` identically, a row pins it, and the baselineTests golden is
-re-blessed from both.
+**Done when.** pop.sh's `baselineTestsNew BN-4` turns green (both roads print `printDefinitions` identically); the
+baselineTests golden re-bless is a separate question (SEQ 274 R11).
 **Owner.** Unassigned -- reported in the SEQ 274 seal.
 ```
 ATTEMPT LOG
@@ -196,6 +196,14 @@ ATTEMPT LOG
     is addMember's bin guard set, written at define time (datA=3 before any parser call), and the warning prints in
     Tony's matching run too. Suppressing that write voids the new road (walkRules, lrRun fail to compile).
     Smallest shape: a `for x in bag; members` compiled after parser(Start) visits attributes too.
+  2026-10-03 SEQ 277 (taps reverted md5-identical): the leaf MINTS (loopOnAttributes/loopOnMembers) and attachLabel
+    DROPS it (IA2 DROP, GroupItem.twk attachLabel's `if !pStuff.label` return): LoopRestrict, a members container,
+    gets label 0 from checkInput (RuleStuff.twk:95, hasMembers && !binType), and a container yields only by
+    PROMOTING a member with isTarget set. The node that runs is the CALL TOKEN in LoopRestrict's generated body
+    (builtinParseR > BlocK > StatemenT > ExpressioN > Token > loopOnAttributes, aff attribute, followed 0, isTarget 0),
+    never re-resolved to LoopRestrict's member; every other container's member arrives AS the member (aff member,
+    followed 1, isTarget 1). Only LoopRestrict has inline literal members. Row: pop.sh baselineTestsNew BN-4,
+    pinned red under this name.
 ```
 
 ### F-137 — a copy of a label loses `labelOf`

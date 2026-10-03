@@ -1,0 +1,41 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+
+parser(Start);
+testUnitTests();
+cerr "BASELINENEW SENTINEL":;
+stop();
+
+/*****************************************************************************
+    baselineTestsNew -- baselineTests' NEW-ROAD half, in its own process.
+    SEQ 277 R2, 2026-10-03 (Clod's SEQ 170 proposal, ruled by Clay).
+
+    The same live region as incant/pop/baselineTests with one line added:
+    parser(Start) BEFORE testUnitTests(), so no unitTests action has been called
+    yet when the generated parse methods are installed -- every action body is
+    therefore parsed on the NEW road at its first call. That is the point of the
+    file: baselineTests itself never calls parser(), and Tony's tester calls
+    printDefinition once before parser(Start), which parses it on the OLD road
+    and caches the BlocK (SEQ 275). Nothing else in the fleet compiled
+    testUnitTests' bodies on the new road, so F-138 lived unseen.
+
+    pop.sh compares this run against baselineTests' own run in the same pop
+    pass, NOT against baselineTests.golden (whose two parked clusters and the
+    unitTests:204 read-through are a separate question, SEQ 274 R11):
+      - parser(Start)'s generation trace is stripped by the harness (everything
+        through "setParse ended and that ends compileRules"), and the generator's
+        BrancheS warning is filtered by name. The parser file is Tony's and is
+        not touched, so the quieting lives in the harness.
+      - the part ahead of printDefinitions' block (the first line beginning
+        "sumple=") must agree with the old road: green.
+      - printDefinitions' block must agree with the old road: PINNED RED under
+        F-138 until the generated FOR attaches LoopRestrict. When it turns green
+        the row says so by name -- close F-138 then, do not leave it.
+    The sentinel line sits after testUnitTests() and before the single stop(),
+    so it prints only if every test ran (rule H2).
+*****************************************************************************/

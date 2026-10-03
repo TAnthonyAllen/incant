@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 170 at the FOOT -- SEQ 276: F-138 is a missing LoopRestrict attach on the new road, not a Branches write
+STATUS:   fresh           # SEQ 171 at the FOOT -- SEQ 277: F-138 = handed up? NO (dropped at attachLabel); baselineTestsNew joins the fleet
+# prior: SEQ 170 at the FOOT -- SEQ 276: F-138 is a missing LoopRestrict attach on the new road, not a Branches write
 # prior: SEQ 169 at the FOOT -- SEQ 274: amendment ruled; O7 census; R11 STOPPED (roads disagree); failedAtStale filed
 # prior: SEQ 168 at the FOOT -- SEQ 271: activation shape census -- read-only, tap reverted md5-identical
 # prior: SEQ 167 at the FOOT -- SEQ 269: instance shape -- take + read-only census; taps reverted md5-identical
@@ -9627,3 +9628,81 @@ PROPOSAL ONLY (R3) -- baselineTests' new-road half as its own process
   scope). Today nothing in the fleet compiles testUnitTests' bodies on the new road.
 
   END SEQ 170
+
+
+===================================================================
+SEQ 171  -  SEQ 277: WHERE LoopRestrict's LABEL GOES MISSING -- HANDED UP: NO. baselineTestsNew IN THE FLEET.
+===================================================================
+STATUS: fresh -- 2026-10-03. Recon taps (generated .mm: GroupItem.mm attachLabel), reverted md5-identical
+(9bc04ce5..., b7ef5108...); bare rebuild 3adbebd0... R2 built and in pop.sh. R3: the cure touches the grammar or the
+new road's attach; proposed, not built.
+
+COMMANDS AS TYPED (lr_newT = lr_new with traceParse("on") around lrRun();)
+  ~/bin/incant $S/lr_newT                          (built-in parse trace: attachLabel / IA2 DROP lines)
+  ~/bin/incant $S/arProbe                          (the 12 alternation rules' flags)
+  genLadder/pop.sh                                 (the R2 rows)
+
+ANSWER: HANDED UP -- NO. The site: attachLabel's no-parent-label return (GroupItem.twk attachLabel, `if !pStuff.label
+{ ... return; }`, the IA2 DROP), reached because LoopRestrict has no label (RuleStuff.twk:95) and the member's label
+cannot be promoted (isTarget 0).
+
+1 MINTED -- yes. loopOnMembers (and loopOnAttributes on the attributes loop) match on the leaf path and mint a label
+  tagged loopOnMembers, having consumed "members" (the loop body after it parses and runs).
+2 HANDED UP -- no. attachLabel(stuff, pStuff=LoopRestrict's activation stuff):
+      attachLabel lab=loopOnMembers promote=1 isTarget=0 pLabel=0 pRule=LoopRestrict
+      IA2 DROP  lab=loopOnMembers  pRule=LoopRestrict  listParent=LoopRestrict lp.label=(null)
+  - LoopRestrict has no label: checkInput, RuleStuff.twk:95 `if noLabel || (hasMembers && !binType) label = 0;` --
+    a members container mints none.
+  - A container yields ONLY by PROMOTION: `if (promote || !pStuff.label) && stuff.isTarget { pStuff.label = lab;
+    retag }` (GroupItem.twk attachLabel). Every other container's member arrives with isTarget 1 and is promoted.
+  - LoopRestrict's members arrive with isTarget 0, because the node that runs is the CALL TOKEN in LoopRestrict's
+    generated body, not LoopRestrict's member. Tap, parent chain of the node attachLabel holds:
+      loopOnAttributes(aff=1) Token ExpressioN StatemenT BlocK builtinParseR LoopRestrict(aff=1) FOR Grokking
+    attribute, followed=0, isTarget=0, data=13. Compare, same tap on the other containers' members:
+      TokenXP/QuotE/NumbeR/Operators into Token, PrintField/ShortcuT into PrintXP: aff=2 (the container's MEMBER),
+      followed=1, isTarget=1 (ShortcuT also arrives 3x as a call token, and still with isTarget=1).
+  - LoopRestrict then exits with label 0 (`fireLabelMethod LoopRestrict ... label=0`) and attaches nothing.
+3 ATTACHED WHERE -- nowhere. The label is dropped at LoopRestrict; FOR never receives a LoopRestrict child (SEQ 170's
+  tap), so aCTionFOR's `if LoopRestrict` is false and restrict stays 0.
+4 THE SHAPE -- all 12 rules whose generated body is an alternation are members containers with label 0:
+  ANYorNum DatA ElsE GrouP InvokeArg LoopRestrict PrintXP QuotE ScopeField StatemenT Token WardeD.
+  On lr_newT only LoopRestrict drops (IA2 DROP counts: LoopRestrict 2, every other 0). The difference is the members:
+  LoopRestrict's are the ONLY inline literal members in the grammar (`loopOnAttributes="attributes";`,
+  `loopOnMembers="members";`, incant/grammar:156-157; scan of every container member line). Every other container
+  names rules defined elsewhere. BrancheS (literal-looking members) is a bin and labels separately.
+  Not measured: why a named-rule member's call resolves to the member with isTarget 1 while a literal member's call
+  stays a call token -- the leaf path never runs parseRule's enclosingFace re-resolve is the leading guess.
+5 PROPOSED CURES (none built; R3)
+  (a) GRAMMAR SPELLING -- declare the two literals as top-level leaves and name them as members:
+          loopOnAttributes="attributes";
+          loopOnMembers="members";
+          LoopRestrict
+              loopOnAttributes;
+              loopOnMembers;
+      the shape PrintXP/ShortcuT already uses. Cost: three lines in Tony's grammar (R3 stop); unverified that a
+      named literal member arrives with isTarget 1 (ShortcuT says yes), and the old road's LoopRestrict(text=...) must
+      be re-checked (aCTionFOR reads LoopRestrict.text).
+  (b) THE NEW ROAD'S ATTACH -- re-resolve a leaf's call token to the enclosing container's member before its label
+      attaches (what parseRule's enclosingFace does for rules), so it arrives as the member with isTarget. Cost: one
+      `top.face.get(tag)` per leaf call on the hot path (A1.2: the walk must not get slower) -- and it is an O8
+      question (the running instance should BE the container's member).
+  (c) GENERATOR -- emit LoopRestrict's alternatives as inline literal matches (litTo-style) that write the
+      container's own label. Cost: touches Tony's parser file (R3 stop); a third label channel.
+  Clod's pick, for Tony: (a) first, because it is three lines and testable in an hour on both roads; (b) is the
+  structural answer and belongs to the A5 step-1 work.
+
+R2 -- THE FIXTURE: incant/pop/baselineTestsNew, in pop.sh after baselineTests
+  ok    baselineTestsNew runs
+  ok    baselineTestsNew reached its end (BASELINENEW SENTINEL)          -- on stderr, split capture (run2)
+  ok    baselineTestsNew BN-2 parser(Start) ran -- the new road is on
+  ok    baselineTestsNew BN-3 everything before printDefinitions agrees with the old road   (56 lines; vacuity >= 40)
+  FAIL  baselineTestsNew BN-4 printDefinitions differs on the new road -- PINNED RED, F-138
+  Compared against baselineTests' run in the same pop pass, not the golden. Generation trace cut in the harness
+  (through "setParse ended and that ends compileRules"); BrancheS warning filtered by name; parser file untouched.
+  Fleet 885 -> 889 green, row for row otherwise (fixture names 204 -> 205). jitLadder PASSED, printPop PASSED,
+  canary 300. Cost 0.04s.
+  ⚠ PAID FOR ON ITS FIRST RUN: with a MERGED capture, BN-3 went red -- stdout is block-buffered, stderr is not, and
+  the stderr sentinel landed mid-line at a stdout buffer boundary ("outer-then, inner-then BASELINENEW SENTINEL");
+  filtering the sentinel line deleted a real line. Split streams fixed it; the pop.sh comment says why.
+
+  END SEQ 171

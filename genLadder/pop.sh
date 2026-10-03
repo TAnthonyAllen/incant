@@ -259,6 +259,49 @@ else
 fi
 
 #  ============================================================================
+#  baselineTestsNew -- baselineTests' NEW-ROAD half, in its own process (SEQ 277 R2, 2026-10-03).
+#  parser(Start) runs before testUnitTests(), so every unitTests action body is parsed on the
+#  new road at its first call. Compared against baselineTests' run ABOVE ($T/base), not against
+#  the golden. The fixture's own header says why each row is shaped as it is.
+#  BN-3 is the agreement that holds today; BN-4 is PINNED RED under F-138 (the generated FOR
+#  attaches no LoopRestrict, so `for x in y; attributes|members` walks every child) and says so
+#  by name when it turns green -- close F-138 then.
+#  ⚠ STRIPPING: parser(Start)'s generation trace is cut through "setParse ended and that ends
+#  compileRules", and the generator's BrancheS warning is filtered BY NAME (the parser file is
+#  Tony's; the quieting lives here). BN-2 asserts the cut line is present, so a parser(Start)
+#  that stopped running cannot pass BN-3/BN-4 by quietly becoming the old road again (H7).
+#  ⚠ SPLIT STREAMS (run2), NOT MERGED, and the reason was measured on the first run: stdout is
+#  block-buffered and stderr is not, so in a merged capture the stderr sentinel landed MID-LINE
+#  inside a stdout buffer boundary ("outer-then, inner-then BASELINENEW SENTINEL"), and filtering
+#  the sentinel line deleted a real output line -- BN-3 went red on an artifact of the capture.
+#  The sentinel is checked on stderr; the comparisons read stdout only.
+run2 baselineTestsNew "$T/baseN" "$T/baseN.err"; check "baselineTestsNew runs" 0 $?
+sentinel "baselineTestsNew reached its end (BASELINENEW SENTINEL)" "$T/baseN.err" "BASELINENEW SENTINEL"
+if grep -q "^setParse ended and that ends compileRules" "$T/baseN"; then
+    echo "  ok    baselineTestsNew BN-2 parser(Start) ran -- the new road is on"; green=$((green+1))
+else
+    echo "  FAIL  baselineTestsNew BN-2 no generation trace -- parser(Start) did not run; BN-3/BN-4 would compare the old road with itself"; fail=1
+fi
+_bnfilt () { grep -v "^stop:\|^Search list\|^$\|rules should not have data and a list\|BASELINENEW SENTINEL"; }
+sed '1,/^setParse ended and that ends compileRules/d' "$T/baseN" > "$T/baseN.run"
+awk '/^sumple=/{exit} {print}' "$T/base"     | _bnfilt > "$T/bo.head"
+awk '/^sumple=/{exit} {print}' "$T/baseN.run" | _bnfilt > "$T/bn.head"
+awk '/^sumple=/{p=1} p'         "$T/base"     | _bnfilt > "$T/bo.tail"
+awk '/^sumple=/{p=1} p'         "$T/baseN.run" | _bnfilt > "$T/bn.tail"
+#  vacuity guard (H4): two empty heads agree; the head today is 56 lines
+if [ "$(wc -l < "$T/bo.head")" -ge 40 ] && [ -s "$T/bo.tail" ]; then
+    diffcheck "baselineTestsNew BN-3 everything before printDefinitions agrees with the old road" "$T/bo.head" "$T/bn.head"
+else
+    echo "  FAIL  baselineTestsNew BN-3 VACUOUS -- the old-road head is $(wc -l < "$T/bo.head") lines (want >= 40) or its tail is empty"; fail=1
+fi
+if diff "$T/bo.tail" "$T/bn.tail" > "$T/d" 2>&1; then
+    echo "  ok    baselineTestsNew BN-4 printDefinitions agrees with the old road -- F-138 IS FIXED: close F-138 and drop this note"; green=$((green+1))
+else
+    echo "  FAIL  baselineTestsNew BN-4 printDefinitions differs on the new road -- PINNED RED, F-138 (the generated FOR attaches no LoopRestrict)"
+    head -6 "$T/d" | sed 's/^/          /'; fail=1
+fi
+
+#  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.
 #  Added 2026-08-30 with the bind-by-body build plan (docs/wrapperPlan.md §4).
 #
