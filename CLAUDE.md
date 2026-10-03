@@ -2943,6 +2943,15 @@ direction the campaign might take, it is a state the machinery must report as a 
 > **`printPop.sh`** · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
 >
+> ⚠⚠ **EVERY SCRIPT THE CHECKLIST RUNS IS EXECUTABLE IN GIT, CHECKED WITH ONE COMMAND (Tony, standing, SEQ 285
+> R6, 2026-10-03):** `git ls-files -s genLadder/pop.sh jitLadder/ladder.sh genLadder/decodePop.sh genLadder/ddPop.sh
+> genLadder/printPop.sh genLadder/fixitNag.sh | grep -v '^100755'` must print nothing. Any that print get
+> `git update-index --chmod=+x` and are named in the seal. **Why it kept recurring:** no commit ever stripped a bit.
+> jitLadder, printPop and decodePop were CREATED 100644 and stayed that way, so the bit lived only on disk, and any
+> write git makes (checkout, bisect, clone) lays the file down non-executable. The 2026-09-23 in-place bisect rewrote
+> 131 files at 15:19, and the 100644 scripts among them are exactly the ones that lost the bit. A script joins this
+> line when it joins the checklist.
+>
 > ⚠⚠ **`countPop.sh` LEFT THE SEAL 2026-10-02 (SEQ 260 R3), RETIRED BY MAPPING to `parserCoverage`.** Its
 > scorer had been dead since 2026-09-08 and its scaffold since stroke 3, so for weeks it was recorded "row for
 > row" while measuring nothing. pop.sh carries the mapping, assertion by assertion; the script stays as history.

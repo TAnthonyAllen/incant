@@ -33,9 +33,9 @@ stop();
         not touched, so the quieting lives in the harness.
       - the part ahead of printDefinitions' block (the first line beginning
         "sumple=") must agree with the old road: green.
-      - printDefinitions' block must agree with the old road: PINNED RED under
-        F-138 until the generated FOR attaches LoopRestrict. When it turns green
-        the row says so by name -- close F-138 then, do not leave it.
+      - printDefinitions' block must agree with the old road. It was PINNED RED
+        under F-138 until the cure merged (a342b75, 2026-10-03); a plain
+        agreement row since SEQ 285, F-138 closed.
     The sentinel line sits after testUnitTests() and before the single stop(),
     so it prints only if every test ran (rule H2).
 *****************************************************************************/

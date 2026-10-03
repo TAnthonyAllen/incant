@@ -263,9 +263,9 @@ fi
 #  parser(Start) runs before testUnitTests(), so every unitTests action body is parsed on the
 #  new road at its first call. Compared against baselineTests' run ABOVE ($T/base), not against
 #  the golden. The fixture's own header says why each row is shaped as it is.
-#  BN-3 is the agreement that holds today; BN-4 is PINNED RED under F-138 (the generated FOR
-#  attaches no LoopRestrict, so `for x in y; attributes|members` walks every child) and says so
-#  by name when it turns green -- close F-138 then.
+#  BN-3 and BN-4 are both plain agreements. BN-4 was PINNED RED under F-138 (the generated FOR
+#  attached no LoopRestrict, so `for x in y; attributes|members` walked every child) until the
+#  cure merged at a342b75 (stroke 1.1a + cure (c)); un-pinned under SEQ 285 R2, F-138 closed.
 #  ⚠ STRIPPING: parser(Start)'s generation trace is cut through "setParse ended and that ends
 #  compileRules", and the generator's BrancheS warning is filtered BY NAME (the parser file is
 #  Tony's; the quieting lives here). BN-2 asserts the cut line is present, so a parser(Start)
@@ -294,12 +294,7 @@ if [ "$(wc -l < "$T/bo.head")" -ge 40 ] && [ -s "$T/bo.tail" ]; then
 else
     echo "  FAIL  baselineTestsNew BN-3 VACUOUS -- the old-road head is $(wc -l < "$T/bo.head") lines (want >= 40) or its tail is empty"; fail=1
 fi
-if diff "$T/bo.tail" "$T/bn.tail" > "$T/d" 2>&1; then
-    echo "  ok    baselineTestsNew BN-4 printDefinitions agrees with the old road -- F-138 IS FIXED: close F-138 and drop this note"; green=$((green+1))
-else
-    echo "  FAIL  baselineTestsNew BN-4 printDefinitions differs on the new road -- PINNED RED, F-138 (the generated FOR attaches no LoopRestrict)"
-    head -6 "$T/d" | sed 's/^/          /'; fail=1
-fi
+diffcheck "baselineTestsNew BN-4 printDefinitions agrees with the old road" "$T/bo.tail" "$T/bn.tail"
 
 #  ============================================================================
 #  ⚠ argWriteT -- A PRE-FLIP INSTRUMENT, GREEN NOW SO IT CAN GO RED LATER.

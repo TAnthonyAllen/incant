@@ -166,7 +166,7 @@ ATTEMPT LOG
   2026-10-02 filed (SEQ 270 R2); nothing changed.
 ```
 
-### F-138 — testUnitTests' `printDefinitions` prints differently after `parser(Start)`: the `for` loops' `attributes`/`members` restriction looks lost
+### F-138 — ✅ CLOSED 2026-10-03 (merged a342b75, SEQ 285 R2) — testUnitTests' `printDefinitions` prints differently after `parser(Start)`: the `for` loops' `attributes`/`members` restriction looks lost
 
 **What.** `incant/pop/baselineTests` run as-is (old road) and with `parser(Start);` ahead of `testUnitTests();` (the
 new road, as Tony's `tester` does) disagree in the `printDefinitions` block. Old road: `sumple=... across=2` then
@@ -248,6 +248,11 @@ ATTEMPT LOG
     Full bare tokall: only exitFromParse moved. pop.sh 890 / 1 row for row, BN-4 green; lr_new, lr_old, testerA, the
     printDefinition tester, old-road baselineTests byte-identical; jitLadder, printPop PASSED; canary 300. H7 on the tok
     spelling: cure removed -> red by the drop; clears removed -> red by the wipe.
+  2026-10-03 SEQ 285 R1: f138-cure merged into trunk (a342b75), branch deleted local + remote. Bare rebuild from
+    trunk, e6952d0d (same md5 as the branch); full checklist row for row with seal 29.
+  2026-10-03 SEQ 285 R2: BN-4 UN-PINNED -- the pinned if/else became a plain diffcheck. The golden re-bless is NOT
+    part of this close (Done when, above): the cure moved none of R11's lines (SEQ 285 R3).
+    CERTIFYING ROW, pop.sh at trunk 890 / 1: `ok    baselineTestsNew BN-4 printDefinitions agrees with the old road`.
 ```
 
 ### F-137 — a copy of a label loses `labelOf`
