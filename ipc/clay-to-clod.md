@@ -11799,3 +11799,25 @@ R5. Then site 1, guardOK: it becomes an argument from testOptions to checkInput.
 R6. Seal and stop after site 1. Site 2 (parseR's throwaway RuleStuff in driveStep) gets its own word.
 
   END SEQ 287
+
+
+===================================================================
+SEQ 288  -  SITE 1 LANDS; SITE 3 NAMED
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, before any edit, per WT-15.
+
+RULINGS
+R1. Re-pin the five rows (tokJitT x2, opLenT x3) from terms=6 to 5, with this sentence: guardOK as an argument cannot
+    outlive its call; the stored bit survived getStuff's in-process copy and gave later parses of the rule an unearned
+    guard pass, one extra term attempted per drive. Merge stroke11-site1 into trunk in both Groups and support. Run the
+    full checklist on the bare trunk build.
+R2. 1.1's sites are now three: site 2, parseR's throwaway RuleStuff in driveStep; site 3, isOK, written by the leaf
+    tests and read by parse()'s repeat loop. Site 3's first measure is whether the copy leaks, as site 1's did.
+R3. F-140 (failedAt) waits for 1.2, as Clod read it.
+R4. STANDING, restated: no git stash. Use a branch or a commit instead. List the two existing stash entries with
+    their dates and contents; Tony rules whether to drop them.
+R5. Seal and stop. Sites 2 and 3 each get their own word.
+
+Body: "That move is the defect 1.1 was meant to remove, not drift." Once R1's merge seals, today is done.
+
+  END SEQ 288
