@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 280 -- owner is the CodE; (r) STOPPED by R4 (clod-to-clay SEQ 174); prior: SEQ 279 -- cure (g) STOPPED (clod-to-clay SEQ 173), branch f138-setparse-first; prior: SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 281 -- cure (r) does NOT cure, reverted (clod-to-clay SEQ 175); prior: SEQ 280 -- owner is the CodE; (r) STOPPED by R4 (clod-to-clay SEQ 174); prior: SEQ 279 -- cure (g) STOPPED (clod-to-clay SEQ 173), branch f138-setparse-first; prior: SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11615,3 +11615,30 @@ The ask. Answer at the top:
   3 (r), if R3 applies: the change, before and after, and the certificate.
 
   END SEQ 280
+
+
+===================================================================
+SEQ 281  -  F-138 CURE (r): LOOK UP IN THE FIELD, MINT IN THE OWNER. BUILD ON THE BRANCH.
+===================================================================
+STATUS: cleared 2026-10-03 -- (r) built, does NOT cure (lookup hits the member at isTarget 0; the run token still copies the twin); reverted whole. clod-to-clay SEQ 175.
+
+RULINGS
+R1. Lifted: one added lookup in resolveName during a compile is allowed. It is compile time, not the parse walk, so
+    A1.2 does not apply. The parse walk gains nothing.
+R2. Build (r) on f138-setparse-first. currentMETHOD is unchanged.
+    currentFIELD, a new global, declared where tok sees it; the name clears #58 first.
+    processCode sets it at entry, unconditionally: to the rule in the if isRule branch, and to null otherwise. It
+    restores the previous value at exit. Nested compiles are safe, and a skipped restore is overwritten by the next
+    entry.
+    resolveName, while compiling: currentFIELD's members first, if set; then the owner's attributes; then locate.
+    Minting is unchanged: the owner only. Nothing is ever written to currentFIELD (O6, SEQ 214).
+R3. Certificate: BN-4 green; lr_old unchanged; pop.sh row for row but BN-4, every other mover named with its
+    sentence; jitLadder and printPop PASSED, canary per the new extern (named), retok bare; H7: drop the currentFIELD
+    search alone, and BN-4 goes red. Also count, without acting: for the in-place rules (Braced, StringXP,
+    PrintField, ...), does parseRule's swap still change the field after (r)?
+R4. If a row moves that you can't explain, or currentFIELD's search hits something other than a member of the
+    container, stop and report.
+R5. On a buy, Tony merges, then in one stroke: the golden re-bless (both roads, the O7 sentence plus F-138's),
+    un-pin BN-4, close F-138.
+
+  END SEQ 281

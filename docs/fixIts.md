@@ -223,6 +223,14 @@ ATTEMPT LOG
     locate -> the Grokking twin. Cure (r) NOT BUILT (R4): reaching LoopRestrict needs either owner = the rule (mints
     locals onto the shared grammar rule -- O6, SEQ 214) or a second search in the container (a new lookup). Tap
     reverted md5-identical; bare rebuild row for row.
+  2026-10-03 SEQ 281, branch: cure (r) BUILT AND REVERTED WHOLE, bought nothing. currentFIELD (GroupRules + groups.ext;
+    #58 grep 0, full bare tokall diff = ivar + zero-init + the processCode and resolveName lines only, canary 300),
+    set by processCode, searched first by resolveName via getMember. lr_new UNCHANGED (still walks every child). Tap:
+    the lookup hits LoopRestrict's MEMBER (aff member, parent LoopRestrict) -- but with isTarget 0 at compile time
+    (setTargetFlag runs in setParse, after compile); and at parse time the call token still has ruleOf = the Grokking
+    twin, parent Token -- resolveName's answer is not the node that runs (unmeasured: the owner CodE already holds a
+    twin copy, which addAttribute likely hands back). Source, groups.ext and generated files restored to the pre-281
+    snapshot; binary md5-identical (3adbebd0); fleet row for row.
 ```
 
 ### F-137 — a copy of a label loses `labelOf`

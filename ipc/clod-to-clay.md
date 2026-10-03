@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 174 at the FOOT -- SEQ 280: lead confirmed (owner is the CodE); cure (r) STOPPED by R4 (needs a new lookup or minting onto the rule)
+STATUS:   fresh           # SEQ 175 at the FOOT -- SEQ 281: cure (r) built, does NOT cure; reverted whole (R4)
+# prior: SEQ 174 at the FOOT -- SEQ 280: lead confirmed (owner is the CodE); cure (r) STOPPED by R4 (needs a new lookup or minting onto the rule)
 # prior: SEQ 173 at the FOOT -- SEQ 279: cure (g) STOPPED (breaks compile; premise wrong -- the copy is of a Grokking twin)
 # prior: SEQ 172 at the FOOT -- SEQ 278: Tony's parseString hypothesis CONFIRMED; cure sites proposed
 # prior: SEQ 171 at the FOOT -- SEQ 277: F-138 = handed up? NO (dropped at attachLabel); baselineTestsNew joins the fleet
@@ -9859,3 +9860,57 @@ COMMAND AS TYPED
 R5 parked in objectModel A4: currentMETHOD readable from kant, read-only, 3494d52's collision as the caution.
 
   END SEQ 174
+
+
+===================================================================
+SEQ 175  -  SEQ 281: CURE (r) BUILT -- IT DOES NOT CURE. REVERTED WHOLE, STOPPED.
+===================================================================
+STATUS: fresh -- 2026-10-03, branch f138-setparse-first. (r) built, measured, reverted; nothing committed but records.
+Source, groups.ext and every generated file restored to the pre-281 snapshot; bare rebuild md5-identical to the
+binary before (3adbebd0); pop.sh 889 / 1 row for row, jitLadder PASSED, printPop PASSED, canary 300.
+
+WHAT WAS BUILT (then reverted)
+  #58: `currentFIELD` -- 0 uses anywhere (Groups, Include, support), before the edit.
+  GroupRules.twk and groups.ext (external GroupRules), between currentDefine and currentMETHOD:  currentFIELD,
+  GroupActions.rtn processCode:
+      before:  if isRule action = code;
+      after:   currentFIELD    = null;
+               if isRule {
+                   action          = code;
+                   currentFIELD    = field; }
+      plus `priorFIELD = currentFIELD,` in the declarations and `currentFIELD = priorFIELD;` beside currentMETHOD's restore.
+  ruleActions.rtn resolveName:
+      before:  if ( ruler->processingCode && owner )   result = owner->getAttribute(arg);
+      after:   if ( ruler->processingCode && ruler->currentFIELD )  result = ruler->currentFIELD->getMember(arg);
+               if ( !result && ruler->processingCode && owner )   result = owner->getAttribute(arg);
+  Full bare tokall diff: GroupRules.h `GroupItem *currentFIELD;`; GroupRules.mm the zero-init, priorFIELD, the
+  processCode null/set/restore and the two resolveName lines -- every line explained, nothing re-aimed. Canary 300
+  (no new extern: currentFIELD is a member, not a function).
+
+COMMANDS AS TYPED
+  ~/bin/incant $S/lr_old    -> ATTR alpha=1, beta . MEMB mOne, mTwo                       (unchanged)
+  ~/bin/incant $S/lr_new    -> ATTR alpha=1, beta, mOne, mTwo . MEMB alpha, beta, mOne, mTwo  (F-138 STILL THERE)
+  ~/bin/incant $S/lr_new    (taps: resolveName's lookup at compile; the call token at parseString's entry)
+
+CERTIFICATE: NOT REACHED -- BN-4 cannot go green when the smallest probe does not move.
+
+WHY (r) DOES NOT CURE IT -- two facts, measured
+  1 THE LOOKUP IS RIGHT. currentFIELD = LoopRestrict (hasMembers 1); getMember returns LoopRestrict's MEMBER
+    (aff member, parent LoopRestrict) for both names. R4's hit condition holds -- nothing but members was hit.
+    BUT AT COMPILE TIME that member's isTarget is 0. setTargetFlag runs in setParse, AFTER compile; at parse time
+    the same member reads isTarget 1. So any copy of it taken at compile carries 0.
+  2 THE NODE THAT RUNS IS NOT resolveName's ANSWER. At parseString's entry, under (r), the call token still has
+    ruleOf = the Grokking twin and parent Token -- unchanged from before (r). resolveName returned the member; the
+    minting path then went on to `owner->addAttribute(result)` (result's parent is LoopRestrict, not the owner), and
+    the owner CodE already held a `loopOnAttributes` attribute before this resolve (SEQ 280's tap: owner.getAttribute
+    FOUND). Leading guess, NOT measured: addAttribute hands back that existing copy of the twin. Either way the
+    token parseString receives never sees the member.
+  So F-138's label is lost at a node two removes from the lookup: the call token is minted from (or matched to) a
+  copy that predates this resolve, and even the member it should be would read isTarget 0 at compile time.
+
+NEXT, for Tony and Clay: (r)'s premise (fix the lookup and the token follows) is falsified by fact 2. The cures
+still standing are (b) the leaf path's re-resolve at parse time (the one place both facts are already right:
+SEQ 278's tap shows enclosingFace reaching the member with isTarget 1) and (c) promotion at exitFromParse. Both
+need a new dispatch.
+
+  END SEQ 175
