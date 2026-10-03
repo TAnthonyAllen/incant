@@ -92,6 +92,21 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-140 — the new road never writes `failedAt`, so `tell`'s `stoppedAt` reads 0 for every new-road failure
+
+**What.** A drive that fails on the new road reports no failure point: `tell`'s verdict says `stoppedAt 0` where the
+old road reports the real offset. **Severity: wrong answer at exit 0** -- the reply is silent about where it stopped.
+**Where.** `failedAt`'s only writer is `parse()` (`GroupItem.twk:1338`, old road); `exitFromParse` (`Generate.rtn`)
+never writes it. Read by `reportDrive` (`GroupActions.rtn:802`), which `tell` turns into `stoppedAt`.
+**Evidence.** 2026-10-03, binary e6952d0d: `incant/probes/failedAtfasP1` and `failedAtfasP2` -- the old road fails
+"(a]" at 2 and reports 2; the new road fails "(x)" at 1 and "(a]" at 2 and reports 0 for both, in both processes.
+**Done when.** A new-road failure reports its own point, pinned by a row that fails at two different offsets.
+**Owner.** Unassigned -- nothing ruled (SEQ 287 R2).
+```
+ATTEMPT LOG
+  2026-10-03 filed (SEQ 287 R2) from failedAtStale's repro; measured only, nothing changed.
+```
+
 ### F-139 — the baselineTests golden's unpinned lines (SEQ 274 R11): three movers left stale on purpose
 
 **What.** `incant/pop/baselineTests.golden` differs from today's output on both roads (they agree, BN-3/BN-4) at

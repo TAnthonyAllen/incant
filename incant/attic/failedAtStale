@@ -23,3 +23,7 @@ NEXT: BEST GUESS -- in A5 stroke 2 (per-call state onto the activation) failedAt
 the way the floor's label does (O8). Graded: a guess from the census, not measured. Promoted by: a repro that drives a
 generated root to failure after an old-road failure on the same rule and reads reportDrive's failedAt. Killed by: the
 same repro reporting -1 or the generated root's own point.
+
+RETIRED 2026-10-03 (SEQ 287 R1): kill condition met -- incant/probes/failedAtfasP1 (old-road failure first) reads
+the same as its control failedAtfasP2: the new road reports stoppedAt 0 either way, no stale value. The probes stay
+as the record. What the run did show is filed as F-140 (the new road never writes failedAt).

@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 180 at the FOOT -- SEQ 286: failedAtStale -- no stale leak; the new road reports NO failure point (stoppedAt 0); golden line 5 re-blessed, F-139
+STATUS:   fresh           # SEQ 181 at the FOOT -- SEQ 287: site 1 on branch stroke11-site1, 890->885 (a guard leak closed; re-pin needs a ruling); isOK is a handoff
+# prior: SEQ 180 at the FOOT -- SEQ 286: failedAtStale -- no stale leak; the new road reports NO failure point (stoppedAt 0); golden line 5 re-blessed, F-139
 # prior: SEQ 179 at the FOOT -- SEQ 285: merged a342b75; BN-4 un-pinned, F-138 closed; RE-BLESS HELD (R11 unmoved)
 # prior: SEQ 178 at the FOOT -- SEQ 284: directives repaired; sweep rule; exitFromParse said in tok (853d6b4), row for row
 # prior: SEQ 177 at the FOOT -- SEQ 283: F-138 CURED on f138-cure (1.1a + (c)); BN-4 green; awaiting Tony's merge
@@ -10187,3 +10188,58 @@ STROKE 1.1'S SIZE, for Tony's question: small. Of its three handoffs, "leaf resu
    Two sites, each certified on its own. My estimate is a session, not a campaign.
 
   END SEQ 180
+
+
+===================================================================
+SEQ 181  -  SEQ 287: SITE 1 BUILT ON A BRANCH -- NOT ROW FOR ROW (A LEAK CLOSED); RECON (a)(b)
+===================================================================
+STATUS: fresh -- 2026-10-03. Trunk: failedAtStale retired, F-140, f138-setparse-first deleted, seal 32. Site 1 on
+BRANCHES, pushed, NOT merged: Groups stroke11-site1 aaeeef5 + support stroke11-site1 2c6593e (groups.ext). Trunk
+binary e6952d0d reinstalled, bare.
+
+R5 SITE 1 -- BUILT, CERTIFIED EXCEPT ROW FOR ROW, SO NOT LANDED
+   before: testOptions set grup's rStuff->guardOK = 1; parse() -> getStuff -> checkInput read and cleared it on
+           whatever stuff getStuff returned.
+   after:  parse(RuleStuff pStuff, int guardPassed), checkInput(GroupItem field, int guardPassed). testOptions calls
+           grup.parse(stuff,1); every other caller passes 0. parse() spends it after the first checkInput that returns
+           TRUE -- one that fails before reaching the guard (end of input) keeps it for the retry, as the flag did.
+           RuleStuff.guardOK removed (groups.ext on the support branch, so trunk's groups.ext still matches trunk).
+   Bare tokall diff, every line: GroupItem.h/.mm and RuleStuff.h signatures; parse's checkInput call + the spend;
+   8 parse callers ,0 (GroupItem onGroup, GroupMain strap, groups boot, parseR, testAttributes, driveStep x2 --
+   plus testOptions ,1); 6 Generate.rtn checkInput callers ,0; the bit and its 2 ctor zero-inits gone; checkInput
+   reads the argument. Canary 300. No GUI/Tests .mm uses RuleStuff.
+   CERTIFICATE: BN-4 ok · jitLadder PASSED, row for row · printPop PASSED · lr_new, lr_old, testerA, printDefinition
+   tester, baselineTests byte-identical · canary 300 · binary ccf407fc.
+   FLEET 890 -> 885 / 1 -- NOT ROW FOR ROW. Every mover is a term-arrival COUNT, down by exactly one per drive;
+   every verdict and consumed is unchanged:
+     quoteNatT qnCe arrivals 13 -> 12, qnEq 6 -> 5 (want > 0, still ..) · loopVerdict 315/95 -> 313/93 (ok, counts)
+     probeDoorT DO/IF/WhilE terms -1 (ok, jitted = interpreted) · FAIL tokJitT x2 and opLenT x3: terms 6 -> 5.
+   CAUSE, TAPPED ON THE OLD CODE (generated RuleStuff.mm only, reverted md5-identical): getStuff hands back an
+   inProcess COPY; the copy consumes the flag and the ORIGINAL keeps guardOK = 1; a later parse of that rule takes it
+   as a FREE GUARD PASS. In tokJitT alone: 2,869 sets; 99 consumes on copies; 6 consumes on TokenXP with orig=1 and
+   its own guard FAILING (wouldPass=0). An argument cannot outlive its call, so that term is no longer attempted.
+   H7: testOptions passes 0 (argument emptied) -> pop.sh 55 FAIL lines (holderT, spacingT, ...). Restored exactly
+   (patch identical), rebuilt ccf407fc, fleet identical to the certificate run.
+   NEEDS A RULING: re-pin the five terms=6 rows (tokJitT x2, opLenT x3) to 5 with the sentence above, and merge both
+   branches; or another disposition. The sentence is measured; the re-pin was not authorised by R5.
+R4 RECON
+   (a) isOK's READER: parse()'s repeat loop, `while !isOK && kount < maxRepeat` (GroupItem.twk:1301); and testMacro's
+       own `if isOK return true` (RuleStuff.twk:188), local to the test. WRITERS: testMacro -- testAny, testCharacter,
+       testSet -- `isOK = true` on FIELD's rStuff (RuleStuff.twk:187; false at :176); parse() clears it (:1298); the
+       copy ctor zeroes it (:52). So isOK IS a handoff of 1.1's kind: a leaf test hands its result back to parse()'s
+       loop through rStuff, old road only (1.1a covered the new road's leaves). And it has guardOK's shape exactly:
+       the writer uses field.rStuff, the reader uses getStuff's stuff, which is a copy when inProcess. Unmeasured: a
+       copy would leave parse's loop reading false. My recommendation: a third site of 1.1, after site 1 lands.
+   (b) failedAt: WAITS, by my read. It is not a handoff into a call -- it is a drive-level result read after the drive
+       returns (reportDrive). That is A5 stroke 2's subject (per-call state onto the activation; the drive floor
+       already carries the label the same way). Nothing built.
+R1 failedAtStale -> incant/attic, with a retirement note; probes stay in incant/probes. Nag: Tony 0, Clod 2.
+R2 F-140 filed (fixIts, OPEN, top).
+R3 f138-setparse-first deleted, local (was dea1d8a, contained in trunk) and remote.
+⚠ A SLIP OF MINE, RECOVERED: returning to trunk, a mistyped `git stash -q push` failed and the following `stash pop`
+   applied stash@{0} (the 09-23 bisect debris) instead, with conflicts. Undone exactly: incant/pop/f31 back to HEAD,
+   five unmerged minionWork paths removed from the index, the stash's own untracked list deleted. Dropbox re-synced
+   minionWork/ once (all files in that stash, checked by name) and it was deleted again. stash@{0} and @{1} are
+   untouched. Groups tree clean but for this channel; f31 == HEAD.
+
+  END SEQ 181
