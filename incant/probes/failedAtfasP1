@@ -1,0 +1,47 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    fsSay code={
+        v := tell(argument);
+        m := *v["matched"]; c := *v["consumed"]; l := *v["length"]; s := *v["stoppedAt"];
+        cerr "   matched= " m " consumed= " c " length= " l " stoppedAt= " s:;
+        };
+    ;
+register(Ladder);
+define
+    ScafA isRule ka-="a";
+    ScafI isRule ki-="i";
+    ScafALT isRule
+        ScafA;
+        ScafI;
+    ;
+define
+    ScafOUT isRule lp-="(" ScafALT rp-=")";
+    ;
+search GroupFields UnitTests Utilities Ladder list;
+cerr "OLD ok (a)":;
+fsSay("ScafOUT (a)");
+cerr "OLD fail (a] -- own point 2":;
+fsSay("ScafOUT (a]");
+parser(ScafOUT);
+cerr "NEW ok (a)":;
+fsSay("ScafOUT (a)");
+cerr "NEW fail (x) -- own point 1":;
+fsSay("ScafOUT (x)");
+cerr "NEW fail (a] -- own point 2":;
+fsSay("ScafOUT (a]");
+cerr "NEW ok (i)":;
+fsSay("ScafOUT (i)");
+cerr "FAS SENTINEL":;
+stop();
+
+failedAtStale's repro (SEQ 286 R3, 2026-10-03). Two processes: failedAtfasP1 drives ScafOUT to an old-road failure
+at offset 2, runs parser(ScafOUT), then drives new-road failures at their own points 1 and 2 with a good message on
+each side; failedAtfasP2 is the control -- parser(ScafOUT) first, no old-road run. Grammar copied from
+incant/pop/treeRowT, which includes the parser file (a probe without that include ran a parser() that broke the
+known-good end -- void).
+Measured on e6952d0d: old road stoppedAt 2 (its own point); new road stoppedAt 0 for both failures in BOTH
+processes, good messages consumed 3 of 3. No stale leak in this shape; the new road reports no failure point at all.

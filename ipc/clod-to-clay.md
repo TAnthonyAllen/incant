@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 179 at the FOOT -- SEQ 285: merged a342b75; BN-4 un-pinned, F-138 closed; RE-BLESS HELD (R11 unmoved)
+STATUS:   fresh           # SEQ 180 at the FOOT -- SEQ 286: failedAtStale -- no stale leak; the new road reports NO failure point (stoppedAt 0); golden line 5 re-blessed, F-139
+# prior: SEQ 179 at the FOOT -- SEQ 285: merged a342b75; BN-4 un-pinned, F-138 closed; RE-BLESS HELD (R11 unmoved)
 # prior: SEQ 178 at the FOOT -- SEQ 284: directives repaired; sweep rule; exitFromParse said in tok (853d6b4), row for row
 # prior: SEQ 177 at the FOOT -- SEQ 283: F-138 CURED on f138-cure (1.1a + (c)); BN-4 green; awaiting Tony's merge
 # prior: SEQ 176 at the FOOT -- SEQ 282: R3 does NOT reproduce today (JC moves, BN-4 red); the lingering leaf label is the finding
@@ -10140,3 +10141,49 @@ R6 STANDING LINE ADDED (CLAUDE.md, H12). One command: `git ls-files -s <the six>
 NEXT: your ruling on the re-bless (a/b/c); then failedAtStale (R4); then stroke 1.1's dispatch.
 
   END SEQ 179
+
+
+===================================================================
+SEQ 180  -  SEQ 286: failedAtStale STEPPED; GOLDEN LINE 5; F-139
+===================================================================
+STATUS: fresh -- 2026-10-03, trunk. cce583c (R1), seal 31 after. Binary e6952d0d, bare, unchanged this SEQ.
+
+R3 FAILEDATSTALE -- WHAT WAS RUN AND WHAT IT SHOWS (nothing ruled, nothing changed in source or the citizen)
+   The citizen as filed has no repro: `~/bin/incant incant/fixits/failedAtStale` prints its anchor and sentinel, exit 0.
+   So its own NEXT block's repro was built (copied from incant/pop/treeRowT, bear-trap #43) and kept runnable:
+     ~/bin/incant incant/probes/failedAtfasP1   old-road fail at 2, parser(ScafOUT), new-road fails at 1 and 2
+     ~/bin/incant incant/probes/failedAtfasP2   control: parser(ScafOUT) first, no old-road run
+   Both exit 0 with their sentinel. tell's verdict (matched / consumed / length / stoppedAt):
+                                 P1 (old fail first)   P2 (control)
+     OLD ok   "(a)"              1 / 3 / 3 / 3          --
+     OLD fail "(a]"  own pt 2    0 / 0 / 3 / 2          --
+     NEW ok   "(a)"              1 / 3 / 3 / 3          1 / 3 / 3 / 3
+     NEW fail "(x)"  own pt 1    0 / 0 / 3 / 0          0 / 0 / 3 / 0
+     NEW fail "(a]"  own pt 2    0 / 0 / 3 / 0          0 / 0 / 3 / 0
+     NEW ok   "(i)"              1 / 3 / 3 / 3          1 / 3 / 3 / 3
+   1. NO STALE LEAK in this shape: after an old-road failure at 2 on the same rule, the new road reports 0, the same as
+      the control. The citizen's KILL condition ("the same repro reporting -1") is met here: reportDrive's bounds
+      check (GroupActions.rtn:801-803) discards a failedAt outside the current message, and the old message's pointer
+      is outside it. Mechanism inferred, not tapped: the stale pointer is very likely still on ScafOUT's rStuff (the
+      new road has no writer), so a leak needs the new message to land in the old one's memory -- not seen in 2 runs.
+   2. THE FINDING THE RUN DOES SHOW: THE NEW ROAD REPORTS NO FAILURE POINT AT ALL. tell's stoppedAt is 0 for every
+      new-road failure, where the old road reports the real offset (2). failedAt's only writer is parse()
+      (GroupItem.twk:1338); exitFromParse never writes it. So the two roads disagree on tell's reply at exit 0 -- a
+      different defect from the one filed, and the one A5 stroke 2 would have to carry (failedAt as the drive
+      floor's own value).
+   ⚠ One voided first try, recorded: a probe that did not include IncantForms/WorkingOn/parser ran a parser() that
+     left good messages at matched 0 (three `nextGroup: ERROR GrouP does not contain a list`). Its zeros meant
+     nothing (H16: the known-good end did not discriminate), so it was discarded, not graded.
+R1 baselineTests.golden line 5 `ifTest:` -> `ifTest test:` (a4422c4's text edit). The golden now differs from the live
+   old road at exactly 44-45, 65-66, 70-71 -- filed as F-139 (by number, with each one's attribution or its lack).
+   pop.sh 890 / 1, the completeness row ok; pop.sh's mixed-golden comment points at F-139.
+R2 nothing to do.
+R4 NOT RULED -- forwarded with the blank unfilled. Facts for the fill: f138-setparse-first has 0 commits not in trunk,
+   local and remote, so deleting it loses nothing.
+R5 sealed and stopped.
+STROKE 1.1'S SIZE, for Tony's question: small. Of its three handoffs, "leaf results" is already done (1.1a). Left:
+   guardOK -- one writer (testOptions, RuleStuff.twk:272) and one reader (checkInput, :84), old road; and parseR's
+   fake RuleStuff -- one function (RuleStuff.twk:152), one caller (driveStep's no-data arm, GroupActions.rtn:300).
+   Two sites, each certified on its own. My estimate is a session, not a campaign.
+
+  END SEQ 180
