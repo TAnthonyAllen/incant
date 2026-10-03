@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11346,3 +11346,46 @@ On how this campaign is landing: the shape is simple, three levels with one home
 ruleOf, and face in one stroke. The census's misfit list will show whether the simplicity holds.
 
   END SEQ 271
+
+
+===================================================================
+SEQ 272  -  A5 RULED: THE TWO-STEP. O8 GAINS "HANDOFFS ARE ARGUMENTS." DOCS ONLY.
+===================================================================
+STATUS: cleared 2026-10-03 -- A5 replaced (ruled), O8 handoffs paragraph, ptfStep1Plan marked HELD, exec bits restored; sealed.
+
+RULINGS (all of them; nothing is ruled in the body)
+R1. Replace A5 ("execution undecided") in the draft amendment with the text below. A5 is ruled. The rest of the
+    amendment stays a draft until Tony rules on it as a whole.
+R2. Add the "handoffs are arguments" paragraph below to O8 as a draft.
+R3. The redesign's step 1 goes before the PTF step-1 rebuild (OR-1..OR-8, stroke 1.1). Once step 1 is sealed,
+    docs/ptfStep1Plan.md is re-read against the new activation before any PTF stroke.
+R4. Build nothing. Stroke 1.1 of the redesign gets its own dispatch after Tony rules on the amendment.
+R5. Housekeeping: give jitLadder/ladder.sh and genLadder/printPop.sh their execute bits back.
+
+A5. Execution: two steps, each a try-and-buy (ruled 2026-10-03)
+Step 1. rStuff survives. Four strokes, in this order, each certified on its own:
+  1. Handoffs become arguments: guardOK, parseR's into (the fake RuleStuff retires), leaf results handed back to the
+     caller.
+  2. Per-call state onto the activation: label, hereAt, kount, sukcess. The callBracket and getStuff's inProcess copy
+     retire. A pinned row reads the recursive same-instance activations right.
+  3. stuff derived; face renamed instance. The name clears the #58 check (grep, full bare-tokall diff) before the
+     stroke opens.
+  4. Rule facts onto groupBody: ruleOf and instanceRule()'s REGISTRY test retire.
+Each stroke is certified by pop.sh, jitLadder, printPop, canary, and a row pinned for what it retired. Step 1 is
+bought at the seal after stroke 4.
+Step 2. rStuff folds into the instance field. This runs on a branch. It is bought only if everything works on the
+same instruments and the size cost is measured and accepted: bytes per field times the field population on a real
+run, since every field, data fields included, carries the instance slots.
+
+O8 addition (draft). Handoffs are arguments. A value one call hands to another belongs to neither the instance nor the
+activation. It is passed. This covers guardOK (the parent's testOptions to the child's checkInput), into (parseR's
+fake enclosing RuleStuff), and a leaf's label, sukcess and hereAt. Leaves push no record: a leaf is atomic and not
+re-entered, so its per-call values are its results, returned to the calling activation. This answers M1 and M2 and
+the parseR shape from SEQ 168. Still open: isOK's reader, and M3 (failedAt) to Tony.
+
+Docs-only seal after.
+
+A step forward on the activation, a step back to re-read PTF, then the fold. That's the Texas two-step: the floor
+gets covered, just not in a straight line.
+
+  END SEQ 272

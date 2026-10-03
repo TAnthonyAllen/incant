@@ -245,6 +245,12 @@ to sort out.*
   - The name `instance` must clear the bear-trap #58 check (grep, then a full bare-tokall diff); if it does not, Tony
     picks another.
   - *Open:* the order of moves, and whether parse-then-fire's port absorbs the after-the-call label readers.
+  - **Handoffs are arguments** (draft, SEQ 272 R2). A value one call hands to another belongs to neither the instance
+    nor the activation. It is passed. This covers `guardOK` (the parent's `testOptions` to the child's `checkInput`),
+    `into` (`parseR`'s fake enclosing RuleStuff), and a leaf's `label`, `sukcess` and `hereAt`. **Leaves push no
+    record:** a leaf is atomic and not re-entered, so its per-call values are its results, returned to the calling
+    activation. This answers M1 and M2 and the `parseR` shape from clod-to-clay SEQ 168. *Still open:* `isOK`'s
+    reader, and M3 (`failedAt`) to Tony.
   - ⚠ **Tension with A2, recorded not resolved:** O8 keeps `rStuff` as the instance home, where A2c puts instance facts
     in the parent's term table and A2f retires `RuleStuff`. Both are drafts.
   - *Census (SEQ 271, clod-to-clay SEQ 168, 2026-10-03):* `stuff == instance.rStuff` on every new-road push (0 of
@@ -254,10 +260,29 @@ to sort out.*
 - **Measured basis for one later refusal:** `getStuff` found no `rStuff` on **0 of 3,312,125** calls (2026-10-02).
   That is the evidence for making its existence check a refusal ("Houston, we got a problem") when this lands.
 
-### A5. Execution -- deliberately not decided
+### A5. Execution: two steps, each a try-and-buy (RULED 2026-10-03, SEQ 272 R1)
 
-Whether to amend, the stroke order beyond "S8 first", and where stroke 1.1 of the step-1 rebuild lands are for after
-this amendment is ruled.
+**A5 is ruled. The rest of this amendment stays a draft until Tony rules on it as a whole.** The redesign's step 1
+goes **before** the PTF step-1 rebuild (OR-1..OR-8, stroke 1.1); once step 1 is sealed, `docs/ptfStep1Plan.md` is
+re-read against the new activation before any PTF stroke (SEQ 272 R3). Stroke 1.1 gets its own dispatch after Tony
+rules on the amendment (R4).
+
+**Step 1. `rStuff` survives.** Four strokes, in this order, each certified on its own:
+
+1. **Handoffs become arguments:** `guardOK`, `parseR`'s `into` (the fake RuleStuff retires), leaf results handed back
+   to the caller.
+2. **Per-call state onto the activation:** `label`, `hereAt`, `kount`, `sukcess`. The callBracket and `getStuff`'s
+   `inProcess` copy retire. A pinned row reads the recursive same-instance activations right.
+3. **`stuff` derived; `face` renamed `instance`.** The name clears the #58 check (grep, full bare-tokall diff) before
+   the stroke opens.
+4. **Rule facts onto `groupBody`:** `ruleOf` and `instanceRule()`'s REGISTRY test retire.
+
+Each stroke is certified by pop.sh, jitLadder, printPop, canary, and a row pinned for what it retired. **Step 1 is
+bought at the seal after stroke 4.**
+
+**Step 2. `rStuff` folds into the instance field.** This runs on a branch. It is bought only if everything works on
+the same instruments **and** the size cost is measured and accepted: bytes per field times the field population on a
+real run, since every field, data fields included, carries the instance slots.
 
 ---
 

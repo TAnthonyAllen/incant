@@ -1,5 +1,8 @@
 # Parse-then-fire step 1, rebuilt on trunk's model -- the plan (SEQ 268, 2026-10-02; nothing built)
 
+**⚠ HELD (SEQ 272 R3, 2026-10-03).** The redesign's step 1 (`docs/objectModel.md` A5) goes before this plan's
+stroke 1.1. Once that step is sealed, this plan is **re-read against the new activation** before any PTF stroke.
+
 **What this is.** The plan for rebuilding step 1 on today's trunk, port shape (ii) as ruled (SEQ 263 R1). It plans and
 builds nothing. **Inputs:** `docs/ptfReread.md` (the re-read), `docs/ptfStep2Plan.md` (the step-2 plan, verbatim from
 the branch), `docs/overlapCensus.md` (the overlap census), and branch `parse-then-fire` (tip `71d2a44`), read-only.
