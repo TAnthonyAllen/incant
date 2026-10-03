@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 168 at the FOOT -- SEQ 271: activation shape census -- read-only, tap reverted md5-identical
+STATUS:   fresh           # SEQ 169 at the FOOT -- SEQ 274: amendment ruled; O7 census; R11 STOPPED (roads disagree); failedAtStale filed
+# prior: SEQ 168 at the FOOT -- SEQ 271: activation shape census -- read-only, tap reverted md5-identical
 # prior: SEQ 167 at the FOOT -- SEQ 269: instance shape -- take + read-only census; taps reverted md5-identical
 # prior: SEQ 166 at the FOOT -- SEQ 261: PTF re-read STOPPED (control-signal home vs the signed OM); data banked
 # prior: SEQ 165 at the FOOT -- SEQ 251/252: parentStuff recon STOPPED, unlisted writer GroupItem copy ctor; data banked
@@ -9476,3 +9477,89 @@ INSTRUMENT NOTES: the tap counted at each push, after the push line; "differInPr
   jitShowRecord, a local) was read and dropped by name.
 
   END SEQ 168
+
+
+===================================================================
+SEQ 169  -  SEQ 274: AMENDMENT RULED; THE O7 CENSUS; R11 STOPPED
+===================================================================
+STATUS: fresh -- 2026-10-03. Docs and probes only; no build touched (probes ran on seal 24's bare binary, in the
+scratchpad). R1-R10 done. R11 STOPPED -- the two roads do not agree, and the old road moved for more than O7.
+
+ANSWERS
+- Iterate's cursor IS a holder too. Probe (one bag, alpha=1 beta=2): `for` and `iterate ... while ++cur` read
+  identically -- cur.taG = the cursor's own tag; bare taG and *cur.taG = the member's.
+- O7 census: 72 loops (86 hits; 14 were prose in define values or notes, dropped by name below).
+  RIGHT 33 . READS THROUGH 25 . TONY'S TO JUDGE 14.
+- Three facts measured on the way, which set the classes:
+    print grup        -> the member's VALUE (prints 1, 2): right.
+    :grup width       -> hoists the MEMBER's attribute (7, 9): right.
+    grup +% x         -> lands on the HOLDER; the member's list length stays 1: reads (writes) through.
+    callee(grup)      -> the callee's argument IS the holder (argument.taG = grup); callee(*grup) gets the member.
+  Unmeasured: `grup :% x` (assumed like +%, left with Tony), `x += grup`, `grup IN list`, `scope grup~ ...`.
+- R11 STOPPED. See the end. F-138 filed; nothing re-pinned.
+- failedAtStale filed in incant/fixits/ (Tony's lane, runnable, LANE parse, BLAST OVERLAPS). The nag reads Tony 1.
+
+READS THROUGH (25) -- a respell candidate each; * marks a file nothing loads today (backups, stash, windows)
+  incant/unitTests:204        print ``Saw grup.taG       <- the golden's "Saw grup" x2
+  incant/decoder:370          grup.taG, grup.definition
+  incant/lookup:74            luOne(grup)       -- luOne reads argument.taG
+  incant/lookup:91            tombstone(grup)   -- tombstone reads argument.taG
+  incant/lookup:97            grup.taG, grup.gloss, grup.status
+  incant/utilities:124        grup.hasMembers, grup.tag (flatten(*grup) is right)
+  incant/utilities:164        _grup.tag, grup.datA
+  incant/utilities:169        grup.next (toXML(*grup) is right)
+  incant/utilities:273, 278   grup +% copyOf(height/width)   (layout)
+  incant/generate:231         child.nexT, child.isOperatoR, child.taG, emit(child)   (generate is reference only)
+  incant/generate:257         grup.taG
+  *IncantForms/BackupXML/unitTests:108     Saw grup.taG
+  *IncantForms/BackupXML/utilities:43, 56, 62, 77, 82, 99, 120, 151, 179   grup.x / printDefinition(grup) / toXML(grup) / grup +%
+  *IncantForms/BackupXML/generate:47       field.isArgument, getType(field)
+  *IncantForms/Stash/stuffDone:10          someGrup.tag
+  *IncantForms/Windows/bigify:109          if grup == argument   (identity: the holder never equals the member)
+
+TONY'S TO JUDGE (14)
+  incant/unitTests:158        print `grup += righty      (an operator applied to the cursor)
+  incant/utilities:143        grup IN listed             (membership of the holder or the member?)
+  incant/utilities:211        newStuff +% grup           (attaches the holder)
+  incant/utilities:250        grup :% width; sideOut += grup
+  incant/utilities:286        grup :% copyOf(y/x)
+  incant/generate:63, 264     runGenerated(grup / field) (reference only; runGenerated prints argument)
+  IncantForms/Generating/genNotes:51       scope grup~ operate argument
+  *IncantForms/BackupXML/unitTests:63      print `grup += righty
+  *IncantForms/BackupXML/utilities:166, 171  scope grup: height / width
+  *IncantForms/BackupXML/generate:71, 74, 121  runGenerated(grup), getType(field)
+
+RIGHT (33)
+  incant/unitTests:130 (ifTest, respelled), 149, 225, 231 (printDefinitions, respelled) . incant/decoder:361 .
+  incant/walkRefT:43 . incant/dirSample:1 . incant/utilities:20, 114, 199 (:grup target), 213, 216, 300 (:grup;
+  setFrame(*grup)) . incant/generate:385, 424, 428 . incant/frontier:23 . incant/probes/globalReadInAction:23 .
+  incant/probes/markerCandidate:42 . incant/attic/hasTraits:26, 37, 44, 59 . attic/ppwriteCountIsAnAddress:10 .
+  attic/branchTagTruth:17 . attic/nullAccessorDeref:9, 14 . IncantForms/Generating/genNotes:14 .
+  *BackupXML/unitTests:54 . *BackupXML/generate:127, 131 . IncantForms/WorkingOn/parser:28, 53
+PROSE, DROPPED BY NAME (14): incant/designDocs x8 (inside (...#) values), incant/frontier:114 and
+  probes/globalReadInAction:116 (inside cerr strings), IncantForms/Generating/genNotes:24, BackupXML/parser:29,
+  Notions/instruct:11, Tests/jitter:22.
+POPULATION: every file under incant/ and IncantForms/ but incant/pop/ (*.golden, *.target, .DS_Store excluded),
+  live region only (above the first stop()/bail()); a loop is `for X in ` or `iterate X `. Loops written mid-line
+  after another statement are included (the regex anchors on whitespace, ; or {). tester has no loops.
+
+R11 -- STOPPED, NOTHING RE-PINNED
+  Old road (baselineTests as is) and new road (the same with parser(Start); before testUnitTests();, as tester does),
+  one binary, both exit 0:
+  1. THE ROADS DISAGREE. Past the new road's generation trace (431 lines), printDefinitions' six definition blocks
+     move: old prints `sumple=... across=2` then `crossing height=50;`; new prints `sumple=... across=2 crossing` then
+     the attributes again as `height=200;` lines. The for loops' attributes/members restriction looks lost or swapped
+     on the new road (printDefinitions is parsed lazily, after parser(Start)). Unmeasured guess; filed F-138. A golden
+     "from both roads" cannot be one golden today.
+  2. THE OLD ROAD MOVED FOR MORE THAN THE RULED SENTENCE COVERS. Against the golden:
+       ifTest:  -> ifTest test:                            a4422c4's text edit: covered.
+       Saw lightGreen / Saw rounded -> Saw grup x2         unitTests:204 READS THROUGH and was NOT respelled in
+                                                            a4422c4. Pinning it banks the holder's tag as truth.
+       second=56; third=WTF? -> second; third               the parked clusters (golden lines 65-66, 70-71) --
+       width=50% / stuff text -> width=50 / stuff text=one  moved again, still unattributed; not O7.
+     The sentence "moved because for's cursor is a holder; fixtures respelled in a4422c4" is true of the first row
+     only. H6: a re-pin needs a sentence for every moved line.
+  For Tony: respell unitTests:204 (*grup.taG, or bare taG) first; attribute or re-rule the two parked clusters; then
+  F-138 decides whether "both roads" is one golden or two.
+
+  END SEQ 169

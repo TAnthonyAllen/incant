@@ -1,0 +1,25 @@
+Start();
+cerr "=== failedAtStale ===":;
+cerr "ANCHOR failedAtStale -- latent: a failed generated-root drive may report an old-road run's failure point; unmeasured":;
+cerr "  see clod-to-clay SEQ 168 M3 . where: failedAt (old-road writers), reportDrive . guess: becomes the drive floor's own value in A5 stroke ii":;
+cerr "  NO REPRO YET -- minimal form, SEQ 274 R9":;
+fixFailedAtStaleHere = 0;
+cerr "FAILEDATSTALE SENTINEL":;
+stop();
+
+LANE:  parse
+BLAST: OVERLAPS
+
+failedAtStale -- filed 2026-10-03 under SEQ 274 R9 (Tony's lane; minimal form as dispatched).
+
+What: failedAt is per-call state, but only the old road writes it (GroupItem.twk parse(): failedAt = atRuleMark on a
+miss). reportDrive (GroupActions.rtn) reads rule.rStuff.failedAt AFTER the drive returns, to give tell's and driveStep's
+reply its failedAt offset. A generated root never writes it, so a failed generated-root drive may report whatever an
+old-road run last left on that rStuff. Latent; unmeasured.
+
+Where: failedAt's writers (parse(), the RuleStuff ctor), reportDrive, aCTionFailed, reportCodeFail.
+
+NEXT: BEST GUESS -- in A5 stroke 2 (per-call state onto the activation) failedAt becomes the drive floor's own value,
+the way the floor's label does (O8). Graded: a guess from the census, not measured. Promoted by: a repro that drives a
+generated root to failure after an old-road failure on the same rule and reads reportDrive's failedAt. Killed by: the
+same repro reporting -1 or the generated root's own point.

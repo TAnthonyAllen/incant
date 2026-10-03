@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11409,3 +11409,50 @@ items needing Tony's decision rather than a confirmation. Docs untouched; no sea
 until this has been gone through item by item.
 
   END SEQ 273
+
+
+===================================================================
+SEQ 274  -  THE PART 1 AMENDMENT IS RULED. O7 CENSUS, BASELINE RE-PIN, M3 TO TONY'S FIXITS.
+===================================================================
+STATUS: cleared 2026-10-03 -- R1-R10 done; O7 census in clod-to-clay SEQ 169; failedAtStale filed; R11 STOPPED (roads disagree, F-138).
+
+RULINGS (all of them; nothing is ruled in the body)
+R1. The Part 1 amendment is ruled, 2026-10-03. Drop the "DRAFT -- NOT RULED" marker. Apply the item rulings below to
+    objectModel.md; numbers refer to Clod's SEQ 273 list.
+R2. Confirmed as written: #2, 5, 7, 10, 11, 19-25, 27-29. Superseded items (#12-14, #11's "replaced by A2c" clause)
+    move to A3 as set aside, each with its one-line reason; none is deleted. #29's refusal rides A5 stroke 2.
+R3. #1 (A1.1): stands as the direction, not as the rule for step 1. Step 1 keeps rStuff deliberately. Step 2 tests
+    how close instance facts come to being attributes.
+R4. #3/#4 (A1.3, A2a): A1.3 wins. It becomes a buy condition on A5 step 2: the fold is bought only if a plain field
+    pays at most one null pointer (or nothing). If folding puts instance slots on every data field, step 2 is
+    declined. Rewrite A5 step 2's "every field carries the instance slots" to state this condition. A2a's aliasing
+    half stands.
+R5. #6/#9 (A2c term table, A2f): shelved, not dead. Both go to A3. A2f's retirement of RuleStuff is now A5 step 2,
+    under R4.
+R6. #8/#16 (label prototypes, O5): out of scope for this amendment. Park them as their own item in A4, marked parked.
+R7. #17 (O6): principle ruled: a write through an instance must not land on the rule's shared body. Enforcement is
+    parked until a census sorts the push (11,604) and addGroup (1,934) writes per run into breaches and legitimate
+    building. That census is not this dispatch.
+R8. #18 (O7): the for cursor is a holder. aCTionFOR stays as it is; reach the member with *, per the flip campaign's
+    star law. Run the census below.
+R9. #26: M3 (failedAt) goes on Tony's fixit list (form below), and stroke ii cures it. isOK's reader is found in
+    stroke 1.
+R10. Add SEQ 168's M5-M7 to A4 as O9-O11, open: M5 followed's mixed guard, M6 actionMethod written during a fire
+    (stroke 4's problem), M7 notifyFail's level. None of them blocks stroke 1.
+R11. Re-bless the baselineTests golden from a testUnitTests run under both roads. Re-pin sentence: "moved because
+    for's cursor is a holder (O7, ruled 2026-10-03); fixtures respelled in a4422c4."
+
+M3 fixit (Tony's), minimal form
+failedAtStale . latent -- a failed generated-root drive may report an old-road run's failure point; unmeasured . see
+clod-to-clay SEQ 168 M3 . where: failedAt (old-road writers), reportDrive . guess: becomes the drive floor's own value
+in A5 stroke ii
+
+The O7 census (read-only). Every for loop and every Iterate loop in Tony's incantations (forms, parser, tester,
+unitTests, the attic, anything else under incant/ that isn't Clod's pop fixtures). Classify each as: right (counts, or
+dereferences with *, or hands the cursor to something that does); reads through the cursor (grup.x, or passes grup
+where the member is meant); Tony's to judge. First, one probe: does Iterate's cursor read as a holder too? Answer that
+at the top, with the count in each class. Respells come in a later stroke, under Tony's name.
+
+Docs-only seal after. Fleet only if a probe touches a build.
+
+  END SEQ 274

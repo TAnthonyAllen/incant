@@ -152,36 +152,32 @@ None. O-1 and O-2 were ruled 2026-09-28 (§1.5).
 
 ---
 
-## Part 1 amendment — DRAFT -- NOT RULED, 2026-10-02
+## Part 1 amendment — RULED 2026-10-03
 
-**Status: a draft for Tony's ruling. Part 1 above is unchanged and remains the signed target.** Recorded from the
-evening design discussion of 2026-10-02: SEQ 269 (Clay's candidate shape), Clod's take and census (clod-to-clay
-SEQ 167), and what followed (SEQ 270). Tony's preface: *the design is in flux and it is taking a few design iterations
-to sort out.*
+**Status: RULED, 2026-10-03 (SEQ 274 R1).** Drafted from the design discussion of 2026-10-02 (SEQ 269, clod-to-clay
+SEQ 167, SEQ 270), amended on 2026-10-03 (SEQ 271 O7/O8, SEQ 272 A5), and ruled item by item against Clod's SEQ 273
+list. Part 1 above stands; where this amendment and Part 1 differ, this amendment rules. Tony's preface, kept: *the
+design is in flux and it is taking a few design iterations to sort out.*
 
 ### A1. Principles (Tony, stated 2026-10-02)
 
-- **Anything you want to know about a field is answered by its attributes.**
+- **Anything you want to know about a field is answered by its attributes.** **SEQ 274 R3:** this stands as the
+  **direction, not as the rule for step 1.** Step 1 keeps `rStuff` deliberately; step 2 tests how close instance facts
+  come to being attributes.
 - **A question asked from outside the parse walk pays for its own answer. The walk itself must not get slower.**
-- **Plain (non-rule) fields carry no rule baggage:** no `ruleOf`, no `labelOf`, no `rStuff`.
+  (Confirmed, R2.)
+- **Plain (non-rule) fields carry no rule baggage:** no `ruleOf`, no `labelOf`, no `rStuff`. **SEQ 274 R4: this wins**
+  over A5 step 2 and is its buy condition -- a plain field pays at most one null pointer, or nothing.
 
-### A2. The candidate shape
+### A2. The shape
 
 - **a. Plain fields:** body only. Copies keep sharing bodies; **the copy constructor keeps its meaning** (aliasing).
-- **b. Rule facts stay on the rule:** its body and its `propertyList`.
-- **c. Instance facts** (modifiers, min/max, the rule link) live in the **parent rule's term table**, in the parent's
-  `propertyList`, one row per term, **built once at define time**. The walk reads row *k* at term *k*. Rationale:
-  these facts are written in the parent's definition, and under shared bodies an instance has no attribute place of
-  its own.
+  **R4:** the aliasing half stands; "body only" is governed by A1.3's buy condition on A5 step 2.
+- **b. Rule facts stay on the rule:** its body and its `propertyList`. (Confirmed, R2; executed by A5 stroke 4.)
 - **d. Per-call state** (`label`, `hereAt`, `kount`, `sukcess`) moves to `ParseActivation` (S8). **S8 goes first:** it
-  stands alone, and the call bracket retires with it.
-- **e. Labels:** the rule carries a **label prototype** in its `propertyList`; minting is `newLabel = new(ruleLabel)`,
-  own body, the prototype's attributes carried.
-- **f. `RuleStuff` retires** across b, c and d. The census classing of every field (clod-to-clay SEQ 167, item c):
-  rule (`ruleName`, `testMatch`, `parseMethod`, `actionMethod`, `jitMethod`, `onGroup`; `followed` is a lazy-init
-  marker), instance (`min`, `max`, `maxRepeat`, `noAdvance`, `noLabel`, `noSkip`, `modUnGuarded`, `overTo`,
-  `isTarget`, `notifyFail`, `ruleTerm`), per-call (`label`, `hereAt`, `failedAt`, `kount`, `sukcess`, `isOK`,
-  `guardOK`, `inProcess`), measurement-only (`modPercent`, `modPointer`).
+  stands alone, and the call bracket retires with it. (Confirmed, R2; executed by A5 stroke 2, in A5's order.)
+- *A2c (the parent's term table) and A2f (`RuleStuff` retires) are shelved in A3 (R5); A2e (label prototypes) is
+  parked in A4 (R6).*
 
 ### A3. Considered and set aside
 
@@ -189,40 +185,45 @@ to sort out.*
   (2026-10-02, pop.sh + jitLadder + printPop, one tap reverted md5-identical): the shared body carries the tag,
   `hasNewParse`, the guards, the installed parse method and `CodE`/`BlocK`, several of them written **after** the
   instances exist (`parser()`, `compile`); and the copy constructor makes about **240k plain-field and 386k rule
-  copies per fleet run**, so it cannot change meaning.
+  copies per fleet run**, so it cannot change meaning. (Confirmed, R2.)
 - **"Paid once at activation push."** It covers about **60%** of fact reads during a parse (the pushed node asking
   about itself). About 40% are a parent asking about a child it has not pushed (`testOptions`, the guard and option
-  reads, each term's lookup before its own push). **Replaced by define-time payment (A2c).**
+  reads, each term's lookup before its own push). (Confirmed, R2.) ~~Replaced by define-time payment (A2c).~~ **Set
+  aside (R2):** A2c is shelved; the 40% is answered by O8 -- a child's facts sit on the child instance's `rStuff`,
+  readable without a push, and `guardOK` becomes an argument.
+- **A2c. The parent's term table** -- an instance's modifiers, min/max and rule link kept in the parent rule's
+  `propertyList`, one row per term, built at define time; the walk reads row *k* at term *k*. **Shelved, not dead
+  (R5):** A5 keeps instance facts on the instance's `rStuff` (step 1) or folds them into the instance field (step 2).
+- **A2f. `RuleStuff` retires across b, c and d** (with SEQ 167's per-field classing, since superseded by clod-to-clay
+  SEQ 168's). **Shelved, not dead (R5):** the retirement is now **A5 step 2**, under A1.3's buy condition (R4).
+- **O1. Outside askers need the row?** -- set aside (R2): there is no table, so there is no row to carry.
+- **O2. Table freshness** -- set aside (R2): there is no table to keep fresh.
+- **O3. Generated bodies bake row *k*** -- set aside (R2): there is no table; generated code reads the instance it
+  calls.
 
-### A4. Open -- each with the census that answers it
+### A4. Open items
 
-- **O1. Outside askers.** For each of `runOP`'s `isRuleTerm` (on every op), `opDot`, `opGet`, `locate` and
-  `compile`: does it need the **row**, or only "is this a rule"? That decides whether a row number comes back on
-  `GroupItem`. `runOP` is hot. *Census:* per asker, what it does with the answer.
-- **O2. Table freshness.** Every writer of a rule's terms after definition (redefinition, the member road,
-  bootstrap) must rebuild the table, through **one writer**. *Census:* list them.
-- **O3. Generated bodies.** Generated parse bodies call terms by name: can the generator bake row *k* in at emit?
-  Same question for the jit. *Census:* the emit sites that name a term.
 - **O4. `labelOf` vs `ruleOf`.** Clod's suggestion: a label is an instance of its minting rule, so its link could be
-  `ruleOf`. `labelOf` was ruled separate on 2026-10-01 (stroke 5.6a); the stroke-5 rulings row of 2026-10-01 (R3)
-  had asked whether a label can carry `ruleOf`. *Census before any merge:* every reader that asks "is this an
-  instance" (`isRuleTerm`, `instanceRule()`).
-- **O5. The label `propertyList`:** shared with the prototype (read-only by construction -- F-134's family if
-  written) or copied per mint. *Price both* at the two mint sites: checkInput 1,148,652 and processAction 109,439
-  mints per fleet run; a copy per mint is about 3 GC allocations (list, attribute item, its body). Related: a copy
-  of a label loses `labelOf` today (F-137).
-- **O6. Instance read-only.** Under shared bodies a write through an instance lands on the rule. It wants its own
-  rule. The existing breach: `modify`'s `$` writes `isMacro` onto the shared body. The census also saw list writes
-  through faces: `push` 11,604 and `addGroup` 1,934 per run.
-- **O7. The `for` cursor's meaning** (draft, SEQ 271, 2026-10-03). Since T1b (`9244bc3`) removed `aCTionFOR`'s
-  `byRef` cursor relocation, the loop cursor reads as a **holder**. Tony's unitTests fixes (`a4422c4`: `ifTest` reads
-  `taG` for `grup.taG`, `printDefinitions` passes `*grup`) respell the fixtures to match. *Open:* is "the cursor is a
-  holder" the intended meaning of `for`, or a side effect of T1b? *Census:* the population of `for` loops in Tony's
-  incantations that read through the cursor. **The baselineTests golden re-pin waits on this ruling** (SEQ 271 R3), so
-  its sentence can say why it moved.
-- **O8. The activation's shape** (draft, SEQ 271, 2026-10-03; a direction of record, not ruled -- Tony expects to
-  revisit it). Vocabulary: a **rule** is the definition; an **instance** is the field a parse sees, with its own
-  `rStuff`; a rule and all its instances share one `groupBody`; an instance may or may not be the original field.
+  `ruleOf`. **Answered by A5 stroke 4 (confirmed, R2):** `ruleOf` retires, so the merge is moot and `labelOf` stays a
+  label's only link to its rule.
+- **PARKED (R6): label prototypes and the label `propertyList`** (A2e and O5) -- out of scope for this amendment.
+  A2e: the rule carries a label prototype in its `propertyList`; minting is `newLabel = new(ruleLabel)`, own body, the
+  prototype's attributes carried. O5: a minted label's `propertyList` shared with the prototype (read-only by
+  construction -- F-134's family if written) or copied per mint; priced at checkInput 1,148,652 and processAction
+  109,439 mints per fleet run, about 3 GC allocations per copy. Related: a copy of a label loses `labelOf` today (F-137).
+- **O6. Instance read-only.** **Principle RULED (R7): a write through an instance must not land on the rule's shared
+  body.** **Enforcement PARKED** until a census sorts the `push` (11,604) and `addGroup` (1,934) writes per run into
+  breaches and legitimate building; that census is its own dispatch. The known breach: `modify`'s `$` writes `isMacro`
+  onto the shared body.
+- **O7. The `for` cursor's meaning.** **RULED (R8): the cursor is a holder.** `aCTionFOR` stays as it is; reach the
+  member with `*`, per the flip campaign's star law. Since T1b (`9244bc3`) removed `aCTionFOR`'s `byRef` cursor
+  relocation, `grup.taG` reads the holder's own tag; Tony's unitTests fixes (`a4422c4`: `ifTest` reads `taG`,
+  `printDefinitions` passes `*grup`) are the first respells. **Census (SEQ 274, clod-to-clay SEQ 169):** an `iterate`
+  cursor is a holder too; 72 loops in Tony's incantations -- 33 right, 25 read through the cursor, 14 Tony's to judge.
+  Respells come in a later stroke, under Tony's name.
+- **O8. The activation's shape** (SEQ 271; **confirmed as written, SEQ 274 R2** -- #19-25, 27-28 of the SEQ 273
+  list). Vocabulary: a **rule** is the definition; an **instance** is the field a parse sees, with its own `rStuff`;
+  a rule and all its instances share one `groupBody`; an instance may or may not be the original field.
   **Three homes, one test per field:**
 
   | question about the value | level | home |
@@ -245,24 +246,32 @@ to sort out.*
   - The name `instance` must clear the bear-trap #58 check (grep, then a full bare-tokall diff); if it does not, Tony
     picks another.
   - *Open:* the order of moves, and whether parse-then-fire's port absorbs the after-the-call label readers.
-  - **Handoffs are arguments** (draft, SEQ 272 R2). A value one call hands to another belongs to neither the instance
+  - **Handoffs are arguments** (SEQ 272 R2; executed by A5 stroke 1). A value one call hands to another belongs to neither the instance
     nor the activation. It is passed. This covers `guardOK` (the parent's `testOptions` to the child's `checkInput`),
     `into` (`parseR`'s fake enclosing RuleStuff), and a leaf's `label`, `sukcess` and `hereAt`. **Leaves push no
     record:** a leaf is atomic and not re-entered, so its per-call values are its results, returned to the calling
-    activation. This answers M1 and M2 and the `parseR` shape from clod-to-clay SEQ 168. *Still open:* `isOK`'s
-    reader, and M3 (`failedAt`) to Tony.
-  - ⚠ **Tension with A2, recorded not resolved:** O8 keeps `rStuff` as the instance home, where A2c puts instance facts
-    in the parent's term table and A2f retires `RuleStuff`. Both are drafts.
+    activation. This answers M1 and M2 and the `parseR` shape from clod-to-clay SEQ 168. **SEQ 274 R9:** `isOK`'s
+    reader is found in stroke 1; M3 (`failedAt`) is Tony's fixit `failedAtStale`, cured in stroke 2.
+  - **Tension with A2 -- resolved by SEQ 274 R5:** O8 keeps `rStuff` as the instance home; A2c's term table and A2f's
+    retirement of `RuleStuff` are shelved in A3, and A2f's retirement is now A5 step 2 under A1.3's buy condition.
   - *Census (SEQ 271, clod-to-clay SEQ 168, 2026-10-03):* `stuff == instance.rStuff` on every new-road push (0 of
     239,914 differ); the old road differs on 63,970 of 3,312,107, all at `getStuff`'s re-entry mint. No push's field is a
     label. Nine misfits; the largest is **M1 -- leaves push no activation** yet hold `label`/`hereAt`/`sukcess`/`isOK`
     on `rStuff`; also `guardOK` handed across the push (M2) and `failedAt` read after the call by tell's reply (M3).
+- **O9. `followed`'s mixed guard** (M5, open, R10). One lazy marker over `getWhatFollows`, which sets rule facts
+  (`onGroup`, `testMatch`) and an instance fact (`isTarget`) together; the copy constructor clears it, so rule facts
+  are recomputed per instance. Does not block stroke 1.
+- **O10. `actionMethod` written during a fire** (M6, open, R10; stroke 4's problem). `fireLabelMethod` copies
+  `builtinActoR.method` into `stuff.actionMethod` mid-fire (`GroupItem.twk:699`) -- a rule fact written in the walk.
+- **O11. `notifyFail`'s level** (M7, open, R10). Set by `processFlags`' `f` on whichever node carries the flag; rule or
+  instance depends on whether `f` is written on definitions or references. Census not run. Does not block stroke 1.
 - **Measured basis for one later refusal:** `getStuff` found no `rStuff` on **0 of 3,312,125** calls (2026-10-02).
-  That is the evidence for making its existence check a refusal ("Houston, we got a problem") when this lands.
+  That is the evidence for making its existence check a refusal ("Houston, we got a problem"). **Confirmed (R2); it
+  rides A5 stroke 2.**
 
 ### A5. Execution: two steps, each a try-and-buy (RULED 2026-10-03, SEQ 272 R1)
 
-**A5 is ruled. The rest of this amendment stays a draft until Tony rules on it as a whole.** The redesign's step 1
+**A5 is ruled (SEQ 272); the whole amendment was ruled on 2026-10-03 (SEQ 274).** The redesign's step 1
 goes **before** the PTF step-1 rebuild (OR-1..OR-8, stroke 1.1); once step 1 is sealed, `docs/ptfStep1Plan.md` is
 re-read against the new activation before any PTF stroke (SEQ 272 R3). Stroke 1.1 gets its own dispatch after Tony
 rules on the amendment (R4).
@@ -281,8 +290,10 @@ Each stroke is certified by pop.sh, jitLadder, printPop, canary, and a row pinne
 bought at the seal after stroke 4.**
 
 **Step 2. `rStuff` folds into the instance field.** This runs on a branch. It is bought only if everything works on
-the same instruments **and** the size cost is measured and accepted: bytes per field times the field population on a
-real run, since every field, data fields included, carries the instance slots.
+the same instruments **and** it meets A1.3's buy condition (SEQ 274 R4): **a plain field pays at most one null pointer,
+or nothing.** The size cost is measured on a real run (bytes per field times the field population). If folding puts
+instance slots on every data field, step 2 is declined. Step 2 is also where A2f's retirement of `RuleStuff` now
+lives (R5), and where A1.1's direction is tested -- how close instance facts come to being attributes (R3).
 
 ---
 

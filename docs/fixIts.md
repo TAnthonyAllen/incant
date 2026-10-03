@@ -166,6 +166,28 @@ ATTEMPT LOG
   2026-10-02 filed (SEQ 270 R2); nothing changed.
 ```
 
+### F-138 — testUnitTests' `printDefinitions` prints differently after `parser(Start)`: the `for` loops' `attributes`/`members` restriction looks lost
+
+**What.** `incant/pop/baselineTests` run as-is (old road) and with `parser(Start);` ahead of `testUnitTests();` (the
+new road, as Tony's `tester` does) disagree in the `printDefinitions` block. Old road: `sumple=... across=2` then
+`crossing height=50;` on its own line. New road: `sumple=... across=2 crossing` (a member on the attribute line), then
+the attributes again as member-style lines (`height=200;`, `width=251;`, ...). Every definition in the block moves the
+same way. **Severity: wrong output at exit 0**; no fleet row reads it (pop.sh checks baselineTests' exit code and last
+line only). Blocks SEQ 274 R11's both-roads re-bless.
+**Where.** `incant/unitTests` `printDefinitions` (`for grup in argument; attributes` / `...; members`), parsed lazily
+at first call, i.e. after `parser(Start)` installs the generated `FOR` (`LoopRestrict = loopOnAttributes ||
+loopOnMembers`). **Unmeasured guess:** the generated road loses or swaps the loop restriction. The new road also
+prints `rules should not have data and a list; one or the other` on stderr.
+**Evidence.** 2026-10-03, one binary (seal 24's bare build), two runs: `diff` old vs new = the parser(Start)
+generation trace plus six moved definition blocks (old output lines 60-75).
+**Done when.** Both roads print `printDefinitions` identically, a row pins it, and the baselineTests golden is
+re-blessed from both.
+**Owner.** Unassigned -- reported in the SEQ 274 seal.
+```
+ATTEMPT LOG
+  2026-10-03 filed (SEQ 274, found running R11); measured only, nothing changed.
+```
+
 ### F-137 — a copy of a label loses `labelOf`
 
 **What.** The copy constructor zeroes `labelOf` (and copies `rStuff`), so a label added to a second parent becomes a
