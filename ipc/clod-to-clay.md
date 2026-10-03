@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 176 at the FOOT -- SEQ 282: R3 does NOT reproduce today (JC moves, BN-4 red); the lingering leaf label is the finding
+STATUS:   fresh           # SEQ 177 at the FOOT -- SEQ 283: F-138 CURED on f138-cure (1.1a + (c)); BN-4 green; awaiting Tony's merge
+# prior: SEQ 176 at the FOOT -- SEQ 282: R3 does NOT reproduce today (JC moves, BN-4 red); the lingering leaf label is the finding
 # prior: SEQ 175 at the FOOT -- SEQ 281: cure (r) built, does NOT cure; reverted whole (R4)
 # prior: SEQ 174 at the FOOT -- SEQ 280: lead confirmed (owner is the CodE); cure (r) STOPPED by R4 (needs a new lookup or minting onto the rule)
 # prior: SEQ 173 at the FOOT -- SEQ 279: cure (g) STOPPED (breaks compile; premise wrong -- the copy is of a Grokking twin)
@@ -9990,3 +9991,59 @@ label is its RESULT, returned, never stored -- removes the lingering pointer by 
 F-138 may be cured as a side effect of stroke 1 rather than as a separate fix. Not measured; offered for the ruling.
 
   END SEQ 176
+
+
+===================================================================
+SEQ 177  -  SEQ 283: F-138 CURED ON f138-cure -- STROKE 1.1a + CURE (c). BN-4 GREEN.
+===================================================================
+STATUS: fresh -- 2026-10-03. Branch f138-cure (from trunk 68d1850, f138-setparse-first fast-forwarded in: records +
+Tony's tester, no code), pushed, NOT merged -- Tony merges. Tip cb141b2, bare build md5 5b0b4c8f.
+
+WHAT CHANGED (Generate.rtn exitFromParse; GroupRules.mm regenerated bare, canary 300)
+  551e8a7  STROKE 1.1a -- leaves hand back. Mechanism: every leaf returns through exitFromParse, so a HANDBACK macro
+           (defined in a passthrough inside exitFromParse) runs before each of its four returns:
+               { s->sukcess = 0; s->hereAt = 0; if ( s->label && !s->label->fLAG ) s->label = 0; }
+           before:  return trueResult;            after:  -% HANDBACK(ruleStuff) %-   return trueResult;   (x4)
+           A recycled label (fLAG: emptied by the repeat attach, in no tree) is kept, so no extra mints. Inline stores
+           only -- no lookup, no stored slot. parseRule's call bracket restores all three right after, so rules are
+           unchanged. Nothing reads a leaf's rStuff after it returns (parseLoop reads only the return value).
+           isOK (O8.7): OLD ROAD ONLY -- written by testAny/testCharacter/testSet and parse(); read by those tests' own
+           loops and by parse()'s repeat condition (GroupItem.twk:1301). No new-road method touches it.
+  cb141b2  CURE (c). before:  attachLabel(ruleStuff,enclosingStuff(field,ruleStuff),1);
+           after:   read the enclosing activation as enclosingStuff does, keep its face; if that face is a member
+                    container (hasMembers, not a bin) and its stuff has no label, promote the member's label (retag as the
+                    promote branch does) regardless of isTarget; else attachLabel(ruleStuff, that stuff, 1) as before.
+           New road only; the old road's attachLabel is untouched.
+
+COMMANDS AS TYPED
+  ~/bin/incant $S/lr_new ; ~/bin/incant $S/lr_old ; ~/bin/incant $S/testerA ; ~/bin/incant IncantForms/WorkingOn/tester
+  ~/bin/incant incant/pop/baselineTests ; genLadder/pop.sh ; jitLadder/ladder.sh ; genLadder/printPop.sh
+  ~/bin/incant $S/lr_newT        (traceParse on, for H7 #1's IA2 DROP lines)
+
+CERTIFICATE (tip)
+  lr_new: ATTR alpha = 1, ATTR beta . MEMB mOne, MEMB mTwo                                  (== lr_old)
+  BN-4: ok  baselineTestsNew BN-4 printDefinitions agrees with the old road
+  tester (as committed -- first printDefinition after parser(Start)) == the old road's printDefinition, byte for byte;
+    testerA likewise.
+  lr_old unchanged; old-road baselineTests output byte-identical to the pre-283 capture.
+  pop.sh 890 / 1: the ONLY mover is BN-4 (red -> green; 889 -> 890).
+  jitLadder PASSED . printPop PASSED . canary 300 (no new extern) . retok bare (GroupRules.mm == committed).
+  1.1a was certified alone first (551e8a7): pop.sh 889 / 1 row for row, BN-4 still red by the drop, jitLadder and
+  printPop PASSED, old-road baselineTests byte-identical.
+
+H7 PER HALF (H17)
+  #1 revert (c) alone (551e8a7's files): lr_new ATTR alpha, beta, mOne, mTwo . MEMB alpha, beta, mOne, mTwo; trace:
+     IA2 DROP lab=loopOnAttributes / loopOnMembers pRule=LoopRestrict lp.label=(null); BN-4 FAIL. RED BY THE DROP.
+  #2 revert 1.1a alone (HANDBACK removed, (c) kept): lr_new ATTR alpha, beta, mOne, mTwo . MEMB mOne, mTwo; BN-4 FAIL.
+     RED BY THE WIPE -- the members loop is right, the attributes loop's label is cleared by the second loop's failed
+     loopOnAttributes() (SEQ 282's mechanism).
+  Each half masks the other: with only one in place, BN-4 is red either way.
+
+CORRECTION: 633abdc's message says tester drives printDefinition "before and after parser(Start)". The committed
+tester calls it AFTER parser(Start) only -- Tony had already reshaped his working copy to testerA's shape before SEQ
+279 committed it. So tester itself is the shape SEQ 283 R1 names.
+
+ON A BUY (R7): Tony merges f138-cure; then one stroke re-blesses the baselineTests golden (both roads, the O7 sentence
+plus F-138's), un-pins BN-4, closes F-138. Then Tony rebuilds from f138-cure in Xcode and runs tester his way.
+
+  END SEQ 177

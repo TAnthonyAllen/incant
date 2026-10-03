@@ -237,6 +237,11 @@ ATTEMPT LOG
     so it reads its tag. jitLadder JC moves: StatemenT's own empty label on the old road -> `nextGroup: ERROR StatemenT
     does not contain a list`. pop.sh and printPop row for row. Cost +493,371 container mints (+51% on 974,430).
     Finding: a leaf's per-call label lingers on rStuff with no bracket -- A5 stroke 1/2's subject.
+  2026-10-03 SEQ 283, branch f138-cure: CURED, awaiting Tony's merge. 551e8a7 stroke 1.1a (HANDBACK in exitFromParse:
+    leaves leave no per-call value on rStuff) + cb141b2 cure (c) (a labelless member container takes its member's label,
+    new road only). BN-4 GREEN; pop.sh 890 / 1, the only mover BN-4; tester prints printDefinition as the old road does.
+    H7: (c) reverted -> red by the drop (IA2 DROP into LoopRestrict, both loops wrong); 1.1a reverted -> red by the wipe
+    (attributes loop wrong, members loop right). Close with the golden re-bless and BN-4's un-pin after the merge.
 ```
 
 ### F-137 — a copy of a label loses `labelOf`
