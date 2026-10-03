@@ -209,6 +209,45 @@ ATTEMPT LOG
     (only parseRule, parseContainer, parseLoop do), so it runs the call token (isTarget 0) where the re-resolve would
     hand it LoopRestrict's member (isTarget 1). ShortcuT is not a counterexample: the node PrintXP's call reaches has
     hasNewParse 0 and runs the old road's parse(). Cures proposed in clod-to-clay SEQ 172; grammar respell ruled out.
+  2026-10-03 SEQ 279, branch f138-setparse-first: cure (g) -- setParse(argument); moved ahead of compile(argument); in
+    the parser file's compileRules -> REVERTED WHOLE, bought nothing. lr_new: `ERROR processCode: Start parse failed`,
+    `lrRun parse failed` (compile cannot run after setParse); lr_old unchanged. The premise was WRONG: the call token
+    is not a copy of LoopRestrict's member. It copies a GROKKING TWIN -- aCTionDefinE registers each in-place member
+    definition in the current registry (ruleActions.rtn:263) as well as on LoopRestrict; compile resolves the name
+    through the search list to the twin (ruleOf = twin, parent Grokking, isTarget 0). setParseWalk never reaches the
+    twin, so no ordering marks it. Two taps, reverted md5-identical; bare rebuild row for row. Next: (c), on a new
+    dispatch; its owed check is labelOf on a promoted LoopRestrict label and who reads it.
+  2026-10-03 SEQ 280, branch: Tony's lead CONFIRMED -- the call resolves in aCTionNamE (ruleActions.rtn:630) via
+    resolveName(arg, owner), NOT locateInMethod; owner = gCompileOwner = currentMETHOD = the generated body's CodE (processCode:
+    `if isRule action = code;`), never LoopRestrict. resolveName's only local search is owner.getAttribute (CodE), then
+    locate -> the Grokking twin. Cure (r) NOT BUILT (R4): reaching LoopRestrict needs either owner = the rule (mints
+    locals onto the shared grammar rule -- O6, SEQ 214) or a second search in the container (a new lookup). Tap
+    reverted md5-identical; bare rebuild row for row.
+  2026-10-03 SEQ 281, branch: cure (r) BUILT AND REVERTED WHOLE, bought nothing. currentFIELD (GroupRules + groups.ext;
+    #58 grep 0, full bare tokall diff = ivar + zero-init + the processCode and resolveName lines only, canary 300),
+    set by processCode, searched first by resolveName via getMember. lr_new UNCHANGED (still walks every child). Tap:
+    the lookup hits LoopRestrict's MEMBER (aff member, parent LoopRestrict) -- but with isTarget 0 at compile time
+    (setTargetFlag runs in setParse, after compile); and at parse time the call token still has ruleOf = the Grokking
+    twin, parent Token -- resolveName's answer is not the node that runs (unmeasured: the owner CodE already holds a
+    twin copy, which addAttribute likely hands back). Source, groups.ext and generated files restored to the pre-281
+    snapshot; binary md5-identical (3adbebd0); fleet row for row.
+  2026-10-03 SEQ 282, scratch branch (deleted, never pushed): R3 -- containers mint a label, collapse at exit. LoopRestrict
+    now reaches FOR, but BN-4 stays RED: the second loop's failed loopOnAttributes() runs parseString's
+    `if label && !sukcess label.clear()` on the leaf's lingering rStuff.label -- the label already under the first FOR --
+    so it reads its tag. jitLadder JC moves: StatemenT's own empty label on the old road -> `nextGroup: ERROR StatemenT
+    does not contain a list`. pop.sh and printPop row for row. Cost +493,371 container mints (+51% on 974,430).
+    Finding: a leaf's per-call label lingers on rStuff with no bracket -- A5 stroke 1/2's subject.
+  2026-10-03 SEQ 283, branch f138-cure: CURED, awaiting Tony's merge. 551e8a7 stroke 1.1a (HANDBACK in exitFromParse:
+    leaves leave no per-call value on rStuff) + cb141b2 cure (c) (a labelless member container takes its member's label,
+    new road only). BN-4 GREEN; pop.sh 890 / 1, the only mover BN-4; tester prints printDefinition as the old road does.
+    H7: (c) reverted -> red by the drop (IA2 DROP into LoopRestrict, both loops wrong); 1.1a reverted -> red by the wipe
+    (attributes loop wrong, members loop right). Close with the golden re-bless and BN-4's un-pin after the merge.
+  2026-10-03 SEQ 284 R3, f138-cure: both halves SAID IN TOK, no -% %- left in exitFromParse -- one exit (result local,
+    the three clears once) replaces the four HANDBACK uses; cure (c) inline in tok, locals declared first and ruler/field/
+    ruleStuff re-mentioned after each cTop use (first try captured rStuff, atRuleMark, trueResult; #42/#58, canary blind).
+    Full bare tokall: only exitFromParse moved. pop.sh 890 / 1 row for row, BN-4 green; lr_new, lr_old, testerA, the
+    printDefinition tester, old-road baselineTests byte-identical; jitLadder, printPop PASSED; canary 300. H7 on the tok
+    spelling: cure removed -> red by the drop; clears removed -> red by the wipe.
 ```
 
 ### F-137 — a copy of a label loses `labelOf`

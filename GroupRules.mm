@@ -2220,11 +2220,18 @@ ParseActivation 	*top = ruler->gParseActive;
 	return top->stuff;
 }
 
+// handBack STROKE 1.1a -- a term hands its per-call values back and leaves none on rStuff: sukcess, hereAt and a handed-up label are cleared at the ONE exit; a recycled label (fLAG, emptied by the repeat attach and in no tree) stays for reuse. Inline stores, no lookup, no slot (SEQ 283 R2). For parseRule the call bracket restores all three right after
 // exitFromParse the common exit every parse method returns through: sync, fire the label method, attach; a min-zero miss owes a success
 extern "C" GroupItem *exitFromParse(GroupItem *field)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->getRStuff();
+ParseActivation 	*cTop = 0;
+RuleStuff 			*cParent = 0;
+GroupItem 			*cFace = 0;
+GroupItem 			*cLab = 0;
+GroupItem 			*result = 0;
+	// activeNotSubject cTop takes GroupRules' scope and the extra GroupItems take field's, so they are declared FIRST and ruler, field, ruleStuff re-mentioned after them and after every cTop use (bear-traps #42, #58)
+GroupRules 			*ruler = GroupControl::groupController->groupRules;
+RuleStuff 			*ruleStuff = field->getRStuff();
 	if ( ruleStuff->sukcess )
 		{
 		if ( ruleStuff->noAdvance )
@@ -2232,21 +2239,43 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		field->fireLabelMethod(ruleStuff);
 		if ( ruleStuff->sukcess )
 			{
+			// oneAttach ONE ATTACH, through attachLabel, and the promote value is 1 -- promote=0 cannot RETAG here, and the retag is the half a members rule needs
+			// containerYields CURE (c), F-138: a member CONTAINER (not a bin) with no label of its own takes its member's label whatever isTarget says -- the new road's attach only; the old road's attachLabel is untouched (SEQ 283 R3)
 			if ( ruleStuff->label && !ruleStuff->noLabel )
 				{
-				// oneAttach ONE ATTACH, through attachLabel, and the promote value is 1 -- promote=0 cannot RETAG here, and the retag is the half a members rule needs
-				field->attachLabel(ruleStuff,::enclosingStuff(field,ruleStuff),1);
-				// oneBitReturn a successful term returns its TRUTH, never its label -- the label is already attached above, and a label carrying a matched 0 read as a failed alternative in a || chain (Tony, 2026-09-23, restoring ruling c')
-				return ruler->trueResult;
+				cLab = ruleStuff->label;
+				cTop = ruler->gParseActive;
+				if ( cTop && cTop->face == field && cTop->stuff == ruleStuff )
+					cTop = cTop->prev;
+				if ( cTop && !cTop->isFloor )
+					{
+					cParent = cTop->stuff;
+					cFace = cTop->face;
+					}
+				if ( cParent && !cParent->label && cFace && cFace->groupBody->flags.hasMembers && !cFace->groupBody->flags.binType && cLab != ruler->labelNO )
+					{
+					cParent->label = cLab;
+					if ( cLab->labelOf || (!cLab->groupBody->registry && !cLab->parent) )
+						cLab->groupBody->tag = cParent->ruleName;
+					}
+				else	field->attachLabel(ruleStuff,cParent,1);
 				}
-			else	return ruler->trueResult;
+			// oneBitReturn a successful term returns its TRUTH, never its label -- the label is already attached above, and a label carrying a matched 0 read as a failed alternative in a || chain (Tony, 2026-09-23, restoring ruling c')
+			result = ruler->trueResult;
 			}
 		}
-	ruler->atRuleMark = ruleStuff->hereAt;
-	// minZeroIsSatisfied a term whose MINIMUM IS ZERO is satisfied by not matching, so it owes the chain a success and not a null -- parseLoop owns what repeats inside it; this owns the max=1 optional and a max>1 LEAF (nameSet*, Modifier*), which never enters it (SEQ 208)
-	if ( !ruleStuff->min && !field->groupBody->flags.isCondition && (ruleStuff->max <= 1 || !repeatsInLoop(field)) )
-		return ruler->trueResult;
-	return 0;
+	if ( !result )
+		{
+		ruler->atRuleMark = ruleStuff->hereAt;
+		// minZeroIsSatisfied a term whose MINIMUM IS ZERO is satisfied by not matching, so it owes the chain a success and not a null -- parseLoop owns what repeats inside it; this owns the max=1 optional and a max>1 LEAF (nameSet*, Modifier*), which never enters it (SEQ 208)
+		if ( !ruleStuff->min && !field->groupBody->flags.isCondition && (ruleStuff->max <= 1 || !repeatsInLoop(field)) )
+			result = ruler->trueResult;
+		}
+	ruleStuff->sukcess = 0;
+	ruleStuff->hereAt = 0;
+	if ( ruleStuff->label && !ruleStuff->label->groupBody->flags.fLAG )
+		ruleStuff->label = 0;
+	return result;
 }
 
 // fAIL bind the fail method named in the FAIL attribute's text

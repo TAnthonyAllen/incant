@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 284 -- directives repaired, sweep rule, exitFromParse said in tok 853d6b4 (clod-to-clay SEQ 178); prior: SEQ 283 -- F-138 CURED on f138-cure, awaiting merge (clod-to-clay SEQ 177); prior: SEQ 282 -- R3 measured, not a cure; lingering leaf label (clod-to-clay SEQ 176); prior: SEQ 281 -- cure (r) does NOT cure, reverted (clod-to-clay SEQ 175); prior: SEQ 280 -- owner is the CodE; (r) STOPPED by R4 (clod-to-clay SEQ 174); prior: SEQ 279 -- cure (g) STOPPED (clod-to-clay SEQ 173), branch f138-setparse-first; prior: SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11562,3 +11562,199 @@ The ask. Answer at the top: confirmed or not, and the site.
 Report: the commands as typed, answers 1-5, then the evidence.
 
   END SEQ 278
+
+
+===================================================================
+SEQ 279  -  F-138 CURE (g) ON A BRANCH. CLOD EDITS TONY'S PARSER FILE.
+===================================================================
+STATUS: cleared 2026-10-03 -- STOPPED by R3: (g) breaks compile (Start parse failed); premise wrong (the copy is of a Grokking twin). clod-to-clay SEQ 173. Branch f138-setparse-first: tester + records only.
+
+RULINGS
+R1. Cut a branch from trunk for F-138. Make cure (g) yourself in Tony's parser file (IncantForms/WorkingOn/parser): in
+    compileRules, move setParse(argument); ahead of compile(argument);. Commit under Tony's name. Quote the lines
+    before and after, verbatim, in the report and in the commit.
+R2. Certificate: baselineTestsNew BN-4 green; the old road's FOR unchanged (lr_old prints mOne, mTwo; the old-road
+    baselineTests half row for row); pop.sh row for row except BN-4, every other mover named with its sentence;
+    jitLadder and printPop PASSED, canary 300, retok bare. H7: revert the reorder alone and BN-4 goes red again.
+R3. If (g) doesn't cure it, stop. Report why: was the guess wrong, and what does compile actually do with in-place
+    members? Fall back to (c) only on a new dispatch. (c)'s owed check is what labelOf says on a promoted LoopRestrict
+    label, and who reads it.
+R4. On a buy, Tony merges. Then, in one stroke: re-bless the baselineTests golden from both roads, under the R11
+    sentence (O7), plus a second sentence for printDefinitions (F-138, cured at this commit); un-pin BN-4; close
+    F-138. The two parked clusters keep their parked lines, marked "moved again, date owed."
+R5. Commit tester's working copy under Tony's name with the branch work. It has waited long enough.
+Report: what was changed (the parser lines before and after), the commands as typed, the certificate rows, then the
+evidence. That covers the for side campaign. Once merged and the golden re-blessed, the next dispatch is stroke 1.1.
+
+  END SEQ 279
+
+
+===================================================================
+SEQ 280  -  F-138: WHAT currentMETHOD IS DURING THE COMPILE; CURE (r) ON THE BRANCH.
+===================================================================
+STATUS: cleared 2026-10-03 -- lead confirmed (owner = the CodE, via aCTionNamE/resolveName); cure (r) STOPPED by R4. clod-to-clay SEQ 174.
+
+RULINGS
+R1. Recon first, on branch f138-setparse-first. Taps reverted md5-identical.
+R2. Tony's lead: locateInMethod searches currentMETHOD before Grokking. If currentMETHOD (or compile's owner channel)
+    is not LoopRestrict while its generated body compiles, that's why the call resolves to the Grokking copy.
+R3. If item 1 confirms the lead, build cure (r) on the branch: while a container's generated body compiles, the local
+    search looks in that container. Use whichever channel resolution already uses (currentMETHOD or the owner); add no
+    new lookup. Certificate as before: BN-4 green; lr_old unchanged; pop.sh row for row but BN-4, every mover named;
+    jitLadder and printPop PASSED, canary 300, retok bare; H7: revert (r) alone, and BN-4 goes red. Also report: do
+    the in-place rules (Braced, StringXP, PrintField...) now reach their members directly, i.e. does parseRule's swap
+    stop changing the field for them? Count it, don't act on it.
+R4. If (r) fails or needs a new lookup, stop and report. Don't fall back to (b) or (c).
+R5. Parked as its own A4 item, not this dispatch: currentMETHOD readable from kant (Tony, 2026-10-03), read-only,
+    with 3494d52's collision as the caution.
+
+The ask. Answer at the top:
+  1 What currentMETHOD, and compile's owner channel, hold when the call loopOnMembers() inside LoopRestrict's
+    generated body is resolved. Name the site that resolves it, and say whether it goes through locateInMethod.
+  2 What locateInMethod would find if the local search looked in LoopRestrict.
+  3 (r), if R3 applies: the change, before and after, and the certificate.
+
+  END SEQ 280
+
+
+===================================================================
+SEQ 281  -  F-138 CURE (r): LOOK UP IN THE FIELD, MINT IN THE OWNER. BUILD ON THE BRANCH.
+===================================================================
+STATUS: cleared 2026-10-03 -- (r) built, does NOT cure (lookup hits the member at isTarget 0; the run token still copies the twin); reverted whole. clod-to-clay SEQ 175.
+
+RULINGS
+R1. Lifted: one added lookup in resolveName during a compile is allowed. It is compile time, not the parse walk, so
+    A1.2 does not apply. The parse walk gains nothing.
+R2. Build (r) on f138-setparse-first. currentMETHOD is unchanged.
+    currentFIELD, a new global, declared where tok sees it; the name clears #58 first.
+    processCode sets it at entry, unconditionally: to the rule in the if isRule branch, and to null otherwise. It
+    restores the previous value at exit. Nested compiles are safe, and a skipped restore is overwritten by the next
+    entry.
+    resolveName, while compiling: currentFIELD's members first, if set; then the owner's attributes; then locate.
+    Minting is unchanged: the owner only. Nothing is ever written to currentFIELD (O6, SEQ 214).
+R3. Certificate: BN-4 green; lr_old unchanged; pop.sh row for row but BN-4, every other mover named with its
+    sentence; jitLadder and printPop PASSED, canary per the new extern (named), retok bare; H7: drop the currentFIELD
+    search alone, and BN-4 goes red. Also count, without acting: for the in-place rules (Braced, StringXP,
+    PrintField, ...), does parseRule's swap still change the field after (r)?
+R4. If a row moves that you can't explain, or currentFIELD's search hits something other than a member of the
+    container, stop and report.
+R5. On a buy, Tony merges, then in one stroke: the golden re-bless (both roads, the O7 sentence plus F-138's),
+    un-pin BN-4, close F-138.
+
+  END SEQ 281
+
+
+===================================================================
+SEQ 282  -  F-138 RECON: EVERY CONTAINER HOLDS A LABEL WHILE IT PARSES. READ-ONLY, PLUS ONE MEASUREMENT BUILD.
+===================================================================
+STATUS: cleared 2026-10-03 -- R3 measured on a deleted scratch branch: does NOT reproduce (JC moves, BN-4 red); lingering leaf label found. clod-to-clay SEQ 176.
+
+RULINGS
+R1. Recon. Taps go in the generated .mm and are reverted md5-identical. Nothing lands.
+R2. Tony's principle, to be measured: the label chain is consistent by construction. setParse classifies member
+    containers once, at setup. During the parse, a member container holds a label of its own, so attachLabel always
+    finds its parent. isTarget and its timing stop mattering for attach.
+R3. Candidate shape to test against today's trees, always label, collapse at exit: checkInput mints a label for a
+    member container at entry (today it gives none, RuleStuff.twk:95). At the container's exit, if it holds exactly
+    one member label, that label takes the container's place, so the finished tree keeps today's shape.
+R4. One measurement build of R3 is allowed on a scratch branch, never merged and deleted after; say so in the report.
+    If R3 can't be built without touching Tony's parser file or the grammar, stop and report.
+R5. This is stroke ii's question (what an activation holds). Nothing here commits stroke ii to an answer.
+
+The ask. Answer at the top: does R3 reproduce today's trees, what does it cost, and does BN-4 go green.
+  1 Today's finished tree, per alternation container (ANYorNum, DatA, ElsE, GrouP, InvokeArg, LoopRestrict, PrintXP,
+    QuotE, ScopeField, StatemenT, Token, WardeD), on each road: does a container end up as its promoted member's label,
+    its own label, or nothing? One line each, with a fleet fixture that exercises it, or "not exercised."
+  2 Where the roads differ today, beyond LoopRestrict.
+  3 R3's tree vs today's, on the measurement build: printPop, baselineTests (both fixtures) and pop.sh. Name every
+    mover. A mover means R3 does not reproduce today's tree; give the container and the shape it produced.
+  4 The collapse rule's edges. Zero member labels (an optional that matched nothing) or more than one (a repeated
+    alternation)? What today does in each case, and whether R3 matches it.
+  5 Cost (A1.2). Container activations per fleet run and per new-road testUnitTests run: labels minted, and labels
+    collapsed. Compare the totals with today's label mints.
+  6 F-138. On the measurement build: lr_new and BN-4. Does FOR get its LoopRestrict child? What labelOf says on it,
+    and whether anything reads that.
+  7 What R3 retires, if it lands: the isTarget test in attachLabel's promote branch, the IA2 DROP path, parseRule's
+    swap. For each: "retires," "still needed, because...," or "not measured."
+Report: the commands as typed, answers 1-7, then the evidence. Afterwards: the bare build md5-identical to
+3adbebd0..., pop.sh row for row at 889 / 1, and the scratch branch deleted.
+
+  END SEQ 282
+
+
+===================================================================
+SEQ 283  -  F-138 TRY-AND-BUY: STROKE 1.1a (LEAVES HAND BACK) + CURE (c). BRANCH.
+===================================================================
+STATUS: cleared 2026-10-03 -- F-138 CURED on f138-cure: 551e8a7 (1.1a) + cb141b2 (c); BN-4 green; both H7 red. clod-to-clay SEQ 177. Awaiting Tony's merge.
+
+RULINGS
+R1. Cut branch f138-cure from trunk. Goal (Tony): tester runs printDefinition right on the new road, first call after
+    parser(Start).
+R2. Stroke 1.1a, leaves hand back. The leaf parse methods (parseString, parseSet, parseCharacter, parseUpTo, and the
+    rest from SEQ 168 M1) return their label, sukcess and hereAt to the caller and leave no per-call value on rStuff
+    after they return. You choose the mechanism; the constraint is zero added cost on the walk. If it needs a stored
+    slot anywhere, stop and report. isOK: find its reader as part of this (O8.7).
+R3. Cure (c). In the new road's attach: when the parent is a member container (not a bin) with no label, promote the
+    member's label regardless of isTarget. The old road's attach is untouched.
+R4. Order. 1.1a first, committed and certified alone (BN-4 expected still red, from the drop). Then (c) on top.
+R5. Certificate, at the branch tip: lr_new prints MEMB mOne, mTwo and ATTR alpha, beta; BN-4 green; Tony's tester
+    shape (testerA: no call before parser(Start)) prints printDefinition as the old road does; lr_old and the old-road
+    baselineTests row for row; pop.sh row for row but BN-4, every other mover named with its sentence; jitLadder and
+    printPop PASSED, canary named, retok bare.
+R6. H7 per half (H17, because each half masks the other): revert (c) alone: BN-4 red by the drop (no LoopRestrict
+    child); revert 1.1a alone: BN-4 red by the wipe (the second loop's label cleared). Show both.
+R7. If 1.1a moves a row you can't explain, stop at 1.1a and report. On a buy, Tony merges. The golden re-bless, BN-4's
+    un-pin and F-138's close follow in one stroke.
+Report: what changed (before and after per site), the commands as typed, the certificate rows, both H7 controls, then
+the evidence. When it reports green, Tony rebuilds from f138-cure in Xcode and runs tester the way he wants to.
+
+  END SEQ 283
+
+
+===================================================================
+SEQ 284  -  TONY'S DIRECTIVES REPAIRED; THE SWEEP GAP CLOSED; THEN SEAL 28'S OPENER
+===================================================================
+STATUS: cleared 2026-10-03 -- R1 R2 R4 4394205, R3 853d6b4 row for row, both H7 red; R5 unfilled, open. clod-to-clay SEQ 178.
+
+RULINGS
+R1. Apply your swap to groupDirectives: field.debugged in the Generate.rtn targets, bare debugged in parse(). Report
+    each target's "has directives" line, then retok bare (canary 300, generated files equal to committed).
+R2. STANDING (to CLAUDE.md): a rename or deletion sweep covers the gitignored directive files (groupDirectives and its
+    kin), not only tracked source. Each sweep's report says they were grepped.
+R3. Then the opener as seal 28 states it: say exitFromParse's new -% %- escapes in tok. Certificate as SEQ 283's.
+R4. Parked: the face question (a named-rule trace possibly quiet on a face that doesn't share the registry rule's body)
+    goes on cleanupList as one line. The JIT-coverage read waits until redesign step 1 is sealed: stroke 1.1 changes
+    the calling convention a jitted body emits.
+R5. failedAtStale: [now / after the opener / after the merge].
+    -- FORWARDED UNFILLED. Clay's lean, in the body: "after the merge". Not ruled (RULINGS rule: a blank is not a
+       ruling); Clod treats it as open and nothing in R1-R4 depends on it.
+
+Body: tester's working copy goes in with the next routine commit.
+
+  END SEQ 284
+
+
+===================================================================
+SEQ 285  -  MERGE f138-cure; THE RE-BLESS; F-138 CLOSED
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, before any merge, per WT-15.
+
+RULINGS
+R1. Merge it: f138-cure into trunk (jit-unified-emit-wip). Rebuild bare from trunk and run the full checklist. It should
+    read row for row with seal 29, BN-4 green. Then delete f138-cure, local and remote.
+R2. One stroke on trunk: re-bless the baselineTests golden from both roads, with the O7 sentence plus F-138's. Un-pin
+    BN-4. Close F-138 in fixIts, with its attempt log ending at the certifying pop.sh entry. Name each mover in the
+    golden with its sentence.
+R3. Before the re-bless, report whether F-138's cure moved R11 (unitTests:204's Saw grup.taG and the two parked golden
+    clusters). Rule nothing on R11; just say what the golden now shows there.
+R4. failedAtStale is stepped after this stroke seals, before stroke 1.1.
+R5. Seal and stop. Stroke 1.1 gets its own dispatch.
+R6. STANDING (seal checklist): every script the checklist runs is executable, checked with one command over the lot
+    (e.g. git ls-files -s showing mode 100755). Any that aren't get restored in git and named in the seal. Also report,
+    once, what has been stripping the bits: compare the commits that lost them (jitLadder, printPop, decodePop) and say
+    what they have in common.
+
+Body: the second sentence asks Clod to find the cause once, so the checklist line catches drops rather than repairing
+them seal after seal.
+
+  END SEQ 285

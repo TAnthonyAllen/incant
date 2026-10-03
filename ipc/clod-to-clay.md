@@ -4,7 +4,13 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 172 at the FOOT -- SEQ 278: Tony's parseString hypothesis CONFIRMED; cure sites proposed
+STATUS:   fresh           # SEQ 178 at the FOOT -- SEQ 284: directives repaired; sweep rule; exitFromParse said in tok (853d6b4), row for row
+# prior: SEQ 177 at the FOOT -- SEQ 283: F-138 CURED on f138-cure (1.1a + (c)); BN-4 green; awaiting Tony's merge
+# prior: SEQ 176 at the FOOT -- SEQ 282: R3 does NOT reproduce today (JC moves, BN-4 red); the lingering leaf label is the finding
+# prior: SEQ 175 at the FOOT -- SEQ 281: cure (r) built, does NOT cure; reverted whole (R4)
+# prior: SEQ 174 at the FOOT -- SEQ 280: lead confirmed (owner is the CodE); cure (r) STOPPED by R4 (needs a new lookup or minting onto the rule)
+# prior: SEQ 173 at the FOOT -- SEQ 279: cure (g) STOPPED (breaks compile; premise wrong -- the copy is of a Grokking twin)
+# prior: SEQ 172 at the FOOT -- SEQ 278: Tony's parseString hypothesis CONFIRMED; cure sites proposed
 # prior: SEQ 171 at the FOOT -- SEQ 277: F-138 = handed up? NO (dropped at attachLabel); baselineTestsNew joins the fleet
 # prior: SEQ 170 at the FOOT -- SEQ 276: F-138 is a missing LoopRestrict attach on the new road, not a Branches write
 # prior: SEQ 169 at the FOOT -- SEQ 274: amendment ruled; O7 census; R11 STOPPED (roads disagree); failedAtStale filed
@@ -9770,3 +9776,320 @@ token's own rStuff (isTarget 0), the label is not promoted, and attachLabel drop
       attachLabel call (GroupItem.twk:1324) is untouched.
 
   END SEQ 172
+
+
+===================================================================
+SEQ 173  -  SEQ 279: CURE (g) STOPPED. IT BREAKS COMPILE, AND ITS PREMISE WAS WRONG.
+===================================================================
+STATUS: fresh -- 2026-10-03, branch f138-setparse-first (from trunk 68d1850), pushed, NOT for merge as a cure.
+Commits on it: 633abdc Tony's tester working copy (R5, under Tony's name), and these records. The reorder is NOT
+committed -- reverted whole after the first probe (R3).
+
+WHAT WAS CHANGED, then reverted (IncantForms/WorkingOn/parser, compileRules):
+  before                                                after (tried)
+      compileRules code={                                   compileRules code={
+          compile(argument);                                    setParse(argument);
+          print "compile ended":;                               compile(argument);
+          setParse(argument);                                   print "compile ended":;
+          print "setParse ended and that ends compileRules"::;  print "setParse ended and that ends compileRules"::;
+          };                                                    };
+
+COMMANDS AS TYPED
+  ~/bin/incant $S/lr_old           -> ATTR alpha=1, beta . MEMB mOne, mTwo . exit 0   (old road unchanged)
+  ~/bin/incant $S/lr_new           -> ERROR processCode: Start parse failed
+                                      ERROR processCode: lrRun parse failed            (nothing printed; exit 0)
+  ~/bin/incant $S/lr_new           (reorder reverted, tap at parseString's entry: the call token's ruleOf chain)
+  genLadder/pop.sh ; jitLadder/ladder.sh ; genLadder/printPop.sh   (bare, after the taps)
+
+CERTIFICATE: NOT REACHED. BN-4 cannot be read under (g) -- compile itself fails. The branch as left (tester + records):
+  pop.sh 889 / 1 row for row with trunk 68d1850 (BN-4 still pinned red) . jitLadder PASSED . printPop PASSED .
+  canary 300 . bare (no .twk/.rtn touched; taps in GroupRules.mm reverted md5-identical b7ef5108...) . binary 3adbebd0.
+
+R3 -- WHY (g) DOES NOT CURE IT
+  1 IT BREAKS COMPILE. With setParse first, every rule already carries hasNewParse when compile parses the generated
+    CodE bodies, and the first one -- Start -- fails to parse. compile depends on running BEFORE setParse installs
+    the new road. That alone rules (g) out.
+  2 AND THE GUESS WAS WRONG. The call token is not compile's copy of LoopRestrict's member. Tap at parseString's entry:
+        token loopOnAttributes  ruleOf -> loopOnAttributes (member of GROKKING, isTarget 0, followed 0)
+        LoopRestrict's member   loopOnAttributes -> LoopRestrict -> Grokking   (isTarget 1)
+    What compile does with an in-place member: each member line under LoopRestrict is its own DefinE, and
+    aCTionDefinE registers it in the current registry (ruleActions.rtn:263, `NewGroup = currentRegistry += NewGroup`)
+    as well as putting it on LoopRestrict -- two nodes, one body. compile resolves the bare name through the search
+    list, finds the GROKKING TWIN first, and copies it (ruleOf = twin; followed reset by the copy constructor;
+    isTarget copied as the twin's 0). setParseWalk walks LoopRestrict's member, never the twin, so NO ordering of
+    setParse and compile would have marked it.
+  So the label's fate is decided by which of the two nodes the call resolves to -- an O8 question exactly (an
+  instance fact, isTarget, read off the wrong instance). The in-place RULES (Braced, StringXP, PrintField, ElseIf...)
+  have the same twin, and parseRule's enclosingFace re-resolve is what saves them.
+
+NEXT (R3): (c) only on a new dispatch. Its owed check: what labelOf says on a promoted LoopRestrict label, and who
+reads it. Also worth Tony's eye: the leaf path's missing re-resolve, cure (b), is now the one cure that fixes the
+twin rather than working around it -- at A1.2's price (864 leaf calls per new-road testUnitTests run).
+
+  END SEQ 173
+
+
+===================================================================
+SEQ 174  -  SEQ 280: THE OWNER IS THE CodE. CURE (r) STOPPED BY R4.
+===================================================================
+STATUS: fresh -- 2026-10-03, branch f138-setparse-first. One tap (GroupRules.mm aCTionNamE), reverted md5-identical
+(b7ef5108...); bare rebuild 3adbebd0, pop.sh 889 / 1 row for row, jitLadder PASSED, printPop PASSED, canary 300.
+Nothing built.
+
+COMMAND AS TYPED
+  ~/bin/incant $S/lr_new     (tap in aCTionNamE for loopOnAttributes, loopOnMembers, PrintField, Braced)
+
+1 WHAT THE CHANNELS HOLD. When `loopOnMembers()` in LoopRestrict's generated body is resolved:
+      processingCode=1  gCompileOwner=CodE  currentMETHOD=CodE  owner=CodE
+  THE SITE: aCTionNamE (ruleActions.rtn:630) -> resolveName(arg, owner) (ruleActions.rtn:1629). NOT locateInMethod.
+  owner = gCompileOwner while processingCode, else currentMETHOD; processCode (GroupActions.rtn:715) sets both to the
+  rule's generated CodE (`if isRule action = code;`) -- deliberately, so names mint into the body and never into the
+  grammar face (SEQ 214). resolveName's local search is owner.getAttribute(arg) -- the CodE -- then locate(arg):
+      owner.getAttribute = FOUND (a copy already minted into the CodE, aff=attribute, parent CodE)
+      locate             = loopOnMembers, parent GROKKING            <- the twin the copy was made from
+  Same for the in-place rules PrintField and Braced (owner CodE, locate -> parent Grokking).
+  So Tony's lead holds in substance: the search never looks in LoopRestrict -- via the owner channel, not
+  locateInMethod.
+2 IN LoopRestrict. LoopRestrict.get("loopOnMembers") is its member (aff=member, isTarget 1) -- the same node SEQ 278's
+  enclosingFace tap reached at parse time.
+3 CURE (r) -- NOT BUILT (R4). The container IS in hand in processCode (`field`), but no existing lookup reads it:
+  resolveName searches the owner only, and nothing reads currentMETHOD during the compile. The two ways to make the
+  search look in LoopRestrict are both out:
+    - owner = LoopRestrict: resolveName then MINTS new locals and attributes onto the shared grammar rule
+      (owner->addAttribute) -- an O6 breach, and it reverses SEQ 214's ruling.
+    - keep the owner and add a search in the container: a new lookup.
+  The in-place-rules count (does parseRule's swap stop changing their field) is moot without (r).
+
+R5 parked in objectModel A4: currentMETHOD readable from kant, read-only, 3494d52's collision as the caution.
+
+  END SEQ 174
+
+
+===================================================================
+SEQ 175  -  SEQ 281: CURE (r) BUILT -- IT DOES NOT CURE. REVERTED WHOLE, STOPPED.
+===================================================================
+STATUS: fresh -- 2026-10-03, branch f138-setparse-first. (r) built, measured, reverted; nothing committed but records.
+Source, groups.ext and every generated file restored to the pre-281 snapshot; bare rebuild md5-identical to the
+binary before (3adbebd0); pop.sh 889 / 1 row for row, jitLadder PASSED, printPop PASSED, canary 300.
+
+WHAT WAS BUILT (then reverted)
+  #58: `currentFIELD` -- 0 uses anywhere (Groups, Include, support), before the edit.
+  GroupRules.twk and groups.ext (external GroupRules), between currentDefine and currentMETHOD:  currentFIELD,
+  GroupActions.rtn processCode:
+      before:  if isRule action = code;
+      after:   currentFIELD    = null;
+               if isRule {
+                   action          = code;
+                   currentFIELD    = field; }
+      plus `priorFIELD = currentFIELD,` in the declarations and `currentFIELD = priorFIELD;` beside currentMETHOD's restore.
+  ruleActions.rtn resolveName:
+      before:  if ( ruler->processingCode && owner )   result = owner->getAttribute(arg);
+      after:   if ( ruler->processingCode && ruler->currentFIELD )  result = ruler->currentFIELD->getMember(arg);
+               if ( !result && ruler->processingCode && owner )   result = owner->getAttribute(arg);
+  Full bare tokall diff: GroupRules.h `GroupItem *currentFIELD;`; GroupRules.mm the zero-init, priorFIELD, the
+  processCode null/set/restore and the two resolveName lines -- every line explained, nothing re-aimed. Canary 300
+  (no new extern: currentFIELD is a member, not a function).
+
+COMMANDS AS TYPED
+  ~/bin/incant $S/lr_old    -> ATTR alpha=1, beta . MEMB mOne, mTwo                       (unchanged)
+  ~/bin/incant $S/lr_new    -> ATTR alpha=1, beta, mOne, mTwo . MEMB alpha, beta, mOne, mTwo  (F-138 STILL THERE)
+  ~/bin/incant $S/lr_new    (taps: resolveName's lookup at compile; the call token at parseString's entry)
+
+CERTIFICATE: NOT REACHED -- BN-4 cannot go green when the smallest probe does not move.
+
+WHY (r) DOES NOT CURE IT -- two facts, measured
+  1 THE LOOKUP IS RIGHT. currentFIELD = LoopRestrict (hasMembers 1); getMember returns LoopRestrict's MEMBER
+    (aff member, parent LoopRestrict) for both names. R4's hit condition holds -- nothing but members was hit.
+    BUT AT COMPILE TIME that member's isTarget is 0. setTargetFlag runs in setParse, AFTER compile; at parse time
+    the same member reads isTarget 1. So any copy of it taken at compile carries 0.
+  2 THE NODE THAT RUNS IS NOT resolveName's ANSWER. At parseString's entry, under (r), the call token still has
+    ruleOf = the Grokking twin and parent Token -- unchanged from before (r). resolveName returned the member; the
+    minting path then went on to `owner->addAttribute(result)` (result's parent is LoopRestrict, not the owner), and
+    the owner CodE already held a `loopOnAttributes` attribute before this resolve (SEQ 280's tap: owner.getAttribute
+    FOUND). Leading guess, NOT measured: addAttribute hands back that existing copy of the twin. Either way the
+    token parseString receives never sees the member.
+  So F-138's label is lost at a node two removes from the lookup: the call token is minted from (or matched to) a
+  copy that predates this resolve, and even the member it should be would read isTarget 0 at compile time.
+
+NEXT, for Tony and Clay: (r)'s premise (fix the lookup and the token follows) is falsified by fact 2. The cures
+still standing are (b) the leaf path's re-resolve at parse time (the one place both facts are already right:
+SEQ 278's tap shows enclosingFace reaching the member with isTarget 1) and (c) promotion at exitFromParse. Both
+need a new dispatch.
+
+  END SEQ 175
+
+
+===================================================================
+SEQ 176  -  SEQ 282: EVERY CONTAINER HOLDS A LABEL (R3) -- MEASURED. NOT A CURE; THE LINGERING LEAF LABEL IS THE FINDING.
+===================================================================
+STATUS: fresh -- 2026-10-03. Recon + one measurement build on SCRATCH branch scratch-r3-measure (cf2c8e0), never
+merged, never pushed, DELETED. Taps in the generated .mm only, writing to a scratch file (never stdout/stderr, so the
+tap moved no row -- certified: pop.sh row for row under the tap). After: generated files restored to the pre-282
+snapshot, bare binary md5-identical 3adbebd0, pop.sh 889 / 1 row for row, jitLadder PASSED, printPop PASSED, canary 300.
+
+ANSWER: R3 does NOT reproduce today's trees. Outcome classes match everywhere but LoopRestrict (as intended) and
+pop.sh/printPop are row for row -- but jitLadder JC moves (an old-road error line) and BN-4 stays RED. Cost: +51%
+label mints. The reason BN-4 stays red is a second defect R3 uncovers, and it is the stroke-2 question in miniature.
+
+COMMANDS AS TYPED
+  genLadder/pop.sh ; genLadder/printPop.sh ; jitLadder/ladder.sh       (today, then on the R3 build; tap -> file)
+  ~/bin/incant $S/lr_old ; ~/bin/incant $S/lr_new                       (both builds; R3 build also with stderr taps)
+
+1 TODAY'S FINISHED TREE, per container (pop + printPop, aggregated by fixture; NEW = generated road, OLD = parse()):
+  ANYorNum     promoted both roads          NEW baselineTestsNew . OLD oneTest
+  DatA         promoted OLD; NEW not exercised (no new-road define in the fleet)   OLD oneTest
+  ElsE         promoted both                NEW baselineTestsNew . OLD jsonTest
+  GrouP        promoted both                NEW chainTruthT . OLD oneTest
+  InvokeArg    promoted both                NEW baselineTestsNew . OLD oneTest
+  LoopRestrict OLD promoted, NEW NOTHING    OLD baselineTests . NEW baselineTestsNew (F-138)
+  PrintXP      promoted both                NEW baselineTestsNew . OLD jsonTest
+  QuotE        promoted both                NEW baselineTestsNew . OLD oneTest
+  ScopeField   promoted both                NEW sweepT . OLD dirT
+  StatemenT    promoted, and NOTHING when its member yields none (NEW 68 sweepT; OLD 430 jsonTest) -- both roads
+  Token        promoted both                NEW baselineTestsNew . OLD oneTest
+  WardeD       promoted both                NEW baselineTestsNew . OLD oneTest
+  No container ever ends as its OWN label today: container label mints = 0.
+2 WHERE THE ROADS DIFFER beyond LoopRestrict: nowhere by outcome class. Same input both roads (baselineTests old vs
+  baselineTestsNew new): every container promoted on both; only LoopRestrict differs.
+3 R3 vs TODAY (measurement build). Outcome classes: identical except NEW LoopRestrict none -> promoted. pop.sh: row for
+  row (BN-4 still red). printPop: byte-identical. MOVERS:
+  - jitLadder JC (FAIL "THE ENGINES DISAGREE"): the oracle half gains two `nextGroup: ERROR StatemenT does not contain a
+    list`. Container StatemenT, OLD road: its OWN label, empty, exists while a member parses, and something walks it.
+    Shape produced: an error line where today's StatemenT holds nothing. (Walker not identified.)
+  - BN-4 / lr_new (still red, a different red): FOR #1 gets LoopRestrict(text=LoopRestrict) -- the tag echo. The
+    collapse handed FOR the right label (kid text "attributes"), then loop #2's loopOnAttributes() failed its guard on
+    "members" and parseString's `if label && !sukcess label.clear()` cleared the leaf's rStuff.label -- STILL POINTING
+    at the label now under FOR #1. FOR #2 reads text=members and its members loop is right.
+4 THE COLLAPSE EDGES.
+  - ZERO member labels: 494 in the fleet (StatemenT when its member yields none). Today: the container ends with
+    nothing. R3 ends with nothing too (outcome class matches) -- but its empty own label is live DURING the member's
+    parse, which is the JC mover.
+  - MORE THAN ONE: 0 in the fleet. A repeated alternation (Token+) is one container activation per repetition via
+    parseLoop, so today never puts two member labels under one container activation. R3's rule (keep the own label) is
+    untested.
+5 COST (same fixture set, pop + printPop):
+      today  container label mints 0        other mints 974,430   IA2 drops 2,902
+      R3     container label mints 493,371  other mints 985,432   IA2 drops 2,874   collapses 496 (494 zero, 2 one)
+  So R3 mints +51% labels, and all but 496 are thrown away when a target member's promotion replaces them.
+  One new-road testUnitTests run (baselineTestsNew): +3,646 container mints on 6,770 (+54%); collapses 5 (3 zero, 2 one).
+6 F-138 ON THE R3 BUILD. lr_new: FOR gets a LoopRestrict child in both loops (text attributes, then members) -- then the
+  first is wiped as in 3. BN-4 red. labelOf on the collapsed label = the call token it was minted for (loopOnAttributes
+  in LoopRestrict's CodE, ruleOf the Grokking twin). Readers of labelOf, by grep (not measured on this path): attachLabel's
+  ownedRetag gate (labelOf licenses the retag), getStuff's borrow refusal, processCode/processAction's label-arm
+  refusals (F-130), the copy constructor (zeroes it, F-137). None reads WHICH rule it names here.
+7 WHAT R3 RETIRES.
+  - isTarget in attachLabel's promote branch: STILL NEEDED as built -- exitFromParse passes promote=1 on every attach,
+    and isTarget is what stops a SEQUENCE's term from replacing its parent's label. R3 only makes it unneeded for a
+    CONTAINER parent. (By reading; not measured.)
+  - the IA2 DROP path: STILL NEEDED -- 2,874 drops remain under R3 (2,902 today); their parents are not containers
+    (about 12 per fixture, both roads).
+  - parseRule's swap: NOT MEASURED. It supplies the instance's rStuff for every rule fact, not only isTarget.
+
+THE FINDING, and why it points at stroke ii: a LEAF's per-call label lingers on its rStuff after the leaf has handed
+it up, because leaves push no activation and have no call bracket. Today promotion leaves the same pointer behind; R3
+merely made it visible (a later failed guard clears an attached label). O8's "handoffs are arguments" -- a leaf's
+label is its RESULT, returned, never stored -- removes the lingering pointer by construction, which is A5 stroke 1.
+F-138 may be cured as a side effect of stroke 1 rather than as a separate fix. Not measured; offered for the ruling.
+
+  END SEQ 176
+
+
+===================================================================
+SEQ 177  -  SEQ 283: F-138 CURED ON f138-cure -- STROKE 1.1a + CURE (c). BN-4 GREEN.
+===================================================================
+STATUS: fresh -- 2026-10-03. Branch f138-cure (from trunk 68d1850, f138-setparse-first fast-forwarded in: records +
+Tony's tester, no code), pushed, NOT merged -- Tony merges. Tip cb141b2, bare build md5 5b0b4c8f.
+
+WHAT CHANGED (Generate.rtn exitFromParse; GroupRules.mm regenerated bare, canary 300)
+  551e8a7  STROKE 1.1a -- leaves hand back. Mechanism: every leaf returns through exitFromParse, so a HANDBACK macro
+           (defined in a passthrough inside exitFromParse) runs before each of its four returns:
+               { s->sukcess = 0; s->hereAt = 0; if ( s->label && !s->label->fLAG ) s->label = 0; }
+           before:  return trueResult;            after:  -% HANDBACK(ruleStuff) %-   return trueResult;   (x4)
+           A recycled label (fLAG: emptied by the repeat attach, in no tree) is kept, so no extra mints. Inline stores
+           only -- no lookup, no stored slot. parseRule's call bracket restores all three right after, so rules are
+           unchanged. Nothing reads a leaf's rStuff after it returns (parseLoop reads only the return value).
+           isOK (O8.7): OLD ROAD ONLY -- written by testAny/testCharacter/testSet and parse(); read by those tests' own
+           loops and by parse()'s repeat condition (GroupItem.twk:1301). No new-road method touches it.
+  cb141b2  CURE (c). before:  attachLabel(ruleStuff,enclosingStuff(field,ruleStuff),1);
+           after:   read the enclosing activation as enclosingStuff does, keep its face; if that face is a member
+                    container (hasMembers, not a bin) and its stuff has no label, promote the member's label (retag as the
+                    promote branch does) regardless of isTarget; else attachLabel(ruleStuff, that stuff, 1) as before.
+           New road only; the old road's attachLabel is untouched.
+
+COMMANDS AS TYPED
+  ~/bin/incant $S/lr_new ; ~/bin/incant $S/lr_old ; ~/bin/incant $S/testerA ; ~/bin/incant IncantForms/WorkingOn/tester
+  ~/bin/incant incant/pop/baselineTests ; genLadder/pop.sh ; jitLadder/ladder.sh ; genLadder/printPop.sh
+  ~/bin/incant $S/lr_newT        (traceParse on, for H7 #1's IA2 DROP lines)
+
+CERTIFICATE (tip)
+  lr_new: ATTR alpha = 1, ATTR beta . MEMB mOne, MEMB mTwo                                  (== lr_old)
+  BN-4: ok  baselineTestsNew BN-4 printDefinitions agrees with the old road
+  tester (as committed -- first printDefinition after parser(Start)) == the old road's printDefinition, byte for byte;
+    testerA likewise.
+  lr_old unchanged; old-road baselineTests output byte-identical to the pre-283 capture.
+  pop.sh 890 / 1: the ONLY mover is BN-4 (red -> green; 889 -> 890).
+  jitLadder PASSED . printPop PASSED . canary 300 (no new extern) . retok bare (GroupRules.mm == committed).
+  1.1a was certified alone first (551e8a7): pop.sh 889 / 1 row for row, BN-4 still red by the drop, jitLadder and
+  printPop PASSED, old-road baselineTests byte-identical.
+
+H7 PER HALF (H17)
+  #1 revert (c) alone (551e8a7's files): lr_new ATTR alpha, beta, mOne, mTwo . MEMB alpha, beta, mOne, mTwo; trace:
+     IA2 DROP lab=loopOnAttributes / loopOnMembers pRule=LoopRestrict lp.label=(null); BN-4 FAIL. RED BY THE DROP.
+  #2 revert 1.1a alone (HANDBACK removed, (c) kept): lr_new ATTR alpha, beta, mOne, mTwo . MEMB mOne, mTwo; BN-4 FAIL.
+     RED BY THE WIPE -- the members loop is right, the attributes loop's label is cleared by the second loop's failed
+     loopOnAttributes() (SEQ 282's mechanism).
+  Each half masks the other: with only one in place, BN-4 is red either way.
+
+CORRECTION: 633abdc's message says tester drives printDefinition "before and after parser(Start)". The committed
+tester calls it AFTER parser(Start) only -- Tony had already reshaped his working copy to testerA's shape before SEQ
+279 committed it. So tester itself is the shape SEQ 283 R1 names.
+
+ON A BUY (R7): Tony merges f138-cure; then one stroke re-blesses the baselineTests golden (both roads, the O7 sentence
+plus F-138's), un-pins BN-4, closes F-138. Then Tony rebuilds from f138-cure in Xcode and runs tester his way.
+
+  END SEQ 177
+
+
+===================================================================
+SEQ 178  -  SEQ 284: DIRECTIVES REPAIRED; SWEEP RULE; exitFromParse SAID IN TOK
+===================================================================
+STATUS: fresh -- 2026-10-03, branch f138-cure, pushed, NOT merged. 4394205 (R1 R2 R4 records + tester), 853d6b4 (R3).
+Bare build e6952d0d installed.
+
+R1 groupDirectives (gitignored, so no commit carries it): 12 bodies read `rule.debugged`. RuleStuff.rule was renamed
+   owner (df520b0, 2026-09-30) and owner was deleted (stroke 5.6). tok parses a directive body in its target's scope
+   (Tokf/Directive.twk:42), so the name failed and each directive was dropped -- "parseDirective: failed for <method>
+   <anchor>", exit 0, canary unmoved. Bisected one name at a time: cerr, ruleName, getDebugText parse; rule.debugged
+   alone fails. Swapped: field.debugged x9 (Generate.rtn targets), bare debugged x3 (parse(), a GroupItem method --
+   it fails the same way under `tok GroupItem.twk groupDirectives`; it never showed in a GroupRules retok).
+     tok GroupRules.twk groupDirectives: loadInputFromFile, aCTionDefinE, exitFromParse, parseAction, parseContainer,
+       parseRule, parseSet, parseString, parseUpTo -- each "has directives", no parseDirective failure.
+     tok GroupItem.twk groupDirectives: parse(RuleStuff*) has directives, no failure.
+     Install check: 8 armed injections in GroupRules.mm (9 `flags.debugged )` against 1 in the bare file), 3 in
+       GroupItem.mm. Then retok bare: generated files equal committed, canary 300.
+   One more dead name, left alone (disarmed, Tony's file): `generateCode generating ctive` -- bytecode road, retired.
+R2 CLAUDE.md, Working Relationship, beside the bare-default rule. Grep of the directive files for this sweep: done
+   (rule., owner, parentStuff, parentLabel, bcOPs, generating); only groupDirectives is gitignored in Groups.
+R3 exitFromParse, no -% %- left.
+     before: #define HANDBACK in a passthrough, four `-% HANDBACK(ruleStuff) %-` before four returns; cure (c) a C++ block.
+     after:  ONE exit -- a result local; sukcess = false; hereAt = null; if label && !label.fLAG label = null;
+             return result. Cure (c) in tok, inline, same tests in the same order (no new extern: canary 300).
+   First try was wrong and the canary could not see it: cTop and cLab captured bare rStuff, atRuleMark, trueResult
+   and fireLabelMethod (#42, #58). Cure: locals declared first; ruler, field, ruleStuff re-mentioned after them and
+   after each cTop use; the resolutions were then read in the generated body against the committed one.
+   Full bare tokall: only exitFromParse moved.
+CERTIFICATE (as SEQ 283's), before = installed 5b0b4c8f, after = e6952d0d:
+   lr_new, lr_old, testerA, the printDefinition tester (dc8cd96's), old-road baselineTests: byte-identical.
+   pop.sh 890 / 1 row for row, BN-4 green (the one moving line is acceptStartT's heap address, H3).
+   jitLadder PASSED · printPop PASSED · decodePop row for row with its seal capture · frontier 6 / 6 row for row ·
+   ddPop 5 / 1 (standing: trim gate 32) · canary 300 · bare · groups.ext untouched · support and TOK clean.
+   H7 on the tok spelling: cure removed -> lr_new MEMB alpha, beta, mOne, mTwo, BN-4 red (the drop); clears removed
+   -> ATTR alpha, beta, mOne, mTwo, BN-4 red (the wipe). Restored md5-identical, rebuilt, same md5.
+R4 cleanupList: the face question, one entry. The JIT-coverage read waits for redesign step 1's seal.
+R5 NOT RULED -- forwarded with the blank unfilled. Your lean is "after the merge". Nothing here depended on it; it
+   is Tony's to fill.
+Rider: genLadder/decodePop.sh had no exec bit (git mode 100644, exit 126); +x restored in the index, as seal 25 did
+   for jitLadder and printPop.
+NEXT: Tony's merge of f138-cure; then the golden re-bless + BN-4 un-pin + F-138 close; then stroke 1.1.
+
+  END SEQ 178
