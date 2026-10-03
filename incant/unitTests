@@ -126,17 +126,17 @@ define
     feeling='having a few doubts ends here';
     formatTest code={ print "formatTest:" `is "Formatted"%12s maybe:; };
     ifTest code={
-        print "ifTest:":;
+        print "ifTest test:":;
         for grup in aGroup;
-            print ``"grup=" grup.taG ":":;
-            if grup.taG == "one";
+            print ``"grup=" taG ":":;
+            if taG == "one";
                 if righty == 13;
                     print "  outer-then, inner-then":;
                 or righty == 99;
                     print "  outer-then, inner-or":;
                 else
                     print "  outer-then, inner-else":;
-            or grup.taG == "two";
+            or taG == "two";
                 print "  outer-or":;
             else
                 print "  outer-else":;
@@ -230,7 +230,7 @@ define
             print :;
             for grup in argument; members
                 print +;
-                printDefinition(grup);
+                printDefinition(*grup);
                 print ,-;
         else
             print ";":;

@@ -9,6 +9,7 @@ search reset stack Grokking;
 search UnitTests Utilities list;
 
 parser(Start);
+testUnitTests();
 stop();
 
 /***************************************************************************
@@ -19,6 +20,9 @@ include("IncantForms/WorkingOn/parser");
 parser(Search);
 Search("search Utilities list");
 register(TESTing);
+define
+    // defines for TESTin go here
+    ;
 
 parser(PrinT);
 PrinT("print ++result;");

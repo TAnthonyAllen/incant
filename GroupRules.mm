@@ -575,7 +575,7 @@ GroupItem 	*grup = dtext->groupBody->groupList->firstInList;
 *******************************************************************************/
 extern "C" GroupItem *aCTionExpressioN(GroupItem *xpList)
 {
-	// oneMode interpretXP serves interpretation and the jit alike; the bytecode road's generateXP retired with it (deepClean S4, 2026-10-02)
+	// oneMode serves interpretation and the jit alike; the bytecode road's generateXP retired with it (deepClean S4, 2026-10-02)
 	return interpretXP(xpList);
 }
 
