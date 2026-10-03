@@ -32,11 +32,15 @@ ParseActivation *top = ruler.gParseActive;
     return top.stuff;
 }
 
+// handBack STROKE 1.1a -- a term hands its per-call values back and leaves none on rStuff: sukcess, hereAt and a handed-up label are cleared at every exit; a recycled label (fLAG, emptied by the repeat attach and in no tree) stays for reuse. Inline stores, no lookup, no slot (SEQ 283 R2). For parseRule the call bracket restores all three right after
 // exitFromParse the common exit every parse method returns through: sync, fire the label method, attach; a min-zero miss owes a success
 extern GroupItem exitFromParse(GroupItem field)
 {
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = rStuff;
+    -%
+    #define HANDBACK(s) { (s)->sukcess = 0; (s)->hereAt = 0; if ( (s)->label && !(s)->label->groupBody->flags.fLAG ) (s)->label = 0; }
+    %-
     if sukcess {
         if noAdvance    atRuleMark = hereAt;
         fireLabelMethod(ruleStuff);
@@ -45,11 +49,17 @@ RuleStuff   ruleStuff = rStuff;
                 // oneAttach ONE ATTACH, through attachLabel, and the promote value is 1 -- promote=0 cannot RETAG here, and the retag is the half a members rule needs
                 attachLabel(ruleStuff,enclosingStuff(field,ruleStuff),1);
                 // oneBitReturn a successful term returns its TRUTH, never its label -- the label is already attached above, and a label carrying a matched 0 read as a failed alternative in a || chain (Tony, 2026-09-23, restoring ruling c')
+                -% HANDBACK(ruleStuff) %-
                 return trueResult; }
-            else    return trueResult; }}
+            else {
+                -% HANDBACK(ruleStuff) %-
+                return trueResult; }}}
     atRuleMark  = hereAt;
     // minZeroIsSatisfied a term whose MINIMUM IS ZERO is satisfied by not matching, so it owes the chain a success and not a null -- parseLoop owns what repeats inside it; this owns the max=1 optional and a max>1 LEAF (nameSet*, Modifier*), which never enters it (SEQ 208)
-    if !min && !field.isCondition && (max <= 1 || !repeatsInLoop(field))    return trueResult;
+    if !min && !field.isCondition && (max <= 1 || !repeatsInLoop(field)) {
+        -% HANDBACK(ruleStuff) %-
+        return trueResult; }
+    -% HANDBACK(ruleStuff) %-
     return 0;
 }
 
