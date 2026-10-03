@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 282 -- R3 measured, not a cure; lingering leaf label (clod-to-clay SEQ 176); prior: SEQ 281 -- cure (r) does NOT cure, reverted (clod-to-clay SEQ 175); prior: SEQ 280 -- owner is the CodE; (r) STOPPED by R4 (clod-to-clay SEQ 174); prior: SEQ 279 -- cure (g) STOPPED (clod-to-clay SEQ 173), branch f138-setparse-first; prior: SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   working        # SEQ 283 -- F-138 try-and-buy: 1.1a + (c) on f138-cure; prior: SEQ 282 -- R3 measured, not a cure; lingering leaf label (clod-to-clay SEQ 176); prior: SEQ 281 -- cure (r) does NOT cure, reverted (clod-to-clay SEQ 175); prior: SEQ 280 -- owner is the CodE; (r) STOPPED by R4 (clod-to-clay SEQ 174); prior: SEQ 279 -- cure (g) STOPPED (clod-to-clay SEQ 173), branch f138-setparse-first; prior: SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11680,3 +11680,33 @@ Report: the commands as typed, answers 1-7, then the evidence. Afterwards: the b
 3adbebd0..., pop.sh row for row at 889 / 1, and the scratch branch deleted.
 
   END SEQ 282
+
+
+===================================================================
+SEQ 283  -  F-138 TRY-AND-BUY: STROKE 1.1a (LEAVES HAND BACK) + CURE (c). BRANCH.
+===================================================================
+STATUS: working -- dictated via Tony ("Fearless"), transcribed by Clod AT PICKUP, 2026-10-03, on branch f138-cure
+(cut from trunk 68d1850; f138-setparse-first fast-forwarded in -- records and Tony's tester only, no code).
+
+RULINGS
+R1. Cut branch f138-cure from trunk. Goal (Tony): tester runs printDefinition right on the new road, first call after
+    parser(Start).
+R2. Stroke 1.1a, leaves hand back. The leaf parse methods (parseString, parseSet, parseCharacter, parseUpTo, and the
+    rest from SEQ 168 M1) return their label, sukcess and hereAt to the caller and leave no per-call value on rStuff
+    after they return. You choose the mechanism; the constraint is zero added cost on the walk. If it needs a stored
+    slot anywhere, stop and report. isOK: find its reader as part of this (O8.7).
+R3. Cure (c). In the new road's attach: when the parent is a member container (not a bin) with no label, promote the
+    member's label regardless of isTarget. The old road's attach is untouched.
+R4. Order. 1.1a first, committed and certified alone (BN-4 expected still red, from the drop). Then (c) on top.
+R5. Certificate, at the branch tip: lr_new prints MEMB mOne, mTwo and ATTR alpha, beta; BN-4 green; Tony's tester
+    shape (testerA: no call before parser(Start)) prints printDefinition as the old road does; lr_old and the old-road
+    baselineTests row for row; pop.sh row for row but BN-4, every other mover named with its sentence; jitLadder and
+    printPop PASSED, canary named, retok bare.
+R6. H7 per half (H17, because each half masks the other): revert (c) alone: BN-4 red by the drop (no LoopRestrict
+    child); revert 1.1a alone: BN-4 red by the wipe (the second loop's label cleared). Show both.
+R7. If 1.1a moves a row you can't explain, stop at 1.1a and report. On a buy, Tony merges. The golden re-bless, BN-4's
+    un-pin and F-138's close follow in one stroke.
+Report: what changed (before and after per site), the commands as typed, the certificate rows, both H7 controls, then
+the evidence. When it reports green, Tony rebuilds from f138-cure in Xcode and runs tester the way he wants to.
+
+  END SEQ 283
