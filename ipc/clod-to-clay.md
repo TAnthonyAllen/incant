@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 182 at the FOOT -- SEQ 288: site 1 LANDED 3793f63 (five rows re-pinned, '+=' stays 6); no-stash rule written; two stashes listed
+STATUS:   fresh           # SEQ 183 at the FOOT -- site-2 dispatch (pasted by Tony): parseR's bridge is a pure handoff, 0 fleet calls; into an ARGUMENT on branch stroke11-site2; R6 stashes dropped, AP-5c carried
+# prior: SEQ 182 at the FOOT -- SEQ 288: site 1 LANDED 3793f63 (five rows re-pinned, '+=' stays 6); no-stash rule written; two stashes listed
 # prior: SEQ 181 at the FOOT -- SEQ 287: site 1 on branch stroke11-site1, 890->885 (a guard leak closed; re-pin needs a ruling); isOK is a handoff
 # prior: SEQ 180 at the FOOT -- SEQ 286: failedAtStale -- no stale leak; the new road reports NO failure point (stoppedAt 0); golden line 5 re-blessed, F-139
 # prior: SEQ 179 at the FOOT -- SEQ 285: merged a342b75; BN-4 un-pinned, F-138 closed; RE-BLESS HELD (R11 unmoved)
@@ -10278,3 +10279,54 @@ R4 NO STASH -- in CLAUDE.md (Working Relationship, beside kill-by-PID) and in Cl
 R5 sealed and stopped.
 
   END SEQ 182
+
+
+===================================================================
+SEQ 183  -  SITE-2 DISPATCH (pasted by Tony, 2026-10-04, no SEQ in clay-to-clod): parseR's BRIDGE IS GONE, ON A BRANCH
+===================================================================
+STATUS: fresh -- 2026-10-04. Branch stroke11-site2: Groups f46f61a, support f2c6a72, pushed, NOT merged (R1). Trunk
+carries R6's AP-5c (930ee1b) and seal 35. Installed: trunk, bare (4caf7ae7).
+
+RECON
+ 1 Fields. parseR minted new RuleStuff(term) (ruleName = term's tag) and set label = into, then term.parse(bridge,0).
+   parse() hands pStuff to getStuff, which IGNORES it, and to attachLabel, which reads label and ruleName and writes
+   label once, in the promote-on-target case. Whole-struct copies: RuleStuff(RuleStuff) runs on rStuff in getStuff,
+   never on pStuff; the GroupItem copy ctor copies grup.rStuff. So the bridge is never copied.
+ 2 No post-return reader: the bridge is a local, never pushed (oldActive.stuff is getStuff's stuff), never pointed at.
+   A pure handoff, so not R2's stop.
+ 3 No leak, by construction (fresh per call; its one write dies with it). Tap: ZERO parseR calls across pop.sh,
+   jitLadder, printPop, decodePop, ddPop, frontier, tester, oneTest. H16 positive control: a probe driving
+   ANYorNum(emptyField) counted 1. Tap reverted md5-identical.
+   FINDING: before this stroke, NOTHING in the fleet reached parseR. Its only door is kant's Rule(dataLessField).
+
+BUILD  parse(pStuff, guardPassed, into); attachLabel(stuff, pStuff, promote, into). Three and four arguments, no
+   struct (R3). attachLabel's destination is pStuff.label, or into when there is no pStuff; the retag name is
+   pStuff.ruleName, or this term's tag (what the bridge held). The target case writes pStuff.label only if there is
+   one -- with into it retags and attaches nothing, exactly what the discarded bridge write did. isTarget is constant
+   across repeats, so no repeat ever read the overwritten bridge label as its destination: no behaviour change.
+   groups.ext's two GroupItem lines mirrored (support, same branch). Full bare tokall: every line explained (both
+   signatures, attachLabel's dest/destName, parseR's bridge removed, a 0 at seven call sites). No captures; canary 299,
+   delta 0.
+
+CERTIFICATE  pop.sh 894 / 1 = seal 34's 890 / 1 row for row (binary echo, tree listing, one acceptStartT address --
+   H3) plus four new rows: incant/pop/parseRT (runs, sentinel, PR-1 = 1, PR-2 = 2) -- two drives of ANYorNum into one
+   data-less field. jitLadder PASSED · printPop PASSED · decodePop, frontier row for row with captures · ddPop 5 / 1 ·
+   exec check clean.
+   H7: no existing row can go red -- nothing reached parseR. On the new row: attachLabel's into arm made to return ->
+   PR-1/PR-2 read 0/0, red; restored md5-identical, rebuilt, green.
+
+R4 isOK not touched. R5 F-140 not touched.
+
+R6 STASHES -- both DROPPED; git stash list is empty.
+   stash@{0} (09-23 debris): dropped as ruled.
+   stash@{1} (06-14 unary WIP) -- the two checks first, on a TRUNK build:
+     `!` works: testNot's own shape, righty 13 -> else (2); a 0 field -> then (1); same statement twice -> 2 again.
+     What testNot had that the fleet lacked: the NON-ZERO direction. andProbe AP-5b pinned only `if !aFalse;` -> TRUE.
+     Carried as andProbe AP-5c, `if !aTrue;` -> false (H4 pairing). H7: opNOT always trueResult -> AP-5c red, AP-5b
+     green; restored md5-identical. Trunk pop.sh 891 / 1, jitLadder and printPop PASSED. Everything else in the stash
+     (runNOT, interpretMethod=runNOT, gXpress bare-for) is bytecode road, retired 10-02 -- nothing to carry.
+
+FOR TONY: merge stroke11-site2 (both repos) on your word. The branch predates AP-5c; after the merge trunk's pop.sh
+   should read 895 / 1.
+
+  END SEQ 183
