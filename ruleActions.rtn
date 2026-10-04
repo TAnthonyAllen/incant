@@ -453,8 +453,8 @@ GroupItem   lastStatement = groupRules.lastStatement;
 use input
     // lastCodeToCrash
     cout "Rule " tag:;
-    if rStuff   cout `"Failed at:" `getDebugText(failedAt, 40):;
-    if !rStuff  cout `"Failed at:  <unavailable -- this subject carries no rStuff; see Ruling D>":;
+    // floorPoint the failure point is the drive ROOT's, read off the nearest floor (SEQ 292)
+    cout `"Failed at:" `getDebugText(floorFailPoint(), 40):;
     cout `"on Line:" ``sourceLINE,:;
     // added the gText guard (for cases that do not use StatemenT
     if lastStatement.gText   cout "  Last parsed: ", lastStatement.text:;

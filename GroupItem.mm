@@ -1689,6 +1689,7 @@ int 				leafDone = 0;
 	oldActive.isFloor = 0;
 	oldActive.label = 0;
 	oldActive.prev = ruler->gParseActive;
+	oldActive.failPoint = 0;
 	oldActive.stuff = ruleStuff;
 	ruler->gParseActive = &oldActive;
 	// activeNotSubject the record takes GroupRules' scope, so re-mention ruler then ruleStuff or ruler's bare names bind to oldActive (bear-trap #58)
@@ -1761,7 +1762,9 @@ debugHere:
 			}
 		if ( !ruleStuff->sukcess )
 			{
-			ruleStuff->failedAt = ruler->atRuleMark;
+			// rootFailPoint the ROOT's own failure point goes on the floor below it -- a call whose record sits on a floor is the root (SEQ 292, SEQ 186 R2)
+			if ( oldActive.prev && oldActive.prev->isFloor )
+				oldActive.prev->failPoint = ruler->atRuleMark;
 			ruler->atRuleMark = ruleStuff->hereAt;
 			if ( ruleStuff->label )
 				ruleStuff->label = 0;

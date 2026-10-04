@@ -21,6 +21,7 @@ struct ParseActivation
     GroupItem       label;
     ParseActivation *prev;
     RuleStuff       stuff;
+    String          failPoint;
 }
 *gParseActive;
     String          atRuleMark;

@@ -265,6 +265,7 @@ use ruler
     driveFloor.isFloor  = 1;
     driveFloor.label    = null;
     driveFloor.prev     = ruler.gParseActive;
+    driveFloor.failPoint = null;
     driveFloor.stuff    = null;
     priorDefining       = ruler.defining;
     priorIndent         = ruler.lastIndent;
@@ -309,7 +310,7 @@ use ruler
     // markSeat2 SEQ 166 point 2 -- THE KEY PAIR, either side of the pop
     if field && field.data  measureMarkPoint("2b-before-pop");
     // reportSeat the ONE moment consumed is readable -- after the parse, before the pop below puts the mark back in the sender
-    if report && driveBase  reportDrive(report,rule,driveBase);
+    if report && driveBase  reportDrive(report,driveFloor.failPoint,driveBase);
 use ruler
     if field && field.data  inputFloor = priorFloor;
     // driveOwnsIndent a drive's message is its own input: its indentation and an unterminated define end with it -- restore the caller's lastIndent and defining (F-125; each alone leaked)
@@ -689,12 +690,15 @@ extern int processCode(GroupItem field,GroupItem holder)
 {
 GroupRules  ruler = groupRules;
 GroupItem   blockRULE = grokking/BlocK,
+            codeReport = new("driveReport"),
+            got,
             code,
             result,
             priorMETHOD = currentMETHOD,
             action = field;
 int         indenter = lastIndent;
 int processing  = processingCode;
+String      failText;
 use field
     // d2Tripwire an rStuff-less label is WRECKAGE, not a specimen (Ruling D2) -- refuse loud here, where it became visible
     if isLabel && !rStuff {
@@ -718,13 +722,17 @@ use field
     // compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
     // compileOwner the ONE writer of gCompileOwner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214)
     -% GroupItem *priorOwner = gCompileOwner; gCompileOwner = action; %-
-    result = driveStep(code,blockRULE,null);
+    result = driveStep(code,blockRULE,codeReport);
     -% gCompileOwner = priorOwner; %-
     if result {
         result.noPrint  = true;
         holder.addProperty(result);
         field.isAction = true; }
-    else    reportCodeFail(field);
+    else {
+        // handedPoint the drive hands back its floor's failure point as an offset into the code it drove (SEQ 292)
+        if got = codeReport["failedAt"]
+            if got.count >= 0   failText = code.getText() + got.count;
+        reportCodeFail(field,failText); }
     if !processing  processingCode = false;
     lastIndent      = indenter;
     currentMETHOD   = priorMETHOD;
@@ -779,12 +787,24 @@ extern GroupItem refuseUnknownOperator(GroupItem op,GroupItem target)
 
 
 // reportCodeFail WHERE a code body failed to parse -- rule, position and line, on cerr because print may be diverted
-extern void reportCodeFail(GroupItem field)
+extern void reportCodeFail(GroupItem field,String failText)
 {
 GroupRules  ruler = groupRules;
     cerr "ERROR processCode: " field.tag,"parse failed":;
-    cerr "    failed at " getDebugText(failedAt, 40):;
+    cerr "    failed at " getDebugText(failText, 40):;
     cerr "    on line " toStringFromInt(sourceLINE):;
+}
+
+
+// floorFailPoint the nearest floor's failure point -- the root's own, written at its failure exit (SEQ 292)
+extern String floorFailPoint()
+{
+ParseActivation *fp;
+GroupRules  ruler = groupRules;
+    fp  = ruler.gParseActive;
+    while fp && !fp.isFloor     fp = fp.prev;
+    if fp   return fp.failPoint;
+    return null;
 }
 
 
@@ -798,6 +818,7 @@ GroupRules  ruler = groupRules;
     topFloor.isFloor    = 1;
     topFloor.label      = null;
     topFloor.prev       = ruler.gParseActive;
+    topFloor.failPoint  = null;
     topFloor.stuff      = null;
     ruler.gParseActive  = &topFloor;
     // activeNotSubject the record takes GroupRules' scope, so re-mention ruler (bear-trap #58)
@@ -809,17 +830,14 @@ use ruler
 
 
 // reportDrive driveStep's report: three counts, offsets into the message
-extern void reportDrive(GroupItem report,GroupItem rule,String driveBase)
+extern void reportDrive(GroupItem report,String failed,String driveBase)
 {
 GroupRules  ruler = groupRules;
-RuleStuff   stuff = rule.rStuff;
 GroupItem   num;
-String      failed;
 int         driveLen = strlen(driveBase),
             atOffset = -1,
             failOffset = -1;
     if ruler.atRuleMark >= driveBase && ruler.atRuleMark <= driveBase + driveLen    atOffset = (int)(ruler.atRuleMark - driveBase);
-    if stuff    failed = stuff.failedAt;
     if failed && failed >= driveBase && failed <= driveBase + driveLen  failOffset = (int)(failed - driveBase);
     num         = new("length");
     num.count   = driveLen;

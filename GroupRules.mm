@@ -686,10 +686,8 @@ extern "C" GroupItem *aCTionFailed(GroupItem *input)
 GroupItem 	*lastStatement = GroupControl::groupController->groupRules->lastStatement;
 	// lastCodeToCrash
 	::printf("Rule %s\n",input->groupBody->tag);
-	if ( input->getRStuff() )
-		::printf("\tFailed at:\t%s\n",::getDebugText(input->getRStuff()->failedAt,40));
-	if ( !input->getRStuff() )
-		::printf("\tFailed at:  <unavailable -- this subject carries no rStuff; see Ruling D>\n");
+	// floorPoint the failure point is the drive ROOT's, read off the nearest floor (SEQ 292)
+	::printf("\tFailed at:\t%s\n",::getDebugText(::floorFailPoint(),40));
 	::printf("\ton Line:\t\t%d \n",GroupControl::groupController->groupRules->sourceLINE);
 	// added the gText guard (for cases that do not use StatemenT
 	if ( lastStatement->groupBody->gText )
@@ -2061,6 +2059,7 @@ char 				*driveBase = 0;
 	driveFloor.isFloor = 1;
 	driveFloor.label = 0;
 	driveFloor.prev = ruler->gParseActive;
+	driveFloor.failPoint = 0;
 	driveFloor.stuff = 0;
 	priorDefining = ruler->defining;
 	priorIndent = ruler->lastIndent;
@@ -2119,7 +2118,7 @@ char 				*driveBase = 0;
 		::measureMarkPoint("2b-before-pop");
 	// reportSeat the ONE moment consumed is readable -- after the parse, before the pop below puts the mark back in the sender
 	if ( report && driveBase )
-		reportDrive(report,rule,driveBase);
+		reportDrive(report,driveFloor.failPoint,driveBase);
 	if ( field && field->groupBody->flags.data )
 		ruler->inputFloor = priorFloor;
 	// driveOwnsIndent a drive's message is its own input: its indentation and an unterminated define end with it -- restore the caller's lastIndent and defining (F-125; each alone leaked)
@@ -2226,6 +2225,7 @@ extern "C" GroupItem *exitFromParse(GroupItem *field)
 {
 ParseActivation 	*cTop = 0;
 RuleStuff 			*cParent = 0;
+char 				*failMark = 0;
 GroupItem 			*cFace = 0;
 GroupItem 			*cLab = 0;
 GroupItem 			*result = 0;
@@ -2266,10 +2266,20 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 		}
 	if ( !result )
 		{
+		failMark = ruler->atRuleMark;
 		ruler->atRuleMark = ruleStuff->hereAt;
 		// minZeroIsSatisfied a term whose MINIMUM IS ZERO is satisfied by not matching, so it owes the chain a success and not a null -- parseLoop owns what repeats inside it; this owns the max=1 optional and a max>1 LEAF (nameSet*, Modifier*), which never enters it (SEQ 208)
 		if ( !ruleStuff->min && !field->groupBody->flags.isCondition && (ruleStuff->max <= 1 || !repeatsInLoop(field)) )
 			result = ruler->trueResult;
+		// rootFailPoint the ROOT's own failure point goes on the floor below it -- a term whose enclosing activation is a floor is the root (SEQ 292, SEQ 186 R2)
+		if ( !result )
+			{
+			cTop = ruler->gParseActive;
+			if ( cTop && cTop->face == field && cTop->stuff == ruleStuff )
+				cTop = cTop->prev;
+			if ( cTop && cTop->isFloor )
+				cTop->failPoint = failMark;
+			}
 		}
 	ruleStuff->sukcess = 0;
 	ruleStuff->hereAt = 0;
@@ -2296,6 +2306,19 @@ char 	*name = input->getText();
 		else	::fprintf(stderr,"FAIL: no fail method argument provided\n");
 	else	::fprintf(stderr,"FAIL: should be a rule attribute\n");
 	return GroupControl::groupController->groupRules->trueResult;
+}
+
+// floorFailPoint the nearest floor's failure point -- the root's own, written at its failure exit (SEQ 292)
+extern "C" char *floorFailPoint()
+{
+ParseActivation 	*fp = 0;
+GroupRules 			*ruler = GroupControl::groupController->groupRules;
+	fp = ruler->gParseActive;
+	while ( fp && !fp->isFloor )
+		fp = fp->prev;
+	if ( fp )
+		return fp->failPoint;
+	return 0;
 }
 
 /*  foldDot -- MINT ONE xdot: a dot whose left operand the parser never handed it.
@@ -8787,6 +8810,7 @@ GroupRules 			*ruler = GroupControl::groupController->groupRules;
 	topFloor.isFloor = 1;
 	topFloor.label = 0;
 	topFloor.prev = ruler->gParseActive;
+	topFloor.failPoint = 0;
 	topFloor.stuff = 0;
 	ruler->gParseActive = &topFloor;
 	// activeNotSubject the record takes GroupRules' scope, so re-mention ruler (bear-trap #58)
@@ -8821,6 +8845,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	callActive.isFloor = 0;
 	callActive.label = 0;
 	callActive.prev = ruler->gParseActive;
+	callActive.failPoint = 0;
 	callActive.stuff = ruleStuff;
 	ruler->gParseActive = &callActive;
 	// activeNotSubject the record inherits GroupRules' scope, so re-mention ruler then ruleStuff or currentMETHOD binds to callActive (bear-trap #57)
@@ -9272,12 +9297,15 @@ extern "C" int processCode(GroupItem *field, GroupItem *holder)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*blockRULE = ruler->grokking->getMember("BlocK");
+GroupItem 	*codeReport = new GroupItem("driveReport");
+GroupItem 	*got = 0;
 GroupItem 	*code = 0;
 GroupItem 	*result = 0;
 GroupItem 	*priorMETHOD = ruler->currentMETHOD;
 GroupItem 	*action = field;
 int 		indenter = ruler->lastIndent;
 int 		processing = ruler->processingCode;
+char 		*failText = 0;
 	// d2Tripwire an rStuff-less label is WRECKAGE, not a specimen (Ruling D2) -- refuse loud here, where it became visible
 	if ( field->groupBody->flags.isLabel && !field->getRStuff() )
 		{
@@ -9306,7 +9334,7 @@ int 		processing = ruler->processingCode;
 	// compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
 	// compileOwner the ONE writer of gCompileOwner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214)
 	 GroupItem *priorOwner = gCompileOwner; gCompileOwner = action; 
-	result = ::driveStep(code,blockRULE,0);
+	result = ::driveStep(code,blockRULE,codeReport);
 	 gCompileOwner = priorOwner; 
 	if ( result )
 		{
@@ -9314,7 +9342,13 @@ int 		processing = ruler->processingCode;
 		holder->addProperty(result);
 		field->groupBody->flags.actionType = 1;
 		}
-	else	reportCodeFail(field);
+	else {
+		// handedPoint the drive hands back its floor's failure point as an offset into the code it drove (SEQ 292)
+		if ( got = codeReport->get("failedAt") )
+			if ( got->getCount() >= 0 )
+				failText = code->getText() + got->getCount();
+		reportCodeFail(field,failText);
+		}
 	if ( !processing )
 		ruler->processingCode = 0;
 	ruler->lastIndent = indenter;
@@ -9617,11 +9651,11 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 }
 
 // reportCodeFail WHERE a code body failed to parse -- rule, position and line, on cerr because print may be diverted
-extern "C" void reportCodeFail(GroupItem *field)
+extern "C" void reportCodeFail(GroupItem *field, char *failText)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	::fprintf(stderr,"ERROR processCode: %s parse failed\n",field->groupBody->tag);
-	::fprintf(stderr,"    failed at %s\n",::getDebugText(ruler->ruleSTUFF->failedAt,40));
+	::fprintf(stderr,"    failed at %s\n",::getDebugText(failText,40));
 	::fprintf(stderr,"    on line %s\n",::toStringFromInt(ruler->sourceLINE));
 }
 
@@ -9650,19 +9684,15 @@ char 	*regName = "(no registry)";
 }
 
 // reportDrive driveStep's report: three counts, offsets into the message
-extern "C" void reportDrive(GroupItem *report, GroupItem *rule, char *driveBase)
+extern "C" void reportDrive(GroupItem *report, char *failed, char *driveBase)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*stuff = rule->getRStuff();
 GroupItem 	*num = 0;
-char 		*failed = 0;
 int 		driveLen = ::strlen(driveBase);
 int 		atOffset = -1;
 int 		failOffset = -1;
 	if ( ruler->atRuleMark >= driveBase && ruler->atRuleMark <= driveBase + driveLen )
 		atOffset = (int)(ruler->atRuleMark - driveBase);
-	if ( stuff )
-		failed = stuff->failedAt;
 	if ( failed && failed >= driveBase && failed <= driveBase + driveLen )
 		failOffset = (int)(failed - driveBase);
 	num = new GroupItem("length");

@@ -356,7 +356,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	jitMethod = 0;
 	actionMethod = 0;
 	hereAt = 0;
-	failedAt = 0;
 	label = 0;
 	onGroup = 0;
 	kount = 0;
@@ -388,7 +387,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	actionMethod = 0;
 	ruleName = 0;
 	hereAt = 0;
-	failedAt = 0;
 	onGroup = 0;
 	max = 0;
 	maxRepeat = 0;
