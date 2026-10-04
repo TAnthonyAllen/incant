@@ -3318,6 +3318,14 @@ against TODAY's headers -- rewrite them in the clone's `project.pbxproj` to the 
 in the clone reads the live tree. Run fixtures from INSIDE the clone's Groups (setup loads by relative
 path), with a `-derivedDataPath` per clone, and check the build log for live Groups paths (want 0).
 
+⚠⚠ **A FIXTURE NAMED BY A SCRIPT OR A TAP MUST EXIST, AND ITS ABSENCE FAILS BY NAME. Standing, 2026-10-04 (SEQ 291
+R1b).** The phantom `incant/oneTest` (the real file is `incant/pop/oneTest`) ran nothing three times: F-O28 (09-28), and
+the coverage taps of SEQ 183 and SEQ 184. The binary exits 2 with `getFile: could not open file`, and every one of
+those runs threw the exit status away. **The checklist scripts** (`pop.sh`, `jitLadder/ladder.sh`, `decodePop.sh`,
+`ddPop.sh`, `printPop.sh`) resolve every fixture through `ip()`, which now prints `FAIL fixture MISSING: <name>` and
+leaves a marker that fails the script at its foot (H7: a pop.sh copy pointed at a missing name went red by name).
+**An ad-hoc tap** resolves its fixtures the same way or checks `[ -f ]` first, and keeps each run's exit status.
+
 ⚠⚠ **NO `git stash`. USE A BRANCH OR A COMMIT INSTEAD. Tony, guardrail of 2026-09-28, restated standing 2026-10-03
 (SEQ 288 R4).** A stash is an unnamed side-store that any later `stash pop` can bring back into the wrong tree. Paid
 for on 2026-10-03: a mistyped `git stash -q push` failed silently, and the `stash pop` meant for it applied the

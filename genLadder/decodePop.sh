@@ -64,6 +64,10 @@ ip () {
     for _d in incant incant/pop incant/pop/jit incant/fixits; do
         [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
     done
+    #  missingFixtureLoud a name that resolves nowhere FAILS BY NAME -- the silent fallback ran the phantom incant/oneTest
+    #  missingFixtureLoud three times (F-O28 09-28, SEQ 183, SEQ 184). ip() runs in $( ), so it leaves a marker the foot reads
+    printf '  FAIL  fixture MISSING: %s -- not in incant, incant/pop, incant/pop/jit, incant/fixits\n' "$1" >&2
+    mkdir -p "$T" && : > "$T/.missingFixture.$1"
     printf '%s\n' "incant/$1"
 }
 
@@ -358,6 +362,11 @@ if [ "$green" -lt 18 ]; then
     echo "        at least 18. Either helpers vanished or the run stopped early."
     fail=1
 fi
+#  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
+for _mf in "$T"/.missingFixture.*; do
+    [ -e "$_mf" ] || continue
+    echo "  FAIL  fixture MISSING: ${_mf##*.missingFixture.} -- every row that ran it measured nothing"; fail=1
+done
 echo "checks green = $green"
 rm -rf "$T"
 if [ $fail = 0 ]; then

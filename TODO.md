@@ -476,6 +476,9 @@ projectBible.md "Phase Generate Tawk".
   action.) Its only entry is a kant rule called with a field that has no data (driveStep's no-data arm). Before
   `incant/pop/parseRT` (stroke 1.1 site 2), nothing in the fleet reached it: a tap counted 0 calls across every
   instrument.
+- [ ] **Any rule / testAny -- on cleanupList as a cut candidate since 10-02; anyLeafT (10-04) now witnesses it. Keep
+  (fixture stays) or cut (fixture goes with it)? Tony's call.** (SEQ 291 R1a, no action.) `docs/cleanupList.md`
+  carries the entry; `incant/pop/anyLeafT` is its only caller in the fleet.
 
 - [ ] **`:.` on a dotted flag -- `A.noPrinT :. 1` (design, Tony, docketed 2026-10-04; not urgent).** Today
   `noPrinT :. 1;` works (bare, through `lastREF`), but `A.noPrinT` is a value and cannot be the left side of a

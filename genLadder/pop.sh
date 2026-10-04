@@ -20,6 +20,10 @@ ip () {
     for _d in incant incant/pop incant/pop/jit incant/fixits; do
         [ -f "$_d/$1" ] && { printf '%s\n' "$_d/$1"; return; }
     done
+    #  missingFixtureLoud a name that resolves nowhere FAILS BY NAME -- the silent fallback ran the phantom incant/oneTest
+    #  missingFixtureLoud three times (F-O28 09-28, SEQ 183, SEQ 184). ip() runs in $( ), so it leaves a marker the foot reads
+    printf '  FAIL  fixture MISSING: %s -- not in incant, incant/pop, incant/pop/jit, incant/fixits\n' "$1" >&2
+    mkdir -p "$T" && : > "$T/.missingFixture.$1"
     printf '%s\n' "incant/$1"
 }
 
@@ -5739,6 +5743,11 @@ sentinel "anyLeafT sentinel" "$T/alt.e" "ANYLEAF SENTINEL"
 kindRow "anyLeafT AL-1 Any matched" "$(grep 'verdict matched' "$T/alt.e" | awk '{print $3}')" "1"
 kindRow "anyLeafT AL-1 Any consumed one character of three" "$(grep 'verdict matched' "$T/alt.e" | awk '{print $5}')" "1"
 
+#  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
+for _mf in "$T"/.missingFixture.*; do
+    [ -e "$_mf" ] || continue
+    echo "  FAIL  fixture MISSING: ${_mf##*.missingFixture.} -- every row that ran it measured nothing"; fail=1
+done
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi
