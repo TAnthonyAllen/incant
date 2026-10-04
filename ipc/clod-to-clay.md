@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 191 at the FOOT -- SEQ 293 / SEQ 190 rulings: 1.2b BUILT on stroke12b -- kount as two locals, 908 row for row, NOT MERGED; session pause
+STATUS:   fresh           # SEQ 192 at the FOOT -- PROPOSAL (Tony asked): processingCode moves off GroupRules onto the compile's floor; tap says every read agrees (0 of ~5.8M); nothing changed, for tomorrow with Clay
+# prior: SEQ 191 at the FOOT -- SEQ 293 / SEQ 190 rulings: 1.2b BUILT on stroke12b -- kount as two locals, 908 row for row, NOT MERGED; session pause
 # prior: SEQ 190 at the FOOT -- SEQ 189 Q1: the shared kount is ONE term face counted twice (never the parent's stuff, 0 of 1,860); no STOP; 1.2b awaits Tony's (a)/(b)/(c)
 # prior: SEQ 189 at the FOOT -- SEQ 293: stroke12a MERGED (908), F-140 closed, R3 rule; 1.2b STOPPED at its recon check -- old-road parse() shares kount with parseLoop (100 reads, 0 decisions)
 # prior: SEQ 188 at the FOOT -- SEQ 187 R1-R3 on stroke12a: aCTionFailed handed its own point; FP-N QZ / empty / QZ; FP-0 a witness; 908, NOT MERGED
@@ -10669,3 +10670,57 @@ R3 THE DIRECTIVES (groupDirectives, Tony's, left as is): both kount directives s
 FOR TONY: merge stroke12b (both repos) on your word; trunk stays 908 / 1. Then 1.2c (leaves) by a fresh dispatch.
 
   END SEQ 191
+
+
+===================================================================
+SEQ 192  -  PROPOSAL: processingCode BECOMES A MARK ON THE COMPILE'S FLOOR (Tony asked for it; NOTHING CHANGED)
+===================================================================
+STATUS: fresh -- 2026-10-04, trunk. A proposal, not a build. Tony: "nothing changed now and we will deal with it
+tomorrow w/Clay guiding". RULINGS: none. Tree at Seal 50 plus Tony's own uncommitted Instruct.rtn 412 edit (on ->
+value), its GroupRules.mm line, and tester. pop.sh 924 green / 49 red, the Seal 50 line.
+
+WHERE IT CAME FROM. Tony, working parseCode in tester (kant's processCode), hit the blocker noted below its stop():
+once processingCodE is 1, aCTionXpress (ruleActions.rtn:1148) stops running expressions, so BlocK(code), the restore
+and the rest of the file never run. He asked whether processingCode could become a FIELD flag set on parseCode's
+argument (in effect on currentMETHOD), to make it less global.
+
+WHY NOT A FIELD FLAG (read, not run):
+  1. currentMETHOD is repointed DURING a compile -- a generated body makes a grammar face current; that is why
+     gCompileOwner exists (SEQ 213). currentMETHOD.processingCode would read the face's 0 mid-compile.
+  2. Reading gCompileOwner's flag instead makes gCompileOwner non-null carry two meanings (one channel, one meaning).
+  3. A GroupBody flag is copied by copyOf, and an unwound compile (refuse) leaves it set. It is also a layout change.
+  4. It does not cure the blocker: parseCode sets currentMETHOD := *action BEFORE BlocK(code), so Xpress would stop
+     there just as it does today.
+
+THE QUESTION ALL SIX READERS ASK is "is the parse I am inside a compile?" -- a fact about the DRIVE:
+  checkSkip (GroupRules.twk:210)   indents -> { } ?
+  aCTionStatemenT / aCTionXpress   build or run? (ruleActions.rtn:909, :1148)
+  aCTionNamE / resolveName         which owner mints a name? (ruleActions.rtn:632, :1633)
+  deferredAbove (GroupItem.twk:442) wait?
+  (locateInMethod reads it too; its only caller is Debug.rtn. setup's processingCodE=412 is the kant door.)
+
+THE MEASUREMENT (temporary tap, reverted; all five tapped files restored from git, bare retok, rebuilt, fleet back to
+924 / 49). processCode marked the floor its driveStep pushes; every read compared the global with "the NEAREST floor
+is the compile's floor". Population: every file in incant/pop/ (149, all exit 0, every one printed the tap's summary).
+     compiles 2,347 · compiles inside a compile 0 · compiles that pushed no floor 0 · floors pushed inside a compile 0
+     disagreements at all six sites: 0 of ~5.8M reads (lostNested 0, lostNoCompileFloor 0, spurious 0, both ways)
+     agree-while-compiling counts are non-zero at every site but aCTionXpress (Xpress is deferred, never read in a
+       compile)
+  H16, the known-bad end: a scratchpad copy of tester with `argument.processingCodE = 1` uncommented reads
+     lostNoCompileFloor at every site -- aCTionXpress 8, the eight expressions the blocker swallows. Unmodified tester: 0.
+  NOT IN THE POPULATION: the jit ladder's fixtures; IncantForms/WorkingOn/macros (also writes processingCode).
+
+THE PROPOSAL (shape only, for Clay to rule):
+  P1 processCode's floor carries the mark (a ParseActivation field, e.g. isCompile). Readers ask the nearest floor.
+     The processing save/restore in processCode goes away -- the pop IS the restore, and an unwind cannot leave it set.
+  P2 gCompileOwner moves onto the same floor (e.g. compileOwner): two globals become one record whose life is the
+     compile.
+  P3 a kant verb that drives code ON a marked floor -- this is what dissolves tester's blocker: parseCode's own
+     statements run on the tester file's floor (unmarked), only the drive's parse sees the mark.
+  P4 processingCodE=412 becomes a READ of the activation; whether kant may still write it is Tony's call.
+  SEQ 235/237 names, grepped across Groups, Include, TOK, Tokf: isCompile 0 hits; compileOwner only as a comment slug
+     (0 bare uses); full bare-tokall diff still owed as the certificate.
+  AVOID `compiling`: GroupRules already has one (set by compile(), GroupRules.mm:1744, whose comment warns the return
+     arm could leave it set). A second global of the same kind -- context, not a finding; maybe the next candidate.
+
+  END SEQ 192
