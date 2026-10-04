@@ -472,6 +472,11 @@ projectBible.md "Phase Generate Tawk".
 
 ## Pending (not current arc)
 
+- [ ] **parseR -- a road anyone uses, or a cleanup candidate? Tony's call.** (Docketed 2026-10-04, SEQ 290 R5, no
+  action.) Its only entry is a kant rule called with a field that has no data (driveStep's no-data arm). Before
+  `incant/pop/parseRT` (stroke 1.1 site 2), nothing in the fleet reached it: a tap counted 0 calls across every
+  instrument.
+
 - [ ] **`:.` on a dotted flag -- `A.noPrinT :. 1` (design, Tony, docketed 2026-10-04; not urgent).** Today
   `noPrinT :. 1;` works (bare, through `lastREF`), but `A.noPrinT` is a value and cannot be the left side of a
   `:.`. Tony's clue: what `A.noPrinT` returns has `A` as its parent, so `opSetFlag` could resolve its target
