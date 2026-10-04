@@ -649,12 +649,12 @@ GroupItem   label = field,
             code,
             grup,
             result,
-            priorMETHOD = currentMETHOD,
+            priorMETHOD = currentMETHOD.group,
             priorTempField = tempField,
             action = field;
     // labelKnowsItsRule a label carries the rule it was minted for -- no singleton, no owner (stroke 5.6b)
     if isLabel      action = field.labelOf;
-    currentMETHOD   = action;
+    currentMETHOD.group = action;
     if !action.actionBlocK() && !processCode(action,action.actionHolder())  return null;
     // branchFrame an action is a frame for the control slot: a callee's return or break is consumed here, never read by the caller's loop (P4, Tony SEQ 179)
     -%
@@ -679,8 +679,8 @@ use grup
             if isLocal && !isLabel && !noPrint && !isArgument && groupBody != action.groupBody clear();
         result = result.gMethod(result); }
     -% GroupControl::groupController->groupRules->branchKind = actionBranchSave; %-
-    currentMETHOD   = priorMETHOD;
-    tempField       = priorTempField;
+    currentMETHOD.group = priorMETHOD;
+    tempField           = priorTempField;
     return result;
 }
 
@@ -694,7 +694,8 @@ GroupItem   blockRULE = grokking/BlocK,
             got,
             code,
             result,
-            priorMETHOD = currentMETHOD,
+            priorMETHOD = currentMETHOD.group,
+            priorOwner = gCompileOwner,
             action = field;
 int         indenter = lastIndent;
 int processing  = processingCode;
@@ -716,14 +717,15 @@ use field
     %-
     code      = holder.getProperty("CodE");
     if isRule action = code;
-    currentMETHOD   = action;
+    currentMETHOD.group = action;
     lastIndent      = 0;
     processingCode  = true;
     // compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
     // compileOwner the ONE writer of gCompileOwner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214)
-    -% GroupItem *priorOwner = gCompileOwner; gCompileOwner = action; %-
+    gCompileOwner   = action;
     result = driveStep(code,blockRULE,codeReport);
-    -% gCompileOwner = priorOwner; %-
+    gCompileOwner   = priorOwner;
+use field
     if result {
         result.noPrint  = true;
         holder.addProperty(result);
@@ -734,8 +736,8 @@ use field
             if got.count >= 0   failText = code.getText() + got.count;
         reportCodeFail(field,failText); }
     if !processing  processingCode = false;
-    lastIndent      = indenter;
-    currentMETHOD   = priorMETHOD;
+    lastIndent          = indenter;
+    currentMETHOD.group = priorMETHOD;
     if result       return true;
     return false;
 }

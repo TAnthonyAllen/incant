@@ -25,6 +25,7 @@ char *atRuleMark;
 RuleStuff *ruleSTUFF;
 GroupItem *currentDefine;
 GroupItem *currentMETHOD;
+GroupItem *gCompileOwner;
 GroupItem *currentRegistry;
 GroupItem *debugJunk;
 GroupItem *baseRegistryList;

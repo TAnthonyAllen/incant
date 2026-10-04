@@ -8,6 +8,41 @@ include(unitTests);
 search reset stack Grokking;
 search UnitTests Utilities list;
 
+register(TESTing);
+define
+    /***************************************************************************
+        parseCode is kant version of processCode
+    ***************************************************************************/
+    parseCode code={
+        code    := argument.CodE;
+        if code.datA == 0;
+            cerr taG "has no CodE, has parser() been run on it?":;
+            return;
+        if isRulE;  action := code;
+        else        action := argument;
+        priorMethod := *currentMETHOD;
+        indenter    = lastIndenT;
+        processing  = processingCodE;
+        currentMETHOD   := *action;
+        $$lastIndenT;
+        lastIndenT      :. 0;
+        processingCodE  :. 1;
+        if result = BlocK(code);
+            // how do we set a noPrint on result???
+            actionTypE  :. 1; // 1 sets isAction == true;
+            argument +< result;
+        else    cerr "parseCode: failed parse of" taG:;
+        lastIndenT  :. indenter;
+        processingCodE  :. processing;
+        currentMETHOD   := *priorMethod;
+        $$currentMETHOD;
+        $$result;
+        if result;  return trueResult;
+        return      falseResult;
+        };
+    ;
+
+parseCode(ifTest);
 stop();
 
 /***************************************************************************
@@ -43,3 +78,11 @@ checkSKIP(skipInput);
     Current Status
 ***************************************************************************/
 
+        indenter    = lastIndenT;
+        $$indenter;
+        processing  = processingCodE;
+        $$processing;
+        CodE        = argument.CodE;
+        if isRulE;  action = CodE;
+        else        action = argument;
+        $$action;

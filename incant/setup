@@ -288,6 +288,8 @@ define
     actionTypE=406;
     binTypE=407;
     isActioN=408;
+    lastIndenT=411;
+    processingCodE=412;
     ;
 registry(fILEs);
 define

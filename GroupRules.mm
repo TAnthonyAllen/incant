@@ -813,11 +813,11 @@ GroupItem 	*source = 0;
 extern "C" GroupItem *aCTionNamE(GroupItem *input)
 {
 	// compileOwner while processingCode the owner is the action processCode is compiling, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213)
-	
-	GroupRules *ruler = GroupControl::groupController->groupRules;
-	GroupItem *owner = (ruler->processingCode && gCompileOwner) ? gCompileOwner : ruler->currentMETHOD;
-	input->setGroup(::resolveName(input->getText(),owner));
-	
+GroupRules *ruler = GroupControl::groupController->groupRules;
+GroupItem *owner = ruler->currentMETHOD->getGroup();
+	if ( ruler->processingCode && ruler->gCompileOwner )
+		owner = ruler->gCompileOwner;
+	input->setGroup(resolveName(input->getText(),owner));
 	return input;
 }
 
@@ -1029,7 +1029,7 @@ GroupItem 	*rule = input->get(1);
 ***************************************************************************/
 extern "C" void aCTionScopeXP(GroupItem *input)
 {
-GroupItem 	*action = GroupControl::groupController->groupRules->currentMETHOD;
+GroupItem 	*action = GroupControl::groupController->groupRules->currentMETHOD->getGroup();
 GroupItem 	*field = 0;
 GroupItem 	*listItem = 0;
 GroupItem 	*lookin = 0;
@@ -6863,19 +6863,7 @@ int 		priorLimit = ::limitWriteGuard(target);
 	if ( ruler->refused )
 		return 0;
 	if ( argument )
-		if ( argument->groupBody->flags.byRef )
-			target->setGroup(argument);
-		else {
-			/*  ⚠ F-48 FOR THE INTERPRETER (Tony, SEQ 139), through the SAME core
-			the emitted road uses -- assignFieldCore -- so the two cannot
-			drift. A holder on the right refuses by name and stores nothing.
-			⚠ IT WAS GATED, AND THE GATE IS GONE (2026-09-05). The bare arm
-			was a plain setContent, kept only while the auto-unwrap still
-			stood and a holder legitimately resolved to its value. The trunk
-			is the flip; assignFieldCore is now unconditional.
-			Instruct.opAssign.holderRefusal  */
-			 ::assignFieldCore(argument,target); 
-			}
+		target->setContent(argument);
 	else	target->clearData();
 	/*  F-27, Tony's ruling 2026-08-19. Non-zero priorLimit means the target IS
 	maxLimit and here is what to restore, so every other assignment in the
@@ -7303,6 +7291,12 @@ GroupItem 	*product = 0;
 						product->setCount(1);
 					// unsupportedAccessor  every gCount with no case of its own lands here and
 					// unsupportedAccessor  SAYS SO, rather than answering with a silent null
+					break;
+				case 411:
+					product->setCount(ruler->lastIndent);
+					break;
+				case 412:
+					product->setCount((int)ruler->processingCode);
 					break;
 				default:
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));
@@ -8526,7 +8520,13 @@ GroupItem 	*flagDef = 0;
 				integer, which is isCodeD's discipline applied to its sibling.  */
 				break;
 			case 408:
-				 target->groupBody->flags.actionType = 1; 
+				target->groupBody->flags.actionType = 1;
+				break;
+			case 411:
+				ruler->lastIndent = argument->getCount();
+				break;
+			case 412:
+				ruler->processingCode = argument->getCount();
 				break;
 			default:
 				::fprintf(stderr,"opSetFlag WARNING: groupField %s has no case yet -- guessing from gCount %s ; the value stands\n",argument->groupBody->tag,::toStringFromInt(flagDef->groupBody->gCount));
@@ -8854,8 +8854,8 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 			myLabel->labelOf = field;
 			::measureLabelMint(field,myLabel,into);
 			::saveLocalFields(field);
-			priorMETHOD = ruler->currentMETHOD;
-			ruler->currentMETHOD = field;
+			priorMETHOD = ruler->currentMETHOD->getGroup();
+			ruler->currentMETHOD->setGroup(field);
 			// here the parse action in method gets run
 			if ( result = field->parseBlocK() )
 				{
@@ -8874,7 +8874,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 				ruler->branchKind = fireBranchSave;
 				
 				}
-			ruler->currentMETHOD = priorMETHOD;
+			ruler->currentMETHOD->setGroup(priorMETHOD);
 			::restoreLocalFields(field);
 			}
 		else	::reportNoBody(field);
@@ -9229,13 +9229,13 @@ GroupItem 	*label = field;
 GroupItem 	*code = 0;
 GroupItem 	*grup = 0;
 GroupItem 	*result = 0;
-GroupItem 	*priorMETHOD = ruler->currentMETHOD;
+GroupItem 	*priorMETHOD = ruler->currentMETHOD->getGroup();
 GroupItem 	*priorTempField = ruler->tempField;
 GroupItem 	*action = field;
 	// labelKnowsItsRule a label carries the rule it was minted for -- no singleton, no owner (stroke 5.6b)
 	if ( action->groupBody->flags.isLabel )
 		action = field->labelOf;
-	ruler->currentMETHOD = action;
+	ruler->currentMETHOD->setGroup(action);
 	if ( !action->actionBlocK() && !::processCode(action,action->actionHolder()) )
 		return 0;
 	// branchFrame an action is a frame for the control slot: a callee's return or break is consumed here, never read by the caller's loop (P4, Tony SEQ 179)
@@ -9273,7 +9273,7 @@ GroupItem 	*action = field;
 		result = result->groupBody->gMethod(result);
 		}
 	 GroupControl::groupController->groupRules->branchKind = actionBranchSave; 
-	ruler->currentMETHOD = priorMETHOD;
+	ruler->currentMETHOD->setGroup(priorMETHOD);
 	ruler->tempField = priorTempField;
 	return result;
 }
@@ -9287,7 +9287,8 @@ GroupItem 	*codeReport = new GroupItem("driveReport");
 GroupItem 	*got = 0;
 GroupItem 	*code = 0;
 GroupItem 	*result = 0;
-GroupItem 	*priorMETHOD = ruler->currentMETHOD;
+GroupItem 	*priorMETHOD = ruler->currentMETHOD->getGroup();
+GroupItem 	*priorOwner = ruler->gCompileOwner;
 GroupItem 	*action = field;
 int 		indenter = ruler->lastIndent;
 int 		processing = ruler->processingCode;
@@ -9314,14 +9315,14 @@ char 		*failText = 0;
 	code = holder->getProperty("CodE");
 	if ( field->groupBody->flags.isRule )
 		action = code;
-	ruler->currentMETHOD = action;
+	ruler->currentMETHOD->setGroup(action);
 	ruler->lastIndent = 0;
 	ruler->processingCode = 1;
 	// compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
 	// compileOwner the ONE writer of gCompileOwner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214)
-	 GroupItem *priorOwner = gCompileOwner; gCompileOwner = action; 
+	ruler->gCompileOwner = action;
 	result = ::driveStep(code,blockRULE,codeReport);
-	 gCompileOwner = priorOwner; 
+	ruler->gCompileOwner = priorOwner;
 	if ( result )
 		{
 		result->groupBody->flags.noPrint = 1;
@@ -9338,7 +9339,7 @@ char 		*failText = 0;
 	if ( !processing )
 		ruler->processingCode = 0;
 	ruler->lastIndent = indenter;
-	ruler->currentMETHOD = priorMETHOD;
+	ruler->currentMETHOD->setGroup(priorMETHOD);
 	if ( result )
 		return 1;
 	return 0;
@@ -10599,6 +10600,7 @@ GroupRules::GroupRules()
 	ruleSTUFF = 0;
 	currentDefine = 0;
 	currentMETHOD = 0;
+	gCompileOwner = 0;
 	currentRegistry = 0;
 	debugJunk = 0;
 	baseRegistryList = 0;

@@ -32,6 +32,7 @@ struct ParseActivation
     GroupItem
                 currentDefine,
                 currentMETHOD,
+                gCompileOwner,
                 currentRegistry,
                 debugJunk,
                 baseRegistryList,

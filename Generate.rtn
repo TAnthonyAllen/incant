@@ -271,8 +271,8 @@ use grup
             measureLabelMint(field,myLabel,into);
 
             saveLocalFields(field);
-            priorMETHOD     = currentMETHOD;
-            currentMETHOD   = field;
+            priorMETHOD         = currentMETHOD.group;
+            currentMETHOD.group = field;
             // here the parse action in method gets run
             if result = field.parseBlocK() {
                 // probeDoor armed only inside jitProbeDrive: fire the COMPILED body in place of this BlocK, nothing else changes
@@ -289,7 +289,7 @@ use grup
                     result = result->groupBody->gMethod(result);
                 ruler->branchKind = fireBranchSave;
                 %- }
-            currentMETHOD = priorMETHOD;
+            currentMETHOD.group = priorMETHOD;
             restoreLocalFields(field); }
         else        reportNoBody(field);
 checkSuccess:   // this is just a marker for directives

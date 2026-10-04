@@ -132,19 +132,7 @@ int         priorLimit = limitWriteGuard(target);
         BLANKS the field. sentinelT ST-1 read its own tag instead of the 111 it
         went in with, for exactly that reason.   Instruct.opAssign.storeRuling  */
     if ruler.refused    return null;
-    if argument
-        if argument.byRef   group = argument;
-        else {
-            /*  ⚠ F-48 FOR THE INTERPRETER (Tony, SEQ 139), through the SAME core
-                the emitted road uses -- assignFieldCore -- so the two cannot
-                drift. A holder on the right refuses by name and stores nothing.
-                ⚠ IT WAS GATED, AND THE GATE IS GONE (2026-09-05). The bare arm
-                was a plain setContent, kept only while the auto-unwrap still
-                stood and a holder legitimately resolved to its value. The trunk
-                is the flip; assignFieldCore is now unconditional.
-                Instruct.opAssign.holderRefusal  */
-            -% ::assignFieldCore(argument,target); %-
-            }
+    if argument         setContent(argument);
     else    target.clearData();
     /*  F-27, Tony's ruling 2026-08-19. Non-zero priorLimit means the target IS
         maxLimit and here is what to restore, so every other assignment in the
@@ -447,6 +435,8 @@ use argument
                 case 408:   if target.isAction    product.count = 1;
                 // unsupportedAccessor  every gCount with no case of its own lands here and
                 // unsupportedAccessor  SAYS SO, rather than answering with a silent null
+                case 411:   product.count   = lastIndent;
+                case 412:   product.count   = processingCode;
                 default:    product.text    = "access to " tag " not supported yet"; }
             // nullIsLawful seven accessors answer null for 'nothing there' -- guard the read, as the next line does (nullAccessorDeref, born fb9e4de)
             if product && !product.data product.count  = 0;
@@ -1473,8 +1463,10 @@ use argument
                 a parsed body (GroupRules.mm:11685). Flag and artifact are
                 constitutionally unable to disagree because they are the same
                 integer, which is isCodeD's discipline applied to its sibling.  */
-            case 408:   -% target->groupBody->flags.actionType = 1; %-
-           default:    cerr "opSetFlag WARNING: groupField",tag,"has no case yet -- guessing from gCount",toStringFromInt(flagDef.gCount),"; the value stands":; }
+            case 408:   target.actionType = 1;
+            case 411:   lastIndent = argument.count;
+            case 412:   processingCode = argument.count;
+            default:    cerr "opSetFlag WARNING: groupField",tag,"has no case yet -- guessing from gCount",toStringFromInt(flagDef.gCount),"; the value stands":; }
     else    cerr "opSetFlag: missing operand":;
     return target;
 }

@@ -627,11 +627,10 @@ GroupItem   source;
 extern GroupItem aCTionNamE(GroupItem input)
 {
     // compileOwner while processingCode the owner is the action processCode is compiling, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213)
-    -%
-    GroupRules *ruler = GroupControl::groupController->groupRules;
-    GroupItem *owner = (ruler->processingCode && gCompileOwner) ? gCompileOwner : ruler->currentMETHOD;
-    input->setGroup(::resolveName(input->getText(),owner));
-    %-
+GroupRules  ruler = groupRules;
+GroupItem   owner = currentMETHOD.group;
+    if processingCode && gCompileOwner  owner = gCompileOwner;
+    input.setGroup(resolveName(input.text,owner));
     return input;
 }
 
@@ -817,7 +816,7 @@ GroupItem   argument,
 ***************************************************************************/
 extern void aCTionScopeXP(GroupItem input)
 {
-GroupItem   action = currentMETHOD,
+GroupItem   action = currentMETHOD.group,
             field,
             listItem,
             lookin,

@@ -653,10 +653,6 @@ static int        gChanStkTop = 0;
 // zero-reading the moment one of them moved. chanReport is that one.
 // The gChanPend/gChanStk family above is untouched and has the same hazard.
 
-// THE COMPILE OWNER (SEQ 214): the action processCode is compiling. ONE WRITER -- processCode, set before the
-// drive and restored after. aCTionNamE reads it while processingCode is set, because a generated body repoints
-// currentMETHOD to a grammar face and a name minted there lands in the grammar (SEQ 213). Retires when
-// parse-then-fire reaches action bodies; the destination is a post-compile resolveNames pass (Tony's (ii)).
-inline GroupItem *gCompileOwner = nullptr;
+// THE COMPILE OWNER (SEQ 214) moved to GroupRules (gCompileOwner, declared in groups.ext) 2026-10-04 so tok can see it.
 
 #endif // JITCONTEXT_H

@@ -119,7 +119,7 @@ char 	*name = item->getText();
 ******************************************************************************/
 GroupItem *GroupControl::locateInMethod(char *name)
 {
-GroupItem 	*action = groupRules->currentMETHOD;
+GroupItem 	*action = groupRules->currentMETHOD->getGroup();
 GroupItem 	*result = 0;
 	if ( groupRules->processingCode )
 		result = action->getAttribute(name);
@@ -142,6 +142,7 @@ GroupItem 	*action = 0;
 	groupRules->registries->groupBody->groupList = new GroupList(groupRules->registries);
 	groupRules->inDENT = new GroupItem("indenter");
 	groupRules->inDENT->groupBody->flags.data = 5;
+	groupRules->currentMETHOD = new GroupItem("currentMETHOD");
 	/***********************************************************************
 	Create properties registry and add groups to it
 	***********************************************************************/
@@ -267,4 +268,5 @@ GroupItem 	*action = 0;
 	groupRules->properties->addMember(groupRules->printSPACE);
 	groupRules->properties->addMember(groupRules->maxLimit);
 	groupRules->properties->addMember(groupRules->repeatLimit);
+	groupRules->properties->addMember(groupRules->currentMETHOD);
 }

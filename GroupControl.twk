@@ -122,7 +122,7 @@ String      name = item.text;
 ******************************************************************************/
 GroupItem locateInMethod(String name)
 {
-GroupItem   action = currentMETHOD,
+GroupItem   action = currentMETHOD.group,
             result;
     if processingCode   result = action % name;
     if !result  result = locate(name);
@@ -143,6 +143,7 @@ GroupItem   action;
     registries.groupList    = new(registries);
     inDENT                  = new("indenter");
     inDENT.isCOUNT          = true;
+    currentMETHOD           = new("currentMETHOD");
     /***********************************************************************
         Create properties registry and add groups to it
     ***********************************************************************/
@@ -269,5 +270,6 @@ GroupItem   action;
     properties += printSPACE;
     properties += maxLimit;
     properties += repeatLimit;
+    properties += currentMETHOD;
 }
 }
