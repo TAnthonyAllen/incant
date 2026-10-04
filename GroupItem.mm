@@ -1684,6 +1684,7 @@ GroupRules 			*ruler = GroupControl::groupController->groupRules;
 ParseActivation 	oldActive;
 RuleStuff 			*ruleStuff = getStuff(pStuff);
 int 				leafDone = 0;
+char 				*ownPoint = 0;
 	// oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
 	oldActive.face = this;
 	oldActive.isFloor = 0;
@@ -1762,6 +1763,8 @@ debugHere:
 			}
 		if ( !ruleStuff->sukcess )
 			{
+			// ownPointHanded this call's own failure point, handed to aCTionFailed below -- a notifyFail rule reports where IT failed (SEQ 187 R1)
+			ownPoint = ruler->atRuleMark;
 			// rootFailPoint the ROOT's own failure point goes on the floor below it -- a call whose record sits on a floor is the root (SEQ 292, SEQ 186 R2)
 			if ( oldActive.prev && oldActive.prev->isFloor )
 				oldActive.prev->failPoint = ruler->atRuleMark;
@@ -1773,7 +1776,7 @@ debugHere:
 generatedExit:
 	// nodeInHand this, never RuleStuff.owner -- getStuff makes them one node (stroke 5.2)
 	if ( !ruleStuff->sukcess && ruleStuff->notifyFail )
-		::aCTionFailed(this);
+		::aCTionFailed(this,ownPoint);
 	if ( ruleStuff->sukcess && !ruleStuff->label )
 		ruleStuff->label = ruler->labelNO;
 	ruleStuff->inProcess = 0;

@@ -5749,11 +5749,18 @@ kindRow "anyLeafT AL-1 Any consumed one character of three" "$(grep 'verdict mat
 run2 failPointT "$T/fpt.o" "$T/fpt.e"; check "failPointT runs" 0 $?
 sentinel "failPointT sentinel" "$T/fpt.e" "FAILPOINT SENTINEL"
 _fp () { awk -v k="$1" 'index($0,k)==1 {f=1; next} f && /verdict matched/ {print $NF; exit}' "$T/fpt.e"; }
-kindRow "failPointT FP-0 old road, control: fails at 1" "$(_fp 'FP-0')" "1"
+kindRow "failPointT FP-0 old road, a witness (red under the H7): fails at 1" "$(_fp 'FP-0')" "1"
 kindRow "failPointT FP-C old road, root re-entered (a getStuff copy): fails at 1" "$(_fp 'FP-C inner')" "1"
 kindRow "failPointT FP-A new road: a failing drive reports its point" "$(_fp 'FP-A')" "1"
 kindRow "failPointT FP-B new road: the current point after an earlier failure" "$(_fp 'FP-B')" "2"
 kindRow "failPointT FP-M new road, control: matched, stoppedAt = consumed" "$(_fp 'FP-M')" "3"
+
+#  ⚑ failNotRootT -- FP-N, SEQ 187 R2: a notifyFail rule that is NOT the drive root reports its OWN failure point, handed
+#  to aCTionFailed by parse() as an argument (the floor holds the root's). aCTionFailed ends the run, so the Failed-at
+#  line on stdout is the last output and the fixture has no sentinel. Trunk: QZ. stroke12a as built: ":reached end of
+#  input" (the floor's point, empty -- red). Fixed: QZ.
+run2 failNotRootT "$T/fnr.o" "$T/fnr.e"; check "failNotRootT runs" 0 $?
+kindRow "failNotRootT FP-N a non-root notifyFail rule reports where IT failed" "$(grep 'Failed at:' "$T/fnr.o" | awk -F'\t' '{print $3}')" "QZ"
 
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do

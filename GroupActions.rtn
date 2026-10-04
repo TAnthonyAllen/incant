@@ -796,18 +796,6 @@ GroupRules  ruler = groupRules;
 }
 
 
-// floorFailPoint the nearest floor's failure point -- the root's own, written at its failure exit (SEQ 292)
-extern String floorFailPoint()
-{
-ParseActivation *fp;
-GroupRules  ruler = groupRules;
-    fp  = ruler.gParseActive;
-    while fp && !fp.isFloor     fp = fp.prev;
-    if fp   return fp.failPoint;
-    return null;
-}
-
-
 // parseOnFloor the file's top-level parse runs on a FLOOR, as a drive does -- every failure then has a floor below it (SEQ 186 R1, shape (i))
 extern GroupItem parseOnFloor(GroupItem rule)
 {

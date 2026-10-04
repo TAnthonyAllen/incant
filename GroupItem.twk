@@ -1291,6 +1291,7 @@ GroupRules  ruler       = groupRules;
 ParseActivation oldActive;
 RuleStuff   ruleStuff   = getStuff(pStuff);
 int         leafDone    = 0;
+String      ownPoint;
     // oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
     oldActive.face      = this;
     oldActive.isFloor   = 0;
@@ -1346,6 +1347,8 @@ debugHere:
                 popInput(); }
             if sukcess && *atRuleMark   goto continueHere; }
         if !sukcess {
+            // ownPointHanded this call's own failure point, handed to aCTionFailed below -- a notifyFail rule reports where IT failed (SEQ 187 R1)
+            ownPoint    = atRuleMark;
             // rootFailPoint the ROOT's own failure point goes on the floor below it -- a call whose record sits on a floor is the root (SEQ 292, SEQ 186 R2)
             if oldActive.prev && oldActive.prev.isFloor     oldActive.prev.failPoint = atRuleMark;
 use ruler
@@ -1354,7 +1357,7 @@ use ruleStuff
             if label    label = 0; }}
 generatedExit:
     // nodeInHand this, never RuleStuff.owner -- getStuff makes them one node (stroke 5.2)
-    if !sukcess && notifyFail   aCTionFailed(this);
+    if !sukcess && notifyFail   aCTionFailed(this,ownPoint);
     if sukcess && !label        label = labelNO;
     inProcess   = false;
     ruler.gParseActive  = oldActive.prev;

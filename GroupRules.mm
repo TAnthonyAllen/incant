@@ -681,13 +681,13 @@ int 		restrict = 0;
 /*******************************************************************************
 	If the parse gets here it failed.
 *******************************************************************************/
-extern "C" GroupItem *aCTionFailed(GroupItem *input)
+extern "C" GroupItem *aCTionFailed(GroupItem *input, char *ownPoint)
 {
 GroupItem 	*lastStatement = GroupControl::groupController->groupRules->lastStatement;
 	// lastCodeToCrash
 	::printf("Rule %s\n",input->groupBody->tag);
-	// floorPoint the failure point is the drive ROOT's, read off the nearest floor (SEQ 292)
-	::printf("\tFailed at:\t%s\n",::getDebugText(::floorFailPoint(),40));
+	// ownPointArgument the failing rule's OWN point, handed by parse() at its failure exit -- never the floor's, which is the root's (SEQ 187 R1)
+	::printf("\tFailed at:\t%s\n",::getDebugText(ownPoint,40));
 	::printf("\ton Line:\t\t%d \n",GroupControl::groupController->groupRules->sourceLINE);
 	// added the gText guard (for cases that do not use StatemenT
 	if ( lastStatement->groupBody->gText )
@@ -2306,19 +2306,6 @@ char 	*name = input->getText();
 		else	::fprintf(stderr,"FAIL: no fail method argument provided\n");
 	else	::fprintf(stderr,"FAIL: should be a rule attribute\n");
 	return GroupControl::groupController->groupRules->trueResult;
-}
-
-// floorFailPoint the nearest floor's failure point -- the root's own, written at its failure exit (SEQ 292)
-extern "C" char *floorFailPoint()
-{
-ParseActivation 	*fp = 0;
-GroupRules 			*ruler = GroupControl::groupController->groupRules;
-	fp = ruler->gParseActive;
-	while ( fp && !fp->isFloor )
-		fp = fp->prev;
-	if ( fp )
-		return fp->failPoint;
-	return 0;
 }
 
 /*  foldDot -- MINT ONE xdot: a dot whose left operand the parser never handed it.

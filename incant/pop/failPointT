@@ -17,7 +17,7 @@ define
     FpREC isRule lp-="(" FpA rp-=")" code={ cerr "FP-C inner drive, the root re-entered":; fpSay("FpREC (x)"); };
     ;
 search GroupFields UnitTests Utilities Ladder list;
-cerr "FP-0 old road, fails at 1":;
+cerr "FP-0 old road, fails at 1 (a witness)":;
 fpSay("FpOUT (x)");
 cerr "FP-C outer drive":;
 fpSay("FpREC (a)");
@@ -35,7 +35,8 @@ failPointT -- STROKE 1.2a (SEQ 292, 2026-10-04): a drive reports its ROOT's own 
 floor (ParseActivation.failPoint), on both roads. RuleStuff.failedAt is gone. tell turns the point into stoppedAt,
 and only when the drive did not match and the offset is above 0, so every failing message here fails past offset 0.
 
-FP-0 old road, "(x)" fails at 1 -- a CONTROL: right before the stroke as well.
+FP-0 old road, "(x)" fails at 1 -- a WITNESS, not a control (SEQ 187 R3): it reads 1 on trunk too, but it went
+     red under the H7, because the old road now writes ONLY to the floor.
 FP-C the old road with the ROOT RE-ENTERED: FpREC's action drives FpREC again while the outer FpREC is still in
      process, so getStuff hands the inner parse a copy. Before the stroke the inner failure was written on that copy
      and lost: stoppedAt 0. Now 1.
