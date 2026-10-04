@@ -23,7 +23,8 @@ setParse does not have to worry about actionMethod
         lastIndent      :. 0;
         processingCodE  :. 1;
         if result = BlocK(CodE);
-            
+            result.noPrinT  = 1;
+            isActioN
 
 
 
