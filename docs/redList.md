@@ -20,6 +20,11 @@ instrument's missing list is an accident; two is the convention being too narrow
 read as a clean pass with an EMPTY output file. An empty capture at exit 0 is not a green; check
 that an instrument printed something before believing its status.
 
+## 2026-10-04, seal 50 (shutdown) -- 924 green / 49 red / 1 parked (trunk jit-unified-emit-wip, bare)
+
+**Unchanged from seal 48: the same 49 rows, diffed row for row.** Green rose by fieldSetT's ten rows (groupFieldSetter
+merge); none joined or left the red list.
+
 ## 2026-10-04, seal 48 -- 914 green / 49 red / 1 parked (trunk jit-unified-emit-wip, bare)
 
 **54 -> 49, every row named.** Since 09-26, by the seals between: countPop's three rows retired by mapping (SEQ 260
