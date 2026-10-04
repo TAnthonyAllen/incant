@@ -145,19 +145,16 @@ use field
 }
 }
 
-// parseR parse a term into a given label: a throwaway RuleStuff whose label is into, so parse() attaches there -- driveStep's no-data arm
+// parseR parse a term into a given label: into is an ARGUMENT to parse(), never a throwaway RuleStuff (stroke 1.1 site 2) -- driveStep's no-data arm
 extern GroupItem parseR(GroupItem term, GroupItem into)
 {
 GroupRules  ruler = groupRules;
-RuleStuff   bridge;
 GroupItem   got;
     if !term    return null;
     // traceGate identity-printing only, behind parseTrace -- a bare node prints an attribute count that reads like an answer
     if parseTrace {
         cerr "  parseR term=",term.tag," into=",into.tag:; }
-    bridge          = new(term);
-    bridge.label    = into;
-    got = term.parse(bridge,0);
+    got = term.parse(null,0,into);
     if parseTrace {
         if got  cerr "  parseR term=",term.tag," -> attached as ",got.tag," under ",into.tag:;
         else    cerr "  parseR term=",term.tag," -> NULL (no attachment)":; }
@@ -214,7 +211,7 @@ GroupItem   grup;
 int         result = true;
     while grup = field.nextAttribute(grup)
         if noPrint  continue;
-        or parse(stuff,0)   result = true;
+        or parse(stuff,0,null)   result = true;
         else {
             result = false;
             break; }
@@ -266,7 +263,7 @@ extern int testOptions(RuleStuff stuff, GroupItem field)
 GroupItem   grup;
     while grup = field.nextMember(grup) {
         if checkGuard(grup) {
-            if grup.parse(stuff,1)  return true; }}
+            if grup.parse(stuff,1,null)  return true; }}
     return  false;
 }
 

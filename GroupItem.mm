@@ -383,35 +383,45 @@ void GroupItem::append(GroupItem *grup)
     // attachLabel the yield protocol IS the skip -- NULL failed, labelNO yields nothing, anything else
     // attachLabel attaches. Do not reach for a flag here, it was falsified fleet-wide
 ***************************************************************************/
-void GroupItem::attachLabel(RuleStuff *stuff, RuleStuff *pStuff, int promote)
+void GroupItem::attachLabel(RuleStuff *stuff, RuleStuff *pStuff, int promote, GroupItem *into)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
+char 		*destName = groupBody->tag;
+GroupItem 	*dest = into;
 GroupItem 	*lab = stuff->label;
 	if ( !lab || lab == ruler->labelNO )
 		return;
-	if ( !pStuff )
+	// intoArgument with no parent stuff the destination is the caller's into and the name is this term's own (parseR, stroke 1.1 site 2)
+	if ( pStuff )
+		{
+		dest = pStuff->label;
+		destName = pStuff->ruleName;
+		}
+	else
+	if ( !into )
 		return;
 	// caseLocalizer parseTrace-gated -- the interesting failure is a SILENT return at the no-label guard, and
 	// caseLocalizer an absent attach announces nothing on its own
 	if ( ruler->parseTrace )
-		::fprintf(stderr,"    attachLabel lab=%s promote=%d isTarget=%u pLabel=%lu pRule=%s\n",lab->groupBody->tag,promote,stuff->isTarget,(pStuff->label != 0),pStuff->ruleName);
+		::fprintf(stderr,"    attachLabel lab=%s promote=%d isTarget=%u pLabel=%lu pRule=%s\n",lab->groupBody->tag,promote,stuff->isTarget,(dest != 0),destName);
 	// promoteUnguarded promotion is an assign and is NOT guarded on the destination -- a parent with no label
 	// promoteUnguarded yet is the normal case here, and this is what gives it one
 	// pc1Restated the disjunct is PC-1 RESTATED, not loosened -- the forbidden consult is the one where a
 	// pc1Restated parent label exists, because that is the one with a subtree to destroy
-	if ( (promote || !pStuff->label) && stuff->isTarget )
+	if ( (promote || !dest) && stuff->isTarget )
 		{
-		pStuff->label = lab;
+		if ( pStuff )
+			pStuff->label = lab;
 		// ownedRetag rename only a node this parse owns -- a minted label, or a fresh node nobody else holds; never a shared sentinel, a registry member or a live field (F-134)
 		if ( lab->labelOf || (!lab->groupBody->registry && !lab->parent) )
-			lab->groupBody->tag = pStuff->ruleName;
+			lab->groupBody->tag = destName;
 		return;
 		}
 	// attachGuardHere the guard belongs HERE and not above the promote case -- both placements were measured
 	// attachGuardHere and each crashes the fleet the other way, three lines apart
 	// ia2Narrow the landed spelling is the NARROW one -- the broad one was also green and was rejected
 	// ia2Narrow because ZERO of 216 calls fell in the cell where the two differ
-	if ( !pStuff->label )
+	if ( !dest )
 		{
 		// dropSiteProbe parseTrace-gated -- at the instant an option's label is dropped, is there a reachable
 		// dropSiteProbe destination in the frame, or is the label simply homeless
@@ -432,17 +442,17 @@ GroupItem 	*lab = stuff->label;
 		}
 	// alreadyIsParentLabel this label IS the parent's label already, so there is nothing to attach and the
 	// alreadyIsParentLabel lines below would attach it to itself
-	if ( lab == pStuff->label )
+	if ( lab == dest )
 		return;
 	if ( promote && isGROUP(lab->groupBody->flags.data) && stuff->max > 1 )
 		{
 		 ::measureAttachRepeat(stuff,lab); 
-		pStuff->label->addAttribute(lab->getGroup());
+		dest->addAttribute(lab->getGroup());
 		lab->clear();
 		lab->groupBody->flags.fLAG = 1;
 		return;
 		}
-	pStuff->label->addAttribute(lab);
+	dest->addAttribute(lab);
 }
 
 /***************************************************************************
@@ -1668,7 +1678,7 @@ GroupItem *GroupItem::nextProperty(GroupItem *entry)
                                 parse
     Treat this field as a rule and match it against the input stream.
 ***************************************************************************/
-GroupItem *GroupItem::parse(RuleStuff *pStuff, int guardPassed)
+GroupItem *GroupItem::parse(RuleStuff *pStuff, int guardPassed, GroupItem *into)
 {
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 ParseActivation 	oldActive;
@@ -1706,7 +1716,7 @@ continueHere:
 				ruleStuff->sukcess = ruleStuff->testMatch(this);
 			if ( !parseACTION(groupBody->flags.methodType) )
 				{
-				if ( ruleStuff->sukcess && ruleStuff->onGroup && !ruleStuff->onGroup->parse(ruleStuff,0) )
+				if ( ruleStuff->sukcess && ruleStuff->onGroup && !ruleStuff->onGroup->parse(ruleStuff,0,0) )
 					ruleStuff->sukcess = 0;
 				if ( ruleStuff->sukcess && groupBody->flags.hasAttributes )
 					ruleStuff->sukcess = ::testAttributes(ruleStuff,this);
@@ -1723,7 +1733,7 @@ continueHere:
 		if ( ruleStuff->sukcess )
 			{
 			ruleStuff->kount++;
-			attachLabel(ruleStuff,pStuff,1);
+			attachLabel(ruleStuff,pStuff,1,into);
 			}
 		else	break;
 		}
