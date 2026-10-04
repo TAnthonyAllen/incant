@@ -1506,6 +1506,27 @@ GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
 	return input;
 }
 
+/***************************************************************************
+    accessorWrite -- `x.name = v`: opDot handed opAssign its COPY of x's
+    groupField, marked isAccessorProduct and parented to x. Write the field
+    on x through setGroupField. A groupField with no write case says so by
+    name and leaves x unchanged.
+***************************************************************************/
+extern "C" int accessorWrite(GroupItem *argument, GroupItem *product)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*flagDef = 0;
+int 		value = 0;
+	if ( argument )
+		value = argument->getCount();
+	flagDef = ruler->groupFields->get(product->groupBody->tag);
+	if ( flagDef )
+		if ( ::setGroupField(product->parent,flagDef->groupBody->gCount,value) )
+			return 1;
+	::fprintf(stderr,"opAssign: `.%s` has no write case -- the field is unchanged\n",product->groupBody->tag);
+	return 0;
+}
+
 // appendGroup print the field passed in to the buffer passed in, or run its print shortcuts
 extern "C" GroupItem *appendGroup(GroupItem *input, GroupItem *FormaT, Buffer *buffer)
 {
@@ -6846,6 +6867,9 @@ int 		priorLimit = ::limitWriteGuard(target);
 	went in with, for exactly that reason.   Instruct.opAssign.storeRuling  */
 	if ( ruler->refused )
 		return 0;
+	// accessorWrite `x.name = v` writes the FIELD x through setGroupField, not only the copy opDot handed back (SEQ 295 R3)
+	if ( target->groupBody->flags.isAccessorProduct )
+		accessorWrite(argument,target);
 	if ( argument )
 		target->setContent(argument);
 	else	target->clearData();
@@ -7084,6 +7108,8 @@ GroupItem 	*product = 0;
 			if ( !target )
 				return 0;
 			product = new GroupItem(argument->groupBody->tag);
+			// accessorMark the ONE meaning of isAccessorProduct: this node is opDot's copy of a groupField, so `=` on it writes the field through setGroupField (SEQ 295 R3); a node-returning case replaces product and the mark goes with it
+			product->groupBody->flags.isAccessorProduct = 1;
 			switch (argument->groupBody->gCount)
 				{
 				case 1:
@@ -8448,73 +8474,12 @@ GroupItem 	*flagDef = 0;
 	the wrong write had set. One bad spelling, two false readings.
 	Setting an enum CLOBBERS whatever it was, which is inherent to an enum
 	and is the intended meaning of "set this kind".  */
+	// oneSetter `:.` is setGroupField with the value 1 -- the cases live there, beside `=`'s (SEQ 295 R3)
 	if ( argument && target )
-		switch (flagDef->groupBody->gCount)
-			{
-			case 21:
-				target->groupBody->flags.isPercent = 1;
-				break;
-			case 25:
-				target->groupBody->flags.isVirtual = 1;
-				break;
-			case 26:
-				target->groupBody->flags.mergeOn = 1;
-				break;
-			case 29:
-				target->groupBody->flags.noPrint = 1;
-				break;
-			case 31:
-				target->groupBody->flags.byRef = 1;
-				/*  hasNewParse -- THE ARTIFACT GATE, 2026-08-24. Ruled on
-				architectural grounds: a generated parse body's address must be
-				FACE-PROOF BY CONSTRUCTION, so it parks as a noPrint member on
-				the shared child list (processCode's proven pattern) and this
-				flag is the cheap test that says one is there. The rStuff field
-				spelling for parseMethod/actionMethod retires behind it.  */
-				break;
-			case 32:
-				target->groupBody->flags.binType = 3;
-				break;
-			case 33:
-				target->groupBody->flags.binType = 1;
-				break;
-			case 40:
-				target->groupBody->flags.actionType = 2;
-				break;
-			case 41:
-				target->groupBody->flags.hasNewParse = 1;
-				/*  isActioN -- THE WRITE HALF. The read half (opDot case 408) has
-				existed since incant/enumT; only the write was missing, so
-				`x :. isActioN` printed "no case yet -- gCount 408" and did
-				NOTHING. incant/frontier station 6 hit it: the station reported
-				PASS while the flag it was setting never took.
-				
-				⚠ PASSTHROUGH WITH A LITERAL, per the enum paragraph above, and
-				for exactly the reason it gives -- `target.isAction = true`
-				would generate `actionType = !isAction(actionType)`, which can
-				only ever write 0 or 1 by accident of isAction being 1. Here 1
-				happens to be right, and that is precisely why it must NOT be
-				spelled that way: the next enum case to be added would inherit
-				a spelling that is wrong everywhere except by coincidence.
-				
-				ONE CHANNEL: actionType = 1 is what isAction(button) tests
-				(GroupBody.h:74) and what processCode writes when it commissions
-				a parsed body (GroupRules.mm:11685). Flag and artifact are
-				constitutionally unable to disagree because they are the same
-				integer, which is isCodeD's discipline applied to its sibling.  */
-				break;
-			case 408:
-				target->groupBody->flags.actionType = 1;
-				break;
-			case 411:
-				ruler->lastIndent = argument->getCount();
-				break;
-			case 412:
-				ruler->processingCode = argument->getCount();
-				break;
-			default:
-				::fprintf(stderr,"opSetFlag WARNING: groupField %s has no case yet -- guessing from gCount %s ; the value stands\n",argument->groupBody->tag,::toStringFromInt(flagDef->groupBody->gCount));
-			}
+		{
+		if ( !setGroupField(target,flagDef->groupBody->gCount,1) )
+			::fprintf(stderr,"opSetFlag WARNING: groupField %s has no case yet -- guessing from gCount %s ; the value stands\n",argument->groupBody->tag,::toStringFromInt(flagDef->groupBody->gCount));
+		}
 	else	::fprintf(stderr,"opSetFlag: missing operand\n");
 	return target;
 }
@@ -10149,6 +10114,110 @@ extern "C" GroupItem *setFileOp(GroupItem *argument, GroupItem *target)
 	if ( isBUFFER(target->groupBody->flags.data) )
 		target->getBuffer()->setFile(argument->getText());
 	return target;
+}
+
+/***************************************************************************
+    setGroupField -- THE ONE WRITER OF A groupField BY NUMBER (SEQ 295 R3).
+    Both spellings land here: `x :. name` hands it 1, and `x.name = v` hands
+    it v through opAssign, which knows its target is opDot's copy by the
+    isAccessorProduct mark. A flag takes value != 0. An enum KIND (binType,
+    actionType) is set by a non-zero value and cleared by zero only when the
+    field holds that kind. Returns 1 when the number has a write case and 0
+    when it has none, so each caller refuses in its own words. Read-only
+    accessors (isGrouP 43, debuggeD 44) have no case here on purpose -- see
+    opDot.
+***************************************************************************/
+extern "C" int setGroupField(GroupItem *target, int fieldNo, int value)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		on = 0;
+	if ( !target )
+		return 0;
+	if ( value )
+		on = 1;
+	switch (fieldNo)
+		{
+		case 21:
+			target->groupBody->flags.isPercent = on;
+			break;
+		case 25:
+			target->groupBody->flags.isVirtual = on;
+			break;
+		case 26:
+			target->groupBody->flags.mergeOn = on;
+			break;
+		case 29:
+			target->groupBody->flags.noPrint = on;
+			break;
+		case 31:
+			target->groupBody->flags.byRef = on;
+			/*  hasNewParse -- THE ARTIFACT GATE, 2026-08-24. Ruled on
+			architectural grounds: a generated parse body's address must be
+			FACE-PROOF BY CONSTRUCTION, so it parks as a noPrint member on
+			the shared child list (processCode's proven pattern) and this
+			flag is the cheap test that says one is there. The rStuff field
+			spelling for parseMethod/actionMethod retires behind it.  */
+			break;
+		case 32:
+			if ( on )
+				target->groupBody->flags.binType = 3;
+			else
+			if ( target->groupBody->flags.binType == 3 )
+				target->groupBody->flags.binType = 0;
+			break;
+		case 33:
+			if ( on )
+				target->groupBody->flags.binType = 1;
+			else
+			if ( target->groupBody->flags.binType == 1 )
+				target->groupBody->flags.binType = 0;
+			break;
+		case 40:
+			if ( on )
+				target->groupBody->flags.actionType = 2;
+			else
+			if ( target->groupBody->flags.actionType == 2 )
+				target->groupBody->flags.actionType = 0;
+			break;
+		case 41:
+			target->groupBody->flags.hasNewParse = on;
+			/*  isActioN -- THE WRITE HALF. The read half (opDot case 408) has
+			existed since incant/enumT; only the write was missing, so
+			`x :. isActioN` printed "no case yet -- gCount 408" and did
+			NOTHING. incant/frontier station 6 hit it: the station reported
+			PASS while the flag it was setting never took.
+			
+			⚠ PASSTHROUGH WITH A LITERAL, per the enum paragraph above, and
+			for exactly the reason it gives -- `target.isAction = true`
+			would generate `actionType = !isAction(actionType)`, which can
+			only ever write 0 or 1 by accident of isAction being 1. Here 1
+			happens to be right, and that is precisely why it must NOT be
+			spelled that way: the next enum case to be added would inherit
+			a spelling that is wrong everywhere except by coincidence.
+			
+			ONE CHANNEL: actionType = 1 is what isAction(button) tests
+			(GroupBody.h:74) and what processCode writes when it commissions
+			a parsed body (GroupRules.mm:11685). Flag and artifact are
+			constitutionally unable to disagree because they are the same
+			integer, which is isCodeD's discipline applied to its sibling.  */
+			break;
+		case 408:
+			if ( on )
+				target->groupBody->flags.actionType = 1;
+			else
+			if ( target->groupBody->flags.actionType == 1 )
+				target->groupBody->flags.actionType = 0;
+			break;
+		case 411:
+			ruler->lastIndent = value;
+			break;
+		case 412:
+			ruler->processingCode = on;
+			break;
+		default:
+			return 0;
+		}
+	return 1;
 }
 
 /*******************************************************************************
