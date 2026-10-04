@@ -110,7 +110,6 @@ define
 
     '=='    operateMethod=opEQ  jitEmitter=jitEmitEQ;
     '=['    operateMethod=opGet;
-    '=]'    operateMethod=opEnd;
     '=/'    operateMethod=opGetMember;
     '=%'    operateMethod=opGetAttribute;
     '=<'    operateMethod=opGetProperty;

@@ -472,6 +472,18 @@ projectBible.md "Phase Generate Tawk".
 
 ## Pending (not current arc)
 
+- [ ] **`:.` on a dotted flag -- `A.noPrinT :. 1` (design, Tony, docketed 2026-10-04; not urgent).** Today
+  `noPrinT :. 1;` works (bare, through `lastREF`), but `A.noPrinT` is a value and cannot be the left side of a
+  `:.`. Tony's clue: what `A.noPrinT` returns has `A` as its parent, so `opSetFlag` could resolve its target
+  from the operand's parent. Measured in passing: `opDot` does stamp it -- `if product && !product.parent
+  product.parent = target;` (`Instruct.rtn`, opDot's tail) -- but only when the product has no parent yet, so
+  a product that already has one would aim the set somewhere else. ⚠ **Questions for the design talk:**
+  (1) the operand arrives as a fresh value field (accessor results are snapshots, not aliases), so `opSetFlag`
+  would need to know it holds a flag READ and not a field named `noPrinT` -- its tag answers `groupFields[tag]`,
+  its parent answers the target; (2) the spelling -- `A.noPrinT :. 1` against Tony's `A.noPrinT :. = 1`;
+  (3) bear-trap #48: `.` binds as a separate term, so the parse shape of `A.noPrinT :. 1` must be measured
+  before anything is built.
+
 - [ ] **Sticky `isPRINTING` root-cause fix (Option B)** — ⚠ **RE-MEASURED 2026-08-01: it is
   NOT dead code.** It has exactly ONE read in the whole tree — `aCTionTokenXP`
   (`ruleActions.rtn`, `if generating && !isPRINTING`) — and this entry already records that

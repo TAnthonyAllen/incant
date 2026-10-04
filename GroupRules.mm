@@ -7341,20 +7341,6 @@ extern "C" GroupItem *opEQ(GroupItem *argument, GroupItem *target)
 }
 
 /***************************************************************************
-	Rule action for =] operator that returns the last item on the arguments
-    list
-***************************************************************************/
-extern "C" GroupItem *opEnd(GroupItem *argument, GroupItem *target)
-{
-	if ( argument->groupBody->groupList )
-		{
-		target->setGroup(argument->groupBody->groupList->lastInList);
-		return target;
-		}
-	return 0;
-}
-
-/***************************************************************************
 	Rule action for the >= operator
 ***************************************************************************/
 extern "C" GroupItem *opGE(GroupItem *argument, GroupItem *target)

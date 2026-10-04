@@ -216,7 +216,7 @@ target that moved is a claim that the world changed, and the claim needs a cause
 `opMinus` · `opUnaryMinus` · `opMinusEQ` · `opMinusMinus` · `opMultiply` · `opMultiplyEQ` ·
 `opNotEQ` · `opPlus` · `opPlusEQ` · `opPlusPlus`.
 
-*Not gated (24):* `opAddAttribute` · `opAND` · `opCopyList` · `opDebug` · `opDot` · `opEnd` ·
+*Not gated (23; `opEnd` retired 2026-10-04):* `opAddAttribute` · `opAND` · `opCopyList` · `opDebug` · `opDot` ·
 `opGet` · `opGetAttribute` · `opGetMember` · `opIN` · `opLastREF` · `opMatch` · `opNOT` ·
 `opOR` · `opPointer` · `opPrint` · `opRebind` · `opRem` · `opReplaceAttribute` ·
 `opReplaceMember` · `opSetGroup` · `opSetFlag` · `opSetTag` · `opString`.

@@ -456,20 +456,6 @@ use argument
 
 
 /***************************************************************************
-	Rule action for =] operator that returns the last item on the arguments
-    list
-***************************************************************************/
-extern GroupItem opEnd(GroupItem argument,GroupItem target)
-{
-use argument
-    if groupList {
-        target.group = lastInList;
-        return target; }
-    return null;
-}
-
-
-/***************************************************************************
 	Rule action for the == operator
 ***************************************************************************/
 extern GroupItem opEQ(GroupItem argument,GroupItem target)
