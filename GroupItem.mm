@@ -1684,6 +1684,7 @@ GroupRules 			*ruler = GroupControl::groupController->groupRules;
 ParseActivation 	oldActive;
 RuleStuff 			*ruleStuff = getStuff(pStuff);
 int 				leafDone = 0;
+int 				repeatCount = 0;
 char 				*ownPoint = 0;
 	// oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
 	oldActive.face = this;
@@ -1694,10 +1695,9 @@ char 				*ownPoint = 0;
 	oldActive.stuff = ruleStuff;
 	ruler->gParseActive = &oldActive;
 	// activeNotSubject the record takes GroupRules' scope, so re-mention ruler then ruleStuff or ruler's bare names bind to oldActive (bear-trap #58)
-	ruleStuff->kount = 0;
 	ruleStuff->inProcess = 1;
 	// bindReadSeamProbe
-	while ( !leafDone && ruleStuff->kount < ruleStuff->maxRepeat )
+	while ( !leafDone && repeatCount < ruleStuff->maxRepeat )
 		{
 continueHere:
 		ruleStuff->sukcess = 0;
@@ -1737,17 +1737,17 @@ continueHere:
 		 ::measureOldFireFlag(this,ruleStuff); 
 		if ( ruleStuff->sukcess )
 			{
-			ruleStuff->kount++;
+			repeatCount++;
 			attachLabel(ruleStuff,pStuff,1,into);
 			}
 		else	break;
 		}
-	if ( ruleStuff->kount >= ruleStuff->maxRepeat && ruleStuff->maxRepeat > 1 )
-		::reportRepeatLimit(this,ruleStuff->kount,ruleStuff->maxRepeat);
+	if ( repeatCount >= ruleStuff->maxRepeat && ruleStuff->maxRepeat > 1 )
+		::reportRepeatLimit(this,repeatCount,ruleStuff->maxRepeat);
 matchFailed:
 	if ( !ruleStuff->sukcess )
 		{
-		if ( !ruleStuff->sukcess && ruleStuff->kount >= ruleStuff->min )
+		if ( !ruleStuff->sukcess && repeatCount >= ruleStuff->min )
 			ruleStuff->sukcess = 1;
 debugHere:
 		if ( !*ruler->atRuleMark && ruler->inputDiverted )

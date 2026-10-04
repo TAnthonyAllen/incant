@@ -358,7 +358,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	hereAt = 0;
 	label = 0;
 	onGroup = 0;
-	kount = 0;
 	followed = 0;
 	inProcess = 0;
 	isTarget = 0;
@@ -406,7 +405,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	*this = *r;
 	label = 0;
 	sukcess = 0;
-	kount = 0;
 }
 
 // checkGuard true when the rule is unguarded or the input character is in its guardSet

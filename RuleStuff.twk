@@ -8,8 +8,7 @@ String      ruleName;       // for debugging
 String      hereAt;
 GroupItem   label,
             onGroup;
-int         kount,
-            max,
+int         max,
             maxRepeat,
             min;
 int         &testMatch(GroupItem);
@@ -47,7 +46,6 @@ RuleStuff(RuleStuff r)
     *this = *r;
     label   = null;
     sukcess = 0;
-    kount   = 0;
 }
 
 // checkGuard true when the rule is unguarded or the input character is in its guardSet

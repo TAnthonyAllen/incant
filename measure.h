@@ -34,7 +34,7 @@ extern "C" GroupItem *measureFireLabelFork(GroupItem *field, GroupItem *myLabel)
 extern "C" GroupItem *measureFrameProbe(GroupItem *field, GroupItem *rule);
 extern "C" GroupItem *measureKindArm(char *arm, GroupItem *field);
 extern "C" GroupItem *measureLabelMint(GroupItem *field, GroupItem *myLabel, GroupItem *into);
-extern "C" GroupItem *measureLoopVerdict(GroupItem *field);
+extern "C" GroupItem *measureLoopVerdict(GroupItem *field, int timesMatched);
 extern "C" GroupItem *measureMarkArm(GroupItem *driveNode);
 extern "C" GroupItem *measureMarkPoint(char *where);
 extern "C" GroupItem *measureOldFireFlag(GroupItem *field, RuleStuff *stuff);

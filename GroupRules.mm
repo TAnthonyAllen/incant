@@ -8775,14 +8775,14 @@ extern "C" GroupItem *parseLoop(GroupItem *field)
 	// enclosingRule re-resolve to the enclosing rule body's own face, through the ENCLOSING PARSE ACTIVATION -- a drive floors it, so a drive root keeps the rule it was handed (SEQ 212)
 	 { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } 
 RuleStuff *ruleStuff = field->getRStuff();
-	ruleStuff->kount = 0;
-	while ( ruleStuff->kount < ruleStuff->max )
+int timesMatched = 0;
+	while ( timesMatched < ruleStuff->max )
 		if ( !::runLeafParse(field) )
 			break;
-		else	ruleStuff->kount++;
+		else	timesMatched++;
 	// countNotFlag the verdict is the COUNT, never the flag -- the last attempt is the failing one that ends the run, and a stale flag would pass a short run; the flag read is removed (Tony, 2026-09-24; SEQ 195)
-	::measureLoopVerdict(field);
-	if ( ruleStuff->kount >= ruleStuff->min )
+	::measureLoopVerdict(field,timesMatched);
+	if ( timesMatched >= ruleStuff->min )
 		return GroupControl::groupController->groupRules->trueResult;
 	return 0;
 }
@@ -8824,7 +8824,6 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	
 	GroupItem *callLabel = ruleStuff ? ruleStuff->label : 0;
 	char *callHereAt = ruleStuff ? ruleStuff->hereAt : 0;
-	int callKount = ruleStuff ? ruleStuff->kount : 0;
 	int callSukcess = ruleStuff ? ruleStuff->sukcess : 0;
 	
 	// activePush this call's record goes on the activation list; one pop, after exitFromParse
@@ -8895,7 +8894,7 @@ checkSuccess:
 	
 	if ( ruleStuff ) {
 	ruleStuff->label = callLabel;
-	ruleStuff->hereAt = callHereAt;  ruleStuff->kount = callKount;  ruleStuff->sukcess = callSukcess; }
+	ruleStuff->hereAt = callHereAt;  ruleStuff->sukcess = callSukcess; }
 	
 	return result;
 }
