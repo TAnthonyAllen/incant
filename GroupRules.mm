@@ -1606,26 +1606,6 @@ GroupItem 	*grup = 0;
 		}
 }
 
-// assignFieldCore BOTH ROADS CALL THIS -- the interpreted = from opAssign, the emitted = through jitAssignNodeRT -- one spelling, so they cannot drift
-extern "C" int assignFieldCore(GroupItem *source, GroupItem *target)
-{
-	
-	if ( !target )  return 0;
-	if ( !source ) {
-	::fprintf(stderr,"ERROR = on %s -- nothing on the right; stores nothing\n",
-	target->groupBody->tag);
-	return 0;
-	}
-	if ( isGROUP(source->groupBody->flags.data) ) {
-	::fprintf(stderr,"ERROR = on %s -- holds a group; say *\n",
-	target->groupBody->tag);
-	return 0;
-	}
-	target->setContent(source);
-	return 1;
-	
-}
-
 /*******************************************************************************
                             Commands.rtn
     Home for extern methods backing the cOMMANDs base registry. Commands fire
@@ -2992,8 +2972,10 @@ GroupItem 	*op = 0;
 	return 1;
 }
 
-/*  the ruling lives in assignFieldCore and BOTH roads call it -- do not inline it
-    here, or the emitted `=` and the interpreted `=` drift.  jitEmitters.jitAssignNodeRT  */
+/*  the emitted `=` with a node on the right does what opAssign does: setContent,
+    or clearData on a null -- a holder on the right carries its group across (Tony,
+    2026-10-04; SEQ 295 R2). Edit the two together; incant/pop/assignRoadT pins them.
+    jitEmitters.jitAssignNodeRT  */
 extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target)
 {
 	
@@ -3002,8 +2984,10 @@ extern "C" GroupItem *jitAssignNodeRT(GroupItem *source, GroupItem *target)
 	dispatch; this is the same rule where the emitted road actually does its
 	storing.   jitEmitters.jitAssignNodeRT.storeRuling  */
 	if ( GroupControl::groupController->groupRules->refused ) return 0;
-	if ( ::assignFieldCore(source,target) )  return target;
-	return 0;
+	if ( !target )  return 0;
+	if ( source )   target->setContent(source);
+	else            target->clearData();
+	return target;
 	
 }
 
@@ -3551,9 +3535,9 @@ extern "C" GroupItem *jitEmitAssign(GroupItem *argument, GroupItem *target)
 	// ⚠ A NODE ON THE RIGHT GOES THROUGH THE RUN-TIME HELPER (SEQ 138). A star
 	// publishes a NODE, not a scalar, and storing its SSA value put the node's
 	// ADDRESS into the target's slot -- which is how starT's jitted road read
-	// 5560000 where the interpreted road read LEAF. jitAssignNodeRT carries
-	// F-48's ruling for BOTH roads: copy the value, or refuse by name and store
-	// nothing. The flag is cleared here because this is the consumer.
+	// 5560000 where the interpreted road read LEAF. jitAssignNodeRT does what
+	// opAssign does -- setContent, so a holder carries its group across (SEQ 295).
+	// The flag is cleared here because this is the consumer.
 	if (gJitLastIsNode && gJitResultNode && target) {
 	gJitLastIsNode = false;
 	llvm::IRBuilder<> *nb = gJitBuilder;
@@ -5288,7 +5272,7 @@ extern "C" void jitPrintItem(GroupItem *token, GroupItem *FormaT, int hasValue)
 	//  walk's own call. One spelling; the roads cannot say different things.
 	//  The flag is cleared here because this is the consumer.
 	//  ⚠ A FIELD-RESIDENT TARGET PRINTS AS A NODE. Its value went through
-	//  assignFieldCore into the FIELD, not into a jitSlot, so the scalar arm
+	//  jitAssignNodeRT into the FIELD, not into a jitSlot, so the scalar arm
 	//  below would read a stale register -- starT's `4`. jitPrintNodeRT
 	//  delegates to appendGroup, the interpreted walk's own call.
 	//  ⚠ SCALAR PRINTS ARE UNTOUCHED: a target whose value went to its slot
@@ -6833,13 +6817,13 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 }
 
 /***************************************************************************
-	Rule action for the = assign operator. A byRef argument is stored BY
-	REFERENCE so the `=` does not undo the reference via setContent.
-	Everything else copies via setContent.
-
-    ⚠ THIS ARM IS REACHABLE ONLY BY AN EXPLICIT `:. byRef`. `:=` does NOT
-    stamp byRef and has not since 2026-06-14; the header said it did until
-    R3.   Instruct.opAssign.byRefProvenance
+	Rule action for the = assign operator: setContent, which sets the
+    target's data to the argument's data (Tony, 2026-10-04). A holder on the
+    right carries its group across, so the target ends up isGROUP too. A null
+    argument clears the target. The jitted = (jitAssignNodeRT) does the same;
+    edit the two together -- incant/pop/assignRoadT pins both roads.
+    The `:. byRef` arm (store the argument BY REFERENCE) is gone with the
+    same change: `=` never aliases now, whatever byRef says.   byRefProvenance (history)
 ***************************************************************************/
 extern "C" GroupItem *opAssign(GroupItem *argument, GroupItem *target)
 {

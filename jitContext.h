@@ -261,7 +261,7 @@ inline llvm::Value *gJitResultNode = nullptr;
 // consumer that acts on it. One channel, one meaning.
 inline bool gJitLastIsNode = false;
 // ⚠ WHERE A TARGET'S VALUE LIVES (SEQ 141, F-50). jitEmitAssign's NODE branch
-// stores through assignFieldCore, which writes the FIELD; the ordinary branch
+// stores through jitAssignNodeRT, which writes the FIELD; the ordinary branch
 // stores into the jitSlot, which is a REGISTER. A print must read whichever one
 // the value went to, and at emit time nothing on the node says which -- both
 // look like `data=0, seeded=1`. So the emitter that DECIDES records it here, and

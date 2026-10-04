@@ -92,27 +92,6 @@ GroupItem   grup,
 }
 
 
-// assignFieldCore BOTH ROADS CALL THIS -- the interpreted = from opAssign, the emitted = through jitAssignNodeRT -- one spelling, so they cannot drift
-extern int assignFieldCore(GroupItem source,GroupItem target)
-{
-    -%
-    if ( !target )  return 0;
-    if ( !source ) {
-        ::fprintf(stderr,"ERROR = on %s -- nothing on the right; stores nothing\n",
-            target->groupBody->tag);
-        return 0;
-        }
-    if ( isGROUP(source->groupBody->flags.data) ) {
-        ::fprintf(stderr,"ERROR = on %s -- holds a group; say *\n",
-            target->groupBody->tag);
-        return 0;
-        }
-    target->setContent(source);
-    return 1;
-    %-
-}
-
-
 // closeFile close the buffer's file; with no file set, the field's tag is the filename
 extern int closeFile(GroupItem bufField)
 {

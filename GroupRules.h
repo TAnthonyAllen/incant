@@ -141,7 +141,6 @@ extern "C" GroupItem *aCTionXpress(GroupItem *input);
 extern "C" GroupItem *appendGroup(GroupItem *input, GroupItem *FormaT, Buffer *buffer);
 extern "C" GroupItem *appendGroupValue(int value, GroupItem *FormaT, Buffer *buffer);
 extern "C" void appendPrintXP(GroupItem *stuff, Buffer *buffer);
-extern "C" int assignFieldCore(GroupItem *source, GroupItem *target);
 extern "C" GroupItem *cLEAR(GroupItem *input);
 extern "C" int clearRefusal(GroupItem *where);
 extern "C" void clearWalked(GroupItem *field);

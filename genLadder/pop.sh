@@ -550,6 +550,26 @@ for _j in "AJ fire 1 result: ajOut = 8" \
     fi
 done
 
+#  ⚠ assignRoadT -- THE TWO = ROADS AGREE WITH A HOLDER ON THE RIGHT (SEQ 295 R2).
+#  Tony's ruling, 2026-10-04: = with a holder on the right carries its group across
+#  (setContent sets the target's data to the argument's data); star reads through it.
+#  The jitted `=` with a node on the right goes through jitAssignNodeRT, which until
+#  this stroke refused a holder through assignFieldCore -- born RED: AR-J read 0 and
+#  stderr carried "ERROR = on arOut -- holds a group; say *", while AR-I read ARV.
+#  H7: jitAssignNodeRT's old body (the assignFieldCore call) put back -> AR-J red.
+run1 assignRoadT "$T/art"; check "assignRoadT runs" 0 $?
+sentinel "assignRoadT sentinel (no truncation)" "$T/art" "ASSIGNROAD SENTINEL"
+for _j in "=== jitRunAction: entering on arDrive ===" \
+          "=== jitDegrade count = 0 ===" \
+          "AR-J jitted      : *arOut = ARV" \
+          "AR-I interpreted : *arOut = ARV"; do
+    if grep -qF "$_j" "$T/art"; then
+        echo "  ok    assignRoadT ${_j} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  assignRoadT -- wanted: $_j"; fail=1
+    fi
+done
+
 #  ⚠ argRoundJ -- THE JIT ARM. Minted pinned RED by name on jitArgBake and
 #  RE-PINNED GREEN the same day when the flag hoist discharged it; see the
 #  sentence at the argument-column row below. It stays a separate file from

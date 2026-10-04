@@ -105,13 +105,13 @@ extern GroupItem opAND(GroupItem argument,GroupItem target)
 
 
 /***************************************************************************
-	Rule action for the = assign operator. A byRef argument is stored BY
-	REFERENCE so the `=` does not undo the reference via setContent.
-	Everything else copies via setContent.
-
-    ⚠ THIS ARM IS REACHABLE ONLY BY AN EXPLICIT `:. byRef`. `:=` does NOT
-    stamp byRef and has not since 2026-06-14; the header said it did until
-    R3.   Instruct.opAssign.byRefProvenance
+	Rule action for the = assign operator: setContent, which sets the
+    target's data to the argument's data (Tony, 2026-10-04). A holder on the
+    right carries its group across, so the target ends up isGROUP too. A null
+    argument clears the target. The jitted = (jitAssignNodeRT) does the same;
+    edit the two together -- incant/pop/assignRoadT pins both roads.
+    The `:. byRef` arm (store the argument BY REFERENCE) is gone with the
+    same change: `=` never aliases now, whatever byRef says.   byRefProvenance (history)
 ***************************************************************************/
 extern GroupItem opAssign(GroupItem argument,GroupItem target)
 {

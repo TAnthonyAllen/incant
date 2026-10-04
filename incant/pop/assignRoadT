@@ -1,0 +1,51 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+
+register(AssignRoadT);
+define
+    arSrc="ARV";
+    arInner;
+    arOuter;
+    arOut;
+    arDrive code={
+        arOut = *arOuter;
+        };
+    ;
+
+arInner := arSrc;
+arOuter := arInner;
+arOut = "none";
+testing(arDrive);
+print "AR-J jitted      : *arOut =" *arOut " (want ARV)":;
+
+arOut = "none";
+arDrive();
+print "AR-I interpreted : *arOut =" *arOut " (want ARV)":;
+print "ASSIGNROAD SENTINEL -- reached the foot":;
+stop();
+
+assignRoadT -- DO THE TWO = ROADS AGREE WITH A HOLDER ON THE RIGHT? (SEQ 295 R2)
+
+The ruling (Tony, 2026-10-04): = with a holder on the right carries its group
+across -- setContent sets the target's data to the argument's data -- and star
+then reads through it. opAssign went back to a plain setContent in 369c121.
+
+The SHAPE: arInner holds arSrc, arOuter holds arInner. In arDrive, *arOuter is
+arInner, a HOLDER, so `arOut = *arOuter` puts a holder on the right. Interpreted,
+setContent copies its group and *arOut reads arSrc's value, ARV. Jitted, the star
+publishes a NODE, so the emitter routes the store through jitAssignNodeRT -- the
+road that, until this stroke, refused a holder by name through assignFieldCore
+("holds a group; say *") and stored nothing, leaving arOut at "none" -- and
+*arOut on a field holding no group reads null.
+
+The jitted half runs FIRST (bear-trap #25: an interpreted run consumes testing's
+routing). Both reads are taken interpreted, outside the action, so they ask the
+FIELD and not a jitted print.
+
+Rows (pop.sh): AR-J and AR-I both ARV; the jit entry line present, so the jitted
+half really went through jitRunAction; degrade count 0.

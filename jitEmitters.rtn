@@ -30,8 +30,10 @@ GroupRules  ruler = groupRules;
 }
 
 
-/*  the ruling lives in assignFieldCore and BOTH roads call it -- do not inline it
-    here, or the emitted `=` and the interpreted `=` drift.  jitEmitters.jitAssignNodeRT  */
+/*  the emitted `=` with a node on the right does what opAssign does: setContent,
+    or clearData on a null -- a holder on the right carries its group across (Tony,
+    2026-10-04; SEQ 295 R2). Edit the two together; incant/pop/assignRoadT pins them.
+    jitEmitters.jitAssignNodeRT  */
 extern GroupItem jitAssignNodeRT(GroupItem source,GroupItem target)
 {
     -%
@@ -40,8 +42,10 @@ extern GroupItem jitAssignNodeRT(GroupItem source,GroupItem target)
         dispatch; this is the same rule where the emitted road actually does its
         storing.   jitEmitters.jitAssignNodeRT.storeRuling  */
     if ( GroupControl::groupController->groupRules->refused ) return 0;
-    if ( ::assignFieldCore(source,target) )  return target;
-    return 0;
+    if ( !target )  return 0;
+    if ( source )   target->setContent(source);
+    else            target->clearData();
+    return target;
     %-
 }
 
@@ -586,9 +590,9 @@ extern GroupItem jitEmitAssign(GroupItem argument,GroupItem target)
     // ⚠ A NODE ON THE RIGHT GOES THROUGH THE RUN-TIME HELPER (SEQ 138). A star
     // publishes a NODE, not a scalar, and storing its SSA value put the node's
     // ADDRESS into the target's slot -- which is how starT's jitted road read
-    // 5560000 where the interpreted road read LEAF. jitAssignNodeRT carries
-    // F-48's ruling for BOTH roads: copy the value, or refuse by name and store
-    // nothing. The flag is cleared here because this is the consumer.
+    // 5560000 where the interpreted road read LEAF. jitAssignNodeRT does what
+    // opAssign does -- setContent, so a holder carries its group across (SEQ 295).
+    // The flag is cleared here because this is the consumer.
     if (gJitLastIsNode && gJitResultNode && target) {
         gJitLastIsNode = false;
         llvm::IRBuilder<> *nb = gJitBuilder;
@@ -2482,7 +2486,7 @@ extern void jitPrintItem(GroupItem token,GroupItem FormaT,int hasValue)
         //  walk's own call. One spelling; the roads cannot say different things.
         //  The flag is cleared here because this is the consumer.
         //  ⚠ A FIELD-RESIDENT TARGET PRINTS AS A NODE. Its value went through
-        //  assignFieldCore into the FIELD, not into a jitSlot, so the scalar arm
+        //  jitAssignNodeRT into the FIELD, not into a jitSlot, so the scalar arm
         //  below would read a stale register -- starT's `4`. jitPrintNodeRT
         //  delegates to appendGroup, the interpreted walk's own call.
         //  ⚠ SCALAR PRINTS ARE UNTOUCHED: a target whose value went to its slot
