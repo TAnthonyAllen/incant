@@ -132,6 +132,9 @@ int         priorLimit = limitWriteGuard(target);
         BLANKS the field. sentinelT ST-1 read its own tag instead of the 111 it
         went in with, for exactly that reason.   Instruct.opAssign.storeRuling  */
     if ruler.refused    return null;
+    // accessorWrite `x.name = v` writes the FIELD x through setGroupField, not only the copy opDot handed back (SEQ 295 R3)
+    if target.isAccessorProduct     accessorWrite(argument,target);
+use target
     if argument         setContent(argument);
     else    target.clearData();
     /*  F-27, Tony's ruling 2026-08-19. Non-zero priorLimit means the target IS
@@ -353,6 +356,9 @@ use argument
         else {
             if !target  return 0;
             product = new(tag);
+            // accessorMark the ONE meaning of isAccessorProduct: this node is opDot's copy of a groupField, so `=` on it writes the field through setGroupField (SEQ 295 R3); a node-returning case replaces product and the mark goes with it
+            product.isAccessorProduct = true;
+use argument
             switch(gCount) {
                 case 1:     product.text    = target.tag;
                 case 2:     if !target.parent    product = null; else product = target.parent;
@@ -1427,23 +1433,51 @@ use argument
         the wrong write had set. One bad spelling, two false readings.
         Setting an enum CLOBBERS whatever it was, which is inherent to an enum
         and is the intended meaning of "set this kind".  */
-    if argument && target
-        switch(flagDef.gCount) {
-            case 21:    target.isPercent    = true;
-            case 25:    target.isVirtual    = true;
-            case 26:    target.mergeOn      = true;
-            case 29:    target.noPrint      = true;
-            case 31:    target.byRef        = true;
+    // oneSetter `:.` is setGroupField with the value 1 -- the cases live there, beside `=`'s (SEQ 295 R3)
+    if argument && target {
+        if !setGroupField(target,flagDef.gCount,1)
+            cerr "opSetFlag WARNING: groupField",tag,"has no case yet -- guessing from gCount",toStringFromInt(flagDef.gCount),"; the value stands":; }
+    else    cerr "opSetFlag: missing operand":;
+    return target;
+}
+
+
+/***************************************************************************
+    setGroupField -- THE ONE WRITER OF A groupField BY NUMBER (SEQ 295 R3).
+    Both spellings land here: `x :. name` hands it 1, and `x.name = v` hands
+    it v through opAssign, which knows its target is opDot's copy by the
+    isAccessorProduct mark. A flag takes value != 0. An enum KIND (binType,
+    actionType) is set by a non-zero value and cleared by zero only when the
+    field holds that kind. Returns 1 when the number has a write case and 0
+    when it has none, so each caller refuses in its own words. Read-only
+    accessors (isGrouP 43, debuggeD 44) have no case here on purpose -- see
+    opDot.
+***************************************************************************/
+extern int setGroupField(GroupItem target,int fieldNo,int value)
+{
+GroupRules  ruler = groupRules;
+int         on = 0;
+    if !target  return 0;
+    if value    on = 1;
+    switch(fieldNo) {
+            case 21:    target.isPercent    = on;
+            case 25:    target.isVirtual    = on;
+            case 26:    target.mergeOn      = on;
+            case 29:    target.noPrint      = on;
+            case 31:    target.byRef        = on;
             /*  hasNewParse -- THE ARTIFACT GATE, 2026-08-24. Ruled on
                 architectural grounds: a generated parse body's address must be
                 FACE-PROOF BY CONSTRUCTION, so it parks as a noPrint member on
                 the shared child list (processCode's proven pattern) and this
                 flag is the cheap test that says one is there. The rStuff field
                 spelling for parseMethod/actionMethod retires behind it.  */
-            case 32:    target.binType      = 3;
-            case 33:    target.binType      = 1;
-            case 40:    target.actionType   = 2;
-            case 41:    target.hasNewParse  = 1;
+            case 32:    if on   target.binType = 3;
+                        or target.binType == 3  target.binType = 0;
+            case 33:    if on   target.binType = 1;
+                        or target.binType == 1  target.binType = 0;
+            case 40:    if on   target.actionType = 2;
+                        or target.actionType == 2   target.actionType = 0;
+            case 41:    target.hasNewParse  = on;
             /*  isActioN -- THE WRITE HALF. The read half (opDot case 408) has
                 existed since incant/enumT; only the write was missing, so
                 `x :. isActioN` printed "no case yet -- gCount 408" and did
@@ -1463,12 +1497,33 @@ use argument
                 a parsed body (GroupRules.mm:11685). Flag and artifact are
                 constitutionally unable to disagree because they are the same
                 integer, which is isCodeD's discipline applied to its sibling.  */
-            case 408:   target.actionType = 1;
-            case 411:   lastIndent = argument.count;
-            case 412:   processingCode = argument.count;
-            default:    cerr "opSetFlag WARNING: groupField",tag,"has no case yet -- guessing from gCount",toStringFromInt(flagDef.gCount),"; the value stands":; }
-    else    cerr "opSetFlag: missing operand":;
-    return target;
+            case 408:   if on   target.actionType = 1;
+                        or target.actionType == 1   target.actionType = 0;
+            case 411:   lastIndent      = value;
+            case 412:   processingCode  = on;
+            default:    return 0; }
+    return 1;
+}
+
+
+/***************************************************************************
+    accessorWrite -- `x.name = v`: opDot handed opAssign its COPY of x's
+    groupField, marked isAccessorProduct and parented to x. Write the field
+    on x through setGroupField. A groupField with no write case says so by
+    name and leaves x unchanged.
+***************************************************************************/
+extern int accessorWrite(GroupItem argument,GroupItem product)
+{
+GroupRules  ruler = groupRules;
+GroupItem   flagDef;
+int         value = 0;
+    if argument     value = argument.count;
+use product
+    flagDef = groupFields[tag];
+    if flagDef
+        if setGroupField(product.parent,flagDef.gCount,value)  return 1;
+    cerr "opAssign: `." product.tag "` has no write case -- the field is unchanged":;
+    return 0;
 }
 
 

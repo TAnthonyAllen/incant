@@ -570,6 +570,30 @@ for _j in "=== jitRunAction: entering on arDrive ===" \
     fi
 done
 
+#  ⚠ fieldSetT -- `x.name = v` WRITES THE FIELD (SEQ 295 R3, branch groupFieldSetter).
+#  One setter, setGroupField, keyed by groupField number and taking a value; `:.` hands
+#  it 1, opAssign hands it v when its target is opDot's copy (marked isAccessorProduct).
+#  FS-1/FS-2 are 7-then-0 on lastIndent (the dispatch's processingCodE cannot be driven:
+#  setting it stops aCTionXpress running expressions -- see the fixture). FS-4 clears what
+#  FS-3 set; FS-5/FS-6 are its non-zero sibling. FS-7: no write case, refused by name.
+#  H7: opAssign's accessorWrite line removed -> FS-1, FS-4, FS-6 red.
+run1 fieldSetT "$T/fst"; check "fieldSetT runs" 0 $?
+sentinel "fieldSetT sentinel (no truncation)" "$T/fst" "FIELDSET SENTINEL"
+for _j in "FS-1 lastIndenT = 7       ->  7" \
+          "FS-2 lastIndenT = 0       ->  0" \
+          "FS-3 :. noPrinT           ->  1" \
+          "FS-4 noPrinT = 0 clears   ->  0" \
+          "FS-5 fsW noPrinT before   ->  0" \
+          "FS-6 noPrinT = 1 sets     ->  1" \
+          "FS-7 taG = zz, read back  ->  fsX" \
+          "opAssign: \`.taG\` has no write case -- the field is unchanged"; do
+    if grep -qF "$_j" "$T/fst"; then
+        echo "  ok    fieldSetT ${_j} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  fieldSetT -- wanted: $_j"; fail=1
+    fi
+done
+
 #  ⚠ argRoundJ -- THE JIT ARM. Minted pinned RED by name on jitArgBake and
 #  RE-PINNED GREEN the same day when the flag hoist discharged it; see the
 #  sentence at the argument-column row below. It stays a separate file from

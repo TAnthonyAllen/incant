@@ -1,0 +1,49 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(FieldSetT);
+define
+    fsX="xv";
+    fsY="yv";
+    fsW="wv";
+    fsRun code={
+        print "FS-0 lastIndenT before    -> " fsX.lastIndenT:;
+        fsX.lastIndenT = 7;
+        print "FS-1 lastIndenT = 7       -> " fsX.lastIndenT:;
+        fsX.lastIndenT = 0;
+        print "FS-2 lastIndenT = 0       -> " fsX.lastIndenT:;
+        fsY :. noPrinT;
+        print "FS-3 :. noPrinT           -> " fsY.noPrinT:;
+        fsY.noPrinT = 0;
+        print "FS-4 noPrinT = 0 clears   -> " fsY.noPrinT:;
+        print "FS-5 fsW noPrinT before   -> " fsW.noPrinT:;
+        fsW.noPrinT = 1;
+        print "FS-6 noPrinT = 1 sets     -> " fsW.noPrinT:;
+        fsX.taG = "zz";
+        print "FS-7 taG = zz, read back  -> " fsX.taG:;
+        };
+    ;
+fsRun();
+print "FIELDSET SENTINEL -- reached the foot":;
+stop();
+
+fieldSetT -- `x.name = v` WRITES THE FIELD x (SEQ 295 R3, branch groupFieldSetter).
+
+One setter, setGroupField(target, number, value), holds every groupField write case.
+`x :. name` calls it with 1; `x.name = v` reaches opAssign with opDot's COPY of the
+field (marked isAccessorProduct, parented to x), and opAssign calls it with v.
+
+Rows: FS-1 and FS-2 are a pair on a global (lastIndent) -- 7 then 0, read back each
+time, so neither can pass on a default, and 7 proves the VALUE is carried, not just a
+truth. The dispatch named processingCodE for this pair; it cannot be driven: once
+processingCode is 1, aCTionXpress (ruleActions.rtn, `if !processingCode && method`)
+stops running expressions -- the `= 0` that would undo it never runs, and neither does
+the rest of the file. Measured: the write of 1 lands (reads 1), the write of 0 does not.
+lastIndent is lastINDENT, the parser's indent; a top-level call sits at indent 0, so the
+pair ends where it began, and the sentinel below is what says the parse survived it. FS-3 is `:.` unchanged. FS-4 clears the flag FS-3
+set (1 -> 0), and FS-5/FS-6 are its non-zero sibling on a fresh field (0 -> 1). FS-7 is a
+groupField with no write case (taG): opAssign says so by name on stderr and the tag stays.
+
+Before the setter (H7): FS-1 read 0, FS-4 read 1, FS-6 read 0 -- `=` wrote only the copy.
