@@ -25,6 +25,7 @@ setParse does not have to worry about actionMethod
         if result = BlocK(CodE);
             result.noPrinT  = 1;
             actionTypE  :. 1; // 1 sets isAction == true;
+            argument +< result;
 
 
 
