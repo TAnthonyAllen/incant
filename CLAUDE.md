@@ -3326,6 +3326,11 @@ those runs threw the exit status away. **The checklist scripts** (`pop.sh`, `jit
 leaves a marker that fails the script at its foot (H7: a pop.sh copy pointed at a missing name went red by name).
 **An ad-hoc tap** resolves its fixtures the same way or checks `[ -f ]` first, and keeps each run's exit status.
 
+⚠⚠ **COMMIT THE FIX BEFORE RUNNING ITS H7. Standing, 2026-10-04 (SEQ 293 R3).** The H7 is undone by restoring from
+git, so the fix must already be in git: then undoing the H7 can only put the fix back. Paid for in SEQ 188: a
+`git checkout GroupItem.twk` meant to remove the H7 restored the COMMITTED file, which predated the uncommitted fix,
+and wiped the fix too; only the md5 check against the pre-H7 file caught it. The md5 check stays as well.
+
 ⚠⚠ **NO `git stash`. USE A BRANCH OR A COMMIT INSTEAD. Tony, guardrail of 2026-09-28, restated standing 2026-10-03
 (SEQ 288 R4).** A stash is an unnamed side-store that any later `stash pop` can bring back into the wrong tree. Paid
 for on 2026-10-03: a mistyped `git stash -q push` failed silently, and the `stash pop` meant for it applied the

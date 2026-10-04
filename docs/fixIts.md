@@ -92,7 +92,7 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
-### F-140 — the new road never writes `failedAt`, so `tell`'s `stoppedAt` reads 0 for every new-road failure
+### F-140 — ✅ CLOSED 2026-10-04 (merged 8e02d65, SEQ 293) — the new road never writes `failedAt`, so `tell`'s `stoppedAt` reads 0 for every new-road failure
 
 **What.** A drive that fails on the new road reports no failure point: `tell`'s verdict says `stoppedAt 0` where the
 old road reports the real offset. **Severity: wrong answer at exit 0** -- the reply is silent about where it stopped.
@@ -113,6 +113,9 @@ ATTEMPT LOG
     failure exit on both roads (SEQ 186 R2); reportDrive, aCTionFailed and reportCodeFail read it; RuleStuff.failedAt
     gone -> incant/pop/failPointT FP-A 0 -> 1 and FP-B 0 -> 2 (new road, two offsets), FP-C 0 -> 1 (old road, a getStuff
     copy); born red on trunk; H7 (root writes nulled) red. Closes on the merge (SEQ 292).
+  2026-10-04 SEQ 187 R1-R2 on stroke12a: aCTionFailed handed its own point (ownPoint); failNotRootT FP-N QZ.
+  2026-10-04 MERGED 8e02d65 (support 7aa909c), SEQ 293 -> CLOSED. Certifying row: pop.sh `failPointT FP-A new road: a
+    failing drive reports its point = [1]` and `FP-B ... = [2]`, on trunk 908 / 1.
 ```
 
 ### F-139 — the baselineTests golden's unpinned lines (SEQ 274 R11): three movers left stale on purpose
