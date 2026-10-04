@@ -1,0 +1,42 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitDotAssign);
+define
+    jdJit="jv";
+    jdInt="iv";
+    jdJitDrive code={
+        jdJit.noPrinT = 1;
+        };
+    jdIntDrive code={
+        jdInt.noPrinT = 1;
+        };
+    ;
+cerr "ANCHOR jitDotAssign -- the same `x.noPrinT = 1`, jitted and interpreted; both should read 1":;
+testing(jdJitDrive);
+jdIntDrive();
+print "JDA jitted      : jdJit.noPrinT = " jdJit.noPrinT " (want 1)":;
+print "JDA interpreted : jdInt.noPrinT = " jdInt.noPrinT " (want 1)":;
+fixJitDotAssignHere = 0;
+cerr "SENTINEL jitDotAssign reached the foot":;
+stop();
+
+LANE:  jit
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 296 R2, Clay; severity WRONG)
+
+jitDotAssign -- a jitted `x.name = v` writes opDot's copy, not the field.
+
+opAssign's jitting arm (Instruct.rtn, `if jitting ... return jitEmitAssign(argument, target)`) returns before the
+accessor hook added by SEQ 295 R3 (`if target.isAccessorProduct accessorWrite(argument,target)`), so on the jitted road
+the store goes to the copy opDot handed back and the field is unchanged; the interpreted road writes the field through
+setGroupField. The two lines above print the jitted and interpreted answers to the same statement.
+
+NEXT: BEST GUESS -- give the jitted road the hook. Either jitEmitAssign emits a call to accessorWrite when the target node
+it is handed carries isAccessorProduct (the node is minted at RUN time by opDot, so the test belongs in the emitted call,
+i.e. in a run-time helper beside jitAssignNodeRT), or opDot's jitted arm refuses a groupField target on the left of `=`
+and degrades the statement by name. Grade: mechanism read in the source, symptom measured by this file. Taken: both
+lines read 1. Not taken: the jitted line reads 0.
