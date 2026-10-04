@@ -8,7 +8,6 @@ char *ruleName;
 char *hereAt;
 GroupItem *label;
 GroupItem *onGroup;
-int kount;
 int max;
 int maxRepeat;
 int min;

@@ -336,6 +336,16 @@ rules on the amendment (R4).
    because the old road now writes only to the floor. **FP-N's three readings (SEQ 187 R2):** trunk `QZ` (its own
    point); stroke12a as built `:reached end of input` (the floor's, empty); fixed `QZ`. H7 on the fix (null handed in):
    `:reached end of input`, red.
+   **1.2b BUILT 2026-10-04 on branch stroke12b, NOT MERGED (SEQ 293 R1; SEQ 190 rulings).** `kount` was TWO counters on
+   one field (SEQ 189): old-road parse()'s repeat count and new-road parseLoop's count on the term face's stuff. Shape
+   (a): both are locals -- `repeatCount` in parse(), `timesMatched` in parseLoop; RuleStuff.kount, its groups.ext line
+   and the callBracket's kount slot are gone; measureLoopVerdict is handed timesMatched. The ~100 old-road reads that
+   saw parseLoop's increments on a shared Xpress face (SEQ 190: one term face counted twice, never the parent's stuff)
+   now read parse()'s own count -- CORRECTIONS, not movers: 0 decisions change, and the fleet is 908 / 1 row for row.
+   No row born red on trunk could be built: the bracket protects parseLoop's count today, and the old-road cross-talk
+   changes no decision. Witnesses of repetition counts, by H7 (each local made one static shared by every call):
+   parseLoop's -> 864 green (oldRoad, stmtRejT, site1RoadsT, sweepT, baselineTestsNew crashing, quoteNatT, probeDoorT,
+   loopVerdict, shapeBodyT, failPointT, driveCompileT); parse()'s -> 86 green (the whole fleet).
 3. **`stuff` derived; `face` renamed `instance`.** The name clears the #58 check (grep, full bare-tokall diff) before
    the stroke opens.
 4. **Rule facts onto `groupBody`:** `ruleOf` and `instanceRule()`'s REGISTRY test retire.

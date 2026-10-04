@@ -452,7 +452,7 @@ extern "C" GroupItem *measureLabelMint(GroupItem *field, GroupItem *myLabel, Gro
 }
 
 // measureLoopVerdict witness: at parseLoop's verdict (its only exit, so INCANT_COUNT_LOOPS's LOOPENTRY line counts entries), the success flag beside the count -- DISAGREE is the only case the removed flag read would have decided (a stale flag, count short of min); parseTrace-gated, pinned at 0
-extern "C" GroupItem *measureLoopVerdict(GroupItem *field)
+extern "C" GroupItem *measureLoopVerdict(GroupItem *field, int timesMatched)
 {
 	
 	if ( ::getenv("INCANT_COUNT_LOOPS") && field )
@@ -461,7 +461,7 @@ extern "C" GroupItem *measureLoopVerdict(GroupItem *field)
 	{
 	RuleStuff *st = field->rStuff;
 	::fprintf(stderr,"  LOOPVERDICT rule=%s flag=%d kount=%d min=%d %s\n",field->groupBody->tag,
-	(int)st->sukcess,st->kount,st->min,(st->sukcess && st->kount < st->min) ? "DISAGREE" : "agree");
+	(int)st->sukcess,timesMatched,st->min,(st->sukcess && timesMatched < st->min) ? "DISAGREE" : "agree");
 	}
 	
 	return 0;

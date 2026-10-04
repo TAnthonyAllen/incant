@@ -1291,6 +1291,7 @@ GroupRules  ruler       = groupRules;
 ParseActivation oldActive;
 RuleStuff   ruleStuff   = getStuff(pStuff);
 int         leafDone    = 0;
+int         repeatCount = 0;
 String      ownPoint;
     // oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
     oldActive.face      = this;
@@ -1303,10 +1304,9 @@ String      ownPoint;
     // activeNotSubject the record takes GroupRules' scope, so re-mention ruler then ruleStuff or ruler's bare names bind to oldActive (bear-trap #58)
 use ruler
 use ruleStuff
-    kount       = 0;
     inProcess   = true;
     // bindReadSeamProbe
-    while !leafDone && kount < maxRepeat {
+    while !leafDone && repeatCount < maxRepeat {
 continueHere:
         sukcess     = false;
         if !checkInput(this,guardPassed)    goto matchFailed;
@@ -1332,13 +1332,13 @@ continueHere:
         // oldFireFlag the flag this activation reads next -- a nested new-road drive used to overwrite it (F-121)
         -% ::measureOldFireFlag(this,ruleStuff); %-
         if sukcess {
-            kount++;
+            repeatCount++;
             attachLabel(ruleStuff,pStuff,1,into); }
         else break; }
-    if kount >= maxRepeat && maxRepeat > 1  reportRepeatLimit(this,kount,maxRepeat);
+    if repeatCount >= maxRepeat && maxRepeat > 1  reportRepeatLimit(this,repeatCount,maxRepeat);
 matchFailed:
     if !sukcess {
-        if !sukcess && kount >= min sukcess = true;
+        if !sukcess && repeatCount >= min sukcess = true;
 debugHere:
         if !*atRuleMark && inputDiverted {
             // inputFloor a drive's own message is below the floor -- an end-of-message failure fails THERE and never pops out into the sender (0 outside a drive, so nothing else changes)
