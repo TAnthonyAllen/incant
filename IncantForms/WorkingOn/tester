@@ -8,14 +8,14 @@ include(unitTests);
 search reset stack Grokking;
 search UnitTests Utilities list;
 
-parser(Start);
-testUnitTests();
 stop();
 
 /***************************************************************************
     Everything below is left here for cut and paste modifications as needed
 ***************************************************************************/
 
+parser(Start);
+testUnitTests();
 include("IncantForms/WorkingOn/parser");
 parser(Search);
 Search("search Utilities list");

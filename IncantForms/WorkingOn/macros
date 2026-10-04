@@ -8,19 +8,86 @@ Current thinking is use StringXP to do macros
 
 I had an interesting few fields defined for defining a macro. Sadly they are gone and I do not know what happened to them. Karma. We will have to design how macros get defined and are used from scratch, and not even sure we need macros in incant.
 
-
+setParse does not have to worry about actionMethod
 /*******************************************************************************
-	Back up This is stuff to consider once we have a JIT
+	parseCode is kant version of processCode
 *******************************************************************************/
-Would like to write backup actions in incant
-    If we save to an incant field it is so not the same as saving to a unix directory
-    we could try using unix system commands like a shell using incant fields like
-        cd directory    which fires system command to do the work
-        cp              ditto
-    the load commands fills a field w/list of file names
-    need an incant system command to fire unix system command and checksys result
-But what if we want to change grammar and save the changes. Right now xCode does it. If we want incant to, it will have to be able to load a file content and write a file. Buffer has that capability but we have not used it much. Be nice to add a loadFromFile() to Buffer. It could use getStringFromFile() to do the work
-        take Buffer out of the file command (so file command only makes its target a file)
-        modify buffer += stuff so that it checks stuff; if it is a file it loads buffer w/getStringFromFile()
-    need a way in incant to flush a buffer
+    parseCode {
+        priorMethod = currentMethoD;
+        indenter    = lastIndenT;
+        processing  = processingCodE;
+        CodE        = argument.CodE;
+        if isRulE;  action = CodE;
+        else        action = argument;
+        currentMethoD   :. action;
+        lastIndent      :. 0;
+        processingCodE  :. 1;
+        if result = BlocK(CodE);
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+extern int processCode(GroupItem field,GroupItem holder)
+{
+GroupRules  ruler = groupRules;
+GroupItem   blockRULE = grokking/BlocK,
+            code,
+            result,
+            priorMETHOD = currentMETHOD,
+            action = field;
+int         indenter = lastIndent;
+int processing  = processingCode;
+use field
+    // d2Tripwire an rStuff-less label is WRECKAGE, not a specimen (Ruling D2) -- refuse loud here, where it became visible
+    if isLabel && !rStuff {
+        cerr "processCode: REFUSING " tag " -- isLabel with no rStuff. Only a live parse mints a label (Ruling D2), so this node is wreckage, not a specimen; look upstream at whatever copied or hand-built it.":;
+        return false; }
+    // labelArmDead no road hands processCode a label (F-130: 0 calls, SEQ 246 tap) -- refuse by name, never guess the rule
+    if isLabel {
+        if field.labelOf    refuse(field.labelOf,"processCode: the label arm was reached -- a label was handed in where an action belongs (F-130)");
+        else                refuse(field,"processCode: the label arm was reached by a label with no labelOf (F-130)");
+        return false; }
+    // staleIR re-parsing invalidates the action's IR record -- setText, never clear(), or it reads back as its tag
+    -%
+    GroupItem   *staleIR = field->get("JiT");
+    if (staleIR)    staleIR->setText(::strdup(""));
+    %-
+    code      = holder.getProperty("CodE");
+    if isRule action = code;
+    currentMETHOD   = action;
+    lastIndent      = 0;
+    processingCode  = true;
+    // compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
+    // compileOwner the ONE writer of gCompileOwner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214)
+    -% GroupItem *priorOwner = gCompileOwner; gCompileOwner = action; %-
+    result = driveStep(code,blockRULE,null);
+    -% gCompileOwner = priorOwner; %-
+    if result {
+        result.noPrint  = true;
+        holder.addProperty(result);
+        field.isAction = true; }
+    else    reportCodeFail(field);
+    if !processing  processingCode = false;
+    lastIndent      = indenter;
+    currentMETHOD   = priorMETHOD;
+    if result       return true;
+    return false;
+}
 
