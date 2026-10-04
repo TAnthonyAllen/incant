@@ -49,7 +49,7 @@ GroupItem(GroupItem grup)
     if grup.rStuff {
         rStuff  = new(this);
         *rStuff = *grup.rStuff;
-        followed = isOK = sukcess = false; }
+        followed = sukcess = false; }
 }
 
 /***************************************************************************
@@ -1290,6 +1290,7 @@ GroupItem parse(RuleStuff pStuff, int guardPassed, GroupItem into)
 GroupRules  ruler       = groupRules;
 ParseActivation oldActive;
 RuleStuff   ruleStuff   = getStuff(pStuff);
+int         leafDone    = 0;
     // oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
     oldActive.face      = this;
     oldActive.isFloor   = 0;
@@ -1301,10 +1302,9 @@ RuleStuff   ruleStuff   = getStuff(pStuff);
 use ruler
 use ruleStuff
     kount       = 0;
-    isOK        = false;
     inProcess   = true;
     // bindReadSeamProbe
-    while !isOK && kount < maxRepeat {
+    while !leafDone && kount < maxRepeat {
 continueHere:
         sukcess     = false;
         if !checkInput(this,guardPassed)    goto matchFailed;
@@ -1317,6 +1317,8 @@ continueHere:
         if isRuleTerm() && hasMembers && !data                      sukcess = testOptions(ruleStuff,this);
         or testMatch || onGroup || hasAttributes {
             if testMatch                                            sukcess = testMatch(this);
+            // leafDone the leaf hands its result back by RETURN; a self-repeating leaf has done the whole repetition, so its success ends the loop (stroke 1.1 site 3)
+            if sukcess && (testMatch == testAny || testMatch == testCharacter || testMatch == testSet)   leafDone = 1;
             if !parseACTION {
                 if sukcess && onGroup && !onGroup.parse(ruleStuff,0,null)  sukcess = false;
                 if sukcess && hasAttributes                         sukcess = testAttributes(ruleStuff,this); }}

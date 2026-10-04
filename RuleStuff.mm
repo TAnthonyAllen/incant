@@ -62,7 +62,6 @@ int 		counter = 0;
 int 		more = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
-	ruleStuff->isOK = 0;
 	if ( *ruler->atRuleMark )
 		{
 		while ( *ruler->atRuleMark )
@@ -85,11 +84,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 				ruler->atRuleMark = ruleStuff->hereAt;
 			if ( ruleStuff->label )
 				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
-			ruleStuff->isOK = 1;
+			return 1;
 			}
 		}
-	if ( ruleStuff->isOK )
-		return 1;
 	return 0;
 }
 
@@ -118,7 +115,6 @@ int 		counter = 0;
 int 		more = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
-	ruleStuff->isOK = 0;
 	if ( *ruler->atRuleMark )
 		{
 		while ( *ruler->atRuleMark == field->getCharacter() )
@@ -141,11 +137,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 				ruler->atRuleMark = ruleStuff->hereAt;
 			if ( ruleStuff->label )
 				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
-			ruleStuff->isOK = 1;
+			return 1;
 			}
 		}
-	if ( ruleStuff->isOK )
-		return 1;
 	return 0;
 }
 
@@ -214,7 +208,6 @@ int 		counter = 0;
 int 		more = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
-	ruleStuff->isOK = 0;
 	if ( *ruler->atRuleMark )
 		{
 		while ( set->contains(*ruler->atRuleMark) )
@@ -237,11 +230,9 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 				ruler->atRuleMark = ruleStuff->hereAt;
 			if ( ruleStuff->label )
 				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
-			ruleStuff->isOK = 1;
+			return 1;
 			}
 		}
-	if ( ruleStuff->isOK )
-		return 1;
 	return 0;
 }
 
@@ -371,7 +362,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	kount = 0;
 	followed = 0;
 	inProcess = 0;
-	isOK = 0;
 	isTarget = 0;
 	modPercent = 0;
 	modPointer = 0;
@@ -405,7 +395,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	min = 0;
 	followed = 0;
 	inProcess = 0;
-	isOK = 0;
 	isTarget = 0;
 	modPercent = 0;
 	modPointer = 0;
