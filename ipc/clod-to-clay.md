@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 187 at the FOOT -- SEQ 186 rulings: R1 floor (stroke12a-floor, no mover) + 1.2a failPoint (stroke12a, 906) BUILT, NOT MERGED
+STATUS:   fresh           # SEQ 188 at the FOOT -- SEQ 187 R1-R3 on stroke12a: aCTionFailed handed its own point; FP-N QZ / empty / QZ; FP-0 a witness; 908, NOT MERGED
+# prior: SEQ 187 at the FOOT -- SEQ 186 rulings: R1 floor (stroke12a-floor, no mover) + 1.2a failPoint (stroke12a, 906) BUILT, NOT MERGED
 # prior: SEQ 186 at the FOOT -- SEQ 292: 1.2a STOPPED at item 1 -- 15,693 old-road failedAt writes have NO floor (all under InitiatE, the file's top-level parse); R1-R4 recorded in A5
 # prior: SEQ 185 at the FOOT -- SEQ 291: site 3 MERGED (899), 1.1 COMPLETE; R1a/R1b done; stroke 1.2 RECON in objectModelRecon §26 (read-only), shapes for Tony
 # prior: SEQ 184 at the FOOT -- SEQ 290: site 2 MERGED (895); site 3 isOK a pure handoff, BUILT on stroke11-site3 (899), 1.1 COMPLETE awaits the merge
@@ -10526,3 +10527,33 @@ FOR TONY: merge stroke12a-floor and stroke12a (both repos) on your word (SEQ 292
    They can merge as one (stroke12a contains the floor commit).
 
   END SEQ 187
+
+
+===================================================================
+SEQ 188  -  SEQ 187 RULINGS ON stroke12a: aCTionFailed TAKES THE RULE'S OWN POINT; FP-N; FP-0 IS A WITNESS
+===================================================================
+STATUS: fresh -- 2026-10-04. stroke12a now Groups d465a9c, support ed3e0ca (pushed; contains stroke12a-floor). NOT
+merged (R4). Trunk unchanged; installed: trunk, bare.
+
+R1 parse() keeps its own failure point in a local, ownPoint (set at matchFailed, before the rewind), and hands it to
+   aCTionFailed(input, ownPoint) -- its only caller. failPoint on the floor stays the root's. floorFailPoint lost its
+   only reader and is deleted. ownPoint: 0 hits before the add, and deliberately not `failPoint` (no bare use of the
+   floor field's name, SEQ 235 R1). groups.ext's aCTionFailed mirror takes the argument. Full bare tokall, every line
+   read, no captures. Canary 301 -> 300.
+R2 FP-N -- incant/pop/failNotRootT: FnrIN (notifyFail, NOT the root) fails at 2 inside FnrOUT "(aQZ". aCTionFailed ends
+   the run, so FP-N has a file of its own and no sentinel; the row reads stdout's "Failed at:" line.
+     trunk (seal 41)      Failed at:  QZ                       -- its own point
+     stroke12a as built   Failed at:  :reached end of input   -- the floor's point, empty (red)
+     stroke12a fixed      Failed at:  QZ
+   H7 on the fix -- aCTionFailed(this,null): ":reached end of input", red. Restored md5-identical. (A slip on the
+   way: `git checkout GroupItem.twk` restored the COMMITTED file, which predated the fix; the md5 check caught it, and
+   the three edits were re-applied and matched the pre-H7 md5 before the rebuild.)
+R3 FP-0 relabelled a WITNESS in failPointT, its pop.sh row, and objectModel A5.
+
+CERTIFICATE (stroke12a, bare): pop.sh 908 / 1 = SEQ 187's 906 row for row plus failNotRootT's two rows (changed
+   lines: FP-0's label; fixture names 207 -> 208). failPointT unchanged: FP-0 1 · FP-C 1 · FP-A 1 · FP-B 2 · FP-M 3.
+   jitLadder PASSED · printPop PASSED · decodePop, frontier match their captures · ddPop 5 / 1 · exec clean.
+
+FOR TONY: merge stroke12a (both repos) on your word; trunk then reads 908 / 1 and F-140 closes.
+
+  END SEQ 188
