@@ -447,14 +447,14 @@ extern GroupItem aCTionExpressioN(GroupItem xpList)
 /*******************************************************************************
 	If the parse gets here it failed.
 *******************************************************************************/
-extern GroupItem aCTionFailed(GroupItem input)
+extern GroupItem aCTionFailed(GroupItem input,String ownPoint)
 {
 GroupItem   lastStatement = groupRules.lastStatement;
 use input
     // lastCodeToCrash
     cout "Rule " tag:;
-    if rStuff   cout `"Failed at:" `getDebugText(failedAt, 40):;
-    if !rStuff  cout `"Failed at:  <unavailable -- this subject carries no rStuff; see Ruling D>":;
+    // ownPointArgument the failing rule's OWN point, handed by parse() at its failure exit -- never the floor's, which is the root's (SEQ 187 R1)
+    cout `"Failed at:" `getDebugText(ownPoint, 40):;
     cout `"on Line:" ``sourceLINE,:;
     // added the gText guard (for cases that do not use StatemenT
     if lastStatement.gText   cout "  Last parsed: ", lastStatement.text:;

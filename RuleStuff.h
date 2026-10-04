@@ -6,7 +6,6 @@ class RuleStuff
 public:
 char *ruleName;
 char *hereAt;
-char *failedAt;
 GroupItem *label;
 GroupItem *onGroup;
 int kount;

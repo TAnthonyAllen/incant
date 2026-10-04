@@ -319,6 +319,23 @@ rules on the amendment (R4).
    run with NO drive floor below them -- every one under `InitiatE`, the top-level parse of the incant source file
    (839 of them on a getStuff copy). The new road is clean: all 188,816 failure exits have a floor below. Ruling owed
    (clod-to-clay SEQ 186).
+   **SEQ 186 RULINGS (Tony, 2026-10-04):** **R1** shape (i): the file's top-level parse (InitiatE) pushes a floor --
+   a first stroke alone, the floor with no failPoint, certified row for row (any mover a STOP naming the floor-stopper
+   it went through). **R2** failPoint keeps TODAY's meaning: the ROOT's own failure point, written at the root's
+   failure exit, not by every failing term; last-failure or furthest-failure is a later language ruling. **R3** then
+   1.2a proper on R1's floor: no floorless writes left; aCTionFailed and reportCodeFail read the floor.
+   **BUILT 2026-10-04, NOT MERGED (SEQ 292 R6):** R1 on branch stroke12a-floor (`parseOnFloor`; fleet 899 / 1 row
+   for row, no mover). 1.2a on branch stroke12a, stacked on it: `ParseActivation.failPoint`, written where the term
+   whose record (or, for a new-road leaf, whose enclosing record) sits on a floor fails -- parse() at matchFailed,
+   exitFromParse on its failure path; reportDrive is handed the drive floor's point; **aCTionFailed is handed the
+   failing rule's OWN point as an argument by parse() (SEQ 187 R1)** -- the floor is the root's, so a non-root
+   notifyFail rule read it empty (FP-N); **reportCodeFail is HANDED the point by the drive**
+   -- processCode passes driveStep a report and turns its failedAt offset back into a pointer into the code it drove
+   (driveStep's base IS the code's text, `pushInput`). Fixtures `incant/pop/failPointT` and `incant/pop/failNotRootT`;
+   fleet 908 / 1. **FP-0 is a WITNESS, not a control (SEQ 187 R3):** it reads 1 on trunk too, but went red under the H7
+   because the old road now writes only to the floor. **FP-N's three readings (SEQ 187 R2):** trunk `QZ` (its own
+   point); stroke12a as built `:reached end of input` (the floor's, empty); fixed `QZ`. H7 on the fix (null handed in):
+   `:reached end of input`, red.
 3. **`stuff` derived; `face` renamed `instance`.** The name clears the #58 check (grep, full bare-tokall diff) before
    the stroke opens.
 4. **Rule facts onto `groupBody`:** `ruleOf` and `instanceRule()`'s REGISTRY test retire.

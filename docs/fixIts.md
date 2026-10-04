@@ -107,6 +107,12 @@ ATTEMPT LOG
   2026-10-03 filed (SEQ 287 R2) from failedAtStale's repro; measured only, nothing changed.
   2026-10-03 SEQ 288 R3: waits for stroke 1.2 (per-call state onto the activation) -- a result read after the drive
     returns, not a 1.1 handoff.
+  2026-10-04 SEQ 292 item 1 -> STOP: 15,693 old-road failedAt writes had no floor (all under InitiatE). SEQ 186 R1:
+    the top-level parse runs on a floor (parseOnFloor, branch stroke12a-floor) -- fleet row for row, no mover.
+  2026-10-04 stroke 1.2a on branch stroke12a: ParseActivation.failPoint on the floor, written by the ROOT's own
+    failure exit on both roads (SEQ 186 R2); reportDrive, aCTionFailed and reportCodeFail read it; RuleStuff.failedAt
+    gone -> incant/pop/failPointT FP-A 0 -> 1 and FP-B 0 -> 2 (new road, two offsets), FP-C 0 -> 1 (old road, a getStuff
+    copy); born red on trunk; H7 (root writes nulled) red. Closes on the merge (SEQ 292).
 ```
 
 ### F-139 — the baselineTests golden's unpinned lines (SEQ 274 R11): three movers left stale on purpose

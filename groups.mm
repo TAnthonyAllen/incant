@@ -4,7 +4,6 @@
 #include "OCroutines.h"
 #include "GroupItem.h"
 #include "GroupRules.h"
-#include "RuleStuff.h"
 #include "Stylish.h"
 #include "GroupDraw.h"
 #include "GroupMain.h"
@@ -22,7 +21,7 @@ char 		*name = argv[1];
 		GroupItem 	*boot = crap->bootstrapper();
 		GroupItem 	*source = new GroupItem(name);
 		::loadInputFromFile(source);
-		boot->parse(0,0,0);
+		::parseOnFloor(boot);
 		/*  abandonedRun  THE OUTERMOST BOUNDARY. A refusal still standing here means the
 		abandonedRun  rest of the file was never parsed -- say so, because exit 0 will
 		abandonedRun  not.   ruleActions.reportRunAbandoned  */

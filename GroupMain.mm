@@ -7,7 +7,6 @@
 #include "GroupRules.h"
 #include "GroupControl.h"
 #include "GroupBody.h"
-#include "RuleStuff.h"
 #include "PLGset.h"
 #include "Stylish.h"
 #include "GroupDraw.h"
@@ -419,7 +418,7 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	*************************************************************************/
 	ruler->pushInput(::getFile(ruler->setupFILE));
 	if ( ruler->sourceFILE )
-		strap->parse(0,0,0);
+		::parseOnFloor(strap);
 	ruler->popInput();
 	/*************************************************************************
 	Set the buffer links

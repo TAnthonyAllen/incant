@@ -1,0 +1,30 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+define
+    fnrSay code={
+        v := tell(argument);
+        m := *v["matched"];
+        cerr "   tell matched= " m:;
+        };
+    ;
+register(Ladder);
+define
+    FnrIN isRule fail ka-="a" kb-="b";
+    FnrOUT isRule lp-="(" FnrIN;
+    ;
+search GroupFields UnitTests Utilities Ladder list;
+cerr "FP-N a notifyFail rule that is NOT the root fails at 2":;
+fnrSay("FnrOUT (aQZ");
+stop();
+
+failNotRootT -- FP-N, SEQ 187 R2 (2026-10-04). A notifyFail rule ('fail') that is NOT the drive root fails past
+offset 0: FnrOUT drives "(aQZ", its member FnrIN (flagged) matches "a" and fails at 2, where "QZ" starts. aCTionFailed
+prints "Rule FnrIN" and "Failed at:" on STDOUT and then ENDS THE RUN (stopParsingInput), so nothing prints after it --
+that is why FP-N has a file of its own and no sentinel line: the Failed-at line is the last output, by design.
+
+The three readings, all measured 2026-10-04:
+  trunk (seal 41)                      Failed at:  QZ                      -- its own point
+  stroke12a as built (floor's point)   Failed at:  :reached end of input  -- the root has not failed yet, so empty
+  stroke12a fixed (SEQ 187 R1)         Failed at:  QZ                      -- parse() hands aCTionFailed its own point

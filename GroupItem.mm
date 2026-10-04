@@ -1684,11 +1684,13 @@ GroupRules 			*ruler = GroupControl::groupController->groupRules;
 ParseActivation 	oldActive;
 RuleStuff 			*ruleStuff = getStuff(pStuff);
 int 				leafDone = 0;
+char 				*ownPoint = 0;
 	// oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
 	oldActive.face = this;
 	oldActive.isFloor = 0;
 	oldActive.label = 0;
 	oldActive.prev = ruler->gParseActive;
+	oldActive.failPoint = 0;
 	oldActive.stuff = ruleStuff;
 	ruler->gParseActive = &oldActive;
 	// activeNotSubject the record takes GroupRules' scope, so re-mention ruler then ruleStuff or ruler's bare names bind to oldActive (bear-trap #58)
@@ -1761,7 +1763,11 @@ debugHere:
 			}
 		if ( !ruleStuff->sukcess )
 			{
-			ruleStuff->failedAt = ruler->atRuleMark;
+			// ownPointHanded this call's own failure point, handed to aCTionFailed below -- a notifyFail rule reports where IT failed (SEQ 187 R1)
+			ownPoint = ruler->atRuleMark;
+			// rootFailPoint the ROOT's own failure point goes on the floor below it -- a call whose record sits on a floor is the root (SEQ 292, SEQ 186 R2)
+			if ( oldActive.prev && oldActive.prev->isFloor )
+				oldActive.prev->failPoint = ruler->atRuleMark;
 			ruler->atRuleMark = ruleStuff->hereAt;
 			if ( ruleStuff->label )
 				ruleStuff->label = 0;
@@ -1770,7 +1776,7 @@ debugHere:
 generatedExit:
 	// nodeInHand this, never RuleStuff.owner -- getStuff makes them one node (stroke 5.2)
 	if ( !ruleStuff->sukcess && ruleStuff->notifyFail )
-		::aCTionFailed(this);
+		::aCTionFailed(this,ownPoint);
 	if ( ruleStuff->sukcess && !ruleStuff->label )
 		ruleStuff->label = ruler->labelNO;
 	ruleStuff->inProcess = 0;

@@ -10,6 +10,7 @@ struct ParseActivation
 	GroupItem *label;
 	ParseActivation *prev;
 	RuleStuff *stuff;
+	char *failPoint;
 	};
 
 /*******************************************************************************
@@ -114,7 +115,7 @@ extern "C" GroupItem *aCTionDefinE(GroupItem *input);
 extern "C" GroupItem *aCTionDelimText(GroupItem *input);
 extern "C" GroupItem *aCTionExpressioN(GroupItem *xpList);
 extern "C" GroupItem *aCTionFOR(GroupItem *input);
-extern "C" GroupItem *aCTionFailed(GroupItem *input);
+extern "C" GroupItem *aCTionFailed(GroupItem *input, char *ownPoint);
 extern "C" GroupItem *aCTionIF(GroupItem *input);
 extern "C" GroupItem *aCTionIterate(GroupItem *input);
 extern "C" GroupItem *aCTionNamE(GroupItem *input);
@@ -341,6 +342,7 @@ extern "C" GroupItem *parseCharacter(GroupItem *field);
 extern "C" GroupItem *parseCondition(GroupItem *field);
 extern "C" GroupItem *parseContainer(GroupItem *field);
 extern "C" GroupItem *parseLoop(GroupItem *field);
+extern "C" GroupItem *parseOnFloor(GroupItem *rule);
 extern "C" GroupItem *parseRule(GroupItem *field);
 extern "C" GroupItem *parseSet(GroupItem *field);
 extern "C" GroupItem *parseString(GroupItem *field);
@@ -362,9 +364,9 @@ extern "C" int refuseDotUnaryRight(GroupItem *op, GroupItem *arg);
 extern "C" int refuseLeadingDotNumber(GroupItem *unary, GroupItem *token);
 extern "C" GroupItem *refuseUnknownOperator(GroupItem *op, GroupItem *target);
 extern "C" int repeatsInLoop(GroupItem *field);
-extern "C" void reportCodeFail(GroupItem *field);
+extern "C" void reportCodeFail(GroupItem *field, char *failText);
 extern "C" void reportDefineRemoved(GroupItem *field, GroupItem *intoReg);
-extern "C" void reportDrive(GroupItem *report, GroupItem *rule, char *driveBase);
+extern "C" void reportDrive(GroupItem *report, char *failed, char *driveBase);
 extern "C" int reportMaxLimit(GroupItem *field);
 extern "C" void reportNoBody(GroupItem *field);
 extern "C" int reportRepeatLimit(GroupItem *rule, int kounted, int limit);
