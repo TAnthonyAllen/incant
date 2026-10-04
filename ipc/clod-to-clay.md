@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 184 at the FOOT -- SEQ 290: site 2 MERGED (895); site 3 isOK a pure handoff, BUILT on stroke11-site3 (899), 1.1 COMPLETE awaits the merge
+STATUS:   fresh           # SEQ 185 at the FOOT -- SEQ 291: site 3 MERGED (899), 1.1 COMPLETE; R1a/R1b done; stroke 1.2 RECON in objectModelRecon §26 (read-only), shapes for Tony
+# prior: SEQ 184 at the FOOT -- SEQ 290: site 2 MERGED (895); site 3 isOK a pure handoff, BUILT on stroke11-site3 (899), 1.1 COMPLETE awaits the merge
 # prior: SEQ 183 at the FOOT -- site-2 dispatch (pasted by Tony): parseR's bridge is a pure handoff, 0 fleet calls; into an ARGUMENT on branch stroke11-site2; R6 stashes dropped, AP-5c carried
 # prior: SEQ 182 at the FOOT -- SEQ 288: site 1 LANDED 3793f63 (five rows re-pinned, '+=' stays 6); no-stash rule written; two stashes listed
 # prior: SEQ 181 at the FOOT -- SEQ 287: site 1 on branch stroke11-site1, 890->885 (a guard leak closed; re-pin needs a ruling); isOK is a handoff
@@ -10380,3 +10381,55 @@ R4 objectModel A5: STROKE 1.1 COMPLETE written on the branch with all three site
 FOR TONY: merge stroke11-site3 (both repos) on your word; trunk then reads 899 / 1.
 
   END SEQ 184
+
+
+===================================================================
+SEQ 185  -  SEQ 291: SITE 3 MERGED, STROKE 1.1 COMPLETE; STROKE 1.2 RECON (READ-ONLY) -- objectModelRecon §26
+===================================================================
+STATUS: fresh -- 2026-10-04, trunk. Merge e7a2f8e (support cbdc7c1), seal 38; site-3 branches deleted local + remote.
+Recon: one tap in the generated .mm only, reverted md5-identical; bare rebuild 899 / 1. Nothing built (R2).
+
+R0 MERGED: tokall bare, nothing moved · pop.sh 899 / 1 · jitLadder, printPop, decodePop PASSED · frontier row for row ·
+   ddPop 5 / 1 · canary 299. Sealed (38) before the recon.
+R1a TODO.md: the Any/testAny line.
+R1b MISSING-FIXTURE GUARD: all five checklist scripts resolve fixtures through ip(), whose fallback was silent. ip() now
+   prints `FAIL fixture MISSING: <name>` and leaves a marker the foot fails on. H7: a pop.sh copy pointed at
+   parseRTnoSuchFixture went red by name, at the call and at the foot (copy deleted). The binary exits 2 on a missing
+   file, so the phantom oneTest runs were taps that threw away the status. CLAUDE.md standing line.
+
+RECON (detail and tables in docs/objectModelRecon.md §26)
+ 1 CENSUS (26a): 26 fields = 6 rule / 10 instance / 6 activation (label hereAt kount sukcess inProcess failedAt) /
+   4 misfit (followed M5, notifyFail M7, modPercent + modPointer M8). Whole-struct copies: the GroupItem copy ctor and
+   RuleStuff(RuleStuff) (from getStuff's mint and aCTionDefinE); the latter does NOT clear hereAt, failedAt, inProcess.
+   NEW misfit M10: parseLoop's kount lives on the term FACE's stuff, which is never on the activation list.
+ 2 PER FIELD (26b): 203 sites tapped across 279 processes. Parent reads are already ONE STEP (attachLabel's parent label
+   2.7M reads/writes and exitFromParse's 104,931 are all `prev`). Hunts today: checkInput's parent reach (66,459) and
+   aCTionCodE's (14,834). ZERO COVERAGE -- fixtures owed: parseAction, testAction, parseCondition, a labelled character
+   leaf, the old road's noAdvance rewinds, testUpTo with a label, the old road's repeat limit, reportCodeFail.
+ 3 CALLBRACKET (26c), the next access after each changed restore, by site:
+     label   real 3,111 (child exit reads parent 1,028, own exit 132, checkInput's fLAG reuse 1,649, parse() 73,
+             callout 229) · overwritten 1,604 · carried to the next bracket 176,890
+     hereAt  real 686 (failure rewinds) · overwritten 5,203 · carried 188,524
+     kount   real 699, ALL parseLoop -- invisible to 25d's "outer live" test, because parseLoop pushes nothing
+     sukcess real 229 (F-121's old-road caller) · overwritten 5,421 · carried 173,291
+   4,461 entries find an outer activation of the same stuff only past a drive floor.
+ 4 getStuff's COPY (26d): 67,751 minted, 67,751 dead at their parse() exit, 0 accesses to a dead copy -> NO LEAK.
+   LOSS instead: 15,264 of the old road's 49,278 failedAt writes land on a copy and die with it.
+ 5 LEAVES (26e): the OLD road has no M1 left (parse() pushes for leaves too). The NEW road's leaves push nothing
+   (72,252 exits with the stuff absent); their state is read only inside the same call. Shapes costed, none
+   recommended: (a) ride the caller's record (a second slot set, one record with two meanings), (b) a leaf pushes
+   (~72k pushes per fleet run, one shape on both roads), (c) locals handed to the exit (signature changes reach the
+   old road through fireLabelMethod).
+ 6 failedAt (26f): reportDrive over 579 drives -- old road null 53 / in-drive 99 / stale 59; NEW ROAD null 349 /
+   in-drive 0 / stale 19. F-140 measured, plus 19 stale reads. Home: the drive FLOOR, field `failPoint` (0 hits
+   anywhere), written by the failing exit whose enclosing activation is the floor; reportDrive reads the floor.
+ 7 ORDER (26h): 1.2a failedAt -> floor · 1.2b kount -> locals (bracket kount slot retires) · 1.2c leaves (Tony picks
+   a/b/c) · 1.2d sukcess (slot retires) · 1.2e hereAt (slot retires) · 1.2f label (CALLBRACKET RETIRES) · 1.2g
+   getStuff's copy and inProcess retire (mints 67,751 -> 0).
+ R3 NAMES (26g): hereAt, sukcess, kount and failedAt are all used bare in generated code, so none can be kept on
+   ParseActivation (SEQ 235 R1, #58). 0 hits anywhere: failPoint, startAt, callHere, callCount, callOK, actHere,
+   actCount, actOK, actFailed.
+
+FOR TONY: (1) the leaf shape, (a) (b) or (c); (2) the order, or another; (3) the names.
+
+  END SEQ 185

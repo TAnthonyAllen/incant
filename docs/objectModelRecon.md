@@ -1473,3 +1473,170 @@ into DISAGREE self=Xpress field=Xpress parentLabel=Iterate(0x10a192410) list=Sta
 - **Copied face:** nothing to copy. W8 and W9 stop carrying it by construction.
 
 **Under either shape:** no reader needs the caller across a floor. The only disagreements whose label is on the list (741 at R3, above a floor) are before the sync, and the sync overwrites them.
+
+## 26. Stroke 1.2 recon: per-call state onto the activation (SEQ 291, 2026-10-04, read-only)
+
+**Provenance.** Trunk `9684677` (seal 38), bare, no incant process. One temporary tap in the generated `.mm` only: one
+counter on each of the 203 sites naming an activation-class field (from a census of every generated `.mm`), plus hooks at
+getStuff's copy mint, parse()'s exit, the callBracket restore and reportDrive. Run across pop.sh, jitLadder, printPop,
+decodePop, ddPop and frontier: 279 processes, every instrument unmoved under the tap (899 / 1). Reverted: every `.mm`
+md5-identical; bare rebuild 899 / 1, jitLadder and printPop PASSED, canary 299. Ten sites inside `fprintf` argument
+lists in measure callouts (`measureFrameProbe`, `measureParentProbe`, `measureLoopVerdict`) could not take a prefix
+and were not instrumented; all are trace-gated. **The tap fired:** 166 of the 193 instrumented counters are nonzero; the 27
+zeros are listed in 26b by site, and each sits beside nonzero counters in the same function or file. Nothing was built.
+
+### 26a. Census: every RuleStuff field, re-classed against trunk (26 fields)
+
+Stroke 1.1 took `guardOK` (misfit M2) and `isOK` (activation) off, and retired parseR's bridge. Seal 24 counted 6 / 10 /
+7 + 9 misfits; trunk is **6 rule / 10 instance / 6 activation / 4 misfit fields** (26).
+
+| class | fields | writers (generated .mm) |
+|---|---|---|
+| rule 6 | `ruleName`, `testMatch`, `parseMethod`, `actionMethod`, `jitMethod`, `onGroup` | ctors; setTestMatch (10); setParseWalk (11), installParseMethod, setParseAction; setActions, aCTionTraiTdata, **fireLabelMethod mid-fire (M6)**; jitFieldMethod; getWhatFollows, embedAttribute |
+| instance 10 | `min`, `max`, `maxRepeat`, `overTo`, `noAdvance`, `noLabel`, `noSkip`, `modUnGuarded`, `isTarget`, `ruleTerm` | ctors, `modify`; isTarget also getWhatFollows, setTargetFlag, embedAttribute; ruleTerm aCTionDefinE, aCTionTraiTdata, setRuleStuff |
+| activation 6 | `label`, `hereAt`, `kount`, `sukcess`, `inProcess`, `failedAt` | 26b |
+| misfit 4 | `followed` (M5: one marker over rule and instance facts), `notifyFail` (M7: rule or instance, census never run), `modPercent`, `modPointer` (M8: written by modify, read only by `modsOf`) | -- |
+
+**Whole-struct copies (the second population):** `GroupItem(GroupItem)` GroupItem.mm:180 (`*rStuff = *grup->getRStuff()`,
+then clears `followed`, `sukcess`); `RuleStuff(RuleStuff)` RuleStuff.mm:408 (`*this = *r`, then nulls `label`, `sukcess`,
+`kount` -- **not** `hereAt`, `failedAt`, `inProcess`), reached from getStuff's re-entry mint (GroupItem.mm:1350) and from
+aCTionDefinE (GroupRules.mm:478). Misfits that are not fields: **M1** (26e), **M4** (`inProcess` + getStuff's copy, 26d),
+**M9** (the copy constructors reset per-call state). One new: **M10, `parseLoop`'s `kount` lives on the term FACE's stuff,
+which is never on the activation list** (26c).
+
+### 26b. Each activation-class field: writers and readers, road, coverage, reach
+
+Reach is where the touched stuff sits on the activation list at the access: **top** (the reader's own activation, one
+step), **prev** (the one below top, one step), **deeper / past a floor** (a hunt today), **absent** (no activation holds
+it). Calls are summed over the 279 processes.
+
+| field | site family (road) | calls | reach |
+|---|---|---|---|
+| `label` | fireLabelMethod (both) | 14,093,971 | top 14.0M · absent 86,964 (new-road leaves) |
+| | checkInput (both): mints, reads, fallback | 11,287,772 | top 11.1M · absent 111,603 · 66,459 through a parent reach (`field->parent->getRStuff()`) |
+| | parse() (old) | 7,940,819 | top 4.5M · absent 3.4M (the return read, after the pop) |
+| | attachLabel (both): own `stuff.label`, parent `pStuff.label` | 5,671,621 | own 2,942,397 (top 2,939,785) · **parent prev 1,975,650 + write prev 750,960** -- one step |
+| | exitFromParse (new) | 1,149,461 | top 835,732 · parent prev 104,931 · absent 203,412 (leaves) |
+| | testSet, testString, testUpTo, testContainer, testCharacter, testAny (old leaves) | 1,225,931 | **top** -- parse() pushed for them |
+| | parseSet, parseContainer, parseString, parseCharacter, parseUpTo (new leaves) | 124,297 | **absent, always** |
+| | parseRule: bracket save/restore, `into` | 718,449 | absent 472,618 (outside the push) · prev 784 · deeper 4,516 · **past a floor 8,922** |
+| | captureSpan 339,436 · aCTionCodE 14,834 (parent reach) · driveFloorLabel 55 | | top · complex · absent |
+| | **zero:** parseAction (6 sites), testAction (3), parseCharacter's setToken/clear (81, 86), testCharacter's setToken (146), testUpTo's addAttribute (159), checkInput's refusal (190) | 0 | -- |
+| `hereAt` | checkInput writes (both) | 4,095,843 | top 4.0M · absent 72,252 |
+| | exitFromParse rewinds and clear (new) | 506,302 | top 403,466 · absent 102,836 |
+| | parseRule bracket 486,840 · captureSpan 339,436 · parse() 49,278 · testSet 39,335 · parseSet 273 | | |
+| | **zero:** the noAdvance rewinds in testAny (140), testCharacter (144), testString (154); parseCharacter/testCharacter setToken (82, 147) | 0 | -- |
+| `kount` | parse() old repeat loop | 16,101,124 | top |
+| | **parseLoop** (new) | 867,996 | **absent 844,395** -- the face's stuff (M10) · deeper/past floor 23,601 |
+| | parseRule bracket | 486,840 | as label's bracket |
+| | **zero:** parse()'s reportRepeatLimit read (36) | 0 | -- |
+| `sukcess` | parse() (old) | 32,479,722 | top |
+| | checkInput (both) | 11,276,535 | top 11.1M · absent 190,656 |
+| | parseRule 841,372 · exitFromParse 760,482 (absent 187,986) · new leaves 236,918 (absent, always) | | |
+| | **zero:** parseAction (3), parseCondition (2), parse() line 1723 (29) | 0 | -- |
+| `inProcess` | parse() set/clear (old) 6,886,830 top · getStuff read 3,444,106 (before the push: absent 3.38M, re-entry prev 21,379 / deeper 40,446 / past floor 4,817) | | |
+| `failedAt` | parse() write (old) | 49,278 | top; **15,264 on a getStuff copy** |
+| | reportDrive 579 · aCTionFailed 1 · **reportCodeFail 0** | | absent (reads `rule.rStuff` after the call) |
+
+**Constructors** (both, 571,451 calls) and `GroupItem(GroupItem)` (426,856) write these fields on nodes with no
+activation. **Zero coverage means a fixture is owed** before a sub-stroke touching those sites can certify: parseAction,
+testAction and parseCondition (no leaf of those kinds runs in the fleet); a labelled character leaf; a noAdvance leaf on
+the old road; testUpTo with a label; a repeat limit on the old road; reportCodeFail.
+
+### 26c. The callBracket, per field: real protection versus the `:295` pattern
+
+parseRule saves `label`, `hereAt`, `kount`, `sukcess` at entry and restores them after the pop. At each restore: did the
+call change the slot, and is an activation of the same stuff still on the list? After a changed restore, the tap
+followed **the next access to that slot on that stuff** and recorded the site (a *read* uses the restored value; a
+*write* overwrites it; *carried* = the next bracket's save picked it up, which itself decides nothing).
+
+| slot | unchanged | changed, no outer | changed, outer live | next access after a changed restore |
+|---|---|---|---|---|
+| `label` | 61,266 | 176,340 | 5,814 | **real reads 3,111**: exitFromParse's child-reads-parent `cParent.label` 1,028, own exit 132, checkInput's reuse test 1,649 (recycled fLAG label), parse() 73, measureAdoption 229 (callout) · overwritten 1,604 (checkInput) · carried 176,890 · never touched again 549 |
+| `hereAt` | 48,391 | 187,918 | 7,111 | **real reads 686** (exitFromParse's failure rewind of atRuleMark) · overwritten 5,203 (exit clear 1,409, checkInput 3,794) · carried 188,524 · never touched 616 |
+| `kount` | 242,721 | 689 | 10 | **real 699, all parseLoop** (`kount++` 458 -- an increment reads the value, `kount >= min` 241) |
+| `sukcess` | 63,942 | 172,367 | 7,111 | **real reads 229** (old-road parse() holding the stuff -- F-121's case) · overwritten 5,421 (parseRule's truthOf 2,095, parse() 3,326) · carried 173,291 · never touched 537 |
+
+- **`label` and `hereAt` carry real protection** -- the 25d result, now per site. Most changed restores are carried
+  bracket to bracket without a decision.
+- **`kount` protects only parseLoop**, and the list-based "outer live" test cannot see it: parseLoop pushes nothing and
+  counts on the term face's stuff (M10). A nested parseRule of the same face restores the count mid-loop, 699 times.
+- **`sukcess` protects only F-121's old-road caller** (229); everything else is overwritten or carried.
+- **Outer live past a floor:** 4,461 entries find an outer activation of the same stuff only beyond a drive floor.
+
+### 26d. getStuff's inProcess copy
+
+67,751 copies minted and 67,751 dead at their parse()'s exit. **Fields read off the copy:** per-call -- `label`
+(fireLabelMethod 147,240, parse() 178,239, checkInput 124,592, attachLabel 77,102), `sukcess` (parse() 556,521,
+checkInput 188,574), `kount` (parse() 260,889), `hereAt` (checkInput 79,267, parse() 15,264), `inProcess` (135,502);
+instance and rule facts (`testMatch`, `onGroup`, `min`, `maxRepeat`, `notifyFail`, ... -- parse() reads them off
+`ruleStuff`) by structure, not tapped. **Leak: none measured.** 0 accesses to a dead copy anywhere; a copy is never
+installed as any node's rStuff, and nothing copies a copy back. **Loss, not leak:** 15,264 of the old road's 49,278
+`failedAt` writes land on a copy and die with it, and fireLabelMethod's mid-fire `actionMethod` write (M6) lands on the
+copy whenever the fire runs on one (not tapped).
+
+### 26e. Leaves (M1), with isOK gone
+
+**Old road: no misfit left.** parse() pushes an activation for every call, leaves included (testSet's label reads are
+top 810,335 of 810,335). **New road: M1 stands.** parseSet, parseString, parseContainer, parseCharacter and parseUpTo
+push nothing (exitFromParse runs 72,252 times for them with the stuff absent). A new-road leaf writes `sukcess`, `hereAt`
+(through checkInput) and its `label` (minted by checkInput, setToken, cleared on failure); the readers are exitFromParse,
+fireLabelMethod and captureSpan, **all inside the same call**; 1.1a clears all three at the exit, so no reader outside
+the call remains. Shapes, costed:
+
+- **(a) Ride the caller's activation.** The caller's slots hold the caller's own label, hereAt and sukcess, so a leaf
+  needs a second set (three fields). Every leaf, checkInput, exitFromParse, fireLabelMethod and captureSpan must choose
+  between the two sets: one record, two meanings. A drive-root leaf's caller is the floor.
+- **(b) A leaf pushes its own record.** About 72,252 extra pushes per fleet run, against 243,420 parseRule pushes and
+  3.4M old-road pushes. enclosingStuff's own-activation skip already compares face and stuff, so it applies unchanged.
+  Every reader then reads the leaf exactly as parseRule's: one shape on both roads.
+- **(c) Leaf values as C++ locals handed to the exit** (1.1a's style). exitFromParse, fireLabelMethod and captureSpan
+  take label, hereAt and sukcess as arguments, and checkInput returns hereAt and the label instead of writing them.
+  fireLabelMethod has callers on both roads, so the signature change reaches the old road too.
+
+### 26f. failedAt (F-140)
+
+**Writer:** parse() at matchFailed, old road only (49,278; 15,264 on copies). **Readers:** reportDrive reads
+`rule.rStuff.failedAt` after the drive and turns it into an offset (tell's `stoppedAt`); aCTionFailed (1 call);
+reportCodeFail (0). **Measured at reportDrive (579 drives):**
+
+| road | null | inside this drive's message | stale (a pointer outside it) |
+|---|---|---|---|
+| old | 53 | 99 | 59 |
+| new | 349 | **0** | 19 |
+
+The new road never reports a failure point, and 19 of its reports read a stale pointer an earlier old-road run left
+behind. The old road misses too: 59 stale, and every failure inside a re-entered call is written on a copy.
+**An activation-level home:** the **drive floor** is the one record that spans the whole drive and is already what the
+reply reads for a generated root's label (driveFloorLabel). One field on `ParseActivation`, written by the failing
+exit whose enclosing activation is the floor (exitFromParse on the new road, parse() on the old); reportDrive reads the
+floor instead of `rule.rStuff`. Stale reads become impossible (the floor is per drive) and copies stop losing it.
+**Name (R3):** `failPoint` -- 0 hits in tok source, generated code, directives and incant.
+
+### 26g. Names for any new ParseActivation field (R3)
+
+Bare-use counts (tok source and groups.ext · generated bare lines · groupDirectives · incant files): `hereAt` 18 · 3 · 0
+· 4; `sukcess` 70 · 9 · 3 · 6; `kount` 22 · 7 · 3 · 3; `failedAt` 8 · 4 · 0 · 2; `matched` 29 · 21 · 0 · 44; `count` 156
+· 32 · 2 · 82; `stoppedAt` 5 · 4 · 0 · 5. **Zero everywhere:** `failPoint`, `startAt`, `callHere`, `callCount`,
+`callOK`, `actHere`, `actCount`, `actOK`, `actFailed`. Under SEQ 235 R1, a field moving onto the activation cannot keep
+its RuleStuff name: every one of those is called bare in generated code, and parse() and parseRule hold a
+ParseActivation local, so bear-trap #58 would capture them. A full bare-tokall diff stays owed per field.
+
+### 26h. Proposed order (one field or family each, each with its own certificate)
+
+1. **1.2a `failedAt` -> the floor's `failPoint` (F-140).** Independent of the rest. Owes a fixture: a failing new-road
+   drive whose `stoppedAt` is pinned by value.
+2. **1.2b `kount` -> locals.** parse()'s repeat count and parseLoop's count are each one function's per-call state;
+   readers besides are reportRepeatLimit (0 coverage, fixture owed) and measureLoopVerdict. **The bracket's `kount` slot
+   retires here**; the H7 is parseLoop's 699.
+3. **1.2c leaves (26e), by Tony's pick of (a), (b) or (c).** Settles where a new-road leaf's sukcess, hereAt and label
+   live. Owes fixtures for parseAction, parseCondition and a labelled character leaf.
+4. **1.2d `sukcess`.** parseRule's and parse()'s per-call verdict. **The bracket's `sukcess` slot retires**; the H7 is
+   F-121's 229.
+5. **1.2e `hereAt`** onto the activation (a new name, 26g). **The bracket's `hereAt` slot retires**; the H7 is the 686
+   rewinds.
+6. **1.2f `label`** onto the activation's existing `label` slot. Parent reads go through `prev` (attachLabel's 2.7M and
+   exitFromParse's 104,931 are already one step); checkInput's parent reach (66,459) and aCTionCodE's become a `prev`
+   read. **The callBracket retires whole here.**
+7. **1.2g getStuff's copy and `inProcess` retire.** Once parse() keeps no per-call state on the stuff, re-entry needs no
+   copy. Certificate: mints 67,751 -> 0, the fleet row for row.
