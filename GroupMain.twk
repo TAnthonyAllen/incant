@@ -437,7 +437,7 @@ GroupRules  ruler = groupRules;
         incant/oneTest instead, after the definitions are all in place.
     *************************************************************************/
     pushInput(getFile(setupFILE));
-    if sourceFILE   strap.parse(0,0);
+    if sourceFILE   strap.parse(0,0,null);
     popInput();
     /*************************************************************************
         Set the buffer links

@@ -14,11 +14,10 @@
 #include "measure.h"
 #include "GroupDraw.h"
 
-// parseR parse a term into a given label: a throwaway RuleStuff whose label is into, so parse() attaches there -- driveStep's no-data arm
+// parseR parse a term into a given label: into is an ARGUMENT to parse(), never a throwaway RuleStuff (stroke 1.1 site 2) -- driveStep's no-data arm
 extern "C" GroupItem *parseR(GroupItem *term, GroupItem *into)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*bridge = 0;
 GroupItem 	*got = 0;
 	if ( !term )
 		return 0;
@@ -27,9 +26,7 @@ GroupItem 	*got = 0;
 		{
 		::fprintf(stderr,"  parseR term= %s  into= %s\n",term->groupBody->tag,into->groupBody->tag);
 		}
-	bridge = new RuleStuff(term);
-	bridge->label = into;
-	got = term->parse(bridge,0);
+	got = term->parse(0,0,into);
 	if ( ruler->parseTrace )
 		{
 		if ( got )
@@ -105,7 +102,7 @@ int 		result = 1;
 		if ( grup->groupBody->flags.noPrint )
 			continue;
 		else
-		if ( grup->parse(stuff,0) )
+		if ( grup->parse(stuff,0,0) )
 			result = 1;
 		else {
 			result = 0;
@@ -202,7 +199,7 @@ GroupItem 	*grup = 0;
 		{
 		if ( stuff->checkGuard(grup) )
 			{
-			if ( grup->parse(stuff,1) )
+			if ( grup->parse(stuff,1,0) )
 				return 1;
 			}
 		}

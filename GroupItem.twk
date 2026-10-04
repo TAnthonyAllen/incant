@@ -217,30 +217,36 @@ void append(GroupItem grup)
     // attachLabel the yield protocol IS the skip -- NULL failed, labelNO yields nothing, anything else
     // attachLabel attaches. Do not reach for a flag here, it was falsified fleet-wide
 ***************************************************************************/
-void attachLabel(RuleStuff stuff, RuleStuff pStuff, int promote)
+void attachLabel(RuleStuff stuff, RuleStuff pStuff, int promote, GroupItem into)
 {
 GroupRules  ruler = groupRules;
+String      destName = tag;
+GroupItem   dest = into;
 GroupItem   lab = stuff.label;
     if !lab || lab == labelNO   return;
-    if !pStuff                  return;
+    // intoArgument with no parent stuff the destination is the caller's into and the name is this term's own (parseR, stroke 1.1 site 2)
+    if pStuff {
+        dest        = pStuff.label;
+        destName    = pStuff.ruleName; }
+    or !into                    return;
     // caseLocalizer parseTrace-gated -- the interesting failure is a SILENT return at the no-label guard, and
     // caseLocalizer an absent attach announces nothing on its own
     if parseTrace
-        cerr "    attachLabel lab=" lab.tag " promote=" promote " isTarget=" stuff.isTarget " pLabel=" (pStuff.label != 0) " pRule=" pStuff.ruleName "\n";
+        cerr "    attachLabel lab=" lab.tag " promote=" promote " isTarget=" stuff.isTarget " pLabel=" (dest != 0) " pRule=" destName "\n";
     // promoteUnguarded promotion is an assign and is NOT guarded on the destination -- a parent with no label
     // promoteUnguarded yet is the normal case here, and this is what gives it one
     // pc1Restated the disjunct is PC-1 RESTATED, not loosened -- the forbidden consult is the one where a
     // pc1Restated parent label exists, because that is the one with a subtree to destroy
-    if (promote || !pStuff.label) && stuff.isTarget {
-        pStuff.label    = lab;
+    if (promote || !dest) && stuff.isTarget {
+        if pStuff   pStuff.label = lab;
         // ownedRetag rename only a node this parse owns -- a minted label, or a fresh node nobody else holds; never a shared sentinel, a registry member or a live field (F-134)
-        if lab.labelOf || (!lab.registry && !lab.parent)    lab.tag = pStuff.ruleName;
+        if lab.labelOf || (!lab.registry && !lab.parent)    lab.tag = destName;
         return; }
     // attachGuardHere the guard belongs HERE and not above the promote case -- both placements were measured
     // attachGuardHere and each crashes the fleet the other way, three lines apart
     // ia2Narrow the landed spelling is the NARROW one -- the broad one was also green and was rejected
     // ia2Narrow because ZERO of 216 calls fell in the cell where the two differ
-    if !pStuff.label {
+    if !dest {
         // dropSiteProbe parseTrace-gated -- at the instant an option's label is dropped, is there a reachable
         // dropSiteProbe destination in the frame, or is the label simply homeless
 -%
@@ -259,14 +265,14 @@ GroupItem   lab = stuff.label;
         return; }
     // alreadyIsParentLabel this label IS the parent's label already, so there is nothing to attach and the
     // alreadyIsParentLabel lines below would attach it to itself
-    if lab == pStuff.label  return;
+    if lab == dest  return;
     if promote && lab.isGROUP && stuff.max > 1 {
         -% ::measureAttachRepeat(stuff,lab); %-
-        pStuff.label    +% lab.group;
+        dest        +% lab.group;
         lab.clear();
         lab.fLAG        = true;
         return; }
-    pStuff.label +% lab;
+    dest +% lab;
 }
 
 /***************************************************************************
@@ -1279,7 +1285,7 @@ GroupItem nextProperty(GroupItem entry)
                                 parse
     Treat this field as a rule and match it against the input stream.
 ***************************************************************************/
-GroupItem parse(RuleStuff pStuff, int guardPassed)
+GroupItem parse(RuleStuff pStuff, int guardPassed, GroupItem into)
 {
 GroupRules  ruler       = groupRules;
 ParseActivation oldActive;
@@ -1312,7 +1318,7 @@ continueHere:
         or testMatch || onGroup || hasAttributes {
             if testMatch                                            sukcess = testMatch(this);
             if !parseACTION {
-                if sukcess && onGroup && !onGroup.parse(ruleStuff,0)  sukcess = false;
+                if sukcess && onGroup && !onGroup.parse(ruleStuff,0,null)  sukcess = false;
                 if sukcess && hasAttributes                         sukcess = testAttributes(ruleStuff,this); }}
         if !sukcess     goto matchFailed;
         /*******************************************************************
@@ -1323,7 +1329,7 @@ continueHere:
         -% ::measureOldFireFlag(this,ruleStuff); %-
         if sukcess {
             kount++;
-            attachLabel(ruleStuff,pStuff,1); }
+            attachLabel(ruleStuff,pStuff,1,into); }
         else break; }
     if kount >= maxRepeat && maxRepeat > 1  reportRepeatLimit(this,kount,maxRepeat);
 matchFailed:

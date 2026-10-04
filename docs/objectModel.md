@@ -285,7 +285,7 @@ rules on the amendment (R4).
    **Sites, as ruled 2026-10-03 (SEQ 288 R2):** leaf results on the new road -- 1.1a, landed with F-138's cure
    (a342b75). **Site 1, `guardOK`** -- LANDED 3793f63: an argument testOptions -> parse() -> checkInput; the stored bit
    had survived getStuff's in-process copy and handed later parses an unearned guard pass (five term-count rows
-   re-pinned). **Site 2, `parseR`'s throwaway RuleStuff** in driveStep. **Site 3, `isOK`** -- written by the leaf tests
+   re-pinned). **Site 2, `parseR`'s throwaway RuleStuff** in driveStep -- BUILT on branch stroke11-site2 (2026-10-04): `into` is an argument of `parse()` and `attachLabel()`. The bridge was a pure handoff: read only for `label` and `ruleName`, written only by the promote-on-target case (a write the bridge then discarded), never pushed or copied. Zero fleet calls before the stroke; `incant/pop/parseRT` now drives it. **Site 3, `isOK`** -- written by the leaf tests
    on the field's own rStuff, read by parse()'s repeat loop on getStuff's possibly-copied stuff; its first measure is
    whether the copy leaks, as site 1's did. `failedAt` (F-140) is 1.2's per-call state, not a handoff (SEQ 288 R3).
 2. **Per-call state onto the activation:** `label`, `hereAt`, `kount`, `sukcess`. The callBracket and `getStuff`'s

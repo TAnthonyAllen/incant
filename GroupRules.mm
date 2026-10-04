@@ -2107,8 +2107,8 @@ char 				*driveBase = 0;
 		else {
 			// oldRoadAttach an old-road rule called from INSIDE a new-road activation attaches into that activation -- with parse(0) attachLabel dropped its label, and every print shortcut vanished (F-120, F-116); a real drive has pushed its floor, so it still passes 0
 			if ( ruler->gParseActive && !ruler->gParseActive->isFloor )
-				result = rule->parse(ruler->gParseActive->stuff,0);
-			else	result = rule->parse(0,0);
+				result = rule->parse(ruler->gParseActive->stuff,0,0);
+			else	result = rule->parse(0,0,0);
 			}
 		}
 	// floorLabel a generated root that SUCCEEDED hands back the label its floor holds (trueResult when it parked none); a failure hands back what the fire did
@@ -2258,7 +2258,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 					if ( cLab->labelOf || (!cLab->groupBody->registry && !cLab->parent) )
 						cLab->groupBody->tag = cParent->ruleName;
 					}
-				else	field->attachLabel(ruleStuff,cParent,1);
+				else	field->attachLabel(ruleStuff,cParent,1,0);
 				}
 			// oneBitReturn a successful term returns its TRUTH, never its label -- the label is already attached above, and a label carrying a matched 0 read as a failed alternative in a || chain (Tony, 2026-09-23, restoring ruling c')
 			result = ruler->trueResult;

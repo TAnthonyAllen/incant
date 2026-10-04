@@ -5713,6 +5713,14 @@ kindRow "flagRetiredT FR-1 the refusal names :. flaG" "$(grep -c '^REFUSED frX -
 kindRow "flagRetiredT FR-0 the refused statement's block was abandoned" "$(grep -c '^FR-0' "$T/frt")" "0"
 kindRow "flagRetiredT FR-2 an unflagged count increments" "$(grep '^FR-2' "$T/frt" | awk '{print $NF}')" "6"
 
+#  ⚑ parseRT -- STROKE 1.1 SITE 2 (2026-10-04): driveStep's no-data arm, parseR, attaches into the caller's field
+#  with into as an ARGUMENT to parse()/attachLabel() -- the throwaway RuleStuff is gone. Nothing else in the fleet
+#  reaches parseR (a tap counted 0). H7: attachLabel's into arm returning without attaching -> PR-1 and PR-2 read 0.
+run1 parseRT "$T/prt";   check "parseRT runs" 0 $?
+sentinel "parseRT sentinel" "$T/prt" "PARSER SENTINEL"
+kindRow "parseRT PR-1 one drive attaches one label into the field" "$(grep '^PR-1' "$T/prt" | awk '{print $NF}')" "1"
+kindRow "parseRT PR-2 a second drive attaches a second" "$(grep '^PR-2' "$T/prt" | awk '{print $NF}')" "2"
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi

@@ -62,7 +62,7 @@ use ruleStuff
                 if cParent && !cParent.label && cFace && cFace.hasMembers && !cFace.binType && cLab != ruler.labelNO {
                     cParent.label = cLab;
                     if cLab.labelOf || (!cLab.registry && !cLab.parent)     cLab.tag = cParent.ruleName; }
-                else    field.attachLabel(ruleStuff,cParent,1); }
+                else    field.attachLabel(ruleStuff,cParent,1,null); }
 use ruler
 use field
 use ruleStuff

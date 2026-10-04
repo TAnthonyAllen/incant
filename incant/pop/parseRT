@@ -1,0 +1,25 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+define
+    prHold;
+    ;
+ANYorNum(prHold);
+zebra
+cerr "PR-1 attached " prHold.listLengtH:;
+ANYorNum(prHold);
+quagga
+cerr "PR-2 attached " prHold.listLengtH:;
+cerr "PARSER SENTINEL":;
+stop();
+
+parseRT -- STROKE 1.1 SITE 2 (2026-10-04). An old-road rule called from kant with a field that has NO DATA
+takes driveStep's no-data arm: the field is the label to attach into, never an input to divert. That arm is
+parseR, and until this fixture NOTHING in the fleet reached it (a tap counted 0 calls across pop.sh, the jit
+ladder, printPop, decodePop, ddPop, frontier, tester and oneTest).
+
+Each ANYorNum call parses the next word of THIS file (zebra, then quagga) and attaches its label under prHold,
+so the holder counts 1, then 2. Site 2 made into an argument of parse() and attachLabel() instead of a
+throwaway RuleStuff whose label was into.
+
+H7: attachLabel's into arm made to return without attaching -> PR-1 and PR-2 read 0, red.
