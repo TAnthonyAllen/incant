@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 186 at the FOOT -- SEQ 292: 1.2a STOPPED at item 1 -- 15,693 old-road failedAt writes have NO floor (all under InitiatE, the file's top-level parse); R1-R4 recorded in A5
+STATUS:   fresh           # SEQ 187 at the FOOT -- SEQ 186 rulings: R1 floor (stroke12a-floor, no mover) + 1.2a failPoint (stroke12a, 906) BUILT, NOT MERGED
+# prior: SEQ 186 at the FOOT -- SEQ 292: 1.2a STOPPED at item 1 -- 15,693 old-road failedAt writes have NO floor (all under InitiatE, the file's top-level parse); R1-R4 recorded in A5
 # prior: SEQ 185 at the FOOT -- SEQ 291: site 3 MERGED (899), 1.1 COMPLETE; R1a/R1b done; stroke 1.2 RECON in objectModelRecon §26 (read-only), shapes for Tony
 # prior: SEQ 184 at the FOOT -- SEQ 290: site 2 MERGED (895); site 3 isOK a pure handoff, BUILT on stroke11-site3 (899), 1.1 COMPLETE awaits the merge
 # prior: SEQ 183 at the FOOT -- site-2 dispatch (pasted by Tony): parseR's bridge is a pure handoff, 0 fleet calls; into an ARGUMENT on branch stroke11-site2; R6 stashes dropped, AP-5c carried
@@ -10478,3 +10479,50 @@ TWO OBSERVATIONS FOR THE BUILD, WHICHEVER SHAPE
 FOR TONY: (i), (ii) or (iii) -- or another.
 
   END SEQ 186
+
+
+===================================================================
+SEQ 187  -  SEQ 186 RULINGS: THE TOP-LEVEL FLOOR (R1) AND STROKE 1.2a (R3) BUILT ON BRANCHES, NOT MERGED
+===================================================================
+STATUS: fresh -- 2026-10-04. Two stacked branches, both repos, pushed: stroke12a-floor (Groups 95589b0, support
+10897b4) and stroke12a on top of it (Groups bd814bf, support 4af7cea). Trunk unchanged; installed: trunk, bare.
+
+R1 THE FLOOR, ALONE (stroke12a-floor). parseOnFloor (GroupActions.rtn, beside driveStep) pushes a floor record
+   exactly as driveStep does and runs the parse; both top-level parses of InitiatE call it (GroupMain's strap.parse
+   for setup, main's boot.parse for the source file). Full bare tokall: the extern, the two call sites, and tok
+   dropping `#include "RuleStuff.h"` from GroupMain.mm and groups.mm (they no longer name parse()). Canary 299 -> 300.
+   CERTIFICATE: pop.sh 899 / 1 ROW FOR ROW -- the one changed line is the mirror-arity row's name count 253 -> 254
+   (the new extern), still 0 drift. jitLadder, printPop PASSED; decodePop, frontier match; ddPop 5 / 1.
+   NO MOVER, so no floor-stopper (enclosingStuff, enclosingFace, deferredAbove, the old-road attach) changed an answer.
+
+R2 + R3 STROKE 1.2a (stroke12a). ParseActivation.failPoint, null at all four record creations. Written ONLY by the
+   root's own failure exit (R2): parse() at matchFailed when its record's prev is a floor; exitFromParse on its
+   failure path, after the min-zero check, when the enclosing activation is a floor (own record skipped, as cTop
+   already does). RuleStuff.failedAt and its groups.ext line are gone.
+   NO FLOORLESS WRITES LEFT, measured: a tap on the branch build counted 49,497 old-road failures, 0 with no floor
+   below (reverted md5-identical).
+   READERS: reportDrive is handed driveFloor.failPoint. aCTionFailed reads the nearest floor (floorFailPoint) while the
+   failing rule is still pushed. reportCodeFail: HANDED THE POINT BY THE DRIVE (R3's second option) -- it runs after
+   driveStep has popped its floor, so processCode gives driveStep a report and turns its failedAt offset back into a
+   pointer into the code it drove (driveStep's base IS the code's text: pushInput sets atRuleMark = getText()).
+   NAMES: failPoint, floorFailPoint, failMark, codeReport -- 0 hits before the add. Full bare tokall read line by line,
+   no captures (the `use` re-mentions after each record use hold). Canary 300 -> 301.
+   ONE BEHAVIOUR NOTE: aCTionFailed on a NON-root notifyFail rule now prints the drive root's point (null until the
+   root fails) where it printed its own. The fleet has no such case (failNotT's FnA is a drive root); R2 makes it so.
+
+CERTIFICATE (stroke12a, bare): pop.sh 906 / 1 = seal 40's 899 / 1 row for row plus incant/pop/failPointT's 7 rows
+   (changed counts: fixture names 206 -> 207, mirror names 253 -> 254). jitLadder PASSED · printPop PASSED · decodePop,
+   frontier match their captures · ddPop 5 / 1 · exec clean.
+   failPointT, born red on trunk (seal 40) and green on the branch:
+     FP-0 old road, control           1 / 1
+     FP-C old road, ROOT RE-ENTERED   0 -> 1   (the copy case: FpREC's action drives FpREC while it is in process)
+     FP-A new road fails at 1         0 -> 1
+     FP-B new road, next failure at 2 0 -> 2   (the current point, never the earlier one)
+     FP-M new road matched, control   3 / 3
+   H7: both root writes made to store null -> FP-C, FP-A, FP-B (and FP-0) read 0; restored md5-identical, 906 / 1.
+   F-140's attempt log carries the stroke; it closes on the merge. objectModel A5 carries SEQ 186 R1-R3 (R4).
+
+FOR TONY: merge stroke12a-floor and stroke12a (both repos) on your word (SEQ 292 R6); trunk then reads 906 / 1.
+   They can merge as one (stroke12a contains the floor commit).
+
+  END SEQ 187
