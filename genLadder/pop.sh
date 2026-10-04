@@ -5730,6 +5730,15 @@ sentinel "parseRT sentinel" "$T/prt" "PARSER SENTINEL"
 kindRow "parseRT PR-1 one drive attaches one label into the field" "$(grep '^PR-1' "$T/prt" | awk '{print $NF}')" "1"
 kindRow "parseRT PR-2 a second drive attaches a second" "$(grep '^PR-2' "$T/prt" | awk '{print $NF}')" "2"
 
+#  ⚑ anyLeafT -- STROKE 1.1 SITE 3 (2026-10-04): testAny, one of the three self-repeating leaf tests whose result parse()'s
+#  loop now takes by RETURN (RuleStuff.isOK is gone). A tap counted 0 testAny calls fleet-wide before this row; Any is a
+#  bootstrap rule nothing in the grammar uses. H7: testAny's tester never matching -> matched 0 consumed 0, red.
+#  The SITE's witness is the whole fleet: leafDone never set -> pop.sh 895 -> 410 green, baselineTests truncated first.
+run2 anyLeafT "$T/alt.o" "$T/alt.e"; check "anyLeafT runs" 0 $?
+sentinel "anyLeafT sentinel" "$T/alt.e" "ANYLEAF SENTINEL"
+kindRow "anyLeafT AL-1 Any matched" "$(grep 'verdict matched' "$T/alt.e" | awk '{print $3}')" "1"
+kindRow "anyLeafT AL-1 Any consumed one character of three" "$(grep 'verdict matched' "$T/alt.e" | awk '{print $5}')" "1"
+
 echo ""
 if [ $fail = 0 ]; then echo "POP PASSED -- $green green / $parked parked-WIP"
 else echo "POP FAILED -- $green green / $parked parked-WIP"; fi

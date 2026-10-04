@@ -1,0 +1,23 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+search GroupFields UnitTests Utilities list;
+define
+    alSay code={
+        v := tell(argument);
+        m := *v["matched"]; c := *v["consumed"]; l := *v["length"];
+        cerr "   verdict matched= " m " consumed= " c " length= " l:;
+        };
+    ;
+cerr "AL-1 tell Any xyz":;
+alSay("Any xyz");
+cerr "ANYLEAF SENTINEL":;
+stop();
+
+anyLeafT -- STROKE 1.1 SITE 3 (2026-10-04). testAny is one of the three self-repeating leaf tests (testAny,
+testCharacter, testSet) whose result parse()'s repeat loop used to read back off RuleStuff.isOK; site 3 hands it
+back by RETURN instead. A tap across every instrument counted ZERO testAny calls: nothing in the grammar uses the
+bootstrap rule Any, so its only door is a drive like this one. Any has max 1, so it consumes one character of three.
+
+H7: testAny's tester made never to match -> AL-1 reads matched 0 consumed 0, red.

@@ -282,12 +282,27 @@ rules on the amendment (R4).
 
 1. **Handoffs become arguments:** `guardOK`, `parseR`'s `into` (the fake RuleStuff retires), leaf results handed back
    to the caller.
-   **Sites, as ruled 2026-10-03 (SEQ 288 R2):** leaf results on the new road -- 1.1a, landed with F-138's cure
-   (a342b75). **Site 1, `guardOK`** -- LANDED 3793f63: an argument testOptions -> parse() -> checkInput; the stored bit
-   had survived getStuff's in-process copy and handed later parses an unearned guard pass (five term-count rows
-   re-pinned). **Site 2, `parseR`'s throwaway RuleStuff** in driveStep -- BUILT on branch stroke11-site2 (2026-10-04): `into` is an argument of `parse()` and `attachLabel()`. The bridge was a pure handoff: read only for `label` and `ruleName`, written only by the promote-on-target case (a write the bridge then discarded), never pushed or copied. Zero fleet calls before the stroke; `incant/pop/parseRT` now drives it. **Site 3, `isOK`** -- written by the leaf tests
-   on the field's own rStuff, read by parse()'s repeat loop on getStuff's possibly-copied stuff; its first measure is
-   whether the copy leaks, as site 1's did. `failedAt` (F-140) is 1.2's per-call state, not a handoff (SEQ 288 R3).
+   **STROKE 1.1 COMPLETE (SEQ 290 R4) -- written on branch stroke11-site3; it lands with that merge.** Three sites
+   plus 1.1a, each certified on its own:
+   - **1.1a, leaf results on the new road** -- landed with F-138's cure (a342b75): a term hands sukcess, hereAt and a
+     handed-up label back at exitFromParse's one exit and leaves none on rStuff.
+   - **Site 1, `guardOK`** -- LANDED 3793f63 (support 23605e4): an argument testOptions -> parse() -> checkInput. The
+     stored bit survived getStuff's in-process copy and gave later parses an unearned guard pass, so five term-count
+     rows were re-pinned 6 -> 5 with that sentence. Fleet 890 / 1, jitLadder and printPop PASSED, canary 300.
+   - **Site 2, `parseR`'s throwaway RuleStuff** -- LANDED 372d1a0 (support a827371): `into` is an argument of
+     `parse()` and `attachLabel()`. A pure handoff, never pushed or copied; its one write (promote-on-target) was
+     discarded with it. Before the stroke nothing in the fleet reached parseR (a tap counted 0); `incant/pop/parseRT`
+     drives it, and its H7 (the into arm returning) reads 0/0. Fleet 894 / 1 on the branch, 895 / 1 merged, canary 299.
+   - **Site 3, `isOK`** -- BUILT on branch stroke11-site3 (2026-10-04). The leaf tests (testAny, testCharacter,
+     testSet) wrote it on `this.rStuff`, and parse()'s loop read it off getStuff's stuff. Tap, every instrument: 781,223
+     leaf calls, 0 on a copy, 0 writer/reader mismatches, 0 stale reads; 340,154 of them with maxRepeat > 1, so the bit
+     was load-bearing. A leaf returns true exactly when it set isOK (reportMaxLimit returns 0), so the value is handed
+     back by RETURN; what the bit added was a rule fact -- *this test repeats on its own* -- which parse() now asks of
+     testMatch directly (`leafDone`, a local). RuleStuff.isOK and its groups.ext line are gone. No leak, so no row
+     can go red from the old road; the site's witness is the whole fleet (leafDone never set: 895 -> 410 green,
+     baselineTests first). testAny had 0 fleet calls; `incant/pop/anyLeafT` drives it (H7: never matching -> 0).
+     Fleet 899 / 1, row for row with 895 plus anyLeafT's four rows; jitLadder and printPop PASSED; canary 299.
+   `failedAt` (F-140) is 1.2's per-call state, not a handoff (SEQ 288 R3). **1.2 is not opened (SEQ 290 R4).**
 2. **Per-call state onto the activation:** `label`, `hereAt`, `kount`, `sukcess`. The callBracket and `getStuff`'s
    `inProcess` copy retire. A pinned row reads the recursive same-instance activations right.
 3. **`stuff` derived; `face` renamed `instance`.** The name clears the #58 check (grep, full bare-tokall diff) before

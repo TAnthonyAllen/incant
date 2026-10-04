@@ -178,7 +178,7 @@ GroupItem::GroupItem(GroupItem *grup)
 		{
 		rStuff = new RuleStuff(this);
 		*rStuff = *grup->getRStuff();
-		rStuff->followed = rStuff->isOK = rStuff->sukcess = 0;
+		rStuff->followed = rStuff->sukcess = 0;
 		}
 }
 
@@ -1683,6 +1683,7 @@ GroupItem *GroupItem::parse(RuleStuff *pStuff, int guardPassed, GroupItem *into)
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 ParseActivation 	oldActive;
 RuleStuff 			*ruleStuff = getStuff(pStuff);
+int 				leafDone = 0;
 	// oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
 	oldActive.face = this;
 	oldActive.isFloor = 0;
@@ -1692,10 +1693,9 @@ RuleStuff 			*ruleStuff = getStuff(pStuff);
 	ruler->gParseActive = &oldActive;
 	// activeNotSubject the record takes GroupRules' scope, so re-mention ruler then ruleStuff or ruler's bare names bind to oldActive (bear-trap #58)
 	ruleStuff->kount = 0;
-	ruleStuff->isOK = 0;
 	ruleStuff->inProcess = 1;
 	// bindReadSeamProbe
-	while ( !ruleStuff->isOK && ruleStuff->kount < ruleStuff->maxRepeat )
+	while ( !leafDone && ruleStuff->kount < ruleStuff->maxRepeat )
 		{
 continueHere:
 		ruleStuff->sukcess = 0;
@@ -1714,6 +1714,9 @@ continueHere:
 			{
 			if ( ruleStuff->testMatch )
 				ruleStuff->sukcess = ruleStuff->testMatch(this);
+			// leafDone the leaf hands its result back by RETURN; a self-repeating leaf has done the whole repetition, so its success ends the loop (stroke 1.1 site 3)
+			if ( ruleStuff->sukcess && (ruleStuff->testMatch == ::testAny || ruleStuff->testMatch == ::testCharacter || ruleStuff->testMatch == ::testSet) )
+				leafDone = 1;
 			if ( !parseACTION(groupBody->flags.methodType) )
 				{
 				if ( ruleStuff->sukcess && ruleStuff->onGroup && !ruleStuff->onGroup->parse(ruleStuff,0,0) )

@@ -21,7 +21,6 @@ struct
 	{
 	unsigned int followed:1;
 	unsigned int inProcess:1;
-	unsigned int isOK:1;
 	unsigned int isTarget:1;
 	unsigned int modPercent:1;
 	unsigned int modPointer:1;
