@@ -60,7 +60,7 @@ define
         ptNamed <- ptBagL["ptSrc"];
         print "pointerT L2 name-then-star =" *ptNamed "  want CHANGED -- LAW 4, the lawful read":;
         ptAssigned = ptBagL["ptSrc"];
-        print "pointerT L3 assign-then-star =" *ptAssigned "  want 0 -- name it means <- , NOT =":;
+        print "pointerT L3 assign-then-star =" *ptAssigned "  want CHANGED -- = with a holder on the right carries its group across":;
 
         cerr "pointerT L4 -- LAW 2 ASKED BY IDENTITY. Read the BODY column only.":;
         cerr "  L4 asks question 1 of rule H13 -- same thing through a carrier -- so BODY.":;
@@ -201,12 +201,22 @@ only at 0 would go green the day the star started binding the other way.
 AND PINNED AS ROWS L2/L3:
 
     ptNamed    <- ptBagL["ptSrc"];   then  *ptNamed     ->  CHANGED   works
-    ptAssigned  = ptBagL["ptSrc"];   then  *ptAssigned  ->  0         refuses
+    ptAssigned  = ptBagL["ptSrc"];   then  *ptAssigned  ->  0         refuses   (STRUCK, see below)
 
 "NAME IT" MEANS REBIND IT. `=` copies content and the star then has nothing to
 follow; `<-` hands back the field and the star follows it. L3 is not decoration
 -- it is the row that stops the next reader from writing the natural spelling
 and concluding the law is broken.
+
+⚠⚠ L3 RE-PINNED 2026-10-04 (SEQ 295 R1) TO CHANGED. = with a holder on the right
+carries its group across (Tony, 2026-10-04: setContent sets the target's data to
+the argument's data); star then reads through it. opAssign went back to a plain
+setContent in 369c121, so the `=` row now FOLLOWS exactly as the `<-` row does
+and the pair no longer splits. The "name it means rebind it" advice above, and
+the L3 refusal-text note below, record the old semantics and stand as history.
+The L3 witness row in pop.sh retired with the re-pin: the refusal it asserted
+cannot happen under the ruling, and the value CHANGED is now the presence-with-
+value assertion.
 
 ⚠⚠ LAW 2 IS CERTIFIED AS OF 2026-09-01, BY ROW L4, AND THIS NOTE REPLACES THE
 ONE THAT SAID IT WAS NOT. The blocker named here was identity -- `addrOf`, SEQ

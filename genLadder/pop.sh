@@ -996,8 +996,9 @@ done
 #  level too many after the subscript read" and is really the star binding to the
 #  BAG -- which is why the X ROW BELOW IS PAIRED WITH AN ERROR-TEXT ASSERTION:
 #  a row pinned only at 0 goes green the day the star binds the other way.
-#  ⚠ L2/L3 ARE A PAIR AND THE PAIR IS THE POINT: `<-` then star FOLLOWS (CHANGED),
-#  `=` then star REFUSES (0). "Name it" means REBIND it. L3 exists so the next
+#  ⚠ L2/L3 WERE A PAIR: `<-` then star FOLLOWS (CHANGED), `=` then star REFUSED (0)
+#  -- until 2026-10-04 (SEQ 295 R1), when `=` went back to setContent and L3 re-pinned to
+#  CHANGED; both spellings follow now. "Name it" means REBIND it. L3 exists so the next
 #  reader who writes the natural `=` spelling does not conclude the law is broken.
 #  ⚠⚠ LAW 2 IS CERTIFIED AS OF 2026-09-01 BY ROW L4, and this comment replaces
 #  the one saying it was not. The blocker was identity -- addrOf -- which landed
@@ -1065,7 +1066,7 @@ for _arm in "pointerT P0 both added   = 1 1" \
             "pointerT L  three ptrs   = 3" \
             "pointerT L1 prints values = CHANGED OTHER" \
             "pointerT L2 name-then-star = CHANGED" \
-            "pointerT L3 assign-then-star = 0" \
+            "pointerT L3 assign-then-star = CHANGED" \
             "pointerT D  depth        = ptOther" \
             "pointerT X  star binds tightest = 0" \
             "pointerT L5c flag road   = ptFlagRead" \
@@ -1086,18 +1087,14 @@ else
     echo "  FAIL  pointerT X witness MISSING -- the star no longer binds to ptBagP"; fail=1
 fi
 
-#  ⚠ L3's REFUSAL, ASSERTED BY ITS TEXT FOR THE SAME REASON X's IS (H4). L3 was
-#  pinned only at 0 -- the exact weakness X's comment above forbids -- and the
-#  witness had been in the output all along, unread.
-#  ⚠ IT NAMES THE SOURCE, NOT THE ASSIGNEE. `=` reimprints the left-hand tag
-#  (bear-trap #1), so a reader expects `ptAssigned`. The attribution was MEASURED,
-#  not read off the source: minionWork/probeL3name isolates the `=`-then-star
-#  shape as the only star in its file and the refusal names the source there too.
-if grep -qF "ERROR unary * on ptSrc -- it holds no group" "$T/ptr"; then
-    echo "  ok    pointerT L3 witness: the star refused, naming the SOURCE"; green=$((green+1))
-else
-    echo "  FAIL  pointerT L3 witness MISSING -- the = -then-star refusal changed"; fail=1
-fi
+#  ⚠ L3's REFUSAL WITNESS RETIRED 2026-10-04 (SEQ 295 R1). It asserted the text
+#  "ERROR unary * on ptSrc -- it holds no group", the refusal `=`-then-star gave
+#  while opAssign refused a holder. Tony's ruling: = with a holder on the right
+#  carries its group across (setContent sets the target's data to the argument's
+#  data); star then reads through it. The refusal cannot occur, and L3's value row
+#  above (CHANGED) is now the presence-with-value assertion. Mapping: the one
+#  claim this row made -- "= then star does not follow" -- is reversed by ruling,
+#  and its replacement lives in L3's value pin.
 #  ⚠ F2's REFUSAL ASSERTED BY ITS TEXT (H4, and the same argument as X and L3): a
 #  listLengtH of 0 is also what an operator that did nothing at all produces, so
 #  the zero alone cannot tell a refusal from a no-op. This names WHICH operand was
