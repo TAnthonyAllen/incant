@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 189 at the FOOT -- SEQ 293: stroke12a MERGED (908), F-140 closed, R3 rule; 1.2b STOPPED at its recon check -- old-road parse() shares kount with parseLoop (100 reads, 0 decisions)
+STATUS:   fresh           # SEQ 190 at the FOOT -- SEQ 189 Q1: the shared kount is ONE term face counted twice (never the parent's stuff, 0 of 1,860); no STOP; 1.2b awaits Tony's (a)/(b)/(c)
+# prior: SEQ 189 at the FOOT -- SEQ 293: stroke12a MERGED (908), F-140 closed, R3 rule; 1.2b STOPPED at its recon check -- old-road parse() shares kount with parseLoop (100 reads, 0 decisions)
 # prior: SEQ 188 at the FOOT -- SEQ 187 R1-R3 on stroke12a: aCTionFailed handed its own point; FP-N QZ / empty / QZ; FP-0 a witness; 908, NOT MERGED
 # prior: SEQ 187 at the FOOT -- SEQ 186 rulings: R1 floor (stroke12a-floor, no mover) + 1.2a failPoint (stroke12a, 906) BUILT, NOT MERGED
 # prior: SEQ 186 at the FOOT -- SEQ 292: 1.2a STOPPED at item 1 -- 15,693 old-road failedAt writes have NO floor (all under InitiatE, the file's top-level parse); R1-R4 recorded in A5
@@ -10603,3 +10604,36 @@ SHAPES (costed, none recommended)
 FOR TONY: (a), (b) or (c); and whether exitFromParse's directive keeps a count. Then 1.2b builds by a fresh dispatch.
 
   END SEQ 189
+
+
+===================================================================
+SEQ 190  -  SEQ 189 Q1 (read-only): WHOSE STUFF THE TWO kount COUNTERS SHARE
+===================================================================
+STATUS: fresh -- 2026-10-04, trunk. One tap in the generated .mm (parseLoop's kount++, and parse()'s push/pop to mark
+old-road records), every instrument, reverted md5-identical; bare rebuild 908 / 1, jitLadder and printPop PASSED.
+Tony's question (Haps): Xpress is a rule with its own stuff; that stuff should never be == the parent's.
+
+ANSWER -- CASE (1). NO STOP.
+   parseLoop increments 97,209; at 1,860 the counted stuff is also held by an activation on the list. In ALL 1,860:
+     the stuff is the TERM FACE's own rStuff -- never the registry rule's (face == registry rule: 0), and NEVER the
+     grammar parent's (stuff == parent's stuff: 0) -- Tony's expectation holds;
+     the other activation holding it is THE SAME FACE OBJECT (1,860 of 1,860). No count crosses rules: it is one
+     term reference counted twice.
+   By face: Xpress 971 · Token 458 · WardeD 364 · StatemenT 28 · TokenXP 14 · InvokeArg 14 · BlocK 9 · IF 2.
+
+(a) THE CHAIN behind the 100 Xpress disagreements (Xpress's 971, the only category with the OLD road on the other
+    side, all across a floor):
+      FLOOR (file) · InitiatE · RunRulE · Start · StatemenT@A · Xpress@X  <- old-road parse() counting on X's stuff
+      FLOOR (a nested drive: an action body's compile) · BlocK · StatemenT@B · parseLoop over Xpress@X  <- kount++ on
+      THE SAME stuff
+    StatemenT@A and StatemenT@B are different face objects, yet both resolve their Xpress term to the SAME node X,
+    which is consistent with copies sharing one body, so one member list (a copy shares its source's body, C18). Not
+    measured further. The other categories (Token, WardeD, ...) are new-road re-entries of the same face with no floor
+    between -- the case the callBracket covers today.
+(b) Whose stuff: the Xpress term face's (X) own; not the rule's own, and not == the parent's, in every case.
+(c) No count sits on a stuff shared with the parent: nothing for Tony beyond the context in (a).
+
+SO: the cross-talk is one face reached by two activations at once, and a local per call ends it whichever shape is
+   ruled. 1.2b waits for Tony's (a)/(b)/(c) from SEQ 189.
+
+  END SEQ 190
