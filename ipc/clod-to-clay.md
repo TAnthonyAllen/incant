@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 188 at the FOOT -- SEQ 187 R1-R3 on stroke12a: aCTionFailed handed its own point; FP-N QZ / empty / QZ; FP-0 a witness; 908, NOT MERGED
+STATUS:   fresh           # SEQ 189 at the FOOT -- SEQ 293: stroke12a MERGED (908), F-140 closed, R3 rule; 1.2b STOPPED at its recon check -- old-road parse() shares kount with parseLoop (100 reads, 0 decisions)
+# prior: SEQ 188 at the FOOT -- SEQ 187 R1-R3 on stroke12a: aCTionFailed handed its own point; FP-N QZ / empty / QZ; FP-0 a witness; 908, NOT MERGED
 # prior: SEQ 187 at the FOOT -- SEQ 186 rulings: R1 floor (stroke12a-floor, no mover) + 1.2a failPoint (stroke12a, 906) BUILT, NOT MERGED
 # prior: SEQ 186 at the FOOT -- SEQ 292: 1.2a STOPPED at item 1 -- 15,693 old-road failedAt writes have NO floor (all under InitiatE, the file's top-level parse); R1-R4 recorded in A5
 # prior: SEQ 185 at the FOOT -- SEQ 291: site 3 MERGED (899), 1.1 COMPLETE; R1a/R1b done; stroke 1.2 RECON in objectModelRecon §26 (read-only), shapes for Tony
@@ -10557,3 +10558,48 @@ CERTIFICATE (stroke12a, bare): pop.sh 908 / 1 = SEQ 187's 906 row for row plus f
 FOR TONY: merge stroke12a (both repos) on your word; trunk then reads 908 / 1 and F-140 closes.
 
   END SEQ 188
+
+
+===================================================================
+SEQ 189  -  SEQ 293: stroke12a MERGED; STROKE 1.2b STOPPED AT ITS RECON CHECK (kount HAS TWO COUNTERS ON ONE FIELD)
+===================================================================
+STATUS: fresh -- 2026-10-04, trunk. Merge 8e02d65 (support 7aa909c), seal 43; stroke12a and stroke12a-floor deleted
+local + remote. 1.2b: nothing built, no branch. Two taps in the generated .mm, both reverted md5-identical; bare
+rebuild 908 / 1, jitLadder and printPop PASSED. Session pause per R2 -- stopping here.
+
+MERGE: tokall bare, nothing moved · pop.sh 908 / 1 (expected) · jitLadder, printPop PASSED · decodePop, frontier match ·
+   ddPop 5 / 1 · canary 300. F-140 CLOSED (certifying rows failPointT FP-A / FP-B). R3: CLAUDE.md standing line,
+   "commit the fix before running its H7".
+
+1.2b RECON CHECK -- THE FINDING (the dispatch's STOP)
+ 1 kount is TWO counters sharing one RuleStuff field, not one:
+     parseLoop (new road) -- counts on the term FACE's stuff (Generate.rtn:214-220);
+     parse()   (old road) -- its own repeat count (GroupItem.twk:1306-1341), with reportRepeatLimit reading it.
+   Other readers: the callBracket's save/restore (retiring); measureLoopVerdict (measure.twk:479), a callee of
+   parseLoop, so inside its call -- it would be handed the count; and TWO DIRECTIVES in groupDirectives (Tony's,
+   gitignored), both installing on trunk today: exitFromParse's (`if kount >= min ... succeeded with count kount`) --
+   OUTSIDE any counter's own call -- and parse()'s debugHere (`succeeded with count kount`).
+   Unrelated: jitShowRecord's local `int kount` (jitEmitters.rtn:3410) is its own variable.
+ 2 A shadow local beside each counter, compared at every read, across every instrument:
+     parseLoop  reads 643,486 (loop test 321,743 · increment 97,209 · verdict 224,534) -- DISAGREE 0. The 699
+                restored reads are inside this: a local gives parseLoop the same answer. Item 2 holds for parseLoop.
+     parse()    reads 10,174,356 -- DISAGREE 100, all rule Xpress (maxRepeat 1, min 1): at 50 increments the stuff
+                read 1 where the local read 0, LAST WRITER parseLoop's kount++ -- a new-road loop counting on the same
+                stuff during old-road parse()'s call; the 50 loop tests after them inherit it (2 vs 1). The verdict
+                read never disagreed, and 0 loop decisions differ (both values are >= maxRepeat 1).
+   So a local is NOT the same answer for parse() on those 100 reads, though it is for every decision measured.
+
+SHAPES (costed, none recommended)
+   (a) BOTH counters become locals; RuleStuff.kount goes, with the bracket slot. parse() stops seeing parseLoop's
+       increments: 100 read values change per fleet run, 0 decisions. Directives: parse()'s debugHere is respelled to
+       the local; exitFromParse's has NO count to print (no counter lives in its call) -- its count clause would go.
+   (b) parseLoop's becomes a local; parse() keeps RuleStuff.kount. The cross-talk ends from parseLoop's side (it no
+       longer writes the field), so parse() becomes self-consistent too. The bracket slot retires. The FIELD stays
+       until the old road's own per-call state moves (with sukcess / hereAt / label, or the copy's retirement).
+   (c) as (a) or (b), but exitFromParse's directive is Tony's to respell.
+   NAMES for a local (re-grepped today, 0 hits in code, groups.ext and directives): repeatCount, runCount, callCount,
+       actCount, timesMatched.
+
+FOR TONY: (a), (b) or (c); and whether exitFromParse's directive keeps a count. Then 1.2b builds by a fresh dispatch.
+
+  END SEQ 189
