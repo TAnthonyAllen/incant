@@ -3326,6 +3326,16 @@ those runs threw the exit status away. **The checklist scripts** (`pop.sh`, `jit
 leaves a marker that fails the script at its foot (H7: a pop.sh copy pointed at a missing name went red by name).
 **An ad-hoc tap** resolves its fixtures the same way or checks `[ -f ]` first, and keeps each run's exit status.
 
+⚠⚠ **THE RELEVANCE GATE. Tony, standing, 2026-10-04.** A measurement that raises a worry is not acted on until it
+answers, in order:
+1. **Which fleet row failed because of it?** If one did, it is a defect -- proceed.
+2. **If none: is there a behaviour someone relies on that no row pins?** If so, the cure is a fixture first.
+3. **If neither: report it as context, not a finding.** No fix, no STOP.
+
+**Redesign strokes are driven by the target, not by worries; their measurements check safety, not motive.** Paid for
+the same day: SEQ 189's stop on kount's old-road cross-talk (100 reads, 0 decisions, no row red) cost a ruling round
+and a further tap (SEQ 190) before 1.2b built exactly as it would have. Under the gate it was context.
+
 ⚠⚠ **COMMIT THE FIX BEFORE RUNNING ITS H7. Standing, 2026-10-04 (SEQ 293 R3).** The H7 is undone by restoring from
 git, so the fix must already be in git: then undoing the H7 can only put the fix back. Paid for in SEQ 188: a
 `git checkout GroupItem.twk` meant to remove the H7 restored the COMMITTED file, which predated the uncommitted fix,
