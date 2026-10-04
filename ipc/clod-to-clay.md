@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 183 at the FOOT -- site-2 dispatch (pasted by Tony): parseR's bridge is a pure handoff, 0 fleet calls; into an ARGUMENT on branch stroke11-site2; R6 stashes dropped, AP-5c carried
+STATUS:   fresh           # SEQ 184 at the FOOT -- SEQ 290: site 2 MERGED (895); site 3 isOK a pure handoff, BUILT on stroke11-site3 (899), 1.1 COMPLETE awaits the merge
+# prior: SEQ 183 at the FOOT -- site-2 dispatch (pasted by Tony): parseR's bridge is a pure handoff, 0 fleet calls; into an ARGUMENT on branch stroke11-site2; R6 stashes dropped, AP-5c carried
 # prior: SEQ 182 at the FOOT -- SEQ 288: site 1 LANDED 3793f63 (five rows re-pinned, '+=' stays 6); no-stash rule written; two stashes listed
 # prior: SEQ 181 at the FOOT -- SEQ 287: site 1 on branch stroke11-site1, 890->885 (a guard leak closed; re-pin needs a ruling); isOK is a handoff
 # prior: SEQ 180 at the FOOT -- SEQ 286: failedAtStale -- no stale leak; the new road reports NO failure point (stoppedAt 0); golden line 5 re-blessed, F-139
@@ -10330,3 +10331,52 @@ FOR TONY: merge stroke11-site2 (both repos) on your word. The branch predates AP
    should read 895 / 1.
 
   END SEQ 183
+
+
+===================================================================
+SEQ 184  -  SEQ 290: SITE 2 MERGED; SITE 3 (isOK) BUILT ON stroke11-site3 -- A PURE HANDOFF, NO LEAK
+===================================================================
+STATUS: fresh -- 2026-10-04. Trunk: merge 372d1a0 (support a827371), seal 36, 895 / 1 as expected; site-2 branches
+deleted local + remote. Site 3 on branch stroke11-site3 (Groups fbf88c6, support f411be2), pushed, NOT merged (R3).
+Installed: trunk, bare.
+
+R0 MERGED. tokall bare, nothing moved · pop.sh 895 / 1 · jitLadder, printPop PASSED · decodePop, frontier row for row ·
+   ddPop 5 / 1 · canary 299 · exec clean. Sealed (36) before site 3.
+
+RECON (a tap in parse(), every instrument and ladder; reverted md5-identical)
+ 1 COVERAGE. parse() entries 3,450,799 (each writes isOK=false). Leaf calls 781,223: testSet 780,783 · testCharacter
+   440 · testAny ZERO. Loop-condition reads 2,890,169. testAny is unreached because the bootstrap rule Any is used
+   by nothing in the grammar. A fixture was owed: incant/pop/anyLeafT (tell "Any xyz": matched 1, consumed 1 of 3;
+   H7 testAny never matching -> 0/0).
+   My slip, harmless here: the taps' "oneTest" invocation used incant/oneTest, which does not exist (it is
+   incant/pop/oneTest). pop.sh runs the real one, so both taps covered it; the standalone runs were no-ops. The same
+   is true of SEQ 183's list.
+ 2 WRITERS: testAny/testCharacter/testSet (testMacro), on this.rStuff · parse(), on getStuff's stuff · both RuleStuff
+   constructors · the GroupItem copy ctor, after its whole-struct copy. RuleStuff(RuleStuff) copies isOK and does NOT
+   clear it; harmless, because parse() resets it at entry. READER: parse()'s while condition, on getStuff's stuff.
+   (The macro's own `if isOK return true` reads its own write.)
+ 3 SAME OBJECT: 0 leaf calls on a getStuff copy (67,792 parse entries were on copies; none was a leaf), so 0
+   mismatches and 0 value differences. The mismatch test is the comparison that counted those 67,792, so its
+   zero is not a dead tap.
+ 4 STALENESS: 781,223 true reads, all written by that iteration's own leaf; 0 foreign.
+ 5 Nothing reads isOK after the leaf returns except that loop condition: a pure handoff, not R1's stop.
+   LOAD-BEARING: 340,154 leaf calls run with maxRepeat > 1. isOK is what ends the loop after a leaf that did its
+   own repetition.
+
+BUILD -- RETURN, and why: a macro leaf returns true exactly when it set isOK (its other exit, reportMaxLimit, returns
+   0), so the per-call value already crossed by return into sukcess. The stored bit added only a rule fact, "this
+   test repeats on its own", which parse() now asks of testMatch: an int local leafDone, set when sukcess && testMatch
+   is one of the three. No struct, no argument (R2). RuleStuff.isOK and its groups.ext line are gone. Full bare
+   tokall: every line explained, no captures, canary 299 (delta 0). The unswept subdirs name no RuleStuff.
+
+CERTIFICATE (branch): pop.sh 899 / 1 = 895 row for row plus anyLeafT's 4 rows (fixture names 205 -> 206) · jitLadder
+   PASSED · printPop PASSED · decodePop, frontier row for row · ddPop 5 / 1 · exec clean.
+   H7: no leak, so no row goes red from the old road. The witness is the WHOLE FLEET: leafDone never set -> 895 -> 410
+   green, baselineTests truncating first. Each H7 was driven alone and restored md5-identical.
+
+R4 objectModel A5: STROKE 1.1 COMPLETE written on the branch with all three sites' certificates -- it lands with the
+   merge. 1.2 NOT opened. R5 parseR docket line in TODO.md (seal 36).
+
+FOR TONY: merge stroke11-site3 (both repos) on your word; trunk then reads 899 / 1.
+
+  END SEQ 184
