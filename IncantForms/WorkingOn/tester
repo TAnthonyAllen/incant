@@ -21,19 +21,19 @@ define
         if isRulE;  action := code;
         else        action := argument;
         priorMethod := *currentMETHOD;
-        indenter    = lastIndenT;
-        processing  = processingCodE;
+        indenter    = argument.lastIndenT;
+        processing  = argument.processingCodE;
         currentMETHOD   := *action;
         $$lastIndenT;
-        lastIndenT      :. 0;
-        processingCodE  :. 1;
+        argument.lastIndenT     = 0;
+        argument.processingCodE = 1;
         if result = BlocK(code);
-            // how do we set a noPrint on result???
-            actionTypE  :. 1; // 1 sets isAction == true;
+            result :. noPrinT;
+            argument :. isActioN;
             argument +< result;
         else    cerr "parseCode: failed parse of" taG:;
-        lastIndenT  :. indenter;
-        processingCodE  :. processing;
+        argument.lastIndenT     = indenter;
+        argument.processingCodE = processing;
         currentMETHOD   := *priorMethod;
         $$currentMETHOD;
         $$result;
@@ -44,6 +44,17 @@ define
 
 parseCode(ifTest);
 stop();
+
+/***************************************************************************
+    parseCode notes (Clod, 2026-10-04)
+    Spellings: `:.` takes no value, so values go through a dot -- argument.lastIndenT = 0.
+    Any field works left of the dot for lastIndenT/processingCodE; they are globals.
+    A bare lastIndenT is the groupFields entry, not the parser's value.
+    isAction goes on the action (argument), as processCode does; result gets noPrint.
+    BLOCKER: once processingCodE is 1, aCTionXpress (ruleActions.rtn:1148) stops running
+    expressions, so BlocK(code), the restore, and the rest of the file never run.
+    Needs a command that brackets the drive, or a second flag -- Tony's call.
+***************************************************************************/
 
 /***************************************************************************
     Everything below is left here for cut and paste modifications as needed
