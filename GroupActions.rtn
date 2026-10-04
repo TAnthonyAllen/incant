@@ -788,6 +788,26 @@ GroupRules  ruler = groupRules;
 }
 
 
+// parseOnFloor the file's top-level parse runs on a FLOOR, as a drive does -- every failure then has a floor below it (SEQ 186 R1, shape (i))
+extern GroupItem parseOnFloor(GroupItem rule)
+{
+ParseActivation topFloor;
+GroupItem   result;
+GroupRules  ruler = groupRules;
+    topFloor.face       = null;
+    topFloor.isFloor    = 1;
+    topFloor.label      = null;
+    topFloor.prev       = ruler.gParseActive;
+    topFloor.stuff      = null;
+    ruler.gParseActive  = &topFloor;
+    // activeNotSubject the record takes GroupRules' scope, so re-mention ruler (bear-trap #58)
+use ruler
+    result = rule.parse(null,0,null);
+    ruler.gParseActive  = topFloor.prev;
+    return result;
+}
+
+
 // reportDrive driveStep's report: three counts, offsets into the message
 extern void reportDrive(GroupItem report,GroupItem rule,String driveBase)
 {

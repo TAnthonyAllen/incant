@@ -8777,6 +8777,24 @@ RuleStuff *ruleStuff = field->getRStuff();
 	return 0;
 }
 
+// parseOnFloor the file's top-level parse runs on a FLOOR, as a drive does -- every failure then has a floor below it (SEQ 186 R1, shape (i))
+extern "C" GroupItem *parseOnFloor(GroupItem *rule)
+{
+ParseActivation 	topFloor;
+GroupItem 			*result = 0;
+GroupRules 			*ruler = GroupControl::groupController->groupRules;
+	topFloor.face = 0;
+	topFloor.isFloor = 1;
+	topFloor.label = 0;
+	topFloor.prev = ruler->gParseActive;
+	topFloor.stuff = 0;
+	ruler->gParseActive = &topFloor;
+	// activeNotSubject the record takes GroupRules' scope, so re-mention ruler (bear-trap #58)
+	result = rule->parse(0,0,0);
+	ruler->gParseActive = topFloor.prev;
+	return result;
+}
+
 // parseRule run a rule's generated body; a new declaration here re-points every bare field below it (bear-trap #42)
 extern "C" GroupItem *parseRule(GroupItem *field)
 {

@@ -341,6 +341,7 @@ extern "C" GroupItem *parseCharacter(GroupItem *field);
 extern "C" GroupItem *parseCondition(GroupItem *field);
 extern "C" GroupItem *parseContainer(GroupItem *field);
 extern "C" GroupItem *parseLoop(GroupItem *field);
+extern "C" GroupItem *parseOnFloor(GroupItem *rule);
 extern "C" GroupItem *parseRule(GroupItem *field);
 extern "C" GroupItem *parseSet(GroupItem *field);
 extern "C" GroupItem *parseString(GroupItem *field);
