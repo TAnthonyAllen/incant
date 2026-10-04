@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 190 at the FOOT -- SEQ 189 Q1: the shared kount is ONE term face counted twice (never the parent's stuff, 0 of 1,860); no STOP; 1.2b awaits Tony's (a)/(b)/(c)
+STATUS:   fresh           # SEQ 191 at the FOOT -- SEQ 293 / SEQ 190 rulings: 1.2b BUILT on stroke12b -- kount as two locals, 908 row for row, NOT MERGED; session pause
+# prior: SEQ 190 at the FOOT -- SEQ 189 Q1: the shared kount is ONE term face counted twice (never the parent's stuff, 0 of 1,860); no STOP; 1.2b awaits Tony's (a)/(b)/(c)
 # prior: SEQ 189 at the FOOT -- SEQ 293: stroke12a MERGED (908), F-140 closed, R3 rule; 1.2b STOPPED at its recon check -- old-road parse() shares kount with parseLoop (100 reads, 0 decisions)
 # prior: SEQ 188 at the FOOT -- SEQ 187 R1-R3 on stroke12a: aCTionFailed handed its own point; FP-N QZ / empty / QZ; FP-0 a witness; 908, NOT MERGED
 # prior: SEQ 187 at the FOOT -- SEQ 186 rulings: R1 floor (stroke12a-floor, no mover) + 1.2a failPoint (stroke12a, 906) BUILT, NOT MERGED
@@ -10637,3 +10638,34 @@ SO: the cross-talk is one face reached by two activations at once, and a local p
    ruled. 1.2b waits for Tony's (a)/(b)/(c) from SEQ 189.
 
   END SEQ 190
+
+
+===================================================================
+SEQ 191  -  STROKE 1.2b BUILT ON stroke12b (NOT MERGED): kount BECOMES TWO LOCALS
+===================================================================
+STATUS: fresh -- 2026-10-04. stroke12b: Groups 2539b22 (build 914d4ef), support bef8954, pushed. Trunk unchanged;
+installed: trunk, bare. R5: sealed and stopped.
+
+R1 shape (a): parse() -> repeatCount, parseLoop -> timesMatched (R2's names, 0 hits at build). RuleStuff.kount, its
+   groups.ext line and the callBracket's kount slot are gone; measureLoopVerdict(field, timesMatched). Full bare
+   tokall read line by line, no captures, canary 300 (delta 0).
+R4 CERTIFICATE: pop.sh 908 / 1 ROW FOR ROW with the merged trunk -- no changed row. The ~100 old-road reads that saw
+   parseLoop's increments (Xpress, SEQ 190) now read parse()'s own count: CORRECTIONS, 0 decisions. jitLadder PASSED ·
+   printPop PASSED · decodePop, frontier match · ddPop 5 / 1 · exec clean.
+   NO ROW BORN RED ON TRUNK: the bracket protects parseLoop's count on trunk, and the old-road cross-talk changes no
+   decision anywhere in the fleet. WITNESSES of repetition counts, by H7 (fix committed first, SEQ 293 R3; each
+   counter in turn made one static shared by every call):
+     timesMatched static -> 864 / 908: oldRoad 10 rows, stmtRejT 9, site1RoadsT 6, sweepT 5, baselineTestsNew 5 (it
+       crashes, exit 139), quoteNatT 4, probeDoorT 4, loopVerdict 2, shapeBodyT, failPointT, driveCompileT
+     repeatCount static  ->  86 / 908: the whole fleet
+   Each restored from the commit, rebuilt, 908 / 1.
+R3 THE DIRECTIVES (groupDirectives, Tony's, left as is): both kount directives still install, but the bare `kount`
+   no longer resolves and tok makes it a STRING LITERAL (bear-trap #45):
+     exitFromParse's  `if ( "kount" >= ruleStuff->min )` -- compiles with -Wstring-compare, compares the literal's
+                      ADDRESS with min (effectively always true), and prints "<rule> succeeded with count kount"
+     parse()'s debugHere   prints "<rule> succeeded with count kount"
+   i.e. both print the word "kount" where a number was. Tony's to respell.
+
+FOR TONY: merge stroke12b (both repos) on your word; trunk stays 908 / 1. Then 1.2c (leaves) by a fresh dispatch.
+
+  END SEQ 191
