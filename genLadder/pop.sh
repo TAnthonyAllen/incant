@@ -5743,6 +5743,18 @@ sentinel "anyLeafT sentinel" "$T/alt.e" "ANYLEAF SENTINEL"
 kindRow "anyLeafT AL-1 Any matched" "$(grep 'verdict matched' "$T/alt.e" | awk '{print $3}')" "1"
 kindRow "anyLeafT AL-1 Any consumed one character of three" "$(grep 'verdict matched' "$T/alt.e" | awk '{print $5}')" "1"
 
+#  ⚑ failPointT -- STROKE 1.2a (SEQ 292): a drive reports its ROOT's own failure point off the drive's floor
+#  (ParseActivation.failPoint), both roads; RuleStuff.failedAt is gone. Each FP-x label line is followed by its verdict.
+#  Born red on trunk: FP-C, FP-A, FP-B read 0. H7: both root writes made no-ops -> the same three read 0.
+run2 failPointT "$T/fpt.o" "$T/fpt.e"; check "failPointT runs" 0 $?
+sentinel "failPointT sentinel" "$T/fpt.e" "FAILPOINT SENTINEL"
+_fp () { awk -v k="$1" 'index($0,k)==1 {f=1; next} f && /verdict matched/ {print $NF; exit}' "$T/fpt.e"; }
+kindRow "failPointT FP-0 old road, control: fails at 1" "$(_fp 'FP-0')" "1"
+kindRow "failPointT FP-C old road, root re-entered (a getStuff copy): fails at 1" "$(_fp 'FP-C inner')" "1"
+kindRow "failPointT FP-A new road: a failing drive reports its point" "$(_fp 'FP-A')" "1"
+kindRow "failPointT FP-B new road: the current point after an earlier failure" "$(_fp 'FP-B')" "2"
+kindRow "failPointT FP-M new road, control: matched, stoppedAt = consumed" "$(_fp 'FP-M')" "3"
+
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue

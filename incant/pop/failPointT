@@ -1,0 +1,48 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    fpSay code={
+        v := tell(argument);
+        m := *v["matched"]; s := *v["stoppedAt"];
+        cerr "   verdict matched= " m " stoppedAt= " s:;
+        };
+    ;
+register(Ladder);
+define
+    FpA isRule ka-="a";
+    FpOUT isRule lp-="(" FpA rp-=")";
+    FpREC isRule lp-="(" FpA rp-=")" code={ cerr "FP-C inner drive, the root re-entered":; fpSay("FpREC (x)"); };
+    ;
+search GroupFields UnitTests Utilities Ladder list;
+cerr "FP-0 old road, fails at 1":;
+fpSay("FpOUT (x)");
+cerr "FP-C outer drive":;
+fpSay("FpREC (a)");
+parser(FpOUT);
+cerr "FP-A new road, fails at 1":;
+fpSay("FpOUT (x)");
+cerr "FP-B new road, a different failure, at 2":;
+fpSay("FpOUT (ax");
+cerr "FP-M new road, matched":;
+fpSay("FpOUT (a)");
+cerr "FAILPOINT SENTINEL":;
+stop();
+
+failPointT -- STROKE 1.2a (SEQ 292, 2026-10-04): a drive reports its ROOT's own failure point, read off the drive's
+floor (ParseActivation.failPoint), on both roads. RuleStuff.failedAt is gone. tell turns the point into stoppedAt,
+and only when the drive did not match and the offset is above 0, so every failing message here fails past offset 0.
+
+FP-0 old road, "(x)" fails at 1 -- a CONTROL: right before the stroke as well.
+FP-C the old road with the ROOT RE-ENTERED: FpREC's action drives FpREC again while the outer FpREC is still in
+     process, so getStuff hands the inner parse a copy. Before the stroke the inner failure was written on that copy
+     and lost: stoppedAt 0. Now 1.
+FP-A the new road (parser(FpOUT)), "(x)" fails at 1. Before the stroke the new road wrote no failure point: 0.
+FP-B the new road again, "(ax" fails at 2, right after FP-A failed at 1 -- the CURRENT point, never the last one.
+     Before the stroke: 0.
+FP-M the new road, "(a)" matched -- stoppedAt is what it consumed, 3: a CONTROL.
+
+Born red on trunk 4fc1e1c (seal 40): FP-C 0, FP-A 0, FP-B 0; FP-0 1 and FP-M 3 unchanged.
+H7: the two root writes (parse() and exitFromParse) made no-ops -> FP-C, FP-A, FP-B read 0 again.
