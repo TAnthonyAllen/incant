@@ -113,6 +113,8 @@ define
         else                    print + "  if aTrue;  -> false":;
         if !aFalse;             print + "  if !aFalse; -> TRUE":;
         else                    print + "  if !aFalse; -> false":;
+        if !aTrue;              print + "  if !aTrue;  -> TRUE":;
+        else                    print + "  if !aTrue;  -> false":;
         print "6 bareIfTruth -- `if length;` by VALUE, with its non-zero sibling:":;
         apLen := apEmpty.listLengtH;
         if apLen;               print + "  if length; on an EMPTY list -> TRUE":;

@@ -4079,6 +4079,15 @@ else
     echo "        when opNOT stopped asking !contents() and started asking !truthOf."
     echo "        Reading `false` again means opNOT went back to the presence question."; fail=1
 fi
+#  AP-5c -- AP-5b's NON-ZERO SIBLING (H4: a row that wants TRUE from `!` is paired with one that wants false).
+#  Carried from stash@{1}'s testNot (bytecode-era unary WIP, `if !righty;` with righty 13 -> else) before the
+#  stash was dropped, 2026-10-04 (R6). H7, measured: opNOT made to return trueResult always -> `if !aTrue;`
+#  reads TRUE, this row red, AP-5b still green; restored md5-identical.
+if grep -qF "if !aTrue;  -> false" "$T/apr"; then
+    echo "  ok    andProbe AP-5c if !aTrue; -> false -- ! on a non-zero field"; green=$((green+1))
+else
+    echo "  FAIL  andProbe AP-5c if !aTrue; MOVED -- ! on a 1-holding field must read false"; fail=1
+fi
 
 run1 sentinelT "$T/snt"; check "sentinelT runs" 0 $?
 sentinel "sentinelT sentinel (no truncation)" "$T/snt" "SENTINELT SENTINEL"
