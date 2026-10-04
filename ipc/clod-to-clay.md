@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 185 at the FOOT -- SEQ 291: site 3 MERGED (899), 1.1 COMPLETE; R1a/R1b done; stroke 1.2 RECON in objectModelRecon §26 (read-only), shapes for Tony
+STATUS:   fresh           # SEQ 186 at the FOOT -- SEQ 292: 1.2a STOPPED at item 1 -- 15,693 old-road failedAt writes have NO floor (all under InitiatE, the file's top-level parse); R1-R4 recorded in A5
+# prior: SEQ 185 at the FOOT -- SEQ 291: site 3 MERGED (899), 1.1 COMPLETE; R1a/R1b done; stroke 1.2 RECON in objectModelRecon §26 (read-only), shapes for Tony
 # prior: SEQ 184 at the FOOT -- SEQ 290: site 2 MERGED (895); site 3 isOK a pure handoff, BUILT on stroke11-site3 (899), 1.1 COMPLETE awaits the merge
 # prior: SEQ 183 at the FOOT -- site-2 dispatch (pasted by Tony): parseR's bridge is a pure handoff, 0 fleet calls; into an ARGUMENT on branch stroke11-site2; R6 stashes dropped, AP-5c carried
 # prior: SEQ 182 at the FOOT -- SEQ 288: site 1 LANDED 3793f63 (five rows re-pinned, '+=' stays 6); no-stash rule written; two stashes listed
@@ -10433,3 +10434,47 @@ RECON (detail and tables in docs/objectModelRecon.md §26)
 FOR TONY: (1) the leaf shape, (a) (b) or (c); (2) the order, or another; (3) the names.
 
   END SEQ 185
+
+
+===================================================================
+SEQ 186  -  SEQ 292: STROKE 1.2a STOPPED AT ITS RECON CHECK -- OLD-ROAD failedAt WRITES WITH NO FLOOR
+===================================================================
+STATUS: fresh -- 2026-10-04, trunk. Nothing built; no branch made. One tap in the generated .mm (both roads' failure
+points), across pop.sh, jitLadder, printPop, decodePop, ddPop and frontier, reverted md5-identical; bare rebuild
+899 / 1. R5 done: R1-R4 are written into objectModel A5, with this stop.
+
+ITEM 1 -- WHICH FLOOR EACH ROAD'S FAILURE WRITE REACHES (walking the activation list down from the write)
+   road   writes    floor directly below   floor deeper   NO FLOOR   on a getStuff copy
+   old    49,278    105                    33,480         15,693     15,264
+   new    188,816   11,345                 177,471        0          0
+   ALL 15,693 floorless writes sit under InitiatE: the top-level parse of the incant source file, which is not a
+   drive, so nothing pushes a floor. 839 of them land on a copy. Busiest writers: WardeD 3,021, BrancheS/BrancH
+   1,403 each, Operators 1,396, DEBUG/debug 1,142 each, Iterate/iterate 901 each. R1's STOP: "written where failedAt
+   is written today" has nowhere to go for these.
+   WHO READS A FLOORLESS FAILURE TODAY: only aCTionFailed. parse() calls it right after its own write, when the rule
+   carries notifyFail ('f'); 1 call in the fleet. reportCodeFail runs after a compile, which IS a drive, but it reads
+   ruler.ruleSTUFF (the last stuff fireLabelMethod saw) after the floor has popped; 0 calls in the fleet. tell never
+   sees a floorless write: it only reads drives.
+
+SHAPES FOR THE RULING (costed, none recommended)
+   (i) THE FILE'S TOP-LEVEL PARSE PUSHES A FLOOR ("a run is a drive"). Every write then has a floor. Cost: one push per
+       run, at GroupMain's strap.parse / groups' boot.parse. The risk is what stops at a floor: enclosingStuff,
+       enclosingFace, deferredAbove and the old road's oldRoadAttach (`!gParseActive.isFloor`) would meet a floor
+       where today they meet the end of the list. That should be neutral, but it has to be measured, fleet-wide.
+   (ii) NO FLOOR, NO WRITE. A top-level failure point is recorded nowhere; aCTionFailed is handed the point as an
+       ARGUMENT by parse(), its only caller, in the same call (1.1's principle). reportCodeFail would read the compile
+       drive's floor, which driveStep would have to hand back. Nothing reads a top-level point otherwise.
+   (iii) KEEP RuleStuff.failedAt FOR THE FLOORLESS CASE ONLY. Two homes for one fact, chosen by whether a floor
+       exists. Listed so the cost is visible: one channel carrying two meanings.
+
+TWO OBSERVATIONS FOR THE BUILD, WHICHEVER SHAPE
+   - "Written where failedAt is written today" puts EVERY failing term's point on the floor, so the floor holds the
+     LAST failure in the drive. Today reportDrive reads the ROOT's own. For a failing drive these agree, because the
+     root fails last. For a matched drive the floor would hold a child's point where today it holds whatever the root
+     last had; tell ignores the failure point when matched, but the raw report's failedAt row would move.
+   - tell uses the failure point only when it is > 0 (GroupActions.rtn:38), so certificate row (a) needs a failure
+     past offset 0.
+
+FOR TONY: (i), (ii) or (iii) -- or another.
+
+  END SEQ 186

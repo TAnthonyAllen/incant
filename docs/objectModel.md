@@ -305,6 +305,20 @@ rules on the amendment (R4).
    `failedAt` (F-140) is 1.2's per-call state, not a handoff (SEQ 288 R3). **1.2 is not opened (SEQ 290 R4).**
 2. **Per-call state onto the activation:** `label`, `hereAt`, `kount`, `sukcess`. The callBracket and `getStuff`'s
    `inProcess` copy retire. A pinned row reads the recursive same-instance activations right.
+   **RULINGS ON THE RECON (Tony, 2026-10-04, SEQ 292; objectModelRecon §26):**
+   - **R1 order:** 1.2a `failedAt` to the floor · 1.2b `kount` to locals · 1.2c leaves · 1.2d `sukcess` · 1.2e `hereAt`
+     · 1.2f `label` (the callBracket retires whole there) · getStuff's copy and `inProcess` last. One dispatch each.
+   - **R2 new-road leaves:** a leaf hands its values to the exit as ARGUMENTS (1.1's principle). No leaf record, and
+     leaves do not ride the caller's record. If the argument list will not read cleanly, report before building; no
+     new struct (#58).
+   - **R3 names:** `failPoint` for the floor field (§26g: 0 hits). Later sub-strokes take names from §26g's zero-hit
+     list, re-grepped at build time.
+   - **R4 parseAction and parseCondition STAY:** unexercised is not a reason to retire; revisit later. No fixture is owed
+     until a sub-stroke needs one to certify. testAction is unruled: left alone.
+   **1.2a STOPPED AT ITS RECON CHECK (2026-10-04, SEQ 292 item 1):** 15,693 of the old road's 49,278 `failedAt` writes
+   run with NO drive floor below them -- every one under `InitiatE`, the top-level parse of the incant source file
+   (839 of them on a getStuff copy). The new road is clean: all 188,816 failure exits have a floor below. Ruling owed
+   (clod-to-clay SEQ 186).
 3. **`stuff` derived; `face` renamed `instance`.** The name clears the #58 check (grep, full bare-tokall diff) before
    the stroke opens.
 4. **Rule facts onto `groupBody`:** `ruleOf` and `instanceRule()`'s REGISTRY test retire.
