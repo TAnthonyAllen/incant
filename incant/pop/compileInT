@@ -1,0 +1,78 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(CompileInT);
+define
+    ciReq owner source;
+    ciTarget code={
+        ciLoc = 7;
+        print "CI-1 the action compiled by compileIn runs -> " ciLoc:;
+        };
+    ciBad code={
+        ciLoc = ) ;
+        };
+    ciCompile code={
+        ciSrc := argument.CodE;
+        ciReq.owner  := argument;
+        ciReq.source := ciSrc;
+        print "CI-4a currentMETHOD before compileIn -> " *currentMETHOD:;
+        ciResult := compileIn(ciReq);
+        print "CI-3 the statement after compileIn runs -> 1":;
+        print "CI-4b currentMETHOD after compileIn  -> " *currentMETHOD:;
+        *ciResult :. noPrinT;
+        argument :. isActioN;
+        argument +< *ciResult;
+        };
+    ciCompileBad code={
+        ciSrc := argument.CodE;
+        ciReq.owner  := argument;
+        ciReq.source := ciSrc;
+        ciResult := compileIn(ciReq);
+        print "CI-5 the statement after a refused compile runs -> 1":;
+        };
+    ciLanded code={
+        if ciTarget["ciLoc"];  print "CI-2 the body's name landed in the action -> 1":;
+        else    print "CI-2 the body's name landed in the action -> 0":;
+        if ciCompile["ciLoc"];  print "CI-2c the body's name landed in the CALLER -> 1":;
+        else    print "CI-2c the body's name landed in the CALLER -> 0":;
+        ciBl := ciTarget =< "BlocK";
+        print "CI-2b the action holds a BlocK property before its call -> " ciBl.isGrouP:;
+        ciNo := ciTarget =< "NoSuchProp";
+        print "CI-2d control: a property it does not hold reads           -> " ciNo.isGrouP:;
+        };
+    ;
+ciCompile(ciTarget);
+ciLanded();
+ciTarget();
+ciCompileBad(ciBad);
+print "CI-6 the file's next statement after a refused compile runs -> 1":;
+search reset stack Grokking;
+define
+    WardeD
+        TellST  isRule tellst- target=[a-zA-Z0-9]+ message?=[^;]+ SemI- ruleMethod=aCTionTell;
+    ;
+register(CiLadder);
+define
+    CiA isRule "a"- code={ cerr "CIFIRE CiA":; };
+    ;
+register(CompileInH);
+search reset stack Grokking UnitTests Utilities CompileInT CiLadder list;
+define
+    ciHeld code={
+        tellst CiA a;
+        };
+    ciFree code={
+        v := tell("StatemenT tellst CiA a;");
+        };
+    ;
+cerr "CI-H1 compile begins":;
+ciCompile(ciHeld);
+cerr "CI-H1 compile ends":;
+ciHeld();
+cerr "CI-H2 call ends":;
+ciFree();
+cerr "CI-H3 the same statement driven outside a compile ends":;
+print "COMPILEIN SENTINEL -- reached the foot":;
+stop();

@@ -721,6 +721,41 @@ use field
 }
 
 
+// compileIn THE KANT COMPILE: drive `source` as a compile for `owner` on its own floor, and pop -- the pop is the restore, so nothing is left set (SEQ 299)
+extern GroupItem compileIn(GroupItem input)
+{
+GroupRules  ruler = groupRules;
+GroupItem   spec = input,
+            blockRULE = grokking/BlocK,
+            ciReport = new("driveReport"),
+            priorOwner = gCompileOwner,
+            ciOwner,
+            ciSource,
+            got,
+            result;
+String      failText;
+    if spec && spec.isGROUP     spec = spec.gGroup;
+    if spec {
+        ciOwner     = spec["owner"];
+        ciSource    = spec["source"]; }
+    // namedOperands owner and source are attributes of the one argument; each may be a holder of a holder (a local bound with :=), so unwrap to the node
+    while ciOwner && ciOwner.isGROUP && ciOwner.gGroup      ciOwner = ciOwner.gGroup;
+    while ciSource && ciSource.isGROUP && ciSource.gGroup   ciSource = ciSource.gGroup;
+    if !ciOwner || !ciSource
+        return refuse(input,"compileIn: the argument needs an `owner` and a `source` attribute -- the action to compile for, and the code to drive");
+    if !ciSource.data
+        return refuse(ciOwner,"compileIn: `source` carries no code");
+    gCompileOwner   = ciOwner;
+    result = driveStep(ciSource,blockRULE,ciReport,1);
+    gCompileOwner   = priorOwner;
+    if result && result != falseResult  return result;
+    if got = ciReport["failedAt"]
+        if got.count >= 0   failText = ciSource.getText() + got.count;
+    reportCodeFail(ciOwner,failText);
+    return falseResult;
+}
+
+
 // refuse THE ONE FUNNEL: print the line, arm the unwind, hand back null -- a refusal ends the activation that raised it
 extern GroupItem refuse(GroupItem subject,String why)
 {

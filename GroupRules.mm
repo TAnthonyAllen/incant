@@ -1791,6 +1791,47 @@ endCompile:
 	return field;
 }
 
+// compileIn THE KANT COMPILE: drive `source` as a compile for `owner` on its own floor, and pop -- the pop is the restore, so nothing is left set (SEQ 299)
+extern "C" GroupItem *compileIn(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*spec = input;
+GroupItem 	*blockRULE = ruler->grokking->getMember("BlocK");
+GroupItem 	*ciReport = new GroupItem("driveReport");
+GroupItem 	*priorOwner = ruler->gCompileOwner;
+GroupItem 	*ciOwner = 0;
+GroupItem 	*ciSource = 0;
+GroupItem 	*got = 0;
+GroupItem 	*result = 0;
+char 		*failText = 0;
+	if ( spec && isGROUP(spec->groupBody->flags.data) )
+		spec = spec->groupBody->gGroup;
+	if ( spec )
+		{
+		ciOwner = spec->get("owner");
+		ciSource = spec->get("source");
+		}
+	// namedOperands owner and source are attributes of the one argument; each may be a holder of a holder (a local bound with :=), so unwrap to the node
+	while ( ciOwner && isGROUP(ciOwner->groupBody->flags.data) && ciOwner->groupBody->gGroup )
+		ciOwner = ciOwner->groupBody->gGroup;
+	while ( ciSource && isGROUP(ciSource->groupBody->flags.data) && ciSource->groupBody->gGroup )
+		ciSource = ciSource->groupBody->gGroup;
+	if ( !ciOwner || !ciSource )
+		return ::refuse(input,"compileIn: the argument needs an `owner` and a `source` attribute -- the action to compile for, and the code to drive");
+	if ( !ciSource->groupBody->flags.data )
+		return ::refuse(ciOwner,"compileIn: `source` carries no code");
+	ruler->gCompileOwner = ciOwner;
+	result = ::driveStep(ciSource,blockRULE,ciReport,1);
+	ruler->gCompileOwner = priorOwner;
+	if ( result && result != ruler->falseResult )
+		return result;
+	if ( got = ciReport->get("failedAt") )
+		if ( got->getCount() >= 0 )
+			failText = ciSource->getText() + got->getCount();
+	reportCodeFail(ciOwner,failText);
+	return ruler->falseResult;
+}
+
 /*******************************************************************************
 	copyOf() makes a copy of the field passed in. The copy groupBody is a copy.
     if the source isVirtual the copy will share the same list as grup (the source).
@@ -11059,6 +11100,7 @@ int 	result = 0;
 }
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
+	reportCodeFail(GroupItem*,char*)
 	isDotUxp(GroupItem*)
 	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
