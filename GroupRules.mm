@@ -1791,7 +1791,7 @@ endCompile:
 	return field;
 }
 
-// compileIn THE KANT COMPILE: drive `source` as a compile for `owner` on its own floor, and pop -- the pop is the restore, so nothing is left set (SEQ 299)
+// compileIn THE KANT COMPILE: drive `source` as a compile for `owner` on its own floor, and pop -- the pop is the restore, so nothing is left set (SEQ 299); answers true or false, the BlocK goes on the request's `result` (SEQ 300)
 extern "C" GroupItem *compileIn(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
@@ -1800,6 +1800,7 @@ GroupItem 	*blockRULE = ruler->grokking->getMember("BlocK");
 GroupItem 	*ciReport = new GroupItem("driveReport");
 GroupItem 	*ciOwner = 0;
 GroupItem 	*ciSource = 0;
+GroupItem 	*ciSlot = 0;
 GroupItem 	*got = 0;
 GroupItem 	*result = 0;
 char 		*failText = 0;
@@ -1819,9 +1820,17 @@ char 		*failText = 0;
 		return ::refuse(input,"compileIn: the argument needs an `owner` and a `source` attribute -- the action to compile for, and the code to drive");
 	if ( !ciSource->groupBody->flags.data )
 		return ::refuse(ciOwner,"compileIn: `source` carries no code");
+	// resultSlot the BlocK goes back on the request's `result`, never as the answer -- truth-testing a label FIRES it (#34); emptied first, so a failure leaves it empty, never stale (SEQ 300)
+	ciSlot = spec->get("result");
+	if ( !ciSlot )
+		ciSlot = spec->addAttribute(new GroupItem("result"));
+	ciSlot->setGroup(0);
 	result = ::driveStep(ciSource,blockRULE,ciReport,ciOwner);
 	if ( result && result != ruler->falseResult )
-		return result;
+		{
+		ciSlot->setGroup(result);
+		return ruler->trueResult;
+		}
 	if ( got = ciReport->get("failedAt") )
 		if ( got->getCount() >= 0 )
 			failText = ciSource->getText() + got->getCount();

@@ -718,7 +718,7 @@ use field
 }
 
 
-// compileIn THE KANT COMPILE: drive `source` as a compile for `owner` on its own floor, and pop -- the pop is the restore, so nothing is left set (SEQ 299)
+// compileIn THE KANT COMPILE: drive `source` as a compile for `owner` on its own floor, and pop -- the pop is the restore, so nothing is left set (SEQ 299); answers true or false, the BlocK goes on the request's `result` (SEQ 300)
 extern GroupItem compileIn(GroupItem input)
 {
 GroupRules  ruler = groupRules;
@@ -727,6 +727,7 @@ GroupItem   spec = input,
             ciReport = new("driveReport"),
             ciOwner,
             ciSource,
+            ciSlot,
             got,
             result;
 String      failText;
@@ -741,8 +742,14 @@ String      failText;
         return refuse(input,"compileIn: the argument needs an `owner` and a `source` attribute -- the action to compile for, and the code to drive");
     if !ciSource.data
         return refuse(ciOwner,"compileIn: `source` carries no code");
+    // resultSlot the BlocK goes back on the request's `result`, never as the answer -- truth-testing a label FIRES it (#34); emptied first, so a failure leaves it empty, never stale (SEQ 300)
+    ciSlot = spec["result"];
+    if !ciSlot      ciSlot = spec.addAttribute(new("result"));
+    ciSlot.setGroup(null);
     result = driveStep(ciSource,blockRULE,ciReport,ciOwner);
-    if result && result != falseResult  return result;
+    if result && result != falseResult {
+        ciSlot.setGroup(result);
+        return trueResult; }
     if got = ciReport["failedAt"]
         if got.count >= 0   failText = ciSource.getText() + got.count;
     reportCodeFail(ciOwner,failText);

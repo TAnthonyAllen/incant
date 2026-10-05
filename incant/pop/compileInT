@@ -5,7 +5,7 @@ search reset stack Grokking UnitTests Utilities list;
 
 register(CompileInT);
 define
-    ciReq owner source;
+    ciReq owner source result;
     ciTarget code={
         ciLoc = 7;
         print "CI-1 the action compiled by compileIn runs -> " ciLoc:;
@@ -18,19 +18,32 @@ define
         ciReq.owner  := argument;
         ciReq.source := ciSrc;
         print "CI-4a currentMETHOD before compileIn -> " *currentMETHOD:;
-        ciResult := compileIn(ciReq);
+        if compileIn(ciReq);
+            ciBlock = ciReq.result;
+            *ciBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *ciBlock;
         print "CI-3 the statement after compileIn runs -> 1":;
         print "CI-4b currentMETHOD after compileIn  -> " *currentMETHOD:;
-        *ciResult :. noPrinT;
-        argument :. isActioN;
-        argument +< *ciResult;
+        print "CI-9a after a good compile, request.result holds a group -> " ciReq.result.isGrouP:;
         };
     ciCompileBad code={
         ciSrc := argument.CodE;
         ciReq.owner  := argument;
         ciReq.source := ciSrc;
-        ciResult := compileIn(ciReq);
+        if compileIn(ciReq);  print "CI-9c a failed compile answered -> true":;
+        else    print "CI-9c a failed compile answered -> false":;
         print "CI-5 the statement after a refused compile runs -> 1":;
+        print "CI-9b after a failed compile, request.result holds a group -> " ciReq.result.isGrouP:;
+        };
+    ciFire code={
+        cerr "CI-7x FIRED -- compileIn's answer was a BlocK, and testing it ran the body":;
+        };
+    ciAnswer code={
+        ciSrc := argument.CodE;
+        ciReq.owner  := argument;
+        ciReq.source := ciSrc;
+        if compileIn(ciReq);  cerr "CI-7 testing compileIn's answer -> true":;
         };
     ciLanded code={
         if ciTarget["ciLoc"];  print "CI-2 the body's name landed in the action -> 1":;
@@ -46,6 +59,7 @@ define
 ciCompile(ciTarget);
 ciLanded();
 ciTarget();
+ciAnswer(ciFire);
 ciCompileBad(ciBad);
 print "CI-6 the file's next statement after a refused compile runs -> 1":;
 search reset stack Grokking;
