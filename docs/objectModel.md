@@ -346,6 +346,16 @@ rules on the amendment (R4).
    changes no decision. Witnesses of repetition counts, by H7 (each local made one static shared by every call):
    parseLoop's -> 864 green (oldRoad, stmtRejT, site1RoadsT, sweepT, baselineTestsNew crashing, quoteNatT, probeDoorT,
    loopVerdict, shapeBodyT, failPointT, driveCompileT); parse()'s -> 86 green (the whole fleet).
+   **1.2c MERGED 2026-10-05 (SEQ 302 R0; built SEQ 301, Groups 5d0f1fa, support b4da038).** The seven new-road leaves
+   keep their verdict, start mark and label in LOCALS and hand them to `exitFromParse(field, exitOK, exitAt, exitLab)`;
+   `fireLabelMethod` hands the label back (a null back from a non-null label is the action failing -- the caller holds
+   what it passed); `captureSpan` and `attachLabel` take the label; checkInput is split into `inputAt`, `checkGuard`,
+   `mintLabel`, and testUpTo's body is `upToMatch`. No RuleStuff field left: sukcess, hereAt and label all have readers
+   outside the leaf handoff, so they go in 1.2d, 1.2e, 1.2f. Recon tap: 70,127 leaf exits, zero reads of a leaf's values
+   outside the handoff. parseAction and parseCondition converted UNPINNED (no road reaches them).
+   **AMENDS 1.1a FOR LEAVES (Tony, SEQ 302 R0):** 1.1a kept a recycled `fLAG` label on the stuff for reuse; a new-road
+   LEAF now mints a fresh label instead of reusing one left on its stuff (0 occurrences in 202 files). The recycle
+   stands for parseRule and the old road. `fLAG` stays a kant feature, kept to a temporary marker (Tony).
 3. **`stuff` derived; `face` renamed `instance`.** The name clears the #58 check (grep, full bare-tokall diff) before
    the stroke opens.
 4. **Rule facts onto `groupBody`:** `ruleOf` and `instanceRule()`'s REGISTRY test retire.
