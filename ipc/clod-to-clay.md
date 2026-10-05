@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 196 at the FOOT -- SEQ 300: compileIn answers true/false, BlocK on request.result; MERGED (e99e171 / 3bde40e); *ciReq.result crashes (struck spelling)
+STATUS:   fresh           # SEQ 197 at the FOOT -- SEQ 301: starDotNull fixed on trunk; 1.2c BUILT on stroke12c (fdeffe4 / 05464e4), 973 / 51 row for row, NOT MERGED; no leaf value read outside the handoff
+# prior: SEQ 196 at the FOOT -- SEQ 300: compileIn answers true/false, BlocK on request.result; MERGED (e99e171 / 3bde40e); *ciReq.result crashes (struck spelling)
 # prior: SEQ 195 at the FOOT -- SEQ 299: compileIn + P2's fold BUILT on branch compileIn (fc22f8c / e436042), 962 / 51 row for row, NOT MERGED; R1's H16 met (TellST: ownerOnly=2)
 # prior: SEQ 194 at the FOOT -- SEQ 298: compileFloor MERGED; :. noPrinT pinned (top-level SET fails, born red); P3 recon: YES, the drive has the code field in hand at the floor push
 # prior: SEQ 193 at the FOOT -- SEQ 297: jitDotAssign stepped on trunk (32f4b09); R2 BUILT on compileFloor (processingCode a mark on the compile's floor), 943 / 49 row for row, NOT MERGED; R4 gCompileOwner agrees, 0 off-diagonal of ~6.4M
@@ -10963,3 +10964,60 @@ R2 -- branch: fleet 967 green / 51 red row for row; jitLadder, printPop PASSED; 
   frontier row for row. Trunk after the merge reads the same.
 
   END SEQ 196
+
+
+SEQ 197  -  SEQ 301: FIXIT starDotNull ON TRUNK; STROKE 1.2c BUILT ON stroke12c (NOT MERGED, FOR TONY TO BUY)
+===================================================================
+STATUS: fresh -- 2026-10-05. Sealed 57 (R0) and 58 (after R3), both on trunk. Branch stroke12c: Groups fdeffe4, support 05464e4.
+
+R0 -- starDotNull (trunk): opDot's non-groupField arm read target[tag] through a NULL target; `*x.y` on a plain x gave
+  exit 139 with no output. It now refuses by name and names the temporary spelling. starDotNullT, 6 rows, born red
+  (139, 0 bytes); H7 (guard removed), the fixture alone under an alarm -> 139. A refusal ends its activation, so the
+  action's tail is pinned absent. No citizen filed -- fixed in-stroke.
+
+R1 -- RECON (temporary tap, reverted md5-identical; 202 files: incant/pop/*, incant/pop/jit/*, incant/jit*, frontier,
+  macros, tester -- all exit 0, all printed the tap).
+  LEAF KINDS (new road), exits: parseSet 31,233 · parseString 18,469 · parseContainer 19,626 · parseCharacter 332 ·
+  parseUpTo 467 · parseAction 0 · parseCondition 0.
+  FIELDS a leaf writes that the exit reads: sukcess, hereAt, label -- nothing else (instance facts noAdvance, noLabel,
+  min, max are read, not written).
+  READERS OF A LEAF'S VALUES OUTSIDE THE HANDOFF: none. Measured on every candidate --
+     fLAG label kept on the stuff past a leaf exit (next checkInput's reuse)            0
+     a leaf's label written onto its PARENT's stuff (checkInput's driveRoot arm)         0
+     a leaf's label parked on the drive floor (the same arm, driveFloorLabel)            0
+     aCTionCodE / testAction reading the leaf's stuff during its fire (label.rStuff)     0
+     ruleSTUFF (fireLabelMethod's global): no reader but measure.twk (trace)
+  The reader sites' zero cells are not validated against a known-bad end (H16 candidate); the leaf marker itself fired
+  on 70,127 exits and the fire window opened 42,197 times.
+  THE FIELDS ALL STAY: sukcess, hereAt, label each have readers outside the leaf handoff (parseRule, old-road
+  parse(), checkInput, attachLabel) -- 1.2d, 1.2e, 1.2f. No reader changes a parse decision; no STOP.
+
+R2 -- ZERO-COVERAGE KINDS. parseAction: UNPINNED -- paReachT already pins its reach at 0 (`parseAction=processFlags`
+  binds processFlags itself); converted by the same shape, its start mark now the entry mark instead of the stuff's
+  stale hereAt, and it no longer reads a label off the stuff (the `!label` arm, the only one the new road reached).
+  parseCondition: UNPINNED -- no face is isCondition; converted, a failure rewinds to the entry mark (a no-op) instead
+  of the stale hereAt. testAction: NOT converted -- it is an old-road test (parse() pushes for it); it reads the old
+  road's label, which moves in 1.2f.
+
+R3 -- BUILT (fdeffe4 / support 05464e4). Leaves keep verdict, start and label in locals; exitFromParse(field, exitOK,
+  exitAt, exitLab); fireLabelMethod(stuff, fireLab, fireAt) HANDS THE LABEL BACK (a null back from a non-null label is
+  the action failing -- the caller holds what it passed, so one channel, one meaning); captureSpan(spanLab, spanAt);
+  attachLabel(..., lab). checkInput split into inputAt(), checkGuard (unchanged) and mintLabel(field, reuse), and
+  calls them; testUpTo's body is upToMatch(field, upLab). Old-road parse() writes the fire's label back on its stuff
+  exactly as before; parseRule hands the exit its stuff's values.
+  ONE BEHAVIOUR DIFFERENCE, MEASURED 0: a leaf no longer recycles an fLAG label left on its stuff -- it mints fresh.
+  NO ROW BORN RED: every reachable path is unchanged (the differences are on paths no fixture reaches, and the fLAG
+  recycle measured 0), as 1.2b.
+  H7 (leaves hand the exit NO label), three label fixtures alone under alarms: leafClassT exit 139 (0 restored).
+  ⚠ shapeBodyT's and treeRowT's label rows DID NOT MOVE under it -- they read the RULE's label (ShRep's, from captureSpan
+  on the parseRule exit), not a leaf's. So the leaf-label handoff's only fleet witness found is leafClassT.
+  FULL BARE-TOKALL DIFF, every moved line explained: GroupItem.mm/.h (fire, capture, attach; parse()'s write-back),
+  RuleStuff.mm/.h (inputAt, mintLabel, checkInput's calls, upToMatch), GroupRules.mm/.h (seven leaves, the exit,
+  parseRule's call). The first build re-aimed the leaves' bare characterSet and rStuff at the new GroupItem local
+  (bear-trap #42/#57) and crashed every new-road drive; the per-leaf diff caught it, `use field` cured it.
+  Canary 305 (no mover: every change is a signature or a method). Branch: fleet 973 / 51 row for row with seal 57;
+  jitLadder, printPop PASSED; decodePop echo only; ddPop 5/1; frontier row for row.
+
+FOR TONY: buy or decline stroke12c. Then 1.2d (sukcess) by a fresh dispatch.
+
+  END SEQ 197
