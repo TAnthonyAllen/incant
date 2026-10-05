@@ -124,7 +124,7 @@ GroupItem locateInMethod(String name)
 {
 GroupItem   action = currentMETHOD.group,
             result;
-    if processingCode   result = action % name;
+    if groupRules.inCompile()   result = action % name;
     if !result  result = locate(name);
     return  result;
 }

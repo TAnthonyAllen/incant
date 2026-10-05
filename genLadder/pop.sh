@@ -617,6 +617,32 @@ for _j in "=== jitRunAction: entering on jdDrive ===" \
     fi
 done
 
+#  ⚠ compileFloorT -- processingCode IS A MARK ON THE COMPILE'S FLOOR (SEQ 297 R1/R2).
+#  CF-0..CF-2: a failed compile leaves nothing set and a later expression runs -- GREEN on
+#  trunk too (measured before the change: processCode restored the global on both arms).
+#  CF-3/CF-4 + the refusal line: processingCodE is a READ of the nearest floor and a kant write
+#  refuses by name -- BORN RED on trunk, where the write set the global and silenced the rest
+#  of the file (no CF-3, no CF-4, no sentinel).
+run1 compileFloorT "$T/cft"; check "compileFloorT runs" 0 $?
+sentinel "compileFloorT sentinel (no truncation)" "$T/cft" "COMPILEFLOOR SENTINEL"
+for _j in "CF-0 processingCodE after a good compile   ->  0" \
+          "CF-1 processingCodE after a failed compile ->  0" \
+          "CF-2 an expression after the failed compile runs ->  9" \
+          "REFUSED cfP -- processingCodE is read-only" \
+          "CF-3 processingCodE after a kant write      ->  0" \
+          "CF-4 an expression after the write runs   ->  4"; do
+    if grep -qF "$_j" "$T/cft"; then
+        echo "  ok    compileFloorT ${_j} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  compileFloorT -- wanted: $_j"; fail=1
+    fi
+done
+#  H7 (the floor never marked): compiled bodies RUN while compiling, so CF-2 prints twice and the
+#  fleet falls 942 -> 555 green. This row is the fixture's own witness of it.
+_n=$(grep -c "CF-2 an expression after the failed compile runs" "$T/cft")
+if [ "$_n" = "1" ]; then echo "  ok    compileFloorT CF-2 printed once (no body ran while compiling) = $_n"; green=$((green+1))
+else echo "  FAIL  compileFloorT CF-2 printed $_n times, want 1 -- a body ran while it was being compiled"; fail=1; fi
+
 #  ⚠ argRoundJ -- THE JIT ARM. Minted pinned RED by name on jitArgBake and
 #  RE-PINNED GREEN the same day when the flag hoist discharged it; see the
 #  sentence at the argument-column row below. It stays a separate file from

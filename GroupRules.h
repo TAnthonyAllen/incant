@@ -7,6 +7,7 @@ struct ParseActivation
 	{
 	GroupItem *face;
 	int isFloor;
+	int isCompile;
 	GroupItem *label;
 	ParseActivation *prev;
 	RuleStuff *stuff;
@@ -93,13 +94,13 @@ struct
 	unsigned int isRigorous:1;
 	unsigned int noSkipping:1;
 	unsigned int parseTrace:1;
-	unsigned int processingCode:1;
 	unsigned int showWarnings:1;
 	unsigned int useDefaultSpace:1;
 	unsigned int jitting:1;
 	};
 GroupRules();
 char *checkSkip(char *atContent);
+int inCompile();
 void popInput();
 int pushInput(GroupItem *source);
 };
@@ -156,7 +157,7 @@ extern "C" GroupItem *definersOf(GroupItem *input);
 extern "C" void dispatcher(void *stuff);
 extern "C" GroupItem *displayFill(GroupItem *field);
 extern "C" int driveFloorLabel(RuleStuff *stuff, GroupItem *label);
-extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report);
+extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report, int isCompile);
 extern "C" GroupItem *dumpContents(GroupItem *stuff);
 extern "C" GroupItem *dupTermRefusal(GroupItem *rule);
 extern "C" GroupItem *enclosingFace(GroupItem *field);

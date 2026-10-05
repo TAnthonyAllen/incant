@@ -1,0 +1,54 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(CompileFloorT);
+define
+    cfP="pv";
+    cfN="nv";
+    cfGood code={
+        cfN = 5;
+        };
+    cfBad code={
+        cfN = ) ;
+        };
+    cfAfter code={
+        cfN = 9;
+        print "CF-2 an expression after the failed compile runs -> " cfN:;
+        };
+    cfWrite code={
+        cfP.processingCodE = 1;
+        };
+    cfLater code={
+        cfN = 4;
+        print "CF-4 an expression after the write runs   -> " cfN:;
+        };
+    ;
+cfGood();
+print "CF-0 processingCodE after a good compile   -> " cfP.processingCodE:;
+cfBad();
+print "CF-1 processingCodE after a failed compile -> " cfP.processingCodE:;
+cfAfter();
+cfWrite();
+print "CF-3 processingCodE after a kant write      -> " cfP.processingCodE:;
+cfLater();
+print "COMPILEFLOOR SENTINEL -- reached the foot":;
+stop();
+
+compileFloorT -- processingCode is a mark on the floor processCode's drive pushes (SEQ 297 R1/R2).
+
+R3's first question, asked on trunk before the change: does a compile that FAILS leave processingCode
+set, silencing every later expression in the file? Measured on trunk 2026-10-05: NO. cfBad's body fails
+to parse (processCode reports "parse failed"), processCode restores the global on both arms, CF-1 reads 0
+and CF-2's expression runs. So CF-0..CF-2 are pinned GREEN on both trunk and the branch, and say so. Only
+the parse-failure arm was driven; refuse() sets a flag and does not unwind, so a refusing compile also
+returns through the same restore (read in the source, not driven).
+
+The pop.sh row "CF-2 printed once" is the fixture's H7 witness: with the floor never marked, every
+compiled body RUNS while it is compiled and CF-2 prints twice (fleet 942 -> 555 green, measured).
+
+CF-3/CF-4 are P4: processingCodE is now a READ of the nearest drive floor, and a kant write refuses by
+name. On trunk the same write SET the global, aCTionXpress stopped running expressions, and the rest of
+the file never ran -- CF-3, CF-4 and the sentinel are absent there (born red). On the branch the write
+refuses ("processingCodE is read-only"), CF-3 reads 0 and CF-4's expression runs.

@@ -812,10 +812,10 @@ GroupItem 	*source = 0;
 *******************************************************************************/
 extern "C" GroupItem *aCTionNamE(GroupItem *input)
 {
-	// compileOwner while processingCode the owner is the action processCode is compiling, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213)
+	// compileOwner while compiling the owner is the action processCode is compiling, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213)
 GroupRules *ruler = GroupControl::groupController->groupRules;
 GroupItem *owner = ruler->currentMETHOD->getGroup();
-	if ( ruler->processingCode && ruler->gCompileOwner )
+	if ( ruler->inCompile() && ruler->gCompileOwner )
 		owner = ruler->gCompileOwner;
 	input->setGroup(resolveName(input->getText(),owner));
 	return input;
@@ -1143,7 +1143,7 @@ extern "C" GroupItem *aCTionStatemenT(GroupItem *input)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	// markSeat3 SEQ 166 point 3 -- what text a StatemenT attempt starts on, and whose buffer
 	::measureMarkPoint("3-StatemenT-entry");
-	if ( !ruler->processingCode )
+	if ( !ruler->inCompile() )
 		{
 		/*  ⚠ outcome IS DECLARED FIRST SO `statement` STAYS LAST-MENTIONED -- the bare
 		`isGROUP` and `group` below resolve against whatever was named most recently
@@ -1212,7 +1212,7 @@ int 		stoppedAt = 0;
 		said = new GroupItem("message");
 		said->setText(message->getText());
 		raw = new GroupItem("driveReport");
-		result = driveStep(said,who,raw);
+		result = driveStep(said,who,raw,0);
 		if ( got = raw->get("length") )
 			msgLen = got->getCount();
 		if ( got = raw->get("mark") )
@@ -1491,7 +1491,7 @@ extern "C" GroupItem *aCTionXpress(GroupItem *input)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*ExpressioN = input->getLabelGroup("ExpressioN");
-	if ( !ruler->processingCode && ExpressioN->groupBody->gMethod )
+	if ( !ruler->inCompile() && ExpressioN->groupBody->gMethod )
 		{
 		ExpressioN = ExpressioN->groupBody->gMethod(ExpressioN);
 		// deferredValue run by its owner (bound under a deferred ancestor -- Xpress is `defer` since F-122), a statement's value is the expression's; a null keeps the label so a loop never dereferences nothing
@@ -2045,7 +2045,7 @@ ParseActivation 	*top = ruler->gParseActive;
 }
 
 // driveStep runRule's body and the one drive runRule and tell share: divert input to the field's content, run the rule, and report OFFSETS into the message, never addresses (H3)
-extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report)
+extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report, int isCompile)
 {
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 GroupItem 			*result = 0;
@@ -2068,6 +2068,8 @@ char 				*driveBase = 0;
 	// driveFloor a drive pushes a FLOOR on the new road's activation list; deferredAbove stops there (Tony, 2026-09-24)
 	driveFloor.face = 0;
 	driveFloor.isFloor = 1;
+	// compileMark processCode alone passes 1: the floor of a compile's drive answers inCompile(), and its pop is the restore (SEQ 297)
+	driveFloor.isCompile = isCompile;
 	driveFloor.label = 0;
 	driveFloor.prev = ruler->gParseActive;
 	driveFloor.failPoint = 0;
@@ -5654,7 +5656,7 @@ extern "C" int jitProbeDrive(GroupItem *rule, GroupItem *armed, char *msg, int j
 	ruler->divertToRule = 1;
 	//  probeFloor A DRIVE HIDES ITS CALLER: the floor goes on before the push and comes off before the single return (stroke 5.5f, SEQ 241)
 	ParseActivation probeFloor;
-	probeFloor.face = 0; probeFloor.isFloor = 1; probeFloor.label = 0; probeFloor.prev = ruler->gParseActive; probeFloor.stuff = 0;
+	probeFloor.face = 0; probeFloor.isFloor = 1; probeFloor.isCompile = 0; probeFloor.label = 0; probeFloor.prev = ruler->gParseActive; probeFloor.stuff = 0;
 	ruler->gParseActive = &probeFloor;
 	//  branchFrame a drive door is a frame for the control slot until D-22 unifies the doors (SEQ 264 R2)
 	int probeBranchSave = ruler->branchKind;
@@ -7390,7 +7392,7 @@ GroupItem 	*product = 0;
 					product->setCount(ruler->lastIndent);
 					break;
 				case 412:
-					product->setCount((int)ruler->processingCode);
+					product->setCount(ruler->inCompile());
 					break;
 				default:
 					product->setText(::concat(3,"access to ",argument->groupBody->tag," not supported yet"));
@@ -8828,6 +8830,7 @@ GroupItem 			*result = 0;
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 	topFloor.face = 0;
 	topFloor.isFloor = 1;
+	topFloor.isCompile = 0;
 	topFloor.label = 0;
 	topFloor.prev = ruler->gParseActive;
 	topFloor.failPoint = 0;
@@ -8862,6 +8865,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	// activePush this call's record goes on the activation list; one pop, after exitFromParse
 	callActive.face = field;
 	callActive.isFloor = 0;
+	callActive.isCompile = 0;
 	callActive.label = 0;
 	callActive.prev = ruler->gParseActive;
 	callActive.failPoint = 0;
@@ -9324,7 +9328,6 @@ GroupItem 	*priorMETHOD = ruler->currentMETHOD->getGroup();
 GroupItem 	*priorOwner = ruler->gCompileOwner;
 GroupItem 	*action = field;
 int 		indenter = ruler->lastIndent;
-int 		processing = ruler->processingCode;
 char 		*failText = 0;
 	// d2Tripwire an rStuff-less label is WRECKAGE, not a specimen (Ruling D2) -- refuse loud here, where it became visible
 	if ( field->groupBody->flags.isLabel && !field->getRStuff() )
@@ -9350,11 +9353,10 @@ char 		*failText = 0;
 		action = code;
 	ruler->currentMETHOD->setGroup(action);
 	ruler->lastIndent = 0;
-	ruler->processingCode = 1;
 	// compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
 	// compileOwner the ONE writer of gCompileOwner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214)
 	ruler->gCompileOwner = action;
-	result = ::driveStep(code,blockRULE,codeReport);
+	result = ::driveStep(code,blockRULE,codeReport,1);
 	ruler->gCompileOwner = priorOwner;
 	if ( result )
 		{
@@ -9369,8 +9371,6 @@ char 		*failText = 0;
 				failText = code->getText() + got->getCount();
 		reportCodeFail(field,failText);
 		}
-	if ( !processing )
-		ruler->processingCode = 0;
 	ruler->lastIndent = indenter;
 	ruler->currentMETHOD->setGroup(priorMETHOD);
 	if ( result )
@@ -9829,12 +9829,13 @@ extern "C" GroupItem *resolveName(char *arg, GroupItem *owner)
 	
 	GroupRules *ruler = GroupControl::groupController->groupRules;
 	GroupItem *grup = 0, *result = 0;
-	if ( ruler->processingCode && owner )   result = owner->getAttribute(arg);
+	int inCode = ruler->inCompile();
+	if ( inCode && owner )   result = owner->getAttribute(arg);
 	if ( !result )                          result = GroupControl::groupController->locate(arg);
 	if ( result && result->parent == owner )    return result;
 	if ( ruler->defining && result && result->groupBody->flags.isVirtual )  result = ::copyOf(result);
 	grup = new GroupItem(arg);
-	if ( ruler->alphaSet->contains(*arg) && ruler->processingCode && owner )
+	if ( ruler->alphaSet->contains(*arg) && inCode && owner )
 	if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
 	if ( !(result && result->groupBody->registry == ruler->opFields) ) {
 	if ( result ) {
@@ -10097,7 +10098,7 @@ GroupItem 	*target = field->get(2);
 extern "C" GroupItem *runRule(GroupItem *field, GroupItem *rule)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*result = ::driveStep(field,rule,0);
+GroupItem 	*result = ::driveStep(field,rule,0,0);
 	// oneBit a generated root hands driveStep its LABEL; the kant caller still gets the chain's truth (ruling c')
 	if ( rule->groupBody->flags.hasNewParse && result && result != ruler->falseResult )
 		return ruler->trueResult;
@@ -10294,9 +10295,10 @@ int 		on = 0;
 			break;
 		case 411:
 			ruler->lastIndent = value;
+			// compileReadOnly processingCodE reads the nearest drive floor; a compile marks its own, so a kant write has no road (SEQ 297 R2)
 			break;
 		case 412:
-			ruler->processingCode = value;
+			::refuse(target,"processingCodE is read-only -- it reads the nearest drive floor, which processCode marks; there is no kant write (SEQ 297)");
 			break;
 		default:
 			return 0;
@@ -10600,7 +10602,7 @@ GroupItem 	*result = 0;
 		return 0;
 		}
 	// oneDoor a drive goes through driveStep -- its floor keeps a failed pass off the caller's input (P3a routing, SEQ 185)
-	result = ::driveStep(argument,rule,0);
+	result = ::driveStep(argument,rule,0,0);
 	::fprintf(stderr,"TREE %s\n",argument->getText());
 	if ( result )
 		::showTree(result,"    ");
@@ -10795,7 +10797,6 @@ GroupRules::GroupRules()
 	isRigorous = 0;
 	noSkipping = 0;
 	parseTrace = 0;
-	processingCode = 0;
 	showWarnings = 0;
 	jitting = 0;
 	blockSTAK = new Stak();
@@ -10897,7 +10898,7 @@ char 		*atReplaceNewline = 0;
 	if ( sawNewLine && !lastINDENT )
 		lastINDENT = indenting;
 	if ( sawNewLine && indenting != lastINDENT )
-		if ( processingCode || defining )
+		if ( inCompile() || defining )
 			while ( indenting != lastINDENT )
 				{
 				atReplaceNewline = atContent - 1;
@@ -10912,7 +10913,7 @@ char 		*atReplaceNewline = 0;
 							}
 						}
 					else
-					if ( processingCode )
+					if ( inCompile() )
 						if ( lastNotSpace != '{' )
 							{
 							replaced = 1;
@@ -10936,7 +10937,7 @@ char 		*atReplaceNewline = 0;
 								}
 							}
 						else
-						if ( processingCode )
+						if ( inCompile() )
 							{
 							if ( lastNotSpace != '}' )
 								{
@@ -10963,6 +10964,22 @@ char 		*atReplaceNewline = 0;
 		}
 	else	noSkipping = 1;
 	return atContent;
+}
+
+/*******************************************************************************
+    inCompile -- is the parse I am inside a compile? The NEAREST drive floor
+    answers: processCode marks the floor its drive pushes (isCompile), and a
+    drive pushed inside a compile is its own root, unmarked (SEQ 297 R1). The
+    pop of that floor is the restore, so an unwound compile cannot leave it set.
+*******************************************************************************/
+int GroupRules::inCompile()
+{
+ParseActivation 	*top = gParseActive;
+	while ( top && !top->isFloor )
+		top = top->prev;
+	if ( top )
+		return top->isCompile;
+	return 0;
 }
 
 /*******************************************************************************

@@ -18,6 +18,7 @@ struct ParseActivation
 {
     GroupItem       face;
     int             isFloor;
+    int             isCompile;
     GroupItem       label;
     ParseActivation *prev;
     RuleStuff       stuff;
@@ -110,7 +111,6 @@ struct ParseActivation
             isRigorous
             noSkipping
             parseTrace
-            processingCode
             showWarnings
             useDefaultSpace
             ;
@@ -207,7 +207,7 @@ String      atReplaceNewline;
     ***************************************************************************/
     if sawNewLine && !lastINDENT  lastINDENT = indenting;
     if sawNewLine && indenting != lastINDENT
-        if processingCode || defining
+        if inCompile() || defining
             while indenting != lastINDENT {
                 atReplaceNewline    = atContent - 1;
                 if indenting > lastINDENT && lastNotSpace {
@@ -215,7 +215,7 @@ String      atReplaceNewline;
                         if lastNotSpace != ':' {
                             replaced    = true;
                             *atReplaceNewline  = ':'; }}
-                    or processingCode
+                    or inCompile()
                         if lastNotSpace != '{' {
                             replaced    = true;
                             *atReplaceNewline  = '{'; }
@@ -229,7 +229,7 @@ String      atReplaceNewline;
                             if lastNotSpace != '>' || (!indenting && lastNotSpace != ';') {
                                 replaced    = true;
                                 *atReplaceNewline  = '>'; }}
-                        or processingCode {
+                        or inCompile() {
                             if lastNotSpace != '}' {
                                 replaced    = true;
                                 *atReplaceNewline  = '}'; }}
@@ -274,6 +274,20 @@ use sourceFILE
         }
     else    inputDiverted = false;
     return;
+}
+
+/*******************************************************************************
+    inCompile -- is the parse I am inside a compile? The NEAREST drive floor
+    answers: processCode marks the floor its drive pushes (isCompile), and a
+    drive pushed inside a compile is its own root, unmarked (SEQ 297 R1). The
+    pop of that floor is the restore, so an unwound compile cannot leave it set.
+*******************************************************************************/
+int inCompile()
+{
+ParseActivation *top = gParseActive;
+    while top && !top.isFloor   top = top.prev;
+    if top  return top.isCompile;
+    return 0;
 }
 
 /*******************************************************************************

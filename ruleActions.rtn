@@ -626,10 +626,10 @@ GroupItem   source;
 *******************************************************************************/
 extern GroupItem aCTionNamE(GroupItem input)
 {
-    // compileOwner while processingCode the owner is the action processCode is compiling, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213)
+    // compileOwner while compiling the owner is the action processCode is compiling, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213)
 GroupRules  ruler = groupRules;
 GroupItem   owner = currentMETHOD.group;
-    if processingCode && gCompileOwner  owner = gCompileOwner;
+    if inCompile() && gCompileOwner  owner = gCompileOwner;
     input.setGroup(resolveName(input.text,owner));
     return input;
 }
@@ -906,7 +906,7 @@ GroupRules  ruler = groupRules;
     // markSeat3 SEQ 166 point 3 -- what text a StatemenT attempt starts on, and whose buffer
     measureMarkPoint("3-StatemenT-entry");
 use input
-    if !processingCode {
+    if !inCompile() {
         /*  ⚠ outcome IS DECLARED FIRST SO `statement` STAYS LAST-MENTIONED -- the bare
             `isGROUP` and `group` below resolve against whatever was named most recently
             (bear-trap #42), and a declaration inserted after `statement` would silently
@@ -1145,7 +1145,7 @@ extern GroupItem aCTionXpress(GroupItem input)
 {
 GroupRules  ruler = groupRules;
 GroupItem   ExpressioN:;
-    if !processingCode && method {
+    if !inCompile() && method {
         ExpressioN = method(ExpressioN);
         // deferredValue run by its owner (bound under a deferred ancestor -- Xpress is `defer` since F-122), a statement's value is the expression's; a null keeps the label so a loop never dereferences nothing
         -% if ( input->groupBody->flags.deferred && ExpressioN ) return ExpressioN; %-
@@ -1630,12 +1630,13 @@ extern GroupItem resolveName(String arg, GroupItem owner)
     -%
     GroupRules *ruler = GroupControl::groupController->groupRules;
     GroupItem *grup = 0, *result = 0;
-    if ( ruler->processingCode && owner )   result = owner->getAttribute(arg);
+    int inCode = ruler->inCompile();
+    if ( inCode && owner )   result = owner->getAttribute(arg);
     if ( !result )                          result = GroupControl::groupController->locate(arg);
     if ( result && result->parent == owner )    return result;
     if ( ruler->defining && result && result->groupBody->flags.isVirtual )  result = ::copyOf(result);
     grup = new GroupItem(arg);
-    if ( ruler->alphaSet->contains(*arg) && ruler->processingCode && owner )
+    if ( ruler->alphaSet->contains(*arg) && inCode && owner )
         if ( !result || (!result->groupBody->flags.isArgument && !result->groupBody->flags.isLocal) )
             if ( !(result && result->groupBody->registry == ruler->opFields) ) {
                 if ( result ) {

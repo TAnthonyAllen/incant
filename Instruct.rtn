@@ -442,7 +442,7 @@ use argument
                 // unsupportedAccessor  every gCount with no case of its own lands here and
                 // unsupportedAccessor  SAYS SO, rather than answering with a silent null
                 case 411:   product.count   = lastIndent;
-                case 412:   product.count   = processingCode;
+                case 412:   product.count   = inCompile();
                 default:    product.text    = "access to " tag " not supported yet"; }
             // nullIsLawful seven accessors answer null for 'nothing there' -- guard the read, as the next line does (nullAccessorDeref, born fb9e4de)
             if product && !product.data product.count  = 0;
@@ -1500,7 +1500,8 @@ int         on = 0;
             case 408:   if on   target.actionType = 1;
                         or target.actionType == 1   target.actionType = 0;
             case 411:   lastIndent      = value;
-            case 412:   processingCode  = value;
+            // compileReadOnly processingCodE reads the nearest drive floor; a compile marks its own, so a kant write has no road (SEQ 297 R2)
+            case 412:   refuse(target,"processingCodE is read-only -- it reads the nearest drive floor, which processCode marks; there is no kant write (SEQ 297)");
             default:    return 0; }
     return 1;
 }
