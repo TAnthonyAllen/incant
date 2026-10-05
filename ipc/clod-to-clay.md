@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 199 at the FOOT -- SEQ 303: stroke12d merged (directives respelled, 3 orphaned anchors re-aimed); 1.2e BUILT on stroke12e (82b18ec / d787136), 976 / 51 row for row, NOT MERGED
+STATUS:   fresh           # SEQ 200 at the FOOT -- SEQ 304: stroke12e merged; dirCheck on the seal (3 dark, all parked); 1.2f STOPPED at the decision point -- the parent's label is read/written by children (needs ParseActivation.label or a redesign)
+# prior: SEQ 199 at the FOOT -- SEQ 303: stroke12d merged (directives respelled, 3 orphaned anchors re-aimed); 1.2e BUILT on stroke12e (82b18ec / d787136), 976 / 51 row for row, NOT MERGED
 # prior: SEQ 198 at the FOOT -- SEQ 302: stroke12c merged; leafLabelT; 1.2d BUILT on stroke12d (f37991d / b129d40), 976 / 51 (one row retired by mapping), NOT MERGED
 # prior: SEQ 197 at the FOOT -- SEQ 301: starDotNull fixed on trunk; 1.2c BUILT on stroke12c (fdeffe4 / 05464e4), 973 / 51 row for row, NOT MERGED; no leaf value read outside the handoff
 # prior: SEQ 196 at the FOOT -- SEQ 300: compileIn answers true/false, BlocK on request.result; MERGED (e99e171 / 3bde40e); *ciReq.result crashes (struck spelling)
@@ -11136,3 +11137,71 @@ R2 -- BUILT (82b18ec / support d787136). parse() and parseRule keep the start ma
 FOR TONY: buy or decline stroke12e. Then 1.2f (label; the callBracket retires whole) by a fresh dispatch.
 
   END SEQ 199
+
+
+SEQ 200  -  SEQ 304: stroke12e MERGED; dirCheck ON THE SEAL; 1.2f RECON STOPPED AT THE DECISION POINT (label NEEDS A HOME)
+===================================================================
+STATUS: fresh -- 2026-10-05. Seals 64 (R0+R1) and 65 (R2, read-only), both on trunk. Nothing built for 1.2f.
+
+R0 -- stroke12e MERGED (Groups 26ff698, support a631116), branch deleted both repos; objectModel A5 records 1.2e.
+
+R1 -- genLadder/dirCheck.sh (exec bit; standing rule in CLAUDE.md; on the checklist and the exec-bit check). Each
+  directive ALONE, parked ones armed in a scratch copy, against a bare build; names every DARK one; retoks bare and
+  checks the tree byte-identical. Exit 1 on an armed dark, a vacuous run, or a bare mismatch; H1/H2 built in.
+  First run (seal 64, banked docs/sealCaptures/dirCheck.txt): 52 directives, 49 inject, 3 dark, ALL PARKED --
+     generateCode generating     (line 52)  the method is gone (bytecode road, 2026-10-02)
+     processCode processingCode  (line 178) the anchor matches no statement (processingCode left with compileFloor)
+     addGroup starting           (line 218) the anchor matches no statement
+  H7: processCode's entry armed in place -> DIRCHECK FAILED, exit 1, named; groupDirectives restored byte-identical.
+
+R2 -- 1.2f RECON (tap in the generated .mm, reverted md5-identical; 203 files, all exit 0). Every access to
+  RuleStuff.label was attributed to the call that last wrote that stuff's slot, against the call stack (parse() and
+  parseRule push; a new-road leaf's exit is given a pseudo-call). H16 FIRST: a deliberate outside reader (Grokking
+  BlocK's label, read in driveStep after the drive) classed 253,930 reads "other" -- the tap sees one.
+
+  OWN CALL (a local or an argument would do):
+     parse(): the fire argument 5,307,877, the attach argument 5,809,543, the failure clear 27,943, the labelNO test
+       2,380,877; checkInput's mint (6,668,643 writes, own slot); aCTionCodE's read via label.rStuff 11,669.
+     the old-road leaf tests (testCharacter, testSet, testAny via testMacro; testContainer; testString; testUpTo) read
+       their call's label 753,289 times -- through testMatch(this), which carries no label. An argument there is a
+       testMatch fnptr signature change (a layout change); the alternative is the activation's label.
+  RETURN-SHAPED (the caller reads what a child wrote into the caller's slot):
+     parse() returning its label 2,408,614 and the fire argument 502,067 -- that value was put there by a CHILD's
+     promote; parseRule's handoff to the exit 46,371.
+  DESCENDANT <-> ANCESTOR (neither own nor return -- the parent's label, reached today through the parent's RuleStuff):
+     attachLabel's destination read  `dest = pStuff->label`            1,388,557 reads
+     attachLabel's promote write      `pStuff->label = lab`              515,220 writes
+     exitFromParse's container yield  `cParent->label` read / write      78,076 / 30,160
+     parseRule's `into` snapshot      enclosing activation's label       220,565
+     mintLabel's drive-root fallback  `parent.rStuff.label = lab`        4,793 into an ancestor; 52,886 with NO owning
+                                                                          activation on the list
+  ANOTHER CALL'S VALUE AT A DECISION -- the second STOP condition:
+     parse()'s `if callOK && !label  label = labelNO` 6 and its `return label` 6, and the failure clear 2: the slot held
+     a label an UNRELATED call left on the stuff (zeroWidthT 3, fireSeatT 2, driveCompileT 1, driveDoorT 2). Whether it
+     changes the returned label is not measured -- named, not chased.
+     exitFromParse's fLAG keep test 6,490 and checkInput's reuse read (1,846,469 "other") read stale labels by design:
+     the fLAG recycle -- acted on only when fLAG is set.
+
+  SO THE DECISION POINT IS REACHED: the parent's label is read and written by its children on both roads, and on the
+  new road the only channel up is the parent's slot -- ruling c' made a term call return ONE BIT, never its label. Two
+  shapes, costed, for Tony:
+     (A) ParseActivation.label for the call's own label (the field exists; today only floors use it). The child reaches
+         its parent's record: on the new road the enclosing activation (cTop, already how exitFromParse finds cParent);
+         on the old road the child's own record's prev (parse() passes pStuff today -- it would pass, or reach, the
+         parent's record). The leaf tests read the top record's label instead of field.rStuff.label. Each new reader
+         goes through the list; #58's naming rule does not apply (the field exists), a full bare-tokall diff does.
+         ⚠ ParseActivation.label is today the FLOOR's park (driveFloorLabel); one field would carry "this call's label"
+         and "the drive root's parked label" -- one channel, two meanings unless the floor's use is renamed.
+     (B) Arguments down, returns up: a child gets the parent's label by value and hands a promote back for the parent
+         to adopt. On the old road that moves attachLabel's work from the child into testOptions/testAttributes; on the
+         new road it needs a label return from a term call, which ruling c' forbids. Not recommended.
+  THE CALLBRACKET once label goes: nothing left (sukcess, hereAt, kount gone). Its label slot protects a nested call
+  of the same stuff (232,084 restores read back; 2,135 saves read an ancestor's label) -- under (A) every call has its
+  own record, so it retires whole.
+  DIRECTIVES reading label (Tony's to respell with the stroke): `exitFromParse "exitLab = cLab"` (disarmed, lines
+  87-89) and `parse "if callOK {"` (active, lines 256-258).
+
+FOR TONY: rule (A) or (B) -- (A) with the floor's park renamed is the shape that matches the measurement -- and say
+whether the 6 + 6 + 2 stale-label decision reads are owed a fixture first.
+
+  END SEQ 200
