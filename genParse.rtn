@@ -134,7 +134,7 @@ GroupItem   result;
         cerr "treeOf: no ScafOUT on the search list":;
         return null; }
     // oneDoor a drive goes through driveStep -- its floor keeps a failed pass off the caller's input (P3a routing, SEQ 185)
-    result = driveStep(argument,rule,null);
+    result = driveStep(argument,rule,null,0);
     cerr "TREE " argument.text:;
     if result   showTree(result,"    ");
     else        cerr "    (parse FAILED)":;

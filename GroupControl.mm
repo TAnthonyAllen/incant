@@ -121,7 +121,7 @@ GroupItem *GroupControl::locateInMethod(char *name)
 {
 GroupItem 	*action = groupRules->currentMETHOD->getGroup();
 GroupItem 	*result = 0;
-	if ( groupRules->processingCode )
+	if ( groupRules->inCompile() )
 		result = action->getAttribute(name);
 	if ( !result )
 		result = locate(name);

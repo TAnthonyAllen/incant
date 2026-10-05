@@ -666,7 +666,7 @@ int 				inDrive = 0;
 	// listOnly WHO IS ACTIVE ABOVE is the activation list, walked to the first floor (a drive hides its caller); the parentStuff chain is gone -- it held stale parents and never ended on F-114's cycles (stroke 5.5b)
 	if ( top && !top->isFloor )
 		inDrive = 1;
-	if ( ruler->processingCode )
+	if ( ruler->inCompile() )
 		{
 		::measureDeferredAbove(this,stuff,1,3,inDrive);
 		return 1;
@@ -1689,6 +1689,7 @@ char 				*ownPoint = 0;
 	// oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
 	oldActive.face = this;
 	oldActive.isFloor = 0;
+	oldActive.isCompile = 0;
 	oldActive.label = 0;
 	oldActive.prev = ruler->gParseActive;
 	oldActive.failPoint = 0;
