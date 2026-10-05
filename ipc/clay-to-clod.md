@@ -11821,3 +11821,37 @@ R5. Seal and stop. Sites 2 and 3 each get their own word.
 Body: "That move is the defect 1.1 was meant to remove, not drift." Once R1's merge seals, today is done.
 
   END SEQ 288
+
+
+===================================================================
+SEQ 309  -  DOCKET ONLY: THREE DESIGN ITEMS BANKED. NOTHING BUILT, NOTHING MEASURED.
+===================================================================
+Dictated via Tony; transcribed by Clod, 2026-10-05.
+STATUS: cleared 2026-10-05 -- R0 recorded: TODO.md Pending (SEQ 309 docket), docs/wakeup.md opener amended,
+docs/fieldFlavors.md containers idea marked not ruled. Docs only.
+
+RULINGS (Tony, by forwarding):
+  R0  Record in TODO.md's docket and the wakeup opener's order. Docs only: no code, no taps, no proposals.
+      1. CONTAINERS RECON (read-only), before 1.3/1.4 are dispatched.
+         - Tony's idea (not ruled): the group list holds only fixed-position containers,
+           [members, attributes, properties]; rStuff possibly folding in as the instance's properties.
+         - Recon: blast radius (every reader of groupList/propertyList, every has* reader, every
+           next()/prior() caller, every rStuff field read), plus where the turtles stop.
+         - It may change where 1.4 puts the rule facts.
+         - Also note it in docs/fieldFlavors.md, marked not ruled.
+      2. EXPRESSION RECON (read-only, in depth), after redesign step 1 seals and before parse-then-fire
+         resumes.
+         - Scope: interpretXP's right-to-left walk; TokenXP's unary operators; how results are wrapped
+           and unwrapped; how the jitter consumes an expression today.
+         - Census: the unary-plus-postfix spellings in Tony's incantations.
+         - Its question: what shape the jitter wants (JIT-first, Tony's September ruling: the jit is the
+           reference, interpret matches).
+         - Acceptance lines, both from kant, neither working today:
+             block := Grokking["BlocK"]; result = *block(code);   -- the call is lost after *
+             BlocK(code)                                          -- the name resolves to an instance
+                                                                  -- with a bare rStuff, not the rule
+         - Same family as starDotNull (*a.b).
+      3. Tony's parseCode in tester is PARKED as a design probe until the expression work lands.
+         compileIn stays as processCode's tool.
+SEAL (docs) AND STOP.
+  END SEQ 309

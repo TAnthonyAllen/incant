@@ -1,3 +1,11 @@
+# ⚠⚠ AMENDED 2026-10-05 AFTER SEAL 70 (docs only, no checklist run) -- SEQ 309: THREE DESIGN ITEMS DOCKETED (TODO.md).
+#
+#   ## THE OPENER'S ORDER, as amended: (1) actionMethod retires (SEQ 308 R1), unchanged. (2) CONTAINERS RECON
+#   (read-only) before 1.3/1.4 are dispatched -- Tony's fixed-position [members, attributes, properties] idea, not
+#   ruled; may move where 1.4 puts the rule facts. (3) EXPRESSION RECON (read-only, in depth) after redesign step 1
+#   seals and BEFORE parse-then-fire resumes; acceptance lines `result = *block(code);` and `BlocK(code)`, both kant,
+#   neither working today. Tony's parseCode in tester is PARKED as a design probe until (3) lands.
+
 # ⚠⚠⚠ SEALED 2026-10-05 (70, SHUTDOWN) ON TRUNK -- SEQ 308: stroke12g MERGED (BOUGHT). STROKE 1.2 COMPLETE. SEAL AND STOP.
 #
 #   ## THE OPENER: (1) actionMethod RETIRES (SEQ 308 R1, Tony's vote) by a fresh dispatch -- it leaves RuleStuff and

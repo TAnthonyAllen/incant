@@ -472,6 +472,24 @@ projectBible.md "Phase Generate Tawk".
 
 ## Pending (not current arc)
 
+- [ ] **SEQ 309 DOCKET (2026-10-05, Tony by forwarding; docs only, nothing built or measured). Three design items,
+  in this order of business:**
+  1. **CONTAINERS RECON (read-only), BEFORE 1.3/1.4 are dispatched.** Tony's idea, **not ruled**: the group list
+     holds only fixed-position containers, `[members, attributes, properties]`, with `rStuff` possibly folding in as
+     the instance's properties. The recon: blast radius (every reader of `groupList`/`propertyList`, every `has*`
+     reader, every `next()`/`prior()` caller, every `rStuff` field read), plus where the turtles stop. It may change
+     where 1.4 puts the rule facts. Also noted in `docs/fieldFlavors.md`, marked not ruled.
+  2. **EXPRESSION RECON (read-only, in depth), AFTER redesign step 1 seals and BEFORE parse-then-fire resumes.**
+     Scope: `interpretXP`'s right-to-left walk; `TokenXP`'s unary operators; how results are wrapped and unwrapped;
+     how the jitter consumes an expression today. Census: the unary-plus-postfix spellings in Tony's incantations.
+     Its question: what shape the jitter wants (JIT-first, Tony's September ruling: the jit is the reference,
+     interpret matches). **Acceptance lines, both kant, neither working today:**
+     `block := Grokking["BlocK"]; result = *block(code);` -- the call is lost after `*`;
+     `BlocK(code)` -- the name resolves to an instance with a bare `rStuff`, not the rule.
+     Same family as starDotNull (`*a.b`) and bear-traps #48/#52 (one prefix, one postfix per `TokenXP`).
+  3. **Tony's `parseCode` in `IncantForms/WorkingOn/tester` is PARKED as a design probe until the expression work
+     lands.** `compileIn` stays as `processCode`'s tool.
+
 - [ ] **parseR -- a road anyone uses, or a cleanup candidate? Tony's call.** (Docketed 2026-10-04, SEQ 290 R5, no
   action.) Its only entry is a kant rule called with a field that has no data (driveStep's no-data arm). Before
   `incant/pop/parseRT` (stroke 1.1 site 2), nothing in the fleet reached it: a tap counted 0 calls across every

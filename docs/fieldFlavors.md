@@ -194,3 +194,11 @@ default arm (`"access to X not supported yet"`). "Write" says whether `:.` has a
   `isRuleTerm()`.)
 
 **Standing (Tony, 2026-09-30):** no sweep. Other flags that could become property fields are taken up as we trip over them in ordinary work; the census above is the reference when one comes up.
+
+## Containers idea (2026-10-05, SEQ 309 item 1) -- Tony's, NOT RULED.
+
+The group list holds only fixed-position containers, `[members, attributes, properties]`; `rStuff` possibly folds in
+as the instance's properties. This bears on the "Lists" paragraph above (one list vs stroke 3's two). Nothing is
+decided: a read-only recon comes first, before strokes 1.3/1.4 are dispatched -- blast radius (every reader of
+`groupList`/`propertyList`, every `has*` reader, every `next()`/`prior()` caller, every `rStuff` field read) and
+where the turtles stop. It may change where 1.4 puts the rule facts. Docket: `TODO.md`, SEQ 309.
