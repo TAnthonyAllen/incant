@@ -1,0 +1,43 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking;
+include("IncantForms/WorkingOn/parser");
+define
+    llSay code={
+        v := tell(argument);
+        m := *v["matched"]; c := *v["consumed"];
+        cerr "LL-DRIVE " argument " matched= " m " consumed= " c:;
+        rp = 0;
+        if *v["reply"];     rp = 1;
+        if rp == 1;     labelSpans(*v["reply"]);
+        if rp == 0;     cerr "SPAN (no reply)":;
+        };
+    ;
+register(LeafLab);
+define
+    LlOUT isRule lp-="(" wd=[a-z]+ rp-=")";
+    ;
+search GroupFields UnitTests Utilities LeafLab list;
+cerr "--- OLD ROAD":;
+llSay("LlOUT (abc)");
+parser(LlOUT);
+cerr "--- NEW ROAD":;
+llSay("LlOUT (abc)");
+llSay("LlOUT (xyzw)");
+cerr "LEAFLABEL SENTINEL":;
+stop();
+
+leafLabelT -- A NEW-ROAD LEAF'S LABEL, READ BACK BY VALUE (SEQ 302 R1; 1.2f leans on this row).
+
+LlOUT's middle term `wd=[a-z]+` is a labelled SET leaf: on the new road it is parseSet, which since 1.2c keeps its label
+in a local and hands it to exitFromParse, where it attaches under LlOUT's label. labelSpans prints the reply tree with
+each node's tag and the span it covers, so the row reads the leaf's TAG (wd) and its TEXT (abc, then xyzw) by value.
+The old road runs first (parser() is one-way) as the comparison: the same tree, the same span.
+
+Before this row the leaf-label handoff's only witness was leafClassT, which crashed when the label went missing. H7
+(the leaves hand the exit no label), this fixture alone under an alarm: the wd node is absent from the new-road tree
+-- a wrong VALUE, not a crash.
+
+labelSpans is a printer beside labelTree (measure.twk): labelTree prints tags only, and a kant subscript could not reach
+the child label of tell's reply (`*lt["wd"]` and `*lt[1]` both read nothing; measured 2026-10-05).

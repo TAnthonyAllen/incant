@@ -21,6 +21,7 @@ extern "C" int auditSpurious(GroupItem *registry);
 extern "C" GroupItem *canonOf(GroupItem *argument);
 extern "C" GroupItem *chanReport(GroupItem *input);
 extern "C" void includeGroupList(GroupItem *field);
+extern "C" GroupItem *labelSpans(GroupItem *field);
 extern "C" GroupItem *labelTree(GroupItem *field);
 extern "C" GroupItem *measureAdoption(GroupItem *field, GroupItem *handed, GroupItem *adopted);
 extern "C" GroupItem *measureAttachRepeat(RuleStuff *stuff, GroupItem *lab);

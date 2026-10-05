@@ -55,6 +55,7 @@ define
     jitShowRecord immediateAction=jitShowRecord;
     jitTrace immediateAction=jitTrace;
     labelTree immediateAction;
+    labelSpans immediateAction;
     listenTo immediateAction noPrint;
     load immediateAction=loadDirectory noPrint;
     macro immediateAction=processFlags noPrint;

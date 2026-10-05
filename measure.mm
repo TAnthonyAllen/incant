@@ -214,6 +214,36 @@ extern "C" void includeGroupList(GroupItem *field)
 		return;
 }
 
+// labelSpans print a label tree as SPAN <depth> <tag> [<text>], one line per node -- labelTree plus the span each label covers, so a leaf's label is read BY VALUE (SEQ 302 R1); a token prints its span, other data its text, no data (none); no addresses (H3)
+extern "C" GroupItem *labelSpans(GroupItem *field)
+{
+	
+	struct LS {
+	static void walk(GroupItem *n, int d)
+	{
+	if ( !n ) return;
+	const char *tag = n->groupBody->tag ? n->groupBody->tag : "(untagged)";
+	if ( isTOKEN(n->groupBody->flags.data) && n->getText() )
+	::fprintf(stderr,"SPAN %d %s [%.*s]\n",d,tag,(int)n->getCount(),n->getText());
+	else if ( n->groupBody->flags.data && !isGROUP(n->groupBody->flags.data) && n->getText() )
+	::fprintf(stderr,"SPAN %d %s [%s]\n",d,tag,n->getText());
+	else
+	::fprintf(stderr,"SPAN %d %s (none)\n",d,tag);
+	if ( n->groupBody->groupList )
+	for ( GroupItem *c = n->groupBody->groupList->firstInList; c; c = c->nextInParent )
+	walk(c,d + 1);
+	}
+	};
+	GroupItem *n = field;
+	int hops = 0;
+	while ( n && isGROUP(n->groupBody->flags.data) && !n->groupBody->groupList && hops++ < 8 ) n = n->getGroup();
+	if ( !n ) ::fprintf(stderr,"SPAN (none)\n");
+	else      LS::walk(n,1);
+	::fflush(stderr);
+	
+	return GroupControl::groupController->groupRules->trueResult;
+}
+
 // labelTree print a label tree as TREE <depth> <tag>, one line per node, depth-first -- unwraps holders first, prints no addresses (H3), so a fixture can pin it
 extern "C" GroupItem *labelTree(GroupItem *field)
 {
