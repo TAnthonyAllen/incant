@@ -748,6 +748,9 @@ define
                     already named, so the item is skipped quietly. The reported `* *x` was a
                     red herring: with a space the leading star is BINARY MULTIPLY against the
                     item before it.#);
+            compileIn=(the kant compile: drives `source` on a floor marked as a compile for
+                `owner`, then pops. The pop is the restore, so a refusal inside leaves nothing
+                set. A caller needs no processingCodE or currentMETHOD bracket around it (SEQ 299).#);
             driveStep=(runRule's body, and the one drive runRule and tell share. A non-null
                 report receives the drive's numbers as OFFSETS into the message, never
                 addresses (H3). Its children moved here from runRule 2026-09-27 -- the code

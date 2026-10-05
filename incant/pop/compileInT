@@ -52,19 +52,18 @@ search reset stack Grokking;
 define
     WardeD
         TellST  isRule tellst- target=[a-zA-Z0-9]+ message?=[^;]+ SemI- ruleMethod=aCTionTell;
+        PcST    isRule pcst- SemI- code={ cerr "CI-H4 a rule fired BY the compile reads processingCodE -> " ciReq.processingCodE:; };
     ;
 register(CiLadder);
 define
-    CiA isRule "a"- code={ cerr "CIFIRE CiA":; };
+    CiA isRule "a"- code={ cerr "CI-H3 inside a drive pushed INSIDE the compile, processingCodE -> " ciReq.processingCodE:; cerr "CIFIRE CiA":; };
     ;
 register(CompileInH);
 search reset stack Grokking UnitTests Utilities CompileInT CiLadder list;
 define
     ciHeld code={
         tellst CiA a;
-        };
-    ciFree code={
-        v := tell("StatemenT tellst CiA a;");
+        pcst;
         };
     ;
 cerr "CI-H1 compile begins":;
@@ -72,7 +71,31 @@ ciCompile(ciHeld);
 cerr "CI-H1 compile ends":;
 ciHeld();
 cerr "CI-H2 call ends":;
-ciFree();
-cerr "CI-H3 the same statement driven outside a compile ends":;
 print "COMPILEIN SENTINEL -- reached the foot":;
 stop();
+
+compileInT -- compileIn: the kant compile (SEQ 299 R2/R4). The kant call, spelled as a port of processCode would:
+
+    ciReq owner source;                 (define: a request field with two attributes)
+    ciSrc := argument.CodE;
+    ciReq.owner  := argument;           (the action the body's names belong to)
+    ciReq.source := ciSrc;              (the code to drive; holders are unwrapped)
+    ciResult := compileIn(ciReq);       (the BlocK label, or falseResult when the parse failed)
+    *ciResult :. noPrinT;  argument :. isActioN;  argument +< *ciResult;
+
+No processingCodE pair and no currentMETHOD bracket: compileIn pushes a floor marked for the owner, drives, pops.
+
+Rows. CI-4a/CI-4b: the caller's currentMETHOD before and after (shell-compared: both ciCompile). CI-3: the statement
+after compileIn runs -- tester's blocker, closed. CI-2: the body's local landed in the ACTION; CI-2c: not in the caller.
+CI-2b: the action holds compileIn's BlocK before it is called (so CI-1 is not a lazy processCode compile); CI-2d is its
+control (a property it does not hold reads 0). CI-1: the action runs, ONCE -- a second CI-1 means a body ran while being
+compiled. CI-5/CI-6: after a compile that fails (ciBad), the driver's next statement and the file's next statement run;
+compileIn names the failure through reportCodeFail.
+
+R1's fixture (CI-H). A rule added to WardeD (TellST, ruleMethod=aCTionTell) fires DURING a compile, because it is a rule,
+and aCTionTell DRIVES -- so it is a drive pushed inside a compile. On trunk with the R4 tap (2026-10-05, reverted) this
+shape read ownerOnly=2 (both=36, markOnly=0) where a body with no such statement reads ownerOnly=0: the tap CAN see the
+disagreement P2's fold makes unconstructable. CI-H3: inside that nested drive processingCodE reads 0 -- a drive pushed
+inside a compile is its own root (SEQ 297 R1). CI-H4: a rule fired BY the compile itself (PcST) reads 1. All three lines
+sit between the CI-H1 markers, on stderr so their order is real. ⚠ TellST MUST carry isRule: without it the statement
+still matches and its action never fires, and the shape reads ownerOnly=0 -- the first attempt at R1 did exactly that.
