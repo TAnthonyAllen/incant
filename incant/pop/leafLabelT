@@ -16,28 +16,35 @@ define
     ;
 register(LeafLab);
 define
-    LlOUT isRule lp-="(" wd=[a-z]+ rp-=")";
+    LlWord=[a-z]+;
+    ;
+define
+    LlOUT isRule lp="(" kw="let" LlWord rp=")";
     ;
 search GroupFields UnitTests Utilities LeafLab list;
 cerr "--- OLD ROAD":;
-llSay("LlOUT (abc)");
+llSay("LlOUT (letabc)");
 parser(LlOUT);
 cerr "--- NEW ROAD":;
-llSay("LlOUT (abc)");
-llSay("LlOUT (xyzw)");
+llSay("LlOUT (letabc)");
+llSay("LlOUT (letxyzw)");
 cerr "LEAFLABEL SENTINEL":;
 stop();
 
 leafLabelT -- A NEW-ROAD LEAF'S LABEL, READ BACK BY VALUE (SEQ 302 R1; 1.2f leans on this row).
 
-LlOUT's middle term `wd=[a-z]+` is a labelled SET leaf: on the new road it is parseSet, which since 1.2c keeps its label
-in a local and hands it to exitFromParse, where it attaches under LlOUT's label. labelSpans prints the reply tree with
-each node's tag and the span it covers, so the row reads the leaf's TAG (wd) and its TEXT (abc, then xyzw) by value.
-The old road runs first (parser() is one-way) as the comparison: the same tree, the same span.
+LlOUT's terms lp="(", kw="let" and rp=")" are LABELLED LITERALS: parser() installs them as new-road parseString leaves,
+which since 1.2c keep their label in a local and hand it to exitFromParse, where it attaches under LlOUT's label.
+labelSpans prints the reply tree with each node's tag and the span it covers, so the row reads each leaf's TAG and
+TEXT by value -- lp [(], kw [let], rp [)]. LlWord is a set FIELD; it runs the old road inside the new-road body
+(driveStep's old-road attach), so it is the control: present under the H7 as well as without it. The old road runs
+first (parser() is one-way) as the comparison.
 
-Before this row the leaf-label handoff's only witness was leafClassT, which crashed when the label went missing. H7
-(the leaves hand the exit no label), this fixture alone under an alarm: the wd node is absent from the new-road tree
--- a wrong VALUE, not a crash.
+⚠ WHY LITERALS, measured 2026-10-05: a labelled inline SET (wd=[a-z]+) and a set field both kept their labels when the
+leaves handed the exit no label -- they do not take the new-road leaf path -- so a set-only fixture certified nothing.
+The labelled literals' labels vanish under that H7: a wrong VALUE, not a crash.
+
+Before this row the leaf-label handoff's only witness was leafClassT, which crashed when the label went missing.
 
 labelSpans is a printer beside labelTree (measure.twk): labelTree prints tags only, and a kant subscript could not reach
-the child label of tell's reply (`*lt["wd"]` and `*lt[1]` both read nothing; measured 2026-10-05).
+the child label of tell's reply (`*lt["wd"]` and `*lt[1]` both read nothing).
