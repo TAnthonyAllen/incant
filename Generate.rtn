@@ -245,7 +245,7 @@ RuleStuff   ruleStuff = rStuff;
     // activePush this call's record goes on the activation list; one pop, after exitFromParse
     callActive.face     = field;
     callActive.isFloor  = 0;
-    callActive.isCompile = 0;
+    callActive.compileOwner = null;
     callActive.label    = null;
     callActive.prev     = ruler.gParseActive;
     callActive.failPoint = null;

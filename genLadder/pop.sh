@@ -643,6 +643,47 @@ _n=$(grep -c "CF-2 an expression after the failed compile runs" "$T/cft")
 if [ "$_n" = "1" ]; then echo "  ok    compileFloorT CF-2 printed once (no body ran while compiling) = $_n"; green=$((green+1))
 else echo "  FAIL  compileFloorT CF-2 printed $_n times, want 1 -- a body ran while it was being compiled"; fail=1; fi
 
+#  ⚠ compileInT -- compileIn, THE KANT COMPILE (SEQ 299). Born red on trunk (no compileIn there). CI-1 must print
+#  ONCE: a second means a body ran while it was compiled (H7: compileIn's floor unmarked). CI-H is R1's fixture: a
+#  drive pushed inside a compile reads processingCodE 0, a rule fired by the compile reads 1, in that order.
+run1 compileInT "$T/cit"; check "compileInT runs" 0 $?
+sentinel "compileInT sentinel (no truncation)" "$T/cit" "COMPILEIN SENTINEL"
+for _j in "CI-3 the statement after compileIn runs -> 1" \
+          "CI-2 the body's name landed in the action -> 1" \
+          "CI-2c the body's name landed in the CALLER -> 0" \
+          "CI-2b the action holds a BlocK property before its call ->  1" \
+          "CI-2d control: a property it does not hold reads           ->  0" \
+          "CI-1 the action compiled by compileIn runs ->  7" \
+          "ERROR processCode: ciBad parse failed" \
+          "CI-5 the statement after a refused compile runs -> 1" \
+          "CI-6 the file's next statement after a refused compile runs -> 1" \
+          "CI-7 testing compileIn's answer -> true" \
+          "CI-9a after a good compile, request.result holds a group ->  1" \
+          "CI-9c a failed compile answered -> false" \
+          "CI-9b after a failed compile, request.result holds a group ->  0"; do
+    if grep -qF "$_j" "$T/cit"; then
+        echo "  ok    compileInT ${_j} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  compileInT -- wanted: $_j"; fail=1
+    fi
+done
+_a=$(grep -F "CI-4a currentMETHOD before" "$T/cit" | sed 's/.*-> *//; s/ *$//' | head -1)
+_b=$(grep -F "CI-4b currentMETHOD after" "$T/cit" | sed 's/.*-> *//; s/ *$//' | head -1)
+if [ -n "$_a" ] && [ "$_a" = "$_b" ] && [ "$_a" = "ciCompile" ]; then echo "  ok    compileInT CI-4 currentMETHOD unchanged across compileIn = $_a"; green=$((green+1))
+else echo "  FAIL  compileInT CI-4 currentMETHOD before [$_a] after [$_b], want ciCompile both"; fail=1; fi
+#  CI-7x: compileIn ANSWERS true/false (SEQ 300) -- a held answer truth-tested fires nothing. Born red at fc22f8c, where
+#  it handed back the BlocK label and `if ciAns;` ran the body. H7 (the label returned again) -> red.
+_f=$(grep -c "CI-7x FIRED" "$T/cit")
+if [ "$_f" = "0" ]; then echo "  ok    compileInT CI-7x testing compileIn's answer fired nothing = $_f"; green=$((green+1))
+else echo "  FAIL  compileInT CI-7x testing compileIn's answer FIRED the body $_f times, want 0"; fail=1; fi
+_n=$(grep -c "CI-1 the action compiled by compileIn runs" "$T/cit")
+if [ "$_n" = "1" ]; then echo "  ok    compileInT CI-1 printed once (no body ran while compiling) = $_n"; green=$((green+1))
+else echo "  FAIL  compileInT CI-1 printed $_n times, want 1 -- a body ran while it was being compiled"; fail=1; fi
+_h=$(sed -n '/CI-H1 compile begins/,/CI-H1 compile ends/p' "$T/cit" | grep -E '^CI-H[34]|^CIFIRE' | sed 's/ *$//' | tr '\n' '|')
+if [ "$_h" = "CI-H3 inside a drive pushed INSIDE the compile, processingCodE ->  0|CIFIRE CiA|CI-H4 a rule fired BY the compile reads processingCodE ->  1|" ]; then
+    echo "  ok    compileInT CI-H a drive inside a compile reads 0, the compile's own rule reads 1, in order"; green=$((green+1))
+else echo "  FAIL  compileInT CI-H block between the compile markers was: $_h"; fail=1; fi
+
 #  ⚠ setFlagTopT -- `x :. noPrinT` AT TOP LEVEL (SEQ 298 R1, PIN ONLY). Born RED and stays red until the fixit
 #  setFlagTopLevel (owner Clod) is stepped: the top-level SET fails ("opSetFlag: missing operand"); the read is sound,
 #  as the in-action sibling shows. Two reads: the read-back and dumpContents' noPrint column.

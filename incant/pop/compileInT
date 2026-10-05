@@ -1,0 +1,127 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(CompileInT);
+define
+    ciReq owner source result;
+    ciTarget code={
+        ciLoc = 7;
+        print "CI-1 the action compiled by compileIn runs -> " ciLoc:;
+        };
+    ciBad code={
+        ciLoc = ) ;
+        };
+    ciCompile code={
+        ciSrc := argument.CodE;
+        ciReq.owner  := argument;
+        ciReq.source := ciSrc;
+        print "CI-4a currentMETHOD before compileIn -> " *currentMETHOD:;
+        if compileIn(ciReq);
+            ciBlock = ciReq.result;
+            *ciBlock :. noPrinT;
+            argument :. isActioN;
+            argument +< *ciBlock;
+        print "CI-3 the statement after compileIn runs -> 1":;
+        print "CI-4b currentMETHOD after compileIn  -> " *currentMETHOD:;
+        print "CI-9a after a good compile, request.result holds a group -> " ciReq.result.isGrouP:;
+        };
+    ciCompileBad code={
+        ciSrc := argument.CodE;
+        ciReq.owner  := argument;
+        ciReq.source := ciSrc;
+        if compileIn(ciReq);  print "CI-9c a failed compile answered -> true":;
+        else    print "CI-9c a failed compile answered -> false":;
+        print "CI-5 the statement after a refused compile runs -> 1":;
+        print "CI-9b after a failed compile, request.result holds a group -> " ciReq.result.isGrouP:;
+        };
+    ciFire code={
+        cerr "CI-7x FIRED -- compileIn's answer was a BlocK, and testing it ran the body":;
+        };
+    ciAnswer code={
+        ciSrc := argument.CodE;
+        ciReq.owner  := argument;
+        ciReq.source := ciSrc;
+        ciAns := compileIn(ciReq);
+        if ciAns;  cerr "CI-7 testing compileIn's answer -> true":;
+        };
+    ciLanded code={
+        if ciTarget["ciLoc"];  print "CI-2 the body's name landed in the action -> 1":;
+        else    print "CI-2 the body's name landed in the action -> 0":;
+        if ciCompile["ciLoc"];  print "CI-2c the body's name landed in the CALLER -> 1":;
+        else    print "CI-2c the body's name landed in the CALLER -> 0":;
+        ciBl := ciTarget =< "BlocK";
+        print "CI-2b the action holds a BlocK property before its call -> " ciBl.isGrouP:;
+        ciNo := ciTarget =< "NoSuchProp";
+        print "CI-2d control: a property it does not hold reads           -> " ciNo.isGrouP:;
+        };
+    ;
+ciCompile(ciTarget);
+ciLanded();
+ciTarget();
+ciAnswer(ciFire);
+ciCompileBad(ciBad);
+print "CI-6 the file's next statement after a refused compile runs -> 1":;
+search reset stack Grokking;
+define
+    WardeD
+        TellST  isRule tellst- target=[a-zA-Z0-9]+ message?=[^;]+ SemI- ruleMethod=aCTionTell;
+        PcST    isRule pcst- SemI- code={ cerr "CI-H4 a rule fired BY the compile reads processingCodE -> " ciReq.processingCodE:; };
+    ;
+register(CiLadder);
+define
+    CiA isRule "a"- code={ cerr "CI-H3 inside a drive pushed INSIDE the compile, processingCodE -> " ciReq.processingCodE:; cerr "CIFIRE CiA":; };
+    ;
+register(CompileInH);
+search reset stack Grokking UnitTests Utilities CompileInT CiLadder list;
+define
+    ciHeld code={
+        tellst CiA a;
+        pcst;
+        };
+    ;
+cerr "CI-H1 compile begins":;
+ciCompile(ciHeld);
+cerr "CI-H1 compile ends":;
+ciHeld();
+cerr "CI-H2 call ends":;
+print "COMPILEIN SENTINEL -- reached the foot":;
+stop();
+
+compileInT -- compileIn: the kant compile (SEQ 299 R2/R4). The kant call, spelled as a port of processCode would:
+
+    ciReq owner source;                 (define: a request field with two attributes)
+    ciSrc := argument.CodE;
+    ciReq.owner  := argument;           (the action the body's names belong to)
+    ciReq.source := ciSrc;              (the code to drive; holders are unwrapped)
+    if compileIn(ciReq);                (answers true or false -- never the BlocK; SEQ 300)
+        ciBlock = ciReq.result;         (the BlocK rides on the request; `=` carries the holder's group across)
+        *ciBlock :. noPrinT;  argument :. isActioN;  argument +< *ciBlock;
+
+⚠ THE RULED SPELLING `*ciReq.result` IS STRUCK (the ruling stands): with the dot-chain fold the star binds to ciReq
+first, ciReq holds no group, and opDot's non-groupField arm dereferences the null target -- exit 139, ZERO output
+(measured 2026-10-05). `**x` after `x := ciReq.result` refuses as binary multiply; `*( ... )` does not parse.
+
+No processingCodE pair and no currentMETHOD bracket: compileIn pushes a floor marked for the owner, drives, pops.
+
+Rows. CI-4a/CI-4b: the caller's currentMETHOD before and after (shell-compared: both ciCompile). CI-3: the statement
+after compileIn runs -- tester's blocker, closed. CI-2: the body's local landed in the ACTION; CI-2c: not in the caller.
+CI-2b: the action holds compileIn's BlocK before it is called (so CI-1 is not a lazy processCode compile); CI-2d is its
+control (a property it does not hold reads 0). CI-1: the action runs, ONCE -- a second CI-1 means a body ran while being
+compiled. CI-5/CI-6: after a compile that fails (ciBad), the driver's next statement and the file's next statement run;
+compileIn names the failure through reportCodeFail.
+
+CI-7/CI-7x (SEQ 300): a held answer, `ciAns := compileIn(ciReq); if ciAns;`, fires nothing -- BORN RED at fc22f8c, where
+the answer was the BlocK label and the test RAN ciFire's body. ⚠ The direct form `if compileIn(ciReq);` did NOT fire at
+fc22f8c either (the call's value is truth-tested, not called), so it cannot carry this row. CI-9a/CI-9b: request.result
+holds the BlocK after a good compile and is EMPTY after a failed one on the same request -- not stale; CI-9c: the
+failed compile answered false.
+
+R1's fixture (CI-H). A rule added to WardeD (TellST, ruleMethod=aCTionTell) fires DURING a compile, because it is a rule,
+and aCTionTell DRIVES -- so it is a drive pushed inside a compile. On trunk with the R4 tap (2026-10-05, reverted) this
+shape read ownerOnly=2 (both=36, markOnly=0) where a body with no such statement reads ownerOnly=0: the tap CAN see the
+disagreement P2's fold makes unconstructable. CI-H3: inside that nested drive processingCodE reads 0 -- a drive pushed
+inside a compile is its own root (SEQ 297 R1). CI-H4: a rule fired BY the compile itself (PcST) reads 1. All three lines
+sit between the CI-H1 markers, on stderr so their order is real. ⚠ TellST MUST carry isRule: without it the statement
+still matches and its action never fires, and the shape reads ownerOnly=0 -- the first attempt at R1 did exactly that.

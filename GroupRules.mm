@@ -812,11 +812,11 @@ GroupItem 	*source = 0;
 *******************************************************************************/
 extern "C" GroupItem *aCTionNamE(GroupItem *input)
 {
-	// compileOwner while compiling the owner is the action processCode is compiling, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213)
+	// compileOwner while compiling the owner is the one the compile's floor carries, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213, SEQ 299)
 GroupRules *ruler = GroupControl::groupController->groupRules;
 GroupItem *owner = ruler->currentMETHOD->getGroup();
-	if ( ruler->inCompile() && ruler->gCompileOwner )
-		owner = ruler->gCompileOwner;
+	if ( ruler->inCompile() )
+		owner = ruler->floorOwner();
 	input->setGroup(resolveName(input->getText(),owner));
 	return input;
 }
@@ -1791,6 +1791,53 @@ endCompile:
 	return field;
 }
 
+// compileIn THE KANT COMPILE: drive `source` as a compile for `owner` on its own floor, and pop -- the pop is the restore, so nothing is left set (SEQ 299); answers true or false, the BlocK goes on the request's `result` (SEQ 300)
+extern "C" GroupItem *compileIn(GroupItem *input)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*spec = input;
+GroupItem 	*blockRULE = ruler->grokking->getMember("BlocK");
+GroupItem 	*ciReport = new GroupItem("driveReport");
+GroupItem 	*ciOwner = 0;
+GroupItem 	*ciSource = 0;
+GroupItem 	*ciSlot = 0;
+GroupItem 	*got = 0;
+GroupItem 	*result = 0;
+char 		*failText = 0;
+	if ( spec && isGROUP(spec->groupBody->flags.data) )
+		spec = spec->groupBody->gGroup;
+	if ( spec )
+		{
+		ciOwner = spec->get("owner");
+		ciSource = spec->get("source");
+		}
+	// namedOperands owner and source are attributes of the one argument; each may be a holder of a holder (a local bound with :=), so unwrap to the node
+	while ( ciOwner && isGROUP(ciOwner->groupBody->flags.data) && ciOwner->groupBody->gGroup )
+		ciOwner = ciOwner->groupBody->gGroup;
+	while ( ciSource && isGROUP(ciSource->groupBody->flags.data) && ciSource->groupBody->gGroup )
+		ciSource = ciSource->groupBody->gGroup;
+	if ( !ciOwner || !ciSource )
+		return ::refuse(input,"compileIn: the argument needs an `owner` and a `source` attribute -- the action to compile for, and the code to drive");
+	if ( !ciSource->groupBody->flags.data )
+		return ::refuse(ciOwner,"compileIn: `source` carries no code");
+	// resultSlot the BlocK goes back on the request's `result`, never as the answer -- truth-testing a label FIRES it (#34); emptied first, so a failure leaves it empty, never stale (SEQ 300)
+	ciSlot = spec->get("result");
+	if ( !ciSlot )
+		ciSlot = spec->addAttribute(new GroupItem("result"));
+	ciSlot->setGroup(0);
+	result = ::driveStep(ciSource,blockRULE,ciReport,ciOwner);
+	if ( result && result != ruler->falseResult )
+		{
+		ciSlot->setGroup(result);
+		return ruler->trueResult;
+		}
+	if ( got = ciReport->get("failedAt") )
+		if ( got->getCount() >= 0 )
+			failText = ciSource->getText() + got->getCount();
+	reportCodeFail(ciOwner,failText);
+	return ruler->falseResult;
+}
+
 /*******************************************************************************
 	copyOf() makes a copy of the field passed in. The copy groupBody is a copy.
     if the source isVirtual the copy will share the same list as grup (the source).
@@ -2045,7 +2092,7 @@ ParseActivation 	*top = ruler->gParseActive;
 }
 
 // driveStep runRule's body and the one drive runRule and tell share: divert input to the field's content, run the rule, and report OFFSETS into the message, never addresses (H3)
-extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report, int isCompile)
+extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report, GroupItem *forOwner)
 {
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 GroupItem 			*result = 0;
@@ -2068,8 +2115,8 @@ char 				*driveBase = 0;
 	// driveFloor a drive pushes a FLOOR on the new road's activation list; deferredAbove stops there (Tony, 2026-09-24)
 	driveFloor.face = 0;
 	driveFloor.isFloor = 1;
-	// compileMark processCode alone passes 1: the floor of a compile's drive answers inCompile(), and its pop is the restore (SEQ 297)
-	driveFloor.isCompile = isCompile;
+	// compileMark a compile's drive passes its owner: the floor answers inCompile() and floorOwner(), and its pop is the restore (SEQ 297, SEQ 299)
+	driveFloor.compileOwner = forOwner;
 	driveFloor.label = 0;
 	driveFloor.prev = ruler->gParseActive;
 	driveFloor.failPoint = 0;
@@ -5656,7 +5703,7 @@ extern "C" int jitProbeDrive(GroupItem *rule, GroupItem *armed, char *msg, int j
 	ruler->divertToRule = 1;
 	//  probeFloor A DRIVE HIDES ITS CALLER: the floor goes on before the push and comes off before the single return (stroke 5.5f, SEQ 241)
 	ParseActivation probeFloor;
-	probeFloor.face = 0; probeFloor.isFloor = 1; probeFloor.isCompile = 0; probeFloor.label = 0; probeFloor.prev = ruler->gParseActive; probeFloor.stuff = 0;
+	probeFloor.face = 0; probeFloor.isFloor = 1; probeFloor.compileOwner = 0; probeFloor.label = 0; probeFloor.prev = ruler->gParseActive; probeFloor.stuff = 0;
 	ruler->gParseActive = &probeFloor;
 	//  branchFrame a drive door is a frame for the control slot until D-22 unifies the doors (SEQ 264 R2)
 	int probeBranchSave = ruler->branchKind;
@@ -8830,7 +8877,7 @@ GroupItem 			*result = 0;
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 	topFloor.face = 0;
 	topFloor.isFloor = 1;
-	topFloor.isCompile = 0;
+	topFloor.compileOwner = 0;
 	topFloor.label = 0;
 	topFloor.prev = ruler->gParseActive;
 	topFloor.failPoint = 0;
@@ -8865,7 +8912,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	// activePush this call's record goes on the activation list; one pop, after exitFromParse
 	callActive.face = field;
 	callActive.isFloor = 0;
-	callActive.isCompile = 0;
+	callActive.compileOwner = 0;
 	callActive.label = 0;
 	callActive.prev = ruler->gParseActive;
 	callActive.failPoint = 0;
@@ -9325,7 +9372,6 @@ GroupItem 	*got = 0;
 GroupItem 	*code = 0;
 GroupItem 	*result = 0;
 GroupItem 	*priorMETHOD = ruler->currentMETHOD->getGroup();
-GroupItem 	*priorOwner = ruler->gCompileOwner;
 GroupItem 	*action = field;
 int 		indenter = ruler->lastIndent;
 char 		*failText = 0;
@@ -9354,10 +9400,8 @@ char 		*failText = 0;
 	ruler->currentMETHOD->setGroup(action);
 	ruler->lastIndent = 0;
 	// compileIsADrive the compile is a DRIVE: BlocK's generated parse when it carries one, the old road otherwise, on a floor either way -- a compile after parser() used to refuse (F-128)
-	// compileOwner the ONE writer of gCompileOwner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214)
-	ruler->gCompileOwner = action;
-	result = ::driveStep(code,blockRULE,codeReport,1);
-	ruler->gCompileOwner = priorOwner;
+	// compileOwner the drive's floor carries the owner: aCTionNamE mints the body's names into this action, never into the grammar face a generated body makes current (SEQ 214, SEQ 299)
+	result = ::driveStep(code,blockRULE,codeReport,action);
 	if ( result )
 		{
 		result->groupBody->flags.noPrint = 1;
@@ -10739,7 +10783,6 @@ GroupRules::GroupRules()
 	ruleSTUFF = 0;
 	currentDefine = 0;
 	currentMETHOD = 0;
-	gCompileOwner = 0;
 	currentRegistry = 0;
 	debugJunk = 0;
 	baseRegistryList = 0;
@@ -10968,17 +11011,25 @@ char 		*atReplaceNewline = 0;
 
 /*******************************************************************************
     inCompile -- is the parse I am inside a compile? The NEAREST drive floor
-    answers: processCode marks the floor its drive pushes (isCompile), and a
-    drive pushed inside a compile is its own root, unmarked (SEQ 297 R1). The
-    pop of that floor is the restore, so an unwound compile cannot leave it set.
+    answers: a compile's drive (processCode, compileIn) writes its owner on the
+    floor it pushes, and a drive pushed inside a compile is its own root, with
+    no owner (SEQ 297 R1). The pop of that floor is the restore, so an unwound
+    compile cannot leave it set. floorOwner is the owner itself (SEQ 299 R3).
 *******************************************************************************/
-int GroupRules::inCompile()
+GroupItem *GroupRules::floorOwner()
 {
 ParseActivation 	*top = gParseActive;
 	while ( top && !top->isFloor )
 		top = top->prev;
 	if ( top )
-		return top->isCompile;
+		return top->compileOwner;
+	return 0;
+}
+
+int GroupRules::inCompile()
+{
+	if ( floorOwner() )
+		return 1;
 	return 0;
 }
 
@@ -11059,6 +11110,8 @@ int 	result = 0;
 }
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)
+	driveStep(GroupItem*,GroupItem*,GroupItem*,null*)
+	reportCodeFail(GroupItem*,char*)
 	isDotUxp(GroupItem*)
 	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)

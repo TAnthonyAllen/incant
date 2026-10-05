@@ -31,6 +31,7 @@ define
     clear immediateAction=cLEAR;
     closeFile immediateAction;
     compile immediateAction;
+    compileIn immediateAction;
     condition immediateAction=processFlags noPrint;
     copyOf immediateAction;
     defer immediateAction=processFlags noPrint;
