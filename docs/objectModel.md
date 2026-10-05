@@ -356,6 +356,15 @@ rules on the amendment (R4).
    **AMENDS 1.1a FOR LEAVES (Tony, SEQ 302 R0):** 1.1a kept a recycled `fLAG` label on the stuff for reuse; a new-road
    LEAF now mints a fresh label instead of reusing one left on its stuff (0 occurrences in 202 files). The recycle
    stands for parseRule and the old road. `fLAG` stays a kant feature, kept to a temporary marker (Tony).
+   **1.2d MERGED 2026-10-05 (SEQ 303 R0; built SEQ 302, Groups e6fb999, support df5de33).** `sukcess` left RuleStuff.
+   Old-road parse()'s verdict is the local `callOK`; parseRule's is its own local `callOK`; checkInput RETURNS the guard
+   verdict and stores none (a rule with no test succeeds on it alone -- the first build lost that and broke setup). The
+   exit's clear, the bracket's sukcess slot and the constructor clears are gone. Recon tap (203 files): every decision
+   read read its own call's value; the only outside reader was the bracket save; H16 shown with a deliberate outside
+   reader (5,124). No row born red (the bracket protected the one cross-call case). "loopVerdict DISAGREE > 0" retired
+   by mapping. Directives respelled before the merge (`sukcess` -> `callOK` / `exitOK`), and three anchors that 1.2c/1.2d
+   had silently orphaned re-aimed (`parse fireLabelMethod` -> `"if callOK {" before`, `"if !checkInput"` ->
+   `"callOK      = checkInput"`, `exitFromParse fireLabelMethod` -> `"exitLab = cLab"`), each shown to inject.
 3. **`stuff` derived; `face` renamed `instance`.** The name clears the #58 check (grep, full bare-tokall diff) before
    the stroke opens.
 4. **Rule facts onto `groupBody`:** `ruleOf` and `instanceRule()`'s REGISTRY test retire.

@@ -20,6 +20,11 @@ instrument's missing list is an accident; two is the convention being too narrow
 read as a clean pass with an EMPTY output file. An empty capture at exit 0 is not a green; check
 that an instrument printed something before believing its status.
 
+## 2026-10-05, seal 62 -- 976 green / 51 red / 1 parked (trunk jit-unified-emit-wip, bare)
+
+**Unchanged from seal 60: the same 51 rows, diffed row for row.** Green fell by one: "loopVerdict positive control:
+DISAGREE > 0" retired by mapping with 1.2d (its stale flag no longer exists). None joined or left the red list.
+
 ## 2026-10-05, seal 60 -- 977 green / 51 red / 1 parked (trunk jit-unified-emit-wip, bare)
 
 **Unchanged from seal 57: the same 51 rows, diffed row for row.** Green rose by leafLabelT's four rows (SEQ 302 R1).
