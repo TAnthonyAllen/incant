@@ -637,6 +637,11 @@ for _j in "CF-0 processingCodE after a good compile   ->  0" \
         echo "  FAIL  compileFloorT -- wanted: $_j"; fail=1
     fi
 done
+#  H7 (the floor never marked): compiled bodies RUN while compiling, so CF-2 prints twice and the
+#  fleet falls 942 -> 555 green. This row is the fixture's own witness of it.
+_n=$(grep -c "CF-2 an expression after the failed compile runs" "$T/cft")
+if [ "$_n" = "1" ]; then echo "  ok    compileFloorT CF-2 printed once (no body ran while compiling) = $_n"; green=$((green+1))
+else echo "  FAIL  compileFloorT CF-2 printed $_n times, want 1 -- a body ran while it was being compiled"; fail=1; fi
 
 #  ⚠ argRoundJ -- THE JIT ARM. Minted pinned RED by name on jitArgBake and
 #  RE-PINNED GREEN the same day when the flag hoist discharged it; see the

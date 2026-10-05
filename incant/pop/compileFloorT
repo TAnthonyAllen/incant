@@ -45,6 +45,9 @@ and CF-2's expression runs. So CF-0..CF-2 are pinned GREEN on both trunk and the
 the parse-failure arm was driven; refuse() sets a flag and does not unwind, so a refusing compile also
 returns through the same restore (read in the source, not driven).
 
+The pop.sh row "CF-2 printed once" is the fixture's H7 witness: with the floor never marked, every
+compiled body RUNS while it is compiled and CF-2 prints twice (fleet 942 -> 555 green, measured).
+
 CF-3/CF-4 are P4: processingCodE is now a READ of the nearest drive floor, and a kant write refuses by
 name. On trunk the same write SET the global, aCTionXpress stopped running expressions, and the rest of
 the file never ran -- CF-3, CF-4 and the sentinel are absent there (born red). On the branch the write
