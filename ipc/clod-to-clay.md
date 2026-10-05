@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 194 at the FOOT -- SEQ 298: compileFloor MERGED; :. noPrinT pinned (top-level SET fails, born red); P3 recon: YES, the drive has the code field in hand at the floor push
+STATUS:   fresh           # SEQ 195 at the FOOT -- SEQ 299: compileIn + P2's fold BUILT on branch compileIn (fc22f8c / e436042), 962 / 51 row for row, NOT MERGED; R1's H16 met (TellST: ownerOnly=2)
+# prior: SEQ 194 at the FOOT -- SEQ 298: compileFloor MERGED; :. noPrinT pinned (top-level SET fails, born red); P3 recon: YES, the drive has the code field in hand at the floor push
 # prior: SEQ 193 at the FOOT -- SEQ 297: jitDotAssign stepped on trunk (32f4b09); R2 BUILT on compileFloor (processingCode a mark on the compile's floor), 943 / 49 row for row, NOT MERGED; R4 gCompileOwner agrees, 0 off-diagonal of ~6.4M
 # prior: SEQ 192 at the FOOT -- PROPOSAL (Tony asked): processingCode moves off GroupRules onto the compile's floor; tap says every read agrees (0 of ~5.8M); nothing changed, for tomorrow with Clay
 # prior: SEQ 191 at the FOOT -- SEQ 293 / SEQ 190 rulings: 1.2b BUILT on stroke12b -- kount as two locals, 908 row for row, NOT MERGED; session pause
@@ -10876,3 +10877,58 @@ CHECKLIST at seal 54, trunk: tokall bare, nothing moved · pop.sh 948 green / 51
 · jitLadder PASSED · printPop PASSED · decodePop (binary echo only) · ddPop 5/1 · frontier row for row · canary 304.
 
   END SEQ 194
+
+
+SEQ 195  -  SEQ 299: compileIn + P2's FOLD BUILT ON BRANCH compileIn (NOT MERGED, FOR TONY TO BUY)
+===================================================================
+STATUS: fresh -- 2026-10-05. Sealed 55 on trunk. Branch compileIn: Groups fc22f8c, support e436042.
+
+R1 -- THE H16, MET ON TRUNK, AND MY FIRST READING OF IT WAS WRONG.
+  First attempts (tell(...) as an expression, treeOf in a body, treeOf as a define attribute, `tell`'s own grammar as a
+  statement) all read ownerOnly=0: an expression in a body runs at CALL time, not compile time. A WardeD rule WITHOUT
+  isRule matched during the compile and its action never fired, which I misread for a while as "every action is held
+  during a compile, so a nested drive is unreachable". It is not: WITH isRule the rule's action fires during the
+  compile. The fixture: add to WardeD
+       TellST  isRule tellst- target=[a-zA-Z0-9]+ message?=[^;]+ SemI- ruleMethod=aCTionTell;
+  and compile a body holding `tellst HsA a;` -- aCTionTell DRIVES HsA inside the compile.
+  Trunk, R4 tap (reverted md5-identical, bare retok, rebuilt):   TellST body  both=36 ownerOnly=2 markOnly=0
+                                                                  control      both=56 ownerOnly=0 markOnly=0
+  And on a known-bad build (floor never marked) the plain control read ownerOnly=126. The tap sees the disagreement.
+
+R2 -- compileIn (immediateAction; setup; groups.ext; DesignDocs stump GroupActions.compileIn). The kant call:
+       define:   ciReq owner source;
+       body:     ciSrc := argument.CodE;
+                 ciReq.owner  := argument;
+                 ciReq.source := ciSrc;
+                 ciResult := compileIn(ciReq);      -- the BlocK label, or falseResult when the parse failed
+                 *ciResult :. noPrinT;  argument :. isActioN;  argument +< *ciResult;
+  Holders are unwrapped to the node. A failed parse is named through reportCodeFail; a refusal's scope is its statement,
+  so the caller's next statement runs. Canary 304 -> 305 (compileIn).
+  ⚠ FOR TONY'S PORT: do not truth-test the result (`if ciResult;` fires the BlocK -- bear-trap #34; it ran the body
+  once in my first draft), and attach `*ciResult`, not the holder.
+
+R3 -- THE FOLD: ParseActivation.compileOwner replaces isCompile; driveStep's fourth argument is the owner (forOwner);
+  GroupRules::floorOwner() answers the nearest floor's owner, inCompile() is "it is non-null"; gCompileOwner retired
+  (member, constructor init, processCode's and compileIn's brackets); aCTionNamE reads floorOwner(); locateInMethod is
+  `floorOwner() % name`. 412 still reads, a write still refuses. NAMES: compileOwner two comment slugs, no bare uses;
+  floorOwner, forOwner none. FULL BARE-TOKALL DIFF: four files, every line the fold, plus one line in tok's trailing
+  "referenced but not declared" comment (`driveStep(...,null*)`, from calls passing a literal null; they generate 0).
+  Canary 305 unchanged.
+
+R4 -- CERTIFICATE: incant/pop/compileInT, 14 rows. Names land in the owner (CI-2) and not the caller (CI-2c); the action
+  holds compileIn's BlocK before its call (CI-2b, control CI-2d) and runs once (CI-1); currentMETHOD unchanged across
+  the call (CI-4, shell-compared); the statement after compileIn runs (CI-3 -- tester's blocker, closed); after a failed
+  compile the driver's and the file's next statements run (CI-5, CI-6) and the failure is named. R1's fixture rides as
+  CI-H: inside the drive pushed inside the compile processingCodE reads 0; a rule fired by the compile reads 1.
+  BORN RED ON TRUNK (no compileIn): CI-2, CI-2b, the ciBad failure line, and the CI-H block (the body compiles lazily at
+  the call instead, outside the markers). Green on trunk too: CI-1 (lazy compile), CI-3, CI-4, CI-5, CI-6.
+  H7 per commit:  R2 -- compileIn drives an unmarked floor: CI-2, CI-2b, CI-1 (printed twice), CI-H red; fleet 958.
+                  R3 -- the owner never written to the floor: fleet 962 -> 565 green / 451 red, compileFloorT and
+                  compileInT witnesses among them.  Both restored md5-identical.
+  Branch: fleet 962 green / 51 red row for row with seal 54 · jitLadder PASSED · printPop PASSED · decodePop (binary
+  echo only) · ddPop 5/1 · frontier row for row · canary 305.
+
+BOOKKEEPING: Tony's macros edit (the processCode C++ copy removed) committed under his name on trunk, da626c8.
+FOR TONY: buy or decline compileIn (Groups fc22f8c, support e436042). Then 1.2c (fresh dispatch).
+
+  END SEQ 195
