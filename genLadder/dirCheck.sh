@@ -83,7 +83,10 @@ for df in files:
         if n > 0:
             inject += 1; print('  ok    INJECTS %s -> %s +%d' % (tag, where, n))
         else:
-            dark.append((state, tag)); print('  DARK  %s -- %s' % (tag, why))
+            dark.append((state, tag))
+            #  F-141 dirCheckFlicker (SEQ 307 R1): which DISARMED directives read dark varies run to run on one tree,
+            #  so a dark disarmed directive is a WARNING until that is fixed; an ARMED dark one still fails.
+            print('  %s  %s -- %s' % ('DARK' if state == 'active' else 'WARN dark', tag, why))
         i = j + 1
 armedDark = [t for s, t in dark if s == 'active']
 print('DIRCHECK: %d directives -- %d inject, %d dark (%d armed, %d parked)' % (total, inject, len(dark), len(armedDark), len(dark) - len(armedDark)))
@@ -103,5 +106,6 @@ if [ "$INJECT" -eq 0 ]; then echo "  FAIL  vacuous: no directive injected anythi
 if [ "$ARMEDDARK" -gt 0 ]; then echo "  FAIL  $ARMEDDARK ARMED directive(s) dark -- named above"; fail=1; fi
 if [ "$fail" = 0 ]; then echo "DIRCHECK PASSED ($INJECT of $TOTAL inject; parked dark named above, not a failure)"
 else echo "DIRCHECK FAILED"; fi
+#  the WARN lines above are disarmed directives: a warning, not a fail (F-141 dirCheckFlicker, SEQ 307 R1)
 echo "DIRCHECK SENTINEL -- reached the foot"
 exit $fail

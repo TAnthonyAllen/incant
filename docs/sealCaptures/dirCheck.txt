@@ -6,7 +6,7 @@ tok: /Users/anthony/bin/tok  331408 bytes  Nov 10 13:06:41 2024
   ok    INJECTS compile if before (parked, line 26 of groupDirectives) -> GroupRules.twk +1
   ok    INJECTS compile endCompile (parked, line 45 of groupDirectives) -> GroupRules.twk +3
   ok    INJECTS copyOf starting (parked, line 49 of groupDirectives) -> GroupRules.twk +2
-  DARK  generateCode generating (parked, line 52 of groupDirectives) -- method not found in any candidate file
+  WARN dark  generateCode generating (parked, line 52 of groupDirectives) -- method not found in any candidate file
   ok    INJECTS guard GroupItem (parked, line 57 of groupDirectives) -> GroupRules.twk +1
   ok    INJECTS guard clearData (parked, line 60 of groupDirectives) -> GroupRules.twk +1
   ok    INJECTS loadInputFromFile if before (armed, line 63 of groupDirectives) -> GroupRules.twk +1
@@ -24,7 +24,7 @@ tok: /Users/anthony/bin/tok  331408 bytes  Nov 10 13:06:41 2024
   ok    INJECTS printToBuffer toBUFFER (parked, line 169 of groupDirectives) -> GroupRules.twk +1
   ok    INJECTS printToBuffer debugHere (parked, line 172 of groupDirectives) -> GroupRules.twk +1
   ok    INJECTS processAction code (parked, line 175 of groupDirectives) -> GroupRules.twk +2
-  DARK  processCode processingCode (parked, line 178 of groupDirectives) -- tok found processCode in GroupRules.twk but injected NOTHING -- the anchor matches no statement
+  WARN dark  processCode processingCode (parked, line 178 of groupDirectives) -- tok found processCode in GroupRules.twk but injected NOTHING -- the anchor matches no statement
   ok    INJECTS processCode result (parked, line 183 of groupDirectives) -> GroupRules.twk +2
   ok    INJECTS rEGISTER currentRegistry (parked, line 186 of groupDirectives) -> GroupRules.twk +2
   ok    INJECTS runAction if before (parked, line 190 of groupDirectives) -> GroupRules.twk +2
@@ -33,7 +33,7 @@ tok: /Users/anthony/bin/tok  331408 bytes  Nov 10 13:06:41 2024
   ok    INJECTS restoreLocalFields starting (parked, line 200 of groupDirectives) -> GroupRules.twk +1
   ok    INJECTS saveLocalFields ending (parked, line 203 of groupDirectives) -> GroupRules.twk +1
   ok    INJECTS setParse starting (parked, line 209 of groupDirectives) -> GroupRules.twk +2
-  DARK  addGroup starting (parked, line 218 of groupDirectives) -- tok found addGroup in GroupItem.twk but injected NOTHING -- the anchor matches no statement
+  WARN dark  addGroup starting (parked, line 218 of groupDirectives) -- tok found addGroup in GroupItem.twk but injected NOTHING -- the anchor matches no statement
   ok    INJECTS addGroup altered (parked, line 221 of groupDirectives) -> GroupItem.twk +2
   ok    INJECTS addGroup ending (parked, line 224 of groupDirectives) -> GroupItem.twk +2
   ok    INJECTS getStuff if before (parked, line 233 of groupDirectives) -> GroupItem.twk +6

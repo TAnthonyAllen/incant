@@ -92,6 +92,27 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-141 — dirCheckFlicker: `dirCheck.sh` reports DIFFERENT disarmed directives dark on the same tree
+
+**What.** On one unchanged tree, run to run, the set of PARKED (disarmed) directives `genLadder/dirCheck.sh` reports as
+injecting nothing varies. **Severity: instrument noise** -- no armed directive has ever read dark, so no seal has been
+wrong; but a dark reading that flickers cannot be trusted to mean "the anchor matches nothing".
+**Where.** `genLadder/dirCheck.sh` (its per-directive loop: tok the target with one armed scratch directive, count `>`
+lines against the bare snapshot). Whether the variance is tok's or the script's is NOT measured.
+**Evidence.** 2026-10-05, trunk 5cbd9b3, four back-to-back runs: 3, 4, 3, 3 dark. Always dark: `generateCode generating`
+(method gone), `processCode processingCode`, `addGroup starting`. Sometimes dark: `parseContainer starting` (1 of 4),
+`copyOf starting` (an earlier run that day), `runRule if` (once, seal 64).
+**Done when.** Repeated runs on one tree give one dark set, pinned by running the script N times and comparing.
+**Owner.** Clod (SEQ 307 R1). Until fixed, a dark DISARMED directive is a WARNING (the script prints `WARN dark`); an
+ARMED dark directive still fails the seal.
+```
+ATTEMPT LOG
+  2026-10-05 filed (SEQ 307 R1) from seal 67's four runs; measured only. dirCheck now labels a parked dark directive
+    `WARN dark` and says so at its foot; its exit rule is unchanged (it already failed only on an armed dark).
+  Not a citizen in incant/fixits: the repro is a shell instrument run N times, and incant has no `system` command
+    (cut, deepClean) -- an incantation could not run it, so fixitNag would count it MISFILED.
+```
+
 ### F-140 — ✅ CLOSED 2026-10-04 (merged 8e02d65, SEQ 293) — the new road never writes `failedAt`, so `tell`'s `stoppedAt` reads 0 for every new-road failure
 
 **What.** A drive that fails on the new road reports no failure point: `tell`'s verdict says `stoppedAt 0` where the

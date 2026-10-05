@@ -20,6 +20,11 @@ instrument's missing list is an accident; two is the convention being too narrow
 read as a clean pass with an EMPTY output file. An empty capture at exit 0 is not a green; check
 that an instrument printed something before believing its status.
 
+## 2026-10-05, seal 68 -- 979 green / 51 red / 1 parked (trunk jit-unified-emit-wip, bare)
+
+**Seal 67's 52 rows, diffed row for row, less one: the zeroWidthT PARSERETURN pin went green with the stroke12f merge,
+as built.** The 51 are seal 62's 51 exactly.
+
 ## 2026-10-05, seal 67 -- 978 green / 52 red / 1 parked (trunk jit-unified-emit-wip, bare)
 
 **Seal 62's 51 rows, diffed row for row, plus one joined: zeroWidthT's PARSERETURN pin (SEQ 306 R0), born red on trunk

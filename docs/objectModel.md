@@ -372,6 +372,16 @@ rules on the amendment (R4).
    the only outside reader was the bracket save; H16 shown (5,124). No row born red. H7 (a shared start mark): in parse()
    it crashes setup; in parseRule only, shapeBodyT's label rows go red by value -- they are the hereAt witness, not
    leafLabelT (whose spans come from the leaves' own marks since 1.2c). The callBracket now holds `label` alone.
+   **1.2f MERGED 2026-10-05 (SEQ 307 R0; built SEQ 306, Groups b8f3685, support 7cf58b1).** `label` left RuleStuff, onto
+   `ParseActivation.label` (shape (A)): parse() keeps it on `oldActive`, parseRule on `callActive`; the drive floor's park
+   is the same field. Children reach the parent's record -- the new-road exit yields into cTop's record, the old road
+   through `recordLabel(stuff)` / `parkInRecord(stuff, lab)` (the nearest record whose stuff matches). **THE callBracket
+   RETIRED WHOLE** -- it held `label` alone. **THE ENGINE'S LABEL RECYCLE ENDED** (an `fLAG` meaning): `mintLabel(field)`
+   always mints fresh, checkInput no longer mints, the exit's fLAG keep is gone, and mintLabel's 52,886 owner-less
+   fallback writes are dropped (SEQ 306 R1: every reuse made a fresh mint, fleet row for row). **kant's `fLAG` marker
+   stays** -- attachLabel still sets it. zeroWidthT's three returns move stale -> labelNO (accepted, SEQ 306 R0; pinned
+   by `measureParseReturn`). Directives respelled (`exitLab`, `oldActive.label`). H7 (new-road exit's yield into the
+   parent record cut): leafLabelT's lp/kw/rp and treeRowT's ScafALT go red by value.
 3. **`stuff` derived; `face` renamed `instance`.** The name clears the #58 check (grep, full bare-tokall diff) before
    the stroke opens.
 4. **Rule facts onto `groupBody`:** `ruleOf` and `instanceRule()`'s REGISTRY test retire.
