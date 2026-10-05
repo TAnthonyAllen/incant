@@ -394,6 +394,13 @@ rules on the amendment (R4).
    makes nearest-match load-bearing (H17).
    **STROKE 1.2 COMPLETE:** label, hereAt, kount, sukcess and failPoint live on the activation or in locals; the
    callBracket and getStuff's copy are gone.
+   **1.2g MERGED 2026-10-05 (SEQ 308 R0; Tony accepted the actionMethod judgement call).**
+   **NEXT STROKE, ruled 2026-10-05 (SEQ 308 R1, Tony's vote from clod-to-clay SEQ 203's recon): `actionMethod` RETIRES.**
+   It leaves RuleStuff and every reader asks the actor (`builtinActoR`). Recon (tap, fleet unmoved, reverted): over ~2.5M
+   fires it was always the actor's method or null with no actor -- never different, never set without one; 9,958 lazy
+   fills; testAction, parseAction and kant's has-action read are unreached by the fleet and read it without the lazy
+   fill; the one disagreement is TraiTdata's fresh `DatA` copy (1,320 inherited with no actor, cleared at once). Goes
+   with it: setActions' eager stamp and the TraiTdata clear. Layout change (groups.ext + tokall). Fresh dispatch.
 3. **`stuff` derived; `face` renamed `instance`.** The name clears the #58 check (grep, full bare-tokall diff) before
    the stroke opens.
 4. **Rule facts onto `groupBody`:** `ruleOf` and `instanceRule()`'s REGISTRY test retire.

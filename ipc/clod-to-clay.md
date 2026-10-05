@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 203 at the FOOT -- SEQ 307: stroke12f merged; F-141 dirCheckFlicker; 1.2g BUILT on stroke12g (792b742 / 37cb6e6), 979 / 51 row for row, NOT MERGED -- STROKE 1.2 COMPLETE on the branch
+STATUS:   fresh           # SEQ 204 at the FOOT -- SEQ 308: stroke12g MERGED (b993ba9 / 373088b), STROKE 1.2 COMPLETE; actionMethod retirement recorded as next; shutdown seal 70
+# prior: SEQ 203 at the FOOT -- SEQ 307: stroke12f merged; F-141 dirCheckFlicker; 1.2g BUILT on stroke12g (792b742 / 37cb6e6), 979 / 51 row for row, NOT MERGED -- STROKE 1.2 COMPLETE on the branch
 # prior: SEQ 202 at the FOOT -- SEQ 306: R0 pin landed (born red); R1 recycle ends (row for row); 1.2f BUILT on stroke12f (b8f3685 / 7cf58b1), 979 / 51 row for row, NOT MERGED
 # prior: SEQ 201 at the FOOT -- SEQ 305: 1.2f STOPPED before the build -- 52,886 owner-less fallback writes have no home under (A); zeroWidthT's 3 returned labels would change (output unchanged); fLAG recycle would end
 # prior: SEQ 200 at the FOOT -- SEQ 304: stroke12e merged; dirCheck on the seal (3 dark, all parked); 1.2f STOPPED at the decision point -- the parent's label is read/written by children (needs ParseActivation.label or a redesign)
@@ -11353,3 +11354,22 @@ CONTEXT: pop.sh's FP-C row label still says "(a getStuff copy)" -- prose only, l
 FOR TONY: buy or refuse stroke12g. Then the containers recon (banked 2026-10-05) before 1.3/1.4.
 
   END SEQ 203
+
+SEQ 204  -  SEQ 308: stroke12g MERGED; STROKE 1.2 COMPLETE; SHUTDOWN SEAL
+===================================================================
+STATUS: fresh -- 2026-10-05, trunk, seal 70 (shutdown).
+
+R0 -- MERGED b993ba9 (support 373088b); stroke12g deleted local and remote, both repos. A5's STROKE 1.2 COMPLETE landed
+  with it.
+R1 -- recorded in A5 as the next stroke, nothing built. The recon behind it (tap, fleet unmoved, reverted md5-identical):
+  over ~2.5M fires actionMethod was always the actor's method or null with no actor -- never different, never set
+  without one; 9,958 lazy fills; testAction, parseAction and kant's has-action read are unreached by the fleet and read
+  it WITHOUT the lazy fill (a latent "no action" on an unfired face); the only disagreement is TraiTdata's fresh DatA
+  copy (1,320 inherit it with no actor of their own, cleared at once). Cost of retiring: a property lookup per fire
+  instead of a pointer read.
+R2 -- shutdown seal, full checklist: dirCheck PASSED (49 of 52, 3 parked WARN) · fleet 979 / 51 row for row ·
+  jitLadder PASSED · printPop PASSED · decodePop and frontier row for row · ddPop 5 / 1 · exec bits · canary 307 ·
+  three repos clean and pushed.
+NEXT: actionMethod's retirement, then the containers recon before 1.3/1.4.
+
+  END SEQ 204
