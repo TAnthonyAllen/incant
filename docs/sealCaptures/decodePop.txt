@@ -1,6 +1,6 @@
 === DECODER POP ==========================================================
 binary: /Users/anthony/bin/incant
-        size 1454704   mtime Oct 5 09:49
+        size 1454976   mtime Oct 5 10:24
 
 -- THE POP FIXTURE. incant/pop/decodeT produces the quantities; this harness
    compares them. Its sentinel is checked FIRST and by name.

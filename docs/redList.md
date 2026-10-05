@@ -20,6 +20,11 @@ instrument's missing list is an accident; two is the convention being too narrow
 read as a clean pass with an EMPTY output file. An empty capture at exit 0 is not a green; check
 that an instrument printed something before believing its status.
 
+## 2026-10-05, seal 56 -- 967 green / 51 red / 1 parked (trunk jit-unified-emit-wip, bare)
+
+**Unchanged from seal 54: the same 51 rows, diffed row for row.** Green rose by compileInT's nineteen rows (compileIn
+merge, SEQ 299/300); none joined or left the red list.
+
 ## 2026-10-05, seal 54 -- 948 green / 51 red / 1 parked (trunk jit-unified-emit-wip, bare)
 
 **49 -> 51, both named: setFlagTopT's two born-red rows (SEQ 298 R1, pin only; fixit setFlagTopLevel).** A top-level

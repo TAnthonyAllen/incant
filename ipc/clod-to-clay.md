@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 195 at the FOOT -- SEQ 299: compileIn + P2's fold BUILT on branch compileIn (fc22f8c / e436042), 962 / 51 row for row, NOT MERGED; R1's H16 met (TellST: ownerOnly=2)
+STATUS:   fresh           # SEQ 196 at the FOOT -- SEQ 300: compileIn answers true/false, BlocK on request.result; MERGED (e99e171 / 3bde40e); *ciReq.result crashes (struck spelling)
+# prior: SEQ 195 at the FOOT -- SEQ 299: compileIn + P2's fold BUILT on branch compileIn (fc22f8c / e436042), 962 / 51 row for row, NOT MERGED; R1's H16 met (TellST: ownerOnly=2)
 # prior: SEQ 194 at the FOOT -- SEQ 298: compileFloor MERGED; :. noPrinT pinned (top-level SET fails, born red); P3 recon: YES, the drive has the code field in hand at the floor push
 # prior: SEQ 193 at the FOOT -- SEQ 297: jitDotAssign stepped on trunk (32f4b09); R2 BUILT on compileFloor (processingCode a mark on the compile's floor), 943 / 49 row for row, NOT MERGED; R4 gCompileOwner agrees, 0 off-diagonal of ~6.4M
 # prior: SEQ 192 at the FOOT -- PROPOSAL (Tony asked): processingCode moves off GroupRules onto the compile's floor; tap says every read agrees (0 of ~5.8M); nothing changed, for tomorrow with Clay
@@ -10932,3 +10933,33 @@ BOOKKEEPING: Tony's macros edit (the processCode C++ copy removed) committed und
 FOR TONY: buy or decline compileIn (Groups fc22f8c, support e436042). Then 1.2c (fresh dispatch).
 
   END SEQ 195
+
+
+SEQ 196  -  SEQ 300: compileIn ANSWERS TRUE/FALSE, THE BlocK ON request.result; MERGED (BOUGHT)
+===================================================================
+STATUS: fresh -- 2026-10-05. Sealed 56 on trunk. Merged: Groups e99e171, support 3bde40e; branch deleted both repos.
+
+R0 -- compileIn empties the request's `result` (minting it if the request has none), drives, and on success writes the
+  BlocK label there and answers trueResult; a failed compile answers falseResult and leaves result EMPTY. NAME `result`:
+  no kant definition of it in setup, grammar, utilities, unitTests; bare `result` is a common tok/C++ local, but the
+  attribute is reached only by subscript string / kant's `.result` literal and adds no struct field, so there is
+  nothing for tok's capture to take. DesignDocs stump updated. Canary 305, no mover (signature unchanged).
+  ⚠ THE RULED CALLER SPELLING IS STRUCK, THE RULING STANDS: `*ciReq.result` crashes -- the dot-chain fold binds the star
+  to ciReq, ciReq holds no group, and opDot's non-groupField arm (`target->get(tag)`, GroupRules.mm opDot) has no null
+  guard: exit 139, zero output. `**x` refuses as a binary multiply; `*( ... )` does not parse. The working spelling:
+       if compileIn(ciReq);
+           ciBlock = ciReq.result;        (`=` carries the holder's group across)
+           *ciBlock :. noPrinT;  argument :. isActioN;  argument +< *ciBlock;
+  The opDot null-target crash: context per the relevance gate (no row red), reported here, nothing filed.
+
+R1 -- compileInT +5 rows. CI-7/CI-7x: a held answer truth-tested (`ciAns := compileIn(ciReq); if ciAns;`) fires
+  nothing. ⚠ BORN RED AT fc22f8c ONLY IN THAT FORM: the direct `if compileIn(ciReq);` did NOT fire the label at fc22f8c
+  -- the call's value is truth-tested, not called -- so that spelling could not carry the row; the held form did fire
+  (CI-7x FIRED, ciFire's body ran). CI-9a/CI-9b: result holds the BlocK after a good compile and is empty after a failed
+  one on the SAME request (not stale); CI-9c: the failed compile answered false. H7, the label returned again, compileInT
+  alone under a 60s alarm: CI-7x FIRED. Restored md5-identical.
+
+R2 -- branch: fleet 967 green / 51 red row for row; jitLadder, printPop PASSED; decodePop echo only; ddPop 5/1;
+  frontier row for row. Trunk after the merge reads the same.
+
+  END SEQ 196
