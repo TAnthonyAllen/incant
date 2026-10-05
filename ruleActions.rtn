@@ -626,10 +626,10 @@ GroupItem   source;
 *******************************************************************************/
 extern GroupItem aCTionNamE(GroupItem input)
 {
-    // compileOwner while compiling the owner is the action processCode is compiling, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213)
+    // compileOwner while compiling the owner is the one the compile's floor carries, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213, SEQ 299)
 GroupRules  ruler = groupRules;
 GroupItem   owner = currentMETHOD.group;
-    if inCompile() && gCompileOwner  owner = gCompileOwner;
+    if inCompile()  owner = floorOwner();
     input.setGroup(resolveName(input.text,owner));
     return input;
 }

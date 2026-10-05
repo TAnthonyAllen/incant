@@ -18,7 +18,7 @@ struct ParseActivation
 {
     GroupItem       face;
     int             isFloor;
-    int             isCompile;
+    GroupItem       compileOwner;
     GroupItem       label;
     ParseActivation *prev;
     RuleStuff       stuff;
@@ -33,7 +33,6 @@ struct ParseActivation
     GroupItem
                 currentDefine,
                 currentMETHOD,
-                gCompileOwner,
                 currentRegistry,
                 debugJunk,
                 baseRegistryList,
@@ -278,15 +277,22 @@ use sourceFILE
 
 /*******************************************************************************
     inCompile -- is the parse I am inside a compile? The NEAREST drive floor
-    answers: processCode marks the floor its drive pushes (isCompile), and a
-    drive pushed inside a compile is its own root, unmarked (SEQ 297 R1). The
-    pop of that floor is the restore, so an unwound compile cannot leave it set.
+    answers: a compile's drive (processCode, compileIn) writes its owner on the
+    floor it pushes, and a drive pushed inside a compile is its own root, with
+    no owner (SEQ 297 R1). The pop of that floor is the restore, so an unwound
+    compile cannot leave it set. floorOwner is the owner itself (SEQ 299 R3).
 *******************************************************************************/
-int inCompile()
+GroupItem floorOwner()
 {
 ParseActivation *top = gParseActive;
     while top && !top.isFloor   top = top.prev;
-    if top  return top.isCompile;
+    if top  return top.compileOwner;
+    return null;
+}
+
+int inCompile()
+{
+    if floorOwner()     return 1;
     return 0;
 }
 

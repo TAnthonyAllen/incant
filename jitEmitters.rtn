@@ -792,7 +792,7 @@ extern int jitProbeDrive(GroupItem rule,GroupItem armed,String msg,int jitted)
     ruler->divertToRule = 1;
     //  probeFloor A DRIVE HIDES ITS CALLER: the floor goes on before the push and comes off before the single return (stroke 5.5f, SEQ 241)
     ParseActivation probeFloor;
-    probeFloor.face = 0; probeFloor.isFloor = 1; probeFloor.isCompile = 0; probeFloor.label = 0; probeFloor.prev = ruler->gParseActive; probeFloor.stuff = 0;
+    probeFloor.face = 0; probeFloor.isFloor = 1; probeFloor.compileOwner = 0; probeFloor.label = 0; probeFloor.prev = ruler->gParseActive; probeFloor.stuff = 0;
     ruler->gParseActive = &probeFloor;
     //  branchFrame a drive door is a frame for the control slot until D-22 unifies the doors (SEQ 264 R2)
     int probeBranchSave = ruler->branchKind;

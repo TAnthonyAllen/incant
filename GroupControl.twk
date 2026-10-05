@@ -122,9 +122,8 @@ String      name = item.text;
 ******************************************************************************/
 GroupItem locateInMethod(String name)
 {
-GroupItem   action = currentMETHOD.group,
-            result;
-    if groupRules.inCompile()   result = action % name;
+GroupItem   result;
+    if groupRules.inCompile()   result = groupRules.floorOwner() % name;
     if !result  result = locate(name);
     return  result;
 }

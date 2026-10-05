@@ -1689,7 +1689,7 @@ char 				*ownPoint = 0;
 	// oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
 	oldActive.face = this;
 	oldActive.isFloor = 0;
-	oldActive.isCompile = 0;
+	oldActive.compileOwner = 0;
 	oldActive.label = 0;
 	oldActive.prev = ruler->gParseActive;
 	oldActive.failPoint = 0;

@@ -7,7 +7,7 @@ struct ParseActivation
 	{
 	GroupItem *face;
 	int isFloor;
-	int isCompile;
+	GroupItem *compileOwner;
 	GroupItem *label;
 	ParseActivation *prev;
 	RuleStuff *stuff;
@@ -26,7 +26,6 @@ char *atRuleMark;
 RuleStuff *ruleSTUFF;
 GroupItem *currentDefine;
 GroupItem *currentMETHOD;
-GroupItem *gCompileOwner;
 GroupItem *currentRegistry;
 GroupItem *debugJunk;
 GroupItem *baseRegistryList;
@@ -100,6 +99,7 @@ struct
 	};
 GroupRules();
 char *checkSkip(char *atContent);
+GroupItem *floorOwner();
 int inCompile();
 void popInput();
 int pushInput(GroupItem *source);
@@ -158,7 +158,7 @@ extern "C" GroupItem *definersOf(GroupItem *input);
 extern "C" void dispatcher(void *stuff);
 extern "C" GroupItem *displayFill(GroupItem *field);
 extern "C" int driveFloorLabel(RuleStuff *stuff, GroupItem *label);
-extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report, int isCompile);
+extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report, GroupItem *forOwner);
 extern "C" GroupItem *dumpContents(GroupItem *stuff);
 extern "C" GroupItem *dupTermRefusal(GroupItem *rule);
 extern "C" GroupItem *enclosingFace(GroupItem *field);

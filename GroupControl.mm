@@ -119,10 +119,9 @@ char 	*name = item->getText();
 ******************************************************************************/
 GroupItem *GroupControl::locateInMethod(char *name)
 {
-GroupItem 	*action = groupRules->currentMETHOD->getGroup();
 GroupItem 	*result = 0;
 	if ( groupRules->inCompile() )
-		result = action->getAttribute(name);
+		result = groupRules->floorOwner()->getAttribute(name);
 	if ( !result )
 		result = locate(name);
 	return result;
