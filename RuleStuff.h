@@ -5,7 +5,6 @@ class RuleStuff
 {
 public:
 char *ruleName;
-char *hereAt;
 GroupItem *label;
 GroupItem *onGroup;
 int max;
@@ -35,7 +34,7 @@ struct
 RuleStuff(GroupItem *grup);
 RuleStuff(RuleStuff *r);
 int checkGuard(GroupItem *field);
-int checkInput(GroupItem *field, int guardPassed);
+int checkInput(GroupItem *field, int guardPassed, char *inAt);
 void getWhatFollows(GroupItem *field);
 char *inputAt();
 GroupItem *mintLabel(GroupItem *field, GroupItem *reuse);

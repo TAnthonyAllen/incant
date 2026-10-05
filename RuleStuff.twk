@@ -5,7 +5,6 @@ include groupIncludes
 class RuleStuff
 {
 String      ruleName;       // for debugging
-String      hereAt;
 GroupItem   label,
             onGroup;
 int         max,
@@ -95,13 +94,11 @@ GroupItem   lab = reuse;
 }
 
 // checkInput skip, set hereAt, pass the guard and mint the label -- true when input is valid; field is the node the caller runs, never RuleStuff.owner (stroke 5.4a). The old road and parseRule keep their values on this stuff until 1.2d-f; a new-road leaf calls inputAt, checkGuard and mintLabel itself and keeps them in locals (SEQ 301)
-int checkInput(GroupItem field, int guardPassed)
+int checkInput(GroupItem field, int guardPassed, String inAt)
 {
-String      inAt = inputAt();
 int         inOK = 0;
+    // hereAtFirst the CALLER holds the start mark (inputAt, before this) -- a term failing at end of input is rewound to it, and an unset one wrote a null mark (convLeakT); hereAt left RuleStuff in 1.2e (SEQ 303)
     if !inAt    return 0;
-    // hereAtFirst set BEFORE the end-of-input exit -- a term failing at end of input is rewound to hereAt, and an unset one wrote a null mark (convLeakT)
-    hereAt  = inAt;
     if !*inAt   return 0;
     // verdictReturned the guard's verdict is RETURNED, never stored -- sukcess left RuleStuff in 1.2d (SEQ 302)
     if guardPassed  inOK = true;
@@ -170,6 +167,7 @@ int         counter;
 int         more;
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = rStuff;
+String      testAt = atRuleMark;
     if *atRuleMark {
         while tester {
             if counter >= max { more = true; break; }
@@ -178,8 +176,9 @@ RuleStuff   ruleStuff = rStuff;
             if !*atRuleMark break; }
         if more && max > 1  return reportMaxLimit(field);
         if counter && counter >= min {
-            if noAdvance    atRuleMark = hereAt;
-            if label        label.setToken(hereAt,counter);
+            // testAtIsHereAt parse() calls a leaf test right after checkInput with nothing moving the input between, so the entry mark IS the start mark (1.2e, SEQ 303)
+            if noAdvance    atRuleMark = testAt;
+            if label        label.setToken(testAt,counter);
             return true; }}
     return  false;-
 
@@ -281,10 +280,12 @@ extern int testString(GroupItem field)
 {
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff = field.rStuff;
+String      testAt = atRuleMark;
 String      matchedString = field.matches(atRuleMark);
     // nodeInHand the match reads the field it was handed, never RuleStuff.owner (stroke 5.2)
     if matchedString {
-        if noAdvance    atRuleMark = hereAt;
+        // testAtIsHereAt the entry mark is the start mark, as testMacro's (1.2e, SEQ 303)
+        if noAdvance    atRuleMark = testAt;
         if label        label.text = matchedString;
         return true; }
     return false;
