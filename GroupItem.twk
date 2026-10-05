@@ -49,7 +49,7 @@ GroupItem(GroupItem grup)
     if grup.rStuff {
         rStuff  = new(this);
         *rStuff = *grup.rStuff;
-        followed = sukcess = false; }
+        followed = false; }
 }
 
 /***************************************************************************
@@ -1292,6 +1292,7 @@ ParseActivation oldActive;
 RuleStuff   ruleStuff   = getStuff(pStuff);
 int         leafDone    = 0;
 int         repeatCount = 0;
+int         callOK = 0;
 String      ownPoint;
     // oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
     oldActive.face      = this;
@@ -1309,46 +1310,47 @@ use ruleStuff
     // bindReadSeamProbe
     while !leafDone && repeatCount < maxRepeat {
 continueHere:
-        sukcess     = false;
-        if !checkInput(this,guardPassed)    goto matchFailed;
+        // guardVerdict checkInput RETURNS the guard's verdict and stores none; a rule with no test below succeeds on it alone (1.2d, SEQ 302)
+        callOK      = checkInput(this,guardPassed);
+        if !callOK  goto matchFailed;
         // guardHandoff testOptions' passed guard is an ARGUMENT, spent by the first checkInput that reaches it -- one that fails before the guard (end of input) keeps it for the retry, as the rStuff flag did (stroke 1.1 site 1)
         guardPassed = 0;
         /*******************************************************************
             Run the matches that determine if this rule succeeds
             //runParseMatches
         *******************************************************************/
-        if isRuleTerm() && hasMembers && !data                      sukcess = testOptions(ruleStuff,this);
+        if isRuleTerm() && hasMembers && !data                      callOK = testOptions(ruleStuff,this);
         or testMatch || onGroup || hasAttributes {
-            if testMatch                                            sukcess = testMatch(this);
+            if testMatch                                            callOK = testMatch(this);
             // leafDone the leaf hands its result back by RETURN; a self-repeating leaf has done the whole repetition, so its success ends the loop (stroke 1.1 site 3)
-            if sukcess && (testMatch == testAny || testMatch == testCharacter || testMatch == testSet)   leafDone = 1;
+            if callOK && (testMatch == testAny || testMatch == testCharacter || testMatch == testSet)   leafDone = 1;
             if !parseACTION {
-                if sukcess && onGroup && !onGroup.parse(ruleStuff,0,null)  sukcess = false;
-                if sukcess && hasAttributes                         sukcess = testAttributes(ruleStuff,this); }}
-        if !sukcess     goto matchFailed;
+                if callOK && onGroup && !onGroup.parse(ruleStuff,0,null)  callOK = false;
+                if callOK && hasAttributes                         callOK = testAttributes(ruleStuff,this); }}
+        if !callOK     goto matchFailed;
         /*******************************************************************
             Success. Fire label method if there is one.
         *******************************************************************/
-        // oldRoadWriteBack the old road keeps its values on its stuff until 1.2d-f -- a null back from a non-null label is the action failing, as before (SEQ 301)
-        -% { GroupItem *firedLab = this->fireLabelMethod(ruleStuff, ruleStuff->label, ruleStuff->hereAt); if ( ruleStuff->label && !firedLab ) ruleStuff->sukcess = 0; ruleStuff->label = firedLab; } %-
+        // oldRoadWriteBack the old road keeps its label and hereAt on its stuff until 1.2e-f; its verdict is the local callOK (1.2d) -- a null back from a non-null label is the action failing, as before (SEQ 301)
+        -% { GroupItem *firedLab = this->fireLabelMethod(ruleStuff, ruleStuff->label, ruleStuff->hereAt); if ( ruleStuff->label && !firedLab ) callOK = 0; ruleStuff->label = firedLab; } %-
         // oldFireFlag the flag this activation reads next -- a nested new-road drive used to overwrite it (F-121)
-        -% ::measureOldFireFlag(this,ruleStuff); %-
-        if sukcess {
+        -% ::measureOldFireFlag(this,callOK); %-
+        if callOK {
             repeatCount++;
             attachLabel(ruleStuff,pStuff,1,into,ruleStuff.label); }
         else break; }
     if repeatCount >= maxRepeat && maxRepeat > 1  reportRepeatLimit(this,repeatCount,maxRepeat);
 matchFailed:
-    if !sukcess {
-        if !sukcess && repeatCount >= min sukcess = true;
+    if !callOK {
+        if !callOK && repeatCount >= min callOK = true;
 debugHere:
         if !*atRuleMark && inputDiverted {
             // inputFloor a drive's own message is below the floor -- an end-of-message failure fails THERE and never pops out into the sender (0 outside a drive, so nothing else changes)
             while inputDiverted && !*atRuleMark && inputSTAK.length > inputFloor {
                 lastIndent = 0;
                 popInput(); }
-            if sukcess && *atRuleMark   goto continueHere; }
-        if !sukcess {
+            if callOK && *atRuleMark   goto continueHere; }
+        if !callOK {
             // ownPointHanded this call's own failure point, handed to aCTionFailed below -- a notifyFail rule reports where IT failed (SEQ 187 R1)
             ownPoint    = atRuleMark;
             // rootFailPoint the ROOT's own failure point goes on the floor below it -- a call whose record sits on a floor is the root (SEQ 292, SEQ 186 R2)
@@ -1359,8 +1361,8 @@ use ruleStuff
             if label    label = 0; }}
 generatedExit:
     // nodeInHand this, never RuleStuff.owner -- getStuff makes them one node (stroke 5.2)
-    if !sukcess && notifyFail   aCTionFailed(this,ownPoint);
-    if sukcess && !label        label = labelNO;
+    if !callOK && notifyFail   aCTionFailed(this,ownPoint);
+    if callOK && !label        label = labelNO;
     inProcess   = false;
     ruler.gParseActive  = oldActive.prev;
 use ruler

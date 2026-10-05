@@ -379,7 +379,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	notifyFail = 0;
 	overTo = 0;
 	ruleTerm = 0;
-	sukcess = 0;
 	ruleName = grup->groupBody->tag;
 	// min and max may be overwritten by the TraiT rule action
 	max = 1;
@@ -413,7 +412,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	ruleTerm = 0;
 	*this = *r;
 	label = 0;
-	sukcess = 0;
 }
 
 // checkGuard true when the rule is unguarded or the input character is in its guardSet
@@ -438,23 +436,23 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 int RuleStuff::checkInput(GroupItem *field, int guardPassed)
 {
 char 	*inAt = inputAt();
+int 	inOK = 0;
 	if ( !inAt )
-		goto checkFailed;
+		return 0;
 	// hereAtFirst set BEFORE the end-of-input exit -- a term failing at end of input is rewound to hereAt, and an unset one wrote a null mark (convLeakT)
 	hereAt = inAt;
 	if ( !*inAt )
-		goto checkFailed;
-	// the rule guard, if there is one
+		return 0;
+	// verdictReturned the guard's verdict is RETURNED, never stored -- sukcess left RuleStuff in 1.2d (SEQ 302)
 	if ( guardPassed )
-		sukcess = 1;
+		inOK = 1;
 	else
 	if ( checkGuard(field) )
-		sukcess = 1;
+		inOK = 1;
 	// the label
-	if ( sukcess )
+	if ( inOK )
 		label = mintLabel(field,label);
-checkFailed:
-	return sukcess;
+	return inOK;
 }
 
 // getWhatFollows sets the RuleStuff fields once, lazily, the first time a rule is needed

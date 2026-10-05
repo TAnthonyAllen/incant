@@ -2346,7 +2346,6 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 				cTop->failPoint = failMark;
 			}
 		}
-	ruleStuff->sukcess = 0;
 	ruleStuff->hereAt = 0;
 	if ( ruleStuff->label && !ruleStuff->label->groupBody->flags.fLAG )
 		ruleStuff->label = 0;
@@ -8916,6 +8915,7 @@ GroupItem 			*grup = 0;
 GroupItem 			*myLabel = 0;
 GroupItem 			*into = 0;
 GroupItem 			*priorMETHOD = 0;
+int 				callOK = 0;
 ParseActivation 	callActive;
 	// enclosingRule re-resolve to the enclosing rule body's own face, through the ENCLOSING PARSE ACTIVATION -- a drive floors it, so a drive root keeps the rule it was handed (SEQ 212)
 	 { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } 
@@ -8924,7 +8924,6 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	
 	GroupItem *callLabel = ruleStuff ? ruleStuff->label : 0;
 	char *callHereAt = ruleStuff ? ruleStuff->hereAt : 0;
-	int callSukcess = ruleStuff ? ruleStuff->sukcess : 0;
 	
 	// activePush this call's record goes on the activation list; one pop, after exitFromParse
 	callActive.face = field;
@@ -8941,7 +8940,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	if ( ::enclosingStuff(field,ruleStuff) )
 		into = ::enclosingStuff(field,ruleStuff)->label;
 	// bareFieldRepoint the use lines below are load bearing -- a new declaration re-points every bare field under it
-	ruleStuff->sukcess = 0;
+	// ownVerdict this call's verdict is the local callOK, handed to the exit -- sukcess left RuleStuff (1.2d, SEQ 302)
 	if ( ruleStuff->checkInput(field,0) )
 		{
 		if ( isAction(field->groupBody->flags.actionType) )
@@ -8984,19 +8983,19 @@ checkSuccess:
 		// resultSeat the rule, the returned node and its truthOf -- a standing callout (measure-callout ruling)
 		::measureParseResult(field,result);
 		// chainTruth the rule succeeds when its chain is TRUE, not when it returned something (F-95, Tony 2026-09-22)
-		ruleStuff->sukcess = ::truthOf(result);
+		callOK = ::truthOf(result);
 		}
 	// markSeat1 SEQ 166 point 1 -- the last seat with visibility before the trace goes silent
 	::measureMarkPoint("1-parseRule-exit");
-	// stuffHandedIn parseRule's values are still on its stuff until 1.2d-f, so it hands those in (SEQ 301)
-	result = ::exitFromParse(field,ruleStuff->sukcess,ruleStuff->hereAt,ruleStuff->label);
+	// stuffHandedIn parseRule's hereAt and label are still on its stuff until 1.2e-f, so it hands those in with its own verdict (SEQ 301, 1.2d)
+	result = ::exitFromParse(field,callOK,ruleStuff->hereAt,ruleStuff->label);
 	// activeList pop this call's activation -- AFTER exitFromParse, so its own fire saw itself on top and skipped it
 	ruler->gParseActive = callActive.prev;
-	// callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it; sukcess joined 2026-09-24 (F-121): a failed inner call wrote 0 into an rStuff an old-road caller was holding, and no post-return reader decides on it (census)
+	// callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it; sukcess joined 2026-09-24 (F-121) and LEFT with RuleStuff.sukcess in 1.2d (SEQ 302): a local cannot be overwritten by an inner call
 	
 	if ( ruleStuff ) {
 	ruleStuff->label = callLabel;
-	ruleStuff->hereAt = callHereAt;  ruleStuff->sukcess = callSukcess; }
+	ruleStuff->hereAt = callHereAt; }
 	
 	return result;
 }
