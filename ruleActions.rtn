@@ -158,7 +158,7 @@ extern GroupItem aCTionCodE(GroupItem rule)
 GroupRules  ruler   = groupRules;
 GroupItem   lefty   = rule[1],
             righty  = rule[2],
-            label   = rule.label;
+            label   = ruler.gParseActive.label;
     if lefty && righty {
         String  atInput = atRuleMark;
         String  beginBox,

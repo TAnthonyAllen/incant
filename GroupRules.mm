@@ -226,7 +226,7 @@ extern "C" GroupItem *aCTionCodE(GroupItem *rule)
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 GroupItem 	*lefty = rule->get(1);
 GroupItem 	*righty = rule->get(2);
-GroupItem 	*label = rule->getRStuff()->label;
+GroupItem 	*label = ruler->gParseActive->label;
 	if ( lefty && righty )
 		{
 		char 	*atInput = ruler->atRuleMark;
@@ -2285,6 +2285,7 @@ ParseActivation 	*top = ruler->gParseActive;
 extern "C" GroupItem *exitFromParse(GroupItem *field, int exitOK, char *exitAt, GroupItem *exitLab)
 {
 ParseActivation 	*cTop = 0;
+ParseActivation 	*cRec = 0;
 RuleStuff 			*cParent = 0;
 char 				*failMark = 0;
 GroupItem 			*cFace = 0;
@@ -2314,12 +2315,14 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 					cTop = cTop->prev;
 				if ( cTop && !cTop->isFloor )
 					{
+					cRec = cTop;
 					cParent = cTop->stuff;
 					cFace = cTop->face;
 					}
-				if ( cParent && !cParent->label && cFace && cFace->groupBody->flags.hasMembers && !cFace->groupBody->flags.binType && cLab != ruler->labelNO )
+				// parentRecord the parent's label lives in its RECORD, the enclosing activation (1.2f, SEQ 306)
+				if ( cRec && !cRec->label && cFace && cFace->groupBody->flags.hasMembers && !cFace->groupBody->flags.binType && cLab != ruler->labelNO )
 					{
-					cParent->label = cLab;
+					cRec->label = cLab;
 					if ( cLab->labelOf || (!cLab->groupBody->registry && !cLab->parent) )
 						cLab->groupBody->tag = cParent->ruleName;
 					}
@@ -2346,8 +2349,6 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 				cTop->failPoint = failMark;
 			}
 		}
-	if ( ruleStuff->label && !ruleStuff->label->groupBody->flags.fLAG )
-		ruleStuff->label = 0;
 	return result;
 }
 
@@ -8708,6 +8709,19 @@ extern "C" GroupItem *opUnaryMinus(GroupItem *result)
 	return GroupControl::groupController->groupRules->tempField;
 }
 
+// parkInRecord a label handed up to a parent whose RECORD is live goes there; with no such record it is dropped -- nothing reads it (1.2f, SEQ 306 R1)
+extern "C" int parkInRecord(RuleStuff *s, GroupItem *lab)
+{
+GroupRules 			*ruler = GroupControl::groupController->groupRules;
+ParseActivation 	*rec = ruler->gParseActive;
+	while ( rec && rec->stuff != s )
+		rec = rec->prev;
+	if ( !rec )
+		return 0;
+	rec->label = lab;
+	return 1;
+}
+
 // parseAction run the rule's action as its parse -- handed the field for a parseACTION rule or when there is no label, else the label
 extern "C" GroupItem *parseAction(GroupItem *field)
 {
@@ -8744,7 +8758,7 @@ int 		more = 0;
 	leafAt = ruleStuff->inputAt();
 	if ( leafAt && *leafAt && ruleStuff->checkGuard(field) )
 		{
-		leafLab = ruleStuff->mintLabel(field,0);
+		leafLab = ruleStuff->mintLabel(field);
 		while ( *ruler->atRuleMark == field->getCharacter() )
 			{
 			if ( counter >= ruleStuff->max )
@@ -8835,7 +8849,7 @@ int 		matched = 0;
 	leafAt = ruleStuff->inputAt();
 	if ( leafAt && *leafAt && ruleStuff->checkGuard(field) )
 		{
-		leafLab = ruleStuff->mintLabel(field,0);
+		leafLab = ruleStuff->mintLabel(field);
 		buffer->reset();
 		atInput = ruler->atRuleMark;
 		while ( *atInput )
@@ -8920,10 +8934,6 @@ ParseActivation 	callActive;
 	// enclosingRule re-resolve to the enclosing rule body's own face, through the ENCLOSING PARSE ACTIVATION -- a drive floors it, so a drive root keeps the rule it was handed (SEQ 212)
 	 { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } 
 RuleStuff 			*ruleStuff = field->getRStuff();
-	// callBracket lift this call's own rStuff state into C++ locals -- the C++ stack is the frame stack, and a nested call of the same rule would otherwise overwrite it (Tony, 2026-09-24; F-114). Passthrough, so tok sees no declaration (bear-trap #42)
-	
-	GroupItem *callLabel = ruleStuff ? ruleStuff->label : 0;
-	
 	// activePush this call's record goes on the activation list; one pop, after exitFromParse
 	callActive.face = field;
 	callActive.isFloor = 0;
@@ -8936,14 +8946,17 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	// activeNotSubject the record inherits GroupRules' scope, so re-mention ruler then ruleStuff or currentMETHOD binds to callActive (bear-trap #57)
 	::measureParentProbe(field);
 	// intoSnapshot the enclosing activation's label as it stood at entry -- a snapshot, never the live slot, which a child can rewrite before the read (recon 25c)
-	if ( ::enclosingStuff(field,ruleStuff) )
-		into = ::enclosingStuff(field,ruleStuff)->label;
+	// parentRecord the enclosing record is the one below this call's own (1.2f, SEQ 306)
+	if ( callActive.prev && !callActive.prev->isFloor )
+		into = callActive.prev->label;
 	// bareFieldRepoint the use lines below are load bearing -- a new declaration re-points every bare field under it
 	// ownVerdict this call's verdict is the local callOK, handed to the exit -- sukcess left RuleStuff (1.2d, SEQ 302)
 	// callHereLocal this call's start mark is the local callHere, handed to checkInput and the exit -- hereAt left RuleStuff (1.2e, SEQ 303)
 	callHere = ruleStuff->inputAt();
 	if ( ruleStuff->checkInput(field,0,callHere) )
 		{
+		// ownRecord this call's label is minted into its own record (1.2f, SEQ 306)
+		callActive.label = ruleStuff->mintLabel(field);
 		if ( isAction(field->groupBody->flags.actionType) )
 			{
 			while ( grup = code->nextAttribute(grup) )
@@ -8988,15 +9001,11 @@ checkSuccess:
 		}
 	// markSeat1 SEQ 166 point 1 -- the last seat with visibility before the trace goes silent
 	::measureMarkPoint("1-parseRule-exit");
-	// stuffHandedIn parseRule's label is still on its stuff until 1.2f, so it hands that in with its own verdict and start mark (SEQ 301, 1.2d, 1.2e)
-	result = ::exitFromParse(field,callOK,callHere,ruleStuff->label);
+	// stuffHandedIn parseRule hands the exit its own verdict, start mark and record label -- nothing of this call is on its stuff (1.2d-f)
+	result = ::exitFromParse(field,callOK,callHere,callActive.label);
 	// activeList pop this call's activation -- AFTER exitFromParse, so its own fire saw itself on top and skipped it
 	ruler->gParseActive = callActive.prev;
-	// callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it; sukcess joined 2026-09-24 (F-121) and LEFT with RuleStuff.sukcess in 1.2d (SEQ 302): a local cannot be overwritten by an inner call
-	
-	if ( ruleStuff ) {
-	ruleStuff->label = callLabel; }
-	
+	// callBracketRetired its last slot, label, moved onto the record in 1.2f -- a call's state is its own record's or its own locals' (SEQ 306)
 	return result;
 }
 
@@ -9015,7 +9024,7 @@ int 		more = 0;
 	leafAt = ruleStuff->inputAt();
 	if ( leafAt && *leafAt && ruleStuff->checkGuard(field) )
 		{
-		leafLab = ruleStuff->mintLabel(field,0);
+		leafLab = ruleStuff->mintLabel(field);
 		while ( set->contains(*ruler->atRuleMark) )
 			{
 			if ( counter >= ruleStuff->max )
@@ -9056,7 +9065,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	leafAt = ruleStuff->inputAt();
 	if ( leafAt && *leafAt && ruleStuff->checkGuard(field) )
 		{
-		leafLab = ruleStuff->mintLabel(field,0);
+		leafLab = ruleStuff->mintLabel(field);
 		// nodeInHand match through the field itself, never RuleStuff.owner -- equal on every call measured (stroke 5.2)
 		char *matchedString = field->matches(ruler->atRuleMark);
 		if ( matchedString )
@@ -9083,7 +9092,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	leafAt = ruleStuff->inputAt();
 	if ( leafAt && *leafAt && ruleStuff->checkGuard(field) )
 		{
-		leafLab = ruleStuff->mintLabel(field,0);
+		leafLab = ruleStuff->mintLabel(field);
 		if ( ::upToMatch(field,leafLab) )
 			leafOK = 1;
 		}
@@ -9604,6 +9613,18 @@ char 		*name = item->groupBody->flags.data ? item->getText() : (char*)0;
 		ruler->currentRegistry = argument->groupBody->registry;
 		}
 	return ruler->trueResult;
+}
+
+// recordLabel the label of the nearest live record whose stuff is s -- a child's read of its parent's label (1.2f, SEQ 306)
+extern "C" GroupItem *recordLabel(RuleStuff *s)
+{
+GroupRules 			*ruler = GroupControl::groupController->groupRules;
+ParseActivation 	*rec = ruler->gParseActive;
+	while ( rec && rec->stuff != s )
+		rec = rec->prev;
+	if ( rec )
+		return rec->label;
+	return 0;
 }
 
 // refuse THE ONE FUNNEL: print the line, arm the unwind, hand back null -- a refusal ends the activation that raised it

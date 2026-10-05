@@ -450,14 +450,14 @@ extern GroupItem measureFrameProbe(GroupItem field, GroupItem rule)
 {
     -%
     if ( GroupControl::groupController->groupRules->parseTrace )
-        ::fprintf(stderr,"FRAMEPROBE rule=%s field=%p fieldTag=%s fieldParent=%p fieldStuff=%p fieldStuffLabel=%p fieldStuffLabelTag=%s ruleSTUFF=%p\n",
+        ::fprintf(stderr,"FRAMEPROBE rule=%s field=%p fieldTag=%s fieldParent=%p fieldStuff=%p topRecordLabel=%p topRecordLabelTag=%s ruleSTUFF=%p\n",
             rule ? rule->groupBody->tag : "(none)",
             (void*)field,
             field ? field->groupBody->tag : "(none)",
             field ? (void*)field->parent : (void*)0,
             field ? (void*)field->rStuff : (void*)0,
-            (field && field->rStuff) ? (void*)field->rStuff->label : (void*)0,
-            (field && field->rStuff && field->rStuff->label) ? field->rStuff->label->groupBody->tag : "(none)",
+            GroupControl::groupController->groupRules->gParseActive ? (void*)GroupControl::groupController->groupRules->gParseActive->label : (void*)0,
+            (GroupControl::groupController->groupRules->gParseActive && GroupControl::groupController->groupRules->gParseActive->label) ? GroupControl::groupController->groupRules->gParseActive->label->groupBody->tag : "(none)",
             (void*)GroupControl::groupController->groupRules->ruleSTUFF);
     %-
     return field;
@@ -605,6 +605,10 @@ extern GroupItem measureOldFireFlag(GroupItem field, int callOK)
 extern GroupItem measureParentProbe(GroupItem field)
 {
     -%
+    // listLabel the enclosing RECORD's label -- RuleStuff.label retired in 1.2f (SEQ 306)
+    ParseActivation *lr = GroupControl::groupController->groupRules->gParseActive;
+    if ( lr && lr->face == field && lr->stuff == field->rStuff ) lr = lr->prev;
+    if ( lr && lr->isFloor ) lr = 0;
     if ( GroupControl::groupController->groupRules->parseTrace )
         ::fprintf(stderr,"PARENTPROBE %s self=%p parent=%p parentTag=%s stuff=%p listLabel=%p listLabelTag=%s\n",
             field->groupBody->tag,
@@ -612,8 +616,8 @@ extern GroupItem measureParentProbe(GroupItem field)
             (void*)field->parent,
             field->parent ? field->parent->groupBody->tag : "(none)",
             (void*)field->rStuff,
-            (field->rStuff && ::enclosingStuff(field,field->rStuff)) ? (void*)::enclosingStuff(field,field->rStuff)->label : (void*)0,
-            (field->rStuff && ::enclosingStuff(field,field->rStuff) && ::enclosingStuff(field,field->rStuff)->label) ? ::enclosingStuff(field,field->rStuff)->label->groupBody->tag : "(none)");
+            lr ? (void*)lr->label : (void*)0,
+            (lr && lr->label) ? lr->label->groupBody->tag : "(none)");
     %-
     return field;
 }

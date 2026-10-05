@@ -44,12 +44,13 @@ extern "C" int testAction(GroupItem *field)
 		if ( field->getRStuff()->parseMethod(field) )
 			return 1;
 		else	return 0;
+	// topRecord the label is the calling parse()'s record (1.2f, SEQ 306)
 	if ( field->getRStuff()->actionMethod )
-		if ( parseACTION(field->groupBody->flags.methodType) || !field->getRStuff()->label )
+		if ( parseACTION(field->groupBody->flags.methodType) || !GroupControl::groupController->groupRules->gParseActive->label )
 			if ( field->getRStuff()->actionMethod(field) )
 				return 1;
 			else
-			if ( field->getRStuff()->label && field->getRStuff()->actionMethod(field->getRStuff()->label) )
+			if ( GroupControl::groupController->groupRules->gParseActive->label && field->getRStuff()->actionMethod(GroupControl::groupController->groupRules->gParseActive->label) )
 				return 1;
 			else	::fprintf(stderr,"testAction: %shas no actionMethod\n",field->groupBody->tag);
 	return 0;
@@ -84,8 +85,9 @@ char 		*testAt = ruler->atRuleMark;
 			// testAtIsHereAt parse() calls a leaf test right after checkInput with nothing moving the input between, so the entry mark IS the start mark (1.2e, SEQ 303)
 			if ( ruleStuff->noAdvance )
 				ruler->atRuleMark = testAt;
-			if ( ruleStuff->label )
-				ruleStuff->label->setToken(testAt,counter);
+			// topRecord the label is the calling parse()'s record, on top of the list (1.2f, SEQ 306)
+			if ( ruler->gParseActive->label )
+				ruler->gParseActive->label->setToken(testAt,counter);
 			return 1;
 			}
 		}
@@ -139,8 +141,9 @@ char 		*testAt = ruler->atRuleMark;
 			// testAtIsHereAt parse() calls a leaf test right after checkInput with nothing moving the input between, so the entry mark IS the start mark (1.2e, SEQ 303)
 			if ( ruleStuff->noAdvance )
 				ruler->atRuleMark = testAt;
-			if ( ruleStuff->label )
-				ruleStuff->label->setToken(testAt,counter);
+			// topRecord the label is the calling parse()'s record, on top of the list (1.2f, SEQ 306)
+			if ( ruler->gParseActive->label )
+				ruler->gParseActive->label->setToken(testAt,counter);
 			return 1;
 			}
 		}
@@ -180,8 +183,9 @@ Buffer 		*buffer = ruler->stringBUFFER;
 			{
 			if ( !ruleStuff->noAdvance )
 				ruler->atRuleMark += advance;
-			if ( ruleStuff->label )
-				ruleStuff->label->setGroup(grup);
+			// topRecord the calling parse()'s record (1.2f, SEQ 306)
+			if ( ruler->gParseActive->label )
+				ruler->gParseActive->label->setGroup(grup);
 			return 1;
 			}
 		buffer->shorten(1);
@@ -234,8 +238,9 @@ char 		*testAt = ruler->atRuleMark;
 			// testAtIsHereAt parse() calls a leaf test right after checkInput with nothing moving the input between, so the entry mark IS the start mark (1.2e, SEQ 303)
 			if ( ruleStuff->noAdvance )
 				ruler->atRuleMark = testAt;
-			if ( ruleStuff->label )
-				ruleStuff->label->setToken(testAt,counter);
+			// topRecord the label is the calling parse()'s record, on top of the list (1.2f, SEQ 306)
+			if ( ruler->gParseActive->label )
+				ruler->gParseActive->label->setToken(testAt,counter);
 			return 1;
 			}
 		}
@@ -255,8 +260,9 @@ char 		*matchedString = field->matches(ruler->atRuleMark);
 		// testAtIsHereAt the entry mark is the start mark, as testMacro's (1.2e, SEQ 303)
 		if ( ruleStuff->noAdvance )
 			ruler->atRuleMark = testAt;
-		if ( ruleStuff->label )
-			ruleStuff->label->setText(matchedString);
+		// topRecord the calling parse()'s record (1.2f, SEQ 306)
+		if ( ruler->gParseActive->label )
+			ruler->gParseActive->label->setText(matchedString);
 		return 1;
 		}
 	return 0;
@@ -265,9 +271,9 @@ char 		*matchedString = field->matches(ruler->atRuleMark);
 // testUpTo capture input up to (or over) the terminator: the rule's set, its string, or a comma
 extern "C" int testUpTo(GroupItem *field)
 {
-	// oldRoadLabel the old road's label is on its stuff until 1.2f; a new-road leaf hands its own to upToMatch (SEQ 301)
-	if ( field->getRStuff() )
-		return ::upToMatch(field,field->getRStuff()->label);
+	// topRecord the old road's label is the calling parse()'s record (1.2f); a new-road leaf hands its own to upToMatch (SEQ 301)
+	if ( GroupControl::groupController->groupRules->gParseActive )
+		return ::upToMatch(field,GroupControl::groupController->groupRules->gParseActive->label);
 	return ::upToMatch(field,0);
 }
 
@@ -372,7 +378,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	parseMethod = 0;
 	jitMethod = 0;
 	actionMethod = 0;
-	label = 0;
 	onGroup = 0;
 	followed = 0;
 	inProcess = 0;
@@ -417,7 +422,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	overTo = 0;
 	ruleTerm = 0;
 	*this = *r;
-	label = 0;
 }
 
 // checkGuard true when the rule is unguarded or the input character is in its guardSet
@@ -453,9 +457,7 @@ int 	inOK = 0;
 	else
 	if ( checkGuard(field) )
 		inOK = 1;
-	// the label
-	if ( inOK )
-		label = mintLabel(field,label);
+	// labelByCaller the caller mints into its OWN record -- RuleStuff.label retired in 1.2f (SEQ 306)
 	return inOK;
 }
 
@@ -499,30 +501,27 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return ruler->atRuleMark;
 }
 
-// mintLabel the label of a term that passed its guard, or null for noLabel and a members rule; a recycled fLAG label is reused (SEQ 301, 1.2c)
-GroupItem *RuleStuff::mintLabel(GroupItem *field, GroupItem *reuse)
+// mintLabel the label of a term that passed its guard, or null for noLabel and a members rule -- always a FRESH mint: the fLAG recycle ended with 1.2f, an allocation saving and no more (SEQ 306 R1)
+GroupItem *RuleStuff::mintLabel(GroupItem *field)
 {
-GroupItem 	*lab = reuse;
+GroupItem 	*lab = 0;
 	if ( noLabel || (field->groupBody->flags.hasMembers && !field->groupBody->flags.binType) )
 		return 0;
-	if ( !lab || !lab->groupBody->flags.fLAG )
-		{
-		lab = new GroupItem(field->groupBody->tag);
-		lab->groupBody->flags.isLabel = 1;
-		// labelOf the rule this label was minted for -- written here once, never rewritten (stroke 5.6a)
-		lab->labelOf = field;
-		}
-	else	lab->groupBody->flags.fLAG = 0;
+	lab = new GroupItem(field->groupBody->tag);
+	lab->groupBody->flags.isLabel = 1;
+	// labelOf the rule this label was minted for -- written here once, never rewritten (stroke 5.6a)
+	lab->labelOf = field;
 	if ( !lab->getRStuff() || ::compare(ruleName,field->groupBody->tag) != 0 )
 		lab->setRStuff(this);
 	// enclosingActivation
 	if ( field->groupBody->flags.hasNewParse && isMember(field->options.affiliation) )
 		{
 		// driveRoot a generated DRIVE ROOT parks its label on the drive floor, where driveStep reads it
+		// parentRecord otherwise the parent's RECORD takes it when one is live; with none, nothing reads it and it is dropped (1.2f, SEQ 306 R1)
 		if ( !::driveFloorLabel(this,lab) )
 			{
 			if ( field->parent && field->parent->getRStuff() )
-				field->parent->getRStuff()->label = lab;
+				::parkInRecord(field->parent->getRStuff(),lab);
 			else	::refuse(field,"checkInput: no enclosing activation to take the label");
 			}
 		}
