@@ -60,46 +60,55 @@ GroupRules  ruler = groupRules;
     return false;
 }
 
-// checkInput skip, set hereAt, pass the guard and mint the label -- true when input is valid; field is the node the caller runs, never RuleStuff.owner (stroke 5.4a)
-int checkInput(GroupItem field, int guardPassed)
+// inputAt skip to the input a term starts at and hand the mark back -- null only when there is no input at all (SEQ 301, 1.2c)
+String inputAt()
 {
 GroupRules  ruler = groupRules;
     if !atRuleMark {
         cerr "checkInput: no input source":;
-        goto checkFailed; }
+        return null; }
     if *atRuleMark
         if !noSkip && skipSet.contains(*atRuleMark) atRuleMark = checkSkip(atRuleMark);
     // end of input
     if *atRuleMark
         if !noSkip && skipSet.contains(*atRuleMark) atRuleMark = checkSkip(atRuleMark);
+    return atRuleMark;
+}
+
+// mintLabel the label of a term that passed its guard, or null for noLabel and a members rule; a recycled fLAG label is reused (SEQ 301, 1.2c)
+GroupItem mintLabel(GroupItem field, GroupItem reuse)
+{
+GroupItem   lab = reuse;
+    if noLabel || (field.hasMembers && !field.binType)   return null;
+    if !lab || !lab.fLAG {
+        lab             = new(field.tag);
+        lab.isLabel     = true;
+        // labelOf the rule this label was minted for -- written here once, never rewritten (stroke 5.6a)
+        lab.labelOf     = field; }
+    else lab.fLAG       = false;
+    if !lab.rStuff || ruleName ne field.tag  lab.setRStuff(this);
+    // enclosingActivation
+    if field.hasNewParse && field.isMember {
+        // driveRoot a generated DRIVE ROOT parks its label on the drive floor, where driveStep reads it
+        if !driveFloorLabel(this,lab) {
+            if field.parent && field.parent.rStuff  field.parent.rStuff.label = lab;
+            else    refuse(field,"checkInput: no enclosing activation to take the label"); } }
+    return lab;
+}
+
+// checkInput skip, set hereAt, pass the guard and mint the label -- true when input is valid; field is the node the caller runs, never RuleStuff.owner (stroke 5.4a). The old road and parseRule keep their values on this stuff until 1.2d-f; a new-road leaf calls inputAt, checkGuard and mintLabel itself and keeps them in locals (SEQ 301)
+int checkInput(GroupItem field, int guardPassed)
+{
+String      inAt = inputAt();
+    if !inAt    goto checkFailed;
     // hereAtFirst set BEFORE the end-of-input exit -- a term failing at end of input is rewound to hereAt, and an unset one wrote a null mark (convLeakT)
-    hereAt  = atRuleMark;
-    if !*atRuleMark     goto checkFailed;
+    hereAt  = inAt;
+    if !*inAt   goto checkFailed;
     // the rule guard, if there is one
     if guardPassed  sukcess = true;
-    or field.isUnGuarded()  sukcess = true;
-    else {
-        if guardInProcess   guarding = 0;
-        if !guarding        ensureGuard();
-        if unGuarded        sukcess = true;
-        or guarded && guardSet.contains(*atRuleMark) sukcess = true; }
+    or checkGuard(field)    sukcess = true;
     // the label
-    if sukcess
-        if noLabel || (hasMembers && !binType)   label = 0;
-        else {
-            if !label || !label.fLAG {
-                label           = new(tag);
-                label.isLabel   = true;
-                // labelOf the rule this label was minted for -- written here once, never rewritten (stroke 5.6a)
-                label.labelOf   = field; }
-            else label.fLAG     = false;
-            if !label.rStuff || ruleName ne tag label.setRStuff(this);
-            // enclosingActivation
-            if hasNewParse && isMember {
-                // driveRoot a generated DRIVE ROOT parks its label on the drive floor, where driveStep reads it
-                if !driveFloorLabel(this,label) {
-                    if parent && parent.rStuff  parent.rStuff.label = label;
-                    else    refuse(field,"checkInput: no enclosing activation to take the label"); } } }
+    if sukcess  label = mintLabel(field,label);
 checkFailed:
     return sukcess;
 }
@@ -286,6 +295,14 @@ String      matchedString = field.matches(atRuleMark);
 // testUpTo capture input up to (or over) the terminator: the rule's set, its string, or a comma
 extern int testUpTo(GroupItem field)
 {
+    // oldRoadLabel the old road's label is on its stuff until 1.2f; a new-road leaf hands its own to upToMatch (SEQ 301)
+    if field.rStuff     return upToMatch(field,field.rStuff.label);
+    return upToMatch(field,null);
+}
+
+// upToMatch testUpTo's match, handed the label to fill -- it reads no label off the stuff (SEQ 301, 1.2c)
+extern int upToMatch(GroupItem field, GroupItem upLab)
+{
 GroupRules  ruler = groupRules;
 RuleStuff   ruleStuff   = field.rStuff;
 String      atText      = atRuleMark;
@@ -332,9 +349,9 @@ use field
         ********************************************************************/
         if matched {
             if lngth {
-                if label {
-                    label.text = buffer.toString();
-                    if grup     label +% grup; }
+                if upLab {
+                    upLab.text = buffer.toString();
+                    if grup     upLab +% grup; }
                 atRuleMark      = atText; }
             if upToOver     atRuleMark += matchLength;
             return true; }}

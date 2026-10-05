@@ -163,7 +163,7 @@ extern "C" GroupItem *dumpContents(GroupItem *stuff);
 extern "C" GroupItem *dupTermRefusal(GroupItem *rule);
 extern "C" GroupItem *enclosingFace(GroupItem *field);
 extern "C" RuleStuff *enclosingStuff(GroupItem *askField, RuleStuff *askStuff);
-extern "C" GroupItem *exitFromParse(GroupItem *field);
+extern "C" GroupItem *exitFromParse(GroupItem *field, int exitOK, char *exitAt, GroupItem *exitLab);
 extern "C" GroupItem *fAIL(GroupItem *input);
 extern "C" GroupItem *foldDot(GroupItem *dotUxp, GroupItem *left);
 extern "C" GroupItem *followArgument(GroupItem *operand);

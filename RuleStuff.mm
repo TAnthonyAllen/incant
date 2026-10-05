@@ -257,6 +257,15 @@ char 		*matchedString = field->matches(ruler->atRuleMark);
 // testUpTo capture input up to (or over) the terminator: the rule's set, its string, or a comma
 extern "C" int testUpTo(GroupItem *field)
 {
+	// oldRoadLabel the old road's label is on its stuff until 1.2f; a new-road leaf hands its own to upToMatch (SEQ 301)
+	if ( field->getRStuff() )
+		return ::upToMatch(field,field->getRStuff()->label);
+	return ::upToMatch(field,0);
+}
+
+// upToMatch testUpTo's match, handed the label to fill -- it reads no label off the stuff (SEQ 301, 1.2c)
+extern "C" int upToMatch(GroupItem *field, GroupItem *upLab)
+{
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
 char 		*atText = ruler->atRuleMark;
@@ -332,11 +341,11 @@ GroupItem 	*grup = isGROUP(field->groupBody->flags.data) ? field->getGroup() : f
 			{
 			if ( lngth )
 				{
-				if ( ruleStuff->label )
+				if ( upLab )
 					{
-					ruleStuff->label->setText(buffer->toString());
+					upLab->setText(buffer->toString());
 					if ( grup )
-						ruleStuff->label->addAttribute(grup);
+						upLab->addAttribute(grup);
 					}
 				ruler->atRuleMark = atText;
 				}
@@ -425,70 +434,25 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 	return 0;
 }
 
-// checkInput skip, set hereAt, pass the guard and mint the label -- true when input is valid; field is the node the caller runs, never RuleStuff.owner (stroke 5.4a)
+// checkInput skip, set hereAt, pass the guard and mint the label -- true when input is valid; field is the node the caller runs, never RuleStuff.owner (stroke 5.4a). The old road and parseRule keep their values on this stuff until 1.2d-f; a new-road leaf calls inputAt, checkGuard and mintLabel itself and keeps them in locals (SEQ 301)
 int RuleStuff::checkInput(GroupItem *field, int guardPassed)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-	if ( !ruler->atRuleMark )
-		{
-		::fprintf(stderr,"checkInput: no input source\n");
+char 	*inAt = inputAt();
+	if ( !inAt )
 		goto checkFailed;
-		}
-	if ( *ruler->atRuleMark )
-		if ( !noSkip && ruler->skipSet->contains(*ruler->atRuleMark) )
-			ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
-	// end of input
-	if ( *ruler->atRuleMark )
-		if ( !noSkip && ruler->skipSet->contains(*ruler->atRuleMark) )
-			ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
 	// hereAtFirst set BEFORE the end-of-input exit -- a term failing at end of input is rewound to hereAt, and an unset one wrote a null mark (convLeakT)
-	hereAt = ruler->atRuleMark;
-	if ( !*ruler->atRuleMark )
+	hereAt = inAt;
+	if ( !*inAt )
 		goto checkFailed;
 	// the rule guard, if there is one
 	if ( guardPassed )
 		sukcess = 1;
 	else
-	if ( field->isUnGuarded() )
+	if ( checkGuard(field) )
 		sukcess = 1;
-	else {
-		if ( guardInProcess(field->groupBody->flags.guarding) )
-			field->groupBody->flags.guarding = 0;
-		if ( !field->groupBody->flags.guarding )
-			field->ensureGuard();
-		if ( unGuarded(field->groupBody->flags.guarding) )
-			sukcess = 1;
-		else
-		if ( guarded(field->groupBody->flags.guarding) && field->groupBody->guardSet->contains(*ruler->atRuleMark) )
-			sukcess = 1;
-		}
 	// the label
 	if ( sukcess )
-		if ( noLabel || (field->groupBody->flags.hasMembers && !field->groupBody->flags.binType) )
-			label = 0;
-		else {
-			if ( !label || !label->groupBody->flags.fLAG )
-				{
-				label = new GroupItem(field->groupBody->tag);
-				label->groupBody->flags.isLabel = 1;
-				// labelOf the rule this label was minted for -- written here once, never rewritten (stroke 5.6a)
-				label->labelOf = field;
-				}
-			else	label->groupBody->flags.fLAG = 0;
-			if ( !label->getRStuff() || ::compare(ruleName,field->groupBody->tag) != 0 )
-				label->setRStuff(this);
-			// enclosingActivation
-			if ( field->groupBody->flags.hasNewParse && isMember(field->options.affiliation) )
-				{
-				// driveRoot a generated DRIVE ROOT parks its label on the drive floor, where driveStep reads it
-				if ( !::driveFloorLabel(this,label) )
-					{
-					if ( field->parent && field->parent->getRStuff() )
-						field->parent->getRStuff()->label = label;
-					else	::refuse(field,"checkInput: no enclosing activation to take the label");
-					}
-				}
-			}
+		label = mintLabel(field,label);
 checkFailed:
 	return sukcess;
 }
@@ -512,6 +476,55 @@ void RuleStuff::getWhatFollows(GroupItem *field)
 	// promotionRetired the parent-min promotion is RETIRED -- do not reintroduce it; an optional term must not make its whole rule optional
 	if ( !testMatch )
 		setTestMatch(field);
+}
+
+// inputAt skip to the input a term starts at and hand the mark back -- null only when there is no input at all (SEQ 301, 1.2c)
+char *RuleStuff::inputAt()
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+	if ( !ruler->atRuleMark )
+		{
+		::fprintf(stderr,"checkInput: no input source\n");
+		return 0;
+		}
+	if ( *ruler->atRuleMark )
+		if ( !noSkip && ruler->skipSet->contains(*ruler->atRuleMark) )
+			ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
+	// end of input
+	if ( *ruler->atRuleMark )
+		if ( !noSkip && ruler->skipSet->contains(*ruler->atRuleMark) )
+			ruler->atRuleMark = ruler->checkSkip(ruler->atRuleMark);
+	return ruler->atRuleMark;
+}
+
+// mintLabel the label of a term that passed its guard, or null for noLabel and a members rule; a recycled fLAG label is reused (SEQ 301, 1.2c)
+GroupItem *RuleStuff::mintLabel(GroupItem *field, GroupItem *reuse)
+{
+GroupItem 	*lab = reuse;
+	if ( noLabel || (field->groupBody->flags.hasMembers && !field->groupBody->flags.binType) )
+		return 0;
+	if ( !lab || !lab->groupBody->flags.fLAG )
+		{
+		lab = new GroupItem(field->groupBody->tag);
+		lab->groupBody->flags.isLabel = 1;
+		// labelOf the rule this label was minted for -- written here once, never rewritten (stroke 5.6a)
+		lab->labelOf = field;
+		}
+	else	lab->groupBody->flags.fLAG = 0;
+	if ( !lab->getRStuff() || ::compare(ruleName,field->groupBody->tag) != 0 )
+		lab->setRStuff(this);
+	// enclosingActivation
+	if ( field->groupBody->flags.hasNewParse && isMember(field->options.affiliation) )
+		{
+		// driveRoot a generated DRIVE ROOT parks its label on the drive floor, where driveStep reads it
+		if ( !::driveFloorLabel(this,lab) )
+			{
+			if ( field->parent && field->parent->getRStuff() )
+				field->parent->getRStuff()->label = lab;
+			else	::refuse(field,"checkInput: no enclosing activation to take the label");
+			}
+		}
+	return lab;
 }
 
 // setTestMatch picks the old road's test for this rule's shape
