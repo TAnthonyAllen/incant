@@ -989,7 +989,7 @@ Stak getStak()
 
 /*******************************************************************************
                                 getStuff
-	Returns rStuff unless it is inProcess, IWC returns a fresh copy of rStuff
+	Returns rStuff -- every call of a rule shares it; the in-process copy retired with stroke 1.2g
 *******************************************************************************/
 RuleStuff getStuff(RuleStuff pStuff)
 {
@@ -1002,8 +1002,7 @@ String      why;
         why = "getStuff: a label holding its rule's rStuff reached the parse; its rule is " labelOf.tag;
         refuse(this,why);
         return stuff; }
-    if stuff.inProcess {
-        stuff       = new(rStuff); }
+    // sharedStuff no re-entry copy: per-call state lives on the activation since 1.2a-1.2f, and the copy only discarded actionMethod's lazy install, the same value the outer call installs (SEQ 307 R2)
     if !followed    getWhatFollows(this);
     return stuff;
 }
@@ -1310,7 +1309,6 @@ String      ownPoint;
     // activeNotSubject the record takes GroupRules' scope, so re-mention ruler then ruleStuff or ruler's bare names bind to oldActive (bear-trap #58)
 use ruler
 use ruleStuff
-    inProcess   = true;
     // bindReadSeamProbe
     while !leafDone && repeatCount < maxRepeat {
 continueHere:
@@ -1371,7 +1369,6 @@ generatedExit:
     // nodeInHand this, never RuleStuff.owner -- getStuff makes them one node (stroke 5.2)
     if !callOK && notifyFail   aCTionFailed(this,ownPoint);
     if callOK && !oldActive.label  oldActive.label = labelNO;
-    inProcess   = false;
     ruler.gParseActive  = oldActive.prev;
 use ruler
 use ruleStuff

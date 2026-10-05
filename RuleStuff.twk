@@ -15,7 +15,6 @@ GroupItem   &parseMethod(GroupItem);
 int         &jitMethod(GroupItem);
 boolean
     followed
-    inProcess
     isTarget
     modPercent
     modPointer
