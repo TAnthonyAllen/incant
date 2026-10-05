@@ -20,6 +20,12 @@ instrument's missing list is an accident; two is the convention being too narrow
 read as a clean pass with an EMPTY output file. An empty capture at exit 0 is not a green; check
 that an instrument printed something before believing its status.
 
+## 2026-10-05, seal 67 -- 978 green / 52 red / 1 parked (trunk jit-unified-emit-wip, bare)
+
+**Seal 62's 51 rows, diffed row for row, plus one joined: zeroWidthT's PARSERETURN pin (SEQ 306 R0), born red on trunk
+as ruled** -- trunk returns the stale Modifier/TraiTdata labels; it goes green with stroke 1.2f (branch stroke12f reads
+979 / 51). Green rose by two (the pin's other rows).
+
 ## 2026-10-05, seal 62 -- 976 green / 51 red / 1 parked (trunk jit-unified-emit-wip, bare)
 
 **Unchanged from seal 60: the same 51 rows, diffed row for row.** Green fell by one: "loopVerdict positive control:

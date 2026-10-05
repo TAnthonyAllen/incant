@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 201 at the FOOT -- SEQ 305: 1.2f STOPPED before the build -- 52,886 owner-less fallback writes have no home under (A); zeroWidthT's 3 returned labels would change (output unchanged); fLAG recycle would end
+STATUS:   fresh           # SEQ 202 at the FOOT -- SEQ 306: R0 pin landed (born red); R1 recycle ends (row for row); 1.2f BUILT on stroke12f (b8f3685 / 7cf58b1), 979 / 51 row for row, NOT MERGED
+# prior: SEQ 201 at the FOOT -- SEQ 305: 1.2f STOPPED before the build -- 52,886 owner-less fallback writes have no home under (A); zeroWidthT's 3 returned labels would change (output unchanged); fLAG recycle would end
 # prior: SEQ 200 at the FOOT -- SEQ 304: stroke12e merged; dirCheck on the seal (3 dark, all parked); 1.2f STOPPED at the decision point -- the parent's label is read/written by children (needs ParseActivation.label or a redesign)
 # prior: SEQ 199 at the FOOT -- SEQ 303: stroke12d merged (directives respelled, 3 orphaned anchors re-aimed); 1.2e BUILT on stroke12e (82b18ec / d787136), 976 / 51 row for row, NOT MERGED
 # prior: SEQ 198 at the FOOT -- SEQ 302: stroke12c merged; leafLabelT; 1.2d BUILT on stroke12d (f37991d / b129d40), 976 / 51 (one row retired by mapping), NOT MERGED
@@ -11261,3 +11262,47 @@ is accepted; (3) the fLAG recycle ending for parseRule and the old road; (4) whe
 for a by-value pin. Then the build.
 
   END SEQ 201
+
+SEQ 202  -  SEQ 306: R0 PIN LANDED (BORN RED); R1 THE RECYCLE ENDS; STROKE 1.2f BUILT ON stroke12f (NOT MERGED, FOR TONY TO BUY)
+===================================================================
+STATUS: fresh -- 2026-10-05, trunk, seal 67.
+
+R0 -- LANDED on trunk (5ba61f3, support 7813921). measureParseReturn (measure.twk, measure-callout convention): armed by
+  INCANT_PARSE_RETURN (comma list of rule names, or ALL), inert otherwise, reads only; prints PARSERETURN rule=<r>
+  label=<tag> at old-road parse()'s return. pop.sh runs zeroWidthT with it armed on TraiTdata,Modifier and pins the four
+  returns by value (Modifier=labelNO|TraiTdata=labelNO|Modifier=Modifier|TraiTdata=labelNO). Born red on trunk (the
+  stale labels), green on stroke12f.
+
+R1 -- MEASURED on trunk, tap reverted md5-identical: every label reuse made a fresh mint -> fleet 976 / 51 ROW FOR ROW.
+  So the recycle ends: checkInput's reuse argument retires, and mintLabel's 52,886 owner-less fallback writes are dropped
+  (parkInRecord finds no record and writes nothing). The ENGINE fLAG meaning that retires is the label recycle -- the
+  exit's fLAG keep and mintLabel's reuse. attachLabel still sets lab.fLAG, so the kant fLAG marker is unaffected.
+
+R2 -- BUILT on stroke12f (Groups b8f3685, support 7cf58b1, both pushed), shape (A):
+  - ParseActivation.label holds a call's label: oldActive.label in parse(), callActive.label in parseRule. The drive
+    floor's park is the same field (R1 of SEQ 305). RuleStuff.label is gone (class, copy ctor, groups.ext).
+  - THE callBracket RETIRES WHOLE: it held label alone; the save/restore is deleted.
+  - Children reach the parent's record: the new-road exit yields into cTop's record; the old road goes through two new
+    helpers in Generate.rtn -- recordLabel(stuff) and parkInRecord(stuff,lab), the nearest record whose stuff matches.
+    mintLabel(field) always mints fresh; checkInput no longer mints.
+  - attachLabel KEEPS its RuleStuff pStuff parameter. A ParseActivation* parameter made tok copy the struct into
+    GroupItem.h and emit a bogus declaration (bear-trap #58's family); the helpers avoid it. GroupItem.h unchanged.
+  - aCTionCodE reads ruler.gParseActive.label (a first spelling `= rule` broke every compile -- fixed before any number).
+  - DIRECTIVES respelled, before -> after: exitFromParse "exitLab = cLab" (disarmed) label -> exitLab; parse "if callOK {"
+    (active) label -> oldActive.label. Both verified injecting the right read; dirCheck green on the branch.
+  CERTIFICATE on the branch: fleet 979 / 51, row for row with trunk's 978 / 52 less the R0 pin, which turns green ·
+  jitLadder PASSED · printPop PASSED · decodePop echo only · ddPop 5 / 1 · frontier row for row · canary 305 -> 307
+  (movers: recordLabel, parkInRecord) · FULL BARE-TOKALL DIFF: GroupItem.mm 35, GroupRules.mm 67, measure.mm 14,
+  RuleStuff.mm 63, GroupRules.h 2, RuleStuff.h 3 lines -- every one the stroke's edits or the two externs; nothing
+  re-aimed. Witnesses: shapeBodyT label rows, leafLabelT, the R0 pins -- all green.
+  H7 (committed first; single fixtures under alarms): cutting the whole parent channel kills setup (139) -- too broad to
+  discriminate; cutting only the new-road exit's yield into the parent record goes RED BY VALUE: leafLabelT's lp/kw/rp
+  labels vanish and treeRowT loses ScafALT. shapeBodyT's ShRep labels are unaffected by that cut (they ride the old road).
+
+CONTEXT (relevance gate: no row failed): dirCheck's PARKED dark set varies run to run on trunk -- four runs today read
+  3,4,3,3 dark (generateCode generating, processCode processingCode, addGroup starting always; parseContainer starting
+  once; copyOf starting in an earlier run; runRule if once at seal 64). No ARMED directive has ever read dark.
+
+FOR TONY: buy or refuse stroke12f. Next, by a fresh dispatch: getStuff's copy, the last of stroke 1.2.
+
+  END SEQ 202
