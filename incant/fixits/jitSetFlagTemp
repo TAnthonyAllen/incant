@@ -1,0 +1,40 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitSetFlagTemp);
+define
+    jsA="av";
+    jsB="bv";
+    jsDrive code={
+        jsA :. noPrinT;
+        jsB.noPrinT = 1;
+        };
+    ;
+cerr "ANCHOR jitSetFlagTemp -- a jitted `x :. noPrinT` then `y.noPrinT = 1`; both should read 1":;
+testing(jsDrive);
+print "JSF jitted :. noPrinT       -> " jsA.noPrinT " (want 1)":;
+print "JSF jitted later = store    -> " jsB.noPrinT " (want 1)":;
+fixJitSetFlagTempHere = 0;
+cerr "SENTINEL jitSetFlagTemp reached the foot":;
+stop();
+
+LANE:  jit
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 298 R1, Tony; severity WRONG)
+
+jitSetFlagTemp -- inside a jitted body, `x :. noPrinT` REFUSES as "`:. tempField` -- not a groupField", and the
+refusal (ruler.refused, armed) then makes every later store in the body store nothing -- jitAccessorWriteRT and
+jitAssignNodeRT both honour the store ruling. So one `:.` silently cancels the rest of the body's writes. Found
+2026-10-05 writing incant/pop/jitDotAssignT, which therefore sets its `:.` in an interpreted action.
+
+Read, not measured: `:.` is operateMethod opSetFlag, and in a jitted walk its right operand arrives as the shared
+ruler->tempField (the node jitted dots and other emitters publish into), so opSetFlag looks up groupFields["tempField"],
+finds nothing, and refuses. opSetFlag has no `if jitting` arm.
+
+NEXT: BEST GUESS -- give opSetFlag a jitting arm that emits a run-time call (the jitAccessorWriteRT shape: setGroupField
+with 1 on the left operand, the flag number read at EMIT time from the right operand's tag, before it is lost to
+tempField); or refuse the `:.` at emit time with a jitDegrade by name so the body runs interpreted. Grade: mechanism
+read, symptom measured. Taken: both lines read 1. Not taken: the first reads 0 and the stderr carries the refusal.

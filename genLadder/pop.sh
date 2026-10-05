@@ -643,6 +643,28 @@ _n=$(grep -c "CF-2 an expression after the failed compile runs" "$T/cft")
 if [ "$_n" = "1" ]; then echo "  ok    compileFloorT CF-2 printed once (no body ran while compiling) = $_n"; green=$((green+1))
 else echo "  FAIL  compileFloorT CF-2 printed $_n times, want 1 -- a body ran while it was being compiled"; fail=1; fi
 
+#  ⚠ setFlagTopT -- `x :. noPrinT` AT TOP LEVEL (SEQ 298 R1, PIN ONLY). Born RED and stays red until the fixit
+#  setFlagTopLevel (owner Clod) is stepped: the top-level SET fails ("opSetFlag: missing operand"); the read is sound,
+#  as the in-action sibling shows. Two reads: the read-back and dumpContents' noPrint column.
+run1 setFlagTopT "$T/sft"; check "setFlagTopT runs" 0 $?
+sentinel "setFlagTopT sentinel (no truncation)" "$T/sft" "SETFLAGTOP SENTINEL"
+for _j in "SFT-1 top-level :. read-back  ->  1" \
+          "SFT-2 in-action :. read-back  ->  1" \
+          "SFT-3 never set    read-back  ->  0"; do
+    if grep -qF "$_j" "$T/sft"; then
+        echo "  ok    setFlagTopT ${_j} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  setFlagTopT -- wanted: $_j"; fail=1
+    fi
+done
+for _m in sfTop sfAct; do
+    if grep -Eq "^[[:space:]]*${_m} +member +noPrint" "$T/sft"; then
+        echo "  ok    setFlagTopT dumpContents shows ${_m} noPrint"; green=$((green+1))
+    else
+        echo "  FAIL  setFlagTopT -- dumpContents shows ${_m} WITHOUT noPrint"; fail=1
+    fi
+done
+
 #  ⚠ argRoundJ -- THE JIT ARM. Minted pinned RED by name on jitArgBake and
 #  RE-PINNED GREEN the same day when the flag hoist discharged it; see the
 #  sentence at the argument-column row below. It stays a separate file from

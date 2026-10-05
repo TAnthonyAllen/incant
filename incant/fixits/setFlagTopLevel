@@ -1,0 +1,38 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+register(SetFlagTopLevel);
+define
+    stTop="tv";
+    stAct="av";
+    stSet code={
+        stAct :. noPrinT;
+        };
+    ;
+cerr "ANCHOR setFlagTopLevel -- `x :. noPrinT` as a TOP-LEVEL statement; both lines should read 1":;
+stTop :. noPrinT;
+stSet();
+print "STL top-level :. -> " stTop.noPrinT " (want 1)":;
+print "STL in-action :. -> " stAct.noPrinT " (want 1)":;
+fixSetFlagTopLevelHere = 0;
+cerr "SENTINEL setFlagTopLevel reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 298 R1, Tony; severity WRONG -- the flag silently does not take)
+
+setFlagTopLevel -- a top-level `x :. noPrinT;` sets nothing. It prints "opSetFlag: missing operand" on stderr, the
+run goes on at exit 0, and x reads 0. The same statement inside an action sets the flag. Measured 2026-10-05: the SET is
+the broken half -- the read is the same opDot read that returns 1 for the in-action field, and dumpContents' noPrint
+column (an independent C++ read) agrees with it on both (incant/pop/setFlagTopT, two born-red rows). Both a bare name
+and a subscript (`p["m"] :. noPrinT`) fail the same way.
+
+opSetFlag (Instruct.rtn) reaches `if !argument || !target` with one operand null. Not yet measured: WHICH operand.
+Its leading-dot arm (`if !argument` -> lastREF) did not print "lastREF not set", so either the right operand arrived
+null with a lastREF whose group is null, or the left arrived null.
+
+NEXT: OPEN -- what generates a candidate: one tap at opSetFlag's entry printing both operands' tags (and lastREF's)
+for the top-level and the in-action statement side by side. Taken: both lines read 1 and setFlagTopT's two red rows
+go green. Not taken: the top-level line reads 0.

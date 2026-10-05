@@ -1,0 +1,40 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(SetFlagTopT);
+define
+    sfParent pk=1
+        sfTop="tv";
+        sfAct="av";
+        sfNone="nv";
+    sfSet code={
+        sfParent["sfAct"] :. noPrinT;
+        };
+    ;
+sfParent["sfTop"] :. noPrinT;
+sfSet();
+print "SFT-1 top-level :. read-back  -> " sfParent["sfTop"].noPrinT:;
+print "SFT-2 in-action :. read-back  -> " sfParent["sfAct"].noPrinT:;
+print "SFT-3 never set    read-back  -> " sfParent["sfNone"].noPrinT:;
+dumpContents(sfParent);
+print "SETFLAGTOP SENTINEL -- reached the foot":;
+stop();
+
+setFlagTopT -- `x :. noPrinT` at TOP LEVEL must leave x noPrint (SEQ 298 R1). Pin only; no fix.
+
+Tony's kant processCode port relies on `:. noPrinT`, and nothing pinned it. Three members of one parent: sfTop set by
+a top-level statement, sfAct set inside an action (the control -- this road works), sfNone never set.
+
+Measured 2026-10-05: the SET is the broken half, not the read. The top-level `:.` prints "opSetFlag: missing
+operand" on stderr and writes nothing. Two independent reads agree: the read-back (opDot) gives 0, and dumpContents
+(C++ debugText, which prints a noPrint column) shows no noPrint on sfTop -- while both show it on sfAct. The same read
+returning 1 for sfAct is what clears the read.
+
+Rows (pop.sh): SFT-1 want 1 and the dumpContents line for sfTop carrying noPrint -- BORN RED, fixit setFlagTopLevel
+(owner Clod). SFT-2 = 1 and sfAct's noPrint column are the green siblings; SFT-3 = 0 is the never-set control.
+
+Context: neither named walker SKIPS a noPrint member. printDefinition prints it; dumpContents shows it with a noPrint
+column, because next()'s skip is gated on ruler.ignoreNoPrint and nothing ever sets that (the constructor writes 0).
+So the walker half of this pin is dumpContents' column, not a skip.
