@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 192 at the FOOT -- PROPOSAL (Tony asked): processingCode moves off GroupRules onto the compile's floor; tap says every read agrees (0 of ~5.8M); nothing changed, for tomorrow with Clay
+STATUS:   fresh           # SEQ 193 at the FOOT -- SEQ 297: jitDotAssign stepped on trunk (32f4b09); R2 BUILT on compileFloor (processingCode a mark on the compile's floor), 943 / 49 row for row, NOT MERGED; R4 gCompileOwner agrees, 0 off-diagonal of ~6.4M
+# prior: SEQ 192 at the FOOT -- PROPOSAL (Tony asked): processingCode moves off GroupRules onto the compile's floor; tap says every read agrees (0 of ~5.8M); nothing changed, for tomorrow with Clay
 # prior: SEQ 191 at the FOOT -- SEQ 293 / SEQ 190 rulings: 1.2b BUILT on stroke12b -- kount as two locals, 908 row for row, NOT MERGED; session pause
 # prior: SEQ 190 at the FOOT -- SEQ 189 Q1: the shared kount is ONE term face counted twice (never the parent's stuff, 0 of 1,860); no STOP; 1.2b awaits Tony's (a)/(b)/(c)
 # prior: SEQ 189 at the FOOT -- SEQ 293: stroke12a MERGED (908), F-140 closed, R3 rule; 1.2b STOPPED at its recon check -- old-road parse() shares kount with parseLoop (100 reads, 0 decisions)
@@ -10724,3 +10725,61 @@ THE PROPOSAL (shape only, for Clay to rule):
      arm could leave it set). A second global of the same kind -- context, not a finding; maybe the next candidate.
 
   END SEQ 192
+
+
+SEQ 193  -  SEQ 297: jitDotAssign STEPPED (trunk); processingCode ONTO THE COMPILE'S FLOOR BUILT ON compileFloor (NOT MERGED)
+===================================================================
+STATUS: fresh -- 2026-10-05. Sealed 51 (after R0) and 52 (after R2), both on trunk. Kitchen pass first: bd5cf56,
+Tony's offline 412 edit + tester, committed under his name.
+
+R0 -- jitDotAssign (trunk 32f4b09). Cause, read in the IR: the LEFT dot left gJitLastIsNode raised, so jitEmitAssign
+  took the node branch -- jitAssignNodeRT(dotRes, tempField) -- storing the dot's product into its own result node;
+  the 1 was never used. Cure: jitEmitDot records the node it seeded and the SSA value (gJitDotSeeded/-Val/-Product);
+  jitEmitAssign matches BOTH and emits jitAccessorWriteRT(i32 v, product), which tests isAccessorProduct at run time
+  and calls accessorWriteValue (accessorWrite's body, split out: one writer, both roads). jitAccessorNodeRT for a node
+  on the right. `x.a = y.b` (two dots, one shared tempField) degrades by name. incant/pop/jitDotAssignT, 10 rows;
+  fixit retired by mapping (jitted line -> JD-1, interpreted -> JD-O). H7 (branch disabled): JD-1 0, JD-2 1, JD-3 0.
+  Canary 301 -> 304: accessorWriteValue, jitAccessorWriteRT, jitAccessorNodeRT. Fleet 934 / 49 row for row.
+  CONTEXT (relevance gate -- no row red): `x :. noPrinT` INSIDE a jitted body refuses as `:. tempField` and the
+  armed refusal then blocks every later store in that body; a bare top-level `x :. noPrinT;` read back 0.
+
+R2 -- BUILT on compileFloor: Groups f693276 + ff7cd8f, support 2fccc78. Pushed, NOT merged.
+  ParseActivation.isCompile (tok + groups.ext). driveStep(field,rule,report,isCompile) writes it on the floor it
+  pushes; processCode alone passes 1 (three callers pass 0). GroupRules::inCompile() walks to the NEAREST floor and
+  returns its mark -- a nested drive is its own root (R1). The global processingCode, its constructor init and
+  processCode's save/restore are gone. Readers asking inCompile(): checkSkip (3 sites), aCTionStatemenT,
+  aCTionXpress, aCTionNamE, resolveName, deferredAbove, locateInMethod. 412: opDot reads inCompile(); a kant write
+  refuses by name ("processingCodE is read-only ..."). oldActive, topFloor, callActive, probeFloor init isCompile = 0.
+  NAMES (SEQ 235/237): isCompile and inCompile, 0 bare uses across Groups, Include, TOK, Tokf, groupDirectives, setup.
+  FULL BARE-TOKALL DIFF: GroupControl.mm (1 line), GroupItem.mm (2), GroupRules.h (4), GroupRules.mm -- every changed
+  line is one of the edits above (incl. the constructor's `processingCode = 0;` gone); nothing re-aimed. Canary 304
+  unchanged (inCompile is a method; driveStep changed signature only).
+
+R3 -- CERTIFICATE.
+  Trunk question, measured BEFORE the change: a compile that fails does NOT leave processingCode set (processCode
+  restored on both arms; refuse() does not unwind). incant/pop/compileFloorT CF-0..CF-2 pinned GREEN on both.
+  CF-3/CF-4 + the refusal line + sentinel: BORN RED on trunk (the kant write set the global, the rest of the file
+  never ran, exit 0), green on the branch.
+  H7 (floor never marked): compiled bodies RUN while compiling -- fleet 942 -> 555 green / 439 red; compileFloorT's
+  own witness row "CF-2 printed once" reads 2. Restored, md5 checked.
+  Branch: fleet 943 green / 49 red ROW FOR ROW with redList seal 50/51 · jitLadder PASSED · printPop PASSED ·
+  decodePop (binary echo only) · ddPop 5/1 standing · frontier row for row · canary 304.
+  SEQ 192's population gap: jitLadder passes on the branch; IncantForms/WorkingOn/macros output BYTE-IDENTICAL trunk
+  vs branch -- but it abandons at its own prose on line 4 and never reaches its kant processingCodE writes, so
+  identical says nothing about those writes (on the branch they would refuse).
+
+R4 -- gCompileOwner vs the nearest floor, tapped in inCompile() (every reader call), reverted, generated files back
+  to the commit:
+  population 198 files (incant/pop/*, incant/pop/jit/*, incant/jit*, macros, tester), all exit 0, all printed the tap.
+     owner set AND floor marked   3,933,096
+     neither                      2,466,335
+     owner set, floor NOT marked          0
+     floor marked, owner NOT set          0
+  So gCompileOwner is non-null exactly when the nearest floor is a compile -- P2 would move one fact, not merge two.
+  The off-diagonal cells were not checked against a known-bad end (H16 candidate); both diagonal cells are large, so
+  the tap reaches both states.
+
+R5 not built. R6 `compiling`: context, no stroke.
+FOR TONY: buy or decline compileFloor (Groups ff7cd8f, support 2fccc78). P3 (the kant verb) waits for a fresh dispatch.
+
+  END SEQ 193
