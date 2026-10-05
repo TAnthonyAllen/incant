@@ -1332,7 +1332,7 @@ Stak *GroupItem::getStak()
 
 /*******************************************************************************
                                 getStuff
-	Returns rStuff unless it is inProcess, IWC returns a fresh copy of rStuff
+	Returns rStuff -- every call of a rule shares it; the in-process copy retired with stroke 1.2g
 *******************************************************************************/
 RuleStuff *GroupItem::getStuff(RuleStuff *pStuff)
 {
@@ -1347,10 +1347,7 @@ char *why = 0;
 		::refuse(this,why);
 		return stuff;
 		}
-	if ( stuff->inProcess )
-		{
-		stuff = new RuleStuff(getRStuff());
-		}
+	// sharedStuff no re-entry copy: per-call state lives on the activation since 1.2a-1.2f, and the copy only discarded actionMethod's lazy install, the same value the outer call installs (SEQ 307 R2)
 	if ( !stuff->followed )
 		stuff->getWhatFollows(this);
 	return stuff;
@@ -1700,7 +1697,6 @@ char 				*ownPoint = 0;
 	oldActive.stuff = ruleStuff;
 	ruler->gParseActive = &oldActive;
 	// activeNotSubject the record takes GroupRules' scope, so re-mention ruler then ruleStuff or ruler's bare names bind to oldActive (bear-trap #58)
-	ruleStuff->inProcess = 1;
 	// bindReadSeamProbe
 	while ( !leafDone && repeatCount < ruleStuff->maxRepeat )
 		{
@@ -1790,7 +1786,6 @@ generatedExit:
 		::aCTionFailed(this,ownPoint);
 	if ( callOK && !oldActive.label )
 		oldActive.label = ruler->labelNO;
-	ruleStuff->inProcess = 0;
 	ruler->gParseActive = oldActive.prev;
 	// returnSeat what this call hands back -- a standing callout (SEQ 306 R0)
 	 ::measureParseReturn(this,oldActive.label); 

@@ -380,7 +380,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	actionMethod = 0;
 	onGroup = 0;
 	followed = 0;
-	inProcess = 0;
 	isTarget = 0;
 	modPercent = 0;
 	modPointer = 0;
@@ -410,7 +409,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	maxRepeat = 0;
 	min = 0;
 	followed = 0;
-	inProcess = 0;
 	isTarget = 0;
 	modPercent = 0;
 	modPointer = 0;
