@@ -607,6 +607,35 @@ extern "C" GroupItem *measureParseResult(GroupItem *field, GroupItem *result)
 	return result;
 }
 
+// measureParseReturn witness: the label an OLD-road parse() hands back, by tag -- armed by INCANT_PARSE_RETURN (a comma list of rule names, or ALL), inert otherwise; reads only (SEQ 306 R0)
+extern "C" GroupItem *measureParseReturn(GroupItem *field, GroupItem *label)
+{
+	
+	const char *arm = ::getenv("INCANT_PARSE_RETURN");
+	if ( arm && field && field->groupBody->tag )
+	{
+	const char *tag = field->groupBody->tag;
+	int hit = !::strcmp(arm,"ALL");
+	if ( !hit )
+	{
+	size_t n = ::strlen(tag);
+	for ( const char *p = arm; *p; )
+	{
+	const char *e = ::strchr(p,',');
+	size_t len = e ? (size_t)(e - p) : ::strlen(p);
+	if ( len == n && !::strncmp(p,tag,n) ) { hit = 1; break; }
+	if ( !e ) break;
+	p = e + 1;
+	}
+	}
+	if ( hit )
+	::fprintf(stderr,"PARSERETURN rule=%s label=%s\n",tag,
+	!label ? "(null)" : (label->groupBody->tag ? label->groupBody->tag : "(untagged)"));
+	}
+	
+	return 0;
+}
+
 /*  measure.measurePlusEQWrite  */
 extern "C" GroupItem *measurePlusEQWrite(GroupItem *field)
 {

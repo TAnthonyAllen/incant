@@ -42,6 +42,7 @@ extern "C" GroupItem *measureOldFireFlag(GroupItem *field, int callOK);
 extern "C" GroupItem *measureParentProbe(GroupItem *field);
 extern "C" GroupItem *measureParseClass(GroupItem *field);
 extern "C" GroupItem *measureParseResult(GroupItem *field, GroupItem *result);
+extern "C" GroupItem *measureParseReturn(GroupItem *field, GroupItem *label);
 extern "C" GroupItem *measurePlusEQWrite(GroupItem *field);
 extern "C" GroupItem *measurePlusPlusWrite(GroupItem *field);
 extern "C" GroupItem *measureRuleDispatch(GroupItem *op, GroupItem *target, GroupItem *arg);

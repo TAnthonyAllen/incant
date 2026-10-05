@@ -1787,6 +1787,8 @@ generatedExit:
 		ruleStuff->label = ruler->labelNO;
 	ruleStuff->inProcess = 0;
 	ruler->gParseActive = oldActive.prev;
+	// returnSeat what this call hands back -- a standing callout (SEQ 306 R0)
+	 ::measureParseReturn(this,ruleStuff->label); 
 	return ruleStuff->label;
 }
 

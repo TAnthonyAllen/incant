@@ -5238,6 +5238,18 @@ for _zc in "OLD|TraiT abc|matched= 1 consumed= 3 length= 3" "NEW|TraiT abc|match
     else echo "  FAIL  zeroWidthT Modifier* $_zr road \"$_zd\": got [$_zg], want [$_zw1]"; fail=1; fi
 done
 
+#  ⚑ zeroWidthT PARSERETURN -- WHAT AN OLD-ROAD parse() HANDS BACK, BY VALUE (SEQ 306 R0). measureParseReturn, armed for
+#  TraiTdata and Modifier, prints each return in the OLD drives ("TraiT abc", then "TraiT abc+?!"). Pinned to the value
+#  shape (A) gives -- a call reads its OWN record: Modifier* matching nothing and TraiTdata (a members rule) own no label,
+#  so they return labelNO; "+?!"'s Modifier owns its label. BORN RED ON TRUNK (Tony, ruled accepted): trunk returns
+#  Modifier / TraiTdata there, labels ANOTHER call left on the stuff (the F-121 family). Green once 1.2f lands.
+INCANT_PARSE_RETURN=TraiTdata,Modifier run2 zeroWidthT "$T/zwr.o" "$T/zwr.e"; check "zeroWidthT PARSERETURN run" 0 $?
+_zwr=$(awk '/^--- OLD$|^--- OLD /{f=1} /^--- NEW/{f=0} f&&/^PARSERETURN/{sub(/^PARSERETURN rule=/,""); sub(/ label=/,"="); print}' "$T/zwr.e" | tr '\n' '|')
+if [ "$(echo "$_zwr" | tr '|' '\n' | grep -c .)" = 4 ]; then echo "  ok    zeroWidthT PARSERETURN anti-vacuity: 4 old-road returns witnessed"; green=$((green+1))
+else echo "  FAIL  zeroWidthT PARSERETURN anti-vacuity: want 4 returns in the OLD drives, got [$_zwr]"; fail=1; fi
+if [ "$_zwr" = "Modifier=labelNO|TraiTdata=labelNO|Modifier=Modifier|TraiTdata=labelNO|" ]; then echo "  ok    zeroWidthT PARSERETURN each call returns its OWN label: $_zwr"; green=$((green+1))
+else echo "  FAIL  zeroWidthT PARSERETURN returns [$_zwr], want [Modifier=labelNO|TraiTdata=labelNO|Modifier=Modifier|TraiTdata=labelNO|]"; fail=1; fi
+
 #  ⚑ ownerT -- NO GRAMMAR RULE GAINS A CHILD FROM AN ACTION BODY (SEQ 214, 2026-09-27). A new-road compile (processCode
 #  drives BlocK's generated parse) used to mint the body's names into whatever currentMETHOD a generated body had made
 #  current -- ANYtoken, and through its shared list six rules more -- and the next top-level statement reading the

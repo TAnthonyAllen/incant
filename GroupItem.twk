@@ -1370,6 +1370,8 @@ generatedExit:
     ruler.gParseActive  = oldActive.prev;
 use ruler
 use ruleStuff
+    // returnSeat what this call hands back -- a standing callout (SEQ 306 R0)
+    -% ::measureParseReturn(this,ruleStuff->label); %-
     return label;
 }
 
