@@ -10212,7 +10212,7 @@ int 		on = 0;
 			ruler->lastIndent = value;
 			break;
 		case 412:
-			ruler->processingCode = on;
+			ruler->processingCode = value;
 			break;
 		default:
 			return 0;

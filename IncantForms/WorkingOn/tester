@@ -24,9 +24,9 @@ define
         indenter    = argument.lastIndenT;
         processing  = argument.processingCodE;
         currentMETHOD   := *action;
-        $$lastIndenT;
         argument.lastIndenT     = 0;
-        argument.processingCodE = 1;
+        $$lastIndenT;
+        //argument.processingCodE = 1;
         if result = BlocK(code);
             result :. noPrinT;
             argument :. isActioN;
@@ -41,7 +41,6 @@ define
         return      falseResult;
         };
     ;
-
 parseCode(ifTest);
 stop();
 

@@ -1500,7 +1500,7 @@ int         on = 0;
             case 408:   if on   target.actionType = 1;
                         or target.actionType == 1   target.actionType = 0;
             case 411:   lastIndent      = value;
-            case 412:   processingCode  = on;
+            case 412:   processingCode  = value;
             default:    return 0; }
     return 1;
 }
