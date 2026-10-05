@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 202 at the FOOT -- SEQ 306: R0 pin landed (born red); R1 recycle ends (row for row); 1.2f BUILT on stroke12f (b8f3685 / 7cf58b1), 979 / 51 row for row, NOT MERGED
+STATUS:   fresh           # SEQ 203 at the FOOT -- SEQ 307: stroke12f merged; F-141 dirCheckFlicker; 1.2g BUILT on stroke12g (792b742 / 37cb6e6), 979 / 51 row for row, NOT MERGED -- STROKE 1.2 COMPLETE on the branch
+# prior: SEQ 202 at the FOOT -- SEQ 306: R0 pin landed (born red); R1 recycle ends (row for row); 1.2f BUILT on stroke12f (b8f3685 / 7cf58b1), 979 / 51 row for row, NOT MERGED
 # prior: SEQ 201 at the FOOT -- SEQ 305: 1.2f STOPPED before the build -- 52,886 owner-less fallback writes have no home under (A); zeroWidthT's 3 returned labels would change (output unchanged); fLAG recycle would end
 # prior: SEQ 200 at the FOOT -- SEQ 304: stroke12e merged; dirCheck on the seal (3 dark, all parked); 1.2f STOPPED at the decision point -- the parent's label is read/written by children (needs ParseActivation.label or a redesign)
 # prior: SEQ 199 at the FOOT -- SEQ 303: stroke12d merged (directives respelled, 3 orphaned anchors re-aimed); 1.2e BUILT on stroke12e (82b18ec / d787136), 976 / 51 row for row, NOT MERGED
@@ -11306,3 +11307,49 @@ CONTEXT (relevance gate: no row failed): dirCheck's PARKED dark set varies run t
 FOR TONY: buy or refuse stroke12f. Next, by a fresh dispatch: getStuff's copy, the last of stroke 1.2.
 
   END SEQ 202
+
+SEQ 203  -  SEQ 307: stroke12f MERGED; F-141 dirCheckFlicker FILED; 1.2g BUILT ON stroke12g (NOT MERGED) -- STROKE 1.2 COMPLETE
+===================================================================
+STATUS: fresh -- 2026-10-05, trunk, seal 69 (seal 68 holds R0+R1).
+
+R0 -- MERGED be4a75e (support aaf9b7b); stroke12f deleted local and remote, both repos. A5 records 1.2f. Merge seal:
+  fleet 979 / 51 (seal 67's 52 less the PARSERETURN pin, now green), every standing instrument row for row, canary 307.
+
+R1 -- F-141 dirCheckFlicker in docs/fixIts.md, owner Clod. NOT an incant/fixits citizen: the repro is a shell instrument
+  run N times and incant has no `system` command any more, so fixitNag would count it MISFILED -- say if you want it there
+  anyway. dirCheck now prints a dark DISARMED directive as `WARN dark`; an ARMED dark one still fails.
+
+R2 -- RECON (tap on trunk, reverted md5-identical; the whole fleet under it, 233 processes, 59,223 re-entry copies).
+  H16 FIRST: a deliberate inner write of ruleName on the copy was seen 46,225 times.
+  THE FIELD LIST -- written by a re-entrant call, read by the outer: ONE FIELD, actionMethod.
+    It is fireLabelMethod's LAZY INSTALL (`if !actionMethod` -> builtinActoR.method), 503 times, on BlocK (262), TokenXP
+    (232), StatemenT (5), IF (4). Every one: the owner's own builtinActoR.method, the original still null. The outer
+    then installs the SAME value itself (369 of 369 that fired; the rest never fired). Reads of the field between the
+    lost install and the outer's own: 0 (testAction, kant's has-action read, parseAction).
+  §26 RECALL: this is the same SHAPE as the 15,264 lost failedAt writes -- the copy discards a write -- but every value
+    it discards is the one the outer writes next. No other field moved on any copy; nothing else wrote the original
+    during an inner call.
+  SHADOW, copy off by an env switch in the tapped build: fleet 979 / 51 row for row; jitLadder, printPop, frontier same.
+  So the copy protects nothing, and I BUILT. ⚠ Read strictly, R2's "if any field is left, STOP" names actionMethod --
+  but it is a cached rule fact, not per-call state, and neither "move it to the activation" nor "keep the copy" fits
+  it. If you read it as a stop, refuse the branch; nothing is merged.
+
+BUILD -- stroke12g (Groups 5aa0514 + 792b742 A5, support 37cb6e6), pushed. getStuff no longer copies; RuleStuff.inProcess
+  is gone (its only reader was the copy test; groups.ext synced). Certificate: fleet 979 / 51 row for row with seal 68 ·
+  jitLadder PASSED · printPop PASSED · decodePop and frontier row for row · ddPop 5 / 1 · dirCheck PASSED, 0 armed dark ·
+  canary 307, NO movers · full bare-tokall diff: GroupItem.mm 9, RuleStuff.mm 2, RuleStuff.h 1 lines, every one the
+  stroke's own (the copy, the two inProcess writes, the ctor clears, the bitfield, comments); GUI/ and Tests/ carry no
+  RuleStuff.
+  H7 (committed first; single fixtures, 60s alarms): the old road's recordLabel/parkInRecord take the FARTHEST matching
+  record instead of the nearest. On the branch: leafLabelT, shapeBodyT, treeRowT, oneTest, zeroWidthT, failPointT,
+  baselineTestsNew all exit 139. H17, the same control with the copy restored: leafLabelT, oneTest and failPointT run
+  identical at exit 0 -- so sharing is what makes nearest-match load-bearing. (shapeBodyT, treeRowT move and zeroWidthT,
+  baselineTestsNew crash with the copy too: the new road has always shared stuff.)
+  objectModel A5: 1.2g recorded, STROKE 1.2 COMPLETE (on the branch; it lands with the merge).
+
+CONTEXT: pop.sh's FP-C row label still says "(a getStuff copy)" -- prose only, left as is so the row compares; it reads
+  stale once 1.2g merges.
+
+FOR TONY: buy or refuse stroke12g. Then the containers recon (banked 2026-10-05) before 1.3/1.4.
+
+  END SEQ 203
