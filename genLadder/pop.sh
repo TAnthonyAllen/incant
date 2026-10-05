@@ -656,7 +656,11 @@ for _j in "CI-3 the statement after compileIn runs -> 1" \
           "CI-1 the action compiled by compileIn runs ->  7" \
           "ERROR processCode: ciBad parse failed" \
           "CI-5 the statement after a refused compile runs -> 1" \
-          "CI-6 the file's next statement after a refused compile runs -> 1"; do
+          "CI-6 the file's next statement after a refused compile runs -> 1" \
+          "CI-7 testing compileIn's answer -> true" \
+          "CI-9a after a good compile, request.result holds a group ->  1" \
+          "CI-9c a failed compile answered -> false" \
+          "CI-9b after a failed compile, request.result holds a group ->  0"; do
     if grep -qF "$_j" "$T/cit"; then
         echo "  ok    compileInT ${_j} -- PINNED BY VALUE"; green=$((green+1))
     else
@@ -667,6 +671,11 @@ _a=$(grep -F "CI-4a currentMETHOD before" "$T/cit" | sed 's/.*-> *//; s/ *$//' |
 _b=$(grep -F "CI-4b currentMETHOD after" "$T/cit" | sed 's/.*-> *//; s/ *$//' | head -1)
 if [ -n "$_a" ] && [ "$_a" = "$_b" ] && [ "$_a" = "ciCompile" ]; then echo "  ok    compileInT CI-4 currentMETHOD unchanged across compileIn = $_a"; green=$((green+1))
 else echo "  FAIL  compileInT CI-4 currentMETHOD before [$_a] after [$_b], want ciCompile both"; fail=1; fi
+#  CI-7x: compileIn ANSWERS true/false (SEQ 300) -- a held answer truth-tested fires nothing. Born red at fc22f8c, where
+#  it handed back the BlocK label and `if ciAns;` ran the body. H7 (the label returned again) -> red.
+_f=$(grep -c "CI-7x FIRED" "$T/cit")
+if [ "$_f" = "0" ]; then echo "  ok    compileInT CI-7x testing compileIn's answer fired nothing = $_f"; green=$((green+1))
+else echo "  FAIL  compileInT CI-7x testing compileIn's answer FIRED the body $_f times, want 0"; fail=1; fi
 _n=$(grep -c "CI-1 the action compiled by compileIn runs" "$T/cit")
 if [ "$_n" = "1" ]; then echo "  ok    compileInT CI-1 printed once (no body ran while compiling) = $_n"; green=$((green+1))
 else echo "  FAIL  compileInT CI-1 printed $_n times, want 1 -- a body ran while it was being compiled"; fail=1; fi

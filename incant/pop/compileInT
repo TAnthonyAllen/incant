@@ -43,7 +43,8 @@ define
         ciSrc := argument.CodE;
         ciReq.owner  := argument;
         ciReq.source := ciSrc;
-        if compileIn(ciReq);  cerr "CI-7 testing compileIn's answer -> true":;
+        ciAns := compileIn(ciReq);
+        if ciAns;  cerr "CI-7 testing compileIn's answer -> true":;
         };
     ciLanded code={
         if ciTarget["ciLoc"];  print "CI-2 the body's name landed in the action -> 1":;
@@ -94,8 +95,13 @@ compileInT -- compileIn: the kant compile (SEQ 299 R2/R4). The kant call, spelle
     ciSrc := argument.CodE;
     ciReq.owner  := argument;           (the action the body's names belong to)
     ciReq.source := ciSrc;              (the code to drive; holders are unwrapped)
-    ciResult := compileIn(ciReq);       (the BlocK label, or falseResult when the parse failed)
-    *ciResult :. noPrinT;  argument :. isActioN;  argument +< *ciResult;
+    if compileIn(ciReq);                (answers true or false -- never the BlocK; SEQ 300)
+        ciBlock = ciReq.result;         (the BlocK rides on the request; `=` carries the holder's group across)
+        *ciBlock :. noPrinT;  argument :. isActioN;  argument +< *ciBlock;
+
+⚠ THE RULED SPELLING `*ciReq.result` IS STRUCK (the ruling stands): with the dot-chain fold the star binds to ciReq
+first, ciReq holds no group, and opDot's non-groupField arm dereferences the null target -- exit 139, ZERO output
+(measured 2026-10-05). `**x` after `x := ciReq.result` refuses as binary multiply; `*( ... )` does not parse.
 
 No processingCodE pair and no currentMETHOD bracket: compileIn pushes a floor marked for the owner, drives, pops.
 
@@ -105,6 +111,12 @@ CI-2b: the action holds compileIn's BlocK before it is called (so CI-1 is not a 
 control (a property it does not hold reads 0). CI-1: the action runs, ONCE -- a second CI-1 means a body ran while being
 compiled. CI-5/CI-6: after a compile that fails (ciBad), the driver's next statement and the file's next statement run;
 compileIn names the failure through reportCodeFail.
+
+CI-7/CI-7x (SEQ 300): a held answer, `ciAns := compileIn(ciReq); if ciAns;`, fires nothing -- BORN RED at fc22f8c, where
+the answer was the BlocK label and the test RAN ciFire's body. ⚠ The direct form `if compileIn(ciReq);` did NOT fire at
+fc22f8c either (the call's value is truth-tested, not called), so it cannot carry this row. CI-9a/CI-9b: request.result
+holds the BlocK after a good compile and is EMPTY after a failed one on the same request -- not stale; CI-9c: the
+failed compile answered false.
 
 R1's fixture (CI-H). A rule added to WardeD (TellST, ruleMethod=aCTionTell) fires DURING a compile, because it is a rule,
 and aCTionTell DRIVES -- so it is a drive pushed inside a compile. On trunk with the R4 tap (2026-10-05, reverted) this
