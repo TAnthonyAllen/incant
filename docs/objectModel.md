@@ -382,6 +382,18 @@ rules on the amendment (R4).
    stays** -- attachLabel still sets it. zeroWidthT's three returns move stale -> labelNO (accepted, SEQ 306 R0; pinned
    by `measureParseReturn`). Directives respelled (`exitLab`, `oldActive.label`). H7 (new-road exit's yield into the
    parent record cut): leafLabelT's lp/kw/rp and treeRowT's ScafALT go red by value.
+   **1.2g BUILT 2026-10-05 on branch stroke12g, NOT MERGED (SEQ 307 R2).** getStuff's re-entry copy retires: every call
+   of a rule shares its RuleStuff, and `RuleStuff.inProcess` goes with it (its one reader was the copy test). Recon tap
+   (233 processes, 59,223 copies; H16 a deliberate inner write of ruleName seen 46,225 times): a re-entrant call writes
+   ONE field on its copy -- `actionMethod`, fireLabelMethod's lazy install (503 times: BlocK, TokenXP, StatemenT, IF) --
+   always the owner's own builtinActoR.method, which the outer call then installs itself (369 of 369); 0 reads of it in
+   between. So it is a cached rule fact, not per-call state: the copy only discarded a redundant install (unlike §26's
+   15,264 lost failedAt writes, none of these values was ever different). Copy off on trunk (shadow): fleet row for row.
+   H7 (the old road's recordLabel/parkInRecord take the FARTHEST matching record, not the nearest): with the share every
+   fixture dies (139); with the copy restored, leafLabelT, oneTest and failPointT run identical -- the share is what
+   makes nearest-match load-bearing (H17).
+   **STROKE 1.2 COMPLETE:** label, hereAt, kount, sukcess and failPoint live on the activation or in locals; the
+   callBracket and getStuff's copy are gone.
 3. **`stuff` derived; `face` renamed `instance`.** The name clears the #58 check (grep, full bare-tokall diff) before
    the stroke opens.
 4. **Rule facts onto `groupBody`:** `ruleOf` and `instanceRule()`'s REGISTRY test retire.
