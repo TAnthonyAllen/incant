@@ -2280,8 +2280,9 @@ ParseActivation 	*top = ruler->gParseActive;
 }
 
 // handBack STROKE 1.1a -- a term hands its per-call values back and leaves none on rStuff: sukcess, hereAt and a handed-up label are cleared at the ONE exit; a recycled label (fLAG, emptied by the repeat attach and in no tree) stays for reuse. Inline stores, no lookup, no slot (SEQ 283 R2). For parseRule the call bracket restores all three right after
+// handedIn STROKE 1.2c -- the verdict, start mark and label come in as ARGUMENTS: a new-road leaf keeps them in locals and writes none on rStuff; parseRule hands in its stuff's (SEQ 301)
 // exitFromParse the common exit every parse method returns through: sync, fire the label method, attach; a min-zero miss owes a success
-extern "C" GroupItem *exitFromParse(GroupItem *field)
+extern "C" GroupItem *exitFromParse(GroupItem *field, int exitOK, char *exitAt, GroupItem *exitLab)
 {
 ParseActivation 	*cTop = 0;
 RuleStuff 			*cParent = 0;
@@ -2292,18 +2293,22 @@ GroupItem 			*result = 0;
 	// activeNotSubject cTop takes GroupRules' scope and the extra GroupItems take field's, so they are declared FIRST and ruler, field, ruleStuff re-mentioned after them and after every cTop use (bear-traps #42, #58)
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 RuleStuff 			*ruleStuff = field->getRStuff();
-	if ( ruleStuff->sukcess )
+	if ( exitOK )
 		{
 		if ( ruleStuff->noAdvance )
-			ruler->atRuleMark = ruleStuff->hereAt;
-		field->fireLabelMethod(ruleStuff);
-		if ( ruleStuff->sukcess )
+			ruler->atRuleMark = exitAt;
+		// firedFails a null back from a non-null label is the action failing
+		cLab = field->fireLabelMethod(ruleStuff,exitLab,exitAt);
+		if ( exitLab && !cLab )
+			exitOK = 0;
+		exitLab = cLab;
+		if ( exitOK )
 			{
 			// oneAttach ONE ATTACH, through attachLabel, and the promote value is 1 -- promote=0 cannot RETAG here, and the retag is the half a members rule needs
 			// containerYields CURE (c), F-138: a member CONTAINER (not a bin) with no label of its own takes its member's label whatever isTarget says -- the new road's attach only; the old road's attachLabel is untouched (SEQ 283 R3)
-			if ( ruleStuff->label && !ruleStuff->noLabel )
+			if ( exitLab && !ruleStuff->noLabel )
 				{
-				cLab = ruleStuff->label;
+				cLab = exitLab;
 				cTop = ruler->gParseActive;
 				if ( cTop && cTop->face == field && cTop->stuff == ruleStuff )
 					cTop = cTop->prev;
@@ -2318,7 +2323,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 					if ( cLab->labelOf || (!cLab->groupBody->registry && !cLab->parent) )
 						cLab->groupBody->tag = cParent->ruleName;
 					}
-				else	field->attachLabel(ruleStuff,cParent,1,0);
+				else	field->attachLabel(ruleStuff,cParent,1,0,cLab);
 				}
 			// oneBitReturn a successful term returns its TRUTH, never its label -- the label is already attached above, and a label carrying a matched 0 read as a failed alternative in a || chain (Tony, 2026-09-23, restoring ruling c')
 			result = ruler->trueResult;
@@ -2327,7 +2332,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 	if ( !result )
 		{
 		failMark = ruler->atRuleMark;
-		ruler->atRuleMark = ruleStuff->hereAt;
+		ruler->atRuleMark = exitAt;
 		// minZeroIsSatisfied a term whose MINIMUM IS ZERO is satisfied by not matching, so it owes the chain a success and not a null -- parseLoop owns what repeats inside it; this owns the max=1 optional and a max>1 LEAF (nameSet*, Modifier*), which never enters it (SEQ 208)
 		if ( !ruleStuff->min && !field->groupBody->flags.isCondition && (ruleStuff->max <= 1 || !repeatsInLoop(field)) )
 			result = ruler->trueResult;
@@ -8708,37 +8713,40 @@ extern "C" GroupItem *opUnaryMinus(GroupItem *result)
 // parseAction run the rule's action as its parse -- handed the field for a parseACTION rule or when there is no label, else the label
 extern "C" GroupItem *parseAction(GroupItem *field)
 {
+GroupItem 	*leafLab = 0;
+char 		*leafAt = 0;
+int 		leafOK = 0;
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
+	// leafStart the term starts where the input stands -- parseAction calls no checkInput, and the stuff's stale hereAt is no longer read (SEQ 301; UNPINNED, no road reaches it)
+	leafAt = ruler->atRuleMark;
 	// ownSlot read actionMethod, never gMethod -- on a parseACTION node gMethod IS parseAction and the call recurses forever
-	ruleStuff->sukcess = 0;
 	// noNullActor the old spelling read gMethod, which setParseWalk always fills; actionMethod can be empty, and calling it would trade the self-recursion for a null call
 	if ( !ruleStuff->actionMethod )
 		return ::refuse(field,"parseAction: no actionMethod is installed for this rule");
-	if ( parseACTION(field->groupBody->flags.methodType) || !ruleStuff->label )
-		{
-		if ( ruleStuff->label = ruleStuff->actionMethod(field) )
-			ruleStuff->sukcess = 1;
-		}
-	else
-	if ( ruleStuff->label = ruleStuff->actionMethod(ruleStuff->label) )
-		ruleStuff->sukcess = 1;
-	if ( ruleStuff->label )
-		ruleStuff->label->clear();
-	return ::exitFromParse(field);
+	// noLabelOnStuff a leaf finds no label on its stuff, so the action is handed the field -- the `!label` arm, which is the only one the new road ever reached (SEQ 301)
+	if ( leafLab = ruleStuff->actionMethod(field) )
+		leafOK = 1;
+	if ( leafLab )
+		leafLab->clear();
+	return ::exitFromParse(field,leafOK,leafAt,leafLab);
 }
 
 // parseCharacter match a run of one character against the current input
 extern "C" GroupItem *parseCharacter(GroupItem *field)
 {
+GroupItem 	*leafLab = 0;
+char 		*leafAt = 0;
+int 		leafOK = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
 int 		counter = 0;
 int 		more = 0;
-	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput(field,0) )
+	// leafLocals the verdict, start and label live in locals and go to the exit as arguments -- nothing on rStuff (SEQ 301, 1.2c)
+	leafAt = ruleStuff->inputAt();
+	if ( leafAt && *leafAt && ruleStuff->checkGuard(field) )
 		{
-		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
-		ruleStuff->sukcess = 0;
+		leafLab = ruleStuff->mintLabel(field,0);
 		while ( *ruler->atRuleMark == field->getCharacter() )
 			{
 			if ( counter >= ruleStuff->max )
@@ -8756,30 +8764,34 @@ int 		more = 0;
 		else
 		if ( counter && counter >= ruleStuff->min )
 			{
-			if ( ruleStuff->label )
-				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
-			ruleStuff->sukcess = 1;
+			if ( leafLab )
+				leafLab->setToken(leafAt,counter);
+			leafOK = 1;
 			}
 		}
 	// keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
-	if ( ruleStuff->label && !ruleStuff->sukcess )
-		ruleStuff->label->clear();
-	return ::exitFromParse(field);
+	if ( leafLab && !leafOK )
+		leafLab->clear();
+	return ::exitFromParse(field,leafOK,leafAt,leafLab);
 }
 
 // parseCondition a condition succeeds exactly when min is set
 extern "C" GroupItem *parseCondition(GroupItem *field)
 {
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
+	// leafStart the term starts where the input stands, so a failure rewinds nowhere -- the stuff's stale hereAt is no longer read (SEQ 301; UNPINNED, no road reaches it)
 	if ( ruleStuff->min )
-		ruleStuff->sukcess = 1;
-	else	ruleStuff->sukcess = 0;
-	return ::exitFromParse(field);
+		return ::exitFromParse(field,1,ruler->atRuleMark,0);
+	return ::exitFromParse(field,0,ruler->atRuleMark,0);
 }
 
 // parseContainer match the longest input prefix that names an entry of this bin or registry
 extern "C" GroupItem *parseContainer(GroupItem *field)
 {
+GroupItem 	*leafLab = 0;
+char 		*leafAt = 0;
+int 		leafOK = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 PLGset 		*inSet = field->getCharacterSet();
 char 		*atInput = ruler->atRuleMark;
@@ -8821,11 +8833,11 @@ int 		matched = 0;
 		ruler->atRuleMark = entryMark;
 		return 0;
 		}
-	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput(field,0) )
+	// leafLocals the verdict, start and label live in locals and go to the exit as arguments -- nothing on rStuff (SEQ 301, 1.2c)
+	leafAt = ruleStuff->inputAt();
+	if ( leafAt && *leafAt && ruleStuff->checkGuard(field) )
 		{
-		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
-		ruleStuff->sukcess = 0;
+		leafLab = ruleStuff->mintLabel(field,0);
 		buffer->reset();
 		atInput = ruler->atRuleMark;
 		while ( *atInput )
@@ -8842,18 +8854,18 @@ int 		matched = 0;
 				// longestHitOnly the first hit is the longest -- stop, or shorten(1) finds its prefix (= after ==), advances again and relabels (F-124)
 				if ( !ruleStuff->noAdvance )
 					ruler->atRuleMark += advance;
-				if ( ruleStuff->label )
-					ruleStuff->label->setGroup(grup);
-				ruleStuff->sukcess = 1;
+				if ( leafLab )
+					leafLab->setGroup(grup);
+				leafOK = 1;
 				break;
 				}
 			buffer->shorten(1);
 			}
 		}
 	// keepTheMatch clear only on failure -- on success the label carries the matched entry to attachLabel, and clearing it first handed TokenXP an empty unary
-	if ( ruleStuff->label && !ruleStuff->sukcess )
-		ruleStuff->label->clear();
-	return ::exitFromParse(field);
+	if ( leafLab && !leafOK )
+		leafLab->clear();
+	return ::exitFromParse(field,leafOK,leafAt,leafLab);
 }
 
 // parseLoop run a repeating term up to max; the verdict is the COUNT against min, never the success flag
@@ -8976,7 +8988,8 @@ checkSuccess:
 		}
 	// markSeat1 SEQ 166 point 1 -- the last seat with visibility before the trace goes silent
 	::measureMarkPoint("1-parseRule-exit");
-	result = ::exitFromParse(field);
+	// stuffHandedIn parseRule's values are still on its stuff until 1.2d-f, so it hands those in (SEQ 301)
+	result = ::exitFromParse(field,ruleStuff->sukcess,ruleStuff->hereAt,ruleStuff->label);
 	// activeList pop this call's activation -- AFTER exitFromParse, so its own fire saw itself on top and skipped it
 	ruler->gParseActive = callActive.prev;
 	// callBracket put the lifted state back AFTER exitFromParse has fired and attached with this call's values -- the only return is below, so no exit path skips it; sukcess joined 2026-09-24 (F-121): a failed inner call wrote 0 into an rStuff an old-road caller was holding, and no post-return reader decides on it (census)
@@ -8991,16 +9004,19 @@ checkSuccess:
 // parseSet match a run of characters from this rule's character set
 extern "C" GroupItem *parseSet(GroupItem *field)
 {
+GroupItem 	*leafLab = 0;
+char 		*leafAt = 0;
+int 		leafOK = 0;
 PLGset 		*set = field->getCharacterSet();
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
 int 		counter = 0;
 int 		more = 0;
-	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput(field,0) )
+	// leafLocals the verdict, start and label live in locals and go to the exit as arguments -- nothing on rStuff (SEQ 301, 1.2c)
+	leafAt = ruleStuff->inputAt();
+	if ( leafAt && *leafAt && ruleStuff->checkGuard(field) )
 		{
-		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
-		ruleStuff->sukcess = 0;
+		leafLab = ruleStuff->mintLabel(field,0);
 		while ( set->contains(*ruler->atRuleMark) )
 			{
 			if ( counter >= ruleStuff->max )
@@ -9018,58 +9034,64 @@ int 		more = 0;
 		else
 		if ( counter && counter >= ruleStuff->min )
 			{
-			if ( ruleStuff->label )
-				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
-			ruleStuff->sukcess = 1;
+			if ( leafLab )
+				leafLab->setToken(leafAt,counter);
+			leafOK = 1;
 			}
 		}
 	// keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
-	if ( ruleStuff->label && !ruleStuff->sukcess )
-		ruleStuff->label->clear();
-	return ::exitFromParse(field);
+	if ( leafLab && !leafOK )
+		leafLab->clear();
+	return ::exitFromParse(field,leafOK,leafAt,leafLab);
 }
 
 // parseString match this rule's string or token text at the current input
 extern "C" GroupItem *parseString(GroupItem *field)
 {
+GroupItem 	*leafLab = 0;
+char 		*leafAt = 0;
+int 		leafOK = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
-	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput(field,0) )
+	// leafLocals the verdict, start and label live in locals and go to the exit as arguments -- nothing on rStuff (SEQ 301, 1.2c)
+	leafAt = ruleStuff->inputAt();
+	if ( leafAt && *leafAt && ruleStuff->checkGuard(field) )
 		{
-		// gateIsNotAMatch checkInput leaves sukcess TRUE on a guard pass; a leaf is a success only when it MATCHES (F-114)
-		ruleStuff->sukcess = 0;
+		leafLab = ruleStuff->mintLabel(field,0);
 		// nodeInHand match through the field itself, never RuleStuff.owner -- equal on every call measured (stroke 5.2)
 		char *matchedString = field->matches(ruler->atRuleMark);
 		if ( matchedString )
 			{
-			if ( ruleStuff->label )
-				ruleStuff->label->setText(matchedString);
-			ruleStuff->sukcess = 1;
+			if ( leafLab )
+				leafLab->setText(matchedString);
+			leafOK = 1;
 			}
 		}
 	// keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
-	if ( ruleStuff->label && !ruleStuff->sukcess )
-		ruleStuff->label->clear();
-	return ::exitFromParse(field);
+	if ( leafLab && !leafOK )
+		leafLab->clear();
+	return ::exitFromParse(field,leafOK,leafAt,leafLab);
 }
 
 // parseUpTo match everything up to (or over) the rule's terminator, through testUpTo
 extern "C" GroupItem *parseUpTo(GroupItem *field)
 {
+GroupItem 	*leafLab = 0;
+char 		*leafAt = 0;
+int 		leafOK = 0;
 RuleStuff 	*ruleStuff = field->getRStuff();
-	ruleStuff->sukcess = 0;
-	if ( ruleStuff->checkInput(field,0) )
+	// leafLocals as the other leaves -- upToMatch fills the leaf's own label, never the stuff's (SEQ 301, 1.2c)
+	leafAt = ruleStuff->inputAt();
+	if ( leafAt && *leafAt && ruleStuff->checkGuard(field) )
 		{
-		// gateIsNotAMatch as the other leaves
-		ruleStuff->sukcess = 0;
-		if ( ::testUpTo(field) )
-			ruleStuff->sukcess = 1;
+		leafLab = ruleStuff->mintLabel(field,0);
+		if ( ::upToMatch(field,leafLab) )
+			leafOK = 1;
 		}
 	// keepTheMatch clear only on failure, as parseContainer -- a success clearing here handed every action an empty term label (F-114 site 2)
-	if ( ruleStuff->label && !ruleStuff->sukcess )
-		ruleStuff->label->clear();
-	return ::exitFromParse(field);
+	if ( leafLab && !leafOK )
+		leafLab->clear();
+	return ::exitFromParse(field,leafOK,leafAt,leafLab);
 }
 
 // pickKindOP THE WHOLE += PICK, ONE PLACE, BOTH ROADS -- members keyed on the TARGET; no member for the pick hands back the op, and opPlusEQ refuses by name

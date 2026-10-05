@@ -383,12 +383,11 @@ void GroupItem::append(GroupItem *grup)
     // attachLabel the yield protocol IS the skip -- NULL failed, labelNO yields nothing, anything else
     // attachLabel attaches. Do not reach for a flag here, it was falsified fleet-wide
 ***************************************************************************/
-void GroupItem::attachLabel(RuleStuff *stuff, RuleStuff *pStuff, int promote, GroupItem *into)
+void GroupItem::attachLabel(RuleStuff *stuff, RuleStuff *pStuff, int promote, GroupItem *into, GroupItem *lab)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 char 		*destName = groupBody->tag;
 GroupItem 	*dest = into;
-GroupItem 	*lab = stuff->label;
 	if ( !lab || lab == ruler->labelNO )
 		return;
 	// intoArgument with no parent stuff the destination is the caller's into and the name is this term's own (parseR, stroke 1.1 site 2)
@@ -460,11 +459,11 @@ GroupItem 	*lab = stuff->label;
     // captureSpan the formula is THIS chair's -- from the action's chair the same rule reads the other way
     // captureSpan round, so the action-chair spelling must never be copied here
 ***************************************************************************/
-void GroupItem::captureSpan(RuleStuff *stuff)
+void GroupItem::captureSpan(GroupItem *spanLab, char *spanAt)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-GroupItem 	*label = stuff->label;
-char 		*spanFrom = stuff->hereAt;
+GroupItem 	*label = spanLab;
+char 		*spanFrom = spanAt;
 char 		*spanTo = ruler->atRuleMark;
 int 		spanLen = 0;
 	if ( !label )
@@ -969,10 +968,10 @@ GroupItem 	*group = this;
 
 /***************************************************************************
                                 fireLabelMethod
-    // fireLabelMethod returns NOTHING deliberately -- a null label already means
-    // noLabel-on-success, so handing it back would be one channel with two meanings
+    // fireLabelMethod hands back the label after the fire (SEQ 301, 1.2c) -- a null back means the
+    // fireLabelMethod action failed ONLY when a label went in; the caller holds that, so one channel keeps one meaning
 ***************************************************************************/
-void GroupItem::fireLabelMethod(RuleStuff *stuff)
+GroupItem *GroupItem::fireLabelMethod(RuleStuff *stuff, GroupItem *fireLab, char *fireAt)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 int 		held = deferredAbove(stuff);
@@ -987,31 +986,31 @@ int 		held = deferredAbove(stuff);
 	// line prints inside the bracket
 	::measureFireLabelEntry(this);
 	if ( groupBody->flags.tokened )
-		captureSpan(stuff);
-	::measureFireLabelFork(this,stuff->label);
-	if ( stuff->actionMethod && stuff->label )
+		captureSpan(fireLab,fireAt);
+	::measureFireLabelFork(this,fireLab);
+	if ( stuff->actionMethod && fireLab )
 		{
 		// heldAbove a deferred action waits only if a DEFERRED ANCESTOR will run it; with none above, nobody else ever will
 		if ( groupBody->flags.deferred && held )
 			{
-			stuff->label->setMethod(stuff->actionMethod);
-			stuff->label->groupBody->flags.deferred = 1;
+			fireLab->setMethod(stuff->actionMethod);
+			fireLab->groupBody->flags.deferred = 1;
 			}
 		else
 		if ( !parseACTION(groupBody->flags.methodType) )
 			{
 			// replacementReturn IN and OUT are two seats -- one read after the fire
 			// cannot tell a replacement from a pass-through
-			::measureFireLabelActionIn(this,stuff->label);
-			 GroupItem *adoptHanded = stuff->label; 
-			stuff->label = stuff->actionMethod(stuff->label);
+			::measureFireLabelActionIn(this,fireLab);
+			 GroupItem *adoptHanded = fireLab; 
+			fireLab = stuff->actionMethod(fireLab);
 			// adoptionSeat what the yield channel received, by kind -- F-122's (b) census as a standing witness
-			 ::measureAdoption(this,adoptHanded,stuff->label); 
-			::measureFireLabelActionOut(this,stuff->label);
-			if ( !stuff->label )
-				stuff->sukcess = 0;
+			 ::measureAdoption(this,adoptHanded,fireLab); 
+			::measureFireLabelActionOut(this,fireLab);
 			}
 		}
+	// handsBack the label after the fire; the CALLER knows whether one went in, so a null back from a non-null in is the action failing (SEQ 301, 1.2c)
+	return fireLab;
 }
 
 /***************************************************************************
@@ -1733,13 +1732,14 @@ continueHere:
 		/*******************************************************************
 		Success. Fire label method if there is one.
 		*******************************************************************/
-		fireLabelMethod(ruleStuff);
+		// oldRoadWriteBack the old road keeps its values on its stuff until 1.2d-f -- a null back from a non-null label is the action failing, as before (SEQ 301)
+		 { GroupItem *firedLab = this->fireLabelMethod(ruleStuff, ruleStuff->label, ruleStuff->hereAt); if ( ruleStuff->label && !firedLab ) ruleStuff->sukcess = 0; ruleStuff->label = firedLab; } 
 		// oldFireFlag the flag this activation reads next -- a nested new-road drive used to overwrite it (F-121)
 		 ::measureOldFireFlag(this,ruleStuff); 
 		if ( ruleStuff->sukcess )
 			{
 			repeatCount++;
-			attachLabel(ruleStuff,pStuff,1,into);
+			attachLabel(ruleStuff,pStuff,1,into,ruleStuff->label);
 			}
 		else	break;
 		}
