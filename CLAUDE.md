@@ -2940,12 +2940,13 @@ direction the campaign might take, it is a state the machinery must report as a 
 >
 > **The checklist, and all of it every time:** `pop.sh` · **`jitLadder/ladder.sh`, its line
 > recorded beside pop.sh's** · `decodePop.sh` · `ddPop.sh` ·
-> **`printPop.sh`** · `incant/frontier` · the extern canary (`grep -c '^extern' GroupRules.h`) ·
+> **`printPop.sh`** · `incant/frontier` · **`genLadder/dirCheck.sh`** (every directive still injects; then the tree is
+> retokked bare) · the extern canary (`grep -c '^extern' GroupRules.h`) ·
 > `groups.ext`'s state · **all THREE repos clean and pushed, with no exception clause.**
 >
 > ⚠⚠ **EVERY SCRIPT THE CHECKLIST RUNS IS EXECUTABLE IN GIT, CHECKED WITH ONE COMMAND (Tony, standing, SEQ 285
 > R6, 2026-10-03):** `git ls-files -s genLadder/pop.sh jitLadder/ladder.sh genLadder/decodePop.sh genLadder/ddPop.sh
-> genLadder/printPop.sh genLadder/fixitNag.sh | grep -v '^100755'` must print nothing. Any that print get
+> genLadder/printPop.sh genLadder/fixitNag.sh genLadder/dirCheck.sh | grep -v '^100755'` must print nothing. Any that print get
 > `git update-index --chmod=+x` and are named in the seal. **Why it kept recurring:** no commit ever stripped a bit.
 > jitLadder, printPop and decodePop were CREATED 100644 and stayed that way, so the bit lived only on disk, and any
 > write git makes (checkout, bisect, clone) lays the file down non-executable. The 2026-09-23 in-place bisect rewrote
@@ -3261,6 +3262,15 @@ grepped.** Paid for: `RuleStuff.rule` became `owner` (`df520b0`, 2026-09-30) and
 twelve directive bodies still read `rule.debugged`. tok parses a directive body in its target's scope
 (`Tokf/Directive.twk:42`), so the name failed to resolve and **every parse-debugging directive was silently dropped**:
 `parseDirective: failed for <method> <anchor>` on stdout, exit 0, extern canary unmoved.
+
+⚠⚠ **A STATEMENT RESPELL CAN SILENTLY ORPHAN A DIRECTIVE ANCHOR -- EVERY SEAL RUNS `genLadder/dirCheck.sh`. Tony,
+standing, 2026-10-05 (SEQ 304 R1).** tok matches a directive's anchor as a PREFIX of a statement's source text, and a
+miss injects nothing at exit 0 with no word; a statement moved into a `-% %-` passthrough can never be an anchor. Paid
+for: three anchors went dark with strokes 1.2c/1.2d (`parse fireLabelMethod`, `parse "if !checkInput"`, `exitFromParse
+fireLabelMethod`) and were found only by SEQ 303's verify step. **The script runs each directive ALONE** -- armed in a
+scratch copy if it is parked, never in the real file -- against a bare build, names every one that injects nothing
+(DARK), and retoks the tree bare (byte-identical, checked) before any number. An ARMED dark directive fails the run; a
+parked one is named and does not. A stroke that respells an anchored statement re-aims the anchor in the same stroke.
 
 ⚠⚠ **TONY TELLS CLOD WHEN HE INSERTS DIRECTIVES — AND HE MAY FORGET AFTER OFFLINE WORK.** When
 Clod finds an instrumented `.mm` he was not told about, he **says so plainly** — that is the fuss

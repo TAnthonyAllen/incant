@@ -365,6 +365,13 @@ rules on the amendment (R4).
    by mapping. Directives respelled before the merge (`sukcess` -> `callOK` / `exitOK`), and three anchors that 1.2c/1.2d
    had silently orphaned re-aimed (`parse fireLabelMethod` -> `"if callOK {" before`, `"if !checkInput"` ->
    `"callOK      = checkInput"`, `exitFromParse fireLabelMethod` -> `"exitLab = cLab"`), each shown to inject.
+   **1.2e MERGED 2026-10-05 (SEQ 304 R0; built SEQ 303).** `hereAt` left RuleStuff. parse() and parseRule keep the start
+   mark in a local `callHere` (from `inputAt`), handed to `checkInput(field, guardPassed, inAt)`, the fire, the failure
+   rewind and the exit; the old-road leaf tests (testMacro's three, testString) take their ENTRY mark, which is the start
+   mark because parse() calls them right after checkInput. Recon tap (203 files): every rewind read its own call's value;
+   the only outside reader was the bracket save; H16 shown (5,124). No row born red. H7 (a shared start mark): in parse()
+   it crashes setup; in parseRule only, shapeBodyT's label rows go red by value -- they are the hereAt witness, not
+   leafLabelT (whose spans come from the leaves' own marks since 1.2c). The callBracket now holds `label` alone.
 3. **`stuff` derived; `face` renamed `instance`.** The name clears the #58 check (grep, full bare-tokall diff) before
    the stroke opens.
 4. **Rule facts onto `groupBody`:** `ruleOf` and `instanceRule()`'s REGISTRY test retire.
