@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 193 at the FOOT -- SEQ 297: jitDotAssign stepped on trunk (32f4b09); R2 BUILT on compileFloor (processingCode a mark on the compile's floor), 943 / 49 row for row, NOT MERGED; R4 gCompileOwner agrees, 0 off-diagonal of ~6.4M
+STATUS:   fresh           # SEQ 194 at the FOOT -- SEQ 298: compileFloor MERGED; :. noPrinT pinned (top-level SET fails, born red); P3 recon: YES, the drive has the code field in hand at the floor push
+# prior: SEQ 193 at the FOOT -- SEQ 297: jitDotAssign stepped on trunk (32f4b09); R2 BUILT on compileFloor (processingCode a mark on the compile's floor), 943 / 49 row for row, NOT MERGED; R4 gCompileOwner agrees, 0 off-diagonal of ~6.4M
 # prior: SEQ 192 at the FOOT -- PROPOSAL (Tony asked): processingCode moves off GroupRules onto the compile's floor; tap says every read agrees (0 of ~5.8M); nothing changed, for tomorrow with Clay
 # prior: SEQ 191 at the FOOT -- SEQ 293 / SEQ 190 rulings: 1.2b BUILT on stroke12b -- kount as two locals, 908 row for row, NOT MERGED; session pause
 # prior: SEQ 190 at the FOOT -- SEQ 189 Q1: the shared kount is ONE term face counted twice (never the parent's stuff, 0 of 1,860); no STOP; 1.2b awaits Tony's (a)/(b)/(c)
@@ -10783,3 +10784,95 @@ R5 not built. R6 `compiling`: context, no stroke.
 FOR TONY: buy or decline compileFloor (Groups ff7cd8f, support 2fccc78). P3 (the kant verb) waits for a fresh dispatch.
 
   END SEQ 193
+
+
+SEQ 194  -  SEQ 298: compileFloor MERGED; `:. noPrinT` PINNED; P3 RECON (READ-ONLY)
+===================================================================
+STATUS: fresh -- 2026-10-05, trunk. Sealed 53 (after R0) and 54 (after R2).
+
+R2.1 FIRST -- YES. A KANT `BlocK(code)` REACHES driveStep, AND THE CODE FIELD IS IN HAND WHERE THE FLOOR IS PUSHED.
+  Measured (temporary tap in driveStep at the floor push, reverted md5-identical, tester as it stands):
+     processCode's compile of ifTest   field=CodE  floorPushed=1 isCompile=1
+     tester's parseCode BlocK(code)    field=code (the := holder, data) floorPushed=1 isCompile=0 -> unwrapped to CodE
+  So at the push driveStep holds BOTH the holder (field) and the CodE (intoField, one line below). Shape (a) has its
+  read site. Path, read: a kant call of a rule goes runOP's rule arm -> runRule(arg, rule) -> driveStep(field=arg);
+  a JITTED call goes jitEmitTermCall -> jitTermCallRT -> runOP at run time -> the same runRule; the RunRulE statement
+  form (ruleActions.rtn:806) also calls runRule.
+  EVERY FLOOR PUSH IN THE TREE (census: every `isFloor = 1` writer -- three):
+     driveStep's driveFloor -- reached from kant by: a rule call (runRule, both roads), the RunRulE statement,
+        `tell` (aCTionTell, incant/utilities:11 -- drives a FRESH "message" node with the text copied, so a property on
+        the caller's field would not travel), `treeOf` (registered only in incant/pop/driveDoorT), and `compile` /
+        lazy compile (processCode, the only caller passing 1).
+     parseOnFloor's topFloor -- the file's top-level parse; not kant-callable.
+     jitProbeDrive's probeFloor -- kant `probeDrive` / `probeSweep`; drives a fresh message node built from a string.
+
+R0 -- MERGED: Groups 60d83c6, support d03885d; branch deleted local + remote, both repos; seal 53. Bookkeeping for
+  Tony: macros AND IncantForms/WorkingOn/tester write processingCodE; both now refuse by name. In tester the write is
+  the restore line (`argument.processingCodE = processing;`), and the refusal it raises arms the store ruling, so the
+  `currentMETHOD := *priorMethod` after it stores nothing -- tester's currentMETHOD is left on the action. Measured:
+  tester prints "REFUSED ifTest -- processingCodE is read-only ...".
+
+R1 -- PIN `:. noPrinT` (52d4767). THE SET IS THE WRONG HALF, NOT THE READ.
+  A top-level `x :. noPrinT;` prints "opSetFlag: missing operand" (stderr), sets nothing, exit 0. The read-back gives 0;
+  dumpContents' noPrint column (an independent C++ read) shows no noPrint. The same read on a field set inside an
+  action gives 1 and dumpContents shows noPrint -- so the read is sound. Bare name and subscript fail alike.
+  incant/pop/setFlagTopT, 7 rows: SFT-1 and sfTop's dumpContents row BORN RED (fleet red 49 -> 51, both named);
+  SFT-2, SFT-3, sfAct's row green. Fixits (owner Clod): setFlagTopLevel (NEXT: OPEN -- which operand is null) and
+  jitSetFlagTemp (a jitted `:.` refuses as `:. tempField`, left operand intact, and the armed refusal stops every
+  later store in the body; NEXT: BEST GUESS).
+  CONTEXT: neither named walker SKIPS a noPrint member -- printDefinition prints it; dumpContents prints it with a
+  noPrint column (next()'s skip needs ruler.ignoreNoPrint, which nothing sets). So the walker half is the column.
+
+R2.2 -- COST OF (a), `code +< compileFor = action; BlocK(code);`
+  Where the read goes: driveStep, inside the existing `if field && field.data` floor block -- getProperty("compileFor")
+  on field, then on field.gGroup if field is a holder; if found: removeProperty it, mark the floor, take the owner from
+  it. About 8 lines with P2; without P2 add a save/set/restore of gCompileOwner around the parse (a third copy of
+  processCode's three lines).
+  CONSUME IT -- not optional, for three measured/read reasons:
+   - propertyList lives in the GroupBODY, and GroupItem's copy constructor SHARES the body. `*code +< ...` or
+     `argument.CodE +< ...` lands on CodE's body, seen by every copy of CodE, and persists.
+   - getProperty returns the FIRST match, so a second compile for a DIFFERENT owner without consumption reads the
+     STALE owner, silently.
+   - left in place, any later ordinary drive of that code (runRule, treeOf) is marked a compile.
+  With consumption: compiled twice means `+<` twice; a drive without a fresh `+<` is an ordinary drive and its body's
+  statements RUN while parsing (the H7 picture of SEQ 297) -- silent. A guard costs one line: refuse if a second
+  compileFor is on the list.
+  Kant spelling notes: right-to-left, `compileFor = action` is opAssign/setContent first, so compileFor (an undeclared
+  name -> a parseCode LOCAL, bear-trap 39) carries action's group; addProperty COPIES a parented node, and the copy
+  shares the local's body, which the frame restore writes back at parseCode's exit (bear-trap 50's family) -- harmless
+  only because the drive consumes it inside the call. `code +<` (no star) lands on the holder's own body.
+R2.3 -- COST OF (b), compileIn(owner, code): one extern + one setup line (+ likely a groups.ext decl, per the command-
+  extern note). An immediateAction takes ONE argument, so the two operands ride as attributes, or it is a rule with a
+  ruleMethod like `tell`. Body: driveStep(code, BlocK, report, owner) -- about 10-15 lines, no marker lifecycle, no
+  stale state, floor pushed and popped by one call. It is processCode's middle third; `compile` already exists as the
+  C++ whole.
+R2.4 -- currentMETHOD READERS DURING A COMPILE (census of every source use):
+     aCTionNamE (ruleActions.rtn:631) -- reads it, but under inCompile() takes gCompileOwner: the floor's owner answers it.
+     locateInMethod (GroupControl.twk:125) -- reads currentMETHOD under inCompile(); the floor's owner does NOT answer
+        it unless respelled (one line). Only caller: Debug.rtn:8.
+     aCTionScopeXP (ruleActions.rtn:819) -- reads it, but ScopeXP is `defer` (incant/grammar:173): never runs during a
+        compile.
+     Writers only: processAction (save/set/restore), processCode, parseRule (Generate.rtn:275 -- repoints it to the
+        grammar face during a generated drive, which is WHY currentMETHOD cannot carry the owner).
+     Kant: no live reader in incant/ or IncantForms beyond tester and macros (trigDO/ownerT/iterT1m hits are prose).
+  So with the floor carrying the owner, parseCode does NOT need to set currentMETHOD before the drive -- given the one-
+  line locateInMethod respell, or accepting it as debug-only.
+R2.5 -- P2's FOLD, costed, not built: ParseActivation.compileOwner (GroupItem) replaces isCompile (tok + groups.ext);
+  five instance inits; driveStep's int becomes the owner (processCode passes action; the others null); inCompile()
+  answers "nearest floor's owner non-null"; one more method hands aCTionNamE the owner (named apart from the field --
+  SEQ 235); GroupRules.gCompileOwner (tok + groups.ext) and processCode's three owner lines retire. Full bare-tokall
+  diff owed (a field is added). Works the same under (a) (driveStep reads the owner off the property) or (b)
+  (compileIn passes it).
+  THE H16 THE BUILD CARRIES: R4's tap was never shown able to SEE a disagreement, and after the fold the off-diagonal
+  is unconstructable, so it can never be re-measured. Known-bad end, BEFORE the fold: a drive pushed INSIDE a compile
+  -- a body whose parse fires a driving rule (candidate: a `tell(...)` statement inside a code={} body; tell is isRule
+  and fires at parse time) -- leaves the global owner set while the nested floor is unmarked, so the tap must read
+  ownerOnly > 0. SEQ 192 measured 0 such floors in the fleet, so the control has to be written; candidate, not driven.
+
+NAMES (SEQ 235/237): compileFor 0 and compileIn 0 bare uses across Groups, Include, TOK, Tokf, groupDirectives, setup,
+  grammar, utilities. compileOwner: comment slugs only (ruleActions.rtn:629, GroupActions.rtn:703, macros:77).
+
+CHECKLIST at seal 54, trunk: tokall bare, nothing moved · pop.sh 948 green / 51 red (the 49 banked + setFlagTopT's two)
+· jitLadder PASSED · printPop PASSED · decodePop (binary echo only) · ddPop 5/1 · frontier row for row · canary 304.
+
+  END SEQ 194

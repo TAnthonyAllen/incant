@@ -20,6 +20,65 @@ instrument's missing list is an accident; two is the convention being too narrow
 read as a clean pass with an EMPTY output file. An empty capture at exit 0 is not a green; check
 that an instrument printed something before believing its status.
 
+## 2026-10-05, seal 54 -- 948 green / 51 red / 1 parked (trunk jit-unified-emit-wip, bare)
+
+**49 -> 51, both named: setFlagTopT's two born-red rows (SEQ 298 R1, pin only; fixit setFlagTopLevel).** A top-level
+`x :. noPrinT;` sets nothing ("opSetFlag: missing operand"). Green rose by setFlagTopT's five green rows.
+
+```
+setFlagTopT -- wanted: SFT-1 top-level :. read-back  ->  1
+setFlagTopT -- dumpContents shows sfTop WITHOUT noPrint
+holderT 1 direct    .parenT = htWindow -- got: holderT 1 direct    .parenT = htU want htWindow 
+holderT 2 identity  .taG    = htInside -- got: holderT 2 identity  .taG    = htKid want htInside 
+holderT 3 holder    .parenT = htWindow -- got: holderT 3 holder    .parenT = htP want htWindow 
+spacingT A tight-1  = spA -- missing
+spacingT B tight-2  = spB -- missing
+spacingT C spaced   = spC -- missing
+spacingT D tight-3  = spD -- missing
+spacingT E survived -- missing
+spacingT '*' named refusal missing -- its guard stopped naming it
+spacingT '+' named refusal missing -- its guard stopped naming it
+spacingT '-' named refusal missing -- its guard stopped naming it
+spacingT '>' named refusal missing -- its guard stopped naming it
+spacingT '<' named refusal missing -- its guard stopped naming it
+spacingT '==' named refusal missing -- its guard stopped naming it
+spacingT '>=' named refusal missing -- its guard stopped naming it
+spacingT '<=' named refusal missing -- its guard stopped naming it
+spacingT F marker missing -- the operator rows did not run
+spacingT G a + **b  = spG -- got: 
+spacingT G2 a + *b  = spG2 -- got: 
+spacingT H a +* b   = 1 -- got: 
+spacingT I a+*b     = 1 -- got: 
+starT S1  *x   one-deep   = stA -- moved
+starT S3a **x  ONE-deep   = stD -- moved
+starT S6  a.b     holder   = stH -- moved
+pointerT F2 null operand = 0 -- moved
+pointerT X witness MISSING -- the star no longer binds to ptBagP
+pointerT F2 witness MISSING -- +* no longer names its refused operand
+pointerT L4e -- body=#2 not on the line after its label
+pointerT L5b -- isCopy=0 not on the line after its label
+pointerT L6a -- field=#10 not on the line after its label
+pointerT L6b -- field=#10 not on the line after its label
+pointerT L6c -- field=#6 not on the line after its label
+pointerT L6d -- field=#11 not on the line after its label
+ADDROF faSrc field=#3 body=#2 -- moved
+faceT F2 flags FORWARD  = 1 -- moved
+faceT F3 flags REVERSE  = 1 -- moved
+parseClass.target (setParse classification)
+fires=NEVER roster MOVED
+anyOrNumT census moved -- the isGROUP poison is back or generation changed
+anyOrNum.target (generated bodies + the parsed answer)
+displayForm baseline (interpreter pin)
+starIdiomT row 2 -- the star did not refuse a null by name. Either the
+convDriveT CD-4 'does not understand' lines = 0, want 1 -- BORN RED 2026-09-23.
+carrierT CT-3 sumGrup still in list CodE -- the action BODY survived, by its own local -- MOVED. Wanted: sumGrup
+firstUseT FU-2  isCodeD 1 -- the flag read reaches a real node (non-zero sibling) -- MOVED. Actual:
+oneTest baseline
+raw ->rStuff reads MOVED -- the groups.ext mirror changed codegen
+trigDO attached under DO 0 times, want exactly 1
+walkRefT row 3 = wrHeld -- THE FLIP HAS LANDED, or the binary is
+```
+
 ## 2026-10-05, seal 53 -- 943 green / 49 red / 1 parked (trunk jit-unified-emit-wip, bare)
 
 **Unchanged from seal 51: the same 49 rows, diffed row for row.** Green rose by compileFloorT's nine rows (compileFloor
