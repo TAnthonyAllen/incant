@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 200 at the FOOT -- SEQ 304: stroke12e merged; dirCheck on the seal (3 dark, all parked); 1.2f STOPPED at the decision point -- the parent's label is read/written by children (needs ParseActivation.label or a redesign)
+STATUS:   fresh           # SEQ 201 at the FOOT -- SEQ 305: 1.2f STOPPED before the build -- 52,886 owner-less fallback writes have no home under (A); zeroWidthT's 3 returned labels would change (output unchanged); fLAG recycle would end
+# prior: SEQ 200 at the FOOT -- SEQ 304: stroke12e merged; dirCheck on the seal (3 dark, all parked); 1.2f STOPPED at the decision point -- the parent's label is read/written by children (needs ParseActivation.label or a redesign)
 # prior: SEQ 199 at the FOOT -- SEQ 303: stroke12d merged (directives respelled, 3 orphaned anchors re-aimed); 1.2e BUILT on stroke12e (82b18ec / d787136), 976 / 51 row for row, NOT MERGED
 # prior: SEQ 198 at the FOOT -- SEQ 302: stroke12c merged; leafLabelT; 1.2d BUILT on stroke12d (f37991d / b129d40), 976 / 51 (one row retired by mapping), NOT MERGED
 # prior: SEQ 197 at the FOOT -- SEQ 301: starDotNull fixed on trunk; 1.2c BUILT on stroke12c (fdeffe4 / 05464e4), 973 / 51 row for row, NOT MERGED; no leaf value read outside the handoff
@@ -11205,3 +11206,58 @@ FOR TONY: rule (A) or (B) -- (A) with the floor's park renamed is the shape that
 whether the 6 + 6 + 2 stale-label decision reads are owed a fixture first.
 
   END SEQ 200
+
+
+SEQ 201  -  SEQ 305: 1.2f STOPPED BEFORE THE BUILD -- R1 AND R2 BOTH HIT THEIR STOP. NOTHING BUILT.
+===================================================================
+STATUS: fresh -- 2026-10-05, trunk, seal 66. Method: a tap that SIMULATES shape (A) on trunk (generated .mm, reverted
+md5-identical; 203 files, all exit 0): each live call carries a shadow record label, updated as (A) would update it
+(its own writes; a child's promote/yield into the parent's record; mintLabel's fallback into the record that owns the
+parent's stuff), and every real read of RuleStuff.label is compared with what (A) would read there. H16: a deliberate
+outside read (Grokking BlocK's label after a drive) came back homeless 256,701 times -- the tap sees a read (A) cannot
+house.
+
+WHAT (A) REPRODUCES EXACTLY (0 mismatches): attachLabel's destination (1,390,697) and its argument (5,809,543), the
+fire's argument (5,809,944), the exit's container-yield read (80,898), parseRule's `into` snapshot (224,579),
+parseRule's successful handoff to the exit (82,999), the old-road leaf tests (753,289) and aCTionCodE (11,669).
+
+R1 -- THE FLOOR PARK IS ONE MEANING. driveFloorLabel parks only when the root's own record is on top and the record
+  below is a floor: a drive root handing its label to its enclosing record -- the same act as attachLabel's promote into
+  the parent. The field can stay `label` (no rename, no #58 work).
+  ⚠ STOP -- mintLabel's fallback (`parent.rStuff.label = lab`, when a hasNewParse member is not a drive root): 57,679
+  writes. 4,793 land in a parent whose record is live -- (A) houses them there, and every later read agrees. The other
+  52,886 land in a stuff NO record on the list owns: under (A) they have NO HOME. Their values are read back 100 times
+  (site1RoadsT 78, probeDoorT 15, adoptT 3, driveLeakT 1, leafClassT 1), all by checkInput's label-reuse argument,
+  which acts on a label only when its fLAG is set -- whether any of those 100 had fLAG set is NOT measured.
+
+R2 -- THE 14 DECISION READS, case by case (parse()'s returned label today -> under (A)):
+     driveDoorT    QuotE1 (2)     failure clear: stale labelNO -> null; cleared to null either way.        no change
+     fireSeatT     FloaT  (2)     labelNO test: stale labelNO -> null, then labelNO; returns labelNO.      no change
+     driveCompileT FloaT  (1)     as fireSeatT.                                                            no change
+     zeroWidthT    Modifier (1), TraiTdata (2): returns a label ANOTHER call left on the stuff (Modifier,
+                   TraiTdata) -> under (A) returns labelNO.                                                 CHANGES
+  So parse()'s returned label WOULD change in 3 cases: R2's STOP.
+  What I measured beyond it, for your ruling: the caller of all three is old-road TraiT, which tests the return as a
+  pointer (`if grup.parse(...)`), so labelNO and the stale label both read true there -- whereas truthOf(labelNO) is 0
+  (that would matter only on a truthOf road: runRule into a new-road term call). A SIMULATION of (A) at the two
+  decision sites only (env-gated, in the tapped build) ran the four fixtures: their output is byte-identical with and
+  without it (0 lines differ, addresses masked; all exit 0); zeroWidthT's pinned ZWDRIVE rows read the same.
+  THE PIN BY VALUE IS NOT BUILT: an inner parse()'s return is visible to no kant reader and no existing callout. Pinning
+  it needs a seat -- a measure callout at parse()'s return printing rule and returned label (gated) -- yours to rule.
+
+ALSO OWED A RULING, measured with it:
+  - THE fLAG RECYCLE ENDS. On trunk checkInput reuses a recycled fLAG label left on the stuff 204,352 times (parseRule and
+    the old road). Under (A) a record starts empty, so every one mints fresh -- 1.2c's leaf amendment, extended to all.
+  - parseRule's FAILED handoffs (7,699) and the exit's fLAG-keep test (8,269) read stale labels that (A) would not see;
+    on a failed call the exit never uses the handed label, and the keep test only clears. No effect -- context.
+  - DIRECTIVES reading label (to respell in the stroke): exitFromParse "exitLab = cLab" (disarmed), parse "if callOK {"
+    (active).
+  - THE callBracket today holds `label` alone; under (A) it retires whole.
+
+FOR TONY: (1) where mintLabel's 52,886 owner-less writes go under (A) -- dropped (their only reader is the fLAG reuse,
+100 reads), or the enclosing record (which is NOT the parent's stuff in 53,472 of 57,679 writes, so that would change
+what attaches); (2) whether zeroWidthT's three returned labels changing (stale -> labelNO, no output change measured)
+is accepted; (3) the fLAG recycle ending for parseRule and the old road; (4) whether to add the parse()-return callout
+for a by-value pin. Then the build.
+
+  END SEQ 201
