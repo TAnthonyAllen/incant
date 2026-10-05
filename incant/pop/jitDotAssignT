@@ -1,0 +1,58 @@
+Start();
+include(unitTests);
+include(generate);
+include(utilities);
+search reset stack Grokking;
+search Generating UnitTests Utilities list;
+register(JitDotAssignT);
+define
+    jdA="av";
+    jdB="bv";
+    jdC="cv";
+    jdI="iv";
+    jdDrive code={
+        jdA.noPrinT = 1;
+        jdB.noPrinT = 0;
+        jdC.lastIndenT = 7;
+        print "JD-3 jitted lastIndenT = 7 -> " jdC.lastIndenT:;
+        jdC.lastIndenT = 0;
+        print "JD-4 jitted lastIndenT = 0 -> " jdC.lastIndenT:;
+        };
+    jdPrep code={
+        jdB :. noPrinT;
+        };
+    jdOracle code={
+        jdI.noPrinT = 1;
+        };
+    ;
+jdPrep();
+print "JD-2 before, set by :.   -> " jdB.noPrinT:;
+testing(jdDrive);
+jdOracle();
+print "JD-1 jitted noPrinT = 1     -> " jdA.noPrinT:;
+print "JD-2 jitted noPrinT = 0     -> " jdB.noPrinT:;
+print "JD-O interpreted noPrinT = 1 -> " jdI.noPrinT:;
+print "JITDOTASSIGN SENTINEL -- reached the foot":;
+stop();
+
+jitDotAssignT -- a JITTED `x.name = v` writes the field x, as the interpreted one does
+(SEQ 297 R0; promoted from Clod's fixit jitDotAssign, which it retires).
+
+Before the fix opAssign's jitting arm returned into jitEmitAssign before the accessor
+hook, and the dot on the LEFT left gJitLastIsNode raised, so the store took the node
+branch: the dot's product was stored into its own result node and the 1 was dropped.
+jitted 0, interpreted 1, degrade 0. Now jitEmitDot records the node it seeded and the
+value it seeded it with, and jitEmitAssign routes a store onto that node through
+jitAccessorWriteRT, which calls the same setter opAssign's accessorWrite does.
+
+Rows: JD-1 sets a flag (0 -> 1); JD-2 clears one `:.` set outside the jitted body (1 -> 0) -- each is the other's
+non-zero sibling. JD-3 and JD-4 carry a VALUE (7, then 0) on lastIndent, the one write case
+that takes more than a truth, read back inside the jitted body. JD-O is the interpreted
+oracle, run after the jitted half (bear-trap 25).
+
+Not covered, by design: `x.a = y.b` -- both dots publish into the one shared tempField, so
+the left's product is lost; the emitter degrades it by name rather than store wrongly.
+
+`:.` is set outside the jitted body on purpose: inside it, `jdB :. noPrinT` refuses as
+`:. tempField` and the refusal then blocks every later store in the body (measured
+2026-10-05) -- a separate jit gap, reported in the seal, not this fixture's question.

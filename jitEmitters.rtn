@@ -50,6 +50,36 @@ extern GroupItem jitAssignNodeRT(GroupItem source,GroupItem target)
 }
 
 
+/*  the emitted `x.name = v`: what opAssign's accessorWrite line does, at run time,
+    on the product opDot minted (SEQ 297 R0). The mark is tested HERE because the
+    product exists only at run time; an unmarked product (a dot that returned a
+    node, not a groupField copy) stores nothing, as interpreted opAssign writes
+    only the copy. jitAccessorNodeRT is the same with a node on the right.
+    jitEmitters.jitEmitAssign.dotTarget  */
+extern GroupItem jitAccessorWriteRT(int value,GroupItem product)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->refused ) return 0;
+    if ( !product || !product->groupBody->flags.isAccessorProduct ) return product;
+    accessorWriteValue(value, product);
+    return product;
+    %-
+}
+
+
+extern GroupItem jitAccessorNodeRT(GroupItem source,GroupItem product)
+{
+    -%
+    if ( GroupControl::groupController->groupRules->refused ) return 0;
+    if ( !product ) return 0;
+    if ( product->groupBody->flags.isAccessorProduct ) accessorWrite(source, product);
+    if ( source )   product->setContent(source);
+    else            product->clearData();
+    return product;
+    %-
+}
+
+
 /*******************************************************************************
     jitBindArgRT -- runAction's OWN binding lines, lifted verbatim.
 
@@ -587,6 +617,48 @@ extern GroupItem jitEmitAdd(GroupItem argument,GroupItem target)
 extern GroupItem jitEmitAssign(GroupItem argument,GroupItem target)
 {
     -%
+    // ⚠ `x.name = v` -- THE TARGET IS THE NODE A DOT JUST SEEDED (SEQ 297 R0). The
+    // store goes to the field through the accessor setter at RUN time, as opAssign's
+    // accessorWrite does; the product is minted by opDot at run time, so the test of
+    // its mark is in the helper. Checked BEFORE the node branch: on `x.name = 1`
+    // gJitLastIsNode is the LEFT operand's, and taking that branch stored the dot's
+    // copy into its own node and dropped the 1.   jitEmitters.jitEmitAssign.dotTarget
+    if (target && target == gJitDotSeeded && gJitDotProduct && target->jitData
+            && target->jitData->jitValue == gJitDotSeededVal) {
+        llvm::Value *product = gJitDotProduct;
+        gJitDotSeeded = nullptr; gJitDotSeededVal = nullptr; gJitDotProduct = nullptr;
+        if (argument == target) {
+            // two dots publish into the one shared node, so the left's product is lost
+            gJitLastIsNode = false;
+            jitDegrade("`x.a = y.b` -- both dots share one result node", target);
+            return target; }
+        llvm::IRBuilder<> *db = gJitBuilder;
+        llvm::LLVMContext &dctx = db->getContext();
+        llvm::Type *dptr = llvm::PointerType::getUnqual(dctx);
+        llvm::Type *di32 = llvm::Type::getInt32Ty(dctx);
+        llvm::Type *di64 = llvm::Type::getInt64Ty(dctx);
+        if (gJitLastIsNode && gJitResultNode && gJitResultNode != product) {
+            gJitLastIsNode = false;
+            llvm::Value *fn = db->CreateIntToPtr(
+                llvm::ConstantInt::get(di64, (uint64_t)(void*)&jitAccessorNodeRT), dptr, "accNodeFn");
+            llvm::FunctionType *ty = llvm::FunctionType::get(dptr, {dptr, dptr}, false);
+            db->CreateCall(ty, fn, {gJitResultNode, product}, "accNode");
+            return target; }
+        gJitLastIsNode = false;
+        if (!argument || !argument->jitData || !argument->jitData->jitValue) {
+            jitDegrade("`x.name = v` with an unseeded right operand", target);
+            return target; }
+        llvm::Value *v = argument->jitData->jitValue;
+        if (v->getType() != di32) {
+            jitDegrade("`x.name = v` with a non-count right operand", target);
+            return target; }
+        llvm::Value *fn = db->CreateIntToPtr(
+            llvm::ConstantInt::get(di64, (uint64_t)(void*)&jitAccessorWriteRT), dptr, "accWriteFn");
+        llvm::FunctionType *ty = llvm::FunctionType::get(dptr, {di32, dptr}, false);
+        db->CreateCall(ty, fn, {v, product}, "accWrite");
+        gJitResult = v;
+        return target;
+    }
     // ⚠ A NODE ON THE RIGHT GOES THROUGH THE RUN-TIME HELPER (SEQ 138). A star
     // publishes a NODE, not a scalar, and storing its SSA value put the node's
     // ADDRESS into the target's slot -- which is how starT's jitted road read
@@ -1208,6 +1280,10 @@ extern GroupItem jitEmitDot(GroupItem argument,GroupItem target,GroupItem result
         if (!resultNode->jitData) resultNode->jitData = new JitData();
         resultNode->jitData->setJitter(val);
         gJitSeeded.push_back(resultNode); }
+    //  dotSeeded which node this dot seeded and with what, so a `=` onto it writes the field (SEQ 297)
+    gJitDotSeeded    = resultNode;
+    gJitDotSeededVal = val;
+    gJitDotProduct   = res;
     gJitResult  = val;
     gJitEmitted = true;
     return resultNode;

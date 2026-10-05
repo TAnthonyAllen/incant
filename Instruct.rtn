@@ -1514,10 +1514,21 @@ int         on = 0;
 ***************************************************************************/
 extern int accessorWrite(GroupItem argument,GroupItem product)
 {
-GroupRules  ruler = groupRules;
-GroupItem   flagDef;
 int         value = 0;
     if argument     value = argument.count;
+    return accessorWriteValue(value,product);
+}
+
+
+/***************************************************************************
+    accessorWriteValue -- accessorWrite's body, handed the value rather than
+    the node it came from, so the jitted `=` can call it with a scalar
+    (jitAccessorWriteRT, SEQ 297 R0). One writer for both roads.
+***************************************************************************/
+extern int accessorWriteValue(int value,GroupItem product)
+{
+GroupRules  ruler = groupRules;
+GroupItem   flagDef;
 use product
     flagDef = groupFields[tag];
     if flagDef

@@ -594,6 +594,29 @@ for _j in "FS-1 lastIndenT = 7       ->  7" \
     fi
 done
 
+#  ⚠ jitDotAssignT -- A JITTED `x.name = v` WRITES THE FIELD (SEQ 297 R0). Promoted from
+#  Clod's fixit jitDotAssign, which retires by mapping: its jitted line -> JD-1, its
+#  interpreted line -> JD-O. Born red as that fixit (jitted 0, interpreted 1, degrade 0):
+#  the left dot left gJitLastIsNode raised and the store took the node branch. JD-1/JD-2
+#  are a 0->1 / 1->0 pair; JD-3/JD-4 carry a value (7 then 0) on lastIndent.
+#  H7: jitEmitAssign's dotTarget branch disabled -> JD-1 0, JD-2 1, JD-3 0.
+run1 jitDotAssignT "$T/jda"; check "jitDotAssignT runs" 0 $?
+sentinel "jitDotAssignT sentinel (no truncation)" "$T/jda" "JITDOTASSIGN SENTINEL"
+for _j in "=== jitRunAction: entering on jdDrive ===" \
+          "=== jitDegrade count = 0 ===" \
+          "JD-2 before, set by :.   ->  1" \
+          "JD-3 jitted lastIndenT = 7 ->  7" \
+          "JD-4 jitted lastIndenT = 0 ->  0" \
+          "JD-1 jitted noPrinT = 1     ->  1" \
+          "JD-2 jitted noPrinT = 0     ->  0" \
+          "JD-O interpreted noPrinT = 1 ->  1"; do
+    if grep -qF "$_j" "$T/jda"; then
+        echo "  ok    jitDotAssignT ${_j} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  jitDotAssignT -- wanted: $_j"; fail=1
+    fi
+done
+
 #  ⚠ argRoundJ -- THE JIT ARM. Minted pinned RED by name on jitArgBake and
 #  RE-PINNED GREEN the same day when the flag hoist discharged it; see the
 #  sentence at the argument-column row below. It stays a separate file from

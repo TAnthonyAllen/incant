@@ -260,6 +260,17 @@ inline llvm::Value *gJitResultNode = nullptr;
 // latter and only the latter, is raised by jitEmitDeref, and is cleared by the
 // consumer that acts on it. One channel, one meaning.
 inline bool gJitLastIsNode = false;
+// ⚠ WHICH NODE THE LAST DOT SEEDED, AND WITH WHAT (SEQ 297 R0, fixit jitDotAssign).
+// jitEmitDot publishes its result into a node (ruler->tempField) and raises
+// gJitLastIsNode; a `=` whose TARGET is that node is `x.name = v`, and must write
+// the field through the accessor setter, not store into the copy. gJitLastIsNode
+// cannot say this: it means "the last value is a node", and on `x.name = 1` the
+// last node is the LEFT operand. So the dot records the node and the SSA value it
+// seeded it with; jitEmitAssign matches BOTH, so a later re-seed of the same
+// shared node by another emitter cannot be mistaken for the dot's.
+inline GroupItem   *gJitDotSeeded    = nullptr;
+inline llvm::Value *gJitDotSeededVal = nullptr;
+inline llvm::Value *gJitDotProduct   = nullptr;
 // ⚠ WHERE A TARGET'S VALUE LIVES (SEQ 141, F-50). jitEmitAssign's NODE branch
 // stores through jitAssignNodeRT, which writes the FIELD; the ordinary branch
 // stores into the jitSlot, which is a REGISTER. A print must read whichever one
