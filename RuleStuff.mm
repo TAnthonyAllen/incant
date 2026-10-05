@@ -62,6 +62,7 @@ int 		counter = 0;
 int 		more = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
+char 		*testAt = ruler->atRuleMark;
 	if ( *ruler->atRuleMark )
 		{
 		while ( *ruler->atRuleMark )
@@ -80,10 +81,11 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			return ::reportMaxLimit(field);
 		if ( counter && counter >= ruleStuff->min )
 			{
+			// testAtIsHereAt parse() calls a leaf test right after checkInput with nothing moving the input between, so the entry mark IS the start mark (1.2e, SEQ 303)
 			if ( ruleStuff->noAdvance )
-				ruler->atRuleMark = ruleStuff->hereAt;
+				ruler->atRuleMark = testAt;
 			if ( ruleStuff->label )
-				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
+				ruleStuff->label->setToken(testAt,counter);
 			return 1;
 			}
 		}
@@ -115,6 +117,7 @@ int 		counter = 0;
 int 		more = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
+char 		*testAt = ruler->atRuleMark;
 	if ( *ruler->atRuleMark )
 		{
 		while ( *ruler->atRuleMark == field->getCharacter() )
@@ -133,10 +136,11 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			return ::reportMaxLimit(field);
 		if ( counter && counter >= ruleStuff->min )
 			{
+			// testAtIsHereAt parse() calls a leaf test right after checkInput with nothing moving the input between, so the entry mark IS the start mark (1.2e, SEQ 303)
 			if ( ruleStuff->noAdvance )
-				ruler->atRuleMark = ruleStuff->hereAt;
+				ruler->atRuleMark = testAt;
 			if ( ruleStuff->label )
-				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
+				ruleStuff->label->setToken(testAt,counter);
 			return 1;
 			}
 		}
@@ -208,6 +212,7 @@ int 		counter = 0;
 int 		more = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
+char 		*testAt = ruler->atRuleMark;
 	if ( *ruler->atRuleMark )
 		{
 		while ( set->contains(*ruler->atRuleMark) )
@@ -226,10 +231,11 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 			return ::reportMaxLimit(field);
 		if ( counter && counter >= ruleStuff->min )
 			{
+			// testAtIsHereAt parse() calls a leaf test right after checkInput with nothing moving the input between, so the entry mark IS the start mark (1.2e, SEQ 303)
 			if ( ruleStuff->noAdvance )
-				ruler->atRuleMark = ruleStuff->hereAt;
+				ruler->atRuleMark = testAt;
 			if ( ruleStuff->label )
-				ruleStuff->label->setToken(ruleStuff->hereAt,counter);
+				ruleStuff->label->setToken(testAt,counter);
 			return 1;
 			}
 		}
@@ -241,12 +247,14 @@ extern "C" int testString(GroupItem *field)
 {
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
 RuleStuff 	*ruleStuff = field->getRStuff();
+char 		*testAt = ruler->atRuleMark;
 char 		*matchedString = field->matches(ruler->atRuleMark);
 	// nodeInHand the match reads the field it was handed, never RuleStuff.owner (stroke 5.2)
 	if ( matchedString )
 		{
+		// testAtIsHereAt the entry mark is the start mark, as testMacro's (1.2e, SEQ 303)
 		if ( ruleStuff->noAdvance )
-			ruler->atRuleMark = ruleStuff->hereAt;
+			ruler->atRuleMark = testAt;
 		if ( ruleStuff->label )
 			ruleStuff->label->setText(matchedString);
 		return 1;
@@ -364,7 +372,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	parseMethod = 0;
 	jitMethod = 0;
 	actionMethod = 0;
-	hereAt = 0;
 	label = 0;
 	onGroup = 0;
 	followed = 0;
@@ -393,7 +400,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	jitMethod = 0;
 	actionMethod = 0;
 	ruleName = 0;
-	hereAt = 0;
 	onGroup = 0;
 	max = 0;
 	maxRepeat = 0;
@@ -433,14 +439,12 @@ GroupRules 	*ruler = GroupControl::groupController->groupRules;
 }
 
 // checkInput skip, set hereAt, pass the guard and mint the label -- true when input is valid; field is the node the caller runs, never RuleStuff.owner (stroke 5.4a). The old road and parseRule keep their values on this stuff until 1.2d-f; a new-road leaf calls inputAt, checkGuard and mintLabel itself and keeps them in locals (SEQ 301)
-int RuleStuff::checkInput(GroupItem *field, int guardPassed)
+int RuleStuff::checkInput(GroupItem *field, int guardPassed, char *inAt)
 {
-char 	*inAt = inputAt();
 int 	inOK = 0;
+	// hereAtFirst the CALLER holds the start mark (inputAt, before this) -- a term failing at end of input is rewound to it, and an unset one wrote a null mark (convLeakT); hereAt left RuleStuff in 1.2e (SEQ 303)
 	if ( !inAt )
 		return 0;
-	// hereAtFirst set BEFORE the end-of-input exit -- a term failing at end of input is rewound to hereAt, and an unset one wrote a null mark (convLeakT)
-	hereAt = inAt;
 	if ( !*inAt )
 		return 0;
 	// verdictReturned the guard's verdict is RETURNED, never stored -- sukcess left RuleStuff in 1.2d (SEQ 302)

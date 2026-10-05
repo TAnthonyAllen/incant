@@ -1685,6 +1685,7 @@ RuleStuff 			*ruleStuff = getStuff(pStuff);
 int 				leafDone = 0;
 int 				repeatCount = 0;
 int 				callOK = 0;
+char 				*callHere = 0;
 char 				*ownPoint = 0;
 	// oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
 	oldActive.face = this;
@@ -1702,7 +1703,9 @@ char 				*ownPoint = 0;
 		{
 continueHere:
 		// guardVerdict checkInput RETURNS the guard's verdict and stores none; a rule with no test below succeeds on it alone (1.2d, SEQ 302)
-		callOK = ruleStuff->checkInput(this,guardPassed);
+		// callHereLocal this call's start mark is a local, handed to checkInput, the fire and the failure rewind (1.2e, SEQ 303)
+		callHere = ruleStuff->inputAt();
+		callOK = ruleStuff->checkInput(this,guardPassed,callHere);
 		if ( !callOK )
 			goto matchFailed;
 		// guardHandoff testOptions' passed guard is an ARGUMENT, spent by the first checkInput that reaches it -- one that fails before the guard (end of input) keeps it for the retry, as the rStuff flag did (stroke 1.1 site 1)
@@ -1735,7 +1738,7 @@ continueHere:
 		Success. Fire label method if there is one.
 		*******************************************************************/
 		// oldRoadWriteBack the old road keeps its label and hereAt on its stuff until 1.2e-f; its verdict is the local callOK (1.2d) -- a null back from a non-null label is the action failing, as before (SEQ 301)
-		 { GroupItem *firedLab = this->fireLabelMethod(ruleStuff, ruleStuff->label, ruleStuff->hereAt); if ( ruleStuff->label && !firedLab ) callOK = 0; ruleStuff->label = firedLab; } 
+		 { GroupItem *firedLab = this->fireLabelMethod(ruleStuff, ruleStuff->label, callHere); if ( ruleStuff->label && !firedLab ) callOK = 0; ruleStuff->label = firedLab; } 
 		// oldFireFlag the flag this activation reads next -- a nested new-road drive used to overwrite it (F-121)
 		 ::measureOldFireFlag(this,callOK); 
 		if ( callOK )
@@ -1771,7 +1774,7 @@ debugHere:
 			// rootFailPoint the ROOT's own failure point goes on the floor below it -- a call whose record sits on a floor is the root (SEQ 292, SEQ 186 R2)
 			if ( oldActive.prev && oldActive.prev->isFloor )
 				oldActive.prev->failPoint = ruler->atRuleMark;
-			ruler->atRuleMark = ruleStuff->hereAt;
+			ruler->atRuleMark = callHere;
 			if ( ruleStuff->label )
 				ruleStuff->label = 0;
 			}
