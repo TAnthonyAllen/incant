@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 197 at the FOOT -- SEQ 301: starDotNull fixed on trunk; 1.2c BUILT on stroke12c (fdeffe4 / 05464e4), 973 / 51 row for row, NOT MERGED; no leaf value read outside the handoff
+STATUS:   fresh           # SEQ 198 at the FOOT -- SEQ 302: stroke12c merged; leafLabelT; 1.2d BUILT on stroke12d (f37991d / b129d40), 976 / 51 (one row retired by mapping), NOT MERGED
+# prior: SEQ 197 at the FOOT -- SEQ 301: starDotNull fixed on trunk; 1.2c BUILT on stroke12c (fdeffe4 / 05464e4), 973 / 51 row for row, NOT MERGED; no leaf value read outside the handoff
 # prior: SEQ 196 at the FOOT -- SEQ 300: compileIn answers true/false, BlocK on request.result; MERGED (e99e171 / 3bde40e); *ciReq.result crashes (struck spelling)
 # prior: SEQ 195 at the FOOT -- SEQ 299: compileIn + P2's fold BUILT on branch compileIn (fc22f8c / e436042), 962 / 51 row for row, NOT MERGED; R1's H16 met (TellST: ownerOnly=2)
 # prior: SEQ 194 at the FOOT -- SEQ 298: compileFloor MERGED; :. noPrinT pinned (top-level SET fails, born red); P3 recon: YES, the drive has the code field in hand at the floor push
@@ -11021,3 +11022,59 @@ R3 -- BUILT (fdeffe4 / support 05464e4). Leaves keep verdict, start and label in
 FOR TONY: buy or decline stroke12c. Then 1.2d (sukcess) by a fresh dispatch.
 
   END SEQ 197
+
+
+SEQ 198  -  SEQ 302: stroke12c MERGED; leafLabelT; STROKE 1.2d BUILT ON stroke12d (NOT MERGED, FOR TONY TO BUY)
+===================================================================
+STATUS: fresh -- 2026-10-05. Seals 59 (R0), 60 (R1), 61 (after R3), all on trunk. Branch stroke12d: Groups f37991d, support b129d40.
+
+R0 -- stroke12c MERGED (Groups 5d0f1fa, support b4da038), branch deleted both repos. objectModel A5 records 1.2c and
+  the amendment: a new-road leaf mints a fresh label rather than reuse an fLAG one on its stuff (0 in 202 files).
+
+R1 -- incant/pop/leafLabelT, 4 rows, + labelSpans (measure.twk: tag and span per label node, no addresses). The
+  labelled LITERALS lp="(" kw="let" rp=")" are new-road parseString leaves: lp [(] kw [let] rp [)] on both roads.
+  H7 (leaves hand the exit no label), this fixture alone under an alarm: lp, kw, rp VANISH from the new-road tree, LlWord
+  stays -- wrong BY VALUE, exit 0. ⚠ A labelled SET leaf (wd=[a-z]+, or a set field) kept its label under that H7: it
+  does not take the new-road leaf path (it runs the old road inside the new-road body), so my first fixture shape
+  certified nothing; the set is now the control. A kant subscript could not reach tell's reply's child label, hence
+  the printer.
+
+R2 -- 1.2d RECON (tap in the generated .mm, reverted md5-identical; 203 files, all exit 0). Every read of sukcess was
+  attributed to the call that last wrote it:
+     parse-decision reads -- old-road parse() (11 sites), checkInput (2), parseRule's handoff to the exit -- all read
+       their OWN call's value, except 105 reads at each of four parse() sites (post-fire, matchFailed, notifyFail,
+       labelNO) whose last writer was parseRule's bracket restore: a nested new-road parseRule on the same stuff,
+       restoring parse()'s own value (F-121's case). No decision changes.
+     the ONLY reader outside its writing call: parseRule's bracket save (3,766 other-call, 232,084 bracket-restore,
+       185 ctor) -- it decides nothing and retires.
+  H16, BEFORE any deletion: a deliberate outside reader in driveStep (after the drive) counted 5,124 other-call reads,
+  so the tap sees one. This closes 1.2c's unproven zeros BY METHOD; after 1.2c those reader sites read stuff values a
+  leaf never writes, so their zeros are also structural.
+  SHAPE: every writer and reader is in one call chain -> locals; no ParseActivation field.
+  DIRECTIVES reading sukcess (groupDirectives, gitignored; Tony's to respell -- after the merge they fail to resolve
+  and are dropped): `exitFromParse fireLabelMethod` (disarmed, line 81), `parse fireLabelMethod` (active, line 250),
+  `parse debugHere` (active, line 263). In parse() the verdict is now the local `callOK`.
+
+R3 -- BUILT (f37991d / support b129d40). Old-road parse()'s verdict is the local callOK; parseRule's is its local
+  callOK; checkInput RETURNS the guard verdict (local inOK) and stores none; the exit's clear, the bracket's sukcess
+  slot, the two constructor clears, RuleStuff.sukcess and its groups.ext line are gone; measureOldFireFlag is handed the
+  verdict; measureLoopVerdict prints the count against min only.
+  ⚠ FIRST BUILD BROKE SETUP: checkInput's stored guard pass was load-bearing for parse() -- a rule with no test, no
+  members and no attributes succeeds on its guard alone -- and setup was abandoned (exit 139 fleet-wide, the
+  bootstrapper's setBuffer on null). parse() now takes checkInput's return. The tap had counted those reads as
+  same-call, which they are; the dependency was through the STORE, not a cross-call read.
+  FULL BARE-TOKALL DIFF, every moved line explained: GroupItem.mm (parse()'s callOK, copy ctor), RuleStuff.mm/.h (the
+  field, ctor clears, checkInput's inOK), GroupRules.mm (parseRule's callOK, exit clear, bracket slot), measure.mm/.h.
+  Canary 305 unchanged (no extern added or removed). Layout change: RuleStuff lost a bit; GUI/Tests carry no RuleStuff.
+  pop.sh: "loopVerdict positive control: DISAGREE > 0" RETIRED BY MAPPING -- its subject was the stale flag (93 at seal
+  60); the count deciding is carried by the anti-vacuity row (313 verdicts, unchanged) and nestNatT/unaryNatT's values.
+  NO ROW BORN RED: the bracket protected the one cross-call case on trunk, and no decision changes (as 1.2b).
+  H7 (parse()'s callOK one static shared by every call), five fixtures alone under alarms: shapeBodyT RED -- after
+  `ShLit y` the drive's verdict reads the tag echo and every later drive is gone; oneTest, baselineTestsNew, leafLabelT,
+  treeRowT do not see it. Restored md5-identical.
+  Branch: fleet 976 green / 51 red row for row with seal 60 (977 less the retired row); jitLadder, printPop PASSED;
+  decodePop echo only; ddPop 5/1; frontier row for row.
+
+FOR TONY: buy or decline stroke12d; respell the three sukcess directives. Then 1.2e (hereAt) by a fresh dispatch.
+
+  END SEQ 198
