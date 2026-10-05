@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 198 at the FOOT -- SEQ 302: stroke12c merged; leafLabelT; 1.2d BUILT on stroke12d (f37991d / b129d40), 976 / 51 (one row retired by mapping), NOT MERGED
+STATUS:   fresh           # SEQ 199 at the FOOT -- SEQ 303: stroke12d merged (directives respelled, 3 orphaned anchors re-aimed); 1.2e BUILT on stroke12e (82b18ec / d787136), 976 / 51 row for row, NOT MERGED
+# prior: SEQ 198 at the FOOT -- SEQ 302: stroke12c merged; leafLabelT; 1.2d BUILT on stroke12d (f37991d / b129d40), 976 / 51 (one row retired by mapping), NOT MERGED
 # prior: SEQ 197 at the FOOT -- SEQ 301: starDotNull fixed on trunk; 1.2c BUILT on stroke12c (fdeffe4 / 05464e4), 973 / 51 row for row, NOT MERGED; no leaf value read outside the handoff
 # prior: SEQ 196 at the FOOT -- SEQ 300: compileIn answers true/false, BlocK on request.result; MERGED (e99e171 / 3bde40e); *ciReq.result crashes (struck spelling)
 # prior: SEQ 195 at the FOOT -- SEQ 299: compileIn + P2's fold BUILT on branch compileIn (fc22f8c / e436042), 962 / 51 row for row, NOT MERGED; R1's H16 met (TellST: ownerOnly=2)
@@ -11078,3 +11079,60 @@ R3 -- BUILT (f37991d / support b129d40). Old-road parse()'s verdict is the local
 FOR TONY: buy or decline stroke12d; respell the three sukcess directives. Then 1.2e (hereAt) by a fresh dispatch.
 
   END SEQ 198
+
+
+SEQ 199  -  SEQ 303: stroke12d MERGED (DIRECTIVES FIRST); STROKE 1.2e BUILT ON stroke12e (NOT MERGED, FOR TONY TO BUY)
+===================================================================
+STATUS: fresh -- 2026-10-05. Seals 62 (R0) and 63 (after R2), both on trunk. Branch stroke12e: Groups 82b18ec, support d787136.
+
+R0 -- groupDirectives respelled on stroke12d BEFORE the merge, verbatim before -> after:
+     line 85   `        if sukcess {`                      ->  `        if exitOK {`          (exitFromParse, disarmed)
+     line 252  `        if sukcess {`                      ->  `        if callOK {`          (parse, active)
+     line 265  `        if sukcess {`                      ->  `        if callOK {`          (parse debugHere, active)
+  ⚠ AND THREE ANCHORS MY STROKES HAD SILENTLY ORPHANED -- found by the verify step, which is what it is for. tok matches
+  an anchor as a PREFIX of the statement's source text, and a `-% %-` passthrough is not a statement it can anchor on:
+     line 81   `exitFromParse fireLabelMethod ctive`        ->  `exitFromParse "exitLab = cLab" ctive`
+               (since 1.2c the fire is `cLab = field.fireLabelMethod(...)`)
+     line 242  `parse "if !checkInput" before active`       ->  `parse "callOK      = checkInput" before active`
+               (since 1.2d the statement is `callOK = checkInput(...)`)
+     line 250  `parse fireLabelMethod active`               ->  `parse "if callOK {" before active`
+               (since 1.2c parse()'s fire is a passthrough; `if callOK {` is the first statement after it -- same point)
+  Verified: each directive alone, against a bare build, injects (debugHere and the re-aimed fireLabelMethod read callOK;
+  the checkInput one injects its Match trace; the disarmed exitFromParse one, armed in a scratch file, reads exitOK);
+  the full directives build injects all three; then retok bare (identical to the bare build) before any number.
+  The exitFromParse directive still reads `label` off the stuff, which a leaf no longer writes (1.2c) -- 1.2f's.
+  `parse debugHere` also prints `kount` (SEQ 191), unchanged -- not in this ruling.
+  MERGED: Groups e6fb999, support df5de33; branch deleted both repos; objectModel A5 records 1.2d; seal 62.
+
+R1 -- 1.2e RECON (tap in the generated .mm, reverted md5-identical; 203 files, all exit 0):
+     REWINDS (parse decisions) -- parse()'s failure rewind 27,948 and the old-road leaf tests' noAdvance rewind 4,660 --
+       ALL read their OWN call's value. So did the fire's argument (5.8M) and the token spans (21,663).
+     parseRule's handoff to the exit (its success/noAdvance and failure rewinds): own value 234,005; a nested call's
+       bracket restore of that SAME value 2,030.
+     the ONLY reader outside its writing call: the bracket save (3,766 other-call) -- it retires.
+  H16 first: a deliberate outside reader in driveStep counted 5,124 other-call reads. No rewind takes another call's
+  value: no STOP. No directive reads hereAt. Shape: locals; no ParseActivation field.
+
+R2 -- BUILT (82b18ec / support d787136). parse() and parseRule keep the start mark in a local `callHere` (from inputAt),
+  handed to checkInput(field, guardPassed, inAt), the fire, the failure rewind and the exit. The old-road leaf tests
+  (testMacro's testAny/testCharacter/testSet, and testString) take their ENTRY mark (`testAt`): parse() calls them right
+  after checkInput with nothing moving the input between, so it is the start mark; threading it through testMatch would
+  have been a fnptr signature change (a layout change). The exit's clear, the bracket's hereAt slot, the constructor
+  clears, RuleStuff.hereAt and its groups.ext line are gone.
+  FULL BARE-TOKALL DIFF, every moved line explained: RuleStuff.h (the field, checkInput's signature), RuleStuff.mm
+  (checkInput; testAt in testMacro's three expansions and in testString; ctor clears), GroupItem.mm (parse()'s callHere),
+  GroupRules.mm (parseRule's callHere, exit clear, bracket slot). Canary 305 unchanged.
+  NO ROW BORN RED: no rewind ever read another call's value, so no decision changes (as 1.2b, 1.2d).
+  H7, gate-like (shared static start mark), fixtures alone under 45s alarms:
+     parse() AND parseRule shared: EVERY fixture exit 139 at the bootstrap -- setup itself parses on the old road. Red,
+       but only by crashing.
+     parseRule only: shapeBodyT RED BY VALUE -- `LABEL ShRep ac text=[ c ]` (want ac), `ShRep aaac text=[ c ]`.
+  leafLabelT, the candidate witness: DOES NOT MOVE under the narrow H7 (and the wide one crashes before it). Its spans
+  are set from the leaves' own local start marks (1.2c), not parseRule's hereAt, so it is not a hereAt witness;
+  shapeBodyT's label rows are.
+  Branch: fleet 976 green / 51 red row for row with seal 62; jitLadder, printPop PASSED; decodePop echo only; ddPop 5/1;
+  frontier row for row.
+
+FOR TONY: buy or decline stroke12e. Then 1.2f (label; the callBracket retires whole) by a fresh dispatch.
+
+  END SEQ 199
