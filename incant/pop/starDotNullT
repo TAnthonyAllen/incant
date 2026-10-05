@@ -1,0 +1,31 @@
+Start();
+include(unitTests);
+include(utilities);
+search reset stack Grokking UnitTests Utilities list;
+
+register(StarDotNullT);
+define
+    sdReq owner result;
+    sdHeld="hv";
+    sdRun code={
+        sdReq.result := sdHeld;
+        blk = sdReq.result;
+        print "SD-1 the temporary spelling reads through -> " *blk:;
+        sdEmpty := *sdReq.result;
+        print "SD-2x the action went on past the refusal":;
+        };
+    ;
+sdRun();
+print "SD-3 the file's next statement runs -> 1":;
+print "STARDOTNULL SENTINEL -- reached the foot":;
+stop();
+
+starDotNullT -- `*x.y` where x holds nothing refuses by name and never crashes (SEQ 301 R0, fixit starDotNull).
+
+With the dot-chain fold the star in `*sdReq.result` binds to sdReq, which is a plain field holding no group, so opDot
+is handed a NULL target. Its non-groupField arm read `target[tag]` with no guard: exit 139 and ZERO output -- born red
+on trunk (measured 2026-10-05). The guard refuses by name ("opDot: the left of this dot holds nothing ..."). A refusal
+ends the activation that raised it (refuse(), THE ONE FUNNEL), so sdRun's tail does not run -- SD-2x is pinned ABSENT,
+and SD-3, the file's next statement, runs, with the sentinel after it. The binding of `*a.b` is NOT reopened (ruled): the spelling that works
+is the temporary, SD-1 -- `blk = req.result;` then `*blk`, which reads hv.
+Same family as nullAccessorDeref (incant/pop/nullAccessT), on the road its guard did not cover.

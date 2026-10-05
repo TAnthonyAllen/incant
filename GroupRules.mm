@@ -7235,8 +7235,13 @@ GroupItem 	*product = 0;
 		// rightIsATag  .text worked only through bear-trap 26's fall-through on a
 		// rightIsATag  data-less node, which handleDot mints deliberately -- but a
 		// rightIsATag  reader should not depend on another site's deliberate accident
+		// nullTarget a star on a field that holds no group yields NULL, and `*x.y` folds the star onto x -- refuse by name, never read through null (starDotNull, SEQ 301)
 		if ( argument->groupBody->registry != ruler->groupFields )
+			{
+			if ( !target )
+				return ::refuse(argument,"opDot: the left of this dot holds nothing -- in `*x.y` the star binds to x, so read through a temporary: `t = x.y;` then `*t`");
 			product = target->get(argument->groupBody->tag);
+			}
 		else {
 			if ( !target )
 				return 0;

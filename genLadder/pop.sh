@@ -643,6 +643,24 @@ _n=$(grep -c "CF-2 an expression after the failed compile runs" "$T/cft")
 if [ "$_n" = "1" ]; then echo "  ok    compileFloorT CF-2 printed once (no body ran while compiling) = $_n"; green=$((green+1))
 else echo "  FAIL  compileFloorT CF-2 printed $_n times, want 1 -- a body ran while it was being compiled"; fail=1; fi
 
+#  ⚠ starDotNullT -- `*x.y` WITH x HOLDING NOTHING REFUSES BY NAME (SEQ 301 R0, fixit starDotNull). Born red on trunk:
+#  exit 139, zero output (opDot's non-groupField arm read target[tag] through null). H7 (guard removed), this fixture
+#  alone under an alarm -> 139 again.
+run1 starDotNullT "$T/sdn"; check "starDotNullT runs" 0 $?
+sentinel "starDotNullT sentinel (no truncation)" "$T/sdn" "STARDOTNULL SENTINEL"
+for _j in "REFUSED result -- opDot: the left of this dot holds nothing" \
+          "SD-1 the temporary spelling reads through ->  hv" \
+          "SD-3 the file's next statement runs -> 1"; do
+    if grep -qF "$_j" "$T/sdn"; then
+        echo "  ok    starDotNullT ${_j} -- PINNED BY VALUE"; green=$((green+1))
+    else
+        echo "  FAIL  starDotNullT -- wanted: $_j"; fail=1
+    fi
+done
+_x=$(grep -c "SD-2x" "$T/sdn")
+if [ "$_x" = "0" ]; then echo "  ok    starDotNullT the refusal ended its activation (SD-2x absent) = $_x"; green=$((green+1))
+else echo "  FAIL  starDotNullT SD-2x printed $_x times -- the action ran on past the refusal"; fail=1; fi
+
 #  ⚠ compileInT -- compileIn, THE KANT COMPILE (SEQ 299). Born red on trunk (no compileIn there). CI-1 must print
 #  ONCE: a second means a body ran while it was compiled (H7: compileIn's floor unmarked). CI-H is R1's fixture: a
 #  drive pushed inside a compile reads processingCodE 0, a rule fired by the compile reads 1, in that order.
