@@ -3143,8 +3143,11 @@ done
 echo "  ..    loopVerdict parseLoop verdicts witnessed = $_lvt, of them DISAGREE = $_lvd"
 if [ "$_lvt" -gt 0 ]; then echo "  ok    loopVerdict anti-vacuity: $_lvt verdicts witnessed"; green=$((green+1))
 else echo "  FAIL  loopVerdict anti-vacuity: no LOOPVERDICT lines -- the instrument saw nothing"; fail=1; fi
-if [ "$_lvd" -gt 0 ]; then echo "  ok    loopVerdict positive control: $_lvd stale-flag short runs witnessed -- the count, not the flag, decided each"; green=$((green+1))
-else echo "  FAIL  loopVerdict positive control: DISAGREE = 0 -- is sukcess still in parseRule's bracket (F-121)?"; fail=1; fi
+#  RETIRED BY MAPPING 2026-10-05 (stroke 1.2d, SEQ 302): "loopVerdict positive control: DISAGREE > 0". Its subject was
+#  the success flag on the term face's stuff, printed beside parseLoop's count; RuleStuff.sukcess is gone, so a stale
+#  flag cannot exist and LOOPVERDICT prints the count against min only. DISAGREE read 93 on trunk at seal 60 and cannot
+#  be printed now. What the row argued -- the COUNT decides parseLoop's verdict -- is carried by the anti-vacuity row
+#  above (313 verdicts witnessed, unchanged) and by the value rows on the same drives (nestNatT, unaryNatT), green.
 
 #  ---- probeDoorT: THE NATIVE JITTED DRIVE'S CONTROL (Tony, 2026-09-24) ----
 #  probeDrive wraps jitProbeDrive so a jitted drive runs from incant; the lldb probe is for debugging only. Pairs

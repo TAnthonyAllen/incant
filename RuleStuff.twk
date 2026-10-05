@@ -28,7 +28,6 @@ boolean
     notifyFail
     overTo:2[upTo upToOver]
     ruleTerm
-    sukcess
     ;
 
 // RuleStuff constructors -- min and max start at 1; the TraiT action may overwrite them
@@ -45,7 +44,6 @@ RuleStuff(RuleStuff r)
 {
     *this = *r;
     label   = null;
-    sukcess = 0;
 }
 
 // checkGuard true when the rule is unguarded or the input character is in its guardSet
@@ -100,17 +98,17 @@ GroupItem   lab = reuse;
 int checkInput(GroupItem field, int guardPassed)
 {
 String      inAt = inputAt();
-    if !inAt    goto checkFailed;
+int         inOK = 0;
+    if !inAt    return 0;
     // hereAtFirst set BEFORE the end-of-input exit -- a term failing at end of input is rewound to hereAt, and an unset one wrote a null mark (convLeakT)
     hereAt  = inAt;
-    if !*inAt   goto checkFailed;
-    // the rule guard, if there is one
-    if guardPassed  sukcess = true;
-    or checkGuard(field)    sukcess = true;
+    if !*inAt   return 0;
+    // verdictReturned the guard's verdict is RETURNED, never stored -- sukcess left RuleStuff in 1.2d (SEQ 302)
+    if guardPassed  inOK = true;
+    or checkGuard(field)    inOK = true;
     // the label
-    if sukcess  label = mintLabel(field,label);
-checkFailed:
-    return sukcess;
+    if inOK  label = mintLabel(field,label);
+    return inOK;
 }
 
 // getWhatFollows sets the RuleStuff fields once, lazily, the first time a rule is needed

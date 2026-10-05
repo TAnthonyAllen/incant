@@ -481,7 +481,7 @@ extern "C" GroupItem *measureLabelMint(GroupItem *field, GroupItem *myLabel, Gro
 	return field;
 }
 
-// measureLoopVerdict witness: at parseLoop's verdict (its only exit, so INCANT_COUNT_LOOPS's LOOPENTRY line counts entries), the success flag beside the count -- DISAGREE is the only case the removed flag read would have decided (a stale flag, count short of min); parseTrace-gated, pinned at 0
+// measureLoopVerdict witness: at parseLoop's verdict (its only exit, so INCANT_COUNT_LOOPS's LOOPENTRY line counts entries), the count against min -- the success flag it printed beside the count left with RuleStuff.sukcess (1.2d, SEQ 302); parseTrace-gated
 extern "C" GroupItem *measureLoopVerdict(GroupItem *field, int timesMatched)
 {
 	
@@ -490,8 +490,7 @@ extern "C" GroupItem *measureLoopVerdict(GroupItem *field, int timesMatched)
 	if ( GroupControl::groupController->groupRules->parseTrace && field && field->rStuff )
 	{
 	RuleStuff *st = field->rStuff;
-	::fprintf(stderr,"  LOOPVERDICT rule=%s flag=%d kount=%d min=%d %s\n",field->groupBody->tag,
-	(int)st->sukcess,timesMatched,st->min,(st->sukcess && timesMatched < st->min) ? "DISAGREE" : "agree");
+	::fprintf(stderr,"  LOOPVERDICT rule=%s kount=%d min=%d\n",field->groupBody->tag,timesMatched,st->min);
 	}
 	
 	return 0;
@@ -543,12 +542,12 @@ extern "C" GroupItem *measureMarkPoint(char *where)
 	return 0;
 }
 
-// measureOldFireFlag witness: an OLD-road activation's own success flag right after its action fired -- the flag a nested new-road drive used to overwrite (F-121). parseTrace-gated, reads only
-extern "C" GroupItem *measureOldFireFlag(GroupItem *field, RuleStuff *stuff)
+// measureOldFireFlag witness: an OLD-road activation's own verdict right after its action fired, handed in -- a local since 1.2d, so no nested drive can overwrite it (F-121). parseTrace-gated, reads only
+extern "C" GroupItem *measureOldFireFlag(GroupItem *field, int callOK)
 {
 	
-	if ( GroupControl::groupController->groupRules->parseTrace && field && stuff )
-	::fprintf(stderr,"  OLDFIREFLAG rule=%s sukcess=%d\n",field->groupBody->tag,(int)stuff->sukcess);
+	if ( GroupControl::groupController->groupRules->parseTrace && field )
+	::fprintf(stderr,"  OLDFIREFLAG rule=%s sukcess=%d\n",field->groupBody->tag,callOK);
 	
 	return 0;
 }
