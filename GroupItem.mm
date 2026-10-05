@@ -391,9 +391,10 @@ GroupItem 	*dest = into;
 	if ( !lab || lab == ruler->labelNO )
 		return;
 	// intoArgument with no parent stuff the destination is the caller's into and the name is this term's own (parseR, stroke 1.1 site 2)
+	// parentRecord the parent's label is its RECORD's, the nearest live record over its stuff (1.2f, SEQ 306)
 	if ( pStuff )
 		{
-		dest = pStuff->label;
+		dest = ::recordLabel(pStuff);
 		destName = pStuff->ruleName;
 		}
 	else
@@ -410,7 +411,7 @@ GroupItem 	*dest = into;
 	if ( (promote || !dest) && stuff->isTarget )
 		{
 		if ( pStuff )
-			pStuff->label = lab;
+			::parkInRecord(pStuff,lab);
 		// ownedRetag rename only a node this parse owns -- a minted label, or a fresh node nobody else holds; never a shared sentinel, a registry member or a live field (F-134)
 		if ( lab->labelOf || (!lab->groupBody->registry && !lab->parent) )
 			lab->groupBody->tag = destName;
@@ -427,10 +428,12 @@ GroupItem 	*dest = into;
 		
 		if ( GroupControl::groupController->groupRules->parseTrace )
 		{
-		const char *pName  = pStuff->ruleName ? pStuff->ruleName : "(none)";
-		RuleStuff *lp = ::enclosingStuff(this,stuff);
-		const char *ppName = (lp && lp->ruleName) ? lp->ruleName : "(none)";
-		const char *ppLab  = (lp && lp->label) ? lp->label->groupBody->tag : "(null)";
+		const char *pName  = (pStuff && pStuff->ruleName) ? pStuff->ruleName : "(none)";
+		ParseActivation *lr = GroupControl::groupController->groupRules->gParseActive;
+		if ( lr && lr->face == this && lr->stuff == stuff ) lr = lr->prev;
+		if ( lr && lr->isFloor ) lr = 0;
+		const char *ppName = (lr && lr->stuff && lr->stuff->ruleName) ? lr->stuff->ruleName : "(none)";
+		const char *ppLab  = (lr && lr->label) ? lr->label->groupBody->tag : "(null)";
 		::fprintf(stderr,"    IA2 DROP  lab=%s  pRule=%s  listParent=%s lp.label=%s\n",
 		lab->groupBody->tag,pName,ppName,ppLab);
 		}
@@ -1706,6 +1709,9 @@ continueHere:
 		// callHereLocal this call's start mark is a local, handed to checkInput, the fire and the failure rewind (1.2e, SEQ 303)
 		callHere = ruleStuff->inputAt();
 		callOK = ruleStuff->checkInput(this,guardPassed,callHere);
+		// ownRecord this call's label is minted into its own record -- RuleStuff.label retired in 1.2f (SEQ 306)
+		if ( callOK )
+			oldActive.label = ruleStuff->mintLabel(this);
 		if ( !callOK )
 			goto matchFailed;
 		// guardHandoff testOptions' passed guard is an ARGUMENT, spent by the first checkInput that reaches it -- one that fails before the guard (end of input) keeps it for the retry, as the rStuff flag did (stroke 1.1 site 1)
@@ -1737,14 +1743,14 @@ continueHere:
 		/*******************************************************************
 		Success. Fire label method if there is one.
 		*******************************************************************/
-		// oldRoadWriteBack the old road keeps its label and hereAt on its stuff until 1.2e-f; its verdict is the local callOK (1.2d) -- a null back from a non-null label is the action failing, as before (SEQ 301)
-		 { GroupItem *firedLab = this->fireLabelMethod(ruleStuff, ruleStuff->label, callHere); if ( ruleStuff->label && !firedLab ) callOK = 0; ruleStuff->label = firedLab; } 
+		// oldRoadWriteBack the old road's label is its own record's (1.2f) and its verdict the local callOK (1.2d) -- a null back from a non-null label is the action failing, as before (SEQ 301)
+		 { GroupItem *firedLab = this->fireLabelMethod(ruleStuff, oldActive.label, callHere); if ( oldActive.label && !firedLab ) callOK = 0; oldActive.label = firedLab; } 
 		// oldFireFlag the flag this activation reads next -- a nested new-road drive used to overwrite it (F-121)
 		 ::measureOldFireFlag(this,callOK); 
 		if ( callOK )
 			{
 			repeatCount++;
-			attachLabel(ruleStuff,pStuff,1,into,ruleStuff->label);
+			attachLabel(ruleStuff,pStuff,1,into,oldActive.label);
 			}
 		else	break;
 		}
@@ -1775,21 +1781,20 @@ debugHere:
 			if ( oldActive.prev && oldActive.prev->isFloor )
 				oldActive.prev->failPoint = ruler->atRuleMark;
 			ruler->atRuleMark = callHere;
-			if ( ruleStuff->label )
-				ruleStuff->label = 0;
+			oldActive.label = 0;
 			}
 		}
 generatedExit:
 	// nodeInHand this, never RuleStuff.owner -- getStuff makes them one node (stroke 5.2)
 	if ( !callOK && ruleStuff->notifyFail )
 		::aCTionFailed(this,ownPoint);
-	if ( callOK && !ruleStuff->label )
-		ruleStuff->label = ruler->labelNO;
+	if ( callOK && !oldActive.label )
+		oldActive.label = ruler->labelNO;
 	ruleStuff->inProcess = 0;
 	ruler->gParseActive = oldActive.prev;
 	// returnSeat what this call hands back -- a standing callout (SEQ 306 R0)
-	 ::measureParseReturn(this,ruleStuff->label); 
-	return ruleStuff->label;
+	 ::measureParseReturn(this,oldActive.label); 
+	return oldActive.label;
 }
 
 /***************************************************************************

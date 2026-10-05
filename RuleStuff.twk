@@ -5,8 +5,7 @@ include groupIncludes
 class RuleStuff
 {
 String      ruleName;       // for debugging
-GroupItem   label,
-            onGroup;
+GroupItem   onGroup;
 int         max,
             maxRepeat,
             min;
@@ -42,7 +41,6 @@ RuleStuff(GroupItem grup)
 RuleStuff(RuleStuff r)
 {
     *this = *r;
-    label   = null;
 }
 
 // checkGuard true when the rule is unguarded or the input character is in its guardSet
@@ -72,23 +70,22 @@ GroupRules  ruler = groupRules;
     return atRuleMark;
 }
 
-// mintLabel the label of a term that passed its guard, or null for noLabel and a members rule; a recycled fLAG label is reused (SEQ 301, 1.2c)
-GroupItem mintLabel(GroupItem field, GroupItem reuse)
+// mintLabel the label of a term that passed its guard, or null for noLabel and a members rule -- always a FRESH mint: the fLAG recycle ended with 1.2f, an allocation saving and no more (SEQ 306 R1)
+GroupItem mintLabel(GroupItem field)
 {
-GroupItem   lab = reuse;
+GroupItem   lab;
     if noLabel || (field.hasMembers && !field.binType)   return null;
-    if !lab || !lab.fLAG {
-        lab             = new(field.tag);
-        lab.isLabel     = true;
-        // labelOf the rule this label was minted for -- written here once, never rewritten (stroke 5.6a)
-        lab.labelOf     = field; }
-    else lab.fLAG       = false;
+    lab             = new(field.tag);
+    lab.isLabel     = true;
+    // labelOf the rule this label was minted for -- written here once, never rewritten (stroke 5.6a)
+    lab.labelOf     = field;
     if !lab.rStuff || ruleName ne field.tag  lab.setRStuff(this);
     // enclosingActivation
     if field.hasNewParse && field.isMember {
         // driveRoot a generated DRIVE ROOT parks its label on the drive floor, where driveStep reads it
+        // parentRecord otherwise the parent's RECORD takes it when one is live; with none, nothing reads it and it is dropped (1.2f, SEQ 306 R1)
         if !driveFloorLabel(this,lab) {
-            if field.parent && field.parent.rStuff  field.parent.rStuff.label = lab;
+            if field.parent && field.parent.rStuff  parkInRecord(field.parent.rStuff,lab);
             else    refuse(field,"checkInput: no enclosing activation to take the label"); } }
     return lab;
 }
@@ -103,8 +100,7 @@ int         inOK = 0;
     // verdictReturned the guard's verdict is RETURNED, never stored -- sukcess left RuleStuff in 1.2d (SEQ 302)
     if guardPassed  inOK = true;
     or checkGuard(field)    inOK = true;
-    // the label
-    if inOK  label = mintLabel(field,label);
+    // labelByCaller the caller mints into its OWN record -- RuleStuff.label retired in 1.2f (SEQ 306)
     return inOK;
 }
 
@@ -178,7 +174,8 @@ String      testAt = atRuleMark;
         if counter && counter >= min {
             // testAtIsHereAt parse() calls a leaf test right after checkInput with nothing moving the input between, so the entry mark IS the start mark (1.2e, SEQ 303)
             if noAdvance    atRuleMark = testAt;
-            if label        label.setToken(testAt,counter);
+            // topRecord the label is the calling parse()'s record, on top of the list (1.2f, SEQ 306)
+            if ruler.gParseActive.label     ruler.gParseActive.label.setToken(testAt,counter);
             return true; }}
     return  false;-
 
@@ -189,10 +186,11 @@ extern int testAction(GroupItem field)
     if hasNewParse && rStuff && parseMethod
         if parseMethod(field)   return true;
         else                    return false;
+    // topRecord the label is the calling parse()'s record (1.2f, SEQ 306)
     if actionMethod
-        if parseACTION || !label
+        if parseACTION || !groupRules.gParseActive.label
             if actionMethod(field)      return true;
-        or label && actionMethod(label) return true;
+        or groupRules.gParseActive.label && actionMethod(groupRules.gParseActive.label)   return true;
     else    cerr "testAction: " tag "has no actionMethod":;
     return  false;
 }
@@ -251,7 +249,8 @@ Buffer      buffer  = stringBUFFER;
     while advance = length() {
         if grup = get(string()) {
             if !noAdvance   atRuleMark += advance;
-            if label        label.group = grup;
+            // topRecord the calling parse()'s record (1.2f, SEQ 306)
+            if ruler.gParseActive.label     ruler.gParseActive.label.group = grup;
             return true; }
         shorten(1); }
     return false;
@@ -286,7 +285,8 @@ String      matchedString = field.matches(atRuleMark);
     if matchedString {
         // testAtIsHereAt the entry mark is the start mark, as testMacro's (1.2e, SEQ 303)
         if noAdvance    atRuleMark = testAt;
-        if label        label.text = matchedString;
+        // topRecord the calling parse()'s record (1.2f, SEQ 306)
+        if ruler.gParseActive.label     ruler.gParseActive.label.text = matchedString;
         return true; }
     return false;
 }
@@ -294,8 +294,8 @@ String      matchedString = field.matches(atRuleMark);
 // testUpTo capture input up to (or over) the terminator: the rule's set, its string, or a comma
 extern int testUpTo(GroupItem field)
 {
-    // oldRoadLabel the old road's label is on its stuff until 1.2f; a new-road leaf hands its own to upToMatch (SEQ 301)
-    if field.rStuff     return upToMatch(field,field.rStuff.label);
+    // topRecord the old road's label is the calling parse()'s record (1.2f); a new-road leaf hands its own to upToMatch (SEQ 301)
+    if groupRules.gParseActive  return upToMatch(field,groupRules.gParseActive.label);
     return upToMatch(field,null);
 }
 

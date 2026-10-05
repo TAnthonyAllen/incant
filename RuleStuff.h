@@ -5,7 +5,6 @@ class RuleStuff
 {
 public:
 char *ruleName;
-GroupItem *label;
 GroupItem *onGroup;
 int max;
 int maxRepeat;
@@ -37,7 +36,7 @@ int checkGuard(GroupItem *field);
 int checkInput(GroupItem *field, int guardPassed, char *inAt);
 void getWhatFollows(GroupItem *field);
 char *inputAt();
-GroupItem *mintLabel(GroupItem *field, GroupItem *reuse);
+GroupItem *mintLabel(GroupItem *field);
 void setTestMatch(GroupItem *field);
 };
 extern "C" GroupItem *parseR(GroupItem *term, GroupItem *into);
