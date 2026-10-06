@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 212 at the FOOT -- ruleName stroke STOPPED at R2's mintLabel re-measure (5,264 disagreements, all SetBrackets/DatA), NOTHING BUILT; 1.3 waits; seal 79
+STATUS:   fresh           # SEQ 213 at the FOOT -- ruleName stroke BUILT on stroke-ruleName (cc0dc97), NOT MERGED; seal 80
+# prior: SEQ 212 at the FOOT -- ruleName stroke STOPPED at R2's mintLabel re-measure (5,264 disagreements, all SetBrackets/DatA), NOTHING BUILT; 1.3 waits; seal 79
 # prior: SEQ 211 at the FOOT -- R2a: ruleName == the owning rule's tag at every retag read (0 of 2,095,156 differ); the retag respell is a small stroke ahead of 1.4; seal 78
 # prior: SEQ 210 at the FOOT -- containers recon STEP 3 of 3 (against 1.3/1.4) reported; R0 recorded (rStuff out of scope, HPDL); seal 77
 # prior: SEQ 209 at the FOOT -- containers recon STEP 2 of 3 (rStuff in a containers shape) reported, docs/containersRecon.md; seal 76
@@ -11677,3 +11678,32 @@ DIRECTIVE SWEEP (groupDirectives; incant/directives has none): 15 reads of ruleN
 BRANCH stroke-ruleName created in both repos and deleted unused (no commit).
 
   END SEQ 212
+
+SEQ 213  -  RULENAME STROKE BUILT ON stroke-ruleName (Groups cc0dc97; support untouched -- no layout change), NOT MERGED.
+
+R1 (SEQ 212 rulings) done: three engine reads ask the rule, never ruleName; the field stays for Xcode.
+  attachLabel    walks the records itself (recordLabel's nearest-match search) so it holds the face: destName =
+                 destRec.face.tag. recordLabel has no caller left -> cleanupList (kept, so the canary did not move).
+  exitFromParse  cLab.tag = cFace.tag.
+  mintLabel      `if !lab.rStuff || field.rStuff != this` -- this stuff's rule IS field (1,527,441 of 1,527,441), so a
+                 tag compare would compare field.tag with itself; the identity test asks field for its stuff instead.
+                 ⚠ The ruling stands, the spelling is mine: "compares the rule's tag" became a stuff-identity test. Refuse
+                 at the buy if a tag compare was meant.
+R2: ARRIVED UNFILLED ("[Tony's choice: names the source rule, with a one-line comment / follows the copy's tag]") -- so
+  NOT acted on. A copy's ruleName still names its source rule, with no comment added. Tony's to fill.
+CERTIFICATE:
+  - full bare tokall: GroupItem.mm, GroupRules.mm, RuleStuff.mm moved; every line read. ONE CAPTURE, caught by the diff
+    (bear-trap #58): the ParseActivation local destRec re-aimed attachLabel's bare labelNO and parseTrace; `use ruler`
+    after the declaration cures both, re-diffed clean. Canary 307 -> 307.
+  - pop.sh 987 / 51 row for row · jitLadder PASSED · printPop PASSED · decodePop and frontier row for row · ddPop 5 / 1 ·
+    dirCheck PASSED row for row (49 of 52).
+  - remaining ruleName reads in generated code: attachLabel's parseTrace-gated IA2 DROP print (debug) and the ctor writes.
+    groupDirectives: 15 reads, all Tony's debug cerr (91, 96, 104, 108, 116, 123, 130, 137, 144, 151, 158, 251, 260, 273, 277).
+  - H7 (committed first): BOTH retags handed the child's own tag -> setup crashes, every fixture 139 (red by crash). So
+    narrowed to exitFromParse alone (field.tag for cFace.tag): treeRowT RED BY VALUE at exit 0 -- "the trees DIVERGE:
+    old ScafALT, new ScafA / ScafI" -- plus ~115 rows red by 139. Restored from the commit: md5-identical, 987 / 51 same reds.
+  - CONTEXT (SEQ 212 R1): mintLabel's ruleName differed from field.tag 5,264 times, all ruleName=SetBrackets on a node
+    tagged DatA -- TraiTdata's new(DatA) copy carries the whole RuleStuff. The operand was never evaluated; no answer moved.
+NEXT: Tony buys or refuses stroke-ruleName; on the buy, stroke 1.3 runs as dispatched (its R1 is met).
+
+  END SEQ 213
