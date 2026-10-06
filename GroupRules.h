@@ -180,7 +180,6 @@ extern "C" GroupItem *handleDot(GroupItem *xpress, GroupItem *unary, GroupItem *
 extern "C" GroupItem *handleSubscript(GroupItem *xpress, GroupItem *unary, GroupItem *ANYtoken, GroupItem *InvokeArg);
 extern "C" GroupItem *handleUnary(GroupItem *xpress, GroupItem *unary, GroupItem *ANYtoken);
 extern "C" int hasRepeatClass(char *modifier);
-extern "C" void installParseMethod(GroupItem *field);
 extern "C" GroupItem *interpretXP(GroupItem *xpList);
 extern "C" int isDotUxp(GroupItem *node);
 extern "C" GroupItem *jitAccessorNodeRT(GroupItem *source, GroupItem *product);

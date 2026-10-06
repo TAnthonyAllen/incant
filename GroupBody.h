@@ -105,6 +105,9 @@ union
 	GroupItem *(*gOp)(GroupItem *, GroupItem *);
 	};
 GroupItem *(*gJitEmitter)(GroupItem *, GroupItem *);
+int (*gTestMatch)(GroupItem *);
+GroupItem *(*gParseMethod)(GroupItem *);
+int (*gJitMethod)(GroupItem *);
 union 
 	{
 	char *gText;

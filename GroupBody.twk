@@ -23,6 +23,10 @@ union
     because the emitter fork is one call site and an arity split there would
     reintroduce the dispatch anatomy the jit does not inherit.  */
 GroupItem       &gJitEmitter(GroupItem,GroupItem);
+// ruleFacts the rule's tests and methods live on the SHARED body: one answer for the rule and every instance (stroke 1.4) -- a reference's { } is an instance fact, asked first at the read
+int             &gTestMatch(GroupItem);
+GroupItem       &gParseMethod(GroupItem);
+int             &gJitMethod(GroupItem);
 union
     String          gText;
     void            *gPointer;

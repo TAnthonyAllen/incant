@@ -1,7 +1,7 @@
 
 include groupIncludes
 
-// fields RuleStuff is the per-node parse state; parseMethod and jitMethod are LAYOUT -- widening either is groups.ext + tokall (bear-trap #10)
+// fields RuleStuff is the per-node parse state -- instance facts only; the rule's testMatch, parseMethod and jitMethod are groupBody slots since stroke 1.4
 class RuleStuff
 {
 String      ruleName;       // sourceRuleByIntent a debugging aid only, which rule this RuleStuff refers to -- on a copy it names the SOURCE rule, by intent; no engine code reads it, do not "fix" it
@@ -9,9 +9,6 @@ GroupItem   onGroup;
 int         max,
             maxRepeat,
             min;
-int         &testMatch(GroupItem);
-GroupItem   &parseMethod(GroupItem);
-int         &jitMethod(GroupItem);
 boolean
     followed
     isTarget
@@ -115,28 +112,27 @@ use field
     or isEmbedded {
         if (data && data < 4) || max == 1 isTarget = true; }
     // promotionRetired the parent-min promotion is RETIRED -- do not reintroduce it; an optional term must not make its whole rule optional
-    if !testMatch   setTestMatch(field);
+    if !field.testMatch   setTestMatch(field);
 }
 
-// setTestMatch picks the old road's test for this rule's shape
+// setTestMatch picks the old road's test for this RULE's shape, on the shared body -- a reference's { } is an instance fact, asked first by parse() (stroke 1.4)
 void setTestMatch(GroupItem field)
 {
 use field
-    if upTo || upToOver     testMatch = testUpTo;
-    or isBIN || isREGISTRY  testMatch = testContainer;
+    if isBIN || isREGISTRY  field.testMatch = testContainer;
     or data
         switch(data)
             {
-            case isANY:     testMatch = testAny;
-            case isCHAR:    testMatch = testCharacter;
-            case isSET:     testMatch = testSet;
-            case isGROUP:   testMatch = null;
-            default:        testMatch = testString;
+            case isANY:     field.testMatch = testAny;
+            case isCHAR:    field.testMatch = testCharacter;
+            case isSET:     field.testMatch = testSet;
+            case isGROUP:   field.testMatch = null;
+            default:        field.testMatch = testString;
             }
-    or isCondition          testMatch = testCondition;
-    or parseACTION          testMatch = testAction;
+    or isCondition          field.testMatch = testCondition;
+    or parseACTION          field.testMatch = testAction;
     or !contents()
-        if !isMethod        testMatch = testString;
+        if !isMethod        field.testMatch = testString;
 }
 }
 
@@ -182,8 +178,9 @@ String      testAt = atRuleMark;
 extern int testAction(GroupItem field)
 {
     // installedIsTheParse an installed rule runs its LEAF; hasNewParse is copied and rStuff is not, so the guard asks both
-    if hasNewParse && rStuff && parseMethod
-        if parseMethod(field)   return true;
+    // ruleFactsOnBody rStuff stays in the guard so a copyOf twin (body copied, rStuff not) declines as it did before stroke 1.4
+    if hasNewParse && rStuff && field.parseMethod
+        if field.parseMethod(field)   return true;
         else                    return false;
     // topRecord the label is the calling parse()'s record (1.2f, SEQ 306)
     // askTheActor the action is the rule's builtinActoR -- the RuleStuff cache retired (SEQ 205 R3)

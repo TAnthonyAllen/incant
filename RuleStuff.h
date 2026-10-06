@@ -1,5 +1,5 @@
 class GroupItem;
-// fields RuleStuff is the per-node parse state; parseMethod and jitMethod are LAYOUT -- widening either is groups.ext + tokall (bear-trap #10)
+// fields RuleStuff is the per-node parse state -- instance facts only; the rule's testMatch, parseMethod and jitMethod are groupBody slots since stroke 1.4
 
 class RuleStuff
 {
@@ -9,9 +9,6 @@ GroupItem *onGroup;
 int max;
 int maxRepeat;
 int min;
-int (*testMatch)(GroupItem *);
-GroupItem *(*parseMethod)(GroupItem *);
-int (*jitMethod)(GroupItem *);
 struct 
 	{
 	unsigned int followed:1;
