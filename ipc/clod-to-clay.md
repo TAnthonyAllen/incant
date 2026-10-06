@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 211 at the FOOT -- R2a: ruleName == the owning rule's tag at every retag read (0 of 2,095,156 differ); the retag respell is a small stroke ahead of 1.4; seal 78
+STATUS:   fresh           # SEQ 212 at the FOOT -- ruleName stroke STOPPED at R2's mintLabel re-measure (5,264 disagreements, all SetBrackets/DatA), NOTHING BUILT; 1.3 waits; seal 79
+# prior: SEQ 211 at the FOOT -- R2a: ruleName == the owning rule's tag at every retag read (0 of 2,095,156 differ); the retag respell is a small stroke ahead of 1.4; seal 78
 # prior: SEQ 210 at the FOOT -- containers recon STEP 3 of 3 (against 1.3/1.4) reported; R0 recorded (rStuff out of scope, HPDL); seal 77
 # prior: SEQ 209 at the FOOT -- containers recon STEP 2 of 3 (rStuff in a containers shape) reported, docs/containersRecon.md; seal 76
 # prior: SEQ 208 at the FOOT -- containers recon STEP 1b: 60 unclear classified, positional reads measured (none cross kinds in the instruction layout), copyListTo cannot make a property a member; seal 75
@@ -11645,3 +11646,34 @@ NOT built. Named, not measured: mintLabel's `ruleName ne field.tag` (RuleStuff.t
 non-debug read -- an identity test.
 
   END SEQ 211
+
+SEQ 212  -  RULENAME STROKE: STOPPED AT R2's mintLabel RE-MEASURE. NOTHING BUILT. 1.3 WAITS (its R1 needs this stroke's buy).
+
+THE RE-MEASURE (tap on mintLabel's identity read, reverted md5-identical; fleet after 987 / 51; pop, jitLadder, printPop,
+decodePop, ddPop, frontier):
+  calls                          1,527,441
+  stuff is field's own rStuff    1,527,441 (0 otherwise) -- so "the rule's tag" here is field.tag
+  operand REACHED by the engine          0 -- `!lab.rStuff` is always true on a fresh mint (lab = new(field.tag) never
+                                            carries an rStuff), so `ruleName ne field.tag` is never evaluated today
+  ruleName == field.tag          1,522,177
+  ruleName != field.tag              5,264 -- ALL one shape: ruleName=SetBrackets, field tag DatA (first 20 per process
+                                            listed: 3,120 lines, every one this pair)
+  H16: a forced flip at the first read shows exactly 1 disagreement (oneTest: 4,590 / 1).
+
+WHAT THE DISAGREEMENT IS (read, not measured further): TraiTdata's `DatA = new(DatA)` copies the term reference, and the
+  copy constructor copies the whole RuleStuff -- ruleName included -- from the source (a SetBrackets reference) onto a node
+  tagged DatA. So ruleName goes STALE on copies: the debug aid names the source rule, not the node. Same nodes as SEQ 205's
+  site-5 rows (aCTionSetBrackets inherited by DatA copies).
+
+FOR TONY:
+  Q1. Proceed anyway? The read the respell targets is never reached today, so respelling it to field.tag changes no
+      engine answer -- but the disagreement exists, and the dispatch made any disagreement a STOP.
+  Q2. ruleName on copies: R1 makes ruleName Xcode-only. On a copy it names the SOURCE rule (DatA showing SetBrackets).
+      Is that the glance you want, or should a copy's ruleName follow its tag? Not a fix proposal; a question about the aid.
+  attachLabel and exitFromParse were measured equal at SEQ 211 (0 of 2,095,156) and are unaffected; nothing was built for
+  them either, since R2 is one stroke.
+DIRECTIVE SWEEP (groupDirectives; incant/directives has none): 15 reads of ruleName, ALL Tony's debug cerr lines
+  (91, 96, 104, 108, 116, 123, 130, 137, 144, 151, 158, 251, 260, 273, 277). Fine as they are.
+BRANCH stroke-ruleName created in both repos and deleted unused (no commit).
+
+  END SEQ 212
