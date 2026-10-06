@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 215 at the FOOT -- stroke13 MERGED (fe28272 / 2afacca); stroke 1.4 STOPPED at its recon (testMatch is per-instance on rightBrace; ruleOf keeps identity readers), NOTHING BUILT; seal 82
+STATUS:   fresh           # SEQ 216 at the FOOT -- stroke 1.4 BUILT on stroke14 (eb42886 / support 1329789), NOT MERGED; on the buy, redesign step 1 is complete; seal 83
+# prior: SEQ 215 at the FOOT -- stroke13 MERGED (fe28272 / 2afacca); stroke 1.4 STOPPED at its recon (testMatch is per-instance on rightBrace; ruleOf keeps identity readers), NOTHING BUILT; seal 82
 # prior: SEQ 214 at the FOOT -- stroke-ruleName MERGED (990f04f) + R2 slug (4b23e99); stroke 1.3 BUILT on stroke13 (b392611 / support 217656b), NOT MERGED; seal 81
 # prior: SEQ 213 at the FOOT -- ruleName stroke BUILT on stroke-ruleName (cc0dc97), NOT MERGED; seal 80
 # prior: SEQ 212 at the FOOT -- ruleName stroke STOPPED at R2's mintLabel re-measure (5,264 disagreements, all SetBrackets/DatA), NOTHING BUILT; 1.3 waits; seal 79
@@ -11784,3 +11785,36 @@ FOR TONY:
 BRANCH stroke14 created and deleted unused (no commit).
 
   END SEQ 215
+
+SEQ 216  -  STROKE 1.4 BUILT ON stroke14 (Groups eb42886, support 1329789), NOT MERGED. FOR THE BUY.
+            On the buy: REDESIGN STEP 1 IS COMPLETE (A5) -- 1.1, 1.2, 1.3, 1.4.
+
+WHAT MOVED (R1-R4 on SEQ 215):
+  GroupBody gains gTestMatch, gParseMethod, gJitMethod (aliased testMatch / parseMethod / jitMethod); RuleStuff loses them;
+  groups.ext both. Every read/write names its receiver (R4).
+  testMatch SPLIT (R1): parse() asks ruleStuff.overTo first (testUpTo), then the body's test; setTestMatch writes the body,
+    upTo arm gone. The SEQ 215 tap had already shown the upTo arm was the only one making instances differ.
+  parseMethod: setParseWalk writes the body; runLeafParse, repeatsInLoop, testAction (rStuff guard kept, so a copyOf twin
+    declines as before) read it; setParseAction writes it. installParseMethod RETIRED (a copy onto the same body).
+  jitMethod: jitFieldMethod reads/stores the body slot; the definer stays (node uses). ruleOf and instanceRule() stay (R3);
+    instanceRule()'s callers now: jitFieldMethod, jitShowRecord (+ canonOf, definersOf instruments).
+R2, the reads that acted on a sibling's null: getWhatFollows' lazy fill (SemI, followedBy, UnaryOPS, leftParen, PRINTing,
+  DEFINing, Modifier, rightParen, leftBrace, rightBrace, while -- same value, now from the body); repeatsInLoop on nameSet
+  and Modifier (null vs parseSet, compared against parseRule -- false either way). In the fleet: the parseClass census
+  (already red) drops ten `PC none` lines -- ExpressioN x2, followedBy, leftBrace, leftCurly, rightBrace, rightCurly, SemI x2,
+  StatemenT -- which now read their body's method; fires=NEVER roster (already red) [ExpressioN StatemenT] -> [], 8 -> 11.
+CERTIFICATE:
+  - full bare tokall, 8 files moved, every line read; no capture. One tok failure on the way (bear-trap #29: a // before an
+    `or` arm in parse()), moved above the chain.
+  - canary 307 -> 306: installParseMethod retired.
+  - pop.sh 987 / 51, same 51 red by name; raw ->rStuff reads (red) 22 -> 15; mirror arity 258 -> 257 (green); ruleOfT RO-8
+    RE-PINNED 4 -> 2 with its sentence.
+  - jitLadder PASSED, line for line with stroke 1.3 (addresses aside) · printPop PASSED · decodePop and frontier row for row ·
+    ddPop 5 / 1 · dirCheck PASSED row for row.
+  - H7 (committed first; single fixtures under an alarm, then the fleet): runLeafParse reads its PARENT's body ->
+    leafLabelT new road reads [] (the five spans wanted), chainTruthT CT1 "search list;" and CT7 "wzNum 0" match=0 want 1,
+    BN-3/BN-4 -- red BY VALUE at exit 0; fleet 879. Restored from the commit: md5-identical, 987 / 51, same reds.
+NEXT: Tony buys or refuses stroke14. On the buy, objectModel A5 records step 1 complete, and Clay's suggested pause and
+  summary before the expression recon.
+
+  END SEQ 216
