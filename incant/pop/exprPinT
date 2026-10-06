@@ -1,0 +1,125 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+register(ExprPinT);
+define
+    qa=2;
+    qb=10;
+    qc=3;
+    qr=0;
+    bgSpec=5;
+    bgBaked=0;
+    applyScale=1;
+    layoutTotal=0;
+    xw=0;
+    y=0;
+    yh=0;
+    across=0;
+    down=0;
+    px=1;
+    pxw=10;
+    pyh=10;
+    py=1;
+    x=0;
+    sa=0;
+    sb=1;
+    sc=1;
+    pz=0;
+    pSrc="{ pz = 7; }";
+    pRoot;
+    hx="xv";
+    hy="yv";
+    hz=1;
+    gLine=0;
+    fId code={ return argument; };
+    fFalse code={ cerr "EP fFalse RAN":; return falseResult; };
+    fTrue code={ cerr "EP fTrue RAN":; return trueResult; };
+    gSay code={ cerr "EP S3-G g RAN":; gLine = 1; return trueResult; };
+    fNest code={ nr = argument * qc + qa; return nr; };
+    tv code={ if argument; cerr "EP " taG " truth 1":; return; cerr "EP " taG " truth 0":; };
+    A1 code={ qr = qa * qb + qc; cerr "EP A1 " qr:; };
+    A2 code={ qr = 2 * 10 + 3; cerr "EP A2 " qr:; };
+    A3 code={ qr = qa - qb + qc; cerr "EP A3 " qr:; };
+    A4 code={ qr = qa + qb - qc; cerr "EP A4 " qr:; };
+    A5 code={ qr = qa / qb + qc; cerr "EP A5 " qr:; };
+    A6 code={ qr = bgSpec * 3 + 2; cerr "EP A6 " qr:; };
+    B1 code={ x = 5; goodToGo = x > px && x < pxw; cerr "EP B1 " goodToGo:; };
+    B2 code={ x = 0; goodToGo = x > px && x < pxw; cerr "EP B2 " goodToGo:; };
+    B3 code={ x = 20; goodToGo = x > px && x < pxw; cerr "EP B3 " goodToGo:; };
+    S1 code={ sa = 0; sb = 1; sc = 1; sr = sa && sb || sc; cerr "EP S1 " sr:; };
+    S2 code={ sa = 0; sb = 1; sc = 0; sr = sa || sb && sc; cerr "EP S2 " sr:; };
+    S3 code={ gLine = 0; sr = fFalse() && gSay(); cerr "EP S3 " sr " gLine " gLine:; };
+    N1 code={ qr = fId(qa + qb) * qc; cerr "EP N1 " qr:; };
+    N2 code={ qr = qa + fNest(qb) + qc; cerr "EP N2 " qr:; };
+    O1 code={ pz = 0; src := pSrc; block := Grokking["BlocK"]; r3 = *block(src); cerr "EP O1 pz " pz " r3 " r3:; };
+    O2 code={ qr = -qa + qb; cerr "EP O2 " qr:; };
+    O3 code={ nr = !fTrue(qa); cerr "EP O3 " nr:; };
+    O3b code={ nr = !fFalse(qa); cerr "EP O3b " nr:; };
+    O4seed code={ pRoot +% new("pMid"); pRoot["pMid"] = 41; };
+    O4 code={ ph := pRoot; qr = *ph.pMid + 1; cerr "EP O4 " qr:; };
+    H1 code={ hz = 1; hz += qa * qb; cerr "EP H1 " hz:; };
+    H2 code={ hw := qa * qb + qc; cerr "EP H2 " hw " star " *hw:; };
+    H3 code={ hx.noPrinT = 0; hy.noPrinT = 1; hx.noPrinT = hy.noPrinT; cerr "EP H3 " hx.noPrinT:; };
+    A7 code={ layoutTotal = 1; bgBaked = 17; applyScale = 3; layoutTotal = layoutTotal + bgBaked * applyScale; cerr "EP A7 " layoutTotal:; };
+    U70 code={ xw = 20; goodToGo = xw > px && xw < pxw; cerr "EP U70 " goodToGo:; };
+    U72 code={ y = 20; goodToGo = y > py && y < pyh; cerr "EP U72 " goodToGo:; };
+    U75 code={ yh = 20; goodToGo = yh > py && yh < pyh; cerr "EP U75 " goodToGo:; };
+    U302a code={ across = 0; down = 5; ur = 0; if across > 0 || down > 0; ur = 1; cerr "EP U302a " ur:; };
+    U302b code={ across = 5; down = 0; ur = 0; if across > 0 || down > 0; ur = 1; cerr "EP U302b " ur:; };
+    U302c code={ across = 0; down = 0; ur = 0; if across > 0 || down > 0; ur = 1; cerr "EP U302c " ur:; };
+    E1 code={ qr = qa > qb + qc; cerr "EP E1 " qr:; };
+    ;
+A1(); A2(); A3(); A4(); A5(); A6(); A7();
+U70(); U72(); U75(); U302a(); U302b(); U302c();
+B1(); B2(); B3();
+S1(); S2(); S3();
+N1(); N2();
+O1(); O2(); O3(); O3b(); O4seed(); O4();
+H1(); H2(); H3();
+E1();
+cerr "EXPRPIN SENTINEL":;
+stop();
+
+What exprPinT Is
+
+The D6 trunk pins and SEQ 310's difficult list, pinned at TODAY's values (2026-10-06,
+seal 85). WRONG TODAY AND EXPECTED TO MOVE under the ruled direction D1-D4
+(docs/expressionRecon.md): left to right, no arithmetic precedence, tiers by split
+(assignment, then && and ||, then comparison, then the arithmetic fold), operands
+finished as prefix-name-postfixes. The pins in genLadder/pop.sh are today's values;
+the INTENDED value rides beside each row there as a comment, never as the pin.
+
+One action per row, so a refusal in one row cannot take another. qa=2 qb=10 qc=3.
+
+Rows, today -> intended:
+  A1  qa * qb + qc                  23 -> 23
+  A2  2 * 10 + 3                    26 -> 23   (KANT-43 split: a number is not absorbed)
+  A3  qa - qb + qc                  -5 -> -5
+  A4  qa + qb - qc                   9 -> 9
+  A5  qa / qb + qc            0.153846 -> 3.2
+  A6  bgSpec * 3 + 2, bgSpec 5      25 -> 17   (jitAttrPop:69, interpreted; JA pins the jit)
+  A7  layoutTotal + bgBaked * applyScale, 1 17 3   52 -> 54   (jitAttrPop:70's shape)
+  U70/U72/U75  utilities:70, 72, 75 at an outside value (20)   1 -> false
+  B1-B3  utilities:67 goodToGo = x > px && x < pxw, px 1 pxw 10
+         x 5: 1 -> true | x 0: tag echo (false) -> false | x 20: 1 -> false
+  U302a/b/c  utilities:302 if across > 0 || down > 0
+         0 5: 0 -> 1 | 5 0: 1 -> 1 | 0 0: 0 -> 0
+  S1  a && b || c, a 0 b 1 c 1       0 -> 1
+  S2  a || b && c, a 0 b 1 c 0       0 -> 0
+  S3  fFalse() && gSay()     g RUNS (gLine 1) -> g must not run
+  N1  fId(qa + qb) * qc              36 -> 36
+  N2  qa + fNest(qb) + qc, fNest computes argument * qc + qa of its own   37 -> 37
+  O1  block := Grokking["BlocK"]; r3 = *block(src), src := "{ pz = 7; }"  (the shape of
+      tester's parseCode)      pz 0, r3 a tag echo -> pz 7
+  O2  -qa + qb                        8 -> 8
+  O3  !fTrue(qa)    fTrue NEVER RUNS, nr a tag echo -> false (null; fTrue runs)
+  O3b !fFalse(qa)   fFalse NEVER RUNS, nr a tag echo -> true
+  O4  *ph.pMid + 1, pMid 41          42 -> 42
+  H1  hz += qa * qb, hz 1            21 -> 21
+  H2  hw := qa * qb + qc             23 -> 23
+  H3  hx.noPrinT = hy.noPrinT (seal 51's shared-tempField case, interpreted)   1 -> 1
+  E1  qa > qb + qc     a tag echo (false) -- the candidate's answer is Tony's to rule
+
+A tag echo is bear-trap 26: a false comparison or opNOT returns null, and = then
+leaves the field with no data, so it prints its own name.

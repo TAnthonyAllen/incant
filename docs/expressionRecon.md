@@ -28,6 +28,30 @@ executor kinds and the instruction layout are not -- they are designed on a try-
 (25 / 75 / 125), whose fixture comment already expects the left-to-right 17; the five utilities comparisons are wrong today
 under either strict direction and come right only with D3's comparison tier.
 
+## Candidates (D5 try-and-buy) -- recorded, nothing built
+
+### C1 -- Tony's accumulator runOP, walked left to right (SEQ 310 R3, Tony 2026-10-06; verbatim from the dispatch)
+
+Tony's runOP from an earlier interpreter, turned to walk left to right. The walk feeds
+runOP one field at a time: the first operand becomes the running value, an op is
+parked, the next operand fires (running op operand) and the result becomes the running
+value. Assignment: `A =` at the head is parked and fires last. && and || decide on the
+running value and reset rather than combine: && false -> skip to the next looser op
+(or the end) with false; true -> start a fresh running value on what follows. || is
+the mirror. Operands arrive finished per D4 (prefix, name, postfixes). The running
+value belongs to the expression being executed, not to a shared field (nesting).
+The exercise: simplified interpretXP and TokenXP feeding a separate runOP, beside
+today's trio behind a switch, run over the difficult list. A design exercise and proof
+of concept; careful coding only on a buy.
+
+**Its measuring stick is on trunk:** `incant/pop/exprPinT`, pinned in `genLadder/pop.sh` at today's values with the
+intended value beside each row (SEQ 310 R1/R2). `a = b = c` is HPDL and not on the list (R4); kant has no parenthetical
+expressions (R5). **Open edge, Tony's to rule:** `qa > qb + qc` -- refuse by name, or the left fold.
+
+**New from the pins (measured 2026-10-06, kant, trunk):** `!f(x)` loses its call the way `*block(code)` does -- neither
+`!fTrue(qa)` nor `!fFalse(qa)` runs its action, and both leave a tag echo (rows O3, O3b, and the RAN count). `fFalse() &&
+gSay()` runs `gSay` (S3). `utilities:302`'s `across > 0 || down > 0` reads 0 for across 0, down 5 (U302a).
+
 ## Step 1 -- what exists, end to end, for one expression
 
 ### 1. `a = b + c;`, interpreted

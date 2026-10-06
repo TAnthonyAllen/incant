@@ -5978,6 +5978,47 @@ for _r in IF DO FOR ExpressioN NamE; do
 done
 kindRow "hasActionT HA SemI control: no actor, no action" "$(_ha SemI)" "0"
 
+#  ⚑ exprPinT -- SEQ 310 R1/R2 (Tony, 2026-10-06): the D6 trunk pins and the difficult list, AT TODAY'S VALUES. WRONG
+#  TODAY AND EXPECTED TO MOVE under D1-D4 (docs/expressionRecon.md). Each row's INTENDED value is the comment beside it,
+#  never the pin. A "tag echo" is the field's own name (bear-trap 26: a false compare or opNOT returns null). jitAttrPop
+#  :69-70 are also pinned on the jit road by jitLadder rung JA (25/75/125); A6/A7 are their shapes, interpreted.
+run2 exprPinT "$T/ept.o" "$T/ept.e"; check "exprPinT runs" 0 $?
+sentinel "exprPinT sentinel" "$T/ept.e" "EXPRPIN SENTINEL"
+_ep () { awk -v k="$1" '$1=="EP" && $2==k {print $3; exit}' "$T/ept.e"; }
+kindRow "exprPinT A1 qa * qb + qc"                         "$(_ep A1)"    "23"        # intended 23
+kindRow "exprPinT A2 2 * 10 + 3 (KANT-43 split)"           "$(_ep A2)"    "26"        # intended 23
+kindRow "exprPinT A3 qa - qb + qc"                         "$(_ep A3)"    "-5"        # intended -5
+kindRow "exprPinT A4 qa + qb - qc"                         "$(_ep A4)"    "9"         # intended 9
+kindRow "exprPinT A5 qa / qb + qc"                         "$(_ep A5)"    "0.153846"  # intended 3.2
+kindRow "exprPinT A6 bgSpec * 3 + 2 (jitAttrPop:69)"       "$(_ep A6)"    "25"        # intended 17
+kindRow "exprPinT A7 lt + bk * sc, 1 17 3 (jitAttrPop:70)" "$(_ep A7)"    "52"        # intended 54
+kindRow "exprPinT U70 xw > px && xw < pxw, xw 20"          "$(_ep U70)"   "1"         # intended false
+kindRow "exprPinT U72 y > py && y < pyh, y 20"             "$(_ep U72)"   "1"         # intended false
+kindRow "exprPinT U75 yh > py && yh < pyh, yh 20"          "$(_ep U75)"   "1"         # intended false
+kindRow "exprPinT B1 utilities:67, x 5"                    "$(_ep B1)"    "1"         # intended true
+kindRow "exprPinT B2 utilities:67, x 0"                    "$(_ep B2)"    "goodToGo"  # intended false
+kindRow "exprPinT B3 utilities:67, x 20"                   "$(_ep B3)"    "1"         # intended false
+kindRow "exprPinT U302a across > 0 || down > 0, 0 5"       "$(_ep U302a)" "0"         # intended 1
+kindRow "exprPinT U302b across > 0 || down > 0, 5 0"       "$(_ep U302b)" "1"         # intended 1
+kindRow "exprPinT U302c across > 0 || down > 0, 0 0"       "$(_ep U302c)" "0"         # intended 0
+kindRow "exprPinT S1 a && b || c, 0 1 1"                   "$(_ep S1)"    "0"         # intended 1
+kindRow "exprPinT S2 a || b && c, 0 1 0"                   "$(_ep S2)"    "0"         # intended 0
+kindRow "exprPinT S3 fFalse() && gSay(): g ran, lines"     "$(grep -c '^EP S3-G g RAN' "$T/ept.e")" "1"  # intended 0
+kindRow "exprPinT S3 value"                                "$(_ep S3)"    "1"         # intended false
+kindRow "exprPinT N1 fId(qa + qb) * qc"                    "$(_ep N1)"    "36"        # intended 36
+kindRow "exprPinT N2 qa + fNest(qb) + qc"                  "$(_ep N2)"    "37"        # intended 37
+kindRow "exprPinT O1 *block(src) -- pz"                    "$(awk '$1=="EP" && $2=="O1" {print $4; exit}' "$T/ept.e")" "0"   # intended 7
+kindRow "exprPinT O1 *block(src) -- r3"                    "$(awk '$1=="EP" && $2=="O1" {print $6; exit}' "$T/ept.e")" "r3"  # intended the BlocK's result
+kindRow "exprPinT O2 -qa + qb"                             "$(_ep O2)"    "8"         # intended 8
+kindRow "exprPinT O3 !fTrue(qa)"                           "$(_ep O3)"    "nr"        # intended false (null), fTrue runs
+kindRow "exprPinT O3b !fFalse(qa)"                         "$(_ep O3b)"   "nr"        # intended true
+kindRow "exprPinT O3 the called action runs, lines"        "$(grep -c '^EP f\(True\|False\) RAN' "$T/ept.e")" "1"  # intended 3 (fFalse from S3 + both O3s)
+kindRow "exprPinT O4 *ph.pMid + 1, pMid 41"                "$(_ep O4)"    "42"        # intended 42
+kindRow "exprPinT H1 hz += qa * qb, hz 1"                  "$(_ep H1)"    "21"        # intended 21
+kindRow "exprPinT H2 hw := qa * qb + qc"                   "$(_ep H2)"    "23"        # intended 23
+kindRow "exprPinT H3 hx.noPrinT = hy.noPrinT"              "$(_ep H3)"    "1"         # intended 1
+kindRow "exprPinT E1 qa > qb + qc (open edge)"             "$(_ep E1)"    "qr"        # intended: Tony's to rule
+
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue
