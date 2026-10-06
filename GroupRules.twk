@@ -13,15 +13,14 @@ external GroupItem
 *******************************************************************************/
 class GroupRules
 {
-    // parseActivation the new road's activation list, WHO IS ACTIVE ABOVE -- one record per call, on the C++ stack; a drive pushes a floor; face is the field the call runs (0 on a floor), written at push only; prev names the struct through groups.ext's forward declaration
+    // parseActivation the new road's activation list, WHO IS ACTIVE ABOVE -- one record per call, on the C++ stack; a drive pushes a floor; instance is the field the call runs (0 on a floor), written at push only, and its stuff is derived (stuffOf, stroke 1.3); prev names the struct through groups.ext's forward declaration
 struct ParseActivation
 {
-    GroupItem       face;
+    GroupItem       instance;
     int             isFloor;
     GroupItem       compileOwner;
     GroupItem       label;
     ParseActivation *prev;
-    RuleStuff       stuff;
     String          failPoint;
 }
 *gParseActive;
@@ -294,6 +293,13 @@ int inCompile()
 {
     if floorOwner()     return 1;
     return 0;
+}
+
+// stuffOf a record's stuff is its instance's own, derived and never stored (stroke 1.3) -- a floor has no instance, so none
+RuleStuff stuffOf(ParseActivation *rec)
+{
+    if rec && rec.instance  return rec.instance.rStuff;
+    return null;
 }
 
 /*******************************************************************************

@@ -398,13 +398,13 @@ ParseActivation 	*destRec = 0;
 	if ( pStuff )
 		{
 		destRec = ruler->gParseActive;
-		while ( destRec && destRec->stuff != pStuff )
+		while ( destRec && ruler->stuffOf(destRec) != pStuff )
 			destRec = destRec->prev;
 		dest = 0;
 		if ( destRec )
 			{
 			dest = destRec->label;
-			destName = destRec->face->groupBody->tag;
+			destName = destRec->instance->groupBody->tag;
 			}
 		}
 	else
@@ -440,9 +440,10 @@ ParseActivation 	*destRec = 0;
 		{
 		const char *pName  = (pStuff && pStuff->ruleName) ? pStuff->ruleName : "(none)";
 		ParseActivation *lr = GroupControl::groupController->groupRules->gParseActive;
-		if ( lr && lr->face == this && lr->stuff == stuff ) lr = lr->prev;
+		if ( lr && lr->instance == this && lr->instance->rStuff == stuff ) lr = lr->prev;
 		if ( lr && lr->isFloor ) lr = 0;
-		const char *ppName = (lr && lr->stuff && lr->stuff->ruleName) ? lr->stuff->ruleName : "(none)";
+		RuleStuff *lrStuff = GroupControl::groupController->groupRules->stuffOf(lr);
+		const char *ppName = (lrStuff && lrStuff->ruleName) ? lrStuff->ruleName : "(none)";
 		const char *ppLab  = (lr && lr->label) ? lr->label->groupBody->tag : "(null)";
 		::fprintf(stderr,"    IA2 DROP  lab=%s  pRule=%s  listParent=%s lp.label=%s\n",
 		lab->groupBody->tag,pName,ppName,ppLab);
@@ -683,11 +684,11 @@ int 				inDrive = 0;
 		::measureDeferredAbove(this,stuff,1,3,inDrive);
 		return 1;
 		}
-	if ( top && top->stuff == stuff )
+	if ( top && ruler->stuffOf(top) == stuff )
 		top = top->prev;
 	while ( top && !top->isFloor )
 		{
-		if ( top->stuff && top->face && top->face->groupBody->flags.deferred )
+		if ( ruler->stuffOf(top) && top->instance->groupBody->flags.deferred )
 			{
 			::measureDeferredAbove(this,stuff,1,2,inDrive);
 			return 1;
@@ -1694,13 +1695,12 @@ int 				callOK = 0;
 char 				*callHere = 0;
 char 				*ownPoint = 0;
 	// oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
-	oldActive.face = this;
+	oldActive.instance = this;
 	oldActive.isFloor = 0;
 	oldActive.compileOwner = 0;
 	oldActive.label = 0;
 	oldActive.prev = ruler->gParseActive;
 	oldActive.failPoint = 0;
-	oldActive.stuff = ruleStuff;
 	ruler->gParseActive = &oldActive;
 	// activeNotSubject the record takes GroupRules' scope, so re-mention ruler then ruleStuff or ruler's bare names bind to oldActive (bear-trap #58)
 	// bindReadSeamProbe
