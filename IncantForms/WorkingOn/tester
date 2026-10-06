@@ -7,6 +7,45 @@ include(utilities);
 search reset stack Grokking;
 search Utilities list;
 
+stop();
+
+/***************************************************************************
+    parseCode notes (Clod, 2026-10-05, after SEQ 300)
+    compileIn drives the code on a floor that carries the owner and pops it, so
+    parseCode needs no processingCodE pair and no currentMETHOD or lastIndenT
+    bracket -- the 2026-10-04 BLOCKER is gone with them.
+    The owner is `action`, as in processCode: the CodE for a rule, else the argument.
+    compileIn answers true or false; the BlocK rides back on pcReq.result.
+    Read it as `blk = pcReq.result;` then `*blk`. `*pcReq.result` CRASHES (exit 139):
+    the star binds to pcReq, which holds nothing.
+    Never `if blk;` -- truth-testing the BlocK fires it (bear-trap 34).
+***************************************************************************/
+
+/***************************************************************************
+    Everything below is left here for cut and paste modifications as needed
+***************************************************************************/
+
+parser(Start);
+testUnitTests();
+include("IncantForms/WorkingOn/parser");
+parser(Search);
+
+include("IncantForms/WorkingOn/checkSKIP");
+// Note: in checkSKIP the search list is set to: Grokking Utilities and TestStuff
+register(TestStuff);
+define
+    skipInput=(  "what" /* has /* embedded */ comment*/ NotSkipable#);
+    skipTester code={
+        print "Did the definition work?" skipInput:;
+        };
+    ;
+debug checkSKIP sKIP  CommenT IndenT QuotE BlockCommenT;
+checkSKIP(skipInput);
+
+/***************************************************************************
+    Current Status
+***************************************************************************/
+
 register(TESTing);
 define
     /***************************************************************************
@@ -35,58 +74,3 @@ define
     ;
 
 parseCode(invokeTest);
-stop();
-
-/***************************************************************************
-    parseCode notes (Clod, 2026-10-05, after SEQ 300)
-    compileIn drives the code on a floor that carries the owner and pops it, so
-    parseCode needs no processingCodE pair and no currentMETHOD or lastIndenT
-    bracket -- the 2026-10-04 BLOCKER is gone with them.
-    The owner is `action`, as in processCode: the CodE for a rule, else the argument.
-    compileIn answers true or false; the BlocK rides back on pcReq.result.
-    Read it as `blk = pcReq.result;` then `*blk`. `*pcReq.result` CRASHES (exit 139):
-    the star binds to pcReq, which holds nothing.
-    Never `if blk;` -- truth-testing the BlocK fires it (bear-trap 34).
-***************************************************************************/
-
-/***************************************************************************
-    Everything below is left here for cut and paste modifications as needed
-***************************************************************************/
-
-parser(Start);
-testUnitTests();
-include("IncantForms/WorkingOn/parser");
-parser(Search);
-Search("search Utilities list");
-register(TESTing);
-define
-    // defines for TESTin go here
-    ;
-
-parser(PrinT);
-PrinT("print ++result;");
-
-include("IncantForms/WorkingOn/checkSKIP");
-// Note: in checkSKIP the search list is set to: Grokking Utilities and TestStuff
-register(TestStuff);
-define
-    skipInput=(  "what" /* has /* embedded */ comment*/ NotSkipable#);
-    skipTester code={
-        print "Did the definition work?" skipInput:;
-        };
-    ;
-debug checkSKIP sKIP  CommenT IndenT QuotE BlockCommenT;
-checkSKIP(skipInput);
-
-/***************************************************************************
-    Current Status
-***************************************************************************/
-
-        indenter    = lastIndenT;
-        $$indenter;
-        processing  = processingCodE;
-        $$processing;
-        CodE        = argument.CodE;
-        if isRulE;  action = CodE;
-        else        action = argument;
-        $$action;
