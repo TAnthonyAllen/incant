@@ -1,0 +1,36 @@
+
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+
+register(Utilities);
+define
+    haProbe code={
+        haH := hasActioN;
+        cerr "HA " taG " -> " haH:;
+        };
+    haRun code={
+        haProbe(IF);
+        haProbe(DO);
+        haProbe(FOR);
+        haProbe(ExpressioN);
+        haProbe(NamE);
+        haProbe(SemI);
+        };
+    ;
+haRun();
+cerr "HASACTION SENTINEL":;
+stop();
+
+hasActionT -- SEQ 205 R2 (Tony, 2026-10-06): hasActioN (opDot 36) answers from the rule's actor, "this rule has an
+action", read here AT REST: nothing in this file fires IF, DO, FOR, ExpressioN or NamE before the read.
+
+Before the actionMethod retirement it read the RuleStuff.actionMethod cache, which only the isCoded arm of setActions
+filled at definition; every other rule's cache was filled by fireLabelMethod's lazy install at its first fire. So these
+five read 0 at rest on trunk (born red) and 1 once the cache retires and the read asks builtinActoR.
+
+SemI is the control: a grammar term with no actor reads 0 on both builds, so a read that answered 1 for everything
+would fail it.
+
+Each value is read inside haProbe on the rule handed in -- reading off a holder answers for the holder.

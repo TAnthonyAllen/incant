@@ -5963,6 +5963,17 @@ kindRow "failPointT FP-M new road, control: matched, stoppedAt = consumed" "$(_f
 run2 failNotRootT "$T/fnr.o" "$T/fnr.e"; check "failNotRootT runs" 0 $?
 kindRow "failNotRootT FP-N a non-root notifyFail rule reports where IT failed" "$(grep 'Failed at:' "$T/fnr.o" | awk -F'\t' '{print $3}')" "QZ"
 
+#  ⚑ hasActionT -- SEQ 205 R2 (Tony, 2026-10-06): hasActioN (opDot 36) answers from the actor, read at rest. Born red on
+#  trunk (the RuleStuff.actionMethod cache is empty until a rule first fires; only coded rules were stamped at definition):
+#  the five read 0. Green once the cache retires (stroke-actionMethod). SemI, a term with no actor, reads 0 on both.
+run2 hasActionT "$T/hat.o" "$T/hat.e"; check "hasActionT runs" 0 $?
+sentinel "hasActionT sentinel" "$T/hat.e" "HASACTION SENTINEL"
+_ha () { awk -v k="$1" '$1=="HA" && $2==k {print $4; exit}' "$T/hat.e"; }
+for _r in IF DO FOR ExpressioN NamE; do
+    kindRow "hasActionT HA $_r has an action, at rest" "$(_ha $_r)" "1"
+done
+kindRow "hasActionT HA SemI control: no actor, no action" "$(_ha SemI)" "0"
+
 #  missingFixtureFoot every fixture a row ran must have existed; a missing one makes the rows that read it measure nothing
 for _mf in "$T"/.missingFixture.*; do
     [ -e "$_mf" ] || continue
