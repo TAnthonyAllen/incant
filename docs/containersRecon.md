@@ -174,3 +174,99 @@ qualified walks), `jsonTest` (JT ROOT/MEMBER/KID sequence), `kindT`, `kindJ1T`, 
 
 No shape is proposed and nothing is recommended. The UNCLEAR rows are questions the shape would have to answer, not
 findings. Inferences above are marked; none of the verdicts was measured by running a changed build.
+
+## Step 1b -- the unclear sites classified, positional reads, copyListTo (2026-10-06, read-only)
+
+### How it was measured
+
+A temporary tap (reverted, every `.mm`/`.h` md5-identical to HEAD; fleet after revert 987 / 51) recorded, at every
+positional read, the list it read, whether that list mixed attributes and members, and whether the hit was counted past
+an entry of the other kind. Five seats: `get(int)` (with its caller), the unqualified iterate step (`opPlusPlus`),
+`opMinusMinus`'s raw step, `opDot` 401/402 (`nexT`/`prioR`) and 403 (`firsT`). Run over pop.sh, jitLadder, printPop,
+decodePop, ddPop and frontier. **H16, the known-bad end, came free:** the tap reported mixed lists where they exist (the
+registries, below), so it can see a cross-kind read when one happens. A per-rule census walked every Grokking rule and
+counted its attributes and members.
+
+⚠ **Recount: step 1's kant UNCLEAR was 17; the explicit list is 22** -- 8 emitter walks (utilities `listRules` :143,
+`anyOrNumT` :32, `bisectQ` :63, `f31` :45, `searchAcc` :33, `searchAccB` :34, `trigDO` :33, WorkingOn/parser
+`generateParse` :28), 5 positional reads (`incant/generate` :62, :73, :147, :148, :204) and 9 sibling reads
+(`nullAccessT` 4, `bisectQ` :68, `f31` :49, `generate` :232, `attic/nullAccessorDeref` :17, `utilities` :173). So the
+pool is **60**, not 55.
+
+### What the positional readers actually read (fleet, measured)
+
+| reader | reads | lists it read |
+|---|---|---|
+| `runOP` `field[1..3]` | 2,342,946 | attribute-only 1,936,608 (the `+%` builds) · member-only 406,338 (interpretXP's `xl2`) · **never mixed** |
+| `runShortCircuit` `field[1..3]` | 618,921 | member-only |
+| `jitEmitShortCircuit` `field[1..3]` | 504 | member-only |
+| label readers: `aCTionTraiT`, `aCTionDefinE`, `aCTionCodE`, `aCTionIterate`, `aCTionRunRulE`, `aCTionSetBrackets`, `foldDot` | 446,053 | attribute-only (labels are built by `attachLabel`'s `dest +% lab`) |
+| `auditMissingTerms` (measure) | 311 | one kind per list |
+| **`auditSpurious`** (measure; oneTest's `audit()`) | 1,139 | **117 on MIXED lists**, hits counted across kinds -- the registries (Utilities, pROPERTIEs, Keywords) and unitTests' sample fields |
+| `opGet` (kant `x[n]`) | 2 | 1 attribute-only · 1 mixed (a miss) |
+| unqualified iterate step | 37,390 | 28,893 attribute-only · 8,123 member-only · **374 mixed**: Grokking (termCountT, traitFlagsT, actorOrderT walk the registry), unitTests' `sample`, and ANYorNum inside anyOrNumT |
+| `opMinusMinus` raw step | 28 | attribute-only |
+| `nexT`/`prioR` | 4 | member-only parents |
+| `firsT` | 1 | member-only |
+
+**Per-rule census (Grokking, every rule):** 49 rules hold attributes only, 14 members only, **0 mix the two.** ANYorNum
+is mixed in the fleet only because `anyOrNumT` hangs a noPrint copy of its CodE on it with `+%` (:47) -- that fixture's
+own frozen idiom; the live parser files artifacts on the property list.
+
+### R1 -- the 60 unclear sites, classified
+
+| sites | verdict | why |
+|---|---|---|
+| presence tests: core `embedAttribute` :526, `ensureGuard` :586, :611, `setContent` :1711, measure `labelTree` :250, `labelSpans` :280, `measureTokenArm` :809; chain `copyOf` :112, `dumpContents` :132, `aCTionDefinE` :349, `aCTionFOR` :498, :499, `aCTionTokenXP` :1002, `handleCall` :1264, `jitEmitBareRead` :1035, `jitPrintProbe` :2782 (16) | **AT** | each reads the raw `groupList` pointer as "has entries"; under fixed containers a present pointer no longer says that |
+| measure `includeGroupList` :231 (1) | **NO** | a tok include trick (`if field.groupList return;`) -- it exists only so GroupList.h is included, and reads nothing |
+| iterate's filter overload, `aCTionIterate` :614-617 (1) | **AT** | it writes `hasAttributes`/`hasMembers` onto the iterator as the attributes/members selector, which `opPlusPlus` reads back; a containers walk picks a container instead |
+| **instruction readers** `runOP` :987-989, `runShortCircuit` :1045-1047, `jitEmitShortCircuit` :1904-1906 (9) | **AT -- EXPRESSION-OWNED** | see R2 below; tagged per Tony's direction (not ruled): the expression redo rebuilds instructions as op, target, argument in one fixed layout. Listed, not designed for |
+| label readers `aCTionCodE` :159-160, `aCTionDefinE` :233, `aCTionIterate` :580, :586, `aCTionRunRulE` :793, :799, `aCTionSetBrackets` :886, `aCTionTraiT` :1039 (9) | **INSIDE** | measured attribute-only on every read (446,053); `get(int)` keeps its meaning if it indexes the one populated container |
+| `materialiseTerms` :508 (1) | **INSIDE** | no fleet read; it indexes a rule's terms, and no grammar rule mixes kinds (census) |
+| kant positional `incant/generate` :62, :73, :147, :148, :204 (5) | **INSIDE** | `argument[n]` on parse labels, attribute-only |
+| kant emitter walks (8, listed above) | **INSIDE** | an unqualified walk over one rule's terms; no rule mixes kinds, so list order within one container is the order they emit. anyOrNumT's mixed ANYorNum is its own `+%` artifact, and the walk skips noPrint |
+| kant `nexT`/`prioR` (9, listed above) | **INSIDE** | sibling reads within one kind; the fleet's 4 reads all had member-only parents |
+| `opGet` :514 (1) | **UNCLASSIFIED** | a kant `x[n]` on a field holding both kinds has no one container to index -- what `[n]` means there is the shape's to say |
+
+**R1 totals: 26 AT (9 of them expression-owned), 1 NO, 32 INSIDE, 1 unclassified.**
+
+**One INSIDE row from step 1 is AT on measurement:** measure `auditSpurious` :175 (`entry[i]`) read mixed registries
+117 times, counting across kinds, and `oneTest.base` pins those positions (`BlocK [4] builtinActoR`, 33 rows). Also
+recorded, not reclassified: unqualified iterates over a **registry** (termCountT, traitFlagsT, actorOrderT over
+Grokking) visit both kinds in one pass; those fixtures are pinned by count and value, not order.
+
+**Step 1 totals as amended: 102 AT · 46 NO · ~1,125 INSIDE · 1 unclassified · 0 unclear.**
+
+### R2 -- positional cross-kind reads
+
+**There are none in the instruction layout today.** Every node read by position holds one kind, and which kind is fixed
+by its builder:
+
+| node kind | builder | entries, in order | readers |
+|---|---|---|---|
+| `xp`, `uxp`, `xdot`, and a TokenXP label re-used as an instruction (`xpress`) | `handleCall` :1266-1268, `handleDot` :1287-1336, `handleSubscript` :1356-1368, `handleUnary` :1385-1386, `foldDot` :1228-1244 -- each clears or mints its node, then `+%` only (**attributes**) | op, target, argument (`uxp`: op, operand -- no third) | `runOP` `field[1..3]` |
+| `xl2` | `interpretXP` :1465-1467 -- `+=` only (**members**) | op, target, argument | `runOP`, or `runShortCircuit` when the op is registered `shortCircuit` (:1471); `jitEmitShortCircuit` at emit time |
+| `xl1` (juxtaposition) | `interpretXP` :1451-1452, `+=` (members) | args, then tokens | read as a list (`isLIST`), not by position |
+| parse labels | `attachLabel` `dest +% lab` (**attributes**); the repeat case `dest +% lab.group` | the rule's matched terms in match order | `aCTionCodE`, `aCTionDefinE`, `aCTionIterate`, `aCTionRunRulE`, `aCTionSetBrackets`, `aCTionTraiT`, `foldDot`; kant `incant/generate` |
+| registries | `+=`/`addString`/`+%` in GroupMain's bootstrap and `define` -- **both kinds** | sorted (`put`) | `auditSpurious` `entry[i]` (measure, oneTest), `opGet` on a registry |
+
+**The same instruction layout in the JIT** (expression-owned with runOP): `jitEmitShortCircuit` (jitEmitters :1904-1906)
+reads `field[1..3]` itself. `jitEmitOpFire`, `jitSeedOperands` and every `gJitEmitter` slot emitter take op, target and
+argument already unpacked by runOP (GroupActions :1000-1010); `jitTermCallRT` (jitEmitters :973) re-runs `runOP` on the
+node at run time.
+
+### R3 -- can a property on the source come out as a member on the copy? **No.**
+
+`copyListTo`/`copyListFrom` walk the group list only (`next()`), and properties live on `propertyList`. Probed both copy
+roads, with a control member that does copy:
+
+| | getMember `pcKid` (the property) | getProperty `pcKid` | control: getMember `pcMem` |
+|---|---|---|---|
+| `copyOf(pcHost)` | miss | **KID** -- the copy still reaches it | found |
+| `pcSet = pcHost` (setContent -> copyListFrom) | miss | **miss** -- dropped | found |
+
+Both copies hold 1 attribute and 1 member, the source's two terms. **No fixit.** Two facts, context under the relevance
+gate (no row fails on either): `copyOf` copies the whole body, so the copy shares the source's `propertyList`; `=` loses
+the properties. And `getAttribute` on the copy returns the property (it carries `isAttribute`), as step 1 recorded.
+⚠ Separate from properties: `copyListTo` re-adds anything that is **not** `isAttribute` as a member, so an embedded or
+unaffiliated entry on the group list does come out a member.

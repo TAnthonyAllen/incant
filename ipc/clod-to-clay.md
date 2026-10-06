@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 207 at the FOOT -- stroke-actionMethod MERGED (9395d57 / 4d15964); containers recon STEP 1 of 3 (who walks the group list) reported, docs/containersRecon.md; seal 74
+STATUS:   fresh           # SEQ 208 at the FOOT -- containers recon STEP 1b: 60 unclear classified, positional reads measured (none cross kinds in the instruction layout), copyListTo cannot make a property a member; seal 75
+# prior: SEQ 207 at the FOOT -- stroke-actionMethod MERGED (9395d57 / 4d15964); containers recon STEP 1 of 3 (who walks the group list) reported, docs/containersRecon.md; seal 74
 # prior: SEQ 206 at the FOOT -- actionMethod retirement BUILT on stroke-actionMethod (027b26d / support 748195d), NOT MERGED; hasActionT born red on trunk; seal 73
 # prior: SEQ 205 at the FOOT -- actionMethod retirement: RECON STOPPED (two STOP conditions met), NOTHING BUILT; seal 72
 # prior: SEQ 204 at the FOOT -- SEQ 308: stroke12g MERGED (b993ba9 / 373088b), STROKE 1.2 COMPLETE; actionMethod retirement recorded as next; shutdown seal 70
@@ -11519,3 +11520,40 @@ STEP 1 -- full write-up with every AT and UNCLEAR site by file:line in docs/cont
 NEXT: step 2 (rStuff's place in a containers shape) when dispatched.
 
   END SEQ 207
+
+SEQ 208  -  CONTAINERS RECON STEP 1b (R1-R4, plus Tony's R2a). READ-ONLY. Full write-up: docs/containersRecon.md "Step 1b".
+
+MEASURED BY A TAP (reverted md5-identical; fleet after revert 987 / 51) at every positional read -- get(int) with its
+caller, the unqualified iterate step, opMinusMinus, opDot nexT/prioR/firsT -- over pop, jitLadder, printPop, decodePop,
+ddPop, frontier; plus a per-rule census of Grokking (49 attribute-only rules, 14 member-only, 0 mixed).
+
+RECOUNT: step 1's kant UNCLEAR was 17; listed explicitly it is 22, so the pool was 60, not 55.
+
+R1, the 60: 26 AT (16 raw groupList presence tests; iterate's has*-flag filter overload; the 9 instruction reads,
+  tagged EXPRESSION-OWNED) · 1 NO (includeGroupList, a tok include trick) · 32 INSIDE (label readers measured
+  attribute-only on all 446,053 reads; materialiseTerms; generate's argument[n]; the 8 emitter walks -- no rule mixes
+  kinds; the 9 nexT/prioR) · 1 UNCLASSIFIED: opGet, kant `x[n]` on a field holding both kinds has no one container to
+  index. And one step-1 INSIDE row is AT on measurement: auditSpurious `entry[i]` read MIXED registries 117 times,
+  counting across kinds, and oneTest.base pins those positions.
+  Amended step 1 totals: 102 AT · 46 NO · ~1,125 INSIDE · 1 unclassified.
+
+R2 + R2a: NO POSITIONAL CROSS-KIND READ EXISTS IN THE INSTRUCTION LAYOUT. Each node read by position holds one kind, set by
+  its builder: xp/uxp/xdot/xpress built by +% (attributes) in handleCall/Dot/Subscript/Unary and foldDot; xl2 built by
+  += (members) in interpretXP. runOP read 1.94M attribute-only and 406K member-only nodes, never mixed; runShortCircuit
+  and jitEmitShortCircuit member-only. EXPRESSION-OWNED (listed, not designed for): runOP :987-989, runShortCircuit
+  :1045-1047, jitEmitShortCircuit (jitEmitters :1904-1906). JIT emitters on the same layout: jitEmitShortCircuit reads
+  field[1..3] itself; jitEmitOpFire, jitSeedOperands and the gJitEmitter slot emitters take op/target/argument unpacked by
+  runOP; jitTermCallRT re-runs runOP at run time. The only mixed lists read by position are the REGISTRIES (auditSpurious,
+  and one opGet miss); the only mixed unqualified walks are over Grokking (termCountT, traitFlagsT, actorOrderT -- pinned
+  by count and value) and anyOrNumT's ANYorNum, mixed by that fixture's own +% of a CodE copy.
+
+R3: NO. A property on the source never comes out as a member: copyListTo/From walk the group list only. Probed both
+  roads with a control member: copyOf -- getMember of the property misses, the property is still reachable (the copy
+  shares the source's propertyList); `=` (setContent) -- the property is dropped. No fixit. Context: copyListTo makes any
+  entry that is not isAttribute a member.
+
+R4: cleanupList gains ignoreNoPrint (no writer anywhere) and updateContentFlags (no caller).
+
+NEXT: step 2 (rStuff's place in a containers shape) when dispatched.
+
+  END SEQ 208

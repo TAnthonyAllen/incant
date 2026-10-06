@@ -173,3 +173,20 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 - **Confirm:** census every kant read (tester, macros, forms, incant/, fixits); name a replacement reader for the floor
   mark or rule its coverage unowed; then retire CF-0..4, CI-H3/H4 and the refusal row by mapping, each with its sentence.
 - **Seen:** 2026-10-06 (Tony's offline cut; uncommitted working copy saved by Clod, reverted to HEAD).
+
+### `ignoreNoPrint` -- a switch nothing sets (containers recon step 1, 2026-10-06; SEQ 309 step 1b R4)
+- **What / where:** the GroupRules flag declared at `GroupRules.twk:104`, read once, by `GroupItem.next()` (:1234):
+  `if ignoreNoPrint && current.noPrint continue;`.
+- **Why it looks deletable:** no `.twk`, `.rtn` or `incant/setup` line writes it, so `next()` never skips anything and
+  every term-wanting walk filters noPrint for itself.
+- **Confirm:** grep every repo and the gitignored directive files for a writer; cut the flag and its one read; full bare
+  tokall diff (the read goes, nothing else moves); fleet row for row.
+- **Seen:** 2026-10-06.
+
+### `updateContentFlags` -- no callers (containers recon step 1, 2026-10-06; SEQ 309 step 1b R4)
+- **What / where:** `GroupItem.twk:1955`, which re-derives `hasAttributes`/`hasMembers`/`hasTraits` from a walk.
+- **Why it looks deletable:** no caller in any `.twk`, `.rtn` or kant file (the 2026-08-29 isGroupActorPoison probe once
+  suppressed it and measured it irrelevant).
+- **Confirm:** census callers across all three repos and the directive files; cut it; full bare tokall diff; fleet row
+  for row. If the containers shape lands, its flag upkeep is the place a replacement would be decided, not here.
+- **Seen:** 2026-10-06.
