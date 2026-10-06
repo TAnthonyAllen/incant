@@ -10,7 +10,6 @@ int max;
 int maxRepeat;
 int min;
 int (*testMatch)(GroupItem *);
-GroupItem *(*actionMethod)(GroupItem *);
 GroupItem *(*parseMethod)(GroupItem *);
 int (*jitMethod)(GroupItem *);
 struct 

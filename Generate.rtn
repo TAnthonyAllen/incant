@@ -132,15 +132,14 @@ String      leafAt;
 int         leafOK;
 use field
 GroupRules  ruler = groupRules;
-RuleStuff   ruleStuff = rStuff;
     // leafStart the term starts where the input stands -- parseAction calls no checkInput, and the stuff's stale hereAt is no longer read (SEQ 301; UNPINNED, no road reaches it)
     leafAt  = atRuleMark;
-use ruleStuff
-    // ownSlot read actionMethod, never gMethod -- on a parseACTION node gMethod IS parseAction and the call recurses forever
-    // noNullActor the old spelling read gMethod, which setParseWalk always fills; actionMethod can be empty, and calling it would trade the self-recursion for a null call
-    if !actionMethod    return refuse(field,"parseAction: no actionMethod is installed for this rule");
+    // ownSlot read the actor's method, never gMethod -- on a parseACTION node gMethod IS parseAction and the call recurses forever
+    // noNullActor the old spelling read gMethod, which setParseWalk always fills; a rule may have no actor, and calling a null would trade the self-recursion for a null call
+GroupItem   leafActor = field.getProperty("builtinActoR");
+    if !leafActor || !leafActor.method  return refuse(field,"parseAction: no action is installed for this rule");
     // noLabelOnStuff a leaf finds no label on its stuff, so the action is handed the field -- the `!label` arm, which is the only one the new road ever reached (SEQ 301)
-    if leafLab = ruleStuff.actionMethod(field)  leafOK = true;
+    if leafLab = leafActor.method(field)  leafOK = true;
     if leafLab    leafLab.clear();
     return exitFromParse(field,leafOK,leafAt,leafLab);
 }
@@ -474,7 +473,7 @@ RuleStuff   ruleStuff = rStuff;
         if groupRules.debugAllRules     cerr "setParseWalk: re-entry on " tag ", not descending":;
         return null; }
     parseWalked = true;
-    // actionMethodRemoved the walk writes gMethod and parseMethod and NOTHING ELSE -- actionMethod is set at definition
+    // actionMethodRemoved the walk writes gMethod and parseMethod and NOTHING ELSE -- the action is the builtinActoR setActions publishes at definition
     // realTermNotAList a FIELD with nothing but noPrint artifacts is a DATA rule: hasTraits and hasMembers ignore artifacts, groupList does not. The CONVERSION predicate is NOT this test -- it still asks the group's real groupList.
     // upToIsTheReferences a reference's { } is ITS fact, never the rule's -- only an inline definition (not a copy) classifies from its own overTo (F-O23)
     if (upTo || upToOver) && !field.ruleOf  parseMethod = parseUpTo;

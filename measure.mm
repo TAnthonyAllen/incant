@@ -318,7 +318,7 @@ extern "C" GroupItem *measureDeferredAbove(GroupItem *field, RuleStuff *stuff, i
 	
 	if ( GroupControl::groupController->groupRules->parseTrace && field )
 	{
-	int action = ((stuff && stuff->actionMethod) || field->groupBody->flags.actionType || field->getAttribute((char*)"builtinActoR")) ? 1 : 0;
+	int action = (field->groupBody->flags.actionType || field->getAttribute((char*)"builtinActoR")) ? 1 : 0;
 	const char *end = endKind == 1 ? "floor" : endKind == 2 ? "deferred" : endKind == 3 ? "processingCode" : "empty";
 	::fprintf(stderr,"  DEFERABOVE rule=%s held=%d end=%s inDrive=%d action=%d\n",
 	field->groupBody->tag, held, end, inDrive, action);
@@ -853,7 +853,7 @@ char 	*pcName = "other";
 	const char *acted = "n/a", *hung = "n/a", *fires = "n/a";
 	GroupItem *actor = field->get("builtinActoR");
 	if ( field->rStuff ) {
-	GroupItem *(*am)(GroupItem *) = field->rStuff->actionMethod;
+	GroupItem *(*am)(GroupItem *) = actor ? actor->groupBody->gMethod : 0;
 	GroupItem *(*pm)(GroupItem *) = field->rStuff->parseMethod;
 	acted = am ? "parked" : "none";
 	hung  = actor ? "yes" : "no";

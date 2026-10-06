@@ -1394,10 +1394,7 @@ GroupItem 	*DatA = input->getLabelGroup("DatA");
 		{
 		DatA->options.affiliation = 1;
 		if ( DatA->getRStuff() )
-			{
 			DatA = new GroupItem(DatA);
-			DatA->getRStuff()->actionMethod = 0;
-			}
 		else	DatA->setRuleStuff();
 		// modifierRidesUp repetition lands on the DATA only; applying it to the trait as well repeats TWICE
 		if ( Modifier )
@@ -7346,9 +7343,10 @@ GroupItem 	*product = 0;
 				case 35:
 					if ( isMember(target->options.affiliation) )
 						product->setCount(1);
+					// hasActionAsksActor "this rule has an action": its builtinActoR, never a fire-time cache (SEQ 205 R1)
 					break;
 				case 36:
-					if ( target->getRStuff() && target->getRStuff()->actionMethod )
+					if ( target->getProperty("builtinActoR") )
 						product->setCount(1);
 					break;
 				case 40:
@@ -8733,15 +8731,15 @@ GroupItem 	*leafLab = 0;
 char 		*leafAt = 0;
 int 		leafOK = 0;
 GroupRules 	*ruler = GroupControl::groupController->groupRules;
-RuleStuff 	*ruleStuff = field->getRStuff();
 	// leafStart the term starts where the input stands -- parseAction calls no checkInput, and the stuff's stale hereAt is no longer read (SEQ 301; UNPINNED, no road reaches it)
 	leafAt = ruler->atRuleMark;
-	// ownSlot read actionMethod, never gMethod -- on a parseACTION node gMethod IS parseAction and the call recurses forever
-	// noNullActor the old spelling read gMethod, which setParseWalk always fills; actionMethod can be empty, and calling it would trade the self-recursion for a null call
-	if ( !ruleStuff->actionMethod )
-		return ::refuse(field,"parseAction: no actionMethod is installed for this rule");
+	// ownSlot read the actor's method, never gMethod -- on a parseACTION node gMethod IS parseAction and the call recurses forever
+	// noNullActor the old spelling read gMethod, which setParseWalk always fills; a rule may have no actor, and calling a null would trade the self-recursion for a null call
+GroupItem 	*leafActor = field->getProperty("builtinActoR");
+	if ( !leafActor || !leafActor->groupBody->gMethod )
+		return ::refuse(field,"parseAction: no action is installed for this rule");
 	// noLabelOnStuff a leaf finds no label on its stuff, so the action is handed the field -- the `!label` arm, which is the only one the new road ever reached (SEQ 301)
-	if ( leafLab = ruleStuff->actionMethod(field) )
+	if ( leafLab = leafActor->groupBody->gMethod(field) )
 		leafOK = 1;
 	if ( leafLab )
 		leafLab->clear();
@@ -10484,7 +10482,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 		return 0;
 		}
 	field->groupBody->flags.parseWalked = 1;
-	// actionMethodRemoved the walk writes gMethod and parseMethod and NOTHING ELSE -- actionMethod is set at definition
+	// actionMethodRemoved the walk writes gMethod and parseMethod and NOTHING ELSE -- the action is the builtinActoR setActions publishes at definition
 	// realTermNotAList a FIELD with nothing but noPrint artifacts is a DATA rule: hasTraits and hasMembers ignore artifacts, groupList does not. The CONVERSION predicate is NOT this test -- it still asks the group's real groupList.
 	// upToIsTheReferences a reference's { } is ITS fact, never the rule's -- only an inline definition (not a copy) classifies from its own overTo (F-O23)
 	if ( (upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo)) && !field->ruleOf )
