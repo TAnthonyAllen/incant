@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 220 at the FOOT -- EXPRESSION DIRECTION RULED (D1-D6) and recorded; SHUTDOWN seal 85
+STATUS:   fresh           # SEQ 221 at the FOOT -- SEQ 310 done: expression pins on trunk (exprPinT), candidate C1 recorded; seal 86
+# prior: SEQ 220 at the FOOT -- EXPRESSION DIRECTION RULED (D1-D6) and recorded; SHUTDOWN seal 85
 # prior: SEQ 219 at the FOOT -- expression design step 2 PROBES (P1 arm stability, P2 left-to-right census, P3 tier census) reported; R1 binding noted; shutdown seal 85
 # prior: SEQ 218 at the FOOT -- R00 explained (Clod's own edit); R0 docs fixes landed (7f7dcac); expression recon step 1 (a map) reported, docs/expressionRecon.md; seal 85
 # prior: SEQ 217 at the FOOT -- stroke14 MERGED, REDESIGN STEP 1 COMPLETE (6f929e3 / 5a0ec82); cleanup census reported, docs/cleanupCensus.md; seal 84
@@ -11943,3 +11944,48 @@ the utilities && lines (wrong today, expected to move).
 Shutdown seal 85; wakeup opener: the D6 fixtures, then the expression branch's design. Census rulings wait for the cleanup days.
 
   END SEQ 220
+
+SEQ 221  -  SEQ 310 DONE: EXPRESSION PINS ON TRUNK AT TODAY'S VALUES (exprPinT); ACCUMULATOR CANDIDATE RECORDED.
+
+RUN: incant/pop/exprPinT (kant, trunk, fresh bare build 16:06), one action per row; 33 value rows in genLadder/pop.sh,
+intended beside each as a comment. Fleet 987 -> 1022 green, the same 51 reds by name. H7: A2 and N2 mutated -> both red
+by value; restored, md5 checked. qa=2 qb=10 qc=3.
+
+  expression                                   | today              | intended
+  qa * qb + qc                                 | 23                 | 23
+  2 * 10 + 3                                   | 26                 | 23
+  qa - qb + qc                                 | -5                 | -5
+  qa + qb - qc                                 | 9                  | 9
+  qa / qb + qc                                 | 0.153846           | 3.2
+  bgSpec * 3 + 2 (5)            jitAttrPop:69  | 25                 | 17
+  lt + bk * sc (1 17 3)         jitAttrPop:70  | 52                 | 54
+  x > px && x < pxw, x 5        utilities:67   | 1                  | true
+  ... x 0                                      | tag echo (false)   | false
+  ... x 20                                     | 1                  | false
+  the :70 / :72 / :75 forms at 20             | 1, 1, 1            | false
+  across > 0 || down > 0, 0 5   utilities:302  | 0                  | true
+  ... 5 0 / 0 0                                | 1 / 0              | true / false
+  a && b || c, 0 1 1                           | 0                  | true
+  a || b && c, 0 1 0                           | 0                  | false
+  fFalse() && gSay()                           | 1, g RAN           | false, g does not run
+  fId(qa + qb) * qc                            | 36                 | 36
+  qa + fNest(qb) + qc (fNest: arg*qc+qa)       | 37                 | 37
+  *block(src), src "{ pz = 7; }"               | pz 0, r3 tag echo  | pz 7
+  -qa + qb                                     | 8                  | 8
+  !fTrue(qa)                                   | tag echo, NOT RUN  | false, fTrue runs
+  !fFalse(qa)                                  | tag echo, NOT RUN  | true
+  *ph.pMid + 1, pMid 41                        | 42                 | 42
+  hz += qa * qb, hz 1                          | 21                 | 21
+  hw := qa * qb + qc                           | 23                 | 23
+  hx.noPrinT = hy.noPrinT (seal 51)            | 1                  | 1
+  qa > qb + qc (open edge)                     | tag echo (false)   | Tony's to rule
+
+CRASHED OR REFUSED: nothing. Exit 0, sentinel reached, no refusal line on stderr.
+NEW: !f(x) loses its call like *block(code) -- the action never runs. jitAttrPop:69-70 keep their jit pins in rung JA;
+A6/A7 are the same shapes, interpreted. *block is spelled like tester's parseCode, with code := a source string.
+R3: docs/expressionRecon.md "Candidates", C1 verbatim. Nothing built.
+CHECKLIST: pop.sh 1022 / 51 · jitLadder PASSED · printPop PASSED · decodePop row for row (capture refreshed, binary echo
+only) · frontier and dirCheck byte-identical to their captures · ddPop 5 / 1 standing · canary 306 · exec check clean ·
+groups.ext untouched · rebuilt first: pop.sh called the 11:05 binary STALE against the seal's 11:45 tokall mtimes;
+after the rebuild, probe output was byte-identical and the fleet read 987 / 51.
+  END SEQ 221
