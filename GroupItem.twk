@@ -1337,6 +1337,8 @@ continueHere:
         /*******************************************************************
             Success. Fire label method if there is one.
         *******************************************************************/
+beforeAction:
+        ownPoint = 0;
         // oldRoadWriteBack the old road's label is its own record's (1.2f) and its verdict the local callOK (1.2d) -- a null back from a non-null label is the action failing, as before (SEQ 301)
         -% { GroupItem *firedLab = this->fireLabelMethod(ruleStuff, oldActive.label, callHere); if ( oldActive.label && !firedLab ) callOK = 0; oldActive.label = firedLab; } %-
         // oldFireFlag the flag this activation reads next -- a nested new-road drive used to overwrite it (F-121)

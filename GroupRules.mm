@@ -814,10 +814,14 @@ extern "C" GroupItem *aCTionNamE(GroupItem *input)
 {
 	// compileOwner while compiling the owner is the one the compile's floor carries, never currentMETHOD -- a generated body repoints that to a grammar face (SEQ 213, SEQ 299)
 GroupRules *ruler = GroupControl::groupController->groupRules;
+GroupItem *result = 0;
 GroupItem *owner = ruler->currentMETHOD->getGroup();
+char *arg = 0;
+	arg = input->getText();
 	if ( ruler->inCompile() )
 		owner = ruler->floorOwner();
-	input->setGroup(resolveName(input->getText(),owner));
+	result = resolveName(input->getText(),owner);
+	input->setGroup(result);
 	return input;
 }
 

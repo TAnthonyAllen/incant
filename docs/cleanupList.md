@@ -156,4 +156,20 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
   `setJitEmitter`/`setOperat` are fnptr casts, kept because tok drops `&` on fnptr-cast reference params
   (FormatC.twk fix deferred), so they stay unless that is fixed.
 - **Confirm:** respell each in tok, then a full bare tokall diff and the fleet row for row.
+- **Tied to it (Tony, 2026-10-06 R1):** parse()'s `beforeAction:` label and its no-op `ownPoint = 0;` are a deliberate
+  directive anchor -- the on-success directive (`parse ownPoint active`) was being dropped while the fireLabelMethod
+  escape sat at that point. When that escape is respelled in tok, the label and the no-op assign leave together and the
+  directive is re-aimed at the respelled statement (dirCheck confirms).
 - **Seen:** 2026-10-06. Tony proposes a "do we need this" cleanup day or two once the design docket is done.
+
+### `processingCodE` (GroupFields 412) -- Tony cut it offline, restored by R2a (2026-10-06)
+- **What / where:** `incant/setup` `processingCodE=412`; `Instruct.rtn` its read (`case 412: product.count = inCompile();`)
+  and its write refusal (`refuse(target,"processingCodE is read-only ...")`).
+- **Why it looks deletable:** Tony's parseCode no longer brackets with it (compileIn marks its own floor, SEQ 299), and
+  the old processCode-port writes are gone from macros.
+- **Why it was restored rather than cut (Clod, R2):** it is kant's only door onto the compile-floor mark. `compileFloorT`
+  CF-0..4 and `compileInT` CI-H3/H4 certify that MARK (a nested drive reads 0, a rule fired by the compile reads 1), not
+  the accessor -- cutting the accessor deletes the mark's only coverage, and mapping needs another reader first.
+- **Confirm:** census every kant read (tester, macros, forms, incant/, fixits); name a replacement reader for the floor
+  mark or rule its coverage unowed; then retire CF-0..4, CI-H3/H4 and the refusal row by mapping, each with its sentence.
+- **Seen:** 2026-10-06 (Tony's offline cut; uncommitted working copy saved by Clod, reverted to HEAD).

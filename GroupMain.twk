@@ -442,7 +442,7 @@ GroupRules  ruler = groupRules;
     /*************************************************************************
         Set the buffer links
     *************************************************************************/
-    item            = properties["stringBUFFER"];
+    item        = properties["stringBUFFER"];
     item.setBuffer(stringBUFFER);
     return strap;
 }
