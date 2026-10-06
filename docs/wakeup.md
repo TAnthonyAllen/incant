@@ -1,7 +1,11 @@
-# ⚠⚠⚠ SEALED 2026-10-06 (85) ON TRUNK -- R0 DOCS LANDED; EXPRESSION RECON STEP 1 (A MAP) REPORTED. SEAL AND STOP.
+# ⚠⚠⚠ SEALED 2026-10-06 (85, SHUTDOWN) ON TRUNK -- R0 DOCS LANDED; EXPRESSION RECON STEP 1 (A MAP) REPORTED. SEAL AND STOP.
 #
-#   ## THE OPENER: Tony reads docs/expressionRecon.md (clod-to-clay SEQ 218) and sets the order of what follows. No design
-#   was proposed. Census rows (docs/cleanupCensus.md) wait for the cleanup days.
+#   ## THE OPENER (Tony, shutdown ruling 2026-10-06), in this order:
+#   (1) Tony reads docs/expressionRecon.md (clod-to-clay SEQ 218).
+#   (2) A BORN-RED FIXTURE pins KANT-43's split BY VALUE: `qa * qb + qc` = 23 against `2 * 10 + 3` = 26, and the `-` pair
+#       (`qa - qb + qc` = -5 against right-to-left -11), with qa=2 qb=10 qc=3 -- probes p2/p2b in the recon are the shape.
+#   (3) Tony sets the expression design's order.
+#   Census rows (docs/cleanupCensus.md) wait for the cleanup days. Redesign step 2 is PARKED (HPDL).
 #   
 #   ## THE ONE-LINE STATE: trunk at this seal installed, bare -- fleet 987 / 51 red / 1 · canary 306.
 #   
@@ -12,6 +16,8 @@
 #   loses its call at GroupItem.twk:280-283 (lab.clear() wipes the call list under the deref uxp); BlocK(holder) drives the
 #   holder's NAME text; *a.b is one term ((*a).b), so #48's text is stale.
 #   
+#   ## SHUTDOWN KITCHEN PASS, 2026-10-06 11:45: full bare tokall moved nothing · canary 306 · exec check: all seven 100755 ·
+#   cleanupList's "named-rule trace may be quiet" entry moved into Open (Tony) · fixit nag below.
 #   ## CHECKLIST: GroupRules.twk change is comment-only (full bare tokall moved no generated file); probes ran in scratch
 #   only; no source or generated file changed; pop.sh 987 / 51 at seal 84 stands on that identity · groups.ext untouched ·
 #   Groups, support, TOK clean and pushed · no incant.
