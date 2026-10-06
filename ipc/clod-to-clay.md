@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 204 at the FOOT -- SEQ 308: stroke12g MERGED (b993ba9 / 373088b), STROKE 1.2 COMPLETE; actionMethod retirement recorded as next; shutdown seal 70
+STATUS:   fresh           # SEQ 205 at the FOOT -- actionMethod retirement: RECON STOPPED (two STOP conditions met), NOTHING BUILT; seal 72
+# prior: SEQ 204 at the FOOT -- SEQ 308: stroke12g MERGED (b993ba9 / 373088b), STROKE 1.2 COMPLETE; actionMethod retirement recorded as next; shutdown seal 70
 # prior: SEQ 203 at the FOOT -- SEQ 307: stroke12f merged; F-141 dirCheckFlicker; 1.2g BUILT on stroke12g (792b742 / 37cb6e6), 979 / 51 row for row, NOT MERGED -- STROKE 1.2 COMPLETE on the branch
 # prior: SEQ 202 at the FOOT -- SEQ 306: R0 pin landed (born red); R1 recycle ends (row for row); 1.2f BUILT on stroke12f (b8f3685 / 7cf58b1), 979 / 51 row for row, NOT MERGED
 # prior: SEQ 201 at the FOOT -- SEQ 305: 1.2f STOPPED before the build -- 52,886 owner-less fallback writes have no home under (A); zeroWidthT's 3 returned labels would change (output unchanged); fLAG recycle would end
@@ -11373,3 +11374,74 @@ R2 -- shutdown seal, full checklist: dirCheck PASSED (49 of 52, 3 parked WARN) Â
 NEXT: actionMethod's retirement, then the containers recon before 1.3/1.4.
 
   END SEQ 204
+
+SEQ 205  -  actionMethod RETIRES (SEQ 308 R1): RECON STOPPED AT BOTH STOP CONDITIONS. NOTHING BUILT.
+
+RULINGS ASKED OF TONY (proposals, not rulings):
+  Q1. opDot 36 (hasActioN) answers "no action" for 32 of 87 Grokking rules that HAVE an actor, until their first fire.
+      Retirement makes it answer from the actor (a stable "yes"). Accept the change in answer? (Clod: yes -- today's
+      answer depends on invocation history; the cache's null means "not fired yet", not "no action".)
+  Q2. TraiTdata's clear: it never removes an action a rule keeps, but it runs 290 times on a NamE copy that keeps its
+      actor (and whose cache was already null, so the clear changed nothing). Retire it as planned? (Clod: yes.)
+  If both are yes, the build is as dispatched, unchanged, on stroke-actionMethod.
+
+THE TAP (temporary, reverted md5-identical: every .mm/.h equal to HEAD; fleet after revert 979 / 51).
+  One counter per read site, comparing A = "actionMethod non-null" with B = "the node in hand has a builtinActoR
+  property with a method" (getProperty -- the actionHolder spelling), and when both are set, whether the two methods
+  are the same. Run over pop.sh, jitLadder, printPop, decodePop, ddPop and frontier.
+
+  site                                   reads      A0B0      A1B1    A1B0   A0B1   value differs
+  1 fireLabelMethod (after lazy install) 3,137,101  1,919,256 1,217,845  0      0      0
+  2 parseAction                          0 (fleet)
+  3 testAction                           0 (fleet)
+  4 opDot 36 hasActioN                   0 (fleet) -- driven by a probe, below
+  5 TraiTdata, the copy, BEFORE clear    4,501      2,555     0         1,656  290    0
+  6 TraiTdata, the copy, AFTER clear     4,501      4,211     0         0      290    0
+  7 TraiTdata, the ORIGINAL DatA         4,501      2,555     0         1,656  290    0
+
+  H16, the known-bad end: INCANT_AMTAP_BAD flips B at each site's first read; oneTest then shows exactly one
+  disagreement per site (site 1: A0B1 = 1 of 9,511). The tap sees a disagreement when there is one.
+
+STOP 1 -- A PREDICATE READ DISAGREES (opDot 36).
+  No fleet run reaches sites 2-4, so a probe walked all 87 Grokking members and read hasActioN on each from inside an
+  action (`amProbe(*amCur)`, artifactSkipT's idiom; reading `amCur.hasActioN` off the cursor read the holder, 87 x A0B0,
+  void until a positive control appeared). Result: 87 reads, A0B0 54, A1B1 1, A0B1 32 -- e.g. ANYtoken, Braced, BrancH,
+  CerR, CouT, DEBUG, DO, DefinE, DelimText, ElseIf, ExpressioN, FOR, IF, Iterate, NamE. Each has an actor (the dlsym or
+  ruleMethod= arm of setActions, which publishes the actor and does NOT eager-stamp -- only the isCoded arm stamps) and
+  an empty cache, because only fireLabelMethod's lazy install fills it. So hasActioN today means "has fired at least
+  once (or is coded)". No fleet row reads hasActioN (relevance gate: context, not a defect) -- but it is a kant-reachable
+  predicate read that answers differently after the retirement, and the dispatch names that as a STOP.
+
+STOP 2 -- THE CLEAR RUNS WHILE AN ACTOR STAYS.
+  What the clear actually does: `DatA = new(DatA)` copies the term reference, and the copy constructor copies the whole
+  RuleStuff, so the copy carries the referenced rule's actionMethod (aCTionSetBrackets 1,429, aCTionNumbeR 227, ...)
+  while the copy has NO actor (A1B0 1,656). The clear nulls that, and after it those copies agree (A0B0). In 290 cases the
+  copy is tagged NamE and DOES carry an actor: its cache was already null before the clear (site 5 A0B1 = 290), so the clear
+  was a no-op there and did not drop an action. Read literally, "the clear leaves an actor behind" -- so STOP. Read for
+  meaning: the clear's only effective work is removing a cache value copied onto an actor-less node; under the retirement
+  there is no cache to copy, and asking the actor answers "no action" for those 1,656, the same as the clear makes it.
+  Note: the 290 NamE copies answer A0B1 under every site, so they are STOP 1's timing fact again (cache not yet filled),
+  not a new meaning.
+  And the ORIGINAL DatA (site 7) shows the same 1,656 A1B0: term references whose RuleStuff copy carries the referenced
+  rule's action with no actor of their own. No reader ever reads one (site 1: zero disagreements).
+
+THE REST OF THE RECON, all clean:
+  - sites 2 and 3 are unreachable as predicates. setParseAction installs the method itself as parseMethod with
+    hasNewParse, so testAction returns at its first arm; parseAction is installed only by setParse's `parseACTION`/
+    `method` arms and never ran in the fleet. Both respell mechanically.
+  - bootstrap: the ten GroupMain rules given setActions (QuotE NamE NumbeR SetBrackets DelimText TraiTdata TraiT NewGroup
+    MemberS RunRulE) take the dlsym arm, so they carry a builtinActoR property, found by the same getProperty as every
+    other rule. Their fires are inside site 1's 3.1M agreements.
+  - fireLabelMethod's lazy install reads getAttribute("builtinActoR") (terms, then properties, isAttribute); the tap read
+    getProperty. 0 value differences in 1,217,845 A1B1 reads: same node.
+  - sweep: groupDirectives (the only directive file passed to tok) and incant/directives carry no actionMethod. Two
+    measure callouts read it, both parseTrace-gated: measureDeferredAbove (measure.twk:338 -- its `action` already ORs in
+    the actor, so the cache clause just drops) and the PC census callout (measure.twk:870, `acted = am ? parked : none`
+    -- respells to the actor's method). Kant prose mentions it in dead regions only (fireSeatT, adoptT, chainTruthT,
+    parseClass, retagSharedNode) and incant/decoder / designDocs records; none runs.
+  - canary 307 throughout; tok exit 0 on every tap retok.
+
+BRANCH: stroke-actionMethod created and deleted unused (no commit). Trunk: docs only (this SEQ, seal 72).
+NEXT: Tony's Q1/Q2. If yes to both, the build as dispatched. Opener after the buy: the containers recon.
+
+  END SEQ 205
