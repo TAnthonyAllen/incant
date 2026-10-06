@@ -90,7 +90,8 @@ use ruleStuff
                 // parentRecord the parent's label lives in its RECORD, the enclosing activation (1.2f, SEQ 306)
                 if cRec && !cRec.label && cFace && cFace.hasMembers && !cFace.binType && cLab != ruler.labelNO {
                     cRec.label = cLab;
-                    if cLab.labelOf || (!cLab.registry && !cLab.parent)     cLab.tag = cParent.ruleName; }
+                    // askTheRule the retag name is the parent instance's tag, never ruleName (ruleName stroke)
+                    if cLab.labelOf || (!cLab.registry && !cLab.parent)     cLab.tag = cFace.tag; }
                 else    field.attachLabel(ruleStuff,cParent,1,null,cLab); }
 use ruler
 use field

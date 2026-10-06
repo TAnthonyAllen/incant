@@ -190,3 +190,11 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 - **Confirm:** census callers across all three repos and the directive files; cut it; full bare tokall diff; fleet row
   for row. If the containers shape lands, its flag upkeep is the place a replacement would be decided, not here.
 - **Seen:** 2026-10-06.
+
+### `recordLabel` -- no caller since the ruleName stroke (2026-10-06)
+- **What / where:** `Generate.rtn:25`, `extern GroupItem recordLabel(RuleStuff s)` -- the nearest live record's label.
+- **Why it looks deletable:** its one caller, `attachLabel`, now walks the records itself so it can read the record's
+  `face` (the retag asks the rule, not `ruleName`); kept in place by the stroke so the extern canary did not move.
+- **Confirm:** grep every repo and the directive files for a caller; cut it and its groups.ext line if any; canary
+  307 -> 306, named; fleet row for row.
+- **Seen:** 2026-10-06 (ruleName stroke, branch stroke-ruleName).

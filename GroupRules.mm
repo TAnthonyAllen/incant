@@ -2324,8 +2324,9 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 				if ( cRec && !cRec->label && cFace && cFace->groupBody->flags.hasMembers && !cFace->groupBody->flags.binType && cLab != ruler->labelNO )
 					{
 					cRec->label = cLab;
+					// askTheRule the retag name is the parent instance's tag, never ruleName (ruleName stroke)
 					if ( cLab->labelOf || (!cLab->groupBody->registry && !cLab->parent) )
-						cLab->groupBody->tag = cParent->ruleName;
+						cLab->groupBody->tag = cFace->groupBody->tag;
 					}
 				else	field->attachLabel(ruleStuff,cParent,1,0,cLab);
 				}
