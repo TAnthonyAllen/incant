@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 213 at the FOOT -- ruleName stroke BUILT on stroke-ruleName (cc0dc97), NOT MERGED; seal 80
+STATUS:   fresh           # SEQ 214 at the FOOT -- stroke-ruleName MERGED (990f04f) + R2 slug (4b23e99); stroke 1.3 BUILT on stroke13 (b392611 / support 217656b), NOT MERGED; seal 81
+# prior: SEQ 213 at the FOOT -- ruleName stroke BUILT on stroke-ruleName (cc0dc97), NOT MERGED; seal 80
 # prior: SEQ 212 at the FOOT -- ruleName stroke STOPPED at R2's mintLabel re-measure (5,264 disagreements, all SetBrackets/DatA), NOTHING BUILT; 1.3 waits; seal 79
 # prior: SEQ 211 at the FOOT -- R2a: ruleName == the owning rule's tag at every retag read (0 of 2,095,156 differ); the retag respell is a small stroke ahead of 1.4; seal 78
 # prior: SEQ 210 at the FOOT -- containers recon STEP 3 of 3 (against 1.3/1.4) reported; R0 recorded (rStuff out of scope, HPDL); seal 77
@@ -11707,3 +11708,33 @@ CERTIFICATE:
 NEXT: Tony buys or refuses stroke-ruleName; on the buy, stroke 1.3 runs as dispatched (its R1 is met).
 
   END SEQ 213
+
+SEQ 214  -  R0 stroke-ruleName MERGED; R2 SLUG ON ruleName; STROKE 1.3 BUILT ON stroke13, NOT MERGED. FOR THE BUY.
+
+R0: merged 990f04f; branch deleted local and remote. The support repo never had a stroke-ruleName branch -- that stroke
+  changed no support file.
+R2: RuleStuff.ruleName carries `// sourceRuleByIntent a debugging aid only, which rule this RuleStuff refers to -- on a
+  copy it names the SOURCE rule, by intent; no engine code reads it, do not "fix" it` (4b23e99). Comment only: a full bare
+  tokall moved no generated file.
+
+STROKE 1.3 (Groups b392611, support 217656b, both branch stroke13, pushed):
+  ParseActivation.face -> instance, with every tied spelling: enclosingFace -> enclosingInstance (+ groups.ext), cFace ->
+  cInstance, slug faceNotOwner -> instanceNotOwner, the struct comment, measureParentProbe. ParseActivation.stuff LEAVES:
+  one GroupRules method `stuffOf(ParseActivation *rec)` -- rec.instance.rStuff, null for a floor -- mirrored in groups.ext
+  beside floorOwner/inCompile; every reader asks it; the five creators stop writing stuff.
+RECON: #58 -- `instance` is no member, global, groups.ext name or libc/SDK symbol; zero code hits in Groups' tok and its
+  seven include files (only tok's own tok.ext uses it, outside this build). Stuff tap at every engine read (reverted
+  md5-identical): ~62.7M record reads at 8 sites, stuff == instance.rStuff on ALL; H16 shown (1 forced flip seen).
+  enclosingStuff: no caller, 0 reads -> cleanupList. Directives: groupDirectives' only hit is getStuff's own local `stuff`
+  (239-241), not this field.
+CERTIFICATE: full bare tokall -- GroupRules.h/.mm, GroupItem.mm, measure.mm moved, every line read, no capture. Canary
+  307 -> 307 (a rename and a method). pop.sh 987 / 51 row for row · jitLadder PASSED · printPop PASSED · decodePop and
+  frontier row for row · ddPop 5 / 1 · dirCheck PASSED row for row.
+  H7 (committed first): stuffOf returns the PREVIOUS activation's instance.rStuff -> every fixture dies at setup (139):
+  oneTest runs, leafLabelT runs and its old-road and new-road span rows (read [], want the five spans) -- red; fleet 46 /
+  983. Restored from the commit: md5-identical, 987 / 51, same reds.
+  ⚠ One build fix in flight: stuffOf first took `ParseActivation rec`, which tok passes BY VALUE (not a tok class) -- it
+  now takes `ParseActivation *rec`, as the locals do.
+NEXT: Tony buys or refuses stroke13. Then 1.4 (rule facts onto groupBody, as A5 writes it).
+
+  END SEQ 214
