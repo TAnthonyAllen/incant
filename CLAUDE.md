@@ -2189,6 +2189,14 @@ Hard-won lessons. Each one has cost real debugging time.
     oddity to be tidied away; it is load-bearing.
     **Retire the second half when Option B lands and composition is measured** — the subscript half
     is structural and stays.
+    ⚠⚠ **CORRECTED 2026-10-06 -- THE "AFTER A DOT" HALF ABOVE IS STALE. `*a.b` IS ONE TERM TODAY.** The
+    grammar's `InvokeArg` has a `UnaryXP UnaryOPS ANYtoken` alternative, so `.b` is taken INTO `a`'s TokenXP:
+    it takes aCTionTokenXP's `dot-COMPOSED` arm with `unary=*`, and handleDot's star rotation builds
+    `(*a).b` (measured, docs/expressionRecon.md section 4, p4: `x6 := *ph.pMid` reads MIDVAL). **RULED
+    (Tony, 2026-10-06, R1): the 10-05 ruling `*a.b = (*a).b` stands, made uniform -- a prefix unary binds to
+    its NAME first, then postfixes (`.`, call, subscript) apply in order. So `*block(code)` is
+    `(*block)(code)`** -- which today it is not (the call arm loses the call, expressionRecon.md section 3).
+    The two-mechanisms text stays above as the record of what was measured on 2026-09-04.
 
 35. **A CHAINED-SUBSCRIPT READ IN PRINT POSITION IS UNRELIABLE — `opDot` UNWRAPS ONCE.** Second
     confirmed instance of the same single-unwrap poisoning (Tony named the first on 2026-08-22

@@ -1,7 +1,9 @@
 # ⚠⚠⚠ SEALED 2026-10-06 (85, SHUTDOWN) ON TRUNK -- R0 DOCS LANDED; EXPRESSION RECON STEP 1 (A MAP) REPORTED. SEAL AND STOP.
 #
 #   ## THE OPENER (Tony, shutdown ruling 2026-10-06), in this order:
-#   (1) Tony reads docs/expressionRecon.md (clod-to-clay SEQ 218).
+#   (1) Tony reads docs/expressionRecon.md (clod-to-clay SEQ 218) -- the step 1 map, and THE STEP 2 PROBES WITH IT
+#       (SEQ 219: P1 arm stability -- no target-decided arm ever switched; P2 -- 7 sites change under a strict left fold,
+#       2 pinned by jitLadder rung JA; P3 -- 0 comparison+arithmetic mixes, 6 short-circuit+comparison mixes).
 #   (2) A BORN-RED FIXTURE pins KANT-43's split BY VALUE: `qa * qb + qc` = 23 against `2 * 10 + 3` = 26, and the `-` pair
 #       (`qa - qb + qc` = -5 against right-to-left -11), with qa=2 qb=10 qc=3 -- probes p2/p2b in the recon are the shape.
 #   (3) Tony sets the expression design's order.

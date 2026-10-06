@@ -25,6 +25,12 @@ NamE        first-=[a-zA-Z] nameSet-^*   nameSet = [a-zA-Z0-9]     <- NO DOT
   `lastREF` by `opDot`'s bare-accessor fixup. `*a.b` is therefore **two terms**, and KANT-43's
   right-to-left association applies the star **last** → `*(a.b)`.
 
+⚠⚠ **CORRECTED 2026-10-06: `*a.b` IS ONE TERM TODAY, NOT TWO.** `InvokeArg`'s `UnaryXP UnaryOPS ANYtoken` alternative
+takes `.b` into `a`'s own TokenXP (`dot-COMPOSED`, `unary=*`), and handleDot's star rotation builds `(*a).b` -- measured,
+`docs/expressionRecon.md` section 4. **Tony's ruling, 2026-10-06 (R1): the 10-05 ruling `*a.b = (*a).b` stands, made
+uniform: a prefix unary binds to its name first, then postfixes (`.`, call, subscript) apply in order -- so `*block(code)`
+is `(*block)(code)`.** The two-terms reading above is the 2026-09-04 measurement, kept as the record.
+
 ⚠ **`.` BEING IN BOTH PLACES IS THE LOAD-BEARING FACT AND IT IS EASY TO MISS.** It is the only
 token that is both an operator and a unary, which is exactly what makes the bare accessor work —
 and exactly what makes a leading unary reach the wrong operand.

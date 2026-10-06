@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 218 at the FOOT -- R00 explained (Clod's own edit); R0 docs fixes landed (7f7dcac); expression recon step 1 (a map) reported, docs/expressionRecon.md; seal 85
+STATUS:   fresh           # SEQ 219 at the FOOT -- expression design step 2 PROBES (P1 arm stability, P2 left-to-right census, P3 tier census) reported; R1 binding noted; shutdown seal 85
+# prior: SEQ 218 at the FOOT -- R00 explained (Clod's own edit); R0 docs fixes landed (7f7dcac); expression recon step 1 (a map) reported, docs/expressionRecon.md; seal 85
 # prior: SEQ 217 at the FOOT -- stroke14 MERGED, REDESIGN STEP 1 COMPLETE (6f929e3 / 5a0ec82); cleanup census reported, docs/cleanupCensus.md; seal 84
 # prior: SEQ 216 at the FOOT -- stroke 1.4 BUILT on stroke14 (eb42886 / support 1329789), NOT MERGED; on the buy, redesign step 1 is complete; seal 83
 # prior: SEQ 215 at the FOOT -- stroke13 MERGED (fe28272 / 2afacca); stroke 1.4 STOPPED at its recon (testMatch is per-instance on rightBrace; ruleOf keeps identity readers), NOTHING BUILT; seal 82
@@ -11902,3 +11903,29 @@ THE MAP (probes run; the ones carrying a claim re-run by Clod):
 NO PROPOSAL. The order is Tony's.
 
   END SEQ 218
+
+SEQ 219  -  EXPRESSION DESIGN, STEP 2: PROBES. NOTHING BUILT (R0); scratchpad only. docs/expressionRecon.md "Step 2".
+
+R1 NOTED: *a.b = (*a).b stands, made uniform -- prefix unary binds to its name first, then postfixes in order, so
+  *block(code) is (*block)(code). Supersedes SEQ 218's "postfix binds tighter" kibitz. Dated corrections added to
+  CLAUDE.md #48 and docs/unaryPlacement.md (both said `*a.b` is two terms; it is one today).
+
+P1 ARM STABILITY -- 198 fixtures re-run in scratch with traceParse; 480,524 RULEDISPATCH lines; 30,952 (fixture, target)
+  pairs. ⚠ The callout keys on the TARGET's address, not the instruction node, and re-derives the arm.
+  TARGET-decided arms (runRule / runAction / method): ZERO switches.
+  OP-decided arms: 1,766 targets show operator + opMethod -- the signature of a unary and a binary instruction sharing one
+  target; not distinguishable from one instruction switching with this instrument (a node-identity tap would need code).
+  Target STATE does change between fires without moving the arm: actionType 2->1 (97, coded -> action), 0->2 / 0->1 (11),
+  hasNewParse 0->1 (7), isMethod 0->1 (7).
+P2 LEFT-TO-RIGHT CENSUS (control: an independent grep agrees on the real population): 12 kant expressions with >=2 binary
+  ops; 9 mix kinds; 7 sites in 3 files change value under a strict left fold vs today:
+    jitAttrPop:69 `bgSpec * 3 + 2` (today 25, left 17) and :70 -- PINNED by jitLadder rung JA (25/75/125); the fixture's
+      own comment already says 17.
+    utilities:67,70,72,75 (`x > px && x < pxw`) and :302 (`across > 0 || down > 0`).
+  No change: utilities' `width * sideRoom / 100` (today absorbs `width*sideRoom` first = the left fold). Today's real
+  order measured: a NAME op NAME with op - or * folds first; a number is not absorbed (qa*3+2 = 25).
+P3 TIER CENSUS: (a) comparison mixed with arithmetic: 0. (b) &&/|| mixed with comparison: 6, all incant/utilities.
+  ⚠ Those five comparisons read `x > (px && (x < pxw))` TODAY and `((x > px) && x) < pxw` under a strict left fold --
+  neither direction alone gives the written intent; a comparison tier above short-circuit does.
+
+  END SEQ 219

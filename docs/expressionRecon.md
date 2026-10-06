@@ -146,8 +146,13 @@ p4 (Clod's re-run agrees on the arms):
 | `ph := pRoot; x6 := *ph.pMid;` | `dot-COMPOSED primary=ph ... unary=*` | MIDVAL -- `(*ph).pMid` |
 | `x7 := *ph["pMid"];` | `subscript primary=ph ... unary=*` | MIDVAL |
 
-⚠ **`*a.b` is ONE term today** (dot-COMPOSED with `unary=*`, rotated to `(*a).b`). CLAUDE.md bear-trap #48 (:2180-2183)
-and docs/unaryPlacement.md:25 say it is two terms associating to `*(a.b)` -- stale.
+⚠ **`*a.b` is ONE term today** (dot-COMPOSED with `unary=*`, rotated to `(*a).b`). CLAUDE.md bear-trap #48 and
+docs/unaryPlacement.md said it was two terms associating to `*(a.b)`; both carry a dated correction now (2026-10-06).
+
+⚠⚠ **BINDING, RULED (Tony, 2026-10-06, R1): the 10-05 ruling `*a.b = (*a).b` stands, made UNIFORM. A prefix unary binds
+to its NAME first, then the postfixes (`.`, call, subscript) apply in order. So `*block(code)` is `(*block)(code)`.** This
+supersedes SEQ 218's kibitz that "postfix binds tighter than prefix". Today the subscript and dot rotations already give
+`(*a)[i]` and `(*a).b`; the call arm is the one that does not (section 3).
 
 ### 5. The jit emit path
 
@@ -268,3 +273,78 @@ characters, ensureGuard's data-text first char (:618), and the shortcut, modifie
 - CLAUDE.md #48 and docs/unaryPlacement.md say `*a.b` is two terms; it is one, `(*a).b`.
 - jitEmitUnary's header says no gate reaches opPlusPlus/opMinusMinus under jitting; one does.
 - KANT-43 (docs/kantCorpus.md) states uniform right-to-left; the UnaryOPS-spelled binary operators are absorbed left.
+
+## Step 2 -- probes (2026-10-06, read-only; Tony leads the design, R0)
+
+**R2, the direction under study (NOT ruled):** left to right, arithmetic folded strictly left to right, with a few tiers
+by split rather than a precedence engine -- assignment, comparison, and possibly short-circuit. Nothing was built; every
+probe ran in the scratchpad (`scratchpad/expr3/`), the tree untouched.
+
+### P1 -- arm stability: does an expression node take two different arms in runOP across fires?
+
+**How:** every `incant/pop` and `incant/pop/jit` fixture (198 run; 1 has no `Start();` and was skipped) was copied to the
+scratchpad with `traceParse();` inserted after `Start();`, run under a 60 s alarm, and every `RULEDISPATCH` line kept:
+**480,524 dispatches**. ⚠ **Instrument limit, named:** `measureRuleDispatch` prints the TARGET's address, not the
+instruction node's, so a "node" here is (fixture, target address) -- **30,952 of them**; and its `arm=` string RE-DERIVES
+runOP's ladder (it does not see `hasMembers`/pickKindOP, the refused or null early returns, or the virtual copy). The
+instruction node's own identity would need a tap, which R0 rules out today.
+
+| arms seen | dispatches |
+|---|---|
+| runRule | 278,552 |
+| operator | 119,807 |
+| opMethod | 49,269 |
+| method | 24,474 |
+| runAction | 8,412 |
+| NONE | 10 (the refusal fixtures: argRetiredT, leafLabelT, opPrefixT x5, opRoadT, testPrecedence) |
+
+- **Targets that switch between the TARGET-decided arms (runRule / runAction / method): ZERO.**
+- **1,766 targets take two OP-decided arms** -- every one `operator` + `opMethod` (one also `runRule`: anyOrNumT's
+  ANYorNum). That is the signature of **two different instructions sharing one target** (a unary op and a binary op on the
+  same holder, e.g. `*cur` and `x := cur`), which this instrument cannot tell from one instruction switching. An
+  instruction's op slot is built once, so its op-decided arm can only change if the op node's own kind changes (inferred).
+- **The target's state DOES change between fires, without changing its arm:** `actionType` 2 -> 1 (97 targets -- coded
+  becoming action: generateParse 42, walkRules 9, compileRules 9 ...), `actionType` 0 -> 2 (7) and 0 -> 1 (4),
+  `hasNewParse` 0 -> 1 (7 -- parser() installing), `isMethod` 0 -> 1 (7). So a design that fixes the dispatch kind at build
+  time is consistent with every arm the fleet took, but the kind's DETAILS (which action road, an installed parse) move
+  after build.
+
+### P2 -- left-to-right census
+
+**How:** a scratch census (`census.py`) over the live region (above the first column-0 `stop();`/`bail();`) of every kant
+file under `incant/` and `IncantForms/WorkingOn/`, excluding the grammar and the data registries (designDocs, decoder,
+jigcorpus); comments and string literals stripped; print/cerr/cout statements skipped; each statement split at its first
+assignment operator; parenthesised groups, calls and subscripts treated as one operand; `.` joined into its operand.
+Each expression with two or more binary operators was evaluated three ways with random operand values: **strict left to
+right**, **strict right to left** (KANT-43 as written), and **today** (right to left after the measured absorption -- a
+NAME followed by `-` or `*` and another NAME folds first; a number is not absorbed: `qa*3+2` = 25, `qa*qb-qb` = 40,
+`qa-qb-qb` = -15, all measured). **Control (H11):** an independent line grep for code-shaped lines with two binary
+operators returned the same real population (its other hits were two statements on one line, a unary `*` counted as
+binary, grammar modifiers and paths). Static and approximate: each textual site counts once however often it runs.
+
+**12 expressions in kant have two or more binary operators. 9 mix kinds.** By file:
+
+| file | expression | ops | changes under strict left vs TODAY? |
+|---|---|---|---|
+| incant/pop/jit/jitAttrPop:69 | `bgBaked = bgSpec * 3 + 2` | `* +` | **YES**: today `bgSpec * (3+2)` = 25, left 17. **Pinned by jitLadder rung JA (25 / 75 / 125, bgBaked 25)**, and the fixture's own comment already says 17 |
+| incant/pop/jit/jitAttrPop:70 | `layoutTotal = layoutTotal + bgBaked * applyScale` | `+ *` | **YES**: today `bgBaked*applyScale` is absorbed, then added; left would be `(layoutTotal+bgBaked)*applyScale`. Same rung |
+| incant/utilities:67, 70, 72, 75 | `goodToGo = x > px && x < pxw` (and the `xw`, `y`, `yh` forms) | `> && <` | **YES** -- and see P3: today this reads `x > (px && (x < pxw))`, strict left `((x > px) && x) < pxw`; neither is the intended `(x > px) && (x < pxw)` |
+| incant/utilities:302 | `if across > 0 \|\| down > 0` | `> \|\| >` | **YES** -- same shape |
+| incant/utilities:253, 263 | `width = width * sideRoom / 100` (and height) | `* /` | no: today absorbs `width*sideRoom` first, which IS the left fold (strict right to left would differ) |
+| incant/utilities:117 | `if !length \|\| grup IN listed` | `\|\| IN` | not evaluated (IN) |
+
+Same kind, no change: `incant/pop/connectiveT` (`&&` x4 over calls), `incant/probes/subscriptShapes` (`+ +`).
+**Total: 7 sites in 3 files change value under a strict left fold** -- 2 of them pinned by a fleet rung (jitLadder JA),
+5 in incant/utilities (a display-bounds helper; no fleet row found reading it -- inferred from the census of fixtures).
+
+### P3 -- tier census
+
+| candidate tier | sites | where |
+|---|---|---|
+| (a) comparison mixed with arithmetic in one expression | **0** | none in live kant |
+| (b) `&&` / `\|\|` mixed with comparison | **6** | incant/utilities:67, 70, 72, 75 (`> && <`), :302 (`> \|\| >`), :117 (`\|\| IN`) |
+| assignment over a compound right side | every assignment above; today's right-to-left already puts `=` last because it is leftmost | -- |
+
+⚠ **What (b) shows about today, recorded and not ruled:** with no tiers, the five `utilities` comparisons combine as
+`x > (px && (x < pxw))` under today's right-to-left, and as `((x > px) && x) < pxw` under a strict left fold -- **neither
+direction alone gives the reading the code was written for; a comparison tier above the short-circuit one does.**
