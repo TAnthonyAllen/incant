@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 216 at the FOOT -- stroke 1.4 BUILT on stroke14 (eb42886 / support 1329789), NOT MERGED; on the buy, redesign step 1 is complete; seal 83
+STATUS:   fresh           # SEQ 217 at the FOOT -- stroke14 MERGED, REDESIGN STEP 1 COMPLETE (6f929e3 / 5a0ec82); cleanup census reported, docs/cleanupCensus.md; seal 84
+# prior: SEQ 216 at the FOOT -- stroke 1.4 BUILT on stroke14 (eb42886 / support 1329789), NOT MERGED; on the buy, redesign step 1 is complete; seal 83
 # prior: SEQ 215 at the FOOT -- stroke13 MERGED (fe28272 / 2afacca); stroke 1.4 STOPPED at its recon (testMatch is per-instance on rightBrace; ruleOf keeps identity readers), NOTHING BUILT; seal 82
 # prior: SEQ 214 at the FOOT -- stroke-ruleName MERGED (990f04f) + R2 slug (4b23e99); stroke 1.3 BUILT on stroke13 (b392611 / support 217656b), NOT MERGED; seal 81
 # prior: SEQ 213 at the FOOT -- ruleName stroke BUILT on stroke-ruleName (cc0dc97), NOT MERGED; seal 80
@@ -11818,3 +11819,44 @@ NEXT: Tony buys or refuses stroke14. On the buy, objectModel A5 records step 1 c
   summary before the expression recon.
 
   END SEQ 216
+
+SEQ 217  -  R0 stroke14 MERGED: REDESIGN STEP 1 COMPLETE. CLEANUP CENSUS (READ-ONLY) REPORTED: docs/cleanupCensus.md.
+
+R0: merged Groups 6f929e3, support 5a0ec82; branches deleted in both. objectModel A5 records step 1 COMPLETE (1.3, 1.4
+  merged) and step 2 PARKED, HPDL (O12) -- "NOT NEXT". redList seal 84 names the three red rows that moved with 1.4 (cb842b4).
+  Trunk rebuilt: 987 / 51, canary 306.
+
+THE CENSUS (five read-only passes; nothing cut, moved or respelled -- R1). The doc opens with Tony's two tables:
+  FLAG rows (~40): purpose not obvious, or code and comment disagree -- e.g. max vs maxRepeat (two caps, one per road);
+    modPercent/modPointer (no engine reader); ParseActivation.label (three meanings); affiliation (no ctor sets it, the copy
+    ctor's comment is wrong, properties marked isAttribute); gMethod holds the PARSE executor on rule bodies; gCount is also
+    length, field number and jit frame key; noPrint (three uses); fLAG (three or four); byRef still read though "retired";
+    reversePrint has no writer and its name is inverted; hasNewParse comment vs code; ruleSTUFF has NO engine reader (the
+    "singleton for processAction" reputation is false); branchKind's declaration still says "inert"; tempField's restore is
+    inert; refused has more "single" writers than its comment allows; debugAllRules/debugGuards differ from CLAUDE.md; a
+    batch of jit-global comments that name the wrong setters/functions; CLAUDE.md's live gNoUnwrap is gone.
+  SECOND MEANING rows (~35): max as a shape test; min as "required"; noLabel as upToMatch's skip-count mode; labelOf as
+    "retag allowed"; ruleOf as "is a copy"; parent (six other uses); rStuff on a label is the rule's; tag as opcode and guard
+    char; registry as accessor/keyword classifier; gText as a string cursor; gGroup written past setGroup; hasAttributes/
+    hasMembers as iterator filters; atRuleMark written through to truncate input; tempField as the jit result node; ...
+  ZERO: GroupRules has 12 members with no reader and no writer (debugJunk, divertOutput, punctuateSet, shortcutSet,
+    rulesParsed, debugGuards, ignoreThis, ignoreNoRoom, isPERCENT, isRELATIVE, isRigorous, showWarnings) and 7 write-only;
+    GroupBody: no readers on gMap, gRegex, isInitialized, isSingleton, isWindow, debugGuard; no writers on reversePrint,
+    gItem; RuleStuff: modPercent/modPointer engine-dead.
+PART B:
+  B1 escapes: 73 in scope -- 37 sayable in tok today, 12 not, 24 unclear (16 jit enum constants); 101 out of scope
+    (expression-owned, mostly jitEmitters.rtn); 4 measure calls escaped for no type reason.
+  B2 parse(): 92 lines (71 code, 17 slugs, 3 escapes); the :1352 fire, beforeAction: and ownPoint = 0 leave together.
+  B3 412: needs the ruling on a kant reader for the compile-floor mark.
+  B4 recordLabel, enclosingStuff, ignoreNoPrint, updateContentFlags: cuts, each with its groups.ext line --
+    updateContentFlags also has a directive (groupDirectives:296-298) the cleanupList entry missed.
+  B5 ParseActivation by value: no code change; stuffOf is the only such parameter and is spelled with `*`.
+  B6 NEW: gOp's groups.ext mirror (:72) still declares the target by REFERENCE; the class has been by value since fa9989c --
+    which is exactly setOperat's "tok can't render a reference fnptr cast" premise. A ruling on which is right.
+  B7 cleanupList re-check: YES 15, PARTLY 2 (enclosingFace renamed; testAny gained anyLeafT), ALREADY CUT 8. Seven live
+    entries sit under the list's `## Done` heading (Clod's appends today).
+  B8 objectModel §1.3 is out of date on all four structs.
+
+NEXT: Tony rules the FLAG and SECOND MEANING rows; the rest waits for the cleanup days. Then the expression recon.
+
+  END SEQ 217
