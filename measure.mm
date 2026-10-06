@@ -188,7 +188,7 @@ GroupItem 	*canon = 0;
 	argument->groupBody->tag,(void*)argument,(void*)canon,
 	argument == canon ? "SAME NODE" : "DIFFERENT NODES",
 	(void*)argument->rStuff,(void*)canon->rStuff,
-	canon->rStuff ? (void*)canon->rStuff->parseMethod : (void*)0);
+	(void*)canon->groupBody->gParseMethod);
 	
 	return canon;
 }
@@ -583,7 +583,7 @@ extern "C" GroupItem *measureParseClass(GroupItem *field)
 	
 	if ( GroupControl::groupController->groupRules->parseTrace && field && field->rStuff )
 	{
-	void *m = (void*)field->rStuff->parseMethod;
+	void *m = (void*)field->groupBody->gParseMethod;
 	const char *name = !m ? "none" : m == (void*)parseAction ? "parseAction" : m == (void*)parseRule ? "parseRule"
 	: m == (void*)parseContainer ? "parseContainer" : m == (void*)parseString ? "parseString" : m == (void*)parseSet ? "parseSet"
 	: m == (void*)parseCharacter ? "parseCharacter" : m == (void*)parseUpTo ? "parseUpTo"
@@ -835,7 +835,7 @@ char 	*pcName = "other";
 	pcName = (char *)"skipped-registry";
 	else if (!field->rStuff)    pcName = (char *)"NO-rSTUFF";
 	else {
-	GroupItem *(*pm)(GroupItem *) = field->rStuff->parseMethod;
+	GroupItem *(*pm)(GroupItem *) = field->groupBody->gParseMethod;
 	if      (!pm)                    pcName = (char *)"none";
 	else if (pm == ::parseUpTo)      pcName = (char *)"parseUpTo";
 	else if (pm == ::parseContainer) pcName = (char *)"parseContainer";
@@ -854,7 +854,7 @@ char 	*pcName = "other";
 	GroupItem *actor = field->get("builtinActoR");
 	if ( field->rStuff ) {
 	GroupItem *(*am)(GroupItem *) = actor ? actor->groupBody->gMethod : 0;
-	GroupItem *(*pm)(GroupItem *) = field->rStuff->parseMethod;
+	GroupItem *(*pm)(GroupItem *) = field->groupBody->gParseMethod;
 	acted = am ? "parked" : "none";
 	hung  = actor ? "yes" : "no";
 	if      ( !am )                  fires = "nothing-parked";

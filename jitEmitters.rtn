@@ -2126,11 +2126,11 @@ extern GroupItem jitFieldMethod(GroupItem field)
         fprintf(stderr,
             "=== SLOTPROBE %s: field=%p definer=%p body=%p rStuff=%p jitMethod=%p ===\n",
             name, (void*)field, (void*)definer, (void*)definer->groupBody,
-            (void*)stuff, stuff ? (void*)stuff->jitMethod : (void*)0);
+            (void*)stuff, (void*)definer->groupBody->gJitMethod);
 
     /*  PATH 1 -- THE SLOT. This is the only dispatch in the function. */
-    if (stuff && stuff->jitMethod) {
-        int r = stuff->jitMethod(jitBodyField(definer));
+    if (definer->groupBody->gJitMethod) {
+        int r = definer->groupBody->gJitMethod(jitBodyField(definer));
         printf("=== jitFieldMethod: %s THROUGH THE SLOT, result = %d ===\n", name, r);
         //  Both counters on EVERY fire, with their values. The slot path cannot
         //  raise the degrade count (it re-enters no emitter), and printing it
@@ -2158,13 +2158,13 @@ extern GroupItem jitFieldMethod(GroupItem field)
     if (!stuff) {
         stuff = new RuleStuff(definer);
         definer->setRStuff(stuff); }
-    stuff->jitMethod = gJitLastFn;
+    definer->groupBody->gJitMethod = gJitLastFn;
     if (::getenv("INCANT_SLOT_PROBE"))
         fprintf(stderr,
             "=== SLOTPROBE %s STORED: rStuff=%p jitMethod=%p  readback rStuff=%p jitMethod=%p ===\n",
-            name, (void*)stuff, (void*)stuff->jitMethod,
+            name, (void*)stuff, (void*)definer->groupBody->gJitMethod,
             (void*)definer->rStuff,
-            definer->rStuff ? (void*)definer->rStuff->jitMethod : (void*)0);
+            (void*)definer->groupBody->gJitMethod);
 
     /*  THE RECORD IS NOT WRITTEN HERE ANY MORE -- jitRunAction hangs `JiT` at
         the capture site, and the call above (`jitRunAction(definer)`) has

@@ -5825,7 +5825,11 @@ kindRow "ruleOfT RO-7 definingRule() engine callers left" "$(cat *.twk *.rtn | g
 #  RE-PINNED 2026-10-02 (SEQ 260, deepClean D-15): 5 -> 4 -- parse()'s `definer = instanceRule()` was CUT with its
 #  unread defStuff (written, never read since stroke 4.3 family 2). Still non-zero: runLeafParse, installParseMethod,
 #  jitFieldMethod, jitShowRecord.
-kindRow "ruleOfT RO-8 instanceRule() engine callers (non-zero sibling of RO-7)" "$(cat *.twk *.rtn | grep -c 'definer *= .*instanceRule()')" "4"
+#  RE-PINNED 2026-10-06 (stroke 1.4, SEQ 215 R3): 4 -> 2 -- the rule facts moved onto the shared groupBody, so
+#  runLeafParse reads the body and no longer looks the definer up, and installParseMethod (a copy from a face onto its
+#  definer -- the same body) is RETIRED. Still non-zero: jitFieldMethod and jitShowRecord, which want the definer as a
+#  NODE (its name, jitBodyField, jitRunAction), so instanceRule() stays.
+kindRow "ruleOfT RO-8 instanceRule() engine callers (non-zero sibling of RO-7)" "$(cat *.twk *.rtn | grep -c 'definer *= .*instanceRule()')" "2"
 
 #  ---------------------------------------------------------------------------
 #  ruleTermT -- OBJECT MODEL STROKE 2: "this term takes part as a rule term" is the REFERENCE'S fact (rStuff

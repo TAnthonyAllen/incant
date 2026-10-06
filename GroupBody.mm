@@ -21,6 +21,9 @@
 *****************************************************************************/
 GroupBody::GroupBody()
 {
+	gTestMatch = 0;
+	gParseMethod = 0;
+	gJitMethod = 0;
 	gJitEmitter = 0;
 	propertyList = 0;
 	groupList = 0;
@@ -44,6 +47,9 @@ GroupBody::GroupBody()
 
 GroupBody::GroupBody(char *s)
 {
+	gTestMatch = 0;
+	gParseMethod = 0;
+	gJitMethod = 0;
 	gJitEmitter = 0;
 	propertyList = 0;
 	groupList = 0;

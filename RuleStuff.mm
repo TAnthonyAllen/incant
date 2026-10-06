@@ -40,8 +40,9 @@ GroupItem 	*got = 0;
 extern "C" int testAction(GroupItem *field)
 {
 	// installedIsTheParse an installed rule runs its LEAF; hasNewParse is copied and rStuff is not, so the guard asks both
-	if ( field->groupBody->flags.hasNewParse && field->getRStuff() && field->getRStuff()->parseMethod )
-		if ( field->getRStuff()->parseMethod(field) )
+	// ruleFactsOnBody rStuff stays in the guard so a copyOf twin (body copied, rStuff not) declines as it did before stroke 1.4
+	if ( field->groupBody->flags.hasNewParse && field->getRStuff() && field->groupBody->gParseMethod )
+		if ( field->groupBody->gParseMethod(field) )
 			return 1;
 		else	return 0;
 	// topRecord the label is the calling parse()'s record (1.2f, SEQ 306)
@@ -377,9 +378,6 @@ GroupItem 	*grup = isGROUP(field->groupBody->flags.data) ? field->getGroup() : f
 // RuleStuff constructors -- min and max start at 1; the TraiT action may overwrite them
 RuleStuff::RuleStuff(GroupItem *grup)
 {
-	testMatch = 0;
-	parseMethod = 0;
-	jitMethod = 0;
 	onGroup = 0;
 	followed = 0;
 	isTarget = 0;
@@ -401,9 +399,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 
 RuleStuff::RuleStuff(RuleStuff *r)
 {
-	testMatch = 0;
-	parseMethod = 0;
-	jitMethod = 0;
 	ruleName = 0;
 	onGroup = 0;
 	max = 0;
@@ -477,7 +472,7 @@ void RuleStuff::getWhatFollows(GroupItem *field)
 			isTarget = 1;
 		}
 	// promotionRetired the parent-min promotion is RETIRED -- do not reintroduce it; an optional term must not make its whole rule optional
-	if ( !testMatch )
+	if ( !field->groupBody->gTestMatch )
 		setTestMatch(field);
 }
 
@@ -528,41 +523,38 @@ GroupItem 	*lab = 0;
 	return lab;
 }
 
-// setTestMatch picks the old road's test for this rule's shape
+// setTestMatch picks the old road's test for this RULE's shape, on the shared body -- a reference's { } is an instance fact, asked first by parse() (stroke 1.4)
 void RuleStuff::setTestMatch(GroupItem *field)
 {
-	if ( upTo(overTo) || upToOver(overTo) )
-		testMatch = ::testUpTo;
-	else
 	if ( isBIN(field->groupBody->flags.binType) || isREGISTRY(field->groupBody->flags.binType) )
-		testMatch = ::testContainer;
+		field->groupBody->gTestMatch = ::testContainer;
 	else
 	if ( field->groupBody->flags.data )
 		switch (field->groupBody->flags.data)
 			{
 			case 1:
-				testMatch = ::testAny;
+				field->groupBody->gTestMatch = ::testAny;
 				break;
 			case 2:
-				testMatch = ::testCharacter;
+				field->groupBody->gTestMatch = ::testCharacter;
 				break;
 			case 3:
-				testMatch = ::testSet;
+				field->groupBody->gTestMatch = ::testSet;
 				break;
 			case 6:
-				testMatch = 0;
+				field->groupBody->gTestMatch = 0;
 				break;
 			default:
-				testMatch = ::testString;
+				field->groupBody->gTestMatch = ::testString;
 			}
 	else
 	if ( field->groupBody->flags.isCondition )
-		testMatch = ::testCondition;
+		field->groupBody->gTestMatch = ::testCondition;
 	else
 	if ( parseACTION(field->groupBody->flags.methodType) )
-		testMatch = ::testAction;
+		field->groupBody->gTestMatch = ::testAction;
 	else
 	if ( !field->contents() )
 		if ( !isMethod(field->groupBody->flags.instructType) )
-			testMatch = ::testString;
+			field->groupBody->gTestMatch = ::testString;
 }

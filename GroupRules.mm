@@ -2895,19 +2895,6 @@ extern "C" int hasRepeatClass(char *modifier)
 	return 0;
 }
 
-// installParseMethod park the face's parseMethod on its defining rule; min and max stay on the face, only the method is a fact of the shape
-extern "C" void installParseMethod(GroupItem *field)
-{
-GroupItem 	*definer = field->instanceRule();
-RuleStuff 	*faceStuff = field->getRStuff();
-RuleStuff 	*defStuff = 0;
-	if ( !definer || definer == field )
-		return;
-	defStuff = definer->getRStuff();
-	if ( defStuff && faceStuff )
-		defStuff->parseMethod = faceStuff->parseMethod;
-}
-
 /*******************************************************************************
     interpretXP — the interpret/run mode: build the left-associative runOP tree
     the interpreter walks. (Split out of aCTionExpressioN 2026-06-30; was the
@@ -4970,11 +4957,11 @@ extern "C" GroupItem *jitFieldMethod(GroupItem *field)
 	fprintf(stderr,
 	"=== SLOTPROBE %s: field=%p definer=%p body=%p rStuff=%p jitMethod=%p ===\n",
 	name, (void*)field, (void*)definer, (void*)definer->groupBody,
-	(void*)stuff, stuff ? (void*)stuff->jitMethod : (void*)0);
+	(void*)stuff, (void*)definer->groupBody->gJitMethod);
 	
 	/*  PATH 1 -- THE SLOT. This is the only dispatch in the function. */
-	if (stuff && stuff->jitMethod) {
-	int r = stuff->jitMethod(jitBodyField(definer));
+	if (definer->groupBody->gJitMethod) {
+	int r = definer->groupBody->gJitMethod(jitBodyField(definer));
 	printf("=== jitFieldMethod: %s THROUGH THE SLOT, result = %d ===\n", name, r);
 	//  Both counters on EVERY fire, with their values. The slot path cannot
 	//  raise the degrade count (it re-enters no emitter), and printing it
@@ -5002,13 +4989,13 @@ extern "C" GroupItem *jitFieldMethod(GroupItem *field)
 	if (!stuff) {
 	stuff = new RuleStuff(definer);
 	definer->setRStuff(stuff); }
-	stuff->jitMethod = gJitLastFn;
+	definer->groupBody->gJitMethod = gJitLastFn;
 	if (::getenv("INCANT_SLOT_PROBE"))
 	fprintf(stderr,
 	"=== SLOTPROBE %s STORED: rStuff=%p jitMethod=%p  readback rStuff=%p jitMethod=%p ===\n",
-	name, (void*)stuff, (void*)stuff->jitMethod,
+	name, (void*)stuff, (void*)definer->groupBody->gJitMethod,
 	(void*)definer->rStuff,
-	definer->rStuff ? (void*)definer->rStuff->jitMethod : (void*)0);
+	(void*)definer->groupBody->gJitMethod);
 	
 	/*  THE RECORD IS NOT WRITTEN HERE ANY MORE -- jitRunAction hangs `JiT` at
 	the capture site, and the call above (`jitRunAction(definer)`) has
@@ -9756,7 +9743,7 @@ extern "C" int repeatsInLoop(GroupItem *field)
 RuleStuff 	*ruleStuff = field->getRStuff();
 	if ( !ruleStuff )
 		return 0;
-	if ( ruleStuff->parseMethod == ::parseRule || (ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3)) )
+	if ( field->groupBody->gParseMethod == ::parseRule || (ruleStuff->max > 1 && (!field->groupBody->flags.data || field->groupBody->flags.data > 3)) )
 		return 1;
 	return 0;
 }
@@ -10105,15 +10092,12 @@ exitRunAction:
 // runLeafParse fire a leaf's parse method through its defining rule; a missing method is a named refusal, never a call
 extern "C" GroupItem *runLeafParse(GroupItem *field)
 {
-GroupItem 	*definer = field->instanceRule();
-RuleStuff 	*defStuff = 0;
-	if ( definer )
-		defStuff = definer->getRStuff();
 	// instanceFirst the reference's own { } before the rule's method -- the same read as driveStep's (F-O23)
 	if ( field->getRStuff() && field->getRStuff()->overTo )
 		return ::parseUpTo(field);
-	if ( defStuff && defStuff->parseMethod )
-		return defStuff->parseMethod(field);
+	// ruleFactsOnBody the rule's method is on the shared body, so the defining rule is not looked up (stroke 1.4)
+	if ( field->groupBody->gParseMethod )
+		return field->groupBody->gParseMethod(field);
 	return ::refuse(field,"parseLoop: no parse method is installed on the defining rule");
 }
 
@@ -10484,40 +10468,39 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	// realTermNotAList a FIELD with nothing but noPrint artifacts is a DATA rule: hasTraits and hasMembers ignore artifacts, groupList does not. The CONVERSION predicate is NOT this test -- it still asks the group's real groupList.
 	// upToIsTheReferences a reference's { } is ITS fact, never the rule's -- only an inline definition (not a copy) classifies from its own overTo (F-O23)
 	if ( (upTo(ruleStuff->overTo) || upToOver(ruleStuff->overTo)) && !field->ruleOf )
-		ruleStuff->parseMethod = ::parseUpTo;
+		field->groupBody->gParseMethod = ::parseUpTo;
 	else
 	if ( isBIN(field->groupBody->flags.binType) || isREGISTRY(field->groupBody->flags.binType) )
-		ruleStuff->parseMethod = ::parseContainer;
+		field->groupBody->gParseMethod = ::parseContainer;
 	else
 	if ( field->groupBody->flags.isCondition )
-		ruleStuff->parseMethod = ::parseCondition;
+		field->groupBody->gParseMethod = ::parseCondition;
 	else
 	if ( parseACTION(field->groupBody->flags.methodType) )
-		ruleStuff->parseMethod = ::parseAction;
+		field->groupBody->gParseMethod = ::parseAction;
 	else
 	if ( field->groupBody->flags.hasTraits || field->groupBody->flags.hasMembers )
-		ruleStuff->parseMethod = ::parseRule;
+		field->groupBody->gParseMethod = ::parseRule;
 	else
 	if ( field->groupBody->flags.data )
 		switch (field->groupBody->flags.data)
 			{
 			case 2:
-				ruleStuff->parseMethod = ::parseCharacter;
+				field->groupBody->gParseMethod = ::parseCharacter;
 				break;
 			case 3:
-				ruleStuff->parseMethod = ::parseSet;
+				field->groupBody->gParseMethod = ::parseSet;
 				break;
 			case 6:
-				ruleStuff->parseMethod = 0;
+				field->groupBody->gParseMethod = 0;
 				break;
 			default:
-				ruleStuff->parseMethod = ::parseString;
+				field->groupBody->gParseMethod = ::parseString;
 			}
 	else
 	if ( field->groupBody->gMethod )
-		ruleStuff->parseMethod = ::parseAction;
-	else	ruleStuff->parseMethod = ::parseString;
-	::installParseMethod(field);
+		field->groupBody->gParseMethod = ::parseAction;
+	else	field->groupBody->gParseMethod = ::parseString;
 	::measureParseClass(field);
 	if ( field->groupBody->flags.hasTraits || field->groupBody->flags.hasMembers )
 		{
@@ -10532,7 +10515,7 @@ RuleStuff 	*ruleStuff = field->getRStuff();
 	// loopPerOccurrence a rule body's method slot is SHARED by every occurrence, so every rule body goes through parseLoop and each occurrence loops to its OWN max (ruling A -- reverted on trunk 2026-09-27 for want of this branch's staged compile and definer fix, SEQ 211-216)
 	if ( ::repeatsInLoop(field) )
 		field->setMethod(::parseLoop);
-	else	field->setMethod(ruleStuff->parseMethod);
+	else	field->setMethod(field->groupBody->gParseMethod);
 	// flagFollowsInstall hasNewParse says a method is there to fire, so it is raised here and never at entry -- isGROUP installs null
 	if ( field->groupBody->gMethod )
 		field->groupBody->flags.hasNewParse = 1;

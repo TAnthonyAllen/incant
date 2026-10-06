@@ -1722,15 +1722,19 @@ continueHere:
 		Run the matches that determine if this rule succeeds
 		//runParseMatches
 		*******************************************************************/
+		// instanceFirst the reference's own { } before the rule's test, as runLeafParse does for parseMethod (stroke 1.4)
 		if ( isRuleTerm() && groupBody->flags.hasMembers && !groupBody->flags.data )
 			callOK = ::testOptions(ruleStuff,this);
 		else
-		if ( ruleStuff->testMatch || ruleStuff->onGroup || groupBody->flags.hasAttributes )
+		if ( ruleStuff->overTo || this->groupBody->gTestMatch || ruleStuff->onGroup || groupBody->flags.hasAttributes )
 			{
-			if ( ruleStuff->testMatch )
-				callOK = ruleStuff->testMatch(this);
+			if ( ruleStuff->overTo )
+				callOK = ::testUpTo(this);
+			else
+			if ( this->groupBody->gTestMatch )
+				callOK = this->groupBody->gTestMatch(this);
 			// leafDone the leaf hands its result back by RETURN; a self-repeating leaf has done the whole repetition, so its success ends the loop (stroke 1.1 site 3)
-			if ( callOK && (ruleStuff->testMatch == ::testAny || ruleStuff->testMatch == ::testCharacter || ruleStuff->testMatch == ::testSet) )
+			if ( callOK && !ruleStuff->overTo && (this->groupBody->gTestMatch == ::testAny || this->groupBody->gTestMatch == ::testCharacter || this->groupBody->gTestMatch == ::testSet) )
 				leafDone = 1;
 			if ( !parseACTION(groupBody->flags.methodType) )
 				{
@@ -2330,11 +2334,11 @@ void GroupItem::setOperat(void *m)
 *******************************************************************************/
 void GroupItem::setParseAction(GroupItem *(*m)(GroupItem *))
 {
-RuleStuff 	*ruleStuff = ensureRStuff();
+	ensureRStuff();
 	groupBody->flags.methodType = 2;
 	if ( m )
 		{
-		ruleStuff->parseMethod = m;
+		this->groupBody->gParseMethod = m;
 		groupBody->flags.hasNewParse = 1;
 		}
 }
