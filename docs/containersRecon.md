@@ -390,7 +390,7 @@ hold one. RuleStuff's own methods (`checkInput`, `checkGuard`, `inputAt`, `mintL
 
 **rStuff is OUT of the containers scope.** It is an HPDL design issue (hard part, do later), not for now. **RuleStuff
 stays a struct; A3 (instances with their own bodies) stays shelved.** Containers are **list organization only**. Step 2
-stands as the record of what rStuff would cost if it is ever reopened. Also recorded in objectModel's open items (A4).
+stands as the record of what rStuff would cost if it is ever reopened. Also recorded in objectModel's open items (A4, O12).
 
 Read volumes below come from step 2's call counts (pop.sh + jitLadder + printPop, one fleet run). Each read is counted
 in its function's source and generated body, **excluding parseTrace-gated lines**, so these are executed reads, not

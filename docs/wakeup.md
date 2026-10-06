@@ -7,7 +7,7 @@
 #   since seal 74.
 #   
 #   ## LANDED: docs only. R0 recorded (rStuff out of containers scope, HPDL; RuleStuff a struct; A3 shelved) in
-#   containersRecon.md and objectModel A4 O9. Step 3: 1.3 touches no list layout; 1.4 as body slots is independent of a
+#   containersRecon.md and objectModel A4 O12. Step 3: 1.3 touches no list layout; 1.4 as body slots is independent of a
 #   containers build; as properties it is not (needs the container; walk reads go from two loads to a lookup). Walk
 #   reads per run: testMatch 3.5M-21M, ruleName <=6.4M, parseMethod ~0.53M, jitMethod 0, instanceRule 243K.
 #   

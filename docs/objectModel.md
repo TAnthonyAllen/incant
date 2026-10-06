@@ -215,7 +215,7 @@ design is in flux and it is taking a few design iterations to sort out.*
   body.** **Enforcement PARKED** until a census sorts the `push` (11,604) and `addGroup` (1,934) writes per run into
   breaches and legitimate building; that census is its own dispatch. The known breach: `modify`'s `$` writes `isMacro`
   onto the shared body.
-- **O9. rStuff and the containers recon (Tony, 2026-10-06).** rStuff is **out of the containers scope** -- an HPDL
+- **O12. rStuff and the containers recon (Tony, 2026-10-06).** rStuff is **out of the containers scope** -- an HPDL
   design issue (hard part, do later), not for now. **RuleStuff stays a struct; A3 (own bodies) stays shelved.** The
   containers idea (fixed-position `[members, attributes, properties]` on the group list) is list organization only.
   Record and costs: `docs/containersRecon.md` (step 2 for rStuff, step 3 for strokes 1.3/1.4).
@@ -267,7 +267,7 @@ design is in flux and it is taking a few design iterations to sort out.*
 - **O9. `followed`'s mixed guard** (M5, open, R10). One lazy marker over `getWhatFollows`, which sets rule facts
   (`onGroup`, `testMatch`) and an instance fact (`isTarget`) together; the copy constructor clears it, so rule facts
   are recomputed per instance. Does not block stroke 1.
-- **O10. `actionMethod` written during a fire** (M6, open, R10; stroke 4's problem). `fireLabelMethod` copies
+- **O10. `actionMethod` written during a fire** (M6; **CLOSED 2026-10-06** -- the field retired, merge 9395d57, SEQ 205/206: every reader asks `builtinActoR`, so nothing is written during a fire). `fireLabelMethod` copies
   `builtinActoR.method` into `stuff.actionMethod` mid-fire (`GroupItem.twk:699`) -- a rule fact written in the walk.
 - **O11. `notifyFail`'s level** (M7, open, R10). Set by `processFlags`' `f` on whichever node carries the flag; rule or
   instance depends on whether `f` is written on definitions or references. Census not run. Does not block stroke 1.
