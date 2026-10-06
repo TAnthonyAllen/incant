@@ -20,6 +20,17 @@ instrument's missing list is an accident; two is the convention being too narrow
 read as a clean pass with an EMPTY output file. An empty capture at exit 0 is not a green; check
 that an instrument printed something before believing its status.
 
+## 2026-10-06, seal 74 -- 987 green / 51 red / 1 parked (trunk jit-unified-emit-wip, bare)
+
+**Seal 70's 51 rows, diffed by name, unchanged through two moves:** hasActionT's five rows joined born red (999682c,
+SEQ 205 R2) and left green with the stroke-actionMethod merge (9395d57). Green rose by eight (hasActionT's run, sentinel,
+control and five). **Two rows already red moved value with the merge, both instruments reading the field it cut:**
+- **fires=NEVER roster MOVED** -- actual [StatemenT] -> [ExpressioN StatemenT], and its anti-vacuity count of parked
+  actions on parseRule 3 -> 8. The PA census callout's "parked" read RuleStuff.actionMethod, filled only by a rule's
+  first fire (coded rules excepted); it now reads the rule's builtinActoR. ExpressioN's actor existed before; the lens
+  moved, the program did not. Expected list [ANYtoken NewGroup ShortcuT] stays stale, as before.
+- **raw ->rStuff reads MOVED** -- 23 -> 22 (expected 30, stale): measure.mm's `field->rStuff->actionMethod` is gone.
+
 ## 2026-10-05, seal 70 (shutdown) -- 979 green / 51 red / 1 parked (trunk jit-unified-emit-wip, bare)
 
 **Unchanged from seal 68: the same 51 rows, diffed row for row,** through the stroke12g merge.
