@@ -383,3 +383,66 @@ hold one. RuleStuff's own methods (`checkInput`, `checkGuard`, `inputAt`, `mintL
 **The writers a replacement home would need:** the copy constructor (about 386K rule copies per run, A3), `ensureRStuff`
 (lazy -- absent on 109 of 350 grammar terms, recon §9), `setRuleStuff`, `modify`, `processFlags`, `aCTionTraiT`,
 `aCTionTraiTdata`, `getWhatFollows`, `embedAttribute`, `aCTionDefinE`, `setTargetFlag`.
+
+## Step 3 -- containers against strokes 1.3 and 1.4 (2026-10-06, read-only)
+
+### R0 (Tony, 2026-10-06) -- recorded
+
+**rStuff is OUT of the containers scope.** It is an HPDL design issue (hard part, do later), not for now. **RuleStuff
+stays a struct; A3 (instances with their own bodies) stays shelved.** Containers are **list organization only**. Step 2
+stands as the record of what rStuff would cost if it is ever reopened. Also recorded in objectModel's open items (A4).
+
+Read volumes below come from step 2's call counts (pop.sh + jitLadder + printPop, one fleet run). Each read is counted
+in its function's source and generated body, **excluding parseTrace-gated lines**, so these are executed reads, not
+step 2's upper bounds.
+
+### R1 -- does stroke 1.3 (stuff derived; `face` renamed `instance`) touch list layout? **No.**
+
+1.3's sites are `ParseActivation`'s own fields (`GroupRules.twk:19`, `:24`) and their readers and writers: the creators
+(`parse()` GroupItem.twk:1300/1306, `parseRule` Generate.rtn:282/288, `driveFloor` GroupActions.rtn:243/250, `topFloor`
+:821/827, `probeFloor` jitEmitters.rtn:795); the record matches in `recordLabel` and `parkInRecord` (Generate.rtn:29,
+:39), `enclosingStuff` (:51-53), `exitFromParse` (:85-89, :108), `deferredAbove` (GroupItem.twk:447-449),
+`driveFloorLabel` (GroupActions.rtn:212) and `refire` (:285); one trace line in `attachLabel` (:257-259). None reads
+`groupList`, a list end, a sibling pointer or `listLength`. **One site reaches a list through a primitive:**
+`enclosingFace` (Generate.rtn:21) returns `top.face.get(field.tag)` -- a by-tag `get`, INSIDE in step 1's terms, so a
+rename touches only the spelling of `face`.
+
+### R2 -- stroke 1.4: rule facts onto `groupBody`
+
+| fact | executed reads per fleet run on the walk | readers |
+|---|---|---|
+| `testMatch` | **3.50M to ~21M** -- at least 1 per `parse()` call (3,497,172; the `if testMatch \|\| onGroup \|\| hasAttributes` guard), and up to 6 when set (the call, then the `leafDone` compare against `testAny`/`testCharacter`/`testSet`) | `parse()` GroupItem.mm:1718-1723; `getWhatFollows` (40K, define time) |
+| `ruleName` | **up to 6.4M** -- `attachLabel` 1 per call that has a parent stuff (≤ 2,984,173; `destName = pStuff.ruleName`), `mintLabel` 1 string compare per call (3,139,871; `ruleName ne field.tag`), `exitFromParse`'s label retag (≤ 315,742) | the other 4 mentions are trace-gated or `measure` |
+| `parseMethod` | **~0.53M** -- `runLeafParse` 2 per call (243,463), `testAction` 2 (31,275), `repeatsInLoop` 1 (10,254) | writes at generation: `setParseWalk` (18,809), `installParseMethod` (9,211), `setParseAction` |
+| `jitMethod` | **0 on the parse walk** | `jitFieldMethod` only (jitEmitters.rtn:2132-2133, the JIT's field method); not in step 2's count |
+| `ruleOf` + `instanceRule()`'s REGISTRY test | **243,463 `instanceRule()` calls** (one per `runLeafParse`): `ruleOf`, `ruleOf.parent`, `holder.isREGISTRY`, then `definer.rStuff` | also `installParseMethod` (9,211, generation), `setParseWalk`'s `!field.ruleOf` (18,809), `setRuleStuff` (91,549, define time), `jitFieldMethod`/`jitShowRecord`, the `ruleOfCensus`/`definersOf` instruments |
+
+**Cost per read, two homes (from the code that would serve it; no shape):**
+
+| home | a read is |
+|---|---|
+| **`groupBody` slot** (A5 stroke 4) | `this->groupBody->fact`: two loads, and `groupBody` is already in hand on these lines (`parse()` reads `groupBody->flags.hasAttributes` beside `testMatch`). Shared by the rule and every instance by construction, so **`instanceRule()`'s hop disappears**: `runLeafParse` reads `field->groupBody->parseMethod` instead of `ruleOf` -> `parent` -> `isREGISTRY` -> `definer` -> `rStuff` -> `parseMethod` |
+| **property under fixed-position containers** | body -> the properties container (a fixed position, so one more load) -> **find the fact inside it**: by name, a `strcmp` walk of the property entries (today's `getProperty`); by a fixed slot inside the container, a further walk or index -> the entry -> the entry's body -> the value (`gMethod` for a method, `tag` for a name). The property list already holds the artifacts (`builtinActoR`, `builtinParseR`/`builtinParsE`, `CodE`, `ParsE`, `BlocK`, `JiT`, `pendingParseR`); its per-rule length was not measured |
+
+**Facts read along the way:** `ruleName` is initialised from the tag (`RuleStuff.twk:32`, `ruleName = tag`), so on the
+body it would sit beside `groupBody->tag`; `mintLabel`'s read is a string compare of the two. `testMatch` and
+`parseMethod` are function pointers: as a property each becomes a node whose `gMethod` holds the pointer. Today both
+are copied into every instance's `rStuff` by the copy constructor (about 386K rule copies per run, A3's figure), which
+is why `installParseMethod`/`instanceRule()` exist (F-O32, 4.3).
+
+### R3 -- order: before, after, or independent of a containers build
+
+- **1.3 is independent.** It touches no list layout (R1); its one list read goes through `get(name)`, which a
+  containers build would re-aim inside the primitive.
+- **1.4 as A5 states it (body slots) is independent.** Its reader sites (`parse()`'s `testMatch`, `attachLabel`/
+  `mintLabel`/`exitFromParse`'s `ruleName`, `runLeafParse`/`testAction`/`repeatsInLoop`'s `parseMethod`,
+  `jitFieldMethod`, `instanceRule()` and its callers) are none of them in step 1's AT list, and a body slot is not a list
+  entry. Either order reworks nothing in the other; the two share files (`GroupItem.twk` `parse()`, `Generate.rtn`), so
+  the cost of running them side by side is merge, not meaning.
+- **1.4 with rule facts as properties is NOT independent.** It needs the properties container to exist, so it runs
+  after a containers build; run before, its readers are written against today's `getProperty` scan and re-aimed when
+  the container lands (inside the primitive if read by name; respelled at each site if the shape gives facts fixed
+  slots). Either way the walk's rule-fact reads (3.5M-21M `testMatch`, up to 6.4M `ruleName` per run) would move from
+  two loads to a container lookup per read.
+- **R0 removes the other coupling:** with rStuff out of scope, 1.4's retirement of `ruleOf` and the REGISTRY test does
+  not wait on anything containers decides.

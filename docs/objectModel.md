@@ -215,6 +215,10 @@ design is in flux and it is taking a few design iterations to sort out.*
   body.** **Enforcement PARKED** until a census sorts the `push` (11,604) and `addGroup` (1,934) writes per run into
   breaches and legitimate building; that census is its own dispatch. The known breach: `modify`'s `$` writes `isMacro`
   onto the shared body.
+- **O9. rStuff and the containers recon (Tony, 2026-10-06).** rStuff is **out of the containers scope** -- an HPDL
+  design issue (hard part, do later), not for now. **RuleStuff stays a struct; A3 (own bodies) stays shelved.** The
+  containers idea (fixed-position `[members, attributes, properties]` on the group list) is list organization only.
+  Record and costs: `docs/containersRecon.md` (step 2 for rStuff, step 3 for strokes 1.3/1.4).
 - **O7. The `for` cursor's meaning.** **RULED (R8): the cursor is a holder.** `aCTionFOR` stays as it is; reach the
   member with `*`, per the flip campaign's star law. Since T1b (`9244bc3`) removed `aCTionFOR`'s `byRef` cursor
   relocation, `grup.taG` reads the holder's own tag; Tony's unitTests fixes (`a4422c4`: `ifTest` reads `taG`,

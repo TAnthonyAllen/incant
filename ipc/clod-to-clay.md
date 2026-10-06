@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 209 at the FOOT -- containers recon STEP 2 of 3 (rStuff in a containers shape) reported, docs/containersRecon.md; seal 76
+STATUS:   fresh           # SEQ 210 at the FOOT -- containers recon STEP 3 of 3 (against 1.3/1.4) reported; R0 recorded (rStuff out of scope, HPDL); seal 77
+# prior: SEQ 209 at the FOOT -- containers recon STEP 2 of 3 (rStuff in a containers shape) reported, docs/containersRecon.md; seal 76
 # prior: SEQ 208 at the FOOT -- containers recon STEP 1b: 60 unclear classified, positional reads measured (none cross kinds in the instruction layout), copyListTo cannot make a property a member; seal 75
 # prior: SEQ 207 at the FOOT -- stroke-actionMethod MERGED (9395d57 / 4d15964); containers recon STEP 1 of 3 (who walks the group list) reported, docs/containersRecon.md; seal 74
 # prior: SEQ 206 at the FOOT -- actionMethod retirement BUILT on stroke-actionMethod (027b26d / support 748195d), NOT MERGED; hasActionT born red on trunk; seal 73
@@ -11593,3 +11594,38 @@ R3: the 22 raw ->rStuff reads are NONE on the walk (16 measure instruments, 3 ji
 NEXT: step 3 (what it does to 1.3/1.4) when dispatched.
 
   END SEQ 209
+
+SEQ 210  -  CONTAINERS RECON STEP 3 OF 3: AGAINST STROKES 1.3 AND 1.4. READ-ONLY. docs/containersRecon.md "Step 3".
+
+R0 RECORDED: rStuff out of the containers scope (HPDL); RuleStuff stays a struct; A3 stays shelved -- in containersRecon.md
+  and objectModel A4 as O9. Containers = list organization only.
+
+Read volumes from step 2's call counts, EXCLUDING trace-gated lines (executed reads, not step 2's upper bounds).
+
+R1: 1.3 TOUCHES NO LIST LAYOUT. Its sites are ParseActivation's face/stuff and their creators, record matches
+  (recordLabel, parkInRecord, enclosingStuff, exitFromParse, deferredAbove, driveFloorLabel, refire) and one trace line.
+  One reaches a list through a primitive: enclosingFace (Generate.rtn:21) `top.face.get(field.tag)` -- INSIDE.
+
+R2: 1.4's rule facts, executed walk reads per fleet run, and the two homes:
+  testMatch     3.50M-~21M (parse(): >=1 per call, up to 6 when set)
+  ruleName      <=6.4M (attachLabel <=2.98M, mintLabel 3.14M string compares, exitFromParse retag <=0.32M)
+  parseMethod   ~0.53M (runLeafParse x2, testAction, repeatsInLoop)
+  jitMethod     0 on the parse walk (jitFieldMethod only)
+  ruleOf + REGISTRY test   243,463 instanceRule() calls (one per runLeafParse): ruleOf -> parent -> isREGISTRY -> rStuff
+  groupBody SLOT: two loads, groupBody already in hand on those lines; shared by rule and instances by construction, so
+    instanceRule()'s hop disappears (runLeafParse reads field->groupBody->parseMethod).
+  PROPERTY under fixed-position containers: body -> properties container -> find the fact (strcmp walk by name, or a
+    fixed slot) -> entry -> entry body -> value (gMethod / tag). Property list length per rule not measured.
+  Facts: ruleName is initialised from the tag (RuleStuff.twk:32), so on the body it sits beside groupBody->tag;
+    testMatch/parseMethod are copied into every instance's rStuff today, which is why installParseMethod/instanceRule exist.
+
+R3: 1.3 INDEPENDENT. 1.4 AS A5 STATES IT (body slots) INDEPENDENT -- none of its reader sites is in step 1's AT list and
+  a body slot is not a list entry; running side by side costs merges in shared files (parse(), Generate.rtn), not
+  meaning. 1.4 WITH RULE FACTS AS PROPERTIES IS NOT INDEPENDENT: it needs the properties container, so after a containers
+  build; before one, its readers are written against today's getProperty and re-aimed later (inside the primitive by
+  name; at each site if facts get fixed slots), and the walk's rule-fact reads move from two loads to a container lookup.
+  R0 removes the other coupling: retiring ruleOf and the REGISTRY test waits on nothing containers decides.
+
+The recon's three steps are complete. NEXT: Tony's and Clay's read.
+
+  END SEQ 210
