@@ -4,16 +4,15 @@
 *****************************************************************************/
 Start();
 include(utilities);
-include(unitTests);
 search reset stack Grokking;
-search UnitTests Utilities list;
+search Utilities list;
 
 register(TESTing);
 define
     /***************************************************************************
         parseCode is kant version of processCode
     ***************************************************************************/
-    pcReq owner source result;
+    invokeTest code={ print "invokeTest:"` anotherTest(); print Invoked:; };
     parseCode code={
         code    := argument.CodE;
         if code.datA == 0;
@@ -21,11 +20,12 @@ define
             return;
         if isRulE;  action := code;
         else        action := argument;
-        pcReq.owner  := action;
-        pcReq.source := code;
-        if compileIn(pcReq);
-            blk = pcReq.result;
-            *blk :. noPrinT;
+        block       := Grokking["BlocK"];
+        $$block;
+        result      = *block(code);
+        $$result;
+        if result;
+            result :. noPrinT;
             argument :. isActioN;
             argument +< *blk;
             return trueResult;
@@ -33,7 +33,8 @@ define
         return  falseResult;
         };
     ;
-parseCode(ifTest);
+
+parseCode(invokeTest);
 stop();
 
 /***************************************************************************

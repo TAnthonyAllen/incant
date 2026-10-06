@@ -147,3 +147,13 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 - **Confirm:** a census of every `isLabel` reader, each read classified by meaning; a separate flag for the local
   case, fleet row for row.
 - **Seen:** 2026-10-01 (stroke 5.6a mint-site census).
+
+### GroupItem's C++ escapes, and parse() readability (Tony, 2026-10-06 offline status)
+- **What / where:** eleven `-% %-` escapes in `GroupItem.twk`: `attachLabel` (:252, :272), `captureSpan` (:309, :329),
+  `fireLabelMethod` (:723, :726), `parse()` (:1343, :1345, :1378), `setJitEmitter` (:1775), `setOperat` (:1813).
+  `parse()` also reads poorly: one-line slug comments and escapes break up its flow.
+- **Why it looks deletable:** the label escapes came in with strokes 1.2a-1.2g and may be expressible in tok now.
+  `setJitEmitter`/`setOperat` are fnptr casts, kept because tok drops `&` on fnptr-cast reference params
+  (FormatC.twk fix deferred), so they stay unless that is fixed.
+- **Confirm:** respell each in tok, then a full bare tokall diff and the fleet row for row.
+- **Seen:** 2026-10-06. Tony proposes a "do we need this" cleanup day or two once the design docket is done.

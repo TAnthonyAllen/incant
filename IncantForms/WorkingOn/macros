@@ -12,30 +12,23 @@ setParse does not have to worry about actionMethod
 /*******************************************************************************
 	parseCode is kant version of processCode
 *******************************************************************************/
-    parseCode {
+    pcReq owner source result;
+    parseCode code={
         code    := argument.CodE;
         if code.datA == 0;
             cerr taG "has no CodE, has parser() been run on it?":;
             return;
         if isRulE;  action := code;
         else        action := argument;
-        priorMethod := *currentMETHOD;
-        indenter    = lastIndenT;
-        processing  = processingCodE;
-        currentMETHOD   := *action;
-        lastIndent      :. 0;
-        processingCodE  :. 1;
-        if result = BlocK(CodE);
-            result.noPrinT  = 1;
-            actionTypE  :. 1; // 1 sets isAction == true;
-            argument +< result;
-        else
-            cerr "parseCode: failed parse of" taG:;
-            error++;
-        lastIndent  :. indenter;
-        processingCode  :. processing;
-        currentMETHOD   := *priorMethod;
-        if result       return trueResult;
+        pcReq.owner  := action;
+        pcReq.source := code;
+        if compileIn(pcReq);
+            blk = pcReq.result;
+            *blk :. noPrinT;
+            argument :. isActioN;
+            argument +< *blk;
+            return trueResult;
+        cerr "parseCode: failed parse of" taG:;
         return  falseResult;
         };
 
