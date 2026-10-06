@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 206 at the FOOT -- actionMethod retirement BUILT on stroke-actionMethod (027b26d / support 748195d), NOT MERGED; hasActionT born red on trunk; seal 73
+STATUS:   fresh           # SEQ 207 at the FOOT -- stroke-actionMethod MERGED (9395d57 / 4d15964); containers recon STEP 1 of 3 (who walks the group list) reported, docs/containersRecon.md; seal 74
+# prior: SEQ 206 at the FOOT -- actionMethod retirement BUILT on stroke-actionMethod (027b26d / support 748195d), NOT MERGED; hasActionT born red on trunk; seal 73
 # prior: SEQ 205 at the FOOT -- actionMethod retirement: RECON STOPPED (two STOP conditions met), NOTHING BUILT; seal 72
 # prior: SEQ 204 at the FOOT -- SEQ 308: stroke12g MERGED (b993ba9 / 373088b), STROKE 1.2 COMPLETE; actionMethod retirement recorded as next; shutdown seal 70
 # prior: SEQ 203 at the FOOT -- SEQ 307: stroke12f merged; F-141 dirCheckFlicker; 1.2g BUILT on stroke12g (792b742 / 37cb6e6), 979 / 51 row for row, NOT MERGED -- STROKE 1.2 COMPLETE on the branch
@@ -11476,3 +11477,45 @@ ALSO: Tony's tester change (parseCode leaves tester, 09:21) committed on trunk u
 NEXT: Tony buys or refuses stroke-actionMethod. Opener after the buy: the containers recon.
 
   END SEQ 206
+
+SEQ 207  -  R0: stroke-actionMethod MERGED. R1: CONTAINERS RECON STEP 1 OF 3 -- WHO WALKS THE GROUP LIST. READ-ONLY.
+
+R0: merged Groups 9395d57, support 4d15964; branch deleted both repos, local and remote. Trunk rebuilt bare: 987 / 51,
+  the same 51 by name as the branch. redList seal 74 entry (dd84423) names the two red instruments that moved and why.
+
+STEP 1 -- full write-up with every AT and UNCLEAR site by file:line in docs/containersRecon.md. No shape, no recommendation.
+  Three read-only passes, each site read in source; H11 controls named first and all returned (next, nextAttribute,
+  get(name), copyListTo, testContainer, aCTionIterate, anyOrNumT's iterate, artifactSkipT's asWalk).
+
+               core classes  GroupRules chain  kant (live lines)   total
+  AT                41             34                0                75
+  UNCLEAR            8             30               17                55
+  NO (flag read)     6             13               26                45
+  INSIDE           219            289             ~586            ~1,094
+  (core 274 incl. 122 bootstrap adds in GroupMain; chain 366; kant 629 lines over 111 files. Units differ: C++ counts call
+  sites, kant counts lines per mechanism -- sum verdicts, do not compare totals.)
+
+  THE HEADLINE FACTS, all read, none evaluated:
+  - NO LIVE KANT TEXT NEEDS RESPELLING if the primitives keep their meaning -- every kant walk goes through iterate/for, a
+    subscript, an accessor case or an operator, all C++.
+  - The AT sites are the primitives themselves (next/nextMember/nextAttribute/get/get(int)/add*/push/remove/sort and its
+    two comparators, which encode attribute-before-member inside one list), five measure instruments, and ~25 chain sites
+    reading firstInList/lastInList/nextInParent/listLength raw (foldDot, handleDot, interpretXP, aCTionSearch, opDot cases
+    5 and 401-404). The unqualified iterate step (opPlusPlus :1192-1193, opMinusMinus :779-782) walks raw nextInParent,
+    and aCTionIterate hands the iterator the source's groupList pointer (:605-607).
+  - UNCLEAR, the questions a shape must answer: get(int) position across kinds -- including runOP / runShortCircuit /
+    jitEmitShortCircuit field[1..3], whose nodes are built by +% in one place and += in another; 17 "has a groupList"
+    presence tests; iterate's filter riding on hasAttributes/hasMembers written onto the ITERATOR; 7 kant emitters that
+    write terms in list order.
+  - next() NEVER skips noPrint: ignoreNoPrint (GroupRules.twk:104) has no writer anywhere. Term-wanting walks filter for
+    themselves.
+  - get(name) falls back to the property list, so [ ], get, getAttribute and label declarations reach properties on a
+    miss (builtinParseR, BlocK, builtinActoR are found that way today); addProperty sets isAttribute.
+  - copyListTo re-adds anything not isAttribute as a member. updateContentFlags has no caller; clearList leaves hasTraits.
+  - ORDER-PINNED fixtures: iterT1, iterT1m, iterT3 (parked), displayFormT, jsonTest, kindT, kindJ1T, kindLiftT, propGetT,
+    propOpT, cursorReadT/Tb, anyOrNumT, shapeBodyT; and oneTest.base pins audit()'s [n] list positions (33 builtinActoR
+    rows), parserCoverage.target Grokking's member order.
+
+NEXT: step 2 (rStuff's place in a containers shape) when dispatched.
+
+  END SEQ 207
