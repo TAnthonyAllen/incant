@@ -1,12 +1,13 @@
 # ⚠⚠⚠ SEALED 2026-10-06 (85, SHUTDOWN) ON TRUNK -- R0 DOCS LANDED; EXPRESSION RECON STEP 1 (A MAP) REPORTED. SEAL AND STOP.
 #
-#   ## THE OPENER (Tony, shutdown ruling 2026-10-06), in this order:
-#   (1) Tony reads docs/expressionRecon.md (clod-to-clay SEQ 218) -- the step 1 map, and THE STEP 2 PROBES WITH IT
-#       (SEQ 219: P1 arm stability -- no target-decided arm ever switched; P2 -- 7 sites change under a strict left fold,
-#       2 pinned by jitLadder rung JA; P3 -- 0 comparison+arithmetic mixes, 6 short-circuit+comparison mixes).
-#   (2) A BORN-RED FIXTURE pins KANT-43's split BY VALUE: `qa * qb + qc` = 23 against `2 * 10 + 3` = 26, and the `-` pair
-#       (`qa - qb + qc` = -5 against right-to-left -11), with qa=2 qb=10 qc=3 -- probes p2/p2b in the recon are the shape.
-#   (3) Tony sets the expression design's order.
+#   ## THE OPENER (Tony, shutdown ruling 2026-10-06; EXPRESSION DIRECTION RULED, D1-D6 in docs/expressionRecon.md):
+#   (1) THE D6 FIXTURES, on trunk, at today's values: the KANT-43 split (`qa * qb + qc` = 23 vs `2 * 10 + 3` = 26; the `-`
+#       pair, `qa - qb + qc` = -5), P2's seven sites (jitAttrPop:69-70 -- already pinned by jitLadder rung JA at 25/75/125 --
+#       and utilities:67, 70, 72, 75, 302), and the utilities `&&` lines, WRONG TODAY AND EXPECTED TO MOVE. Probes p2/p2b and
+#       expr3/abs in the recon are the shapes.
+#   (2) The expression branch's design (D5, try-and-buy): executor kinds and instruction layout; its first measurement is
+#       P1's open question, with a code tap on the instruction node.
+#   Read with them: docs/expressionRecon.md (the step 1 map, the step 2 probes, the ruled direction; SEQ 218-220).
 #   Census rows (docs/cleanupCensus.md) wait for the cleanup days. Redesign step 2 is PARKED (HPDL).
 #   
 #   ## THE ONE-LINE STATE: trunk at this seal installed, bare -- fleet 987 / 51 red / 1 · canary 306.

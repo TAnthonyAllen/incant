@@ -6,6 +6,28 @@ and reader); the probes that carry a claim were re-run by Clod on trunk `7f7dcac
 `scratchpad/expr/p1..p5` (session scratch, not in the repo); each runs with `traceParse();` on and reads the TOKENARM /
 RULEDISPATCH callouts. **(read, not run)** marks what was read only.
 
+## ⚠⚠ THE RULED DIRECTION (Tony, 2026-10-06, D1-D6) -- read this first
+
+Ruled at the shutdown of 2026-10-06, on the step 1 map and the step 2 probes below. **The direction is ruled; the
+executor kinds and the instruction layout are not -- they are designed on a try-and-buy branch (D5).**
+
+- **D1. Expressions walk LEFT TO RIGHT.**
+- **D2. No arithmetic precedence: arithmetic folds strictly left to right.**
+- **D3. Tiers by split, loosest first: assignment, then `&&`/`||`, then comparison, then the arithmetic fold; left to right
+  within a tier.** Tiers are expected to live in grammar rules, with each operator's tier as data in incant/setup.
+- **D4. An operand is prefix, name, postfixes; prefixes bind to the name first.** `*block(code)` is `(*block)(code)`
+  (the uniform form of the 10-05 `*a.b = (*a).b` ruling; R1 of 2026-10-06).
+- **D5. Structural dispatch is fixed at instruction build, one executor per kind; run-time choices live inside the
+  executor.** Executor kinds and instruction layout are designed on a try-and-buy branch, whose first measurement is P1's
+  open question -- does one instruction ever switch arm -- answered with a code tap on the instruction node itself.
+- **D6. Before the branch: pin on TRUNK, at today's values,** the KANT-43 split fixture (`qa * qb + qc` = 23 against
+  `2 * 10 + 3` = 26, and the `-` pair: `qa - qb + qc` = -5), P2's seven sites (jitAttrPop:69-70, utilities:67, 70, 72, 75,
+  302), and the utilities `&&` lines -- **wrong today, expected to move** under D1-D3.
+
+**The migration this implies, from P2/P3:** seven sites in three files change value; two are pinned by jitLadder rung JA
+(25 / 75 / 125), whose fixture comment already expects the left-to-right 17; the five utilities comparisons are wrong today
+under either strict direction and come right only with D3's comparison tier.
+
 ## Step 1 -- what exists, end to end, for one expression
 
 ### 1. `a = b + c;`, interpreted

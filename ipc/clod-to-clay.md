@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 219 at the FOOT -- expression design step 2 PROBES (P1 arm stability, P2 left-to-right census, P3 tier census) reported; R1 binding noted; shutdown seal 85
+STATUS:   fresh           # SEQ 220 at the FOOT -- EXPRESSION DIRECTION RULED (D1-D6) and recorded; SHUTDOWN seal 85
+# prior: SEQ 219 at the FOOT -- expression design step 2 PROBES (P1 arm stability, P2 left-to-right census, P3 tier census) reported; R1 binding noted; shutdown seal 85
 # prior: SEQ 218 at the FOOT -- R00 explained (Clod's own edit); R0 docs fixes landed (7f7dcac); expression recon step 1 (a map) reported, docs/expressionRecon.md; seal 85
 # prior: SEQ 217 at the FOOT -- stroke14 MERGED, REDESIGN STEP 1 COMPLETE (6f929e3 / 5a0ec82); cleanup census reported, docs/cleanupCensus.md; seal 84
 # prior: SEQ 216 at the FOOT -- stroke 1.4 BUILT on stroke14 (eb42886 / support 1329789), NOT MERGED; on the buy, redesign step 1 is complete; seal 83
@@ -11929,3 +11930,16 @@ P3 TIER CENSUS: (a) comparison mixed with arithmetic: 0. (b) &&/|| mixed with co
   neither direction alone gives the written intent; a comparison tier above short-circuit does.
 
   END SEQ 219
+
+
+SEQ 220  -  EXPRESSION DIRECTION RULED (D1-D6), RECORDED IN docs/expressionRecon.md; SHUTDOWN.
+
+D1 left to right · D2 arithmetic strictly left to right, no precedence · D3 tiers by split, loosest first: assignment,
+&&/||, comparison, arithmetic fold; tiers in grammar rules, each operator's tier as data in setup · D4 prefix, name,
+postfixes; prefixes bind to the name first; *block(code) is (*block)(code) · D5 structural dispatch fixed at instruction
+build, one executor per kind, run-time choices inside the executor; kinds and layout on a try-and-buy branch, first
+measurement P1 with a code tap · D6 before the branch, pin on trunk at today's values: the KANT-43 split, P2's seven sites,
+the utilities && lines (wrong today, expected to move).
+Shutdown seal 85; wakeup opener: the D6 fixtures, then the expression branch's design. Census rulings wait for the cleanup days.
+
+  END SEQ 220
