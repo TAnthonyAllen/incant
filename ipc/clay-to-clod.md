@@ -18,7 +18,7 @@
   WORDED WRONG IS OBEYED AS WORDED.
 -------------------------------------------------------------------
 SEQ:      217
-STATUS:   cleared        # SEQ 310 -- pins on trunk (exprPinT, 3a86896), C1 recorded (clod-to-clay SEQ 221); prior: SEQ 309 cleared; prior: SEQ 288 -- site 1 LANDED 3793f63; no-stash rule; stashes listed (clod-to-clay SEQ 182); prior: SEQ 287 -- site 1 on branch, NOT landed (890->885, guard leak; re-pin ruling); R1-R3 done (clod-to-clay SEQ 181); prior: SEQ 286 -- golden line 5, F-139; failedAtStale stepped: no leak, new road reports no failure point (clod-to-clay SEQ 180); prior: SEQ 285 -- merged a342b75, BN-4 un-pinned, F-138 closed; re-bless HELD, R11 unmoved (clod-to-clay SEQ 179); prior: SEQ 284 -- directives repaired, sweep rule, exitFromParse said in tok 853d6b4 (clod-to-clay SEQ 178); prior: SEQ 283 -- F-138 CURED on f138-cure, awaiting merge (clod-to-clay SEQ 177); prior: SEQ 282 -- R3 measured, not a cure; lingering leaf label (clod-to-clay SEQ 176); prior: SEQ 281 -- cure (r) does NOT cure, reverted (clod-to-clay SEQ 175); prior: SEQ 280 -- owner is the CodE; (r) STOPPED by R4 (clod-to-clay SEQ 174); prior: SEQ 279 -- cure (g) STOPPED (clod-to-clay SEQ 173), branch f138-setparse-first; prior: SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
+STATUS:   cleared        # SEQ 311 -- C1 built on expr-accum (31069dc / support fc72698), measured, not merged (clod-to-clay SEQ 222); prior: SEQ 310 -- pins on trunk (exprPinT, 3a86896), C1 recorded (clod-to-clay SEQ 221); prior: SEQ 309 cleared; prior: SEQ 288 -- site 1 LANDED 3793f63; no-stash rule; stashes listed (clod-to-clay SEQ 182); prior: SEQ 287 -- site 1 on branch, NOT landed (890->885, guard leak; re-pin ruling); R1-R3 done (clod-to-clay SEQ 181); prior: SEQ 286 -- golden line 5, F-139; failedAtStale stepped: no leak, new road reports no failure point (clod-to-clay SEQ 180); prior: SEQ 285 -- merged a342b75, BN-4 un-pinned, F-138 closed; re-bless HELD, R11 unmoved (clod-to-clay SEQ 179); prior: SEQ 284 -- directives repaired, sweep rule, exitFromParse said in tok 853d6b4 (clod-to-clay SEQ 178); prior: SEQ 283 -- F-138 CURED on f138-cure, awaiting merge (clod-to-clay SEQ 177); prior: SEQ 282 -- R3 measured, not a cure; lingering leaf label (clod-to-clay SEQ 176); prior: SEQ 281 -- cure (r) does NOT cure, reverted (clod-to-clay SEQ 175); prior: SEQ 280 -- owner is the CodE; (r) STOPPED by R4 (clod-to-clay SEQ 174); prior: SEQ 279 -- cure (g) STOPPED (clod-to-clay SEQ 173), branch f138-setparse-first; prior: SEQ 278 -- F-138: parseString hypothesis CONFIRMED (clod-to-clay SEQ 172); prior: SEQ 277 -- F-138: dropped at attachLabel; baselineTestsNew in the fleet (clod-to-clay SEQ 171); prior: SEQ 276 -- F-138: generated FOR attaches no LoopRestrict (clod-to-clay SEQ 170); prior: SEQ 275 -- F-138 vs Tony's run: the switch point (first call compiles on the old road); prior: SEQ 274 -- amendment ruled, O7 census (clod-to-clay SEQ 169), failedAtStale; R11 STOPPED; prior: SEQ 273 -- A1-A4 listed for Tony (chat), read-only; prior: SEQ 272 -- A5 ruled (two-step), O8 handoffs drafted, exec bits restored, sealed; prior: SEQ 271 -- O7, O8 in the draft; census answered (clod-to-clay SEQ 168), sealed; prior: SEQ 270 -- design discussion recorded (objectModel draft A1-A5), sealed; prior: SEQ 269 -- instance shape: take + census answered (clod-to-clay SEQ 167); prior: SEQ 264 -- T1a, T1b, T2 landed on trunk, sealed; prior: SEQ 262 -- control home ruled, SEQ 261 resumed, docs/ptfReread.md, sealed; prior: SEQ 260 -- deep clean S1-S6 landed, probes, housekeeping, sealed; prior: SEQ 259 -- deep-clean recon, docs/deepClean.md, sealed; prior: SEQ 258 -- 5.9 merged 9f9b79c, parentLabel retired, NO HUNT met, sealed on trunk; prior: SEQ 257 -- 5.9 built on om-stroke59; prior: SEQ 256 -- 5.9 recon (section 25), sealed; prior: SEQ 255 -- 5.8 merged 720d51d, parentStuff retired, sealed on trunk; prior: SEQ 254 -- 5.8 built on om-stroke58, zero movers; prior: SEQ 253 -- 5.7 recon written (objectModelRecon section 24), sealed; prior: SEQ 245 -- 5.5b landed f92428d; prior: SEQ 217 -- merged 24cd9fe, F-128 closed, trunk into parse-then-fire 71d2a44; SEALED -- clod-to-clay SEQ 164
 STATUS-216: cleared      # SEQ 216 -- re-pointing removed; the branch clears the certificate (2bc15f9) -- clod-to-clay SEQ 163
 STATUS-215: cleared      # SEQ 215 -- confirmed and staged (a426178); stops at the stray definer -- clod-to-clay SEQ 162
 STATUS-214: cleared      # SEQ 214 -- owner channel + resolveName on the branch (2a29a4b); certificate stops at item C -- clod-to-clay SEQ 161
@@ -11913,3 +11913,77 @@ today's values, full checklist, seal.
 REPORT: at the top, what was run and the table: expression | today | intended. Then
 anything today crashed on or refused, by name.
   END SEQ 310
+
+SEQ 311  -  EXPRESSION: THE ACCUMULATOR CANDIDATE ON A TRY-AND-BUY BRANCH (opener, seal 86)
+===================================================================
+Dictated via Tony; transcribed by Clod, 2026-10-06.
+STATUS: cleared 2026-10-06 -- built on expr-accum, M1-M4 reported, certificate held switch off; clod-to-clay SEQ 222.
+
+RULINGS (Tony, 2026-10-06; forwarding this rules what it says):
+R1. The open edge: in the CANDIDATE, a comparison whose right side continues into
+    arithmetic (qa > qb + qc) REFUSES BY NAME. Arithmetic on the left (qa + qb > qc) folds
+    as usual. Trunk's road is untouched.
+R2. Build candidate C1 (docs/expressionRecon.md) on branch expr-accum (Groups, and
+    support if groups.ext moves). A design exercise and proof of concept, not careful
+    code: the purpose is the comparison table.
+R3. The candidate trio (a TokenXP, an interpretXP and a runOP of its own, named by Clod
+    in their alphabetical slots) sits BESIDE today's trio, selected by a switch.
+    Switch off: the fleet must read row for row with seal 86. Today's trio is not edited.
+R4. Interpreted road only. Under jitting the candidate refuses by name; the jit road is
+    not in scope.
+R5. No C++ escapes in Tok code, proof of concept or not. Declare what tok needs to see.
+
+THE SHAPE (from C1, D1-D5):
+- The walk builds a FLAT instruction list forward, left to right: an operand, then
+  (op, operand) pairs. Executing the list is the accumulator loop. The running value
+  belongs to the expression being executed (a local of the executor), never tempField.
+- `A =` (and :=, +=) at the head is parked and fires last.
+- && / || decide on the running value: && false -> skip to the next looser op or the
+  end, carrying false; true -> start a fresh running value. || is the mirror. The
+  skipped side does not run (fFalse() && gSay() must not print g).
+- Operands arrive finished per D4: prefix, name, postfixes, prefix binding to the name
+  first. *block(code) is (*block)(code); !f(x) is !(f(x)).
+- KNOWN TRAP: today a binary op spelled in UnaryOPS (- * etc.) after a NAME arrives
+  inside that name's term as an InvokeArg (KANT-43's absorption). The candidate TokenXP
+  must hand back operand, op, operand into the stream, not inherit the composition.
+- STOP and report, building nothing further, if the candidate needs a grammar change
+  or any edit outside the candidate trio and its switch.
+
+MEASURE:
+M1. exprPinT with the switch on, all 33 rows. Table: expression | today | candidate |
+    intended. For *block(src): if pz is still 0, say whether the call now reaches
+    BlocK (and it drives the holder's name text, the recon's driveStep finding) or the
+    call is still lost. Two causes, reported apart.
+M2. The full fleet with the switch on: green / red counts and the movers by fixture.
+    Information, not a certificate -- many rows are expected to move.
+M3. D5's first measurement, P1's open question, on TRUNK's road: a code tap on the
+    instruction node itself (not the target) -- does one instruction ever take two arms
+    in runOP across fires? Reverted md5-identical after.
+M4. Source size: the candidate trio against today's trio, in lines.
+
+CERTIFICATE: switch off, the branch is row for row with seal 86 on every checklist
+instrument. Nothing merges. Seal on trunk, branch pushed.
+
+REPORT: at the top, what was run and the M1 table. Then M2's counts, M3's answer, M4,
+and anything that stopped the build.
+
+AMENDMENT TO SEQ 311 (Tony, mid-stroke 2026-10-06; dictated via Tony, transcribed by Clod) -- replaces R3 and the
+OPERANDS line of THE SHAPE:
+R3. The candidate is an interpretXP and a runOP of its own (named by Clod in their
+    alphabetical slots), BESIDE today's, selected by a switch. TokenXP builds nothing
+    for the candidate: one gate at the top of aCTionTokenXP returns the label untouched
+    when the switch is on. That gate is the ONLY edit to today's methods. Switch off:
+    the fleet reads row for row with seal 86.
+- OPERANDS: the candidate interpretXP flattens each TokenXP label into its raw pieces
+  (unary, name, InvokeArg's parts), so KANT-43's absorbed `qa * qb` arrives as qa, *, qb.
+  The walk decides by position: an op where an operand is expected is a prefix and binds
+  to the name; an op after an operand is binary; . ( ) [ ] after an operand are postfixes
+  on it.
+
+SECOND NOTE TO SEQ 311 (Tony, mid-stroke 2026-10-06; dictated via Tony, transcribed by Clod):
+- The candidate runOP may RECURSE, and is expected to: on the parked assignment
+  (evaluate the rest, then assign), at && / || (decide, then evaluate what follows),
+  and for operands with expressions inside (call arguments, subscripts). The running
+  value is a local of each invocation, never a shared field. Short is a goal: report
+  its length in M4.
+  END SEQ 311

@@ -52,6 +52,17 @@ expressions (R5). **Open edge, Tony's to rule:** `qa > qb + qc` -- refuse by nam
 `!fTrue(qa)` nor `!fFalse(qa)` runs its action, and both leave a tag echo (rows O3, O3b, and the RAN count). `fFalse() &&
 gSay()` runs `gSay` (S3). `utilities:302`'s `across > 0 || down > 0` reads 0 for across 0, down 5 (U302a).
 
+### C1 measured (SEQ 311, 2026-10-06) -- built on branch `expr-accum`, not merged
+
+Built as a PoC beside today's trio behind `INCANT_EXPR_ACCUM` (Groups `31069dc`, support `fc72698`); full report
+clod-to-clay SEQ 222. **On exprPinT it reaches the intended value on every arithmetic, bounds and connective row**, and
+refuses `qa > qb + qc` by name (R1). Left wrong, with causes apart: `return falseResult;` reads truthy on BOTH roads (S3,
+O3b); `*block(src)` now reaches BlocK but drives the holder's NAME text (driveStep). The position rule reads `*x` after an
+operand in a print list as binary -- the house spelling is `,*x`. Switch on, the fleet goes 1022 -> 757 green (jit road
+refusing per R4, the generated-parse road, unescaped print stars). **P1 answered (M3):** one instruction does take two
+arms -- calls on a bin with an installed parse take runRule at emit time and the target's method when interpreted,
+because arm 3's door reads `jitting`.
+
 ## Step 1 -- what exists, end to end, for one expression
 
 ### 1. `a = b + c;`, interpreted

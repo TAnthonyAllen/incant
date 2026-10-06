@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 221 at the FOOT -- SEQ 310 done: expression pins on trunk (exprPinT), candidate C1 recorded; seal 86
+STATUS:   fresh           # SEQ 222 at the FOOT -- SEQ 311 done: C1 on expr-accum, measured (M1-M4), not merged; seal 87
+# prior: SEQ 221 at the FOOT -- SEQ 310 done: expression pins on trunk (exprPinT), candidate C1 recorded; seal 86
 # prior: SEQ 220 at the FOOT -- EXPRESSION DIRECTION RULED (D1-D6) and recorded; SHUTDOWN seal 85
 # prior: SEQ 219 at the FOOT -- expression design step 2 PROBES (P1 arm stability, P2 left-to-right census, P3 tier census) reported; R1 binding noted; shutdown seal 85
 # prior: SEQ 218 at the FOOT -- R00 explained (Clod's own edit); R0 docs fixes landed (7f7dcac); expression recon step 1 (a map) reported, docs/expressionRecon.md; seal 85
@@ -11989,3 +11990,71 @@ only) · frontier and dirCheck byte-identical to their captures · ddPop 5 / 1 s
 groups.ext untouched · rebuilt first: pop.sh called the 11:05 binary STALE against the seal's 11:45 tokall mtimes;
 after the rebuild, probe output was byte-identical and the fleet read 987 / 51.
   END SEQ 221
+
+SEQ 222  -  SEQ 311 DONE: C1 BUILT ON expr-accum, MEASURED; CERTIFICATE HELD SWITCH OFF. NOTHING MERGED.
+
+RUN: branch expr-accum (Groups 31069dc, support fc72698 -- globals declares getenv). Switch INCANT_EXPR_ACCUM (any value,
+EVEN EMPTY, turns it on -- getenv). Per the amended R3: one gate atop aCTionTokenXP hands the label up untouched; ExpressioN's
+actor is interpretXPaccum (setActions). Candidate: interpretXPaccum flattens each TokenXP label to raw pieces and decides by
+position into ONE flat list; runOPaccum runs it, recursing at the parked head and at && / ||. Interpreted only (R4 refuses).
+No C++ escapes (R5). M1 = incant/pop/exprPinT, switch on.
+
+  expression                         | today              | candidate                         | intended
+  qa * qb + qc                       | 23                 | 23                                | 23
+  2 * 10 + 3                         | 26                 | 23                                | 23
+  qa - qb + qc                       | -5                 | -5                                | -5
+  qa + qb - qc                       | 9                  | 9                                 | 9
+  qa / qb + qc                       | 0.153846           | 3.2                               | 3.2
+  bgSpec * 3 + 2 (jitAttrPop:69)     | 25                 | 17                                | 17
+  lt + bk * sc, 1 17 3 (:70)         | 52                 | 54                                | 54
+  utilities:70/72/75 forms at 20     | 1                  | 0 (falseResult)                   | false
+  across > 0 || down > 0: 0 5/5 0/0 0 | 0 / 1 / 0         | 1 / 1 / 0                         | true / true / false
+  x > px && x < pxw: x 5 / 0 / 20    | 1 / echo / 1       | 1 / 0 / 0                         | true / false / false
+  a && b || c, 0 1 1                 | 0                  | 1                                 | true
+  a || b && c, 0 1 0                 | 0                  | 0                                 | false
+  fFalse() && gSay()                 | 1, g runs          | 1, g runs (*)                     | false, g does not run
+  fId(qa + qb) * qc                  | 36                 | 36                                | 36
+  qa + fNest(qb) + qc                | 37                 | 37                                | 37
+  *block(src)                        | pz 0, r3 echo      | pz 0, r3 echo (**)                | pz 7
+  -qa + qb                           | 8                  | 8                                 | 8
+  !fTrue(qa)                         | echo, NOT RUN      | echo (null = false), fTrue RUNS   | false
+  !fFalse(qa)                        | echo, NOT RUN      | echo, fFalse RUNS (*)             | true
+  *ph.pMid + 1, pMid 41              | 42                 | 42                                | 42
+  hz += qa * qb, hz 1                | 21                 | 21                                | 21
+  hw := qa * qb + qc                 | 23                 | 23; its print line LOST (***)     | 23
+  hx.noPrinT = hy.noPrinT            | 1                  | 1                                 | 1
+  qa > qb + qc                       | echo (false)       | REFUSED by name (R1)              | refuse (R1)
+
+(*) NOT the short circuit: a kant body's `return falseResult;` comes back TRUTHY on BOTH roads (`if fFalse()` is true on
+trunk, measured). With a body returning 0, `fZero() && gSay()` skips g on both roads. O3b's wrong answer is the same cause.
+(**) TWO CAUSES, APART: on trunk the call is LOST (only the deref dispatches; `*blk(pArg)` never runs pAct). Under the
+candidate the call REACHES BlocK (RULEDISPATCH BlocK arm=runRule; `*blk(pArg)` runs pAct) -- and BlocK drives the HOLDER's
+name text, `MARKARM drive text=[pSrc]`: the recon's driveStep finding is what leaves pz 0.
+(***) `print "..." hw " star " *hw` -- the position rule reads `*` after an operand as binary. Tony's house spelling is
+`,*hw` (measured: `,*arOut` reads ARV on both roads; the bare form refuses on the candidate only).
+
+M2 (switch on, information): pop.sh 757 green / 1 parked against 1022 -- 271 rows red, 4 green. Families:
+  - jit road refusing (R4), ~10 fixtures: kindJ1T and kindLiftT TIME OUT (exit 142), kindSRT, kindJ2T, kindJitT,
+    kindHolderJitT, jitDotAssignT, argJitT, argRoundJ, assignRoadT.
+  - the generated-parse road: "PROBE REFUSED: <rule> has no carrier" / "parseRule: <rule> has a parse method but no
+    compiled body" -- site1RoadsT, probeDoorT, opLenT, shapeBodyT, tokJitT, f122NatT, chainTruthT, leafClassT and ~12 more.
+  - print lines with an unescaped `*x` (Operator * refuses): 24 refusals in 10 fixtures -- shapeBodyT, propOpT,
+    assignRoadT, compileInT, memberLitT, ctlStampT, opRoadT, pointerT, propGetT, starDotNullT. Cure: `,*x`.
+  - exprPinT 14 (the intended movers); the rest are value moves (pointerT 10, omModT, modSeamT, hasActionT, deferNatT,
+    ruleTermT, abandonT, jsonTest ...). spacingT exits 139 under the switch.
+  - 4 new greens: setFlagTopT x2, starT S3a, walkRefT row 3.
+M3 (trunk's road, tap on the instruction node, reverted md5-identical): 201 fixtures, 10,231 instruction nodes. 30 arm
+switches, ALL calls (op false) whose target is a BIN with an installed parse (Operators, UnaryOPS: isRule 0, hasNewParse 1),
+in opLenT 20, tokJitT 6, sweepT 4: runRule (3) at emit time, target method (5) when interpreted -- arm 3's door is
+`isRuleTerm() || (jitting && hasNewParse)`. So ONE INSTRUCTION DOES TAKE TWO ARMS, and the switch is the jitting PHASE,
+not a change in the target. No other instruction switched.
+M4 (code lines, comments stripped): today -- aCTionTokenXP 45 + interpretXP 51 + runOP 37 = 133; with what they lean on
+(handleCall/Dot/Subscript/Unary, foldDot, isDotUxp, refuseDotUnaryRight, runShortCircuit) 318. Candidate -- interpretXPaccum
+145 + U 9 + Wrap 19 = 173; runOPaccum 28 + From 39 + Operand 7 = 74 (vs runOP + runShortCircuit 54); it reuses handleCall
+and handleSubscript; Trace 13 (debug only). Plus the gate (2) and the switch (6).
+CERTIFICATE (switch off, branch binary): pop.sh 1022 / 51 row for row (greens differ only in addresses) · jitLadder PASSED
+· printPop PASSED · decodePop row for row (binary echo) · frontier and dirCheck byte-identical · ddPop 5 / 1 standing ·
+canary 313 = 306 + the candidate's 7 externs · exec check clean. STOPPED ON: nothing. The tier tests are spellings in
+runOPaccum (D3 wants them as setup data) -- a PoC shortcut, named.
+Trunk at seal: installed bare, 1022 / 51, canary 306.
+  END SEQ 222
