@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 214 at the FOOT -- stroke-ruleName MERGED (990f04f) + R2 slug (4b23e99); stroke 1.3 BUILT on stroke13 (b392611 / support 217656b), NOT MERGED; seal 81
+STATUS:   fresh           # SEQ 215 at the FOOT -- stroke13 MERGED (fe28272 / 2afacca); stroke 1.4 STOPPED at its recon (testMatch is per-instance on rightBrace; ruleOf keeps identity readers), NOTHING BUILT; seal 82
+# prior: SEQ 214 at the FOOT -- stroke-ruleName MERGED (990f04f) + R2 slug (4b23e99); stroke 1.3 BUILT on stroke13 (b392611 / support 217656b), NOT MERGED; seal 81
 # prior: SEQ 213 at the FOOT -- ruleName stroke BUILT on stroke-ruleName (cc0dc97), NOT MERGED; seal 80
 # prior: SEQ 212 at the FOOT -- ruleName stroke STOPPED at R2's mintLabel re-measure (5,264 disagreements, all SetBrackets/DatA), NOTHING BUILT; 1.3 waits; seal 79
 # prior: SEQ 211 at the FOOT -- R2a: ruleName == the owning rule's tag at every retag read (0 of 2,095,156 differ); the retag respell is a small stroke ahead of 1.4; seal 78
@@ -11738,3 +11739,48 @@ CERTIFICATE: full bare tokall -- GroupRules.h/.mm, GroupItem.mm, measure.mm move
 NEXT: Tony buys or refuses stroke13. Then 1.4 (rule facts onto groupBody, as A5 writes it).
 
   END SEQ 214
+
+SEQ 215  -  R0 stroke13 MERGED. STROKE 1.4 STOPPED AT ITS RECON -- TWO STOP CONDITIONS MET. NOTHING BUILT.
+
+R0: merged Groups fe28272, support 2afacca; branch deleted in both, local and remote. Trunk rebuilt: 987 / 51.
+
+RECON 1 -- AGREEMENT TAP (reverted md5-identical; fleet after 987 / 51). Every RuleStuff registered with its owner at
+construction; at every read and write of the three facts, the value compared with every other RuleStuff whose owner shares
+the same groupBody. pop.sh + jitLadder + printPop. Two shapes of disagreement, kept apart:
+  VALUE vs VALUE (two different non-null values on one body):
+    testMatch   rightBrace: testString on some instances, testUpTo on others -- 498 reads (parse()), 155 writes
+                (setTestMatch). setTestMatch picks testUpTo from the node's own upTo/upToOver, and overTo is an INSTANCE
+                fact (a reference's `{ }`). ==> testMatch IS AN INSTANCE FACT WEARING A RULE FACT'S NAME, for upTo
+                references. STOP (dispatch).
+    parseMethod none. setParseWalk already refuses to classify a copy from its own { } (`!field.ruleOf`, F-O23), and
+                runLeafParse asks the reference's overTo before the rule's method.
+    jitMethod   none (2 reads, 1 write, all agree).
+  FILLED vs NOT-YET-FILLED (one RuleStuff holds the value, a sibling on the same body still holds null):
+    testMatch   ~535K reads/writes -- setTestMatch fills lazily, per instance, at getWhatFollows.
+    parseMethod ~274K -- installParseMethod writes ONLY the definer's stuff; runLeafParse reads the definer's (243,463
+                reads, every one with null siblings), testAction and repeatsInLoop read the face's.
+    These are a lazily-filled cache, not two values -- but the dispatch's test ("agree on the value at every read") counts
+    them as disagreement. Tony's to say whether null-vs-value counts.
+  H16: a forced flip at the first read shows (oneTest: 42 rows, both directions).
+
+RECON 2 -- ruleOf / instanceRule() READERS:
+  ruleOf, wanting IDENTITY ("is this a copy / the original"), not a rule fact: ruleActions.rtn:302 (`if item.ruleOf`),
+    :1082 (`if DatA.ruleOf` -> ruleTerm), setRuleStuff GroupItem.twk:1876 (`if ruleOf asTerm`), setParseWalk
+    Generate.rtn:483 (`!field.ruleOf` = the original), measure (93, 677, 702), ruleOfCensus. ==> ruleOf WOULD BE LEFT WITH
+    READERS. STOP (dispatch): ruleOf stays; only the REGISTRY test could retire.
+  instanceRule(), wanting RULE FACTS: runLeafParse (parseMethod), installParseMethod (parseMethod). Wanting the definer AS
+    A NODE as well: jitFieldMethod (its name, jitBodyField(definer), jitRunAction(definer)), jitShowRecord, canonOf; the
+    census (definersOf).
+NAME CHECK: no GroupBody or GroupItem member/method named testMatch, parseMethod or jitMethod -- but parse() reads testMatch
+  BARE (GroupItem.twk:1337-1340, via ruleStuff), so a body slot of the same name would compete for those names (bear-trap
+  #57: the newer twin wins). Directives: none read the three. Measure callouts reading rStuff->parseMethod: canonOf (213),
+  measureParseClass (635), parseClassify (856, 875).
+
+FOR TONY:
+  Q1. testMatch: leave it on RuleStuff (it is per-instance for upTo references), or split it -- the rule's test on the body
+      and the reference's { } asked first, as runLeafParse already does for parseMethod?
+  Q2. Does filled-vs-null count as disagreement? If not, parseMethod and jitMethod pass and could move.
+  Q3. ruleOf keeps identity readers: retire only instanceRule()'s REGISTRY test (as the dispatch's fallback says)?
+BRANCH stroke14 created and deleted unused (no commit).
+
+  END SEQ 215
