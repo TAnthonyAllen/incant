@@ -45,6 +45,23 @@ Every seam defect in the record is a field on the wrong side of that split (`isR
 
 ### 1.3 Field table
 
+⚠⚠ **TODAY, 2026-10-06 (redesign step 1 complete; read off the headers at `cb842b4` by the cleanup census,
+`docs/cleanupCensus.md`). The tables further down are the 2026-09-28 TARGET and are kept as its record -- they are no
+longer the state of the tree.**
+
+| struct | members today |
+|---|---|
+| **GroupItem** (9) | `groupBody`, `labelOf` (a minted label's rule), `ruleOf` (a copy's original; also read as "is a copy"), `parent`, `nextInParent`, `priorInParent` (both also thread the property list), `rStuff`, `jitData`, `options.affiliation`. `options.isCopy` is gone (stroke 4.2) |
+| **GroupBody** | `tag`, `propertyList` (stroke 3), `groupList` (terms only), `registry`, `guardSet`, the `gMethod`/`gOp` union, `gJitEmitter`, **`gTestMatch`, `gParseMethod`, `gJitMethod`** (stroke 1.4: the rule's facts on the shared body), the `gText`/`gPointer` union, the value union, and **44 flags** (`isBranch`, `recursive`, `isToggle`, `isXP`, `negate`, `isAssign` deleted; `isAccessorProduct` added) |
+| **RuleStuff** (16, instance facts only) | `ruleName` (Tony's Xcode aid, `sourceRuleByIntent`), `onGroup`, `max`, `maxRepeat`, `min`; bits `followed`, `isTarget`, `modPercent`, `modPointer`, `modUnGuarded`, `noAdvance`, `noLabel`, `noSkip`, `notifyFail`, `overTo`, `ruleTerm`. Every rule-level and activation-level field has left; `rule`/`owner` and `parentStuff` are gone |
+| **ParseActivation** (6) | `instance`, `isFloor`, `compileOwner`, `label`, `prev`, `failPoint`; its stuff is derived, `GroupRules.stuffOf(rec)` (stroke 1.3) |
+
+**F-O8 is stale on one point:** `modify()` no longer writes `isPointer`, `isPercent` or `guarding` -- the `% & _ { }`
+modifiers go to RuleStuff's `modPercent`/`modPointer`/`modUnGuarded`; only `$` -> `isMacro` still reaches the body. The
+census also lists the flags with no reader (`isInitialized`, `isSingleton`, `isWindow`, `debugGuard`), `reversePrint` with
+no writer, `fLAG`'s third and fourth meanings, and `hasAttributes`/`hasMembers` as iterate's filter -- unruled, for the
+cleanup days.
+
 ✅ **VERIFIED against headers at `5754742`, 2026-09-28; target signed 2026-09-28.** Every "today" cell checked against `GroupItem.h`, `GroupBody.h`, `RuleStuff.h` and `jitContext.h:707`, both directions: every header field appears below, and every row exists in a header.
 
 **GroupItem** (`GroupItem.h`: 6 members + `options`)

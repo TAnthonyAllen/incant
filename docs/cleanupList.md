@@ -77,67 +77,6 @@ Each entry: **what and where** (file:line) · **why it looks deletable** · **th
 - **Why:** `groupDirectives` already carries entry traces for `parseAction`/`Container`/`Set`/`String`/`UpTo`, `exitFromParse` and `parse()` -- two ways to trace a parse. Tony, 2026-10-02: "we do not need two ways to do that."
 - **Confirm / first:** fleet rows read its output -- `incant/pop/driveDoorT` (door row), `chainTruthT` (rows 1-6), `searchAcc`. Retire those by mapping before any cut. Note the 2026-09-10 measure-callout ruling chose callouts over directives builds; this entry reopens that for parse tracing, and the call is Tony's.
 
-## Seeded, already gone
-
-Seeded 2026-09-28 from the dispatch. A source census shows each was already deleted, so there is nothing to cut.
-
-| item | deleted in | census |
-|---|---|---|
-| F-56's `fireNewParse` (`Commands.rtn`) | `1dd73d6` -- Tier 1 of the parseMethod= deletion (SEQ 188) | 0 references in `*.twk *.rtn *.h`; only docs and the channel mention it |
-| `parseGeneric` (`RuleStuff.twk`) | `2bfa808` -- Task 2 (SEQ 192) | 0 references in `*.twk *.rtn *.h` |
-
-### A named-rule trace may be quiet on a face (SEQ 284 R4, parked, 2026-10-03)
-- `groupDirectives`' parse-debugging bodies test `field.debugged`, and `parseRule`/`parseContainer` re-resolve `field` to the enclosing face first; if a face does not share the registry rule's body, `debugRuleNamed` stays quiet there (`debugAllRules` is unaffected). Unmeasured. Confirm: `debugRuleNamed` on a rule reached by face, and count its trace lines.
-
-## Done
-
-### `parseAny` -- CUT 2026-10-02 (deepClean S6, SEQ 260)
-- Witness re-run first: parseAny **0** calls, parseString sibling 18,487. Cut: the function, its `case isANY:` installer in
-  setParseWalk (an `isANY` node now classifies as the default, parseString), the two measure name-table entries, its
-  groups.ext line. Its DesignDocs leaf-template note re-keyed to `parseCharacter`. Canary 301 -> 300; fleet row for row
-  but mirror arity 255 -> 254.
-
-### The Bytecode road -- CUT 2026-10-02 (deepClean S4, SEQ 260; ruled 2026-09-30)
-- Cut: `Bytecode.twk/.mm/.h` and their 8 TOK.xcodeproj references; `interpretMethod` and its bootstrap; `generateCode`;
-  the `generating` mode (`generateXP` and the branches in aCTionExpressioN, aCTionPrinT, aCTionStatemenT, aCTionTokenXP,
-  jitEmitters' reset); `bcOPs` dropped whole (R4) -- the GroupRules members `bcOPs`, `generator`, `generating`, the
-  GroupControl init, the setup registry and its 8 Operators clauses, the 77 search lines; groups.ext 23 lines; oneTest's
-  dead-region calls and its two stale header lines; CLAUDE.md's Phase Bytecode text. `incant/generate` stays as reference
-  with a header line saying so, and still loads (oneTest exit 0).
-- Certificate: full bare tokall, deletions only plus two comments; canary 304 -> 301; fleet row for row with S3 but the
-  mirror-arity census (270 -> 255, the 15 cut externs with definitions).
-
-### `labelMinters`, `allAttributesOptional()`, parse()'s `definer`/`defStuff` -- CUT 2026-10-02 (deepClean S3, SEQ 260)
-- Cut with the rest of S3's dead code (deepClean D-11 to D-16). The generated diff is exactly the deletions plus two
-  re-emitted file-header comments and one `class PLGrgx;` forward declaration. pop.sh's ruleOfT RO-8 re-pinned 5 -> 4
-  with its sentence: the `instanceRule()` call left with `definer`.
-
-### `establishFrame` and `parse()`'s local `parentLabel` -- CUT 2026-10-02 (stroke 5.9b, SEQ 257 R4)
-- **Were:** `GroupItem::establishFrame` (0 callers; a counting tap read 0 calls; its header claimed to be the single
-  writer of parentLabel) and `parse()`'s local `parentLabel` (written, never read; listed since SEQ 240/242).
-- **Cut** with the field in 5.9b (`cdad9c8`): full bare tokall shows exactly those lines gone; fleet row for row.
-  `establishFrame`'s `groups.ext` line (:321) goes at merge with the field's mirror line.
-
-### `dupCensus`
-- **What/where:** `genParse.rtn:136`, registered `dupCensus immediateAction;` in `incant/setup`, and a groups.ext line.
-- **What it was for:** the complete two-faces census for F-110 (Clay, 2026-09-23). It walks every reachable node and
-  asks each `dupTermRefusal`.
-- **Callers:** 0 in any incant, `IncantForms`, `.sh` or `.twk`/`.rtn` file; only its own registration. Its sibling
-  `dupTermRefusal` is live (`IncantForms/WorkingOn/parser:13`, above its `bail()`) and is **not** a candidate.
-- **Cost of cutting:** the extern, the setup line and the groups.ext line, in one stroke with the rebuild (#31). It
-  loses a re-runnable instrument; F-110's record keeps the numbers it produced.
-- **Confirm:** the census above re-run at cut time; fleet row for row.
-- **Seen:** 2026-09-30.
-- **CUT 2026-09-30:** extern, setup registration and groups.ext line removed; canary 316 -> 315; fleet row for row
-  (the mirror-arity row counts 283 comparable names, one fewer, drift still 0).
-
-### `compile`'s pending-carrier re-filing block -- DELETED 2026-09-29 (SEQ 225 item 2)
-- **Was:** `Commands.rtn:56-68` (`pendingToProperties`), moving a `pendingParseR` carrier and its `CodE` from the
-  terms to the property lists.
-- **Measured before the cut:** a temporary log across the whole checklist (pop.sh, jitLadder, decodePop, ddPop,
-  countPop, printPop, frontier): **4,307 arrivals with a carrier present, 0 carrier moves, 0 CodE moves** --
-  `parser:43-44` file both with `+<` since SEQ 224. Deleted with the fleet row for row.
-
 ### `isLabel` as "do not clear" on action locals -- a second meaning (SEQ 248 R5, banked, not fixed)
 - **Where:** `processAction`, GroupActions.rtn:713 (`result.isLabel = true;` on an action-body local bound to a label
   child), read back at :720 (`if isLocal && !isLabel ...` skips the entry clear).
@@ -207,3 +146,64 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 - **Confirm:** grep all three repos and the directive files; cut it and its groups.ext line; canary 307 -> 306, named;
   fleet row for row.
 - **Seen:** 2026-10-06 (stroke 1.3, branch stroke13).
+
+## Seeded, already gone
+
+Seeded 2026-09-28 from the dispatch. A source census shows each was already deleted, so there is nothing to cut.
+
+| item | deleted in | census |
+|---|---|---|
+| F-56's `fireNewParse` (`Commands.rtn`) | `1dd73d6` -- Tier 1 of the parseMethod= deletion (SEQ 188) | 0 references in `*.twk *.rtn *.h`; only docs and the channel mention it |
+| `parseGeneric` (`RuleStuff.twk`) | `2bfa808` -- Task 2 (SEQ 192) | 0 references in `*.twk *.rtn *.h` |
+
+### A named-rule trace may be quiet on a face (SEQ 284 R4, parked, 2026-10-03)
+- `groupDirectives`' parse-debugging bodies test `field.debugged`, and `parseRule`/`parseContainer` re-resolve `field` to the enclosing face first; if a face does not share the registry rule's body, `debugRuleNamed` stays quiet there (`debugAllRules` is unaffected). Unmeasured. Confirm: `debugRuleNamed` on a rule reached by face, and count its trace lines.
+
+## Done
+
+### `parseAny` -- CUT 2026-10-02 (deepClean S6, SEQ 260)
+- Witness re-run first: parseAny **0** calls, parseString sibling 18,487. Cut: the function, its `case isANY:` installer in
+  setParseWalk (an `isANY` node now classifies as the default, parseString), the two measure name-table entries, its
+  groups.ext line. Its DesignDocs leaf-template note re-keyed to `parseCharacter`. Canary 301 -> 300; fleet row for row
+  but mirror arity 255 -> 254.
+
+### The Bytecode road -- CUT 2026-10-02 (deepClean S4, SEQ 260; ruled 2026-09-30)
+- Cut: `Bytecode.twk/.mm/.h` and their 8 TOK.xcodeproj references; `interpretMethod` and its bootstrap; `generateCode`;
+  the `generating` mode (`generateXP` and the branches in aCTionExpressioN, aCTionPrinT, aCTionStatemenT, aCTionTokenXP,
+  jitEmitters' reset); `bcOPs` dropped whole (R4) -- the GroupRules members `bcOPs`, `generator`, `generating`, the
+  GroupControl init, the setup registry and its 8 Operators clauses, the 77 search lines; groups.ext 23 lines; oneTest's
+  dead-region calls and its two stale header lines; CLAUDE.md's Phase Bytecode text. `incant/generate` stays as reference
+  with a header line saying so, and still loads (oneTest exit 0).
+- Certificate: full bare tokall, deletions only plus two comments; canary 304 -> 301; fleet row for row with S3 but the
+  mirror-arity census (270 -> 255, the 15 cut externs with definitions).
+
+### `labelMinters`, `allAttributesOptional()`, parse()'s `definer`/`defStuff` -- CUT 2026-10-02 (deepClean S3, SEQ 260)
+- Cut with the rest of S3's dead code (deepClean D-11 to D-16). The generated diff is exactly the deletions plus two
+  re-emitted file-header comments and one `class PLGrgx;` forward declaration. pop.sh's ruleOfT RO-8 re-pinned 5 -> 4
+  with its sentence: the `instanceRule()` call left with `definer`.
+
+### `establishFrame` and `parse()`'s local `parentLabel` -- CUT 2026-10-02 (stroke 5.9b, SEQ 257 R4)
+- **Were:** `GroupItem::establishFrame` (0 callers; a counting tap read 0 calls; its header claimed to be the single
+  writer of parentLabel) and `parse()`'s local `parentLabel` (written, never read; listed since SEQ 240/242).
+- **Cut** with the field in 5.9b (`cdad9c8`): full bare tokall shows exactly those lines gone; fleet row for row.
+  `establishFrame`'s `groups.ext` line (:321) goes at merge with the field's mirror line.
+
+### `dupCensus`
+- **What/where:** `genParse.rtn:136`, registered `dupCensus immediateAction;` in `incant/setup`, and a groups.ext line.
+- **What it was for:** the complete two-faces census for F-110 (Clay, 2026-09-23). It walks every reachable node and
+  asks each `dupTermRefusal`.
+- **Callers:** 0 in any incant, `IncantForms`, `.sh` or `.twk`/`.rtn` file; only its own registration. Its sibling
+  `dupTermRefusal` is live (`IncantForms/WorkingOn/parser:13`, above its `bail()`) and is **not** a candidate.
+- **Cost of cutting:** the extern, the setup line and the groups.ext line, in one stroke with the rebuild (#31). It
+  loses a re-runnable instrument; F-110's record keeps the numbers it produced.
+- **Confirm:** the census above re-run at cut time; fleet row for row.
+- **Seen:** 2026-09-30.
+- **CUT 2026-09-30:** extern, setup registration and groups.ext line removed; canary 316 -> 315; fleet row for row
+  (the mirror-arity row counts 283 comparable names, one fewer, drift still 0).
+
+### `compile`'s pending-carrier re-filing block -- DELETED 2026-09-29 (SEQ 225 item 2)
+- **Was:** `Commands.rtn:56-68` (`pendingToProperties`), moving a `pendingParseR` carrier and its `CodE` from the
+  terms to the property lists.
+- **Measured before the cut:** a temporary log across the whole checklist (pop.sh, jitLadder, decodePop, ddPop,
+  countPop, printPop, frontier): **4,307 arrivals with a carrier present, 0 carrier moves, 0 CodE moves** --
+  `parser:43-44` file both with `+<` since SEQ 224. Deleted with the fleet row for row.

@@ -72,10 +72,11 @@ struct ParseActivation
                 bufferSTAK,
                 inputSTAK;
     /***************************************************************************
-        branchKind is INERT ON TRUNK: P4's control slot (break 1, continue 2,
-        return 3), written and read only on branch parse-then-fire. Declared
-        here so groups.ext's external GroupRules and both GroupRules.twk agree
-        (SEQ 195).
+        branchKind is the CONTROL SLOT (break 1, continue 2, return 3), LIVE on
+        trunk since the control-signal amendment (SEQ 262, 2026-10-02): its one
+        non-zero writer is aCTionBrancH; the block, loop, action and drive
+        brackets clear, save and restore it. Mirrored in groups.ext's external
+        GroupRules (SEQ 195).
     ***************************************************************************/
     int         branchKind,
                 chanBinds,

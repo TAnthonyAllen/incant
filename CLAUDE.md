@@ -2658,6 +2658,10 @@ Hard-won lessons. Each one has cost real debugging time.
     `*.rtn`/`*.twk`/`*.h` mtime against the binary and prints **`⚠ STALE … REBUILD BEFORE BELIEVING
     ANY ROW BELOW`**, plus the source's `gNoUnwrap` value with a line saying the staleness check is
     what licenses trusting it. H7 control run: touching a source makes it fire by name.
+    ⚠⚠ **DATED 2026-10-06: `gNoUnwrap` NO LONGER EXISTS.** It was REMOVED on 2026-09-05 (`e1278b5`, *"The trunk is the
+    flip; the switch is gone"*) -- the same day this entry was written -- so `jitContext.h` has no such static and
+    pop.sh no longer prints its value; the STALE mtime check is what stands. The entry above is the record of that
+    morning, not a live switch. Found by the cleanup census (docs/cleanupCensus.md).
     **The general rule, and it outlives `gNoUnwrap`: when a switch lives in SOURCE and its effect
     lives in a BUILD, reading the switch is not reading the system.** Rebuild, then measure — the
     order in bear-trap #31's closing line, aimed one layer down.
