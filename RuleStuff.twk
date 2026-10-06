@@ -10,7 +10,6 @@ int         max,
             maxRepeat,
             min;
 int         &testMatch(GroupItem);
-GroupItem   &actionMethod(GroupItem);
 GroupItem   &parseMethod(GroupItem);
 int         &jitMethod(GroupItem);
 boolean
@@ -186,11 +185,15 @@ extern int testAction(GroupItem field)
         if parseMethod(field)   return true;
         else                    return false;
     // topRecord the label is the calling parse()'s record (1.2f, SEQ 306)
-    if actionMethod
+    // askTheActor the action is the rule's builtinActoR -- the RuleStuff cache retired (SEQ 205 R3)
+    GroupItem   testActor = getProperty("builtinActoR");
+    // useField the local above would capture the bare names below (bear-trap #42)
+use field
+    if testActor && testActor.method
         if parseACTION || !groupRules.gParseActive.label
-            if actionMethod(field)      return true;
-        or groupRules.gParseActive.label && actionMethod(groupRules.gParseActive.label)   return true;
-    else    cerr "testAction: " tag "has no actionMethod":;
+            if testActor.method(field)      return true;
+        or groupRules.gParseActive.label && testActor.method(groupRules.gParseActive.label)   return true;
+    else    cerr "testAction: " tag "has no action":;
     return  false;
 }
 

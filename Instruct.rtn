@@ -387,7 +387,8 @@ use argument
                 case 33:    if target.isBIN         product.count = 1;
                 case 34:    if target.isAttribute   product.count = 1;
                 case 35:    if target.isMember      product.count = 1;
-                case 36:    if target.rStuff && target.actionMethod  product.count = 1;
+                // hasActionAsksActor "this rule has an action": its builtinActoR, never a fire-time cache (SEQ 205 R1)
+                case 36:    if target.getProperty("builtinActoR")   product.count = 1;
                 case 40:    if target.isCoded       product.count = 1;
                 // case41hasNewParse  READ half; the WRITE half is opSetFlag case 41 -- they
                 // case41hasNewParse  ship together or the flag is unassertable

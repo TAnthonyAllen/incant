@@ -702,26 +702,25 @@ GroupItem fireLabelMethod(RuleStuff stuff, GroupItem fireLab, String fireAt)
 {
 GroupRules  ruler = groupRules;
 int         held = deferredAbove(stuff);
-    if !stuff.actionMethod {
-        GroupItem   builtinActoR = getAttribute("builtinActoR");
-        if builtinActoR stuff.actionMethod = builtinActoR.method; }
+GroupItem   fireActor = getProperty("builtinActoR");
     ruleSTUFF   = stuff;
     // collisionProbe this seat stays ABOVE captureSpan, so the capture's own comparator
     // line prints inside the bracket
     measureFireLabelEntry(this);
     if tokened  captureSpan(fireLab,fireAt);
     measureFireLabelFork(this,fireLab);
-    if stuff.actionMethod && fireLab {
+    // askTheActor the action is the rule's builtinActoR, asked at every fire -- no cache to fill or clear (SEQ 205)
+    if fireActor && fireActor.method && fireLab {
         // heldAbove a deferred action waits only if a DEFERRED ANCESTOR will run it; with none above, nobody else ever will
         if deferred && held {
-            fireLab.method    = actionMethod;
+            fireLab.method    = fireActor.method;
             fireLab.deferred  = true; }
         or !parseACTION {
             // replacementReturn IN and OUT are two seats -- one read after the fire
             // cannot tell a replacement from a pass-through
             measureFireLabelActionIn(this,fireLab);
             -% GroupItem *adoptHanded = fireLab; %-
-            fireLab = stuff.actionMethod(fireLab);
+            fireLab = fireActor.method(fireLab);
             // adoptionSeat what the yield channel received, by kind -- F-122's (b) census as a standing witness
             -% ::measureAdoption(this,adoptHanded,fireLab); %-
             measureFireLabelActionOut(this,fireLab); }}
@@ -1627,18 +1626,14 @@ GroupItem action;
 /*******************************************************************************
                                 setActions
     setActions adds builtinActoR to contain rule action method. It is not
-    a setter. The actionMethod field in rStuff gets set from it in
-    fireLabelMethod
+    a setter. Every reader of a rule's action asks builtinActoR (SEQ 205).
 *******************************************************************************/
 void setActions()
 {
-RuleStuff   ruleStuff = rStuff;
     // actorIsAProperty the actor lives on the property list, so a later definition's terms can never land behind it (stroke 3; 3a's reorder retired with it)
     if getProperty("builtinActoR")  return;
     if isCoded {
         method                  = processAction;
-        // eagerStamp the slot is filled HERE, not at first fire -- a non-null actionMethod is the has-an-action test
-        ruleStuff.actionMethod  = processAction;
         // markThenAdd noPrint before the attach, as the two arms below -- addAttribute reads it to decide hasTraits (fixIts F-58)
         GroupItem builtinActoR  = new("builtinActoR");
         builtinActoR.noPrint    = true;

@@ -1075,9 +1075,7 @@ GroupItem   upMark,
     input.clear();
     if Modifier {
         isAttribute = true;
-        if rStuff {
-            DatA = new(DatA);
-            actionMethod = null; }
+        if rStuff   DatA = new(DatA);
         else        setRuleStuff();
         // modifierRidesUp repetition lands on the DATA only; applying it to the trait as well repeats TWICE
         if Modifier modifyClass(DatA,Modifier.text,1);

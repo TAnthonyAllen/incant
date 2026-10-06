@@ -45,14 +45,17 @@ extern "C" int testAction(GroupItem *field)
 			return 1;
 		else	return 0;
 	// topRecord the label is the calling parse()'s record (1.2f, SEQ 306)
-	if ( field->getRStuff()->actionMethod )
+	// askTheActor the action is the rule's builtinActoR -- the RuleStuff cache retired (SEQ 205 R3)
+GroupItem *testActor = field->getProperty("builtinActoR");
+	// useField the local above would capture the bare names below (bear-trap #42)
+	if ( testActor && testActor->groupBody->gMethod )
 		if ( parseACTION(field->groupBody->flags.methodType) || !GroupControl::groupController->groupRules->gParseActive->label )
-			if ( field->getRStuff()->actionMethod(field) )
+			if ( testActor->groupBody->gMethod(field) )
 				return 1;
 			else
-			if ( GroupControl::groupController->groupRules->gParseActive->label && field->getRStuff()->actionMethod(GroupControl::groupController->groupRules->gParseActive->label) )
+			if ( GroupControl::groupController->groupRules->gParseActive->label && testActor->groupBody->gMethod(GroupControl::groupController->groupRules->gParseActive->label) )
 				return 1;
-			else	::fprintf(stderr,"testAction: %shas no actionMethod\n",field->groupBody->tag);
+			else	::fprintf(stderr,"testAction: %shas no action\n",field->groupBody->tag);
 	return 0;
 }
 
@@ -377,7 +380,6 @@ RuleStuff::RuleStuff(GroupItem *grup)
 	testMatch = 0;
 	parseMethod = 0;
 	jitMethod = 0;
-	actionMethod = 0;
 	onGroup = 0;
 	followed = 0;
 	isTarget = 0;
@@ -402,7 +404,6 @@ RuleStuff::RuleStuff(RuleStuff *r)
 	testMatch = 0;
 	parseMethod = 0;
 	jitMethod = 0;
-	actionMethod = 0;
 	ruleName = 0;
 	onGroup = 0;
 	max = 0;
