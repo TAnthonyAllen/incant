@@ -198,3 +198,12 @@ Seeded 2026-09-28 from the dispatch. A source census shows each was already dele
 - **Confirm:** grep every repo and the directive files for a caller; cut it and its groups.ext line if any; canary
   307 -> 306, named; fleet row for row.
 - **Seen:** 2026-10-06 (ruleName stroke, branch stroke-ruleName).
+
+### `enclosingStuff` -- no caller (stroke 1.3 recon, 2026-10-06)
+- **What / where:** `Generate.rtn:48`, `extern RuleStuff enclosingStuff(GroupItem askField, RuleStuff askStuff)`, and its
+  groups.ext line (:504).
+- **Why it looks deletable:** no caller in any `.twk`, `.rtn`, kant file or directive (stroke 1.3's stuff tap recorded 0
+  reads there across pop.sh, jitLadder and printPop). Stroke 1.3 respelled it to `stuffOf` so it compiles, nothing more.
+- **Confirm:** grep all three repos and the directive files; cut it and its groups.ext line; canary 307 -> 306, named;
+  fleet row for row.
+- **Seen:** 2026-10-06 (stroke 1.3, branch stroke13).

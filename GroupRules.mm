@@ -2083,7 +2083,7 @@ extern "C" int driveFloorLabel(RuleStuff *stuff, GroupItem *label)
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 ParseActivation 	*below = 0;
 ParseActivation 	*top = ruler->gParseActive;
-	if ( !stuff || !top || top->stuff != stuff )
+	if ( !stuff || !top || ruler->stuffOf(top) != stuff )
 		return 0;
 	below = top->prev;
 	if ( !below || !below->isFloor )
@@ -2114,14 +2114,13 @@ char 				*driveBase = 0;
 	if ( ruler->inputSTAK )
 		baseStak = ruler->inputSTAK->length;
 	// driveFloor a drive pushes a FLOOR on the new road's activation list; deferredAbove stops there (Tony, 2026-09-24)
-	driveFloor.face = 0;
+	driveFloor.instance = 0;
 	driveFloor.isFloor = 1;
 	// compileMark a compile's drive passes its owner: the floor answers inCompile() and floorOwner(), and its pop is the restore (SEQ 297, SEQ 299)
 	driveFloor.compileOwner = forOwner;
 	driveFloor.label = 0;
 	driveFloor.prev = ruler->gParseActive;
 	driveFloor.failPoint = 0;
-	driveFloor.stuff = 0;
 	priorDefining = ruler->defining;
 	priorIndent = ruler->lastIndent;
 	if ( field && field->groupBody->flags.data )
@@ -2167,7 +2166,7 @@ char 				*driveBase = 0;
 		else {
 			// oldRoadAttach an old-road rule called from INSIDE a new-road activation attaches into that activation -- with parse(0) attachLabel dropped its label, and every print shortcut vanished (F-120, F-116); a real drive has pushed its floor, so it still passes 0
 			if ( ruler->gParseActive && !ruler->gParseActive->isFloor )
-				result = rule->parse(ruler->gParseActive->stuff,0,0);
+				result = rule->parse(ruler->stuffOf(ruler->gParseActive),0,0);
 			else	result = rule->parse(0,0,0);
 			}
 		}
@@ -2256,15 +2255,15 @@ int 		refused = 0;
 	return 0;
 }
 
-// enclosingFace the face of this term in the ENCLOSING RULE BODY, through the enclosing parse activation -- a drive floors it, so a drive root has none; never through currentMETHOD, which inside an action is the action and finds its own compiled BlocK (SEQ 212)
-extern "C" GroupItem *enclosingFace(GroupItem *field)
+// enclosingInstance the instance of this term in the ENCLOSING RULE BODY, through the enclosing parse activation -- a drive floors it, so a drive root has none; never through currentMETHOD, which inside an action is the action and finds its own compiled BlocK (SEQ 212)
+extern "C" GroupItem *enclosingInstance(GroupItem *field)
 {
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 ParseActivation 	*top = ruler->gParseActive;
-	// faceNotOwner the activation's face, never stuff.owner -- equal on every read measured (stroke 5.3 tap); the stuff test stays so the null cases match
-	if ( !field || !top || top->isFloor || !top->stuff || !top->face )
+	// instanceNotOwner the activation's instance, never stuff.owner -- equal on every read measured (stroke 5.3 tap); the stuff test stays so the null cases match
+	if ( !field || !top || top->isFloor || !ruler->stuffOf(top) || !top->instance )
 		return 0;
-	return top->face->get(field->groupBody->tag);
+	return top->instance->get(field->groupBody->tag);
 }
 
 // enclosingStuff the nearest enclosing activation's stuff, or null at a floor or an empty list -- every parentStuff reader asks here and none walks the list (stroke 5.8, SEQ 254 R3)
@@ -2273,11 +2272,11 @@ extern "C" RuleStuff *enclosingStuff(GroupItem *askField, RuleStuff *askStuff)
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 ParseActivation 	*top = ruler->gParseActive;
 	// ownActivation a parseRule has pushed itself and a leaf has pushed nothing -- when the top is the asker's own, the enclosing one is below it (SEQ 254 R4)
-	if ( top && top->face == askField && top->stuff == askStuff )
+	if ( top && top->instance == askField && ruler->stuffOf(top) == askStuff )
 		top = top->prev;
 	if ( !top || top->isFloor )
 		return 0;
-	return top->stuff;
+	return ruler->stuffOf(top);
 }
 
 // handBack STROKE 1.1a -- a term hands its per-call values back and leaves none on rStuff: sukcess, hereAt and a handed-up label are cleared at the ONE exit; a recycled label (fLAG, emptied by the repeat attach and in no tree) stays for reuse. Inline stores, no lookup, no slot (SEQ 283 R2). For parseRule the call bracket restores all three right after
@@ -2289,7 +2288,7 @@ ParseActivation 	*cTop = 0;
 ParseActivation 	*cRec = 0;
 RuleStuff 			*cParent = 0;
 char 				*failMark = 0;
-GroupItem 			*cFace = 0;
+GroupItem 			*cInstance = 0;
 GroupItem 			*cLab = 0;
 GroupItem 			*result = 0;
 	// activeNotSubject cTop takes GroupRules' scope and the extra GroupItems take field's, so they are declared FIRST and ruler, field, ruleStuff re-mentioned after them and after every cTop use (bear-traps #42, #58)
@@ -2312,21 +2311,21 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 				{
 				cLab = exitLab;
 				cTop = ruler->gParseActive;
-				if ( cTop && cTop->face == field && cTop->stuff == ruleStuff )
+				if ( cTop && cTop->instance == field && ruler->stuffOf(cTop) == ruleStuff )
 					cTop = cTop->prev;
 				if ( cTop && !cTop->isFloor )
 					{
 					cRec = cTop;
-					cParent = cTop->stuff;
-					cFace = cTop->face;
+					cParent = ruler->stuffOf(cTop);
+					cInstance = cTop->instance;
 					}
 				// parentRecord the parent's label lives in its RECORD, the enclosing activation (1.2f, SEQ 306)
-				if ( cRec && !cRec->label && cFace && cFace->groupBody->flags.hasMembers && !cFace->groupBody->flags.binType && cLab != ruler->labelNO )
+				if ( cRec && !cRec->label && cInstance && cInstance->groupBody->flags.hasMembers && !cInstance->groupBody->flags.binType && cLab != ruler->labelNO )
 					{
 					cRec->label = cLab;
 					// askTheRule the retag name is the parent instance's tag, never ruleName (ruleName stroke)
 					if ( cLab->labelOf || (!cLab->groupBody->registry && !cLab->parent) )
-						cLab->groupBody->tag = cFace->groupBody->tag;
+						cLab->groupBody->tag = cInstance->groupBody->tag;
 					}
 				else	field->attachLabel(ruleStuff,cParent,1,0,cLab);
 				}
@@ -2345,7 +2344,7 @@ RuleStuff 			*ruleStuff = field->getRStuff();
 		if ( !result )
 			{
 			cTop = ruler->gParseActive;
-			if ( cTop && cTop->face == field && cTop->stuff == ruleStuff )
+			if ( cTop && cTop->instance == field && ruler->stuffOf(cTop) == ruleStuff )
 				cTop = cTop->prev;
 			if ( cTop && cTop->isFloor )
 				cTop->failPoint = failMark;
@@ -5709,7 +5708,7 @@ extern "C" int jitProbeDrive(GroupItem *rule, GroupItem *armed, char *msg, int j
 	ruler->divertToRule = 1;
 	//  probeFloor A DRIVE HIDES ITS CALLER: the floor goes on before the push and comes off before the single return (stroke 5.5f, SEQ 241)
 	ParseActivation probeFloor;
-	probeFloor.face = 0; probeFloor.isFloor = 1; probeFloor.compileOwner = 0; probeFloor.label = 0; probeFloor.prev = ruler->gParseActive; probeFloor.stuff = 0;
+	probeFloor.instance = 0; probeFloor.isFloor = 1; probeFloor.compileOwner = 0; probeFloor.label = 0; probeFloor.prev = ruler->gParseActive;
 	ruler->gParseActive = &probeFloor;
 	//  branchFrame a drive door is a frame for the control slot until D-22 unifies the doors (SEQ 264 R2)
 	int probeBranchSave = ruler->branchKind;
@@ -8717,7 +8716,7 @@ extern "C" int parkInRecord(RuleStuff *s, GroupItem *lab)
 {
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 ParseActivation 	*rec = ruler->gParseActive;
-	while ( rec && rec->stuff != s )
+	while ( rec && ruler->stuffOf(rec) != s )
 		rec = rec->prev;
 	if ( !rec )
 		return 0;
@@ -8817,7 +8816,7 @@ GroupItem 	*grup = 0;
 char 		*entryMark = ruler->atRuleMark;
 int 		matched = 0;
 	// faceReresolve a bin or registry reached BY NAME is re-resolved to the calling rule's own face, as parseRule does, through the enclosing parse activation -- the face carries the term's rStuff (its modifiers and label slot)
-	 { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } 
+	 { GroupItem *zEnc = ::enclosingInstance(field); if ( zEnc ) field = zEnc; } 
 	ruleStuff = field->getRStuff();
 	// noStuffLawfulSkip a registry has no rStuff: match with default limits and exit WITHOUT exitFromParse -- never refuse, never mint onto it
 	if ( !ruleStuff )
@@ -8887,7 +8886,7 @@ int 		matched = 0;
 extern "C" GroupItem *parseLoop(GroupItem *field)
 {
 	// enclosingRule re-resolve to the enclosing rule body's own face, through the ENCLOSING PARSE ACTIVATION -- a drive floors it, so a drive root keeps the rule it was handed (SEQ 212)
-	 { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } 
+	 { GroupItem *zEnc = ::enclosingInstance(field); if ( zEnc ) field = zEnc; } 
 RuleStuff *ruleStuff = field->getRStuff();
 int timesMatched = 0;
 	while ( timesMatched < ruleStuff->max )
@@ -8907,13 +8906,12 @@ extern "C" GroupItem *parseOnFloor(GroupItem *rule)
 ParseActivation 	topFloor;
 GroupItem 			*result = 0;
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
-	topFloor.face = 0;
+	topFloor.instance = 0;
 	topFloor.isFloor = 1;
 	topFloor.compileOwner = 0;
 	topFloor.label = 0;
 	topFloor.prev = ruler->gParseActive;
 	topFloor.failPoint = 0;
-	topFloor.stuff = 0;
 	ruler->gParseActive = &topFloor;
 	// activeNotSubject the record takes GroupRules' scope, so re-mention ruler (bear-trap #58)
 	result = rule->parse(0,0,0);
@@ -8935,16 +8933,15 @@ int 				callOK = 0;
 char 				*callHere = 0;
 ParseActivation 	callActive;
 	// enclosingRule re-resolve to the enclosing rule body's own face, through the ENCLOSING PARSE ACTIVATION -- a drive floors it, so a drive root keeps the rule it was handed (SEQ 212)
-	 { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } 
+	 { GroupItem *zEnc = ::enclosingInstance(field); if ( zEnc ) field = zEnc; } 
 RuleStuff 			*ruleStuff = field->getRStuff();
 	// activePush this call's record goes on the activation list; one pop, after exitFromParse
-	callActive.face = field;
+	callActive.instance = field;
 	callActive.isFloor = 0;
 	callActive.compileOwner = 0;
 	callActive.label = 0;
 	callActive.prev = ruler->gParseActive;
 	callActive.failPoint = 0;
-	callActive.stuff = ruleStuff;
 	ruler->gParseActive = &callActive;
 	// activeNotSubject the record inherits GroupRules' scope, so re-mention ruler then ruleStuff or currentMETHOD binds to callActive (bear-trap #57)
 	::measureParentProbe(field);
@@ -9623,7 +9620,7 @@ extern "C" GroupItem *recordLabel(RuleStuff *s)
 {
 GroupRules 			*ruler = GroupControl::groupController->groupRules;
 ParseActivation 	*rec = ruler->gParseActive;
-	while ( rec && rec->stuff != s )
+	while ( rec && ruler->stuffOf(rec) != s )
 		rec = rec->prev;
 	if ( rec )
 		return rec->label;
@@ -11157,6 +11154,14 @@ int 	result = 0;
 	if ( atRuleMark )
 		result = 1;
 	return result;
+}
+
+// stuffOf a record's stuff is its instance's own, derived and never stored (stroke 1.3) -- a floor has no instance, so none
+RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
+{
+	if ( rec && rec->instance )
+		return rec->instance->getRStuff();
+	return 0;
 }
 /*	Warning: the following methods were referenced but not declared
 	read(int,char*,long)

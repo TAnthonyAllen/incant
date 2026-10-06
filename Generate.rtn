@@ -11,14 +11,14 @@ GroupItem   grup;
             clearWalked(grup);
 }
 
-// enclosingFace the face of this term in the ENCLOSING RULE BODY, through the enclosing parse activation -- a drive floors it, so a drive root has none; never through currentMETHOD, which inside an action is the action and finds its own compiled BlocK (SEQ 212)
-extern GroupItem enclosingFace(GroupItem field)
+// enclosingInstance the instance of this term in the ENCLOSING RULE BODY, through the enclosing parse activation -- a drive floors it, so a drive root has none; never through currentMETHOD, which inside an action is the action and finds its own compiled BlocK (SEQ 212)
+extern GroupItem enclosingInstance(GroupItem field)
 {
 GroupRules      ruler = groupRules;
 ParseActivation *top = ruler.gParseActive;
-    // faceNotOwner the activation's face, never stuff.owner -- equal on every read measured (stroke 5.3 tap); the stuff test stays so the null cases match
-    if !field || !top || top.isFloor || !top.stuff || !top.face     return null;
-    return top.face.get(field.tag);
+    // instanceNotOwner the activation's instance, never stuff.owner -- equal on every read measured (stroke 5.3 tap); the stuff test stays so the null cases match
+    if !field || !top || top.isFloor || !ruler.stuffOf(top) || !top.instance     return null;
+    return top.instance.get(field.tag);
 }
 
 // recordLabel the label of the nearest live record whose stuff is s -- a child's read of its parent's label (1.2f, SEQ 306)
@@ -26,7 +26,7 @@ extern GroupItem recordLabel(RuleStuff s)
 {
 GroupRules      ruler = groupRules;
 ParseActivation *rec = ruler.gParseActive;
-    while rec && rec.stuff != s     rec = rec.prev;
+    while rec && ruler.stuffOf(rec) != s     rec = rec.prev;
     if rec  return rec.label;
     return null;
 }
@@ -36,7 +36,7 @@ extern int parkInRecord(RuleStuff s, GroupItem lab)
 {
 GroupRules      ruler = groupRules;
 ParseActivation *rec = ruler.gParseActive;
-    while rec && rec.stuff != s     rec = rec.prev;
+    while rec && ruler.stuffOf(rec) != s     rec = rec.prev;
     if !rec     return 0;
     rec.label   = lab;
     return 1;
@@ -48,9 +48,9 @@ extern RuleStuff enclosingStuff(GroupItem askField, RuleStuff askStuff)
 GroupRules      ruler = groupRules;
 ParseActivation *top = ruler.gParseActive;
     // ownActivation a parseRule has pushed itself and a leaf has pushed nothing -- when the top is the asker's own, the enclosing one is below it (SEQ 254 R4)
-    if top && top.face == askField && top.stuff == askStuff     top = top.prev;
+    if top && top.instance == askField && ruler.stuffOf(top) == askStuff     top = top.prev;
     if !top || top.isFloor  return null;
-    return top.stuff;
+    return ruler.stuffOf(top);
 }
 
 // handBack STROKE 1.1a -- a term hands its per-call values back and leaves none on rStuff: sukcess, hereAt and a handed-up label are cleared at the ONE exit; a recycled label (fLAG, emptied by the repeat attach and in no tree) stays for reuse. Inline stores, no lookup, no slot (SEQ 283 R2). For parseRule the call bracket restores all three right after
@@ -62,7 +62,7 @@ ParseActivation *cTop,
                 *cRec;
 RuleStuff       cParent;
 String          failMark;
-GroupItem       cFace,
+GroupItem       cInstance,
                 cLab,
                 result;
     // activeNotSubject cTop takes GroupRules' scope and the extra GroupItems take field's, so they are declared FIRST and ruler, field, ruleStuff re-mentioned after them and after every cTop use (bear-traps #42, #58)
@@ -82,16 +82,16 @@ use ruleStuff
             if exitLab && !noLabel {
                 cLab    = exitLab;
                 cTop    = ruler.gParseActive;
-                if cTop && cTop.face == field && cTop.stuff == ruleStuff    cTop = cTop.prev;
+                if cTop && cTop.instance == field && ruler.stuffOf(cTop) == ruleStuff    cTop = cTop.prev;
                 if cTop && !cTop.isFloor {
                     cRec    = cTop;
-                    cParent = cTop.stuff;
-                    cFace   = cTop.face; }
+                    cParent     = ruler.stuffOf(cTop);
+                    cInstance   = cTop.instance; }
                 // parentRecord the parent's label lives in its RECORD, the enclosing activation (1.2f, SEQ 306)
-                if cRec && !cRec.label && cFace && cFace.hasMembers && !cFace.binType && cLab != ruler.labelNO {
+                if cRec && !cRec.label && cInstance && cInstance.hasMembers && !cInstance.binType && cLab != ruler.labelNO {
                     cRec.label = cLab;
                     // askTheRule the retag name is the parent instance's tag, never ruleName (ruleName stroke)
-                    if cLab.labelOf || (!cLab.registry && !cLab.parent)     cLab.tag = cFace.tag; }
+                    if cLab.labelOf || (!cLab.registry && !cLab.parent)     cLab.tag = cInstance.tag; }
                 else    field.attachLabel(ruleStuff,cParent,1,null,cLab); }
 use ruler
 use field
@@ -106,7 +106,7 @@ use ruleStuff
         // rootFailPoint the ROOT's own failure point goes on the floor below it -- a term whose enclosing activation is a floor is the root (SEQ 292, SEQ 186 R2)
         if !result {
             cTop    = ruler.gParseActive;
-            if cTop && cTop.face == field && cTop.stuff == ruleStuff    cTop = cTop.prev;
+            if cTop && cTop.instance == field && ruler.stuffOf(cTop) == ruleStuff    cTop = cTop.prev;
             if cTop && cTop.isFloor     cTop.failPoint = failMark; }}
 use ruler
 use field
@@ -203,7 +203,7 @@ String      entryMark = atRuleMark;
 int         matched;
 use field
     // faceReresolve a bin or registry reached BY NAME is re-resolved to the calling rule's own face, as parseRule does, through the enclosing parse activation -- the face carries the term's rStuff (its modifiers and label slot)
-    -% { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } %-
+    -% { GroupItem *zEnc = ::enclosingInstance(field); if ( zEnc ) field = zEnc; } %-
     ruleStuff   = field.rStuff;
 use field
     // noStuffLawfulSkip a registry has no rStuff: match with default limits and exit WITHOUT exitFromParse -- never refuse, never mint onto it
@@ -250,7 +250,7 @@ use field
 extern GroupItem parseLoop(GroupItem field)
 {
     // enclosingRule re-resolve to the enclosing rule body's own face, through the ENCLOSING PARSE ACTIVATION -- a drive floors it, so a drive root keeps the rule it was handed (SEQ 212)
-    -% { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } %-
+    -% { GroupItem *zEnc = ::enclosingInstance(field); if ( zEnc ) field = zEnc; } %-
 RuleStuff   ruleStuff = rStuff;
 int         timesMatched = 0;
     while timesMatched < max
@@ -277,16 +277,15 @@ String      callHere;
 ParseActivation callActive;
 use field
     // enclosingRule re-resolve to the enclosing rule body's own face, through the ENCLOSING PARSE ACTIVATION -- a drive floors it, so a drive root keeps the rule it was handed (SEQ 212)
-    -% { GroupItem *zEnc = ::enclosingFace(field); if ( zEnc ) field = zEnc; } %-
+    -% { GroupItem *zEnc = ::enclosingInstance(field); if ( zEnc ) field = zEnc; } %-
 RuleStuff   ruleStuff = rStuff;
     // activePush this call's record goes on the activation list; one pop, after exitFromParse
-    callActive.face     = field;
+    callActive.instance = field;
     callActive.isFloor  = 0;
     callActive.compileOwner = null;
     callActive.label    = null;
     callActive.prev     = ruler.gParseActive;
     callActive.failPoint = null;
-    callActive.stuff    = ruleStuff;
     ruler.gParseActive  = &callActive;
     // activeNotSubject the record inherits GroupRules' scope, so re-mention ruler then ruleStuff or currentMETHOD binds to callActive (bear-trap #57)
 use ruler

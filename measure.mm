@@ -562,7 +562,7 @@ extern "C" GroupItem *measureParentProbe(GroupItem *field)
 	
 	// listLabel the enclosing RECORD's label -- RuleStuff.label retired in 1.2f (SEQ 306)
 	ParseActivation *lr = GroupControl::groupController->groupRules->gParseActive;
-	if ( lr && lr->face == field && lr->stuff == field->rStuff ) lr = lr->prev;
+	if ( lr && lr->instance == field ) lr = lr->prev;
 	if ( lr && lr->isFloor ) lr = 0;
 	if ( GroupControl::groupController->groupRules->parseTrace )
 	::fprintf(stderr,"PARENTPROBE %s self=%p parent=%p parentTag=%s stuff=%p listLabel=%p listLabelTag=%s\n",

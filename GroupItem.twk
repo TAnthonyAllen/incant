@@ -231,11 +231,11 @@ use ruler
     // askTheRule the retag name is the parent record's own instance tag -- ruleName is Tony's debug aid, read by no engine code (ruleName stroke)
     if pStuff {
         destRec     = ruler.gParseActive;
-        while destRec && destRec.stuff != pStuff    destRec = destRec.prev;
+        while destRec && ruler.stuffOf(destRec) != pStuff    destRec = destRec.prev;
         dest        = null;
         if destRec {
             dest        = destRec.label;
-            destName    = destRec.face.tag; } }
+            destName    = destRec.instance.tag; } }
     or !into                    return;
     // caseLocalizer parseTrace-gated -- the interesting failure is a SILENT return at the no-label guard, and
     // caseLocalizer an absent attach announces nothing on its own
@@ -262,9 +262,10 @@ use ruler
             {
             const char *pName  = (pStuff && pStuff->ruleName) ? pStuff->ruleName : "(none)";
             ParseActivation *lr = GroupControl::groupController->groupRules->gParseActive;
-            if ( lr && lr->face == this && lr->stuff == stuff ) lr = lr->prev;
+            if ( lr && lr->instance == this && lr->instance->rStuff == stuff ) lr = lr->prev;
             if ( lr && lr->isFloor ) lr = 0;
-            const char *ppName = (lr && lr->stuff && lr->stuff->ruleName) ? lr->stuff->ruleName : "(none)";
+            RuleStuff *lrStuff = GroupControl::groupController->groupRules->stuffOf(lr);
+            const char *ppName = (lrStuff && lrStuff->ruleName) ? lrStuff->ruleName : "(none)";
             const char *ppLab  = (lr && lr->label) ? lr->label->groupBody->tag : "(null)";
             ::fprintf(stderr,"    IA2 DROP  lab=%s  pRule=%s  listParent=%s lp.label=%s\n",
                 lab->groupBody->tag,pName,ppName,ppLab);
@@ -452,9 +453,9 @@ int             inDrive = 0;
     if ruler.inCompile() {
         measureDeferredAbove(this,stuff,1,3,inDrive);
         return 1; }
-    if top && top.stuff == stuff    top = top.prev;
+    if top && ruler.stuffOf(top) == stuff    top = top.prev;
     while top && !top.isFloor {
-        if top.stuff && top.face && top.face.deferred {
+        if ruler.stuffOf(top) && top.instance.deferred {
             measureDeferredAbove(this,stuff,1,2,inDrive);
             return 1; }
         top = top.prev; }
@@ -1305,13 +1306,12 @@ int         callOK = 0;
 String      callHere;
 String      ownPoint;
     // oldRoadPush this call's record on the activation list, after getStuff and before anything that recurses; one pop, before the single return (stroke 5.5a)
-    oldActive.face      = this;
+    oldActive.instance  = this;
     oldActive.isFloor   = 0;
     oldActive.compileOwner = null;
     oldActive.label     = null;
     oldActive.prev      = ruler.gParseActive;
     oldActive.failPoint = null;
-    oldActive.stuff     = ruleStuff;
     ruler.gParseActive  = &oldActive;
     // activeNotSubject the record takes GroupRules' scope, so re-mention ruler then ruleStuff or ruler's bare names bind to oldActive (bear-trap #58)
 use ruler

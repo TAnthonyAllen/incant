@@ -209,7 +209,7 @@ extern int driveFloorLabel(RuleStuff stuff, GroupItem label)
 GroupRules      ruler = groupRules;
 ParseActivation *below,
                 *top = ruler.gParseActive;
-    if !stuff || !top || top.stuff != stuff     return 0;
+    if !stuff || !top || ruler.stuffOf(top) != stuff     return 0;
     below = top.prev;
     if !below || !below.isFloor   return 0;
     below.label = label;
@@ -240,14 +240,13 @@ use ruler
     branchKind  = 0;
     if inputSTAK    baseStak = inputSTAK.length;
     // driveFloor a drive pushes a FLOOR on the new road's activation list; deferredAbove stops there (Tony, 2026-09-24)
-    driveFloor.face     = null;
+    driveFloor.instance = null;
     driveFloor.isFloor  = 1;
     // compileMark a compile's drive passes its owner: the floor answers inCompile() and floorOwner(), and its pop is the restore (SEQ 297, SEQ 299)
     driveFloor.compileOwner = forOwner;
     driveFloor.label    = null;
     driveFloor.prev     = ruler.gParseActive;
     driveFloor.failPoint = null;
-    driveFloor.stuff    = null;
     priorDefining       = ruler.defining;
     priorIndent         = ruler.lastIndent;
     if field && field.data {
@@ -282,7 +281,7 @@ use ruler
         if intoField && !intoField.data     result = parseR(rule,intoField);
         else {
             // oldRoadAttach an old-road rule called from INSIDE a new-road activation attaches into that activation -- with parse(0) attachLabel dropped its label, and every print shortcut vanished (F-120, F-116); a real drive has pushed its floor, so it still passes 0
-            if ruler.gParseActive && !ruler.gParseActive.isFloor  result = rule.parse(ruler.gParseActive.stuff,0,null);
+            if ruler.gParseActive && !ruler.gParseActive.isFloor  result = rule.parse(ruler.stuffOf(ruler.gParseActive),0,null);
             else    result = rule.parse(null,0,null);
             } }
     // floorLabel a generated root that SUCCEEDED hands back the label its floor holds (trueResult when it parked none); a failure hands back what the fire did
@@ -818,13 +817,12 @@ extern GroupItem parseOnFloor(GroupItem rule)
 ParseActivation topFloor;
 GroupItem   result;
 GroupRules  ruler = groupRules;
-    topFloor.face       = null;
+    topFloor.instance   = null;
     topFloor.isFloor    = 1;
     topFloor.compileOwner = null;
     topFloor.label      = null;
     topFloor.prev       = ruler.gParseActive;
     topFloor.failPoint  = null;
-    topFloor.stuff      = null;
     ruler.gParseActive  = &topFloor;
     // activeNotSubject the record takes GroupRules' scope, so re-mention ruler (bear-trap #58)
 use ruler

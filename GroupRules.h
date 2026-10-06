@@ -5,12 +5,11 @@ class Stak;
 class Buffer;
 struct ParseActivation
 	{
-	GroupItem *face;
+	GroupItem *instance;
 	int isFloor;
 	GroupItem *compileOwner;
 	GroupItem *label;
 	ParseActivation *prev;
-	RuleStuff *stuff;
 	char *failPoint;
 	};
 
@@ -103,6 +102,7 @@ GroupItem *floorOwner();
 int inCompile();
 void popInput();
 int pushInput(GroupItem *source);
+RuleStuff *stuffOf(ParseActivation *rec);
 };
 extern "C" GroupItem *aCTionANYtoken(GroupItem *input);
 extern "C" GroupItem *aCTionBlocK(GroupItem *input);
@@ -161,7 +161,7 @@ extern "C" int driveFloorLabel(RuleStuff *stuff, GroupItem *label);
 extern "C" GroupItem *driveStep(GroupItem *field, GroupItem *rule, GroupItem *report, GroupItem *forOwner);
 extern "C" GroupItem *dumpContents(GroupItem *stuff);
 extern "C" GroupItem *dupTermRefusal(GroupItem *rule);
-extern "C" GroupItem *enclosingFace(GroupItem *field);
+extern "C" GroupItem *enclosingInstance(GroupItem *field);
 extern "C" RuleStuff *enclosingStuff(GroupItem *askField, RuleStuff *askStuff);
 extern "C" GroupItem *exitFromParse(GroupItem *field, int exitOK, char *exitAt, GroupItem *exitLab);
 extern "C" GroupItem *fAIL(GroupItem *input);
