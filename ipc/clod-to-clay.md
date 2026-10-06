@@ -11598,7 +11598,7 @@ NEXT: step 3 (what it does to 1.3/1.4) when dispatched.
 SEQ 210  -  CONTAINERS RECON STEP 3 OF 3: AGAINST STROKES 1.3 AND 1.4. READ-ONLY. docs/containersRecon.md "Step 3".
 
 R0 RECORDED: rStuff out of the containers scope (HPDL); RuleStuff stays a struct; A3 stays shelved -- in containersRecon.md
-  and objectModel A4 as O9. Containers = list organization only.
+  and objectModel A4 as O12 (O9 was taken; O10 closed by the actionMethod merge). Containers = list organization only.
 
 Read volumes from step 2's call counts, EXCLUDING trace-gated lines (executed reads, not step 2's upper bounds).
 
