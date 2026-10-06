@@ -77,7 +77,8 @@ GroupItem   lab;
     lab.isLabel     = true;
     // labelOf the rule this label was minted for -- written here once, never rewritten (stroke 5.6a)
     lab.labelOf     = field;
-    if !lab.rStuff || ruleName ne field.tag  lab.setRStuff(this);
+    // askTheRule this stuff's rule is field itself, so the identity test asks field for its stuff -- ruleName is Tony's debug aid (ruleName stroke)
+    if !lab.rStuff || field.rStuff != this  lab.setRStuff(this);
     // enclosingActivation
     if field.hasNewParse && field.isMember {
         // driveRoot a generated DRIVE ROOT parks its label on the drive floor, where driveStep reads it

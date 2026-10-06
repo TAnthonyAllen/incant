@@ -385,17 +385,27 @@ void GroupItem::append(GroupItem *grup)
 ***************************************************************************/
 void GroupItem::attachLabel(RuleStuff *stuff, RuleStuff *pStuff, int promote, GroupItem *into, GroupItem *lab)
 {
-GroupRules 	*ruler = GroupControl::groupController->groupRules;
-char 		*destName = groupBody->tag;
-GroupItem 	*dest = into;
+GroupRules 			*ruler = GroupControl::groupController->groupRules;
+char 				*destName = groupBody->tag;
+GroupItem 			*dest = into;
+ParseActivation 	*destRec = 0;
+	// useRuler a ParseActivation local captures the ruler's bare names (labelNO, parseTrace) -- bear-trap #58
 	if ( !lab || lab == ruler->labelNO )
 		return;
 	// intoArgument with no parent stuff the destination is the caller's into and the name is this term's own (parseR, stroke 1.1 site 2)
 	// parentRecord the parent's label is its RECORD's, the nearest live record over its stuff (1.2f, SEQ 306)
+	// askTheRule the retag name is the parent record's own instance tag -- ruleName is Tony's debug aid, read by no engine code (ruleName stroke)
 	if ( pStuff )
 		{
-		dest = ::recordLabel(pStuff);
-		destName = pStuff->ruleName;
+		destRec = ruler->gParseActive;
+		while ( destRec && destRec->stuff != pStuff )
+			destRec = destRec->prev;
+		dest = 0;
+		if ( destRec )
+			{
+			dest = destRec->label;
+			destName = destRec->face->groupBody->tag;
+			}
 		}
 	else
 	if ( !into )

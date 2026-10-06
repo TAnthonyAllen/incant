@@ -510,7 +510,8 @@ GroupItem 	*lab = 0;
 	lab->groupBody->flags.isLabel = 1;
 	// labelOf the rule this label was minted for -- written here once, never rewritten (stroke 5.6a)
 	lab->labelOf = field;
-	if ( !lab->getRStuff() || ::compare(ruleName,field->groupBody->tag) != 0 )
+	// askTheRule this stuff's rule is field itself, so the identity test asks field for its stuff -- ruleName is Tony's debug aid (ruleName stroke)
+	if ( !lab->getRStuff() || field->getRStuff() != this )
 		lab->setRStuff(this);
 	// enclosingActivation
 	if ( field->groupBody->flags.hasNewParse && isMember(field->options.affiliation) )
