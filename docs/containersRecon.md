@@ -270,3 +270,116 @@ gate (no row fails on either): `copyOf` copies the whole body, so the copy share
 the properties. And `getAttribute` on the copy returns the property (it carries `isAttribute`), as step 1 recorded.
 ⚠ Separate from properties: `copyListTo` re-adds anything that is **not** `isAttribute` as a member, so an embedded or
 unaffiliated entry on the group list does come out a member.
+
+## Step 2 -- rStuff's place in a containers shape (2026-10-06, read-only)
+
+No shape, no recommendation. Measured with a temporary entry counter in the 55 functions that read RuleStuff (inserted
+into the generated `.mm`, restored from git, every `.mm`/`.h` md5-identical to HEAD; fleet after 987 / 51), over pop.sh,
+jitLadder and printPop -- A3's "fleet run". The field-per-function map is static: every occurrence of the field in that
+function's generated body, so **read volumes below are upper bounds** (writes and untaken branches included).
+
+### The storage fact the whole step turns on
+
+**`groupList` and `propertyList` live on `GroupBody` (GroupBody.twk:9-10), and a rule shares its body with every
+instance:** the copy constructor sets `groupBody = grup.groupBody` (GroupItem.twk:44). The only per-node storage is on
+`GroupItem` itself -- `rStuff` (copied per instance, `*rStuff = *grup.rStuff`), `parent`/siblings, `options`,
+`labelOf`, `ruleOf`. **So under today's layout an attribute or a property hung "on the instance" lands on the rule's
+shared body, and every instance and the rule see it.** A per-instance home in a list exists only if the list itself is
+per-node -- which is A3's shelved "instances with their own bodies", or containers held on `GroupItem` rather than on the
+body. Recorded, not weighed.
+
+### R1 -- RuleStuff's fields today (after stroke 1.2 and the actionMethod cut)
+
+19 members: 8 plain + 11 bits (`RuleStuff.h`). objectModel O8's test: same for every reference -> **rule**; differs per
+reference, fixed -> **instance**; changes per call -> **activation**.
+
+| field | kind | note |
+|---|---|---|
+| `ruleName` | rule | debug name -- but also `attachLabel`'s retag name (`destName = pStuff.ruleName`) |
+| `testMatch` | rule | old-road leaf test, set by `setTestMatch` from the rule's shape |
+| `parseMethod` | rule | the installed leaf |
+| `jitMethod` | rule | read only by `jitFieldMethod` (raw) -- no parse-walk reader |
+| `min`, `max`, `maxRepeat` | instance | repetition; `isTarget` is also computed from `max == 1` |
+| `onGroup` | instance | per position in the parent (`getWhatFollows`, `embedAttribute`) |
+| `followed` | instance | per position; the copy constructor clears it |
+| `isTarget` | instance | |
+| `modPercent`, `modPointer`, `modUnGuarded` | instance | the `% & _ { }` modifiers (stroke 1) |
+| `noAdvance`, `noLabel`, `noSkip` | instance | |
+| `notifyFail` | instance | |
+| `overTo` (`upTo`/`upToOver`) | instance | |
+| `ruleTerm` | instance | stroke 2 |
+
+**4 rule, 15 instance, 0 activation.** The activation fields all left with stroke 1.2 (`ParseActivation`:
+`label`, `hereAt`, `kount`, `sukcess` ...).
+
+### R2 -- where each instance fact could live, and what a read costs
+
+**Cost per read, by home** (from the code that would serve it):
+
+| home | a read is | scan length |
+|---|---|---|
+| **RuleStuff (today)** | `getRStuff()` (a call returning the member), one load, a bit test. Inside RuleStuff's own methods (`checkInput`, `checkGuard`, `inputAt`, `mintLabel`, `getWhatFollows`) no pointer at all | none |
+| **attribute, by name** | `get(name)`: walk the group list, one `strcmp` per entry; **on a miss, then walk the property list too**; then read the value through the attribute's own body | the list: Grokking rules hold **4.0 entries on average** (20 rules hold 2, 17 hold 3, one holds 53). A default-false flag stored as presence pays the **full scan plus the property fallback on every false read** |
+| **property** | `getProperty(name)`: walk the property list, one `strcmp` per entry | the property list |
+| **per-node list** | as above, plus whatever per-node container replaced the body-shared list | -- |
+
+**Read volume on the walk, per fleet run (upper bound, calls x occurrences):**
+
+| instance fact | est. reads | the walk readers that carry it |
+|---|---|---|
+| `maxRepeat` | 14.1M | `parse` 3.50M x4 |
+| `onGroup` | 10.9M | `parse` 3.50M x3; `embedAttribute`; `getWhatFollows` |
+| `noSkip` | 8.3M | `inputAt` 4.16M x2 |
+| `isTarget` | 6.3M | `attachLabel` 2.98M x2; `embedAttribute`; `getWhatFollows` |
+| `max` | 5.6M | `attachLabel` 2.98M; `testSet` 0.80M x2; `exitFromParse`; `parseLoop`; ... |
+| `min` | 5.2M | `parse` 3.50M; `testSet`; `exitFromParse`; `parseLoop`; ... |
+| `modUnGuarded` | 4.9M | `isUnGuarded` 4.81M |
+| `ruleTerm` | 4.2M | `isRuleTerm` 3.88M |
+| `followed` | 3.9M | `getStuff` 3.50M |
+| `noLabel` | 3.7M | `mintLabel` 3.14M; `exitFromParse`; `opDot`; `upToMatch` |
+| `notifyFail` | 3.5M | `parse` 3.50M |
+| `noAdvance` | 1.4M | `testSet`; `exitFromParse`; `testString`; `testContainer`; `parseContainer` |
+| `overTo` | 0.76M | `driveStep` 0.28M; `runLeafParse` 0.24M; `upToMatch`; `setParseWalk` |
+| `modPercent`, `modPointer` | 0.04M each | `modify` only (define time) |
+
+**About 73M instance-fact reads per fleet run, upper bound, almost all on the walk.** For scale: `parse`/`getStuff`
+run 3.50M times, `checkInput` 4.08M, `checkGuard` 4.79M. Rule facts on the walk: `testMatch` 21.0M (`parse` x6),
+`ruleName` 18.4M (`attachLabel` x5, `mintLabel`, `exitFromParse`), `parseMethod` 0.8M.
+**Outside the walk** (Tony's principle: they pay for themselves): `opDot` (kant accessors, 0.13M), the `measure`
+instruments, `modify`/`processFlags`/`aCTionDefinE`/`aCTionTraiT(data)`/`setRuleStuff`/`embedAttribute` at define
+time, `setParseWalk`/`installParseMethod` at generation.
+
+**Where each instance fact could live** -- the three homes the dispatch names, each with what it would cost the walk:
+
+| fact | attribute on the instance | property | stay on RuleStuff |
+|---|---|---|---|
+| any of the 15 | a by-name scan per read (mean 4 entries + the property fallback on a miss) on a list that is **body-shared today**, so per-instance only with per-node containers | a by-name scan per read on the **body-shared** property list -- per-rule, not per-instance, today | today's cost: one call and one load |
+| the hot ones (`maxRepeat`, `onGroup`, `noSkip`, `isTarget`, `max`, `min`, `modUnGuarded`, `ruleTerm`, `followed`, `noLabel`, `notifyFail`) | 3.5M-14.1M scans per run each | the same | -- |
+| define-time only (`modPercent`, `modPointer`) | 37K scans per run | the same | -- |
+
+### R3 -- what removing the `rStuff` pointer would take
+
+**The 22 raw `->rStuff` reads** (pop.sh's tripwire row; 19 lines, comments excluded) **are none of them on the walk:**
+16 in `measure.mm` instruments (`canonOf`, `measureFrameProbe`, `measureLoopVerdict`, `measureParentProbe`,
+`measureParseClass`, `modsOf`, `parseClassify`, `probeNode`), 3 in `jitFieldMethod` (the jit's `jitMethod`), 1 in
+`compareValues` (49,812 calls, a sort comparator).
+
+**The pointer's real coupling is tok's spelling: every `x.rStuff` compiles to `getRStuff()` -- 85 sites in 44
+functions, 29.9M calls per fleet run.** The walk's share, by calls per run:
+
+| ≥ 1M | `getRStuff` 29.92M · `isUnGuarded` 4.81M · `checkGuard` 4.79M · `inputAt` 4.16M · `checkInput` 4.08M · `isRuleTerm` 3.88M · `ensureRStuff` 3.50M · `parse` 3.50M · `getStuff` 3.50M · `mintLabel` 3.14M · `fireLabelMethod` 3.06M · `deferredAbove` 3.06M · `attachLabel` 2.98M · `recordLabel` 2.00M · `testAttributes` 1.24M |
+|---|---|
+| 0.1M - 1M | `parkInRecord` 0.83M · `testSet` 0.80M · `testOptions` 0.59M · `captureSpan` 0.35M · `exitFromParse` 0.32M · `driveStep` 0.28M · `aCTionTraiT` 0.25M · `runLeafParse`/`parseRule` 0.24M · `testString` 0.24M · `parseLoop` 0.22M · `embedAttribute` 0.17M · `opDot` 0.13M · `aCTionDefinE` 0.12M |
+| below 0.1M | `setRuleStuff`, `aCTionTraiTdata`, `compareValues`, `upToMatch`, `getWhatFollows`, `modify`, `processFlags`, `ensureGuard`, `parseSet`, `testAction`, `testContainer`, `parseContainer`, `parseString`, `setParseWalk`, `repeatsInLoop`, `installParseMethod`, `processCode`, `parseUpTo`, `testCharacter`, `parseCharacter`, `testAny` |
+| never called in the fleet | `materialiseTerms`, `parseCondition`, `parseAction`, `reportMaxLimit` |
+
+**And RuleStuff travels by value, not only through the pointer:** 14 engine signatures take one -- `parse(pStuff)`,
+`getStuff`, `attachLabel(stuff, pStuff)`, `fireLabelMethod`, `deferredAbove`, `recordLabel`, `parkInRecord`,
+`enclosingStuff`, `testAttributes`, `testOptions`, `driveFloorLabel`, `setTargetFlag`, `setRStuff`, and RuleStuff's copy
+constructor -- plus 3 measure callouts; `ParseActivation.stuff` (GroupRules.twk:24) and the ruler's `ruleSTUFF` (:29)
+hold one. RuleStuff's own methods (`checkInput`, `checkGuard`, `inputAt`, `mintLabel`, `getWhatFollows`,
+`setTestMatch`) read the instance facts as `this`.
+
+**The writers a replacement home would need:** the copy constructor (about 386K rule copies per run, A3), `ensureRStuff`
+(lazy -- absent on 109 of 350 grammar terms, recon §9), `setRuleStuff`, `modify`, `processFlags`, `aCTionTraiT`,
+`aCTionTraiTdata`, `getWhatFollows`, `embedAttribute`, `aCTionDefinE`, `setTargetFlag`.

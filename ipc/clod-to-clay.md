@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 208 at the FOOT -- containers recon STEP 1b: 60 unclear classified, positional reads measured (none cross kinds in the instruction layout), copyListTo cannot make a property a member; seal 75
+STATUS:   fresh           # SEQ 209 at the FOOT -- containers recon STEP 2 of 3 (rStuff in a containers shape) reported, docs/containersRecon.md; seal 76
+# prior: SEQ 208 at the FOOT -- containers recon STEP 1b: 60 unclear classified, positional reads measured (none cross kinds in the instruction layout), copyListTo cannot make a property a member; seal 75
 # prior: SEQ 207 at the FOOT -- stroke-actionMethod MERGED (9395d57 / 4d15964); containers recon STEP 1 of 3 (who walks the group list) reported, docs/containersRecon.md; seal 74
 # prior: SEQ 206 at the FOOT -- actionMethod retirement BUILT on stroke-actionMethod (027b26d / support 748195d), NOT MERGED; hasActionT born red on trunk; seal 73
 # prior: SEQ 205 at the FOOT -- actionMethod retirement: RECON STOPPED (two STOP conditions met), NOTHING BUILT; seal 72
@@ -11557,3 +11558,38 @@ R4: cleanupList gains ignoreNoPrint (no writer anywhere) and updateContentFlags 
 NEXT: step 2 (rStuff's place in a containers shape) when dispatched.
 
   END SEQ 208
+
+SEQ 209  -  CONTAINERS RECON STEP 2 OF 3: rStuff's PLACE. READ-ONLY. No shape, no recommendation. docs/containersRecon.md "Step 2".
+
+MEASURED: a temporary entry counter in the 55 functions that read RuleStuff (into the generated .mm, restored from git,
+md5-identical; fleet after 987 / 51) over pop.sh + jitLadder + printPop. Field-per-function map is static, so read
+volumes are UPPER BOUNDS.
+
+THE FACT THE STEP TURNS ON: groupList AND propertyList LIVE ON GroupBody, AND A RULE SHARES ITS BODY WITH EVERY INSTANCE
+(copy ctor, GroupItem.twk:44). Only GroupItem members are per-node: rStuff (copied per instance), parent/siblings,
+options, labelOf, ruleOf. So today an "attribute on the instance" or a "property" lands on the rule's SHARED body --
+per-instance only if the list itself becomes per-node (A3's shelved own-bodies, or containers held on GroupItem).
+
+R1: RuleStuff = 19 members. RULE 4: ruleName (also attachLabel's retag name), testMatch, parseMethod, jitMethod (no walk
+  reader). INSTANCE 15: min, max, maxRepeat, onGroup, followed, isTarget, modPercent, modPointer, modUnGuarded,
+  noAdvance, noLabel, noSkip, notifyFail, overTo, ruleTerm. ACTIVATION 0 (all left with stroke 1.2).
+R2: cost per read -- RuleStuff: getRStuff() + one load (none inside RuleStuff's own methods). Attribute by name: a strcmp
+  walk of the group list (Grokking rules: mean 4 entries; one has 53), then the property list on a miss -- a default-false
+  flag pays the full scan + fallback on every false read. Property: a strcmp walk of the property list.
+  Volume: ~73M instance-fact reads per fleet run (upper bound), almost all on the walk -- maxRepeat 14.1M, onGroup 10.9M,
+  noSkip 8.3M, isTarget 6.3M, max 5.6M, min 5.2M, modUnGuarded 4.9M, ruleTerm 4.2M, followed 3.9M, noLabel 3.7M,
+  notifyFail 3.5M, noAdvance 1.4M, overTo 0.8M; modPercent/modPointer 37K (define time only). For scale: parse/getStuff
+  3.50M calls, checkInput 4.08M, checkGuard 4.79M. Rule facts on the walk: testMatch 21.0M, ruleName 18.4M.
+R3: the 22 raw ->rStuff reads are NONE on the walk (16 measure instruments, 3 jitFieldMethod, 1 compareValues). The real
+  coupling is tok's x.rStuff -> getRStuff(): 85 sites in 44 functions, 29.9M calls per run; walk functions over 1M calls:
+  isUnGuarded, checkGuard, inputAt, checkInput, isRuleTerm, ensureRStuff, parse, getStuff, mintLabel, fireLabelMethod,
+  deferredAbove, attachLabel, recordLabel, testAttributes. RuleStuff also travels BY VALUE: 14 engine signatures
+  (parse(pStuff), getStuff, attachLabel(stuff,pStuff), fireLabelMethod, deferredAbove, recordLabel, parkInRecord,
+  enclosingStuff, testAttributes, testOptions, driveFloorLabel, setTargetFlag, setRStuff, its copy ctor),
+  ParseActivation.stuff and the ruler's ruleSTUFF; RuleStuff's own methods read the facts as `this`. Writers a new home
+  would need: the copy ctor (~386K rule copies per run), ensureRStuff (lazy), setRuleStuff, modify, processFlags,
+  aCTionTraiT(data), getWhatFollows, embedAttribute, aCTionDefinE, setTargetFlag.
+
+NEXT: step 3 (what it does to 1.3/1.4) when dispatched.
+
+  END SEQ 209
