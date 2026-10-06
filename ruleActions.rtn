@@ -981,6 +981,8 @@ GroupItem   swap,
             UnaryOPS:,
             InvokeArg = xpress["InvokeArg"],
             ANYtoken = xpress["ANYorNum"];
+    // exprAccumGate  SEQ 311: under INCANT_EXPR_ACCUM the label goes up untouched -- interpretXPaccum takes its raw pieces
+    if getenv("INCANT_EXPR_ACCUM")  return xpress;
     xpress.clear();
     if isGROUP  ANYtoken = group;
     // leadingDotNumber `.5` is refused by name and the term stays a harmless primary, so the statement is silenced rather than the file abandoned (F-117)
@@ -1479,6 +1481,212 @@ finishXP:
     xpList.clear();
     xpList.group = arg;
     return xpList;
+}
+
+/*  interpretXPaccum -- THE ACCUMULATOR CANDIDATE'S interpretXP (SEQ 311, try-and-buy on
+    expr-accum; a proof of concept). ExpressioN's actor under INCANT_EXPR_ACCUM, which also
+    makes aCTionTokenXP hand its label up untouched. Pass 1 flattens every TokenXP label
+    into its raw pieces -- unary, name, InvokeArg's parts -- so KANT-43's absorbed `qa * qb`
+    arrives as qa, *, qb. Pass 2 decides by POSITION: an op where an operand is expected is
+    a prefix; an op after an operand is binary; `.`, a call, a subscript after an operand
+    are postfixes on it. An ACCESS prefix (`*`, a leading `.`) binds to the name before the
+    postfixes, any other prefix to the finished operand: *block(code) is (*block)(code),
+    !f(x) is !(f(x)). The result is ONE FLAT list -- operand, then (op, operand) pairs --
+    whose method is runOPaccum.  */
+extern GroupItem interpretXPaccum(GroupItem xpList)
+{
+GroupRules  ruler = groupRules;
+int         i = 0, j = 0, n = 0, expectOperand = 1;
+GroupItem   seq, flat, term, name, unary, invoke, piece, cur, pend, rest, node, jux, right;
+    seq = new("acSeq");
+    i = 1;
+    n = 0;
+    if xpList.groupList     n = xpList.listLength;
+    while i <= n {
+        term = xpList[i];
+        i = i + 1;
+        name = term["ANYorNum"];
+        if !name {
+            seq +% term;
+            continue; }
+        unary = term["UnaryOPS"];
+        invoke = term["InvokeArg"];
+        if name.isGROUP     name = name.group;
+        if unary
+            if unary.isGROUP    unary = unary.group;
+        if unary {
+            piece = ruler.opFields[unary.tag];
+            if !piece   piece = unary;
+            seq +% piece; }
+        seq +% name;
+        if !invoke  continue;
+        if invoke.groupList {
+            piece = invoke.firstInList;
+            if piece.isGROUP    piece = piece.group;
+            right = ruler.opFields[piece.tag];
+            if right    piece = right;
+            seq +% piece;
+            right = invoke.lastInList;
+            if right.isGROUP    right = right.group;
+            seq +% right;
+            continue; }
+        if invoke.fLAG  piece = new("acPostSub");
+        else            piece = new("acPostCall");
+        piece +% invoke;
+        seq +% piece; }
+    flat = new("acX");
+    cur = 0;
+    jux = 0;
+    pend = new("acPend");
+    rest = 0;
+    expectOperand = 1;
+    i = 1;
+    n = 0;
+    if seq.groupList    n = seq.listLength;
+    while i <= n {
+        term = seq[i];
+        i = i + 1;
+        if term.registry == ruler.opFields {
+            if expectOperand {
+                pend +% term;
+                continue; }
+            if term.tag eq "." {
+                if i > n    return refuse(term,"a dot with nothing after it (the accumulator candidate, SEQ 311)");
+                right = seq[i];
+                i = i + 1;
+                if right.registry == ruler.opFields     return refuse(right,"an operator on the right of a dot (the accumulator candidate, SEQ 311)");
+                if right.registry != ruler.groupFields  right = new(right.tag);
+                node = new("acDot");
+                node +% term;
+                node +% cur;
+                node +% right;
+                node.method = runOP;
+                node.invoke = true;
+                cur = node;
+                continue; }
+            cur = interpretXPaccumWrap(cur,rest);
+            rest = 0;
+            if jux {
+                jux +% cur;
+                cur = interpretXPaccumWrap(jux,0);
+                jux = 0; }
+            flat +% cur;
+            cur = 0;
+            flat +% term;
+            expectOperand = 1;
+            continue; }
+        if term.tag eq "acPostCall" {
+            if expectOperand    return refuse(term,"a call with nothing to call (the accumulator candidate, SEQ 311)");
+            node = new("acC");
+            handleCall(node,cur,term[1]);
+            node.method = runOPaccum;
+            node.invoke = true;
+            cur = node;
+            continue; }
+        if term.tag eq "acPostSub" {
+            if expectOperand    return refuse(term,"a subscript with nothing to subscript (the accumulator candidate, SEQ 311)");
+            node = new("acSub");
+            handleSubscript(node,0,cur,term[1]);
+            node.method = runOP;
+            node.invoke = true;
+            cur = node;
+            continue; }
+        if term.actionType || term.instructType     term.invoke = true;
+        if expectOperand {
+            cur = term;
+            j = 0;
+            if pend.groupList   j = pend.listLength;
+            while j > 0 {
+                piece = pend[j];
+                if piece.tag eq "." {
+                    node = new("acDot");
+                    node +% piece;
+                    node +% cur;
+                    node.method = runOP;
+                    node.invoke = true;
+                    cur = node; }
+                or unaryIsAccess(piece)     cur = interpretXPaccumU(piece,cur);
+                else    break;
+                j = j - 1; }
+            rest = new("acRest");
+            while j > 0 {
+                rest +% pend[j];
+                j = j - 1; }
+            pend = new("acPend");
+            expectOperand = 0;
+            continue; }
+        // juxtaposed  an operand after an operand with no op between: the finished one joins the list, the new one is current
+        cur = interpretXPaccumWrap(cur,rest);
+        rest = 0;
+        if !jux     jux = new("acJux");
+        jux +% cur;
+        cur = term; }
+    if pend.groupList   return refuse(pend[1],"a prefix operator with no operand after it (the accumulator candidate, SEQ 311)");
+    if cur {
+        cur = interpretXPaccumWrap(cur,rest);
+        if jux {
+            jux +% cur;
+            cur = interpretXPaccumWrap(jux,0); }
+        flat +% cur; }
+    if !flat.groupList          node = 0;
+    or flat.listLength == 1     node = flat[1];
+    else {
+        node = flat;
+        node.method = runOPaccum;
+        node.invoke = true; }
+    if getenv("INCANT_ACCUM_TRACE")     interpretXPaccumTrace(node,0);
+    xpList.clear();
+    xpList.group = node;
+    return xpList;
+}
+
+/*  interpretXPaccumU -- one prefix over one operand: an acU, run by runOPaccum.  */
+extern GroupItem interpretXPaccumU(GroupItem op, GroupItem operand)
+{
+GroupItem   node = new("acU");
+    node +% op;
+    node +% operand;
+    node.method = runOPaccum;
+    node.invoke = true;
+    return node;
+}
+
+/*  interpretXPaccumWrap -- the prefixes that did NOT bind to the name (rest, nearest the
+    name first) wrap the finished operand: !f(x) is !(f(x)).  */
+extern GroupItem interpretXPaccumWrap(GroupItem operand, GroupItem rest)
+{
+int         i = 1;
+GroupItem   done = operand;
+    // juxtaposed  operands with no op between them are a list, held RIGHT TO LEFT as today's xl1 holds them
+    if done.tag eq "acJux" {
+        done = new("xl1");
+        done.isLIST = true;
+        i = operand.listLength;
+        while i > 0 {
+            done +% operand[i];
+            i = i - 1; }
+        i = 1; }
+    if !rest            return done;
+    if !rest.groupList  return done;
+    while i <= rest.listLength {
+        done = interpretXPaccumU(rest[i],done);
+        i = i + 1; }
+    return done;
+}
+
+/*  interpretXPaccumTrace -- INCANT_ACCUM_TRACE only: the flat list as built, one line per item.  */
+extern void interpretXPaccumTrace(GroupItem node, int depth)
+{
+int         i = 1;
+GroupItem   item;
+    if !node    return;
+    cerr "ACCUM " depth " " node.tag:;
+    if !node.groupList  return;
+    if depth > 3        return;
+    while i <= node.listLength {
+        item = node[i];
+        interpretXPaccumTrace(item,depth + 1);
+        i = i + 1; }
 }
 
 /*  isDotUxp -- is this juxtaposed term an ORPHANED LEADING DOT?

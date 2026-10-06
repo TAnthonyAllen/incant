@@ -1026,6 +1026,98 @@ GroupItem   result,
 }
 
 
+/*  runOPaccum -- THE ACCUMULATOR CANDIDATE'S runOP (SEQ 311, try-and-buy on expr-accum).
+    Three shapes, all built by interpretXPaccum: acU (a prefix over an operand), acC (a call
+    whose target is itself built -- (*block)(code)), and acX, the flat list. A head `A =`
+    (an assignment-tier op in slot 2) is parked: the tail is evaluated, then assigned.
+    Interpreted only: under jitting it refuses (SEQ 311 R4).
+    ⚠ PROOF OF CONCEPT -- the tier tests are spellings here; D3 wants them as setup data.  */
+extern GroupItem runOPaccum(GroupItem field)
+{
+GroupRules  ruler = groupRules;
+GroupItem   op, val, step;
+    if ruler.jitting    return refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+    if field.tag eq "acU" {
+        op = field[1];
+        val = runOPaccumOperand(field[2]);
+        if op.tag eq "-"    op = ruler.opFields["negate"];
+        if op.tag eq "*"    op = ruler.opFields["deref"];
+        return op.method(val); }
+    step = new("acStep");
+    if field.tag eq "acC" {
+        val = field[2];
+        if val.tag eq "acU" || val.tag eq "acDot" || val.tag eq "acSub" || val.tag eq "acC"     val = val.method(val);
+        step +% falseResult;
+        step +% val;
+        if field.listLength > 2     step +% field[3];
+        return runOP(step); }
+    op = field[2];
+    if !(op.tag eq "=" || op.tag eq ":=" || op.tag eq "+=" || op.tag eq "-=" || op.tag eq "*=" || op.tag eq "/=" || op.tag eq "<-" || op.tag eq ":%" || op.tag eq ":+" || op.tag eq "+%" || op.tag eq "+<" || op.tag eq "+/" || op.tag eq "+*" || op.tag eq ":." || op.tag eq "<:")
+        return runOPaccumFrom(field,1);
+    val = runOPaccumFrom(field,3);
+    step +% op;
+    step +% field[1];
+    if val  step +% val;
+    return runOP(step);
+}
+
+/*  runOPaccumFrom -- THE ACCUMULATOR LOOP from slot i: the running value is a local of
+    this invocation and never tempField (a step answering in tempField is copied out before
+    the next operand can run). && and || decide on the running value and RECURSE: && false
+    (|| true) jumps past the next connective of the other kind, carrying false (true), and
+    what it jumps over never runs; otherwise the tail after the connective is the value. A
+    connective's answer is a SENTINEL, as runShortCircuit's is -- an action's own returned
+    node carries its branch signal. A comparison whose right side continues into arithmetic
+    refuses by name (SEQ 311 R1).  */
+extern GroupItem runOPaccumFrom(GroupItem field, int i)
+{
+GroupRules  ruler = groupRules;
+int         n = field.listLength, keepOR = 0;
+GroupItem   run, op, step, keep;
+    run = runOPaccumOperand(field[i]);
+    i = i + 1;
+    while i < n {
+        if run == ruler.tempField {
+            keep = new("acRun");
+            keep.setContent(run);
+            run = keep; }
+        op = field[i];
+        if opIsShortCircuit(op) {
+            keepOR = opIsOR(op);
+            if truthOf(run) == keepOR {
+                i = i + 2;
+                while i < n {
+                    if opIsShortCircuit(field[i])
+                        if opIsOR(field[i]) != keepOR   break;
+                    i = i + 2; }
+                if i >= n           run = falseResult;
+                if i >= n && keepOR run = trueResult;
+                if i >= n           return run; }
+            run = runOPaccumFrom(field,i + 1);
+            if truthOf(run)     return trueResult;
+            return falseResult; }
+        if op.tag eq ">" || op.tag eq ">=" || op.tag eq "<" || op.tag eq "<=" || op.tag eq "==" || op.tag eq "!=" || op.tag eq "~=" || op.tag eq "IN"
+            if i + 2 < n
+                if !opIsShortCircuit(field[i + 2])  return refuse(op,"a comparison whose right side continues into arithmetic -- the accumulator candidate refuses it by name (SEQ 311 R1)");
+        step = new("acStep");
+        step +% op;
+        if !run     run = falseResult;
+        step +% run;
+        step +% field[i + 1];
+        run = runOP(step);
+        i = i + 2; }
+    return run;
+}
+
+/*  runOPaccumOperand -- one operand, evaluated if it carries an invocation.  */
+extern GroupItem runOPaccumOperand(GroupItem operand)
+{
+GroupItem   val = followArgument(operand);
+    if val
+        if val.isMethod && val.invoke   val = val.method(val);
+    return val;
+}
+
 // runRule the drive step with no report; a generated root hands back its label, and the kant caller gets one bit
 extern GroupItem runRule(GroupItem field,GroupItem rule)
 {

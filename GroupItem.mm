@@ -2129,6 +2129,13 @@ void GroupItem::setActions()
 		{
 		char 	*methodName = ::concat(2,"aCTion",groupBody->tag);
 		void 	*methodAddress = 0;
+		// exprAccumSwitch  SEQ 311: INCANT_EXPR_ACCUM gives ExpressioN the accumulator candidate's interpretXP; unset, nothing moves
+		if ( ::getenv("INCANT_EXPR_ACCUM") )
+			if ( ::compare(groupBody->tag,"ExpressioN") == 0 )
+				{
+				::free(methodName);
+				methodName = ::strdup("interpretXPaccum");
+				}
 		if ( methodAddress = ::dlsym(RTLD_SELF,methodName) )
 			{
 			// markThenAdd noPrint is set BEFORE the node is attached, because addAttribute reads it at the instant of adding to decide hasTraits -- marking after is always too late (fixIts F-58)   GroupItem.setActions.markThenAdd

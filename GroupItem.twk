@@ -1659,6 +1659,11 @@ void setActions()
     or !isMethod {
         String  methodName = "aCTion" tag;
         void*   methodAddress;
+        // exprAccumSwitch  SEQ 311: INCANT_EXPR_ACCUM gives ExpressioN the accumulator candidate's interpretXP; unset, nothing moves
+        if getenv("INCANT_EXPR_ACCUM")
+            if tag eq "ExpressioN" {
+                free(methodName);
+                methodName = strdup("interpretXPaccum"); }
         if methodAddress = dlsym(RTLD_SELF,methodName) {
             // markThenAdd noPrint is set BEFORE the node is attached, because addAttribute reads it at the instant of adding to decide hasTraits -- marking after is always too late (fixIts F-58)   GroupItem.setActions.markThenAdd
             GroupItem builtinActoR  = new("builtinActoR");

@@ -1265,6 +1265,9 @@ GroupItem 	*swap = 0;
 GroupItem 	*UnaryOPS = xpress->getLabelGroup("UnaryOPS");
 GroupItem 	*InvokeArg = xpress->get("InvokeArg");
 GroupItem 	*ANYtoken = xpress->get("ANYorNum");
+	// exprAccumGate  SEQ 311: under INCANT_EXPR_ACCUM the label goes up untouched -- interpretXPaccum takes its raw pieces
+	if ( ::getenv("INCANT_EXPR_ACCUM") )
+		return xpress;
 	xpress->clear();
 	if ( isGROUP(ANYtoken->groupBody->flags.data) )
 		ANYtoken = ANYtoken->getGroup();
@@ -3014,6 +3017,300 @@ finishXP:
 	xpList->clear();
 	xpList->setGroup(arg);
 	return xpList;
+}
+
+/*  interpretXPaccum -- THE ACCUMULATOR CANDIDATE'S interpretXP (SEQ 311, try-and-buy on
+    expr-accum; a proof of concept). ExpressioN's actor under INCANT_EXPR_ACCUM, which also
+    makes aCTionTokenXP hand its label up untouched. Pass 1 flattens every TokenXP label
+    into its raw pieces -- unary, name, InvokeArg's parts -- so KANT-43's absorbed `qa * qb`
+    arrives as qa, *, qb. Pass 2 decides by POSITION: an op where an operand is expected is
+    a prefix; an op after an operand is binary; `.`, a call, a subscript after an operand
+    are postfixes on it. An ACCESS prefix (`*`, a leading `.`) binds to the name before the
+    postfixes, any other prefix to the finished operand: *block(code) is (*block)(code),
+    !f(x) is !(f(x)). The result is ONE FLAT list -- operand, then (op, operand) pairs --
+    whose method is runOPaccum.  */
+extern "C" GroupItem *interpretXPaccum(GroupItem *xpList)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		i = 0;
+int 		j = 0;
+int 		n = 0;
+int 		expectOperand = 1;
+GroupItem 	*seq = 0;
+GroupItem 	*flat = 0;
+GroupItem 	*term = 0;
+GroupItem 	*name = 0;
+GroupItem 	*unary = 0;
+GroupItem 	*invoke = 0;
+GroupItem 	*piece = 0;
+GroupItem 	*cur = 0;
+GroupItem 	*pend = 0;
+GroupItem 	*rest = 0;
+GroupItem 	*node = 0;
+GroupItem 	*jux = 0;
+GroupItem 	*right = 0;
+	seq = new GroupItem("acSeq");
+	i = 1;
+	n = 0;
+	if ( xpList->groupBody->groupList )
+		n = xpList->groupBody->groupList->listLength;
+	while ( i <= n )
+		{
+		term = xpList->get(i);
+		i = i + 1;
+		name = term->get("ANYorNum");
+		if ( !name )
+			{
+			seq->addAttribute(term);
+			continue;
+			}
+		unary = term->get("UnaryOPS");
+		invoke = term->get("InvokeArg");
+		if ( isGROUP(name->groupBody->flags.data) )
+			name = name->getGroup();
+		if ( unary )
+			if ( isGROUP(unary->groupBody->flags.data) )
+				unary = unary->getGroup();
+		if ( unary )
+			{
+			piece = ruler->opFields->get(unary->groupBody->tag);
+			if ( !piece )
+				piece = unary;
+			seq->addAttribute(piece);
+			}
+		seq->addAttribute(name);
+		if ( !invoke )
+			continue;
+		if ( invoke->groupBody->groupList )
+			{
+			piece = invoke->groupBody->groupList->firstInList;
+			if ( isGROUP(piece->groupBody->flags.data) )
+				piece = piece->getGroup();
+			right = ruler->opFields->get(piece->groupBody->tag);
+			if ( right )
+				piece = right;
+			seq->addAttribute(piece);
+			right = invoke->groupBody->groupList->lastInList;
+			if ( isGROUP(right->groupBody->flags.data) )
+				right = right->getGroup();
+			seq->addAttribute(right);
+			continue;
+			}
+		if ( invoke->groupBody->flags.fLAG )
+			piece = new GroupItem("acPostSub");
+		else	piece = new GroupItem("acPostCall");
+		piece->addAttribute(invoke);
+		seq->addAttribute(piece);
+		}
+	flat = new GroupItem("acX");
+	cur = 0;
+	jux = 0;
+	pend = new GroupItem("acPend");
+	rest = 0;
+	expectOperand = 1;
+	i = 1;
+	n = 0;
+	if ( seq->groupBody->groupList )
+		n = seq->groupBody->groupList->listLength;
+	while ( i <= n )
+		{
+		term = seq->get(i);
+		i = i + 1;
+		if ( term->groupBody->registry == ruler->opFields )
+			{
+			if ( expectOperand )
+				{
+				pend->addAttribute(term);
+				continue;
+				}
+			if ( ::compare(term->groupBody->tag,".") == 0 )
+				{
+				if ( i > n )
+					return ::refuse(term,"a dot with nothing after it (the accumulator candidate, SEQ 311)");
+				right = seq->get(i);
+				i = i + 1;
+				if ( right->groupBody->registry == ruler->opFields )
+					return ::refuse(right,"an operator on the right of a dot (the accumulator candidate, SEQ 311)");
+				if ( right->groupBody->registry != ruler->groupFields )
+					right = new GroupItem(right->groupBody->tag);
+				node = new GroupItem("acDot");
+				node->addAttribute(term);
+				node->addAttribute(cur);
+				node->addAttribute(right);
+				node->setMethod(::runOP);
+				node->groupBody->flags.invoke = 1;
+				cur = node;
+				continue;
+				}
+			cur = interpretXPaccumWrap(cur,rest);
+			rest = 0;
+			if ( jux )
+				{
+				jux->addAttribute(cur);
+				cur = interpretXPaccumWrap(jux,0);
+				jux = 0;
+				}
+			flat->addAttribute(cur);
+			cur = 0;
+			flat->addAttribute(term);
+			expectOperand = 1;
+			continue;
+			}
+		if ( ::compare(term->groupBody->tag,"acPostCall") == 0 )
+			{
+			if ( expectOperand )
+				return ::refuse(term,"a call with nothing to call (the accumulator candidate, SEQ 311)");
+			node = new GroupItem("acC");
+			::handleCall(node,cur,term->get(1));
+			node->setMethod(::runOPaccum);
+			node->groupBody->flags.invoke = 1;
+			cur = node;
+			continue;
+			}
+		if ( ::compare(term->groupBody->tag,"acPostSub") == 0 )
+			{
+			if ( expectOperand )
+				return ::refuse(term,"a subscript with nothing to subscript (the accumulator candidate, SEQ 311)");
+			node = new GroupItem("acSub");
+			::handleSubscript(node,0,cur,term->get(1));
+			node->setMethod(::runOP);
+			node->groupBody->flags.invoke = 1;
+			cur = node;
+			continue;
+			}
+		if ( term->groupBody->flags.actionType || term->groupBody->flags.instructType )
+			term->groupBody->flags.invoke = 1;
+		if ( expectOperand )
+			{
+			cur = term;
+			j = 0;
+			if ( pend->groupBody->groupList )
+				j = pend->groupBody->groupList->listLength;
+			while ( j > 0 )
+				{
+				piece = pend->get(j);
+				if ( ::compare(piece->groupBody->tag,".") == 0 )
+					{
+					node = new GroupItem("acDot");
+					node->addAttribute(piece);
+					node->addAttribute(cur);
+					node->setMethod(::runOP);
+					node->groupBody->flags.invoke = 1;
+					cur = node;
+					}
+				else
+				if ( ::unaryIsAccess(piece) )
+					cur = interpretXPaccumU(piece,cur);
+				else	break;
+				j = j - 1;
+				}
+			rest = new GroupItem("acRest");
+			while ( j > 0 )
+				{
+				rest->addAttribute(pend->get(j));
+				j = j - 1;
+				}
+			pend = new GroupItem("acPend");
+			expectOperand = 0;
+			continue;
+			}
+		// juxtaposed  an operand after an operand with no op between: the finished one joins the list, the new one is current
+		cur = interpretXPaccumWrap(cur,rest);
+		rest = 0;
+		if ( !jux )
+			jux = new GroupItem("acJux");
+		jux->addAttribute(cur);
+		cur = term;
+		}
+	if ( pend->groupBody->groupList )
+		return ::refuse(pend->get(1),"a prefix operator with no operand after it (the accumulator candidate, SEQ 311)");
+	if ( cur )
+		{
+		cur = interpretXPaccumWrap(cur,rest);
+		if ( jux )
+			{
+			jux->addAttribute(cur);
+			cur = interpretXPaccumWrap(jux,0);
+			}
+		flat->addAttribute(cur);
+		}
+	if ( !flat->groupBody->groupList )
+		node = 0;
+	else
+	if ( flat->groupBody->groupList->listLength == 1 )
+		node = flat->get(1);
+	else {
+		node = flat;
+		node->setMethod(::runOPaccum);
+		node->groupBody->flags.invoke = 1;
+		}
+	if ( ::getenv("INCANT_ACCUM_TRACE") )
+		interpretXPaccumTrace(node,0);
+	xpList->clear();
+	xpList->setGroup(node);
+	return xpList;
+}
+
+/*  interpretXPaccumTrace -- INCANT_ACCUM_TRACE only: the flat list as built, one line per item.  */
+extern "C" void interpretXPaccumTrace(GroupItem *node, int depth)
+{
+int 		i = 1;
+GroupItem 	*item = 0;
+	if ( !node )
+		return;
+	::fprintf(stderr,"ACCUM %d %s\n",depth,node->groupBody->tag);
+	if ( !node->groupBody->groupList )
+		return;
+	if ( depth > 3 )
+		return;
+	while ( i <= node->groupBody->groupList->listLength )
+		{
+		item = node->get(i);
+		::interpretXPaccumTrace(item,depth + 1);
+		i = i + 1;
+		}
+}
+
+/*  interpretXPaccumU -- one prefix over one operand: an acU, run by runOPaccum.  */
+extern "C" GroupItem *interpretXPaccumU(GroupItem *op, GroupItem *operand)
+{
+GroupItem 	*node = new GroupItem("acU");
+	node->addAttribute(op);
+	node->addAttribute(operand);
+	node->setMethod(::runOPaccum);
+	node->groupBody->flags.invoke = 1;
+	return node;
+}
+
+/*  interpretXPaccumWrap -- the prefixes that did NOT bind to the name (rest, nearest the
+    name first) wrap the finished operand: !f(x) is !(f(x)).  */
+extern "C" GroupItem *interpretXPaccumWrap(GroupItem *operand, GroupItem *rest)
+{
+int 		i = 1;
+GroupItem 	*done = operand;
+	// juxtaposed  operands with no op between them are a list, held RIGHT TO LEFT as today's xl1 holds them
+	if ( ::compare(done->groupBody->tag,"acJux") == 0 )
+		{
+		done = new GroupItem("xl1");
+		done->groupBody->flags.binType = 3;
+		i = operand->groupBody->groupList->listLength;
+		while ( i > 0 )
+			{
+			done->addAttribute(operand->get(i));
+			i = i - 1;
+			}
+		i = 1;
+		}
+	if ( !rest )
+		return done;
+	if ( !rest->groupBody->groupList )
+		return done;
+	while ( i <= rest->groupBody->groupList->listLength )
+		{
+		done = ::interpretXPaccumU(rest->get(i),done);
+		i = i + 1;
+		}
+	return done;
 }
 
 /*  isDotUxp -- is this juxtaposed term an ORPHANED LEADING DOT?
@@ -10169,6 +10466,132 @@ GroupItem 	*target = field->get(2);
 	return result;
 }
 
+/*  runOPaccum -- THE ACCUMULATOR CANDIDATE'S runOP (SEQ 311, try-and-buy on expr-accum).
+    Three shapes, all built by interpretXPaccum: acU (a prefix over an operand), acC (a call
+    whose target is itself built -- (*block)(code)), and acX, the flat list. A head `A =`
+    (an assignment-tier op in slot 2) is parked: the tail is evaluated, then assigned.
+    Interpreted only: under jitting it refuses (SEQ 311 R4).
+    ⚠ PROOF OF CONCEPT -- the tier tests are spellings here; D3 wants them as setup data.  */
+extern "C" GroupItem *runOPaccum(GroupItem *field)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+GroupItem 	*op = 0;
+GroupItem 	*val = 0;
+GroupItem 	*step = 0;
+	if ( ruler->jitting )
+		return ::refuse(field,"the accumulator candidate is interpreted only -- under jitting it refuses (SEQ 311 R4)");
+	if ( ::compare(field->groupBody->tag,"acU") == 0 )
+		{
+		op = field->get(1);
+		val = runOPaccumOperand(field->get(2));
+		if ( ::compare(op->groupBody->tag,"-") == 0 )
+			op = ruler->opFields->get("negate");
+		if ( ::compare(op->groupBody->tag,"*") == 0 )
+			op = ruler->opFields->get("deref");
+		return op->groupBody->gMethod(val);
+		}
+	step = new GroupItem("acStep");
+	if ( ::compare(field->groupBody->tag,"acC") == 0 )
+		{
+		val = field->get(2);
+		if ( ::compare(val->groupBody->tag,"acU") == 0 || ::compare(val->groupBody->tag,"acDot") == 0 || ::compare(val->groupBody->tag,"acSub") == 0 || ::compare(val->groupBody->tag,"acC") == 0 )
+			val = val->groupBody->gMethod(val);
+		step->addAttribute(ruler->falseResult);
+		step->addAttribute(val);
+		if ( field->groupBody->groupList->listLength > 2 )
+			step->addAttribute(field->get(3));
+		return ::runOP(step);
+		}
+	op = field->get(2);
+	if ( !(::compare(op->groupBody->tag,"=") == 0 || ::compare(op->groupBody->tag,":=") == 0 || ::compare(op->groupBody->tag,"+=") == 0 || ::compare(op->groupBody->tag,"-=") == 0 || ::compare(op->groupBody->tag,"*=") == 0 || ::compare(op->groupBody->tag,"/=") == 0 || ::compare(op->groupBody->tag,"<-") == 0 || ::compare(op->groupBody->tag,":%") == 0 || ::compare(op->groupBody->tag,":+") == 0 || ::compare(op->groupBody->tag,"+%") == 0 || ::compare(op->groupBody->tag,"+<") == 0 || ::compare(op->groupBody->tag,"+/") == 0 || ::compare(op->groupBody->tag,"+*") == 0 || ::compare(op->groupBody->tag,":.") == 0 || ::compare(op->groupBody->tag,"<:") == 0) )
+		return runOPaccumFrom(field,1);
+	val = runOPaccumFrom(field,3);
+	step->addAttribute(op);
+	step->addAttribute(field->get(1));
+	if ( val )
+		step->addAttribute(val);
+	return ::runOP(step);
+}
+
+/*  runOPaccumFrom -- THE ACCUMULATOR LOOP from slot i: the running value is a local of
+    this invocation and never tempField (a step answering in tempField is copied out before
+    the next operand can run). && and || decide on the running value and RECURSE: && false
+    (|| true) jumps past the next connective of the other kind, carrying false (true), and
+    what it jumps over never runs; otherwise the tail after the connective is the value. A
+    connective's answer is a SENTINEL, as runShortCircuit's is -- an action's own returned
+    node carries its branch signal. A comparison whose right side continues into arithmetic
+    refuses by name (SEQ 311 R1).  */
+extern "C" GroupItem *runOPaccumFrom(GroupItem *field, int i)
+{
+GroupRules 	*ruler = GroupControl::groupController->groupRules;
+int 		n = field->groupBody->groupList->listLength;
+int 		keepOR = 0;
+GroupItem 	*run = 0;
+GroupItem 	*op = 0;
+GroupItem 	*step = 0;
+GroupItem 	*keep = 0;
+	run = runOPaccumOperand(field->get(i));
+	i = i + 1;
+	while ( i < n )
+		{
+		if ( run == ruler->tempField )
+			{
+			keep = new GroupItem("acRun");
+			keep->setContent(run);
+			run = keep;
+			}
+		op = field->get(i);
+		if ( ::opIsShortCircuit(op) )
+			{
+			keepOR = ::opIsOR(op);
+			if ( ::truthOf(run) == keepOR )
+				{
+				i = i + 2;
+				while ( i < n )
+					{
+					if ( ::opIsShortCircuit(field->get(i)) )
+						if ( ::opIsOR(field->get(i)) != keepOR )
+							break;
+					i = i + 2;
+					}
+				if ( i >= n )
+					run = ruler->falseResult;
+				if ( i >= n && keepOR )
+					run = ruler->trueResult;
+				if ( i >= n )
+					return run;
+				}
+			run = ::runOPaccumFrom(field,i + 1);
+			if ( ::truthOf(run) )
+				return ruler->trueResult;
+			return ruler->falseResult;
+			}
+		if ( ::compare(op->groupBody->tag,">") == 0 || ::compare(op->groupBody->tag,">=") == 0 || ::compare(op->groupBody->tag,"<") == 0 || ::compare(op->groupBody->tag,"<=") == 0 || ::compare(op->groupBody->tag,"==") == 0 || ::compare(op->groupBody->tag,"!=") == 0 || ::compare(op->groupBody->tag,"~=") == 0 || ::compare(op->groupBody->tag,"IN") == 0 )
+			if ( i + 2 < n )
+				if ( !::opIsShortCircuit(field->get(i + 2)) )
+					return ::refuse(op,"a comparison whose right side continues into arithmetic -- the accumulator candidate refuses it by name (SEQ 311 R1)");
+		step = new GroupItem("acStep");
+		step->addAttribute(op);
+		if ( !run )
+			run = ruler->falseResult;
+		step->addAttribute(run);
+		step->addAttribute(field->get(i + 1));
+		run = ::runOP(step);
+		i = i + 2;
+		}
+	return run;
+}
+
+/*  runOPaccumOperand -- one operand, evaluated if it carries an invocation.  */
+extern "C" GroupItem *runOPaccumOperand(GroupItem *operand)
+{
+GroupItem 	*val = ::followArgument(operand);
+	if ( val )
+		if ( isMethod(val->groupBody->flags.instructType) && val->groupBody->flags.invoke )
+			val = val->groupBody->gMethod(val);
+	return val;
+}
+
 // runRule the drive step with no report; a generated root hands back its label, and the kant caller gets one bit
 extern "C" GroupItem *runRule(GroupItem *field, GroupItem *rule)
 {
@@ -11150,6 +11573,8 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	read(int,char*,long)
 	driveStep(GroupItem*,GroupItem*,GroupItem*,null*)
 	reportCodeFail(GroupItem*,char*)
+	interpretXPaccumWrap(GroupItem*,GroupItem*)
+	interpretXPaccumWrap(GroupItem*,GroupItem*)
 	isDotUxp(GroupItem*)
 	measurePlusEQWrite(GroupItem*)
 	measureKindArm(char*,GroupItem*)
@@ -11159,5 +11584,6 @@ RuleStuff *GroupRules::stuffOf(ParseActivation *rec)
 	measureKindArm(char*,GroupItem*)
 	measureKindArm(char*,GroupItem*)
 	measurePlusPlusWrite(GroupItem*)
+	interpretXPaccumWrap(GroupItem*,int)
 	floor(double)
 */
