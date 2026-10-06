@@ -4,7 +4,7 @@ include groupIncludes
 // fields RuleStuff is the per-node parse state; parseMethod and jitMethod are LAYOUT -- widening either is groups.ext + tokall (bear-trap #10)
 class RuleStuff
 {
-String      ruleName;       // for debugging
+String      ruleName;       // sourceRuleByIntent a debugging aid only, which rule this RuleStuff refers to -- on a copy it names the SOURCE rule, by intent; no engine code reads it, do not "fix" it
 GroupItem   onGroup;
 int         max,
             maxRepeat,
