@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 210 at the FOOT -- containers recon STEP 3 of 3 (against 1.3/1.4) reported; R0 recorded (rStuff out of scope, HPDL); seal 77
+STATUS:   fresh           # SEQ 211 at the FOOT -- R2a: ruleName == the owning rule's tag at every retag read (0 of 2,095,156 differ); the retag respell is a small stroke ahead of 1.4; seal 78
+# prior: SEQ 210 at the FOOT -- containers recon STEP 3 of 3 (against 1.3/1.4) reported; R0 recorded (rStuff out of scope, HPDL); seal 77
 # prior: SEQ 209 at the FOOT -- containers recon STEP 2 of 3 (rStuff in a containers shape) reported, docs/containersRecon.md; seal 76
 # prior: SEQ 208 at the FOOT -- containers recon STEP 1b: 60 unclear classified, positional reads measured (none cross kinds in the instruction layout), copyListTo cannot make a property a member; seal 75
 # prior: SEQ 207 at the FOOT -- stroke-actionMethod MERGED (9395d57 / 4d15964); containers recon STEP 1 of 3 (who walks the group list) reported, docs/containersRecon.md; seal 74
@@ -11629,3 +11630,18 @@ R3: 1.3 INDEPENDENT. 1.4 AS A5 STATES IT (body slots) INDEPENDENT -- none of its
 The recon's three steps are complete. NEXT: Tony's and Clay's read.
 
   END SEQ 210
+
+SEQ 211  -  R2a: ruleName AT THE RETAG. MEASURED, YES. NOTHING BUILT. docs/containersRecon.md "Step 3, R2a".
+
+Tap (reverted md5-identical; fleet after 987 / 51) at both retag reads, over pop, jitLadder, printPop, decodePop, ddPop,
+frontier, comparing ruleName with the tag of the rule that owns the stuff:
+  attachLabel   (destName = pStuff.ruleName)     2,064,004 reads, 779,566 retag -- ALL equal the owning record's face tag;
+                                                  the record was found every time (recordLabel's own nearest-match search)
+  exitFromParse (cLab.tag = cParent.ruleName)       31,152 reads,  30,578 retag -- ALL equal the handed cFace's tag
+ZERO DISAGREEMENTS in 2,095,156. H16: against the label's PARENT tag the same tap reported 5,412 disagreements, so it sees
+one when it exists.
+SO: the retag respell (ask the rule -- the record's face, or cFace -- for its tag) is a small stroke of its own, ahead of 1.4.
+NOT built. Named, not measured: mintLabel's `ruleName ne field.tag` (RuleStuff.twk:80, 3.14M calls/run) is a third,
+non-debug read -- an identity test.
+
+  END SEQ 211

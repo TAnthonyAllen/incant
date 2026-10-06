@@ -446,3 +446,27 @@ is why `installParseMethod`/`instanceRule()` exist (F-O32, 4.3).
   two loads to a container lookup per read.
 - **R0 removes the other coupling:** with rStuff out of scope, 1.4's retirement of `ruleOf` and the REGISTRY test does
   not wait on anything containers decides.
+
+### Step 3, R2a -- `ruleName` at the retag (2026-10-06, measured)
+
+`ruleName` is Tony's debugging aid (an Xcode glance at which rule a RuleStuff belongs to). Two engine sites also read it
+**as the retag name** -- a second meaning: `attachLabel` (`destName = pStuff.ruleName`, GroupItem.twk:230, used by
+`lab.tag = destName` on the promote path) and `exitFromParse` (`cLab.tag = cParent.ruleName`, Generate.rtn:93).
+
+**Measured:** a temporary tap at both reads (reverted, md5-identical; fleet after 987 / 51) compared `ruleName` with the
+tag of the rule that owns that stuff -- `exitFromParse`'s `cFace` (handed), and for `attachLabel` the nearest live record
+whose stuff is `pStuff` (`recordLabel`'s own search) -- over pop.sh, jitLadder, printPop, decodePop, ddPop and frontier:
+
+| site | reads | of which retag | `ruleName` == the owning instance's tag | record not found |
+|---|---|---|---|---|
+| `attachLabel` | 2,064,004 | 779,566 | **all** | 0 |
+| `exitFromParse` | 31,152 | 30,578 | **all** | -- (handed) |
+
+**Zero disagreements in 2,095,156 reads.** H16: the same tap compared `ruleName` with the label's **parent** tag as well
+and reported 5,412 disagreements there (labels parented under `pROPERTIEs`, `Utilities`, `StringXP`), so it sees a
+mismatch when one exists.
+
+**So the retag respell -- ask the rule (the record's `face`, or the handed `cFace`) for its tag instead of reading
+`ruleName` -- is a small stroke of its own, ahead of 1.4.** Not built. ⚠ One more non-debug read of `ruleName` exists and
+was not in R2a's question: `mintLabel`'s `if !lab.rStuff || ruleName ne field.tag  lab.setRStuff(this);`
+(RuleStuff.twk:80, 3.14M calls per run) uses it as an identity test. Named here, not measured.
