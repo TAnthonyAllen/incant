@@ -52,16 +52,69 @@ expressions (R5). **Open edge, Tony's to rule:** `qa > qb + qc` -- refuse by nam
 `!fTrue(qa)` nor `!fFalse(qa)` runs its action, and both leave a tag echo (rows O3, O3b, and the RAN count). `fFalse() &&
 gSay()` runs `gSay` (S3). `utilities:302`'s `across > 0 || down > 0` reads 0 for across 0, down 5 (U302a).
 
-### C1 measured (SEQ 311, 2026-10-06) -- built on branch `expr-accum`, not merged
+### ⚠⚠ C1 BOUGHT IN PRINCIPLE (Tony, 2026-10-06, SEQ 312 R1) -- branch `expr-accum` stays pushed and UNMERGED
 
-Built as a PoC beside today's trio behind `INCANT_EXPR_ACCUM` (Groups `31069dc`, support `fc72698`); full report
-clod-to-clay SEQ 222. **On exprPinT it reaches the intended value on every arithmetic, bounds and connective row**, and
-refuses `qa > qb + qc` by name (R1). Left wrong, with causes apart: `return falseResult;` reads truthy on BOTH roads (S3,
-O3b); `*block(src)` now reaches BlocK but drives the holder's NAME text (driveStep). The position rule reads `*x` after an
-operand in a print list as binary -- the house spelling is `,*x`. Switch on, the fleet goes 1022 -> 757 green (jit road
-refusing per R4, the generated-parse road, unescaped print stars). **P1 answered (M3):** one instruction does take two
-arms -- calls on a bin with an installed parse take runRule at emit time and the target's method when interpreted,
-because arm 3's door reads `jitting`.
+**`expr-accum` (Groups `31069dc`, support `fc72698`) is the reference for a careful build in a clean session; it is a
+PoC and is not merged.** Built beside today's trio behind `INCANT_EXPR_ACCUM`: one gate atop aCTionTokenXP hands the label
+up untouched; ExpressioN's actor is `interpretXPaccum`, which flattens each TokenXP label to raw pieces and decides by
+position into ONE flat list; `runOPaccum` runs it, recursing at the parked head and at `&&`/`||`. Full report
+clod-to-clay SEQ 222.
+
+**Rulings with the buy:** print lists keep the position rule -- a prefix after a print item needs a separating
+shortcut (`,*x`, `:*x`, any non-operator shortcut, multi-character included); the 10 fixtures' respell belongs to the
+careful build (R2). `return falseResult;` reading truthy is banked as Clod's fixit `falseResultTruthy` (R3). `a = b = c`
+stays HPDL (R4).
+
+**M1 -- exprPinT, switch on** (qa=2 qb=10 qc=3):
+
+| expression | today | candidate | intended |
+|---|---|---|---|
+| qa * qb + qc | 23 | 23 | 23 |
+| 2 * 10 + 3 | 26 | 23 | 23 |
+| qa - qb + qc | -5 | -5 | -5 |
+| qa + qb - qc | 9 | 9 | 9 |
+| qa / qb + qc | 0.153846 | 3.2 | 3.2 |
+| bgSpec * 3 + 2 (jitAttrPop:69) | 25 | 17 | 17 |
+| lt + bk * sc, 1 17 3 (:70) | 52 | 54 | 54 |
+| utilities:70/72/75 forms at 20 | 1 | 0 | false |
+| across > 0 \|\| down > 0: 0 5 / 5 0 / 0 0 | 0 / 1 / 0 | 1 / 1 / 0 | true / true / false |
+| x > px && x < pxw: x 5 / 0 / 20 | 1 / echo / 1 | 1 / 0 / 0 | true / false / false |
+| a && b \|\| c, 0 1 1 | 0 | 1 | true |
+| a \|\| b && c, 0 1 0 | 0 | 0 | false |
+| fFalse() && gSay() | 1, g runs | 1, g runs (a) | false, g does not run |
+| fId(qa + qb) * qc | 36 | 36 | 36 |
+| qa + fNest(qb) + qc | 37 | 37 | 37 |
+| *block(src) | pz 0, r3 echo | pz 0, r3 echo (b) | pz 7 |
+| -qa + qb | 8 | 8 | 8 |
+| !fTrue(qa) | echo, not run | echo (null = false), fTrue runs | false |
+| !fFalse(qa) | echo, not run | echo, fFalse runs (a) | true |
+| *ph.pMid + 1, pMid 41 | 42 | 42 | 42 |
+| hz += qa * qb, hz 1 | 21 | 21 | 21 |
+| hw := qa * qb + qc | 23 | 23; its print line lost (c) | 23 |
+| hx.noPrinT = hy.noPrinT | 1 | 1 | 1 |
+| qa > qb + qc | echo (false) | REFUSED by name | refuse |
+
+(a) `return falseResult;` reads truthy on BOTH roads, and so does a bare `if falseResult;` -- fixit `falseResultTruthy`;
+with a body returning 0 both roads skip g. (b) Two causes, apart: on trunk the call is LOST; under the candidate it
+reaches BlocK, which drives the HOLDER's name text `[pSrc]` (driveStep). (c) `" star " *hw` -- a prefix after a print item
+is binary under the position rule; `,*hw` is the spelling (R2).
+
+**M3 -- P1 answered, on trunk's road** (a tap on the instruction node, reverted md5-identical): 201 fixtures, 10,231
+instruction nodes, 30 arm switches. **ONE INSTRUCTION DOES TAKE TWO ARMS**, and only one kind: a call (`op false`) whose
+target is a BIN with an installed parse (`Operators`, `UnaryOPS`: isRule 0, hasNewParse 1) takes `runRule` at emit time
+and the target's method when interpreted, because arm 3's door is `isRuleTerm() || (jitting && hasNewParse)` (opLenT 20,
+tokJitT 6, sweepT 4). The switch is the jitting PHASE, never a change in the target.
+
+**Switch on, the fleet (M2, information):** 1022 -> 757 green; families are the jit road refusing (R4), the
+generated-parse road ("no carrier" / "no compiled body"), unescaped print stars, and value movers (pointerT, omModT,
+hasActionT ...); spacingT exits 139.
+
+**The careful build opens with a PLAN AND RECON, not a build** (SEQ 312; order Tony's to set): (a) generated-parse bodies
+compiling and running under the candidate (the largest); (b) the jit road: a flat list's emit, and the one door that
+checks jitting (M3); (c) D5 per road: executor kinds and instruction layout; (d) tier tests from setup data (D3), not
+spelled operator names; (e) triage of the value movers and spacingT's 139; (f) the print-list respells (R2); (g) the
+switch reading any value as on; (h) separately: driveStep driving a holder's name text. **After the buy lands:** the
+TokenXP rule and InvokeArg's UnaryXP alternative leave the grammar, and KANT-43 retires with a dated note.
 
 ## Step 1 -- what exists, end to end, for one expression
 

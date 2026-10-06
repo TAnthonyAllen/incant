@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 222 at the FOOT -- SEQ 311 done: C1 on expr-accum, measured (M1-M4), not merged; seal 87
+STATUS:   fresh           # SEQ 223 at the FOOT -- SEQ 312 done: C1 bought in principle, recorded; fixit falseResultTruthy; seal 88
+# prior: SEQ 222 at the FOOT -- SEQ 311 done: C1 on expr-accum, measured (M1-M4), not merged; seal 87
 # prior: SEQ 221 at the FOOT -- SEQ 310 done: expression pins on trunk (exprPinT), candidate C1 recorded; seal 86
 # prior: SEQ 220 at the FOOT -- EXPRESSION DIRECTION RULED (D1-D6) and recorded; SHUTDOWN seal 85
 # prior: SEQ 219 at the FOOT -- expression design step 2 PROBES (P1 arm stability, P2 left-to-right census, P3 tier census) reported; R1 binding noted; shutdown seal 85
@@ -12058,3 +12059,14 @@ canary 313 = 306 + the candidate's 7 externs · exec check clean. STOPPED ON: no
 runOPaccum (D3 wants them as setup data) -- a PoC shortcut, named.
 Trunk at seal: installed bare, 1022 / 51, canary 306.
   END SEQ 222
+
+SEQ 223  -  SEQ 312 DONE (docs only): C1 BOUGHT IN PRINCIPLE, RECORDED; FIXIT falseResultTruthy BANKED; SEAL 88.
+
+docs/expressionRecon.md: "C1 BOUGHT IN PRINCIPLE" replaces "C1 measured" -- the buy and its rulings (R2 print-list
+position rule, R3 fixit, R4 HPDL), the M1 table, M3's answer, M2 in brief, and the careful build's scope (a)-(h) with the
+post-buy grammar retirement. expr-accum stays pushed and unmerged (Groups 31069dc, support fc72698).
+incant/fixits/falseResultTruthy, OWNER Clod, severity WRONG. Measured at filing, and it moves the blame: `if frFalse()` 1,
+the control `if frZeroCall()` 0, and `if falseResult;` with NO call 1 -- so the name `falseResult` in kant already reads
+truthy; runAction's capture is not the cause. NEXT is OPEN (what node the kant name resolves to).
+Nothing else touched: no source, no .mm, binary unchanged (trunk, 1022 / 51, canary 306).
+  END SEQ 223

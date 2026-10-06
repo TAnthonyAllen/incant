@@ -1,0 +1,46 @@
+Start();
+include(utilities);
+search reset stack Grokking;
+search GroupFields Utilities list;
+register(FalseResultTruthy);
+define
+    frFlag=0;
+    frZero=0;
+    frFalse code={ return falseResult; };
+    frZeroCall code={ frZero = 0; return frZero; };
+    frIf code={
+        frFlag = 0;
+        if frFalse();       frFlag = 1;
+        print "FRT if frFalse()   -> " frFlag " (want 0)":;
+        frFlag = 0;
+        if frZeroCall();    frFlag = 1;
+        print "FRT if frZeroCall() -> " frFlag " (want 0, the control)":;
+        frFlag = 0;
+        if falseResult;     frFlag = 1;
+        print "FRT if falseResult  -> " frFlag " (want 0, no call)":;
+        };
+    ;
+cerr "ANCHOR falseResultTruthy -- an action whose body says `return falseResult;` should read false":;
+frIf();
+fixFalseResultTruthyHere = 0;
+cerr "SENTINEL falseResultTruthy reached the foot":;
+stop();
+
+LANE:  kant
+BLAST: OVERLAPS
+OWNER: Clod     (SEQ 312 R3, Tony 2026-10-06; severity WRONG)
+
+falseResultTruthy -- a kant action body that says `return falseResult;` comes back TRUTHY to its caller, on BOTH roads
+(trunk and the expr-accum candidate). `if frFalse()` takes the branch; `fFalse() && g()` runs g. The control, a body that
+returns a field holding 0, reads false on both roads, so the short circuit is sound and the defect is the returned value.
+Found 2026-10-06 by exprPinT rows S3 and O3b (clod-to-clay SEQ 222, note *).
+
+Printed as a value it reads `falseResult` -- a tag echo, so what the caller holds carries no count, and truthOf answers 1
+for anything that is not a count or a number (Instruct.rtn truthOf). ⚠ THE THIRD LINE MOVES THE BLAME OFF THE CALL:
+`if falseResult;` with no action involved is truthy too, measured at filing. So the guess that runAction's capture
+(`capture = new(result.tag); capture.setContent(result);`) drops the count is KILLED before it was run -- the name
+`falseResult`, written in kant, already does not read as the sentinel's false. Bear-trap #51 is the neighbour (a kant body
+spelling a sentinel gets a copy) but says that copy answers truthOf 0; this one does not.
+
+NEXT: OPEN -- what generates a candidate: what node `falseResult` resolves to in kant (registry, data flag, isCOUNT), read
+beside the C++ falseResult it is meant to be. Taken: all three FRT lines read 0, and exprPinT's S3 and O3b move.
