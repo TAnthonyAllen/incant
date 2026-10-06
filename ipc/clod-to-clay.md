@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 205 at the FOOT -- actionMethod retirement: RECON STOPPED (two STOP conditions met), NOTHING BUILT; seal 72
+STATUS:   fresh           # SEQ 206 at the FOOT -- actionMethod retirement BUILT on stroke-actionMethod (027b26d / support 748195d), NOT MERGED; hasActionT born red on trunk; seal 73
+# prior: SEQ 205 at the FOOT -- actionMethod retirement: RECON STOPPED (two STOP conditions met), NOTHING BUILT; seal 72
 # prior: SEQ 204 at the FOOT -- SEQ 308: stroke12g MERGED (b993ba9 / 373088b), STROKE 1.2 COMPLETE; actionMethod retirement recorded as next; shutdown seal 70
 # prior: SEQ 203 at the FOOT -- SEQ 307: stroke12f merged; F-141 dirCheckFlicker; 1.2g BUILT on stroke12g (792b742 / 37cb6e6), 979 / 51 row for row, NOT MERGED -- STROKE 1.2 COMPLETE on the branch
 # prior: SEQ 202 at the FOOT -- SEQ 306: R0 pin landed (born red); R1 recycle ends (row for row); 1.2f BUILT on stroke12f (b8f3685 / 7cf58b1), 979 / 51 row for row, NOT MERGED
@@ -11445,3 +11446,33 @@ BRANCH: stroke-actionMethod created and deleted unused (no commit). Trunk: docs 
 NEXT: Tony's Q1/Q2. If yes to both, the build as dispatched. Opener after the buy: the containers recon.
 
   END SEQ 205
+
+SEQ 206  -  SEQ 205 R1-R4 (Tony, 2026-10-06): actionMethod RETIREMENT BUILT ON stroke-actionMethod, NOT MERGED. FOR THE BUY.
+
+R1 CENSUS FIRST: every file under Groups -- tracked, untracked and ignored, IncantForms included (grep -r over the working
+  tree, .git excluded) -- the only kant mention of hasActioN is its registration, incant/setup:253. The two probes
+  docs/c156Respell.md cites (minionWork/probeBind, probeRefReach) no longer exist. No use reads "has fired"; built.
+R2 LANDED ON TRUNK (999682c): incant/pop/hasActionT reads hasActioN at rest, inside an action, on IF DO FOR ExpressioN
+  NamE, plus SemI as the no-actor 0 control. Trunk: the five read 0, born red (fleet 982 / 56). Branch: 1.
+R3/R4 BRANCH stroke-actionMethod (Groups 027b26d, support 748195d), both pushed:
+  - gone: the field (RuleStuff.twk, groups.ext, two ctor inits), setActions' eager stamp, fireLabelMethod's lazy install,
+    TraiTdata's clear (its copy of the term reference stays).
+  - readers ask getProperty("builtinActoR") and its method: fireLabelMethod, parseAction, testAction, opDot 36 (actor
+    present = "has an action"), and the two parseTrace-gated measure callouts.
+CERTIFICATE:
+  - full bare tokall: five files moved, every generated line explained (commit message lists them). ONE CAPTURE, caught by
+    the diff: testAction's new local testActor re-aimed its bare parseACTION and tag (bear-trap #42); `use field` cured it,
+    re-diffed clean. Canary 307 -> 307 (a field removal moves no extern).
+  - pop.sh 987 / 51 / 1: trunk's red set by name less the five hasActionT rows. Two rows ALREADY RED moved value, both
+    instruments reading what was cut, named rather than re-pinned:
+      "fires=NEVER roster" [StatemenT] -> [ExpressioN StatemenT], its anti-vacuity count 3 -> 8 -- the PA census callout's
+        "parked" now means "has an actor" where it meant "the cache was filled by a first fire"; ExpressioN's actor
+        existed on trunk too.
+      "raw ->rStuff reads" 23 -> 22 -- the measure callout's field->rStuff->actionMethod is gone.
+  - jitLadder PASSED · printPop PASSED · decodePop and frontier row for row · ddPop 5 / 1 · dirCheck PASSED row for row.
+  - H7 (committed first; single fixture, alarm): opDot 36 made to look for a misspelled actor -> hasActionT's five read 0
+    (red by value), SemI 0. Restored from the commit: generated files md5-identical, five read 1.
+ALSO: Tony's tester change (parseCode leaves tester, 09:21) committed on trunk under his name.
+NEXT: Tony buys or refuses stroke-actionMethod. Opener after the buy: the containers recon.
+
+  END SEQ 206
