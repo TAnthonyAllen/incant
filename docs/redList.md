@@ -20,6 +20,19 @@ instrument's missing list is an accident; two is the convention being too narrow
 read as a clean pass with an EMPTY output file. An empty capture at exit 0 is not a green; check
 that an instrument printed something before believing its status.
 
+## 2026-10-06, seal 84 -- 987 green / 51 red / 1 parked (trunk jit-unified-emit-wip, bare)
+
+**Seal 74's 51 rows, diffed by name, unchanged through the ruleName, 1.3 and 1.4 merges.** Three rows already red moved
+value with stroke 1.4 (6f929e3), every one an instrument now reading the rule fact off the shared body where it used to read
+one face's not-yet-filled RuleStuff (SEQ 215 R2: the lazy cache, by design):
+- **parseClass census** -- ten `PC none` lines leave (ExpressioN x2, followedBy, leftBrace, leftCurly, rightBrace,
+  rightCurly, SemI x2, StatemenT); those faces now report their rule's installed method.
+- **fires=NEVER roster MOVED** -- [ExpressioN StatemenT] -> [], and its parked-action count 8 -> 11 (the PA callout's
+  `pm` is the body's method). Expected list [ANYtoken NewGroup ShortcuT] stays stale.
+- **raw ->rStuff reads MOVED** -- 22 -> 15 (expected 30, stale): the measure callouts read the body, not
+  `->rStuff->parseMethod`.
+Green: ruleOfT RO-8 re-pinned 4 -> 2 with its sentence; groups.ext mirror arity 258 -> 257 names (installParseMethod).
+
 ## 2026-10-06, seal 74 -- 987 green / 51 red / 1 parked (trunk jit-unified-emit-wip, bare)
 
 **Seal 70's 51 rows, diffed by name, unchanged through two moves:** hasActionT's five rows joined born red (999682c,

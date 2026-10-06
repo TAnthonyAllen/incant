@@ -407,12 +407,27 @@ rules on the amendment (R4).
    with it: setActions' eager stamp and the TraiTdata clear. Layout change (groups.ext + tokall). Fresh dispatch.
 3. **`stuff` derived; `face` renamed `instance`.** The name clears the #58 check (grep, full bare-tokall diff) before
    the stroke opens.
+   **MERGED 2026-10-06 (SEQ 214, fe28272 / support 2afacca).** `ParseActivation.face` is `instance` everywhere it was
+   tied (`enclosingInstance`, `cInstance`); `ParseActivation.stuff` is gone, derived by `GroupRules.stuffOf(rec)` --
+   `rec.instance.rStuff`, null for a floor. Tap: ~62.7M reads, stuff == instance.rStuff on all. Preceded by the ruleName
+   stroke (990f04f): the retag and mintLabel's identity read ask the rule, never `ruleName` (Tony's Xcode aid).
 4. **Rule facts onto `groupBody`:** `ruleOf` and `instanceRule()`'s REGISTRY test retire.
+   **MERGED 2026-10-06 (SEQ 216, 6f929e3 / support 5a0ec82), as ruled on SEQ 215.** `testMatch`, `parseMethod`,
+   `jitMethod` are `groupBody` slots (`gTestMatch`, `gParseMethod`, `gJitMethod`). `testMatch` SPLIT: the reference's
+   `{ }` (overTo, an instance fact) is asked first, the rule's test is on the body. **`ruleOf` and `instanceRule()` STAY**
+   (identity and node readers: "is this a copy", `jitFieldMethod`, `jitShowRecord`); only their rule-fact readers moved.
+   `installParseMethod` retired. Canary 306.
+
+**REDESIGN STEP 1 IS COMPLETE (2026-10-06, stroke 1.4 bought).** Strokes 1.1-1.4 are merged: handoffs are arguments,
+per-call state lives on the activation or in locals, the activation names its instance and derives its stuff, and the
+rule's facts sit on the shared body.
 
 Each stroke is certified by pop.sh, jitLadder, printPop, canary, and a row pinned for what it retired. **Step 1 is
 bought at the seal after stroke 4.**
 
-**Step 2. `rStuff` folds into the instance field.** This runs on a branch. It is bought only if everything works on
+**Step 2. `rStuff` folds into the instance field. ⚠⚠ PARKED (Tony, 2026-10-06): HPDL -- hard part, do later -- per the
+containers ruling (O12; `docs/containersRecon.md` step 2 is its record). RuleStuff stays a struct. NOT NEXT: no wakeup
+presents it as the next stroke.** Its text, kept for when it is reopened: This runs on a branch. It is bought only if everything works on
 the same instruments **and** it meets A1.3's buy condition (SEQ 274 R4): **a plain field pays at most one null pointer,
 or nothing.** The size cost is measured on a real run (bytes per field times the field population). If folding puts
 instance slots on every data field, step 2 is declined. Step 2 is also where A2f's retirement of `RuleStuff` now
