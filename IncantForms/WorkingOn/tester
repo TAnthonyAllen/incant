@@ -7,7 +7,59 @@ include(utilities);
 search reset stack Grokking;
 search Utilities list;
 
+register(C1Tester);
+define
+    cv=5;
+    n=3;
+    lim=8;
+    qa=2;
+    qb=10;
+    ok=1;
+    done=0;
+    r=0;
+    blkBody code={ return argument * 2; };
+    fId code={ return argument; };
+    c1Run code={
+        blk := blkBody;
+        cerr "C1 begin":;
+        r = *blk(cv) + n * 2 > lim - fId(qa + qb) && ok || !done;
+        cerr "C1 r = " r:;
+        };
+    c1Builds code={
+        blk := blkBody;
+        cerr "C1 variant begin":;
+        r = *blk(cv) + n * 2 > fId(qa + qb) - lim && ok || !done;
+        cerr "C1 variant r = " r:;
+        };
+    ;
+c1Run();
+c1Builds();
+cerr "C1 SENTINEL":;
+
 stop();
+
+/***************************************************************************
+    C1 tester (Clod, 2026-10-07, SEQ 320) -- for the expr-accum branch
+    Run with the scheme environment INCANT_EXPR_ACCUM=1 (the candidate's switch;
+    unset or 0 is today's road). INCANT_ACCUM_TRACE=r prints the instruction as
+    built for every expression whose first item is r: the flat list, then the tier
+    tree, one level of indent per node. INCANT_ACCUM_TRACE=1 prints every expression.
+    Breakpoint, tree finished and not yet run: the accTraceTree line in
+    interpretXPaccum (ruleActions.rtn), or the symbol accBuilt -- see
+    docs/expressionRecon.md "C1 FLOW".
+    blk is a HOLDER of an action with a code body: *blk is the action, so *blk(cv)
+    calls blkBody with 5. A star on a field that holds no group is null by ruling,
+    which is why blk is not itself the action.
+    ⚠ THE RULED LINE DOES NOT PARSE, ON EITHER ROAD (measured 2026-10-07): `-` is a
+    UnaryOPS member, so InvokeArg's UnaryXP alternative absorbs `- fId` into lim's
+    term, and the call's (qa + qb) is then a SECOND postfix that TokenXP's single
+    InvokeArg? cannot take (bear-trap 52). `qa + fId(qb)` parses because + is not in
+    UnaryOPS. c1Run keeps the ruled line so the failure stays visible; c1Builds flips
+    the subtraction, fId(qa + qb) - lim, which parses. The UnaryXP alternative leaves
+    the grammar after the buy (expressionRecon, C1 BOUGHT IN PRINCIPLE).
+    Expected for c1Builds: blkBody(5) 10, + n 13, * 2 26; fId(12) - lim 4; 26 > 4
+    true; && ok true; || !done is not evaluated; r reads 1.
+***************************************************************************/
 
 /***************************************************************************
     parseCode notes (Clod, 2026-10-05, after SEQ 300)
