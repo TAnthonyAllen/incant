@@ -92,6 +92,58 @@ where it stands. Nothing else is backfilled.
 
 ## OPEN
 
+### F-143 — labelHolder: a rule's label reaches its code as a HOLDER, so bare `iterate x on lab` refuses and `$$lab` shows a label inside a label
+
+**What.** In a rule's `code={ }`, the name of a labelled term (`lizted` in `lizted=entries+`) is not the label; it is
+a code local that HOLDS the label. `iterate grup on lizted;` refuses `it holds a pointer, not a list; write *lizted`;
+`*lizted` walks. In Xcode `$$lizted` shows a node tagged `lizted`, isLabel, no list, whose group is ANOTHER node tagged
+`lizted`, isLabel, with the list -- Tony: "beyond confusing". **Severity: design question, not urgent** -- `*lab` is
+the working spelling today.
+**Where.** `GroupActions.rtn:648-649` (processAction, labelToLocals): `result.group = grup; result.isLabel = true;`.
+The `isLabel` there is not a label claim -- it exempts the local from the entry clear at `:659`, so one flag carries
+two meanings (one channel, one meaning). The iterate refusal is `ruleActions.rtn:596-602`, which follows a holder
+only for `isArgument` (ArgBinding, ruled 2026-09-05).
+**Evidence.** 2026-10-07, Tony's tester `testListed` (`IncantForms/WorkingOn/tester`), lldb at the refusal
+(GroupRules.mm:778) on the renamed control: the code's `lizted` (parent CodE) has groupList nil and isGROUP; its group
+is the minted label (labelOf = the term, parent testListed) with 3 children -- `righty`, a label still tagged `entries`
+(the 22, never unwrapped by attachLabel's repeat branch), `++`. `iterate grup on *lizted;` walks 3, exit 0, sentinel.
+**Options, none ruled.** (1) ArgBinding for labels: widen its THREE sites (runOP's followArgument, aCTionIterate's
+argumentBINDING, jitEmitBareRead) from `isArgument` to `isArgument || isLabel` -- bare reads work, `$$` still shows the
+pair. (2) Make the local a FACE of the label (share its groupBody) -- `$$` shows one node, but recursion's frame save
+(`GroupActions.rtn:1078`, content copy + clear) would clear the caller's label and its restore (`:903`) writes a saved
+body into a live label (bear-trap #50) unless label locals save the body POINTER; the local's own body needs a new
+tok-declared field; and every existing `*lab` in rule code changes meaning (census owed). (3) Leave it; give the
+don't-clear exemption its own flag so the local stops wearing isLabel -- the `$$` view then reads as a plain holder.
+**Done when.** Clay and Tony rule on bare label reads; then the ruled option with a fleet row (bare iterate over a label
+local) and its H7.
+**Owner.** Parked, Tony -- ruling needs Clay (2026-10-07).
+```
+ATTEMPT LOG
+  2026-10-07 filed from Tony's tester; measured only, nothing changed.
+```
+
+### F-142 — labelCollision: a rule term named like a global SHARES the global's body, and the label binding then writes into it
+
+**What.** `testListed isRule listed=entries+ ...` with `Utilities` in the search list: the term `listed`, the global
+`Utilities.listed` (incant/utilities:130, listRules' visited set) and the code's `listed` local are three nodes on ONE
+groupBody. So `entries` lands in the global's list, and at each fire processAction's binding (`result.group = grup`)
+writes the label pointer into the global and into the grammar term too. **Severity: real defect** -- a rule term
+silently mutates a global it merely shares a name with.
+**Where.** Code side: `resolveName` (`ruleActions.rtn:1632`) -- in the rule's CodE, `owner.getAttribute` misses,
+`locate("listed")` returns the Utilities global, and `owner.addAttribute(result)` adds that global. Define side (how
+the term came to share the body): NOT measured.
+**Evidence.** 2026-10-07, lldb at GroupRules.mm:778: `locate("listed")->groupBody == source->groupBody` true, and
+`source->groupBody == labelOf->groupBody` (the term in testListed) true; Utilities.listed listLength 1 (`entries`).
+At resolveName (GroupRules.mm:9924, owner CodE) the found `listed` has parent Utilities. Control: the term renamed
+`lizted` -- the code local is fresh (no list, own body).
+**Done when.** A rule term whose name matches a global in the search list leaves the global untouched (fleet row: the
+global's listLength before and after a define plus a fire), H7 red with the fix removed.
+**Owner.** Unassigned -- Tony to rule (2026-10-07).
+```
+ATTEMPT LOG
+  2026-10-07 filed from Tony's tester; measured only, nothing changed.
+```
+
 ### F-141 — dirCheckFlicker: `dirCheck.sh` reports DIFFERENT disarmed directives dark on the same tree
 
 **What.** On one unchanged tree, run to run, the set of PARKED (disarmed) directives `genLadder/dirCheck.sh` reports as

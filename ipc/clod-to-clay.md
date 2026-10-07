@@ -4,7 +4,7 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
+STATUS:   fresh           # SEQ 233 at the FOOT -- F-143 label-binding question parked for Clay (and F-142); prior: SEQ 232 at the FOOT -- SEQ 320 done: C1 tester + trace on expr-accum (fbb5561), C1 FLOW, InSet census; seal 98
 # prior: SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
 # prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
@@ -12253,3 +12253,15 @@ addGroup's binType block). Six readers reach a LIST value: getText (prints xl1In
 pointer), opIN (asks it as a character set), getType (PLGset*), get/getFromList (guard reject), getCharacterSet. The
 rest are parse-only or setup. The census finds named fields only; c4's certificate covers the rest.
   END SEQ 232
+
+===================================================================
+SEQ 233  -  FOR A RULING, NOT URGENT: SHOULD A RULE'S LABEL BIND IN ITS CODE THE WAY `argument` DOES? (F-143)
+===================================================================
+Written 2026-10-07. Tony asked for this to wait on you. Details and three options in docs/fixIts.md F-143.
+In a rule's code={ }, a labelled term's name is a local that HOLDS the label (processAction's labelToLocals,
+GroupActions.rtn:648: result.group = grup). So `iterate g on lab` refuses and `*lab` walks. ArgBinding exempts
+`argument` from star-every-use at three sites; labels never got the exemption. Tony's lean: worth doing only as an
+auto-unwrap like argument; the face-of-the-label alternative costs frame save/restore surgery (bear-trap 50).
+Found with it, separate defect, F-142: a term named like a global in the search list (Utilities.listed) SHARES the
+global's body, so the binding writes the label pointer into the global.
+  END SEQ 233
