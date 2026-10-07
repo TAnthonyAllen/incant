@@ -22,43 +22,48 @@ define
     c1Run code={
         blk := blkBody;
         cerr "C1 begin":;
-        r = *blk(cv) + n * 2 > lim - fId(qa + qb) && ok || !done;
-        cerr "C1 r = " r:;
-        };
-    c1Builds code={
-        blk := blkBody;
-        cerr "C1 variant begin":;
         r = *blk(cv) + n * 2 > fId(qa + qb) - lim && ok || !done;
-        cerr "C1 variant r = " r:;
+        cerr "C1 r = " r:;
         };
     ;
 c1Run();
-c1Builds();
 cerr "C1 SENTINEL":;
 
 stop();
 
 /***************************************************************************
     C1 tester (Clod, 2026-10-07, SEQ 320) -- for the expr-accum branch
-    Run with the scheme environment INCANT_EXPR_ACCUM=1 (the candidate's switch;
-    unset or 0 is today's road). INCANT_ACCUM_TRACE=r prints the instruction as
-    built for every expression whose first item is r: the flat list, then the tier
-    tree, one level of indent per node. INCANT_ACCUM_TRACE=1 prints every expression.
-    Breakpoint, tree finished and not yet run: the accTraceTree line in
-    interpretXPaccum (ruleActions.rtn), or the symbol accBuilt -- see
-    docs/expressionRecon.md "C1 FLOW".
+
+    TO RUN IN XCODE
+      Both repos on expr-accum (Groups and support). No retok needed.
+      Scheme Groups, Run:
+        Arguments          IncantForms/WorkingOn/tester
+        Working directory  the Groups directory
+        Environment        INCANT_EXPR_ACCUM=1     the candidate (unset or 0: today's road)
+                           INCANT_ACCUM_TRACE=r    trace expressions whose first item is r
+      Breakpoints, each hit ONCE (c1Run's line is the only traced expression):
+        accTraceFlat   (GroupRules.mm:3473)  the FLAT list, before the split -- inspect flat
+        accBuilt       (GroupRules.mm:3483)  the TIER TREE, finished, not run -- inspect node
+      accBuild pops every item off flat, so flat is EMPTY by the time accBuilt stops.
+      In lldb:  expr (void)accTraceTree(node, 0)   prints the tree to the console
+                p node->groupBody->tag   then node->get(1), node->get(3) ...
+      The console also carries ACCUM FLAT and ACCUM TREE lines to compare against.
+
+    Expected tree: acA [r, =, acOr [acAnd [acK [acX, >, acX], &&, ok], ||, acU [!, done]]]
+    Expected value: blkBody(5) 10, + n 13, * 2 26; fId(12) - lim 4; 26 > 4 true;
+    && ok true; || !done is not evaluated; r reads 1.
+
     blk is a HOLDER of an action with a code body: *blk is the action, so *blk(cv)
     calls blkBody with 5. A star on a field that holds no group is null by ruling,
     which is why blk is not itself the action.
-    ⚠ THE RULED LINE DOES NOT PARSE, ON EITHER ROAD (measured 2026-10-07): `-` is a
-    UnaryOPS member, so InvokeArg's UnaryXP alternative absorbs `- fId` into lim's
-    term, and the call's (qa + qb) is then a SECOND postfix that TokenXP's single
-    InvokeArg? cannot take (bear-trap 52). `qa + fId(qb)` parses because + is not in
-    UnaryOPS. c1Run keeps the ruled line so the failure stays visible; c1Builds flips
-    the subtraction, fId(qa + qb) - lim, which parses. The UnaryXP alternative leaves
-    the grammar after the buy (expressionRecon, C1 BOUGHT IN PRINCIPLE).
-    Expected for c1Builds: blkBody(5) 10, + n 13, * 2 26; fId(12) - lim 4; 26 > 4
-    true; && ok true; || !done is not evaluated; r reads 1.
+
+    THE RULED LINE, r = *blk(cv) + n * 2 > lim - fId(qa + qb) && ok || !done;
+    DOES NOT PARSE ON EITHER ROAD (measured 2026-10-07): - is a UnaryOPS member,
+    so InvokeArg's UnaryXP alternative absorbs - fId into lim's term, and the
+    call's (qa + qb) is then a SECOND postfix that TokenXP's single InvokeArg?
+    cannot take (bear-trap 52). c1Run flips the subtraction, fId(qa + qb) - lim.
+    The UnaryXP alternative leaves the grammar after the buy (expressionRecon,
+    C1 BOUGHT IN PRINCIPLE).
 ***************************************************************************/
 
 /***************************************************************************
