@@ -218,6 +218,15 @@ stroke: a census of every other reader of an `isLIST`/`xl1` operand** (`jitPrint
 ⚠⚠ **RULED AS WRITTEN (Tony, 2026-10-07, SEQ 314 R0).** Step 0 LANDED 2026-10-07: C1-C6 pinned in exprPinT, pop.sh
 1029 / 51 (H7: C1's argument and fNone's line mutated -> both rows red by value; restored md5-identical).
 
+**Step (g) LANDED on `expr-accum` 2026-10-07 (`5868d69`, built and measured in a clone outside Dropbox, SEQ 314 R1):**
+`exprAccumOn()` in `jitContext.h` reads the switch's VALUE -- `1` on; unset, empty or `0` off; anything else off with one
+stderr line. Before it, `INCANT_EXPR_ACCUM=0` switched the candidate ON (pop.sh 757 at `=0`). After: `=0` reads 1022 row for
+row with switch-off before; `=1` row for row with switch-on before; the before-binary's `=0` run differs by 556 lines.
+
+**The call rows on the candidate (owed from SEQ 313, measured the same day in the clone, switch on):** C1 12, C2 15,
+**C3 36** (trunk 32; intended 36), C4 5 with one fNone line, **C5 `xl1InSet`** (unchanged; intended a two-member list),
+C6 -2; N1 36, N2 37, O1 pz 0 / r3 echo as seal 87. The argument arrived as one entry in every row; R1's stop did not fire.
+
 | step | item | why here |
 |---|---|---|
 | 0 | **pin C1-C6 into exprPinT on trunk**, at today's values with the intended beside (D6's pattern) | the call rows are the measuring stick for step 3; today they live only in scratch |

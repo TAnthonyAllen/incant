@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 224 at the FOOT -- SEQ 313 done: careful-build plan and recon, opAssign tap (47 of 9,534); nothing built; seal 89
+STATUS:   fresh           # SEQ 225 at the FOOT -- SEQ 314 done: step 0 call rows pinned (seal 90), step g switch reads value on expr-accum 5868d69 (seal 91)
+# prior: SEQ 224 at the FOOT -- SEQ 313 done: careful-build plan and recon, opAssign tap (47 of 9,534); nothing built; seal 89
 # prior: SEQ 223 at the FOOT -- SEQ 312 done: C1 bought in principle, recorded; fixit falseResultTruthy; seal 88
 # prior: SEQ 222 at the FOOT -- SEQ 311 done: C1 on expr-accum, measured (M1-M4), not merged; seal 87
 # prior: SEQ 221 at the FOOT -- SEQ 310 done: expression pins on trunk (exprPinT), candidate C1 recorded; seal 86
@@ -12100,3 +12101,20 @@ Also: Tony's offline checkSKIP and macros committed under his name (74b1eff).
 CERTIFICATE: docs, the transcription, and a reverted tap. Binary rebuilt from byte-identical generated files; pop.sh 1022 /
 51 red / 1 parked; canary 306; groups.ext untouched; Groups, support, TOK clean and pushed.
   END SEQ 224
+
+===================================================================
+SEQ 225  -  SEQ 314 DONE: STEP 0 (CALL ROWS PINNED, SEAL 90) AND STEP (g) (SWITCH READS ITS VALUE, SEAL 91).
+===================================================================
+Written 2026-10-07.
+Step 0 (trunk, ccb8893): exprPinT C1-C6 at today's values (12, 15, 32, 5 + one fNone line, xl1InSet, -2), intended beside,
+7 pop.sh rows; 1029 / 51. H7: C1's argument and fNone's line mutated -> both red by value, restored md5-identical.
+setData PARKED and the order RULED, recorded in expressionRecon.
+Step (g) (expr-accum 5868d69, clone outside Dropbox per the standing recipe; clone retok reproduced the committed .mm
+byte-identically before the edit): exprAccumOn() in jitContext.h -- 1 on; unset/empty/0 off; other values off, said once
+on stderr. Both sites call it through passthrough. Generated diff: the two sites only; canary 313. Before: =0 switched ON
+(757). After: =0 1022 row for row with off-before; =1 row for row with on-before; before-binary =0 differs 556 lines.
+jitLadder, printPop, decodePop PASSED; frontier row for row; ddPop 5 / 1. dirCheck not run in the clone (groupDirectives is
+gitignored and absent there); no directive anchors on these lines on trunk.
+The owed R1 measurement: on the candidate C3 reads 36 (intended), C5 still xl1InSet, the rest as trunk.
+NEXT in the ruled order: (d), tier tests from setup data.
+  END SEQ 225
