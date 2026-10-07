@@ -206,6 +206,14 @@ day). Today's two-mention shape is safe whichever mention carries the tier. `'>=
 over (`shortCircuit`), it is a presence test with no text in the reader, and a misspelled flag is a missing flag -- which the
 fixture rows (exprPinT's U70/B-rows and the `=` rows) see as a value move rather than a silent fold.
 
+⚠⚠ **RULED T1 (Tony, 2026-10-07, SEQ 316) and LANDED on `expr-accum` `020672e` / support `3d0d354`:** `assignTier` on
+the 15, `compareTier` on the 8, `shortCircuit` the logic tier, everything else (the `=[` family included) folds as
+arithmetic. `opIsAssignTier`/`opIsCompareTier` beside `opIsShortCircuit`, mirrored in groups.ext; the two spelled lists are
+gone. `'+='` keeps two mentions, flag on the first, the reopened one naming #56. **Certificate:** switch on 757 row for row
+with seal 91's switch-on run (1075 rows, 0 differ); switch off 1022 row for row with seal 91's switch-off run (1073, 0);
+canary 313 -> 315. **H7:** `compareTier` dropped from `'>'` -> E1 `qa > qb + qc` stops refusing and folds to **3**, the one
+row that moves; restored md5-identical.
+
 **Carried (R2): C5 `fId(qa qb)`** stays RED in step (c)'s certificate (pinned today at `xl1InSet`; intended a two-member list)
 until the turnaround builds the juxtaposition list in source order, and is **not re-pinned as a mover**.
 

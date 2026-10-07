@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 226 at the FOOT -- SEQ 315 done: step (d) recon (tiers from setup; #56 bites the binding not the tier; T1 recommended); seal 92
+STATUS:   fresh           # SEQ 227 at the FOOT -- SEQ 316 done: step (d) built on expr-accum 020672e (T1 tier flags); seal 93
+# prior: SEQ 226 at the FOOT -- SEQ 315 done: step (d) recon (tiers from setup; #56 bites the binding not the tier; T1 recommended); seal 92
 # prior: SEQ 225 at the FOOT -- SEQ 314 done: step 0 call rows pinned (seal 90), step g switch reads value on expr-accum 5868d69 (seal 91)
 # prior: SEQ 224 at the FOOT -- SEQ 313 done: careful-build plan and recon, opAssign tap (47 of 9,534); nothing built; seal 89
 # prior: SEQ 223 at the FOOT -- SEQ 312 done: C1 bought in principle, recorded; fixit falseResultTruthy; seal 88
@@ -12138,3 +12139,18 @@ every operator twice). Recommendation T1. The spelling is Tony's.
 R2: C5 carried red into step (c)'s certificate, not re-pinned as a mover.
 CERTIFICATE: docs only; probes in scratch; trunk binary unchanged; pop.sh 1029 / 51 / 1; canary 306; clean and pushed.
   END SEQ 226
+
+===================================================================
+SEQ 227  -  SEQ 316 DONE: STEP (d) BUILT ON expr-accum (T1). SEAL 93.
+===================================================================
+Written 2026-10-07. expr-accum 020672e (Groups) / 3d0d354 (support), clone build.
+assignTier on 15, compareTier on 8 in setup; shortCircuit stays logic; the rest folds (=[ family included). Helpers
+opIsAssignTier / opIsCompareTier beside opIsShortCircuit, mirrored in groups.ext (tok then calls them ::qualified, as
+opIsShortCircuit). Both spelled lists gone. '+=' two mentions kept, flag on the first, comment naming bear-trap 56.
+Generated diff: two helpers + two call sites; canary 313 -> 315.
+Certificate: switch on 757 row for row with seal 91 on (1075 rows, 0 differ); off 1022 row for row with seal 91 off
+(1073, 0). Call rows unchanged. H7: compareTier off '>' -> E1 folds to 3 instead of refusing; only that row moves;
+restored md5-identical.
+Note: the session's permission checker returned no verdict ~7 times mid-stroke; edits were made with the Edit tool
+meanwhile and every measurement ran after it recovered.
+  END SEQ 227
