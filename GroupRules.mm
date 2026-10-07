@@ -1528,6 +1528,12 @@ GroupItem 	*right = 0;
 	return node;
 }
 
+// accBuilt THE BREAKPOINT SYMBOL (SEQ 320): called with the finished tier tree, before anything runs; it prints the tree
+extern "C" void accBuilt(GroupItem *node)
+{
+	::accTraceTree(node,0);
+}
+
 // accCompare one comparison between two folds; a second comparison in the same part makes the chain, refused by name
 extern "C" GroupItem *accCompare(GroupItem *flat)
 {
@@ -1665,6 +1671,62 @@ GroupItem 	*item = 0;
 	item->remove();
 	item->parent = 0;
 	return item;
+}
+
+// accTraceFlat the flat list from interpretXPaccum's second pass, on one line, before the split
+extern "C" void accTraceFlat(GroupItem *flat)
+{
+	
+	::fprintf(stderr,"ACCUM FLAT  ");
+	for ( int k = 1; flat && flat->groupBody->groupList && k <= flat->groupBody->groupList->listLength; k++ )
+	::accTraceItem(flat->get(k));
+	::fprintf(stderr,"\n");
+	
+}
+
+// accTraceItem one item: its tag, (op) for an operator entry, =value where it carries data
+extern "C" void accTraceItem(GroupItem *item)
+{
+	
+	if ( !item ) { ::fprintf(stderr," (null)"); return; }
+	::fprintf(stderr," %s",item->groupBody->tag);
+	if ( item->groupBody->registry == GroupControl::groupController->groupRules->opFields ) ::fprintf(stderr,"(op)");
+	else if ( item->groupBody->flags.data ) ::fprintf(stderr,"=%s",item->getText());
+	
+}
+
+// accTraceTree one node per line, two spaces of indent per level; descends into the candidate's own nodes (ac..., xl1) only
+extern "C" void accTraceTree(GroupItem *node, int depth)
+{
+	
+	::fprintf(stderr,"ACCUM TREE  ");
+	for ( int k = 0; k < depth; k++ ) ::fprintf(stderr,"  ");
+	::accTraceItem(node);
+	::fprintf(stderr,"\n");
+	if ( !node || depth > 20 || !node->groupBody->groupList ) return;
+	const char *t = node->groupBody->tag;
+	if ( ::strncmp(t,"ac",2) && ::strcmp(t,"xl1") ) return;
+	for ( int k = 1; k <= node->groupBody->groupList->listLength; k++ )
+	::accTraceTree(node->get(k),depth + 1);
+	
+}
+
+/*  THE C1 TRACE (SEQ 320). INCANT_ACCUM_TRACE is read by VALUE: unset, empty or 0 is off; 1
+    traces every expression; any other value traces the expressions whose FIRST item carries that
+    tag (INCANT_ACCUM_TRACE=r for `r = ...`). accTraceFlat prints the flat list before the split
+    consumes it; accBuilt prints the tier tree and is the breakpoint symbol -- the tree is finished
+    there and nothing has run. Output is stderr, one item per token, ops marked (op), a value
+    after = where the item carries data.  */
+extern "C" int accTraceWanted(GroupItem *flat)
+{
+	
+	const char *v = ::getenv("INCANT_ACCUM_TRACE");
+	if ( !v || !*v || !::strcmp(v,"0") )    return 0;
+	if ( !::strcmp(v,"1") )                 return 1;
+	if ( !flat || !flat->groupBody->groupList || !flat->groupBody->groupList->listLength ) return 0;
+	GroupItem *first = flat->get(1);
+	return first && !::strcmp(first->groupBody->tag,v);
+	
 }
 
 /***************************************************************************
@@ -3206,6 +3268,7 @@ int 		i = 0;
 int 		j = 0;
 int 		n = 0;
 int 		expectOperand = 1;
+int 		traced = 0;
 GroupItem 	*seq = 0;
 GroupItem 	*flat = 0;
 GroupItem 	*term = 0;
@@ -3404,6 +3467,10 @@ GroupItem 	*right = 0;
 			}
 		flat->addAttribute(cur);
 		}
+	// accTrace INCANT_ACCUM_TRACE=1 traces every expression, =<name> those whose first item is <name>; the flat list prints before the split consumes it
+	traced = accTraceWanted(flat);
+	if ( traced )
+		accTraceFlat(flat);
 	// tierSplit the flat list becomes one node per tier, loosest first, each with its executor (SEQ 319 c3)
 	if ( !flat->groupBody->groupList )
 		node = 0;
@@ -3411,31 +3478,12 @@ GroupItem 	*right = 0;
 	if ( flat->groupBody->groupList->listLength == 1 )
 		node = flat->get(1);
 	else	node = accBuild(flat);
-	if ( ::getenv("INCANT_ACCUM_TRACE") )
-		interpretXPaccumTrace(node,0);
+	// accBuilt THE BREAKPOINT: the tier tree is finished and not yet run (SEQ 320)
+	if ( traced )
+		accBuilt(node);
 	xpList->clear();
 	xpList->setGroup(node);
 	return xpList;
-}
-
-/*  interpretXPaccumTrace -- INCANT_ACCUM_TRACE only: the flat list as built, one line per item.  */
-extern "C" void interpretXPaccumTrace(GroupItem *node, int depth)
-{
-int 		i = 1;
-GroupItem 	*item = 0;
-	if ( !node )
-		return;
-	::fprintf(stderr,"ACCUM %d %s\n",depth,node->groupBody->tag);
-	if ( !node->groupBody->groupList )
-		return;
-	if ( depth > 3 )
-		return;
-	while ( i <= node->groupBody->groupList->listLength )
-		{
-		item = node->get(i);
-		::interpretXPaccumTrace(item,depth + 1);
-		i = i + 1;
-		}
 }
 
 /*  interpretXPaccumU -- one prefix over one operand: an acU, run by runOPaccum.  */

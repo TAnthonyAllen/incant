@@ -1497,7 +1497,7 @@ finishXP:
 extern GroupItem interpretXPaccum(GroupItem xpList)
 {
 GroupRules  ruler = groupRules;
-int         i = 0, j = 0, n = 0, expectOperand = 1;
+int         i = 0, j = 0, n = 0, expectOperand = 1, traced = 0;
 GroupItem   seq, flat, term, name, unary, invoke, piece, cur, pend, rest, node, jux, right;
     seq = new("acSeq");
     i = 1;
@@ -1629,11 +1629,15 @@ GroupItem   seq, flat, term, name, unary, invoke, piece, cur, pend, rest, node, 
             jux +% cur;
             cur = interpretXPaccumWrap(jux,0); }
         flat +% cur; }
+    // accTrace INCANT_ACCUM_TRACE=1 traces every expression, =<name> those whose first item is <name>; the flat list prints before the split consumes it
+    traced = accTraceWanted(flat);
+    if traced   accTraceFlat(flat);
     // tierSplit the flat list becomes one node per tier, loosest first, each with its executor (SEQ 319 c3)
     if !flat.groupList          node = 0;
     or flat.listLength == 1     node = flat[1];
     else                        node = accBuild(flat);
-    if getenv("INCANT_ACCUM_TRACE")     interpretXPaccumTrace(node,0);
+    // accBuilt THE BREAKPOINT: the tier tree is finished and not yet run (SEQ 320)
+    if traced   accBuilt(node);
     xpList.clear();
     xpList.group = node;
     return xpList;
@@ -1799,19 +1803,70 @@ GroupItem   done = operand;
     return done;
 }
 
-/*  interpretXPaccumTrace -- INCANT_ACCUM_TRACE only: the flat list as built, one line per item.  */
-extern void interpretXPaccumTrace(GroupItem node, int depth)
+/*  THE C1 TRACE (SEQ 320). INCANT_ACCUM_TRACE is read by VALUE: unset, empty or 0 is off; 1
+    traces every expression; any other value traces the expressions whose FIRST item carries that
+    tag (INCANT_ACCUM_TRACE=r for `r = ...`). accTraceFlat prints the flat list before the split
+    consumes it; accBuilt prints the tier tree and is the breakpoint symbol -- the tree is finished
+    there and nothing has run. Output is stderr, one item per token, ops marked (op), a value
+    after = where the item carries data.  */
+extern int accTraceWanted(GroupItem flat)
 {
-int         i = 1;
-GroupItem   item;
-    if !node    return;
-    cerr "ACCUM " depth " " node.tag:;
-    if !node.groupList  return;
-    if depth > 3        return;
-    while i <= node.listLength {
-        item = node[i];
-        interpretXPaccumTrace(item,depth + 1);
-        i = i + 1; }
+    -%
+    const char *v = ::getenv("INCANT_ACCUM_TRACE");
+    if ( !v || !*v || !::strcmp(v,"0") )    return 0;
+    if ( !::strcmp(v,"1") )                 return 1;
+    if ( !flat || !flat->groupBody->groupList || !flat->groupBody->groupList->listLength ) return 0;
+    GroupItem *first = flat->get(1);
+    return first && !::strcmp(first->groupBody->tag,v);
+    %-
+}
+
+
+// accTraceItem one item: its tag, (op) for an operator entry, =value where it carries data
+extern void accTraceItem(GroupItem item)
+{
+    -%
+    if ( !item ) { ::fprintf(stderr," (null)"); return; }
+    ::fprintf(stderr," %s",item->groupBody->tag);
+    if ( item->groupBody->registry == GroupControl::groupController->groupRules->opFields ) ::fprintf(stderr,"(op)");
+    else if ( item->groupBody->flags.data ) ::fprintf(stderr,"=%s",item->getText());
+    %-
+}
+
+
+// accTraceFlat the flat list from interpretXPaccum's second pass, on one line, before the split
+extern void accTraceFlat(GroupItem flat)
+{
+    -%
+    ::fprintf(stderr,"ACCUM FLAT  ");
+    for ( int k = 1; flat && flat->groupBody->groupList && k <= flat->groupBody->groupList->listLength; k++ )
+        ::accTraceItem(flat->get(k));
+    ::fprintf(stderr,"\n");
+    %-
+}
+
+
+// accTraceTree one node per line, two spaces of indent per level; descends into the candidate's own nodes (ac..., xl1) only
+extern void accTraceTree(GroupItem node, int depth)
+{
+    -%
+    ::fprintf(stderr,"ACCUM TREE  ");
+    for ( int k = 0; k < depth; k++ ) ::fprintf(stderr,"  ");
+    ::accTraceItem(node);
+    ::fprintf(stderr,"\n");
+    if ( !node || depth > 20 || !node->groupBody->groupList ) return;
+    const char *t = node->groupBody->tag;
+    if ( ::strncmp(t,"ac",2) && ::strcmp(t,"xl1") ) return;
+    for ( int k = 1; k <= node->groupBody->groupList->listLength; k++ )
+        ::accTraceTree(node->get(k),depth + 1);
+    %-
+}
+
+
+// accBuilt THE BREAKPOINT SYMBOL (SEQ 320): called with the finished tier tree, before anything runs; it prints the tree
+extern void accBuilt(GroupItem node)
+{
+    accTraceTree(node,0);
 }
 
 /*  isDotUxp -- is this juxtaposed term an ORPHANED LEADING DOT?
