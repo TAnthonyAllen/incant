@@ -146,6 +146,9 @@ The 47, by what the argument is (target's own list was empty in all 47):
 | a count with a list (`k7Self`, `Token`) | 2 | kant8T, faceT | members beside a value |
 | `xl1`, a juxtaposition list | 1 | printFamilyNew (`n4`) | a list value (R2's shape) |
 
+⚠⚠ **RULED (Tony, 2026-10-07, SEQ 314 R2): setData is PARKED. `=` keeps setContent, and the 47 calls below are the
+reason** -- the JSON reader and the decoder assign whole structures with `=`.
+
 So `=` copying a list is **rare (0.5% of calls) but load-bearing where it happens**: the JSON reader and the decoder
 assign whole structures with `=`, and under setData-only those 36 would need another spelling. The ruling is Tony's.
 
@@ -211,6 +214,9 @@ stroke: a census of every other reader of an `isLIST`/`xl1` operand** (`jitPrint
 `iterate` over an argument), because each one walks the order it was built for.
 
 #### R5 -- the proposed order for (a)-(h)
+
+⚠⚠ **RULED AS WRITTEN (Tony, 2026-10-07, SEQ 314 R0).** Step 0 LANDED 2026-10-07: C1-C6 pinned in exprPinT, pop.sh
+1029 / 51 (H7: C1's argument and fNone's line mutated -> both rows red by value; restored md5-identical).
 
 | step | item | why here |
 |---|---|---|
