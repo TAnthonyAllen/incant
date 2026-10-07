@@ -4,7 +4,8 @@
   Clay's replies go in ipc/clay-to-clod.md  (never write here, Clay).
 -------------------------------------------------------------------
 SEQ:      123
-STATUS:   fresh           # SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
+STATUS:   fresh           # SEQ 231 at the FOOT -- SEQ 319 c3 on expr-accum 15f8b28 (split by tier at build); shutdown seal 97
+# prior: SEQ 230 at the FOOT -- SEQ 318 c2 on expr-accum 2600a8a (opCall; one door); seal 96; c3 waits
 # prior: SEQ 229 at the FOOT -- SEQ 318 c1 on expr-accum d46aa45 (runOPslots + runOPdirect, finished operands); E2 pinned; seal 95
 # prior: SEQ 228 at the FOOT -- SEQ 317 done: step (c) recon and plan (flat list; split-at-build recommended; both builders turn with the readers); seal 94
 # prior: SEQ 227 at the FOOT -- SEQ 316 done: step (d) built on expr-accum 020672e (T1 tier flags); seal 93
@@ -12213,3 +12214,20 @@ Certificate: off and on both row for row with c1 (0 differ; on 772). H7: action 
 refuses by name via opCall; restored md5-identical. jitLadder, printPop, decodePop PASSED; ddPop 5 / 1; canary 320.
 SEQ 318 R3 done (c1, c2). c3 is the design build -- the push-on-or-pause check is Tony's.
   END SEQ 230
+
+===================================================================
+SEQ 231  -  SEQ 319 DONE: c3 BUILT ON expr-accum (15f8b28). SHUTDOWN SEAL 97. c4 IS A FRESH SESSION.
+===================================================================
+Written 2026-10-07.
+The flat list is consumed left to right into one node per tier, loosest first, executors set at build: acA (assign,
+single step), acAnd/acOr (left, early-out, right; nested to the left), acK (compare, single step), acKchain (a second
+comparison -- refused by its own name), acX (the fold, no tier test). Items are detached before re-attaching (addGroup
+copies a parented node). runOPaccumFrom gone. Canary 331.
+Certificate: off row for row with c2; on row for row with c2 but E1 refused -> false (773). E2 refuses as "a chained
+comparison". Call rows and C3 hold. jitLadder, printPop, decodePop PASSED.
+H7: the ruled one (compare node gets the fold executor) stays GREEN -- MASKED: the node already holds two finished folds,
+so the fold is the same single step; the structure carries the answer. Unmasked control: no split at comparisons -> E1
+reads 3, E2 stops refusing. Restored md5-identical.
+Shutdown: trunk full checklist clean (1031 / 51, jitLadder, printPop PASSED, decodePop / frontier / dirCheck = captures,
+ddPop 5 / 1, canary 306, exec bits). Next: c4, the turnaround, in a fresh session, opening with the InSet census (R4).
+  END SEQ 231

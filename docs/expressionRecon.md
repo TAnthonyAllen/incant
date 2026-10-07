@@ -233,6 +233,22 @@ and switch on both row for row with c1 (1073 / 1075 rows, 0 differ; on 772). **H
 every action call refuses by name through opCall (A1, A2, ... and no values); restored md5-identical. Canary 320.
 **Next is c3, the layout -- a real design build (SEQ 318's note): check with Tony before it opens.**
 
+**c3 LANDED on `expr-accum` `15f8b28` (2026-10-07, SEQ 319).** The flat list is consumed left to right and rebuilt
+loosest first, ONE NODE AND ONE EXECUTOR PER TIER, set at build: `acA` (runAccAssign, a single step), `acAnd`/`acOr` (left
+side, early-out, right side if needed; nested to the left, so `a && b || c` is `(a && b) || c`), `acK` (runAccCompare, a
+single step), `acKchain` (a second comparison in one part -- refused by its own name at run time), `acX` (runAccFold, which
+asks no operator for a tier). Every item is DETACHED from the flat list before it is re-attached (`accPop`), because
+`addGroup` copies a node that already has a parent -- c1's hidden-copy lesson, designed out. `runOPaccumFrom` is gone;
+`runOPaccum` keeps the prefix and the call. Canary 331.
+**Certificate:** switch off row for row with c2 (1073, 0 differ); switch on row for row with c2 but for **E1, refused ->
+false** (reads `qr`, trunk's pin; 772 -> 773). **E2** now refuses as *"a chained comparison (a < b < c) -- refused by name"*
+(its rows are trunk-only, read directly). No other mover. Call rows and C3 hold (12, 15, 36, 5, `xl1InSet`, -2); the sample
+`r = *blk(cv) + n * 2 > lim && ok` reads 1. jitLadder, printPop, decodePop PASSED.
+**H7 -- the ruled one is MASKED (H17), and the masker is named.** Giving the compare node the fold executor stays GREEN:
+the compare node already holds two FINISHED folds, so folding `[left, >, right]` is the same single step. The structure,
+not the executor, carries the answer. **The unmasked control:** the builder stops splitting at a comparison -> E1 reads
+**3** (the left fold) and E2 no longer refuses -- red. Both runs restored md5-identical.
+
 **4. The rest of (c) -- the plan (R2), in build order, each a stroke with its own certificate:**
 
 **(c1) runOPdirect(op, left, right).** runOP's body moves into it; `runOP(field)` becomes the three-slot unpacker for every
